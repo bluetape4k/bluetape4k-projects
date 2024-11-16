@@ -20,7 +20,7 @@ object ForkJoinExecutor: ExecutorService by ForkJoinPool.commonPool()
  * [Executors.newVirtualThreadPerTaskExecutor]를 사용하는 [ExecutorService]
  */
 @Deprecated(
-    message = "User healingpaper.kommons.concurrent.virtualthread.VirtualThreadExecutor instead",
+    message = "User io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor instead",
     replaceWith = ReplaceWith("VirtualThreadExecutor"),
 )
 object VirtualThreadExecutor: ExecutorService by Executors.newVirtualThreadPerTaskExecutor()
