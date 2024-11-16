@@ -470,10 +470,6 @@ subprojects {
             dependency(Libs.assertj_core)
 
             dependency(Libs.mockk)
-            dependency(Libs.mockito_core)
-            dependency(Libs.mockito_junit_jupiter)
-            dependency(Libs.mockito_kotlin)
-
             dependency(Libs.datafaker)
             dependency(Libs.random_beans)
 
