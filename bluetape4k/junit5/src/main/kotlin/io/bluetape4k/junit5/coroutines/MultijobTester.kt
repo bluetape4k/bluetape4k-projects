@@ -1,7 +1,8 @@
 package io.bluetape4k.junit5.coroutines
 
 import io.bluetape4k.junit5.utils.MultiException
-import io.github.oshai.kotlinlogging.KotlinLogging
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.trace
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
@@ -32,9 +33,7 @@ import kotlinx.coroutines.yield
  */
 class MultijobTester {
 
-    companion object {
-        private val log = KotlinLogging.logger { }
-
+    companion object: KLogging() {
         const val DEFAULT_JOB_SIZE: Int = 64
         const val DEFAULT_ROUNDS_PER_JOB: Int = 100
 

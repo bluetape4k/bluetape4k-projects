@@ -1,7 +1,7 @@
 package io.bluetape4k.junit5.random
 
+import io.bluetape4k.logging.KLogging
 import io.github.benas.randombeans.api.EnhancedRandom
-import io.github.oshai.kotlinlogging.KotlinLogging
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.ParameterContext
 import org.junit.jupiter.api.extension.ParameterResolver
@@ -27,8 +27,7 @@ import java.util.stream.Stream
  */
 class RandomExtension: TestInstancePostProcessor, ParameterResolver {
 
-    companion object {
-        val log = KotlinLogging.logger { }
+    companion object: KLogging() {
 
         private val randomizer: EnhancedRandom by lazy(LazyThreadSafetyMode.NONE) { DefaultEnhancedRandom }
 

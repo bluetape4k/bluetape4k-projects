@@ -2,7 +2,7 @@ package io.bluetape4k.junit5.output
 
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.AppenderBase
-import io.github.oshai.kotlinlogging.KotlinLogging
+import io.bluetape4k.logging.KLogging
 import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
 
@@ -41,8 +41,7 @@ import kotlin.reflect.KClass
  */
 class InMemoryLogbackAppender private constructor(private val name: String): AppenderBase<ILoggingEvent>() {
 
-    companion object {
-        private val log = KotlinLogging.logger { }
+    companion object: KLogging() {
 
         @JvmStatic
         operator fun invoke(name: String = "root"): InMemoryLogbackAppender = InMemoryLogbackAppender(name)

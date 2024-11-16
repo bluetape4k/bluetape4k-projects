@@ -1,7 +1,8 @@
 package io.bluetape4k.junit5.concurrency
 
 import io.bluetape4k.junit5.utils.MultiException
-import io.github.oshai.kotlinlogging.KotlinLogging
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.trace
 import java.util.concurrent.Callable
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
@@ -27,9 +28,7 @@ import java.util.concurrent.TimeUnit
  */
 class VirtualthreadTester {
 
-    companion object {
-        private val log = KotlinLogging.logger { }
-
+    companion object: KLogging() {
         const val DEFAULT_THREAD_SIZE: Int = 100
         const val DEFAULT_ROUNDS_PER_THREAD: Int = 100
 
