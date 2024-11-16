@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <immediateFlush>true</immediateFlush>
+        <encoder>
+            <!-- @formatter:off -->
+            <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) [traceId=%X{traceId}][spanId=%X{spanId}][%28.28thread] %logger{36}:%line: %msg%n%throwable</pattern>
+            <!-- @formatter:on -->
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <logger name="io.bluetape4k" level="TRACE"/>
+
+    <root level="INFO">
+        <appender-ref ref="Console"/>
+    </root>
+</configuration>

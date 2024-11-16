@@ -536,6 +536,10 @@ subprojects {
         testImplementation(Libs.kluent)
         testImplementation(Libs.mockk)
         testImplementation(Libs.awaitility_kotlin)
+
+        // Property baesd test
+        testImplementation(Libs.datafaker)
+        testImplementation(Libs.random_beans)
     }
 
     tasks.withType<Jar> {

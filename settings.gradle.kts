@@ -10,9 +10,9 @@ pluginManagement {
     }
 }
 
-val PROJECT_NAME = "bluetape4k-root"
+val PROJECT_NAME = "bluetape4k"
 
-rootProject.name = PROJECT_NAME
+rootProject.name = "$PROJECT_NAME-projects"
 
 includeModules("bluetape4k", true, false)
 
