@@ -1,9 +1,9 @@
 package io.bluetape4k.exceptions
 
 /**
- * 지원하지 않는 기능을 호출했을 때 발생하는 예외입니다.
+ * Kommons 라이브러리의 기본 예외 클래스입니다.
  */
-open class NotSupportedException: BluetapeException {
+open class BluetapeException: RuntimeException {
     constructor(): super()
     constructor(msg: String): super(msg)
     constructor(msg: String, cause: Throwable?): super(msg, cause)

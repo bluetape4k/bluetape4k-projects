@@ -1,9 +1,11 @@
-package io.bluetape4k.exceptions
+package io.bluetape4k.ranges
+
+import io.bluetape4k.exceptions.BluetapeException
 
 /**
- * Kommons 라이브러리의 기본 예외 클래스입니다.
+ * Range가 유효하지 않을 때 발생하는 예외
  */
-open class KommonsException: RuntimeException {
+open class InvalidRangeException: BluetapeException {
     constructor(): super()
     constructor(msg: String): super(msg)
     constructor(msg: String, cause: Throwable?): super(msg, cause)

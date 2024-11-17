@@ -1,6 +1,6 @@
 package io.bluetape4k.concurrent
 
-import io.bluetape4k.exceptions.KommonsException
+import io.bluetape4k.exceptions.BluetapeException
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
@@ -121,7 +121,7 @@ class ConcurrentReducer<T> private constructor(
         val promise: CompletableFuture<T>,
     ): Serializable
 
-    class CapacityReachedException: KommonsException {
+    class CapacityReachedException: BluetapeException {
         constructor(): super()
         constructor(message: String): super(message)
         constructor(message: String, cause: Throwable): super(message, cause)

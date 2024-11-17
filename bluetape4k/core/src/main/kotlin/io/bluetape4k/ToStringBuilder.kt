@@ -16,7 +16,6 @@ import java.io.Serializable
  * @see AbstractValueObject
  */
 class ToStringBuilder private constructor(private val className: String): Serializable {
-
     companion object {
         @JvmStatic
         operator fun invoke(className: String): ToStringBuilder {
