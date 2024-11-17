@@ -4,7 +4,9 @@ import io.bluetape4k.junit5.model.DomainObject
 import io.bluetape4k.junit5.model.getDefaultSizeOfRandom
 import io.bluetape4k.junit5.model.shouldFullyPopulated
 import io.bluetape4k.junit5.model.shouldPartiallyPopulated
-import io.github.oshai.kotlinlogging.KotlinLogging
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.trace
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
@@ -20,8 +22,7 @@ import java.util.stream.Stream
 @TestInstance(TestInstance.Lifecycle.PER_METHOD) // 필드 정보를 테스트 메소드마다 주입하기 위해
 class RandomExtensionFieldTest {
 
-    companion object {
-        private val log = KotlinLogging.logger { }
+    companion object: KLogging() {
         const val REPEAT_SIZE = 5
     }
 

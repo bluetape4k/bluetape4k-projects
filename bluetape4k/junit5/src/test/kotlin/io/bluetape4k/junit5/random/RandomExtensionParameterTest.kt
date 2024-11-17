@@ -4,7 +4,7 @@ import io.bluetape4k.junit5.model.DomainObject
 import io.bluetape4k.junit5.model.getDefaultSizeOfRandom
 import io.bluetape4k.junit5.model.shouldFullyPopulated
 import io.bluetape4k.junit5.model.shouldPartiallyPopulated
-import io.github.oshai.kotlinlogging.KotlinLogging
+import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
@@ -18,8 +18,7 @@ import java.util.stream.Stream
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)    // 필드에 정보를 담아야 해서, 메소드마다 초기화를 합니다.
 class RandomExtensionParameterTest {
 
-    companion object {
-        private val log = KotlinLogging.logger { }
+    companion object: KLogging() {
         const val TEST_COUNT = 5
     }
 

@@ -1,6 +1,8 @@
 package io.bluetape4k.junit5.output
 
-import io.github.oshai.kotlinlogging.KotlinLogging
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.info
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
@@ -11,8 +13,7 @@ import org.junit.jupiter.api.RepeatedTest
 
 class InMemoryLogbackAppenderTest {
 
-    companion object {
-        private val log = KotlinLogging.logger { }
+    companion object: KLogging() {
         private const val REPEAT_SIZE = 3
     }
 

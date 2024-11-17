@@ -11,6 +11,7 @@ class IterableSupportTest {
 
     companion object: KLogging()
 
+    @Suppress("DIVISION_BY_ZERO")
     @Test
     fun `try mapping`() {
         val origin = List(10) { it + 1 }
@@ -22,6 +23,7 @@ class IterableSupportTest {
         result2.all { it.isFailure }.shouldBeTrue()
     }
 
+    @Suppress("DIVISION_BY_ZERO")
     @Test
     fun `mapping 시 성공한 것만 반환`() {
         val origin = List(10) { it + 1 }

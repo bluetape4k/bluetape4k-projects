@@ -1,6 +1,6 @@
 package io.bluetape4k.junit5.output
 
-import io.github.oshai.kotlinlogging.KotlinLogging
+import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotContain
 import org.junit.jupiter.api.AfterEach
@@ -14,9 +14,7 @@ import org.junit.jupiter.api.TestMethodOrder
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class OutputCaptureExtensionTest {
 
-    companion object {
-        private val log = KotlinLogging.logger { }
-    }
+    companion object: KLogging()
 
     @BeforeEach
     fun beforeEach(capturer: OutputCapturer) {
