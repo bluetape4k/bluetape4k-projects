@@ -793,9 +793,9 @@ object Libs {
     const val xz = "org.tukaani:xz:1.9"                         // https://mvnrepository.com/artifact/org.tukaani/xz
 
     // Cryptography
-    const val jasypt = "org.jasypt:jasypt:1.9.3"
-    const val bouncycastle_bcprov = "org.bouncycastle:bcprov-jdk15on:1.70"
-    const val bouncycastle_bcpkix = "org.bouncycastle:bcpkix-jdk15on:1.70"
+    const val jasypt = "org.jasypt:jasypt:1.9.3"   // https://mvnrepository.com/artifact/org.jasypt/jasypt
+    const val bouncycastle_bcprov = "org.bouncycastle:bcprov-jdk18on:1.79"  // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on
+    const val bouncycastle_bcpkix = "org.bouncycastle:bcpkix-jdk18on:1.79"  // https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk18on
 
     // Hashing
     // https://mvnrepository.com/artifact/net.openhft/zero-allocation-hashing

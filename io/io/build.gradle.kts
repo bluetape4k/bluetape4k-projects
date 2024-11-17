@@ -23,6 +23,7 @@ configurations {
 
 dependencies {
     api(project(":bluetape4k-core"))
+    implementation(project(":bluetape4k-crypto"))
     testImplementation(project(":bluetape4k-junit5"))
 
     api(Libs.kotlinx_atomicfu)
