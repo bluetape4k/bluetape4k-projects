@@ -31,7 +31,6 @@ class StateTest {
     @Test
     fun `addEmit to State`() {
         val rootState = State()
-
         rootState.addEmit("ghi")
         rootState.addEmit("def")
         rootState.addEmit("abc")
@@ -42,7 +41,6 @@ class StateTest {
     @Test
     fun `addEmits to State`() {
         val rootState = State()
-
         rootState.addEmits("ghi", "def", "abc")
 
         rootState.emit().toList() shouldBeEqualTo listOf("abc", "def", "ghi")

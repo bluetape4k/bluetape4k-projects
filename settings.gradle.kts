@@ -24,6 +24,7 @@ includeModules("io", withBaseDir = false)
 
 includeModules("spring", withBaseDir = true)
 includeModules("tokenizer", withBaseDir = true)
+includeModules("testing", withBaseDir = false)
 includeModules("utils", withBaseDir = false)
 includeModules("vertx", withBaseDir = true)
 

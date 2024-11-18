@@ -461,8 +461,12 @@ class TrieTest {
     private fun randomInt(min: Int, max: Int): Int = Random.nextInt(min, max)
 
     private fun randomNumbers(count: Int): StringBuilder {
+        if (count <= 0) {
+            return StringBuilder()
+        }
+
         return StringBuilder(count).apply {
-            for (i in 1..count) {
+            repeat(count) {
                 append(randomInt(0, 10))
             }
         }
