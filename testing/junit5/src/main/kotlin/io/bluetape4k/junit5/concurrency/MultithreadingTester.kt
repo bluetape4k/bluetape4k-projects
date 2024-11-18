@@ -26,7 +26,7 @@ import java.util.concurrent.Future
  * ```
  *
  * @see [VirtualthreadTester]
- * @see [healingpaper.kommons.junit5.coroutines.MultijobTester]
+ * @see [io.bluetape4k.junit5.coroutines.MultijobTester]
  */
 class MultithreadingTester {
 

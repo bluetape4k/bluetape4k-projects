@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit
  * ```
  *
  * @see [MultithreadingTester]
- * @see [healingpaper.kommons.junit5.coroutines.MultijobTester]
+ * @see [io.bluetape4k.junit5.coroutines.MultijobTester]
  */
 class VirtualthreadTester {
 

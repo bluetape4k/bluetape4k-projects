@@ -23,9 +23,9 @@ import kotlinx.coroutines.launch
  * @see [kotlinx.coroutines.flow.conflate]
  * @see [kotlinx.coroutines.flow.debounce]
  * @see [kotlinx.coroutines.flow.sample]
- * @see [healingpaper.kommons.coroutines.flow.extensions.throttleLeading]
- * @see [healingpaper.kommons.coroutines.flow.extensions.throttleTrailing]
- * @see [healingpaper.kommons.coroutines.flow.extensions.throttleBoth]
+ * @see [io.bluetape4k.coroutines.flow.extensions.throttleLeading]
+ * @see [io.bluetape4k.coroutines.flow.extensions.throttleTrailing]
+ * @see [io.bluetape4k.coroutines.flow.extensions.throttleBoth]
  */
 fun <T> Flow<T>.onBackpressureDrop(): Flow<T> = onBackpressureDropInternal(this)
 

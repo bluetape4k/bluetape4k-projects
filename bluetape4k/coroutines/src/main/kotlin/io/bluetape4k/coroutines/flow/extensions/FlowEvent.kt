@@ -7,8 +7,8 @@ import io.bluetape4k.coroutines.flow.exceptions.FlowNoElementException
  *
  * Flow를 ReactiveX의 Observable과 비슷한 방식으로 사용할 수 있도록 합니다.
  *
- * @see [healingpaper.kommons.coroutines.flow.extensions.materialize]
- * @see [healingpaper.kommons.coroutines.flow.extensions.dematerialize]
+ * @see [io.bluetape4k.coroutines.flow.extensions.materialize]
+ * @see [io.bluetape4k.coroutines.flow.extensions.dematerialize]
  */
 sealed interface FlowEvent<out T> {
 

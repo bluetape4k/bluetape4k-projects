@@ -19,7 +19,7 @@ import java.lang.reflect.AnnotatedElement
 class SystemPropertyExtension: BeforeAllCallback, BeforeEachCallback, AfterEachCallback, AfterAllCallback {
 
     companion object: KLogging() {
-        private const val KEY_PREFIX = "healingpaper.kommons.junit5.system.restoreContext."
+        private const val KEY_PREFIX = "io.bluetape4k.junit5.system.restoreContext."
         private fun makeKey(key: String): String = KEY_PREFIX + key
     }
 

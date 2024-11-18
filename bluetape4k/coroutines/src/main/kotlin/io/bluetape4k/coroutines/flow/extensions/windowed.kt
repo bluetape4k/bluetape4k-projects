@@ -20,8 +20,8 @@ import kotlinx.coroutines.flow.map
  * @param step step (require positive number)
  * @return `Flow<List<T>>` 인스턴스
  *
- * @see [healingpaper.kommons.coroutines.flow.extensions.sliding]
- * @see [healingpaper.kommons.coroutines.flow.extensions.chunked]
+ * @see [io.bluetape4k.coroutines.flow.extensions.sliding]
+ * @see [io.bluetape4k.coroutines.flow.extensions.chunked]
  */
 fun <T> Flow<T>.windowed(size: Int, step: Int): Flow<List<T>> =
     windowedInternal(size, step)

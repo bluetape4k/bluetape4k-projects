@@ -75,7 +75,7 @@ fun <T: Any> newInstanceOrNull(qualifiedName: String, classLoader: ClassLoader? 
  *
  * ```
  * val isPresent = classIsPresent("java.lang.String") // true
- * classIsPresent("healingpaper.kommons.NotExists") // false
+ * classIsPresent("io.bluetape4k.NotExists") // false
  * ```
  */
 fun classIsPresent(

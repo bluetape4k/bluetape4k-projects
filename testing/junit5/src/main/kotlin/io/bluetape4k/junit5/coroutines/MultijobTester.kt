@@ -28,8 +28,8 @@ import kotlinx.coroutines.yield
  *    .run()
  * ```
  *
- * @see [healingpaper.kommons.junit5.concurrency.MultithreadingTester]
- * @see [healingpaper.kommons.junit5.concurrency.VirtualthreadTester]
+ * @see [io.bluetape4k.junit5.concurrency.MultithreadingTester]
+ * @see [io.bluetape4k.junit5.concurrency.VirtualthreadTester]
  */
 class MultijobTester {
 
