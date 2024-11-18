@@ -1,0 +1,48 @@
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+             version="2.0">
+
+    <persistence-unit name="default">
+        <provider>org.hibernate.reactive.provider.ReactivePersistenceProvider</provider>
+
+        <!-- 테스트 시에는 build/classes 에 있는 entity 를 scan 한다  -->
+        <jar-file>build/classes</jar-file>
+        <!-- bluetape4k-hibernate 테스트 코드의 Entity 정보를 사용한다 -->
+        <!-- 이를 위해서는 build.gradle.kts 에서 bluetape4k-hibernate의 testArchives 를 참조해야 한다 -->
+        <jar-file>../hibernate/build/classes/kotlin/test/io/bluetape4k/hibernate/mapping</jar-file>
+
+        <!--        <class>Author</class>-->
+        <!--        <class>Book</class>-->
+
+        <!-- TODO: 지정하지 않아도 모두 포함시키도록 한다 : 이것 만으로는 안된다. jar-file 로 명시해줘야 한다 -->
+        <!-- TODO: persistence.xml 말고 프로그래밍 방식으로 정의하는 방법을 찾자 -->
+        <!-- <exclude-unlisted-classes>false</exclude-unlisted-classes>-->
+
+        <properties>
+            <!-- Automatic schema export -->
+            <property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!-- initial loading script -->
+            <!-- <property name="jakarta.persistence.sql-load-script-source" value="data.sql" />-->
+
+            <!-- The Vert.x SQL Client connection pool size -->
+            <property name="hibernate.connection.pool_size" value="30"/>
+
+            <!--
+            JPA Batch Insert (https://cheese10yun.github.io/jpa-batch-insert/)
+            MySQL인 경우 jdbc url에 `rewriteBatchedStatements=true` 추가해야 함
+            -->
+            <property name="hibernate.jdbc.batch_size" value="30"/>
+            <property name="hibernate.order_inserts" value="true"/>
+            <property name="hibernate.order_updates" value="true"/>
+
+            <!-- SQL statement logging -->
+            <property name="hibernate.show_sql" value="false"/>
+            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.highlight_sql" value="true"/>
+
+        </properties>
+
+    </persistence-unit>
+
+</persistence>
