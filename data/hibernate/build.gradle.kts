@@ -51,6 +51,7 @@ artifacts {
 
 dependencies {
     api(project(":bluetape4k-core"))
+    api(project(":bluetape4k-io"))
     testImplementation(project(":bluetape4k-junit5"))
 
     // NOTE: Java 9+ 환경에서 kapt가 제대로 동작하려면 javax.annotation-api 를 참조해야 합니다.
@@ -80,7 +81,7 @@ dependencies {
 
     // Converter
     compileOnly(project(":bluetape4k-crypto"))
-    // compileOnly(project(":bluetape4k-jackson"))
+    compileOnly(project(":bluetape4k-jackson"))
     compileOnly(Libs.jackson_module_kotlin)
     compileOnly(Libs.jackson_module_blackbird)
 
@@ -92,7 +93,7 @@ dependencies {
     testImplementation(Libs.lz4_java)
     testImplementation(Libs.zstd_jni)
 
-    // compileOnly(project(":bluetape4k-idgenerators"))
+    compileOnly(project(":bluetape4k-idgenerators"))
 
     // TODO: querydsl-kotlin-codegen 은 tree entity 도 못 만들고, spring-data-jpa 의 repository에서 문제가 생긴다.
     // https://github.com/querydsl/querydsl/issues/3454
@@ -115,7 +116,7 @@ dependencies {
     testImplementation(Libs.testcontainers_mysql)
 
     // Caching 테스트
-    // testImplementation(project(":bluetape4k-cache"))
+    testImplementation(project(":bluetape4k-cache"))
     testImplementation(Libs.hibernate_jcache)
     testImplementation(Libs.caffeine_jcache)
 
