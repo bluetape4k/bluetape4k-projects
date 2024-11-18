@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  io.bluetape4k.r2dbc.config.R2dbcClientAutoConfiguration
