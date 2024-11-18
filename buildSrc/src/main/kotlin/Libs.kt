@@ -126,7 +126,6 @@ object Versions {
     const val slf4j = "2.0.16"      // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
     const val logback = "1.5.12"     // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
     const val log4j = "2.24.1"      // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core
-    const val kotlin_logging = "7.0.0"   // https://mvnrepository.com/artifact/io.github.oshai/kotlin-logging
 
     const val metrics = "4.1.25"
     const val prometheus = "0.16.0"
@@ -363,8 +362,6 @@ object Libs {
     val log4j_slf4j_impl = log4j("slf4j-impl")
     val log4j_web = log4j("web")
 
-    const val kotlin_logging = "io.github.oshai:kotlin-logging-jvm:${Versions.kotlin_logging}"
-
     const val findbugs = "com.google.code.findbugs:jsr305:3.0.2"
     const val guava = "com.google.guava:guava:33.2.0-jre"
 
@@ -508,7 +505,7 @@ object Libs {
 
     // Bucket4j Spring Boot
     // https://mvnrepository.com/artifact/com.giffing.bucket4j.spring.boot.starter/bucket4j-spring-boot-starter
-    val bucket4j_spring_boot = "com.giffing.bucket4j.spring.boot.starter:bucket4j-spring-boot-starter:0.9.1"
+    const val bucket4j_spring_boot = "com.giffing.bucket4j.spring.boot.starter:bucket4j-spring-boot-starter:0.9.1"
 
     // Netty
     fun netty(module: String, version: String = Versions.netty) = "io.netty:netty-$module:$version"
