@@ -32,7 +32,7 @@ plugins {
 }
 
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-hibernate:${kommons_VERSION}")
+    implementation("io.bluetape4k:bluetape4k-hibernate:${VERSION}")
 
     // Hibernate
     implementation(Libraries.hibernate_jpa_2_1_api)

@@ -17,7 +17,7 @@ import java.util.*
  * Spring Boot 에서 재공하는 [com.fasterxml.jackson.databind.ObjectMapper] 를 설정할 때, Customizing 을 수행할 수 있도록 해줍니다.
  *
  * - 기본적으로 classpath 에 있는 module을 자동으로 등록해줍니다. (kotlin, jdk8, jsr310 등)
- * - `kommons-jackson` 에서 제공하는 [io.bluetape4k.json.jackson.Jackson.defaultJsonMapper] 와 같은 설정을 제공합니다
+ * - `bluetape4k-jackson` 에서 제공하는 [io.bluetape4k.jackson.Jackson.defaultJsonMapper] 와 같은 설정을 제공합니다
  *
  * 추가적으로 [initializer]를 통해 추가 설정을 할 수 있습니다.
  *
@@ -34,7 +34,7 @@ import java.util.*
  * }
  * ```
  *
- * @param initializer [Jackson2ObjectMapperBuilder] 를 이용하여 [io.bluetape4k.json.jackson.Jackson.defaultJsonMapper]의 설정을 추가합니다.
+ * @param initializer [Jackson2ObjectMapperBuilder] 를 이용하여 [io.bluetape4k.jackson.Jackson.defaultJsonMapper]의 설정을 추가합니다.
  * @receiver
  * @return [Jackson2ObjectMapperBuilderCustomizer] 인스턴스
  */

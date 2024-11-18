@@ -15,7 +15,7 @@ Callback (Async Handler) 방식으로 구현해야 해서, 구현 난이도가 �
 이런 불편함을 해결하기 위해 Vert.x 를 Coroutines 환경하에서 수행될 수 있도록 할 수 있습니다. Vertx 의 `vertx-lang-kotlin-coroutines` 에서 제공하는
 `Vertx.dispatcher()` 를 사용하여 Coroutines 환경 하에서 실행할 수 있습니다.
 
-이를 위해 `kommons-vertx-core` 에서는 Vert.x 용 extension 함수를 제공합니다.
+이를 위해 `bluetape4k-vertx-core` 에서는 Vert.x 용 extension 함수를 제공합니다.
 
 ```kotlin
 /**
