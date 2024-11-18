@@ -69,12 +69,13 @@ object Versions {
     const val chaos_monkey = "3.0.2"
     const val blockhound = "1.0.8.RELEASE"
 
+    const val mutiny = "2.6.0"              // https://mvnrepository.com/artifact/io.smallrye.reactive/mutiny
+    const val vertx = "4.5.11"               // https://mvnrepository.com/artifact/io.vertx/vertx-core
+
     const val swagger = "1.6.2"
     const val springdoc_openapi = "2.2.0"
     const val springfox_swagger = "3.0.0"
     const val problem = "0.29.1"
-
-    const val vertx = "4.5.11"               // https://mvnrepository.com/artifact/io.vertx/vertx-core
 
     const val bucket4j = "8.10.1"       // https://mvnrepository.com/artifact/com.bucket4j/bucket4j-core
     const val resilience4j = "2.2.0"   // https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-bom
@@ -799,7 +800,7 @@ object Libs {
     const val zero_allocation_hashing = "net.openhft:zero-allocation-hashing:0.16"
 
     // MVEL
-    const val mvel2 = "org.mvel:mvel2:2.4.12.Final"
+    const val mvel2 = "org.mvel:mvel2:2.5.2.Final"  // https://mvnrepository.com/artifact/org.mvel/mvel2
 
     // Reactor
     const val reactor_bom = "io.projectreactor:reactor-bom:${Versions.reactor_bom}"
@@ -819,6 +820,10 @@ object Libs {
 
     const val blockhound = "io.projectreactor.tools:blockhound:${Versions.blockhound}"
     const val blockhound_junit_platform = "io.projectreactor.tools:blockhound-junit-platform:${Versions.blockhound}"
+
+    // Smallrye Mutiny
+    const val mutiny = "io.smallrye.reactive:mutiny:${Versions.mutiny}"
+    const val mutiny_kotlin = "io.smallrye.reactive:mutiny-kotlin:${Versions.mutiny}"
 
     // Metrics
     fun metrics(module: String) = "io.dropwizard.metrics:metrics-$module:${Versions.metrics}"
