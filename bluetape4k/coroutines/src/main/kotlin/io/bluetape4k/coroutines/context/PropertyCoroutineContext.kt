@@ -7,7 +7,7 @@ import kotlin.coroutines.CoroutineContext
  * Coroutine Context 에 다양한 정보를 담아서 전파하기 위해 사용합니다.
  *
  * ```
- * val context = PropertyCoroutineContext(mapOf("name" to "kommons", "id" to 1234))
+ * val context = PropertyCoroutineContext(mapOf("name" to "bluetape4k", "id" to 1234))
  * val scope = CoroutineScope(context) + Dispatchers.IO
  *
  * scope.launch {

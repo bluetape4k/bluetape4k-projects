@@ -587,7 +587,7 @@ subprojects {
                     pom {
                         name.set("bluetape4k")
                         description.set("Common Library for Kotlin")
-                        url.set("https://github.com/healingpaper/bluetape4k")
+                        url.set("https://github.com/bluetape4k/bluetape4k-projects")
                         licenses {
                             license {
                                 name.set("The Apache License, Version 2.0")
@@ -597,14 +597,14 @@ subprojects {
                         developers {
                             developer {
                                 id.set("debop")
-                                name.set("Debop Bae")
-                                email.set("debop.bae@healingpaper.com")
+                                name.set("Sunghyouk Bae")
+                                email.set("sunghyouk.bae@gmail.com")
                             }
                         }
                         scm {
-                            url.set("https://www.github.com/healingpaper/bluetape4k")
-                            connection.set("scm:git:https://www.github.com/healingpaper/bluetape4k")
-                            developerConnection.set("scm:git:https://www.github.com/healingpaper/bluetape4k")
+                            url.set("https://www.github.com/bluetape4k/bluetape4k-projects")
+                            connection.set("scm:git:https://www.github.com/bluetape4k/bluetape4k-projects")
+                            developerConnection.set("scm:git:https://www.github.com/bluetape4k/bluetape4k-projects")
                         }
                     }
                 }
@@ -612,7 +612,7 @@ subprojects {
         }
         repositories {
 //            maven {
-//                url = uri("https://maven.pkg.github.com/healingpaper/bluetape4k")
+//                url = uri("https://maven.pkg.github.com/bluetape4k/bluetape4k-projects")
 //                credentials {
 //                    username = gprUser
 //                    password = gprPublishKey

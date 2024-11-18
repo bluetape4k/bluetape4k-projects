@@ -15,7 +15,7 @@ import io.bluetape4k.jackson.Jackson
  * val yamlMapper = JacksonYaml.defaultYamlMapper
  *
  * val yaml = """
- *    |name: healingpaper
+ *    |name: debop
  *    |age: 30
  *    |job: developer
  *    """.trimMargin()

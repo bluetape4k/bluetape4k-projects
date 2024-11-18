@@ -10,7 +10,7 @@ import kotlin.coroutines.CoroutineContext
  *
  * ```
  * launch(SilentSupervisor()) {
- *    throw KommonsException("Error")
+ *    throw Bluetape4kException("Error")
  *    // 예외가 발생해도, 무시됩니다.
  *    // catch 블록이 없어도, 코루틴이 종료되지 않습니다.
  *    // 코루틴이 종료되지 않으면, 부모 코루틴도 종료되지 않습니다.

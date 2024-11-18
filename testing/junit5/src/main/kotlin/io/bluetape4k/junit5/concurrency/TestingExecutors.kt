@@ -16,7 +16,7 @@ import java.util.concurrent.ThreadFactory
  */
 object TestingExecutors {
 
-    const val DEFAULT_VIRTUAL_THREAD_NAME = "kommons-test-vt-"
+    const val DEFAULT_VIRTUAL_THREAD_NAME = "bluetape4k-test-vt-"
 
     /**
      * 고정 크기의 쏘레드 풀을 가진 [ExecutorService]를 생성합니다.

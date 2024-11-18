@@ -1,7 +1,7 @@
 package io.bluetape4k.exceptions
 
 /**
- * Kommons 라이브러리의 기본 예외 클래스입니다.
+ * Bluetape4k 라이브러리의 기본 예외 클래스입니다.
  */
 open class BluetapeException: RuntimeException {
     constructor(): super()

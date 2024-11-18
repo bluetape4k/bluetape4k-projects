@@ -32,7 +32,7 @@ plugins {
 }
 
 dependencies {
-    implementation("io.kommons:kommons-data-hibernate:${kommons_VERSION}")
+    implementation("io.bluetape4k:bluetape4k-hibernate:${kommons_VERSION}")
 
     // Hibernate
     implementation(Libraries.hibernate_jpa_2_1_api)
@@ -85,8 +85,8 @@ idea {
 
 엔티티의 Identifier로 가장 자주 사용하는 `Int`, `Long` 을 Id 수형으로 사용하는 Entity 입니다.
 
-* [파일: IntJpaEntity.kt](src/main/kotlin/io/kommons/data/hibernate/model/IntJpaEntity.kt)
-* [파일: LongJpaEntity.kt](src/main/kotlin/io/kommons/data/hibernate/model/LongJpaEntity.kt)
+* [파일: IntJpaEntity.kt](src/main/kotlin/io/bluetape4k/hibernate/model/IntJpaEntity.kt)
+* [파일: LongJpaEntity.kt](src/main/kotlin/io/bluetape4k/hibernate/model/LongJpaEntity.kt)
 
 `LongJpaEntity` 를 상속한 엔티티의 예는 다음과 같습니다.
 
@@ -115,12 +115,12 @@ class Cavalier(
 
 트리처럼 `parent` 와 `children` 이 있는 엔티티를 표현합니다. DB에서는 `self-reference` model 입니다.
 
-[JpaTreeEntity.kt](src/main/kotlin/io/kommons/data/hibernate/model/JpaTreeEntity.kt)
+[JpaTreeEntity.kt](src/main/kotlin/io/bluetape4k/hibernate/model/JpaTreeEntity.kt)
 
 Identifier 가 Int, Long 수형인 `JpaTreeEntity` 도 제공됩니다.
 
-* [IntJpaTreeEntity.kt](src/main/kotlin/io/kommons/data/hibernate/model/IntJpaTreeEntity.kt)
-* [LongJpaTreeEntity.kt](src/main/kotlin/io/kommons/data/hibernate/model/LongJpaTreeEntity.kt)
+* [IntJpaTreeEntity.kt](src/main/kotlin/io/bluetape4k/hibernate/model/IntJpaTreeEntity.kt)
+* [LongJpaTreeEntity.kt](src/main/kotlin/io/bluetape4k/hibernate/model/LongJpaTreeEntity.kt)
 
 `JpaTreeEntity` 를 상속받아 트리구조를 가진 Entity를 정의하면 다음과 같습니다.
 
@@ -174,7 +174,7 @@ fun `build tree nodes`() {
 NOTE: 현재 Refactoring 중입니다.
 향후 Extension methods 로 변경할 예정입니다.
 
-[JpaLocalizedEntity.kt](src/main/kotlin/io/kommons/data/hibernate/model/JpaLocalizedEntity.kt)
+[JpaLocalizedEntity.kt](src/main/kotlin/io/bluetape4k/hibernate/model/JpaLocalizedEntity.kt)
 
 ### Converters
 
@@ -182,7 +182,7 @@ Hibernate 에는 `UserType` 이라는 것이 있어 프로그래밍언어에서 
 JPA 에는 `Converter` 가 이러한 수형 변환 기능을 제공합니다.
 단, JPA 는 1:1 매핑만 가능합니다. 만약 1:N 방식으로 변환을 원할 경우에는 Hibernate의 `CompositeUserType` 을 사용해야 합니다.
 
-[CompressedStringConverter.kt](src/main/kotlin/io/kommons/data/hibernate/converters/CompressedStringConverter.kt)
+[CompressedStringConverter.kt](src/main/kotlin/io/bluetape4k/hibernate/converters/CompressedStringConverter.kt)
 
 ```kotlin
 // Locale 수형을 문자열로 저장
@@ -207,7 +207,7 @@ val component: Component? = Component("test data")
 
 `EntityManager` 가 Entity 를 처리하는 과정에서, Entity의 변화를 추적할 수 있는 listener 가능을 제공합니다.
 
-[JpaEntityEventLogger.kt](src/main/kotlin/io/kommons/data/hibernate/listeners/JpaEntityEventLogger.kt)
+[JpaEntityEventLogger.kt](src/main/kotlin/io/bluetape4k/hibernate/listeners/JpaEntityEventLogger.kt)
 
 ```kotlin
 @EntityListeners(JpaEntityEventLogger::class)       // 해당 엔티티에 변화가 생길 때, `JpaEntityListener` 의 event handler를 호출합니다.
@@ -306,7 +306,7 @@ Hibernate 에서는 이러한 성능 상에 불리한 경우를 우회하기 위
 
 대량 레코드 추가,수정,삭제 시에는 `Stateless Session` 사용을 적극 고려할 것을 추천합니다.
 
-[StatelessSessionSupport.kt](src/main/kotlin/io/kommons/data/hibernate/stateless/StatelessSessionSupport.kt)
+[StatelessSessionSupport.kt](src/main/kotlin/io/bluetape4k/hibernate/stateless/StatelessSessionSupport.kt)
 
 ```kotlin
 @RepeatedTest(5)

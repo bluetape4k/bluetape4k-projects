@@ -91,8 +91,8 @@ class ParseNamedDataSourcePropertiesTest: AbstractJacksonTextTest() {
         @Disabled("PropsMapper 에 버그가 있다. 미지정 속성은 null 이 되어야 하는데, maxWaitMillis=0 으로 지정된다.")
         @Test
         fun `generate datasource properties to properties format and parse`() {
-            val kommons = Bluetape4kProperty(mapOf("default" to default, "read" to read))
-            val root = RootProperty(kommons)
+            val bluetape4k = Bluetape4kProperty(mapOf("default" to default, "read" to read))
+            val root = RootProperty(bluetape4k)
 
             val propertyString = propsMapper.writeValueAsString(root) // writeValueAsProperties
             log.debug { "properties=\n$propertyString\n------" }
@@ -110,8 +110,8 @@ class ParseNamedDataSourcePropertiesTest: AbstractJacksonTextTest() {
 
         @Disabled("PropsMapper 에 버그가 있다. 미지정 속성은 null 이 되어야 하는데, maxWaitMillis=0 으로 지정된다.")
         fun `generate datasource properties to properties and parse`() {
-            val kommons = Bluetape4kProperty(mapOf("default" to default, "read" to read))
-            val root = RootProperty(kommons)
+            val bluetape4k = Bluetape4kProperty(mapOf("default" to default, "read" to read))
+            val root = RootProperty(bluetape4k)
 
             val properties = propsMapper.writeValueAsProperties(root)
             log.debug { "properties=\n$properties\n------" }

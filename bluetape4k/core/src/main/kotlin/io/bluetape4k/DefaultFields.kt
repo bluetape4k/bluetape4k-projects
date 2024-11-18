@@ -6,7 +6,7 @@ import java.time.ZoneOffset
 import java.util.*
 
 /**
- * Bluetape4k Library Name (kommons)
+ * Bluetape4k Library Name (bluetape4k)
  */
 const val LibraryName: String = "bluetape4k"
 

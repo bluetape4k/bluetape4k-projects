@@ -16,7 +16,7 @@ import java.nio.file.Paths
 class TempFolder: ExtensionContext.Store.CloseableResource, Closeable {
 
     companion object: KLogging() {
-        private const val PREFIX = "kommons_"
+        private const val PREFIX = "bluetape4k_"
     }
 
     private val rootFile: File
