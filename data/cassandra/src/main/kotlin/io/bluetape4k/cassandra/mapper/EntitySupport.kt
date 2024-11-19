@@ -45,7 +45,7 @@ fun <T: Any> EntityHelper<T>.prepareInsertIfNotExists(session: CqlSession): Prep
  * ```
  * val preparedStatement: PreparedStatement = ...
  * val boundStatement: BoundStatement = bindEntity(preparedStatement) {
- *    setString("name", "healingpaper")
+ *    setString("name", "debop")
  *    setInt("age", 30)
  *    setString("email", "debop@example.com")
  * }
