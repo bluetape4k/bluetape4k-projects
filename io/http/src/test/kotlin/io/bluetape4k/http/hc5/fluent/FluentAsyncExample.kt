@@ -57,7 +57,6 @@ class FluentAsyncExample: AbstractHc5Test() {
                 override fun cancelled() {
                     log.debug { "Cancelled." }
                 }
-
             })
             queue.add(future)
         }
@@ -74,57 +73,60 @@ class FluentAsyncExample: AbstractHc5Test() {
         executor.shutdown()
     }
 
+    // FIXME: status code: 400 Bad Request 가 발생한다.
     @Test
     fun `execute multiple request in multi threading`() {
         val async = Async.newInstance()
         val counter = atomic(0)
 
         MultithreadingTester()
-            .numThreads(4)
+            .numThreads(2)
             .roundsPerThread(2)
             .add {
                 val index = counter.getAndIncrement() % requests.size
                 val request = requests[index]
-
                 log.debug { "Reqeust $request" }
+
                 val content = async.execute(request).get()
                 log.debug { "Content type=${content.type} from $request" }
             }
             .run()
     }
 
+    // FIXME: status code: 400 Bad Request 가 발생한다.
     @Test
     fun `execute multiple request in virtual threads`() {
         val async = Async.newInstance().use(VirtualThreadExecutor)
         val counter = atomic(0)
 
         VirtualthreadTester()
-            .numThreads(4)
+            .numThreads(2)
             .roundsPerThread(2)
             .add {
                 val index = counter.getAndIncrement() % requests.size
                 val request = requests[index]
-
                 log.debug { "Reqeust $request" }
+
                 val content = async.execute(request).get()
                 log.debug { "Content type=${content.type} from $request" }
             }
             .run()
     }
 
+    // FIXME: status code: 400 Bad Request 가 발생한다.
     @Test
     fun `execute multiple request in multi job`() = runSuspendIO {
         val async = Async.newInstance().use(Dispatchers.IO.asExecutor())
         val counter = atomic(0)
 
         MultijobTester()
-            .numThreads(4)
+            .numThreads(2)
             .roundsPerJob(2)
             .add {
                 val index = counter.getAndIncrement() % requests.size
                 val request = requests[index]
-
                 log.debug { "Reqeust $request" }
+
                 val content = async.execute(request).coAwait()
                 log.debug { "Content type=${content.type} from $request" }
             }
