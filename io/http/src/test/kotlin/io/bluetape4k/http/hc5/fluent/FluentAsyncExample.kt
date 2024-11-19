@@ -1,14 +1,18 @@
 package io.bluetape4k.http.hc5.fluent
 
+import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import io.bluetape4k.coroutines.support.coAwait
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.concurrency.VirtualthreadTester
 import io.bluetape4k.junit5.coroutines.MultijobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
 import org.apache.hc.client5.http.fluent.Async
 import org.apache.hc.client5.http.fluent.Content
 import org.apache.hc.core5.concurrent.FutureCallback
@@ -90,8 +94,27 @@ class FluentAsyncExample: AbstractHc5Test() {
     }
 
     @Test
+    fun `execute multiple request in virtual threads`() {
+        val async = Async.newInstance().use(VirtualThreadExecutor)
+        val counter = atomic(0)
+
+        VirtualthreadTester()
+            .numThreads(4)
+            .roundsPerThread(2)
+            .add {
+                val index = counter.getAndIncrement() % requests.size
+                val request = requests[index]
+
+                log.debug { "Reqeust $request" }
+                val content = async.execute(request).get()
+                log.debug { "Content type=${content.type} from $request" }
+            }
+            .run()
+    }
+
+    @Test
     fun `execute multiple request in multi job`() = runSuspendIO {
-        val async = Async.newInstance()
+        val async = Async.newInstance().use(Dispatchers.IO.asExecutor())
         val counter = atomic(0)
 
         MultijobTester()
