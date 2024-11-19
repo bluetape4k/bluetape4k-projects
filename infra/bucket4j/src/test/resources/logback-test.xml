@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+
+        <immediateFlush>true</immediateFlush>
+        <encoder>
+            <!-- @formatter:off -->
+            <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) [%blue(%32.32t)] %yellow(%logger{36}):%line: %msg%n%throwable</pattern>
+            <!-- @formatter:on -->
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <logger name="io.bluetape4k.bucket4j" level="DEBUG"/>
+    <logger name="io.github.bucket4j" level="DEBUG"/>
+
+    <!--    <logger name="io.lettuce.core" level="DEBUG"/>-->
+    <!--    <logger name="org.redisson" level="DEBUG"/>-->
+
+    <root level="INFO">
+        <appender-ref ref="Console"/>
+    </root>
+
+</configuration>

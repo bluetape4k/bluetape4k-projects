@@ -12,7 +12,7 @@ import java.awt.Font
  *
  * ```
  * val filter = CaptionFilter(
- *    text = "Power by kommons",
+ *    text = "Power by bluetape4k",
  *    position = Position.BottomLeft,
  * )
  * ```
