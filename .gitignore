@@ -56,4 +56,4 @@ atlassian-ide-plugin.xml
 **/streams-state/
 
 # JavaMoney's default ResourceCache (filesystem)
-utils/money/.resourceCache/
+**/money/.resourceCache/
