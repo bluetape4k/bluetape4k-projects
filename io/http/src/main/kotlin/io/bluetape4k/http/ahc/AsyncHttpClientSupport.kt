@@ -12,8 +12,6 @@ import org.asynchttpclient.DefaultAsyncHttpClientConfig
 import org.asynchttpclient.Dsl
 import org.asynchttpclient.filter.RequestFilter
 import org.asynchttpclient.filter.ResponseFilter
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.toJavaDuration
 
 // NOTE: 비동기 방식에서는 OS 차원에서 open file 제한을 늘려야 합니다.
 // 참고 : https://gist.github.com/tombigel/d503800a282fcadbee14b537735d202c
@@ -52,7 +50,7 @@ inline fun asyncHttpClientConfig(
             setKeepAlive(true)
             setTcpNoDelay(true)
             setSoReuseAddress(true)
-            setPooledConnectionIdleTimeout(120.seconds.toJavaDuration())  // 120 seconds (2 minutes)
+            setPooledConnectionIdleTimeout(120_000)  // 120 seconds (2 minutes)
             setFollowRedirect(true)
             setMaxRedirects(5)
             setMaxRequestRetry(3)
