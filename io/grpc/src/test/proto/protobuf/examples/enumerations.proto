@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package io.bluetape4k.protobuf.examples.enumerations;
+
+option java_outer_classname = "EnumProtos";
+option java_multiple_files = true;
+
+import "google/protobuf/timestamp.proto";
+
+message EnumMessage {
+    int32 id = 1;
+    DayOfTheWeek day_of_the_week = 2;
+}
+
+enum DayOfTheWeek {
+    UNKNOWN = 0;
+    MONDAY = 1;
+    TUESDAY = 2;
+    WEDNESDAY = 3;
+    THURSDAY = 4;
+    FRIDAY = 5;
+    SATURDAY = 6;
+    SUNDAY = 7;
+}

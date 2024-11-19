@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package grpc.testing;
+
+option java_package = "io.bluetape4k.grpc.testing.integration";
+
+// Metric Gauge 측정 정보에 대한 응답 메시지
+message GaugeResponse {
+    // Gauge name
+    string name = 1;
+    // Gauge value
+    oneof value {
+        int64 long_value = 2;
+        double double_value = 3;
+        string string_value = 4;
+    }
+}
+
+// Gauge 측정 정보를 요청하는 메시지
+message GaugeRequest {
+    // Gauge name
+    string name = 1;
+}
+
+message EmptyMessage {
+}
+
+service MetricsService {
+
+    // 시스템에서 측정한 모든 Gauge에 대한 측정 정보를 반환합니다.
+    rpc GetAllGauges (EmptyMessage) returns (stream GaugeResponse);
+
+    // Gauge 측정 정보를 반환합니다.
+    rpc GetGauge (GaugeRequest) returns (GaugeResponse);
+}

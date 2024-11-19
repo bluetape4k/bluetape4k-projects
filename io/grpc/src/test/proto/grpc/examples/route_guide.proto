@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package io.bluetape4k.grpc.examples.routeguide;
+
+import "google/protobuf/duration.proto";
+
+option java_multiple_files = true;
+option java_outer_classname = "RouteGuides";
+
+service RouteGuide {
+
+    rpc GetFeature (Point) returns (Feature);
+
+    rpc ListFeatures (Rectangle) returns (stream Feature);
+
+    rpc RecordRoute (stream Point) returns (RouteSummary);
+
+    rpc RouteChat (stream RouteNote) returns (stream RouteNote);
+}
+
+message Point {
+    int32 latitude = 1;
+    int32 longitude = 2;
+}
+
+message Rectangle {
+    // Left Top
+    Point lo = 1;
+
+    // Right bottom
+    Point hi = 2;
+}
+
+message Feature {
+    string name = 1;
+    Point location = 2;
+}
+
+// Not used in the RPC.  Instead, this is here for the form serialized to disk.
+message FeatureDatabase {
+    repeated Feature feature = 1;
+}
+
+// A RouteNote is a message sent while at a given point.
+message RouteNote {
+    Point location = 1;
+    string message = 2;
+}
+
+// A RouteSummary is received in response to a RecordRoute rpc.
+//
+// It contains the number of individual points received, the number of
+// detected features, and the total distance covered as the cumulative sum of
+// the distance between each point.
+message RouteSummary {
+    int32 point_count = 1;
+
+    int32 feature_count = 2;
+
+    int32 distance = 3;
+
+    google.protobuf.Duration elapsed_time = 4;
+}

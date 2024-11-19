@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package io.bluetape4k.protobuf.examples.options;
+
+option java_outer_classname = "OptionProtos";
+option java_multiple_files = true;
+
+message OptionMessageTest {
+    int32 id = 1;
+    bool is_simple = 2;
+    string name = 3;
+    repeated int32 sample_list = 4;
+}
+
+message OptionMessageOther {
+    string hello = 1;
+}

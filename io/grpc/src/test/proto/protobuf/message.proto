@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package io.bluetape4k.protobuf.messages;
+
+option java_generic_services = true;
+option java_outer_classname = "MessageProtos";
+option java_multiple_files = true;
+
+import "google/protobuf/timestamp.proto";
+
+message TestMessage {
+    int64 id = 1;
+    string name = 2;
+}
+
+message NestedMessage {
+    TestMessage nested = 1;
+    int64 id = 2;
+    string name = 3;
+    // google.protobuf.Timestamp createdAt = 4;
+}

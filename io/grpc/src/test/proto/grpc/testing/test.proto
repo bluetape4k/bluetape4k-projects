@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package grpc.testing;
+
+import "grpc/testing/empty.proto";
+import "grpc/testing/messages.proto";
+
+option java_package = "io.bluetape4k.grpc.testing.integration";
+
+// 다양한 방식의 RPC 를 제공하고, 성능측정을 위해 다양한 Payload를 지정할 수 있도록 합니다.
+service TestService {
+
+    // 빈 인자로 호출하고, 빈 인자를 받습니다.
+    rpc EmptyCall (grpc.testing.Empty) returns (grpc.testing.Empty);
+
+    // 단순 요청과 응답
+    rpc UnaryCall (SimpleRequest) returns (SimpleResponse);
+
+    // 단순 요청과 응답. 단 캐시 제어용 Header를 사용하여 응답을 캐시합니다.
+    rpc CacheableUnaryCall (SimpleRequest) returns (SimpleResponse);
+
+    // 하나의 요청에 대해 응답 시퀀스를 반환합니다.
+    rpc StreamingOutputCall (StreamingOutputCallRequest) returns (stream StreamingOutputCallResponse);
+
+    // 요청 시퀀스에 대해 하나의 응답을 반환합니다.
+    rpc StreamingInputCall (stream StreamingInputCallRequest) returns (StreamingInputCallResponse);
+
+    // 요청 시퀀스로 요청하고, 응답 시퀀스를 반환받는 Full duplex call
+    rpc FullDuplexCall (stream StreamingOutputCallRequest) returns (stream StreamingOutputCallResponse);
+
+    // 요청 시퀀스로 요청하는데, 모든 요청이 올 때까지 기다리다가 응답 시퀀스로 반환하도록 한다.
+    rpc HalfDuplexCall (stream StreamingOutputCallRequest) returns (stream StreamingOutputCallResponse);
+
+    // 구현되지 않은 메소드에 대한 테스트를 위한 RPC
+    rpc UnimplementedCall (grpc.testing.Empty) returns (grpc.testing.Empty);
+}
+
+// 메소드를 구현하지 않은 Service
+service UnimplementedService {
+    // 서버 메소드가 구현되지 않은 메소드
+    rpc UnimplementedCall (grpc.testing.Empty) returns (grpc.testing.Empty);
+}
+
+// 서버 재접속을 제어할 수 있는 서비스
+service ReconnectService {
+    rpc Start (grpc.testing.Empty) returns (grpc.testing.Empty);
+    rpc Stop (grpc.testing.Empty) returns (grpc.testing.ReconnectInfo);
+}
+
+// Load Balancer 동작에 대한 통계를 제공하는 서비스
+service LoadBalancerStatsService {
+    // Gets the backend distribution for RPCs sent by a test client.
+    rpc GetClientStats (LoadBalancerStatsRequest) returns (LoadBalancerStatsResponse);
+}

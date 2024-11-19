@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package io.bluetape4k.protobuf.examples.complex;
+
+option java_outer_classname = "ComplexProtos";
+option java_multiple_files = true;
+
+import "google/protobuf/timestamp.proto";
+
+message ComplexMessage {
+    DummyMessage one_dummy = 2;
+    repeated DummyMessage multiple_dummy = 3;
+}
+
+message DummyMessage {
+    int32 id = 1;
+    string name = 2;
+}

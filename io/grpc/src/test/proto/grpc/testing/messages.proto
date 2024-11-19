@@ -1,0 +1,151 @@
+syntax = "proto3";
+
+package grpc.testing;
+
+option java_package = "io.bluetape4k.grpc.testing.integration";
+option java_outer_classname = "Messages";
+
+message BoolValue {
+    // Boolean
+    bool value = 1;
+}
+
+// gRPC message 크기를 키운다 
+message Payload {
+    reserved 1;
+
+    // Payload 의 주요 데이터
+    bytes body = 2;
+}
+
+// gRPC 상태를 표현하기 위한 메시지.
+// 클라이언트 테스트 시에 서버에서 echo 방식으로 반환할 때 사용합니다.
+message EchoStatus {
+    int32 code = 1;
+    string message = 2;
+}
+
+// Unary request
+message SimpleRequest {
+    reserved 1;
+
+    // 서버가 응답하는 응답 메시지의 payload의 크기
+    int32 response_size = 2;
+
+    // 요청 시 전송될 optional input payload
+    Payload payload = 3;
+
+    // SimpleResponse 에 username을 포함해야 하는지 여부
+    bool fill_username = 4;
+
+    // SimpleResponse 에 oauth scope를 포함해야 하는지 여부
+    bool fill_oauth_scope = 5;
+
+    // 응답 메시지를 압축해야 하는지 여부.
+    // 이렇게 하는 이유는 nullable 이 가능하도록 합니다.
+    BoolValue response_compressed = 6;
+
+    // 서버가 해당 상태를 반환해야 하는지 여부
+    EchoStatus response_status = 7;
+
+    // 서버가 해당 요청이 압축되어야 하는지 여부
+    BoolValue expect_compressed = 8;
+
+    // 응답에 server_id 가 포함되어야 하는지 여부
+    bool fill_server_id = 9;
+}
+
+// Unary response, as configured by the request.
+message SimpleResponse {
+
+    // Payload to increase message size.
+    Payload payload = 1;
+
+    string username = 2;
+
+    string oauth_scope = 3;
+
+    string server_id = 4;
+
+    string hostname = 5;
+}
+
+message SimpleContext {
+    string value = 1;
+}
+
+// Client-streaming request.
+message StreamingInputCallRequest {
+    // Optional input payload sent along with the request.
+    Payload payload = 1;
+
+    // 응답 메시지를 압축해야 하는지 여부.
+    // 이렇게 하는 이유는 nullable 이 가능하도록 합니다.
+    BoolValue expect_compressed = 2;
+}
+
+// Client-streaming response.
+message StreamingInputCallResponse {
+    // Aggregated size of payloads received from the client.
+    int32 aggregated_payload_size = 1;
+}
+
+// Configuration for a particular response.
+message ResponseParameters {
+    // Desired payload sizes in responses from the server.
+    int32 size = 1;
+
+    // Desired interval between consecutive responses in the response stream in microseconds.
+    int32 interval_us = 2;
+
+    // 응답을 압축해야 하는지 여부
+    // 이렇게 하는 이유는 nullable 이 가능하도록 합니다.
+    BoolValue compressed = 3;
+}
+
+// Server-streaming request.
+message StreamingOutputCallRequest {
+    reserved 1;
+
+    // Configuration for each expected response message.
+    repeated ResponseParameters response_parameters = 2;
+
+    // Optional input payload sent along with the request.
+    Payload payload = 3;
+
+    // 서버가 지정한 상태정보를 반환해야 하는지 여부
+    EchoStatus response_status = 7;
+}
+
+// Server-streaming response, as configured by the request and parameters.
+message StreamingOutputCallResponse {
+    // Payload to increse response size
+    Payload payload = 1;
+}
+
+// For reconnect interop test only.
+// Client tells server what reconnection parameters it used.
+message ReconnectParams {
+    int32 max_reconnect_backoff_ms = 1;
+}
+
+// For reconnect interop test only.
+// Server tells client whether its reconnects are following the spec and the reconnerct backoffs it saw.
+message ReconnectInfo {
+    bool passed = 1;
+    repeated int32 backoff_ms = 2;
+}
+
+message LoadBalancerStatsRequest {
+    // Request stats for the next num_rpcs sent by client.
+    int32 num_rpcs = 1;
+    // If num_rpcs have not completed within timeout_sec, return partial results.
+    int32 timeout_sec = 2;
+}
+
+message LoadBalancerStatsResponse {
+    // The number of complted RPCs for each peer.
+    map<string, int32> rpcs_by_peer = 1;
+    // The number of RPCs that failed to record a remote peer.
+    int32 num_failures = 2;
+}
