@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <immediateFlush>true</immediateFlush>
+        <encoder>
+            <!-- @formatter:off -->
+            <pattern>
+                %d{HH:mm:ss.SSS} %highlight(%-5level) trace_id=%yellow(%X{trace_id}) span_id=%yellow(%X{span_id}) trace_flags=%X{trace_flags}  [%blue(%24.24t)] %yellow(%logger{36}):%line: %msg%n%throwable
+            </pattern>
+            <!-- @formatter:on -->
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!--
+    Opentelemetry traceId 를 logback mdc 로 제공해주는 appender인 Libs.opentelemetry_logback_mdc_1_0 을 참조해야 합나다
+    https://github.com/open-telemetry/opentelemetry-java-instrumentation/tree/main/instrumentation/logback/logback-mdc-1.0/library
+    -->
+    <appender name="Otel" class="io.opentelemetry.instrumentation.logback.mdc.v1_0.OpenTelemetryAppender">
+        <appender-ref ref="Console"/>
+    </appender>
+
+    <logger name="io.bluetape4k.opentelemetry" level="DEBUG"/>
+
+    <root level="INFO">
+        <appender-ref ref="Otel"/>
+    </root>
+
+</configuration>
