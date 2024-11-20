@@ -10,4 +10,4 @@ import org.apache.avro.file.CodecFactory
  * @see [CodecFactory.snappyCodec]
  * @see [CodecFactory.deflateCodec]
  */
-val DEFAULT_CODEC_FACTORY: CodecFactory by lazy { CodecFactory.zstandardCodec(3) } // { CodecFactory.snappyCodec() }  // zstdCodec()
+val DEFAULT_CODEC_FACTORY: CodecFactory by lazy { CodecFactory.zstandardCodec(3) } // { CodecFactory.snappyCodec() } 
