@@ -1,0 +1,10 @@
+aws:
+    region: eu-west-1
+    accessKey: testAccessKey
+    secretKey: testSecretKey
+    dynamodb:
+        protocol: http
+        host: localhost
+        port: ${testcontainers.localstack.port}
+        endpoint: ${aws.dynamodb.protocol}://${aws.dynamodb.host}:${aws.dynamodb.port}
+        tablePrefix: local-
