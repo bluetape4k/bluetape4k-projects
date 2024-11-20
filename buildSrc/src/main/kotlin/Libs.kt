@@ -84,7 +84,7 @@ object Versions {
     const val aws = "1.12.772"    // https://mvnrepository.com/artifact/com.amazonaws
     const val aws2 = "2.29.14"   // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
     const val aws2_crt = "0.33.0" // https://mvnrepository.com/artifact/software.amazon.awssdk.crt
-    const val aws_kotlin = "1.3.75" // https://mvnrepository.com/artifact/aws.sdk.kotlin
+    const val aws_kotlin = "1.3.60" // https://mvnrepository.com/artifact/aws.sdk.kotlin
 
     const val grpc = "1.68.1"       // https://mvnrepository.com/artifact/io.grpc/grpc-stub
     const val grpc_kotlin = "1.4.1" // https://mvnrepository.com/artifact/io.grpc/grpc-kotlin-stub
