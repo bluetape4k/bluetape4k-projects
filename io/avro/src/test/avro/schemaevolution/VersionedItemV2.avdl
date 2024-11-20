@@ -1,0 +1,13 @@
+@namespace("io.bluetape4k.avro.message.examples.v2")
+protocol SchemaEvolutionProtocol {
+
+	record VersionedItem {
+		long id;
+		string key;
+
+		// NOTE: new properties in version2 should have default values for backward compatibility
+		union{null, string} description = null;
+
+		string action = "action";
+	}
+}

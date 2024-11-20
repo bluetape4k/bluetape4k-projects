@@ -1,0 +1,25 @@
+@namespace("io.bluetape4k.avro.message.examples")
+protocol EmployeeProtocol {
+	enum EventType {
+		UNKNOWN,
+		CREATED,
+		UPDATED,
+		DELETED
+	}
+
+	record Employee {
+		int id;
+		string name;
+		int age;
+		long salary;
+		string address;
+		long hireAt;
+		long lastUpdatedAt = 0;
+
+		EventType eventType = "UNKNOWN";
+	}
+
+	record EmployeeList {
+		array<Employee> emps;
+	}
+}

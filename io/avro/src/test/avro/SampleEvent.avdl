@@ -1,0 +1,13 @@
+@namespace("io.bluetape4k.avro.message.examples")
+protocol SampleEventProtocol {
+
+	record SampleEventRoot {
+		long eventId;
+		long systemId;
+		string cmdb;
+		string body;
+		long createdAt;
+		long publishedAt;
+	}
+
+}
