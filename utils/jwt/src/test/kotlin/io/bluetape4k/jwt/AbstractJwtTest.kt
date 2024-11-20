@@ -7,7 +7,7 @@ import io.jsonwebtoken.SignatureAlgorithm
 abstract class AbstractJwtTest {
 
     companion object: KLogging() {
-        const val PLAIN_TEXT = "Hello, World! 동해물과 백두산이 # debop@kommons.io"
+        const val PLAIN_TEXT = "Hello, World! 동해물과 백두산이 # debop@bluetape4k.io"
 
         @JvmStatic
         protected val faker = Fakers.faker
