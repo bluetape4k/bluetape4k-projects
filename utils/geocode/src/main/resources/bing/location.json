@@ -1,0 +1,59 @@
+{
+  "authenticationResultCode": "ValidCredentials",
+  "brandLogoUri": "http:\/\/dev.virtualearth.net\/Branding\/logo_powered_by.png",
+  "copyright": "Copyright © 2023 Microsoft and its suppliers. All rights reserved. This API cannot be accessed and the content and any results may not be used, reproduced or transmitted in any manner without express written permission from Microsoft Corporation.",
+  "resourceSets": [
+    {
+      "estimatedTotal": 1,
+      "resources": [
+        {
+          "__type": "Location:http:\/\/schemas.microsoft.com\/search\/local\/ws\/rest\/v1",
+          "bbox": [
+            37.492053,
+            127.030144,
+            37.492378,
+            127.030294
+          ],
+          "name": "Seocho-gu 327 Gangnam-daero Seoul Seoul 06627",
+          "point": {
+            "type": "Point",
+            "coordinates": [
+              37.492191,
+              127.030228
+            ]
+          },
+          "address": {
+            "addressLine": "327 Gangnam-daero",
+            "adminDistrict": "Seoul",
+            "countryRegion": "Republic of Korea",
+            "formattedAddress": "Seocho-gu 327 Gangnam-daero Seoul Seoul 06627",
+            "intersection": {},
+            "locality": "Seoul",
+            "postalCode": "06627"
+          },
+          "confidence": "High",
+          "entityType": "Address",
+          "geocodePoints": [
+            {
+              "type": "Point",
+              "coordinates": [
+                37.492191,
+                127.030228
+              ],
+              "calculationMethod": "Rooftop",
+              "usageTypes": [
+                "Display"
+              ]
+            }
+          ],
+          "matchCodes": [
+            "Good"
+          ]
+        }
+      ]
+    }
+  ],
+  "statusCode": 200,
+  "statusDescription": "OK",
+  "traceId": "97023b43c7bc4d3da7b5c7c3273c8616|PUS000DE19|0.0.0.1"
+}

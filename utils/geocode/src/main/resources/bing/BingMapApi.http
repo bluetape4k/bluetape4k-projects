@@ -1,0 +1,2 @@
+GET http://dev.virtualearth.net/REST/v1/Locations/37.4921031,127.0297768?
+    key=AoCSBlwKdW6KuT6crTmWgKCsf1VoX9ySpFYslPOqiYeeYs3ppcJUg3gAduEesuhK&incl=ciso2
