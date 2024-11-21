@@ -101,8 +101,12 @@ class RedisServer private constructor(
                 address: String = redis.url,
                 connectionPoolSize: Int = 256,
                 minimumIdleSize: Int = 24,
+                threads: Int = 32,
+                nettyThreads: Int = 128,
             ): Config {
                 return Config().apply {
+                    this.threads = threads
+                    this.nettyThreads = nettyThreads
                     with(useSingleServer()) {
                         this.address = address
                         this.connectionPoolSize = connectionPoolSize       // default: 64
@@ -115,8 +119,10 @@ class RedisServer private constructor(
                 address: String = redis.url,
                 connectionPoolSize: Int = 256,
                 minimumIdleSize: Int = 24,
+                threads: Int = 32,
+                nettyThreads: Int = 128,
             ): RedissonClient {
-                val config = getRedissonConfig(address, connectionPoolSize, minimumIdleSize)
+                val config = getRedissonConfig(address, connectionPoolSize, minimumIdleSize, threads, nettyThreads)
                 return Redisson.create(config)
                     .also { redisson ->
                         ShutdownQueue.register { redisson.shutdown() }
