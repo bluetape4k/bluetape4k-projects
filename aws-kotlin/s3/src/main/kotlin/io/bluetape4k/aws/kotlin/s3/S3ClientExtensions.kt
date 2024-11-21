@@ -13,7 +13,7 @@ import aws.smithy.kotlin.runtime.net.url.Url
  *    region = "us-west-2",
  *    credentialsProvider = StaticCredentialsProvider { accessKeyId = "test"; secretAccess = "test" }
  * ) {
- *  clientName = "kommons-s3-client"
+ *  clientName = "bluetape4k-s3-client"
  * }
  * ```
  *
