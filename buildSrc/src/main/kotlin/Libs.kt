@@ -69,7 +69,7 @@ object Versions {
     const val chaos_monkey = "3.0.2"
     const val blockhound = "1.0.8.RELEASE"
 
-    const val mutiny = "2.6.0"              // https://mvnrepository.com/artifact/io.smallrye.reactive/mutiny
+    const val mutiny = "2.6.2"              // https://mvnrepository.com/artifact/io.smallrye.reactive/mutiny
     const val vertx = "4.5.11"               // https://mvnrepository.com/artifact/io.vertx/vertx-core
 
     const val swagger = "1.6.2"
