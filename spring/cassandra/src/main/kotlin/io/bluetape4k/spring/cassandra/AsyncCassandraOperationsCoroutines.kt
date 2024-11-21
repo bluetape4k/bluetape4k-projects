@@ -85,7 +85,7 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.coExists(id: Any): 
 suspend inline fun <reified T: Any> AsyncCassandraOperations.coExists(query: Query): Boolean? =
     exists(query, T::class.java).await()
 
-suspend inline fun <reified T: Any> AsyncCassandraOperations.coSelectById(id: Any): T? =
+suspend inline fun <reified T: Any> AsyncCassandraOperations.coSelectOneById(id: Any): T? =
     selectOneById(id, T::class.java).await()
 
 suspend inline fun <reified T: Any> AsyncCassandraOperations.coDeleteById(id: Any): Boolean? =
