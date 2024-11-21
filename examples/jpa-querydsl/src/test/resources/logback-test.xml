@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+
+        <immediateFlush>true</immediateFlush>
+        <encoder>
+            <!-- @formatter:off -->
+            <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) [%blue(%24.24t)] %yellow(%logger{36}):%line: %msg%n%throwable</pattern>
+            <!-- @formatter:on -->
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <logger name="io.bluetape4k.hibernate" level="DEBUG"/>
+
+    <!-- HQL 실행 통계를 로그에 출력합니다.-->
+    <!-- eg. HHH000117: HQL: select generatedAlias0 from Article as generatedAlias0 order by generatedAlias0.addedAt desc, time: 1ms, rows: 2-->
+    <logger name="org.hibernate.stat" level="DEBUG"/>
+    <logger name="org.hibernate.engine.internal" level="INFO"/>
+
+    <!-- Hibernate >= 5.4.5 -->
+
+    <!-- properties에 show_sql 을 사용하지 말고, org.hibernate.SQL을 사용하세요 -->
+    <logger name="org.hibernate.SQL" level="DEBUG"/>
+    <!-- Hibernate SQL 구문의 Parameter 정보를 로그로 출력합니다 -->
+    <!-- <logger name="org.hibernate.type.descriptor.sql" level="TRACE"/>-->
+
+    <!-- Slow queries -->
+    <logger name="org.hibernate.SQL_SLOW" level="DEBUG"/>
+    <!-- Query 빌드 전략 -->
+    <!-- <logger name="org.hibernate.loader.plan.build.spi.LoadPlanTreePrinter" level="DEBUG"/> -->
+
+    <!-- 2nd Level Cache -->
+    <logger name="org.hibernate.cache" level="DEBUG"/>
+
+
+    <root level="INFO">
+        <appender-ref ref="Console"/>
+    </root>
+
+</configuration>
