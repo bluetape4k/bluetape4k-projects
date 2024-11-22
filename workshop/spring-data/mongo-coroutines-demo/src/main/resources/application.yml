@@ -1,0 +1,5 @@
+spring:
+    data:
+        mongodb:
+            uri: ${testcontainers.mongo.url}
+            database: people
