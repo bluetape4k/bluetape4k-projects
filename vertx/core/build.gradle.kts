@@ -3,7 +3,7 @@ configurations {
 }
 
 dependencies {
-    api(project(":bluetape4k-core"))
+    api(project(":bluetape4k-io"))
     api(project(":bluetape4k-netty"))
     testImplementation(project(":bluetape4k-junit5"))
 

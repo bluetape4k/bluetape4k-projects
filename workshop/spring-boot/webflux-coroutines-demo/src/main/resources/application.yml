@@ -1,8 +1,0 @@
-server:
-    port: 8080
-    compression:
-        enabled: true
-
-spring:
-    application:
-        name: Coroutines Demo
