@@ -33,9 +33,6 @@ dependencies {
     api(Libs.commons_compress)
     api(Libs.commons_io)
 
-    // Okio
-    api(Libs.okio)
-
     // Coroutines
     api(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)
@@ -49,25 +46,6 @@ dependencies {
     api(Libs.eclipse_collections)
     compileOnly(Libs.eclipse_collections_forkjoin)
     testImplementation(Libs.eclipse_collections_testutils)
-
-    // Cache
-    compileOnly(Libs.caffeine)
-    compileOnly(Libs.caffeine_jcache)
-
-    // Compression
-    compileOnly(Libs.snappy_java)
-    compileOnly(Libs.xz)
-    compileOnly(Libs.zstd_jni)
-
-    compileOnly(Libs.brotli4j)
-    compileOnly(Libs.brotli4j_native)
-
-    // Binary Serializers
-    compileOnly(Libs.kryo)
-    compileOnly(Libs.marshalling)
-    compileOnly(Libs.marshalling_river)
-    compileOnly(Libs.marshalling_serial)
-    compileOnly(Libs.fury)
 
     // Apple M1
     compileOnly(Libs.jna_platform)
@@ -83,7 +61,4 @@ dependencies {
     testImplementation(Libs.kotlinx_benchmark_runtime)
     testImplementation(Libs.kotlinx_benchmark_runtime_jvm)
     testImplementation(Libs.jmh_core)
-
-    // Binary Serializer 와 비교하기 하기 위해 Benchmark 에서 사용합니다.
-    testImplementation(Libs.jackson_module_kotlin)
 }
