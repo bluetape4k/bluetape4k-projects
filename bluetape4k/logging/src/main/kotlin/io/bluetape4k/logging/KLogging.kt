@@ -18,6 +18,6 @@ import org.slf4j.Logger
  */
 open class KLogging {
 
-    val log: Logger by lazy(LazyThreadSafetyMode.NONE) { KLoggerFactory.logger(this.javaClass.name) }
+    val log: Logger by lazy(LazyThreadSafetyMode.NONE) { KLoggerFactory.logger(this.javaClass) }
 
 }
