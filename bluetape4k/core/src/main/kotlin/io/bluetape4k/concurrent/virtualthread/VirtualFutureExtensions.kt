@@ -21,20 +21,6 @@ object VirtualThreadExecutor: ExecutorService by Executors.newThreadPerTaskExecu
     }
 }
 
-/**
- * Virtual thread 를 이용하여 비동기 작업을 수행합니다.
- *
- * @param runnable 비동기로 수행할 작업
- * @return [VirtualFuture] 인스턴스
- */
-@JvmName("virtualFutureForRunnable")
-@Deprecated("Use virtualFuture instead", ReplaceWith("virtualFuture(executor, runnable)"))
-fun async(
-    executor: ExecutorService = VirtualThreadExecutor,
-    runnable: () -> Unit,
-): VirtualFuture<Unit> {
-    return VirtualFuture(executor.submit<Unit>(runnable))
-}
 
 /**
  * Virtual thread 를 이용하여 비동기 작업을 수행합니다.
@@ -122,7 +108,6 @@ fun <T> virtualFutureAll(
 
     return VirtualFuture(future)
 }
-
 
 /**
  * 모든 [VirtualFuture]의 작업이 완료될 때가지 대기한다.
