@@ -30,7 +30,7 @@ class CommentRepository(
 
     fun findAllByPostId(postId: Long): Flow<Comment> {
         val query = Query.query(Criteria.where(Comment::postId.name).isEqual(postId))
-        return operations.coSelect<Comment>(query)
+        return operations.coSelect(query)
     }
 
     suspend fun init() {
