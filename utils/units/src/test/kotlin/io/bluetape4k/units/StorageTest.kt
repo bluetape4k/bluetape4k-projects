@@ -6,7 +6,8 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.units.Storage.Companion.KBYTES
 import io.bluetape4k.units.Storage.Companion.MBYTES
 import org.amshove.kluent.shouldBeEqualTo
-import org.junit.jupiter.api.Assertions
+import org.amshove.kluent.shouldBeGreaterThan
+import org.amshove.kluent.shouldBeLessThan
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
@@ -61,16 +62,16 @@ class StorageTest {
 
     @Test
     fun `parse invalid expression`() {
-        assertFailsWith<NumberFormatException> {
+        assertFailsWith<IllegalArgumentException> {
             Storage.parse("9.1")
         }
-        assertFailsWith<NumberFormatException> {
+        assertFailsWith<IllegalArgumentException> {
             Storage.parse("9.1 bytes")
         }
-        assertFailsWith<NumberFormatException> {
+        assertFailsWith<IllegalArgumentException> {
             Storage.parse("9.1 Bytes")
         }
-        assertFailsWith<NumberFormatException> {
+        assertFailsWith<IllegalArgumentException> {
             Storage.parse("9.1.0.1 B")
         }
     }
@@ -95,8 +96,8 @@ class StorageTest {
 
     @Test
     fun `compare storage`() {
-        Assertions.assertTrue { 1.78.kbytes() > 1.7.kbytes() }
-        Assertions.assertTrue { 1.78.mbytes() > 1.2.mbytes() }
-        Assertions.assertTrue { 123.mbytes() < 0.9.gbytes() }
+        1.78.kbytes() shouldBeGreaterThan 1.7.kbytes()
+        1.78.mbytes() shouldBeGreaterThan 1.2.mbytes()
+        123.mbytes() shouldBeLessThan 0.9.gbytes()
     }
 }

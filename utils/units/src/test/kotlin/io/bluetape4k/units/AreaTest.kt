@@ -2,6 +2,8 @@ package io.bluetape4k.units
 
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeGreaterThan
+import org.amshove.kluent.shouldBeLessThan
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
@@ -39,21 +41,21 @@ class AreaTest {
 
     @Test
     fun `parse invalid format`() {
-        assertFailsWith<NumberFormatException> {
+        assertFailsWith<IllegalArgumentException> {
             Area.parse("123.4")
         }
-        assertFailsWith<NumberFormatException> {
+        assertFailsWith<IllegalArgumentException> {
             Area.parse("123.4 MC^2")
         }
-        assertFailsWith<NumberFormatException> {
+        assertFailsWith<IllegalArgumentException> {
             Area.parse("123.4.4.0.0 m^2")
         }
     }
 
     @Test
     fun `negate expression`() {
-        -144.0.meter2().inMeter2() shouldBeEqualTo -144.0
-        -144.0.millimeter2().inMeter2() shouldBeEqualTo -144.0 * 1e-6
+        144.0.meter2().inMeter2().unaryMinus() shouldBeEqualTo -144.0
+        144.0.millimeter2().inMeter2().unaryMinus() shouldBeEqualTo -144.0 * 1e-6
     }
 
     @Test
@@ -66,5 +68,12 @@ class AreaTest {
         a * 2 shouldBeEqualTo b
         2 * a shouldBeEqualTo b
         b / 2 shouldBeEqualTo a
+    }
+
+    @Test
+    fun `compare area`() {
+        1.78.meter2() shouldBeGreaterThan 1.7.meter2()
+        1.0.meter2() shouldBeGreaterThan 99.0.centimeter2()
+        1.0.meter2() shouldBeLessThan 10001.0.centimeter2()
     }
 }

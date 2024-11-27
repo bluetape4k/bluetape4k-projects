@@ -2,9 +2,10 @@ package io.bluetape4k.units
 
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeGreaterThan
+import org.amshove.kluent.shouldBeLessThan
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
-import kotlin.test.assertTrue
 
 class VolumeTest {
 
@@ -43,23 +44,23 @@ class VolumeTest {
 
     @Test
     fun `parse invalid volume expression`() {
-        assertFailsWith<NumberFormatException> {
+        assertFailsWith<IllegalArgumentException> {
             Volume.parse("1.0")
         }
-        assertFailsWith<NumberFormatException> {
+        assertFailsWith<IllegalArgumentException> {
             Volume.parse("1.0 ll")
         }
-        assertFailsWith<NumberFormatException> {
+        assertFailsWith<IllegalArgumentException> {
             Volume.parse("ml 1.0")
         }
-        assertFailsWith<NumberFormatException> {
+        assertFailsWith<IllegalArgumentException> {
             Volume.parse("1.0.0.0 ml")
         }
     }
 
     @Test
     fun `negate volume`() {
-        -1.5.liter().inLiter() shouldBeEqualTo -1.5
+        (-1.5).liter().inLiter() shouldBeEqualTo -1.5
     }
 
     @Test
@@ -76,9 +77,9 @@ class VolumeTest {
 
     @Test
     fun `compare Volume`() {
-        assertTrue { 1.7.liter() > 169.deciliter() }
-        assertTrue { 1.6.liter() < 169.deciliter() }
-        assertTrue { 1.2.deciliter() > 11.milliliter() }
-        assertTrue { 1.2.deciliter() < 12.1.milliliter() }
+        1.7.liter() shouldBeGreaterThan 169.deciliter()
+        1.6.liter() shouldBeLessThan 169.deciliter()
+        1.2.deciliter() shouldBeGreaterThan 11.milliliter()
+        1.2.deciliter() shouldBeLessThan 12.1.milliliter()
     }
 }

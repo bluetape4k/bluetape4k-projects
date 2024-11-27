@@ -1,26 +1,26 @@
 package io.bluetape4k.units
 
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.unsafeLazy
 import io.bluetape4k.units.AreaUnit.CENTI_METER_2
 import io.bluetape4k.units.AreaUnit.METER_2
 import io.bluetape4k.units.AreaUnit.MILLI_METER_2
-import java.io.Serializable
 import kotlin.math.absoluteValue
 
 fun areaOf(value: Number = 0.0, unit: AreaUnit = MILLI_METER_2) = Area(value, unit)
 
 fun <T: Number> T.areaBy(unit: AreaUnit): Area = Area(this, unit)
 
-fun <T: Number> T.millimeter2(): Area = areaBy(MILLI_METER_2)
-fun <T: Number> T.centimeter2(): Area = areaBy(CENTI_METER_2)
-fun <T: Number> T.meter2(): Area = areaBy(METER_2)
+fun <T: Number> T.millimeter2(): Area = areaOf(this, MILLI_METER_2)
+fun <T: Number> T.centimeter2(): Area = areaOf(this, CENTI_METER_2)
+fun <T: Number> T.meter2(): Area = areaOf(this, METER_2)
 
 operator fun <T: Number> T.times(area: Area): Area = area * this
 
 /**
  * 면적을 나타내는 단위를 표현합니다
  */
-enum class AreaUnit(val unitName: String, val factor: Double) {
+enum class AreaUnit(override val unitName: String, override val factor: Double): MeasurableUnit {
 
     MILLI_METER_2("mm^2", 1.0e-6),
     CENTI_METER_2("cm^2", 1.0e-4),
@@ -43,7 +43,7 @@ enum class AreaUnit(val unitName: String, val factor: Double) {
                 lower = lower.dropLast(1)
 
             return entries.find { it.unitName == lower }
-                ?: throw NumberFormatException("Unknown Area unit. unitName=$unitName")
+                ?: throw IllegalArgumentException("Unknown Area unit. unitName=$unitName")
         }
     }
 }
@@ -63,7 +63,7 @@ enum class AreaUnit(val unitName: String, val factor: Double) {
  * @property value millimeter^2 단위의 면적 값
  */
 @JvmInline
-value class Area(val value: Double = 0.0): Comparable<Area>, Serializable {
+value class Area(override val value: Double = 0.0): Measurable<AreaUnit> {
 
     operator fun plus(other: Area): Area = Area(value + other.value)
     operator fun minus(other: Area): Area = Area(value - other.value)
@@ -76,24 +76,21 @@ value class Area(val value: Double = 0.0): Comparable<Area>, Serializable {
 
     operator fun unaryMinus(): Area = Area(-value)
 
-    fun inMillimeter2(): Double = value / MILLI_METER_2.factor
-    fun inCentimeter2(): Double = value / CENTI_METER_2.factor
-    fun inMeter2(): Double = value
+    fun inMillimeter2(): Double = getValueBy(MILLI_METER_2)
+    fun inCentimeter2(): Double = getValueBy(CENTI_METER_2)
+    fun inMeter2(): Double = getValueBy(METER_2)
 
-    override fun compareTo(other: Area): Int = value.compareTo(other.value)
-    override fun toString() = toHuman(METER_2)
+    override fun convertTo(newUnit: AreaUnit): Area = Area(getValueBy(newUnit), newUnit)
 
-    fun toHuman(): String {
+    override fun toString() = toHuman()
+
+    override fun toHuman(): String {
         val absValue = value.absoluteValue
         val displayUnit = AreaUnit.entries.lastOrNull { absValue / it.factor > 1.0 } ?: MILLI_METER_2
         return formatUnit(value / displayUnit.factor, displayUnit.unitName)
     }
 
-    fun toHuman(unit: AreaUnit): String {
-        return formatUnit(value / unit.factor, unit.unitName)
-    }
-
-    companion object {
+    companion object: KLogging() {
         @JvmStatic
         val Zero: Area by unsafeLazy { Area(0.0) }
 
@@ -112,6 +109,7 @@ value class Area(val value: Double = 0.0): Comparable<Area>, Serializable {
         @JvmStatic
         val NaN: Area by unsafeLazy { Area(Double.NaN) }
 
+        @JvmStatic
         operator fun invoke(area: Number = 0.0, unit: AreaUnit = MILLI_METER_2): Area =
             Area(area.toDouble() * unit.factor)
 
@@ -125,7 +123,7 @@ value class Area(val value: Double = 0.0): Comparable<Area>, Serializable {
                 return Area(v.toDouble(), AreaUnit.parse(u))
 
             } catch (e: Exception) {
-                throw NumberFormatException("Invalid Area string. expr=$expr")
+                throw IllegalArgumentException("Invalid Area string. expr=$expr")
             }
         }
     }

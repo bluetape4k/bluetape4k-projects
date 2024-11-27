@@ -4,7 +4,8 @@ import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
-import org.junit.jupiter.api.Assertions
+import org.amshove.kluent.shouldBeGreaterThan
+import org.amshove.kluent.shouldBeLessThan
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
@@ -61,16 +62,16 @@ class WeightTest {
 
     @Test
     fun `parse invalid expression`() {
-        assertFailsWith<NumberFormatException> {
+        assertFailsWith<IllegalArgumentException> {
             Weight.parse("9.1")
         }
-        assertFailsWith<NumberFormatException> {
+        assertFailsWith<IllegalArgumentException> {
             Weight.parse("9.1 bytes")
         }
-        assertFailsWith<NumberFormatException> {
+        assertFailsWith<IllegalArgumentException> {
             Weight.parse("9.1 Bytes")
         }
-        assertFailsWith<NumberFormatException> {
+        assertFailsWith<IllegalArgumentException> {
             Weight.parse("9.1.0.1 B")
         }
     }
@@ -95,8 +96,8 @@ class WeightTest {
 
     @Test
     fun `compare weight`() {
-        Assertions.assertTrue { 1.78.kilogram() > 1.7.kilogram() }
-        Assertions.assertTrue { 1.78.gram() > 1.2.gram() }
-        Assertions.assertTrue { 123.kilogram() < 0.9.ton() }
+        1.78.kilogram() shouldBeGreaterThan 1.7.kilogram()
+        1.78.gram() shouldBeGreaterThan 1.2.gram()
+        123.kilogram() shouldBeLessThan 0.9.ton()
     }
 }
