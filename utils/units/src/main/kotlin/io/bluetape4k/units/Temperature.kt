@@ -1,6 +1,6 @@
 package io.bluetape4k.units
 
-import java.io.Serializable
+import io.bluetape4k.logging.KLogging
 
 fun temperatureOf(value: Number = 0.0, unit: TemperatureUnit = TemperatureUnit.KELVIN) =
     Temperature(value.toDouble(), unit)
@@ -28,7 +28,7 @@ fun Double.F2C(): Double = (this - 32.0) / 1.8
 /**
  * 온도 단위
  */
-enum class TemperatureUnit(val abbrName: String, val factor: Double) {
+enum class TemperatureUnit(override val unitName: String, override val factor: Double): MeasurableUnit {
     KELVIN("K", 0.0),
     CELSIUS("°C", 273.15),
     FAHRENHEIT("°F", 459.67);
@@ -40,7 +40,7 @@ enum class TemperatureUnit(val abbrName: String, val factor: Double) {
             if (upper.endsWith("s")) {
                 upper = upper.dropLast(1)
             }
-            return TemperatureUnit.entries.find { it.abbrName == upper }
+            return TemperatureUnit.entries.find { it.unitName == upper }
                 ?: throw IllegalArgumentException("Unknown Temperature unit: $unitStr")
         }
     }
@@ -50,7 +50,7 @@ enum class TemperatureUnit(val abbrName: String, val factor: Double) {
  * 온도를 나타내는 클래스
  */
 @JvmInline
-value class Temperature(val value: Double = 0.0): Comparable<Temperature>, Serializable {
+value class Temperature(override val value: Double = 0.0): Measurable<TemperatureUnit> {
 
     /**
      * 덧셈은 [TemperatureUnit.KELVIN] 에서만 유효합니다.
@@ -65,17 +65,19 @@ value class Temperature(val value: Double = 0.0): Comparable<Temperature>, Seria
     operator fun div(scalar: Number) = Temperature(value / scalar.toDouble())
     operator fun unaryMinus() = Temperature(-value)
 
+    override fun getValueBy(unit: TemperatureUnit): Double = value - unit.factor
+
     fun inKelvin(): Double = value
     fun inCelcius(): Double = value - TemperatureUnit.CELSIUS.factor
     fun inFahrenheit(): Double = value - TemperatureUnit.FAHRENHEIT.factor
 
-    override fun compareTo(other: Temperature): Int = value.compareTo(other.value)
 
-    fun toHuman(): String = toUnit(TemperatureUnit.KELVIN)
-    fun toUnit(unit: TemperatureUnit): String =
-        formatUnit(value - unit.factor, unit.abbrName)
+    override fun convertTo(newUnit: TemperatureUnit): Measurable<TemperatureUnit> =
+        Temperature(getValueBy(newUnit), newUnit)
 
-    companion object {
+    override fun toHuman(): String = toHuman(TemperatureUnit.KELVIN)
+
+    companion object: KLogging() {
         val ZERO = Temperature(0.0)
         val MIN_VALUE = Temperature(Double.MIN_VALUE)
         val MAX_VALUE = Temperature(Double.MAX_VALUE)
@@ -103,7 +105,7 @@ value class Temperature(val value: Double = 0.0): Comparable<Temperature>, Seria
 
             try {
                 val (temp, unit) = tempStr.split(" ", limit = 2)
-                return invoke(temp.toDouble(), TemperatureUnit.parse(unit))
+                return Temperature(temp.toDouble(), TemperatureUnit.parse(unit))
             } catch (e: Exception) {
                 throw IllegalArgumentException("Unknown Temperature string. tempStr=$tempStr")
             }

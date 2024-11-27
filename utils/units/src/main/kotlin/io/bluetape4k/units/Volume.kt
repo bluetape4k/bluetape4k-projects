@@ -1,7 +1,7 @@
 package io.bluetape4k.units
 
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.unsafeLazy
-import java.io.Serializable
 import kotlin.math.absoluteValue
 
 fun volumeOf(volumn: Number = 0.0, unit: VolumeUnit = VolumeUnit.LITER): Volume = Volume(volumn, unit)
@@ -20,12 +20,13 @@ operator fun <T: Number> T.times(volume: Volume): Volume = volume * this
 /**
  * 체적 (Volume) 종류 및 단위
  */
-enum class VolumeUnit(val unitName: String, val factor: Double) {
+enum class VolumeUnit(override val unitName: String, override val factor: Double): MeasurableUnit {
 
-    CC("cc", 1.0e-9), CENTIMETER_3("cm^3", 1.0e-3), MILLILETER("ml", 1.0e-3), DECILITER("dl", 1.0e-2), LITER(
-        "l",
-        1.0
-    ),
+    CC("cc", 1.0e-9),
+    CENTIMETER_3("cm^3", 1.0e-3),
+    MILLILETER("ml", 1.0e-3),
+    DECILITER("dl", 1.0e-2),
+    LITER("l", 1.0),
     METER_3("m^3", 1.0e3);
 
     // 영국 부피 단위는 따로 클래스를 만들 예정입니다.
@@ -40,7 +41,7 @@ enum class VolumeUnit(val unitName: String, val factor: Double) {
             if (lower.endsWith("s")) lower = lower.dropLast(1)
 
             return entries.find { it.unitName == lower }
-                ?: throw NumberFormatException("Unknown Volume unit. unitStr=$unitStr")
+                ?: throw IllegalArgumentException("Unknown Volume unit. unitStr=$unitStr")
         }
     }
 }
@@ -60,7 +61,7 @@ enum class VolumeUnit(val unitName: String, val factor: Double) {
  * @property value CC 단위의 값
  */
 @JvmInline
-value class Volume(val value: Double = 0.0): Comparable<Volume>, Serializable {
+value class Volume(override val value: Double = 0.0): Measurable<VolumeUnit> {
 
     operator fun plus(other: Volume): Volume = Volume(value + other.value)
     operator fun minus(other: Volume): Volume = Volume(value - other.value)
@@ -79,20 +80,16 @@ value class Volume(val value: Double = 0.0): Comparable<Volume>, Serializable {
     fun inCentiMeter3() = value / VolumeUnit.CENTIMETER_3.factor
     fun inMeter3() = value / VolumeUnit.METER_3.factor
 
-    override fun compareTo(other: Volume): Int = value.compareTo(other.value)
+    override fun convertTo(newUnit: VolumeUnit): Volume = Volume(getValueBy(newUnit), newUnit)
 
-    override fun toString(): String = toHuman(VolumeUnit.CC)
-
-    fun toHuman(): String {
+    override fun toHuman(): String {
         val absValue = value.absoluteValue
         val displayUnit = VolumeUnit.entries.lastOrNull { absValue / it.factor > 1.0 } ?: VolumeUnit.CC
 
         return formatUnit(value / displayUnit.factor, displayUnit.unitName)
     }
 
-    fun toHuman(unit: VolumeUnit = VolumeUnit.LITER): String = formatUnit(value / unit.factor, unit.unitName)
-
-    companion object {
+    companion object: KLogging() {
         @JvmStatic
         val Zero: Volume by unsafeLazy { Volume(0.0) }
 
@@ -121,7 +118,7 @@ value class Volume(val value: Double = 0.0): Comparable<Volume>, Serializable {
                 val (vol, unit) = expr.trim().split(" ", limit = 2)
                 return Volume(vol.toDouble(), VolumeUnit.parse(unit))
             } catch (e: Exception) {
-                throw NumberFormatException("Unknown Volume string. expr=$expr")
+                throw IllegalArgumentException("Unknown Volume string. expr=$expr")
             }
         }
     }

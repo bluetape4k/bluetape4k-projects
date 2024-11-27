@@ -1,7 +1,7 @@
 package io.bluetape4k.units
 
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.unsafeLazy
-import java.io.Serializable
 import kotlin.math.absoluteValue
 
 fun lengthOf(value: Number = 0.0, unit: LengthUnit = LengthUnit.MILLIMETER): Length = Length(value, unit)
@@ -23,11 +23,14 @@ operator fun <T: Number> T.times(length: Length): Length = length.times(this)
  * val unit2 = LengthUnit.parse("cm")
  * ```
  *
- * @property abbrName 단위 약어
+ * @property unitName 단위 약어
  * @property factor 단위 factor
  * @constructor
  */
-enum class LengthUnit(val abbrName: String, val factor: Double) {
+enum class LengthUnit(
+    override val unitName: String,
+    override val factor: Double,
+): MeasurableUnit {
     MILLIMETER("mm", 1.0),
     CENTIMETER("cm", 10.0),
     METER("m", 1.0e3),
@@ -37,8 +40,8 @@ enum class LengthUnit(val abbrName: String, val factor: Double) {
         @JvmStatic
         fun parse(unitStr: String): LengthUnit {
             val lower = unitStr.lowercase().dropLastWhile { it == 's' }
-            return entries.find { it.abbrName == lower }
-                ?: throw NumberFormatException("Unknown Length unit. unitStr=$unitStr")
+            return entries.find { it.unitName == lower }
+                ?: throw IllegalArgumentException("Unknown Length unit. unitStr=$unitStr")
         }
     }
 }
@@ -60,7 +63,7 @@ enum class LengthUnit(val abbrName: String, val factor: Double) {
  * @property value  Millimeter 단위의 길이 값
  */
 @JvmInline
-value class Length(val value: Double = 0.0): Comparable<Length>, Serializable {
+value class Length(override val value: Double = 0.0): Measurable<LengthUnit> {
 
     operator fun plus(other: Length): Length = Length(value + other.value)
     operator fun minus(other: Length): Length = Length(value - other.value)
@@ -69,27 +72,21 @@ value class Length(val value: Double = 0.0): Comparable<Length>, Serializable {
 
     operator fun unaryMinus(): Length = Length(-value)
 
-    fun getValueBy(unit: LengthUnit): Double = value / unit.factor
-
     fun inMillimeter(): Double = getValueBy(LengthUnit.MILLIMETER)
     fun inCentimeter(): Double = getValueBy(LengthUnit.CENTIMETER)
     fun inMeter(): Double = getValueBy(LengthUnit.METER)
     fun inKilometer(): Double = getValueBy(LengthUnit.KILOMETER)
 
-    fun convertTo(newUnit: LengthUnit): Length = Length(getValueBy(newUnit), newUnit)
+    override fun convertTo(newUnit: LengthUnit): Length =
+        Length(getValueBy(newUnit), newUnit)
 
-    override fun compareTo(other: Length): Int = value.compareTo(other.value)
-
-    fun toHuman(): String {
+    override fun toHuman(): String {
         val display = value.absoluteValue
         val displayUnit = LengthUnit.entries.lastOrNull { display / it.factor > 1.0 } ?: LengthUnit.MILLIMETER
-        return formatUnit(value / displayUnit.factor, displayUnit.abbrName)
+        return formatUnit(value / displayUnit.factor, displayUnit.unitName)
     }
 
-    fun toUnit(unit: LengthUnit): String =
-        formatUnit(value / unit.factor, unit.abbrName)
-
-    companion object {
+    companion object: KLogging() {
         @JvmStatic
         val ZERO: Length by unsafeLazy { Length(0.0) }
 
@@ -107,7 +104,7 @@ value class Length(val value: Double = 0.0): Comparable<Length>, Serializable {
                 val (valueStr, unitStr) = expr.split(" ", limit = 2)
                 return Length(valueStr.toDouble(), LengthUnit.parse(unitStr))
             } catch (e: Exception) {
-                throw NumberFormatException("Invalid Length expression. expr=$expr")
+                throw IllegalArgumentException("Invalid Length expression. expr=$expr")
             }
         }
     }

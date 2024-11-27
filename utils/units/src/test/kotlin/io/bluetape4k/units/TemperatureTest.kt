@@ -35,8 +35,8 @@ class TemperatureTest {
     @Test
     fun `convert human expression`() {
         100.kelvin().toHuman() shouldBeEqualTo "100.0 K"
-        36.5.celsius().toUnit(CELSIUS) shouldBeEqualTo "36.5 °C"
-        422.9.fahrenheit().toUnit(FAHRENHEIT) shouldBeEqualTo "422.9 °F"
+        36.5.celsius().toHuman(CELSIUS) shouldBeEqualTo "36.5 °C"
+        422.9.fahrenheit().toHuman(FAHRENHEIT) shouldBeEqualTo "422.9 °F"
     }
 
     @Test
