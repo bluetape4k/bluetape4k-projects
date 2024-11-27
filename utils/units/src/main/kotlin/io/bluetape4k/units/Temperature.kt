@@ -3,7 +3,7 @@ package io.bluetape4k.units
 import java.io.Serializable
 
 fun temperatureOf(value: Number = 0.0, unit: TemperatureUnit = TemperatureUnit.KELVIN) =
-    Temperature.of(value.toDouble(), unit)
+    Temperature(value.toDouble(), unit)
 
 fun <T: Number> T.temperatureBy(unit: TemperatureUnit): Temperature =
     temperatureOf(this, unit)
@@ -84,17 +84,17 @@ value class Temperature(val value: Double = 0.0): Comparable<Temperature>, Seria
         val NaN = Temperature(Double.NaN)
 
         @JvmStatic
-        fun of(temp: Double, unit: TemperatureUnit = TemperatureUnit.KELVIN): Temperature =
+        operator fun invoke(temp: Double, unit: TemperatureUnit = TemperatureUnit.KELVIN): Temperature =
             Temperature(temp + unit.factor)
 
         @JvmStatic
-        fun kelvin(value: Double) = of(value, TemperatureUnit.KELVIN)
+        fun kelvin(value: Double) = invoke(value, TemperatureUnit.KELVIN)
 
         @JvmStatic
-        fun celsius(value: Double) = of(value, TemperatureUnit.CELSIUS)
+        fun celsius(value: Double) = invoke(value, TemperatureUnit.CELSIUS)
 
         @JvmStatic
-        fun fahrenheit(value: Double) = of(value, TemperatureUnit.FAHRENHEIT)
+        fun fahrenheit(value: Double) = invoke(value, TemperatureUnit.FAHRENHEIT)
 
         @JvmStatic
         fun parse(tempStr: String?): Temperature {
@@ -103,7 +103,7 @@ value class Temperature(val value: Double = 0.0): Comparable<Temperature>, Seria
 
             try {
                 val (temp, unit) = tempStr.split(" ", limit = 2)
-                return of(temp.toDouble(), TemperatureUnit.parse(unit))
+                return invoke(temp.toDouble(), TemperatureUnit.parse(unit))
             } catch (e: Exception) {
                 throw IllegalArgumentException("Unknown Temperature string. tempStr=$tempStr")
             }

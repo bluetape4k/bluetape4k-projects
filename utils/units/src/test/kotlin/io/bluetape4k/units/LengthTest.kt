@@ -4,6 +4,7 @@ import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeNear
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
@@ -24,15 +25,15 @@ class LengthTest {
     fun `convert length unit by random`(@RandomValue(type = Double::class) lengths: List<Double>) {
         lengths.forEach { length ->
             length.meter().inMeter() shouldBeEqualTo length
-            length.meter().inKilometer() shouldBeEqualTo length / 1e3
+            length.meter().inKilometer().shouldBeNear(length / 1.0e3, EPSILON)
         }
     }
 
     @Test
     fun `convert human expression`() {
         100.meter().toHuman() shouldBeEqualTo "100.0 m"
-        123.millimeter().toHuman() shouldBeEqualTo "1.2 cm"
-        422.centimeter().toHuman() shouldBeEqualTo "42.2 m"
+        123.millimeter().toHuman() shouldBeEqualTo "12.3 cm"
+        422.centimeter().toHuman() shouldBeEqualTo "4.2 m"
         123.43.kilometer().toHuman() shouldBeEqualTo "123.4 km"
     }
 
@@ -87,6 +88,14 @@ class LengthTest {
         a * 2 shouldBeEqualTo b
         2 * a shouldBeEqualTo b
         b / 2 shouldBeEqualTo a
+    }
+
+    @Test
+    fun `convertTo new length unit`() {
+        100.meter().convertTo(LengthUnit.METER) shouldBeEqualTo 100.meter()
+        100.meter().convertTo(LengthUnit.KILOMETER) shouldBeEqualTo 0.1.kilometer()
+        100.meter().convertTo(LengthUnit.CENTIMETER) shouldBeEqualTo (100 * 100).centimeter()
+        100.meter().convertTo(LengthUnit.MILLIMETER) shouldBeEqualTo (100 * 1000).millimeter()
     }
 
     @Test

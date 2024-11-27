@@ -8,10 +8,10 @@ fun lengthOf(value: Number = 0.0, unit: LengthUnit = LengthUnit.MILLIMETER): Len
 
 fun <T: Number> T.lengthBy(unit: LengthUnit): Length = lengthOf(this.toDouble(), unit)
 
-fun <T: Number> T.millimeter(): Length = lengthBy(LengthUnit.MILLIMETER)
-fun <T: Number> T.centimeter(): Length = lengthBy(LengthUnit.CENTIMETER)
-fun <T: Number> T.meter(): Length = lengthBy(LengthUnit.METER)
-fun <T: Number> T.kilometer(): Length = lengthBy(LengthUnit.KILOMETER)
+fun <T: Number> T.millimeter(): Length = lengthOf(this, LengthUnit.MILLIMETER)
+fun <T: Number> T.centimeter(): Length = lengthOf(this, LengthUnit.CENTIMETER)
+fun <T: Number> T.meter(): Length = lengthOf(this, LengthUnit.METER)
+fun <T: Number> T.kilometer(): Length = lengthOf(this, LengthUnit.KILOMETER)
 
 operator fun <T: Number> T.times(length: Length): Length = length.times(this)
 
@@ -28,10 +28,10 @@ operator fun <T: Number> T.times(length: Length): Length = length.times(this)
  * @constructor
  */
 enum class LengthUnit(val abbrName: String, val factor: Double) {
-    MILLIMETER("mm", 1.0e-3),
-    CENTIMETER("cm", 1.0e-1),
-    METER("m", 1.0),
-    KILOMETER("km", 1.0e3);
+    MILLIMETER("mm", 1.0),
+    CENTIMETER("cm", 10.0),
+    METER("m", 1.0e3),
+    KILOMETER("km", 1.0e6);
 
     companion object {
         @JvmStatic
@@ -75,6 +75,8 @@ value class Length(val value: Double = 0.0): Comparable<Length>, Serializable {
     fun inCentimeter(): Double = getValueBy(LengthUnit.CENTIMETER)
     fun inMeter(): Double = getValueBy(LengthUnit.METER)
     fun inKilometer(): Double = getValueBy(LengthUnit.KILOMETER)
+
+    fun convertTo(newUnit: LengthUnit): Length = Length(getValueBy(newUnit), newUnit)
 
     override fun compareTo(other: Length): Int = value.compareTo(other.value)
 
