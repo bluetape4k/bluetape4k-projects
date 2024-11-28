@@ -30,6 +30,14 @@ idea {
 kapt {
     correctErrorTypes = true
     showProcessorStats = true
+
+    arguments {
+        arg("querydsl.entityAccessors", "true")  // Association의 property는 getter/setter를 사용하도록 합니다.
+        arg("querydsl.kotlinCodegen", "true") // QueryDSL Kotlin Codegen 활성화
+    }
+    javacOptions {
+        option("--add-modules", "java.base")
+    }
 }
 
 configurations {
@@ -54,17 +62,16 @@ dependencies {
     api(project(":bluetape4k-io"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    // NOTE: Java 9+ 환경에서 kapt가 제대로 동작하려면 javax.annotation-api 를 참조해야 합니다.
     api(Libs.jakarta_annotation_api)
-
     api(Libs.jakarta_persistence_api)
+
     api(Libs.hibernate_core)
     api(Libs.hibernate_micrometer)
     testImplementation(Libs.hibernate_testing)
 
-    // NOTE: hibernate 6.3.0+ 는 hibernate-jpamodelgen 예서 예외가 발생합니다. (6.2.x 를 사용하세요)
-    kapt(Libs.hibernate_jpamodelgen)
-    kaptTest(Libs.hibernate_jpamodelgen)
+    // Kotlin 2.1.0 에서 QueryDSL 5.1.0 과 같이 사용하는 경우 예에가 발생한다. (QueryDSL만 사용하는 것을 추천합니다)
+    // kapt(Libs.hibernate_jpamodelgen)
+    // kaptTest(Libs.hibernate_jpamodelgen)
 
     // Querydsl
     // Hibernate 6+ jakarta 용은 claasifier로 ":jpa" 대신 ":jakarta" 를 사용해야 합니다.

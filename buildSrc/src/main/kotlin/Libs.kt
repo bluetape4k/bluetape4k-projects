@@ -6,7 +6,7 @@ object Plugins {
 
     object Versions {
         const val dokka = "1.9.20"      // https://mvnrepository.com/artifact/org.jetbrains.dokka/dokka-gradle-plugin
-        const val detekt = "1.23.6"     // https://mvnrepository.com/artifact/io.gitlab.arturbosch.detekt/detekt-gradle-plugin
+        const val detekt = "1.23.7"     // https://mvnrepository.com/artifact/io.gitlab.arturbosch.detekt/detekt-gradle-plugin
         const val dependency_management = "1.1.6"  // https://mvnrepository.com/artifact/io.spring.gradle/dependency-management-plugin
         const val jooq = "9.0"       // https://mvnrepository.com/artifact/nu.studer.jooq/jooq-gradle-plugin
         const val protobuf = "0.9.4"    // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-gradle-plugin
@@ -16,7 +16,7 @@ object Plugins {
         const val jarTest = "1.0.1"
         const val testLogger = "4.0.0"
         const val shadow = "7.1.2"
-        const val kotlinx_benchmark = "0.4.12" // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-benchmark-plugin
+        const val kotlinx_benchmark = "0.4.13" // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-benchmark-plugin
 
         const val spring_boot = "3.3.5"  // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies
         const val docker_compose = "0.16.12"
@@ -51,7 +51,7 @@ object Plugins {
 
 object Versions {
 
-    const val kotlin = "2.0.21"                 // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib
+    const val kotlin = "2.1.0"                  // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib
     const val kotlinx_coroutines = "1.9.0"      // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
     const val kotlinx_serialization = "1.7.3"   // https://mvnrepository.com/search?q=kotlinx-serialization
 
@@ -82,9 +82,9 @@ object Versions {
     const val netty = "4.1.115.Final"  // https://mvnrepository.com/artifact/io.netty/netty-all
 
     const val aws = "1.12.772"    // https://mvnrepository.com/artifact/com.amazonaws
-    const val aws2 = "2.29.14"   // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
-    const val aws2_crt = "0.33.0" // https://mvnrepository.com/artifact/software.amazon.awssdk.crt
-    const val aws_kotlin = "1.3.60" // https://mvnrepository.com/artifact/aws.sdk.kotlin
+    const val aws2 = "2.29.22"   // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
+    const val aws2_crt = "0.33.3" // https://mvnrepository.com/artifact/software.amazon.awssdk.crt
+    const val aws_kotlin = "1.3.83" // https://mvnrepository.com/artifact/aws.sdk.kotlin
 
     const val grpc = "1.68.1"       // https://mvnrepository.com/artifact/io.grpc/grpc-stub
     const val grpc_kotlin = "1.4.1" // https://mvnrepository.com/artifact/io.grpc/grpc-kotlin-stub
@@ -114,7 +114,7 @@ object Versions {
     // NOTE: 이 경우 기존 javax 를 사용하는 버전과 충돌이 생길 수 있으니 조심하세요
     // https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-core
 
-    const val hibernate = "6.6.2.Final"           // https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-core
+    const val hibernate = "6.6.3.Final"           // https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-core
     const val hibernate_reactive = "2.4.2.Final"  // https://mvnrepository.com/artifact/org.hibernate.reactive/hibernate-reactive-core
     const val hibernate_validator = "8.0.1.Final" // https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator
     const val querydsl = "5.1.0"                  // https://mvnrepository.com/artifact/com.querydsl/querydsl-jpa
