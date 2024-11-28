@@ -3,6 +3,7 @@ package io.bluetape4k.spring.tests
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Nested
+import org.springframework.http.HttpStatus
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import kotlin.test.Test
@@ -29,6 +30,11 @@ class WebTestExtensionsTest {
             val response = client.httpGet("/anything")
                 .expectBody<String>().returnResult().responseBody!!
             log.debug { "anything response=$response" }
+        }
+
+        @Test
+        fun `httGet httpbin not found`() {
+            client.httpGet("/not-existing", HttpStatus.NOT_FOUND)
         }
     }
 
