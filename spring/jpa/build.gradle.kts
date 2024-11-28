@@ -17,9 +17,16 @@ allOpen {
 }
 
 kapt {
-    showProcessorStats = true
-    // kapt 가 제대로 동작하지 않는 경우, 아래 옵션을 제거해보세요.
     correctErrorTypes = true
+    showProcessorStats = true
+
+    arguments {
+        arg("querydsl.entityAccessors", "true")  // Association의 property는 getter/setter를 사용하도록 합니다.
+        arg("querydsl.kotlinCodegen", "true") // QueryDSL Kotlin Codegen 활성화
+    }
+    javacOptions {
+        option("--add-modules", "java.base")
+    }
 }
 
 idea {
@@ -49,10 +56,6 @@ dependencies {
     api(Libs.jakarta_persistence_api)
     api(Libs.hibernate_core)
     testImplementation(Libs.hibernate_testing)
-
-    // NOTE: Querydsl 과 같이 사용할 시에 가끔 예외를 일으킨다. 
-    // kapt(Libs.hibernate_jpamodelgen)
-    // kaptTest(Libs.hibernate_jpamodelgen)
 
     // Querydsl
     // Hibernate 6+ jakarta 용은 claasifier로 ":jpa" 대신 ":jakarta" 를 사용해야 합니다.

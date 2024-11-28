@@ -21,8 +21,11 @@ kapt {
     showProcessorStats = true
 
     arguments {
-        arg("querydsl.entityAccessors", "true")
+        arg("querydsl.entityAccessors", "true")  // Association의 property는 getter/setter를 사용하도록 합니다.
         arg("querydsl.kotlinCodegen", "true") // QueryDSL Kotlin Codegen 활성화
+    }
+    javacOptions {
+        option("--add-modules", "java.base")
     }
 }
 
@@ -54,7 +57,6 @@ dependencies {
     api(Libs.hibernate_reactive_core)
 
     // hibernate-reactive 는 querydsl 을 사용하지 못한다. 대신 jpamodelgen 을 사용합니다.
-    // hibernate 6.3.0+ 는 hibernate-jpamodelgen 예서 예외가 발생합니다. (6.2.x 를 사용하세요)
     kapt(Libs.hibernate_jpamodelgen)
     kaptTest(Libs.hibernate_jpamodelgen)
 
