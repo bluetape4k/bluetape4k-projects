@@ -8,11 +8,11 @@ interface Measurable<T: MeasurableUnit>: Comparable<Measurable<T>>, Serializable
 
     fun convertTo(newUnit: T): Measurable<T>
 
-    fun getValueBy(unit: T): Double = value / unit.factor
+    fun valueBy(unit: T): Double = value / unit.factor
 
     fun toHuman(): String
 
-    fun toHuman(unit: T): String = formatUnit(getValueBy(unit), unit.unitName)
+    fun toHuman(unit: T): String = formatUnit(valueBy(unit), unit.unitName)
 
     override fun compareTo(other: Measurable<T>): Int = value.compareTo(other.value)
 }

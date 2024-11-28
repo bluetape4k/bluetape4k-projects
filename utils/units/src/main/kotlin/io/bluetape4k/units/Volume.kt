@@ -73,14 +73,15 @@ value class Volume(override val value: Double = 0.0): Measurable<VolumeUnit> {
     operator fun div(length: Length): Area = Area(inCC() / length.value)
     operator fun unaryMinus(): Volume = Volume(-value)
 
-    fun inCC() = value / VolumeUnit.CC.factor
-    fun inMilliLiter() = value / VolumeUnit.MILLILETER.factor
-    fun inDeciLiter() = value / VolumeUnit.DECILITER.factor
-    fun inLiter() = value / VolumeUnit.LITER.factor
-    fun inCentiMeter3() = value / VolumeUnit.CENTIMETER_3.factor
-    fun inMeter3() = value / VolumeUnit.METER_3.factor
+    fun inCC() = valueBy(VolumeUnit.CC)
+    fun inMilliLiter() = valueBy(VolumeUnit.MILLILETER)
+    fun inDeciLiter() = valueBy(VolumeUnit.DECILITER)
+    fun inLiter() = valueBy(VolumeUnit.LITER)
+    fun inCentiMeter3() = valueBy(VolumeUnit.CENTIMETER_3)
+    fun inMeter3() = valueBy(VolumeUnit.METER_3)
 
-    override fun convertTo(newUnit: VolumeUnit): Volume = Volume(getValueBy(newUnit), newUnit)
+    override fun convertTo(newUnit: VolumeUnit): Volume =
+        Volume(valueBy(newUnit), newUnit)
 
     override fun toHuman(): String {
         val absValue = value.absoluteValue

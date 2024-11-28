@@ -79,18 +79,18 @@ value class Storage(override val value: Double = 0.0): Measurable<StorageUnit> {
     operator fun div(scalar: Number): Storage = Storage(value / scalar.toDouble())
     operator fun unaryMinus(): Storage = Storage(-value)
 
+    fun inBytes() = valueBy(StorageUnit.BYTE)
+    fun inKBytes() = valueBy(StorageUnit.KBYTE)
+    fun inMBytes() = valueBy(StorageUnit.MBYTE)
+    fun inGBytes() = valueBy(StorageUnit.GBYTE)
+    fun inTBytes() = valueBy(StorageUnit.TBYTE)
+    fun inPBytes() = valueBy(StorageUnit.PBYTE)
+    fun inXBytes() = valueBy(StorageUnit.XBYTE)
+    fun inZBytes() = valueBy(StorageUnit.ZBYTE)
+    fun inYBytes() = valueBy(StorageUnit.YBYTE)
 
-    fun inBytes() = getValueBy(StorageUnit.BYTE)
-    fun inKBytes() = getValueBy(StorageUnit.KBYTE)
-    fun inMBytes() = getValueBy(StorageUnit.MBYTE)
-    fun inGBytes() = getValueBy(StorageUnit.GBYTE)
-    fun inTBytes() = getValueBy(StorageUnit.TBYTE)
-    fun inPBytes() = getValueBy(StorageUnit.PBYTE)
-    fun inXBytes() = getValueBy(StorageUnit.XBYTE)
-    fun inZBytes() = getValueBy(StorageUnit.ZBYTE)
-    fun inYBytes() = getValueBy(StorageUnit.YBYTE)
-
-    override fun convertTo(newUnit: StorageUnit): Measurable<StorageUnit> = Storage(getValueBy(newUnit), newUnit)
+    override fun convertTo(newUnit: StorageUnit): Storage =
+        Storage(valueBy(newUnit), newUnit)
 
     override fun toHuman(): String {
         var dispalay = value.absoluteValue

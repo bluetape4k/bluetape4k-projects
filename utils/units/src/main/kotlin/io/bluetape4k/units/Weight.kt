@@ -62,12 +62,13 @@ value class Weight(override val value: Double = 0.0): Measurable<WeightUnit> {
 
     operator fun unaryMinus(): Weight = Weight(-value)
 
-    fun inMilligram(): Double = value / WeightUnit.MILLIGRAM.factor
-    fun inGram(): Double = value / WeightUnit.GRAM.factor
-    fun inKillogram(): Double = value / WeightUnit.KILOGRAM.factor
-    fun inTon(): Double = value / WeightUnit.TON.factor
+    fun inMilligram(): Double = valueBy(WeightUnit.MILLIGRAM)
+    fun inGram(): Double = valueBy(WeightUnit.GRAM)
+    fun inKillogram(): Double = valueBy(WeightUnit.KILOGRAM)
+    fun inTon(): Double = valueBy(WeightUnit.TON)
 
-    override fun convertTo(newUnit: WeightUnit): Weight = Weight(getValueBy(newUnit), newUnit)
+    override fun convertTo(newUnit: WeightUnit): Weight =
+        Weight(valueBy(newUnit), newUnit)
 
     override fun toHuman(): String {
         var unit = WeightUnit.GRAM

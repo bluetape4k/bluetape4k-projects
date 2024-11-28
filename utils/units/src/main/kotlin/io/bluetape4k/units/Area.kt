@@ -76,18 +76,18 @@ value class Area(override val value: Double = 0.0): Measurable<AreaUnit> {
 
     operator fun unaryMinus(): Area = Area(-value)
 
-    fun inMillimeter2(): Double = getValueBy(MILLI_METER_2)
-    fun inCentimeter2(): Double = getValueBy(CENTI_METER_2)
-    fun inMeter2(): Double = getValueBy(METER_2)
+    fun inMillimeter2(): Double = valueBy(MILLI_METER_2)
+    fun inCentimeter2(): Double = valueBy(CENTI_METER_2)
+    fun inMeter2(): Double = valueBy(METER_2)
 
-    override fun convertTo(newUnit: AreaUnit): Area = Area(getValueBy(newUnit), newUnit)
+    override fun convertTo(newUnit: AreaUnit): Area = Area(valueBy(newUnit), newUnit)
 
     override fun toString() = toHuman()
 
     override fun toHuman(): String {
         val absValue = value.absoluteValue
         val displayUnit = AreaUnit.entries.lastOrNull { absValue / it.factor > 1.0 } ?: MILLI_METER_2
-        return formatUnit(value / displayUnit.factor, displayUnit.unitName)
+        return formatUnit(valueBy(displayUnit), displayUnit.unitName)
     }
 
     companion object: KLogging() {

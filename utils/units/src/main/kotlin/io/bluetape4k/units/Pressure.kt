@@ -142,29 +142,29 @@ value class Pressure(override val value: Double = 0.0): Measurable<PressureUnit>
 
     operator fun unaryMinus(): Pressure = Pressure(-value)
 
-    fun inAtm(): Double = getValueBy(PressureUnit.ATM)
+    fun inAtm(): Double = valueBy(PressureUnit.ATM)
 
-    fun inPascal(): Double = getValueBy(PressureUnit.PASCAL)
-    fun inHectoPascal(): Double = getValueBy(PressureUnit.HECTO_PASCAL)
-    fun inKiloPascal(): Double = getValueBy(PressureUnit.KILO_PASCAL)
-    fun inMegaPascal(): Double = getValueBy(PressureUnit.MEGA_PASCAL)
-    fun inGigaPascal(): Double = getValueBy(PressureUnit.GIGA_PASCAL)
+    fun inPascal(): Double = valueBy(PressureUnit.PASCAL)
+    fun inHectoPascal(): Double = valueBy(PressureUnit.HECTO_PASCAL)
+    fun inKiloPascal(): Double = valueBy(PressureUnit.KILO_PASCAL)
+    fun inMegaPascal(): Double = valueBy(PressureUnit.MEGA_PASCAL)
+    fun inGigaPascal(): Double = valueBy(PressureUnit.GIGA_PASCAL)
 
-    fun inBar(): Double = getValueBy(PressureUnit.BAR)
-    fun inDeciBar(): Double = getValueBy(PressureUnit.DECI_BAR)
-    fun inMilliBar(): Double = getValueBy(PressureUnit.MILLI_BAR)
+    fun inBar(): Double = valueBy(PressureUnit.BAR)
+    fun inDeciBar(): Double = valueBy(PressureUnit.DECI_BAR)
+    fun inMilliBar(): Double = valueBy(PressureUnit.MILLI_BAR)
 
-    fun inPsi(): Double = getValueBy(PressureUnit.PSI)
-    fun inTorr(): Double = getValueBy(PressureUnit.TORR)
-    fun inMmHg(): Double = getValueBy(PressureUnit.MMHG)
+    fun inPsi(): Double = valueBy(PressureUnit.PSI)
+    fun inTorr(): Double = valueBy(PressureUnit.TORR)
+    fun inMmHg(): Double = valueBy(PressureUnit.MMHG)
 
     override fun convertTo(newUnit: PressureUnit): Pressure =
-        Pressure(getValueBy(newUnit), newUnit)
+        Pressure(valueBy(newUnit), newUnit)
 
     override fun toHuman(): String {
         val dislay = value.absoluteValue
         val displayUnit = PressureUnit.entries.lastOrNull { dislay / it.factor > 1.0 } ?: PressureUnit.PASCAL
-        return formatUnit(getValueBy(displayUnit), displayUnit.unitName)
+        return formatUnit(valueBy(displayUnit), displayUnit.unitName)
     }
 
     companion object {

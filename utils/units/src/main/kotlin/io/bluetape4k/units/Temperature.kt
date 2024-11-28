@@ -65,15 +65,14 @@ value class Temperature(override val value: Double = 0.0): Measurable<Temperatur
     operator fun div(scalar: Number) = Temperature(value / scalar.toDouble())
     operator fun unaryMinus() = Temperature(-value)
 
-    override fun getValueBy(unit: TemperatureUnit): Double = value - unit.factor
+    override fun valueBy(unit: TemperatureUnit): Double = value - unit.factor
 
     fun inKelvin(): Double = value
     fun inCelcius(): Double = value - TemperatureUnit.CELSIUS.factor
     fun inFahrenheit(): Double = value - TemperatureUnit.FAHRENHEIT.factor
 
-
-    override fun convertTo(newUnit: TemperatureUnit): Measurable<TemperatureUnit> =
-        Temperature(getValueBy(newUnit), newUnit)
+    override fun convertTo(newUnit: TemperatureUnit): Temperature =
+        Temperature(valueBy(newUnit), newUnit)
 
     override fun toHuman(): String = toHuman(TemperatureUnit.KELVIN)
 

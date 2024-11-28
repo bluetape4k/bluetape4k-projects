@@ -72,13 +72,13 @@ value class Length(override val value: Double = 0.0): Measurable<LengthUnit> {
 
     operator fun unaryMinus(): Length = Length(-value)
 
-    fun inMillimeter(): Double = getValueBy(LengthUnit.MILLIMETER)
-    fun inCentimeter(): Double = getValueBy(LengthUnit.CENTIMETER)
-    fun inMeter(): Double = getValueBy(LengthUnit.METER)
-    fun inKilometer(): Double = getValueBy(LengthUnit.KILOMETER)
+    fun inMillimeter(): Double = valueBy(LengthUnit.MILLIMETER)
+    fun inCentimeter(): Double = valueBy(LengthUnit.CENTIMETER)
+    fun inMeter(): Double = valueBy(LengthUnit.METER)
+    fun inKilometer(): Double = valueBy(LengthUnit.KILOMETER)
 
     override fun convertTo(newUnit: LengthUnit): Length =
-        Length(getValueBy(newUnit), newUnit)
+        Length(valueBy(newUnit), newUnit)
 
     override fun toHuman(): String {
         val display = value.absoluteValue
@@ -93,6 +93,7 @@ value class Length(override val value: Double = 0.0): Measurable<LengthUnit> {
         @JvmStatic
         val NaN: Length by unsafeLazy { Length(Double.NaN) }
 
+        @JvmStatic
         operator fun invoke(value: Number = 0.0, unit: LengthUnit = LengthUnit.MILLIMETER): Length =
             Length(value.toDouble() * unit.factor)
 
@@ -103,7 +104,7 @@ value class Length(override val value: Double = 0.0): Measurable<LengthUnit> {
             try {
                 val (valueStr, unitStr) = expr.split(" ", limit = 2)
                 return Length(valueStr.toDouble(), LengthUnit.parse(unitStr))
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 throw IllegalArgumentException("Invalid Length expression. expr=$expr")
             }
         }
