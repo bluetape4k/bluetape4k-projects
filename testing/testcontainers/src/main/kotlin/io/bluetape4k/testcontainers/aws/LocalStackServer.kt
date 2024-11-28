@@ -121,13 +121,5 @@ class LocalStackServer private constructor(
                 ShutdownQueue.register(this)
             }
         }
-
-        @Deprecated("Use localStack instead", ReplaceWith("localStack"))
-        val locakStack: LocalStackServer by lazy {
-            LocalStackServer().apply {
-                start()
-                ShutdownQueue.register(this)
-            }
-        }
     }
 }

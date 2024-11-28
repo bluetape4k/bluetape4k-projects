@@ -15,7 +15,8 @@ dependencies {
         exclude(group = "org.mockito", module = "mockito-core")
     }
 
-    implementation(project(":bluetape4k-spring-core"))
+    api(project(":bluetape4k-spring-core"))
+    api(project(":bluetape4k-netty"))
     implementation(project(":bluetape4k-jackson"))
     testImplementation(project(":bluetape4k-junit5"))
 

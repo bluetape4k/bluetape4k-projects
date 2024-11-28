@@ -66,9 +66,6 @@ dependencies {
 
     // Binary Serializers
     compileOnly(Libs.kryo)
-    compileOnly(Libs.marshalling)
-    compileOnly(Libs.marshalling_river)
-    compileOnly(Libs.marshalling_serial)
     compileOnly(Libs.fury)
 
     // Apple M1
@@ -88,4 +85,5 @@ dependencies {
 
     // Binary Serializer 와 비교하기 하기 위해 Benchmark 에서 사용합니다.
     testImplementation(Libs.jackson_module_kotlin)
+    testImplementation(Libs.jackson_module_blackbird)
 }

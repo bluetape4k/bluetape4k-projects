@@ -1,7 +1,7 @@
 package io.bluetape4k.units
 
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.unsafeLazy
-import java.io.Serializable
 import kotlin.math.absoluteValue
 import kotlin.math.sign
 
@@ -22,7 +22,7 @@ operator fun <T: Number> T.times(weight: Weight): Weight = weight.times(this)
  * @property unitName  단위 약어
  * @property factor  단위 Factor
  */
-enum class WeightUnit(val unitName: String, val factor: Double) {
+enum class WeightUnit(override val unitName: String, override val factor: Double): MeasurableUnit {
     MILLIGRAM("mg", 1e-3),
     GRAM("g", 1.0),
     KILOGRAM("kg", 1e3),
@@ -33,7 +33,7 @@ enum class WeightUnit(val unitName: String, val factor: Double) {
         fun parse(unitStr: String): WeightUnit {
             val lower = unitStr.lowercase().dropLastWhile { it == 's' }
             return entries.find { it.unitName == lower }
-                ?: throw NumberFormatException("Unknown Weight unit. unitStr=$unitStr")
+                ?: throw IllegalArgumentException("Unknown Weight unit. unitStr=$unitStr")
         }
     }
 }
@@ -53,7 +53,7 @@ enum class WeightUnit(val unitName: String, val factor: Double) {
  * @property value 그램(g) 단위의 값
  */
 @JvmInline
-value class Weight(val value: Double = 0.0): Comparable<Weight>, Serializable {
+value class Weight(override val value: Double = 0.0): Measurable<WeightUnit> {
 
     operator fun plus(other: Weight): Weight = Weight(value + other.value)
     operator fun minus(other: Weight): Weight = Weight(value - other.value)
@@ -62,14 +62,15 @@ value class Weight(val value: Double = 0.0): Comparable<Weight>, Serializable {
 
     operator fun unaryMinus(): Weight = Weight(-value)
 
-    fun getValueBy(unit: WeightUnit): Double = value / unit.factor
+    fun inMilligram(): Double = valueBy(WeightUnit.MILLIGRAM)
+    fun inGram(): Double = valueBy(WeightUnit.GRAM)
+    fun inKillogram(): Double = valueBy(WeightUnit.KILOGRAM)
+    fun inTon(): Double = valueBy(WeightUnit.TON)
 
-    fun inMilligram(): Double = value / WeightUnit.MILLIGRAM.factor
-    fun inGram(): Double = value / WeightUnit.GRAM.factor
-    fun inKillogram(): Double = value / WeightUnit.KILOGRAM.factor
-    fun inTon(): Double = value / WeightUnit.TON.factor
+    override fun convertTo(newUnit: WeightUnit): Weight =
+        Weight(valueBy(newUnit), newUnit)
 
-    fun toHuman(): String {
+    override fun toHuman(): String {
         var unit = WeightUnit.GRAM
         var display = value.absoluteValue
 
@@ -88,18 +89,14 @@ value class Weight(val value: Double = 0.0): Comparable<Weight>, Serializable {
         return formatUnit(display * value.sign, unit.unitName)
     }
 
-    fun toHuman(unit: WeightUnit): String =
-        formatUnit(value / unit.factor, unit.unitName)
-
-    override fun compareTo(other: Weight): Int = value.compareTo(other.value)
-
-    companion object {
+    companion object: KLogging() {
         @JvmStatic
         val ZERO: Weight by unsafeLazy { Weight(0.0) }
 
         @JvmStatic
         val NaN: Weight by unsafeLazy { Weight(Double.NaN) }
 
+        @JvmStatic
         operator fun invoke(value: Number = 0.0, unit: WeightUnit): Weight =
             Weight(value.toDouble() * unit.factor)
 
@@ -111,7 +108,7 @@ value class Weight(val value: Double = 0.0): Comparable<Weight>, Serializable {
                 val (value, unit) = expr.trim().split(" ", limit = 2)
                 return Weight(value.toDouble(), WeightUnit.parse(unit))
             } catch (e: Exception) {
-                throw NumberFormatException("Invalid Weight string. expr=$expr")
+                throw IllegalArgumentException("Invalid Weight string. expr=$expr")
             }
         }
     }

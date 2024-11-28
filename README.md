@@ -10,7 +10,7 @@ Kotlin 언어를 배우고, 사용하면서, Backend 개발에 자주 사용하�
 
 1. Kotlin 의 장점을 최대화 할 수 있는 추천할 만한 코딩 스타일을 제공할 수 있는 기능을 제공합니다.
     - `bluetape4k-core` 의 assertions, required 같은 기능
-    - `kommins-units` 의 단위를 표현하는 value class 제공
+   - `bluetape4k-units` 의 단위를 표현하는 value class 제공
 
 2. 기존 Java 라이브러리를 무지성으로 사용하지 않고, 좀 더 효과적으로 사용할 수 있도록 개선한 기능을 제공합니다.
     - `bluetape4k-core` 의 LZ4, Zstd 등 압축 기능 개선

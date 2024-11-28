@@ -91,8 +91,8 @@ subprojects {
             languageVersion.set(JavaLanguageVersion.of(21))
         }
         compilerOptions {
-            languageVersion.set(KotlinVersion.KOTLIN_2_0)
-            apiVersion.set(KotlinVersion.KOTLIN_2_0)
+            languageVersion.set(KotlinVersion.KOTLIN_2_1)
+            apiVersion.set(KotlinVersion.KOTLIN_2_1)
             freeCompilerArgs = listOf(
                 "-Xjsr305=strict",
                 "-Xjvm-default=all",

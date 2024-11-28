@@ -248,7 +248,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
         val results = queryFactory
             .select(qteam.name, qmember.age.avg().`as`(avgAge))
             .from(qmember)
-            .join(qmember.team, qteam)
+            .join(qmember.team(), qteam)
             .groupBy(qteam.name)
             .fetch()
 
@@ -271,7 +271,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
         val results = queryFactory
             .select(qteam.name, avgAgeExpr.`as`(avgAge))
             .from(qmember)
-            .join(qmember.team, qteam)
+            .join(qmember.team(), qteam)
             .groupBy(qteam.name)
             .having(avgAgeExpr.gt(20))
             .fetch()
@@ -286,7 +286,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
     fun `right outer join`() {
         val members = queryFactory
             .selectFrom(qmember)
-            .rightJoin(qmember.team, qteam)
+            .rightJoin(qmember.team(), qteam)
             .where(qteam.name.eq("teamA"))
             .fetch()
 
@@ -318,7 +318,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
         val tuples = queryFactory
             .select(qmember, qteam)
             .from(qmember)
-            .join(qmember.team, qteam).on(qteam.name.eq("teamA"))
+            .join(qmember.team(), qteam).on(qteam.name.eq("teamA"))
             .fetch()
 
         tuples.forEach {
@@ -354,7 +354,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
         val memberDtos = queryFactory
             .select(projections)
             .from(qmember)
-            .join(qmember.team, qteam)
+            .join(qmember.team(), qteam)
             .fetch()
 
         memberDtos shouldHaveSize MEMBER_COUNT
@@ -408,7 +408,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
     fun `many-to-one lazy loading + fetchJoin 시 fetch join 수행`() {
         val member = queryFactory
             .selectFrom(qmember)
-            .join(qmember.team, qteam).fetchJoin()
+            .join(qmember.team(), qteam).fetchJoin()
             .where(qmember.name.eq("member-1"))
             .fetchOne()!!
 
@@ -693,7 +693,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
                 )
             )
             .from(qmember)
-            .join(qmember.team, qteam)
+            .join(qmember.team(), qteam)
             .fetch()
 
         memberTeamVos.forEach {

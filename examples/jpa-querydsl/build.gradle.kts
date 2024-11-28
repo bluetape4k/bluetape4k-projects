@@ -16,9 +16,16 @@ allOpen {
 }
 
 kapt {
-    // showProcessorStats = true
-    // kapt 가 제대로 동작하지 않는 경우, 해당 클래스를 약간 수정해보세요. (Comments 추가 등으로)
-    // correctErrorTypes = true
+    correctErrorTypes = true
+    showProcessorStats = true
+
+    arguments {
+        arg("querydsl.entityAccessors", "true")  // Association의 property는 getter/setter를 사용하도록 합니다.
+        arg("querydsl.kotlinCodegen", "true") // QueryDSL Kotlin Codegen 활성화
+    }
+    javacOptions {
+        option("--add-modules", "java.base")
+    }
 }
 
 // NOTE: implementation 로 지정된 Dependency를 testImplementation 으로도 지정하도록 합니다.
@@ -30,11 +37,7 @@ dependencies {
     implementation(project(":bluetape4k-hibernate"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    // NOTE: Java 9+ 환경에서 kapt가 제대로 동작하려면 javax.annotation-api 를 참조해야 합니다.
-    // api(Libs.javax_annotation_api)
     api(Libs.jakarta_annotation_api)
-
-    // api(Libs.javax_persistence_api)
     api(Libs.jakarta_persistence_api)
     api(Libs.hibernate_core)
 
