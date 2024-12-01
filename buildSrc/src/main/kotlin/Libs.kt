@@ -60,7 +60,7 @@ object Versions {
     const val kotlinx_benchmark = Plugins.Versions.kotlinx_benchmark
 
     const val spring_boot = Plugins.Versions.spring_boot
-    const val spring_cloud = "2023.0.3"     // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies
+    const val spring_cloud = "2023.0.4"     // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies
     const val spring_integration = "6.3.5"  // https://mvnrepository.com/artifact/org.springframework.integration/spring-integration-core
     const val reactor_bom = "2024.0.0"      // https://mvnrepository.com/artifact/io.projectreactor/reactor-bom
     const val spring_statemachine = "4.0.0" // https://mvnrepository.com/artifact/org.springframework.statemachine/spring-statemachine-core
@@ -149,7 +149,7 @@ object Versions {
     const val ignite = "2.16.0"             // https://mvnrepository.com/artifact/org.apache.ignite/ignite-core
     const val hazelcast = "5.5.0"           // https://mvnrepository.com/artifact/com.hazelcast/hazelcast
 
-    const val cassandra = "4.17.0"          // https://mvnrepository.com/artifact/com.datastax.oss/java-driver-core
+    const val cassandra = "4.18.1"          // https://mvnrepository.com/artifact/org.apache.cassandra/java-driver-core
     const val scylla_java = "4.13.0.0"
     const val elasticsearch = "8.16.0"       // https://mvnrepository.com/artifact/org.elasticsearch.client/elasticsearch-rest-client
 
@@ -959,7 +959,7 @@ object Libs {
 
     // Cassandra
     fun cassandra(module: String, version: String = Versions.cassandra): String =
-        "com.datastax.oss:java-driver-$module:$version"
+        "org.apache.cassandra:java-driver-$module:$version"
 
     val cassandra_java_driver_core = cassandra("core")
     val cassandra_java_driver_core_shaded = cassandra("core-shaded")

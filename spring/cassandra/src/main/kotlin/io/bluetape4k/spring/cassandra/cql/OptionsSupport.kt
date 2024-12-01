@@ -30,8 +30,8 @@ inline fun deleteOptions(initializer: DeleteOptions.DeleteOptionsBuilder.() -> U
 fun Insert.addWriteOptions(writeOptions: WriteOptions): Insert {
     var applied = this
 
-    if (!writeOptions.ttl.isNegative) {
-        applied = applied.usingTtl(writeOptions.ttl.seconds.toInt())
+    if (writeOptions.isPositiveTtl) {
+        applied = applied.usingTtl(writeOptions.ttl!!.seconds.toInt())
     }
     writeOptions.timestamp?.run {
         applied = applied.usingTimestamp(this)
@@ -43,8 +43,8 @@ fun Update.addWriteOptions(writeOptions: WriteOptions): Update {
     var applied = this
 
     if (applied is UpdateStart) {
-        if (!writeOptions.ttl.isNegative) {
-            applied = applied.usingTtl(writeOptions.ttl.seconds.toInt()) as Update
+        if (writeOptions.isPositiveTtl) {
+            applied = applied.usingTtl(writeOptions.ttl!!.seconds.toInt()) as Update
         }
         if (writeOptions.timestamp != null) {
             applied = (applied as UpdateStart).usingTimestamp(writeOptions.timestamp!!) as Update
