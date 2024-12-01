@@ -56,10 +56,7 @@ dependencies {
     api(Libs.jackson_core)
     api(Libs.jackson_databind)
     api(Libs.jackson_module_kotlin)
-
-    // Gson
-    compileOnly(Libs.gson)
-    compileOnly(Libs.gson_javatime_serializers)
+    compileOnly(Libs.jackson_module_blackbird)
 
     // Resilience4j
     compileOnly(project(":bluetape4k-resilience4j"))

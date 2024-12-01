@@ -764,8 +764,8 @@ object Libs {
     const val jsonassert = "org.skyscreamer:jsonassert:1.5.1"   // https://mvnrepository.com/artifact/org.skyscreamer/jsonassert
 
     // GSON
-    const val gson = "com.google.code.gson:gson:2.10.1"
-    const val gson_javatime_serializers = "com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.2"
+    const val gson = "com.google.code.gson:gson:2.11.0"    // https://mvnrepository.com/artifact/com.google.code.gson/gson
+    const val gson_javatime_serializers = "com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.2" // https://mvnrepository.com/artifact/com.fatboyindustrial.gson-javatime-serialisers/gson-javatime-serialisers
 
     // JWT
     fun jjwt(module: String) = "io.jsonwebtoken:jjwt-$module:${Versions.jjwt}"
