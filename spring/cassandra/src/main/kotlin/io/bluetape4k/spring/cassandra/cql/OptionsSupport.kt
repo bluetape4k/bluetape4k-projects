@@ -61,3 +61,5 @@ fun Delete.addWriteOptions(writeOptions: WriteOptions): Delete {
     }
     return applied
 }
+
+val WriteOptions.isPositiveTtl: Boolean get() = ttl != null && !ttl!!.isNegative
