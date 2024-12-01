@@ -1,6 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions
 
-import io.bluetape4k.junit5.coroutines.runSuspendTest
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
@@ -19,7 +19,7 @@ class BufferingDebouncedTest: AbstractFlowTest() {
     // NOTE: runTest 대신 runSuspendTest 를 사용해야 Timer 가 동작합니다.
 
     @Test
-    fun `debounced window 내에 발생한 모든 요소를 버퍼링하고, 디바운스 타이머가 만료되면 List로 발행합니다`() = runSuspendTest {
+    fun `debounced window 내에 발생한 모든 요소를 버퍼링하고, 디바운스 타이머가 만료되면 List로 발행합니다`() = runSuspendIO {
         val source = flow {
             emit(1)
             delay(110)
@@ -40,7 +40,7 @@ class BufferingDebouncedTest: AbstractFlowTest() {
     }
 
     @Test
-    fun `flow 에서 예외를 발생 시키면, 그동안 버퍼링한 것들을 발행한다`() = runSuspendTest {
+    fun `flow 에서 예외를 발생 시키면, 그동안 버퍼링한 것들을 발행한다`() = runSuspendIO {
         val source =
             flow {
                 emit(1)
