@@ -21,6 +21,7 @@ open class IoCoroutineScope: CoroutineScope {
      * @param cause 취소 사유에 해당하는 예외정보. default is null
      */
     fun clearJobs(cause: CancellationException? = null) {
+        log.debug { "clearJobs: cause=$cause" }
         coroutineContext.cancelChildren(cause)
     }
 }
