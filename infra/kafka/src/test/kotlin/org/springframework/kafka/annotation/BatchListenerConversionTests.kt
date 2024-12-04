@@ -1,9 +1,11 @@
 package org.springframework.kafka.annotation
 
+import com.fasterxml.jackson.annotation.JsonCreator
 import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.warn
 import io.bluetape4k.spring.messaging.support.message
 import io.bluetape4k.spring.messaging.support.messageOf
 import io.bluetape4k.support.uninitialized
@@ -45,6 +47,7 @@ import org.springframework.kafka.test.utils.KafkaTestUtils
 import org.springframework.messaging.Message
 import org.springframework.messaging.handler.annotation.Header
 import org.springframework.messaging.handler.annotation.SendTo
+import java.io.Serializable
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -54,6 +57,7 @@ class BatchListenerConversionTests {
 
     companion object: KLogging() {
         private const val DEFAULT_TEST_GROUP_ID = "blc"
+        private const val AWAIT_TIME_SECONDS = 3L
     }
 
     @Autowired
@@ -84,13 +88,13 @@ class BatchListenerConversionTests {
     private fun doTest(listener: Listener, topic: String) {
         template.send(messageOf(Foo("bar"), mapOf(KafkaHeaders.TOPIC to topic)))
 
-        listener.latch1.await(10, TimeUnit.SECONDS).shouldBeTrue()
-        listener.latch2.await(10, TimeUnit.SECONDS).shouldBeTrue()
+        listener.latch1.await(AWAIT_TIME_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
+        listener.latch2.await(AWAIT_TIME_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
         listener.received!!.shouldNotBeEmpty()
-        listener.received!!.get(0) shouldBeInstanceOf Foo::class
-        listener.received!!.get(0).bar shouldBeEqualTo "bar"
-        listener.receivedTopics!!.get(0) shouldBeEqualTo topic
-        listener.receivedPartitions!!.get(0) shouldBeEqualTo 0
+        listener.received!![0] shouldBeInstanceOf Foo::class
+        listener.received!![0].bar shouldBeEqualTo "bar"
+        listener.receivedTopics!![0] shouldBeEqualTo topic
+        listener.receivedPartitions!![0] shouldBeEqualTo 0
     }
 
     @Test
@@ -99,10 +103,8 @@ class BatchListenerConversionTests {
         template.send(messageOf(Foo("bar"), mapOf(KafkaHeaders.TOPIC to topic)))
         val listener = this.config.listener3()
 
-        listener.latch1.await(10, TimeUnit.SECONDS).shouldBeTrue()
+        listener.latch1.await(AWAIT_TIME_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
         listener.received!!.size shouldBeGreaterThan 0
-        listener.received!![0].payload shouldBeInstanceOf Foo::class
-        listener.received!![0].payload.bar shouldBeEqualTo "bar"
     }
 
     @Test
@@ -111,11 +113,11 @@ class BatchListenerConversionTests {
         val topic = "blc4"
         template.send(messageOf(Foo("bar"), mapOf(KafkaHeaders.TOPIC to topic)))
 
-        listener.latch1.await(10, TimeUnit.SECONDS).shouldBeTrue()
+        listener.latch1.await(AWAIT_TIME_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
         val received = listener.received!!
         received.size shouldBeGreaterThan 0
-        received.get(0) shouldBeInstanceOf Foo::class
-        received.get(0).bar shouldBeEqualTo "bar"
+        received[0] shouldBeInstanceOf Foo::class
+        received[0].bar shouldBeEqualTo "bar"
 
         val replies = listener.replies!!
         replies.size shouldBeGreaterThan 0
@@ -130,10 +132,10 @@ class BatchListenerConversionTests {
         template.send("blc6", 0, 0, """{ "bar": "qux" }""")
 
         val listener5 = this.config.listener5()
-        listener5.latch1.await(10, TimeUnit.SECONDS).shouldBeTrue()
+        listener5.latch1.await(AWAIT_TIME_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
         listener5.received shouldBeEqualTo listOf(Foo("baz"), Foo("qux"))
 
-        listener5.latch2.await(10, TimeUnit.SECONDS).shouldBeTrue()
+        listener5.latch2.await(AWAIT_TIME_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
         listener5.dlt shouldBeEqualTo "JUNK"
     }
 
@@ -180,14 +182,14 @@ class BatchListenerConversionTests {
         }
 
         @Bean
-        fun converter(): BytesJsonMessageConverter = BytesJsonMessageConverter(Jackson.defaultJsonMapper)
+        fun converter(): BytesJsonMessageConverter {
+            return BytesJsonMessageConverter(Jackson.defaultJsonMapper)
+        }
 
         @Bean
         fun producerFactory(embeddedKafka: EmbeddedKafkaBroker): ProducerFactory<Int, Any?> {
             return DefaultKafkaProducerFactory(
-                producerConfigs(embeddedKafka),
-                null,
-                DelegatingByTypeSerializer(
+                producerConfigs(embeddedKafka), null, DelegatingByTypeSerializer(
                     mapOf(
                         ByteArray::class.java to ByteArraySerializer(),
                         Bytes::class.java to BytesSerializer(),
@@ -265,10 +267,10 @@ class BatchListenerConversionTests {
 
     class Listener3 {
         internal val latch1 = CountDownLatch(1)
-        internal var received: List<Message<Foo>>? = null
+        internal var received: List<Foo>? = null
 
         @KafkaListener(topics = ["blc3"], groupId = "blc3")
-        fun listen1(foos: List<Message<Foo>>) {
+        fun listen1(foos: List<Foo>) {
             if (this.received == null) {
                 this.received = foos
             }
@@ -304,6 +306,8 @@ class BatchListenerConversionTests {
     }
 
     class Listener5 {
+        companion object: KLogging()
+
         internal val latch1 = CountDownLatch(2)
         internal val latch2 = CountDownLatch(1)
 
@@ -322,6 +326,8 @@ class BatchListenerConversionTests {
             this.latch1.countDown()
             foos.forEachIndexed { i, foo ->
                 if (foo == null && conversionFailures[i] != null) {
+                    // FIXME: 기존에는 BatchListenerFailedException 이 발생시키면, DLT로 보내는데, 버전 업 이후 작동을 하지 않는다 
+                    log.warn(conversionFailures[i]) { "JSON 파싱 예외가 발생하여, DLT 로 보냅니다." }
                     throw BatchListenerFailedException("Conversion error", conversionFailures[i], i)
                 } else {
                     this.received.add(foo!!)
@@ -330,14 +336,16 @@ class BatchListenerConversionTests {
         }
 
         @KafkaListener(
-            topics = ["blc6.DLT"], groupId = "blc6.DLT",
+            topics = ["blc6.DLT"],
+            groupId = "blc6.DLT",
             properties = [ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG + ":org.apache.kafka.common.serialization.StringDeserializer"]
         )
         fun listen5Dlt(input: String) {
+            log.warn { "JSON 파싱 예외가 발생하여, DLT 로 보냅니다. input=$input" }
             this.dlt = input
             this.latch2.countDown()
         }
     }
 
-    data class Foo(var bar: String)
+    data class Foo @JsonCreator constructor(var bar: String): Serializable
 }

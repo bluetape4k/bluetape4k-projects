@@ -32,8 +32,8 @@ dependencies {
     api(project(":bluetape4k-jackson"))
     api(Libs.jackson_databind)
     api(Libs.jackson_module_kotlin)
+    api(Libs.jackson_module_blackbird)
     api(Libs.javax_xml_bind)         // jackson findModules 에서 xml 관련 모듈도 등록할 때 필요하다
-    compileOnly(Libs.jackson_module_blackbird)
 
     // Codecs
     compileOnly(Libs.kryo)
