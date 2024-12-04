@@ -123,7 +123,7 @@ class RateLimiterExamples: AbstractRedissonCoroutineTest() {
 
         MultijobTester()
             .numThreads(4)
-            .roundsPerJob(2)
+            .roundsPerJob(4)
             .add {
                 val redisson = newRedisson()
                 // RRateLimiter Exception----RateLimiter is not initialized

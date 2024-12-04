@@ -21,7 +21,12 @@ abstract class AbstractRedissonCoroutineTest {
 
         @JvmStatic
         val redissonClient by lazy {
-            RedisServer.Launcher.RedissonLib.getRedisson(connectionPoolSize = 256)
+            RedisServer.Launcher.RedissonLib.getRedisson(
+                connectionPoolSize = 256,
+                minimumIdleSize = 12,
+                threads = 128,
+                nettyThreads = 512,
+            )
         }
 
         @JvmStatic
@@ -39,14 +44,7 @@ abstract class AbstractRedissonCoroutineTest {
     protected val redisson: RedissonClient get() = redissonClient
 
     protected fun newRedisson(): RedissonClient {
-        val config = RedisServer.Launcher.RedissonLib.getRedissonConfig(
-            connectionPoolSize = 256,
-            minimumIdleSize = 12,
-            threads = 64,
-            nettyThreads = 256,
-        ).apply {
-
-        }
+        val config = RedisServer.Launcher.RedissonLib.getRedissonConfig()
         return redissonClientOf(config)
     }
 
