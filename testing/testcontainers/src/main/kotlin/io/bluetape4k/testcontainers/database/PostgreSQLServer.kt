@@ -91,6 +91,8 @@ class PostgreSQLServer private constructor(
     override val url: String get() = jdbcUrl
 
     init {
+        // Docker 의 port 를 노출할 경우에는 이렇게 추가 해주어야 합니다.
+        addExposedPorts(PORT)
         withUsername(username)
         withPassword(password)
 
