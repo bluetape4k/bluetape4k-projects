@@ -39,7 +39,14 @@ abstract class AbstractRedissonCoroutineTest {
     protected val redisson: RedissonClient get() = redissonClient
 
     protected fun newRedisson(): RedissonClient {
-        val config = RedisServer.Launcher.RedissonLib.getRedissonConfig(connectionPoolSize = 256)
+        val config = RedisServer.Launcher.RedissonLib.getRedissonConfig(
+            connectionPoolSize = 256,
+            minimumIdleSize = 12,
+            threads = 64,
+            nettyThreads = 256,
+        ).apply {
+
+        }
         return redissonClientOf(config)
     }
 
