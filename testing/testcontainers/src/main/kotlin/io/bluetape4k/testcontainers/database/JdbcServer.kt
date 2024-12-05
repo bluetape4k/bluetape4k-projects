@@ -73,6 +73,8 @@ inline fun <T: JdbcServer> T.getHikariDataSource(
         it.jdbcUrl = getJdbcUrl()
         it.username = getUsername()
         it.password = getPassword()
+
+        it.apply(initializer)
     }
     return HikariDataSource(config)
 }
