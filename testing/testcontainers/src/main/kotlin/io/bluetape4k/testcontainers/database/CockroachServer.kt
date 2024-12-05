@@ -11,7 +11,8 @@ import org.testcontainers.utility.DockerImageName
  * 분산형 RDBMS인 CockroachDB를 테스트용으로 사용할 수 있는 컨테이너를 제공한다.
  * Postgres 와 호환됩니다.
  *
- * 참고: [Cockroach Labs](https://www.cockroachlabs.com/)
+ * - 참고: [Cockroach Labs](https://www.cockroachlabs.com/)
+ * - 참고: [CockroachDB Docker Hub](https://hub.docker.com/r/cockroachdb/cockroach)
  */
 class CockroachServer private constructor(
     imageName: DockerImageName,
@@ -23,7 +24,7 @@ class CockroachServer private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "cockroachdb/cockroach"
-        const val TAG: String = "v22.2.8"
+        const val TAG: String = "v24.3.0"
         const val NAME = "cockroach"
         const val DB_PORT = 26257
         const val REST_API_PORT = 8080
