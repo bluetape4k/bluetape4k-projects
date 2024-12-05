@@ -65,7 +65,9 @@ fun <T: JdbcServer> T.getDataSource(): HikariDataSource {
 /**
  * Database 접속을 위한 [HikariDataSource]를 제공합니다.
  */
-fun <T: JdbcServer> T.getHikariDataSource(): HikariDataSource {
+inline fun <T: JdbcServer> T.getHikariDataSource(
+    initializer: HikariConfig.() -> Unit = {},
+): HikariDataSource {
     val config = HikariConfig().also {
         it.driverClassName = getDriverClassName()
         it.jdbcUrl = getJdbcUrl()
