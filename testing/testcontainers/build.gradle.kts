@@ -131,6 +131,11 @@ dependencies {
     // Curator framework for ZooKeeper
     compileOnly(Libs.curator_framework)
 
+    // Ollama
+    compileOnly(Libs.testcontainers_ollama)
+    testImplementation(Libs.rest_assured)
+    testImplementation(Libs.rest_assured_kotlin)
+
     // Nginx
     compileOnly(Libs.testcontainers_nginx)
 
