@@ -30,7 +30,7 @@ class ZooKeeperServer private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "zookeeper"
-        const val TAG = "3.9.2"
+        const val TAG = "3.9.3"
         const val NAME = "zookeeper"
         const val PORT = 2181
 
