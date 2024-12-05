@@ -90,8 +90,7 @@ class CockroachServer private constructor(
     val restApiPort: Int get() = getMappedPort(REST_API_PORT)
 
     init {
-        // CockroachContainer에서 이미 수행한다
-        // addExposedPorts(REST_API_PORT, DB_PORT)
+        addExposedPorts(REST_API_PORT, DB_PORT)
 
         withUsername(username)
         withPassword(password)
