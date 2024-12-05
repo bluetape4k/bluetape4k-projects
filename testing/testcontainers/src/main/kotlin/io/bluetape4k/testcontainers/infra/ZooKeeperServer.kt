@@ -7,7 +7,6 @@ import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import org.apache.curator.framework.CuratorFramework
-import org.apache.curator.framework.CuratorFrameworkFactory
 import org.apache.curator.retry.RetryOneTime
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
@@ -30,7 +29,7 @@ class ZooKeeperServer private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "zookeeper"
-        const val TAG = "3.9.2"
+        const val TAG = "3.9"
         const val NAME = "zookeeper"
         const val PORT = 2181
 
@@ -91,20 +90,5 @@ class ZooKeeperServer private constructor(
                 connectionTimeoutMs(3000)
             }
         }
-    }
-}
-
-@PublishedApi
-internal inline fun curatorFrameworkOf(
-    initializer: CuratorFrameworkFactory.Builder.() -> Unit,
-): CuratorFramework {
-    return CuratorFrameworkFactory.builder().apply(initializer).build()
-}
-
-@PublishedApi
-internal inline fun <T> withCuratorFramework(zookeeper: ZooKeeperServer, block: CuratorFramework.() -> T): T {
-    return ZooKeeperServer.Launcher.getCuratorFramework(zookeeper).use { curator ->
-        curator.start()
-        block(curator)
     }
 }

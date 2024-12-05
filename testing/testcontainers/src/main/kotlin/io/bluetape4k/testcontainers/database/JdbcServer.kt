@@ -52,12 +52,16 @@ fun <T: JdbcServer> T.buildJdbcProperties(): Map<String, Any?> {
 /**
  * Database 접속을 위한 [HikariDataSource]를 제공합니다.
  */
-fun <T: JdbcServer> T.getDataSource(): HikariDataSource {
+fun <T: JdbcServer> T.getDataSource(
+    initializer: HikariConfig.() -> Unit = {},
+): HikariDataSource {
     val config = HikariConfig().also {
         it.driverClassName = getDriverClassName()
         it.jdbcUrl = getJdbcUrl()
         it.username = getUsername()
         it.password = getPassword()
+
+        it.apply(initializer)
     }
     return HikariDataSource(config)
 }
@@ -65,12 +69,16 @@ fun <T: JdbcServer> T.getDataSource(): HikariDataSource {
 /**
  * Database 접속을 위한 [HikariDataSource]를 제공합니다.
  */
-fun <T: JdbcServer> T.getHikariDataSource(): HikariDataSource {
+inline fun <T: JdbcServer> T.getHikariDataSource(
+    initializer: HikariConfig.() -> Unit = {},
+): HikariDataSource {
     val config = HikariConfig().also {
         it.driverClassName = getDriverClassName()
         it.jdbcUrl = getJdbcUrl()
         it.username = getUsername()
         it.password = getPassword()
+
+        it.apply(initializer)
     }
     return HikariDataSource(config)
 }

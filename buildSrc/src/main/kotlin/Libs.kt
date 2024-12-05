@@ -1335,6 +1335,14 @@ object Libs {
     // OpenSearch Testcontainers
     const val testcontainers_opensearch = "org.opensearch:opensearch-testcontainers:2.0.1"
 
+    // rest-assured
+    fun restAssured(module: String) = "io.rest-assured:$module:${Versions.rest_assured}"
+    val rest_assured = restAssured("rest-assured")
+    val rest_assured_all = restAssured("rest-assured-all")
+    val rest_assured_json_path = restAssured("json-path")
+    val rest_assured_kotlin = restAssured("kotlin-extensions")
+
+
     // -------------------------------------------------------------------------------------
 
     // Springdoc OpenAPI

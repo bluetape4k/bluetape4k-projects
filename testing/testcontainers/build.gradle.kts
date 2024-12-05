@@ -74,6 +74,13 @@ dependencies {
     compileOnly(Libs.kafka_clients)
     compileOnly(Libs.spring_kafka)
 
+    // Pulsar
+    compileOnly(Libs.testcontainers_pulsar)
+    compileOnly(Libs.pulsar_client)
+
+    // Redpanda
+    compileOnly(Libs.testcontainers_redpanda)
+
     // NATS
     compileOnly(Libs.jnats)
 
@@ -121,12 +128,35 @@ dependencies {
     compileOnly(Libs.minio)
     compileOnly(Libs.testcontainers_minio)
 
+    // Immudb
+    compileOnly(Libs.immudb4j)
+
     // Curator framework for ZooKeeper
     compileOnly(Libs.curator_framework)
+
+    // Ollama
+    compileOnly(Libs.testcontainers_ollama)
+    testImplementation(Libs.rest_assured)
+    testImplementation(Libs.rest_assured_kotlin)
 
     // Nginx
     compileOnly(Libs.testcontainers_nginx)
 
+    // ClickHouse
+    compileOnly(Libs.testcontainers_clickhouse)
+    testImplementation(Libs.clickhouse_jdbc)
+    testImplementation(Libs.httpclient5)
+
+    // Weaviate
+    compileOnly(Libs.testcontainers_weaviate)
+    compileOnly(Libs.weaviate_client)
+
+    // ChromaDB
+    compileOnly(Libs.testcontainers_chromadb)
+
+    // TiDB
+    compileOnly(Libs.testcontainers_tidb)
+    testImplementation(Libs.mysql_connector_j)
 
     testImplementation(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)

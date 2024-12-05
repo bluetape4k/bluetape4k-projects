@@ -1,10 +1,12 @@
 package io.bluetape4k.testcontainers.database
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy
 import org.testcontainers.utility.DockerImageName
 
 /**
@@ -28,7 +30,7 @@ class PostgreSQLServer private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "postgres"
-        const val TAG: String = "9.6"
+        const val TAG: String = "17"
         const val NAME = "postgresql"
         const val PORT = 5432
         const val USERNAME = "test"
@@ -55,6 +57,9 @@ class PostgreSQLServer private constructor(
             username: String = USERNAME,
             password: String = PASSWORD,
         ): PostgreSQLServer {
+            image.requireNotBlank("image")
+            tag.requireNotBlank("tag")
+
             val imageName = DockerImageName.parse(image).withTag(tag)
             return invoke(imageName, useDefaultPort, reuse, username, password)
         }
@@ -93,10 +98,15 @@ class PostgreSQLServer private constructor(
     init {
         // Docker 의 port 를 노출할 경우에는 이렇게 추가 해주어야 합니다.
         addExposedPorts(PORT)
+
         withUsername(username)
         withPassword(password)
-
         withReuse(reuse)
+
+        setWaitStrategy(HostPortWaitStrategy())
+
+        // 개발 시에만 사용하면 됩니다.
+        // withLogConsumer(Slf4jLogConsumer(log))
 
         if (useDefaultPort) {
             exposeCustomPorts(PORT)
