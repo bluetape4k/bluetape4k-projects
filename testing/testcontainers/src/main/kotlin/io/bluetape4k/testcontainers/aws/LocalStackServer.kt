@@ -39,7 +39,7 @@ class LocalStackServer private constructor(
     companion object: KLogging() {
         const val IMAGE = "localstack/localstack"
         const val NAME = "localstack"
-        const val TAG = "3.6"
+        const val TAG = "4"
         const val PORT = 4566
 
         /**
