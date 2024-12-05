@@ -1,6 +1,7 @@
 package io.bluetape4k.aws.kotlin.ses
 
 import aws.sdk.kotlin.services.ses.SesClient
+import io.bluetape4k.aws.kotlin.http.defaultCrtHttpEngineOf
 import io.bluetape4k.aws.kotlin.tests.endpointUrl
 import io.bluetape4k.aws.kotlin.tests.getCredentialsProvider
 import io.bluetape4k.aws.kotlin.tests.getLocalStackServer
@@ -35,6 +36,7 @@ abstract class AbstractKotlinSesTest {
         credentialsProvider = snsServer.getCredentialsProvider()
         endpointUrl = snsServer.endpointUrl
         region = snsServer.region
+        httpClient = defaultCrtHttpEngineOf()
     }.apply {
         log.info { "SesClient created with endpoint: ${snsServer.endpoint}" }
 

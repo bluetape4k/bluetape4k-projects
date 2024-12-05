@@ -19,8 +19,10 @@ import aws.sdk.kotlin.services.dynamodb.paginators.scanPaginated
 import aws.sdk.kotlin.services.dynamodb.putItem
 import aws.smithy.kotlin.runtime.ServiceException
 import aws.smithy.kotlin.runtime.auth.awscredentials.CredentialsProvider
+import aws.smithy.kotlin.runtime.http.engine.HttpClientEngine
 import aws.smithy.kotlin.runtime.net.url.Url
 import io.bluetape4k.aws.kotlin.dynamodb.model.toAttributeValue
+import io.bluetape4k.aws.kotlin.http.defaultCrtHttpEngineOf
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireNotBlank
@@ -34,20 +36,29 @@ private val log by lazy { KotlinLogging.logger { } }
 
 /**
  * [DynamoDbClient]를 생성합니다.
+ *
+ * @param endpointUrl S3 엔드포인트 URL
+ * @param region AWS 리전
+ * @param credentialsProvider AWS 자격 증명 제공자
+ * @param httpClientEngine [HttpClientEngine] 엔진 (기본적으로 [aws.smithy.kotlin.runtime.http.engine.crt.CrtHttpEngine] 를 사용합니다.)
+ * @param configurer [DynamoDbClient.Config.Builder] 를 통해 [DynamoDbClient.Config] 를 설정합니다.
+ *
+ * @return [DynamoDbClient] 인스턴스
  */
 fun dynamoDbClientOf(
-    endpoint: String,
+    endpointUrl: String? = null,
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
+    httpClientEngine: HttpClientEngine = defaultCrtHttpEngineOf(),
     configurer: DynamoDbClient.Config.Builder.() -> Unit = {},
 ): DynamoDbClient {
-    endpoint.requireNotBlank("endpoint")
+    endpointUrl.requireNotBlank("endpoint")
 
     return DynamoDbClient {
-        this.endpointUrl = Url.parse(endpoint)
+        endpointUrl?.let { this.endpointUrl = Url.parse(it) }
         region?.let { this.region = it }
         credentialsProvider?.let { this.credentialsProvider = it }
-
+        httpClient = httpClientEngine
         configurer()
     }
 }

@@ -1,6 +1,7 @@
 package io.bluetape4k.aws.kotlin.sqs
 
 import aws.sdk.kotlin.services.sqs.SqsClient
+import io.bluetape4k.aws.kotlin.http.defaultCrtHttpEngineOf
 import io.bluetape4k.aws.kotlin.tests.endpointUrl
 import io.bluetape4k.aws.kotlin.tests.getCredentialsProvider
 import io.bluetape4k.aws.kotlin.tests.getLocalStackServer
@@ -31,6 +32,7 @@ abstract class AbstractKotlinSqsTest {
         credentialsProvider = sqsServer.getCredentialsProvider()
         endpointUrl = sqsServer.endpointUrl
         region = sqsServer.region
+        httpClient = defaultCrtHttpEngineOf()
     }.apply {
         log.info { "SqsClient created with endpoint: ${sqsServer.endpoint}" }
 
