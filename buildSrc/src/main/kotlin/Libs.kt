@@ -85,6 +85,7 @@ object Versions {
     const val aws2 = "2.29.26"   // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
     const val aws2_crt = "0.33.5" // https://mvnrepository.com/artifact/software.amazon.awssdk.crt
     const val aws_kotlin = "1.3.87" // https://mvnrepository.com/artifact/aws.sdk.kotlin
+    const val aws_smithy_kotlin = "1.3.28" // https://mvnrepository.com/artifact/aws.smithy.kotlin/http-client-engine-crt-jvm
 
     const val grpc = "1.68.2"       // https://mvnrepository.com/artifact/io.grpc/grpc-stub
     const val grpc_kotlin = "1.4.1" // https://mvnrepository.com/artifact/io.grpc/grpc-kotlin-stub
@@ -642,6 +643,14 @@ object Libs {
     val aws_kotlin_sesv2 = awsKotlin("sesv2")       // Not yet released
     // deprecated
     // val aws_kotlin_testing = awsKotlin("testing")
+
+    // Aws Smithy Kotlin
+    fun awsSmithyKotlin(module:String, version:String = Versions.aws_smithy_kotlin) = "aws.smithy.kotlin:$module:$version"
+
+    val aws_smithy_kotlin_http = awsSmithyKotlin("http-jvm")
+    val aws_smithy_kotlin_http_client_engine_crt = awsSmithyKotlin("http-client-engine-crt-jvm")
+    val aws_smithy_kotlin_serde = awsSmithyKotlin("serde-jvm")
+    val aws_smithy_kotlin_serde_json = awsSmithyKotlin("serde-json-jvm")
 
     // AsyncHttpClient
     const val async_http_client = "org.asynchttpclient:async-http-client:${Versions.asynchttpclient}"
