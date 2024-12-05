@@ -74,6 +74,13 @@ dependencies {
     compileOnly(Libs.kafka_clients)
     compileOnly(Libs.spring_kafka)
 
+    // Pulsar
+    compileOnly(Libs.testcontainers_pulsar)
+    compileOnly(Libs.pulsar_client)
+
+    // Redpanda
+    compileOnly(Libs.testcontainers_redpanda)
+
     // NATS
     compileOnly(Libs.jnats)
 
