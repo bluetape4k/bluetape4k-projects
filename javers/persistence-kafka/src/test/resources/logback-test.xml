@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <immediateFlush>true</immediateFlush>
+        <encoder>
+            <!-- @formatter:off -->
+            <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) [%blue(%.24t)] %yellow(%logger{36}):%line: %msg%n%throwable</pattern>
+            <!-- @formatter:on -->
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <logger name="io.bluetape4k.javers" level="TRACE"/>
+
+    <logger name="org.javers.core" level="DEBUG"/>
+    <logger name="org.javers.repository" level="DEBUG"/>
+    <logger name="org.javers.JQL" level="DEBUG"/>
+    <logger name="org.javers.TypeMapper" level="DEBUG"/>
+
+    <root level="DEBUG">
+        <appender-ref ref="Console"/>
+    </root>
+</configuration>
