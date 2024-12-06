@@ -122,8 +122,8 @@ object Versions {
 
     const val agroal = "2.5"          // https://mvnrepository.com/artifact/io.agroal/agroal-api
 
-    const val blaze_persistence = "3.14.1" // https://mvnrepository.com/artifact/io.quarkus.platform/quarkus-blaze-persistence-bom
-    const val javers = "7.6.1"             // https://mvnrepository.com/artifact/org.javers/javers-core
+    const val blaze_persistence = "3.17.3" // https://mvnrepository.com/artifact/io.quarkus.platform/quarkus-blaze-persistence-bom
+    const val javers = "7.6.3"             // https://mvnrepository.com/artifact/org.javers/javers-core
 
     const val slf4j = "2.0.16"      // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
     const val logback = "1.5.12"     // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
@@ -1113,7 +1113,7 @@ object Libs {
     val blaze_persistence_integration_entity_view_spring = blazePersistenceIntegration("entity-view-spring")
 
     // Javers (https://javers.org - Java Audit library)
-    fun javers(module: String) = "org.javers:javers-$module:${Versions.javers}"
+    fun javers(module: String, version: String = Versions.javers) = "org.javers:javers-$module:$version"
     val javers_core = javers("core")
     val javers_spring = javers("spring")
     val javers_spring_jpa = javers("spring-jpa")
