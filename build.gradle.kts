@@ -22,6 +22,8 @@ plugins {
     id(Plugins.dependency_management) version Plugins.Versions.dependency_management
     id(Plugins.spring_boot) version Plugins.Versions.spring_boot apply false
 
+    id(Plugins.quarkus) version Plugins.Versions.quarkus apply false
+
     id(Plugins.dokka) version Plugins.Versions.dokka
     id(Plugins.testLogger) version Plugins.Versions.testLogger
     id(Plugins.shadow) version Plugins.Versions.shadow apply false
@@ -126,6 +128,11 @@ subprojects {
             // 테스트 시 아래와 같은 예외 메시지를 제거하기 위해서 
             // OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
             jvmArgs("-Xshare:off", "-Xmx8G")
+
+            if (project.name.contains("quarkus")) {
+                // [Quarkus Logging](https://quarkus.io/guides/logging)
+                systemProperty("java.util.logging.manager", "org.jboss.logmanager.LogManager")
+            }
 
             if (project.name.contains("quarkus")) {
                 // [Quarkus Logging](https://quarkus.io/guides/logging)

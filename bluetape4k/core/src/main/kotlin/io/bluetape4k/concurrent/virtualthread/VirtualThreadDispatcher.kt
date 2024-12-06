@@ -1,3 +1,5 @@
+@file:Suppress("UnusedReceiverParameter")
+
 package io.bluetape4k.concurrent.virtualthread
 
 import kotlinx.coroutines.CoroutineDispatcher
