@@ -19,6 +19,7 @@ object Plugins {
         const val kotlinx_benchmark = "0.4.13" // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-benchmark-plugin
 
         const val spring_boot = "3.4.0"  // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies
+        const val quarkus = "3.17.3"      // https://mvnrepository.com/artifact/io.quarkus/quarkus-bom
         const val docker_compose = "0.16.12"
     }
 
@@ -26,6 +27,7 @@ object Plugins {
     const val dokka = "org.jetbrains.dokka"
     const val dependency_management = "io.spring.dependency-management"
     const val spring_boot = "org.springframework.boot"
+    const val quarkus = "io.quarkus"
 
     // https://github.com/etiennestuder/gradle-jooq-plugin
     const val jooq = "nu.studer.jooq"
@@ -69,8 +71,20 @@ object Versions {
     const val chaos_monkey = "3.0.2"
     const val blockhound = "1.0.8.RELEASE"
 
+    const val quarkus = Plugins.Versions.quarkus
+
+    object Quarkiverse {
+        const val aws = "1.1.3"             //
+        const val junit5_mockk = "1.1.1"
+        const val logging_sentry = "1.2.1"
+        const val vault = "1.1.0"
+        const val reactive_messaging_http = "1.0.3"
+    }
+
+    const val resteasy = "6.2.11.Final"       // https://mvnrepository.com/artifact/org.jboss.resteasy/resteasy-bom
     const val mutiny = "2.6.2"              // https://mvnrepository.com/artifact/io.smallrye.reactive/mutiny
     const val vertx = "4.5.11"               // https://mvnrepository.com/artifact/io.vertx/vertx-core
+    const val camel_quarkus = "3.16.0"       // https://mvnrepository.com/artifact/org.apache.camel.quarkus/camel-quarkus-bom
 
     const val swagger = "1.6.2"
     const val springdoc_openapi = "2.2.0"
@@ -442,6 +456,72 @@ object Libs {
 
     // Chaos Monkey (https://github.com/codecentric/chaos-monkey-spring-boot)
     const val chaos_monkey_spring_boot = "de.codecentric:chaos-monkey-spring-boot:${Versions.chaos_monkey}"
+
+    // Quarkus
+    fun quarkus(extension: String) = "io.quarkus:quarkus-$extension:${Versions.quarkus}"
+
+    const val quarkus_bom = "io.quarkus.platform:quarkus-bom:${Versions.quarkus}"
+    val quarkus_universe_bom = quarkus("universe-bom")
+
+    val quarkus_arc = quarkus("arc")
+    val quarkus_hibernate_reactive_panache = quarkus("hibernate-reactive-panache")
+    val quarkus_junit5 = quarkus("junit5")
+    val quarkus_kotlin = quarkus("kotlin")
+    val quarkus_mutiny = quarkus("mutiny")
+    val quarkus_opentelemetry = quarkus("opentelemetry")
+    val quarkus_security = quarkus("security")
+    val quarkus_vertx = quarkus("vertx")
+    val quarkus_vertx_http = quarkus("vertx-http")
+
+    val quarkus_reactive_routes = quarkus("reactive-routes")
+    val quarkus_reactive_mysql_client = quarkus("reactive-routes-mysql-client")
+    val quarkus_reactive_pg_client = quarkus("reactive-routes-pg-client")
+
+    val quarkus_test_security = quarkus("test-security")
+    val quarkus_test_keycloak_server = quarkus("test-keycloak-server")
+
+    // Quarkiverse AWS
+    const val quarkiverse_aws_bom =
+        "io.quarkiverse.amazonservices:quarkus-amazon-services-bom:${Versions.Quarkiverse.aws}"
+
+    fun quarkiverseAws(module: String) = "io.quarkiverse.amazonservices:quarkus-amazon-$module"
+    val quarkiverse_amazon_s3 = quarkiverseAws("s3")
+
+    // Quarkiverse ( https://github.com/quarkiverse/quarkiverse/wiki )
+    // Quarkiverse/quarkus-mockk (https://github.com/quarkiverse/quarkus-mockk)
+    const val quarkiverse_junit5_mockk =
+        "io.quarkiverse.mockk:quarkus-junit5-mockk:${Versions.Quarkiverse.junit5_mockk}"
+    const val quarkiverse_logging_sentry =
+        "io.quarkiverse.loggingsentry:quarkus-logging-sentry:${Versions.Quarkiverse.logging_sentry}"
+    const val quarkiverse_vault = "io.Quarkiverse.vault:quarkus-vault:${Versions.Quarkiverse.vault}"
+
+    const val quarkiverse_reactivemessaing_http = "io.quarkiverse.reactivemessaging.http:quarkus-reactive-messaging-http:${Versions.Quarkiverse.reactive_messaging_http}"
+
+    // Quarkus Blaze Persistence
+    const val quarkus_blaze_persistence_bom = "io.quarkus.platform:quarkus-blaze-persistence-bom:${Versions.quarkus}"
+
+    // Smallrye
+    fun smallrye(module: String) = "io.smallrye:smallrye-$module"
+    fun smallryeReactive(module: String) = "io.smallrye.reactive:smallrye-$module"
+
+    // Resteasy (https://resteasy.dev/)
+    fun resteasy(module: String, version: String = Versions.resteasy) = "org.jboss.resteasy:resteasy-$module:$version"
+    val resteasy_bom = resteasy("bom")
+
+    val resteasy_cdi = resteasy("cdi")
+    val resteasy_client = resteasy("client")
+    val resteasy_jackson2_provider = resteasy("jackson2-provider")
+    val resteasy_spring = resteasy("spring")
+    val resteasy_vertx = resteasy("vertx")
+
+    // Camel Quarkus
+    fun camelQuarkus(extension: String, version: String = Versions.camel_quarkus) =
+        "org.apache.camel.quarkus:camel-quarkus-$extension:$version"
+
+    val camel_quarkus_bom = camelQuarkus("bom")
+    val camel_quarkus_sql = camelQuarkus("sql")
+    val camel_quarkus_kotlin = camelQuarkus("kotlin")
+    val camel_quarkus_vertx = camelQuarkus("vertx")
 
     // Vert.x (https://vertx.io/docs/)
     fun vertx(module: String, version: String = Versions.vertx) = "io.vertx:vertx-$module:$version"
@@ -1135,7 +1215,7 @@ object Libs {
     val agroal_hikari = agroal("hikari")
     val agroal_spring_boot_starter = agroal("spring-boot-starter")
 
-    const val mysql_connector_j = "com.mysql:mysql-connector-j:9.0.0"  // https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
+    const val mysql_connector_j = "com.mysql:mysql-connector-j:9.1.0"  // https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
     const val mariadb_java_client = "org.mariadb.jdbc:mariadb-java-client:3.4.1"  // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
     const val postgresql_driver = "org.postgresql:postgresql:42.7.4"  // https://mvnrepository.com/artifact/org.postgresql/postgresql
     const val oracle_ojdbc8 = "com.oracle.ojdbc:ojdbc8:19.3.0.0"
