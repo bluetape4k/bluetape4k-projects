@@ -4,7 +4,8 @@ configurations {
 
 dependencies {
 
-    api(project(":bluetape4k-core"))
+    api(project(":bluetape4k-io"))
+    api(project(":bluetape4k-grpc"))
     api(project(":bluetape4k-jackson"))
     api(project(":bluetape4k-idgenerators"))
     compileOnly(project(":bluetape4k-hibernate"))
@@ -28,6 +29,7 @@ dependencies {
     // Codec
     compileOnly(Libs.kryo)
     compileOnly(Libs.fury)
+
 
     // Compressor
     compileOnly(Libs.lz4_java)

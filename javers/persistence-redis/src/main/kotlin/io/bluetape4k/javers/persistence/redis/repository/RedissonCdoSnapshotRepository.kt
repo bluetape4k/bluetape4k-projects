@@ -27,7 +27,7 @@ import org.redisson.codec.CompositeCodec
 class RedissonCdoSnapshotRepository(
     val name: String,
     private val redisson: RedissonClient,
-    codec: GsonCodec<ByteArray> = GsonCodecs.LZ4Kryo,
+    codec: GsonCodec<ByteArray> = GsonCodecs.LZ4Fury,
 ): AbstractCdoSnapshotRepository<ByteArray>(codec) {
 
     companion object: KLogging() {

@@ -29,6 +29,14 @@ object GsonCodecs {
     val SnappyKryo by unsafeLazy { CompressableBinaryGsonCodec(Kryo, Compressors.Snappy) }
     val ZstdKryo by unsafeLazy { CompressableBinaryGsonCodec(Kryo, Compressors.Zstd) }
 
+    val Fury by unsafeLazy { BinaryGsonCodec(BinarySerializers.Fury) }
+
+    val GZipFury by unsafeLazy { CompressableBinaryGsonCodec(Fury, Compressors.GZip) }
+    val DeflateFury by unsafeLazy { CompressableBinaryGsonCodec(Fury, Compressors.Deflate) }
+    val LZ4Fury by unsafeLazy { CompressableBinaryGsonCodec(Fury, Compressors.LZ4) }
+    val SnappyFury by unsafeLazy { CompressableBinaryGsonCodec(Fury, Compressors.Snappy) }
+    val ZstdFury by unsafeLazy { CompressableBinaryGsonCodec(Fury, Compressors.Zstd) }
+
     // Map
     val Map by unsafeLazy { MapGsonCodec() }
 }

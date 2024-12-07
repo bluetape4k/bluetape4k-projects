@@ -10,12 +10,13 @@ class RedissonJaversCommitTest: AbstractJaversCommitTest() {
 
     companion object: KLogging()
 
+    private val redisson by lazy { RedisServer.Launcher.RedissonLib.getRedisson() }
+
     override fun newJavers(): Javers {
         // NOTE: 각각의 테스트가 Javers를 매번 새롭게 만들고, Snapshot정보를 clear해야 하므로 Redis를 Flush합니다.
-        val redisson = RedisServer.Launcher.RedissonLib.getRedisson()
         redisson.keys.flushdb()
 
-        val repository = RedissonCdoSnapshotRepository("kommons:redisson", redisson)
+        val repository = RedissonCdoSnapshotRepository("bluetape4k:redisson", redisson)
 
         return JaversBuilder.javers()
             .registerJaversRepository(repository)

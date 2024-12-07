@@ -10,12 +10,13 @@ class LettuceJaversCommitTest: AbstractJaversCommitTest() {
 
     companion object: KLogging()
 
+    private val lettuceClient by lazy { RedisServer.Launcher.LettuceLib.getRedisClient() }
+
     override fun newJavers(): Javers {
         // NOTE: 각각의 테스트가 Javers를 매번 새롭게 만들고, Snapshot정보를 clear해야 하므로 Redis를 Flush합니다.
-        val lettuceClient = RedisServer.Launcher.LettuceLib.getRedisClient()
         lettuceClient.connect().sync().flushdb()
 
-        val repository = LettuceCdoSnapshotRepository("kommons:lettuce", lettuceClient)
+        val repository = LettuceCdoSnapshotRepository("bluetape4k:lettuce", lettuceClient)
 
         return JaversBuilder.javers()
             .registerJaversRepository(repository)
