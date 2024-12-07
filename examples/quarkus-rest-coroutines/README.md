@@ -49,6 +49,12 @@ Or, if you don't have GraalVM installed, you can run the native executable build
 gradle build -Dquarkus.native.enabled=true -Dquarkus.native.container-build=true
 ```
 
+or brew 로 `quarkus` 설치 후 다음과 같이 실행하면 됩니다.
+
+```shell script
+quarkus build --native
+```
+
 You can then execute your native executable with: `./build/quarkus-rest-coroutines-1.0.0-SNAPSHOT-runner`
 
 If you want to learn more about building native executables, please consult <https://quarkus.io/guides/gradle-tooling>.
