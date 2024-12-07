@@ -38,6 +38,7 @@ includeModules("examples", withProjectName = true, withBaseDir = true)
 //includeModules("workshop/kafka", false, false)
 //
 //includeModules("workshop/ratelimiter", false, false)
+includeModules("workshop/quarkus", false, false)
 includeModules("workshop/spring-boot", false, false)
 //includeModules("workshop/spring-cloud", false, false)
 includeModules("workshop/spring-data", false, false)
