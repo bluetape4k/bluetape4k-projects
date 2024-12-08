@@ -25,17 +25,9 @@ configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
 }
 
-dependencyManagement {
-    imports {
-        mavenBom(Libs.quarkus_bom)
-        mavenBom(Libs.quarkus_universe_bom)
-        mavenBom(Libs.resteasy_bom)
-    }
-}
-
 dependencies {
     // NOTE: Quarkus 는 꼭 gradle platform 으로 참조해야 제대로 빌드가 된다.
-    implementation(enforcedPlatform(Libs.quarkus_bom))
+    implementation(platform(Libs.quarkus_bom))
     implementation(platform(Libs.quarkus_universe_bom))
     implementation(platform(Libs.resteasy_bom))
 
@@ -50,13 +42,8 @@ dependencies {
     compileOnly(project(":bluetape4k-testcontainers"))
     compileOnly(project(":bluetape4k-junit5"))
 
-    api(Libs.kotlin_scripting_compiler_embeddable)
-    api(Libs.kotlin_scripting_compiler_impl_embeddable)
-    api(Libs.kotlin_script_runtime)
-
     api(Libs.quarkus_kotlin)
     implementation(Libs.quarkus_arc)
-
 
     compileOnly(Libs.quarkus_hibernate_reactive_panache)
     compileOnly(Libs.quarkus_opentelemetry)
