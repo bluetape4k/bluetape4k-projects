@@ -14,13 +14,14 @@ import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.redisson.api.RateType
-import java.time.Duration
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 
 
 class RateLimiterExamples: AbstractRedissonCoroutineTest() {
 
     companion object: KLogging() {
-        private val defaultDuration = Duration.ofSeconds(100)
+        private val defaultDuration = 100.seconds.toJavaDuration()
     }
 
     @Test
@@ -125,15 +126,16 @@ class RateLimiterExamples: AbstractRedissonCoroutineTest() {
             .numThreads(4)
             .roundsPerJob(4)
             .add {
-                val redisson = newRedisson()
-                // RRateLimiter Exception----RateLimiter is not initialized
-                // https://github.com/redisson/redisson/issues/2451
-                val limiter2 = redisson.getRateLimiter(limiterName)
-                limiter2.trySetRateAsync(RateType.PER_CLIENT, 3, defaultDuration).coAwait()
-                    .shouldBeFalse()               // 이미 limiter1 에서 initialize 했으므로, false 를 반환한다
-                delay(1)
-
+                // RateType 이 PER_CLIENT 인 경우, RedissonClient 인스턴스 별로 rate limit 를 따로 허용한다
+                val redisson1 = newRedisson()
                 try {
+                    // RRateLimiter Exception----RateLimiter is not initialized
+                    // https://github.com/redisson/redisson/issues/2451
+                    val limiter2 = redisson1.getRateLimiter(limiterName)
+                    limiter2.trySetRateAsync(RateType.PER_CLIENT, 3, defaultDuration)
+                        .coAwait().shouldBeFalse()  // 이미 limiter1 에서 initialize 했으므로, false 를 반환한다
+                    delay(1)
+
                     // limiter2는 3개 모두 소진
                     repeat(3) {
                         limiter2.tryAcquireAsync(1).coAwait().shouldBeTrue()
@@ -143,7 +145,7 @@ class RateLimiterExamples: AbstractRedissonCoroutineTest() {
                     limiter2.availablePermitsAsync().coAwait() shouldBeEqualTo 0L
                     limiter2.tryAcquireAsync(1).coAwait().shouldBeFalse()
                 } finally {
-                    redisson.shutdown()
+                    redisson1.shutdown()
                 }
                 delay(1)
             }
