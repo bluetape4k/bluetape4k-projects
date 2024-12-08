@@ -250,6 +250,7 @@ object Libs {
     val kotlin_daemon_client = kotlin("daemon-client")
     val kotlin_scripting_common = kotlin("scripting-common")
     val kotlin_scripting_compiler_embeddable = kotlin("scripting-compiler-embeddable")
+    val kotlin_scripting_compiler_impl_embeddable = kotlin("scripting-compiler-impl-embeddable")
     val kotlin_scripting_jvm = kotlin("scripting-jvm")
     val kotlin_script_runtime = kotlin("script-runtime")
     val kotlin_script_util = kotlin("scripting-util")
