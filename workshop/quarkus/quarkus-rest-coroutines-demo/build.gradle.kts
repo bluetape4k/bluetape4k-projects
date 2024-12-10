@@ -16,7 +16,7 @@ configurations {
 
 dependencies {
     // NOTE: Quarkus 는 꼭 gradle platform 으로 참조해야 제대로 빌드가 된다.
-    implementation(platform(Libs.quarkus_bom))
+    implementation(enforcedPlatform(Libs.quarkus_bom))
     implementation(platform(Libs.quarkus_universe_bom))
     implementation(platform(Libs.resteasy_bom))
 
