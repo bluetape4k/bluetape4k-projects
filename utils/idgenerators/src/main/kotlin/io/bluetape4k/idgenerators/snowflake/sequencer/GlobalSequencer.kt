@@ -64,7 +64,7 @@ class GlobalSequencer: Sequencer {
     }
 
     private fun updateState() {
-        lock.withLock {
+        // lock.withLock {
             currentTimestamp = System.currentTimeMillis()
 
             if (currentTimestamp == lastTimestamp) {
@@ -87,6 +87,6 @@ class GlobalSequencer: Sequencer {
                 machineId = 0
                 lastTimestamp = currentTimestamp
             }
-        }
+        // }
     }
 }

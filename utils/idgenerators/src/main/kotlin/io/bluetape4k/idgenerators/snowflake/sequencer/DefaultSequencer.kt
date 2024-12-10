@@ -54,7 +54,7 @@ internal class DefaultSequencer(machineId: Int = getMachineId(MAX_MACHINE_ID)): 
     }
 
     private fun updateState() {
-        lock.withLock {
+        // lock.withLock {
             currentTimestamp = System.currentTimeMillis()
 
             if (currentTimestamp == lastTimestamp) {
@@ -71,6 +71,6 @@ internal class DefaultSequencer(machineId: Int = getMachineId(MAX_MACHINE_ID)): 
                 sequence = 0
                 lastTimestamp = currentTimestamp
             }
-        }
+        // }
     }
 }

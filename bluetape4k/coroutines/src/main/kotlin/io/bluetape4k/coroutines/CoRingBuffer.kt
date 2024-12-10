@@ -6,7 +6,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.locks.ReentrantLock
 
 /**
  * Coroutines 환경에서 사용하는 RingBuffer 입니다.
@@ -35,7 +34,7 @@ class CoRingBuffer<T: Any>(
     }
 
     private val mutex: Mutex = Mutex()
-    private val lock = ReentrantLock()
+    private val lock = Mutex()
 
     var size: Int = size
         private set
