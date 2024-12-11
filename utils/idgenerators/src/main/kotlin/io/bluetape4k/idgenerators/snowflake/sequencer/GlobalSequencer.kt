@@ -22,9 +22,6 @@ class GlobalSequencer: Sequencer {
     companion object: KLogging()
 
     @Volatile
-    private var currentTimestamp: Long = -1L
-
-    @Volatile
     private var lastTimestamp: Long = -1L
 
     private val machineIdSequencer = atomic(0)
@@ -64,29 +61,27 @@ class GlobalSequencer: Sequencer {
     }
 
     private fun updateState() {
-        // lock.withLock {
-            currentTimestamp = System.currentTimeMillis()
+        var currentTimestamp = System.currentTimeMillis()
 
-            if (currentTimestamp == lastTimestamp) {
-                sequencer.incrementAndGet()
-                if (sequence >= MAX_SEQUENCE) {
-                    machineIdSequencer.incrementAndGet()
-                    // sequence 가 MAX_SEQUENCE 값보다 증가하면, 다음 milliseconds까지 기다립니다.
-                    if (machineId >= MAX_MACHINE_ID) {
-                        while (currentTimestamp == lastTimestamp) {
-                            currentTimestamp = System.currentTimeMillis()
-                        }
-                        machineId = 0
-                        lastTimestamp = currentTimestamp
+        if (currentTimestamp == lastTimestamp) {
+            sequencer.incrementAndGet()
+            if (sequence >= MAX_SEQUENCE) {
+                machineIdSequencer.incrementAndGet()
+                // sequence 가 MAX_SEQUENCE 값보다 크거나 같다면, 다음 milliseconds까지 기다립니다.
+                if (sequencer.value >= MAX_SEQUENCE) {
+                    while (currentTimestamp == lastTimestamp) {
+                        currentTimestamp = System.currentTimeMillis()
                     }
-                    sequence = 0
+                    machineId = 0
+                    lastTimestamp = currentTimestamp
                 }
-            } else {
-                // Reset sequence and machine id
                 sequence = 0
-                machineId = 0
-                lastTimestamp = currentTimestamp
             }
-        // }
+        } else {
+            // Reset sequence and machine id
+            sequence = 0
+            machineId = 0
+            lastTimestamp = currentTimestamp
+        }
     }
 }
