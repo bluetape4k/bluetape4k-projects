@@ -40,7 +40,7 @@ dependencies {
 
     // Codec
     compileOnly(Libs.kryo)
-    compileOnly(Libs.fury)
+    compileOnly(Libs.fury_kotlin)
 
     // Compression
     compileOnly(Libs.lz4_java)

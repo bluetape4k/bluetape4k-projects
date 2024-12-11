@@ -9,6 +9,7 @@ import io.bluetape4k.redis.redisson.coroutines.coAwait
 import kotlinx.atomicfu.atomic
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
+import org.redisson.client.codec.StringCodec
 
 
 class TopicExamples: AbstractRedissonCoroutineTest() {
@@ -17,7 +18,7 @@ class TopicExamples: AbstractRedissonCoroutineTest() {
 
     @Test
     fun `add topic listener`() = runSuspendIO {
-        val topic = redisson.getTopic(randomName())
+        val topic = redisson.getTopic(randomName(), StringCodec.INSTANCE)
         val receivedCounter = atomic(0)
         val receivedCount by receivedCounter
 

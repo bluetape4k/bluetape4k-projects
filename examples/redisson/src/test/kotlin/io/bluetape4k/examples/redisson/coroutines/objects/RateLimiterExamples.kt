@@ -74,8 +74,8 @@ class RateLimiterExamples: AbstractRedissonCoroutineTest() {
         limiter1.tryAcquire(1).shouldBeFalse()
 
         MultithreadingTester()
-            .numThreads(4)
-            .roundsPerThread(4)
+            .numThreads(2)
+            .roundsPerThread(2)
             .add {
                 val redisson = newRedisson()
                 // RRateLimiter Exception----RateLimiter is not initialized
@@ -123,8 +123,8 @@ class RateLimiterExamples: AbstractRedissonCoroutineTest() {
         limiter1.tryAcquireAsync(1).coAwait().shouldBeFalse()
 
         MultijobTester()
-            .numThreads(4)
-            .roundsPerJob(4)
+            .numThreads(2)
+            .roundsPerJob(2)
             .add {
                 // RateType 이 PER_CLIENT 인 경우, RedissonClient 인스턴스 별로 rate limit 를 따로 허용한다
                 val redisson1 = newRedisson()

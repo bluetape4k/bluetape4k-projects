@@ -38,7 +38,7 @@ dependencies {
     compileOnly(Libs.commons_compress)
 
     // Binary Serializers
-    compileOnly(Libs.fury)
+    compileOnly(Libs.fury_kotlin)
     compileOnly(Libs.kryo)
 
     // Apple Silicon

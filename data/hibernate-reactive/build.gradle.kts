@@ -77,7 +77,7 @@ dependencies {
     testImplementation(project(":bluetape4k-jackson"))
 
     testImplementation(Libs.kryo)
-    testImplementation(Libs.fury)
+    testImplementation(Libs.fury_kotlin)
 
     testImplementation(Libs.lz4_java)
     testImplementation(Libs.snappy_java)

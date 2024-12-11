@@ -27,7 +27,7 @@ dependencies {
 
     // Serialization
     compileOnly(Libs.kryo)
-    compileOnly(Libs.fury)
+    compileOnly(Libs.fury_kotlin)
 
     // Caching
     compileOnly(project(":bluetape4k-cache"))

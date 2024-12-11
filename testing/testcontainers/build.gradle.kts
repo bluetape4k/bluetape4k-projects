@@ -43,7 +43,7 @@ dependencies {
     compileOnly(Libs.lettuce_core)
 
     compileOnly(Libs.kryo)
-    compileOnly(Libs.fury)
+    compileOnly(Libs.fury_kotlin)
 
     compileOnly(Libs.commons_compress)
     compileOnly(Libs.snappy_java)

@@ -27,7 +27,7 @@ dependencies {
 
     // Codec
     api(Libs.kryo)
-    api(Libs.fury)
+    api(Libs.fury_kotlin)
 
     // Compressor
     api(Libs.lz4_java)
