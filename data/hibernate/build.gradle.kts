@@ -93,7 +93,7 @@ dependencies {
     compileOnly(Libs.jackson_module_blackbird)
 
     testImplementation(Libs.kryo)
-    testImplementation(Libs.fury)
+    testImplementation(Libs.fury_kotlin)
 
     testImplementation(Libs.commons_compress)
     testImplementation(Libs.snappy_java)

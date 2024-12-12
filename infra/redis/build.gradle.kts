@@ -67,7 +67,7 @@ dependencies {
 
     // Codecs
     compileOnly(Libs.kryo)
-    compileOnly(Libs.fury)
+    compileOnly(Libs.fury_kotlin)
 
     compileOnly(Libs.jackson_dataformat_protobuf)
 

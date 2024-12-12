@@ -1,6 +1,7 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
+import io.bluetape4k.redis.redisson.RedissonCodecs
 import io.bluetape4k.redis.redisson.coroutines.coAwait
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
@@ -23,7 +24,7 @@ class PriorityQueueExamples: AbstractRedissonCoroutineTest() {
     @Test
     fun `use PriorityQueue`() = runTest {
         val queueName = randomName()
-        val queue = redisson.getPriorityQueue<Item>(queueName)
+        val queue = redisson.getPriorityQueue<Item>(queueName, RedissonCodecs.LZ4Fury)
 
         queue.add(Item("b", 1))
         queue.add(Item("c", 2))

@@ -37,7 +37,7 @@ dependencies {
 
     // Codecs
     compileOnly(Libs.kryo)
-    compileOnly(Libs.fury)
+    compileOnly(Libs.fury_kotlin)
 
     // Compressors
     compileOnly(Libs.commons_compress)

@@ -396,9 +396,9 @@ object Libs {
     const val marshalling = "org.jboss.marshalling:jboss-marshalling:2.1.2.Final"
     const val marshalling_river = "org.jboss.marshalling:jboss-marshalling-river:2.1.2.Final"
     const val marshalling_serial = "org.jboss.marshalling:jboss-marshalling-serial:2.1.2.Final"
-    // package 명도 다 바뀌어서 언제 전환해야 하나 고민이다.
-    const val fury = "org.apache.fury:fury-core:0.8.0" // https://mvnrepository.com/artifact/org.apache.fury
-    // const val fury = "org.furyio:fury-core:0.4.1"  // https://mvnrepository.com/artifact/org.furyio/fury-core
+
+    const val fury_core = "org.apache.fury:fury-core:0.9.0" // https://mvnrepository.com/artifact/org.apache.fury/fury-core
+    const val fury_kotlin = "org.apache.fury:fury-kotlin:0.9.0" // https://mvnrepository.com/artifact/org.apache.fury/fury-kotlin
 
     // Spring Boot
     const val spring_boot_dependencies = "org.springframework.boot:spring-boot-dependencies:${Versions.spring_boot}"
