@@ -42,8 +42,12 @@ dependencies {
     implementation(Libs.reactor_kotlin_extensions)
     testImplementation(Libs.reactor_test)
 
+    // Pods4k
+    compileOnly(Libs.pods4k_core)
+    compileOnly(Libs.pods4k_transformations_to_standard_collections)
+
     // Eclipse Collections
-    api(Libs.eclipse_collections)
+    compileOnly(Libs.eclipse_collections)
     compileOnly(Libs.eclipse_collections_forkjoin)
     testImplementation(Libs.eclipse_collections_testutils)
 
