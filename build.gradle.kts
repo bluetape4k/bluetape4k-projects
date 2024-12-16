@@ -289,6 +289,7 @@ subprojects {
             mavenBom(Libs.resilience4j_bom)
             mavenBom(Libs.netty_bom)
             mavenBom(Libs.jackson_bom)
+            mavenBom(Libs.pods4k_bom)
 
             mavenBom(Libs.kotlinx_coroutines_bom)
             mavenBom(Libs.kotlin_bom)

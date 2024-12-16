@@ -17,4 +17,5 @@ import kotlinx.coroutines.flow.Flow
  *
  * @param size chunk 크기. 0보다 커야 합니다.
  */
-fun <T> Flow<T>.chunked(size: Int): Flow<List<T>> = windowed(size, size)
+fun <T> Flow<T>.chunked(size: Int, partialWindow: Boolean = true): Flow<List<T>> =
+    windowed(size, size, partialWindow)

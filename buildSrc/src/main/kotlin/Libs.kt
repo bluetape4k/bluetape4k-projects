@@ -171,6 +171,7 @@ object Versions {
     const val kafka = "3.9.0"           // https://mvnrepository.com/artifact/org.apache.kafka/kafka
     const val spring_kafka = "3.3.0"    // https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka
 
+    const val pods4k = "0.6.0"              // https://mvnrepository.com/artifact/com.danrusu.pods4k/bom
     const val eclipse_collections = "11.1.0"  // https://mvnrepository.com/artifact/org.eclipse.collections/eclipse-collections
     const val jctools = "4.0.5"             // https://mvnrepository.com/artifact/org.jctools/jctools-core
 
@@ -381,6 +382,14 @@ object Libs {
 
     const val findbugs = "com.google.code.findbugs:jsr305:3.0.2"
     const val guava = "com.google.guava:guava:33.2.0-jre"
+
+    // Pods4k
+    fun pods4k(module: String, version: String = Versions.pods4k) = "com.danrusu.pods4k:$module:$version"
+    fun pods4kImmutableArrays(module: String, version: String = Versions.pods4k) = "com.danrusu.pods4k.immutable-arrays:$module:$version"
+
+    val pods4k_bom = pods4k("bom")
+    val pods4k_core = pods4kImmutableArrays("core")
+    val pods4k_transformations_to_standard_collections = pods4kImmutableArrays("transformations-to-standard-collections")
 
     const val eclipse_collections = "org.eclipse.collections:eclipse-collections:${Versions.eclipse_collections}"
     const val eclipse_collections_forkjoin =

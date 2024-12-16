@@ -13,7 +13,8 @@ import kotlinx.coroutines.flow.map
  *
  * ```
  * val flow = flowOf(1,2,3,4,5)
- * val windowed = flow.windowed(3, 1)   // {1,2,3}, {2,3,4}, {3,4,5}, {4,5}, {5}
+ * val windowed1 = flow.windowed(3, 1)       // [1,2,3], [2,3,4], [3,4,5]
+ * val windowed2 = flow.windowed(3, 1, true) // [1,2,3], [2,3,4], [3,4,5], [4,5], [5]
  * ```
  *
  * @param size window size (require positive number)
@@ -23,15 +24,16 @@ import kotlinx.coroutines.flow.map
  * @see [io.bluetape4k.coroutines.flow.extensions.sliding]
  * @see [io.bluetape4k.coroutines.flow.extensions.chunked]
  */
-fun <T> Flow<T>.windowed(size: Int, step: Int): Flow<List<T>> =
-    windowedInternal(size, step)
+fun <T> Flow<T>.windowed(size: Int, step: Int = 1, partialWindow: Boolean = false): Flow<List<T>> =
+    windowedInternal(size, step, partialWindow)
 
 /**
  * Flow 요소들을 windowing 을 수행하여 `Flow<Flow<T>>` 로 변환합니다.
  *
  * ```
  * val flow = flowOf(1,2,3,4,5)
- * val windowed = flow.windowedFlow(3, 1)   // {1,2,3}, {2,3,4}, {3,4,5}, {4,5}, {5}
+ * val windowed1 = flow.windowed(3, 1)       // [1,2,3], [2,3,4], [3,4,5]
+ * val windowed2 = flow.windowed(3, 1, true) // [1,2,3], [2,3,4], [3,4,5], [4,5], [5]
  * ```
  * @param size window size (require positive number)
  * @param step step (require positive number)
@@ -39,29 +41,32 @@ fun <T> Flow<T>.windowed(size: Int, step: Int): Flow<List<T>> =
  *
  * @see [windowed]
  */
-fun <T> Flow<T>.windowedFlow(size: Int, step: Int): Flow<Flow<T>> =
-    windowedInternal(size, step).map { it.asFlow() }
+fun <T> Flow<T>.windowedFlow(size: Int, step: Int, partialWindow: Boolean = false): Flow<Flow<T>> =
+    windowedInternal(size, step, partialWindow).map { it.asFlow() }
 
-private fun <T> Flow<T>.windowedInternal(size: Int, step: Int): Flow<List<T>> = channelFlow {
-    size.requireGt(0, "size")
-    step.requireGt(0, "step")
-    size.requireGe(step, "step")
+private fun <T> Flow<T>.windowedInternal(size: Int, step: Int = 1, partialWindow: Boolean = false): Flow<List<T>> =
+    channelFlow {
+        size.requireGt(0, "size")
+        step.requireGt(0, "step")
+        size.requireGe(step, "step")
 
-    var elements: MutableList<T> = ArrayList(size)
-    val counter = atomic(0)
+        var elements: MutableList<T> = ArrayList(size)
+        val counter = atomic(0)
 
-    this@windowedInternal.collect { element ->
-        elements.add(element)
-        if (counter.incrementAndGet() == size) {
-            send(elements)
-            elements = elements.drop(step).toMutableList()
-            counter.addAndGet(-step)
+        this@windowedInternal.collect { element ->
+            elements.add(element)
+            if (counter.incrementAndGet() == size) {
+                send(elements)
+                elements = elements.drop(step).toMutableList()
+                counter.addAndGet(-step)
+            }
+        }
+
+        if (partialWindow) {
+            while (counter.value > 0) {
+                send(elements)
+                elements = elements.drop(step).toMutableList()
+                counter.addAndGet(-step)
+            }
         }
     }
-
-    while (counter.value > 0) {
-        send(elements.take(step))
-        elements = elements.drop(step).toMutableList()
-        counter.addAndGet(-step)
-    }
-}
