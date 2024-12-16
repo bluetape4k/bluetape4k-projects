@@ -1,4 +1,4 @@
-package io.bluetape4k.coroutines.flow
+package io.bluetape4k.coroutines.flow.extensions
 
 import com.danrusu.pods4k.immutableArrays.immutableArrayOf
 import io.bluetape4k.logging.KLogging
@@ -18,13 +18,13 @@ class ImmutableArrayExtensionsTest {
 
     @Test
     fun `byte flow to immutable byte array`() = runTest {
-        val array = flowOf(1.toByte(), 2.toByte(), 3.toByte()).toImmutableByteArray()
+        val array = flowOf(1.toByte(), 2.toByte(), 3.toByte()).toImmutableArray()
         array shouldBeEqualTo immutableArrayOf(1.toByte(), 2.toByte(), 3.toByte())
     }
 
     @Test
     fun `char flow to immutable char array`() = runTest {
-        val array = flowOf('a', 'b', 'c').toImmutableCharArray()
+        val array = flowOf('a', 'b', 'c').toImmutableArray()
         array shouldBeEqualTo immutableArrayOf('a', 'b', 'c')
     }
 
@@ -36,7 +36,7 @@ class ImmutableArrayExtensionsTest {
 
     @Test
     fun `int flow to immutable int array`() = runTest {
-        val array = flowOf(1, 2, 3).toImmutableIntArray()
+        val array = flowOf(1, 2, 3).toImmutableArray()
         array shouldBeEqualTo immutableArrayOf(1, 2, 3)
     }
 
@@ -48,13 +48,13 @@ class ImmutableArrayExtensionsTest {
 
     @Test
     fun `float flow to immutable float array`() = runTest {
-        val array = flowOf(1.0f, 2.0f, 3.0f).toImmutableFloatArray()
+        val array = flowOf(1.0f, 2.0f, 3.0f).toImmutableArray()
         array shouldBeEqualTo immutableArrayOf(1.0f, 2.0f, 3.0f)
     }
 
     @Test
     fun `double flow to immutable double array`() = runTest {
-        val array = flowOf(1.0, 2.0, 3.0).toImmutableDoubleArray()
+        val array = flowOf(1.0, 2.0, 3.0).toImmutableArray()
         array shouldBeEqualTo immutableArrayOf(1.0, 2.0, 3.0)
     }
 }

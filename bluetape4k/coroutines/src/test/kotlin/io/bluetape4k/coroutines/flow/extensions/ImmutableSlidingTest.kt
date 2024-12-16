@@ -1,6 +1,10 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import app.cash.turbine.test
+import com.danrusu.pods4k.immutableArrays.ImmutableIntArray
+import com.danrusu.pods4k.immutableArrays.immutableArrayOf
+import com.danrusu.pods4k.immutableArrays.toImmutableArray
+import com.danrusu.pods4k.immutableArrays.toImmutableIntArray
 import io.bluetape4k.logging.KLogging
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.cancelChildren
@@ -20,18 +24,18 @@ import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
 
-class SlidingTest: AbstractFlowTest() {
+class ImmutableSlidingTest {
 
     companion object: KLogging()
 
     @Test
-    fun `sliding flow`() = runTest {
+    fun `sliding flow to immutable array`() = runTest {
         val slidingCounter = atomic(0)
         val slidingCount by slidingCounter
         val slidingSize = 5
 
         val sliding = flowRangeOf(1, 20).log("source")
-            .sliding(slidingSize).log("sliding")
+            .immutableSliding(slidingSize).log("sliding")
             .onEach { slide ->
                 slide.size shouldBeLessOrEqualTo slidingSize
                 slidingCounter.incrementAndGet()
@@ -41,17 +45,17 @@ class SlidingTest: AbstractFlowTest() {
         slidingCount shouldBeEqualTo 20
         sliding shouldHaveSize 20
 
-        sliding.first() shouldBeEqualTo listOf(1, 2, 3, 4, 5)
-        sliding.last() shouldBeEqualTo listOf(20)
+        sliding.first().toImmutableIntArray() shouldBeEqualTo immutableArrayOf(1, 2, 3, 4, 5)
+        sliding.last().toImmutableIntArray() shouldBeEqualTo immutableArrayOf(20)
     }
 
     @Test
-    fun `sliding flow with remaining`() = runTest {
+    fun `sliding flow with partial window to immutable array`() = runTest {
         val slidingCounter = atomic(0)
         val slidingSize = 3
 
         val sliding = flowRangeOf(1, 20).log("source")
-            .sliding(slidingSize).log("sliding")
+            .immutableSliding(slidingSize).log("sliding")
             .onEach { slide ->
                 slide.size shouldBeLessOrEqualTo slidingSize
                 slidingCounter.incrementAndGet()
@@ -61,36 +65,36 @@ class SlidingTest: AbstractFlowTest() {
         slidingCounter.value shouldBeEqualTo 20
         sliding shouldHaveSize 20
 
-        sliding.first() shouldBeEqualTo listOf(1, 2, 3)
-        sliding.last() shouldBeEqualTo listOf(20)
+        sliding.first().toImmutableIntArray() shouldBeEqualTo immutableArrayOf(1, 2, 3)
+        sliding.last().toImmutableIntArray() shouldBeEqualTo immutableArrayOf(20)
     }
 
     @Test
     fun `buffered sliding - 버퍼링을 하면서 sliding 합니다`() = runTest {
         val flow = flowOf(1, 2, 3, 4, 5)
 
-        val sliding = flow.bufferedSliding(3).log("buffered sliding")
+        val sliding = flow.immutableBufferedSliding(3).log("buffered sliding")
 
         sliding.test {
-            awaitItem() shouldBeEqualTo listOf(1)
-            awaitItem() shouldBeEqualTo listOf(1, 2)
-            awaitItem() shouldBeEqualTo listOf(1, 2, 3)
-            awaitItem() shouldBeEqualTo listOf(2, 3, 4)
-            awaitItem() shouldBeEqualTo listOf(3, 4, 5)
-            awaitItem() shouldBeEqualTo listOf(4, 5)
-            awaitItem() shouldBeEqualTo listOf(5)
+            awaitItem().toImmutableIntArray() shouldBeEqualTo immutableArrayOf(1)
+            awaitItem().toImmutableIntArray() shouldBeEqualTo immutableArrayOf(1, 2)
+            awaitItem().toImmutableIntArray() shouldBeEqualTo immutableArrayOf(1, 2, 3)
+            awaitItem().toImmutableIntArray() shouldBeEqualTo immutableArrayOf(2, 3, 4)
+            awaitItem().toImmutableIntArray() shouldBeEqualTo immutableArrayOf(3, 4, 5)
+            awaitItem().toImmutableIntArray() shouldBeEqualTo immutableArrayOf(4, 5)
+            awaitItem().toImmutableIntArray() shouldBeEqualTo immutableArrayOf(5)
             awaitComplete()
         }
     }
 
     @Test
     fun `sliding with cancellation`() = runTest {
-        flowRangeOf(0, 10)
-            .sliding(4).log("sliding")
+        flowRangeOf(0, 10).log("source")
+            .immutableSliding(4).log("sliding")
             .take(2)
             .test {
-                awaitItem() shouldBeEqualTo listOf(0, 1, 2, 3)
-                awaitItem() shouldBeEqualTo listOf(1, 2, 3, 4)
+                awaitItem().toImmutableIntArray() shouldBeEqualTo immutableArrayOf(0, 1, 2, 3)
+                awaitItem().toImmutableIntArray() shouldBeEqualTo immutableArrayOf(1, 2, 3, 4)
                 awaitComplete()
             }
     }
@@ -98,16 +102,17 @@ class SlidingTest: AbstractFlowTest() {
     @Test
     fun `sliding with mutable shared flow`() = runTest {
         val flow = MutableSharedFlow<Int>(extraBufferCapacity = 64)
-        val results = mutableListOf<List<Int>>()
+        val results = mutableListOf<ImmutableIntArray>()
 
         flow.sliding(3).log("job1")
             .onEach {
-                results += it
+                results += it.toImmutableArray()
                 if (it == listOf(1, 2, 3)) {
                     flow.tryEmit(4).shouldBeTrue()
                 }
             }
             .launchIn(this)
+
         yield()
 
         launch {
@@ -121,8 +126,8 @@ class SlidingTest: AbstractFlowTest() {
         this.coroutineContext.cancelChildren()
 
         results shouldBeEqualTo listOf(
-            listOf(1, 2, 3),
-            listOf(2, 3, 4)
+            immutableArrayOf(1, 2, 3),
+            immutableArrayOf(2, 3, 4)
         )
     }
 }

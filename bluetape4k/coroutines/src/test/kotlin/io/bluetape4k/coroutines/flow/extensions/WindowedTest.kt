@@ -32,30 +32,30 @@ class WindowedTest: AbstractFlowTest() {
                 }
                 .toList()
 
-            windowedCounter.value shouldBeEqualTo 20
-            windowed shouldHaveSize 20
+            windowedCounter.value shouldBeEqualTo 16
+            windowed shouldHaveSize 16
             windowed.first() shouldBeEqualTo listOf(1, 2, 3, 4, 5)
-            windowed.last() shouldBeEqualTo listOf(20)
+            windowed.last() shouldBeEqualTo listOf(16, 17, 18, 19, 20)
         }
 
         @Test
         fun `windowed flow with remaining`() = runTest {
             val windowedCounter = atomic(0)
             val windowedSize = 5
-            val windowedStep = 4
+            val windowedStep = 1
 
             val windowed = flowRangeOf(1, 20).log("source")
-                .windowed(windowedSize, windowedStep).log("windowed")
+                .windowed(windowedSize, windowedStep, true).log("windowed")
                 .onEach { windowed ->
                     windowed.size shouldBeLessOrEqualTo windowedSize
                     windowedCounter.incrementAndGet()
                 }
                 .toList()
 
-            windowedCounter.value shouldBeEqualTo 5
-            windowed shouldHaveSize 5
+            windowedCounter.value shouldBeEqualTo 20
+            windowed shouldHaveSize 20
             windowed.first() shouldBeEqualTo listOf(1, 2, 3, 4, 5)
-            windowed.last() shouldBeEqualTo listOf(17, 18, 19, 20)
+            windowed.last() shouldBeEqualTo listOf(20)
         }
 
         @Test
@@ -96,20 +96,20 @@ class WindowedTest: AbstractFlowTest() {
                 }
                 .toList()
 
-            windowedCounter.value shouldBeEqualTo 20
-            windowed shouldHaveSize 20
+            windowedCounter.value shouldBeEqualTo 16
+            windowed shouldHaveSize 16
             windowed.first().toList() shouldBeEqualTo listOf(1, 2, 3, 4, 5)
-            windowed.last().toList() shouldBeEqualTo listOf(20)
+            windowed.last().toList() shouldBeEqualTo listOf(16, 17, 18, 19, 20)
         }
 
         @Test
         fun `windowed flow with remaining`() = runTest {
             val windowedCounter = atomic(0)
             val windowedSize = 5
-            val windowedStep = 4
+            val windowedStep = 1
 
             val windowed = flowRangeOf(1, 20).log("source")
-                .windowedFlow(windowedSize, windowedStep).log("windowed")
+                .windowedFlow(windowedSize, windowedStep, true).log("windowed")
                 .onEach { windowed ->
                     val items = windowed.toList()
                     items.size shouldBeLessOrEqualTo windowedSize
@@ -117,10 +117,10 @@ class WindowedTest: AbstractFlowTest() {
                 }
                 .toList()
 
-            windowedCounter.value shouldBeEqualTo 5
-            windowed shouldHaveSize 5
+            windowedCounter.value shouldBeEqualTo 20
+            windowed shouldHaveSize 20
             windowed.first().toList() shouldBeEqualTo listOf(1, 2, 3, 4, 5)
-            windowed.last().toList() shouldBeEqualTo listOf(17, 18, 19, 20)
+            windowed.last().toList() shouldBeEqualTo listOf(20)
         }
 
         @Test

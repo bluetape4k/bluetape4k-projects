@@ -15,7 +15,8 @@ import kotlinx.coroutines.flow.channelFlow
  * @param size sliding size. (require greater than 0)
  * @return Flow<List<T>> 인스턴스
  */
-fun <T> Flow<T>.sliding(size: Int): Flow<List<T>> = windowed(size, 1)
+fun <T> Flow<T>.sliding(size: Int, partialWindow: Boolean = true): Flow<List<T>> =
+    windowed(size, 1, partialWindow)
 
 /**
  * [size] 만큼이 채워지기 전까지는 현재 요소만 반환하고, 모든 요소가 채워지면, sliding으로 진행한다
@@ -30,7 +31,7 @@ fun <T> Flow<T>.sliding(size: Int): Flow<List<T>> = windowed(size, 1)
  * @return Flow<List<T>> 인스턴스
  */
 fun <T> Flow<T>.bufferedSliding(size: Int): Flow<List<T>> = channelFlow {
-    size.requireGt(1, "sliding size")
+    size.requireGt(1, "size")
     val queue = ArrayList<T>(size)
 
     this@bufferedSliding.collect { element ->
