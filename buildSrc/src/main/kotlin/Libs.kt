@@ -190,7 +190,7 @@ object Versions {
     const val archunit = "1.3.0"           // https://mvnrepository.com/artifact/com.tngtech.archunit/archunit-junit5
     const val rest_assured = "5.5.0"        // https://mvnrepository.com/artifact/io.rest-assured/rest-assured
 
-    const val datafaker = "2.4.1"          // https://mvnrepository.com/artifact/net.datafaker/datafaker
+    const val datafaker = "2.4.2"          // https://mvnrepository.com/artifact/net.datafaker/datafaker
     const val snakeyaml = "2.3"            // https://mvnrepository.com/artifact/org.yaml/snakeyaml
     const val random_beans = "3.9.0"
 
