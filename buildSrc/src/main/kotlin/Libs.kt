@@ -185,7 +185,7 @@ object Versions {
     const val springmockk = "4.0.2"         // https://mvnrepository.com/artifact/com.ninja-squad/springmockk
     const val awaitility = "4.2.2"          // https://mvnrepository.com/artifact/org.awaitility/awaitility
     const val jmh = "1.37"                  // https://mvnrepository.com/artifact/org.openjdk.jmh/jmh-core
-    const val testcontainers = "1.20.3"     // https://mvnrepository.com/artifact/org.testcontainers/testcontainers
+    const val testcontainers = "1.20.4"     // https://mvnrepository.com/artifact/org.testcontainers/testcontainers
     const val jna = "5.15.0"                // https://mvnrepository.com/artifact/net.java.dev.jna/jna
     const val archunit = "1.3.0"           // https://mvnrepository.com/artifact/com.tngtech.archunit/archunit-junit5
     const val rest_assured = "5.5.0"        // https://mvnrepository.com/artifact/io.rest-assured/rest-assured
