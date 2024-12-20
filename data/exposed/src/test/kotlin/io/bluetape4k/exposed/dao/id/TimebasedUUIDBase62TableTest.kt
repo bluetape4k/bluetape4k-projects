@@ -1,32 +1,32 @@
-package io.bluetape4k.exposed.dao
+package io.bluetape4k.exposed.dao.id
 
 import io.bluetape4k.exposed.AbstractExposedTest
-import io.bluetape4k.exposed.dao.id.SnowflakeIdTable
+import io.bluetape4k.exposed.dao.StringEntity
+import io.bluetape4k.exposed.dao.StringEntityClass
 import io.bluetape4k.exposed.utils.runSuspendWithTables
 import io.bluetape4k.exposed.utils.runWithTables
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.awaitAll
 import org.amshove.kluent.shouldBeEqualTo
-import org.jetbrains.exposed.dao.LongEntity
-import org.jetbrains.exposed.dao.LongEntityClass
+import org.jetbrains.exposed.dao.entityCache
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
-class SnowflakeIdTableTest: AbstractExposedTest() {
+class TimebasedUUIDBase62TableTest: AbstractExposedTest() {
 
     companion object: KLogging()
 
-    object T1: SnowflakeIdTable() {
+    object T1: TimebasedUUIDBase62Table() {
         val name = varchar("name", 255)
         val age = integer("age")
     }
 
-    class E1(id: EntityID<Long>): LongEntity(id) {
-        companion object: LongEntityClass<E1>(T1)
+    class E1(id: EntityID<String>): StringEntity(id) {
+        companion object: StringEntityClass<E1>(T1)
 
         var name by T1.name
         var age by T1.age
@@ -42,6 +42,7 @@ class SnowflakeIdTableTest: AbstractExposedTest() {
                     age = faker.number().numberBetween(8, 80)
                 }
             }
+            entityCache.clear()
 
             T1.selectAll().count() shouldBeEqualTo entityCount.toLong()
         }
@@ -60,6 +61,8 @@ class SnowflakeIdTableTest: AbstractExposedTest() {
                 }
             }
             tasks.awaitAll()
+            entityCache.clear()
+
             T1.selectAll().count() shouldBeEqualTo entityCount.toLong()
         }
     }

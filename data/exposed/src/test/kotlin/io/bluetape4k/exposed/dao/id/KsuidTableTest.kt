@@ -1,24 +1,26 @@
-package io.bluetape4k.exposed.dao
+package io.bluetape4k.exposed.dao.id
 
 import io.bluetape4k.exposed.AbstractExposedTest
-import io.bluetape4k.exposed.dao.id.TimebasedUUIDBase62Table
+import io.bluetape4k.exposed.dao.StringEntity
+import io.bluetape4k.exposed.dao.StringEntityClass
 import io.bluetape4k.exposed.utils.runSuspendWithTables
 import io.bluetape4k.exposed.utils.runWithTables
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.awaitAll
 import org.amshove.kluent.shouldBeEqualTo
+import org.jetbrains.exposed.dao.entityCache
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
-class TimebasedUUIDBase62TableTest: AbstractExposedTest() {
+class KsuidTableTest: AbstractExposedTest() {
 
     companion object: KLogging()
 
-    object T1: TimebasedUUIDBase62Table() {
+    object T1: KsuidTable() {
         val name = varchar("name", 255)
         val age = integer("age")
     }
@@ -40,6 +42,7 @@ class TimebasedUUIDBase62TableTest: AbstractExposedTest() {
                     age = faker.number().numberBetween(8, 80)
                 }
             }
+            entityCache.clear()
 
             T1.selectAll().count() shouldBeEqualTo entityCount.toLong()
         }
@@ -58,6 +61,8 @@ class TimebasedUUIDBase62TableTest: AbstractExposedTest() {
                 }
             }
             tasks.awaitAll()
+            entityCache.clear()
+
             T1.selectAll().count() shouldBeEqualTo entityCount.toLong()
         }
     }

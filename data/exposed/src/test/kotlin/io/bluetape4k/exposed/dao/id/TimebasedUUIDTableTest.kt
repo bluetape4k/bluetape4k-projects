@@ -1,7 +1,6 @@
-package io.bluetape4k.exposed.dao
+package io.bluetape4k.exposed.dao.id
 
 import io.bluetape4k.exposed.AbstractExposedTest
-import io.bluetape4k.exposed.dao.id.TimebasedUUIDTable
 import io.bluetape4k.exposed.utils.runSuspendWithTables
 import io.bluetape4k.exposed.utils.runWithTables
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -10,6 +9,7 @@ import kotlinx.coroutines.awaitAll
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.exposed.dao.UUIDEntity
 import org.jetbrains.exposed.dao.UUIDEntityClass
+import org.jetbrains.exposed.dao.entityCache
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
@@ -43,6 +43,7 @@ class TimebasedUUIDTableTest: AbstractExposedTest() {
                     age = faker.number().numberBetween(8, 80)
                 }
             }
+            entityCache.clear()
 
             T1.selectAll().count() shouldBeEqualTo entityCount.toLong()
         }
@@ -61,6 +62,8 @@ class TimebasedUUIDTableTest: AbstractExposedTest() {
                 }
             }
             tasks.awaitAll()
+            entityCache.clear()
+
             T1.selectAll().count() shouldBeEqualTo entityCount.toLong()
         }
     }

@@ -5,7 +5,7 @@ import com.zaxxer.hikari.HikariDataSource
 import io.bluetape4k.jdbc.JdbcDrivers
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.info
+import io.bluetape4k.logging.debug
 import org.jetbrains.exposed.dao.EntityHook
 import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.BeforeAll
@@ -19,7 +19,7 @@ abstract class AbstractExposedTest {
 
         init {
             EntityHook.subscribe { change ->
-                log.info {
+                log.debug {
                     "${change.entityClass.javaClass.name} with id ${change.entityId} was ${change.changeType}"
                 }
             }
