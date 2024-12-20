@@ -37,6 +37,10 @@ inline fun <T, R> ImmutableArray<T>.windowed(
     }
 }
 
+/**
+ *
+ * @sample io.bluetape4k.collections.immutable.ImmutableArrayExtensionsTest.chunk_immutable_array_partial_windowed
+ */
 fun <T> ImmutableArray<T>.chunked(size: Int, partialWindows: Boolean = true): ImmutableArray<ImmutableArray<T>> =
     windowed(size, size, partialWindows)
 
@@ -48,6 +52,9 @@ inline fun <T, R> ImmutableArray<T>.chunked(
     windowed(size, size, partialWindows, transform)
 
 
+/**
+ * @sample io.bluetape4k.collections.immutable.ImmutableArrayExtensionsTest.sliding_immutable_array
+ */
 fun <T> ImmutableArray<T>.sliding(size: Int, partialWindows: Boolean = true): ImmutableArray<ImmutableArray<T>> =
     windowed(size, 1, partialWindows)
 

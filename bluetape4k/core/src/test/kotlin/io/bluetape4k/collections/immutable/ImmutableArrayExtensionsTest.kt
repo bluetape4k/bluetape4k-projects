@@ -10,7 +10,7 @@ class ImmutableArrayExtensionsTest {
     companion object: KLogging()
 
     @Test
-    fun `chunk immutable array - partial windowed`() {
+    fun chunk_immutable_array_partial_windowed() {
         val array = immutableArrayOf("1", "2", "3", "4", "5")
         val chunks = array.chunked(3, true)
 
@@ -27,7 +27,7 @@ class ImmutableArrayExtensionsTest {
     }
 
     @Test
-    fun `sliding immutable array`() {
+    fun sliding_immutable_array() {
         val array = immutableArrayOf("1", "2", "3", "4")
 
         val sliding = array.sliding(3, false)
