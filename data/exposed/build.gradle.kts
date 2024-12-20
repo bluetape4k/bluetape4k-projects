@@ -11,12 +11,17 @@ dependencies {
     implementation(Libs.exposed_spring_boot_starter)
     implementation(Libs.exposed_spring_transaction)
 
-    // bluetape4k
+    // Entity ID generators
+    api(project(":bluetape4k-idgenerators"))
+    api(Libs.java_uuid_generator)
+
+    // Bluetape4k
     implementation(project(":bluetape4k-jdbc"))
     implementation(project(":bluetape4k-io"))
-    implementation(project(":bluetape4k-idgenerators"))
-
-    implementation(Libs.java_uuid_generator)
+    testImplementation(project(":bluetape4k-junit5"))
+    testImplementation(project(":bluetape4k-testcontainers"))
+    testImplementation(Libs.testcontainers_junit_jupiter)
+    testImplementation(Libs.testcontainers_postgresql)
 
     // Database Drivers
     compileOnly(Libs.hikaricp)
