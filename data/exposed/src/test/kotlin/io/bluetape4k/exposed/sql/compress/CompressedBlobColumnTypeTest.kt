@@ -5,6 +5,8 @@ import io.bluetape4k.exposed.utils.runWithTables
 import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.toUtf8Bytes
+import io.bluetape4k.support.toUtf8String
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.IntEntity
@@ -13,7 +15,7 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.junit.jupiter.api.Test
 
-class CompressedColumnTypeTest: AbstractExposedTest() {
+class CompressedBlobColumnTypeTest: AbstractExposedTest() {
 
     companion object: KLogging() {
         private const val REPEAT_SIZE = 5
@@ -35,21 +37,22 @@ class CompressedColumnTypeTest: AbstractExposedTest() {
 
     @Test
     fun `ByteArray 를 압축하여 저장합니다`() {
-        val text = Fakers.randomString(128, 256)
+        val text = Fakers.randomString(2048, 4096)
+        val data = text.toUtf8Bytes()
 
         runWithTables(T1) {
             val e1 = E1.new {
-                lz4Data = text
-                snappyData = text
-                zstdData = text
+                lz4Data = data
+                snappyData = data
+                zstdData = data
             }
             entityCache.clear()
 
             val loaded = E1.findById(e1.id)!!
 
-            loaded.lz4Data shouldBeEqualTo text
-            loaded.snappyData shouldBeEqualTo text
-            loaded.zstdData shouldBeEqualTo text
+            loaded.lz4Data!!.toUtf8String() shouldBeEqualTo text
+            loaded.snappyData!!.toUtf8String() shouldBeEqualTo text
+            loaded.zstdData!!.toUtf8String() shouldBeEqualTo text
         }
     }
 }

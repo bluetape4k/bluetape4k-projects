@@ -1,0 +1,73 @@
+package io.bluetape4k.exposed.sql.serializable
+
+import io.bluetape4k.exposed.AbstractExposedTest
+import io.bluetape4k.exposed.utils.runWithTables
+import io.bluetape4k.io.serializer.BinarySerializers
+import io.bluetape4k.logging.KLogging
+import org.amshove.kluent.shouldBeEqualTo
+import org.jetbrains.exposed.dao.EntityClass
+import org.jetbrains.exposed.dao.IntEntity
+import org.jetbrains.exposed.dao.entityCache
+import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.dao.id.IntIdTable
+import org.junit.jupiter.api.Test
+import java.io.Serializable
+
+class BinarySerializedBlobColumTypeTest: AbstractExposedTest() {
+
+    companion object: KLogging()
+
+    private object T1: IntIdTable() {
+        val zstdFury = binarySerializedBlob<Embeddable>("zstd_fury", BinarySerializers.ZstdFury).nullable()
+        val zstdKryo = binarySerializedBlob<Embeddable>("zstd_kryo", BinarySerializers.ZstdKryo).nullable()
+        val lz4Fury = binarySerializedBlob<Embeddable2>("lz4_fury", BinarySerializers.LZ4Fury).nullable()
+        val lz4Kryo = binarySerializedBlob<Embeddable2>("lz4_kryo", BinarySerializers.LZ4Kryo).nullable()
+    }
+
+    class E1(id: EntityID<Int>): IntEntity(id) {
+        companion object: EntityClass<Int, E1>(T1)
+
+        var zstdFury by T1.zstdFury
+        var zstdKryo by T1.zstdKryo
+
+        var lz4Fury by T1.lz4Fury
+        var lz4Kryo by T1.lz4Kryo
+    }
+
+    data class Embeddable(
+        val name: String,
+        val age: Int,
+        val address: String,
+    ): Serializable
+
+    data class Embeddable2(
+        val name: String,
+        val age: Int,
+        val address: String,
+        val zipcode: String,
+    ): Serializable
+
+
+    @Test
+    fun `Serializable Object 를 DB에 저장하고 로드한다`() {
+        runWithTables(T1) {
+            val embedded = Embeddable("Alice", 20, "Seoul")
+            val embedded2 = Embeddable2("Alice", 20, "Seoul", "12914")
+            val e1 = E1.new {
+                zstdFury = embedded
+                zstdKryo = embedded
+
+                lz4Fury = embedded2
+                lz4Kryo = embedded2
+            }
+            entityCache.clear()
+
+            val loaded = E1.findById(e1.id)!!
+            loaded.zstdKryo shouldBeEqualTo embedded
+            loaded.zstdFury shouldBeEqualTo embedded
+
+            loaded.lz4Kryo shouldBeEqualTo embedded2
+            loaded.lz4Fury shouldBeEqualTo embedded2
+        }
+    }
+}
