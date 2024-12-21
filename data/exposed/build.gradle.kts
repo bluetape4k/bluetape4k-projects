@@ -5,19 +5,21 @@ configurations {
 
 dependencies {
     // Exposed
-    implementation(Libs.exposed_core)
-    implementation(Libs.exposed_dao)
-    implementation(Libs.exposed_kotlin_datetime)
-    implementation(Libs.exposed_spring_boot_starter)
-    implementation(Libs.exposed_spring_transaction)
+    api(Libs.exposed_core)
+    api(Libs.exposed_jdbc)
+    api(Libs.exposed_dao)
+    compileOnly(Libs.exposed_kotlin_datetime)
+    compileOnly(Libs.exposed_spring_boot_starter)
 
     // Entity ID generators
     api(project(":bluetape4k-idgenerators"))
     api(Libs.java_uuid_generator)
 
     // Bluetape4k
-    implementation(project(":bluetape4k-jdbc"))
-    implementation(project(":bluetape4k-io"))
+    compileOnly(project(":bluetape4k-jdbc"))
+    compileOnly(project(":bluetape4k-io"))
+    compileOnly(project(":bluetape4k-crypto"))
+    
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
     testImplementation(Libs.testcontainers_junit_jupiter)
@@ -40,8 +42,24 @@ dependencies {
     }
 
     // Coroutines
-    implementation(project(":bluetape4k-coroutines"))
-    testImplementation(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_reactor)
+    compileOnly(project(":bluetape4k-coroutines"))
+    compileOnly(Libs.kotlinx_coroutines_core)
+    compileOnly(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_test)
+
+    //
+    // Custom Column Types
+    //
+
+    // Serializer
+    compileOnly(Libs.kryo)
+    compileOnly(Libs.fury_kotlin)
+
+    // Compressors
+    compileOnly(Libs.lz4_java)
+    compileOnly(Libs.snappy_java)
+    compileOnly(Libs.zstd_jni)
+
+    // Encryption
+    compileOnly(Libs.jasypt)
 }
