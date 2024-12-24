@@ -57,6 +57,10 @@ class ZipkinServer private constructor(
         addExposedPorts(PORT)
         withReuse(reuse)
 
+//        withCreateContainerCmdModifier { cmd ->
+//            cmd.withPlatform("linux/arm64")
+//        }
+
         setWaitStrategy(Wait.forListeningPort())
 
         if (useDefaultPort) {
