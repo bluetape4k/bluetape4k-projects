@@ -12,7 +12,7 @@ import org.jetbrains.exposed.sql.statements.api.ExposedBlob
 /**
  * 엔티티 속성 값을 압축하여 BLOB Column 으로 저장할 수 있는 Column 을 생성합니다.
  *
- * @sample io.bluetape4k.exposed.sql.compress.CompressedBlobColumnTypeTest
+ * @sample io.bluetape4k.exposed.sql.compress.CompressedBlobColumnTypeTest.T1
  */
 fun Table.compressedBlob(
     name: String,

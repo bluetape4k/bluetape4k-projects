@@ -7,6 +7,8 @@ import org.jetbrains.exposed.sql.Column
 
 /**
  * Entity ID 값을 Snowflow ID 값을 사용하는 Table
+ *
+ * @sample io.bluetape4k.exposed.dao.id.SnowflakeIdTableTest.T1
  */
 open class SnowflakeIdTable(name: String = "", columnName: String = "id"): IdTable<Long>(name) {
 

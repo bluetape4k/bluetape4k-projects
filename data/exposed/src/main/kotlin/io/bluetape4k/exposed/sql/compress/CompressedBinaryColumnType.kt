@@ -11,7 +11,7 @@ import org.jetbrains.exposed.sql.Table
 /**
  * 엔티티 속성 값을 압축하여 VARBINARY Column 으로 저장할 수 있는 Column 을 생성합니다.
  *
- * @sample io.bluetape4k.exposed.sql.compress.CompressedBinaryColumnTypeTest
+ * @sample io.bluetape4k.exposed.sql.compress.CompressedBinaryColumnTypeTest.T1
  */
 fun Table.compressedBinary(
     name: String,

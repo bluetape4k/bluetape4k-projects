@@ -11,7 +11,7 @@ import org.jetbrains.exposed.sql.Table
 /**
  * 엔티티 속성 값을 암호화하여 VARBINARY Column 으로 저장할 수 있는 Column 을 생성합니다.
  *
- * @sample io.bluetape4k.exposed.sql.encrypt.EncryptedColumnTypeTest
+ * @sample io.bluetape4k.exposed.sql.encrypt.EncryptedColumnTypeTest.T1
  */
 fun Table.encryptedBinary(
     name: String,
