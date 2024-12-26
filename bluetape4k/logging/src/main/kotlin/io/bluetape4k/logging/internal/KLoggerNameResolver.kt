@@ -13,8 +13,8 @@ internal object KLoggerNameResolver {
         val name = action.javaClass.name
 
         return when {
-            name.contains("Kt$") -> name.substringBefore("Kt$")
-            name.contains("$")   -> name.substringBefore("$")
+            name.contains("Kt$") -> name.substringBefore("Kt$") // .trimEnd('.')
+            name.contains("$")   -> name.substringBefore("$") // .trimEnd('.')
             else                 -> name
         }
     }
