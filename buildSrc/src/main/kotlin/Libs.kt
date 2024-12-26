@@ -848,6 +848,7 @@ object Libs {
     val jackson_dataformat_csv = jacksonDataFormat("csv")
     val jackson_dataformat_properties = jacksonDataFormat("properties")
     val jackson_dataformat_yaml = jacksonDataFormat("yaml")
+    val jackson_dataformat_toml = jacksonDataFormat("toml")
 
     fun jacksonModule(module: String, version: String = Versions.jackson) = jackson("module", module, version)
     val jackson_module_kotlin = jacksonModule("kotlin")
