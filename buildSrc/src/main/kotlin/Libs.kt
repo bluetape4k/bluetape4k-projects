@@ -57,7 +57,7 @@ object Versions {
     const val kotlinx_coroutines = "1.10.1"      // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
     const val kotlinx_serialization = "1.7.3"   // https://mvnrepository.com/search?q=kotlinx-serialization
 
-    const val kotlinx_atomicfu = "0.26.0"       // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/atomicfu
+    const val kotlinx_atomicfu = "0.26.1"       // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/atomicfu
 
     const val kotlinx_benchmark = Plugins.Versions.kotlinx_benchmark
 
