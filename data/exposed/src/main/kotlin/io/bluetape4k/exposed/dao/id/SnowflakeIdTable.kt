@@ -1,6 +1,8 @@
 package io.bluetape4k.exposed.dao.id
 
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
+import org.jetbrains.exposed.dao.LongEntity
+import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.Column
@@ -17,3 +19,13 @@ open class SnowflakeIdTable(name: String = "", columnName: String = "id"): IdTab
 
     final override val primaryKey = PrimaryKey(id)
 }
+
+typealias SnowflakeIdEntityID = EntityID<Long>
+
+abstract class SnowflakeIdEntity(id: SnowflakeIdEntityID): LongEntity(id)
+
+abstract class SnowflakeIdEntityClass<out E: SnowflakeIdEntity>(
+    table: SnowflakeIdTable,
+    entityType: Class<E>? = null,
+    entityCtor: ((SnowflakeIdEntityID) -> E)? = null,
+): LongEntityClass<E>(table, entityType, entityCtor)

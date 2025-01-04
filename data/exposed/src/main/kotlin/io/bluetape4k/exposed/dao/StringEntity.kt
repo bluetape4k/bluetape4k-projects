@@ -5,10 +5,12 @@ import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IdTable
 
+typealias StringEntityID = EntityID<String>
+
 /**
  * Base class for an [Entity] instance identified by an [id] comprised of a wrapped `String` value.
  */
-abstract class StringEntity(id: EntityID<String>): Entity<String>(id)
+abstract class StringEntity(id: StringEntityID): Entity<String>(id)
 
 
 /**
@@ -31,5 +33,5 @@ abstract class StringEntity(id: EntityID<String>): Entity<String>(id)
 abstract class StringEntityClass<out E: StringEntity>(
     table: IdTable<String>,
     entityType: Class<E>? = null,
-    entityCtor: ((EntityID<String>) -> E)? = null,
+    entityCtor: ((StringEntityID) -> E)? = null,
 ): EntityClass<String, E>(table, entityType, entityCtor)

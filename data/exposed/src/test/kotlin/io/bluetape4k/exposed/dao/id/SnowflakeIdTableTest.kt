@@ -7,10 +7,8 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.awaitAll
 import org.amshove.kluent.shouldBeEqualTo
-import org.jetbrains.exposed.dao.LongEntity
-import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.entityCache
-import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.dao.flushCache
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
 import org.junit.jupiter.params.ParameterizedTest
@@ -25,8 +23,8 @@ class SnowflakeIdTableTest: AbstractExposedTest() {
         val age = integer("age")
     }
 
-    class E1(id: EntityID<Long>): LongEntity(id) {
-        companion object: LongEntityClass<E1>(T1)
+    class E1(id: SnowflakeIdEntityID): SnowflakeIdEntity(id) {
+        companion object: SnowflakeIdEntityClass<E1>(T1)
 
         var name by T1.name
         var age by T1.age
@@ -42,7 +40,7 @@ class SnowflakeIdTableTest: AbstractExposedTest() {
                     age = faker.number().numberBetween(8, 80)
                 }
             }
-            entityCache.clear()
+            flushCache()
 
             T1.selectAll().count() shouldBeEqualTo entityCount.toLong()
         }
@@ -61,7 +59,7 @@ class SnowflakeIdTableTest: AbstractExposedTest() {
                 }
             }
             tasks.awaitAll()
-            entityCache.clear()
+            flushCache()
 
             T1.selectAll().count() shouldBeEqualTo entityCount.toLong()
         }

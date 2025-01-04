@@ -1,6 +1,9 @@
 package io.bluetape4k.exposed.dao.id
 
+import io.bluetape4k.exposed.dao.StringEntity
+import io.bluetape4k.exposed.dao.StringEntityClass
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
+import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IdTable
 
 /**
@@ -15,3 +18,13 @@ open class TimebasedUUIDBase62Table(name: String = "", columnName: String = "id"
 
     final override val primaryKey = PrimaryKey(id)
 }
+
+typealias TimebasedUUIDBase62EntityID = EntityID<String>
+
+abstract class TimebasedUUIDBase62Entity(id: TimebasedUUIDBase62EntityID): StringEntity(id)
+
+abstract class TimebasedUUIDBase62EntityClass<out E: TimebasedUUIDBase62Entity>(
+    table: TimebasedUUIDBase62Table,
+    entityType: Class<E>? = null,
+    entityCtor: ((TimebasedUUIDBase62EntityID) -> E)? = null,
+): StringEntityClass<E>(table, entityType, entityCtor)
