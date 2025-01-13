@@ -134,7 +134,7 @@ object Versions {
     const val hibernate_validator = "8.0.1.Final" // https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator
     const val querydsl = "5.1.0"                  // https://mvnrepository.com/artifact/com.querydsl/querydsl-jpa
 
-    const val exposed = "0.57.0"       // https://mvnrepository.com/artifact/org.jetbrains.exposed/exposed-core
+    const val exposed = "0.58.0"       // https://mvnrepository.com/artifact/org.jetbrains.exposed/exposed-core
 
     const val agroal = "2.5"          // https://mvnrepository.com/artifact/io.agroal/agroal-api
 
@@ -1158,6 +1158,7 @@ object Libs {
     val exposed_jdbc = exposed("jdbc")
     val exposed_json = exposed("json")
     val exposed_kotlin_datetime = exposed("kotlin-datetime")
+    val exposed_migration = exposed("migration")
     val exposed_money = exposed("money")
     val exposed_tests = exposed("tests")
 

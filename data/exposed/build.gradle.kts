@@ -5,10 +5,15 @@ configurations {
 
 dependencies {
     // Exposed
+    implementation(platform(Libs.exposed_bom))
     api(Libs.exposed_core)
+    api(Libs.exposed_crypt)
     api(Libs.exposed_jdbc)
     api(Libs.exposed_dao)
     compileOnly(Libs.exposed_kotlin_datetime)
+    compileOnly(Libs.exposed_json)
+    compileOnly(Libs.exposed_money)
+    compileOnly(Libs.exposed_migration)
     compileOnly(Libs.exposed_spring_boot_starter)
 
     // Entity ID generators
