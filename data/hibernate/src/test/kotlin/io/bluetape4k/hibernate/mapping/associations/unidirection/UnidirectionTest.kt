@@ -24,7 +24,7 @@ class UnidirectionTest(
         fun newSnowflake(): Snowflake {
             return Snowflake(
                 faker.name().name(),
-                faker.lorem().characters(16, 256, true)
+                faker.lorem().characters(16, 255, true)
             )
         }
     }
