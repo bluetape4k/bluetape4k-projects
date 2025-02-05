@@ -1,6 +1,7 @@
 package io.bluetape4k.exposed.sql.serializable
 
 import io.bluetape4k.exposed.AbstractExposedTest
+import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.utils.runWithTables
 import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
@@ -32,6 +33,10 @@ class BinarySerializedBinaryColumnTypeTest: AbstractExposedTest() {
 
         var lz4Fury by T1.lz4Fury
         var lz4Kryo by T1.lz4Kryo
+
+        override fun equals(other: Any?): Boolean = idEquals(other)
+        override fun hashCode(): Int = id.hashCode()
+        override fun toString(): String = "E1(id=$id)"
     }
 
     data class Embeddable(

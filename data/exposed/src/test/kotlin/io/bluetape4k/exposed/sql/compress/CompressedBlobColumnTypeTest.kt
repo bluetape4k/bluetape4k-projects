@@ -1,6 +1,7 @@
 package io.bluetape4k.exposed.sql.compress
 
 import io.bluetape4k.exposed.AbstractExposedTest
+import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.utils.runWithTables
 import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.junit5.faker.Fakers
@@ -33,6 +34,10 @@ class CompressedBlobColumnTypeTest: AbstractExposedTest() {
         var lz4Data by T1.lz4Data
         var snappyData by T1.snappyData
         var zstdData by T1.zstdData
+
+        override fun equals(other: Any?): Boolean = idEquals(other)
+        override fun hashCode(): Int = id.hashCode()
+        override fun toString(): String = "E1(id=$id)"
     }
 
     @Test

@@ -1,6 +1,9 @@
 package io.bluetape4k.exposed.dao.id
 
 import io.bluetape4k.exposed.AbstractExposedTest
+import io.bluetape4k.exposed.dao.idEquals
+import io.bluetape4k.exposed.dao.idHashCode
+import io.bluetape4k.exposed.dao.toStringBuilder
 import io.bluetape4k.exposed.utils.runSuspendWithTables
 import io.bluetape4k.exposed.utils.runWithTables
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -8,7 +11,6 @@ import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.awaitAll
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.exposed.dao.entityCache
-import org.jetbrains.exposed.dao.flushCache
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
 import org.junit.jupiter.params.ParameterizedTest
@@ -18,6 +20,15 @@ class SnowflakeIdTableTest: AbstractExposedTest() {
 
     companion object: KLogging()
 
+    /**
+     * ```sql
+     * CREATE TABLE IF NOT EXISTS T1 (
+     *      ID BIGINT PRIMARY KEY,
+     *      "name" VARCHAR(255) NOT NULL,
+     *      AGE INT NOT NULL
+     * )
+     * ```
+     */
     object T1: SnowflakeIdTable() {
         val name = varchar("name", 255)
         val age = integer("age")
@@ -28,8 +39,20 @@ class SnowflakeIdTableTest: AbstractExposedTest() {
 
         var name by T1.name
         var age by T1.age
+
+        override fun equals(other: Any?): Boolean = idEquals(other)
+        override fun hashCode(): Int = idHashCode()
+        override fun toString(): String = toStringBuilder()
+            .add("name", name)
+            .add("age", age)
+            .toString()
     }
 
+    /**
+     * ```sql
+     * INSERT INTO T1 (ID, "name", AGE) VALUES (1336661904399007744, 'Willis Moore', 39)
+     * ```
+     */
     @ParameterizedTest(name = "entity count={0}")
     @ValueSource(ints = [1, 100, 1000, 10000])
     fun `Unique한 ID를 가진 복수의 엔티티를 생성한다`(entityCount: Int) {
@@ -40,12 +63,17 @@ class SnowflakeIdTableTest: AbstractExposedTest() {
                     age = faker.number().numberBetween(8, 80)
                 }
             }
-            flushCache()
+            entityCache.clear()
 
             T1.selectAll().count() shouldBeEqualTo entityCount.toLong()
         }
     }
 
+    /**
+     * ```sql
+     * INSERT INTO T1 (ID, "name", AGE) VALUES (1336661910082289664, 'Dale Christiansen', 20)
+     * ```
+     */
     @ParameterizedTest(name = "entity count={0}")
     @ValueSource(ints = [1, 100, 1000, 10000])
     fun `Coroutine 환경에서 복수의 Unique한 엔티티를 생성한다`(entityCount: Int) = runSuspendIO {
@@ -59,7 +87,7 @@ class SnowflakeIdTableTest: AbstractExposedTest() {
                 }
             }
             tasks.awaitAll()
-            flushCache()
+            entityCache.clear()
 
             T1.selectAll().count() shouldBeEqualTo entityCount.toLong()
         }

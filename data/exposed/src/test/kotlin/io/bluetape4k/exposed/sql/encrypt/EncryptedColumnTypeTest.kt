@@ -2,6 +2,8 @@ package io.bluetape4k.exposed.sql.encrypt
 
 import io.bluetape4k.crypto.encrypt.Encryptors
 import io.bluetape4k.exposed.AbstractExposedTest
+import io.bluetape4k.exposed.dao.idEquals
+import io.bluetape4k.exposed.dao.toStringBuilder
 import io.bluetape4k.exposed.utils.runWithTables
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.exposed.dao.EntityClass
@@ -32,6 +34,14 @@ class EncryptedColumnTypeTest: AbstractExposedTest() {
 
         var aesBinary by T1.aesBinary
         var rc4Binary by T1.rc4Binary
+
+        override fun equals(other: Any?): Boolean = idEquals(other)
+        override fun hashCode(): Int = id.hashCode()
+        override fun toString(): String = toStringBuilder()
+            .add("name", name)
+            .add("aesPassword", aesPassword)
+            .add("rc4Password", rc4Password)
+            .toString()
     }
 
     @Test
