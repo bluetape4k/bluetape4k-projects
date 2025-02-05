@@ -54,7 +54,7 @@ class CompressedBinaryColumnTypeTest: AbstractExposedTest() {
             entityCache.clear()
 
             val loaded = E1.findById(e1.id)!!
-
+            loaded shouldBeEqualTo e1
             loaded.lz4Data!!.toUtf8String() shouldBeEqualTo text
             loaded.snappyData!!.toUtf8String() shouldBeEqualTo text
             loaded.zstdData!!.toUtf8String() shouldBeEqualTo text

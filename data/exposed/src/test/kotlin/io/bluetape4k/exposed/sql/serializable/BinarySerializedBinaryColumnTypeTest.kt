@@ -68,6 +68,9 @@ class BinarySerializedBinaryColumnTypeTest: AbstractExposedTest() {
             entityCache.clear()
 
             val loaded = E1.findById(e1.id)!!
+
+            loaded shouldBeEqualTo e1
+            
             loaded.zstdKryo shouldBeEqualTo embedded
             loaded.zstdFury shouldBeEqualTo embedded
 

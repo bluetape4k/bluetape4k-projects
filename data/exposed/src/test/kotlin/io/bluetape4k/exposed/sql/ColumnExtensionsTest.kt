@@ -1,6 +1,8 @@
 package io.bluetape4k.exposed.sql
 
 import io.bluetape4k.exposed.AbstractExposedTest
+import io.bluetape4k.exposed.dao.idEquals
+import io.bluetape4k.exposed.dao.toStringBuilder
 import io.bluetape4k.exposed.utils.runWithTables
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldHaveSize
@@ -23,13 +25,22 @@ class ColumnExtensionsTest: AbstractExposedTest() {
         val ksuidMillis = varchar("ksuid_millis", 27).ksuidMillisGenerated()
     }
 
-    open class ClientGeneratedEntity(id: EntityID<Int>): IntEntity(id) {
+    class ClientGeneratedEntity(id: EntityID<Int>): IntEntity(id) {
         companion object: IntEntityClass<ClientGeneratedEntity>(ClientGenerated)
 
         var timebasedUuid by ClientGenerated.timebasedUuid
         var snowflake by ClientGenerated.snowflake
         var ksuid by ClientGenerated.ksuid
         var ksuidMillis by ClientGenerated.ksuidMillis
+
+        override fun equals(other: Any?): Boolean = idEquals(other)
+        override fun hashCode(): Int = id.hashCode()
+        override fun toString(): String = toStringBuilder()
+            .add("timebasedUuid", timebasedUuid)
+            .add("snowflake", snowflake)
+            .add("ksuid", ksuid)
+            .add("ksuidMillis", ksuidMillis)
+            .toString()
     }
 
     @RepeatedTest(REPEAT_SIZE)

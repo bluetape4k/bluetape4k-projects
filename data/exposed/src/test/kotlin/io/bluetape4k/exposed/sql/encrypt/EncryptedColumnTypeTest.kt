@@ -58,7 +58,10 @@ class EncryptedColumnTypeTest: AbstractExposedTest() {
             entityCache.clear()
 
             val loaded = E1.findById(e1.id)!!
+
+            loaded shouldBeEqualTo e1
             loaded.name shouldBeEqualTo "Alice"
+
             loaded.aesPassword shouldBeEqualTo "aesPassword"
             loaded.rc4Password shouldBeEqualTo "rc4Password"
 
