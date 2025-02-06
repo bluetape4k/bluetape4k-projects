@@ -31,14 +31,10 @@ class CompressedBinaryTransformer(
     /**
      * Entity Property 를 DB Column 수형으로 변환합니다.
      */
-    override fun unwrap(value: ByteArray): ByteArray {
-        return compressor.compress(value)
-    }
+    override fun unwrap(value: ByteArray): ByteArray = compressor.compress(value)
 
     /**
      * DB Column 값을 Entity Property 수형으로 변환합니다.
      */
-    override fun wrap(value: ByteArray): ByteArray {
-        return compressor.decompress(value)
-    }
+    override fun wrap(value: ByteArray): ByteArray = compressor.decompress(value)
 }

@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.sql.compress
 
+import io.bluetape4k.exposed.sql.statements.api.toExposedBlob
 import io.bluetape4k.io.compressor.Compressor
 import io.bluetape4k.io.compressor.Compressors
 import org.jetbrains.exposed.sql.BlobColumnType
@@ -28,14 +29,10 @@ class CompressedBlobTransformer(private val compressor: Compressor): ColumnTrans
     /**
      * Entity Property 를 DB Column 수형으로 변환합니다.
      */
-    override fun unwrap(value: ByteArray): ExposedBlob {
-        return ExposedBlob(compressor.compress(value))
-    }
+    override fun unwrap(value: ByteArray): ExposedBlob = compressor.compress(value).toExposedBlob()
 
     /**
      * DB Column 값을 Entity Property 수형으로 변환합니다.
      */
-    override fun wrap(value: ExposedBlob): ByteArray {
-        return compressor.decompress(value.bytes)
-    }
+    override fun wrap(value: ExposedBlob): ByteArray = compressor.decompress(value.bytes)
 }
