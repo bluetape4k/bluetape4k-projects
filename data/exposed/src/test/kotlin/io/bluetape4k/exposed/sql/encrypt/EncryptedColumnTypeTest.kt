@@ -5,6 +5,7 @@ import io.bluetape4k.exposed.AbstractExposedTest
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.toStringBuilder
 import io.bluetape4k.exposed.utils.runWithTables
+import io.bluetape4k.support.toUtf8String
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.IntEntity
@@ -20,8 +21,8 @@ class EncryptedColumnTypeTest: AbstractExposedTest() {
         val aesVarChar = encryptedVarChar("aes_password", 255, Encryptors.AES).nullable()
         val rc4VarChar = encryptedVarChar("rc4_password", 255, Encryptors.RC4).nullable()
 
-        val aesBinary = encryptedBinary("aes_binary", 255, Encryptors.AES).nullable()
-        val rc4Binary = encryptedBinary("rc4_binary", 255, Encryptors.RC4).nullable()
+        val aesBinary = encryptedBinary("aes_binary", 1024, Encryptors.AES).nullable()
+        val rc4Binary = encryptedBinary("rc4_binary", 1024, Encryptors.RC4).nullable()
     }
 
     class E1(id: EntityID<Int>): IntEntity(id) {
@@ -65,8 +66,8 @@ class EncryptedColumnTypeTest: AbstractExposedTest() {
             loaded.aesPassword shouldBeEqualTo "aesPassword"
             loaded.rc4Password shouldBeEqualTo "rc4Password"
 
-            loaded.aesBinary shouldBeEqualTo "aesBinary".toByteArray()
-            loaded.rc4Binary shouldBeEqualTo "rc4Binary".toByteArray()
+            loaded.aesBinary!!.toUtf8String() shouldBeEqualTo "aesBinary"
+            loaded.rc4Binary!!.toUtf8String() shouldBeEqualTo "rc4Binary"
         }
     }
 

@@ -10,9 +10,9 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 val logger = KotlinLogging.logger {}
 
-inline fun runWithTables(
+fun runWithTables(
     vararg tables: Table,
-    crossinline block: Transaction.() -> Unit,
+    block: Transaction.() -> Unit,
 ) = transaction {
     logger.info { "Create tables. ${tables.map { it.tableName }.joinToString()}" }
     SchemaUtils.create(*tables)
@@ -24,9 +24,9 @@ inline fun runWithTables(
     }
 }
 
-suspend inline fun runSuspendWithTables(
+suspend fun runSuspendWithTables(
     vararg tables: Table,
-    crossinline block: suspend Transaction.() -> Unit,
+    block: suspend Transaction.() -> Unit,
 ) = newSuspendedTransaction {
     logger.info { "Create tables. ${tables.map { it.tableName }.joinToString()}" }
     SchemaUtils.create(*tables)
