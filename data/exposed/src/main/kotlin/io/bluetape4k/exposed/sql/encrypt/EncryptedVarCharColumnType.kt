@@ -29,14 +29,10 @@ class StringEncryptionTransformer(private val encryptor: Encryptor): ColumnTrans
     /**
      * Entity Property 를 DB Column 수형으로 변환합니다.
      */
-    override fun unwrap(value: String): String {
-        return encryptor.encrypt(value)
-    }
+    override fun unwrap(value: String): String = encryptor.encrypt(value)
 
     /**
      * DB Column 값을 Entity Property 수형으로 변환합니다.
      */
-    override fun wrap(value: String): String {
-        return encryptor.decrypt(value)
-    }
+    override fun wrap(value: String): String = encryptor.decrypt(value)
 }

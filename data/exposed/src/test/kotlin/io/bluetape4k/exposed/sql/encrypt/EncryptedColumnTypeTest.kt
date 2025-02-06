@@ -17,11 +17,11 @@ class EncryptedColumnTypeTest: AbstractExposedTest() {
 
     private object T1: IntIdTable() {
         val name = varchar("name", 255)
-        val aesVarChar = encryptedVarChar("aes_password", 255, Encryptors.AES)
-        val rc4VarChar = encryptedVarChar("rc4_password", 255, Encryptors.RC4)
+        val aesVarChar = encryptedVarChar("aes_password", 255, Encryptors.AES).nullable()
+        val rc4VarChar = encryptedVarChar("rc4_password", 255, Encryptors.RC4).nullable()
 
-        val aesBinary = encryptedBinary("aes_binary", 255, Encryptors.AES)
-        val rc4Binary = encryptedBinary("rc4_binary", 255, Encryptors.RC4)
+        val aesBinary = encryptedBinary("aes_binary", 255, Encryptors.AES).nullable()
+        val rc4Binary = encryptedBinary("rc4_binary", 255, Encryptors.RC4).nullable()
     }
 
     class E1(id: EntityID<Int>): IntEntity(id) {
@@ -67,6 +67,31 @@ class EncryptedColumnTypeTest: AbstractExposedTest() {
 
             loaded.aesBinary shouldBeEqualTo "aesBinary".toByteArray()
             loaded.rc4Binary shouldBeEqualTo "rc4Binary".toByteArray()
+        }
+    }
+
+    @Test
+    fun `search by encrypted column`() {
+        runWithTables(T1) {
+            val e1 = E1.new {
+                name = "Alice"
+                aesPassword = "aesPassword"
+                rc4Password = "rc4Password"
+            }
+
+            /**
+             * ```sql
+             * SELECT T1.ID,
+             *        T1."name",
+             *        T1.AES_PASSWORD,
+             *        T1.RC4_PASSWORD,
+             *        T1.AES_BINARY,
+             *        T1.RC4_BINARY
+             *   FROM T1
+             *  WHERE T1.AES_PASSWORD = HqssFPg0zN3pqJdFKCSZZ1RczuI8YVN7mauc8H2NgGU=
+             */
+            val loaded = E1.find { T1.aesVarChar eq "aesPassword" }.single()
+            loaded shouldBeEqualTo e1
         }
     }
 }
