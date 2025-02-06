@@ -25,18 +25,13 @@ class BinarySerializedBinaryColumnType<T: Any>(serializer: BinarySerializer, len
 class BinarySerializedBinaryTransformer<T>(
     private val serializer: BinarySerializer,
 ): ColumnTransformer<ByteArray, T> {
-
     /**
      * Entity Property 를 DB Column 수형으로 변환합니다.
      */
-    override fun unwrap(value: T): ByteArray {
-        return serializer.serialize(value)
-    }
+    override fun unwrap(value: T): ByteArray = serializer.serialize(value)
 
     /**
      * DB Column 값을 Entity Property 수형으로 변환합니다.
      */
-    override fun wrap(value: ByteArray): T {
-        return serializer.deserialize(value)!!
-    }
+    override fun wrap(value: ByteArray): T = serializer.deserialize(value)!!
 }

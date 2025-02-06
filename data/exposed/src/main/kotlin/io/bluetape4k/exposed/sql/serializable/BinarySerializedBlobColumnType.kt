@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.sql.serializable
 
+import io.bluetape4k.exposed.sql.statements.api.toExposedBlob
 import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.io.serializer.BinarySerializers
 import org.jetbrains.exposed.sql.BlobColumnType
@@ -31,14 +32,10 @@ class BinarySerializedBlobTransformer<T>(
     /**
      * Entity Property 를 DB Column 수형으로 변환합니다.
      */
-    override fun unwrap(value: T): ExposedBlob {
-        return ExposedBlob(serializer.serialize(value))
-    }
+    override fun unwrap(value: T): ExposedBlob = serializer.serialize(value).toExposedBlob()
 
     /**
      * DB Column 값을 Entity Property 수형으로 변환합니다.
      */
-    override fun wrap(value: ExposedBlob): T {
-        return serializer.deserialize(value.bytes)!!
-    }
+    override fun wrap(value: ExposedBlob): T = serializer.deserialize(value.bytes)!!
 }
