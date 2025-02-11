@@ -44,6 +44,15 @@ class ElasticsearchOssServer private constructor(
             reuse: Boolean = true,
         ): ElasticsearchOssServer {
             val imageName = DockerImageName.parse(image).withTag(tag)
+            return invoke(imageName, useDefaultPort, reuse)
+        }
+
+        @JvmStatic
+        operator fun invoke(
+            imageName: DockerImageName,
+            useDefaultPort: Boolean = false,
+            reuse: Boolean = true,
+        ): ElasticsearchOssServer {
             return ElasticsearchOssServer(imageName, useDefaultPort, reuse)
         }
     }

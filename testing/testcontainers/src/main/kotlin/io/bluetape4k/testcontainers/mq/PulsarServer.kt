@@ -46,7 +46,7 @@ class PulsarServer private constructor(
         operator fun invoke(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = false,
+            reuse: Boolean = true,
         ): PulsarServer {
             return PulsarServer(imageName, useDefaultPort, reuse)
         }
@@ -56,7 +56,7 @@ class PulsarServer private constructor(
             image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
-            reuse: Boolean = false,
+            reuse: Boolean = true,
         ): PulsarServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")

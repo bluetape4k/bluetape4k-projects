@@ -26,6 +26,10 @@ dependencies {
     compileOnly(Libs.testcontainers_mysql)
     testImplementation(Libs.mysql_connector_j)
 
+    // MariaDB
+    compileOnly(Libs.testcontainers_mariadb)
+    testImplementation(Libs.mariadb_java_client)
+
     // Postgres
     compileOnly(Libs.testcontainers_postgresql)
     testImplementation(Libs.postgresql_driver)

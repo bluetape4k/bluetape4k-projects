@@ -53,7 +53,7 @@ class MySQL8Server private constructor(
         operator fun invoke(
             image: String = IMAGE,
             tag: String = TAG,
-            useDefaultPort: Boolean = true,
+            useDefaultPort: Boolean = false,
             reuse: Boolean = true,
             username: String = USERNAME,
             password: String = PASSWORD,
@@ -76,7 +76,7 @@ class MySQL8Server private constructor(
         @JvmStatic
         operator fun invoke(
             imageName: DockerImageName,
-            useDefaultPort: Boolean = true,
+            useDefaultPort: Boolean = false,
             reuse: Boolean = true,
             username: String = USERNAME,
             password: String = PASSWORD,
