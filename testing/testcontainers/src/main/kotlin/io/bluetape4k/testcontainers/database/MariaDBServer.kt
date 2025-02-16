@@ -75,22 +75,31 @@ class MariaDBServer private constructor(
         }
     }
 
-    override fun getDriverClassName(): String = MySQL5Server.DRIVER_CLASS_NAME
-    override val port: Int get() = getMappedPort(MySQL5Server.PORT)
+    override fun getDriverClassName(): String = DRIVER_CLASS_NAME
+    override val port: Int get() = getMappedPort(PORT)
     override val url: String get() = jdbcUrl
 
     init {
         if (configuration.isNotBlank()) {
             withConfigurationOverride(configuration)
         }
-
+        addExposedPorts(PORT)
+        
         withUsername(username)
         withPassword(password)
         withReuse(reuse)
-        setWaitStrategy(Wait.forListeningPort())
+
+        // 로컬 테스트용이므로, 비밀번호가 없어도 실행할 수 있도록 한다
+        withEnv("MYSQL_ALLOW_EMPTY_PASSWORD", "yes")
+
+        withCreateContainerCmdModifier { cmd ->
+            cmd.withPlatform("linux/arm64")  // for Apple Silicon
+        }
 
         // For Debugging
         // withLogConsumer(Slf4jLogConsumer(log))
+
+        setWaitStrategy(Wait.forListeningPort())
 
         if (useDefaultPort) {
             exposeCustomPorts(PORT)

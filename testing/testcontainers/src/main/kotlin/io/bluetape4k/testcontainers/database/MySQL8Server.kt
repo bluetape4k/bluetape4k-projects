@@ -98,6 +98,9 @@ class MySQL8Server private constructor(
         withUsername(username)
         withPassword(password)
 
+        // 로컬 테스트용이므로, 비밀번호가 없어도 실행할 수 있도록 한다
+        withEnv("ALLOW_EMPTY_PASSWORD", "yes")
+
         withReuse(reuse)
         setWaitStrategy(Wait.forListeningPort())
 
