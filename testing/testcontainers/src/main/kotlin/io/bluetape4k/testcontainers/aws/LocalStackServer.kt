@@ -88,6 +88,10 @@ class LocalStackServer private constructor(
         addExposedPorts(PORT)
         withReuse(reuse)
 
+        withCreateContainerCmdModifier { cmd ->
+            cmd.withPlatform("linux/amd64")  // for Apple Silicon
+        }
+
         setWaitStrategy(Wait.forListeningPort())
 
         if (useDefaultPort) {
