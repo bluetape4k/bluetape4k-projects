@@ -26,6 +26,7 @@ import org.apache.kafka.common.TopicPartition
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.runner.RunWith
 import org.springframework.aop.framework.ProxyFactory
 import org.springframework.kafka.core.KafkaTemplateTests.Companion.INT_KEY_TOPIC
 import org.springframework.kafka.core.KafkaTemplateTests.Companion.STRING_KEY_TOPIC
@@ -43,11 +44,13 @@ import org.springframework.kafka.test.condition.EmbeddedKafkaCondition
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.kafka.test.utils.KafkaTestUtils
 import org.springframework.messaging.Message
+import org.springframework.test.context.junit4.SpringRunner
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 
+@RunWith(SpringRunner::class)
 @EmbeddedKafka(topics = [INT_KEY_TOPIC, STRING_KEY_TOPIC])
 class KafkaTemplateTests {
 
