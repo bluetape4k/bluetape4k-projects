@@ -29,6 +29,22 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
  * ```
  *
  * [Locakstack docker image](https://hub.docker.com/r/localstack/localstack/tags)
+ *
+ * ## NOTE: colima 를 사용 시 다음과 같이 설정해주세요.
+ *
+ * .zshrc 파일에 다음과 같이 docker.sock 을 설정해주세요.
+ * ```bash
+ * # Colima
+ * export DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"
+ * export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE="$HOME/.colima/docker.sock"
+ * export TESTCONTAINERS_RYUK_DISABLED=true
+ * ```
+ *
+ * 다음으로, `~/.colima` 디랙토리에 `docker.sock` 파일이 있다면 삭제해주세요. `LocalStackServer`를 사용할 때 새로 생성합니다.
+ *
+ * ```bash
+ * rm -rf ~/.colima/docker.sock
+ * ```
  */
 class LocalStackServer private constructor(
     imageName: DockerImageName,
@@ -61,7 +77,7 @@ class LocalStackServer private constructor(
             tag.requireNotBlank("tag")
 
             val imageName = DockerImageName.parse(image).withTag(tag)
-            return LocalStackServer(imageName, useDefaultPort, reuse)
+            return invoke(imageName, useDefaultPort, reuse)
         }
 
         /**
@@ -87,10 +103,6 @@ class LocalStackServer private constructor(
     init {
         addExposedPorts(PORT)
         withReuse(reuse)
-
-        withCreateContainerCmdModifier { cmd ->
-            cmd.withPlatform("linux/amd64")  // for Apple Silicon
-        }
 
         setWaitStrategy(Wait.forListeningPort())
 
