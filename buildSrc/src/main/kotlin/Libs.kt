@@ -170,7 +170,7 @@ object Versions {
     const val scylla_java = "4.13.0.0"
     const val elasticsearch = "8.16.0"       // https://mvnrepository.com/artifact/org.elasticsearch.client/elasticsearch-rest-client
 
-    const val kafka = "3.9.0"           // https://mvnrepository.com/artifact/org.apache.kafka/kafka
+    const val kafka = "3.8.1"           // https://mvnrepository.com/artifact/org.apache.kafka/kafka
     const val spring_kafka = "3.3.2"    // https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka
 
     const val pods4k = "0.6.0"              // https://mvnrepository.com/artifact/com.danrusu.pods4k/bom
