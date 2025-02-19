@@ -33,8 +33,8 @@ class MySQL5Server private constructor(
 ): MySQLContainer<MySQL5Server>(imageName), JdbcServer {
 
     companion object: KLogging() {
-        const val IMAGE = "mysql"
-        const val TAG = "5.7"       // https://hub.docker.com/_/mysql/tags?page=&page_size=&ordering=&name=5.
+        const val IMAGE = "biarms/mysql" // "mysql"
+        const val TAG = "5" // "5.7"      // https://hub.docker.com/_/mysql/tags?page=&page_size=&ordering=&name=5.
         const val NAME = "mysql"
         const val PORT: Int = 3306
         const val USERNAME = "test"
@@ -62,7 +62,10 @@ class MySQL5Server private constructor(
             password: String = PASSWORD,
             configuration: String = "",
         ): MySQL5Server {
-            val imageName = DockerImageName.parse(image).withTag(tag)
+            val imageName = DockerImageName.parse(image)
+                .withTag(tag)
+                .asCompatibleSubstituteFor("mysql")
+            
             return invoke(imageName, useDefaultPort, reuse, username, password, configuration)
         }
 
@@ -104,6 +107,10 @@ class MySQL5Server private constructor(
 
         withReuse(reuse)
         setWaitStrategy(Wait.forListeningPort())
+
+        withCreateContainerCmdModifier { cmd ->
+            cmd.withPlatform("linux/arm64")  // for Apple Silicon
+        }
 
         // 로컬 테스트용이므로, 비밀번호가 없어도 실행할 수 있도록 한다
         withEnv("ALLOW_EMPTY_PASSWORD", "yes")
