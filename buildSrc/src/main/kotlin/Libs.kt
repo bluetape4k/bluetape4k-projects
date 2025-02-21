@@ -183,12 +183,12 @@ object Versions {
     const val junit_platform = "1.11.4"     // https://mvnrepository.com/artifact/org.junit.platform/junit-platform-launcher
     const val assertj_core = "3.26.3"       // https://mvnrepository.com/artifact/org.assertj/assertj-core
     const val kluent = "1.73"               // https://mvnrepository.com/artifact/org.amshove.kluent/kluent
-    const val mockk = "1.13.13"             // https://mvnrepository.com/artifact/io.mockk/mockk
+    const val mockk = "1.13.16"             // https://mvnrepository.com/artifact/io.mockk/mockk
     const val springmockk = "4.0.2"         // https://mvnrepository.com/artifact/com.ninja-squad/springmockk
     const val awaitility = "4.2.2"          // https://mvnrepository.com/artifact/org.awaitility/awaitility
     const val jmh = "1.37"                  // https://mvnrepository.com/artifact/org.openjdk.jmh/jmh-core
-    const val testcontainers = "1.20.4"     // https://mvnrepository.com/artifact/org.testcontainers/testcontainers
-    const val jna = "5.15.0"                // https://mvnrepository.com/artifact/net.java.dev.jna/jna
+    const val testcontainers = "1.20.5"     // https://mvnrepository.com/artifact/org.testcontainers/testcontainers
+    const val jna = "5.16.0"                // https://mvnrepository.com/artifact/net.java.dev.jna/jna
     const val archunit = "1.3.0"           // https://mvnrepository.com/artifact/com.tngtech.archunit/archunit-junit5
     const val rest_assured = "5.5.0"        // https://mvnrepository.com/artifact/io.rest-assured/rest-assured
 

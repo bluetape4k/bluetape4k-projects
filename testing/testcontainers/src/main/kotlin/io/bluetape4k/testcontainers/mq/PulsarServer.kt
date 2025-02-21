@@ -37,7 +37,7 @@ class PulsarServer private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "apachepulsar/pulsar"
-        const val TAG = "3.3.3"
+        const val TAG = "4.0.2"
         const val NAME = "pulsar"
         const val PORT = BROKER_PORT
         const val HTTP_PORT = BROKER_HTTP_PORT
