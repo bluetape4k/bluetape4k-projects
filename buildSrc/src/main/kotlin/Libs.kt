@@ -96,10 +96,10 @@ object Versions {
     const val netty = "4.1.115.Final"  // https://mvnrepository.com/artifact/io.netty/netty-all
 
     const val aws = "1.12.772"    // https://mvnrepository.com/artifact/com.amazonaws
-    const val aws2 = "2.29.26"   // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
-    const val aws2_crt = "0.33.5" // https://mvnrepository.com/artifact/software.amazon.awssdk.crt
-    const val aws_kotlin = "1.3.87" // https://mvnrepository.com/artifact/aws.sdk.kotlin
-    const val aws_smithy_kotlin = "1.3.28" // https://mvnrepository.com/artifact/aws.smithy.kotlin/http-client-engine-crt-jvm
+    const val aws2 = "2.30.25"   // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
+    const val aws2_crt = "0.35.0" // https://mvnrepository.com/artifact/software.amazon.awssdk.crt
+    const val aws_kotlin = "1.4.26" // https://mvnrepository.com/artifact/aws.sdk.kotlin
+    const val aws_smithy_kotlin = "1.4.4" // https://mvnrepository.com/artifact/aws.smithy.kotlin/http-client-engine-crt-jvm
 
     const val grpc = "1.68.2"       // https://mvnrepository.com/artifact/io.grpc/grpc-stub
     const val grpc_kotlin = "1.4.1" // https://mvnrepository.com/artifact/io.grpc/grpc-kotlin-stub
