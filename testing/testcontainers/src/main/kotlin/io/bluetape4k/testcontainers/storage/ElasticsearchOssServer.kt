@@ -5,6 +5,7 @@ import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
+import org.springframework.data.elasticsearch.client.ClientConfiguration
 import org.testcontainers.elasticsearch.ElasticsearchContainer
 import org.testcontainers.utility.DockerImageName
 
@@ -32,7 +33,7 @@ class ElasticsearchOssServer private constructor(
         const val TAG = "7.10.2"
 
         const val NAME = "elasticsearch-oss"
-
+        const val DEFAULT_PASSWORD = "changeme"
         const val PORT = 9200
         const val TCP_PORT = 9300
 
@@ -80,6 +81,19 @@ class ElasticsearchOssServer private constructor(
                 start()
                 ShutdownQueue.register(this)
             }
+        }
+
+        /**
+         * Spring Data Elasticsearch 를 사용 할 때 사용할 클라이언트 설정을 제공합니다.
+         *
+         * @param elasticsearch [ElasticsearchServer] 인스턴스
+         * @return Spring Data Elasticsearch에서 제공하는 [ClientConfiguration] 인스턴스
+         */
+        fun getClientConfiguration(elasticsearch: ElasticsearchOssServer): ClientConfiguration {
+            return ClientConfiguration.builder()
+                .connectedTo(elasticsearch.url)
+                .withBasicAuth("elastic", ElasticsearchOssServer.DEFAULT_PASSWORD)
+                .build()
         }
     }
 }
