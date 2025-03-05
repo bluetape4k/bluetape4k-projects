@@ -7,8 +7,8 @@ import io.bluetape4k.exposed.dao.toStringBuilder
 import io.bluetape4k.exposed.utils.runWithTables
 import io.bluetape4k.support.toUtf8String
 import org.amshove.kluent.shouldBeEqualTo
-import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.IntEntity
+import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.entityCache
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
@@ -26,7 +26,7 @@ class EncryptedColumnTypeTest: AbstractExposedTest() {
     }
 
     class E1(id: EntityID<Int>): IntEntity(id) {
-        companion object: EntityClass<Int, E1>(T1)
+        companion object: IntEntityClass<E1>(T1)
 
         var name by T1.name
 
