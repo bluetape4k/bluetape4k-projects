@@ -15,9 +15,9 @@ import io.bluetape4k.support.requireNotBlank
  * @param configurer [ListSubscriptionsRequest.Builder]를 통해 추가적인 설정을 할 수 있는 람다 함수
  * @return [ListSubscriptionsRequest] 인스턴스
  */
-fun listSubscriptinosRequestOf(
+inline fun listSubscriptinosRequestOf(
     nextToken: String,
-    configurer: ListSubscriptionsRequest.Builder.() -> Unit = {},
+    crossinline configurer: ListSubscriptionsRequest.Builder.() -> Unit = {},
 ): ListSubscriptionsRequest {
     nextToken.requireNotBlank("nextToken")
 
