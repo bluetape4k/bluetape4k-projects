@@ -12,10 +12,10 @@ import io.bluetape4k.support.requireNotBlank
  * @param receiptHandle 삭제할 메시지와 연관된 영수증 핸들입니다.
  * @param configurer DeleteMessageRequest.Builder를 사용하여 DeleteMessageRequest를 구성하는 람다입니다.
  */
-fun deleteMessageRequestOf(
+inline fun deleteMessageRequestOf(
     queueUrl: String,
     receiptHandle: String? = null,
-    configurer: DeleteMessageRequest.Builder.() -> Unit = {},
+    crossinline configurer: DeleteMessageRequest.Builder.() -> Unit = {},
 ): DeleteMessageRequest {
     queueUrl.requireNotBlank("queueUrl")
 
@@ -33,15 +33,18 @@ fun deleteMessageRequestOf(
  * @param receiptHandle 삭제할 메시지와 연관된 영수증 핸들입니다.
  * @return DeleteMessageBatchRequestEntry 인스턴스를 반환합니다.
  */
-fun deleteMessageBatchRequestEntryOf(
+inline fun deleteMessageBatchRequestEntryOf(
     id: String,
     receiptHandle: String? = null,
+    crossinline configurer: DeleteMessageBatchRequestEntry.Builder.() -> Unit = {},
 ): DeleteMessageBatchRequestEntry {
     id.requireNotBlank("id")
 
     return DeleteMessageBatchRequestEntry {
         this.id = id
         receiptHandle?.let { this.receiptHandle = it }
+
+        configurer()
     }
 }
 
@@ -52,15 +55,18 @@ fun deleteMessageBatchRequestEntryOf(
  * @param entries DeleteMessageBatchRequestEntry 인스턴스의 컬렉션입니다.
  * @return DeleteMessageBatchRequest 인스턴스를 반환합니다.
  */
-fun deleteMessageBatchRequestOf(
+inline fun deleteMessageBatchRequestOf(
     queueUrl: String,
     entries: Collection<DeleteMessageBatchRequestEntry>,
+    crossinline configurer: DeleteMessageBatchRequest.Builder.() -> Unit = {},
 ): DeleteMessageBatchRequest {
     queueUrl.requireNotBlank("queueUrl")
 
     return DeleteMessageBatchRequest {
         this.queueUrl = queueUrl
         this.entries = entries.toList()
+
+        configurer()
     }
 }
 
@@ -71,14 +77,17 @@ fun deleteMessageBatchRequestOf(
  * @param entries DeleteMessageBatchRequestEntry 인스턴스의 컬렉션입니다.
  * @return DeleteMessageBatchRequest 인스턴스를 반환합니다.
  */
-fun deleteMessageBatchRequestOf(
+inline fun deleteMessageBatchRequestOf(
     queueUrl: String,
     vararg entries: DeleteMessageBatchRequestEntry,
+    crossinline configurer: DeleteMessageBatchRequest.Builder.() -> Unit = {},
 ): DeleteMessageBatchRequest {
     queueUrl.requireNotBlank("queueUrl")
 
     return DeleteMessageBatchRequest {
         this.queueUrl = queueUrl
         this.entries = entries.toList()
+
+        configurer()
     }
 }

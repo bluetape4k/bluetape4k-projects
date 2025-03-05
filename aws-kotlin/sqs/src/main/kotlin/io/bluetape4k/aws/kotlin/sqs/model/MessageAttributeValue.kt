@@ -3,25 +3,44 @@ package io.bluetape4k.aws.kotlin.sqs.model
 import aws.sdk.kotlin.services.sqs.model.MessageAttributeValue
 
 @JvmName("messageAttributeValueOfNullableString")
-fun messageAttributeValueOf(value: String?): MessageAttributeValue =
+inline fun messageAttributeValueOf(
+    value: String?,
+    crossinline configurer: MessageAttributeValue.Builder.() -> Unit = {},
+): MessageAttributeValue =
     MessageAttributeValue {
         stringValue = value
+        configurer()
     }
 
 @JvmName("messageAttributeValueOfNullableStringList")
-fun messageAttributeValueOf(values: List<String>?): MessageAttributeValue =
+inline fun messageAttributeValueOf(
+    values: List<String>?,
+    crossinline configurer: MessageAttributeValue.Builder.() -> Unit = {},
+): MessageAttributeValue =
     MessageAttributeValue {
         stringListValues = values
+
+        configurer()
     }
 
 @JvmName("messageAttributeValueOfNullableByteArray")
-fun messageAttributeValueOf(value: ByteArray?): MessageAttributeValue =
+inline fun messageAttributeValueOf(
+    value: ByteArray?,
+    crossinline configurer: MessageAttributeValue.Builder.() -> Unit = {},
+): MessageAttributeValue =
     MessageAttributeValue {
         binaryValue = value
+
+        configurer()
     }
 
 @JvmName("messageAttributeValueOfNullableByteArrayList")
-fun messageAttributeValueOf(values: List<ByteArray>?): MessageAttributeValue =
+inline fun messageAttributeValueOf(
+    values: List<ByteArray>?,
+    crossinline configurer: MessageAttributeValue.Builder.() -> Unit = {},
+): MessageAttributeValue =
     MessageAttributeValue {
         binaryListValues = values
+
+        configurer()
     }

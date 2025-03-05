@@ -13,10 +13,11 @@ import io.bluetape4k.support.requireNotBlank
  * @param visibilityTimeout 메시지의 새로운 VisibilityTimeout(초)입니다. 기본값은 null입니다.
  * @return [ChangeMessageVisibilityRequest] 인스턴스를 반환합니다.
  */
-fun changeMessageVisibilityRequestOf(
+inline fun changeMessageVisibilityRequestOf(
     queueUrl: String,
     receiptHandle: String,
     visibilityTimeout: Int? = null,
+    crossinline configurer: ChangeMessageVisibilityRequest.Builder.() -> Unit = {},
 ): ChangeMessageVisibilityRequest {
     queueUrl.requireNotBlank("queueUrl")
     receiptHandle.requireNotBlank("receiptHandle")
@@ -25,6 +26,8 @@ fun changeMessageVisibilityRequestOf(
         this.queueUrl = queueUrl
         this.receiptHandle = receiptHandle
         this.visibilityTimeout = visibilityTimeout
+
+        configurer()
     }
 }
 
@@ -36,10 +39,11 @@ fun changeMessageVisibilityRequestOf(
  * @param receiptHandle Visibility를 변경할 메시지와 연관된 영수증 핸들입니다.
  * @param visibilityTimeout 메시지의 새로운 VisibilityTimeout(초)입니다. 기본값은 null입니다.
  */
-fun changeMessageVisibilityBatchRequestEntryOf(
+inline fun changeMessageVisibilityBatchRequestEntryOf(
     id: String,
     receiptHandle: String,
     visibilityTimeout: Int? = null,
+    crossinline configurer: ChangeMessageVisibilityBatchRequestEntry.Builder.() -> Unit = {},
 ): ChangeMessageVisibilityBatchRequestEntry {
     id.requireNotBlank("id")
     receiptHandle.requireNotBlank("receiptHandle")
@@ -48,6 +52,8 @@ fun changeMessageVisibilityBatchRequestEntryOf(
         this.id = id
         this.receiptHandle = receiptHandle
         this.visibilityTimeout = visibilityTimeout
+
+        configurer()
     }
 }
 
@@ -58,15 +64,19 @@ fun changeMessageVisibilityBatchRequestEntryOf(
  * @param entries ChangeMessageVisibilityBatchRequestEntry 인스턴스의 컬렉션입니다.
  * @return [ChangeMessageVisibilityBatchRequest] 인스턴스를 반환합니다.
  */
-fun changeMessageVisibilityBatchRequestOf(
+@JvmName("changeMessageVisibilityBatchRequestOfCollection")
+inline fun changeMessageVisibilityBatchRequestOf(
     queueUrl: String,
     entries: Collection<ChangeMessageVisibilityBatchRequestEntry>,
+    crossinline configurer: ChangeMessageVisibilityBatchRequest.Builder.() -> Unit = {},
 ): ChangeMessageVisibilityBatchRequest {
     queueUrl.requireNotBlank("queueUrl")
 
     return ChangeMessageVisibilityBatchRequest {
         this.queueUrl = queueUrl
         this.entries = entries.toList()
+
+        configurer()
     }
 }
 
@@ -78,14 +88,18 @@ fun changeMessageVisibilityBatchRequestOf(
  * @param entries ChangeMessageVisibilityBatchRequestEntry 인스턴스의 컬렉션입니다.
  * @return [ChangeMessageVisibilityBatchRequest] 인스턴스를 반환합니다.
  */
-fun changeMessageVisibilityBatchRequestOf(
+@JvmName("changeMessageVisibilityBatchRequestOfVararg")
+inline fun changeMessageVisibilityBatchRequestOf(
     queueUrl: String,
     vararg entries: ChangeMessageVisibilityBatchRequestEntry,
+    crossinline configurer: ChangeMessageVisibilityBatchRequest.Builder.() -> Unit = {},
 ): ChangeMessageVisibilityBatchRequest {
     queueUrl.requireNotBlank("queueUrl")
 
     return ChangeMessageVisibilityBatchRequest {
         this.queueUrl = queueUrl
         this.entries = entries.toList()
+
+        configurer()
     }
 }
