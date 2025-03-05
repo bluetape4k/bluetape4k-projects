@@ -7,10 +7,10 @@ import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotEmpty
 
 @JvmName("deleteOfAttributeValue")
-fun deleteOf(
+inline fun deleteOf(
     tableName: String,
     key: Map<String, AttributeValue>? = null,
-    configurer: Delete.Builder.() -> Unit = {},
+    crossinline configurer: Delete.Builder.() -> Unit = {},
 ): Delete {
     tableName.requireNotBlank("tableName")
 
@@ -23,10 +23,10 @@ fun deleteOf(
 }
 
 @JvmName("deleteOfAny")
-fun deleteOf(
+inline fun deleteOf(
     tableName: String,
     key: Map<String, Any?>? = null,
-    configurer: Delete.Builder.() -> Unit = {},
+    crossinline configurer: Delete.Builder.() -> Unit = {},
 ): Delete {
     tableName.requireNotBlank("tableName")
 
@@ -39,9 +39,9 @@ fun deleteOf(
 }
 
 @JvmName("deleteRequestOfAttributeValue")
-fun deleteRequestOf(
+inline fun deleteRequestOf(
     key: Map<String, AttributeValue>,
-    configurer: DeleteRequest.Builder.() -> Unit = {},
+    crossinline configurer: DeleteRequest.Builder.() -> Unit = {},
 ): DeleteRequest {
     key.requireNotEmpty("key")
 
@@ -52,9 +52,9 @@ fun deleteRequestOf(
 }
 
 @JvmName("deleteRequestOfAny")
-fun deleteRequestOf(
+inline fun deleteRequestOf(
     key: Map<String, Any?>,
-    configurer: DeleteRequest.Builder.() -> Unit = {},
+    crossinline configurer: DeleteRequest.Builder.() -> Unit = {},
 ): DeleteRequest {
     key.requireNotEmpty("key")
 

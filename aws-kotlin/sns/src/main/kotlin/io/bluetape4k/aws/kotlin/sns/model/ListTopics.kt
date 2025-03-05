@@ -15,9 +15,9 @@ import io.bluetape4k.support.requireNotBlank
  * @param configurer [ListTopicsRequest.Builder]를 통해 추가적인 설정을 할 수 있는 람다 함수
  * @return [ListTopicsRequest] 인스턴스
  */
-fun listTopicsRequestOf(
+inline fun listTopicsRequestOf(
     nextToken: String,
-    configurer: ListTopicsRequest.Builder.() -> Unit = {},
+    crossinline configurer: ListTopicsRequest.Builder.() -> Unit = {},
 ): ListTopicsRequest {
     nextToken.requireNotBlank("nextToken")
 

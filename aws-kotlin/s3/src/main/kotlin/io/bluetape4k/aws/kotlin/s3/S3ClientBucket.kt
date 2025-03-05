@@ -5,14 +5,13 @@ import aws.sdk.kotlin.services.s3.createBucket
 import aws.sdk.kotlin.services.s3.listObjectsV2
 import aws.sdk.kotlin.services.s3.model.CreateBucketRequest
 import aws.sdk.kotlin.services.s3.model.CreateBucketResponse
+import aws.sdk.kotlin.services.s3.model.DeleteBucketRequest
 import aws.sdk.kotlin.services.s3.model.DeleteBucketResponse
+import aws.sdk.kotlin.services.s3.model.HeadBucketRequest
 import io.bluetape4k.aws.kotlin.s3.model.deleteBucketRequestOf
 import io.bluetape4k.aws.kotlin.s3.model.headBucketRequestOf
-import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireNotBlank
-
-private val log by lazy { KotlinLogging.logger { } }
 
 /**
  * [bucket]의 버킷이 존재하는지 확인합니다.
@@ -24,8 +23,12 @@ private val log by lazy { KotlinLogging.logger { } }
  * @param bucket 버킷 이름
  * @return 버킷이 존재하면 `true`, 존재하지 않으면 `false`
  */
-suspend fun S3Client.existsBucket(bucket: String): Boolean {
-    return runCatching { headBucket(headBucketRequestOf(bucket)) }.isSuccess
+suspend inline fun S3Client.existsBucket(
+    bucket: String,
+    crossinline configurer: HeadBucketRequest.Builder.() -> Unit = {},
+): Boolean {
+    val headBucketRequest = headBucketRequestOf(bucket, configurer = configurer)
+    return runCatching { headBucket(headBucketRequest) }.isSuccess
 }
 
 /**
@@ -45,11 +48,12 @@ suspend fun S3Client.existsBucket(bucket: String): Boolean {
  * @param configurer [CreateBucketRequest.Builder] 를 통해 [CreateBucketRequest] 를 설정합니다.
  * @return [CreateBucketResponse] 인스턴스
  */
-suspend fun S3Client.createBucket(
+suspend inline fun S3Client.createBucket(
     bucketName: String,
-    configurer: CreateBucketRequest.Builder.() -> Unit = {},
+    crossinline configurer: CreateBucketRequest.Builder.() -> Unit = {},
 ): CreateBucketResponse {
     bucketName.requireNotBlank("bucketName")
+
     return createBucket {
         bucket = bucketName
         configurer()
@@ -65,9 +69,9 @@ suspend fun S3Client.createBucket(
  *
  * @param bucketName 버킷 이름
  */
-suspend fun S3Client.ensureBucketExists(
+suspend inline fun S3Client.ensureBucketExists(
     bucketName: String,
-    configurer: CreateBucketRequest.Builder.() -> Unit = {},
+    crossinline configurer: CreateBucketRequest.Builder.() -> Unit = {},
 ) {
     bucketName.requireNotBlank("bucketName")
 
@@ -83,8 +87,9 @@ suspend fun S3Client.ensureBucketExists(
  * @param bucket 삭제할 버킷 이름
  * @return [DeleteBucketResponse] 인스턴스
  */
-suspend fun S3Client.forceDeleteBucket(
+suspend inline fun S3Client.forceDeleteBucket(
     bucket: String,
+    crossinline configurer: DeleteBucketRequest.Builder.() -> Unit = {},
 ): DeleteBucketResponse {
     bucket.requireNotBlank("bucketName")
 
@@ -100,5 +105,5 @@ suspend fun S3Client.forceDeleteBucket(
 
     // 버킷 삭제
     log.debug { "버킷을 삭제합니다. bucket=$bucket" }
-    return deleteBucket(deleteBucketRequestOf(bucket))
+    return deleteBucket(deleteBucketRequestOf(bucket, configurer = configurer))
 }

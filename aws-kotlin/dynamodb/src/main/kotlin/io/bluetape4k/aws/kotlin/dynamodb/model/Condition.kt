@@ -5,10 +5,10 @@ import aws.sdk.kotlin.services.dynamodb.model.ComparisonOperator
 import aws.sdk.kotlin.services.dynamodb.model.Condition
 
 @JvmName("conditionOfAttributeValue")
-fun conditionOf(
+inline fun conditionOf(
     comparisonOperator: ComparisonOperator,
     attributeValueList: List<AttributeValue>,
-    configurer: Condition.Builder.() -> Unit = {},
+    crossinline configurer: Condition.Builder.() -> Unit = {},
 ): Condition {
 
     return Condition.invoke {
@@ -20,10 +20,10 @@ fun conditionOf(
 }
 
 @JvmName("conditionOfAny")
-fun conditionOf(
+inline fun conditionOf(
     comparisonOperator: ComparisonOperator,
     attributeValueList: List<Any?>,
-    configurer: Condition.Builder.() -> Unit = {},
+    crossinline configurer: Condition.Builder.() -> Unit = {},
 ): Condition {
 
     return Condition.invoke {

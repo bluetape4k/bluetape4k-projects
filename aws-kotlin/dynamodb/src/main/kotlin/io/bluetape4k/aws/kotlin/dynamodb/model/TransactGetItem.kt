@@ -6,8 +6,8 @@ import aws.sdk.kotlin.services.dynamodb.model.TransactGetItem
 import aws.sdk.kotlin.services.dynamodb.model.TransactGetItemsRequest
 import io.bluetape4k.support.requireNotEmpty
 
-fun transactGetItemOf(get: Get): TransactGetItem {
-    return TransactGetItem { this.get = get }
+fun transactGetItemOf(get: Get): TransactGetItem = TransactGetItem {
+    this.get = get
 }
 
 

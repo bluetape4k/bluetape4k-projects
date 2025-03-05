@@ -32,11 +32,14 @@ inline fun scanRequestOf(
     indexName: String? = null,
     crossinline configurer: ScanRequest.Builder.() -> Unit = {},
 ): ScanRequest {
-    return scanRequestOf(
-        tableName,
-        attributesToGet,
-        exclusiveStartKey?.mapValues { it.toAttributeValue() },
-        indexName,
-        configurer,
-    )
+    tableName.requireNotBlank("tableName")
+
+    return ScanRequest {
+        this.tableName = tableName
+        this.attributesToGet = attributesToGet
+        this.exclusiveStartKey = exclusiveStartKey?.mapValues { it.toAttributeValue() }
+        this.indexName = indexName
+
+        configurer()
+    }
 }

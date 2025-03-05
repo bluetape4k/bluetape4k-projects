@@ -31,11 +31,11 @@ inline fun getOf(
     projectionExpression: String? = null,
     crossinline configurer: Get.Builder.() -> Unit = {},
 ): Get {
-    return getOf(
-        tableName,
-        key?.mapValues { it.toAttributeValue() },
-        expressionAttributeNames,
-        projectionExpression,
-        configurer,
-    )
+    return Get {
+        this.tableName = tableName
+        this.key = key?.mapValues { it.toAttributeValue() }
+        this.expressionAttributeNames = expressionAttributeNames
+        this.projectionExpression = projectionExpression
+        configurer()
+    }
 }

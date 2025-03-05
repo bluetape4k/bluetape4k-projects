@@ -22,11 +22,11 @@ import io.bluetape4k.support.requireNotBlank
  * @param configurer [SubscribeRequest.Builder]를 통해 추가적인 설정을 할 수 있는 람다 함수
  * @return [SubscribeRequest] 인스턴스
  */
-fun subscribeRequestOf(
+inline fun subscribeRequestOf(
     topicArn: String,
     endpoint: String,
     protocol: String = "sms",
-    configurer: SubscribeRequest.Builder.() -> Unit = {},
+    crossinline configurer: SubscribeRequest.Builder.() -> Unit = {},
 ): SubscribeRequest {
     topicArn.requireNotBlank("topicArn")
     protocol.requireNotBlank("protocol")
@@ -52,9 +52,9 @@ fun subscribeRequestOf(
  * @param configurer [UnsubscribeRequest.Builder]를 통해 추가적인 설정을 할 수 있는 람다 함수
  * @return [UnsubscribeRequest] 인스턴스
  */
-fun unsubscribeRequestOf(
+inline fun unsubscribeRequestOf(
     subscriptionArn: String,
-    configurer: UnsubscribeRequest.Builder.() -> Unit,
+    crossinline configurer: UnsubscribeRequest.Builder.() -> Unit = {},
 ): UnsubscribeRequest {
     subscriptionArn.requireNotBlank("subscriptionArn")
 
