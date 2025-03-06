@@ -23,9 +23,9 @@ open class TimebasedUUIDTable(name: String = "", columnName: String = "id"): IdT
 
 typealias TimebasedUUIDEntityID = EntityID<UUID>
 
-abstract class TimebasedUUIDEntity(id: TimebasedUUIDEntityID): UUIDEntity(id)
+open class TimebasedUUIDEntity(id: TimebasedUUIDEntityID): UUIDEntity(id)
 
-abstract class TimebasedUUIDEntityClass<out E: TimebasedUUIDEntity>(
+open class TimebasedUUIDEntityClass<out E: TimebasedUUIDEntity>(
     table: TimebasedUUIDTable,
     entityType: Class<E>? = null,
     entityCtor: ((TimebasedUUIDEntityID) -> E)? = null,

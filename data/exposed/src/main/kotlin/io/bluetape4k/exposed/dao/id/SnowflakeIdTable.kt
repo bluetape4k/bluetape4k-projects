@@ -22,9 +22,9 @@ open class SnowflakeIdTable(name: String = "", columnName: String = "id"): IdTab
 
 typealias SnowflakeIdEntityID = EntityID<Long>
 
-abstract class SnowflakeIdEntity(id: SnowflakeIdEntityID): LongEntity(id)
+open class SnowflakeIdEntity(id: SnowflakeIdEntityID): LongEntity(id)
 
-abstract class SnowflakeIdEntityClass<out E: SnowflakeIdEntity>(
+open class SnowflakeIdEntityClass<out E: SnowflakeIdEntity>(
     table: SnowflakeIdTable,
     entityType: Class<E>? = null,
     entityCtor: ((SnowflakeIdEntityID) -> E)? = null,

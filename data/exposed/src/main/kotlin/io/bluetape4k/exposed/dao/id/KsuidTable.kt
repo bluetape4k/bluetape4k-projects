@@ -20,9 +20,9 @@ open class KsuidTable(name: String = "", columnName: String = "id"): IdTable<Str
 
 typealias KsuidEntityID = EntityID<String>
 
-abstract class KsuidEntity(id: KsuidEntityID): StringEntity(id)
+open class KsuidEntity(id: KsuidEntityID): StringEntity(id)
 
-abstract class KsuidEntityClass<out E: KsuidEntity>(
+open class KsuidEntityClass<out E: KsuidEntity>(
     table: KsuidTable,
     entityType: Class<E>? = null,
     entityCtor: ((KsuidEntityID) -> E)? = null,
