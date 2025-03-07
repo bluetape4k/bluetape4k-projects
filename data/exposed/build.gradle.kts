@@ -11,6 +11,7 @@ dependencies {
     api(Libs.exposed_jdbc)
     api(Libs.exposed_dao)
     compileOnly(Libs.exposed_kotlin_datetime)
+    compileOnly(Libs.exposed_java_time)
     compileOnly(Libs.exposed_json)
     compileOnly(Libs.exposed_money)
     compileOnly(Libs.exposed_migration)

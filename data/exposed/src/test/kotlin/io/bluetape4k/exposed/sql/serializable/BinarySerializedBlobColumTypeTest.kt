@@ -2,7 +2,7 @@ package io.bluetape4k.exposed.sql.serializable
 
 import io.bluetape4k.exposed.AbstractExposedTest
 import io.bluetape4k.exposed.dao.idEquals
-import io.bluetape4k.exposed.utils.runWithTables
+import io.bluetape4k.exposed.utils.withTables
 import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
@@ -55,7 +55,7 @@ class BinarySerializedBlobColumTypeTest: AbstractExposedTest() {
 
     @Test
     fun `Serializable Object 를 DB에 저장하고 로드한다`() {
-        runWithTables(T1) {
+        withTables(T1) {
             val embedded = Embeddable("Alice", 20, "Seoul")
             val embedded2 = Embeddable2("Alice", 20, "Seoul", "12914")
             val e1 = E1.new {

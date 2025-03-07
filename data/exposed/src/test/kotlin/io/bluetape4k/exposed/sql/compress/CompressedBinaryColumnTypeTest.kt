@@ -2,7 +2,7 @@ package io.bluetape4k.exposed.sql.compress
 
 import io.bluetape4k.exposed.AbstractExposedTest
 import io.bluetape4k.exposed.dao.idEquals
-import io.bluetape4k.exposed.utils.runWithTables
+import io.bluetape4k.exposed.utils.withTables
 import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
@@ -45,7 +45,7 @@ class CompressedBinaryColumnTypeTest: AbstractExposedTest() {
         val text = Fakers.randomString(2048, 4096)
         val data = text.toUtf8Bytes()
 
-        runWithTables(T1) {
+        withTables(T1) {
             val e1 = E1.new {
                 lz4Data = data
                 snappyData = data

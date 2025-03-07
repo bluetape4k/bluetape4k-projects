@@ -4,8 +4,8 @@ import io.bluetape4k.exposed.AbstractExposedTest
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.idHashCode
 import io.bluetape4k.exposed.dao.toStringBuilder
-import io.bluetape4k.exposed.utils.runSuspendWithTables
-import io.bluetape4k.exposed.utils.runWithTables
+import io.bluetape4k.exposed.utils.withSuspendedTables
+import io.bluetape4k.exposed.utils.withTables
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.awaitAll
@@ -61,7 +61,7 @@ class TimebasedUUIDTableTest: AbstractExposedTest() {
     @ParameterizedTest(name = "entity count={0}")
     @ValueSource(ints = [1, 100, 1000, 10000])
     fun `Unique한 ID를 가진 복수의 엔티티를 생성한다`(entityCount: Int) {
-        runWithTables(T1) {
+        withTables(T1) {
             repeat(entityCount) {
                 E1.new {
                     name = faker.name().fullName()
@@ -82,7 +82,7 @@ class TimebasedUUIDTableTest: AbstractExposedTest() {
     @ParameterizedTest(name = "entity count={0}")
     @ValueSource(ints = [1, 100, 1000, 10000])
     fun `Coroutine 환경에서 복수의 Unique한 엔티티를 생성한다`(entityCount: Int) = runSuspendIO {
-        runSuspendWithTables(T1) {
+        withSuspendedTables(T1) {
             val tasks = List(entityCount) {
                 suspendedTransactionAsync {
                     E1.new {
@@ -106,7 +106,7 @@ class TimebasedUUIDTableTest: AbstractExposedTest() {
     @ParameterizedTest(name = "entity count={0}")
     @ValueSource(ints = [1, 100, 1000, 10000])
     fun `batch insert`(entityCount: Int) {
-        runWithTables(T1) {
+        withTables(T1) {
             val entities = generateSequence {
                 val name = faker.name().fullName()
                 val age = faker.number().numberBetween(8, 80)
@@ -132,7 +132,7 @@ class TimebasedUUIDTableTest: AbstractExposedTest() {
     @ParameterizedTest(name = "entity count={0}")
     @ValueSource(ints = [1, 100, 1000, 10000])
     fun `batch insert in coroutines`(entityCount: Int) = runSuspendIO {
-        runSuspendWithTables(T1) {
+        withSuspendedTables(T1) {
             val entities = generateSequence<Pair<String, Int>> {
                 val name = faker.name().fullName()
                 val age = faker.number().numberBetween(8, 80)
@@ -161,7 +161,7 @@ class TimebasedUUIDTableTest: AbstractExposedTest() {
     @ParameterizedTest(name = "entity count={0}")
     @ValueSource(ints = [1, 100, 1000, 10000])
     fun `insertIgnore as flow`(entityCount: Int) = runSuspendIO {
-        runSuspendWithTables(T1) {
+        withSuspendedTables(T1) {
             val entities = generateSequence<Pair<String, Int>> {
                 val name = faker.name().fullName()
                 val age = faker.number().numberBetween(8, 80)

@@ -3,7 +3,7 @@ package io.bluetape4k.exposed.sql
 import io.bluetape4k.exposed.AbstractExposedTest
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.toStringBuilder
-import io.bluetape4k.exposed.utils.runWithTables
+import io.bluetape4k.exposed.utils.withTables
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldHaveSize
 import org.jetbrains.exposed.dao.IntEntity
@@ -46,7 +46,7 @@ class ColumnExtensionsTest: AbstractExposedTest() {
     @RepeatedTest(REPEAT_SIZE)
     fun `client generated unique values`() {
         val entityCount = 100
-        runWithTables(ClientGenerated) {
+        withTables(ClientGenerated) {
             val entities = List(entityCount) {
                 ClientGeneratedEntity.new {}
             }

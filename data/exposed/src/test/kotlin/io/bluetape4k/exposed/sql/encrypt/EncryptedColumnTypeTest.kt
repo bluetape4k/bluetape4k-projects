@@ -4,7 +4,7 @@ import io.bluetape4k.crypto.encrypt.Encryptors
 import io.bluetape4k.exposed.AbstractExposedTest
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.toStringBuilder
-import io.bluetape4k.exposed.utils.runWithTables
+import io.bluetape4k.exposed.utils.withTables
 import io.bluetape4k.support.toUtf8String
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.exposed.dao.IntEntity
@@ -47,7 +47,7 @@ class EncryptedColumnTypeTest: AbstractExposedTest() {
 
     @Test
     fun `save string via encryptor`() {
-        runWithTables(T1) {
+        withTables(T1) {
             val e1 = E1.new {
                 name = "Alice"
                 aesPassword = "aesPassword"
@@ -73,7 +73,7 @@ class EncryptedColumnTypeTest: AbstractExposedTest() {
 
     @Test
     fun `search by encrypted column`() {
-        runWithTables(T1) {
+        withTables(T1) {
             val e1 = E1.new {
                 name = "Alice"
                 aesPassword = "aesPassword"
