@@ -16,7 +16,7 @@ import org.jetbrains.exposed.sql.selectAll
  * Exposed 를 사용하는 Repository 의 기본 추상 클래스입니다.
  */
 abstract class AbstractExposedRepository<T: Entity<ID>, ID: Any>(
-    val table: IdTable<ID>,
+    override val table: IdTable<ID>,
 ): ExposedRepository<T, ID> {
 
     companion object: KLogging()
@@ -43,9 +43,6 @@ abstract class AbstractExposedRepository<T: Entity<ID>, ID: Any>(
     override fun findByIdOrNull(id: ID): T? =
         table.selectAll().where { table.id eq id }.singleOrNull()?.let { toEntity(it) }
 
-    override fun findAll(): List<T> =
-        table.selectAll().map { toEntity(it) }
-
     override fun findAll(limit: Int?, offset: Long?, predicate: SqlExpressionBuilder.() -> Op<Boolean>): List<T> =
         table.selectAll()
             .where(predicate)
@@ -70,6 +67,10 @@ abstract class AbstractExposedRepository<T: Entity<ID>, ID: Any>(
     override fun deleteByIdIgnore(id: ID): Int =
         table.deleteIgnoreWhere { table.id eq id }
 
-    override fun deleteAllIgnore(limit: Int?, op: (IdTable<ID>).(ISqlExpressionBuilder) -> Op<Boolean>): Int =
-        table.deleteIgnoreWhere(limit = limit, op = op)
+    override fun deleteAllIgnore(limit: Int?, op: (IdTable<ID>).(ISqlExpressionBuilder) -> Op<Boolean>): Int {
+        return when (limit) {
+            null -> table.deleteIgnoreWhere { op(table, SqlExpressionBuilder) }
+            else -> table.deleteIgnoreWhere(limit = limit, op = op)
+        }
+    }
 }
