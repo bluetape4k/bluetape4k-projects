@@ -25,9 +25,8 @@ class MovieRepository: AbstractExposedRepository<MovieEntity, Long>(MovieTable) 
 
     companion object: KLogging()
 
-    override fun toEntity(row: ResultRow): MovieEntity {
-        return MovieEntity.wrapRow(row)
-    }
+    override fun ResultRow.toEntity(): MovieEntity =
+        MovieEntity.wrapRow(this)
 
     fun searchMovies(params: Map<String, String?>): List<MovieEntity> {
         log.debug { "Search Movie by params. params=$params" }

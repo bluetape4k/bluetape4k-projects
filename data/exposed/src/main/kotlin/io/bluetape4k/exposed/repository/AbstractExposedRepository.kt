@@ -38,10 +38,10 @@ abstract class AbstractExposedRepository<T: Entity<ID>, ID: Any>(
     }
 
     override fun findById(id: ID): T =
-        table.selectAll().where { table.id eq id }.single().let { toEntity(it) }
+        table.selectAll().where { table.id eq id }.single().toEntity()
 
     override fun findByIdOrNull(id: ID): T? =
-        table.selectAll().where { table.id eq id }.singleOrNull()?.let { toEntity(it) }
+        table.selectAll().where { table.id eq id }.singleOrNull()?.toEntity()
 
     override fun findAll(limit: Int?, offset: Long?, predicate: SqlExpressionBuilder.() -> Op<Boolean>): List<T> =
         table.selectAll()
@@ -50,7 +50,7 @@ abstract class AbstractExposedRepository<T: Entity<ID>, ID: Any>(
                 limit?.run { limit(limit) }
                 offset?.run { offset(offset) }
             }
-            .map { toEntity(it) }
+            .map { it.toEntity() }
 
     override fun delete(entity: T): Int =
         table.deleteWhere { table.id eq entity.id }
@@ -67,10 +67,6 @@ abstract class AbstractExposedRepository<T: Entity<ID>, ID: Any>(
     override fun deleteByIdIgnore(id: ID): Int =
         table.deleteIgnoreWhere { table.id eq id }
 
-    override fun deleteAllIgnore(limit: Int?, op: (IdTable<ID>).(ISqlExpressionBuilder) -> Op<Boolean>): Int {
-        return when (limit) {
-            null -> table.deleteIgnoreWhere { op(table, SqlExpressionBuilder) }
-            else -> table.deleteIgnoreWhere(limit = limit, op = op)
-        }
-    }
+    override fun deleteAllIgnore(limit: Int?, op: (IdTable<ID>).(ISqlExpressionBuilder) -> Op<Boolean>): Int =
+        table.deleteIgnoreWhere(limit = limit, op = op)
 }

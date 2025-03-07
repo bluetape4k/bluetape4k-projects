@@ -5,18 +5,18 @@ import io.bluetape4k.exposed.domain.model.MovieSchema.ActorEntity
 import io.bluetape4k.exposed.domain.model.MovieSchema.ActorTable
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.selectAll
 import java.time.LocalDate
 
-class ActorRepository: AbstractExposedRepository<ActorEntity, Long>(ActorTable) {
+class ActorRepository(table: IdTable<Long> = ActorTable): AbstractExposedRepository<ActorEntity, Long>(table) {
 
     companion object: KLogging()
 
-    override fun toEntity(row: ResultRow): ActorEntity {
-        return ActorEntity.wrapRow(row)
-    }
+    override fun ResultRow.toEntity(): ActorEntity =
+        ActorEntity.wrapRow(this)
 
     fun searchActors(params: Map<String, String?>): List<ActorEntity> {
         val query = ActorTable.selectAll()

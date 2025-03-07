@@ -19,7 +19,7 @@ interface ExposedRepository<T: Entity<ID>, ID: Any> {
     fun currentTransaction(): org.jetbrains.exposed.sql.Transaction =
         TransactionManager.current()
 
-    fun toEntity(row: ResultRow): T
+    fun ResultRow.toEntity(): T
 
     fun count(): Long
     fun count(predicate: SqlExpressionBuilder.() -> Op<Boolean>): Long
