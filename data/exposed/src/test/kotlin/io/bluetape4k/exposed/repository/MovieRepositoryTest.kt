@@ -1,16 +1,18 @@
 package io.bluetape4k.exposed.repository
 
-import io.bluetape4k.exposed.AbstractExposedTest
 import io.bluetape4k.exposed.domain.dto.MovieDTO
 import io.bluetape4k.exposed.domain.mapper.toMovieDTO
 import io.bluetape4k.exposed.domain.model.MovieSchema.withMovieAndActors
+import io.bluetape4k.exposed.tests.AbstractExposedTest
+import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 
 class MovieRepositoryTest: AbstractExposedTest() {
 
@@ -24,9 +26,10 @@ class MovieRepositoryTest: AbstractExposedTest() {
 
     private val repository: MovieRepository = MovieRepository()
 
-    @Test
-    fun `find movie by id`() {
-        withMovieAndActors {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `find movie by id`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
             val movieId = 1L
             val movie = repository.findById(movieId).toMovieDTO()
 
@@ -35,9 +38,10 @@ class MovieRepositoryTest: AbstractExposedTest() {
         }
     }
 
-    @Test
-    fun `search movies`() {
-        withMovieAndActors {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `search movies`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
             val params = mapOf("producerName" to "Johnny")
 
             val movies = repository.searchMovies(params).map { it.toMovieDTO() }
@@ -48,9 +52,10 @@ class MovieRepositoryTest: AbstractExposedTest() {
         }
     }
 
-    @Test
-    fun `create movie`() {
-        withMovieAndActors {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `create movie`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
             val movie = newMovieDTO()
 
             val currentCount = repository.count()
@@ -63,9 +68,10 @@ class MovieRepositoryTest: AbstractExposedTest() {
         }
     }
 
-    @Test
-    fun `delete movie`() {
-        withMovieAndActors {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `delete movie`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
             val newMovie = newMovieDTO()
             val savedMovie = repository.save(newMovie).toMovieDTO()
 
@@ -74,9 +80,10 @@ class MovieRepositoryTest: AbstractExposedTest() {
         }
     }
 
-    @Test
-    fun `get all movies and actors`() {
-        withMovieAndActors {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `get all movies and actors`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
             val movieWithActors = repository.getAllMoviesWithActors()
 
             movieWithActors.shouldNotBeEmpty()
@@ -86,9 +93,10 @@ class MovieRepositoryTest: AbstractExposedTest() {
         }
     }
 
-    @Test
-    fun `get movie and actors`() {
-        withMovieAndActors {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `get movie and actors`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
             val movieId = 1L
             val movieWithActors = repository.getMovieWithActors(movieId)
 
@@ -100,9 +108,10 @@ class MovieRepositoryTest: AbstractExposedTest() {
         }
     }
 
-    @Test
-    fun `get movie and actor count`() {
-        withMovieAndActors {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `get movie and actor count`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
             val movieWithActors = repository.getMovieActorsCount()
 
             movieWithActors.shouldNotBeEmpty()
@@ -112,9 +121,10 @@ class MovieRepositoryTest: AbstractExposedTest() {
         }
     }
 
-    @Test
-    fun `find movies with acting producers`() {
-        withMovieAndActors {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `find movies with acting producers`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
             val results = repository.findMoviesWithActingProducers()
 
             results shouldHaveSize 1

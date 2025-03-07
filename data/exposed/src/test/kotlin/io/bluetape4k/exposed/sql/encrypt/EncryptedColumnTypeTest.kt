@@ -1,10 +1,11 @@
 package io.bluetape4k.exposed.sql.encrypt
 
 import io.bluetape4k.crypto.encrypt.Encryptors
-import io.bluetape4k.exposed.AbstractExposedTest
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.toStringBuilder
-import io.bluetape4k.exposed.utils.withTables
+import io.bluetape4k.exposed.tests.AbstractExposedTest
+import io.bluetape4k.exposed.tests.TestDB
+import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.support.toUtf8String
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.exposed.dao.IntEntity
@@ -12,7 +13,8 @@ import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.entityCache
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 
 class EncryptedColumnTypeTest: AbstractExposedTest() {
 
@@ -45,9 +47,10 @@ class EncryptedColumnTypeTest: AbstractExposedTest() {
             .toString()
     }
 
-    @Test
-    fun `save string via encryptor`() {
-        withTables(T1) {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `save string via encryptor`(testDB: TestDB) {
+        withTables(testDB, T1) {
             val e1 = E1.new {
                 name = "Alice"
                 aesPassword = "aesPassword"
@@ -71,9 +74,10 @@ class EncryptedColumnTypeTest: AbstractExposedTest() {
         }
     }
 
-    @Test
-    fun `search by encrypted column`() {
-        withTables(T1) {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `search by encrypted column`(testDB: TestDB) {
+        withTables(testDB, T1) {
             val e1 = E1.new {
                 name = "Alice"
                 aesPassword = "aesPassword"

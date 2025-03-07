@@ -1,22 +1,24 @@
 package io.bluetape4k.exposed.dao.id
 
-import io.bluetape4k.exposed.AbstractExposedTest
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.idHashCode
 import io.bluetape4k.exposed.dao.toStringBuilder
-import io.bluetape4k.exposed.utils.withSuspendedTables
-import io.bluetape4k.exposed.utils.withTables
+import io.bluetape4k.exposed.tests.TestDB
+import io.bluetape4k.exposed.tests.withSuspendedTables
+import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitAll
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.exposed.dao.entityCache
+import org.jetbrains.exposed.dao.flushCache
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
 import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.ValueSource
+import org.junit.jupiter.params.provider.MethodSource
 
-class TimebasedUUIDBase62TableTest: AbstractExposedTest() {
+class TimebasedUUIDBase62TableTest: AbstractCustomIdTableTest() {
 
     companion object: KLogging()
 
@@ -53,16 +55,17 @@ class TimebasedUUIDBase62TableTest: AbstractExposedTest() {
      * INSERT INTO T1 (ID, "name", AGE) VALUES ('wTx9THfwLTBld6Eac2kWV', 'Moshe Lueilwitz V', 18)
      * ```
      */
-    @ParameterizedTest(name = "entity count={0}")
-    @ValueSource(ints = [1, 100, 1000, 10000])
-    fun `Unique한 ID를 가진 복수의 엔티티를 생성한다`(entityCount: Int) {
-        withTables(T1) {
+    @ParameterizedTest(name = "{0} - {1}개 레코드")
+    @MethodSource("getTestDBAndEntityCount")
+    fun `Unique한 ID를 가진 복수의 엔티티를 생성한다`(testDB: TestDB, entityCount: Int) {
+        withTables(testDB, T1) {
             repeat(entityCount) {
                 E1.new {
                     name = faker.name().fullName()
                     age = faker.number().numberBetween(8, 80)
                 }
             }
+            flushCache()
             entityCache.clear()
 
             T1.selectAll().count() shouldBeEqualTo entityCount.toLong()
@@ -74,12 +77,12 @@ class TimebasedUUIDBase62TableTest: AbstractExposedTest() {
      * INSERT INTO T1 (ID, "name", AGE) VALUES ('wTx9TOlHX7lUVCAh4fGVD', 'Ezra Corwin', 45)
      * ```
      */
-    @ParameterizedTest(name = "entity count={0}")
-    @ValueSource(ints = [1, 100, 1000, 10000])
-    fun `Coroutine 환경에서 복수의 Unique한 엔티티를 생성한다`(entityCount: Int) = runSuspendIO {
-        withSuspendedTables(T1) {
+    @ParameterizedTest(name = "{0} - {1}개 레코드")
+    @MethodSource("getTestDBAndEntityCount")
+    fun `Coroutine 환경에서 복수의 Unique한 엔티티를 생성한다`(testDB: TestDB, entityCount: Int) = runSuspendIO {
+        withSuspendedTables(testDB, T1) {
             val tasks = List(entityCount) {
-                suspendedTransactionAsync {
+                suspendedTransactionAsync(Dispatchers.IO) {
                     E1.new {
                         name = faker.name().fullName()
                         age = faker.number().numberBetween(8, 80)
@@ -87,6 +90,7 @@ class TimebasedUUIDBase62TableTest: AbstractExposedTest() {
                 }
             }
             tasks.awaitAll()
+            flushCache()
             entityCache.clear()
 
             T1.selectAll().count() shouldBeEqualTo entityCount.toLong()

@@ -1,8 +1,9 @@
 package io.bluetape4k.exposed.sql.compress
 
-import io.bluetape4k.exposed.AbstractExposedTest
 import io.bluetape4k.exposed.dao.idEquals
-import io.bluetape4k.exposed.utils.withTables
+import io.bluetape4k.exposed.tests.AbstractExposedTest
+import io.bluetape4k.exposed.tests.TestDB
+import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
@@ -14,7 +15,8 @@ import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.entityCache
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 
 class CompressedBinaryColumnTypeTest: AbstractExposedTest() {
 
@@ -40,12 +42,13 @@ class CompressedBinaryColumnTypeTest: AbstractExposedTest() {
         override fun toString(): String = "E1(id=$id)"
     }
 
-    @Test
-    fun `ByteArray 를 압축하여 저장합니다`() {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `ByteArray 를 압축하여 저장합니다`(testDB: TestDB) {
         val text = Fakers.randomString(2048, 4096)
         val data = text.toUtf8Bytes()
 
-        withTables(T1) {
+        withTables(testDB, T1) {
             val e1 = E1.new {
                 lz4Data = data
                 snappyData = data

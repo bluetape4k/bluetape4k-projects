@@ -1,8 +1,9 @@
 package io.bluetape4k.exposed.sql.serializable
 
-import io.bluetape4k.exposed.AbstractExposedTest
 import io.bluetape4k.exposed.dao.idEquals
-import io.bluetape4k.exposed.utils.withTables
+import io.bluetape4k.exposed.tests.AbstractExposedTest
+import io.bluetape4k.exposed.tests.TestDB
+import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
@@ -11,7 +12,8 @@ import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.entityCache
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import java.io.Serializable
 
 class BinarySerializedBlobColumTypeTest: AbstractExposedTest() {
@@ -53,9 +55,10 @@ class BinarySerializedBlobColumTypeTest: AbstractExposedTest() {
     ): Serializable
 
 
-    @Test
-    fun `Serializable Object 를 DB에 저장하고 로드한다`() {
-        withTables(T1) {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `Serializable Object 를 DB에 저장하고 로드한다`(testDB: TestDB) {
+        withTables(testDB, T1) {
             val embedded = Embeddable("Alice", 20, "Seoul")
             val embedded2 = Embeddable2("Alice", 20, "Seoul", "12914")
             val e1 = E1.new {

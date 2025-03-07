@@ -1,27 +1,32 @@
 package io.bluetape4k.exposed.dao.id
 
-import io.bluetape4k.exposed.AbstractExposedTest
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.idHashCode
 import io.bluetape4k.exposed.dao.toStringBuilder
-import io.bluetape4k.exposed.utils.withSuspendedTables
-import io.bluetape4k.exposed.utils.withTables
+import io.bluetape4k.exposed.tests.TestDB
+import io.bluetape4k.exposed.tests.withSuspendedTables
+import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.take
 import org.amshove.kluent.shouldBeEqualTo
-import org.jetbrains.exposed.dao.entityCache
+import org.jetbrains.exposed.dao.flushCache
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
+import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.ValueSource
+import org.junit.jupiter.params.provider.MethodSource
 
-class TimebasedUUIDTableTest: AbstractExposedTest() {
+class TimebasedUUIDTableTest: AbstractCustomIdTableTest() {
 
     companion object: KLogging()
 
@@ -58,41 +63,17 @@ class TimebasedUUIDTableTest: AbstractExposedTest() {
      * INSERT INTO T1 (ID, "name", AGE) VALUES ('1efe3b58-d0c6-6440-9ee6-897d7aeb3be7', 'Mrs. Reynaldo Rogahn', 73)
      * ```
      */
-    @ParameterizedTest(name = "entity count={0}")
-    @ValueSource(ints = [1, 100, 1000, 10000])
-    fun `Unique한 ID를 가진 복수의 엔티티를 생성한다`(entityCount: Int) {
-        withTables(T1) {
+    @ParameterizedTest(name = "{0} - {1}개 레코드")
+    @MethodSource("getTestDBAndEntityCount")
+    fun `Unique한 ID를 가진 복수의 엔티티를 생성한다`(testDB: TestDB, entityCount: Int) {
+        withTables(testDB, T1) {
             repeat(entityCount) {
                 E1.new {
                     name = faker.name().fullName()
                     age = faker.number().numberBetween(8, 80)
                 }
             }
-            entityCache.clear()
-
-            T1.selectAll().count().toInt() shouldBeEqualTo entityCount
-        }
-    }
-
-    /**
-     * ```sql
-     * INSERT INTO T1 (ID, "name", AGE) VALUES ('1efe3b58-de55-6f37-9ee6-897d7aeb3be7', 'Miss Lloyd Pollich', 70)
-     * ```
-     */
-    @ParameterizedTest(name = "entity count={0}")
-    @ValueSource(ints = [1, 100, 1000, 10000])
-    fun `Coroutine 환경에서 복수의 Unique한 엔티티를 생성한다`(entityCount: Int) = runSuspendIO {
-        withSuspendedTables(T1) {
-            val tasks = List(entityCount) {
-                suspendedTransactionAsync {
-                    E1.new {
-                        name = faker.name().fullName()
-                        age = faker.number().numberBetween(8, 80)
-                    }
-                }
-            }
-            tasks.awaitAll()
-            entityCache.clear()
+            flushCache()
 
             T1.selectAll().count().toInt() shouldBeEqualTo entityCount
         }
@@ -103,10 +84,10 @@ class TimebasedUUIDTableTest: AbstractExposedTest() {
      * INSERT INTO T1 ("name", AGE, ID) VALUES ('Aurelio Pouros II', 79, '1efe3b58-ccc7-65b3-9ee6-897d7aeb3be7')
      * ```
      */
-    @ParameterizedTest(name = "entity count={0}")
-    @ValueSource(ints = [1, 100, 1000, 10000])
-    fun `batch insert`(entityCount: Int) {
-        withTables(T1) {
+    @ParameterizedTest(name = "{0} - {1}개 레코드")
+    @MethodSource("getTestDBAndEntityCount")
+    fun `batch insert`(testDB: TestDB, entityCount: Int) {
+        withTables(testDB, T1) {
             val entities = generateSequence {
                 val name = faker.name().fullName()
                 val age = faker.number().numberBetween(8, 80)
@@ -117,8 +98,31 @@ class TimebasedUUIDTableTest: AbstractExposedTest() {
                 this[T1.name] = name
                 this[T1.age] = age
             }
+            flushCache()
 
-            entityCache.clear()
+            T1.selectAll().count().toInt() shouldBeEqualTo entityCount
+        }
+    }
+
+    /**
+     * ```sql
+     * INSERT INTO T1 (ID, "name", AGE) VALUES ('1efe3b58-de55-6f37-9ee6-897d7aeb3be7', 'Miss Lloyd Pollich', 70)
+     * ```
+     */
+    @ParameterizedTest(name = "{0} - {1}개 레코드")
+    @MethodSource("getTestDBAndEntityCount")
+    fun `Coroutine 환경에서 복수의 Unique한 엔티티를 생성한다`(testDB: TestDB, entityCount: Int) = runSuspendIO {
+        withSuspendedTables(testDB, T1) {
+            val tasks = List(entityCount) {
+                suspendedTransactionAsync(Dispatchers.IO) {
+                    E1.new {
+                        name = faker.name().fullName()
+                        age = faker.number().numberBetween(8, 80)
+                    }
+                }
+            }
+            tasks.awaitAll()
+            flushCache()
 
             T1.selectAll().count().toInt() shouldBeEqualTo entityCount
         }
@@ -129,24 +133,24 @@ class TimebasedUUIDTableTest: AbstractExposedTest() {
      * INSERT INTO T1 ("name", AGE, ID) VALUES ('King Muller', 10, '1efe3b58-dc97-636a-9ee6-897d7aeb3be7')
      * ```
      */
-    @ParameterizedTest(name = "entity count={0}")
-    @ValueSource(ints = [1, 100, 1000, 10000])
-    fun `batch insert in coroutines`(entityCount: Int) = runSuspendIO {
-        withSuspendedTables(T1) {
+    @ParameterizedTest(name = "{0} - {1}개 레코드")
+    @MethodSource("getTestDBAndEntityCount")
+    fun `batch insert in coroutines`(testDB: TestDB, entityCount: Int) = runSuspendIO {
+        withSuspendedTables(testDB, T1) {
             val entities = generateSequence<Pair<String, Int>> {
                 val name = faker.name().fullName()
                 val age = faker.number().numberBetween(8, 80)
                 name to age
             }
 
-            val task = suspendedTransactionAsync {
+            val task = suspendedTransactionAsync(Dispatchers.IO) {
                 T1.batchInsert(entities.take(entityCount)) {
                     this[T1.name] = it.first
                     this[T1.age] = it.second
                 }
             }
             task.await()
-            entityCache.clear()
+            flushCache()
 
             T1.selectAll().count().toInt() shouldBeEqualTo entityCount
         }
@@ -158,10 +162,12 @@ class TimebasedUUIDTableTest: AbstractExposedTest() {
      * VALUES ('1efe3b58-c940-6036-9ee6-897d7aeb3be7', 'Miss Hung Kautzer', 30) ON CONFLICT DO NOTHING
      * ```
      */
-    @ParameterizedTest(name = "entity count={0}")
-    @ValueSource(ints = [1, 100, 1000, 10000])
-    fun `insertIgnore as flow`(entityCount: Int) = runSuspendIO {
-        withSuspendedTables(T1) {
+    @ParameterizedTest(name = "{0} - {1}개 레코드")
+    @MethodSource("getTestDBAndEntityCount")
+    fun `insertIgnore as flow`(testDB: TestDB, entityCount: Int) = runSuspendIO {
+        Assumptions.assumeTrue { testDB in TestDB.ALL_MYSQL_MARIADB + TestDB.POSTGRESQL }
+
+        withSuspendedTables(testDB, T1) {
             val entities = generateSequence<Pair<String, Int>> {
                 val name = faker.name().fullName()
                 val age = faker.number().numberBetween(8, 80)
@@ -169,15 +175,20 @@ class TimebasedUUIDTableTest: AbstractExposedTest() {
             }
 
             entities.asFlow()
-                .buffer()
+                .buffer(16)
                 .take(entityCount)
-                .collect { item ->
-                    T1.insertIgnore {
-                        it[name] = item.first
-                        it[age] = item.second
+                .flatMapMerge(16) { item ->
+                    flow {
+                        val insertCount = T1.insertIgnore {
+                            it[name] = item.first
+                            it[age] = item.second
+                        }
+                        emit(insertCount)
                     }
                 }
-            entityCache.clear()
+                .collect()
+
+            flushCache()
 
             T1.selectAll().count().toInt() shouldBeEqualTo entityCount
         }

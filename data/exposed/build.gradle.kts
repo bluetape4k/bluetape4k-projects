@@ -17,27 +17,29 @@ dependencies {
     compileOnly(Libs.exposed_migration)
     compileOnly(Libs.exposed_spring_boot_starter)
 
+    testImplementation(project(":bluetape4k-exposed-tests"))
+
     // Entity ID generators
     api(project(":bluetape4k-idgenerators"))
     api(Libs.java_uuid_generator)
 
     // Bluetape4k
     compileOnly(project(":bluetape4k-jdbc"))
-    compileOnly(project(":bluetape4k-io"))
-    compileOnly(project(":bluetape4k-crypto"))
-    
+
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
     testImplementation(Libs.testcontainers_junit_jupiter)
+    testImplementation(Libs.testcontainers_mariadb)
+    testImplementation(Libs.testcontainers_mysql)
     testImplementation(Libs.testcontainers_postgresql)
 
     // Database Drivers
     compileOnly(Libs.hikaricp)
-
-    // H2
     testImplementation(Libs.h2_v2)
-    testImplementation(Libs.postgresql_driver)
+    testImplementation(Libs.mariadb_java_client)
     testImplementation(Libs.mysql_connector_j)
+    testImplementation(Libs.postgresql_driver)
+    testImplementation(Libs.pgjdbc_ng)
 
     // Spring Boot
     testImplementation(Libs.springBootStarter("jdbc"))
@@ -62,10 +64,12 @@ dependencies {
     compileOnly(Libs.fury_kotlin)
 
     // Compressors
+    compileOnly(project(":bluetape4k-io"))
     compileOnly(Libs.lz4_java)
     compileOnly(Libs.snappy_java)
     compileOnly(Libs.zstd_jni)
 
     // Encryption
+    compileOnly(project(":bluetape4k-crypto"))
     compileOnly(Libs.jasypt)
 }

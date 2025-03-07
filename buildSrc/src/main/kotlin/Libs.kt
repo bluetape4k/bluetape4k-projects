@@ -1246,9 +1246,10 @@ object Libs {
     val agroal_hikari = agroal("hikari")
     val agroal_spring_boot_starter = agroal("spring-boot-starter")
 
-    const val mysql_connector_j = "com.mysql:mysql-connector-j:9.1.0"  // https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
-    const val mariadb_java_client = "org.mariadb.jdbc:mariadb-java-client:3.4.1"  // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
-    const val postgresql_driver = "org.postgresql:postgresql:42.7.4"  // https://mvnrepository.com/artifact/org.postgresql/postgresql
+    const val mysql_connector_j = "com.mysql:mysql-connector-j:9.2.0"  // https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
+    const val mariadb_java_client = "org.mariadb.jdbc:mariadb-java-client:3.5.1"  // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
+    const val postgresql_driver = "org.postgresql:postgresql:42.7.5"  // https://mvnrepository.com/artifact/org.postgresql/postgresql
+    const val pgjdbc_ng = "com.impossibl.pgjdbc-ng:pgjdbc-ng:0.8.9"  // https://mvnrepository.com/artifact/com.impossibl.pgjdbc-ng/pgjdbc-ng
     const val oracle_ojdbc8 = "com.oracle.ojdbc:ojdbc8:19.3.0.0"
     const val clickhouse_jdbc = "com.clickhouse:clickhouse-jdbc:0.6.4" // https://mvnrepository.com/artifact/com.clickhouse/clickhouse-jdbc
 

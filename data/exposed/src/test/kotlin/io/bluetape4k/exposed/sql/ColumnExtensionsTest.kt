@@ -1,16 +1,18 @@
 package io.bluetape4k.exposed.sql
 
-import io.bluetape4k.exposed.AbstractExposedTest
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.toStringBuilder
-import io.bluetape4k.exposed.utils.withTables
+import io.bluetape4k.exposed.tests.AbstractExposedTest
+import io.bluetape4k.exposed.tests.TestDB
+import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldHaveSize
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
-import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 
 class ColumnExtensionsTest: AbstractExposedTest() {
 
@@ -43,10 +45,11 @@ class ColumnExtensionsTest: AbstractExposedTest() {
             .toString()
     }
 
-    @RepeatedTest(REPEAT_SIZE)
-    fun `client generated unique values`() {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `client generated unique values`(testDB: TestDB) {
         val entityCount = 100
-        withTables(ClientGenerated) {
+        withTables(testDB, ClientGenerated) {
             val entities = List(entityCount) {
                 ClientGeneratedEntity.new {}
             }

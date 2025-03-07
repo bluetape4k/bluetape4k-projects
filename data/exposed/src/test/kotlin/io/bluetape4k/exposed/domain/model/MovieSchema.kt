@@ -1,15 +1,17 @@
 package io.bluetape4k.exposed.domain.model
 
-import io.bluetape4k.exposed.AbstractExposedTest
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.idHashCode
 import io.bluetape4k.exposed.dao.toStringBuilder
 import io.bluetape4k.exposed.domain.dto.ActorDTO
 import io.bluetape4k.exposed.domain.dto.MovieWithActorDTO
-import io.bluetape4k.exposed.utils.withSuspendedTables
-import io.bluetape4k.exposed.utils.withTables
+import io.bluetape4k.exposed.tests.AbstractExposedTest
+import io.bluetape4k.exposed.tests.TestDB
+import io.bluetape4k.exposed.tests.withSuspendedTables
+import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
+import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.flushCache
@@ -24,6 +26,7 @@ import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.javatime.date
 import java.time.LocalDate
+import kotlin.coroutines.CoroutineContext
 
 object MovieSchema: KLogging() {
 
@@ -83,24 +86,27 @@ object MovieSchema: KLogging() {
     }
 
     fun AbstractExposedTest.withMovieAndActors(
+        testDB: TestDB,
         statement: Transaction.() -> Unit,
     ) {
-        withTables(MovieTable, ActorTable, ActorInMovieTable) {
-            populateSampleData()
+        withTables(testDB, MovieTable, ActorTable, ActorInMovieTable) {
+            populateSampleData(testDB)
             statement()
         }
     }
 
     suspend fun AbstractExposedTest.withSuspendedMovieAndActors(
+        testDB: TestDB,
+        context: CoroutineContext? = Dispatchers.IO,
         statement: suspend Transaction.() -> Unit,
     ) {
-        withSuspendedTables(MovieTable, ActorTable, ActorInMovieTable) {
-            populateSampleData()
+        withSuspendedTables(testDB, MovieTable, ActorTable, ActorInMovieTable, context = context) {
+            populateSampleData(testDB)
             statement()
         }
     }
 
-    private fun Transaction.populateSampleData() {
+    private fun Transaction.populateSampleData(testDB: TestDB) {
         log.info { "Inserting sample actors and movies ..." }
 
         val johnnyDepp = ActorDTO("Johnny", "Depp", "1979-10-28")

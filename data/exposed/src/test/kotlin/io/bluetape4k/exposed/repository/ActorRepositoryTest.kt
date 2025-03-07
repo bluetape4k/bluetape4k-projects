@@ -1,10 +1,11 @@
 package io.bluetape4k.exposed.repository
 
-import io.bluetape4k.exposed.AbstractExposedTest
 import io.bluetape4k.exposed.domain.dto.ActorDTO
 import io.bluetape4k.exposed.domain.mapper.toActorDTO
 import io.bluetape4k.exposed.domain.model.MovieSchema.ActorTable
 import io.bluetape4k.exposed.domain.model.MovieSchema.withMovieAndActors
+import io.bluetape4k.exposed.tests.AbstractExposedTest
+import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
@@ -17,8 +18,9 @@ import org.amshove.kluent.shouldNotBeNull
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.greaterEq
 import org.jetbrains.exposed.sql.selectAll
-import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Assumptions
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 
 class ActorRepositoryTest: AbstractExposedTest() {
 
@@ -32,9 +34,10 @@ class ActorRepositoryTest: AbstractExposedTest() {
 
     private val repository = ActorRepository()
 
-    @Test
-    fun `find actor by id`() {
-        withMovieAndActors {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `find actor by id`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
             val actorId = 1L
             val actor = repository.findById(actorId).toActorDTO()
             actor.shouldNotBeNull()
@@ -42,9 +45,10 @@ class ActorRepositoryTest: AbstractExposedTest() {
         }
     }
 
-    @Test
-    fun `search actors by lastName`() {
-        withMovieAndActors {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `search actors by lastName`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
             val params = mapOf("lastName" to "Depp")
             val actors = repository.searchActors(params).map { it.toActorDTO() }
 
@@ -55,9 +59,10 @@ class ActorRepositoryTest: AbstractExposedTest() {
         }
     }
 
-    @Test
-    fun `create new actor`() {
-        withMovieAndActors {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `create new actor`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
             val actor = newActorDTO()
 
             val currentCount = repository.count()
@@ -70,9 +75,10 @@ class ActorRepositoryTest: AbstractExposedTest() {
         }
     }
 
-    @Test
-    fun `delete actor by id`() {
-        withMovieAndActors {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `delete actor by id`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
             val actor = newActorDTO()
             val savedActor = repository.save(actor).toActorDTO()
             savedActor.id.shouldNotBeNull()
@@ -82,9 +88,10 @@ class ActorRepositoryTest: AbstractExposedTest() {
         }
     }
 
-    @Test
-    fun `count of actors`() {
-        withMovieAndActors {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `count of actors`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
             val count = repository.count()
             log.debug { "count: $count" }
             count shouldBeGreaterThan 0L
@@ -96,9 +103,10 @@ class ActorRepositoryTest: AbstractExposedTest() {
         }
     }
 
-    @Test
-    fun `count with predicate`() {
-        withMovieAndActors {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `count with predicate`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
             val count = repository.count { ActorTable.lastName eq "Depp" }
             log.debug { "count: $count" }
             count shouldBeEqualTo 1L
@@ -110,9 +118,10 @@ class ActorRepositoryTest: AbstractExposedTest() {
         }
     }
 
-    @Test
-    fun `isEmpty with Actor`() {
-        withMovieAndActors {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `isEmpty with Actor`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
             val isEmpty = repository.isEmpty()
             log.debug { "isEmpty: $isEmpty" }
             isEmpty.shouldBeFalse()
@@ -137,9 +146,10 @@ class ActorRepositoryTest: AbstractExposedTest() {
      *  FROM ACTORS
      * ```
      */
-    @Test
-    fun `exists with Actor`() {
-        withMovieAndActors {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `exists with Actor`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
             val exists = repository.exists(ActorTable.selectAll())
             log.debug { "exists: $exists" }
             exists.shouldBeTrue()
@@ -156,9 +166,10 @@ class ActorRepositoryTest: AbstractExposedTest() {
         }
     }
 
-    @Test
-    fun `findAll with limit and offset`() {
-        withMovieAndActors {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `findAll with limit and offset`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
             repository.findAll(limit = 2) shouldHaveSize 2
             repository.findAll { ActorTable.lastName eq "Depp" } shouldHaveSize 1
             repository.findAll(limit = 3) { ActorTable.lastName eq "Depp" } shouldHaveSize 1
@@ -166,9 +177,10 @@ class ActorRepositoryTest: AbstractExposedTest() {
         }
     }
 
-    @Test
-    fun `delete entity`() {
-        withMovieAndActors {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `delete entity`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
             val actor = newActorDTO()
             val savedActor = repository.save(actor)
             savedActor.id.shouldNotBeNull()
@@ -180,9 +192,10 @@ class ActorRepositoryTest: AbstractExposedTest() {
         }
     }
 
-    @Test
-    fun `delete entity by id`() {
-        withMovieAndActors {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `delete entity by id`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
             val actor = newActorDTO()
             val savedActor = repository.save(actor).toActorDTO()
             savedActor.id.shouldNotBeNull()
@@ -195,9 +208,10 @@ class ActorRepositoryTest: AbstractExposedTest() {
         }
     }
 
-    @Test
-    fun `delete all with limit`() {
-        withMovieAndActors {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `delete all with limit`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
             val count = repository.count()
 
             repository.deleteAll { ActorTable.lastName eq "Depp" } shouldBeEqualTo 1
@@ -207,10 +221,12 @@ class ActorRepositoryTest: AbstractExposedTest() {
         }
     }
 
-    @Disabled("H2 does not support deleteIgnoreWhere")
-    @Test
-    fun `delete all with ignore`() {
-        withMovieAndActors {
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `delete all with ignore`(testDB: TestDB) {
+        Assumptions.assumeTrue { testDB in TestDB.ALL_MYSQL_MARIADB }
+
+        withMovieAndActors(testDB) {
             val count = repository.count()
 
             repository.deleteAllIgnore { ActorTable.lastName eq "Depp" } shouldBeEqualTo 1
