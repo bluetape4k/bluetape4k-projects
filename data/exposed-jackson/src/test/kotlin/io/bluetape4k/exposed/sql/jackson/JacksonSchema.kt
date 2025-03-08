@@ -28,6 +28,15 @@ object JacksonSchema {
         val jacksonColumn = jackson<DataHolder>("jackson_column")
     }
 
+    /**
+     * ```sql
+     * -- Postgres
+     * CREATE TABLE IF NOT EXISTS jackson_b_table (
+     *      id SERIAL PRIMARY KEY,
+     *      jackson_b_column JSONB NOT NULL
+     * );
+     * ```
+     */
     object JacksonBTable: IntIdTable("jackson_b_table") {
         val jacksonBColumn = jacksonb<DataHolder>("jackson_b_column")
     }
@@ -44,6 +53,15 @@ object JacksonSchema {
         var jacksonBColumn by JacksonBTable.jacksonBColumn
     }
 
+    /**
+     * ```sql
+     * CREATE TABLE IF NOT EXISTS jackson_arrays (
+     *      id SERIAL PRIMARY KEY,
+     *      "groups" JSON NOT NULL,
+     *      numbers JSON NOT NULL
+     * );
+     * ```
+     */
     object JacksonArrayTable: IntIdTable("jackson_arrays") {
         val groups = jackson<UserGroup>("groups")
         val numbers = jackson<IntArray>("numbers")

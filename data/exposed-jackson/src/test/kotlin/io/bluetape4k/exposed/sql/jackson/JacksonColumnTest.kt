@@ -378,8 +378,9 @@ class JacksonColumnTest: AbstractExposedTest() {
      */
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `json 컬럼에서 배열에 extract 사용하기`(testDB: TestDB) {
+    fun `jackson 컬럼 배열 값에 extract 사용하기`(testDB: TestDB) {
         Assumptions.assumeTrue { testDB !in TestDB.ALL_H2 }
+
         withJacksonArrays(testDB) { tester, singleId, tripleId ->
             val path1 = when (currentDialectTest) {
                 is PostgreSQLDialect -> arrayOf("users", "0", "team")
@@ -418,7 +419,7 @@ class JacksonColumnTest: AbstractExposedTest() {
      */
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `배열 수형의 Json 컬럼에서 contains 사용하기`(testDB: TestDB) {
+    fun `배열 수형의 jackson 컬럼에서 contains 사용하기`(testDB: TestDB) {
         Assumptions.assumeTrue { testDB in supportsJsonContains }
 
         withJacksonArrays(testDB) { tester, _, tripleId ->
@@ -455,7 +456,7 @@ class JacksonColumnTest: AbstractExposedTest() {
      */
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `배열 수형의 Json 컬럼에 exists 사용하기`(testDB: TestDB) {
+    fun `배열 수형의 jackson 컬럼에 exists 사용하기`(testDB: TestDB) {
         Assumptions.assumeTrue { testDB !in TestDB.ALL_H2 }
 
         withJacksonArrays(testDB) { tester, _, tripleId ->
