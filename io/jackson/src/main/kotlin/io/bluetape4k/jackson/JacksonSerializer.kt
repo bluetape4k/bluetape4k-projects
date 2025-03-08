@@ -1,7 +1,6 @@
 package io.bluetape4k.jackson
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.json.JsonMapper
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
 
@@ -24,7 +23,7 @@ import io.bluetape4k.support.emptyByteArray
  * @param mapper Jackson [ObjectMapper] 인스턴스
  */
 open class JacksonSerializer(
-    val mapper: JsonMapper = Jackson.defaultJsonMapper,
+    val mapper: ObjectMapper = Jackson.defaultJsonMapper,
 ): JsonSerializer {
 
     companion object: KLogging()
@@ -37,7 +36,6 @@ open class JacksonSerializer(
         return bytes?.run { mapper.readValue(this, clazz) }
     }
 }
-
 
 /**
  * [JsonSerializer]를 이용하여 [bytes]를 역직렬화하여 객체를 빌드합니다. 실패시 null 반환
