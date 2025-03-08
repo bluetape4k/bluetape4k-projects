@@ -1,4 +1,4 @@
-package io.bluetape4k.exposed.jasypt
+package io.bluetape4k.exposed.sql.jasypt
 
 import io.bluetape4k.crypto.encrypt.Encryptors
 import org.jetbrains.exposed.sql.Column
