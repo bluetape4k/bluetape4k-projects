@@ -7,9 +7,9 @@ dependencies {
     // Exposed
     implementation(platform(Libs.exposed_bom))
     api(Libs.exposed_core)
-    api(Libs.exposed_crypt)
     api(Libs.exposed_jdbc)
     api(Libs.exposed_dao)
+    compileOnly(Libs.exposed_crypt)
     compileOnly(Libs.exposed_kotlin_datetime)
     compileOnly(Libs.exposed_java_time)
     compileOnly(Libs.exposed_json)
