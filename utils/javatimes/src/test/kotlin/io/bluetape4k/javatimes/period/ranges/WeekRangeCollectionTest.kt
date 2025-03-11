@@ -12,6 +12,7 @@ import io.bluetape4k.junit5.coroutines.MultijobTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
@@ -67,41 +68,38 @@ class WeekRangeCollectionTest: AbstractPeriodTest() {
         wrs.endWeekOfWeekyear shouldBeEqualTo startWeek + weekCount - 1
     }
 
-    @Test
-    fun `various weekCount`() {
-        val weekCounts = listOf(1, 6, 48, 180, 365)
-
+    @ParameterizedTest(name = "various weekCount. weekCount={0}")
+    @ValueSource(ints = [1, 6, 48, 180, 365])
+    fun `various weekCount`(weekCount: Int) {
         val now = nowZonedDateTime()
         val today = todayZonedDateTime()
 
-        weekCounts.parallelStream().forEach { weekCount ->
-            val wrs = WeekRangeCollection(now, weekCount)
+        val wrs = WeekRangeCollection(now, weekCount)
 
-            val startTime = wrs.calendar.mapStart(today.startOfWeek())
-            val endTime = wrs.calendar.mapEnd(startTime.plusWeeks(weekCount.toLong()))
+        val startTime = wrs.calendar.mapStart(today.startOfWeek())
+        val endTime = wrs.calendar.mapEnd(startTime.plusWeeks(weekCount.toLong()))
 
-            wrs.start shouldBeEqualTo startTime
-            wrs.end shouldBeEqualTo endTime
+        wrs.start shouldBeEqualTo startTime
+        wrs.end shouldBeEqualTo endTime
 
-            val wrSeq = wrs.weekSequence()
-            wrSeq.count() shouldBeEqualTo weekCount
+        val wrSeq = wrs.weekSequence()
+        wrSeq.count() shouldBeEqualTo weekCount
 
-            runBlocking {
-                val tasks = wrSeq.mapIndexed { w, wr ->
-                    async {
-                        wr.start shouldBeEqualTo startTime.plusWeeks(w.toLong())
-                        wr.end shouldBeEqualTo wr.calendar.mapEnd(startTime.plusWeeks(w + 1L))
+        runBlocking(Dispatchers.Default) {
+            val tasks = wrSeq.mapIndexed { w, wr ->
+                async {
+                    wr.start shouldBeEqualTo startTime.plusWeeks(w.toLong())
+                    wr.end shouldBeEqualTo wr.calendar.mapEnd(startTime.plusWeeks(w + 1L))
 
-                        wr.unmappedStart shouldBeEqualTo startTime.plusWeeks(w.toLong())
-                        wr.unmappedEnd shouldBeEqualTo startTime.plusWeeks(w + 1L)
+                    wr.unmappedStart shouldBeEqualTo startTime.plusWeeks(w.toLong())
+                    wr.unmappedEnd shouldBeEqualTo startTime.plusWeeks(w + 1L)
 
-                        wr shouldBeEqualTo WeekRange(wrs.start.plusWeeks(w.toLong()))
-                        val afterWeek = now.startOfWeek().plusWeeks(w.toLong())
-                        wr shouldBeEqualTo WeekRange(afterWeek)
-                    }
-                }.toList()
-                tasks.awaitAll()
-            }
+                    wr shouldBeEqualTo WeekRange(wrs.start.plusWeeks(w.toLong()))
+                    val afterWeek = now.startOfWeek().plusWeeks(w.toLong())
+                    wr shouldBeEqualTo WeekRange(afterWeek)
+                }
+            }.toList()
+            tasks.awaitAll()
         }
     }
 
@@ -129,7 +127,7 @@ class WeekRangeCollectionTest: AbstractPeriodTest() {
                     wrSeq.count() shouldBeEqualTo weekCount
 
                     val tasks = wrSeq.mapIndexed { w, wr ->
-                        async {
+                        async(Dispatchers.Default) {
                             wr.start shouldBeEqualTo startTime.plusWeeks(w.toLong())
                             wr.end shouldBeEqualTo wr.calendar.mapEnd(startTime.plusWeeks(w + 1L))
 

@@ -2,6 +2,7 @@ plugins {
     kotlin("plugin.spring")
     kotlin("plugin.noarg")
     kotlin("plugin.allopen")
+    kotlin("kapt")
 }
 allOpen {
     annotation("com.datastax.oss.driver.api.mapper.annotations.Entity")
@@ -30,8 +31,8 @@ dependencies {
 
     // cassandra 의 @Mapper, @Dao 를 활용할 때 사용합니다.
     // 참고: https://docs.datastax.com/en/developer/java-driver/4.13/manual/mapper/
-//    kapt(Libs.cassandra_java_driver_mapper_processor)
-//    kaptTest(Libs.cassandra_java_driver_mapper_processor)
+    kapt(Libs.cassandra_java_driver_mapper_processor)
+    kaptTest(Libs.cassandra_java_driver_mapper_processor)
 
     compileOnly(Libs.springBoot("autoconfigure"))
     compileOnly(Libs.springBoot("configuration-processor"))

@@ -8,6 +8,7 @@ import io.bluetape4k.logging.trace
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.future
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
@@ -52,7 +53,7 @@ class FutureSupportTest {
             .roundsPerJob(ITEM_COUNT / 4)
             .add {
                 val task = future(Dispatchers.Default, start = CoroutineStart.DEFAULT) {
-                    Thread.sleep(Random.nextLong(10))
+                    delay(Random.nextLong(10))
                     log.trace { "counter=${counter.value}" }
                     counter.incrementAndGet()
                 }

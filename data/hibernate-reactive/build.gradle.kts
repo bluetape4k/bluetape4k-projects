@@ -64,7 +64,7 @@ dependencies {
     implementation(Libs.hibernate_validator)
 
     api(Libs.mutiny_kotlin)
-    api(Libs.kotlinx_coroutines_jdk8)
+    api(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)
 
     testImplementation(project(":bluetape4k-junit5"))
@@ -77,7 +77,7 @@ dependencies {
     testImplementation(project(":bluetape4k-jackson"))
 
     testImplementation(Libs.kryo)
-    testImplementation(Libs.fury)
+    testImplementation(Libs.fury_kotlin)
 
     testImplementation(Libs.lz4_java)
     testImplementation(Libs.snappy_java)

@@ -59,6 +59,7 @@ class Author private constructor(
 
     override fun buildStringHelper(): ToStringBuilder {
         return super.buildStringHelper()
+            .add("id", id)
             .add("name", name)
     }
 }

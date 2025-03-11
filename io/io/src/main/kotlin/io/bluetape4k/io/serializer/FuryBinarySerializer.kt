@@ -24,7 +24,7 @@ class FuryBinarySerializer(
         @JvmStatic
         private val DefaultFury: ThreadSafeFury by lazy {
             Fury.builder()
-                .requireClassRegistration(false)
+                .requireClassRegistration(true)
                 .withLanguage(Language.JAVA)
                 .withAsyncCompilation(true)
                 .withCompatibleMode(CompatibleMode.COMPATIBLE)

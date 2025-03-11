@@ -27,8 +27,10 @@ import aws.sdk.kotlin.services.sns.publishBatch
 import aws.sdk.kotlin.services.sns.subscribe
 import aws.sdk.kotlin.services.sns.unsubscribe
 import aws.smithy.kotlin.runtime.auth.awscredentials.CredentialsProvider
+import aws.smithy.kotlin.runtime.http.engine.HttpClientEngine
 import aws.smithy.kotlin.runtime.net.url.Url
 import io.bluetape4k.apache.endsWithIgnoreCase
+import io.bluetape4k.aws.kotlin.http.defaultCrtHttpEngineOf
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.utils.ShutdownQueue
 
@@ -46,18 +48,21 @@ import io.bluetape4k.utils.ShutdownQueue
  * @param endpoint SNS endpoint URL
  * @param region AWS region
  * @param credentialsProvider AWS credentials provider
+ * @param httpClientEngine [HttpClientEngine] 엔진 (기본적으로 [aws.smithy.kotlin.runtime.http.engine.crt.CrtHttpEngine] 를 사용합니다.)
  * @param configurer SNS client 설정 빌더
  * @return [SnsClient] 인스턴스
  */
-fun snsClientOf(
+inline fun snsClientOf(
     endpoint: String? = null,
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
-    configurer: SnsClient.Config.Builder.() -> Unit = {},
+    httpClientEngine: HttpClientEngine = defaultCrtHttpEngineOf(),
+    crossinline configurer: SnsClient.Config.Builder.() -> Unit = {},
 ): SnsClient = SnsClient {
     endpoint?.let { this.endpointUrl = Url.parse(it) }
     region?.let { this.region = it }
     credentialsProvider?.let { this.credentialsProvider = it }
+    httpClient = httpClientEngine
 
     configurer()
 }.apply {
@@ -78,10 +83,10 @@ fun snsClientOf(
  * @param configurer 플랫폼 엔드포인트 생성 설정 빌더
  * @return [CreatePlatformEndpointResponse] 인스턴스
  */
-suspend fun SnsClient.createPlatformEndpoint(
+suspend inline fun SnsClient.createPlatformEndpoint(
     token: String,
     platformApplicationArn: String,
-    configurer: CreatePlatformEndpointRequest.Builder.() -> Unit = {},
+    crossinline configurer: CreatePlatformEndpointRequest.Builder.() -> Unit = {},
 ): CreatePlatformEndpointResponse {
     token.requireNotBlank("token")
     platformApplicationArn.requireNotBlank("platformApplicationArn")
@@ -107,10 +112,10 @@ suspend fun SnsClient.createPlatformEndpoint(
  * @param attributes topic 속성
  * @param configurer [CreateTopicRequest]를 빌드하는 람다 함수
  */
-suspend fun SnsClient.createTopic(
+suspend inline fun SnsClient.createTopic(
     topicName: String,
     attributes: Map<String, String>? = null,
-    configurer: CreateTopicRequest.Builder.() -> Unit = {},
+    crossinline configurer: CreateTopicRequest.Builder.() -> Unit = {},
 ): CreateTopicResponse {
     topicName.requireNotBlank("topicName")
 
@@ -135,10 +140,10 @@ suspend fun SnsClient.createTopic(
  * @param attributes topic 속성
  * @param configurer [CreateTopicRequest]를 빌드하는 람다 함수
  */
-suspend fun SnsClient.createFifoTopic(
+suspend inline fun SnsClient.createFifoTopic(
     topicName: String,
     attributes: MutableMap<String, String> = mutableMapOf(),
-    configurer: CreateTopicRequest.Builder.() -> Unit = {},
+    crossinline configurer: CreateTopicRequest.Builder.() -> Unit = {},
 ): CreateTopicResponse {
     topicName.requireNotBlank("topicName")
     require(topicName.endsWithIgnoreCase(".fifo")) { "FIFO topic name must end with .fifo" }
@@ -169,12 +174,12 @@ suspend fun SnsClient.createFifoTopic(
  * @param returnSubscriptionArn 구독 ARN 반환 여부
  * @param configurer [SubscribeRequest]를 빌드하는 람다 함수
  */
-suspend fun SnsClient.subscribe(
+suspend inline fun SnsClient.subscribe(
     topicArn: String,
     endpoint: String,
     protocol: String = "sms",
     returnSubscriptionArn: Boolean = true,
-    configurer: SubscribeRequest.Builder.() -> Unit = {},
+    crossinline configurer: SubscribeRequest.Builder.() -> Unit = {},
 ): SubscribeResponse {
     return subscribe {
         this.topicArn = topicArn
@@ -197,9 +202,9 @@ suspend fun SnsClient.subscribe(
  * @param configurer [CheckIfPhoneNumberIsOptedOutRequest]를 빌드하는 람다 함수
  * @return [CheckIfPhoneNumberIsOptedOutResponse] 인스턴스
  */
-suspend fun SnsClient.checkIfPhoneNumberIsOptedOut(
+suspend inline fun SnsClient.checkIfPhoneNumberIsOptedOut(
     phoneNumber: String,
-    configurer: CheckIfPhoneNumberIsOptedOutRequest.Builder.() -> Unit = {},
+    crossinline configurer: CheckIfPhoneNumberIsOptedOutRequest.Builder.() -> Unit = {},
 ): CheckIfPhoneNumberIsOptedOutResponse {
     phoneNumber.requireNotBlank("phoneNumber")
 
@@ -225,11 +230,11 @@ suspend fun SnsClient.checkIfPhoneNumberIsOptedOut(
  *
  * @return [PublishResponse] 인스턴스
  */
-suspend fun SnsClient.publish(
+suspend inline fun SnsClient.publish(
     topicArn: String,
     message: String,
     subject: String? = null,
-    configurer: PublishRequest.Builder.() -> Unit = {},
+    crossinline configurer: PublishRequest.Builder.() -> Unit = {},
 ): PublishResponse {
     topicArn.requireNotBlank("topicArn")
     message.requireNotBlank("message")
@@ -271,10 +276,10 @@ suspend fun SnsClient.publish(
  *
  * @return [PublishBatchResponse] 인스턴스
  */
-suspend fun SnsClient.publishBatch(
+suspend inline fun SnsClient.publishBatch(
     topicArn: String,
     entries: List<PublishBatchRequestEntry>,
-    configurer: PublishBatchRequest.Builder.() -> Unit = {},
+    crossinline configurer: PublishBatchRequest.Builder.() -> Unit = {},
 ): PublishBatchResponse {
     topicArn.requireNotBlank("topicArn")
 
@@ -297,9 +302,9 @@ suspend fun SnsClient.publishBatch(
  * @param configurer [UnsubscribeRequest]를 빌드하는 람다 함수
  * @return [UnsubscribeResponse] 인스턴스
  */
-suspend fun SnsClient.unsubscribe(
+suspend inline fun SnsClient.unsubscribe(
     subscriptionArn: String,
-    configurer: UnsubscribeRequest.Builder.() -> Unit = {},
+    crossinline configurer: UnsubscribeRequest.Builder.() -> Unit = {},
 ): UnsubscribeResponse {
     subscriptionArn.requireNotBlank("subscriptionArn")
 
@@ -320,9 +325,9 @@ suspend fun SnsClient.unsubscribe(
  * @param configurer [DeleteTopicRequest]를 빌드하는 람다 함수
  * @return [DeleteTopicResponse] 인스턴스
  */
-suspend fun SnsClient.deleteTopic(
+suspend inline fun SnsClient.deleteTopic(
     topicArn: String,
-    configurer: DeleteTopicRequest.Builder.() -> Unit = {},
+    crossinline configurer: DeleteTopicRequest.Builder.() -> Unit = {},
 ): DeleteTopicResponse {
     topicArn.requireNotBlank("topicArn")
 

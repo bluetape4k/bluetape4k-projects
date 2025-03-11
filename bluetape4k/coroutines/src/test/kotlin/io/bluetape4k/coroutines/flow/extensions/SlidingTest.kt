@@ -5,7 +5,6 @@ import io.bluetape4k.logging.KLogging
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -31,9 +30,8 @@ class SlidingTest: AbstractFlowTest() {
         val slidingCount by slidingCounter
         val slidingSize = 5
 
-        val sliding = flowRangeOf(1, 20)
-            .sliding(slidingSize)
-            .log("sliding")
+        val sliding = flowRangeOf(1, 20).log("source")
+            .sliding(slidingSize).log("sliding")
             .onEach { slide ->
                 slide.size shouldBeLessOrEqualTo slidingSize
                 slidingCounter.incrementAndGet()
@@ -42,6 +40,8 @@ class SlidingTest: AbstractFlowTest() {
 
         slidingCount shouldBeEqualTo 20
         sliding shouldHaveSize 20
+
+        sliding.first() shouldBeEqualTo listOf(1, 2, 3, 4, 5)
         sliding.last() shouldBeEqualTo listOf(20)
     }
 
@@ -50,7 +50,7 @@ class SlidingTest: AbstractFlowTest() {
         val slidingCounter = atomic(0)
         val slidingSize = 3
 
-        val sliding = (1..20).asFlow()
+        val sliding = flowRangeOf(1, 20).log("source")
             .sliding(slidingSize).log("sliding")
             .onEach { slide ->
                 slide.size shouldBeLessOrEqualTo slidingSize
@@ -60,6 +60,8 @@ class SlidingTest: AbstractFlowTest() {
 
         slidingCounter.value shouldBeEqualTo 20
         sliding shouldHaveSize 20
+
+        sliding.first() shouldBeEqualTo listOf(1, 2, 3)
         sliding.last() shouldBeEqualTo listOf(20)
     }
 

@@ -17,10 +17,10 @@ object MySQLLauncher {
         // props["javax.persistence.jdbc.password"] = "test"
 
         // Testcontainers 사용 시
-        props["javax.persistence.jdbc.url"] = mysql8.jdbcUrl
-        props["javax.persistence.jdbc.user"] = mysql8.username
-        props["javax.persistence.jdbc.password"] = mysql8.password
-        props["javax.persistence.schema-generation.database.action"] = Action.CREATE.externalJpaName
+        props["jakarta.persistence.jdbc.url"] = mysql8.jdbcUrl
+        props["jakarta.persistence.jdbc.user"] = mysql8.username
+        props["jakarta.persistence.jdbc.password"] = mysql8.password
+        props["jakarta.persistence.schema-generation.database.action"] = Action.CREATE.externalJpaName
 
         props
     }

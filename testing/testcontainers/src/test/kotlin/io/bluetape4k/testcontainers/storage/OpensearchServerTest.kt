@@ -15,7 +15,6 @@ class OpensearchServerTest {
 
     @Nested
     inner class UseDockerPort {
-
         @Test
         fun `launch opensearch server`() {
             OpensearchServer().use { es ->

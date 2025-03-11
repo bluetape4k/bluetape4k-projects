@@ -100,7 +100,7 @@ class MultijobTesterTest {
         val count: Int by counter
 
         override suspend fun invoke() {
-            delay(1)
+            delay(10)
             counter.incrementAndGet()
             // log.trace { "execution count: $count" }
         }

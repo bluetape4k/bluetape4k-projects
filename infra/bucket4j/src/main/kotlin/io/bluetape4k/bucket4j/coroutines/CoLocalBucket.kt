@@ -2,7 +2,9 @@ package io.bluetape4k.bucket4j.coroutines
 
 import io.bluetape4k.bucket4j.bucketConfiguration
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.warn
 import io.github.bucket4j.BucketConfiguration
 import io.github.bucket4j.BucketExceptions
 import io.github.bucket4j.ConfigurationBuilder
@@ -91,7 +93,7 @@ class CoLocalBucket private constructor(
         log.trace { "nanosToDelay=$nanosToDelay" }
 
         if (nanosToDelay == INFINITY_DURATION) {
-            log.trace { "rejected. nanosToDelay is INFINITY_DURATION" }
+            log.debug { "rejected. nanosToDelay is INFINITY_DURATION" }
             listener.onRejected(tokensToConsume)
             return false
         }
@@ -117,6 +119,7 @@ class CoLocalBucket private constructor(
         log.trace { "nanos to delay=$nanosToDelay" }
 
         if (nanosToDelay == INFINITY_DURATION) {
+            log.warn { "reservation overflow" }
             throw BucketExceptions.reservationOverflow()
         }
 

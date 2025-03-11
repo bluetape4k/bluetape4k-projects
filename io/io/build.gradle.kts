@@ -66,7 +66,7 @@ dependencies {
 
     // Binary Serializers
     compileOnly(Libs.kryo)
-    compileOnly(Libs.fury)
+    compileOnly(Libs.fury_kotlin)
 
     // Apple M1
     compileOnly(Libs.jna_platform)

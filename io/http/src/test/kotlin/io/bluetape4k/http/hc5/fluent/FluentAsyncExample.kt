@@ -31,76 +31,84 @@ class FluentAsyncExample: AbstractHc5Test() {
     companion object: KLogging()
 
     val requests = listOf(
-        requestGet("http://www.google.com/"),
-        requestGet("http://www.yahoo.com/"),
-        requestGet("http://www.apache.org/"),
-        requestGet("http://www.apple.com/"),
+        requestGet("http://www.naver.com/"),
+        requestGet("http://www.daum.net/"),
+        requestGet("http://www.chosun.com/"),
+        requestGet("https://news.kbs.co.kr/news/pc/main/main.html"),
+        requestGet("http://www.ytn.co.kr/"),
+        requestGet("http://www.mbc.co.kr/"),
+        requestGet("http://www.sbs.co.kr/"),
     )
 
     @Test
     fun `execute multiple request asynchronously`() {
         val executor = Executors.newFixedThreadPool(2)
-        val async = Async.newInstance().use(executor)
+        try {
+            val async = Async.newInstance().use(executor)
+            val queue = LinkedList<Future<Content>>()
 
-        val queue = LinkedList<Future<Content>>()
+            requests.forEach { request ->
+                val future = async.execute(request, object: FutureCallback<Content> {
+                    override fun completed(result: Content?) {
+                        log.debug { "Request completed: $result" }
+                    }
 
-        requests.forEach { request ->
-            val future = async.execute(request, object: FutureCallback<Content> {
-                override fun completed(result: Content?) {
-                    log.debug { "Request completed: $result" }
-                }
+                    override fun failed(ex: Exception?) {
+                        log.error(ex) { "failed. request=$request" }
+                    }
 
-                override fun failed(ex: Exception?) {
-                    log.error(ex) { "failed. request=$request" }
-                }
-
-                override fun cancelled() {
-                    log.debug { "Cancelled." }
-                }
-            })
-            queue.add(future)
-        }
-
-        while (queue.isNotEmpty()) {
-            val future = queue.remove()
-            try {
-                future.get()
-            } catch (ex: ExecutionException) {
-                // Nothing to do
+                    override fun cancelled() {
+                        log.debug { "Cancelled." }
+                    }
+                })
+                queue.add(future)
             }
+
+            while (queue.isNotEmpty()) {
+                val future = queue.remove()
+                try {
+                    future.get()
+                } catch (ex: ExecutionException) {
+                    // Nothing to do
+                }
+            }
+            log.debug { "Done" }
+        } finally {
+            executor.shutdown()
         }
-        log.debug { "Done" }
-        executor.shutdown()
     }
 
-    // FIXME: status code: 400 Bad Request 가 발생한다.
     @Test
     fun `execute multiple request in multi threading`() {
-        val async = Async.newInstance()
+        val executor = Executors.newFixedThreadPool(2)
+        val async = Async.newInstance().use(executor)
         val counter = atomic(0)
 
-        MultithreadingTester()
-            .numThreads(2)
-            .roundsPerThread(2)
-            .add {
-                val index = counter.getAndIncrement() % requests.size
-                val request = requests[index]
-                log.debug { "Reqeust $request" }
+        try {
+            MultithreadingTester()
+                .numThreads(requests.size / 2)
+                .roundsPerThread(2)
+                .add {
+                    val index = counter.getAndIncrement() % requests.size
+                    val request = requests[index]
+                    log.debug { "Reqeust $request" }
 
-                val content = async.execute(request).get()
-                log.debug { "Content type=${content.type} from $request" }
-            }
-            .run()
+                    val content = async.execute(request).get()
+                    log.debug { "Content type=${content.type} from $request" }
+                }
+                .run()
+        } finally {
+            executor.shutdown()
+        }
     }
 
-    // FIXME: status code: 400 Bad Request 가 발생한다.
     @Test
     fun `execute multiple request in virtual threads`() {
         val async = Async.newInstance().use(VirtualThreadExecutor)
         val counter = atomic(0)
 
         VirtualthreadTester()
-            .numThreads(2)
+            .numThreads(requests.size / 2)
             .roundsPerThread(2)
             .add {
                 val index = counter.getAndIncrement() % requests.size
@@ -113,14 +121,13 @@ class FluentAsyncExample: AbstractHc5Test() {
             .run()
     }
 
-    // FIXME: status code: 400 Bad Request 가 발생한다.
     @Test
     fun `execute multiple request in multi job`() = runSuspendIO {
         val async = Async.newInstance().use(Dispatchers.IO.asExecutor())
         val counter = atomic(0)
 
         MultijobTester()
-            .numThreads(2)
+            .numThreads(requests.size / 2)
             .roundsPerJob(2)
             .add {
                 val index = counter.getAndIncrement() % requests.size

@@ -2,6 +2,7 @@ package io.bluetape4k.aws.kotlin.s3
 
 import aws.sdk.kotlin.services.s3.S3Client
 import aws.sdk.kotlin.services.s3.listBuckets
+import io.bluetape4k.aws.kotlin.http.defaultCrtHttpEngineOf
 import io.bluetape4k.aws.kotlin.tests.endpointUrl
 import io.bluetape4k.aws.kotlin.tests.getCredentialsProvider
 import io.bluetape4k.aws.kotlin.tests.getLocalStackServer
@@ -52,6 +53,7 @@ abstract class AbstractKotlinS3Test {
         credentialsProvider = s3Server.getCredentialsProvider()
         endpointUrl = s3Server.endpointUrl
         region = s3Server.region
+        httpClient = defaultCrtHttpEngineOf()
     }.apply {
         log.info { "S3Client created with endpoint: ${s3Server.endpoint}" }
 

@@ -3,10 +3,10 @@ package io.bluetape4k.aws.kotlin.dynamodb.model
 import aws.sdk.kotlin.services.dynamodb.model.ListTagsOfResourceRequest
 import io.bluetape4k.support.requireNotBlank
 
-fun listTagsOfResourceRequestOf(
+inline fun listTagsOfResourceRequestOf(
     resourceArn: String,
     nextToken: String? = null,
-    configurer: ListTagsOfResourceRequest.Builder.() -> Unit = {},
+    crossinline configurer: ListTagsOfResourceRequest.Builder.() -> Unit = {},
 ): ListTagsOfResourceRequest {
     resourceArn.requireNotBlank("resourceArn")
 

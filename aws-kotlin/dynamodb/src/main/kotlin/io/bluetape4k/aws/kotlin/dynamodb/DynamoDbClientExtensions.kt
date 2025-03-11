@@ -19,8 +19,10 @@ import aws.sdk.kotlin.services.dynamodb.paginators.scanPaginated
 import aws.sdk.kotlin.services.dynamodb.putItem
 import aws.smithy.kotlin.runtime.ServiceException
 import aws.smithy.kotlin.runtime.auth.awscredentials.CredentialsProvider
+import aws.smithy.kotlin.runtime.http.engine.HttpClientEngine
 import aws.smithy.kotlin.runtime.net.url.Url
 import io.bluetape4k.aws.kotlin.dynamodb.model.toAttributeValue
+import io.bluetape4k.aws.kotlin.http.defaultCrtHttpEngineOf
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireNotBlank
@@ -30,23 +32,33 @@ import kotlinx.coroutines.withTimeout
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-private val log by lazy { KotlinLogging.logger { } }
+val log by lazy { KotlinLogging.logger { } }
 
 /**
  * [DynamoDbClient]를 생성합니다.
+ *
+ * @param endpointUrl S3 엔드포인트 URL
+ * @param region AWS 리전
+ * @param credentialsProvider AWS 자격 증명 제공자
+ * @param httpClientEngine [HttpClientEngine] 엔진 (기본적으로 [aws.smithy.kotlin.runtime.http.engine.crt.CrtHttpEngine] 를 사용합니다.)
+ * @param configurer [DynamoDbClient.Config.Builder] 를 통해 [DynamoDbClient.Config] 를 설정합니다.
+ *
+ * @return [DynamoDbClient] 인스턴스
  */
-fun dynamoDbClientOf(
-    endpoint: String,
+inline fun dynamoDbClientOf(
+    endpointUrl: String? = null,
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
-    configurer: DynamoDbClient.Config.Builder.() -> Unit = {},
+    httpClientEngine: HttpClientEngine = defaultCrtHttpEngineOf(),
+    crossinline configurer: DynamoDbClient.Config.Builder.() -> Unit = {},
 ): DynamoDbClient {
-    endpoint.requireNotBlank("endpoint")
+    endpointUrl.requireNotBlank("endpoint")
 
     return DynamoDbClient {
-        this.endpointUrl = Url.parse(endpoint)
+        endpointUrl?.let { this.endpointUrl = Url.parse(it) }
         region?.let { this.region = it }
         credentialsProvider?.let { this.credentialsProvider = it }
+        httpClient = httpClientEngine
 
         configurer()
     }
@@ -55,13 +67,13 @@ fun dynamoDbClientOf(
 /**
  * DynamoDB 테이블을 생성합니다.
  */
-suspend fun DynamoDbClient.createTable(
+suspend inline fun DynamoDbClient.createTable(
     tableName: String,
     keySchema: List<KeySchemaElement>? = null,
     attributeDefinitions: List<AttributeDefinition>? = null,
     readCapacityUnits: Long? = null,
     writeCapacityUnits: Long? = null,
-    configurer: CreateTableRequest.Builder.() -> Unit = {},
+    crossinline configurer: CreateTableRequest.Builder.() -> Unit = {},
 ): CreateTableResponse {
     tableName.requireNotBlank("tableName")
 
@@ -131,10 +143,10 @@ suspend fun DynamoDbClient.waitForTableReady(name: String, timeout: Duration = 6
 }
 
 
-suspend fun DynamoDbClient.putItem(
+suspend inline fun DynamoDbClient.putItem(
     tableName: String,
     item: Map<String, Any?>,
-    configurer: PutItemRequest.Builder.() -> Unit = {},
+    crossinline configurer: PutItemRequest.Builder.() -> Unit = {},
 ): PutItemResponse {
     tableName.requireNotBlank("tableName")
 
@@ -146,11 +158,11 @@ suspend fun DynamoDbClient.putItem(
     }
 }
 
-fun DynamoDbClient.scanPaginated(
+inline fun DynamoDbClient.scanPaginated(
     tableName: String,
     exclusiveStartKey: Map<String, Any?>,
     limit: Int = 1,
-    configurer: ScanRequest.Builder.() -> Unit = {},
+    crossinline configurer: ScanRequest.Builder.() -> Unit = {},
 ): Flow<ScanResponse> {
     tableName.requireNotBlank("tableName")
 

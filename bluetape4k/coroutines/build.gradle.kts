@@ -12,7 +12,12 @@ dependencies {
     api(Libs.kotlinx_coroutines_core)
     api(Libs.kotlinx_coroutines_slf4j)
     compileOnly(Libs.kotlinx_coroutines_reactor)
+    testImplementation(Libs.kotlinx_coroutines_debug)
     testImplementation(Libs.kotlinx_coroutines_test)
+
+    // Pods4k Immutable Array
+    compileOnly(Libs.pods4k_core)
+    compileOnly(Libs.pods4k_transformations_to_standard_collections)
 
     // Test Fixture
     compileOnly(Libs.kluent)

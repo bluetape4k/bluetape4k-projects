@@ -6,6 +6,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import io.bluetape4k.redis.redisson.redissonClientOf
 import io.bluetape4k.testcontainers.storage.RedisServer
+import io.bluetape4k.utils.ShutdownQueue
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -20,9 +21,7 @@ abstract class AbstractRedissonCoroutineTest {
         val redis: RedisServer by lazy { RedisServer.Launcher.redis }
 
         @JvmStatic
-        val redissonClient by lazy {
-            RedisServer.Launcher.RedissonLib.getRedisson(connectionPoolSize = 256)
-        }
+        val redissonClient by lazy { newRedisson() }
 
         @JvmStatic
         protected val faker = Fakers.faker
@@ -34,14 +33,22 @@ abstract class AbstractRedissonCoroutineTest {
         @JvmStatic
         protected fun randomName(): String = "$LibraryName:${Fakers.fixedString(32)}"
 
+
+        @JvmStatic
+        protected fun newRedisson(): RedissonClient {
+            val config = RedisServer.Launcher.RedissonLib.getRedissonConfig(
+                connectionPoolSize = 256,
+                minimumIdleSize = 12,
+                threads = 128,
+                nettyThreads = 512,
+            )
+            return redissonClientOf(config).apply {
+                ShutdownQueue.register { shutdown() }
+            }
+        }
     }
 
     protected val redisson: RedissonClient get() = redissonClient
-
-    protected fun newRedisson(): RedissonClient {
-        val config = RedisServer.Launcher.RedissonLib.getRedissonConfig(connectionPoolSize = 256)
-        return redissonClientOf(config)
-    }
 
     protected val scope = CoroutineScope(CoroutineName("redisson") + Dispatchers.IO)
 

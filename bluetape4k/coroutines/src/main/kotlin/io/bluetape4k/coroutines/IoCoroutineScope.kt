@@ -1,5 +1,7 @@
 package io.bluetape4k.coroutines
 
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -9,6 +11,8 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 
 open class IoCoroutineScope: CoroutineScope {
+
+    companion object: KLogging()
 
     private val job: Job = SupervisorJob()
 
@@ -21,6 +25,7 @@ open class IoCoroutineScope: CoroutineScope {
      * @param cause 취소 사유에 해당하는 예외정보. default is null
      */
     fun clearJobs(cause: CancellationException? = null) {
+        log.debug { "clearJobs: cause=$cause" }
         coroutineContext.cancelChildren(cause)
     }
 }

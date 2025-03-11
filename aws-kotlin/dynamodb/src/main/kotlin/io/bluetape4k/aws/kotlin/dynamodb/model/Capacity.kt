@@ -3,11 +3,11 @@ package io.bluetape4k.aws.kotlin.dynamodb.model
 import aws.sdk.kotlin.services.dynamodb.model.Capacity
 import io.bluetape4k.support.requirePositiveNumber
 
-fun capacityOf(
+inline fun capacityOf(
     capacityUnits: Double? = null,
     readCapacityUnits: Double? = null,
     writeCapacityUnits: Double? = null,
-    configurer: Capacity.Builder.() -> Unit = {},
+    crossinline configurer: Capacity.Builder.() -> Unit = {},
 ): Capacity {
     capacityUnits?.requirePositiveNumber("capacityUnits")
     readCapacityUnits?.requirePositiveNumber("readCapacityUnits")
@@ -17,6 +17,7 @@ fun capacityOf(
         this.capacityUnits = capacityUnits
         this.readCapacityUnits = readCapacityUnits
         this.writeCapacityUnits = writeCapacityUnits
+
         configurer()
     }
 }

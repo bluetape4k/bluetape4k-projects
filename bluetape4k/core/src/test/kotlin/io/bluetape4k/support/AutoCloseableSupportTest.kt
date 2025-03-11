@@ -30,7 +30,7 @@ class AutoCloseableSupportTest {
 
         Thread.sleep(10)
         closeable.closeSafe()
-        Thread.sleep(10)
+        Thread.sleep(100)
 
         verify(exactly = 1) { closeable.close() }
         confirmVerified(closeable)

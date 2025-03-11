@@ -17,9 +17,6 @@ internal class DefaultSequencer(machineId: Int = getMachineId(MAX_MACHINE_ID)): 
     override val machineId: Int = machineId.absoluteValue % MAX_MACHINE_ID
 
     @Volatile
-    private var currentTimestamp: Long = -1L
-
-    @Volatile
     private var lastTimestamp: Long = -1L
 
     private val sequencer = atomic(0)
@@ -54,23 +51,21 @@ internal class DefaultSequencer(machineId: Int = getMachineId(MAX_MACHINE_ID)): 
     }
 
     private fun updateState() {
-        lock.withLock {
-            currentTimestamp = System.currentTimeMillis()
+        var currentTimestamp = System.currentTimeMillis()
 
-            if (currentTimestamp == lastTimestamp) {
-                sequencer.incrementAndGet()
-                // sequence 가 MAX_SEQUENCE 값보다 증가하면, 다음 milliseconds까지 기다립니다.
-                if (sequencer.value >= MAX_SEQUENCE) {
-                    while (currentTimestamp == lastTimestamp) {
-                        currentTimestamp = System.currentTimeMillis()
-                    }
-                    sequence = 0
-                    lastTimestamp = currentTimestamp
+        if (currentTimestamp == lastTimestamp) {
+            sequencer.incrementAndGet()
+            // sequence 가 MAX_SEQUENCE 값보다 크거나 같다면, 다음 milliseconds까지 기다립니다.
+            if (sequencer.value >= MAX_SEQUENCE) {
+                while (currentTimestamp == lastTimestamp) {
+                    currentTimestamp = System.currentTimeMillis()
                 }
-            } else {
                 sequence = 0
                 lastTimestamp = currentTimestamp
             }
+        } else {
+            sequence = 0
+            lastTimestamp = currentTimestamp
         }
     }
 }

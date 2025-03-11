@@ -22,6 +22,8 @@ plugins {
     id(Plugins.dependency_management) version Plugins.Versions.dependency_management
     id(Plugins.spring_boot) version Plugins.Versions.spring_boot apply false
 
+    id(Plugins.quarkus) version Plugins.Versions.quarkus apply false
+
     id(Plugins.dokka) version Plugins.Versions.dokka
     id(Plugins.testLogger) version Plugins.Versions.testLogger
     id(Plugins.shadow) version Plugins.Versions.shadow apply false
@@ -95,7 +97,7 @@ subprojects {
             apiVersion.set(KotlinVersion.KOTLIN_2_1)
             freeCompilerArgs = listOf(
                 "-Xjsr305=strict",
-                "-Xjvm-default=all",
+                "-Xjvm-default=all-compatibility",
                 "-Xinline-classes",
                 "-Xstring-concat=indy",         // since Kotlin 1.4.20 for JVM 9+
                 "-Xenable-builder-inference",   // since Kotlin 1.6
@@ -126,6 +128,11 @@ subprojects {
             // 테스트 시 아래와 같은 예외 메시지를 제거하기 위해서 
             // OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
             jvmArgs("-Xshare:off", "-Xmx8G")
+
+            if (project.name.contains("quarkus")) {
+                // [Quarkus Logging](https://quarkus.io/guides/logging)
+                systemProperty("java.util.logging.manager", "org.jboss.logmanager.LogManager")
+            }
 
             if (project.name.contains("quarkus")) {
                 // [Quarkus Logging](https://quarkus.io/guides/logging)
@@ -257,7 +264,7 @@ subprojects {
         // HINT: Gradle 빌드 시, detachedConfiguration 이 많이 발생하는데, setApplyMavenExclusions(false) 를 추가하면 속도가 개선됩니다.
         // https://discuss.gradle.org/t/what-is-detachedconfiguration-i-have-a-lots-of-them-for-each-subproject-and-resolving-them-takes-95-of-build-time/31595/6
         setApplyMavenExclusions(false)
-        
+
         imports {
             mavenBom(Libs.spring_integration_bom)
             mavenBom(Libs.spring_cloud_dependencies)
@@ -282,6 +289,7 @@ subprojects {
             mavenBom(Libs.resilience4j_bom)
             mavenBom(Libs.netty_bom)
             mavenBom(Libs.jackson_bom)
+            mavenBom(Libs.pods4k_bom)
 
             mavenBom(Libs.kotlinx_coroutines_bom)
             mavenBom(Libs.kotlin_bom)

@@ -31,10 +31,10 @@ kapt {
     correctErrorTypes = true
     showProcessorStats = true
 
-    arguments {
-        arg("querydsl.entityAccessors", "true")  // Association의 property는 getter/setter를 사용하도록 합니다.
-        arg("querydsl.kotlinCodegen", "true") // QueryDSL Kotlin Codegen 활성화
-    }
+//    arguments {
+//        arg("querydsl.entityAccessors", "true")  // Association의 property는 getter/setter를 사용하도록 합니다.
+//        arg("querydsl.kotlinCodegen", "true") // QueryDSL Kotlin Codegen 활성화
+//    }
     javacOptions {
         option("--add-modules", "java.base")
     }
@@ -69,7 +69,7 @@ dependencies {
     api(Libs.hibernate_micrometer)
     testImplementation(Libs.hibernate_testing)
 
-    // Kotlin 2.1.0 에서 QueryDSL 5.1.0 과 같이 사용하는 경우 예에가 발생한다. (QueryDSL만 사용하는 것을 추천합니다)
+    // NOTE: Kotlin 2.1.0 에서 QueryDSL 5.1.0 과 같이 사용하는 경우 예에가 발생한다. (QueryDSL만 사용하는 것을 추천합니다)
     // kapt(Libs.hibernate_jpamodelgen)
     // kaptTest(Libs.hibernate_jpamodelgen)
 
@@ -93,7 +93,7 @@ dependencies {
     compileOnly(Libs.jackson_module_blackbird)
 
     testImplementation(Libs.kryo)
-    testImplementation(Libs.fury)
+    testImplementation(Libs.fury_kotlin)
 
     testImplementation(Libs.commons_compress)
     testImplementation(Libs.snappy_java)

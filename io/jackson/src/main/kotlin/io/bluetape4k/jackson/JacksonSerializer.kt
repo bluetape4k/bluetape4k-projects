@@ -36,3 +36,37 @@ open class JacksonSerializer(
         return bytes?.run { mapper.readValue(this, clazz) }
     }
 }
+
+/**
+ * [JsonSerializer]를 이용하여 [bytes]를 역직렬화하여 객체를 빌드합니다. 실패시 null 반환
+ *
+ * ```
+ * val serializer = JacksonSerializer()
+ * val bytes = serializer.serialize(data)
+ * val data = serializer.deserialize<Data>(bytes)
+ * ```
+ *
+ * @param T 역직렬화할 대상 수형
+ * @param bytes JSON 직렬화된 ByteArray
+ * @return 역직렬화된 객체, 실패 시 null 반환
+ */
+inline fun <reified T: Any> JacksonSerializer.deserialize(bytes: ByteArray?): T? =
+    bytes?.run { mapper.readValueOrNull<T>(bytes) }
+// deserialize(bytes, T::class.java)
+
+/**
+ * [JsonSerializer]를 이용하여 [jsonText]를 역직렬화하여 객체를 빌드합니다. 실패시 null 반환
+ *
+ * ```
+ * val serializer = JacksonSerializer()
+ * val jsonText = serializer.serializeAsString(data)
+ * val data = serializer.deserializeFromString<Data>(jsonText)
+ * ```
+ *
+ * @param T 역직렬화할 대상 수형
+ * @param jsonText JSON 직렬화된 문자열
+ * @return 역직렬화된 객체, 실패 시 null 반환
+ */
+inline fun <reified T: Any> JacksonSerializer.deserializeFromString(jsonText: String?): T? =
+    jsonText?.run { mapper.readValueOrNull<T>(jsonText) }
+// deserializeFromString(jsonText, T::class.java)  --> 이 것 쓰면 제대로 된 Kotlin 수형을 가져오지 못함 

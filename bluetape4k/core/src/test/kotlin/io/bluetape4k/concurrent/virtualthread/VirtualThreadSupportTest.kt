@@ -111,7 +111,7 @@ class VirtualThreadSupportTest: AbstractVirtualThreadTest() {
         }
         thread.isAlive.shouldBeTrue()
 
-        // Thread가 시작되었으므로 RUNNABLE or TIMED_WAITING 상태 (Thread.sleep() 때문에)
+        // Thread가 시작되었으므로 RUNNABLE or TIMED_WAITING 상태이어야 한다 (Thread.sleep() 때문에)
         thread.state shouldNotBeEqualTo Thread.State.NEW
         thread.state shouldNotBeEqualTo Thread.State.TERMINATED
         thread.join()

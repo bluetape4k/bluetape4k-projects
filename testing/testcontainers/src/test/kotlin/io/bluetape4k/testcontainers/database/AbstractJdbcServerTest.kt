@@ -10,7 +10,9 @@ abstract class AbstractJdbcServerTest: AbstractContainerTest() {
     companion object: KLogging()
 
     protected fun assertConnection(jdbcServer: JdbcServer) {
-        jdbcServer.getDataSource().use { ds ->
+        jdbcServer.getDataSource {
+            this.connectionTimeout = 1000L
+        }.use { ds ->
             ds.connection.use { conn ->
                 conn.isValid(1).shouldBeTrue()
             }

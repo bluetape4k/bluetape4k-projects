@@ -113,18 +113,17 @@ Mac AirPlay 를 중단하면 됩니다.
 
 Colima 를 사용하세요.
 
-vm type 을 vz 로 설정하면, mount type을 9p로 설정할 수 없는 문제가 있습니다.
-그래서 mount type=9p 를 우선 시 하고, vm type 은 vz 가 아닌 qemu 를 사용하도록 합니다.
+다음과 같이 colima 를 설치하고 `default` 설정으로 colima 를 서비스로 시작합니다.
 
 ```shell
 $ brew install colima
-$ colima start --mount-type=9p --cpu 4 --memory 4 --disk 64 --runtime docker
+$ brew services start colima
 ```
 
 만약 기존 설정을 변경하고 싶다면, 다음과 같이 기존 VM 을 삭제하고 새롭게 시작해야 합니다.
 
 ```shell
-$ colima stop
+$ brew services stop colima
 $ colima delete
 ```
 
@@ -134,18 +133,17 @@ Colima 사용 시 환경설정에 `DOCKER_HOST` 를 추가해야 합니다.
 
 ```shell
 # Colima 사용 
-export DOCKER_HOST="unix://$HOME/.colima/docker.sock"
+export DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"
 export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE="$HOME/.colima/docker.sock"
 export TESTCONTAINERS_RYUK_DISABLED=true
 ```
 
 ### Q. Colima 사용 시
 
-Colima 로 Docker 를 실행할 때 다음과 같은 예외가 발생할 수 있습니다. 이 때에는 mount type 을 `9p` 를 사용하면 된다
+Testcontainers의 `LocalStackContainer` 를 사용 할 때는 `docker.sock` 파일을 READ_WRITE 모드로 설정하는데,
+colima 에서 `~/.colima/docker.sock` 파일이 이미 존재하고, 생성 권한이 root 에 있어서 권한이 없다고 합니다.
+그럴 경우 다음과 같이 `docker.sock` 파일을 삭제하시면 됩니다.
 
 ```shell
-Error response from daemon: error while creating mount source path '<path>':
-chown '<path>': operation not permitted
+rm -rf ~/.colima/docker.sock
 ```
-
-* [Colima and mounting volumes on MacOS](https://mpanin.me/posts/colima-and-mounting-volumes/)

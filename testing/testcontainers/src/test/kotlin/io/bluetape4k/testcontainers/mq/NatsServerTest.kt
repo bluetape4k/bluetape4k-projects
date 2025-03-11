@@ -7,6 +7,7 @@ import io.nats.client.Subscription
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -17,23 +18,29 @@ class NatsServerTest {
 
     companion object: KLogging()
 
-    @Test
-    fun `create nats server`() {
-        NatsServer().use { nats ->
-            nats.start()
-            nats.isRunning.shouldBeTrue()
+    @Nested
+    inner class Docker {
+        @Test
+        fun `create nats server`() {
+            NatsServer().use { nats ->
+                nats.start()
+                nats.isRunning.shouldBeTrue()
 
-            connectToNats(nats)
+                connectToNats(nats)
+            }
         }
     }
 
-    @Test
-    fun `create nats server with default port`() {
-        NatsServer(useDefaultPort = true).use { nats ->
-            nats.start()
-            nats.isRunning.shouldBeTrue()
+    @Nested
+    inner class Default {
+        @Test
+        fun `create nats server with default port`() {
+            NatsServer(useDefaultPort = true).use { nats ->
+                nats.start()
+                nats.isRunning.shouldBeTrue()
 
-            connectToNats(nats)
+                connectToNats(nats)
+            }
         }
     }
 

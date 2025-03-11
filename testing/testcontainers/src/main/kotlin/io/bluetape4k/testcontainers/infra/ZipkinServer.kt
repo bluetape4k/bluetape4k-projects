@@ -25,7 +25,7 @@ class ZipkinServer private constructor(
 ): GenericContainer<ZipkinServer>(imageName), GenericServer {
 
     companion object: KLogging() {
-        const val IMAGE = "openzipkin/zipkin"
+        const val IMAGE = "openzipkin/zipkin-slim"
         const val NAME = "zipkin"
         const val TAG = "3"
         const val PORT = 9411
@@ -46,7 +46,7 @@ class ZipkinServer private constructor(
             reuse: Boolean = true,
         ): ZipkinServer {
             val imageName = DockerImageName.parse(IMAGE).withTag(tag)
-            return ZipkinServer(imageName, useDefaultPort, reuse)
+            return invoke(imageName, useDefaultPort, reuse)
         }
     }
 
@@ -56,6 +56,10 @@ class ZipkinServer private constructor(
     init {
         addExposedPorts(PORT)
         withReuse(reuse)
+
+        withCreateContainerCmdModifier { cmd ->
+            cmd.withPlatform("linux/arm64")  // for Apple Silicon
+        }
 
         setWaitStrategy(Wait.forListeningPort())
 

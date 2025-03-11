@@ -33,6 +33,6 @@ dependencies {
 
     // Serializers
     testImplementation(Libs.kryo)
-    testImplementation(Libs.fury)
+    testImplementation(Libs.fury_kotlin)
 
 }

@@ -18,12 +18,14 @@ inline fun keysAndAttributesOf(
 }
 
 @JvmName("keysAndAttributesOfAny")
-fun keysAndAttributesOf(
+inline fun keysAndAttributesOf(
     keys: List<Map<String, Any?>>,
-    configurer: KeysAndAttributes.Builder.() -> Unit = {},
+    crossinline configurer: KeysAndAttributes.Builder.() -> Unit = {},
 ): KeysAndAttributes {
-    return keysAndAttributesOf(
-        keys.map { it.mapValues { it.toAttributeValue() } },
-        configurer,
-    )
+    keys.requireNotEmpty("keys")
+
+    return KeysAndAttributes {
+        this.keys = keys.map { it.mapValues { it.toAttributeValue() } }
+        configurer()
+    }
 }

@@ -1,6 +1,7 @@
 package io.bluetape4k.aws.kotlin.dynamodb
 
 import aws.sdk.kotlin.services.dynamodb.DynamoDbClient
+import io.bluetape4k.aws.kotlin.http.defaultCrtHttpEngineOf
 import io.bluetape4k.aws.kotlin.tests.endpointUrl
 import io.bluetape4k.aws.kotlin.tests.getCredentialsProvider
 import io.bluetape4k.aws.kotlin.tests.getLocalStackServer
@@ -24,6 +25,7 @@ abstract class AbstractKotlinDynamoDbTest {
                 endpointUrl = dynamoDb.endpointUrl
                 region = dynamoDb.region
                 credentialsProvider = dynamoDb.getCredentialsProvider()
+                httpClient = defaultCrtHttpEngineOf()
             }.apply {
                 log.debug { "DynamoDbClient created with endpoint: ${dynamoDb.endpoint}" }
                 ShutdownQueue.register(this)

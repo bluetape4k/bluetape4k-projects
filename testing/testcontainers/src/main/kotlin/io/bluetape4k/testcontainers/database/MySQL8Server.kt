@@ -53,7 +53,7 @@ class MySQL8Server private constructor(
         operator fun invoke(
             image: String = IMAGE,
             tag: String = TAG,
-            useDefaultPort: Boolean = true,
+            useDefaultPort: Boolean = false,
             reuse: Boolean = true,
             username: String = USERNAME,
             password: String = PASSWORD,
@@ -76,7 +76,7 @@ class MySQL8Server private constructor(
         @JvmStatic
         operator fun invoke(
             imageName: DockerImageName,
-            useDefaultPort: Boolean = true,
+            useDefaultPort: Boolean = false,
             reuse: Boolean = true,
             username: String = USERNAME,
             password: String = PASSWORD,
@@ -97,6 +97,9 @@ class MySQL8Server private constructor(
         addExposedPorts(PORT)
         withUsername(username)
         withPassword(password)
+
+        // 로컬 테스트용이므로, 비밀번호가 없어도 실행할 수 있도록 한다
+        withEnv("ALLOW_EMPTY_PASSWORD", "yes")
 
         withReuse(reuse)
         setWaitStrategy(Wait.forListeningPort())

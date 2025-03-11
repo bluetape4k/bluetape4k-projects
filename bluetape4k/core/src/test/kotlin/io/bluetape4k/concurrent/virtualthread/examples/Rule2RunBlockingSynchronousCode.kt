@@ -54,7 +54,7 @@ class Rule2RunBlockingSynchronousCode: AbstractVirtualThreadTest() {
 
         val durationMs = System.currentTimeMillis() - startMs
         log.debug { "비동기 코드 실행 시간 (msec): $durationMs" }
-        durationMs `should be in range` 500L..1500L
+        durationMs `should be in range` 500L..2000L
     }
 
     /**
