@@ -16,6 +16,7 @@ dependencies {
     compileOnly(Libs.exposed_money)
     compileOnly(Libs.exposed_migration)
     compileOnly(Libs.exposed_spring_boot_starter)
+    compileOnly(project(":bluetape4k-exposed"))
 
     // Bluetape4k
     compileOnly(project(":bluetape4k-jdbc"))
@@ -47,4 +48,8 @@ dependencies {
     implementation(Libs.kotlinx_coroutines_reactor)
     implementation(Libs.kotlinx_coroutines_debug)
     implementation(Libs.kotlinx_coroutines_test)
+
+    // Id Generators
+    implementation(project(":bluetape4k-idgenerators"))
+    implementation(Libs.java_uuid_generator)
 }

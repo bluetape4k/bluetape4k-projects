@@ -14,7 +14,7 @@ inline val <ID: Any> Entity<ID>.idValue: Any? get() = id._value
 fun Entity<*>.idEquals(other: Any?): Boolean = when {
     other == null -> false
     this === other -> true
-    other.javaClass == this.javaClass -> idValue != null && idValue == (other as Entity<*>).idValue
+    other is Entity<*> -> this.id == other.id
     else -> false
 }
 
