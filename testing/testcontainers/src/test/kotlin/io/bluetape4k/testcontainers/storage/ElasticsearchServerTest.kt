@@ -3,12 +3,14 @@ package io.bluetape4k.testcontainers.storage
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchClients
 
+@Disabled("Use OpensearchServer or ElasticsearchOssServer instead")
 @Execution(ExecutionMode.SAME_THREAD)
 class ElasticsearchServerTest {
 

@@ -24,6 +24,7 @@ import org.testcontainers.utility.DockerImageName
  * @param useDefaultPort Default port 를 사용할지 여부
  * @param reuse          재사용 여부
  */
+@Deprecated("Use OpensearchServer or ElasticsearchOssServer instead")
 class ElasticsearchServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean,

@@ -76,12 +76,10 @@ class MutinySessionFactoryExamples: AbstractMutinyTest() {
             session.createSelectionQuery(sql, Book::class.java).resultList.awaitSuspending()
         }
         books.forEach {
-            println(it)
-            println("\t${it.author}")
+            println("book=$it, author=${it.author}")
         }
         books shouldHaveSize 3
     }
-
 
     @Test
     fun `find all by entity graph`() = runSuspendIO {
@@ -99,7 +97,7 @@ class MutinySessionFactoryExamples: AbstractMutinyTest() {
             query.resultList.awaitSuspending()
         }
         books.forEach {
-            println(it)
+            println("book=$it, author=${it.author}")
         }
         books shouldHaveSize 3
     }
@@ -122,7 +120,7 @@ class MutinySessionFactoryExamples: AbstractMutinyTest() {
             query.resultList.awaitSuspending()
         }
         books.forEach {
-            println(it)
+            println("book=$it, author=${it.author}")
         }
         books shouldHaveSize 1
     }

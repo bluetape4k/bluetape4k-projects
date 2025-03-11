@@ -15,6 +15,10 @@ import software.amazon.awssdk.services.s3.model.CreateBucketRequest
 import software.amazon.awssdk.services.s3.model.GetObjectRequest
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
 
+/**
+ * LocalStaciServer 실행 시 다음과 같은 예외가 발생하다면,
+ * `~/colima/docker.sock` 파일을 삭제한 후 다시 실행해 보세요.
+ */
 class LocalStackServerTest: AbstractContainerTest() {
 
     companion object: KLogging()

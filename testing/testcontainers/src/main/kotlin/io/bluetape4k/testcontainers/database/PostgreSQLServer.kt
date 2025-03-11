@@ -6,7 +6,7 @@ import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy
+import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.utility.DockerImageName
 
 /**
@@ -103,7 +103,7 @@ class PostgreSQLServer private constructor(
         withPassword(password)
         withReuse(reuse)
 
-        setWaitStrategy(HostPortWaitStrategy())
+        setWaitStrategy(Wait.forListeningPort())
 
         // 개발 시에만 사용하면 됩니다.
         // withLogConsumer(Slf4jLogConsumer(log))
