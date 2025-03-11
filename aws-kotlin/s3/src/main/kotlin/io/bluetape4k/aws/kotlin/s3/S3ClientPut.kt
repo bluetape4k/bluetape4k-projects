@@ -1,6 +1,7 @@
 package io.bluetape4k.aws.kotlin.s3
 
 import aws.sdk.kotlin.services.s3.S3Client
+import aws.sdk.kotlin.services.s3.model.ObjectCannedAcl
 import aws.sdk.kotlin.services.s3.model.PutObjectRequest
 import aws.sdk.kotlin.services.s3.model.PutObjectResponse
 import aws.smithy.kotlin.runtime.content.ByteStream
@@ -33,14 +34,16 @@ import java.nio.file.Path
  * @param configurer [PutObjectRequest.Builder] 를 통해 [PutObjectRequest] 를 설정합니다.
  * @return [PutObjectResponse] 인스턴스
  */
-suspend fun S3Client.put(
+suspend inline fun S3Client.put(
     bucketName: String,
     key: String,
     body: ByteStream? = null,
     metadata: Map<String, String>? = null,
-    configurer: PutObjectRequest.Builder.() -> Unit = {},
+    acl: ObjectCannedAcl? = null,
+    contentType: String? = null,
+    crossinline configurer: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
-    val request = putObjectRequestOf(bucketName, key, body, metadata) { configurer() }
+    val request = putObjectRequestOf(bucketName, key, body, metadata, acl, contentType, configurer)
     return putObject(request)
 }
 
@@ -58,14 +61,16 @@ suspend fun S3Client.put(
  * @param configurer [PutObjectRequest.Builder] 를 통해 [PutObjectRequest] 를 설정합니다.
  * @return [PutObjectResponse] 인스턴스
  */
-suspend fun S3Client.putFromByteArray(
+suspend inline fun S3Client.putFromByteArray(
     bucketName: String,
     key: String,
     bytes: ByteArray,
     metadata: Map<String, String>? = null,
-    configurer: PutObjectRequest.Builder.() -> Unit = {},
+    acl: ObjectCannedAcl? = null,
+    contentType: String? = null,
+    crossinline configurer: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
-    return put(bucketName, key, ByteStream.fromBytes(bytes), metadata, configurer)
+    return put(bucketName, key, ByteStream.fromBytes(bytes), metadata, acl, contentType, configurer)
 }
 
 /**
@@ -81,14 +86,16 @@ suspend fun S3Client.putFromByteArray(
  * @param configurer [PutObjectRequest.Builder] 를 통해 [PutObjectRequest] 를 설정합니다.
  * @return [PutObjectResponse] 인스턴스
  */
-suspend fun S3Client.putFromString(
+suspend inline fun S3Client.putFromString(
     bucketName: String,
     key: String,
     text: String,
     metadata: Map<String, String>? = null,
-    configurer: PutObjectRequest.Builder.() -> Unit = {},
+    acl: ObjectCannedAcl? = null,
+    contentType: String? = null,
+    crossinline configurer: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
-    return put(bucketName, key, ByteStream.fromString(text), metadata, configurer)
+    return put(bucketName, key, ByteStream.fromString(text), metadata, acl, contentType, configurer)
 }
 
 /**
@@ -106,15 +113,17 @@ suspend fun S3Client.putFromString(
  * @throws IllegalArgumentException 파일이 존재하지 않을 경우
  * @see putFromPath
  */
-suspend fun S3Client.putFromFile(
+suspend inline fun S3Client.putFromFile(
     bucketName: String,
     key: String,
     file: File,
     metadata: Map<String, String>? = null,
-    configurer: PutObjectRequest.Builder.() -> Unit = {},
+    acl: ObjectCannedAcl? = null,
+    contentType: String? = null,
+    crossinline configurer: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
     require(file.exists()) { "File not found: $file" }
-    return put(bucketName, key, ByteStream.fromFile(file), metadata, configurer)
+    return put(bucketName, key, ByteStream.fromFile(file), metadata, acl, contentType, configurer)
 }
 
 /**
@@ -132,15 +141,17 @@ suspend fun S3Client.putFromFile(
  * @throws IllegalArgumentException 파일이 존재하지 않을 경우
  * @see putFromFile
  */
-suspend fun S3Client.putFromPath(
+suspend inline fun S3Client.putFromPath(
     bucketName: String,
     key: String,
     path: Path,
     metadata: Map<String, String>? = null,
-    configurer: PutObjectRequest.Builder.() -> Unit = {},
+    acl: ObjectCannedAcl? = null,
+    contentType: String? = null,
+    crossinline configurer: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
     require(path.exists()) { "File not found: $path" }
-    return put(bucketName, key, ByteStream.fromFile(path.toFile()), metadata, configurer)
+    return put(bucketName, key, ByteStream.fromFile(path.toFile()), metadata, acl, contentType, configurer)
 }
 
 /**

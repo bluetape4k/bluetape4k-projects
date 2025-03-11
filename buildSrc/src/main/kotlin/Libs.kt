@@ -5,9 +5,9 @@ import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 object Plugins {
 
     object Versions {
-        const val dokka = "1.9.20"      // https://mvnrepository.com/artifact/org.jetbrains.dokka/dokka-gradle-plugin
+        const val dokka = "2.0.0"      // https://mvnrepository.com/artifact/org.jetbrains.dokka/dokka-gradle-plugin
         const val detekt = "1.23.7"     // https://mvnrepository.com/artifact/io.gitlab.arturbosch.detekt/detekt-gradle-plugin
-        const val dependency_management = "1.1.6"  // https://mvnrepository.com/artifact/io.spring.gradle/dependency-management-plugin
+        const val dependency_management = "1.1.7"  // https://mvnrepository.com/artifact/io.spring.gradle/dependency-management-plugin
         const val jooq = "9.0"       // https://mvnrepository.com/artifact/nu.studer.jooq/jooq-gradle-plugin
         const val protobuf = "0.9.4"    // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-gradle-plugin
         const val avro = "1.9.1"  // https://mvnrepository.com/artifact/com.github.davidmc24.gradle.plugin.avro
@@ -851,6 +851,7 @@ object Libs {
     val jackson_dataformat_csv = jacksonDataFormat("csv")
     val jackson_dataformat_properties = jacksonDataFormat("properties")
     val jackson_dataformat_yaml = jacksonDataFormat("yaml")
+    val jackson_dataformat_toml = jacksonDataFormat("toml")
 
     fun jacksonModule(module: String, version: String = Versions.jackson) = jackson("module", module, version)
     val jackson_module_kotlin = jacksonModule("kotlin")

@@ -1,0 +1,58 @@
+# 기본 정보
+title = "TOML 파일 예제"
+version = "1.0.0"
+date = 2024-12-22T00:00:00Z # ISO 8601 형식의 날짜와 시간
+
+# 사용자 정보
+[author]
+name = "홍길동"
+email = "honggildong@example.com"
+active = true
+
+# 프로젝트 설정
+[project]
+name = "Sample Project"
+description = "TOML 형식을 설명하기 위한 예제 프로젝트"
+license = "MIT"
+
+# 데이터베이스 설정
+[database]
+host = "localhost"
+port = 5432
+username = "db_user"
+password = "secure_password"
+max_connections = 100
+timeout = 30.5 # 초 단위
+
+# 서버 설정
+[server]
+ip = "192.168.1.1"
+port = 8080
+
+# 로그 레벨 설정 (배열)
+log_levels = ["DEBUG", "INFO", "WARN", "ERROR"]
+
+# 환경별 설정
+[environments.production]
+url = "https://example.com"
+debug = false
+
+[environments.development]
+url = "http://localhost:3000"
+debug = true
+
+# 배열과 테이블 배열
+[[users]]
+id = 1
+name = "Alice"
+roles = ["admin", "editor"]
+
+[[users]]
+id = 2
+name = "Bob"
+roles = ["viewer"]
+
+[[users]]
+id = 3
+name = "Charlie"
+roles = ["editor"]

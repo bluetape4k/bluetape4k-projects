@@ -19,11 +19,11 @@ import io.bluetape4k.support.requireNotBlank
  * @param configurer [CreateTopicRequest.Builder] 를 통해 추가적인 설정을 할 수 있는 람다 함수
  * @return [CreateTopicRequest] 인스턴스
  */
-fun createTopicRequestOf(
+inline fun createTopicRequestOf(
     name: String,
     tags: List<Tag>? = null,
     attributes: Map<String, String>? = null,
-    configurer: CreateTopicRequest.Builder.() -> Unit = {},
+    crossinline configurer: CreateTopicRequest.Builder.() -> Unit = {},
 ): CreateTopicRequest {
     name.requireNotBlank("name")
 
@@ -48,9 +48,9 @@ fun createTopicRequestOf(
  * @param configurer [DeleteTopicRequest.Builder] 를 통해 추가적인 설정을 할 수 있는 람다 함수
  * @return [DeleteTopicRequest] 인스턴스
  */
-fun deleteTopicRequestOf(
+inline fun deleteTopicRequestOf(
     topicArn: String,
-    configurer: DeleteTopicRequest.Builder.() -> Unit = {},
+    crossinline configurer: DeleteTopicRequest.Builder.() -> Unit = {},
 ): DeleteTopicRequest {
     topicArn.requireNotBlank("topicArn")
 

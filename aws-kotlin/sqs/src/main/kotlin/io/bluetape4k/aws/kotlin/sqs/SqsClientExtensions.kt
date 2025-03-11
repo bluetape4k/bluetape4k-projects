@@ -9,19 +9,26 @@ import aws.sdk.kotlin.services.sqs.deleteMessageBatch
 import aws.sdk.kotlin.services.sqs.deleteQueue
 import aws.sdk.kotlin.services.sqs.getQueueUrl
 import aws.sdk.kotlin.services.sqs.listQueues
+import aws.sdk.kotlin.services.sqs.model.ChangeMessageVisibilityBatchRequest
 import aws.sdk.kotlin.services.sqs.model.ChangeMessageVisibilityBatchRequestEntry
 import aws.sdk.kotlin.services.sqs.model.ChangeMessageVisibilityBatchResponse
 import aws.sdk.kotlin.services.sqs.model.ChangeMessageVisibilityRequest
 import aws.sdk.kotlin.services.sqs.model.ChangeMessageVisibilityResponse
+import aws.sdk.kotlin.services.sqs.model.CreateQueueRequest
 import aws.sdk.kotlin.services.sqs.model.CreateQueueResponse
+import aws.sdk.kotlin.services.sqs.model.DeleteMessageBatchRequest
 import aws.sdk.kotlin.services.sqs.model.DeleteMessageBatchRequestEntry
 import aws.sdk.kotlin.services.sqs.model.DeleteMessageBatchResponse
+import aws.sdk.kotlin.services.sqs.model.DeleteMessageRequest
 import aws.sdk.kotlin.services.sqs.model.DeleteMessageResponse
 import aws.sdk.kotlin.services.sqs.model.DeleteQueueRequest
 import aws.sdk.kotlin.services.sqs.model.DeleteQueueResponse
+import aws.sdk.kotlin.services.sqs.model.GetQueueUrlRequest
+import aws.sdk.kotlin.services.sqs.model.ListQueuesRequest
 import aws.sdk.kotlin.services.sqs.model.ListQueuesResponse
 import aws.sdk.kotlin.services.sqs.model.ReceiveMessageRequest
 import aws.sdk.kotlin.services.sqs.model.ReceiveMessageResponse
+import aws.sdk.kotlin.services.sqs.model.SendMessageBatchRequest
 import aws.sdk.kotlin.services.sqs.model.SendMessageBatchRequestEntry
 import aws.sdk.kotlin.services.sqs.model.SendMessageBatchResponse
 import aws.sdk.kotlin.services.sqs.model.SendMessageRequest
@@ -38,7 +45,7 @@ import io.bluetape4k.logging.info
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.utils.ShutdownQueue
 
-private val log by lazy { KotlinLogging.logger { } }
+val log by lazy { KotlinLogging.logger { } }
 
 /**
  * [SqsClient] 인스턴스를 생성합니다.
@@ -64,12 +71,12 @@ private val log by lazy { KotlinLogging.logger { } }
  * @param configurer Amazon SQS client 설정 빌더입니다.
  * @return [SqsClient] 인스턴스를 반환합니다.
  */
-fun sqsClientOf(
+inline fun sqsClientOf(
     endpoint: String,
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
     httpClientEngine: HttpClientEngine = defaultCrtHttpEngineOf(),
-    configurer: SqsClient.Config.Builder.() -> Unit = {},
+    crossinline configurer: SqsClient.Config.Builder.() -> Unit = {},
 ): SqsClient {
     endpoint.requireNotBlank("endpoint")
 
@@ -95,11 +102,15 @@ fun sqsClientOf(
  * @param queueName Amazon SQS 큐의 이름입니다.
  * @return CreateQueueResponse 인스턴스를 반환합니다.
  */
-suspend fun SqsClient.createQueue(queueName: String): CreateQueueResponse {
+suspend inline fun SqsClient.createQueue(
+    queueName: String,
+    crossinline configurer: CreateQueueRequest.Builder.() -> Unit = {},
+): CreateQueueResponse {
     queueName.requireNotBlank("queueName")
 
     return createQueue {
         this.queueName = queueName
+        configurer()
     }.apply {
         log.info { "Create Queue. response=$this" }
     }
@@ -116,9 +127,12 @@ suspend fun SqsClient.createQueue(queueName: String): CreateQueueResponse {
  * @return 큐의 URL을 반환합니다.
  * @see [existsQueue]
  */
-suspend fun SqsClient.ensureQueue(queueName: String): String? {
+suspend inline fun SqsClient.ensureQueue(
+    queueName: String,
+    crossinline configurer: CreateQueueRequest.Builder.() -> Unit = {},
+): String? {
     if (!existsQueue(queueName)) {
-        createQueue(queueName)
+        createQueue(queueName, configurer)
     }
     return getQueueUrl(queueName)
 }
@@ -150,10 +164,11 @@ suspend fun SqsClient.existsQueue(queueName: String): Boolean {
  * @param maxResults 반환할 최대 결과 수입니다. 기본값은 null입니다.
  * @return ListQueuesResponse 인스턴스를 반환합니다.
  */
-suspend fun SqsClient.listQueues(
+suspend inline fun SqsClient.listQueues(
     queueNamePrefix: String,
     nextToken: String? = null,
     maxResults: Int? = null,
+    crossinline configurer: ListQueuesRequest.Builder.() -> Unit = {},
 ): ListQueuesResponse {
     queueNamePrefix.requireNotBlank("queueNamePrefix")
 
@@ -161,6 +176,8 @@ suspend fun SqsClient.listQueues(
         this.queueNamePrefix = queueNamePrefix
         nextToken?.let { this.nextToken = it }
         maxResults?.let { this.maxResults = it }
+
+        configurer()
     }
 }
 
@@ -175,9 +192,15 @@ suspend fun SqsClient.listQueues(
  * @param queueName Amazon SQS 큐의 이름입니다.
  * @return 해당 큐의 URL을 반환한다. 해당 큐가 없으면 예외가 발생합니다.
  */
-suspend fun SqsClient.getQueueUrl(queueName: String): String? {
+suspend inline fun SqsClient.getQueueUrl(
+    queueName: String,
+    crossinline configurer: GetQueueUrlRequest.Builder.() -> Unit = {},
+): String? {
     queueName.requireNotBlank("queueName")
-    return getQueueUrl { this.queueName = queueName }.queueUrl
+    return getQueueUrl {
+        this.queueName = queueName
+        configurer()
+    }.queueUrl
 }
 
 /**
@@ -190,9 +213,9 @@ suspend fun SqsClient.getQueueUrl(queueName: String): String? {
  * @param queueUrl Amazon SQS 큐의 URL입니다.
  * @return DeleteQueueResponse 인스턴스를 반환합니다.
  */
-suspend fun SqsClient.deleteQueue(
+suspend inline fun SqsClient.deleteQueue(
     queueUrl: String,
-    configurer: DeleteQueueRequest.Builder.() -> Unit = {},
+    crossinline configurer: DeleteQueueRequest.Builder.() -> Unit = {},
 ): DeleteQueueResponse {
     queueUrl.requireNotBlank("queueUrl")
 
@@ -221,11 +244,11 @@ suspend fun SqsClient.deleteQueue(
  * @param configurer SendMessageRequest.Builder를 초기화하는 람다입니다. 기본값은 빈 람다입니다.
  * @return SendMessageResponse 인스턴스를 반환합니다.
  */
-suspend fun SqsClient.send(
+suspend inline fun SqsClient.send(
     queueUrl: String,
     messageBody: String,
     delaySeconds: Int? = null,
-    configurer: SendMessageRequest.Builder.() -> Unit = {},
+    crossinline configurer: SendMessageRequest.Builder.() -> Unit = {},
 ): SendMessageResponse {
     queueUrl.requireNotBlank("queueUrl")
 
@@ -254,15 +277,18 @@ suspend fun SqsClient.send(
  * @param entries 전송할 메시지의 목록입니다.
  * @return SendMessageBatchResponse 인스턴스를 반환합니다.
  */
-suspend fun SqsClient.sendBatch(
+suspend inline fun SqsClient.sendBatch(
     queueUrl: String,
     vararg entries: SendMessageBatchRequestEntry,
+    crossinline configurer: SendMessageBatchRequest.Builder.() -> Unit = {},
 ): SendMessageBatchResponse {
     queueUrl.requireNotBlank("queueUrl")
 
     return sendMessageBatch {
         this.queueUrl = queueUrl
         this.entries = entries.toList()
+
+        configurer()
     }
 }
 
@@ -283,15 +309,18 @@ suspend fun SqsClient.sendBatch(
  * @param entries 전송할 메시지의 목록입니다.
  * @return SendMessageBatchResponse 인스턴스를 반환합니다.
  */
-suspend fun SqsClient.sendBatch(
+suspend inline fun SqsClient.sendBatch(
     queueUrl: String,
     entries: Collection<SendMessageBatchRequestEntry>,
+    crossinline configurer: SendMessageBatchRequest.Builder.() -> Unit = {},
 ): SendMessageBatchResponse {
     queueUrl.requireNotBlank("queueUrl")
 
     return sendMessageBatch {
         this.queueUrl = queueUrl
         this.entries = entries.toList()
+
+        configurer()
     }
 }
 
@@ -307,10 +336,10 @@ suspend fun SqsClient.sendBatch(
  * @param maxNumberOfMessages 한 번에 수신할 최대 메시지 수입니다. 기본값은 null입니다.
  * @param configurer ReceiveMessageRequest.Builder를 초기화하는 람다입니다. 기본값은 빈 람다입니다.
  */
-suspend fun SqsClient.receive(
+suspend inline fun SqsClient.receive(
     queueUrl: String,
     maxNumberOfMessages: Int? = null,
-    configurer: ReceiveMessageRequest.Builder.() -> Unit = {},
+    crossinline configurer: ReceiveMessageRequest.Builder.() -> Unit = {},
 ): ReceiveMessageResponse {
     queueUrl.requireNotBlank("queueUrl")
 
@@ -343,11 +372,11 @@ suspend fun SqsClient.receive(
  *
  * @return ChangeMessageVisibilityResponse 인스턴스를 반환합니다.
  */
-suspend fun SqsClient.changeMessageVisibility(
+suspend inline fun SqsClient.changeMessageVisibility(
     queueUrl: String,
     receiptHandle: String? = null,
     visibilityTimeout: Int? = null,
-    configurer: ChangeMessageVisibilityRequest.Builder.() -> Unit = {},
+    crossinline configurer: ChangeMessageVisibilityRequest.Builder.() -> Unit = {},
 ): ChangeMessageVisibilityResponse {
     queueUrl.requireNotBlank("queueUrl")
 
@@ -383,15 +412,18 @@ suspend fun SqsClient.changeMessageVisibility(
  * @param entries ChangeMessageVisibilityBatchRequestEntry 인스턴스의 컬렉션입니다.
  * @return [ChangeMessageVisibilityBatchResponse] 인스턴스를 반환합니다.
  */
-suspend fun SqsClient.changeVisibilityBatch(
+suspend inline fun SqsClient.changeVisibilityBatch(
     queueUrl: String,
     vararg entries: ChangeMessageVisibilityBatchRequestEntry,
+    crossinline block: ChangeMessageVisibilityBatchRequest.Builder.() -> Unit = {},
 ): ChangeMessageVisibilityBatchResponse {
     queueUrl.requireNotBlank("queueUrl")
 
     return changeMessageVisibilityBatch {
         this.queueUrl = queueUrl
         this.entries = entries.toList()
+
+        block()
     }
 }
 
@@ -418,15 +450,18 @@ suspend fun SqsClient.changeVisibilityBatch(
  * @param entries ChangeMessageVisibilityBatchRequestEntry 인스턴스의 컬렉션입니다.
  * @return [ChangeMessageVisibilityBatchResponse] 인스턴스를 반환합니다.
  */
-suspend fun SqsClient.changeVisibilityBatch(
+suspend inline fun SqsClient.changeVisibilityBatch(
     queueUrl: String,
     entries: Collection<ChangeMessageVisibilityBatchRequestEntry>,
+    crossinline block: ChangeMessageVisibilityBatchRequest.Builder.() -> Unit = {},
 ): ChangeMessageVisibilityBatchResponse {
     queueUrl.requireNotBlank("queueUrl")
 
     return changeMessageVisibilityBatch {
         this.queueUrl = queueUrl
         this.entries = entries.toList()
+
+        block()
     }
 }
 
@@ -445,15 +480,18 @@ suspend fun SqsClient.changeVisibilityBatch(
  * @param receiptHandle 삭제할 메시지와 연관된 영수증 핸들입니다.
  * @return [DeleteMessageResponse] 인스턴스를 반환합니다.
  */
-suspend fun SqsClient.deleteMessage(
+suspend inline fun SqsClient.deleteMessage(
     queueUrl: String,
     receiptHandle: String? = null,
+    crossinline block: DeleteMessageRequest.Builder.() -> Unit = {},
 ): DeleteMessageResponse {
     queueUrl.requireNotBlank("queueUrl")
 
     return deleteMessage {
         this.queueUrl = queueUrl
         receiptHandle?.let { this.receiptHandle = it }
+
+        block()
     }
 }
 
@@ -478,15 +516,18 @@ suspend fun SqsClient.deleteMessage(
  * @param entries DeleteMessageBatchRequestEntry 인스턴스의 컬렉션입니다.
  * @return [DeleteMessageBatchResponse] 인스턴스를 반환합니다.
  */
-suspend fun SqsClient.deleteMessageBatch(
+suspend inline fun SqsClient.deleteMessageBatch(
     queueUrl: String,
     vararg entries: DeleteMessageBatchRequestEntry,
+    crossinline block: DeleteMessageBatchRequest.Builder.() -> Unit = {},
 ): DeleteMessageBatchResponse {
     queueUrl.requireNotBlank("queueUrl")
 
     return deleteMessageBatch {
         this.queueUrl = queueUrl
         this.entries = entries.toList()
+
+        block()
     }
 }
 
@@ -509,14 +550,17 @@ suspend fun SqsClient.deleteMessageBatch(
  * @param entries DeleteMessageBatchRequestEntry 인스턴스의 컬렉션입니다.
  * @return [DeleteMessageBatchResponse] 인스턴스를 반환합니다.
  */
-suspend fun SqsClient.deleteMessageBatch(
+suspend inline fun SqsClient.deleteMessageBatch(
     queueUrl: String,
     entries: Collection<DeleteMessageBatchRequestEntry>,
+    crossinline block: DeleteMessageBatchRequest.Builder.() -> Unit = {},
 ): DeleteMessageBatchResponse {
     queueUrl.requireNotBlank("queueUrl")
 
     return deleteMessageBatch {
         this.queueUrl = queueUrl
         this.entries = entries.toList()
+
+        block()
     }
 }

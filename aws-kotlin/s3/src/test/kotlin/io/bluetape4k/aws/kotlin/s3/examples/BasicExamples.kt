@@ -27,6 +27,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
+import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
@@ -57,6 +58,7 @@ class BasicExamples: AbstractKotlinS3Test() {
 
     @Test
     fun `Bucket의 모든 Object를 조회합니다`() = runSuspendIO {
+
         log.debug { "Bucket의 모든 Object를 조회합니다 ..." }
 
         // 테스트용 Bucket 생성
@@ -77,7 +79,7 @@ class BasicExamples: AbstractKotlinS3Test() {
         objects.forEach {
             log.debug { "Object info. key=${it.key}, size=${it.size}, owner=${it.owner}" }
         }
-        objects.map { it.key!! }.sorted() shouldBeEqualTo keys
+        objects.map { it.key!! } shouldContainSame keys
 
         s3Client.forceDeleteBucket(bucketName)
     }

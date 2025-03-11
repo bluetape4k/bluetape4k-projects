@@ -8,6 +8,7 @@ import io.bluetape4k.support.requireZeroOrPositiveNumber
 import jakarta.persistence.Access
 import jakarta.persistence.AccessType
 import jakarta.persistence.CascadeType
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.JoinColumn
@@ -68,6 +69,7 @@ class Snowflake private constructor(val name: String): IntJpaEntity() {
         }
     }
 
+    @Column(length = 256)
     var description: String? = null
 
     override fun equalProperties(other: Any): Boolean =

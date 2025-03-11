@@ -21,6 +21,7 @@ inline fun executeStatementRequestOf(
         this.consistentRead = consistentRead
         this.limit = limit
         this.nextToken = nextToken
+
         configurer()
     }
 }

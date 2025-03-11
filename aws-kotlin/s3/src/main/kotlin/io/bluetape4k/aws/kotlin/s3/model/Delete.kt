@@ -13,10 +13,16 @@ import aws.sdk.kotlin.services.s3.model.Delete
  * @param keys 삭제할 Object 의 키 목록
  * @return [Delete] 인스턴스
  */
-fun deleteOf(quiet: Boolean, vararg keys: String): Delete {
+@JvmName("deleteOfArray")
+inline fun deleteOf(
+    vararg keys: String,
+    quiet: Boolean? = null,
+    crossinline block: Delete.Builder.() -> Unit = {},
+): Delete {
     return Delete {
         this.objects = keys.map { it.toObjectIdentifier() }
         this.quiet = quiet
+        block()
     }
 }
 
@@ -31,9 +37,15 @@ fun deleteOf(quiet: Boolean, vararg keys: String): Delete {
  * @param keys 삭제할 Object 의 키 목록
  * @return [Delete] 인스턴스
  */
-fun deleteOf(quiet: Boolean, keys: Collection<String>): Delete {
+@JvmName("deleteOfCollection")
+inline fun deleteOf(
+    keys: Collection<String>,
+    quiet: Boolean? = null,
+    crossinline block: Delete.Builder.() -> Unit = {},
+): Delete {
     return Delete {
         this.objects = keys.map { it.toObjectIdentifier() }
         this.quiet = quiet
+        block()
     }
 }

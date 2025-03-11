@@ -5,11 +5,11 @@ import aws.sdk.kotlin.services.dynamodb.model.ParameterizedStatement
 import aws.sdk.kotlin.services.dynamodb.model.ReturnConsumedCapacity
 import io.bluetape4k.support.requireNotEmpty
 
-fun executeTransactionRequestOf(
+inline fun executeTransactionRequestOf(
     transactionStatements: List<ParameterizedStatement>,
     clientRequestToken: String? = null,
     returnConsumedCapacity: ReturnConsumedCapacity? = null,
-    configurer: ExecuteTransactionRequest.Builder.() -> Unit = {},
+    crossinline configurer: ExecuteTransactionRequest.Builder.() -> Unit = {},
 ): ExecuteTransactionRequest {
     transactionStatements.requireNotEmpty("transactionStatements")
 
@@ -17,6 +17,7 @@ fun executeTransactionRequestOf(
         this.transactStatements = transactionStatements
         this.clientRequestToken = clientRequestToken
         this.returnConsumedCapacity = returnConsumedCapacity
+
         configurer()
     }
 }
