@@ -5,12 +5,10 @@ import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IdTable
 
-typealias StringEntityID = EntityID<String>
-
 /**
  * Base class for an [Entity] instance identified by an [id] comprised of a wrapped `String` value.
  */
-abstract class StringEntity(id: StringEntityID): Entity<String>(id)
+abstract class StringEntity(id: EntityID<String>): Entity<String>(id)
 
 
 /**
@@ -23,7 +21,7 @@ abstract class StringEntity(id: StringEntityID): Entity<String>(id)
  * object of a custom `StringEntity` class, the parameter will be set to this immediately enclosing class by default.
  *
  * @sample io.bluetape4k.exposed.dao.id.TimebasedUUIDBase62TableTest.E1
- * 
+ *
  * @param [entityCtor] The function invoked to instantiate a [StringEntity] using a provided [EntityID] value.
  * If a reference to a specific constructor or a custom function is not passed as an argument, reflection will
  * be used to determine the primary constructor of the associated entity class on first access. If this `StringEntityClass`
@@ -33,5 +31,5 @@ abstract class StringEntity(id: StringEntityID): Entity<String>(id)
 abstract class StringEntityClass<out E: StringEntity>(
     table: IdTable<String>,
     entityType: Class<E>? = null,
-    entityCtor: ((StringEntityID) -> E)? = null,
+    entityCtor: ((EntityID<String>) -> E)? = null,
 ): EntityClass<String, E>(table, entityType, entityCtor)
