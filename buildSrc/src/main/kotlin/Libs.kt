@@ -1290,7 +1290,7 @@ object Libs {
     val ignite_aop = ignite("aop")
     val ignite_aws = ignite("aws")
     val ignite_cassandra_store = ignite("cassandra-store")
-    val ignite_clients = ignite("client")
+    val ignite_clients = ignite("clients")
     val ignite_compress = ignite("compress")
     val ignite_core = ignite("core")
     val ignite_direct_io = ignite("direct-io")
