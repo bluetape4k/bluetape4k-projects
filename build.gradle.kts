@@ -35,10 +35,9 @@ fun getEnvOrProjectProperty(propertyKey: String, envKey: String): String {
     return project.findProperty(propertyKey) as? String ?: System.getenv(envKey)
 }
 
-val gprUser: String = getEnvOrProjectProperty("gpr.user", "GITHUB_USERNAME")
-val gprKey: String = getEnvOrProjectProperty("gpr.key", "GITHUB_TOKEN")
-val gprPublishKey: String = getEnvOrProjectProperty("gpr.publish.key", "GITHUB_PUBLISH_TOKEN")
-
+val bluetape4kGprUser: String = getEnvOrProjectProperty("gpr.user", "BLUETAPE4K_GITHUB_USERNAME")
+val bluetape4kGprKey: String = getEnvOrProjectProperty("gpr.key", "BLUETAPE4K_GITHUB_TOKEN")
+val bluetape4kGprPublishKey: String = getEnvOrProjectProperty("gpr.publish.key", "BLUETAPE4K_GITHUB_PUBLISH_TOKEN")
 
 val projectGroup: String by project
 val baseVersion: String by project
@@ -55,8 +54,8 @@ allprojects {
             name = "bluetape4k"
             url = uri("https://maven.pkg.github.com/bluetape4k/bluetape4k-projects")
             credentials {
-                username = gprUser
-                password = gprKey
+                username = bluetape4kGprUser
+                password = bluetape4kGprKey
             }
         }
     }
@@ -574,7 +573,7 @@ subprojects {
     publishing {
         publications {
             if (!project.path.contains("workshop") && !project.path.contains("examples") && !project.path.contains("-demo")) {
-                create<MavenPublication>("Maven") {
+                create<MavenPublication>("Bluetape4k") {
                     val binaryJar = components["java"]
 
                     val sourcesJar by tasks.creating(Jar::class) {
@@ -620,11 +619,11 @@ subprojects {
         }
         repositories {
             maven {
-                name = "GitHub"
+                name = "Bluetape4k"
                 url = uri("https://maven.pkg.github.com/bluetape4k/bluetape4k-projects")
                 credentials {
-                    username = gprUser
-                    password = gprPublishKey
+                    username = bluetape4kGprUser
+                    password = bluetape4kGprPublishKey
                 }
             }
             mavenLocal()
