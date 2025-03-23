@@ -30,6 +30,8 @@ dependencies {
     implementation(platform(Libs.quarkus_bom))
     implementation(platform(Libs.quarkus_universe_bom))
     implementation(platform(Libs.resteasy_bom))
+//    implementation(platform(Libs.opentelemetry_bom))
+//    implementation(platform(Libs.opentelemetry_alpha_bom))
 
     // Testing
     api(Libs.quarkus_junit5)
@@ -49,6 +51,8 @@ dependencies {
     compileOnly(Libs.quarkus_opentelemetry)
     compileOnly(Libs.quarkus_vertx)
     compileOnly(Libs.quarkus_reactive_routes)
+
+//    compileOnly(Libs.opentelemetry_api_incubator)
 
     api(Libs.vertx_lang_kotlin)
     api(Libs.vertx_lang_kotlin_coroutines)

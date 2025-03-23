@@ -15,8 +15,8 @@ import org.hibernate.reactive.mutiny.Mutiny
  * }.await().indefinitely()
  * ```
  */
-fun <T> withPanacheTransaction(
-    work: (session: Mutiny.Session, tx: Mutiny.Transaction) -> Uni<T>,
+inline fun <T> withPanacheTransaction(
+    crossinline work: (session: Mutiny.Session, tx: Mutiny.Transaction) -> Uni<T>,
 ): Uni<T> =
     Panache.getSession().chain { session ->
         session.withTransaction { tx ->
@@ -35,8 +35,8 @@ fun <T> withPanacheTransaction(
  * }.await().indefinitely()
  * ```
  */
-fun <T> withPanacheRollback(
-    work: (session: Mutiny.Session, tx: Mutiny.Transaction) -> Uni<T>,
+inline fun <T> withPanacheRollback(
+    crossinline work: (session: Mutiny.Session, tx: Mutiny.Transaction) -> Uni<T>,
 ): Uni<T> {
     return withPanacheTransaction { session, tx ->
         tx.markForRollback()

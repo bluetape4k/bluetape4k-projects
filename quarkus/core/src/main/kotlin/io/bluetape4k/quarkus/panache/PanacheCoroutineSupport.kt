@@ -6,7 +6,6 @@ import io.quarkus.hibernate.reactive.panache.Panache
 import io.quarkus.panache.common.Parameters
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.withContext
 import org.hibernate.reactive.mutiny.Mutiny
 
 /**
@@ -19,8 +18,8 @@ import org.hibernate.reactive.mutiny.Mutiny
  * }
  * ```
  */
-suspend fun <T> withPanacheTransactionAndAwait(
-    work: suspend (session: Mutiny.Session, tx: Mutiny.Transaction) -> T,
+suspend inline fun <T> withPanacheTransactionAndAwait(
+    crossinline work: suspend (session: Mutiny.Session, tx: Mutiny.Transaction) -> T,
 ): T = coroutineScope {
     Panache.getSession().chain { session ->
         session.withTransaction { tx ->
@@ -42,27 +41,21 @@ suspend fun <T> withPanacheTransactionAndAwait(
  * }
  * ```
  */
-suspend fun <T> withPanacheRollbackAndAwait(
-    work: suspend (session: Mutiny.Session, tx: Mutiny.Transaction) -> T,
+suspend inline fun <T> withPanacheRollbackAndAwait(
+    crossinline work: suspend (session: Mutiny.Session, tx: Mutiny.Transaction) -> T,
 ): T = withPanacheTransactionAndAwait { session, tx ->
     tx.markForRollback()
     work(session, tx)
 }
 
-suspend fun <T> executeUpdateAndAwait(query: String, vararg params: Any?): Int = coroutineScope {
-    withContext(currentVertxDispatcher()) {
-        Panache.executeUpdate(query, *params).awaitSuspending()
-    }
+suspend inline fun <T> executeUpdateAndAwait(query: String, vararg params: Any?): Int {
+    return Panache.executeUpdate(query, *params).awaitSuspending()
 }
 
-suspend fun <T> executeUpdateAndAwait(query: String, params: Map<String, Any?>): Int = coroutineScope {
-    withContext(currentVertxDispatcher()) {
-        Panache.executeUpdate(query, params).awaitSuspending()
-    }
+suspend inline fun <T> executeUpdateAndAwait(query: String, params: Map<String, Any?>): Int {
+    return Panache.executeUpdate(query, params).awaitSuspending()
 }
 
-suspend fun <T> executeUpdateAndAwait(query: String, params: Parameters): Int = coroutineScope {
-    withContext(currentVertxDispatcher()) {
-        Panache.executeUpdate(query, params).awaitSuspending()
-    }
+suspend inline fun <T> executeUpdateAndAwait(query: String, params: Parameters): Int {
+    return Panache.executeUpdate(query, params).awaitSuspending()
 }
