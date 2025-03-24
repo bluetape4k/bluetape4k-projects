@@ -1,6 +1,7 @@
 package io.bluetape4k.jackson
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.bluetape4k.json.JsonSerializer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
 
@@ -69,4 +70,4 @@ inline fun <reified T: Any> JacksonSerializer.deserialize(bytes: ByteArray?): T?
  */
 inline fun <reified T: Any> JacksonSerializer.deserializeFromString(jsonText: String?): T? =
     jsonText?.run { mapper.readValueOrNull<T>(jsonText) }
-// deserializeFromString(jsonText, T::class.java)  --> 이 것 쓰면 제대로 된 Kotlin 수형을 가져오지 못함 
+// deserializeFromString(jsonText, T::class.java)  --> 이 것 쓰면 제대로 된 Kotlin 수형을 가져오지 못함 (jacksonTypeReference 를 사용해야 함)

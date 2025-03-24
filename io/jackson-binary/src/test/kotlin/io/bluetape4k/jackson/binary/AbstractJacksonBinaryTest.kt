@@ -1,7 +1,7 @@
 package io.bluetape4k.jackson.binary
 
-import io.bluetape4k.jackson.JsonSerializer
-import io.bluetape4k.jackson.deserialize
+import io.bluetape4k.json.JsonSerializer
+import io.bluetape4k.json.deserialize
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest

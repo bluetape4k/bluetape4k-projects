@@ -11,7 +11,8 @@ configurations {
 
 dependencies {
     implementation(platform(Libs.jackson_bom))
-    
+
+    api(project(":bluetape4k-json"))
     api(project(":bluetape4k-io"))
     testImplementation(project(":bluetape4k-junit5"))
 

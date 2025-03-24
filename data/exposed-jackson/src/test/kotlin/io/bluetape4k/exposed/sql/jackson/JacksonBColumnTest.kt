@@ -1,7 +1,6 @@
 package io.bluetape4k.exposed.sql.jackson
 
 import io.bluetape4k.exposed.sql.jackson.JacksonSchema.DataHolder
-import io.bluetape4k.exposed.sql.jackson.JacksonSchema.JacksonBTable.jacksonBColumn
 import io.bluetape4k.exposed.sql.jackson.JacksonSchema.User
 import io.bluetape4k.exposed.sql.jackson.JacksonSchema.withJacksonBArrays
 import io.bluetape4k.exposed.sql.jackson.JacksonSchema.withJacksonBTable
@@ -67,7 +66,7 @@ class JacksonBColumnTest: AbstractExposedTest() {
             }
 
             val newRow = tester.selectAll().where { tester.id eq newId }.single()
-            newRow[jacksonBColumn] shouldBeEqualTo newData
+            newRow[tester.jacksonBColumn] shouldBeEqualTo newData
         }
     }
 

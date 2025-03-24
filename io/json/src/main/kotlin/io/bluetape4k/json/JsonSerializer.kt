@@ -1,8 +1,9 @@
-package io.bluetape4k.jackson
+package io.bluetape4k.json
 
 import io.bluetape4k.support.EMPTY_STRING
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
+
 
 /**
  * 객체를 JSON으로 직렬화/역직렬화하는 Serializer 의 최상위 인터페이스
