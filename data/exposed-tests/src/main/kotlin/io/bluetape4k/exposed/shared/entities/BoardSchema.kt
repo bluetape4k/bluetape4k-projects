@@ -89,10 +89,9 @@ object BoardSchema {
 
         override fun equals(other: Any?): Boolean = idEquals(other)
         override fun hashCode(): Int = idHashCode()
-        override fun toString(): String =
-            toStringBuilder()
-                .add("name", name)
-                .toString()
+        override fun toString(): String = toStringBuilder()
+            .add("name", name)
+            .toString()
     }
 
     class Post(id: EntityID<Long>): LongEntity(id) {
@@ -106,8 +105,7 @@ object BoardSchema {
 
         override fun equals(other: Any?): Boolean = idEquals(other)
         override fun hashCode(): Int = idHashCode()
-        override fun toString(): String =
-            toStringBuilder().toString()
+        override fun toString(): String = toStringBuilder().toString()
     }
 
     class Category(id: EntityID<Int>): IntEntity(id) {
@@ -119,10 +117,9 @@ object BoardSchema {
 
         override fun equals(other: Any?): Boolean = idEquals(other)
         override fun hashCode(): Int = idHashCode()
-        override fun toString(): String =
-            toStringBuilder()
-                .add("uniqueId", uniqueId)
-                .add("title", title)
-                .toString()
+        override fun toString(): String = toStringBuilder()
+            .add("uniqueId", uniqueId)
+            .add("title", title)
+            .toString()
     }
 }

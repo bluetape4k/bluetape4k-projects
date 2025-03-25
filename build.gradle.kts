@@ -31,14 +31,13 @@ plugins {
 
 // NOTE: Nexus 에 등록된 것 때문에 사용한다
 // NOTE: .zshrc 에 정의하던가, ~/.gradle/gradle.properties 에 정의해주셔야 합니다.
-//fun getEnvOrProjectProperty(propertyKey: String, envKey: String): String {
-//    return project.findProperty(propertyKey) as? String ?: System.getenv(envKey)
-//}
-//
-//val gprUser: String = getEnvOrProjectProperty("gpr.user", "GITHUB_USERNAME")
-//val gprKey: String = getEnvOrProjectProperty("gpr.key", "GITHUB_TOKEN")
-//val gprPublishKey: String = getEnvOrProjectProperty("gpr.publish.key", "GITHUB_PUBLISH_TOKEN")
+fun getEnvOrProjectProperty(propertyKey: String, envKey: String): String {
+    return project.findProperty(propertyKey) as? String ?: System.getenv(envKey)
+}
 
+val bluetape4kGprUser: String = getEnvOrProjectProperty("gpr.user", "BLUETAPE4K_GITHUB_USERNAME")
+val bluetape4kGprKey: String = getEnvOrProjectProperty("gpr.key", "BLUETAPE4K_GITHUB_TOKEN")
+val bluetape4kGprPublishKey: String = getEnvOrProjectProperty("gpr.publish.key", "BLUETAPE4K_GITHUB_PUBLISH_TOKEN")
 
 val projectGroup: String by project
 val baseVersion: String by project
@@ -51,14 +50,14 @@ allprojects {
     repositories {
         mavenCentral()
         google()
-//        maven {
-//            name = "bluetape4k"
-//            url = uri("https://maven.pkg.github.com/bluetape4k/bluetape4k-projects")
-//            credentials {
-//                username = gprUser
-//                password = gprKey
-//            }
-//        }
+        maven {
+            name = "bluetape4k"
+            url = uri("https://maven.pkg.github.com/bluetape4k/bluetape4k-projects")
+            credentials {
+                username = bluetape4kGprUser
+                password = bluetape4kGprKey
+            }
+        }
     }
 }
 
@@ -574,7 +573,7 @@ subprojects {
     publishing {
         publications {
             if (!project.path.contains("workshop") && !project.path.contains("examples") && !project.path.contains("-demo")) {
-                create<MavenPublication>("Maven") {
+                create<MavenPublication>("Bluetape4k") {
                     val binaryJar = components["java"]
 
                     val sourcesJar by tasks.creating(Jar::class) {
@@ -619,13 +618,14 @@ subprojects {
             }
         }
         repositories {
-//            maven {
-//                url = uri("https://maven.pkg.github.com/bluetape4k/bluetape4k-projects")
-//                credentials {
-//                    username = gprUser
-//                    password = gprPublishKey
-//                }
-//            }
+            maven {
+                name = "Bluetape4k"
+                url = uri("https://maven.pkg.github.com/bluetape4k/bluetape4k-projects")
+                credentials {
+                    username = bluetape4kGprUser
+                    password = bluetape4kGprPublishKey
+                }
+            }
             mavenLocal()
         }
     }

@@ -18,12 +18,12 @@ dependencies {
     compileOnly(Libs.jackson_module_blackbird)
 
     // Database Drivers
-    compileOnly(Libs.hikaricp)
-    compileOnly(Libs.h2_v2)
-    compileOnly(Libs.mariadb_java_client)
-    compileOnly(Libs.mysql_connector_j)
+    testImplementation(Libs.hikaricp)
+    testImplementation(Libs.h2_v2)
+    testImplementation(Libs.mariadb_java_client)
+    testImplementation(Libs.mysql_connector_j)
     compileOnly(Libs.postgresql_driver)
-    compileOnly(Libs.pgjdbc_ng)
+    testImplementation(Libs.pgjdbc_ng)
 
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))

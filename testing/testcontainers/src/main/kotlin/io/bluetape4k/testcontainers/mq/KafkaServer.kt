@@ -2,7 +2,7 @@ package io.bluetape4k.testcontainers.mq
 
 import io.bluetape4k.LibraryName
 import io.bluetape4k.codec.encodeBase62
-import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
@@ -54,9 +54,7 @@ class KafkaServer private constructor(
     reuse: Boolean,
 ): ConfluentKafkaContainer(imageName), GenericServer {
 
-    companion object {
-        private val log = KotlinLogging.logger { }
-
+    companion object: KLogging() {
         const val IMAGE = "confluentinc/cp-kafka"
         const val NAME = "kafka"
         const val TAG = "7.5.2"

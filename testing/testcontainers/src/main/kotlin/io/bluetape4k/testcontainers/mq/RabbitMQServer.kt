@@ -26,7 +26,7 @@ class RabbitMQServer private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "rabbitmq"
-        const val TAG = "4"
+        const val TAG = "3.13"           // NOTE: 4 이상을 실행하면 예외가 발생합니다.
 
         const val NAME = "rabbitmq"
 

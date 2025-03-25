@@ -27,7 +27,7 @@ class ZipkinServer private constructor(
     companion object: KLogging() {
         const val IMAGE = "openzipkin/zipkin-slim"
         const val NAME = "zipkin"
-        const val TAG = "3"
+        const val TAG = "2.23"      // NOTE: 2.24 이상에서는 예외가 발생합니다. 꼭 2.23으로 고정하세요!!!
         const val PORT = 9411
 
         @JvmStatic
@@ -57,9 +57,7 @@ class ZipkinServer private constructor(
         addExposedPorts(PORT)
         withReuse(reuse)
 
-        withCreateContainerCmdModifier { cmd ->
-            cmd.withPlatform("linux/arm64")  // for Apple Silicon
-        }
+//        withEnv("JAVA_OPTS", "--add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED -XX:+UnlockExperimentalVMOptions")
 
         setWaitStrategy(Wait.forListeningPort())
 

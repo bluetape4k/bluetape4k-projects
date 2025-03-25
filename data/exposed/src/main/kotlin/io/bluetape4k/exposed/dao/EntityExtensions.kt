@@ -14,7 +14,8 @@ inline val <ID: Any> Entity<ID>.idValue: Any? get() = id._value
 fun Entity<*>.idEquals(other: Any?): Boolean = when {
     other == null -> false
     this === other -> true
-    other is Entity<*> -> this.id == other.id
+    // NOTE: one-to-one 관계의 id.table 값은 다를 수 있습니다. (backReferencedOn 인 경우 - BlogSchema의 Post.detail 와 PostDetail)
+    other is Entity<*> -> this.javaClass.isAssignableFrom(other.javaClass) && idValue == other.idValue
     else -> false
 }
 

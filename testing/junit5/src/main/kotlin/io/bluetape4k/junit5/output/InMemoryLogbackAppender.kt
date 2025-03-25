@@ -39,7 +39,7 @@ import kotlin.reflect.KClass
  * NOTE: 단 parallel 테스트 시에는 제대로 Logger를 casting 할 수 없습니다.
  * HINT : http://www.slf4j.org/codes.html#substituteLogger
  */
-class InMemoryLogbackAppender private constructor(private val name: String): AppenderBase<ILoggingEvent>() {
+class InMemoryLogbackAppender private constructor(name: String): AppenderBase<ILoggingEvent>() {
 
     companion object: KLogging() {
 
@@ -75,7 +75,7 @@ class InMemoryLogbackAppender private constructor(private val name: String): App
     }
 
     override fun append(event: ILoggingEvent?) {
-        event?.run { events.add(this) }
+        event?.let { events.add(it) }
     }
 
     override fun stop() {
