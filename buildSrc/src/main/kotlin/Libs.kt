@@ -125,6 +125,7 @@ object Versions {
     const val asynchttpclient = "2.12.4"  // https://mvnrepository.com/artifact/org.asynchttpclient/async-http-client
 
     const val jackson = "2.18.3" // https://mvnrepository.com/artifact/com.fasterxml.jackson/jackson-bom
+    const val fastjson2 = "2.0.56" // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2
     const val jjwt = "0.11.5"    // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api
 
     const val mapstruct = "1.6.3" // https://mvnrepository.com/artifact/org.mapstruct/mapstruct
@@ -874,9 +875,16 @@ object Libs {
     val jackson_module_blackbird = jacksonModule("blackbird")
     val jackson_module_jsonSchema = jacksonModule("jsonSchema")
 
+    // FastJson2
+    fun fastjson2(module: String) = "com.alibaba.fastjson2:$module:${Versions.fastjson2}"
+
+    val fastjson2 = fastjson2("fastjson2")
+    val fastjson2_kotlin = fastjson2("fastjson2-kotlin")
+    val fastjson2_extension_spring6 = fastjson2("fastjson2-extension-spring6")
+
     // Json assertions
     const val jsonpath = "com.jayway.jsonpath:json-path:2.9.0"  // https://mvnrepository.com/artifact/com.jayway.jsonpath/json-path
-    const val jsonassert = "org.skyscreamer:jsonassert:1.5.1"   // https://mvnrepository.com/artifact/org.skyscreamer/jsonassert
+    const val jsonassert = "org.skyscreamer:jsonassert:1.5.3"   // https://mvnrepository.com/artifact/org.skyscreamer/jsonassert
 
     // GSON
     const val gson = "com.google.code.gson:gson:2.11.0"    // https://mvnrepository.com/artifact/com.google.code.gson/gson

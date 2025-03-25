@@ -1,7 +1,6 @@
 package io.bluetape4k.exposed.sql.jackson
 
 import io.bluetape4k.jackson.JacksonSerializer
-import io.bluetape4k.jackson.JsonSerializer
 import io.bluetape4k.jackson.deserializeFromString
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
@@ -101,7 +100,7 @@ fun <T: Any> Table.jackson(
  * JSON 데이터를 저장할 컬럼을 생성합니다.
  *
  * @param name 컬럼 이름
- * @param jsonSerializer JSON 직렬화/역직렬화에 사용할 [JsonSerializer]
+ * @param jacksonSerializer JSON 직렬화/역직렬화에 사용할 [JacksonSerializer]
  */
 inline fun <reified T: Any> Table.jackson(
     name: String,
