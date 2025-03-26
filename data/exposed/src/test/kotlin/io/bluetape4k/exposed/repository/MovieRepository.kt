@@ -21,9 +21,11 @@ import org.jetbrains.exposed.sql.innerJoin
 import org.jetbrains.exposed.sql.selectAll
 import java.time.LocalDate
 
-class MovieRepository: AbstractExposedRepository<MovieEntity, Long>(MovieTable) {
+class MovieRepository: ExposedRepository<MovieEntity, Long> {
 
     companion object: KLogging()
+
+    override val table = MovieTable
 
     override fun ResultRow.toEntity(): MovieEntity =
         MovieEntity.wrapRow(this)

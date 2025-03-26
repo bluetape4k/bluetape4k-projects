@@ -2,15 +2,16 @@ package io.bluetape4k.exposed.repository
 
 import io.bluetape4k.exposed.domain.dto.ActorDTO
 import io.bluetape4k.exposed.domain.mapper.toActorDTO
-import io.bluetape4k.exposed.domain.model.MovieSchema.ActorTable
 import io.bluetape4k.exposed.domain.model.MovieSchema.withMovieAndActors
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeGreaterThan
+import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeEmpty
@@ -21,6 +22,7 @@ import org.jetbrains.exposed.sql.selectAll
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import java.time.LocalDate
 
 class ActorRepositoryTest: AbstractExposedTest() {
 
@@ -107,11 +109,11 @@ class ActorRepositoryTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `count with predicate`(testDB: TestDB) {
         withMovieAndActors(testDB) {
-            val count = repository.count { ActorTable.lastName eq "Depp" }
+            val count = repository.count { repository.table.lastName eq "Depp" }
             log.debug { "count: $count" }
             count shouldBeEqualTo 1L
 
-            val op = ActorTable.lastName eq "Depp"
+            val op = repository.table.lastName eq "Depp"
             val count2 = repository.count(op)
             log.debug { "count2: $count2" }
             count2 shouldBeEqualTo 1L
@@ -126,7 +128,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
             log.debug { "isEmpty: $isEmpty" }
             isEmpty.shouldBeFalse()
 
-            repository.deleteAll { ActorTable.id greaterEq 0L }
+            repository.deleteAll { repository.table.id greaterEq 0L }
 
             val isEmpty2 = repository.isEmpty()
             log.debug { "isEmpty2: $isEmpty2" }
@@ -150,16 +152,16 @@ class ActorRepositoryTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `exists with Actor`(testDB: TestDB) {
         withMovieAndActors(testDB) {
-            val exists = repository.exists(ActorTable.selectAll())
+            val exists = repository.exists(repository.table.selectAll())
             log.debug { "exists: $exists" }
             exists.shouldBeTrue()
 
-            val exists2 = repository.exists(ActorTable.selectAll().limit(1))
+            val exists2 = repository.exists(repository.table.selectAll().limit(1))
             log.debug { "exists2: $exists2" }
             exists2.shouldBeTrue()
 
-            val op = ActorTable.firstName eq "Not-Exists"
-            val query = ActorTable.select(ActorTable.id).where(op).limit(1)
+            val op = repository.table.firstName eq "Not-Exists"
+            val query = repository.table.select(repository.table.id).where(op).limit(1)
             val exists3 = repository.exists(query)
             log.debug { "exists3: $exists3" }
             exists3.shouldBeFalse()
@@ -171,9 +173,9 @@ class ActorRepositoryTest: AbstractExposedTest() {
     fun `findAll with limit and offset`(testDB: TestDB) {
         withMovieAndActors(testDB) {
             repository.findAll(limit = 2) shouldHaveSize 2
-            repository.findAll { ActorTable.lastName eq "Depp" } shouldHaveSize 1
-            repository.findAll(limit = 3) { ActorTable.lastName eq "Depp" } shouldHaveSize 1
-            repository.findAll(limit = 3, offset = 1) { ActorTable.lastName eq "Depp" } shouldHaveSize 0
+            repository.findAll { repository.table.lastName eq "Depp" } shouldHaveSize 1
+            repository.findAll(limit = 3) { repository.table.lastName eq "Depp" } shouldHaveSize 1
+            repository.findAll(limit = 3, offset = 1) { repository.table.lastName eq "Depp" } shouldHaveSize 0
         }
     }
 
@@ -214,7 +216,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
         withMovieAndActors(testDB) {
             val count = repository.count()
 
-            repository.deleteAll { ActorTable.lastName eq "Depp" } shouldBeEqualTo 1
+            repository.deleteAll { repository.table.lastName eq "Depp" } shouldBeEqualTo 1
 
             // Delete 1 actor
             repository.deleteAll() shouldBeEqualTo count.toInt() - 1
@@ -229,10 +231,205 @@ class ActorRepositoryTest: AbstractExposedTest() {
         withMovieAndActors(testDB) {
             val count = repository.count()
 
-            repository.deleteAllIgnore { ActorTable.lastName eq "Depp" } shouldBeEqualTo 1
+            repository.deleteAllIgnore { repository.table.lastName eq "Depp" } shouldBeEqualTo 1
 
             // Delete 1 actor
             repository.deleteAllIgnore() shouldBeEqualTo count.toInt() - 1
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `countBy with predicate`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
+            val count = repository.countBy { repository.table.lastName eq "Depp" }
+            log.debug { "count: $count" }
+            count shouldBeEqualTo 1L
+
+            val op = repository.table.lastName eq "Depp"
+            val count2 = repository.countBy(op)
+            log.debug { "count2: $count2" }
+            count2 shouldBeEqualTo 1L
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `exists by id`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
+            val actor = newActorDTO()
+            val savedActor = repository.save(actor).toActorDTO()
+            savedActor.id.shouldNotBeNull()
+
+            // Exists
+            repository.existsById(savedActor.id).shouldBeTrue()
+
+            // Not exists
+            repository.existsById(0L).shouldBeFalse()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `find with filters`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
+            val actors = repository.findWithFilters(
+                { repository.table.firstName eq "Johnny" },
+                { repository.table.lastName eq "Depp" },
+            )
+            actors shouldHaveSize 1
+            actors.forEach {
+                log.debug { "actor: $it" }
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `find first or null`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
+            val actor = repository.findFirstOrNull { repository.table.firstName eq "Johnny" }
+            actor.shouldNotBeNull()
+            actor.lastName shouldBeEqualTo "Depp"
+
+            repository.findFirstOrNull { repository.table.firstName eq "Not-Exists" }.shouldBeNull()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `find last or null`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
+            val actor = repository.findLastOrNull { repository.table.firstName eq "Johnny" }
+            actor.shouldNotBeNull()
+            actor.lastName shouldBeEqualTo "Depp"
+
+            repository.findLastOrNull { repository.table.firstName eq "Not-Exists" }.shouldBeNull()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `batch insert with entities`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
+            val batchCount = 10
+            val entities = List(batchCount) { newActorDTO() }
+
+            val inserted = repository.batchInsert(entities) { actor ->
+                this[repository.table.firstName] = actor.firstName
+                this[repository.table.lastName] = actor.lastName
+                actor.birthday?.let { this[repository.table.birthday] = LocalDate.parse(it) }
+            }
+
+            inserted shouldHaveSize batchCount
+            inserted.all { it.id.value > 0L }.shouldBeTrue()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `batch insert with entities as sequence`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
+            val batchCount = 10
+            val entities = List(batchCount) { newActorDTO() }.asSequence()
+
+            val inserted = repository.batchInsert(entities) { actor ->
+                this[repository.table.firstName] = actor.firstName
+                this[repository.table.lastName] = actor.lastName
+                actor.birthday?.let { this[repository.table.birthday] = LocalDate.parse(it) }
+            }
+
+            inserted shouldHaveSize batchCount
+            inserted.all { it.id.value > 0L }.shouldBeTrue()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `batch update with entities`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
+            val batchCount = 10
+            val entities = List(batchCount) { newActorDTO() }
+
+            val inserted = repository.batchInsert(entities) { actor ->
+                this[repository.table.firstName] = actor.firstName
+                this[repository.table.lastName] = actor.lastName
+                actor.birthday?.let { this[repository.table.birthday] = LocalDate.parse(it) }
+            }
+
+            inserted shouldHaveSize batchCount
+            inserted.all { it.id.value > 0L }.shouldBeTrue()
+
+            // Update all inserted actors
+            val updated = repository.batchUpdate(inserted) { actor ->
+                this[repository.table.firstName] = actor.firstName + " Updated"
+                this[repository.table.lastName] = actor.firstName + " Updated"
+            }
+
+            updated shouldHaveSize batchCount
+            updated.all { it.firstName.endsWith(" Updated") }.shouldBeTrue()
+            updated.all { it.lastName.endsWith(" Updated") }.shouldBeTrue()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `batch update with entities as sequence`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
+            val batchCount = 10
+            val entities = List(batchCount) { newActorDTO() }.asSequence()
+
+            val inserted = repository.batchInsert(entities) { actor ->
+                this[repository.table.firstName] = actor.firstName
+                this[repository.table.lastName] = actor.lastName
+                actor.birthday?.let { this[repository.table.birthday] = LocalDate.parse(it) }
+            }
+
+            inserted shouldHaveSize batchCount
+            inserted.all { it.id.value > 0L }.shouldBeTrue()
+
+            // Update all inserted actors
+            val updated = repository.batchUpdate(inserted.asSequence()) { actor ->
+                this[repository.table.firstName] = actor.firstName + " Updated"
+                this[repository.table.lastName] = actor.firstName + " Updated"
+            }
+
+            updated shouldHaveSize batchCount
+            updated.all { it.firstName.endsWith(" Updated") }.shouldBeTrue()
+            updated.all { it.lastName.endsWith(" Updated") }.shouldBeTrue()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `find by field`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
+            val actors = repository.findByField(repository.table.firstName, "Johnny")
+            actors.shouldNotBeEmpty()
+            actors.single().lastName shouldBeEqualTo "Depp"
+
+            val actors2 = repository.findByField(repository.table.firstName, "Not-Exists")
+            actors2.shouldBeEmpty()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `update by id`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
+            val actor = newActorDTO()
+            val savedActor = repository.save(actor).toActorDTO()
+            savedActor.id.shouldNotBeNull()
+
+            val updatedCount = repository.updateById(savedActor.id) {
+                it[repository.table.firstName] = "Updated"
+                it[repository.table.lastName] = "Updated"
+            }
+            updatedCount shouldBeEqualTo 1
+
+            val updatedActor = repository.findById(savedActor.id).toActorDTO()
+            updatedActor.firstName shouldBeEqualTo "Updated"
+            updatedActor.lastName shouldBeEqualTo "Updated"
         }
     }
 }
