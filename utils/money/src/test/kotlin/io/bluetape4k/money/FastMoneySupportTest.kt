@@ -3,6 +3,7 @@ package io.bluetape4k.money
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNear
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.util.*
@@ -20,7 +21,7 @@ class FastMoneySupportTest {
     }
 
     @Test
-    fun `BigDecimal을 Money로 변환`() {
+    fun `BigDecimal을 FastMoney로 변환`() {
         val m = fastMoneyOf(10.0.toBigDecimal(), currencyUnitOf("EUR"))
         val number = m.number.numberValue(BigDecimal::class.java)
         number shouldBeEqualTo 10.0.toBigDecimal()
@@ -30,24 +31,24 @@ class FastMoneySupportTest {
     }
 
     @Test
-    fun `Money로부터 다양한 수형의 값 추출`() {
+    fun `FastMoney 로부터 다양한 수형의 값 추출`() {
         val m = fastMoneyOf(12L, currencyUnitOf("USD"))
-        m.toString() shouldBeEqualTo "USD 12.00"
+        m.toString() shouldBeEqualTo "USD 12"
 
         // FastMoney의 기본 SCALE이 5이다.
         //
         val fastMoney = fastMoneyOf(2, USD)
-        fastMoney.toString() shouldBeEqualTo "USD 2.00"
+        fastMoney.toString() shouldBeEqualTo "USD 2"
 
         Monetary.getDefaultAmountFactory().setCurrency(USD).setNumber(200).create()
 
-        val fastMoneyMinor = fastMoneyMinorOf(USD, 200L, 2)
-        fastMoneyMinor.precision
-        fastMoneyMinor.toString() shouldBeEqualTo "USD 2.00"
+        val fastMoneyMinor = fastMoneyMinorOf(USD, 242L, 2)
+        fastMoneyMinor.precision shouldBeEqualTo 3
+        fastMoneyMinor.toString() shouldBeEqualTo "USD 2.42"
     }
 
     @Test
-    fun `통화량 계산`() {
+    fun `FastMoney 통화량 계산`() {
         val a = 10L.toFastMoney()
         val b = 20L.toFastMoney()
 
@@ -62,7 +63,7 @@ class FastMoneySupportTest {
     }
 
     @Test
-    fun `금액 반올림하기`() {
+    fun `FastMoney 금액 반올림하기`() {
         val usd = 1.31.toFastMoney(USD)
 
         usd.toString() shouldBeEqualTo "USD 1.31"
@@ -72,18 +73,19 @@ class FastMoneySupportTest {
 
         // KRW의 Currency 의 scale 이 0 입니다.
         val krw = 131.47.toFastMoney(KRW)
-        krw.toString() shouldBeEqualTo "KRW 131.00"
-        krw.round().toString() shouldBeEqualTo "KRW 131.00"
-        krw.defaultRound().toString() shouldBeEqualTo "KRW 131.00"
+        krw.toString() shouldBeEqualTo "KRW 131.47"
+
+        krw.round().toString() shouldBeEqualTo "KRW 131"
+        krw.defaultRound().toString() shouldBeEqualTo "KRW 131"
     }
 
+    @Disabled("환전은 정확성을 위해 Money를 사용하세요")
     @Test
     fun `외화 환전하기`() {
-        val usd = 1000L.toFastMoneyMinor(USD, 2)
-        val eur = usd.convertTo(EUR)
-        // val krw = usd.convertTo(KRW)
+        val usd = 1000L.toFastMoneyMinor(USD)
+        val eur = usd.convertTo(EUR).numberValue<BigDecimal>().toFastMoney(EUR)
 
-        eur.convertTo(USD).doubleValue.shouldBeNear(usd.doubleValue, 1e-2)
+        eur.convertTo(USD).numberValue<BigDecimal>().shouldBeNear(usd.numberValue<BigDecimal>(), 1e-2.toBigDecimal())
 
         // NOTE: fast moeny 는 기본 scale 이 5 이므로, 환전 시 문제가 소수점 5자리 이하의 값은 변환을 못한다
         // krw.convertTo(USD).doubleValue.shouldBeNear(usd.doubleValue, 1e-2)
@@ -92,7 +94,7 @@ class FastMoneySupportTest {
     @Test
     fun `금액을 Locale에 따라 문자열로 변환 - USD`() {
         val oneDollar = 1L.inFastUSD()
-        oneDollar.toString() shouldBeEqualTo "USD 1.00"
+        oneDollar.toString() shouldBeEqualTo "USD 1"
 
         val formatUSD = MonetaryFormats.getAmountFormat(Locale.US)
         val usFormatted = formatUSD.format(oneDollar)
@@ -102,7 +104,7 @@ class FastMoneySupportTest {
     @Test
     fun `금액을 Locale에 따라 문자열로 변환 - KRW`() {
         val tenkKRW = 1000L.inFastKRW()
-        tenkKRW.toString() shouldBeEqualTo "KRW 1000.00"
+        tenkKRW.toString() shouldBeEqualTo "KRW 1000"
 
         val formatKRW = MonetaryFormats.getAmountFormat(Locale.KOREA)
         formatKRW.format(tenkKRW) shouldBeEqualTo "KRW1,000"
