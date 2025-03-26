@@ -340,7 +340,7 @@ object Libs {
 
     // Java Money
     const val javax_money_api = "javax.money:money-api:1.1"    // https://mvnrepository.com/artifact/javax.money/money-api
-    const val javamoney_moneta = "org.javamoney:moneta:1.4.2"  // https://mvnrepository.com/artifact/org.javamoney/moneta
+    const val javamoney_moneta = "org.javamoney:moneta:1.4.5"  // https://mvnrepository.com/artifact/org.javamoney/moneta
 
     // jakarta
     const val jakarta_activation_api = "jakarta.activation:jakarta.activation-api:2.1.2"
