@@ -25,8 +25,8 @@ interface SoftDeletedRepository<T: Entity<ID>, ID: Any>: ExposedRepository<T, ID
     }
 
     fun findActive(
-        limit: Int?,
-        offset: Long?,
+        limit: Int? = null,
+        offset: Long? = null,
         sortOrder: SortOrder = SortOrder.ASC,
         predicate: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE },
     ): List<T> =
