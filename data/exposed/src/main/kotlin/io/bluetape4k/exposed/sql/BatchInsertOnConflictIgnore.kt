@@ -30,7 +30,7 @@ import org.jetbrains.exposed.sql.vendors.PostgreSQLDialect
  * }
  * ```
  */
-open class BatchInsertOnConflictIgnore(table: Table): BatchInsertStatement(table, ignore = true) {
+open class BatchInsertOnConflictIgnore(table: Table): BatchInsertStatement(table) {
     override fun prepareSQL(transaction: Transaction, prepared: Boolean): String = buildString {
         val insertStatement = super.prepareSQL(transaction, prepared)
 
