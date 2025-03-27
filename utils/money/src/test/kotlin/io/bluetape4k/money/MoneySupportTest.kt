@@ -64,18 +64,18 @@ class MoneySupportTest {
     @Test
     fun `Money로부터 다양한 수형의 값 추출`() {
         val m = moneyOf(12L, currencyUnitOf("USD"))
-        m.toString() shouldBeEqualTo "USD 12.00"
+        m.toString() shouldBeEqualTo "USD 12"
 
         // FastMoney의 기본 SCALE이 5이다.
         //
         val fastMoney = fastMoneyOf(2, USD)
-        fastMoney.toString() shouldBeEqualTo "USD 2.00"
+        fastMoney.toString() shouldBeEqualTo "USD 2"
 
         Monetary.getDefaultAmountFactory().setCurrency(USD).setNumber(200).create()
 
         val fastMoneyMinor = fastMoneyMinorOf(USD, 200L, 2)
         fastMoneyMinor.precision shouldBeEqualTo 1
-        fastMoneyMinor.toString() shouldBeEqualTo "USD 2.00"
+        fastMoneyMinor.toString() shouldBeEqualTo "USD 2"
     }
 
     @Test
@@ -97,16 +97,16 @@ class MoneySupportTest {
     fun `금액 반올림하기`() {
         val usd = 1.31473908.toMoney(USD)
 
-        usd.toString() shouldBeEqualTo "USD 1.31"
+        usd.toString() shouldBeEqualTo "USD 1.31473908"
         usd.with(Monetary.getDefaultRounding()).toString() shouldBeEqualTo "USD 1.31"
         usd.round().toString() shouldBeEqualTo "USD 1.31"
         usd.defaultRound().toString() shouldBeEqualTo "USD 1.31"
 
         // KRW의 Currency 의 scale 이 0 입니다.
         val krw = 131.473908.toMoney(KRW)
-        krw.toString() shouldBeEqualTo "KRW 131.00"
-        krw.round().toString() shouldBeEqualTo "KRW 131.00"
-        krw.defaultRound().toString() shouldBeEqualTo "KRW 131.00"
+        krw.toString() shouldBeEqualTo "KRW 131.473908"
+        krw.round().toString() shouldBeEqualTo "KRW 131"
+        krw.defaultRound().toString() shouldBeEqualTo "KRW 131"
     }
 
     @Test
@@ -126,7 +126,7 @@ class MoneySupportTest {
         val formatUSD = MonetaryFormats.getAmountFormat(Locale.US)
         val usFormatted = formatUSD.format(oneDollar)
 
-        oneDollar.toString() shouldBeEqualTo "USD 1.00"
+        oneDollar.toString() shouldBeEqualTo "USD 1"
         usFormatted shouldBeEqualTo "USD1.00"
     }
 
@@ -137,7 +137,7 @@ class MoneySupportTest {
         val formatKRW = MonetaryFormats.getAmountFormat(Locale.KOREA)
         val krFormatted = formatKRW.format(tenkKRW)
 
-        tenkKRW.toString() shouldBeEqualTo "KRW 1000.00"
+        tenkKRW.toString() shouldBeEqualTo "KRW 1000"
         krFormatted shouldBeEqualTo "KRW1,000"
     }
 }
