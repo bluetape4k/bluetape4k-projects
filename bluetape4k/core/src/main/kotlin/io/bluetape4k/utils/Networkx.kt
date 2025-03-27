@@ -85,7 +85,7 @@ object Networkx: KLogging() {
      * ```
      * Networkx.ipToOptionInt("192.168.0.1") shouldBeEqualTo 0xC0A80001
      *
-     * Networks.ipToOptionInt("192.168.0.256") shouldBe null
+     * Networks.ipToOptionInt("192.168.0.256").shouldBeNull()
      *
      * Networkx.ipToInt("0.0.0.0") shouldBeEqualTo 0
      * Networkx.ipToInt("255.255.255.255") shouldBeEqualTo -1

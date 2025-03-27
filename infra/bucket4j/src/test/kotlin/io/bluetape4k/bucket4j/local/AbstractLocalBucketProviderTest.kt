@@ -2,7 +2,6 @@ package io.bluetape4k.bucket4j.local
 
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
@@ -26,7 +25,7 @@ abstract class AbstractLocalBucketProviderTest {
         val bucket1 = bucketProvider.resolveBucket(key)
         val bucket2 = bucketProvider.resolveBucket(key)
 
-        bucket1 shouldBe bucket2
+        bucket1 shouldBeEqualTo bucket2
     }
 
     @Test
