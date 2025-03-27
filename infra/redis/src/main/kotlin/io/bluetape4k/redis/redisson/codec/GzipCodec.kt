@@ -26,17 +26,19 @@ class GzipCodec @JvmOverloads constructor(
 
     companion object: KLogging()
 
+    private val gzip get() = Compressors.GZip
+
     private val encoder: Encoder = Encoder { graph ->
         val encoded = innerCodec.valueEncoder.encode(graph)
-
         val bytes = ByteBufUtil.getBytes(encoded, encoded.readerIndex(), encoded.readableBytes(), true)
-        val res = Compressors.GZip.compress(bytes)
+        encoded.release()
+        val res = gzip.compress(bytes)
         Unpooled.wrappedBuffer(res)
     }
 
     private val decoder: Decoder<Any> = Decoder { byf: ByteBuf, state: State ->
         val bytes = ByteBufUtil.getBytes(byf, byf.readerIndex(), byf.readableBytes(), true)
-        val plainBytes = Compressors.GZip.decompress(bytes)
+        val plainBytes = gzip.decompress(bytes)
         val decoded = Unpooled.wrappedBuffer(plainBytes)
 
         try {

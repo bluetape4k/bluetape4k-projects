@@ -49,11 +49,18 @@ class LettuceBinaryCodec<V: Any>(
         return bytes?.getAllBytes()?.run { serializer.deserialize(this) }
     }
 
+    /**
+     * 키 또는 값의 직렬화 크기를 추정합니다.
+     * - String: UTF-8 인코딩된 바이트 크기를 반환합니다
+     * - ByteArray: 배열의 바이트 크기를 반환합니다
+     * - V 타입: serializer를 통해 직렬화된 바이트 크기를 반환합니다
+     * - 그 외: 기본값 0을 반환합니다
+     */
     override fun estimateSize(keyOrValue: Any?): Int {
         return when (keyOrValue) {
-            is String    -> keyOrValue.length
+            is String -> keyOrValue.toUtf8Bytes().size
             is ByteArray -> keyOrValue.size
-            else         -> 0
+            else -> 0
         }
     }
 

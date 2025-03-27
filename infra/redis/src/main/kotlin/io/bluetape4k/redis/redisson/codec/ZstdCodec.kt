@@ -26,19 +26,19 @@ class ZstdCodec @JvmOverloads constructor(
 
     companion object: KLogging()
 
+    private val zstd get() = Compressors.Zstd
+
     private val encoder: Encoder = Encoder { graph ->
         val encoded = innerCodec.valueEncoder.encode(graph)
-
         val bytes = ByteBufUtil.getBytes(encoded, encoded.readerIndex(), encoded.readableBytes(), true)
         encoded.release()
-        val res = Compressors.Zstd.compress(bytes)
-        Unpooled.wrappedBuffer(res)
+
+        Unpooled.wrappedBuffer(zstd.compress(bytes))
     }
 
     private val decoder: Decoder<Any> = Decoder<Any> { buf: ByteBuf, state: State ->
         val bytes = ByteBufUtil.getBytes(buf, buf.readerIndex(), buf.readableBytes(), true)
-        val plainBytes = Compressors.Zstd.decompress(bytes)
-        val decoded = Unpooled.wrappedBuffer(plainBytes)
+        val decoded = Unpooled.wrappedBuffer(zstd.decompress(bytes))
 
         try {
             innerCodec.valueDecoder.decode(decoded, state)
