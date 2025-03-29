@@ -42,7 +42,6 @@ class RedisServerTest: AbstractContainerTest() {
         @Test
         fun `create redis server by launcher`() {
             RedisServer.Launcher.redis.use { redis ->
-                redis.start()
                 redis.isRunning.shouldBeTrue()
 
                 verifyRedisServer(redis)
