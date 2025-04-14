@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.ObjectNode
+import jakarta.json.JsonException
 import java.math.BigDecimal
 import java.math.BigInteger
 
@@ -12,8 +13,8 @@ import java.math.BigInteger
  */
 fun JsonNode.createNode(fieldName: String?): JsonNode = when (this) {
     is ObjectNode -> putObject(fieldName)
-    is ArrayNode  -> addObject()
-    else          -> JsonNodeFactory.instance.objectNode()
+    is ArrayNode -> addObject()
+    else -> JsonNodeFactory.instance.objectNode()
 }
 
 /**
@@ -21,8 +22,8 @@ fun JsonNode.createNode(fieldName: String?): JsonNode = when (this) {
  */
 fun JsonNode.createArray(fieldName: String?): JsonNode = when (this) {
     is ObjectNode -> putArray(fieldName)
-    is ArrayNode  -> addArray()
-    else          -> JsonNodeFactory.instance.arrayNode()
+    is ArrayNode -> addArray()
+    else -> JsonNodeFactory.instance.arrayNode()
 }
 
 /**
@@ -31,8 +32,8 @@ fun JsonNode.createArray(fieldName: String?): JsonNode = when (this) {
 fun JsonNode.addLong(value: Long, fieldName: String?) {
     when (this) {
         is ObjectNode -> put(fieldName, value)
-        is ArrayNode  -> add(value)
-        else          -> throw RuntimeException("Unknown json node type. ${this.nodeType}")
+        is ArrayNode -> add(value)
+        else -> throw JsonException("Unknown json node type. ${this.nodeType}")
     }
 }
 
@@ -42,8 +43,8 @@ fun JsonNode.addLong(value: Long, fieldName: String?) {
 fun JsonNode.addInt(value: Int, fieldName: String?) {
     when (this) {
         is ObjectNode -> put(fieldName, value)
-        is ArrayNode  -> add(value)
-        else          -> throw RuntimeException("Unknown json node type. ${this.nodeType}")
+        is ArrayNode -> add(value)
+        else -> throw JsonException("Unknown json node type. ${this.nodeType}")
     }
 }
 
@@ -53,8 +54,8 @@ fun JsonNode.addInt(value: Int, fieldName: String?) {
 fun JsonNode.addString(value: String, fieldName: String?) {
     when (this) {
         is ObjectNode -> put(fieldName, value)
-        is ArrayNode  -> add(value)
-        else          -> throw RuntimeException("Unknown json node type. ${this.nodeType}")
+        is ArrayNode -> add(value)
+        else -> throw JsonException("Unknown json node type. ${this.nodeType}")
     }
 }
 
@@ -64,8 +65,8 @@ fun JsonNode.addString(value: String, fieldName: String?) {
 fun JsonNode.addFloat(value: Float, fieldName: String?) {
     when (this) {
         is ObjectNode -> put(fieldName, value)
-        is ArrayNode  -> add(value)
-        else          -> throw RuntimeException("Unknown json node type. ${this.nodeType}")
+        is ArrayNode -> add(value)
+        else -> throw JsonException("Unknown json node type. ${this.nodeType}")
     }
 }
 
@@ -75,8 +76,8 @@ fun JsonNode.addFloat(value: Float, fieldName: String?) {
 fun JsonNode.addDouble(value: Double, fieldName: String?) {
     when (this) {
         is ObjectNode -> put(fieldName, value)
-        is ArrayNode  -> add(value)
-        else          -> throw RuntimeException("Unknown json node type. ${this.nodeType}")
+        is ArrayNode -> add(value)
+        else -> throw JsonException("Unknown json node type. ${this.nodeType}")
     }
 }
 
@@ -86,8 +87,8 @@ fun JsonNode.addDouble(value: Double, fieldName: String?) {
 fun JsonNode.addBigDecimal(value: BigDecimal, fieldName: String?) {
     when (this) {
         is ObjectNode -> put(fieldName, value)
-        is ArrayNode  -> add(value)
-        else          -> throw RuntimeException("Unknown json node type. ${this.nodeType}")
+        is ArrayNode -> add(value)
+        else -> throw JsonException("Unknown json node type. ${this.nodeType}")
     }
 }
 
@@ -97,8 +98,8 @@ fun JsonNode.addBigDecimal(value: BigDecimal, fieldName: String?) {
 fun JsonNode.addBigInteger(value: BigInteger, fieldName: String?) {
     when (this) {
         is ObjectNode -> put(fieldName, value)
-        is ArrayNode  -> add(value)
-        else          -> throw RuntimeException("Unknown json node type. ${this.nodeType}")
+        is ArrayNode -> add(value)
+        else -> throw JsonException("Unknown json node type. ${this.nodeType}")
     }
 }
 
@@ -108,8 +109,8 @@ fun JsonNode.addBigInteger(value: BigInteger, fieldName: String?) {
 fun JsonNode.addShort(value: Short, fieldName: String?) {
     when (this) {
         is ObjectNode -> put(fieldName, value)
-        is ArrayNode  -> add(value)
-        else          -> throw RuntimeException("Unknown json node type. ${this.nodeType}")
+        is ArrayNode -> add(value)
+        else -> throw JsonException("Unknown json node type. ${this.nodeType}")
     }
 }
 
@@ -119,8 +120,8 @@ fun JsonNode.addShort(value: Short, fieldName: String?) {
 fun JsonNode.addBoolean(value: Boolean, fieldName: String?) {
     when (this) {
         is ObjectNode -> put(fieldName, value)
-        is ArrayNode  -> add(value)
-        else          -> throw RuntimeException("Unknown json node type. ${this.nodeType}")
+        is ArrayNode -> add(value)
+        else -> throw JsonException("Unknown json node type. ${this.nodeType}")
     }
 }
 
@@ -130,7 +131,7 @@ fun JsonNode.addBoolean(value: Boolean, fieldName: String?) {
 fun JsonNode.addNull(fieldName: String?) {
     when (this) {
         is ObjectNode -> putNull(fieldName)
-        is ArrayNode  -> addNull()
-        else          -> throw RuntimeException("Unknown json node type. ${this.nodeType}")
+        is ArrayNode -> addNull()
+        else -> throw JsonException("Unknown json node type. ${this.nodeType}")
     }
 }

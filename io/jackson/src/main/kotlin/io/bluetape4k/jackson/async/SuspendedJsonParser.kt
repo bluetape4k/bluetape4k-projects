@@ -15,10 +15,11 @@ import io.bluetape4k.jackson.createNode
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import jakarta.json.stream.JsonParsingException
+import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 /**
- * 비동기 방식으로 Json을 파싱하는 클래스입니다.
+ * 코루틴 방식으로 Json을 파싱하는 클래스입니다.
  *
  * ```
  * val parser = AsyncJsonParser { root ->
@@ -32,9 +33,9 @@ import java.util.*
  * @param jsonFactory JsonFactory 인스턴스
  * @param onNodeDone Json Node가 빌드되면 호출되는 콜백
  */
-class AsyncJsonParser(
+class SuspendedJsonParser(
     private val jsonFactory: JsonFactory = JsonFactory(),
-    private val onNodeDone: (root: JsonNode) -> Unit,
+    private val onNodeDone: suspend (root: JsonNode) -> Unit,
 ) {
 
     companion object: KLogging()
@@ -72,21 +73,24 @@ class AsyncJsonParser(
         return result
     }
 
-    fun consume(bytes: ByteArray, length: Int = bytes.size) {
+    suspend fun consume(flow: Flow<ByteArray>) {
         val feeder = parser.nonBlockingInputFeeder
 
-        // 입력이 필요한 경우에만 데이터 제공
-        if (feeder.needMoreInput()) {
-            feeder.feedInput(bytes, 0, length)
-        }
+        flow.collect { bytes ->
+            if (feeder.needMoreInput()) {
+                feeder.feedInput(bytes, 0, bytes.size)
+            }
 
-        var token: JsonToken?
-        do {
-            token = parser.nextToken()
-            if (token != null && token != JsonToken.NOT_AVAILABLE) {
+            while (true) {
+                val token = parser.nextToken()
+                if (token == null || token == JsonToken.NOT_AVAILABLE) {
+                    break
+                }
+
+                // JsonNode 빌드되면 onNodeDone 호출
                 buildTree(token)?.let { onNodeDone(it) }
             }
-        } while (token != null && token != JsonToken.NOT_AVAILABLE)
+        }
     }
 
     /**

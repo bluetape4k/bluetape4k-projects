@@ -10,12 +10,17 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8String
 import kotlinx.atomicfu.AtomicInt
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 
-class AsyncJsonParserTest {
+class SuspendedJsonParserTest {
 
     companion object: KLogging()
 
@@ -52,68 +57,65 @@ class AsyncJsonParserTest {
     }
 
     @Test
-    fun `parse one byte`() {
+    fun `parse one byte`() = runTest {
         val parsed = atomic(0)
         val parser = getSingleModelParser(parsed)
 
         val bytes = mapper.writeAsBytes(model)!!
         // 1 byte 씩 consume 한다
-        bytes.forEach {
-            parser.consume(byteArrayOf(it))
-        }
+        val flow = bytes.map { byteArrayOf(it) }.asFlow()
+        parser.consume(flow)
 
         parsed.value shouldBeEqualTo 1
     }
 
     @Test
-    fun `parse chunks`() {
+    fun `parse chunks`() = runTest {
         val parsed = atomic(0)
         val parser = getSingleModelParser(parsed)
 
         val bytes = mapper.writeAsBytes(model)!!
         val chunkSize = 20
-        bytes.toList().chunked(chunkSize).forEach {
-            parser.consume(it.toByteArray())
-        }
+
+        val flow: Flow<ByteArray> = bytes.toList().chunked(chunkSize).map { it.toByteArray() }.asFlow()
+        parser.consume(flow)
 
         parsed.value shouldBeEqualTo 1
     }
 
     @Test
-    fun `parse object sequence`() {
+    fun `parse object sequence`() = runTest {
         val parsed = atomic(0)
         val parser = getSingleModelParser(parsed)
 
         val bytes = mapper.writeAsBytes(model)!!
         val repeatSize = 3
         repeat(repeatSize) {
-            bytes.forEach {
-                parser.consume(byteArrayOf(it))
-            }
+            val flow = bytes.map { byteArrayOf(it) }.asFlow()
+            parser.consume(flow)
         }
         parsed.value shouldBeEqualTo repeatSize
     }
 
     @Test
-    fun `parse chunk sequence`() {
+    fun `parse chunk sequence`() = runTest {
         val parsed = atomic(0)
         val parser = getSingleModelParser(parsed)
 
-        val bytes = mapper.writeAsBytes(model)!!
+        val bytes: ByteArray = mapper.writeAsBytes(model)!!
         val repeatSize = 3
         val chunkSize = 20
         repeat(repeatSize) {
-            bytes.toList().chunked(chunkSize).forEach {
-                log.debug { it.toByteArray().toUtf8String() }
-                parser.consume(it.toByteArray())
-            }
+            val flow = bytes.toList().chunked(chunkSize).map { it.toByteArray() }.asFlow()
+                .onEach { log.debug { it.toUtf8String() } }
+            parser.consume(flow)
         }
 
         parsed.value shouldBeEqualTo repeatSize
     }
 
-    private fun getSingleModelParser(parsed: AtomicInt): AsyncJsonParser {
-        return AsyncJsonParser { root ->
+    private fun getSingleModelParser(parsed: AtomicInt): SuspendedJsonParser {
+        return SuspendedJsonParser { root ->
             try {
                 parsed.incrementAndGet()
                 mapper.treeToValueOrNull<Model>(root) shouldBeEqualTo model
@@ -125,34 +127,31 @@ class AsyncJsonParserTest {
 
 
     @Test
-    fun `parse array object`() {
+    fun `parse array object`() = runTest {
         val parsed = atomic(0)
         val modelSize = 5
 
-        val parser = AsyncJsonParser { root ->
+        val parser = SuspendedJsonParser { root ->
             parsed.incrementAndGet()
 
-            try {
-                val deserialized = mapper.treeToValue<Array<Model>>(root)
-                log.debug { deserialized.contentToString() }
-                deserialized shouldHaveSize modelSize
-                deserialized shouldBeEqualTo Array(modelSize) { model }
-            } catch (e: JsonProcessingException) {
-                fail(e)
-            }
+            val deserialized: Array<Model> = mapper.treeToValue<Array<Model>>(root)
+            log.debug { deserialized.contentToString() }
+            deserialized shouldHaveSize modelSize
+            deserialized shouldBeEqualTo Array(modelSize) { model }
         }
 
         val bytes = mapper.writeAsBytes(model)!!
-        parser.consume("[".toByteArray())
-        List(modelSize) {
-            bytes.forEach {
-                parser.consume(byteArrayOf(it))
-            }
+        parser.consume(flowOf("[".toByteArray()))
+
+        repeat(modelSize) {
+            val flow = bytes.map { b -> byteArrayOf(b) }.asFlow()
+            parser.consume(flow)
+
             if (it != modelSize - 1) {
-                parser.consume(",".toByteArray())
+                parser.consume(flowOf(",".toByteArray()))
             }
         }
-        parser.consume("]".toByteArray())
+        parser.consume(flowOf("]".toByteArray()))
 
         parsed.value shouldBeEqualTo 1
     }
