@@ -103,12 +103,16 @@ abstract class AbstractBilling(
     var owner: String = "",
 ): IntJpaEntity() {
 
+    @Column(name = "swift", nullable = false)
+    var swift: String = ""
+
     override fun equalProperties(other: Any): Boolean =
         other is AbstractBilling && owner == other.owner
 
     override fun buildStringHelper(): ToStringBuilder {
         return super.buildStringHelper()
             .add("owner", owner)
+            .add("swift", swift)
     }
 }
 
@@ -130,8 +134,6 @@ class CreditCard(owner: String): AbstractBilling(owner) {
 
     // @Temporal(TemporalType.TIMESTAMP)
     var endDate: LocalDate? = null
-
-    var swift: String? = null
 
     override fun equalProperties(other: Any): Boolean =
         other is CreditCard &&
@@ -156,7 +158,6 @@ class CreditCard(owner: String): AbstractBilling(owner) {
 class BankAccount(owner: String): AbstractBilling(owner) {
     var accountNumber: String? = null
     var bankName: String? = null
-    var swift: String? = null
 
     override fun equalProperties(other: Any): Boolean =
         other is BankAccount &&
@@ -168,7 +169,6 @@ class BankAccount(owner: String): AbstractBilling(owner) {
         return super.buildStringHelper()
             .add("accountNumber", accountNumber)
             .add("bankName", bankName)
-            .add("swift", swift)
     }
 }
 

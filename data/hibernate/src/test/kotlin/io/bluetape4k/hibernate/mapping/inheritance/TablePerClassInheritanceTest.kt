@@ -75,15 +75,14 @@ class TablePerClassInheritanceTest: AbstractHibernateTest() {
 }
 
 
-@Access(AccessType.FIELD)
-@Entity(name = "tableperclass_billing")
+@Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 abstract class AbstractUuidBilling(
     @Id
     @GeneratedValue(generator = "uuid")
     override var id: UUID? = null,
-
     val owner: String = "",
+    var swift: String? = null,
 ): AbstractJpaEntity<UUID>() {
 
     override fun equalProperties(other: Any): Boolean =
@@ -111,7 +110,7 @@ abstract class AbstractUuidBilling(
  *     )
  * ```
  */
-@Entity(name = "tableperclass_creditcard")
+@Entity
 @Table(
     name = "tableperclass_creditcard",
     indexes = [
@@ -121,7 +120,7 @@ abstract class AbstractUuidBilling(
 @Access(AccessType.FIELD)
 @DynamicInsert
 @DynamicUpdate
-class UuidCreditCard(owner: String): AbstractUuidBilling(owner = owner) {
+class UuidCreditCard(owner: String, swift: String? = null): AbstractUuidBilling(owner = owner, swift = swift) {
 
     var number: String? = null
 
@@ -135,7 +134,6 @@ class UuidCreditCard(owner: String): AbstractUuidBilling(owner = owner) {
     @Temporal(TemporalType.TIMESTAMP)
     var endDate: Date? = null
 
-    var swift: String? = null
 
     override fun equalProperties(other: Any): Boolean =
         other is UuidCreditCard && number == other.number && super.equalProperties(other)
@@ -161,7 +159,7 @@ class UuidCreditCard(owner: String): AbstractUuidBilling(owner = owner) {
  *     )
  * ```
  */
-@Entity(name = "tableperclass_bankaccount")
+@Entity
 @Table(
     name = "tableperclass_bankaccount",
     indexes = [
@@ -171,10 +169,9 @@ class UuidCreditCard(owner: String): AbstractUuidBilling(owner = owner) {
 @Access(AccessType.FIELD)
 @DynamicInsert
 @DynamicUpdate
-class UuidBankAccount(owner: String): AbstractUuidBilling(owner = owner) {
+class UuidBankAccount(owner: String, swift: String? = null): AbstractUuidBilling(owner = owner, swift = swift) {
     var account: String? = null
     var bankname: String? = null
-    var swift: String? = null
 
     override fun equalProperties(other: Any): Boolean =
         other is UuidBankAccount && bankname == other.bankname && super.equalProperties(other)
