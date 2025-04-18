@@ -17,7 +17,6 @@ import org.jetbrains.exposed.dao.load
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.count
-import org.jetbrains.exposed.sql.innerJoin
 import org.jetbrains.exposed.sql.selectAll
 import java.time.LocalDate
 
@@ -61,7 +60,6 @@ class MovieRepository: ExposedRepository<MovieEntity, Long> {
             releaseDate = LocalDate.parse(movieDto.releaseDate)
         }
     }
-
 
     /**
      * ```sql
@@ -175,29 +173,30 @@ class MovieRepository: ExposedRepository<MovieEntity, Long> {
 
     /**
      * ```sql
-     * SELECT MOVIES."name",
-     *        ACTORS.FIRST_NAME,
-     *        ACTORS.LAST_NAME,
-     *   FROM MOVIES
-     *        INNER JOIN ACTORS_IN_MOVIES
-     *          ON MOVIES.ID = ACTORS_IN_MOVIES.MOVIE_ID
-     *        INNER JOIN ACTORS
-     *          ON ACTORS.ID = ACTORS_IN_MOVIES.ACTOR_ID AND (MOVIES.PRODUCER_NAME = ACTORS.FIRST_NAME)
+     * -- Postgres
+     * SELECT movies."name",
+     *       actors.first_name,
+     *       actors.last_name
+     *  FROM movies
+     *      INNER JOIN actors_in_movies ON movies.id = actors_in_movies.movie_id
+     *      INNER JOIN actors ON actors.id = actors_in_movies.actor_id
+     *  WHERE movies.producer_name = actors.first_name
      * ```
      */
     fun findMoviesWithActingProducers(): List<MovieWithProducingActorDTO> {
         log.debug { "Find movies with acting producers." }
 
-        val query = table
+        val query = MovieTable
             .innerJoin(ActorInMovieTable)
-            .innerJoin(
-                ActorTable,
-                onColumn = { ActorTable.id },
-                otherColumn = { ActorInMovieTable.actorId }
-            ) {
+            .innerJoin(ActorTable)
+            .select(
+                MovieTable.name,
+                ActorTable.firstName,
+                ActorTable.lastName
+            )
+            .where {
                 MovieTable.producerName eq ActorTable.firstName
             }
-            .select(MovieTable.name, ActorTable.firstName, ActorTable.lastName)
 
         return query.map { it.toMovieWithProducingActorDTO() }
     }
