@@ -63,6 +63,7 @@ class MovieRepository: ExposedRepository<MovieEntity, Long> {
 
     /**
      * ```sql
+     * -- H2
      * SELECT MOVIES.ID,
      *        MOVIES."name",
      *        MOVIES.PRODUCER_NAME,
