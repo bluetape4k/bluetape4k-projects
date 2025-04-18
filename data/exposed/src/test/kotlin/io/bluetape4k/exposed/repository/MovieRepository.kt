@@ -31,7 +31,7 @@ class MovieRepository: ExposedRepository<MovieEntity, Long> {
         MovieEntity.wrapRow(this)
 
     fun searchMovies(params: Map<String, String?>): List<MovieEntity> {
-        log.debug { "Search Movie by params. params=$params" }
+        log.debug { "Search movies by params. params=$params" }
 
         val query = table.selectAll()
 
