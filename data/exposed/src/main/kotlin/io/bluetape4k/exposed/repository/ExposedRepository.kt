@@ -37,6 +37,9 @@ interface ExposedRepository<T: Entity<ID>, ID: Any> {
     fun currentTransaction(): org.jetbrains.exposed.sql.Transaction =
         TransactionManager.current()
 
+    fun currentTransactionOrNull(): org.jetbrains.exposed.sql.Transaction? =
+        TransactionManager.currentOrNull()
+
     fun ResultRow.toEntity(): T
 
     fun count(): Long = table.selectAll().count()
@@ -60,7 +63,7 @@ interface ExposedRepository<T: Entity<ID>, ID: Any> {
 
     fun exists(query: AbstractQuery<*>): Boolean {
         val exists = org.jetbrains.exposed.sql.exists(query)
-        return table.select(exists).first()[exists]
+        return table.select(exists).firstOrNull()?.getOrNull(exists) ?: false
     }
 
     fun existsById(id: ID): Boolean =
@@ -99,7 +102,10 @@ interface ExposedRepository<T: Entity<ID>, ID: Any> {
         return findAll(limit, offset, sortOrder) { condition }
     }
 
-    fun findFirstOrNull(offset: Long? = null, predicate: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE }): T? =
+    fun findFirstOrNull(
+        offset: Long? = null,
+        predicate: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE },
+    ): T? =
         table.selectAll()
             .where(predicate)
             .limit(1)
@@ -108,7 +114,10 @@ interface ExposedRepository<T: Entity<ID>, ID: Any> {
             }
             .firstOrNull()?.toEntity()
 
-    fun findLastOrNull(offset: Long? = null, predicate: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE }): T? =
+    fun findLastOrNull(
+        offset: Long? = null,
+        predicate: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE },
+    ): T? =
         table.selectAll()
             .where(predicate)
             .orderBy(table.id, SortOrder.DESC)
@@ -133,7 +142,9 @@ interface ExposedRepository<T: Entity<ID>, ID: Any> {
 
 
     fun deleteIgnore(entity: T): Int = table.deleteIgnoreWhere { table.id eq entity.id }
+
     fun deleteByIdIgnore(id: ID): Int = table.deleteIgnoreWhere { table.id eq id }
+
     fun deleteAllIgnore(
         limit: Int? = null,
         op: (IdTable<ID>).(ISqlExpressionBuilder) -> Op<Boolean> = { Op.TRUE },

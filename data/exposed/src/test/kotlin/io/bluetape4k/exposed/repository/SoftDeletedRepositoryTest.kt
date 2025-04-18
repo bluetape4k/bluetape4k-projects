@@ -50,16 +50,16 @@ class SoftDeletedRepositoryTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `soft deleted entity`(testDB: TestDB) {
         withTables(testDB, ContactTable) {
-            val contact1 = ContactEntity.new {
+            val contact1: ContactEntity = ContactEntity.new {
                 name = faker.name().fullName()
             }
-            val contact2 = ContactEntity.new {
+            val contact2: ContactEntity = ContactEntity.new {
                 name = faker.name().fullName()
             }
 
             repository.softDeleteById(contact1.id.value)
 
-            val activeEntities = repository.findActive()
+            val activeEntities: List<ContactEntity> = repository.findActive()
             activeEntities shouldHaveSize 1
             activeEntities.single() shouldBeEqualTo contact2
 
