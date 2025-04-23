@@ -12,7 +12,9 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class GraphTest {
@@ -60,94 +62,132 @@ class GraphTest {
         root = buildTree()
     }
 
-    @Test
-    fun `verify depth first with list`() {
-        val nodes = Graph
-            .search(Graph.TraversalOrder.DFS, root) {
-                it.children.onEach { Thread.sleep(10) }
-            }
+    @Nested
+    inner class DepthFirstSearch {
 
-        val names = nodes
-            .onEach { log.debug { "DFS visit node: $it" } }
-            .map { it.name }
-            .toList()
+        @Test
+        fun `verify depth first with list`() {
+            val nodes = Graph
+                .search(Graph.TraversalOrder.DFS, root) {
+                    it.children.onEach { Thread.sleep(10) }
+                }
 
-        names shouldBeEqualTo expectedDFS
+            val names = nodes
+                .onEach { log.debug { "DFS visit node: $it" } }
+                .map { it.name }
+                .toList()
+
+            names shouldBeEqualTo expectedDFS
+        }
+
+        @Test
+        fun `verify depth first with sequence`() {
+            val nodes = Graph
+                .searchAsSequence(Graph.TraversalOrder.DFS, root) {
+                    it.children.asSequence().onEach { Thread.sleep(10) }
+                }
+
+            val names = nodes
+                .onEach { log.debug { "DFS visit node: $it" } }
+                .map { it.name }
+                .toList()
+
+            names shouldBeEqualTo expectedDFS
+        }
+
+        @Test
+        fun `verify depth first with flow`() = runTest {
+            val nodes = Graph
+                .searchAsFlow(Graph.TraversalOrder.DFS, root) {
+                    it.children.asFlow().onEach { delay(10) }
+                }
+
+            val names = nodes
+                .onEach { log.debug { "DFS visit node: $it" } }
+                .map { it.name }
+                .flowOn(Dispatchers.Default)
+                .toList()
+
+            names shouldBeEqualTo expectedDFS
+        }
+
+        @Test
+        fun `sequence 방식에서 lazy evaluation 이 동작하는지 검증`() {
+            var visitCount = 0
+            val first3 = Graph
+                .searchAsSequence(Graph.TraversalOrder.DFS, root) {
+                    it.children.asSequence().onEach { Thread.sleep(10) }
+                }
+                .onEach { visitCount++ }
+                .take(3)
+                .toList()
+
+            visitCount shouldBeEqualTo 3
+            first3 shouldHaveSize 3
+        }
     }
 
-    @Test
-    fun `verify depth first with sequence`() {
-        val nodes = Graph
-            .searchAsSequence(Graph.TraversalOrder.DFS, root) {
-                it.children.asSequence().onEach { Thread.sleep(10) }
-            }
+    @Nested
+    inner class BreadthFirstSearch {
 
-        val names = nodes
-            .onEach { log.debug { "DFS visit node: $it" } }
-            .map { it.name }
-            .toList()
+        @Test
+        fun `verify breadth first with list`() {
+            val nodes = Graph
+                .search(Graph.TraversalOrder.BFS, root) {
+                    it.children.onEach { Thread.sleep(10) }
+                }
 
-        names shouldBeEqualTo expectedDFS
-    }
+            val names = nodes
+                .onEach { log.debug { "DFS visit node: $it" } }
+                .map { it.name }
+                .toList()
 
-    @Test
-    fun `verify depth first with flow`() = runTest {
-        val nodes = Graph
-            .searchAsFlow(Graph.TraversalOrder.DFS, root) {
-                it.children.asFlow().onEach { delay(10) }
-            }
+            names shouldBeEqualTo expectedBFS
+        }
 
-        val names = nodes
-            .onEach { log.debug { "DFS visit node: $it" } }
-            .map { it.name }
-            .flowOn(Dispatchers.Default)
-            .toList()
+        @Test
+        fun `verify breadth first with sequence`() {
+            val nodes = Graph
+                .searchAsSequence(Graph.TraversalOrder.BFS, root) {
+                    it.children.asSequence().onEach { Thread.sleep(10) }
+                }
+            val names = nodes
+                .onEach { log.debug { "BFS visit node: $it" } }
+                .map { it.name }
+                .toList()
 
-        names shouldBeEqualTo expectedDFS
-    }
+            names shouldBeEqualTo expectedBFS
+        }
 
-    @Test
-    fun `verify breadth first with list`() {
-        val nodes = Graph
-            .search(Graph.TraversalOrder.BFS, root) {
-                it.children.onEach { Thread.sleep(10) }
-            }
+        @Test
+        fun `verify breadth first with flow`() = runTest {
+            val nodes = Graph
+                .searchAsFlow(Graph.TraversalOrder.BFS, root) {
+                    it.children.asFlow().onEach { delay(10) }
+                }
 
-        val names = nodes
-            .onEach { log.debug { "DFS visit node: $it" } }
-            .map { it.name }
-            .toList()
+            val names = nodes
+                .onEach { log.debug { "BFS visit node: $it" } }
+                .map { it.name }
+                .flowOn(Dispatchers.Default)
+                .toList()
 
-        names shouldBeEqualTo expectedBFS
-    }
+            names shouldBeEqualTo expectedBFS
+        }
 
-    @Test
-    fun `verify breadth first with sequence`() {
-        val nodes = Graph
-            .searchAsSequence(Graph.TraversalOrder.BFS, root) {
-                it.children.asSequence().onEach { Thread.sleep(10) }
-            }
-        val names = nodes
-            .onEach { log.debug { "BFS visit node: $it" } }
-            .map { it.name }
-            .toList()
+        @Test
+        fun `sequence 방식에서 lazy evaluation 이 동작하는지 검증`() {
+            var visitCount = 0
+            val first3 = Graph
+                .searchAsSequence(Graph.TraversalOrder.BFS, root) {
+                    it.children.asSequence().onEach { Thread.sleep(10) }
+                }
+                .onEach { visitCount++ }
+                .take(3)
+                .toList()
 
-        names shouldBeEqualTo expectedBFS
-    }
-
-    @Test
-    fun `verify breadth first with flow`() = runTest {
-        val nodes = Graph
-            .searchAsFlow(Graph.TraversalOrder.BFS, root) {
-                it.children.asFlow().onEach { delay(10) }
-            }
-
-        val names = nodes
-            .onEach { log.debug { "BFS visit node: $it" } }
-            .map { it.name }
-            .flowOn(Dispatchers.Default)
-            .toList()
-
-        names shouldBeEqualTo expectedBFS
+            visitCount shouldBeEqualTo 3
+            first3 shouldHaveSize 3
+        }
     }
 }
