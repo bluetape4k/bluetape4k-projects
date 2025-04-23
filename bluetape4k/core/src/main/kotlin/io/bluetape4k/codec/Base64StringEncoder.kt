@@ -11,8 +11,8 @@ import java.util.*
 class Base64StringEncoder: StringEncoder {
 
     companion object {
-        private val encoder by lazy { Base64.getUrlEncoder() }
-        private val decoder by lazy { Base64.getUrlDecoder() }
+        private val encoder: Base64.Encoder = Base64.getUrlEncoder()
+        private val decoder: Base64.Decoder = Base64.getUrlDecoder()
     }
 
     /**
