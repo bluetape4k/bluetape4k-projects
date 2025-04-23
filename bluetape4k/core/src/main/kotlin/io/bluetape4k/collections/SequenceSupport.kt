@@ -24,7 +24,11 @@ import io.bluetape4k.support.requireLe
  */
 fun charSequenceOf(start: Char, endInclusive: Char, step: Int = 1): Sequence<Char> {
     start.requireLe(endInclusive, "start")
-    return CharProgression.fromClosedRange(start, endInclusive, step).asSequence()
+
+    return generateSequence(start) { current ->
+        val next = current + step
+        if (next <= endInclusive) next else null
+    }
 }
 
 /**
@@ -39,13 +43,12 @@ fun charSequenceOf(start: Char, endInclusive: Char, step: Int = 1): Sequence<Cha
  * @param step 증가 값 (기본값: 1)
  * @return 생성된 `Sequence<Byte>` 객체
  */
-fun byteSequenceOf(start: Byte, endInclusive: Byte, step: Byte = 1): Sequence<Byte> = sequence {
+fun byteSequenceOf(start: Byte, endInclusive: Byte, step: Byte = 1): Sequence<Byte> {
     start.requireLe(endInclusive, "start")
 
-    var current = start
-    while (current <= endInclusive) {
-        yield(current)
-        current = (current + step).toByte()
+    return generateSequence(start) { current ->
+        val next = (current + step).toByte()
+        if (next <= endInclusive) next else null
     }
 }
 
@@ -64,7 +67,10 @@ fun byteSequenceOf(start: Byte, endInclusive: Byte, step: Byte = 1): Sequence<By
 fun intSequenceOf(start: Int, endInclusive: Int, step: Int = 1): Sequence<Int> {
     start.requireLe(endInclusive, "start")
 
-    return IntProgression.fromClosedRange(start, endInclusive, step).asSequence()
+    return generateSequence(start) { current ->
+        val next = current + step
+        if (next <= endInclusive) next else null
+    }
 }
 
 /**
@@ -82,7 +88,10 @@ fun intSequenceOf(start: Int, endInclusive: Int, step: Int = 1): Sequence<Int> {
 fun longSequenceOf(start: Long, endInclusive: Long, step: Long = 1L): Sequence<Long> {
     start.requireLe(endInclusive, "start")
 
-    return LongProgression.fromClosedRange(start, endInclusive, step).asSequence()
+    return generateSequence(start) { current ->
+        val next = current + step
+        if (next <= endInclusive) next else null
+    }
 }
 
 /**
@@ -97,13 +106,12 @@ fun longSequenceOf(start: Long, endInclusive: Long, step: Long = 1L): Sequence<L
  * @param step 증가 값 (기본값: 1.0)
  * @return 생성된 `Sequence<Float>` 객체
  */
-fun floatSequenceOf(start: Float, endInclusive: Float, step: Float = 1.0F): Sequence<Float> = sequence {
+fun floatSequenceOf(start: Float, endInclusive: Float, step: Float = 1.0F): Sequence<Float> {
     start.requireLe(endInclusive, "start")
 
-    var current = start
-    while (current <= endInclusive) {
-        yield(current)
-        current += step
+    return generateSequence(start) { current ->
+        val next = current + step
+        if (next <= endInclusive) next else null
     }
 }
 
@@ -119,13 +127,12 @@ fun floatSequenceOf(start: Float, endInclusive: Float, step: Float = 1.0F): Sequ
  * @param step 증가 값 (기본값: 1.0)
  * @return 생성된 `Sequence<Double>` 객체
  */
-fun doubleSequenceOf(start: Double, endInclusive: Double, step: Double = 1.0): Sequence<Double> = sequence {
+fun doubleSequenceOf(start: Double, endInclusive: Double, step: Double = 1.0): Sequence<Double> {
     start.requireLe(endInclusive, "start")
 
-    var current = start
-    while (current <= endInclusive) {
-        yield(current)
-        current += step
+    return generateSequence(start) { current ->
+        val next = current + step
+        if (next <= endInclusive) next else null
     }
 }
 

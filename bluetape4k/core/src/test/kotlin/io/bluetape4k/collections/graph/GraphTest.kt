@@ -90,7 +90,6 @@ class GraphTest {
             .searchAsFlow(root) {
                 it.children.asFlow().onEach { delay(10) }
             }
-            // .buffer()
             .onEach { log.trace { "DFS visit node: $it" } }
             .map { it.name }
             .flowOn(Dispatchers.Default)
@@ -130,7 +129,6 @@ class GraphTest {
             .searchAsFlow(root) {
                 it.children.asFlow().onEach { delay(10) }
             }
-            //.buffer()
             .onEach { log.trace { "BFS visit node: $it" } }
             .map { it.name }
             .flowOn(Dispatchers.Default)
