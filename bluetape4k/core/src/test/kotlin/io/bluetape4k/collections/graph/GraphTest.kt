@@ -1,7 +1,8 @@
 package io.bluetape4k.collections.graph
 
+import Graph
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.debug
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
@@ -61,10 +62,13 @@ class GraphTest {
 
     @Test
     fun `verify depth first with list`() {
-        val dfl = Graph.DFS.search(root) { it.children }
+        val nodes = Graph
+            .search(Graph.TraversalOrder.DFS, root) {
+                it.children.onEach { Thread.sleep(10) }
+            }
 
-        val names = dfl
-            .onEach { log.trace { "DFS visit node: $it" } }
+        val names = nodes
+            .onEach { log.debug { "DFS visit node: $it" } }
             .map { it.name }
             .toList()
 
@@ -73,11 +77,13 @@ class GraphTest {
 
     @Test
     fun `verify depth first with sequence`() {
-        val names = Graph.DFS
-            .searchAsSequence(root) {
+        val nodes = Graph
+            .searchAsSequence(Graph.TraversalOrder.DFS, root) {
                 it.children.asSequence().onEach { Thread.sleep(10) }
             }
-            .onEach { log.trace { "DFS visit node: $it" } }
+
+        val names = nodes
+            .onEach { log.debug { "DFS visit node: $it" } }
             .map { it.name }
             .toList()
 
@@ -86,11 +92,13 @@ class GraphTest {
 
     @Test
     fun `verify depth first with flow`() = runTest {
-        val names = Graph.DFS
-            .searchAsFlow(root) {
+        val nodes = Graph
+            .searchAsFlow(Graph.TraversalOrder.DFS, root) {
                 it.children.asFlow().onEach { delay(10) }
             }
-            .onEach { log.trace { "DFS visit node: $it" } }
+
+        val names = nodes
+            .onEach { log.debug { "DFS visit node: $it" } }
             .map { it.name }
             .flowOn(Dispatchers.Default)
             .toList()
@@ -100,10 +108,13 @@ class GraphTest {
 
     @Test
     fun `verify breadth first with list`() {
-        val bfl = Graph.BFS.search(root) { it.children }
+        val nodes = Graph
+            .search(Graph.TraversalOrder.BFS, root) {
+                it.children.onEach { Thread.sleep(10) }
+            }
 
-        val names = bfl
-            .onEach { log.trace { "DFS visit node: $it" } }
+        val names = nodes
+            .onEach { log.debug { "DFS visit node: $it" } }
             .map { it.name }
             .toList()
 
@@ -112,11 +123,12 @@ class GraphTest {
 
     @Test
     fun `verify breadth first with sequence`() {
-        val names = Graph.BFS
-            .searchAsSequece(root) {
+        val nodes = Graph
+            .searchAsSequence(Graph.TraversalOrder.BFS, root) {
                 it.children.asSequence().onEach { Thread.sleep(10) }
             }
-            .onEach { log.trace { "BFS visit node: $it" } }
+        val names = nodes
+            .onEach { log.debug { "BFS visit node: $it" } }
             .map { it.name }
             .toList()
 
@@ -125,11 +137,13 @@ class GraphTest {
 
     @Test
     fun `verify breadth first with flow`() = runTest {
-        val names = Graph.BFS
-            .searchAsFlow(root) {
+        val nodes = Graph
+            .searchAsFlow(Graph.TraversalOrder.BFS, root) {
                 it.children.asFlow().onEach { delay(10) }
             }
-            .onEach { log.trace { "BFS visit node: $it" } }
+
+        val names = nodes
+            .onEach { log.debug { "BFS visit node: $it" } }
             .map { it.name }
             .flowOn(Dispatchers.Default)
             .toList()
