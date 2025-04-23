@@ -4,6 +4,8 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.support.isNullOrEmpty
 import io.bluetape4k.support.requireGt
+import io.bluetape4k.support.toUtf8Bytes
+import io.bluetape4k.support.toUtf8String
 import java.security.SecureRandom
 
 
@@ -96,13 +98,18 @@ object Base58: KLogging() {
     }
 
     /**
+     * 주어진 문자열을 base58 문자열로 인코딩합니다.
+     */
+    fun encode(source: String) = encode(source.toUtf8Bytes())
+
+    /**
      * 주어진 base58 문자열을 원래 데이터 바이트로 디코딩합니다.
      *
      * ```
      * val decoded = Base58.decode("JxF12TrwUP45BMd").toUtf8String()   // "Hello, World!"
      * ```
      *
-     * @param source 디코딩할 base58 문자열
+     * @param source 디코딩할 base58 인코딩 문자열
      * @return 디코딩된 데이터 바이트
      */
     fun decode(source: String): ByteArray {
@@ -148,6 +155,14 @@ object Base58: KLogging() {
     }
 
     /**
+     * Base58로 인코딩된 문자열을 디코딩해서 문자열로 반환합니다.
+     *
+     * @param source 디코딩할 base58 인코딩 문자열
+     * @return Base58로 디코딩된 문자열
+     */
+    fun decodeAsString(source: String): String = decode(source).toUtf8String()
+
+    /**
      * 지정된 진법에서 각각 한 자리를 가진 바이트 배열로 표현된 숫자를 주어진 나눗수로 나눕니다.
      * 주어진 숫자는 그 자리에서 수정되어 몫을 포함하게 되며, 나머지를 반환합니다.
      *
@@ -170,3 +185,31 @@ object Base58: KLogging() {
         return remainder.toByte()
     }
 }
+
+/**
+ * Base58 알고리즘을 이용하여 [ByteArray] 값을 문자열로 인코딩합니다.
+ *
+ * @return Base58로 인코딩된 문자열
+ */
+fun ByteArray.encodeBase58(): String = Base58.encode(this)
+
+/**
+ * Base58 알고리즘으로 인코딩된 문자열을 디코딩하여 [ByteArray] 값을 반환합니다.
+ *
+ * @return Base58로 디코딩된 바이트 배열
+ */
+fun String.encodeBase58(): String = Base58.encode(this.toUtf8Bytes())
+
+/**
+ * Base58 알고리즘으로 인코딩된 문자열을 디코딩하여 [String] 값을 반환합니다.
+ *
+ * @return Base58로 디코딩된 문자열
+ */
+fun String.decodeBase58(): ByteArray = Base58.decode(this)
+
+/**
+ * Base58 알고리즘으로 인코딩된 문자열을 디코딩하여 [String] 값을 반환합니다.
+ *
+ * @return Base58로 디코딩된 문자열
+ */
+fun String.decodeBase58AsString(): String = Base58.decodeAsString(this)

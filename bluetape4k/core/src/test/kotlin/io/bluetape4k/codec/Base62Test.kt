@@ -1,10 +1,12 @@
 package io.bluetape4k.codec
 
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.concurrency.VirtualthreadTester
+import io.bluetape4k.junit5.coroutines.MultijobTester
+import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Runtimex
 import org.amshove.kluent.internal.assertFailsWith
 import org.amshove.kluent.shouldBeEqualTo
@@ -22,50 +24,72 @@ class Base62Test {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `encode decode long value`(@RandomValue(type = BigInteger::class, size = 20) expectes: List<BigInteger>) {
+    fun `Long 타입 값을 Base62 인코딩 디코딩하기`(
+        @RandomValue(type = BigInteger::class, size = 20) expectes: List<BigInteger>,
+    ) {
         expectes.forEach { expected ->
             Base62.decode(Base62.encode(expected)) shouldBeEqualTo expected
         }
     }
 
     @Test
-    fun `decoding value prefixed with zeros`() {
-        Base62.encode(Base62.decode("00001")) shouldBeEqualTo "1"
-        Base62.encode(Base62.decode("01001")) shouldBeEqualTo "1001"
-        Base62.encode(Base62.decode("00abcd")) shouldBeEqualTo "abcd"
+    fun `숫자를 나타내는 다양한 문자열을 Base62로 인코딩, 디코딩하기`() {
+        "00001".decodeBase62().encodeBase62() shouldBeEqualTo "1"
+        "01001".decodeBase62().encodeBase62() shouldBeEqualTo "1001"
+        "00abcd".decodeBase62().encodeBase62() shouldBeEqualTo "abcd"
     }
 
     @Test
-    fun `check 128 bit limits`() {
+    fun `Base62는 128bit 를 초과할 수 없습니다`() {
         assertFailsWith<IllegalArgumentException> {
             Base62.decode("1Vkp6axDWu5pI3q1xQO3oO0")
         }
     }
 
-    @Test
-    fun `encode base 62 for Long`() {
-        val expectes = List(10) { Random.nextLong(0, 1000000000L) }
-        expectes.forEach { expected ->
-            expected.encodeBase62().decodeBase62().toLong() shouldBeEqualTo expected
-        }
+    @RepeatedTest(REPEAT_SIZE)
+    fun `Long 타입의 값을 Base62 인코딩하기`() {
+        val expected = Random.nextLong(0, 1000000000L)
+        expected.encodeBase62().decodeBase62().toLong() shouldBeEqualTo expected
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `encode base 62 for UUID`() {
-        val expectes = List(10) { UUID.randomUUID() }
-        expectes.forEach { expected ->
-            expected.encodeBase62().decodeBase62AsUuid() shouldBeEqualTo expected
-            val encoded = Url62.encode(expected)
-            Url62.decode(encoded) shouldBeEqualTo expected
-            log.debug { "expected=$expected, encoded=$encoded" }
-        }
+        val expected = UUID.randomUUID()
+
+        expected.encodeBase62().decodeBase62AsUuid() shouldBeEqualTo expected
+        val encoded = Url62.encode(expected)
+        Url62.decode(encoded) shouldBeEqualTo expected
     }
 
     @Test
-    fun `encode and decode in multi-thread`() {
+    fun `멀티 스레드 환경에서 UUID 값을 Base62 인코딩, 디코딩하기`() {
         MultithreadingTester()
             .numThreads(Runtimex.availableProcessors * 2)
             .roundsPerThread(4)
+            .add {
+                val uuid = UUID.randomUUID()
+                uuid.encodeBase62().decodeBase62AsUuid() shouldBeEqualTo uuid
+            }
+            .run()
+    }
+
+    @Test
+    fun `Virtual Threads 환경에서 UUID 값을 Base62 인코딩, 디코딩하기`() {
+        VirtualthreadTester()
+            .numThreads(Runtimex.availableProcessors * 2)
+            .roundsPerThread(4)
+            .add {
+                val uuid = UUID.randomUUID()
+                uuid.encodeBase62().decodeBase62AsUuid() shouldBeEqualTo uuid
+            }
+            .run()
+    }
+
+    @Test
+    fun `코루틴 환경에서 UUID 값을 Base62 인코딩, 디코딩하기`() = runSuspendDefault {
+        MultijobTester()
+            .numThreads(Runtimex.availableProcessors * 2)
+            .roundsPerJob(4)
             .add {
                 val uuid = UUID.randomUUID()
                 uuid.encodeBase62().decodeBase62AsUuid() shouldBeEqualTo uuid
