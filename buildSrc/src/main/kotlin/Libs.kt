@@ -9,8 +9,8 @@ object Plugins {
         const val detekt = "1.23.8"     // https://mvnrepository.com/artifact/io.gitlab.arturbosch.detekt/detekt-gradle-plugin
         const val dependency_management = "1.1.7"  // https://mvnrepository.com/artifact/io.spring.gradle/dependency-management-plugin
         const val jooq = "9.0"       // https://mvnrepository.com/artifact/nu.studer.jooq/jooq-gradle-plugin
-        const val protobuf = "0.9.4"    // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-gradle-plugin
-        const val avro = "1.9.1"  // https://mvnrepository.com/artifact/com.github.davidmc24.gradle.plugin.avro
+        const val protobuf = "0.9.5"    // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-gradle-plugin
+        const val avro = "1.9.1"  // https://mvnrepository.com/artifact/com.github.davidmc24.gradle.plugin.avro/com.github.davidmc24.gradle.plugin.avro.gradle.plugin
 
         const val jacoco = "0.8.11"
         const val jarTest = "1.0.1"
@@ -19,12 +19,12 @@ object Plugins {
         const val kotlinx_benchmark = "0.4.13" // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-benchmark-plugin
 
         const val spring_boot = "3.4.4"  // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies
-        const val quarkus = "3.19.4"      // https://mvnrepository.com/artifact/io.quarkus/quarkus-bom
+        const val quarkus = "3.21.3"      // https://mvnrepository.com/artifact/io.quarkus/quarkus-bom
         
         const val docker_compose = "0.17.12"  // https://plugins.gradle.org/plugin/com.avast.gradle.docker-compose
 
         // 참고: https://docs.gatling.io/reference/integrations/build-tools/gradle-plugin/
-        const val gatling = "3.13.5.1"  // https://plugins.gradle.org/plugin/io.gatling.gradle
+        const val gatling = "3.13.5.4"  // https://plugins.gradle.org/plugin/io.gatling.gradle
     }
 
     const val detekt = "io.gitlab.arturbosch.detekt"
@@ -69,13 +69,13 @@ object Versions {
     const val kotlinx_benchmark = Plugins.Versions.kotlinx_benchmark
 
     const val spring_boot = Plugins.Versions.spring_boot
-    const val spring_cloud = "2024.0.0"     // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies
-    const val spring_integration = "6.4.2"  // https://mvnrepository.com/artifact/org.springframework.integration/spring-integration-core
-    const val reactor_bom = "2024.0.3"      // https://mvnrepository.com/artifact/io.projectreactor/reactor-bom
+    const val spring_cloud = "2024.0.1"     // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies
+    const val spring_integration = "6.4.3"  // https://mvnrepository.com/artifact/org.springframework.integration/spring-integration-core
+    const val reactor_bom = "2024.0.5"      // https://mvnrepository.com/artifact/io.projectreactor/reactor-bom
     const val spring_statemachine = "4.0.0" // https://mvnrepository.com/artifact/org.springframework.statemachine/spring-statemachine-core
 
-    const val chaos_monkey = "3.1.3"        // https://mvnrepository.com/artifact/de.codecentric/chaos-monkey-spring-boot
-    const val blockhound = "1.0.10.RELEASE" // https://mvnrepository.com/artifact/io.projectreactor.tools/blockhound
+    const val chaos_monkey = "3.2.0"        // https://mvnrepository.com/artifact/de.codecentric/chaos-monkey-spring-boot
+    const val blockhound = "1.0.11.RELEASE" // https://mvnrepository.com/artifact/io.projectreactor.tools/blockhound
 
     const val quarkus = Plugins.Versions.quarkus
 
@@ -91,16 +91,16 @@ object Versions {
     const val mutiny = "2.6.2"              // https://mvnrepository.com/artifact/io.smallrye.reactive/mutiny
     const val camel_quarkus = "3.16.0"       // https://mvnrepository.com/artifact/org.apache.camel.quarkus/camel-quarkus-bom
 
-    const val vertx = "4.5.13"               // https://mvnrepository.com/artifact/io.vertx/vertx-core
+    const val vertx = "4.5.14"               // https://mvnrepository.com/artifact/io.vertx/vertx-core
 
-    const val swagger = "2.2.26"              // https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations
+    const val swagger = "2.2.30"              // https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations
     const val springdoc_openapi = "2.8.5"    // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui
     const val springfox_swagger = "3.0.0"
     const val problem = "0.29.1"             // https://mvnrepository.com/artifact/org.zalando/problem-spring-web
 
     const val bucket4j = "8.10.1"       // https://mvnrepository.com/artifact/com.bucket4j/bucket4j-core
     const val resilience4j = "2.3.0"   // https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-bom
-    const val netty = "4.1.119.Final"  // https://mvnrepository.com/artifact/io.netty/netty-all
+    const val netty = "4.2.0.Final"  // https://mvnrepository.com/artifact/io.netty/netty-all
 
     const val aws = "1.12.772"          // https://mvnrepository.com/artifact/com.amazonaws
     const val aws2 = "2.30.36"          // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
