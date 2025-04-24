@@ -104,7 +104,7 @@ class AtomicRoundrobinTest {
 
         MultijobTester()
             .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerJob(4)
+            .roundsPerJob(Runtimex.availableProcessors * 2 * 4)
             .add {
                 atomic.next().apply {
                     log.trace { "atomic=$this" }
