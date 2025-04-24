@@ -18,7 +18,7 @@ class VirtualThreadSupportTest: AbstractVirtualThreadTest() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `platformThreadBuilder를 이용하여 PlatformThread 생성하기`() {
-        val builder = platformThreadBuilder {
+        val builder: Thread.Builder.OfPlatform = platformThreadBuilder {
             daemon(false)
             priority(10)
             stackSize(1024)
@@ -47,7 +47,7 @@ class VirtualThreadSupportTest: AbstractVirtualThreadTest() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `virtualThreadBuilder 를 이용하여 VirtualThread 생성하기`() {
-        val builder = virtualThreadBuilder {
+        val builder: Thread.Builder.OfVirtual = virtualThreadBuilder {
             name("virtual-thread")
             inheritInheritableThreadLocals(false)
             uncaughtExceptionHandler { thread, ex ->
