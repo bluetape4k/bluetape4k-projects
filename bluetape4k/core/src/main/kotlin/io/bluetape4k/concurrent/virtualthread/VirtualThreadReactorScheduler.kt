@@ -9,6 +9,7 @@ import java.util.concurrent.Executors
  * Reactor에서 Virtual Thread를 사용하기 위한 [Scheduler]
  * Virtual thread를 사용하는 [ExecutorService]를 반환
  */
+@Suppress("UnusedReceiverParameter")
 val Schedulers.virtualThread: Scheduler
     get() = Schedulers.fromExecutorService(VirtualThreadExecutor)
 
@@ -16,5 +17,6 @@ val Schedulers.virtualThread: Scheduler
  * Reactor에서 Virtual Thread를 사용하기 위한 [Scheduler]
  * Virtual thread를 사용하는 새로운 [ExecutorService] 를 생성하여 반환
  */
+@Suppress("UnusedReceiverParameter")
 val Schedulers.newVirtualThread: Scheduler
     get() = Schedulers.fromExecutorService(Executors.newVirtualThreadPerTaskExecutor())

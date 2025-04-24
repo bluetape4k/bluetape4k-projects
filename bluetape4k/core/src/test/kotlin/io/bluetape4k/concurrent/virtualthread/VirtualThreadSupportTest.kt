@@ -6,6 +6,8 @@ import io.bluetape4k.logging.warn
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEqualTo
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.until
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 
@@ -81,7 +83,9 @@ class VirtualThreadSupportTest: AbstractVirtualThreadTest() {
         factory.javaClass.name shouldBeEqualTo "java.lang.ThreadBuilders\$VirtualThreadFactory"
 
         val thread = factory.newThread {
+            Thread.sleep(100)
             log.debug { "New Virtual Thread" }
+            Thread.sleep(100)
         }
 
         thread.javaClass.name shouldBeEqualTo "java.lang.VirtualThread"
@@ -93,6 +97,8 @@ class VirtualThreadSupportTest: AbstractVirtualThreadTest() {
         thread.state shouldBeEqualTo Thread.State.NEW
 
         thread.start()
+
+        await until { thread.state == Thread.State.RUNNABLE || thread.state == Thread.State.TIMED_WAITING }
 
         // Thread가 시작되었으므로 RUNNABLE or TIMED_WAITING 상태 (Thread.sleep() 때문에)
         thread.state shouldNotBeEqualTo Thread.State.NEW
