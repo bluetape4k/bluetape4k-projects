@@ -6,7 +6,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.take
@@ -47,14 +47,15 @@ class CoRingBufferTest {
             }
             .run()
 
+        // CoRingBuffer 의 크기가 16 이므로, 2바퀴 돌아서 17 ~ 32 까지의 숫자를 가진다.
         buffer.toList().sortedBy { it } shouldBeEqualTo List(16) { (it + 1).toDouble() }
     }
 
     @Test
     fun `windowed ring buffer`() = runTest {
-        val flow = flow {
+        val flow = channelFlow {
             var i = 0
-            while (true) emit(i++)
+            while (true) send(i++)
         }
 
         val windowed: Flow<List<Int>> = flow.bufferedSliding(10)
