@@ -2,10 +2,13 @@ package io.bluetape4k.redis.lettuce
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.RedisConst
+import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
+import io.lettuce.core.api.coroutines
+import io.lettuce.core.api.coroutines.RedisCoroutinesCommands
 import io.lettuce.core.api.sync.RedisCommands
 import io.lettuce.core.codec.RedisCodec
 import io.lettuce.core.resource.ClientResources
@@ -25,11 +28,8 @@ object LettuceClients: KLogging() {
         port: Int = RedisConst.DEFAULT_PORT,
         timeoutInMillis: Long = RedisConst.DEFAULT_TIMEOUT_MILLIS,
     ): RedisURI {
-        return RedisURI.builder()
-            .withHost(host)
-            .withPort(port)
-            .withTimeout(timeoutInMillis.milliseconds.toJavaDuration())
-            .build()
+        return RedisURI.builder().withHost(host).withPort(port)
+            .withTimeout(timeoutInMillis.milliseconds.toJavaDuration()).build()
     }
 
     /**
@@ -84,8 +84,7 @@ object LettuceClients: KLogging() {
         host: String = RedisConst.DEFAULT_HOST,
         port: Int = RedisConst.DEFAULT_PORT,
         timeoutInMillis: Long = RedisConst.DEFAULT_TIMEOUT_MILLIS,
-    ): RedisClient =
-        clientOf(getRedisURI(host, port, timeoutInMillis))
+    ): RedisClient = clientOf(getRedisURI(host, port, timeoutInMillis))
 
     /**
      * [client]를 이용하여 [StatefulRedisConnection]을 생성합니다. (sync)
@@ -94,8 +93,7 @@ object LettuceClients: KLogging() {
      * val connection = LettuceClients.connect(client)
      * ```
      */
-    fun connect(client: RedisClient): StatefulRedisConnection<String, String> =
-        client.connect()
+    fun connect(client: RedisClient): StatefulRedisConnection<String, String> = client.connect()
 
     /**
      * [client]와 [codec]를 이용하여 [StatefulRedisConnection]을 생성합니다. (sync)
@@ -114,8 +112,7 @@ object LettuceClients: KLogging() {
      * val commands = LettuceClients.commands(client)
      * ```
      */
-    fun commands(client: RedisClient): RedisCommands<String, String> =
-        connect(client).sync()
+    fun commands(client: RedisClient): RedisCommands<String, String> = connect(client).sync()
 
     /**
      * [client]와 [codec]를 이용하여 [RedisCommands]`<String, V>` 를 생성합니다.
@@ -134,8 +131,7 @@ object LettuceClients: KLogging() {
      * val asyncCommands = LettuceClients.asyncCommands(client)
      * ```
      */
-    fun asyncCommands(client: RedisClient): RedisAsyncCommands<String, String> =
-        connect(client).async()
+    fun asyncCommands(client: RedisClient): RedisAsyncCommands<String, String> = connect(client).async()
 
     /**
      * [client]와 [codec]를 이용하여 [RedisAsyncCommands]`<String, V>` 를 생성합니다.
@@ -146,4 +142,27 @@ object LettuceClients: KLogging() {
      */
     fun <V: Any> asyncCommands(client: RedisClient, codec: RedisCodec<String, V>): RedisAsyncCommands<String, V> =
         connect(client, codec).async()
+
+    /**
+     * [client]를 이용하여 [RedisAsyncCommands]`<String, String>` 를 생성합니다.
+     *
+     * ```
+     * val asyncCommands = LettuceClients.asyncCommands(client)
+     * ```
+     */
+    @OptIn(ExperimentalLettuceCoroutinesApi::class)
+    fun coroutinesCommands(client: RedisClient): RedisCoroutinesCommands<String, String> = connect(client).coroutines()
+
+    /**
+     * [client]와 [codec]를 이용하여 [RedisAsyncCommands]`<String, V>` 를 생성합니다.
+     *
+     * ```
+     * val asyncCommands = LettuceClients.asyncCommands(client, StringCodec.UTF8)
+     * ```
+     */
+    @OptIn(ExperimentalLettuceCoroutinesApi::class)
+    fun <V: Any> coroutinesCommands(
+        client: RedisClient,
+        codec: RedisCodec<String, V>,
+    ): RedisCoroutinesCommands<String, V> = connect(client, codec).coroutines()
 }
