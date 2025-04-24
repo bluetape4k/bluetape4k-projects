@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertFails
 import kotlin.test.assertFailsWith
 
-class MultijobTester2Test {
+class SuspendedJobTesterTest {
 
     companion object: KLogging() {
         private const val REPEAT_SIZE = 5
@@ -20,7 +20,7 @@ class MultijobTester2Test {
         val block: suspend () -> Unit = { throw RuntimeException("BAM!") }
 
         assertFails {
-            MultijobTester2()
+            SuspendedJobTester()
                 .add(block)
                 .run()
         }
@@ -30,7 +30,7 @@ class MultijobTester2Test {
     fun `긴 실행 시간을 가진 코드블럭 실행`() = runTest {
         val job = CountingJob()
 
-        MultijobTester2()
+        SuspendedJobTester()
             .numThreads(3)
             .roundsPerJob(4)
             .add(job)
@@ -43,7 +43,7 @@ class MultijobTester2Test {
     fun `하나의 suspend 함수 실행하기`() = runTest {
         val block = CountingJob()
 
-        MultijobTester2()
+        SuspendedJobTester()
             .numThreads(11)
             .roundsPerJob(13)
             .add(block)
@@ -57,7 +57,7 @@ class MultijobTester2Test {
         val block1 = CountingJob()
         val block2 = CountingJob()
 
-        MultijobTester2()
+        SuspendedJobTester()
             .numThreads(3)
             .roundsPerJob(4)
             .addAll(block1, block2)
@@ -70,12 +70,12 @@ class MultijobTester2Test {
     @Test
     fun `실행할 코드블럭을 등록하지 않으면 예외가 발생한다`() = runTest {
         assertFailsWith<IllegalStateException> {
-            MultijobTester()
+            SuspendedJobTester()
                 .run()
         }
 
         assertFailsWith<IllegalStateException> {
-            MultijobTester2()
+            SuspendedJobTester()
                 .numThreads(2)
                 .roundsPerJob(1)
                 .run()

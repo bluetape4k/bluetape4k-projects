@@ -31,7 +31,7 @@ import kotlinx.coroutines.yield
  * @see [io.bluetape4k.junit5.concurrency.MultithreadingTester]
  * @see [io.bluetape4k.junit5.concurrency.VirtualthreadTester]
  */
-class MultijobTester2 {
+class SuspendedJobTester {
 
     companion object: KLogging() {
         const val DEFAULT_JOB_SIZE: Int = 64
