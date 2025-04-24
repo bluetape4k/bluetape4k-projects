@@ -146,7 +146,7 @@ class ConcurrentReducerTest {
         reducer.queuedCount shouldBeEqualTo 0
 
         request1.complete("1")
-        await until { promise1.isDone }
+        await until { promise1.isDone && reducer.activeCount == 0 }
 
         promise1.isDone.shouldBeTrue()
         promise2.isDone.shouldBeTrue()
