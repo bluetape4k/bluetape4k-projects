@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit
  * @see [MultithreadingTester]
  * @see [io.bluetape4k.junit5.coroutines.MultijobTester]
  */
+@Deprecated("Use StructuredTaskScopeTester instead", replaceWith = ReplaceWith("StructuredTaskScopeTester"))
 class VirtualthreadTester {
 
     companion object: KLogging() {
