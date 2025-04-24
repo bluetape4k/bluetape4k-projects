@@ -31,6 +31,7 @@ import kotlinx.coroutines.yield
  * @see [io.bluetape4k.junit5.concurrency.MultithreadingTester]
  * @see [io.bluetape4k.junit5.concurrency.VirtualthreadTester]
  */
+@Deprecated("Use SuspendedJobTester instead", replaceWith = ReplaceWith("SuspendedJobTester"))
 class MultijobTester {
 
     companion object: KLogging() {

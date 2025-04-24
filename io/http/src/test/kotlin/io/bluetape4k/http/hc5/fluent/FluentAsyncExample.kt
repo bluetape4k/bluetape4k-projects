@@ -4,12 +4,13 @@ import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import io.bluetape4k.coroutines.support.coAwait
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.junit5.concurrency.VirtualthreadTester
-import io.bluetape4k.junit5.coroutines.MultijobTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
+import io.bluetape4k.logging.trace
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
@@ -91,10 +92,10 @@ class FluentAsyncExample: AbstractHc5Test() {
                 .add {
                     val index = counter.getAndIncrement() % requests.size
                     val request = requests[index]
-                    log.debug { "Reqeust $request" }
+                    log.trace { "Reqeust $request" }
 
                     val content = async.execute(request).get()
-                    log.debug { "Content type=${content.type} from $request" }
+                    log.trace { "Content type=${content.type} from $request" }
                 }
                 .run()
         } finally {
@@ -107,16 +108,15 @@ class FluentAsyncExample: AbstractHc5Test() {
         val async = Async.newInstance().use(VirtualThreadExecutor)
         val counter = atomic(0)
 
-        VirtualthreadTester()
-            .numThreads(requests.size / 2)
-            .roundsPerThread(2)
+        StructuredTaskScopeTester()
+            .roundsPerTask(requests.size)
             .add {
                 val index = counter.getAndIncrement() % requests.size
                 val request = requests[index]
-                log.debug { "Reqeust $request" }
+                log.trace { "Reqeust $request" }
 
                 val content = async.execute(request).get()
-                log.debug { "Content type=${content.type} from $request" }
+                log.trace { "Content type=${content.type} from $request" }
             }
             .run()
     }
@@ -126,16 +126,16 @@ class FluentAsyncExample: AbstractHc5Test() {
         val async = Async.newInstance().use(Dispatchers.IO.asExecutor())
         val counter = atomic(0)
 
-        MultijobTester()
+        SuspendedJobTester()
             .numThreads(requests.size / 2)
-            .roundsPerJob(2)
+            .roundsPerJob(requests.size)
             .add {
                 val index = counter.getAndIncrement() % requests.size
                 val request = requests[index]
-                log.debug { "Reqeust $request" }
+                log.trace { "Reqeust $request" }
 
                 val content = async.execute(request).coAwait()
-                log.debug { "Content type=${content.type} from $request" }
+                log.trace { "Content type=${content.type} from $request" }
             }
             .run()
     }
