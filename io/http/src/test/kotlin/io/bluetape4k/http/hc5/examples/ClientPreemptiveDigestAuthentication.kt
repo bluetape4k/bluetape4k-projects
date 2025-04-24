@@ -12,38 +12,41 @@ import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials
 import org.apache.hc.client5.http.classic.methods.HttpGet
+import org.apache.hc.client5.http.impl.auth.BasicScheme
 import org.apache.hc.client5.http.impl.auth.DigestScheme
 import org.apache.hc.core5.http.message.StatusLine
 import org.junit.jupiter.api.Test
 
 /**
- * An example of how HttpClient can authenticate multiple requests
- * using the same Digest scheme. After the initial request / response exchange
- * all subsequent requests sharing the same execution context can re-use
- * the last Digest nonce value to authenticate with the server.
+ * nghttp2.org/httpbin 에서 제공하는 HTTP Basic Authentication 예제입니다.
  */
 class ClientPreemptiveDigestAuthentication: AbstractHc5Test() {
 
     companion object: KLogging()
 
+    private val httpbinHost = "https://nghttp2.org"
+    private val httpbinBaseUrl = "$httpbinHost/httpbin"
+    private val username = "debop"
+    private val password = "bluetape4k"
+
     @Test
     fun `use preemptive basic authentication`() {
 
         val httpclient = httpClientOf()
-        val httpHost = httpHostOf(httpbinBaseUrl)
+        val httpHost = httpHostOf(httpbinHost)
 
         httpclient.use {
             val localContext = httpClientContext {
                 useCredentialsProvider(
                     credentialsProvider {
-                        add(httpHost, UsernamePasswordCredentials("user", "passwd".toCharArray()))
+                        add(httpHost, UsernamePasswordCredentials(username, password.toCharArray()))
                     }
                 )
             }
-            val request = HttpGet("$httpbinBaseUrl/digest-auth/auth/user/passwd")
+            val request = HttpGet("$httpbinBaseUrl/basic-auth/$username/$password")
             log.debug { "Execute request ${request.method} ${request.uri}" }
 
-            repeat(3) {
+            repeat(1) {
                 val response = httpclient.execute(request, localContext) { it }
 
                 log.debug { "-------------------" }
@@ -54,8 +57,9 @@ class ClientPreemptiveDigestAuthentication: AbstractHc5Test() {
                 val authExchange = localContext.getAuthExchange(httpHost)
                 if (authExchange != null) {
                     val authScheme = authExchange.authScheme
-                    if (authScheme is DigestScheme) {
-                        log.debug { "Nonce: ${authScheme.nonce}; count: ${authScheme.nounceCount}" }
+                    when (authScheme) {
+                        is BasicScheme -> log.debug { "Basic auth scheme: ${authScheme.name}, ${authScheme.realm}" }
+                        is DigestScheme -> log.debug { "Digest auth scheme: ${authScheme.name}, count: ${authScheme.nounceCount}" }
                     }
                 }
             }
@@ -66,13 +70,13 @@ class ClientPreemptiveDigestAuthentication: AbstractHc5Test() {
     fun `use preemptive basic authentication in multi threading`() {
 
         val httpclient = httpClientOf()
-        val httpHost = httpHostOf(httpbinBaseUrl)
+        val httpHost = httpHostOf(httpbinHost)
 
         val localContextStorage = ThreadLocal.withInitial {
             httpClientContext {
                 useCredentialsProvider(
                     credentialsProvider {
-                        add(httpHost, UsernamePasswordCredentials("user", "passwd".toCharArray()))
+                        add(httpHost, UsernamePasswordCredentials(username, password.toCharArray()))
                     }
                 )
             }
@@ -80,12 +84,12 @@ class ClientPreemptiveDigestAuthentication: AbstractHc5Test() {
 
         httpclient.use {
             MultithreadingTester()
-                .numThreads(4)
-                .roundsPerThread(4)
+                .numThreads(2)
+                .roundsPerThread(2)
                 .add {
                     val localContext = localContextStorage.get()
 
-                    val request = HttpGet("$httpbinBaseUrl/digest-auth/auth/user/passwd")
+                    val request = HttpGet("$httpbinBaseUrl/basic-auth/$username/$password")
                     log.debug { "Execute request ${request.method} ${request.uri}" }
 
                     httpclient.execute(request, localContext) { response ->
@@ -95,8 +99,11 @@ class ClientPreemptiveDigestAuthentication: AbstractHc5Test() {
                         response.code shouldBeEqualTo 200
 
                         val authExchange = localContext.getAuthExchange(httpHost)!!
-                        val authScheme = authExchange.authScheme as DigestScheme
-                        log.debug { "Nonce: ${authScheme.nonce}; count: ${authScheme.nounceCount}" }
+                        val authScheme = authExchange.authScheme
+                        when (authScheme) {
+                            is BasicScheme -> log.debug { "Basic auth scheme: ${authScheme.name}, ${authScheme.realm}" }
+                            is DigestScheme -> log.debug { "Digest auth scheme: ${authScheme.name}, count: ${authScheme.nounceCount}" }
+                        }
                     }
                 }
                 .run()
