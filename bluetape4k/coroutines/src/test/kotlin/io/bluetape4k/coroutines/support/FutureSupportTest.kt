@@ -50,7 +50,7 @@ class FutureSupportTest {
 
         MultijobTester()
             .numThreads(16)
-            .roundsPerJob(ITEM_COUNT / 4)
+            .roundsPerJob(16 * ITEM_COUNT / 4)
             .add {
                 val task = future(Dispatchers.Default, start = CoroutineStart.DEFAULT) {
                     delay(Random.nextLong(10))
@@ -62,6 +62,6 @@ class FutureSupportTest {
             }
             .run()
 
-        counter.value shouldBeEqualTo 16 * ITEM_COUNT / 4
+        counter.value shouldBeEqualTo 16 * 16 * ITEM_COUNT / 4
     }
 }

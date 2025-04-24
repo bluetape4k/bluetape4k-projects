@@ -3,6 +3,7 @@ package io.bluetape4k.concurrent
 import io.bluetape4k.concurrent.virtualthread.VirtualFuture
 import io.bluetape4k.concurrent.virtualthread.virtualFuture
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.concurrency.VirtualthreadTester
 import io.bluetape4k.junit5.coroutines.MultijobTester
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
@@ -98,7 +99,25 @@ class FutureSupportTest {
             .run()
 
         counter.get() shouldBeEqualTo Runtimex.availableProcessors * 2 * ITEM_COUNT / 4
+    }
 
+    @Test
+    fun `Massive Future as CompletaboeFuture in Structured`() {
+        val counter = AtomicInteger(0)
+
+        StructuredTaskScopeTester()
+            .roundsPerTask(Runtimex.availableProcessors * 2 * ITEM_COUNT / 4)
+            .add {
+                val task: VirtualFuture<Int> = virtualFuture {
+                    Thread.sleep(Random.nextLong(10))
+                    counter.incrementAndGet()
+                }
+                val result = task.await()
+                log.trace { "result=$result" }
+            }
+            .run()
+
+        counter.get() shouldBeEqualTo Runtimex.availableProcessors * 2 * ITEM_COUNT / 4
     }
 
     @Test
