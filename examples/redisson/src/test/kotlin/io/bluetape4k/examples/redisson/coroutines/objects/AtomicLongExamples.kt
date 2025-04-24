@@ -2,10 +2,12 @@ package io.bluetape4k.examples.redisson.coroutines.objects
 
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.junit5.coroutines.MultijobTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.coroutines.coAwait
+import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import org.amshove.kluent.shouldBeEqualTo
@@ -56,18 +58,18 @@ class AtomicLongExamples: AbstractRedissonCoroutineTest() {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `AtomicLong in Multi job`() = runSuspendIO {
+    fun `AtomicLong in Coroutines`() = runSuspendIO {
         val counter = redisson.getAtomicLong(randomName())
 
-        MultijobTester()
-            .numThreads(8)
-            .roundsPerJob(32)
+        SuspendedJobTester()
+            .numThreads(Runtimex.availableProcessors)
+            .roundsPerJob(32 * 8)
             .add {
                 counter.incrementAndGetAsync().coAwait()
             }
             .run()
 
-        counter.async.coAwait() shouldBeEqualTo 8 * 32L
+        counter.async.coAwait() shouldBeEqualTo 32 * 8L
         counter.deleteAsync().coAwait().shouldBeTrue()
     }
 
@@ -78,6 +80,21 @@ class AtomicLongExamples: AbstractRedissonCoroutineTest() {
         MultithreadingTester()
             .numThreads(32)
             .roundsPerThread(8)
+            .add {
+                counter.incrementAndGet()
+            }
+            .run()
+
+        counter.get() shouldBeEqualTo 32 * 8L
+        counter.delete().shouldBeTrue()
+    }
+
+    @RepeatedTest(REPEAT_SIZE)
+    fun `AtomicLong in Virtual threads`() {
+        val counter = redisson.getAtomicLong(randomName())
+
+        StructuredTaskScopeTester()
+            .roundsPerTask(32 * 8)
             .add {
                 counter.incrementAndGet()
             }

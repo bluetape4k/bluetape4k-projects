@@ -2,8 +2,12 @@ package io.bluetape4k.examples.redisson.coroutines.locks
 
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.coroutines.coAwait
+import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
@@ -86,39 +90,141 @@ class SemaphoreExamples: AbstractRedissonCoroutineTest() {
 
         val redisson2 = newRedisson()
         val redisson3 = newRedisson()
+        try {
+            MultithreadingTester()
+                .numThreads(8)
+                .roundsPerThread(4)
+                .add {
+                    val s2 = redisson2.getSemaphore(semaphoreName)
+                    Thread.sleep(1)
+                    // 2개 반납 (4개 남음)
+                    s2.release(2)
+                    Thread.sleep(1)
+                }
+                .add {
+                    val s3 = redisson3.getSemaphore(semaphoreName)
+                    Thread.sleep(1)
+                    // 4개 확보
+                    s3.tryAcquire(2, 5.seconds.toJavaDuration()).shouldBeTrue()
+                    Thread.sleep(1)
+                }
+                .run()
 
-        MultithreadingTester()
-            .numThreads(8)
-            .roundsPerThread(4)
-            .add {
-                val s2 = redisson2.getSemaphore(semaphoreName)
-                Thread.sleep(1)
-                // 2개 반납 (4개 남음)
-                s2.release(2)
-                Thread.sleep(1)
-            }
-            .add {
-                val s3 = redisson3.getSemaphore(semaphoreName)
-                Thread.sleep(1)
-                // 4개 확보
-                s3.tryAcquire(2, 5.seconds.toJavaDuration()).shouldBeTrue()
-                Thread.sleep(1)
-            }
-            .run()
+            semaphore.availablePermits() shouldBeEqualTo 2
 
-        semaphore.availablePermits() shouldBeEqualTo 2
+            // 4개 반납
+            semaphore.release(4)
+            semaphore.availablePermits() shouldBeEqualTo 6
 
-        // 4개 반납
-        semaphore.release(4)
-        semaphore.availablePermits() shouldBeEqualTo 6
+            // 여유분을 모두 획득합니다.
+            semaphore.drainPermits() shouldBeEqualTo 6
+            semaphore.availablePermits() shouldBeEqualTo 0
+        } finally {
+            semaphore.delete()
 
-        // 여유분을 모두 획득합니다.
-        semaphore.drainPermits() shouldBeEqualTo 6
-        semaphore.availablePermits() shouldBeEqualTo 0
+            redisson2.shutdown()
+            redisson3.shutdown()
+        }
+    }
 
-        semaphore.delete()
+    @Test
+    fun `semaphore in virtual threads`() {
+        val semaphoreName = randomName()
+        val semaphore = redisson.getSemaphore(semaphoreName)
 
-        redisson2.shutdown()
-        redisson3.shutdown()
+        // 5개 확보
+        semaphore.trySetPermits(5).shouldBeTrue()
+
+        // 3개 획득
+        semaphore.acquire(3)
+
+        val redisson2 = newRedisson()
+        val redisson3 = newRedisson()
+
+        try {
+            StructuredTaskScopeTester()
+                .roundsPerTask(16)
+                .add {
+                    val s2 = redisson2.getSemaphore(semaphoreName)
+                    Thread.sleep(1)
+                    // 2개 반납 (4개 남음)
+                    s2.release(2)
+                    Thread.sleep(1)
+                }
+                .add {
+                    val s3 = redisson3.getSemaphore(semaphoreName)
+                    Thread.sleep(1)
+                    // 4개 확보
+                    s3.tryAcquire(2, 5.seconds.toJavaDuration()).shouldBeTrue()
+                    Thread.sleep(1)
+                }
+                .run()
+
+            semaphore.availablePermits() shouldBeEqualTo 2
+
+            // 4개 반납
+            semaphore.release(4)
+            semaphore.availablePermits() shouldBeEqualTo 6
+
+            // 여유분을 모두 획득합니다.
+            semaphore.drainPermits() shouldBeEqualTo 6
+            semaphore.availablePermits() shouldBeEqualTo 0
+        } finally {
+            semaphore.delete()
+
+            redisson2.shutdown()
+            redisson3.shutdown()
+        }
+    }
+
+    @Test
+    fun `semaphore in coroutines`() = runSuspendIO {
+        val semaphoreName = randomName()
+        val semaphore = redisson.getSemaphore(semaphoreName)
+
+        // 5개 확보
+        semaphore.trySetPermits(5).shouldBeTrue()
+
+        // 3개 획득
+        semaphore.acquire(3)
+
+        val redisson2 = newRedisson()
+        val redisson3 = newRedisson()
+
+        try {
+            SuspendedJobTester()
+                .numThreads(Runtimex.availableProcessors)
+                .roundsPerJob(16)
+                .add {
+                    val s2 = redisson2.getSemaphore(semaphoreName)
+                    Thread.sleep(1)
+                    // 2개 반납 (4개 남음)
+                    s2.release(2)
+                    Thread.sleep(1)
+                }
+                .add {
+                    val s3 = redisson3.getSemaphore(semaphoreName)
+                    Thread.sleep(1)
+                    // 4개 확보
+                    s3.tryAcquire(2, 5.seconds.toJavaDuration()).shouldBeTrue()
+                    Thread.sleep(1)
+                }
+                .run()
+
+            semaphore.availablePermits() shouldBeEqualTo 2
+
+            // 4개 반납
+            semaphore.release(4)
+            semaphore.availablePermits() shouldBeEqualTo 6
+
+            // 여유분을 모두 획득합니다.
+            semaphore.drainPermits() shouldBeEqualTo 6
+            semaphore.availablePermits() shouldBeEqualTo 0
+        } finally {
+            semaphore.delete()
+
+            redisson2.shutdown()
+            redisson3.shutdown()
+        }
     }
 }
