@@ -1,6 +1,6 @@
 package io.bluetape4k.concurrent.virtualthread
 
-import io.bluetape4k.junit5.concurrency.VirtualthreadTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
@@ -51,7 +51,7 @@ class VirtualFutureTest {
         val tasks: List<() -> Int> = List(taskSize) {
             {
                 log.debug { "Run task[$it]" }
-                Thread.sleep(1000)
+                Thread.sleep(100)
                 it
             }
         }
@@ -65,17 +65,20 @@ class VirtualFutureTest {
         val taskCount = atomic(0)
 
         // 1초씩 대기하는 1000 개의 작업을 Virtual Thread를 이용하면, 2초내에 모든 작업이 완료됩니다.
-        VirtualthreadTester()
-            .numThreads(1000)
-            .roundsPerThread(1)
+        StructuredTaskScopeTester()
+            .roundsPerTask(1)
             .add {
-                Thread.sleep(1000)
-                log.trace { "Run task ...${taskCount.incrementAndGet()}" }
+                Thread.sleep(100)
+                taskCount.incrementAndGet()
+                log.trace { "Run task ...${taskCount.value}" }
             }
             .add {
-                Thread.sleep(1000)
-                log.trace { "Run task ...${taskCount.incrementAndGet()}" }
+                Thread.sleep(100)
+                taskCount.incrementAndGet()
+                log.trace { "Run task ...${taskCount.value}" }
             }
             .run()
+
+        taskCount.value shouldBeEqualTo 2
     }
 }

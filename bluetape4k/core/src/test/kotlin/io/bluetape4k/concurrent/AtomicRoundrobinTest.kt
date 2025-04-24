@@ -1,8 +1,8 @@
 package io.bluetape4k.concurrent
 
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.junit5.concurrency.VirtualthreadTester
-import io.bluetape4k.junit5.coroutines.MultijobTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
@@ -84,9 +84,8 @@ class AtomicRoundrobinTest {
     fun `Virtual Thread 환경에서 라운드-로빈 방식으로 값을 증가시킨다`() {
         val atomic = AtomicIntRoundrobin(Runtimex.availableProcessors)
 
-        VirtualthreadTester()
-            .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerThread(4)
+        StructuredTaskScopeTester()
+            .roundsPerTask(4 * Runtimex.availableProcessors * 2)
             .add {
                 atomic.next().apply {
                     log.trace { "atomic=$this" }
@@ -102,7 +101,7 @@ class AtomicRoundrobinTest {
     fun `코루틴 멀티 Job 환경에서 라운드-로빈 방식으로 값을 증가시킨다`() = runSuspendDefault {
         val atomic = AtomicIntRoundrobin(Runtimex.availableProcessors)
 
-        MultijobTester()
+        SuspendedJobTester()
             .numThreads(Runtimex.availableProcessors * 2)
             .roundsPerJob(Runtimex.availableProcessors * 2 * 4)
             .add {

@@ -1,8 +1,8 @@
 package io.bluetape4k.codec
 
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.junit5.concurrency.VirtualthreadTester
-import io.bluetape4k.junit5.coroutines.MultijobTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
@@ -75,9 +75,8 @@ class Base62Test {
 
     @Test
     fun `Virtual Threads 환경에서 UUID 값을 Base62 인코딩, 디코딩하기`() {
-        VirtualthreadTester()
-            .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerThread(4)
+        StructuredTaskScopeTester()
+            .roundsPerTask(8 * Runtimex.availableProcessors)
             .add {
                 val uuid = UUID.randomUUID()
                 uuid.encodeBase62().decodeBase62AsUuid() shouldBeEqualTo uuid
@@ -87,9 +86,9 @@ class Base62Test {
 
     @Test
     fun `코루틴 환경에서 UUID 값을 Base62 인코딩, 디코딩하기`() = runSuspendDefault {
-        MultijobTester()
+        SuspendedJobTester()
             .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerJob(4)
+            .roundsPerJob(8 * Runtimex.availableProcessors)
             .add {
                 val uuid = UUID.randomUUID()
                 uuid.encodeBase62().decodeBase62AsUuid() shouldBeEqualTo uuid

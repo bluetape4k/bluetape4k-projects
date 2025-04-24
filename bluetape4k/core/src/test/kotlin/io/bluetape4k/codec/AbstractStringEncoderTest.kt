@@ -1,8 +1,8 @@
 package io.bluetape4k.codec
 
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.junit5.concurrency.VirtualthreadTester
-import io.bluetape4k.junit5.coroutines.MultijobTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
@@ -76,9 +76,8 @@ abstract class AbstractStringEncoderTest {
     fun `Virtual Thread 환경에서 인코딩, 디코딩 하면 원본과 같아야 한다`() {
         val bytes = Random.nextBytes(4096)
 
-        VirtualthreadTester()
-            .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerThread(4)
+        StructuredTaskScopeTester()
+            .roundsPerTask(8 * Runtimex.availableProcessors)
             .add {
                 val converted = encoder.decode(encoder.encode(bytes))
                 converted shouldContainSame bytes
@@ -90,9 +89,9 @@ abstract class AbstractStringEncoderTest {
     fun `코루틴 환경에서 인코딩, 디코딩 하면 원본과 같아야 한다`() = runSuspendDefault {
         val bytes = Random.nextBytes(4096)
 
-        MultijobTester()
+        SuspendedJobTester()
             .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerJob(4)
+            .roundsPerJob(8 * Runtimex.availableProcessors)
             .add {
                 val converted = encoder.decode(encoder.encode(bytes))
                 converted shouldContainSame bytes

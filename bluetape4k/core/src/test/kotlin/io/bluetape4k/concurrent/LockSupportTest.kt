@@ -1,8 +1,8 @@
 package io.bluetape4k.concurrent
 
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.junit5.concurrency.VirtualthreadTester
-import io.bluetape4k.junit5.coroutines.MultijobTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
@@ -129,9 +129,8 @@ class LockSupportTest {
         val lock = ReentrantReadWriteLock()
         var counter = 0
 
-        VirtualthreadTester()
-            .numThreads(16)
-            .roundsPerThread(2)
+        StructuredTaskScopeTester()
+            .roundsPerTask(16)
             .add {
                 lock.read {
                     Thread.sleep(10)
@@ -155,9 +154,9 @@ class LockSupportTest {
         val lock = ReentrantReadWriteLock()
         var counter = 0
 
-        MultijobTester()
+        SuspendedJobTester()
             .numThreads(16)
-            .roundsPerJob(2)
+            .roundsPerJob(16)
             .add {
                 lock.read {
                     Thread.sleep(10)
