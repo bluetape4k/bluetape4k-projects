@@ -1,6 +1,7 @@
 package io.bluetape4k.examples.redisson.coroutines
 
 import io.bluetape4k.LibraryName
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
@@ -31,7 +32,7 @@ abstract class AbstractRedissonCoroutineTest {
             Fakers.randomString(1024, 2048)
 
         @JvmStatic
-        protected fun randomName(): String = "$LibraryName:${Fakers.fixedString(32)}"
+        protected fun randomName(): String = "$LibraryName:${Base58.randomString(8)}"
 
 
         @JvmStatic
