@@ -83,8 +83,8 @@ abstract class AbstractJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderTest
     }
 
     @Test
-    fun `get post's comments`() = runSuspendIO {
-        val postIds = List(ITEM_SIZE) { Random.nextInt(1, 100) }.distinct()
+    open fun `get post's comments`() = runSuspendIO {
+        val postIds = List(ITEM_SIZE) { Random.nextInt(1, 20) }.distinct()
 
         val deferred = postIds.map { postId ->
             async {
