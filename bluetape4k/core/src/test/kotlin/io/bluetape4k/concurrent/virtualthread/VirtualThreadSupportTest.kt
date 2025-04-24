@@ -2,7 +2,6 @@ package io.bluetape4k.concurrent.virtualthread
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.logging.trace
 import io.bluetape4k.logging.warn
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
@@ -33,14 +32,14 @@ class VirtualThreadSupportTest: AbstractVirtualThreadTest() {
         builder.javaClass.name shouldBeEqualTo "java.lang.ThreadBuilders\$PlatformThreadBuilder"
 
         val thread = builder.unstarted {
-            log.trace { "Unstarted Platform Thread" }
+            log.debug { "Unstarted Platform Thread" }
         }
-        with(thread) {
-            javaClass.name shouldBeEqualTo "java.lang.Thread"
-            name shouldBeEqualTo "platform-thread"
-            isDaemon shouldBeEqualTo false
-            priority shouldBeEqualTo 10
-        }
+
+        thread.javaClass.name shouldBeEqualTo "java.lang.Thread"
+        thread.name shouldBeEqualTo "platform-thread"
+        thread.isDaemon shouldBeEqualTo false
+        thread.priority shouldBeEqualTo 10
+
         thread.start()
         thread.join()
     }
@@ -61,10 +60,9 @@ class VirtualThreadSupportTest: AbstractVirtualThreadTest() {
         val thread = builder.unstarted {
             log.debug { "Unstarted Virtual Thread" }
         }
-        with(thread) {
-            javaClass.name shouldBeEqualTo "java.lang.VirtualThread"
-            name shouldBeEqualTo "virtual-thread"
-        }
+
+        thread.javaClass.name shouldBeEqualTo "java.lang.VirtualThread"
+        thread.name shouldBeEqualTo "virtual-thread"
         thread.start()
         thread.join()
     }
@@ -85,12 +83,12 @@ class VirtualThreadSupportTest: AbstractVirtualThreadTest() {
         val thread = factory.newThread {
             log.debug { "New Virtual Thread" }
         }
-        with(thread) {
-            javaClass.name shouldBeEqualTo "java.lang.VirtualThread"
-            name shouldBeEqualTo "virtual-thread-0"
-            isDaemon shouldBeEqualTo true
-            priority shouldBeEqualTo 5
-        }
+
+        thread.javaClass.name shouldBeEqualTo "java.lang.VirtualThread"
+        thread.name shouldBeEqualTo "virtual-thread-0"
+        thread.isDaemon shouldBeEqualTo true
+        thread.priority shouldBeEqualTo 5
+
         // Thread가 시작되지 않았으므로 NEW 상태
         thread.state shouldBeEqualTo Thread.State.NEW
 

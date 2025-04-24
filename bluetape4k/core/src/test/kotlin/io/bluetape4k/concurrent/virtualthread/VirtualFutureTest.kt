@@ -36,6 +36,7 @@ class VirtualFutureTest {
             42
         }
 
+        // 1초 작업에 대해 500ms 대기 후 TimeoutException 발생
         assertFailsWith<TimeoutException> {
             vfuture.await(500.milliseconds.toJavaDuration()) shouldBeEqualTo 42
         }
@@ -47,7 +48,7 @@ class VirtualFutureTest {
     fun `run many tasks with virtual threads`() {
         val taskSize = 100
 
-        val tasks = List(taskSize) {
+        val tasks: List<() -> Int> = List(taskSize) {
             {
                 log.debug { "Run task[$it]" }
                 Thread.sleep(1000)

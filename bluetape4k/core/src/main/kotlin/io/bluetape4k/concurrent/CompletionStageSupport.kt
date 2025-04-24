@@ -15,6 +15,11 @@ import java.util.function.BiFunction
  * val future: CompletableFuture<Int> = CompletableFuture.failedFuture(RuntimeException("error"))
  * val exception: Throwable? = future.getException()
  * ```
+ * ```
+ * val future = CompletableFuture.failedFuture(RuntimeException("Something went wrong"))
+ * val ex = future.getException()
+ * require(ex is RuntimeException && ex.message == "Something went wrong")
+ * ```
  */
 fun <T> CompletionStage<T>.getException(): Throwable? {
     val future = this.toCompletableFuture()

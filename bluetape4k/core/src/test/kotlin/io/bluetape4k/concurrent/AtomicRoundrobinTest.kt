@@ -16,7 +16,7 @@ class AtomicRoundrobinTest {
     companion object: KLogging()
 
     @Test
-    fun `Parallel Stream에서 Atomic 한가`() {
+    fun `Parallel Stream에서 Atomic 한지 검증합니다`() {
         val size = 10_000
         val atomic = AtomicIntRoundrobin(size)
 
@@ -26,7 +26,7 @@ class AtomicRoundrobinTest {
     }
 
     @Test
-    fun `Round robin 방식으로 증가시키기`() {
+    fun `Round robin 방식으로 안정적으로 증가해야 합니다`() {
         val atomic = AtomicIntRoundrobin(4)
 
         atomic.get() shouldBeEqualTo 0
@@ -36,7 +36,7 @@ class AtomicRoundrobinTest {
     }
 
     @Test
-    fun `새로운 값 지정하기`() {
+    fun `기존 겂을 새로운 값으로 설정하기`() {
         val atomic = AtomicIntRoundrobin(16)
 
         atomic.next() shouldBeEqualTo 1
@@ -63,7 +63,7 @@ class AtomicRoundrobinTest {
     }
 
     @Test
-    fun `increment round robin in multi-thread`() {
+    fun `멀티 스레드 환경에서 라운드-로빈 방식으로 값을 증가시킨다`() {
         val atomic = AtomicIntRoundrobin(Runtimex.availableProcessors)
 
         MultithreadingTester()
@@ -76,11 +76,12 @@ class AtomicRoundrobinTest {
             }
             .run()
 
+        // availableProcessors 을 round robin 하기 때문에, (2*4) 배수이므로 항상 0 이어야 한다
         atomic.get() shouldBeEqualTo 0
     }
 
     @Test
-    fun `increment round robin in virtual threads`() {
+    fun `Virtual Thread 환경에서 라운드-로빈 방식으로 값을 증가시킨다`() {
         val atomic = AtomicIntRoundrobin(Runtimex.availableProcessors)
 
         VirtualthreadTester()
@@ -93,11 +94,12 @@ class AtomicRoundrobinTest {
             }
             .run()
 
+        // availableProcessors 을 round robin 하기 때문에, (2*4) 배수이므로 항상 0 이어야 한다
         atomic.get() shouldBeEqualTo 0
     }
 
     @Test
-    fun `increment round robin in multi jobs`() = runSuspendDefault {
+    fun `코루틴 멀티 Job 환경에서 라운드-로빈 방식으로 값을 증가시킨다`() = runSuspendDefault {
         val atomic = AtomicIntRoundrobin(Runtimex.availableProcessors)
 
         MultijobTester()
@@ -110,6 +112,7 @@ class AtomicRoundrobinTest {
             }
             .run()
 
+        // availableProcessors 을 round robin 하기 때문에, (2*4) 배수이므로 항상 0 이어야 한다
         atomic.get() shouldBeEqualTo 0
     }
 }

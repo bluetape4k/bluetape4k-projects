@@ -8,7 +8,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
 /**
- * Virtual Thread 를 이용하여 Coroutine 작업을 Blocking 방식으로 수행합니다.
+ * Virtual threads 를 사용하는 Dispatcher([Dispatchers.VT])를 이용하여 Coroutine 작업을 Blocking 방식으로 수행합니다.
  *
  * ```
  * val result = runVirtualBlocking {
@@ -32,7 +32,7 @@ fun <T> runVirtualBlocking(
 ): T = runBlocking(context + Dispatchers.VT, block)
 
 /**
- * Virtual Thread 를 이용하여 Coroutine 작업을 Non-Blocking 방식으로 수행합니다.
+ * Virtual threads 를 사용하는 Dispatcher([Dispatchers.VT])를 이용하여 Coroutine 작업을 Non-Blocking 방식으로 수행합니다.
  *
  * ```
  * val task = async {
@@ -47,9 +47,9 @@ fun <T> runVirtualBlocking(
  * task.await() // 42
  * ```
  *
- * @param T
- * @param context
- * @param block
+ * @param T 반환할 타입
+ * @param context 코루틴 컨텍스트
+ * @param block 실행할 코루틴 블록
  * @receiver
  * @return
  */
