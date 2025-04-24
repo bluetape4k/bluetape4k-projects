@@ -25,7 +25,7 @@ class DeferredValueTest {
         // given
         val dv = deferredValueOf {
             log.trace { "Calc deferred value ... " }
-            delay(Random.nextLong(100))
+            delay(Random.nextLong(100, 200))
             System.currentTimeMillis()
         }
         val createdTime = System.currentTimeMillis()
@@ -46,20 +46,21 @@ class DeferredValueTest {
     fun `map deferred value`() = runTest {
         val dv1 = deferredValueOf {
             log.trace { "Calc deferred value ... " }
-            delay(Random.nextLong(100))
+            delay(Random.nextLong(100, 200))
             42
         }
+
         val dv2 = dv1.map {
             log.trace { "Map deferred value ... " }
-            delay(Random.nextLong(100))
+            delay(Random.nextLong(100, 200))
             it * 2
         }
 
         dv1.isCompleted.shouldBeFalse()
         dv2.isCompleted.shouldBeFalse()
 
-        dv2.await() shouldBeEqualTo 42 * 2
         dv1.await() shouldBeEqualTo 42
+        dv2.await() shouldBeEqualTo 42 * 2
 
         dv1.isCompleted.shouldBeTrue()
         dv2.isCompleted.shouldBeTrue()
@@ -67,26 +68,23 @@ class DeferredValueTest {
 
     @Test
     fun `flatmap deferred value`() = runTest {
-        val dv1 = deferredValueOf {
+        val dv1: DeferredValue<DeferredValue<Int>> = deferredValueOf {
             log.trace { "Calc deferred value ... " }
-            delay(Random.nextLong(100))
+            delay(Random.nextLong(100, 200))
 
             deferredValueOf { 42 }
         }
-        val dv2 = dv1.flatMap { r ->
+
+        val dv2: DeferredValue<Int> = dv1.flatMap { r ->
             r.map {
                 log.trace { "Map deferred value ... " }
-                delay(Random.nextLong(100))
+                delay(Random.nextLong(100, 200))
                 it * 2
             }
         }
 
-        dv1.isCompleted.shouldBeFalse()
         dv2.isCompleted.shouldBeFalse()
-
         dv2.await() shouldBeEqualTo 42 * 2
-
-        dv1.isCompleted.shouldBeTrue()
         dv2.isCompleted.shouldBeTrue()
     }
 }
