@@ -16,9 +16,9 @@ import kotlinx.coroutines.yield
  * 이렇게 하므로서, 테스트 코드들이 서로 영향을 주지 않고 동시에 실행될 수 있는지 확인합니다.
  *
  * ```
- * MultijobTester()
- *    .numThreads(Runtimex.availableProcessors())      // 테스트 코드들이 실행될 Thread 수
- *    .roundsPerJob(4)                                 // 테스트 코드마다 4번씩 실행
+ * SuspendedJobTester()
+ *    .numThreads(Runtimex.availableProcessors())                    // 테스트 코드들이 실행될 Thread 수
+ *    .roundsPerJob(4 * Runtime.getRuntime().availableProcessors())  // 테스트 코드마다 4 * CPU core 번씩 실행
  *    .add {
  *          // 테스트 코드 1
  *    }
@@ -29,28 +29,27 @@ import kotlinx.coroutines.yield
  * ```
  *
  * @see [io.bluetape4k.junit5.concurrency.MultithreadingTester]
- * @see [io.bluetape4k.junit5.concurrency.VirtualthreadTester]
+ * @see [io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester]
  */
 class SuspendedJobTester {
 
     companion object: KLogging() {
-        const val DEFAULT_JOB_SIZE: Int = 64
+        const val DEFAULT_NUM_THREADS: Int = 64
+        const val MIN_NUM_THREADS: Int = 2
+        const val MAX_NUM_THREADS: Int = 2000
+
         const val DEFAULT_ROUNDS_PER_JOB: Int = 100
-
-        const val MIN_JOB_SIZE: Int = 2
-        const val MAX_JOB_SIZE: Int = 2000
-
         const val MIN_ROUNDS_PER_JOB: Int = 1
-        const val MAX_ROUNDS_PER_JOB: Int = 100_000
+        const val MAX_ROUNDS_PER_JOB: Int = 1_000_000
     }
 
-    private var numThreads = DEFAULT_JOB_SIZE
+    private var numThreads = DEFAULT_NUM_THREADS
     private var roundsPerJob = DEFAULT_ROUNDS_PER_JOB
     private val suspendBlocks = mutableListOf<suspend () -> Unit>()
 
     fun numThreads(value: Int) = apply {
-        require(value in MIN_JOB_SIZE..MAX_JOB_SIZE) {
-            "Invalid numJobs: [$value] -- must be range in $MIN_JOB_SIZE..$MAX_JOB_SIZE"
+        require(value in MIN_NUM_THREADS..MAX_NUM_THREADS) {
+            "Invalid numJobs: [$value] -- must be range in $MIN_NUM_THREADS..$MAX_NUM_THREADS"
         }
         numThreads = value
     }

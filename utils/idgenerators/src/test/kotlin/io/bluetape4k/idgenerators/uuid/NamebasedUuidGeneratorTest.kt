@@ -1,8 +1,8 @@
 package io.bluetape4k.idgenerators.uuid
 
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.junit5.concurrency.VirtualthreadTester
-import io.bluetape4k.junit5.coroutines.MultijobTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.utils.Runtimex
@@ -62,9 +62,8 @@ class NamebasedUuidGeneratorTest {
     fun `generate timebased uuids in virtual threads`() {
         val idMap = ConcurrentHashMap<UUID, Int>()
 
-        VirtualthreadTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerThread(TEST_COUNT)
+        StructuredTaskScopeTester()
+            .roundsPerTask(TEST_COUNT * 2 * Runtimex.availableProcessors)
             .add {
                 val id = uuidGenerator.nextId()
                 idMap.putIfAbsent(id, 1).shouldBeNull()
@@ -76,9 +75,8 @@ class NamebasedUuidGeneratorTest {
     fun `generate timebased uuids in multi job`() = runTest {
         val idMap = ConcurrentHashMap<UUID, Int>()
 
-        MultijobTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerJob(TEST_COUNT)
+        SuspendedJobTester()
+            .roundsPerJob(TEST_COUNT * 2 * Runtimex.availableProcessors)
             .add {
                 val id = uuidGenerator.nextId()
                 idMap.putIfAbsent(id, 1).shouldBeNull()

@@ -3,7 +3,7 @@ package io.bluetape4k.redis.redisson.leader
 import io.bluetape4k.concurrent.futureOf
 import io.bluetape4k.concurrent.virtualthread.virtualFuture
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.junit5.concurrency.VirtualthreadTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.AbstractRedissonTest
@@ -124,9 +124,8 @@ class RedissonLeaderElectionSupportTest: AbstractRedissonTest() {
         val numThreads = 8
         val roundsPerThread = 4
 
-        VirtualthreadTester()
-            .numThreads(numThreads)
-            .roundsPerThread(roundsPerThread)
+        StructuredTaskScopeTester()
+            .roundsPerTask(numThreads * roundsPerThread)
             .add {
                 redissonClient.runIfLeader(lockName) {
                     log.debug { "작업 1 을 시작합니다. task1=${task1.get()}" }
@@ -145,8 +144,8 @@ class RedissonLeaderElectionSupportTest: AbstractRedissonTest() {
             }
             .run()
 
-        task1.get() shouldBeEqualTo numThreads * roundsPerThread / 2
-        task2.get() shouldBeEqualTo numThreads * roundsPerThread / 2
+        task1.get() shouldBeEqualTo numThreads * roundsPerThread
+        task2.get() shouldBeEqualTo numThreads * roundsPerThread
     }
 
     @Test
@@ -198,9 +197,8 @@ class RedissonLeaderElectionSupportTest: AbstractRedissonTest() {
         val numThreads = 8
         val roundsPerThread = 4
 
-        VirtualthreadTester()
-            .numThreads(numThreads)
-            .roundsPerThread(roundsPerThread)
+        StructuredTaskScopeTester()
+            .roundsPerTask(numThreads * roundsPerThread)
             .add {
                 redissonClient.runAsyncIfLeader(lockName) {
                     virtualFuture {
@@ -225,7 +223,7 @@ class RedissonLeaderElectionSupportTest: AbstractRedissonTest() {
             }
             .run()
 
-        task1.get() shouldBeEqualTo numThreads * roundsPerThread / 2
-        task2.get() shouldBeEqualTo numThreads * roundsPerThread / 2
+        task1.get() shouldBeEqualTo numThreads * roundsPerThread
+        task2.get() shouldBeEqualTo numThreads * roundsPerThread 
     }
 }

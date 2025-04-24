@@ -8,8 +8,8 @@ import io.bluetape4k.images.immutableImageOfSuspending
 import io.bluetape4k.io.writeAsync
 import io.bluetape4k.io.writeSuspending
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.junit5.concurrency.VirtualthreadTester
-import io.bluetape4k.junit5.coroutines.MultijobTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
@@ -52,12 +52,12 @@ abstract class AbstractCoImageWriterTest: AbstractImageTest() {
 
     @ParameterizedTest
     @MethodSource("getImageFileNames")
-    fun `async image writer in multi job`(filename: String, tempFolder: TempFolder) = runSuspendIO {
+    fun `async image writer in coroutines`(filename: String, tempFolder: TempFolder) = runSuspendIO {
         val image = immutableImageOfSuspending(Path.of("$BASE_PATH/$filename.jpg"))
 
-        MultijobTester()
+        SuspendedJobTester()
             .numThreads(4)
-            .roundsPerJob(2)
+            .roundsPerJob(8)
             .add {
                 val bytes = image.forCoWriter(writer).bytes()
                 val path = tempFolder.createFile().toPath()
@@ -88,9 +88,8 @@ abstract class AbstractCoImageWriterTest: AbstractImageTest() {
     fun `async image writer in virtual threading`(filename: String, tempFolder: TempFolder) {
         val image = immutableImageOf(Path.of("$BASE_PATH/$filename.jpg"))
 
-        VirtualthreadTester()
-            .numThreads(4)
-            .roundsPerThread(2)
+        StructuredTaskScopeTester()
+            .roundsPerTask(8)
             .add {
                 val file = tempFolder.createFile()
                 image.forWriter(writer).write(file)

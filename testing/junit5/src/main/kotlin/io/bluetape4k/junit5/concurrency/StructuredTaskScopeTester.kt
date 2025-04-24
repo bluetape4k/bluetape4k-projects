@@ -5,12 +5,30 @@ import io.bluetape4k.logging.error
 import java.util.concurrent.StructuredTaskScope
 import java.util.concurrent.ThreadFactory
 
+/**
+ * Virtual threads 환경에서 테스트 코드를 실행하는 유틸리티 클래스입니다.
+ *
+ * ```
+ * StructuredTaskScopeTester()
+ *   .roundsPerTask(4 * Runtime.getRuntime().availableProcessors())
+ *   .add {
+ *      println("Hello, World!")
+ *   }
+ *   .add {
+ *      println("Hello, Kotlin!")
+ *   }
+ *   .run()
+ * ```
+ *
+ * @see [MultithreadingTester]
+ * @see [io.bluetape4k.junit5.coroutines.SuspendedJobTester]
+ */
 class StructuredTaskScopeTester {
 
     companion object: KLogging() {
         const val DEFAULT_ROUNDS_PER_TASK: Int = 4
         const val MIN_ROUNDS_PER_TASK: Int = 1
-        const val MAX_ROUNDS_PER_TASK: Int = 100_000
+        const val MAX_ROUNDS_PER_TASK: Int = 1_000_000
     }
 
     private var roundsPerTask: Int = DEFAULT_ROUNDS_PER_TASK

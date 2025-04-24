@@ -2,7 +2,9 @@ package io.bluetape4k.idgenerators.ksuid
 
 import io.bluetape4k.idgenerators.snowflake.MAX_SEQUENCE
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.junit5.concurrency.VirtualthreadTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Runtimex
@@ -52,9 +54,21 @@ class KsuidMillisTest {
     fun `generate ksuid in virtual threads`() {
         val idMap = ConcurrentHashMap<String, Int>()
 
-        VirtualthreadTester()
-            .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerThread(TEST_COUNT)
+        StructuredTaskScopeTester()
+            .roundsPerTask(TEST_COUNT)
+            .add {
+                val ksuid = KsuidMillis.generate()
+                idMap.putIfAbsent(ksuid, 1).shouldBeNull()
+            }
+            .run()
+    }
+
+    @RepeatedTest(REPEAT_SIZE)
+    fun `generate ksuid in coroutines`() = runSuspendDefault {
+        val idMap = ConcurrentHashMap<String, Int>()
+
+        SuspendedJobTester()
+            .roundsPerJob(TEST_COUNT)
             .add {
                 val ksuid = KsuidMillis.generate()
                 idMap.putIfAbsent(ksuid, 1).shouldBeNull()

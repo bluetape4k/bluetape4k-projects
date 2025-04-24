@@ -4,7 +4,9 @@ import io.bluetape4k.collections.asParallelStream
 import io.bluetape4k.idgenerators.snowflake.GlobalSnowflake
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.junit5.concurrency.VirtualthreadTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
@@ -111,9 +113,22 @@ class HashIdsSupportTest {
         fun `encode flake id in virtual threading`() {
             val map = ConcurrentHashMap<Long, Int>()
 
-            VirtualthreadTester()
-                .numThreads(2 * Runtimex.availableProcessors)
-                .roundsPerThread(ITEM_SIZE)
+            StructuredTaskScopeTester()
+                .roundsPerTask(2 * Runtimex.availableProcessors * ITEM_SIZE)
+                .add {
+                    val id = snowflake.nextId()
+                    verifySnowflakeId(id)
+                    map.putIfAbsent(id, 1).shouldBeNull()
+                }
+                .run()
+        }
+
+        @Test
+        fun `encode flake id in coroutines`() = runSuspendDefault {
+            val map = ConcurrentHashMap<Long, Int>()
+
+            SuspendedJobTester()
+                .roundsPerJob(2 * Runtimex.availableProcessors * ITEM_SIZE)
                 .add {
                     val id = snowflake.nextId()
                     verifySnowflakeId(id)
@@ -124,7 +139,7 @@ class HashIdsSupportTest {
 
         private fun verifySnowflakeId(id: Long) {
             val encoded = hashids.encode(id)
-            log.debug { "id=$id, hashids=$encoded" }
+            log.trace { "id=$id, hashids=$encoded" }
             val decoded = hashids.decode(encoded)
 
             decoded.size shouldBeEqualTo 1
