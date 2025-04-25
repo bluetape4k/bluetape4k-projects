@@ -31,17 +31,6 @@ class KryoBinarySerializer(
             output.buffer
         }
         return buffer.readByteArray().apply { buffer.close() }
-
-//        ByteArrayOutputStream(bufferSize).use { bos ->
-//            withKryoOutput { output ->
-//                output.outputStream = bos
-//                withKryo {
-//                    writeClassAndObject(output, graph)
-//                }
-//                output.flush()
-//            }
-//            return bos.toByteArray()
-//        }
     }
 
     @Suppress("UNCHECKED_CAST")
