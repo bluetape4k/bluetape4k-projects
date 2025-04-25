@@ -12,7 +12,7 @@ import java.io.Serializable
 
 object ActorSchema {
 
-    object ActorTable: SnowflakeIdTable("actors") {
+    object ActorTable: SnowflakeIdTable("exposed_actors") {
         val firstname = varchar("first_name", 50)
         val lastname = varchar("last_name", 50)
         val description = text("description").nullable()
