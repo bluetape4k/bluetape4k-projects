@@ -1183,8 +1183,6 @@ object Libs {
     val exposed_kotlin_datetime = exposed("kotlin-datetime")
     val exposed_migration = exposed("migration")
     val exposed_money = exposed("money")
-    val exposed_tests = exposed("tests")
-
     val exposed_spring_boot_starter = exposed("spring-boot-starter")
     const val exposed_spring_transaction = "org.jetbrains.exposed:spring-transaction:${Versions.exposed}"
 

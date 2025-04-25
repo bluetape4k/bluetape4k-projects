@@ -64,4 +64,9 @@ dependencies {
         exclude(group = "junit", module = "junit")
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
+
+    // Redisson Cache Strategy 예제를 위해
+    testImplementation(project(":bluetape4k-exposed"))
+    testImplementation(project(":bluetape4k-exposed-tests"))
+    testImplementation(Libs.exposed_spring_boot_starter)
 }
