@@ -4,6 +4,7 @@ import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.warn
 import io.bluetape4k.redis.redisson.RedissonCodecs
+import io.bluetape4k.support.unsafeLazy
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.ByteBufUtil
 import io.netty.buffer.Unpooled
@@ -32,7 +33,7 @@ class FuryCodec @JvmOverloads constructor(
 
     companion object: KLogging()
 
-    private val fury get() = BinarySerializers.Fury
+    private val fury by unsafeLazy { BinarySerializers.Fury }
 
     private val encoder: Encoder = Encoder { graph ->
         try {
