@@ -88,9 +88,11 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
      * [MapLoaderAsync] 를 구현하여 DB에서 데이터를 로딩한다.
      */
     protected val actorLoaderAsync: MapLoaderAsync<Long, Actor?> = object: MapLoaderAsync<Long, Actor?>, KLogging() {
+        val scope = CoroutineScope(Dispatchers.IO)
+
         override fun load(key: Long?): CompletionStage<Actor?>? {
             log.debug { "Loading actor async with key $key" }
-            val scope = CoroutineScope(Dispatchers.IO)
+
             return scope.async {
                 newSuspendedTransaction {
                     ActorTable
@@ -106,7 +108,6 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
             log.debug { "Loading all actor keys async ..." }
             return object: AsyncIterator<Long> {
                 private val batchSize = 50
-                val scope = CoroutineScope(Dispatchers.IO)
 
                 val actorIds: Iterator<Long> by lazy {
                     runBlocking(scope.coroutineContext) {
@@ -166,10 +167,11 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
      * [MapWriterAsync]를 구현하여 DB에 데이터를 저장한다.
      */
     protected val actorWriterAsync: MapWriterAsync<Long, Actor> = object: MapWriterAsync<Long, Actor>, KLogging() {
+        val scope = CoroutineScope(Dispatchers.IO)
+
         override fun write(map: Map<Long, Actor?>): CompletionStage<Void> {
             log.debug { "Writing actors async... count=${map.size}, ids=${map.keys}" }
 
-            val scope = CoroutineScope(Dispatchers.IO)
             return scope.async {
                 val entryToInsert = map.values.mapNotNull { it }
                 newSuspendedTransaction {
@@ -187,7 +189,6 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
 
         override fun delete(keys: Collection<Long>): CompletionStage<Void> {
             log.debug { "Deleteing actors async... id count=${keys.size}, ids=$keys" }
-            val scope = CoroutineScope(Dispatchers.IO)
             return scope.async {
                 val deletedRows = newSuspendedTransaction {
                     ActorTable.deleteWhere { ActorTable.id inList keys }
@@ -199,15 +200,11 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
     }
 
     protected fun getActorCountFromDB(): Long = transaction {
-        ActorTable
-            .selectAll()
-            .count()
+        ActorTable.selectAll().count()
     }
 
-    protected suspend fun getActorCountFromDBSuspended(): Long = newSuspendedTransaction {
-        ActorTable
-            .selectAll()
-            .count()
+    protected suspend fun getActorCountFromDBSuspended(): Long = newSuspendedTransaction(Dispatchers.IO) {
+        ActorTable.selectAll().count()
     }
 
     protected fun populateSampleData() {
