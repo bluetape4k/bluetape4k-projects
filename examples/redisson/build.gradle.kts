@@ -68,5 +68,7 @@ dependencies {
     // Redisson Cache Strategy 예제를 위해
     testImplementation(project(":bluetape4k-exposed"))
     testImplementation(project(":bluetape4k-exposed-tests"))
+    testImplementation(Libs.exposed_java_time)
+    testImplementation(project(":bluetape4k-javatimes"))
     testImplementation(Libs.exposed_spring_boot_starter)
 }
