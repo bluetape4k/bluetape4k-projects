@@ -7,14 +7,24 @@ import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.toAc
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.future.asCompletableFuture
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.redisson.api.AsyncIterator
 import org.redisson.api.map.MapLoader
+import org.redisson.api.map.MapLoaderAsync
 import org.redisson.api.map.MapWriter
+import org.redisson.api.map.MapWriterAsync
 import org.springframework.boot.test.context.SpringBootTest
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionStage
 
 @SpringBootTest(
     classes = [CacheApplication::class],
@@ -47,7 +57,7 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
     /**
      * MapLoader 를 구현하여 DB에서 데이터를 로딩한다.
      */
-    protected val actorLoader: MapLoader<Long, Actor> = object: MapLoader<Long, Actor>, KLogging() {
+    protected val actorLoader: MapLoader<Long, Actor?> = object: MapLoader<Long, Actor?>, KLogging() {
         override fun load(key: Long): Actor? {
             log.debug { "Loading actor with key $key" }
             return transaction {
@@ -69,14 +79,67 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
         }
     }
 
+    /**
+     * [MapLoaderAsync] 를 구현하여 DB에서 데이터를 로딩한다.
+     */
+    protected val actorLoaderAsync: MapLoaderAsync<Long, Actor?> = object: MapLoaderAsync<Long, Actor?>, KLogging() {
+        override fun load(key: Long?): CompletionStage<Actor?>? {
+            log.debug { "Loading actor async with key $key" }
+            val scope = CoroutineScope(Dispatchers.IO)
+            return scope.async {
+                newSuspendedTransaction {
+                    ActorTable
+                        .selectAll()
+                        .where { ActorTable.id eq key }
+                        .singleOrNull()
+                        ?.toActor()
+                }
+            }.asCompletableFuture()
+        }
+
+        override fun loadAllKeys(): AsyncIterator<Long>? {
+            log.debug { "Loading all actor keys async ..." }
+            return object: AsyncIterator<Long> {
+                private val batchSize = 25
+
+                val actorIds = getActorByFetchBatched()
+
+                override fun hasNext(): CompletionStage<Boolean> {
+                    return CompletableFuture.supplyAsync {
+                        actorIds.iterator().hasNext()
+                    }
+                }
+
+                override fun next(): CompletionStage<Long> {
+                    return CompletableFuture.supplyAsync {
+                        actorIds.iterator().next()
+                    }
+                }
+
+                private fun getActorByFetchBatched(): Sequence<Long> {
+                    return ActorTable.select(ActorTable.id)
+                        .fetchBatchedResults(batchSize = batchSize)
+                        .asSequence()
+                        .map { list ->
+                            list.map { it[ActorTable.id].value }
+                        }
+                        .flatten()
+                }
+            }
+        }
+    }
+
+    /**
+     * [MapWriter]를 구현하여 DB에 데이터를 저장한다.
+     */
     protected val actorWriter: MapWriter<Long, Actor> = object: MapWriter<Long, Actor>, KLogging() {
         override fun write(map: Map<Long, Actor?>) {
-            log.debug { "Writing actors ... count=${map.size}" }
+            log.debug { "Writing actors ... count=${map.size}, ids=${map.keys}" }
             val entryToInsert = map.values.mapNotNull { it }
             transaction {
 
-                ActorTable.batchInsert(entryToInsert) { actor ->
-                    this[ActorTable.id] = actor.id!!
+                ActorTable.batchInsert(entryToInsert, shouldReturnGeneratedValues = false) { actor ->
+                    this[ActorTable.id] = actor.id
                     this[ActorTable.firstname] = actor.firstname
                     this[ActorTable.lastname] = actor.lastname
                     this[ActorTable.description] = actor.description
@@ -92,7 +155,49 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
         }
     }
 
+    /**
+     * [MapWriterAsync]를 구현하여 DB에 데이터를 저장한다.
+     */
+    protected val actorWriterAsync: MapWriterAsync<Long, Actor> = object: MapWriterAsync<Long, Actor>, KLogging() {
+        override fun write(map: Map<Long, Actor?>): CompletionStage<Void> {
+            log.debug { "Writing actors async... count=${map.size}, ids=${map.keys}" }
+
+            val scope = CoroutineScope(Dispatchers.IO)
+            return scope.async {
+                val entryToInsert = map.values.mapNotNull { it }
+                newSuspendedTransaction {
+                    ActorTable.batchInsert(entryToInsert, shouldReturnGeneratedValues = false) { actor ->
+                        this[ActorTable.id] = actor.id
+                        this[ActorTable.firstname] = actor.firstname
+                        this[ActorTable.lastname] = actor.lastname
+                        this[ActorTable.description] = actor.description
+                    }
+                }
+                log.debug { "Inserted actor count=${entryToInsert.size}" }
+                null
+            }.asCompletableFuture()
+        }
+
+        override fun delete(keys: Collection<Long>): CompletionStage<Void> {
+            log.debug { "Deleteing actors async... id count=${keys.size}, ids=$keys" }
+            val scope = CoroutineScope(Dispatchers.IO)
+            return scope.async {
+                val deletedRows = newSuspendedTransaction {
+                    ActorTable.deleteWhere { ActorTable.id inList keys }
+                }
+                log.debug { "Deleted actor count=$deletedRows" }
+                null
+            }.asCompletableFuture()
+        }
+    }
+
     protected fun getActorCountFromDB(): Long = transaction {
+        ActorTable
+            .selectAll()
+            .count()
+    }
+
+    protected suspend fun getActorCountFromDBSuspended(): Long = newSuspendedTransaction {
         ActorTable
             .selectAll()
             .count()

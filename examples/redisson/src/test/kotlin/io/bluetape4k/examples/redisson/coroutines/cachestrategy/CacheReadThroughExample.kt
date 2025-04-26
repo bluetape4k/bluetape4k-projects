@@ -2,16 +2,23 @@ package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.Actor
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
+import io.bluetape4k.idgenerators.snowflake.Snowflakers
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.RedissonCodecs
+import io.bluetape4k.redis.redisson.coroutines.coAwait
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeLessThan
+import org.amshove.kluent.shouldBeLessOrEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeNull
+import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteAll
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.redisson.api.RLocalCachedMap
 import org.redisson.api.RMap
@@ -23,77 +30,171 @@ import kotlin.system.measureTimeMillis
 
 class CacheReadThroughExample: AbstractCacheExample() {
 
+    companion object: KLogging() {
+        const val ACTOR_SIZE = 500
+    }
+
     @BeforeEach
     fun setup() {
         transaction {
             ActorTable.deleteAll()
             populateSampleData()
+
+            // 데이터 전체 로딩 시간을 측정하기 위해, 샘플 데이터를 많이 추가합니다.
+            val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toList()
+            transaction {
+                ActorTable.batchInsert(writeIds) { id ->
+                    this[ActorTable.id] = id
+                    this[ActorTable.firstname] = faker.name().firstName()
+                    this[ActorTable.lastname] = faker.name().lastName()
+                }
+            }
         }
     }
 
-    @Test
-    fun `read through with redisson MapCache`() {
-        val name = randomName()
-        val options = MapCacheOptions.name<Long, Actor>(name)
-            .loader(actorLoader)
-            .codec(RedissonCodecs.LZ4Fury)
+    @Nested
+    inner class Synchronous {
 
-        val cache: RMapCache<Long, Actor?> = redisson.getMapCache(options)
-        try {
-            checkReadThroughCache(cache)
-        } finally {
-            cache.delete()
-        }
-    }
+        @Test
+        fun `read through with redisson MapCache`() {
+            val name = randomName()
+            val options = MapCacheOptions.name<Long, Actor>(name)
+                .loader(actorLoader)
+                .retryAttempts(3)
+                .retryInterval(Duration.ofMillis(10))
+                .codec(RedissonCodecs.LZ4Fury)
 
-    @Test
-    fun `read through with redisson RLocalCachedMap`() {
-        val name = randomName()
-        val options = LocalCachedMapOptions.name<Long, Actor>(name)
-            .loader(actorLoader)
-            .codec(RedissonCodecs.LZ4Fury)
-            .timeToLive(Duration.ofMinutes(10))   // 로컬 캐시의 TTL
-
-        val cache: RLocalCachedMap<Long, Actor?> = redisson.getLocalCachedMap(options)
-        try {
-            checkReadThroughCache(cache)
-        } finally {
-            cache.delete()
-        }
-    }
-
-    private fun checkReadThroughCache(cache: RMap<Long, Actor?>) {
-        // 아직 캐시에 로딩된 데이터가 없다.
-        cache.keys shouldHaveSize 0
-
-        val actorIds = transaction {
-            ActorTable.select(ActorTable.id).map { it[ActorTable.id].value }
-        }
-
-        // CacheApplicationListener 에서 5명의 Actor를 추가해 놓았다.
-        // 캐시에서 1번 키를 요청하면, DB에서 로딩된다.
-        cache[actorIds.first()] shouldBeEqualTo Actor(actorIds.first(), "Sunghyouk", "Bae")
-        cache.keys shouldHaveSize 1
-
-        // 나머지 4명의 Actor는 캐시로 로딩한다
-        val readTimeFromDB = measureTimeMillis {
-            actorIds.drop(1).forEach { id ->
-                cache[id].shouldNotBeNull()
+            val cache: RMapCache<Long, Actor?> = redisson.getMapCache(options)
+            try {
+                checkReadThroughCache(cache)
+            } finally {
+                cache.delete()
             }
         }
 
-        // DB에 없는 것은 null 로 리턴된다.
-        cache[0].shouldBeNull()
+        @Test
+        fun `read through with redisson RLocalCachedMap`() {
+            val name = randomName()
+            val options = LocalCachedMapOptions.name<Long, Actor>(name)
+                .loader(actorLoader)
+                .retryAttempts(3)
+                .retryInterval(Duration.ofMillis(10))
+                .timeToLive(Duration.ofSeconds(10))   // 로컬 캐시의 TTL
+                .codec(RedissonCodecs.LZ4Fury)
 
-        // 캐시에서 4명의 Actor를 요청하면, DB에서 로딩되지 않는다.
-        val readTimeFromCache = measureTimeMillis {
-            actorIds.drop(1).forEach { id ->
-                cache[id].shouldNotBeNull()
+            val cache: RLocalCachedMap<Long, Actor?> = redisson.getLocalCachedMap(options)
+            try {
+                checkReadThroughCache(cache)
+            } finally {
+                cache.delete()
             }
         }
 
-        log.debug { "Read DB=$readTimeFromDB ms, Read Cache=$readTimeFromCache ms" }
-        readTimeFromCache shouldBeLessThan readTimeFromDB
+        private fun checkReadThroughCache(cache: RMap<Long, Actor?>) {
+            // 아직 캐시에 로딩된 데이터가 없다.
+            cache.keys shouldHaveSize 0
 
+            val actorIds = transaction {
+                ActorTable.select(ActorTable.id).map { it[ActorTable.id].value }
+            }
+
+            // CacheApplicationListener 에서 5명의 Actor를 추가해 놓았다.
+            // 캐시에서 1번 키를 요청하면, DB에서 로딩된다.
+            cache[actorIds.first()] shouldBeEqualTo Actor(actorIds.first(), "Sunghyouk", "Bae")
+            cache.keys shouldHaveSize 1
+
+            // DB에 있는 모든 Actor를 한번에 로드하여 캐시에 저장한다
+            val readTimeFromDB = measureTimeMillis {
+                cache.loadAll(true, 4)
+                actorIds.forEach { id ->
+                    cache[id].shouldNotBeNull()
+                }
+            }
+
+            // DB에 없는 것은 null 로 리턴된다.
+            cache[0].shouldBeNull()
+
+            // 캐시에서 4명의 Actor를 요청하면, DB에서 로딩되지 않는다.
+            val readTimeFromCache = measureTimeMillis {
+                actorIds.drop(1).forEach { id ->
+                    cache[id].shouldNotBeNull()
+                }
+            }
+
+            log.debug { "Read DB=$readTimeFromDB ms, Read Cache=$readTimeFromCache ms" }
+            readTimeFromCache shouldBeLessOrEqualTo readTimeFromDB
+        }
+    }
+
+    @Nested
+    inner class Asyncrhronous {
+        @Test
+        fun `read through with redisson MapCache`() = runSuspendIO {
+            val name = randomName()
+            val options = MapCacheOptions.name<Long, Actor>(name)
+                .loaderAsync(actorLoaderAsync)
+                .retryAttempts(3)
+                .retryInterval(Duration.ofMillis(10))
+                .codec(RedissonCodecs.LZ4Fury)
+
+            val cache: RMapCache<Long, Actor?> = redisson.getMapCache(options)
+            try {
+                checkReadThroughCacheAsync(cache)
+            } finally {
+                cache.deleteAsync().coAwait()
+            }
+        }
+
+        @Test
+        fun `read through with redisson RLocalCachedMap`() = runSuspendIO {
+            val name = randomName()
+            val options = LocalCachedMapOptions.name<Long, Actor>(name)
+                .loader(actorLoader)
+                .retryAttempts(3)
+                .retryInterval(Duration.ofMillis(10))
+                .timeToLive(Duration.ofSeconds(10))   // 로컬 캐시의 TTL
+                .codec(RedissonCodecs.LZ4Fury)
+
+            val cache: RLocalCachedMap<Long, Actor?> = redisson.getLocalCachedMap(options)
+            try {
+                checkReadThroughCacheAsync(cache)
+            } finally {
+                cache.deleteAsync().coAwait()
+            }
+        }
+
+        private suspend fun checkReadThroughCacheAsync(cache: RMap<Long, Actor?>) {
+            // 아직 캐시에 로딩된 데이터가 없다.
+            cache.keys shouldHaveSize 0
+
+            val actorIds = newSuspendedTransaction {
+                ActorTable.select(ActorTable.id).map { it[ActorTable.id].value }
+            }
+
+            // CacheApplicationListener 에서 5명의 Actor를 추가해 놓았다.
+            // 캐시에서 1번 키를 요청하면, DB에서 로딩된다.
+            cache[actorIds.first()] shouldBeEqualTo Actor(actorIds.first(), "Sunghyouk", "Bae")
+            cache.keys shouldHaveSize 1
+
+            // 나머지 4명의 Actor는 캐시로 로딩한다
+            val readTimeFromDB = measureTimeMillis {
+                actorIds.drop(1).forEach { id ->
+                    cache[id].shouldNotBeNull()
+                }
+            }
+
+            // DB에 없는 것은 null 로 리턴된다.
+            cache[0].shouldBeNull()
+
+            // 캐시에서 4명의 Actor를 요청하면, DB에서 로딩되지 않는다.
+            val readTimeFromCache = measureTimeMillis {
+                actorIds.drop(1).forEach { id ->
+                    cache[id].shouldNotBeNull()
+                }
+            }
+
+            log.debug { "Read DB=$readTimeFromDB ms, Read Cache=$readTimeFromCache ms" }
+            readTimeFromCache shouldBeLessOrEqualTo readTimeFromDB
+        }
     }
 }
