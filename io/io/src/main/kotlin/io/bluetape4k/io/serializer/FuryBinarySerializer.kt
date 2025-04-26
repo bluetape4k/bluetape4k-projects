@@ -28,7 +28,7 @@ class FuryBinarySerializer(
                 .withCompatibleMode(CompatibleMode.COMPATIBLE)
                 .withRefTracking(true)
                 .requireClassRegistration(false)
-                .buildThreadSafeFuryPool(2, 4 * Runtime.getRuntime().availableProcessors())
+                .buildThreadSafeFuryPool(4, 4 * Runtime.getRuntime().availableProcessors())
         }
     }
 

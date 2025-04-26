@@ -8,6 +8,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.RedissonCodecs
 import io.bluetape4k.redis.redisson.coroutines.coAwait
+import io.bluetape4k.utils.Runtimex
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeLessOrEqualTo
 import org.amshove.kluent.shouldBeNull
@@ -114,6 +115,10 @@ class CacheReadThroughExample: AbstractCacheExample() {
             // DB에 없는 것은 null 로 리턴된다.
             cache[0].shouldBeNull()
 
+            // DB에 있는 모든 Actor를 한번에 로드하여 캐시에 저장한다. 이미 캐시에 있는 것은 교체한다
+            cache.fastRemove(*actorIds.toTypedArray())
+            cache.loadAll(true, Runtimex.availableProcessors * 2)
+
             // 캐시에서 4명의 Actor를 요청하면, DB에서 로딩되지 않는다.
             val readTimeFromCache = measureTimeMillis {
                 actorIds.drop(1).forEach { id ->
@@ -149,7 +154,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
         fun `read through with redisson RLocalCachedMap`() = runSuspendIO {
             val name = randomName()
             val options = LocalCachedMapOptions.name<Long, Actor>(name)
-                .loader(actorLoader)
+                .loaderAsync(actorLoaderAsync)
                 .retryAttempts(3)
                 .retryInterval(Duration.ofMillis(10))
                 .timeToLive(Duration.ofSeconds(10))   // 로컬 캐시의 TTL
@@ -171,7 +176,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
                 ActorTable.select(ActorTable.id).map { it[ActorTable.id].value }
             }
 
-            // CacheApplicationListener 에서 5명의 Actor를 추가해 놓았다.
+            // 모든 테스트에 500 개 이상의 Actor 가 이미 DB에 존재한다.
             // 캐시에서 1번 키를 요청하면, DB에서 로딩된다.
             cache[actorIds.first()] shouldBeEqualTo Actor(actorIds.first(), "Sunghyouk", "Bae")
             cache.keys shouldHaveSize 1
@@ -183,10 +188,14 @@ class CacheReadThroughExample: AbstractCacheExample() {
                 }
             }
 
-            // DB에 없는 것은 null 로 리턴된다.
+            // DB에 존재하지 않는 ID에 접근하면 NULL 이 리턴된다.
             cache[0].shouldBeNull()
 
-            // 캐시에서 4명의 Actor를 요청하면, DB에서 로딩되지 않는다.
+            // DB에 있는 모든 Actor를 한번에 로드하여 캐시에 저장한다. 이미 캐시에 있는 것은 교체한다
+            cache.fastRemoveAsync(*actorIds.toTypedArray()).coAwait()
+            cache.loadAll(true, Runtimex.availableProcessors * 2)
+
+            // 캐시에 이미 로딩된 데이터를 요청한다.
             val readTimeFromCache = measureTimeMillis {
                 actorIds.drop(1).forEach { id ->
                     cache[id].shouldNotBeNull()

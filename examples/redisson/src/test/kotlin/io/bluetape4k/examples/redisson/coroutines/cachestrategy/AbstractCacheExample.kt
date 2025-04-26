@@ -1,16 +1,22 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
+import io.bluetape4k.concurrent.completableFutureOf
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.Actor
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.toActor
+import io.bluetape4k.exposed.sql.fetchBatchResultFlow
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.future.asCompletableFuture
+import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
@@ -23,7 +29,6 @@ import org.redisson.api.map.MapLoaderAsync
 import org.redisson.api.map.MapWriter
 import org.redisson.api.map.MapWriterAsync
 import org.springframework.boot.test.context.SpringBootTest
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 
 @SpringBootTest(
@@ -100,30 +105,32 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
         override fun loadAllKeys(): AsyncIterator<Long>? {
             log.debug { "Loading all actor keys async ..." }
             return object: AsyncIterator<Long> {
-                private val batchSize = 25
+                private val batchSize = 50
+                val scope = CoroutineScope(Dispatchers.IO)
 
-                val actorIds = getActorByFetchBatched()
+                val actorIds: Iterator<Long> by lazy {
+                    runBlocking(scope.coroutineContext) {
+                        getActorByFetchBatched().iterator()
+                    }
+                }
 
                 override fun hasNext(): CompletionStage<Boolean> {
-                    return CompletableFuture.supplyAsync {
-                        actorIds.iterator().hasNext()
-                    }
+                    return completableFutureOf(actorIds.hasNext())
                 }
 
                 override fun next(): CompletionStage<Long> {
-                    return CompletableFuture.supplyAsync {
-                        actorIds.iterator().next()
-                    }
+                    return completableFutureOf(actorIds.next())
                 }
 
-                private fun getActorByFetchBatched(): Sequence<Long> {
-                    return ActorTable.select(ActorTable.id)
-                        .fetchBatchedResults(batchSize = batchSize)
-                        .asSequence()
-                        .map { list ->
-                            list.map { it[ActorTable.id].value }
-                        }
-                        .flatten()
+                private suspend fun getActorByFetchBatched(): List<Long> {
+                    return newSuspendedTransaction(scope.coroutineContext) {
+                        ActorTable.select(ActorTable.id)
+                            .fetchBatchResultFlow(batchSize)
+                            .onEach { rows -> log.debug { "Fetched actor count=${rows.size}" } }
+                            .map { rows -> rows.map { it[ActorTable.id].value } }
+                            .toList()
+                            .flatten()
+                    }
                 }
             }
         }
