@@ -7,6 +7,8 @@ import io.bluetape4k.utils.ShutdownQueue
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldHaveSize
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -78,19 +80,24 @@ class HazelcastServerTest {
             .withEnv(HZ_NETWORK_JOIN_AZURE_ENABLED_ENV_NAME, FALSE_VALUE)
             .withEnv(HZ_NETWORK_JOIN_MULTICAST_ENABLED_ENV_NAME, TRUE_VALUE)
             .waitingFor(Wait.forLogMessage(CLUSTER_STARTUP_LOG_MESSAGE_REGEX, 1))
-            .withNetwork(network)
+            .withNetwork(network).apply {
+                ShutdownQueue.register(this)
+            }
 
         val hazelcast2 = HazelcastServer()
             .withEnv(HZ_CLUSTERNAME_ENV_NAME, TEST_CLUSTER_NAME)
             .withEnv(HZ_NETWORK_JOIN_AZURE_ENABLED_ENV_NAME, FALSE_VALUE)
             .withEnv(HZ_NETWORK_JOIN_MULTICAST_ENABLED_ENV_NAME, TRUE_VALUE)
             .waitingFor(Wait.forLogMessage(CLUSTER_STARTUP_LOG_MESSAGE_REGEX, 1))
-            .withNetwork(network)
+            .withNetwork(network).apply {
+                ShutdownQueue.register(this)
+            }
 
-        ShutdownQueue.register(hazelcast1)
-        ShutdownQueue.register(hazelcast2)
+        Startables.deepStart(hazelcast1, hazelcast2)
 
-        Startables.deepStart(hazelcast1, hazelcast2).join()
+        await until {
+            hazelcast1.isRunning && hazelcast2.isRunning
+        }
 
         hazelcast1.isRunning.shouldBeTrue()
         hazelcast2.isRunning.shouldBeTrue()
@@ -104,6 +111,9 @@ class HazelcastServerTest {
 
         val client = HazelcastClient.newHazelcastClient(clientConfig)
         try {
+            await until {
+                client.cluster.members.size == 2
+            }
             client.cluster.members shouldHaveSize 2
 
             val queue = client.getQueue<String>(TEST_QUEUE_NAME)
