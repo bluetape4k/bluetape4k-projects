@@ -9,6 +9,7 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.RedissonCodecs
 import io.bluetape4k.redis.redisson.coroutines.coAwait
 import io.bluetape4k.utils.Runtimex
+import kotlinx.coroutines.delay
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeLessOrEqualTo
 import org.amshove.kluent.shouldBeNull
@@ -194,6 +195,8 @@ class CacheReadThroughExample: AbstractCacheExample() {
             // DB에 있는 모든 Actor를 한번에 로드하여 캐시에 저장한다. 이미 캐시에 있는 것은 교체한다
             cache.fastRemoveAsync(*actorIds.toTypedArray()).coAwait()
             cache.loadAll(true, Runtimex.availableProcessors * 2)
+
+            delay(100)
 
             // 캐시에 이미 로딩된 데이터를 요청한다.
             val readTimeFromCache = measureTimeMillis {
