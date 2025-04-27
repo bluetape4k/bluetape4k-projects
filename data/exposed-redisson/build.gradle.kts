@@ -21,8 +21,13 @@ dependencies {
 
     // Codecs
     implementation(project(":bluetape4k-io"))
-    implementation(Libs.kryo)
-    implementation(Libs.fury_kotlin)
+    compileOnly(Libs.kryo)
+    compileOnly(Libs.fury_kotlin)
+
+    compileOnly(project(":bluetape4k-jackson"))
+    compileOnly(project(":bluetape4k-jackson-binary"))
+    compileOnly(Libs.jackson_module_kotlin)
+    compileOnly(Libs.jackson_dataformat_cbor)
 
     // Compressor
     implementation(Libs.snappy_java)
