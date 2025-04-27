@@ -1,6 +1,5 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
-import io.bluetape4k.concurrent.completableFutureOf
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.Actor
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
@@ -9,14 +8,14 @@ import io.bluetape4k.exposed.sql.fetchBatchResultFlow
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.error
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ChannelResult
 import kotlinx.coroutines.future.asCompletableFuture
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
@@ -29,6 +28,7 @@ import org.redisson.api.map.MapLoaderAsync
 import org.redisson.api.map.MapWriter
 import org.redisson.api.map.MapWriterAsync
 import org.springframework.boot.test.context.SpringBootTest
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 
 @SpringBootTest(
@@ -90,48 +90,66 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
     protected val actorLoaderAsync: MapLoaderAsync<Long, Actor?> = object: MapLoaderAsync<Long, Actor?>, KLogging() {
         val scope = CoroutineScope(Dispatchers.IO)
 
-        override fun load(key: Long?): CompletionStage<Actor?>? {
-            log.debug { "Loading actor async with key $key" }
-
-            return scope.async {
-                newSuspendedTransaction {
-                    ActorTable
-                        .selectAll()
-                        .where { ActorTable.id eq key }
-                        .singleOrNull()
-                        ?.toActor()
-                }
-            }.asCompletableFuture()
-        }
+        override fun load(key: Long?): CompletionStage<Actor?>? = scope.async {
+            log.debug { "Loading actor async with id=$key" }
+            newSuspendedTransaction {
+                ActorTable
+                    .selectAll()
+                    .where { ActorTable.id eq key }
+                    .singleOrNull()
+                    ?.toActor()
+            }
+        }.asCompletableFuture()
 
         override fun loadAllKeys(): AsyncIterator<Long>? {
             log.debug { "Loading all actor keys async ..." }
-            return object: AsyncIterator<Long> {
-                private val batchSize = 50
 
-                val actorIds: Iterator<Long> by lazy {
-                    runBlocking(scope.coroutineContext) {
-                        getActorByFetchBatched().iterator()
-                    }
+            val batchSize = 50
+            val actorIdChannel = Channel<Long>(Channel.RENDEZVOUS).also { channel ->
+                channel.invokeOnClose { cause ->
+                    log.debug { "actorIdChannel closed. cause=$cause" }
                 }
+            }
 
-                override fun hasNext(): CompletionStage<Boolean> {
-                    return completableFutureOf(actorIds.hasNext())
-                }
-
-                override fun next(): CompletionStage<Long> {
-                    return completableFutureOf(actorIds.next())
-                }
-
-                private suspend fun getActorByFetchBatched(): List<Long> {
-                    return newSuspendedTransaction(scope.coroutineContext) {
+            val producerJob = scope.launch {
+                try {
+                    newSuspendedTransaction {
                         ActorTable.select(ActorTable.id)
                             .fetchBatchResultFlow(batchSize)
-                            .onEach { rows -> log.debug { "Fetched actor count=${rows.size}" } }
-                            .map { rows -> rows.map { it[ActorTable.id].value } }
-                            .toList()
-                            .flatten()
+                            .collect { rows ->
+                                rows.forEach { row ->
+                                    actorIdChannel.send(row[ActorTable.id].value)
+                                }
+                            }
                     }
+                } catch (e: Throwable) {
+                    log.error(e) { "Error while loading actor ids" }
+                } finally {
+                    actorIdChannel.close()
+                }
+            }
+
+            // Optimized AsyncIterator implementation with peek and mutex for race safety.
+            return object: AsyncIterator<Long> {
+                private var pendingReceive: CompletableFuture<ChannelResult<Long>>? = null
+
+                private fun ensurePending(): CompletableFuture<ChannelResult<Long>> {
+                    return pendingReceive ?: scope.async {
+                        actorIdChannel.receiveCatching().also {
+                            log.debug { "Received id=$it" }
+                        }
+                    }
+                        .asCompletableFuture()
+                        .also { pendingReceive = it }
+                }
+
+                override fun hasNext(): CompletionStage<Boolean> = ensurePending().thenApply { result ->
+                    result.isSuccess
+                }
+
+                override fun next(): CompletionStage<Long> = ensurePending().thenApply { result ->
+                    pendingReceive = null
+                    result.getOrNull() ?: throw NoSuchElementException("Channel is closed or empty")
                 }
             }
         }
