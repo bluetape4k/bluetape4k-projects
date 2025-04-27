@@ -11,7 +11,7 @@ import org.redisson.api.RedissonClient
 class UserRedisCachedCachedRepository(
     redissonClient: RedissonClient,
     cacheName: String = "exposed:users",
-    config: ExposedRedisCacheConfig = ExposedRedisCacheConfig.READ_THROUGH,
+    config: ExposedRedisCacheConfig = ExposedRedisCacheConfig.READ_WRITE_THROUGH,
 ): ExposedRedisCachedRepository<UserDTO, Long>(redissonClient, cacheName, config) {
 
     companion object: KLogging()

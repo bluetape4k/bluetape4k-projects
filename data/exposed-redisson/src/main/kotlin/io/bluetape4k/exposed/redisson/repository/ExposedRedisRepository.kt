@@ -12,7 +12,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.selectAll
 import org.redisson.api.RMap
 
-interface ExposedRedisRepository<T: HasIdentifier<ID>, ID: Any> {
+internal interface ExposedRedisRepository<T: HasIdentifier<ID>, ID: Any> {
 
     val table: IdTable<ID>
     fun ResultRow.toEntity(): T
@@ -108,5 +108,13 @@ interface ExposedRedisRepository<T: HasIdentifier<ID>, ID: Any> {
         if (ids.isEmpty()) return 0
 
         return cache.fastRemove(*ids.toVarargArray()).toInt()
+    }
+
+    fun evictAll() {
+        cache.clear()
+    }
+
+    fun evictExpired(): Boolean {
+        return cache.clearExpire()
     }
 }
