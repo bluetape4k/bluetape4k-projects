@@ -163,7 +163,6 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
             log.debug { "Writing actors ... count=${map.size}, ids=${map.keys}" }
             val entryToInsert = map.values.mapNotNull { it }
             transaction {
-
                 ActorTable.batchInsert(entryToInsert, shouldReturnGeneratedValues = false) { actor ->
                     this[ActorTable.id] = actor.id
                     this[ActorTable.firstname] = actor.firstname

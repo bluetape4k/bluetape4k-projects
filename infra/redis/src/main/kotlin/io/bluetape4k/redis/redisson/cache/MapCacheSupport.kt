@@ -1,4 +1,4 @@
-package io.bluetape4k.redis.redisson
+package io.bluetape4k.redis.redisson.cache
 
 import org.redisson.api.RMapCache
 import org.redisson.api.RedissonClient

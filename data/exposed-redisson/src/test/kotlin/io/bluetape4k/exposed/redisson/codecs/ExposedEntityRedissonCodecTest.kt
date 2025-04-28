@@ -1,16 +1,11 @@
 package io.bluetape4k.exposed.redisson.codecs
 
-import io.bluetape4k.exposed.redisson.CacheSchema
-import io.bluetape4k.exposed.redisson.CacheSchema.UserTable
 import io.bluetape4k.exposed.tests.AbstractExposedTest
-import io.bluetape4k.exposed.tests.TestDB
-import io.bluetape4k.exposed.tests.withTables
-import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.RedissonCodecs
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.exposed.dao.Entity
-import org.jetbrains.exposed.dao.entityCache
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.redisson.client.codec.ByteArrayCodec
@@ -19,13 +14,13 @@ import org.redisson.client.codec.StringCodec
 import org.redisson.client.handler.State
 import org.redisson.codec.CborJacksonCodec
 import org.redisson.codec.FuryCodec
-import kotlin.random.Random
 
 /**
  * NOTE: Exposed Entity 는 Redis 의 Codec 으로는 변환이 불가능하다.
  * NOTE: 그래서 ExposedRedisRepository 는 Entity 가 아닌 DTO를 캐시하도록 한다.
  */
-class RedissonCodecTest: AbstractExposedTest() {
+@Disabled("Exposed Entity 는 직렬화가 불가합니다")
+class ExposedEntityRedissonCodecTest: AbstractExposedTest() {
 
     companion object: KLogging() {
         private const val REPEAT_SIZE = 10
@@ -84,16 +79,16 @@ class RedissonCodecTest: AbstractExposedTest() {
     @ParameterizedTest(name = "codec={0}")
     @MethodSource(METHOD_SOURCE)
     fun `codec for kotlin data class`(codec: Codec) {
-        withTables(TestDB.H2, UserTable) {
-            val entity = CacheSchema.UserEntity.new {
-                firstName = Fakers.randomString(1, 10)
-                lastName = Fakers.randomString(1, 10)
-                age = Random.nextInt(1, 100)
-            }
-            entityCache.clear()
-
-            codec.verifyCodec(entity)
-        }
+//        withTables(TestDB.H2, UserCredentialTable) {
+//            val entity = CacheSchema.UserEntity.new {
+//                firstName = Fakers.randomString(1, 10)
+//                lastName = Fakers.randomString(1, 10)
+//                age = Random.nextInt(1, 100)
+//            }
+//            entityCache.clear()
+//
+//            codec.verifyCodec(entity)
+//        }
     }
 
     @Suppress("UNCHECKED_CAST")

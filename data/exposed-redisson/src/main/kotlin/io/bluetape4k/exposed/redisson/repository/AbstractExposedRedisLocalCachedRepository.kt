@@ -1,15 +1,14 @@
 package io.bluetape4k.exposed.redisson.repository
 
-import io.bluetape4k.exposed.redisson.ExposedEntityMapLoader
-import io.bluetape4k.exposed.redisson.ExposedEntityMapWriter
-import io.bluetape4k.exposed.redisson.ExposedRedisCacheConfig
 import io.bluetape4k.exposed.repository.HasIdentifier
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.redis.redisson.localCachedMap
+import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
+import io.bluetape4k.redis.redisson.cache.localCachedMap
 import io.bluetape4k.support.requireNotNull
 import org.redisson.api.RLocalCachedMap
 import org.redisson.api.RedissonClient
 import org.redisson.api.map.WriteMode
+import java.time.Duration
 
 /**
  * ExposedRedisRepository는 Exposed와 Redisson을 사용하여 Redis에 데이터를 캐싱하는 Repository입니다.
@@ -21,32 +20,37 @@ import org.redisson.api.map.WriteMode
  * @param cacheName Redis Cache Name
  * @param config ExposedRedisCacheConfig
  */
-abstract class ExposedRedisLocalCachedRepository<T: HasIdentifier<ID>, ID: Any>(
-    private val redissonClient: RedissonClient,
-    private val cacheName: String,
-    private val config: ExposedRedisCacheConfig = ExposedRedisCacheConfig.Companion.READ_THROUGH,
-): ExposedRedisRepository<T, ID> {
+abstract class AbstractExposedRedisLocalCachedRepository<T: HasIdentifier<ID>, ID: Any>(
+    redissonClient: RedissonClient,
+    cacheName: String,
+    config: RedisCacheConfig = RedisCacheConfig.READ_ONLY,
+): AbstractExposedRedisRepository<T, ID>(redissonClient, cacheName, config) {
 
     companion object: KLogging()
 
-    open val mapLoader: ExposedEntityMapLoader<ID, T> by lazy { ExposedEntityMapLoader(table) { toEntity() } }
-    open val mapWriter: ExposedEntityMapWriter<ID, T>? =
-        null  // TODO: DTO -> Entity 로 변환 내지는 UpdateStatement 를 제공해야 한다 = ExposedEntityMapWriter<ID, T>(table) { map -> }
-
     override val cache: RLocalCachedMap<ID, T?> by lazy {
         localCachedMap(cacheName, redissonClient) {
-            if (config.readThrough) {
+            if (config.canRead) {
                 loader(mapLoader)
             }
-            if (config.writeThrough) {
+            if (config.canWrite) {
                 mapWriter.requireNotNull("mapWriter")
                 writer(mapWriter)
                 writeMode(WriteMode.WRITE_THROUGH)
             }
-            retryAttempts(config.retryAttempts)
-            retryInterval(config.retryInterval)
-            timeToLive(config.timeToLive)
+
             codec(config.codec)
+            syncStrategy(config.nearCacheSyncStrategy)
+            writeRetryAttempts(config.writeRetryAttempts)
+            writeRetryInterval(config.writeRetryInterval)
+            timeToLive(config.ttl)
+            if (config.nearCacheMaxIdleTime > Duration.ZERO) {
+                maxIdle(config.nearCacheMaxIdleTime)
+            }
         }
+    }
+
+    fun clearLocalCache() {
+        cache.clearLocalCache()
     }
 }
