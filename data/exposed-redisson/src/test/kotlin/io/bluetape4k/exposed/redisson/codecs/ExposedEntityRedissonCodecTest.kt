@@ -1,10 +1,15 @@
 package io.bluetape4k.exposed.redisson.codecs
 
+import io.bluetape4k.exposed.redisson.repository.UserSchema
 import io.bluetape4k.exposed.tests.AbstractExposedTest
+import io.bluetape4k.exposed.tests.TestDB
+import io.bluetape4k.exposed.tests.withTables
+import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.RedissonCodecs
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.exposed.dao.Entity
+import org.jetbrains.exposed.dao.entityCache
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -79,16 +84,16 @@ class ExposedEntityRedissonCodecTest: AbstractExposedTest() {
     @ParameterizedTest(name = "codec={0}")
     @MethodSource(METHOD_SOURCE)
     fun `codec for kotlin data class`(codec: Codec) {
-//        withTables(TestDB.H2, UserCredentialTable) {
-//            val entity = CacheSchema.UserEntity.new {
-//                firstName = Fakers.randomString(1, 10)
-//                lastName = Fakers.randomString(1, 10)
-//                age = Random.nextInt(1, 100)
-//            }
-//            entityCache.clear()
-//
-//            codec.verifyCodec(entity)
-//        }
+        withTables(TestDB.H2, UserSchema.UserTable) {
+            val entity = UserSchema.UserEntity.new {
+                firstName = Fakers.randomString(1, 10)
+                lastName = Fakers.randomString(1, 10)
+                email = Fakers.faker.internet().emailAddress()
+            }
+            entityCache.clear()
+
+            codec.verifyCodec(entity)
+        }
     }
 
     @Suppress("UNCHECKED_CAST")
