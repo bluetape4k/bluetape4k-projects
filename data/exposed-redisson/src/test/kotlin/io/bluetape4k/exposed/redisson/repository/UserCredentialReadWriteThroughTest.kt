@@ -1,8 +1,8 @@
 package io.bluetape4k.exposed.redisson.repository
 
 import io.bluetape4k.exposed.redisson.AbstractRedissonTest
-import io.bluetape4k.exposed.redisson.repository.UserCredentialSchema.UserCredentialTable
-import io.bluetape4k.exposed.redisson.repository.UserCredentialSchema.withUserTables
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialTable
+import io.bluetape4k.exposed.redisson.repository.UserSchema.withUserTables
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -10,6 +10,10 @@ import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.until
+import org.jetbrains.exposed.dao.entityCache
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -39,7 +43,7 @@ class UserCredentialReadWriteThroughTest: AbstractRedissonTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `Write Through 로 저장하면 DB와 캐시에 모두 저장된다`(testDB: TestDB) {
         withUserTables(testDB) {
-            val newUserCredential = UserCredentialSchema.newUserCredential()
+            val newUserCredential = UserSchema.newUserCredential()
 
             // Write Through로 저장 (캐시 -> DB 모두 저장)
             userRepository.save(newUserCredential)
@@ -54,15 +58,21 @@ class UserCredentialReadWriteThroughTest: AbstractRedissonTest() {
             val fromCache2 = userRepository.findById(newUserCredential.id)
             fromCache2.loginId shouldBeEqualTo updated.loginId
 
-            val fromDBUpdated = UserCredentialSchema.findUserCredentialById(updated.id)!!
+            val fromDBUpdated = UserSchema.findUserCredentialById(updated.id)!!
             fromDBUpdated shouldBeEqualTo fromCache2.copy(updatedAt = fromDBUpdated.updatedAt)
 
             /**
              * 캐시를 비우면, [RedisCacheConfig.deleteFromDbOnInvalidate] 설정에 따라 DB에서도 삭제할 수 있습니다. (기본은 DB도 삭제됩니다)
              */
             log.debug { "캐시를 비우면 MapWriter 의 delete 함수가 호출된다, (DB 삭제를 하고 싶지 않다면 RedisCacheConfig.deleteFromDbOnInvalidate=false)" }
+            entityCache.clear()
             userRepository.invalidate(newUserCredential.id)
-            val fromDB = UserCredentialSchema.findUserCredentialById(newUserCredential.id)
+
+            // Redisson 이 비동기적으로 캐시를 삭제하기 때문에, DB에서 삭제된 것을 확인하기 위해 잠시 대기하고, commit() 으로 DB에 확실히 반영한다.
+            Thread.sleep(100)
+            commit()
+            val fromDB = UserSchema.findUserCredentialById(newUserCredential.id)
+            await until { transaction { UserSchema.findUserCredentialById(newUserCredential.id) } == null }
             fromDB.shouldBeNull()
         }
     }

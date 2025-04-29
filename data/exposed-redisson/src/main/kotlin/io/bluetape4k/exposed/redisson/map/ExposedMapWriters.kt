@@ -1,0 +1,81 @@
+package io.bluetape4k.exposed.redisson.map
+
+import io.bluetape4k.exposed.repository.HasIdentifier
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import org.jetbrains.exposed.dao.id.IdTable
+import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
+import org.jetbrains.exposed.sql.batchInsert
+import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.statements.BatchInsertStatement
+import org.jetbrains.exposed.sql.statements.UpdateStatement
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.redisson.api.map.MapWriter
+
+/**
+ *  Redisson의 Write-through MapWriter 를 구현한 것입니다.
+ *
+ * @param writeToDB DB에 데이터를 쓰는 함수입니다.
+ * @param deleteFromDB DB에서 데이터를 삭제하는 함수입니다.
+ */
+abstract class ExposedMapWriter<ID: Any, E: Any>(
+    private val writeToDB: (map: Map<ID, E>) -> Unit,
+    private val deleteFromDB: (ids: Collection<ID>) -> Unit,
+): MapWriter<ID, E> {
+
+    companion object: KLogging()
+
+
+    override fun write(map: Map<ID, E>) {
+        log.debug { "캐시 변경을 DB에 반영합니다... ids=${map.keys}" }
+        writeToDB(map)
+    }
+
+    override fun delete(keys: Collection<ID>) {
+        log.debug { "캐시 삭제 시, DB에서도 삭제합니다... ids=$keys" }
+        deleteFromDB(keys)
+    }
+}
+
+/**
+ * Entity<ID> 를 위한 [ExposedMapWriter] 기본 구현체입니다.
+ *
+ * @param entityTable Entity<ID> 를 위한 [IdTable] 입니다.
+ * @param toEntity ResultRow 를 E 타입으로 변환하는 함수입니다.
+ * @param updateBody DB에 이미 존재하는 ID인 경우 UPDATE 하도록 하는 쿼리 입니다.
+ * @param batchInsertBody 새로운 엔티티라면 batchInsert 를 수행하도록 하는 쿼리 입니다.
+ * @param deleteFromDBOnInvalidate 캐시에서 삭제될 때, DB에서도 삭제할 것인지 여부를 나타냅니다.
+ */
+open class DefaultExposedMapWriter<ID: Any, E: HasIdentifier<ID>>(
+    private val entityTable: IdTable<ID>,
+    private val toEntity: ResultRow.() -> E,
+    private val updateBody: IdTable<ID>.(UpdateStatement, E) -> Unit,
+    private val batchInsertBody: BatchInsertStatement.(E) -> Unit,
+    private val deleteFromDBOnInvalidate: Boolean = true,
+): ExposedMapWriter<ID, E>(
+    writeToDB = { map: Map<ID, E> ->
+
+        transaction {
+            val entityIdsToUpdate =
+                entityTable.select(entityTable.id)
+                    .where { entityTable.id inList map.keys }
+                    .map { it[entityTable.id].value }
+
+            val entitiesToUpdate = map.values.filter { it.id in entityIdsToUpdate }
+
+            entityTable.batchInsert(entitiesToUpdate) {
+                batchInsertBody(this, it)
+            }
+        }
+    },
+    deleteFromDB = { ids ->
+        if (deleteFromDBOnInvalidate) {
+            transaction {
+                entityTable.deleteWhere { entityTable.id inList ids }
+            }
+        }
+    }
+) {
+    companion object: KLogging()
+}

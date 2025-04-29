@@ -49,10 +49,10 @@ data class RedisCacheConfig(
     val writeRetryInterval: Duration = Duration.ofMillis(100),
 ) {
 
-    val canRead: Boolean
+    val isReadOnly: Boolean
         get() = cacheMode == CacheMode.READ_ONLY
 
-    val canWrite: Boolean
+    val isReadWrite: Boolean
         get() = cacheMode == CacheMode.READ_WRITE
 
     companion object {

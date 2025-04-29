@@ -10,6 +10,7 @@ import io.bluetape4k.javatimes.toInstant
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import org.jetbrains.exposed.dao.entityCache
+import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.insert
@@ -20,12 +21,41 @@ import org.jetbrains.exposed.sql.selectAll
 import java.time.Instant
 import java.time.LocalDateTime
 
-object UserCredentialSchema: KLogging() {
+object UserSchema: KLogging() {
 
     private val faker = Fakers.faker
 
-    object UserCredentialTable: SnowflakeIdTable("user_credentials") {
+    object UserTable: LongIdTable("users") {
+        val firstName = varchar("first_name", 50)
+        val lastName = varchar("last_name", 50)
+        val email = varchar("email", 255).uniqueIndex()
 
+        val createdAt = timestamp("created_at").defaultExpression(CurrentTimestamp)
+        val updatedAt = timestamp("updated_at").nullable()
+    }
+
+    class UserEntity
+
+    data class UserDTO(
+        override val id: Long,
+        val firstName: String,
+        val lastName: String,
+        val email: String,
+        val createdAt: Instant = Instant.now(),
+        val updatedAt: Instant? = null,
+    ): HasIdentifier<Long>
+
+    fun ResultRow.toUserDTO(): UserDTO = UserDTO(
+        id = this[UserTable.id].value,
+        firstName = this[UserTable.firstName],
+        lastName = this[UserTable.lastName],
+        email = this[UserTable.email],
+        createdAt = this[UserTable.createdAt],
+        updatedAt = this[UserTable.updatedAt]
+    )
+
+
+    object UserCredentialTable: SnowflakeIdTable("user_credentials") {
         val loginId = varchar("login_id", 255).uniqueIndex()
         val email = varchar("email", 255).uniqueIndex()
         val lastLoginAt = timestamp("last_login_at").nullable()

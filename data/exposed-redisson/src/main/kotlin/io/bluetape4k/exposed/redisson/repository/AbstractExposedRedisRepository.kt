@@ -19,6 +19,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.redisson.api.RMap
 import org.redisson.api.RedissonClient
 
+@Deprecated("Use `RedisEntityRepository` instead.")
 abstract class AbstractExposedRedisRepository<T: HasIdentifier<ID>, ID: Any>(
     protected val redissonClient: RedissonClient,
     protected val cacheName: String,
@@ -28,9 +29,21 @@ abstract class AbstractExposedRedisRepository<T: HasIdentifier<ID>, ID: Any>(
     abstract val entityTable: IdTable<ID>
     abstract fun ResultRow.toEntity(): T
 
-    protected open val mapLoader: ExposedEntityMapLoader<ID, T> by lazy { ExposedEntityMapLoader(entityTable) { toEntity() } }
+    /**
+     * DB의 정보를 Read Through로 캐시에 로딩하는 [MapLoader] 입니다.
+     */
+    protected open val mapLoader: ExposedEntityMapLoader<ID, T> by lazy {
+        ExposedEntityMapLoader(entityTable) { toEntity() }
+    }
+
+    /**
+     * 캐시의 정보를 Write Through 로 DB에 반영하는 [MapWriter] 입니다.
+     */
     protected open val mapWriter: ExposedEntityMapWriter<ID, T>? = null
 
+    /**
+     * DB 정보를 Read Through, Write Through 로 캐시합니다.
+     */
     internal abstract val cache: RMap<ID, T?>
 
     protected val cacheInvalidator: CacheInvalidationStrategy<ID> by lazy {

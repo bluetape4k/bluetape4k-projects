@@ -15,6 +15,7 @@ import org.redisson.api.map.MapLoaderAsync
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 
+@Deprecated("Use DefaultSuspendedExposedMapLoader instead")
 open class ExposedMapLoaderAsync<K: Any, V: Any>(
     private val loadFromDb: suspend (K) -> V?,
     private val loadAllKeysFromDb: suspend (channel: Channel<K>) -> Collection<K>,

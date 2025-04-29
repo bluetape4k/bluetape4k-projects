@@ -1,9 +1,9 @@
 package io.bluetape4k.exposed.redisson.repository
 
 import io.bluetape4k.exposed.redisson.AbstractRedissonTest
-import io.bluetape4k.exposed.redisson.repository.UserCredentialSchema.UserCredentialTable
-import io.bluetape4k.exposed.redisson.repository.UserCredentialSchema.toUserCredential
-import io.bluetape4k.exposed.redisson.repository.UserCredentialSchema.withUserTables
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialTable
+import io.bluetape4k.exposed.redisson.repository.UserSchema.toUserCredential
+import io.bluetape4k.exposed.redisson.repository.UserSchema.withUserTables
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig

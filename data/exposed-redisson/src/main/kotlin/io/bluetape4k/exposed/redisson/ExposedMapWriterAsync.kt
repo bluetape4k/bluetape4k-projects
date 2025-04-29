@@ -8,6 +8,7 @@ import kotlinx.coroutines.future.asCompletableFuture
 import org.redisson.api.map.MapWriterAsync
 import java.util.concurrent.CompletionStage
 
+@Deprecated("Use DefaultSuspendedExposedMapWriter instead")
 open class ExposedMapWriterAsync<K: Any, V: Any>(
     private val writeToDb: suspend (map: Map<K, V?>) -> Unit,
     private val deleteFromDb: suspend (keys: Collection<K>) -> Unit,

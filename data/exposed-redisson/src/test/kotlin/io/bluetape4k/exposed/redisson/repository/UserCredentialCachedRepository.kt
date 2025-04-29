@@ -1,8 +1,8 @@
 package io.bluetape4k.exposed.redisson.repository
 
-import io.bluetape4k.exposed.redisson.repository.UserCredentialSchema.UserCredential
-import io.bluetape4k.exposed.redisson.repository.UserCredentialSchema.UserCredentialTable
-import io.bluetape4k.exposed.redisson.repository.UserCredentialSchema.toUserCredential
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredential
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialTable
+import io.bluetape4k.exposed.redisson.repository.UserSchema.toUserCredential
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import org.jetbrains.exposed.sql.ResultRow
@@ -24,14 +24,14 @@ class UserCredentialCachedRepository(
     override fun ResultRow.toEntity(): UserCredential = toUserCredential()
 
 
-    override fun updateStatement(statement: UpdateStatement, entity: UserCredential) {
+    override fun doUpdateEntity(statement: UpdateStatement, entity: UserCredential) {
         statement[UserCredentialTable.loginId] = entity.loginId
         statement[UserCredentialTable.email] = entity.email
         statement[UserCredentialTable.lastLoginAt] = entity.lastLoginAt
         statement[UserCredentialTable.updatedAt] = Instant.now()
     }
 
-    override fun batchInsertStatement(statement: BatchInsertStatement, entity: UserCredential) {
+    override fun doBatchInsertEntity(statement: BatchInsertStatement, entity: UserCredential) {
         statement[UserCredentialTable.id] = entity.id
         statement[UserCredentialTable.loginId] = entity.loginId
         statement[UserCredentialTable.email] = entity.email

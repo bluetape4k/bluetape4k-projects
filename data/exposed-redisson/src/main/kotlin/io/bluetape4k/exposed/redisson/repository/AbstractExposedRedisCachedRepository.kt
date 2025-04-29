@@ -23,6 +23,7 @@ import org.redisson.api.map.WriteMode
  * @param cacheName Redis Cache Name
  * @param config ExposedRedisCacheConfig
  */
+@Deprecated("Use `RedisRemoteEntityRepository` instead.")
 abstract class AbstractExposedRedisCachedRepository<T: HasIdentifier<ID>, ID: Any>(
     redissonClient: RedissonClient,
     cacheName: String,
@@ -34,10 +35,10 @@ abstract class AbstractExposedRedisCachedRepository<T: HasIdentifier<ID>, ID: An
 
     override val cache: RMapCache<ID, T?> by lazy {
         mapCache(cacheName, redissonClient) {
-            if (config.canRead) {
+            if (config.isReadOnly) {
                 loader(mapLoader)
             }
-            if (config.canWrite) {
+            if (config.isReadWrite) {
                 mapWriter.requireNotNull("mapWriter")
                 writer(mapWriter)
                 writeMode(WriteMode.WRITE_THROUGH)
@@ -54,25 +55,35 @@ abstract class AbstractExposedRedisCachedRepository<T: HasIdentifier<ID>, ID: An
         }
     }
 
-    protected open fun updateStatement(statement: UpdateStatement, entity: T) {
-        if (config.canWrite) {
+    /**
+     * [ExposedEntityMapWriter] 에서 캐시에서 변경된 내용을 Write Through로 DB에 반영하는 함수입니다.
+     */
+    protected open fun doUpdateEntity(statement: UpdateStatement, entity: T) {
+        if (config.isReadWrite) {
             error("MapWriter 에서 변경된 cache item을 DB에 반영할 수 있도록 재정의해주세요. ")
         }
     }
 
-    protected open fun batchInsertStatement(statement: BatchInsertStatement, entity: T) {
-        if (config.canWrite) {
+    /**
+     * [ExposedEntityMapWriter] 에서 캐시에서 추가된 내용을 Write Through로 DB에 반영하는 함수입니다.
+     */
+    protected open fun doBatchInsertEntity(statement: BatchInsertStatement, entity: T) {
+        if (config.isReadWrite) {
             error("MapWriter 에서 추가된 cache item을 DB에 추가할 수 있도록 재정의해주세요. ")
         }
     }
 
+    /**
+     * Write Through 모드라면 [ExposedEntityMapWriter]를 생성하여 제공합니다.
+     * Read Through Only 라면 null을 반환합니다.
+     */
     override val mapWriter: ExposedEntityMapWriter<ID, T>? by lazy {
         when {
-            config.canWrite -> ExposedEntityMapWriter(
+            config.isReadWrite -> ExposedEntityMapWriter(
                 entityTable = entityTable,
                 toEntity = { toEntity() },
-                updateBody = { stmt, entity -> updateStatement(stmt, entity) },
-                batchInsertBody = { entity -> batchInsertStatement(this, entity) },
+                updateBody = { stmt, entity -> doUpdateEntity(stmt, entity) },
+                batchInsertBody = { entity -> doBatchInsertEntity(this, entity) },
                 deleteFromDbOnInvalidate = config.deleteFromDbOnInvalidate,
             )
             else -> null

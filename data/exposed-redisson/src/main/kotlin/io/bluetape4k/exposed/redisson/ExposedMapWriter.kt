@@ -19,6 +19,7 @@ import org.redisson.api.map.MapWriter
  * @param writeToDb DB에 데이터를 쓰는 함수입니다.
  * @param deleteFromDb DB에서 데이터를 삭제하는 함수입니다.
  */
+@Deprecated("Use `DefaultExposedMapWriter` instead.")
 open class ExposedMapWriter<K: Any, V: Any>(
     private val writeToDb: (map: Map<K, V>) -> Unit,
     private val deleteFromDb: (keys: Collection<K>) -> Unit,
@@ -44,6 +45,7 @@ open class ExposedMapWriter<K: Any, V: Any>(
  * @param batchInsertBody 새로운 엔티티라면 batchInsert 를 수행하도록 하는 쿼리 입니다.
  * @param deleteFromDbOnInvalidate 캐시에서 삭제될 때, DB에서도 삭제할 것인지 여부를 나타냅니다.
  */
+@Deprecated("Use `DefaultExposedMapWriter` instead.")
 open class ExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     private val entityTable: IdTable<ID>,
     private val toEntity: ResultRow.() -> E,
