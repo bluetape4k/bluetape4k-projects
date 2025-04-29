@@ -116,8 +116,8 @@ class UserCacheRepositoryTest {
         private val userRepository by lazy {
             UserCacheRepository(
                 redissonClient,
-                "exposed:read-write:users",
-                RedisCacheConfig.READ_WRITE_THROUGH
+                "exposed:read-write:delete-db:users",
+                RedisCacheConfig.READ_WRITE_THROUGH.copy(deleteFromDBOnInvalidate = true)
             )
         }
 
@@ -168,8 +168,6 @@ class UserCacheRepositoryTest {
                 updatedUserFromDB shouldBeEqualTo updatedUser.copy(updatedAt = updatedUserFromDB.updatedAt)
             }
         }
-
-
     }
 
     @Nested
@@ -184,8 +182,8 @@ class UserCacheRepositoryTest {
         private val userRepository by lazy {
             UserCacheRepository(
                 redissonClient,
-                "exposed:read-write:not-delete:users",
-                RedisCacheConfig.READ_WRITE_THROUGH.copy(deleteFromDBOnInvalidate = false)
+                "exposed:read-write:users",
+                RedisCacheConfig.READ_WRITE_THROUGH
             )
         }
 

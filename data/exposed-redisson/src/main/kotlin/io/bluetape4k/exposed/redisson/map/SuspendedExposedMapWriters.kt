@@ -1,10 +1,12 @@
 package io.bluetape4k.exposed.redisson.map
 
 import io.bluetape4k.exposed.repository.HasIdentifier
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.future.asCompletableFuture
+import kotlinx.coroutines.plus
 import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.batchInsert
@@ -16,10 +18,12 @@ import org.jetbrains.exposed.sql.update
 import org.redisson.api.map.MapWriterAsync
 import java.util.concurrent.CompletionStage
 
+private val defaultMapWriterCoroutineScope = CoroutineScope(Dispatchers.IO) + CoroutineName("DB-Writer")
+
 open class SuspendedExposedMapWriter<ID: Any, E: Any>(
-    private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO),
     private val writeToDb: suspend (map: Map<ID, E>) -> Unit,
     private val deleteFromDb: suspend (keys: Collection<ID>) -> Unit,
+    private val scope: CoroutineScope = defaultMapWriterCoroutineScope,
 ): MapWriterAsync<ID, E> {
 
     override fun write(map: Map<ID, E>): CompletionStage<Void> = scope.async {
@@ -38,13 +42,12 @@ open class SuspendedExposedMapWriter<ID: Any, E: Any>(
 }
 
 open class SuspendedExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
-    scope: CoroutineScope = CoroutineScope(Dispatchers.IO),
     private val entityTable: IdTable<ID>,
+    scope: CoroutineScope = defaultMapWriterCoroutineScope,
     private val updateBody: IdTable<ID>.(UpdateStatement, E) -> Unit,
     private val batchInsertBody: BatchInsertStatement.(E) -> Unit,
     private val deleteFromDBOnInvalidate: Boolean = true,
-
-    ): SuspendedExposedMapWriter<ID, E>(
+): SuspendedExposedMapWriter<ID, E>(
     scope = scope,
     writeToDb = { map ->
         val entityIdsToUpdate =

@@ -99,7 +99,7 @@ abstract class AbstractSuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID:
      * DB의 정보를 Read Through로 캐시에 로딩하는 [ExposedMapLoader] 입니다.
      */
     protected open val mapLoaderAsync: SuspendedExposedMapLoader<ID, T> by lazy {
-        SuspendedExposedEntityMapLoader(scope, entityTable) { toEntity() }
+        SuspendedExposedEntityMapLoader(entityTable, scope) { toEntity() }
     }
 
     /**

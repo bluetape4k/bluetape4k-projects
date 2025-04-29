@@ -30,7 +30,7 @@ import java.time.Duration
 data class RedisCacheConfig(
     val cacheMode: CacheMode = CacheMode.READ_WRITE,
     val writeMode: WriteMode = WriteMode.WRITE_THROUGH,
-    val deleteFromDBOnInvalidate: Boolean = true,
+    val deleteFromDBOnInvalidate: Boolean = false,
     val ttl: Duration = Duration.ZERO,
     val maxSize: Int = 0,
     val codec: Codec = RedissonCodecs.LZ4Fury,

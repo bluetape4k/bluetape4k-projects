@@ -15,7 +15,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.less
 import org.jetbrains.exposed.sql.and
 
 /**
- * [FieldSet] 에서 [SuspendedQuery.fetchBatchResultFlow] 메소드를 코루틴 환경에서 사용할 수 있도록 확장한 함수입니다.
+ * [FieldSet] 에서 [SuspendedQuery.fetchBatchedResultFlow] 메소드를 코루틴 환경에서 사용할 수 있도록 확장한 함수입니다.
  *
  * 이 함수를 사용하려면, 조회하는 첫번째 컬럼이 Int, Long 수형이어야 합니다.
  *
@@ -28,11 +28,11 @@ import org.jetbrains.exposed.sql.and
  *     .toList()
  * ```
  */
-fun FieldSet.fetchBatchResultFlow(batch: Int = 1000, sortOrder: SortOrder = SortOrder.ASC): Flow<List<ResultRow>> =
-    Query(this.source, null).fetchBatchResultFlow(batch, sortOrder)
+fun FieldSet.fetchBatchedResultFlow(batch: Int = 1000, sortOrder: SortOrder = SortOrder.ASC): Flow<List<ResultRow>> =
+    Query(this.source, null).fetchBatchedResultFlow(batch, sortOrder)
 
 /**
- * [SuspendedQuery.fetchBatchResultFlow] 메소드를 코루틴 환경에서 사용할 수 있도록 확장한 함수입니다.
+ * [SuspendedQuery.fetchBatchedResultFlow] 메소드를 코루틴 환경에서 사용할 수 있도록 확장한 함수입니다.
  *
  * 이 함수를 사용하려면, 조회하는 첫번째 컬럼이 Int, Long 수형이어야 합니다.
  *
@@ -46,8 +46,8 @@ fun FieldSet.fetchBatchResultFlow(batch: Int = 1000, sortOrder: SortOrder = Sort
  *     .toList()
  * ```
  */
-fun Query.fetchBatchResultFlow(batch: Int = 1000, sortOrder: SortOrder = SortOrder.ASC): Flow<List<ResultRow>> =
-    SuspendedQuery(this@fetchBatchResultFlow.set, null).fetchBatchResultFlow(batch, sortOrder)
+fun Query.fetchBatchedResultFlow(batch: Int = 1000, sortOrder: SortOrder = SortOrder.ASC): Flow<List<ResultRow>> =
+    SuspendedQuery(this@fetchBatchedResultFlow.set, null).fetchBatchResultFlow(batch, sortOrder)
 
 /**
  * [Query.fetchBatchedResults] 메소드를 코루틴 환경에서 사용할 수 있도록 확장한 함수를 제공하는 클래스입니다.

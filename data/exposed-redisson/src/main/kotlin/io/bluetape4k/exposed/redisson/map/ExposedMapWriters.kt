@@ -3,6 +3,7 @@ package io.bluetape4k.exposed.redisson.map
 import io.bluetape4k.exposed.repository.HasIdentifier
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
 import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.batchInsert
@@ -49,7 +50,7 @@ open class ExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     private val entityTable: IdTable<ID>,
     private val updateBody: IdTable<ID>.(UpdateStatement, E) -> Unit,
     private val batchInsertBody: BatchInsertStatement.(E) -> Unit,
-    private val deleteFromDBOnInvalidate: Boolean = true,
+    deleteFromDBOnInvalidate: Boolean = true,
 ): ExposedMapWriter<ID, E>(
     writeToDB = { map: Map<ID, E> ->
         log.debug { "캐시 변경 사항을 DB에 반영합니다... ids=${map.keys}" }
@@ -81,4 +82,18 @@ open class ExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     }
 ) {
     companion object: KLogging()
+
+    // 필드로 따로 저장하여 로깅 용도로 사용
+    private val deleteFromDBOnInvalidate: Boolean
+
+    init {
+        // 중요 설정 변경 시 경고 로그
+        if (deleteFromDBOnInvalidate) {
+            log.warn {
+                "⚠️ 주의! deleteFromDBOnInvalidate=true로 설정되었습니다. " +
+                        "캐시에서 항목 삭제 시 DB에서도 함께 삭제됩니다. 프로덕션 환경에서는 신중히 사용하세요."
+            }
+        }
+        this.deleteFromDBOnInvalidate = deleteFromDBOnInvalidate
+    }
 }

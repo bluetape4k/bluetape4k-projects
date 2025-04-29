@@ -49,7 +49,7 @@ class SuspendedQueryTest: AbstractExposedTest() {
 
             val batchedIds = ProductTable
                 .select(ProductTable.id)
-                .fetchBatchResultFlow(10)
+                .fetchBatchedResultFlow(10)
                 .buffer(capacity = 4)
                 .onEach { log.debug { "fetch rows. rows.size=${it.size}" } }
                 .map { rows -> rows.map { it[ProductTable.id].value } }
@@ -60,7 +60,7 @@ class SuspendedQueryTest: AbstractExposedTest() {
 
             val reversedIds = ProductTable
                 .select(ProductTable.id)
-                .fetchBatchResultFlow(10, SortOrder.DESC)
+                .fetchBatchedResultFlow(10, SortOrder.DESC)
                 .buffer(capacity = 4)
                 .onEach { log.debug { "fetch rows. rows.size=${it.size}" } }
                 .flatMapMerge { rows ->
@@ -99,7 +99,7 @@ class SuspendedQueryTest: AbstractExposedTest() {
 
             val batchedIds = ItemTable
                 .select(ItemTable.id)
-                .fetchBatchResultFlow(10)
+                .fetchBatchedResultFlow(10)
                 .buffer(capacity = 4)
                 .onEach { log.debug { "fetch rows. rows.size=${it.size}" } }
                 .map { rows -> rows.map { it[ItemTable.id].value } }
@@ -110,7 +110,7 @@ class SuspendedQueryTest: AbstractExposedTest() {
 
             val reversedIds = ItemTable
                 .select(ItemTable.id)
-                .fetchBatchResultFlow(10, SortOrder.DESC)
+                .fetchBatchedResultFlow(10, SortOrder.DESC)
                 .buffer(capacity = 4)
                 .onEach { log.debug { "fetch rows. rows.size=${it.size}" } }
                 .map { rows -> rows.map { it[ItemTable.id].value } }

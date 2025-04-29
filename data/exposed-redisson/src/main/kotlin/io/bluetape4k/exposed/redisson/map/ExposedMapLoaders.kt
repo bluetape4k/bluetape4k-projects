@@ -17,21 +17,23 @@ open class ExposedMapLoader<ID: Any, E: Any>(
     companion object: KLogging()
 
     override fun load(id: ID): E? = transaction {
-        log.debug { "Load from DB... id=$id" }
+        log.debug { "DB에서 엔티티 로드... id=$id" }
         loadByIdFromDB(id)
             .apply {
-                log.debug { "Loaded from DB... id=$id, E=$this" }
+                log.debug { "DB에서 엔티티 로드. id=$id, entity=$this" }
             }
     }
 
     override fun loadAllKeys(): Iterable<ID>? = transaction {
-        log.debug { "Load all ids from DB..." }
+        queryTimeout = 30_000  // 30 seconds
+        log.debug { "DB에서 모든 id 를 로드합니다..." }
         loadAllIdsFromDB()
     }
 }
 
 open class ExposedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
     private val table: IdTable<ID>,
+    private val batchSize: Int = 1000,
     private val toEntity: ResultRow.() -> E,
 ): ExposedMapLoader<ID, E>(
     loadByIdFromDB = { id: ID ->
@@ -41,7 +43,21 @@ open class ExposedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
             ?.toEntity()
     },
     loadAllIdsFromDB = {
-        table.selectAll().map { it[table.id].value }
+        val recordCount = table.selectAll().count()
+        var offset = 0L
+        val limit = batchSize
+
+        generateSequence<List<ID>> {
+            val rows = table.selectAll()
+                .limit(limit)
+                .offset(offset)
+                .map { it[table.id].value }
+            offset += limit
+            rows
+        }
+            .takeWhile { offset < recordCount }
+            .asIterable()
+            .flatMap { it }
     }
 ) {
     companion object: KLogging()
