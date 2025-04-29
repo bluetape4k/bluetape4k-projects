@@ -30,7 +30,7 @@ open class ExposedMapLoader<ID: Any, E: Any>(
     }
 }
 
-open class DefaultExposedMapLoader<ID: Any, E: HasIdentifier<ID>>(
+open class ExposedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
     private val table: IdTable<ID>,
     private val toEntity: ResultRow.() -> E,
 ): ExposedMapLoader<ID, E>(

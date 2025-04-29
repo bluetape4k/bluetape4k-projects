@@ -1,7 +1,7 @@
 package io.bluetape4k.exposed.redisson.repository
 
-import io.bluetape4k.exposed.redisson.map.DefaultExposedMapLoader
-import io.bluetape4k.exposed.redisson.map.DefaultExposedMapWriter
+import io.bluetape4k.exposed.redisson.map.ExposedEntityMapLoader
+import io.bluetape4k.exposed.redisson.map.ExposedEntityMapWriter
 import io.bluetape4k.exposed.redisson.map.ExposedMapLoader
 import io.bluetape4k.exposed.redisson.map.ExposedMapWriter
 import io.bluetape4k.exposed.repository.HasIdentifier
@@ -48,7 +48,8 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      */
     fun exists(id: ID): Boolean = cache.containsKey(id)
 
-    fun findFreshById(id: ID): T?
+    fun findFreshById(id: ID): T? =
+        entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
 
     fun get(id: ID): T? = cache[id]
 
@@ -81,7 +82,7 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
  * @param T Entity Type   Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable DTO를 사용해 주세요.
  * @param ID Entity ID Type
  */
-abstract class BaseExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
+abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     val redissonClient: RedissonClient,
     override val cacheName: String,
     protected val config: RedisCacheConfig,
@@ -93,7 +94,7 @@ abstract class BaseExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
      * DB의 정보를 Read Through로 캐시에 로딩하는 [ExposedMapLoader] 입니다.
      */
     protected open val mapLoader: ExposedMapLoader<ID, T> by lazy {
-        DefaultExposedMapLoader(entityTable) { toEntity() }
+        ExposedEntityMapLoader(entityTable) { toEntity() }
     }
 
     /**
@@ -115,24 +116,19 @@ abstract class BaseExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     }
 
     /**
-     * Write Through 모드라면 [DefaultExposedMapWriter]를 생성하여 제공합니다.
+     * Write Through 모드라면 [ExposedEntityMapWriter]를 생성하여 제공합니다.
      * Read Through Only 라면 null을 반환합니다.
      */
     protected val mapWriter: ExposedMapWriter<ID, T>? by lazy {
-        when {
-            config.isReadWrite -> DefaultExposedMapWriter(
+        if (config.isReadWrite)
+            ExposedEntityMapWriter(
                 entityTable = entityTable,
-                toEntity = { toEntity() },
                 updateBody = { stmt, entity -> doUpdateEntity(stmt, entity) },
                 batchInsertBody = { entity -> doBatchInsertEntity(this, entity) },
                 deleteFromDBOnInvalidate = config.deleteFromDBOnInvalidate,  // 캐시 invalidated 시 DB에서도 삭제할 것인지 여부
             )
-            else -> null
-        }
+        else null
     }
-
-    override fun findFreshById(id: ID): T? =
-        entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
 
     override fun findAll(
         limit: Int?,
@@ -208,11 +204,11 @@ abstract class BaseExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
  * @param cacheName Redis Cache Name
  * @param config ExposedRedisCacheConfig
  */
-abstract class ExposedRemoteCacheRepository<T: HasIdentifier<ID>, ID: Any>(
+abstract class AbstractExposedRemoteCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     redissonClient: RedissonClient,
     cacheName: String,
     config: RedisCacheConfig,
-): BaseExposedCacheRepository<T, ID>(redissonClient, cacheName, config) {
+): AbstractExposedCacheRepository<T, ID>(redissonClient, cacheName, config) {
 
     companion object: KLogging()
 
@@ -250,17 +246,17 @@ abstract class ExposedRemoteCacheRepository<T: HasIdentifier<ID>, ID: Any>(
  * @param cacheName Redis Cache Name
  * @param config ExposedRedisCacheConfig
  */
-abstract class ExposedNearCacheRepository<T: HasIdentifier<ID>, ID: Any>(
+abstract class AbstractExposedNearCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     redissonClient: RedissonClient,
     cacheName: String,
     config: RedisCacheConfig,
-): BaseExposedCacheRepository<T, ID>(redissonClient, cacheName, config) {
+): AbstractExposedCacheRepository<T, ID>(redissonClient, cacheName, config) {
 
     companion object: KLogging()
 
     override val cache: RLocalCachedMap<ID, T?> by lazy {
         log.info { "RLocalCAcheMap 를 생성합니다. config=$config" }
-        
+
         localCachedMap(cacheName, redissonClient) {
             if (config.isReadOnly) {
                 loader(mapLoader)

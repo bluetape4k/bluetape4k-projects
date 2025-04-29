@@ -11,9 +11,9 @@ import java.time.Instant
 
 class UserCacheRepository(
     redissonClient: RedissonClient,
-    cacheName: String = "exposed:users",
+    cacheName: String = "exposed:remote:users",
     config: RedisCacheConfig = RedisCacheConfig.READ_WRITE_THROUGH,
-): ExposedRemoteCacheRepository<UserSchema.UserDTO, Long>(redissonClient, cacheName, config) {
+): AbstractExposedRemoteCacheRepository<UserSchema.UserDTO, Long>(redissonClient, cacheName, config) {
 
     companion object: KLogging()
 

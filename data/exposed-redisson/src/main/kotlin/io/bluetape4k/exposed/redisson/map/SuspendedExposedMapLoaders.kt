@@ -81,7 +81,14 @@ open class SuspendedExposedMapLoader<ID: Any, E: Any>(
     }
 }
 
-open class DefaultSuspendedExposedMapLoader<ID: Any, E: HasIdentifier<ID>>(
+/**
+ * HasIdentifier<ID> 를 위한 [SuspendedExposedMapLoader] 기본 구현체입니다.
+ *
+ * @param table Entity<ID> 를 위한 [IdTable] 입니다.
+ * @param toEntity ResultRow 를 E 타입으로 변환하는 함수입니다.
+ */
+open class SuspendedExposedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
+    scope: CoroutineScope = CoroutineScope(Dispatchers.IO),
     private val table: IdTable<ID>,
     private val toEntity: ResultRow.() -> E,
 ): SuspendedExposedMapLoader<ID, E>(
@@ -90,13 +97,15 @@ open class DefaultSuspendedExposedMapLoader<ID: Any, E: HasIdentifier<ID>>(
             .where { table.id eq id }
             .singleOrNull()
             ?.toEntity()
+
     },
     loadAllIdsFromDB = { channel ->
         table.selectAll()
             .forEach {
                 channel.send(it[table.id].value)
             }
-    }
+    },
+    scope = scope,
 ) {
     companion object: KLogging()
 }

@@ -11,7 +11,7 @@ import java.time.Instant
 
 class SuspendedUserCacheRepository(
     redissonClient: RedissonClient,
-    cacheName: String = "exposed:suspended-users",
+    cacheName: String = "exposed:remote:suspended:users",
     config: RedisCacheConfig = RedisCacheConfig.READ_WRITE_THROUGH,
 ): SuspendedExposedRemoteCacheRepository<UserSchema.UserDTO, Long>(redissonClient, cacheName, config) {
 
