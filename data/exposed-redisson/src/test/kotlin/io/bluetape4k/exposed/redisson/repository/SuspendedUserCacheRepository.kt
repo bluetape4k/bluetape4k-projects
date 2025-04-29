@@ -34,8 +34,8 @@ class SuspendedUserCacheRepository(
         statement: BatchInsertStatement,
         entity: UserSchema.UserDTO,
     ) {
-        // NOTE: UserTable 은 AutoIncremented ID 이므로, id 를 넣지 않습니다.
-        // statement[entityTable.id] = entity.id
+        // NOTE: MapWriter 가 AutoIncremented ID 를 가진 테이블에 대해 INSERT 를 수행하지 않습니다.
+        statement[entityTable.id] = entity.id
         statement[entityTable.firstName] = entity.firstName
         statement[entityTable.lastName] = entity.lastName
         statement[entityTable.email] = entity.email

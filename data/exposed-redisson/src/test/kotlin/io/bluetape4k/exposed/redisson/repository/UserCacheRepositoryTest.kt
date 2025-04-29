@@ -40,7 +40,7 @@ class UserCacheRepositoryTest {
         fun `ID로 조회 시 DB에서 읽어서 캐시에 저장 후 반환한다`(testDB: TestDB) {
             withUserTable(testDB) {
                 // DB 에서 조회한 값
-                val userFromDB = UserSchema.findUserById(1L)
+                val userFromDB = userRepository.findFreshById(1L)
 
                 // 캐시에서 조회한 값
                 val userFromCache = userRepository.get(1L)
@@ -101,7 +101,7 @@ class UserCacheRepositoryTest {
                 userRepository.exists(1L).shouldBeTrue()
 
                 // DB 에서 조회한 값
-                val userFromDB = UserSchema.findUserById(1L)
+                val userFromDB = userRepository.findFreshById(1L)
                 userFromCache shouldBeEqualTo userFromDB
             }
         }
@@ -163,7 +163,7 @@ class UserCacheRepositoryTest {
                 }
 
                 // User 가 Update 가 되면 `updatedAt` 컬럼은 현재 시각으로 설정됩니다.
-                val updatedUserFromDB = UserSchema.findUserById(1L)!!
+                val updatedUserFromDB = userRepository.findFreshById(1L)!!
                 updatedUserFromDB.updatedAt.shouldNotBeNull()
                 updatedUserFromDB shouldBeEqualTo updatedUser.copy(updatedAt = updatedUserFromDB.updatedAt)
             }
@@ -206,11 +206,11 @@ class UserCacheRepositoryTest {
                 // 캐시에서 삭제한다.
                 userRepository.invalidate(1L)
 
-                // MapWriter 가 비동기로 실행되므로, 대기합니다.
-                Thread.sleep(1000)
+                // 캐시에서 삭제 시, MapWriter 가 비동기로 실행되므로, 대기해야 정확한 결과를 얻을 수 있습니다.
+                Thread.sleep(100)
 
                 // 캐시에서 삭제했지만, DB에는 여전히 존재한다.
-                val userFromDB = UserSchema.findUserById(1L)
+                val userFromDB = userRepository.findFreshById(1L)
                 userFromDB shouldBeEqualTo userFromCache
             }
         }

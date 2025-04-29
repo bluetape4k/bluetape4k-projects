@@ -20,16 +20,22 @@ class UserCacheRepository(
     override val entityTable: UserSchema.UserTable = UserSchema.UserTable
     override fun ResultRow.toEntity(): UserSchema.UserDTO = toUserDTO()
 
-    override fun doUpdateEntity(statement: UpdateStatement, entity: UserSchema.UserDTO) {
+    override fun doUpdateEntity(
+        statement: UpdateStatement,
+        entity: UserSchema.UserDTO,
+    ) {
         statement[entityTable.firstName] = entity.firstName
         statement[entityTable.lastName] = entity.lastName
         statement[entityTable.email] = entity.email
         statement[entityTable.updatedAt] = Instant.now()
     }
 
-    override fun doBatchInsertEntity(statement: BatchInsertStatement, entity: UserSchema.UserDTO) {
-        // NOTE: UserTable 은 AutoIncremented ID 이므로, id 를 넣지 않습니다.
-        // statement[entityTable.id] = entity.id
+    override fun doBatchInsertEntity(
+        statement: BatchInsertStatement,
+        entity: UserSchema.UserDTO,
+    ) {
+        // NOTE: MapWriter 가 AutoIncremented ID 를 가진 테이블에 대해 INSERT 를 수행하지 않습니다.
+        statement[entityTable.id] = entity.id
         statement[entityTable.firstName] = entity.firstName
         statement[entityTable.lastName] = entity.lastName
         statement[entityTable.email] = entity.email
