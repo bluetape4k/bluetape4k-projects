@@ -2,7 +2,7 @@ package io.bluetape4k.exposed.redisson.repository
 
 import io.bluetape4k.exposed.redisson.AbstractRedissonTest
 import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialTable
-import io.bluetape4k.exposed.redisson.repository.UserSchema.withUserTables
+import io.bluetape4k.exposed.redisson.repository.UserSchema.withUserCredentialTable
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -42,7 +42,7 @@ class UserCredentialReadWriteThroughTest: AbstractRedissonTest() {
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `Write Through 로 저장하면 DB와 캐시에 모두 저장된다`(testDB: TestDB) {
-        withUserTables(testDB) {
+        withUserCredentialTable(testDB) {
             val newUserCredential = UserSchema.newUserCredential()
 
             // Write Through로 저장 (캐시 -> DB 모두 저장)
@@ -62,7 +62,7 @@ class UserCredentialReadWriteThroughTest: AbstractRedissonTest() {
             fromDBUpdated shouldBeEqualTo fromCache2.copy(updatedAt = fromDBUpdated.updatedAt)
 
             /**
-             * 캐시를 비우면, [RedisCacheConfig.deleteFromDbOnInvalidate] 설정에 따라 DB에서도 삭제할 수 있습니다. (기본은 DB도 삭제됩니다)
+             * 캐시를 비우면, [RedisCacheConfig.deleteFromDBOnInvalidate] 설정에 따라 DB에서도 삭제할 수 있습니다. (기본은 DB도 삭제됩니다)
              */
             log.debug { "캐시를 비우면 MapWriter 의 delete 함수가 호출된다, (DB 삭제를 하고 싶지 않다면 RedisCacheConfig.deleteFromDbOnInvalidate=false)" }
             entityCache.clear()

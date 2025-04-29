@@ -19,3 +19,13 @@ inline fun <reified K: Any, reified V: Any> mapCache(
     val options = MapCacheOptions.name<K, V>(name).apply(block)
     return redissonClient.getMapCache(options)
 }
+
+
+inline fun <reified K: Any, reified V: Any> mapCacheAsync(
+    name: String,
+    redissonClient: RedissonClient,
+    block: MapCacheOptions<K, V>.() -> Unit = {},
+): RMapCache<K, V> {
+    val options = MapCacheOptions.name<K, V>(name).apply(block)
+    return redissonClient.getMapCache(options)
+}

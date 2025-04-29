@@ -1,6 +1,9 @@
 package io.bluetape4k.exposed.redisson.repository
 
 import io.bluetape4k.exposed.dao.id.SnowflakeIdTable
+import io.bluetape4k.exposed.dao.idEquals
+import io.bluetape4k.exposed.dao.idHashCode
+import io.bluetape4k.exposed.dao.toStringBuilder
 import io.bluetape4k.exposed.repository.HasIdentifier
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
@@ -9,7 +12,10 @@ import io.bluetape4k.idgenerators.snowflake.Snowflakers
 import io.bluetape4k.javatimes.toInstant
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
+import org.jetbrains.exposed.dao.LongEntity
+import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.entityCache
+import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Transaction
@@ -34,7 +40,24 @@ object UserSchema: KLogging() {
         val updatedAt = timestamp("updated_at").nullable()
     }
 
-    class UserEntity
+    class UserEntity(id: EntityID<Long>): LongEntity(id) {
+        companion object: LongEntityClass<UserEntity>(UserTable)
+
+        var firstName by UserTable.firstName
+        var lastName by UserTable.lastName
+        var email by UserTable.email
+
+        var createdAt by UserTable.createdAt
+        var updatedAt by UserTable.updatedAt
+
+        override fun equals(other: Any?): Boolean = idEquals(other)
+        override fun hashCode(): Int = idHashCode()
+        override fun toString(): String = toStringBuilder()
+            .add("firstName", firstName)
+            .add("lastName", lastName)
+            .add("email", email)
+            .toString()
+    }
 
     data class UserDTO(
         override val id: Long,
@@ -53,6 +76,39 @@ object UserSchema: KLogging() {
         createdAt = this[UserTable.createdAt],
         updatedAt = this[UserTable.updatedAt]
     )
+
+    fun UserEntity.toUserDTO(): UserDTO = UserDTO(
+        id = this.id.value,
+        firstName = this.firstName,
+        lastName = this.lastName,
+        email = this.email,
+        createdAt = this.createdAt,
+        updatedAt = this.updatedAt
+    )
+
+    fun AbstractExposedTest.withUserTable(testDB: TestDB, statement: Transaction.() -> Unit) {
+        withTables(testDB, UserTable) {
+            UserEntity.new {
+                firstName = "Sunghyouk"
+                lastName = "Bae"
+                email = faker.internet().safeEmailAddress()
+            }
+            UserEntity.new {
+                firstName = "Midoogi"
+                lastName = "Kwon"
+                email = faker.internet().safeEmailAddress()
+            }
+            UserEntity.new {
+                firstName = "Jehyoung"
+                lastName = "Bae"
+                email = faker.internet().safeEmailAddress()
+            }
+
+            commit()
+            entityCache.clear()
+            statement()
+        }
+    }
 
 
     object UserCredentialTable: SnowflakeIdTable("user_credentials") {
@@ -83,7 +139,7 @@ object UserSchema: KLogging() {
         updatedAt = this[UserCredentialTable.updatedAt],
     )
 
-    fun AbstractExposedTest.withUserTables(
+    fun AbstractExposedTest.withUserCredentialTable(
         testDB: TestDB,
         statement: Transaction.() -> Unit,
     ) {

@@ -1,19 +1,18 @@
 package io.bluetape4k.exposed.redisson.repository
 
+import io.bluetape4k.exposed.redisson.map.DefaultExposedMapLoader
 import io.bluetape4k.exposed.redisson.map.DefaultExposedMapWriter
-import io.bluetape4k.exposed.redisson.map.DefaultSuspendedExposedMapLoader
-import io.bluetape4k.exposed.redisson.map.DefaultSuspendedExposedMapWriter
 import io.bluetape4k.exposed.redisson.map.ExposedMapLoader
 import io.bluetape4k.exposed.redisson.map.ExposedMapWriter
-import io.bluetape4k.exposed.redisson.map.SuspendedExposedMapLoader
-import io.bluetape4k.exposed.redisson.map.SuspendedExposedMapWriter
 import io.bluetape4k.exposed.repository.HasIdentifier
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import io.bluetape4k.redis.redisson.cache.localCachedMap
 import io.bluetape4k.redis.redisson.cache.mapCache
 import io.bluetape4k.support.requireNotNull
+import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.Expression
 import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.selectAll
@@ -21,6 +20,7 @@ import org.jetbrains.exposed.sql.statements.BatchInsertStatement
 import org.jetbrains.exposed.sql.statements.UpdateStatement
 import org.redisson.api.EvictionMode
 import org.redisson.api.RLocalCachedMap
+import org.redisson.api.RMap
 import org.redisson.api.RMapCache
 import org.redisson.api.RedissonClient
 import org.redisson.api.map.WriteMode
@@ -32,38 +32,51 @@ import java.time.Duration
  * @param T Entity Type   Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable DTO를 사용해 주세요.
  * @param ID Entity ID Type
  */
-interface SuspendedRedisCacheRepository<T: HasIdentifier<ID>, ID: Any> {
+interface RedisCacheRepository<T: HasIdentifier<ID>, ID: Any> {
+
     val cacheName: String
 
-    suspend fun existsById(id: ID): Boolean
+    val entityTable: IdTable<ID>
+    fun ResultRow.toEntity(): T
 
-    suspend fun findById(id: ID): T
-    suspend fun findByIdOrNull(id: ID): T?
+    val cache: RMap<ID, T?>
 
+    fun exists(id: ID): Boolean = cache.containsKey(id)
 
-    suspend fun findAll(): List<T>
-    suspend fun findAll(sortBy: String, order: SortOrder = SortOrder.ASC): List<T>
-    suspend fun findAll(where: Op<Boolean>): List<T>
-    suspend fun findAll(where: Op<Boolean>, sortBy: String, order: SortOrder = SortOrder.ASC): List<T>
+    fun findFreshByIdOrNull(id: ID): T?
 
-    suspend fun save(entity: T)
+    fun getOrNull(id: ID): T? = cache[id]
 
-    suspend fun delete(entity: T)
-    suspend fun deleteById(id: ID)
+    fun findAll(
+        limit: Int? = null,
+        offset: Long? = null,
+        sortBy: Expression<*> = entityTable.id,
+        sortOrder: SortOrder = SortOrder.ASC,
+        where: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE },
+    ): List<T>
 
+    fun getAllBatch(ids: Collection<ID>, batchSize: Int = 100): List<T>
+
+    fun put(entity: T) = cache.fastPut(entity.id, entity)
+    fun putAll(entities: Collection<T>, batchSize: Int = 100) {
+        cache.putAll(entities.associateBy { it.id }, batchSize)
+    }
+
+    fun invalidate(vararg ids: ID): Long = cache.fastRemove(*ids)
+    fun invalidateAll() = cache.clear()
+    fun invalidateByPattern(patterns: String, count: Int = 10) {
+        val keys = cache.keySet(patterns, count)
+        cache.fastRemove(*keys.toTypedArray())
+    }
 }
 
 /**
- * ExposedRedisRepository는 Exposed와 Redisson을 사용하여 Redis에 데이터를 캐싱하는 Repository입니다.
+ * RedisCacheRepository는 Exposed와 Redisson을 사용하여 Redis에 데이터를 캐싱하는 Repository입니다.
  *
- * @param T Entity Type      Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable DTO를 사용해 주세요.
+ * @param T Entity Type   Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable DTO를 사용해 주세요.
  * @param ID Entity ID Type
- *
- * @param redissonClient Redisson Client
- * @param cacheName Redis Cache Name
- * @param config ExposedRedisCacheConfig
  */
-abstract class BaseSuspendedRedisCacheRepository<T: HasIdentifier<ID>, ID: Any>(
+abstract class BaseRedisCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     val redissonClient: RedissonClient,
     override val cacheName: String,
     private val config: RedisCacheConfig,
@@ -72,8 +85,8 @@ abstract class BaseSuspendedRedisCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     /**
      * DB의 정보를 Read Through로 캐시에 로딩하는 [ExposedMapLoader] 입니다.
      */
-    protected open val mapLoaderAsync: SuspendedExposedMapLoader<ID, T> by lazy {
-        DefaultSuspendedExposedMapLoader(entityTable) { toEntity() }
+    protected open val mapLoader: ExposedMapLoader<ID, T> by lazy {
+        DefaultExposedMapLoader(entityTable) { toEntity() }
     }
 
     /**
@@ -98,9 +111,9 @@ abstract class BaseSuspendedRedisCacheRepository<T: HasIdentifier<ID>, ID: Any>(
      * Write Through 모드라면 [DefaultExposedMapWriter]를 생성하여 제공합니다.
      * Read Through Only 라면 null을 반환합니다.
      */
-    protected val mapWriterAsync: SuspendedExposedMapWriter<ID, T>? by lazy {
+    protected val mapWriter: ExposedMapWriter<ID, T>? by lazy {
         when {
-            config.isReadWrite -> DefaultSuspendedExposedMapWriter(
+            config.isReadWrite -> DefaultExposedMapWriter(
                 entityTable = entityTable,
                 toEntity = { toEntity() },
                 updateBody = { stmt, entity -> doUpdateEntity(stmt, entity) },
@@ -165,27 +178,27 @@ abstract class BaseSuspendedRedisCacheRepository<T: HasIdentifier<ID>, ID: Any>(
 /**
  * RedisRemoteCacheRepository는 Exposed와 Redisson을 사용하여 Redis에 데이터를 캐싱하는 Repository입니다.
  *
- * @param T Entity Type      Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable DTO를 사용해 주세요.
+ * @param T Entity Type   Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable DTO를 사용해 주세요.
  * @param ID Entity ID Type
  *
  * @param redissonClient Redisson Client
  * @param cacheName Redis Cache Name
  * @param config ExposedRedisCacheConfig
  */
-abstract class SuspendedRedisRemoteCacheRepository<T: HasIdentifier<ID>, ID: Any>(
+abstract class RedisRemoteCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     redissonClient: RedissonClient,
     cacheName: String,
     config: RedisCacheConfig,
-): BaseSuspendedRedisCacheRepository<T, ID>(redissonClient, cacheName, config) {
+): BaseRedisCacheRepository<T, ID>(redissonClient, cacheName, config) {
 
     override val cache: RMapCache<ID, T?> by lazy {
         mapCache(cacheName, redissonClient) {
             if (config.isReadOnly) {
-                loaderAsync(mapLoaderAsync)
+                loader(mapLoader)
             }
             if (config.isReadWrite) {
-                mapWriterAsync.requireNotNull("mapWriter")
-                writerAsync(mapWriterAsync)
+                mapWriter.requireNotNull("mapWriter")
+                writer(mapWriter)
                 writeMode(WriteMode.WRITE_THROUGH)
             }
             codec(config.codec)
@@ -199,32 +212,33 @@ abstract class SuspendedRedisRemoteCacheRepository<T: HasIdentifier<ID>, ID: Any
             }
         }
     }
+
 }
 
 /**
  * RedisNearCacheRepository는 Exposed와 Redisson을 사용하여 **Near Cache** 방식으로 Redis에 데이터를 캐싱하는 Repository입니다.
  *
- * @param T Entity Type      Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable DTO를 사용해 주세요.
+ * @param T Entity Type   Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable DTO를 사용해 주세요.
  * @param ID Entity ID Type
  *
  * @param redissonClient Redisson Client
  * @param cacheName Redis Cache Name
  * @param config ExposedRedisCacheConfig
  */
-abstract class SuspendedRedisNearCacheRepository<T: HasIdentifier<ID>, ID: Any>(
+abstract class RedisNearCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     redissonClient: RedissonClient,
     cacheName: String,
     config: RedisCacheConfig,
-): BaseSuspendedRedisCacheRepository<T, ID>(redissonClient, cacheName, config) {
+): BaseRedisCacheRepository<T, ID>(redissonClient, cacheName, config) {
 
     override val cache: RLocalCachedMap<ID, T?> by lazy {
         localCachedMap(cacheName, redissonClient) {
             if (config.isReadOnly) {
-                loaderAsync(mapLoaderAsync)
+                loader(mapLoader)
             }
             if (config.isReadWrite) {
-                mapWriterAsync.requireNotNull("mapWriter")
-                writerAsync(mapWriterAsync)
+                mapWriter.requireNotNull("mapWriter")
+                writer(mapWriter)
                 writeMode(WriteMode.WRITE_THROUGH)
             }
 

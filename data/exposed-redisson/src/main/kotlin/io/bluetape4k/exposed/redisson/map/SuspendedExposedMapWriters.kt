@@ -8,12 +8,12 @@ import kotlinx.coroutines.future.asCompletableFuture
 import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.notInList
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.statements.BatchInsertStatement
 import org.jetbrains.exposed.sql.statements.UpdateStatement
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.sql.update
 import org.redisson.api.map.MapWriterAsync
 import java.util.concurrent.CompletionStage
 
@@ -43,7 +43,7 @@ open class DefaultSuspendedExposedMapWriter<ID: Any, E: HasIdentifier<ID>>(
     private val toEntity: ResultRow.() -> E,
     private val updateBody: IdTable<ID>.(UpdateStatement, E) -> Unit,
     private val batchInsertBody: BatchInsertStatement.(E) -> Unit,
-    private val deleteFromDbOnInvalidate: Boolean = true,
+    private val deleteFromDBOnInvalidate: Boolean = true,
 ): SuspendedExposedMapWriter<ID, E>(
     writeToDb = { map ->
         val entityIdsToUpdate =
@@ -51,18 +51,22 @@ open class DefaultSuspendedExposedMapWriter<ID: Any, E: HasIdentifier<ID>>(
                 .where { entityTable.id inList map.keys }
                 .map { it[entityTable.id].value }
 
-        val entityToUpdate = map.values.filter { it.id in entityIdsToUpdate }
+        val entitiesToUpdate = map.values.filter { it.id in entityIdsToUpdate }
 
-        entityTable.batchInsert(entityToUpdate) { entity ->
-            batchInsertBody(entity)
+        entitiesToUpdate.forEach { entity ->
+            entityTable.update({ entityTable.id eq entity.id }) {
+                updateBody(it, entity)
+            }
         }
 
-        if (deleteFromDbOnInvalidate) {
-            entityTable.deleteWhere { entityTable.id notInList map.keys }
+        val entitiesToInsert = map.values.filterNot { it.id in entityIdsToUpdate }
+
+        entityTable.batchInsert(entitiesToInsert) { entity ->
+            batchInsertBody(entity)
         }
     },
     deleteFromDb = { keys ->
-        if (deleteFromDbOnInvalidate) {
+        if (deleteFromDBOnInvalidate) {
             entityTable.deleteWhere { entityTable.id inList keys }
         }
     },

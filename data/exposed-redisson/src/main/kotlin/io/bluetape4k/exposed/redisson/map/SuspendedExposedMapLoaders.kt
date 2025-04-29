@@ -41,13 +41,16 @@ open class SuspendedExposedMapLoader<ID: Any, E: Any>(
     override fun loadAllKeys(): AsyncIterator<ID> {
         val channel = Channel<ID>(Channel.RENDEZVOUS).also {
             it.invokeOnClose { cause ->
-                log.debug { "channel closed. cause=$cause" }
+                log.debug { "Channel closed. cause=$cause" }
             }
         }
 
         scope.launch {
+            log.debug { "Load all keys from DB..." }
             try {
-                loadAllIdsFromDB(channel)
+                newSuspendedTransaction(scope.coroutineContext) {
+                    loadAllIdsFromDB(channel)
+                }
             } catch (e: Throwable) {
                 log.error(e) { "Error loading all keys" }
             } finally {

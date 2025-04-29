@@ -11,6 +11,7 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.statements.BatchInsertStatement
 import org.jetbrains.exposed.sql.statements.UpdateStatement
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 import org.redisson.api.map.MapWriter
 
 /**
@@ -29,12 +30,16 @@ abstract class ExposedMapWriter<ID: Any, E: Any>(
 
     override fun write(map: Map<ID, E>) {
         log.debug { "캐시 변경을 DB에 반영합니다... ids=${map.keys}" }
-        writeToDB(map)
+        transaction {
+            writeToDB(map)
+        }
     }
 
     override fun delete(keys: Collection<ID>) {
         log.debug { "캐시 삭제 시, DB에서도 삭제합니다... ids=$keys" }
-        deleteFromDB(keys)
+        transaction {
+            deleteFromDB(keys)
+        }
     }
 }
 
@@ -55,25 +60,26 @@ open class DefaultExposedMapWriter<ID: Any, E: HasIdentifier<ID>>(
     private val deleteFromDBOnInvalidate: Boolean = true,
 ): ExposedMapWriter<ID, E>(
     writeToDB = { map: Map<ID, E> ->
+        val entityIdsToUpdate =
+            entityTable.select(entityTable.id)
+                .where { entityTable.id inList map.keys }
+                .map { it[entityTable.id].value }
 
-        transaction {
-            val entityIdsToUpdate =
-                entityTable.select(entityTable.id)
-                    .where { entityTable.id inList map.keys }
-                    .map { it[entityTable.id].value }
-
-            val entitiesToUpdate = map.values.filter { it.id in entityIdsToUpdate }
-
-            entityTable.batchInsert(entitiesToUpdate) {
-                batchInsertBody(this, it)
+        val entitiesToUpdate = map.values.filter { it.id in entityIdsToUpdate }
+        entitiesToUpdate.forEach { entity ->
+            entityTable.update({ entityTable.id eq entity.id }) {
+                updateBody(it, entity)
             }
+        }
+
+        val entitiesToInsert = map.values.filterNot { it.id in entityIdsToUpdate }
+        entityTable.batchInsert(entitiesToUpdate) {
+            batchInsertBody(this, it)
         }
     },
     deleteFromDB = { ids ->
         if (deleteFromDBOnInvalidate) {
-            transaction {
-                entityTable.deleteWhere { entityTable.id inList ids }
-            }
+            entityTable.deleteWhere { entityTable.id inList ids }
         }
     }
 ) {

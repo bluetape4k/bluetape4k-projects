@@ -84,7 +84,7 @@ abstract class AbstractExposedRedisCachedRepository<T: HasIdentifier<ID>, ID: An
                 toEntity = { toEntity() },
                 updateBody = { stmt, entity -> doUpdateEntity(stmt, entity) },
                 batchInsertBody = { entity -> doBatchInsertEntity(this, entity) },
-                deleteFromDbOnInvalidate = config.deleteFromDbOnInvalidate,
+                deleteFromDbOnInvalidate = config.deleteFromDBOnInvalidate,
             )
             else -> null
         }

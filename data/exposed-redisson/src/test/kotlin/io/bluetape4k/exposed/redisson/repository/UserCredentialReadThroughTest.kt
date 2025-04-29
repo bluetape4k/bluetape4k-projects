@@ -3,7 +3,7 @@ package io.bluetape4k.exposed.redisson.repository
 import io.bluetape4k.exposed.redisson.AbstractRedissonTest
 import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialTable
 import io.bluetape4k.exposed.redisson.repository.UserSchema.toUserCredential
-import io.bluetape4k.exposed.redisson.repository.UserSchema.withUserTables
+import io.bluetape4k.exposed.redisson.repository.UserSchema.withUserCredentialTable
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
@@ -40,7 +40,7 @@ class UserCredentialReadThroughTest: AbstractRedissonTest() {
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `Read through 로 id 로 조회한다`(testDB: TestDB) {
-        withUserTables(testDB) {
+        withUserCredentialTable(testDB) {
             // DB 에서 조회한 값
             val userFromDB = UserCredentialTable
                 .selectAll()
@@ -60,7 +60,7 @@ class UserCredentialReadThroughTest: AbstractRedissonTest() {
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `엔티티 전체를 조회해서 캐시에 넣는다`(testDB: TestDB) {
-        withUserTables(testDB) {
+        withUserCredentialTable(testDB) {
             // UserTable 의 전체 레코드 수
             val userCount = UserCredentialTable.selectAll().count().toInt()
 
@@ -81,7 +81,7 @@ class UserCredentialReadThroughTest: AbstractRedissonTest() {
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `Read Through 만 있는 경우, 캐시에 로드된 엔티티를 제거하면, 다시 로드한다`(testDB: TestDB) {
-        withUserTables(testDB) {
+        withUserCredentialTable(testDB) {
             // 캐시에서 ID=1인 엔티티를 읽는다 (기존에 없으므로 DB에서 읽는다)
             val user = userRepository.findById(1L)
 

@@ -12,7 +12,7 @@ import java.time.Duration
  *
  * @property cacheMode 캐시 모드 (읽기 전용, 쓰기 전용, 읽기/쓰기 모두 등)
  * @property writeMode 쓰기 모드 (WRITE_THROUGH, WRITE_BEHIND)
- * @property deleteFromDbOnInvalidate 캐시 무효화 시 DB에서도 삭제할지 여부
+ * @property deleteFromDBOnInvalidate 캐시 무효화 시 DB에서도 삭제할지 여부
  * @property ttl 캐시 항목의 기본 만료 시간
  * @property maxSize 캐시의 최대 크기 (0이면 무제한)
  * @property codec 캐시 항목의 직렬화 및 역직렬화에 사용할 Codec (기본은 [RedissonCodecs.LZ4Fury])
@@ -30,7 +30,7 @@ import java.time.Duration
 data class RedisCacheConfig(
     val cacheMode: CacheMode = CacheMode.READ_WRITE,
     val writeMode: WriteMode = WriteMode.WRITE_THROUGH,
-    val deleteFromDbOnInvalidate: Boolean = true,
+    val deleteFromDBOnInvalidate: Boolean = true,
     val ttl: Duration = Duration.ZERO,
     val maxSize: Int = 0,
     val codec: Codec = RedissonCodecs.LZ4Fury,

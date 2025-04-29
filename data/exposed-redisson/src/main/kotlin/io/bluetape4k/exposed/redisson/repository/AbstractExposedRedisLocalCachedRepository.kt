@@ -83,7 +83,7 @@ abstract class AbstractExposedRedisLocalCachedRepository<T: HasIdentifier<ID>, I
                 toEntity = { toEntity() },
                 updateBody = { stmt, entity -> doUpdateEntity(stmt, entity) },
                 batchInsertBody = { entity -> doBatchInsertEntity(this, entity) },
-                deleteFromDbOnInvalidate = config.deleteFromDbOnInvalidate,  // 캐시 invalidated 시 DB에서도 삭제할 것인지 여부
+                deleteFromDbOnInvalidate = config.deleteFromDBOnInvalidate,  // 캐시 invalidated 시 DB에서도 삭제할 것인지 여부
             )
             else -> null
         }
