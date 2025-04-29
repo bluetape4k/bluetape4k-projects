@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
+@Deprecated("삭제 예정")
 class UserCredentialReadThroughTest: AbstractRedissonTest() {
 
     companion object: KLogging()

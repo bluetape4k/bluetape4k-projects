@@ -63,11 +63,11 @@ interface SuspendedRedisCacheRepository<T: HasIdentifier<ID>, ID: Any> {
  * @param cacheName Redis Cache Name
  * @param config ExposedRedisCacheConfig
  */
-abstract class BaseSuspendedRedisCacheRepository<T: HasIdentifier<ID>, ID: Any>(
+abstract class BaseSuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     val redissonClient: RedissonClient,
     override val cacheName: String,
     private val config: RedisCacheConfig,
-): RedisCacheRepository<T, ID> {
+): ExposedCacheRepository<T, ID> {
 
     /**
      * DB의 정보를 Read Through로 캐시에 로딩하는 [ExposedMapLoader] 입니다.
@@ -111,7 +111,7 @@ abstract class BaseSuspendedRedisCacheRepository<T: HasIdentifier<ID>, ID: Any>(
         }
     }
 
-    override fun findFreshByIdOrNull(id: ID): T? =
+    override fun findFreshById(id: ID): T? =
         entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
 
     override fun findAll(
@@ -172,11 +172,11 @@ abstract class BaseSuspendedRedisCacheRepository<T: HasIdentifier<ID>, ID: Any>(
  * @param cacheName Redis Cache Name
  * @param config ExposedRedisCacheConfig
  */
-abstract class SuspendedRedisRemoteCacheRepository<T: HasIdentifier<ID>, ID: Any>(
+abstract class SuspendedExposedRemoteCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     redissonClient: RedissonClient,
     cacheName: String,
     config: RedisCacheConfig,
-): BaseSuspendedRedisCacheRepository<T, ID>(redissonClient, cacheName, config) {
+): BaseSuspendedExposedCacheRepository<T, ID>(redissonClient, cacheName, config) {
 
     override val cache: RMapCache<ID, T?> by lazy {
         mapCache(cacheName, redissonClient) {
@@ -211,11 +211,11 @@ abstract class SuspendedRedisRemoteCacheRepository<T: HasIdentifier<ID>, ID: Any
  * @param cacheName Redis Cache Name
  * @param config ExposedRedisCacheConfig
  */
-abstract class SuspendedRedisNearCacheRepository<T: HasIdentifier<ID>, ID: Any>(
+abstract class SuspendedExposedNearCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     redissonClient: RedissonClient,
     cacheName: String,
     config: RedisCacheConfig,
-): BaseSuspendedRedisCacheRepository<T, ID>(redissonClient, cacheName, config) {
+): BaseSuspendedExposedCacheRepository<T, ID>(redissonClient, cacheName, config) {
 
     override val cache: RLocalCachedMap<ID, T?> by lazy {
         localCachedMap(cacheName, redissonClient) {

@@ -28,18 +28,12 @@ abstract class ExposedMapWriter<ID: Any, E: Any>(
     companion object: KLogging()
 
 
-    override fun write(map: Map<ID, E>) {
-        log.debug { "캐시 변경을 DB에 반영합니다... ids=${map.keys}" }
-        transaction {
-            writeToDB(map)
-        }
+    override fun write(map: Map<ID, E>) = transaction {
+        writeToDB(map)
     }
 
-    override fun delete(keys: Collection<ID>) {
-        log.debug { "캐시 삭제 시, DB에서도 삭제합니다... ids=$keys" }
-        transaction {
-            deleteFromDB(keys)
-        }
+    override fun delete(keys: Collection<ID>) = transaction {
+        deleteFromDB(keys)
     }
 }
 
@@ -60,6 +54,8 @@ open class DefaultExposedMapWriter<ID: Any, E: HasIdentifier<ID>>(
     private val deleteFromDBOnInvalidate: Boolean = true,
 ): ExposedMapWriter<ID, E>(
     writeToDB = { map: Map<ID, E> ->
+        log.debug { "캐시 변경 사항을 DB에 반영합니다... ids=${map.keys}" }
+
         val entityIdsToUpdate =
             entityTable.select(entityTable.id)
                 .where { entityTable.id inList map.keys }
@@ -71,14 +67,17 @@ open class DefaultExposedMapWriter<ID: Any, E: HasIdentifier<ID>>(
                 updateBody(it, entity)
             }
         }
-
-        val entitiesToInsert = map.values.filterNot { it.id in entityIdsToUpdate }
-        entityTable.batchInsert(entitiesToUpdate) {
-            batchInsertBody(this, it)
+        // id가 DB에서 자동 생성되지 않는 경우에만 batchInsert 를 수행합니다.
+        if (!entityTable.id.isDatabaseGenerated()) {
+            val entitiesToInsert = map.values.filterNot { it.id in entityIdsToUpdate }
+            entityTable.batchInsert(entitiesToInsert) {
+                batchInsertBody(this, it)
+            }
         }
     },
     deleteFromDB = { ids ->
         if (deleteFromDBOnInvalidate) {
+            log.debug { "캐시가 Invalidated 되어, DB에서도 삭제합니다 (deleteFromDBOnInvalidate=$deleteFromDBOnInvalidate)... ids=$ids" }
             entityTable.deleteWhere { entityTable.id inList ids }
         }
     }

@@ -110,6 +110,13 @@ object UserSchema: KLogging() {
         }
     }
 
+    fun findUserById(id: Long): UserDTO? {
+        return UserTable.selectAll()
+            .where { UserTable.id eq id }
+            .singleOrNull()
+            ?.toUserDTO()
+    }
+
 
     object UserCredentialTable: SnowflakeIdTable("user_credentials") {
         val loginId = varchar("login_id", 255).uniqueIndex()

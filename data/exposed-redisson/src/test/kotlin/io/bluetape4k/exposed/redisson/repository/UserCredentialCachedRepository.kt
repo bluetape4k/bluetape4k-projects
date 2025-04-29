@@ -11,6 +11,7 @@ import org.jetbrains.exposed.sql.statements.UpdateStatement
 import org.redisson.api.RedissonClient
 import java.time.Instant
 
+@Deprecated("삭제 예정")
 class UserCredentialCachedRepository(
     redissonClient: RedissonClient,
     cacheName: String = "exposed:users",

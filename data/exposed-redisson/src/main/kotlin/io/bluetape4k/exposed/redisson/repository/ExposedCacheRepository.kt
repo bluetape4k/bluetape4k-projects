@@ -5,6 +5,8 @@ import io.bluetape4k.exposed.redisson.map.DefaultExposedMapWriter
 import io.bluetape4k.exposed.redisson.map.ExposedMapLoader
 import io.bluetape4k.exposed.redisson.map.ExposedMapWriter
 import io.bluetape4k.exposed.repository.HasIdentifier
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.info
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import io.bluetape4k.redis.redisson.cache.localCachedMap
 import io.bluetape4k.redis.redisson.cache.mapCache
@@ -27,12 +29,12 @@ import org.redisson.api.map.WriteMode
 import java.time.Duration
 
 /**
- * RedisCacheRepository는 Exposed와 Redisson을 사용하여 Redis에 데이터를 캐싱하는 Repository입니다.
+ * ExposedCacheRepository는 Exposed와 Redisson을 사용하여 Redis에 데이터를 캐싱하는 Repository입니다.
  *
  * @param T Entity Type   Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable DTO를 사용해 주세요.
  * @param ID Entity ID Type
  */
-interface RedisCacheRepository<T: HasIdentifier<ID>, ID: Any> {
+interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
 
     val cacheName: String
 
@@ -41,11 +43,14 @@ interface RedisCacheRepository<T: HasIdentifier<ID>, ID: Any> {
 
     val cache: RMap<ID, T?>
 
+    /**
+     * 캐시에 존재하지 않으면 Read Through 로 DB에서 읽어온다. DB에도 없을 때 false 를 반환한다
+     */
     fun exists(id: ID): Boolean = cache.containsKey(id)
 
-    fun findFreshByIdOrNull(id: ID): T?
+    fun findFreshById(id: ID): T?
 
-    fun getOrNull(id: ID): T? = cache[id]
+    fun get(id: ID): T? = cache[id]
 
     fun findAll(
         limit: Int? = null,
@@ -71,16 +76,18 @@ interface RedisCacheRepository<T: HasIdentifier<ID>, ID: Any> {
 }
 
 /**
- * RedisCacheRepository는 Exposed와 Redisson을 사용하여 Redis에 데이터를 캐싱하는 Repository입니다.
+ * BaseExposedCacheRepository는 Exposed와 Redisson을 사용하여 Redis에 데이터를 캐싱하는 Repository입니다.
  *
  * @param T Entity Type   Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable DTO를 사용해 주세요.
  * @param ID Entity ID Type
  */
-abstract class BaseRedisCacheRepository<T: HasIdentifier<ID>, ID: Any>(
+abstract class BaseExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     val redissonClient: RedissonClient,
     override val cacheName: String,
-    private val config: RedisCacheConfig,
-): RedisCacheRepository<T, ID> {
+    protected val config: RedisCacheConfig,
+): ExposedCacheRepository<T, ID> {
+
+    companion object: KLogging()
 
     /**
      * DB의 정보를 Read Through로 캐시에 로딩하는 [ExposedMapLoader] 입니다.
@@ -124,7 +131,7 @@ abstract class BaseRedisCacheRepository<T: HasIdentifier<ID>, ID: Any>(
         }
     }
 
-    override fun findFreshByIdOrNull(id: ID): T? =
+    override fun findFreshById(id: ID): T? =
         entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
 
     override fun findAll(
@@ -135,21 +142,31 @@ abstract class BaseRedisCacheRepository<T: HasIdentifier<ID>, ID: Any>(
         where: SqlExpressionBuilder.() -> Op<Boolean>,
     ): List<T> {
         return if (config.isReadOnly) {
-            entityTable.selectAll().where(where).apply {
-                orderBy(sortBy, sortOrder)
-                limit?.run { limit(limit) }
-                offset?.run { offset(offset) }
-            }.map { it.toEntity() }.apply {
-                cache.putAll(associateBy { it.id })
-            }
+            entityTable
+                .selectAll()
+                .where(where)
+                .apply {
+                    orderBy(sortBy, sortOrder)
+                    limit?.run { limit(limit) }
+                    offset?.run { offset(offset) }
+                }.map { it.toEntity() }
+                .apply {
+                    cache.putAll(associateBy { it.id })
+                }
         } else {
-            entityTable.select(entityTable.id).where(where).apply {
-                orderBy(sortBy, sortOrder)
-                limit?.run { limit(limit) }
-                offset?.run { offset(offset) }
-            }.map { it[entityTable.id].value }.let {
-                cache.getAll(it.toSet()).values.filterNotNull()
-            }
+            // write-through 모드라면 cache.putAll()을 하면 다시 DB에 Write를 하므로 이런 방식을 써야 한다.
+            entityTable
+                .select(entityTable.id)
+                .where(where)
+                .apply {
+                    orderBy(sortBy, sortOrder)
+                    limit?.run { limit(limit) }
+                    offset?.run { offset(offset) }
+                }
+                .map { it[entityTable.id].value }
+                .let {
+                    cache.getAll(it.toSet()).values.filterNotNull()
+                }
         }
     }
 
@@ -159,13 +176,19 @@ abstract class BaseRedisCacheRepository<T: HasIdentifier<ID>, ID: Any>(
         return chunkedIds.flatMap { chunk ->
             when {
                 config.isReadOnly -> {
-                    entityTable.selectAll().where { entityTable.id inList chunk }.map { it.toEntity() }.apply {
-                        cache.putAll(associateBy { it.id })
-                    }
+                    entityTable.selectAll()
+                        .where { entityTable.id inList chunk }
+                        .map { it.toEntity() }
+                        .apply {
+                            cache.putAll(associateBy { it.id })
+                        }
                 }
                 config.isReadWrite -> {
-                    entityTable.select(entityTable.id).where { entityTable.id inList chunk }
-                        .map { it[entityTable.id].value }.let {
+                    // write-through 모드라면 DB에서 ID만 조회한 후 캐시에서 가져와야 한다 
+                    entityTable.select(entityTable.id)
+                        .where { entityTable.id inList chunk }
+                        .map { it[entityTable.id].value }
+                        .let {
                             cache.getAll(it.toSet()).values.filterNotNull()
                         }
                 }
@@ -176,7 +199,7 @@ abstract class BaseRedisCacheRepository<T: HasIdentifier<ID>, ID: Any>(
 }
 
 /**
- * RedisRemoteCacheRepository는 Exposed와 Redisson을 사용하여 Redis에 데이터를 캐싱하는 Repository입니다.
+ * ExposedRemoteCacheRepository 는 Exposed와 Redisson을 사용하여 Redis에 데이터를 캐싱하는 Repository입니다.
  *
  * @param T Entity Type   Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable DTO를 사용해 주세요.
  * @param ID Entity ID Type
@@ -185,18 +208,22 @@ abstract class BaseRedisCacheRepository<T: HasIdentifier<ID>, ID: Any>(
  * @param cacheName Redis Cache Name
  * @param config ExposedRedisCacheConfig
  */
-abstract class RedisRemoteCacheRepository<T: HasIdentifier<ID>, ID: Any>(
+abstract class ExposedRemoteCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     redissonClient: RedissonClient,
     cacheName: String,
     config: RedisCacheConfig,
-): BaseRedisCacheRepository<T, ID>(redissonClient, cacheName, config) {
+): BaseExposedCacheRepository<T, ID>(redissonClient, cacheName, config) {
+
+    companion object: KLogging()
 
     override val cache: RMapCache<ID, T?> by lazy {
+        log.info { "RMapCache 를 생성합니다. config=$config" }
+
         mapCache(cacheName, redissonClient) {
             if (config.isReadOnly) {
                 loader(mapLoader)
-            }
-            if (config.isReadWrite) {
+            } else if (config.isReadWrite) {
+                loader(mapLoader)
                 mapWriter.requireNotNull("mapWriter")
                 writer(mapWriter)
                 writeMode(WriteMode.WRITE_THROUGH)
@@ -204,8 +231,6 @@ abstract class RedisRemoteCacheRepository<T: HasIdentifier<ID>, ID: Any>(
             codec(config.codec)
             writeRetryAttempts(config.writeRetryAttempts)
             writeRetryInterval(config.writeRetryInterval)
-
-
         }.apply {
             if (config.nearCacheMaxSize > 0) {
                 setMaxSize(config.nearCacheMaxSize, EvictionMode.LRU)
@@ -216,7 +241,7 @@ abstract class RedisRemoteCacheRepository<T: HasIdentifier<ID>, ID: Any>(
 }
 
 /**
- * RedisNearCacheRepository는 Exposed와 Redisson을 사용하여 **Near Cache** 방식으로 Redis에 데이터를 캐싱하는 Repository입니다.
+ * ExposedNearCacheRepository 는 Exposed와 Redisson을 사용하여 **Near Cache** 방식으로 Redis에 데이터를 캐싱하는 Repository입니다.
  *
  * @param T Entity Type   Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable DTO를 사용해 주세요.
  * @param ID Entity ID Type
@@ -225,18 +250,22 @@ abstract class RedisRemoteCacheRepository<T: HasIdentifier<ID>, ID: Any>(
  * @param cacheName Redis Cache Name
  * @param config ExposedRedisCacheConfig
  */
-abstract class RedisNearCacheRepository<T: HasIdentifier<ID>, ID: Any>(
+abstract class ExposedNearCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     redissonClient: RedissonClient,
     cacheName: String,
     config: RedisCacheConfig,
-): BaseRedisCacheRepository<T, ID>(redissonClient, cacheName, config) {
+): BaseExposedCacheRepository<T, ID>(redissonClient, cacheName, config) {
+
+    companion object: KLogging()
 
     override val cache: RLocalCachedMap<ID, T?> by lazy {
+        log.info { "RLocalCAcheMap 를 생성합니다. config=$config" }
+        
         localCachedMap(cacheName, redissonClient) {
             if (config.isReadOnly) {
                 loader(mapLoader)
-            }
-            if (config.isReadWrite) {
+            } else if (config.isReadWrite) {
+                loader(mapLoader)
                 mapWriter.requireNotNull("mapWriter")
                 writer(mapWriter)
                 writeMode(WriteMode.WRITE_THROUGH)
