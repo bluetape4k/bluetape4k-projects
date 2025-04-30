@@ -15,11 +15,22 @@ import kotlin.reflect.KClass
 
 private val log = KotlinLogging.logger {}
 
+/**
+ * Column의 언어 타입을 찾습니다.
+ * @param column Column
+ * @return Column의 언어 타입
+ */
 internal fun <K: Any> Iterable<K>.mapToLanguageType(column: Column<*>): List<Any> {
     val langType = column.getLanguageType() ?: error("Column의 언어 타입을 찾을 수 없습니다. column=$column")
     return mapNotNull { id -> convertToLanguageType(id, langType) }
 }
 
+/**
+ * id를 언어 타입으로 변환합니다.
+ * @param id 변환할 ID
+ * @param langType 변환할 언어 타입
+ * @return 변환된 언어 타입
+ */
 internal fun <K: Any> convertToLanguageType(id: K, langType: KClass<*>): Any? {
     return when (langType) {
         Short::class -> id.asShortOrNull()

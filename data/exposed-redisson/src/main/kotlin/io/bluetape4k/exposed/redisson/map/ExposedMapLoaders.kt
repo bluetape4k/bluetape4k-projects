@@ -9,6 +9,14 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.redisson.api.map.MapLoader
 
+/**
+ * ExposedMapLoader는 Exposed를 사용하여 DB에서 데이터를 로드하는 [MapLoader]입니다.
+ *
+ * @param ID ID 타입
+ * @param E 엔티티 타입
+ * @param loadByIdFromDB ID로 엔티티를 로드하는 함수
+ * @param loadAllIdsFromDB 모든 ID를 로드하는 함수
+ */
 open class ExposedMapLoader<ID: Any, E: Any>(
     private val loadByIdFromDB: (ID) -> E?,
     private val loadAllIdsFromDB: () -> Collection<ID>,
@@ -33,6 +41,17 @@ open class ExposedMapLoader<ID: Any, E: Any>(
     }
 }
 
+/**
+ * [HasIdentifier]를 구현한 엔티티를 위한 [ExposedMapLoader]입니다.
+ *
+ * @sample io.bluetape4k.exposed.redisson.repository.AbstractExposedCacheRepository
+ *
+ * @param ID ID 타입
+ * @param E 엔티티 타입
+ * @param entityTable `EntityID<ID>` 를 id 컬럼으로 가진 [IdTable] 입니다.
+ * @param batchSize 배치 사이즈
+ * @param toEntity ResultRow를 엔티티로 변환하는 함수
+ */
 open class ExposedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
     private val entityTable: IdTable<ID>,
     private val batchSize: Int = DEFAULT_BATCH_SIZE,
@@ -45,6 +64,7 @@ open class ExposedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
             ?.toEntity()
     },
     loadAllIdsFromDB = {
+        // 성능 상의 문제로 batch 방식으로 모든 ID를 로드합니다.
         val recordCount = entityTable.selectAll().count()
         var offset = 0L
         val limit = batchSize

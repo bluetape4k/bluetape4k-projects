@@ -50,6 +50,12 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
     fun findFreshById(id: ID): T? =
         entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
 
+    fun findFreshAll(vararg ids: ID): List<T> =
+        entityTable.selectAll()
+            .where { entityTable.id inList ids.toList() }
+            .map { it.toEntity() }
+
+
     fun get(id: ID): T? = cache[id]
 
     fun findAll(
@@ -60,7 +66,7 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
         where: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE },
     ): List<T>
 
-    fun getAllBatch(ids: Collection<ID>, batchSize: Int = 100): List<T>
+    fun getAll(ids: Collection<ID>, batchSize: Int = 100): List<T>
 
     fun put(entity: T) = cache.fastPut(entity.id, entity)
     fun putAll(entities: Collection<T>, batchSize: Int = 100) {
@@ -215,7 +221,7 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
         }
     }
 
-    override fun getAllBatch(ids: Collection<ID>, batchSize: Int): List<T> {
+    override fun getAll(ids: Collection<ID>, batchSize: Int): List<T> {
         val chunkedIds = ids.chunked(batchSize)
 
         return chunkedIds.flatMap { chunk ->

@@ -58,7 +58,7 @@ class ReadThroughCacheTest {
         }
     }
 
-    abstract class ClientGeneratedIdReadThrough: ReadThroughScenario<UserSchema.UserCredential, String>() {
+    abstract class ClientGeneratedIdReadThrough: ReadThroughScenario<UserSchema.UserCredentialDTO, String>() {
 
         override fun withEntityTable(
             testDB: TestDB,
@@ -77,7 +77,7 @@ class ReadThroughCacheTest {
 
     @Nested
     inner class ClientGeneratedIdReadThroughRemoteCache: ClientGeneratedIdReadThrough() {
-        override val repository: ExposedCacheRepository<UserSchema.UserCredential, String> by lazy {
+        override val repository: ExposedCacheRepository<UserSchema.UserCredentialDTO, String> by lazy {
             UserCredentialCacheRepository(
                 redissonClient,
                 "read-through:remote:user-credentials",
@@ -90,7 +90,7 @@ class ReadThroughCacheTest {
 
     @Nested
     inner class ClientGeneratedIdReadThroughNearCache: ClientGeneratedIdReadThrough() {
-        override val repository: ExposedCacheRepository<UserSchema.UserCredential, String> by lazy {
+        override val repository: ExposedCacheRepository<UserSchema.UserCredentialDTO, String> by lazy {
             UserCredentialCacheRepository(
                 redissonClient,
                 "read-through:near:user-credentials",

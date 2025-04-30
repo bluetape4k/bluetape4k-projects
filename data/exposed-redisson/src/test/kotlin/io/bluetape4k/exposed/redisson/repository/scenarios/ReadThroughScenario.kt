@@ -134,7 +134,7 @@ abstract class ReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: AbstractRedis
     fun `getAllBatch - 여러 ID의 엔티티를 한번에 조회한다`(testDB: TestDB) {
         withEntityTable(testDB) {
             val ids = getExistingIds() + getNonExistentId()
-            val entities = repository.getAllBatch(ids, batchSize = 2)
+            val entities = repository.getAll(ids, batchSize = 2)
             entities.shouldNotBeEmpty()
 
             entities.size shouldBeEqualTo ids.size - 1
@@ -148,7 +148,7 @@ abstract class ReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: AbstractRedis
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `캐시 키 패턴으로 캐시 무효화하기`(testDB: TestDB) {
         withEntityTable(testDB) {
-            repository.getAllBatch(getExistingIds())
+            repository.getAll(getExistingIds())
 
             val invalidated = repository.invalidateByPattern("*1*") +
                     ('A'..'Z').sumOf { repository.invalidateByPattern("*$it*") }

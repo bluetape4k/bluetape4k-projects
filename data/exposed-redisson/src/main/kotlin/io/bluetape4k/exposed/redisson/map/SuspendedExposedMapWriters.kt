@@ -12,6 +12,7 @@ import kotlinx.coroutines.future.asCompletableFuture
 import kotlinx.coroutines.plus
 import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
+import org.jetbrains.exposed.sql.autoIncColumnType
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.statements.BatchInsertStatement
@@ -25,6 +26,12 @@ import java.util.concurrent.CompletionStage
 
 private val defaultMapWriterCoroutineScope = CoroutineScope(Dispatchers.IO) + CoroutineName("DB-Writer")
 
+/**
+ * Redisson의 Write-through [MapWriterAsync] 를 Exposed와 코루틴를 사용하여 구현한 최상위 클래스입니다.
+ *
+ * @param writeToDb DB에 데이터를 쓰는 함수입니다.
+ * @param deleteFromDb DB에서 데이터를 삭제하는 함수입니다.
+ */
 open class SuspendedExposedMapWriter<ID: Any, E: Any>(
     private val writeToDb: suspend (map: Map<ID, E>) -> Unit,
     private val deleteFromDb: suspend (keys: Collection<ID>) -> Unit,
@@ -50,6 +57,14 @@ open class SuspendedExposedMapWriter<ID: Any, E: Any>(
     }.asCompletableFuture()
 }
 
+/**
+ * `id`를 가진 엔티티를 DB에 Write 하기 위한 [SuspendedExposedMapWriter] 기본 구현체입니다.
+ *
+ * @param entityTable Entity<ID> 를 위한 [IdTable] 입니다.
+ * @param updateBody DB에 이미 존재하는 ID인 경우 UPDATE 하도록 하는 쿼리 입니다.
+ * @param batchInsertBody 새로운 엔티티라면 batchInsert 를 수행하도록 하는 쿼리 입니다.
+ * @param deleteFromDBOnInvalidate 캐시에서 삭제될 때, DB에서도 삭제할 것인지 여부를 나타냅니다.
+ */
 open class SuspendedExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     private val entityTable: IdTable<ID>,
     scope: CoroutineScope = defaultMapWriterCoroutineScope,
@@ -59,12 +74,13 @@ open class SuspendedExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
 ): SuspendedExposedMapWriter<ID, E>(
     scope = scope,
     writeToDb = { map ->
-        val entityIdsToUpdate =
+        log.debug { "캐시 변경 사항을 DB에 반영합니다... ids=${map.keys}" }
+        val existIds =
             entityTable.select(entityTable.id)
                 .where { entityTable.id inList map.keys }
                 .map { it[entityTable.id].value }
 
-        val entitiesToUpdate = map.values.filter { it.id in entityIdsToUpdate }
+        val entitiesToUpdate = map.values.filter { it.id in existIds }
 
         entitiesToUpdate.forEach { entity ->
             entityTable.update({ entityTable.id eq entity.id }) {
@@ -72,10 +88,14 @@ open class SuspendedExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
             }
         }
 
-        val entitiesToInsert = map.values.filterNot { it.id in entityIdsToUpdate }
-
-        entityTable.batchInsert(entitiesToInsert) { entity ->
-            batchInsertBody(entity)
+        val entitiesToInsert = map.values.filterNot { it.id in existIds }
+        // id가 DB에서 자동증가하지 않는 경우에만 batchInsert 를 수행합니다.
+        if (entityTable.id.autoIncColumnType == null) {
+            val entitiesToInsert = map.values.filterNot { it.id in existIds }
+            log.debug { "ID가 자동증가 타입이 아니므로, batchInsert 를 수행합니다...entities=${entitiesToInsert}" }
+            entityTable.batchInsert(entitiesToInsert) {
+                batchInsertBody(this, it)
+            }
         }
     },
     deleteFromDb = { ids ->
@@ -89,7 +109,7 @@ open class SuspendedExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
             } else {
                 ids
             }
-            
+
             entityTable.deleteWhere { entityTable.id inList idsToDelete }
         }
     },

@@ -36,6 +36,15 @@ import java.util.concurrent.CompletionStage
 
 private val defaultMapLoaderCoroutineScope = CoroutineScope(Dispatchers.IO) + CoroutineName("DB-Loader")
 
+/**
+ * SuspendedExposedMapLoader는 Exposed를 사용하여 DB에서 데이터를 비동기적으로 로드하는 [MapLoaderAsync]입니다.
+ *
+ * @param ID ID 타입
+ * @param E 엔티티 타입
+ * @param loadByIdFromDB ID로 엔티티를 로드하는 함수
+ * @param loadAllIdsFromDB 모든 ID를 로드하는 함수
+ * @param scope CoroutineScope
+ */
 open class SuspendedExposedMapLoader<ID: Any, E: Any>(
     private val loadByIdFromDB: suspend (ID) -> E?,
     private val loadAllIdsFromDB: suspend (channel: Channel<ID>) -> Unit,
@@ -108,9 +117,15 @@ open class SuspendedExposedMapLoader<ID: Any, E: Any>(
 }
 
 /**
- * HasIdentifier<ID> 를 위한 [SuspendedExposedMapLoader] 기본 구현체입니다.
+ * [HasIdentifier]를 구현한 엔티티를 위한 [SuspendedExposedMapLoader] 기본 구현체입니다.
  *
- * @param entityTable Entity<ID> 를 위한 [IdTable] 입니다.
+ * @sample io.bluetape4k.exposed.redisson.repository.AbstractSuspendedExposedCacheRepository
+ *
+ * @param ID ID 타입
+ * @param E 엔티티 타입
+ * @param entityTable `EntityID<ID>` 를 id 컬럼으로 가진 [IdTable] 입니다.
+ * @param scope CoroutineScope
+ * @param batchSize 배치 사이즈
  * @param toEntity ResultRow 를 E 타입으로 변환하는 함수입니다.
  */
 open class SuspendedExposedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(

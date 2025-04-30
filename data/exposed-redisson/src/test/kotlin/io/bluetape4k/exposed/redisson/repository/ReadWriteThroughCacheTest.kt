@@ -2,7 +2,7 @@ package io.bluetape4k.exposed.redisson.repository
 
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.exposed.redisson.AbstractRedissonTest
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredential
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialDTO
 import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialTable
 import io.bluetape4k.exposed.redisson.repository.UserSchema.UserDTO
 import io.bluetape4k.exposed.redisson.repository.UserSchema.UserTable
@@ -36,8 +36,10 @@ class ReadWriteThroughCacheTest: AbstractRedissonTest() {
 
         override fun getNonExistentId(): Long = Long.MIN_VALUE
 
+        override fun createNewEntity(): UserDTO = UserSchema.newUserDTO()
+        
         override fun updateEntityEmail(entity: UserDTO): UserDTO =
-            entity.copy(email = "updated@example.com")
+            entity.copy(email = "updated-${Base58.randomString(8)}@example.com")
 
         override fun assertSameEntityWithoutUpdatedAt(entity1: UserDTO, entity2: UserDTO) {
             entity1 shouldBeEqualTo entity2.copy(updatedAt = entity1.updatedAt)
@@ -45,7 +47,7 @@ class ReadWriteThroughCacheTest: AbstractRedissonTest() {
     }
 
     @Nested
-    inner class AutoIncIdReadWriteThroughRemteCache: AutoIncIdReadWriteThrough() {
+    inner class AutoIncIdReadWriteThroughRemoteCache: AutoIncIdReadWriteThrough() {
         override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH
 
         override val repository: ExposedCacheRepository<UserDTO, Long> by lazy {
@@ -58,7 +60,7 @@ class ReadWriteThroughCacheTest: AbstractRedissonTest() {
     }
 
     @Nested
-    inner class AutoIncIdReadWriteThroughRemteCacheWithDeleteDB: AutoIncIdReadWriteThrough() {
+    inner class AutoIncIdReadWriteThroughRemoteCacheWithDeleteDB: AutoIncIdReadWriteThrough() {
         override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH.copy(deleteFromDBOnInvalidate = true)
 
         override val repository: ExposedCacheRepository<UserDTO, Long> by lazy {
@@ -98,7 +100,7 @@ class ReadWriteThroughCacheTest: AbstractRedissonTest() {
     }
 
 
-    abstract class ClientGeneratedIdReadWriteThrough: ReadWriteThroughScenario<UserCredential, String>() {
+    abstract class ClientGeneratedIdReadWriteThrough: ReadWriteThroughScenario<UserCredentialDTO, String>() {
 
         override fun withEntityTable(
             testDB: TestDB,
@@ -115,13 +117,14 @@ class ReadWriteThroughCacheTest: AbstractRedissonTest() {
 
         override fun getNonExistentId(): String = Base58.randomString(4)
 
-        override fun updateEntityEmail(entity: UserCredential): UserCredential =
-            entity.copy(email = "updated@example.com")
+        override fun createNewEntity(): UserCredentialDTO = UserSchema.newUserCredentialDTO()
 
-        override fun assertSameEntityWithoutUpdatedAt(entity1: UserCredential, entity2: UserCredential) {
+        override fun updateEntityEmail(entity: UserCredentialDTO): UserCredentialDTO =
+            entity.copy(email = "updated.${Base58.randomString(8)}@example.com")
+
+        override fun assertSameEntityWithoutUpdatedAt(entity1: UserCredentialDTO, entity2: UserCredentialDTO) {
             entity1 shouldBeEqualTo entity2.copy(updatedAt = entity1.updatedAt)
         }
-
     }
 
     @Nested
@@ -129,7 +132,7 @@ class ReadWriteThroughCacheTest: AbstractRedissonTest() {
 
         override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH
 
-        override val repository: ExposedCacheRepository<UserCredential, String> by lazy {
+        override val repository: ExposedCacheRepository<UserCredentialDTO, String> by lazy {
             UserCredentialCacheRepository(
                 redissonClient,
                 "read-through:remote:user-credentials",
@@ -143,7 +146,7 @@ class ReadWriteThroughCacheTest: AbstractRedissonTest() {
 
         override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH.copy(deleteFromDBOnInvalidate = true)
 
-        override val repository: ExposedCacheRepository<UserCredential, String> by lazy {
+        override val repository: ExposedCacheRepository<UserCredentialDTO, String> by lazy {
             UserCredentialCacheRepository(
                 redissonClient,
                 "read-through:remote:delete-db:user-credentials",
@@ -158,7 +161,7 @@ class ReadWriteThroughCacheTest: AbstractRedissonTest() {
 
         override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE
 
-        override val repository: ExposedCacheRepository<UserCredential, String> by lazy {
+        override val repository: ExposedCacheRepository<UserCredentialDTO, String> by lazy {
             UserCredentialCacheRepository(
                 redissonClient,
                 "read-through:near:user-credentials",
@@ -173,7 +176,7 @@ class ReadWriteThroughCacheTest: AbstractRedissonTest() {
         override val cacheConfig =
             RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(deleteFromDBOnInvalidate = true)
 
-        override val repository: ExposedCacheRepository<UserCredential, String> by lazy {
+        override val repository: ExposedCacheRepository<UserCredentialDTO, String> by lazy {
             UserCredentialCacheRepository(
                 redissonClient,
                 "read-through:near:delete-db:user-credentials",
