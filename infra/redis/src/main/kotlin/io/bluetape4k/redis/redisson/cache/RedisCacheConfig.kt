@@ -33,7 +33,7 @@ data class RedisCacheConfig(
     val deleteFromDBOnInvalidate: Boolean = false,
     val ttl: Duration = Duration.ZERO,
     val maxSize: Int = 0,
-    val codec: Codec = RedissonCodecs.LZ4Fury,
+    val codec: Codec = RedissonCodecs.LZ4FuryComposite,
 
     // NearCache 관련 설정
     val nearCacheMaxIdleTime: Duration = Duration.ZERO,
@@ -55,12 +55,21 @@ data class RedisCacheConfig(
     val isReadWrite: Boolean
         get() = cacheMode == CacheMode.READ_WRITE
 
+    val isWriteBehind: Boolean
+        get() = writeMode == WriteMode.WRITE_BEHIND
+
+    val isNearCacheEnabled: Boolean
+        get() = nearCacheEnabled
+
     companion object {
         /**
          * 읽기 전용 캐시 설정입니다.
          * DB에서 데이터를 로드하지만, 캐시에 변경사항을 저장하지 않습니다.
          */
-        val READ_ONLY = RedisCacheConfig(cacheMode = CacheMode.READ_ONLY)
+        val READ_ONLY = RedisCacheConfig(
+            cacheMode = CacheMode.READ_ONLY,
+            nearCacheEnabled = false
+        )
 
         /**
          * 읽기 전용 캐시 설정으로, 로컬 캐시를 사용합니다.
@@ -77,7 +86,8 @@ data class RedisCacheConfig(
          */
         val READ_WRITE_THROUGH = RedisCacheConfig(
             cacheMode = CacheMode.READ_WRITE,
-            writeMode = WriteMode.WRITE_THROUGH
+            writeMode = WriteMode.WRITE_THROUGH,
+            nearCacheEnabled = false
         )
 
         /**
@@ -96,6 +106,7 @@ data class RedisCacheConfig(
         val WRITE_BEHIND = RedisCacheConfig(
             cacheMode = CacheMode.READ_WRITE,
             writeMode = WriteMode.WRITE_BEHIND,
+            nearCacheEnabled = false,
             writeBehindBatchSize = 50,
             writeBehindDelay = 1000
         )

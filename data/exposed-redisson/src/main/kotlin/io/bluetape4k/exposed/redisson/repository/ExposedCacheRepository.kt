@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.redisson.repository
 
+import io.bluetape4k.collections.toVarargArray
 import io.bluetape4k.exposed.redisson.map.ExposedEntityMapLoader
 import io.bluetape4k.exposed.redisson.map.ExposedEntityMapWriter
 import io.bluetape4k.exposed.redisson.map.ExposedMapLoader
@@ -21,9 +22,7 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.statements.BatchInsertStatement
 import org.jetbrains.exposed.sql.statements.UpdateStatement
 import org.redisson.api.EvictionMode
-import org.redisson.api.RLocalCachedMap
 import org.redisson.api.RMap
-import org.redisson.api.RMapCache
 import org.redisson.api.RedissonClient
 import org.redisson.api.map.WriteMode
 import java.time.Duration
@@ -70,9 +69,9 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
 
     fun invalidate(vararg ids: ID): Long = cache.fastRemove(*ids)
     fun invalidateAll() = cache.clear()
-    fun invalidateByPattern(patterns: String, count: Int = 10) {
+    fun invalidateByPattern(patterns: String, count: Int = 100): Long {
         val keys = cache.keySet(patterns, count)
-        cache.fastRemove(*keys.toTypedArray())
+        return cache.fastRemove(*keys.toVarargArray())
     }
 }
 
@@ -112,6 +111,56 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     protected open fun doBatchInsertEntity(statement: BatchInsertStatement, entity: T) {
         if (config.isReadWrite) {
             error("MapWriter 에서 추가된 cache item을 DB에 추가할 수 있도록 재정의해주세요. ")
+        }
+    }
+
+    override val cache: RMap<ID, T?> by lazy {
+        log.info { "RMapCache 를 생성합니다. config=$config" }
+
+        when {
+            config.isNearCacheEnabled -> {
+                log.info { "RLocalCAcheMap 를 생성합니다. config=$config" }
+                localCachedMap(cacheName, redissonClient) {
+                    if (config.isReadOnly) {
+                        loader(mapLoader)
+                    } else if (config.isReadWrite) {
+                        loader(mapLoader)
+                        mapWriter.requireNotNull("mapWriter")
+                        writer(mapWriter)
+                        writeMode(WriteMode.WRITE_THROUGH)
+                    }
+
+                    codec(config.codec)
+                    syncStrategy(config.nearCacheSyncStrategy)
+                    writeRetryAttempts(config.writeRetryAttempts)
+                    writeRetryInterval(config.writeRetryInterval)
+                    timeToLive(config.ttl)
+                    if (config.nearCacheMaxIdleTime > Duration.ZERO) {
+                        maxIdle(config.nearCacheMaxIdleTime)
+                    }
+                }
+            }
+            else -> {
+                log.info { "RMapCache 를 생성합니다. config=$config" }
+
+                mapCache(cacheName, redissonClient) {
+                    if (config.isReadOnly) {
+                        loader(mapLoader)
+                    } else if (config.isReadWrite) {
+                        loader(mapLoader)
+                        mapWriter.requireNotNull("mapWriter")
+                        writer(mapWriter)
+                        writeMode(WriteMode.WRITE_THROUGH)
+                    }
+                    codec(config.codec)
+                    writeRetryAttempts(config.writeRetryAttempts)
+                    writeRetryInterval(config.writeRetryInterval)
+                }.apply {
+                    if (config.nearCacheMaxSize > 0) {
+                        setMaxSize(config.nearCacheMaxSize, EvictionMode.LRU)
+                    }
+                }
+            }
         }
     }
 
@@ -189,91 +238,6 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
                         }
                 }
                 else -> emptyList()
-            }
-        }
-    }
-}
-
-/**
- * ExposedRemoteCacheRepository 는 Exposed와 Redisson을 사용하여 Redis에 데이터를 캐싱하는 Repository입니다.
- *
- * @param T Entity Type   Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable DTO를 사용해 주세요.
- * @param ID Entity ID Type
- *
- * @param redissonClient Redisson Client
- * @param cacheName Redis Cache Name
- * @param config ExposedRedisCacheConfig
- */
-abstract class AbstractExposedRemoteCacheRepository<T: HasIdentifier<ID>, ID: Any>(
-    redissonClient: RedissonClient,
-    cacheName: String,
-    config: RedisCacheConfig,
-): AbstractExposedCacheRepository<T, ID>(redissonClient, cacheName, config) {
-
-    companion object: KLogging()
-
-    override val cache: RMapCache<ID, T?> by lazy {
-        log.info { "RMapCache 를 생성합니다. config=$config" }
-
-        mapCache(cacheName, redissonClient) {
-            if (config.isReadOnly) {
-                loader(mapLoader)
-            } else if (config.isReadWrite) {
-                loader(mapLoader)
-                mapWriter.requireNotNull("mapWriter")
-                writer(mapWriter)
-                writeMode(WriteMode.WRITE_THROUGH)
-            }
-            codec(config.codec)
-            writeRetryAttempts(config.writeRetryAttempts)
-            writeRetryInterval(config.writeRetryInterval)
-        }.apply {
-            if (config.nearCacheMaxSize > 0) {
-                setMaxSize(config.nearCacheMaxSize, EvictionMode.LRU)
-            }
-        }
-    }
-
-}
-
-/**
- * ExposedNearCacheRepository 는 Exposed와 Redisson을 사용하여 **Near Cache** 방식으로 Redis에 데이터를 캐싱하는 Repository입니다.
- *
- * @param T Entity Type   Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable DTO를 사용해 주세요.
- * @param ID Entity ID Type
- *
- * @param redissonClient Redisson Client
- * @param cacheName Redis Cache Name
- * @param config ExposedRedisCacheConfig
- */
-abstract class AbstractExposedNearCacheRepository<T: HasIdentifier<ID>, ID: Any>(
-    redissonClient: RedissonClient,
-    cacheName: String,
-    config: RedisCacheConfig,
-): AbstractExposedCacheRepository<T, ID>(redissonClient, cacheName, config) {
-
-    companion object: KLogging()
-
-    override val cache: RLocalCachedMap<ID, T?> by lazy {
-        log.info { "RLocalCAcheMap 를 생성합니다. config=$config" }
-
-        localCachedMap(cacheName, redissonClient) {
-            if (config.isReadOnly) {
-                loader(mapLoader)
-            } else if (config.isReadWrite) {
-                loader(mapLoader)
-                mapWriter.requireNotNull("mapWriter")
-                writer(mapWriter)
-                writeMode(WriteMode.WRITE_THROUGH)
-            }
-
-            codec(config.codec)
-            syncStrategy(config.nearCacheSyncStrategy)
-            writeRetryAttempts(config.writeRetryAttempts)
-            writeRetryInterval(config.writeRetryInterval)
-            timeToLive(config.ttl)
-            if (config.nearCacheMaxIdleTime > Duration.ZERO) {
-                maxIdle(config.nearCacheMaxIdleTime)
             }
         }
     }

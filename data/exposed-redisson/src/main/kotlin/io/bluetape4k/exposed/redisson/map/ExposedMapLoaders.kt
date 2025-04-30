@@ -14,51 +14,53 @@ open class ExposedMapLoader<ID: Any, E: Any>(
     private val loadAllIdsFromDB: () -> Collection<ID>,
 ): MapLoader<ID, E> {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val DEFAULT_QUERY_TIMEOUT = 30_000  // 30 seconds
+    }
 
     override fun load(id: ID): E? = transaction {
-        log.debug { "DB에서 엔티티 로드... id=$id" }
+        log.debug { "DB에서 엔티티를 로드합니다... id=$id" }
         loadByIdFromDB(id)
             .apply {
-                log.debug { "DB에서 엔티티 로드. id=$id, entity=$this" }
+                log.debug { "DB에서 엔티티를 로드했습니다. id=$id, entity=$this" }
             }
     }
 
     override fun loadAllKeys(): Iterable<ID>? = transaction {
-        queryTimeout = 30_000  // 30 seconds
         log.debug { "DB에서 모든 id 를 로드합니다..." }
+        queryTimeout = DEFAULT_QUERY_TIMEOUT
         loadAllIdsFromDB()
     }
 }
 
 open class ExposedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
-    private val table: IdTable<ID>,
-    private val batchSize: Int = 1000,
+    private val entityTable: IdTable<ID>,
+    private val batchSize: Int = DEFAULT_BATCH_SIZE,
     private val toEntity: ResultRow.() -> E,
 ): ExposedMapLoader<ID, E>(
     loadByIdFromDB = { id: ID ->
-        table.selectAll()
-            .where { table.id eq id }
+        entityTable.selectAll()
+            .where { entityTable.id eq id }
             .singleOrNull()
             ?.toEntity()
     },
     loadAllIdsFromDB = {
-        val recordCount = table.selectAll().count()
+        val recordCount = entityTable.selectAll().count()
         var offset = 0L
         val limit = batchSize
 
         generateSequence<List<ID>> {
-            val rows = table.selectAll()
+            entityTable.selectAll()
                 .limit(limit)
                 .offset(offset)
-                .map { it[table.id].value }
-            offset += limit
-            rows
-        }
-            .takeWhile { offset < recordCount }
-            .asIterable()
-            .flatMap { it }
+                .map { it[entityTable.id].value }
+                .apply {
+                    offset += limit
+                }
+        }.takeWhile { offset < recordCount }.asIterable().flatMap { it }
     }
 ) {
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val DEFAULT_BATCH_SIZE = 1000
+    }
 }

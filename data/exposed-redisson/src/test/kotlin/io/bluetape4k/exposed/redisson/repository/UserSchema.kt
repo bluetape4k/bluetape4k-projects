@@ -1,14 +1,13 @@
 package io.bluetape4k.exposed.redisson.repository
 
-import io.bluetape4k.exposed.dao.id.SnowflakeIdTable
+import io.bluetape4k.exposed.dao.id.TimebasedUUIDBase62Table
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.idHashCode
 import io.bluetape4k.exposed.dao.toStringBuilder
 import io.bluetape4k.exposed.repository.HasIdentifier
-import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
-import io.bluetape4k.idgenerators.snowflake.Snowflakers
+import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.javatimes.toInstant
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
@@ -86,7 +85,7 @@ object UserSchema: KLogging() {
         updatedAt = this.updatedAt
     )
 
-    fun AbstractExposedTest.withUserTable(testDB: TestDB, statement: Transaction.() -> Unit) {
+    fun withUserTable(testDB: TestDB, statement: Transaction.() -> Unit) {
         withTables(testDB, UserTable) {
             UserEntity.new {
                 firstName = "Sunghyouk"
@@ -118,7 +117,7 @@ object UserSchema: KLogging() {
     }
 
 
-    object UserCredentialTable: SnowflakeIdTable("user_credentials") {
+    object UserCredentialTable: TimebasedUUIDBase62Table("user_credentials") {
         val loginId = varchar("login_id", 255).uniqueIndex()
         val email = varchar("email", 255).uniqueIndex()
         val lastLoginAt = timestamp("last_login_at").nullable()
@@ -129,13 +128,13 @@ object UserSchema: KLogging() {
     }
 
     data class UserCredential(
-        override val id: Long,
+        override val id: String,
         val loginId: String,
         val email: String,
         val lastLoginAt: Instant? = null,
         val createdAt: Instant = Instant.now(),
         val updatedAt: Instant? = null,
-    ): HasIdentifier<Long>
+    ): HasIdentifier<String>
 
     fun ResultRow.toUserCredential(): UserCredential = UserCredential(
         id = this[UserCredentialTable.id].value,
@@ -146,25 +145,22 @@ object UserSchema: KLogging() {
         updatedAt = this[UserCredentialTable.updatedAt],
     )
 
-    fun AbstractExposedTest.withUserCredentialTable(
+    fun withUserCredentialTable(
         testDB: TestDB,
         statement: Transaction.() -> Unit,
     ) {
         withTables(testDB, UserCredentialTable) {
             UserCredentialTable.insert {
-                it[UserCredentialTable.id] = 1L
                 it[UserCredentialTable.loginId] = "debop"
                 it[UserCredentialTable.email] = faker.internet().safeEmailAddress()
                 it[UserCredentialTable.lastLoginAt] = LocalDateTime.now().minusDays(5).toInstant()
             }
             UserCredentialTable.insert {
-                it[UserCredentialTable.id] = 2L
                 it[UserCredentialTable.loginId] = "midoogi"
                 it[UserCredentialTable.email] = faker.internet().safeEmailAddress()
                 it[UserCredentialTable.lastLoginAt] = LocalDateTime.now().minusDays(100).toInstant()
             }
             UserCredentialTable.insert {
-                it[UserCredentialTable.id] = 3L
                 it[UserCredentialTable.loginId] = faker.internet().username()
                 it[UserCredentialTable.email] = faker.internet().safeEmailAddress()
                 it[UserCredentialTable.lastLoginAt] = LocalDateTime.now().minusDays(200).toInstant()
@@ -179,23 +175,23 @@ object UserSchema: KLogging() {
 
     fun newUserCredential(loginId: String? = null): UserCredential {
         return UserCredential(
-            id = Snowflakers.Global.nextId(),
+            id = TimebasedUuid.Epoch.nextIdAsString(),
             loginId = loginId ?: faker.internet().username(),
             email = faker.internet().safeEmailAddress(),
             lastLoginAt = LocalDateTime.now().minusDays(200).toInstant()
         )
     }
 
-    fun insertUserCredential(loginId: String? = null): Long {
+    fun insertUserCredential(loginId: String? = null): String {
         return UserCredentialTable.insertAndGetId {
-            it[UserCredentialTable.id] = Snowflakers.Global.nextId()
+            // it[UserCredentialTable.id] = TimebasedUuid.Epoch.nextIdAsString(),
             it[UserCredentialTable.loginId] = loginId ?: faker.internet().username()
             it[UserCredentialTable.email] = faker.internet().safeEmailAddress()
             it[UserCredentialTable.lastLoginAt] = LocalDateTime.now().minusDays(200).toInstant()
         }.value
     }
 
-    fun findUserCredentialById(id: Long): UserCredential? {
+    fun findUserCredentialById(id: String): UserCredential? {
         return UserCredentialTable.selectAll()
             .where { UserCredentialTable.id eq id }
             .singleOrNull()

@@ -42,7 +42,10 @@ open class SuspendedExposedMapLoader<ID: Any, E: Any>(
     private val scope: CoroutineScope = defaultMapLoaderCoroutineScope,
 ): MapLoaderAsync<ID, E> {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val DEFAULT_QUERY_TIMEOUT = 30_000  // 30 seconds
+        private const val DEFAULT_LOAD_ALL_IDS_TIMEOUT = 60_000L  // 60 seconds
+    }
 
     override fun load(id: ID): CompletionStage<E?> = scope.async {
         log.debug { "DB에서 엔티티를 로딩... id=$id" }
@@ -66,13 +69,13 @@ open class SuspendedExposedMapLoader<ID: Any, E: Any>(
         }
 
         scope.launch {
-            log.debug { "DB에서 모든 ID 로딩 ..." }
+            log.debug { "DB에서 모든 ID를 로딩합니다 ..." }
             try {
                 newSuspendedTransaction(scope.coroutineContext) {
-                    this.queryTimeout = 30_000  // 30 seconds
-                    withTimeoutOrNull(60_000L) {
+                    this.queryTimeout = DEFAULT_QUERY_TIMEOUT  // 30 seconds
+                    withTimeoutOrNull(DEFAULT_LOAD_ALL_IDS_TIMEOUT) {
                         loadAllIdsFromDB(channel)
-                    } ?: log.warn { "채널 처리 타임아웃 발생!!!" }
+                    } ?: log.warn { "DB에서 모든 ID를 읽는 작업 중 Timeout 이 발생했습니다. timeout=$DEFAULT_LOAD_ALL_IDS_TIMEOUT msec" }
                 }
             } catch (e: Throwable) {
                 log.error(e) { "DB에서 모든 ID 로딩 중 오류 발생" }
@@ -113,7 +116,7 @@ open class SuspendedExposedMapLoader<ID: Any, E: Any>(
 open class SuspendedExposedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
     private val entityTable: IdTable<ID>,
     scope: CoroutineScope = defaultMapLoaderCoroutineScope,
-    private val batchSize: Int = 1000,
+    private val batchSize: Int = DEFAULT_BATCH_SIZE,
     private val toEntity: ResultRow.() -> E,
 ): SuspendedExposedMapLoader<ID, E>(
     loadByIdFromDB = { id: ID ->
@@ -154,5 +157,7 @@ open class SuspendedExposedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
     },
     scope = scope,
 ) {
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val DEFAULT_BATCH_SIZE = 1000
+    }
 }

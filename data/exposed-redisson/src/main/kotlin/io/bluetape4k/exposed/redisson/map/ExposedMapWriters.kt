@@ -50,7 +50,7 @@ open class ExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     private val entityTable: IdTable<ID>,
     private val updateBody: IdTable<ID>.(UpdateStatement, E) -> Unit,
     private val batchInsertBody: BatchInsertStatement.(E) -> Unit,
-    deleteFromDBOnInvalidate: Boolean = true,
+    deleteFromDBOnInvalidate: Boolean = false,
 ): ExposedMapWriter<ID, E>(
     writeToDB = { map: Map<ID, E> ->
         log.debug { "캐시 변경 사항을 DB에 반영합니다... ids=${map.keys}" }
@@ -76,7 +76,7 @@ open class ExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     },
     deleteFromDB = { ids ->
         if (deleteFromDBOnInvalidate) {
-            log.debug { "캐시가 Invalidated 되어, DB에서도 삭제합니다 (deleteFromDBOnInvalidate=$deleteFromDBOnInvalidate)... ids=$ids" }
+            log.debug { "캐시가 Invalidated 되어, DB에서도 삭제합니다 (deleteFromDBOnInvalidate=$deleteFromDBOnInvalidate)... ids=$ids, id type=${ids.firstOrNull()?.javaClass?.simpleName}" }
             entityTable.deleteWhere { entityTable.id inList ids }
         }
     }

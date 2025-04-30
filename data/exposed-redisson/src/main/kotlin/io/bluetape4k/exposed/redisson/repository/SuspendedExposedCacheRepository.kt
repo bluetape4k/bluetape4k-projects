@@ -213,7 +213,7 @@ abstract class AbstractSuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID:
  * @param cacheName Redis Cache Name
  * @param config ExposedRedisCacheConfig
  */
-abstract class SuspendedExposedRemoteCacheRepository<T: HasIdentifier<ID>, ID: Any>(
+abstract class SuspendedExposedRedisRepository<T: HasIdentifier<ID>, ID: Any>(
     redissonClient: RedissonClient,
     cacheName: String,
     config: RedisCacheConfig,

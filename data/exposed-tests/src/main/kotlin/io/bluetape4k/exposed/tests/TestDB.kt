@@ -88,7 +88,7 @@ enum class TestDB(
                 "jdbc:mariadb://localhost:3306/exposed$options"
             }
         },
-        driver = JdbcDrivers.DRIVER_CLASS_MARIADB
+        driver = JdbcDrivers.DRIVER_CLASS_MARIADB,
     ),
 
     MYSQL_V5(

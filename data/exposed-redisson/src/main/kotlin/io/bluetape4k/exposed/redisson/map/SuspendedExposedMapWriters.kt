@@ -1,6 +1,9 @@
 package io.bluetape4k.exposed.redisson.map
 
 import io.bluetape4k.exposed.repository.HasIdentifier
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +29,10 @@ open class SuspendedExposedMapWriter<ID: Any, E: Any>(
     private val scope: CoroutineScope = defaultMapWriterCoroutineScope,
 ): MapWriterAsync<ID, E> {
 
+    companion object: KLogging() {
+        private const val DEFAULT_QUERY_TIMEOUT = 30_000  // 30 seconds
+    }
+
     override fun write(map: Map<ID, E>): CompletionStage<Void> = scope.async {
         newSuspendedTransaction(scope.coroutineContext) {
             writeToDb(map)
@@ -46,7 +53,7 @@ open class SuspendedExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     scope: CoroutineScope = defaultMapWriterCoroutineScope,
     private val updateBody: IdTable<ID>.(UpdateStatement, E) -> Unit,
     private val batchInsertBody: BatchInsertStatement.(E) -> Unit,
-    private val deleteFromDBOnInvalidate: Boolean = true,
+    deleteFromDBOnInvalidate: Boolean = false,
 ): SuspendedExposedMapWriter<ID, E>(
     scope = scope,
     writeToDb = { map ->
@@ -69,9 +76,28 @@ open class SuspendedExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
             batchInsertBody(entity)
         }
     },
-    deleteFromDb = { keys ->
+    deleteFromDb = { ids ->
         if (deleteFromDBOnInvalidate) {
-            entityTable.deleteWhere { entityTable.id inList keys }
+            log.debug { "캐시가 Invalidated 되어, DB에서도 삭제합니다 (deleteFromDBOnInvalidate=$deleteFromDBOnInvalidate)... ids=$ids" }
+            entityTable.deleteWhere { entityTable.id inList ids }
         }
     },
-)
+) {
+    companion object: KLogging() {
+        private const val DEFAULT_BATCH_SIZE = 1000
+    }
+
+    // 필드로 따로 저장하여 로깅 용도로 사용
+    private val deleteFromDBOnInvalidate: Boolean
+
+    init {
+        // 중요 설정 변경 시 경고 로그
+        if (deleteFromDBOnInvalidate) {
+            log.warn {
+                "⚠️ 주의! deleteFromDBOnInvalidate=true로 설정되었습니다. " +
+                        "캐시에서 항목 삭제 시 DB에서도 함께 삭제됩니다. 프로덕션 환경에서는 신중히 사용하세요."
+            }
+        }
+        this.deleteFromDBOnInvalidate = deleteFromDBOnInvalidate
+    }
+}
