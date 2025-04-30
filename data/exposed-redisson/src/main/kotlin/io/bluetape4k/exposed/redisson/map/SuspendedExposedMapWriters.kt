@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.redisson.map
 
-import io.bluetape4k.exposed.repository.HasIdentifier
+import io.bluetape4k.exposed.dao.HasIdentifier
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
@@ -32,7 +32,7 @@ private val defaultMapWriterCoroutineScope = CoroutineScope(Dispatchers.IO) + Co
  * @param writeToDb DB에 데이터를 쓰는 함수입니다.
  * @param deleteFromDb DB에서 데이터를 삭제하는 함수입니다.
  */
-open class SuspendedExposedMapWriter<ID: Any, E: Any>(
+open class SuspendedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     private val writeToDb: suspend (map: Map<ID, E>) -> Unit,
     private val deleteFromDb: suspend (keys: Collection<ID>) -> Unit,
     private val scope: CoroutineScope = defaultMapWriterCoroutineScope,
@@ -58,7 +58,7 @@ open class SuspendedExposedMapWriter<ID: Any, E: Any>(
 }
 
 /**
- * `id`를 가진 엔티티를 DB에 Write 하기 위한 [SuspendedExposedMapWriter] 기본 구현체입니다.
+ * `id`를 가진 엔티티를 DB에 Write 하기 위한 [SuspendedEntityMapWriter] 기본 구현체입니다.
  *
  * @param entityTable Entity<ID> 를 위한 [IdTable] 입니다.
  * @param updateBody DB에 이미 존재하는 ID인 경우 UPDATE 하도록 하는 쿼리 입니다.
@@ -71,7 +71,7 @@ open class SuspendedExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     private val updateBody: IdTable<ID>.(UpdateStatement, E) -> Unit,
     private val batchInsertBody: BatchInsertStatement.(E) -> Unit,
     deleteFromDBOnInvalidate: Boolean = false,
-): SuspendedExposedMapWriter<ID, E>(
+): SuspendedEntityMapWriter<ID, E>(
     scope = scope,
     writeToDb = { map ->
         log.debug { "캐시 변경 사항을 DB에 반영합니다... ids=${map.keys}" }

@@ -1,4 +1,4 @@
-package io.bluetape4k.exposed.repository
+package io.bluetape4k.exposed.dao
 
 import java.io.Serializable
 

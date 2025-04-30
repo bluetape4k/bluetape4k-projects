@@ -1,12 +1,12 @@
 package io.bluetape4k.exposed.redisson.repository
 
+import io.bluetape4k.exposed.dao.HasIdentifier
 import io.bluetape4k.exposed.dao.id.TimebasedUUIDBase62Entity
 import io.bluetape4k.exposed.dao.id.TimebasedUUIDBase62EntityClass
 import io.bluetape4k.exposed.dao.id.TimebasedUUIDBase62Table
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.idHashCode
 import io.bluetape4k.exposed.dao.toStringBuilder
-import io.bluetape4k.exposed.repository.HasIdentifier
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid

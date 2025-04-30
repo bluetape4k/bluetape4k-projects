@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.redisson.map
 
-import io.bluetape4k.exposed.repository.HasIdentifier
+import io.bluetape4k.exposed.dao.HasIdentifier
 import io.bluetape4k.exposed.sql.fetchBatchedResultFlow
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -45,7 +45,7 @@ private val defaultMapLoaderCoroutineScope = CoroutineScope(Dispatchers.IO) + Co
  * @param loadAllIdsFromDB 모든 ID를 로드하는 함수
  * @param scope CoroutineScope
  */
-open class SuspendedExposedMapLoader<ID: Any, E: Any>(
+open class SuspendedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
     private val loadByIdFromDB: suspend (ID) -> E?,
     private val loadAllIdsFromDB: suspend (channel: Channel<ID>) -> Unit,
     private val scope: CoroutineScope = defaultMapLoaderCoroutineScope,
@@ -117,7 +117,7 @@ open class SuspendedExposedMapLoader<ID: Any, E: Any>(
 }
 
 /**
- * [HasIdentifier]를 구현한 엔티티를 위한 [SuspendedExposedMapLoader] 기본 구현체입니다.
+ * [HasIdentifier]를 구현한 엔티티를 위한 [SuspendedEntityMapLoader] 기본 구현체입니다.
  *
  * @sample io.bluetape4k.exposed.redisson.repository.AbstractSuspendedExposedCacheRepository
  *
@@ -133,7 +133,7 @@ open class SuspendedExposedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
     scope: CoroutineScope = defaultMapLoaderCoroutineScope,
     private val batchSize: Int = DEFAULT_BATCH_SIZE,
     private val toEntity: ResultRow.() -> E,
-): SuspendedExposedMapLoader<ID, E>(
+): SuspendedEntityMapLoader<ID, E>(
     loadByIdFromDB = { id: ID ->
         entityTable.selectAll()
             .where { entityTable.id eq id }

@@ -1,7 +1,7 @@
 package io.bluetape4k.exposed.redisson.repository.scenarios
 
 import io.bluetape4k.collections.toVarargArray
-import io.bluetape4k.exposed.repository.HasIdentifier
+import io.bluetape4k.exposed.dao.HasIdentifier
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig

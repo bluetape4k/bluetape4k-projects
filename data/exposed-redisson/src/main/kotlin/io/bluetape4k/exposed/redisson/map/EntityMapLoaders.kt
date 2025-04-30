@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.redisson.map
 
-import io.bluetape4k.exposed.repository.HasIdentifier
+import io.bluetape4k.exposed.dao.HasIdentifier
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.jetbrains.exposed.dao.id.IdTable
@@ -17,7 +17,7 @@ import org.redisson.api.map.MapLoader
  * @param loadByIdFromDB ID로 엔티티를 로드하는 함수
  * @param loadAllIdsFromDB 모든 ID를 로드하는 함수
  */
-open class ExposedMapLoader<ID: Any, E: Any>(
+open class EntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
     private val loadByIdFromDB: (ID) -> E?,
     private val loadAllIdsFromDB: () -> Collection<ID>,
 ): MapLoader<ID, E> {
@@ -42,7 +42,7 @@ open class ExposedMapLoader<ID: Any, E: Any>(
 }
 
 /**
- * [HasIdentifier]를 구현한 엔티티를 위한 [ExposedMapLoader]입니다.
+ * [HasIdentifier]를 구현한 엔티티를 위한 [EntityMapLoader]입니다.
  *
  * @sample io.bluetape4k.exposed.redisson.repository.AbstractExposedCacheRepository
  *
@@ -56,7 +56,7 @@ open class ExposedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
     private val entityTable: IdTable<ID>,
     private val batchSize: Int = DEFAULT_BATCH_SIZE,
     private val toEntity: ResultRow.() -> E,
-): ExposedMapLoader<ID, E>(
+): EntityMapLoader<ID, E>(
     loadByIdFromDB = { id: ID ->
         entityTable.selectAll()
             .where { entityTable.id eq id }

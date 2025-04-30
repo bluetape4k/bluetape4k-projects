@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.redisson.map
 
-import io.bluetape4k.exposed.repository.HasIdentifier
+import io.bluetape4k.exposed.dao.HasIdentifier
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
@@ -23,7 +23,7 @@ import org.redisson.api.map.MapWriter
  * @param writeToDB DB에 데이터를 쓰는 함수입니다.
  * @param deleteFromDB DB에서 데이터를 삭제하는 함수입니다.
  */
-open class ExposedMapWriter<ID: Any, E: Any>(
+open class EntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     private val writeToDB: (map: Map<ID, E>) -> Unit,
     private val deleteFromDB: (ids: Collection<ID>) -> Unit,
 ): MapWriter<ID, E> {
@@ -40,7 +40,7 @@ open class ExposedMapWriter<ID: Any, E: Any>(
 }
 
 /**
- * `id`를 가진 엔티티를 DB에 Write 하기 위한 [ExposedMapWriter] 기본 구현체입니다.
+ * `id`를 가진 엔티티를 DB에 Write 하기 위한 [EntityMapWriter] 기본 구현체입니다.
  *
  * @param entityTable Entity<ID> 를 위한 [IdTable] 입니다.
  * @param updateBody DB에 이미 존재하는 ID인 경우 UPDATE 하도록 하는 쿼리 입니다.
@@ -52,7 +52,7 @@ open class ExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     private val updateBody: IdTable<ID>.(UpdateStatement, E) -> Unit,
     private val batchInsertBody: BatchInsertStatement.(E) -> Unit,
     deleteFromDBOnInvalidate: Boolean = false,
-): ExposedMapWriter<ID, E>(
+): EntityMapWriter<ID, E>(
     writeToDB = { map: Map<ID, E> ->
         log.debug { "캐시 변경 사항을 DB에 반영합니다... ids=${map.keys}" }
 

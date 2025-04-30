@@ -1,11 +1,11 @@
 package io.bluetape4k.exposed.redisson.repository
 
 import io.bluetape4k.collections.toVarargArray
+import io.bluetape4k.exposed.dao.HasIdentifier
+import io.bluetape4k.exposed.redisson.map.EntityMapLoader
+import io.bluetape4k.exposed.redisson.map.EntityMapWriter
 import io.bluetape4k.exposed.redisson.map.ExposedEntityMapLoader
 import io.bluetape4k.exposed.redisson.map.ExposedEntityMapWriter
-import io.bluetape4k.exposed.redisson.map.ExposedMapLoader
-import io.bluetape4k.exposed.redisson.map.ExposedMapWriter
-import io.bluetape4k.exposed.repository.HasIdentifier
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
@@ -96,14 +96,14 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     companion object: KLogging()
 
     /**
-     * DB의 정보를 Read Through로 캐시에 로딩하는 [ExposedMapLoader] 입니다.
+     * DB의 정보를 Read Through로 캐시에 로딩하는 [EntityMapLoader] 입니다.
      */
-    protected open val mapLoader: ExposedMapLoader<ID, T> by lazy {
+    protected open val mapLoader: EntityMapLoader<ID, T> by lazy {
         ExposedEntityMapLoader(entityTable) { toEntity() }
     }
 
     /**
-     * [ExposedMapWriter] 에서 캐시에서 변경된 내용을 Write Through로 DB에 반영하는 함수입니다.
+     * [EntityMapWriter] 에서 캐시에서 변경된 내용을 Write Through로 DB에 반영하는 함수입니다.
      */
     protected open fun doUpdateEntity(statement: UpdateStatement, entity: T) {
         if (config.isReadWrite) {
@@ -112,7 +112,7 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     }
 
     /**
-     * [ExposedMapWriter] 에서 캐시에서 추가된 내용을 Write Through로 DB에 반영하는 함수입니다.
+     * [EntityMapWriter] 에서 캐시에서 추가된 내용을 Write Through로 DB에 반영하는 함수입니다.
      */
     protected open fun doBatchInsertEntity(statement: BatchInsertStatement, entity: T) {
         if (config.isReadWrite) {
@@ -174,7 +174,7 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
      * Write Through 모드라면 [ExposedEntityMapWriter]를 생성하여 제공합니다.
      * Read Through Only 라면 null을 반환합니다.
      */
-    protected val mapWriter: ExposedMapWriter<ID, T>? by lazy {
+    protected val mapWriter: EntityMapWriter<ID, T>? by lazy {
         if (config.isReadWrite)
             ExposedEntityMapWriter(
                 entityTable = entityTable,
