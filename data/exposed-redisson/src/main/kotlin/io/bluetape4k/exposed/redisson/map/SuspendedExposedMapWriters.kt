@@ -16,8 +16,10 @@ import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.statements.BatchInsertStatement
 import org.jetbrains.exposed.sql.statements.UpdateStatement
+import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.sql.vendors.PostgreSQLDialect
 import org.redisson.api.map.MapWriterAsync
 import java.util.concurrent.CompletionStage
 
@@ -79,8 +81,15 @@ open class SuspendedExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     deleteFromDb = { ids ->
         if (deleteFromDBOnInvalidate) {
             log.debug { "캐시가 Invalidated 되어, DB에서도 삭제합니다... ids=$ids, id type=${ids.firstOrNull()?.javaClass?.simpleName}" }
+
+            // PostgreSQLDialect 에서 id 타입을 맞추기 위해 변환합니다.
             @Suppress("UNCHECKED_CAST")
-            val idsToDelete = ids.mapToLanguageType(entityTable.id) as List<ID>
+            val idsToDelete = if (TransactionManager.current().db.dialect is PostgreSQLDialect) {
+                ids.mapToLanguageType(entityTable.id) as List<ID>
+            } else {
+                ids
+            }
+            
             entityTable.deleteWhere { entityTable.id inList idsToDelete }
         }
     },
