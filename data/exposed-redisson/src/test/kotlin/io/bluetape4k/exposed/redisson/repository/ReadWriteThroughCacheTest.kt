@@ -10,15 +10,12 @@ import io.bluetape4k.exposed.redisson.repository.UserSchema.withUserCredentialTa
 import io.bluetape4k.exposed.redisson.repository.UserSchema.withUserTable
 import io.bluetape4k.exposed.redisson.repository.scenarios.ReadWriteThroughScenario
 import io.bluetape4k.exposed.tests.TestDB
-import io.bluetape4k.redis.redisson.RedissonCodecs
-import io.bluetape4k.redis.redisson.RedissonCodecs.LZ4Fury
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Nested
-import org.redisson.codec.CompositeCodec
 
 class ReadWriteThroughCacheTest: AbstractRedissonTest() {
 
@@ -49,9 +46,7 @@ class ReadWriteThroughCacheTest: AbstractRedissonTest() {
 
     @Nested
     inner class AutoIncIdReadWriteThroughRemteCache: AutoIncIdReadWriteThrough() {
-        override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH.copy(
-            codec = CompositeCodec(RedissonCodecs.Long, LZ4Fury, LZ4Fury)
-        )
+        override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH
 
         override val repository: ExposedCacheRepository<UserDTO, Long> by lazy {
             UserCacheRepository(
@@ -64,10 +59,7 @@ class ReadWriteThroughCacheTest: AbstractRedissonTest() {
 
     @Nested
     inner class AutoIncIdReadWriteThroughRemteCacheWithDeleteDB: AutoIncIdReadWriteThrough() {
-        override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH.copy(
-            deleteFromDBOnInvalidate = true,
-            codec = CompositeCodec(RedissonCodecs.Long, LZ4Fury, LZ4Fury)
-        )
+        override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH.copy(deleteFromDBOnInvalidate = true)
 
         override val repository: ExposedCacheRepository<UserDTO, Long> by lazy {
             UserCacheRepository(
@@ -80,9 +72,7 @@ class ReadWriteThroughCacheTest: AbstractRedissonTest() {
 
     @Nested
     inner class AutoIncIdReadWriteThroughNearCache: AutoIncIdReadWriteThrough() {
-        override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(
-            codec = CompositeCodec(RedissonCodecs.Long, LZ4Fury, LZ4Fury)
-        )
+        override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE
 
         override val repository: ExposedCacheRepository<UserDTO, Long> by lazy {
             UserCacheRepository(
@@ -96,10 +86,7 @@ class ReadWriteThroughCacheTest: AbstractRedissonTest() {
     @Nested
     inner class AutoIncIdReadWriteThroughNearCacheWithDeleteDB: AutoIncIdReadWriteThrough() {
         override val cacheConfig =
-            RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(
-                deleteFromDBOnInvalidate = true,
-                codec = CompositeCodec(RedissonCodecs.Long, LZ4Fury, LZ4Fury)
-            )
+            RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(deleteFromDBOnInvalidate = true)
 
         override val repository: ExposedCacheRepository<UserDTO, Long> by lazy {
             UserCacheRepository(
@@ -140,9 +127,7 @@ class ReadWriteThroughCacheTest: AbstractRedissonTest() {
     @Nested
     inner class ClientGeneratedIdReadThroughRemoteCache: ClientGeneratedIdReadWriteThrough() {
 
-        override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH.copy(
-            codec = CompositeCodec(RedissonCodecs.String, LZ4Fury, LZ4Fury)
-        )
+        override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH
 
         override val repository: ExposedCacheRepository<UserCredential, String> by lazy {
             UserCredentialCacheRepository(
@@ -156,10 +141,7 @@ class ReadWriteThroughCacheTest: AbstractRedissonTest() {
     @Nested
     inner class ClientGeneratedIdReadThroughRemoteCacheWithDeleteDB: ClientGeneratedIdReadWriteThrough() {
 
-        override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH.copy(
-            deleteFromDBOnInvalidate = true,
-            codec = CompositeCodec(RedissonCodecs.String, LZ4Fury, LZ4Fury)
-        )
+        override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH.copy(deleteFromDBOnInvalidate = true)
 
         override val repository: ExposedCacheRepository<UserCredential, String> by lazy {
             UserCredentialCacheRepository(
@@ -174,9 +156,7 @@ class ReadWriteThroughCacheTest: AbstractRedissonTest() {
     @Nested
     inner class ClientGeneratedIdReadThroughNearCache: ClientGeneratedIdReadWriteThrough() {
 
-        override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(
-            codec = CompositeCodec(RedissonCodecs.String, LZ4Fury, LZ4Fury)
-        )
+        override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE
 
         override val repository: ExposedCacheRepository<UserCredential, String> by lazy {
             UserCredentialCacheRepository(
@@ -191,10 +171,7 @@ class ReadWriteThroughCacheTest: AbstractRedissonTest() {
     inner class ClientGeneratedIdReadThroughNearCacheWithDeleteDB: ClientGeneratedIdReadWriteThrough() {
 
         override val cacheConfig =
-            RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(
-                deleteFromDBOnInvalidate = true,
-                codec = CompositeCodec(RedissonCodecs.String, LZ4Fury, LZ4Fury)
-            )
+            RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(deleteFromDBOnInvalidate = true)
 
         override val repository: ExposedCacheRepository<UserCredential, String> by lazy {
             UserCredentialCacheRepository(

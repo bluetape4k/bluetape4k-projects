@@ -11,7 +11,8 @@ dependencies {
     api(Libs.exposed_core)
     api(Libs.exposed_jdbc)
     api(Libs.exposed_dao)
-    testImplementation(Libs.exposed_java_time)
+    api(Libs.exposed_java_time)
+    api(Libs.exposed_kotlin_datetime)
     testImplementation(Libs.exposed_spring_boot_starter)
     testImplementation(project(":bluetape4k-exposed-tests"))
 

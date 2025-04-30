@@ -76,8 +76,11 @@ open class ExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     },
     deleteFromDB = { ids ->
         if (deleteFromDBOnInvalidate) {
-            log.debug { "캐시가 Invalidated 되어, DB에서도 삭제합니다 (deleteFromDBOnInvalidate=$deleteFromDBOnInvalidate)... ids=$ids, id type=${ids.firstOrNull()?.javaClass?.simpleName}" }
-            entityTable.deleteWhere { entityTable.id inList ids }
+            log.debug { "캐시가 Invalidated 되어, DB에서도 삭제합니다... ids=$ids, id type=${ids.firstOrNull()?.javaClass?.simpleName}" }
+            @Suppress("UNCHECKED_CAST")
+            val idsToDelete = ids.mapToLanguageType(entityTable.id) as List<ID>
+
+            entityTable.deleteWhere { entityTable.id inList idsToDelete }
         }
     }
 ) {
