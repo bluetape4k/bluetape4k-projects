@@ -21,6 +21,7 @@ import kotlinx.coroutines.future.asCompletableFuture
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
 import org.awaitility.kotlin.withPollDelay
+import org.awaitility.kotlin.withPollInterval
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
@@ -162,13 +163,13 @@ class CacheWriteBehindForIoTData: AbstractCacheExample() {
                 Thread.sleep(100)
 
                 // 1ms 마다 생성되는 데이터를 10ms 단위로 sampling 해서 저장합니다. 따라서, DB에는 dataSize / 10 개만 저장된다.
-                await withPollDelay Duration.ofMillis(100) until { getSensorDataCountFromDB("sensor-1") >= dataSize / 10 }
+                await withPollInterval Duration.ofMillis(100) until { getSensorDataCountFromDB("sensor-1") >= dataSize / 10 }
 
                 cache.fastPut("sensor-2", generateSensorData("sensor-2", dataSize))
                 cache.fastPut("sensor-3", generateSensorData("sensor-3", dataSize))
 
-                await withPollDelay Duration.ofMillis(100) until { getSensorDataCountFromDB("sensor-2") >= dataSize / 10 }
-                await withPollDelay Duration.ofMillis(100) until { getSensorDataCountFromDB("sensor-3") >= dataSize / 10 }
+                await withPollInterval Duration.ofMillis(100) until { getSensorDataCountFromDB("sensor-2") >= dataSize / 10 }
+                await withPollInterval Duration.ofMillis(100) until { getSensorDataCountFromDB("sensor-3") >= dataSize / 10 }
 
             } finally {
                 // 캐시를 삭제한다.

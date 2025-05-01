@@ -40,6 +40,10 @@ import java.time.Duration
  */
 interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
 
+    companion object: KLogging() {
+        const val DefaultBatchSize = 100
+    }
+
     val cacheName: String
 
     val entityTable: IdTable<ID>
@@ -68,16 +72,16 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
         where: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE },
     ): List<T>
 
-    suspend fun getAll(ids: Collection<ID>, batchSize: Int = 100): List<T>
+    suspend fun getAll(ids: Collection<ID>, batchSize: Int = DefaultBatchSize): List<T>
 
     suspend fun put(entity: T) = cache.fastPutAsync(entity.id, entity).coAwait()
-    suspend fun putAll(entities: Collection<T>, batchSize: Int = 100) {
+    suspend fun putAll(entities: Collection<T>, batchSize: Int = DefaultBatchSize) {
         cache.putAllAsync(entities.associateBy { it.id }, batchSize).coAwait()
     }
 
     suspend fun invalidate(vararg ids: ID): Long = cache.fastRemoveAsync(*ids).coAwait()
     suspend fun invalidateAll(): Boolean = cache.clearAsync().coAwait()
-    suspend fun invalidateByPattern(patterns: String, count: Int = 100): Long {
+    suspend fun invalidateByPattern(patterns: String, count: Int = DefaultBatchSize): Long {
         val keys = cache.keySet(patterns, count)
         return cache.fastRemoveAsync(*keys.toTypedArray()).coAwait()
     }
@@ -237,27 +241,7 @@ abstract class AbstractSuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID:
         val chunkedIds = ids.chunked(batchSize)
 
         return chunkedIds.flatMap { chunk ->
-            when {
-                config.isReadOnly -> {
-                    suspendedTransactionAsync(scope.coroutineContext) {
-                        entityTable.selectAll()
-                            .where { entityTable.id inList chunk }
-                            .map { it.toEntity() }
-                    }.await().apply {
-                        cache.putAllAsync(associateBy { it.id }).coAwait()
-                    }
-                }
-                config.isReadWrite -> {
-                    suspendedTransactionAsync(scope.coroutineContext) {
-                        entityTable.select(entityTable.id)
-                            .where { entityTable.id inList chunk }
-                            .map { it[entityTable.id].value }
-                    }.await().let {
-                        cache.getAllAsync(it.toSet()).coAwait().values.filterNotNull()
-                    }
-                }
-                else -> emptyList()
-            }
+            cache.getAllAsync(chunk.toSet()).coAwait().values.filterNotNull()
         }
     }
 }

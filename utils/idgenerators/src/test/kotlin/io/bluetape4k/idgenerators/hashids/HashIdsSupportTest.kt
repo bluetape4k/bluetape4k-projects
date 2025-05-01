@@ -30,7 +30,7 @@ class HashIdsSupportTest {
     @Nested
     inner class UuidTest {
 
-        private val uuidGenerator = TimebasedUuid.Epoch
+        private val uuidGenerator = TimebasedUuid.Reordered
 
         @Test
         fun `encode random UUID`() {

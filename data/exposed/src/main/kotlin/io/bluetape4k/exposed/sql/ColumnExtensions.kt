@@ -49,7 +49,7 @@ import kotlin.reflect.KClass
 private val log = KotlinLogging.logger { }
 
 /**
- * Column 값을 [TimebasedUuid.Epoch]이 생성한 UUID 값으로 설정합니다.
+ * Column 값을 [TimebasedUuid.Reordered]이 생성한 UUID 값으로 설정합니다.
  *
  * @see TimebasedUuid.Reordered
  * @sample io.bluetape4k.exposed.sql.ColumnExtensionsTest

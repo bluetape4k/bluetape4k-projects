@@ -34,7 +34,7 @@ import kotlinx.coroutines.yield
 class SuspendedJobTester {
 
     companion object: KLogging() {
-        const val DEFAULT_NUM_THREADS: Int = 64
+        const val DEFAULT_NUM_THREADS: Int = 16
         const val MIN_NUM_THREADS: Int = 2
         const val MAX_NUM_THREADS: Int = 2000
 

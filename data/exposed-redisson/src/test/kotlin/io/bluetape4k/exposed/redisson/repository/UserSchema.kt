@@ -282,7 +282,7 @@ object UserSchema: KLogging() {
 
     fun newUserCredentialDTO(loginId: String? = null): UserCredentialDTO {
         return UserCredentialDTO(
-            id = TimebasedUuid.Epoch.nextId(),
+            id = TimebasedUuid.Reordered.nextId(),
             loginId = loginId ?: (faker.internet().username() + "_" + Base58.randomString(8)),
             email = Base58.randomString(4) + "." + faker.internet().emailAddress(),
             lastLoginAt = LocalDateTime.now().minusDays(200).toInstant()
@@ -291,7 +291,6 @@ object UserSchema: KLogging() {
 
     fun insertUserCredential(loginId: String? = null): UUID {
         return UserCredentialTable.insertAndGetId {
-            // it[UserCredentialTable.id] = TimebasedUuid.Epoch.nextIdAsString(),
             it[UserCredentialTable.loginId] = loginId ?: faker.internet().username()
             it[UserCredentialTable.email] = faker.internet().safeEmailAddress()
             it[UserCredentialTable.lastLoginAt] = LocalDateTime.now().minusDays(200).toInstant()
