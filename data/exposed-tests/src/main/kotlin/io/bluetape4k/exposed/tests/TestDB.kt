@@ -190,6 +190,20 @@ enum class TestDB(
         )
     }
 
+    fun getDatabaseForBatch(): Database? {
+        if (this !in TestDB.ALL_MYSQL_MARIADB) {
+            return this.db
+        }
+
+        val extra = if (this in TestDB.ALL_MARIADB) "?" else ""
+        return Database.connect(
+            this.connection().plus("$extra&allowMultiQueries=true"),
+            this.driver,
+            this.user,
+            this.pass
+        )
+    }
+
     companion object: KLogging() {
         val ALL_H2_V1 = setOf(H2_V1)
         val ALL_H2 = setOf(H2, H2_MYSQL, H2_PSQL, H2_MARIADB)

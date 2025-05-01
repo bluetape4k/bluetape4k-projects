@@ -86,7 +86,7 @@ class TimebasedUUIDBase62TableTest: AbstractCustomIdTableTest() {
                     E1.new {
                         name = faker.name().fullName()
                         age = faker.number().numberBetween(8, 80)
-                    }
+                    }.flush()
                 }
             }
             tasks.awaitAll()

@@ -3,7 +3,6 @@ package io.bluetape4k.exposed.redisson.map
 import io.bluetape4k.exposed.dao.HasIdentifier
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.logging.error
 import io.bluetape4k.logging.warn
 import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
@@ -55,10 +54,36 @@ open class ExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     writeMode: WriteMode = WriteMode.WRITE_THROUGH,
 ): EntityMapWriter<ID, E>(
     writeToDB = { map: Map<ID, E> ->
-        // TODO: 내부 구현을 companion 함수로 빼던가, 클래스를 분리하자
-        if (writeMode == WriteMode.WRITE_THROUGH) {
-            log.debug { "캐시 변경 사항을 DB에 반영합니다... ids=${map.keys}" }
+        when (writeMode) {
+            WriteMode.WRITE_THROUGH -> {
+                writeThrough(map, entityTable, updateBody, batchInsertBody)
+            }
+            WriteMode.WRITE_BEHIND -> {
+                writeBehind(map, entityTable, batchInsertBody)
+            }
+        }
+    },
+    deleteFromDB = { ids ->
+        if (deleteFromDBOnInvalidate) {
+            log.debug { "캐시가 Invalidated 되어, DB에서도 삭제합니다... ids=$ids, id type=${ids.firstOrNull()?.javaClass?.simpleName}" }
 
+            // Map Key가 String Codec 인데, UUID로 변환을 못함
+            @Suppress("UNCHECKED_CAST")
+            val idsToDelete = ids.mapToLanguageType(entityTable.id) as List<ID>
+            entityTable.deleteWhere { entityTable.id inList idsToDelete }
+        }
+    }
+) {
+    companion object: KLogging() {
+        private const val DEFAULT_BATCH_SIZE = 1000
+
+        private fun <K: Any, V: HasIdentifier<K>> writeThrough(
+            map: Map<K, V>,
+            entityTable: IdTable<K>,
+            updateBody: IdTable<K>.(UpdateStatement, V) -> Unit,
+            batchInsertBody: BatchInsertStatement.(V) -> Unit,
+        ) {
+            log.debug { "캐시 변경 사항을 DB에 반영합니다... ids=${map.keys}" }
             val existIds =
                 entityTable.select(entityTable.id)
                     .where { entityTable.id inList map.keys }
@@ -74,46 +99,32 @@ open class ExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
             // Write Behind 시에는 항상 batchInsert 를 수행합니다.
             val canBatchInsert = entityTable.id.autoIncColumnType == null && !entityTable.id.isDatabaseGenerated()
             if (canBatchInsert) {
-                try {
-                    val entitiesToInsert = map.values.filterNot { it.id in existIds }
-                    log.debug { "ID가 자동증가 타입이 아니므로, batchInsert 를 수행합니다...entities size=${entitiesToInsert.size}" }
-                    entitiesToInsert.chunked(100).forEach { chunk ->
-                        entityTable.batchInsert(chunk, shouldReturnGeneratedValues = false) {
-                            batchInsertBody(this, it)
-                        }
-                    }
-                } catch (e: Throwable) {
-                    log.error(e) { "Batch Insert 작업 중 오류가 발생했습니다." }
-                    throw e
-                }
-            }
-        } else if (writeMode == WriteMode.WRITE_BEHIND) {
-            try {
-                // Write Behind 시에는 캐시에 남길 일이 없으므로, 자동증가 ID인 경우에도 batchInsert 를 수행합니다.
-                val entitiesToInsert = map.values
+                val entitiesToInsert = map.values.filterNot { it.id in existIds }
+                log.debug { "ID가 자동증가 타입이 아니므로, batchInsert 를 수행합니다...entities size=${entitiesToInsert.size}" }
                 entitiesToInsert.chunked(100).forEach { chunk ->
                     entityTable.batchInsert(chunk, shouldReturnGeneratedValues = false) {
                         batchInsertBody(this, it)
                     }
                 }
-            } catch (e: Throwable) {
-                log.error(e) { "Batch Insert 작업 중 오류가 발생했습니다." }
-                throw e
             }
         }
-    },
-    deleteFromDB = { ids ->
-        if (deleteFromDBOnInvalidate) {
-            log.debug { "캐시가 Invalidated 되어, DB에서도 삭제합니다... ids=$ids, id type=${ids.firstOrNull()?.javaClass?.simpleName}" }
 
-            // Map Key가 String Codec 인데, UUID로 변환을 못함
-            @Suppress("UNCHECKED_CAST")
-            val idsToDelete = ids.mapToLanguageType(entityTable.id) as List<ID>
-            entityTable.deleteWhere { entityTable.id inList idsToDelete }
+        private fun <K: Any, V: HasIdentifier<K>> writeBehind(
+            map: Map<K, V>,
+            entityTable: IdTable<K>,
+            batchInsertBody: BatchInsertStatement.(V) -> Unit,
+            batchSize: Int = DEFAULT_BATCH_SIZE,
+        ) {
+            // Write Behind 시에는 캐시에 남길 일이 없으므로, 자동증가 ID인 경우에도 batchInsert 를 수행합니다.
+            val entitiesToInsert = map.values
+            entitiesToInsert.chunked(batchSize).forEach { chunk ->
+                log.debug { "캐시 변경 사항을 DB에 반영합니다... ids=${chunk.map { it.id }}" }
+                entityTable.batchInsert(chunk, shouldReturnGeneratedValues = false) {
+                    batchInsertBody(this, it)
+                }
+            }
         }
     }
-) {
-    companion object: KLogging()
 
     // 필드로 따로 저장하여 로깅 용도로 사용
     private val deleteFromDBOnInvalidate: Boolean

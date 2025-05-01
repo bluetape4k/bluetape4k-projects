@@ -51,22 +51,22 @@ private val log = KotlinLogging.logger { }
 /**
  * Column 값을 [TimebasedUuid.Epoch]이 생성한 UUID 값으로 설정합니다.
  *
- * @see TimebasedUuid.Epoch
+ * @see TimebasedUuid.Reordered
  * @sample io.bluetape4k.exposed.sql.ColumnExtensionsTest
  */
 @JvmName("timebasedGeneratedUUID")
 fun Column<UUID>.timebasedGenerated(): Column<UUID> =
-    clientDefault { TimebasedUuid.Epoch.nextId() }
+    clientDefault { TimebasedUuid.Reordered.nextId() }
 
 /**
- * Column 값을 [TimebasedUuid.Epoch]이 생성한 UUID의 Base62 인코딩한 문자열로 설정합니다.
+ * Column 값을 [TimebasedUuid.Reordered] 이 생성한 Timebased UUID의 Base62 인코딩한 문자열로 설정합니다.
  *
- * @see TimebasedUuid.Epoch
+ * @see TimebasedUuid.Reordered
  * @sample io.bluetape4k.exposed.sql.ColumnExtensionsTest
  */
 @JvmName("timebasedGeneratedString")
 fun Column<String>.timebasedGenerated(): Column<String> =
-    clientDefault { TimebasedUuid.Epoch.nextIdAsString() }
+    clientDefault { TimebasedUuid.Reordered.nextIdAsString() }
 
 /**
  * 컬럼의 기본 값을 Snowflake ID 로 설정합니다.
