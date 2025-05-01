@@ -88,32 +88,44 @@ open class SuspendedExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
 ): SuspendedEntityMapWriter<ID, E>(
     scope = scope,
     writeToDb = { map ->
-        log.debug { "캐시 변경 사항을 DB에 반영합니다... ids=${map.keys}" }
+        // TODO: 내부 구현을 companion 함수로 빼던가, 클래스를 분리하자
+        if (writeMode == WriteMode.WRITE_THROUGH) {
+            log.debug { "캐시 변경 사항을 DB에 반영합니다... ids=${map.keys}" }
 
-        val existIds =
-            entityTable.select(entityTable.id)
-                .where { entityTable.id inList map.keys }
-                .map { it[entityTable.id].value }
+            val existIds =
+                entityTable.select(entityTable.id)
+                    .where { entityTable.id inList map.keys }
+                    .map { it[entityTable.id].value }
 
-        val entitiesToUpdate = map.values.filter { it.id in existIds }
-        entitiesToUpdate.forEach { entity ->
-            entityTable.update({ entityTable.id eq entity.id }) {
-                updateBody(it, entity)
+            val entitiesToUpdate = map.values.filter { it.id in existIds }
+            entitiesToUpdate.forEach { entity ->
+                entityTable.update({ entityTable.id eq entity.id }) {
+                    updateBody(it, entity)
+                }
             }
-        }
 
-        // Write Through 시에는 id가 DB에서 자동 생성되지 않는 경우에만 batchInsert 를 수행합니다.
-        // Write Behind 시에는 항상 batchInsert 를 수행합니다.
-        val canBatchInsert = when (writeMode) {
-            WriteMode.WRITE_THROUGH -> entityTable.id.autoIncColumnType == null && !entityTable.id.isDatabaseGenerated()
-            WriteMode.WRITE_BEHIND -> true
-        }
-        if (canBatchInsert) {
+            // Write Through 시에는 id가 DB에서 자동 생성되지 않는 경우에만 batchInsert 를 수행합니다.
+            // Write Behind 시에는 항상 batchInsert 를 수행합니다.
+            val canBatchInsert = entityTable.id.autoIncColumnType == null && !entityTable.id.isDatabaseGenerated()
+            if (canBatchInsert) {
+                try {
+                    val entitiesToInsert = map.values.filterNot { it.id in existIds }
+                    log.debug { "ID가 자동증가 타입이 아니므로, batchInsert 를 수행합니다...entities size=${entitiesToInsert.size}" }
+                    entityTable.batchInsert(entitiesToInsert) {
+                        batchInsertBody(this, it)
+                    }
+                } catch (e: Exception) {
+                    log.error(e) { "Batch Insert 작업 중 오류가 발생했습니다." }
+                    throw e
+                }
+            }
+        } else if (writeMode == WriteMode.WRITE_BEHIND) {
             try {
-                val entitiesToInsert = map.values.filterNot { it.id in existIds }
-                log.debug { "ID가 자동증가 타입이 아니므로, batchInsert 를 수행합니다...entities size=${entitiesToInsert.size}" }
-                entityTable.batchInsert(entitiesToInsert) {
-                    batchInsertBody(this, it)
+                // Write Behind 시에는 캐시에 남길 일이 없으므로, 자동증가 ID인 경우에도 batchInsert 를 수행합니다.
+                map.values.chunked(100).forEach { entities ->
+                    entityTable.batchInsert(entities, shouldReturnGeneratedValues = false) {
+                        batchInsertBody(this, it)
+                    }
                 }
             } catch (e: Exception) {
                 log.error(e) { "Batch Insert 작업 중 오류가 발생했습니다." }

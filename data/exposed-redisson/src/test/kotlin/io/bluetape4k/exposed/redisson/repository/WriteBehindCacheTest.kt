@@ -25,25 +25,23 @@ class WriteBehindCacheTest: AbstractRedissonTest() {
             statement: Transaction.() -> Unit,
         ) = withUserTable(testDB, statement)
 
-        override fun getExistingId(): Long = transaction {
+        override fun getExistingId() = transaction {
             UserTable.select(UserTable.id).limit(1).first()[UserTable.id].value
         }
 
-        override fun getExistingIds(): List<Long> = transaction {
+        override fun getExistingIds() = transaction {
             UserTable.selectAll().map { it[UserTable.id].value }
         }
 
-        override fun getNonExistentId(): Long = Long.MIN_VALUE
-
-        override fun createNewEntity(): UserDTO = UserSchema.newUserDTO()
-
+        override fun getNonExistentId() = Long.MIN_VALUE
+        override fun createNewEntity() = UserSchema.newUserDTO()
     }
 
     @Nested
     inner class AutoIncIdReadWriteBehindRemoteCache: AutoIncIdReadWriteBehind() {
         override val cacheConfig = RedisCacheConfig.WRITE_BEHIND
 
-        override val repository: ExposedCacheRepository<UserDTO, Long> by lazy {
+        override val repository by lazy {
             UserCacheRepository(
                 redissonClient,
                 "write-behind:remote:users",
@@ -56,7 +54,7 @@ class WriteBehindCacheTest: AbstractRedissonTest() {
     inner class AutoIncIdReadWriteBehindNearCache: AutoIncIdReadWriteBehind() {
         override val cacheConfig = RedisCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE
 
-        override val repository: ExposedCacheRepository<UserDTO, Long> by lazy {
+        override val repository by lazy {
             UserCacheRepository(
                 redissonClient,
                 "write-behind:near:users",
