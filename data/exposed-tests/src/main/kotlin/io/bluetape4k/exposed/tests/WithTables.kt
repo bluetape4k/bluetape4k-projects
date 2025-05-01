@@ -12,7 +12,7 @@ import org.jetbrains.exposed.sql.transactions.transactionManager
 fun withTables(
     testDB: TestDB,
     vararg tables: Table,
-    configure: (DatabaseConfig.Builder.() -> Unit)? = null,
+    configure: (DatabaseConfig.Builder.() -> Unit)? = {},  // @PrameterizedTest 시 db가 캐시됨. withDb에서 매번 database를 생성하도록 수정함
     statement: Transaction.(TestDB) -> Unit,
 ) {
     withDb(testDB, configure) {

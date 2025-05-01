@@ -8,7 +8,7 @@ import org.jetbrains.exposed.sql.Transaction
 fun withSchemas(
     dialect: TestDB,
     vararg schemas: Schema,
-    configure: (DatabaseConfig.Builder.() -> Unit)? = null,
+    configure: (DatabaseConfig.Builder.() -> Unit)? = { },
     statement: Transaction.() -> Unit,
 ) {
     withDb(dialect, configure) {

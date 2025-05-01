@@ -11,7 +11,8 @@ dependencies {
     api(Libs.exposed_core)
     api(Libs.exposed_jdbc)
     api(Libs.exposed_dao)
-    testImplementation(Libs.exposed_java_time)
+    api(Libs.exposed_java_time)
+    api(Libs.exposed_kotlin_datetime)
     testImplementation(Libs.exposed_spring_boot_starter)
     testImplementation(project(":bluetape4k-exposed-tests"))
 
@@ -30,13 +31,13 @@ dependencies {
     compileOnly(Libs.jackson_dataformat_cbor)
 
     // Compressor
-    implementation(Libs.snappy_java)
-    implementation(Libs.lz4_java)
-    implementation(Libs.zstd_jni)
+    compileOnly(Libs.snappy_java)
+    compileOnly(Libs.lz4_java)
+    compileOnly(Libs.zstd_jni)
 
     // Coroutines
-    implementation(project(":bluetape4k-coroutines"))
-    implementation(Libs.kotlinx_coroutines_core)
+    compileOnly(project(":bluetape4k-coroutines"))
+    compileOnly(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)
 
     // Bluetape4k Modules for Testing

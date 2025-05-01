@@ -6,6 +6,7 @@ import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.logging.KLogging
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
@@ -13,6 +14,7 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import java.util.*
 
 class ColumnExtensionsTest: AbstractExposedTest() {
 
@@ -58,6 +60,16 @@ class ColumnExtensionsTest: AbstractExposedTest() {
             entities.map { it.snowflake }.distinct() shouldHaveSize entityCount
             entities.map { it.ksuid }.distinct() shouldHaveSize entityCount
             entities.map { it.ksuidMillis }.distinct() shouldHaveSize entityCount
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `테이블 ID의 랭귀지 타입을 판단한다`(testDB: TestDB) {
+        withTables(testDB, ClientGenerated) {
+            ClientGenerated.id.getLanguageType() shouldBeEqualTo Int::class
+            ClientGenerated.timebasedUuid.getLanguageType() shouldBeEqualTo UUID::class
+            ClientGenerated.snowflake.getLanguageType() shouldBeEqualTo Long::class
         }
     }
 }

@@ -22,7 +22,7 @@ object CurrentTestDBInterceptor: StatementInterceptor {
 
 fun withDb(
     testDB: TestDB,
-    configure: (DatabaseConfig.Builder.() -> Unit)? = null,
+    configure: (DatabaseConfig.Builder.() -> Unit)? = { },
     statement: Transaction.(TestDB) -> Unit,
 ) {
     logger.info { "Running `withDb` for $testDB" }
@@ -40,13 +40,16 @@ fun withDb(
         testDB.db = testDB.connect(configure ?: {})
     }
 
-    val registeredDb = testDB.db!!
+    val registeredDb = testDB.db
     try {
         if (newConfiguration) {
-            testDB.db = testDB.connect(configure ?: {})
+            testDB.db = testDB.connect(configure)
         }
         val database = testDB.db!!
-        transaction(database.transactionManager.defaultIsolationLevel, db = database) {
+        transaction(
+            transactionIsolation = database.transactionManager.defaultIsolationLevel,
+            db = database,
+        ) {
             maxAttempts = 1
             registerInterceptor(CurrentTestDBInterceptor)  // interceptor 를 통해 다양한 작업을 할 수 있다
             currentTestDB = testDB

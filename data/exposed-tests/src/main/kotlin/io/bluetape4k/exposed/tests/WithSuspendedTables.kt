@@ -14,7 +14,8 @@ suspend fun withSuspendedTables(
     testDB: TestDB,
     vararg tables: Table,
     context: CoroutineContext? = Dispatchers.IO,
-    configure: (DatabaseConfig.Builder.() -> Unit)? = null,
+    configure: (DatabaseConfig.Builder.() -> Unit)? = {},
+    dropTables: Boolean = true,
     statement: suspend Transaction.(TestDB) -> Unit,
 ) {
     withSuspendedDb(testDB, context, configure) {
@@ -28,15 +29,17 @@ suspend fun withSuspendedTables(
             statement(testDB)
             commit()
         } finally {
-            try {
-                SchemaUtils.drop(*tables)
-                commit()
-            } catch (ex: Throwable) {
-                logger.error(ex) { "Fail to drop tables, ${tables.joinToString { it.tableName }}" }
-                val database = testDB.db!!
-                inTopLevelTransaction(database.transactionManager.defaultIsolationLevel, db = database) {
-                    maxAttempts = 1
+            if (dropTables) {
+                try {
                     SchemaUtils.drop(*tables)
+                    commit()
+                } catch (ex: Throwable) {
+                    logger.error(ex) { "Fail to drop tables, ${tables.joinToString { it.tableName }}" }
+                    val database = testDB.db!!
+                    inTopLevelTransaction(database.transactionManager.defaultIsolationLevel, db = database) {
+                        maxAttempts = 1
+                        SchemaUtils.drop(*tables)
+                    }
                 }
             }
         }

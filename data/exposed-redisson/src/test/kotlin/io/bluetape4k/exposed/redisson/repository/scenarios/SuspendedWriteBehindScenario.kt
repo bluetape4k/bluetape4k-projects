@@ -1,0 +1,46 @@
+package io.bluetape4k.exposed.redisson.repository.scenarios
+
+import io.bluetape4k.exposed.dao.HasIdentifier
+import io.bluetape4k.exposed.tests.TestDB
+import io.bluetape4k.junit5.awaitility.coUntil
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import org.amshove.kluent.shouldBeGreaterThan
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.withPollInterval
+import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
+import java.time.Duration
+
+interface SuspendedWriteBehindScenario<T: HasIdentifier<ID>, ID: Any>: SuspendedCacheTestScenario<T, ID> {
+
+    suspend fun createNewEntity(): T
+
+    suspend fun createNewEntities(count: Int): List<T> {
+        return List(count) { createNewEntity() }
+    }
+
+    suspend fun getAllCountFromDB() = newSuspendedTransaction {
+        repository.entityTable.selectAll().count()
+    }
+
+    @ParameterizedTest
+    @MethodSource(CacheTestScenario.ENABLE_DIALECTS_METHOD)
+    fun `Write Behind 로 대량의 데이터를 추가합니다`(testDB: TestDB) = runSuspendIO {
+        withSuspendedEntityTable(testDB) {
+            val entities = createNewEntities(1000)
+            repository.putAll(entities)
+
+            await
+                .atMost(Duration.ofSeconds(10))
+                .withPollInterval(Duration.ofMillis(1000))
+                .coUntil { getAllCountFromDB() >= entities.size.toLong() }
+
+            // DB에서 조회한 값
+            val dbCount = getAllCountFromDB()
+            dbCount shouldBeGreaterThan entities.size.toLong()
+        }
+    }
+
+}
