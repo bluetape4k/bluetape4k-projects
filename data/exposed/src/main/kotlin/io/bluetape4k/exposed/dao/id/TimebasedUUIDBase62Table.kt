@@ -14,7 +14,7 @@ import org.jetbrains.exposed.dao.id.IdTable
 open class TimebasedUUIDBase62Table(name: String = "", columnName: String = "id"): IdTable<String>(name) {
 
     final override val id =
-        varchar(columnName, 22).clientDefault { TimebasedUuid.Reordered.nextIdAsString() }.entityId()
+        varchar(columnName, 22).clientDefault { TimebasedUuid.Epoch.nextIdAsString() }.entityId()
 
     final override val primaryKey = PrimaryKey(id)
 }

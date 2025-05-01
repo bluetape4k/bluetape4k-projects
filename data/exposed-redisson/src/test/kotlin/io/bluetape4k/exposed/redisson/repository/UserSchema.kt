@@ -1,9 +1,11 @@
 package io.bluetape4k.exposed.redisson.repository
 
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.exposed.dao.HasIdentifier
-import io.bluetape4k.exposed.dao.id.TimebasedUUIDBase62Entity
-import io.bluetape4k.exposed.dao.id.TimebasedUUIDBase62EntityClass
 import io.bluetape4k.exposed.dao.id.TimebasedUUIDBase62Table
+import io.bluetape4k.exposed.dao.id.TimebasedUUIDEntity
+import io.bluetape4k.exposed.dao.id.TimebasedUUIDEntityClass
+import io.bluetape4k.exposed.dao.id.TimebasedUUIDTable
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.idHashCode
 import io.bluetape4k.exposed.dao.toStringBuilder
@@ -30,6 +32,7 @@ import org.jetbrains.exposed.sql.javatime.timestamp
 import org.jetbrains.exposed.sql.selectAll
 import java.time.Instant
 import java.time.LocalDateTime
+import java.util.*
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.CoroutineContext
 
@@ -44,7 +47,7 @@ object UserSchema: KLogging() {
     object UserTable: LongIdTable("users") {
         val firstName = varchar("first_name", 50)
         val lastName = varchar("last_name", 50)
-        val email = varchar("email", 255).uniqueIndex()
+        val email = varchar("email", 255)
 
         val createdAt = timestamp("created_at").defaultExpression(CurrentTimestamp)
         val updatedAt = timestamp("updated_at").nullable()
@@ -159,7 +162,7 @@ object UserSchema: KLogging() {
         id = lastUserId.andIncrement,
         firstName = faker.name().firstName(),
         lastName = faker.name().lastName(),
-        email = faker.internet().safeEmailAddress(),
+        email = Base58.randomString(4) + "." + faker.internet().emailAddress(),
     )
 
     fun findUserDTOById(id: Long): UserDTO? {
@@ -172,18 +175,18 @@ object UserSchema: KLogging() {
     /**
      * Client 에서 ID 값을 설정하는 [TimebasedUUIDBase62Table]을 구현한 `IdTable<String>` 테이블입니다.
      */
-    object UserCredentialTable: TimebasedUUIDBase62Table("user_credentials") {
+    object UserCredentialTable: TimebasedUUIDTable("user_credentials") {
         val loginId = varchar("login_id", 255).uniqueIndex()
-        val email = varchar("email", 255).uniqueIndex()
+        val email = varchar("email", 255)
         val lastLoginAt = timestamp("last_login_at").nullable()
 
         val createdAt = timestamp("created_at").defaultExpression(CurrentTimestamp)
         val updatedAt = timestamp("updated_at").nullable()
     }
 
-    class UserCredentialEntity(id: EntityID<String>): TimebasedUUIDBase62Entity(id) {
+    class UserCredentialEntity(id: EntityID<UUID>): TimebasedUUIDEntity(id) {
         // NOTE: EntityClass 는 직렬화/역직렬화가 불가능합니다. --> UserDTO 를 이용하여 캐시해야 합니다.
-        companion object: TimebasedUUIDBase62EntityClass<UserCredentialEntity>(UserCredentialTable)
+        companion object: TimebasedUUIDEntityClass<UserCredentialEntity>(UserCredentialTable)
 
         var loginId by UserCredentialTable.loginId
         var email by UserCredentialTable.email
@@ -201,13 +204,13 @@ object UserSchema: KLogging() {
     }
 
     data class UserCredentialDTO(
-        override val id: String,
+        override val id: UUID,
         val loginId: String,
         val email: String,
         val lastLoginAt: Instant? = null,
         val createdAt: Instant = Instant.now(),
         val updatedAt: Instant? = null,
-    ): HasIdentifier<String>
+    ): HasIdentifier<UUID>
 
     fun ResultRow.toUserCredential(): UserCredentialDTO = UserCredentialDTO(
         id = this[UserCredentialTable.id].value,
@@ -279,14 +282,14 @@ object UserSchema: KLogging() {
 
     fun newUserCredentialDTO(loginId: String? = null): UserCredentialDTO {
         return UserCredentialDTO(
-            id = TimebasedUuid.Epoch.nextIdAsString(),
-            loginId = loginId ?: faker.internet().username(),
-            email = faker.internet().safeEmailAddress(),
+            id = TimebasedUuid.Epoch.nextId(),
+            loginId = loginId ?: (faker.internet().username() + "_" + Base58.randomString(8)),
+            email = Base58.randomString(4) + "." + faker.internet().emailAddress(),
             lastLoginAt = LocalDateTime.now().minusDays(200).toInstant()
         )
     }
 
-    fun insertUserCredential(loginId: String? = null): String {
+    fun insertUserCredential(loginId: String? = null): UUID {
         return UserCredentialTable.insertAndGetId {
             // it[UserCredentialTable.id] = TimebasedUuid.Epoch.nextIdAsString(),
             it[UserCredentialTable.loginId] = loginId ?: faker.internet().username()
@@ -295,7 +298,7 @@ object UserSchema: KLogging() {
         }.value
     }
 
-    fun findUserCredentialDTOById(id: String): UserCredentialDTO? {
+    fun findUserCredentialDTOById(id: UUID): UserCredentialDTO? {
         return UserCredentialTable.selectAll()
             .where { UserCredentialTable.id eq id }
             .singleOrNull()

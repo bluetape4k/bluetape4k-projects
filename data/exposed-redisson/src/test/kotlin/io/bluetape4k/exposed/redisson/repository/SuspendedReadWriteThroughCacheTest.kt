@@ -17,6 +17,7 @@ import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Nested
+import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 class SuspendedReadWriteThroughCacheTest {
@@ -107,8 +108,8 @@ class SuspendedReadWriteThroughCacheTest {
 
 
     abstract class SuspendedClientGeneratedIdReadWriteThrough: AbstractRedissonTest(),
-                                                               SuspendedReadThroughScenario<UserCredentialDTO, String>,
-                                                               SuspendedWriteThroughScenario<UserCredentialDTO, String> {
+                                                               SuspendedReadThroughScenario<UserCredentialDTO, UUID>,
+                                                               SuspendedWriteThroughScenario<UserCredentialDTO, UUID> {
         override suspend fun withSuspendedEntityTable(
             testDB: TestDB,
             context: CoroutineContext,
@@ -117,15 +118,15 @@ class SuspendedReadWriteThroughCacheTest {
             withSuspendedUserCredentialTable(testDB, context, statement)
         }
 
-        override suspend fun getExistingId(): String = transaction {
+        override suspend fun getExistingId() = transaction {
             UserCredentialTable.select(UserCredentialTable.id).first()[UserCredentialTable.id].value
         }
 
-        override suspend fun getExistingIds(): List<String> = transaction {
+        override suspend fun getExistingIds() = transaction {
             UserCredentialTable.selectAll().map { it[UserCredentialTable.id].value }
         }
 
-        override suspend fun getNonExistentId(): String = Base58.randomString(4)
+        override suspend fun getNonExistentId() = UUID.randomUUID()
 
         override suspend fun createNewEntity(): UserCredentialDTO = UserSchema.newUserCredentialDTO()
 
@@ -142,7 +143,7 @@ class SuspendedReadWriteThroughCacheTest {
 
         override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH
 
-        override val repository: SuspendedExposedCacheRepository<UserCredentialDTO, String> by lazy {
+        override val repository by lazy {
             SuspendedUserCredentialCacheRepository(
                 redissonClient,
                 "suspended:read-through:remote:user-credentials",
@@ -157,7 +158,7 @@ class SuspendedReadWriteThroughCacheTest {
 
         override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH.copy(deleteFromDBOnInvalidate = true)
 
-        override val repository: SuspendedExposedCacheRepository<UserCredentialDTO, String> by lazy {
+        override val repository by lazy {
             SuspendedUserCredentialCacheRepository(
                 redissonClient,
                 "suspended:read-through:remote:delete-db:user-credentials",
@@ -172,7 +173,7 @@ class SuspendedReadWriteThroughCacheTest {
 
         override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE
 
-        override val repository: SuspendedExposedCacheRepository<UserCredentialDTO, String> by lazy {
+        override val repository by lazy {
             SuspendedUserCredentialCacheRepository(
                 redissonClient,
                 "suspended:read-through:near:user-credentials",
@@ -188,7 +189,7 @@ class SuspendedReadWriteThroughCacheTest {
         override val cacheConfig =
             RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(deleteFromDBOnInvalidate = true)
 
-        override val repository: SuspendedExposedCacheRepository<UserCredentialDTO, String> by lazy {
+        override val repository by lazy {
             SuspendedUserCredentialCacheRepository(
                 redissonClient,
                 "suspended:read-through:near:delete-db:user-credentials",

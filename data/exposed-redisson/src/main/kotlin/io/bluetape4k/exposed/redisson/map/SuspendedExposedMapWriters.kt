@@ -23,6 +23,7 @@ import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionA
 import org.jetbrains.exposed.sql.update
 import org.jetbrains.exposed.sql.vendors.PostgreSQLDialect
 import org.redisson.api.map.MapWriterAsync
+import org.redisson.api.map.WriteMode
 import java.util.concurrent.CompletionStage
 
 private val defaultMapWriterCoroutineScope = CoroutineScope(Dispatchers.IO) + CoroutineName("DB-Writer")
@@ -83,6 +84,7 @@ open class SuspendedExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     private val updateBody: IdTable<ID>.(UpdateStatement, E) -> Unit,
     private val batchInsertBody: BatchInsertStatement.(E) -> Unit,
     deleteFromDBOnInvalidate: Boolean = false,
+    writeMode: WriteMode = WriteMode.WRITE_THROUGH,
 ): SuspendedEntityMapWriter<ID, E>(
     scope = scope,
     writeToDb = { map ->
@@ -100,12 +102,22 @@ open class SuspendedExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
             }
         }
 
-        // id가 DB에서 자동증가하지 않는 경우에만 batchInsert 를 수행합니다.
-        if (entityTable.id.autoIncColumnType == null && !entityTable.id.isDatabaseGenerated()) {
-            val entitiesToInsert = map.values.filterNot { it.id in existIds }
-            log.debug { "ID가 자동증가 타입이 아니므로, batchInsert 를 수행합니다...entities=${entitiesToInsert}" }
-            entityTable.batchInsert(entitiesToInsert) {
-                batchInsertBody(this, it)
+        // Write Through 시에는 id가 DB에서 자동 생성되지 않는 경우에만 batchInsert 를 수행합니다.
+        // Write Behind 시에는 항상 batchInsert 를 수행합니다.
+        val canBatchInsert = when (writeMode) {
+            WriteMode.WRITE_THROUGH -> entityTable.id.autoIncColumnType == null && !entityTable.id.isDatabaseGenerated()
+            WriteMode.WRITE_BEHIND -> true
+        }
+        if (canBatchInsert) {
+            try {
+                val entitiesToInsert = map.values.filterNot { it.id in existIds }
+                log.debug { "ID가 자동증가 타입이 아니므로, batchInsert 를 수행합니다...entities size=${entitiesToInsert.size}" }
+                entityTable.batchInsert(entitiesToInsert) {
+                    batchInsertBody(this, it)
+                }
+            } catch (e: Exception) {
+                log.error(e) { "Batch Insert 작업 중 오류가 발생했습니다." }
+                throw e
             }
         }
     },

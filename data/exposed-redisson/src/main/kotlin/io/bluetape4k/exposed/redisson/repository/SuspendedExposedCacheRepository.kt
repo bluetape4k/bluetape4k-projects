@@ -140,6 +140,7 @@ abstract class AbstractSuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID:
                 updateBody = { stmt, entity -> doUpdateEntity(stmt, entity) },
                 batchInsertBody = { entity -> doBatchInsertEntity(this, entity) },
                 deleteFromDBOnInvalidate = config.deleteFromDBOnInvalidate,  // 캐시 invalidated 시 DB에서도 삭제할 것인지 여부
+                writeMode = config.writeMode,  // Write Through 모드
             )
         }
     }
@@ -150,6 +151,7 @@ abstract class AbstractSuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID:
         when {
             config.isNearCacheEnabled -> {
                 log.info { "RLocalCAcheMap 를 생성합니다. config=$config" }
+
                 localCachedMap(cacheName, redissonClient) {
                     if (config.isReadOnly) {
                         loaderAsync(suspendedMapLoader)

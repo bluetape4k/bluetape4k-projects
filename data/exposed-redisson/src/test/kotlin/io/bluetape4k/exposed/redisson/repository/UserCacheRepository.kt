@@ -5,6 +5,7 @@ import io.bluetape4k.exposed.redisson.repository.UserSchema.toUserDTO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.autoIncColumnType
 import org.jetbrains.exposed.sql.statements.BatchInsertStatement
 import org.jetbrains.exposed.sql.statements.UpdateStatement
 import org.redisson.api.RedissonClient
@@ -30,7 +31,9 @@ class UserCacheRepository(
 
     override fun doBatchInsertEntity(statement: BatchInsertStatement, entity: UserDTO) {
         // NOTE: MapWriter 가 AutoIncremented ID 를 가진 테이블에 대해 INSERT 를 수행하지 않습니다.
-        statement[entityTable.id] = entity.id
+        if (entityTable.id.autoIncColumnType == null) {
+            statement[entityTable.id] = entity.id
+        }
         statement[entityTable.firstName] = entity.firstName
         statement[entityTable.lastName] = entity.lastName
         statement[entityTable.email] = entity.email

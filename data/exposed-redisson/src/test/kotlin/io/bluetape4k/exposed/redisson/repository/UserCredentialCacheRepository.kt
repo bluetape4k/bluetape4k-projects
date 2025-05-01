@@ -10,12 +10,13 @@ import org.jetbrains.exposed.sql.statements.BatchInsertStatement
 import org.jetbrains.exposed.sql.statements.UpdateStatement
 import org.redisson.api.RedissonClient
 import java.time.Instant
+import java.util.*
 
 class UserCredentialCacheRepository(
     redissonClient: RedissonClient,
     cacheName: String = "exposed:user-credentials",
     config: RedisCacheConfig = RedisCacheConfig.READ_WRITE_THROUGH,
-): AbstractExposedCacheRepository<UserCredentialDTO, String>(redissonClient, cacheName, config) {
+): AbstractExposedCacheRepository<UserCredentialDTO, UUID>(redissonClient, cacheName, config) {
 
     companion object: KLogging()
 

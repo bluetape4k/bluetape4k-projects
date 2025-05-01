@@ -24,7 +24,6 @@ import org.jetbrains.exposed.sql.statements.UpdateStatement
 import org.redisson.api.EvictionMode
 import org.redisson.api.RMap
 import org.redisson.api.RedissonClient
-import org.redisson.api.map.WriteMode
 import java.time.Duration
 
 /**
@@ -134,6 +133,7 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
                     updateBody = { stmt, entity -> doUpdateEntity(stmt, entity) },
                     batchInsertBody = { entity -> doBatchInsertEntity(this, entity) },
                     deleteFromDBOnInvalidate = config.deleteFromDBOnInvalidate,  // 캐시 invalidated 시 DB에서도 삭제할 것인지 여부
+                    writeMode = config.writeMode,  // Write Through 모드
                 )
         }
     }
@@ -144,6 +144,7 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
         when {
             config.isNearCacheEnabled -> {
                 log.info { "RLocalCAcheMap 를 생성합니다. config=$config" }
+
                 localCachedMap(cacheName, redissonClient) {
                     if (config.isReadOnly) {
                         loader(mapLoader)
@@ -151,7 +152,7 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
                         loader(mapLoader)
                         mapWriter.requireNotNull("mapWriter")
                         writer(mapWriter)
-                        writeMode(WriteMode.WRITE_THROUGH)
+                        writeMode(config.writeMode)
                     }
 
                     codec(config.codec)
@@ -174,7 +175,7 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
                         loader(mapLoader)
                         mapWriter.requireNotNull("mapWriter")
                         writer(mapWriter)
-                        writeMode(WriteMode.WRITE_THROUGH)
+                        writeMode(config.writeMode)
                     }
                     codec(config.codec)
                     writeRetryAttempts(config.writeRetryAttempts)
