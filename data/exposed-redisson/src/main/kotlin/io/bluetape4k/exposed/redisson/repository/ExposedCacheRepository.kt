@@ -114,7 +114,7 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     /**
      * [EntityMapWriter] 에서 캐시에서 추가된 내용을 Write Through로 DB에 반영하는 함수입니다.
      */
-    protected open fun doBatchInsertEntity(statement: BatchInsertStatement, entity: T) {
+    protected open fun doInsertEntity(statement: BatchInsertStatement, entity: T) {
         if (config.isReadWrite) {
             error("MapWriter 에서 추가된 cache item을 DB에 추가할 수 있도록 재정의해주세요. ")
         }
@@ -131,7 +131,7 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
                 ExposedEntityMapWriter(
                     entityTable = entityTable,
                     updateBody = { stmt, entity -> doUpdateEntity(stmt, entity) },
-                    batchInsertBody = { entity -> doBatchInsertEntity(this, entity) },
+                    batchInsertBody = { entity -> doInsertEntity(this, entity) },
                     deleteFromDBOnInvalidate = config.deleteFromDBOnInvalidate,  // 캐시 invalidated 시 DB에서도 삭제할 것인지 여부
                     writeMode = config.writeMode,  // Write Through 모드
                 )

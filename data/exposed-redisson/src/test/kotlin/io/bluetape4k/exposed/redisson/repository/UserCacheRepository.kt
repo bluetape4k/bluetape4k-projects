@@ -29,7 +29,7 @@ class UserCacheRepository(
         statement[entityTable.updatedAt] = Instant.now()
     }
 
-    override fun doBatchInsertEntity(statement: BatchInsertStatement, entity: UserDTO) {
+    override fun doInsertEntity(statement: BatchInsertStatement, entity: UserDTO) {
         // NOTE: MapWriter 가 AutoIncremented ID 를 가진 테이블에 대해 INSERT 를 수행하지 않습니다.
         if (entityTable.id.autoIncColumnType == null) {
             statement[entityTable.id] = entity.id

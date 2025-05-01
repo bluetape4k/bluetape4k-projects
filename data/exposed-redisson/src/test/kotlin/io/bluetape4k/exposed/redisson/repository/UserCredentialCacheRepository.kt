@@ -33,7 +33,7 @@ class UserCredentialCacheRepository(
         statement[entityTable.updatedAt] = Instant.now()
     }
 
-    override fun doBatchInsertEntity(
+    override fun doInsertEntity(
         statement: BatchInsertStatement,
         entity: UserSchema.UserCredentialDTO,
     ) {
