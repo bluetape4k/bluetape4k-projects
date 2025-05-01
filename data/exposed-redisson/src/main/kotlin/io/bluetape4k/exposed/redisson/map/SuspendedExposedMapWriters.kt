@@ -3,6 +3,7 @@ package io.bluetape4k.exposed.redisson.map
 import io.bluetape4k.exposed.dao.HasIdentifier
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.error
 import io.bluetape4k.logging.warn
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -18,7 +19,7 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.statements.BatchInsertStatement
 import org.jetbrains.exposed.sql.statements.UpdateStatement
 import org.jetbrains.exposed.sql.transactions.TransactionManager
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
 import org.jetbrains.exposed.sql.update
 import org.jetbrains.exposed.sql.vendors.PostgreSQLDialect
 import org.redisson.api.map.MapWriterAsync
@@ -43,16 +44,27 @@ open class SuspendedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     }
 
     override fun write(map: Map<ID, E>): CompletionStage<Void> = scope.async {
-        newSuspendedTransaction(scope.coroutineContext) {
-            writeToDb(map)
-        }
+        suspendedTransactionAsync(context = scope.coroutineContext) {
+            try {
+                writeToDb(map)
+            } catch (e: Throwable) {
+                log.error(e) { "DB에 Write 중 오류 발생" }
+                throw e
+            }
+        }.await()
         null
     }.asCompletableFuture()
 
-    override fun delete(keys: Collection<ID>): CompletionStage<Void> = scope.async {
-        newSuspendedTransaction(scope.coroutineContext) {
-            deleteFromDb(keys)
-        }
+    override fun delete(ids: Collection<ID>): CompletionStage<Void> = scope.async {
+        suspendedTransactionAsync(context = scope.coroutineContext) {
+            try {
+                log.debug { "캐시 변경 사항을 DB에 반영합니다... ids=$ids" }
+                deleteFromDb(ids)
+            } catch (e: Throwable) {
+                log.error(e) { "DB에서 삭제 중 오류 발생" }
+                throw e
+            }
+        }.await()
         null
     }.asCompletableFuture()
 }
@@ -75,22 +87,21 @@ open class SuspendedExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     scope = scope,
     writeToDb = { map ->
         log.debug { "캐시 변경 사항을 DB에 반영합니다... ids=${map.keys}" }
+
         val existIds =
             entityTable.select(entityTable.id)
                 .where { entityTable.id inList map.keys }
                 .map { it[entityTable.id].value }
 
         val entitiesToUpdate = map.values.filter { it.id in existIds }
-
         entitiesToUpdate.forEach { entity ->
             entityTable.update({ entityTable.id eq entity.id }) {
                 updateBody(it, entity)
             }
         }
 
-        val entitiesToInsert = map.values.filterNot { it.id in existIds }
         // id가 DB에서 자동증가하지 않는 경우에만 batchInsert 를 수행합니다.
-        if (entityTable.id.autoIncColumnType == null) {
+        if (entityTable.id.autoIncColumnType == null && !entityTable.id.isDatabaseGenerated()) {
             val entitiesToInsert = map.values.filterNot { it.id in existIds }
             log.debug { "ID가 자동증가 타입이 아니므로, batchInsert 를 수행합니다...entities=${entitiesToInsert}" }
             entityTable.batchInsert(entitiesToInsert) {

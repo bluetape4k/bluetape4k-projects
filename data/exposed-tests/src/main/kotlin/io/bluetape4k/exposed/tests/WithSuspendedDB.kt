@@ -12,7 +12,7 @@ import kotlin.coroutines.CoroutineContext
 suspend fun withSuspendedDb(
     testDB: TestDB,
     context: CoroutineContext? = Dispatchers.IO,
-    configure: (DatabaseConfig.Builder.() -> Unit)? = null,
+    configure: (DatabaseConfig.Builder.() -> Unit)? = { },
     statement: suspend Transaction.(TestDB) -> Unit,
 ) {
     logger.info { "Running withSuspendedDb for $testDB" }
@@ -32,14 +32,15 @@ suspend fun withSuspendedDb(
 
     val registeredDb = testDB.db!!
     try {
-        if (newConfiguration) {
+        // NOTE: 코루틴과 @ParameterizedTest 를 동시에 사용할 때, TestDB가 꼬일 때가 있다. 그래서 매번 connect 를 수행하도록 수정
+        // if (newConfiguration) {
             testDB.db = testDB.connect(configure ?: {})
-        }
+        // }
         val database = testDB.db!!
         newSuspendedTransaction(
             context = context,
             db = database,
-            transactionIsolation = database.transactionManager.defaultIsolationLevel
+            transactionIsolation = database.transactionManager.defaultIsolationLevel,
         ) {
             maxAttempts = 1
             registerInterceptor(CurrentTestDBInterceptor)

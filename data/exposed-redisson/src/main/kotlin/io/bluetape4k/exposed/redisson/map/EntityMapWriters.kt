@@ -68,7 +68,7 @@ open class ExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
             }
         }
         // id가 DB에서 자동 생성되지 않는 경우에만 batchInsert 를 수행합니다.
-        if (entityTable.id.autoIncColumnType == null) {
+        if (entityTable.id.autoIncColumnType == null && !entityTable.id.isDatabaseGenerated()) {
             val entitiesToInsert = map.values.filterNot { it.id in existIds }
             log.debug { "ID가 자동증가 타입이 아니므로, batchInsert 를 수행합니다...entities=${entitiesToInsert}" }
             entityTable.batchInsert(entitiesToInsert) {

@@ -2,9 +2,9 @@ package io.bluetape4k.exposed.redisson.repository.scenarios
 
 import io.bluetape4k.collections.toVarargArray
 import io.bluetape4k.exposed.dao.HasIdentifier
+import io.bluetape4k.exposed.redisson.repository.scenarios.CacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldHaveSize
@@ -16,21 +16,19 @@ import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
-abstract class ReadWriteThroughScenario<T: HasIdentifier<ID>, ID: Any>: ReadThroughScenario<T, ID>() {
+interface WriteThroughScenario<T: HasIdentifier<ID>, ID: Any>: CacheTestScenario<T, ID> {
 
     companion object: KLogging()
 
-    abstract fun createNewEntity(): T
+    fun createNewEntity(): T
 
-    abstract fun updateEntityEmail(entity: T): T
+    fun updateEntityEmail(entity: T): T
 
-    abstract fun assertSameEntityWithoutUpdatedAt(entity1: T, entity2: T)
-
-    abstract val cacheConfig: RedisCacheConfig
+    fun assertSameEntityWithoutUpdatedAt(entity1: T, entity2: T)
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    open fun `put - 캐시에 저장하면, DB에도 저장된다`(testDB: TestDB) {
+    fun `put - 캐시에 저장하면, DB에도 저장된다`(testDB: TestDB) {
         // NOTE: MySQL/MariaDB 에서는 Isolation level을 java.sql.Connection.TRANSACTION_READ_COMMITTED 로 설정해야 제대로 작동합니다.
         Assumptions.assumeTrue { testDB !in TestDB.ALL_MYSQL_MARIADB }
 
@@ -60,7 +58,7 @@ abstract class ReadWriteThroughScenario<T: HasIdentifier<ID>, ID: Any>: ReadThro
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    open fun `putAll - 캐시에 저장하면, DB에도 저장된다`(testDB: TestDB) {
+    fun `putAll - 캐시에 저장하면, DB에도 저장된다`(testDB: TestDB) {
         // NOTE: MySQL/MariaDB 에서는 Isolation level을 java.sql.Connection.TRANSACTION_READ_COMMITTED 로 설정해야 제대로 작동합니다.
         Assumptions.assumeTrue { testDB !in TestDB.ALL_MYSQL_MARIADB }
 
@@ -95,7 +93,7 @@ abstract class ReadWriteThroughScenario<T: HasIdentifier<ID>, ID: Any>: ReadThro
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    open fun `putAll - 새로운 DTO를 추가하면 AutoInc Id 는 DB 저장을 하지 않고, Client 생성 Id는 DB에 저장된다`(testDB: TestDB) {
+    fun `putAll - 새로운 DTO를 추가하면 AutoInc Id 는 DB 저장을 하지 않고, Client 생성 Id는 DB에 저장된다`(testDB: TestDB) {
         // NOTE: MySQL/MariaDB 에서는 Isolation level을 java.sql.Connection.TRANSACTION_READ_COMMITTED 로 설정해야 제대로 작동합니다.
         Assumptions.assumeTrue { testDB !in TestDB.ALL_MYSQL_MARIADB }
 
@@ -117,7 +115,7 @@ abstract class ReadWriteThroughScenario<T: HasIdentifier<ID>, ID: Any>: ReadThro
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    override fun `invalidte(id) - 캐시 invalidate`(testDB: TestDB) {
+    fun `invalidte(id) - 캐시 invalidate 시 DB에 영향을 줄 수 있다`(testDB: TestDB) {
         // NOTE: MySQL/MariaDB 에서는 Isolation level을 java.sql.Connection.TRANSACTION_READ_COMMITTED 로 설정해야 제대로 작동합니다.
         Assumptions.assumeTrue { testDB !in TestDB.ALL_MYSQL_MARIADB }
 

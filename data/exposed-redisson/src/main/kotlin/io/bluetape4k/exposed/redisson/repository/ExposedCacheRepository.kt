@@ -51,9 +51,10 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
         entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
 
     fun findFreshAll(vararg ids: ID): List<T> =
-        entityTable.selectAll()
-            .where { entityTable.id inList ids.toList() }
-            .map { it.toEntity() }
+        entityTable.selectAll().where { entityTable.id inList ids.toList() }.map { it.toEntity() }
+
+    fun findFreshAll(ids: Collection<ID>): List<T> =
+        entityTable.selectAll().where { entityTable.id inList ids }.map { it.toEntity() }
 
 
     fun get(id: ID): T? = cache[id]
@@ -120,6 +121,23 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
         }
     }
 
+    /**
+     * Write Through 모드라면 [ExposedEntityMapWriter]를 생성하여 제공합니다.
+     * Read Through Only 라면 null을 반환합니다.
+     */
+    protected val mapWriter: EntityMapWriter<ID, T>? by lazy {
+        when (config.cacheMode) {
+            RedisCacheConfig.CacheMode.READ_ONLY -> null
+            RedisCacheConfig.CacheMode.READ_WRITE ->
+                ExposedEntityMapWriter(
+                    entityTable = entityTable,
+                    updateBody = { stmt, entity -> doUpdateEntity(stmt, entity) },
+                    batchInsertBody = { entity -> doBatchInsertEntity(this, entity) },
+                    deleteFromDBOnInvalidate = config.deleteFromDBOnInvalidate,  // 캐시 invalidated 시 DB에서도 삭제할 것인지 여부
+                )
+        }
+    }
+
     override val cache: RMap<ID, T?> by lazy {
         log.info { "RMapCache 를 생성합니다. config=$config" }
 
@@ -129,7 +147,7 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
                 localCachedMap(cacheName, redissonClient) {
                     if (config.isReadOnly) {
                         loader(mapLoader)
-                    } else if (config.isReadWrite) {
+                    } else {
                         loader(mapLoader)
                         mapWriter.requireNotNull("mapWriter")
                         writer(mapWriter)
@@ -152,7 +170,7 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
                 mapCache(cacheName, redissonClient) {
                     if (config.isReadOnly) {
                         loader(mapLoader)
-                    } else if (config.isReadWrite) {
+                    } else {
                         loader(mapLoader)
                         mapWriter.requireNotNull("mapWriter")
                         writer(mapWriter)
@@ -168,21 +186,6 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
                 }
             }
         }
-    }
-
-    /**
-     * Write Through 모드라면 [ExposedEntityMapWriter]를 생성하여 제공합니다.
-     * Read Through Only 라면 null을 반환합니다.
-     */
-    protected val mapWriter: EntityMapWriter<ID, T>? by lazy {
-        if (config.isReadWrite)
-            ExposedEntityMapWriter(
-                entityTable = entityTable,
-                updateBody = { stmt, entity -> doUpdateEntity(stmt, entity) },
-                batchInsertBody = { entity -> doBatchInsertEntity(this, entity) },
-                deleteFromDBOnInvalidate = config.deleteFromDBOnInvalidate,  // 캐시 invalidated 시 DB에서도 삭제할 것인지 여부
-            )
-        else null
     }
 
     override fun findAll(

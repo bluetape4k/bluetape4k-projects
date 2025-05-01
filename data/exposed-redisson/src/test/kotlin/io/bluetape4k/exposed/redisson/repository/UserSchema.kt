@@ -8,14 +8,17 @@ import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.idHashCode
 import io.bluetape4k.exposed.dao.toStringBuilder
 import io.bluetape4k.exposed.tests.TestDB
+import io.bluetape4k.exposed.tests.withSuspendedTables
 import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.javatimes.toInstant
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
+import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.entityCache
+import org.jetbrains.exposed.dao.flushCache
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.ResultRow
@@ -28,6 +31,7 @@ import org.jetbrains.exposed.sql.selectAll
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicLong
+import kotlin.coroutines.CoroutineContext
 
 @Suppress("ExposedReference")
 object UserSchema: KLogging() {
@@ -111,8 +115,39 @@ object UserSchema: KLogging() {
                 email = faker.internet().safeEmailAddress()
             }
 
-            commit()
+            flushCache()
             entityCache.clear()
+            commit()
+
+            statement()
+        }
+    }
+
+    suspend fun withSuspendedUserTable(
+        testDB: TestDB,
+        context: CoroutineContext = Dispatchers.IO,
+        statement: suspend Transaction.() -> Unit,
+    ) {
+        // NOTE: 코루틴 작업은 작업이 완료 시까지 대기해야 해서, dropTables = false 로 설정합니다.
+        withSuspendedTables(testDB, UserTable, context = context, dropTables = false) {
+            UserEntity.new {
+                firstName = "Sunghyouk"
+                lastName = "Bae"
+                email = faker.internet().safeEmailAddress()
+            }
+            UserEntity.new {
+                firstName = "Midoogi"
+                lastName = "Kwon"
+                email = faker.internet().safeEmailAddress()
+            }
+            UserEntity.new {
+                firstName = "Jehyoung"
+                lastName = "Bae"
+                email = faker.internet().safeEmailAddress()
+            }
+            flushCache()
+            entityCache.clear()
+            commit()
 
             statement()
         }
@@ -203,9 +238,40 @@ object UserSchema: KLogging() {
                 it[UserCredentialTable.email] = faker.internet().safeEmailAddress()
                 it[UserCredentialTable.lastLoginAt] = LocalDateTime.now().minusDays(200).toInstant()
             }
-
-            commit()
+            flushCache()
             entityCache.clear()
+            commit()
+
+            statement()
+        }
+    }
+
+    suspend fun withSuspendedUserCredentialTable(
+        testDB: TestDB,
+        context: CoroutineContext = Dispatchers.IO,
+        statement: suspend Transaction.() -> Unit,
+    ) {
+        // NOTE: 코루틴 작업은 작업이 완료 시까지 대기해야 해서, dropTables = false 로 설정합니다.
+        withSuspendedTables(testDB, UserCredentialTable, context = context, dropTables = false) {
+            UserCredentialTable.insert {
+                it[UserCredentialTable.loginId] = "debop"
+                it[UserCredentialTable.email] = faker.internet().safeEmailAddress()
+                it[UserCredentialTable.lastLoginAt] = LocalDateTime.now().minusDays(5).toInstant()
+            }
+            UserCredentialTable.insert {
+                it[UserCredentialTable.loginId] = "midoogi"
+                it[UserCredentialTable.email] = faker.internet().safeEmailAddress()
+                it[UserCredentialTable.lastLoginAt] = LocalDateTime.now().minusDays(100).toInstant()
+            }
+            UserCredentialTable.insert {
+                it[UserCredentialTable.loginId] = faker.internet().username()
+                it[UserCredentialTable.email] = faker.internet().safeEmailAddress()
+                it[UserCredentialTable.lastLoginAt] = LocalDateTime.now().minusDays(200).toInstant()
+            }
+
+            flushCache()
+            entityCache.clear()
+            commit()
 
             statement()
         }

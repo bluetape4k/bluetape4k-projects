@@ -1,5 +1,7 @@
 package io.bluetape4k.exposed.redisson.repository
 
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserDTO
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserTable
 import io.bluetape4k.exposed.redisson.repository.UserSchema.toUserDTO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
@@ -13,16 +15,16 @@ class SuspendedUserCacheRepository(
     redissonClient: RedissonClient,
     cacheName: String = "exposed:remote:suspended:users",
     config: RedisCacheConfig = RedisCacheConfig.READ_WRITE_THROUGH,
-): SuspendedExposedRedisRepository<UserSchema.UserDTO, Long>(redissonClient, cacheName, config) {
+): AbstractSuspendedExposedCacheRepository<UserDTO, Long>(redissonClient, cacheName, config) {
 
     companion object: KLogging()
 
-    override val entityTable: UserSchema.UserTable = UserSchema.UserTable
-    override fun ResultRow.toEntity(): UserSchema.UserDTO = toUserDTO()
+    override val entityTable: UserTable = UserTable
+    override fun ResultRow.toEntity(): UserDTO = toUserDTO()
 
     override fun doUpdateEntity(
         statement: UpdateStatement,
-        entity: UserSchema.UserDTO,
+        entity: UserDTO,
     ) {
         statement[entityTable.firstName] = entity.firstName
         statement[entityTable.lastName] = entity.lastName
@@ -32,7 +34,7 @@ class SuspendedUserCacheRepository(
 
     override fun doBatchInsertEntity(
         statement: BatchInsertStatement,
-        entity: UserSchema.UserDTO,
+        entity: UserDTO,
     ) {
         // NOTE: MapWriter 가 AutoIncremented ID 를 가진 테이블에 대해 INSERT 를 수행하지 않습니다.
         statement[entityTable.id] = entity.id

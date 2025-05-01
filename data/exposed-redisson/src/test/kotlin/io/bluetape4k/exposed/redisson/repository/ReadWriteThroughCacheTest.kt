@@ -8,7 +8,8 @@ import io.bluetape4k.exposed.redisson.repository.UserSchema.UserDTO
 import io.bluetape4k.exposed.redisson.repository.UserSchema.UserTable
 import io.bluetape4k.exposed.redisson.repository.UserSchema.withUserCredentialTable
 import io.bluetape4k.exposed.redisson.repository.UserSchema.withUserTable
-import io.bluetape4k.exposed.redisson.repository.scenarios.ReadWriteThroughScenario
+import io.bluetape4k.exposed.redisson.repository.scenarios.ReadThroughScenario
+import io.bluetape4k.exposed.redisson.repository.scenarios.WriteThroughScenario
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import org.amshove.kluent.shouldBeEqualTo
@@ -19,8 +20,9 @@ import org.junit.jupiter.api.Nested
 
 class ReadWriteThroughCacheTest: AbstractRedissonTest() {
 
-    abstract class AutoIncIdReadWriteThrough: ReadWriteThroughScenario<UserDTO, Long>() {
-
+    abstract class AutoIncIdReadWriteThrough: AbstractRedissonTest(),
+                                              ReadThroughScenario<UserDTO, Long>,
+                                              WriteThroughScenario<UserDTO, Long> {
         override fun withEntityTable(
             testDB: TestDB,
             statement: Transaction.() -> Unit,
@@ -37,13 +39,14 @@ class ReadWriteThroughCacheTest: AbstractRedissonTest() {
         override fun getNonExistentId(): Long = Long.MIN_VALUE
 
         override fun createNewEntity(): UserDTO = UserSchema.newUserDTO()
-        
+
         override fun updateEntityEmail(entity: UserDTO): UserDTO =
             entity.copy(email = "updated-${Base58.randomString(8)}@example.com")
 
         override fun assertSameEntityWithoutUpdatedAt(entity1: UserDTO, entity2: UserDTO) {
             entity1 shouldBeEqualTo entity2.copy(updatedAt = entity1.updatedAt)
         }
+
     }
 
     @Nested
@@ -100,7 +103,9 @@ class ReadWriteThroughCacheTest: AbstractRedissonTest() {
     }
 
 
-    abstract class ClientGeneratedIdReadWriteThrough: ReadWriteThroughScenario<UserCredentialDTO, String>() {
+    abstract class ClientGeneratedIdReadWriteThrough: AbstractRedissonTest(),
+                                                      ReadThroughScenario<UserCredentialDTO, String>,
+                                                      WriteThroughScenario<UserCredentialDTO, String> {
 
         override fun withEntityTable(
             testDB: TestDB,

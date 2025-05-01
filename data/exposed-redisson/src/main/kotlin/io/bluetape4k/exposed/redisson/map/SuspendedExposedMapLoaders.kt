@@ -27,10 +27,9 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
 import org.redisson.api.AsyncIterator
 import org.redisson.api.map.MapLoaderAsync
-import java.sql.SQLException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 
@@ -58,16 +57,16 @@ open class SuspendedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
 
     override fun load(id: ID): CompletionStage<E?> = scope.async {
         log.debug { "DB에서 엔티티를 로딩... id=$id" }
-
-        newSuspendedTransaction(scope.coroutineContext) {
+        suspendedTransactionAsync(scope.coroutineContext) {
             try {
                 loadByIdFromDB(id).apply {
                     log.debug { "DB로부터 엔티티를 로딩했습니다. entity=$this" }
                 }
             } catch (e: Throwable) {
-                throw SQLException("엔티티 로딩 실패. id=$id", e)
+                log.error(e) { "DB에서 엔티티 로딩 중 오류 발생. id=$id" }
+                throw e
             }
-        }
+        }.await()
     }.asCompletableFuture()
 
     override fun loadAllKeys(): AsyncIterator<ID> {
@@ -80,14 +79,15 @@ open class SuspendedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
         scope.launch {
             log.debug { "DB에서 모든 ID를 로딩합니다 ..." }
             try {
-                newSuspendedTransaction(scope.coroutineContext) {
+                suspendedTransactionAsync(scope.coroutineContext) {
                     this.queryTimeout = DEFAULT_QUERY_TIMEOUT  // 30 seconds
                     withTimeoutOrNull(DEFAULT_LOAD_ALL_IDS_TIMEOUT) {
                         loadAllIdsFromDB(channel)
                     } ?: log.warn { "DB에서 모든 ID를 읽는 작업 중 Timeout 이 발생했습니다. timeout=$DEFAULT_LOAD_ALL_IDS_TIMEOUT msec" }
-                }
+                }.await()
             } catch (e: Throwable) {
                 log.error(e) { "DB에서 모든 ID 로딩 중 오류 발생" }
+                throw e
             } finally {
                 channel.close()
             }
@@ -119,8 +119,6 @@ open class SuspendedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
 /**
  * [HasIdentifier]를 구현한 엔티티를 위한 [SuspendedEntityMapLoader] 기본 구현체입니다.
  *
- * @sample io.bluetape4k.exposed.redisson.repository.AbstractSuspendedExposedCacheRepository
- *
  * @param ID ID 타입
  * @param E 엔티티 타입
  * @param entityTable `EntityID<ID>` 를 id 컬럼으로 가진 [IdTable] 입니다.
@@ -139,7 +137,6 @@ open class SuspendedExposedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
             .where { entityTable.id eq id }
             .singleOrNull()
             ?.toEntity()
-
     },
     loadAllIdsFromDB = { channel ->
         var rowCount = 0
