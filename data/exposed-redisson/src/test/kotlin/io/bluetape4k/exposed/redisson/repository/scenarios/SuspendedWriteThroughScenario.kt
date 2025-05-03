@@ -4,6 +4,7 @@ import io.bluetape4k.collections.toVarargArray
 import io.bluetape4k.exposed.dao.HasIdentifier
 import io.bluetape4k.exposed.redisson.repository.scenarios.SuspendedCacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.tests.TestDB
+import io.bluetape4k.junit5.awaitility.coUntil
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.delay
@@ -12,11 +13,14 @@ import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.withPollInterval
 import org.jetbrains.exposed.sql.autoIncColumnType
 import org.jetbrains.exposed.sql.selectAll
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import java.time.Duration
 
 interface SuspendedWriteThroughScenario<T: HasIdentifier<ID>, ID: Any>: SuspendedCacheTestScenario<T, ID> {
 
@@ -69,12 +73,16 @@ interface SuspendedWriteThroughScenario<T: HasIdentifier<ID>, ID: Any>: Suspende
         Assumptions.assumeTrue { testDB !in TestDB.ALL_MYSQL_MARIADB }
 
         withSuspendedEntityTable(testDB) {
+            val ids = getExistingIds()
+            delay(10)
+
+            await.withPollInterval(Duration.ofMillis(100))
+                .coUntil { getExistingIds().size == 3 }
+
             // @ParameterizedTest 때문에 testDB 들이 꼬인다... 대기 시간을 둬서, 다른 DB와의 영항을 미치지 않게 한다
             if (cacheConfig.isReadWrite) {
                 delay(DEFAULT_DELAY)
             }
-
-            val ids = getExistingIds()
 
             // 캐시에서 조회한 값
             val entities = repository.getAll(ids)

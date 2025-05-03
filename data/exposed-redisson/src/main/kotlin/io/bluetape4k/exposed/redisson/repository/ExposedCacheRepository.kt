@@ -139,55 +139,56 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     }
 
     override val cache: RMap<ID, T?> by lazy {
-        log.info { "RMapCache 를 생성합니다. config=$config" }
+        log.info { "캐시용 RMap을 생성합니다. config=$config" }
 
-        when {
-            config.isNearCacheEnabled -> {
-                log.info { "RLocalCAcheMap 를 생성합니다. config=$config" }
-
-                localCachedMap(cacheName, redissonClient) {
-                    if (config.isReadOnly) {
-                        loader(mapLoader)
-                    } else {
-                        loader(mapLoader)
-                        mapWriter.requireNotNull("mapWriter")
-                        writer(mapWriter)
-                        writeMode(config.writeMode)
-                    }
-
-                    codec(config.codec)
-                    syncStrategy(config.nearCacheSyncStrategy)
-                    writeRetryAttempts(config.writeRetryAttempts)
-                    writeRetryInterval(config.writeRetryInterval)
-                    timeToLive(config.ttl)
-                    if (config.nearCacheMaxIdleTime > Duration.ZERO) {
-                        maxIdle(config.nearCacheMaxIdleTime)
-                    }
-                }
-            }
-            else -> {
-                log.info { "RMapCache 를 생성합니다. config=$config" }
-
-                mapCache(cacheName, redissonClient) {
-                    if (config.isReadOnly) {
-                        loader(mapLoader)
-                    } else {
-                        loader(mapLoader)
-                        mapWriter.requireNotNull("mapWriter")
-                        writer(mapWriter)
-                        writeMode(config.writeMode)
-                    }
-                    codec(config.codec)
-                    writeRetryAttempts(config.writeRetryAttempts)
-                    writeRetryInterval(config.writeRetryInterval)
-                }.apply {
-                    if (config.nearCacheMaxSize > 0) {
-                        setMaxSize(config.nearCacheMaxSize, EvictionMode.LRU)
-                    }
-                }
-            }
+        if (config.isNearCacheEnabled) {
+            createLocalCacheMap()
+        } else {
+            createMapCache()
         }
     }
+
+    protected fun createLocalCacheMap() =
+        localCachedMap(cacheName, redissonClient) {
+            log.info { "RLocalCAcheMap 를 생성합니다. config=$config" }
+
+            if (config.isReadOnly) {
+                loader(mapLoader)
+            } else {
+                loader(mapLoader)
+                mapWriter.requireNotNull("mapWriter")
+                writer(mapWriter)
+                writeMode(config.writeMode)
+            }
+
+            codec(config.codec)
+            syncStrategy(config.nearCacheSyncStrategy)
+            writeRetryAttempts(config.writeRetryAttempts)
+            writeRetryInterval(config.writeRetryInterval)
+            timeToLive(config.ttl)
+            if (config.nearCacheMaxIdleTime > Duration.ZERO) {
+                maxIdle(config.nearCacheMaxIdleTime)
+            }
+        }
+
+    protected fun createMapCache() =
+        mapCache(cacheName, redissonClient) {
+            if (config.isReadOnly) {
+                loader(mapLoader)
+            } else {
+                loader(mapLoader)
+                mapWriter.requireNotNull("mapWriter")
+                writer(mapWriter)
+                writeMode(config.writeMode)
+            }
+            codec(config.codec)
+            writeRetryAttempts(config.writeRetryAttempts)
+            writeRetryInterval(config.writeRetryInterval)
+        }.apply {
+            if (config.nearCacheMaxSize > 0) {
+                setMaxSize(config.nearCacheMaxSize, EvictionMode.LRU)
+            }
+        }
 
     override fun findAll(
         limit: Int?,
@@ -239,7 +240,8 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
                         }
                 }
                 config.isReadWrite -> {
-                    // write-through 모드라면 DB에서 ID만 조회한 후 캐시에서 가져와야 한다 
+                    // write-through 모드라면 DB에서 ID만 조회한 후 캐시에서 가져와야 한다.
+                    // putAll()을 하면 다시 DB에 Write를 하므로 이런 방식을 써야 한다.
                     entityTable.select(entityTable.id)
                         .where { entityTable.id inList chunk }
                         .map { it[entityTable.id].value }

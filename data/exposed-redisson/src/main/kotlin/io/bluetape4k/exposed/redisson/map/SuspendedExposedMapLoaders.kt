@@ -27,7 +27,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.redisson.api.AsyncIterator
 import org.redisson.api.map.MapLoaderAsync
 import java.util.concurrent.CompletableFuture
@@ -57,16 +57,17 @@ open class SuspendedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
 
     override fun load(id: ID): CompletionStage<E?> = scope.async {
         log.debug { "DB에서 엔티티를 로딩... id=$id" }
-        suspendedTransactionAsync(scope.coroutineContext) {
+        newSuspendedTransaction(scope.coroutineContext) {
             try {
-                loadByIdFromDB(id).apply {
-                    log.debug { "DB로부터 엔티티를 로딩했습니다. entity=$this" }
-                }
+                loadByIdFromDB(id)
+                    .apply {
+                        log.debug { "DB로부터 엔티티를 로딩했습니다. id=$id, entity=$this" }
+                    }
             } catch (e: Throwable) {
                 log.error(e) { "DB에서 엔티티 로딩 중 오류 발생. id=$id" }
                 throw e
             }
-        }.await()
+        }
     }.asCompletableFuture()
 
     override fun loadAllKeys(): AsyncIterator<ID> {
@@ -79,12 +80,12 @@ open class SuspendedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
         scope.launch {
             log.debug { "DB에서 모든 ID를 로딩합니다 ..." }
             try {
-                suspendedTransactionAsync(scope.coroutineContext) {
+                newSuspendedTransaction(scope.coroutineContext) {
                     this.queryTimeout = DEFAULT_QUERY_TIMEOUT  // 30 seconds
                     withTimeoutOrNull(DEFAULT_LOAD_ALL_IDS_TIMEOUT) {
                         loadAllIdsFromDB(channel)
                     } ?: log.warn { "DB에서 모든 ID를 읽는 작업 중 Timeout 이 발생했습니다. timeout=$DEFAULT_LOAD_ALL_IDS_TIMEOUT msec" }
-                }.await()
+                }
             } catch (e: Throwable) {
                 log.error(e) { "DB에서 모든 ID 로딩 중 오류 발생" }
                 throw e

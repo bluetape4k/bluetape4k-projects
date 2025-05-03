@@ -9,7 +9,7 @@ import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.junit.jupiter.api.Nested
 import java.util.*
 import kotlin.coroutines.CoroutineContext
@@ -27,11 +27,11 @@ class SuspendedReadThroughCacheTest {
             withSuspendedUserTable(testDB, context, statement)
         }
 
-        override suspend fun getExistingId() = transaction {
+        override suspend fun getExistingId() = newSuspendedTransaction {
             UserSchema.UserTable.select(UserSchema.UserTable.id).first()[UserSchema.UserTable.id].value
         }
 
-        override suspend fun getExistingIds() = transaction {
+        override suspend fun getExistingIds() = newSuspendedTransaction {
             UserSchema.UserTable.selectAll().map { it[UserSchema.UserTable.id].value }
         }
 
@@ -72,11 +72,11 @@ class SuspendedReadThroughCacheTest {
             statement: suspend Transaction.() -> Unit,
         ) = withSuspendedUserCredentialTable(testDB, context, statement)
 
-        override suspend fun getExistingId() = transaction {
+        override suspend fun getExistingId() = newSuspendedTransaction {
             UserCredentialTable.select(UserCredentialTable.id).first()[UserCredentialTable.id].value
         }
 
-        override suspend fun getExistingIds() = transaction {
+        override suspend fun getExistingIds() = newSuspendedTransaction {
             UserCredentialTable.selectAll().map { it[UserCredentialTable.id].value }
         }
 

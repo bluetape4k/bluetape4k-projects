@@ -9,6 +9,7 @@ import io.bluetape4k.exposed.redisson.map.SuspendedEntityMapWriter
 import io.bluetape4k.exposed.redisson.map.SuspendedExposedEntityMapLoader
 import io.bluetape4k.exposed.redisson.map.SuspendedExposedEntityMapWriter
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import io.bluetape4k.redis.redisson.cache.localCachedMap
@@ -28,7 +29,9 @@ import org.jetbrains.exposed.sql.statements.BatchInsertStatement
 import org.jetbrains.exposed.sql.statements.UpdateStatement
 import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
 import org.redisson.api.EvictionMode
+import org.redisson.api.RLocalCachedMap
 import org.redisson.api.RMap
+import org.redisson.api.RMapCache
 import org.redisson.api.RedissonClient
 import java.time.Duration
 
@@ -150,55 +153,56 @@ abstract class AbstractSuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID:
     }
 
     override val cache: RMap<ID, T?> by lazy {
-        log.info { "RMapCache 를 생성합니다. config=$config" }
+        log.info { "캐시용 RMap을 생성합니다. config=$config" }
 
-        when {
-            config.isNearCacheEnabled -> {
-                log.info { "RLocalCAcheMap 를 생성합니다. config=$config" }
-
-                localCachedMap(cacheName, redissonClient) {
-                    if (config.isReadOnly) {
-                        loaderAsync(suspendedMapLoader)
-                    } else {
-                        loaderAsync(suspendedMapLoader)
-                        suspendedMapWriter.requireNotNull("mapWriter")
-                        writerAsync(suspendedMapWriter)
-                        writeMode(config.writeMode)
-                    }
-
-                    codec(config.codec)
-                    syncStrategy(config.nearCacheSyncStrategy)
-                    writeRetryAttempts(config.writeRetryAttempts)
-                    writeRetryInterval(config.writeRetryInterval)
-                    timeToLive(config.ttl)
-                    if (config.nearCacheMaxIdleTime > Duration.ZERO) {
-                        maxIdle(config.nearCacheMaxIdleTime)
-                    }
-                }
-            }
-            else -> {
-                log.info { "RMapCache 를 생성합니다. config=$config" }
-
-                mapCache(cacheName, redissonClient) {
-                    if (config.isReadOnly) {
-                        loaderAsync(suspendedMapLoader)
-                    } else {
-                        loaderAsync(suspendedMapLoader)
-                        suspendedMapWriter.requireNotNull("mapWriter")
-                        writerAsync(suspendedMapWriter)
-                        writeMode(config.writeMode)
-                    }
-                    codec(config.codec)
-                    writeRetryAttempts(config.writeRetryAttempts)
-                    writeRetryInterval(config.writeRetryInterval)
-                }.apply {
-                    if (config.nearCacheMaxSize > 0) {
-                        setMaxSize(config.nearCacheMaxSize, EvictionMode.LRU)
-                    }
-                }
-            }
+        if (config.isNearCacheEnabled) {
+            createLocalCacheMap()
+        } else {
+            createMapCache()
         }
     }
+
+    protected fun createLocalCacheMap(): RLocalCachedMap<ID, T?> =
+        localCachedMap(cacheName, redissonClient) {
+            log.info { "RLocalCAcheMap 를 생성합니다. config=$config" }
+
+            if (config.isReadOnly) {
+                loaderAsync(suspendedMapLoader)
+            } else {
+                loaderAsync(suspendedMapLoader)
+                suspendedMapWriter.requireNotNull("mapWriter")
+                writerAsync(suspendedMapWriter)
+                writeMode(config.writeMode)
+            }
+
+            codec(config.codec)
+            syncStrategy(config.nearCacheSyncStrategy)
+            writeRetryAttempts(config.writeRetryAttempts)
+            writeRetryInterval(config.writeRetryInterval)
+            timeToLive(config.ttl)
+            if (config.nearCacheMaxIdleTime > Duration.ZERO) {
+                maxIdle(config.nearCacheMaxIdleTime)
+            }
+        }
+
+    protected fun createMapCache(): RMapCache<ID, T?> =
+        mapCache(cacheName, redissonClient) {
+            if (config.isReadOnly) {
+                loaderAsync(suspendedMapLoader)
+            } else {
+                loaderAsync(suspendedMapLoader)
+                suspendedMapWriter.requireNotNull("suspendedMapWriter")
+                writerAsync(suspendedMapWriter)
+                writeMode(config.writeMode)
+            }
+            codec(config.codec)
+            writeRetryAttempts(config.writeRetryAttempts)
+            writeRetryInterval(config.writeRetryInterval)
+        }.apply {
+            if (config.nearCacheMaxSize > 0) {
+                setMaxSize(config.nearCacheMaxSize, EvictionMode.LRU)
+            }
+        }
 
     override suspend fun findAll(
         limit: Int?,
@@ -238,9 +242,8 @@ abstract class AbstractSuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID:
     }
 
     override suspend fun getAll(ids: Collection<ID>, batchSize: Int): List<T> {
-        val chunkedIds = ids.chunked(batchSize)
-
-        return chunkedIds.flatMap { chunk ->
+        return ids.chunked(batchSize).flatMap { chunk ->
+            log.debug { " 캐시에서 ${chunk.size} 개의 엔티티를 가져옵니다. chunk=${chunk}" }
             cache.getAllAsync(chunk.toSet()).coAwait().values.filterNotNull()
         }
     }
