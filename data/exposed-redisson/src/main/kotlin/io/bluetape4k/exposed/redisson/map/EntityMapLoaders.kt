@@ -44,8 +44,6 @@ open class EntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
 /**
  * [HasIdentifier]를 구현한 엔티티를 위한 [EntityMapLoader]입니다.
  *
- * @sample io.bluetape4k.exposed.redisson.repository.AbstractExposedCacheRepository
- *
  * @param ID ID 타입
  * @param E 엔티티 타입
  * @param entityTable `EntityID<ID>` 를 id 컬럼으로 가진 [IdTable] 입니다.

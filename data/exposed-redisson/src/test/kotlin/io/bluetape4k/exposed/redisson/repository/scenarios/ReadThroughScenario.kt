@@ -31,9 +31,9 @@ interface ReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: CacheTestScenario<
             entityFromDB.shouldNotBeNull()
 
             // 캐시에서 조회한 값
-            val entityFromCAche = repository.get(id)
-            entityFromCAche.shouldNotBeNull()
-            entityFromCAche shouldBeEqualTo entityFromDB
+            val entityFromCache = repository.get(id)
+            entityFromCache.shouldNotBeNull()
+            entityFromCache shouldBeEqualTo entityFromDB
 
             repository.exists(id).shouldBeTrue()
         }

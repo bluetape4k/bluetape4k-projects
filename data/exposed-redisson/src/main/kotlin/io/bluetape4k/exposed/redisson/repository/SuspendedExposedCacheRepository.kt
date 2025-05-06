@@ -211,33 +211,17 @@ abstract class AbstractSuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID:
         sortOrder: SortOrder,
         where: SqlExpressionBuilder.() -> Op<Boolean>,
     ): List<T> {
-        return if (config.isReadOnly) {
-            suspendedTransactionAsync(scope.coroutineContext) {
-                entityTable.selectAll()
-                    .where(where)
-                    .apply {
-                        orderBy(sortBy, sortOrder)
-                        limit?.run { limit(limit) }
-                        offset?.run { offset(offset) }
-                    }
-                    .map { it.toEntity() }
-            }.await().apply {
-                cache.putAllAsync(associateBy { it.id }).coAwait()
-            }
-        } else {
-            suspendedTransactionAsync(scope.coroutineContext) {
-                entityTable.select(entityTable.id)
-                    .where(where)
-                    .apply {
-                        orderBy(sortBy, sortOrder)
-                        limit?.run { limit(limit) }
-                        offset?.run {
-                            offset(offset)
-                        }
-                    }.map { it[entityTable.id].value }
-            }.await().let {
-                cache.getAllAsync(it.toSet()).coAwait().values.filterNotNull()
-            }
+        return suspendedTransactionAsync(scope.coroutineContext) {
+            entityTable.selectAll()
+                .where(where)
+                .apply {
+                    orderBy(sortBy, sortOrder)
+                    limit?.run { limit(limit) }
+                    offset?.run { offset(offset) }
+                }
+                .map { it.toEntity() }
+        }.await().apply {
+            cache.putAllAsync(associateBy { it.id }).coAwait()
         }
     }
 

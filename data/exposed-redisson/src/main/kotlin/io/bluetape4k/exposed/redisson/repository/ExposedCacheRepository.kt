@@ -7,6 +7,7 @@ import io.bluetape4k.exposed.redisson.map.EntityMapWriter
 import io.bluetape4k.exposed.redisson.map.ExposedEntityMapLoader
 import io.bluetape4k.exposed.redisson.map.ExposedEntityMapWriter
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import io.bluetape4k.redis.redisson.cache.localCachedMap
@@ -139,8 +140,6 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     }
 
     override val cache: RMap<ID, T?> by lazy {
-        log.info { "캐시용 RMap을 생성합니다. config=$config" }
-
         if (config.isNearCacheEnabled) {
             createLocalCacheMap()
         } else {
@@ -150,8 +149,7 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
 
     protected fun createLocalCacheMap() =
         localCachedMap(cacheName, redissonClient) {
-            log.info { "RLocalCAcheMap 를 생성합니다. config=$config" }
-
+            log.info { "RLocalCacheMap 를 생성합니다. config=$config" }
             if (config.isReadOnly) {
                 loader(mapLoader)
             } else {
@@ -173,6 +171,7 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
 
     protected fun createMapCache() =
         mapCache(cacheName, redissonClient) {
+            log.info { "RMapCache 를 생성합니다. config=$config" }
             if (config.isReadOnly) {
                 loader(mapLoader)
             } else {
@@ -197,60 +196,27 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
         sortOrder: SortOrder,
         where: SqlExpressionBuilder.() -> Op<Boolean>,
     ): List<T> {
-        return if (config.isReadOnly) {
-            entityTable
-                .selectAll()
-                .where(where)
-                .apply {
-                    orderBy(sortBy, sortOrder)
-                    limit?.run { limit(limit) }
-                    offset?.run { offset(offset) }
-                }.map { it.toEntity() }
-                .apply {
-                    cache.putAll(associateBy { it.id })
-                }
-        } else {
-            // write-through 모드라면 cache.putAll()을 하면 다시 DB에 Write를 하므로 이런 방식을 써야 한다.
-            entityTable
-                .select(entityTable.id)
-                .where(where)
-                .apply {
-                    orderBy(sortBy, sortOrder)
-                    limit?.run { limit(limit) }
-                    offset?.run { offset(offset) }
-                }
-                .map { it[entityTable.id].value }
-                .let {
-                    cache.getAll(it.toSet()).values.filterNotNull()
-                }
-        }
+        return entityTable
+            .selectAll()
+            .where(where)
+            .apply {
+                orderBy(sortBy, sortOrder)
+                limit?.run { limit(limit) }
+                offset?.run { offset(offset) }
+            }.map { it.toEntity() }
+            .apply {
+                log.debug { "DB에서 엔티티를 조회했습니다. entities=$this" }
+                cache.putAll(associateBy { it.id })
+            }
+
     }
 
     override fun getAll(ids: Collection<ID>, batchSize: Int): List<T> {
         val chunkedIds = ids.chunked(batchSize)
 
         return chunkedIds.flatMap { chunk ->
-            when {
-                config.isReadOnly -> {
-                    entityTable.selectAll()
-                        .where { entityTable.id inList chunk }
-                        .map { it.toEntity() }
-                        .apply {
-                            cache.putAll(associateBy { it.id })
-                        }
-                }
-                config.isReadWrite -> {
-                    // write-through 모드라면 DB에서 ID만 조회한 후 캐시에서 가져와야 한다.
-                    // putAll()을 하면 다시 DB에 Write를 하므로 이런 방식을 써야 한다.
-                    entityTable.select(entityTable.id)
-                        .where { entityTable.id inList chunk }
-                        .map { it[entityTable.id].value }
-                        .let {
-                            cache.getAll(it.toSet()).values.filterNotNull()
-                        }
-                }
-                else -> emptyList()
-            }
+            log.debug { " 캐시에서 ${chunk.size} 개의 엔티티를 가져옵니다. chunk=${chunk}" }
+            cache.getAll(chunk.toSet()).values.filterNotNull()
         }
     }
 }
