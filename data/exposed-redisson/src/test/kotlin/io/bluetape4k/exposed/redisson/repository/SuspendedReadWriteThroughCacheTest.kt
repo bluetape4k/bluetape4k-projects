@@ -15,6 +15,7 @@ import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Nested
 import java.util.*
@@ -33,11 +34,11 @@ class SuspendedReadWriteThroughCacheTest {
             withSuspendedUserTable(testDB, context, statement)
         }
 
-        override suspend fun getExistingId(): Long = transaction {
+        override suspend fun getExistingId(): Long = newSuspendedTransaction {
             UserTable.select(UserTable.id).limit(1).first()[UserTable.id].value
         }
 
-        override suspend fun getExistingIds(): List<Long> = transaction {
+        override suspend fun getExistingIds(): List<Long> = newSuspendedTransaction {
             UserTable.selectAll().map { it[UserTable.id].value }
         }
 
