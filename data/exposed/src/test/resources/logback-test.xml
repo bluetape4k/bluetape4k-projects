@@ -2,7 +2,7 @@
 <configuration>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <immediateFlush>true</immediateFlush>
+        <immediateFlush>false</immediateFlush>
         <encoder>
             <!-- @formatter:off -->
             <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) [%blue(%24.24t)] %yellow(%-36.36logger{35}):%line: %msg%n%throwable</pattern>
