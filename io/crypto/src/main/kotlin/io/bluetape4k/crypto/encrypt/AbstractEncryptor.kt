@@ -5,10 +5,12 @@ import io.bluetape4k.crypto.registBouncCastleProvider
 import io.bluetape4k.crypto.zeroSaltGenerator
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
+import io.bluetape4k.utils.Runtimex
 import org.jasypt.encryption.pbe.PooledPBEByteEncryptor
 import org.jasypt.iv.IvGenerator
 import org.jasypt.iv.StringFixedIvGenerator
 import org.jasypt.salt.SaltGenerator
+import org.jasypt.salt.StringFixedSaltGenerator
 
 /**
  * [Encryptor] 의 추상 클래스입니다.
@@ -26,7 +28,7 @@ import org.jasypt.salt.SaltGenerator
  */
 abstract class AbstractEncryptor protected constructor(
     override val algorithm: String,
-    override val saltGenerator: SaltGenerator = zeroSaltGenerator,
+    override val saltGenerator: SaltGenerator = DefaultSaltGenerator,
     override val password: String = DEFAULT_PASSWORD,
     private val ivGenerator: IvGenerator = DefaultIvGenerator,
 ): Encryptor {
@@ -36,13 +38,16 @@ abstract class AbstractEncryptor protected constructor(
          * 기본 비밀번호를 이용하는 [StringFixedIvGenerator] 인스턴스
          */
         @JvmStatic
-        private val DefaultIvGenerator: IvGenerator = StringFixedIvGenerator(DEFAULT_PASSWORD)
+        val DefaultIvGenerator: IvGenerator = StringFixedIvGenerator(DEFAULT_PASSWORD)
+
+        @JvmStatic
+        val DefaultSaltGenerator: SaltGenerator = StringFixedSaltGenerator(DEFAULT_PASSWORD)
     }
 
     val encryptor: PooledPBEByteEncryptor by lazy {
         PooledPBEByteEncryptor().apply {
             registBouncCastleProvider()
-            setPoolSize(16)
+            setPoolSize(2 * Runtimex.availableProcessors)
             setAlgorithm(algorithm)
             setIvGenerator(ivGenerator)  // AES 알고리즘에서는 꼭 지정해줘야 한다.
             setSaltGenerator(saltGenerator)
