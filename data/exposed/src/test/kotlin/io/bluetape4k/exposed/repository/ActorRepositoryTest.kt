@@ -94,14 +94,14 @@ class ActorRepositoryTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `count of actors`(testDB: TestDB) {
         withMovieAndActors(testDB) {
-            val count = repository.count()
-            log.debug { "count: $count" }
-            count shouldBeGreaterThan 0L
+            val prevCount = repository.count()
+            log.debug { "count: $prevCount" }
+            prevCount shouldBeGreaterThan 0L
 
             repository.save(newActorDTO())
 
             val newCount = repository.count()
-            newCount shouldBeEqualTo count + 1L
+            newCount shouldBeEqualTo prevCount + 1L
         }
     }
 

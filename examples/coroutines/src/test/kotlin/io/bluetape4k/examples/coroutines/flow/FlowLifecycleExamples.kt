@@ -31,13 +31,13 @@ class FlowLifecycleExamples {
     @Test
     fun `onEach - react on flowing value`() = runTest {
         var sum = 0
-        flowOf(1, 2, 3, 4).log(1)
+        flowOf(1, 2, 3, 4).log("#1")
             .onEach { sum += it }
             .collect()
 
         sum shouldBeEqualTo 10
 
-        flowOf(1, 2).log(2)
+        flowOf(1, 2).log("#2")
             .onEach {
                 delay(1000)
             }

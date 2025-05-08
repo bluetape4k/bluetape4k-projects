@@ -26,15 +26,17 @@ class BatchInsertOnConflictIgnoreTest: AbstractExposedTest() {
         withTables(testDB, tester) {
             tester.insert { it[id] = "foo" }
 
-            val numInserted = BatchInsertOnConflictIgnore(tester).run {
-                addBatch()
-                this[tester.id] = "foo"        // 중복되므로 insert 되지 않음
+            // 중복된 id 를 가진 row 를 추가하면, 무시합니다.
+            val numInserted = BatchInsertOnConflictIgnore(tester)
+                .run {
+                    addBatch()
+                    this[tester.id] = "foo"        // 중복되므로 insert 되지 않음
 
-                addBatch()
-                this[tester.id] = "bar"        // 중복되지 않으므로 추가됨
+                    addBatch()
+                    this[tester.id] = "bar"        // 중복되지 않으므로 추가됨
 
-                execute(this@withTables)
-            }
+                    execute(this@withTables)
+                }
             numInserted shouldBeEqualTo 1
         }
     }

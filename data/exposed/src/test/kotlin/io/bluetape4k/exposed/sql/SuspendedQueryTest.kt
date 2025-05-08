@@ -19,6 +19,9 @@ import org.jetbrains.exposed.sql.batchInsert
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
+/**
+ * 코루틴 환경에서 다양한 쿼리를 수행합니다.
+ */
 class SuspendedQueryTest: AbstractExposedTest() {
 
     private object ProductTable: IntIdTable("products") {
@@ -47,6 +50,7 @@ class SuspendedQueryTest: AbstractExposedTest() {
                 this[ProductTable.price] = product.price
             }
 
+            // `fetchBatchedResultFlow` 를 사용하여 10개씩 Batch 방식으로 읽어옵니다.
             val batchedIds = ProductTable
                 .select(ProductTable.id)
                 .fetchBatchedResultFlow(10)
@@ -58,6 +62,7 @@ class SuspendedQueryTest: AbstractExposedTest() {
 
             batchedIds.size shouldBeEqualTo products.size
 
+            // `fetchBatchedResultFlow` 를 사용하여 10개씩 Batch 방식으로 읽어옵니다.
             val reversedIds = ProductTable
                 .select(ProductTable.id)
                 .fetchBatchedResultFlow(10, SortOrder.DESC)
@@ -92,11 +97,14 @@ class SuspendedQueryTest: AbstractExposedTest() {
                     price = faker.number().randomDigitNotZero()
                 )
             }
+
+            // Snowflake ID 를 가진 테이블에 Batch Insert 를 수행합니다.
             ItemTable.batchInsert(items, shouldReturnGeneratedValues = false) { product ->
                 this[ItemTable.name] = product.name
                 this[ItemTable.price] = product.price
             }
 
+            // `fetchBatchedResultFlow` 를 사용하여 Batch 방식으로 읽어옵니다.
             val batchedIds = ItemTable
                 .select(ItemTable.id)
                 .fetchBatchedResultFlow(10)
@@ -105,9 +113,11 @@ class SuspendedQueryTest: AbstractExposedTest() {
                 .map { rows -> rows.map { it[ItemTable.id].value } }
                 .toList()
                 .flatten()
+                .sorted()
 
             batchedIds.size shouldBeEqualTo items.size
 
+            // `fetchBatchedResultFlow` 를 사용하여 Batch 방식으로 읽어옵니다.
             val reversedIds = ItemTable
                 .select(ItemTable.id)
                 .fetchBatchedResultFlow(10, SortOrder.DESC)
@@ -116,6 +126,7 @@ class SuspendedQueryTest: AbstractExposedTest() {
                 .map { rows -> rows.map { it[ItemTable.id].value } }
                 .toList()
                 .flatten()
+                .sorted()
 
             reversedIds.size shouldBeEqualTo items.size
         }

@@ -16,6 +16,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.*
 
+@Suppress("ExposedReference")
 class ColumnExtensionsTest: AbstractExposedTest() {
 
     companion object: KLogging() {
@@ -24,6 +25,7 @@ class ColumnExtensionsTest: AbstractExposedTest() {
 
     object ClientGenerated: IntIdTable() {
         val timebasedUuid = uuid("timebased_uuid").timebasedGenerated()
+        val timebasedUuidBase62 = varchar("timebased_uuid_base62", 32).timebasedGenerated()
         val snowflake = long("snowflake").snowflakeGenerated()
         val ksuid = varchar("ksuid", 27).ksuidGenerated()
         val ksuidMillis = varchar("ksuid_millis", 27).ksuidMillisGenerated()
@@ -33,6 +35,7 @@ class ColumnExtensionsTest: AbstractExposedTest() {
         companion object: IntEntityClass<ClientGeneratedEntity>(ClientGenerated)
 
         var timebasedUuid by ClientGenerated.timebasedUuid
+        var timebasedUuidBase62 by ClientGenerated.timebasedUuidBase62
         var snowflake by ClientGenerated.snowflake
         var ksuid by ClientGenerated.ksuid
         var ksuidMillis by ClientGenerated.ksuidMillis
@@ -41,6 +44,7 @@ class ColumnExtensionsTest: AbstractExposedTest() {
         override fun hashCode(): Int = id.hashCode()
         override fun toString(): String = toStringBuilder()
             .add("timebasedUuid", timebasedUuid)
+            .add("timebasedUuidBase62", timebasedUuidBase62)
             .add("snowflake", snowflake)
             .add("ksuid", ksuid)
             .add("ksuidMillis", ksuidMillis)
@@ -69,7 +73,10 @@ class ColumnExtensionsTest: AbstractExposedTest() {
         withTables(testDB, ClientGenerated) {
             ClientGenerated.id.getLanguageType() shouldBeEqualTo Int::class
             ClientGenerated.timebasedUuid.getLanguageType() shouldBeEqualTo UUID::class
+            ClientGenerated.timebasedUuidBase62.getLanguageType() shouldBeEqualTo String::class
             ClientGenerated.snowflake.getLanguageType() shouldBeEqualTo Long::class
+            ClientGenerated.ksuid.getLanguageType() shouldBeEqualTo String::class
+            ClientGenerated.ksuidMillis.getLanguageType() shouldBeEqualTo String::class
         }
     }
 }

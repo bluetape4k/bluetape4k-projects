@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.coroutines.flow
 
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CoroutineScope
@@ -12,8 +13,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
+import kotlin.coroutines.coroutineContext
 
 class SharedFlowAsEventBus {
 
@@ -29,6 +30,10 @@ class SharedFlowAsEventBus {
 
         suspend fun sendEvent(event: T) {
             _events.emit(event)
+        }
+
+        suspend fun close() {
+            coroutineContext.cancelChildren()
         }
     }
 
@@ -78,7 +83,7 @@ class SharedFlowAsEventBus {
 
     @Suppress("UNUSED_VARIABLE")
     @Test
-    fun `event bus example`() = runTest {
+    fun `event bus example`() = runSuspendIO {
 
         val eventBus = EventBus<Event>()
 
@@ -100,6 +105,6 @@ class SharedFlowAsEventBus {
         // Wait for the listeners to process the events
         delay(500)
 
-        coroutineContext.cancelChildren()
+        eventBus.close()
     }
 }

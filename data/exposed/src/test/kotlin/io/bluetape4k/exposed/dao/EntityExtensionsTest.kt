@@ -19,7 +19,7 @@ class EntityExtensionsTest: AbstractExposedTest() {
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `create post by DAO`(testDB: TestDB) {
+    fun `DAO 방식으로 Post 생성하기`(testDB: TestDB) {
         withTables(testDB, *blogTables) {
 
             val post = Post.new {
@@ -51,7 +51,7 @@ class EntityExtensionsTest: AbstractExposedTest() {
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `insert child without flush`(testDB: TestDB) {
+    fun `flush 없이 Child 추가`(testDB: TestDB) {
         withTables(testDB, BoardSchema.Boards, BoardSchema.Posts, BoardSchema.Categories) {
 
             val parent = BoardSchema.Post.new {

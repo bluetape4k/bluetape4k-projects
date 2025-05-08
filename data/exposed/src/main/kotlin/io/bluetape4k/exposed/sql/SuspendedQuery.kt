@@ -28,8 +28,12 @@ import org.jetbrains.exposed.sql.and
  *     .toList()
  * ```
  */
-fun FieldSet.fetchBatchedResultFlow(batch: Int = 1000, sortOrder: SortOrder = SortOrder.ASC): Flow<List<ResultRow>> =
-    Query(this.source, null).fetchBatchedResultFlow(batch, sortOrder)
+fun FieldSet.fetchBatchedResultFlow(
+    batch: Int = 1000,
+    sortOrder: SortOrder = SortOrder.ASC,
+    where: Op<Boolean>? = null,
+): Flow<List<ResultRow>> =
+    Query(this.source, where = where).fetchBatchedResultFlow(batch, sortOrder)
 
 /**
  * [SuspendedQuery.fetchBatchedResultFlow] 메소드를 코루틴 환경에서 사용할 수 있도록 확장한 함수입니다.
@@ -46,8 +50,12 @@ fun FieldSet.fetchBatchedResultFlow(batch: Int = 1000, sortOrder: SortOrder = So
  *     .toList()
  * ```
  */
-fun Query.fetchBatchedResultFlow(batch: Int = 1000, sortOrder: SortOrder = SortOrder.ASC): Flow<List<ResultRow>> =
-    SuspendedQuery(this@fetchBatchedResultFlow.set, null).fetchBatchResultFlow(batch, sortOrder)
+fun Query.fetchBatchedResultFlow(
+    batch: Int = 1000,
+    sortOrder: SortOrder = SortOrder.ASC,
+    where: Op<Boolean>? = null,
+): Flow<List<ResultRow>> =
+    SuspendedQuery(this@fetchBatchedResultFlow.set, where = where).fetchBatchResultFlow(batch, sortOrder)
 
 /**
  * [Query.fetchBatchedResults] 메소드를 코루틴 환경에서 사용할 수 있도록 확장한 함수를 제공하는 클래스입니다.
@@ -69,6 +77,7 @@ open class SuspendedQuery(set: FieldSet, where: Op<Boolean>? = null): Query(set,
      *     .toList()
      * ```
      */
+    @Suppress("UNCHECKED_CAST")
     fun fetchBatchResultFlow(batchSize: Int = 1000, sortOrder: SortOrder = SortOrder.ASC): Flow<List<ResultRow>> {
         require(batchSize > 0) { "Batch size should be greater than 0." }
         require(limit == null) { "A manual `LIMIT` clause should not be set. By default, `batchSize` will be used." }
