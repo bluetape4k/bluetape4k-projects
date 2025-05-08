@@ -14,6 +14,20 @@ import java.time.LocalDate
 /**
  * Redisson 작업을 Coroutines 환경에서 Batch 모드에서 실행하도록 합니다.
  */
+suspend inline fun RedissonClient.withSuspendedBatch(
+    options: BatchOptions = BatchOptions.defaults(),
+    action: RBatch.() -> Unit,
+): BatchResult<*> {
+    return createBatch(options).apply(action).executeAsync().coAwait()
+}
+
+/**
+ * Redisson 작업을 Coroutines 환경에서 Batch 모드에서 실행하도록 합니다.
+ */
+@Deprecated(
+    message = "use withSuspendedBatch()",
+    replaceWith = ReplaceWith("withSuspendedBatch(options, action)"),
+)
 suspend inline fun RedissonClient.withBatchSuspending(
     options: BatchOptions = BatchOptions.defaults(),
     action: RBatch.() -> Unit,
@@ -24,6 +38,28 @@ suspend inline fun RedissonClient.withBatchSuspending(
 /**
  * Redisson 작업을 Coroutines 환경에서 Transaction model 에서 실행하도록 합니다.
  */
+suspend inline fun RedissonClient.withSuspendedTransaction(
+    options: TransactionOptions = TransactionOptions.defaults(),
+    action: RTransaction.() -> Unit,
+) {
+    val tx: RTransaction = createTransaction(options)
+    try {
+        action(tx)
+        tx.commitAsync().coAwait()
+    } catch (e: TransactionException) {
+        runCatching { tx.rollbackAsync().coAwait() }
+        throw e
+    }
+}
+
+
+/**
+ * Redisson 작업을 Coroutines 환경에서 Transaction model 에서 실행하도록 합니다.
+ */
+@Deprecated(
+    message = "use withSuspendedTransaction()",
+    replaceWith = ReplaceWith("withSuspendedTransaction(options, action)"),
+)
 suspend inline fun RedissonClient.withTransactionSuspending(
     options: TransactionOptions = TransactionOptions.defaults(),
     action: RTransaction.() -> Unit,

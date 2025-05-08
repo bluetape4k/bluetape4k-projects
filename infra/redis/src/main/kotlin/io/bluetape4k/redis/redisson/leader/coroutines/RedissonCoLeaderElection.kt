@@ -20,10 +20,16 @@ import java.util.concurrent.TimeUnit
  */
 class RedissonCoLeaderElection(
     private val redissonClient: RedissonClient,
-    private val options: RedissonLeaderElectionOptions,
+    options: RedissonLeaderElectionOptions,
 ): CoLeaderElection {
 
     companion object: KLogging() {
+        /**
+         * [RedissonCoLeaderElection] 인스턴스를 생성합니다.
+         *
+         * @param redissonClient RedissonClient 인스턴스
+         * @param options 리더 선출 옵션
+         */
         @JvmStatic
         operator fun invoke(
             redissonClient: RedissonClient,
@@ -72,10 +78,8 @@ class RedissonCoLeaderElection(
                     result = action()
                 } finally {
                     if (lock.isHeldByThread(lockId)) {
-                        runCatching {
-                            lock.unlockAsync(lockId).coAwait()
-                            log.debug { "작업이 완료되어 Leader 권한을 반납했습니다. lock=$lockName, lockId=$lockId" }
-                        }
+                        lock.unlockAsync(lockId).coAwait()
+                        log.debug { "작업이 완료되어 Leader 권한을 반납했습니다. lock=$lockName, lockId=$lockId" }
                     }
                 }
             }

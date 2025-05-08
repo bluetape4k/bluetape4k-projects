@@ -14,8 +14,8 @@
 
     <logger name="io.bluetape4k.redis" level="DEBUG"/>
 
-    <logger name="io.lettuce.core" level="DEBUG"/>
-    <logger name="org.redisson" level="DEBUG"/>
+    <!--    <logger name="io.lettuce.core" level="DEBUG"/>-->
+    <!--    <logger name="org.redisson" level="DEBUG"/>-->
 
     <root level="INFO">
         <appender-ref ref="Console"/>

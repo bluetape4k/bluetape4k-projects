@@ -1,12 +1,14 @@
 package io.bluetape4k.redis.redisson.leader
 
 import io.bluetape4k.concurrent.futureOf
+import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import io.bluetape4k.concurrent.virtualthread.virtualFuture
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.AbstractRedissonTest
+import io.bluetape4k.utils.Runtimex
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
@@ -22,28 +24,33 @@ class RedissonLeaderElectionSupportTest: AbstractRedissonTest() {
     @Test
     fun `run action if leader`() {
         val lockName = randomName()
-        val executor = Executors.newCachedThreadPool()
-        val countDownLatch = CountDownLatch(2)
+        val executor = Executors.newFixedThreadPool(Runtimex.availableProcessors)
 
-        executor.run {
-            redissonClient.runIfLeader(lockName) {
-                log.debug { "작업 1 을 시작합니다." }
-                Thread.sleep(100)
-                log.debug { "작업 1 을 종료합니다." }
-                countDownLatch.countDown()
-            }
-        }
-        executor.run {
-            redissonClient.runIfLeader(lockName) {
-                log.debug { "작업 2 을 시작합니다." }
-                Thread.sleep(100)
-                log.debug { "작업 2 을 종료합니다." }
-                countDownLatch.countDown()
-            }
-        }
+        try {
+            val countDownLatch = CountDownLatch(2)
 
-        countDownLatch.await()
-        executor.shutdownNow()
+            executor.run {
+                redissonClient.runIfLeader(lockName) {
+                    log.debug { "작업 1 을 시작합니다." }
+                    Thread.sleep(100)
+                    log.debug { "작업 1 을 종료합니다." }
+                    countDownLatch.countDown()
+                }
+            }
+
+            executor.run {
+                redissonClient.runIfLeader(lockName) {
+                    log.debug { "작업 2 을 시작합니다." }
+                    Thread.sleep(100)
+                    log.debug { "작업 2 을 종료합니다." }
+                    countDownLatch.countDown()
+                }
+            }
+
+            countDownLatch.await(5, TimeUnit.SECONDS)
+        } finally {
+            executor.shutdownNow()
+        }
     }
 
     @Test
@@ -76,6 +83,7 @@ class RedissonLeaderElectionSupportTest: AbstractRedissonTest() {
             }.join()
         }
         countDownLatch.await(5, TimeUnit.SECONDS)
+
         future1.get() shouldBeEqualTo 42
         future2.get() shouldBeEqualTo 43
     }
@@ -157,11 +165,13 @@ class RedissonLeaderElectionSupportTest: AbstractRedissonTest() {
         val numThreads = 8
         val roundsPerThread = 4
 
+        val executor = Executors.newFixedThreadPool(Runtimex.availableProcessors)
+
         MultithreadingTester()
             .numThreads(numThreads)
             .roundsPerThread(roundsPerThread)
             .add {
-                redissonClient.runAsyncIfLeader(lockName) {
+                redissonClient.runAsyncIfLeader(lockName, executor) {
                     futureOf {
                         log.debug { "작업 1 을 시작합니다. task1=${task1.get()}" }
                         task1.incrementAndGet()
@@ -172,7 +182,7 @@ class RedissonLeaderElectionSupportTest: AbstractRedissonTest() {
                 }.join()
             }
             .add {
-                redissonClient.runAsyncIfLeader(lockName) {
+                redissonClient.runAsyncIfLeader(lockName, executor) {
                     futureOf {
                         log.debug { "작업 2 을 시작합니다. task2=${task2.get()}" }
                         task2.incrementAndGet()
@@ -183,6 +193,8 @@ class RedissonLeaderElectionSupportTest: AbstractRedissonTest() {
                 }.join()
             }
             .run()
+
+        executor.shutdownNow()
 
         task1.get() shouldBeEqualTo numThreads * roundsPerThread / 2
         task2.get() shouldBeEqualTo numThreads * roundsPerThread / 2
@@ -200,7 +212,7 @@ class RedissonLeaderElectionSupportTest: AbstractRedissonTest() {
         StructuredTaskScopeTester()
             .roundsPerTask(numThreads * roundsPerThread)
             .add {
-                redissonClient.runAsyncIfLeader(lockName) {
+                redissonClient.runAsyncIfLeader(lockName, VirtualThreadExecutor) {
                     virtualFuture {
                         log.debug { "작업 1 을 시작합니다. task1=${task1.get()}" }
                         task1.incrementAndGet()
@@ -211,7 +223,7 @@ class RedissonLeaderElectionSupportTest: AbstractRedissonTest() {
                 }.join()
             }
             .add {
-                redissonClient.runAsyncIfLeader(lockName) {
+                redissonClient.runAsyncIfLeader(lockName, VirtualThreadExecutor) {
                     virtualFuture {
                         log.debug { "작업 2 을 시작합니다. task2=${task2.get()}" }
                         task2.incrementAndGet()
@@ -224,6 +236,6 @@ class RedissonLeaderElectionSupportTest: AbstractRedissonTest() {
             .run()
 
         task1.get() shouldBeEqualTo numThreads * roundsPerThread
-        task2.get() shouldBeEqualTo numThreads * roundsPerThread 
+        task2.get() shouldBeEqualTo numThreads * roundsPerThread
     }
 }
