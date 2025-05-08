@@ -13,6 +13,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.entityCache
+import org.jetbrains.exposed.dao.flushCache
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.junit.jupiter.params.ParameterizedTest
@@ -45,7 +46,7 @@ class CompressedBinaryColumnTypeTest: AbstractExposedTest() {
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `ByteArray 를 압축하여 저장합니다`(testDB: TestDB) {
-        val text = Fakers.randomString(2048, 4096)
+        val text = Fakers.randomString(1024, 2048)
         val data = text.toUtf8Bytes()
 
         withTables(testDB, T1) {
@@ -54,6 +55,7 @@ class CompressedBinaryColumnTypeTest: AbstractExposedTest() {
                 snappyData = data
                 zstdData = data
             }
+            flushCache()
             entityCache.clear()
 
             val loaded = E1.findById(e1.id)!!

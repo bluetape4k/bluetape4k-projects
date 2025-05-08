@@ -6,6 +6,7 @@ import io.bluetape4k.exposed.dao.toStringBuilder
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
+import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.exposed.dao.IntEntity
@@ -13,6 +14,8 @@ import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.entityCache
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
+import org.jetbrains.exposed.sql.insertAndGetId
+import org.jetbrains.exposed.sql.selectAll
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
@@ -32,8 +35,8 @@ class EncryptedColumnTypeTest: AbstractExposedTest() {
 
         var name by T1.name
 
-        var aesPassword by T1.aesVarChar
-        var rc4Password by T1.rc4VarChar
+        var aesVarChar by T1.aesVarChar
+        var rc4VarChar by T1.rc4VarChar
 
         var aesBinary by T1.aesBinary
         var rc4Binary by T1.rc4Binary
@@ -42,22 +45,45 @@ class EncryptedColumnTypeTest: AbstractExposedTest() {
         override fun hashCode(): Int = id.hashCode()
         override fun toString(): String = toStringBuilder()
             .add("name", name)
-            .add("aesPassword", aesPassword)
-            .add("rc4Password", rc4Password)
+            .add("aesPassword", this@E1.aesVarChar)
+            .add("rc4Password", rc4VarChar)
             .toString()
     }
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `save string via encryptor`(testDB: TestDB) {
+    fun `DSL 방식으로 컬럼 암호화 하기`(testDB: TestDB) {
+        withTables(testDB, T1) {
+            val id1 = T1.insertAndGetId {
+                it[name] = "Alice"
+                it[aesVarChar] = "aesVarChar"
+                it[rc4VarChar] = "rc4VarChar"
+
+                it[aesBinary] = "aesBinary".toUtf8Bytes()
+                it[rc4Binary] = "rc4Binary".toUtf8Bytes()
+            }
+
+            val row = T1.selectAll().where { T1.id eq id1 }.single()
+
+            row[T1.id] shouldBeEqualTo id1
+            row[T1.aesVarChar] shouldBeEqualTo "aesVarChar"
+            row[T1.rc4VarChar] shouldBeEqualTo "rc4VarChar"
+            row[T1.aesBinary]?.toUtf8String() shouldBeEqualTo "aesBinary"
+            row[T1.rc4Binary]?.toUtf8String() shouldBeEqualTo "rc4Binary"
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `DAO 방식으로 컬럼 암호화하기`(testDB: TestDB) {
         withTables(testDB, T1) {
             val e1 = E1.new {
                 name = "Alice"
-                aesPassword = "aesPassword"
-                rc4Password = "rc4Password"
+                aesVarChar = "aesVarChar"
+                rc4VarChar = "rc4VarChar"
 
-                aesBinary = "aesBinary".toByteArray()
-                rc4Binary = "rc4Binary".toByteArray()
+                aesBinary = "aesBinary".toUtf8Bytes()
+                rc4Binary = "rc4Binary".toUtf8Bytes()
             }
             entityCache.clear()
 
@@ -65,10 +91,8 @@ class EncryptedColumnTypeTest: AbstractExposedTest() {
 
             loaded shouldBeEqualTo e1
             loaded.name shouldBeEqualTo "Alice"
-
-            loaded.aesPassword shouldBeEqualTo "aesPassword"
-            loaded.rc4Password shouldBeEqualTo "rc4Password"
-
+            loaded.aesVarChar shouldBeEqualTo "aesVarChar"
+            loaded.rc4VarChar shouldBeEqualTo "rc4VarChar"
             loaded.aesBinary!!.toUtf8String() shouldBeEqualTo "aesBinary"
             loaded.rc4Binary!!.toUtf8String() shouldBeEqualTo "rc4Binary"
         }
@@ -76,12 +100,38 @@ class EncryptedColumnTypeTest: AbstractExposedTest() {
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `search by encrypted column`(testDB: TestDB) {
+    fun `DSL 방식 - 암호화된 컬럼으로 검색하기`(testDB: TestDB) {
+        withTables(testDB, T1) {
+            val id1 = T1.insertAndGetId {
+                it[name] = "Alice"
+                it[aesVarChar] = "aesVarChar"
+                it[rc4VarChar] = "rc4VarChar"
+
+                it[aesBinary] = "aesBinary".toUtf8Bytes()
+                it[rc4Binary] = "rc4Binary".toUtf8Bytes()
+            }
+
+            val row = T1.selectAll().where { T1.aesVarChar eq "aesVarChar" }.single()
+
+            row[T1.id] shouldBeEqualTo id1
+            row[T1.aesVarChar] shouldBeEqualTo "aesVarChar"
+            row[T1.rc4VarChar] shouldBeEqualTo "rc4VarChar"
+            row[T1.aesBinary]?.toUtf8String() shouldBeEqualTo "aesBinary"
+            row[T1.rc4Binary]?.toUtf8String() shouldBeEqualTo "rc4Binary"
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `DAO 방식 - 암호화된 컬럼으로 검색하기`(testDB: TestDB) {
         withTables(testDB, T1) {
             val e1 = E1.new {
                 name = "Alice"
-                aesPassword = "aesPassword"
-                rc4Password = "rc4Password"
+                aesVarChar = "aesVarChar"
+                rc4VarChar = "rc4VarChar"
+
+                aesBinary = "aesBinary".toUtf8Bytes()
+                rc4Binary = "rc4Binary".toUtf8Bytes()
             }
 
             /**
@@ -95,8 +145,13 @@ class EncryptedColumnTypeTest: AbstractExposedTest() {
              *   FROM T1
              *  WHERE T1.AES_PASSWORD = HqssFPg0zN3pqJdFKCSZZ1RczuI8YVN7mauc8H2NgGU=
              */
-            val loaded = E1.find { T1.aesVarChar eq "aesPassword" }.single()
+            val loaded = E1.find { T1.aesVarChar eq "aesVarChar" }.single()
             loaded shouldBeEqualTo e1
+            loaded.name shouldBeEqualTo "Alice"
+            loaded.aesVarChar shouldBeEqualTo "aesVarChar"
+            loaded.rc4VarChar shouldBeEqualTo "rc4VarChar"
+            loaded.aesBinary!!.toUtf8String() shouldBeEqualTo "aesBinary"
+            loaded.rc4Binary!!.toUtf8String() shouldBeEqualTo "rc4Binary"
         }
     }
 }

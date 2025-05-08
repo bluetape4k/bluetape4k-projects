@@ -15,6 +15,8 @@ import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.entityCache
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
+import org.jetbrains.exposed.sql.insertAndGetId
+import org.jetbrains.exposed.sql.selectAll
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
@@ -44,8 +46,30 @@ class CompressedBlobColumnTypeTest: AbstractExposedTest() {
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `ByteArray 를 압축하여 저장합니다`(testDB: TestDB) {
-        val text = Fakers.randomString(2048, 4096)
+    fun `DSL 방식으로 ByteArray 를 압축하여 저장합니다`(testDB: TestDB) {
+        val text = Fakers.randomString(1024, 2048)
+        val data = text.toUtf8Bytes()
+
+        withTables(testDB, T1) {
+            val id = T1.insertAndGetId {
+                it[lz4Data] = data
+                it[snappyData] = data
+                it[zstdData] = data
+            }
+
+            val row = T1.selectAll().where { T1.id eq id }.single()
+
+            row[T1.id] shouldBeEqualTo id
+            row[T1.lz4Data]?.toUtf8String() shouldBeEqualTo text
+            row[T1.snappyData]?.toUtf8String() shouldBeEqualTo text
+            row[T1.zstdData]?.toUtf8String() shouldBeEqualTo text
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `DAO 방식으로 ByteArray 를 압축하여 저장합니다`(testDB: TestDB) {
+        val text = Fakers.randomString(1024, 2048)
         val data = text.toUtf8Bytes()
 
         withTables(testDB, T1) {
@@ -59,9 +83,9 @@ class CompressedBlobColumnTypeTest: AbstractExposedTest() {
             val loaded = E1.findById(e1.id)!!
 
             loaded shouldBeEqualTo e1
-            loaded.lz4Data!!.toUtf8String() shouldBeEqualTo text
-            loaded.snappyData!!.toUtf8String() shouldBeEqualTo text
-            loaded.zstdData!!.toUtf8String() shouldBeEqualTo text
+            loaded.lz4Data?.toUtf8String() shouldBeEqualTo text
+            loaded.snappyData?.toUtf8String() shouldBeEqualTo text
+            loaded.zstdData?.toUtf8String() shouldBeEqualTo text
         }
     }
 }

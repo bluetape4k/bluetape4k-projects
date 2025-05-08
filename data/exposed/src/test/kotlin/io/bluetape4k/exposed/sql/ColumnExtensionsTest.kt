@@ -12,6 +12,7 @@ import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
+import org.jetbrains.exposed.sql.batchInsert
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.*
@@ -53,7 +54,23 @@ class ColumnExtensionsTest: AbstractExposedTest() {
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `client generated unique values`(testDB: TestDB) {
+    fun `DSL 방식으로 클라이언트에서 컬럼 값을 생헝합니다`(testDB: TestDB) {
+        val entityCount = 100
+        withTables(testDB, ClientGenerated) {
+            val ids = List(entityCount) { it + 1 }
+            val rows = ClientGenerated.batchInsert(ids) { }
+
+            rows.map { it[ClientGenerated.timebasedUuid] }.distinct() shouldHaveSize entityCount
+            rows.map { it[ClientGenerated.timebasedUuidBase62] }.distinct() shouldHaveSize entityCount
+            rows.map { it[ClientGenerated.snowflake] }.distinct() shouldHaveSize entityCount
+            rows.map { it[ClientGenerated.ksuid] }.distinct() shouldHaveSize entityCount
+            rows.map { it[ClientGenerated.ksuidMillis] }.distinct() shouldHaveSize entityCount
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `DAO 방식으로 클라이언트에서 컬럼 값을 생헝합니다`(testDB: TestDB) {
         val entityCount = 100
         withTables(testDB, ClientGenerated) {
             val entities = List(entityCount) {
@@ -61,6 +78,7 @@ class ColumnExtensionsTest: AbstractExposedTest() {
             }
 
             entities.map { it.timebasedUuid }.distinct() shouldHaveSize entityCount
+            entities.map { it.timebasedUuidBase62 }.distinct() shouldHaveSize entityCount
             entities.map { it.snowflake }.distinct() shouldHaveSize entityCount
             entities.map { it.ksuid }.distinct() shouldHaveSize entityCount
             entities.map { it.ksuidMillis }.distinct() shouldHaveSize entityCount
