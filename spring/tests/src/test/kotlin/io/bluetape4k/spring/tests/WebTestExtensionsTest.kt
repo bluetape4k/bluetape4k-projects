@@ -2,6 +2,7 @@ package io.bluetape4k.spring.tests
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import kotlinx.coroutines.flow.flowOf
 import org.junit.jupiter.api.Nested
 import org.springframework.http.HttpStatus
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -53,6 +54,13 @@ class WebTestExtensionsTest {
                 .expectBody()
                 .jsonPath("$.url").isEqualTo("https://nghttp2.org/httpbin/post")
         }
+
+        @Test
+        fun `httpPost httpbin with flow`() {
+            client.httpPost("/post", flowOf("Hello", ",", "World!"))
+                .expectBody()
+                .jsonPath("$.url").isEqualTo("https://nghttp2.org/httpbin/post")
+        }
     }
 
     @Nested
@@ -84,6 +92,13 @@ class WebTestExtensionsTest {
         @Test
         fun `httpPut httpbin with body`() {
             client.httpPut("/put", "Hello, World!")
+                .expectBody()
+                .jsonPath("$.url").isEqualTo("https://nghttp2.org/httpbin/put")
+        }
+
+        @Test
+        fun `httpPut httpbin with flow`() {
+            client.httpPut("/put", flowOf("Hello", ",", "World!"))
                 .expectBody()
                 .jsonPath("$.url").isEqualTo("https://nghttp2.org/httpbin/put")
         }
