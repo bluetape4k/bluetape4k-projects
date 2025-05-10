@@ -19,7 +19,7 @@ class AsyncFlowTest {
     companion object: KLogging() {
         private const val REPEAT_SIZE = 3
         private const val ITEM_SIZE = 1_000
-        private const val MAX_DELAY_TIME = 10L
+        private const val MAX_DELAY_TIME = 100L
 
         private val expectedItems = List(ITEM_SIZE) { it + 1 }
     }

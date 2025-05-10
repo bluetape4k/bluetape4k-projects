@@ -31,7 +31,7 @@ class ReactorContextExamples {
         flux.awaitFirst()
         captured.shouldBeNull()
 
-        // 이제 ReactorContext에 key-value를 전달합니다.
+        // Coroutines에서 ReactorContext에 key-value를 전달합니다.
         withContext(Context.of(key, value).asCoroutineContext()) {
             flux.awaitFirst()
         }
@@ -42,6 +42,7 @@ class ReactorContextExamples {
     fun `reactor의 context를 coroutines에서 사용하기`() = runTest {
         var captured: String? = null
 
+        // ReactorContext에 있는 `key` 값을 CoroutineContext에서 조회하여 사용합니다.
         val flow = flow {
             // captured = currentCoroutineContext()[ReactorContext]?.context?.getOrNull(key)
             captured = currentReactiveContext()?.getOrNull(key)
