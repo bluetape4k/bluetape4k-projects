@@ -46,4 +46,7 @@ dependencies {
     compileOnly(project(":bluetape4k-coroutines"))
     compileOnly(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)
+
+    testImplementation(Libs.mockk)
+    testImplementation(Libs.springmockk)
 }
