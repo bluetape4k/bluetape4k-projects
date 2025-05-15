@@ -4,6 +4,13 @@ import com.danrusu.pods4k.immutableArrays.ImmutableArray
 import com.danrusu.pods4k.immutableArrays.buildImmutableArray
 import io.bluetape4k.support.requireGt
 
+/**
+ * 요소를 지정된 크기로 나누고, 지정된 간격으로 이동하는 윈도우된 [ImmutableArray]를 생성합니다.
+ *
+ * @param size 윈도우의 크기
+ * @param step 윈도우의 이동 간격
+ * @param partialWindows 마지막 윈도우가 size 보다 작을 경우에도 포함할지 여부
+ */
 fun <T> ImmutableArray<T>.windowed(
     size: Int,
     step: Int = 1,
@@ -11,6 +18,9 @@ fun <T> ImmutableArray<T>.windowed(
 ): ImmutableArray<ImmutableArray<T>> =
     windowed(size, step, partialWindows) { it }
 
+/**
+ * 요소를 지정된 크기로 나누고, 지정된 간격으로 이동하는 윈도우된 [ImmutableArray]를 생성합니다.
+ */
 inline fun <T, R> ImmutableArray<T>.windowed(
     size: Int,
     step: Int = 1,
@@ -38,12 +48,17 @@ inline fun <T, R> ImmutableArray<T>.windowed(
 }
 
 /**
+ * 요소를 지정된 크기로 나누어 새로운 [ImmutableArray]의 [ImmutableArray]를 생성합니다.
  *
- * @sample io.bluetape4k.collections.immutable.ImmutableArrayExtensionsTest.chunk_immutable_array_partial_windowed
+ * @param size 윈도우의 크기
+ * @param partialWindows 마지막 윈도우가 size 보다 작을 경우에도 포함할지 여부
  */
 fun <T> ImmutableArray<T>.chunked(size: Int, partialWindows: Boolean = true): ImmutableArray<ImmutableArray<T>> =
     windowed(size, size, partialWindows)
 
+/**
+ * 요소를 지정된 크기로 나누어 새로운 [ImmutableArray]를 생성합니다.
+ */
 inline fun <T, R> ImmutableArray<T>.chunked(
     size: Int,
     partialWindows: Boolean = true,
@@ -53,12 +68,17 @@ inline fun <T, R> ImmutableArray<T>.chunked(
 
 
 /**
- * @sample io.bluetape4k.collections.immutable.ImmutableArrayExtensionsTest.sliding_immutable_array
+ * 지정된 크기로 나누고, 한 요소씩 이동하며 새로운 [ImmutableArray]의 [ImmutableArray]를 생성합니다.
+ *
+ * @param size 윈도우의 크기
+ * @param partialWindows 마지막 윈도우가 size 보다 작을 경우에도 포함할지 여부
  */
 fun <T> ImmutableArray<T>.sliding(size: Int, partialWindows: Boolean = true): ImmutableArray<ImmutableArray<T>> =
     windowed(size, 1, partialWindows)
 
-
+/**
+ * 지정된 크기로 나누고, 한 요소씩 이동하며 새로운 [ImmutableArray]를 생성합니다.
+ */
 inline fun <T, R> ImmutableArray<T>.sliding(
     size: Int,
     partialWindows: Boolean = true,

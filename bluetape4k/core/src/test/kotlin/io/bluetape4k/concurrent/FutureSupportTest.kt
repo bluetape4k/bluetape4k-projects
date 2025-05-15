@@ -23,7 +23,7 @@ class FutureSupportTest {
 
     companion object: KLogging() {
         private const val ITEM_COUNT = 100
-        private const val DELAY_TIME = 100L
+        private const val DELAY_TIME = 10L
     }
 
     @Test
@@ -50,7 +50,7 @@ class FutureSupportTest {
     fun `Massive Future as CompletableFuture`() {
         val futures = List(ITEM_COUNT) {
             FutureTask {
-                Thread.sleep(Random.nextLong(10))
+                Thread.sleep(Random.nextLong(DELAY_TIME))
                 "value$it"
             }.apply { run() }
         }.map { it.asCompletableFuture() }
@@ -68,7 +68,7 @@ class FutureSupportTest {
             .roundsPerThread(ITEM_COUNT / 4)
             .add {
                 val task = CompletableFuture.supplyAsync {
-                    Thread.sleep(Random.nextLong(10))
+                    Thread.sleep(Random.nextLong(DELAY_TIME))
                     counter.incrementAndGet()
                 }
                 val result = task.asCompletableFuture().get()
@@ -88,7 +88,7 @@ class FutureSupportTest {
             .roundsPerTask(Runtimex.availableProcessors * 2 * ITEM_COUNT / 4)
             .add {
                 val task: VirtualFuture<Int> = virtualFuture {
-                    Thread.sleep(Random.nextLong(10))
+                    Thread.sleep(Random.nextLong(DELAY_TIME))
                     counter.incrementAndGet()
                 }
                 val result = task.await()
@@ -100,7 +100,7 @@ class FutureSupportTest {
     }
 
     @Test
-    fun `Massive Future as CompletaboeFuture in Multiple Jobs`() = runSuspendDefault {
+    fun `Massive Future as CompletaboeFuture in Coroutines`() = runSuspendDefault {
         val counter = AtomicInteger(0)
 
         SuspendedJobTester()
@@ -108,7 +108,7 @@ class FutureSupportTest {
             .roundsPerJob(Runtimex.availableProcessors * 2 * ITEM_COUNT / 4)
             .add {
                 val task = async(Dispatchers.Default) {
-                    delay(Random.nextLong(10))
+                    delay(Random.nextLong(DELAY_TIME))
                     counter.incrementAndGet()
                 }
                 val result = task.await()

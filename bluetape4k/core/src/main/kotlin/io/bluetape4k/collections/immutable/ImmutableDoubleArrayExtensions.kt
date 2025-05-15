@@ -5,7 +5,6 @@ import com.danrusu.pods4k.immutableArrays.ImmutableDoubleArray
 import com.danrusu.pods4k.immutableArrays.buildImmutableArray
 import io.bluetape4k.support.requireGt
 
-
 fun ImmutableDoubleArray.windowed(
     size: Int,
     step: Int = 1,
@@ -33,7 +32,7 @@ inline fun <R> ImmutableDoubleArray.windowed(
         val array = window.build()
         when {
             array.size == size -> add(transform(array))
-            partialWindows     -> add(transform(array))
+            partialWindows -> add(transform(array))
         }
         pos += step
     }

@@ -32,7 +32,7 @@ inline fun <R> ImmutableIntArray.windowed(
         val array = window.build()
         when {
             array.size == size -> add(transform(array))
-            partialWindows     -> add(transform(array))
+            partialWindows -> add(transform(array))
         }
         pos += step
     }

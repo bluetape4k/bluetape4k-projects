@@ -1,7 +1,9 @@
 package io.bluetape4k.collections.immutable
 
 import com.danrusu.pods4k.immutableArrays.immutableArrayOf
+import com.danrusu.pods4k.immutableArrays.multiplicativeSpecializations.map
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.asInt
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
@@ -19,10 +21,21 @@ class ImmutableArrayExtensionsTest {
             immutableArrayOf("4", "5")
         )
 
+        val intChunk = array.chunked(3, true) { it.map { it.asInt() } }
+        intChunk shouldBeEqualTo immutableArrayOf(
+            immutableArrayOf(1, 2, 3),
+            immutableArrayOf(4, 5)
+        )
+
         // partial windows 가 False 일 때에는 마지막 chunk 가 size 보다 작으면 추가하지 않는다.
         val chunksNotPartial = array.chunked(3, false)
         chunksNotPartial shouldBeEqualTo immutableArrayOf(
             immutableArrayOf("1", "2", "3")
+        )
+
+        val intChunkNotPartial = array.chunked(3, false) { it.map { it.asInt() } }
+        intChunkNotPartial shouldBeEqualTo immutableArrayOf(
+            immutableArrayOf(1, 2, 3)
         )
     }
 

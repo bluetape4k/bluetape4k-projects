@@ -1,6 +1,6 @@
 package io.bluetape4k.concurrent.virtualthread
 
-import io.bluetape4k.junit5.coroutines.MultijobTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.coroutines.runSuspendTest
@@ -76,9 +76,9 @@ class VirtualThreadDispatcherTest {
         val jobNumber = atomic(0)
 
         // 1초씩 delay 하는 TASK_SIZE개의 작업을 수행 시 거의 1초에 완료된다 (Virtual Thread)
-        MultijobTester()
+        SuspendedJobTester()
             .numThreads(TASK_SIZE)
-            .roundsPerJob(1)
+            .roundsPerJob(TASK_SIZE)
             .add {
                 delay(SLEEP_TIME)
                 log.trace { "Job[${jobNumber.incrementAndGet()}] is done" }
@@ -91,9 +91,9 @@ class VirtualThreadDispatcherTest {
         val jobNumber = atomic(0)
 
         // 1초씩 delay 하는 TASK_SIZE개의 작업을 수행 시 거의 1초에 완료된다 (Default Dispatcher)
-        MultijobTester()
+        SuspendedJobTester()
             .numThreads(TASK_SIZE)
-            .roundsPerJob(1)
+            .roundsPerJob(TASK_SIZE)
             .add {
                 delay(SLEEP_TIME)
                 log.trace { "Job[${jobNumber.incrementAndGet()}] is done" }
@@ -106,9 +106,9 @@ class VirtualThreadDispatcherTest {
         val jobNumber = atomic(0)
 
         // 1초씩 delay 하는 TASK_SIZE개의 작업을 수행 시 거의 1초에 완료된다 (Default Dispatcher)
-        MultijobTester()
+        SuspendedJobTester()
             .numThreads(TASK_SIZE)
-            .roundsPerJob(1)
+            .roundsPerJob(TASK_SIZE)
             .add {
                 delay(SLEEP_TIME)
                 log.trace { "Job[${jobNumber.incrementAndGet()}] is done" }
