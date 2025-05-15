@@ -3,14 +3,14 @@ package io.bluetape4k.aws.kotlin.dynamodb.examples.json
 import io.bluetape4k.aws.kotlin.dynamodb.AbstractKotlinDynamoDbTest
 import io.bluetape4k.aws.kotlin.dynamodb.waitForTableReady
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class MovieServiceTest: AbstractKotlinDynamoDbTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val MOVIE_TABLE_NAME = "dynamo-movies-example"
     }
 

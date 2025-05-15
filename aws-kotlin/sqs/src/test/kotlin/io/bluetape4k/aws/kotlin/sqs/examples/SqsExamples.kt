@@ -14,7 +14,7 @@ import io.bluetape4k.aws.kotlin.sqs.existsQueue
 import io.bluetape4k.aws.kotlin.sqs.model.sendMessageBatchRequestEntryOf
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -32,7 +32,7 @@ import org.junit.jupiter.api.TestMethodOrder
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class SqsExamples: AbstractKotlinSqsTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val QUEUE_PREFIX = "test-queue"
         private val QUEUE_NAME = "$QUEUE_PREFIX-${Base58.randomString(8).lowercase()}"
     }

@@ -1,6 +1,6 @@
 package io.bluetape4k.aws.kotlin.tests
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
@@ -10,7 +10,7 @@ import org.testcontainers.containers.localstack.LocalStackContainer.Service.SQS
 
 class LocalStackContainerExtensionsTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `AWS S3, SQS 서비스를 제공하는 LocalStackServer를 실행합니다`() {

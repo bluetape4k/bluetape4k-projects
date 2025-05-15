@@ -6,14 +6,14 @@ import io.bluetape4k.aws.kotlin.tests.endpointUrl
 import io.bluetape4k.aws.kotlin.tests.getCredentialsProvider
 import io.bluetape4k.aws.kotlin.tests.getLocalStackServer
 import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.localstack.LocalStackContainer
 
 abstract class AbstractKotlinSqsTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         @JvmStatic
         val sqsServer: LocalStackContainer by lazy {
             getLocalStackServer(LocalStackContainer.Service.SQS)

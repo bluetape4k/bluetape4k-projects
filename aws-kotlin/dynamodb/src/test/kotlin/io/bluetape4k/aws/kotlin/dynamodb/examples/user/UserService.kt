@@ -13,11 +13,11 @@ import aws.sdk.kotlin.services.dynamodb.putItem
 import aws.sdk.kotlin.services.dynamodb.updateItem
 import io.bluetape4k.aws.kotlin.dynamodb.model.attributeValueUpdateOf
 import io.bluetape4k.aws.kotlin.dynamodb.model.toAttributeValue
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 
 class UserService(private val client: DynamoDbClient) {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     suspend fun insert(user: User): PutItemResponse {
 

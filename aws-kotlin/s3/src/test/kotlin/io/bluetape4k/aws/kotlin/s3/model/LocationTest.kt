@@ -1,6 +1,6 @@
 package io.bluetape4k.aws.kotlin.s3.model
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeEqualTo
@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 
 class LocationTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `parse location`() {
