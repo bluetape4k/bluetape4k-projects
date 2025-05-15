@@ -10,22 +10,22 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeTrue
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.RepeatedTest
 import kotlin.random.Random
 
 @RandomizedTest
 class DeferredValueTest {
 
     companion object: KLogging() {
-        private const val REPEAT_SIZE = 10
+        private const val REPEAT_SIZE = 5
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `값 계산은 async로 시작합니다`() = runTest {
         // given
         val dv = deferredValueOf {
             log.trace { "Calc deferred value ... " }
-            delay(Random.nextLong(100, 200))
+            delay(Random.nextLong(10, 20))
             System.currentTimeMillis()
         }
         val createdTime = System.currentTimeMillis()
@@ -42,17 +42,17 @@ class DeferredValueTest {
     }
 
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `map deferred value`() = runTest {
         val dv1 = deferredValueOf {
             log.trace { "Calc deferred value ... " }
-            delay(Random.nextLong(100, 200))
+            delay(Random.nextLong(10, 20))
             42
         }
 
         val dv2 = dv1.map {
             log.trace { "Map deferred value ... " }
-            delay(Random.nextLong(100, 200))
+            delay(Random.nextLong(10, 20))
             it * 2
         }
 
@@ -66,11 +66,11 @@ class DeferredValueTest {
         dv2.isCompleted.shouldBeTrue()
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `flatmap deferred value`() = runTest {
         val dv1: DeferredValue<DeferredValue<Int>> = deferredValueOf {
             log.trace { "Calc deferred value ... " }
-            delay(Random.nextLong(100, 200))
+            delay(Random.nextLong(10, 20))
 
             deferredValueOf { 42 }
         }
@@ -78,7 +78,7 @@ class DeferredValueTest {
         val dv2: DeferredValue<Int> = dv1.flatMap { r ->
             r.map {
                 log.trace { "Map deferred value ... " }
-                delay(Random.nextLong(100, 200))
+                delay(Random.nextLong(10, 20))
                 it * 2
             }
         }

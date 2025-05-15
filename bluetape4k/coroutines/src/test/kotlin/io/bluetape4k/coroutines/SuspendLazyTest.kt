@@ -115,7 +115,7 @@ class SuspendLazyTest {
         val callCounter = atomic(0)
 
         val lazyValue = suspendBlockingLazyIO {
-            Thread.sleep(Random.nextLong(100))
+            Thread.sleep(Random.nextLong(1000))
             log.trace { "Calculate lazy value in blocking mode with IO dispatchers" }
             callCounter.incrementAndGet()
             TEST_NUMBER
@@ -124,7 +124,7 @@ class SuspendLazyTest {
 
         runTest {
             SuspendedJobTester()
-                .numThreads(16)
+                .numThreads(Runtimex.availableProcessors)
                 .roundsPerJob(16)
                 .add {
                     lazyValue() shouldBeEqualTo TEST_NUMBER

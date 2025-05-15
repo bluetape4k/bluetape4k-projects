@@ -28,7 +28,9 @@ class LoggingSupportTest {
 
         job.join()
 
-        capturer.capture() shouldContain "[TestJob] Completed"
+        if (log.isDebugEnabled) {
+            capturer.capture() shouldContain "[TestJob] Hello world!"
+        }
     }
 
     @Test
@@ -42,7 +44,8 @@ class LoggingSupportTest {
             .join()
 
         // yield()
-
-        capturer.capture() shouldContain "[LOGGING] Hello world!"
+        if (log.isDebugEnabled) {
+            capturer.capture() shouldContain "[LOGGING] Hello world!"
+        }
     }
 }

@@ -3,6 +3,7 @@ package io.bluetape4k.coroutines.flow
 import io.bluetape4k.concurrent.virtualthread.VT
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -19,7 +20,7 @@ class AsyncFlowTest {
     companion object: KLogging() {
         private const val REPEAT_SIZE = 3
         private const val ITEM_SIZE = 1_000
-        private const val MAX_DELAY_TIME = 100L
+        private const val MAX_DELAY_TIME = 10L
 
         private val expectedItems = List(ITEM_SIZE) { it + 1 }
     }
@@ -36,9 +37,9 @@ class AsyncFlowTest {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `asyncFlow with custom dispatcher`() = runTest {
-        val dispatcher = newFixedThreadPoolContext(16, "asyncflow")
-        runAsyncFlow(dispatcher)
-        dispatcher.close()
+        newFixedThreadPoolContext(Runtimex.availableProcessors, "asyncflow").use { dispatcher ->
+            runAsyncFlow(dispatcher)
+        }
     }
 
     @RepeatedTest(REPEAT_SIZE)

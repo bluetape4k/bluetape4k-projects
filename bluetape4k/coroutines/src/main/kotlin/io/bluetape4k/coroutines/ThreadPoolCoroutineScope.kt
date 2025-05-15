@@ -32,10 +32,9 @@ class ThreadPoolCoroutineScope(
 ): CoroutineScope, Closeable {
 
     private val job = SupervisorJob()
-    private val context = newFixedThreadPoolContext(poolSize, name)
+    private val dispatcher = newFixedThreadPoolContext(poolSize, name)
 
-    override val coroutineContext: CoroutineContext
-        get() = context + job
+    override val coroutineContext: CoroutineContext = dispatcher + job
 
     /**
      * 자식의 모든 Job을 취소합니다.
@@ -50,6 +49,9 @@ class ThreadPoolCoroutineScope(
      * ThreadPoolCoroutineScope를 종료합니다.
      */
     override fun close() {
-        context.close()
+        dispatcher.close()
     }
+
+    override fun toString(): String =
+        "ThreadPoolCoroutineScope(coroutineContext=$coroutineContext)"
 }
