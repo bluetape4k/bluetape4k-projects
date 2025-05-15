@@ -24,9 +24,9 @@ inline fun <R> ImmutableIntArray.windowed(
     var pos = 0
     while (pos < this@windowed.size) {
         val window = ImmutableIntArray.Builder()
-        for (i in 0 until size) {
-            if (pos + i < this@windowed.size) {
-                window.add(this@windowed[pos + i])
+        repeat(size) {
+            if (pos + it < this@windowed.size) {
+                window.add(this@windowed[pos + it])
             }
         }
         val array = window.build()
