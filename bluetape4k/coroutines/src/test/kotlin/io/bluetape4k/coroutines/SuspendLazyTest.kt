@@ -1,8 +1,9 @@
 package io.bluetape4k.coroutines
 
-import io.bluetape4k.junit5.coroutines.MultijobTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
+import io.bluetape4k.utils.Runtimex
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -50,9 +51,9 @@ class SuspendLazyTest {
         }
         callCounter.value shouldBeEqualTo 0
 
-        MultijobTester()
-            .numThreads(16)
-            .roundsPerJob(1)
+        SuspendedJobTester()
+            .numThreads(Runtimex.availableProcessors)
+            .roundsPerJob(16)
             .add {
                 lazyValue() shouldBeEqualTo TEST_NUMBER
             }
@@ -122,9 +123,9 @@ class SuspendLazyTest {
         callCounter.value shouldBeEqualTo 0
 
         runTest {
-            MultijobTester()
+            SuspendedJobTester()
                 .numThreads(16)
-                .roundsPerJob(1)
+                .roundsPerJob(16)
                 .add {
                     lazyValue() shouldBeEqualTo TEST_NUMBER
                 }

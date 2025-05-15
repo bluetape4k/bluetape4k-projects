@@ -1,7 +1,7 @@
 package io.bluetape4k.coroutines
 
 import io.bluetape4k.coroutines.flow.extensions.bufferedSliding
-import io.bluetape4k.junit5.coroutines.MultijobTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.atomicfu.atomic
@@ -39,9 +39,9 @@ class CoRingBufferTest {
         val buffer = CoRingBuffer(16, Double.NaN)
         val counter = atomic(0)
 
-        MultijobTester()
+        SuspendedJobTester()
             .numThreads(8)
-            .roundsPerJob(2)
+            .roundsPerJob(16)
             .add {
                 buffer.push(counter.incrementAndGet().toDouble())
             }

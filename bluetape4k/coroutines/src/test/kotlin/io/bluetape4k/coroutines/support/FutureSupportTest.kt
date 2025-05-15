@@ -1,7 +1,7 @@
 package io.bluetape4k.coroutines.support
 
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.junit5.coroutines.MultijobTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
@@ -48,7 +48,7 @@ class FutureSupportTest {
     fun `Massive Future as CompletableFuture in Coroutines`() = runSuspendTest(Dispatchers.Default) {
         val counter = atomic(0)
 
-        MultijobTester()
+        SuspendedJobTester()
             .numThreads(16)
             .roundsPerJob(16 * ITEM_COUNT / 4)
             .add {
@@ -62,6 +62,6 @@ class FutureSupportTest {
             }
             .run()
 
-        counter.value shouldBeEqualTo 16 * 16 * ITEM_COUNT / 4
+        counter.value shouldBeEqualTo 16 * ITEM_COUNT / 4
     }
 }
