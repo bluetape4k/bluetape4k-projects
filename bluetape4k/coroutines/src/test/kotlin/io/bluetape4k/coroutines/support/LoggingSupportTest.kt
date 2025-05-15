@@ -29,7 +29,9 @@ class LoggingSupportTest {
         job.join()
 
         if (log.isDebugEnabled) {
-            capturer.capture() shouldContain "[TestJob] Hello world!"
+            val captured = capturer.capture()
+            captured shouldContain "Hello world!"
+            captured shouldContain "[TestJob] Completed"
         }
     }
 

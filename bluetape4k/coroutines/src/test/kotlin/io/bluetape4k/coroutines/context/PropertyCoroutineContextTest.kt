@@ -1,7 +1,7 @@
 package io.bluetape4k.coroutines.context
 
 import io.bluetape4k.coroutines.support.log
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
 
 class PropertyCoroutineContextTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `속성을 가지는 CoroutineContext 사용하기`() = runTest {

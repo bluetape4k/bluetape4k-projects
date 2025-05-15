@@ -2,7 +2,7 @@ package io.bluetape4k.coroutines
 
 import io.bluetape4k.coroutines.flow.extensions.bufferedSliding
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
@@ -19,7 +19,7 @@ import kotlin.random.Random
 
 class CoRingBufferTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `push more items than size, reset to 0`() = runTest {

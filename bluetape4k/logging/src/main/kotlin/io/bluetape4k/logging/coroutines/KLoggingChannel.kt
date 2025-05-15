@@ -33,7 +33,7 @@ import kotlin.concurrent.thread
 open class KLoggingChannel: KLogging() {
 
     private val sharedFlow = MutableSharedFlow<LogEvent>()
-    private val scope = CoroutineScope(CoroutineName("logchannel") + Dispatchers.IO)
+    private val scope = CoroutineScope(Dispatchers.IO + CoroutineName("logchannel"))
     private var job: Job? = null
 
     init {
