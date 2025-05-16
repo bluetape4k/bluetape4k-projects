@@ -2,7 +2,7 @@ package io.bluetape4k.examples.coroutines.flow
 
 import app.cash.turbine.test
 import io.bluetape4k.coroutines.flow.extensions.log
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.coroutineScope
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test
  */
 class SharedFlowExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     /**
      * 복수의 Job에서 SharedFlow 에 Message를 전달할 수도 있고,

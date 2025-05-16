@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.coroutines.flow
 
 import io.bluetape4k.coroutines.flow.extensions.log
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test
 
 class ChannelFlowExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private data class User(val name: String)
 

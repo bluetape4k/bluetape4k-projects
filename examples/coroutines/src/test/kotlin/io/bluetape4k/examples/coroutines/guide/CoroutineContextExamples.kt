@@ -3,6 +3,7 @@ package io.bluetape4k.examples.coroutines.guide
 import io.bluetape4k.coroutines.support.coLogging
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -20,7 +21,7 @@ import kotlin.random.Random
 
 class CoroutineContextExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     /**
      * CoroutineScope를 delegate를 이용하면 손쉽게 만들 수 있다

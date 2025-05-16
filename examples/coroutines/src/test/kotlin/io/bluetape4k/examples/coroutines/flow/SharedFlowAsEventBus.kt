@@ -2,6 +2,7 @@ package io.bluetape4k.examples.coroutines.flow
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +18,8 @@ import org.junit.jupiter.api.Test
 import kotlin.coroutines.coroutineContext
 
 class SharedFlowAsEventBus {
+
+    companion object: KLoggingChannel()
 
     /**
      * An event bus implementation that uses a shared flow to broadcast events to multiple listeners.

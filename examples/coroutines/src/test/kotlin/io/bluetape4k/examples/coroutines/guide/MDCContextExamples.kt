@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.coroutines.guide
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.slf4j.MDCContext
@@ -12,7 +12,7 @@ import org.slf4j.MDC
 
 class MDCContextExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `with mdc context`() = runSuspendTest {

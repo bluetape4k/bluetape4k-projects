@@ -2,7 +2,7 @@ package io.bluetape4k.examples.coroutines.cancellation
 
 import io.bluetape4k.coroutines.support.coLogging
 import io.bluetape4k.coroutines.support.log
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.info
@@ -23,7 +23,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 class CancellationExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `Basic cancellation`() = runTest {

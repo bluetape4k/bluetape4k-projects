@@ -3,7 +3,7 @@ package io.bluetape4k.examples.coroutines.guide
 import io.bluetape4k.concurrent.onFailure
 import io.bluetape4k.concurrent.onSuccess
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
@@ -16,7 +16,7 @@ import kotlin.random.Random
 
 class SuspendExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     class Service {
 

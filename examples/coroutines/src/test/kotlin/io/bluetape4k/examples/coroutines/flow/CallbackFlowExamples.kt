@@ -2,7 +2,7 @@ package io.bluetape4k.examples.coroutines.flow
 
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.tests.assertResult
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test
 
 class CallbackFlowExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     /**
      * TODO: Kafka Producer의 Callback 을 `callbackFlow` 를 이용하여 Flow 로 구현하는 예제를 만들자

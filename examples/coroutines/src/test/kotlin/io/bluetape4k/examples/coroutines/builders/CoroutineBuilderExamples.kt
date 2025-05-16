@@ -1,6 +1,6 @@
 package io.bluetape4k.examples.coroutines.builders
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.async
@@ -15,7 +15,7 @@ import kotlin.random.Random
 
 class CoroutineBuilderExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Nested
     inner class LaunchExample {
