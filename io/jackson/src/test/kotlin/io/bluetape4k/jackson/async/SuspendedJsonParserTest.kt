@@ -5,7 +5,7 @@ import com.fasterxml.jackson.module.kotlin.treeToValue
 import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.jackson.treeToValueOrNull
 import io.bluetape4k.jackson.writeAsBytes
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8String
 import kotlinx.atomicfu.AtomicInt
@@ -22,7 +22,7 @@ import org.junit.jupiter.api.fail
 
 class SuspendedJsonParserTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     data class Model(
         val stringValue: String? = null,

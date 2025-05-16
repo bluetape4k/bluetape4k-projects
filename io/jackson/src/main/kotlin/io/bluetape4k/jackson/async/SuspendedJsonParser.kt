@@ -12,7 +12,7 @@ import io.bluetape4k.jackson.addNull
 import io.bluetape4k.jackson.addString
 import io.bluetape4k.jackson.createArray
 import io.bluetape4k.jackson.createNode
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import jakarta.json.stream.JsonParsingException
 import kotlinx.coroutines.flow.Flow
@@ -38,7 +38,7 @@ class SuspendedJsonParser(
     private val onNodeDone: suspend (root: JsonNode) -> Unit,
 ) {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private class Stack {
         private val nodes = LinkedList<StackFrame>()
