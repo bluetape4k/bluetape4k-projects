@@ -2,7 +2,7 @@ package io.bluetape4k.idgenerators.hashids
 
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
@@ -17,7 +17,7 @@ import kotlin.math.absoluteValue
 @RandomizedTest
 class HashidsTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 5
     }
 

@@ -12,7 +12,7 @@
         </encoder>
     </appender>
 
-    <logger name="io.bluetape4k.idgenerators" level="INFO"/>
+    <!--    <logger name="io.bluetape4k.idgenerators" level="DEBUG"/>-->
 
     <root level="INFO">
         <appender-ref ref="Console"/>

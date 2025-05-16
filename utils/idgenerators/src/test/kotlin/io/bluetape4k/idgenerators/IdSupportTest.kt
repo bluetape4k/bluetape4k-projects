@@ -1,7 +1,7 @@
 package io.bluetape4k.idgenerators
 
 import io.bluetape4k.idgenerators.snowflake.MAX_MACHINE_ID
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInRange
@@ -11,7 +11,7 @@ import kotlin.math.absoluteValue
 
 class IdSupportTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val networkId = buildString {
         NetworkInterface.getNetworkInterfaces().asSequence()

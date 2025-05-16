@@ -5,7 +5,7 @@ import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toLongArray
 import io.bluetape4k.support.toUUID
@@ -20,7 +20,7 @@ import kotlin.test.assertTrue
 
 class TimebasedUuidGeneratorTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 5
         private val TEST_COUNT = 512 * Runtime.getRuntime().availableProcessors()
         private val TEST_LIST = List(TEST_COUNT) { it }
