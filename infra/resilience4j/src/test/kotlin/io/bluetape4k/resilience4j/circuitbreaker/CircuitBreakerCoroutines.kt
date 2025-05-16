@@ -1,7 +1,7 @@
 package io.bluetape4k.resilience4j.circuitbreaker
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import io.bluetape4k.resilience4j.CoHelloWorldService
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException
@@ -16,7 +16,7 @@ import kotlin.test.assertFailsWith
 
 class CircuitBreakerCoroutines {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     // Process 범위에서 CircuitBreaker를 관리하기 위한 Registry 입니다.
     val breakerRegistry = CircuitBreakerRegistry.ofDefaults().apply {

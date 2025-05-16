@@ -1,7 +1,7 @@
 package io.bluetape4k.resilience4j.timelimiter
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.resilience4j.CoHelloWorldService
 import io.github.resilience4j.kotlin.timelimiter.decorateSuspendFunction
 import io.github.resilience4j.kotlin.timelimiter.executeSuspendFunction
@@ -15,7 +15,7 @@ import kotlin.test.assertFailsWith
 
 class TimeLimiterCoroutinesTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `suspend 함수를 실행합니다`() = runSuspendTest {

@@ -4,7 +4,7 @@ import io.bluetape4k.codec.encodeBase62
 import io.bluetape4k.concurrent.futureOf
 import io.bluetape4k.concurrent.onSuccess
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.trace
@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture
 
 abstract class AbstractJCacheCoroutinesTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         fun randomKey(prefix: String): String = "$prefix-${UUID.randomUUID().encodeBase62()}"
     }
 

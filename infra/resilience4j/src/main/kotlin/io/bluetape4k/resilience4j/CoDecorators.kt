@@ -1,6 +1,6 @@
 package io.bluetape4k.resilience4j
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.resilience4j.bulkhead.decorateSuspendBiFunction
 import io.bluetape4k.resilience4j.bulkhead.decorateSuspendFunction1
 import io.bluetape4k.resilience4j.cache.CoCache
@@ -31,7 +31,7 @@ import kotlin.reflect.KClass
  *
  * @see [io.github.resilience4j.decorators.Decorators]
  */
-object CoDecorators: KLogging() {
+object CoDecorators: KLoggingChannel() {
 
     /**
      * `suspend () -> Unit` 에 대해 resilience4j compoenents를 decorate 합니다
