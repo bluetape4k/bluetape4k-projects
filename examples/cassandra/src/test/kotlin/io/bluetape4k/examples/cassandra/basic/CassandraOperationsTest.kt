@@ -7,7 +7,7 @@ import com.datastax.oss.driver.api.querybuilder.QueryBuilder.selectFrom
 import io.bluetape4k.cassandra.querybuilder.literal
 import io.bluetape4k.examples.cassandra.AbstractCassandraTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import io.bluetape4k.spring.cassandra.coInsert
 import org.amshove.kluent.shouldBeEqualTo
@@ -27,7 +27,7 @@ class CassandraOperationsTest(
     @Autowired private val operations: CassandraOperations,
 ): AbstractCassandraTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val USER_TABLE = "basic_users"
     }
 

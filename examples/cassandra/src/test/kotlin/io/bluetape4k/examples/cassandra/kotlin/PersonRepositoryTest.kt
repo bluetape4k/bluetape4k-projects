@@ -2,7 +2,7 @@ package io.bluetape4k.examples.cassandra.kotlin
 
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
 import org.amshove.kluent.shouldBeEqualTo
@@ -20,7 +20,7 @@ class PersonRepositoryTest(
     @Autowired private val repository: PersonRepository,
 ): AbstractCassandraCoroutineTest("kotlin-person-repo") {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @BeforeEach
     fun beforeEach() {

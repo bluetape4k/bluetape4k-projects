@@ -2,7 +2,7 @@ package io.bluetape4k.examples.cassandra.optimisticlocking
 
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.cql.updateOptions
 import io.bluetape4k.spring.cassandra.query.eq
 import kotlinx.coroutines.reactor.awaitSingle
@@ -29,7 +29,7 @@ class OptimisticLockTest @Autowired constructor(
     private val repository: OptimisticPersonRepository,
 ): AbstractCassandraCoroutineTest("optimistic-locking") {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @BeforeEach
     fun setup() = runSuspendIO {

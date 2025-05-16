@@ -3,6 +3,7 @@ package io.bluetape4k.examples.cassandra
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader
 import io.bluetape4k.examples.cassandra.domain.model.AllPossibleTypes
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.testcontainers.storage.CassandraServer
 import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.data.cassandra.config.AbstractReactiveCassandraConfiguration
@@ -14,7 +15,7 @@ abstract class AbstractReactiveCassandraTestConfiguration: AbstractReactiveCassa
 
     // NOTE: 테스트 시에는 testcontainers 를 실행하기 위해 Cassandra4Server.Launcher 작업을 미리 수행해야 합니다.
     //
-    companion object {
+    companion object: KLoggingChannel() {
         const val DEFAULT_KEYSPACE = "examples"
 
         val server by lazy { CassandraServer.Launcher.cassandra4 }

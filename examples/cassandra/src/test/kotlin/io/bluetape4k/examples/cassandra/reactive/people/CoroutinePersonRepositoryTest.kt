@@ -2,7 +2,7 @@ package io.bluetape4k.examples.cassandra.reactive.people
 
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -22,7 +22,7 @@ class CoroutinePersonRepositoryTest(
     @Autowired private val repository: CoroutinePersonRepository,
 ): AbstractCassandraCoroutineTest("person") {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @BeforeEach
     fun setup() = runSuspendIO {
