@@ -422,8 +422,8 @@ object Libs {
     const val marshalling_river = "org.jboss.marshalling:jboss-marshalling-river:2.1.2.Final"
     const val marshalling_serial = "org.jboss.marshalling:jboss-marshalling-serial:2.1.2.Final"
 
-    const val fury_core = "org.apache.fury:fury-core:0.10.0" // https://mvnrepository.com/artifact/org.apache.fury/fury-core
-    const val fury_kotlin = "org.apache.fury:fury-kotlin:0.10.0" // https://mvnrepository.com/artifact/org.apache.fury/fury-kotlin
+    const val fury_core = "org.apache.fury:fury-core:0.10.2" // https://mvnrepository.com/artifact/org.apache.fury/fury-core
+    const val fury_kotlin = "org.apache.fury:fury-kotlin:0.10.2" // https://mvnrepository.com/artifact/org.apache.fury/fury-kotlin
 
     // Spring Boot
     const val spring_boot_dependencies = "org.springframework.boot:spring-boot-dependencies:${Versions.spring_boot}"
