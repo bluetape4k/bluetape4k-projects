@@ -3,7 +3,7 @@ package io.bluetape4k.micrometer.instrument.retrofit2
 import com.jakewharton.retrofit2.adapter.reactor.ReactorCallAdapterFactory
 import io.bluetape4k.concurrent.sequence
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import io.bluetape4k.micrometer.instrument.AbstractMicrometerTest
@@ -33,7 +33,7 @@ import java.io.Serializable
 
 class Retrofit2MetricsTest: AbstractMicrometerTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 5
     }
 

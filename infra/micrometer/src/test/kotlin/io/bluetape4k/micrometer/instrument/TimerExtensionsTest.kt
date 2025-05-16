@@ -1,7 +1,7 @@
 package io.bluetape4k.micrometer.instrument
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import kotlinx.coroutines.delay
@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit
 
 class TimerExtensionsTest: AbstractMicrometerTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val DELAY_TIME = 100L
     }
 
