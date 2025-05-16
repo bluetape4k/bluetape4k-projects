@@ -6,15 +6,13 @@ import io.bluetape4k.javers.repository.AbstractCdoSnapshotRepository
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
+import io.bluetape4k.redis.redisson.RedissonCodecs
 import org.javers.core.commit.CommitId
 import org.javers.core.metamodel.`object`.CdoSnapshot
 import org.redisson.api.RListMultimap
 import org.redisson.api.RMap
 import org.redisson.api.RedissonClient
-import org.redisson.client.codec.ByteArrayCodec
 import org.redisson.client.codec.LongCodec
-import org.redisson.client.codec.StringCodec
-import org.redisson.codec.CompositeCodec
 
 /**
  * JaVers [CdoSnapshot] 을 Redisson Library를 이용하여
@@ -27,7 +25,7 @@ import org.redisson.codec.CompositeCodec
 class RedissonCdoSnapshotRepository(
     val name: String,
     private val redisson: RedissonClient,
-    codec: GsonCodec<ByteArray> = GsonCodecs.LZ4Fury,
+    codec: GsonCodec<ByteArray> = GsonCodecs.LZ4Jdk,
 ): AbstractCdoSnapshotRepository<ByteArray>(codec) {
 
     companion object: KLogging() {
@@ -42,7 +40,7 @@ class RedissonCdoSnapshotRepository(
      * GlobalId 별로 Snapshot 컬렉션을 매핑합니다.
      */
     private val snapshots: RListMultimap<String, ByteArray> =
-        redisson.getListMultimap(snapshotName, CompositeCodec(StringCodec(), ByteArrayCodec(), ByteArrayCodec()))
+        redisson.getListMultimap(snapshotName, RedissonCodecs.LZ4Kryo5Composite)
 
     /**
      * CommitId: Sequence Number 매핑을 저장하는 Map

@@ -226,7 +226,7 @@ abstract class AbstractJaversShadowTest: AbstractJaversRepositoryTest() {
         val shadows = javers.findShadows<SnapshotEntity>(query).map { it.get() }
 
         // THEN
-        log.debug { "shadow=${shadows.first()}" }
+        log.debug { "shadow=${shadows.firstOrNull()}" }
         shadows.size shouldBeEqualTo 1
 
         assertThinShadowOfPhone(shadows.first().shallowPhone)

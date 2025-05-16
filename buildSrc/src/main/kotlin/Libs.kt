@@ -397,7 +397,7 @@ object Libs {
     val log4j_web = log4j("web")
 
     const val findbugs = "com.google.code.findbugs:jsr305:3.0.2"
-    const val guava = "com.google.guava:guava:33.2.0-jre"
+    const val guava = "com.google.guava:guava:33.4.8-jre"  // https://mvnrepository.com/artifact/com.google.guava/guava
 
     // Pods4k
     fun pods4k(module: String, version: String = Versions.pods4k) = "com.danrusu.pods4k:$module:$version"
@@ -887,7 +887,7 @@ object Libs {
     const val jsonassert = "org.skyscreamer:jsonassert:1.5.3"   // https://mvnrepository.com/artifact/org.skyscreamer/jsonassert
 
     // GSON
-    const val gson = "com.google.code.gson:gson:2.11.0"    // https://mvnrepository.com/artifact/com.google.code.gson/gson
+    const val gson = "com.google.code.gson:gson:2.13.1"    // https://mvnrepository.com/artifact/com.google.code.gson/gson
     const val gson_javatime_serializers = "com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.2" // https://mvnrepository.com/artifact/com.fatboyindustrial.gson-javatime-serialisers/gson-javatime-serialisers
 
     // JWT
