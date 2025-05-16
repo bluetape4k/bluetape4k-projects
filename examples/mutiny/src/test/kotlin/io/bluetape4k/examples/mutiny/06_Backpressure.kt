@@ -1,6 +1,6 @@
 package io.bluetape4k.examples.mutiny
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.smallrye.mutiny.Multi
 import io.smallrye.mutiny.subscription.BackPressureStrategy
 import io.smallrye.mutiny.subscription.MultiEmitter
@@ -16,7 +16,7 @@ import kotlin.concurrent.thread
 
 class BackpressureExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `01 Backpressure Drop`() {

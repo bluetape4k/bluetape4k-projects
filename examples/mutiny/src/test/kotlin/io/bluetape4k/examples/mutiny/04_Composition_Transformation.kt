@@ -1,7 +1,9 @@
 package io.bluetape4k.examples.mutiny
 
 import io.bluetape4k.codec.encodeBase62
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.coroutines.DefaultCoroutineScope
+import io.bluetape4k.junit5.coroutines.runSuspendDefault
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import io.bluetape4k.mutiny.asUni
@@ -14,7 +16,6 @@ import io.smallrye.mutiny.coroutines.asFlow
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import io.smallrye.mutiny.tuples.Tuple2
 import kotlinx.atomicfu.atomic
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
@@ -34,12 +35,13 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.stream.Collectors
 import kotlin.random.Random
 
 class CompositionTransformationExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `01 Uni transform`() {
@@ -290,7 +292,8 @@ class CompositionTransformationExamples {
         val multi = Multi.createBy()
             .repeating().supplier(counter::getAndIncrement)
             .atMost(10)
-            .broadcast().toAllSubscribers()
+            .broadcast()
+            .toAllSubscribers()
 
         val latch = CountDownLatch(3)
 
@@ -312,37 +315,45 @@ class CompositionTransformationExamples {
     }
 
     @Test
-    fun `13-1 Multi Broadcast in coroutines`() = runTest {
-        val counter = atomic(0)
+    fun `13-1 Multi Broadcast in coroutines`() = runSuspendDefault {
+        val scope = DefaultCoroutineScope()
+        val counter = AtomicInteger(0)
+        try {
+            val multi: Multi<Int> = Multi.createBy()
+                .repeating().supplier(counter::getAndIncrement)
+                .atMost(10)
+                .broadcast()
+                .toAllSubscribers()
 
-        val multi: Multi<Int> = Multi.createBy()
-            .repeating().supplier(counter::getAndIncrement)
-            .atMost(10)
-            .broadcast()
-            .toAllSubscribers()
+            val jobs = listOf(
+                scope.launch {
+                    multi.onItem()
+                        .transform { n -> "🚀 $n" }
+                        .asFlow()
+                        .onEach { println(it) }
+                        .collect()
+                },
+                scope.launch {
+                    multi.onItem()
+                        .transform { n -> "🧪 $n" }
+                        .asFlow()
+                        .onEach { println(it) }
+                        .collect()
+                },
 
-        val jobs = listOf(
-            launch(Dispatchers.Default) {
-                multi.onItem().transform { n -> "🚀 $n" }
-                    .asFlow()
-                    .onEach { n -> log.debug { n } }
-                    .collect()
-            },
-            launch(Dispatchers.Default) {
-                multi.onItem().transform { n -> "🧪 $n" }
-                    .asFlow()
-                    .onEach { n -> log.debug { n } }
-                    .collect()
-            },
-            launch(Dispatchers.Default) {
-                multi.onItem().transform { n -> "💡 $n" }
-                    .asFlow()
-                    .onEach { n -> log.debug { n } }
-                    .collect()
-            }
-        )
-        jobs.joinAll()
-        counter.value shouldBeEqualTo 10
+                scope.launch {
+                    multi.onItem()
+                        .transform { n -> "💡 $n" }
+                        .asFlow()
+                        .onEach { println(it) }
+                        .collect()
+                }
+            )
+            jobs.joinAll()
+            counter.get() shouldBeEqualTo 10
+        } finally {
+            scope.clearJobs()
+        }
     }
 
     @Test
