@@ -25,7 +25,7 @@ import org.redisson.client.codec.LongCodec
 class RedissonCdoSnapshotRepository(
     val name: String,
     private val redisson: RedissonClient,
-    codec: GsonCodec<ByteArray> = GsonCodecs.LZ4Jdk,
+    codec: GsonCodec<ByteArray> = GsonCodecs.LZ4Fury,
 ): AbstractCdoSnapshotRepository<ByteArray>(codec) {
 
     companion object: KLogging() {
@@ -40,7 +40,7 @@ class RedissonCdoSnapshotRepository(
      * GlobalId 별로 Snapshot 컬렉션을 매핑합니다.
      */
     private val snapshots: RListMultimap<String, ByteArray> =
-        redisson.getListMultimap(snapshotName, RedissonCodecs.LZ4Kryo5Composite)
+        redisson.getListMultimap(snapshotName, RedissonCodecs.LZ4FuryComposite)
 
     /**
      * CommitId: Sequence Number 매핑을 저장하는 Map

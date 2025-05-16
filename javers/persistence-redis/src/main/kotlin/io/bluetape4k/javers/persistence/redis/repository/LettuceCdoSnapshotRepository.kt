@@ -27,7 +27,7 @@ import org.javers.core.metamodel.`object`.CdoSnapshot
 class LettuceCdoSnapshotRepository(
     val name: String,
     private val client: RedisClient,
-    codec: GsonCodec<ByteArray> = GsonCodecs.LZ4Jdk,
+    codec: GsonCodec<ByteArray> = GsonCodecs.LZ4Fury,
 ): AbstractCdoSnapshotRepository<ByteArray>(codec) {
 
     companion object: KLogging() {
@@ -47,7 +47,7 @@ class LettuceCdoSnapshotRepository(
     private val snapshotPrefix = "javers:$name:$SNAPSHOT_SUFFIX"
 
     private val commands by lazy {
-        LettuceClients.commands(client, codec = LettuceBinaryCodecs.lz4Jdk())
+        LettuceClients.commands(client, codec = LettuceBinaryCodecs.lz4Fury())
     }
 
     override fun getKeys(): List<String> {
