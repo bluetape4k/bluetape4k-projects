@@ -1,8 +1,8 @@
 package io.bluetape4k.logging.coroutines
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
-import io.bluetape4k.logging.info
 import io.bluetape4k.logging.logMessageSafe
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -61,7 +61,7 @@ open class KLoggingChannel: KLogging() {
         }
 
         job = scope.launch {
-            log.info { "Start logging channel." }
+            log.debug { "Start logging channel." }
 
             sharedFlow
                 .onEach { event ->
