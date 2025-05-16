@@ -3,7 +3,7 @@ package io.bluetape4k.spring.retrofit2.services.jsonplaceholder
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.resilience4j.CoDecorators
 import io.bluetape4k.support.uninitialized
 import io.github.resilience4j.circuitbreaker.CircuitBreaker
@@ -25,7 +25,7 @@ import kotlin.math.absoluteValue
 @RandomizedTest
 class JsonPlaceHolderCoroutineApiTest: AbstractJsonPlaceHolderApiTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Autowired
     private val api: JsonPlaceHolderCoroutineApi = uninitialized()
