@@ -3,7 +3,7 @@ package io.bluetape4k.aws.sns
 import io.bluetape4k.aws.sns.model.SubscribeRequest
 import io.bluetape4k.codec.encodeBase62
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.hashOf
 import kotlinx.coroutines.future.await
@@ -23,7 +23,7 @@ import java.util.*
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class SnsAsyncClientTest: AbstractSnsTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private val TOPIC_NAME = UUID.randomUUID().encodeBase62().lowercase() + ".fifo"
     }
 

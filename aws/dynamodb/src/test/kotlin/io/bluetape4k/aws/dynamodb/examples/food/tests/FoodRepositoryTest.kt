@@ -7,7 +7,7 @@ import io.bluetape4k.aws.dynamodb.examples.food.repository.FoodRepository
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -25,7 +25,7 @@ import kotlin.random.Random
 
 class FoodRepositoryTest: AbstractFoodApplicationTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Autowired
     private lateinit var repository: FoodRepository
