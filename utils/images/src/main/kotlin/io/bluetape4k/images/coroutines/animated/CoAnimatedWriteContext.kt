@@ -2,6 +2,7 @@ package io.bluetape4k.images.coroutines.animated
 
 import com.sksamuel.scrimage.nio.AnimatedGif
 import io.bluetape4k.io.writeSuspending
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -13,6 +14,9 @@ class CoAnimatedWriteContext(
     val writer: CoAnimatedImageWriter,
     val gif: AnimatedGif,
 ) {
+
+    companion object: KLoggingChannel()
+
     suspend fun bytes(): ByteArray {
         return ByteArrayOutputStream().use { bos ->
             writer.writeSuspending(gif, bos)

@@ -3,7 +3,7 @@ package io.bluetape4k.images.coroutines
 import com.sksamuel.scrimage.AwtImage
 import com.sksamuel.scrimage.metadata.ImageMetadata
 import com.sksamuel.scrimage.webp.WebpWriter
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.withContext
 import java.io.OutputStream
@@ -30,7 +30,7 @@ class CoWebpWriter(
     private val noAlpha: Boolean = false,
 ): WebpWriter(z, q, m, lossless, noAlpha), CoImageWriter {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         @JvmStatic
         val Default = CoWebpWriter()
 

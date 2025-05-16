@@ -1,13 +1,13 @@
 package io.bluetape4k.images
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldNotBeEmpty
 import org.junit.jupiter.api.Test
 
 class IIORegistryUtilsTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `get reader image format names`() {

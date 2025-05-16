@@ -3,7 +3,7 @@ package io.bluetape4k.images
 import io.bluetape4k.images.coroutines.CoJpegWriter
 import io.bluetape4k.images.coroutines.CoPngWriter
 import io.bluetape4k.junit5.tempfolder.TempFolder
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -11,7 +11,7 @@ import java.nio.file.Path
 
 class ImmutableImageSupportTest: AbstractImageTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val useTempFile = true
 

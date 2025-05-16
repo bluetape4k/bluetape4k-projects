@@ -2,7 +2,7 @@ package io.bluetape4k.images
 
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeTrue
@@ -14,7 +14,7 @@ import javax.imageio.ImageIO
 @TempFolderTest
 class ImageFileExamples: AbstractImageTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `load large image file`() {
