@@ -2,7 +2,7 @@ package org.springframework.kafka.core
 
 import io.bluetape4k.kafka.codec.JacksonKafkaCodec
 import io.bluetape4k.kafka.codec.StringKafkaCodec
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.mq.KafkaServer
 import kotlinx.atomicfu.atomic
@@ -80,7 +80,7 @@ class CustomKafkaExamples {
         }
     }
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val CUSTOM_TOPIC_NAME = "custom.kafka.string-topic.1"
     }
 

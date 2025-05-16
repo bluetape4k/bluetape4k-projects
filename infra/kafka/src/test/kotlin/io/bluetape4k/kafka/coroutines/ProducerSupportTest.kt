@@ -7,7 +7,7 @@ import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.kafka.AbstractKafkaTest
 import io.bluetape4k.kafka.getMetricValue
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.mq.KafkaServer
 import kotlinx.coroutines.CoroutineScope
@@ -30,7 +30,7 @@ import kotlin.system.measureTimeMillis
 @RandomizedTest
 class ProducerSupportTest: AbstractKafkaTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val MESSAGE_SIZE = 100
 
         fun randomStrings(size: Int = MESSAGE_SIZE): List<String> {

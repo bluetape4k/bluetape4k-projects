@@ -1,6 +1,6 @@
 package org.springframework.kafka.core
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.uninitialized
 import io.bluetape4k.testcontainers.mq.KafkaServer
@@ -73,7 +73,7 @@ class SimpleKafkaExamples {
         }
     }
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val SIMPLE_TOPIC_NAME = "simple.kafka.string-topic.1"
     }
 

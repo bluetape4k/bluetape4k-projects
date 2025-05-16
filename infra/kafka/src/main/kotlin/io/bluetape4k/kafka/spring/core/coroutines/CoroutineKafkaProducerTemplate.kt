@@ -1,6 +1,6 @@
 package io.bluetape4k.kafka.spring.core.coroutines
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -43,7 +43,7 @@ class CoroutineKafkaProducerTemplate<K, V>(
     private val messageConverter: RecordMessageConverter,
 ): CoroutineScope by CoroutineScope(Dispatchers.IO + SupervisorJob()), Closeable, DisposableBean {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         /**
          * Create an instance of [CoroutineKafkaProducerTemplate] with the provided configuration.
          *
