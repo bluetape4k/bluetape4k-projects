@@ -1,7 +1,7 @@
 package io.bluetape4k.spring.webflux.controller
 
 import io.bluetape4k.concurrent.virtualthread.VT
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -12,5 +12,5 @@ import kotlinx.coroutines.SupervisorJob
 abstract class AbstractCoroutineVTController
     : CoroutineScope by CoroutineScope(Dispatchers.VT + SupervisorJob()) {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 }

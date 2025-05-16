@@ -1,5 +1,6 @@
 package io.bluetape4k.spring.webflux.filter
 
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.springframework.http.server.reactive.ServerHttpRequest
 import reactor.core.publisher.Mono
 
@@ -13,7 +14,7 @@ import reactor.core.publisher.Mono
  * val request: ServerHttpRequest? = HttpRequestHolder.getHttpRequest().awaitSingleOrNull()
  * ```
  */
-object HttpRequestHolder {
+object HttpRequestHolder: KLoggingChannel() {
 
     private val REQUEST_KEY = ServerHttpRequest::class.java
 

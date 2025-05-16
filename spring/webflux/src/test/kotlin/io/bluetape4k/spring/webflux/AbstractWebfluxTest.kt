@@ -1,9 +1,9 @@
 package io.bluetape4k.spring.webflux
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 
 abstract class AbstractWebfluxTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
 }

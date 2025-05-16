@@ -1,7 +1,7 @@
 package io.bluetape4k.spring.webflux.config
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.uninitialized
 import io.bluetape4k.utils.Runtimex
@@ -18,7 +18,7 @@ import org.springframework.web.reactive.function.client.awaitBody
 @SpringBootTest(classes = [CustomWebClientConfig::class])
 class CustomWebClientConfigTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Autowired
     private val webClient: WebClient = uninitialized()
