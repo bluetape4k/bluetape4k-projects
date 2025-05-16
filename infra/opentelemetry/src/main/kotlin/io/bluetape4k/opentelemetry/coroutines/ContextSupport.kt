@@ -21,11 +21,8 @@ suspend inline fun <T> withOtelContext(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     otelContext: Context = currentOtelContext(),
     crossinline block: suspend CoroutineScope.() -> T,
-): T {
-    val coContext = coroutineContext.getOrCurrent()
-    return withContext(coContext + otelContext.asContextElement()) {
-        block()
-    }
+): T = withContext(coroutineContext.getOrCurrent() + otelContext.asContextElement()) {
+    block()
 }
 
 /**
@@ -37,8 +34,6 @@ suspend inline fun <T> withOtelContext(
  */
 suspend inline fun <T> Context.withOtelContext(
     crossinline block: suspend CoroutineScope.() -> T,
-): T {
-    return withContext(currentCoroutineContext() + this.asContextElement()) {
-        block()
-    }
+): T = withContext(currentCoroutineContext() + this.asContextElement()) {
+    block()
 }

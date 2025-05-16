@@ -1,6 +1,6 @@
 package io.bluetape4k.opentelemetry.examples.javaagent
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.opentelemetry.common.attributesOf
 import io.bluetape4k.opentelemetry.common.toAttributeKey
@@ -15,7 +15,7 @@ import kotlin.random.Random
 @RestController
 class IndexController(@Autowired private val openTelemetry: OpenTelemetry) {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val tracer = openTelemetry.getTracer(IndexController::class.java.name)
     private val meter = openTelemetry.getMeter(IndexController::class.java.name)
