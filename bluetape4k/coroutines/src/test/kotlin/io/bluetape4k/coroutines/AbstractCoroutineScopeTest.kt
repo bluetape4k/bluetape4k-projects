@@ -1,6 +1,7 @@
 package io.bluetape4k.coroutines
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
@@ -22,7 +23,7 @@ import kotlin.random.Random
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 abstract class AbstractCoroutineScopeTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     abstract val coroutineScope: CoroutineScope
 

@@ -2,6 +2,7 @@ package io.bluetape4k.coroutines
 
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import io.bluetape4k.utils.Runtimex
 import kotlinx.atomicfu.atomic
@@ -15,7 +16,7 @@ import kotlin.random.Random
 
 class SuspendLazyTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val TEST_NUMBER = 42
     }
 

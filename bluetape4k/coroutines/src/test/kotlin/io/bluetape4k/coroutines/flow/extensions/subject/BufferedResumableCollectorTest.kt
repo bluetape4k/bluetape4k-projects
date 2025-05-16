@@ -2,7 +2,7 @@ package io.bluetape4k.coroutines.flow.extensions.subject
 
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.coroutines.tests.withSingleThread
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
 
 class BufferedResumableCollectorTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `capacity 만큼 버퍼링을 합니다`() = runTest {

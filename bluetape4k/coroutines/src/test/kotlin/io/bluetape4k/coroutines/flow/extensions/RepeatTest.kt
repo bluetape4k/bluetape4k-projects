@@ -1,7 +1,7 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.coroutines.tests.assertResultSet
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -29,9 +29,9 @@ import kotlin.time.Duration.Companion.seconds
 
 class RepeatTest: AbstractFlowTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
-    fun <T> Iterable<T>.cycled(): Sequence<T> = sequence {
+    private fun <T> Iterable<T>.cycled(): Sequence<T> = sequence {
         while (true) {
             yieldAll(this@cycled)
         }

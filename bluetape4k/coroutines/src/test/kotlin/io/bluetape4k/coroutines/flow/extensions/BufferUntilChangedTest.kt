@@ -1,6 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
@@ -14,7 +14,7 @@ import kotlin.random.Random
 
 class BufferUntilChangedTest: AbstractFlowTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `master id 가 같은 경우끼리 하나의 List로 묶습니다`() = runTest {

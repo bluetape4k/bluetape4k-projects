@@ -1,6 +1,7 @@
 package io.bluetape4k.coroutines.support
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
@@ -11,7 +12,7 @@ import kotlin.random.Random
 
 class JavaStreamSupportTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `int stream with coMap`() = runTest {

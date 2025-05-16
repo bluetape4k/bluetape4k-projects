@@ -1,13 +1,13 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import java.io.Serializable
 import kotlin.random.Random
 
 abstract class AbstractFlowTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         const val REPEAT_SIZE = 3
 
         @JvmStatic

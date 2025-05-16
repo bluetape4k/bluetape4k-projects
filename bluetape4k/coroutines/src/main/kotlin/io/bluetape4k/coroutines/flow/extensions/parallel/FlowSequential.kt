@@ -2,6 +2,7 @@ package io.bluetape4k.coroutines.flow.extensions.parallel
 
 import io.bluetape4k.coroutines.flow.exceptions.FlowOperationException
 import io.bluetape4k.coroutines.flow.extensions.Resumable
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.uninitialized
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.coroutineScope
@@ -13,6 +14,8 @@ import kotlinx.coroutines.launch
  * 병렬 flow인 [source]를 소비하고 값을 순차적인 Flow 로 변환합니다.
  */
 internal class FlowSequential<T>(private val source: ParallelFlow<T>): AbstractFlow<T>() {
+
+    companion object: KLoggingChannel()
 
     override suspend fun collectSafely(collector: FlowCollector<T>) {
 

@@ -2,7 +2,7 @@ package io.bluetape4k.coroutines.flow.extensions.subject
 
 import io.bluetape4k.coroutines.flow.exceptions.FlowNoElementException
 import io.bluetape4k.coroutines.flow.extensions.Resumable
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  */
 class UnicastWorkSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         @JvmField
         val terminated = FlowNoElementException("No more elements")
     }

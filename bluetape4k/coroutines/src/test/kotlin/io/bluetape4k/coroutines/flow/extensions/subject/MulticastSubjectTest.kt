@@ -3,7 +3,7 @@ package io.bluetape4k.coroutines.flow.extensions.subject
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.coroutines.tests.withSingleThread
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.onEach
@@ -15,7 +15,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 class MulticastSubjectTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `1개의 collector 가 등록될 때까지 producer가 대기합니다`() = runTest {

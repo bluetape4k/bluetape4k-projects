@@ -1,7 +1,7 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.coroutines.tests.assertResultSet
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -17,7 +17,7 @@ import kotlin.test.assertFailsWith
 
 class MapParallelTest: AbstractFlowTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val parallelism = 4
 

@@ -2,6 +2,7 @@ package io.bluetape4k.coroutines.flow.extensions.parallel
 
 import io.bluetape4k.coroutines.flow.exceptions.FlowOperationException
 import io.bluetape4k.coroutines.flow.extensions.Resumable
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.coroutineScope
@@ -18,6 +19,8 @@ internal class FlowParallel<T>(
     override val parallelism: Int,
     private val runOn: (Int) -> CoroutineDispatcher,
 ): ParallelFlow<T> {
+
+    companion object: KLoggingChannel()
 
     override suspend fun collect(vararg collectors: FlowCollector<T>) {
         coroutineScope {

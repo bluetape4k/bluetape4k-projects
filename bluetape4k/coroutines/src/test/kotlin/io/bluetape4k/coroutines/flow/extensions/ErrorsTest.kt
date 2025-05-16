@@ -1,7 +1,7 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import app.cash.turbine.test
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -13,9 +13,9 @@ import org.junit.jupiter.api.Test
 
 class ErrorsTest: AbstractFlowTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
-    val testException = RuntimeException("Boom!")
+    private val testException = RuntimeException("Boom!")
 
     @Test
     fun `예외 발생 시 fallback으로 대체`() = runTest {

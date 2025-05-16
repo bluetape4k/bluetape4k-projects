@@ -8,7 +8,7 @@ import io.bluetape4k.coroutines.tests.assertResult
 import io.bluetape4k.coroutines.tests.assertResultSet
 import io.bluetape4k.coroutines.tests.withParallels
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test
 
 class ParallelFlowConcatMapTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `concatMap - parallelism is 1`() = runSuspendTest {

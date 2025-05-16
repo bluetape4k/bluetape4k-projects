@@ -4,7 +4,7 @@ import app.cash.turbine.test
 import io.bluetape4k.coroutines.flow.exceptions.FlowOperationException
 import io.bluetape4k.coroutines.tests.assertResult
 import io.bluetape4k.coroutines.tests.assertResultSet
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.flow.flatMapMerge
@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test
 
 class GroupByTest: AbstractFlowTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `group by with key`() = runTest {

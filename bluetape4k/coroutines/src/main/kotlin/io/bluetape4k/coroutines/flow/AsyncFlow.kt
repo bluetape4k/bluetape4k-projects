@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.buffer
@@ -60,16 +61,16 @@ internal class LazyDeferred<out T>(
  * @param T 요소의 수형
  * @property deferredFlow [LazyDeferred]를 emit 하는 [Flow] 인스턴스
  */
-class AsyncFlow<out T> @PublishedApi internal constructor(
+class AsyncFlow<T> @PublishedApi internal constructor(
     @PublishedApi internal val deferredFlow: Flow<LazyDeferred<T>>,
-): Flow<T> {
+): AbstractFlow<T>() {
 
     /**
      * [Flow]와 마찮가지로 emit된 요소를 collect 합니다.
      *
      * @param collector emit 된 요소를 collect 하는 [FlowCollector]
      */
-    override suspend fun collect(collector: FlowCollector<T>) {
+    override suspend fun collectSafely(collector: FlowCollector<T>) {
         channelFlow {
             deferredFlow.collect { defer ->
                 send(defer.start(this))

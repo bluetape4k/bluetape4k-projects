@@ -3,7 +3,7 @@ package io.bluetape4k.coroutines.support
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineStart
@@ -17,7 +17,7 @@ import kotlin.random.Random
 
 class FutureSupportTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val ITEM_COUNT = 128
         private const val DELAY_TIME = 100L
     }

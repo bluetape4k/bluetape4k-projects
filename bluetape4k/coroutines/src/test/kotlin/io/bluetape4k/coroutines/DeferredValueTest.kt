@@ -2,6 +2,7 @@ package io.bluetape4k.coroutines
 
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
@@ -16,7 +17,7 @@ import kotlin.random.Random
 @RandomizedTest
 class DeferredValueTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 5
     }
 
