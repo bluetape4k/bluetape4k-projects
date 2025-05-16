@@ -7,7 +7,7 @@ import com.datastax.oss.driver.api.querybuilder.QueryBuilder
 import io.bluetape4k.cassandra.querybuilder.eq
 import io.bluetape4k.cassandra.querybuilder.literal
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.spring.cassandra.cql.deleteOptions
 import io.bluetape4k.spring.cassandra.cql.updateOptions
@@ -53,7 +53,7 @@ class AsyncCassandraTemplateTest(
     @Autowired private val cqlSession: CqlSession,
 ): AbstractCassandraCoroutineTest("coroutines-template") {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     // NOTE: AsyncCassandraTemplate 는 직접 Injection 받을 수 없고, 이렇게 생성해야 한다.
     private val operations: AsyncCassandraTemplate by lazy {

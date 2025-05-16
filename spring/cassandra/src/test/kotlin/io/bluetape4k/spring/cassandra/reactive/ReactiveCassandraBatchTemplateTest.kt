@@ -1,6 +1,7 @@
 package io.bluetape4k.spring.cassandra.reactive
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.spring.cassandra.cql.coQueryForResultSet
 import io.bluetape4k.spring.cassandra.cql.insertOptions
@@ -43,6 +44,8 @@ import kotlin.test.assertFailsWith
 class ReactiveCassandraBatchTemplateTest(
     @Autowired private val operations: ReactiveCassandraOperations,
 ): AbstractCassandraCoroutineTest("reactive-batch-template") {
+
+    companion object: KLoggingChannel()
 
     private val group1 = Group(GroupKey("users", "0x01", faker.internet().username()))
     private val group2 = Group(GroupKey("users", "0x01", faker.internet().username()))
