@@ -10,7 +10,7 @@ import io.bluetape4k.hibernate.reactive.stage.withSessionSuspending
 import io.bluetape4k.hibernate.reactive.stage.withStatelessSessionSuspending
 import io.bluetape4k.hibernate.reactive.stage.withTransactionSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import jakarta.persistence.criteria.CriteriaQuery
 import kotlinx.coroutines.future.await
@@ -26,7 +26,7 @@ import java.time.Month
 @Execution(ExecutionMode.SAME_THREAD)
 class StageStatelessSessionExamples: AbstractStageTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val author1 = Author(faker.name().name())
     private val author2 = Author(faker.name().name())
