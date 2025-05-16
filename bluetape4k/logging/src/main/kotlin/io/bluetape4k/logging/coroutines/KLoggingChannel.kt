@@ -9,6 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
@@ -34,7 +35,11 @@ import kotlin.concurrent.thread
  */
 open class KLoggingChannel: KLogging() {
 
-    private val sharedFlow = MutableSharedFlow<LogEvent>(0, 16)
+    private val sharedFlow = MutableSharedFlow<LogEvent>(
+        replay = 0,
+        extraBufferCapacity = 64,
+        onBufferOverflow = BufferOverflow.SUSPEND
+    )
     private val scope = CoroutineScope(Dispatchers.IO + CoroutineName("logchannel"))
     private var job: Job? = null
 
@@ -43,8 +48,8 @@ open class KLoggingChannel: KLogging() {
 
         Runtime.getRuntime().addShutdownHook(
             thread(start = false, isDaemon = true) {
-                job?.let {
-                    runBlocking { it.cancelChildren() }
+                runBlocking {
+                    job?.cancelChildren()
                 }
             }
         )
