@@ -3,7 +3,7 @@ package io.bluetape4k.redis.redisson.memorizer
 import io.bluetape4k.cache.memorizer.AsyncMemorizer
 import io.bluetape4k.concurrent.flatMap
 import io.bluetape4k.concurrent.map
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.redisson.api.RMap
 import java.util.concurrent.CompletableFuture
@@ -60,7 +60,7 @@ class AsyncRedissonMemorizer<T: Any, R: Any>(
     val evaluator: (T) -> CompletionStage<R>,
 ): AsyncMemorizer<T, R> {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     override fun invoke(key: T): CompletableFuture<R> {
         return map

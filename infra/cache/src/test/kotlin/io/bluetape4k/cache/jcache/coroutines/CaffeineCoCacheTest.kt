@@ -1,11 +1,11 @@
 package io.bluetape4k.cache.jcache.coroutines
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import java.time.Duration
 
 class CaffeineCoCacheTest: AbstractCoCacheTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     override val coCache by lazy {
         CaffeineCoCache<String, Any> {

@@ -2,7 +2,7 @@ package io.bluetape4k.cache.memorizer.caffeine
 
 import com.github.benmanes.caffeine.cache.Cache
 import io.bluetape4k.cache.memorizer.AsyncMemorizer
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.locks.ReentrantLock
 import java.util.concurrent.CompletableFuture
 import kotlin.concurrent.withLock
@@ -18,7 +18,7 @@ class AsyncCaffeineMemorizer<T: Any, R: Any>(
     private val evaluator: (T) -> CompletableFuture<R>,
 ): AsyncMemorizer<T, R> {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val lock = ReentrantLock()
 

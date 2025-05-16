@@ -5,13 +5,13 @@ import io.bluetape4k.cache.caffeine.caffeine
 import io.bluetape4k.cache.memorizer.AbstractAsyncMemorizerTest
 import io.bluetape4k.cache.memorizer.AsyncFactorialProvider
 import io.bluetape4k.cache.memorizer.AsyncFibonacciProvider
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ForkJoinPool
 
 class AsyncCaffeineMemorizerTest: AbstractAsyncMemorizerTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     override val factorial: AsyncFactorialProvider = AsyncCaffeineFactorialProvider()
     override val fibonacci: AsyncFibonacciProvider = AsyncCaffeineFibonacciProvider()

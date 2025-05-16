@@ -4,13 +4,13 @@ import io.bluetape4k.cache.cache2k.cache2k
 import io.bluetape4k.cache.memorizer.AbstractAsyncMemorizerTest
 import io.bluetape4k.cache.memorizer.AsyncFactorialProvider
 import io.bluetape4k.cache.memorizer.AsyncFibonacciProvider
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ForkJoinPool
 
 class AsyncCache2kMemorizerTest: AbstractAsyncMemorizerTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     override val factorial: AsyncFactorialProvider = AsyncCache2kFactorialProvider()
     override val fibonacci: AsyncFibonacciProvider = AsyncCache2kFibonacciProvider()

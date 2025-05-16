@@ -5,12 +5,12 @@ import io.bluetape4k.cache.ehcache.getOrCreateCache
 import io.bluetape4k.cache.memorizer.AbstractAsyncMemorizerTest
 import io.bluetape4k.cache.memorizer.AsyncFactorialProvider
 import io.bluetape4k.cache.memorizer.AsyncFibonacciProvider
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import java.util.concurrent.CompletableFuture
 
 class AsyncEhcachememorizerTest: AbstractAsyncMemorizerTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     override val factorial: AsyncFactorialProvider = AsyncEhcacheFactorialProvider()
     override val fibonacci: AsyncFibonacciProvider = AsyncEhcacheFibonacciProvider()

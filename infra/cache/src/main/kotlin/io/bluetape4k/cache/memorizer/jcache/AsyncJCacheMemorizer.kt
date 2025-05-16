@@ -1,7 +1,7 @@
 package io.bluetape4k.cache.memorizer.jcache
 
 import io.bluetape4k.cache.memorizer.AsyncMemorizer
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.locks.ReentrantLock
 import java.util.concurrent.CompletableFuture
 import javax.cache.Cache
@@ -18,7 +18,7 @@ class AsyncJCacheMemorizer<in T: Any, R: Any>(
     private val evaluator: (T) -> CompletableFuture<R>,
 ): AsyncMemorizer<T, R> {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val lock = ReentrantLock()
 
