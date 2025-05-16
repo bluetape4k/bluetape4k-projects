@@ -1,6 +1,7 @@
 package io.bluetape4k.io.serializer
 
 import io.bluetape4k.io.compressor.Compressor
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
 
 /**
@@ -16,6 +17,8 @@ open class CompressableBinarySerializer(
     serializer: BinarySerializer,
     val compressor: Compressor,
 ): BinarySerializerDecorator(serializer) {
+
+    companion object: KLogging()
 
     override fun serialize(graph: Any?): ByteArray {
         return graph?.run { compressor.compress(super.serialize(graph)) } ?: emptyByteArray

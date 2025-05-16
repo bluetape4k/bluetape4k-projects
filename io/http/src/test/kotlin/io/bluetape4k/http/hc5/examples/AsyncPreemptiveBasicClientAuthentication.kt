@@ -8,7 +8,7 @@ import io.bluetape4k.http.hc5.async.methods.simpleHttpRequestOf
 import io.bluetape4k.http.hc5.http.httpClientContext
 import io.bluetape4k.http.hc5.http.toProducer
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test
 
 class AsyncPreemptiveBasicClientAuthentication: AbstractHc5Test() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private lateinit var client: CloseableHttpAsyncClient
 

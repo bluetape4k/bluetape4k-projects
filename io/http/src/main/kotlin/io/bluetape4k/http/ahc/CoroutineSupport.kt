@@ -1,5 +1,6 @@
 package io.bluetape4k.http.ahc
 
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.asynchttpclient.AsyncCompletionHandler
@@ -19,6 +20,8 @@ suspend fun BoundRequestBuilder.executeSuspending(): Response =
 internal class DefaultCoroutineCompletionHandler(
     private val cont: CancellableContinuation<Response>,
 ): AsyncCompletionHandler<Response>() {
+
+    companion object: KLoggingChannel()
 
     override fun onCompleted(response: Response?): Response? {
         response?.let {

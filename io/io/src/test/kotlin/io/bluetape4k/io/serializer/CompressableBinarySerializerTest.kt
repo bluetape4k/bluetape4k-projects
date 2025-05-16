@@ -2,7 +2,7 @@ package io.bluetape4k.io.serializer
 
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
-import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
@@ -15,8 +15,7 @@ import java.util.stream.Stream
 @RandomizedTest
 class CompressableBinarySerializerTest {
 
-    companion object {
-        private val log = KotlinLogging.logger {}
+    companion object: KLogging() {
 
         private val compressableSerializers = listOf(
             BinarySerializers.BZip2Jdk,

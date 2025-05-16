@@ -7,7 +7,7 @@ import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
-import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeEqualTo
@@ -18,8 +18,7 @@ import org.junit.jupiter.api.RepeatedTest
 @TempFolderTest
 class FileCoroutinesTest {
 
-    companion object {
-        private val log = KotlinLogging.logger { }
+    companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 3
         private val faker = Fakers.faker
         private fun randomString(length: Int = 256): String = Fakers.fixedString(length)

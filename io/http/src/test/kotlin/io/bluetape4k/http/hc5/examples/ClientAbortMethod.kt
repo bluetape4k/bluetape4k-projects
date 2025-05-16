@@ -3,7 +3,7 @@ package io.bluetape4k.http.hc5.examples
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.entity.consume
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.future.await
@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test
 
 class ClientAbortMethod: AbstractHc5Test() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `abort http method before its normal completion`() = runSuspendTest {

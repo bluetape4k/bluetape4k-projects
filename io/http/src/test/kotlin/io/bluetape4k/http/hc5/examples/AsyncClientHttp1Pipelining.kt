@@ -8,7 +8,7 @@ import io.bluetape4k.http.hc5.async.minimalHttpAsyncClientOf
 import io.bluetape4k.http.hc5.http.executeSuspending
 import io.bluetape4k.http.hc5.http.tlsConfig
 import io.bluetape4k.http.hc5.http.toProducer
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.test.runTest
 import org.apache.hc.client5.http.async.methods.SimpleResponseConsumer
@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test
 
 class AsyncClientHttp1Pipelining: AbstractHc5Test() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `pipelined execution of multiple HTTP 1_1 message exchanges`() = runTest {

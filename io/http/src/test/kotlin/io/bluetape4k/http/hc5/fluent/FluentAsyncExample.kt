@@ -7,7 +7,7 @@ import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.trace
@@ -29,7 +29,7 @@ import java.util.concurrent.Future
  */
 class FluentAsyncExample: AbstractHc5Test() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     val requests = listOf(
         requestGet("http://www.naver.com/"),

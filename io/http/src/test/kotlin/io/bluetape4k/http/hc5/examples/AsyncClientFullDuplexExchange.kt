@@ -3,7 +3,7 @@ package io.bluetape4k.http.hc5.examples
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.async.minimalHttpAsyncClientOf
 import io.bluetape4k.http.hc5.http.basicHttpRequest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.logging.warn
@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit
 
 class AsyncClientFullDuplexExchange: AbstractHc5Test() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `full-duplex streaming HTTP 1_1 message exchange`() {

@@ -5,7 +5,7 @@ import io.bluetape4k.http.hc5.async.executeSuspending
 import io.bluetape4k.http.hc5.async.httpAsyncClient
 import io.bluetape4k.http.hc5.async.methods.simpleHttpRequestOf
 import io.bluetape4k.http.hc5.reactor.ioReactorConfig
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.test.runTest
 import org.apache.hc.client5.http.async.AsyncExecChainHandler
@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test
 
 class AsyncClientMessageTrailers: AbstractHc5Test() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `request interceptor and execution interceptor`() = runTest {

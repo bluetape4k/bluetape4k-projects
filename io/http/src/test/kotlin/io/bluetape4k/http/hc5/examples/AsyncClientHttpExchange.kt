@@ -3,7 +3,7 @@ package io.bluetape4k.http.hc5.examples
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.async.executeSuspending
 import io.bluetape4k.http.hc5.async.methods.simpleHttpRequestOf
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test
 
 class AsyncClientHttpExchange: AbstractHc5Test() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `asynchronous HTTP 1_1 request in coroutines`() = runTest {

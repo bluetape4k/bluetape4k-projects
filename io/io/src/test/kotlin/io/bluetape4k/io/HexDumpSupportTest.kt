@@ -1,7 +1,7 @@
 package io.bluetape4k.io
 
 import io.bluetape4k.io.apache.ApacheByteArrayOutputStream
-import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.toUtf8String
 import org.amshove.kluent.internal.assertFailsWith
 import org.amshove.kluent.shouldBeEqualTo
@@ -9,9 +9,7 @@ import org.junit.jupiter.api.Test
 
 class HexDumpSupportTest {
 
-    companion object {
-        private val log = KotlinLogging.logger {}
-    }
+    companion object: KLogging()
 
     @Test
     fun `hex dump to string builder`() {
