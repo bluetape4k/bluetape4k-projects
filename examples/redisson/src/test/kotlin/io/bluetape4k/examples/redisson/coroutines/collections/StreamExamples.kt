@@ -4,7 +4,7 @@ import io.bluetape4k.coroutines.support.coAwait
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.ackAllAsync
 import io.bluetape4k.redis.redisson.streamAddArgsOf
@@ -28,7 +28,7 @@ import kotlin.time.toJavaDuration
  */
 class StreamExamples: AbstractRedissonCoroutineTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `stream 기본 사용 예`() {

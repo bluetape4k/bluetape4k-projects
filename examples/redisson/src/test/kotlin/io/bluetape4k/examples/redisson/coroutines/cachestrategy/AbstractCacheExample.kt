@@ -7,6 +7,7 @@ import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.toAc
 import io.bluetape4k.exposed.sql.fetchBatchedResultFlow
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import kotlinx.coroutines.CoroutineScope
@@ -44,7 +45,7 @@ import java.util.concurrent.CompletionStage
 )
 abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         @JvmStatic
         val faker = Fakers.faker
     }

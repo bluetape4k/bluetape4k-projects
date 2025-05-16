@@ -4,7 +4,7 @@ import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.Acto
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.RedissonCodecs
 import io.bluetape4k.redis.redisson.coroutines.coAwait
@@ -32,7 +32,7 @@ import kotlin.system.measureTimeMillis
 
 class CacheReadThroughExample: AbstractCacheExample() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         const val ACTOR_SIZE = 500
     }
 

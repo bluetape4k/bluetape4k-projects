@@ -2,6 +2,7 @@ package io.bluetape4k.examples.redisson.coroutines.objects
 
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.coroutines.coAwait
 import org.amshove.kluent.shouldBeEqualTo
@@ -22,6 +23,8 @@ import org.redisson.api.geo.GeoSearchArgs
  * 참고: [Geospatial Holder](https://github.com/redisson/redisson/wiki/6.-distributed-objects/#63-geospatial-holder)
  */
 class GeoExamples: AbstractRedissonCoroutineTest() {
+
+    companion object: KLoggingChannel()
 
     @Test
     fun `RGeo example`() = runSuspendIO {

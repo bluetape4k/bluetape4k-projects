@@ -1,8 +1,8 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
 import io.bluetape4k.collections.toList
-import io.bluetape4k.junit5.coroutines.MultijobTester
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.coroutines.coAwait
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.test.runTest
@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
 
 class DequeExamples: io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `deque 사용`() = runTest {
@@ -51,9 +51,9 @@ class DequeExamples: io.bluetape4k.examples.redisson.coroutines.AbstractRedisson
         val deque = redisson.getDeque<Int>(randomName())
         deque.clear()
 
-        MultijobTester()
+        SuspendedJobTester()
             .numThreads(16)
-            .roundsPerJob(4)
+            .roundsPerJob(16 * 4)
             .add {
                 deque.addLastAsync(counter.incrementAndGet()).coAwait()
             }

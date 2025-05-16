@@ -3,7 +3,7 @@ package io.bluetape4k.examples.redisson.coroutines.objects
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.awaitility.coUntil
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.coroutines.coAwait
 import kotlinx.atomicfu.atomic
@@ -14,7 +14,7 @@ import org.redisson.client.codec.StringCodec
 
 class TopicExamples: AbstractRedissonCoroutineTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `add topic listener`() = runSuspendIO {

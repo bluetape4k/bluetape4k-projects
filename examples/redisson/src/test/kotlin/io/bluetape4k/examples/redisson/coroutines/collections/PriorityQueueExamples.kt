@@ -1,6 +1,7 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.RedissonCodecs
 import io.bluetape4k.redis.redisson.coroutines.coAwait
 import kotlinx.coroutines.test.runTest
@@ -13,6 +14,8 @@ import org.junit.jupiter.api.Test
  * 참고: [Priority Queue](https://github.com/redisson/redisson/wiki/7.-distributed-collections#716-priority-queue)
  */
 class PriorityQueueExamples: AbstractRedissonCoroutineTest() {
+
+    companion object: KLoggingChannel()
 
     data class Item(
         val key: String,
