@@ -2,7 +2,7 @@ package io.bluetape4k.redis.redisson.coroutines
 
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.leader.coroutines.RedissonCoLeaderElection
 import kotlinx.atomicfu.atomic
@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
 
 class RedissonClientCoroutineTest: AbstractRedissonCoroutineTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `with batch async`() = runSuspendIO {

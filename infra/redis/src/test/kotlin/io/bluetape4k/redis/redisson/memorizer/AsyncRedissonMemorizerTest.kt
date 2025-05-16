@@ -1,6 +1,6 @@
 package io.bluetape4k.redis.redisson.memorizer
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import io.bluetape4k.redis.redisson.AbstractRedissonTest
 import org.amshove.kluent.shouldBeEqualTo
@@ -16,8 +16,10 @@ import kotlin.system.measureTimeMillis
 
 class AsyncRedissonMemorizerTest: AbstractRedissonTest() {
 
+    companion object: KLoggingChannel()
+
     private val heavyMap: RMap<Int, Int> by lazy {
-        redisson.getMap<Int?, Int?>("asyncMemorizer:heavy", IntegerCodec()).apply { clear() }
+        redisson.getMap<Int, Int>("asyncMemorizer:heavy", IntegerCodec()).apply { clear() }
     }
 
     val heavyFunc: (Int) -> CompletableFuture<Int> = heavyMap.asyncMemorizer { x ->
@@ -62,7 +64,7 @@ class AsyncRedissonMemorizerTest: AbstractRedissonTest() {
 
 abstract class AsyncFactorialProvider {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     abstract val cachedCalc: (Long) -> CompletableFuture<Long>
 
@@ -87,7 +89,7 @@ class RedissonAsyncFactorialProvider(redisson: RedissonClient): AsyncFactorialPr
 
 abstract class AsyncFibonacciProvider {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     abstract val cachedCalc: (Long) -> CompletableFuture<Long>
 

@@ -33,9 +33,7 @@ suspend fun <V> RFuture<V>.coAwait(): V = toCompletableFuture().await()
  */
 fun <V> Iterable<RFuture<out V>>.sequence(
     executor: Executor = ForkJoinPool.commonPool(),
-): CompletableFuture<List<V>> {
-    return map { it.toCompletableFuture() }.sequence(executor)
-}
+): CompletableFuture<List<V>> = map { it.toCompletableFuture() }.sequence(executor)
 
 
 /**

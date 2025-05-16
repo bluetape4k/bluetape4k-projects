@@ -3,7 +3,7 @@ package io.bluetape4k.redis.redisson.leader.coroutines
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.AbstractRedissonTest
 import kotlinx.coroutines.coroutineScope
@@ -16,7 +16,7 @@ import kotlin.random.Random
 
 class RedissonCoLeaderElectionTest: AbstractRedissonTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `run suspend action if leader`() = runSuspendIO {
