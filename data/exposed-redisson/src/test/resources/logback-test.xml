@@ -11,7 +11,7 @@
         </encoder>
     </appender>
 
-    <logger name="io.bluetape4k.exposed.redisson" level="DEBUG"/>
+    <!--    <logger name="io.bluetape4k.exposed.redisson" level="DEBUG"/>-->
     <!--    <logger name="org.jetbrains.exposed" level="DEBUG"/>-->
     <!--    <logger name="Exposed" level="DEBUG"/>-->
 

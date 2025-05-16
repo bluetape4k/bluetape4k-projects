@@ -4,6 +4,7 @@ import io.bluetape4k.exposed.dao.HasIdentifier
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.junit5.awaitility.coUntil
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeGreaterThan
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.withPollInterval
@@ -14,6 +15,8 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.time.Duration
 
 interface SuspendedWriteBehindScenario<T: HasIdentifier<ID>, ID: Any>: SuspendedCacheTestScenario<T, ID> {
+
+    companion object: KLoggingChannel()
 
     suspend fun createNewEntity(): T
 

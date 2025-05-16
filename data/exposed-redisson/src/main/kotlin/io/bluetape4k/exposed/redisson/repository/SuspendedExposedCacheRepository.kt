@@ -8,7 +8,7 @@ import io.bluetape4k.exposed.redisson.map.SuspendedEntityMapLoader
 import io.bluetape4k.exposed.redisson.map.SuspendedEntityMapWriter
 import io.bluetape4k.exposed.redisson.map.SuspendedExposedEntityMapLoader
 import io.bluetape4k.exposed.redisson.map.SuspendedExposedEntityMapWriter
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
@@ -43,7 +43,7 @@ import java.time.Duration
  */
 interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         const val DefaultBatchSize = 100
     }
 
@@ -107,7 +107,7 @@ abstract class AbstractSuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID:
     protected val scope: CoroutineScope = CoroutineScope(Dispatchers.IO),
 ): SuspendedExposedCacheRepository<T, ID> {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     /**
      * DB의 정보를 Read Through로 캐시에 로딩하는 [EntityMapLoader] 입니다.

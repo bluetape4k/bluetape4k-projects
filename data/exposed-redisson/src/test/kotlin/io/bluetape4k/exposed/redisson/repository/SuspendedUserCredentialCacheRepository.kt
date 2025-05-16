@@ -3,7 +3,7 @@ package io.bluetape4k.exposed.redisson.repository
 import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialDTO
 import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialTable
 import io.bluetape4k.exposed.redisson.repository.UserSchema.toUserCredential
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.autoIncColumnType
@@ -19,7 +19,7 @@ class SuspendedUserCredentialCacheRepository(
     config: RedisCacheConfig = RedisCacheConfig.READ_WRITE_THROUGH,
 ): AbstractSuspendedExposedCacheRepository<UserCredentialDTO, UUID>(redissonClient, cacheName, config) {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     override val entityTable: UserCredentialTable = UserCredentialTable
     override fun ResultRow.toEntity(): UserCredentialDTO = toUserCredential()

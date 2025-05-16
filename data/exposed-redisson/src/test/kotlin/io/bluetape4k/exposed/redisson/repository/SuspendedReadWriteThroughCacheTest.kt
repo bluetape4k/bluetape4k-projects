@@ -11,6 +11,7 @@ import io.bluetape4k.exposed.redisson.repository.UserSchema.withSuspendedUserTab
 import io.bluetape4k.exposed.redisson.repository.scenarios.SuspendedReadThroughScenario
 import io.bluetape4k.exposed.redisson.repository.scenarios.SuspendedWriteThroughScenario
 import io.bluetape4k.exposed.tests.TestDB
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.exposed.sql.Transaction
@@ -22,6 +23,8 @@ import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 class SuspendedReadWriteThroughCacheTest {
+
+    companion object: KLoggingChannel()
 
     abstract class SuspendedAutoIncIdReadWriteThrough: AbstractRedissonTest(),
                                                        SuspendedReadThroughScenario<UserDTO, Long>,

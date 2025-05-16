@@ -6,6 +6,7 @@ import io.bluetape4k.exposed.redisson.repository.UserSchema.withUserCredentialTa
 import io.bluetape4k.exposed.redisson.repository.UserSchema.withUserTable
 import io.bluetape4k.exposed.redisson.repository.scenarios.ReadThroughScenario
 import io.bluetape4k.exposed.tests.TestDB
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.selectAll
@@ -14,6 +15,8 @@ import org.junit.jupiter.api.Nested
 import java.util.*
 
 class ReadThroughCacheTest {
+
+    companion object: KLogging()
 
     abstract class AutoIncIdReadThrough: AbstractRedissonTest(),
                                          ReadThroughScenario<UserSchema.UserDTO, Long> {

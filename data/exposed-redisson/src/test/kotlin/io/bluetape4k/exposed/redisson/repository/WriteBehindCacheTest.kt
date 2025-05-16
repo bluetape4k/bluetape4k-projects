@@ -9,6 +9,7 @@ import io.bluetape4k.exposed.redisson.repository.UserSchema.withUserCredentialTa
 import io.bluetape4k.exposed.redisson.repository.UserSchema.withUserTable
 import io.bluetape4k.exposed.redisson.repository.scenarios.WriteBehindScenario
 import io.bluetape4k.exposed.tests.TestDB
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.selectAll
@@ -16,7 +17,9 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Nested
 import java.util.*
 
-class WriteBehindCacheTest: AbstractRedissonTest() {
+class WriteBehindCacheTest {
+
+    companion object: KLogging()
 
     abstract class AutoIncIdReadWriteBehind: AbstractRedissonTest(),
                                              WriteBehindScenario<UserDTO, Long> {
