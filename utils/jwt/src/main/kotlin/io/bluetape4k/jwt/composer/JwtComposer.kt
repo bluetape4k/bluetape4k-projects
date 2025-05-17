@@ -47,7 +47,7 @@ class JwtComposer(
      */
     fun header(key: String, value: Any) = apply {
         key.requireNotBlank("key")
-        if (key !in io.bluetape4k.jwt.composer.JwtComposer.Companion.RESERVED_HEADER_NAMES) {
+        if (key !in JwtComposer.RESERVED_HEADER_NAMES) {
             headers[key] = value
         }
     }
@@ -64,7 +64,7 @@ class JwtComposer(
         if (check) {
             when (name) {
                 Claims.EXPIRATION -> throw IllegalArgumentException("use expiration() instead of claim()")
-                Claims.ISSUED_AT  -> throw IllegalArgumentException("use setIssuedAt() instead of claim()")
+                Claims.ISSUED_AT -> throw IllegalArgumentException("use setIssuedAt() instead of claim()")
                 Claims.NOT_BEFORE -> throw IllegalArgumentException("use notBefore() instead of claim()")
             }
         }
@@ -113,7 +113,7 @@ class JwtComposer(
             signWith(keyChain.keyPair.private, keyChain.algorithm)
 
             headers.forEach { (key, value) ->
-                if (key !in io.bluetape4k.jwt.composer.JwtComposer.Companion.RESERVED_HEADER_NAMES) {
+                if (key !in JwtComposer.RESERVED_HEADER_NAMES) {
                     log.trace { "set jwt header. key=$key, value=$value" }
                     setHeaderParam(key, value)
                 }

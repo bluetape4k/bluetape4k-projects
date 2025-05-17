@@ -12,7 +12,7 @@
         </encoder>
     </appender>
 
-    <logger name="io.bluetape4k.lingua" level="TRACE"/>
+    <logger name="io.bluetape4k.lingua" level="DEBUG"/>
 
     <root level="INFO">
         <appender-ref ref="Console"/>
