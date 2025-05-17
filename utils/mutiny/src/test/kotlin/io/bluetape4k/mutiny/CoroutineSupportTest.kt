@@ -1,6 +1,6 @@
 package io.bluetape4k.mutiny
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.smallrye.mutiny.Uni
 import io.smallrye.mutiny.coroutines.awaitSuspending
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 
 class CoroutineSupportTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `suspend 함수를 Uni로 변환하기`() = runTest {
