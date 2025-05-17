@@ -194,7 +194,7 @@ object Versions {
     const val junit_platform = "1.11.4"     // https://mvnrepository.com/artifact/org.junit.platform/junit-platform-launcher
     const val assertj_core = "3.27.3"       // https://mvnrepository.com/artifact/org.assertj/assertj-core
     const val kluent = "1.73"               // https://mvnrepository.com/artifact/org.amshove.kluent/kluent
-    const val mockk = "1.14.0"             // https://mvnrepository.com/artifact/io.mockk/mockk
+    const val mockk = "1.14.2"             // https://mvnrepository.com/artifact/io.mockk/mockk
     const val springmockk = "4.0.2"         // https://mvnrepository.com/artifact/com.ninja-squad/springmockk
     const val awaitility = "4.3.0"          // https://mvnrepository.com/artifact/org.awaitility/awaitility
     const val jmh = "1.37"                  // https://mvnrepository.com/artifact/org.openjdk.jmh/jmh-core
@@ -1133,17 +1133,16 @@ object Libs {
     const val spring_kafka_test = "org.springframework.kafka:spring-kafka-test:${Versions.spring_kafka}"
 
     // Pulsar
-    const val pulsar_client = "org.apache.pulsar:pulsar-client:3.1.0"
+    const val pulsar_client = "org.apache.pulsar:pulsar-client:4.0.1"  // https://mvnrepository.com/artifact/org.apache.pulsar/pulsar-client
 
     // Nats
-    const val jnats = "io.nats:jnats:2.17.4"     // https://mvnrepository.com/artifact/io.nats/jnats
-    const val nats_spring = "io.nats:nats-spring:0.5.7"  // https://mvnrepository.com/artifact/io.nats/nats-spring
-    const val nats_spring_cloud_stream_binder = "io.nats:nats-spring-cloud-stream-binder:0.5.7" //https://mvnrepository.com/artifact/io.nats/nats-spring-cloud-stream-binder
-
+    const val jnats = "io.nats:jnats:2.20.5"     // https://mvnrepository.com/artifact/io.nats/jnats
+    const val nats_spring = "io.nats:nats-spring:0.6.0-3.1"  // https://mvnrepository.com/artifact/io.nats/nats-spring
+    const val nats_spring_cloud_stream_binder = "io.nats:nats-spring-cloud-stream-binder:0.6.0-3.1" //https://mvnrepository.com/artifact/io.nats/nats-spring-cloud-stream-binder
 
     // Zipkin
-    const val zipkin_brave = "io.zipkin.brave:brave:5.15.1"
-    const val zipkin_brave_tests = "io.zipkin.brave:brave-tests:5.15.1"
+    const val zipkin_brave = "io.zipkin.brave:brave:6.0.3"              // https://mvnrepository.com/artifact/io.zipkin.brave/brave
+    const val zipkin_brave_tests = "io.zipkin.brave:brave-tests:6.0.3"  // https://mvnrepository.com/artifact/io.zipkin.brave/brave-tests
 
     // Hashicorp Vault
     const val vault_java_driver = "com.bettercloud:vault-java-driver:5.1.0"
@@ -1434,9 +1433,9 @@ object Libs {
 
     // kubernetes
     val testcontainers_k3s = testcontainers("k3s")
-    const val fabric8_kubernetes_client_bom = "io.fabric8:kubernetes-client-bom:6.11.0" // https://mvnrepository.com/artifact/io.fabric8/kubernetes-client-bom
-    const val fabric8_kubernetes_client = "io.fabric8:kubernetes-client:6.11.0"  // https://mvnrepository.com/artifact/io.fabric8/kubernetes-client
-    const val kubernetes_client_java = "io.kubernetes:client-java:20.0.1"   // https://mvnrepository.com/artifact/io.kubernetes/client-java
+    const val fabric8_kubernetes_client_bom = "io.fabric8:kubernetes-client-bom:6.13.4" // https://mvnrepository.com/artifact/io.fabric8/kubernetes-client-bom
+    const val fabric8_kubernetes_client = "io.fabric8:kubernetes-client:6.13.4"  // https://mvnrepository.com/artifact/io.fabric8/kubernetes-client
+    const val kubernetes_client_java = "io.kubernetes:client-java:21.0.2"   // https://mvnrepository.com/artifact/io.kubernetes/client-java
 
     // Minio
     const val minio = "io.minio:minio:8.5.17" // https://mvnrepository.com/artifact/io.minio/minio
