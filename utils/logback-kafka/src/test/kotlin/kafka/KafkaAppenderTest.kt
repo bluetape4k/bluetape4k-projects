@@ -8,7 +8,7 @@ import ch.qos.logback.core.BasicStatusManager
 import ch.qos.logback.core.encoder.Encoder
 import io.bluetape4k.logback.kafka.exporter.KafkaExporter
 import io.bluetape4k.logback.kafka.keyprovider.KafkaKeyProvider
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.mockk.Called
 import io.mockk.clearAllMocks
@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test
 
 class KafkaAppenderTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val appender = KafkaAppender<ILoggingEvent>()
     private val ctx = LoggerContext()
