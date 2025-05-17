@@ -1,7 +1,7 @@
 package io.bluetape4k.vertx.sqlclient.mybatis
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.vertx.sqlclient.schema.PersonMapper
 import io.bluetape4k.vertx.sqlclient.schema.PersonSchema.person
@@ -21,7 +21,7 @@ import org.mybatis.dynamic.sql.util.kotlin.model.update
 
 class MysqlSqlClientExtensionsTest: AbstractSqlClientExtensionsTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     override
 

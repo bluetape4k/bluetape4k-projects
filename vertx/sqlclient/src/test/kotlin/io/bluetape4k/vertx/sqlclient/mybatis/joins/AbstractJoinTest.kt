@@ -1,7 +1,7 @@
 package io.bluetape4k.vertx.sqlclient.mybatis.joins
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.vertx.sqlclient.AbstractVertxSqlClientTest
 import io.bluetape4k.vertx.sqlclient.mybatis.renderForVertx
@@ -40,7 +40,7 @@ import kotlin.test.assertFailsWith
 
 abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     override val schemaFileNames: List<String> = listOf("person.sql", "generatedAlways.sql", "joins.sql")
 

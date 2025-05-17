@@ -1,7 +1,7 @@
 package io.bluetape4k.vertx
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 
 abstract class AbstractVertxTest {
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 }

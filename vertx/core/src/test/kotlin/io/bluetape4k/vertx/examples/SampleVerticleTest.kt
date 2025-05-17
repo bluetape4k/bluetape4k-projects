@@ -1,7 +1,7 @@
 package io.bluetape4k.vertx.examples
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.vertx.tests.withTestContextSuspending
 import io.vertx.core.Vertx
@@ -21,7 +21,7 @@ import org.junit.jupiter.api.fail
 @ExtendWith(VertxExtension::class)
 class SampleVerticleTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 10
     }
 
