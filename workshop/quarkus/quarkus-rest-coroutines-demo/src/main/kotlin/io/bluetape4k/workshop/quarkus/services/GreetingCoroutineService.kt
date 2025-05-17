@@ -1,6 +1,6 @@
 package io.bluetape4k.workshop.quarkus.services
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.workshop.quarkus.model.Greeting
 import jakarta.inject.Singleton
@@ -21,7 +21,7 @@ import kotlin.time.Duration.Companion.milliseconds
 @Singleton
 class GreetingCoroutineService {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     suspend fun greeting(name: String): Greeting {
         log.debug { "Greeting with name=$name" }

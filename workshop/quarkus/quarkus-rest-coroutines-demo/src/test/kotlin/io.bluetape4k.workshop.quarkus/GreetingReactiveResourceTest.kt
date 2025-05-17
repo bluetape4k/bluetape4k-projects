@@ -2,7 +2,7 @@ package io.bluetape4k.workshop.quarkus
 
 import io.bluetape4k.codec.encodeBase62
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.quarkus.tests.restassured.bodyAs
 import io.bluetape4k.quarkus.tests.restassured.bodyAsList
@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test
 @QuarkusTest
 class GreetingReactiveResourceTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val BASE_PATH = "/reactive"
     }
 

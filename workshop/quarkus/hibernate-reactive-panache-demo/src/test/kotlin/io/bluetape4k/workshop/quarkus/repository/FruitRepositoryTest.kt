@@ -1,7 +1,7 @@
 package io.bluetape4k.workshop.quarkus.repository
 
 import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.quarkus.panache.withPanacheTransactionAndAwait
 import io.bluetape4k.workshop.quarkus.model.Fruit
 import io.quarkus.test.hibernate.reactive.panache.TransactionalUniAsserter
@@ -21,7 +21,7 @@ import kotlin.random.Random
 @RunOnVertxContext
 class FruitRepositoryTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
 
         private val faker = Fakers.faker
 

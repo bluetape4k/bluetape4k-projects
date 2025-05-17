@@ -1,6 +1,6 @@
 package io.bluetape4k.workshop.quarkus.services
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.workshop.quarkus.model.Greeting
 import io.smallrye.mutiny.Multi
@@ -12,7 +12,7 @@ import java.time.Duration
 @ApplicationScoped
 class GreetingReactiveService {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     fun greeting(name: String): Uni<Greeting> {
         log.debug { "Greeting with name=$name" }

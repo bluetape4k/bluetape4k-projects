@@ -1,6 +1,6 @@
 package io.bluetape4k.workshop.quarkus.rest
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.quarkus.tests.restassured.bodyAs
 import io.bluetape4k.quarkus.tests.restassured.bodyAsList
@@ -20,7 +20,7 @@ import kotlin.random.Random
 @QuarkusTest
 class FruitResourceTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val BASE_PATH = "/fruits"
     }
 
