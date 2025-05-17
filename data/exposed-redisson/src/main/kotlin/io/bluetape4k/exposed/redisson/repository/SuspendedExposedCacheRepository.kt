@@ -28,7 +28,6 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.statements.BatchInsertStatement
 import org.jetbrains.exposed.sql.statements.UpdateStatement
 import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
-import org.redisson.api.EvictionMode
 import org.redisson.api.RLocalCachedMap
 import org.redisson.api.RMap
 import org.redisson.api.RMapCache
@@ -164,7 +163,7 @@ abstract class AbstractSuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID:
 
     protected fun createLocalCacheMap(): RLocalCachedMap<ID, T?> =
         localCachedMap(cacheName, redissonClient) {
-            log.info { "RLocalCAcheMap 를 생성합니다. config=$config" }
+            log.info { "RLocalCacheMap 를 생성합니다. config=$config" }
 
             if (config.isReadOnly) {
                 loaderAsync(suspendedMapLoader)
@@ -187,6 +186,8 @@ abstract class AbstractSuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID:
 
     protected fun createMapCache(): RMapCache<ID, T?> =
         mapCache(cacheName, redissonClient) {
+            log.info { "RMapCache 를 생성합니다. config=$config" }
+
             if (config.isReadOnly) {
                 loaderAsync(suspendedMapLoader)
             } else {
@@ -198,10 +199,6 @@ abstract class AbstractSuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID:
             codec(config.codec)
             writeRetryAttempts(config.writeRetryAttempts)
             writeRetryInterval(config.writeRetryInterval)
-        }.apply {
-            if (config.nearCacheMaxSize > 0) {
-                setMaxSize(config.nearCacheMaxSize, EvictionMode.LRU)
-            }
         }
 
     override suspend fun findAll(
