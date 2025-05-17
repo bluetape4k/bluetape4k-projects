@@ -1,6 +1,6 @@
 package io.bluetape4k.examples.mutiny
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.mutiny.deferUni
 import io.bluetape4k.mutiny.multiOf
@@ -25,7 +25,7 @@ import kotlin.random.Random
 
 class MultiBasicExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `01 Multi Basic`() {

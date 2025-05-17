@@ -1,7 +1,7 @@
 package io.bluetape4k.resilience4j.retry
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.resilience4j.CoHelloWorldService
 import io.github.resilience4j.kotlin.retry.decorateSuspendFunction
 import io.github.resilience4j.kotlin.retry.executeSuspendFunction
@@ -14,7 +14,7 @@ import kotlin.test.assertFailsWith
 
 class RetryCoroutinesTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `성공한 함수는 retry를 하지 않습니다`() = runSuspendTest {
@@ -43,7 +43,7 @@ class RetryCoroutinesTest {
 
         val result = retry.executeSuspendFunction {
             when (helloWorldService.invocationCount) {
-                0    -> helloWorldService.throwException()
+                0 -> helloWorldService.throwException()
                 else -> helloWorldService.returnHelloWorld()
             }
         }

@@ -4,7 +4,7 @@ import io.bluetape4k.coroutines.flow.extensions.flowRangeOf
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.coroutines.tests.withSingleThread
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.take
@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test
 
 class UnicastWorkSubjectTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val BUFFER_SIZE = 500_000
         private val expectedList = (0..4).toList()
     }

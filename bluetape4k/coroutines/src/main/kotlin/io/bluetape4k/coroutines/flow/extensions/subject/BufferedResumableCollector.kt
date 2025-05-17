@@ -1,7 +1,7 @@
 package io.bluetape4k.coroutines.flow.extensions.subject
 
 import io.bluetape4k.coroutines.flow.extensions.Resumable
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.FlowCollector
@@ -38,7 +38,7 @@ import kotlinx.coroutines.flow.FlowCollector
  */
 class BufferedResumableCollector<T> private constructor(capacity: Int): Resumable() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         @JvmStatic
         operator fun <T> invoke(capacity: Int): BufferedResumableCollector<T> {
             return BufferedResumableCollector(capacity.coerceAtLeast(1))

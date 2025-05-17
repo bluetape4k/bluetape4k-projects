@@ -1,7 +1,7 @@
 package io.bluetape4k.io.okio.coroutines
 
 import io.bluetape4k.io.okio.coroutines.internal.SEGMENT_SIZE
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import okio.Buffer
 import okio.ByteString
 import okio.Timeout
@@ -11,7 +11,7 @@ internal class RealBufferedAsyncSink(
     private val sink: AsyncSink,
 ): BufferedAsyncSink {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private var closed = AtomicBoolean(false)
     override val buffer = Buffer()

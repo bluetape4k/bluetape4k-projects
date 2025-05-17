@@ -3,7 +3,7 @@ package io.bluetape4k.images.coroutines
 import com.sksamuel.scrimage.AwtImage
 import com.sksamuel.scrimage.metadata.ImageMetadata
 import io.bluetape4k.io.writeSuspending
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -31,7 +31,7 @@ class CoWriteContext(
     private val metadata: ImageMetadata,
 ) {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     suspend fun bytes(): ByteArray {
         return ByteArrayOutputStream().use { bos ->

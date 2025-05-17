@@ -1,6 +1,6 @@
 package io.bluetape4k.examples.coroutines.flow
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.channels.Channel
@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test
 
 class FlowBasicExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val sequencer = atomic(0L)
 

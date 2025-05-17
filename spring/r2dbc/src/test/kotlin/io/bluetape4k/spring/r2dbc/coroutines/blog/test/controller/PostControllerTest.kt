@@ -1,6 +1,6 @@
 package io.bluetape4k.spring.r2dbc.coroutines.blog.test.controller
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.spring.r2dbc.coroutines.blog.domain.Post
 import io.bluetape4k.spring.r2dbc.coroutines.blog.test.AbstractR2dbcBlogApplicationTest
@@ -21,7 +21,7 @@ class PostControllerTest(
     @Autowired private val client: WebTestClient,
 ): AbstractR2dbcBlogApplicationTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `find all posts`() = runTest {

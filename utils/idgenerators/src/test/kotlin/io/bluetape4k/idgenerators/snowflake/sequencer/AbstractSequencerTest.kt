@@ -6,7 +6,7 @@ import io.bluetape4k.idgenerators.snowflake.SnowflakeId
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
@@ -24,7 +24,7 @@ import kotlin.math.absoluteValue
 
 abstract class AbstractSequencerTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val TEST_SIZE: Int = MAX_SEQUENCE * 2
         private const val REPEAT_SIZE = 3
     }

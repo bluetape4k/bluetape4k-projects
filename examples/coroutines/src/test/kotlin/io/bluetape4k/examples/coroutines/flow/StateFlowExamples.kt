@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.coroutines.flow
 
 import io.bluetape4k.coroutines.flow.extensions.log
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.cancelChildren
@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test
  */
 class StateFlowExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `StateFlow 값 변화 관찰하기 - 상태 전파`() = runTest {

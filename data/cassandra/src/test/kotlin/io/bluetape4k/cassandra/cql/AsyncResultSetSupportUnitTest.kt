@@ -4,7 +4,7 @@ import com.datastax.oss.driver.api.core.cql.AsyncResultSet
 import com.datastax.oss.driver.api.core.cql.Row
 import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.concurrent.failedCompletableFutureOf
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -17,7 +17,7 @@ import kotlin.test.assertFailsWith
 
 class AsyncResultSetSupportUnitTest: AbstractCassandraTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val first: AsyncResultSet = mockk(relaxed = true)
     private val last: AsyncResultSet = mockk(relaxed = true)

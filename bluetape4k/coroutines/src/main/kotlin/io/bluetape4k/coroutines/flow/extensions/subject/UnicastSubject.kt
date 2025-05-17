@@ -2,7 +2,7 @@ package io.bluetape4k.coroutines.flow.extensions.subject
 
 import io.bluetape4k.coroutines.flow.exceptions.FlowNoElementException
 import io.bluetape4k.coroutines.flow.extensions.Resumable
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.AbstractFlow
@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  */
 class UnicastSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private val terminatedCollector = FlowCollector<Any?> {
             log.trace { "TerminatedCollector was called." }
         }

@@ -21,6 +21,14 @@ object GsonCodecs {
 
     // Binary Codecs
 
+    val Jdk by unsafeLazy { BinaryGsonCodec(BinarySerializers.Jdk) }
+
+    val GZipJdk by unsafeLazy { CompressableBinaryGsonCodec(Jdk, Compressors.GZip) }
+    val DeflateJdk by unsafeLazy { CompressableBinaryGsonCodec(Jdk, Compressors.Deflate) }
+    val LZ4Jdk by unsafeLazy { CompressableBinaryGsonCodec(Jdk, Compressors.LZ4) }
+    val SnappyJdk by unsafeLazy { CompressableBinaryGsonCodec(Jdk, Compressors.Snappy) }
+    val ZstdJdk by unsafeLazy { CompressableBinaryGsonCodec(Jdk, Compressors.Zstd) }
+
     val Kryo by unsafeLazy { BinaryGsonCodec(BinarySerializers.Kryo) }
 
     val GZipKryo by unsafeLazy { CompressableBinaryGsonCodec(Kryo, Compressors.GZip) }

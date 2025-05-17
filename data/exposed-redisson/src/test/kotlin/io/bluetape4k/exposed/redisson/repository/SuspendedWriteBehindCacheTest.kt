@@ -9,6 +9,7 @@ import io.bluetape4k.exposed.redisson.repository.UserSchema.withSuspendedUserCre
 import io.bluetape4k.exposed.redisson.repository.UserSchema.withSuspendedUserTable
 import io.bluetape4k.exposed.redisson.repository.scenarios.SuspendedWriteBehindScenario
 import io.bluetape4k.exposed.tests.TestDB
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.selectAll
@@ -17,7 +18,9 @@ import org.junit.jupiter.api.Nested
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
-class SuspendedWriteBehindCacheTest: AbstractRedissonTest() {
+class SuspendedWriteBehindCacheTest {
+
+    companion object: KLoggingChannel()
 
     abstract class SuspendedAutoIncIdReadWriteBehind: AbstractRedissonTest(),
                                                       SuspendedWriteBehindScenario<UserDTO, Long> {

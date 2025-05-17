@@ -2,7 +2,7 @@ package io.bluetape4k.examples.coroutines.channels
 
 import io.bluetape4k.codec.encodeBase62
 import io.bluetape4k.coroutines.support.log
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import kotlinx.coroutines.CoroutineScope
@@ -24,7 +24,7 @@ import java.util.*
 
 class ChannelExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `basic channel example`() = runTest {

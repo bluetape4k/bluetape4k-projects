@@ -1,7 +1,7 @@
 package io.bluetape4k.vertx.examples
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Vertx
@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit
 @ExtendWith(VertxExtension::class)
 class VertxJunit5Examples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     /**
      * [A test context for asynchronous executions](https://vertx.io/docs/vertx-junit5/java/#_a_test_context_for_asynchronous_executions)

@@ -1,11 +1,11 @@
 package io.bluetape4k.vertx.sqlclient.mybatis.joins
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.vertx.core.Vertx
 
 class MysqlJoinTest: AbstractJoinTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     override fun Vertx.getPool() = this.getMySQLPool()
 }

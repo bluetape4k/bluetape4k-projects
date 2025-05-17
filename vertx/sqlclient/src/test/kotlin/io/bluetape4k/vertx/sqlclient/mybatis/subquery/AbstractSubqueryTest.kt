@@ -1,7 +1,7 @@
 package io.bluetape4k.vertx.sqlclient.mybatis.subquery
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.vertx.sqlclient.AbstractVertxSqlClientTest
 import io.bluetape4k.vertx.sqlclient.mybatis.renderForVertx
@@ -23,7 +23,7 @@ import org.mybatis.dynamic.sql.util.kotlin.model.select
 
 abstract class AbstractSubqueryTest: AbstractVertxSqlClientTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     override val schemaFileNames: List<String> = listOf("person.sql", "generatedAlways.sql")
 

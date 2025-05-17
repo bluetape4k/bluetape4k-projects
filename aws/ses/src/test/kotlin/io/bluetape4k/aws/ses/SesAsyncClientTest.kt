@@ -4,7 +4,7 @@ import io.bluetape4k.aws.ses.model.SendEmailRequest
 import io.bluetape4k.aws.ses.model.bodyOf
 import io.bluetape4k.aws.ses.model.contentOf
 import io.bluetape4k.aws.ses.model.destinationOf
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.test.runTest
@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
 
 class SesAsyncClientTest: AbstractSesTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `send email asynchronously`() = runTest {

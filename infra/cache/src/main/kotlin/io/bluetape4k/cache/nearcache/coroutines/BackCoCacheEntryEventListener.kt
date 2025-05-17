@@ -1,7 +1,7 @@
 package io.bluetape4k.cache.nearcache.coroutines
 
 import io.bluetape4k.cache.jcache.coroutines.CoCache
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +19,7 @@ class BackCoCacheEntryEventListener<K: Any, V: Any>(
    CacheEntryRemovedListener<K, V>,
    CacheEntryExpiredListener<K, V> {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     /**
      * Called after one or more entries have been created.

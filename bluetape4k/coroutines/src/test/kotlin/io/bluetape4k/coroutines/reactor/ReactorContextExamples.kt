@@ -1,6 +1,6 @@
 package io.bluetape4k.coroutines.reactor
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.asCoroutineContext
@@ -15,7 +15,7 @@ import reactor.util.context.Context
 
 class ReactorContextExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val key = "answer"
     private val value = "42"

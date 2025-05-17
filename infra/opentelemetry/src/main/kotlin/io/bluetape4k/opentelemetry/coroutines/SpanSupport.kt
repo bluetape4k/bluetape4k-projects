@@ -22,11 +22,9 @@ import kotlin.coroutines.EmptyCoroutineContext
 suspend inline fun <T> SpanBuilder.useSpanSuspending(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     crossinline block: suspend (Span) -> T,
-): T {
-    return startSpan().use { span ->
-        withSpanContext(span, coroutineContext) {
-            block(it)
-        }
+): T = startSpan().use { span ->
+    withSpanContext(span, coroutineContext) {
+        block(it)
     }
 }
 
@@ -43,11 +41,9 @@ suspend inline fun <T> SpanBuilder.useSpanSuspending(
     waitTimeout: Long? = null,
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     crossinline block: suspend (Span) -> T,
-): T {
-    return startSpan().use(waitTimeout) { span ->
-        withSpanContext(span, coroutineContext) {
-            block(it)
-        }
+): T = startSpan().use(waitTimeout) { span ->
+    withSpanContext(span, coroutineContext) {
+        block(it)
     }
 }
 
@@ -64,9 +60,11 @@ suspend inline fun <T> SpanBuilder.useSpanSuspending(
     waitDuration: Duration,
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     crossinline block: suspend (Span) -> T,
-): T {
-    return useSpanSuspending(waitDuration.toMillis().coerceAtLeast(0L), coroutineContext, block)
-}
+): T = useSpanSuspending(
+    waitDuration.toMillis().coerceAtLeast(0L),
+    coroutineContext,
+    block
+)
 
 /**
  * [span]이 속한 Context 하에서 [block]을 실행합니다.
@@ -84,9 +82,6 @@ suspend inline fun <T> withSpanContext(
     span: Span,
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     crossinline block: suspend (Span) -> T,
-): T {
-    val coContext = coroutineContext.getOrCurrent()
-    return withContext(coContext + span.asContextElement()) {
-        span.makeCurrent().use { block(span) }
-    }
+): T = withContext(coroutineContext.getOrCurrent() + span.asContextElement()) {
+    span.makeCurrent().use { block(span) }
 }

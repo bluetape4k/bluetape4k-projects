@@ -1,7 +1,7 @@
 package io.bluetape4k.opentelemetry.examples.metrics
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.opentelemetry.AbstractOtelTest
 import io.bluetape4k.opentelemetry.common.attributesOf
@@ -12,6 +12,7 @@ import io.opentelemetry.api.OpenTelemetry
 import io.opentelemetry.api.metrics.LongCounter
 import io.opentelemetry.api.trace.SpanKind
 import io.opentelemetry.api.trace.StatusCode
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -23,7 +24,7 @@ import java.nio.file.Path
  */
 class LongCounterExamples: AbstractOtelTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private val homeDir: File = Path.of(".").toAbsolutePath().toFile()
         private val rootDirectoryKey = "root dir".toAttributeKey()
         private val homeDirectoryAttributes = attributesOf(rootDirectoryKey, homeDir.name)
@@ -94,7 +95,7 @@ class LongCounterExamples: AbstractOtelTest() {
         // Coroutines 환경에서 Span 을 생성하고 사용하는 방법
         tracer.spanBuilder("coroutine-workflow")
             .setSpanKind(SpanKind.INTERNAL)
-            .useSpanSuspending { span ->
+            .useSpanSuspending(Dispatchers.IO) { span ->
                 try {
                     directoryCounter.add(1, homeDirectoryAttributes)
                     findFileSuspending("logback-test.xml", homeDir, directoryCounter)

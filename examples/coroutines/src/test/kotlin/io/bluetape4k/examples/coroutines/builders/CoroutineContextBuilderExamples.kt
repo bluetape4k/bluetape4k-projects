@@ -2,7 +2,7 @@ package io.bluetape4k.examples.coroutines.builders
 
 import io.bluetape4k.coroutines.context.PropertyCoroutineContext
 import io.bluetape4k.coroutines.support.coLogging
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 
 class CoroutineContextBuilderExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `부모-자식 간에 CoroutineContext 통해 정보 전달을 한다`() = runTest(CoroutineName("parent")) {

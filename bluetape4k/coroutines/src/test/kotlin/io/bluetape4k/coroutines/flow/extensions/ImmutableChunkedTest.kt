@@ -5,7 +5,7 @@ import com.danrusu.pods4k.immutableArrays.ImmutableArray
 import com.danrusu.pods4k.immutableArrays.immutableArrayOf
 import com.danrusu.pods4k.immutableArrays.toImmutableIntArray
 import io.bluetape4k.coroutines.tests.assertError
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flow
@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test
 
 class ImmutableChunkedTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `chunk flow to immutable array`() = runTest {

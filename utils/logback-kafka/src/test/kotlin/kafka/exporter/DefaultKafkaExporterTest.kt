@@ -1,5 +1,6 @@
 package io.bluetape4k.logback.kafka.exporter
 
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.mockk.Called
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -17,6 +18,8 @@ import org.junit.jupiter.api.Test
 import java.io.IOException
 
 class DefaultKafkaExporterTest {
+
+    companion object: KLoggingChannel()
 
     private val producer = mockk<Producer<String, String>>(relaxed = true)
     private val exceptionHandler = mockk<ExportExceptionHandler<String>>(relaxed = true)

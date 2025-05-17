@@ -6,7 +6,7 @@ import io.bluetape4k.exposed.dao.HasIdentifier
 import io.bluetape4k.exposed.redisson.repository.scenarios.CacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
@@ -25,7 +25,7 @@ import org.junit.jupiter.params.provider.MethodSource
 
 interface SuspendedReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: SuspendedCacheTestScenario<T, ID> {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         const val DEFAULT_DELAY = 100L
     }
 
@@ -122,7 +122,7 @@ interface SuspendedReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: Suspended
             val entities = repository.getAll(ids, batchSize = 2)
             entities.shouldNotBeEmpty()
 
-            entities.size shouldBeEqualTo ids.size - 1
+            entities.size shouldBeEqualTo getExistingIds().size
         }
     }
 

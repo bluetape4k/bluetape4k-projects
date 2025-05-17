@@ -8,7 +8,6 @@ import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
 import java.security.SecureRandom
 
-
 /**
  * Base58 인코딩 및 디코딩을 수행하는 객체입니다.
  *
@@ -42,10 +41,8 @@ object Base58: KLogging() {
     fun randomString(length: Int): String {
         length.requireGt(0, "length")
 
-        val result = CharArray(length)
-        repeat(length) { index ->
-            val pick = ALPHABET[RANDOM.nextInt(ALPHABET.size)]
-            result[index] = pick
+        val result = CharArray(length) {
+            ALPHABET[RANDOM.nextInt(ALPHABET.size)]
         }
 
         return String(result)

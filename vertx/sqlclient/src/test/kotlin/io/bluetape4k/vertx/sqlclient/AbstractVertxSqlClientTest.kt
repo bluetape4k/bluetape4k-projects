@@ -1,7 +1,7 @@
 package io.bluetape4k.vertx.sqlclient
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.database.MySQL8Server
@@ -28,7 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(VertxExtension::class)
 abstract class AbstractVertxSqlClientTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
 
         /**
          * Testcontainers 를 이용해 Loading 시 시간이 걸려서 Connection timeout 이 생깁니다. 무시하셔도 됩니다.

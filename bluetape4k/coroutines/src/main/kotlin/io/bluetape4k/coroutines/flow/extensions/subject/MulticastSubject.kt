@@ -3,7 +3,7 @@ package io.bluetape4k.coroutines.flow.extensions.subject
 import io.bluetape4k.coroutines.flow.exceptions.FlowOperationException
 import io.bluetape4k.coroutines.flow.extensions.Resumable
 import io.bluetape4k.coroutines.flow.extensions.ResumableCollector
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
@@ -43,7 +43,7 @@ class MulticastSubject<T> private constructor(
     expectedCollectorSize: Int,
 ): AbstractFlow<T>(), SubjectApi<T> {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private val EMPTY = arrayOf<ResumableCollector<Any>>()
         private val TERMINATED = arrayOf<ResumableCollector<Any>>()
         private val DONE = FlowOperationException("Subject completed")

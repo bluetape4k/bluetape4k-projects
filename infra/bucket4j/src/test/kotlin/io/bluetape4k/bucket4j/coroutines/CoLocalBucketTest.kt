@@ -2,6 +2,7 @@ package io.bluetape4k.bucket4j.coroutines
 
 import io.bluetape4k.bucket4j.AbstractBucket4jTest
 import io.bluetape4k.bucket4j.addBandwidth
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.github.bucket4j.BandwidthBuilder
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.async
@@ -22,6 +23,8 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
 class CoLocalBucketTest: AbstractBucket4jTest() {
+
+    companion object: KLoggingChannel()
 
     private lateinit var bucket: CoLocalBucket
 

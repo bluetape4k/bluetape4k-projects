@@ -1,7 +1,7 @@
 package io.bluetape4k.opentelemetry.examples.metrics
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.opentelemetry.AbstractOtelTest
 import io.bluetape4k.opentelemetry.common.attributesOf
@@ -19,7 +19,7 @@ import java.nio.file.Path
 
 class DoubleCounterExamples: AbstractOtelTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private val homeDir: File = Path.of(".").toAbsolutePath().toFile()
         private val fileExtensionAttrKey = "file_extension".toAttributeKey()
     }

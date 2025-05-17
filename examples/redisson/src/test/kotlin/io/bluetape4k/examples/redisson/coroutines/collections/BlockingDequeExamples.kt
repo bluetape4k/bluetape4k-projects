@@ -2,7 +2,7 @@ package io.bluetape4k.examples.redisson.coroutines.collections
 
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.coroutines.coAwait
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
  */
 class BlockingDequeExamples: AbstractRedissonCoroutineTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `blocking deque 를 사용`() = runSuspendIO {

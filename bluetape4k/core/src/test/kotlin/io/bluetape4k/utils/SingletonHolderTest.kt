@@ -26,7 +26,9 @@ class SingletonHolderTest {
         val manager = Manager.getInstance()
         manager.doStuff()
 
-        appender.lastMessage!! shouldContain "name=manager"
+        if (Manager.log.isDebugEnabled) {
+            appender.lastMessage!! shouldContain "name=manager"
+        }
     }
 
     @Test

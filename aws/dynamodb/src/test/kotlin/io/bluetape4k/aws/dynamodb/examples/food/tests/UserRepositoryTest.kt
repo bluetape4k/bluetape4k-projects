@@ -4,7 +4,7 @@ import io.bluetape4k.aws.dynamodb.examples.food.AbstractFoodApplicationTest
 import io.bluetape4k.aws.dynamodb.examples.food.model.UserDocument
 import io.bluetape4k.aws.dynamodb.examples.food.repository.UserRepository
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
@@ -20,7 +20,7 @@ class UserRepositoryTest: AbstractFoodApplicationTest() {
     @Autowired
     private lateinit var repository: UserRepository
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private fun createUser(): UserDocument {
         val index = Random.nextInt(UserDocument.UserStatus.entries.size)

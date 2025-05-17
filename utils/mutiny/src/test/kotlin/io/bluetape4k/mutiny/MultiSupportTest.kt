@@ -1,6 +1,6 @@
 package io.bluetape4k.mutiny
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.smallrye.mutiny.Multi
 import io.smallrye.mutiny.coroutines.asFlow
@@ -15,7 +15,7 @@ import java.util.stream.Stream
 
 class MultiSupportTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `create Multi instance`() {

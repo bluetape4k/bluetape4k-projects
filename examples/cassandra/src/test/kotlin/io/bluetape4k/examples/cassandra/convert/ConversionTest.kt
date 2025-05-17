@@ -6,7 +6,7 @@ import io.bluetape4k.cassandra.data.getList
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.selectOne
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -26,7 +26,7 @@ class ConversionTest(
     @Autowired private val operations: ReactiveCassandraOperations,
 ): AbstractCassandraCoroutineTest("conversion") {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private fun newContact(): Contact =
         Contact(faker.name().firstName(), faker.name().lastName())

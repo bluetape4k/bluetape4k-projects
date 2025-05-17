@@ -1,6 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions.subject
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 
 class SpscArrayQueueTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun offerPoll() {

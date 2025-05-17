@@ -2,6 +2,7 @@ package io.bluetape4k.coroutines.flow.extensions
 
 import app.cash.turbine.test
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -22,7 +23,7 @@ import org.junit.jupiter.api.Test
 
 class SlidingTest: AbstractFlowTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `sliding flow`() = runTest {

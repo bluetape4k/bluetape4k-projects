@@ -1,7 +1,7 @@
 package io.bluetape4k.opentelemetry.examples.logging
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.opentelemetry.AbstractOtelTest
 import io.bluetape4k.opentelemetry.coroutines.useSpanSuspending
@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
 
 class LoggingExporterExample: AbstractOtelTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private val INSTRUMENTATION_NAME: String = LoggingExporterExample::class.java.name
     }
 

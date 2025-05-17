@@ -6,8 +6,8 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
-suspend fun CompletableResultCode.await(): CompletableResultCode {
-    return suspendCoroutine { cont ->
+suspend fun CompletableResultCode.await(): CompletableResultCode =
+    suspendCoroutine { cont ->
         if (isDone) {
             cont.resume(this)
         } else {
@@ -17,4 +17,3 @@ suspend fun CompletableResultCode.await(): CompletableResultCode {
             }
         }
     }
-}

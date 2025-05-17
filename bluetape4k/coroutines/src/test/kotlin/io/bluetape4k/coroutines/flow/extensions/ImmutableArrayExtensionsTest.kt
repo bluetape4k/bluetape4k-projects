@@ -1,14 +1,14 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import com.danrusu.pods4k.immutableArrays.immutableArrayOf
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class ImmutableArrayExtensionsTest {
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `string flow to immutable array`() = runTest {

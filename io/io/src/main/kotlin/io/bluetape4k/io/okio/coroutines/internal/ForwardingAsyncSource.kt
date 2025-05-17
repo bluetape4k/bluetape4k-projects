@@ -1,6 +1,7 @@
 package io.bluetape4k.io.okio.coroutines.internal
 
 import io.bluetape4k.io.okio.coroutines.AsyncSource
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.withContext
 import okio.Buffer
 import okio.Source
@@ -11,6 +12,8 @@ internal class ForwardingAsyncSource(
     val delegate: Source,
     private val context: CoroutineContext,
 ): AsyncSource {
+
+    companion object: KLoggingChannel()
 
     override suspend fun read(sink: Buffer, byteCount: Long): Long = withContext(context) {
         delegate.read(sink, byteCount)

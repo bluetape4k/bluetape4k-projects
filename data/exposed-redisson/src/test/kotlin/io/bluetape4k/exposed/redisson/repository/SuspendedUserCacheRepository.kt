@@ -3,7 +3,7 @@ package io.bluetape4k.exposed.redisson.repository
 import io.bluetape4k.exposed.redisson.repository.UserSchema.UserDTO
 import io.bluetape4k.exposed.redisson.repository.UserSchema.UserTable
 import io.bluetape4k.exposed.redisson.repository.UserSchema.toUserDTO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.statements.BatchInsertStatement
@@ -17,7 +17,7 @@ class SuspendedUserCacheRepository(
     config: RedisCacheConfig = RedisCacheConfig.READ_WRITE_THROUGH,
 ): AbstractSuspendedExposedCacheRepository<UserDTO, Long>(redissonClient, cacheName, config) {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     override val entityTable: UserTable = UserTable
     override fun ResultRow.toEntity(): UserDTO = toUserDTO()

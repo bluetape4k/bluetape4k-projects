@@ -1,8 +1,10 @@
 package io.bluetape4k.coroutines
 
-import io.bluetape4k.junit5.coroutines.MultijobTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
+import io.bluetape4k.utils.Runtimex
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -14,7 +16,7 @@ import kotlin.random.Random
 
 class SuspendLazyTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val TEST_NUMBER = 42
     }
 
@@ -50,9 +52,9 @@ class SuspendLazyTest {
         }
         callCounter.value shouldBeEqualTo 0
 
-        MultijobTester()
-            .numThreads(16)
-            .roundsPerJob(1)
+        SuspendedJobTester()
+            .numThreads(Runtimex.availableProcessors)
+            .roundsPerJob(16)
             .add {
                 lazyValue() shouldBeEqualTo TEST_NUMBER
             }
@@ -114,7 +116,7 @@ class SuspendLazyTest {
         val callCounter = atomic(0)
 
         val lazyValue = suspendBlockingLazyIO {
-            Thread.sleep(Random.nextLong(100))
+            Thread.sleep(Random.nextLong(1000))
             log.trace { "Calculate lazy value in blocking mode with IO dispatchers" }
             callCounter.incrementAndGet()
             TEST_NUMBER
@@ -122,9 +124,9 @@ class SuspendLazyTest {
         callCounter.value shouldBeEqualTo 0
 
         runTest {
-            MultijobTester()
-                .numThreads(16)
-                .roundsPerJob(1)
+            SuspendedJobTester()
+                .numThreads(Runtimex.availableProcessors)
+                .roundsPerJob(16)
                 .add {
                     lazyValue() shouldBeEqualTo TEST_NUMBER
                 }

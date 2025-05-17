@@ -1,6 +1,6 @@
 package io.bluetape4k.logback.kafka
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.support.toUtf8String
@@ -17,7 +17,7 @@ import java.time.Duration
 
 class LogbackIntegrationTest: AbstractKafkaIntegrationTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         // logback-test.xml 에 KafkaAppender의 topic 속성과 같아야 한다 
         private const val TOPIC = "logs"
     }
@@ -36,7 +36,7 @@ class LogbackIntegrationTest: AbstractKafkaIntegrationTest() {
         repeat(logSize) {
             logger.info("test message $it")
         }
-        Thread.sleep(100)
+        Thread.sleep(10)
 
         val logTopicPartition = TopicPartition(TOPIC, 0)
         val consumer = KafkaServer.Launcher.createBinaryConsumer(kafka)

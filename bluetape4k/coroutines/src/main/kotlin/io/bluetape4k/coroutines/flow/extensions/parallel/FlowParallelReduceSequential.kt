@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions.parallel
 
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.uninitialized
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.AbstractFlow
@@ -12,6 +13,8 @@ internal class FlowParallelReduceSequential<T>(
     private val source: ParallelFlow<T>,
     private val combine: suspend (T, T) -> T,
 ): AbstractFlow<T>() {
+
+    companion object: KLoggingChannel()
 
     override suspend fun collectSafely(collector: FlowCollector<T>) {
         val n = source.parallelism

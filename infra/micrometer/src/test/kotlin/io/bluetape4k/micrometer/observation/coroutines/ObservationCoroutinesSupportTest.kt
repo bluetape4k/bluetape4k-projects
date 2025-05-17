@@ -1,7 +1,7 @@
 package io.bluetape4k.micrometer.observation.coroutines
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.micrometer.observation.AbstractObservationTest
@@ -13,7 +13,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class ObservationCoroutinesSupportTest: AbstractObservationTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `withCoroutineObservation - in coroutines`() = runSuspendIO {

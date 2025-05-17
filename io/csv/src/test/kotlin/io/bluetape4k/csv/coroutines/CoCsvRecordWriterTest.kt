@@ -1,7 +1,7 @@
 package io.bluetape4k.csv.coroutines
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.flow.flow
 import org.amshove.kluent.shouldContain
@@ -10,7 +10,7 @@ import java.io.StringWriter
 
 class CoCsvRecordWriterTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `write rows`() = runSuspendIO {

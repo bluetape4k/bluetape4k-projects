@@ -14,9 +14,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
-import kotlin.collections.component1
-import kotlin.collections.component2
-
 
 @Execution(ExecutionMode.SAME_THREAD)
 class CassandraServerTest {

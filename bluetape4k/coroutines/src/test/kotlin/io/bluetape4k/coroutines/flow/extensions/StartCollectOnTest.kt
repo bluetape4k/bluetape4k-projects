@@ -2,6 +2,7 @@ package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.coroutines.tests.assertResult
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.newFixedThreadPoolContext
@@ -12,7 +13,7 @@ import org.junit.jupiter.api.Test
 
 class StartCollectOnTest: AbstractFlowTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     val four = newFixedThreadPoolContext(4, "four")
     val single = newSingleThreadContext("single")

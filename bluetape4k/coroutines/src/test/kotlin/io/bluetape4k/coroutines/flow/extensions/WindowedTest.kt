@@ -1,6 +1,7 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
@@ -13,7 +14,7 @@ import org.junit.jupiter.api.Test
 
 class WindowedTest: AbstractFlowTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Nested
     inner class Windowed {

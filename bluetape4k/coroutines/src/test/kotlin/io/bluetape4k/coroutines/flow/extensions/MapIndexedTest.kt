@@ -3,7 +3,7 @@ package io.bluetape4k.coroutines.flow.extensions
 import app.cash.turbine.test
 import io.bluetape4k.coroutines.tests.assertError
 import io.bluetape4k.coroutines.tests.assertResult
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flow
@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 
 class MapIndexedTest: AbstractFlowTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `mapIndexed simple usecase`() = runTest {

@@ -52,11 +52,12 @@ class KafkaAppender<E>: AbstractKafkaAppender<E>() {
      * Kafka 관련 로그를 모아 둔 deferQueue의 로그를 발송한다.
      */
     private fun drainDeferQueue() {
-        var event = deferQueue.poll()
-        while (event != null) {
-            append(event)
-            event = deferQueue.poll()
-        }
+        do {
+            val event = deferQueue.poll()
+            event?.let { append(it) }
+        } while (event != null)
+
+        producer?.flush()
     }
 
     override fun append(event: E) {
@@ -75,7 +76,7 @@ class KafkaAppender<E>: AbstractKafkaAppender<E>() {
 
     private fun getTimestamp(event: E): Long = when (event) {
         is ILoggingEvent -> event.timeStamp
-        else             -> System.currentTimeMillis()
+        else -> System.currentTimeMillis()
     }
 
     override fun start() {

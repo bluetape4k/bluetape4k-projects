@@ -2,7 +2,7 @@ package io.bluetape4k.redis.redisson.leader.coroutines
 
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
 import io.bluetape4k.leader.coroutines.CoLeaderElection
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import io.bluetape4k.redis.redisson.coroutines.coAwait
@@ -23,7 +23,7 @@ class RedissonCoLeaderElection(
     options: RedissonLeaderElectionOptions,
 ): CoLeaderElection {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         /**
          * [RedissonCoLeaderElection] 인스턴스를 생성합니다.
          *

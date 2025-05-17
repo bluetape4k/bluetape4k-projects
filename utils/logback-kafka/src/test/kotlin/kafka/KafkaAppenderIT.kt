@@ -11,7 +11,7 @@ import ch.qos.logback.core.status.Status
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logback.kafka.exporter.DefaultKafkaExporter
 import io.bluetape4k.logback.kafka.keyprovider.NullKafkaKeyProvider
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.toUtf8String
 import io.bluetape4k.testcontainers.mq.KafkaServer
 import org.amshove.kluent.shouldBeEmpty
@@ -27,7 +27,7 @@ import java.time.Duration
 
 class KafkaAppenderIT: AbstractKafkaIntegrationTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val TEST_TOPIC_NAME = "logs.kafka.appender.topic.1"
         private const val TEST_PARTITION = 0
     }

@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.coroutines.flow
 
 import io.bluetape4k.coroutines.flow.extensions.log
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.currentCoroutineContext
@@ -26,7 +26,7 @@ import kotlin.coroutines.coroutineContext
 
 class FlowLifecycleExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `onEach - react on flowing value`() = runTest {

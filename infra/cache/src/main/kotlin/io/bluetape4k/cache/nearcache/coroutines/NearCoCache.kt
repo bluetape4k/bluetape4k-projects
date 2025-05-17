@@ -3,7 +3,7 @@ package io.bluetape4k.cache.nearcache.coroutines
 import io.bluetape4k.cache.jcache.coroutines.CoCache
 import io.bluetape4k.cache.jcache.coroutines.CoCacheEntry
 import io.bluetape4k.coroutines.flow.extensions.chunked
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import io.bluetape4k.logging.trace
 import io.bluetape4k.logging.warn
@@ -47,7 +47,7 @@ class NearCoCache<K: Any, V: Any> private constructor(
 ): CoCache<K, V> by backCache,
    CoroutineScope by CoroutineScope(CoroutineName("nearCoCache") + Dispatchers.IO) {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         const val DEFAULT_EXPIRY_CHECK_PERIOD = 30_000L
 
         operator fun <K: Any, V: Any> invoke(

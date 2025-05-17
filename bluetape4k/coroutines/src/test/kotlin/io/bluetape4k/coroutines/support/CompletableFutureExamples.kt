@@ -1,7 +1,7 @@
 package io.bluetape4k.coroutines.support
 
 import io.bluetape4k.exceptions.BluetapeException
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.SupervisorJob
@@ -19,7 +19,7 @@ import kotlin.test.assertFailsWith
 
 class CompletableFutureExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `성공하는 suspend 함수를 CompletableFuture로 변환하기`() = runTest {

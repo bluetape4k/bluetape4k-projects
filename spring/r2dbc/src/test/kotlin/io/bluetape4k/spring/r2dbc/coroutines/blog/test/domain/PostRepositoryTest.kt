@@ -1,6 +1,6 @@
 package io.bluetape4k.spring.r2dbc.coroutines.blog.test.domain
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.spring.r2dbc.coroutines.blog.domain.PostRepository
 import io.bluetape4k.spring.r2dbc.coroutines.blog.test.AbstractR2dbcBlogApplicationTest
@@ -17,7 +17,7 @@ class PostRepositoryTest(
     @Autowired private val postRepository: PostRepository,
 ): AbstractR2dbcBlogApplicationTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `context loading`() {

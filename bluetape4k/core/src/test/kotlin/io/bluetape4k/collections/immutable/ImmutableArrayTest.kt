@@ -34,7 +34,7 @@ class ImmutableArrayTest {
         val array = ImmutableArray(1) { "element $it" }
         array shouldBeInstanceOf ImmutableArray::class
 
-        // Cannot create with negative size
+        // Cannot create with a negative size
         assertFailsWith<NegativeArraySizeException> {
             ImmutableArray(-1) { "element $it" }
         }

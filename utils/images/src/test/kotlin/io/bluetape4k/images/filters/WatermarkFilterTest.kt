@@ -5,14 +5,14 @@ import io.bluetape4k.images.coroutines.CoJpegWriter
 import io.bluetape4k.images.fonts.fontOf
 import io.bluetape4k.images.forCoWriter
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.awt.Color
 
 class WatermarkFilterTest: AbstractFilterTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     // write 내용이 바뀔 시에 true로 변경한 후 테스트를 실행하면 새로운 이미지 파일이 생성됩니다.
     private val saveResult = false

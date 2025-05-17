@@ -1,6 +1,6 @@
 package io.bluetape4k.vertx.resilience4j
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.vertx.asCompletableFuture
 import io.bluetape4k.vertx.tests.withTestContext
@@ -16,7 +16,7 @@ import java.time.Duration
 @Suppress("UNUSED_PARAMETER")
 class VertxFutureRateLimiterSupportTest: AbstractVertxFutureTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val RATE_LIMIT = 10
     }
 

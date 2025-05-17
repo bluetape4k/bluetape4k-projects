@@ -1,7 +1,7 @@
 package io.bluetape4k.resilience4j.ratelimiter
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.resilience4j.CoHelloWorldService
 import io.github.resilience4j.kotlin.ratelimiter.decorateSuspendFunction
 import io.github.resilience4j.kotlin.ratelimiter.executeSuspendFunction
@@ -15,7 +15,7 @@ import kotlin.test.assertFailsWith
 
 class RateLimiterCoroutinesTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private fun noWaitConfig() =
         RateLimiterConfig.custom()

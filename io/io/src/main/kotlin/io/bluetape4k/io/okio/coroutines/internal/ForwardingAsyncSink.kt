@@ -1,6 +1,7 @@
 package io.bluetape4k.io.okio.coroutines.internal
 
 import io.bluetape4k.io.okio.coroutines.AsyncSink
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.withContext
 import okio.Buffer
 import okio.Sink
@@ -11,6 +12,8 @@ internal class ForwardingAsyncSink(
     val delegate: Sink,
     private val context: CoroutineContext,
 ): AsyncSink {
+
+    companion object: KLoggingChannel()
 
     override suspend fun write(source: Buffer, byteCount: Long) {
         withContext(context) {

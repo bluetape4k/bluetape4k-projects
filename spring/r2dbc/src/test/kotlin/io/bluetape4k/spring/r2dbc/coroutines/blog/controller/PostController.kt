@@ -1,6 +1,6 @@
 package io.bluetape4k.spring.r2dbc.coroutines.blog.controller
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.r2dbc.coroutines.blog.domain.Comment
 import io.bluetape4k.spring.r2dbc.coroutines.blog.domain.CommentRepository
 import io.bluetape4k.spring.r2dbc.coroutines.blog.domain.Post
@@ -24,7 +24,7 @@ class PostController(
     private val commentRepository: CommentRepository,
 ): CoroutineScope by CoroutineScope(Dispatchers.IO + SupervisorJob()) {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @GetMapping
     fun findAll(): Flow<Post> = postRepository.findAll()

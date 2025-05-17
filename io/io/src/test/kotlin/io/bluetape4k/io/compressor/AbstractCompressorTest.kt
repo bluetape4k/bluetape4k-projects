@@ -3,7 +3,7 @@ package io.bluetape4k.io.compressor
 import io.bluetape4k.LibraryName
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.junit5.random.RandomizedTest
-import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.emptyByteArray
 import io.bluetape4k.support.toUtf8Bytes
@@ -16,8 +16,7 @@ import org.xerial.snappy.Snappy
 @RandomizedTest
 abstract class AbstractCompressorTest {
 
-    companion object {
-        protected val log = KotlinLogging.logger { }
+    companion object: KLogging() {
         protected const val REPEAT_SIZE = 5
 
         @JvmStatic

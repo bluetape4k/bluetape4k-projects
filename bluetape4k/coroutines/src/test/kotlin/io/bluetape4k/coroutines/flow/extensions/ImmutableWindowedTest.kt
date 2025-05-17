@@ -2,7 +2,7 @@ package io.bluetape4k.coroutines.flow.extensions
 
 import com.danrusu.pods4k.immutableArrays.immutableArrayOf
 import com.danrusu.pods4k.immutableArrays.toImmutableIntArray
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.test.runTest
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 
 class ImmutableWindowedTest: AbstractFlowTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `window flow to immutable array`() = runTest {

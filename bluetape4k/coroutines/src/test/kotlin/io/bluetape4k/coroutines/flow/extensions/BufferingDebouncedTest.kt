@@ -1,7 +1,7 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
@@ -14,7 +14,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class BufferingDebouncedTest: AbstractFlowTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     // NOTE: runTest 대신 runSuspendTest 를 사용해야 Timer 가 동작합니다.
 

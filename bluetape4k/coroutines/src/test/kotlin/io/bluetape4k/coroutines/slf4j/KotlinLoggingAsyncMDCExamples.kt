@@ -1,6 +1,6 @@
 package io.bluetape4k.coroutines.slf4j
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
@@ -10,7 +10,7 @@ import org.slf4j.MDC
 
 class KotlinLoggingAsyncMDCExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `withMDCConterxt in traceId`() = runTest {

@@ -3,7 +3,7 @@ package io.bluetape4k.idgenerators.uuid
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.test.runTest
@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 class RandomUuidGeneratorTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 5
         private val TEST_COUNT = 512 * Runtime.getRuntime().availableProcessors()
         private val TEST_LIST = List(TEST_COUNT) { it }

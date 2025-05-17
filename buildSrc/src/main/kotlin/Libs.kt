@@ -100,7 +100,7 @@ object Versions {
 
     const val bucket4j = "8.10.1"       // https://mvnrepository.com/artifact/com.bucket4j/bucket4j-core
     const val resilience4j = "2.3.0"   // https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-bom
-    const val netty = "4.2.0.Final"  // https://mvnrepository.com/artifact/io.netty/netty-all
+    const val netty = "4.1.121.Final"  // https://mvnrepository.com/artifact/io.netty/netty-all
 
     const val aws = "1.12.772"          // https://mvnrepository.com/artifact/com.amazonaws
     const val aws2 = "2.31.37"          // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
@@ -397,7 +397,7 @@ object Libs {
     val log4j_web = log4j("web")
 
     const val findbugs = "com.google.code.findbugs:jsr305:3.0.2"
-    const val guava = "com.google.guava:guava:33.2.0-jre"
+    const val guava = "com.google.guava:guava:33.4.8-jre"  // https://mvnrepository.com/artifact/com.google.guava/guava
 
     // Pods4k
     fun pods4k(module: String, version: String = Versions.pods4k) = "com.danrusu.pods4k:$module:$version"
@@ -422,8 +422,8 @@ object Libs {
     const val marshalling_river = "org.jboss.marshalling:jboss-marshalling-river:2.1.2.Final"
     const val marshalling_serial = "org.jboss.marshalling:jboss-marshalling-serial:2.1.2.Final"
 
-    const val fury_core = "org.apache.fury:fury-core:0.10.0" // https://mvnrepository.com/artifact/org.apache.fury/fury-core
-    const val fury_kotlin = "org.apache.fury:fury-kotlin:0.10.0" // https://mvnrepository.com/artifact/org.apache.fury/fury-kotlin
+    const val fury_core = "org.apache.fury:fury-core:0.10.2" // https://mvnrepository.com/artifact/org.apache.fury/fury-core
+    const val fury_kotlin = "org.apache.fury:fury-kotlin:0.10.2" // https://mvnrepository.com/artifact/org.apache.fury/fury-kotlin
 
     // Spring Boot
     const val spring_boot_dependencies = "org.springframework.boot:spring-boot-dependencies:${Versions.spring_boot}"
@@ -887,7 +887,7 @@ object Libs {
     const val jsonassert = "org.skyscreamer:jsonassert:1.5.3"   // https://mvnrepository.com/artifact/org.skyscreamer/jsonassert
 
     // GSON
-    const val gson = "com.google.code.gson:gson:2.11.0"    // https://mvnrepository.com/artifact/com.google.code.gson/gson
+    const val gson = "com.google.code.gson:gson:2.13.1"    // https://mvnrepository.com/artifact/com.google.code.gson/gson
     const val gson_javatime_serializers = "com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.2" // https://mvnrepository.com/artifact/com.fatboyindustrial.gson-javatime-serialisers/gson-javatime-serialisers
 
     // JWT

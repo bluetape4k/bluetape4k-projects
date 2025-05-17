@@ -3,7 +3,7 @@ package io.bluetape4k.bucket4j.distributed.redis
 import io.bluetape4k.bucket4j.TestRedisServer
 import io.bluetape4k.bucket4j.distributed.AbstractAsyncBucketProxyProviderTest
 import io.bluetape4k.bucket4j.distributed.AsyncBucketProxyProvider
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy
 import io.github.bucket4j.distributed.proxy.ClientSideConfig
 import io.github.bucket4j.distributed.proxy.ExecutionStrategy
@@ -13,7 +13,7 @@ import kotlin.time.toJavaDuration
 
 class LettuceAsyncBucketProxyProviderTest: AbstractAsyncBucketProxyProviderTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     override val bucketProvider: AsyncBucketProxyProvider by lazy {
 

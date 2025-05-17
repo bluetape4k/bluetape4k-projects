@@ -13,7 +13,7 @@ import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import kotlinx.coroutines.future.await
@@ -25,7 +25,7 @@ import kotlin.system.measureTimeMillis
 @TempFolderTest
 abstract class AbstractCoImageWriterTest: AbstractImageTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     abstract val writer: CoImageWriter
     abstract val imageFormat: Format

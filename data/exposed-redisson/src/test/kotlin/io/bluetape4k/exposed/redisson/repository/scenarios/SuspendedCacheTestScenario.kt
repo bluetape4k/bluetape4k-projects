@@ -3,7 +3,7 @@ package io.bluetape4k.exposed.redisson.repository.scenarios
 import io.bluetape4k.exposed.dao.HasIdentifier
 import io.bluetape4k.exposed.redisson.repository.SuspendedExposedCacheRepository
 import io.bluetape4k.exposed.tests.TestDB
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -13,7 +13,7 @@ import kotlin.coroutines.CoroutineContext
 
 interface SuspendedCacheTestScenario<T: HasIdentifier<ID>, ID: Any> {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         @JvmStatic
         fun enableDialects() = TestDB.enabledDialects()
         const val ENABLE_DIALECTS_METHOD = "enableDialects"

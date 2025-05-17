@@ -1,6 +1,7 @@
 package io.bluetape4k.io.okio.coroutines
 
 import io.bluetape4k.io.okio.coroutines.internal.SEGMENT_SIZE
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -20,7 +21,7 @@ import kotlin.coroutines.resumeWithException
 fun AsynchronousSocketChannel.asAsyncSource(): AsyncSource {
     val channel = this
 
-    return object: AsyncSource {
+    return object: AsyncSource, KLoggingChannel() {
         val buffer = ByteBuffer.allocateDirect(SEGMENT_SIZE.toInt())
         val timeout = Timeout.NONE
 
@@ -48,10 +49,10 @@ fun AsynchronousSocketChannel.asAsyncSource(): AsyncSource {
 /**
  * [AsynchronousFileChannel]을 [AsyncSink]로 변환합니다.
  */
-suspend fun AsynchronousSocketChannel.asAsyncSink(): AsyncSink {
+fun AsynchronousSocketChannel.asAsyncSink(): AsyncSink {
     val channel = this
 
-    return object: AsyncSink {
+    return object: AsyncSink, KLoggingChannel() {
         val cursor = Buffer.UnsafeCursor()
         val timeout = Timeout.NONE
 

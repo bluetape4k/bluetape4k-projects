@@ -2,7 +2,7 @@ package io.bluetape4k.examples.coroutines.exceptions
 
 import io.bluetape4k.coroutines.support.coLogging
 import io.bluetape4k.coroutines.support.log
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.info
 import io.bluetape4k.logging.warn
@@ -31,7 +31,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 class ExceptionHandlingExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private var hasException = false
 

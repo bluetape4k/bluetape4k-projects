@@ -1,6 +1,6 @@
 package io.bluetape4k.kafka.spring.core.coroutines
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -60,7 +60,7 @@ class CoroutineKafkaConsumerTemplate<K, V>(
     private val receiver: KafkaReceiver<K, V>,
 ): CoroutineScope by CoroutineScope(Dispatchers.IO + SupervisorJob()) {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         @JvmStatic
         operator fun <K, V> invoke(
             receiverOptions: ReceiverOptions<K, V>,

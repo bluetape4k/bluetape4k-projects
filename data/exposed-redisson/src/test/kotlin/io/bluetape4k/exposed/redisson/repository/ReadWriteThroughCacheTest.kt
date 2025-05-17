@@ -11,6 +11,7 @@ import io.bluetape4k.exposed.redisson.repository.UserSchema.withUserTable
 import io.bluetape4k.exposed.redisson.repository.scenarios.ReadThroughScenario
 import io.bluetape4k.exposed.redisson.repository.scenarios.WriteThroughScenario
 import io.bluetape4k.exposed.tests.TestDB
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.exposed.sql.Transaction
@@ -19,7 +20,9 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Nested
 import java.util.*
 
-class ReadWriteThroughCacheTest: AbstractRedissonTest() {
+class ReadWriteThroughCacheTest {
+
+    companion object: KLogging()
 
     abstract class AutoIncIdReadWriteThrough: AbstractRedissonTest(),
                                               ReadThroughScenario<UserDTO, Long>,

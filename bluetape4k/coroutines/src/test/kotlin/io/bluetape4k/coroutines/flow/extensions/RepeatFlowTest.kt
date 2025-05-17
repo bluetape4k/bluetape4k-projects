@@ -2,7 +2,7 @@ package io.bluetape4k.coroutines.flow.extensions
 
 import app.cash.turbine.test
 import io.bluetape4k.coroutines.tests.assertResult
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
@@ -16,7 +16,7 @@ import kotlin.random.Random
 
 class RepeatFlowTest: AbstractFlowTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val testDispatcher = newFixedThreadPoolContext(8, "flowx")
 

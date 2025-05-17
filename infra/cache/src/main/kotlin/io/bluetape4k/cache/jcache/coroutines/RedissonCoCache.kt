@@ -3,7 +3,7 @@ package io.bluetape4k.cache.jcache.coroutines
 import io.bluetape4k.cache.jcache.JCaching
 import io.bluetape4k.cache.jcache.getDefaultJCacheConfiguration
 import io.bluetape4k.coroutines.support.coAwait
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.requireNotBlank
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -41,7 +41,7 @@ import javax.cache.configuration.MutableConfiguration
  */
 class RedissonCoCache<K: Any, V: Any>(private val cache: JCache<K, V>): CoCache<K, V> {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         @JvmStatic
         operator fun <K: Any, V: Any> invoke(
             cacheName: String,

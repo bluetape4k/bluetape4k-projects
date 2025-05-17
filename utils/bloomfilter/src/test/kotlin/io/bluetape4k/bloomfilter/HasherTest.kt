@@ -3,7 +3,7 @@ package io.bluetape4k.bloomfilter
 import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.trace
 import net.openhft.hashing.LongHashFunction
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
@@ -22,7 +22,7 @@ class HasherTest: AbstractBloomFilterTest() {
         val value = Fakers.random.nextLong(1, Long.MAX_VALUE)
 
         val offsets = Hasher.murmurHashOffset(value, 3, Int.MAX_VALUE)
-        log.debug { "value=$value, offsets=${offsets.contentToString()}" }
+        log.trace { "value=$value, offsets=${offsets.contentToString()}" }
         offsets shouldHaveSize 3
     }
 
@@ -31,7 +31,7 @@ class HasherTest: AbstractBloomFilterTest() {
         val value = Fakers.randomString(16, 256)
 
         val offsets = Hasher.murmurHashOffset(value, 4, Int.MAX_VALUE)
-        log.debug { "value=$value, offsets=${offsets.contentToString()}" }
+        log.trace { "value=$value, offsets=${offsets.contentToString()}" }
         offsets shouldHaveSize 4
     }
 
@@ -40,7 +40,7 @@ class HasherTest: AbstractBloomFilterTest() {
         val person = Person(Fakers.faker.internet().username(), Fakers.faker.random().nextInt(19, 88))
 
         val offsets = Hasher.murmurHashOffset(person, 4, Int.MAX_VALUE)
-        log.debug { "value=$person, offsets=${offsets.contentToString()}" }
+        log.trace { "value=$person, offsets=${offsets.contentToString()}" }
         offsets shouldHaveSize 4
     }
 
@@ -80,14 +80,13 @@ class HasherTest: AbstractBloomFilterTest() {
         val hash3 = murmur3.hashChars(person3.toString())
 
 
-        log.debug { "hash1=$hash1" }
-        log.debug { "hash2=$hash2" }
-        log.debug { "hash3=$hash3" }
+        log.trace { "hash1=$hash1" }
+        log.trace { "hash2=$hash2" }
+        log.trace { "hash3=$hash3" }
 
         hash2 shouldBeEqualTo hash1
         hash3 shouldNotBeEqualTo hash1
     }
-
 
     @RepeatedTest(REPEAT_SIZE)
     fun `murmur3 hash for object as byte array`() {
@@ -103,9 +102,9 @@ class HasherTest: AbstractBloomFilterTest() {
         val hash2 = murmur3.hashBytes(serializer.serialize(person2))
         val hash3 = murmur3.hashBytes(serializer.serialize(person3))
 
-        log.debug { "hash1=$hash1" }
-        log.debug { "hash2=$hash2" }
-        log.debug { "hash3=$hash3" }
+        log.trace { "hash1=$hash1" }
+        log.trace { "hash2=$hash2" }
+        log.trace { "hash3=$hash3" }
 
         hash2 shouldBeEqualTo hash1
         hash3 shouldNotBeEqualTo hash1

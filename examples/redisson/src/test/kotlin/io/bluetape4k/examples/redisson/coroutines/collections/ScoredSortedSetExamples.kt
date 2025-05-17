@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.coroutines.coAwait
 import kotlinx.coroutines.delay
@@ -21,7 +21,7 @@ import org.redisson.api.RScoredSortedSet
  */
 class ScoredSortedSetExamples: AbstractRedissonCoroutineTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private suspend fun getSampleScoredSortedSet(): RScoredSortedSet<String> {
         val zsetName = randomName()

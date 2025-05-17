@@ -2,6 +2,7 @@ package io.bluetape4k.coroutines.flow.extensions
 
 import app.cash.turbine.test
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
@@ -16,7 +17,7 @@ import kotlin.test.assertFailsWith
 
 class ScanWithTest: AbstractStepTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `call initial supplier per collection`() = runTest {

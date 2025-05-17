@@ -1,6 +1,7 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.coroutines.coAwait
 import kotlinx.coroutines.test.runTest
@@ -26,6 +27,8 @@ import kotlin.time.toJavaDuration
  * 참고: [Local Cache](https://github.com/redisson/redisson/wiki/7.-distributed-collections#local-cache)
  */
 class LocalCachedMapTest: AbstractRedissonCoroutineTest() {
+
+    companion object: KLoggingChannel()
 
     private lateinit var redisson1: RedissonClient
     private lateinit var redisson2: RedissonClient

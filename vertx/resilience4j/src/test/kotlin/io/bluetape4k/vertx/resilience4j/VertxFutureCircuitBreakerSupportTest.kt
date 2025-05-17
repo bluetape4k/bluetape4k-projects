@@ -1,6 +1,6 @@
 package io.bluetape4k.vertx.resilience4j
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.vertx.tests.withTestContext
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException
 import io.github.resilience4j.circuitbreaker.CircuitBreaker
@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit
 @Suppress("UNUSED_PARAMETER")
 class VertxFutureCircuitBreakerSupportTest: AbstractVertxFutureTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `decorate future and return with success`(vertx: Vertx, testContext: VertxTestContext) {

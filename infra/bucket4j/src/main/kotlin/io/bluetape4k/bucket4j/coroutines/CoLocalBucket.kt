@@ -1,7 +1,7 @@
 package io.bluetape4k.bucket4j.coroutines
 
 import io.bluetape4k.bucket4j.bucketConfiguration
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import io.bluetape4k.logging.warn
@@ -48,7 +48,7 @@ class CoLocalBucket private constructor(
     timeMeter: TimeMeter,
 ): LockFreeBucket(bucketConfiguration, mathType, timeMeter) {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         @JvmStatic
         val DEFAULT_TIME_METER: TimeMeter = TimeMeter.SYSTEM_MILLISECONDS
 

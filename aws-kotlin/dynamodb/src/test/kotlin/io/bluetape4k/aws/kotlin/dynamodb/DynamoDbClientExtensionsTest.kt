@@ -5,7 +5,7 @@ import io.bluetape4k.aws.kotlin.dynamodb.model.partitionKeyOf
 import io.bluetape4k.aws.kotlin.dynamodb.model.sortKeyOf
 import io.bluetape4k.aws.kotlin.dynamodb.model.stringAttrDefinitionOf
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.mapNotNull
@@ -20,7 +20,7 @@ import org.junit.jupiter.api.TestMethodOrder
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class DynamoDbClientExtensionsTest: AbstractKotlinDynamoDbTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val TEST_TABLE_NAME = "test-table-for-client"
     }
 

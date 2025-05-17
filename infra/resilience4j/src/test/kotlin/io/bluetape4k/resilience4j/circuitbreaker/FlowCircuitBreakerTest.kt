@@ -1,7 +1,7 @@
 package io.bluetape4k.resilience4j.circuitbreaker
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException
 import io.github.resilience4j.circuitbreaker.CircuitBreaker
 import io.github.resilience4j.kotlin.circuitbreaker.circuitBreaker
@@ -23,7 +23,7 @@ import kotlin.test.assertFailsWith
 
 class FlowCircuitBreakerTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `should collect successfully`() = runSuspendTest {

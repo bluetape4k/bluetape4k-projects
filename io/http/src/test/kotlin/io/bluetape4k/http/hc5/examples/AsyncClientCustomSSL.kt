@@ -7,7 +7,7 @@ import io.bluetape4k.http.hc5.async.httpAsyncClientOf
 import io.bluetape4k.http.hc5.async.methods.simpleHttpRequest
 import io.bluetape4k.http.hc5.ssl.sslContext
 import io.bluetape4k.http.hc5.ssl.tlsStrategyOf
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
@@ -20,7 +20,7 @@ import java.security.cert.X509Certificate
 
 class AsyncClientCustomSSL: AbstractHc5Test() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `create secure connections with a custom SSL context`() = runTest {

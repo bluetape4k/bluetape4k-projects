@@ -3,7 +3,7 @@ package io.bluetape4k.geocode.bing
 import io.bluetape4k.geocode.Geocode
 import io.bluetape4k.geocode.GeocodeAddressFinder
 import io.bluetape4k.geocode.bing.BingMapModel.toBingAddress
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 
 /**
@@ -13,7 +13,7 @@ import io.bluetape4k.logging.debug
  */
 class BingAddressFinder: GeocodeAddressFinder {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val client by lazy {
         BingMapService.getBingMapFeignClient()

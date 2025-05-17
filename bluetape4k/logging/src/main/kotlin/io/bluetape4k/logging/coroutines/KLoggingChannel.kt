@@ -1,14 +1,17 @@
 package io.bluetape4k.logging.coroutines
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.info
+import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.error
 import io.bluetape4k.logging.logMessageSafe
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -32,8 +35,12 @@ import kotlin.concurrent.thread
  */
 open class KLoggingChannel: KLogging() {
 
-    private val sharedFlow = MutableSharedFlow<LogEvent>()
-    private val scope = CoroutineScope(CoroutineName("logchannel") + Dispatchers.IO)
+    private val sharedFlow = MutableSharedFlow<LogEvent>(
+        replay = 0,
+        extraBufferCapacity = 64,
+        onBufferOverflow = BufferOverflow.SUSPEND
+    )
+    private val scope = CoroutineScope(Dispatchers.IO + CoroutineName("logchannel"))
     private var job: Job? = null
 
     init {
@@ -41,8 +48,8 @@ open class KLoggingChannel: KLogging() {
 
         Runtime.getRuntime().addShutdownHook(
             thread(start = false, isDaemon = true) {
-                job?.let {
-                    runBlocking { it.cancelAndJoin() }
+                runBlocking {
+                    job?.cancelChildren()
                 }
             }
         )
@@ -54,17 +61,20 @@ open class KLoggingChannel: KLogging() {
         }
 
         job = scope.launch {
-            log.info { "Start logging channel." }
+            log.debug { "Start logging channel." }
 
             sharedFlow
                 .onEach { event ->
                     when (event.level) {
                         Level.TRACE -> log.trace(event.msg, event.error)
                         Level.DEBUG -> log.debug(event.msg, event.error)
-                        Level.INFO  -> log.info(event.msg, event.error)
-                        Level.WARN  -> log.warn(event.msg, event.error)
+                        Level.INFO -> log.info(event.msg, event.error)
+                        Level.WARN -> log.warn(event.msg, event.error)
                         Level.ERROR -> log.error(event.msg, event.error)
                     }
+                }
+                .catch { error ->
+                    log.error(error) { "Error during logging channel." }
                 }
                 .collect()
         }

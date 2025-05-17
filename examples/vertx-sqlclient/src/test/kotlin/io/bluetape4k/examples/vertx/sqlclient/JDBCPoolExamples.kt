@@ -1,6 +1,7 @@
 package io.bluetape4k.examples.vertx.sqlclient
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.vertx.sqlclient.tests.testWithTransactionSuspending
 import io.bluetape4k.vertx.sqlclient.withTransactionSuspending
@@ -19,6 +20,8 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
 class JDBCPoolExamples: AbstractSqlClientTest() {
+
+    companion object: KLoggingChannel()
 
     @BeforeAll
     fun setup(vertx: Vertx) {

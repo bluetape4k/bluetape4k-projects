@@ -3,7 +3,7 @@ package io.bluetape4k.bucket4j.ratelimit.local
 import io.bluetape4k.bucket4j.local.LocalCoBucketProvider
 import io.bluetape4k.bucket4j.ratelimit.CoRateLimiter
 import io.bluetape4k.bucket4j.ratelimit.RateLimitResult
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
@@ -27,7 +27,7 @@ class LocalCoRateLimiter(
     private val bucketProvider: LocalCoBucketProvider,
 ): CoRateLimiter<String> {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     /**
      * [key] 기준으로 [numToken] 갯수만큼 소비합니다. 결과는 [RateLimitResult]로 반환됩니다.

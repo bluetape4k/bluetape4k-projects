@@ -1,7 +1,7 @@
 package io.bluetape4k.retrofit2.client
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.retrofit2.defaultJsonConverterFactory
 import io.bluetape4k.retrofit2.retrofitOf
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 
 abstract class AbstractDynamicUrlCoroutineTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 3
         private const val HTTPBIN_URL_GET = "https://nghttp2.org/httpbin/get"
         private const val HTTPBIN_URL_POST = "https://nghttp2.org/httpbin/post"

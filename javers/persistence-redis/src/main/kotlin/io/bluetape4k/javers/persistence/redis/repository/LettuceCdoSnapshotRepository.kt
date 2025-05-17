@@ -47,7 +47,7 @@ class LettuceCdoSnapshotRepository(
     private val snapshotPrefix = "javers:$name:$SNAPSHOT_SUFFIX"
 
     private val commands by lazy {
-        LettuceClients.commands(client, LettuceBinaryCodecs.Default)
+        LettuceClients.commands(client, codec = LettuceBinaryCodecs.lz4Fury())
     }
 
     override fun getKeys(): List<String> {

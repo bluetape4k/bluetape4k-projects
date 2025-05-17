@@ -1,7 +1,7 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.coroutines.tests.assertResult
-import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
@@ -15,9 +15,7 @@ import kotlin.time.Duration.Companion.seconds
 
 class DelayTest: AbstractFlowTest() {
 
-    companion object {
-        private val log = KotlinLogging.logger {}
-    }
+    companion object: KLoggingChannel()
 
     @Test
     fun `delayed flow`() = runTest {

@@ -4,6 +4,7 @@ import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -34,7 +35,7 @@ import java.time.Duration
 @OptIn(DelicateCoroutinesApi::class)
 class SharedFlowExamples {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private val random = Fakers.random
     }
 

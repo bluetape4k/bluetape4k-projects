@@ -2,7 +2,7 @@ package io.bluetape4k.examples.redisson.coroutines.locks
 
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.coroutines.coAwait
 import io.bluetape4k.redis.redisson.coroutines.getLockId
@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit
  */
 class ReadWriteLockExamples: AbstractRedissonCoroutineTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `하나의 WriteLock을 잡고, 여러개의 ReadLock을 잡을 수 있습니다`() = runSuspendIO {

@@ -2,7 +2,7 @@ package io.bluetape4k.spring.cassandra.reactive
 
 import com.datastax.oss.driver.api.core.uuid.Uuids
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.spring.cassandra.cql.deleteOptions
 import io.bluetape4k.spring.cassandra.cql.insertOptions
@@ -47,7 +47,7 @@ class ReactiveCassandraTemplateTest(
     @Autowired private val operations: ReactiveCassandraOperations,
 ): AbstractCassandraCoroutineTest("reactive-template") {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         fun newUser(): User = User(
             Uuids.timeBased().toString(),
             faker.name().firstName(),

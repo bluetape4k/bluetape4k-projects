@@ -12,8 +12,8 @@
         </encoder>
     </appender>
 
-    <logger name="io.bluetape4k.cassandra" level="DEBUG"/>
-    <logger name="com.datastax.oss.driver.api" level="DEBUG"/>
+    <logger name="io.bluetape4k.cassandra" level="INFO"/>
+    <logger name="com.datastax.oss.driver.api" level="INFO"/>
 
     <root level="INFO">
         <appender-ref ref="Console"/>

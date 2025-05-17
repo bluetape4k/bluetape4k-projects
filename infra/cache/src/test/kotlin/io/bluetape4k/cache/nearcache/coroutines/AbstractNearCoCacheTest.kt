@@ -7,7 +7,7 @@ import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.junit5.awaitility.coUntil
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,7 +32,7 @@ import java.time.Duration
 abstract class AbstractNearCoCacheTest
     : CoroutineScope by CoroutineScope(CoroutineName("near-cocache") + Dispatchers.IO) {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val TEST_SIZE = 3
 
         fun getKey() = TimebasedUuid.nextBase62String()

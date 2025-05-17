@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.coroutines.guide
 
 import io.bluetape4k.coroutines.support.log
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 
 class CoroutineBuilderExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `job example`() = runTest {

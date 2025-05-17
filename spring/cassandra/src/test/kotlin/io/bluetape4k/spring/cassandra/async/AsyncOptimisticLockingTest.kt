@@ -2,7 +2,7 @@ package io.bluetape4k.spring.cassandra.async
 
 import com.datastax.oss.driver.api.core.CqlSession
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.spring.cassandra.domain.DomainTestConfiguration
 import io.bluetape4k.spring.cassandra.domain.model.VersionedEntity
@@ -28,7 +28,7 @@ class AsyncOptimisticLockingTest(
     @Autowired private val cqlSession: CqlSession,
 ): AbstractCassandraCoroutineTest("coroutines-optimistic-locking") {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     // NOTE: AsyncCassandraTemplate 는 직접 Injection 받을 수 없고, 이렇게 생성해야 한다.
     private val operations: AsyncCassandraOperations by lazy {

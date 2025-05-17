@@ -7,7 +7,7 @@ import io.bluetape4k.http.hc5.async.httpAsyncClientOf
 import io.bluetape4k.http.hc5.async.methods.simpleHttpRequestOf
 import io.bluetape4k.http.hc5.http.connectionConfigOf
 import io.bluetape4k.http.hc5.http.tlsConfigOf
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.test.runTest
 import org.apache.hc.client5.http.config.TlsConfig
@@ -23,7 +23,7 @@ import kotlin.time.Duration.Companion.seconds
 
 class AsyncClientConnectionConfig: AbstractHc5Test() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `connection configuration on a per-route or per-host`() = runTest(timeout = 60.seconds) {

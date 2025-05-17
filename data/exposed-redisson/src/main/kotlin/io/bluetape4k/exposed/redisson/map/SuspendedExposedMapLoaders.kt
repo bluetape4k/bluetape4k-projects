@@ -2,7 +2,7 @@ package io.bluetape4k.exposed.redisson.map
 
 import io.bluetape4k.exposed.dao.HasIdentifier
 import io.bluetape4k.exposed.sql.fetchBatchedResultFlow
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.trace
@@ -50,7 +50,7 @@ open class SuspendedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
     private val scope: CoroutineScope = defaultMapLoaderCoroutineScope,
 ): MapLoaderAsync<ID, E> {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val DEFAULT_QUERY_TIMEOUT = 30_000  // 30 seconds
         private const val DEFAULT_LOAD_ALL_IDS_TIMEOUT = 60_000L  // 60 seconds
     }
@@ -170,7 +170,7 @@ open class SuspendedExposedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
     },
     scope = scope,
 ) {
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val DEFAULT_BATCH_SIZE = 1000
     }
 }

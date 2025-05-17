@@ -15,7 +15,7 @@ import io.bluetape4k.http.okhttp3.mock.enqueueBodyWithDelay
 import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.jackson.writeAsString
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.closeSafe
 import okhttp3.mockwebserver.MockWebServer
 import org.amshove.kluent.shouldBeEqualTo
@@ -29,7 +29,7 @@ import java.time.Duration
 
 abstract class AbstractCoroutineClientTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         @JvmStatic
         protected val mapper: JsonMapper by lazy { Jackson.defaultJsonMapper }
         private val delay = Duration.ofMillis(10)

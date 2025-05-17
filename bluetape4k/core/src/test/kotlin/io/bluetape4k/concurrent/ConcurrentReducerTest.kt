@@ -116,7 +116,7 @@ class ConcurrentReducerTest {
     }
 
     @Test
-    fun `3개의 짧은 작업을 2개의 동시 실행으로 제한할 때`() {
+    fun `3개의 짧은 작업을 2개만 동시 실행으로 제한할 때`() {
         val reducer = ConcurrentReducer<String>(2, 10)
         val request1 = CompletableFuture<String>()
         val request2 = CompletableFuture<String>()
@@ -156,7 +156,7 @@ class ConcurrentReducerTest {
     }
 
     @Test
-    fun `concurrency 보다 많은 긴 작업이 실행될 떄`() {
+    fun `concurrency 보다 많은 작업이 실행될 떄`() {
         val activeCounter = atomic(0)
         val maxCounter = atomic(0)
         val queueSize = 6

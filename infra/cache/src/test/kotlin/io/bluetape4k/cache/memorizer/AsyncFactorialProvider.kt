@@ -1,12 +1,12 @@
 package io.bluetape4k.cache.memorizer
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import java.util.concurrent.CompletableFuture
 
 abstract class AsyncFactorialProvider {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     abstract val cachedCalc: (Long) -> CompletableFuture<Long>
 
@@ -14,7 +14,7 @@ abstract class AsyncFactorialProvider {
         log.trace { "factorial($x)" }
         return when {
             x <= 1L -> CompletableFuture.completedFuture(1L)
-            else    -> cachedCalc(x - 1).thenApplyAsync { x * it }
+            else -> cachedCalc(x - 1).thenApplyAsync { x * it }
         }
     }
 }

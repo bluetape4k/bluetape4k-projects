@@ -1,7 +1,7 @@
 package io.bluetape4k.junit5.coroutines
 
 import io.bluetape4k.junit5.utils.MultiException
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
@@ -33,7 +33,7 @@ import kotlinx.coroutines.yield
  */
 class SuspendedJobTester {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         const val DEFAULT_NUM_THREADS: Int = 16
         const val MIN_NUM_THREADS: Int = 2
         const val MAX_NUM_THREADS: Int = 2000

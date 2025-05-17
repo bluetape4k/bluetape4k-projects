@@ -1,5 +1,6 @@
 package io.bluetape4k.vertx.resilience4j
 
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.vertx.asCompletableFuture
 import io.bluetape4k.vertx.tests.withTestContext
 import io.github.resilience4j.circuitbreaker.CircuitBreaker
@@ -13,6 +14,8 @@ import org.junit.jupiter.api.Test
 
 @Suppress("UNUSED_PARAMETER")
 class VertxDecoratorsTest: AbstractVertxFutureTest() {
+
+    companion object: KLoggingChannel()
 
     private val retry = Retry.ofDefaults("coDecorator").applyEventPublisher()
     private val circuitBreaker = CircuitBreaker.ofDefaults("coDecorator").applyEventPublisher()

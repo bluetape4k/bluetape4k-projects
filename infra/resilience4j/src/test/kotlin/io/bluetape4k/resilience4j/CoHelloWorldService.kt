@@ -1,11 +1,14 @@
 package io.bluetape4k.resilience4j
 
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 
 
 class CoHelloWorldService {
+
+    companion object: KLoggingChannel()
 
     private val _invocationCount = atomic(0)
     val invocationCount by _invocationCount

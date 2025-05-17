@@ -3,7 +3,7 @@ package io.bluetape4k.retrofit2.client
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.retrofit2.defaultJsonConverterFactory
 import io.bluetape4k.retrofit2.retrofitOf
@@ -26,7 +26,7 @@ import kotlin.random.Random
 @RandomizedTest
 abstract class AbstractJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val ITEM_SIZE = 5
     }
 

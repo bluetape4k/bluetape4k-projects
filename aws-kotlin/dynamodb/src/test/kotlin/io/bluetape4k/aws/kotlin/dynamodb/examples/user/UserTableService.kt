@@ -10,12 +10,12 @@ import io.bluetape4k.aws.kotlin.dynamodb.deleteTableIfExists
 import io.bluetape4k.aws.kotlin.dynamodb.model.attributeDefinitionOf
 import io.bluetape4k.aws.kotlin.dynamodb.model.partitionKeyOf
 import io.bluetape4k.aws.kotlin.dynamodb.model.provisionedThroughputOf
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 
 class UserTableService(private val client: DynamoDbClient) {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     suspend fun createTable(): CreateTableResponse {
         deleteTableIfExists()

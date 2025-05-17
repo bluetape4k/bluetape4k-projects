@@ -14,14 +14,14 @@ import io.bluetape4k.aws.kotlin.dynamodb.model.sortKeyOf
 import io.bluetape4k.aws.kotlin.dynamodb.model.stringAttrDefinitionOf
 import io.bluetape4k.aws.kotlin.dynamodb.model.toAttributeValue
 import io.bluetape4k.jackson.Jackson
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.utils.Resourcex
 
 class MovieService(private val client: DynamoDbClient) {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private val objectMapper = Jackson.defaultJsonMapper
     }
 

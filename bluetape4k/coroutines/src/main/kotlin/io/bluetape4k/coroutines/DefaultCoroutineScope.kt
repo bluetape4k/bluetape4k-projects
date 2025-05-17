@@ -15,8 +15,7 @@ open class DefaultCoroutineScope: CoroutineScope {
 
     private val job: Job = SupervisorJob()
 
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Default + job
+    override val coroutineContext: CoroutineContext = Dispatchers.Default + job
 
     /**
      * 자식의 모든 Job을 취소합니다.
@@ -26,4 +25,7 @@ open class DefaultCoroutineScope: CoroutineScope {
     fun clearJobs(cause: CancellationException? = null) {
         coroutineContext.cancelChildren(cause)
     }
+
+    override fun toString(): String =
+        "DefaultCoroutineScope(coroutineContext=$coroutineContext)"
 }

@@ -6,7 +6,7 @@ import io.bluetape4k.aws.kotlin.sns.model.publishBatchRequestEntryOf
 import io.bluetape4k.aws.kotlin.sns.model.publishRequestOf
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.hashOf
 import org.amshove.kluent.shouldBeFalse
@@ -22,7 +22,7 @@ import org.junit.jupiter.api.TestMethodOrder
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class SnsClientExtensionsTest: AbstractKotlinSnsTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         // FIFO Topic을 사용하려면 `.fifo` 를 접미사로 붙여야 합니다.
         private val TOPIC_NAME = "sns-topic-${Base58.randomString(6).lowercase()}"
         private val TOPIC_NAME_FIFO = "$TOPIC_NAME.fifo"

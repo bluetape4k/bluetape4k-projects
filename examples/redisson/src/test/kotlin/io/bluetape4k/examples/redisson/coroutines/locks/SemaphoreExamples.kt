@@ -5,7 +5,7 @@ import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.coroutines.coAwait
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.launch
@@ -25,7 +25,7 @@ import kotlin.time.toJavaDuration
  */
 class SemaphoreExamples: AbstractRedissonCoroutineTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `semaphore example`() = runTest {

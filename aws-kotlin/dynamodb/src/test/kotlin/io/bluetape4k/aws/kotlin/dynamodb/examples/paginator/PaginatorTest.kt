@@ -16,7 +16,7 @@ import io.bluetape4k.aws.kotlin.dynamodb.model.sortKeyOf
 import io.bluetape4k.aws.kotlin.dynamodb.model.toAttributeValue
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.buffer
 import org.amshove.kluent.shouldBeEqualTo
@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test
 
 class PaginatorTest: AbstractKotlinDynamoDbTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val testTableName = "test-table-${Base58.randomString(6).lowercase()}"
 

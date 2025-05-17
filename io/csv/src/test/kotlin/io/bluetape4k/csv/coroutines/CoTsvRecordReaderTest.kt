@@ -1,10 +1,10 @@
 package io.bluetape4k.csv.coroutines
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 
 class CoTsvRecordReaderTest: AbstractCoRecordReaderTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     override val reader = CoTsvRecordReader()
 

@@ -1,6 +1,6 @@
 package io.bluetape4k.workshop.quarkus.rest
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.workshop.quarkus.model.Fruit
 import io.bluetape4k.workshop.quarkus.repository.FruitRepository
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction
@@ -19,7 +19,7 @@ import jakarta.ws.rs.core.MediaType
 class FruitResource(
     private val repository: FruitRepository,
 ) {
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @GET
     @WithTransaction

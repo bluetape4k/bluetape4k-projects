@@ -2,7 +2,7 @@ package io.bluetape4k.cache.jcache.coroutines
 
 import com.github.benmanes.caffeine.cache.AsyncCache
 import com.github.benmanes.caffeine.cache.Caffeine
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -36,7 +36,7 @@ import javax.cache.configuration.CacheEntryListenerConfiguration
  */
 class CaffeineCoCache<K: Any, V: Any>(private val cache: AsyncCache<K, V>): CoCache<K, V> {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         @JvmStatic
         inline operator fun <reified K: Any, reified V: Any> invoke(
             initializer: Caffeine<Any, Any>.() -> Unit = {},

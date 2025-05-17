@@ -1,7 +1,7 @@
 package io.bluetape4k.vertx.sqlclient.mybatis
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.vertx.sqlclient.schema.PersonMapper
 import io.bluetape4k.vertx.sqlclient.schema.PersonSchema.person
 import io.bluetape4k.vertx.sqlclient.tests.testWithRollbackSuspending
@@ -19,7 +19,7 @@ import org.mybatis.dynamic.sql.util.kotlin.model.update
 
 class H2SqlClientExtensionTest: AbstractSqlClientExtensionsTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     override fun Vertx.getPool() = this.getH2Pool()
 

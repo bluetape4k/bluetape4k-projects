@@ -3,7 +3,7 @@ package io.bluetape4k.images.coroutines
 import com.sksamuel.scrimage.AwtImage
 import com.sksamuel.scrimage.metadata.ImageMetadata
 import com.sksamuel.scrimage.nio.JpegWriter
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.withContext
 import java.io.OutputStream
@@ -25,7 +25,7 @@ class CoJpegWriter(
     val progressive: Boolean = false,
 ): JpegWriter(compression, progressive), CoImageWriter {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         @JvmStatic
         val Default = CoJpegWriter(80, false)
 

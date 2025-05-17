@@ -1,7 +1,7 @@
 package io.bluetape4k.exposed.redisson.map
 
 import io.bluetape4k.exposed.dao.HasIdentifier
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.warn
@@ -38,7 +38,7 @@ open class SuspendedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     private val scope: CoroutineScope = defaultMapWriterCoroutineScope,
 ): MapWriterAsync<ID, E> {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val DEFAULT_QUERY_TIMEOUT = 30_000  // 30 seconds
     }
 
@@ -106,7 +106,7 @@ open class SuspendedExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
         }
     },
 ) {
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val DEFAULT_BATCH_SIZE = 1000
 
         private fun <K: Any, V: HasIdentifier<K>> writeThrough(

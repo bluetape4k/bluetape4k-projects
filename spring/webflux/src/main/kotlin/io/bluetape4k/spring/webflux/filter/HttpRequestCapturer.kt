@@ -1,5 +1,6 @@
 package io.bluetape4k.spring.webflux.filter
 
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.stereotype.Component
 import org.springframework.web.server.ServerWebExchange
@@ -14,6 +15,8 @@ import reactor.core.publisher.Mono
  */
 @Component
 class HttpRequestCapturer: WebFilter {
+
+    companion object: KLoggingChannel()
 
     override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
         val request = exchange.request.mutate().build()

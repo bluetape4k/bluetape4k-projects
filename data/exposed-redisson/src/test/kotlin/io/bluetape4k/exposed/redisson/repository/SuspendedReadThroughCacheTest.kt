@@ -6,6 +6,7 @@ import io.bluetape4k.exposed.redisson.repository.UserSchema.withSuspendedUserCre
 import io.bluetape4k.exposed.redisson.repository.UserSchema.withSuspendedUserTable
 import io.bluetape4k.exposed.redisson.repository.scenarios.SuspendedReadThroughScenario
 import io.bluetape4k.exposed.tests.TestDB
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.selectAll
@@ -16,8 +17,12 @@ import kotlin.coroutines.CoroutineContext
 
 class SuspendedReadThroughCacheTest {
 
+    companion object: KLoggingChannel()
+
     abstract class SuspendedAutoIncIdReadThrough: AbstractRedissonTest(),
                                                   SuspendedReadThroughScenario<UserSchema.UserDTO, Long> {
+
+        companion object: KLoggingChannel()
 
         override suspend fun withSuspendedEntityTable(
             testDB: TestDB,

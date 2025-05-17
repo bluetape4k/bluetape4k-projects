@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.coroutines.guide
 
 import io.bluetape4k.coroutines.support.log
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
@@ -18,7 +18,7 @@ import kotlin.random.Random
 
 class ChannelExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `channel-01`() = runTest {

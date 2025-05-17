@@ -1,11 +1,11 @@
 package io.bluetape4k.coroutines
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -23,12 +23,12 @@ import kotlin.random.Random
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 abstract class AbstractCoroutineScopeTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     abstract val coroutineScope: CoroutineScope
 
     private suspend fun add(x: Int, y: Int): Int {
-        delay(Random.nextLong(100))
+        delay(Random.nextLong(10))
         log.trace { "add($x, $y)" }
         return x + y
     }
@@ -55,9 +55,10 @@ abstract class AbstractCoroutineScopeTest {
             fail("작업 중간에 취소되어야 합니다.")
         }
 
-        delay(100)
+        delay(10)
         coroutineScope.cancel()
-        coroutineScope.coroutineContext.cancelChildren()
+        // CoroutineScope가 취소되면 자식 코루틴도 취소됩니다.
+        // coroutineScope.coroutineContext.cancelChildren()
 
         yield()
         coroutineScope.isActive.shouldBeFalse()

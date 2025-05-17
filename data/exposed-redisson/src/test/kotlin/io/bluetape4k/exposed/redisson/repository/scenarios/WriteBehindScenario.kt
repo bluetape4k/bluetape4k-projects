@@ -2,6 +2,7 @@ package io.bluetape4k.exposed.redisson.repository.scenarios
 
 import io.bluetape4k.exposed.dao.HasIdentifier
 import io.bluetape4k.exposed.tests.TestDB
+import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeGreaterThan
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.withPollInterval
@@ -12,6 +13,8 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.time.Duration
 
 interface WriteBehindScenario<T: HasIdentifier<ID>, ID: Any>: CacheTestScenario<T, ID> {
+
+    companion object: KLogging()
 
     fun createNewEntity(): T
 

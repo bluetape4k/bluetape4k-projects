@@ -1,7 +1,7 @@
 package io.bluetape4k.r2dbc.core
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.r2dbc.AbstractR2dbcTest
 import io.bluetape4k.r2dbc.model.User
 import io.bluetape4k.r2dbc.query.query
@@ -20,7 +20,7 @@ import org.springframework.r2dbc.core.flow
 
 class ExecuteTest: AbstractR2dbcTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `select values without entity class`() = runSuspendIO {

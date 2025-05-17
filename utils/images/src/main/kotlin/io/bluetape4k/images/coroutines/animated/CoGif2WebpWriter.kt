@@ -1,7 +1,7 @@
 package io.bluetape4k.images.coroutines.animated
 
 import com.sksamuel.scrimage.webp.Gif2WebpWriter
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.requireInRange
 
 /**
@@ -13,7 +13,7 @@ class CoGif2WebpWriter(
     private val lossy: Boolean = false,
 ): Gif2WebpWriter(q, m, lossy), CoAnimatedImageWriter {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         val Default = CoGif2WebpWriter()
     }
 

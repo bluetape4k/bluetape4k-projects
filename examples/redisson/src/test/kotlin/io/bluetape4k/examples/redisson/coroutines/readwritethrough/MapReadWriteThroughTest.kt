@@ -5,7 +5,7 @@ import io.bluetape4k.jdbc.sql.extract
 import io.bluetape4k.jdbc.sql.runQuery
 import io.bluetape4k.jdbc.sql.withConnect
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.redis.redisson.RedissonCodecs
@@ -49,7 +49,7 @@ import kotlin.system.measureTimeMillis
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class MapReadWriteThroughTest: AbstractRedissonCoroutineTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
 
         const val ACTOR_SIZE = 30
 

@@ -1,6 +1,6 @@
 package io.bluetape4k.vertx.resilience4j
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.github.resilience4j.circuitbreaker.CircuitBreaker
@@ -11,7 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(VertxExtension::class)
 abstract class AbstractVertxFutureTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     protected fun CircuitBreaker.applyEventPublisher() = apply {
         eventPublisher

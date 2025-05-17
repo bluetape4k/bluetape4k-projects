@@ -1,6 +1,6 @@
 package io.nats.examples.jetstream.simple
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.nats.AbstractNatsTest
 import io.bluetape4k.nats.client.publish
 import io.nats.client.JetStream
@@ -9,7 +9,7 @@ import kotlin.random.Random
 
 abstract class AbstractSimpleExample: AbstractNatsTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     protected fun publish(js: JetStream, subject: String, messageText: String, count: Int) {
         for (i in 1..count) {

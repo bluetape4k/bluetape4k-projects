@@ -6,7 +6,7 @@ import io.bluetape4k.exposed.redisson.repository.scenarios.SuspendedCacheTestSce
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.junit5.awaitility.coUntil
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
@@ -24,7 +24,7 @@ import java.time.Duration
 
 interface SuspendedWriteThroughScenario<T: HasIdentifier<ID>, ID: Any>: SuspendedCacheTestScenario<T, ID> {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         const val DEFAULT_DELAY = 100L
     }
 

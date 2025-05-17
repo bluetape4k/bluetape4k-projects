@@ -3,7 +3,7 @@ package io.bluetape4k.aws.s3.examples
 import io.bluetape4k.aws.s3.AbstractS3Test
 import io.bluetape4k.aws.s3.getAsByteArray
 import io.bluetape4k.aws.s3.putAsByteArray
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
@@ -16,7 +16,7 @@ import java.util.*
 
 class S3AsyncOps: AbstractS3Test() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `put object asynchronously`() = runTest {

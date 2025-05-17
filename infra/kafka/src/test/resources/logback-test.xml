@@ -22,9 +22,9 @@
     <!-- formatter:on -->
 
     <logger name="io.bluetape4k.kafka" level="DEBUG"/>
-    <logger name="org.springframework.kafka" level="DEBUG"/>
+<!--    <logger name="org.springframework.kafka" level="DEBUG"/>-->
     
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="console"/>
     </root>
 </configuration>

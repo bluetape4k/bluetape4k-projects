@@ -12,7 +12,7 @@
         </encoder>
     </appender>
 
-    <logger name="io.bluetape4k.jackson.text" level="DEBUG"/>
+    <!--    <logger name="io.bluetape4k.jackson.text" level="DEBUG"/>-->
 
     <root level="INFO">
         <appender-ref ref="Console"/>

@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions.parallel
 
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.FlowCollector
 
 /**
@@ -9,6 +10,8 @@ internal class FlowParallelFilter<T>(
     private val source: ParallelFlow<T>,
     private val predicate: suspend (T) -> Boolean,
 ): ParallelFlow<T> {
+
+    companion object: KLoggingChannel()
 
     override val parallelism: Int
         get() = source.parallelism

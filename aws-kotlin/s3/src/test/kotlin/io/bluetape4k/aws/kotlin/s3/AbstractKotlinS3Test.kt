@@ -7,7 +7,7 @@ import io.bluetape4k.aws.kotlin.tests.endpointUrl
 import io.bluetape4k.aws.kotlin.tests.getCredentialsProvider
 import io.bluetape4k.aws.kotlin.tests.getLocalStackServer
 import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import io.bluetape4k.logging.warn
 import io.bluetape4k.utils.ShutdownQueue
@@ -17,7 +17,7 @@ import org.testcontainers.containers.localstack.LocalStackContainer
 
 abstract class AbstractKotlinS3Test {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         const val IMAGE_PATH: String = "src/test/resources/images"
         const val BUCKET_NAME: String = "test-bucket-1"
         const val BUCKET_NAME2: String = "test-bucket-2"

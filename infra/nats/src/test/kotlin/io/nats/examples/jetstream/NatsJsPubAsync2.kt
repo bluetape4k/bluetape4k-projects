@@ -1,6 +1,6 @@
 package io.nats.examples.jetstream
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.nats.AbstractNatsTest
 import io.bluetape4k.nats.client.createOrReplaceStream
@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit
 
 class NatsJsPubAsync2: AbstractNatsTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val STREAM = "example-stream"
         private const val SUBJECT = "example-subject"
         private const val DEFAULT_MESSAGE = "hello"

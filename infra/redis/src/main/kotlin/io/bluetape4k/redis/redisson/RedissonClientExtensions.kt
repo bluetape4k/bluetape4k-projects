@@ -11,9 +11,7 @@ import org.redisson.transaction.TransactionException
 inline fun RedissonClient.withBatch(
     options: BatchOptions = BatchOptions.defaults(),
     action: RBatch.() -> Unit,
-): BatchResult<*> {
-    return createBatch(options).apply(action).execute()
-}
+): BatchResult<*> = createBatch(options).apply(action).execute()
 
 inline fun RedissonClient.withTransaction(
     options: TransactionOptions = TransactionOptions.defaults(),

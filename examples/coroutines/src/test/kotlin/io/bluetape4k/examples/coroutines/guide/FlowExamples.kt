@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.coroutines.guide
 
 import io.bluetape4k.coroutines.flow.extensions.log
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -16,7 +16,7 @@ import kotlin.random.Random
 
 class FlowExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Nested
     inner class Flow35 {

@@ -6,7 +6,7 @@ import io.bluetape4k.images.AbstractImageTest
 import io.bluetape4k.io.readAllBytesSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.tempfolder.TempFolder
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeTrue
@@ -15,7 +15,7 @@ import java.nio.file.Path
 
 class AsyncGif2WebpWriterTest: AbstractImageTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val useTempFolder = true
 

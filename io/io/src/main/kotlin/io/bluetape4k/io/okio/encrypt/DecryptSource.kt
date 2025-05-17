@@ -1,7 +1,7 @@
 package io.bluetape4k.io.okio.encrypt
 
 import io.bluetape4k.crypto.encrypt.Encryptor
-import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireGe
 import okio.Buffer
@@ -18,9 +18,7 @@ open class DecryptSource(
     private val encryptor: Encryptor,
 ): ForwardingSource(delegate) {
 
-    companion object {
-        private val log = KotlinLogging.logger { }
-    }
+    companion object: KLogging()
 
     private val sourceBuffer = Buffer()
     private val decryptedBuffer = Buffer()

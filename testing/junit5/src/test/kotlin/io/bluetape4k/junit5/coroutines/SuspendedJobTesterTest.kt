@@ -1,6 +1,6 @@
 package io.bluetape4k.junit5.coroutines
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
@@ -11,7 +11,7 @@ import kotlin.test.assertFailsWith
 
 class SuspendedJobTesterTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 5
     }
 

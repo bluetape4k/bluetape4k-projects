@@ -4,7 +4,7 @@ import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.coroutines.tests.withSingleThread
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Dispatchers
@@ -22,7 +22,7 @@ import kotlin.test.assertFailsWith
 
 class UnicastSubjectTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         val expectedList = mutableListOf(0, 1, 2, 3, 4)
         const val BUFFER_SIZE = 50_000
     }

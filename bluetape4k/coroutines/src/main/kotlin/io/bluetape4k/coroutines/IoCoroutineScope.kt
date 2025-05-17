@@ -16,8 +16,7 @@ open class IoCoroutineScope: CoroutineScope {
 
     private val job: Job = SupervisorJob()
 
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO + job
+    override val coroutineContext: CoroutineContext = Dispatchers.IO + job
 
     /**
      * 자식의 모든 Job을 취소합니다.
@@ -28,4 +27,7 @@ open class IoCoroutineScope: CoroutineScope {
         log.debug { "clearJobs: cause=$cause" }
         coroutineContext.cancelChildren(cause)
     }
+
+    override fun toString(): String =
+        "IoCoroutineScope(coroutineContext=$coroutineContext)"
 }

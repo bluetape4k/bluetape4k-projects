@@ -1,6 +1,6 @@
 package io.bluetape4k.mutiny
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
@@ -10,7 +10,7 @@ import kotlin.random.Random
 
 class UniSupportTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `uniOf by value`() {
