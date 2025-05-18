@@ -4,7 +4,7 @@ import io.bluetape4k.exposed.dao.id.TimebasedUUIDTable
 import io.bluetape4k.javatimes.millis
 import io.bluetape4k.junit5.awaitility.coUntil
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.RedissonCodecs
 import io.bluetape4k.redis.redisson.coroutines.awaitAll
@@ -48,7 +48,7 @@ import kotlin.random.Random
  */
 class CacheWriteBehindForIoTData: AbstractCacheExample() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     object SensorDataTable: TimebasedUUIDTable("sensor_data") {
         val serialNo = varchar("sensor_serial_no", 255)
