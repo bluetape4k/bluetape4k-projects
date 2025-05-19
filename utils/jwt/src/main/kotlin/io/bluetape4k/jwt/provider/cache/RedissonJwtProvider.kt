@@ -13,7 +13,10 @@ import io.bluetape4k.jwt.reader.toJwtReader
 import io.bluetape4k.logging.KLogging
 import org.redisson.api.RMapCache
 import org.redisson.api.RedissonClient
-import org.redisson.codec.LZ4Codec
+import org.redisson.client.codec.StringCodec
+import org.redisson.codec.CompositeCodec
+import org.redisson.codec.FuryCodec
+import org.redisson.codec.LZ4CodecV2
 import java.util.concurrent.TimeUnit
 
 /**
@@ -52,7 +55,9 @@ class RedissonJwtProvider private constructor(
             keychinName: String = KEYCHANIN_PREFIX,
             ttl: Long = DEFAULT_TTL,
         ): RedissonJwtProvider {
-            val cache = redisson.getMapCache<String, JwtReaderDto>(keychinName, LZ4Codec())
+            // Key 는 String Codec, Value 는 Fury + LZ4 Codec
+            val codec = CompositeCodec(StringCodec(), LZ4CodecV2(FuryCodec()))
+            val cache = redisson.getMapCache<String, JwtReaderDto>(keychinName, codec)
             return invoke(delegate, cache, ttl)
         }
     }

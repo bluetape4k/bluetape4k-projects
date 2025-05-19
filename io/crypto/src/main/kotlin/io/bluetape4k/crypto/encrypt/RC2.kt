@@ -1,7 +1,7 @@
 package io.bluetape4k.crypto.encrypt
 
-import io.bluetape4k.crypto.zeroSaltGenerator
 import io.bluetape4k.logging.KLogging
+import org.jasypt.iv.IvGenerator
 import org.jasypt.salt.SaltGenerator
 
 /**
@@ -11,9 +11,10 @@ import org.jasypt.salt.SaltGenerator
  * @param password password
  */
 class RC2(
-    saltGenerator: SaltGenerator = zeroSaltGenerator,
+    saltGenerator: SaltGenerator = DefaultSaltGenerator,
     password: String = DEFAULT_PASSWORD,
-): AbstractEncryptor(ALGORITHM, saltGenerator, password) {
+    ivGenerator: IvGenerator = DefaultIvGenerator,
+): AbstractEncryptor(ALGORITHM, saltGenerator, password, ivGenerator) {
 
     companion object: KLogging() {
         const val ALGORITHM = "PBEWITHSHA1ANDRC2_128" // "PBEWITHSHAAND128BITRC2-CBC"

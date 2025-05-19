@@ -1,6 +1,6 @@
 package io.nats.examples.jetstream.simple
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.nats.client.api.consumerConfiguration
 import io.bluetape4k.nats.client.api.fetchConsumeOptions
@@ -12,7 +12,7 @@ import kotlin.time.Duration.Companion.seconds
 
 class IterableConsumerExample: AbstractSimpleExample() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val STREAM = "manually-stream"
         private const val SUBJECT = "manually-subject"
         private const val CONSUMER_NAME = "manually-consumer"

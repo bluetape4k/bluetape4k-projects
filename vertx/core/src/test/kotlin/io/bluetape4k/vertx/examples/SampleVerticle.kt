@@ -1,6 +1,6 @@
 package io.bluetape4k.vertx.examples
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.info
@@ -9,7 +9,7 @@ import io.vertx.core.Promise
 
 class SampleVerticle: AbstractVerticle() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     override fun start(startPromise: Promise<Void>) {
         vertx.createHttpServer()

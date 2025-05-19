@@ -5,8 +5,10 @@ import io.bluetape4k.logging.debug
 import org.amshove.kluent.internal.assertFailsWith
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
+import org.amshove.kluent.shouldBeLessThan
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.ExecutionException
 
 class FutureUtilsTest {
@@ -20,17 +22,25 @@ class FutureUtilsTest {
     // TODO : firstCompleted, allAsList, successfulAsList 에 대한 Test case 추가
 
     @Test
-    fun `get firstCompleted`() {
+    fun `CompletableFuture Task들 중 첫번째 완료된 작업을 반환하고, 나머지는 캔슬한다`() {
+        val completedTasks = CopyOnWriteArrayList<Int>()
+
         val futures = List(10) {
             futureOf {
-                Thread.sleep(10L * it + 200)
+                Thread.sleep(100L * it + 100)
                 it.apply {
                     log.debug { "result=$it" }
+                }
+            }.whenComplete { result, error ->
+                log.debug { "Task[$it] is completed. result=$result, error=$error" }
+                if (error == null) {
+                    completedTasks.add(result)
                 }
             }
         }
         val result = FutureUtils.firstCompleted(futures)
         result.get() shouldBeEqualTo 0
+        completedTasks.size shouldBeLessThan 3   // 1개만 완료되어야 하지만, 거의 동시에 완료되는 경우가 있기 때문에 
     }
 
     @Test

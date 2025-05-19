@@ -7,11 +7,14 @@ import io.bluetape4k.examples.jpa.querydsl.domain.dto.MemberTeamDto
 import io.bluetape4k.examples.jpa.querydsl.domain.model.Member
 import io.bluetape4k.examples.jpa.querydsl.domain.model.QMember
 import io.bluetape4k.examples.jpa.querydsl.domain.model.QTeam
+import io.bluetape4k.logging.KLogging
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 
 class MemberRepositoryImpl: QuerydslRepositorySupport(Member::class.java), MemberRepositoryCustom {
+
+    companion object: KLogging()
 
     private val queryFactory get() = JPAQueryFactory(entityManager)
 

@@ -1,6 +1,6 @@
 package io.bluetape4k.workshop.quarkus
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.mutiny.deferUni
@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Blocking
 @Produces(MediaType.APPLICATION_JSON)
 class GreetingReactiveResource(private val greetingService: GreetingReactiveService) {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     /**
      * Configuration 정보를 injection 받습니다

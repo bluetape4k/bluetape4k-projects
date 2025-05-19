@@ -7,7 +7,7 @@ import io.bluetape4k.http.hc5.async.methods.simpleHttpRequest
 import io.bluetape4k.http.hc5.async.minimalHttpAsyncClientOf
 import io.bluetape4k.http.hc5.http.executeSuspending
 import io.bluetape4k.http.hc5.http.tlsConfigOf
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.test.runTest
 import org.apache.hc.core5.http.HttpHost
@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test
 
 class AsyncClientH2Multiplexing: AbstractHc5Test() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `concurrent (multiplexed) execution of multiple HTTP 2 message exchanges`() = runTest {

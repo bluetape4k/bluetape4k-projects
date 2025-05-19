@@ -51,15 +51,15 @@ class FastjsonColumnTest: AbstractExposedTest() {
     /**
      * ```sql
      * -- H2
-     * INSERT INTO JACKSON_TABLE (JACKSON_COLUMN)
+     * INSERT INTO fastjson_TABLE (fastjson_COLUMN)
      * VALUES (JSON '{"user":{"name":"Pro","team":"Alpha"},"logins":999,"active":true,"team":"A"}' FORMAT JSON);
      *
      * -- MySQL V8
-     * INSERT INTO jackson_table (jackson_column)
+     * INSERT INTO fastjson_table (fastjson_column)
      * VALUES ({"user":{"name":"Pro","team":"Alpha"},"logins":999,"active":true,"team":"A"});
      *
      * -- Postgres
-     * INSERT INTO jackson_table (jackson_column)
+     * INSERT INTO fastjson_table (fastjson_column)
      * VALUES ({"user":{"name":"Pro","team":"Alpha"},"logins":999,"active":true,"team":"A"});
      * ```
      */
@@ -80,8 +80,8 @@ class FastjsonColumnTest: AbstractExposedTest() {
     /**
      * ```sql
      * -- Postgres
-     * UPDATE jackson_table
-     *    SET jackson_column={"user":{"name":"Admin","team":null},"logins":10,"active":false,"team":null}
+     * UPDATE fastjson_table
+     *    SET fastjson_column={"user":{"name":"Admin","team":null},"logins":10,"active":false,"team":null}
      * ```
      */
     @ParameterizedTest
@@ -102,14 +102,14 @@ class FastjsonColumnTest: AbstractExposedTest() {
     /**
      * ```sql
      * -- Postgres
-     * SELECT JSON_EXTRACT_PATH(jackson_table.jackson_column, 'active') FROM jackson_table;
-     * SELECT JSON_EXTRACT_PATH(jackson_table.jackson_column, 'user') FROM jackson_table;
-     * SELECT JSON_EXTRACT_PATH_TEXT(jackson_table.jackson_column, 'user', 'name') FROM jackson_table;
+     * SELECT JSON_EXTRACT_PATH(fastjson_table.fastjson_column, 'active') FROM fastjson_table;
+     * SELECT JSON_EXTRACT_PATH(fastjson_table.fastjson_column, 'user') FROM fastjson_table;
+     * SELECT JSON_EXTRACT_PATH_TEXT(fastjson_table.fastjson_column, 'user', 'name') FROM fastjson_table;
      *
      * -- MySQL V8
-     * SELECT JSON_EXTRACT(jackson_table.jackson_column, "$.active") FROM jackson_table;
-     * SELECT JSON_EXTRACT(jackson_table.jackson_column, "$.user") FROM jackson_table;
-     * SELECT JSON_UNQUOTE(JSON_EXTRACT(jackson_table.jackson_column, "$.user.name")) FROM jackson_table;
+     * SELECT JSON_EXTRACT(fastjson_table.fastjson_column, "$.active") FROM fastjson_table;
+     * SELECT JSON_EXTRACT(fastjson_table.fastjson_column, "$.user") FROM fastjson_table;
+     * SELECT JSON_UNQUOTE(JSON_EXTRACT(fastjson_table.fastjson_column, "$.user.name")) FROM fastjson_table;
      * ```
      */
     @ParameterizedTest
@@ -143,14 +143,14 @@ class FastjsonColumnTest: AbstractExposedTest() {
     /**
      * ```sql
      * -- Postgres
-     * SELECT jackson_table.id
-     *   FROM jackson_table
-     *  WHERE CAST(JSON_EXTRACT_PATH_TEXT(jackson_table.jackson_column, 'logins') AS INT) >= 1000;
+     * SELECT fastjson_table.id
+     *   FROM fastjson_table
+     *  WHERE CAST(JSON_EXTRACT_PATH_TEXT(fastjson_table.fastjson_column, 'logins') AS INT) >= 1000;
      *
      * -- MySQL V8
-     * SELECT jackson_table.id
-     *   FROM jackson_table
-     *  WHERE JSON_UNQUOTE(JSON_EXTRACT(jackson_table.jackson_column, "$.logins")) >= 1000
+     * SELECT fastjson_table.id
+     *   FROM fastjson_table
+     *  WHERE JSON_UNQUOTE(JSON_EXTRACT(fastjson_table.fastjson_column, "$.logins")) >= 1000
      * ```
      */
     @ParameterizedTest
@@ -197,20 +197,20 @@ class FastjsonColumnTest: AbstractExposedTest() {
     /**
      * ```sql
      * -- Postgres
-     * INSERT INTO jackson_table (jackson_column)
+     * INSERT INTO fastjson_table (fastjson_column)
      * VALUES ({"user":{"name":"Admin","team":"Alpha"},"logins":10,"active":true,"team":null});
      *
-     * UPDATE jackson_table
-     *    SET jackson_column={"user":{"name":"Lead","team":"Beta"},"logins":10,"active":true,"team":null}
-     *  WHERE jackson_table.id = 1;
+     * UPDATE fastjson_table
+     *    SET fastjson_column={"user":{"name":"Lead","team":"Beta"},"logins":10,"active":true,"team":null}
+     *  WHERE fastjson_table.id = 1;
      *
      * -- MySQL V8
-     * INSERT INTO jackson_table (jackson_column)
+     * INSERT INTO fastjson_table (fastjson_column)
      * VALUES ({"user":{"name":"Admin","team":"Alpha"},"logins":10,"active":true,"team":null});
      *
-     * UPDATE jackson_table
-     *    SET jackson_column={"user":{"name":"Lead","team":"Beta"},"logins":10,"active":true,"team":null}
-     *  WHERE jackson_table.id = 1;
+     * UPDATE fastjson_table
+     *    SET fastjson_column={"user":{"name":"Lead","team":"Beta"},"logins":10,"active":true,"team":null}
+     *  WHERE fastjson_table.id = 1;
      * ```
      */
     @ParameterizedTest
@@ -239,26 +239,26 @@ class FastjsonColumnTest: AbstractExposedTest() {
     /**
      * ```sql
      * -- Postgres
-     * SELECT jackson_table.id, jackson_table.jackson_column
-     *   FROM jackson_table
-     *  WHERE jackson_table.jackson_column::jsonb @> '{"active":false}'::jsonb;
+     * SELECT fastjson_table.id, fastjson_table.fastjson_column
+     *   FROM fastjson_table
+     *  WHERE fastjson_table.fastjson_column::jsonb @> '{"active":false}'::jsonb;
      *
      * SELECT COUNT(*)
-     *   FROM jackson_table
-     *  WHERE jackson_table.jackson_column::jsonb @> '{"user":{"name":"Admin","team":"Alpha"}}'::jsonb;
+     *   FROM fastjson_table
+     *  WHERE fastjson_table.fastjson_column::jsonb @> '{"user":{"name":"Admin","team":"Alpha"}}'::jsonb;
      *
      * -- MySQL V8
-     * SELECT jackson_table.id, jackson_table.jackson_column
-     *   FROM jackson_table
-     *  WHERE JSON_CONTAINS(jackson_table.jackson_column, '{"active":false}');
+     * SELECT fastjson_table.id, fastjson_table.fastjson_column
+     *   FROM fastjson_table
+     *  WHERE JSON_CONTAINS(fastjson_table.fastjson_column, '{"active":false}');
      *
      * SELECT COUNT(*)
-     *   FROM jackson_table
-     *  WHERE JSON_CONTAINS(jackson_table.jackson_column, '{"user":{"name":"Admin","team":"Alpha"}}');
+     *   FROM fastjson_table
+     *  WHERE JSON_CONTAINS(fastjson_table.fastjson_column, '{"user":{"name":"Admin","team":"Alpha"}}');
      *
-     * SELECT jackson_table.id
-     *   FROM jackson_table
-     *  WHERE JSON_CONTAINS(jackson_table.jackson_column, '"Alpha"', '$.user.team');
+     * SELECT fastjson_table.id
+     *   FROM fastjson_table
+     *  WHERE JSON_CONTAINS(fastjson_table.fastjson_column, '"Alpha"', '$.user.team');
      * ```
      */
     @ParameterizedTest
@@ -292,24 +292,24 @@ class FastjsonColumnTest: AbstractExposedTest() {
     /**
      * ```sql
      * -- Postgres
-     * SELECT COUNT(*) FROM jackson_table
-     *  WHERE JSONB_PATH_EXISTS(CAST(jackson_table.jackson_column as jsonb), '$');
+     * SELECT COUNT(*) FROM fastjson_table
+     *  WHERE JSONB_PATH_EXISTS(CAST(fastjson_table.fastjson_column as jsonb), '$');
      *
-     * SELECT COUNT(*) FROM jackson_table
-     *  WHERE JSONB_PATH_EXISTS(CAST(jackson_table.jackson_column as jsonb), '$.fakeKey');
+     * SELECT COUNT(*) FROM fastjson_table
+     *  WHERE JSONB_PATH_EXISTS(CAST(fastjson_table.fastjson_column as jsonb), '$.fakeKey');
      *
-     * SELECT COUNT(*) FROM jackson_table
-     *  WHERE JSONB_PATH_EXISTS(CAST(jackson_table.jackson_column as jsonb), '$.logins');
+     * SELECT COUNT(*) FROM fastjson_table
+     *  WHERE JSONB_PATH_EXISTS(CAST(fastjson_table.fastjson_column as jsonb), '$.logins');
      *
      * -- MySQL V8
-     * SELECT COUNT(*) FROM jackson_table
-     *  WHERE JSON_CONTAINS_PATH(jackson_table.jackson_column, 'one', '$');
+     * SELECT COUNT(*) FROM fastjson_table
+     *  WHERE JSON_CONTAINS_PATH(fastjson_table.fastjson_column, 'one', '$');
      *
-     * SELECT COUNT(*) FROM jackson_table
-     *  WHERE JSON_CONTAINS_PATH(jackson_table.jackson_column, 'one', '$.fakeKey');
+     * SELECT COUNT(*) FROM fastjson_table
+     *  WHERE JSON_CONTAINS_PATH(fastjson_table.fastjson_column, 'one', '$.fakeKey');
      *
-     * SELECT COUNT(*) FROM jackson_table
-     *  WHERE JSON_CONTAINS_PATH(jackson_table.jackson_column, 'one', '$.logins');
+     * SELECT COUNT(*) FROM fastjson_table
+     *  WHERE JSON_CONTAINS_PATH(fastjson_table.fastjson_column, 'one', '$.logins');
      * ```
      */
     @ParameterizedTest
@@ -361,20 +361,20 @@ class FastjsonColumnTest: AbstractExposedTest() {
     /**
      * ```sql
      * -- Postgres
-     * SELECT jackson_arrays.id, jackson_arrays."groups", jackson_arrays.numbers
-     *   FROM jackson_arrays
-     *  WHERE JSON_EXTRACT_PATH_TEXT(jackson_arrays."groups", 'users', '0', 'team') = 'Team A';
+     * SELECT fastjson_arrays.id, fastjson_arrays."groups", fastjson_arrays.numbers
+     *   FROM fastjson_arrays
+     *  WHERE JSON_EXTRACT_PATH_TEXT(fastjson_arrays."groups", 'users', '0', 'team') = 'Team A';
      *
-     * SELECT JSON_EXTRACT_PATH_TEXT(jackson_arrays.numbers, '0')
-     *   FROM jackson_arrays;
+     * SELECT JSON_EXTRACT_PATH_TEXT(fastjson_arrays.numbers, '0')
+     *   FROM fastjson_arrays;
      *
      * -- MySQL V8
-     * SELECT jackson_arrays.id, jackson_arrays.`groups`, jackson_arrays.numbers
-     *   FROM jackson_arrays
-     *  WHERE JSON_UNQUOTE(JSON_EXTRACT(jackson_arrays.`groups`, "$.users[0].team")) = 'Team A';
+     * SELECT fastjson_arrays.id, fastjson_arrays.`groups`, fastjson_arrays.numbers
+     *   FROM fastjson_arrays
+     *  WHERE JSON_UNQUOTE(JSON_EXTRACT(fastjson_arrays.`groups`, "$.users[0].team")) = 'Team A';
      *
-     * SELECT JSON_UNQUOTE(JSON_EXTRACT(jackson_arrays.numbers, "$[0]"))
-     *   FROM jackson_arrays;
+     * SELECT JSON_UNQUOTE(JSON_EXTRACT(fastjson_arrays.numbers, "$[0]"))
+     *   FROM fastjson_arrays;
      * ```
      */
     @ParameterizedTest
@@ -404,18 +404,18 @@ class FastjsonColumnTest: AbstractExposedTest() {
     /**
      * ```sql
      * -- Postgres
-     * SELECT jackson_arrays.id, jackson_arrays."groups", jackson_arrays.numbers
-     *   FROM jackson_arrays
-     *  WHERE jackson_arrays.numbers::jsonb @> '[3, 5]'::jsonb;
+     * SELECT fastjson_arrays.id, fastjson_arrays."groups", fastjson_arrays.numbers
+     *   FROM fastjson_arrays
+     *  WHERE fastjson_arrays.numbers::jsonb @> '[3, 5]'::jsonb;
      *
      * -- MySQL V8
-     * SELECT jackson_arrays.id, jackson_arrays.`groups`, jackson_arrays.numbers
-     *   FROM jackson_arrays
-     *  WHERE JSON_CONTAINS(jackson_arrays.numbers, '[3, 5]');
+     * SELECT fastjson_arrays.id, fastjson_arrays.`groups`, fastjson_arrays.numbers
+     *   FROM fastjson_arrays
+     *  WHERE JSON_CONTAINS(fastjson_arrays.numbers, '[3, 5]');
      *
-     * SELECT jackson_arrays.id, jackson_arrays.`groups`, jackson_arrays.numbers
-     *   FROM jackson_arrays
-     *  WHERE JSON_CONTAINS(jackson_arrays.`groups`, '"B"', '$.users[0].name');
+     * SELECT fastjson_arrays.id, fastjson_arrays.`groups`, fastjson_arrays.numbers
+     *   FROM fastjson_arrays
+     *  WHERE JSON_CONTAINS(fastjson_arrays.`groups`, '"B"', '$.users[0].name');
      * ```
      */
     @ParameterizedTest
@@ -437,22 +437,22 @@ class FastjsonColumnTest: AbstractExposedTest() {
     /**
      * ```sql
      * -- Postgres
-     * SELECT jackson_arrays.id, jackson_arrays."groups", jackson_arrays.numbers
-     *   FROM jackson_arrays
-     *  WHERE JSONB_PATH_EXISTS(CAST(jackson_arrays."groups" as jsonb), '$.users[1]');
+     * SELECT fastjson_arrays.id, fastjson_arrays."groups", fastjson_arrays.numbers
+     *   FROM fastjson_arrays
+     *  WHERE JSONB_PATH_EXISTS(CAST(fastjson_arrays."groups" as jsonb), '$.users[1]');
      *
-     * SELECT jackson_arrays.id, jackson_arrays."groups", jackson_arrays.numbers
-     *   FROM jackson_arrays
-     *  WHERE JSONB_PATH_EXISTS(CAST(jackson_arrays.numbers as jsonb), '$[2]');
+     * SELECT fastjson_arrays.id, fastjson_arrays."groups", fastjson_arrays.numbers
+     *   FROM fastjson_arrays
+     *  WHERE JSONB_PATH_EXISTS(CAST(fastjson_arrays.numbers as jsonb), '$[2]');
      *
      * -- MySQL V8
-     * SELECT jackson_arrays.id, jackson_arrays.`groups`, jackson_arrays.numbers
-     *   FROM jackson_arrays
-     *  WHERE JSON_CONTAINS_PATH(jackson_arrays.`groups`, 'one', '$.users[1]');
+     * SELECT fastjson_arrays.id, fastjson_arrays.`groups`, fastjson_arrays.numbers
+     *   FROM fastjson_arrays
+     *  WHERE JSON_CONTAINS_PATH(fastjson_arrays.`groups`, 'one', '$.users[1]');
      *
-     * SELECT jackson_arrays.id, jackson_arrays.`groups`, jackson_arrays.numbers
-     *   FROM jackson_arrays
-     *  WHERE JSON_CONTAINS_PATH(jackson_arrays.numbers, 'one', '$[2]');
+     * SELECT fastjson_arrays.id, fastjson_arrays.`groups`, fastjson_arrays.numbers
+     *   FROM fastjson_arrays
+     *  WHERE JSON_CONTAINS_PATH(fastjson_arrays.numbers, 'one', '$[2]');
      * ```
      */
     @ParameterizedTest
@@ -693,13 +693,13 @@ class FastjsonColumnTest: AbstractExposedTest() {
     /**
      * ```sql
      * -- Postgres
-     * CREATE TABLE IF NOT EXISTS jackson_default (
+     * CREATE TABLE IF NOT EXISTS fastjson_default (
      *      id SERIAL PRIMARY KEY,
      *      "value" JSON DEFAULT '{"name":"name","team":"team"}'::json NOT NULL
      * );
      *
      * -- MySQL V8
-     * CREATE TABLE IF NOT EXISTS jackson_default (
+     * CREATE TABLE IF NOT EXISTS fastjson_default (
      *      id INT AUTO_INCREMENT PRIMARY KEY,
      *      `value` JSON DEFAULT ('{"name":"name","team":"team"}') NOT NULL
      * );
@@ -711,11 +711,11 @@ class FastjsonColumnTest: AbstractExposedTest() {
 
         val defaultUser = User("name", "team")
 
-        val tester = object: IntIdTable("jackson_default") {
+        val tester = object: IntIdTable("fastjson_default") {
             val value = fastjson<User>("value").default(defaultUser)
         }
 
-        val testerDatabaseGenerated = object: IntIdTable("jackson_default") {
+        val testerDatabaseGenerated = object: IntIdTable("fastjson_default") {
             val value = fastjson<User>("value").databaseGenerated()
         }
 

@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.coroutines.flow
 
 import io.bluetape4k.coroutines.flow.extensions.log
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.cancelChildren
@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
@@ -20,7 +21,7 @@ import org.junit.jupiter.api.Test
  */
 class StateFlowExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `StateFlow 값 변화 관찰하기 - 상태 전파`() = runTest {
@@ -34,10 +35,10 @@ class StateFlowExamples {
                 .log("#1")
                 .collect { changeCounter1.incrementAndGet() }
         }
-        delay(10)
+        yield() // 상태가 변경되면, collect 를 수행합니다.
         state.value = 2
 
-        delay(10)
+        yield() // 상태가 변경되면, collect 를 수행합니다.
 
         // 상태가 변경되면, collect 를 수행합니다.
         launch {
@@ -45,10 +46,10 @@ class StateFlowExamples {
                 .log("#2")
                 .collect { changeCounter2.incrementAndGet() }
         }
-        delay(10)
+        yield()  // 상태가 변경되면, collect 를 수행합니다.
         state.value = 3
 
-        delay(10)
+        yield() // 상태가 변경되면, collect 를 수행합니다.
 
         // collector1 에서는 state 값이 1 -> 2 -> 3 으로 변경되었으므로 3번 호출됩니다.
         changeCounter1.value shouldBeEqualTo 3

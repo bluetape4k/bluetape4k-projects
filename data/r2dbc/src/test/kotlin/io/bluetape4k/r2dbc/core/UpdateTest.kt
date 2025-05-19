@@ -1,7 +1,7 @@
 package io.bluetape4k.r2dbc.core
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.r2dbc.AbstractR2dbcTest
 import io.bluetape4k.r2dbc.model.User
 import kotlinx.coroutines.reactor.awaitSingle
@@ -13,7 +13,7 @@ import java.time.OffsetDateTime
 
 class UpdateTest: AbstractR2dbcTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `update record without entity class`() = runSuspendIO {

@@ -7,12 +7,12 @@ import feign.slf4j.Slf4jLogger
 import io.bluetape4k.feign.clients.AbstractCoroutineClientTest
 import io.bluetape4k.feign.coroutines.coroutineFeignBuilder
 import io.bluetape4k.http.hc5.async.httpAsyncClientOf
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.apache.hc.client5.http.protocol.HttpClientContext
 
 class ApacheHc5CoroutineClientTest: AbstractCoroutineClientTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     override fun newCoroutineBuilder(): CoroutineFeign.CoroutineBuilder<HttpClientContext> {
         return coroutineFeignBuilder {

@@ -1,6 +1,6 @@
 package io.bluetape4k.examples.mutiny
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.mutiny.asUni
 import io.bluetape4k.mutiny.onEach
@@ -30,7 +30,7 @@ import kotlin.random.Random
 
 class UniBasicExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `01 하나의 요소로 Uni 인스턴스 생성하기`() {

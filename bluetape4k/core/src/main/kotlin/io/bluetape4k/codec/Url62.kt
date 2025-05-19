@@ -40,3 +40,23 @@ object Url62 {
      */
     fun decode(encoded: String): UUID = Base62.decode(encoded).toUuid()
 }
+
+/**
+ * [UUID] 를 Base62로 인코딩합니다.
+ *
+ * ```
+ * val uuid = UUID.randomUUID()      // uuid=24738134-9d88-6645-4ec8-d63aa2031015
+ * val encoded = uuid.encodeUrl62()  // encoded=16mVan3wbAXR6tQwIbfS5d
+ * ```
+ */
+fun UUID.encodeUrl62(): String = Url62.encode(this)
+
+/**
+ * Base62로 인코딩된 문자열을 [UUID]로 디코딩합니다.
+ *
+ * ```
+ * val encoded = "16mVan3wbAXR6tQwIbfS5d"
+ * val decoded = encoded.decodeUrl62()  // 24738134-9d88-6645-4ec8-d63aa2031015
+ * ```
+ */
+fun String.decodeUrl62(): UUID = Url62.decode(this)

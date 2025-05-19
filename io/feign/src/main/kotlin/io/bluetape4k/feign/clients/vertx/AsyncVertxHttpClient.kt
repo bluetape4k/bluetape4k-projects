@@ -4,7 +4,7 @@ import feign.AsyncClient
 import feign.Request
 import feign.Response
 import io.bluetape4k.http.vertx.vertxHttpClientOf
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.vertx.core.http.HttpClient
 import java.util.*
 import java.util.concurrent.CompletableFuture
@@ -13,7 +13,7 @@ class AsyncVertxHttpClient private constructor(
     private val vertxClient: HttpClient,
 ): AsyncClient<Any>, AutoCloseable {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         @JvmStatic
         operator fun invoke(vertxClient: HttpClient = vertxHttpClientOf()): AsyncVertxHttpClient {
             return AsyncVertxHttpClient(vertxClient)

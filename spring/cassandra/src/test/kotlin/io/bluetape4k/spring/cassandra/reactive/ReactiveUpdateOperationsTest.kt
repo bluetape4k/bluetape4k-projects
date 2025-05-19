@@ -2,8 +2,9 @@ package io.bluetape4k.spring.cassandra.reactive
 
 import com.datastax.oss.driver.api.core.uuid.Uuids
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
+import io.bluetape4k.spring.cassandra.AbstractReactiveCassandraTestConfiguration
 import io.bluetape4k.spring.cassandra.query.eq
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -35,13 +36,13 @@ class ReactiveUpdateOperationsTest(
     @Autowired private val operations: ReactiveCassandraOperations,
 ): AbstractCassandraCoroutineTest("update-op") {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val PERSON_TABLE_NAME = "update_op_person"
     }
 
     @Configuration(proxyBeanMethods = false)
     //@EntityScan(basePackageClasses = [Person::class]) // 내부 엔티티는 Scan 없이도 사용 가능하다
-    class TestConfiguration: io.bluetape4k.spring.cassandra.AbstractReactiveCassandraTestConfiguration()
+    class TestConfiguration: AbstractReactiveCassandraTestConfiguration()
 
     @Table(PERSON_TABLE_NAME)
     data class Person(

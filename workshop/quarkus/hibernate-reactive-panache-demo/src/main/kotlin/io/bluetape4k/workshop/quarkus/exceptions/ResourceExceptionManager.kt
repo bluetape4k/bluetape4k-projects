@@ -1,7 +1,7 @@
 package io.bluetape4k.workshop.quarkus.exceptions
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import jakarta.inject.Inject
 import jakarta.ws.rs.WebApplicationException
@@ -13,7 +13,7 @@ import org.jboss.resteasy.reactive.RestResponse
 @Provider
 class ResourceExceptionManager: ExceptionMapper<Exception> {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Inject
     internal lateinit var objectMapper: ObjectMapper
@@ -23,7 +23,7 @@ class ResourceExceptionManager: ExceptionMapper<Exception> {
 
         val code = when (exception) {
             is WebApplicationException -> exception.response.status
-            else                       -> RestResponse.StatusCode.INTERNAL_SERVER_ERROR
+            else -> RestResponse.StatusCode.INTERNAL_SERVER_ERROR
         }
 
         val node = objectMapper.createObjectNode()

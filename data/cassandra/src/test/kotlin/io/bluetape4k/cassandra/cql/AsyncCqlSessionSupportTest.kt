@@ -2,7 +2,7 @@ package io.bluetape4k.cassandra.cql
 
 import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 
 class AsyncCqlSessionSupportTest: AbstractCassandraTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private val initialized = atomic(false)
     }
 

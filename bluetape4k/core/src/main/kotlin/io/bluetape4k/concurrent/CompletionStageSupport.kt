@@ -12,8 +12,11 @@ import java.util.function.BiFunction
  * 성공적으로 완료된 CompletionStage라면 null을 반환한다.
  *
  * ```
- * val future: CompletableFuture<Int> = CompletableFuture.failedFuture(RuntimeException("error"))
- * val exception: Throwable? = future.getException()
+ * val future = CompletableFuture.failedFuture(RuntimeException("Something went wrong"))
+ * val ex = future.getException()
+ *
+ * ex shouldBeInstanceOf RuntimeException::class
+ * ex.message shouldBeEqualTo "Something went wrong"
  * ```
  */
 fun <T> CompletionStage<T>.getException(): Throwable? {
@@ -26,6 +29,33 @@ fun <T> CompletionStage<T>.getException(): Throwable? {
         null
     } catch (e: CompletionException) {
         e.cause
+    }
+}
+
+/**
+ * [CompletionStage]의 예외정보를 가져온다.
+ * 성공적으로 완료된 CompletionStage라면 null을 반환한다.
+ *
+ * ```
+ * val future: CompletableFuture<Int> = CompletableFuture.failedFuture(RuntimeException("error"))
+ *
+ * val ex: Throwable? = future.getExceptionOrNull()
+ *
+ * ex shouldBeInstanceOf RuntimeException::class
+ * ex.message shouldBeEqualTo "Something went wrong"
+ * ```
+ */
+fun <T> CompletionStage<T>.getExceptionOrNull(): Throwable? {
+    val future = this.toCompletableFuture()
+    return if (!future.isDone || !future.isCompletedExceptionally) {
+        null
+    } else {
+        try {
+            future.join()
+            null
+        } catch (e: CompletionException) {
+            e.cause
+        }
     }
 }
 

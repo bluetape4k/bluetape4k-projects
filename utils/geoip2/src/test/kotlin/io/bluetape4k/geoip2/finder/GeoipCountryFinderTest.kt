@@ -3,7 +3,7 @@ package io.bluetape4k.geoip2.finder
 import io.bluetape4k.concurrent.AtomicIntRoundrobin
 import io.bluetape4k.geoip2.AbstractGeoipTest
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.junit5.concurrency.VirtualthreadTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Runtimex
@@ -77,9 +77,8 @@ class GeoipCountryFinderTest: AbstractGeoipTest() {
         val index = AtomicIntRoundrobin(ipAddresses.size)
         val resultMap = ConcurrentHashMap<String, String?>()
 
-        VirtualthreadTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerThread(10)
+        StructuredTaskScopeTester()
+            .roundsPerTask(10 * Runtimex.availableProcessors)
             .add {
                 val ip = ipAddresses[index.next()]
                 val address = countryFinder.findAddress(InetAddress.getByName(ip))!!

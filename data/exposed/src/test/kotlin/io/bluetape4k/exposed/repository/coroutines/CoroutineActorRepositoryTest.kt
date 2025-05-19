@@ -34,7 +34,7 @@ class CoroutineActorRepositoryTest: AbstractExposedTest() {
         )
     }
 
-    private val repository = ActorRepository(ActorTable)
+    private val repository = ActorRepository()
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
@@ -107,14 +107,14 @@ class CoroutineActorRepositoryTest: AbstractExposedTest() {
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `count with predicate`(testDB: TestDB) = runSuspendIO {
+    fun `countBy with predicate`(testDB: TestDB) = runSuspendIO {
         withSuspendedMovieAndActors(testDB) {
-            val count = repository.count { ActorTable.lastName eq "Depp" }
+            val count = repository.countBy { ActorTable.lastName eq "Depp" }
             log.debug { "count: $count" }
             count shouldBeEqualTo 1L
 
             val op = ActorTable.lastName eq "Depp"
-            val count2 = repository.count(op)
+            val count2 = repository.countBy(op)
             log.debug { "count2: $count2" }
             count2 shouldBeEqualTo 1L
         }

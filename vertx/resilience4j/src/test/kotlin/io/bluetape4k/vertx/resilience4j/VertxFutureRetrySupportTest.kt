@@ -1,6 +1,6 @@
 package io.bluetape4k.vertx.resilience4j
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.vertx.asCompletableFuture
 import io.bluetape4k.vertx.tests.withTestContext
@@ -17,7 +17,7 @@ import java.util.concurrent.Executors
 @Suppress("UNUSED_PARAMETER")
 class VertxFutureRetrySupportTest: AbstractVertxFutureTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val scheduler = Executors.newSingleThreadScheduledExecutor()
 

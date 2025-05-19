@@ -1,7 +1,6 @@
 package io.bluetape4k.io.serializer
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import okio.Buffer
 import java.io.ByteArrayInputStream
 import java.io.ObjectInputStream
@@ -23,7 +22,7 @@ class JdkBinarySerializer(
     companion object: KLogging()
 
     override fun doSerialize(graph: Any): ByteArray {
-        log.debug { "serialize by jdk. graph=$graph" }
+        // log.trace { "serialize by jdk. graph=$graph" }
 
         val output = Buffer()
         ObjectOutputStream(output.outputStream()).use { oos ->
@@ -35,7 +34,7 @@ class JdkBinarySerializer(
 
     @Suppress("UNCHECKED_CAST")
     override fun <T: Any> doDeserialize(bytes: ByteArray): T? {
-        log.debug { "deserialize by jdk. bytes.size=${bytes.size}" }
+        // log.trace { "deserialize by jdk. bytes.size=${bytes.size}" }
 
         ByteArrayInputStream(bytes).use { bis ->
             ObjectInputStream(bis).use { ois ->

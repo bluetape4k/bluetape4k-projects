@@ -19,7 +19,7 @@ class LettuceBinaryCodecTest: AbstractLettuceTest() {
 
     companion object: KLogging()
 
-    private fun getRedisCodecs(): List<LettuceBinaryCodec<Any>> = listOf(
+    private fun getRedisCodecs(): List<LettuceBinaryCodec<out Any>> = listOf(
         LettuceBinaryCodecs.jdk(),
         LettuceBinaryCodecs.kryo(),
         LettuceBinaryCodecs.protobuf(),
@@ -35,15 +35,15 @@ class LettuceBinaryCodecTest: AbstractLettuceTest() {
         LettuceBinaryCodecs.deflateProtobuf(),
         LettuceBinaryCodecs.deflateFury(),
 
-        LettuceBinaryCodecs.snappyJdk(),
-        LettuceBinaryCodecs.snappyKryo(),
-        LettuceBinaryCodecs.snappyProtobuf(),
-        LettuceBinaryCodecs.snappyFury(),
-
         LettuceBinaryCodecs.lz4Jdk(),
         LettuceBinaryCodecs.lz4Kryo(),
         LettuceBinaryCodecs.lz4Protobuf(),
         LettuceBinaryCodecs.lz4Fury(),
+
+        LettuceBinaryCodecs.snappyJdk(),
+        LettuceBinaryCodecs.snappyKryo(),
+        LettuceBinaryCodecs.snappyProtobuf(),
+        LettuceBinaryCodecs.snappyFury(),
 
         LettuceBinaryCodecs.zstdJdk(),
         LettuceBinaryCodecs.zstdKryo(),

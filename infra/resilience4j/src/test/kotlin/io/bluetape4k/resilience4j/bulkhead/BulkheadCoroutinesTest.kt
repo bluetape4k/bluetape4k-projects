@@ -1,6 +1,7 @@
 package io.bluetape4k.resilience4j.bulkhead
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.resilience4j.CoHelloWorldService
 import io.github.resilience4j.bulkhead.Bulkhead
 import io.github.resilience4j.bulkhead.BulkheadConfig
@@ -20,6 +21,8 @@ import java.time.Duration
 import kotlin.test.assertFailsWith
 
 class BulkheadCoroutinesTest {
+
+    companion object: KLoggingChannel()
 
     private var permittedEvents = 0
     private var rejectedEvents = 0

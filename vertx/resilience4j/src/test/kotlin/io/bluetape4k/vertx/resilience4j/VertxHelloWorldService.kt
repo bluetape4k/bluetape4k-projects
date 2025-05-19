@@ -1,13 +1,13 @@
 package io.bluetape4k.vertx.resilience4j
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.vertx.core.Future
 import kotlinx.atomicfu.atomic
 
 class VertxHelloWorldService {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     val invocationCounter = atomic(0)
     val invocationCount by invocationCounter

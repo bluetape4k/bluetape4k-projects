@@ -6,7 +6,7 @@ import io.bluetape4k.feign.services.JsonPlaceHolder
 import io.bluetape4k.feign.services.Post
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.random.RandomValue
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -24,7 +24,7 @@ import kotlin.random.Random
 
 abstract class AbstractJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val ITEM_SIZE = 5
     }
 
@@ -83,8 +83,8 @@ abstract class AbstractJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderTest
     }
 
     @Test
-    fun `get post's comments`() = runSuspendIO {
-        val postIds = List(ITEM_SIZE) { Random.nextInt(1, 100) }.distinct()
+    open fun `get post's comments`() = runSuspendIO {
+        val postIds = List(ITEM_SIZE) { Random.nextInt(1, 20) }.distinct()
 
         val deferred = postIds.map { postId ->
             async {

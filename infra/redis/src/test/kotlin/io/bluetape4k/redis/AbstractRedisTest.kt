@@ -1,7 +1,7 @@
 package io.bluetape4k.redis
 
 import io.bluetape4k.LibraryName
-import io.bluetape4k.idgenerators.snowflake.Snowflakers
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.storage.RedisServer
@@ -18,7 +18,7 @@ abstract class AbstractRedisTest {
 
         @JvmStatic
         protected fun randomName(): String =
-            "$LibraryName:${faker.internet().username()}:${Snowflakers.Global.nextId()}"
+            "$LibraryName:${Base58.randomString(8)}"
 
         @JvmStatic
         protected fun randomString(size: Int = 2048): String =

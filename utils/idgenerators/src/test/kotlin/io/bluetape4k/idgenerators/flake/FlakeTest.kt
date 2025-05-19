@@ -2,10 +2,10 @@ package io.bluetape4k.idgenerators.flake
 
 import io.bluetape4k.codec.encodeHexString
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.junit5.concurrency.VirtualthreadTester
-import io.bluetape4k.junit5.coroutines.MultijobTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import io.bluetape4k.utils.Runtimex
@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 class FlakeTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 10
         private const val ID_SIZE = 100
         private const val TEST_COUNT = Short.MAX_VALUE * 4
@@ -102,9 +102,8 @@ class FlakeTest {
         val flake = Flake()
         val idMaps = ConcurrentHashMap<String, Int>()
 
-        VirtualthreadTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerThread(100)
+        StructuredTaskScopeTester()
+            .roundsPerTask(100 * 2 * Runtimex.availableProcessors)
             .add {
                 val id = flake.nextIdAsString()
                 idMaps.putIfAbsent(id, 1).shouldBeNull()
@@ -129,7 +128,7 @@ class FlakeTest {
         val flake = Flake()
         val idMaps = ConcurrentHashMap<String, Int>()
 
-        MultijobTester()
+        SuspendedJobTester()
             .numThreads(2 * Runtimex.availableProcessors)
             .roundsPerJob(100)
             .add {

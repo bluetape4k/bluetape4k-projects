@@ -3,6 +3,7 @@ package io.bluetape4k.examples.jpa.querydsl.spring
 import com.querydsl.core.types.dsl.PathBuilder
 import com.querydsl.jpa.impl.JPAQuery
 import com.querydsl.jpa.impl.JPAQueryFactory
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.assertNotNull
 import jakarta.annotation.PostConstruct
 import jakarta.persistence.EntityManager
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class SpringRepositoryQuerydslSupport(private val entityClass: Class<*>) {
+
+    companion object: KLogging()
 
     private var entityManager: EntityManager? = null
     private var querydsl: Querydsl? = null

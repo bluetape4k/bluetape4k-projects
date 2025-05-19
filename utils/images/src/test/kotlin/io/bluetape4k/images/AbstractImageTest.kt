@@ -2,7 +2,7 @@ package io.bluetape4k.images
 
 import io.bluetape4k.io.writeSuspending
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.utils.Resourcex
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
@@ -19,7 +19,7 @@ import javax.imageio.ImageWriter
 @TempFolderTest
 abstract class AbstractImageTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         const val BASE_PATH = "src/test/resources/images"
         const val AQUA_JPG = "images/splitter/aqua.jpg"
         const val EVERLAND_JPG = "images/splitter/everland.jpg"

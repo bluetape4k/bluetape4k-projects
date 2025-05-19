@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.mutiny
 
 import io.bluetape4k.concurrent.NamedThreadFactory
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.mutiny.asUni
 import io.smallrye.mutiny.Multi
@@ -33,7 +33,7 @@ import kotlin.random.Random
 
 class ThreadingExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val counter = atomic(0)
     private var count by counter

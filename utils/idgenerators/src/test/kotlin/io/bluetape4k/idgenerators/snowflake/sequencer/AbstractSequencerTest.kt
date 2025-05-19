@@ -4,9 +4,9 @@ import io.bluetape4k.idgenerators.snowflake.MAX_MACHINE_ID
 import io.bluetape4k.idgenerators.snowflake.MAX_SEQUENCE
 import io.bluetape4k.idgenerators.snowflake.SnowflakeId
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.junit5.concurrency.VirtualthreadTester
-import io.bluetape4k.junit5.coroutines.MultijobTester
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
@@ -24,7 +24,7 @@ import kotlin.math.absoluteValue
 
 abstract class AbstractSequencerTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val TEST_SIZE: Int = MAX_SEQUENCE * 2
         private const val REPEAT_SIZE = 3
     }
@@ -94,9 +94,8 @@ abstract class AbstractSequencerTest {
     fun `generate sequence in virtual threads`() {
         val idMap = ConcurrentHashMap<Long, Int>()
 
-        VirtualthreadTester()
-            .numThreads(4 * Runtimex.availableProcessors)
-            .roundsPerThread(MAX_SEQUENCE * 2)
+        StructuredTaskScopeTester()
+            .roundsPerTask(MAX_SEQUENCE * 2 * 4 * Runtimex.availableProcessors)
             .add {
                 val id = sequencer.nextSequence()
                 idMap.putIfAbsent(id.value, 1).shouldBeNull()
@@ -108,9 +107,8 @@ abstract class AbstractSequencerTest {
     fun `generate sequence in multi job`() = runTest {
         val idMap = ConcurrentHashMap<Long, Int>()
 
-        MultijobTester()
-            .numThreads(4 * Runtimex.availableProcessors)
-            .roundsPerJob(MAX_SEQUENCE * 2)
+        SuspendedJobTester()
+            .roundsPerJob(MAX_SEQUENCE * 2 * Runtimex.availableProcessors)
             .add {
                 val id = sequencer.nextSequence()
                 idMap.putIfAbsent(id.value, 1).shouldBeNull()

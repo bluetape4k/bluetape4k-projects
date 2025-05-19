@@ -1,7 +1,7 @@
 package io.bluetape4k.resilience4j.retry
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.github.resilience4j.retry.Retry
@@ -16,7 +16,7 @@ import java.time.Duration
 
 class FlowRetrySupportTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private lateinit var retry: Retry
 

@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
  */
 class RedissonLeaderElection private constructor(
     private val redissonClient: RedissonClient,
-    private val options: RedissonLeaderElectionOptions,
+    options: RedissonLeaderElectionOptions,
 ): LeaderElection {
 
     companion object: KLogging() {
@@ -96,17 +96,23 @@ class RedissonLeaderElection private constructor(
 
             lock
                 .tryLockAsync(waitTimeMills, leaseTimeMills, TimeUnit.MILLISECONDS, currentThreadId)
-                .thenComposeAsync { acquired ->
-                    if (acquired) {
-                        executeActionAsync(lock, currentThreadId, executor, action)
-                    } else {
-                        failedCompletableFutureOf<T>(RedisException("Fail to acquire lock. lock=$lockName"))
-                    }
-                }
-                .whenCompleteAsync { result, error ->
-                    if (error != null) promise.completeExceptionally(error)
-                    else promise.complete(result)
-                }
+                .thenComposeAsync(
+                    { acquired ->
+                        if (acquired) {
+                            executeActionAsync(lock, currentThreadId, executor, action)
+                        } else {
+                            failedCompletableFutureOf<T>(RedisException("Fail to acquire lock. lock=$lockName"))
+                        }
+                    },
+                    executor
+                )
+                .whenCompleteAsync(
+                    { result, error ->
+                        if (error != null) promise.completeExceptionally(error)
+                        else promise.complete(result)
+                    },
+                    executor
+                )
 
         } catch (e: Throwable) {
             log.error(e) { "Fail to runAsync as Leader" }
@@ -126,18 +132,21 @@ class RedissonLeaderElection private constructor(
         log.debug { "Leader로 승격하여 비동기 작업을 수행합니다. lock=$lockName, threadId=$currentThreadId" }
 
         return action()
-            .thenComposeAsync { result: T ->
-                log.debug { "작업이 완료되어 Leader 권한을 반납합니다... lock=$lockName, threadId=$currentThreadId" }
-                lock
-                    .unlockAsync(currentThreadId)
-                    .whenComplete { _, error ->
-                        if (error != null) {
-                            log.error(error) { "Fail to release lock. lock=$lockName, threadId=$currentThreadId" }
-                        } else {
-                            log.debug { "Leader 권한을 반납했습니다. lock=$lockName, threadId=$currentThreadId" }
+            .thenComposeAsync(
+                { result: T ->
+                    log.debug { "작업이 완료되어 Leader 권한을 반납합니다... lock=$lockName, threadId=$currentThreadId" }
+                    lock
+                        .unlockAsync(currentThreadId)
+                        .whenComplete { _, error ->
+                            if (error != null) {
+                                log.error(error) { "Fail to release lock. lock=$lockName, threadId=$currentThreadId" }
+                            } else {
+                                log.debug { "Leader 권한을 반납했습니다. lock=$lockName, threadId=$currentThreadId" }
+                            }
                         }
-                    }
-                    .thenApply { result }
-            }
+                        .thenApply { result }
+                },
+                executor
+            )
     }
 }

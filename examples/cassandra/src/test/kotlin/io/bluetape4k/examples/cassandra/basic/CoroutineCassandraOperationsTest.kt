@@ -8,7 +8,7 @@ import com.datastax.oss.driver.api.querybuilder.QueryBuilder.selectFrom
 import io.bluetape4k.cassandra.querybuilder.literal
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.coExecute
 import io.bluetape4k.spring.cassandra.coInsert
 import io.bluetape4k.spring.cassandra.coSelect
@@ -18,7 +18,6 @@ import io.bluetape4k.spring.cassandra.coUpdate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldHaveSize
@@ -35,7 +34,7 @@ class CoroutineCassandraOperationsTest(
     @Autowired private val cqlSession: CqlSession,
 ): AbstractCassandraCoroutineTest("basic-user-ops") {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val USER_TABLE = "basic_users"
     }
 
@@ -44,7 +43,7 @@ class CoroutineCassandraOperationsTest(
 
     @BeforeEach
     fun setup() {
-        runBlocking(Dispatchers.IO) {
+        runSuspendIO {
             operations.coExecute(QueryBuilder.truncate(USER_TABLE).build())
         }
     }
@@ -70,7 +69,7 @@ class CoroutineCassandraOperationsTest(
 
     @Test
     fun `insert and update`() = runSuspendIO {
-        val user = BasicUser(42L, faker.internet().username(), faker.name().firstName(), faker.name().lastName())
+        val user = newBasicUser()
         operations.coInsert(user)
 
         val updated = user.copy(firstname = faker.name().firstName())
@@ -101,7 +100,7 @@ class CoroutineCassandraOperationsTest(
 
     @Test
     fun `select async projections`() = runSuspendIO {
-        val user = BasicUser(42L, faker.internet().username(), faker.name().firstName(), faker.name().lastName())
+        val user = newBasicUser()
         operations.coInsert(user)
 
         val id = operations.coSelect<Long>(selectFrom(USER_TABLE).column("user_id").build())!!
@@ -119,4 +118,12 @@ class CoroutineCassandraOperationsTest(
         map["fname"] shouldBeEqualTo user.firstname
         map["lname"] shouldBeEqualTo user.lastname
     }
+
+    private fun newBasicUser(id: Long = 42L): BasicUser =
+        BasicUser(
+            42L,
+            faker.internet().username(),
+            faker.name().firstName(),
+            faker.name().lastName()
+        )
 }

@@ -1,7 +1,10 @@
 package io.bluetape4k.concurrent.virtualthread
 
-import io.bluetape4k.junit5.coroutines.MultijobTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.junit5.coroutines.runSuspendDefault
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.coroutines.runSuspendTest
+import io.bluetape4k.junit5.coroutines.runSuspendVT
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
@@ -53,7 +56,7 @@ class VirtualThreadDispatcherTest {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `Virtual Thread Dispatcher with withContext`() = runSuspendTest(Dispatchers.VT) {
+    fun `Virtual Thread Dispatcher with withContext`() = runSuspendVT {
         val elapsedTime = measureTimeMillis {
             val jobs = List(TASK_SIZE) {
                 launch {
@@ -69,13 +72,13 @@ class VirtualThreadDispatcherTest {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `multi job with virtual thread dispatcher`() = runSuspendTest(Dispatchers.VT) {
+    fun `multi job with virtual thread dispatcher`() = runSuspendVT {
         val jobNumber = atomic(0)
 
         // 1초씩 delay 하는 TASK_SIZE개의 작업을 수행 시 거의 1초에 완료된다 (Virtual Thread)
-        MultijobTester()
+        SuspendedJobTester()
             .numThreads(TASK_SIZE)
-            .roundsPerJob(1)
+            .roundsPerJob(TASK_SIZE)
             .add {
                 delay(SLEEP_TIME)
                 log.trace { "Job[${jobNumber.incrementAndGet()}] is done" }
@@ -84,13 +87,28 @@ class VirtualThreadDispatcherTest {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `multi job with default dispatcher`() = runSuspendTest(Dispatchers.Default) {
+    fun `multi job with default dispatcher`() = runSuspendDefault {
         val jobNumber = atomic(0)
 
         // 1초씩 delay 하는 TASK_SIZE개의 작업을 수행 시 거의 1초에 완료된다 (Default Dispatcher)
-        MultijobTester()
+        SuspendedJobTester()
             .numThreads(TASK_SIZE)
-            .roundsPerJob(1)
+            .roundsPerJob(TASK_SIZE)
+            .add {
+                delay(SLEEP_TIME)
+                log.trace { "Job[${jobNumber.incrementAndGet()}] is done" }
+            }
+            .run()
+    }
+
+    @RepeatedTest(REPEAT_SIZE)
+    fun `multi job with IO dispatcher`() = runSuspendIO {
+        val jobNumber = atomic(0)
+
+        // 1초씩 delay 하는 TASK_SIZE개의 작업을 수행 시 거의 1초에 완료된다 (Default Dispatcher)
+        SuspendedJobTester()
+            .numThreads(TASK_SIZE)
+            .roundsPerJob(TASK_SIZE)
             .add {
                 delay(SLEEP_TIME)
                 log.trace { "Job[${jobNumber.incrementAndGet()}] is done" }

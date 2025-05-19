@@ -1,5 +1,6 @@
 package io.bluetape4k.quarkus.resteasy
 
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -12,6 +13,8 @@ import kotlinx.coroutines.cancelChildren
 abstract class AbstractCoroutineDefaultResource
     : CoroutineScope by CoroutineScope(Dispatchers.Default + SupervisorJob()),
       AutoCloseable {
+
+    companion object: KLoggingChannel()
 
     override fun close() {
         runCatching { coroutineContext.cancelChildren() }

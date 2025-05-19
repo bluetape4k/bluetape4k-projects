@@ -1,12 +1,12 @@
 package io.bluetape4k.vertx.sqlclient
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 
 /**
  * SQL 구문을 로그로 출력합니다.
  */
-object SqlLogger: KLogging() {
+object SqlLogger: KLoggingChannel() {
 
     fun logSql(sql: String, params: Map<String, Any?> = emptyMap()) {
         log.debug { "SQL: $sql" }

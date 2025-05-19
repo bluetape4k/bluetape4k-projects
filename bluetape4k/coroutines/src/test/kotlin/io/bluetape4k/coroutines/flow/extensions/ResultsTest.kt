@@ -2,6 +2,7 @@ package io.bluetape4k.coroutines.flow.extensions
 
 import app.cash.turbine.test
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
@@ -15,7 +16,7 @@ import org.junit.jupiter.api.Test
 
 class ResultsTest: AbstractFlowTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val testException = RuntimeException()
 

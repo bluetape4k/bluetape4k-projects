@@ -1,8 +1,8 @@
 package io.bluetape4k.coroutines.flow.extensions.subject
 
 import io.bluetape4k.coroutines.flow.extensions.Resumable
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
@@ -37,7 +37,7 @@ import kotlin.coroutines.coroutineContext
  */
 class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private val EMPTY = arrayOf<InnerCollector<Any>>()
         private val TERMINATED = arrayOf<InnerCollector<Any>>()
     }

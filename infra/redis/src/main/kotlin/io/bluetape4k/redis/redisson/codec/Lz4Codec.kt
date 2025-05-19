@@ -28,19 +28,19 @@ class Lz4Codec @JvmOverloads constructor(
 
     companion object: KLogging()
 
+    private val lz4 get() = Compressors.LZ4
+
     private val encoder: Encoder = Encoder { graph ->
         val encoded = innerCodec.valueEncoder.encode(graph)
 
         val bytes = ByteBufUtil.getBytes(encoded, encoded.readerIndex(), encoded.readableBytes(), true)
         encoded.release()
-        val res = Compressors.LZ4.compress(bytes)
-        Unpooled.wrappedBuffer(res)
+        Unpooled.wrappedBuffer(lz4.compress(bytes))
     }
 
     private val decoder: Decoder<Any> = Decoder<Any> { buf: ByteBuf, state: State ->
         val bytes = ByteBufUtil.getBytes(buf, buf.readerIndex(), buf.readableBytes(), true)
-        val plainBytes = Compressors.LZ4.decompress(bytes)
-        val decoded = Unpooled.wrappedBuffer(plainBytes)
+        val decoded = Unpooled.wrappedBuffer(lz4.decompress(bytes))
 
         try {
             innerCodec.valueDecoder.decode(decoded, state)

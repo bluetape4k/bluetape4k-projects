@@ -1,6 +1,6 @@
 package io.bluetape4k.spring.r2dbc.coroutines.blog.domain
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.r2dbc.coroutines.coCountAll
 import io.bluetape4k.spring.r2dbc.coroutines.coDeleteAll
 import io.bluetape4k.spring.r2dbc.coroutines.coFindFirstById
@@ -21,7 +21,7 @@ class PostRepository(
     private val operations: R2dbcEntityOperations,
     private val mappingR2dbcConverter: MappingR2dbcConverter,
 ) {
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     suspend fun count(): Long {
         return operations.coCountAll<Post>()

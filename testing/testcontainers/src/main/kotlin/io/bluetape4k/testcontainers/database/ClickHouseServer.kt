@@ -24,13 +24,13 @@ class ClickHouseServer private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "clickhouse/clickhouse-server"
-        const val TAG = "24"
+        const val TAG = "25.4"
         const val NAME = "clickhouse"
         const val HTTP_PORT = 8123
         const val NATIVE_PORT = 9000
         const val DATABASE_NAME = "default"
-        const val USERNAME = "default"
-        const val PASSWORD = ""
+        const val USERNAME = "test"
+        const val PASSWORD = "test"
         const val DRIVER_CLASS_NAME = "com.clickhouse.jdbc.ClickHouseDriver"
 
         @JvmStatic
@@ -64,12 +64,6 @@ class ClickHouseServer private constructor(
     override fun getDriverClassName(): String = DRIVER_CLASS_NAME
     override val port: Int get() = getMappedPort(HTTP_PORT)
     override val url: String get() = jdbcUrl
-
-    // NOTE: 1.19.7의 ClickHouseContainer에서 getDatabaseName() 을 제공하지 않아서 오버라이드함
-    // TODO: ClickHouseContainer에 getDatabaseName()을 추가하면 제거할 것
-    override fun getDatabaseName(): String {
-        return DATABASE_NAME
-    }
 
     init {
         addExposedPorts(HTTP_PORT, NATIVE_PORT)

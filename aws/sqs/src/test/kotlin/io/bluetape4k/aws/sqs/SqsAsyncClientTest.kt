@@ -3,7 +3,7 @@ package io.bluetape4k.aws.sqs
 import io.bluetape4k.aws.sqs.model.sendMessageBatchRequestEntry
 import io.bluetape4k.codec.encodeBase62
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.future.await
@@ -23,7 +23,7 @@ import java.util.*
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class SqsAsyncClientTest: AbstractSqsTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val QUEUE_PREFIX = "coroutines-queue"
         private val QUEUE_NAME = "$QUEUE_PREFIX-${UUID.randomUUID().encodeBase62().lowercase()}"
     }

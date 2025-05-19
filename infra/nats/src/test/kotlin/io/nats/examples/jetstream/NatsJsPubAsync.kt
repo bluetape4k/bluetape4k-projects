@@ -1,7 +1,7 @@
 package io.nats.examples.jetstream
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.nats.AbstractNatsTest
@@ -14,7 +14,7 @@ import org.junit.jupiter.api.RepeatedTest
 
 class NatsJsPubAsync: AbstractNatsTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val DEFAULT_STREAM = "example-stream"
         private const val DEFAULT_SUBJECT = "example-subject"
         private const val DEFAULT_MESSAGE = "hello"

@@ -1,6 +1,6 @@
 package io.bluetape4k.spring.r2dbc.coroutines.blog.handlers
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.warn
 import io.bluetape4k.spring.r2dbc.coroutines.blog.exceptions.PostNotFoundException
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -12,7 +12,7 @@ import org.springframework.web.server.ServerWebExchange
 @RestControllerAdvice
 class RestApiExceptionHandler {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @ExceptionHandler(PostNotFoundException::class)
     suspend fun handle(ex: PostNotFoundException, exchange: ServerWebExchange) {

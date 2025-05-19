@@ -23,9 +23,7 @@ suspend fun <T> RedisFuture<T>.await(): T {
  * val result = redisAsyncCommands.get("key").coAwait()
  * ```
  */
-suspend fun <T> RedisFuture<T>.coAwait(): T {
-    return await()
-}
+suspend fun <T> RedisFuture<T>.coAwait(): T = await()
 
 /**
  * [RedisFuture]`<T>` 컬렉션의 모든 요소들이 완료될 때까지 대기합니다.
@@ -37,11 +35,9 @@ suspend fun <T> RedisFuture<T>.coAwait(): T {
  * ).awaitAll()
  * ```
  */
-suspend fun <T> Collection<RedisFuture<out T>>.awaitAll(): List<T> {
-    return when {
-        this.isEmpty() -> emptyList()
-        else           -> sequence().await()
-    }
+suspend fun <T> Collection<RedisFuture<out T>>.awaitAll(): List<T> = when {
+    this.isEmpty() -> emptyList()
+    else -> sequence().await()
 }
 
 /**
@@ -58,6 +54,4 @@ suspend fun <T> Collection<RedisFuture<out T>>.awaitAll(): List<T> {
  */
 fun <T> Iterable<RedisFuture<out T>>.sequence(
     executor: Executor = ForkJoinPool.commonPool(),
-): CompletableFuture<List<T>> {
-    return map { it.toCompletableFuture() }.sequence(executor)
-}
+): CompletableFuture<List<T>> = map { it.toCompletableFuture() }.sequence(executor)

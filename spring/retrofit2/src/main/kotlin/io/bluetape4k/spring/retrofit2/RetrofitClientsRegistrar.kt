@@ -19,7 +19,6 @@ class RetrofitClientsRegistrar: ImportBeanDefinitionRegistrar {
 
     companion object: KLogging()
 
-
     override fun registerBeanDefinitions(
         importingClassMetadata: AnnotationMetadata,
         registry: BeanDefinitionRegistry,

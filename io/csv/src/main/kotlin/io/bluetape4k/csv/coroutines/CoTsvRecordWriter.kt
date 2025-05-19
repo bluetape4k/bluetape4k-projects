@@ -3,7 +3,7 @@ package io.bluetape4k.csv.coroutines
 import com.univocity.parsers.tsv.TsvWriter
 import com.univocity.parsers.tsv.TsvWriterSettings
 import io.bluetape4k.csv.DefaultTsvWriterSettings
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import java.io.Writer
@@ -25,7 +25,7 @@ class CoTsvRecordWriter private constructor(
     private val writer: TsvWriter,
 ): CoRecordWriter {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         @JvmStatic
         operator fun invoke(writer: TsvWriter): CoTsvRecordWriter {
             return CoTsvRecordWriter(writer)

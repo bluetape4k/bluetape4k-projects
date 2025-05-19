@@ -10,7 +10,7 @@ import io.bluetape4k.cassandra.querybuilder.bindMarker
 import io.bluetape4k.cassandra.querybuilder.eq
 import io.bluetape4k.cassandra.querybuilder.literal
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.toList
@@ -28,7 +28,7 @@ class ReactiveSessionCoroutinesExamples(
     @Autowired private val reactiveSession: ReactiveSession,
 ): AbstractCassandraCoroutineTest("reactive-session") {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val ACTOR_TABLE_NAME = "reactive_session_coroutines_actor"
         private val initialized = atomic(false)
     }

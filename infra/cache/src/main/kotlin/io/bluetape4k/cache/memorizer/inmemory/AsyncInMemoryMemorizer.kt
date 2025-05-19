@@ -1,9 +1,10 @@
 package io.bluetape4k.cache.memorizer.inmemory
 
 import io.bluetape4k.cache.memorizer.AsyncMemorizer
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.locks.ReentrantLock
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.concurrent.withLock
 
 /**
@@ -15,9 +16,9 @@ class AsyncInMemoryMemorizer<in T, R>(
     private val evaluator: (T) -> CompletableFuture<R>,
 ): AsyncMemorizer<T, R> {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
-    private val resultCache: MutableMap<T, R> = mutableMapOf()
+    private val resultCache: MutableMap<T, R> = ConcurrentHashMap<T, R>()
     private val lock = ReentrantLock()
 
     override fun invoke(key: T): CompletableFuture<R> {

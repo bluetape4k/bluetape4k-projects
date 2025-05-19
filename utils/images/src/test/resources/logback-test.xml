@@ -12,8 +12,8 @@
         </encoder>
     </appender>
 
-    <logger name="io.bluetape4k.images" level="TRACE"/>
-    <logger name="com.sksamuel.scrimage" level="DEBUG"/>
+    <logger name="io.bluetape4k.images" level="DEBUG"/>
+    <!--    <logger name="com.sksamuel.scrimage" level="DEBUG"/>-->
 
     <root level="INFO">
         <appender-ref ref="Console"/>

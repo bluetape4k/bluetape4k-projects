@@ -3,7 +3,7 @@ package io.bluetape4k.examples.coroutines.context
 import io.bluetape4k.coroutines.context.PropertyCoroutineContext
 import io.bluetape4k.coroutines.support.coLogging
 import io.bluetape4k.coroutines.support.log
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -21,7 +21,7 @@ import kotlin.coroutines.coroutineContext
 
 class CoroutineContextExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `coroutineContext에서 element 찾기`() = runTest {

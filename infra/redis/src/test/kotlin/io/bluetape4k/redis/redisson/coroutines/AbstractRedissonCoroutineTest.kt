@@ -1,6 +1,6 @@
 package io.bluetape4k.redis.redisson.coroutines
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import io.bluetape4k.redis.redisson.AbstractRedissonTest
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -10,7 +10,7 @@ import kotlinx.coroutines.Dispatchers
 
 abstract class AbstractRedissonCoroutineTest: AbstractRedissonTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     protected val scope = CoroutineScope(CoroutineName("redisson") + Dispatchers.IO)
 

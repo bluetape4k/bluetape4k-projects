@@ -23,8 +23,8 @@ dependencies {
     compileOnly(project(":bluetape4k-io"))
     compileOnly(project(":bluetape4k-crypto"))
 
-    implementation(project(":bluetape4k-junit5"))
-    implementation(project(":bluetape4k-testcontainers"))
+    api(project(":bluetape4k-junit5"))
+    api(project(":bluetape4k-testcontainers"))
     api(Libs.testcontainers)
     api(Libs.testcontainers_junit_jupiter)
     api(Libs.testcontainers_mariadb)

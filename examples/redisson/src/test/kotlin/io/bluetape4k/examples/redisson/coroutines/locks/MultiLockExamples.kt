@@ -3,7 +3,7 @@ package io.bluetape4k.examples.redisson.coroutines.locks
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.coroutines.coAwait
 import io.bluetape4k.redis.redisson.coroutines.getLockId
@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit
  */
 class MultiLockExamples: AbstractRedissonCoroutineTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     /**
      * 복수의 [RLock] 객체를 한번에 Lock/Unlock 을 수행할 수 있는 [RedissonMultiLock] 에 대한 사용 예입니다.

@@ -2,7 +2,7 @@ package io.bluetape4k.bucket4j.distributed
 
 import io.bluetape4k.bucket4j.bucketConfiguration
 import io.bluetape4k.codec.Base58
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
@@ -15,7 +15,7 @@ import kotlin.time.toJavaDuration
 
 abstract class AbstractAsyncBucketProxyProviderTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         internal const val INITIAL_TOKEN = 10L
 
         @JvmStatic

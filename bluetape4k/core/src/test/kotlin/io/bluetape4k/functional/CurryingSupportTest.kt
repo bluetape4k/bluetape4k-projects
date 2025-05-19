@@ -12,7 +12,7 @@ class CurryingSupportTest {
     fun `currying two input function`() {
         val func: (Int, Int) -> Int = { a, b -> a + b }
 
-        val curried = func.currying()
+        val curried = func.curried()
 
         curried(1)(2) shouldBeEqualTo 3
     }
@@ -21,7 +21,7 @@ class CurryingSupportTest {
     fun `currying three input function`() {
         val func: (Int, Int, Int) -> Int = { a, b, c -> a + b + c }
 
-        val curried = func.currying()
+        val curried = func.curried()
 
         val curried2 = curried(1)(2)
 
@@ -33,7 +33,7 @@ class CurryingSupportTest {
     fun `currying four input function`() {
         val func: (Int, Int, Int, Int) -> Int = { a, b, c, d -> a + b + c + d }
 
-        val curried1 = func.currying()
+        val curried1 = func.curried()
         val curried2 = curried1(1)
         val curried3 = curried2(2)
         val curried4 = curried3(3)

@@ -4,13 +4,12 @@ import com.datastax.oss.driver.api.querybuilder.SchemaBuilder
 import io.bluetape4k.cassandra.cql.executeSuspending
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
@@ -28,7 +27,7 @@ class BasicUserRepositoryTest(
     @Autowired private val repository: BasicUserRepository,
 ): AbstractCassandraCoroutineTest("basic-user") {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private fun newBasicUser(): BasicUser {
         return BasicUser(
@@ -41,7 +40,7 @@ class BasicUserRepositoryTest(
 
     @BeforeEach
     fun beforeEach() {
-        runBlocking {
+        runSuspendIO {
             repository.deleteAll()
         }
     }

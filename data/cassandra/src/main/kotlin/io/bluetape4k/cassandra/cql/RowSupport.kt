@@ -23,79 +23,85 @@ fun Row.getStringOrEmpty(id: CqlIdentifier): String = getString(id) ?: EMPTY_STR
 /**
  * [Row] 정보를 [Map] 으로 변환합니다.
  */
-fun Row.toMap(): Map<Int, Any?> {
-    return columnDefinitions
+fun Row.toMap(): Map<Int, Any?> =
+    columnDefinitions
         .mapIndexed { i, definition ->
             val codec = codecRegistry().codecFor<Any?>(definition.type)
-            val value = if (isNull(definition.name)) null else codec.decode(getBytesUnsafe(i), protocolVersion())
+            val value =
+                if (isNull(definition.name)) null
+                else codec.decode(getBytesUnsafe(i), protocolVersion())
 
             i to value
         }
         .toMap()
-}
 
 /**
  * [Row] 정보를 `Named Map` 으로 변환합니다.
  */
-fun Row.toNamedMap(): Map<String, Any?> {
-    return columnDefinitions
+fun Row.toNamedMap(): Map<String, Any?> =
+    columnDefinitions
         .mapIndexed { i, definition ->
             val name = definition.name.asCql(true)
             val codec = codecRegistry().codecFor<Any?>(definition.type)
-            val value = if (isNull(definition.name)) null else codec.decode(getBytesUnsafe(i), protocolVersion())
+            val value =
+                if (isNull(definition.name)) null
+                else codec.decode(getBytesUnsafe(i), protocolVersion())
 
             name to value
         }
         .toMap()
-}
 
 /**
  * [Row] 정보를 [transform]을 통해 [Map] 으로 반환합니다.
  */
-inline fun <T> Row.map(transform: (Any?) -> T): Map<Int, T> {
-    return columnDefinitions
+inline fun <T> Row.map(transform: (Any?) -> T): Map<Int, T> =
+    columnDefinitions
         .mapIndexed { i, definition ->
             val codec = codecRegistry().codecFor<Any?>(definition.type)
-            val value = if (isNull(definition.name)) null else codec.decode(getBytesUnsafe(i), protocolVersion())
+            val value =
+                if (isNull(definition.name)) null
+                else codec.decode(getBytesUnsafe(i), protocolVersion())
 
             i to transform(value)
         }
         .toMap()
-}
 
 /**
  * [Row] 정보를 [transform]을 통해 `Named Map` 으로 변환합니다.
  */
-inline fun <T> Row.mapWithName(transform: (Any?) -> T): Map<String, T> {
-    return columnDefinitions
+inline fun <T> Row.mapWithName(transform: (Any?) -> T): Map<String, T> =
+    columnDefinitions
         .mapIndexed { i, definition ->
             val name = definition.name.asCql(true)
             val codec = codecRegistry().codecFor<Any?>(definition.type)
-            val value = if (isNull(definition.name)) null else codec.decode(getBytesUnsafe(i), protocolVersion())
+            val value =
+                if (isNull(definition.name)) null
+                else codec.decode(getBytesUnsafe(i), protocolVersion())
+
             name to transform(value)
         }
         .toMap()
-}
 
 /**
  * [Row] 정보를 `CqlIdentifier 기준의 Map` 으로 변환합니다.
  */
-fun Row.toCqlIdentifierMap(): Map<CqlIdentifier, Any?> {
-    return columnDefinitions
+fun Row.toCqlIdentifierMap(): Map<CqlIdentifier, Any?> =
+    columnDefinitions
         .mapIndexed { i, definition ->
             val name = definition.name
             val codec = codecRegistry().codecFor<Any?>(definition.type)
-            val value = if (isNull(name)) null else codec.decode(getBytesUnsafe(i), protocolVersion())
+            val value =
+                if (isNull(name)) null
+                else codec.decode(getBytesUnsafe(i), protocolVersion())
 
             name to value
         }
         .toMap()
-}
 
 /**
  * [Row] 정보에서 컬럼 정의와 [TypeCodec]의 [Map] 으로 반환합니다.
  */
-fun Row.columnCodecs(): Map<CqlIdentifier, TypeCodec<out Any>> {
+fun Row.columnCodecs(): Map<CqlIdentifier, TypeCodec<Any?>> {
     val codecRegistry = codecRegistry()
     return columnDefinitions
         .associate { columnDef ->

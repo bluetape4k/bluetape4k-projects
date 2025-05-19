@@ -7,7 +7,7 @@ import io.bluetape4k.http.hc5.async.httpAsyncClient
 import io.bluetape4k.http.hc5.async.methods.simpleHttpRequest
 import io.bluetape4k.http.hc5.reactor.ioReactorConfig
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
 import org.apache.hc.core5.http.HttpHost
@@ -20,7 +20,7 @@ import kotlin.time.Duration.Companion.seconds
 
 class AsyncClientConnectionEviction: AbstractHc5Test() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `evict expired and idle connection from connection pool`() = runSuspendIO {

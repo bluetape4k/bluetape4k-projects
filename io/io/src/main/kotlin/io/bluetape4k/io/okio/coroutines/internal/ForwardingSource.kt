@@ -1,6 +1,7 @@
 package io.bluetape4k.io.okio.coroutines.internal
 
 import io.bluetape4k.io.okio.coroutines.AsyncSource
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.runBlocking
 import okio.Buffer
 import okio.Source
@@ -9,6 +10,8 @@ import okio.Timeout
 internal class ForwardingSource(
     val delegate: AsyncSource,
 ): Source {
+
+    companion object: KLoggingChannel()
 
     private val timeout = Timeout()
 

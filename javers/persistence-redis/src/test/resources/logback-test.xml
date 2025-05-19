@@ -10,14 +10,14 @@
         </encoder>
     </appender>
 
-    <logger name="io.bluetape4k.javers" level="DEBUG"/>
+    <!--    <logger name="io.bluetape4k.javers" level="DEBUG"/>-->
 
-    <logger name="org.javers.core" level="DEBUG"/>
+    <!--    <logger name="org.javers.core" level="DEBUG"/>-->
     <logger name="org.javers.repository" level="DEBUG"/>
-    <logger name="org.javers.JQL" level="DEBUG"/>
-    <logger name="org.javers.TypeMapper" level="DEBUG"/>
+    <!--    <logger name="org.javers.JQL" level="DEBUG"/>-->
+    <!--    <logger name="org.javers.TypeMapper" level="DEBUG"/>-->
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="Console"/>
     </root>
 </configuration>

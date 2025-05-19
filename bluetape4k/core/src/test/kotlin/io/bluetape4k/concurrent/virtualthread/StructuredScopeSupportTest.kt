@@ -14,7 +14,6 @@ class StructuredScopeSupportTest {
     @Test
     fun `첫번째 완료된 작업의 결과를 얻는다`() {
         val result = structuredTaskScopeFirst<String> { scope ->
-
             scope.fork {
                 Thread.sleep(100)
                 "result1"

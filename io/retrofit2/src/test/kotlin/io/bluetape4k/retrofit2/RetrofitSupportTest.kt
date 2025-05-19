@@ -8,6 +8,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.retrofit2.clients.vertx.vertxCallFactoryOf
 import io.bluetape4k.retrofit2.services.JsonPlaceHolder
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.future.await
@@ -88,7 +89,7 @@ class RetrofitSupportTest: AbstractRetrofitTest() {
         @RepeatedTest(REPEAT_SIZE)
         fun `Retrofit용 API를 활용한 Coroutines Bulk 호출`() = runSuspendIO {
             val deferres = List(CALL_SIZE) {
-                async {
+                async(Dispatchers.IO) {
                     jsonApi.getPost(Random.nextInt(1, 100)).executeAsync().coAwait()
                 }
             }

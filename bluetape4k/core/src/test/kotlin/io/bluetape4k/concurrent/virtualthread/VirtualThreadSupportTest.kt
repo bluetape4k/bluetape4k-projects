@@ -2,11 +2,12 @@ package io.bluetape4k.concurrent.virtualthread
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.logging.trace
 import io.bluetape4k.logging.warn
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEqualTo
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.until
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 
@@ -18,7 +19,7 @@ class VirtualThreadSupportTest: AbstractVirtualThreadTest() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `platformThreadBuilder를 이용하여 PlatformThread 생성하기`() {
-        val builder = platformThreadBuilder {
+        val builder: Thread.Builder.OfPlatform = platformThreadBuilder {
             daemon(false)
             priority(10)
             stackSize(1024)
@@ -33,21 +34,21 @@ class VirtualThreadSupportTest: AbstractVirtualThreadTest() {
         builder.javaClass.name shouldBeEqualTo "java.lang.ThreadBuilders\$PlatformThreadBuilder"
 
         val thread = builder.unstarted {
-            log.trace { "Unstarted Platform Thread" }
+            log.debug { "Unstarted Platform Thread" }
         }
-        with(thread) {
-            javaClass.name shouldBeEqualTo "java.lang.Thread"
-            name shouldBeEqualTo "platform-thread"
-            isDaemon shouldBeEqualTo false
-            priority shouldBeEqualTo 10
-        }
+
+        thread.javaClass.name shouldBeEqualTo "java.lang.Thread"
+        thread.name shouldBeEqualTo "platform-thread"
+        thread.isDaemon shouldBeEqualTo false
+        thread.priority shouldBeEqualTo 10
+
         thread.start()
         thread.join()
     }
 
     @RepeatedTest(REPEAT_SIZE)
     fun `virtualThreadBuilder 를 이용하여 VirtualThread 생성하기`() {
-        val builder = virtualThreadBuilder {
+        val builder: Thread.Builder.OfVirtual = virtualThreadBuilder {
             name("virtual-thread")
             inheritInheritableThreadLocals(false)
             uncaughtExceptionHandler { thread, ex ->
@@ -61,10 +62,9 @@ class VirtualThreadSupportTest: AbstractVirtualThreadTest() {
         val thread = builder.unstarted {
             log.debug { "Unstarted Virtual Thread" }
         }
-        with(thread) {
-            javaClass.name shouldBeEqualTo "java.lang.VirtualThread"
-            name shouldBeEqualTo "virtual-thread"
-        }
+
+        thread.javaClass.name shouldBeEqualTo "java.lang.VirtualThread"
+        thread.name shouldBeEqualTo "virtual-thread"
         thread.start()
         thread.join()
     }
@@ -83,18 +83,22 @@ class VirtualThreadSupportTest: AbstractVirtualThreadTest() {
         factory.javaClass.name shouldBeEqualTo "java.lang.ThreadBuilders\$VirtualThreadFactory"
 
         val thread = factory.newThread {
+            Thread.sleep(100)
             log.debug { "New Virtual Thread" }
+            Thread.sleep(100)
         }
-        with(thread) {
-            javaClass.name shouldBeEqualTo "java.lang.VirtualThread"
-            name shouldBeEqualTo "virtual-thread-0"
-            isDaemon shouldBeEqualTo true
-            priority shouldBeEqualTo 5
-        }
+
+        thread.javaClass.name shouldBeEqualTo "java.lang.VirtualThread"
+        thread.name shouldBeEqualTo "virtual-thread-0"
+        thread.isDaemon shouldBeEqualTo true
+        thread.priority shouldBeEqualTo 5
+
         // Thread가 시작되지 않았으므로 NEW 상태
         thread.state shouldBeEqualTo Thread.State.NEW
 
         thread.start()
+
+        await until { thread.state == Thread.State.RUNNABLE || thread.state == Thread.State.TIMED_WAITING }
 
         // Thread가 시작되었으므로 RUNNABLE or TIMED_WAITING 상태 (Thread.sleep() 때문에)
         thread.state shouldNotBeEqualTo Thread.State.NEW

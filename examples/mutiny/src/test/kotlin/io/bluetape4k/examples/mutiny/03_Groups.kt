@@ -1,6 +1,6 @@
 package io.bluetape4k.examples.mutiny
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.mutiny.multiRangeOf
@@ -21,7 +21,7 @@ import java.util.function.Supplier
 
 class GroupsExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `01 Uni inspect events`() {

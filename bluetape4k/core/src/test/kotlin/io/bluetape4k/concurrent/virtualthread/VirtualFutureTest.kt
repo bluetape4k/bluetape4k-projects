@@ -1,6 +1,6 @@
 package io.bluetape4k.concurrent.virtualthread
 
-import io.bluetape4k.junit5.concurrency.VirtualthreadTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
@@ -36,6 +36,7 @@ class VirtualFutureTest {
             42
         }
 
+        // 1초 작업에 대해 500ms 대기 후 TimeoutException 발생
         assertFailsWith<TimeoutException> {
             vfuture.await(500.milliseconds.toJavaDuration()) shouldBeEqualTo 42
         }
@@ -47,10 +48,10 @@ class VirtualFutureTest {
     fun `run many tasks with virtual threads`() {
         val taskSize = 100
 
-        val tasks = List(taskSize) {
+        val tasks: List<() -> Int> = List(taskSize) {
             {
                 log.debug { "Run task[$it]" }
-                Thread.sleep(1000)
+                Thread.sleep(100)
                 it
             }
         }
@@ -64,17 +65,20 @@ class VirtualFutureTest {
         val taskCount = atomic(0)
 
         // 1초씩 대기하는 1000 개의 작업을 Virtual Thread를 이용하면, 2초내에 모든 작업이 완료됩니다.
-        VirtualthreadTester()
-            .numThreads(1000)
-            .roundsPerThread(1)
+        StructuredTaskScopeTester()
+            .roundsPerTask(1)
             .add {
-                Thread.sleep(1000)
-                log.trace { "Run task ...${taskCount.incrementAndGet()}" }
+                Thread.sleep(100)
+                taskCount.incrementAndGet()
+                log.trace { "Run task ...${taskCount.value}" }
             }
             .add {
-                Thread.sleep(1000)
-                log.trace { "Run task ...${taskCount.incrementAndGet()}" }
+                Thread.sleep(100)
+                taskCount.incrementAndGet()
+                log.trace { "Run task ...${taskCount.value}" }
             }
             .run()
+
+        taskCount.value shouldBeEqualTo 2
     }
 }

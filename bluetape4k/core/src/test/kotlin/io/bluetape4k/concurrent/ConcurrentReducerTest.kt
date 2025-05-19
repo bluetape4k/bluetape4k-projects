@@ -9,11 +9,16 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import kotlin.test.assertFailsWith
 
+/**
+ * 비동기 작업들을 세마포어를 이용하여 동시 실행을 제한하는 [ConcurrentReducer]를 테스트합니다.
+ */
 class ConcurrentReducerTest {
 
     companion object: KLogging()
@@ -80,6 +85,7 @@ class ConcurrentReducerTest {
         }
 
         promise3.cancel(false)
+        await until { promise3.isDone && reducer.activeCount == 2 }
 
         // 1 and 2 are in progress, 3 is cancelled
         promise1.isDone.shouldBeFalse()
@@ -89,6 +95,7 @@ class ConcurrentReducerTest {
         reducer.queuedCount shouldBeEqualTo 1
 
         request2.complete("2")
+        await until { promise2.isDone && reducer.activeCount == 1 }
 
         promise1.isDone.shouldBeFalse()
         promise2.isDone.shouldBeTrue()
@@ -97,6 +104,7 @@ class ConcurrentReducerTest {
         reducer.queuedCount shouldBeEqualTo 0
 
         request1.complete("1")
+        await until { promise1.isDone && reducer.activeCount == 0 }
 
         promise1.isDone.shouldBeTrue()
         promise2.isDone.shouldBeTrue()
@@ -108,7 +116,7 @@ class ConcurrentReducerTest {
     }
 
     @Test
-    fun `when simple result`() {
+    fun `3개의 짧은 작업을 2개만 동시 실행으로 제한할 때`() {
         val reducer = ConcurrentReducer<String>(2, 10)
         val request1 = CompletableFuture<String>()
         val request2 = CompletableFuture<String>()
@@ -128,6 +136,8 @@ class ConcurrentReducerTest {
         reducer.queuedCount shouldBeEqualTo 1
 
         request2.complete("2")
+        await until { promise2.isDone }
+        await until { reducer.activeCount == 1 }
 
         promise1.isDone.shouldBeFalse()
         promise2.isDone.shouldBeTrue()
@@ -136,6 +146,7 @@ class ConcurrentReducerTest {
         reducer.queuedCount shouldBeEqualTo 0
 
         request1.complete("1")
+        await until { promise1.isDone && reducer.activeCount == 0 }
 
         promise1.isDone.shouldBeTrue()
         promise2.isDone.shouldBeTrue()
@@ -145,7 +156,7 @@ class ConcurrentReducerTest {
     }
 
     @Test
-    fun `when task long running`() {
+    fun `concurrency 보다 많은 작업이 실행될 떄`() {
         val activeCounter = atomic(0)
         val maxCounter = atomic(0)
         val queueSize = 6
@@ -169,6 +180,8 @@ class ConcurrentReducerTest {
             }
         }
 
+        await until { reducer.activeCount == 0 }
+
         promises.all { it.isDone }.shouldBeTrue()
         activeCounter.value shouldBeEqualTo 0
         reducer.activeCount shouldBeEqualTo 0
@@ -179,19 +192,21 @@ class ConcurrentReducerTest {
     }
 
     @Test
-    fun `when exceed queue size`() {
+    fun `큐 사이즈를 초과해 작업을 추가하면 CapacityReachedException이 발생한다`() {
         val reducer = ConcurrentReducer<String>(10, 10)
         repeat(20) {
             reducer.add { CompletableFuture() }
         }
 
         val promise = reducer.add { CompletableFuture() }
+        await until { promise.isDone }
+
         promise.isDone.shouldBeTrue()
         promise.getException() shouldBeInstanceOf ConcurrentReducer.CapacityReachedException::class
     }
 
     @Test
-    fun `verify queue size`() {
+    fun `큐 사이즈를 초과하여 작업을 추가하면, 예외를 담은 Completable을 반환한다`() {
         val concurrency = 4
         val queueSize = 10
         val future = CompletableFuture<String>()
@@ -207,6 +222,8 @@ class ConcurrentReducerTest {
         reducer.remainingQueueCapacity shouldBeEqualTo 0
 
         future.complete("")
+
+        await until { reducer.activeCount == 0 }
 
         reducer.activeCount shouldBeEqualTo 0
         reducer.queuedCount shouldBeEqualTo 0

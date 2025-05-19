@@ -1,7 +1,7 @@
 package io.bluetape4k.vertx.sqlclient.mybatis.examples
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.vertx.sqlclient.AbstractVertxSqlClientTest
 import io.bluetape4k.vertx.sqlclient.mybatis.renderForVertx
@@ -18,7 +18,7 @@ import org.mybatis.dynamic.sql.util.kotlin.model.select
 
 class MybatisDynamicSqlExamples: AbstractVertxSqlClientTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     override fun Vertx.getPool() = this.getMySQLPool()
 

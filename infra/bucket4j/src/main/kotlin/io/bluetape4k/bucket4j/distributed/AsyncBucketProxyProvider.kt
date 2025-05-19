@@ -1,6 +1,6 @@
 package io.bluetape4k.bucket4j.distributed
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8Bytes
 import io.github.bucket4j.Bucket
@@ -38,7 +38,7 @@ open class AsyncBucketProxyProvider(
     protected val keyPrefix: String = DEFAULT_KEY_PREFIX,
 ) {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         const val DEFAULT_KEY_PREFIX = "bluetape4k:rate-limit:key:"
     }
 

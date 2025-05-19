@@ -1,7 +1,7 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.coroutines.tests.assertResult
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeFalse
@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 
 class ConcatTest: AbstractFlowTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     val flow1 = flowOf(1, 2).log("#1")
     val flow2 = flowOf(3, 4).log("#2")

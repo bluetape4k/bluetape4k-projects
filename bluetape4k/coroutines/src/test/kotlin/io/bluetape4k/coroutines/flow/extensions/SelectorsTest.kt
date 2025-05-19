@@ -2,6 +2,7 @@ package io.bluetape4k.coroutines.flow.extensions
 
 import app.cash.turbine.test
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -17,7 +18,7 @@ import org.junit.jupiter.api.Test
 
 class SelectorsTest: AbstractFlowTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     fun <T> Flow<T>.flowOnStandardTestDispatcher(testScope: TestScope): Flow<T> =
         flowOn(StandardTestDispatcher(testScope.testScheduler))

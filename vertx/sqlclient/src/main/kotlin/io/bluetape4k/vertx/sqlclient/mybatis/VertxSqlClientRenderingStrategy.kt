@@ -1,6 +1,6 @@
 package io.bluetape4k.vertx.sqlclient.mybatis
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.mybatis.dynamic.sql.BindableColumn
 import org.mybatis.dynamic.sql.render.RenderingStrategies
@@ -51,7 +51,7 @@ val VERTX_SQL_CLIENT_RENDERING_STRATEGY: RenderingStrategy = VertxSqlClientRende
  */
 class VertxSqlClientRenderingStrategy: RenderingStrategy() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         @JvmField
         val INSTANCE = VertxSqlClientRenderingStrategy()
     }

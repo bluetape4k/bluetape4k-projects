@@ -5,7 +5,6 @@ import io.bluetape4k.logging.error
 import io.bluetape4k.support.emptyByteArray
 import io.bluetape4k.support.isNullOrEmpty
 
-
 /**
  * [BinarySerializer]의 최상위 추상화 클래스
  */

@@ -3,14 +3,14 @@ package io.bluetape4k.cassandra.cql
 import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.cassandra.toCqlIdentifier
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
 class RowSupportTest: AbstractCassandraTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @BeforeAll
     fun setup() {

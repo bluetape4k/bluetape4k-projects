@@ -3,7 +3,7 @@ package io.bluetape4k.images.coroutines
 import com.sksamuel.scrimage.AwtImage
 import com.sksamuel.scrimage.metadata.ImageMetadata
 import com.sksamuel.scrimage.nio.PngWriter
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.withContext
 import java.io.OutputStream
@@ -23,7 +23,7 @@ class CoPngWriter(
     compressionLevel: Int = 9,
 ): PngWriter(compressionLevel), CoImageWriter {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         @JvmStatic
         val MaxCompression = CoPngWriter(9)
 

@@ -1,7 +1,7 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.coroutines.tests.assertResult
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
@@ -10,7 +10,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class IntervalTest: AbstractFlowTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `interval operator with time millis`() = runTest {

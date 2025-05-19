@@ -70,7 +70,7 @@ suspend inline fun <reified T: Any> AsyncCqlOperations.coQuery(
     statement: Statement<*>,
     crossinline extractor: (AsyncResultSet) -> CompletableFuture<T?>,
 ): T? =
-    query<T>(statement, AsyncResultSetExtractor { extractor(it) }).await()
+    query<T>(statement) { extractor(it) }.await()
 
 /**
  * Coroutine 환경에서 [AsyncCqlOperations]의 `query` 함수를 실행합니다.

@@ -1,11 +1,15 @@
 package io.bluetape4k.redis.redisson.coroutines
 
 import io.bluetape4k.concurrent.sequence
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.future.await
 import org.redisson.api.RFuture
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
 import java.util.concurrent.ForkJoinPool
+import kotlin.coroutines.coroutineContext
 
 /**
  * Coroutines 환경 하에서 결과를 기다리는 동안 suspend 합니다. (blocking 하지 않습니다)
@@ -29,9 +33,7 @@ suspend fun <V> RFuture<V>.coAwait(): V = toCompletableFuture().await()
  */
 fun <V> Iterable<RFuture<out V>>.sequence(
     executor: Executor = ForkJoinPool.commonPool(),
-): CompletableFuture<List<V>> {
-    return map { it.toCompletableFuture() }.sequence(executor)
-}
+): CompletableFuture<List<V>> = map { it.toCompletableFuture() }.sequence(executor)
 
 
 /**
@@ -44,5 +46,8 @@ fun <V> Iterable<RFuture<out V>>.sequence(
  * }
  */
 suspend fun <V> Collection<RFuture<out V>>.awaitAll(): List<V> {
-    return sequence().await()
+    val executor = coroutineContext[CoroutineDispatcher]?.asExecutor()
+        ?: Dispatchers.Default.asExecutor()
+
+    return sequence(executor).await()
 }

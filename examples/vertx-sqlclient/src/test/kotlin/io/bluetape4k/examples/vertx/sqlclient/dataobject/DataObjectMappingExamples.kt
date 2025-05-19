@@ -2,7 +2,7 @@ package io.bluetape4k.examples.vertx.sqlclient.dataobject
 
 import io.bluetape4k.examples.vertx.sqlclient.AbstractSqlClientTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.vertx.sqlclient.tests.testWithTransactionSuspending
 import io.vertx.core.Vertx
@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test
 // @Disabled("Kotlin 은 제대로 지원하지 않는다")
 class DataObjectMappingExamples: AbstractSqlClientTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @BeforeAll
     fun setup(vertx: Vertx) {

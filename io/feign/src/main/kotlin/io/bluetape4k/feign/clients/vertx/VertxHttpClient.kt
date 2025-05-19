@@ -2,7 +2,7 @@ package io.bluetape4k.feign.clients.vertx
 
 import feign.Client
 import io.bluetape4k.http.vertx.vertxHttpClientOf
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.vertx.core.http.HttpClient
 
 /**
@@ -12,7 +12,7 @@ class VertxHttpClient private constructor(
     private val vertxClient: HttpClient,
 ): feign.Client {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         @JvmStatic
         operator fun invoke(vertxClient: HttpClient = vertxHttpClientOf()): VertxHttpClient {
             return VertxHttpClient(vertxClient)

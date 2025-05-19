@@ -2,7 +2,7 @@ package io.bluetape4k.examples.vertx.webclient
 
 import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.vertx.tests.withTestContextSuspending
 import io.bluetape4k.vertx.web.coHandler
@@ -21,7 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(VertxExtension::class)
 class ResponseExamples {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val port: Int = 9999
     }
 

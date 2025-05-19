@@ -2,7 +2,7 @@ package io.bluetape4k.cache.memorizer.cache2k
 
 import io.bluetape4k.cache.memorizer.AsyncMemorizer
 import io.bluetape4k.exceptions.BluetapeException
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import kotlinx.atomicfu.locks.ReentrantLock
@@ -44,7 +44,7 @@ class Cache2kAsyncMemorizer<T: Any, R: Any>(
     private val asyncEvaluator: (T) -> CompletableFuture<R>,
 ): AsyncMemorizer<T, R> {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val lock = ReentrantLock()
 

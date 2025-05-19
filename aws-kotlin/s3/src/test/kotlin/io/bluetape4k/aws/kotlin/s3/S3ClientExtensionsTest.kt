@@ -2,11 +2,11 @@ package io.bluetape4k.aws.kotlin.s3
 
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.io.deleteIfExists
-import io.bluetape4k.junit5.coroutines.MultijobTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.utils.Runtimex
@@ -21,7 +21,7 @@ import java.io.File
 @TempFolderTest
 class S3ClientExtensionsTest: AbstractKotlinS3Test() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 3
     }
 
@@ -77,9 +77,9 @@ class S3ClientExtensionsTest: AbstractKotlinS3Test() {
         filename: String,
         tempFolder: TempFolder,
     ) = runSuspendIO {
-        MultijobTester()
+        SuspendedJobTester()
             .numThreads(Runtimex.availableProcessors)
-            .roundsPerJob(1)
+            .roundsPerJob(Runtimex.availableProcessors)
             .add {
                 val key = TimebasedUuid.nextBase62String().lowercase()
                 val filepath = "$IMAGE_PATH/$filename"

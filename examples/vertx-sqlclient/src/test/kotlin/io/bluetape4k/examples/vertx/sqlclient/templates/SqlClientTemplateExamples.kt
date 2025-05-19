@@ -4,7 +4,7 @@ import io.bluetape4k.examples.vertx.sqlclient.AbstractSqlClientTest
 import io.bluetape4k.examples.vertx.sqlclient.model.USER_ROW_MAPPER
 import io.bluetape4k.examples.vertx.sqlclient.model.User
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.vertx.sqlclient.templates.tupleMapperOfRecord
 import io.bluetape4k.vertx.sqlclient.tests.testWithTransactionSuspending
@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test
 
 class SqlClientTemplateExamples: AbstractSqlClientTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @BeforeAll
     fun setup(vertx: Vertx) {

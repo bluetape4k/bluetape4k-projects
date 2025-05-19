@@ -6,7 +6,7 @@ import io.bluetape4k.http.hc5.async.httpAsyncClient
 import io.bluetape4k.http.hc5.async.methods.simpleHttpRequestOf
 import io.bluetape4k.http.hc5.http.ContentTypes
 import io.bluetape4k.http.hc5.reactor.ioReactorConfig
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8Bytes
 import kotlinx.atomicfu.atomic
@@ -28,7 +28,7 @@ import java.nio.ByteBuffer
 
 class AsyncClientInterceptors: AbstractHc5Test() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private val counter = atomic(0L)
     }
 

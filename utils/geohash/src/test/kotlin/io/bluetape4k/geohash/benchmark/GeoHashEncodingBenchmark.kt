@@ -9,7 +9,6 @@ import kotlinx.benchmark.Mode
 import kotlinx.benchmark.Scope
 import kotlinx.benchmark.State
 import kotlinx.benchmark.Warmup
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 @State(Scope.Benchmark)

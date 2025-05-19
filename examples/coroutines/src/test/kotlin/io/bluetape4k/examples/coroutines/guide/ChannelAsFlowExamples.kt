@@ -3,6 +3,7 @@ package io.bluetape4k.examples.coroutines.guide
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import kotlinx.atomicfu.atomic
@@ -28,7 +29,7 @@ import org.junit.jupiter.api.Test
 
 class ChannelAsFlowExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     class SingleShotEventBus {
         companion object: KLogging()

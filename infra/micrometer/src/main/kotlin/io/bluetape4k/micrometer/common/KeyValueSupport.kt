@@ -15,7 +15,6 @@ import io.micrometer.common.KeyValues
  * @param value
  * @return
  */
-
 fun keyValueOf(key: String, value: String): KeyValue = KeyValue.of(key, value)
 
 /**

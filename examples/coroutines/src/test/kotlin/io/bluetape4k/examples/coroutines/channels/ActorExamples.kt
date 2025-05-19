@@ -1,7 +1,8 @@
 package io.bluetape4k.examples.coroutines.channels
 
 import io.bluetape4k.coroutines.support.log
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.examples.coroutines.massiveRun
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -15,7 +16,7 @@ import org.junit.jupiter.api.Test
 
 class ActorExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     sealed class CounterMsg
     object IntCounter: CounterMsg()
@@ -44,13 +45,14 @@ class ActorExamples {
         val counter: SendChannel<CounterMsg> = counterActor()
         val times = 100
 
-        io.bluetape4k.examples.coroutines.massiveRun(Dispatchers.IO, times) {
+        massiveRun(Dispatchers.IO, times) {
             counter.send(IntCounter)
         }
 
         val response = CompletableDeferred<Int>()
         counter.send(GetCounter(response))
-        log.debug { "response=${response.await()}" }
+        val result = response.await()
+        log.debug { "result=$result" }
         response.getCompleted() shouldBeEqualTo times * times
 
         counter.close()

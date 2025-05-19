@@ -1,7 +1,7 @@
 package io.bluetape4k.coroutines.flow.extensions.subject
 
 import io.bluetape4k.coroutines.flow.extensions.ResumableCollector
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
@@ -39,7 +39,7 @@ import java.util.concurrent.CancellationException
 @Suppress("UNCHECKED_CAST")
 class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private val EMPTY = arrayOf<ResumableCollector<Any>>()
         private val TERMINATED = arrayOf<ResumableCollector<Any>>()
     }

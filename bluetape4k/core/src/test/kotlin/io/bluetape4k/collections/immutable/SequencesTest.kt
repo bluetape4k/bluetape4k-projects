@@ -33,6 +33,7 @@ class SequencesTest {
             immutableArrayOf("ccc", "dddd")
         ).flatten()
         strs shouldBeInstanceOf Sequence::class
+        strs.toImmutableArray() shouldBeEqualTo immutableArrayOf("a", "bb", "ccc", "dddd")
         strs.toList() shouldBeEqualTo listOf("a", "bb", "ccc", "dddd")
     }
 }

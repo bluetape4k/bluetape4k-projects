@@ -13,6 +13,8 @@ import io.bluetape4k.jackson.addString
 import io.bluetape4k.jackson.createArray
 import io.bluetape4k.jackson.createNode
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.error
+import jakarta.json.stream.JsonParsingException
 import java.util.*
 
 /**
@@ -38,38 +40,53 @@ class AsyncJsonParser(
     companion object: KLogging()
 
     private class Stack {
-        private val nodes = LinkedList<JsonNode>()
+        private val nodes = LinkedList<StackFrame>()
 
-        fun push(node: JsonNode) = nodes.add(node)
-        fun pop(): JsonNode = nodes.removeLast()
-        fun top(): JsonNode = nodes.last()
-        fun topOrNull(): JsonNode? = nodes.lastOrNull()
+        fun push(node: JsonNode, fieldName: String? = null) = nodes.add(StackFrame(node, fieldName))
+        fun pop(): StackFrame = nodes.removeLast()
+        fun top(): StackFrame = nodes.last()
+        fun topOrNull(): StackFrame? = nodes.lastOrNull()
         val isEmpty: Boolean get() = nodes.isEmpty()
         val isNotEmpty: Boolean get() = !nodes.isEmpty()
     }
 
+    private data class StackFrame(
+        val node: JsonNode,
+        val fieldName: String? = null,
+    )
+
     private val parser: NonBlockingJsonParser by lazy {
         jsonFactory.createNonBlockingByteArrayParser() as NonBlockingJsonParser
     }
-    private var fieldName: String? = null
+
     private val stack = Stack()
+    private var currentFieldName: String? = null
+
+    /**
+     * 현재 처리 중인 필드 이름을 반환하고 사용 후 초기화합니다.
+     * 일회성 사용을 보장하여 잘못된 컨텍스트에서의 재사용을 방지합니다.
+     */
+    private fun getCurrentFieldName(): String? {
+        val result = currentFieldName
+        currentFieldName = null                 // 사용 후 초기화하여 재사용 방지
+        return result
+    }
 
     fun consume(bytes: ByteArray, length: Int = bytes.size) {
         val feeder = parser.nonBlockingInputFeeder
-        var consumed = false
-        while (!consumed) {
-            if (feeder.needMoreInput()) {
-                feeder.feedInput(bytes, 0, length)
-                consumed = true
-            }
 
-            do {
-                val token = parser.nextToken()
-                if (token != JsonToken.NOT_AVAILABLE) {
-                    buildTree(token)?.let { onNodeDone(it) }
-                }
-            } while (token != JsonToken.NOT_AVAILABLE)
+        // 입력이 필요한 경우에만 데이터 제공
+        if (feeder.needMoreInput()) {
+            feeder.feedInput(bytes, 0, length)
         }
+
+        var token: JsonToken?
+        do {
+            token = parser.nextToken()
+            if (token != null && token != JsonToken.NOT_AVAILABLE) {
+                buildTree(token)?.let { onNodeDone(it) }
+            }
+        } while (token != null && token != JsonToken.NOT_AVAILABLE)
     }
 
     /**
@@ -79,67 +96,85 @@ class AsyncJsonParser(
      * @return Json Object의 root node or null if not yet built
      */
     private fun buildTree(token: JsonToken): JsonNode? {
-        when (token) {
-            JsonToken.FIELD_NAME                      -> {
-                assert(stack.isNotEmpty)
-                fieldName = parser.currentName()
-                return null
-            }
+        try {
+            when (token) {
+                JsonToken.FIELD_NAME -> {
+                    requireNotEmptyStack()
+                    currentFieldName = parser.currentName()
+                    return null
+                }
 
-            JsonToken.START_OBJECT                    -> {
-                stack.push(stack.topOrNull()?.createNode(fieldName) ?: JsonNodeFactory.instance.objectNode())
-                return null
-            }
+                JsonToken.START_OBJECT -> {
+                    val fieldName = getCurrentFieldName()
+                    stack.push(
+                        stack.topOrNull()?.node?.createNode(fieldName) ?: JsonNodeFactory.instance.objectNode(),
+                        fieldName
+                    )
+                    return null
+                }
 
-            JsonToken.START_ARRAY                     -> {
-                stack.push(stack.topOrNull()?.createArray(fieldName) ?: JsonNodeFactory.instance.arrayNode())
-                return null
-            }
+                JsonToken.START_ARRAY -> {
+                    val fieldName = getCurrentFieldName()
+                    stack.push(
+                        stack.topOrNull()?.node?.createArray(fieldName) ?: JsonNodeFactory.instance.arrayNode(),
+                        fieldName
+                    )
+                    return null
+                }
 
-            JsonToken.END_OBJECT, JsonToken.END_ARRAY -> {
-                assert(stack.isNotEmpty)
-                val current: JsonNode = stack.pop()
-                return if (stack.isEmpty) current else null
-            }
+                JsonToken.END_OBJECT, JsonToken.END_ARRAY -> {
+                    requireNotEmptyStack()
+                    val current = stack.pop().node
+                    return if (stack.isEmpty) current else null
+                }
 
-            JsonToken.VALUE_NUMBER_INT                -> {
-                assert(stack.isNotEmpty)
-                stack.top().addLong(parser.longValue, fieldName)
-                return null
-            }
+                JsonToken.VALUE_NUMBER_INT -> {
+                    requireNotEmptyStack()
+                    stack.top().node.addLong(parser.longValue, getCurrentFieldName())
+                    return null
+                }
 
-            JsonToken.VALUE_STRING                    -> {
-                assert(stack.isNotEmpty)
-                stack.top().addString(parser.valueAsString, fieldName)
-                return null
-            }
+                JsonToken.VALUE_STRING -> {
+                    requireNotEmptyStack()
+                    stack.top().node.addString(parser.valueAsString, getCurrentFieldName())
+                    return null
+                }
 
-            JsonToken.VALUE_NUMBER_FLOAT              -> {
-                assert(stack.isNotEmpty)
-                stack.top().addDouble(parser.doubleValue, fieldName)
-                return null
-            }
+                JsonToken.VALUE_NUMBER_FLOAT -> {
+                    requireNotEmptyStack()
+                    stack.top().node.addDouble(parser.doubleValue, getCurrentFieldName())
+                    return null
+                }
 
-            JsonToken.VALUE_NULL                      -> {
-                assert(stack.isNotEmpty)
-                stack.top().addNull(fieldName)
-                return null
-            }
+                JsonToken.VALUE_NULL -> {
+                    requireNotEmptyStack()
+                    stack.top().node.addNull(getCurrentFieldName())
+                    return null
+                }
 
-            JsonToken.VALUE_TRUE                      -> {
-                assert(stack.isNotEmpty)
-                stack.top().addBoolean(true, fieldName)
-                return null
-            }
+                JsonToken.VALUE_TRUE -> {
+                    requireNotEmptyStack()
+                    stack.top().node.addBoolean(true, getCurrentFieldName())
+                    return null
+                }
 
-            JsonToken.VALUE_FALSE                     -> {
-                assert(stack.isNotEmpty)
-                stack.top().addBoolean(false, fieldName)
-                return null
-            }
+                JsonToken.VALUE_FALSE -> {
+                    requireNotEmptyStack()
+                    stack.top().node.addBoolean(false, getCurrentFieldName())
+                    return null
+                }
 
-            else                                      ->
-                throw RuntimeException("Unknown json token $token")
+                else -> error("Unknown json token $token")
+            }
+        } catch (e: Exception) {
+            log.error(e) { "JSON 파싱 오류: ${e.message}" }
+            throw JsonParsingException("JSON 파싱 오류: ${e.message}", e, null)
+        }
+    }
+
+    private fun requireNotEmptyStack() {
+        if (stack.isEmpty) {
+            error("JSON 파싱 오류: 예상치 못한 토큰을 발견했습니다. 파서 상태가 올바르지 않을 수 있습니다.")
         }
     }
 }

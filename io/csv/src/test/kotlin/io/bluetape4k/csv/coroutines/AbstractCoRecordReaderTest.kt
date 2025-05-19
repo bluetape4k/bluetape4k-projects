@@ -2,7 +2,7 @@ package io.bluetape4k.csv.coroutines
 
 import com.univocity.parsers.common.record.Record
 import io.bluetape4k.csv.model.ProductType
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import io.bluetape4k.utils.Resourcex
 import kotlinx.coroutines.flow.buffer
@@ -16,7 +16,7 @@ import kotlin.text.Charsets.UTF_8
 
 abstract class AbstractCoRecordReaderTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     protected abstract val reader: CoRecordReader
 

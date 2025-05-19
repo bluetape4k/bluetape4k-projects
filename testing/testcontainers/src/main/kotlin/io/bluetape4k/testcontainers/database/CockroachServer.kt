@@ -24,7 +24,7 @@ class CockroachServer private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "cockroachdb/cockroach"
-        const val TAG: String = "v24.3.0"
+        const val TAG: String = "v24.3.10"
         const val NAME = "cockroach"
         const val DB_PORT = 26257
         const val REST_API_PORT = 8080

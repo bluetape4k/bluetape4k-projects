@@ -10,6 +10,9 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import kotlin.system.measureTimeMillis
 
+/**
+ * Virtual Thread를 이용하여 Coroutine 작업을 Blocking 방식으로 수행합니다.
+ */
 class CoroutineSupportTest {
 
     companion object: KLogging() {

@@ -23,7 +23,7 @@ class JasyptColumnTypeTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `문자열에 대해 암호화,복호화 하기`(testDB: TestDB) {
         val stringTable = object: IntIdTable("string_table") {
-            val name = jasyptVarChar("name", 255, Encryptors.AES).nullable()
+            val name = jasyptVarChar("name", 255, Encryptors.AES).nullable().index()
             val city = jasyptVarChar("city", 255, Encryptors.RC4).nullable().index()
             val address = jasyptBinary("address", 255, Encryptors.TripleDES).nullable()
             val age = jasyptVarChar("age", 255, Encryptors.RC2).nullable()
@@ -84,8 +84,8 @@ class JasyptColumnTypeTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `암호화된 컬럼을 Update 하기`(testDB: TestDB) {
         val stringTable = object: IntIdTable("string_table") {
-            val name = jasyptVarChar("name", 255, Encryptors.AES).nullable()
-            val city = jasyptVarChar("city", 255, Encryptors.RC4).nullable().index()
+            val name = jasyptVarChar("name", 255, Encryptors.AES).index()
+            val city = jasyptVarChar("city", 255, Encryptors.RC4).index()
             val address = jasyptBinary("address", 255, Encryptors.TripleDES).nullable()
         }
 

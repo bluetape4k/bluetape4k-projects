@@ -2,7 +2,7 @@ package io.bluetape4k.bloomfilter.redis
 
 import io.bluetape4k.LibraryName
 import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 
 class RedissonCoBloomFilterTest: AbstractRedissonTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 5
         private const val ITEM_COUNT = 100
     }

@@ -116,7 +116,7 @@ fun Number.toFastMoney(currencyCode: String): FastMoney = fastMoneyOf(this, curr
  * @param factionDigits 실제 통화량에 해당하는 소수점 위치를 표현 (123.59 인 경우 2)
  * @return [FastMoney] instance
  */
-fun Long.toFastMoneyMinor(currency: CurrencyUnit = DefaultCurrencyUnit, factionDigits: Int = 2): FastMoney =
+fun Long.toFastMoneyMinor(currency: CurrencyUnit = DefaultCurrencyUnit, factionDigits: Int = 5): FastMoney =
     fastMoneyMinorOf(currency, this, factionDigits)
 
 /**

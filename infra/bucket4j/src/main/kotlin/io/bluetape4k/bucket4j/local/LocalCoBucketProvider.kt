@@ -1,7 +1,8 @@
 package io.bluetape4k.bucket4j.local
 
 import io.bluetape4k.bucket4j.coroutines.CoLocalBucket
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.github.bucket4j.BucketConfiguration
 import io.github.bucket4j.MathType
 import io.github.bucket4j.TimeMeter
@@ -32,7 +33,7 @@ open class LocalCoBucketProvider(
     keyPrefix: String = DEFAULT_KEY_PREFIX,
 ): AbstractLocalBucketProvider(bucketConfiguration, keyPrefix) {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     /**
      * Coroutines용 [CoLocalBucket]을 생성합니다.
@@ -40,6 +41,8 @@ open class LocalCoBucketProvider(
      * @return [CoLocalBucket] 인스턴스
      */
     override fun createBucket(): CoLocalBucket {
+        log.debug { "Create CoLocalBucket ..." }
+
         return CoLocalBucket(
             bucketConfiguration,
             MathType.INTEGER_64_BITS,

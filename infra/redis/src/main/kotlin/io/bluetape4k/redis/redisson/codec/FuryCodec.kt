@@ -4,9 +4,10 @@ import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.warn
 import io.bluetape4k.redis.redisson.RedissonCodecs
+import io.bluetape4k.support.unsafeLazy
 import io.netty.buffer.ByteBuf
-import io.netty.buffer.ByteBufAllocator
 import io.netty.buffer.ByteBufUtil
+import io.netty.buffer.Unpooled
 import org.redisson.client.codec.BaseCodec
 import org.redisson.client.codec.Codec
 import org.redisson.client.handler.State
@@ -32,13 +33,14 @@ class FuryCodec @JvmOverloads constructor(
 
     companion object: KLogging()
 
+    private val fury by unsafeLazy { BinarySerializers.Fury }
+
     private val encoder: Encoder = Encoder { graph ->
         try {
-            val bytes = BinarySerializers.Fury.serialize(graph)
-            val bytebuf = ByteBufAllocator.DEFAULT.buffer(bytes.size)
-            bytebuf.writeBytes(bytes)
+            val bytes = fury.serialize(graph)
+            Unpooled.wrappedBuffer(bytes)
         } catch (e: Exception) {
-            log.warn(e) { "Value is not suitable for FuryCodec. use fallbackCodec[$fallbackCodec]. value class=${graph.javaClass}" }
+            log.warn(e) { "Value is not suitable for FuryCodec. Using fallbackCodec[$fallbackCodec]. Value class=${graph.javaClass}" }
             fallbackCodec.valueEncoder.encode(graph)
         }
     }
@@ -46,9 +48,9 @@ class FuryCodec @JvmOverloads constructor(
     private val decoder: Decoder<Any> = Decoder<Any> { buf: ByteBuf, state: State ->
         try {
             val bytes = ByteBufUtil.getBytes(buf, buf.readerIndex(), buf.readableBytes(), true)
-            BinarySerializers.Fury.deserialize(bytes)
+            fury.deserialize(bytes)
         } catch (e: Exception) {
-            log.warn(e) { "Value is not suitable for FuryCodec. use fallbackCodec[$fallbackCodec]" }
+            log.warn(e) { "Value is not suitable for FuryCodec. Using fallbackCodec[$fallbackCodec]" }
             fallbackCodec.valueDecoder.decode(buf, state)
         }
     }

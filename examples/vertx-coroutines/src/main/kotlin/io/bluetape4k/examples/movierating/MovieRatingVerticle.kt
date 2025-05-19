@@ -1,6 +1,6 @@
 package io.bluetape4k.examples.movierating
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.support.asInt
@@ -20,7 +20,7 @@ import io.vertx.sqlclient.Tuple
 
 class MovieRatingVerticle: CoroutineVerticle() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private val statements = listOf(
             "CREATE TABLE MOVIE (ID VARCHAR(16) PRIMARY KEY, TITLE VARCHAR(256) NOT NULL)",
             "CREATE TABLE RATING (ID INT AUTO_INCREMENT PRIMARY KEY, RATE_VALUE INT, MOVIE_ID VARCHAR(16))",

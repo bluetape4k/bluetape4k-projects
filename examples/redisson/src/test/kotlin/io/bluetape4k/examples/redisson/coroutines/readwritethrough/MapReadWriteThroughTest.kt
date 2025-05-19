@@ -5,9 +5,10 @@ import io.bluetape4k.jdbc.sql.extract
 import io.bluetape4k.jdbc.sql.runQuery
 import io.bluetape4k.jdbc.sql.withConnect
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
+import io.bluetape4k.redis.redisson.RedissonCodecs
 import io.bluetape4k.redis.redisson.coroutines.coAwait
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -48,7 +49,7 @@ import kotlin.system.measureTimeMillis
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class MapReadWriteThroughTest: AbstractRedissonCoroutineTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
 
         const val ACTOR_SIZE = 30
 
@@ -190,6 +191,7 @@ class MapReadWriteThroughTest: AbstractRedissonCoroutineTest() {
             .loader(actorLoader)
             .writer(actorWriter)
             .writeMode(WriteMode.WRITE_THROUGH)   // 추가될 때마다 즉시 DB에 저장된다.
+            .codec(RedissonCodecs.LZ4FuryComposite)
 
         // DB에 5개의 record가 있고, Redis에는 아무 것도 없다
         val map = redisson.getMapCache(options)

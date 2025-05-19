@@ -2,7 +2,7 @@ package io.bluetape4k.aws.s3
 
 import io.bluetape4k.io.deleteIfExists
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8String
 import io.bluetape4k.utils.Resourcex
@@ -23,7 +23,7 @@ import java.util.*
 @Execution(ExecutionMode.CONCURRENT)
 class S3AsyncClientExtensionsTest: AbstractS3Test() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 3
     }
 

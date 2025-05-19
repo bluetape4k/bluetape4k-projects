@@ -3,7 +3,7 @@ package io.bluetape4k.cache.jcache.coroutines
 import io.bluetape4k.codec.encodeBase62
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test
 
 abstract class AbstractCoCacheTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         const val CACHE_ENTRY_SIZE = 100
         const val TEST_SIZE = 3
 

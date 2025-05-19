@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.movierating
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.vertx.tests.withTestContextSuspending
 import io.vertx.core.Vertx
@@ -22,7 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(VertxExtension::class)
 class MovieRatingVerticeTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     /**
      * BeforeAll, BeforeEach 에서는 testContext 가 불필요합니다. 만약 injection을 받으면 꼭 completeNow() 를 호출해야 합니다.

@@ -53,3 +53,9 @@ internal fun registBouncCastleProvider() {
         }
     }
 }
+
+@JvmField
+internal val urlBase64Encoder = Base64.getUrlEncoder()
+
+@JvmField
+internal val urlBase64Decoder = Base64.getUrlDecoder()

@@ -2,7 +2,7 @@ package io.bluetape4k.aws.kotlin.dynamodb.examples.user
 
 import io.bluetape4k.aws.kotlin.dynamodb.AbstractKotlinDynamoDbTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 
 class UserTest: AbstractKotlinDynamoDbTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private fun newUser(): User = User(
             userId = faker.internet().username(),
             name = faker.name().fullName(),

@@ -1,6 +1,6 @@
 package io.bluetape4k.cache.memorizer
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertTimeout
@@ -10,7 +10,7 @@ import kotlin.system.measureTimeMillis
 
 abstract class AbstractAsyncMemorizerTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     protected abstract val factorial: AsyncFactorialProvider
     protected abstract val fibonacci: AsyncFibonacciProvider

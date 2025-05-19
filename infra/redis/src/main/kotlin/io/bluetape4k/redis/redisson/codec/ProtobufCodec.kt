@@ -6,7 +6,6 @@ import io.bluetape4k.logging.warn
 import io.bluetape4k.netty.buffer.getBytes
 import io.bluetape4k.redis.redisson.RedissonCodecs
 import io.netty.buffer.ByteBuf
-import io.netty.buffer.ByteBufAllocator
 import io.netty.buffer.Unpooled
 import org.redisson.client.codec.BaseCodec
 import org.redisson.client.codec.Codec
@@ -38,8 +37,7 @@ class ProtobufCodec @JvmOverloads constructor(private val fallbackCodec: Codec =
     private val encoder: Encoder = Encoder { graph ->
         if (graph is Message) {
             val bytes = AnyMessage.pack(graph).toByteArray()
-            val out = ByteBufAllocator.DEFAULT.buffer(bytes.size)
-            out.writeBytes(bytes)
+            Unpooled.wrappedBuffer(bytes)
         } else {
             log.warn { "Value is not Protobuf Message instance. use fallbackCodec[$fallbackCodec] graph class=${graph.javaClass}" }
             fallbackCodec.valueEncoder.encode(graph)

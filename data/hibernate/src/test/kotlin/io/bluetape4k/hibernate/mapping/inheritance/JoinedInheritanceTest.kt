@@ -37,12 +37,12 @@ class JoinedInheritanceTest: AbstractHibernateTest() {
 
     @Test
     fun `inheritance with joined table`() {
-        val emp1 = JoinedEmployee().apply {
+        val emp1 = Employee().apply {
             name = "Debop"
             ssn = "111111-111111"
             empNo = "004444"
         }
-        val emp2 = JoinedEmployee().apply {
+        val emp2 = Employee().apply {
             name = "Kally"
             ssn = "222222-222222"
             empNo = "009999"
@@ -51,7 +51,7 @@ class JoinedInheritanceTest: AbstractHibernateTest() {
         emp1.members.add(emp2)
         emp2.manager = emp1
 
-        val customer = JoinedCustomer().apply {
+        val customer = Customer().apply {
             name = "Black"
             ssn = "333333-333333"
             mobile = "010-5555-5555"
@@ -105,7 +105,7 @@ class JoinedInheritanceTest: AbstractHibernateTest() {
         Index(name = "idx_joined_person_name", columnList = "personName, ssn")
     ]
 )
-abstract class AbstractJoinedPerson: IntJpaEntity() {
+abstract class AbstractPerson: IntJpaEntity() {
 
     @Column(name = "personName", nullable = false, length = 128)
     var name: String = ""
@@ -114,7 +114,7 @@ abstract class AbstractJoinedPerson: IntJpaEntity() {
     var ssn: String = ""
 
     override fun equalProperties(other: Any): Boolean =
-        other is AbstractJoinedPerson && name == other.name && ssn == other.ssn
+        other is AbstractPerson && name == other.name && ssn == other.ssn
 
     override fun buildStringHelper(): ToStringBuilder {
         return super.buildStringHelper()
@@ -127,31 +127,35 @@ abstract class AbstractJoinedPerson: IntJpaEntity() {
  * ```sql
  * create table joined_employee (
  *         emp_no varchar(12) not null,
+ *         emp_title varchar(128) not null,
  *         id integer not null,
  *         manager_id integer,
  *         primary key (id)
  * );
  *
  * create index idx_joined_employee_empno
- *        on joined_employee (emp_no);
+ *        on joined_employee (emp_no, emp_title);
  * ```
  */
 @Entity(name = "joined_employee")
-@Table(indexes = [Index(name = "idx_joined_employee_empno", columnList = "empNo")])
-class JoinedEmployee: AbstractJoinedPerson() {
+@Table(indexes = [Index(name = "idx_joined_employee_empno", columnList = "emp_no, emp_title")])
+class Employee: AbstractPerson() {
 
-    @Column(name = "empNo", nullable = false, length = 12)
+    @Column(name = "emp_no", nullable = false, length = 128)
     var empNo: String = ""
+
+    @Column(name = "emp_title", nullable = false, length = 128)
+    var empTitle: String = ""
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manager_id")
-    var manager: JoinedEmployee? = null
+    var manager: Employee? = null
 
     @OneToMany(mappedBy = "manager", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val members: MutableSet<JoinedEmployee> = hashSetOf()
+    val members: MutableSet<Employee> = hashSetOf()
 
     override fun equalProperties(other: Any): Boolean =
-        other is JoinedEmployee &&
+        other is Employee &&
                 empNo == other.empNo &&
                 super.equalProperties(other)
 
@@ -175,18 +179,21 @@ class JoinedEmployee: AbstractJoinedPerson() {
  * ```
  */
 @Entity(name = "joined_customer")
-@Table(indexes = [Index(name = "idx_joined_customer_mobile", columnList = "mobile")])
-class JoinedCustomer: AbstractJoinedPerson() {
+@Table(indexes = [Index(name = "idx_joined_customer_mobile", columnList = "mobile, customer_grade")])
+class Customer: AbstractPerson() {
 
     @Column(name = "mobile", nullable = false, length = 16)
     var mobile: String = ""
 
+    @Column(name = "customer_grade", nullable = false, length = 32)
+    var grade: String = ""
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contact_emp_id")
-    var contactEmployee: JoinedEmployee? = null
+    var contactEmployee: Employee? = null
 
     override fun equalProperties(other: Any): Boolean =
-        other is JoinedCustomer &&
+        other is Customer &&
                 mobile == other.mobile &&
                 super.equalProperties(other)
 
@@ -196,5 +203,5 @@ class JoinedCustomer: AbstractJoinedPerson() {
     }
 }
 
-interface JoinedEmployeeRepository: JpaRepository<JoinedEmployee, Int>
-interface JoinedCustomerRepository: JpaRepository<JoinedCustomer, Int>
+interface JoinedEmployeeRepository: JpaRepository<Employee, Int>
+interface JoinedCustomerRepository: JpaRepository<Customer, Int>

@@ -2,7 +2,9 @@ package io.bluetape4k.jwt.provider
 
 import io.bluetape4k.LibraryName
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.junit5.concurrency.VirtualthreadTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.jwt.AbstractJwtTest
 import io.bluetape4k.jwt.codec.Lz4Codec
 import io.bluetape4k.jwt.keychain.repository.KeyChainRepository
@@ -117,7 +119,7 @@ abstract class AbstractJwtProviderTest: AbstractJwtTest() {
                     claim("custom-data", customData)
                     compressionCodec = compressCodec
                 }
-                log.debug { "created jwt=$jwt" }
+                log.trace { "created jwt=$jwt" }
                 jwts.add(jwt)
             }
             .run()
@@ -138,9 +140,8 @@ abstract class AbstractJwtProviderTest: AbstractJwtTest() {
         val now = Date()
         val jwts = CopyOnWriteArrayList<String>()
 
-        VirtualthreadTester()
-            .numThreads(16)
-            .roundsPerThread(32)
+        StructuredTaskScopeTester()
+            .roundsPerTask(16 * 32)
             .add {
                 val jwt = provider.compose {
                     claim("author", "debop")
@@ -150,7 +151,40 @@ abstract class AbstractJwtProviderTest: AbstractJwtTest() {
                     claim("custom-data", customData)
                     compressionCodec = compressCodec
                 }
-                log.debug { "created jwt=$jwt" }
+                log.trace { "created jwt=$jwt" }
+                jwts.add(jwt)
+            }
+            .run()
+
+        Thread.sleep(10L)
+
+        jwts.size shouldBeEqualTo 16 * 32
+        val uniqueJwts = jwts.distinct()
+        uniqueJwts.forEach { jwt ->
+            log.trace { "jwt=$jwt" }
+        }
+        uniqueJwts.size shouldBeEqualTo 1
+    }
+
+    @RepeatedTest(REPEAT_SIZE)
+    fun `compose jwt in coroutines`() = runSuspendDefault {
+        val customData = randomString(1024)
+        val now = Date()
+        val jwts = CopyOnWriteArrayList<String>()
+
+        SuspendedJobTester()
+            .numThreads(16)
+            .roundsPerJob(16 * 32)
+            .add {
+                val jwt = provider.compose {
+                    claim("author", "debop")
+                    claim("service", LibraryName)
+                    issuer = LibraryName
+                    issuedAt = now
+                    claim("custom-data", customData)
+                    compressionCodec = compressCodec
+                }
+                log.trace { "created jwt=$jwt" }
                 jwts.add(jwt)
             }
             .run()

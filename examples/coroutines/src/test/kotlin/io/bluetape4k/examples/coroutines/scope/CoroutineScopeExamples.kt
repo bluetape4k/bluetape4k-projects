@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.coroutines.scope
 
 import io.bluetape4k.coroutines.support.log
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.logging.warn
@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test
 
 class CoroutineScopeExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private data class Details(val name: String, val followers: Int)
     private data class Tweet(val text: String)

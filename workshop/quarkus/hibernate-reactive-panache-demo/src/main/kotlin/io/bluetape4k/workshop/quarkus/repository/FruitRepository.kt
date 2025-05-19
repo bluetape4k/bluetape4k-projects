@@ -1,5 +1,6 @@
 package io.bluetape4k.workshop.quarkus.repository
 
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.workshop.quarkus.model.Fruit
 import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction
@@ -9,6 +10,8 @@ import jakarta.enterprise.context.ApplicationScoped
 @ApplicationScoped
 @WithTransaction
 class FruitRepository: PanacheRepositoryBase<Fruit, Long> {
+
+    companion object: KLoggingChannel()
 
     // NOTE: `@Transactional` 이 Mutiny 만 지원한다. Coroutines 는 서비스에서 쓰는 걸로 ㅠ.ㅠ
     //

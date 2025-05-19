@@ -6,12 +6,13 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requirePositiveNumber
 import io.bluetape4k.utils.Runtimex
-import kotlinx.coroutines.sync.Semaphore
 import java.io.Serializable
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
+import java.util.concurrent.Executors
+import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 
 /**
@@ -40,11 +41,12 @@ class ConcurrentReducer<T> private constructor(
 
     private val queue: BlockingQueue<Job<T>> = ArrayBlockingQueue(maxQueueSize)
     private val limit: Semaphore = Semaphore(maxConcurrency)
+    private val pumpExecutor = Executors.newSingleThreadExecutor()
 
     val queuedCount: Int get() = queue.size
-    val activeCount: Int get() = maxConcurrency - limit.availablePermits
+    val activeCount: Int get() = maxConcurrency - limit.availablePermits()
     val remainingQueueCapacity: Int get() = queue.remainingCapacity()
-    val remainingActiveCapacity: Int get() = limit.availablePermits
+    val remainingActiveCapacity: Int get() = limit.availablePermits()
 
     /**
      * 비동기 작업을 추가합니다.
@@ -65,27 +67,36 @@ class ConcurrentReducer<T> private constructor(
     }
 
     private fun pump() {
-        var job = grabJob()
-        while (job != null) {
-            if (job.promise.isCancelled) {
-                limit.release()
-            } else {
-                run(job)
+        do {
+            val job = grabJob()
+            if (job != null) {
+                if (job.promise.isCancelled) limit.release()
+                else run(job)
             }
-            job = grabJob()
+        } while (job != null)
+    }
+
+    private fun pollWhile(
+        timeout: Long = 10,
+        unit: TimeUnit = TimeUnit.MILLISECONDS,
+        predicate: (Job<T>) -> Boolean,
+    ): Job<T>? {
+        while (true) {
+            val job = queue.poll(timeout, unit) ?: return null
+            if (predicate(job)) continue
+            return job
         }
     }
 
     private fun grabJob(): Job<T>? {
-        if (!limit.tryAcquire()) {
+        if (!limit.tryAcquire()) return null
+
+        val job = pollWhile { it.promise.isCancelled }
+        if (job == null) {
+            limit.release()
             return null
         }
-        val job = queue.poll(10, TimeUnit.MILLISECONDS)
-        if (job != null) {
-            return job
-        }
-        limit.release()
-        return null
+        return job
     }
 
     private fun run(job: Job<T>) {
@@ -107,12 +118,13 @@ class ConcurrentReducer<T> private constructor(
 
         future.whenComplete { result, error ->
             limit.release()
-            if (error != null) {
-                job.promise.completeExceptionally(error)
-            } else {
-                job.promise.complete(result)
-            }
-            pump()
+            if (error != null) job.promise.completeExceptionally(error)
+            else job.promise.complete(result)
+
+            // 새로운 runnable로 pump() 실행 위임
+            // (이유: CompletableFuture의 whenComplete()는 현재 스레드에서 실행됨)
+            // pump()가 현재 스레드에서 실행되면 deadlock 발생 가능성 있음
+            CompletableFuture.runAsync({ pump() }, pumpExecutor)
         }
     }
 

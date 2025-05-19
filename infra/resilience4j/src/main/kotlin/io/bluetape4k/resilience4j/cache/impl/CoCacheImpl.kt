@@ -1,6 +1,6 @@
 package io.bluetape4k.resilience4j.cache.impl
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.warn
 import io.bluetape4k.resilience4j.cache.CoCache
 import io.github.resilience4j.cache.event.CacheEvent
@@ -17,7 +17,7 @@ import kotlinx.atomicfu.atomic
  */
 class CoroutinesCacheImpl<K, V>(override val jcache: javax.cache.Cache<K, V>): CoCache<K, V> {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val _eventProcessor = CoCacheEventProcessor()
     private val _metrics = CoCacheMetrics()

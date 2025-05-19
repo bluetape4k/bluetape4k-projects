@@ -14,6 +14,9 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 import kotlin.test.assertFails
 
+/**
+ * [CompletableFuture] 관련 함수를 테스트합니다.
+ */
 class CompletableFutureSupportTest {
 
     private val success: CompletableFuture<Int> = completableFutureOf(1)

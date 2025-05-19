@@ -1,6 +1,6 @@
 package io.bluetape4k.vertx.resilience4j
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.github.resilience4j.bulkhead.Bulkhead
 import io.github.resilience4j.circuitbreaker.CircuitBreaker
 import io.github.resilience4j.ratelimiter.RateLimiter
@@ -13,7 +13,7 @@ import java.util.concurrent.ScheduledExecutorService
 /**
  * Resilience4j의 다양한 요소들을 Vertx 작업 수행 시 Decorator로 사용할 수 있도록 지원합니다.
  */
-object VertxDecorators: KLogging() {
+object VertxDecorators: KLoggingChannel() {
 
     /**
      * Vert.x [supplier]를 decorate 합니다.

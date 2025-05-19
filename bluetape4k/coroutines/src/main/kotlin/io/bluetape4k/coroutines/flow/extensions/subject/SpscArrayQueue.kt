@@ -1,6 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions.subject
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.atomicArrayOfNulls
 
@@ -21,7 +21,7 @@ import kotlinx.atomicfu.atomicArrayOfNulls
  */
 internal class SpscArrayQueue<T> private constructor(capacity: Int) {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
 
         @JvmStatic
         operator fun <T> invoke(capacity: Int = 1): SpscArrayQueue<T> {

@@ -1,7 +1,7 @@
 package io.bluetape4k.resilience4j
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.info
 import io.bluetape4k.resilience4j.cache.Cache2kJCacheProvider
@@ -35,7 +35,7 @@ class CoDecoratorsTest {
         suspend fun bifunction(a: Int, b: Int): Int
     }
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     val retry = Retry.ofDefaults("coDecorator")
     val circuitBreaker = CircuitBreaker.ofDefaults("coDecorator")

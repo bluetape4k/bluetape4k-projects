@@ -2,7 +2,7 @@ package io.bluetape4k.examples.coroutines.dispatchers
 
 import io.bluetape4k.coroutines.support.coLogging
 import io.bluetape4k.coroutines.support.log
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +27,7 @@ import kotlin.random.Random
 @OptIn(DelicateCoroutinesApi::class)
 class DispatcherExamples {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 1000
     }
 

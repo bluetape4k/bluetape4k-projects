@@ -2,9 +2,9 @@ package io.bluetape4k.examples.redisson.coroutines.objects
 
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.junit5.coroutines.MultijobTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.coroutines.coAwait
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -20,7 +20,7 @@ import kotlin.time.toJavaDuration
 
 class RateLimiterExamples: AbstractRedissonCoroutineTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private val defaultDuration = 100.seconds.toJavaDuration()
     }
 
@@ -122,9 +122,9 @@ class RateLimiterExamples: AbstractRedissonCoroutineTest() {
         limiter1.availablePermitsAsync().coAwait() shouldBeEqualTo 0L
         limiter1.tryAcquireAsync(1).coAwait().shouldBeFalse()
 
-        MultijobTester()
+        SuspendedJobTester()
             .numThreads(2)
-            .roundsPerJob(2)
+            .roundsPerJob(4)
             .add {
                 // RateType 이 PER_CLIENT 인 경우, RedissonClient 인스턴스 별로 rate limit 를 따로 허용한다
                 val redisson1 = newRedisson()

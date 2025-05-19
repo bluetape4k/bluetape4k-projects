@@ -1,6 +1,6 @@
 package io.bluetape4k.spring.r2dbc.coroutines.blog.domain
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.r2dbc.coroutines.coCount
 import io.bluetape4k.spring.r2dbc.coroutines.coInsert
 import io.bluetape4k.spring.r2dbc.coroutines.coSelect
@@ -17,7 +17,7 @@ class CommentRepository(
     private val client: DatabaseClient,
     private val operations: R2dbcEntityOperations,
 ) {
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     suspend fun save(comment: Comment): Comment {
         return operations.coInsert(comment)

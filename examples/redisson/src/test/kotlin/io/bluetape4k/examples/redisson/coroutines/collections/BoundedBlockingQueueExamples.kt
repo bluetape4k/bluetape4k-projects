@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.coroutines.coAwait
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit
  */
 class BoundedBlockingQueueExamples: AbstractRedissonCoroutineTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val ITEM_SIZE = 10
     }
 

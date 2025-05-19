@@ -3,8 +3,8 @@ package io.bluetape4k.concurrent
 import io.bluetape4k.concurrent.virtualthread.VirtualFuture
 import io.bluetape4k.concurrent.virtualthread.virtualFuture
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.junit5.concurrency.VirtualthreadTester
-import io.bluetape4k.junit5.coroutines.MultijobTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
@@ -23,7 +23,7 @@ class FutureSupportTest {
 
     companion object: KLogging() {
         private const val ITEM_COUNT = 100
-        private const val DELAY_TIME = 100L
+        private const val DELAY_TIME = 10L
     }
 
     @Test
@@ -50,7 +50,7 @@ class FutureSupportTest {
     fun `Massive Future as CompletableFuture`() {
         val futures = List(ITEM_COUNT) {
             FutureTask {
-                Thread.sleep(Random.nextLong(10))
+                Thread.sleep(Random.nextLong(DELAY_TIME))
                 "value$it"
             }.apply { run() }
         }.map { it.asCompletableFuture() }
@@ -68,7 +68,7 @@ class FutureSupportTest {
             .roundsPerThread(ITEM_COUNT / 4)
             .add {
                 val task = CompletableFuture.supplyAsync {
-                    Thread.sleep(Random.nextLong(10))
+                    Thread.sleep(Random.nextLong(DELAY_TIME))
                     counter.incrementAndGet()
                 }
                 val result = task.asCompletableFuture().get()
@@ -81,15 +81,14 @@ class FutureSupportTest {
     }
 
     @Test
-    fun `Massive Future as CompletaboeFuture in Multiple Virtual Thread`() {
+    fun `Massive Future as CompletaboeFuture in Virtual Threads`() {
         val counter = AtomicInteger(0)
 
-        VirtualthreadTester()
-            .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerThread(ITEM_COUNT / 4)
+        StructuredTaskScopeTester()
+            .roundsPerTask(Runtimex.availableProcessors * 2 * ITEM_COUNT / 4)
             .add {
                 val task: VirtualFuture<Int> = virtualFuture {
-                    Thread.sleep(Random.nextLong(10))
+                    Thread.sleep(Random.nextLong(DELAY_TIME))
                     counter.incrementAndGet()
                 }
                 val result = task.await()
@@ -98,19 +97,18 @@ class FutureSupportTest {
             .run()
 
         counter.get() shouldBeEqualTo Runtimex.availableProcessors * 2 * ITEM_COUNT / 4
-
     }
 
     @Test
-    fun `Massive Future as CompletaboeFuture in Multiple Jobs`() = runSuspendDefault {
+    fun `Massive Future as CompletaboeFuture in Coroutines`() = runSuspendDefault {
         val counter = AtomicInteger(0)
 
-        MultijobTester()
+        SuspendedJobTester()
             .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerJob(ITEM_COUNT / 4)
+            .roundsPerJob(Runtimex.availableProcessors * 2 * ITEM_COUNT / 4)
             .add {
                 val task = async(Dispatchers.Default) {
-                    delay(Random.nextLong(10))
+                    delay(Random.nextLong(DELAY_TIME))
                     counter.incrementAndGet()
                 }
                 val result = task.await()

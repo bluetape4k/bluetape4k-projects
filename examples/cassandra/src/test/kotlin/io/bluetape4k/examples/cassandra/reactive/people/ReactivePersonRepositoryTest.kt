@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.cassandra.reactive.people
 
 import io.bluetape4k.examples.cassandra.AbstractCassandraTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -14,7 +14,7 @@ class ReactivePersonRepositoryTest(
     @Autowired private val repository: ReactivePersonRepository,
 ): AbstractCassandraTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @BeforeEach
     fun setup() {

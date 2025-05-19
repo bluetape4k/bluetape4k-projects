@@ -6,7 +6,7 @@ import io.bluetape4k.http.hc5.async.httpAsyncClient
 import io.bluetape4k.http.hc5.http.basicHttpRequestOf
 import io.bluetape4k.http.hc5.http.toProducer
 import io.bluetape4k.http.hc5.reactor.ioReactorConfig
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import kotlinx.coroutines.test.runTest
@@ -25,7 +25,7 @@ import java.nio.CharBuffer
 
 class AsyncClientHttpExchangeStreaming: AbstractHc5Test() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `asynchronous HTTP 1_1 request with response streaming`() = runTest {

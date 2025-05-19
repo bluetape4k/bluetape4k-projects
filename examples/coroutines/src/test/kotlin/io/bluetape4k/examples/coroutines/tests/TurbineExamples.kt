@@ -2,7 +2,7 @@ package io.bluetape4k.examples.coroutines.tests
 
 import app.cash.turbine.test
 import io.bluetape4k.coroutines.flow.extensions.log
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -19,7 +19,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class TurbineExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `turbine을 이용하여 flow를 테스트`() = runTest {

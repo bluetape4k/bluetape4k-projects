@@ -4,7 +4,7 @@ import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.coroutines.tests.withSingleThread
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit
  */
 class ReplaySubjectSizeAndTimeBoundTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `basic online`() = runSuspendTest {

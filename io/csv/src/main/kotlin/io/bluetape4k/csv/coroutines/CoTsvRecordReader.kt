@@ -4,7 +4,7 @@ import com.univocity.parsers.common.record.Record
 import com.univocity.parsers.tsv.TsvParser
 import com.univocity.parsers.tsv.TsvParserSettings
 import io.bluetape4k.csv.DefaultTsvParserSettings
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.InputStream
@@ -31,7 +31,7 @@ class CoTsvRecordReader(
     private val settings: TsvParserSettings = DefaultTsvParserSettings,
 ): CoRecordReader {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     override fun <T: Any> read(
         input: InputStream,

@@ -10,9 +10,9 @@
         </encoder>
     </appender>
 
-    <logger name="io.bluetape4k.junit5" level="TRACE"/>
+    <logger name="io.bluetape4k.junit5" level="DEBUG"/>
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="Console"/>
     </root>
 

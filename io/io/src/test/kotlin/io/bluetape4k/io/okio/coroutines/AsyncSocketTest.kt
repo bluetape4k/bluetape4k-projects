@@ -4,7 +4,7 @@ import io.bluetape4k.io.okio.AbstractOkioTest
 import io.bluetape4k.io.okio.coroutines.internal.await
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -22,7 +22,7 @@ import java.nio.channels.SocketChannel
 
 class AsyncSocketTest: AbstractOkioTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val DEFAULT_TIMEOUT_MS = 25_000L
     }
 

@@ -1,7 +1,7 @@
 package io.bluetape4k.coroutines.flow.extensions.subject
 
 import io.bluetape4k.coroutines.flow.extensions.Resumable
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
@@ -40,7 +40,7 @@ class BehaviorSubject<T> private constructor(
     @Volatile private var current: Node<T>,
 ): AbstractFlow<T>(), SubjectApi<T> {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private val EMPTY = arrayOf<InnerCollector>()
         private val TERMINATED = arrayOf<InnerCollector>()
         private val NONE = Any()

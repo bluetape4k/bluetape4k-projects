@@ -26,9 +26,14 @@ class ProtobufCodecTest: AbstractRedissonTest() {
 
     private fun getTestCodecs() = listOf(
         Arguments.of(RedissonCodecs.Protobuf),
+        Arguments.of(RedissonCodecs.GzipProtobuf),
+        Arguments.of(RedissonCodecs.GzipProtobufComposite),
         Arguments.of(RedissonCodecs.LZ4Protobuf),
+        Arguments.of(RedissonCodecs.LZ4ProtobufComposite),
         Arguments.of(RedissonCodecs.SnappyProtobuf),
+        Arguments.of(RedissonCodecs.SnappyProtobufComposite),
         Arguments.of(RedissonCodecs.ZstdProtobuf),
+        Arguments.of(RedissonCodecs.ZstdProtobufComposite),
     )
 
     data class CustomData(

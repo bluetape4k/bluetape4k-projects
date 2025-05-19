@@ -88,7 +88,7 @@ enum class TestDB(
                 "jdbc:mariadb://localhost:3306/exposed$options"
             }
         },
-        driver = JdbcDrivers.DRIVER_CLASS_MARIADB
+        driver = JdbcDrivers.DRIVER_CLASS_MARIADB,
     ),
 
     MYSQL_V5(
@@ -187,6 +187,20 @@ enum class TestDB(
             password = pass,
             driver = driver,
             setupConnection = { afterConnection(it) },
+        )
+    }
+
+    fun getDatabaseForBatch(): Database? {
+        if (this !in TestDB.ALL_MYSQL_MARIADB) {
+            return this.db
+        }
+
+        val extra = if (this in TestDB.ALL_MARIADB) "?" else ""
+        return Database.connect(
+            this.connection().plus("$extra&allowMultiQueries=true"),
+            this.driver,
+            this.user,
+            this.pass
         )
     }
 

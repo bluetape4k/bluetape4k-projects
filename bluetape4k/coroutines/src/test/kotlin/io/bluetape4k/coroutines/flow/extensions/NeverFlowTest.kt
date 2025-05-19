@@ -1,6 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.launchIn
@@ -20,7 +20,7 @@ import kotlin.time.Duration.Companion.seconds
 
 class NeverFlowTest: AbstractFlowTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `compare neverFlow same instance`() {

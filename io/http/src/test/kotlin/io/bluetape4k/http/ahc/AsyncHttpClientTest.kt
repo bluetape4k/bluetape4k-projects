@@ -34,8 +34,8 @@ class AsyncHttpClientTest: AbstractHttpTest() {
         private val requestFilter = AttachHeaderRequestFilter(mapOf("app.key" to "app-12345"))
         private val dynamicAttachHeaderRequestFilter = DynamicAttachHandlerRequest(listOf("a", "b")) { name ->
             when (name) {
-                "a"  -> "header-value-a"
-                "b"  -> "header-value-b"
+                "a" -> "header-value-a"
+                "b" -> "header-value-b"
                 else -> "none"
             }
         }

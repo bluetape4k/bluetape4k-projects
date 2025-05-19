@@ -8,6 +8,8 @@ import javax.money.CurrencyUnit
 import javax.money.Monetary
 import javax.money.MonetaryAmount
 import javax.money.MonetaryRounding
+import javax.money.convert.ConversionQuery
+import javax.money.convert.ConversionQueryBuilder
 import javax.money.convert.MonetaryConversions
 
 /**
@@ -130,8 +132,14 @@ fun <T: MonetaryAmount> T.convertTo(currencyCode: String): T =
  * @param currencyUnit 환전할 통화 단위 (기본값: [DefaultCurrencyUnit])
  * @return 환전한 통화량
  */
-fun <T: MonetaryAmount> T.convertTo(currencyUnit: CurrencyUnit = DefaultCurrencyUnit): T =
-    this.with(MonetaryConversions.getConversion(currencyUnit)) as T
+fun <T: MonetaryAmount> T.convertTo(
+    currencyUnit: CurrencyUnit = DefaultCurrencyUnit,
+    conversionQuery: ConversionQuery = ConversionQueryBuilder.of().setTermCurrency(currencyUnit).build(),
+): T {
+    val conversion = MonetaryConversions.getConversion(conversionQuery)
+    return this.with(conversion) as T
+}
+
 
 /**
  * 금액을 합산합니다

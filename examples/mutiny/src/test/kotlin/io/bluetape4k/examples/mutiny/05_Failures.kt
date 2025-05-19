@@ -1,6 +1,6 @@
 package io.bluetape4k.examples.mutiny
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import io.bluetape4k.mutiny.multiOf
@@ -25,7 +25,7 @@ import kotlin.test.assertFailsWith
 
 class FailuresExample {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `01 Uni failure transform`() = runTest {

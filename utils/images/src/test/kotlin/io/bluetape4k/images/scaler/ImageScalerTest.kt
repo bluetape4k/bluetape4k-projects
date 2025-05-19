@@ -5,7 +5,7 @@ import io.bluetape4k.images.ImageFormat
 import io.bluetape4k.images.write
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.junit.jupiter.api.Test
@@ -15,7 +15,7 @@ import javax.imageio.ImageIO
 @TempFolderTest
 class ImageScalerTest: AbstractImageTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val needManualView = false
 

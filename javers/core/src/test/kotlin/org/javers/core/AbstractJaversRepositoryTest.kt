@@ -87,12 +87,12 @@ abstract class AbstractJaversRepositoryTest {
 
     protected open fun commitSeq(commit: CommitMetadata): Int = when {
         useCustomCommitIdSupplier() -> commitIdGenerator!!.getSeq(commit.id)
-        else                        -> commit.id.majorId.toInt()
+        else -> commit.id.majorId.toInt()
     }
 
     protected open fun prepareDateProvider(): DateProvider = when {
         useCustomCommitIdSupplier() -> TikDateProvider()
-        else                        -> FakeDateProvider()
+        else -> FakeDateProvider()
     }
 
     protected open fun setNow(dateTime: ZonedDateTime) {

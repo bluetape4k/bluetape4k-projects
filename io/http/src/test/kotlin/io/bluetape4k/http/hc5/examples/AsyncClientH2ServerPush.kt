@@ -7,7 +7,7 @@ import io.bluetape4k.http.hc5.async.methods.simpleHttpRequest
 import io.bluetape4k.http.hc5.async.minimalHttpAsyncClientOf
 import io.bluetape4k.http.hc5.http.tlsConfigOf
 import io.bluetape4k.http.hc5.http2.h2Config
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import kotlinx.coroutines.test.runTest
@@ -25,7 +25,7 @@ import java.nio.ByteBuffer
 
 class AsyncClientH2ServerPush: AbstractHc5Test() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `handling HTTP 2 message exchanges pushed by the server`() = runTest {

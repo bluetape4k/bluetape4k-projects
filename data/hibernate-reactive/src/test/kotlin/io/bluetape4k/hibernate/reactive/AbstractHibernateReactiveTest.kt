@@ -1,13 +1,13 @@
 package io.bluetape4k.hibernate.reactive
 
 import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import jakarta.persistence.EntityManagerFactory
 import jakarta.persistence.Persistence
 
 abstract class AbstractHibernateReactiveTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         val faker = Fakers.faker
     }
 

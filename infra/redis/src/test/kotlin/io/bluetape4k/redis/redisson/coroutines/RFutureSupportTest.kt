@@ -1,7 +1,7 @@
 package io.bluetape4k.redis.redisson.coroutines
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -12,7 +12,7 @@ import org.redisson.api.RFuture
 
 class RFutureSupportTest: AbstractRedissonCoroutineTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 3
         private const val ITEM_COUNT = 100
     }

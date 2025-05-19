@@ -46,7 +46,7 @@ class JwtComposerDsl(keyChain: KeyChain) {
      */
     fun header(key: String, value: Any) = apply {
         key.requireNotBlank("key")
-        if (key !in io.bluetape4k.jwt.composer.JwtComposer.RESERVED_HEADER_NAMES) {
+        if (key !in JwtComposer.RESERVED_HEADER_NAMES) {
             composer.header(key, value)
         }
     }
@@ -63,7 +63,7 @@ class JwtComposerDsl(keyChain: KeyChain) {
         if (check) {
             when (name) {
                 Claims.EXPIRATION -> throw IllegalArgumentException("use expiration() instead of claim()")
-                Claims.ISSUED_AT  -> throw IllegalArgumentException("use setIssuedAt() instead of claim()")
+                Claims.ISSUED_AT -> throw IllegalArgumentException("use setIssuedAt() instead of claim()")
                 Claims.NOT_BEFORE -> throw IllegalArgumentException("use notBefore() instead of claim()")
             }
         }

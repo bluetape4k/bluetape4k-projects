@@ -127,7 +127,7 @@ class AsyncJsonParserTest {
     @Test
     fun `parse array object`() {
         val parsed = atomic(0)
-        val modelSize = 3
+        val modelSize = 5
 
         val parser = AsyncJsonParser { root ->
             parsed.incrementAndGet()
@@ -136,7 +136,7 @@ class AsyncJsonParserTest {
                 val deserialized = mapper.treeToValue<Array<Model>>(root)
                 log.debug { deserialized.contentToString() }
                 deserialized shouldHaveSize modelSize
-                deserialized shouldBeEqualTo arrayOf(model, model, model)
+                deserialized shouldBeEqualTo Array(modelSize) { model }
             } catch (e: JsonProcessingException) {
                 fail(e)
             }

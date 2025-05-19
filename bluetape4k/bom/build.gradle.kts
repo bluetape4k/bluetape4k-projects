@@ -19,22 +19,23 @@ fun getEnvOrProjectProperty(propertyKey: String, envKey: String): String {
     return project.findProperty(propertyKey) as? String ?: System.getenv(envKey) ?: ""
 }
 
-val gprUser: String = getEnvOrProjectProperty("gpr.user", "GITHUB_USERNAME")
-val gprKey: String = getEnvOrProjectProperty("gpr.key", "GITHUB_TOKEN")
-val gprPublishKey: String = getEnvOrProjectProperty("gpr.publish.key", "GITHUB_PUBLISH_TOKEN")
+val bluetape4kGprUser: String = getEnvOrProjectProperty("gpr.user", "BLUETAPE4K_GITHUB_USERNAME")
+val bluetape4kGprKey: String = getEnvOrProjectProperty("gpr.key", "BLUETAPE4K_GITHUB_TOKEN")
+val bluetape4kGprPublishKey: String = getEnvOrProjectProperty("gpr.publish.key", "BLUETAPE4K_GITHUB_PUBLISH_TOKEN")
 
 publishing {
     publications {
-        register("Maven", MavenPublication::class) {
+        register("Bluetape4k", MavenPublication::class) {
             from(components["javaPlatform"])
         }
     }
     repositories {
         maven {
+            name = "Bluetape4k"
             url = uri("https://maven.pkg.github.com/bluetape4k/bluetape4k-projects")
             credentials {
-                username = gprUser
-                password = gprPublishKey
+                username = bluetape4kGprUser
+                password = bluetape4kGprPublishKey
             }
         }
         mavenLocal()

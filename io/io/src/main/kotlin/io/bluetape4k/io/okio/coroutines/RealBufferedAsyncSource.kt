@@ -1,7 +1,7 @@
 package io.bluetape4k.io.okio.coroutines
 
 import io.bluetape4k.io.okio.coroutines.internal.SEGMENT_SIZE
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.requireInRange
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import okio.Buffer
@@ -15,7 +15,7 @@ internal class RealBufferedAsyncSource(
     private val source: AsyncSource,
 ): BufferedAsyncSource {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val closed = AtomicBoolean(false)
     override val buffer = Buffer()
@@ -394,7 +394,7 @@ internal class RealBufferedAsyncSource(
             result
         }
 
-        else                                                   -> {
+        else -> {
             // Read everything until '\n', then skip the '\n'.
             val result = readUtf8(newline)
             skip(1)

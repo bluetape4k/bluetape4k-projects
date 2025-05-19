@@ -2,6 +2,7 @@ package io.bluetape4k.io.okio.coroutines
 
 import io.bluetape4k.io.okio.coroutines.internal.SEGMENT_SIZE
 import io.bluetape4k.io.okio.coroutines.internal.await
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.coroutineScope
 import okio.Buffer
 import okio.Timeout
@@ -12,7 +13,7 @@ import java.nio.channels.SelectionKey
 fun Socket.asAsyncSource(): AsyncSource {
     val channel = this.channel!!
 
-    return object: AsyncSource {
+    return object: AsyncSource, KLoggingChannel() {
         val timeout = Timeout()
         val buffer = ByteBuffer.allocateDirect(SEGMENT_SIZE.toInt())
 
@@ -42,7 +43,7 @@ fun Socket.asAsyncSource(): AsyncSource {
 fun Socket.asAsyncSink(): AsyncSink {
     val channel = this.channel!!
 
-    return object: AsyncSink {
+    return object: AsyncSink, KLoggingChannel() {
         val timeout = Timeout()
         val cursor = Buffer.UnsafeCursor()
 

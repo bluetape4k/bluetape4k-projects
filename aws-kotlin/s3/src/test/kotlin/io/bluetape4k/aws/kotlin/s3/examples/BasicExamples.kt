@@ -19,7 +19,7 @@ import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8Bytes
 import kotlinx.coroutines.Dispatchers
@@ -36,7 +36,7 @@ import kotlin.test.assertFailsWith
 @TempFolderTest
 class BasicExamples: AbstractKotlinS3Test() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `launch S3 Server`() {

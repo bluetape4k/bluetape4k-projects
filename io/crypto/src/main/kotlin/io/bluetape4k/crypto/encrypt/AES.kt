@@ -1,7 +1,7 @@
 package io.bluetape4k.crypto.encrypt
 
-import io.bluetape4k.crypto.zeroSaltGenerator
 import io.bluetape4k.logging.KLogging
+import org.jasypt.iv.IvGenerator
 import org.jasypt.salt.SaltGenerator
 import org.jasypt.util.binary.AES256BinaryEncryptor
 
@@ -14,11 +14,12 @@ import org.jasypt.util.binary.AES256BinaryEncryptor
  * @see AES256BinaryEncryptor
  */
 class AES(
-    saltGenerator: SaltGenerator = zeroSaltGenerator,
+    saltGenerator: SaltGenerator = DefaultSaltGenerator,
     password: String = DEFAULT_PASSWORD,
-): AbstractEncryptor(ALGORITHM, saltGenerator, password) {
+    ivGenerator: IvGenerator = DefaultIvGenerator,
+): AbstractEncryptor(ALGORITHM, saltGenerator, password, ivGenerator) {
 
     companion object: KLogging() {
-        const val ALGORITHM = "PBEWithHMACSHA512AndAES_256"
+        const val ALGORITHM = "PBEWITHHMACSHA256ANDAES_256"
     }
 }

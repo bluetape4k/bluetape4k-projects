@@ -3,7 +3,7 @@ package io.bluetape4k.cassandra.cql
 import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.concurrent.sequence
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.buffer
@@ -18,7 +18,7 @@ import java.io.Serializable
 
 class AsyncResultSetSupportTest: AbstractCassandraTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val SIZE = 6000
     }
 

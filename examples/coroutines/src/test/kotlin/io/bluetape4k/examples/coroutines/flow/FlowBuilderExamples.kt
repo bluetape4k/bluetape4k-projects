@@ -3,7 +3,7 @@ package io.bluetape4k.examples.coroutines.flow
 import app.cash.turbine.test
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.tests.assertResult
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.coroutineScope
@@ -21,7 +21,7 @@ import org.junit.jupiter.api.fail
 
 class FlowBuilderExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `flowOf - with specific elements`() = runTest {

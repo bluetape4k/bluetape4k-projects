@@ -7,7 +7,7 @@ import io.bluetape4k.bloomfilter.Hasher
 import io.bluetape4k.bloomfilter.optimalK
 import io.bluetape4k.bloomfilter.optimalM
 import io.bluetape4k.coroutines.support.coAwait
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import org.redisson.api.RedissonClient
 
@@ -42,7 +42,7 @@ class RedissonCoBloomFilter<T: Any> private constructor(
     override val k: Int,
 ): CoBloomFilter<T> {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         /**
          * [RedissonCoBloomFilter] 를 생성합니다.
          *

@@ -4,7 +4,7 @@ import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.coroutines.tests.withSingleThread
 import io.bluetape4k.junit5.awaitility.coUntil
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test
 
 class ReplaySubjectSizeBoundTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `basic online`() = runTest {

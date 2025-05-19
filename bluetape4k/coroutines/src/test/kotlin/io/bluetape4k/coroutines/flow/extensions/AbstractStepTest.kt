@@ -1,8 +1,11 @@
 package io.bluetape4k.coroutines.flow.extensions
 
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.junit.jupiter.api.AfterEach
 
 abstract class AbstractStepTest: AbstractFlowTest() {
+
+    companion object: KLoggingChannel()
 
     private var actionIndex = 0
     private var finished = false

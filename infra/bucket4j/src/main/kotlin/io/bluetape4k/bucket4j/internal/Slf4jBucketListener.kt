@@ -1,6 +1,6 @@
 package io.bluetape4k.bucket4j.internal
 
-import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.github.bucket4j.BucketListener
 import kotlinx.atomicfu.atomic
@@ -19,7 +19,9 @@ import kotlinx.atomicfu.atomic
  *
  * @property log KLogger 인스턴스
  */
-class Slf4jBucketListener(val log: org.slf4j.Logger = KotlinLogging.logger {}): BucketListener {
+class Slf4jBucketListener(val log: org.slf4j.Logger = this.log): BucketListener {
+
+    companion object: KLoggingChannel()
 
     private val consumedCounter = atomic(0L)
     private val rejectedCounter = atomic(0L)

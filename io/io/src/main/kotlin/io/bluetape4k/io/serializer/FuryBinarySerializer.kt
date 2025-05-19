@@ -1,7 +1,6 @@
 package io.bluetape4k.io.serializer
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import org.apache.fury.Fury
 import org.apache.fury.ThreadSafeFury
 import org.apache.fury.config.CompatibleMode
@@ -24,24 +23,23 @@ class FuryBinarySerializer(
         @JvmStatic
         private val DefaultFury: ThreadSafeFury by lazy {
             Fury.builder()
-                .requireClassRegistration(true)
                 .withLanguage(Language.JAVA)
                 .withAsyncCompilation(true)
                 .withCompatibleMode(CompatibleMode.COMPATIBLE)
                 .withRefTracking(true)
                 .requireClassRegistration(false)
-                .buildThreadSafeFuryPool(8, 4 * Runtime.getRuntime().availableProcessors())
+                .buildThreadSafeFuryPool(4, 4 * Runtime.getRuntime().availableProcessors())
         }
     }
 
     override fun doSerialize(graph: Any): ByteArray {
-        log.debug { "serialize by fury. graph=$graph" }
+        // log.trace { "serialize by fury. graph=$graph" }
         return fury.serialize(graph)
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T: Any> doDeserialize(bytes: ByteArray): T? {
-        log.debug { "deserialize by fury. bytes.size=${bytes.size}" }
+        // log.trace { "deserialize by fury. bytes.size=${bytes.size}" }
         return fury.deserialize(bytes) as? T
     }
 }

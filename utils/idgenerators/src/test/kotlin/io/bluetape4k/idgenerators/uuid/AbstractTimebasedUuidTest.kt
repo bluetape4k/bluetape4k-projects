@@ -1,10 +1,11 @@
 package io.bluetape4k.idgenerators.uuid
 
+import io.bluetape4k.codec.encodeBase62
 import io.bluetape4k.idgenerators.IdGenerator
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.junit5.concurrency.VirtualthreadTester
-import io.bluetape4k.junit5.coroutines.MultijobTester
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.test.runTest
@@ -17,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 abstract class AbstractTimebasedUuidTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 5
         private val TEST_COUNT = 512 * Runtime.getRuntime().availableProcessors()
         private val TEST_LIST = List(TEST_COUNT) { it }
@@ -64,13 +65,19 @@ abstract class AbstractTimebasedUuidTest {
     @RepeatedTest(REPEAT_SIZE)
     fun `generate timebased uuids in multi threads`() {
         val idMap = ConcurrentHashMap<UUID, Int>()
+        val idStringMap = ConcurrentHashMap<String, Int>()
 
         MultithreadingTester()
             .numThreads(2 * Runtimex.availableProcessors)
             .roundsPerThread(TEST_COUNT)
             .add {
-                val id = uuidGenerator.nextId()
-                idMap.putIfAbsent(id, 1).shouldBeNull()
+                repeat(REPEAT_SIZE) {
+                    val id = uuidGenerator.nextId()
+                    idMap.putIfAbsent(id, 1).shouldBeNull()
+
+                    val idString = id.encodeBase62()
+                    idStringMap.putIfAbsent(idString, 1).shouldBeNull()
+                }
             }
             .run()
     }
@@ -78,13 +85,18 @@ abstract class AbstractTimebasedUuidTest {
     @RepeatedTest(REPEAT_SIZE)
     fun `generate timebased uuids in virtual threads`() {
         val idMap = ConcurrentHashMap<UUID, Int>()
+        val idStringMap = ConcurrentHashMap<String, Int>()
 
-        VirtualthreadTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerThread(TEST_COUNT)
+        StructuredTaskScopeTester()
+            .roundsPerTask(TEST_COUNT * 2 * Runtimex.availableProcessors)
             .add {
-                val id = uuidGenerator.nextId()
-                idMap.putIfAbsent(id, 1).shouldBeNull()
+                repeat(REPEAT_SIZE) {
+                    val id = uuidGenerator.nextId()
+                    idMap.putIfAbsent(id, 1).shouldBeNull()
+
+                    val idString = id.encodeBase62()
+                    idStringMap.putIfAbsent(idString, 1).shouldBeNull()
+                }
             }
             .run()
     }
@@ -92,13 +104,19 @@ abstract class AbstractTimebasedUuidTest {
     @RepeatedTest(REPEAT_SIZE)
     fun `generate timebased uuids in multi job`() = runTest {
         val idMap = ConcurrentHashMap<UUID, Int>()
+        val idStringMap = ConcurrentHashMap<String, Int>()
 
-        MultijobTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerJob(TEST_COUNT)
+        SuspendedJobTester()
+            .numThreads(Runtimex.availableProcessors)
+            .roundsPerJob(TEST_COUNT * 2 * Runtimex.availableProcessors)
             .add {
-                val id = uuidGenerator.nextId()
-                idMap.putIfAbsent(id, 1).shouldBeNull()
+                repeat(REPEAT_SIZE) {
+                    val id = uuidGenerator.nextId()
+                    idMap.putIfAbsent(id, 1).shouldBeNull()
+
+                    val idString = id.encodeBase62()
+                    idStringMap.putIfAbsent(idString, 1).shouldBeNull()
+                }
             }
             .run()
     }

@@ -6,7 +6,7 @@ import com.google.maps.model.GeocodingResult
 import io.bluetape4k.geocode.Address
 import io.bluetape4k.geocode.Geocode
 import io.bluetape4k.geocode.GeocodeAddressFinder
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
@@ -23,7 +23,7 @@ import kotlin.coroutines.resumeWithException
  */
 class GoogleAddressFinder private constructor(apiKey: String): GeocodeAddressFinder {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         @JvmStatic
         operator fun invoke(apiKey: String = GoogleGeoService.apiKey): GoogleAddressFinder {
             apiKey.requireNotBlank("apiKey")

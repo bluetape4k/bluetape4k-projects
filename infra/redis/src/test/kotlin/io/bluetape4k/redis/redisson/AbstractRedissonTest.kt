@@ -13,14 +13,22 @@ abstract class AbstractRedissonTest: AbstractRedisTest() {
 
         @JvmStatic
         val redissonClient by lazy {
-            RedisServer.Launcher.RedissonLib.getRedisson(redisServer.url, 256, 24)
+            RedisServer.Launcher.RedissonLib.getRedisson(
+                redisServer.url,
+                256,
+                24
+            )
         }
     }
 
     protected val redisson: RedissonClient get() = redissonClient
 
     protected fun newRedisson(): RedissonClient {
-        val config = RedisServer.Launcher.RedissonLib.getRedissonConfig(redisServer.url, 256, 24)
+        val config = RedisServer.Launcher.RedissonLib.getRedissonConfig(
+            redisServer.url,
+            256,
+            24
+        )
         return redissonClientOf(config)
     }
 }

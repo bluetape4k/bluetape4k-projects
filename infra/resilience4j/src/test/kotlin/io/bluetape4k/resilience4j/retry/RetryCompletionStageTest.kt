@@ -2,7 +2,7 @@ package io.bluetape4k.resilience4j.retry
 
 import io.bluetape4k.concurrent.failedCompletableFutureOf
 import io.bluetape4k.concurrent.futureOf
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.resilience4j.AsyncHelloWorldService
 import io.bluetape4k.resilience4j.HelloWorldException
 import io.github.resilience4j.decorators.Decorators
@@ -23,7 +23,7 @@ import kotlin.test.assertFailsWith
 
 class RetryCompletionStageTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val helloWorldService: AsyncHelloWorldService = mockk(relaxUnitFun = true)
     private val scheduler = Executors.newScheduledThreadPool(8) // Executors.newSingleThreadScheduledExecutor()

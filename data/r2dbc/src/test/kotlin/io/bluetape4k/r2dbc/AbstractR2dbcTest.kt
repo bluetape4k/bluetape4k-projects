@@ -1,7 +1,7 @@
 package io.bluetape4k.r2dbc
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.r2dbc.core.execute
 import io.bluetape4k.support.uninitialized
 import org.junit.jupiter.api.AfterEach
@@ -13,7 +13,7 @@ import org.springframework.r2dbc.core.awaitRowsUpdated
 @DataR2dbcTest
 abstract class AbstractR2dbcTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Autowired
     protected val client: R2dbcClient = uninitialized()

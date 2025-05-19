@@ -24,7 +24,7 @@ class ImmutableArrayFactoryTest {
 
     @Test
     fun `immutableArrayOf validation`() {
-        val array: ImmutableArray<String> = immutableArrayOf<String>()
+        val array = immutableArrayOf<String>()
         array shouldBeInstanceOf ImmutableArray::class
         array.size shouldBeEqualTo 0
 

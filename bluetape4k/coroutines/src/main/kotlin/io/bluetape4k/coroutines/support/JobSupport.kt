@@ -70,9 +70,9 @@ suspend fun Collection<Job>.joinAny() {
  *
  * yield()
  *
- * job1.isCompleted shouldBe true
- * job2.isCancelled shouldBe true
- * job3.isCancelled shouldBe true
+ * job1.isCompleted.shouldBeTrue()
+ * job2.isCancelled.shouldBeTrue()
+ * job3.isCancelled.shouldBeTrue()
  * ```
  *
  * @receiver [Job] 리스트

@@ -1,6 +1,6 @@
 package io.bluetape4k.examples.coroutines.guide
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -14,7 +14,7 @@ import java.util.concurrent.ForkJoinPool
 
 class CoroutineExamples {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 2
         private const val ITEM_SIZE = 10_000
         private const val DELAY_TIME = 10L
