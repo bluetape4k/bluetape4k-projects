@@ -126,7 +126,14 @@ subprojects {
 
             // 테스트 시 아래와 같은 예외 메시지를 제거하기 위해서 
             // OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
-            jvmArgs("-Xshare:off", "-Xmx8G")
+            jvmArgs(
+                "-Xshare:off",
+                "-Xmx4G",
+                "-XX:+UseZGC",
+                "-XX:-MaxFDLimit",
+                "-XX:+UnlockExperimentalVMOptions",
+                "-XX:+EnableDynamicAgentLoading",
+            )
 
             if (project.name.contains("quarkus")) {
                 // [Quarkus Logging](https://quarkus.io/guides/logging)
@@ -504,6 +511,10 @@ subprojects {
 
             dependency(Libs.snakeyaml)
             dependency(Libs.jna)
+
+            // ByteBuddy
+            dependency(Libs.byte_buddy)
+            dependency(Libs.byte_buddy_agent)
         }
     }
 
@@ -540,8 +551,8 @@ subprojects {
         testImplementation(Libs.junit_jupiter_migrationsupport)
 
         testImplementation(Libs.kluent)
-        testImplementation(Libs.mockk)
         testImplementation(Libs.awaitility_kotlin)
+        testImplementation(Libs.mockk)
 
         // Property baesd test
         testImplementation(Libs.datafaker)
