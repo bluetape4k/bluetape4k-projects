@@ -3,6 +3,7 @@ plugins {
     kotlin("plugin.noarg")
 }
 
+@Suppress("UnstableApiUsage")
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
 }
