@@ -40,7 +40,7 @@ dependencies {
     // R2DBC
     compileOnly(Libs.testcontainers_r2dbc)
     compileOnly(Libs.springBootStarter("data-r2dbc"))
-    compileOnly(Libs.r2dbc_mysql_0_9)
+    compileOnly(Libs.r2dbc_mysql)
 
     // Redis
     compileOnly(Libs.redisson)

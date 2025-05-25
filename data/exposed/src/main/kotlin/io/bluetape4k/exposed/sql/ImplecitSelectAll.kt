@@ -1,9 +1,9 @@
 package io.bluetape4k.exposed.sql
 
-import org.jetbrains.exposed.sql.FieldSet
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.Query
-import org.jetbrains.exposed.sql.QueryBuilder
+import org.jetbrains.exposed.v1.core.FieldSet
+import org.jetbrains.exposed.v1.core.Op
+import org.jetbrains.exposed.v1.core.QueryBuilder
+import org.jetbrains.exposed.v1.jdbc.Query
 
 /**
  * `SELECT` 절에 모든 컬럼을 명시적으로 표현하지 않고, `*` 를 사용하여 모든 컬럼을 조회하는 쿼리를 생성합니다.

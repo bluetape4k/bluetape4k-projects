@@ -1,10 +1,10 @@
 package io.bluetape4k.exposed.sql
 
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.statements.BatchInsertStatement
-import org.jetbrains.exposed.sql.vendors.MysqlDialect
-import org.jetbrains.exposed.sql.vendors.PostgreSQLDialect
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.Transaction
+import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
+import org.jetbrains.exposed.v1.core.vendors.MysqlDialect
+import org.jetbrains.exposed.v1.core.vendors.PostgreSQLDialect
 
 /**
  * Batch Insert with ON CONFLICT DO NOTHING - 예외 발생 시 해당 예외를 무시하고,
@@ -30,7 +30,7 @@ import org.jetbrains.exposed.sql.vendors.PostgreSQLDialect
  * }
  * ```
  */
-open class BatchInsertOnConflictIgnore(table: Table): BatchInsertStatement(table) {
+open class BatchInsertOnConflictDoNothing(table: Table): BatchInsertStatement(table) {
     override fun prepareSQL(transaction: Transaction, prepared: Boolean): String = buildString {
         val insertStatement = super.prepareSQL(transaction, prepared)
 

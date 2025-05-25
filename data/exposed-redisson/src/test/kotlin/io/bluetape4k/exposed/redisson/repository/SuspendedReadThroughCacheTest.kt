@@ -8,9 +8,10 @@ import io.bluetape4k.exposed.redisson.repository.scenarios.SuspendedReadThroughS
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
+import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
 import org.junit.jupiter.api.Nested
 import java.util.*
 import kotlin.coroutines.CoroutineContext
@@ -27,7 +28,7 @@ class SuspendedReadThroughCacheTest {
         override suspend fun withSuspendedEntityTable(
             testDB: TestDB,
             context: CoroutineContext,
-            statement: suspend Transaction.() -> Unit,
+            statement: suspend JdbcTransaction.() -> Unit,
         ) {
             withSuspendedUserTable(testDB, context, statement)
         }
@@ -74,7 +75,7 @@ class SuspendedReadThroughCacheTest {
         override suspend fun withSuspendedEntityTable(
             testDB: TestDB,
             context: CoroutineContext,
-            statement: suspend Transaction.() -> Unit,
+            statement: suspend JdbcTransaction.() -> Unit,
         ) = withSuspendedUserCredentialTable(testDB, context, statement)
 
         override suspend fun getExistingId() = newSuspendedTransaction {

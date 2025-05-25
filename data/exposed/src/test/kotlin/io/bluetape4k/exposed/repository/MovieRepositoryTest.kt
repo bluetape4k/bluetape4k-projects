@@ -31,7 +31,7 @@ class MovieRepositoryTest: AbstractExposedTest() {
     fun `find movie by id`(testDB: TestDB) {
         withMovieAndActors(testDB) {
             val movieId = 1L
-            val movie = repository.findById(movieId).toMovieDTO()
+            val movie = repository.findById(movieId)
 
             log.debug { "movie: $movie" }
             movie.id shouldBeEqualTo movieId
@@ -60,7 +60,7 @@ class MovieRepositoryTest: AbstractExposedTest() {
 
             val currentCount = repository.count()
 
-            val savedMovie = repository.save(movie).toMovieDTO()
+            val savedMovie = repository.save(movie)
             savedMovie shouldBeEqualTo movie.copy(id = savedMovie.id)
 
             val newCount = repository.count()
@@ -73,9 +73,9 @@ class MovieRepositoryTest: AbstractExposedTest() {
     fun `delete movie`(testDB: TestDB) {
         withMovieAndActors(testDB) {
             val newMovie = newMovieDTO()
-            val savedMovie = repository.save(newMovie).toMovieDTO()
+            val savedMovie = repository.save(newMovie)
 
-            val deletedCount = repository.deleteById(savedMovie.id!!)
+            val deletedCount = repository.deleteById(savedMovie.id)
             deletedCount shouldBeEqualTo 1
         }
     }

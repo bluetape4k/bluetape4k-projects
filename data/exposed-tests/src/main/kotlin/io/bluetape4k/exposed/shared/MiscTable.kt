@@ -2,9 +2,9 @@ package io.bluetape4k.exposed.shared
 
 import io.bluetape4k.exposed.shared.MiscTable.E
 import org.amshove.kluent.shouldBeEqualTo
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.statements.InsertStatement
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.statements.InsertStatement
 import java.math.BigDecimal
 
 /**

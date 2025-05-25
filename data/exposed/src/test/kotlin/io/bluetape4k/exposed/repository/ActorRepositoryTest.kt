@@ -16,9 +16,10 @@ import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.greaterEq
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.greaterEq
+import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -41,7 +42,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
     fun `find actor by id`(testDB: TestDB) {
         withMovieAndActors(testDB) {
             val actorId = 1L
-            val actor = repository.findById(actorId).toActorDTO()
+            val actor = repository.findById(actorId)
             actor.shouldNotBeNull()
             actor.id shouldBeEqualTo actorId
         }
@@ -69,7 +70,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
 
             val currentCount = repository.count()
 
-            val savedActor = repository.save(actor).toActorDTO()
+            val savedActor = repository.save(actor)
             savedActor shouldBeEqualTo actor.copy(id = savedActor.id)
 
             val newCount = repository.count()
@@ -82,7 +83,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
     fun `delete actor by id`(testDB: TestDB) {
         withMovieAndActors(testDB) {
             val actor = newActorDTO()
-            val savedActor = repository.save(actor).toActorDTO()
+            val savedActor = repository.save(actor)
             savedActor.id.shouldNotBeNull()
 
             val deletedCount = repository.deleteById(savedActor.id)
@@ -199,7 +200,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
     fun `delete entity by id`(testDB: TestDB) {
         withMovieAndActors(testDB) {
             val actor = newActorDTO()
-            val savedActor = repository.save(actor).toActorDTO()
+            val savedActor = repository.save(actor)
             savedActor.id.shouldNotBeNull()
 
             // Delete savedActor
@@ -258,7 +259,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
     fun `exists by id`(testDB: TestDB) {
         withMovieAndActors(testDB) {
             val actor = newActorDTO()
-            val savedActor = repository.save(actor).toActorDTO()
+            val savedActor = repository.save(actor)
             savedActor.id.shouldNotBeNull()
 
             // Exists
@@ -322,7 +323,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
             }
 
             inserted shouldHaveSize batchCount
-            inserted.all { it.id.value > 0L }.shouldBeTrue()
+            inserted.all { it.id > 0L }.shouldBeTrue()
         }
     }
 
@@ -340,7 +341,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
             }
 
             inserted shouldHaveSize batchCount
-            inserted.all { it.id.value > 0L }.shouldBeTrue()
+            inserted.all { it.id > 0L }.shouldBeTrue()
         }
     }
 
@@ -358,7 +359,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
             }
 
             inserted shouldHaveSize batchCount
-            inserted.all { it.id.value > 0L }.shouldBeTrue()
+            inserted.all { it.id > 0L }.shouldBeTrue()
 
             // Update all inserted actors
             val updated = repository.batchUpdate(inserted) { actor ->
@@ -386,7 +387,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
             }
 
             inserted shouldHaveSize batchCount
-            inserted.all { it.id.value > 0L }.shouldBeTrue()
+            inserted.all { it.id > 0L }.shouldBeTrue()
 
             // Update all inserted actors
             val updated = repository.batchUpdate(inserted.asSequence()) { actor ->
@@ -418,7 +419,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
     fun `update by id`(testDB: TestDB) {
         withMovieAndActors(testDB) {
             val actor = newActorDTO()
-            val savedActor = repository.save(actor).toActorDTO()
+            val savedActor = repository.save(actor)
             savedActor.id.shouldNotBeNull()
 
             val updatedCount = repository.updateById(savedActor.id) {
@@ -427,7 +428,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
             }
             updatedCount shouldBeEqualTo 1
 
-            val updatedActor = repository.findById(savedActor.id).toActorDTO()
+            val updatedActor = repository.findById(savedActor.id)
             updatedActor.firstName shouldBeEqualTo "Updated"
             updatedActor.lastName shouldBeEqualTo "Updated"
         }

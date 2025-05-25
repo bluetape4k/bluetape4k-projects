@@ -5,13 +5,14 @@ import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.statements.BatchInsertBlockingExecutable
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
-class BatchInsertOnConflictIgnoreTest: AbstractExposedTest() {
+class BatchInsertOnConflictDoNothingTest: AbstractExposedTest() {
 
     companion object: KLogging()
 
@@ -27,16 +28,16 @@ class BatchInsertOnConflictIgnoreTest: AbstractExposedTest() {
             tester.insert { it[id] = "foo" }
 
             // 중복된 id 를 가진 row 를 추가하면, 무시합니다.
-            val numInserted = BatchInsertOnConflictIgnore(tester)
-                .run {
-                    addBatch()
-                    this[tester.id] = "foo"        // 중복되므로 insert 되지 않음
+            val executable = BatchInsertBlockingExecutable(statement = BatchInsertOnConflictDoNothing(tester))
+            val numInserted = executable.run {
+                statement.addBatch()
+                statement[tester.id] = "foo"        // 중복되므로 insert 되지 않음
 
-                    addBatch()
-                    this[tester.id] = "bar"        // 중복되지 않으므로 추가됨
+                statement.addBatch()
+                statement[tester.id] = "bar"        // 중복되지 않으므로 추가됨
 
-                    execute(this@withTables)
-                }
+                execute(this@withTables)
+            }
             numInserted shouldBeEqualTo 1
         }
     }

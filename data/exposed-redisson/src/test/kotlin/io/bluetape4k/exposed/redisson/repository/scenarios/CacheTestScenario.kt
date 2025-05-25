@@ -5,7 +5,7 @@ import io.bluetape4k.exposed.redisson.repository.ExposedCacheRepository
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
-import org.jetbrains.exposed.sql.Transaction
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.junit.jupiter.api.BeforeEach
 
 interface CacheTestScenario<T: HasIdentifier<ID>, ID: Any> {
@@ -28,7 +28,7 @@ interface CacheTestScenario<T: HasIdentifier<ID>, ID: Any> {
     /**
      * 테스트에 사용할 테이블을 설정하고 테스트 로직을 실행하는 함수
      */
-    fun withEntityTable(testDB: TestDB, statement: Transaction.() -> Unit)
+    fun withEntityTable(testDB: TestDB, statement: JdbcTransaction.() -> Unit)
 
     /**
      * 테스트에서 사용할 샘플 ID를 반환합니다

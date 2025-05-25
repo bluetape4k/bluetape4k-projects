@@ -2,12 +2,12 @@ package io.bluetape4k.exposed.tests
 
 import io.bluetape4k.logging.error
 import kotlinx.coroutines.Dispatchers
-import org.jetbrains.exposed.sql.DatabaseConfig
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.transactions.inTopLevelTransaction
-import org.jetbrains.exposed.sql.transactions.transactionManager
+import org.jetbrains.exposed.v1.core.DatabaseConfig
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.transactions.inTopLevelTransaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transactionManager
 import kotlin.coroutines.CoroutineContext
 
 suspend fun withSuspendedTables(
@@ -16,7 +16,7 @@ suspend fun withSuspendedTables(
     context: CoroutineContext? = Dispatchers.IO,
     configure: (DatabaseConfig.Builder.() -> Unit)? = {},
     dropTables: Boolean = true,
-    statement: suspend Transaction.(TestDB) -> Unit,
+    statement: suspend JdbcTransaction.(TestDB) -> Unit,
 ) {
     withSuspendedDb(testDB, context, configure) {
         try {

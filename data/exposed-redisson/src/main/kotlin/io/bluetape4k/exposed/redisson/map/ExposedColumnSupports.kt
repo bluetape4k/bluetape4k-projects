@@ -9,7 +9,7 @@ import io.bluetape4k.support.asLongOrNull
 import io.bluetape4k.support.asShortOrNull
 import io.bluetape4k.support.asStringOrNull
 import io.bluetape4k.support.asUUIDOrNull
-import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.v1.core.Column
 import java.util.*
 import kotlin.reflect.KClass
 

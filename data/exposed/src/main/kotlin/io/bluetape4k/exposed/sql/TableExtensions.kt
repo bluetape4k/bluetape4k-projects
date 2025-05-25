@@ -1,29 +1,30 @@
 package io.bluetape4k.exposed.sql
 
-import org.jetbrains.exposed.sql.Index
-import org.jetbrains.exposed.sql.Sequence
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.transactions.TransactionManager
-import org.jetbrains.exposed.sql.vendors.ColumnMetadata
-import org.jetbrains.exposed.sql.vendors.PrimaryKeyMetadata
-import org.jetbrains.exposed.sql.vendors.currentDialect
+import org.jetbrains.exposed.v1.core.Index
+import org.jetbrains.exposed.v1.core.Sequence
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.vendors.ColumnMetadata
+import org.jetbrains.exposed.v1.core.vendors.PrimaryKeyMetadata
+import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
+import org.jetbrains.exposed.v1.jdbc.vendors.currentDialectMetadata
+
 
 fun Table.getColumnMetadata(): List<ColumnMetadata> {
-    TransactionManager.current().db.dialect.resetCaches()
-    return currentDialect.tableColumns(this)[this].orEmpty()
+    TransactionManager.current().db.dialectMetadata.resetCaches()
+    return currentDialectMetadata.tableColumns(this)[this].orEmpty()
 }
 
 fun Table.getIndices(): List<Index> {
-    TransactionManager.current().db.dialect.resetCaches()
-    return currentDialect.existingIndices(this)[this].orEmpty()
+    TransactionManager.current().db.dialectMetadata.resetCaches()
+    return currentDialectMetadata.existingIndices(this)[this].orEmpty()
 }
 
 fun Table.getPrimaryKeyMetadata(): PrimaryKeyMetadata? {
-    TransactionManager.current().db.dialect.resetCaches()
-    return currentDialect.existingPrimaryKeys(this)[this]
+    TransactionManager.current().db.dialectMetadata.resetCaches()
+    return currentDialectMetadata.existingPrimaryKeys(this)[this]
 }
 
 fun Table.getSequences(): List<Sequence> {
-    TransactionManager.current().db.dialect.resetCaches()
-    return currentDialect.existingSequences(this)[this].orEmpty()
+    TransactionManager.current().db.dialectMetadata.resetCaches()
+    return currentDialectMetadata.existingSequences(this)[this].orEmpty()
 }

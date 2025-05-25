@@ -1,7 +1,7 @@
 package io.bluetape4k.exposed.sql.statements.api
 
 import io.bluetape4k.support.toUtf8String
-import org.jetbrains.exposed.sql.statements.api.ExposedBlob
+import org.jetbrains.exposed.v1.core.statements.api.ExposedBlob
 import java.io.InputStream
 
 fun String.toExposedBlob(): ExposedBlob = ExposedBlob(toByteArray())

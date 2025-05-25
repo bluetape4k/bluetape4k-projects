@@ -1,8 +1,8 @@
 package io.bluetape4k.exposed.sql.jasypt
 
 import io.bluetape4k.crypto.encrypt.Encryptors
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.Table
 
 /**
  * 암호화된 문자열을 저장하기 위해 [name]의 `VARCHAR` 컬럼을 생성합니다.
