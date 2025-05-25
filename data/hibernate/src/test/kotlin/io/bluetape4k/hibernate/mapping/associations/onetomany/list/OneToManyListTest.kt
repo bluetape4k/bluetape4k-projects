@@ -43,7 +43,7 @@ class OneToManyListTest @Autowired constructor(
         orderRepo.save(order)
         flushAndClear()
 
-        val loaded = orderRepo.findByIdOrNull(order.id)!!
+        val loaded = orderRepo.findByIdOrNull(order.id!!)!!
         loaded shouldBeEqualTo order
 
         // select count(id) from order_item
@@ -60,7 +60,7 @@ class OneToManyListTest @Autowired constructor(
         orderRepo.saveAndFlush(loaded)
         flushAndClear()
 
-        orderItemRepo.findByIdOrNull(item1.id).shouldBeNull()
+        orderItemRepo.findByIdOrNull(item1.id!!).shouldBeNull()
 
         orderRepo.deleteAll()
         flushAndClear()
@@ -81,7 +81,7 @@ class OneToManyListTest @Autowired constructor(
         batchItemRepo.saveAll(listOf(item1, item2, item3))
         flushAndClear()
 
-        val loaded = batchRepo.findByIdOrNull(batch.id)!!
+        val loaded = batchRepo.findByIdOrNull(batch.id!!)!!
         loaded shouldBeEqualTo batch
         loaded.items shouldContainSame listOf(item1, item2, item3)
 
@@ -108,7 +108,7 @@ class OneToManyListTest @Autowired constructor(
         batchItemRepo.delete(item1)
         flushAndClear()
 
-        val loaded2 = batchRepo.findByIdOrNull(batch.id)!!
+        val loaded2 = batchRepo.findByIdOrNull(batch.id!!)!!
         loaded2.items shouldContainSame listOf(item2, item3)
 
         // batchId 에 속하는 batchItem을 Query를 통해 Loading없이 한번에 삭제한다
@@ -129,7 +129,7 @@ class OneToManyListTest @Autowired constructor(
         fatherRepo.save(father)
         flushAndClear()
 
-        val loaded = fatherRepo.findByIdOrNull(father.id)!!
+        val loaded = fatherRepo.findByIdOrNull(father.id!!)!!
         loaded shouldBeEqualTo father
         loaded.orderedChildren shouldContainSame listOf(child1, child2, child3)
 
@@ -137,7 +137,7 @@ class OneToManyListTest @Autowired constructor(
         fatherRepo.save(loaded)
         flushAndClear()
 
-        val loaded2 = fatherRepo.findByIdOrNull(father.id)!!
+        val loaded2 = fatherRepo.findByIdOrNull(father.id!!)!!
         loaded2 shouldBeEqualTo father
         loaded2.orderedChildren shouldContainSame listOf(child2, child3)
 

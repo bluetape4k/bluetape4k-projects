@@ -35,11 +35,11 @@ class ManyToOneTest @Autowired constructor(
         jugMeterRepo.save(jerome)
         flushAndClear()
 
-        val eloaded = jugMeterRepo.findByIdOrNull(emmanuel.id)!!
+        val eloaded = jugMeterRepo.findByIdOrNull(emmanuel.id!!)!!
         eloaded shouldBeEqualTo emmanuel
         eloaded.memberOf shouldBeEqualTo jug
 
-        val jloaded = jugMeterRepo.findByIdOrNull(jerome.id)!!
+        val jloaded = jugMeterRepo.findByIdOrNull(jerome.id!!)!!
         jloaded shouldBeEqualTo jerome
         jloaded.memberOf shouldBeEqualTo jug
 
@@ -67,7 +67,7 @@ class ManyToOneTest @Autowired constructor(
         breweryRepo.save(brewery)
         flushAndClear()
 
-        val loaded = breweryRepo.findByIdOrNull(brewery.id)!!
+        val loaded = breweryRepo.findByIdOrNull(brewery.id!!)!!
         loaded shouldBeEqualTo brewery
         loaded.beers shouldContainSame listOf(beer1, beer2, beer3)
 
@@ -96,7 +96,7 @@ class ManyToOneTest @Autowired constructor(
         salesForceRepo.saveAndFlush(salesForce)
         clear()
 
-        val loaded = salesForceRepo.findByIdOrNull(salesForce.id)!!
+        val loaded = salesForceRepo.findByIdOrNull(salesForce.id!!)!!
         loaded shouldBeEqualTo salesForce
         loaded.salesGuys shouldContainSame listOf(salesGuy1, salesGuy2, salesGuy3)
 
@@ -107,7 +107,7 @@ class ManyToOneTest @Autowired constructor(
         salesGuyRepo.delete(guyToRemove)
         flushAndClear()
 
-        val loaded2 = salesForceRepo.findByIdOrNull(salesForce.id)!!
+        val loaded2 = salesForceRepo.findByIdOrNull(salesForce.id!!)!!
         loaded2 shouldBeEqualTo salesForce
         loaded2.salesGuys.size shouldBeEqualTo salesForce.salesGuys.size - 1
     }

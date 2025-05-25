@@ -35,7 +35,7 @@ class CavalierHorseTest(
         cavalierRepo.save(cavalier)
         flushAndClear()
 
-        val cavalier2 = cavalierRepo.findByIdOrNull(cavalier.id)!!
+        val cavalier2 = cavalierRepo.findByIdOrNull(cavalier.id!!)!!
         cavalier2 shouldBeEqualTo cavalier
         cavalier2.horse shouldBeEqualTo horse
 

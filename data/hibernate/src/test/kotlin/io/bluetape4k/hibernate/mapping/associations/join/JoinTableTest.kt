@@ -64,14 +64,14 @@ class JoinTableTest(
         userRepo.saveAndFlush(user)
         clear()
 
-        val loaded = userRepo.findByIdOrNull(user.id)!!
+        val loaded = userRepo.findByIdOrNull(user.id!!)!!
         loaded.addresses.size shouldBeEqualTo 2
 
         loaded.addresses.remove("Office")
         userRepo.saveAndFlush(loaded)
         clear()
 
-        val loaded2 = userRepo.findByIdOrNull(user.id)!!
+        val loaded2 = userRepo.findByIdOrNull(user.id!!)!!
         loaded2.addresses.size shouldBeEqualTo 1
     }
 
@@ -82,7 +82,7 @@ class JoinTableTest(
         customerRepo.saveAndFlush(customer)
         clear()
 
-        val loaded = customerRepo.findByIdOrNull(customer.id)!!
+        val loaded = customerRepo.findByIdOrNull(customer.id!!)!!
         loaded.addresses.size shouldBeEqualTo 2
         loaded.address shouldBeEqualTo customer.address
 
@@ -90,7 +90,7 @@ class JoinTableTest(
         customerRepo.saveAndFlush(loaded)
         clear()
 
-        val loaded2 = customerRepo.findByIdOrNull(customer.id)!!
+        val loaded2 = customerRepo.findByIdOrNull(customer.id!!)!!
         loaded2.addresses.size shouldBeEqualTo 1
 
         loaded2.address shouldBeEqualTo customer.address

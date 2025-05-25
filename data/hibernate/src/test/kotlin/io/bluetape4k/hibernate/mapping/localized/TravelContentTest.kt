@@ -26,7 +26,7 @@ class TravelContentTest(
         repository.saveAndFlush(travelContent)
         clear()
 
-        val loaded = repository.findByIdOrNull(travelContent.id)!!
+        val loaded = repository.findByIdOrNull(travelContent.id!!)!!
 
         loaded shouldBeEqualTo travelContent
         loaded.getLocalizedValue(Locale.ENGLISH).title shouldBeEqualTo "Bangkok"

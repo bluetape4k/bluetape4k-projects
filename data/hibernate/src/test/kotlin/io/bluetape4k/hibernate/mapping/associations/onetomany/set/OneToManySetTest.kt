@@ -47,7 +47,7 @@ class OneToManySetTest @Autowired constructor(
         biddingItemRepo.save(item)
         flushAndClear()
 
-        val loaded = biddingItemRepo.findByIdOrNull(item.id)!!
+        val loaded = biddingItemRepo.findByIdOrNull(item.id!!)!!
         loaded shouldBeEqualTo item
         loaded.bids shouldBeEqualTo setOf(bid1, bid2, bid3)
 
@@ -56,7 +56,7 @@ class OneToManySetTest @Autowired constructor(
         biddingItemRepo.save(loaded)
         flushAndClear()
 
-        val loaded2 = biddingItemRepo.findByIdOrNull(item.id)!!
+        val loaded2 = biddingItemRepo.findByIdOrNull(item.id!!)!!
         loaded2 shouldBeEqualTo item
         loaded2.bids shouldBeEqualTo setOf(bid1, bid2, bid3) - bidToRemove
 
@@ -78,7 +78,7 @@ class OneToManySetTest @Autowired constructor(
         productRepo.save(product)
         flushAndClear()
 
-        val loaded = productRepo.findByIdOrNull(product.id)!!
+        val loaded = productRepo.findByIdOrNull(product.id!!)!!
         loaded shouldBeEqualTo product
         loaded.images shouldBeEqualTo setOf(image1, image2, image3)
 
@@ -87,7 +87,7 @@ class OneToManySetTest @Autowired constructor(
         productRepo.save(loaded)
         flushAndClear()
 
-        val loaded2 = productRepo.findByIdOrNull(product.id)!!
+        val loaded2 = productRepo.findByIdOrNull(product.id!!)!!
         loaded2 shouldBeEqualTo product
         loaded2.images shouldBeEqualTo setOf(image1, image3)
 

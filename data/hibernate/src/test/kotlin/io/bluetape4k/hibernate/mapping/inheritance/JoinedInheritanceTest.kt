@@ -62,10 +62,10 @@ class JoinedInheritanceTest: AbstractHibernateTest() {
         customerRepo.save(customer)
         flushAndClear()
 
-        val customer1 = customerRepo.findByIdOrNull(customer.id)!!
+        val customer1 = customerRepo.findByIdOrNull(customer.id!!)!!
         customer1.contactEmployee shouldBeEqualTo emp2
 
-        val employee1 = employeeRepo.findByIdOrNull(emp1.id)!!
+        val employee1 = employeeRepo.findByIdOrNull(emp1.id!!)!!
         employee1 shouldBeEqualTo emp1
         employee1.members shouldContainAll setOf(emp2)
 

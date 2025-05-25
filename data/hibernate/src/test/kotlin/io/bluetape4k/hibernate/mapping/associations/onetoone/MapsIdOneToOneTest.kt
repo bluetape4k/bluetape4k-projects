@@ -60,7 +60,7 @@ class MapsIdOneToOneTest(
         picture.author shouldBeEqualTo author
 
         // one-to-one 의 fetch type이 EAGER 라서 모두 JOIN 으로 처리한다
-        val author2 = authorRepo.findByIdOrNull(author.id)!!
+        val author2 = authorRepo.findByIdOrNull(author.id!!)!!
         author2 shouldBeEqualTo author
         author2.biography shouldBeEqualTo biography
         author2.biography.information shouldBeEqualTo biography.information
