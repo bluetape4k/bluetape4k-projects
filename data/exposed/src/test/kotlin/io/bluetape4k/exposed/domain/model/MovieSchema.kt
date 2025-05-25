@@ -12,19 +12,21 @@ import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import kotlinx.coroutines.Dispatchers
-import org.jetbrains.exposed.dao.LongEntity
-import org.jetbrains.exposed.dao.LongEntityClass
-import org.jetbrains.exposed.dao.flushCache
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.LongIdTable
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.ReferenceOption.CASCADE
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.batchInsert
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.javatime.date
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.ReferenceOption
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.Transaction
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
+import org.jetbrains.exposed.v1.dao.LongEntity
+import org.jetbrains.exposed.v1.dao.LongEntityClass
+import org.jetbrains.exposed.v1.dao.flushCache
+import org.jetbrains.exposed.v1.javatime.date
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
+import org.jetbrains.exposed.v1.jdbc.batchInsert
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.select
 import java.time.LocalDate
 import kotlin.coroutines.CoroutineContext
 
@@ -43,8 +45,8 @@ object MovieSchema: KLogging() {
     }
 
     object ActorInMovieTable: Table("actors_in_movies") {
-        val movieId: Column<EntityID<Long>> = reference("movie_id", MovieTable, onDelete = CASCADE)
-        val actorId: Column<EntityID<Long>> = reference("actor_id", ActorTable, onDelete = CASCADE)
+        val movieId: Column<EntityID<Long>> = reference("movie_id", MovieTable, onDelete = ReferenceOption.CASCADE)
+        val actorId: Column<EntityID<Long>> = reference("actor_id", ActorTable, onDelete = ReferenceOption.CASCADE)
 
         override val primaryKey = PrimaryKey(movieId, actorId)
     }
@@ -87,7 +89,7 @@ object MovieSchema: KLogging() {
 
     fun AbstractExposedTest.withMovieAndActors(
         testDB: TestDB,
-        statement: Transaction.() -> Unit,
+        statement: JdbcTransaction.() -> Unit,
     ) {
         withTables(testDB, MovieTable, ActorTable, ActorInMovieTable) {
             populateSampleData(testDB)
@@ -98,7 +100,7 @@ object MovieSchema: KLogging() {
     suspend fun AbstractExposedTest.withSuspendedMovieAndActors(
         testDB: TestDB,
         context: CoroutineContext? = Dispatchers.IO,
-        statement: suspend Transaction.() -> Unit,
+        statement: suspend JdbcTransaction.() -> Unit,
     ) {
         withSuspendedTables(testDB, MovieTable, ActorTable, ActorInMovieTable, context = context) {
             populateSampleData(testDB)

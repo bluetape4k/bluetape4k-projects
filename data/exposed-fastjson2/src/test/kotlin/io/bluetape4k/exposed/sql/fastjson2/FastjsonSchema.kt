@@ -3,13 +3,13 @@ package io.bluetape4k.exposed.sql.fastjson2
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
-import org.jetbrains.exposed.dao.IntEntity
-import org.jetbrains.exposed.dao.IntEntityClass
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.insertAndGetId
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
+import org.jetbrains.exposed.v1.dao.IntEntity
+import org.jetbrains.exposed.v1.dao.IntEntityClass
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.junit.jupiter.api.Assumptions
 
 @Suppress("UnusedReceiverParameter")
@@ -81,7 +81,7 @@ object FastjsonSchema {
 
     fun AbstractExposedTest.withFastjsonTable(
         testDB: TestDB,
-        statement: Transaction.(tester: FastjsonSchema.FastjsonTable, user1: User, data1: DataHolder) -> Unit,
+        statement: JdbcTransaction.(tester: FastjsonSchema.FastjsonTable, user1: User, data1: DataHolder) -> Unit,
     ) {
         val tester = FastjsonSchema.FastjsonTable
 
@@ -99,7 +99,7 @@ object FastjsonSchema {
 
     fun AbstractExposedTest.withFastjsonBTable(
         testDB: TestDB,
-        statement: Transaction.(tester: FastjsonSchema.FastjsonBTable, user1: User, data1: DataHolder) -> Unit,
+        statement: JdbcTransaction.(tester: FastjsonSchema.FastjsonBTable, user1: User, data1: DataHolder) -> Unit,
     ) {
         val tester = FastjsonSchema.FastjsonBTable
 
@@ -117,7 +117,7 @@ object FastjsonSchema {
 
     fun AbstractExposedTest.withFastjsonArrays(
         testDB: TestDB,
-        statement: Transaction.(
+        statement: JdbcTransaction.(
             tester: FastjsonSchema.FastjsonArrayTable,
             singleId: EntityID<Int>,
             tripleId: EntityID<Int>,
@@ -143,7 +143,7 @@ object FastjsonSchema {
 
     fun AbstractExposedTest.withFastjsonBArrays(
         testDB: TestDB,
-        statement: Transaction.(
+        statement: JdbcTransaction.(
             tester: FastjsonSchema.FastjsonBArrayTable,
             singleId: EntityID<Int>,
             tripleId: EntityID<Int>,

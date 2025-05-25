@@ -8,9 +8,10 @@ import io.bluetape4k.exposed.redisson.repository.scenarios.ReadThroughScenario
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
+import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.Nested
 import java.util.*
 
@@ -23,7 +24,7 @@ class ReadThroughCacheTest {
 
         override fun withEntityTable(
             testDB: TestDB,
-            statement: Transaction.() -> Unit,
+            statement: JdbcTransaction.() -> Unit,
         ) = withUserTable(testDB, statement)
 
         override fun getExistingId() = transaction {
@@ -67,7 +68,7 @@ class ReadThroughCacheTest {
 
         override fun withEntityTable(
             testDB: TestDB,
-            statement: Transaction.() -> Unit,
+            statement: JdbcTransaction.() -> Unit,
         ) = withUserCredentialTable(testDB, statement)
 
         override fun getExistingId() = transaction {

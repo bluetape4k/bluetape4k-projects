@@ -2,11 +2,10 @@ package io.bluetape4k.exposed.sql.fastjson2
 
 import io.bluetape4k.fastjson2.FastjsonSerializer
 import io.bluetape4k.fastjson2.deserialize
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.vendors.H2Dialect
-import org.jetbrains.exposed.sql.vendors.currentDialect
-
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.vendors.H2Dialect
+import org.jetbrains.exposed.v1.core.vendors.currentDialect
 
 class FastjsonBColumnType<T: Any>(
     serialize: (T) -> String,

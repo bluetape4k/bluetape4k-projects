@@ -5,10 +5,10 @@ import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialTable
 import io.bluetape4k.exposed.redisson.repository.UserSchema.toUserCredential
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.autoIncColumnType
-import org.jetbrains.exposed.sql.statements.BatchInsertStatement
-import org.jetbrains.exposed.sql.statements.UpdateStatement
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.autoIncColumnType
+import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
+import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.redisson.api.RedissonClient
 import java.time.Instant
 import java.util.*

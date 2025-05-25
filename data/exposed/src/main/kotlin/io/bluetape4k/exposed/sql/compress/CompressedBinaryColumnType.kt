@@ -2,11 +2,11 @@ package io.bluetape4k.exposed.sql.compress
 
 import io.bluetape4k.io.compressor.Compressor
 import io.bluetape4k.io.compressor.Compressors
-import org.jetbrains.exposed.sql.BinaryColumnType
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.ColumnTransformer
-import org.jetbrains.exposed.sql.ColumnWithTransform
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.v1.core.BinaryColumnType
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.ColumnTransformer
+import org.jetbrains.exposed.v1.core.ColumnWithTransform
+import org.jetbrains.exposed.v1.core.Table
 
 /**
  * 엔티티 속성 값을 압축하여 VARBINARY Column 으로 저장할 수 있는 Column 을 생성합니다.

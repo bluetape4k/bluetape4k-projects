@@ -3,8 +3,8 @@ package io.bluetape4k.exposed.dao.id
 import io.bluetape4k.exposed.dao.StringEntity
 import io.bluetape4k.exposed.dao.StringEntityClass
 import io.bluetape4k.idgenerators.ksuid.Ksuid
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IdTable
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
 
 /**
  * Entity ID 값을 [Ksuid]로 생성한 문자열을 사용하는 Table

@@ -1,13 +1,16 @@
 package io.bluetape4k.exposed.sql
 
-import MigrationUtils
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.Transaction
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.migration.MigrationUtils
+
 
 /**
  * [SchemaUtils.createMissingTablesAndColumns] 를 대체하기 위한 함수입니다.
  */
-fun Transaction.execCreateMissingTablesAndColumns(vararg tables: org.jetbrains.exposed.sql.Table) {
+fun JdbcTransaction.execCreateMissingTablesAndColumns(vararg tables: Table) {
+    val self = this
     runCatching {
         val existingTables = SchemaUtils.listTables()
         val missingTables = tables.filterNot { existingTables.contains(it.tableName) }
@@ -16,14 +19,14 @@ fun Transaction.execCreateMissingTablesAndColumns(vararg tables: org.jetbrains.e
     runCatching {
         MigrationUtils.statementsRequiredForDatabaseMigration(*tables).apply {
             if (isNotEmpty()) {
-                exec(joinToString(";"))
+                self.exec(joinToString(";"))
             }
         }
     }
 
     SchemaUtils.addMissingColumnsStatements(*tables).apply {
         if (isNotEmpty()) {
-            exec(joinToString(";"))
+            self.exec(joinToString(";"))
         }
     }
 }

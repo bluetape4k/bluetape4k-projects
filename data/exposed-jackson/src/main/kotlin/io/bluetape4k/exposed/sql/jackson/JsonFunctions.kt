@@ -2,14 +2,14 @@ package io.bluetape4k.exposed.sql.jackson
 
 import io.bluetape4k.jackson.JacksonSerializer
 import io.bluetape4k.jackson.deserializeFromString
-import org.jetbrains.exposed.sql.Expression
-import org.jetbrains.exposed.sql.ExpressionWithColumnType
-import org.jetbrains.exposed.sql.Function
-import org.jetbrains.exposed.sql.IColumnType
-import org.jetbrains.exposed.sql.InternalApi
-import org.jetbrains.exposed.sql.QueryBuilder
-import org.jetbrains.exposed.sql.resolveColumnType
-import org.jetbrains.exposed.sql.vendors.currentDialect
+import org.jetbrains.exposed.v1.core.Expression
+import org.jetbrains.exposed.v1.core.ExpressionWithColumnType
+import org.jetbrains.exposed.v1.core.IColumnType
+import org.jetbrains.exposed.v1.core.InternalApi
+import org.jetbrains.exposed.v1.core.QueryBuilder
+import org.jetbrains.exposed.v1.core.resolveColumnType
+import org.jetbrains.exposed.v1.core.vendors.currentDialect
+
 
 // Function Classes
 
@@ -38,7 +38,7 @@ class Extract<T>(
     val jsonType: IColumnType<*>,
 
     columnType: IColumnType<T & Any>,
-): Function<T>(columnType) {
+): org.jetbrains.exposed.v1.core.Function<T>(columnType) {
     override fun toQueryBuilder(queryBuilder: QueryBuilder) =
         currentDialect.functionProvider.jsonExtract(expression, path = path, toScalar, jsonType, queryBuilder)
 }

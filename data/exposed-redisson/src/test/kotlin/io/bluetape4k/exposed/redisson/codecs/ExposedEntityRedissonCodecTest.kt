@@ -8,8 +8,8 @@ import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.RedissonCodecs
 import org.amshove.kluent.shouldBeEqualTo
-import org.jetbrains.exposed.dao.Entity
-import org.jetbrains.exposed.dao.entityCache
+import org.jetbrains.exposed.v1.dao.Entity
+import org.jetbrains.exposed.v1.dao.entityCache
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource

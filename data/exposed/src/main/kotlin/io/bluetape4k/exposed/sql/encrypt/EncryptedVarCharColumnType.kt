@@ -2,11 +2,11 @@ package io.bluetape4k.exposed.sql.encrypt
 
 import io.bluetape4k.crypto.encrypt.Encryptor
 import io.bluetape4k.crypto.encrypt.Encryptors
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.ColumnTransformer
-import org.jetbrains.exposed.sql.ColumnWithTransform
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.VarCharColumnType
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.ColumnTransformer
+import org.jetbrains.exposed.v1.core.ColumnWithTransform
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.VarCharColumnType
 
 /**
  * 엔티티 속성 값을 암호화하여 VARCHAR Column 으로 저장할 수 있는 Column 을 생성합니다.

@@ -3,12 +3,12 @@ package io.bluetape4k.exposed.sql.serializable
 import io.bluetape4k.exposed.sql.statements.api.toExposedBlob
 import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.io.serializer.BinarySerializers
-import org.jetbrains.exposed.sql.BlobColumnType
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.ColumnTransformer
-import org.jetbrains.exposed.sql.ColumnWithTransform
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.statements.api.ExposedBlob
+import org.jetbrains.exposed.v1.core.BlobColumnType
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.ColumnTransformer
+import org.jetbrains.exposed.v1.core.ColumnWithTransform
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.statements.api.ExposedBlob
 
 /**
  * 엔티티의 속성으로 사용하는 객체를 [BinarySerializer] 를 이용해

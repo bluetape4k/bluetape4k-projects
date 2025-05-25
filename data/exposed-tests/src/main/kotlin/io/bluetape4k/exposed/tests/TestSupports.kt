@@ -1,13 +1,13 @@
 package io.bluetape4k.exposed.tests
 
 import kotlinx.coroutines.delay
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.statements.InsertStatement
-import org.jetbrains.exposed.sql.transactions.TransactionManager
-import org.jetbrains.exposed.sql.vendors.DatabaseDialect
-import org.jetbrains.exposed.sql.vendors.SQLServerDialect
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.statements.InsertStatement
+import org.jetbrains.exposed.v1.core.vendors.DatabaseDialect
+import org.jetbrains.exposed.v1.core.vendors.SQLServerDialect
+import org.jetbrains.exposed.v1.jdbc.insertReturning
+import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import java.util.*
 
 fun String.inProperCase(): String =
@@ -38,7 +38,8 @@ inline fun Table.insertAndWait(
     duration: Long,
     crossinline body: Table.(InsertStatement<Number>) -> Unit = {},
 ) {
-    this.insert(body)
+    this.insertReturning { body(it) }
+    // this.insert(body)
     TransactionManager.current().commit()
     Thread.sleep(duration)
 }
@@ -50,7 +51,8 @@ suspend inline fun Table.insertAndCoawait(
     duration: Long,
     crossinline body: Table.(InsertStatement<Number>) -> Unit = {},
 ) {
-    this.insert(body)
+    this.insertReturning { body(it) }
+    // this.insert(body)
     TransactionManager.current().commit()
     delay(duration)
 }

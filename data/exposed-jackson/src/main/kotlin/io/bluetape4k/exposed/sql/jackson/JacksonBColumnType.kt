@@ -2,10 +2,10 @@ package io.bluetape4k.exposed.sql.jackson
 
 import io.bluetape4k.jackson.JacksonSerializer
 import io.bluetape4k.jackson.deserializeFromString
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.vendors.H2Dialect
-import org.jetbrains.exposed.sql.vendors.currentDialect
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.vendors.H2Dialect
+import org.jetbrains.exposed.v1.core.vendors.currentDialect
 
 class JacksonBColumnType<T: Any>(
     serialize: (T) -> String,

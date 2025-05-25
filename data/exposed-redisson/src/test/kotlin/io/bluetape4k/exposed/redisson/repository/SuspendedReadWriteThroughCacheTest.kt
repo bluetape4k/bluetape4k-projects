@@ -14,10 +14,11 @@ import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import org.amshove.kluent.shouldBeEqualTo
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
+import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.Nested
 import java.util.*
 import kotlin.coroutines.CoroutineContext
@@ -32,7 +33,7 @@ class SuspendedReadWriteThroughCacheTest {
         override suspend fun withSuspendedEntityTable(
             testDB: TestDB,
             context: CoroutineContext,
-            statement: suspend Transaction.() -> Unit,
+            statement: suspend JdbcTransaction.() -> Unit,
         ) {
             withSuspendedUserTable(testDB, context, statement)
         }
@@ -117,7 +118,7 @@ class SuspendedReadWriteThroughCacheTest {
         override suspend fun withSuspendedEntityTable(
             testDB: TestDB,
             context: CoroutineContext,
-            statement: suspend Transaction.() -> Unit,
+            statement: suspend JdbcTransaction.() -> Unit,
         ) {
             withSuspendedUserCredentialTable(testDB, context, statement)
         }

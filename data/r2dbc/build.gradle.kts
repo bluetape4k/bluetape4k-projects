@@ -30,7 +30,7 @@ dependencies {
     compileOnly(Libs.r2dbc_h2)
     compileOnly(Libs.r2dbc_pool)
     compileOnly(Libs.r2dbc_postgresql)
-    compileOnly(Libs.r2dbc_mysql_1_3)
+    compileOnly(Libs.r2dbc_mysql)
 
     // Spring Boot
     compileOnly(Libs.springBoot("autoconfigure"))

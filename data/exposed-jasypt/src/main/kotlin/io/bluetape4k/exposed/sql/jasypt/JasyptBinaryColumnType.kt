@@ -1,8 +1,8 @@
 package io.bluetape4k.exposed.sql.jasypt
 
-import org.jetbrains.exposed.sql.BinaryColumnType
-import org.jetbrains.exposed.sql.ColumnTransformer
-import org.jetbrains.exposed.sql.ColumnWithTransform
+import org.jetbrains.exposed.v1.core.BinaryColumnType
+import org.jetbrains.exposed.v1.core.ColumnTransformer
+import org.jetbrains.exposed.v1.core.ColumnWithTransform
 
 class JasyptBinaryColumnType(
     private val encryptor: io.bluetape4k.crypto.encrypt.Encryptor,

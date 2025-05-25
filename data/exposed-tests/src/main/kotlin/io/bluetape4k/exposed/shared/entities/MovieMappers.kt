@@ -4,7 +4,8 @@ import io.bluetape4k.exposed.shared.entities.MovieSchema.ActorEntity
 import io.bluetape4k.exposed.shared.entities.MovieSchema.ActorTable
 import io.bluetape4k.exposed.shared.entities.MovieSchema.MovieEntity
 import io.bluetape4k.exposed.shared.entities.MovieSchema.MovieTable
-import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.v1.core.ResultRow
+
 
 fun ResultRow.toActorDTO() = ActorDTO(
     id = this[ActorTable.id].value,

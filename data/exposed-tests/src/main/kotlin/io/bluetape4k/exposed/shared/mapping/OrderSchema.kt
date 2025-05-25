@@ -7,14 +7,14 @@ import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.logging.KLogging
-import org.jetbrains.exposed.dao.LongEntity
-import org.jetbrains.exposed.dao.LongEntityClass
-import org.jetbrains.exposed.dao.entityCache
-import org.jetbrains.exposed.dao.flushCache
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.LongIdTable
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.javatime.date
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
+import org.jetbrains.exposed.v1.dao.LongEntity
+import org.jetbrains.exposed.v1.dao.LongEntityClass
+import org.jetbrains.exposed.v1.dao.entityCache
+import org.jetbrains.exposed.v1.dao.flushCache
+import org.jetbrains.exposed.v1.javatime.date
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import java.io.Serializable
 import java.time.LocalDate
 
@@ -140,7 +140,7 @@ object OrderSchema: KLogging() {
 
     fun AbstractExposedTest.withOrdersTables(
         testDB: TestDB,
-        statement: Transaction.(
+        statement: JdbcTransaction.(
             orders: OrderTable,
             orderDetails: OrderDetailTable,
             items: ItemTable,
