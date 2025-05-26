@@ -127,7 +127,7 @@ interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
             .apply {
                 offset?.run { offset(offset) }
             }
-            .firstOrNull()?.toEntity()
+            .lastOrNull()?.toEntity()
 
     fun <V> findByField(field: Column<V>, value: V): List<T> = table.selectAll()
         .where { field eq value }
