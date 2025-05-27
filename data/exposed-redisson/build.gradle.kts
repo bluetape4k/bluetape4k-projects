@@ -13,7 +13,6 @@ dependencies {
     api(Libs.exposed_dao)
     api(Libs.exposed_java_time)
     api(Libs.exposed_kotlin_datetime)
-    testImplementation(Libs.exposed_spring_boot_starter)
     testImplementation(project(":bluetape4k-exposed-tests"))
 
     // Redisson
@@ -59,8 +58,4 @@ dependencies {
     testImplementation(Libs.postgresql_driver)
     testImplementation(Libs.pgjdbc_ng)
 
-    testImplementation(Libs.springBootStarter("test")) {
-        exclude(group = "junit", module = "junit")
-        exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
-    }
 }
