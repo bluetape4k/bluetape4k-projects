@@ -7,14 +7,16 @@ import org.jetbrains.exposed.v1.r2dbc.R2dbcTransaction
 import org.jetbrains.exposed.v1.r2dbc.SchemaUtils
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import org.jetbrains.exposed.v1.r2dbc.transactions.transactionManager
+import kotlin.coroutines.CoroutineContext
 
 suspend fun withTables(
     testDB: TestDB,
     vararg tables: Table,
     configure: (DatabaseConfig.Builder.() -> Unit)? = null,
+    context: CoroutineContext? = null,
     statement: suspend R2dbcTransaction.(TestDB) -> Unit,
 ) {
-    withDb(testDB, configure = configure) {
+    withDb(testDB, configure = configure, context = context) {
         runCatching { SchemaUtils.drop(*tables) }
         SchemaUtils.create(*tables)
         try {

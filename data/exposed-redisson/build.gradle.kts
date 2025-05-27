@@ -20,19 +20,19 @@ dependencies {
     api(Libs.redisson)
 
     // Codecs
-    implementation(project(":bluetape4k-io"))
-    compileOnly(Libs.kryo)
-    compileOnly(Libs.fury_kotlin)
-
-    compileOnly(project(":bluetape4k-jackson"))
-    compileOnly(project(":bluetape4k-jackson-binary"))
-    compileOnly(Libs.jackson_module_kotlin)
-    compileOnly(Libs.jackson_dataformat_cbor)
-
+    api(project(":bluetape4k-io"))
+    api(Libs.kryo)
+    api(Libs.fury_kotlin)
+    
     // Compressor
     compileOnly(Libs.snappy_java)
     compileOnly(Libs.lz4_java)
     compileOnly(Libs.zstd_jni)
+
+//    compileOnly(project(":bluetape4k-jackson"))
+//    compileOnly(project(":bluetape4k-jackson-binary"))
+//    compileOnly(Libs.jackson_module_kotlin)
+//    compileOnly(Libs.jackson_dataformat_cbor)
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))

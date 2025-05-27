@@ -9,9 +9,25 @@ dependencies {
 
     api(Libs.exposed_r2dbc)
     testImplementation(Libs.exposed_java_time)
+    api(project(":bluetape4k-exposed"))
     api(project(":bluetape4k-exposed-r2dbc"))
     testImplementation(project(":bluetape4k-exposed-r2dbc-tests"))
 
+    // Redisson
+    api(project(":bluetape4k-redis"))
+    api(Libs.redisson)
+
+    // Codecs
+    api(project(":bluetape4k-io"))
+    api(Libs.kryo)
+    api(Libs.fury_kotlin)
+
+    // Compressor
+    compileOnly(Libs.snappy_java)
+    compileOnly(Libs.lz4_java)
+    compileOnly(Libs.zstd_jni)
+
+    // R2DBC
     api(Libs.r2dbc_spi)
     api(Libs.r2dbc_pool)
     implementation(Libs.r2dbc_h2)

@@ -1,4 +1,4 @@
-package io.bluetape4k.exposed.redisson.map
+package io.bluetape4k.exposed.r2dbc.redisson.map
 
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.core.mapToLanguageType
@@ -6,34 +6,36 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.v1.core.autoIncColumnType
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
-import org.jetbrains.exposed.v1.jdbc.batchInsert
-import org.jetbrains.exposed.v1.jdbc.deleteWhere
-import org.jetbrains.exposed.v1.jdbc.select
-import org.jetbrains.exposed.v1.jdbc.update
+import org.jetbrains.exposed.v1.r2dbc.batchInsert
+import org.jetbrains.exposed.v1.r2dbc.deleteWhere
+import org.jetbrains.exposed.v1.r2dbc.select
+import org.jetbrains.exposed.v1.r2dbc.update
 import org.redisson.api.map.WriteMode
 
-
 /**
- * `id`를 가진 엔티티를 DB에 Write 하기 위한 [SuspendedEntityMapWriter] 기본 구현체입니다.
+ * `id`를 가진 엔티티를 DB에 Write 하기 위한 [R2dbcEntityMapWriter] 기본 구현체입니다.
  *
  * @param entityTable Entity<ID> 를 위한 [IdTable] 입니다.
  * @param updateBody DB에 이미 존재하는 ID인 경우 UPDATE 하도록 하는 쿼리 입니다.
  * @param batchInsertBody 새로운 엔티티라면 batchInsert 를 수행하도록 하는 쿼리 입니다.
  * @param deleteFromDBOnInvalidate 캐시에서 삭제될 때, DB에서도 삭제할 것인지 여부를 나타냅니다.
  */
-open class SuspendedExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
+open class R2dbcExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     private val entityTable: IdTable<ID>,
     scope: CoroutineScope = defaultMapWriterCoroutineScope,
     private val updateBody: IdTable<ID>.(UpdateStatement, E) -> Unit,
     private val batchInsertBody: BatchInsertStatement.(E) -> Unit,
     deleteFromDBOnInvalidate: Boolean = false,
     writeMode: WriteMode = WriteMode.WRITE_THROUGH,
-): SuspendedEntityMapWriter<ID, E>(
+): R2dbcEntityMapWriter<ID, E>(
     scope = scope,
     writeToDb = { map ->
         when (writeMode) {
@@ -71,6 +73,7 @@ open class SuspendedExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
                 entityTable.select(entityTable.id)
                     .where { entityTable.id inList map.keys }
                     .map { it[entityTable.id].value }
+                    .toList()
 
             val entitiesToUpdate = map.values.filter { it.id in existIds }
             entitiesToUpdate.forEach { entity ->
@@ -99,12 +102,15 @@ open class SuspendedExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
         ) {
             // Write Behind 시에는 캐시에 남길 일이 없으므로, 자동증가 ID인 경우에도 batchInsert 를 수행합니다.
             val entitiesToInsert = map.values
-            entitiesToInsert.chunked(batchSize).forEach { chunk ->
-                log.debug { "캐시 변경 사항을 DB에 반영합니다... ids=${chunk.map { it.id }}" }
-                entityTable.batchInsert(chunk, shouldReturnGeneratedValues = false) {
-                    batchInsertBody(this, it)
+            entitiesToInsert
+                .chunked(batchSize)
+                .asFlow()
+                .collect { chunk ->
+                    log.debug { "캐시 변경 사항을 DB에 반영합니다... ids=${chunk.map { it.id }}" }
+                    entityTable.batchInsert(chunk, shouldReturnGeneratedValues = false) {
+                        batchInsertBody(this, it)
+                    }
                 }
-            }
         }
     }
 
