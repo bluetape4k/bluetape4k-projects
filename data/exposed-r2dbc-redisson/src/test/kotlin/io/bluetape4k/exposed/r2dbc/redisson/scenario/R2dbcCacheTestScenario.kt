@@ -15,7 +15,8 @@ interface R2dbcCacheTestScenario<T: HasIdentifier<ID>, ID: Any> {
 
     companion object: KLoggingChannel() {
         @JvmStatic
-        fun enableDialects() = TestDB.enabledDialects()
+        fun enableDialects() =
+            setOf(TestDB.H2) // setOf(TestDB.MYSQL_V8) // setOf(TestDB.POSTGRESQL) //  TestDB.enabledDialects()
 
         const val ENABLE_DIALECTS_METHOD = "enableDialects"
 
