@@ -2,6 +2,7 @@ package io.bluetape4k.exposed.redisson.repository
 
 import io.bluetape4k.exposed.redisson.AbstractRedissonTest
 import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialTable
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserTable
 import io.bluetape4k.exposed.redisson.repository.UserSchema.withSuspendedUserCredentialTable
 import io.bluetape4k.exposed.redisson.repository.UserSchema.withSuspendedUserTable
 import io.bluetape4k.exposed.redisson.repository.scenarios.SuspendedReadThroughScenario
@@ -10,7 +11,6 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.select
-import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
 import org.junit.jupiter.api.Nested
 import java.util.*
@@ -34,11 +34,15 @@ class SuspendedReadThroughCacheTest {
         }
 
         override suspend fun getExistingId() = newSuspendedTransaction {
-            UserSchema.UserTable.select(UserSchema.UserTable.id).first()[UserSchema.UserTable.id].value
+            UserTable
+                .select(UserTable.id)
+                .first()[UserTable.id].value
         }
 
         override suspend fun getExistingIds() = newSuspendedTransaction {
-            UserSchema.UserTable.selectAll().map { it[UserSchema.UserTable.id].value }
+            UserTable
+                .select(UserTable.id)
+                .map { it[UserTable.id].value }
         }
 
         override suspend fun getNonExistentId(): Long = Long.MIN_VALUE
@@ -79,11 +83,15 @@ class SuspendedReadThroughCacheTest {
         ) = withSuspendedUserCredentialTable(testDB, context, statement)
 
         override suspend fun getExistingId() = newSuspendedTransaction {
-            UserCredentialTable.select(UserCredentialTable.id).first()[UserCredentialTable.id].value
+            UserCredentialTable
+                .select(UserCredentialTable.id)
+                .first()[UserCredentialTable.id].value
         }
 
         override suspend fun getExistingIds() = newSuspendedTransaction {
-            UserCredentialTable.selectAll().map { it[UserCredentialTable.id].value }
+            UserCredentialTable
+                .select(UserCredentialTable.id)
+                .map { it[UserCredentialTable.id].value }
         }
 
         override suspend fun getNonExistentId() = UUID.randomUUID()

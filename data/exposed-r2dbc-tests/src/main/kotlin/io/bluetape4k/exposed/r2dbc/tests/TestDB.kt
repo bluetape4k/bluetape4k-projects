@@ -37,14 +37,14 @@ enum class TestDB(
      * H2 v2.+ 를 사용할 때
      */
     H2(
-        connection = { "r2dbc:h2:mem:///regular;DB_CLOSE_DELAY=-1;" },
+        connection = { "r2dbc:pool:h2:mem:///regular;DB_CLOSE_DELAY=-1;" },
         driver = "org.h2.Driver",
         dbConfig = {
             defaultR2dbcIsolationLevel = IsolationLevel.READ_COMMITTED
         }
     ),
     H2_MYSQL(
-        connection = { "r2dbc:h2:mem:///mysql;DB_CLOSE_DELAY=-1;MODE=MySQL;" },
+        connection = { "r2dbc:pool:h2:mem:///mysql;DB_CLOSE_DELAY=-1;MODE=MySQL;" },
         driver = "org.h2.Driver",
         beforeConnection = {
             Mode::class.declaredMemberProperties
@@ -58,24 +58,24 @@ enum class TestDB(
     ),
     H2_MARIADB(
         connection = {
-            "r2dbc:h2:mem:///mariadb;MODE=MariaDB;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;"
+            "r2dbc:pool:h2:mem:///mariadb;MODE=MariaDB;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;"
         },
         driver = "org.h2.Driver",
     ),
     H2_PSQL(
         connection = {
-            "r2dbc:h2:mem:///psql;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1;"
+            "r2dbc:pool:h2:mem:///psql;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1;"
         },
         driver = "org.h2.Driver"
     ),
     H2_ORACLE(
         connection = {
-            "r2dbc:h2:mem:///oracle;MODE=Oracle;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1;"
+            "r2dbc:pool:h2:mem:///oracle;MODE=Oracle;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1;"
         },
         driver = "org.h2.Driver"
     ),
     H2_SQLSERVER(
-        connection = { "r2dbc:h2:mem:///sqlserver;MODE=MSSQLServer;DB_CLOSE_DELAY=-1;" },
+        connection = { "r2dbc:pool:h2:mem:///sqlserver;MODE=MSSQLServer;DB_CLOSE_DELAY=-1;" },
         driver = "org.h2.Driver"
     ),
 
@@ -90,9 +90,9 @@ enum class TestDB(
             if (USE_TESTCONTAINERS) {
                 val port = ContainerProvider.mariadb.port
                 val databaseName = ContainerProvider.mariadb.databaseName
-                "r2dbc:mariadb://${MARIADB.user}:${MARIADB.pass}@127.0.0.1:$port/$databaseName$options"
+                "r2dbc:pool:mariadb://${MARIADB.user}:${MARIADB.pass}@127.0.0.1:$port/$databaseName$options"
             } else {
-                "r2dbc:mariadb://localhost:3306/exposed$options"
+                "r2dbc:pool:mariadb://localhost:3306/exposed$options"
             }
         },
         driver = "org.mariadb.jdbc.Driver",
@@ -109,9 +109,9 @@ enum class TestDB(
             if (USE_TESTCONTAINERS) {
                 val port = ContainerProvider.mysql5.port
                 val databaseName = ContainerProvider.mariadb.databaseName
-                "r2dbc:mysql://${MYSQL_V5.user}:${MYSQL_V5.pass}@127.0.0.1:$port/$databaseName$options"
+                "r2dbc:pool:mysql://${MYSQL_V5.user}:${MYSQL_V5.pass}@127.0.0.1:$port/$databaseName$options"
             } else {
-                "r2dbc:mysql://localhost:3306/exposed$options"
+                "r2dbc:pool:mysql://localhost:3306/exposed$options"
             }
         },
         driver = "com.mysql.cj.jdbc.Driver",
@@ -129,9 +129,9 @@ enum class TestDB(
             if (USE_TESTCONTAINERS) {
                 val port = ContainerProvider.mysql8.port
                 val databaseName = ContainerProvider.mariadb.databaseName
-                "r2dbc:mysql://${MYSQL_V8.user}:${MYSQL_V8.pass}@127.0.0.1:$port/$databaseName$options"
+                "r2dbc:pool:mysql://${MYSQL_V8.user}:${MYSQL_V8.pass}@127.0.0.1:$port/$databaseName$options"
             } else {
-                "r2dbc:mysql://localhost:3306/exposed$options"
+                "r2dbc:pool:mysql://localhost:3306/exposed$options"
             }
         },
         driver = "com.mysql.cj.jdbc.Driver",
@@ -144,9 +144,9 @@ enum class TestDB(
             val options = "?lc_messages=en_US.UTF-8"
             if (USE_TESTCONTAINERS) {
                 val port = ContainerProvider.postgres.port
-                "r2dbc:postgresql://${POSTGRESQL.user}:${POSTGRESQL.pass}@127.0.0.1:$port/postgres$options"
+                "r2dbc:pool:postgresql://${POSTGRESQL.user}:${POSTGRESQL.pass}@127.0.0.1:$port/postgres$options"
             } else {
-                "r2dbc:postgresql://localhost:5432/exposed$options"
+                "r2dbc:pool:postgresql://localhost:5432/exposed$options"
             }
         },
         driver = "org.postgresql.Driver",

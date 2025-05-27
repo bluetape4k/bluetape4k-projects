@@ -16,7 +16,6 @@ import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.select
-import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.Nested
 import java.util.*
@@ -34,11 +33,16 @@ class ReadWriteThroughCacheTest {
         ) = withUserTable(testDB, statement)
 
         override fun getExistingId() = transaction {
-            UserTable.select(UserTable.id).limit(1).first()[UserTable.id].value
+            UserTable
+                .select(UserTable.id)
+                .limit(1)
+                .first()[UserTable.id].value
         }
 
         override fun getExistingIds() = transaction {
-            UserTable.selectAll().map { it[UserTable.id].value }
+            UserTable
+                .select(UserTable.id)
+                .map { it[UserTable.id].value }
         }
 
         override fun getNonExistentId() = Long.MIN_VALUE
@@ -118,11 +122,16 @@ class ReadWriteThroughCacheTest {
         ) = withUserCredentialTable(testDB, statement)
 
         override fun getExistingId() = transaction {
-            UserCredentialTable.select(UserCredentialTable.id).first()[UserCredentialTable.id].value
+            UserCredentialTable
+                .select(UserCredentialTable.id)
+                .limit(1)
+                .first()[UserCredentialTable.id].value
         }
 
         override fun getExistingIds() = transaction {
-            UserCredentialTable.selectAll().map { it[UserCredentialTable.id].value }
+            UserCredentialTable
+                .select(UserCredentialTable.id)
+                .map { it[UserCredentialTable.id].value }
         }
 
         override fun getNonExistentId() = UUID.randomUUID()
