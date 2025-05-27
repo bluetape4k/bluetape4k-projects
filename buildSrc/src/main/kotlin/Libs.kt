@@ -25,6 +25,8 @@ object Plugins {
 
         // 참고: https://docs.gatling.io/reference/integrations/build-tools/gradle-plugin/
         const val gatling = "3.13.5.4"  // https://plugins.gradle.org/plugin/io.gatling.gradle
+
+        const val graalvm_native = "0.10.6" // https://mvnrepository.com/artifact/org.graalvm.buildtools.native/org.graalvm.buildtools.native.gradle.plugin
     }
 
     const val detekt = "io.gitlab.arturbosch.detekt"
@@ -56,6 +58,9 @@ object Plugins {
 
     // https://docs.gatling.io/reference/extensions/build-tools/gradle-plugin/
     const val gatling = "io.gatling.gradle"
+
+    // https://mvnrepository.com/artifact/org.graalvm.buildtools.native/org.graalvm.buildtools.native.gradle.plugin
+    const val graalvm_native = "org.graalvm.buildtools.native"
 }
 
 object Versions {

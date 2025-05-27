@@ -27,6 +27,8 @@ plugins {
     id(Plugins.dokka) version Plugins.Versions.dokka
     id(Plugins.testLogger) version Plugins.Versions.testLogger
     id(Plugins.shadow) version Plugins.Versions.shadow apply false
+
+    id(Plugins.graalvm_native) version Plugins.Versions.graalvm_native apply false
 }
 
 // NOTE: Nexus 에 등록된 것 때문에 사용한다
