@@ -1,7 +1,7 @@
 package io.bluetape4k.exposed.redisson.repository
 
 import io.bluetape4k.collections.toVarargArray
-import io.bluetape4k.exposed.dao.HasIdentifier
+import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.redisson.map.EntityMapLoader
 import io.bluetape4k.exposed.redisson.map.EntityMapWriter
 import io.bluetape4k.exposed.redisson.map.ExposedEntityMapLoader

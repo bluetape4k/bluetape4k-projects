@@ -1,6 +1,10 @@
 package io.bluetape4k.exposed.r2dbc.repository
 
 import io.bluetape4k.coroutines.flow.extensions.bufferUntilChanged
+import io.bluetape4k.exposed.r2dbc.domain.MovieActorCountDTO
+import io.bluetape4k.exposed.r2dbc.domain.MovieDTO
+import io.bluetape4k.exposed.r2dbc.domain.MovieWithActorDTO
+import io.bluetape4k.exposed.r2dbc.domain.MovieWithProducingActorDTO
 import io.bluetape4k.exposed.r2dbc.repository.MovieSchema.ActorInMovieTable
 import io.bluetape4k.exposed.r2dbc.repository.MovieSchema.ActorTable
 import io.bluetape4k.exposed.r2dbc.repository.MovieSchema.MovieTable

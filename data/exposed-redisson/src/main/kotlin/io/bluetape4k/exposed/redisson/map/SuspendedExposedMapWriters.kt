@@ -1,6 +1,7 @@
 package io.bluetape4k.exposed.redisson.map
 
-import io.bluetape4k.exposed.dao.HasIdentifier
+import io.bluetape4k.exposed.core.HasIdentifier
+import io.bluetape4k.exposed.core.mapToLanguageType
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error

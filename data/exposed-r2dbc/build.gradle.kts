@@ -14,16 +14,20 @@ dependencies {
 
     api(Libs.r2dbc_spi)
     api(Libs.r2dbc_pool)
-    api(Libs.r2dbc_h2)
-    api(Libs.r2dbc_mariadb)
-    api(Libs.r2dbc_mysql)
-    api(Libs.r2dbc_postgresql)
+    implementation(Libs.r2dbc_h2)
+    implementation(Libs.r2dbc_mariadb)
+    implementation(Libs.r2dbc_mysql)
+    implementation(Libs.r2dbc_postgresql)
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))
     compileOnly(Libs.kotlinx_coroutines_core)
     compileOnly(Libs.kotlinx_coroutines_reactive)
     testImplementation(Libs.kotlinx_coroutines_test)
+
+    compileOnly(project(":bluetape4k-io"))
+    compileOnly(project(":bluetape4k-idgenerators"))
+    compileOnly(project(":bluetape4k-javatimes"))
 
     // Bluetape4k Modules for Testing
     testImplementation(project(":bluetape4k-junit5"))
@@ -33,19 +37,9 @@ dependencies {
     testImplementation(Libs.testcontainers_mysql)
     testImplementation(Libs.testcontainers_postgresql)
 
-    compileOnly(project(":bluetape4k-io"))
-    compileOnly(project(":bluetape4k-idgenerators"))
-    compileOnly(project(":bluetape4k-javatimes"))
-
     // Database Drivers
     testImplementation(Libs.h2_v2)
     testImplementation(Libs.mariadb_java_client)
     testImplementation(Libs.mysql_connector_j)
     testImplementation(Libs.postgresql_driver)
-
-    testImplementation(Libs.springBootStarter("test")) {
-        exclude(group = "junit", module = "junit")
-        exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
-        exclude(module = "mockito-core")
-    }
 }

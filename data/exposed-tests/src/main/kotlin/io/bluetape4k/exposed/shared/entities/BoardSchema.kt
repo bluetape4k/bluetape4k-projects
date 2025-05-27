@@ -1,9 +1,9 @@
 package io.bluetape4k.exposed.shared.entities
 
+import io.bluetape4k.exposed.core.timebasedGenerated
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.idHashCode
 import io.bluetape4k.exposed.dao.toStringBuilder
-import io.bluetape4k.exposed.sql.timebasedGenerated
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable

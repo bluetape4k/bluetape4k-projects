@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.repository
 
-import io.bluetape4k.exposed.dao.HasIdentifier
+import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.dao.id.SoftDeletedIdTable
 import io.bluetape4k.exposed.r2dbc.tests.R2dbcExposedTestBase
 import io.bluetape4k.exposed.r2dbc.tests.TestDB

@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.repository
 
-import io.bluetape4k.exposed.dao.HasIdentifier
+import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.dao.id.SoftDeletedIdTable
 import kotlinx.coroutines.flow.Flow
 import org.jetbrains.exposed.v1.core.Op

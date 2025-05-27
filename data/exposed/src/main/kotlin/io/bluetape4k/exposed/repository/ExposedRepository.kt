@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.repository
 
-import io.bluetape4k.exposed.dao.HasIdentifier
+import io.bluetape4k.exposed.core.HasIdentifier
 import org.jetbrains.exposed.v1.core.AbstractQuery
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.ISqlExpressionBuilder
