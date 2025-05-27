@@ -11,7 +11,7 @@
         </encoder>
     </appender>
 
-    <logger name="io.bluetape4k.exposed.sql.jackson" level="DEBUG"/>
+    <logger name="io.bluetape4k.exposed.core.jackson" level="DEBUG"/>
 
     <logger name="org.jetbrains.exposed" level="DEBUG"/>
     <logger name="Exposed" level="DEBUG"/>

@@ -1,8 +1,8 @@
 package io.bluetape4k.exposed.dao.id
 
+import io.bluetape4k.exposed.core.timebasedGenerated
 import io.bluetape4k.exposed.dao.StringEntity
 import io.bluetape4k.exposed.dao.StringEntityClass
-import io.bluetape4k.exposed.sql.timebasedGenerated
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
 

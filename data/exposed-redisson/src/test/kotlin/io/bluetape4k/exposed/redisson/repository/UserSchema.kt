@@ -1,7 +1,7 @@
 package io.bluetape4k.exposed.redisson.repository
 
 import io.bluetape4k.codec.Base58
-import io.bluetape4k.exposed.dao.HasIdentifier
+import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.dao.id.TimebasedUUIDBase62Table
 import io.bluetape4k.exposed.dao.id.TimebasedUUIDEntity
 import io.bluetape4k.exposed.dao.id.TimebasedUUIDEntityClass

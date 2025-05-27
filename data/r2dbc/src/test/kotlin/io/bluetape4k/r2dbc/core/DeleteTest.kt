@@ -31,7 +31,7 @@ class DeleteTest: AbstractR2dbcTest() {
         rowsUpdated shouldBeEqualTo 1
 
         val count2 = client.execute<Int>("SELECT COUNT(*) FROM users").fetch().awaitOne()
-        (count1 - count2) shouldBeEqualTo 1
+        count2 shouldBeEqualTo count1 - 1
     }
 
     @Test
@@ -49,6 +49,6 @@ class DeleteTest: AbstractR2dbcTest() {
         rowsUpdated shouldBeEqualTo 1
 
         val count2 = client.execute<Int>("SELECT COUNT(*) FROM users").fetch().awaitOne()
-        (count1 - count2) shouldBeEqualTo 1
+        count2 shouldBeEqualTo count1 - 1
     }
 }

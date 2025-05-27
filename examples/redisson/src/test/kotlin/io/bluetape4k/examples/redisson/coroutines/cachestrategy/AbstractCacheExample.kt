@@ -4,7 +4,7 @@ import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.Actor
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.toActor
-import io.bluetape4k.exposed.sql.fetchBatchedResultFlow
+import io.bluetape4k.exposed.core.fetchBatchedResultFlow
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel

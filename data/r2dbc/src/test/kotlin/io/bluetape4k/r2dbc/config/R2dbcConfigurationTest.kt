@@ -5,7 +5,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.r2dbc.R2dbcClient
 import io.bluetape4k.support.uninitialized
 import io.r2dbc.spi.ValidationDepth
-import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
@@ -22,13 +22,15 @@ class R2dbcConfigurationTest {
     private val client: R2dbcClient = uninitialized()
 
     @Test
-    fun `context loading`() {
+    fun `validate connection`() = runSuspendIO {
         client.shouldNotBeNull()
 
-        runSuspendIO {
-            client.databaseClient.inConnection { conn ->
-                conn.validate(ValidationDepth.LOCAL).toMono()
-            }.awaitSingle().shouldBeTrue()
-        }
+        val result = client.databaseClient
+            .inConnection { conn ->
+                conn.validate(ValidationDepth.REMOTE).toMono()
+            }
+            .awaitSingleOrNull()
+
+        result!!.shouldBeTrue()
     }
 }
