@@ -2,9 +2,10 @@ package io.bluetape4k.exposed.redisson.map
 
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.core.mapToLanguageType
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
+import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.v1.core.autoIncColumnType
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
@@ -13,49 +14,28 @@ import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.select
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
-import org.redisson.api.map.MapWriter
 import org.redisson.api.map.WriteMode
 
-/**
- *  Redisson의 Write-through [MapWriter] 를 Exposed 를 사용하여 구현한 추상화 클래스입니다.
- *
- * @param writeToDB DB에 데이터를 쓰는 함수입니다.
- * @param deleteFromDB DB에서 데이터를 삭제하는 함수입니다.
- */
-open class EntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
-    private val writeToDB: (map: Map<ID, E>) -> Unit,
-    private val deleteFromDB: (ids: Collection<ID>) -> Unit,
-): MapWriter<ID, E> {
-
-    companion object: KLogging()
-
-    override fun write(map: Map<ID, E>) = transaction {
-        writeToDB(map)
-    }
-
-    override fun delete(keys: Collection<ID>) = transaction {
-        deleteFromDB(keys)
-    }
-}
 
 /**
- * `id`를 가진 엔티티를 DB에 Write 하기 위한 [EntityMapWriter] 기본 구현체입니다.
+ * `id`를 가진 엔티티를 DB에 Write 하기 위한 [SuspendedEntityMapWriter] 기본 구현체입니다.
  *
  * @param entityTable Entity<ID> 를 위한 [IdTable] 입니다.
  * @param updateBody DB에 이미 존재하는 ID인 경우 UPDATE 하도록 하는 쿼리 입니다.
  * @param batchInsertBody 새로운 엔티티라면 batchInsert 를 수행하도록 하는 쿼리 입니다.
  * @param deleteFromDBOnInvalidate 캐시에서 삭제될 때, DB에서도 삭제할 것인지 여부를 나타냅니다.
  */
-open class ExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
+open class SuspendedExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     private val entityTable: IdTable<ID>,
+    scope: CoroutineScope = defaultMapWriterCoroutineScope,
     private val updateBody: IdTable<ID>.(UpdateStatement, E) -> Unit,
     private val batchInsertBody: BatchInsertStatement.(E) -> Unit,
     deleteFromDBOnInvalidate: Boolean = false,
     writeMode: WriteMode = WriteMode.WRITE_THROUGH,
-): EntityMapWriter<ID, E>(
-    writeToDB = { map: Map<ID, E> ->
+): SuspendedEntityMapWriter<ID, E>(
+    scope = scope,
+    writeToDb = { map ->
         when (writeMode) {
             WriteMode.WRITE_THROUGH -> {
                 writeThrough(map, entityTable, updateBody, batchInsertBody)
@@ -65,7 +45,7 @@ open class ExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
             }
         }
     },
-    deleteFromDB = { ids ->
+    deleteFromDb = { ids ->
         if (deleteFromDBOnInvalidate) {
             log.debug { "캐시가 Invalidated 되어, DB에서도 삭제합니다... ids=$ids, id type=${ids.firstOrNull()?.javaClass?.simpleName}" }
 
@@ -74,9 +54,9 @@ open class ExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
             val idsToDelete = ids.mapToLanguageType(entityTable.id) as List<ID>
             entityTable.deleteWhere { entityTable.id inList idsToDelete }
         }
-    }
+    },
 ) {
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val DEFAULT_BATCH_SIZE = 1000
 
         private fun <K: Any, V: HasIdentifier<K>> writeThrough(
@@ -86,6 +66,7 @@ open class ExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
             batchInsertBody: BatchInsertStatement.(V) -> Unit,
         ) {
             log.debug { "캐시 변경 사항을 DB에 반영합니다... ids=${map.keys}" }
+
             val existIds =
                 entityTable.select(entityTable.id)
                     .where { entityTable.id inList map.keys }
@@ -97,16 +78,15 @@ open class ExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
                     updateBody(it, entity)
                 }
             }
+
             // Write Through 시에는 id가 DB에서 자동 생성되지 않는 경우에만 batchInsert 를 수행합니다.
             // Write Behind 시에는 항상 batchInsert 를 수행합니다.
             val canBatchInsert = entityTable.id.autoIncColumnType == null && !entityTable.id.isDatabaseGenerated()
             if (canBatchInsert) {
                 val entitiesToInsert = map.values.filterNot { it.id in existIds }
                 log.debug { "ID가 자동증가 타입이 아니므로, batchInsert 를 수행합니다...entities size=${entitiesToInsert.size}" }
-                entitiesToInsert.chunked(100).forEach { chunk ->
-                    entityTable.batchInsert(chunk, shouldReturnGeneratedValues = false) {
-                        batchInsertBody(this, it)
-                    }
+                entityTable.batchInsert(entitiesToInsert) {
+                    batchInsertBody(this, it)
                 }
             }
         }
