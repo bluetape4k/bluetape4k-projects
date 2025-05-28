@@ -1,13 +1,13 @@
 package io.bluetape4k.exposed.redisson.repository.scenarios
 
-import io.bluetape4k.exposed.dao.HasIdentifier
+import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.redisson.repository.SuspendedExposedCacheRepository
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.exposed.sql.Transaction
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.junit.jupiter.api.BeforeEach
 import kotlin.coroutines.CoroutineContext
 
@@ -37,7 +37,7 @@ interface SuspendedCacheTestScenario<T: HasIdentifier<ID>, ID: Any> {
     suspend fun withSuspendedEntityTable(
         testDB: TestDB,
         context: CoroutineContext = DefaultCacheDispatcher,
-        statement: suspend Transaction.() -> Unit,
+        statement: suspend JdbcTransaction.() -> Unit,
     )
 
     /**

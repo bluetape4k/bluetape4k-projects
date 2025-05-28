@@ -56,10 +56,10 @@ class TablePerClassInheritanceTest: AbstractHibernateTest() {
 
         flushAndClear()
 
-        val account2 = accountRepo.findByIdOrNull(account.id)!!
+        val account2 = accountRepo.findByIdOrNull(account.id!!)!!
         account2 shouldBeEqualTo account
 
-        val card2 = cardRepo.findByIdOrNull(card.id)!!
+        val card2 = cardRepo.findByIdOrNull(card.id!!)!!
         card2 shouldBeEqualTo card
 
         accountRepo.deleteAll()

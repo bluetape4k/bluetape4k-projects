@@ -51,10 +51,10 @@ class SingleTableInheritanceTest: AbstractHibernateTest() {
 
         flushAndClear()
 
-        val account2 = bankAccountRepo.findByIdOrNull(account.id)!!
+        val account2 = bankAccountRepo.findByIdOrNull(account.id!!)!!
         account2 shouldBeEqualTo account
 
-        val card2 = creditCardRepo.findByIdOrNull(card.id)!!
+        val card2 = creditCardRepo.findByIdOrNull(card.id!!)!!
         card2 shouldBeEqualTo card
 
         bankAccountRepo.deleteAll()

@@ -47,7 +47,7 @@ class OneToManyMapTest(
         carRepo.saveAndFlush(car)
         clear()
 
-        val loaded = carRepo.findByIdOrNull(car.id)!!
+        val loaded = carRepo.findByIdOrNull(car.id!!)!!
         loaded shouldBeEqualTo car
         loaded.options.values shouldContainSame listOf(option1, option2, option3)
 
@@ -55,7 +55,7 @@ class OneToManyMapTest(
         carRepo.saveAndFlush(loaded)
         clear()
 
-        val loaded2 = carRepo.findByIdOrNull(car.id)!!
+        val loaded2 = carRepo.findByIdOrNull(car.id!!)!!
         loaded2 shouldBeEqualTo car
         loaded2.options.values shouldContainSame listOf(option1, option3)
 
@@ -82,7 +82,7 @@ class OneToManyMapTest(
         carRepo.saveAndFlush(car)
         clear()
 
-        val loaded = carRepo.findByIdOrNull(car.id)!!
+        val loaded = carRepo.findByIdOrNull(car.id!!)!!
         loaded shouldBeEqualTo car
         loaded.parts.values shouldContainSame listOf(engine, wheel, mission)
 

@@ -2,9 +2,9 @@ package io.bluetape4k.exposed.tests
 
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
-import org.jetbrains.exposed.sql.Key
-import org.jetbrains.exposed.sql.Schema
-import org.jetbrains.exposed.sql.statements.StatementInterceptor
+import org.jetbrains.exposed.v1.core.Key
+import org.jetbrains.exposed.v1.core.Schema
+import org.jetbrains.exposed.v1.core.statements.StatementInterceptor
 import java.util.*
 
 abstract class AbstractExposedTest {

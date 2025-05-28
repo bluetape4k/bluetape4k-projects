@@ -49,11 +49,11 @@ class ManyToManyTest(
         ownerRepo.saveAll(listOf(owner1, owner2))
         flushAndClear()
 
-        var loaded1 = ownerRepo.findByIdOrNull(owner1.id)!!
+        var loaded1 = ownerRepo.findByIdOrNull(owner1.id!!)!!
         loaded1.accounts.size shouldBeEqualTo owner1.accounts.size
         loaded1.accounts shouldContainSame listOf(account1, account2)
 
-        var loaded2 = ownerRepo.findByIdOrNull(owner2.id)!!
+        var loaded2 = ownerRepo.findByIdOrNull(owner2.id!!)!!
         loaded2.accounts.size shouldBeEqualTo owner2.accounts.size
         loaded2.accounts shouldContainSame listOf(account1, account3, account4)
 
@@ -61,12 +61,12 @@ class ManyToManyTest(
         ownerRepo.save(loaded2)
         flushAndClear()
 
-        loaded1 = ownerRepo.findByIdOrNull(owner1.id)!!
+        loaded1 = ownerRepo.findByIdOrNull(owner1.id!!)!!
         loaded1.accounts.size shouldBeEqualTo owner1.accounts.size
         loaded1.accounts shouldContainSame listOf(account1, account2)
 
         // loaded2 에서는 account3을 삭제했다
-        loaded2 = ownerRepo.findByIdOrNull(owner2.id)!!
+        loaded2 = ownerRepo.findByIdOrNull(owner2.id!!)!!
         loaded2.accounts.size shouldBeEqualTo owner2.accounts.size - 1
         loaded2.accounts shouldContainSame listOf(account1, account4)
 
@@ -76,7 +76,7 @@ class ManyToManyTest(
         ownerRepo.delete(loaded2)
         flushAndClear()
 
-        val removedAccount = accountRepo.findByIdOrNull(account3.id)!!
+        val removedAccount = accountRepo.findByIdOrNull(account3.id!!)!!
         removedAccount.owners.shouldBeEmpty()
     }
 
@@ -108,13 +108,13 @@ class ManyToManyTest(
         // accountRepo.save(account1) // 이 것은 없어도 된다.
         flushAndClear()
 
-        val loaded = ownerRepo.findByIdOrNull(owner2.id)!!
+        val loaded = ownerRepo.findByIdOrNull(owner2.id!!)!!
         loaded.accounts.size shouldBeEqualTo 2
 
     }
 
     private fun verifyExistsAccount(account: BankAccount) {
-        val loaded = accountRepo.findByIdOrNull(account.id)!!
+        val loaded = accountRepo.findByIdOrNull(account.id!!)!!
         loaded shouldBeEqualTo account
         loaded.owners.size shouldBeEqualTo account.owners.size
     }

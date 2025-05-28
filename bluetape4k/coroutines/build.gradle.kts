@@ -23,6 +23,8 @@ dependencies {
     compileOnly(Libs.kluent)
     compileOnly(Libs.kotlin_test_junit5)
 
+    testImplementation(Libs.mockk)
+
     // Coroutines Flow를 Reactor처럼 테스트 할 수 있도록 해줍니다.
     // 참고: https://github.com/cashapp/turbine/
     testImplementation(Libs.turbine)

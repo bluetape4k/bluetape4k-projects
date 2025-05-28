@@ -1,7 +1,7 @@
 package io.bluetape4k.exposed.dao
 
 import io.bluetape4k.ToStringBuilder
-import org.jetbrains.exposed.dao.Entity
+import org.jetbrains.exposed.v1.dao.Entity
 
 /**
  * Exposed Entity의 ID의 `_value` 값을 반환합니다.

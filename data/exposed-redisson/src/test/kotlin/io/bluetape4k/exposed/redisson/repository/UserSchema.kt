@@ -1,7 +1,7 @@
 package io.bluetape4k.exposed.redisson.repository
 
 import io.bluetape4k.codec.Base58
-import io.bluetape4k.exposed.dao.HasIdentifier
+import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.dao.id.TimebasedUUIDBase62Table
 import io.bluetape4k.exposed.dao.id.TimebasedUUIDEntity
 import io.bluetape4k.exposed.dao.id.TimebasedUUIDEntityClass
@@ -17,19 +17,19 @@ import io.bluetape4k.javatimes.toInstant
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.Dispatchers
-import org.jetbrains.exposed.dao.LongEntity
-import org.jetbrains.exposed.dao.LongEntityClass
-import org.jetbrains.exposed.dao.entityCache
-import org.jetbrains.exposed.dao.flushCache
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.LongIdTable
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.insertAndGetId
-import org.jetbrains.exposed.sql.javatime.CurrentTimestamp
-import org.jetbrains.exposed.sql.javatime.timestamp
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
+import org.jetbrains.exposed.v1.dao.LongEntity
+import org.jetbrains.exposed.v1.dao.LongEntityClass
+import org.jetbrains.exposed.v1.dao.entityCache
+import org.jetbrains.exposed.v1.dao.flushCache
+import org.jetbrains.exposed.v1.javatime.CurrentTimestamp
+import org.jetbrains.exposed.v1.javatime.timestamp
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.insertAndGetId
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
@@ -100,7 +100,7 @@ object UserSchema: KLogging() {
         updatedAt = this.updatedAt
     )
 
-    fun withUserTable(testDB: TestDB, statement: Transaction.() -> Unit) {
+    fun withUserTable(testDB: TestDB, statement: JdbcTransaction.() -> Unit) {
         withTables(testDB, UserTable) {
             UserEntity.new {
                 firstName = "Sunghyouk"
@@ -129,7 +129,7 @@ object UserSchema: KLogging() {
     suspend fun withSuspendedUserTable(
         testDB: TestDB,
         context: CoroutineContext = Dispatchers.IO,
-        statement: suspend Transaction.() -> Unit,
+        statement: suspend JdbcTransaction.() -> Unit,
     ) {
         // NOTE: 코루틴 작업은 작업이 완료 시까지 대기해야 해서, dropTables = false 로 설정합니다.
         withSuspendedTables(testDB, UserTable, context = context, dropTables = false) {
@@ -223,7 +223,7 @@ object UserSchema: KLogging() {
 
     fun withUserCredentialTable(
         testDB: TestDB,
-        statement: Transaction.() -> Unit,
+        statement: JdbcTransaction.() -> Unit,
     ) {
         withTables(testDB, UserCredentialTable) {
             UserCredentialTable.insert {
@@ -252,7 +252,7 @@ object UserSchema: KLogging() {
     suspend fun withSuspendedUserCredentialTable(
         testDB: TestDB,
         context: CoroutineContext = Dispatchers.IO,
-        statement: suspend Transaction.() -> Unit,
+        statement: suspend JdbcTransaction.() -> Unit,
     ) {
         // NOTE: 코루틴 작업은 작업이 완료 시까지 대기해야 해서, dropTables = false 로 설정합니다.
         withSuspendedTables(testDB, UserCredentialTable, context = context, dropTables = false) {

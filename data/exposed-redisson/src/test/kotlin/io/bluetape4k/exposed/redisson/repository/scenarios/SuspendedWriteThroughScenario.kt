@@ -1,7 +1,7 @@
 package io.bluetape4k.exposed.redisson.repository.scenarios
 
 import io.bluetape4k.collections.toVarargArray
-import io.bluetape4k.exposed.dao.HasIdentifier
+import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.redisson.repository.scenarios.SuspendedCacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.junit5.awaitility.coUntil
@@ -15,8 +15,8 @@ import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.withPollInterval
-import org.jetbrains.exposed.sql.autoIncColumnType
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.v1.core.autoIncColumnType
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource

@@ -5,6 +5,7 @@ import io.bluetape4k.exposed.domain.dto.MovieDTO
 import io.bluetape4k.exposed.domain.dto.MovieWithActorDTO
 import io.bluetape4k.exposed.domain.dto.MovieWithProducingActorDTO
 import io.bluetape4k.exposed.domain.mapper.toActorDTO
+import io.bluetape4k.exposed.domain.mapper.toMovieDTO
 import io.bluetape4k.exposed.domain.mapper.toMovieWithActorDTO
 import io.bluetape4k.exposed.domain.mapper.toMovieWithProducingActorDTO
 import io.bluetape4k.exposed.domain.model.MovieSchema.ActorInMovieTable
@@ -13,21 +14,22 @@ import io.bluetape4k.exposed.domain.model.MovieSchema.MovieEntity
 import io.bluetape4k.exposed.domain.model.MovieSchema.MovieTable
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import org.jetbrains.exposed.dao.load
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.andWhere
-import org.jetbrains.exposed.sql.count
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.count
+import org.jetbrains.exposed.v1.dao.load
+import org.jetbrains.exposed.v1.jdbc.andWhere
+import org.jetbrains.exposed.v1.jdbc.insertAndGetId
+import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.time.LocalDate
 
-class MovieRepository: ExposedRepository<MovieEntity, Long> {
+class MovieRepository: ExposedRepository<MovieDTO, Long> {
 
     companion object: KLogging()
 
     override val table = MovieTable
 
-    override fun ResultRow.toEntity(): MovieEntity =
-        MovieEntity.wrapRow(this)
+    override fun ResultRow.toEntity(): MovieDTO = toMovieDTO()
 
     fun searchMovies(params: Map<String, String?>): List<MovieEntity> {
         log.debug { "Search movies by params. params=$params" }
@@ -51,14 +53,15 @@ class MovieRepository: ExposedRepository<MovieEntity, Long> {
         return MovieEntity.wrapRows(query).toList()
     }
 
-    fun save(movieDto: MovieDTO): MovieEntity {
+    fun save(movieDto: MovieDTO): MovieDTO {
         log.debug { "Create new movie. movie: $movieDto" }
 
-        return MovieEntity.new {
-            name = movieDto.name
-            producerName = movieDto.producerName
-            releaseDate = LocalDate.parse(movieDto.releaseDate)
+        val id = MovieTable.insertAndGetId {
+            it[name] = movieDto.name
+            it[producerName] = movieDto.producerName
+            it[releaseDate] = LocalDate.parse(movieDto.releaseDate)
         }
+        return movieDto.copy(id = id.value)
     }
 
     /**

@@ -25,12 +25,13 @@ dependencies {
     compileOnly(Libs.reactor_kotlin_extensions)
     testImplementation(Libs.reactor_test)
 
-    compileOnly(project(":bluetape4k-spring-core"))
+    // R2DBC
+    api(Libs.r2dbc_pool)
     compileOnly(Libs.springBootStarter("data-r2dbc"))
     compileOnly(Libs.r2dbc_h2)
-    compileOnly(Libs.r2dbc_pool)
+    compileOnly(Libs.r2dbc_mysql)
     compileOnly(Libs.r2dbc_postgresql)
-    compileOnly(Libs.r2dbc_mysql_1_3)
+
 
     // Spring Boot
     compileOnly(Libs.springBoot("autoconfigure"))

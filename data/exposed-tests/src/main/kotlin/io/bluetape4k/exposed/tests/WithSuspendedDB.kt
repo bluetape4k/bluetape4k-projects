@@ -5,17 +5,17 @@ import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.jetbrains.exposed.sql.DatabaseConfig
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.transactionManager
+import org.jetbrains.exposed.v1.core.DatabaseConfig
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
+import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transactionManager
 import kotlin.coroutines.CoroutineContext
 
 suspend fun withSuspendedDb(
     testDB: TestDB,
     context: CoroutineContext? = Dispatchers.IO,
     configure: (DatabaseConfig.Builder.() -> Unit)? = null,
-    statement: suspend Transaction.(TestDB) -> Unit,
+    statement: suspend JdbcTransaction.(TestDB) -> Unit,
 ) {
     logger.info { "Running withSuspendedDb for $testDB" }
 

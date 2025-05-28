@@ -41,7 +41,7 @@ class UnidirectionTest(
         cloudRepo.save(cloud)
         flushAndClear()
 
-        val loaded = cloudRepo.findByIdOrNull(cloud.id)!!
+        val loaded = cloudRepo.findByIdOrNull(cloud.id!!)!!
 
         loaded shouldBeEqualTo cloud
         loaded.producedSnowflakes shouldContainSame cloud.producedSnowflakes
@@ -59,7 +59,7 @@ class UnidirectionTest(
 
         snowflakeRepo.count() shouldBeEqualTo 2
 
-        val loaded2 = cloudRepo.findByIdOrNull(cloud.id)!!
+        val loaded2 = cloudRepo.findByIdOrNull(cloud.id!!)!!
         loaded2 shouldBeEqualTo cloud
         loaded.producedSnowflakes.map { it.name } shouldContainSame listOf(sfToRemain.name, sf3.name)
     }

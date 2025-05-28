@@ -1,24 +1,26 @@
 package io.bluetape4k.exposed.repository
 
-import org.jetbrains.exposed.dao.Entity
-import org.jetbrains.exposed.dao.id.IdTable
-import org.jetbrains.exposed.sql.AbstractQuery
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.ISqlExpressionBuilder
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.SqlExpressionBuilder
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.batchInsert
-import org.jetbrains.exposed.sql.deleteIgnoreWhere
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.statements.BatchInsertStatement
-import org.jetbrains.exposed.sql.statements.UpdateStatement
-import org.jetbrains.exposed.sql.transactions.TransactionManager
-import org.jetbrains.exposed.sql.update
+import io.bluetape4k.exposed.core.HasIdentifier
+import org.jetbrains.exposed.v1.core.AbstractQuery
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.ISqlExpressionBuilder
+import org.jetbrains.exposed.v1.core.Op
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.SqlExpressionBuilder
+import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.v1.core.Transaction
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
+import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
+import org.jetbrains.exposed.v1.core.statements.UpdateStatement
+import org.jetbrains.exposed.v1.jdbc.batchInsert
+import org.jetbrains.exposed.v1.jdbc.deleteIgnoreWhere
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
+import org.jetbrains.exposed.v1.jdbc.update
 
 /**
  * Exposed 를 사용하는 Repository 의 기본 인터페이스입니다.
@@ -30,14 +32,14 @@ import org.jetbrains.exposed.sql.update
  * }
  * ```
  */
-interface ExposedRepository<T: Entity<ID>, ID: Any> {
+interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
 
     val table: IdTable<ID>
 
-    fun currentTransaction(): org.jetbrains.exposed.sql.Transaction =
+    fun currentTransaction(): Transaction =
         TransactionManager.current()
 
-    fun currentTransactionOrNull(): org.jetbrains.exposed.sql.Transaction? =
+    fun currentTransactionOrNull(): Transaction? =
         TransactionManager.currentOrNull()
 
     fun ResultRow.toEntity(): T
@@ -62,7 +64,7 @@ interface ExposedRepository<T: Entity<ID>, ID: Any> {
         table.selectAll().empty()
 
     fun exists(query: AbstractQuery<*>): Boolean {
-        val exists = org.jetbrains.exposed.sql.exists(query)
+        val exists = org.jetbrains.exposed.v1.core.exists(query)
         return table.select(exists).firstOrNull()?.getOrNull(exists) ?: false
     }
 
@@ -125,7 +127,7 @@ interface ExposedRepository<T: Entity<ID>, ID: Any> {
             .apply {
                 offset?.run { offset(offset) }
             }
-            .firstOrNull()?.toEntity()
+            .lastOrNull()?.toEntity()
 
     fun <V> findByField(field: Column<V>, value: V): List<T> = table.selectAll()
         .where { field eq value }

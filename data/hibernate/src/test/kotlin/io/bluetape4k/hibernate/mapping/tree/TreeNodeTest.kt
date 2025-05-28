@@ -31,7 +31,7 @@ class TreeNodeTest(
         repository.save(root)
         flushAndClear()
 
-        val loaded = repository.findByIdOrNull(child1.id)
+        val loaded = repository.findByIdOrNull(child1.id!!)
 
         loaded.shouldNotBeNull()
         loaded shouldBeEqualTo child1

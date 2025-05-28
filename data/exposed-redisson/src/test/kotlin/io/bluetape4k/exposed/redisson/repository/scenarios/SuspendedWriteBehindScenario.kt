@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.redisson.repository.scenarios
 
-import io.bluetape4k.exposed.dao.HasIdentifier
+import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.junit5.awaitility.coUntil
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -8,8 +8,8 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeGreaterThan
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.withPollInterval
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.time.Duration

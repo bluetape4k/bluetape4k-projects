@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.dao.id
 
-import org.jetbrains.exposed.dao.id.IdTable
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
 
 /**
  * Soft Deleted 를 지원하는 [IdTable] 입니다.

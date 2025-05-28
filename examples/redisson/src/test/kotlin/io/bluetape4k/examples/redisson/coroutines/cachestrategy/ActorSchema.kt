@@ -6,8 +6,8 @@ import io.bluetape4k.exposed.dao.id.SnowflakeIdTable
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.idHashCode
 import io.bluetape4k.exposed.dao.toStringBuilder
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import java.io.Serializable
 
 object ActorSchema {

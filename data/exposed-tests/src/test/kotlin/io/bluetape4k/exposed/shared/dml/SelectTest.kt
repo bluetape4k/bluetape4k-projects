@@ -23,20 +23,21 @@ import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotContain
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.Query
-import org.jetbrains.exposed.sql.SizedIterable
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.allFrom
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.andWhere
-import org.jetbrains.exposed.sql.anyFrom
-import org.jetbrains.exposed.sql.batchInsert
-import org.jetbrains.exposed.sql.compoundAnd
-import org.jetbrains.exposed.sql.compoundOr
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.or
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.v1.core.AbstractQuery
+import org.jetbrains.exposed.v1.core.Op
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.allFrom
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.anyFrom
+import org.jetbrains.exposed.v1.core.compoundAnd
+import org.jetbrains.exposed.v1.core.compoundOr
+import org.jetbrains.exposed.v1.core.or
+import org.jetbrains.exposed.v1.jdbc.Query
+import org.jetbrains.exposed.v1.jdbc.andWhere
+import org.jetbrains.exposed.v1.jdbc.batchInsert
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -945,7 +946,7 @@ class SelectTest: AbstractExposedTest() {
             commentedFrontSql shouldBeEqualTo "/*$text*/ $originalSql"
 
             // query에는 comment가 선두에 추가되었고, 후미에 추가한다.
-            val commentedTwiceSql = query.comment(text, Query.CommentPosition.BACK).prepareSQL(this, false)
+            val commentedTwiceSql = query.comment(text, AbstractQuery.CommentPosition.BACK).prepareSQL(this, false)
             commentedTwiceSql shouldBeEqualTo "/*$text*/ $originalSql /*$text*/"
 
             // 이미 query에는 comment가 존재하므로 IllegalStateException 발생
@@ -953,14 +954,16 @@ class SelectTest: AbstractExposedTest() {
                 query.comment("Testing").toList()
             }
 
-            val commentedBackSql = query.adjustComments(Query.CommentPosition.FRONT) // 새로운 주석이 지정되지 않았으므로, 기존 주석이 삭제된다.
-                .adjustComments(Query.CommentPosition.BACK, updatedText)  // 기존 주석이 삭제되고, 새로운 주석이 추가된다.
-                .prepareSQL(this, false)
+            val commentedBackSql =
+                query.adjustComments(AbstractQuery.CommentPosition.FRONT) // 새로운 주석이 지정되지 않았으므로, 기존 주석이 삭제된다.
+                    .adjustComments(AbstractQuery.CommentPosition.BACK, updatedText)  // 기존 주석이 삭제되고, 새로운 주석이 추가된다.
+                    .prepareSQL(this, false)
 
             commentedBackSql shouldBeEqualTo "$originalSql /*$updatedText*/"
 
             originalQuery.comment(text).count() shouldBeEqualTo originalQuery.count()
-            originalQuery.comment(text, Query.CommentPosition.BACK).count() shouldBeEqualTo originalQuery.count()
+            originalQuery.comment(text, AbstractQuery.CommentPosition.BACK)
+                .count() shouldBeEqualTo originalQuery.count()
         }
     }
 

@@ -1,10 +1,10 @@
 package io.bluetape4k.exposed.dao.id
 
+import io.bluetape4k.exposed.core.timebasedGenerated
 import io.bluetape4k.exposed.dao.StringEntity
 import io.bluetape4k.exposed.dao.StringEntityClass
-import io.bluetape4k.exposed.sql.timebasedGenerated
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IdTable
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
 
 /**
  * Entity ID 값을 Timebased UUID 를 Base62로 인코딩한 문자열을 사용하는 Table

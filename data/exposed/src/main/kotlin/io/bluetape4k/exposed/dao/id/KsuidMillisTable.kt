@@ -3,8 +3,8 @@ package io.bluetape4k.exposed.dao.id
 import io.bluetape4k.exposed.dao.StringEntity
 import io.bluetape4k.exposed.dao.StringEntityClass
 import io.bluetape4k.idgenerators.ksuid.KsuidMillis
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IdTable
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
 
 open class KsuidMillisTable(name: String = "", columnName: String = "id"): IdTable<String>(name) {
     final override val id =
