@@ -3,9 +3,9 @@ package io.bluetape4k.exposed.r2dbc.redisson.repository
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.coroutines.coAwait
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
+import kotlinx.coroutines.flow.toList
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -40,11 +40,11 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
     suspend fun findFreshById(id: ID): T? =
         entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
 
-    fun findFreshAll(vararg ids: ID): Flow<T> =
-        entityTable.selectAll().where { entityTable.id inList ids.toList() }.map { it.toEntity() }
+    suspend fun findFreshAll(vararg ids: ID): List<T> =
+        entityTable.selectAll().where { entityTable.id inList ids.toList() }.map { it.toEntity() }.toList()
 
-    fun findFreshAll(ids: Collection<ID>): Flow<T> =
-        entityTable.selectAll().where { entityTable.id inList ids }.map { it.toEntity() }
+    suspend fun findFreshAll(ids: Collection<ID>): List<T> =
+        entityTable.selectAll().where { entityTable.id inList ids }.map { it.toEntity() }.toList()
 
     suspend fun findAll(
         limit: Int? = null,
@@ -52,7 +52,7 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
         sortBy: Expression<*> = entityTable.id,
         sortOrder: SortOrder = SortOrder.ASC,
         where: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE },
-    ): Flow<T>
+    ): List<T>
 
     suspend fun get(id: ID): T? = cache.getAsync(id).coAwait()
     suspend fun getAll(ids: Collection<ID>, batchSize: Int = DefaultBatchSize): List<T>

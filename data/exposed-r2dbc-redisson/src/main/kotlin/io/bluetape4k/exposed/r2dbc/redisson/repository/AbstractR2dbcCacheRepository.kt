@@ -15,9 +15,9 @@ import io.bluetape4k.redis.redisson.coroutines.coAwait
 import io.bluetape4k.support.requireNotNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.toList
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
@@ -153,7 +153,7 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
         sortBy: Expression<*>,
         sortOrder: SortOrder,
         where: SqlExpressionBuilder.() -> Op<Boolean>,
-    ): Flow<T> {
+    ): List<T> {
         return suspendTransaction(scope.coroutineContext) {
             entityTable
                 .selectAll()
@@ -167,6 +167,7 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
                 .onEach {
                     cache.fastPutAsync(it.id, it).coAwait()
                 }
+                .toList()
         }
     }
 

@@ -13,7 +13,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ChannelResult
 import kotlinx.coroutines.future.asCompletableFuture
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.plus
 import kotlinx.coroutines.withTimeoutOrNull
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import org.redisson.api.AsyncIterator
@@ -40,12 +39,13 @@ open class R2dbcEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
         private const val DEFAULT_QUERY_TIMEOUT = 30_000  // 30 seconds
         private const val DEFAULT_LOAD_ALL_IDS_TIMEOUT = 60_000L  // 60 seconds
 
-        protected val DefaultMapLoaderCoroutineScope = CoroutineScope(Dispatchers.IO) + CoroutineName("R2dbc-Loader")
+        protected val DefaultMapLoaderCoroutineScope =
+            CoroutineScope(Dispatchers.IO + CoroutineName("R2dbc-Loader"))
     }
 
     override fun load(id: ID): CompletionStage<E?> = scope.async {
         log.debug { "DB에서 엔티티를 로딩... id=$id" }
-        suspendTransaction(scope.coroutineContext) {
+        suspendTransaction {
             try {
                 loadByIdFromDB(id)
                     .apply {
@@ -68,7 +68,7 @@ open class R2dbcEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
         scope.launch {
             log.debug { "DB에서 모든 ID를 로딩합니다 ..." }
             try {
-                suspendTransaction(scope.coroutineContext) {
+                suspendTransaction {
                     this.queryTimeout = DEFAULT_QUERY_TIMEOUT  // 30 seconds
                     withTimeoutOrNull(DEFAULT_LOAD_ALL_IDS_TIMEOUT) {
                         loadAllIdsFromDB(channel)
@@ -93,14 +93,18 @@ open class R2dbcEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
                     .also { pendingReceive = it }
             }
 
-            override fun hasNext(): CompletionStage<Boolean?> = ensurePending().thenApply { result ->
-                result.isSuccess
-            }
+            override fun hasNext(): CompletionStage<Boolean?> =
+                ensurePending()
+                    .thenApply { result ->
+                        result.isSuccess
+                    }
 
-            override fun next(): CompletionStage<ID> = ensurePending().thenApply { result ->
-                pendingReceive = null
-                result.getOrNull() ?: throw NoSuchElementException("No more elements")
-            }
+            override fun next(): CompletionStage<ID> =
+                ensurePending()
+                    .thenApply { result ->
+                        pendingReceive = null
+                        result.getOrNull() ?: throw NoSuchElementException("No more elements")
+                    }
         }
     }
 }

@@ -104,13 +104,12 @@ interface R2dbcReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: R2dbcCacheTes
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `findAll - 전체 엔티티를 가져옵니다`(testDB: TestDB) = runTest {
         withR2dbcEntityTable(testDB) {
-
-            val entities = repository.findAll().toList()
+            val entities = repository.findAll()
             entities.shouldNotBeEmpty()
             entities.size shouldBeEqualTo repository.entityTable.selectAll().count().toInt()
 
             // @ParameterizedTest 때문에 testDB 들이 꼬인다... 대기 시간을 둬서, 다른 DB와의 영항을 미치지 않게 한다
-            delay(DEFAULT_DELAY)
+            // delay(DEFAULT_DELAY)
         }
     }
 

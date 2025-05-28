@@ -9,7 +9,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.future.asCompletableFuture
-import kotlinx.coroutines.plus
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransactionAsync
 import org.redisson.api.map.MapWriterAsync
 import java.util.concurrent.CompletionStage
@@ -30,7 +29,8 @@ open class R2dbcEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     companion object: KLoggingChannel() {
         private const val DEFAULT_QUERY_TIMEOUT = 30_000  // 30 seconds
 
-        protected val defaultMapWriterCoroutineScope = CoroutineScope(Dispatchers.IO) + CoroutineName("R2dbc-Writer")
+        protected val defaultMapWriterCoroutineScope =
+            CoroutineScope(Dispatchers.IO + CoroutineName("R2dbc-Writer"))
     }
 
     override fun write(map: Map<ID, E>): CompletionStage<Void> = scope.async {
