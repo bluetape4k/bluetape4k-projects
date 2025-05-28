@@ -1,5 +1,6 @@
 package io.bluetape4k.bucket4j.local
 
+import io.bluetape4k.bucket4j.internal.Slf4jBucketListener
 import io.bluetape4k.cache.caffeine.caffeine
 import io.bluetape4k.cache.caffeine.loadingCache
 import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
@@ -50,7 +51,8 @@ abstract class AbstractLocalBucketProvider(
         return LockFreeBucket(
             bucketConfiguration,
             MathType.INTEGER_64_BITS,
-            TimeMeter.SYSTEM_MILLISECONDS
+            TimeMeter.SYSTEM_MILLISECONDS,
+            Slf4jBucketListener(log)
         )
     }
 

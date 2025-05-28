@@ -1,6 +1,7 @@
 package io.bluetape4k.bucket4j.coroutines
 
 import io.bluetape4k.bucket4j.bucketConfiguration
+import io.bluetape4k.bucket4j.internal.Slf4jBucketListener
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
@@ -46,7 +47,7 @@ class CoLocalBucket private constructor(
     bucketConfiguration: BucketConfiguration,
     mathType: MathType,
     timeMeter: TimeMeter,
-): LockFreeBucket(bucketConfiguration, mathType, timeMeter) {
+): LockFreeBucket(bucketConfiguration, mathType, timeMeter, Slf4jBucketListener(log)) {
 
     companion object: KLoggingChannel() {
         @JvmStatic

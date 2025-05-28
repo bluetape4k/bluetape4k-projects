@@ -20,15 +20,13 @@ class RedissonAsyncBucketProxyProviderTest: AbstractAsyncBucketProxyProviderTest
         val redisson = TestRedisServer.redissonClient()
 
         val redissonProxyManager = redissonBasedProxyManagerOf(redisson) {
-            withClientSideConfig(
-                ClientSideConfig.getDefault()
-                    .withExpirationAfterWriteStrategy(
-                        ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(
-                            90.seconds.toJavaDuration()
-                        )
+            ClientSideConfig.getDefault()
+                .withExpirationAfterWriteStrategy(
+                    ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(
+                        90.seconds.toJavaDuration()
                     )
-                    .withExecutionStrategy(ExecutionStrategy.background(Executors.newVirtualThreadPerTaskExecutor()))
-            )
+                )
+                .withExecutionStrategy(ExecutionStrategy.background(Executors.newVirtualThreadPerTaskExecutor()))
         }
 
         AsyncBucketProxyProvider(redissonProxyManager.asAsync(), defaultBucketConfiguration)

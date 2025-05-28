@@ -103,7 +103,7 @@ object Versions {
     const val springfox_swagger = "3.0.0"
     const val problem = "0.29.1"             // https://mvnrepository.com/artifact/org.zalando/problem-spring-web
 
-    const val bucket4j = "8.10.1"       // https://mvnrepository.com/artifact/com.bucket4j/bucket4j-core
+    const val bucket4j = "8.14.0"       // https://mvnrepository.com/artifact/com.bucket4j/bucket4j-core
     const val resilience4j = "2.3.0"   // https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-bom
     const val netty = "4.1.121.Final"  // https://mvnrepository.com/artifact/io.netty/netty-all
 
@@ -608,7 +608,7 @@ object Libs {
     val resilience4j_vertx = resilience4j("vertx")
 
     // Bucket4j
-    fun bucket4j(module: String) = "com.bucket4j:bucket4j-$module:${Versions.bucket4j}"
+    fun bucket4j(module: String) = "com.bucket4j:bucket4j_jdk17-$module:${Versions.bucket4j}"
     val bucket4j_caffeine = bucket4j("caffeine")
     val bucket4j_core = bucket4j("core")
     val bucket4j_jcache = bucket4j("jcache")
@@ -616,7 +616,8 @@ object Libs {
     val bucket4j_hazelcast_all = bucket4j("hazelcast-all")
     val bucket4j_ignite = bucket4j("ignite")
     val bucket4j_infinispan_all = bucket4j("infinispan-all")
-    val bucket4j_redis = bucket4j("redis")
+    val bucket4j_redisson = bucket4j("redisson")
+    val bucket4j_lettuce = bucket4j("lettuce")
 
     // Bucket4j Spring Boot
     // https://mvnrepository.com/artifact/com.giffing.bucket4j.spring.boot.starter/bucket4j-spring-boot-starter

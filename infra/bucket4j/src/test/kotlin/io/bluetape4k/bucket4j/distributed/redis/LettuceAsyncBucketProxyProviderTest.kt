@@ -20,15 +20,13 @@ class LettuceAsyncBucketProxyProviderTest: AbstractAsyncBucketProxyProviderTest(
         val redisClient = TestRedisServer.lettuceClient()
 
         val proxyManager = lettuceBasedProxyManagerOf(redisClient) {
-            withClientSideConfig(
-                ClientSideConfig.getDefault()
-                    .withExpirationAfterWriteStrategy(
-                        ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(
-                            90.seconds.toJavaDuration()
-                        )
+            ClientSideConfig.getDefault()
+                .withExpirationAfterWriteStrategy(
+                    ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(
+                        90.seconds.toJavaDuration()
                     )
-                    .withExecutionStrategy(ExecutionStrategy.background(Executors.newVirtualThreadPerTaskExecutor()))
-            )
+                )
+                .withExecutionStrategy(ExecutionStrategy.background(Executors.newVirtualThreadPerTaskExecutor()))
         }
 
         AsyncBucketProxyProvider(proxyManager.asAsync(), defaultBucketConfiguration)

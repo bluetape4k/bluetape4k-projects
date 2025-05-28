@@ -22,7 +22,6 @@ class RedissonCoRateLimiterTest: AbstractCoRateLimiterTest() {
         val redisson = TestRedisServer.redissonClient()
 
         val redissonProxyManager = redissonBasedProxyManagerOf(redisson) {
-            withClientSideConfig(
                 ClientSideConfig.getDefault()
                     .withExpirationAfterWriteStrategy(
                         ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(
@@ -30,7 +29,6 @@ class RedissonCoRateLimiterTest: AbstractCoRateLimiterTest() {
                         )
                     )
                     .withExecutionStrategy(ExecutionStrategy.background(Executors.newVirtualThreadPerTaskExecutor()))
-            )
         }
 
         AsyncBucketProxyProvider(redissonProxyManager.asAsync(), defaultBucketConfiguration)

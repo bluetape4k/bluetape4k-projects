@@ -14,7 +14,8 @@ dependencies {
 
     // Bucket4j
     api(Libs.bucket4j_core)
-    compileOnly(Libs.bucket4j_redis)
+    compileOnly(Libs.bucket4j_lettuce)
+    compileOnly(Libs.bucket4j_redisson)
 
     // Local Cache
     compileOnly(Libs.caffeine)

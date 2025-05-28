@@ -1,5 +1,6 @@
 package io.bluetape4k.bucket4j.distributed.redis
 
+import io.github.bucket4j.redis.lettuce.Bucket4jLettuce
 import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager
 import io.lettuce.core.RedisClient
 import io.lettuce.core.cluster.RedisClusterClient
@@ -29,10 +30,10 @@ import io.lettuce.core.cluster.RedisClusterClient
  */
 fun lettuceBasedProxyManagerOf(
     redisClient: RedisClient,
-    initializer: LettuceBasedProxyManager.LettuceBasedProxyManagerBuilder<ByteArray>.() -> Unit,
+    initializer: Bucket4jLettuce.LettuceBasedProxyManagerBuilder<ByteArray>.() -> Unit,
 ): LettuceBasedProxyManager<ByteArray> {
-    return LettuceBasedProxyManager
-        .builderFor(redisClient)
+    return Bucket4jLettuce
+        .casBasedBuilder(redisClient)
         .apply(initializer)
         .build()
 }
@@ -62,10 +63,10 @@ fun lettuceBasedProxyManagerOf(
  */
 fun lettuceBasedProxyManagerOf(
     redisClusterClient: RedisClusterClient,
-    initializer: LettuceBasedProxyManager.LettuceBasedProxyManagerBuilder<ByteArray>.() -> Unit,
+    initializer: Bucket4jLettuce.LettuceBasedProxyManagerBuilder<ByteArray>.() -> Unit,
 ): LettuceBasedProxyManager<ByteArray> {
-    return LettuceBasedProxyManager
-        .builderFor(redisClusterClient)
+    return Bucket4jLettuce
+        .casBasedBuilder(redisClusterClient)
         .apply(initializer)
         .build()
 }

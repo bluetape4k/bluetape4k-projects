@@ -3,7 +3,6 @@ package io.bluetape4k.bucket4j.local
 import io.bluetape4k.logging.KLogging
 import io.github.bucket4j.Bucket
 import io.github.bucket4j.BucketConfiguration
-import io.github.bucket4j.MathType
 import io.github.bucket4j.local.LocalBucket
 import io.github.bucket4j.local.SynchronizationStrategy
 
@@ -40,7 +39,7 @@ open class LocalBucketProvider(
     override fun createBucket(): LocalBucket {
         val builder = Bucket.builder()
             .withSynchronizationStrategy(SynchronizationStrategy.LOCK_FREE)
-            .withMath(MathType.INTEGER_64_BITS)
+            // .withMath(MathType.INTEGER_64_BITS)
             .withMillisecondPrecision()
 
         bucketConfiguration.bandwidths.forEach {

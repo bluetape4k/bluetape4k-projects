@@ -1,6 +1,7 @@
 package io.bluetape4k.bucket4j.distributed.redis
 
 import io.github.bucket4j.distributed.serialization.Mapper
+import io.github.bucket4j.redis.redisson.Bucket4jRedisson
 import io.github.bucket4j.redis.redisson.cas.RedissonBasedProxyManager
 import org.redisson.Redisson
 import org.redisson.api.RedissonClient
@@ -31,9 +32,12 @@ import org.redisson.command.CommandAsyncExecutor
  */
 inline fun redissonBasedProxyManagerOf(
     redisson: RedissonClient,
-    initializer: RedissonBasedProxyManager.RedissonBasedProxyManagerBuilder<ByteArray>.() -> Unit,
+    initializer: Bucket4jRedisson.RedissonBasedProxyManagerBuilder<ByteArray>.() -> Unit,
 ): RedissonBasedProxyManager<ByteArray> {
-    return redissonBasedProxyManagerOf((redisson as Redisson).commandExecutor, initializer)
+    return redissonBasedProxyManagerOf(
+        (redisson as Redisson).commandExecutor,
+        initializer
+    )
 }
 
 
@@ -62,11 +66,10 @@ inline fun redissonBasedProxyManagerOf(
  */
 inline fun redissonBasedProxyManagerOf(
     commandAsyncExecutor: CommandAsyncExecutor,
-    initializer: RedissonBasedProxyManager.RedissonBasedProxyManagerBuilder<ByteArray>.() -> Unit,
+    initializer: Bucket4jRedisson.RedissonBasedProxyManagerBuilder<ByteArray>.() -> Unit,
 ): RedissonBasedProxyManager<ByteArray> {
-    return RedissonBasedProxyManager
-        .builderFor(commandAsyncExecutor)
-        .withKeyMapper(Mapper.BYTES)
+    return Bucket4jRedisson
+        .RedissonBasedProxyManagerBuilder(Mapper.BYTES, commandAsyncExecutor)
         .apply(initializer)
         .build()
 }
