@@ -32,6 +32,14 @@ import org.apache.kafka.clients.producer.RecordMetadata
  * @param record 발행할 메시지 ([ProducerRecord])
  * @return 발행 결과를 표현하는 [RecordMetadata] instance
  */
+suspend fun <K, V> Producer<K, V>.awaitSend(record: ProducerRecord<K, V>): RecordMetadata {
+    return send(record).coAwait()
+}
+
+@Deprecated(
+    message = "Use `awaitSend` instead.",
+    replaceWith = ReplaceWith("awaitSend(record)")
+)
 suspend fun <K, V> Producer<K, V>.sendSuspending(record: ProducerRecord<K, V>): RecordMetadata {
     return send(record).coAwait()
 }
@@ -51,6 +59,20 @@ suspend fun <K, V> Producer<K, V>.sendSuspending(record: ProducerRecord<K, V>): 
  * @param records producing 할 record의 flow
  * @return producing 된 결과 ([RecordMetadata])의 flow
  */
+suspend fun <K, V> Producer<K, V>.sendAsFlow(records: Flow<ProducerRecord<K, V>>): Flow<RecordMetadata> {
+    // TODO: callback flow 를 이용하는 게 낫지 않나?
+    return records
+        .buffer()
+        .async {
+            awaitSend(it)
+        }
+        .onCompletion { flush() }
+}
+
+@Deprecated(
+    message = "Use `sendAsFlow` instead.",
+    replaceWith = ReplaceWith("sendAsFlow(records)")
+)
 suspend fun <K, V> Producer<K, V>.sendFlow(records: Flow<ProducerRecord<K, V>>): Flow<RecordMetadata> {
     // TODO: callback flow 를 이용하는 게 낫지 않나?
     return records
@@ -76,6 +98,22 @@ suspend fun <K, V> Producer<K, V>.sendFlow(records: Flow<ProducerRecord<K, V>>):
  * @param records producing 할 record의 flow
  * @return 마지막 record에 대한 producing 한 결과
  */
+suspend fun <K, V> Producer<K, V>.sendAsFlowParallel(
+    records: Flow<ProducerRecord<K, V>>,
+): RecordMetadata {
+    return records
+        .buffer()
+        .async {
+            awaitSend(it)
+        }
+        .onCompletion { flush() }
+        .last()
+}
+
+@Deprecated(
+    message = "Use `sendAsFlowParallel` instead.",
+    replaceWith = ReplaceWith("sendAsFlowParallel(records)")
+)
 suspend fun <K, V> Producer<K, V>.sendFlowParallel(
     records: Flow<ProducerRecord<K, V>>,
 ): RecordMetadata {

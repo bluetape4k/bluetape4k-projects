@@ -2,7 +2,7 @@ package org.springframework.kafka.annotation
 
 import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.kafka.spring.test.utils.consumerProps
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.uninitialized
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit
 @EmbeddedKafka(topics = ["blc.2.1"], partitions = 1)
 class BatchListenerConversion2Tests {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val DEFAULT_TEST_GROUP_ID = "blc2"
     }
 

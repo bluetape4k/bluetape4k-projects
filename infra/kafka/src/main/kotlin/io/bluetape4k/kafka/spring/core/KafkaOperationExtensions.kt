@@ -31,6 +31,25 @@ import kotlin.coroutines.resumeWithException
  * @param record 전송할 정보 [ProducerRecord]
  * @return 발송 결과 정보 [SendResult]
  */
+suspend inline fun <K, V> KafkaOperations<K, V>.awaitSend(
+    record: ProducerRecord<K, V>,
+): SendResult<K, V> = suspendCancellableCoroutine { cont ->
+    val result: Future<RecordMetadata>? = execute { producer ->
+        producer.send(record) { metadata, exception ->
+            if (exception != null) {
+                cont.resumeWithException(exception)
+            } else {
+                cont.resume(SendResult(record, metadata))
+            }
+        }
+    }
+    cont.invokeOnCancellation { result?.cancel(true) }
+}
+
+@Deprecated(
+    message = "Use `awaitSend` instead.",
+    replaceWith = ReplaceWith("awaitSend(record)")
+)
 suspend inline fun <K, V> KafkaOperations<K, V>.sendSuspending(
     record: ProducerRecord<K, V>,
 ): SendResult<K, V> = suspendCancellableCoroutine { cont ->

@@ -4,6 +4,7 @@ import io.bluetape4k.kafka.streams.kstream.consumedOf
 import io.bluetape4k.kafka.streams.kstream.groupedOf
 import io.bluetape4k.kafka.streams.kstream.materializedOf
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.uninitialized
 import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldNotBeNull
@@ -59,7 +60,7 @@ import java.util.*
 )
 class WordCountExamples {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         internal const val INPUT_TOPIC = "word-input-topic"
         internal const val OUTPUT_TOPIC = "word-output-topic"
     }

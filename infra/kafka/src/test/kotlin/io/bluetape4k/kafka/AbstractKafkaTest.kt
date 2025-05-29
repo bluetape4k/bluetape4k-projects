@@ -2,12 +2,12 @@ package io.bluetape4k.kafka
 
 import io.bluetape4k.LibraryName
 import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.testcontainers.mq.KafkaServer
 
 abstract class AbstractKafkaTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         const val TEST_TOPIC_NAME = "$LibraryName.kafka.test-topic.1"
         const val REPEAT_SIZE = 3
 

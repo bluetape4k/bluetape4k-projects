@@ -1,10 +1,10 @@
 package org.springframework.kafka.streams
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 
 class HeaderEnricherTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val INPUT = "input"
         private const val OUTPUT = "output"
     }

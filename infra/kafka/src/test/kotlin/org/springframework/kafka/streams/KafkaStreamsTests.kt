@@ -1,7 +1,7 @@
 package org.springframework.kafka.streams
 
 import io.bluetape4k.kafka.spring.test.utils.getPropertyValue
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.uninitialized
@@ -79,7 +79,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 )
 class KafkaStreamsTests {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         internal const val STREAMING_TOPIC1 = "streamingTopic1"
         internal const val FOOS = "foos"
     }
