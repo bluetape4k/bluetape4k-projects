@@ -1,6 +1,6 @@
 package io.bluetape4k.spring.cassandra.convert
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import kotlinx.atomicfu.atomic
 import org.amshove.kluent.shouldNotBeNull
@@ -15,7 +15,7 @@ class CassandraTypeMappingTest(
     @Autowired private val operations: CassandraOperations,
 ): io.bluetape4k.spring.cassandra.AbstractCassandraTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private val initialized = atomic(false)
     }
 

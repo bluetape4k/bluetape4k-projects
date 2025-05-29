@@ -1,6 +1,6 @@
 package io.bluetape4k.spring.cassandra.schema
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import org.springframework.data.cassandra.core.CassandraOperations
@@ -24,7 +24,11 @@ import kotlin.reflect.KClass
  * SchemaGenerator.potentiallyCreateTableFor<AllPossibleTypes>(operations)
  * ```
  */
-object SchemaGenerator: KLogging() {
+object SchemaGenerator: KLoggingChannel() {
+
+    inline fun <reified T: Any> createTableAndTypes(operations: CassandraOperations) {
+        createTableAndTypes(operations, T::class)
+    }
 
     fun <T: Any> createTableAndTypes(operations: CassandraOperations, entityKClass: KClass<T>) {
         val persistentEntity = operations.converter.mappingContext.getRequiredPersistentEntity(entityKClass.java)
@@ -77,7 +81,7 @@ object SchemaGenerator: KLogging() {
                 .forEach { property: CassandraPersistentProperty ->
                     val propertyEntity = when {
                         property.isEmbedded -> EmbeddedEntityOperations(mappingContext).getEntity(property)
-                        else                -> mappingContext.getRequiredPersistentEntity(property)
+                        else -> mappingContext.getRequiredPersistentEntity(property)
                     }
                     log.debug { "property=$property, propertyEntity=$propertyEntity" }
                     potentiallyCreateUdtFor(operations, propertyEntity, schemaFactory)

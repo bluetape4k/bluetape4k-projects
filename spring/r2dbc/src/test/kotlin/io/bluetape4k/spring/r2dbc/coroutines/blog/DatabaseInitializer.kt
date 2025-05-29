@@ -1,6 +1,6 @@
 package io.bluetape4k.spring.r2dbc.coroutines.blog
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import io.bluetape4k.spring.r2dbc.coroutines.blog.domain.CommentRepository
 import io.bluetape4k.spring.r2dbc.coroutines.blog.domain.PostRepository
@@ -15,7 +15,7 @@ class DatabaseInitializer(
     private val commentRepository: CommentRepository,
 ) {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     /**
      * Spring Boot Application이 준비되면 호출되는 Event Listener

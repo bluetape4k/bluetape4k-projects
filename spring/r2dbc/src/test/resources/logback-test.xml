@@ -21,10 +21,9 @@
     </appender>
     <!-- formatter:on -->
 
-    <logger name="io.bluetape4k.spring" level="DEBUG"/>
+    <logger name="io.bluetape4k.spring.r2dbc" level="DEBUG"/>
 
-<!--    <logger name="io.r2dbc" level="DEBUG"/>-->
-<!--    <logger name="org.springframework.data" level="DEBUG"/>-->
+    <logger name="io.r2dbc" level="DEBUG"/>
     <logger name="org.springframework.data.r2dbc" level="DEBUG"/>
 
     <root level="INFO">

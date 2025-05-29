@@ -6,8 +6,13 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.spring.cassandra.AbstractReactiveCassandraTestConfiguration
+import io.bluetape4k.spring.cassandra.awaitCount
+import io.bluetape4k.spring.cassandra.awaitExists
+import io.bluetape4k.spring.cassandra.awaitInsert
+import io.bluetape4k.spring.cassandra.awaitTruncate
 import io.bluetape4k.spring.cassandra.cast
 import io.bluetape4k.spring.cassandra.query.eq
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
@@ -38,7 +43,6 @@ import org.springframework.data.cassandra.core.query
 import org.springframework.data.cassandra.core.query.Query
 import org.springframework.data.cassandra.core.query.query
 import org.springframework.data.cassandra.core.query.where
-import org.springframework.data.cassandra.core.truncate
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
@@ -59,14 +63,14 @@ class ReactiveSelectOperationsTest(
 
     @BeforeEach
     fun beforeEach() {
-        runBlocking {
-            operations.truncate<Person>().awaitSingleOrNull()
+        runBlocking(Dispatchers.IO) {
+            operations.awaitTruncate<Person>()
 
             han = newPerson()
             luke = newPerson()
 
-            operations.insert(han).awaitSingle()
-            operations.insert(luke).awaitSingle()
+            operations.awaitInsert(han)
+            operations.awaitInsert(luke)
         }
     }
 
@@ -195,8 +199,11 @@ class ReactiveSelectOperationsTest(
 
     @Test
     fun `조건절 없이 모든 레코드 Count 얻기`() = runSuspendIO {
-        val count = operations.query<Person>().count().awaitSingle()
+        val count = operations.awaitCount<Person>()
         count shouldBeEqualTo 2L
+
+        val count2 = operations.query<Person>().count().awaitSingle()
+        count2 shouldBeEqualTo 2L
     }
 
     @Test
@@ -231,13 +238,15 @@ class ReactiveSelectOperationsTest(
 
     @Test
     fun `레코드가 없는 테이블의 exists`() = runSuspendIO {
-        operations.truncate<Person>().awaitSingleOrNull()
+        operations.awaitTruncate<Person>()
+        operations.awaitExists<Person>().shouldBeFalse()
         operations.query<Person>().exists().awaitSingle().shouldBeFalse()
     }
 
     @Test
     fun `조건에 매칭되는 것이 없는 경우 exists는 false 반환`() = runSuspendIO {
         operations.query<Person>().matching(querySpock()).exists().awaitSingle().shouldBeFalse()
+        operations.awaitExists<Person>(querySpock()).shouldBeFalse()
     }
 
     @Test

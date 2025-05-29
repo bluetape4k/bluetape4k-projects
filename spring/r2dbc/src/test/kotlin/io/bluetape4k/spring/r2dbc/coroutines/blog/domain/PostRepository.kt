@@ -1,14 +1,14 @@
 package io.bluetape4k.spring.r2dbc.coroutines.blog.domain
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.spring.r2dbc.coroutines.coCountAll
-import io.bluetape4k.spring.r2dbc.coroutines.coDeleteAll
-import io.bluetape4k.spring.r2dbc.coroutines.coFindFirstById
-import io.bluetape4k.spring.r2dbc.coroutines.coFindFirstByIdOrNull
-import io.bluetape4k.spring.r2dbc.coroutines.coFindOneById
-import io.bluetape4k.spring.r2dbc.coroutines.coFindOneByIdOrNull
-import io.bluetape4k.spring.r2dbc.coroutines.coInsert
-import io.bluetape4k.spring.r2dbc.coroutines.coSelectAll
+import io.bluetape4k.spring.r2dbc.coroutines.awaitCountAll
+import io.bluetape4k.spring.r2dbc.coroutines.awaitDeleteAll
+import io.bluetape4k.spring.r2dbc.coroutines.awaitFindFirstById
+import io.bluetape4k.spring.r2dbc.coroutines.awaitFindFirstByIdOrNull
+import io.bluetape4k.spring.r2dbc.coroutines.awaitFindOneById
+import io.bluetape4k.spring.r2dbc.coroutines.awaitFindOneByIdOrNull
+import io.bluetape4k.spring.r2dbc.coroutines.awaitInsert
+import io.bluetape4k.spring.r2dbc.coroutines.awaitSelectAll
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.r2dbc.convert.MappingR2dbcConverter
 import org.springframework.data.r2dbc.core.R2dbcEntityOperations
@@ -24,35 +24,35 @@ class PostRepository(
     companion object: KLoggingChannel()
 
     suspend fun count(): Long {
-        return operations.coCountAll<Post>()
+        return operations.awaitCountAll<Post>()
     }
 
     fun findAll(): Flow<Post> {
-        return operations.coSelectAll()
+        return operations.awaitSelectAll()
     }
 
     suspend fun findOneById(postId: Long): Post {
-        return operations.coFindOneById(postId)
+        return operations.awaitFindOneById(postId)
     }
 
     suspend fun findOneByIdOrNull(postId: Long): Post? {
-        return operations.coFindOneByIdOrNull(postId)
+        return operations.awaitFindOneByIdOrNull(postId)
     }
 
     suspend fun findFirstById(postId: Long): Post {
-        return operations.coFindFirstById(postId, Post::id.name)
+        return operations.awaitFindFirstById(postId, Post::id.name)
     }
 
     suspend fun findFirstByIdOrNull(postId: Long): Post? {
-        return operations.coFindFirstByIdOrNull(postId, Post::id.name)
+        return operations.awaitFindFirstByIdOrNull(postId, Post::id.name)
     }
 
     suspend fun deleteAll(): Long {
-        return operations.coDeleteAll<Post>()
+        return operations.awaitDeleteAll<Post>()
     }
 
     suspend fun save(post: Post): Post {
-        return operations.coInsert(post)
+        return operations.awaitInsert(post)
     }
 
     suspend fun init() {

@@ -5,9 +5,16 @@ import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.data.r2dbc.core.ReactiveInsertOperation
 import org.springframework.data.r2dbc.core.insert
 
+suspend inline fun <reified T: Any> ReactiveInsertOperation.awaitInsert(entity: T): T =
+    insert<T>().using(entity).awaitSingle()
+
+@Deprecated("Use `awaitInsert` instead", ReplaceWith("awaitInsert(entity)"))
 suspend inline fun <reified T: Any> ReactiveInsertOperation.coInsert(entity: T): T =
     insert<T>().using(entity).awaitSingle()
 
+suspend inline fun <reified T: Any> ReactiveInsertOperation.awaitInsertOrNull(entity: T): T? =
+    insert<T>().using(entity).awaitSingleOrNull()
 
+@Deprecated("Use `awaitInsertOrNull` instead", ReplaceWith("awaitInsertOrNull(entity)"))
 suspend inline fun <reified T: Any> ReactiveInsertOperation.coInsertOrNull(entity: T): T? =
     insert<T>().using(entity).awaitSingleOrNull()

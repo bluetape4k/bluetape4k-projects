@@ -33,18 +33,42 @@ import org.springframework.data.cassandra.core.cql.ReactiveSessionCallback
  * @param action [ReactiveSession]을 받아 [Flow]를 반환하는 함수
  * @return [Flow] 형식의 결과
  */
+fun <T: Any> ReactiveCqlOperations.awaitExecute(action: (ReactiveSession) -> Flow<T>): Flow<T> =
+    execute(ReactiveSessionCallback { session -> action(session).asPublisher() }).asFlow()
+
+@Deprecated("Use awaitExecute instead", ReplaceWith("awaitExecute(action)"))
 fun <T: Any> ReactiveCqlOperations.coExecute(action: (ReactiveSession) -> Flow<T>): Flow<T> =
     execute(ReactiveSessionCallback { session -> action(session).asPublisher() }).asFlow()
 
+suspend fun ReactiveCqlOperations.awaitExecute(cql: String): Boolean? =
+    execute(cql).awaitSingleOrNull()
+
+@Deprecated("Use awaitExecute(cql) instead", ReplaceWith("awaitExecute(cql)"))
 suspend fun ReactiveCqlOperations.coExecute(cql: String): Boolean? =
     execute(cql).awaitSingleOrNull()
 
 suspend fun ReactiveCqlOperations.coExecute(psc: ReactivePreparedStatementCreator): Boolean? =
     execute(psc).awaitSingleOrNull()
 
+fun ReactiveCqlOperations.awaitExecute(cql: String, args: () -> Flow<Array<Any?>>): Flow<Boolean?> =
+    execute(cql, args().asPublisher()).asFlow()
+
+@Deprecated("Use awaitExecute(cql, args) instead", ReplaceWith("awaitExecute(cql, args)"))
 fun ReactiveCqlOperations.coExecute(cql: String, args: () -> Flow<Array<Any?>>): Flow<Boolean?> =
     execute(cql, args().asPublisher()).asFlow()
 
+suspend fun <T: Any> ReactiveCqlOperations.awaitQueryForObject(
+    cql: String,
+    vararg args: Any?,
+    rowMapper: (Row, Int) -> T?,
+): T? {
+    return queryForObject(cql, rowMapper, *args).awaitSingleOrNull()
+}
+
+@Deprecated(
+    "Use awaitQueryForObject(cql, args, rowMapper) instead",
+    ReplaceWith("awaitQueryForObject(cql, *args, rowMapper)")
+)
 suspend fun <T: Any> ReactiveCqlOperations.coQueryForObject(
     cql: String,
     vararg args: Any?,
@@ -53,15 +77,31 @@ suspend fun <T: Any> ReactiveCqlOperations.coQueryForObject(
     return queryForObject(cql, rowMapper, *args).awaitSingleOrNull()
 }
 
+suspend inline fun <reified T: Any> ReactiveCqlOperations.awaitQueryForObject(cql: String, vararg args: Any): T? {
+    return queryForObject(cql, T::class.java, *args).awaitSingleOrNull()
+}
+
+@Deprecated(
+    "Use awaitQueryForObject(cql, *args) instead",
+    ReplaceWith("awaitQueryForObject(cql, *args)")
+)
 suspend inline fun <reified T: Any> ReactiveCqlOperations.coQueryForObject(cql: String, vararg args: Any): T? {
     return queryForObject(cql, T::class.java, *args).awaitSingleOrNull()
 }
 
+suspend inline fun <reified T: Any> ReactiveCqlOperations.awaitQueryForObject(statement: Statement<*>): T? {
+    return queryForObject(statement, T::class.java).awaitSingleOrNull()
+}
+
+@Deprecated("Use awaitQueryForObject(statement) instead", ReplaceWith("awaitQueryForObject(statement)"))
 suspend inline fun <reified T: Any> ReactiveCqlOperations.coQueryForObject(statement: Statement<*>): T? {
     return queryForObject(statement, T::class.java).awaitSingleOrNull()
 }
 
+suspend fun ReactiveCqlOperations.awaitQueryForMap(cql: String, vararg args: Any): Map<String, Any?> =
+    queryForMap(cql, args).awaitSingle()
 
+@Deprecated("Use awaitQueryForMap(cql, *args) instead", ReplaceWith("awaitQueryForMap(cql, *args)"))
 suspend fun ReactiveCqlOperations.coQueryForMap(cql: String, vararg args: Any): Map<String, Any?> =
     queryForMap(cql, args).awaitSingle()
 
@@ -71,6 +111,10 @@ inline fun <reified T: Any> ReactiveCqlOperations.queryForFlow(cql: String, vara
 fun ReactiveCqlOperations.queryForMapFlow(cql: String, vararg args: Any): Flow<Map<String, Any?>> =
     queryForFlux(cql, *args).asFlow()
 
+suspend fun ReactiveCqlOperations.awaitQueryForResultSet(cql: String, vararg args: Any): ReactiveResultSet =
+    queryForResultSet(cql, *args).awaitSingle()
+
+@Deprecated("Use awaitQueryForResultSet(cql, *args) instead", ReplaceWith("awaitQueryForResultSet(cql, *args)"))
 suspend fun ReactiveCqlOperations.coQueryForResultSet(cql: String, vararg args: Any): ReactiveResultSet =
     queryForResultSet(cql, *args).awaitSingle()
 
@@ -84,6 +128,10 @@ fun ReactiveCqlOperations.queryForRowsFlow(cql: String, vararg args: Any): Flow<
 fun ReactiveCqlOperations.executeForFlow(statementFlow: Flow<String>): Flow<Boolean> =
     execute(statementFlow.asPublisher()).asFlow()
 
+suspend fun ReactiveCqlOperations.awaitExecute(statement: Statement<*>): Boolean =
+    execute(statement).awaitSingle()
+
+@Deprecated("Use awaitExecute(statement) instead", ReplaceWith("awaitExecute(statement)"))
 suspend fun ReactiveCqlOperations.coExecute(statement: Statement<*>): Boolean =
     execute(statement).awaitSingle()
 
@@ -93,6 +141,10 @@ fun <T: Any> ReactiveCqlOperations.queryForFlow(statement: Statement<*>, rse: (R
 fun <T: Any> ReactiveCqlOperations.queryForFlow(statement: Statement<*>, rowMapper: (Row, Int) -> T): Flow<T> =
     query(statement) { row, rowNum -> rowMapper(row, rowNum) }.asFlow()
 
+suspend fun ReactiveCqlOperations.awaitQueryForMap(statement: Statement<*>): Map<String, Any?> =
+    queryForMap(statement).awaitSingle()
+
+@Deprecated("Use awaitQueryForMap(statement) instead", ReplaceWith("awaitQueryForMap(statement)"))
 suspend fun ReactiveCqlOperations.coQueryForMap(statement: Statement<*>): Map<String, Any?> =
     queryForMap(statement).awaitSingle()
 
@@ -102,6 +154,10 @@ inline fun <reified T: Any> ReactiveCqlOperations.queryForFlow(statement: Statem
 fun ReactiveCqlOperations.queryForMapFlow(statement: Statement<*>): Flow<Map<String, Any?>> =
     queryForFlux(statement).asFlow()
 
+suspend fun ReactiveCqlOperations.awaitQueryForResultSet(statement: Statement<*>): ReactiveResultSet =
+    queryForResultSet(statement).awaitSingle()
+
+@Deprecated("Use awaitQueryForResultSet(statement) instead", ReplaceWith("awaitQueryForResultSet(statement)"))
 suspend fun ReactiveCqlOperations.coQueryForResultSet(statement: Statement<*>): ReactiveResultSet =
     queryForResultSet(statement).awaitSingle()
 

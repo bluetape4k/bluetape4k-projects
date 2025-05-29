@@ -3,7 +3,7 @@ package io.bluetape4k.spring.cassandra.reactive
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
-import io.bluetape4k.spring.cassandra.cql.coQueryForResultSet
+import io.bluetape4k.spring.cassandra.cql.awaitQueryForResultSet
 import io.bluetape4k.spring.cassandra.cql.insertOptions
 import io.bluetape4k.spring.cassandra.cql.writeOptions
 import io.bluetape4k.spring.cassandra.domain.ReactiveDomainTestConfiguration
@@ -141,7 +141,7 @@ class ReactiveCassandraBatchTemplateTest(
         operations.batchOps().insertFlow(flowOf(group1, group2), writeOptions).execute().awaitSingle()
 
         val resultSet: ReactiveResultSet = operations.reactiveCqlOperations
-            .coQueryForResultSet("SELECT TTL(email) FROM groups")
+            .awaitQueryForResultSet("SELECT TTL(email) FROM groups")
 
         resultSet.rows().asFlow()
             .onEach { row -> println("ttl= ${row.getInt(0)}") }

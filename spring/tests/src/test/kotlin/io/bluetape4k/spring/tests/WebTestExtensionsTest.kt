@@ -1,6 +1,6 @@
 package io.bluetape4k.spring.tests
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.flowOf
 import org.junit.jupiter.api.Nested
@@ -11,7 +11,7 @@ import kotlin.test.Test
 
 class WebTestExtensionsTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val client = WebTestClient.bindToServer()
         .baseUrl("https://nghttp2.org/httpbin")

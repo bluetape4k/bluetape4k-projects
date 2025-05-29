@@ -6,5 +6,9 @@ import org.springframework.data.r2dbc.core.update
 import org.springframework.data.relational.core.query.Query
 import org.springframework.data.relational.core.query.Update
 
+suspend inline fun <reified T: Any> ReactiveUpdateOperation.awaitUpdate(query: Query, update: Update): Long =
+    update<T>().matching(query).apply(update).awaitSingle()
+
+@Deprecated("Use awaitUpdate instead", ReplaceWith("awaitUpdate(query, update)"))
 suspend inline fun <reified T: Any> ReactiveUpdateOperation.coUpdate(query: Query, update: Update): Long =
     update<T>().matching(query).apply(update).awaitSingle()
