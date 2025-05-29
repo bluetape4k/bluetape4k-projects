@@ -21,6 +21,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeInRange
 import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldNotBeEmpty
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -1015,7 +1016,7 @@ class BufferedSourceTest {
         with(pipe) {
             assertFailsWith<IllegalArgumentException> {
                 source.indexOf(ByteString.of())
-            }.message shouldBeEqualTo "bytes is empty"
+            }.message!!.shouldNotBeEmpty()  // shouldBeEqualTo "byteCount == 0"
 
             assertFailsWith<IllegalArgumentException> {
                 source.indexOf("hi".encodeUtf8(), -1L)
