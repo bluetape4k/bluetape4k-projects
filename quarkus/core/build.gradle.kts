@@ -53,7 +53,6 @@ dependencies {
     api(Libs.vertx_lang_kotlin_coroutines)
 
     compileOnly(Libs.rest_assured_kotlin)
-    compileOnly(Libs.camel_quarkus_kotlin)
 
     // Coroutines
     api(project(":bluetape4k-coroutines"))

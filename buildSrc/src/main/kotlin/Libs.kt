@@ -97,13 +97,13 @@ object Versions {
     }
 
     const val resteasy = "6.2.12.Final"       // https://mvnrepository.com/artifact/org.jboss.resteasy/resteasy-bom
-    const val mutiny = "2.6.2"              // https://mvnrepository.com/artifact/io.smallrye.reactive/mutiny
-    const val camel_quarkus = "3.16.0"       // https://mvnrepository.com/artifact/org.apache.camel.quarkus/camel-quarkus-bom
+    const val mutiny = "2.9.0"              // https://mvnrepository.com/artifact/io.smallrye.reactive/mutiny
+    const val camel_quarkus = "3.23.0"       // https://mvnrepository.com/artifact/org.apache.camel.quarkus/camel-quarkus-bom
 
-    const val vertx = "4.5.14"               // https://mvnrepository.com/artifact/io.vertx/vertx-core
+    const val vertx = "4.5.15"               // https://mvnrepository.com/artifact/io.vertx/vertx-core
 
-    const val swagger = "2.2.30"              // https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations
-    const val springdoc_openapi = "2.8.5"    // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui
+    const val swagger = "2.2.31"              // https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations
+    const val springdoc_openapi = "2.8.8"    // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui
     const val springfox_swagger = "3.0.0"
     const val problem = "0.29.1"             // https://mvnrepository.com/artifact/org.zalando/problem-spring-web
 
@@ -557,7 +557,6 @@ object Libs {
 
     val camel_quarkus_bom = camelQuarkus("bom")
     val camel_quarkus_sql = camelQuarkus("sql")
-    val camel_quarkus_kotlin = camelQuarkus("kotlin")
     val camel_quarkus_vertx = camelQuarkus("vertx")
 
     // Vert.x (https://vertx.io/docs/)
