@@ -29,6 +29,7 @@ plugins {
     id(Plugins.shadow) version Plugins.Versions.shadow apply false
 
     id(Plugins.graalvm_native) version Plugins.Versions.graalvm_native apply false
+    id(Plugins.kosogor) version Plugins.Versions.kosogor
 }
 
 // NOTE: Nexus 에 등록된 것 때문에 사용한다
