@@ -1280,7 +1280,7 @@ object Libs {
 
     // UUID Generator
     const val java_uuid_generator = "com.fasterxml.uuid:java-uuid-generator:5.1.0"   // https://mvnrepository.com/artifact/com.fasterxml.uuid/java-uuid-generator
-    const val uuid_creator = "com.github.f4b6a3:uuid-creator:5.3.2"
+    const val uuid_creator = "com.github.f4b6a3:uuid-creator:6.1.1"   // https://mvnrepository.com/artifact/com.github.f4b6a3/uuid-creator
 
     // Cache2K
     fun cache2k(module: String, version: String = Versions.cache2k) = "org.cache2k:cache2k-$module:$version"
@@ -1430,16 +1430,16 @@ object Libs {
 
     // kubernetes
     val testcontainers_k3s = testcontainers("k3s")
-    const val fabric8_kubernetes_client_bom = "io.fabric8:kubernetes-client-bom:6.13.4" // https://mvnrepository.com/artifact/io.fabric8/kubernetes-client-bom
-    const val fabric8_kubernetes_client = "io.fabric8:kubernetes-client:6.13.4"  // https://mvnrepository.com/artifact/io.fabric8/kubernetes-client
-    const val kubernetes_client_java = "io.kubernetes:client-java:21.0.2"   // https://mvnrepository.com/artifact/io.kubernetes/client-java
+    const val fabric8_kubernetes_client_bom = "io.fabric8:kubernetes-client-bom:7.3.1" // https://mvnrepository.com/artifact/io.fabric8/kubernetes-client-bom
+    const val fabric8_kubernetes_client = "io.fabric8:kubernetes-client:7.3.1"  // https://mvnrepository.com/artifact/io.fabric8/kubernetes-client
+    const val kubernetes_client_java = "io.kubernetes:client-java:24.0.0"   // https://mvnrepository.com/artifact/io.kubernetes/client-java
 
     // Minio
     const val minio = "io.minio:minio:8.5.17" // https://mvnrepository.com/artifact/io.minio/minio
     val testcontainers_minio = testcontainers("minio")
 
     // Milvus
-    const val milvus_sdk_java = "io.milvus:milvus-sdk-java:2.5.6" // https://mvnrepository.com/artifact/io.milvus/milvus-sdk-java
+    const val milvus_sdk_java = "io.milvus:milvus-sdk-java:2.5.9" // https://mvnrepository.com/artifact/io.milvus/milvus-sdk-java
 
     // Immudb
     const val immudb4j = "io.codenotary:immudb4j:1.0.1" // https://mvnrepository.com/artifact/io.codenotary/immudb4j
@@ -1450,14 +1450,14 @@ object Libs {
 
     // Weaviate
     val testcontainers_weaviate = testcontainers("weaviate")
-    const val weaviate_client = "io.weaviate:client:5.1.3"   // https://mvnrepository.com/artifact/io.weaviate/client
+    const val weaviate_client = "io.weaviate:client:5.2.1"   // https://mvnrepository.com/artifact/io.weaviate/client
 
     // Apple Silicon에서 testcontainers 를 사용하기 위해 참조해야 합니다.
     const val jna = "net.java.dev.jna:jna:${Versions.jna}"
     const val jna_platform = "net.java.dev.jna:jna-platform:${Versions.jna}"
 
     // wiremock
-    const val wiremock_jre8 = "com.github.tomakehurst:wiremock-jre8:2.33.2"
+    const val wiremock = "org.wiremock:wiremock:3.13.0" // https://mvnrepository.com/artifact/org.wiremock/wiremock
 
     // OpenSearch Testcontainers
     const val testcontainers_opensearch = "org.opensearch:opensearch-testcontainers:2.1.3"  // https://mvnrepository.com/artifact/org.opensearch/opensearch-testcontainers
