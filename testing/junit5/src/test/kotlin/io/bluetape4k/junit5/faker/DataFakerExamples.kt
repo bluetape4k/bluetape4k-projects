@@ -15,7 +15,6 @@ import org.amshove.kluent.shouldStartWith
 import org.junit.jupiter.api.Test
 import java.util.*
 
-
 class DataFakerExamples {
 
     companion object: KLogging()
