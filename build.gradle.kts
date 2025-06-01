@@ -386,8 +386,6 @@ subprojects {
             dependency(Libs.guava)
 
             dependency(Libs.kryo)
-            dependency(Libs.marshalling)
-            dependency(Libs.marshalling_river)
 
             // Jackson (이상하게 mavenBom 에 적용이 안되어서 강제로 추가하였다)
             dependency(Libs.jackson_bom)

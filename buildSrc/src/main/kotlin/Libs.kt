@@ -429,10 +429,6 @@ object Libs {
 
     const val kryo = "com.esotericsoftware:kryo:5.6.2" // https://mvnrepository.com/artifact/com.esotericsoftware/kryo
     const val kryo5 = "com.esotericsoftware:kryo:5.6.2" // https://mvnrepository.com/artifact/com.esotericsoftware/kryo
-    const val marshalling = "org.jboss.marshalling:jboss-marshalling:2.1.2.Final"
-    const val marshalling_river = "org.jboss.marshalling:jboss-marshalling-river:2.1.2.Final"
-    const val marshalling_serial = "org.jboss.marshalling:jboss-marshalling-serial:2.1.2.Final"
-
     const val fury_core = "org.apache.fury:fury-core:0.10.3" // https://mvnrepository.com/artifact/org.apache.fury/fury-core
     const val fury_kotlin = "org.apache.fury:fury-kotlin:0.10.3" // https://mvnrepository.com/artifact/org.apache.fury/fury-kotlin
 
@@ -624,7 +620,7 @@ object Libs {
 
     // Bucket4j Spring Boot
     // https://mvnrepository.com/artifact/com.giffing.bucket4j.spring.boot.starter/bucket4j-spring-boot-starter
-    const val bucket4j_spring_boot = "com.giffing.bucket4j.spring.boot.starter:bucket4j-spring-boot-starter:0.12.8"
+    const val bucket4j_spring_boot = "com.giffing.bucket4j.spring.boot.starter:bucket4j-spring-boot-starter:0.12.9"
 
     // Netty
     fun netty(module: String, version: String = Versions.netty) = "io.netty:netty-$module:$version"
@@ -921,7 +917,7 @@ object Libs {
         )
     }:1.18.0"                                                   
     const val brotli_dec = "org.brotli:dec:0.1.2"               // https://mvnrepository.com/artifact/org.brotli/dec
-    const val zstd_jni = "com.github.luben:zstd-jni:1.5.7-1"    // https://mvnrepository.com/artifact/com.github.luben/zstd-jni
+    const val zstd_jni = "com.github.luben:zstd-jni:1.5.7-3"    // https://mvnrepository.com/artifact/com.github.luben/zstd-jni
     const val xz = "org.tukaani:xz:1.10"                         // https://mvnrepository.com/artifact/org.tukaani/xz
 
     // Cryptography
@@ -1062,9 +1058,6 @@ object Libs {
 
     val opentelemetry_spring_boot_starter = opentelemetryInstrumentation("spring-boot-starter")
 
-    const val latencyUtils = "org.latencyutils:LatencyUtils:2.0.3"
-    const val hdrHistogram = "org.hdrhistogram:HdrHistogram:2.1.11"
-
     const val reflectasm = "com.esotericsoftware:reflectasm:${Versions.reflectasm}"
 
     // mongodb 4.x
@@ -1120,11 +1113,11 @@ object Libs {
     val elasticsearch_rest_client_sniffer = elasticsearch("rest-client-sniffer")
 
     // InfluxDB
-    const val influxdb_java = "org.influxdb:influxdb-java:2.22"
-    const val influxdb_spring_data = "com.github.miwurster:spring-data-influxdb:1.8"
+    const val influxdb_java = "org.influxdb:influxdb-java:2.25"    // https://mvnrepository.com/artifact/org.influxdb/influxdb-java
+    const val influxdb_spring_data = "com.github.miwurster:spring-data-influxdb:1.8"  // https://mvnrepository.com/artifact/com.github.miwurster/spring-data-influxdb
 
     // RabbitMQ
-    const val amqp_client = "com.rabbitmq:amqp-client:5.17.0"
+    const val amqp_client = "com.rabbitmq:amqp-client:5.25.0"  // https://mvnrepository.com/artifact/com.rabbitmq/amqp-client
 
     // Kafka
     fun kafka(module: String) = "org.apache.kafka:$module:${Versions.kafka}"
@@ -1152,11 +1145,11 @@ object Libs {
     const val nats_spring_cloud_stream_binder = "io.nats:nats-spring-cloud-stream-binder:0.6.1+3.1" //https://mvnrepository.com/artifact/io.nats/nats-spring-cloud-stream-binder
 
     // Zipkin
-    const val zipkin_brave = "io.zipkin.brave:brave:6.0.3"              // https://mvnrepository.com/artifact/io.zipkin.brave/brave
-    const val zipkin_brave_tests = "io.zipkin.brave:brave-tests:6.0.3"  // https://mvnrepository.com/artifact/io.zipkin.brave/brave-tests
+    const val zipkin_brave = "io.zipkin.brave:brave:6.2.0"              // https://mvnrepository.com/artifact/io.zipkin.brave/brave
+    const val zipkin_brave_tests = "io.zipkin.brave:brave-tests:6.2.0"  // https://mvnrepository.com/artifact/io.zipkin.brave/brave-tests
 
     // Hashicorp Vault
-    const val vault_java_driver = "com.bettercloud:vault-java-driver:5.1.0"
+    const val vault_java_driver = "com.bettercloud:vault-java-driver:5.1.0" // https://mvnrepository.com/artifact/com.bettercloud/vault-java-driver
 
     // Hibernate
     fun hibernate(module: String) = "org.hibernate.orm:hibernate-$module:${Versions.hibernate}"
@@ -1206,12 +1199,6 @@ object Libs {
     val r2dbc_proxy = r2dbc("spi", "1.1.6.RELEASE")
 
     // 참고 : https://github.com/asyncer-io/r2dbc-mysql
-    // NOTE: Spring Boot 3.3+ 에서는 asyncer 1.3.0 를 사용
-    // NOTE: Spring Boot 3.0+ 에서는 asyncer 1.0.2 를 사용
-    // NOTE: Spring Boot 2.7 에서는 asyncer 0.9+ 를 사용
-    // NOTE: Spring Boot 2.6 에서는 miku 것을 사용
-    // https://github.com/mirromutth/r2dbc-mysql
-    // https://github.com/asyncer-io/r2dbc-mysql
     const val r2dbc_mysql = "io.asyncer:r2dbc-mysql:1.4.1"  // https://mvnrepository.com/artifact/io.asyncer/r2dbc-mysql
     const val r2dbc_mariadb = "org.mariadb:r2dbc-mariadb:1.3.0"  // https://github.com/mariadb-corporation/mariadb-connector-r2dbc
 
@@ -1266,7 +1253,7 @@ object Libs {
     const val byte_buddy_agent = "net.bytebuddy:byte-buddy-agent:1.17.5"   // https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy-agent
 
     const val hikaricp = "com.zaxxer:HikariCP:6.3.0"                    // https://mvnrepository.com/artifact/com.zaxxer/HikariCP
-    const val tomcat_jdbc = "org.apache.tomcat:tomcat-jdbc:10.1.28"      // https://mvnrepository.com/artifact/org.apache.tomcat/tomcat-jdbc
+    const val tomcat_jdbc = "org.apache.tomcat:tomcat-jdbc:11.0.7"      // https://mvnrepository.com/artifact/org.apache.tomcat/tomcat-jdbc
 
     // Agroal Data 
     fun agroal(module: String, version: String = Versions.agroal) = "io.agroal:agroal-$module:$version"
@@ -1275,12 +1262,13 @@ object Libs {
     val agroal_hikari = agroal("hikari")
     val agroal_spring_boot_starter = agroal("spring-boot-starter")
 
-    const val mysql_connector_j = "com.mysql:mysql-connector-j:9.2.0"  // https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
-    const val mariadb_java_client = "org.mariadb.jdbc:mariadb-java-client:3.5.2"  // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
-    const val postgresql_driver = "org.postgresql:postgresql:42.7.5"  // https://mvnrepository.com/artifact/org.postgresql/postgresql
+    const val mysql_connector_j = "com.mysql:mysql-connector-j:9.3.0"  // https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
+    const val mariadb_java_client = "org.mariadb.jdbc:mariadb-java-client:3.5.3"  // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
+    const val postgresql_driver = "org.postgresql:postgresql:42.7.6"  // https://mvnrepository.com/artifact/org.postgresql/postgresql
     const val pgjdbc_ng = "com.impossibl.pgjdbc-ng:pgjdbc-ng:0.8.9"  // https://mvnrepository.com/artifact/com.impossibl.pgjdbc-ng/pgjdbc-ng
-    const val oracle_ojdbc8 = "com.oracle.ojdbc:ojdbc8:19.3.0.0"
-    const val clickhouse_jdbc = "com.clickhouse:clickhouse-jdbc:0.8.4" // https://mvnrepository.com/artifact/com.clickhouse/clickhouse-jdbc
+    const val oracle_ojdbc8 = "com.oracle.database.jdbc:ojdbc8:23.8.0.25.04"     // https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc8
+    const val oracle_ojdbc11 = "com.oracle.database.jdbc:ojdbc11:23.8.0.25.04"  // https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc11
+    const val clickhouse_jdbc = "com.clickhouse:clickhouse-jdbc:0.8.6" // https://mvnrepository.com/artifact/com.clickhouse/clickhouse-jdbc
 
     // NOTE: Apache Ignite 에서는 꼭 1.4.197 를 써야 합니다.
     const val h2 = "com.h2database:h2:1.4.197"
@@ -1288,7 +1276,7 @@ object Libs {
     // MyBatis 테스트 시에 h2 v2 를 사용한다
     const val h2_v2 = "com.h2database:h2:2.3.232"    // https://mvnrepository.com/artifact/com.h2database/h2
     const val hsqldb = "org.hsqldb:hsqldb:2.7.4"     // https://mvnrepository.com/artifact/org.hsqldb/hsqldb
-    const val flyway_core = "org.flywaydb:flyway-core:11.4.1"  // https://mvnrepository.com/artifact/org.flywaydb/flyway-core
+    const val flyway_core = "org.flywaydb:flyway-core:11.8.2"  // https://mvnrepository.com/artifact/org.flywaydb/flyway-core
 
     // UUID Generator
     const val java_uuid_generator = "com.fasterxml.uuid:java-uuid-generator:5.1.0"   // https://mvnrepository.com/artifact/com.fasterxml.uuid/java-uuid-generator
