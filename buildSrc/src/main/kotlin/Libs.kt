@@ -209,10 +209,10 @@ object Versions {
     const val springmockk = "4.0.2"         // https://mvnrepository.com/artifact/com.ninja-squad/springmockk
     const val awaitility = "4.3.0"          // https://mvnrepository.com/artifact/org.awaitility/awaitility
     const val jmh = "1.37"                  // https://mvnrepository.com/artifact/org.openjdk.jmh/jmh-core
-    const val testcontainers = "1.21.0"     // https://mvnrepository.com/artifact/org.testcontainers/testcontainers
+    const val testcontainers = "1.21.1"     // https://mvnrepository.com/artifact/org.testcontainers/testcontainers
     const val jna = "5.17.0"                // https://mvnrepository.com/artifact/net.java.dev.jna/jna
     const val archunit = "1.4.0"           // https://mvnrepository.com/artifact/com.tngtech.archunit/archunit-junit5
-    const val rest_assured = "5.5.1"        // https://mvnrepository.com/artifact/io.rest-assured/rest-assured
+    const val rest_assured = "5.5.5"        // https://mvnrepository.com/artifact/io.rest-assured/rest-assured
 
     const val datafaker = "2.4.3"          // https://mvnrepository.com/artifact/net.datafaker/datafaker
     const val snakeyaml = "2.4"            // https://mvnrepository.com/artifact/org.yaml/snakeyaml

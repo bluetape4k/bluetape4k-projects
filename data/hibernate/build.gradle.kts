@@ -58,6 +58,8 @@ artifacts {
 }
 
 dependencies {
+    testImplementation(platform(Libs.junit_bom))
+    
     api(project(":bluetape4k-core"))
     api(project(":bluetape4k-io"))
     testImplementation(project(":bluetape4k-junit5"))
