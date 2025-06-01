@@ -38,16 +38,17 @@ class AwaitilityCoroutinesTest {
             log.debug { "await untilSuspending ..." }
             System.currentTimeMillis() > end
         }
+        yield()
 
         System.currentTimeMillis() shouldBeGreaterThan end
     }
 
     @Test
-    fun `coAwait - awaiting suspend function with poll interval`() = runSuspendTest {
+    fun `suspendAwait - awaiting suspend function with poll interval`() = runSuspendTest {
         val start = System.currentTimeMillis()
         val end = start + 100
 
-        await.coAwait(Duration.ofMillis(10)) {
+        await.suspendAwait(Duration.ofMillis(10)) {
             log.debug { "awaiting in suspend function." }
             delay(100)
             log.debug { "finish suspend function." }
@@ -57,19 +58,17 @@ class AwaitilityCoroutinesTest {
         System.currentTimeMillis() shouldBeGreaterThan end
     }
 
-
     @Test
-    fun `coUntil - until suspend function with poll interval`() = runSuspendTest {
+    fun `suspendUntil - until suspend function with poll interval`() = runSuspendTest {
         val start = System.currentTimeMillis()
-        val end = start + 500
+        val end = start + 100
 
-        await.coUntil(Duration.ofMillis(50)) {
+        await.suspendUntil(Duration.ofMillis(50)) {
             log.debug { "await untilSuspending ..." }
             System.currentTimeMillis() > end
         }
+        yield()
 
         System.currentTimeMillis() shouldBeGreaterThan end
     }
-
-
 }

@@ -42,15 +42,15 @@ suspend inline infix fun ConditionFactory.coUntil(
     }
 }
 
-suspend inline fun ConditionFactory.coAwait(
+suspend inline fun ConditionFactory.suspendAwait(
     pollInterval: Duration = Duration.ofMillis(10),
     crossinline block: suspend () -> Unit,
 ) {
-    coUntil(pollInterval) { block(); true }
+    suspendUntil(pollInterval) { block(); true }
 }
 
 @Suppress("UnusedReceiverParameter")
-suspend inline fun ConditionFactory.coUntil(
+suspend inline fun ConditionFactory.suspendUntil(
     pollInterval: Duration = Duration.ofMillis(10),
     crossinline block: suspend () -> Boolean,
 ) = coroutineScope {
