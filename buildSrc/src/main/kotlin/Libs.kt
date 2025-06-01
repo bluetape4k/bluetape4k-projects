@@ -198,7 +198,7 @@ object Versions {
     const val eclipse_collections = "11.1.0"  // https://mvnrepository.com/artifact/org.eclipse.collections/eclipse-collections
     const val jctools = "4.0.5"             // https://mvnrepository.com/artifact/org.jctools/jctools-core
 
-    const val ow2_asm = "9.7.1"               // https://mvnrepository.com/artifact/org.ow2.asm/asm
+    const val ow2_asm = "9.8"               // https://mvnrepository.com/artifact/org.ow2.asm/asm
 
     // NOTE: 5.12.+ 에서 bluetape4-hibernate 테스트가 불가하다
     const val junit_jupiter = "5.11.4"      // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
@@ -220,12 +220,12 @@ object Versions {
 
     const val logback_slack_appender = "1.6.1"  // https://mvnrepository.com/artifact/com.github.maricn/logback-slack-appender
 
-    const val sentry_logback = "7.18.1"  // https://mvnrepository.com/artifact/io.sentry/sentry-logback
+    const val sentry_logback = "8.13.2"  // https://mvnrepository.com/artifact/io.sentry/sentry-logback
 
     const val scrimage = "4.3.1"  // https://mvnrepository.com/artifact/com.sksamuel.scrimage/scrimage-core
 
     // Gatling
-    const val gatling = "3.13.5" // https://mvnrepository.com/artifact/io.gatling/gatling-core
+    const val gatling = "3.14.3" // https://mvnrepository.com/artifact/io.gatling/gatling-core
 }
 
 object Libs {
@@ -354,20 +354,20 @@ object Libs {
     const val javamoney_moneta = "org.javamoney:moneta:1.4.5"  // https://mvnrepository.com/artifact/org.javamoney/moneta
 
     // jakarta
-    const val jakarta_activation_api = "jakarta.activation:jakarta.activation-api:2.1.2"
-    const val jakarta_annotation_api = "jakarta.annotation:jakarta.annotation-api:2.1.1"
-    const val jakarta_el_api = "jakarta.el:jakarta.el-api:6.0.0"    // https://mvnrepository.com/artifact/jakarta.el/jakarta.el-api
-    const val jakarta_inject_api = "jakarta.inject:jakarta.inject-api:2.0.1"
-    const val jakarta_interceptor_api = "jakarta.interceptor:jakarta.interceptor-api:2.1.0"
-    const val jakarta_jms_api = "jakarta.jms:jakarta.jms-api:3.1.0"
-    const val jakarta_json_api = "jakarta.json:jakarta.json-api:2.1.2"
-    const val jakarta_json = "org.glassfish:jakarta.json:2.0.1"
-    const val jakarta_persistence_api = "jakarta.persistence:jakarta.persistence-api:3.1.0"
-    const val jakarta_servlet_api = "jakarta.servlet:jakarta.servlet-api:6.0.0"
-    const val jakarta_transaction_api = "jakarta.transaction:jakarta.transaction-api:2.0.1"
-    const val jakarta_validation_api = "jakarta.validation:jakarta.validation-api:3.0.2"
-    const val jakarta_ws_rs_api = "jakarta.ws.rs:jakarta.ws.rs-api:3.1.0"
-    const val jakarta_xml_bind = "jakarta.xml.bind:jakarta.xml.bind-api:4.0.0"
+    const val jakarta_activation_api = "jakarta.activation:jakarta.activation-api:2.1.3"  // https://mvnrepository.com/artifact/jakarta.activation/jakarta.activation-api
+    const val jakarta_annotation_api = "jakarta.annotation:jakarta.annotation-api:3.0.0"  // https://mvnrepository.com/artifact/jakarta.annotation/jakarta.annotation-api
+    const val jakarta_el_api = "jakarta.el:jakarta.el-api:6.0.1"    // https://mvnrepository.com/artifact/jakarta.el/jakarta.el-api
+    const val jakarta_inject_api = "jakarta.inject:jakarta.inject-api:2.0.1"   // https://mvnrepository.com/artifact/jakarta.inject/jakarta.inject-api
+    const val jakarta_interceptor_api = "jakarta.interceptor:jakarta.interceptor-api:2.2.0" // https://mvnrepository.com/artifact/jakarta.interceptor/jakarta.interceptor-api
+    const val jakarta_jms_api = "jakarta.jms:jakarta.jms-api:3.1.0"  // https://mvnrepository.com/artifact/jakarta.jms/jakarta.jms-api
+    const val jakarta_json_api = "jakarta.json:jakarta.json-api:2.1.3"  // https://mvnrepository.com/artifact/jakarta.json/jakarta.json-api
+    const val jakarta_json = "org.glassfish:jakarta.json:2.0.1"         // https://mvnrepository.com/artifact/org.glassfish/jakarta.json
+    const val jakarta_persistence_api = "jakarta.persistence:jakarta.persistence-api:3.2.0"  // https://mvnrepository.com/artifact/jakarta.persistence/jakarta.persistence-api
+    const val jakarta_servlet_api = "jakarta.servlet:jakarta.servlet-api:6.1.0"              // https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api
+    const val jakarta_transaction_api = "jakarta.transaction:jakarta.transaction-api:2.0.1"  // https://mvnrepository.com/artifact/jakarta.transaction/jakarta.transaction-api
+    const val jakarta_validation_api = "jakarta.validation:jakarta.validation-api:3.1.1"    // https://mvnrepository.com/artifact/jakarta.validation/jakarta.validation-api
+    const val jakarta_ws_rs_api = "jakarta.ws.rs:jakarta.ws.rs-api:4.0.0"                   // https://mvnrepository.com/artifact/jakarta.ws.rs/jakarta.ws.rs-api
+    const val jakarta_xml_bind = "jakarta.xml.bind:jakarta.xml.bind-api:4.0.2"              // https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api
     
     // Apache Commons
     const val commons_beanutils = "commons-beanutils:commons-beanutils:1.9.4"     // https://mvnrepository.com/artifact/commons-beanutils/commons-beanutils
