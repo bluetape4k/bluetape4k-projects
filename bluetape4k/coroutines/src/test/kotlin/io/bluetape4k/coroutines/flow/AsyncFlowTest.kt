@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.RepeatedTest
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.random.Random
@@ -25,16 +26,19 @@ class AsyncFlowTest {
         private val expectedItems = List(ITEM_SIZE) { it + 1 }
     }
 
+    @DisplayName("asyncFlow with default dispatcher")
     @RepeatedTest(REPEAT_SIZE)
     fun `asyncFlow with default dispatcher`() = runTest {
         runAsyncFlow(Dispatchers.Default)
     }
 
+    @DisplayName("asyncFlow with IO dispatcher")
     @RepeatedTest(REPEAT_SIZE)
     fun `asyncFlow with io dispatcher`() = runTest {
         runAsyncFlow(Dispatchers.IO)
     }
 
+    @DisplayName("asyncFlow with custom dispatcher")
     @RepeatedTest(REPEAT_SIZE)
     fun `asyncFlow with custom dispatcher`() = runTest {
         newFixedThreadPoolContext(Runtimex.availableProcessors, "asyncflow").use { dispatcher ->
@@ -42,6 +46,7 @@ class AsyncFlowTest {
         }
     }
 
+    @DisplayName("asyncFlow with VT dispatcher")
     @RepeatedTest(REPEAT_SIZE)
     fun `asyncFlow with virtual thread dispatcher`() = runTest {
         runAsyncFlow(Dispatchers.VT)
