@@ -370,22 +370,22 @@ object Libs {
     const val jakarta_xml_bind = "jakarta.xml.bind:jakarta.xml.bind-api:4.0.2"              // https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api
     
     // Apache Commons
-    const val commons_beanutils = "commons-beanutils:commons-beanutils:1.9.4"     // https://mvnrepository.com/artifact/commons-beanutils/commons-beanutils
-    const val commons_compress = "org.apache.commons:commons-compress:1.26.1"     // https://mvnrepository.com/artifact/org.apache.commons/commons-compress
-    const val commons_codec = "commons-codec:commons-codec:1.17.0"                // https://mvnrepository.com/artifact/commons-codec/commons-codec
-    const val commons_collections4 = "org.apache.commons:commons-collections4:4.4"  // https://mvnrepository.com/artifact/org.apache.commons/commons-collections4
+    const val commons_beanutils = "commons-beanutils:commons-beanutils:1.11.0"     // https://mvnrepository.com/artifact/commons-beanutils/commons-beanutils
+    const val commons_compress = "org.apache.commons:commons-compress:1.27.1"     // https://mvnrepository.com/artifact/org.apache.commons/commons-compress
+    const val commons_codec = "commons-codec:commons-codec:1.18.0"                // https://mvnrepository.com/artifact/commons-codec/commons-codec
+    const val commons_collections4 = "org.apache.commons:commons-collections4:4.5.0"  // https://mvnrepository.com/artifact/org.apache.commons/commons-collections4
     const val commons_cryto = "org.apache.commons:commons-crypto:1.2.0"             // https://mvnrepository.com/artifact/org.apache.commons/commons-crypto
-    const val commons_csv = "org.apache.commons:commons-csv:1.11.0"                 // https://mvnrepository.com/artifact/org.apache.commons/commons-csv
+    const val commons_csv = "org.apache.commons:commons-csv:1.14.0"                 // https://mvnrepository.com/artifact/org.apache.commons/commons-csv
     const val commons_digest3 = "org.apache.commons:commons-digester3:3.2"          // https://mvnrepository.com/artifact/org.apache.commons/commons-digester3
-    const val commons_exec = "org.apache.commons:commons-exec:1.4.0"                // https://mvnrepository.com/artifact/org.apache.commons/commons-exec
-    const val commons_io = "commons-io:commons-io:2.16.1"                           // https://mvnrepository.com/artifact/commons-io/commons-io
-    const val commons_lang3 = "org.apache.commons:commons-lang3:3.14.0"             // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
-    const val commons_logging = "commons-logging:commons-logging:1.3.2"             // https://mvnrepository.com/artifact/commons-logging/commons-logging
+    const val commons_exec = "org.apache.commons:commons-exec:1.5.0"                // https://mvnrepository.com/artifact/org.apache.commons/commons-exec
+    const val commons_io = "commons-io:commons-io:2.19.0"                           // https://mvnrepository.com/artifact/commons-io/commons-io
+    const val commons_lang3 = "org.apache.commons:commons-lang3:3.17.0"             // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+    const val commons_logging = "commons-logging:commons-logging:1.3.5"             // https://mvnrepository.com/artifact/commons-logging/commons-logging
     const val commons_math3 = "org.apache.commons:commons-math3:3.6.1"              // https://mvnrepository.com/artifact/org.apache.commons/commons-math3
-    const val commons_pool2 = "org.apache.commons:commons-pool2:2.12.0"             // https://mvnrepository.com/artifact/org.apache.commons/commons-pool2
-    const val commons_rng_simple = "org.apache.commons:commons-rng-simple:1.5"      // https://mvnrepository.com/artifact/org.apache.commons/commons-rng-simple
-    const val commons_text = "org.apache.commons:commons-text:1.12.0"               // https://mvnrepository.com/artifact/org.apache.commons/commons-text
-    const val commons_validator = "commons-validator:commons-validator:1.8.0"       // https://mvnrepository.com/artifact/commons-validator/commons-validator
+    const val commons_pool2 = "org.apache.commons:commons-pool2:2.12.1"             // https://mvnrepository.com/artifact/org.apache.commons/commons-pool2
+    const val commons_rng_simple = "org.apache.commons:commons-rng-simple:1.6"      // https://mvnrepository.com/artifact/org.apache.commons/commons-rng-simple
+    const val commons_text = "org.apache.commons:commons-text:1.13.1"               // https://mvnrepository.com/artifact/org.apache.commons/commons-text
+    const val commons_validator = "commons-validator:commons-validator:1.9.0"       // https://mvnrepository.com/artifact/commons-validator/commons-validator
 
     fun slf4j(module: String, version: String = Versions.slf4j) = "org.slf4j:$module:$version"
     val slf4j_api = slf4j("slf4j-api")
