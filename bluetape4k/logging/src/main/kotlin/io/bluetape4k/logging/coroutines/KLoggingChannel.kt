@@ -66,12 +66,12 @@ open class KLoggingChannel: KLogging() {
                         Level.TRACE -> log.trace(event.msg, event.error)
                         Level.DEBUG -> log.debug(event.msg, event.error)
                         Level.INFO -> log.info(event.msg, event.error)
-                        Level.WARN -> log.warn(event.msg, event.error)
-                        Level.ERROR -> log.error(event.msg, event.error)
+                        Level.WARN -> log.warn("🔥" + event.msg, event.error)
+                        Level.ERROR -> log.error("🔥" + event.msg, event.error)
                     }
                 }
                 .catch { error ->
-                    log.error(error) { "Error during logging channel." }
+                    log.error(error) { "🔥Error during logging channel." }
                 }
                 .collect()
         }

@@ -87,8 +87,8 @@ class MermaidTestExecutionListener: TestExecutionListener {
     }
 
     private fun TestExecutionResult.Status?.toResult(): String = when (this) {
-        TestExecutionResult.Status.SUCCESSFUL -> "\uD83D\uDFE2"
-        TestExecutionResult.Status.FAILED -> "\uD83D\uDD34"
+        TestExecutionResult.Status.SUCCESSFUL -> "✅"
+        TestExecutionResult.Status.FAILED -> "🔥"
         TestExecutionResult.Status.ABORTED -> "\uD83D\uDEAB"
         else -> ""
     }
