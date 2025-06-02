@@ -10,34 +10,28 @@ import java.util.concurrent.CopyOnWriteArrayList
 /**
  * Coroutines 환경에서 사용하는 RingBuffer 입니다.
  */
-@Deprecated("Use SuspendRingBuffer instead", ReplaceWith("SuspendRingBuffer"))
 @Suppress("UNCHECKED_CAST")
-class CoRingBuffer<T: Any>(
+class SuspendRingBuffer<T: Any>(
     private val buffer: CopyOnWriteArrayList<T?>,
     private var startIndex: Int = 0,
     size: Int = 0,
 ): Iterable<T?> by buffer {
 
     companion object: KLogging() {
-        @Deprecated("Use SuspendRingBuffer instead", ReplaceWith("SuspendRingBuffer"))
-        @JvmStatic
-        operator fun <T: Any> invoke(size: Int, empty: T): CoRingBuffer<T> {
+        operator fun <T: Any> invoke(size: Int, empty: T): SuspendRingBuffer<T> {
             val list = MutableList(size) { empty } as MutableList<T?>
             val buffer = CopyOnWriteArrayList(list)
-            return CoRingBuffer(buffer)
+            return SuspendRingBuffer(buffer)
         }
 
-        @Deprecated("Use SuspendRingBuffer instead", ReplaceWith("SuspendRingBuffer"))
-        @JvmStatic
-        fun <T: Any> boxing(size: Int): CoRingBuffer<T> {
+        fun <T: Any> boxing(size: Int): SuspendRingBuffer<T> {
             val list: MutableList<T?> = MutableList(size) { null }
             val buffer = CopyOnWriteArrayList(list)
-            return CoRingBuffer(buffer)
+            return SuspendRingBuffer(buffer)
         }
     }
 
     private val mutex: Mutex = Mutex()
-    private val lock = Mutex()
 
     var size: Int = size
         private set

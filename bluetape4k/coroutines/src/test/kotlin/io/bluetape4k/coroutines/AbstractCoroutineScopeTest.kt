@@ -1,6 +1,5 @@
 package io.bluetape4k.coroutines
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.CoroutineScope
@@ -48,11 +47,11 @@ abstract class AbstractCoroutineScopeTest {
     fun `CoroutineScope 취소`() = runTest {
         coroutineScope.launch {
             delay(2000)
-            fail("작업 중간에 취소되어야 합니다.")
+            fail("작업1은 중간에 취소되어야 합니다.")
         }
         coroutineScope.launch {
             delay(2000)
-            fail("작업 중간에 취소되어야 합니다.")
+            fail("작업2는 중간에 취소되어야 합니다.")
         }
 
         delay(10)

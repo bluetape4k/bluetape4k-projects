@@ -2,7 +2,6 @@ package io.bluetape4k.coroutines.flow.extensions
 
 import app.cash.turbine.test
 import io.bluetape4k.coroutines.tests.assertError
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow

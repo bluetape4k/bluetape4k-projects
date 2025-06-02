@@ -14,18 +14,16 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 
-@Disabled("use SuspendRingBufferTest instead")
-class CoRingBufferTest {
+class SuspendRingBufferTest {
 
     companion object: KLoggingChannel()
 
     @Test
     fun `push more items than size, reset to 0`() = runTest {
-        val buffer = CoRingBuffer(20, Double.NaN)
+        val buffer = SuspendRingBuffer(20, Double.NaN)
 
         // size가 20 이므로, 11 ~ 30 까지의 숫자를 더한 값을 가진다.
         for (i in 1..30) {
@@ -41,7 +39,7 @@ class CoRingBufferTest {
     @Test
     fun `push items in multi-jobs`() = runTest {
         val bufferSize = 16
-        val buffer = CoRingBuffer(bufferSize, Double.NaN)
+        val buffer = SuspendRingBuffer(bufferSize, Double.NaN)
         val counter = atomic(0)
 
         SuspendedJobTester()
