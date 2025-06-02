@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.toList
 
-private val logger = KotlinLogging.logger("io.bluetape4k.coroutines.flow.extensions.FlowLogger")
+private val logger = KotlinLogging.logger { }
 
 /**
  * [Flow]의 `onStart`, `onEmpty`, `onEach`, `onCompletion` 이벤트를 로깅합니다.
@@ -27,25 +27,25 @@ private val logger = KotlinLogging.logger("io.bluetape4k.coroutines.flow.extensi
 fun <T> Flow<T>.log(tag: Any, log: org.slf4j.Logger = logger): Flow<T> =
     this
         .onStart {
-            log.debug { "[$tag] Start " }
+            log.debug { "[$tag] \uD83D\uDE80" }  // Flow 시작
         }
         .onEmpty {
-            log.debug { "[$tag] Flow is empty" }
+            log.debug { "[$tag] \uD83D\uDEAB" }  // Empty flow
         }
         .onEach {
             val item = when (it) {
                 is Flow<*> -> it.toList()
                 else       -> it
             }
-            log.debug { "[$tag] emit $item" }
+            log.debug { "[$tag] ➡️emit $item" } // Flow의 각 아이템을 emit할 때 로깅
         }
         .onCompletion {
             if (it == null) {
-                log.debug { "[$tag] Completed" }
+                log.debug { "[$tag] ✅" }
             } else {
                 when (it) {
-                    is CancellationException -> log.debug { "[$tag] Canceled" }
-                    else                     -> log.debug(it) { "[$tag] Completed by exception" }
+                    is CancellationException -> log.debug { "[$tag] ❌" }     // Flow가 취소되었을 때 로깅
+                    else -> log.debug(it) { "[$tag] 🔥" } // Flow가 예외로 종료되었을 때 로깅
                 }
             }
         }

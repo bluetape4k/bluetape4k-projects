@@ -72,8 +72,9 @@ class MermaidTestExecutionListener: TestExecutionListener {
                 tasks.forEachIndexed { index, task ->
                     val start = task.startTime.toString()
                     val duration = task.endTime?.let { Duration.between(task.startTime, it).toMillis() } ?: 0
+                    val result = task.resultStatus.toResult()
                     val status = task.resultStatus.toMermaidStatus()
-                    appendLine("        ${task.displayName}($status) : $status, ${start}, ${duration}ms")
+                    appendLine("        ${task.displayName}($result) : $status, ${start}, ${duration}ms")
                 }
             }
     }
@@ -82,6 +83,13 @@ class MermaidTestExecutionListener: TestExecutionListener {
         TestExecutionResult.Status.SUCCESSFUL -> "active"
         TestExecutionResult.Status.FAILED -> "crit"
         TestExecutionResult.Status.ABORTED -> "done"
+        else -> ""
+    }
+
+    private fun TestExecutionResult.Status?.toResult(): String = when (this) {
+        TestExecutionResult.Status.SUCCESSFUL -> "\uD83D\uDFE2"
+        TestExecutionResult.Status.FAILED -> "\uD83D\uDD34"
+        TestExecutionResult.Status.ABORTED -> "\uD83D\uDEAB"
         else -> ""
     }
 }

@@ -1,0 +1,45 @@
+gantt
+    title Test Execution Timeline
+    dateFormat YYYY-MM-DDTHH:mm:ss.SSS
+    axisFormat %H:%M:%S
+    section io.bluetape4k.coroutines.CoRingBufferTest
+        push items in multi-jobs()(✅): active, 2025-06-02T02:24:39.121062Z, 39ms
+        push more items than size, reset to 0()(✅): active, 2025-06-02T02:24:39.160381Z, 8ms
+        windowed ring buffer()(✅): active, 2025-06-02T02:24:39.168817Z, 17ms
+    section io.bluetape4k.coroutines.DefaultCoroutineScopeTest
+        기본 CoroutineScope 사용()(✅): active, 2025-06-02T02:24:39.198955Z, 8ms
+        CoroutineScope 취소()(✅): active, 2025-06-02T02:24:39.207912Z, 3ms
+    section io.bluetape4k.coroutines.DeferredValueTest
+        repetition 1 of 5(✅): active, 2025-06-02T02:24:39.220329Z, 18ms
+        repetition 2 of 5(✅): active, 2025-06-02T02:24:39.239453Z, 13ms
+        repetition 3 of 5(✅): active, 2025-06-02T02:24:39.253535Z, 22ms
+        repetition 4 of 5(✅): active, 2025-06-02T02:24:39.276079Z, 14ms
+        repetition 5 of 5(✅): active, 2025-06-02T02:24:39.291102Z, 20ms
+        repetition 1 of 5(✅): active, 2025-06-02T02:24:39.312191Z, 38ms
+        repetition 2 of 5(✅): active, 2025-06-02T02:24:39.350816Z, 30ms
+        repetition 3 of 5(✅): active, 2025-06-02T02:24:39.381883Z, 36ms
+        repetition 4 of 5(✅): active, 2025-06-02T02:24:39.418340Z, 24ms
+        repetition 5 of 5(✅): active, 2025-06-02T02:24:39.443510Z, 30ms
+        repetition 1 of 5(✅): active, 2025-06-02T02:24:39.474312Z, 38ms
+        repetition 2 of 5(✅): active, 2025-06-02T02:24:39.512674Z, 38ms
+        repetition 3 of 5(✅): active, 2025-06-02T02:24:39.551620Z, 32ms
+        repetition 4 of 5(✅): active, 2025-06-02T02:24:39.584824Z, 35ms
+        repetition 5 of 5(✅): active, 2025-06-02T02:24:39.620921Z, 26ms
+    section io.bluetape4k.coroutines.IoCoroutineScopeTest
+        기본 CoroutineScope 사용()(✅): active, 2025-06-02T02:24:39.650443Z, 8ms
+        CoroutineScope 취소()(✅): active, 2025-06-02T02:24:39.659498Z, 1ms
+    section io.bluetape4k.coroutines.SuspendLazyTest
+        get lazy value in blocking mode with Multijob()(✅): active, 2025-06-02T02:24:39.663321Z, 434ms
+        get suspend lazy value in coroutine scope()(✅): active, 2025-06-02T02:24:40.098094Z, 3ms
+        get lazy value in blocking mode()(✅): active, 2025-06-02T02:24:40.101749Z, 40ms
+        get suspend lazy value in coroutine scope with Multijob()(✅): active, 2025-06-02T02:24:40.142210Z, 5ms
+        get lazy value in blocking mode with IO dispatchers()(✅): active, 2025-06-02T02:24:40.147463Z, 10ms
+    section io.bluetape4k.coroutines.ThreadPoolCoroutineScopeTest
+        기본 CoroutineScope 사용()(✅): active, 2025-06-02T02:24:40.160871Z, 6ms
+        CoroutineScope 취소()(✅): active, 2025-06-02T02:24:40.167967Z, 1ms
+    section io.bluetape4k.coroutines.VirtualThreadCoroutineScopeTest
+        기본 CoroutineScope 사용()(✅): active, 2025-06-02T02:24:40.174350Z, 13ms
+        CoroutineScope 취소()(✅): active, 2025-06-02T02:24:40.187739Z, 1ms
+    section io.bluetape4k.coroutines.context.PropertyCoroutineContextTest
+        속성을 가진 CoroutineContext 전달하기()(✅): active, 2025-06-02T02:24:40.191678Z, 3ms
+        속성을 가지는 CoroutineContext 사용하기()(✅): active, 2025-06-02T02:24:40.195507Z, 1ms
