@@ -8,11 +8,9 @@ import io.bluetape4k.redis.redisson.AbstractRedissonTest
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
-@Disabled("use RedissonSuspendLeaderElectionSupportTest instead")
-class RedissonCoLeaderElectionSupportTest: AbstractRedissonTest() {
+class RedissonSuspendLeaderElectionSupportTest: AbstractRedissonTest() {
 
     companion object: KLoggingChannel()
 
@@ -22,7 +20,7 @@ class RedissonCoLeaderElectionSupportTest: AbstractRedissonTest() {
 
         coroutineScope {
             launch {
-                redissonClient.runIfLeaderSuspending(jobName) {
+                redissonClient.runSuspendIfLeader(jobName) {
                     log.debug { "작업 1 을 시작합니다." }
                     delay(10)
                     log.debug { "작업 1 을 종료합니다." }
@@ -30,7 +28,7 @@ class RedissonCoLeaderElectionSupportTest: AbstractRedissonTest() {
             }.log("job1")
 
             launch {
-                redissonClient.runIfLeaderSuspending(jobName) {
+                redissonClient.runSuspendIfLeader(jobName) {
                     log.debug { "작업 2 을 시작합니다." }
                     delay(10)
                     log.debug { "작업 2 을 종료합니다." }

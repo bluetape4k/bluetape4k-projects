@@ -10,20 +10,18 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.amshove.kluent.shouldBeEqualTo
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 
-@Disabled("use RedissonSuspendLeaderElectionTest instead")
-class RedissonCoLeaderElectionTest: AbstractRedissonTest() {
+class RedissonSuspendLeaderElectionTest: AbstractRedissonTest() {
 
     companion object: KLoggingChannel()
 
     @Test
     fun `run suspend action if leader`() = runSuspendIO {
         val lockName = randomName()
-        val leaderElection = RedissonCoLeaderElection(redissonClient)
+        val leaderElection = RedissonSuspendLeaderElection(redissonClient)
 
         coroutineScope {
             launch {
@@ -47,7 +45,7 @@ class RedissonCoLeaderElectionTest: AbstractRedissonTest() {
     @Test
     fun `run action if leader in multi job`() = runSuspendIO {
         val lockName = randomName()
-        val leaderElection = RedissonCoLeaderElection(redissonClient)
+        val leaderElection = RedissonSuspendLeaderElection(redissonClient)
 
         val task1 = AtomicInteger(0)
         val task2 = AtomicInteger(0)

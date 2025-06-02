@@ -3,11 +3,11 @@ package io.bluetape4k.cache.memorizer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 
-abstract class FibonacciProvider {
+interface FibonacciProvider {
 
     companion object: KLogging()
 
-    abstract val cachedCalc: (Long) -> Long
+    val cachedCalc: (Long) -> Long
 
     fun calc(n: Long): Long {
         log.trace { "fibonacci($n)" }

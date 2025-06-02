@@ -7,7 +7,6 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertTimeout
 import org.redisson.api.RMap
-import org.redisson.api.RedissonClient
 import org.redisson.client.codec.IntegerCodec
 import org.redisson.client.codec.LongCodec
 import java.time.Duration
@@ -29,8 +28,17 @@ class AsyncRedissonMemorizerTest: AbstractRedissonTest() {
         }
     }
 
-    private val factorial: AsyncFactorialProvider by lazy { RedissonAsyncFactorialProvider(redisson) }
-    private val fibonacci: AsyncFibonacciProvider by lazy { RedissonAsyncFibonacciProvider(redisson) }
+    private val factorial: AsyncFactorialProvider = object: AsyncFactorialProvider {
+        override val cachedCalc: (Long) -> CompletableFuture<Long> = redisson
+            .getMap<Long, Long>("asyncMemorizer:factorial", LongCodec())
+            .asyncMemorizer { calc(it) }
+    }
+
+    private val fibonacci: AsyncFibonacciProvider = object: AsyncFibonacciProvider {
+        override val cachedCalc: (Long) -> CompletableFuture<Long> = redisson
+            .getMap<Long, Long>("asyncMemorizer:fibonacci", LongCodec())
+            .asyncMemorizer { calc(it) }
+    }
 
     @Test
     fun `run heavy function`() {
@@ -60,58 +68,38 @@ class AsyncRedissonMemorizerTest: AbstractRedissonTest() {
             fibonacci.calc(100).get()
         } shouldBeEqualTo x1
     }
-}
 
-abstract class AsyncFactorialProvider {
 
-    companion object: KLoggingChannel()
+    interface AsyncFactorialProvider {
 
-    abstract val cachedCalc: (Long) -> CompletableFuture<Long>
+        companion object: KLoggingChannel()
 
-    fun calc(x: Long): CompletableFuture<Long> {
-        log.trace { "factorial($x)" }
-        return when {
-            x <= 1L -> CompletableFuture.completedFuture(1L)
-            else    -> cachedCalc(x - 1).thenApplyAsync { x * it }
-        }
-    }
-}
+        val cachedCalc: (Long) -> CompletableFuture<Long>
 
-class RedissonAsyncFactorialProvider(redisson: RedissonClient): AsyncFactorialProvider() {
-
-    private val map = redisson
-        .getMap<Long, Long>("asyncMemorizer:factorial", LongCodec())
-        .apply { clear() }
-
-    override val cachedCalc: (Long) -> CompletableFuture<Long> =
-        map.asyncMemorizer { calc(it) }
-}
-
-abstract class AsyncFibonacciProvider {
-
-    companion object: KLoggingChannel()
-
-    abstract val cachedCalc: (Long) -> CompletableFuture<Long>
-
-    fun calc(x: Long): CompletableFuture<Long> {
-        log.trace { "factorial($x)" }
-        return when {
-            x <= 0L -> CompletableFuture.completedFuture(0L)
-            x <= 2L -> CompletableFuture.completedFuture(1L)
-            else    -> cachedCalc(x - 1).thenComposeAsync { x1 ->
-                cachedCalc(x - 2).thenApplyAsync { x2 -> x1 + x2 }
+        fun calc(x: Long): CompletableFuture<Long> {
+            log.trace { "factorial($x)" }
+            return when {
+                x <= 1L -> CompletableFuture.completedFuture(1L)
+                else -> cachedCalc(x - 1).thenApplyAsync { x * it }
             }
         }
     }
-}
 
+    interface AsyncFibonacciProvider {
 
-class RedissonAsyncFibonacciProvider(redisson: RedissonClient): AsyncFibonacciProvider() {
+        companion object: KLoggingChannel()
 
-    private val map = redisson
-        .getMap<Long, Long>("asyncMemorizer:fibonacci", LongCodec())
-        .apply { clear() }
+        val cachedCalc: (Long) -> CompletableFuture<Long>
 
-    override val cachedCalc: (Long) -> CompletableFuture<Long> =
-        map.asyncMemorizer { calc(it) }
+        fun calc(x: Long): CompletableFuture<Long> {
+            log.trace { "factorial($x)" }
+            return when {
+                x <= 0L -> CompletableFuture.completedFuture(0L)
+                x <= 2L -> CompletableFuture.completedFuture(1L)
+                else -> cachedCalc(x - 1).thenComposeAsync { x1 ->
+                    cachedCalc(x - 2).thenApplyAsync { x2 -> x1 + x2 }
+                }
+            }
+        }
+    }
 }

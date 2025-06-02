@@ -11,10 +11,6 @@ class AsyncInMemoryMemorizerTest: AbstractAsyncMemorizerTest() {
 
     companion object: KLoggingChannel()
 
-    override val factorial: AsyncFactorialProvider = InMemoryAsyncFactorialProvider()
-
-    override val fibonacci: AsyncFibonacciProvider = InMemoryAsyncFibonacciProvider()
-
     override val heavyFunc: (Int) -> CompletableFuture<Int> = InMemoryMemorizer { x ->
         CompletableFuture.supplyAsync {
             log.trace { "heavy($x)" }
@@ -24,13 +20,13 @@ class AsyncInMemoryMemorizerTest: AbstractAsyncMemorizerTest() {
         }
     }
 
-    private class InMemoryAsyncFactorialProvider: AsyncFactorialProvider() {
+    override val factorial: AsyncFactorialProvider = object: AsyncFactorialProvider {
         override val cachedCalc: (Long) -> CompletableFuture<Long> by lazy {
             AsyncInMemoryMemorizer { calc(it) }
         }
     }
 
-    private class InMemoryAsyncFibonacciProvider: AsyncFibonacciProvider() {
+    override val fibonacci: AsyncFibonacciProvider = object: AsyncFibonacciProvider {
         override val cachedCalc: (Long) -> CompletableFuture<Long> by lazy {
             AsyncInMemoryMemorizer { calc(it) }
         }
