@@ -32,10 +32,10 @@ class ActorExamples {
                     is GetCounter -> msg.response.complete(counter)
                 }
             }
-        }.log("receive job")
+        }.log("👋receive job")
 
         channel.invokeOnClose {
-            log.debug(it) { "channel close." }
+            log.debug(it) { "✅ channel close." }
         }
         return channel
     }
