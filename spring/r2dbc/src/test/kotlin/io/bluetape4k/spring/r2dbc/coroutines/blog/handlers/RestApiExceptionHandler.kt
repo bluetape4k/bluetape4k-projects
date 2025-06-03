@@ -3,7 +3,7 @@ package io.bluetape4k.spring.r2dbc.coroutines.blog.handlers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.warn
 import io.bluetape4k.spring.r2dbc.coroutines.blog.exceptions.PostNotFoundException
-import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -18,6 +18,6 @@ class RestApiExceptionHandler {
     suspend fun handle(ex: PostNotFoundException, exchange: ServerWebExchange) {
         log.warn(ex) { "Post[${ex.postId}] not found." }
         exchange.response.statusCode = HttpStatus.NOT_FOUND
-        exchange.response.setComplete().awaitFirstOrNull()
+        exchange.response.setComplete().awaitSingleOrNull()
     }
 }
