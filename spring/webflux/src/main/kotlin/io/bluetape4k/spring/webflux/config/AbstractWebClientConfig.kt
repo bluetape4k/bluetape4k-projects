@@ -11,8 +11,10 @@ import org.apache.commons.lang3.concurrent.BasicThreadFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.http.client.ReactorResourceFactory
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
+import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.netty.resources.LoopResources
+import java.time.Duration
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -51,6 +53,7 @@ abstract class AbstractWebClientConfig {
         return ReactorResourceFactory().apply {
             loopResources = LoopResources { eventLoopGroup }
             isUseGlobalResources = false
+            this.setShutdownTimeout(Duration.ofSeconds(3))
         }
     }
 
@@ -70,11 +73,21 @@ abstract class AbstractWebClientConfig {
         }
     }
 
+    private fun exchangeStrategy(connector: ReactorClientHttpConnector): ExchangeStrategies {
+        log.info { "Create ExchangeStrategies bean." }
+        return ExchangeStrategies.builder()
+            .codecs { configurer ->
+                configurer.defaultCodecs().maxInMemorySize(16 * 1024 * 1024) // 16MB
+            }
+            .build()
+    }
+
     @Bean
     open fun webClient(connector: ReactorClientHttpConnector): WebClient {
         log.info { "Create WebClient bean." }
         return WebClient.builder()
             .clientConnector(connector)
+            .exchangeStrategies(exchangeStrategy(connector))
             .build()
     }
 }

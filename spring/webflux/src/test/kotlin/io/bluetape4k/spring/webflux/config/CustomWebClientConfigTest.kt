@@ -1,5 +1,6 @@
 package io.bluetape4k.spring.webflux.config
 
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -56,5 +57,37 @@ class CustomWebClientConfigTest {
             }
         }
         task.awaitAll()
+    }
+
+    @Test
+    fun `async get by custom webclient in multiple suspended jobs`() = runSuspendIO {
+        SuspendedJobTester()
+            .numThreads(2 * Runtimex.availableProcessors)
+            .roundsPerJob(2 * Runtimex.availableProcessors)
+            .add {
+                val body = webClient.get()
+                    .uri("https://www.google.com")
+                    .retrieve()
+                    .awaitBody<String>()
+
+                log.debug { "구글 샤이트=${body.length}" }
+            }
+            .add {
+                val body = webClient.get()
+                    .uri("https://www.naver.com")
+                    .retrieve()
+                    .awaitBody<String>()
+
+                log.debug { "네이버 샤이트=${body.length}" }
+            }
+            .add {
+                val body = webClient.get()
+                    .uri("https://www.daum.net")
+                    .retrieve()
+                    .awaitBody<String>()
+
+                log.debug { "다음 샤이트=${body.length}" }
+            }
+            .run()
     }
 }
