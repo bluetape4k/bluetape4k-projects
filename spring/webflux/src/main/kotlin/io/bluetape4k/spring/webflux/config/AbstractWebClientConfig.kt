@@ -3,6 +3,7 @@ package io.bluetape4k.spring.webflux.config
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.utils.Runtimex
+import io.netty.channel.ChannelOption
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.handler.ssl.SslContext
 import io.netty.handler.ssl.SslContextBuilder
@@ -70,10 +71,13 @@ abstract class AbstractWebClientConfig {
             client.secure { spec ->
                 spec.sslContext(sslContext)
             }
+            client.responseTimeout(Duration.ofSeconds(3))
+            client.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
         }
     }
 
-    private fun exchangeStrategy(connector: ReactorClientHttpConnector): ExchangeStrategies {
+    @Bean
+    open fun exchangeStrategies(): ExchangeStrategies {
         log.info { "Create ExchangeStrategies bean." }
         return ExchangeStrategies.builder()
             .codecs { configurer ->
@@ -83,11 +87,11 @@ abstract class AbstractWebClientConfig {
     }
 
     @Bean
-    open fun webClient(connector: ReactorClientHttpConnector): WebClient {
+    open fun webClient(connector: ReactorClientHttpConnector, exchangeStrategies: ExchangeStrategies): WebClient {
         log.info { "Create WebClient bean." }
         return WebClient.builder()
             .clientConnector(connector)
-            .exchangeStrategies(exchangeStrategy(connector))
+            .exchangeStrategies(exchangeStrategies)
             .build()
     }
 }
