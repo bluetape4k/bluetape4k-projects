@@ -21,13 +21,22 @@ fun yearRanges(
     year: Int,
     yearCount: Int = 1,
     calendar: ITimeCalendar = TimeCalendar.Default,
-): Sequence<YearRange> = sequence {
-    var count = 0
-    var current = YearRange(year, calendar)
-    while (count < yearCount) {
-        yield(current)
-        current = current.nextYear()
-        count++
+): Sequence<YearRange> {
+    return object: Sequence<YearRange> {
+        override fun iterator(): Iterator<YearRange> = object: Iterator<YearRange> {
+            private var current = YearRange(year, calendar)
+            private var count = 0
+
+            override fun hasNext(): Boolean = count < yearCount
+
+            override fun next(): YearRange {
+                if (!hasNext()) throw NoSuchElementException("No more years in the range")
+                val result = current
+                current = current.nextYear()
+                count++
+                return result
+            }
+        }
     }
 }
 
@@ -42,15 +51,22 @@ fun quarterRanges(
     startTime: ZonedDateTime,
     quarterCount: Int = 1,
     calendar: ITimeCalendar = TimeCalendar.Default,
-): Sequence<QuarterRange> = sequence {
-    quarterCount.assertPositiveNumber("quarterCount")
+): Sequence<QuarterRange> {
+    return object: Sequence<QuarterRange> {
+        override fun iterator(): Iterator<QuarterRange> = object: Iterator<QuarterRange> {
+            private var current = QuarterRange(startTime, calendar)
+            private var count = 0
 
-    var count = 0
-    var current = QuarterRange(startTime, calendar)
-    while (count < quarterCount) {
-        yield(current)
-        current = current.nextQuarter()
-        count++
+            override fun hasNext(): Boolean = count < quarterCount
+
+            override fun next(): QuarterRange {
+                if (!hasNext()) throw NoSuchElementException("No more quarters in the range")
+                val result = current
+                current = current.nextQuarter()
+                count++
+                return result
+            }
+        }
     }
 }
 
@@ -81,11 +97,20 @@ fun monthRanges(
     start: ZonedDateTime,
     end: ZonedDateTime,
     calendar: ITimeCalendar = TimeCalendar.Default,
-): Sequence<MonthRange> = sequence {
-    var current = MonthRange(start, calendar)
-    while (current.end <= end) {
-        yield(current)
-        current = current.nextMonth()
+): Sequence<MonthRange> {
+    return object: Sequence<MonthRange> {
+        override fun iterator(): Iterator<MonthRange> = object: Iterator<MonthRange> {
+            private var current = MonthRange(start, calendar)
+
+            override fun hasNext(): Boolean = current.end <= end
+
+            override fun next(): MonthRange {
+                if (!hasNext()) throw NoSuchElementException("No more months in the range")
+                val result = current
+                current = current.nextMonth()
+                return result
+            }
+        }
     }
 }
 
@@ -116,12 +141,20 @@ fun weekRanges(
     start: ZonedDateTime,
     end: ZonedDateTime,
     calendar: ITimeCalendar = TimeCalendar.Default,
-): Sequence<WeekRange> = sequence {
-    var current = WeekRange(start, calendar)
+): Sequence<WeekRange> {
+    return object: Sequence<WeekRange> {
+        override fun iterator(): Iterator<WeekRange> = object: Iterator<WeekRange> {
+            private var current = WeekRange(start, calendar)
 
-    while (current.end <= end) {
-        yield(current)
-        current = current.nextWeek()
+            override fun hasNext(): Boolean = current.end <= end
+
+            override fun next(): WeekRange {
+                if (!hasNext()) throw NoSuchElementException("No more weeks in the range")
+                val result = current
+                current = current.nextWeek()
+                return result
+            }
+        }
     }
 }
 
@@ -152,12 +185,20 @@ fun dayRanges(
     start: ZonedDateTime,
     end: ZonedDateTime,
     calendar: ITimeCalendar = TimeCalendar.Default,
-): Sequence<DayRange> = sequence {
-    var current = DayRange(start, calendar)
+): Sequence<DayRange> {
+    return object: Sequence<DayRange> {
+        override fun iterator(): Iterator<DayRange> = object: Iterator<DayRange> {
+            private var current = DayRange(start, calendar)
 
-    while (current.end <= end) {
-        yield(current)
-        current = current.nextDay()
+            override fun hasNext(): Boolean = current.end <= end
+
+            override fun next(): DayRange {
+                if (!hasNext()) throw NoSuchElementException("No more days in the range")
+                val result = current
+                current = current.nextDay()
+                return result
+            }
+        }
     }
 }
 
@@ -188,12 +229,20 @@ fun hourRanges(
     start: ZonedDateTime,
     end: ZonedDateTime,
     calendar: ITimeCalendar = TimeCalendar.Default,
-): Sequence<HourRange> = sequence {
-    var current = HourRange(start, calendar)
+): Sequence<HourRange> {
+    return object: Sequence<HourRange> {
+        override fun iterator(): Iterator<HourRange> = object: Iterator<HourRange> {
+            private var current = HourRange(start, calendar)
 
-    while (current.end <= end) {
-        yield(current)
-        current = current.nextHour()
+            override fun hasNext(): Boolean = current.end <= end
+
+            override fun next(): HourRange {
+                if (!hasNext()) throw NoSuchElementException("No more hours in the range")
+                val result = current
+                current = current.nextHour()
+                return result
+            }
+        }
     }
 }
 
@@ -224,11 +273,19 @@ fun minuteRanges(
     start: ZonedDateTime,
     end: ZonedDateTime,
     calendar: ITimeCalendar = TimeCalendar.Default,
-): Sequence<MinuteRange> = sequence {
-    var current = MinuteRange(start, calendar)
+): Sequence<MinuteRange> {
+    return object: Sequence<MinuteRange> {
+        override fun iterator(): Iterator<MinuteRange> = object: Iterator<MinuteRange> {
+            private var current = MinuteRange(start, calendar)
 
-    while (current.end <= end) {
-        yield(current)
-        current = current.nextMinute()
+            override fun hasNext(): Boolean = current.end <= end
+
+            override fun next(): MinuteRange {
+                if (!hasNext()) throw NoSuchElementException("No more minutes in the range")
+                val result = current
+                current = current.nextMinute()
+                return result
+            }
+        }
     }
 }

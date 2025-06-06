@@ -261,14 +261,22 @@ fun <T> ReadableTemporalInterval<T>.sequence(
 ): Sequence<T> where T: Temporal, T: Comparable<T> {
     step.assertPositiveNumber("step")
 
-    return sequence {
-        var current = startInclusive.startOf(unit)
-        val increment = step.temporalAmount(unit)
+    return object: Sequence<T> {
+        override fun iterator(): Iterator<T> {
+            var current = startInclusive.startOf(unit)
+            val increment = step.temporalAmount(unit)
 
-        // TemporalInterval 은 OpenedRange ( [start, end) ) 입니다.
-        while (current < endExclusive) {
-            yield(current)
-            current = (current + increment) as T
+            // TemporalInterval 은 OpenedRange([start, end)) 입니다.
+            return object: Iterator<T> {
+                override fun hasNext(): Boolean = current < endExclusive
+
+                override fun next(): T {
+                    if (!hasNext()) throw NoSuchElementException("No more elements in the interval")
+                    val nextValue = current
+                    current = (current + increment) as T
+                    return nextValue
+                }
+            }
         }
     }
 }
