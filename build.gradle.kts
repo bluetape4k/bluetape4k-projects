@@ -588,12 +588,12 @@ subprojects {
                 create<MavenPublication>("Bluetape4k") {
                     val binaryJar = components["java"]
 
-                    val sourcesJar by tasks.creating(Jar::class) {
+                    val sourcesJar by tasks.registering(Jar::class) {
                         archiveClassifier.set("sources")
                         from(sourceSets["main"].allSource)
                     }
 
-                    val javadocJar by tasks.creating(Jar::class) {
+                    val javadocJar by tasks.registering(Jar::class) {
                         archiveClassifier.set("javadoc")
                         val javadocDir = layout.buildDirectory.asFile.get().resolve("javadoc")
                         from(javadocDir.path)

@@ -20,7 +20,7 @@ import io.bluetape4k.cassandra.querybuilder.literal
 import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.jackson.readValueOrNull
 import io.bluetape4k.jackson.writeAsString
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
@@ -31,7 +31,7 @@ import java.io.Serializable
 
 class JacksonJsonFunctionExamples: AbstractCassandraTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         data class User @JvmOverloads constructor(
             val name: String? = null,
             val age: Int? = null,

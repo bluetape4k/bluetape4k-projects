@@ -16,14 +16,13 @@ import kotlin.concurrent.withLock
 fun <T: Any, R: Any> ((T) -> CompletableFuture<R>).asyncMemorizer(): AsyncInMemoryMemorizer<T, R> =
     AsyncInMemoryMemorizer(this)
 
-
 /**
  * 로컬 메모리에 [evaluator] 실행 결과를 저장합니다.
  *
  * @property evaluator 캐시 값을 생성하는 메소드
  */
 class AsyncInMemoryMemorizer<in T, R>(
-    private val evaluator: (T) -> CompletableFuture<R>,
+    @BuilderInference private val evaluator: (T) -> CompletableFuture<R>,
 ): AsyncMemorizer<T, R> {
 
     companion object: KLoggingChannel()

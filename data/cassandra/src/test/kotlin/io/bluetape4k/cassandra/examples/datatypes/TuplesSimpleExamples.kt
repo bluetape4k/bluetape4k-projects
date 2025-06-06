@@ -4,14 +4,14 @@ import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.cql.SimpleStatement
 import com.datastax.oss.driver.api.core.type.DataTypes
 import io.bluetape4k.cassandra.AbstractCassandraTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class TuplesSimpleExamples: AbstractCassandraTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `tuple 수형에 대한 처리`() {

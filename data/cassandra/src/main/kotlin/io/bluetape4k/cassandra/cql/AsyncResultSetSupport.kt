@@ -44,12 +44,15 @@ fun AsyncResultSet.asFlow(): Flow<Row> = asFlow { it }
  * @param mapper [Row]를 변환할 함수
  * @return [Flow] 인스턴스
  */
-inline fun <T> AsyncResultSet.asFlow(crossinline mapper: suspend (row: Row) -> T): Flow<T> = channelFlow {
+inline fun <T> AsyncResultSet.asFlow(
+    @BuilderInference crossinline mapper: suspend (row: Row) -> T,
+): Flow<T> = channelFlow {
     var current = this@asFlow
     while (current.remaining() > 0) {
-        current.currentPage().forEach { row ->
-            send(mapper(row))
-        }
+        current.currentPage()
+            .forEach { row ->
+                send(mapper(row))
+            }
         if (current.hasMorePages()) {
             current = current.fetchNextPage().await()
         } else {

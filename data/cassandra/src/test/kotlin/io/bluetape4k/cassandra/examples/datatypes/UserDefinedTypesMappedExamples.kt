@@ -11,7 +11,7 @@ import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.cassandra.cql.statementOf
 import io.bluetape4k.cassandra.data.getValue
 import io.bluetape4k.cassandra.data.setValue
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
@@ -19,7 +19,7 @@ import java.io.Serializable
 
 class UserDefinedTypesMappedExamples: AbstractCassandraTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     data class Coordinates(val x: Int, val y: Int): Serializable
 

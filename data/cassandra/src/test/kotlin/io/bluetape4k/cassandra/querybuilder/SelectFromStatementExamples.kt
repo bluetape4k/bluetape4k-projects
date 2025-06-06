@@ -5,14 +5,14 @@ import com.datastax.oss.driver.api.querybuilder.QueryBuilder
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder.selectFrom
 import com.datastax.oss.driver.api.querybuilder.relation.Relation
 import com.datastax.oss.driver.api.querybuilder.select.Selector
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class SelectFromStatementExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `create SimpleStatement from Select`() {

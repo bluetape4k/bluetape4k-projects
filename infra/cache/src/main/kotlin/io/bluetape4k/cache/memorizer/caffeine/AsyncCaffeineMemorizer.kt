@@ -15,7 +15,7 @@ import kotlin.concurrent.withLock
  * @param evaluator cache value를 반환하는 메소드
  */
 fun <T: Any, R: Any> Cache<T, R>.asyncMemorizer(
-    evaluator: (T) -> CompletableFuture<R>,
+    @BuilderInference evaluator: (T) -> CompletableFuture<R>,
 ): AsyncCaffeineMemorizer<T, R> {
     return AsyncCaffeineMemorizer(this, evaluator)
 }
@@ -34,7 +34,7 @@ fun <T: Any, R: Any> ((T) -> CompletableFuture<R>).withAsyncMemorizer(
  */
 class AsyncCaffeineMemorizer<T: Any, R: Any>(
     private val cache: Cache<T, R>,
-    private val evaluator: (T) -> CompletableFuture<R>,
+    @BuilderInference private val evaluator: (T) -> CompletableFuture<R>,
 ): AsyncMemorizer<T, R> {
 
     companion object: KLoggingChannel()

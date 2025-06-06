@@ -12,7 +12,9 @@ import kotlin.concurrent.withLock
  * @param R cache value type
  * @param evaluator cache value를 반환하는 메소드
  */
-fun <T: Any, R: Any> org.ehcache.Cache<T, R>.memorizer(evaluator: (T) -> R): EhCacheMemorizer<T, R> =
+fun <T: Any, R: Any> org.ehcache.Cache<T, R>.memorizer(
+    @BuilderInference evaluator: (T) -> R,
+): EhCacheMemorizer<T, R> =
     EhCacheMemorizer(this, evaluator)
 
 
@@ -27,7 +29,7 @@ fun <T: Any, R: Any> ((T) -> R).withMemorizer(cache: org.ehcache.Cache<T, R>): E
  */
 class EhCacheMemorizer<T: Any, R: Any>(
     private val cache: org.ehcache.Cache<T, R>,
-    private val evaluator: (T) -> R,
+    @BuilderInference private val evaluator: (T) -> R,
 ): Memorizer<T, R> {
 
     companion object: KLogging()

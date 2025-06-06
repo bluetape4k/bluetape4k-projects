@@ -12,14 +12,14 @@ import com.datastax.oss.driver.api.core.type.reflect.GenericType
 import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.cassandra.data.getValue
 import io.bluetape4k.cassandra.data.setValue
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.io.Serializable
 
 class TuplesMappedExamples: AbstractCassandraTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     data class Coordinates(val x: Int, val y: Int): Serializable
 

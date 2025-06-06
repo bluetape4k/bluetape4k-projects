@@ -3,13 +3,13 @@ package io.bluetape4k.cassandra.querybuilder
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder.deleteFrom
 import com.datastax.oss.driver.api.querybuilder.condition.Condition
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class ConditionQuryExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `generate simple column condition`() {

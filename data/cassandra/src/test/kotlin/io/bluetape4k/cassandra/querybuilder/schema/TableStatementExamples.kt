@@ -7,13 +7,13 @@ import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.alterTable
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.createTable
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.dropTable
 import com.datastax.oss.driver.api.querybuilder.schema.compaction.TimeWindowCompactionStrategy
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class TableStatementExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `generate alterTable`() {

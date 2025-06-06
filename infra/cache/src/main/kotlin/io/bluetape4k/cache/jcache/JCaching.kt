@@ -177,8 +177,8 @@ object JCaching {
             return with(jcacheManager<JCachingProvider>()) {
                 getCache(cacheName)
                     ?: run {
-                        val redissonConfiguration = RedissonConfiguration.fromInstance(redisson, configuration)
-                        createCache(cacheName, redissonConfiguration)
+                        val redissonCfg = RedissonConfiguration.fromInstance(redisson, configuration)
+                        createCache(cacheName, redissonCfg)
                     }
             }
         }

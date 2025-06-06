@@ -8,7 +8,7 @@ import kotlinx.coroutines.sync.withLock
 
 
 fun <T: Any, R: Any> Cache<T, R>.suspendMemorizer(
-    evaluator: suspend (T) -> R,
+    @BuilderInference evaluator: suspend (T) -> R,
 ): SuspendCaffeineMemorizer<T, R> =
     SuspendCaffeineMemorizer(this, evaluator)
 
@@ -17,7 +17,7 @@ fun <T: Any, R: Any> (suspend (T) -> R).withSuspendMemorizer(cache: Cache<T, R>)
 
 class SuspendCaffeineMemorizer<T: Any, R: Any>(
     private val cache: Cache<T, R>,
-    private val evaluator: suspend (T) -> R,
+    @BuilderInference private val evaluator: suspend (T) -> R,
 ): SuspendMemorizer<T, R> {
 
     companion object: KLoggingChannel()

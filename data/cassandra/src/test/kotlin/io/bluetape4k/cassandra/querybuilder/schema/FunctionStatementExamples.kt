@@ -4,13 +4,13 @@ import com.datastax.oss.driver.api.core.type.DataTypes
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.createFunction
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.dropFunction
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class FunctionStatementExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `generate createFunction`() {

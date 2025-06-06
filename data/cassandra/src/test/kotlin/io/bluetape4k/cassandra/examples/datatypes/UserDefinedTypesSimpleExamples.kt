@@ -4,14 +4,14 @@ import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.cql.SimpleStatement
 import com.datastax.oss.driver.api.core.type.UserDefinedType
 import io.bluetape4k.cassandra.AbstractCassandraTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class UserDefinedTypesSimpleExamples: AbstractCassandraTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `사용자 정의 수형에 대한 처리 예`() {

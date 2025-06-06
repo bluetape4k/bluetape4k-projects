@@ -34,9 +34,12 @@ val defaultCache2kManager: CacheManager by lazy { CacheManager.getInstance() }
  */
 inline fun <reified K: Any, reified V: Any> cache2k(
     cacheManager: CacheManager = defaultCache2kManager,
-    builder: Cache2kBuilder<K, V>.() -> Unit = {},
+    @BuilderInference builder: Cache2kBuilder<K, V>.() -> Unit = {},
 ): Cache2kBuilder<K, V> {
-    return Cache2kBuilder.of(K::class.java, V::class.java).manager(cacheManager).apply(builder)
+    return Cache2kBuilder
+        .of(K::class.java, V::class.java)
+        .manager(cacheManager)
+        .apply(builder)
 }
 
 /**

@@ -1,6 +1,6 @@
 package io.bluetape4k.cassandra.data
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
@@ -11,7 +11,7 @@ import kotlin.test.assertFailsWith
 
 class CqlDurationSupportTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `should convert Duration to CqlDuration`() {

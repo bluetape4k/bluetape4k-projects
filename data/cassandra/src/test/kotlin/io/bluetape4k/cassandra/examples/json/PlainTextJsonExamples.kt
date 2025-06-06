@@ -9,7 +9,7 @@ import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.cassandra.querybuilder.bindMarker
 import io.bluetape4k.cassandra.querybuilder.functionTerm
 import io.bluetape4k.cassandra.querybuilder.literal
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test
 
 class PlainTextJsonExamples: AbstractCassandraTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private val CREATE_TABLE = """
             CREATE TABLE IF NOT EXISTS querybuilder_json(
                 id int PRIMARY KEY,

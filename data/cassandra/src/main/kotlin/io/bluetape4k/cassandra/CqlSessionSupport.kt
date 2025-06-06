@@ -33,7 +33,7 @@ inline fun cqlSession(initializer: CqlSessionBuilder.() -> Unit): CqlSession {
  * )
  * ```
  */
-fun cqlSessionOf(
+inline fun cqlSessionOf(
     contactPoint: InetSocketAddress = CqlSessionProvider.DEFAULT_CONTACT_POINT,
     localDatacenter: String = CqlSessionProvider.DEFAULT_LOCAL_DATACENTER,
     keyspaceName: String = CqlSessionProvider.DEFAULT_KEYSPACE,

@@ -6,13 +6,13 @@ import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.createMaterialized
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.dropMaterializedView
 import io.bluetape4k.cassandra.querybuilder.literal
 import io.bluetape4k.cassandra.querybuilder.lt
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class MaterializedViewStatementExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `generate alterMaterializedView`() {

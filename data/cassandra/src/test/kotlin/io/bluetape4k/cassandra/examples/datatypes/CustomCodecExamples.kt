@@ -13,7 +13,7 @@ import io.bluetape4k.cassandra.data.getList
 import io.bluetape4k.cassandra.data.getValue
 import io.bluetape4k.cassandra.data.setValue
 import io.bluetape4k.io.getBytes
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
@@ -26,7 +26,7 @@ import java.util.*
 
 class CustomCodecExamples: AbstractCassandraTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private val VIDEO_TABLE =
             """
             CREATE TABLE IF NOT EXISTS videos(

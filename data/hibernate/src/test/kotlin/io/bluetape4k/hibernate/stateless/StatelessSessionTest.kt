@@ -142,6 +142,16 @@ class StatelessSessionTest: AbstractHibernateTest() {
             val master = StatelessMaster(name).also { it.id = id }
             log.debug { "master=$master" }
         }
+
+        val masters2 = tem.entityManager.withStateless { stateless ->
+            stateless
+                .createNativeQuery(
+                    "select * from stateless_master",
+                    StatelessMaster::class.java
+                )
+                .list()
+        }
+        masters2.shouldNotBeNull().shouldNotBeEmpty()
     }
 
     private fun createMaster(name: String, detailCount: Int = 10): StatelessMaster {
