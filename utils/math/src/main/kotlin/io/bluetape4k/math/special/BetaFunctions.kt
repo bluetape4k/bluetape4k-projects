@@ -11,13 +11,8 @@ fun betaLn(x: Double, y: Double): Double {
     return logGamma(x) + logGamma(y) - logGamma(x + y)
 }
 
-fun betaLn(xs: Sequence<Double>, ys: Sequence<Double>): Sequence<Double> = sequence {
-    val xe = xs.iterator()
-    val ye = ys.iterator()
-    while (xe.hasNext() && ye.hasNext()) {
-        yield(betaLn(xe.next(), ye.next()))
-    }
-}
+fun betaLn(xs: Sequence<Double>, ys: Sequence<Double>): Sequence<Double> =
+    xs.zip(ys).map { (x, y) -> betaLn(x, y) }
 
 fun betaLn(xs: Iterable<Double>, ys: Iterable<Double>): DoubleArray {
     val results = mutableListOf<Double>()

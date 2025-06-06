@@ -7,14 +7,8 @@ package io.bluetape4k.math.commons
  * @return
  */
 @JvmName("plusOfDoubleSequence")
-operator fun Sequence<Double>.plus(right: Sequence<Double>): Sequence<Double> = sequence {
-    val lhs = this@plus.iterator()
-    val rhs = right.iterator()
-
-    while (lhs.hasNext() && rhs.hasNext()) {
-        yield(lhs.next() + rhs.next())
-    }
-}
+operator fun Sequence<Double>.plus(right: Sequence<Double>): Sequence<Double> =
+    this.zip(right).map { (lhs, rhs) -> lhs + rhs }
 
 @JvmName("plusOfDoubleIterable")
 operator fun Iterable<Double>.plus(right: Iterable<Double>): Iterable<Double> =
@@ -27,14 +21,8 @@ operator fun Iterable<Double>.plus(right: Iterable<Double>): Iterable<Double> =
  * @return
  */
 @JvmName("minusOfDoubleSequence")
-operator fun Sequence<Double>.minus(right: Sequence<Double>): Sequence<Double> = sequence {
-    val lhs = this@minus.iterator()
-    val rhs = right.iterator()
-
-    while (lhs.hasNext() && rhs.hasNext()) {
-        yield(lhs.next() - rhs.next())
-    }
-}
+operator fun Sequence<Double>.minus(right: Sequence<Double>): Sequence<Double> =
+    this.zip(right).map { (lhs, rhs) -> lhs - rhs }
 
 @JvmName("minusOfDoubleIterable")
 operator fun Iterable<Double>.minus(right: Iterable<Double>): Iterable<Double> =
@@ -47,14 +35,8 @@ operator fun Iterable<Double>.minus(right: Iterable<Double>): Iterable<Double> =
  * @return
  */
 @JvmName("timesOfDoubleSequence")
-operator fun Sequence<Double>.times(right: Sequence<Double>): Sequence<Double> = sequence {
-    val lhs = this@times.iterator()
-    val rhs = right.iterator()
-
-    while (lhs.hasNext() && rhs.hasNext()) {
-        yield(lhs.next() * rhs.next())
-    }
-}
+operator fun Sequence<Double>.times(right: Sequence<Double>): Sequence<Double> =
+    this.zip(right).map { (lhs, rhs) -> lhs * rhs }
 
 @JvmName("timesOfDoubleIterable")
 operator fun Iterable<Double>.times(right: Iterable<Double>): Iterable<Double> =
@@ -67,14 +49,8 @@ operator fun Iterable<Double>.times(right: Iterable<Double>): Iterable<Double> =
  * @return
  */
 @JvmName("divOfDoubleSequence")
-operator fun Sequence<Double>.div(right: Sequence<Double>): Sequence<Double> = sequence {
-    val lhs = this@div.iterator()
-    val rhs = right.iterator()
-
-    while (lhs.hasNext() && rhs.hasNext()) {
-        yield(lhs.next() / rhs.next())
-    }
-}
+operator fun Sequence<Double>.div(right: Sequence<Double>): Sequence<Double> =
+    this.zip(right).map { (lhs, rhs) -> lhs / rhs }
 
 @JvmName("divOfDoubleIterable")
 operator fun Iterable<Double>.div(right: Iterable<Double>): Iterable<Double> =
@@ -87,14 +63,8 @@ operator fun Iterable<Double>.div(right: Iterable<Double>): Iterable<Double> =
  * @return
  */
 @JvmName("plusOfFloatSequence")
-operator fun Sequence<Float>.plus(right: Sequence<Float>): Sequence<Float> = sequence {
-    val lhs = this@plus.iterator()
-    val rhs = right.iterator()
-
-    while (lhs.hasNext() && rhs.hasNext()) {
-        yield(lhs.next() + rhs.next())
-    }
-}
+operator fun Sequence<Float>.plus(right: Sequence<Float>): Sequence<Float> =
+    this.zip(right).map { (lhs, rhs) -> lhs + rhs }
 
 @JvmName("plusOfFloatIterable")
 operator fun Iterable<Float>.plus(right: Iterable<Float>): Iterable<Float> =
@@ -107,14 +77,8 @@ operator fun Iterable<Float>.plus(right: Iterable<Float>): Iterable<Float> =
  * @return
  */
 @JvmName("minusOfFloatSequence")
-operator fun Sequence<Float>.minus(right: Sequence<Float>): Sequence<Float> = sequence {
-    val lhs = this@minus.iterator()
-    val rhs = right.iterator()
-
-    while (lhs.hasNext() && rhs.hasNext()) {
-        yield(lhs.next() - rhs.next())
-    }
-}
+operator fun Sequence<Float>.minus(right: Sequence<Float>): Sequence<Float> =
+    this.zip(right).map { (lhs, rhs) -> lhs - rhs }
 
 @JvmName("minusOfFloatIterable")
 operator fun Iterable<Float>.minus(right: Iterable<Float>): Iterable<Float> =
@@ -127,14 +91,8 @@ operator fun Iterable<Float>.minus(right: Iterable<Float>): Iterable<Float> =
  * @return
  */
 @JvmName("timesOfFloatSequence")
-operator fun Sequence<Float>.times(right: Sequence<Float>): Sequence<Float> = sequence {
-    val lhs = this@times.iterator()
-    val rhs = right.iterator()
-
-    while (lhs.hasNext() && rhs.hasNext()) {
-        yield(lhs.next() * rhs.next())
-    }
-}
+operator fun Sequence<Float>.times(right: Sequence<Float>): Sequence<Float> =
+    this.zip(right).map { (lhs, rhs) -> lhs * rhs }
 
 @JvmName("timesOfFloatIterable")
 operator fun Iterable<Float>.times(right: Iterable<Float>): Iterable<Float> =
@@ -148,14 +106,8 @@ operator fun Iterable<Float>.times(right: Iterable<Float>): Iterable<Float> =
  * @return
  */
 @JvmName("divOfFloatSequence")
-operator fun Sequence<Float>.div(right: Sequence<Float>): Sequence<Float> = sequence {
-    val lhs = this@div.iterator()
-    val rhs = right.iterator()
-
-    while (lhs.hasNext() && rhs.hasNext()) {
-        yield(lhs.next() / rhs.next())
-    }
-}
+operator fun Sequence<Float>.div(right: Sequence<Float>): Sequence<Float> =
+    this.zip(right).map { (lhs, rhs) -> lhs / rhs }
 
 @JvmName("divOfFloatIterable")
 operator fun Iterable<Float>.div(right: Iterable<Float>): Iterable<Float> =
@@ -169,14 +121,8 @@ operator fun Iterable<Float>.div(right: Iterable<Float>): Iterable<Float> =
  * @return
  */
 @JvmName("plusOfLongSequence")
-operator fun Sequence<Long>.plus(right: Sequence<Long>): Sequence<Long> = sequence {
-    val lhs = this@plus.iterator()
-    val rhs = right.iterator()
-
-    while (lhs.hasNext() && rhs.hasNext()) {
-        yield(lhs.next() + rhs.next())
-    }
-}
+operator fun Sequence<Long>.plus(right: Sequence<Long>): Sequence<Long> =
+    this.zip(right).map { (lhs, rhs) -> lhs + rhs }
 
 @JvmName("plusOfLongIterable")
 operator fun Iterable<Long>.plus(right: Iterable<Long>): Iterable<Long> =
@@ -190,14 +136,8 @@ operator fun Iterable<Long>.plus(right: Iterable<Long>): Iterable<Long> =
  * @return
  */
 @JvmName("minusOfLongSequence")
-operator fun Sequence<Long>.minus(right: Sequence<Long>): Sequence<Long> = sequence {
-    val lhs = this@minus.iterator()
-    val rhs = right.iterator()
-
-    while (lhs.hasNext() && rhs.hasNext()) {
-        yield(lhs.next() - rhs.next())
-    }
-}
+operator fun Sequence<Long>.minus(right: Sequence<Long>): Sequence<Long> =
+    this.zip(right).map { (lhs, rhs) -> lhs - rhs }
 
 @JvmName("minusOfLongIterable")
 operator fun Iterable<Long>.minus(right: Iterable<Long>): Iterable<Long> =
@@ -210,14 +150,8 @@ operator fun Iterable<Long>.minus(right: Iterable<Long>): Iterable<Long> =
  * @return
  */
 @JvmName("timesOfLongSequence")
-operator fun Sequence<Long>.times(right: Sequence<Long>): Sequence<Long> = sequence {
-    val lhs = this@times.iterator()
-    val rhs = right.iterator()
-
-    while (lhs.hasNext() && rhs.hasNext()) {
-        yield(lhs.next() * rhs.next())
-    }
-}
+operator fun Sequence<Long>.times(right: Sequence<Long>): Sequence<Long> =
+    this.zip(right).map { (lhs, rhs) -> lhs * rhs }
 
 @JvmName("timesOfLongIterable")
 operator fun Iterable<Long>.times(right: Iterable<Long>): Iterable<Long> =
@@ -230,14 +164,8 @@ operator fun Iterable<Long>.times(right: Iterable<Long>): Iterable<Long> =
  * @return
  */
 @JvmName("divOfLongSequence")
-operator fun Sequence<Long>.div(right: Sequence<Long>): Sequence<Long> = sequence {
-    val lhs = this@div.iterator()
-    val rhs = right.iterator()
-
-    while (lhs.hasNext() && rhs.hasNext()) {
-        yield(lhs.next() / rhs.next())
-    }
-}
+operator fun Sequence<Long>.div(right: Sequence<Long>): Sequence<Long> =
+    this.zip(right).map { (lhs, rhs) -> lhs / rhs }
 
 @JvmName("divOfLongIterable")
 operator fun Iterable<Long>.div(right: Iterable<Long>): Iterable<Long> =
@@ -250,14 +178,8 @@ operator fun Iterable<Long>.div(right: Iterable<Long>): Iterable<Long> =
  * @return
  */
 @JvmName("plusOfIntSequence")
-operator fun Sequence<Int>.plus(right: Sequence<Int>): Sequence<Int> = sequence {
-    val lhs = this@plus.iterator()
-    val rhs = right.iterator()
-
-    while (lhs.hasNext() && rhs.hasNext()) {
-        yield(lhs.next() + rhs.next())
-    }
-}
+operator fun Sequence<Int>.plus(right: Sequence<Int>): Sequence<Int> =
+    this.zip(right).map { (lhs, rhs) -> lhs + rhs }
 
 @JvmName("plusOfIntIterable")
 operator fun Iterable<Int>.plus(right: Iterable<Int>): Iterable<Int> =
@@ -270,14 +192,8 @@ operator fun Iterable<Int>.plus(right: Iterable<Int>): Iterable<Int> =
  * @return
  */
 @JvmName("minusOfIntSequence")
-operator fun Sequence<Int>.minus(right: Sequence<Int>): Sequence<Int> = sequence {
-    val lhs = this@minus.iterator()
-    val rhs = right.iterator()
-
-    while (lhs.hasNext() && rhs.hasNext()) {
-        yield(lhs.next() - rhs.next())
-    }
-}
+operator fun Sequence<Int>.minus(right: Sequence<Int>): Sequence<Int> =
+    this.zip(right).map { (lhs, rhs) -> lhs - rhs }
 
 @JvmName("minusOfIntIterable")
 operator fun Iterable<Int>.minus(right: Iterable<Int>): Iterable<Int> =
@@ -290,14 +206,8 @@ operator fun Iterable<Int>.minus(right: Iterable<Int>): Iterable<Int> =
  * @return
  */
 @JvmName("timesOfIntSequence")
-operator fun Sequence<Int>.times(right: Sequence<Int>): Sequence<Int> = sequence {
-    val lhs = this@times.iterator()
-    val rhs = right.iterator()
-
-    while (lhs.hasNext() && rhs.hasNext()) {
-        yield(lhs.next() * rhs.next())
-    }
-}
+operator fun Sequence<Int>.times(right: Sequence<Int>): Sequence<Int> =
+    this.zip(right).map { (lhs, rhs) -> lhs * rhs }
 
 @JvmName("timesOfIntIterable")
 operator fun Iterable<Int>.times(right: Iterable<Int>): Iterable<Int> =
@@ -310,14 +220,8 @@ operator fun Iterable<Int>.times(right: Iterable<Int>): Iterable<Int> =
  * @return
  */
 @JvmName("divOfIntSequence")
-operator fun Sequence<Int>.div(right: Sequence<Int>): Sequence<Int> = sequence {
-    val lhs = this@div.iterator()
-    val rhs = right.iterator()
-
-    while (lhs.hasNext() && rhs.hasNext()) {
-        yield(lhs.next() / rhs.next())
-    }
-}
+operator fun Sequence<Int>.div(right: Sequence<Int>): Sequence<Int> =
+    this.zip(right).map { (lhs, rhs) -> lhs / rhs }
 
 @JvmName("divOfIntIterable")
 operator fun Iterable<Int>.div(right: Iterable<Int>): Iterable<Int> =
