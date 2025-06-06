@@ -37,13 +37,15 @@ internal class DefaultSequencer(machineId: Int = getMachineId(MAX_MACHINE_ID)): 
         }
     }
 
-    override fun nextSequences(size: Int): Sequence<SnowflakeId> = sequence {
-        lock.withLock {
-            repeat(size) {
-                yield(nextSequenceInternal())
-            }
-        }
-    }
+    override fun nextSequences(size: Int): Sequence<SnowflakeId> =
+        generateSequence { nextSequence() }.take(size)
+//        sequence {
+//            lock.withLock {
+//                repeat(size) {
+//                    yield(nextSequenceInternal())
+//                }
+//            }
+//        }
 
     private fun nextSequenceInternal(): SnowflakeId {
         updateState()
