@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit
  * @return [Future] 객체
  */
 inline fun <T> CircuitBreaker.executeVertxFuture(
-    crossinline supplier: () -> Future<T>,
+    @BuilderInference crossinline supplier: () -> Future<T>,
 ): Future<T> {
     return decorateVertxFuture(supplier).invoke()
 }
@@ -35,7 +35,7 @@ inline fun <T> CircuitBreaker.executeVertxFuture(
  * @param supplier 를 CircuitBreaker로 decorate 한 함수
  */
 inline fun <T> CircuitBreaker.decorateVertxFuture(
-    crossinline supplier: () -> Future<T>,
+    @BuilderInference crossinline supplier: () -> Future<T>,
 ): () -> Future<T> = {
     if (!tryAcquirePermission()) {
         Future.failedFuture(CallNotPermittedException.createCallNotPermittedException(this))

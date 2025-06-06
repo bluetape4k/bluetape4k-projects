@@ -17,7 +17,7 @@ inline fun <T> Future<T>.recover(
  */
 fun <T> Future<T>.recover(
     exceptionTypes: Iterable<Class<out Throwable?>>,
-    exceptionHandler: (Throwable?) -> T,
+    @BuilderInference exceptionHandler: (Throwable?) -> T,
 ): Future<T> {
     val promise = Promise.promise<T>()
 
@@ -35,7 +35,7 @@ fun <T> Future<T>.recover(
  */
 fun <T> Future<T>.recover(
     exceptionType: Class<out Throwable?>,
-    exceptionHandler: (Throwable?) -> T,
+    @BuilderInference exceptionHandler: (Throwable?) -> T,
 ): Future<T> {
     val promise = Promise.promise<T>()
 

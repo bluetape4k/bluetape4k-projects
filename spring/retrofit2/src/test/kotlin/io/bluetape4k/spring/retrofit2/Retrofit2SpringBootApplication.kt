@@ -1,6 +1,6 @@
 package io.bluetape4k.spring.retrofit2
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.spring.retrofit2.services.httpbin.HttpbinApi
 import io.bluetape4k.spring.retrofit2.services.jsonplaceholder.JsonPlaceHolderApi
@@ -16,7 +16,7 @@ import retrofit2.awaitResponse
 @SpringBootApplication
 class Retrofit2SpringBootApplication {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Component
     class Retrofit2SampleRunner: CommandLineRunner {

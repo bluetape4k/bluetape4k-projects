@@ -2,7 +2,7 @@ package io.bluetape4k.spring.retrofit2.services.jsonplaceholder
 
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.uninitialized
 import org.amshove.kluent.shouldBeEqualTo
@@ -20,7 +20,7 @@ import kotlin.math.absoluteValue
 @RandomizedTest
 class JsonPlaceHolderApiTest: AbstractJsonPlaceHolderApiTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 3
     }
 

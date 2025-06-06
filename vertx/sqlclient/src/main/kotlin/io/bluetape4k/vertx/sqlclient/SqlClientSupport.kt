@@ -12,7 +12,7 @@ suspend fun SqlClient.querySuspending(sql: String): RowSet<Row> {
 
 suspend inline fun <T> SqlClient.querySuspending(
     sql: String,
-    mapper: (Row) -> T,
+    @BuilderInference mapper: (Row) -> T,
 ): List<T> {
     return querySuspending(sql).map(mapper)
 }
@@ -21,6 +21,10 @@ suspend fun SqlClient.querySuspending(sql: String, params: Tuple): RowSet<Row> {
     return preparedQuery(sql).execute(params).coAwait()
 }
 
-suspend fun <T> SqlClient.querySuspending(sql: String, params: Tuple, mapper: (Row) -> T): List<T> {
+suspend fun <T> SqlClient.querySuspending(
+    sql: String,
+    params: Tuple,
+    @BuilderInference mapper: (Row) -> T,
+): List<T> {
     return querySuspending(sql, params).map(mapper)
 }

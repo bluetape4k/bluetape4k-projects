@@ -1,6 +1,6 @@
 package io.bluetape4k.spring.webflux.filter
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.requireNotBlank
 import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.WebFilter
@@ -30,7 +30,7 @@ abstract class AbstractRedirectWebFilter(
     val requestPath: String = ROOT_PATH,
 ): WebFilter {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         const val ROOT_PATH = "/"
     }
 

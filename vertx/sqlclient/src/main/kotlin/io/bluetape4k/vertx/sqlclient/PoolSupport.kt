@@ -23,7 +23,7 @@ import java.sql.SQLException
  * @return DB 작업 결과
  */
 suspend fun <T> Pool.withTransactionSuspending(
-    action: suspend (conn: SqlConnection) -> T,
+    @BuilderInference action: suspend (conn: SqlConnection) -> T,
 ): T {
     val conn = connection.coAwait()
     val tx = conn.begin().coAwait()
@@ -59,7 +59,7 @@ suspend fun <T> Pool.withTransactionSuspending(
  * @return 작업 결과
  */
 suspend fun <T> Pool.withRollbackSuspending(
-    action: suspend (conn: SqlConnection) -> T,
+    @BuilderInference action: suspend (conn: SqlConnection) -> T,
 ): T {
     val conn = connection.coAwait()
     val tx = conn.begin().coAwait()

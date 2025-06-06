@@ -19,7 +19,7 @@ import java.util.concurrent.ScheduledExecutorService
  */
 inline fun <T> Retry.executeVertxFuture(
     scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(),
-    crossinline supplier: () -> Future<T>,
+    @BuilderInference crossinline supplier: () -> Future<T>,
 ): Future<T> {
     return decorateVertxFuture(scheduler, supplier).invoke()
 }
@@ -39,7 +39,7 @@ inline fun <T> Retry.executeVertxFuture(
  */
 inline fun <T> Retry.decorateVertxFuture(
     scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(),
-    crossinline supplier: () -> Future<T>,
+    @BuilderInference crossinline supplier: () -> Future<T>,
 ): () -> Future<T> = {
     val promise = Promise.promise<T>()
 
