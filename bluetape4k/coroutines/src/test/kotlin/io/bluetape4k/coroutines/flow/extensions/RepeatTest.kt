@@ -31,9 +31,20 @@ class RepeatTest: AbstractFlowTest() {
 
     companion object: KLoggingChannel()
 
-    private fun <T> Iterable<T>.cycled(): Sequence<T> = sequence {
-        while (true) {
-            yieldAll(this@cycled)
+    private fun <T> Iterable<T>.cycled(): Sequence<T> {
+        val self = this@cycled
+        return object: Sequence<T> {
+            override fun iterator(): Iterator<T> =
+                object: Iterator<T> {
+                    private var iter = self.iterator()
+                    override fun hasNext(): Boolean = true
+                    override fun next(): T {
+                        if (!iter.hasNext()) {
+                            iter = self.iterator()
+                        }
+                        return iter.next()
+                    }
+                }
         }
     }
 
