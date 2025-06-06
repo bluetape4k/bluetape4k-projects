@@ -14,13 +14,13 @@ fun JsonNode.toAttributeValue(): AttributeValue = when (this.nodeType) {
     JsonNodeType.STRING -> this.textValue().toAttributeValue()
     JsonNodeType.ARRAY -> AttributeValue.L(this.map { it.toAttributeValue() })
     JsonNodeType.OBJECT -> AttributeValue.M(
-        this.fields().asSequence().associate { (key, value) ->
+        this.properties().asSequence().associate { (key, value) ->
             key to value.toAttributeValue()
         }
     )
 
     JsonNodeType.POJO -> AttributeValue.M(
-        this.fields().asSequence().associate { (key, value) ->
+        this.properties().asSequence().associate { (key, value) ->
             key to value.toAttributeValue()
         }
     )

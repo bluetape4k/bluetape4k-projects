@@ -27,9 +27,11 @@ fun keySchemaElementOf(
  *
  * @param name Partition Key의 이름
  */
-fun partitionKeyOf(name: String): KeySchemaElement = keySchemaElementOf(name, KeyType.Hash)
+fun partitionKeyOf(name: String): KeySchemaElement =
+    keySchemaElementOf(name, KeyType.Hash)
 
 /**
  * Sort Key를 생성합니다.
  */
-fun sortKeyOf(name: String): KeySchemaElement = keySchemaElementOf(name, KeyType.Range)
+fun sortKeyOf(name: String): KeySchemaElement =
+    keySchemaElementOf(name, KeyType.Range)

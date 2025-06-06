@@ -7,12 +7,11 @@ import aws.sdk.kotlin.services.s3.model.PutObjectResponse
 import aws.smithy.kotlin.runtime.content.ByteStream
 import aws.smithy.kotlin.runtime.content.fromFile
 import io.bluetape4k.aws.kotlin.s3.model.putObjectRequestOf
+import io.bluetape4k.coroutines.flow.async
 import io.bluetape4k.io.exists
 import kotlinx.coroutines.flow.DEFAULT_CONCURRENCY
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.flatMapMerge
-import kotlinx.coroutines.flow.flow
 import java.io.File
 import java.nio.file.Path
 
@@ -171,10 +170,7 @@ fun S3Client.putAll(
     vararg putRequests: PutObjectRequest,
 ): Flow<PutObjectResponse> {
     return putRequests.asFlow()
-        .flatMapMerge(concurrency) {
-            flow {
-                val response = putObject(it)
-                emit(response)
-            }
+        .async {
+            putObject(it)
         }
 }

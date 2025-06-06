@@ -10,7 +10,6 @@ fun transactGetItemOf(get: Get): TransactGetItem = TransactGetItem {
     this.get = get
 }
 
-
 inline fun transactGetItemsRequestOf(
     transactItems: List<TransactGetItem>,
     returnConsumedCapacity: ReturnConsumedCapacity? = null,
