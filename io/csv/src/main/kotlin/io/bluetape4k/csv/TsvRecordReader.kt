@@ -35,12 +35,10 @@ class TsvRecordReader(
         encoding: Charset,
         skipHeaders: Boolean,
         recordMapper: (Record) -> T,
-    ): Sequence<T> = sequence {
-        val parser = TsvParser(settings)
-        parser.iterateRecords(input, encoding)
+    ): Sequence<T> {
+        return TsvParser(settings).iterateRecords(input, encoding)
             .drop(if (skipHeaders) 1 else 0)
-            .forEach { record ->
-                yield(recordMapper(record))
-            }
+            .map { record -> recordMapper(record) }
+            .asSequence()
     }
 }
