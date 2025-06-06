@@ -38,12 +38,6 @@ class TimebasedUuidGenerator: IdGenerator<UUID> {
      */
     fun nextUUIDs(size: Int): Sequence<UUID> =
         generateSequence { nextUUID() }.take(size)
-//        sequence {
-//            size.assertPositiveNumber("size")
-//            repeat(size) {
-//                yield(nextUUID())
-//            }
-//        }
 
     /**
      * 새로운 Time based UUID를 생성하고, 이를 [Base62]로 인코딩해서 반환합니다.
@@ -57,10 +51,4 @@ class TimebasedUuidGenerator: IdGenerator<UUID> {
      */
     fun nextBase62Strings(size: Int): Sequence<String> =
         generateSequence { nextBase62String() }.take(size)
-//        sequence {
-//          size.assertPositiveNumber("size")
-//          repeat(size) {
-//              yield(nextBase62String())
-//          }
-//        }
 }

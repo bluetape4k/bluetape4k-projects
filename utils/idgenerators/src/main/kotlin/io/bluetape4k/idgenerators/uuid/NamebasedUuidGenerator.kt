@@ -3,6 +3,7 @@ package io.bluetape4k.idgenerators.uuid
 import com.fasterxml.uuid.Generators
 import io.bluetape4k.codec.Url62
 import io.bluetape4k.idgenerators.IdGenerator
+import java.security.SecureRandom
 import java.util.*
 
 /**
@@ -13,7 +14,8 @@ import java.util.*
 class NamebasedUuidGenerator: IdGenerator<UUID> {
 
     private val namebasedUuid = Generators.nameBasedGenerator()
-    private val randomUuid = Generators.randomBasedGenerator(Random(System.currentTimeMillis()))
+    private val randomUuid =
+        Generators.randomBasedGenerator(SecureRandom())
 
     /**
      * 다음 UUID를 생성합니다.
