@@ -127,7 +127,7 @@ fun ByteBuffer.toUtf8String(): String = UTF_8.decode(this).toString()
  */
 inline fun String?.ifEmpty(fallback: () -> String): String = when {
     isNullOrEmpty() -> fallback()
-    else            -> this
+    else -> this
 }
 
 /**
@@ -144,7 +144,7 @@ inline fun String?.ifEmpty(fallback: () -> String): String = when {
  */
 inline fun String?.ifNullOrEmpty(fallback: () -> String): String = when {
     isNullOrEmpty() -> fallback()
-    else            -> this
+    else -> this
 }
 
 /**
@@ -161,7 +161,7 @@ inline fun String?.ifNullOrEmpty(fallback: () -> String): String = when {
  */
 inline fun String?.ifNullOrBlank(fallback: () -> String): String = when {
     isNullOrBlank() -> fallback()
-    else            -> this
+    else -> this
 }
 
 
@@ -289,7 +289,7 @@ fun String?.quoted(): String {
 @JvmOverloads
 fun randomString(size: Int = 10): String {
     size.assertZeroOrPositiveNumber("size")
-    return RandomStringUtils.randomAlphanumeric(size)
+    return RandomStringUtils.secureStrong().nextAlphanumeric(size)
 }
 
 /**
@@ -324,7 +324,7 @@ fun String?.ellipsisEnd(maxLength: Int = ELLIPSIS_LENGTH): String {
     return this?.let { self ->
         when {
             self.needEllipsis(maxLength) -> self.substring(0, maxLength - TRIMMING.length) + TRIMMING
-            else                         -> self
+            else -> self
         }
     } ?: EMPTY_STRING
 }
@@ -341,22 +341,22 @@ fun String?.ellipsisEnd(maxLength: Int = ELLIPSIS_LENGTH): String {
  * @param maxLength 최대 길이
  * @return 축약된 문자열
  */
-fun String?.ellipsisMid(maxLength: Int = ELLIPSIS_LENGTH): String =
-    this?.run {
-        if (!needEllipsis(maxLength))
-            return this
+fun String?.ellipsisMid(maxLength: Int = ELLIPSIS_LENGTH): String {
+    if (this == null || this.isEmpty()) return EMPTY_STRING
 
-        val length = maxLength / 2
-        val sb = StringBuilder()
-        sb.append(this.substring(0, length)).append(TRIMMING)
+    if (!needEllipsis(maxLength))
+        return this
 
-        val len = if (maxLength % 2 == 0) this.length - length
-        else this.length - length - 1
+    val length = maxLength / 2
+    val sb = StringBuilder()
+    sb.append(this.substring(0, length)).append(TRIMMING)
 
-        sb.append(this.substring(len))
-        return sb.toString()
-    } ?: EMPTY_STRING
+    val len = if (maxLength % 2 == 0) this.length - length
+    else this.length - length - 1
 
+    sb.append(this.substring(len))
+    return sb.toString()
+}
 
 /**
  * 문자열의 길이가 [maxLength]보다 크다면, [TRIMMING]를 문자열 처음에 추가하여 [maxLength] 길이로 축약합니다.
@@ -374,7 +374,7 @@ fun String?.ellipsisStart(maxLength: Int = ELLIPSIS_LENGTH): String {
     return this?.let { self ->
         when {
             self.needEllipsis(maxLength) -> TRIMMING + self.substring(self.length - maxLength + TRIMMING.length)
-            else                         -> self
+            else -> self
         }
     } ?: EMPTY_STRING
 }
@@ -634,14 +634,23 @@ fun CharSequence.uniqueChars(): String = buildString {
  * @param size window 크기
  * @return window 크기로 이동하면서 생성된 문자열
  */
-fun CharSequence.sliding(size: Int): Sequence<CharSequence> = sequence {
+fun CharSequence.sliding(size: Int): Sequence<CharSequence> {
     size.assertPositiveNumber("size")
-
     val self = this@sliding
-    var start = 0
-    var end = size
-    while (end <= self.length) {
-        yield(self.subSequence(start++, end++))
+    return object: Sequence<CharSequence> {
+        override fun iterator(): Iterator<CharSequence> {
+            return object: Iterator<CharSequence> {
+                private var start = 0
+                private var end = size
+
+                override fun hasNext(): Boolean = end <= self.length
+
+                override fun next(): CharSequence {
+                    if (!hasNext()) throw NoSuchElementException("No more elements in sliding sequence. start=$start, end=$end, size=$size")
+                    return self.subSequence(start++, end++)
+                }
+            }
+        }
     }
 }
 
@@ -657,14 +666,23 @@ fun CharSequence.sliding(size: Int): Sequence<CharSequence> = sequence {
  * @param size window 크기
  * @return window 크기로 이동하면서 생성된 문자열
  */
-fun String.sliding(size: Int): Sequence<String> = sequence {
+fun String.sliding(size: Int): Sequence<String> {
     size.assertPositiveNumber("size")
-
     val self = this@sliding
-    var start = 0
-    var end = size
-    while (end <= self.length) {
-        yield(self.substring(start++, end++))
+    return object: Sequence<String> {
+        override fun iterator(): Iterator<String> {
+            return object: Iterator<String> {
+                private var start = 0
+                private var end = size
+
+                override fun hasNext(): Boolean = end <= self.length
+
+                override fun next(): String {
+                    if (!hasNext()) throw NoSuchElementException("No more elements in sliding sequence. start=$start, end=$end, size=$size")
+                    return self.substring(start++, end++)
+                }
+            }
+        }
     }
 }
 
@@ -742,9 +760,9 @@ fun String.toCamelcase(delimiter: String = "-"): String {
 fun String.toDashedString(delimiter: String = "-"): String = buildString {
     this@toDashedString.forEachIndexed { index, char ->
         when {
-            index == 0         -> append(char.lowercaseChar())
+            index == 0 -> append(char.lowercaseChar())
             char.isUpperCase() -> append(delimiter).append(char.lowercaseChar())
-            else               -> append(char)
+            else -> append(char)
         }
     }
 }
