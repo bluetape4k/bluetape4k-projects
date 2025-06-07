@@ -3,19 +3,17 @@ package io.bluetape4k.cache.jcache.coroutines
 import io.bluetape4k.codec.encodeBase62
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.testcontainers.storage.RedisServer
-import org.junit.jupiter.api.Disabled
 import java.util.*
 import javax.cache.configuration.MutableConfiguration
 
-@Disabled("RedissonCoCacheTest is deprecated, use RedissonSuspendCacheTest instead")
-class RedissonCoCacheTest: AbstractCoCacheTest() {
+class RedissonSuspendCacheTest: AbstractSuspendCacheTest() {
 
     companion object: KLoggingChannel() {
         val redisson by lazy { RedisServer.Launcher.RedissonLib.getRedisson() }
     }
 
-    override val coCache: CoCache<String, Any> by lazy {
-        RedissonCoCache(
+    override val suspendCache: SuspendCache<String, Any> by lazy {
+        RedissonSuspendCache(
             "coroutine-cache-" + UUID.randomUUID().encodeBase62(),
             redisson,
             MutableConfiguration()

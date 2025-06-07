@@ -39,8 +39,7 @@ import javax.cache.configuration.MutableConfiguration
  * @param V value type
  * @property cache Redisson 기반의 [JCache] instance
  */
-@Deprecated("Use RedissonSuspendCache instead", ReplaceWith("RedissonSuspendCache<K, V>"))
-class RedissonCoCache<K: Any, V: Any>(private val cache: JCache<K, V>): CoCache<K, V> {
+class RedissonSuspendCache<K: Any, V: Any>(private val cache: JCache<K, V>): SuspendCache<K, V> {
 
     companion object: KLoggingChannel() {
         @JvmStatic
@@ -48,10 +47,10 @@ class RedissonCoCache<K: Any, V: Any>(private val cache: JCache<K, V>): CoCache<
             cacheName: String,
             redisson: RedissonClient,
             configuration: Configuration<K, V> = MutableConfiguration(),
-        ): RedissonCoCache<K, V> {
+        ): RedissonSuspendCache<K, V> {
             cacheName.requireNotBlank("cacheName")
             val jcache = JCaching.Redisson.getOrCreateCache(cacheName, redisson, configuration) as JCache<K, V>
-            return RedissonCoCache(jcache)
+            return RedissonSuspendCache(jcache)
         }
 
         @JvmStatic
@@ -59,16 +58,16 @@ class RedissonCoCache<K: Any, V: Any>(private val cache: JCache<K, V>): CoCache<
             cacheName: String,
             config: Config,
             configuration: CompleteConfiguration<K, V> = getDefaultJCacheConfiguration(),
-        ): RedissonCoCache<K, V> {
+        ): RedissonSuspendCache<K, V> {
             cacheName.requireNotBlank("cacheName")
             val jcache = JCaching.Redisson.getOrCreate(cacheName, config, configuration) as JCache<K, V>
-            return RedissonCoCache(jcache)
+            return RedissonSuspendCache(jcache)
         }
     }
 
-    override fun entries(): Flow<CoCacheEntry<K, V>> = flow {
+    override fun entries(): Flow<SuspendCacheEntry<K, V>> = flow {
         cache.asSequence().forEach {
-            emit(CoCacheEntry(it.key, it.value))
+            emit(SuspendCacheEntry(it.key, it.value))
         }
     }
 
@@ -90,13 +89,13 @@ class RedissonCoCache<K: Any, V: Any>(private val cache: JCache<K, V>): CoCache<
         return cache.getAsync(key).coAwait()
     }
 
-    override fun getAll(): Flow<CoCacheEntry<K, V>> {
+    override fun getAll(): Flow<SuspendCacheEntry<K, V>> {
         return entries()
     }
 
-    override fun getAll(keys: Set<K>): Flow<CoCacheEntry<K, V>> = flow {
+    override fun getAll(keys: Set<K>): Flow<SuspendCacheEntry<K, V>> = flow {
         cache.getAllAsync(keys).coAwait().forEach { (key, value) ->
-            emit(CoCacheEntry(key, value))
+            emit(SuspendCacheEntry(key, value))
         }
     }
 

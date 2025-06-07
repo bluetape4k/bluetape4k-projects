@@ -1,7 +1,7 @@
 package io.bluetape4k.cache.nearcache.coroutines
 
-import io.bluetape4k.cache.jcache.coroutines.CoCache
-import io.bluetape4k.cache.jcache.coroutines.RedissonCoCache
+import io.bluetape4k.cache.jcache.coroutines.RedissonSuspendCache
+import io.bluetape4k.cache.jcache.coroutines.SuspendCache
 import io.bluetape4k.cache.jcache.jcacheConfiguration
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.junit5.awaitility.coUntil
@@ -11,14 +11,12 @@ import io.bluetape4k.testcontainers.storage.RedisServer
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.awaitility.kotlin.await
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 import javax.cache.expiry.CreatedExpiryPolicy
 import javax.cache.expiry.Duration
 
-@Disabled("RedisNearCoCacheTest is deprecated, use RedisNearSuspendCacheTest instead")
-class RedisNearCoCacheTest: AbstractNearCoCacheTest() {
+class RedisNearSuspendCacheTest: AbstractNearSuspendCacheTest() {
 
     companion object: KLogging() {
         private val redis by lazy { RedisServer.Launcher.redis }
@@ -28,11 +26,11 @@ class RedisNearCoCacheTest: AbstractNearCoCacheTest() {
         }
     }
 
-    override val backCoCache: CoCache<String, Any> by lazy {
+    override val backSuspendCache: SuspendCache<String, Any> by lazy {
         val configuration = jcacheConfiguration<String, Any> {
             setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration(TimeUnit.MILLISECONDS, 1000L)))
         }
-        RedissonCoCache("redis-back-cocache" + TimebasedUuid.nextBase62String(), redisson, configuration)
+        RedissonSuspendCache("redis-back-cocache" + TimebasedUuid.nextBase62String(), redisson, configuration)
     }
 
     @Test
@@ -40,19 +38,19 @@ class RedisNearCoCacheTest: AbstractNearCoCacheTest() {
         val key = getKey()
         val value = getValue()
 
-        nearCoCache1.put(key, value)
-        await coUntil { nearCoCache2.containsKey(key) }
+        nearSuspendCache1.put(key, value)
+        await coUntil { nearSuspendCache2.containsKey(key) }
 
-        nearCoCache1.containsKey(key).shouldBeTrue()
-        nearCoCache2.containsKey(key).shouldBeTrue()
+        nearSuspendCache1.containsKey(key).shouldBeTrue()
+        nearSuspendCache2.containsKey(key).shouldBeTrue()
 
         // NOTE: backCache 에서 cache expire 가 수행될 때까지 대기한다 (backCache.entries 에 접근하면 expired event 가 발생한다)
         // NearCache 내에서 Expire 검사 Thread로 동작해야 합니다.
-        await coUntil { !nearCoCache2.containsKey(key) }
-        await coUntil { !nearCoCache1.containsKey(key) }
+        await coUntil { !nearSuspendCache2.containsKey(key) }
+        await coUntil { !nearSuspendCache1.containsKey(key) }
 
-        backCoCache.containsKey(key).shouldBeFalse()
-        nearCoCache1.containsKey(key).shouldBeFalse()
-        nearCoCache2.containsKey(key).shouldBeFalse()
+        backSuspendCache.containsKey(key).shouldBeFalse()
+        nearSuspendCache1.containsKey(key).shouldBeFalse()
+        nearSuspendCache2.containsKey(key).shouldBeFalse()
     }
 }

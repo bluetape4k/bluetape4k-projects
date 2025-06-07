@@ -34,25 +34,24 @@ import javax.cache.configuration.CacheEntryListenerConfiguration
  * @param V value type
  * @property cache caffeine [AsyncCache] instance
  */
-@Deprecated("Use CaffeineSuspendCache instead", ReplaceWith("CaffeineSuspendCache<K, V>"))
-class CaffeineCoCache<K: Any, V: Any>(private val cache: AsyncCache<K, V>): CoCache<K, V> {
+class CaffeineSuspendCache<K: Any, V: Any>(private val cache: AsyncCache<K, V>): SuspendCache<K, V> {
 
     companion object: KLoggingChannel() {
         @JvmStatic
         inline operator fun <reified K: Any, reified V: Any> invoke(
             initializer: Caffeine<Any, Any>.() -> Unit = {},
-        ): CaffeineCoCache<K, V> {
+        ): CaffeineSuspendCache<K, V> {
             val asyncCache = Caffeine.newBuilder().apply(initializer).buildAsync<K, V>()
-            return CaffeineCoCache(asyncCache)
+            return CaffeineSuspendCache(asyncCache)
         }
     }
 
     @Volatile
     private var closed: Boolean = false
 
-    override fun entries(): Flow<CoCacheEntry<K, V>> = flow {
+    override fun entries(): Flow<SuspendCacheEntry<K, V>> = flow {
         cache.asMap().entries.forEach { (key, valueFuture) ->
-            emit(CoCacheEntry(key, valueFuture.await()))
+            emit(SuspendCacheEntry(key, valueFuture.await()))
         }
     }
 
@@ -74,13 +73,13 @@ class CaffeineCoCache<K: Any, V: Any>(private val cache: AsyncCache<K, V>): CoCa
         return cache.getIfPresent(key)?.await()
     }
 
-    override fun getAll(): Flow<CoCacheEntry<K, V>> {
+    override fun getAll(): Flow<SuspendCacheEntry<K, V>> {
         return entries()
     }
 
-    override fun getAll(keys: Set<K>): Flow<CoCacheEntry<K, V>> = flow {
+    override fun getAll(keys: Set<K>): Flow<SuspendCacheEntry<K, V>> = flow {
         keys.forEach { keyToLoad ->
-            get(keyToLoad)?.let { emit(CoCacheEntry(keyToLoad, it)) }
+            get(keyToLoad)?.let { emit(SuspendCacheEntry(keyToLoad, it)) }
         }
     }
 

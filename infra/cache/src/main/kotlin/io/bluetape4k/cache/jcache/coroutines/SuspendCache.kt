@@ -9,10 +9,9 @@ import javax.cache.configuration.CacheEntryListenerConfiguration
  * @param K key type
  * @param V value type
  */
-@Deprecated("Use SuspendCache instead", ReplaceWith("SuspendCache"))
-interface CoCache<K: Any, V: Any> {
+interface SuspendCache<K: Any, V: Any> {
 
-    fun entries(): Flow<CoCacheEntry<K, V>>
+    fun entries(): Flow<SuspendCacheEntry<K, V>>
 
     suspend fun clear()
 
@@ -24,9 +23,9 @@ interface CoCache<K: Any, V: Any> {
 
     suspend fun get(key: K): V?
 
-    fun getAll(): Flow<CoCacheEntry<K, V>>
-    fun getAll(vararg keys: K): Flow<CoCacheEntry<K, V>> = getAll(keys.toSet())
-    fun getAll(keys: Set<K>): Flow<CoCacheEntry<K, V>>
+    fun getAll(): Flow<SuspendCacheEntry<K, V>>
+    fun getAll(vararg keys: K): Flow<SuspendCacheEntry<K, V>> = getAll(keys.toSet())
+    fun getAll(keys: Set<K>): Flow<SuspendCacheEntry<K, V>>
 
     suspend fun getAndPut(key: K, value: V): V?
     suspend fun getAndRemove(key: K): V?

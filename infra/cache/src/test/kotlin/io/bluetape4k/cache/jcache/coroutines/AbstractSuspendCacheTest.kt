@@ -16,11 +16,9 @@ import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
-@Disabled("AbstractCoCacheTest is deprecated, use AbstractSuspendCacheTest instead")
-abstract class AbstractCoCacheTest {
+abstract class AbstractSuspendCacheTest {
 
     companion object: KLoggingChannel() {
         const val CACHE_ENTRY_SIZE = 100
@@ -34,41 +32,41 @@ abstract class AbstractCoCacheTest {
             Fakers.randomString(1024, 2048)
     }
 
-    protected abstract val coCache: CoCache<String, Any>
+    protected abstract val suspendCache: SuspendCache<String, Any>
 
     open fun getKey() = Fakers.randomUuid().encodeBase62()
     open fun getValue() = randomString()
 
     @BeforeEach
     fun setup() {
-        runSuspendIO { coCache.clear() }
+        runSuspendIO { suspendCache.clear() }
     }
 
     @AfterAll
     fun afterAll() {
-        runBlocking { coCache.close() }
+        runBlocking { suspendCache.close() }
     }
 
     @Test
     fun `entries - get all cache entries by flow`() = runSuspendIO {
-        coCache.clear()
-        coCache.entries().map { it.key }.toList().size shouldBeEqualTo 0
+        suspendCache.clear()
+        suspendCache.entries().map { it.key }.toList().size shouldBeEqualTo 0
 
-        coCache.put(getKey(), getValue())
-        coCache.put(getKey(), getValue())
-        coCache.put(getKey(), getValue())
+        suspendCache.put(getKey(), getValue())
+        suspendCache.put(getKey(), getValue())
+        suspendCache.put(getKey(), getValue())
 
-        val entries = coCache.entries().toList()
+        val entries = suspendCache.entries().toList()
         entries.size shouldBeEqualTo 3
     }
 
     @Test
     fun `clear - clear all cache entries`() = runSuspendIO {
-        coCache.put(getKey(), getValue())
-        coCache.entries().map { it.key }.toList().size shouldBeEqualTo 1
+        suspendCache.put(getKey(), getValue())
+        suspendCache.entries().map { it.key }.toList().size shouldBeEqualTo 1
 
-        coCache.clear()
-        coCache.entries().map { it.key }.toList().size shouldBeEqualTo 0
+        suspendCache.clear()
+        suspendCache.entries().map { it.key }.toList().size shouldBeEqualTo 0
     }
 
     @Test
@@ -76,8 +74,8 @@ abstract class AbstractCoCacheTest {
         val key = getKey()
         val value = getValue()
 
-        coCache.put(key, value)
-        coCache.get(key) shouldBeEqualTo value
+        suspendCache.put(key, value)
+        suspendCache.get(key) shouldBeEqualTo value
     }
 
     @Test
@@ -85,10 +83,10 @@ abstract class AbstractCoCacheTest {
         val key = getKey()
         val value = getValue()
 
-        coCache.containsKey(key).shouldBeFalse()
+        suspendCache.containsKey(key).shouldBeFalse()
 
-        coCache.put(key, value)
-        coCache.containsKey(key).shouldBeTrue()
+        suspendCache.put(key, value)
+        suspendCache.containsKey(key).shouldBeTrue()
     }
 
     @Test
@@ -96,29 +94,29 @@ abstract class AbstractCoCacheTest {
         val key = getKey()
         val value = getValue()
 
-        coCache.put(key, value)
+        suspendCache.put(key, value)
 
-        coCache.get(key) shouldBeEqualTo value
+        suspendCache.get(key) shouldBeEqualTo value
     }
 
     @Test
     fun `getAll - 요청한 모든 cache entry 가져오기`() = runSuspendIO {
         repeat(CACHE_ENTRY_SIZE) {
-            coCache.put(getKey(), getValue())
+            suspendCache.put(getKey(), getValue())
         }
-        val entries = coCache.getAll().toList()
+        val entries = suspendCache.getAll().toList()
         entries.size shouldBeEqualTo CACHE_ENTRY_SIZE
     }
 
     @Test
     fun `getAll - with keys`() = runSuspendIO {
         val entries = List(CACHE_ENTRY_SIZE) {
-            CoCacheEntry(getKey(), getValue()).apply {
-                coCache.put(key, value)
+            SuspendCacheEntry(getKey(), getValue()).apply {
+                suspendCache.put(key, value)
             }
         }
         val keysToLoad = setOf(entries.first().key, entries[42].key, entries[51].key, entries.last().key)
-        val loaded = coCache.getAll(keysToLoad).toList()
+        val loaded = suspendCache.getAll(keysToLoad).toList()
         loaded.map { it.key }.toSet() shouldBeEqualTo keysToLoad
     }
 
@@ -128,8 +126,8 @@ abstract class AbstractCoCacheTest {
         val value = getValue()
         val value2 = getValue()
 
-        coCache.getAndPut(key, value).shouldBeNull()
-        coCache.getAndPut(key, value2) shouldBeEqualTo value
+        suspendCache.getAndPut(key, value).shouldBeNull()
+        suspendCache.getAndPut(key, value2) shouldBeEqualTo value
     }
 
     @Test
@@ -137,10 +135,10 @@ abstract class AbstractCoCacheTest {
         val key = getKey()
         val value = getValue()
 
-        coCache.getAndRemove(key).shouldBeNull()
+        suspendCache.getAndRemove(key).shouldBeNull()
 
-        coCache.put(key, value)
-        coCache.getAndRemove(key) shouldBeEqualTo value
+        suspendCache.put(key, value)
+        suspendCache.getAndRemove(key) shouldBeEqualTo value
     }
 
     @Test
@@ -150,13 +148,13 @@ abstract class AbstractCoCacheTest {
         val value2 = getValue()
 
         // 기존에 등록된 값이 없으므로 replace도 하지 않는다.
-        coCache.getAndReplace(key, value).shouldBeNull()
-        coCache.containsKey(key).shouldBeFalse()
+        suspendCache.getAndReplace(key, value).shouldBeNull()
+        suspendCache.containsKey(key).shouldBeFalse()
 
-        coCache.put(key, value)
+        suspendCache.put(key, value)
 
-        coCache.getAndReplace(key, value2) shouldBeEqualTo value
-        coCache.get(key) shouldBeEqualTo value2
+        suspendCache.getAndReplace(key, value2) shouldBeEqualTo value
+        suspendCache.get(key) shouldBeEqualTo value2
     }
 
     @Test
@@ -164,18 +162,18 @@ abstract class AbstractCoCacheTest {
         val key = getKey()
         val value = getValue()
 
-        coCache.containsKey(key).shouldBeFalse()
-        coCache.put(key, value)
-        coCache.containsKey(key).shouldBeTrue()
+        suspendCache.containsKey(key).shouldBeFalse()
+        suspendCache.put(key, value)
+        suspendCache.containsKey(key).shouldBeTrue()
     }
 
     @Test
     fun `putAll - 모든 entry를 추가합니다`() = runSuspendIO {
         val entries = List(CACHE_ENTRY_SIZE) { getKey() to getValue() }.toMap()
 
-        coCache.entries().toList().size shouldBeEqualTo 0
-        coCache.putAll(entries)
-        coCache.entries().toList().size shouldBeEqualTo CACHE_ENTRY_SIZE
+        suspendCache.entries().toList().size shouldBeEqualTo 0
+        suspendCache.putAll(entries)
+        suspendCache.entries().toList().size shouldBeEqualTo CACHE_ENTRY_SIZE
     }
 
     @Test
@@ -185,9 +183,9 @@ abstract class AbstractCoCacheTest {
                 emit(getKey() to getValue())
             }
         }
-        coCache.entries().toList().size shouldBeEqualTo 0
-        coCache.putAllFlow(entries)
-        coCache.entries().toList().size shouldBeEqualTo CACHE_ENTRY_SIZE
+        suspendCache.entries().toList().size shouldBeEqualTo 0
+        suspendCache.putAllFlow(entries)
+        suspendCache.entries().toList().size shouldBeEqualTo CACHE_ENTRY_SIZE
     }
 
 
@@ -197,9 +195,9 @@ abstract class AbstractCoCacheTest {
         val value = getValue()
         val value2 = getValue()
 
-        coCache.putIfAbsent(key, value).shouldBeTrue()
-        coCache.putIfAbsent(key, value2).shouldBeFalse()
-        coCache.get(key) shouldBeEqualTo value
+        suspendCache.putIfAbsent(key, value).shouldBeTrue()
+        suspendCache.putIfAbsent(key, value2).shouldBeFalse()
+        suspendCache.get(key) shouldBeEqualTo value
     }
 
     @Test
@@ -207,11 +205,11 @@ abstract class AbstractCoCacheTest {
         val key = getKey()
         val value = getValue()
 
-        coCache.remove(key).shouldBeFalse()
+        suspendCache.remove(key).shouldBeFalse()
 
-        coCache.put(key, value)
-        coCache.remove(key).shouldBeTrue()
-        coCache.containsKey(key).shouldBeFalse()
+        suspendCache.put(key, value)
+        suspendCache.remove(key).shouldBeTrue()
+        suspendCache.containsKey(key).shouldBeFalse()
     }
 
     @Test
@@ -220,59 +218,59 @@ abstract class AbstractCoCacheTest {
         val value = getValue()
         val value2 = getValue()
 
-        coCache.remove(key, value).shouldBeFalse()
+        suspendCache.remove(key, value).shouldBeFalse()
 
-        coCache.put(key, value)
+        suspendCache.put(key, value)
 
-        coCache.remove(key, value2).shouldBeFalse()
-        coCache.containsKey(key).shouldBeTrue()
+        suspendCache.remove(key, value2).shouldBeFalse()
+        suspendCache.containsKey(key).shouldBeTrue()
 
-        coCache.remove(key, value).shouldBeTrue()
-        coCache.containsKey(key).shouldBeFalse()
+        suspendCache.remove(key, value).shouldBeTrue()
+        suspendCache.containsKey(key).shouldBeFalse()
     }
 
     @Test
     fun `removeAll - 모든 cache entry를 삭제한다`() = runSuspendIO {
         repeat(CACHE_ENTRY_SIZE) {
-            CoCacheEntry(getKey(), getValue()).apply {
-                coCache.put(key, value)
+            SuspendCacheEntry(getKey(), getValue()).apply {
+                suspendCache.put(key, value)
             }
         }
-        coCache.entries().toList() shouldHaveSize CACHE_ENTRY_SIZE
+        suspendCache.entries().toList() shouldHaveSize CACHE_ENTRY_SIZE
 
-        coCache.removeAll()
+        suspendCache.removeAll()
 
-        coCache.entries().toList().shouldBeEmpty()
+        suspendCache.entries().toList().shouldBeEmpty()
     }
 
     @Test
     fun `removeAll with keys - 지정한 key 값들에 해당하는 cache entry를 삭제한다`() = runSuspendIO {
         val entries = List(CACHE_ENTRY_SIZE) {
-            CoCacheEntry(getKey(), getValue()).apply {
-                coCache.put(key, value)
+            SuspendCacheEntry(getKey(), getValue()).apply {
+                suspendCache.put(key, value)
             }
         }
-        coCache.entries().toList().size shouldBeEqualTo CACHE_ENTRY_SIZE
+        suspendCache.entries().toList().size shouldBeEqualTo CACHE_ENTRY_SIZE
 
         val keysToRemove = setOf(entries.first().key, entries[42].key, entries.last().key)
-        coCache.removeAll(keysToRemove)
+        suspendCache.removeAll(keysToRemove)
 
-        coCache.entries().toList().size shouldBeEqualTo CACHE_ENTRY_SIZE - keysToRemove.size
+        suspendCache.entries().toList().size shouldBeEqualTo CACHE_ENTRY_SIZE - keysToRemove.size
     }
 
     @Test
     fun `removeAll with vararg keys`() = runSuspendIO {
         val entries = List(CACHE_ENTRY_SIZE) {
-            CoCacheEntry(getKey(), getValue()).apply {
-                coCache.put(key, value)
+            SuspendCacheEntry(getKey(), getValue()).apply {
+                suspendCache.put(key, value)
             }
         }
-        coCache.entries().toList().size shouldBeEqualTo CACHE_ENTRY_SIZE
+        suspendCache.entries().toList().size shouldBeEqualTo CACHE_ENTRY_SIZE
 
         val keysToRemove = setOf(entries.first().key, entries[42].key, entries.last().key)
-        coCache.removeAll(*keysToRemove.toTypedArray())
+        suspendCache.removeAll(*keysToRemove.toTypedArray())
 
-        coCache.entries().toList().size shouldBeEqualTo CACHE_ENTRY_SIZE - keysToRemove.size
+        suspendCache.entries().toList().size shouldBeEqualTo CACHE_ENTRY_SIZE - keysToRemove.size
     }
 
     @Test
@@ -282,13 +280,13 @@ abstract class AbstractCoCacheTest {
         val value2 = getValue()
 
         // 존재하지 않은 key 이다 
-        coCache.replace(key, value).shouldBeFalse()
+        suspendCache.replace(key, value).shouldBeFalse()
 
-        coCache.put(key, value)
-        coCache.get(key) shouldBeEqualTo value
+        suspendCache.put(key, value)
+        suspendCache.get(key) shouldBeEqualTo value
 
-        coCache.replace(key, value2).shouldBeTrue()
-        coCache.get(key) shouldBeEqualTo value2
+        suspendCache.replace(key, value2).shouldBeTrue()
+        suspendCache.get(key) shouldBeEqualTo value2
     }
 
     @Test
@@ -298,12 +296,12 @@ abstract class AbstractCoCacheTest {
         val value2 = getValue()
 
         // 존재하지 않은 key 이다
-        coCache.replace(key, value, value2).shouldBeFalse()
+        suspendCache.replace(key, value, value2).shouldBeFalse()
 
-        coCache.put(key, value)
-        coCache.get(key) shouldBeEqualTo value
+        suspendCache.put(key, value)
+        suspendCache.get(key) shouldBeEqualTo value
 
-        coCache.replace(key, value, value2).shouldBeTrue()
-        coCache.get(key) shouldBeEqualTo value2
+        suspendCache.replace(key, value, value2).shouldBeTrue()
+        suspendCache.get(key) shouldBeEqualTo value2
     }
 }
