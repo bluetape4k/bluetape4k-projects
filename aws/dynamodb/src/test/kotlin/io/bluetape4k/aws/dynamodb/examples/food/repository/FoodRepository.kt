@@ -31,7 +31,7 @@ class FoodRepository(
         client.table("$tablePrefix${Schema.TABLE_NAME}")
     }
 
-    fun findByPartitionKey(
+    suspend fun findByPartitionKey(
         partitionKey: String,
         updatedAtFrom: Instant,
         updatedAtTo: Instant,
