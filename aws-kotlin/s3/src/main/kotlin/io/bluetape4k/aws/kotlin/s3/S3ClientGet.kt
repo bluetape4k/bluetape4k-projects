@@ -228,17 +228,11 @@ fun S3Client.getAll(
     concurrency: Int = DEFAULT_CONCURRENCY,
     vararg getObjectRequests: GetObjectRequest,
 ): Flow<GetObjectResponse> {
-    return getObjectRequests.asFlow()
+    return getObjectRequests
+        .asFlow()
         .async { request ->
             getObject(request) { it }
         }
-//    return getObjectRequests.asFlow()
-//        .flatMapMerge(concurrency) { request ->
-//            flow {
-//                val response = getObject(request) { it }
-//                emit(response)
-//            }
-//        }
 }
 
 /**

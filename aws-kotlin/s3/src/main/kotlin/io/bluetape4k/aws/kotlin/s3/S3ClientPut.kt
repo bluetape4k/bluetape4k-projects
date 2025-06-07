@@ -169,7 +169,8 @@ fun S3Client.putAll(
     concurrency: Int = DEFAULT_CONCURRENCY,
     vararg putRequests: PutObjectRequest,
 ): Flow<PutObjectResponse> {
-    return putRequests.asFlow()
+    return putRequests
+        .asFlow()
         .async {
             putObject(it)
         }

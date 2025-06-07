@@ -59,8 +59,8 @@ suspend inline fun S3Client.move(
  * @return [CopyObjectResponse] 인스턴스
  */
 suspend inline fun S3Client.move(
-    crossinline copyRequestBuilder: (CopyObjectRequest.Builder) -> Unit,
-    crossinline deleteRequestBuilder: (DeleteObjectRequest.Builder) -> Unit,
+    crossinline copyRequestBuilder: CopyObjectRequest.Builder.() -> Unit,
+    crossinline deleteRequestBuilder: DeleteObjectRequest.Builder.() -> Unit,
 ): CopyObjectResponse {
     val response = copyObject(copyRequestBuilder)
 
