@@ -6,7 +6,7 @@ import aws.sdk.kotlin.services.ses.model.SendTemplatedEmailRequest
 import aws.sdk.kotlin.services.ses.model.Template
 import aws.sdk.kotlin.services.ses.model.VerifyEmailAddressRequest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8Bytes
 import org.amshove.kluent.shouldBeEqualTo
@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test
  */
 class SesClientExtensionsTest: AbstractKotlinSesTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @BeforeEach
     fun setup() {
@@ -38,7 +38,7 @@ class SesClientExtensionsTest: AbstractKotlinSesTest() {
 
     @Test
     fun `send email`() = runSuspendIO {
-        val request = SendEmailRequest.invoke {
+        val request = SendEmailRequest {
             source = senderEmail
             destination {
                 toAddresses = listOf(receiverEamil)
@@ -58,7 +58,7 @@ class SesClientExtensionsTest: AbstractKotlinSesTest() {
 
     @Test
     fun `send raw email`() = runSuspendIO {
-        val request = SendRawEmailRequest.invoke {
+        val request = SendRawEmailRequest {
             source = senderEmail
             destinations = listOf(receiverEamil)
             rawMessage {
