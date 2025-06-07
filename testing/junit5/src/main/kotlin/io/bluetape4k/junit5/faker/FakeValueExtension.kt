@@ -56,12 +56,6 @@ class FakeValueExtension: TestInstancePostProcessor, ParameterResolver {
             val valueMethod = provider.javaClass.methods.find { it.name == labelName && it.parameterCount == 0 }!!
 
             return generateSequence { valueMethod.invoke(provider) }.take(annotation.size)
-
-//            return sequence {
-//                repeat(annotation.size) {
-//                    yield(valueMethod.invoke(provider))
-//                }
-//            }
         }
     }
 

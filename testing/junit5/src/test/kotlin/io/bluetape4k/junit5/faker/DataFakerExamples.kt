@@ -126,13 +126,6 @@ class DataFakerExamples {
 
         val valueMethod = provider.javaClass.methods.find { it.name == labelName && it.parameterCount == 0 }!!
 
-        return generateSequence {
-            valueMethod.invoke(provider)
-        }.take(size)
-//        return sequence {
-//            repeat(size) {
-//                yield(valueMethod.invoke(provider))
-//            }
-//        }
+        return generateSequence { valueMethod.invoke(provider) }.take(size)
     }
 }

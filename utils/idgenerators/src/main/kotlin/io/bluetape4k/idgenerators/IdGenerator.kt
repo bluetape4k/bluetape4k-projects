@@ -29,12 +29,6 @@ interface IdGenerator<ID> {
         size.assertPositiveNumber("size")
         return generateSequence { nextId() }.take(size)
     }
-//    = sequence {
-//        size.assertPositiveNumber("size")
-//        repeat(size) {
-//            yield(nextId())
-//        }
-//    }
 
     /**
      * [size] 만큼 identifier 를 생성하고, 문자열로 변환합니다.
@@ -46,10 +40,4 @@ interface IdGenerator<ID> {
         size.assertPositiveNumber("size")
         return generateSequence { nextIdAsString() }.take(size)
     }
-//    = sequence {
-//        size.assertPositiveNumber("size")
-//        repeat(size) {
-//            yield(nextIdAsString())
-//        }
-//    }
 }
