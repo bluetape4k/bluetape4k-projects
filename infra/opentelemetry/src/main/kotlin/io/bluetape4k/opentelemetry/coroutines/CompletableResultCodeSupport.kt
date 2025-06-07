@@ -6,14 +6,13 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
-suspend fun CompletableResultCode.await(): CompletableResultCode =
-    suspendCoroutine { cont ->
-        if (isDone) {
-            cont.resume(this)
-        } else {
-            whenComplete {
-                if (isSuccess) cont.resume(this)
-                else cont.resumeWithException(CompletionException("Fail to await for $this", null))
-            }
+suspend fun CompletableResultCode.await(): CompletableResultCode = suspendCoroutine { cont ->
+    if (isDone) {
+        cont.resume(this)
+    } else {
+        whenComplete {
+            if (isSuccess) cont.resume(this)
+            else cont.resumeWithException(CompletionException("Fail to await for $this", null))
         }
     }
+}

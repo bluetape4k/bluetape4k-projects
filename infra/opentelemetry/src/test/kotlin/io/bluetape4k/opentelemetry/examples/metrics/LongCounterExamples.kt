@@ -6,7 +6,7 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.opentelemetry.AbstractOtelTest
 import io.bluetape4k.opentelemetry.common.attributesOf
 import io.bluetape4k.opentelemetry.common.toAttributeKey
-import io.bluetape4k.opentelemetry.coroutines.useSpanSuspending
+import io.bluetape4k.opentelemetry.coroutines.useSuspendSpan
 import io.bluetape4k.opentelemetry.trace.useSpan
 import io.opentelemetry.api.OpenTelemetry
 import io.opentelemetry.api.metrics.LongCounter
@@ -95,7 +95,7 @@ class LongCounterExamples: AbstractOtelTest() {
         // Coroutines 환경에서 Span 을 생성하고 사용하는 방법
         tracer.spanBuilder("coroutine-workflow")
             .setSpanKind(SpanKind.INTERNAL)
-            .useSpanSuspending(Dispatchers.IO) { span ->
+            .useSuspendSpan(Dispatchers.IO) { span ->
                 try {
                     directoryCounter.add(1, homeDirectoryAttributes)
                     findFileSuspending("logback-test.xml", homeDir, directoryCounter)
