@@ -39,5 +39,4 @@ abstract class AbstractKotlinSqsTest {
         // JVM 종료 시 SqsClient를 닫습니다.
         ShutdownQueue.register(this)
     }
-
 }

@@ -28,7 +28,6 @@ class SqsClientExtensionsTest: AbstractKotlinSqsTest() {
 
     private lateinit var testQueueUrl: String
 
-
     @Test
     @Order(1)
     fun `create queue`() = runSuspendIO {
