@@ -11,7 +11,6 @@ import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.serialization.Serdes
-import org.apache.kafka.common.utils.Bytes
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.KeyValue
 import org.apache.kafka.streams.StreamsBuilder
@@ -24,10 +23,8 @@ import org.apache.kafka.streams.kstream.Repartitioned
 import org.apache.kafka.streams.kstream.TimeWindows
 import org.apache.kafka.streams.kstream.ValueMapper
 import org.apache.kafka.streams.kstream.Windowed
-import org.apache.kafka.streams.kstream.internals.TimeWindow
 import org.apache.kafka.streams.processor.WallclockTimestampExtractor
 import org.apache.kafka.streams.processor.internals.StreamThread
-import org.apache.kafka.streams.state.WindowStore
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -209,15 +206,15 @@ class KafkaStreamsTests {
             val parser = SpelExpressionParser()
             headers["spel"] = parser.parseExpression("context.timestamp() + key + value")
 
-            stream.mapValues<String>(ValueMapper<String, String> { it.uppercase() })
+            stream.mapValues(ValueMapper { it.uppercase() })
                 .mapValues { name: String? -> Foo(name!!) }
                 .repartition(Repartitioned.with(Serdes.Integer(), object: JsonSerde<Foo?>() {}))
-                .mapValues<String>(ValueMapper<Foo, String> { it.name })
+                .mapValues(ValueMapper { it.name })
                 .groupByKey()
-                .windowedBy<TimeWindow>(TimeWindows.ofSizeWithNoGrace(Duration.ofMillis(1000)))
+                .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMillis(1000)))
                 .reduce(
                     { value1: String, value2: String -> value1 + value2 },
-                    Materialized.`as`<Int, String, WindowStore<Bytes, ByteArray>>("windowStore")
+                    Materialized.`as`("windowStore")
                 )
                 .toStream()
                 .map { windowedId: Windowed<Int>, value: String ->

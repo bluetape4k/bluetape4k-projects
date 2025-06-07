@@ -31,7 +31,7 @@ class RequestReplyExample: AbstractNatsTest() {
             // The replier simply publishes a message to that reply-to.
             val dispatcher = nc.createDispatcher { msg ->
                 val name = msg.subject.substring(6)
-                val response = "hello " + name
+                val response = "hello $name"
                 nc.publish(msg.replyTo, response)
             }
             dispatcher.subscribe("greet.*")

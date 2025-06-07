@@ -98,7 +98,7 @@ class KafkaTemplateTests {
             wrapper.set(proxy)
             proxy
         }
-        val template = KafkaTemplate<Int, String>(pf, true)
+        val template = KafkaTemplate(pf, true)
         template.defaultTopic = INT_KEY_TOPIC
         template.setConsumerFactory(
             DefaultKafkaConsumerFactory(
