@@ -28,9 +28,7 @@ class FlowRetryTest {
             repeat(3) {
                 emit(helloWorldService.returnHelloWorld() + it)
             }
-        }
-            .retry(retry)
-            .toList()
+        }.retry(retry).toList()
 
         repeat(3) {
             results[it] shouldBeEqualTo "Hello world$it"
@@ -63,9 +61,7 @@ class FlowRetryTest {
                     else -> emit(helloWorldService.returnHelloWorld() + it)
                 }
             }
-        }
-            .retry(retry)
-            .toList()
+        }.retry(retry).toList()
 
         repeat(3) {
             results[it] shouldBeEqualTo "Hello world$it"
@@ -93,8 +89,7 @@ class FlowRetryTest {
         // val results = mutableListOf<String>()
 
         val results = flow { emit(helloWorldService.returnHelloWorld()) }
-            .retry(retry)
-            .toList()
+            .retry(retry).toList()
 
         results.size shouldBeEqualTo 1
         results[0] shouldBeEqualTo "Hello world"

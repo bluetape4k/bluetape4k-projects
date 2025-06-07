@@ -61,7 +61,7 @@ interface SuspendCache<K, V> {
      * @param loader    Value loader
      * @return cached value
      */
-    suspend fun computeIfAbsent(cacheKey: K, loader: suspend () -> V): V
+    suspend fun computeIfAbsent(cacheKey: K, @BuilderInference loader: suspend () -> V): V
 
     /**
      * 해당 키의 캐시 정보가 존재하는지 여부
