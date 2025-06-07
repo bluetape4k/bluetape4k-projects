@@ -1,10 +1,8 @@
 package io.bluetape4k.aws.ses.waiters
 
-import software.amazon.awssdk.core.retry.backoff.BackoffStrategy
 import software.amazon.awssdk.core.waiters.WaiterOverrideConfiguration
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.toJavaDuration
+import software.amazon.awssdk.retries.api.BackoffStrategy
+import java.time.Duration
 
 inline fun WaiterOverrideConfiguration(
     initializer: WaiterOverrideConfiguration.Builder.() -> Unit,
@@ -14,10 +12,10 @@ inline fun WaiterOverrideConfiguration(
 
 fun waiterOverrideConfigurationOf(
     maxAttempts: Int = 3,
-    waitTimeout: Duration = 5.seconds,
-    backoffStrategy: BackoffStrategy = BackoffStrategy.defaultStrategy(),
+    waitTimeout: Duration = Duration.ofSeconds(5),
+    backoffStrategy: BackoffStrategy = BackoffStrategy.fixedDelay(Duration.ofMillis(10)),
 ): WaiterOverrideConfiguration = WaiterOverrideConfiguration {
-    this.backoffStrategy(backoffStrategy)
+    this.backoffStrategyV2(backoffStrategy)
     this.maxAttempts(maxAttempts)
-    this.waitTimeout(waitTimeout.toJavaDuration())
+    this.waitTimeout(waitTimeout)
 }
