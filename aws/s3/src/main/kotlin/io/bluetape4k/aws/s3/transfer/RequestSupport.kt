@@ -23,7 +23,7 @@ fun <T> downloadRequestOf(
     bucket: String,
     key: String,
     responseTransformer: AsyncResponseTransformer<GetObjectResponse, T>,
-    getObjectRequestBuilder: (GetObjectRequest.Builder) -> Unit = {},
+    getObjectRequestBuilder: GetObjectRequest.Builder.() -> Unit = {},
 ): DownloadRequest<T> {
     return downloadRequest(responseTransformer) {
         getObjectRequest {

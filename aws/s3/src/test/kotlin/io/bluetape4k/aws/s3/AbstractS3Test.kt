@@ -2,7 +2,7 @@ package io.bluetape4k.aws.s3
 
 import io.bluetape4k.aws.auth.staticCredentialsProviderOf
 import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.testcontainers.aws.LocalStackServer
@@ -18,7 +18,7 @@ import software.amazon.awssdk.transfer.s3.S3TransferManager
 
 abstract class AbstractS3Test {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         const val IMAGE_PATH: String = "./src/test/resources/images"
         const val BUCKET_NAME: String = "test-bucket"
         const val BUCKET_NAME2: String = "test-bucket-2"

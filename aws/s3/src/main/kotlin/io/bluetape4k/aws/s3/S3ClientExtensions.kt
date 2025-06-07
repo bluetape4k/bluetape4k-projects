@@ -39,7 +39,7 @@ fun S3Client.existsBucket(bucketName: String): Boolean {
  */
 fun S3Client.createBucket(
     bucketName: String,
-    createBucketConfiguration: (CreateBucketConfiguration.Builder) -> Unit = {},
+    createBucketConfiguration: CreateBucketConfiguration.Builder.() -> Unit = {},
 ): CreateBucketResponse {
     bucketName.requireNotBlank("bucketName")
 
@@ -55,7 +55,7 @@ fun S3Client.createBucket(
 fun <T> S3Client.getObjectAs(
     bucket: String,
     key: String,
-    requestInitializer: (GetObjectRequest.Builder) -> Unit = {},
+    requestInitializer: GetObjectRequest.Builder.() -> Unit = {},
     responseTransformer: ResponseTransformer<GetObjectResponse, T>,
 ): T {
     val request = getObjectRequest(bucket, key, requestInitializer)
@@ -71,7 +71,7 @@ fun <T> S3Client.getObjectAs(
 fun S3Client.getAsByteArray(
     bucket: String,
     key: String,
-    requestInitializer: (GetObjectRequest.Builder) -> Unit = {},
+    requestInitializer: GetObjectRequest.Builder.() -> Unit = {},
 ): ByteArray {
     val request = getObjectRequest(bucket, key, requestInitializer)
     return getObject(request, ResponseTransformer.toBytes()).asByteArray()
@@ -87,7 +87,7 @@ fun S3Client.getAsString(
     bucket: String,
     key: String,
     charset: Charset = Charsets.UTF_8,
-    requestInitializer: (GetObjectRequest.Builder) -> Unit = {},
+    requestInitializer: GetObjectRequest.Builder.() -> Unit = {},
 ): String {
     return getAsByteArray(bucket, key, requestInitializer).toString(charset)
 }
@@ -102,7 +102,7 @@ fun S3Client.getAsFile(
     bucket: String,
     key: String,
     file: File,
-    requestInitializer: (GetObjectRequest.Builder) -> Unit = {},
+    requestInitializer: GetObjectRequest.Builder.() -> Unit = {},
 ): GetObjectResponse {
     val request = getObjectRequest(bucket, key, requestInitializer)
     return getObject(request, ResponseTransformer.toFile(file))
@@ -119,7 +119,7 @@ fun S3Client.getAsFile(
     bucket: String,
     key: String,
     path: Path,
-    requestInitializer: (GetObjectRequest.Builder) -> Unit = {},
+    requestInitializer: GetObjectRequest.Builder.() -> Unit = {},
 ): GetObjectResponse {
     val request = getObjectRequest(bucket, key, requestInitializer)
     return getObject(request, ResponseTransformer.toFile(path))
@@ -140,7 +140,7 @@ fun S3Client.put(
     bucket: String,
     key: String,
     body: RequestBody,
-    requestInitializer: (PutObjectRequest.Builder) -> Unit = {},
+    requestInitializer: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
     val request = putObjectRequest(bucket, key, requestInitializer)
     return putObject(request, body)
@@ -157,7 +157,7 @@ fun S3Client.putAsByteArray(
     bucket: String,
     key: String,
     bytes: ByteArray,
-    requestInitializer: (PutObjectRequest.Builder) -> Unit = {},
+    requestInitializer: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
     return put(bucket, key, RequestBody.fromBytes(bytes), requestInitializer)
 }
@@ -173,7 +173,7 @@ fun S3Client.putAsString(
     bucket: String,
     key: String,
     contents: String,
-    requestInitializer: (PutObjectRequest.Builder) -> Unit = {},
+    requestInitializer: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
     return put(bucket, key, RequestBody.fromString(contents), requestInitializer)
 }
@@ -182,7 +182,7 @@ fun S3Client.putAsFile(
     bucket: String,
     key: String,
     file: File,
-    requestInitializer: (PutObjectRequest.Builder) -> Unit = {},
+    requestInitializer: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
     return put(bucket, key, RequestBody.fromFile(file), requestInitializer)
 }
@@ -191,7 +191,7 @@ fun S3Client.putAsFile(
     bucket: String,
     key: String,
     path: Path,
-    requestInitializer: (PutObjectRequest.Builder) -> Unit = {},
+    requestInitializer: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
     return put(bucket, key, RequestBody.fromFile(path), requestInitializer)
 }
@@ -242,8 +242,8 @@ fun S3Client.moveObject(
  * @return 복사 결과
  */
 fun S3Client.moveObject(
-    copyObjectRequest: (CopyObjectRequest.Builder) -> Unit,
-    deleteObjectRequest: (DeleteObjectRequest.Builder) -> Unit,
+    copyObjectRequest: CopyObjectRequest.Builder.() -> Unit,
+    deleteObjectRequest: DeleteObjectRequest.Builder.() -> Unit,
 ): CopyObjectResult {
     val copyResponse = copyObject(copyObjectRequest)
 
