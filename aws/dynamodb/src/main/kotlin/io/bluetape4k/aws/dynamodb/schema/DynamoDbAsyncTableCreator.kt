@@ -2,7 +2,7 @@ package io.bluetape4k.aws.dynamodb.schema
 
 import io.bluetape4k.aws.dynamodb.model.provisionedThroughputOf
 import io.bluetape4k.aws.exceptions.AwsBluetapeException
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.info
 import io.bluetape4k.logging.warn
@@ -25,7 +25,7 @@ import software.amazon.awssdk.services.dynamodb.model.ResourceInUseException
  */
 class DynamoDbAsyncTableCreator {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         const val DEFAULT_READ_CAPACITY_UNITS = 1L
         const val DEFAULT_WRITE_CAPACITY_UNITS = 1L
     }
@@ -64,7 +64,7 @@ class DynamoDbAsyncTableCreator {
                     log.warn(e) { "Table [${asyncTable.tableName()}] already exists. Skipping creation." }
                 }
 
-                else                      -> {
+                else -> {
                     log.error(e) { "Fail to create table [${asyncTable.tableName()}]" }
                     throw AwsBluetapeException("Fail to create table [${asyncTable.tableName()}", e)
                 }

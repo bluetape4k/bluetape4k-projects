@@ -7,7 +7,7 @@ import io.bluetape4k.aws.dynamodb.model.QueryEnhancedRequest
 import io.bluetape4k.aws.dynamodb.model.dynamoDbKeyOf
 import io.bluetape4k.aws.dynamodb.repository.DynamoDbCoroutineRepository
 import io.bluetape4k.aws.dynamodb.repository.findFirst
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import kotlinx.coroutines.flow.Flow
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,7 +24,7 @@ class FoodRepository(
     @Value("\${aws.dynamodb.tablePrefix:local-}") tablePrefix: String,
 ): DynamoDbCoroutineRepository<FoodDocument> {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     override val itemClass: Class<FoodDocument> = FoodDocument::class.java
     override val table: DynamoDbAsyncTable<FoodDocument> by lazy {

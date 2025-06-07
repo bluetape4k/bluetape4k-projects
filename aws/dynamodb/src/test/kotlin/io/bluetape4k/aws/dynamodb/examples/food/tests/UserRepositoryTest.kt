@@ -17,10 +17,10 @@ import kotlin.random.Random
 
 class UserRepositoryTest: AbstractFoodApplicationTest() {
 
+    companion object: KLoggingChannel()
+
     @Autowired
     private lateinit var repository: UserRepository
-
-    companion object: KLoggingChannel()
 
     private fun createUser(): UserDocument {
         val index = Random.nextInt(UserDocument.UserStatus.entries.size)

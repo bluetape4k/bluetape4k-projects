@@ -1,8 +1,7 @@
 package io.bluetape4k.aws.coroutines
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.newCoroutineContext
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -17,10 +16,8 @@ import kotlin.coroutines.EmptyCoroutineContext
 suspend inline fun <RES: Any> suspendCommand(
     context: CoroutineContext = EmptyCoroutineContext,
     crossinline method: () -> RES,
-): RES = coroutineScope {
-    withContext(newCoroutineContext(context + Dispatchers.IO)) {
-        method()
-    }
+): RES = withContext(currentCoroutineContext() + Dispatchers.IO) {
+    method()
 }
 
 /**
@@ -35,8 +32,6 @@ suspend inline fun <REQ, RES: Any> suspendCommand(
     context: CoroutineContext = EmptyCoroutineContext,
     request: REQ,
     crossinline method: (request: REQ) -> RES,
-): RES = coroutineScope {
-    withContext(newCoroutineContext(context + Dispatchers.IO)) {
-        method(request)
-    }
+): RES = withContext(currentCoroutineContext() + Dispatchers.IO) {
+    method(request)
 }

@@ -6,7 +6,7 @@ import io.bluetape4k.aws.dynamodb.examples.food.model.CustomerGrade
 import io.bluetape4k.aws.dynamodb.examples.food.repository.CustomerRepository
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.Dispatchers
 import org.amshove.kluent.shouldBeEqualTo
@@ -17,7 +17,7 @@ import kotlin.random.Random
 
 class CustomerRepositoryTest: AbstractFoodApplicationTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Autowired
     private lateinit var repository: CustomerRepository

@@ -4,7 +4,7 @@ import io.bluetape4k.aws.dynamodb.DynamoDb.MAX_BATCH_ITEM_SIZE
 import io.bluetape4k.aws.dynamodb.model.BatchWriteItemRequest
 import io.bluetape4k.aws.dynamodb.model.WriteRequest
 import io.bluetape4k.aws.dynamodb.model.writeRequestOf
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.github.resilience4j.kotlin.retry.executeSuspendFunction
 import io.github.resilience4j.retry.Retry
 import kotlinx.coroutines.CoroutineScope
@@ -31,7 +31,7 @@ class DynamoDbBatchExecutor<T: Any>(
     private val retry: Retry,
 ): CoroutineScope by CoroutineScope(Dispatchers.IO + SupervisorJob()) {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         @JvmStatic
         operator fun <T: Any> invoke(
             dynamoDB: DynamoDbClient = DynamoDbClient.create(),
