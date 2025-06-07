@@ -14,17 +14,17 @@ import io.github.bucket4j.MathType
 import io.github.bucket4j.TimeMeter
 import io.github.bucket4j.local.LockFreeBucket
 import kotlinx.coroutines.delay
-import kotlin.time.Duration
+import java.time.Duration
 import kotlin.time.Duration.Companion.nanoseconds
-import kotlin.time.Duration.Companion.seconds
+
 
 /**
  * Coroutines Context에서 사용하는 [Bucket4j](https://github.com/bucket4j/bucket4j)'s [LockFreeBucket] 입니다.
  * [BlockingBucket](https://bucket4j.com/8.2.0/toc.html#blocking-bucket)과 의미론적으로 동등한 인터페이스를 구현합니다.
- * Bucket4j의 블로킹 동작은 CPU 블로킹을 하지만, [SuspendedLocalBucket]은 대신 `delay`를  하여 코루틴 컨텍스트에서 안전하게 사용할 수 있습니다.
+ * Bucket4j의 블로킹 동작은 CPU 블로킹을 하지만, [SuspendLocalBucket]은 대신 `delay`를  하여 코루틴 컨텍스트에서 안전하게 사용할 수 있습니다.
  *
  * ```
- *  val bucket = CoLocalBucket {
+ *  val bucket = SuspendLocalBucket {
  *      addBandwidth {
  *          BandwidthBuilder.builder()
  *              .capacity(5)                                     // 5개의 토큰을 보유
@@ -35,7 +35,7 @@ import kotlin.time.Duration.Companion.seconds
  * }
  *
  * // 5개를 보유하고 있다
- * bucket.coTryConsume(5L + 1L, 10.milliseconds).shouldBeFalse()
+ * bucket.tryConsume(5L + 1L, 10.milliseconds).shouldBeFalse()
  * ```
  *
  *
@@ -43,7 +43,7 @@ import kotlin.time.Duration.Companion.seconds
  * @param mathType 계산 단위
  * @param timeMeter 시간 측정 단위를 나타내는 [TimeMeter]
  */
-class SuspendedLocalBucket private constructor(
+class SuspendLocalBucket private constructor(
     bucketConfiguration: BucketConfiguration,
     mathType: MathType,
     timeMeter: TimeMeter,
@@ -57,15 +57,15 @@ class SuspendedLocalBucket private constructor(
         val DEFAULT_MATH_TYPE: MathType = MathType.INTEGER_64_BITS
 
         @JvmStatic
-        val DEFAULT_MAX_WAIT_TIME: Duration = 3.seconds
+        val DEFAULT_MAX_WAIT_TIME: Duration = Duration.ofSeconds(3)
 
         @JvmStatic
         operator fun invoke(
             config: BucketConfiguration,
             mathType: MathType = DEFAULT_MATH_TYPE,
             timeMeter: TimeMeter = DEFAULT_TIME_METER,
-        ): SuspendedLocalBucket {
-            return SuspendedLocalBucket(config, mathType, timeMeter)
+        ): SuspendLocalBucket {
+            return SuspendLocalBucket(config, mathType, timeMeter)
         }
 
         @JvmStatic
@@ -73,7 +73,7 @@ class SuspendedLocalBucket private constructor(
             mathType: MathType = DEFAULT_MATH_TYPE,
             timeMeter: TimeMeter = DEFAULT_TIME_METER,
             configurer: ConfigurationBuilder.() -> Unit,
-        ): SuspendedLocalBucket {
+        ): SuspendLocalBucket {
             return invoke(bucketConfiguration(configurer), mathType, timeMeter)
         }
     }
@@ -87,7 +87,7 @@ class SuspendedLocalBucket private constructor(
      */
     suspend fun tryConsume(tokensToConsume: Long = 1L, maxWaitTime: Duration = DEFAULT_MAX_WAIT_TIME): Boolean {
         LimitChecker.checkTokensToConsume(tokensToConsume)
-        val maxWaitTimeNanos: Long = maxWaitTime.inWholeNanoseconds
+        val maxWaitTimeNanos: Long = maxWaitTime.toNanos() // .inWholeNanoseconds
         LimitChecker.checkMaxWaitTime(maxWaitTimeNanos)
 
         val nanosToDelay: Long = reserveAndCalculateTimeToSleepImpl(tokensToConsume, maxWaitTimeNanos)

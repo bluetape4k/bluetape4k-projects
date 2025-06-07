@@ -17,31 +17,30 @@ import org.awaitility.kotlin.until
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import java.time.Duration
 import kotlin.test.assertFailsWith
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.toJavaDuration
 
 class SuspendedLocalBucketTest: AbstractBucket4jTest() {
 
     companion object: KLoggingChannel()
 
-    private lateinit var bucket: SuspendedLocalBucket
+    private lateinit var bucket: SuspendLocalBucket
 
     @BeforeEach
     fun beforeEach() {
-        bucket = SuspendedLocalBucket {
+        bucket = SuspendLocalBucket {
             addBandwidth {
                 BandwidthBuilder.builder()
                     .capacity(5)                                              // 5개의 토큰을 보유
-                    .refillIntervally(1, 1.seconds.toJavaDuration())          // 1초에 1개의 토큰을 보충
+                    .refillIntervally(1, Duration.ofSeconds(1)) // 1초에 1개의 토큰을 보충
                     .build()
             }
         }
     }
 
     @Nested
-    inner class CoConsume {
+    inner class SuspendConsume {
 
         @Test
         fun `소비해야 할 토큰이 0인 경우 예외를 던져야 한다`() = runTest {
@@ -72,9 +71,9 @@ class SuspendedLocalBucketTest: AbstractBucket4jTest() {
             advanceTimeBy(3.seconds)            // 3초 밖에 지나지 않았으므로 아니다
             done.value.shouldBeFalse()
 
-            advanceTimeBy(1.seconds)            // 토탈 4초가 지났으므로 4개의 토큰이 모두 보충되었다 
+            advanceTimeBy(1.seconds)            // 토탈 4초가 지났으므로 4개의 토큰이 모두 보충되었다
 
-            await atMost 1.seconds.toJavaDuration() until { done.value }
+            await atMost Duration.ofSeconds(1) until { done.value }
             done.value.shouldBeTrue()
 
             job.cancel()
@@ -98,18 +97,18 @@ class SuspendedLocalBucketTest: AbstractBucket4jTest() {
         @Test
         fun `최대 대기 시간이 0 이하이면 예외를 던져야 한다`() = runTest {
             assertFailsWith<IllegalArgumentException> {
-                bucket.tryConsume(1L, 0.seconds)
+                bucket.tryConsume(1L, Duration.ZERO)
             }
 
             assertFailsWith<IllegalArgumentException> {
-                bucket.tryConsume(1L, (-1).seconds)
+                bucket.tryConsume(1L, Duration.ofSeconds(-1))
             }
         }
 
         @Test
         fun `보유 토큰(5) 보다 많은 토큰을 소비하려고 시도하면서 대기시간이 짧으면 즉시 false를 반환한다`() = runTest {
             // 5개를 보유하고 있다 
-            bucket.tryConsume(5L + 1L, 10.milliseconds).shouldBeFalse()
+            bucket.tryConsume(5L + 1L, Duration.ofMillis(10)).shouldBeFalse()
         }
 
         @Test
@@ -118,7 +117,7 @@ class SuspendedLocalBucketTest: AbstractBucket4jTest() {
 
             // 9개의 토큰을 소비하려고 한다 (기본 5개에 1촟당 1개씩 보충)
             val task = async {
-                val consumed = bucket.tryConsume(9L, 5.seconds)
+                val consumed = bucket.tryConsume(9L, Duration.ofSeconds(5))
                 done.value = true
                 consumed
             }
@@ -130,7 +129,7 @@ class SuspendedLocalBucketTest: AbstractBucket4jTest() {
 
             advanceTimeBy(1.seconds)            // 토탈 4초가 지났으므로 4개의 토큰이 모두 보충되었다
 
-            await atMost 1.seconds.toJavaDuration() until { done.value }
+            await atMost Duration.ofSeconds(1) until { done.value }
 
             done.value.shouldBeTrue()
             task.await().shouldBeTrue()

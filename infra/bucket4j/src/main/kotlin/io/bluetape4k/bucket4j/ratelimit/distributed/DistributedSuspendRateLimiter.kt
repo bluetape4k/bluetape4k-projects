@@ -2,7 +2,7 @@ package io.bluetape4k.bucket4j.ratelimit.distributed
 
 import io.bluetape4k.bucket4j.distributed.AsyncBucketProxyProvider
 import io.bluetape4k.bucket4j.ratelimit.RateLimitResult
-import io.bluetape4k.bucket4j.ratelimit.SuspendedRateLimiter
+import io.bluetape4k.bucket4j.ratelimit.SuspendRateLimiter
 import io.bluetape4k.coroutines.support.coAwait
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -14,8 +14,8 @@ import kotlinx.coroutines.future.await
  * 분산 환경에서 Rate Limiter 를 적용하는 Coroutine Rate Limiter 구현체
  *
  * ```
- * val rateLimiter = DistributedCoRateLimiter(asyncBucketProxyProvider)
- * val result: RateLimitResult = rateLimiter.coConsume("key", 1)
+ * val rateLimiter = DistributedSuspendRateLimiter(asyncBucketProxyProvider)
+ * val result: RateLimitResult = rateLimiter.consume("key", 1)
  *
  * if(result.consumedTokens > 0) {
  *      // Rate Limit 적용 성공
@@ -24,9 +24,9 @@ import kotlinx.coroutines.future.await
  *
  * @property asyncBucketProxyProvider [AsyncBucketProxyProvider] 인스턴스
  */
-class DistributedSuspendedRateLimiter(
+class DistributedSuspendRateLimiter(
     private val asyncBucketProxyProvider: AsyncBucketProxyProvider,
-): SuspendedRateLimiter<String> {
+): SuspendRateLimiter<String> {
 
     companion object: KLoggingChannel()
 
@@ -45,7 +45,7 @@ class DistributedSuspendedRateLimiter(
             val bucketProxy = asyncBucketProxyProvider.resolveBucket(key)
 
             if (bucketProxy.tryConsume(numToken).coAwait()) {
-                RateLimitResult(numToken, bucketProxy.availableTokens.coAwait())
+                RateLimitResult(numToken, bucketProxy.availableTokens.await())
             } else {
                 RateLimitResult(0, bucketProxy.availableTokens.await())
             }

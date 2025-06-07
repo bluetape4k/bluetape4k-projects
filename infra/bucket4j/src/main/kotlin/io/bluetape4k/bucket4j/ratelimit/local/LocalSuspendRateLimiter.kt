@@ -1,8 +1,8 @@
 package io.bluetape4k.bucket4j.ratelimit.local
 
-import io.bluetape4k.bucket4j.local.LocalCoBucketProvider
+import io.bluetape4k.bucket4j.local.LocalSuspendBucketProvider
 import io.bluetape4k.bucket4j.ratelimit.RateLimitResult
-import io.bluetape4k.bucket4j.ratelimit.SuspendedRateLimiter
+import io.bluetape4k.bucket4j.ratelimit.SuspendRateLimiter
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
@@ -12,8 +12,8 @@ import io.bluetape4k.support.requireNotBlank
  * 로컬 환경에서 Rate Limiter 를 적용하는 Coroutine Rate Limiter 구현체
  *
  * ```
- * val rateLimiter = LocalCoRateLimiter(bucketProvider)
- * val result: RateLimitResult = rateLimiter.coConsume("key", 1)
+ * val rateLimiter = LocalSuspendRateLimiter(bucketProvider)
+ * val result: RateLimitResult = rateLimiter.consume("key", 1)
  *
  * if(result.consumedTokens > 0) {
  *     // Rate Limit 적용 성공
@@ -21,11 +21,11 @@ import io.bluetape4k.support.requireNotBlank
  * }
  * ```
  *
- * @property bucketProvider [LocalCoBucketProvider] 인스턴스
+ * @property bucketProvider [LocalSuspendBucketProvider] 인스턴스
  */
-class LocalSuspendedRateLimiter(
-    private val bucketProvider: LocalCoBucketProvider,
-): SuspendedRateLimiter<String> {
+class LocalSuspendRateLimiter(
+    private val bucketProvider: LocalSuspendBucketProvider,
+): SuspendRateLimiter<String> {
 
     companion object: KLoggingChannel()
 

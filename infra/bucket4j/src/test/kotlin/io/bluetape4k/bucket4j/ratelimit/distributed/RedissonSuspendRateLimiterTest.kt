@@ -2,9 +2,9 @@ package io.bluetape4k.bucket4j.ratelimit.distributed
 
 import io.bluetape4k.bucket4j.TestRedisServer
 import io.bluetape4k.bucket4j.distributed.AsyncBucketProxyProvider
-import io.bluetape4k.bucket4j.distributed.redis.lettuceBasedProxyManagerOf
-import io.bluetape4k.bucket4j.ratelimit.AbstractSuspendedRateLimiterTest
-import io.bluetape4k.bucket4j.ratelimit.SuspendedRateLimiter
+import io.bluetape4k.bucket4j.distributed.redis.redissonBasedProxyManagerOf
+import io.bluetape4k.bucket4j.ratelimit.AbstractSuspendRateLimiterTest
+import io.bluetape4k.bucket4j.ratelimit.SuspendRateLimiter
 import io.bluetape4k.logging.KLogging
 import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy
 import io.github.bucket4j.distributed.proxy.ClientSideConfig
@@ -13,13 +13,15 @@ import java.util.concurrent.Executors
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
-class LettuceSuspendedRateLimiterTest: AbstractSuspendedRateLimiterTest() {
+class RedissonSuspendRateLimiterTest: AbstractSuspendRateLimiterTest() {
 
     companion object: KLogging()
 
     val bucketProvider: AsyncBucketProxyProvider by lazy {
-        val redisClient = TestRedisServer.lettuceClient()
-        val redissonProxyManager = lettuceBasedProxyManagerOf(redisClient) {
+
+        val redisson = TestRedisServer.redissonClient()
+
+        val redissonProxyManager = redissonBasedProxyManagerOf(redisson) {
             ClientSideConfig.getDefault()
                 .withExpirationAfterWriteStrategy(
                     ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(
@@ -32,8 +34,8 @@ class LettuceSuspendedRateLimiterTest: AbstractSuspendedRateLimiterTest() {
         AsyncBucketProxyProvider(redissonProxyManager.asAsync(), defaultBucketConfiguration)
     }
 
-    override val rateLimiter: SuspendedRateLimiter<String> by lazy {
-        DistributedSuspendedRateLimiter(bucketProvider)
+    override val rateLimiter: SuspendRateLimiter<String> by lazy {
+        DistributedSuspendRateLimiter(bucketProvider)
     }
 
 }

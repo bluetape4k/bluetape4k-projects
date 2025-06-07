@@ -5,8 +5,7 @@ import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.toJavaDuration
+import java.time.Duration
 
 abstract class AbstractRateLimiterTest {
 
@@ -19,7 +18,7 @@ abstract class AbstractRateLimiterTest {
                 addLimit {
                     it
                         .capacity(INITIAL_CAPACITY)
-                        .refillIntervally(INITIAL_CAPACITY, 10.seconds.toJavaDuration())
+                        .refillIntervally(INITIAL_CAPACITY, Duration.ofSeconds(10))
                 }
             }
         }

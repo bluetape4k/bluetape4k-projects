@@ -5,7 +5,7 @@ package io.bluetape4k.bucket4j.ratelimit
  *
  * @param K  Key 수형
  */
-interface SuspendedRateLimiter<K> {
+interface SuspendRateLimiter<K> {
 
     /**
      * [key] 기준으로 [numToken] 갯수만큼 소비합니다. 결과는 [RateLimitResult]로 반환됩니다.

@@ -12,8 +12,8 @@ import io.github.bucket4j.MathType
 import io.github.bucket4j.TimeMeter
 import io.github.bucket4j.local.LocalBucket
 import io.github.bucket4j.local.LockFreeBucket
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.toJavaDuration
+import java.time.Duration
+
 
 /**
  * Custom Key 기반 (예: userId) 의 Local Bucket을 제공합니다.
@@ -36,7 +36,7 @@ abstract class AbstractLocalBucketProvider(
         caffeine {
             executor(VirtualThreadExecutor)
             maximumSize(100000)
-            expireAfterAccess(6.hours.toJavaDuration())
+            expireAfterAccess(Duration.ofHours(6))
         }.loadingCache<String, LocalBucket> {
             createBucket()
         }

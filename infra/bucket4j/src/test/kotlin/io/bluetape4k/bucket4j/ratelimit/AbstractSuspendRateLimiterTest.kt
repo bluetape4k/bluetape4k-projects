@@ -2,29 +2,30 @@ package io.bluetape4k.bucket4j.ratelimit
 
 import io.bluetape4k.bucket4j.bucketConfiguration
 import io.bluetape4k.codec.Base58
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.toJavaDuration
+import java.time.Duration
 
-abstract class AbstractSuspendedRateLimiterTest {
+abstract class AbstractSuspendRateLimiterTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         internal const val INITIAL_CAPACITY = 10L
 
         @JvmStatic
         val defaultBucketConfiguration by lazy {
             bucketConfiguration {
-                addLimit {
-                    it.capacity(INITIAL_CAPACITY).refillIntervally(INITIAL_CAPACITY, 10.seconds.toJavaDuration())
+                addLimit { capacityStage ->
+                    capacityStage
+                        .capacity(INITIAL_CAPACITY)
+                        .refillIntervally(INITIAL_CAPACITY, Duration.ofSeconds(10))
                 }
             }
         }
     }
 
-    abstract val rateLimiter: SuspendedRateLimiter<String>
+    abstract val rateLimiter: SuspendRateLimiter<String>
 
     protected fun randomKey(): String = "bucket-" + Base58.randomString(6)
 
@@ -39,9 +40,11 @@ abstract class AbstractSuspendedRateLimiterTest {
         result shouldBeEqualTo RateLimitResult(token, INITIAL_CAPACITY - token)
 
         // 10개 소비를 요청 -> 5개만 남았으므로 0개 소비한 것으로 반환
-        rateLimiter.consume(key, INITIAL_CAPACITY) shouldBeEqualTo RateLimitResult(0, result.availableTokens)
+        val zeroConsumedResult = RateLimitResult(0, result.availableTokens)
+        rateLimiter.consume(key, INITIAL_CAPACITY) shouldBeEqualTo zeroConsumedResult
 
-        // 나머지 토큰 모두를 소비하면, 유효한 토큰이 0개임 
-        rateLimiter.consume(key, result.availableTokens) shouldBeEqualTo RateLimitResult(result.availableTokens, 0)
+        // 나머지 토큰 모두를 소비하면, 유효한 토큰이 0개임
+        val allConsumedResult = RateLimitResult(result.availableTokens, 0)
+        rateLimiter.consume(key, result.availableTokens) shouldBeEqualTo allConsumedResult
     }
 }

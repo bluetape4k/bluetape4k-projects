@@ -15,6 +15,6 @@ class LocalSuspendedBucketProviderTest: AbstractLocalBucketProviderTest() {
                 it.capacity(10).refillIntervally(10, 10.seconds.toJavaDuration())
             }
         }
-        LocalSuspendedBucketProvider(configuration)
+        LocalSuspendBucketProvider(configuration)
     }
 }
