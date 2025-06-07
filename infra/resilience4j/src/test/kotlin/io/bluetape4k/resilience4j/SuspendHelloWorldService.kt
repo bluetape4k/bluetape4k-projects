@@ -6,7 +6,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 
 
-class CoHelloWorldService {
+class SuspendHelloWorldService {
 
     companion object: KLoggingChannel()
 

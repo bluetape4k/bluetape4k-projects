@@ -2,7 +2,7 @@ package io.bluetape4k.resilience4j.ratelimiter
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.resilience4j.CoHelloWorldService
+import io.bluetape4k.resilience4j.SuspendHelloWorldService
 import io.github.resilience4j.kotlin.ratelimiter.rateLimiter
 import io.github.resilience4j.ratelimiter.RateLimiter
 import io.github.resilience4j.ratelimiter.RateLimiterConfig
@@ -29,7 +29,7 @@ class RateLimiterFlowTest {
     fun `rate limit에 걸리지 않을 때에는 flow를 수행됩니다`() = runSuspendTest {
         val rateLimiter = RateLimiter.of("testName", noWaitConfig())
         val metrics = rateLimiter.metrics
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         val testFlow = flow {
             emit(helloWorldService.returnHelloWorld())
@@ -48,7 +48,7 @@ class RateLimiterFlowTest {
     fun `예외가 발샣하는 flow도 수행됩니다`() = runSuspendTest {
         val rateLimiter = RateLimiter.of("testName", noWaitConfig())
         val metrics = rateLimiter.metrics
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         assertFailsWith<IllegalStateException> {
             flow {
@@ -68,7 +68,7 @@ class RateLimiterFlowTest {
     fun `rate limit에 도달하고, 대기를 허용하지 않는 경우에는 flow를 실행하지 않습니다`() = runSuspendTest {
         val rateLimiter = RateLimiter.of("testName", noWaitConfig())
         val metrics = rateLimiter.metrics
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         repeat(10) {
             flow { emit(helloWorldService.returnHelloWorld()) }

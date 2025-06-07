@@ -52,7 +52,7 @@ abstract class AbstractJCacheCoroutinesTest {
             greeting(name)
         }
 
-        val cachedFunc = cache.decorateSuspendedFunction(function)
+        val cachedFunc = cache.decorateSuspendFunction(function)
 
         val key1 = randomKey("key")
         val key2 = randomKey("key")
@@ -127,7 +127,7 @@ abstract class AbstractJCacheCoroutinesTest {
             greeting(name)
         }
 
-        val cachedLoader: suspend (String) -> String = coCache.decorateSuspendedFunction(loader)
+        val cachedLoader: suspend (String) -> String = coCache.decorateSuspendFunction(loader)
 
         val key1 = randomKey("coKey")
         val key2 = randomKey("coKey")

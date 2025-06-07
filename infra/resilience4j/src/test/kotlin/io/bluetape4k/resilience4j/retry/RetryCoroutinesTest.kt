@@ -2,7 +2,7 @@ package io.bluetape4k.resilience4j.retry
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.resilience4j.CoHelloWorldService
+import io.bluetape4k.resilience4j.SuspendHelloWorldService
 import io.github.resilience4j.kotlin.retry.decorateSuspendFunction
 import io.github.resilience4j.kotlin.retry.executeSuspendFunction
 import io.github.resilience4j.retry.Retry
@@ -20,7 +20,7 @@ class RetryCoroutinesTest {
     fun `성공한 함수는 retry를 하지 않습니다`() = runSuspendTest {
         val retry = Retry.ofDefaults("testName")
         val metrics = retry.metrics
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         val result = retry.executeSuspendFunction {
             helloWorldService.returnHelloWorld()
@@ -39,7 +39,7 @@ class RetryCoroutinesTest {
     fun `예외가 발생하면 retry를 통해 재시도합니다`() = runSuspendTest {
         val retry = Retry.ofDefaults("testName")
         val metrics = retry.metrics
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         val result = retry.executeSuspendFunction {
             when (helloWorldService.invocationCount) {
@@ -59,7 +59,7 @@ class RetryCoroutinesTest {
 
     @Test
     fun `retryOnResult 를 기준으로 재시도를 수행합니다`() = runSuspendTest {
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
         val retry = Retry.of("testName") {
             RetryConfig.custom<Any?>()
                 .waitDuration(Duration.ofMillis(10))
@@ -83,7 +83,7 @@ class RetryCoroutinesTest {
 
     @Test
     fun `반복된 예외 시에는 함수 실행이 실패한다`() = runSuspendTest {
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
         val retry = Retry.of("testName") {
             RetryConfig.custom<Any?>()
                 .waitDuration(Duration.ofMillis(10))
@@ -110,7 +110,7 @@ class RetryCoroutinesTest {
     fun `decorate suspend function`() = runSuspendTest {
         val retry = Retry.ofDefaults("testName")
         val metrics = retry.metrics
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         val function = retry.decorateSuspendFunction {
             helloWorldService.returnHelloWorld()

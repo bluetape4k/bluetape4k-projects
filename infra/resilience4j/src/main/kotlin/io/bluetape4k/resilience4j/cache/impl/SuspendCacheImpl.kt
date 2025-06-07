@@ -2,7 +2,7 @@ package io.bluetape4k.resilience4j.cache.impl
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.warn
-import io.bluetape4k.resilience4j.cache.CoCache
+import io.bluetape4k.resilience4j.cache.SuspendCache
 import io.github.resilience4j.cache.event.CacheEvent
 import io.github.resilience4j.cache.event.CacheOnErrorEvent
 import io.github.resilience4j.cache.event.CacheOnHitEvent
@@ -10,18 +10,18 @@ import io.github.resilience4j.cache.event.CacheOnMissEvent
 import io.github.resilience4j.core.EventConsumer
 import io.github.resilience4j.core.EventProcessor
 import kotlinx.atomicfu.atomic
+import javax.cache.Cache
 
 /**
- * [CoCache]의 기본 구현체입니다.
+ * [SuspendCache]의 기본 구현체입니다.
  * jCache의 저장소를 사용합니다.
  */
-@Deprecated("Use SuspendCacheImpl instead", ReplaceWith("SuspendCacheImpl"))
-class CoroutinesCacheImpl<K, V>(override val jcache: javax.cache.Cache<K, V>): CoCache<K, V> {
+class SuspendCacheImpl<K, V>(override val jcache: Cache<K, V>): SuspendCache<K, V> {
 
     companion object: KLoggingChannel()
 
-    private val _eventProcessor = CoCacheEventProcessor()
-    private val _metrics = CoCacheMetrics()
+    private val _eventProcessor = SuspendCacheEventProcessor()
+    private val _metrics = SuspendCacheMetrics()
 
     /**
      * the cache name
@@ -32,12 +32,12 @@ class CoroutinesCacheImpl<K, V>(override val jcache: javax.cache.Cache<K, V>): C
     /**
      * Returns the Metrics of this Cache.
      */
-    override val metrics: CoCache.Metrics = _metrics
+    override val metrics: SuspendCache.Metrics = _metrics
 
     /**
      * Returns an EventPublisher which can be used to register event consumers.
      */
-    override val eventPublisher: CoCache.EventPublisher = _eventProcessor
+    override val eventPublisher: SuspendCache.EventPublisher = _eventProcessor
 
     /**
      * 캐시된 정보를 로드합니다. 만약 캐시에 없을 시에는 [loader]를 이용하여 정보를 얻어 캐시에 저장하고, 반환합니다.
@@ -111,17 +111,23 @@ class CoroutinesCacheImpl<K, V>(override val jcache: javax.cache.Cache<K, V>): C
         }
     }
 
-    private class CoCacheEventProcessor: EventProcessor<CacheEvent>(), EventConsumer<CacheEvent>,
-                                         CoCache.EventPublisher {
-        override fun onCacheHit(eventConsumer: EventConsumer<CacheEvent>): CoCache.EventPublisher = apply {
+    private class SuspendCacheEventProcessor: EventProcessor<CacheEvent>(), EventConsumer<CacheEvent>,
+                                              SuspendCache.EventPublisher {
+        override fun onCacheHit(
+            eventConsumer: EventConsumer<CacheEvent>,
+        ): SuspendCache.EventPublisher = apply {
             registerConsumer(CacheOnHitEvent::class.simpleName!!, eventConsumer)
         }
 
-        override fun onCacheMiss(eventConsumer: EventConsumer<CacheEvent>): CoCache.EventPublisher = apply {
+        override fun onCacheMiss(
+            eventConsumer: EventConsumer<CacheEvent>,
+        ): SuspendCache.EventPublisher = apply {
             registerConsumer(CacheOnMissEvent::class.simpleName!!, eventConsumer)
         }
 
-        override fun onError(eventConsumer: EventConsumer<CacheEvent>): CoCache.EventPublisher = apply {
+        override fun onError(
+            eventConsumer: EventConsumer<CacheEvent>,
+        ): SuspendCache.EventPublisher = apply {
             registerConsumer(CacheOnErrorEvent::class.simpleName!!, eventConsumer)
         }
 
@@ -130,7 +136,7 @@ class CoroutinesCacheImpl<K, V>(override val jcache: javax.cache.Cache<K, V>): C
         }
     }
 
-    private class CoCacheMetrics: CoCache.Metrics {
+    private class SuspendCacheMetrics: SuspendCache.Metrics {
         private val cacheMisses = atomic(0L)
         private val cacheHits = atomic(0L)
 

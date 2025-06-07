@@ -5,7 +5,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.info
 import io.bluetape4k.resilience4j.cache.Cache2kJCacheProvider
-import io.bluetape4k.resilience4j.cache.CoCache
+import io.bluetape4k.resilience4j.cache.SuspendCache
 import io.github.resilience4j.circuitbreaker.CircuitBreaker
 import io.github.resilience4j.ratelimiter.RateLimiter
 import io.github.resilience4j.retry.Retry
@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test
 import java.io.IOException
 import java.time.LocalDateTime
 
-class CoDecoratorsTest {
+class SuspendDecoratorsTest {
 
     interface Service {
         suspend fun run()
@@ -41,7 +41,7 @@ class CoDecoratorsTest {
     val circuitBreaker = CircuitBreaker.ofDefaults("coDecorator")
     val rateLimiter = RateLimiter.ofDefaults("coDecorator")
 
-    private val service = mockk<CoDecoratorsTest.Service>(relaxUnitFun = true)
+    private val service = mockk<Service>(relaxUnitFun = true)
 
     @BeforeAll
     fun beforeAll() {
@@ -87,7 +87,7 @@ class CoDecoratorsTest {
             // coEvery { service.run() } returns Unit
 
             val result = runCatching {
-                CoDecorators.ofRunnable { service.run() }
+                SuspendDecorators.ofRunnable { service.run() }
                     .withRetry(retry)
                     .invoke()
             }
@@ -102,7 +102,7 @@ class CoDecoratorsTest {
             // relaxUnitFun = true 를 지정하면 이 작업은 필요없다
             coEvery { service.run() } returns Unit
 
-            val decorated = CoDecorators.ofRunnable { service.run() }
+            val decorated = SuspendDecorators.ofRunnable { service.run() }
                 .withCircuitBreaker(circuitBreaker)
                 .withRetry(retry)
                 .withRateLimit(rateLimiter)
@@ -119,7 +119,7 @@ class CoDecoratorsTest {
         fun `예외를 발생하는 runnable에 대한 retry decoration하기`() = runSuspendTest {
             coEvery { service.run() } throws IOException("BAM!")
 
-            val decorated = CoDecorators
+            val decorated = SuspendDecorators
                 .ofRunnable(service::run)
                 .withRetry(retry)
                 .decoreate()
@@ -137,7 +137,7 @@ class CoDecoratorsTest {
         fun `예외를 발생하는 runnable에 대한 retry와 circuit breaker를 decoration하기`() = runSuspendTest {
             coEvery { service.run() } throws IOException("BAM!")
 
-            val decorated = CoDecorators
+            val decorated = SuspendDecorators
                 .ofRunnable(service::run)
                 .withRetry(retry)
                 .withCircuitBreaker(circuitBreaker)
@@ -161,7 +161,7 @@ class CoDecoratorsTest {
         fun `성공하는 supplier 대한 retry decoration 하기`() = runSuspendTest {
             coEvery { service.supply() } coAnswers { expected }
 
-            val decorated = CoDecorators
+            val decorated = SuspendDecorators
                 .ofSupplier { service.supply() }
                 .withRetry(retry)
                 .decoreate()
@@ -178,7 +178,7 @@ class CoDecoratorsTest {
         fun `성공하는 supplier 대해 retry 와 circuit breaker를 decoration 하기`() = runSuspendTest {
             coEvery { service.supply() } coAnswers { expected }
 
-            val decorated = CoDecorators
+            val decorated = SuspendDecorators
                 .ofSupplier { service.supply() }
                 .withRetry(retry)
                 .withCircuitBreaker(circuitBreaker)
@@ -196,7 +196,7 @@ class CoDecoratorsTest {
         fun `성공하는 supplier 대해 fallback decoration 하기`() = runSuspendTest {
             coEvery { service.supply() } coAnswers { expected }
 
-            val decorated = CoDecorators
+            val decorated = SuspendDecorators
                 .ofSupplier { service.supply() }
                 .withFallback({ it == expected }, { "fallback" })
                 .withCircuitBreaker(circuitBreaker)
@@ -214,7 +214,7 @@ class CoDecoratorsTest {
         fun `예외를 발생하는 supplier 대한 retry decoration하기`() = runSuspendTest {
             coEvery { service.supply() } throws IOException("BAM!")
 
-            val decorated = CoDecorators
+            val decorated = SuspendDecorators
                 .ofSupplier { service.supply() }
                 .withRetry(retry)
                 .decoreate()
@@ -231,7 +231,7 @@ class CoDecoratorsTest {
         fun `예외를 발생하는 supplier 대한 retry와 circuit breaker를 decoration하기`() = runSuspendTest {
             coEvery { service.supply() } throws IOException("BAM!")
 
-            val decorated = CoDecorators
+            val decorated = SuspendDecorators
                 .ofSupplier { service.supply() }
                 .withRetry(retry)
                 .withCircuitBreaker(circuitBreaker)
@@ -255,7 +255,7 @@ class CoDecoratorsTest {
         fun `성공하는 consumer 대한 retry decoration 하기`() = runSuspendTest {
             coEvery { service.consume(input) } returns Unit
 
-            val decorated = CoDecorators
+            val decorated = SuspendDecorators
                 .ofRunnable { service.consume(input) }
                 .withRetry(retry)
                 .decoreate()
@@ -271,7 +271,7 @@ class CoDecoratorsTest {
         fun `성공하는 consumer 대해 retry 와 circuit breaker를 decoration 하기`() = runSuspendTest {
             coEvery { service.consume(input) } returns Unit
 
-            val decorated = CoDecorators
+            val decorated = SuspendDecorators
                 .ofRunnable { service.consume(input) }
                 .withRetry(retry)
                 .withCircuitBreaker(circuitBreaker)
@@ -288,7 +288,7 @@ class CoDecoratorsTest {
         fun `예외를 발생하는 consumer 대한 retry decoration하기`() = runSuspendTest {
             coEvery { service.consume(input) } throws IOException("BAM!")
 
-            val decorated = CoDecorators
+            val decorated = SuspendDecorators
                 .ofRunnable { service.consume(input) }
                 .withRetry(retry)
                 .decoreate()
@@ -305,7 +305,7 @@ class CoDecoratorsTest {
         fun `예외를 발생하는 consumer 대한 retry와 circuit breaker를 decoration하기`() = runSuspendTest {
             coEvery { service.consume(input) } throws IOException("BAM!")
 
-            val decorated = CoDecorators
+            val decorated = SuspendDecorators
                 .ofRunnable { service.consume(input) }
                 .withRetry(retry)
                 .withCircuitBreaker(circuitBreaker)
@@ -324,13 +324,13 @@ class CoDecoratorsTest {
     inner class CoDecoratorsForFunction1Test {
 
         val input = "Hello world!"
-        val output = LocalDateTime.now()
+        val output: LocalDateTime = LocalDateTime.now()
 
         @Test
         fun `성공하는 function 대한 retry decoration 하기`() = runSuspendTest {
             coEvery { service.execute(input) } returns output
 
-            val decorated = CoDecorators
+            val decorated = SuspendDecorators
                 .ofFunction1 { s: String -> service.execute(s) }
                 .withRetry(retry)
                 .decoreate()
@@ -347,7 +347,7 @@ class CoDecoratorsTest {
         fun `성공하는 function 대해 retry 와 circuit breaker를 decoration 하기`() = runSuspendTest {
             coEvery { service.execute(input) } returns output
 
-            val decorated = CoDecorators
+            val decorated = SuspendDecorators
                 .ofFunction1 { s: String -> service.execute(s) }
                 .withRetry(retry)
                 .withCircuitBreaker(circuitBreaker)
@@ -365,7 +365,7 @@ class CoDecoratorsTest {
         fun `예외를 발생하는 function 대한 retry decoration하기`() = runSuspendTest {
             coEvery { service.execute(input) } throws IOException("BAM!")
 
-            val decorated = CoDecorators
+            val decorated = SuspendDecorators
                 .ofFunction1 { s: String -> service.execute(s) }
                 .withRetry(retry)
                 .decoreate()
@@ -382,7 +382,7 @@ class CoDecoratorsTest {
         fun `예외를 발생하는 function 대한 retry와 circuit breaker를 decoration하기`() = runSuspendTest {
             coEvery { service.execute(input) } throws IOException("BAM!")
 
-            val decorated = CoDecorators
+            val decorated = SuspendDecorators
                 .ofFunction1 { s: String -> service.execute(s) }
                 .withRetry(retry)
                 .withCircuitBreaker(circuitBreaker)
@@ -402,11 +402,11 @@ class CoDecoratorsTest {
 
             val jcache = Cache2kJCacheProvider.getJCache<String, LocalDateTime>("CoDecorators")
             jcache.clear()
-            val coroutinesCache = CoCache.of(jcache)
+            val coroutinesCache = SuspendCache.of(jcache)
 
-            val decorated = CoDecorators
+            val decorated = SuspendDecorators
                 .ofFunction1 { s: String -> service.execute(s) }
-                .withCoroutinesCache(coroutinesCache)
+                .withSuspendCache(coroutinesCache)
                 .decoreate()
 
 
@@ -440,7 +440,7 @@ class CoDecoratorsTest {
         fun `성공하는 bi-function 대한 retry decoration 하기`() = runSuspendTest {
             coEvery { service.bifunction(input1, input2) } returns output
 
-            val decorated = CoDecorators
+            val decorated = SuspendDecorators
                 .ofFunction2 { a: Int, b: Int -> service.bifunction(a, b) }
                 .withRetry(retry)
                 .decoreate()
@@ -457,7 +457,7 @@ class CoDecoratorsTest {
         fun `성공하는 bi-function 대해 retry 와 circuit breaker를 decoration 하기`() = runSuspendTest {
             coEvery { service.bifunction(input1, input2) } returns output
 
-            val decorated = CoDecorators
+            val decorated = SuspendDecorators
                 .ofFunction2 { a: Int, b: Int -> service.bifunction(a, b) }
                 .withRetry(retry)
                 .withCircuitBreaker(circuitBreaker)
@@ -475,7 +475,7 @@ class CoDecoratorsTest {
         fun `예외를 발생하는 bi-function 대한 retry decoration하기`() = runSuspendTest {
             coEvery { service.bifunction(input1, input2) } throws IOException("BAM!")
 
-            val decorated = CoDecorators
+            val decorated = SuspendDecorators
                 .ofFunction2 { a: Int, b: Int -> service.bifunction(a, b) }
                 .withRetry(retry)
                 .decoreate()
@@ -492,7 +492,7 @@ class CoDecoratorsTest {
         fun `예외를 발생하는 bi-function 대한 retry와 circuit breaker를 decoration하기`() = runSuspendTest {
             coEvery { service.bifunction(input1, input2) } throws IOException("BAM!")
 
-            val decorated = CoDecorators
+            val decorated = SuspendDecorators
                 .ofFunction2 { a: Int, b: Int -> service.bifunction(a, b) }
                 .withRetry(retry)
                 .withCircuitBreaker(circuitBreaker)

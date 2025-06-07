@@ -8,7 +8,7 @@ package io.bluetape4k.resilience4j.cache
  * @param loader   캐시에 없을 시에 호출할 로더
  */
 suspend fun <K, V> withCaache(
-    cache: CoCache<K, V>,
+    cache: SuspendCache<K, V>,
     cacheKey: K,
     loader: suspend () -> V,
 ): V {
@@ -27,7 +27,7 @@ suspend fun <K, V> withCaache(
  *
  * @param loader 캐시에 저장할 로더
  */
-fun <K, V> CoCache<K, V>.decorateSuspendSupplier(
+fun <K, V> SuspendCache<K, V>.decorateSuspendSupplier(
     loader: suspend () -> V,
 ): suspend (K) -> V = { cacheKey: K ->
     executeSuspendFunction(cacheKey, loader)
@@ -39,13 +39,13 @@ fun <K, V> CoCache<K, V>.decorateSuspendSupplier(
  * ```
  * val cache = CoCache.of(jcache)
  * val loader: suspend (K) -> V = { key: K -> ... }
- * val cachedLoader = cache.decorateSuspendedFunction(loader)
+ * val cachedLoader = cache.decorateSuspendFunction(loader)
  * val result = cachedLoader(key)
  * ```
  *
  * @param loader 캐시에 저장할 로더
  */
-inline fun <K, V> CoCache<K, V>.decorateSuspendFunction(
+inline fun <K, V> SuspendCache<K, V>.decorateSuspendFunction(
     crossinline loader: suspend (K) -> V,
 ): suspend (K) -> V = { cacheKey: K ->
     executeSuspendFunction(cacheKey) { loader(cacheKey) }
@@ -57,13 +57,13 @@ inline fun <K, V> CoCache<K, V>.decorateSuspendFunction(
  * ```
  * val cache = CoCache.of(jcache)
  * val loader: suspend (K) -> V = { key: K -> ... }
- * val result = cache.executeSuspendedFunction(key, loader)
+ * val result = cache.executeSuspendFunction(key, loader)
  * ```
  *
  * @param cacheKey 캐시 키
  * @param loader 캐시에 저장할 로더
  */
-suspend inline fun <K, V> CoCache<K, V>.executeSuspendFunction(
+suspend inline fun <K, V> SuspendCache<K, V>.executeSuspendFunction(
     cacheKey: K,
     crossinline loader: suspend () -> V,
 ): V {

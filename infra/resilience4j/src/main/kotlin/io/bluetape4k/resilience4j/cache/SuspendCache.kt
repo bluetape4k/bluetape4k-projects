@@ -1,25 +1,25 @@
 package io.bluetape4k.resilience4j.cache
 
-import io.bluetape4k.resilience4j.cache.impl.CoroutinesCacheImpl
+import io.bluetape4k.resilience4j.cache.impl.SuspendCacheImpl
 import io.github.resilience4j.cache.event.CacheEvent
 import io.github.resilience4j.core.EventConsumer
+import javax.cache.Cache
 
 /**
  * Coroutines 환경 하에서 Resilience4j 실행 시 결과를 JCache에서 관리할 수 있도록 합니다.
  */
-@Deprecated("Use SuspendCache instead", replaceWith = ReplaceWith("SuspendCache"))
-interface CoCache<K, V> {
+interface SuspendCache<K, V> {
 
     companion object {
 
         @JvmStatic
-        fun <K, V> of(jcache: javax.cache.Cache<K, V>): CoCache<K, V> {
-            return CoroutinesCacheImpl(jcache)
+        fun <K, V> of(jcache: Cache<K, V>): SuspendCache<K, V> {
+            return SuspendCacheImpl(jcache)
         }
 
         @JvmStatic
         fun <K, V> decorateSuspendedSupplier(
-            cache: CoCache<K, V>,
+            cache: SuspendCache<K, V>,
             loader: suspend () -> V,
         ): suspend (K) -> V {
             return cache.decorateSuspendSupplier(loader)
@@ -27,7 +27,7 @@ interface CoCache<K, V> {
 
         @JvmStatic
         fun <K, V> decorateSuspendedFunction(
-            cache: CoCache<K, V>,
+            cache: SuspendCache<K, V>,
             loader: suspend (K) -> V,
         ): suspend (K) -> V {
             return cache.decorateSuspendFunction(loader)
@@ -42,7 +42,7 @@ interface CoCache<K, V> {
     /**
      * Jcache
      */
-    val jcache: javax.cache.Cache<K, V>
+    val jcache: Cache<K, V>
 
     /**
      * Returns the Metrics of this Cache.

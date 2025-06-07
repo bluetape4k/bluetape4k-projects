@@ -3,7 +3,6 @@ package io.bluetape4k.resilience4j
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.resilience4j.bulkhead.decorateSuspendBiFunction
 import io.bluetape4k.resilience4j.bulkhead.decorateSuspendFunction1
-import io.bluetape4k.resilience4j.cache.CoCache
 import io.bluetape4k.resilience4j.cache.SuspendCache
 import io.bluetape4k.resilience4j.cache.decorateSuspendFunction
 import io.bluetape4k.resilience4j.circuitbreaker.decorateSuspendBiFunction
@@ -32,11 +31,7 @@ import kotlin.reflect.KClass
  *
  * @see [io.github.resilience4j.decorators.Decorators]
  */
-@Deprecated(
-    message = "Use `SuspendDecorators` instead",
-    replaceWith = ReplaceWith("SuspendDecorators")
-)
-object CoDecorators: KLoggingChannel() {
+object SuspendDecorators: KLoggingChannel() {
 
     /**
      * `suspend () -> Unit` 에 대해 resilience4j compoenents를 decorate 합니다
@@ -54,8 +49,8 @@ object CoDecorators: KLoggingChannel() {
      *
      * @param runnable 수행할 suspend 함수
      */
-    fun ofRunnable(runnable: suspend () -> Unit): CoDecoratorForSupplier<Unit> {
-        return CoDecoratorForSupplier(runnable)
+    fun ofRunnable(runnable: suspend () -> Unit): DecoratorForSuspendSupplier<Unit> {
+        return DecoratorForSuspendSupplier(runnable)
     }
 
     /**
@@ -75,8 +70,8 @@ object CoDecorators: KLoggingChannel() {
      * @param T return type
      * @param supplier Suspendable supplier
      */
-    fun <T> ofSupplier(supplier: suspend () -> T): CoDecoratorForSupplier<T> {
-        return CoDecoratorForSupplier(supplier)
+    fun <T> ofSupplier(supplier: suspend () -> T): DecoratorForSuspendSupplier<T> {
+        return DecoratorForSuspendSupplier(supplier)
     }
 
     /**
@@ -98,7 +93,7 @@ object CoDecorators: KLoggingChannel() {
      */
     inline fun <T> ofConsumer(
         crossinline consumer: suspend (T) -> Unit,
-    ): (T) -> CoDecoratorForSupplier<Unit> = { input: T ->
+    ): (T) -> DecoratorForSuspendSupplier<Unit> = { input: T ->
         ofRunnable { consumer(input) }
     }
 
@@ -122,7 +117,7 @@ object CoDecorators: KLoggingChannel() {
      */
     inline fun <T, R> ofFunction(
         crossinline function: suspend (T) -> R,
-    ): (T) -> CoDecoratorForSupplier<R> = { input: T ->
+    ): (T) -> DecoratorForSuspendSupplier<R> = { input: T ->
         ofSupplier { function(input) }
     }
 
@@ -146,8 +141,8 @@ object CoDecorators: KLoggingChannel() {
      */
     fun <T, R> ofFunction1(
         function: suspend (T) -> R,
-    ): CoDecoratorForFunction1<T, R> {
-        return CoDecoratorForFunction1(function)
+    ): DecoratorForSuspendFunction1<T, R> {
+        return DecoratorForSuspendFunction1(function)
     }
 
     /**
@@ -170,8 +165,8 @@ object CoDecorators: KLoggingChannel() {
      */
     fun <T, U, R> ofFunction2(
         function: suspend (T, U) -> R,
-    ): CoDecoratorForFunction2<T, U, R> {
-        return CoDecoratorForFunction2(function)
+    ): DecoratorForSuspendFunction2<T, U, R> {
+        return DecoratorForSuspendFunction2(function)
     }
 
     /**
@@ -192,12 +187,12 @@ object CoDecorators: KLoggingChannel() {
      * @param R return type
      * @param function Suspendable function
      */
-    fun <T, U> ofBiConsumer(consumer: suspend (T, U) -> Unit): CoDecoratorForFunction2<T, U, Unit> {
-        return CoDecoratorForFunction2(consumer)
+    fun <T, U> ofBiConsumer(consumer: suspend (T, U) -> Unit): DecoratorForSuspendFunction2<T, U, Unit> {
+        return DecoratorForSuspendFunction2(consumer)
     }
 
 
-    class CoDecoratorForSupplier<T>(private var supplier: suspend () -> T) {
+    class DecoratorForSuspendSupplier<T>(private var supplier: suspend () -> T) {
 
         fun withCircuitBreaker(circuitBreaker: CircuitBreaker) = apply {
             supplier = circuitBreaker.decorateSuspendFunction(supplier)
@@ -219,12 +214,12 @@ object CoDecorators: KLoggingChannel() {
             supplier = timeLimiter.decorateSuspendFunction(supplier)
         }
 
-        fun <K> withCache(cache: Cache<K, T>): CoDecoratorForFunction1<K, T> {
-            return CoDecorators.ofFunction1(cache.decorateSuspendFunction { supplier() })
+        fun <K> withCache(cache: Cache<K, T>): DecoratorForSuspendFunction1<K, T> {
+            return SuspendDecorators.ofFunction1(cache.decorateSuspendFunction { supplier() })
         }
 
-        fun <K> withCoroutineCache(cache: Cache<K, T>): CoDecoratorForFunction1<K, T> {
-            return CoDecorators.ofFunction1(cache.decorateSuspendFunction { supplier() })
+        fun <K> withCoroutineCache(cache: Cache<K, T>): DecoratorForSuspendFunction1<K, T> {
+            return SuspendDecorators.ofFunction1(cache.decorateSuspendFunction { supplier() })
         }
 
         fun withFallback(handler: suspend (T?, Throwable?) -> T) = apply {
@@ -264,7 +259,7 @@ object CoDecorators: KLoggingChannel() {
         suspend fun invoke(): T = supplier()
     }
 
-    class CoDecoratorForFunction1<T, R>(private var func: suspend (T) -> R) {
+    class DecoratorForSuspendFunction1<T, R>(private var func: suspend (T) -> R) {
 
         fun withCircuitBreaker(circuitBreaker: CircuitBreaker) = apply {
             func = circuitBreaker.decorateSuspendFunction1(func)
@@ -293,14 +288,6 @@ object CoDecorators: KLoggingChannel() {
             func = cache.decorateSuspendFunction(func)
         }
 
-        @Deprecated(
-            message = "Use withSuspendCache instead",
-            replaceWith = ReplaceWith("withSuspendCache(coCache)")
-        )
-        fun withCoroutinesCache(coCache: CoCache<T, R>) = apply {
-            func = coCache.decorateSuspendFunction(func)
-        }
-
         fun withSuspendCache(suspendCache: SuspendCache<T, R>) = apply {
             func = suspendCache.decorateSuspendFunction(func)
         }
@@ -310,7 +297,7 @@ object CoDecorators: KLoggingChannel() {
         suspend fun invoke(input: T): R = func(input)
     }
 
-    class CoDecoratorForFunction2<T, U, R>(private var func: suspend (T, U) -> R) {
+    class DecoratorForSuspendFunction2<T, U, R>(private var func: suspend (T, U) -> R) {
 
         fun withCircuitBreaker(circuitBreaker: CircuitBreaker) = apply {
             func = circuitBreaker.decorateSuspendBiFunction(func)

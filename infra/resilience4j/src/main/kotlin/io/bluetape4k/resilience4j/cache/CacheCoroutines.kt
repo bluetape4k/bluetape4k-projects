@@ -25,7 +25,7 @@ suspend inline fun <K, V> withCache(
     key: K,
     crossinline loader: suspend (K) -> V,
 ): V {
-    return cache.executeSuspendedFunction(key, loader)
+    return cache.executeSuspendFunction(key, loader)
 }
 
 /**
@@ -40,12 +40,12 @@ suspend inline fun <K, V> withCache(
  *
  * @param loader 캐시에 저장할 로더
  * @return 캐시된 값을 반환하는 함수
- * @see executeSuspendedFunction
+ * @see executeSuspendFunction
  */
-inline fun <K, V> Cache<K, V>.decorateSuspendedFunction(
+inline fun <K, V> Cache<K, V>.decorateSuspendFunction(
     crossinline loader: suspend (K) -> V,
 ): suspend (K) -> V = { key: K ->
-    executeSuspendedFunction(key, loader)
+    executeSuspendFunction(key, loader)
 }
 
 /**
@@ -62,7 +62,7 @@ inline fun <K, V> Cache<K, V>.decorateSuspendedFunction(
  * @param loader 캐시에 저장할 로더
  * @return 캐시된 값
  */
-suspend inline fun <K, V> Cache<K, V>.executeSuspendedFunction(
+suspend inline fun <K, V> Cache<K, V>.executeSuspendFunction(
     key: K,
     crossinline loader: suspend (K) -> V,
 ): V = suspendCoroutine { cont ->
