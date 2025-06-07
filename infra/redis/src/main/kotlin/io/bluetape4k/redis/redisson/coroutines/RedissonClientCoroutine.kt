@@ -98,5 +98,8 @@ fun RedissonClient.getLockId(lockName: String): Long {
 
     val epochDay = LocalDate.now().toEpochDay()
     val sequenceName = "$LOCK_ID_NAME_PREFIX:$lockName:$epochDay"
-    return getAtomicLong(sequenceName).andIncrement
+
+    val atomicLong = getAtomicLong(sequenceName)
+    atomicLong.compareAndSet(0, System.currentTimeMillis())
+    return atomicLong.andIncrement
 }

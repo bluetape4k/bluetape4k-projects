@@ -1,7 +1,7 @@
 package io.bluetape4k.redis.redisson.leader.coroutines
 
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
-import io.bluetape4k.leader.coroutines.CoLeaderElection
+import io.bluetape4k.leader.coroutines.SuspendLeaderElection
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit
 class RedissonSuspendLeaderElection private constructor(
     private val redissonClient: RedissonClient,
     options: RedissonLeaderElectionOptions,
-): CoLeaderElection {
+): SuspendLeaderElection {
 
     companion object: KLoggingChannel() {
         /**

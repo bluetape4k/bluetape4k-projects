@@ -8,7 +8,6 @@ import kotlinx.coroutines.future.await
 import org.redisson.api.RFuture
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
-import java.util.concurrent.ForkJoinPool
 import kotlin.coroutines.coroutineContext
 
 /**
@@ -32,7 +31,7 @@ suspend fun <V> RFuture<V>.coAwait(): V = toCompletableFuture().await()
  * ```
  */
 fun <V> Iterable<RFuture<out V>>.sequence(
-    executor: Executor = ForkJoinPool.commonPool(),
+    executor: Executor = Dispatchers.IO.asExecutor(),
 ): CompletableFuture<List<V>> = map { it.toCompletableFuture() }.sequence(executor)
 
 

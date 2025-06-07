@@ -4,7 +4,7 @@ import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import io.bluetape4k.redis.redisson.leader.coroutines.RedissonCoLeaderElection
+import io.bluetape4k.redis.redisson.leader.coroutines.RedissonSuspendLeaderElection
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
 import org.amshove.kluent.shouldBeEqualTo
@@ -65,7 +65,7 @@ class RedissonClientCoroutineTest: AbstractRedissonCoroutineTest() {
         val map = redisson.getMap<String, String>(randomName())
 
         val lockName = randomName()
-        val leaderElection = RedissonCoLeaderElection(redissonClient)
+        val leaderElection = RedissonSuspendLeaderElection(redissonClient)
         val counter = atomic(0)
 
         try {
