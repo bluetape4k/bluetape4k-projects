@@ -1,6 +1,7 @@
 package io.bluetape4k.bucket4j.local
 
 import io.bluetape4k.bucket4j.coroutines.CoLocalBucket
+import io.bluetape4k.bucket4j.coroutines.SuspendedLocalBucket
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.github.bucket4j.BucketConfiguration
@@ -28,11 +29,7 @@ import io.github.bucket4j.TimeMeter
  *
  * @see CoLocalBucket
  */
-@Deprecated(
-    message = "Use LocalSuspendedBucketProvider instead",
-    replaceWith = ReplaceWith("LocalSuspendedBucketProvider(bucketConfiguration, keyPrefix)")
-)
-open class LocalCoBucketProvider(
+open class LocalSuspendedBucketProvider(
     bucketConfiguration: BucketConfiguration,
     keyPrefix: String = DEFAULT_KEY_PREFIX,
 ): AbstractLocalBucketProvider(bucketConfiguration, keyPrefix) {
@@ -44,10 +41,10 @@ open class LocalCoBucketProvider(
      *
      * @return [CoLocalBucket] 인스턴스
      */
-    override fun createBucket(): CoLocalBucket {
+    override fun createBucket(): SuspendedLocalBucket {
         log.debug { "Create CoLocalBucket ..." }
 
-        return CoLocalBucket(
+        return SuspendedLocalBucket(
             bucketConfiguration,
             MathType.INTEGER_64_BITS,
             TimeMeter.SYSTEM_MILLISECONDS

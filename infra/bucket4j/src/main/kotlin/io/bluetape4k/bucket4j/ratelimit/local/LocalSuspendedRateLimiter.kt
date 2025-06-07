@@ -1,8 +1,8 @@
 package io.bluetape4k.bucket4j.ratelimit.local
 
 import io.bluetape4k.bucket4j.local.LocalCoBucketProvider
-import io.bluetape4k.bucket4j.ratelimit.CoRateLimiter
 import io.bluetape4k.bucket4j.ratelimit.RateLimitResult
+import io.bluetape4k.bucket4j.ratelimit.SuspendedRateLimiter
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
@@ -23,13 +23,9 @@ import io.bluetape4k.support.requireNotBlank
  *
  * @property bucketProvider [LocalCoBucketProvider] 인스턴스
  */
-@Deprecated(
-    message = "Use `io.bluetape4k.bucket4j.ratelimit.local.LocalSuspendedRateLimiter` instead",
-    replaceWith = ReplaceWith("io.bluetape4k.bucket4j.ratelimit.local.LocalSuspendedRateLimiter")
-)
-class LocalCoRateLimiter(
+class LocalSuspendedRateLimiter(
     private val bucketProvider: LocalCoBucketProvider,
-): CoRateLimiter<String> {
+): SuspendedRateLimiter<String> {
 
     companion object: KLoggingChannel()
 
@@ -40,7 +36,7 @@ class LocalCoRateLimiter(
      * @param numToken 소비할 토큰 수
      * @return [RateLimitResult] 토큰 소비 결과
      */
-    override suspend fun coConsume(key: String, numToken: Long): RateLimitResult {
+    override suspend fun consume(key: String, numToken: Long): RateLimitResult {
         key.requireNotBlank("key")
         log.debug { "rate limit for key=$key, numToken=$numToken" }
 

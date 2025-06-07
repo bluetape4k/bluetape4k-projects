@@ -21,7 +21,7 @@ import kotlin.time.Duration.Companion.seconds
 /**
  * Coroutines Context에서 사용하는 [Bucket4j](https://github.com/bucket4j/bucket4j)'s [LockFreeBucket] 입니다.
  * [BlockingBucket](https://bucket4j.com/8.2.0/toc.html#blocking-bucket)과 의미론적으로 동등한 인터페이스를 구현합니다.
- * Bucket4j의 블로킹 동작은 CPU 블로킹을 하지만, [CoLocalBucket]은 대신 `delay`를  하여 코루틴 컨텍스트에서 안전하게 사용할 수 있습니다.
+ * Bucket4j의 블로킹 동작은 CPU 블로킹을 하지만, [SuspendedLocalBucket]은 대신 `delay`를  하여 코루틴 컨텍스트에서 안전하게 사용할 수 있습니다.
  *
  * ```
  *  val bucket = CoLocalBucket {
@@ -43,11 +43,7 @@ import kotlin.time.Duration.Companion.seconds
  * @param mathType 계산 단위
  * @param timeMeter 시간 측정 단위를 나타내는 [TimeMeter]
  */
-@Deprecated(
-    message = "Use `io.bluetape4k.bucket4j.coroutines.SuspendedLocalBucket` instead",
-    replaceWith = ReplaceWith("io.bluetape4k.bucket4j.coroutines.SuspendedLocalBucket")
-)
-class CoLocalBucket private constructor(
+class SuspendedLocalBucket private constructor(
     bucketConfiguration: BucketConfiguration,
     mathType: MathType,
     timeMeter: TimeMeter,
@@ -68,8 +64,8 @@ class CoLocalBucket private constructor(
             config: BucketConfiguration,
             mathType: MathType = DEFAULT_MATH_TYPE,
             timeMeter: TimeMeter = DEFAULT_TIME_METER,
-        ): CoLocalBucket {
-            return CoLocalBucket(config, mathType, timeMeter)
+        ): SuspendedLocalBucket {
+            return SuspendedLocalBucket(config, mathType, timeMeter)
         }
 
         @JvmStatic
@@ -77,7 +73,7 @@ class CoLocalBucket private constructor(
             mathType: MathType = DEFAULT_MATH_TYPE,
             timeMeter: TimeMeter = DEFAULT_TIME_METER,
             configurer: ConfigurationBuilder.() -> Unit,
-        ): CoLocalBucket {
+        ): SuspendedLocalBucket {
             return invoke(bucketConfiguration(configurer), mathType, timeMeter)
         }
     }
@@ -89,7 +85,7 @@ class CoLocalBucket private constructor(
      * @param maxWaitTime 최대 대기 시간
      * @return 최대 대기 시간까지 요청한 토큰을 받을 수 없다면 false를 반환한다
      */
-    suspend fun coTryConsume(tokensToConsume: Long = 1L, maxWaitTime: Duration = DEFAULT_MAX_WAIT_TIME): Boolean {
+    suspend fun tryConsume(tokensToConsume: Long = 1L, maxWaitTime: Duration = DEFAULT_MAX_WAIT_TIME): Boolean {
         LimitChecker.checkTokensToConsume(tokensToConsume)
         val maxWaitTimeNanos: Long = maxWaitTime.inWholeNanoseconds
         LimitChecker.checkMaxWaitTime(maxWaitTimeNanos)
@@ -117,7 +113,7 @@ class CoLocalBucket private constructor(
      *
      * @param tokensToConsume 소비할 Token 수
      */
-    suspend fun coConsume(tokensToConsume: Long = 1L) {
+    suspend fun consume(tokensToConsume: Long = 1L) {
         LimitChecker.checkTokensToConsume(tokensToConsume)
 
         val nanosToDelay: Long = reserveAndCalculateTimeToSleepImpl(tokensToConsume, INFINITY_DURATION)

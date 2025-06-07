@@ -9,8 +9,7 @@ import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
-@Deprecated("Use AbstractSuspendedRateLimiterTest instead")
-abstract class AbstractCoRateLimiterTest {
+abstract class AbstractSuspendedRateLimiterTest {
 
     companion object: KLogging() {
         internal const val INITIAL_CAPACITY = 10L
@@ -25,7 +24,7 @@ abstract class AbstractCoRateLimiterTest {
         }
     }
 
-    abstract val rateLimiter: CoRateLimiter<String>
+    abstract val rateLimiter: SuspendedRateLimiter<String>
 
     protected fun randomKey(): String = "bucket-" + Base58.randomString(6)
 
@@ -35,14 +34,14 @@ abstract class AbstractCoRateLimiterTest {
 
         val token = 5L
         // 초기 Token = 10 개, 5개를 소모한다 
-        val result = rateLimiter.coConsume(key, token)
+        val result = rateLimiter.consume(key, token)
         // 5개 소모, 5개 남음
         result shouldBeEqualTo RateLimitResult(token, INITIAL_CAPACITY - token)
 
         // 10개 소비를 요청 -> 5개만 남았으므로 0개 소비한 것으로 반환
-        rateLimiter.coConsume(key, INITIAL_CAPACITY) shouldBeEqualTo RateLimitResult(0, result.availableTokens)
+        rateLimiter.consume(key, INITIAL_CAPACITY) shouldBeEqualTo RateLimitResult(0, result.availableTokens)
 
         // 나머지 토큰 모두를 소비하면, 유효한 토큰이 0개임 
-        rateLimiter.coConsume(key, result.availableTokens) shouldBeEqualTo RateLimitResult(result.availableTokens, 0)
+        rateLimiter.consume(key, result.availableTokens) shouldBeEqualTo RateLimitResult(result.availableTokens, 0)
     }
 }

@@ -1,8 +1,8 @@
 package io.bluetape4k.bucket4j.ratelimit.distributed
 
 import io.bluetape4k.bucket4j.distributed.AsyncBucketProxyProvider
-import io.bluetape4k.bucket4j.ratelimit.CoRateLimiter
 import io.bluetape4k.bucket4j.ratelimit.RateLimitResult
+import io.bluetape4k.bucket4j.ratelimit.SuspendedRateLimiter
 import io.bluetape4k.coroutines.support.coAwait
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -24,13 +24,9 @@ import kotlinx.coroutines.future.await
  *
  * @property asyncBucketProxyProvider [AsyncBucketProxyProvider] 인스턴스
  */
-@Deprecated(
-    message = "Use `io.bluetape4k.bucket4j.ratelimit.distributed.DistributedSuspendedRateLimiter` instead",
-    replaceWith = ReplaceWith("io.bluetape4k.bucket4j.ratelimit.distributed.DistributedSuspendedRateLimiter")
-)
-class DistributedCoRateLimiter(
+class DistributedSuspendedRateLimiter(
     private val asyncBucketProxyProvider: AsyncBucketProxyProvider,
-): CoRateLimiter<String> {
+): SuspendedRateLimiter<String> {
 
     companion object: KLoggingChannel()
 
@@ -41,7 +37,7 @@ class DistributedCoRateLimiter(
      * @param numToken 소비할 토큰 수
      * @return [RateLimitResult] 토큰 소비 결과
      */
-    override suspend fun coConsume(key: String, numToken: Long): RateLimitResult {
+    override suspend fun consume(key: String, numToken: Long): RateLimitResult {
         key.requireNotBlank("key")
         log.debug { "rate limit for key=$key, numToken=$numToken" }
 

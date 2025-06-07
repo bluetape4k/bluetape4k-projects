@@ -5,11 +5,7 @@ package io.bluetape4k.bucket4j.ratelimit
  *
  * @param K  Key 수형
  */
-@Deprecated(
-    message = "Use `io.bluetape4k.bucket4j.ratelimit.SuspendedRateLimiter` instead",
-    replaceWith = ReplaceWith("io.bluetape4k.bucket4j.ratelimit.SuspendedRateLimiter")
-)
-interface CoRateLimiter<K> {
+interface SuspendedRateLimiter<K> {
 
     /**
      * [key] 기준으로 [numToken] 갯수만큼 소비합니다. 결과는 [RateLimitResult]로 반환됩니다.
@@ -18,6 +14,6 @@ interface CoRateLimiter<K> {
      * @param numToken 소비할 토큰 수
      * @return [RateLimitResult] 토큰 소비 결과
      */
-    suspend fun coConsume(key: K, numToken: Long = 1): RateLimitResult
+    suspend fun consume(key: K, numToken: Long = 1): RateLimitResult
 
 }
