@@ -1,7 +1,5 @@
-package io.bluetape4k.fastjson2.model
+package io.bluetape4k.fastjson2
 
-import io.bluetape4k.fastjson2.AbstractJsonSerializerTest
-import io.bluetape4k.fastjson2.FastjsonSerializer
 import io.bluetape4k.json.JsonSerializer
 
 class FastjsonSerializerTest: AbstractJsonSerializerTest() {
