@@ -1,21 +1,18 @@
 package io.bluetape4k.io.okio.coroutines.internal
 
-import io.bluetape4k.io.okio.coroutines.AsyncSource
+import io.bluetape4k.io.okio.coroutines.SuspendSource
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okio.Buffer
 import okio.Source
 import okio.Timeout
 import kotlin.coroutines.CoroutineContext
 
-@Deprecated(
-    "Use ForwardingSuspendSource instead",
-    ReplaceWith("ForwardingSuspendSource(delegate, context)"),
-)
-internal class ForwardingAsyncSource(
+internal class ForwardingSuspendSource(
     val delegate: Source,
-    private val context: CoroutineContext,
-): AsyncSource {
+    private val context: CoroutineContext = Dispatchers.IO,
+): SuspendSource {
 
     companion object: KLoggingChannel()
 

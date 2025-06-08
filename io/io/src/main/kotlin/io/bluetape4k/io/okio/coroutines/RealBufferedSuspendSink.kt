@@ -7,25 +7,24 @@ import okio.ByteString
 import okio.Timeout
 import java.util.concurrent.atomic.AtomicBoolean
 
-@Deprecated("Use RealBufferedSuspendSink instead.", ReplaceWith("RealBufferedSuspendSink"))
-internal class RealBufferedAsyncSink(
-    private val sink: AsyncSink,
-): BufferedAsyncSink {
+internal class RealBufferedSuspendSink(
+    private val sink: SuspendSink,
+): BufferedSuspendSink {
 
     companion object: KLoggingChannel()
 
     private var closed = AtomicBoolean(false)
     override val buffer = Buffer()
 
-    override suspend fun write(byteString: ByteString): BufferedAsyncSink {
+    override suspend fun write(byteString: ByteString): BufferedSuspendSink {
         return emitCompleteSegments { buffer.write(byteString) }
     }
 
-    override suspend fun write(source: ByteArray, offset: Int, byteCount: Int): BufferedAsyncSink {
+    override suspend fun write(source: ByteArray, offset: Int, byteCount: Int): BufferedSuspendSink {
         return emitCompleteSegments { buffer.write(source, offset, byteCount) }
     }
 
-    override suspend fun write(source: AsyncSource, byteCount: Long): BufferedAsyncSink = apply {
+    override suspend fun write(source: SuspendSource, byteCount: Long) = apply {
         checkNotClosed()
         var remaining = byteCount
         while (remaining > 0L) {
@@ -40,7 +39,7 @@ internal class RealBufferedAsyncSink(
         emitCompleteSegments { buffer.write(source, byteCount) }
     }
 
-    override suspend fun writeAll(source: AsyncSource): Long {
+    override suspend fun writeAll(source: SuspendSource): Long {
         checkNotClosed()
         var totalBytesRead = 0L
         while (true) {
@@ -52,47 +51,51 @@ internal class RealBufferedAsyncSink(
         return totalBytesRead
     }
 
-    override suspend fun writeUtf8(string: String, beginIndex: Int, endIndex: Int): BufferedAsyncSink {
-        return emitCompleteSegments { buffer.writeUtf8(string, beginIndex, endIndex) }
+    override suspend fun writeUtf8(
+        string: String,
+        beginIndex: Int,
+        endIndex: Int,
+    ) = emitCompleteSegments {
+        buffer.writeUtf8(string, beginIndex, endIndex)
     }
 
-    override suspend fun writeUtf8CodePoint(codePoint: Int): BufferedAsyncSink {
-        return emitCompleteSegments { buffer.writeUtf8CodePoint(codePoint) }
+    override suspend fun writeUtf8CodePoint(codePoint: Int) = emitCompleteSegments {
+        buffer.writeUtf8CodePoint(codePoint)
     }
 
-    override suspend fun writeByte(b: Int): BufferedAsyncSink = emitCompleteSegments {
+    override suspend fun writeByte(b: Int) = emitCompleteSegments {
         buffer.writeByte(b)
     }
 
-    override suspend fun writeShort(s: Int): BufferedAsyncSink = emitCompleteSegments {
+    override suspend fun writeShort(s: Int) = emitCompleteSegments {
         buffer.writeShort(s)
     }
 
-    override suspend fun writeShortLe(s: Int): BufferedAsyncSink = emitCompleteSegments {
+    override suspend fun writeShortLe(s: Int) = emitCompleteSegments {
         buffer.writeShortLe(s)
     }
 
-    override suspend fun writeInt(i: Int): BufferedAsyncSink = emitCompleteSegments {
+    override suspend fun writeInt(i: Int) = emitCompleteSegments {
         buffer.writeInt(i)
     }
 
-    override suspend fun writeIntLe(i: Int): BufferedAsyncSink = emitCompleteSegments {
+    override suspend fun writeIntLe(i: Int) = emitCompleteSegments {
         buffer.writeIntLe(i)
     }
 
-    override suspend fun writeLong(v: Long): BufferedAsyncSink = emitCompleteSegments {
+    override suspend fun writeLong(v: Long) = emitCompleteSegments {
         buffer.writeLong(v)
     }
 
-    override suspend fun writeLongLe(v: Long): BufferedAsyncSink = emitCompleteSegments {
+    override suspend fun writeLongLe(v: Long) = emitCompleteSegments {
         buffer.writeLongLe(v)
     }
 
-    override suspend fun writeDecimalLong(v: Long): BufferedAsyncSink = emitCompleteSegments {
+    override suspend fun writeDecimalLong(v: Long) = emitCompleteSegments {
         buffer.writeDecimalLong(v)
     }
 
-    override suspend fun writeHexadecimalUnsignedLong(v: Long): BufferedAsyncSink = emitCompleteSegments {
+    override suspend fun writeHexadecimalUnsignedLong(v: Long) = emitCompleteSegments {
         buffer.writeHexadecimalUnsignedLong(v)
     }
 
@@ -104,13 +107,13 @@ internal class RealBufferedAsyncSink(
         sink.flush()
     }
 
-    override suspend fun emit(): BufferedAsyncSink = apply {
+    override suspend fun emit() = apply {
         checkNotClosed()
         val byteCount = buffer.size
         if (byteCount > 0L) sink.write(buffer, byteCount)
     }
 
-    override suspend fun emitCompleteSegments(): BufferedAsyncSink = emitCompleteSegments {
+    override suspend fun emitCompleteSegments() = emitCompleteSegments {
         // Nothing to do 
     }
 
@@ -143,7 +146,7 @@ internal class RealBufferedAsyncSink(
 
     override fun toString(): String = "buffer($sink)"
 
-    private suspend inline fun emitCompleteSegments(block: () -> Unit): BufferedAsyncSink = apply {
+    private suspend inline fun emitCompleteSegments(block: () -> Unit): BufferedSuspendSink = apply {
         checkNotClosed()
         block()
         val byteCount = buffer.completeSegmentByteCount()
@@ -151,6 +154,6 @@ internal class RealBufferedAsyncSink(
     }
 
     private fun checkNotClosed() {
-        check(!closed.get()) { "RealBufferedAsyncSync is closed" }
+        check(!closed.get()) { "RealBufferedSuspendSync is closed" }
     }
 }

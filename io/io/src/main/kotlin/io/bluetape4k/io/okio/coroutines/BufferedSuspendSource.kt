@@ -9,11 +9,7 @@ import okio.Options
  * penalty. It also allows clients to read ahead, buffering as much as necessary before consuming
  * input.
  */
-@Deprecated(
-    "Use BufferedSuspendSource instead.",
-    ReplaceWith("BufferedSuspendSource")
-)
-interface BufferedAsyncSource: AsyncSource {
+interface BufferedSuspendSource: SuspendSource {
 
     /**
      * 이 Source의 내부 버퍼.
@@ -330,7 +326,7 @@ interface BufferedAsyncSource: AsyncSource {
      * @param sink 읽은 byte array를 저장할 대상
      * @return `sink`에 쓴 총 바이트 수를 반환한다. 이 source가 exhausted 되면 0을 반환한다
      */
-    suspend fun readAll(sink: AsyncSink): Long
+    suspend fun readAll(sink: SuspendSink): Long
 
     /**
      * 이 소스의 모든 bytes를 읽어서 UTF-8로 디코딩하여 문자열로 반환한다.
@@ -495,7 +491,7 @@ interface BufferedAsyncSource: AsyncSource {
     suspend fun rangeEquals(offset: Long, bytes: ByteString, bytesOffset: Int = 0, byteCount: Int = bytes.size): Boolean
 
     /**
-     * 이 `BufferedAsyncSource`의 소비없이 데이터를 읽을 수 있는 새로운 `BufferedAsyncSource`를 반환한다.
+     * 이 [BufferedSuspendSource]의 소비없이 데이터를 읽을 수 있는 새로운 [BufferedSuspendSource]를 반환한다.
      *
      * 반환된 소스는 이 소스의 데이터를 읽을 수 있지만, 이 소스가 다음에 읽히거나 닫히면 더 이상 유효하지 않다.
      *
@@ -514,5 +510,5 @@ interface BufferedAsyncSource: AsyncSource {
      * buffer.readUtf8(3) // returns "def", buffer contains "ghi"
      * ```
      */
-    fun peek(): BufferedAsyncSource
+    fun peek(): BufferedSuspendSource
 }

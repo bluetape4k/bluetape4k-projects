@@ -11,13 +11,9 @@ import okio.Options
 import okio.Timeout
 import java.util.concurrent.atomic.AtomicBoolean
 
-@Deprecated(
-    "Use RealBufferedSuspendSource instead.",
-    ReplaceWith("RealBufferedSuspendSource")
-)
-internal class RealBufferedAsyncSource(
-    private val source: AsyncSource,
-): BufferedAsyncSource {
+internal class RealBufferedSuspendSource(
+    private val source: SuspendSource,
+): BufferedSuspendSource {
 
     companion object: KLoggingChannel()
 
@@ -239,7 +235,7 @@ internal class RealBufferedAsyncSource(
         buffer.readFully(sink, byteCount)
     }
 
-    override suspend fun readAll(sink: AsyncSink): Long {
+    override suspend fun readAll(sink: SuspendSink): Long {
         checkNotClosed()
         var totalBytesWritten = 0L
         while (source.read(buffer, SEGMENT_SIZE) != -1L) {
@@ -374,7 +370,7 @@ internal class RealBufferedAsyncSource(
         return true
     }
 
-    override fun peek(): BufferedAsyncSource {
+    override fun peek(): BufferedSuspendSource {
         TODO("Not yet implemented")
     }
 
@@ -387,7 +383,7 @@ internal class RealBufferedAsyncSource(
     }
 
     private fun checkNotClosed() {
-        check(!closed.get()) { "RealBufferedAsyncSource is closed" }
+        check(!closed.get()) { "RealBufferedSuspendSource is closed" }
     }
 
     internal fun Buffer.readUtf8Line(newline: Long): String = when {

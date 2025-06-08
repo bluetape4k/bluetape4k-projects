@@ -1,6 +1,6 @@
 package io.bluetape4k.io.okio.coroutines.internal
 
-import io.bluetape4k.io.okio.coroutines.AsyncSink
+import io.bluetape4k.io.okio.coroutines.SuspendSink
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.runBlocking
 import okio.Buffer
@@ -8,7 +8,7 @@ import okio.Sink
 import okio.Timeout
 
 internal class ForwardingSink(
-    val delegate: AsyncSink,
+    val delegate: SuspendSink,
 ): Sink {
 
     companion object: KLoggingChannel()

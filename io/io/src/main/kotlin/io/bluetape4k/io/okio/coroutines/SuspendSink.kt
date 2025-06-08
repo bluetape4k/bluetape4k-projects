@@ -6,11 +6,7 @@ import okio.Timeout
 /**
  * Coroutines 방식으로 비동기로 [okio.Sink] 기능을 제공하는 인터페이스
  */
-@Deprecated(
-    "Use SuspendSink instead.",
-    ReplaceWith("SuspendSink")
-)
-interface AsyncSink {
+interface SuspendSink {
 
     /**
      * [source]로부터 `byteCount` 바이트를 제거하고 이를 현재 Sink에 추가합니다.
@@ -37,9 +33,6 @@ interface AsyncSink {
 }
 
 /**
- * [AsyncSink]에 버퍼링하여 쓰기를 수행합니다.
+ * [SuspendSink]에 버퍼링하여 쓰기를 수행합니다.
  */
-fun AsyncSink.buffered(): BufferedAsyncSink = RealBufferedAsyncSink(this)
-
-@Deprecated("Use AsyncSink.buffered() instead.", ReplaceWith("buffered()"))
-fun AsyncSink.buffer(): BufferedAsyncSink = RealBufferedAsyncSink(this)
+fun SuspendSink.buffered(): BufferedSuspendSink = RealBufferedSuspendSink(this)

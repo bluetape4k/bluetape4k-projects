@@ -6,11 +6,7 @@ import okio.Timeout
 /**
  * Coroutines 방식으로 [okio.Source] 기능을 제공하는 인터페이스
  */
-@Deprecated(
-    "Use SuspendSource instead.",
-    ReplaceWith("SuspendSource")
-)
-interface AsyncSource {
+interface SuspendSource {
 
     /**
      * 이 소스에서 최소 1바이트 이상, 최대 `byteCount` 바이트를 제거하고 `sink`에 추가합니다.
@@ -38,7 +34,4 @@ interface AsyncSource {
  * 반환된 소스는 메모리 버퍼로 대량 읽기를 수행합니다.
  * 데이터에 대한 편리하고 효율적인 액세스를 얻으려면 소스를 읽는 모든 곳에서 이를 사용하십시오.
  */
-fun AsyncSource.buffered(): BufferedAsyncSource = RealBufferedAsyncSource(this)
-
-@Deprecated("Use AsyncSource.buffered() instead.", ReplaceWith("buffered()"))
-fun AsyncSource.buffer(): BufferedAsyncSource = RealBufferedAsyncSource(this)
+fun SuspendSource.buffered(): BufferedSuspendSource = RealBufferedSuspendSource(this)
