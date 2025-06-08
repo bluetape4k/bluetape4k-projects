@@ -21,7 +21,7 @@ class RFutureSupportTest: AbstractRedissonCoroutineTest() {
     fun `put async and get by sequence`() = runSuspendIO {
         val map = redisson.getMap<Int, Int>(randomName())
 
-        // 이것보다 RBatch 를 이용하는 게 낫다 ㅋ
+        // 당연하게도 아무리 비동기라도 round-trip이 많은 것보다 RBatch 가 낫다. 또는 `putAllAsync` 를 이용하는 게 낫다
         val futures: List<RFuture<Int>> = List(ITEM_COUNT) {
             map.putAsync(it, it)
         }
@@ -35,23 +35,23 @@ class RFutureSupportTest: AbstractRedissonCoroutineTest() {
     fun `run async operations with awaitSuspend`() = runSuspendIO {
         val map = redisson.getMap<Int, Int>(randomName())
 
-        // 당연하게도 아무리 비동기라도 round-trip이 많은 것보다 RBatch 가 낫다 ㅋ
+        // 당연하게도 아무리 비동기라도 round-trip이 많은 것보다 RBatch 가 낫다. 또는 `putAllAsync` 를 이용하는 게 낫다
         val defers = List(ITEM_COUNT) {
             async(Dispatchers.IO) {
-                map.putAsync(it, it).coAwait()
+                map.putAsync(it, it).awaitSuspend()
             }
         }
         val lists: List<Int> = defers.awaitAll()
         lists.size shouldBeEqualTo ITEM_COUNT
 
-        map.deleteAsync().coAwait()
+        map.deleteAsync().awaitSuspend()
     }
 
     @RepeatedTest(REPEAT_SIZE)
     fun `put suspended and awaitAll`() = runSuspendIO {
         val map = redisson.getMap<Int, Int>(randomName())
 
-        // 당연하게도 아무리 비동기라도 round-trip이 많은 것보다 RBatch 가 낫다 ㅋ
+        // 당연하게도 아무리 비동기라도 round-trip이 많은 것보다 RBatch 가 낫다. 또는 `putAllAsync` 를 이용하는 게 낫다
         val futures: List<RFuture<Int>> = List(ITEM_COUNT) {
             map.putAsync(it, it)
         }
@@ -59,6 +59,21 @@ class RFutureSupportTest: AbstractRedissonCoroutineTest() {
         val lists: List<Int> = futures.awaitAll()
 
         lists.size shouldBeEqualTo ITEM_COUNT
-        map.deleteAsync().coAwait()
+        map.deleteAsync().awaitSuspend()
+    }
+
+    @RepeatedTest(REPEAT_SIZE)
+    fun `putAll async and get by sequence`() = runSuspendIO {
+        val map = redisson.getMap<Int, Int>(randomName())
+
+        val items = (0 until ITEM_COUNT).associateWith { it }
+
+        // 당연하게도 아무리 비동기라도 round-trip이 많은 것보다 RBatch 가 낫다. 또는 `putAllAsync` 를 이용하는 게 낫다
+        map.putAllAsync(items).awaitSuspend()
+
+        val lists = map.getAllAsync(items.keys).awaitSuspend()
+        lists shouldBeEqualTo items
+        lists.size shouldBeEqualTo ITEM_COUNT
+        map.deleteAsync().awaitSuspend()
     }
 }
