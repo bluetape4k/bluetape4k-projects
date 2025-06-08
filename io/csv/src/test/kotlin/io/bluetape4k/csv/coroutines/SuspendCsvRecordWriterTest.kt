@@ -8,14 +8,14 @@ import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
 import java.io.StringWriter
 
-class CoCsvRecordWriterTest {
+class SuspendCsvRecordWriterTest {
 
     companion object: KLoggingChannel()
 
     @Test
     fun `write rows`() = runSuspendIO {
         StringWriter().use { sw ->
-            CoCsvRecordWriter(sw).use { writer ->
+            SuspendCsvRecordWriter(sw).use { writer ->
                 val rows = listOf(
                     listOf("row1", 1, 2, "3, 3"),
                     listOf("row2  ", 4, null, "6,6")
@@ -34,7 +34,7 @@ class CoCsvRecordWriterTest {
     @Test
     fun `write rows as Flow with headers`() = runSuspendIO {
         StringWriter().use { sw ->
-            CoCsvRecordWriter(sw).use { writer ->
+            SuspendCsvRecordWriter(sw).use { writer ->
                 writer.writeHeaders("col1", "col2", "col3", "col4")
                 val rows = flow<List<Any>> {
                     repeat(10) {

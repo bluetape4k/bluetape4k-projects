@@ -2,11 +2,11 @@ package io.bluetape4k.csv.coroutines
 
 import com.univocity.parsers.common.record.Record
 import io.bluetape4k.csv.model.ProductType
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import io.bluetape4k.utils.Resourcex
 import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldNotBeBlank
 import org.amshove.kluent.shouldNotBeEmpty
@@ -14,11 +14,11 @@ import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import kotlin.text.Charsets.UTF_8
 
-abstract class AbstractCoRecordReaderTest {
+abstract class AbstractSuspendRecordReaderTest {
 
     companion object: KLoggingChannel()
 
-    protected abstract val reader: CoRecordReader
+    protected abstract val reader: SuspendRecordReader
 
     protected abstract val productTypePath: String
     protected abstract val extraWordsPath: String
@@ -44,7 +44,7 @@ abstract class AbstractCoRecordReaderTest {
     }
 
     @Test
-    fun `read record from csv file with number types`() = runTest {
+    fun `read record from csv file with number types`() = runSuspendIO {
         Resourcex.getInputStream(productTypePath)!!.buffered().use { input ->
             reader
                 .read(input, UTF_8, true)
@@ -61,7 +61,7 @@ abstract class AbstractCoRecordReaderTest {
     }
 
     @Test
-    fun `read product type from csv file with mapper`() = runTest {
+    fun `read product type from csv file with mapper`() = runSuspendIO {
         Resourcex.getInputStream(productTypePath)!!.buffered().use { input ->
             reader
                 .read(input, UTF_8, true, mapper)
@@ -76,9 +76,8 @@ abstract class AbstractCoRecordReaderTest {
     }
 
     @Test
-    fun `read extra words from csv file `() = runTest {
+    fun `read extra words from csv file `() = runSuspendIO {
         Resourcex.getInputStream(extraWordsPath)!!.buffered().use { input ->
-
             reader
                 .read(input, UTF_8, true)
                 .buffer()

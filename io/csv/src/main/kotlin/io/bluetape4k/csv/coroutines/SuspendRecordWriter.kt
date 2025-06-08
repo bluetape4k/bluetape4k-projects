@@ -15,11 +15,7 @@ import java.io.Closeable
  * writer.close()
  * ```
  */
-@Deprecated(
-    message = "Use SuspendRecordWriter instead.",
-    replaceWith = ReplaceWith("SuspendRecordWriter")
-)
-interface CoRecordWriter: Closeable {
+interface SuspendRecordWriter: Closeable {
 
     suspend fun writeHeaders(headers: Iterable<String>)
 

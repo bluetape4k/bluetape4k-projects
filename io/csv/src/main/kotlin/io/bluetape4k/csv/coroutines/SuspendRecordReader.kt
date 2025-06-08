@@ -22,11 +22,7 @@ import java.nio.charset.Charset
  * ```
  *
  */
-@Deprecated(
-    message = "Use SuspendRecordReader instead. This will be removed in future versions.",
-    replaceWith = ReplaceWith("SuspendRecordReader")
-)
-interface CoRecordReader: Closeable {
+interface SuspendRecordReader: Closeable {
 
     /**
      * CSV 나 TSV 등의 파일을 읽어드립니다.

@@ -21,6 +21,10 @@ import java.io.Writer
  *
  * @property writer TSV writer
  */
+@Deprecated(
+    message = "Use SuspendTsvRecordWriter instead",
+    replaceWith = ReplaceWith("SuspendTsvRecordWriter(writer, settings)")
+)
 class CoTsvRecordWriter private constructor(
     private val writer: TsvWriter,
 ): CoRecordWriter {

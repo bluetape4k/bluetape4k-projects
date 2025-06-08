@@ -21,25 +21,21 @@ import java.io.Writer
  *
  * @property writer CSV writer
  */
-@Deprecated(
-    message = "Use SuspendCsvRecordWriter instead",
-    replaceWith = ReplaceWith("SuspendCsvRecordWriter(writer, settings)")
-)
-class CoCsvRecordWriter private constructor(
+class SuspendCsvRecordWriter private constructor(
     private val writer: CsvWriter,
-): CoRecordWriter {
+): SuspendRecordWriter {
 
     companion object: KLoggingChannel() {
         @JvmStatic
-        operator fun invoke(writer: CsvWriter): CoCsvRecordWriter {
-            return CoCsvRecordWriter(writer)
+        operator fun invoke(writer: CsvWriter): SuspendCsvRecordWriter {
+            return SuspendCsvRecordWriter(writer)
         }
 
         @JvmStatic
         operator fun invoke(
             writer: Writer,
             settings: CsvWriterSettings = DefaultCsvWriterSettings,
-        ): CoCsvRecordWriter {
+        ): SuspendCsvRecordWriter {
             return invoke(CsvWriter(writer, settings))
         }
     }

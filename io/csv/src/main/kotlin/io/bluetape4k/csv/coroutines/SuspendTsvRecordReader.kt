@@ -6,7 +6,9 @@ import com.univocity.parsers.tsv.TsvParserSettings
 import io.bluetape4k.csv.DefaultTsvParserSettings
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.map
 import java.io.InputStream
 import java.nio.charset.Charset
 
@@ -27,13 +29,9 @@ import java.nio.charset.Charset
  *
  * @property settings TSV 파서 설정
  */
-@Deprecated(
-    message = "Use SuspendRecordReader instead. This will be removed in future versions.",
-    replaceWith = ReplaceWith("SuspendRecordReader")
-)
-class CoTsvRecordReader(
+class SuspendTsvRecordReader(
     private val settings: TsvParserSettings = DefaultTsvParserSettings,
-): CoRecordReader {
+): SuspendRecordReader {
 
     companion object: KLoggingChannel()
 
@@ -42,14 +40,12 @@ class CoTsvRecordReader(
         encoding: Charset,
         skipHeaders: Boolean,
         recordMapper: (Record) -> T,
-    ): Flow<T> = flow {
-        val parser = TsvParser(settings)
-
-        parser.iterateRecords(input, encoding)
+    ): Flow<T> {
+        return TsvParser(settings)
+            .iterateRecords(input, encoding)
+            .asFlow()
             .drop(if (skipHeaders) 1 else 0)
-            .forEach { record ->
-                emit(recordMapper(record))
-            }
+            .map { recordMapper(it) }
     }
 
     override fun close() {
