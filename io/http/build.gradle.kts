@@ -52,6 +52,11 @@ dependencies {
     compileOnly(Libs.jackson_module_kotlin)
     compileOnly(Libs.jackson_module_blackbird)
 
+    // Fastjson2
+    compileOnly(project(":bluetape4k-fastjson2"))
+    compileOnly(Libs.fastjson2)
+    compileOnly(Libs.fastjson2_kotlin)
+
     // Reactor
     testImplementation(Libs.reactor_core)
     testImplementation(Libs.reactor_kotlin_extensions)

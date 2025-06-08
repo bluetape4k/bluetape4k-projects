@@ -1,5 +1,7 @@
 package io.bluetape4k.http.okhttp3.examples
 
+import com.alibaba.fastjson2.toJSONByteArray
+import com.alibaba.fastjson2.toJSONString
 import io.bluetape4k.concurrent.onFailure
 import io.bluetape4k.concurrent.onSuccess
 import io.bluetape4k.http.AbstractHttpTest
@@ -98,7 +100,7 @@ class Recipes: AbstractHttpTest() {
     }
 
     @Test
-    fun `동기방식 HTTP POST with String`(@RandomValue post: Post) {
+    fun `동기방식 HTTP POST with String with Jackson`(@RandomValue post: Post) {
         val mapper = Jackson.defaultJsonMapper
         val json = mapper.writeValueAsString(post)
 
@@ -114,9 +116,39 @@ class Recipes: AbstractHttpTest() {
     }
 
     @Test
-    fun `동기방식 HTTP POST with ByteArray`(@RandomValue post: Post) {
+    fun `동기방식 HTTP POST with ByteArray with Jackson`(@RandomValue post: Post) {
         val mapper = Jackson.defaultJsonMapper
         val json = mapper.writeValueAsBytes(post)
+
+        val request = Request.Builder()
+            .url("$JSON_PLACEHOLDER_URL/posts")
+            .post(json.toRequestBody("application/json".toMediaTypeOrNull(), 0, json.size))
+            .build()
+
+        val response = client.newCall(request).execute()
+
+        assertResponse(response)
+        log.debug { response.bodyAsString() }
+    }
+
+    @Test
+    fun `동기방식 HTTP POST with String with Fastjson2`(@RandomValue post: Post) {
+        val json = post.toJSONString()
+
+        val request = Request.Builder()
+            .url("$JSON_PLACEHOLDER_URL/posts")
+            .post(json.toRequestBody("application/json".toMediaTypeOrNull()))
+            .build()
+
+        val response = client.newCall(request).execute()
+
+        assertResponse(response)
+        log.debug { response.bodyAsString() }
+    }
+
+    @Test
+    fun `동기방식 HTTP POST with ByteArray with Fastjson2`(@RandomValue post: Post) {
+        val json = post.toJSONByteArray()
 
         val request = Request.Builder()
             .url("$JSON_PLACEHOLDER_URL/posts")
