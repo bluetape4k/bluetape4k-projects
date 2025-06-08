@@ -30,7 +30,7 @@ fun Socket.asAsyncSource(): AsyncSource {
             read.toLong()
         }
 
-        override suspend fun close() = coroutineScope {
+        override suspend fun close() {
             channel.close()
         }
 
@@ -69,7 +69,7 @@ fun Socket.asAsyncSink(): AsyncSink {
             // Nothing to do
         }
 
-        override suspend fun close() = coroutineScope {
+        override suspend fun close() {
             channel.close()
         }
 

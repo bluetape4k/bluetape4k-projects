@@ -38,6 +38,7 @@ dependencies {
     api(Libs.okio)
 
     // Coroutines
+    api(project(":bluetape4k-coroutines"))
     api(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)
 

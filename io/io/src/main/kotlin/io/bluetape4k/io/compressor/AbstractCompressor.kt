@@ -34,7 +34,7 @@ abstract class AbstractCompressor: Compressor {
         return try {
             doCompress(plain!!)
         } catch (e: Throwable) {
-            log.warn(e) { "Fail to compress. plain=$plain" }
+            log.warn(e) { "Fail to compress." }
             emptyByteArray
         }
     }

@@ -52,7 +52,7 @@ class ZstdCompressor private constructor(val level: Int): AbstractCompressor() {
             level
         )
 
-        return output.copyOfRange(0, MAGIC_NUMBER_SIZE + compressedSize.toInt())
+        return output.copyOf(MAGIC_NUMBER_SIZE + compressedSize.toInt())
     }
 
     override fun doDecompress(compressed: ByteArray): ByteArray {

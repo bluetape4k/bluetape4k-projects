@@ -34,4 +34,7 @@ interface AsyncSource {
  * 반환된 소스는 메모리 버퍼로 대량 읽기를 수행합니다.
  * 데이터에 대한 편리하고 효율적인 액세스를 얻으려면 소스를 읽는 모든 곳에서 이를 사용하십시오.
  */
+fun AsyncSource.buffered(): BufferedAsyncSource = RealBufferedAsyncSource(this)
+
+@Deprecated("Use AsyncSource.buffered() instead.", ReplaceWith("buffered()"))
 fun AsyncSource.buffer(): BufferedAsyncSource = RealBufferedAsyncSource(this)

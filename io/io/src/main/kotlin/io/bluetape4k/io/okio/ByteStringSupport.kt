@@ -18,5 +18,6 @@ fun byteStringOf(byteArray: ByteArray): ByteString = ByteString.of(*byteArray)
 /**
  * [text]를 가지는 [ByteString] 인스턴스를 생성합니다.
  */
+@JvmName("byteStringOfText")
 fun byteStringOf(text: String, charset: Charset = Charsets.UTF_8): ByteString =
     byteStringOf(text.toByteArray(charset))

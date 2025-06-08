@@ -70,12 +70,25 @@ fun bufferOf(source: Buffer, offset: Long = 0L, size: Long = source.size): Buffe
     }
 }
 
+/**
+ * [source] 내용을 복사한 [Buffer]를 생성합니다.
+ *
+ * @param source 복사할 [Source]
+ * @return [Buffer] 인스턴스
+ */
 fun bufferOf(source: Source): Buffer {
     return Buffer().apply {
         writeAll(source)
     }
 }
 
+/**
+ * [source]에서 최대 `byteCount` 바이트를 읽어 [Buffer]를 생성합니다.
+ *
+ * @param source 읽을 [Source]
+ * @param byteCount 읽을 바이트 수
+ * @return [Buffer] 인스턴스
+ */
 fun bufferOf(source: Source, byteCount: Long): Buffer {
     return Buffer().apply {
         write(source, byteCount)

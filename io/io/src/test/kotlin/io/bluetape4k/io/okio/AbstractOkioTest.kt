@@ -8,6 +8,7 @@ import java.util.*
 abstract class AbstractOkioTest {
 
     companion object: KLogging() {
+        @JvmStatic
         val faker = Faker(Locale.getDefault())
     }
 

@@ -32,4 +32,10 @@ interface AsyncSink {
     suspend fun timeout(): Timeout
 }
 
+/**
+ * [AsyncSink]에 버퍼링하여 쓰기를 수행합니다.
+ */
+fun AsyncSink.buffered(): BufferedAsyncSink = RealBufferedAsyncSink(this)
+
+@Deprecated("Use AsyncSink.buffered() instead.", ReplaceWith("buffered()"))
 fun AsyncSink.buffer(): BufferedAsyncSink = RealBufferedAsyncSink(this)
