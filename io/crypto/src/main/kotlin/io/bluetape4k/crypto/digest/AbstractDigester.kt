@@ -23,19 +23,20 @@ abstract class AbstractDigester protected constructor(
     override val saltGenerator: SaltGenerator = zeroSaltGenerator,
 ): Digester {
 
-    private val digester: PooledByteDigester =
+    private val delegate: PooledByteDigester by lazy {
         PooledByteDigester().apply {
             registBouncCastleProvider()
             setPoolSize(8)
             setAlgorithm(algorithm)
             setSaltGenerator(saltGenerator)
         }
+    }
 
     override fun digest(message: ByteArray): ByteArray =
-        digester.digest(message)
+        delegate.digest(message)
 
     override fun matches(message: ByteArray, digest: ByteArray): Boolean =
-        digester.matches(message, digest)
+        delegate.matches(message, digest)
 
     override fun toString(): String {
         return "${javaClass.simpleName}(algorithm=$algorithm)"

@@ -9,7 +9,9 @@ import org.jasypt.salt.SaltGenerator
  *
  * @param saltGenerator salt generator
  */
-class SHA512(saltGenerator: SaltGenerator = zeroSaltGenerator): AbstractDigester(ALGORITHM, saltGenerator) {
+class SHA512(
+    saltGenerator: SaltGenerator = zeroSaltGenerator,
+): AbstractDigester(ALGORITHM, saltGenerator) {
 
     companion object: KLogging() {
         const val ALGORITHM = "SHA-512"

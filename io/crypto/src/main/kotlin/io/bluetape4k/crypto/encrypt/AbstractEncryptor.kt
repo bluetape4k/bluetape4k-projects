@@ -1,5 +1,6 @@
 package io.bluetape4k.crypto.encrypt
 
+import io.bluetape4k.ToStringBuilder
 import io.bluetape4k.crypto.encrypt.AbstractEncryptor.Companion.DefaultIvGenerator
 import io.bluetape4k.crypto.registBouncCastleProvider
 import io.bluetape4k.crypto.zeroSaltGenerator
@@ -73,7 +74,7 @@ abstract class AbstractEncryptor protected constructor(
         return encrypted?.run { encryptor.decrypt(this) } ?: emptyByteArray
     }
 
-    override fun toString(): String {
-        return "${javaClass.simpleName}(algorithm=$algorithm)"
-    }
+    override fun toString(): String = ToStringBuilder(this)
+        .add("algorithm", algorithm)
+        .toString()
 }

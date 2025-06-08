@@ -9,7 +9,9 @@ import org.jasypt.salt.SaltGenerator
  *
  * @param saltGenerator salt generator
  */
-class Keccak384(saltGenerator: SaltGenerator = zeroSaltGenerator): AbstractDigester(ALGORITHM, saltGenerator) {
+class Keccak384(
+    saltGenerator: SaltGenerator = zeroSaltGenerator,
+): AbstractDigester(ALGORITHM, saltGenerator) {
 
     companion object: KLogging() {
         const val ALGORITHM = "KECCAK-384"

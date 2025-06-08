@@ -2,6 +2,8 @@ package io.bluetape4k.crypto.cipher
 
 import io.bluetape4k.crypto.secureRandom
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.requireNotEmpty
+import io.bluetape4k.support.requirePositiveNumber
 import java.util.*
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
@@ -48,6 +50,7 @@ class CipherBuilder {
     private var ivBytes: ByteArray = ByteArray(DEFAULT_KEY_SIZE)
 
     fun secretKeySize(size: Int = DEFAULT_KEY_SIZE) = apply {
+        size.requirePositiveNumber("size")
         secretKey = ByteArray(size).also { random.nextBytes(it) }
     }
 
@@ -56,26 +59,26 @@ class CipherBuilder {
     }
 
     fun ivBytesSize(size: Int = DEFAULT_KEY_SIZE) = apply {
+        size.requirePositiveNumber("size")
         ivBytes = ByteArray(size).also { random.nextBytes(it) }
     }
 
-    fun ivBytes(iv: ByteArray) = apply {
-        ivBytes = iv
+    fun ivBytes(ivBytes: ByteArray) = apply {
+        this.ivBytes = ivBytes
     }
 
     fun algorithm(algorithm: String = DEFAULT_ALGORITHM) = apply {
+        algorithm.requireNotEmpty("algorithm")
         this.algorithm = algorithm
     }
 
     fun transformation(transformation: String = DEFAULT_TRANSFORMATION) = apply {
+        transformation.requireNotEmpty("transformation")
         this.transformation = transformation
     }
 
-    private val secretKeySpec: SecretKeySpec
-        get() = SecretKeySpec(secretKey, algorithm)
-
-    private val iv: IvParameterSpec
-        get() = IvParameterSpec(ivBytes)
+    private fun getSecretKeySpec(): SecretKeySpec = SecretKeySpec(secretKey, algorithm)
+    private fun getIv(): IvParameterSpec = IvParameterSpec(ivBytes)
 
     /**
      * 암호화/복호화용 Cipher를 생성합니다.
@@ -102,7 +105,7 @@ class CipherBuilder {
      */
     fun build(cipherMode: Int): Cipher {
         return Cipher.getInstance(transformation).also {
-            it.init(cipherMode, secretKeySpec, iv)
+            it.init(cipherMode, getSecretKeySpec(), getIv())
         }
     }
 }
