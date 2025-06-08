@@ -7,6 +7,7 @@ import io.bluetape4k.avro.message.examples.ProductProperty
 import io.bluetape4k.avro.message.examples.ProductRoot
 import io.bluetape4k.avro.message.examples.Suit
 import io.bluetape4k.junit5.faker.Fakers
+import java.time.temporal.ChronoUnit
 import kotlin.random.Random
 
 object TestMessageProvider {
@@ -23,8 +24,8 @@ object TestMessageProvider {
             .setAge(faker.random().nextInt(100))
             .setSalary(faker.random().nextLong())
             .setEventType(EventType.CREATED)
-            .setHireAt(faker.date().birthday().time)
-            .setLastUpdatedAt(faker.date().birthday().time)
+            .setHireAt(faker.time().past(1000, ChronoUnit.HOURS))
+            .setLastUpdatedAt(faker.time().past(10, ChronoUnit.HOURS))
             .build()
     }
 

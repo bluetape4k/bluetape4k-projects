@@ -25,8 +25,11 @@ class DefaultAvroGenericRecordSerializerTest: AbstractAvroTest() {
         DefaultAvroGenericRecordSerializer(),
         DefaultAvroGenericRecordSerializer(CodecFactory.deflateCodec(6)),
         DefaultAvroGenericRecordSerializer(CodecFactory.zstandardCodec(3)),
+        DefaultAvroGenericRecordSerializer(CodecFactory.zstandardCodec(3, true)),
+        DefaultAvroGenericRecordSerializer(CodecFactory.zstandardCodec(3, true, true)),
+        DefaultAvroGenericRecordSerializer(CodecFactory.snappyCodec()),
+        DefaultAvroGenericRecordSerializer(CodecFactory.bzip2Codec()),
     )
-
 
     @RepeatedTest(REPEAT_SIZE)
     fun `serialize employee`() {

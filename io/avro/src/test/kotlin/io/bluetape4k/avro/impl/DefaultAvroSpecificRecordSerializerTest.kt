@@ -27,6 +27,10 @@ class DefaultAvroSpecificRecordSerializerTest: AbstractAvroTest() {
         DefaultAvroSpecificRecordSerializer(),
         DefaultAvroSpecificRecordSerializer(CodecFactory.deflateCodec(6)),
         DefaultAvroSpecificRecordSerializer(CodecFactory.zstandardCodec(3)),
+        DefaultAvroSpecificRecordSerializer(CodecFactory.zstandardCodec(3, true)),
+        DefaultAvroSpecificRecordSerializer(CodecFactory.zstandardCodec(3, true, true)),
+        DefaultAvroSpecificRecordSerializer(CodecFactory.snappyCodec()),
+        DefaultAvroSpecificRecordSerializer(CodecFactory.bzip2Codec()),
     )
 
     private inline fun <reified T: SpecificRecord> verifySerialization(avroObject: T) {
