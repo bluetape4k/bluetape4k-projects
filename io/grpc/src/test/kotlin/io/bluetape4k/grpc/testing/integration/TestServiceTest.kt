@@ -5,7 +5,7 @@ import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.junit5.output.OutputCapture
 import io.bluetape4k.junit5.output.OutputCapturer
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import io.bluetape4k.support.toUtf8Bytes
@@ -28,7 +28,7 @@ import kotlin.test.assertFailsWith
 @OutputCapture
 class TestServiceTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val TEST_SERVICE_PORT = 50055
 
         fun randomString(maxLength: Int): String {

@@ -8,9 +8,9 @@ import io.bluetape4k.utils.ShutdownQueue
 import io.grpc.BindableService
 import io.grpc.Server
 import io.grpc.inprocess.InProcessServerBuilder
-import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.ReentrantLock
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.withLock
 
 /**
@@ -33,19 +33,18 @@ abstract class AbstractGrpcInprocessServer(
         builder.apply { services.forEach { addService(it) } }.build()
     }
 
-    private val running = atomic(false)
+    private val running = AtomicBoolean(false)
     private val lock = ReentrantLock()
 
-    override val isRunning: Boolean by running
+    override val isRunning: Boolean get() = running.get()
     override val isShutdown: Boolean get() = server.isShutdown
-
 
     override fun start() {
         lock.withLock {
             log.debug { "Starting InProcess gRPC Server..." }
             server.start()
             log.info { "Start InProcess gRPC Server." }
-            running.value = true
+            running.set(true)
 
             ShutdownQueue.register {
                 if (!isShutdown) {
@@ -63,7 +62,7 @@ abstract class AbstractGrpcInprocessServer(
                 runCatching {
                     server.shutdown().awaitTermination(5, TimeUnit.SECONDS)
                 }
-                running.value = false
+                running.set(false)
             }
         }
     }
