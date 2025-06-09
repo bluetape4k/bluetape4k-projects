@@ -1,5 +1,6 @@
 package io.bluetape4k.http.okhttp3
 
+import io.bluetape4k.concurrent.virtualthread.virtualThreadFactory
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.CacheControl
@@ -58,20 +59,38 @@ fun okHttp3ConnectionPool(
  * @param initializer [OkHttpClient.Builder] 초기화 람다
  * @return [OkHttpClient.Builder] 인스턴스
  */
-fun okhttp3ClientBuilderOf(
+inline fun okhttp3ClientBuilderOf(
     connectionPool: ConnectionPool = okHttp3ConnectionPool(),
+    dispatcher: okhttp3.Dispatcher = okhttp3DispatcherWithVirtualThread(),
     initializer: OkHttpClient.Builder.() -> Unit = {},
 ): OkHttpClient.Builder {
     return OkHttpClient.Builder()
         .apply {
             connectionPool(connectionPool)
-            dispatcher(okhttp3.Dispatcher(Executors.newVirtualThreadPerTaskExecutor()))
+            dispatcher(dispatcher)
             connectTimeout(Duration.ofSeconds(10))
             readTimeout(Duration.ofSeconds(10))
             writeTimeout(Duration.ofSeconds(30))
 
             initializer()
         }
+}
+
+fun okhttp3DispatcherWithVirtualThread(
+    threadName: String = "okhttp3-virtual-thread-",
+): okhttp3.Dispatcher {
+    val factory = virtualThreadFactory {
+        name(threadName, 0)
+        inheritInheritableThreadLocals(true)
+    }
+    val executor = Executors.newThreadPerTaskExecutor(factory)
+    return okhttp3DispatcherOf(executor)
+}
+
+fun okhttp3DispatcherOf(
+    executorService: java.util.concurrent.ExecutorService = Executors.newVirtualThreadPerTaskExecutor(),
+): okhttp3.Dispatcher {
+    return okhttp3.Dispatcher(executorService)
 }
 
 /**
@@ -95,9 +114,10 @@ fun okhttp3ClientBuilderOf(
  */
 inline fun okhttp3Client(
     connectionPool: ConnectionPool = okHttp3ConnectionPool(),
+    dispatcher: okhttp3.Dispatcher = okhttp3DispatcherWithVirtualThread(),
     initializer: OkHttpClient.Builder.() -> Unit = {},
 ): OkHttpClient {
-    return okhttp3ClientBuilderOf(connectionPool)
+    return okhttp3ClientBuilderOf(connectionPool, dispatcher)
         .apply(initializer)
         .build()
 }
@@ -214,7 +234,7 @@ inline fun okhttp3Request(
  * @param initializer [okhttp3.Request.Builder] 초기화 람다
  * @return [okhttp3.Request] 인스턴스
  */
-fun okhttp3RequestOf(
+inline fun okhttp3RequestOf(
     url: String,
     vararg nameAndValues: String,
     initializer: okhttp3.Request.Builder.() -> Unit = {},
@@ -242,7 +262,7 @@ fun okhttp3RequestOf(
  * @param initializer [okhttp3.Request.Builder] 초기화 람다
  * @return [okhttp3.Request] 인스턴스
  */
-fun okhttp3RequestOf(
+inline fun okhttp3RequestOf(
     url: String,
     headers: okhttp3.Headers,
     initializer: okhttp3.Request.Builder.() -> Unit = {},
