@@ -6,19 +6,19 @@ import io.bluetape4k.AbstractValueObject
 import io.bluetape4k.ToStringBuilder
 import io.bluetape4k.support.hashOf
 import net.datafaker.Faker
+import java.io.Serializable
 import java.time.Instant
 import java.util.*
 import kotlin.random.Random
 
+data class Box(val x: Int, val y: Int): Serializable
 
-data class Box(val x: Int, val y: Int)
-
-data class Container(val boxes: List<Box>)
+data class Container(val boxes: List<Box>): Serializable
 
 @JsonPropertyOrder(value = ["x", "y"])
-data class Point(val x: Int, val y: Int)
+data class Point(val x: Int, val y: Int): Serializable
 
-data class Points(val p: List<Point>) {
+data class Points(val p: List<Point>): Serializable {
     constructor(vararg points: Point): this(points.toList())
 }
 
@@ -26,7 +26,7 @@ data class Points(val p: List<Point>) {
 data class Rectangle(
     val topLeft: Point,
     val bottomRight: Point,
-)
+): Serializable
 
 enum class Gender {
     MALE, FEMALE;
@@ -38,7 +38,7 @@ data class FiveMinuteUser(
     var verified: Boolean,
     var gender: Gender,
     var userImage: ByteArray,
-) {
+): Serializable {
 
     override fun equals(other: Any?): Boolean {
         if (other === this) {
@@ -61,13 +61,13 @@ data class FiveMinuteUser(
 }
 
 @JsonPropertyOrder(value = ["id", "desc"])
-data class IdDesc(var id: String, val desc: String)
+data class IdDesc(var id: String, val desc: String): Serializable
 
-data class Outer(val name: Name, val age: Int)
+data class Outer(val name: Name, val age: Int): Serializable
 
-data class Name(val first: String, val last: String)
+data class Name(val first: String, val last: String): Serializable
 
-data class Database(val dataSource: DataSource)
+data class Database(val dataSource: DataSource): Serializable
 
 data class DataSource(
     val driverClass: String,
@@ -75,7 +75,7 @@ data class DataSource(
     val username: String,
     val password: String,
     val properties: Set<String>,
-)
+): Serializable
 
 
 enum class Generation {
@@ -91,10 +91,10 @@ data class Address(
     var street: String? = null,
     var phone: String? = null,
     val props: MutableList<String> = mutableListOf(),
-)
+): Serializable
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-interface Person {
+interface Person: Serializable {
     val name: String
     val age: Int
 }
@@ -185,18 +185,17 @@ fun createSampleUser(favoriteMovieSize: Int = 100): User {
         email = faker.internet().emailAddress()
         username = faker.internet().username()
 
-        homeAddr = io.bluetape4k.jackson.binary.Address(
+        homeAddr = Address(
             faker.address().fullAddress(),
             faker.phoneNumber().phoneNumber(),
             mutableListOf("home")
         )
-        officeAddr = io.bluetape4k.jackson.binary.Address(
+        officeAddr = Address(
             faker.address().fullAddress(),
             faker.phoneNumber().phoneNumber(),
             mutableListOf("office")
         )
-
-        (0..favoriteMovieSize).forEach {
+        repeat(favoriteMovieSize) {
             favoriteMovies.add("Favorite Movie number-$it")
         }
     }
