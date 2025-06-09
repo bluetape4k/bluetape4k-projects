@@ -6,12 +6,12 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.spring.cassandra.AbstractReactiveCassandraTestConfiguration
-import io.bluetape4k.spring.cassandra.awaitCount
-import io.bluetape4k.spring.cassandra.awaitExists
-import io.bluetape4k.spring.cassandra.awaitInsert
-import io.bluetape4k.spring.cassandra.awaitTruncate
 import io.bluetape4k.spring.cassandra.cast
 import io.bluetape4k.spring.cassandra.query.eq
+import io.bluetape4k.spring.cassandra.suspendCount
+import io.bluetape4k.spring.cassandra.suspendExists
+import io.bluetape4k.spring.cassandra.suspendInsert
+import io.bluetape4k.spring.cassandra.suspendTruncate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
@@ -64,13 +64,13 @@ class ReactiveSelectOperationsTest(
     @BeforeEach
     fun beforeEach() {
         runBlocking(Dispatchers.IO) {
-            operations.awaitTruncate<Person>()
+            operations.suspendTruncate<Person>()
 
             han = newPerson()
             luke = newPerson()
 
-            operations.awaitInsert(han)
-            operations.awaitInsert(luke)
+            operations.suspendInsert(han)
+            operations.suspendInsert(luke)
         }
     }
 
@@ -199,7 +199,7 @@ class ReactiveSelectOperationsTest(
 
     @Test
     fun `조건절 없이 모든 레코드 Count 얻기`() = runSuspendIO {
-        val count = operations.awaitCount<Person>()
+        val count = operations.suspendCount<Person>()
         count shouldBeEqualTo 2L
 
         val count2 = operations.query<Person>().count().awaitSingle()
@@ -238,15 +238,15 @@ class ReactiveSelectOperationsTest(
 
     @Test
     fun `레코드가 없는 테이블의 exists`() = runSuspendIO {
-        operations.awaitTruncate<Person>()
-        operations.awaitExists<Person>().shouldBeFalse()
+        operations.suspendTruncate<Person>()
+        operations.suspendExists<Person>().shouldBeFalse()
         operations.query<Person>().exists().awaitSingle().shouldBeFalse()
     }
 
     @Test
     fun `조건에 매칭되는 것이 없는 경우 exists는 false 반환`() = runSuspendIO {
         operations.query<Person>().matching(querySpock()).exists().awaitSingle().shouldBeFalse()
-        operations.awaitExists<Person>(querySpock()).shouldBeFalse()
+        operations.suspendExists<Person>(querySpock()).shouldBeFalse()
     }
 
     @Test

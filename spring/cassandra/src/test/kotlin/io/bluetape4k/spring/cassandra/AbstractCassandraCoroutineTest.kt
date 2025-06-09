@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 abstract class AbstractCassandraCoroutineTest(
     private val coroutineName: String = "cassandra4",
 ): AbstractCassandraTest(),
-   CoroutineScope by CoroutineScope(CoroutineName(coroutineName) + Dispatchers.IO) {
+   CoroutineScope by CoroutineScope(Dispatchers.IO + CoroutineName(coroutineName)) {
 
     companion object: KLoggingChannel()
 }

@@ -4,11 +4,11 @@ import com.datastax.oss.driver.api.core.uuid.Uuids
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
-import io.bluetape4k.spring.cassandra.awaitCount
-import io.bluetape4k.spring.cassandra.awaitInsert
-import io.bluetape4k.spring.cassandra.awaitTruncate
 import io.bluetape4k.spring.cassandra.query.eq
 import io.bluetape4k.spring.cassandra.selectAsFlow
+import io.bluetape4k.spring.cassandra.suspendCount
+import io.bluetape4k.spring.cassandra.suspendInsert
+import io.bluetape4k.spring.cassandra.suspendTruncate
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
@@ -72,10 +72,10 @@ class ReactiveDeleteOperationsTest(
     @BeforeEach
     fun beforeEach() {
         runBlocking {
-            operations.awaitTruncate<Person>()
+            operations.suspendTruncate<Person>()
 
-            operations.awaitInsert(han)
-            operations.awaitInsert(luke)
+            operations.suspendInsert(han)
+            operations.suspendInsert(luke)
         }
     }
 
@@ -101,7 +101,7 @@ class ReactiveDeleteOperationsTest(
 
         writeResult.wasApplied().shouldBeTrue()
 
-        operations.awaitCount<Person>() shouldBeEqualTo 0L
+        operations.suspendCount<Person>() shouldBeEqualTo 0L
         operations.selectAsFlow<Person>(Query.empty()).toList().shouldBeEmpty()
     }
 }

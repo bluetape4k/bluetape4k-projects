@@ -4,21 +4,21 @@ import com.datastax.oss.driver.api.core.uuid.Uuids
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
-import io.bluetape4k.spring.cassandra.awaitCount
-import io.bluetape4k.spring.cassandra.awaitDelete
-import io.bluetape4k.spring.cassandra.awaitDeleteById
-import io.bluetape4k.spring.cassandra.awaitExists
-import io.bluetape4k.spring.cassandra.awaitInsert
-import io.bluetape4k.spring.cassandra.awaitSelectOneOrNullById
-import io.bluetape4k.spring.cassandra.awaitSlice
-import io.bluetape4k.spring.cassandra.awaitTruncate
-import io.bluetape4k.spring.cassandra.awaitUpdate
 import io.bluetape4k.spring.cassandra.cql.deleteOptions
 import io.bluetape4k.spring.cassandra.cql.insertOptions
 import io.bluetape4k.spring.cassandra.cql.updateOptions
 import io.bluetape4k.spring.cassandra.domain.ReactiveDomainTestConfiguration
 import io.bluetape4k.spring.cassandra.domain.model.User
 import io.bluetape4k.spring.cassandra.query.eq
+import io.bluetape4k.spring.cassandra.suspendCount
+import io.bluetape4k.spring.cassandra.suspendDelete
+import io.bluetape4k.spring.cassandra.suspendDeleteById
+import io.bluetape4k.spring.cassandra.suspendExists
+import io.bluetape4k.spring.cassandra.suspendInsert
+import io.bluetape4k.spring.cassandra.suspendSelectOneOrNullById
+import io.bluetape4k.spring.cassandra.suspendSlice
+import io.bluetape4k.spring.cassandra.suspendTruncate
+import io.bluetape4k.spring.cassandra.suspendUpdate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -59,7 +59,7 @@ class ReactiveCassandraTemplateTest(
     @BeforeEach
     fun beforeEach() {
         runBlocking {
-            operations.awaitTruncate<User>()
+            operations.suspendTruncate<User>()
         }
     }
 
@@ -71,7 +71,7 @@ class ReactiveCassandraTemplateTest(
     @Test
     fun `새로운 엔티티 추가`() = runSuspendIO {
         val user = newUser()
-        operations.awaitInsert(user)
+        operations.suspendInsert(user)
     }
 
 
@@ -80,12 +80,12 @@ class ReactiveCassandraTemplateTest(
         val lwtOptions = insertOptions { withIfNotExists() }
         val user = newUser()
 
-        val inserted = operations.awaitInsert(user, lwtOptions)
+        val inserted = operations.suspendInsert(user, lwtOptions)
         inserted.wasApplied().shouldBeTrue()
         inserted.entity shouldBeEqualTo user
 
         val user2 = user.copy(firstname = "성혁")
-        val notInserted = operations.awaitInsert(user2, lwtOptions)
+        val notInserted = operations.suspendInsert(user2, lwtOptions)
         notInserted.wasApplied().shouldBeFalse()
     }
 
@@ -93,42 +93,42 @@ class ReactiveCassandraTemplateTest(
     fun `엔티티 Count 조회`() = runSuspendIO {
         val user = newUser()
 
-        operations.awaitInsert(user)
-        operations.awaitCount<User>() shouldBeEqualTo 1L
+        operations.suspendInsert(user)
+        operations.suspendCount<User>() shouldBeEqualTo 1L
     }
 
     @Test
     fun `조건절을 이용한 count 조회`() = runSuspendIO {
         val user1 = newUser()
         val user2 = newUser()
-        operations.awaitInsert(user1)
-        operations.awaitInsert(user2)
+        operations.suspendInsert(user1)
+        operations.suspendInsert(user2)
 
-        operations.awaitCount<User>(query(where("id").eq(user1.id))) shouldBeEqualTo 1L
-        operations.awaitCount<User>(query(where("id").eq("not-exists"))) shouldBeEqualTo 0L
+        operations.suspendCount<User>(query(where("id").eq(user1.id))) shouldBeEqualTo 1L
+        operations.suspendCount<User>(query(where("id").eq("not-exists"))) shouldBeEqualTo 0L
     }
 
     @Test
     fun `exists 조회`() = runSuspendIO {
         val user1 = newUser()
         val user2 = newUser()
-        operations.awaitInsert(user1)
-        operations.awaitInsert(user2)
+        operations.suspendInsert(user1)
+        operations.suspendInsert(user2)
 
-        operations.awaitExists<User>(user1.id).shouldBeTrue()
-        operations.awaitExists<User>("not exists id").shouldBeFalse()
+        operations.suspendExists<User>(user1.id).shouldBeTrue()
+        operations.suspendExists<User>("not exists id").shouldBeFalse()
 
-        operations.awaitExists<User>(query(where("id").eq(user1.id))).shouldBeTrue()
-        operations.awaitExists<User>(query(where("id").eq("not-exists@example.com"))).shouldBeFalse()
+        operations.suspendExists<User>(query(where("id").eq(user1.id))).shouldBeTrue()
+        operations.suspendExists<User>(query(where("id").eq("not-exists@example.com"))).shouldBeFalse()
     }
 
     @Test
     fun `엔티티 갱신하기`() = runSuspendIO {
         val user = newUser()
-        operations.awaitInsert(user)
+        operations.suspendInsert(user)
 
         user.firstname = "성혁"
-        val updated = operations.awaitUpdate(user)
+        val updated = operations.suspendUpdate(user)
         updated.id shouldBeEqualTo user.id
     }
 
@@ -138,7 +138,7 @@ class ReactiveCassandraTemplateTest(
         val user = newUser()
         val lwtOptions = UpdateOptions.builder().withIfExists().build()
 
-        val result = operations.awaitUpdate(user, lwtOptions)
+        val result = operations.suspendUpdate(user, lwtOptions)
         result.wasApplied().shouldBeFalse()
 
         getUserById(user.id).shouldBeNull()
@@ -147,12 +147,12 @@ class ReactiveCassandraTemplateTest(
     @Test
     fun `존재하는 엔티티를 Update 하기`() = runSuspendIO {
         val user = newUser()
-        operations.awaitInsert(user)
+        operations.suspendInsert(user)
 
         user.firstname = "성혁"
         // NOTE: withIfExists() 가 제대로 작동하지 않는다
         val lwtOptions = updateOptions { /*withIfExists()*/ }
-        val result = operations.awaitUpdate(user, lwtOptions)
+        val result = operations.suspendUpdate(user, lwtOptions)
         result.wasApplied().shouldBeTrue()
 
         getUserById(user.id) shouldBeEqualTo user
@@ -161,10 +161,10 @@ class ReactiveCassandraTemplateTest(
     @Test
     fun `조건절로 엔티티 삭제하기`() = runSuspendIO {
         val user = newUser()
-        operations.awaitInsert(user)
+        operations.suspendInsert(user)
 
         val query = query(where("id").eq(user.id))
-        operations.awaitDelete<User>(query).shouldBeTrue()
+        operations.suspendDelete<User>(query).shouldBeTrue()
 
         getUserById(user.id).shouldBeNull()
     }
@@ -172,12 +172,12 @@ class ReactiveCassandraTemplateTest(
     @Test
     fun `특정 컬럼만 삭제하기`() = runSuspendIO {
         val user = newUser()
-        operations.awaitInsert(user)
+        operations.suspendInsert(user)
 
         val query = query(where("id").eq(user.id))
             .columns(Columns.from("lastname"))
 
-        operations.awaitDelete<User>(query).shouldBeTrue()
+        operations.suspendDelete<User>(query).shouldBeTrue()
 
         val loaded = getUserById(user.id)!!
         loaded.firstname shouldBeEqualTo user.firstname
@@ -187,29 +187,29 @@ class ReactiveCassandraTemplateTest(
     @Test
     fun `엔티티 삭제하기`() = runSuspendIO {
         val user = newUser()
-        operations.awaitInsert(user)
+        operations.suspendInsert(user)
 
-        operations.awaitDelete(user)
+        operations.suspendDelete(user)
         getUserById(user.id).shouldBeNull()
     }
 
     @Test
     fun `Id로 엔티티 삭제하기`() = runSuspendIO {
         val user = newUser()
-        operations.awaitInsert(user)
+        operations.suspendInsert(user)
 
-        operations.awaitDeleteById<User>(user.id).shouldBeTrue()
+        operations.suspendDeleteById<User>(user.id).shouldBeTrue()
         getUserById(user.id).shouldBeNull()
     }
 
     @Test
     fun `존재하는 엔티티만 삭제하기`() = runSuspendIO {
         val user = newUser()
-        operations.awaitInsert(user)
+        operations.suspendInsert(user)
 
         // NOTE: withIfExists() 가 제대로 작동하지 않는다 
         val lwtOptions = deleteOptions { /*withIfExists()*/ }
-        operations.awaitDelete(user, lwtOptions).wasApplied().shouldBeTrue()
+        operations.suspendDelete(user, lwtOptions).wasApplied().shouldBeTrue()
 
         getUserById(user.id).shouldBeNull()
 
@@ -220,12 +220,12 @@ class ReactiveCassandraTemplateTest(
     @Test
     fun `조건절에 queryOptions 적용하여 삭제하기`() = runSuspendIO {
         val user = newUser()
-        operations.awaitInsert(user)
+        operations.suspendInsert(user)
 
         val lwtOptions = deleteOptions { /*withIfExists()*/ }
         val query = query(where("id").eq(user.id)).queryOptions(lwtOptions)
 
-        operations.awaitDelete<User>(query).shouldBeTrue()
+        operations.suspendDelete<User>(query).shouldBeTrue()
 
         getUserById(user.id).shouldBeNull()
         // 이미 삭제되었으므로, 재삭제 요청은 처리되지 않습니다.
@@ -240,7 +240,7 @@ class ReactiveCassandraTemplateTest(
         val insertTasks = List(entitySize) {
             async(Dispatchers.IO) {
                 val user = newUser()
-                operations.awaitInsert(user)
+                operations.suspendInsert(user)
                 user.id
             }
         }
@@ -248,7 +248,7 @@ class ReactiveCassandraTemplateTest(
 
         val query = Query.empty()
         var slice = operations
-            .awaitSlice<User>(query.pageRequest(CassandraPageRequest.first(sliceSize)))
+            .suspendSlice<User>(query.pageRequest(CassandraPageRequest.first(sliceSize)))
 
         val loadIds = mutableSetOf<String>()
         var iterations = 0
@@ -260,7 +260,7 @@ class ReactiveCassandraTemplateTest(
             loadIds.addAll(slice.map { it.id })
 
             if (slice.hasNext()) {
-                slice = operations.awaitSlice<User>(query.pageRequest(slice.nextPageable()))
+                slice = operations.suspendSlice<User>(query.pageRequest(slice.nextPageable()))
             } else {
                 break
             }
@@ -272,5 +272,5 @@ class ReactiveCassandraTemplateTest(
     }
 
     private suspend fun getUserById(userId: String): User? =
-        operations.awaitSelectOneOrNullById<User>(userId)
+        operations.suspendSelectOneOrNullById<User>(userId)
 }

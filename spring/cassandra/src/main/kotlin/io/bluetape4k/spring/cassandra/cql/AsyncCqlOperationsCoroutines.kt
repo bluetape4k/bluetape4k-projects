@@ -25,7 +25,7 @@ import java.util.concurrent.CompletableFuture
  * @param args CQL 쿼리에 전달할 인자
  * @param extractor [AsyncResultSet]을 [T]로 변환하는 함수
  */
-suspend inline fun <reified T: Any> AsyncCqlOperations.awaitQuery(
+suspend inline fun <reified T: Any> AsyncCqlOperations.suspendQuery(
     cql: String,
     vararg args: Any,
     crossinline extractor: (AsyncResultSet) -> CompletableFuture<T?>,
@@ -33,8 +33,8 @@ suspend inline fun <reified T: Any> AsyncCqlOperations.awaitQuery(
     query<T>(cql, { extractor(it) }, *args).await()
 
 @Deprecated(
-    message = "Use awaitQuery instead",
-    replaceWith = ReplaceWith("awaitQuery(cql, *args, extractor = extractor)"),
+    message = "Use suspendQuery instead",
+    replaceWith = ReplaceWith("suspendQuery(cql, *args, extractor = extractor)"),
 )
 suspend inline fun <reified T: Any> AsyncCqlOperations.coQuery(
     cql: String,
@@ -52,7 +52,7 @@ suspend inline fun <reified T: Any> AsyncCqlOperations.coQuery(
  *     userId
  * ) { row, rowNum -> User(row) }
  */
-suspend inline fun <reified T: Any> AsyncCqlOperations.awaitQuery(
+suspend inline fun <reified T: Any> AsyncCqlOperations.suspendQuery(
     cql: String,
     vararg args: Any,
     crossinline rowMapper: (row: Row, rowNum: Int) -> T,
@@ -61,8 +61,8 @@ suspend inline fun <reified T: Any> AsyncCqlOperations.awaitQuery(
 
 
 @Deprecated(
-    message = "Use awaitQuery instead",
-    replaceWith = ReplaceWith("awaitQuery(cql, *args, rowMapper = rowMapper)")
+    message = "Use suspendQuery instead",
+    replaceWith = ReplaceWith("suspendQuery(cql, *args, rowMapper = rowMapper)")
 )
 suspend inline fun <reified T: Any> AsyncCqlOperations.coQuery(
     cql: String,
@@ -88,16 +88,14 @@ suspend inline fun <reified T: Any> AsyncCqlOperations.coQuery(
  * @param extractor [AsyncResultSet]을 [CompletableFuture]`<T>`로 변환하는 함수
  * @return [T] 형식의 결과
  */
-suspend inline fun <reified T: Any> AsyncCqlOperations.awaitQuery(
+suspend inline fun <reified T: Any> AsyncCqlOperations.suspendQuery(
     statement: Statement<*>,
     crossinline extractor: (AsyncResultSet) -> CompletableFuture<T?>,
-): T? =
-    query<T>(statement) { extractor(it) }.await()
-
+): T? = query<T>(statement) { extractor(it) }.await()
 
 @Deprecated(
-    message = "Use awaitQuery instead",
-    replaceWith = ReplaceWith("awaitQuery(statement, extractor = extractor)"),
+    message = "Use suspendQuery instead",
+    replaceWith = ReplaceWith("suspendQuery(statement, extractor = extractor)"),
 )
 suspend inline fun <reified T: Any> AsyncCqlOperations.coQuery(
     statement: Statement<*>,
@@ -119,15 +117,15 @@ suspend inline fun <reified T: Any> AsyncCqlOperations.coQuery(
  * @param rowMapper [Row]를 [T]로 변환하는 함수
  * @return [T] 수형 객체의 컬렉션
  */
-suspend inline fun <reified T: Any> AsyncCqlOperations.awaitQuery(
+suspend inline fun <reified T: Any> AsyncCqlOperations.suspendQuery(
     statement: Statement<*>,
     crossinline rowMapper: (row: Row, rowNum: Int) -> T,
 ): List<T> =
     query(statement) { row, rowNum -> rowMapper(row, rowNum) }.await()
 
 @Deprecated(
-    message = "Use awaitQuery instead",
-    replaceWith = ReplaceWith("awaitQuery(statement, rowMapper = rowMapper)"),
+    message = "Use suspendQuery instead",
+    replaceWith = ReplaceWith("suspendQuery(statement, rowMapper = rowMapper)"),
 )
 suspend inline fun <reified T: Any> AsyncCqlOperations.coQuery(
     statement: Statement<*>,

@@ -29,85 +29,91 @@ inline fun <reified T: Any> ReactiveCassandraOperations.selectAsFlow(cql: String
 inline fun <reified T: Any> ReactiveCassandraOperations.selectAsFlow(query: Query): Flow<T> =
     select(query, T::class.java).asFlow()
 
-suspend inline fun <reified T: Any> ReactiveCassandraOperations.awaitSelectOne(statement: Statement<*>): T =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.suspendSelectOne(statement: Statement<*>): T =
     selectOne(statement, T::class.java).awaitSingle()
 
-suspend inline fun <reified T: Any> ReactiveCassandraOperations.awaitSelectOneOrNull(statement: Statement<*>): T? =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.suspendSelectOneOrNull(statement: Statement<*>): T? =
     selectOne(statement, T::class.java).awaitSingleOrNull()
 
-suspend inline fun <reified T: Any> ReactiveCassandraOperations.awaitSelectOne(cql: String): T =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.suspendSelectOne(cql: String): T =
     selectOne(cql, T::class.java).awaitSingle()
 
-suspend inline fun <reified T: Any> ReactiveCassandraOperations.awaitSelectOneOrNull(cql: String): T? =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.suspendSelectOneOrNull(cql: String): T? =
     selectOne(cql, T::class.java).awaitSingleOrNull()
 
-suspend inline fun <reified T: Any> ReactiveCassandraOperations.awaitSelectOne(query: Query): T =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.suspendSelectOne(query: Query): T =
     selectOne(query, T::class.java).awaitSingle()
 
-suspend inline fun <reified T: Any> ReactiveCassandraOperations.awaitSelectOneOrNull(query: Query): T? =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.suspendSelectOneOrNull(query: Query): T? =
     selectOne(query, T::class.java).awaitSingleOrNull()
 
-suspend inline fun <reified T: Any> ReactiveCassandraOperations.awaitSlice(statement: Statement<*>): Slice<T> =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.suspendSlice(statement: Statement<*>): Slice<T> =
     slice(statement, T::class.java).awaitSingle()
 
-suspend inline fun <reified T: Any> ReactiveCassandraOperations.awaitSlice(query: Query): Slice<T> =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.suspendSlice(query: Query): Slice<T> =
     slice(query, T::class.java).awaitSingle()
 
-suspend fun ReactiveCassandraOperations.awaitExecute(statement: Statement<*>): ReactiveResultSet =
+suspend fun ReactiveCassandraOperations.suspendExecute(statement: Statement<*>): ReactiveResultSet =
     execute(statement).awaitSingle()
 
-suspend inline fun <reified T: Any> ReactiveCassandraOperations.awaitUpdate(query: Query, update: Update): Boolean =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.suspendUpdate(query: Query, update: Update): Boolean =
     update(query, update, T::class.java).awaitSingle()
 
-suspend inline fun <reified T: Any> ReactiveCassandraOperations.awaitDelete(query: Query): Boolean =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.suspendDelete(query: Query): Boolean =
     delete(query, T::class.java).awaitSingle()
 
-suspend inline fun <reified T: Any> ReactiveCassandraOperations.awaitCount(): Long =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.suspendCount(): Long =
     count(T::class.java).awaitSingle()
 
-suspend inline fun <reified T: Any> ReactiveCassandraOperations.awaitCount(query: Query): Long =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.suspendCount(query: Query): Long =
     count(query, T::class.java).awaitSingle()
 
-suspend inline fun <reified T: Any> ReactiveCassandraOperations.awaitExists(): Boolean =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.suspendExists(): Boolean =
     query<T>().exists().awaitSingle()
 
-suspend inline fun <reified T: Any> ReactiveCassandraOperations.awaitExists(query: Query): Boolean =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.suspendExists(query: Query): Boolean =
     exists(query, T::class.java).awaitSingle()
 
-suspend inline fun <reified T: Any> ReactiveCassandraOperations.awaitExists(id: Any): Boolean =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.suspendExists(id: Any): Boolean =
     exists(id, T::class.java).awaitSingle()
 
-suspend inline fun <reified T: Any> ReactiveCassandraOperations.awaitSelectOneById(id: Any): T =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.suspendSelectOneById(id: Any): T =
     selectOneById(id, T::class.java).awaitSingle()
 
-suspend inline fun <reified T: Any> ReactiveCassandraOperations.awaitSelectOneOrNullById(id: Any): T? =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.suspendSelectOneOrNullById(id: Any): T? =
     selectOneById(id, T::class.java).awaitSingleOrNull()
 
-suspend fun <T: Any> ReactiveCassandraOperations.awaitInsert(entity: T): T =
+suspend fun <T: Any> ReactiveCassandraOperations.suspendInsert(entity: T): T =
     insert(entity).awaitSingle()
 
-suspend fun <T: Any> ReactiveCassandraOperations.awaitInsert(entity: T, options: InsertOptions): EntityWriteResult<T> =
+suspend fun <T: Any> ReactiveCassandraOperations.suspendInsert(
+    entity: T,
+    options: InsertOptions,
+): EntityWriteResult<T> =
     insert(entity, options).awaitSingle()
 
-suspend fun <T: Any> ReactiveCassandraOperations.awaitUpdate(entity: T): T =
+suspend fun <T: Any> ReactiveCassandraOperations.suspendUpdate(entity: T): T =
     update(entity).awaitSingle()
 
-suspend fun <T: Any> ReactiveCassandraOperations.awaitUpdate(entity: T, options: UpdateOptions): EntityWriteResult<T> =
+suspend fun <T: Any> ReactiveCassandraOperations.suspendUpdate(
+    entity: T,
+    options: UpdateOptions,
+): EntityWriteResult<T> =
     update(entity, options).awaitSingle()
 
-suspend fun <T: Any> ReactiveCassandraOperations.awaitDelete(entity: T): T =
+suspend fun <T: Any> ReactiveCassandraOperations.suspendDelete(entity: T): T =
     delete(entity).awaitSingle()
 
-suspend fun <T: Any> ReactiveCassandraOperations.awaitDelete(entity: T, options: QueryOptions): WriteResult =
+suspend fun <T: Any> ReactiveCassandraOperations.suspendDelete(entity: T, options: QueryOptions): WriteResult =
     delete(entity, options).awaitSingle()
 
-suspend fun <T: Any> ReactiveCassandraOperations.awaitDelete(entity: T, options: DeleteOptions): WriteResult =
+suspend fun <T: Any> ReactiveCassandraOperations.suspendDelete(entity: T, options: DeleteOptions): WriteResult =
     delete(entity, options).awaitSingle()
 
-suspend inline fun <reified T: Any> ReactiveCassandraOperations.awaitDeleteById(id: Any): Boolean =
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.suspendDeleteById(id: Any): Boolean =
     deleteById(id, T::class.java).awaitSingle()
 
-suspend inline fun <reified T: Any> ReactiveCassandraOperations.awaitTruncate() {
+suspend inline fun <reified T: Any> ReactiveCassandraOperations.suspendTruncate() {
     truncate(T::class.java).awaitSingleOrNull()
 }
 

@@ -5,9 +5,9 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.spring.cassandra.AbstractReactiveCassandraTestConfiguration
-import io.bluetape4k.spring.cassandra.awaitSelectOneById
-import io.bluetape4k.spring.cassandra.awaitTruncate
 import io.bluetape4k.spring.cassandra.cql.insertOptions
+import io.bluetape4k.spring.cassandra.suspendSelectOneById
+import io.bluetape4k.spring.cassandra.suspendTruncate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
@@ -58,7 +58,7 @@ class ReactiveInsertOperationsTest(
     @BeforeEach
     fun beforeEach() {
         runBlocking(Dispatchers.IO) {
-            operations.awaitTruncate<Person>()
+            operations.suspendTruncate<Person>()
         }
     }
 
@@ -78,7 +78,7 @@ class ReactiveInsertOperationsTest(
         writeResult.wasApplied().shouldBeTrue()
         writeResult.entity shouldBeEqualTo person
 
-        operations.awaitSelectOneById<Person>(person.id) shouldBeEqualTo person
+        operations.suspendSelectOneById<Person>(person.id) shouldBeEqualTo person
     }
 
     @Test
