@@ -109,7 +109,7 @@ object Versions {
 
     const val bucket4j = "8.14.0"       // https://mvnrepository.com/artifact/com.bucket4j/bucket4j-core
     const val resilience4j = "2.3.0"   // https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-bom
-    const val netty = "4.1.121.Final"  // https://mvnrepository.com/artifact/io.netty/netty-all
+    const val netty = "4.2.2.Final"  // https://mvnrepository.com/artifact/io.netty/netty-all
 
     const val aws = "1.12.785"          // https://mvnrepository.com/artifact/com.amazonaws
     const val aws2 = "2.31.57"          // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
@@ -154,9 +154,7 @@ object Versions {
     const val querydsl = "5.1.0"                  // https://mvnrepository.com/artifact/com.querydsl/querydsl-jpa
 
     const val exposed = "1.0.0-beta-2"       // https://mvnrepository.com/artifact/org.jetbrains.exposed/exposed-core
-
     const val r2dbc = "1.0.0.RELEASE"        // https://mvnrepository.com/artifact/io.r2dbc/r2dbc-spi
-
     const val agroal = "2.7.1"          // https://mvnrepository.com/artifact/io.agroal/agroal-api
 
     const val blaze_persistence = "3.22.3" // https://mvnrepository.com/artifact/io.quarkus.platform/quarkus-blaze-persistence-bom
@@ -200,7 +198,6 @@ object Versions {
 
     const val ow2_asm = "9.8"               // https://mvnrepository.com/artifact/org.ow2.asm/asm
 
-    // NOTE: 5.12.+ 에서 bluetape4-hibernate 테스트가 불가하다
     const val junit_jupiter = "5.13.0"      // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
     const val junit_platform = "1.13.0"     // https://mvnrepository.com/artifact/org.junit.platform/junit-platform-launcher
     const val assertj_core = "3.27.3"       // https://mvnrepository.com/artifact/org.assertj/assertj-core
@@ -629,16 +626,24 @@ object Libs {
     val netty_common = netty("common")
     val netty_buffer = netty("buffer")
     val netty_codec = netty("codec")
+    val netty_codec_classes_quic = netty("codec-classes-quic")
+    val netty_codec_compression = netty("codec-compression")
     val netty_codec_dns = netty("codec-dns")
     val netty_codec_http = netty("codec-http")
     val netty_codec_http2 = netty("codec-http2")
+    val netty_codec_http3 = netty("codec-http3")
+    val netty_codec_protobuf = netty("codec-protobuf")
     val netty_codec_socks = netty("codec-socks")
+    val netty_codec_stomp = netty("codec-stomp")
     val netty_handler = netty("handler")
     val netty_handler_proxy = netty("handler-proxy")
     val netty_resolver = netty("resolver")
     val netty_resolver_dns = netty("resolver-dns")
+    val netty_resolver_dns_classes_macos = netty("resolver-dns-classes-macos")
     val netty_resolver_dns_native_macos = netty("resolver-dns-native-macos")
     val netty_transport = netty("transport")
+    val netty_transport_classes_epoll = netty("transport-classes-epoll")
+    val netty_transport_classes_kqueue = netty("transport-classes-kqueue")
     val netty_transport_native_epoll = netty("transport-native-epoll")
     val netty_transport_native_kqueue = netty("transport-native-kqueue")
 

@@ -12,12 +12,9 @@ configurations {
 dependencies {
     implementation(platform(Libs.jackson_bom))
 
-    api(project(":bluetape4k-json"))
-    api(project(":bluetape4k-io"))
+    api(project(":bluetape4k-jackson"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    // Jackson
-    api(project(":bluetape4k-jackson"))
     // Jackson Dataformats Text
     compileOnly(Libs.jackson_dataformat_csv)
     compileOnly(Libs.jackson_dataformat_properties)

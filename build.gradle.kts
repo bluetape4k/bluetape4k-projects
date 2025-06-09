@@ -16,6 +16,7 @@ plugins {
     kotlin("plugin.serialization") version Versions.kotlin apply false
     kotlin("plugin.atomicfu") version Versions.kotlin
     kotlin("kapt") version Versions.kotlin apply false
+    id(Plugins.kotlinx_benchmark) version Plugins.Versions.kotlinx_benchmark apply false
 
     id(Plugins.detekt) version Plugins.Versions.detekt
 
