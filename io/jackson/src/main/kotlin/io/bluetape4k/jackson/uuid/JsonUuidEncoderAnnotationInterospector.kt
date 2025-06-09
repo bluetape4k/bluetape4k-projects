@@ -25,7 +25,7 @@ class JsonUuidEncoderAnnotationInterospector: JacksonAnnotationIntrospector() {
             return annotation?.let {
                 when (it.value) {
                     JsonUuidEncoderType.BASE62 -> JsonUuidBase62Serializer::class.java
-                    JsonUuidEncoderType.PLAIN  -> UUIDSerializer::class.java
+                    JsonUuidEncoderType.PLAIN -> UUIDSerializer::class.java
                 }
             } ?: UUIDSerializer::class.java
         }
@@ -39,7 +39,7 @@ class JsonUuidEncoderAnnotationInterospector: JacksonAnnotationIntrospector() {
             return annotation?.let {
                 when (it.value) {
                     JsonUuidEncoderType.BASE62 -> JsonUuidBase62Deserializer::class.java
-                    JsonUuidEncoderType.PLAIN  -> UUIDDeserializer::class.java
+                    JsonUuidEncoderType.PLAIN -> UUIDDeserializer::class.java
                 }
             } ?: UUIDDeserializer::class.java
         }
@@ -47,9 +47,10 @@ class JsonUuidEncoderAnnotationInterospector: JacksonAnnotationIntrospector() {
     }
 
     private fun rawDeserializationType(ann: Annotated): Class<*> {
-        if (ann is AnnotatedMethod && ann.parameterCount == 1) {
-            return ann.getRawParameterType(0)
+        return if (ann is AnnotatedMethod && ann.parameterCount == 1) {
+            ann.getRawParameterType(0)
+        } else {
+            ann.rawType
         }
-        return ann.rawType
     }
 }

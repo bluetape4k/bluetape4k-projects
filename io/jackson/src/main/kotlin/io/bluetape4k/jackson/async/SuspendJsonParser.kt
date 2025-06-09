@@ -33,7 +33,7 @@ import java.util.*
  * @param jsonFactory JsonFactory 인스턴스
  * @param onNodeDone Json Node가 빌드되면 호출되는 콜백
  */
-class SuspendedJsonParser(
+class SuspendJsonParser(
     private val jsonFactory: JsonFactory = JsonFactory(),
     private val onNodeDone: suspend (root: JsonNode) -> Unit,
 ) {

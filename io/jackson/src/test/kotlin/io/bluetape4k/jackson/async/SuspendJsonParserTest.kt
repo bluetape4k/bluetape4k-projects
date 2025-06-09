@@ -20,7 +20,7 @@ import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 
-class SuspendedJsonParserTest {
+class SuspendJsonParserTest {
 
     companion object: KLoggingChannel()
 
@@ -31,7 +31,7 @@ class SuspendedJsonParserTest {
         val inner: Model? = null,
         val nullable: Double? = null,
         val booleanValue: Boolean = true,
-    ) {
+    ): java.io.Serializable {
         var innerArray: Array<Model>? = null
         var intArray: IntArray? = null
     }
@@ -77,7 +77,10 @@ class SuspendedJsonParserTest {
         val bytes = mapper.writeAsBytes(model)!!
         val chunkSize = 20
 
-        val flow: Flow<ByteArray> = bytes.toList().chunked(chunkSize).map { it.toByteArray() }.asFlow()
+        val flow: Flow<ByteArray> = bytes.toList()
+            .chunked(chunkSize)
+            .map { it.toByteArray() }
+            .asFlow()
         parser.consume(flow)
 
         parsed.value shouldBeEqualTo 1
@@ -106,16 +109,20 @@ class SuspendedJsonParserTest {
         val repeatSize = 3
         val chunkSize = 20
         repeat(repeatSize) {
-            val flow = bytes.toList().chunked(chunkSize).map { it.toByteArray() }.asFlow()
+            val flow = bytes.toList()
+                .chunked(chunkSize)
+                .map { it.toByteArray() }
+                .asFlow()
                 .onEach { log.debug { it.toUtf8String() } }
+
             parser.consume(flow)
         }
 
         parsed.value shouldBeEqualTo repeatSize
     }
 
-    private fun getSingleModelParser(parsed: AtomicInt): SuspendedJsonParser {
-        return SuspendedJsonParser { root ->
+    private fun getSingleModelParser(parsed: AtomicInt): SuspendJsonParser {
+        return SuspendJsonParser { root ->
             try {
                 parsed.incrementAndGet()
                 mapper.treeToValueOrNull<Model>(root) shouldBeEqualTo model
@@ -131,7 +138,7 @@ class SuspendedJsonParserTest {
         val parsed = atomic(0)
         val modelSize = 5
 
-        val parser = SuspendedJsonParser { root ->
+        val parser = SuspendJsonParser { root ->
             parsed.incrementAndGet()
 
             val deserialized: Array<Model> = mapper.treeToValue<Array<Model>>(root)

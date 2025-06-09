@@ -26,15 +26,18 @@ class JsonMaskerSerializer(
         private val serializers: MutableMap<String, JsonMaskerSerializer> = ConcurrentHashMap()
     }
 
-    override fun createContextual(prov: SerializerProvider?, property: BeanProperty?): JsonSerializer<*> {
+    override fun createContextual(
+        prov: SerializerProvider?, property: BeanProperty?,
+    ): JsonSerializer<*> {
         val annotation = property?.getAnnotation(JsonMasker::class.java)
 
         return when (annotation) {
             null -> defaultSerializer
-            else -> serializers.getOrPut(annotation.value) {
-                JsonMaskerSerializer(annotation).apply {
-                    log.debug { "Create JsonMaskerSerializer ... ${annotation.value}" }
-                }
+            else -> serializers.computeIfAbsent(annotation.value) {
+                JsonMaskerSerializer(annotation)
+                    .apply {
+                        log.debug { "Create JsonMaskerSerializer ... ${annotation.value}" }
+                    }
             }
         }
     }
@@ -42,7 +45,7 @@ class JsonMaskerSerializer(
     override fun serialize(value: Any?, gen: JsonGenerator, provider: SerializerProvider?) {
         when {
             annotation != null -> gen.writeString(annotation.value)
-            else               -> gen.writeRawValue(value.toString())
+            else -> gen.writeRawValue(value.toString())
         }
     }
 }
