@@ -1,6 +1,6 @@
 package io.bluetape4k.jackson.text.properties
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.dataformat.javaprop.JavaPropsFactory
 import com.fasterxml.jackson.dataformat.javaprop.JavaPropsMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -9,6 +9,7 @@ import io.bluetape4k.jackson.text.Box
 import io.bluetape4k.jackson.text.Container
 import io.bluetape4k.jackson.text.FiveMinuteUser
 import io.bluetape4k.jackson.text.Gender
+import io.bluetape4k.jackson.text.JacksonText
 import io.bluetape4k.jackson.text.Point
 import io.bluetape4k.jackson.text.Points
 import io.bluetape4k.jackson.text.Rectangle
@@ -26,9 +27,9 @@ class PropertiesExample: AbstractJacksonTextTest() {
 
     companion object: KLogging()
 
-    private val propsMapper: JavaPropsMapper by lazy { JacksonProps.defaultPropsMapper }
-    private val propsFactory: JavaPropsFactory by lazy { JacksonProps.defaultPropsFactory }
-    private val objectMapper: ObjectMapper by lazy { JacksonProps.defaultObjectMapper }
+    private val propsMapper: JavaPropsMapper by lazy { JacksonText.Props.defaultMapper }
+    private val propsFactory: JavaPropsFactory by lazy { JacksonText.Props.defaultFactory }
+    private val jsonMapper: JsonMapper by lazy { JacksonText.Props.defaultJsonMapper }
 
     class MapWrapper {
         var map: MutableMap<String, String> = mutableMapOf()

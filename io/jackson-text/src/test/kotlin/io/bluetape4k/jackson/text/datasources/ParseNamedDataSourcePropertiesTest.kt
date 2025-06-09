@@ -11,8 +11,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import io.bluetape4k.LibraryName
 import io.bluetape4k.io.toInputStream
 import io.bluetape4k.jackson.text.AbstractJacksonTextTest
-import io.bluetape4k.jackson.text.properties.JacksonProps
-import io.bluetape4k.jackson.text.yaml.JacksonYaml
+import io.bluetape4k.jackson.text.JacksonText
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
@@ -27,12 +26,11 @@ class ParseNamedDataSourcePropertiesTest: AbstractJacksonTextTest() {
 
     companion object: KLogging()
 
-    private val propsMapper: JavaPropsMapper by lazy { JacksonProps.defaultPropsMapper }
-    private val propsFactory: JavaPropsFactory by lazy { JacksonProps.defaultPropsFactory }
-    private val objectMapper: ObjectMapper by lazy { JacksonProps.defaultObjectMapper }
+    private val propsMapper: JavaPropsMapper by lazy { JacksonText.Props.defaultMapper }
+    private val propsFactory: JavaPropsFactory by lazy { JacksonText.Props.defaultFactory }
+    private val objectMapper: ObjectMapper by lazy { JacksonText.Props.defaultJsonMapper }
 
-    private val yamlMapper: YAMLMapper by lazy { JacksonYaml.defaultYamlMapper }
-
+    private val yamlMapper: YAMLMapper by lazy { JacksonText.Yaml.defaultMapper }
 
     val default = Dbcp2DataSourceProperty(
         driverClassName = "mysql",
@@ -253,5 +251,4 @@ class ParseNamedDataSourcePropertiesTest: AbstractJacksonTextTest() {
         MARIADB,
         TOMCAT
     }
-
 }

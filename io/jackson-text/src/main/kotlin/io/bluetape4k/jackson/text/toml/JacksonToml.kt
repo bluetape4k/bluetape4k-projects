@@ -8,6 +8,10 @@ import com.fasterxml.jackson.dataformat.toml.TomlFactory
 import com.fasterxml.jackson.dataformat.toml.TomlMapper
 import io.bluetape4k.jackson.Jackson
 
+@Deprecated(
+    message = "Use JacksonText.Toml instead",
+    replaceWith = ReplaceWith("JacksonText.Toml")
+)
 object JacksonToml {
 
     val defaultTomlMapper: TomlMapper by lazy {

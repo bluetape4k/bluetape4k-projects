@@ -52,7 +52,6 @@ object JacksonBinary: KLogging() {
         DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES
     )
 
-
     /**
      * CBOR 알고리즘을 사용하는 Jackson Binary JSON Serializer 관련 Serializer, Factory, Mapper 를 제공합니다.
      */

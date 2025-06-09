@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import io.bluetape4k.jackson.text.AbstractJacksonTextTest
 import io.bluetape4k.jackson.text.FiveMinuteUser
 import io.bluetape4k.jackson.text.Gender
+import io.bluetape4k.jackson.text.JacksonText
 import io.bluetape4k.jackson.text.Point
 import io.bluetape4k.jackson.text.Rectangle
 import io.bluetape4k.logging.KLogging
@@ -18,9 +19,9 @@ class TomlMapperTest: AbstractJacksonTextTest() {
 
     companion object: KLogging()
 
-    private val tomlMapper = JacksonToml.defaultTomlMapper
-    private val tomlFactory = JacksonToml.defaultTomlFactory
-    private val jsonMapper = JacksonToml.defaultJsonMapper
+    private val tomlMapper = JacksonText.Toml.defaultMapper
+    private val tomlFactory = JacksonText.Toml.defaultFactory
+    private val jsonMapper = JacksonText.Toml.defaultJsonMapper
 
     class MapWrapper {
         var map: MutableMap<String, String> = mutableMapOf()
@@ -47,8 +48,6 @@ class TomlMapperTest: AbstractJacksonTextTest() {
             wrapper.map.shouldNotBeNull()
             wrapper.map.size shouldBeEqualTo 3
         }
-
-
     }
 
     @Nested

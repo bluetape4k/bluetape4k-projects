@@ -8,6 +8,10 @@ import com.fasterxml.jackson.dataformat.csv.CsvFactory
 import com.fasterxml.jackson.dataformat.csv.CsvMapper
 import io.bluetape4k.jackson.Jackson
 
+@Deprecated(
+    message = "Use JacksonText.Csv instead",
+    replaceWith = ReplaceWith("JacksonText.Csv")
+)
 object JacksonCsv {
 
     val defaultCsvMapper: CsvMapper by lazy {

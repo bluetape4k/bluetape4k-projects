@@ -23,6 +23,10 @@ import io.bluetape4k.jackson.Jackson
  * val map = yamlMapper.readValue<Map<String, Any>>(yaml)
  * ```
  */
+@Deprecated(
+    message = "Use `JacksonText.Yaml` instead.",
+    replaceWith = ReplaceWith("JacksonText.Yaml")
+)
 object JacksonYaml {
 
     val defaultYamlMapper: YAMLMapper by lazy {
