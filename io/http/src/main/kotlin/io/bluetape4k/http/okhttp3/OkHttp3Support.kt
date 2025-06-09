@@ -12,6 +12,7 @@ import java.io.IOException
 import java.io.InputStream
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resumeWithException
 
@@ -64,6 +65,7 @@ fun okhttp3ClientBuilderOf(
     return OkHttpClient.Builder()
         .apply {
             connectionPool(connectionPool)
+            dispatcher(okhttp3.Dispatcher(Executors.newVirtualThreadPerTaskExecutor()))
             connectTimeout(Duration.ofSeconds(10))
             readTimeout(Duration.ofSeconds(10))
             writeTimeout(Duration.ofSeconds(30))
@@ -352,8 +354,8 @@ inline fun OkHttpClient.executeAsync(
         override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
             when {
                 response.isSuccessful -> promise.complete(response)
-                call.isCanceled()     -> handleCanceled(IOException("Canceled"))
-                else                  -> handleCanceled(IOException("Unexpected code $response"))
+                call.isCanceled() -> handleCanceled(IOException("Canceled"))
+                else -> handleCanceled(IOException("Unexpected code $response"))
             }
         }
 
@@ -387,6 +389,54 @@ inline fun OkHttpClient.executeAsync(
  * @param request [okhttp3.Request] 인스턴스
  * @receiver [OkHttpClient] 인스턴스
  */
+suspend inline fun OkHttpClient.suspendExecute(request: okhttp3.Request): Response =
+    newCall(request).suspendExecute()
+
+/**
+ * [Call]을 Coroutines 방식으로 실행합니다. (Non-Blocking 방식입니다)
+ *
+ * ```
+ * runBlocking {
+ *      val response = call.executeSuspending()
+ * }
+ * ```
+ *
+ * @receiver [Call] 인스턴스
+ */
+suspend inline fun Call.suspendExecute(): Response = suspendCancellableCoroutine { cont ->
+    cont.invokeOnCancellation {
+        this.cancel()
+    }
+
+    val responseCallback = object: Callback {
+        override fun onResponse(call: Call, response: Response) {
+            cont.resume(response) { cause, _, _ -> call.cancel() }
+        }
+
+        override fun onFailure(call: Call, e: IOException) {
+            if (call.isCanceled()) {
+                cont.cancel(e)
+            } else {
+                cont.resumeWithException(e)
+            }
+        }
+    }
+    enqueue(responseCallback)
+}
+
+/**
+ * Coroutines 환경에서 [request]를 전송하고, [okhttp3.Response]를 반환합니다.
+ *
+ * ```
+ * runBlocking {
+ *     val response = client.executeSuspending(request)
+ * }
+ * ```
+ *
+ * @param request [okhttp3.Request] 인스턴스
+ * @receiver [OkHttpClient] 인스턴스
+ */
+@Deprecated("Use `suspendExecute` instead", ReplaceWith("suspendExecute(request)"))
 suspend inline fun OkHttpClient.executeSuspending(request: okhttp3.Request): Response =
     newCall(request).executeSuspending()
 
@@ -401,22 +451,27 @@ suspend inline fun OkHttpClient.executeSuspending(request: okhttp3.Request): Res
  *
  * @receiver [Call] 인스턴스
  */
-suspend inline fun Call.executeSuspending(): Response =
-    suspendCancellableCoroutine { cont ->
-        cont.invokeOnCancellation {
-            this.cancel()
+@Deprecated("Use `suspendExecute` instead", ReplaceWith("suspendExecute()"))
+suspend inline fun Call.executeSuspending(): Response = suspendCancellableCoroutine { cont ->
+    cont.invokeOnCancellation {
+        this.cancel()
+    }
+
+    val responseCallback = object: Callback {
+        override fun onResponse(call: Call, response: Response) {
+            cont.resume(response) { cause, _, _ -> call.cancel() }
         }
 
-        this.enqueue(object: Callback {
-            override fun onFailure(call: Call, e: IOException) {
+        override fun onFailure(call: Call, e: IOException) {
+            if (call.isCanceled()) {
+                cont.cancel(e)
+            } else {
                 cont.resumeWithException(e)
             }
-
-            override fun onResponse(call: Call, response: Response) {
-                cont.resume(response) { cause, _, _ -> call.cancel() }
-            }
-        })
+        }
     }
+    enqueue(responseCallback)
+}
 
 /**
  * [okhttp3.Response]를 출력합니다.

@@ -1,6 +1,7 @@
 package io.bluetape4k.retrofit2.clients.vertx
 
 import io.bluetape4k.http.vertx.defaultVertxHttpClient
+import io.bluetape4k.io.okio.toTimeout
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
@@ -80,7 +81,7 @@ class VertxCallFactory private constructor(
     ): okhttp3.Call {
 
         private val promiseRef = atomic<CompletableFuture<okhttp3.Response>?>(null)
-        private val timeout = okio.Timeout().timeout(callTimeout.toMillis(), TimeUnit.MILLISECONDS)
+        private val timeout = callTimeout.toTimeout()
 
         override fun execute(): okhttp3.Response {
             log.debug { "Execute VertxCall. request=$okRequest" }
@@ -112,8 +113,9 @@ class VertxCallFactory private constructor(
             }
 
             val options = requestOptionsOf(
-                followRedirects = true,
                 absoluteURI = okRequest.url.toString(),
+                followRedirects = true,
+                timeout = callTimeout.toMillis()
             )
 
             client.request(options)

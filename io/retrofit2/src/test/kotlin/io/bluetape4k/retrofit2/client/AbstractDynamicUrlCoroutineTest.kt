@@ -1,6 +1,6 @@
 package io.bluetape4k.retrofit2.client
 
-import io.bluetape4k.junit5.coroutines.runSuspendTest
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.retrofit2.defaultJsonConverterFactory
@@ -32,13 +32,13 @@ abstract class AbstractDynamicUrlCoroutineTest {
     }
 
     @Test
-    fun `get content by dynamic url`() = runSuspendTest {
+    fun `get content by dynamic url`() = runSuspendIO {
         val content = api.get(HTTPBIN_URL_GET)!!
         log.debug { "content=$content" }
     }
 
     @Test
-    fun `post by dynamic url`() = runSuspendTest {
+    fun `post by dynamic url`() = runSuspendIO {
         val content = api.post(HTTPBIN_URL_POST)
         log.debug { "content=$content" }
         content.shouldNotBeNull()
