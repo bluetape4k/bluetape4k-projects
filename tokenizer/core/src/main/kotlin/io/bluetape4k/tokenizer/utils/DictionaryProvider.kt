@@ -1,10 +1,9 @@
 package io.bluetape4k.tokenizer.utils
 
+import io.bluetape4k.coroutines.flow.async
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.flatMapMerge
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.util.concurrent.ConcurrentHashMap
@@ -32,10 +31,13 @@ object DictionaryProvider: KLogging() {
     /**
      * [path]에 있는 리소스 파일을 읽어 라인 단위로 반환합니다.
      */
-    fun readFileByLineFromResources(path: String, classLoader: ClassLoader? = null): Sequence<String> {
+    fun readFileByLineFromResources(
+        path: String,
+        classLoader: ClassLoader = Thread.currentThread().contextClassLoader,
+    ): Sequence<String> {
         log.debug { "Read a file. path=$path" }
 
-        val stream = (classLoader ?: Thread.currentThread().contextClassLoader).getResourceAsStream(path)
+        val stream = classLoader.getResourceAsStream(path)
         check(stream != null) { "Can't open file. path=$path" }
 
         return if (path.endsWith(".gz")) {
@@ -82,10 +84,10 @@ object DictionaryProvider: KLogging() {
 
     suspend fun readWordsAsSet(vararg paths: String): MutableSet<String> {
         val set = ConcurrentSkipListSet<String>()
+
         paths.asFlow()
-            .buffer()
-            .flatMapMerge { path -> readFileByLineFromResources(path).asFlow() }
-            .collect { word -> set.add(word) }
+            .async { path -> readFileByLineFromResources(path) }
+            .collect { words -> set.addAll(words) }
 
         return set
     }
@@ -95,10 +97,11 @@ object DictionaryProvider: KLogging() {
      */
     suspend fun readWords(vararg paths: String): CharArraySet {
         val set = newCharArraySet()
+
         paths.asFlow()
-            .buffer()
-            .flatMapMerge { path -> readFileByLineFromResources(path).asFlow() }
-            .collect { word -> set.add(word) }
+            .async { path -> readFileByLineFromResources(path) }
+            .collect { words -> set.addAll(words) }
+
         return set
     }
 
