@@ -17,7 +17,8 @@ import java.nio.file.Path
  *
  * @return ByteArray 파일의 모든 바이트
  */
-suspend fun Path.readAllBytesSuspending(): ByteArray = readAllBytesAsync().await()
+suspend fun Path.readAllBytesSuspending(): ByteArray =
+    readAllBytesAsync().await()
 
 /**
  * Coroutine 방식으로 [File]의 모든 바이트를 읽어옵니다.
