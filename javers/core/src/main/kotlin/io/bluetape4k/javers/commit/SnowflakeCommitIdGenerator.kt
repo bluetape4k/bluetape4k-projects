@@ -9,7 +9,7 @@ import org.javers.core.commit.CommitId
 import java.util.function.Supplier
 
 class SnowflakeCommitIdGenerator(
-    private val snowflake: Snowflake = Snowflakers.Global,
+    private val snowflake: Snowflake = Snowflakers.Default,
 ): Supplier<CommitId> {
 
     private val commits = mutableMapOf<CommitId, Int>()

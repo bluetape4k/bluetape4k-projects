@@ -3,7 +3,7 @@ package io.bluetape4k.javers.repository
 import com.google.gson.JsonObject
 import io.bluetape4k.idgenerators.snowflake.Snowflake
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
-import io.bluetape4k.javers.codecs.GsonCodec
+import io.bluetape4k.javers.codecs.JaversCodec
 import io.bluetape4k.javers.metamodel.filterByAuthor
 import io.bluetape4k.javers.metamodel.filterByChangedPropertyNames
 import io.bluetape4k.javers.metamodel.filterByCommitDate
@@ -42,7 +42,7 @@ import kotlin.jvm.optionals.getOrNull
  * @property commitIdSupplier snapshot.commitMetadata.id 값을 제공하는 [Snowflake]
  */
 abstract class AbstractCdoSnapshotRepository<T: Any>(
-    protected val codec: GsonCodec<T>,
+    protected val codec: JaversCodec<T>,
     protected val commitIdSupplier: Snowflake = Snowflakers.Global,
 ): CdoSnapshotRepository {
 

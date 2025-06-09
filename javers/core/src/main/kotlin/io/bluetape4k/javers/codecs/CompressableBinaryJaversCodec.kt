@@ -4,10 +4,10 @@ import com.google.gson.JsonObject
 import io.bluetape4k.io.compressor.Compressor
 
 
-class CompressableBinaryGsonCodec(
-    private val innerCodec: BinaryGsonCodec,
+class CompressableBinaryJaversCodec(
+    private val innerCodec: BinaryJaversCodec,
     private val compressor: Compressor,
-): GsonCodec<ByteArray> {
+): JaversCodec<ByteArray> {
 
     override fun encode(jsonElement: JsonObject): ByteArray {
         return compressor.compress(innerCodec.encode(jsonElement))

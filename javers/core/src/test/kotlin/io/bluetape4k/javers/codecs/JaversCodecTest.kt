@@ -15,35 +15,35 @@ import org.javers.core.model.SnapshotEntity
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
-class GsonCodecTest {
+class JaversCodecTest {
 
     companion object: KLogging()
 
     private val javers = JaversBuilder.javers().build()
 
     private fun getStringCodecs() = listOf(
-        GsonCodecs.String,
-        GsonCodecs.GZipString,
-        GsonCodecs.SnappyString,
-        GsonCodecs.LZ4String,
-        GsonCodecs.SnappyString,
-        GsonCodecs.ZstdString,
+        JaversCodecs.String,
+        JaversCodecs.GZipString,
+        JaversCodecs.SnappyString,
+        JaversCodecs.LZ4String,
+        JaversCodecs.SnappyString,
+        JaversCodecs.ZstdString,
     )
 
     private fun getBinaryCodecs() = listOf(
-        GsonCodecs.Kryo,
-        GsonCodecs.GZipKryo,
-        GsonCodecs.SnappyKryo,
-        GsonCodecs.LZ4Kryo,
-        GsonCodecs.SnappyKryo,
-        GsonCodecs.ZstdKryo,
+        JaversCodecs.Kryo,
+        JaversCodecs.GZipKryo,
+        JaversCodecs.SnappyKryo,
+        JaversCodecs.LZ4Kryo,
+        JaversCodecs.SnappyKryo,
+        JaversCodecs.ZstdKryo,
     )
 
     private val idSeq = atomic(0)
 
     @ParameterizedTest(name = "GsonCodec={0}")
     @MethodSource("getStringCodecs")
-    fun `string codec`(codec: GsonCodec<String>) {
+    fun `string codec`(codec: JaversCodec<String>) {
         val entity = SnapshotEntity(idSeq.incrementAndGet()).apply { intProperty = 1 }
         javers.commit("a", entity)
 
@@ -74,7 +74,7 @@ class GsonCodecTest {
 
     @ParameterizedTest(name = "GsonCodec={0}")
     @MethodSource("getBinaryCodecs")
-    fun `binary codec`(codec: GsonCodec<ByteArray>) {
+    fun `binary codec`(codec: JaversCodec<ByteArray>) {
         val entity = SnapshotEntity(idSeq.incrementAndGet()).apply { intProperty = 1 }
         javers.commit("a", entity)
 
@@ -98,8 +98,8 @@ class GsonCodecTest {
             val decoded = codec.decode(encodedData)
 
             decoded.shouldNotBeNull()
-            val decodedMap = GsonElementConverter.fromJsonObject(decoded)
-            val jsonMap = GsonElementConverter.fromJsonObject(jsonElement)
+            val decodedMap = JaversGsonElementConverter.fromJsonObject(decoded)
+            val jsonMap = JaversGsonElementConverter.fromJsonObject(jsonElement)
             decodedMap shouldContainSame jsonMap
         }
     }

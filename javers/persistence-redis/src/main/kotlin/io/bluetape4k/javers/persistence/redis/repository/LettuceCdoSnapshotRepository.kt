@@ -1,7 +1,7 @@
 package io.bluetape4k.javers.persistence.redis.repository
 
-import io.bluetape4k.javers.codecs.GsonCodec
-import io.bluetape4k.javers.codecs.GsonCodecs
+import io.bluetape4k.javers.codecs.JaversCodec
+import io.bluetape4k.javers.codecs.JaversCodecs
 import io.bluetape4k.javers.repository.AbstractCdoSnapshotRepository
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -22,18 +22,18 @@ import org.javers.core.metamodel.`object`.CdoSnapshot
  *
  * @param name repository name
  * @param client Lettuce [RedisClient] 인스턴스
- * @param codec [CdoSnapshot]을 encode/decode 할 [GsonCodec] 인스턴스
+ * @param codec [CdoSnapshot]을 encode/decode 할 [JaversCodec] 인스턴스
  */
 class LettuceCdoSnapshotRepository(
     val name: String,
     private val client: RedisClient,
-    codec: GsonCodec<ByteArray> = GsonCodecs.LZ4Fury,
+    codec: JaversCodec<ByteArray> = JaversCodecs.LZ4Fury,
 ): AbstractCdoSnapshotRepository<ByteArray>(codec) {
 
     companion object: KLogging() {
         private const val CACHE_KEY_SET = "globalId:set"
         private const val SEQUENCE_SET = "sequence:set"
-        private const val SNAPSHOT_SUFFIX = "snapshots:"
+        private const val SNAPSHOT_SUFFIX = "snapshot:"
     }
 
     // Cache Key에 해당하는 [GlobalId.value()] 값을 저장하는 Set

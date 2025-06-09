@@ -60,6 +60,5 @@ abstract class AbstractJaversCommitTest {
 
         commit.snapshots.forEach { log.debug { it } }
         commit.snapshots.isEmpty()
-
     }
 }

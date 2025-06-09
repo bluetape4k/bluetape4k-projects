@@ -4,13 +4,13 @@ import com.google.gson.JsonObject
 import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.logging.KLogging
 
-class BinaryGsonCodec(
+class BinaryJaversCodec(
     private val serializer: BinarySerializer,
-): GsonCodec<ByteArray> {
+): JaversCodec<ByteArray> {
 
     companion object: KLogging()
 
-    private val mapCodec: MapGsonCodec = MapGsonCodec()
+    private val mapCodec: MapJaversCodec = MapJaversCodec()
 
     override fun encode(jsonElement: JsonObject): ByteArray {
         val map: Map<String, Any?> = mapCodec.encode(jsonElement)
