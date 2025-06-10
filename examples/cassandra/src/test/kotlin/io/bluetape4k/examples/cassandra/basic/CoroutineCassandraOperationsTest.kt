@@ -9,12 +9,12 @@ import io.bluetape4k.cassandra.querybuilder.literal
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.spring.cassandra.coExecute
-import io.bluetape4k.spring.cassandra.coInsert
-import io.bluetape4k.spring.cassandra.coSelect
-import io.bluetape4k.spring.cassandra.coSelectOneById
-import io.bluetape4k.spring.cassandra.coSelectOneOrNull
-import io.bluetape4k.spring.cassandra.coUpdate
+import io.bluetape4k.spring.cassandra.suspendExecute
+import io.bluetape4k.spring.cassandra.suspendInsert
+import io.bluetape4k.spring.cassandra.suspendSelect
+import io.bluetape4k.spring.cassandra.suspendSelectOneById
+import io.bluetape4k.spring.cassandra.suspendSelectOneOrNull
+import io.bluetape4k.spring.cassandra.suspendUpdate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -44,7 +44,7 @@ class CoroutineCassandraOperationsTest(
     @BeforeEach
     fun setup() {
         runSuspendIO {
-            operations.coExecute(QueryBuilder.truncate(USER_TABLE).build())
+            operations.suspendExecute(QueryBuilder.truncate(USER_TABLE).build())
         }
     }
 
@@ -58,24 +58,24 @@ class CoroutineCassandraOperationsTest(
             .ifNotExists()
             .build()
 
-        operations.coExecute(insertStmt)
+        operations.suspendExecute(insertStmt)
 
-        val user = operations.coSelectOneById<BasicUser>(42L)!!
+        val user = operations.suspendSelectOneById<BasicUser>(42L)!!
         user.username shouldBeEqualTo "debop"
 
-        val users = operations.coSelect<BasicUser>(selectFrom(USER_TABLE).all().build())
+        val users = operations.suspendSelect<BasicUser>(selectFrom(USER_TABLE).all().build())
         users shouldBeEqualTo listOf(user)
     }
 
     @Test
     fun `insert and update`() = runSuspendIO {
         val user = newBasicUser()
-        operations.coInsert(user)
+        operations.suspendInsert(user)
 
         val updated = user.copy(firstname = faker.name().firstName())
-        operations.coUpdate(updated)
+        operations.suspendUpdate(updated)
 
-        val loaded = operations.coSelectOneById<BasicUser>(user.id)!!
+        val loaded = operations.suspendSelectOneById<BasicUser>(user.id)!!
         loaded shouldBeEqualTo updated
     }
 
@@ -92,7 +92,7 @@ class CoroutineCassandraOperationsTest(
 
         val tasks = users.map {
             async(Dispatchers.IO) {
-                operations.coInsert(it)
+                operations.suspendInsert(it)
             }
         }
         tasks.awaitAll()
@@ -101,16 +101,16 @@ class CoroutineCassandraOperationsTest(
     @Test
     fun `select async projections`() = runSuspendIO {
         val user = newBasicUser()
-        operations.coInsert(user)
+        operations.suspendInsert(user)
 
-        val id = operations.coSelect<Long>(selectFrom(USER_TABLE).column("user_id").build())!!
+        val id = operations.suspendSelect<Long>(selectFrom(USER_TABLE).column("user_id").build())!!
         id.shouldNotBeNull() shouldHaveSize 1 shouldContain user.id
 
-        val row = operations.coSelectOneOrNull<Row>(selectFrom(USER_TABLE).column("user_id").asCql())
+        val row = operations.suspendSelectOneOrNull<Row>(selectFrom(USER_TABLE).column("user_id").asCql())
         row.shouldNotBeNull()
         row.getLong(0) shouldBeEqualTo user.id
 
-        val map = operations.coSelectOneOrNull<Map<*, *>>(selectFrom(USER_TABLE).all().limit(1).asCql())
+        val map = operations.suspendSelectOneOrNull<Map<*, *>>(selectFrom(USER_TABLE).all().limit(1).asCql())
 
         map.shouldNotBeNull()
         map["user_id"] shouldBeEqualTo user.id
