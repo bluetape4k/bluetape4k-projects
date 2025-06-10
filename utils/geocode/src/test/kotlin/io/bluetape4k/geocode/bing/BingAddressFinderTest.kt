@@ -28,7 +28,7 @@ class BingAddressFinderTest: AbstractGeocodeTest() {
     @ParameterizedTest(name = "find by geocode {0}")
     @MethodSource("getGeocodes")
     fun `async find address for geocode`(geocode: Geocode) = runSuspendIO {
-        val address = addressFinder.findAddressAsync(geocode)
+        val address = addressFinder.suspendFindAddress(geocode)
         log.debug { "geocode=$geocode, addres=$address" }
         address.shouldNotBeNull()
         address.country shouldBeEqualTo "Republic of Korea"

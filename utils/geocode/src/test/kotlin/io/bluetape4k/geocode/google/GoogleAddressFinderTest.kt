@@ -37,7 +37,7 @@ class GoogleAddressFinderTest: AbstractGeocodeTest() {
     @ParameterizedTest(name = "find seoul with scaled {0}")
     @ValueSource(ints = [1, 2, 3, 4])
     fun `async find address of seoul`(scale: Int) = runSuspendIO {
-        val address = addressFinder.findAddressAsync(seoul.round(scale))
+        val address = addressFinder.suspendFindAddress(seoul.round(scale))
         log.debug { "addres=$address" }
         verifySeoul(address)
     }
@@ -45,7 +45,7 @@ class GoogleAddressFinderTest: AbstractGeocodeTest() {
     @ParameterizedTest(name = "find by geocode {0}")
     @MethodSource("getGeocodes")
     fun `async find address for geocode`(geocode: Geocode) = runSuspendIO {
-        val address = addressFinder.findAddressAsync(geocode)
+        val address = addressFinder.suspendFindAddress(geocode)
         log.debug { "geocode=$geocode, addres=$address" }
         address.shouldNotBeNull()
         address.country shouldBeEqualTo "대한민국"
