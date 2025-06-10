@@ -36,7 +36,6 @@ class GeoHashSizeTableTest {
         GeoHashSizeTable.dLon[26].shouldBeNear(0.0439453125, DELTA)
     }
 
-
     private interface BoundingBoxSizeTableVerifier {
         /**
          * generate a bounding box using a certain strategy for the given numer of bits
