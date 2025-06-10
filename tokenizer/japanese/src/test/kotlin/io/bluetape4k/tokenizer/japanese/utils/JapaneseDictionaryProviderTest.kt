@@ -30,6 +30,7 @@ class JapaneseDictionaryProviderTest: AbstractTokenizerTest() {
 
         val newWord = "19禁"
         val newWord2 = "29禁"
+
         // Add blockword to dictionary
         blockwords.contains(newWord).shouldBeFalse()
         blockwords.contains(newWord2).shouldBeFalse()
