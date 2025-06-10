@@ -9,7 +9,9 @@ import org.jasypt.salt.SaltGenerator
  *
  * @param saltGenerator salt generator
  */
-class MD5(saltGenerator: SaltGenerator = zeroSaltGenerator): AbstractDigester(ALGORITHM, saltGenerator) {
+class MD5(
+    saltGenerator: SaltGenerator = zeroSaltGenerator,
+): AbstractDigester(ALGORITHM, saltGenerator) {
 
     companion object: KLogging() {
         const val ALGORITHM = "MD5"

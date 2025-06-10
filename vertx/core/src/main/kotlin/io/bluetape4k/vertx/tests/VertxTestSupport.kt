@@ -58,7 +58,7 @@ inline fun withTestContext(
  * @param testContext [VertxTestContext] 인스턴스
  * @param block 실행할 Coroutines 테스트 코드 블럭
  */
-suspend inline fun Vertx.withTestContextSuspending(
+suspend inline fun Vertx.withSuspendTestContext(
     testContext: VertxTestContext,
     crossinline block: suspend CoroutineScope.() -> Unit,
 ) {

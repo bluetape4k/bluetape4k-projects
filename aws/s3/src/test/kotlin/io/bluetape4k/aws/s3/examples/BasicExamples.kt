@@ -8,7 +8,7 @@ import io.bluetape4k.aws.s3.model.objectIdentifierOf
 import io.bluetape4k.aws.s3.putAsByteArray
 import io.bluetape4k.aws.s3.putAsString
 import io.bluetape4k.codec.encodeBase62
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8Bytes
 import org.amshove.kluent.shouldBeEqualTo
@@ -23,7 +23,7 @@ import kotlin.test.assertFailsWith
 
 class BasicExamples: AbstractS3Test() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `모든 bucket 을 조회합니다`() {
@@ -44,7 +44,7 @@ class BasicExamples: AbstractS3Test() {
         val keys = List(5) { UUID.randomUUID().encodeBase62() }.sorted()
         keys.forEach { key ->
             s3Client.putAsString(bucket, key, randomString()) {
-                it.requestPayer(RequestPayer.REQUESTER)
+                requestPayer(RequestPayer.REQUESTER)
             }
         }
 

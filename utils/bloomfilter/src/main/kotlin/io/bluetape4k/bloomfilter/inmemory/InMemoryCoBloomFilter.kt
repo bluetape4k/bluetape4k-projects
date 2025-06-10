@@ -32,6 +32,7 @@ import java.util.*
  * @property m BloomFilter 크기
  * @property k Hash 함수 개수
  */
+@Deprecated("Use InMemorySuspendBloomFilter instead", ReplaceWith("InMemorySuspendBloomFilter"))
 class InMemoryCoBloomFilter<T: Any>(
     override val m: Int,
     override val k: Int,
@@ -46,6 +47,7 @@ class InMemoryCoBloomFilter<T: Any>(
          * @param maxNum 최대 요소 개수 (기본값: [DEFAULT_MAX_NUM])
          * @param errorRate 오류율 (기본값: [DEFAULT_ERROR_RATE])
          */
+        @Deprecated("Use InMemorySuspendBloomFilter instead", ReplaceWith("InMemorySuspendBloomFilter"))
         @JvmStatic
         operator fun <T: Serializable> invoke(
             maxNum: Long = DEFAULT_MAX_NUM,
@@ -65,7 +67,7 @@ class InMemoryCoBloomFilter<T: Any>(
     override val isEmpty: Boolean
         get() = bloom.isEmpty
 
-    override fun count(): Long = m.toLong()
+    override suspend fun count(): Long = m.toLong()
 
     override suspend fun clear() {
         bloom.clear()

@@ -35,7 +35,7 @@ class ChannelExamples {
             launch {
                 repeat(5) { index ->
                     delay(1000)
-                    log.debug { "[#1] Producing next one. $index" }
+                    log.debug { "[#1] ➡️ Producing next one. $index" }
                     channel.send(index * 2)
                 }
             }.log("#1")
@@ -44,7 +44,7 @@ class ChannelExamples {
                 repeat(5) {
                     val element = channel.receive()
                     received.add(element)
-                    log.debug { "[#2] Receive $element" }
+                    log.debug { "[#2] 👋 Receive $element" }
                 }
             }.log("#2")
         }
@@ -60,7 +60,7 @@ class ChannelExamples {
             launch {
                 repeat(5) { index ->
                     delay(1000)
-                    log.debug { "[#1] Producing next one. $index" }
+                    log.debug { "[#1] ➡️ Producing next one. $index" }
                     channel.send(index * 2)
                 }
                 // channel#close() 를 호출해야 for each 구문을 끝낼 수 있습니다.
@@ -70,7 +70,7 @@ class ChannelExamples {
             launch {
                 for (element in channel) {
                     received.add(element)
-                    log.debug { "[#2] Receive $element" }
+                    log.debug { "[#2] 👋 Receive $element" }
                 }
             }.log("#2")
         }
@@ -86,7 +86,7 @@ class ChannelExamples {
             launch {
                 repeat(5) { index ->
                     delay(1000)
-                    log.debug { "[#1] Producing next one. $index" }
+                    log.debug { "[#1] ➡️ Producing next one. $index" }
                     channel.send(index * 2)
                 }
                 // channel#close() 를 호출해야 consumeEach 구문을 끝낼 수 있습니다.
@@ -97,7 +97,7 @@ class ChannelExamples {
             launch {
                 channel.consumeEach { element ->
                     received.add(element)
-                    log.debug { "[#2] Receive $element" }
+                    log.debug { "[#2] 👋 Receive $element" }
                 }
             }.log("#2")
         }
@@ -109,7 +109,7 @@ class ChannelExamples {
         val channel = produce {
             repeat(5) { index ->
                 delay(1000)
-                log.debug { "[#1] Producing next one. $index" }
+                log.debug { "[#1] ➡️ Producing next one. $index" }
                 send(index)
             }
         }
@@ -117,7 +117,7 @@ class ChannelExamples {
         val received = mutableListOf<Int>()
         for (element in channel) {
             received.add(element)
-            log.debug { "[#2] Receive $element" }
+            log.debug { "[#2] 👋 Receive $element" }
         }
         received shouldBeEqualTo listOf(0, 1, 2, 3, 4)
     }
@@ -141,13 +141,13 @@ class ChannelExamples {
             repeat(5) { index ->
                 send(index * 2)
                 delay(100)
-                log.debug { "[#1] Sent ${index * 2}" }
+                log.debug { "[#1] ➡️ Sent ${index * 2}" }
             }
         }
         // send한 요소가 모두 버퍼링 된다
         delay(1000)
         for (element in channel) {
-            log.debug { "[#2] Receive $element" }
+            log.debug { "[#2] 👋 Receive $element" }
         }
     }
 
@@ -157,7 +157,7 @@ class ChannelExamples {
             repeat(5) { index ->
                 send(index * 2)
                 delay(100)
-                log.debug { "[#1] Sent ${index * 2}" }
+                log.debug { "[#1] ➡️ Sent ${index * 2}" }
             }
         }
         // send한 요소가 모두 버퍼링 된다
@@ -165,7 +165,7 @@ class ChannelExamples {
         val received = mutableListOf<Int>()
         for (element in channel) {
             received.add(element)
-            log.debug { "[#2] Receive $element" }
+            log.debug { "[#2] 👋 Receive $element" }
         }
         received shouldBeEqualTo listOf(0, 2, 4, 6, 8)
     }
@@ -176,7 +176,7 @@ class ChannelExamples {
             repeat(5) { index ->
                 send(index * 2)
                 delay(100)
-                log.debug { "[#1] Sent ${index * 2}" }
+                log.debug { "[#1] ➡️ Sent ${index * 2}" }
             }
         }
         // send한 요소가 모두 버퍼링 된다
@@ -184,7 +184,7 @@ class ChannelExamples {
         val received = mutableListOf<Int>()
         for (element in channel) {
             received.add(element)
-            log.debug { "[#2] Receive $element" }
+            log.debug { "[#2] 👋 Receive $element" }
         }
         received shouldBeEqualTo listOf(0, 2, 4, 6, 8)
     }
@@ -195,7 +195,7 @@ class ChannelExamples {
             repeat(5) { index ->
                 send(index * 2)
                 delay(100)
-                log.debug { "[#1] Sent ${index * 2}" }
+                log.debug { "[#1] ➡️ Sent ${index * 2}" }
             }
         }
 
@@ -204,7 +204,7 @@ class ChannelExamples {
         val received = mutableListOf<Int>()
         for (element in channel) {
             received.add(element)
-            log.debug { "[#2] Receive $element" }
+            log.debug { "[#2] 👋 Receive $element" }
         }
         received shouldBeEqualTo listOf(6, 8)
     }
@@ -225,7 +225,7 @@ class ChannelExamples {
             repeat(5) { index ->
                 channel.send(index * 2)
                 delay(100)
-                log.debug { "[#1] Sent ${index * 2}" }
+                log.debug { "[#1] ➡️ Sent ${index * 2}" }
             }
             channel.close()
         }
@@ -234,7 +234,7 @@ class ChannelExamples {
         val received = mutableListOf<Int>()
         for (element in channel) {
             received.add(element)
-            log.debug { "[#2] Receive $element" }
+            log.debug { "[#2] 👋 Receive $element" }
         }
         received shouldBeEqualTo listOf(6, 8)
     }
@@ -248,7 +248,7 @@ class ChannelExamples {
         private fun CoroutineScope.produceNumbers(): ReceiveChannel<Int> = produce {
             repeat(10) {
                 delay(100)
-                log.debug { "[#1] Send $it" }
+                log.debug { "[#1] ➡️ Send $it" }
                 send(it)
             }
         }
@@ -256,7 +256,7 @@ class ChannelExamples {
         private fun CoroutineScope.launchProcessor(id: Int, channel: ReceiveChannel<Int>) {
             launch {
                 for (msg in channel) {
-                    log.debug { "[#2] #$id received $msg" }
+                    log.debug { "[#2] 👋 #$id received $msg" }
                 }
             }.log("#2")
         }
@@ -287,7 +287,7 @@ class ChannelExamples {
         ) {
             while (true) {
                 delay(timeMillis)
-                log.debug { "[#1] Send [$text]" }
+                log.debug { "[#1] ➡️ Send [$text]" }
                 channel.send(text)
             }
         }
@@ -299,7 +299,7 @@ class ChannelExamples {
             launch { sendString(channel, "BAR!", 500L) }.log("BAR!")
 
             repeat(50) {
-                log.debug { "[#2] Receive ${channel.receive()}" }
+                log.debug { "[#2] 👋 Receive ${channel.receive()}" }
             }
             // channel의 전송 작업을 취소시킵니다.
             coroutineContext.cancelChildren()
@@ -315,7 +315,7 @@ class ChannelExamples {
                 // launch 를 써서 병렬로 실행하도록 해야 합니다.
                 launch {
                     for (elem in channel) {
-                        log.debug { "[$index] Receive from channel[$index], send [$elem]" }
+                        log.debug { "[$index] 👋Receive from channel[$index], send [$elem]" }
                         send(elem)
                     }
                 }.log(index)
@@ -335,7 +335,7 @@ class ChannelExamples {
             }
 
             repeat(50) {
-                log.debug { "[fanIn] Receive [${fanin.receive()}]" }
+                log.debug { "[fanIn] 👋 Receive [${fanin.receive()}]" }
             }
             // channel의 전송 작업을 취소시킵니다.
             coroutineContext.cancelChildren()
@@ -347,14 +347,14 @@ class ChannelExamples {
 
         private fun CoroutineScope.numbers(times: Int = 5) = produce(capacity = 4) {
             repeat(times) { num ->
-                log.debug { "[#1] Send ${num + 1}" }
+                log.debug { "[#1] ➡️ Send ${num + 1}" }
                 send(num + 1)
             }
         }
 
         private fun CoroutineScope.square(numbers: ReceiveChannel<Int>): ReceiveChannel<Int> = produce(capacity = 2) {
             for (num in numbers) {
-                log.debug { "[#2] Receive $num, send ${num * num}" }
+                log.debug { "[#2] 👋 Receive $num, send ${num * num}" }
                 send(num * num)
             }
         }
@@ -365,7 +365,7 @@ class ChannelExamples {
             val squared = square(numbers)
 
             for (num in squared) {
-                log.debug { "[#3] Receive $num" }
+                log.debug { "[#3] 👋 Receive $num" }
             }
         }
     }

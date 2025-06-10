@@ -52,6 +52,11 @@ dependencies {
     api(Libs.jackson_core)
     api(Libs.jackson_databind)
     api(Libs.jackson_module_kotlin)
+    api(Libs.jackson_module_blackbird)
+
+    // Fastjson2
+    compileOnly(Libs.fastjson2)
+    compileOnly(Libs.fastjson2_kotlin)
 
     // Gson
     compileOnly(Libs.gson)

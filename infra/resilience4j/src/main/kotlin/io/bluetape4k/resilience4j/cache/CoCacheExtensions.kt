@@ -27,10 +27,10 @@ suspend fun <K, V> withCaache(
  *
  * @param loader 캐시에 저장할 로더
  */
-fun <K, V> CoCache<K, V>.decorateSuspendedSupplier(
+fun <K, V> CoCache<K, V>.decorateSuspendSupplier(
     loader: suspend () -> V,
 ): suspend (K) -> V = { cacheKey: K ->
-    executeSuspendedFunction(cacheKey, loader)
+    executeSuspendFunction(cacheKey, loader)
 }
 
 /**
@@ -45,10 +45,10 @@ fun <K, V> CoCache<K, V>.decorateSuspendedSupplier(
  *
  * @param loader 캐시에 저장할 로더
  */
-inline fun <K, V> CoCache<K, V>.decorateSuspendedFunction(
+inline fun <K, V> CoCache<K, V>.decorateSuspendFunction(
     crossinline loader: suspend (K) -> V,
 ): suspend (K) -> V = { cacheKey: K ->
-    executeSuspendedFunction(cacheKey) { loader(cacheKey) }
+    executeSuspendFunction(cacheKey) { loader(cacheKey) }
 }
 
 /**
@@ -63,7 +63,7 @@ inline fun <K, V> CoCache<K, V>.decorateSuspendedFunction(
  * @param cacheKey 캐시 키
  * @param loader 캐시에 저장할 로더
  */
-suspend inline fun <K, V> CoCache<K, V>.executeSuspendedFunction(
+suspend inline fun <K, V> CoCache<K, V>.executeSuspendFunction(
     cacheKey: K,
     crossinline loader: suspend () -> V,
 ): V {

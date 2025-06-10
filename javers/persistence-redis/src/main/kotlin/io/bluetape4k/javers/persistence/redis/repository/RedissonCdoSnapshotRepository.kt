@@ -1,7 +1,7 @@
 package io.bluetape4k.javers.persistence.redis.repository
 
-import io.bluetape4k.javers.codecs.GsonCodec
-import io.bluetape4k.javers.codecs.GsonCodecs
+import io.bluetape4k.javers.codecs.JaversCodec
+import io.bluetape4k.javers.codecs.JaversCodecs
 import io.bluetape4k.javers.repository.AbstractCdoSnapshotRepository
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -20,21 +20,21 @@ import org.redisson.client.codec.LongCodec
  *
  * @param name repository name
  * @param redisson [RedissonClient] 인스턴스
- * @param codec [CdoSnapshot]을 encode/decode 할 [GsonCodec] 인스턴스
+ * @param codec [CdoSnapshot]을 encode/decode 할 [JaversCodec] 인스턴스
  */
 class RedissonCdoSnapshotRepository(
     val name: String,
     private val redisson: RedissonClient,
-    codec: GsonCodec<ByteArray> = GsonCodecs.LZ4Fury,
+    codec: JaversCodec<ByteArray> = JaversCodecs.LZ4Fury,
 ): AbstractCdoSnapshotRepository<ByteArray>(codec) {
 
     companion object: KLogging() {
-        private const val SEQUENCE_SUFFIX = "sequence"
-        private const val SNAPSHOT_SUFFIX = "snapshots"
+        private const val SEQUENCE = "sequence"
+        private const val SNAPSHOT = "snapshot"
     }
 
-    private val sequenceName: String = "javers:$SEQUENCE_SUFFIX:$name"
-    private val snapshotName: String = "javers:$SNAPSHOT_SUFFIX:$name"
+    private val sequenceName: String = "javers:$name:$SEQUENCE"
+    private val snapshotName: String = "javers:$name:$SNAPSHOT"
 
     /**
      * GlobalId 별로 Snapshot 컬렉션을 매핑합니다.

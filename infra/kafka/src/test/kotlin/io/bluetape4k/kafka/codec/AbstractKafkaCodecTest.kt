@@ -3,7 +3,7 @@ package io.bluetape4k.kafka.codec
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.kafka.AbstractKafkaTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
@@ -20,7 +20,7 @@ import java.time.OffsetDateTime
 @RandomizedTest
 abstract class AbstractKafkaCodecTest: AbstractKafkaTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     abstract val codec: KafkaCodec<Any?>
 

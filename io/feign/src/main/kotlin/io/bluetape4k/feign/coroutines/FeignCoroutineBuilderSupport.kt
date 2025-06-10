@@ -5,8 +5,10 @@ import feign.Request
 import feign.Target
 import feign.codec.Decoder
 import feign.codec.Encoder
+import feign.hc5.ApacheHttp5Client
 import feign.kotlin.CoroutineFeign
 import io.bluetape4k.feign.defaultRequestOptions
+import java.util.concurrent.Executors
 
 /**
  * Coroutine 용 Feign Builder 를 생성합니다.
@@ -29,7 +31,7 @@ import io.bluetape4k.feign.defaultRequestOptions
  * @return [CoroutineFeign.CoroutineBuilder] instance
  */
 inline fun <C: Any> coroutineFeignBuilder(
-    intializer: CoroutineFeign.CoroutineBuilder<C>.() -> Unit,
+    @BuilderInference intializer: CoroutineFeign.CoroutineBuilder<C>.() -> Unit,
 ): CoroutineFeign.CoroutineBuilder<C> {
     return CoroutineFeign.CoroutineBuilder<C>().apply(intializer)
 }
@@ -57,7 +59,7 @@ inline fun <C: Any> coroutineFeignBuilder(
  * @see [io.bluetape4k.http.hc5.async.httpAsyncClientOf]
  */
 inline fun <C: Any> coroutineFeignBuilderOf(
-    asyncClient: AsyncClient<C>, // = AsyncClient.Default(ApacheHttp5Client(), VirtualThreadExecutor),
+    asyncClient: AsyncClient<C> = AsyncClient.Default(ApacheHttp5Client(), Executors.newVirtualThreadPerTaskExecutor()),
     encoder: Encoder = Encoder.Default(),
     decoder: Decoder = Decoder.Default(),
     opptions: Request.Options = defaultRequestOptions,
@@ -90,5 +92,5 @@ inline fun <C: Any> coroutineFeignBuilderOf(
  */
 inline fun <reified T: Any> CoroutineFeign.CoroutineBuilder<*>.client(baseUrl: String? = null): T = when {
     baseUrl.isNullOrBlank() -> target(Target.EmptyTarget.create(T::class.java))
-    else                    -> target(T::class.java, baseUrl)
+    else -> target(T::class.java, baseUrl)
 }

@@ -1,5 +1,6 @@
 package io.bluetape4k.javers.persistence.kafka.repository
 
+import io.bluetape4k.codec.encodeUrl62
 import io.bluetape4k.testcontainers.mq.KafkaServer
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerConfig
@@ -21,7 +22,7 @@ internal object KafkaProvider {
     val producerProperties: Map<String, Any?> by lazy {
         mapOf(
             ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to kafka.bootstrapServers,
-            ProducerConfig.CLIENT_ID_CONFIG to UUID.randomUUID().toString()
+            ProducerConfig.CLIENT_ID_CONFIG to UUID.randomUUID().encodeUrl62(),
         )
     }
 
@@ -36,7 +37,7 @@ internal object KafkaProvider {
     val consumerProperties: Map<String, Any?> by lazy {
         mapOf(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafka.bootstrapServers,
-            ConsumerConfig.GROUP_ID_CONFIG to "tc-" + UUID.randomUUID().toString(),
+            ConsumerConfig.GROUP_ID_CONFIG to "tc-" + UUID.randomUUID().encodeUrl62(),
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest"
         )
     }

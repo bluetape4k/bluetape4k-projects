@@ -9,6 +9,10 @@ import okio.Sink
  *
  * @see DecompressSource
  */
+@Deprecated(
+    "Use io.bluetape4k.io.okio.compress.CompressSource instead",
+    ReplaceWith("io.bluetape4k.io.okio.compress.CompressSource(delegate, compressor)")
+)
 class CompressSink(
     delegate: Sink,
     val compressor: Compressor,

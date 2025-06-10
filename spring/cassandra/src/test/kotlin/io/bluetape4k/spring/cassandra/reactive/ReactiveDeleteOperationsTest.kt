@@ -4,13 +4,13 @@ import com.datastax.oss.driver.api.core.uuid.Uuids
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
-import io.bluetape4k.spring.cassandra.count
 import io.bluetape4k.spring.cassandra.query.eq
-import io.bluetape4k.spring.cassandra.select
+import io.bluetape4k.spring.cassandra.selectAsFlow
+import io.bluetape4k.spring.cassandra.suspendCount
+import io.bluetape4k.spring.cassandra.suspendInsert
+import io.bluetape4k.spring.cassandra.suspendTruncate
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
@@ -30,7 +30,6 @@ import org.springframework.data.cassandra.core.query.Query
 import org.springframework.data.cassandra.core.query.inValues
 import org.springframework.data.cassandra.core.query.query
 import org.springframework.data.cassandra.core.query.where
-import org.springframework.data.cassandra.core.truncate
 import org.springframework.data.cassandra.repository.config.EnableReactiveCassandraRepositories
 import java.io.Serializable
 
@@ -73,10 +72,10 @@ class ReactiveDeleteOperationsTest(
     @BeforeEach
     fun beforeEach() {
         runBlocking {
-            operations.truncate<Person>().awaitSingleOrNull()
+            operations.suspendTruncate<Person>()
 
-            operations.insert(han).awaitSingle()
-            operations.insert(luke).awaitSingle()
+            operations.suspendInsert(han)
+            operations.suspendInsert(luke)
         }
     }
 
@@ -102,7 +101,7 @@ class ReactiveDeleteOperationsTest(
 
         writeResult.wasApplied().shouldBeTrue()
 
-        operations.count<Person>().awaitSingle() shouldBeEqualTo 0L
-        operations.select<Person>(Query.empty()).asFlow().toList().shouldBeEmpty()
+        operations.suspendCount<Person>() shouldBeEqualTo 0L
+        operations.selectAsFlow<Person>(Query.empty()).toList().shouldBeEmpty()
     }
 }

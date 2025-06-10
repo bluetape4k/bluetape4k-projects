@@ -14,12 +14,12 @@ object IIORegistryUtils {
     /**
      * Read를 지원하는 Image Format Names
      */
-    val imageReaderFormatNames: List<String> by lazy { getReadImageFormatNames() }
+    val imageReaderFormatNames: Set<String> by lazy { getReadImageFormatNames() }
 
     /**
      * Write 를 지원하는 Image Format Names
      */
-    val imageWriterFormatNames: List<String> by lazy { getWriteImageFormatNames() }
+    val imageWriterFormatNames: Set<String> by lazy { getWriteImageFormatNames() }
 
     private inline fun <reified T> getServiceProviders(): Sequence<T> {
         return registry.getServiceProviders(T::class.java, false).asSequence()
@@ -36,14 +36,14 @@ object IIORegistryUtils {
     /**
      * Read를 지원하는 Image Format Names
      */
-    fun getReadImageFormatNames(): List<String> {
-        return getImageReaderSpis().flatMap { it.formatNames.toList() }
+    fun getReadImageFormatNames(): Set<String> {
+        return getImageReaderSpis().flatMap { it.formatNames.toList() }.toSet()
     }
 
     /**
      * Write 를 지원하는 Image Format Names
      */
-    fun getWriteImageFormatNames(): List<String> {
-        return getImageWriterSpis().flatMap { it.formatNames.toList() }
+    fun getWriteImageFormatNames(): Set<String> {
+        return getImageWriterSpis().flatMap { it.formatNames.toList() }.toSet()
     }
 }

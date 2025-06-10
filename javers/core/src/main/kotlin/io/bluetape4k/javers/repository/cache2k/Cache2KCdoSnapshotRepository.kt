@@ -1,8 +1,8 @@
 package io.bluetape4k.javers.repository.cache2k
 
 import io.bluetape4k.cache.cache2k.cache2k
-import io.bluetape4k.javers.codecs.GsonCodec
-import io.bluetape4k.javers.codecs.GsonCodecs
+import io.bluetape4k.javers.codecs.JaversCodec
+import io.bluetape4k.javers.codecs.JaversCodecs
 import io.bluetape4k.javers.repository.AbstractCdoSnapshotRepository
 import io.bluetape4k.logging.KLogging
 import kotlinx.atomicfu.locks.ReentrantLock
@@ -14,10 +14,10 @@ import kotlin.concurrent.withLock
 /**
  * [CdoSnapshot] 저장소로 [io.bluetape4k.cache.cache2k.cache2k] 를 사용하는 Repository 입니다.
  *
- * @param codec [CdoSnapshot] 변환을 위한 [GsonCodec] 인스턴스
+ * @param codec [CdoSnapshot] 변환을 위한 [JaversCodec] 인스턴스
  */
 class Cache2KCdoSnapshotRepository(
-    codec: GsonCodec<String> = GsonCodecs.LZ4String,
+    codec: JaversCodec<String> = JaversCodecs.LZ4String,
 ): AbstractCdoSnapshotRepository<String>(codec) {
 
     companion object: KLogging()

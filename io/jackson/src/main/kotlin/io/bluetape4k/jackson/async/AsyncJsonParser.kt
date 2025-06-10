@@ -97,79 +97,81 @@ class AsyncJsonParser(
      */
     private fun buildTree(token: JsonToken): JsonNode? {
         try {
-            when (token) {
-                JsonToken.FIELD_NAME -> {
-                    requireNotEmptyStack()
-                    currentFieldName = parser.currentName()
-                    return null
-                }
-
-                JsonToken.START_OBJECT -> {
-                    val fieldName = getCurrentFieldName()
-                    stack.push(
-                        stack.topOrNull()?.node?.createNode(fieldName) ?: JsonNodeFactory.instance.objectNode(),
-                        fieldName
-                    )
-                    return null
-                }
-
-                JsonToken.START_ARRAY -> {
-                    val fieldName = getCurrentFieldName()
-                    stack.push(
-                        stack.topOrNull()?.node?.createArray(fieldName) ?: JsonNodeFactory.instance.arrayNode(),
-                        fieldName
-                    )
-                    return null
-                }
-
-                JsonToken.END_OBJECT, JsonToken.END_ARRAY -> {
-                    requireNotEmptyStack()
-                    val current = stack.pop().node
-                    return if (stack.isEmpty) current else null
-                }
-
-                JsonToken.VALUE_NUMBER_INT -> {
-                    requireNotEmptyStack()
-                    stack.top().node.addLong(parser.longValue, getCurrentFieldName())
-                    return null
-                }
-
-                JsonToken.VALUE_STRING -> {
-                    requireNotEmptyStack()
-                    stack.top().node.addString(parser.valueAsString, getCurrentFieldName())
-                    return null
-                }
-
-                JsonToken.VALUE_NUMBER_FLOAT -> {
-                    requireNotEmptyStack()
-                    stack.top().node.addDouble(parser.doubleValue, getCurrentFieldName())
-                    return null
-                }
-
-                JsonToken.VALUE_NULL -> {
-                    requireNotEmptyStack()
-                    stack.top().node.addNull(getCurrentFieldName())
-                    return null
-                }
-
-                JsonToken.VALUE_TRUE -> {
-                    requireNotEmptyStack()
-                    stack.top().node.addBoolean(true, getCurrentFieldName())
-                    return null
-                }
-
-                JsonToken.VALUE_FALSE -> {
-                    requireNotEmptyStack()
-                    stack.top().node.addBoolean(false, getCurrentFieldName())
-                    return null
-                }
-
-                else -> error("Unknown json token $token")
-            }
+            return parseJsonToken(token)
         } catch (e: Exception) {
             log.error(e) { "JSON 파싱 오류: ${e.message}" }
             throw JsonParsingException("JSON 파싱 오류: ${e.message}", e, null)
         }
+    }
+
+    private fun parseJsonToken(token: JsonToken): JsonNode? = when (token) {
+        JsonToken.FIELD_NAME -> {
+            requireNotEmptyStack()
+            currentFieldName = parser.currentName()
+            null
+        }
+
+        JsonToken.START_OBJECT -> {
+            val fieldName = getCurrentFieldName()
+            stack.push(
+                stack.topOrNull()?.node?.createNode(fieldName) ?: JsonNodeFactory.instance.objectNode(),
+                fieldName
+            )
+            null
+        }
+
+        JsonToken.START_ARRAY -> {
+            val fieldName = getCurrentFieldName()
+            stack.push(
+                stack.topOrNull()?.node?.createArray(fieldName) ?: JsonNodeFactory.instance.arrayNode(),
+                fieldName
+            )
+            null
+        }
+
+        JsonToken.END_OBJECT, JsonToken.END_ARRAY -> {
+            requireNotEmptyStack()
+            val current = stack.pop().node
+            if (stack.isEmpty) current else null
+        }
+
+        JsonToken.VALUE_NUMBER_INT -> {
+            requireNotEmptyStack()
+            stack.top().node.addLong(parser.longValue, getCurrentFieldName())
+            null
+        }
+
+        JsonToken.VALUE_STRING -> {
+            requireNotEmptyStack()
+            stack.top().node.addString(parser.valueAsString, getCurrentFieldName())
+            null
+        }
+
+        JsonToken.VALUE_NUMBER_FLOAT -> {
+            requireNotEmptyStack()
+            stack.top().node.addDouble(parser.doubleValue, getCurrentFieldName())
+            null
+        }
+
+        JsonToken.VALUE_NULL -> {
+            requireNotEmptyStack()
+            stack.top().node.addNull(getCurrentFieldName())
+            null
+        }
+
+        JsonToken.VALUE_TRUE -> {
+            requireNotEmptyStack()
+            stack.top().node.addBoolean(true, getCurrentFieldName())
+            null
+        }
+
+        JsonToken.VALUE_FALSE -> {
+            requireNotEmptyStack()
+            stack.top().node.addBoolean(false, getCurrentFieldName())
+            null
+        }
+
+        else -> error("Unknown json token $token")
     }
 
     private fun requireNotEmptyStack() {

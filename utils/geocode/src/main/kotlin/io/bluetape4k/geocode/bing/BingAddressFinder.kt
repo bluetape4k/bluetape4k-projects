@@ -60,7 +60,7 @@ class BingAddressFinder: GeocodeAddressFinder {
      * @param language 언어 정보
      * @return 주소 정보 또는 null
      */
-    override suspend fun findAddressAsync(geocode: Geocode, language: String): BingAddress? {
+    override suspend fun suspendFindAddress(geocode: Geocode, language: String): BingAddress? {
         val location = asyncClient.locations(
             latitude = geocode.latitude.toDouble(),
             longitude = geocode.longitude.toDouble(),

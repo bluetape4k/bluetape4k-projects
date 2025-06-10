@@ -10,6 +10,7 @@ import org.amshove.kluent.shouldBeLessThan
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
+import java.util.concurrent.CopyOnWriteArraySet
 
 class BoundingBoxGeoHashIteratorTest {
 
@@ -43,9 +44,8 @@ class BoundingBoxGeoHashIteratorTest {
         val twoGeoHashBoundingBox = twoGeoHashWithCharacters(box, 2)
         val iterator = BoundingBoxGeoHashIterator(twoGeoHashBoundingBox)
 
-        val hashes = mutableSetOf<GeoHash>()
-        while (iterator.hasNext()) {
-            val hash = iterator.next()
+        val hashes = CopyOnWriteArraySet<GeoHash>()
+        iterator.forEach { hash ->
             log.debug { "hash=$hash" }
             hashes.contains(hash).shouldBeFalse()
             hashes.add(hash)
@@ -70,9 +70,8 @@ class BoundingBoxGeoHashIteratorTest {
         val twoGeoHashBoundingBox = twoGeoHashWithCharacters(box, 2)
         val iterator = BoundingBoxGeoHashIterator(twoGeoHashBoundingBox)
 
-        val hashes = mutableSetOf<GeoHash>()
-        while (iterator.hasNext()) {
-            val hash = iterator.next()
+        val hashes = CopyOnWriteArraySet<GeoHash>()
+        iterator.forEach { hash ->
             log.debug { "hash=$hash" }
             hashes.contains(hash).shouldBeFalse()
             hashes.add(hash)

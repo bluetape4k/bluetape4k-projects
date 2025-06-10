@@ -6,8 +6,12 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.spring.cassandra.AbstractReactiveCassandraTestConfiguration
 import io.bluetape4k.spring.cassandra.query.eq
+import io.bluetape4k.spring.cassandra.suspendInsert
+import io.bluetape4k.spring.cassandra.suspendSelectOne
+import io.bluetape4k.spring.cassandra.suspendTruncate
+import io.bluetape4k.spring.cassandra.suspendUpdate
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
@@ -26,8 +30,6 @@ import org.springframework.data.cassandra.core.query.Query
 import org.springframework.data.cassandra.core.query.Update
 import org.springframework.data.cassandra.core.query.query
 import org.springframework.data.cassandra.core.query.where
-import org.springframework.data.cassandra.core.selectOne
-import org.springframework.data.cassandra.core.truncate
 import org.springframework.data.cassandra.core.update
 import java.io.Serializable
 
@@ -68,11 +70,11 @@ class ReactiveUpdateOperationsTest(
 
     @BeforeEach
     fun beforeEach() {
-        runBlocking {
-            operations.truncate<Person>().awaitSingleOrNull()
+        runBlocking(Dispatchers.IO) {
+            operations.suspendTruncate<Person>()
 
-            operations.insert(han).awaitSingle()
-            operations.insert(luke).awaitSingle()
+            operations.suspendInsert(han)
+            operations.suspendInsert(luke)
         }
     }
 
@@ -85,6 +87,12 @@ class ReactiveUpdateOperationsTest(
             .awaitSingle()
 
         writeResult.wasApplied().shouldBeTrue()
+
+        val writeResult2 = operations.suspendUpdate<Person>(
+            query = queryHan(),
+            update = Update.update("firstname", "Han")
+        )
+        writeResult2.shouldBeTrue()
     }
 
     @Test
@@ -97,7 +105,7 @@ class ReactiveUpdateOperationsTest(
 
         writeResult.wasApplied().shouldBeTrue()
 
-        val loaded = operations.selectOne<Person>(queryHan()).awaitSingle()
+        val loaded = operations.suspendSelectOne<Person>(queryHan())
         loaded shouldNotBeEqualTo han
         loaded.firstName shouldBeEqualTo "Han"
     }

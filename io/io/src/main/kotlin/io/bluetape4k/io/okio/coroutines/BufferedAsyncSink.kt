@@ -3,6 +3,10 @@ package io.bluetape4k.io.okio.coroutines
 import okio.Buffer
 import okio.ByteString
 
+@Deprecated(
+    "Use SuspendSink instead.",
+    ReplaceWith("SuspendSink")
+)
 interface BufferedAsyncSink: AsyncSink {
 
     val buffer: Buffer

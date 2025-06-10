@@ -55,7 +55,7 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     /**
      * DB의 정보를 Read Through로 캐시에 로딩하는 [R2dbcEntityMapLoader] 입니다.
      */
-    protected open val suspendedMapLoader: R2dbcEntityMapLoader<ID, T> by lazy {
+    protected open val r2dbcEntityMapLoader: R2dbcEntityMapLoader<ID, T> by lazy {
         R2dbcExposedEntityMapLoader(entityTable, scope) { toEntity() }
     }
 
@@ -81,7 +81,7 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
      * Write Through 모드라면 [R2dbcEntityMapWriter]를 생성하여 제공합니다.
      * Read Through Only 라면 null을 반환합니다.
      */
-    protected val suspendedMapWriter: R2dbcEntityMapWriter<ID, T>? by lazy {
+    protected val r2dbcEntityMapWriter: R2dbcEntityMapWriter<ID, T>? by lazy {
         when (config.cacheMode) {
             RedisCacheConfig.CacheMode.READ_ONLY -> null
             RedisCacheConfig.CacheMode.READ_WRITE -> R2dbcExposedEntityMapWriter(
@@ -107,14 +107,14 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
 
     protected fun createLocalCacheMap(): RLocalCachedMap<ID, T?> =
         localCachedMap(cacheName, redissonClient) {
-            log.info { "RLocalCAcheMap 를 생성합니다. config=$config" }
+            log.info { "RLocalCacheMap 를 생성합니다. config=$config" }
 
             if (config.isReadOnly) {
-                loaderAsync(suspendedMapLoader)
+                loaderAsync(r2dbcEntityMapLoader)
             } else {
-                loaderAsync(suspendedMapLoader)
-                suspendedMapWriter.requireNotNull("mapWriter")
-                writerAsync(suspendedMapWriter)
+                loaderAsync(r2dbcEntityMapLoader)
+                r2dbcEntityMapWriter.requireNotNull("mapWriter")
+                writerAsync(r2dbcEntityMapWriter)
                 writeMode(config.writeMode)
             }
 
@@ -130,12 +130,13 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
 
     protected fun createMapCache(): RMapCache<ID, T?> =
         mapCache(cacheName, redissonClient) {
+            log.info { "RMapCache 를 생성합니다. config=$config" }
             if (config.isReadOnly) {
-                loaderAsync(suspendedMapLoader)
+                loaderAsync(r2dbcEntityMapLoader)
             } else {
-                loaderAsync(suspendedMapLoader)
-                suspendedMapWriter.requireNotNull("suspendedMapWriter")
-                writerAsync(suspendedMapWriter)
+                loaderAsync(r2dbcEntityMapLoader)
+                r2dbcEntityMapWriter.requireNotNull("suspendedMapWriter")
+                writerAsync(r2dbcEntityMapWriter)
                 writeMode(config.writeMode)
             }
             codec(config.codec)

@@ -32,9 +32,9 @@ class IntervalNode(inputs: Collection<Intervalable>): AbstractValueObject() {
 
         inputs.forEach { input ->
             when {
-                input.end < median   -> toLeft.add(input)
+                input.end < median -> toLeft.add(input)
                 input.start > median -> toRight.add(input)
-                else                 -> intervals.add(input)
+                else -> intervals.add(input)
             }
         }
         if (toLeft.isNotEmpty()) {
@@ -54,12 +54,12 @@ class IntervalNode(inputs: Collection<Intervalable>): AbstractValueObject() {
                 addToOverlaps(interval, overlaps, checkForOverlapsToRight(interval))
             }
 
-            interval.end < median   -> {
+            interval.end < median -> {
                 addToOverlaps(interval, overlaps, findOverlappingRanges(left, interval))
                 addToOverlaps(interval, overlaps, checkForOverlapsToLeft(interval))
             }
 
-            else                    -> {
+            else -> {
                 addToOverlaps(interval, overlaps, this.intervals)
                 addToOverlaps(interval, overlaps, findOverlappingRanges(left, interval))
                 addToOverlaps(interval, overlaps, findOverlappingRanges(right, interval))
@@ -88,7 +88,7 @@ class IntervalNode(inputs: Collection<Intervalable>): AbstractValueObject() {
 
         this.intervals.forEach {
             when (direction) {
-                Direction.LEFT  ->
+                Direction.LEFT ->
                     if (it.start <= interval.end) {
                         overlaps.add(it)
                     }

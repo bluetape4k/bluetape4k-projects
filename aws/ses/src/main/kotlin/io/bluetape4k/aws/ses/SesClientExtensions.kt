@@ -124,7 +124,9 @@ fun SesClient.sendRaw(rawEmailRequest: SendRawEmailRequest): SendRawEmailRespons
  * @param templatedEmailRequest [SendTemplatedEmailRequest] email 전송 요청 정보
  * @return [SendTemplatedEmailResponse] email 전송 응답 정보
  */
-fun SesClient.sendTemplated(templatedEmailRequest: SendTemplatedEmailRequest): SendTemplatedEmailResponse {
+fun SesClient.sendTemplated(
+    templatedEmailRequest: SendTemplatedEmailRequest,
+): SendTemplatedEmailResponse {
     return sendTemplatedEmail(templatedEmailRequest)
 }
 
@@ -139,6 +141,8 @@ fun SesClient.sendTemplated(templatedEmailRequest: SendTemplatedEmailRequest): S
  * @param bulkTemplatedEmailRequest [SendBulkTemplatedEmailRequest] email 전송 요청 정보
  * @return [SendBulkTemplatedEmailResponse] email 전송 응답 정보
  */
-fun SesClient.sendBulkTemplated(bulkTemplatedEmailRequest: SendBulkTemplatedEmailRequest): SendBulkTemplatedEmailResponse {
+fun SesClient.sendBulkTemplated(
+    bulkTemplatedEmailRequest: SendBulkTemplatedEmailRequest,
+): SendBulkTemplatedEmailResponse {
     return sendBulkTemplatedEmail(bulkTemplatedEmailRequest)
 }

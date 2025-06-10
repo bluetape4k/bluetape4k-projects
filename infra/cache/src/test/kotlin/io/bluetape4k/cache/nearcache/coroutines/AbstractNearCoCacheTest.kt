@@ -23,11 +23,13 @@ import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldNotBeEmpty
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import java.time.Duration
 
+@Disabled("NearCoCacheTest is deprecated, use NearSuspendCacheTest instead")
 @Execution(ExecutionMode.SAME_THREAD)
 abstract class AbstractNearCoCacheTest
     : CoroutineScope by CoroutineScope(CoroutineName("near-cocache") + Dispatchers.IO) {

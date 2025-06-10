@@ -7,20 +7,20 @@ import io.bluetape4k.spring.r2dbc.coroutines.blog.domain.Post
 import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-open class AbstractR2dbcBlogApplicationTest {
+class AbstractR2dbcBlogApplicationTest {
 
     companion object: KLoggingChannel() {
         @JvmStatic
         val faker = Fakers.faker
     }
 
-    open protected fun createPost(): Post =
+    protected fun createPost(): Post =
         Post(
             title = faker.book().title(),
             content = Fakers.fixedString(255)
         )
 
-    open protected fun createComment(postId: Long): Comment =
+    protected fun createComment(postId: Long): Comment =
         Comment(
             postId = postId,
             content = Fakers.fixedString(255)

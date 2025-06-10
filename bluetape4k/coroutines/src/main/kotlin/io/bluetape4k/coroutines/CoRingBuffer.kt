@@ -10,6 +10,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 /**
  * Coroutines 환경에서 사용하는 RingBuffer 입니다.
  */
+@Deprecated("Use SuspendRingBuffer instead", ReplaceWith("SuspendRingBuffer"))
 @Suppress("UNCHECKED_CAST")
 class CoRingBuffer<T: Any>(
     private val buffer: CopyOnWriteArrayList<T?>,
@@ -18,6 +19,7 @@ class CoRingBuffer<T: Any>(
 ): Iterable<T?> by buffer {
 
     companion object: KLogging() {
+        @Deprecated("Use SuspendRingBuffer instead", ReplaceWith("SuspendRingBuffer"))
         @JvmStatic
         operator fun <T: Any> invoke(size: Int, empty: T): CoRingBuffer<T> {
             val list = MutableList(size) { empty } as MutableList<T?>
@@ -25,6 +27,7 @@ class CoRingBuffer<T: Any>(
             return CoRingBuffer(buffer)
         }
 
+        @Deprecated("Use SuspendRingBuffer instead", ReplaceWith("SuspendRingBuffer"))
         @JvmStatic
         fun <T: Any> boxing(size: Int): CoRingBuffer<T> {
             val list: MutableList<T?> = MutableList(size) { null }

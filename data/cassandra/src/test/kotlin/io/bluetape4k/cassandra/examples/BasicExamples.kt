@@ -3,7 +3,7 @@ package io.bluetape4k.cassandra.examples
 import com.datastax.oss.driver.api.core.CqlSession
 import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.cassandra.CassandraAdmin
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 
 class BasicExamples: AbstractCassandraTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val DROP_TABLE_SONG = "DROP TABLE IF EXISTS songs;"
 
         private val CREATE_TABLE_SONG =

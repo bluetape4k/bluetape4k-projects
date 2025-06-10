@@ -3,7 +3,7 @@ package io.bluetape4k.io.okio.encrypt
 import io.bluetape4k.crypto.encrypt.Encryptor
 import io.bluetape4k.io.okio.bufferOf
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.trace
 import io.bluetape4k.support.requireGe
 import okio.Buffer
 import okio.ForwardingSink
@@ -28,7 +28,7 @@ open class EncryptSink(
         // 요청한 바이트 수(또는 가능한 모든 바이트) 반환
         val bytesToRead = byteCount.coerceAtMost(source.size)
         val plainBytes = source.readByteArray(bytesToRead)
-        log.debug { "Encrypting: ${plainBytes.size} bytes" }
+        log.trace { "Encrypting: ${plainBytes.size} bytes" }
 
         // 암호화
         val encrypted = encryptor.encrypt(plainBytes)

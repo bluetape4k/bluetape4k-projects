@@ -5,25 +5,25 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.file.Path
 
-suspend fun AnimatedGif.bytesSuspending(writer: CoGif2WebpWriter): ByteArray {
-    return forCoWriter(writer).bytes()
+suspend fun AnimatedGif.suspendBytes(writer: SuspendGif2WebpWriter): ByteArray {
+    return forSuspendWriter(writer).bytes()
 }
 
-suspend fun AnimatedGif.writeSuspending(writer: CoGif2WebpWriter, bos: ByteArrayOutputStream) {
-    forCoWriter(writer).write(bos)
+suspend fun AnimatedGif.suspendWrite(writer: SuspendGif2WebpWriter, bos: ByteArrayOutputStream) {
+    forSuspendWriter(writer).write(bos)
 }
 
-suspend fun AnimatedGif.writeSuspending(writer: CoGif2WebpWriter, path: Path): Path {
-    return forCoWriter(writer).write(path)
+suspend fun AnimatedGif.suspendWrite(writer: SuspendGif2WebpWriter, path: Path): Path {
+    return forSuspendWriter(writer).write(path)
 }
 
-suspend fun AnimatedGif.outputSuspending(writer: CoGif2WebpWriter, file: File): File {
-    return forCoWriter(writer).write(file)
+suspend fun AnimatedGif.suspendOutput(writer: SuspendGif2WebpWriter, file: File): File {
+    return forSuspendWriter(writer).write(file)
 }
 
-suspend fun AnimatedGif.outputSuspending(writer: CoGif2WebpWriter, path: Path): Path {
-    return forCoWriter(writer).write(path)
+suspend fun AnimatedGif.suspendOutput(writer: SuspendGif2WebpWriter, path: Path): Path {
+    return forSuspendWriter(writer).write(path)
 }
 
-fun AnimatedGif.forCoWriter(writer: CoGif2WebpWriter): CoAnimatedWriteContext =
-    CoAnimatedWriteContext(writer, this)
+fun AnimatedGif.forSuspendWriter(writer: SuspendGif2WebpWriter): SuspendAnimatedWriteContext =
+    SuspendAnimatedWriteContext(writer, this)

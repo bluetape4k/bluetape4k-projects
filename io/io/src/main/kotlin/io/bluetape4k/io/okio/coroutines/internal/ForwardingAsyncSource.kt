@@ -8,6 +8,10 @@ import okio.Source
 import okio.Timeout
 import kotlin.coroutines.CoroutineContext
 
+@Deprecated(
+    "Use ForwardingSuspendSource instead",
+    ReplaceWith("ForwardingSuspendSource(delegate, context)"),
+)
 internal class ForwardingAsyncSource(
     val delegate: Source,
     private val context: CoroutineContext,

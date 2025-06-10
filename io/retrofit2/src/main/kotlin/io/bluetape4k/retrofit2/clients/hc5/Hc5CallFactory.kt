@@ -1,6 +1,7 @@
 package io.bluetape4k.retrofit2.clients.hc5
 
 import io.bluetape4k.http.hc5.async.httpAsyncClientSystemOf
+import io.bluetape4k.io.okio.toTimeout
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
@@ -42,7 +43,7 @@ class Hc5CallFactory private constructor(
 
     companion object: KLogging() {
         @JvmStatic
-        val CallTimeout: Duration = Duration.ofSeconds(30L)
+        val CallTimeout: Duration = Duration.ofSeconds(30)
 
         @JvmStatic
         operator fun invoke(asyncClient: CloseableHttpAsyncClient): Hc5CallFactory {
@@ -67,7 +68,7 @@ class Hc5CallFactory private constructor(
     ): okhttp3.Call {
 
         private val promiseRef = atomic<CompletableFuture<okhttp3.Response>?>(null)
-        private val timeout = Timeout().timeout(callTimeout.toMillis(), TimeUnit.MILLISECONDS)
+        private val timeout = callTimeout.toTimeout()
 
         override fun execute(): okhttp3.Response {
             log.debug { "Execute Hc5Call. request=$okRequest" }

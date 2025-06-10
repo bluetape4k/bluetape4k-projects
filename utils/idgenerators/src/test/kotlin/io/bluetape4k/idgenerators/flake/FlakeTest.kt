@@ -130,7 +130,7 @@ class FlakeTest {
 
         SuspendedJobTester()
             .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerJob(100)
+            .roundsPerJob(100 * 2 * Runtimex.availableProcessors)
             .add {
                 val id = flake.nextIdAsString()
                 idMaps.putIfAbsent(id, 1).shouldBeNull()

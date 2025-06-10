@@ -58,7 +58,6 @@ class BasicExamples: AbstractKotlinS3Test() {
 
     @Test
     fun `Bucket의 모든 Object를 조회합니다`() = runSuspendIO {
-
         log.debug { "Bucket의 모든 Object를 조회합니다 ..." }
 
         // 테스트용 Bucket 생성

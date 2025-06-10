@@ -28,6 +28,10 @@ import io.github.bucket4j.TimeMeter
  *
  * @see CoLocalBucket
  */
+@Deprecated(
+    message = "Use LocalSuspendedBucketProvider instead",
+    replaceWith = ReplaceWith("LocalSuspendedBucketProvider(bucketConfiguration, keyPrefix)")
+)
 open class LocalCoBucketProvider(
     bucketConfiguration: BucketConfiguration,
     keyPrefix: String = DEFAULT_KEY_PREFIX,

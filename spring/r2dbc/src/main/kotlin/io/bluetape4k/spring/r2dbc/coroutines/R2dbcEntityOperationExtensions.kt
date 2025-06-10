@@ -5,22 +5,48 @@ import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Query
 import org.springframework.data.relational.core.query.isEqual
 
+suspend inline fun <reified T: Any> R2dbcEntityOperations.suspendFindOneById(id: Any, idName: String = "id"): T {
+    val query = Query.query(Criteria.where(idName).isEqual(id))
+    return suspendSelectOne(query)
+}
+
+@Deprecated("Use suspendFindOneById instead", ReplaceWith("suspendFindOneById(id, idName)"))
 suspend inline fun <reified T: Any> R2dbcEntityOperations.coFindOneById(id: Any, idName: String = "id"): T {
     val query = Query.query(Criteria.where(idName).isEqual(id))
     return coSelectOne(query)
 }
 
+suspend inline fun <reified T: Any> R2dbcEntityOperations.suspendFindOneByIdOrNull(id: Any, idName: String = "id"): T? {
+    val query = Query.query(Criteria.where(idName).isEqual(id))
+    return suspendSelectOneOrNull(query)
+}
+
+@Deprecated("Use suspendFindOneByIdOrNull instead", ReplaceWith("suspendFindOneByIdOrNull(id, idName)"))
 suspend inline fun <reified T: Any> R2dbcEntityOperations.coFindOneByIdOrNull(id: Any, idName: String = "id"): T? {
     val query = Query.query(Criteria.where(idName).isEqual(id))
     return coSelectOneOrNull(query)
 }
 
+suspend inline fun <reified T: Any> R2dbcEntityOperations.suspendFindFirstById(id: Any, idName: String = "id"): T {
+    val query = Query.query(Criteria.where(idName).isEqual(id))
+    return suspendSelectFirst(query)
+}
 
+@Deprecated("Use suspendFindFirstById instead", ReplaceWith("suspendFindFirstById(id, idName)"))
 suspend inline fun <reified T: Any> R2dbcEntityOperations.coFindFirstById(id: Any, idName: String = "id"): T {
     val query = Query.query(Criteria.where(idName).isEqual(id))
     return coSelectFirst(query)
 }
 
+suspend inline fun <reified T: Any> R2dbcEntityOperations.suspendFindFirstByIdOrNull(
+    id: Any,
+    idName: String = "id",
+): T? {
+    val query = Query.query(Criteria.where(idName).isEqual(id))
+    return suspendSelectFirstOrNull(query)
+}
+
+@Deprecated("Use suspendFindFirstByIdOrNull instead", ReplaceWith("suspendFindFirstByIdOrNull(id, idName)"))
 suspend inline fun <reified T: Any> R2dbcEntityOperations.coFindFirstByIdOrNull(id: Any, idName: String = "id"): T? {
     val query = Query.query(Criteria.where(idName).isEqual(id))
     return coSelectFirstOrNull(query)

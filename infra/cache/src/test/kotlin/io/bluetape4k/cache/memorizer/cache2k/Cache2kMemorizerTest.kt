@@ -11,10 +11,8 @@ class Cache2kMemorizerTest: AbstractMemorizerTest() {
 
     companion object: KLogging()
 
-    override val factorial: FactorialProvider = Cache2kFactorialProvider()
-    override val fibonacci: FibonacciProvider = Cache2kFibonacciProvider()
-
     val cache = cache2k<Int, Int> {
+        this.name("heavyFunc")
         this.executor(ForkJoinPool.commonPool())
     }.build()
 
@@ -23,8 +21,9 @@ class Cache2kMemorizerTest: AbstractMemorizerTest() {
         it * it
     }
 
-    private class Cache2kFactorialProvider: FactorialProvider() {
+    override val factorial: FactorialProvider = object: FactorialProvider {
         val cache = cache2k<Long, Long> {
+            this.name("factorial")
             this.executor(ForkJoinPool.commonPool())
         }.build()
 
@@ -33,8 +32,9 @@ class Cache2kMemorizerTest: AbstractMemorizerTest() {
         }
     }
 
-    private class Cache2kFibonacciProvider: FibonacciProvider() {
+    override val fibonacci: FibonacciProvider = object: FibonacciProvider {
         val cache = cache2k<Long, Long> {
+            this.name("fibonacci")
             this.executor(ForkJoinPool.commonPool())
         }.build()
 

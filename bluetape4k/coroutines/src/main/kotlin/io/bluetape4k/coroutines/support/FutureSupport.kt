@@ -19,18 +19,9 @@ suspend fun <T> Future<T>.coAwait(): T = when (this) {
     is CompletionStage<*> ->
         await() as T
 
-    else                  ->
+    else ->
         when {
-// NOTE: isDone 이 되었으면 이 값을 사용할 수 있어야 하는데 ... 뭔가 무한루프에 빠져서 아예 빼 버렸다.
-//            isDone      -> {
-//                try {
-//                    withContext(coroutineContext) { get() }
-//                } catch (e: ExecutionException) {
-//                    throw e.cause ?: e
-//                }
-//            }
-
             isCancelled -> throw CancellationException()
-            else        -> this.asCompletableFuture().await()
+            else -> this.asCompletableFuture().await()
         }
 }

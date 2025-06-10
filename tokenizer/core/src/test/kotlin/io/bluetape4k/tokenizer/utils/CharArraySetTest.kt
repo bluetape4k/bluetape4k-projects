@@ -26,7 +26,8 @@ class CharArraySetTest {
             .forEach { file ->
                 val set = CharArraySet(1_000)
 
-                DictionaryProvider.readFileByLineFromResources(file)
+                DictionaryProvider
+                    .readFileByLineFromResources(file)
                     .forEach {
                         set.add(it).shouldBeTrue()
                     }

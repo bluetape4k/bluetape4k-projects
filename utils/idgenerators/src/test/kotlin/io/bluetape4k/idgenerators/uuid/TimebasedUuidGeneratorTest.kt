@@ -96,11 +96,11 @@ class TimebasedUuidGeneratorTest {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `generate timebased uuids in coroutines`() = runSuspendDefault {
+    fun `generate timebased uuids in suspend jobs`() = runSuspendDefault {
         val idMap = ConcurrentHashMap<UUID, Int>()
 
         SuspendedJobTester()
-            .numThreads(Runtimex.availableProcessors)
+            .numThreads(2 * Runtimex.availableProcessors)
             .roundsPerJob(TEST_COUNT * 2 * Runtimex.availableProcessors)
             .add {
                 val id = uuidGenerator.nextUUID()

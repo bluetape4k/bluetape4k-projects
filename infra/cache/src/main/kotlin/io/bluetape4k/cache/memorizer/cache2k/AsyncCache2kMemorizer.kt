@@ -10,7 +10,6 @@ import org.cache2k.Cache
 import java.util.concurrent.CompletableFuture
 import kotlin.concurrent.withLock
 
-
 /**
  * Cache2k Cache를 이용하여 [AsyncMemorizer]를 생성합니다.
  *
@@ -18,7 +17,9 @@ import kotlin.concurrent.withLock
  * @param R cache value type
  * @param asyncEvaluator cache value를 반환하는 메소드
  */
-fun <T: Any, R: Any> Cache<T, R>.asyncMemorizer(asyncEvaluator: (T) -> CompletableFuture<R>): AsyncMemorizer<T, R> =
+fun <T: Any, R: Any> Cache<T, R>.asyncMemorizer(
+    @BuilderInference asyncEvaluator: (T) -> CompletableFuture<R>,
+): AsyncMemorizer<T, R> =
     Cache2kAsyncMemorizer(this, asyncEvaluator)
 
 /**
@@ -41,7 +42,7 @@ fun <T: Any, R: Any> ((T) -> CompletableFuture<R>).withMemorizer(cache: Cache<T,
  */
 class Cache2kAsyncMemorizer<T: Any, R: Any>(
     private val cache: Cache<T, R>,
-    private val asyncEvaluator: (T) -> CompletableFuture<R>,
+    @BuilderInference private val asyncEvaluator: (T) -> CompletableFuture<R>,
 ): AsyncMemorizer<T, R> {
 
     companion object: KLoggingChannel()

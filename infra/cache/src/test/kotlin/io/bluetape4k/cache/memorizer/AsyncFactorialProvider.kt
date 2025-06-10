@@ -4,11 +4,11 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import java.util.concurrent.CompletableFuture
 
-abstract class AsyncFactorialProvider {
+interface AsyncFactorialProvider {
 
     companion object: KLoggingChannel()
 
-    abstract val cachedCalc: (Long) -> CompletableFuture<Long>
+    val cachedCalc: (Long) -> CompletableFuture<Long>
 
     fun calc(x: Long): CompletableFuture<Long> {
         log.trace { "factorial($x)" }

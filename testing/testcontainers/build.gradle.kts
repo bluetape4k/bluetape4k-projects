@@ -102,7 +102,6 @@ dependencies {
     // OkHttp
     testImplementation(Libs.okhttp3)
 
-
     // LocalStack for AWS
     compileOnly(Libs.testcontainers_localstack)
 
@@ -145,6 +144,9 @@ dependencies {
 
     // Nginx
     compileOnly(Libs.testcontainers_nginx)
+
+    // Wiremock
+    compileOnly(Libs.wiremock)
 
     // ClickHouse
     compileOnly(Libs.testcontainers_clickhouse)

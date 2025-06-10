@@ -3,10 +3,9 @@ package io.bluetape4k.aws.dynamodb.repository
 import io.bluetape4k.aws.dynamodb.enhanced.batchWriteItems
 import io.bluetape4k.aws.dynamodb.model.DynamoDbEntity
 import io.bluetape4k.aws.dynamodb.model.dynamoDbKeyOf
+import io.bluetape4k.coroutines.flow.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.flatMapMerge
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.future.await
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbAsyncTable
@@ -29,11 +28,11 @@ interface DynamoDbCoroutineRepository<T: DynamoDbEntity> {
         return table.getItem(key).await()
     }
 
-    fun findFirst(request: QueryEnhancedRequest): Flow<T> {
+    suspend fun findFirst(request: QueryEnhancedRequest): Flow<T> {
         return table.query(request).findFirst()
     }
 
-    fun findFirstByPartitionKey(partitionKey: String): Flow<T> {
+    suspend fun findFirstByPartitionKey(partitionKey: String): Flow<T> {
         val request = QueryEnhancedRequest.builder()
             .queryConditional(QueryConditional.keyEqualTo(dynamoDbKeyOf(partitionKey)))
             .build()
@@ -66,17 +65,27 @@ interface DynamoDbCoroutineRepository<T: DynamoDbEntity> {
 
     fun deleteAll(items: Iterable<T>): Flow<T> {
         return items.asFlow()
-            .flatMapMerge { item ->
-                flow { emit(delete(item)) }   // flowOf 를 사용하면 병렬로 수행하지 안됩니다.
+            .async { item ->
+                delete(item)
             }
             .mapNotNull { it }
+//        return items.asFlow()
+//            .flatMapMerge { item ->
+//                flow { emit(delete(item)) }   // flowOf 를 사용하면 병렬로 수행하지 안됩니다.
+//            }
+//            .mapNotNull { it }
     }
 
     fun deleteAllByKeys(keys: Iterable<Key>): Flow<T> {
         return keys.asFlow()
-            .flatMapMerge { key ->
-                flow { emit(delete(key)) }   // flowOf 를 사용하면 병렬로 수행하지 안됩니다.
+            .async { key ->
+                delete(key)
             }
             .mapNotNull { it }
+//        return keys.asFlow()
+//            .flatMapMerge { key ->
+//                flow { emit(delete(key)) }   // flowOf 를 사용하면 병렬로 수행하지 안됩니다.
+//            }
+//            .mapNotNull { it }
     }
 }

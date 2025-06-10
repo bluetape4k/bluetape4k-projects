@@ -2,13 +2,13 @@ package io.bluetape4k.cassandra
 
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.CqlSessionBuilder
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import io.bluetape4k.utils.ShutdownQueue
 import java.net.InetSocketAddress
 import java.util.concurrent.ConcurrentHashMap
 
-object CqlSessionProvider: KLogging() {
+object CqlSessionProvider: KLoggingChannel() {
 
     private val sessionCache = ConcurrentHashMap<String, CqlSession>()
 

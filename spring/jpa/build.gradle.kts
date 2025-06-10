@@ -49,10 +49,8 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
 
     // NOTE: Java 9+ 환경에서 kapt가 제대로 동작하려면 javax.annotation-api 를 참조해야 합니다.
-    // api(Libs.javax_annotation_api)
     api(Libs.jakarta_annotation_api)
 
-    // api(Libs.javax_persistence_api)
     api(Libs.jakarta_persistence_api)
     api(Libs.hibernate_core)
     testImplementation(Libs.hibernate_testing)

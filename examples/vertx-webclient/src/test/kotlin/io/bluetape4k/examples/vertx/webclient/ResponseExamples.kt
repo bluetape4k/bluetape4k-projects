@@ -1,11 +1,11 @@
 package io.bluetape4k.examples.vertx.webclient
 
 import io.bluetape4k.jackson.Jackson
-import io.bluetape4k.junit5.coroutines.runSuspendTest
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import io.bluetape4k.vertx.tests.withTestContextSuspending
-import io.bluetape4k.vertx.web.coHandler
+import io.bluetape4k.vertx.tests.withSuspendTestContext
+import io.bluetape4k.vertx.web.suspendHandler
 import io.vertx.core.Vertx
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.client.WebClient
@@ -42,7 +42,7 @@ class ResponseExamples {
         override suspend fun start() {
             val router = Router.router(vertx)
 
-            router.route("/").coHandler { ctx ->
+            router.route("/").suspendHandler { ctx ->
                 ctx.request().response()
                     .putHeader("content-type", "application/json")
                     .end(mapper.writeValueAsString(user))
@@ -58,8 +58,8 @@ class ResponseExamples {
     }
 
     @Test
-    fun `response as json object`(vertx: Vertx, testContext: VertxTestContext) = runSuspendTest {
-        vertx.withTestContextSuspending(testContext) {
+    fun `response as json object`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
+        vertx.withSuspendTestContext(testContext) {
             vertx.deployVerticle(JsonServer()).coAwait()
 
             val client = WebClient.create(vertx)
@@ -75,8 +75,8 @@ class ResponseExamples {
     }
 
     @Test
-    fun `response as custom class`(vertx: Vertx, testContext: VertxTestContext) = runSuspendTest {
-        vertx.withTestContextSuspending(testContext) {
+    fun `response as custom class`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
+        vertx.withSuspendTestContext(testContext) {
             vertx.deployVerticle(JsonServer()).coAwait()
 
             val client = WebClient.create(vertx)

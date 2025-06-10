@@ -1,7 +1,7 @@
 package io.bluetape4k.geoip2
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
+import com.fasterxml.jackson.databind.json.JsonMapper
 import com.maxmind.geoip2.model.CityResponse
 import com.maxmind.geoip2.model.CountryResponse
 import io.bluetape4k.jackson.Jackson
@@ -14,9 +14,10 @@ abstract class AbstractGeoipTest {
          * GeoIP2 는 JSON 포맷에 Snake Case 명명규칙을 사용합니다.
          */
         @JvmStatic
-        protected val jsonMapper: ObjectMapper by lazy {
-            Jackson.defaultJsonMapper
-                .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
+        protected val jsonMapper: JsonMapper by lazy {
+            Jackson.defaultJsonMapper.apply {
+                setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
+            }
         }
     }
 

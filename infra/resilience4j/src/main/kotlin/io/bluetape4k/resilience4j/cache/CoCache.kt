@@ -7,6 +7,7 @@ import io.github.resilience4j.core.EventConsumer
 /**
  * Coroutines 환경 하에서 Resilience4j 실행 시 결과를 JCache에서 관리할 수 있도록 합니다.
  */
+@Deprecated("Use SuspendCache instead", replaceWith = ReplaceWith("SuspendCache"))
 interface CoCache<K, V> {
 
     companion object {
@@ -21,7 +22,7 @@ interface CoCache<K, V> {
             cache: CoCache<K, V>,
             loader: suspend () -> V,
         ): suspend (K) -> V {
-            return cache.decorateSuspendedSupplier(loader)
+            return cache.decorateSuspendSupplier(loader)
         }
 
         @JvmStatic
@@ -29,7 +30,7 @@ interface CoCache<K, V> {
             cache: CoCache<K, V>,
             loader: suspend (K) -> V,
         ): suspend (K) -> V {
-            return cache.decorateSuspendedFunction(loader)
+            return cache.decorateSuspendFunction(loader)
         }
     }
 

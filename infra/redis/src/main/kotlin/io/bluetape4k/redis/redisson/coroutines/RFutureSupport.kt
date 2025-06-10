@@ -8,7 +8,6 @@ import kotlinx.coroutines.future.await
 import org.redisson.api.RFuture
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
-import java.util.concurrent.ForkJoinPool
 import kotlin.coroutines.coroutineContext
 
 /**
@@ -23,6 +22,11 @@ suspend inline fun <V> RFuture<V>.awaitSuspending(): V = toCompletableFuture().a
 suspend fun <V> RFuture<V>.coAwait(): V = toCompletableFuture().await()
 
 /**
+ * Coroutines 환경 하에서 결과를 기다리는 동안 suspend 합니다. (blocking 하지 않습니다)
+ */
+suspend fun <V> RFuture<V>.awaitSuspend(): V = toCompletableFuture().await()
+
+/**
  * [RFuture]의 컬렉션을 하나의 CompletableFuture로 변환합니다.
  *
  * ```
@@ -32,7 +36,7 @@ suspend fun <V> RFuture<V>.coAwait(): V = toCompletableFuture().await()
  * ```
  */
 fun <V> Iterable<RFuture<out V>>.sequence(
-    executor: Executor = ForkJoinPool.commonPool(),
+    executor: Executor = Dispatchers.IO.asExecutor(),
 ): CompletableFuture<List<V>> = map { it.toCompletableFuture() }.sequence(executor)
 
 

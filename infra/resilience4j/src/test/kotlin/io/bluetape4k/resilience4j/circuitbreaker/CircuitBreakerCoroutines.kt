@@ -3,7 +3,7 @@ package io.bluetape4k.resilience4j.circuitbreaker
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
-import io.bluetape4k.resilience4j.CoHelloWorldService
+import io.bluetape4k.resilience4j.SuspendHelloWorldService
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException
 import io.github.resilience4j.circuitbreaker.CircuitBreaker
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry
@@ -41,7 +41,7 @@ class CircuitBreakerCoroutines {
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
 
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         val result = circuitBreaker.executeSuspendFunction {
             helloWorldService.returnHelloWorld()
@@ -75,7 +75,7 @@ class CircuitBreakerCoroutines {
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
 
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         assertFailsWith<CallNotPermittedException> {
             circuitBreaker.executeSuspendFunction {
@@ -97,7 +97,7 @@ class CircuitBreakerCoroutines {
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
 
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         val function = circuitBreaker.decorateSuspendFunction {
             helloWorldService.returnHelloWorld()
@@ -117,7 +117,7 @@ class CircuitBreakerCoroutines {
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
 
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         val function = circuitBreaker.decorateSuspendFunction {
             helloWorldService.throwException()
@@ -139,7 +139,7 @@ class CircuitBreakerCoroutines {
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
 
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         val function = circuitBreaker.decorateSuspendFunction {
             helloWorldService.returnMessage("Hello world")
@@ -160,7 +160,7 @@ class CircuitBreakerCoroutines {
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
 
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         val function = circuitBreaker.decorateSuspendFunction {
             helloWorldService.throwExceptionWithMessage("error")

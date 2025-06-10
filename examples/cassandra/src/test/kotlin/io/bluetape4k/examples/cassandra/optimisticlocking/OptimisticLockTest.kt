@@ -5,6 +5,7 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.cql.updateOptions
 import io.bluetape4k.spring.cassandra.query.eq
+import io.bluetape4k.spring.cassandra.suspendInsert
 import kotlinx.coroutines.reactor.awaitSingle
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -98,7 +99,7 @@ class OptimisticLockTest @Autowired constructor(
     fun `update using lightweight transactions in coroutines`() = runSuspendIO {
         val person = SimplePerson(42L, "bart")
 
-        reactiveOps.insert(person).awaitSingle()
+        reactiveOps.suspendInsert(person)
 
         val success = reactiveOps.update(
             person,

@@ -31,6 +31,10 @@ import io.bluetape4k.jackson.Jackson
  * }
  * ```
  */
+@Deprecated(
+    message = "Use `JacksonText.Props` instead.",
+    replaceWith = ReplaceWith("JacksonText.Props")
+)
 object JacksonProps {
 
     val defaultPropsMapper: JavaPropsMapper by lazy {

@@ -34,6 +34,7 @@ import javax.cache.configuration.CacheEntryListenerConfiguration
  * @param V value type
  * @property cache caffeine [AsyncCache] instance
  */
+@Deprecated("Use CaffeineSuspendCache instead", ReplaceWith("CaffeineSuspendCache<K, V>"))
 class CaffeineCoCache<K: Any, V: Any>(private val cache: AsyncCache<K, V>): CoCache<K, V> {
 
     companion object: KLoggingChannel() {

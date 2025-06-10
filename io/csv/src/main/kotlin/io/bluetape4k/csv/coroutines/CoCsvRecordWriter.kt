@@ -21,6 +21,10 @@ import java.io.Writer
  *
  * @property writer CSV writer
  */
+@Deprecated(
+    message = "Use SuspendCsvRecordWriter instead",
+    replaceWith = ReplaceWith("SuspendCsvRecordWriter(writer, settings)")
+)
 class CoCsvRecordWriter private constructor(
     private val writer: CsvWriter,
 ): CoRecordWriter {

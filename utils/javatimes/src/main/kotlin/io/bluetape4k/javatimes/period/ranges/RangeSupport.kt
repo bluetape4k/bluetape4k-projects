@@ -22,12 +22,11 @@ fun yearRanges(
     yearCount: Int = 1,
     calendar: ITimeCalendar = TimeCalendar.Default,
 ): Sequence<YearRange> = sequence {
-    var count = 0
-    var current = YearRange(year, calendar)
-    while (count < yearCount) {
-        yield(current)
-        current = current.nextYear()
-        count++
+    yearCount.assertPositiveNumber("yearCount")
+    var currentYear = year
+    repeat(yearCount) {
+        yield(YearRange(currentYear, calendar))
+        currentYear++
     }
 }
 
@@ -44,13 +43,10 @@ fun quarterRanges(
     calendar: ITimeCalendar = TimeCalendar.Default,
 ): Sequence<QuarterRange> = sequence {
     quarterCount.assertPositiveNumber("quarterCount")
-
-    var count = 0
     var current = QuarterRange(startTime, calendar)
-    while (count < quarterCount) {
+    repeat(quarterCount) {
         yield(current)
         current = current.nextQuarter()
-        count++
     }
 }
 
@@ -118,7 +114,6 @@ fun weekRanges(
     calendar: ITimeCalendar = TimeCalendar.Default,
 ): Sequence<WeekRange> = sequence {
     var current = WeekRange(start, calendar)
-
     while (current.end <= end) {
         yield(current)
         current = current.nextWeek()
@@ -154,7 +149,6 @@ fun dayRanges(
     calendar: ITimeCalendar = TimeCalendar.Default,
 ): Sequence<DayRange> = sequence {
     var current = DayRange(start, calendar)
-
     while (current.end <= end) {
         yield(current)
         current = current.nextDay()
@@ -190,7 +184,6 @@ fun hourRanges(
     calendar: ITimeCalendar = TimeCalendar.Default,
 ): Sequence<HourRange> = sequence {
     var current = HourRange(start, calendar)
-
     while (current.end <= end) {
         yield(current)
         current = current.nextHour()
@@ -226,7 +219,6 @@ fun minuteRanges(
     calendar: ITimeCalendar = TimeCalendar.Default,
 ): Sequence<MinuteRange> = sequence {
     var current = MinuteRange(start, calendar)
-
     while (current.end <= end) {
         yield(current)
         current = current.nextMinute()

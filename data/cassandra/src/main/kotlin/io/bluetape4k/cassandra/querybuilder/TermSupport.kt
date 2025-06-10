@@ -55,25 +55,25 @@ internal fun Term.asCql(): String = buildString { appendTo(this) }
 
 
 fun Any?.literal(): Term = when (this) {
-    is List<*>   -> ListTerm(map { it.literal() })
-    is Set<*>    -> SetTerm(map { it.literal() })
+    is List<*> -> ListTerm(map { it.literal() })
+    is Set<*> -> SetTerm(map { it.literal() })
     is Map<*, *> -> MapTerm(entries.associate { (k, v) -> k.literal() to v.literal() })
-    else         -> QueryBuilder.literal(this)
+    else -> QueryBuilder.literal(this)
 }
 
 fun Any?.literal(codecRegistry: CodecRegistry): Term = when (this) {
-    is List<*>   -> ListTerm(map { it!!.literal(codecRegistry) })
-    is Set<*>    -> SetTerm(map { it!!.literal(codecRegistry) })
+    is List<*> -> ListTerm(map { it!!.literal(codecRegistry) })
+    is Set<*> -> SetTerm(map { it!!.literal(codecRegistry) })
     is Map<*, *> -> MapTerm(entries.associate { (k, v) -> k!!.literal(codecRegistry) to v!!.literal(codecRegistry) })
-    else         -> QueryBuilder.literal(this, codecRegistry)
+    else -> QueryBuilder.literal(this, codecRegistry)
 }
 
 @Suppress("UNCHECKED_CAST")
 fun <T: Any> T.literal(codec: TypeCodec<out T>): Term = when (this) {
-    is List<*>   -> ListTerm(map { it!!.literal(codec) })
-    is Set<*>    -> SetTerm(map { it!!.literal(codec) })
+    is List<*> -> ListTerm(map { it!!.literal(codec) })
+    is Set<*> -> SetTerm(map { it!!.literal(codec) })
     is Map<*, *> -> MapTerm(entries.associate { (k, v) -> k!!.literal(codec) to v!!.literal(codec) })
-    else         -> QueryBuilder.literal(this, codec as TypeCodec<T>)
+    else -> QueryBuilder.literal(this, codec as TypeCodec<T>)
 }
 
 
@@ -120,5 +120,8 @@ class MapTerm(private val components: Map<Term, Term>): Term {
         }
     }
 
-    override fun isIdempotent(): Boolean = components.all { it.key.isIdempotent && it.value.isIdempotent }
+    override fun isIdempotent(): Boolean =
+        components.all {
+            it.key.isIdempotent && it.value.isIdempotent
+        }
 }

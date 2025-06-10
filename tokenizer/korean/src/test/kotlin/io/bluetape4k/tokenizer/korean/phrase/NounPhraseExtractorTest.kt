@@ -81,8 +81,9 @@ class NounPhraseExtractorTest: TestBase() {
 
         val tokens = KoreanProcessor.tokenize(superLongText)
 
-        measureTimeMillis { NounPhraseExtractor.extractPhrases(tokens) } shouldBeLessThan 10_000
-
+        measureTimeMillis {
+            NounPhraseExtractor.extractPhrases(tokens)
+        } shouldBeLessThan 10_000
     }
 
     @Test

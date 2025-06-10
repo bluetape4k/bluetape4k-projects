@@ -1,7 +1,6 @@
 package io.bluetape4k.micrometer.instrument.retrofit2
 
 import com.jakewharton.retrofit2.adapter.reactor.ReactorCallAdapterFactory
-import io.bluetape4k.concurrent.sequence
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -9,13 +8,12 @@ import io.bluetape4k.logging.trace
 import io.bluetape4k.micrometer.instrument.AbstractMicrometerTest
 import io.bluetape4k.retrofit2.clients.vertx.vertxCallFactoryOf
 import io.bluetape4k.retrofit2.defaultJsonConverterFactory
-import io.bluetape4k.retrofit2.executeAsync
 import io.bluetape4k.retrofit2.retrofit
 import io.bluetape4k.retrofit2.service
+import io.bluetape4k.retrofit2.suspendExecute
 import io.bluetape4k.support.classIsPresent
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.future.await
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactor.awaitSingle
@@ -85,11 +83,11 @@ class Retrofit2MetricsTest: AbstractMicrometerTest() {
 
         val call = api.getPosts()
         call.shouldNotBeNull()
-        val posts = call.executeAsync().await().body()
+        val posts = call.suspendExecute().body()
         posts.shouldNotBeNull()
         log.trace { "posts=$posts" }
 
-        List(REPEAT_SIZE) { api.getPosts().executeAsync() }.sequence().await()
+        List(REPEAT_SIZE) { api.getPosts().suspendExecute() }
 
         registry.meters.forEach { meter ->
             log.debug { "id=${meter.id}, tags=${meter.measure().joinToString()}" }

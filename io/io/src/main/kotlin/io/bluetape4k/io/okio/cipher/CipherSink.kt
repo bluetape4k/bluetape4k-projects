@@ -2,7 +2,7 @@ package io.bluetape4k.io.okio.cipher
 
 import io.bluetape4k.io.okio.bufferOf
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.trace
 import okio.ForwardingSink
 import okio.Sink
 import javax.crypto.Cipher
@@ -19,10 +19,10 @@ open class CipherSink(
 
     override fun write(source: okio.Buffer, byteCount: Long) {
         val bytesToRead = byteCount.coerceAtMost(source.size)
-        log.debug { "Write data from source with cipher. bytes to read=$bytesToRead" }
+        log.trace { "Write data from source with cipher. bytes to read=$bytesToRead" }
 
         val plainBytes = source.readByteArray(bytesToRead)
-        log.debug { "Encrypt plain bytes: ${plainBytes.size} bytes" }
+        log.trace { "Encrypt plain bytes: ${plainBytes.size} bytes" }
 
         val encryptedBytes = cipher.doFinal(plainBytes)
         val encryptedSink = bufferOf(encryptedBytes)

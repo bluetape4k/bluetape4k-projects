@@ -3,6 +3,8 @@ configurations {
 }
 
 dependencies {
+    testImplementation(platform(Libs.junit_bom))
+    
     api(project(":bluetape4k-logging"))
 
     api(Libs.kotlin_test_junit5)

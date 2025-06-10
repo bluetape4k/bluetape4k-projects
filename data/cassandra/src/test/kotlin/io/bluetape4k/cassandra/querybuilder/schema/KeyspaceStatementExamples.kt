@@ -3,13 +3,13 @@ package io.bluetape4k.cassandra.querybuilder.schema
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.alterKeyspace
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.createKeyspace
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.dropKeyspace
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class KeyspaceStatementExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `generate alterKeyspace`() {

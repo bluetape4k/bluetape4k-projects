@@ -15,10 +15,9 @@ dependencies {
     testImplementation(Libs.kotlinx_coroutines_test)
 
     // NOTE: linux-x86_64 를 따로 추가해줘야 제대로 classifier가 지정된다.
-    api(Libs.netty_transport_native_epoll + ":linux-x86_64")
-    api(Libs.netty_transport_native_kqueue + ":osx-x86_64")
-    api(Libs.netty_transport_native_kqueue + ":osx-aarch_64")
+    compileOnly(Libs.netty_transport_classes_epoll)
+    compileOnly(Libs.netty_transport_classes_kqueue)
 
     // Netty 를 Mac M1 에서 사용하기 위한 설정
-    api(Libs.netty_resolver_dns_native_macos + ":osx-aarch_64")
+    compileOnly(Libs.netty_resolver_dns_classes_macos)
 }

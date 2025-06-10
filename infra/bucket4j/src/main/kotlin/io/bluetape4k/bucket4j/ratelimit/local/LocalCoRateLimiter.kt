@@ -23,6 +23,10 @@ import io.bluetape4k.support.requireNotBlank
  *
  * @property bucketProvider [LocalCoBucketProvider] 인스턴스
  */
+@Deprecated(
+    message = "Use `io.bluetape4k.bucket4j.ratelimit.local.LocalSuspendedRateLimiter` instead",
+    replaceWith = ReplaceWith("io.bluetape4k.bucket4j.ratelimit.local.LocalSuspendedRateLimiter")
+)
 class LocalCoRateLimiter(
     private val bucketProvider: LocalCoBucketProvider,
 ): CoRateLimiter<String> {

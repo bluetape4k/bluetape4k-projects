@@ -2,9 +2,10 @@ package io.bluetape4k.images.splitter
 
 import io.bluetape4k.images.AbstractImageTest
 import io.bluetape4k.images.ImageFormat
-import io.bluetape4k.images.coroutines.CoJpegWriter
+import io.bluetape4k.images.coroutines.SuspendJpegWriter
+import io.bluetape4k.io.suspendWrite
 import io.bluetape4k.io.toInputStream
-import io.bluetape4k.io.write
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
 import io.bluetape4k.logging.KLogging
@@ -67,25 +68,25 @@ class ImageSplitterTest: AbstractImageTest() {
                 val image = ImageIO.read(it.toInputStream())
                 image.height shouldBeLessOrEqualTo splitter.defaultMaxHeight
             }
-            items.forEach {
-                tempFolder.createFile().write(it)
+            items.forEach { bytes ->
+                tempFolder.createFile().suspendWrite(bytes)
             }
         }
     }
 
     @ParameterizedTest(name = "split and compress {0}")
     @ValueSource(strings = [AQUA_JPG, EVERLAND_JPG])
-    fun `split and compress image`(path: String, tempFolder: TempFolder) = runTest {
+    fun `split and compress image`(path: String, tempFolder: TempFolder) = runSuspendIO {
         getImage(path).use { input ->
             val items: Flow<ByteArray> = splitter
                 .splitAndCompress(
                     input,
                     ImageFormat.JPG,
-                    writer = CoJpegWriter.Default
+                    writer = SuspendJpegWriter.Default
                 )
 
-            items.buffer().collect {
-                tempFolder.createFile().write(it)
+            items.buffer().collect { bytes ->
+                tempFolder.createFile().suspendWrite(bytes)
             }
         }
     }

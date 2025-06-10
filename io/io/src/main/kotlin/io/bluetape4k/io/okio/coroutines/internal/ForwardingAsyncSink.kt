@@ -8,6 +8,10 @@ import okio.Sink
 import okio.Timeout
 import kotlin.coroutines.CoroutineContext
 
+@Deprecated(
+    "Use ForwardingSuspendSink instead",
+    ReplaceWith("ForwardingSuspendSink(delegate, context)"),
+)
 internal class ForwardingAsyncSink(
     val delegate: Sink,
     private val context: CoroutineContext,

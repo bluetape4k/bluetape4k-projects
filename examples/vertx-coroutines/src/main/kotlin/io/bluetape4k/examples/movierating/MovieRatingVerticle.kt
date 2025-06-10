@@ -4,7 +4,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.support.asInt
-import io.bluetape4k.vertx.web.coHandler
+import io.bluetape4k.vertx.web.suspendHandler
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.handler.BodyHandler
@@ -57,9 +57,9 @@ class MovieRatingVerticle: CoroutineVerticle() {
         router.route().handler(BodyHandler.create())
 
         // ex: http://localhost:8080/movie/starwars
-        router.get("/movie/:id").coHandler { getMovie(it) }
-        router.post("/rateMovie/:id").coHandler { rateMovie(it) }
-        router.get("/getRating/:id").coHandler { getRating(it) }
+        router.get("/movie/:id").suspendHandler { getMovie(it) }
+        router.post("/rateMovie/:id").suspendHandler { rateMovie(it) }
+        router.get("/getRating/:id").suspendHandler { getRating(it) }
 
         // HTTP 서버 시작
         log.debug { "Start HTTP Server. http://localhost:${config.getInteger("http.port", 8080)}" }

@@ -1,14 +1,13 @@
 package io.bluetape4k.idgenerators.uuid
 
-import io.bluetape4k.codec.encodeBase62
 import io.bluetape4k.idgenerators.IdGenerator
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import io.bluetape4k.utils.Runtimex
-import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeEqualTo
@@ -75,7 +74,7 @@ abstract class AbstractTimebasedUuidTest {
                     val id = uuidGenerator.nextId()
                     idMap.putIfAbsent(id, 1).shouldBeNull()
 
-                    val idString = id.encodeBase62()
+                    val idString = uuidGenerator.nextIdAsString()
                     idStringMap.putIfAbsent(idString, 1).shouldBeNull()
                 }
             }
@@ -94,7 +93,7 @@ abstract class AbstractTimebasedUuidTest {
                     val id = uuidGenerator.nextId()
                     idMap.putIfAbsent(id, 1).shouldBeNull()
 
-                    val idString = id.encodeBase62()
+                    val idString = uuidGenerator.nextIdAsString()
                     idStringMap.putIfAbsent(idString, 1).shouldBeNull()
                 }
             }
@@ -102,19 +101,19 @@ abstract class AbstractTimebasedUuidTest {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `generate timebased uuids in multi job`() = runTest {
+    fun `generate timebased uuids in multi jobs`() = runSuspendDefault {
         val idMap = ConcurrentHashMap<UUID, Int>()
         val idStringMap = ConcurrentHashMap<String, Int>()
 
         SuspendedJobTester()
-            .numThreads(Runtimex.availableProcessors)
+            .numThreads(2 * Runtimex.availableProcessors)
             .roundsPerJob(TEST_COUNT * 2 * Runtimex.availableProcessors)
             .add {
                 repeat(REPEAT_SIZE) {
                     val id = uuidGenerator.nextId()
                     idMap.putIfAbsent(id, 1).shouldBeNull()
 
-                    val idString = id.encodeBase62()
+                    val idString = uuidGenerator.nextIdAsString()
                     idStringMap.putIfAbsent(idString, 1).shouldBeNull()
                 }
             }

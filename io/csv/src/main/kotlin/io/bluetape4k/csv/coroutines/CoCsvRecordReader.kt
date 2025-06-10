@@ -27,6 +27,10 @@ import java.nio.charset.Charset
  *
  * @property settings CSV 파서 설정
  */
+@Deprecated(
+    message = "Use SuspendRecordReader instead. This will be removed in future versions.",
+    replaceWith = ReplaceWith("SuspendRecordReader")
+)
 class CoCsvRecordReader(
     private val settings: CsvParserSettings = DefaultCsvParserSettings,
 ): CoRecordReader {

@@ -27,7 +27,6 @@ class LongSupportTest {
         assertPrefixLength(a, c, 5)
         assertPrefixLength(0x0, a, 0)
         assertPrefixLength(0x8888300000000000UL.toLong(), 0x8888c00000000000UL.toLong(), 16)
-
     }
 
     private fun assertPrefixLength(a: Long, b: Long, length: Int) {

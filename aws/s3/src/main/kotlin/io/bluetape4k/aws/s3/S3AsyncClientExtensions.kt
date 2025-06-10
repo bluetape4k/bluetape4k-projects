@@ -42,7 +42,7 @@ fun S3AsyncClient.existsBucket(bucketName: String): CompletableFuture<Boolean> {
  */
 fun S3AsyncClient.createBucket(
     bucketName: String,
-    createBucketConfiguration: (CreateBucketConfiguration.Builder) -> Unit = {},
+    createBucketConfiguration: CreateBucketConfiguration.Builder.() -> Unit = {},
 ): CompletableFuture<CreateBucketResponse> {
     bucketName.requireNotBlank("bucketName")
 
@@ -64,7 +64,7 @@ fun S3AsyncClient.createBucket(
 fun S3AsyncClient.getAsByteArray(
     bucket: String,
     key: String,
-    getObjectRequest: (GetObjectRequest.Builder) -> Unit = {},
+    getObjectRequest: GetObjectRequest.Builder.() -> Unit = {},
 ): CompletableFuture<ByteArray> {
     val request = getObjectRequest(bucket, key, getObjectRequest)
 
@@ -81,7 +81,7 @@ fun S3AsyncClient.getAsByteArray(
 fun S3AsyncClient.getAsString(
     bucket: String,
     key: String,
-    getObjectRequest: (GetObjectRequest.Builder) -> Unit = {},
+    getObjectRequest: GetObjectRequest.Builder.() -> Unit = {},
 ): CompletableFuture<String> {
     val request = getObjectRequest(bucket, key, getObjectRequest)
 
@@ -94,7 +94,7 @@ fun S3AsyncClient.getAsFile(
     bucket: String,
     key: String,
     destinationPath: Path,
-    getObjectRequest: (GetObjectRequest.Builder) -> Unit = {},
+    getObjectRequest: GetObjectRequest.Builder.() -> Unit = {},
 ): CompletableFuture<GetObjectResponse> {
     val request = getObjectRequest(bucket, key, getObjectRequest)
     return getObject(request, destinationPath)
@@ -117,7 +117,7 @@ fun S3AsyncClient.put(
     bucket: String,
     key: String,
     body: AsyncRequestBody,
-    requestBuilder: (PutObjectRequest.Builder) -> Unit = {},
+    requestBuilder: PutObjectRequest.Builder.() -> Unit = {},
 ): CompletableFuture<PutObjectResponse> {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
@@ -136,7 +136,7 @@ fun S3AsyncClient.putAsByteArray(
     bucket: String,
     key: String,
     bytes: ByteArray,
-    requestBuilder: (PutObjectRequest.Builder) -> Unit = {},
+    requestBuilder: PutObjectRequest.Builder.() -> Unit = {},
 ): CompletableFuture<PutObjectResponse> {
     return put(bucket, key, AsyncRequestBody.fromBytes(bytes), requestBuilder)
 }
@@ -152,7 +152,7 @@ fun S3AsyncClient.putAsString(
     bucket: String,
     key: String,
     contents: String,
-    requestBuilder: (PutObjectRequest.Builder) -> Unit = {},
+    requestBuilder: PutObjectRequest.Builder.() -> Unit = {},
 ): CompletableFuture<PutObjectResponse> {
     return put(bucket, key, AsyncRequestBody.fromString(contents), requestBuilder)
 }
@@ -161,7 +161,7 @@ fun S3AsyncClient.putAsFile(
     bucket: String,
     key: String,
     file: File,
-    requestBuilder: (PutObjectRequest.Builder) -> Unit = {},
+    requestBuilder: PutObjectRequest.Builder.() -> Unit = {},
 ): CompletableFuture<PutObjectResponse> {
     return put(bucket, key, AsyncRequestBody.fromFile(file), requestBuilder)
 }
@@ -171,7 +171,7 @@ fun S3AsyncClient.putAsFile(
     bucket: String,
     key: String,
     path: Path,
-    requestBuilder: (PutObjectRequest.Builder) -> Unit = {},
+    requestBuilder: PutObjectRequest.Builder.() -> Unit = {},
 ): CompletableFuture<PutObjectResponse> {
     return put(bucket, key, AsyncRequestBody.fromFile(path), requestBuilder)
 }
@@ -222,8 +222,8 @@ fun S3AsyncClient.moveObject(
  * @return 복사 결과
  */
 fun S3AsyncClient.moveObject(
-    copyObjectRequest: (CopyObjectRequest.Builder) -> Unit,
-    deleteObjectRequest: (DeleteObjectRequest.Builder) -> Unit,
+    copyObjectRequest: CopyObjectRequest.Builder.() -> Unit,
+    deleteObjectRequest: DeleteObjectRequest.Builder.() -> Unit,
 ): CompletableFuture<CopyObjectResult> {
     return copyObject(copyObjectRequest)
         .thenCompose { copyResponse ->

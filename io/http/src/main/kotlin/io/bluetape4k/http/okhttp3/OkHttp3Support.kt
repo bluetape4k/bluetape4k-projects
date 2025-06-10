@@ -1,5 +1,6 @@
 package io.bluetape4k.http.okhttp3
 
+import io.bluetape4k.concurrent.virtualthread.virtualThreadFactory
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.CacheControl
@@ -12,6 +13,7 @@ import java.io.IOException
 import java.io.InputStream
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resumeWithException
 
@@ -57,19 +59,38 @@ fun okHttp3ConnectionPool(
  * @param initializer [OkHttpClient.Builder] 초기화 람다
  * @return [OkHttpClient.Builder] 인스턴스
  */
-fun okhttp3ClientBuilderOf(
+inline fun okhttp3ClientBuilderOf(
     connectionPool: ConnectionPool = okHttp3ConnectionPool(),
+    dispatcher: okhttp3.Dispatcher = okhttp3DispatcherWithVirtualThread(),
     initializer: OkHttpClient.Builder.() -> Unit = {},
 ): OkHttpClient.Builder {
     return OkHttpClient.Builder()
         .apply {
             connectionPool(connectionPool)
+            dispatcher(dispatcher)
             connectTimeout(Duration.ofSeconds(10))
             readTimeout(Duration.ofSeconds(10))
             writeTimeout(Duration.ofSeconds(30))
 
             initializer()
         }
+}
+
+fun okhttp3DispatcherWithVirtualThread(
+    threadName: String = "okhttp3-virtual-thread-",
+): okhttp3.Dispatcher {
+    val factory = virtualThreadFactory {
+        name(threadName, 0)
+        inheritInheritableThreadLocals(true)
+    }
+    val executor = Executors.newThreadPerTaskExecutor(factory)
+    return okhttp3DispatcherOf(executor)
+}
+
+fun okhttp3DispatcherOf(
+    executorService: java.util.concurrent.ExecutorService = Executors.newVirtualThreadPerTaskExecutor(),
+): okhttp3.Dispatcher {
+    return okhttp3.Dispatcher(executorService)
 }
 
 /**
@@ -93,9 +114,10 @@ fun okhttp3ClientBuilderOf(
  */
 inline fun okhttp3Client(
     connectionPool: ConnectionPool = okHttp3ConnectionPool(),
+    dispatcher: okhttp3.Dispatcher = okhttp3DispatcherWithVirtualThread(),
     initializer: OkHttpClient.Builder.() -> Unit = {},
 ): OkHttpClient {
-    return okhttp3ClientBuilderOf(connectionPool)
+    return okhttp3ClientBuilderOf(connectionPool, dispatcher)
         .apply(initializer)
         .build()
 }
@@ -212,7 +234,7 @@ inline fun okhttp3Request(
  * @param initializer [okhttp3.Request.Builder] 초기화 람다
  * @return [okhttp3.Request] 인스턴스
  */
-fun okhttp3RequestOf(
+inline fun okhttp3RequestOf(
     url: String,
     vararg nameAndValues: String,
     initializer: okhttp3.Request.Builder.() -> Unit = {},
@@ -240,7 +262,7 @@ fun okhttp3RequestOf(
  * @param initializer [okhttp3.Request.Builder] 초기화 람다
  * @return [okhttp3.Request] 인스턴스
  */
-fun okhttp3RequestOf(
+inline fun okhttp3RequestOf(
     url: String,
     headers: okhttp3.Headers,
     initializer: okhttp3.Request.Builder.() -> Unit = {},
@@ -352,8 +374,8 @@ inline fun OkHttpClient.executeAsync(
         override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
             when {
                 response.isSuccessful -> promise.complete(response)
-                call.isCanceled()     -> handleCanceled(IOException("Canceled"))
-                else                  -> handleCanceled(IOException("Unexpected code $response"))
+                call.isCanceled() -> handleCanceled(IOException("Canceled"))
+                else -> handleCanceled(IOException("Unexpected code $response"))
             }
         }
 
@@ -387,6 +409,54 @@ inline fun OkHttpClient.executeAsync(
  * @param request [okhttp3.Request] 인스턴스
  * @receiver [OkHttpClient] 인스턴스
  */
+suspend inline fun OkHttpClient.suspendExecute(request: okhttp3.Request): Response =
+    newCall(request).suspendExecute()
+
+/**
+ * [Call]을 Coroutines 방식으로 실행합니다. (Non-Blocking 방식입니다)
+ *
+ * ```
+ * runBlocking {
+ *      val response = call.executeSuspending()
+ * }
+ * ```
+ *
+ * @receiver [Call] 인스턴스
+ */
+suspend inline fun Call.suspendExecute(): Response = suspendCancellableCoroutine { cont ->
+    cont.invokeOnCancellation {
+        this.cancel()
+    }
+
+    val responseCallback = object: Callback {
+        override fun onResponse(call: Call, response: Response) {
+            cont.resume(response) { cause, _, _ -> call.cancel() }
+        }
+
+        override fun onFailure(call: Call, e: IOException) {
+            if (call.isCanceled()) {
+                cont.cancel(e)
+            } else {
+                cont.resumeWithException(e)
+            }
+        }
+    }
+    enqueue(responseCallback)
+}
+
+/**
+ * Coroutines 환경에서 [request]를 전송하고, [okhttp3.Response]를 반환합니다.
+ *
+ * ```
+ * runBlocking {
+ *     val response = client.executeSuspending(request)
+ * }
+ * ```
+ *
+ * @param request [okhttp3.Request] 인스턴스
+ * @receiver [OkHttpClient] 인스턴스
+ */
+@Deprecated("Use `suspendExecute` instead", ReplaceWith("suspendExecute(request)"))
 suspend inline fun OkHttpClient.executeSuspending(request: okhttp3.Request): Response =
     newCall(request).executeSuspending()
 
@@ -401,22 +471,27 @@ suspend inline fun OkHttpClient.executeSuspending(request: okhttp3.Request): Res
  *
  * @receiver [Call] 인스턴스
  */
-suspend inline fun Call.executeSuspending(): Response =
-    suspendCancellableCoroutine { cont ->
-        cont.invokeOnCancellation {
-            this.cancel()
+@Deprecated("Use `suspendExecute` instead", ReplaceWith("suspendExecute()"))
+suspend inline fun Call.executeSuspending(): Response = suspendCancellableCoroutine { cont ->
+    cont.invokeOnCancellation {
+        this.cancel()
+    }
+
+    val responseCallback = object: Callback {
+        override fun onResponse(call: Call, response: Response) {
+            cont.resume(response) { cause, _, _ -> call.cancel() }
         }
 
-        this.enqueue(object: Callback {
-            override fun onFailure(call: Call, e: IOException) {
+        override fun onFailure(call: Call, e: IOException) {
+            if (call.isCanceled()) {
+                cont.cancel(e)
+            } else {
                 cont.resumeWithException(e)
             }
-
-            override fun onResponse(call: Call, response: Response) {
-                cont.resume(response) { cause, _, _ -> call.cancel() }
-            }
-        })
+        }
     }
+    enqueue(responseCallback)
+}
 
 /**
  * [okhttp3.Response]를 출력합니다.

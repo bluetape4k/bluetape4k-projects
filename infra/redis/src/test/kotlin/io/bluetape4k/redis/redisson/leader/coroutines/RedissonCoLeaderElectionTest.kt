@@ -10,10 +10,12 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.amshove.kluent.shouldBeEqualTo
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 
+@Disabled("use RedissonSuspendLeaderElectionTest instead")
 class RedissonCoLeaderElectionTest: AbstractRedissonTest() {
 
     companion object: KLoggingChannel()

@@ -5,21 +5,21 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.bluetape4k.jackson.text.AbstractJacksonTextTest
-import io.bluetape4k.jackson.text.properties.JacksonProps
-import io.bluetape4k.jackson.text.yaml.JacksonYaml
+import io.bluetape4k.jackson.text.JacksonText
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainAll
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
+import java.io.Serializable
 
 class ParseArrayDataSourcePropertiesTest: AbstractJacksonTextTest() {
 
     companion object: KLogging()
 
-    val yamlMapper by lazy { JacksonYaml.defaultYamlMapper }
-    val propsMapper by lazy { JacksonProps.defaultPropsMapper }
+    val yamlMapper by lazy { JacksonText.Yaml.defaultMapper }
+    val propsMapper by lazy { JacksonText.Props.defaultMapper }
 
     @Test
     fun `parse single datasource from yaml format`() {
@@ -122,7 +122,7 @@ class ParseArrayDataSourcePropertiesTest: AbstractJacksonTextTest() {
         JsonSubTypes.Type(value = Dbcp2DataSourceProperty::class),
         JsonSubTypes.Type(value = HikariDataSourceProperty::class)
     )
-    interface DataSourceProperty {
+    interface DataSourceProperty: Serializable {
         val driverClassName: String
         val url: String
         val username: String?
@@ -144,12 +144,10 @@ class ParseArrayDataSourcePropertiesTest: AbstractJacksonTextTest() {
         val lifo: Boolean?,
 
         val connectionProperties: String?,
-
-        ): DataSourceProperty
+    ): DataSourceProperty
 
     @JsonTypeName("hikaricp")
     data class HikariDataSourceProperty(
-
         override val driverClassName: String,
         override val url: String,
         override val username: String?,

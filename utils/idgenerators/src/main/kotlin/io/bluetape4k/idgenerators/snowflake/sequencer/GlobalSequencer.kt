@@ -47,13 +47,8 @@ class GlobalSequencer: Sequencer {
         }
     }
 
-    override fun nextSequences(size: Int): Sequence<SnowflakeId> = sequence {
-        lock.withLock {
-            repeat(size) {
-                yield(nextSequenceInternal())
-            }
-        }
-    }
+    override fun nextSequences(size: Int): Sequence<SnowflakeId> =
+        generateSequence { nextSequence() }.take(size)
 
     private fun nextSequenceInternal(): SnowflakeId {
         updateState()

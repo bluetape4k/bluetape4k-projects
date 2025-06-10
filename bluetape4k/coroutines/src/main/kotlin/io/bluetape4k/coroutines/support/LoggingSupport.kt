@@ -24,9 +24,9 @@ internal val log = KotlinLogging.logger { }
 fun <T: Job> T.log(tag: Any): T = apply {
     invokeOnCompletion(onCancelling = true, invokeImmediately = false) {
         if (it is CancellationException) {
-            log.debug { "[$tag] Cancelled" }
+            log.debug { "[$tag] 🔥" }
         } else {
-            log.debug(it) { "[$tag] Completed" }
+            log.debug(it) { "[$tag] ✅" }
         }
     }
 }

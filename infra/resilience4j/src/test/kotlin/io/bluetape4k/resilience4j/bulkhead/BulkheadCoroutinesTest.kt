@@ -2,7 +2,7 @@ package io.bluetape4k.resilience4j.bulkhead
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.resilience4j.CoHelloWorldService
+import io.bluetape4k.resilience4j.SuspendHelloWorldService
 import io.github.resilience4j.bulkhead.Bulkhead
 import io.github.resilience4j.bulkhead.BulkheadConfig
 import io.github.resilience4j.bulkhead.BulkheadFullException
@@ -46,7 +46,7 @@ class BulkheadCoroutinesTest {
     @Test
     fun `suspend 함수 실행이 제대로 수행되어야합니다`() = runSuspendTest {
         val bulkhead = Bulkhead.ofDefaults("testName").registerEventListener()
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         val result = bulkhead.executeSuspendFunction {
             helloWorldService.returnHelloWorld()
@@ -88,7 +88,7 @@ class BulkheadCoroutinesTest {
         finishedEvents shouldBeEqualTo 0
         results shouldContainSame listOf(1)
 
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
         assertFailsWith<BulkheadFullException> {
             bulkhead.executeSuspendFunction {
                 helloWorldService.returnHelloWorld()
@@ -114,7 +114,7 @@ class BulkheadCoroutinesTest {
     @Test
     fun `예외가 발생해도 bulkhead는 됩니다`() = runSuspendTest {
         val bulkhead = Bulkhead.ofDefaults("testName").registerEventListener()
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         assertFailsWith<IllegalStateException> {
             bulkhead.executeSuspendFunction {
@@ -132,7 +132,7 @@ class BulkheadCoroutinesTest {
     @Test
     fun `suspend 함수 decorate 하기`() = runSuspendTest {
         val bulkhead = Bulkhead.ofDefaults("testName").registerEventListener()
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         val function = bulkhead.decorateSuspendFunction {
             helloWorldService.returnHelloWorld()

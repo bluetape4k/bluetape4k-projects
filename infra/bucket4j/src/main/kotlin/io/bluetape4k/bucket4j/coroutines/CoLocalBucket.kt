@@ -1,6 +1,7 @@
 package io.bluetape4k.bucket4j.coroutines
 
 import io.bluetape4k.bucket4j.bucketConfiguration
+import io.bluetape4k.bucket4j.internal.Slf4jBucketListener
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
@@ -42,11 +43,15 @@ import kotlin.time.Duration.Companion.seconds
  * @param mathType 계산 단위
  * @param timeMeter 시간 측정 단위를 나타내는 [TimeMeter]
  */
+@Deprecated(
+    message = "Use `io.bluetape4k.bucket4j.coroutines.SuspendedLocalBucket` instead",
+    replaceWith = ReplaceWith("io.bluetape4k.bucket4j.coroutines.SuspendedLocalBucket")
+)
 class CoLocalBucket private constructor(
     bucketConfiguration: BucketConfiguration,
     mathType: MathType,
     timeMeter: TimeMeter,
-): LockFreeBucket(bucketConfiguration, mathType, timeMeter) {
+): LockFreeBucket(bucketConfiguration, mathType, timeMeter, Slf4jBucketListener(log)) {
 
     companion object: KLoggingChannel() {
         @JvmStatic

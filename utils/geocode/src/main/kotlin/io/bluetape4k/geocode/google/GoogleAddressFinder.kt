@@ -74,10 +74,11 @@ class GoogleAddressFinder private constructor(apiKey: String): GeocodeAddressFin
      * @param language 언어 정보
      * @return 주소 정보 또는 null
      */
-    override suspend fun findAddressAsync(geocode: Geocode, language: String): Address? {
+    override suspend fun suspendFindAddress(geocode: Geocode, language: String): Address? {
         return suspendCancellableCoroutine { cont ->
             val request = GeocodingApi.reverseGeocode(context, geocode.toLatLng())
             request.language(language)
+
             request.setCallback(object: PendingResult.Callback<Array<out GeocodingResult>> {
                 override fun onResult(result: Array<out GeocodingResult>?) {
                     log.debug { "find address for geocode=$geocode, GeocodingResult=${result?.firstOrNull()}" }
@@ -89,6 +90,7 @@ class GoogleAddressFinder private constructor(apiKey: String): GeocodeAddressFin
                     cont.resumeWithException(IOException("Fail to retrieve address. geocode=$geocode", e))
                 }
             })
+
             cont.invokeOnCancellation {
                 runCatching { request.cancel() }
             }

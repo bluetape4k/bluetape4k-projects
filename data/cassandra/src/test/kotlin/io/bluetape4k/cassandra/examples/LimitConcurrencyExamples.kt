@@ -9,7 +9,7 @@ import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.cassandra.cql.executeSuspending
 import io.bluetape4k.cassandra.querybuilder.bindMarker
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +29,7 @@ import kotlin.system.measureTimeMillis
 
 class LimitConcurrencyExamples: AbstractCassandraTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val CONCURRENCY_LEVEL = 32
         private const val TOTAL_NUMBER_OF_INSERTS = 1_000
         private const val IN_FLIGHT_REQUESTS = 500

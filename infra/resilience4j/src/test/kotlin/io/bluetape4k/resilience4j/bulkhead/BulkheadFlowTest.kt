@@ -2,7 +2,7 @@ package io.bluetape4k.resilience4j.bulkhead
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.resilience4j.CoHelloWorldService
+import io.bluetape4k.resilience4j.SuspendHelloWorldService
 import io.github.resilience4j.bulkhead.Bulkhead
 import io.github.resilience4j.bulkhead.BulkheadConfig
 import io.github.resilience4j.bulkhead.BulkheadFullException
@@ -98,7 +98,7 @@ class BulkheadFlowTest {
         finishedEvents shouldBeEqualTo 0
         results shouldContainSame listOf(1)
 
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         assertFailsWith<BulkheadFullException> {
             flow { emit(helloWorldService.returnHelloWorld()) }

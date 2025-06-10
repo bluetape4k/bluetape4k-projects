@@ -3,8 +3,8 @@ package io.bluetape4k.spring.cassandra.reactive
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
-import io.bluetape4k.spring.cassandra.cql.coQueryForResultSet
 import io.bluetape4k.spring.cassandra.cql.insertOptions
+import io.bluetape4k.spring.cassandra.cql.suspendQueryForResultSet
 import io.bluetape4k.spring.cassandra.cql.writeOptions
 import io.bluetape4k.spring.cassandra.domain.ReactiveDomainTestConfiguration
 import io.bluetape4k.spring.cassandra.domain.model.FlatGroup
@@ -118,7 +118,12 @@ class ReactiveCassandraBatchTemplateTest(
 
         group1.age = 100
 
-        val writeResult = operations.batchOps().insert(group1, lwtOptions).insert(group2).execute().awaitSingle()
+        val writeResult = operations.batchOps()
+            .insert(group1, lwtOptions)
+            .insert(group2)
+            .execute()
+            .awaitSingle()
+
         writeResult.wasApplied().shouldBeFalse()
         writeResult.executionInfo.isNotEmpty()
         writeResult.rows.shouldNotBeEmpty()
@@ -140,15 +145,16 @@ class ReactiveCassandraBatchTemplateTest(
 
         operations.batchOps().insertFlow(flowOf(group1, group2), writeOptions).execute().awaitSingle()
 
-        val resultSet: ReactiveResultSet = operations.reactiveCqlOperations
-            .coQueryForResultSet("SELECT TTL(email) FROM groups")
+        val resultSet: ReactiveResultSet = operations
+            .reactiveCqlOperations
+            .suspendQueryForResultSet("SELECT TTL(email) FROM groups")
 
         resultSet.rows().asFlow()
-            .onEach { row -> println("ttl= ${row.getInt(0)}") }
-            .onEach { row ->
-                row.getInt(0) shouldBeInRange 1..30
+            .collect { row ->
+                val ttl = row.getInt(0)
+                println("ttl= $ttl")
+                ttl shouldBeInRange 1..30
             }
-            .collect()
     }
 
     @Test
@@ -257,11 +263,15 @@ class ReactiveCassandraBatchTemplateTest(
             .awaitSingle()
 
         resultSet.rows().asFlow()
-            .onEach { row -> println("timestamp= ${row.getLong(0)}") }
+            .onEach { }
             .onEach { row ->
                 row.getLong(0) shouldBeEqualTo timestamp
             }
-            .collect()
+            .collect { row ->
+                val loadedTimestamp = row.getLong(0)
+                println("timestamp= $loadedTimestamp")
+                loadedTimestamp shouldBeEqualTo timestamp
+            }
     }
 
     @Test

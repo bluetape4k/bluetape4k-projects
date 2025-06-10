@@ -48,7 +48,7 @@ fun <T> S3TransferManager.download(
     bucket: String,
     key: String,
     responseTransformer: AsyncResponseTransformer<GetObjectResponse, T>,
-    getObjectRequestBuilder: (GetObjectRequest.Builder) -> Unit = {},
+    getObjectRequestBuilder: GetObjectRequest.Builder.() -> Unit = {},
 ): Download<T> {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
@@ -77,7 +77,7 @@ fun S3TransferManager.downloadFile(
     bucket: String,
     key: String,
     objectPath: Path,
-    additionalDownloadRequest: (DownloadFileRequest.Builder) -> Unit = { it.addTransferListener(LoggingTransferListener.create()) },
+    additionalDownloadRequest: DownloadFileRequest.Builder.() -> Unit = { addTransferListener(LoggingTransferListener.create()) },
 ): FileDownload {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
@@ -106,7 +106,7 @@ inline fun S3TransferManager.upload(
     bucket: String,
     key: String,
     asyncRequestBody: AsyncRequestBody,
-    additionalUploadRequest: (UploadRequest.Builder) -> Unit = {},
+    additionalUploadRequest: UploadRequest.Builder.() -> Unit = {},
 ): Upload {
     val request = uploadRequest {
         putObjectRequest {
@@ -123,7 +123,7 @@ inline fun S3TransferManager.uploadByteArray(
     bucket: String,
     key: String,
     content: ByteArray,
-    additionalUploadRequest: (UploadRequest.Builder) -> Unit = {},
+    additionalUploadRequest: UploadRequest.Builder.() -> Unit = {},
 ): Upload {
     val request = uploadRequest {
         putObjectRequest {
@@ -140,7 +140,7 @@ fun S3TransferManager.uploadFile(
     bucket: String,
     key: String,
     source: Path,
-    uploadRequest: (UploadFileRequest.Builder) -> Unit = { it.addTransferListener(LoggingTransferListener.create()) },
+    uploadRequest: UploadFileRequest.Builder.() -> Unit = { addTransferListener(LoggingTransferListener.create()) },
 ): FileUpload {
     val request = UploadFileRequest.builder()
         .putObjectRequest {

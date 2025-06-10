@@ -7,7 +7,7 @@ import io.bluetape4k.aws.dynamodb.model.QueryEnhancedRequest
 import io.bluetape4k.aws.dynamodb.model.dynamoDbKeyOf
 import io.bluetape4k.aws.dynamodb.repository.DynamoDbCoroutineRepository
 import io.bluetape4k.aws.dynamodb.repository.findFirst
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.toList
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -22,7 +22,7 @@ class CustomerRepository(
     @Value("\${aws.dynamodb.tablePrefix:local-}") tablePrefix: String,
 ): DynamoDbCoroutineRepository<CustomerDocument> {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     override val itemClass: Class<CustomerDocument> = CustomerDocument::class.java
     override val table: DynamoDbAsyncTable<CustomerDocument> by lazy {

@@ -4,6 +4,8 @@ import io.bluetape4k.concurrent.AtomicIntRoundrobin
 import io.bluetape4k.geoip2.AbstractGeoipTest
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Runtimex
@@ -78,7 +80,33 @@ class GeoipCountryFinderTest: AbstractGeoipTest() {
         val resultMap = ConcurrentHashMap<String, String?>()
 
         StructuredTaskScopeTester()
-            .roundsPerTask(10 * Runtimex.availableProcessors)
+            .roundsPerTask(10 * 2 * Runtimex.availableProcessors)
+            .add {
+                val ip = ipAddresses[index.next()]
+                val address = countryFinder.findAddress(InetAddress.getByName(ip))!!
+                resultMap.putIfAbsent(ip, address.country)
+            }
+            .run()
+
+        expected.forEach { (ip, address) ->
+            log.debug { "ip=$ip, address=$address" }
+            resultMap[ip]!! shouldBeEqualTo address!!.country
+        }
+    }
+
+    @Test
+    fun `find country in suspend jobs`() = runSuspendIO {
+        val ipAddresses = getIpAddresses()
+        val expected = ipAddresses.associateWith {
+            countryFinder.findAddress(InetAddress.getByName(it))
+        }
+
+        val index = AtomicIntRoundrobin(ipAddresses.size)
+        val resultMap = ConcurrentHashMap<String, String?>()
+
+        SuspendedJobTester()
+            .numThreads(2 * Runtimex.availableProcessors)
+            .roundsPerJob(10 * 2 * Runtimex.availableProcessors)
             .add {
                 val ip = ipAddresses[index.next()]
                 val address = countryFinder.findAddress(InetAddress.getByName(ip))!!

@@ -16,7 +16,7 @@ import io.vertx.core.Future
  * @return [Future] 객체
  */
 inline fun <T> Bulkhead.executeVertxFuture(
-    crossinline supplier: () -> Future<T>,
+    @BuilderInference crossinline supplier: () -> Future<T>,
 ): Future<T> {
     return decorateVertxFuture(supplier).invoke()
 }
@@ -34,7 +34,7 @@ inline fun <T> Bulkhead.executeVertxFuture(
  * @return [supplier] 를 [Bulkhead]로 decorate 한 함수
  */
 inline fun <T> Bulkhead.decorateVertxFuture(
-    crossinline supplier: () -> Future<T>,
+    @BuilderInference crossinline supplier: () -> Future<T>,
 ): () -> Future<T> = {
     if (!tryAcquirePermission()) {
         Future.failedFuture(BulkheadFullException.createBulkheadFullException(this@decorateVertxFuture))

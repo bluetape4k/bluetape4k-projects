@@ -165,7 +165,12 @@ fun <T> ReadableTemporalInterval<T>.windowed(
         val increment = step.temporalAmount(unit)
 
         while (current < endExclusive) {
-            yield(List(size) { (current + it.temporalAmount(unit)) as T }.takeWhile { it < endExclusive })
+            val item = List(size) {
+                (current + it.temporalAmount(unit)) as T
+            }.takeWhile { it < endExclusive }
+
+            yield(item)
+
             current = (current + increment) as T
         }
     }
@@ -331,14 +336,14 @@ fun <T> ReadableTemporalInterval<T>.zipWithNext(unit: ChronoUnit): Sequence<Pair
     assert(unit in SupportChronoUnits) { "Not supported ChronoUnit. unit=$unit" }
 
     return sequence {
-        var current = startInclusive.startOf(unit)
+        var current: T = startInclusive.startOf(unit)
         val increment = 1.temporalAmount(unit)
         val limit: T = (endExclusive - increment) as T
 
         while (current < limit) {
-            val second = (current + increment) as T
-            yield(current to second)
-            current = second
+            val next = (current + increment) as T
+            yield(current to next)
+            current = next
         }
     }
 }

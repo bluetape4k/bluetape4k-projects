@@ -17,7 +17,9 @@ import java.util.zip.GZIPOutputStream
  * @see [GZIPOutputStream]
  * @see [GZIPInputStream]
  */
-class GZipCompressor(private val bufferSize: Int = DEFAULT_BUFFER_SIZE): AbstractCompressor() {
+class GZipCompressor(
+    private val bufferSize: Int = DEFAULT_BUFFER_SIZE,
+): AbstractCompressor() {
 
     override fun doCompress(plain: ByteArray): ByteArray {
         val output = Buffer()

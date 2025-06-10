@@ -11,6 +11,7 @@ import io.vertx.kotlin.core.http.httpClientOptionsOf
 @JvmField
 val defaultVertxHttpClientOptions: HttpClientOptions = httpClientOptionsOf(
     protocolVersion = HttpClientOptions.DEFAULT_PROTOCOL_VERSION,
+    keepAlive = true,
     useAlpn = true,
     trustAll = true,
     logActivity = true,

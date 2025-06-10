@@ -15,7 +15,7 @@ abstract class AbstractNatsTest {
     companion object: KLogging() {
 
         @JvmStatic
-        val nats = NatsServer.Launcher.nats
+        val nats by lazy { NatsServer.Launcher.nats }
 
         @JvmStatic
         val natsDefault by lazy {

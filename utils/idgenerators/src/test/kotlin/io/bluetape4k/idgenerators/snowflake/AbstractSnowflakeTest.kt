@@ -135,6 +135,7 @@ abstract class AbstractSnowflakeTest {
         val idMap = ConcurrentHashMap<Long, Int>()
 
         SuspendedJobTester()
+            .numThreads(Runtimex.availableProcessors)
             .roundsPerJob(TEST_COUNT)
             .add {
                 val id = snowflake.nextId()
@@ -254,11 +255,11 @@ abstract class AbstractSnowflakeTest {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `parse snowflake id in multi job`() = runTest {
+    fun `parse snowflake id in virtual threads`() {
         val idMap = ConcurrentHashMap<Long, Int>()
 
         StructuredTaskScopeTester()
-            .roundsPerTask(16 * Runtimex.availableProcessors)
+            .roundsPerTask(16 * 2 * Runtimex.availableProcessors)
             .add {
                 val id = snowflake.nextId()
                 idMap.putIfAbsent(id, 1).shouldBeNull()
@@ -271,11 +272,12 @@ abstract class AbstractSnowflakeTest {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `parse snowflake ids as sequence in multi job`() = runTest {
+    fun `parse snowflake ids as sequence in suspended jobs`() = runTest {
         val idMap = ConcurrentHashMap<Long, Int>()
 
         SuspendedJobTester()
-            .roundsPerJob(16 * Runtimex.availableProcessors)
+            .numThreads(2 * Runtimex.availableProcessors)
+            .roundsPerJob(16 * 2 * Runtimex.availableProcessors)
             .add {
                 val ids = snowflake.nextIds(10)
                 ids.forEach { id ->
@@ -314,7 +316,7 @@ abstract class AbstractSnowflakeTest {
         val idMap = ConcurrentHashMap<Long, Int>()
 
         StructuredTaskScopeTester()
-            .roundsPerTask(16 * Runtimex.availableProcessors)
+            .roundsPerTask(16 * 2 * Runtimex.availableProcessors)
             .add {
                 val id = snowflake.nextId()
                 idMap.putIfAbsent(id, 1).shouldBeNull()
@@ -327,11 +329,12 @@ abstract class AbstractSnowflakeTest {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `parse snowflake id in coroutines`() = runSuspendDefault {
+    fun `parse snowflake id in suspend jobs`() = runSuspendDefault {
         val idMap = ConcurrentHashMap<Long, Int>()
 
         SuspendedJobTester()
-            .roundsPerJob(16 * Runtimex.availableProcessors)
+            .numThreads(2 * Runtimex.availableProcessors)
+            .roundsPerJob(16 * 2 * Runtimex.availableProcessors)
             .add {
                 val id = snowflake.nextId()
                 idMap.putIfAbsent(id, 1).shouldBeNull()
@@ -368,7 +371,7 @@ abstract class AbstractSnowflakeTest {
         val idMap = ConcurrentHashMap<String, Int>()
 
         StructuredTaskScopeTester()
-            .roundsPerTask(16 * Runtimex.availableProcessors)
+            .roundsPerTask(16 * 2 * Runtimex.availableProcessors)
             .add {
                 val id = snowflake.nextId().encodeBase62()
                 log.trace { "base62=$id" }
@@ -383,11 +386,12 @@ abstract class AbstractSnowflakeTest {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `parse snowflake id as base62 in coroutines`() = runSuspendDefault {
+    fun `parse snowflake id as base62 in suspended jobs`() = runSuspendDefault {
         val idMap = ConcurrentHashMap<String, Int>()
 
         SuspendedJobTester()
-            .roundsPerJob(16 * Runtimex.availableProcessors)
+            .numThreads(2 * Runtimex.availableProcessors)
+            .roundsPerJob(16 * 2 * Runtimex.availableProcessors)
             .add {
                 val id = snowflake.nextId().encodeBase62()
                 log.trace { "base62=$id" }
@@ -429,7 +433,7 @@ abstract class AbstractSnowflakeTest {
         val idMap = ConcurrentHashMap<Long, Int>()
 
         StructuredTaskScopeTester()
-            .roundsPerTask(16 * Runtimex.availableProcessors)
+            .roundsPerTask(16 * 2 * Runtimex.availableProcessors)
             .add {
                 val ids = snowflake.nextIds(10)
                 ids.forEach { id ->
@@ -446,11 +450,12 @@ abstract class AbstractSnowflakeTest {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `parse snowflake ids as sequence in coroutines`() = runSuspendDefault {
+    fun `parse snowflake ids as sequence in suspend jobs`() = runSuspendDefault {
         val idMap = ConcurrentHashMap<Long, Int>()
 
         SuspendedJobTester()
-            .roundsPerJob(16 * Runtimex.availableProcessors)
+            .numThreads(2 * Runtimex.availableProcessors)
+            .roundsPerJob(16 * 2 * Runtimex.availableProcessors)
             .add {
                 val ids = snowflake.nextIds(10)
                 ids.forEach { id ->

@@ -3,7 +3,7 @@ package io.bluetape4k.coroutines.support
 import io.bluetape4k.junit5.output.OutputCapture
 import io.bluetape4k.junit5.output.OutputCapturer
 import io.bluetape4k.logging.KotlinLogging
-import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.info
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -23,7 +23,7 @@ class LoggingSupportTest {
     fun `job logging`(capturer: OutputCapturer) = runTest {
         val job = launch {
             delay(10)
-            log.debug { "Hello world!" }
+            log.info { "Hello world!" }
         }.log("TestJob")
 
         job.join()
@@ -31,7 +31,7 @@ class LoggingSupportTest {
         if (log.isDebugEnabled) {
             val captured = capturer.capture()
             captured shouldContain "Hello world!"
-            captured shouldContain "[TestJob] Completed"
+            captured shouldContain "[TestJob] ✅"
         }
     }
 

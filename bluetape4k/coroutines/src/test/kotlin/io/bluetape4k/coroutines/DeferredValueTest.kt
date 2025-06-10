@@ -1,7 +1,6 @@
 package io.bluetape4k.coroutines
 
 import io.bluetape4k.junit5.random.RandomizedTest
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.delay

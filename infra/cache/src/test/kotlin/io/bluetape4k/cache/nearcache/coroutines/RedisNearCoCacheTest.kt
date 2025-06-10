@@ -11,11 +11,13 @@ import io.bluetape4k.testcontainers.storage.RedisServer
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.awaitility.kotlin.await
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 import javax.cache.expiry.CreatedExpiryPolicy
 import javax.cache.expiry.Duration
 
+@Disabled("RedisNearCoCacheTest is deprecated, use RedisNearSuspendCacheTest instead")
 class RedisNearCoCacheTest: AbstractNearCoCacheTest() {
 
     companion object: KLogging() {

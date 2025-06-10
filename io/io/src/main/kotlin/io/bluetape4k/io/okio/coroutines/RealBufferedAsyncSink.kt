@@ -7,6 +7,7 @@ import okio.ByteString
 import okio.Timeout
 import java.util.concurrent.atomic.AtomicBoolean
 
+@Deprecated("Use RealBufferedSuspendSink instead.", ReplaceWith("RealBufferedSuspendSink"))
 internal class RealBufferedAsyncSink(
     private val sink: AsyncSink,
 ): BufferedAsyncSink {

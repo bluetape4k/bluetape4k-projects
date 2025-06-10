@@ -1,10 +1,10 @@
 package io.bluetape4k.images
 
 import com.sksamuel.scrimage.ImmutableImage
-import io.bluetape4k.images.coroutines.CoImageWriter
-import io.bluetape4k.images.coroutines.CoWriteContext
-import io.bluetape4k.io.readAllBytesSuspending
-import io.bluetape4k.io.writeSuspending
+import io.bluetape4k.images.coroutines.SuspendImageWriter
+import io.bluetape4k.images.coroutines.SuspendWriteContext
+import io.bluetape4k.io.suspendReadAllBytes
+import io.bluetape4k.io.suspendWrite
 import java.awt.Graphics2D
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -73,8 +73,8 @@ fun immutableImageOf(path: Path): ImmutableImage =
  * @param file 이미지 파일
  * @return 이미지 정보를 담은 [ImmutableImage]
  */
-suspend fun immutableImageOfSuspending(file: File): ImmutableImage =
-    immutableImageOfSuspending(file.toPath())
+suspend fun suspendImmutableImageOf(file: File): ImmutableImage =
+    suspendImmutableImageOf(file.toPath())
 
 /**
  * Coroutines 환경에서 [Path]의 파일을 읽어 [ImmutableImage]로 변환합니다.
@@ -86,8 +86,8 @@ suspend fun immutableImageOfSuspending(file: File): ImmutableImage =
  * @param path 이미지 파일의 경로
  * @return 이미지 정보를 담은 [ImmutableImage]
  */
-suspend fun immutableImageOfSuspending(path: Path): ImmutableImage =
-    immutableImageOf(path.readAllBytesSuspending())
+suspend fun suspendImmutableImageOf(path: Path): ImmutableImage =
+    immutableImageOf(path.suspendReadAllBytes())
 
 
 /**
@@ -100,8 +100,8 @@ suspend fun immutableImageOfSuspending(path: Path): ImmutableImage =
  * @param file 이미지 파일
  * @return 이미지 정보를 담은 [ImmutableImage]
  */
-suspend fun loadImageSuspending(file: File): ImmutableImage {
-    return loadImageSuspending(file.toPath())
+suspend fun suspendLoadImage(file: File): ImmutableImage {
+    return suspendLoadImage(file.toPath())
 }
 
 /**
@@ -114,8 +114,8 @@ suspend fun loadImageSuspending(file: File): ImmutableImage {
  * @param path 이미지 파일의 경로
  * @return 이미지 정보를 담은 [ImmutableImage]
  */
-suspend fun loadImageSuspending(path: Path): ImmutableImage {
-    return immutableImageOf(path.readAllBytesSuspending())
+suspend fun suspendLoadImage(path: Path): ImmutableImage {
+    return immutableImageOf(path.suspendReadAllBytes())
 }
 
 /**
@@ -126,12 +126,12 @@ suspend fun loadImageSuspending(path: Path): ImmutableImage {
  * val bytes = image.bytesSuspending(JpegWriter())
  * ```
  *
- * @param writer 이미지를 쓰기 위한 [CoImageWriter]
+ * @param writer 이미지를 쓰기 위한 [SuspendImageWriter]
  * @return 이미지 정보를 담은 ByteArray
  */
-suspend fun ImmutableImage.bytesSuspending(writer: CoImageWriter): ByteArray {
+suspend fun ImmutableImage.suspendBytes(writer: SuspendImageWriter): ByteArray {
     return ByteArrayOutputStream(DEFAULT_BUFFER_SIZE).use { bos ->
-        writer.writeSuspending(this, this.metadata, bos)
+        writer.suspendWrite(this, this.metadata, bos)
         bos.toByteArray()
     }
 }
@@ -144,29 +144,29 @@ suspend fun ImmutableImage.bytesSuspending(writer: CoImageWriter): ByteArray {
  * image.writeSuspending(JpegWriter(), File("output.jpg"))
  * ```
  *
- * @param writer 이미지를 쓰기 위한 [CoImageWriter]
+ * @param writer 이미지를 쓰기 위한 [SuspendImageWriter]
  * @param destPath 저장할 파일의 경로
  * @return 저장된 파일의 크기
  */
-suspend fun ImmutableImage.writeSuspending(writer: CoImageWriter, destPath: Path): Long {
-    val bytes = bytesSuspending(writer)
-    return destPath.writeSuspending(bytes)
+suspend fun ImmutableImage.suspendWrite(writer: SuspendImageWriter, destPath: Path): Long {
+    val bytes = suspendBytes(writer)
+    return destPath.suspendWrite(bytes)
 }
 
 /**
- * [ImmutableImage] 정보를 쓰기 작업을 위해 [writer]를 사용하는 [CoWriteContext]를 생성합니다.
+ * [ImmutableImage] 정보를 쓰기 작업을 위해 [writer]를 사용하는 [SuspendWriteContext]를 생성합니다.
  *
  * ```
  * val image = immutableImageOf(File("image.jpg"))
- * val context = image.forCoWriter(writer)
+ * val context = image.forSuspendWriter(writer)
  * context.write(destPath)
  * ```
  *
- * @param writer 이미지를 쓰기 위한 [CoImageWriter]
- * @return [CoWriteContext] instance
+ * @param writer 이미지를 쓰기 위한 [SuspendImageWriter]
+ * @return [SuspendWriteContext] instance
  */
-fun ImmutableImage.forCoWriter(writer: CoImageWriter): CoWriteContext =
-    CoWriteContext(writer, this, this.metadata)
+fun ImmutableImage.forSuspendWriter(writer: SuspendImageWriter): SuspendWriteContext =
+    SuspendWriteContext(writer, this, this.metadata)
 
 
 /**

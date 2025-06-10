@@ -25,7 +25,7 @@ import java.time.Duration
 interface SuspendedWriteThroughScenario<T: HasIdentifier<ID>, ID: Any>: SuspendedCacheTestScenario<T, ID> {
 
     companion object: KLoggingChannel() {
-        const val DEFAULT_DELAY = 100L
+        const val DEFAULT_DELAY = 500L
     }
 
     suspend fun createNewEntity(): T

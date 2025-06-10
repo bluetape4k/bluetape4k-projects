@@ -23,10 +23,10 @@ class CipherSource(
     private val sourceBuffer = Buffer()
     private val decipheredBuffer = Buffer()
 
-    override fun read(sink: Buffer, bytesRequested: Long): Long {
+    override fun read(sink: Buffer, byteCount: Long): Long {
         // 복원할 전체 블록과 끝을 확인하기 위한 추가 블록에 대한 계산
         val bytesToRead =
-            cipher.blockSize * (1 + (bytesRequested / cipher.blockSize) + if (bytesRequested % cipher.blockSize > 0) 1 else 0)
+            cipher.blockSize * (1 + (byteCount / cipher.blockSize) + if (byteCount % cipher.blockSize > 0) 1 else 0)
         bytesToRead.requireGe(0L, "bytesToRead")
         log.debug { "Read data from source with cipher. bytes to read=$bytesToRead" }
 
@@ -55,7 +55,7 @@ class CipherSource(
         }
 
         // 요청한 바이트 수(또는 가능한 모든 바이트) 만큼 sink에 쓰기
-        val bytesToReturn = bytesRequested.coerceAtMost(decipheredBuffer.size)
+        val bytesToReturn = byteCount.coerceAtMost(decipheredBuffer.size)
         sink.write(decipheredBuffer, bytesToReturn)
 
         // 복호화해서 쓴 바이트 수 반환, 더 이상 복호화할 것이 없으면 -1 반환

@@ -1,7 +1,6 @@
 package io.bluetape4k.exposed.core.jackson
 
 import io.bluetape4k.jackson.JacksonSerializer
-import io.bluetape4k.jackson.deserializeFromString
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
 import org.jetbrains.exposed.v1.core.Column

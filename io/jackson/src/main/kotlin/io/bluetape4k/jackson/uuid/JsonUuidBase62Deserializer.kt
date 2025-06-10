@@ -24,8 +24,10 @@ class JsonUuidBase62Deserializer: UUIDDeserializer() {
 
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext): UUID {
         val token = p.currentToken
+
         if (token == JsonToken.VALUE_STRING) {
             val text = p.valueAsString.trim()
+
             return if (looksLikeUuid(text)) {
                 super.deserialize(p, ctxt)
             } else {

@@ -4,7 +4,7 @@ import io.bluetape4k.concurrent.onSuccess
 import io.bluetape4k.kafka.spring.test.utils.consumerProps
 import io.bluetape4k.kafka.spring.test.utils.getSingleRecord
 import io.bluetape4k.kafka.spring.test.utils.producerProps
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.spring.messaging.support.message
 import io.bluetape4k.support.toUtf8String
@@ -54,7 +54,7 @@ import java.util.concurrent.atomic.AtomicReference
 @EmbeddedKafka(topics = [INT_KEY_TOPIC, STRING_KEY_TOPIC])
 class KafkaTemplateTests {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val INT_KEY_TOPIC = "intKeyTopic"
         private const val STRING_KEY_TOPIC = "stringKeyTopic"
     }
@@ -98,7 +98,7 @@ class KafkaTemplateTests {
             wrapper.set(proxy)
             proxy
         }
-        val template = KafkaTemplate<Int, String>(pf, true)
+        val template = KafkaTemplate(pf, true)
         template.defaultTopic = INT_KEY_TOPIC
         template.setConsumerFactory(
             DefaultKafkaConsumerFactory(

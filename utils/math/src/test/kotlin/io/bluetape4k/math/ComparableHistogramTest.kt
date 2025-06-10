@@ -1,5 +1,6 @@
 package io.bluetape4k.math
 
+import io.bluetape4k.collections.repeat
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
@@ -43,12 +44,6 @@ class ComparableHistogramTest {
         histogram[105.0]!!.range shouldBeEqualTo DefaultClosedClosedRange(100.0, 200.0)
         histogram[205.0]!!.range shouldBeEqualTo DefaultClosedClosedRange(200.0, 300.0)
 
-    }
-
-    private fun <T> Sequence<T>.repeat(): Sequence<T> = sequence {
-        while (true) {
-            yieldAll(this@repeat)
-        }
     }
 
     data class Sale(val accountId: Int, val date: LocalDate, val value: Double)

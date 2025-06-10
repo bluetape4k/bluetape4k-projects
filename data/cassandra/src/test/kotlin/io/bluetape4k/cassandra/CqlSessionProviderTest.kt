@@ -1,6 +1,6 @@
 package io.bluetape4k.cassandra
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.closeSafe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeEqualTo
@@ -10,7 +10,7 @@ import java.util.*
 
 class CqlSessionProviderTest: AbstractCassandraTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val TEST_KEYSPACE_1 = "testkeyspace_1"
         private const val TEST_KEYSPACE_2 = "testkeyspace_2"
     }

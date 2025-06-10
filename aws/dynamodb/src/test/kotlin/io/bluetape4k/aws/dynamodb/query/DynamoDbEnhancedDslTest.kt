@@ -5,7 +5,7 @@ import io.bluetape4k.aws.dynamodb.examples.food.model.FoodState
 import io.bluetape4k.aws.dynamodb.examples.food.model.Schema.IDX_PK_UPDATED_AT
 import io.bluetape4k.aws.dynamodb.model.describe
 import io.bluetape4k.aws.dynamodb.schema.getTableSchema
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
@@ -16,7 +16,7 @@ import java.time.Instant
 
 class DynamoDbEnhancedDslTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `build enhanced query`() {

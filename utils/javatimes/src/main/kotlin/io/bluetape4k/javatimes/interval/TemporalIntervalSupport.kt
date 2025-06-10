@@ -15,7 +15,6 @@ import java.time.temporal.ChronoUnit
 import java.time.temporal.Temporal
 import java.time.temporal.TemporalAmount
 
-
 /**
  * [start]와 [endExclusive]을 이용하여 [TemporalInterval] 인스턴스를 빌드합니다.
  *

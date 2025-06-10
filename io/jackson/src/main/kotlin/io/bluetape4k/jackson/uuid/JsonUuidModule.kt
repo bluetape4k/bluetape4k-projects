@@ -18,10 +18,9 @@ class JsonUuidModule: SimpleModule() {
     private val interospector = JsonUuidEncoderAnnotationInterospector()
 
     init {
-        log.debug { "Add JsonUuidBase62Serializer ..." }
-        addSerializer(UUID::class.java, JsonUuidBase62Serializer())
+        log.debug { "Add JsonUuidBase62Serializer, JsonUuidBase62Deserializer ..." }
 
-        log.debug { "Add JsonUuidBase62Deserializer ..." }
+        addSerializer(UUID::class.java, JsonUuidBase62Serializer())
         addDeserializer(UUID::class.java, JsonUuidBase62Deserializer())
     }
 

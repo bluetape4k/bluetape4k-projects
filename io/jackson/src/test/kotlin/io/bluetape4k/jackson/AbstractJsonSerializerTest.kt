@@ -8,7 +8,6 @@ import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeEmpty
-import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 
@@ -27,8 +26,7 @@ abstract class AbstractJsonSerializerTest {
         val bytes = serializer.serialize(expected)
         bytes.shouldNotBeEmpty()
 
-        val actual = serializer.deserialize<Address>(bytes)
-        actual.shouldNotBeNull()
+        val actual = serializer.deserialize<Address>(bytes)!!
         actual shouldBeEqualTo expected
     }
 
@@ -37,8 +35,7 @@ abstract class AbstractJsonSerializerTest {
         val bytes = serializer.serialize(expected)
         bytes.shouldNotBeEmpty()
 
-        val actual = serializer.deserialize<Professor>(bytes)
-        actual.shouldNotBeNull()
+        val actual = serializer.deserialize<Professor>(bytes)!!
         actual shouldBeEqualTo expected
     }
 
@@ -48,8 +45,7 @@ abstract class AbstractJsonSerializerTest {
         val bytes = serializer.serialize(professor)
         bytes.shouldNotBeEmpty()
 
-        val actual = serializer.deserialize<Professor>(bytes)
-        actual.shouldNotBeNull()
+        val actual = serializer.deserialize<Professor>(bytes)!!
         actual shouldBeEqualTo professor
     }
 
@@ -58,8 +54,7 @@ abstract class AbstractJsonSerializerTest {
         val bytes = serializer.serialize(expected)
         bytes.shouldNotBeEmpty()
 
-        val actual = serializer.deserialize<Student>(bytes)
-        actual.shouldNotBeNull()
+        val actual = serializer.deserialize<Student>(bytes)!!
         actual shouldBeEqualTo expected
     }
 
@@ -69,8 +64,7 @@ abstract class AbstractJsonSerializerTest {
         val bytes = serializer.serialize(expected)
         bytes.shouldNotBeEmpty()
 
-        val actual = serializer.deserialize<User>(bytes)
-        actual.shouldNotBeNull()
+        val actual = serializer.deserialize<User>(bytes)!!
         actual shouldBeEqualTo expected
     }
 }

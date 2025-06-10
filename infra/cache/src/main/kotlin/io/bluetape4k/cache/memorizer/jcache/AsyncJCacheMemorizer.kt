@@ -22,19 +22,19 @@ class AsyncJCacheMemorizer<in T: Any, R: Any>(
 
     private val lock = ReentrantLock()
 
-    override fun invoke(p1: T): CompletableFuture<R> {
+    override fun invoke(input: T): CompletableFuture<R> {
         val promise = CompletableFuture<R>()
         try {
-            val value = jcache.get(p1)
+            val value = jcache.get(input)
             if (value != null) {
                 promise.complete(value)
             } else {
-                evaluator(p1)
+                evaluator(input)
                     .whenComplete { result, error ->
                         if (error != null)
                             promise.completeExceptionally(error)
                         else {
-                            jcache.put(p1, result)
+                            jcache.put(input, result)
                             promise.complete(result)
                         }
                     }

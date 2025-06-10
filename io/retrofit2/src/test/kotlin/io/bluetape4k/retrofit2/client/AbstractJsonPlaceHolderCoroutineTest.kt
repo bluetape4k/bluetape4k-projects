@@ -66,7 +66,7 @@ abstract class AbstractJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderTest
         val userIds = List(ITEM_SIZE) { Random.nextInt(1, 10) }.distinct()
 
         val deferred = userIds.map { userId ->
-            async {
+            async(Dispatchers.IO) {
                 userId to api.getUserPosts(userId)
             }
         }
@@ -85,7 +85,7 @@ abstract class AbstractJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderTest
         val postIds = List(ITEM_SIZE) { Random.nextInt(1, 10) }.distinct()
 
         val deferred = postIds.map { postId ->
-            async {
+            async(Dispatchers.IO) {
                 postId to api.getPostComments(postId)
             }
         }
@@ -111,7 +111,7 @@ abstract class AbstractJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderTest
         val userIds = List(ITEM_SIZE) { Random.nextInt(1, 10) }.distinct()
 
         val deferred = userIds.map { userId ->
-            async {
+            async(Dispatchers.IO) {
                 userId to api.getAlbumsByUserId(userId)
             }
         }
@@ -129,7 +129,7 @@ abstract class AbstractJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderTest
     @Test
     fun `create new post`(@RandomValue(type = Post::class, size = ITEM_SIZE) posts: List<Post>) = runSuspendIO {
         val deferred = posts.map { post ->
-            async {
+            async(Dispatchers.IO) {
                 api.newPost(post.copy(userId = post.userId.absoluteValue))
             }
         }
@@ -143,7 +143,7 @@ abstract class AbstractJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderTest
         val postIds = List(ITEM_SIZE) { Random.nextInt(1, 10) }.distinct()
 
         val deferred = postIds.map { postId ->
-            async {
+            async(Dispatchers.IO) {
                 val post = api.getPost(postId)
                 api.updatePost(postId, post.copy(title = "Updated " + post.title))
             }

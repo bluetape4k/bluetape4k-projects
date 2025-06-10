@@ -1,7 +1,7 @@
 package io.bluetape4k.spring.retrofit2.services.jsonplaceholder
 
 import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldNotBeEmpty
@@ -9,7 +9,7 @@ import org.amshove.kluent.shouldNotBeNullOrBlank
 
 abstract class AbstractJsonPlaceHolderApiTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
 
         @JvmStatic
         val faker = Fakers.faker

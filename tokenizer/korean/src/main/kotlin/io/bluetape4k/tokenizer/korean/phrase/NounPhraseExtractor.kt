@@ -362,7 +362,7 @@ object NounPhraseExtractor: KLogging() {
 
         return permutatedCandidates
             .map { chunk ->
-                KoreanPhrase(trimPhraseChunk(chunk).flatMap { phrase -> phrase.tokens })
+                KoreanPhrase(trimPhraseChunk(chunk).flatMap { it.tokens })
             }
     }
 

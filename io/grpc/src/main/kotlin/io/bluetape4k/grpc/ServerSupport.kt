@@ -20,7 +20,7 @@ import io.grpc.ServerBuilder
  */
 inline fun grpcServerBuilder(
     port: Int,
-    initializer: ServerBuilder<*>.() -> Unit,
+    @BuilderInference initializer: ServerBuilder<*>.() -> Unit,
 ): ServerBuilder<*> =
     ServerBuilder.forPort(port).apply(initializer)
 
@@ -42,6 +42,6 @@ inline fun grpcServerBuilder(
  */
 inline fun grpcServer(
     port: Int,
-    initializer: ServerBuilder<*>.() -> Unit,
+    @BuilderInference initializer: ServerBuilder<*>.() -> Unit,
 ): Server =
     grpcServerBuilder(port, initializer).build()

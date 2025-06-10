@@ -2,7 +2,7 @@ package io.bluetape4k.resilience4j.timelimiter
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.resilience4j.CoHelloWorldService
+import io.bluetape4k.resilience4j.SuspendHelloWorldService
 import io.github.resilience4j.kotlin.timelimiter.decorateSuspendFunction
 import io.github.resilience4j.kotlin.timelimiter.executeSuspendFunction
 import io.github.resilience4j.timelimiter.TimeLimiter
@@ -20,7 +20,7 @@ class TimeLimiterCoroutinesTest {
     @Test
     fun `suspend 함수를 실행합니다`() = runSuspendTest {
         val timelimiter = TimeLimiter.ofDefaults()
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         val result = timelimiter.executeSuspendFunction {
             helloWorldService.returnHelloWorld()
@@ -33,7 +33,7 @@ class TimeLimiterCoroutinesTest {
     @Test
     fun `예외가 발생하는 메소드도 실행합니다`() = runSuspendTest {
         val timelimiter = TimeLimiter.ofDefaults()
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         assertFailsWith<IllegalStateException> {
             timelimiter.executeSuspendFunction {
@@ -50,7 +50,7 @@ class TimeLimiterCoroutinesTest {
             .build()
         val timelimiter = TimeLimiter.of(config)
 
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         assertFailsWith<TimeoutException> {
             timelimiter.executeSuspendFunction {
@@ -64,7 +64,7 @@ class TimeLimiterCoroutinesTest {
     @Test
     fun `timelimiter로 decorate 하기`() = runSuspendTest {
         val timelimiter = TimeLimiter.ofDefaults()
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         val function = timelimiter.decorateSuspendFunction {
             helloWorldService.returnHelloWorld()

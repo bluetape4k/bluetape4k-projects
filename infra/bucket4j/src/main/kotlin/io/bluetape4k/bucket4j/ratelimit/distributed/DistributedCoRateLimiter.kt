@@ -24,6 +24,10 @@ import kotlinx.coroutines.future.await
  *
  * @property asyncBucketProxyProvider [AsyncBucketProxyProvider] 인스턴스
  */
+@Deprecated(
+    message = "Use `io.bluetape4k.bucket4j.ratelimit.distributed.DistributedSuspendedRateLimiter` instead",
+    replaceWith = ReplaceWith("io.bluetape4k.bucket4j.ratelimit.distributed.DistributedSuspendedRateLimiter")
+)
 class DistributedCoRateLimiter(
     private val asyncBucketProxyProvider: AsyncBucketProxyProvider,
 ): CoRateLimiter<String> {

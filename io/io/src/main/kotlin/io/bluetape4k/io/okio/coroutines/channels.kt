@@ -12,6 +12,7 @@ import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousFileChannel
 import java.nio.channels.AsynchronousSocketChannel
 import java.nio.channels.CompletionHandler
+import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -46,9 +47,44 @@ fun AsynchronousSocketChannel.asAsyncSource(): AsyncSource {
     }
 }
 
+
+/**
+ * [AsynchronousFileChannel]을 [SuspendSink]로 변환합니다.
+ */
+fun AsynchronousSocketChannel.asSuspendSink(coroutineContext: CoroutineContext = Dispatchers.IO): SuspendSink {
+    val channel = this
+
+    return object: SuspendSink, KLoggingChannel() {
+        val cursor = Buffer.UnsafeCursor()
+        val timeout = Timeout.NONE
+
+        override suspend fun write(source: Buffer, byteCount: Long) {
+            source.readUnsafe()
+        }
+
+        override suspend fun flush() {
+            // Nothing to do
+        }
+
+        override suspend fun close() {
+            withContext(coroutineContext) {
+                channel.close()
+            }
+        }
+
+        override suspend fun timeout(): Timeout {
+            return timeout
+        }
+    }
+}
+
 /**
  * [AsynchronousFileChannel]을 [AsyncSink]로 변환합니다.
  */
+@Deprecated(
+    "Use AsynchronousSocketChannel.asSuspendSink() instead.",
+    ReplaceWith("AsynchronousSocketChannel.asSuspendSink()")
+)
 fun AsynchronousSocketChannel.asAsyncSink(): AsyncSink {
     val channel = this
 

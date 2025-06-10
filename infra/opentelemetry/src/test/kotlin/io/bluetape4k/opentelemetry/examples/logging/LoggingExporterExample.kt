@@ -4,7 +4,7 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.opentelemetry.AbstractOtelTest
-import io.bluetape4k.opentelemetry.coroutines.useSpanSuspending
+import io.bluetape4k.opentelemetry.coroutines.useSuspendSpan
 import io.bluetape4k.opentelemetry.trace.useSpan
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.joinAll
@@ -65,7 +65,7 @@ class LoggingExporterExample: AbstractOtelTest() {
 
     private suspend fun myWonderfulUseCaseAsync() {
         // 새로운 span 에서 작업을 수행합니다.
-        tracer.spanBuilder("start my wonderful use case coroutines").useSpanSuspending { span ->
+        tracer.spanBuilder("start my wonderful use case coroutines").useSuspendSpan { span ->
             span.addEvent("FlowEvent Async 0")
             log.debug { "Call doWorkAsync() ..." }
             doWorkAsync()
@@ -75,7 +75,7 @@ class LoggingExporterExample: AbstractOtelTest() {
 
     private suspend fun doWorkAsync() {
         // 새로운 span 에서 작업을 수행합니다.
-        tracer.spanBuilder("doWorkAsync").useSpanSuspending { span ->
+        tracer.spanBuilder("doWorkAsync").useSuspendSpan { span ->
             log.debug { "Start doWorkAsync... $span" }
             delay(1000)
             log.debug { "Finish doWorkAsync. and increase work count." }

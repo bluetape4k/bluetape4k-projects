@@ -11,6 +11,10 @@ import okio.Options
 import okio.Timeout
 import java.util.concurrent.atomic.AtomicBoolean
 
+@Deprecated(
+    "Use RealBufferedSuspendSource instead.",
+    ReplaceWith("RealBufferedSuspendSource")
+)
 internal class RealBufferedAsyncSource(
     private val source: AsyncSource,
 ): BufferedAsyncSource {

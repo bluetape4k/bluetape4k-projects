@@ -10,6 +10,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
+import org.apache.avro.file.CodecFactory
 import org.junit.jupiter.api.RepeatedTest
 import io.bluetape4k.avro.message.examples.v1.VersionedItem as ItemV1
 import io.bluetape4k.avro.message.examples.v2.VersionedItem as ItemV2
@@ -23,6 +24,12 @@ class DefaultAvroReflectSerializerTest: AbstractAvroTest() {
 
     private val serializers = listOf(
         DefaultAvroReflectSerializer(),
+        DefaultAvroReflectSerializer(CodecFactory.deflateCodec(6)),
+        DefaultAvroReflectSerializer(CodecFactory.zstandardCodec(3)),
+        DefaultAvroReflectSerializer(CodecFactory.zstandardCodec(3, true)),
+        DefaultAvroReflectSerializer(CodecFactory.zstandardCodec(3, true, true)),
+        DefaultAvroReflectSerializer(CodecFactory.snappyCodec()),
+        DefaultAvroReflectSerializer(CodecFactory.bzip2Codec()),
     )
 
     private inline fun <reified T: Any> verifySerialization(avroObject: T) {

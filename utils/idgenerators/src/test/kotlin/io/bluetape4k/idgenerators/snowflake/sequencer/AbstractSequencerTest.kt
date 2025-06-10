@@ -6,9 +6,9 @@ import io.bluetape4k.idgenerators.snowflake.SnowflakeId
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.utils.Runtimex
-import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeLessThan
 import org.amshove.kluent.shouldBeNull
@@ -104,7 +104,7 @@ abstract class AbstractSequencerTest {
     }
 
     @Test
-    fun `generate sequence in multi job`() = runTest {
+    fun `generate sequence in multi job`() = runSuspendDefault {
         val idMap = ConcurrentHashMap<Long, Int>()
 
         SuspendedJobTester()

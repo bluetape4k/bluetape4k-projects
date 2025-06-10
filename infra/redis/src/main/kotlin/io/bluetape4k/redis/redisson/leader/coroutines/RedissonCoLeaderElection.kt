@@ -18,6 +18,10 @@ import java.util.concurrent.TimeUnit
  * 여러 Process, Thread에서 같은 작업이 동시, 무작위로 실행되는 것을 방지하기 위해
  * Redisson Lock을 이용하여 Leader를 선출되면 독점적으로 작업할 수 있도록 합니다.
  */
+@Deprecated(
+    message = "Use RedissonSuspendLeaderElection instead.",
+    replaceWith = ReplaceWith("RedissonSuspendLeaderElection(redissonClient, options)")
+)
 class RedissonCoLeaderElection(
     private val redissonClient: RedissonClient,
     options: RedissonLeaderElectionOptions,
@@ -30,6 +34,10 @@ class RedissonCoLeaderElection(
          * @param redissonClient RedissonClient 인스턴스
          * @param options 리더 선출 옵션
          */
+        @Deprecated(
+            message = "Use RedissonSuspendLeaderElection instead.",
+            replaceWith = ReplaceWith("RedissonSuspendLeaderElection(redissonClient, options)")
+        )
         @JvmStatic
         operator fun invoke(
             redissonClient: RedissonClient,

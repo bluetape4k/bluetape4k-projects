@@ -2,7 +2,7 @@ package io.bluetape4k.resilience4j.retry
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.resilience4j.CoHelloWorldService
+import io.bluetape4k.resilience4j.SuspendHelloWorldService
 import io.github.resilience4j.kotlin.retry.retry
 import io.github.resilience4j.retry.Retry
 import io.github.resilience4j.retry.RetryConfig
@@ -22,15 +22,13 @@ class FlowRetryTest {
     fun `성공하는 함수를 실행합니다`() = runSuspendTest {
         val retry = Retry.ofDefaults("testName")
         val metrics = retry.metrics
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         val results = flow {
             repeat(3) {
                 emit(helloWorldService.returnHelloWorld() + it)
             }
-        }
-            .retry(retry)
-            .toList()
+        }.retry(retry).toList()
 
         repeat(3) {
             results[it] shouldBeEqualTo "Hello world$it"
@@ -53,7 +51,7 @@ class FlowRetryTest {
                 .build()
         }
         val metrics = retry.metrics
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
         // val results = mutableListOf<String>()
 
         val results = flow {
@@ -63,9 +61,7 @@ class FlowRetryTest {
                     else -> emit(helloWorldService.returnHelloWorld() + it)
                 }
             }
-        }
-            .retry(retry)
-            .toList()
+        }.retry(retry).toList()
 
         repeat(3) {
             results[it] shouldBeEqualTo "Hello world$it"
@@ -82,7 +78,7 @@ class FlowRetryTest {
 
     @Test
     fun `재시도 결과에 따라 실행합니다`() = runSuspendTest {
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
         val retry = Retry.of("testName") {
             RetryConfig.custom<Any?>()
                 .waitDuration(Duration.ofMillis(10))
@@ -93,8 +89,7 @@ class FlowRetryTest {
         // val results = mutableListOf<String>()
 
         val results = flow { emit(helloWorldService.returnHelloWorld()) }
-            .retry(retry)
-            .toList()
+            .retry(retry).toList()
 
         results.size shouldBeEqualTo 1
         results[0] shouldBeEqualTo "Hello world"
@@ -109,7 +104,7 @@ class FlowRetryTest {
 
     @Test
     fun `반복적인 실패 시에도 함수는 실행됩니다`() = runSuspendTest {
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
         val retry = Retry.of("testName") {
             RetryConfig.custom<Any?>()
                 .waitDuration(Duration.ofMillis(10))

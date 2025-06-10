@@ -14,9 +14,11 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 
+@Disabled("use SuspendRingBufferTest instead")
 class CoRingBufferTest {
 
     companion object: KLoggingChannel()

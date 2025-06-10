@@ -103,7 +103,9 @@ fun sesAsyncClientOf(
  * @param emailRequest [SendEmailRequest] email 전송 요청 정보
  * @return [CompletableFuture]<[SendEmailResponse]> email 전송 응답 정보
  */
-fun SesAsyncClient.send(emailRequest: SendEmailRequest): CompletableFuture<SendEmailResponse> {
+fun SesAsyncClient.send(
+    emailRequest: SendEmailRequest,
+): CompletableFuture<SendEmailResponse> {
     return sendEmail(emailRequest)
 }
 
@@ -119,7 +121,9 @@ fun SesAsyncClient.send(emailRequest: SendEmailRequest): CompletableFuture<SendE
  * @param rawEmailRequest [SendRawEmailRequest] email 전송 요청 정보
  * @return [CompletableFuture]<[SendRawEmailResponse]> email 전송 응답 정보
  */
-fun SesAsyncClient.sendRaw(rawEmailRequest: SendRawEmailRequest): CompletableFuture<SendRawEmailResponse> {
+fun SesAsyncClient.sendRaw(
+    rawEmailRequest: SendRawEmailRequest,
+): CompletableFuture<SendRawEmailResponse> {
     return sendRawEmail(rawEmailRequest)
 }
 

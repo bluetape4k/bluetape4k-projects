@@ -3,7 +3,7 @@ package io.bluetape4k.resilience4j.circuitbreaker
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
-import io.bluetape4k.resilience4j.CoHelloWorldService
+import io.bluetape4k.resilience4j.SuspendHelloWorldService
 import io.github.resilience4j.circuitbreaker.CircuitBreaker
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry
 import io.github.resilience4j.kotlin.circuitbreaker.executeSuspendFunction
@@ -38,7 +38,7 @@ class CircuitBreakerExamples {
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
 
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         val result = circuitBreaker.executeSuspendFunction {
             helloWorldService.returnHelloWorld()

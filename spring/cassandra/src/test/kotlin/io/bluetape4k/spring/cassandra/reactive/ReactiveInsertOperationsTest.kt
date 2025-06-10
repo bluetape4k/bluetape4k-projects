@@ -6,8 +6,10 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.spring.cassandra.AbstractReactiveCassandraTestConfiguration
 import io.bluetape4k.spring.cassandra.cql.insertOptions
+import io.bluetape4k.spring.cassandra.suspendSelectOneById
+import io.bluetape4k.spring.cassandra.suspendTruncate
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -23,8 +25,6 @@ import org.springframework.data.cassandra.core.ReactiveCassandraOperations
 import org.springframework.data.cassandra.core.insert
 import org.springframework.data.cassandra.core.mapping.Indexed
 import org.springframework.data.cassandra.core.mapping.Table
-import org.springframework.data.cassandra.core.selectOneById
-import org.springframework.data.cassandra.core.truncate
 import java.io.Serializable
 
 @SpringBootTest
@@ -57,8 +57,8 @@ class ReactiveInsertOperationsTest(
 
     @BeforeEach
     fun beforeEach() {
-        runBlocking {
-            operations.truncate<Person>().awaitSingleOrNull()
+        runBlocking(Dispatchers.IO) {
+            operations.suspendTruncate<Person>()
         }
     }
 
@@ -78,7 +78,7 @@ class ReactiveInsertOperationsTest(
         writeResult.wasApplied().shouldBeTrue()
         writeResult.entity shouldBeEqualTo person
 
-        operations.selectOneById<Person>(person.id).awaitSingle() shouldBeEqualTo person
+        operations.suspendSelectOneById<Person>(person.id) shouldBeEqualTo person
     }
 
     @Test

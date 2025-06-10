@@ -1,6 +1,6 @@
 package io.bluetape4k.javers.persistence.kafka.repository
 
-import io.bluetape4k.javers.codecs.GsonCodecs
+import io.bluetape4k.javers.codecs.JaversCodecs
 import io.bluetape4k.javers.repository.AbstractCdoSnapshotRepository
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
@@ -17,7 +17,7 @@ import org.springframework.kafka.core.KafkaTemplate
  */
 class KafkaCdoSnapshotRepository(
     private val kafkaOperations: KafkaTemplate<String, String>,
-): AbstractCdoSnapshotRepository<String>(GsonCodecs.String) {
+): AbstractCdoSnapshotRepository<String>(JaversCodecs.String) {
 
     companion object: KLogging()
 
@@ -34,13 +34,13 @@ class KafkaCdoSnapshotRepository(
     override fun getSnapshotSize(globalIdValue: String): Int = 0
 
     override fun saveSnapshot(snapshot: CdoSnapshot) {
-        runCatching {
+        try {
             val key = snapshot.globalId.value()
             val value = encode(snapshot)
             log.trace { "Produce snapshot. key=$key, value=$value" }
             kafkaOperations.sendDefault(key, value)
-        }.onFailure { error ->
-            log.error(error) { "Fail to procude snapshot. key=${snapshot.globalId.value()}" }
+        } catch (e: Throwable) {
+            log.error(e) { "Fail to procude snapshot. key=${snapshot.globalId.value()}" }
         }
     }
 

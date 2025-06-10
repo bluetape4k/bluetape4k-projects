@@ -2,14 +2,14 @@ package io.bluetape4k.cassandra.querybuilder
 
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder.truncate
 import io.bluetape4k.cassandra.toCqlIdentifier
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
 class TruncateStatementExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `generate truncate for table name`() {

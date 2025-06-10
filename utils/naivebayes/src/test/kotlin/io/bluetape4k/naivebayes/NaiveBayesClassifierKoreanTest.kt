@@ -1,7 +1,6 @@
 package io.bluetape4k.naivebayes
 
 import io.bluetape4k.logging.KLogging
-import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
@@ -15,7 +14,7 @@ class NaiveBayesClassifierKoreanTest: AbstractNaiveBayesClassifierTest() {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `메일 제목으로 spam 분류하기`() = runTest {
+    fun `메일 제목으로 spam 분류하기`() {
 
         val emails = listOf(
             Email("로켓펀치 누적 프로필 20만 돌파 기념 인포그래픽 공개! ", isSpam = false),
@@ -47,7 +46,7 @@ class NaiveBayesClassifierKoreanTest: AbstractNaiveBayesClassifierTest() {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `한글 명세서로 분류하기`() = runTest {
+    fun `한글 명세서로 분류하기`() {
 
         val bankTransactions = listOf(
             BankTransaction(

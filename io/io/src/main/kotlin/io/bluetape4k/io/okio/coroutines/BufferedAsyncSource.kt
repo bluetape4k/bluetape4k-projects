@@ -9,6 +9,10 @@ import okio.Options
  * penalty. It also allows clients to read ahead, buffering as much as necessary before consuming
  * input.
  */
+@Deprecated(
+    "Use BufferedSuspendSource instead.",
+    ReplaceWith("BufferedSuspendSource")
+)
 interface BufferedAsyncSource: AsyncSource {
 
     /**

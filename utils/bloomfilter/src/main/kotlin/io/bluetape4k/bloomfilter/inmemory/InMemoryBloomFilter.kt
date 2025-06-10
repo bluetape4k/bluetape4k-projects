@@ -96,5 +96,4 @@ open class InMemoryBloomFilter<T: Serializable> private constructor(
     protected fun setBit(index: Int, value: Boolean = true) {
         bloom[index] = value
     }
-
 }

@@ -3,6 +3,7 @@ package org.springframework.kafka.annotation
 import com.fasterxml.jackson.annotation.JsonCreator
 import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import io.bluetape4k.logging.trace
 import io.bluetape4k.logging.warn
@@ -55,7 +56,7 @@ import java.util.concurrent.TimeUnit
 @EmbeddedKafka(partitions = 1, topics = ["blc1", "blc2", "blc3", "blc4", "blc5", "blc6", "blc6.DLT"])
 class BatchListenerConversionTests {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val DEFAULT_TEST_GROUP_ID = "blc"
         private const val AWAIT_TIME_SECONDS = 3L
     }

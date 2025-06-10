@@ -9,6 +9,7 @@ import javax.cache.configuration.CacheEntryListenerConfiguration
  * @param K key type
  * @param V value type
  */
+@Deprecated("Use SuspendCache instead", ReplaceWith("SuspendCache"))
 interface CoCache<K: Any, V: Any> {
 
     fun entries(): Flow<CoCacheEntry<K, V>>

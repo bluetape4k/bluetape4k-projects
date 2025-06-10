@@ -6,6 +6,8 @@ import feign.Param
 import feign.RequestLine
 import feign.codec.Decoder
 import feign.kotlin.CoroutineFeign
+import io.bluetape4k.feign.codec.FeignFastjsonDecoder
+import io.bluetape4k.feign.codec.FeignFastjsonEncoder
 import io.bluetape4k.feign.codec.JacksonDecoder2
 import io.bluetape4k.feign.codec.JacksonEncoder2
 import io.bluetape4k.feign.coroutines.client
@@ -65,7 +67,7 @@ abstract class AbstractCoroutineClientTest {
     }
 
     @Test
-    fun `응답이 클래스라면 JSON 방식으로 디코딩 되어야 합니다`() = runSuspendTest {
+    fun `응답이 클래스라면 JSON 방식으로 Jackson 디코딩 되어야 합니다`() = runSuspendTest {
         val expected = IceCreamOrder("HELLO WORLD", 999)
         server.enqueueBodyWithDelay(
             mapper.writeAsString(expected),
@@ -73,10 +75,9 @@ abstract class AbstractCoroutineClientTest {
             "Content-Type: application/json; charset=UTF-8"
         )
 
-
         val client = newCoroutineBuilder()
-            .encoder(JacksonEncoder2(mapper))
-            .decoder(JacksonDecoder2(mapper)) // JSON 을 받기 위해
+            .encoder(JacksonEncoder2.INSTANCE) // Jackson 을 사용하기 위해
+            .decoder(JacksonDecoder2.INSTANCE) // JSON 을 받기 위해
             .client<TestInterfaceAsync>(server.baseUrl)
 
         val result = client.findOrderThatReturningComplexType(1)
@@ -85,7 +86,27 @@ abstract class AbstractCoroutineClientTest {
     }
 
     @Test
-    fun `응답이 엔티티의 컬렉션이라면 JSON 방식으로 디코딩 되어야 합니다`() = runSuspendTest {
+    fun `응답이 클래스라면 JSON 방식으로 Fastjson2 디코딩 되어야 합니다`() = runSuspendTest {
+        val expected = IceCreamOrder("HELLO WORLD", 999)
+        server.enqueueBodyWithDelay(
+            mapper.writeAsString(expected),
+            delay,
+            "Content-Type: application/json; charset=UTF-8"
+        )
+
+        val client = newCoroutineBuilder()
+            .encoder(FeignFastjsonEncoder.INSTANCE) // Fastjson2 을 사용하기 위해
+            .decoder(FeignFastjsonDecoder.INSTANCE) // JSON 을 받기 위해
+            .client<TestInterfaceAsync>(server.baseUrl)
+
+        val result = client.findOrderThatReturningComplexType(1)
+
+        result shouldBeEqualTo expected
+    }
+
+
+    @Test
+    fun `응답이 엔티티의 컬렉션이라면 Jackson JSON 방식으로 디코딩 되어야 합니다`() = runSuspendTest {
         val expected = listOf(
             IceCreamOrder("HELLO WORLD", 999),
             IceCreamOrder("베스킨 라빈스", 31)
@@ -97,8 +118,30 @@ abstract class AbstractCoroutineClientTest {
         )
 
         val client = newCoroutineBuilder()
-            .encoder(JacksonEncoder2(mapper))
-            .decoder(JacksonDecoder2(mapper)) // JSON 을 받기 위해
+            .encoder(JacksonEncoder2.INSTANCE) // Jackson 을 사용하기 위해
+            .decoder(JacksonDecoder2.INSTANCE) // JSON 을 받기 위해
+            .client<TestInterfaceAsync>(server.baseUrl)
+
+        val result = client.findOrders()
+
+        result shouldContainSame expected
+    }
+
+    @Test
+    fun `응답이 엔티티의 컬렉션이라면 Fast JSON 방식으로 디코딩 되어야 합니다`() = runSuspendTest {
+        val expected = listOf(
+            IceCreamOrder("HELLO WORLD", 999),
+            IceCreamOrder("베스킨 라빈스", 31)
+        )
+        server.enqueueBodyWithDelay(
+            mapper.writeAsString(expected),
+            delay,
+            "Content-Type: application/json; charset=UTF-8"
+        )
+
+        val client = newCoroutineBuilder()
+            .encoder(FeignFastjsonEncoder.INSTANCE) // Fastjson2 을 사용하기 위해
+            .decoder(FeignFastjsonDecoder.INSTANCE) // JSON 을 받기 위해
             .client<TestInterfaceAsync>(server.baseUrl)
 
         val result = client.findOrders()
@@ -129,7 +172,7 @@ abstract class AbstractCoroutineClientTest {
     }
 
     @Test
-    fun `RequestBody 가 JSON 일 경우, 서버에서 받아야 합니다`() = runSuspendTest {
+    fun `RequestBody 가 JSON 일 경우, 서버에서 받아야 합니다 with Jackson`() = runSuspendTest {
         val expected = IceCreamOrder("HELLO WORLD", 999)
         server.enqueueBodyWithDelay(
             mapper.writeAsString(expected),
@@ -138,8 +181,8 @@ abstract class AbstractCoroutineClientTest {
         )
 
         val client = newCoroutineBuilder()
-            .encoder(JacksonEncoder2(mapper))
-            .decoder(JacksonDecoder2(mapper))
+            .encoder(JacksonEncoder2.INSTANCE) // Jackson 을 사용하기 위해
+            .decoder(JacksonDecoder2.INSTANCE) // JSON 을 받기 위해
             .client<TestInterfaceAsync>(server.baseUrl)
 
         val result = client.findOrderWithHttpBody(expected)
@@ -148,6 +191,25 @@ abstract class AbstractCoroutineClientTest {
         server.takeRequest().body.readUtf8() shouldBeEqualTo mapper.writeAsString(expected)
     }
 
+    @Test
+    fun `RequestBody 가 JSON 일 경우, 서버에서 받아야 합니다 with Fastjson2`() = runSuspendTest {
+        val expected = IceCreamOrder("HELLO WORLD", 999)
+        server.enqueueBodyWithDelay(
+            mapper.writeAsString(expected),
+            delay,
+            "Content-Type: application/json; charset=UTF-8"
+        )
+
+        val client = newCoroutineBuilder()
+            .encoder(FeignFastjsonEncoder.INSTANCE) // Fastjson 을 사용하기 위해
+            .decoder(FeignFastjsonDecoder.INSTANCE) // JSON 을 받기 위해
+            .client<TestInterfaceAsync>(server.baseUrl)
+
+        val result = client.findOrderWithHttpBody(expected)
+        result shouldBeEqualTo expected
+
+        server.takeRequest().body.readUtf8() shouldBeEqualTo mapper.writeAsString(expected)
+    }
 
     internal interface TestInterfaceAsync {
         @RequestLine("GET /icecream/orders/{orderId}")

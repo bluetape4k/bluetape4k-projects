@@ -15,7 +15,9 @@ import java.text.NumberFormat
  * @param numberFormat NumberFormat 파싱할 문자열의 형식
  * @return T 파싱된 Number 타입
  */
-inline fun <reified T: Number> String.parseNumber(numberFormat: NumberFormat = NumberFormat.getInstance()): T =
+inline fun <reified T: Number> String.parseNumber(
+    numberFormat: NumberFormat = NumberFormat.getInstance(),
+): T =
     NumberUtils.parseNumber(this, T::class.java, numberFormat)
 
 /**
@@ -29,7 +31,10 @@ inline fun <reified T: Number> String.parseNumber(numberFormat: NumberFormat = N
  * @receiver String 파싱할 문자열
  * @param targetClass Class<T> 파싱할 Number 타입
  */
-fun <T: Number> String.parseNumber(targetClass: Class<T>, numberFormat: NumberFormat = NumberFormat.getInstance()): T =
+fun <T: Number> String.parseNumber(
+    targetClass: Class<T>,
+    numberFormat: NumberFormat = NumberFormat.getInstance(),
+): T =
     NumberUtils.parseNumber(this, targetClass, numberFormat)
 
 /**

@@ -26,6 +26,31 @@ import io.bluetape4k.logging.KLogging
  */
 object JacksonBinary: KLogging() {
 
+    private val enabledSerializationFeatures = setOf(
+        SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
+        SerializationFeature.WRITE_ENUMS_USING_TO_STRING,
+        SerializationFeature.WRITE_ENUMS_USING_INDEX,
+        SerializationFeature.WRITE_NULL_MAP_VALUES,
+        SerializationFeature.WRITE_EMPTY_JSON_ARRAYS
+    )
+    private val disabledSerializationFeatures = setOf(
+        SerializationFeature.FAIL_ON_EMPTY_BEANS,
+        SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN
+    )
+
+    private val enabledDeserializationFeatures = setOf(
+        DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT,
+        DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY,
+        DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT,
+        DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL,
+        DeserializationFeature.READ_ENUMS_USING_TO_STRING
+    )
+    private val disabledDeserializationFeatures = setOf(
+        DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,
+        DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+        DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES,
+        DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES
+    )
 
     /**
      * CBOR 알고리즘을 사용하는 Jackson Binary JSON Serializer 관련 Serializer, Factory, Mapper 를 제공합니다.
@@ -41,22 +66,10 @@ object JacksonBinary: KLogging() {
                     CBORGenerator.Feature.WRITE_TYPE_HEADER,
                     CBORGenerator.Feature.STRINGREF,
                 )
-                .disable(
-                    SerializationFeature.FAIL_ON_EMPTY_BEANS
-                )
-                .enable(
-                    DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT,
-                    DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY,
-                    DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT,
-                    DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL,
-                    DeserializationFeature.READ_ENUMS_USING_TO_STRING,
-                )
-                .disable(
-                    DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,
-                    DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
-                    DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES,
-                    DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES,
-                )
+                .enable(*enabledSerializationFeatures.toTypedArray())
+                .disable(*disabledSerializationFeatures.toTypedArray())
+                .enable(*enabledDeserializationFeatures.toTypedArray())
+                .disable(*disabledDeserializationFeatures.toTypedArray())
                 .build()
         }
 
@@ -87,22 +100,10 @@ object JacksonBinary: KLogging() {
                 .enable(
                     IonGenerator.Feature.USE_NATIVE_TYPE_ID,
                 )
-                .disable(
-                    SerializationFeature.FAIL_ON_EMPTY_BEANS
-                )
-                .enable(
-                    DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT,
-                    DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY,
-                    DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT,
-                    DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL,
-                    DeserializationFeature.READ_ENUMS_USING_TO_STRING,
-                )
-                .disable(
-                    DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,
-                    DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
-                    DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES,
-                    DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES,
-                )
+                .enable(*enabledSerializationFeatures.toTypedArray())
+                .disable(*disabledSerializationFeatures.toTypedArray())
+                .enable(*enabledDeserializationFeatures.toTypedArray())
+                .disable(*disabledDeserializationFeatures.toTypedArray())
                 .build()
         }
 
@@ -134,22 +135,10 @@ object JacksonBinary: KLogging() {
                     SmileGenerator.Feature.WRITE_HEADER,
                     SmileGenerator.Feature.WRITE_END_MARKER,
                 )
-                .disable(
-                    SerializationFeature.FAIL_ON_EMPTY_BEANS
-                )
-                .enable(
-                    DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT,
-                    DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY,
-                    DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT,
-                    DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL,
-                    DeserializationFeature.READ_ENUMS_USING_TO_STRING,
-                )
-                .disable(
-                    DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,
-                    DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
-                    DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES,
-                    DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES,
-                )
+                .enable(*enabledSerializationFeatures.toTypedArray())
+                .disable(*disabledSerializationFeatures.toTypedArray())
+                .enable(*enabledDeserializationFeatures.toTypedArray())
+                .disable(*disabledDeserializationFeatures.toTypedArray())
                 .build()
         }
 

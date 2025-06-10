@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
+@Deprecated("Use AbstractSuspendedRateLimiterTest instead")
 abstract class AbstractCoRateLimiterTest {
 
     companion object: KLogging() {

@@ -25,7 +25,7 @@ class SystemPropertyExtensionClassTest {
     }
 
     @Test
-    @io.bluetape4k.junit5.system.SystemProperties(
+    @SystemProperties(
         [
             SystemProperty("keyA", "valueA"),
             SystemProperty("keyB", "valueB")

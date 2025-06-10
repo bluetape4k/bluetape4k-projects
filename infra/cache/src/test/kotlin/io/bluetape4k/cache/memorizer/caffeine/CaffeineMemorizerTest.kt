@@ -12,9 +12,6 @@ class CaffeineMemorizerTest: AbstractMemorizerTest() {
 
     companion object: KLogging()
 
-    override val factorial: FactorialProvider = CaffeineFactorialProvider()
-    override val fibonacci: FibonacciProvider = CaffeineFibonacciProvider()
-
     private val caffeine = caffeine {
         executor(ForkJoinPool.commonPool())
     }
@@ -26,10 +23,7 @@ class CaffeineMemorizerTest: AbstractMemorizerTest() {
         it * it
     }
 
-    private class CaffeineFactorialProvider: FactorialProvider() {
-        val caffeine = caffeine {
-            executor(ForkJoinPool.commonPool())
-        }
+    override val factorial: FactorialProvider = object: FactorialProvider {
         val cache = caffeine.cache<Long, Long>()
 
         override val cachedCalc: (Long) -> Long by lazy {
@@ -37,10 +31,7 @@ class CaffeineMemorizerTest: AbstractMemorizerTest() {
         }
     }
 
-    private class CaffeineFibonacciProvider: FibonacciProvider() {
-        val caffeine = caffeine {
-            executor(ForkJoinPool.commonPool())
-        }
+    override val fibonacci: FibonacciProvider = object: FibonacciProvider {
         val cache = caffeine.cache<Long, Long>()
 
         override val cachedCalc: (Long) -> Long by lazy {

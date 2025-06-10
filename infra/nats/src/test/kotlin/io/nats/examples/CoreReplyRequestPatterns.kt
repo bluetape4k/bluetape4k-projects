@@ -23,7 +23,7 @@ class CoreReplyRequestPatterns: AbstractNatsTest() {
 
     @Nested
     inner class MultipleReplies {
-        private val WORKER_COUNT = 5
+        private val workerCount = 5
 
         private fun extractRequestIdFromSubject(msg: Message): String {
             val at = msg.subject.lastIndexOf(".")
@@ -60,7 +60,7 @@ class CoreReplyRequestPatterns: AbstractNatsTest() {
         inner class Originator(val nc: Connection): Runnable {
 
             val requesterId = Random.nextLong().toHexString()
-            val latch = CountDownLatch(WORKER_COUNT)
+            val latch = CountDownLatch(workerCount)
 
             init {
                 val dispatcher = nc.createDispatcher { msg ->
@@ -103,7 +103,7 @@ class CoreReplyRequestPatterns: AbstractNatsTest() {
         fun `multiple replies for one request`() {
             getConnection().use { nc ->
                 // Start the workers first. They have to be subscribed before messages get published
-                for (workerId in 1..WORKER_COUNT) {
+                for (workerId in 1..workerCount) {
                     thread(start = true) { Worker(nc, workerId).run() }
                 }
 
@@ -331,11 +331,11 @@ class CoreReplyRequestPatterns: AbstractNatsTest() {
             getConnection().use { nc ->
                 // Start the workers first. They have to be subscribed before messages get published
                 for (workerId in 1..WORKER_A_COUNT) {
-                    thread(start = true) { Worker(nc, "A" + workerId, "TaskTypeA", false).run() }
+                    thread(start = true) { Worker(nc, "A$workerId", "TaskTypeA", false).run() }
                 }
 
                 for (workerId in 1..WORKER_B_COUNT) {
-                    thread(start = true) { Worker(nc, "B" + workerId, "TaskTypeB", true).run() }
+                    thread(start = true) { Worker(nc, "B$workerId", "TaskTypeB", true).run() }
                 }
 
                 // Start the originator and let it run

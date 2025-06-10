@@ -1,7 +1,6 @@
 package io.bluetape4k.coroutines
 
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import io.bluetape4k.utils.Runtimex

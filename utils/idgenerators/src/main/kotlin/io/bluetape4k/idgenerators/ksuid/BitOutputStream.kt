@@ -4,7 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 
-class BitOutputStream private constructor(val capacity: Int) {
+internal class BitOutputStream private constructor(val capacity: Int) {
 
     companion object: KLogging() {
         @JvmStatic

@@ -5,6 +5,10 @@ package io.bluetape4k.bucket4j.ratelimit
  *
  * @param K  Key 수형
  */
+@Deprecated(
+    message = "Use `io.bluetape4k.bucket4j.ratelimit.SuspendedRateLimiter` instead",
+    replaceWith = ReplaceWith("io.bluetape4k.bucket4j.ratelimit.SuspendedRateLimiter")
+)
 interface CoRateLimiter<K> {
 
     /**

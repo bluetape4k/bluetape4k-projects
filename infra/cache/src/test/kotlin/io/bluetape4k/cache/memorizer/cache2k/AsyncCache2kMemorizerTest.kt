@@ -12,10 +12,9 @@ class AsyncCache2kMemorizerTest: AbstractAsyncMemorizerTest() {
 
     companion object: KLoggingChannel()
 
-    override val factorial: AsyncFactorialProvider = AsyncCache2kFactorialProvider()
-    override val fibonacci: AsyncFibonacciProvider = AsyncCache2kFibonacciProvider()
 
     val cache = cache2k<Int, Int> {
+        this.name("async-heavyFunc")
         this.executor(ForkJoinPool.commonPool())
     }.build()
 
@@ -26,8 +25,9 @@ class AsyncCache2kMemorizerTest: AbstractAsyncMemorizerTest() {
         }
     }
 
-    private class AsyncCache2kFactorialProvider: AsyncFactorialProvider() {
+    override val factorial: AsyncFactorialProvider = object: AsyncFactorialProvider {
         val cache = cache2k<Long, Long> {
+            this.name("async-factorial")
             this.executor(ForkJoinPool.commonPool())
         }.build()
 
@@ -36,8 +36,9 @@ class AsyncCache2kMemorizerTest: AbstractAsyncMemorizerTest() {
         }
     }
 
-    private class AsyncCache2kFibonacciProvider: AsyncFibonacciProvider() {
+    override val fibonacci: AsyncFibonacciProvider = object: AsyncFibonacciProvider {
         val cache = cache2k<Long, Long> {
+            this.name("async-fibonacci")
             this.executor(ForkJoinPool.commonPool())
         }.build()
 

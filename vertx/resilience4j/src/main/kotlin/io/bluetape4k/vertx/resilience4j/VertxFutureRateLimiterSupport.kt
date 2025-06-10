@@ -15,7 +15,7 @@ import io.vertx.core.Future
  * @return [Future] 객체
  */
 inline fun <T> RateLimiter.executeVertxFuture(
-    crossinline supplier: () -> Future<T>,
+    @BuilderInference crossinline supplier: () -> Future<T>,
 ): Future<T> {
     return decorateVertxFuture(supplier).invoke()
 }
@@ -33,7 +33,7 @@ inline fun <T> RateLimiter.executeVertxFuture(
  * @return [supplier] 를 [RateLimiter]로 decorate 한 함수
  */
 inline fun <T> RateLimiter.decorateVertxFuture(
-    crossinline supplier: () -> Future<T>,
+    @BuilderInference crossinline supplier: () -> Future<T>,
 ): () -> Future<T> = {
     try {
         RateLimiter.waitForPermission(this, 1)

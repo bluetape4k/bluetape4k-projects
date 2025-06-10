@@ -1,11 +1,14 @@
 package io.bluetape4k.logback.kafka
 
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.support.toUtf8String
 import io.bluetape4k.support.trimWhitespace
 import io.bluetape4k.testcontainers.mq.KafkaServer
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeNull
@@ -31,12 +34,15 @@ class LogbackIntegrationTest: AbstractKafkaIntegrationTest() {
     }
 
     @Test
-    fun `export log to kafka and consume`() {
+    fun `export log to kafka and consume`() = runSuspendIO {
+
         val logSize = 100
-        repeat(logSize) {
-            logger.info("test message $it")
+        launch {
+            repeat(logSize) {
+                logger.info("test message $it")
+            }
         }
-        Thread.sleep(10)
+        delay(10)
 
         val logTopicPartition = TopicPartition(TOPIC, 0)
         val consumer = KafkaServer.Launcher.createBinaryConsumer(kafka)

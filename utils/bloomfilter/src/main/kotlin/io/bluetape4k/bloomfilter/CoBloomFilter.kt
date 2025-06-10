@@ -7,6 +7,7 @@ import kotlin.math.pow
  *
  * @see [BloomFilter]
  */
+@Deprecated("Use SuspendBloomFilter instead", ReplaceWith("SuspendBloomFilter"))
 interface CoBloomFilter<T: Any> {
 
     /**
@@ -36,7 +37,7 @@ interface CoBloomFilter<T: Any> {
      */
     suspend fun contains(value: T): Boolean
 
-    fun count(): Long
+    suspend fun count(): Long
 
     suspend fun clear()
 
@@ -62,5 +63,4 @@ interface CoBloomFilter<T: Any> {
      * @return 원소 당 비트 수
      */
     fun getBitsPerElement(n: Int): Double = m.toDouble() / n.toDouble()
-
 }

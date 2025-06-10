@@ -2,8 +2,8 @@ package io.bluetape4k.vertx.examples
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.vertx.tests.withSuspendTestContext
 import io.bluetape4k.vertx.tests.withTestContext
-import io.bluetape4k.vertx.tests.withTestContextSuspending
 import io.vertx.core.Vertx
 import io.vertx.ext.web.client.WebClient
 import io.vertx.ext.web.codec.BodyCodec
@@ -70,7 +70,7 @@ class LifecycleExample {
 
     @Test
     fun `request to server by coroutines`(testContext: VertxTestContext) = runSuspendTest {
-        vertx.withTestContextSuspending(testContext) {
+        vertx.withSuspendTestContext(testContext) {
             val webClient = WebClient.create(vertx)
 
             vertx.deployVerticle(SampleVerticle()).coAwait()

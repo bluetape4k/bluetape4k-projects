@@ -1,0 +1,91 @@
+gantt
+    title Test Execution Timeline
+    dateFormat YYYY-MM-DDTHH:mm:ss.SSS
+    axisFormat %H:%M:%S
+    section io.bluetape4k.hibernate.converter.ConverterTest
+        비밀번호처럼 암호화된 엔티티를 비밀번호로 조회하기()(✅): active, 2025-06-03T06:56:39.560031Z, 407ms
+        apply converter()(✅): active, 2025-06-03T06:56:39.967654Z, 14ms
+    section io.bluetape4k.hibernate.converter.JsonStringConverterTest
+        객체를 JsonNode 로 직접 변환하기()(✅): active, 2025-06-03T06:56:39.993406Z, 34ms
+        객체가 null 인 경우()(✅): active, 2025-06-03T06:56:40.028435Z, 4ms
+        객체를 Json 문자열로 저장하기()(✅): active, 2025-06-03T06:56:40.033072Z, 7ms
+    section io.bluetape4k.hibernate.mapping.associations.join.JoinTableTest
+        create customer with embeddable address which saved to secondary table()(✅): active, 2025-06-03T06:56:40.063012Z, 58ms
+        create user with address by join table()(✅): active, 2025-06-03T06:56:40.121875Z, 12ms
+        context loading()(✅): active, 2025-06-03T06:56:40.134947Z, 2ms
+    section io.bluetape4k.hibernate.mapping.associations.manytomany.ManyToManyTest
+        many-to-many manipulation by owner()(✅): active, 2025-06-03T06:56:40.154518Z, 37ms
+        many-to-many manipulatation by account()(✅): active, 2025-06-03T06:56:40.192532Z, 13ms
+    section io.bluetape4k.hibernate.mapping.associations.manytoone.ManyToOneTest
+        many-to-one unidirectional()(✅): active, 2025-06-03T06:56:40.225542Z, 16ms
+        many-to-one bidirectional with cascade all()(✅): active, 2025-06-03T06:56:40.242224Z, 10ms
+        many-to-one bidirectional()(✅): active, 2025-06-03T06:56:40.252436Z, 12ms
+    section io.bluetape4k.hibernate.mapping.associations.onetomany.list.OneToManyListTest
+        fetch join with pagination()(✅): active, 2025-06-03T06:56:40.284831Z, 38ms
+        one-to-one mappedBy for show who is owner()(✅): active, 2025-06-03T06:56:40.323282Z, 49ms
+        context loading()(✅): active, 2025-06-03T06:56:40.372550Z, 2ms
+        fetch lazy with pagination()(✅): active, 2025-06-03T06:56:40.374691Z, 32ms
+        one-to-many unidirectional()(✅): active, 2025-06-03T06:56:40.406909Z, 20ms
+        one-to-many with @JoinColumn()(✅): active, 2025-06-03T06:56:40.427192Z, 17ms
+    section io.bluetape4k.hibernate.mapping.associations.onetomany.map.OneToManyMapTest
+        one-to-many with entity mapped by @OneToMany()(✅): active, 2025-06-03T06:56:40.460737Z, 12ms
+        one-to-many with embeddable mapped by @CollectionTable()(✅): active, 2025-06-03T06:56:40.473476Z, 8ms
+    section io.bluetape4k.hibernate.mapping.associations.onetomany.set.OneToManySetTest
+        one-to-many with embeddable component by @ElementCollection()(✅): active, 2025-06-03T06:56:40.497706Z, 11ms
+        one-to-many set with bidirectional()(✅): active, 2025-06-03T06:56:40.508856Z, 11ms
+    section io.bluetape4k.hibernate.mapping.associations.onetoone.CavalierHorseTest
+        unidirectional one to one, cavalier has ownership - many-to-one과 유사()(✅): active, 2025-06-03T06:56:40.536614Z, 9ms
+    section io.bluetape4k.hibernate.mapping.associations.onetoone.CoupleTest
+        bidirectional one to one()(✅): active, 2025-06-03T06:56:40.554242Z, 14ms
+    section io.bluetape4k.hibernate.mapping.associations.onetoone.MapsIdOneToOneTest
+        author and biography()(✅): active, 2025-06-03T06:56:40.575840Z, 21ms
+    section io.bluetape4k.hibernate.mapping.associations.onetoone.UnidirectionalOneToOneTest
+        unidirectional one to one with @MapsId()(✅): active, 2025-06-03T06:56:40.604471Z, 9ms
+    section io.bluetape4k.hibernate.mapping.associations.unidirection.UnidirectionTest
+        one-to-many unidirectional association()(✅): active, 2025-06-03T06:56:40.628248Z, 13ms
+    section io.bluetape4k.hibernate.mapping.compositeid.CompositeIdTest
+        composite id with multiple @Id by @IdClass()(✅): active, 2025-06-03T06:56:40.653384Z, 10ms
+        composite id with @EmbeddedId entity()(✅): active, 2025-06-03T06:56:40.664449Z, 4ms
+    section io.bluetape4k.hibernate.mapping.customid.CustomIdTest
+        save custom id entity()(✅): active, 2025-06-03T06:56:40.681808Z, 11ms
+        find all by custom ids()(✅): active, 2025-06-03T06:56:40.693987Z, 9ms
+        find by value class property()(✅): active, 2025-06-03T06:56:40.703406Z, 5ms
+    section io.bluetape4k.hibernate.mapping.embeddable.EmbeddableTest
+        entity has multiple embeddable()(✅): active, 2025-06-03T06:56:40.721595Z, 6ms
+    section io.bluetape4k.hibernate.mapping.inheritance.JoinedInheritanceTest
+        inheritance with joined table()(✅): active, 2025-06-03T06:56:40.743021Z, 13ms
+    section io.bluetape4k.hibernate.mapping.inheritance.SingleTableInheritanceTest
+        single table with two type entities()(✅): active, 2025-06-03T06:56:40.764512Z, 12ms
+    section io.bluetape4k.hibernate.mapping.inheritance.TablePerClassInheritanceTest
+        entity has its own table()(✅): active, 2025-06-03T06:56:40.783943Z, 9ms
+    section io.bluetape4k.hibernate.mapping.lifecycle.LifecycleTest
+        equals for between transient object & abstract jpa entity()(✅): active, 2025-06-03T06:56:40.806211Z, 6ms
+        entity with AuditingEventListener()(✅): active, 2025-06-03T06:56:40.812683Z, 4ms
+    section io.bluetape4k.hibernate.mapping.localized.TravelContentTest
+        다국어를 지원하는 엔티티 활용()(✅): active, 2025-06-03T06:56:40.829189Z, 5ms
+    section io.bluetape4k.hibernate.mapping.simple.SimpleEntityTest
+        find all by entity type()(✅): active, 2025-06-03T06:56:40.847726Z, 5ms
+        equals for transient object()(✅): active, 2025-06-03T06:56:40.853666Z, 1ms
+        Unique entity 만 저장되어야 한다()(✅): active, 2025-06-03T06:56:40.855737Z, 11ms
+        equals for between transient object & persisted entity()(✅): active, 2025-06-03T06:56:40.867436Z, 3ms
+    section io.bluetape4k.hibernate.mapping.tree.TreeNodeTest
+        build tree nodes()(✅): active, 2025-06-03T06:56:40.882702Z, 12ms
+    section io.bluetape4k.hibernate.querydsl.simple.SimpleQuerydslExamples
+        using JPAQueryFactory()(✅): active, 2025-06-03T06:56:40.905359Z, 36ms
+        use QueryProjection annotation()(✅): active, 2025-06-03T06:56:40.942378Z, 7ms
+        projections by constructor()(✅): active, 2025-06-03T06:56:40.949748Z, 4ms
+        basic meta model expression()(✅): active, 2025-06-03T06:56:40.953947Z, 5ms
+        using covering index()(✅): active, 2025-06-03T06:56:40.960006Z, 23ms
+    section io.bluetape4k.hibernate.stateless.StatelessSessionTest
+        warm up()(✅): active, 2025-06-03T06:56:40.993091Z, 9ms
+        load one-to-many with stateless()(✅): active, 2025-06-03T06:56:41.002477Z, 144ms
+    section io.bluetape4k.hibernate.stateless.StatelessSessionTest$WithSession
+        repetition 1 of 2(✅): active, 2025-06-03T06:56:41.157622Z, 207ms
+        repetition 2 of 2(✅): active, 2025-06-03T06:56:41.365500Z, 135ms
+        repetition 1 of 2(✅): active, 2025-06-03T06:56:41.501238Z, 19ms
+        repetition 2 of 2(✅): active, 2025-06-03T06:56:41.520492Z, 20ms
+    section io.bluetape4k.hibernate.stateless.StatelessSessionTest$WithStateless
+        repetition 1 of 2(✅): active, 2025-06-03T06:56:41.548452Z, 81ms
+        repetition 2 of 2(✅): active, 2025-06-03T06:56:41.630585Z, 73ms
+        repetition 1 of 2(✅): active, 2025-06-03T06:56:41.704880Z, 13ms
+        repetition 2 of 2(✅): active, 2025-06-03T06:56:41.718400Z, 11ms

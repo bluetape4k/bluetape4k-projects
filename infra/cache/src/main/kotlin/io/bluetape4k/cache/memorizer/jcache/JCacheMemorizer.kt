@@ -8,6 +8,19 @@ import javax.cache.Cache
 import kotlin.concurrent.withLock
 
 /**
+ * JCache를 이용하여 [JCacheMemorizer]를 생성합니다.
+ *
+ * @param T cache key type
+ * @param R cache value type
+ * @param evaluator cache value를 반환하는 메소드
+ */
+fun <T: Any, R: Any> Cache<T, R>.memorizer(evaluator: (T) -> R): JCacheMemorizer<T, R> =
+    JCacheMemorizer(this, evaluator)
+
+fun <T: Any, R: Any> ((T) -> R).withMemorizer(cache: Cache<T, R>): JCacheMemorizer<T, R> =
+    JCacheMemorizer(cache, this)
+
+/**
  * JCache를 이용하여 메소드의 실행 결과를 기억하여, 재 실행 시에 빠르게 응닫할 수 있도록 합니다.
  *
  * @property jcache 실행한 값을 저장할 Cache
@@ -22,8 +35,8 @@ class JCacheMemorizer<in T: Any, out R: Any>(
 
     private val lock = ReentrantLock()
 
-    override fun invoke(key: T): R {
-        return jcache.getOrPut(key) { evaluator(key) }
+    override fun invoke(input: T): R {
+        return jcache.getOrPut(input) { evaluator(input) }
     }
 
     override fun clear() {
@@ -32,13 +45,3 @@ class JCacheMemorizer<in T: Any, out R: Any>(
         }
     }
 }
-
-/**
- * JCache를 이용하여 [JCacheMemorizer]를 생성합니다.
- *
- * @param T cache key type
- * @param R cache value type
- * @param evaluator cache value를 반환하는 메소드
- */
-fun <T: Any, R: Any> Cache<T, R>.memorizer(evaluator: (T) -> R): JCacheMemorizer<T, R> =
-    JCacheMemorizer(this, evaluator)

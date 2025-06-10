@@ -1,16 +1,21 @@
 package io.bluetape4k.jackson.uuid
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.bluetape4k.jackson.Jackson
-import io.bluetape4k.jackson.prettyWriteAsString
 import io.bluetape4k.jackson.readValueOrNull
 import io.bluetape4k.jackson.writeAsString
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.trace
+import io.bluetape4k.utils.Runtimex
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.Test
 import java.util.*
 
 @RandomizedTest
@@ -18,6 +23,7 @@ class JsonUuidEncodeTest {
 
     companion object: KLogging() {
         private const val REPEAT_COUNT = 5
+        private val faker = Fakers.faker
     }
 
     private val mapper = Jackson.defaultJsonMapper
@@ -45,20 +51,70 @@ class JsonUuidEncodeTest {
         val username: String,
     )
 
+
     @RepeatedTest(REPEAT_COUNT)
     fun `convert uuid to base62 string`(@RandomValue user: User) {
-        log.debug { mapper.prettyWriteAsString(user) }
-
-        val jsonText = mapper.writeAsString(user)!!
-        val actual = mapper.readValue<User>(jsonText)
-        actual shouldBeEqualTo user
+        verifyJsonUuidEncoder(user)
     }
 
     @RepeatedTest(REPEAT_COUNT)
     fun `convert random uuid`(@RandomValue expected: User) {
-        log.debug { mapper.prettyWriteAsString(expected) }
+        verifyJsonUuidEncoder(expected)
+    }
 
-        val actual = mapper.readValueOrNull<User>(mapper.writeAsString(expected)!!)
-        actual shouldBeEqualTo expected
+    @Test
+    fun `convert uuid to base62 string in multi threadings`() {
+        MultithreadingTester()
+            .numThreads(2 * Runtimex.availableProcessors)
+            .roundsPerThread(16)
+            .add {
+                verifyJsonUuidEncoder(newUser())
+            }
+            .add {
+                verifyJsonUuidEncoder(newUser())
+            }
+            .run()
+    }
+
+    @Test
+    fun `convert uuid to base62 string in suspended jobs`() = runTest {
+        SuspendedJobTester()
+            .numThreads(2 * Runtimex.availableProcessors)
+            .roundsPerJob(16 * 2 * Runtimex.availableProcessors)
+            .add {
+                verifyJsonUuidEncoder(newUser())
+            }
+            .add {
+                verifyJsonUuidEncoder(newUser())
+            }
+            .run()
+    }
+
+    @Test
+    fun `convert uuid to base62 string in virtual threads`() {
+        StructuredTaskScopeTester()
+            .roundsPerTask(16 * 2 * Runtimex.availableProcessors)
+            .add {
+                verifyJsonUuidEncoder(newUser())
+            }
+            .add {
+                verifyJsonUuidEncoder(newUser())
+            }
+            .run()
+    }
+
+    private fun newUser(): User = User(
+        userId = UUID.randomUUID(),
+        plainUserId = UUID.randomUUID(),
+        encodedUserId = UUID.randomUUID(),
+        username = faker.internet().username()
+    )
+
+    private fun verifyJsonUuidEncoder(user: User) {
+        val jsonText = mapper.writeAsString(user)!!
+        log.trace { "jsonText=$jsonText" }
+
+        val actual = mapper.readValueOrNull<User>(jsonText)!!
+        actual shouldBeEqualTo user
     }
 }

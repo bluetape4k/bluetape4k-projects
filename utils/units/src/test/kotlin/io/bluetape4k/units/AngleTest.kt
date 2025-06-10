@@ -22,11 +22,8 @@ class AngleTest {
 
     @Test
     fun `convert angle unit by random`() {
-        val degrees = sequence {
-            while (true) {
-                yield((Math.random() * 360).degree())
-            }
-        }
+        val degrees = generateSequence { (Math.random() * 360).degree() }
+
         degrees.take(100).forEach { angle ->
             angle.inDegree().shouldBeNear(angle.value, EPSILON)
             angle.inRadian().shouldBeNear(angle.value * Math.PI / 180.0, EPSILON)

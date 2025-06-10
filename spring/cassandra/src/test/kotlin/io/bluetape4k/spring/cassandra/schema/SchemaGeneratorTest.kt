@@ -1,6 +1,6 @@
 package io.bluetape4k.spring.cassandra.schema
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraTest
 import io.bluetape4k.spring.cassandra.domain.model.AllPossibleTypes
 import org.junit.jupiter.api.Test
@@ -13,7 +13,7 @@ class SchemaGeneratorTest(
     @Autowired private val operations: CassandraOperations,
 ): AbstractCassandraTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `generate table schema for entity`() {

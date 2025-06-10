@@ -4,7 +4,8 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.resilience4j.bulkhead.decorateSuspendBiFunction
 import io.bluetape4k.resilience4j.bulkhead.decorateSuspendFunction1
 import io.bluetape4k.resilience4j.cache.CoCache
-import io.bluetape4k.resilience4j.cache.decorateSuspendedFunction
+import io.bluetape4k.resilience4j.cache.SuspendCache
+import io.bluetape4k.resilience4j.cache.decorateSuspendFunction
 import io.bluetape4k.resilience4j.circuitbreaker.decorateSuspendBiFunction
 import io.bluetape4k.resilience4j.circuitbreaker.decorateSuspendFunction1
 import io.bluetape4k.resilience4j.ratelimiter.decorateSuspendBiFunction
@@ -31,6 +32,10 @@ import kotlin.reflect.KClass
  *
  * @see [io.github.resilience4j.decorators.Decorators]
  */
+@Deprecated(
+    message = "Use `SuspendDecorators` instead",
+    replaceWith = ReplaceWith("SuspendDecorators")
+)
 object CoDecorators: KLoggingChannel() {
 
     /**
@@ -215,11 +220,11 @@ object CoDecorators: KLoggingChannel() {
         }
 
         fun <K> withCache(cache: Cache<K, T>): CoDecoratorForFunction1<K, T> {
-            return CoDecorators.ofFunction1(cache.decorateSuspendedFunction { supplier() })
+            return CoDecorators.ofFunction1(cache.decorateSuspendFunction { supplier() })
         }
 
         fun <K> withCoroutineCache(cache: Cache<K, T>): CoDecoratorForFunction1<K, T> {
-            return CoDecorators.ofFunction1(cache.decorateSuspendedFunction { supplier() })
+            return CoDecorators.ofFunction1(cache.decorateSuspendFunction { supplier() })
         }
 
         fun withFallback(handler: suspend (T?, Throwable?) -> T) = apply {
@@ -285,11 +290,19 @@ object CoDecorators: KLoggingChannel() {
          * Cache를 제공합니다
          */
         fun withCache(cache: Cache<T, R>) = apply {
-            func = cache.decorateSuspendedFunction(func)
+            func = cache.decorateSuspendFunction(func)
         }
 
+        @Deprecated(
+            message = "Use withSuspendCache instead",
+            replaceWith = ReplaceWith("withSuspendCache(coCache)")
+        )
         fun withCoroutinesCache(coCache: CoCache<T, R>) = apply {
-            func = coCache.decorateSuspendedFunction(func)
+            func = coCache.decorateSuspendFunction(func)
+        }
+
+        fun withSuspendCache(suspendCache: SuspendCache<T, R>) = apply {
+            func = suspendCache.decorateSuspendFunction(func)
         }
 
         fun decoreate(): suspend (T) -> R = func

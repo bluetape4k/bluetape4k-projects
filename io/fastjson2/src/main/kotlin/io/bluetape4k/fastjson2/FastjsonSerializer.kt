@@ -33,10 +33,8 @@ class FastjsonSerializer: JsonSerializer {
     }
 }
 
-@Suppress("UnusedReceiverParameter")
 inline fun <reified T: Any> FastjsonSerializer.deserialize(bytes: ByteArray?): T? =
     bytes?.readBytesOrNull<T>()
 
-@Suppress("UnusedReceiverParameter")
 inline fun <reified T: Any> FastjsonSerializer.deserialize(jsonText: String?): T? =
     jsonText.readValueOrNull<T>()

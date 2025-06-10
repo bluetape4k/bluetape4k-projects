@@ -2,7 +2,7 @@ package org.springframework.kafka.streams
 
 import io.bluetape4k.kafka.spring.test.utils.consumerProps
 import io.bluetape4k.kafka.spring.test.utils.getRecords
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.asBoolean
 import io.bluetape4k.support.uninitialized
 import org.amshove.kluent.shouldContainSame
@@ -44,7 +44,7 @@ import java.util.*
 )
 class KafkaStreamsBranchTests {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         internal const val TRUE_TOPIC = "true-output-topic"
         internal const val FALSE_TOPIC = "false-output-topic"
         internal const val TRUE_FALSE_INPUT_TOPIC = "input-topic"

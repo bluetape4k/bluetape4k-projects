@@ -1,9 +1,14 @@
 package io.bluetape4k.crypto.digest
 
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.junit5.params.provider.FieldSource
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.toUtf8Bytes
+import io.bluetape4k.utils.Runtimex
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -56,5 +61,46 @@ class DigesterTest {
             val digested = digester.digest(message)
             digester.matches(message, digested).shouldBeTrue()
         }
+    }
+
+    @ParameterizedTest(name = "digest string by {0}")
+    @FieldSource("digesters")
+    fun `digest message as string in multi threadings`(digester: Digester) {
+        MultithreadingTester()
+            .numThreads(2 * Runtimex.availableProcessors)
+            .roundsPerThread(16)
+            .add {
+                val message = getRandomString()
+                val digested = digester.digest(message)
+                digester.matches(message, digested).shouldBeTrue()
+            }
+            .run()
+    }
+
+    @ParameterizedTest(name = "digest string by {0}")
+    @FieldSource("digesters")
+    fun `digest message as string in virtual threads`(digester: Digester) {
+        StructuredTaskScopeTester()
+            .roundsPerTask(16 * 2 * Runtimex.availableProcessors)
+            .add {
+                val message = getRandomString()
+                val digested = digester.digest(message)
+                digester.matches(message, digested).shouldBeTrue()
+            }
+            .run()
+    }
+
+    @ParameterizedTest(name = "digest string by {0}")
+    @FieldSource("digesters")
+    fun `digest message as string in suspend jobs`(digester: Digester) = runTest {
+        SuspendedJobTester()
+            .numThreads(2 * Runtimex.availableProcessors)
+            .roundsPerJob(16 * 2 * Runtimex.availableProcessors)
+            .add {
+                val message = getRandomString()
+                val digested = digester.digest(message)
+                digester.matches(message, digested).shouldBeTrue()
+            }
+            .run()
     }
 }

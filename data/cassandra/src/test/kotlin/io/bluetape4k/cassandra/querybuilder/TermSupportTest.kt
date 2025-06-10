@@ -3,7 +3,7 @@ package io.bluetape4k.cassandra.querybuilder
 import com.datastax.oss.driver.api.core.type.DataTypes
 import io.bluetape4k.cassandra.cql.userDefinedType
 import io.bluetape4k.cassandra.toCqlIdentifier
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.*
@@ -11,7 +11,7 @@ import kotlin.test.assertFailsWith
 
 class TermSupportTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `generate arithmetic terms`() {

@@ -6,7 +6,6 @@ import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
 
@@ -73,9 +72,7 @@ abstract class AbstractJacksonBinaryTest {
     // NOTE: TypeReference 를 사용하려면 reified 이어야 합니다.
     protected inline fun <reified T: Any> assertBinarySerialization(input: T) {
         val output = binaryJsonSerializer.serialize(input)
-        log.debug { "bytes size=${output.size}" }
-
-        val actual = binaryJsonSerializer.deserialize<T>(output)
+        val actual = binaryJsonSerializer.deserialize<T>(output)!!
         actual shouldBeEqualTo input
     }
 }

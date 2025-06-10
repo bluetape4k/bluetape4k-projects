@@ -167,13 +167,12 @@ fun DoubleArray.expontentialMovingAverage(blockSize: Int = BLOCK_SIZE): DoubleAr
  *
  * @return 누적 이동평균
  */
-fun Sequence<Double>.cumulativeMovingAverage(): Sequence<Double> = sequence {
+fun Sequence<Double>.cumulativeMovingAverage(): Sequence<Double> {
     var sum = 0.0
     var idx = 0
-
-    this@cumulativeMovingAverage.forEach {
+    return map {
         sum += it
-        yield(sum / ++idx)
+        sum / ++idx
     }
 }
 

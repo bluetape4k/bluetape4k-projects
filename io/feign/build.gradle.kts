@@ -67,6 +67,11 @@ dependencies {
     api(Libs.jackson_module_kotlin)
     compileOnly(Libs.jackson_module_blackbird)
 
+    // Fastjson2
+    compileOnly(project(":bluetape4k-fastjson2"))
+    compileOnly(Libs.fastjson2)
+    compileOnly(Libs.fastjson2_kotlin)
+
     // Gson
     compileOnly(Libs.gson)
     compileOnly(Libs.gson_javatime_serializers)

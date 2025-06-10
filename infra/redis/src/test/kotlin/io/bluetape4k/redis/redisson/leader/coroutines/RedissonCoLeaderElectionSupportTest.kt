@@ -8,8 +8,10 @@ import io.bluetape4k.redis.redisson.AbstractRedissonTest
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
+@Disabled("use RedissonSuspendLeaderElectionSupportTest instead")
 class RedissonCoLeaderElectionSupportTest: AbstractRedissonTest() {
 
     companion object: KLoggingChannel()

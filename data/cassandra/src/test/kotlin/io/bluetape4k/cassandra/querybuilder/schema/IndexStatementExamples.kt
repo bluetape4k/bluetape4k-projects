@@ -2,13 +2,13 @@ package io.bluetape4k.cassandra.querybuilder.schema
 
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.createIndex
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.dropIndex
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class IndexStatementExamples {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `generate createIndex`() {

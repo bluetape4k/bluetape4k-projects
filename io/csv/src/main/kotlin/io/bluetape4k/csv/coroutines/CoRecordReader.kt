@@ -22,6 +22,10 @@ import java.nio.charset.Charset
  * ```
  *
  */
+@Deprecated(
+    message = "Use SuspendRecordReader instead. This will be removed in future versions.",
+    replaceWith = ReplaceWith("SuspendRecordReader")
+)
 interface CoRecordReader: Closeable {
 
     /**

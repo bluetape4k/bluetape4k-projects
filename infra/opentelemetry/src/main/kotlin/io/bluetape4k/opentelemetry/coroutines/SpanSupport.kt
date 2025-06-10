@@ -10,7 +10,6 @@ import java.time.Duration
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
-
 /**
  * 새로운 Span 을 생성하여, [block]을 Coroutines 환경 하에서 실행합니다.
  *
@@ -19,6 +18,19 @@ import kotlin.coroutines.EmptyCoroutineContext
  * @param block CoroutineScope 하에서 실행할 코드 블록입니다.
  * @return [block]의 실행 결과입니다.
  */
+suspend inline fun <T> SpanBuilder.useSuspendSpan(
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
+    crossinline block: suspend (Span) -> T,
+): T = startSpan().use { span ->
+    withSpanContext(span, coroutineContext) {
+        block(it)
+    }
+}
+
+@Deprecated(
+    message = "Use `useSuspendSpan` instead",
+    replaceWith = ReplaceWith("useSuspendSpan(coroutineContext, block)")
+)
 suspend inline fun <T> SpanBuilder.useSpanSuspending(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     crossinline block: suspend (Span) -> T,
@@ -37,6 +49,20 @@ suspend inline fun <T> SpanBuilder.useSpanSuspending(
  * @param block CoroutineScope 하에서 실행할 코드 블록입니다.
  * @return [block]의 실행 결과입니다.
  */
+suspend inline fun <T> SpanBuilder.useSuspendSpan(
+    waitTimeout: Long? = null,
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
+    crossinline block: suspend (Span) -> T,
+): T = startSpan().use(waitTimeout) { span ->
+    withSpanContext(span, coroutineContext) {
+        block(it)
+    }
+}
+
+@Deprecated(
+    message = "Use `useSuspendSpan` instead",
+    replaceWith = ReplaceWith("useSuspendSpan(waitTimeout, coroutineContext, block)")
+)
 suspend inline fun <T> SpanBuilder.useSpanSuspending(
     waitTimeout: Long? = null,
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
@@ -56,6 +82,20 @@ suspend inline fun <T> SpanBuilder.useSpanSuspending(
  * @param block CoroutineScope 하에서 실행할 코드 블록입니다.
  * @return [block]의 실행 결과입니다.
  */
+suspend inline fun <T> SpanBuilder.useSuspendSpan(
+    waitDuration: Duration,
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
+    crossinline block: suspend (Span) -> T,
+): T = useSuspendSpan(
+    waitDuration.toMillis().coerceAtLeast(0L),
+    coroutineContext,
+    block
+)
+
+@Deprecated(
+    message = "Use `useSuspendSpan` instead",
+    replaceWith = ReplaceWith("useSuspendSpan(waitDuration, coroutineContext, block)")
+)
 suspend inline fun <T> SpanBuilder.useSpanSuspending(
     waitDuration: Duration,
     coroutineContext: CoroutineContext = EmptyCoroutineContext,

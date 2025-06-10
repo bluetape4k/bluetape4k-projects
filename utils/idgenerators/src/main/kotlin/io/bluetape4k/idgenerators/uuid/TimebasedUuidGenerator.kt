@@ -4,7 +4,6 @@ import com.fasterxml.uuid.Generators
 import com.fasterxml.uuid.NoArgGenerator
 import io.bluetape4k.codec.Url62
 import io.bluetape4k.idgenerators.IdGenerator
-import io.bluetape4k.support.assertPositiveNumber
 import java.util.*
 
 /**
@@ -37,12 +36,8 @@ class TimebasedUuidGenerator: IdGenerator<UUID> {
      * @param size 원하는 크기
      * @return UUID Collection
      */
-    fun nextUUIDs(size: Int): Sequence<UUID> = sequence {
-        size.assertPositiveNumber("size")
-        repeat(size) {
-            yield(nextUUID())
-        }
-    }
+    fun nextUUIDs(size: Int): Sequence<UUID> =
+        generateSequence { nextUUID() }.take(size)
 
     /**
      * 새로운 Time based UUID를 생성하고, 이를 [Base62]로 인코딩해서 반환합니다.
@@ -54,10 +49,6 @@ class TimebasedUuidGenerator: IdGenerator<UUID> {
      * 지정한 size 만큼 Time based UUID를 생성하고, 이를 [Base62]로 인코딩해서 반환합니다.
      * @return UUID 값을 [Base62]로 인코딩한 문자열의 컬렉션
      */
-    fun nextBase62Strings(size: Int): Sequence<String> = sequence {
-        size.assertPositiveNumber("size")
-        repeat(size) {
-            yield(nextBase62String())
-        }
-    }
+    fun nextBase62Strings(size: Int): Sequence<String> =
+        generateSequence { nextBase62String() }.take(size)
 }

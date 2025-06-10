@@ -28,11 +28,11 @@ class AsyncSocketTest: AbstractOkioTest() {
 
     @Test
     fun `use async socket`() = runSocketTest { client, server ->
-        val clientSource = client.asAsyncSource().buffer()
-        val clientSink = client.asAsyncSink().buffer()
+        val clientSource = client.asSuspendSource().buffered()
+        val clientSink = client.asSuspendSink().buffered()
 
-        val serverSource = server.asAsyncSource().buffer()
-        val serverSink = server.asAsyncSink().buffer()
+        val serverSource = server.asSuspendSource().buffered()
+        val serverSink = server.asSuspendSink().buffered()
 
         clientSink.writeUtf8("abc")
         clientSink.flush()
@@ -48,8 +48,8 @@ class AsyncSocketTest: AbstractOkioTest() {
 
     @Test
     fun `read until eof`() = runSocketTest { client, server ->
-        val serverSink = client.asAsyncSink().buffer()
-        val clientSource = server.asAsyncSource().buffer()
+        val serverSink = client.asSuspendSink().buffered()
+        val clientSource = server.asSuspendSource().buffered()
 
         val message = Fakers.randomString()
         serverSink.writeUtf8(message)
@@ -60,7 +60,7 @@ class AsyncSocketTest: AbstractOkioTest() {
 
     @Test
     fun `read fails because the socket is already closed`() = runSocketTest { _, server ->
-        val serverSource = server.asAsyncSource().buffer()
+        val serverSource = server.asSuspendSource().buffered()
         server.close()
 
         assertFailsWith<IOException> {
@@ -70,7 +70,7 @@ class AsyncSocketTest: AbstractOkioTest() {
 
     @Test
     fun `write fails because the socket is already closed`() = runSocketTest { _, server ->
-        val serverSink = server.asAsyncSink().buffer()
+        val serverSink = server.asSuspendSink().buffered()
         server.close()
 
         assertFailsWith<IOException> {
@@ -81,7 +81,7 @@ class AsyncSocketTest: AbstractOkioTest() {
 
     @Test
     fun `blocked read fails due to close`() = runSocketTest { _, server ->
-        val serverSource = server.asAsyncSource().buffer()
+        val serverSource = server.asSuspendSource().buffered()
 
         coroutineScope {
             launch {
@@ -97,7 +97,7 @@ class AsyncSocketTest: AbstractOkioTest() {
 
     @Test
     fun `blocked write fails due to close`() = runSocketTest { client, server ->
-        val clientSink = client.asAsyncSink().buffer()
+        val clientSink = client.asSuspendSink().buffered()
 
         coroutineScope {
             launch {

@@ -24,7 +24,7 @@ import com.datastax.oss.driver.internal.core.type.UserDefinedTypeBuilder
 inline fun userDefinedType(
     keyspaceId: CqlIdentifier,
     typeId: CqlIdentifier,
-    initializer: UserDefinedTypeBuilder.() -> Unit,
+    @BuilderInference initializer: UserDefinedTypeBuilder.() -> Unit,
 ): UserDefinedType {
     return UserDefinedTypeBuilder(keyspaceId, typeId).apply(initializer).build()
 }
@@ -49,7 +49,7 @@ inline fun userDefinedType(
 inline fun userDefinedType(
     keyspaceName: String,
     typeName: String,
-    initializer: UserDefinedTypeBuilder.() -> Unit,
+    @BuilderInference initializer: UserDefinedTypeBuilder.() -> Unit,
 ): UserDefinedType {
     return UserDefinedTypeBuilder(keyspaceName, typeName).apply(initializer).build()
 }

@@ -1,6 +1,7 @@
 package org.springframework.kafka.annotation
 
 import io.bluetape4k.kafka.spring.test.utils.getPropertyValue
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.mockk.mockk
 import kotlinx.atomicfu.atomic
 import org.amshove.kluent.shouldBeEqualTo
@@ -12,6 +13,8 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
 
 class ContainerFactoryTests {
+
+    companion object: KLoggingChannel()
 
     @Test
     fun `config container`() {

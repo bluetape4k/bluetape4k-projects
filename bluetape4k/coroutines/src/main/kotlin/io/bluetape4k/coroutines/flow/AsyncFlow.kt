@@ -24,7 +24,7 @@ import kotlin.coroutines.EmptyCoroutineContext
 @PublishedApi
 internal class LazyDeferred<out T>(
     val coroutineContext: CoroutineContext = EmptyCoroutineContext,
-    val block: suspend CoroutineScope.() -> T,
+    @BuilderInference val block: suspend CoroutineScope.() -> T,
 ) {
     private val deferred = AtomicReference<Deferred<T>?>(null)
 
@@ -107,7 +107,7 @@ class AsyncFlow<T> @PublishedApi internal constructor(
  */
 inline fun <T, R> Flow<T>.async(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
-    crossinline block: suspend CoroutineScope.(T) -> R,
+    @BuilderInference crossinline block: suspend CoroutineScope.(T) -> R,
 ): AsyncFlow<R> {
     val deferredFlow = map { input -> LazyDeferred(coroutineContext) { block(input) } }
     return AsyncFlow(deferredFlow)
@@ -135,7 +135,7 @@ inline fun <T, R> Flow<T>.async(
  * ```
  */
 inline fun <T, R> AsyncFlow<T>.map(
-    crossinline transform: suspend (value: T) -> R,
+    @BuilderInference crossinline transform: suspend (value: T) -> R,
 ): AsyncFlow<R> {
     return AsyncFlow(
         deferredFlow
@@ -210,7 +210,7 @@ suspend fun <T> AsyncFlow<T>.collect(
  */
 suspend inline fun <T> AsyncFlow<T>.collect(
     capacity: Int = Channel.BUFFERED,
-    crossinline collector: suspend (value: T) -> Unit,
+    @BuilderInference crossinline collector: suspend (value: T) -> Unit,
 ) {
     collect(capacity, FlowCollector { value -> collector(value) })
 }

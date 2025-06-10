@@ -1,6 +1,6 @@
 plugins {
     kotlin("plugin.allopen")
-    id(Plugins.kotlinx_benchmark) version Plugins.Versions.kotlinx_benchmark
+    id(Plugins.kotlinx_benchmark)
 }
 
 allOpen {
@@ -38,16 +38,17 @@ dependencies {
     api(Libs.okio)
 
     // Coroutines
+    api(project(":bluetape4k-coroutines"))
     api(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)
 
     // Reactor
-    implementation(Libs.reactor_core)
-    implementation(Libs.reactor_kotlin_extensions)
+    compileOnly(Libs.reactor_core)
+    compileOnly(Libs.reactor_kotlin_extensions)
     testImplementation(Libs.reactor_test)
 
     // Eclipse Collections
-    api(Libs.eclipse_collections)
+    compileOnly(Libs.eclipse_collections)
     compileOnly(Libs.eclipse_collections_forkjoin)
     testImplementation(Libs.eclipse_collections_testutils)
 
@@ -67,16 +68,6 @@ dependencies {
     // Binary Serializers
     compileOnly(Libs.kryo)
     compileOnly(Libs.fury_kotlin)
-
-    // Apple M1
-    compileOnly(Libs.jna_platform)
-
-    compileOnly(Libs.netty_transport_native_epoll + ":linux-x86_64")
-    compileOnly(Libs.netty_transport_native_kqueue + ":osx-x86_64")
-    compileOnly(Libs.netty_transport_native_kqueue + ":osx-aarch_64")
-
-    // Netty 를 Mac M1 에서 사용하기 위한 설정
-    compileOnly(Libs.netty_resolver_dns_native_macos + ":osx-aarch_64")
 
     // Benchmark
     testImplementation(Libs.kotlinx_benchmark_runtime)

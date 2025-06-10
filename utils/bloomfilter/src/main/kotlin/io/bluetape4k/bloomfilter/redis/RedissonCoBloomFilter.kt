@@ -35,6 +35,7 @@ import org.redisson.api.RedissonClient
  * @property m Bloom Filter 크기
  * @property k Hash 함수 개수
  */
+@Deprecated("Use RedissonSuspendBloomFilter instead", ReplaceWith("RedissonSuspendBloomFilter"))
 class RedissonCoBloomFilter<T: Any> private constructor(
     private val redisson: RedissonClient,
     private val bloomName: String,
@@ -51,6 +52,7 @@ class RedissonCoBloomFilter<T: Any> private constructor(
          * @param maxNum 최대 요소 개수 (기본값: [DEFAULT_MAX_NUM])
          * @param errorRate 오류율 (기본값: [DEFAULT_ERROR_RATE])
          */
+        @Deprecated("Use RedissonSuspendBloomFilter instead", ReplaceWith("RedissonSuspendBloomFilter"))
         @JvmStatic
         operator fun <T: Any> invoke(
             redisson: RedissonClient,
@@ -101,8 +103,8 @@ class RedissonCoBloomFilter<T: Any> private constructor(
         return result.responses.all { it as Boolean }
     }
 
-    override fun count(): Long {
-        return redisson.getBitSet(bloomName).length()
+    override suspend fun count(): Long {
+        return redisson.getBitSet(bloomName).lengthAsync().coAwait()
     }
 
     override suspend fun clear() {

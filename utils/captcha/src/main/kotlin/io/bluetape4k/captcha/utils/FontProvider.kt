@@ -12,8 +12,8 @@ object FontProvider: KLogging() {
         return resourcePaths.mapNotNull {
             runCatching {
                 loadFontFromResource(it)
-            }.onFailure {
-                log.warn(it) { "Failed to load font from resource: $it" }
+            }.onFailure { ex ->
+                log.warn(ex) { "Failed to load font from resource: $it" }
             }.getOrNull()
         }
     }

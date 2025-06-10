@@ -25,6 +25,8 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import kotlin.text.Charsets.UTF_8
 
 
@@ -266,30 +268,39 @@ fun File.readAllBytes(): ByteArray {
  *
  * @return 파일을 내용을 담은[ByteArray]를 반환하는 [CompletableFuture]
  */
-fun Path.readAllBytesAsync(): CompletableFuture<ByteArray> {
+fun Path.readAllBytesAsync(
+    executor: ExecutorService = Executors.newVirtualThreadPerTaskExecutor(),
+): CompletableFuture<ByteArray> {
     val promise = CompletableFuture<ByteArray>()
-    val channel = AsynchronousFileChannel.open(this, StandardOpenOption.READ)
+    val channel = AsynchronousFileChannel.open(
+        this,
+        setOf(StandardOpenOption.READ),
+        executor
+    )
     val buffer = ByteBuffer.allocateDirect(channel.size().toInt())
 
     channel.read(buffer, 0).asCompletableFuture()
-        .whenCompleteAsync({ result, error ->
-            if (error != null) {
-                channel.closeSafe()
-                promise.completeExceptionally(error)
-            } else {
-                try {
-                    if (result != null) {
-                        buffer.flip()
-                        promise.complete(buffer.getBytes())
-                        log.trace { "Read bytearray from file. path=[${this@readAllBytesAsync}], read size=$result" }
-                    } else {
-                        promise.complete(emptyByteArray)
-                    }
-                } finally {
+        .whenCompleteAsync(
+            { result, error ->
+                if (error != null) {
                     channel.closeSafe()
+                    promise.completeExceptionally(error)
+                } else {
+                    try {
+                        if (result != null) {
+                            buffer.flip()
+                            promise.complete(buffer.getBytes())
+                            log.trace { "Read bytearray from file. path=[${this@readAllBytesAsync}], read size=$result" }
+                        } else {
+                            promise.complete(emptyByteArray)
+                        }
+                    } finally {
+                        channel.closeSafe()
+                    }
                 }
-            }
-        }, VirtualThreadExecutor)
+            },
+            executor
+        )
 
     return promise
 }
@@ -376,25 +387,36 @@ fun File.writeLines(lines: Collection<String>, append: Boolean = false, cs: Char
  * @param append 기존 파일에 추가할 것인가 여부
  * @return 파일에 쓰여진 바이트 수를 반환하는 [CompletableFuture]
  */
-fun Path.writeAsync(bytes: ByteArray, append: Boolean = false): CompletableFuture<Long> {
+fun Path.writeAsync(
+    bytes: ByteArray,
+    append: Boolean = false,
+    executor: ExecutorService = Executors.newVirtualThreadPerTaskExecutor(),
+): CompletableFuture<Long> {
     val promise = CompletableFuture<Long>()
 
     val options = arrayOf(StandardOpenOption.CREATE, StandardOpenOption.WRITE)
-    val channel = AsynchronousFileChannel.open(this, *options)
+    val channel = AsynchronousFileChannel.open(
+        this,
+        options.toSet(),
+        executor
+    )
 
     val pos = if (append) channel.size() else 0L
     val content = bytes.toByteBufferDirect()
 
     channel.write(content, pos).asCompletableFuture()
-        .whenCompleteAsync({ result, error ->
-            channel.closeSafe()
-            if (error != null) {
-                promise.completeExceptionally(error)
-            } else {
-                promise.complete(result.toLong())
-                log.trace { "Write bytearray to file. path=[${this@writeAsync}], written size=$result" }
-            }
-        }, VirtualThreadExecutor)
+        .whenCompleteAsync(
+            { result, error ->
+                channel.closeSafe()
+                if (error != null) {
+                    promise.completeExceptionally(error)
+                } else {
+                    promise.complete(result.toLong())
+                    log.trace { "Write bytearray to file. path=[${this@writeAsync}], written size=$result" }
+                }
+            },
+            executor
+        )
     return promise
 }
 

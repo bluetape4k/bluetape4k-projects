@@ -71,36 +71,36 @@ inline fun Logger.info(marker: Marker?, cause: Throwable?, msg: () -> Any?) {
 
 inline fun Logger.warn(msg: () -> Any?) {
     if (isWarnEnabled) {
-        warn(logMessageSafe(msg))
+        warn("🔥" + logMessageSafe(msg))
     }
 }
 
 inline fun Logger.warn(cause: Throwable?, msg: () -> Any?) {
     if (isWarnEnabled) {
-        warn(logMessageSafe(msg), cause)
+        warn("🔥" + logMessageSafe(msg), cause)
     }
 }
 
 inline fun Logger.warn(marker: Marker?, cause: Throwable?, msg: () -> Any?) {
     if (isWarnEnabled) {
-        warn(marker, logMessageSafe(msg), cause)
+        warn(marker, "🔥" + logMessageSafe(msg), cause)
     }
 }
 
 inline fun Logger.error(msg: () -> Any?) {
     if (isErrorEnabled) {
-        error(logMessageSafe(msg))
+        error("🔥" + logMessageSafe(msg))
     }
 }
 
 inline fun Logger.error(cause: Throwable?, msg: () -> Any?) {
     if (isErrorEnabled) {
-        error(logMessageSafe(msg), cause)
+        error("🔥" + logMessageSafe(msg), cause)
     }
 }
 
 inline fun Logger.error(marker: Marker?, cause: Throwable?, msg: () -> Any?) {
     if (isErrorEnabled) {
-        error(marker, logMessageSafe(msg), cause)
+        error(marker, "🔥" + logMessageSafe(msg), cause)
     }
 }

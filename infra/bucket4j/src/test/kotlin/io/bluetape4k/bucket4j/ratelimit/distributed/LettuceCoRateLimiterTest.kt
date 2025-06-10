@@ -20,7 +20,6 @@ class LettuceCoRateLimiterTest: AbstractCoRateLimiterTest() {
     val bucketProvider: AsyncBucketProxyProvider by lazy {
         val redisClient = TestRedisServer.lettuceClient()
         val redissonProxyManager = lettuceBasedProxyManagerOf(redisClient) {
-            withClientSideConfig(
                 ClientSideConfig.getDefault()
                     .withExpirationAfterWriteStrategy(
                         ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(
@@ -28,7 +27,6 @@ class LettuceCoRateLimiterTest: AbstractCoRateLimiterTest() {
                         )
                     )
                     .withExecutionStrategy(ExecutionStrategy.background(Executors.newVirtualThreadPerTaskExecutor()))
-            )
         }
 
         AsyncBucketProxyProvider(redissonProxyManager.asAsync(), defaultBucketConfiguration)

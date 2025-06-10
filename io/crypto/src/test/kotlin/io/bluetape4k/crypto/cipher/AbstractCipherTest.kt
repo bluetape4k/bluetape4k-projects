@@ -1,14 +1,11 @@
 package io.bluetape4k.crypto.cipher
 
-import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.BeforeEach
 import javax.crypto.Cipher
 
 abstract class AbstractCipherTest {
-    companion object {
-        private val log = KotlinLogging.logger { }
-
-
+    companion object: KLogging() {
         const val REPEAT_SIZE = 10
     }
 

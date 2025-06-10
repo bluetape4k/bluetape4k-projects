@@ -15,13 +15,13 @@ class CumulativeVarianceTest {
     @Test
     fun `cumulative variance for empty sequence`() {
         assertFailsWith<NoSuchElementException> {
-            emptySequence<Double>().cumulativeVariance().toList()
+            emptySequence<Double>().cumulativeVariance()
         }
     }
 
     @Test
     fun `cumulative variance for zero sequence`() {
-        val zeros = sequence { repeat(100) { yield(0.0) } }
+        val zeros = List(100) { 0.0 }
 
         val cv = zeros.cumulativeVariance()
         cv.all { it == 0.0 }.shouldBeTrue()
@@ -29,17 +29,17 @@ class CumulativeVarianceTest {
 
     @Test
     fun `cumulative variance for same values`() {
-        val ones = sequence { repeat(100) { yield(42.0) } }
+        val ones = List(100) { 42.0 }
 
-        val cv = ones.cumulativeVariance().toList()
+        val cv = ones.cumulativeVariance()
         cv.all { it == 0.0 }.shouldBeTrue()
     }
 
     @Test
     fun `cumulative variance for incremental values`() {
-        val incs = sequence { repeat(100) { yield(it.toDouble()) } }
+        val incs = List(100) { it.toDouble() }
 
-        val cv = incs.cumulativeVariance().toList()
+        val cv = incs.cumulativeVariance()
         log.trace { "cv=$cv" }
         cv[0] shouldBeEqualTo 0.5
         cv[1] shouldBeEqualTo 1.0
@@ -48,9 +48,9 @@ class CumulativeVarianceTest {
 
     @Test
     fun `cumulative variance for decremental values`() {
-        val decs = sequence { repeat(100) { yield(100.0 - it.toDouble()) } }
+        val decs = List(100) { 100.0 - it.toDouble() }
 
-        val cv = decs.cumulativeVariance().toList()
+        val cv = decs.cumulativeVariance()
         log.trace { "cv=$cv" }
         cv[0] shouldBeEqualTo 0.5
         cv[1] shouldBeEqualTo 1.0
@@ -59,8 +59,8 @@ class CumulativeVarianceTest {
 
     @Test
     fun `cumulative variance for random values`() {
-        val values = sequence { repeat(100) { yield(Random.nextDouble(-10.0, 10.0)) } }
-        val cv = values.cumulativeVariance().toList()
+        val values = List(100) { Random.nextDouble(-10.0, 10.0) }
+        val cv = values.cumulativeVariance()
         log.trace { "cv=$cv" }
         cv.all { it >= 0 }.shouldBeTrue()
     }

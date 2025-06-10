@@ -39,6 +39,7 @@ import javax.cache.configuration.MutableConfiguration
  * @param V value type
  * @property cache Redisson 기반의 [JCache] instance
  */
+@Deprecated("Use RedissonSuspendCache instead", ReplaceWith("RedissonSuspendCache<K, V>"))
 class RedissonCoCache<K: Any, V: Any>(private val cache: JCache<K, V>): CoCache<K, V> {
 
     companion object: KLoggingChannel() {

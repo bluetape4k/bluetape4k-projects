@@ -34,7 +34,7 @@ class LZ4Compressor: AbstractCompressor() {
         sourceSize.toByteArray().copyInto(output, 0)
 
         val compressedSize = compressor.compress(plain, 0, sourceSize, output, MAGIC_NUMBER_SIZE, maxOutputSize)
-        return output.copyOfRange(0, MAGIC_NUMBER_SIZE + compressedSize)
+        return output.copyOf(MAGIC_NUMBER_SIZE + compressedSize)
     }
 
     override fun doDecompress(compressed: ByteArray): ByteArray {

@@ -11,6 +11,4 @@ abstract class AbstractFastjson2Test {
         @JvmStatic
         val faker = Fakers.faker
     }
-
-
 }

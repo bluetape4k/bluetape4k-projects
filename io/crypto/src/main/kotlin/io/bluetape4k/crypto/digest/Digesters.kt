@@ -19,7 +19,6 @@ object Digesters: KLogging() {
         return AlgorithmRegistry.getAllDigestAlgorithms() as Set<String>
     }
 
-
     /**
      * Keccak 256 알고리즘을 활용한 Digester
      */

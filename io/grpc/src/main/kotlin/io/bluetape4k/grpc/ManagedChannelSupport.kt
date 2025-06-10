@@ -21,7 +21,7 @@ import io.grpc.ManagedChannelBuilder
 inline fun managedChannel(
     host: String,
     port: Int,
-    initializer: ManagedChannelBuilder<*>.() -> Unit,
+    @BuilderInference initializer: ManagedChannelBuilder<*>.() -> Unit,
 ): ManagedChannel =
     ManagedChannelBuilder
         .forAddress(host, port)
@@ -44,7 +44,7 @@ inline fun managedChannel(
  */
 inline fun managedChannel(
     target: String,
-    initializer: ManagedChannelBuilder<*>.() -> Unit,
+    @BuilderInference initializer: ManagedChannelBuilder<*>.() -> Unit,
 ): ManagedChannel = ManagedChannelBuilder
     .forTarget(target)
     .apply(initializer)

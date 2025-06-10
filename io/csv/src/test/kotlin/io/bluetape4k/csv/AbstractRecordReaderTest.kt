@@ -10,11 +10,8 @@ import org.amshove.kluent.shouldNotBeBlank
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.Execution
-import org.junit.jupiter.api.parallel.ExecutionMode
 import kotlin.text.Charsets.UTF_8
 
-@Execution(ExecutionMode.SAME_THREAD)
 abstract class AbstractRecordReaderTest {
 
     companion object: KLogging()

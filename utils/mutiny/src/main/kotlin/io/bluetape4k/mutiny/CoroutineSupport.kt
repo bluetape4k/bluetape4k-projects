@@ -16,9 +16,9 @@ import kotlin.coroutines.CoroutineContext
  * thrown immediately but propagated to the resulting [Uni], similar to the behavior of `Uni.createFrom().item<T>(() -> T)`.
  * The behaviour can be changed by passing an own [context] that's used for `coroutines` execution of the given [suspendSupplier].
  */
-fun <T> CoroutineScope.asUni(
+inline fun <T> CoroutineScope.asUni(
     context: CoroutineContext = Dispatchers.Default,
-    block: suspend CoroutineScope.() -> T,
+    crossinline block: suspend CoroutineScope.() -> T,
 ): Uni<T> {
     return async(context) {
         block(this@asUni)

@@ -13,9 +13,6 @@ class AsyncCaffeineMemorizerTest: AbstractAsyncMemorizerTest() {
 
     companion object: KLoggingChannel()
 
-    override val factorial: AsyncFactorialProvider = AsyncCaffeineFactorialProvider()
-    override val fibonacci: AsyncFibonacciProvider = AsyncCaffeineFibonacciProvider()
-
     private val caffeine = caffeine {
         executor(ForkJoinPool.commonPool())
     }
@@ -28,10 +25,7 @@ class AsyncCaffeineMemorizerTest: AbstractAsyncMemorizerTest() {
         }
     }
 
-    private class AsyncCaffeineFactorialProvider: AsyncFactorialProvider() {
-        private val caffeine = caffeine {
-            executor(ForkJoinPool.commonPool())
-        }
+    override val factorial: AsyncFactorialProvider = object: AsyncFactorialProvider {
         val cache = caffeine.cache<Long, Long>()
 
         override val cachedCalc: (Long) -> CompletableFuture<Long> by lazy {
@@ -39,10 +33,7 @@ class AsyncCaffeineMemorizerTest: AbstractAsyncMemorizerTest() {
         }
     }
 
-    private class AsyncCaffeineFibonacciProvider: AsyncFibonacciProvider() {
-        private val caffeine = caffeine {
-            executor(ForkJoinPool.commonPool())
-        }
+    override val fibonacci: AsyncFibonacciProvider = object: AsyncFibonacciProvider {
         val cache = caffeine.cache<Long, Long>()
 
         override val cachedCalc: (Long) -> CompletableFuture<Long> by lazy {

@@ -360,3 +360,12 @@ inline fun <T, R> Sequence<T>.sliding(
     partialWindows: Boolean = true,
     crossinline transform: (List<T>) -> R,
 ): Sequence<R> = windowed(size, 1, partialWindows) { transform(it) }
+
+fun <T> Sequence<T>.repeat(): Sequence<T> = sequence {
+    val self = this@repeat
+    while (true) {
+        for (item in self) {
+            yield(item)
+        }
+    }
+}

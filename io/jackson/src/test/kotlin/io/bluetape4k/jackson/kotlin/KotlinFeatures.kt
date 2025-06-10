@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.bluetape4k.jackson.Jackson
+import io.bluetape4k.jackson.readValueOrNull
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
@@ -20,18 +20,22 @@ class KotlinFeatures {
 
     companion object: KLogging()
 
-    private val mapper = Jackson.defaultJsonMapper
-        .configure(SerializationFeature.INDENT_OUTPUT, false)
+    private val mapper = Jackson.defaultJsonMapper.apply {
+        configure(SerializationFeature.INDENT_OUTPUT, false)
+    }
 
-    private data class BasicPerson(val name: String, val age: Int): Serializable
+    private data class BasicPerson(
+        val name: String,
+        val age: Int,
+    ): Serializable
 
     @Test
     fun `all inferenece forms`() {
         val json = """{"name":"John Smith", "age":30}"""
 
-        val inferRightSide = mapper.readValue<BasicPerson>(json)
-        val inferLeftSide: BasicPerson = mapper.readValue(json)
-        val person = mapper.readValue<BasicPerson>(json)
+        val inferRightSide = mapper.readValueOrNull<BasicPerson>(json)
+        val inferLeftSide: BasicPerson = mapper.readValueOrNull(json)!!
+        val person = mapper.readValueOrNull<BasicPerson>(json)!!
 
         val expected = BasicPerson("John Smith", 30)
 
@@ -48,12 +52,15 @@ class KotlinFeatures {
             BasicPerson("Sunghyouk Bae", 54)
         )
 
-        val persons: List<BasicPerson> = mapper.readValue(json)
+        val persons: List<BasicPerson> = mapper.readValueOrNull(json)!!
         persons shouldHaveSize 2
         persons shouldBeEqualTo expected
     }
 
-    private data class ClassWithPair(val name: Pair<String, String>, val age: Int): Serializable
+    private data class ClassWithPair(
+        val name: Pair<String, String>,
+        val age: Int,
+    ): Serializable
 
     @Test
     fun `read Pair`() {
@@ -64,11 +71,13 @@ class KotlinFeatures {
         log.debug { "json=$json" }
         json shouldBeEqualTo expected
 
-        val output = mapper.readValue<ClassWithPair>(json)
+        val output = mapper.readValueOrNull<ClassWithPair>(json)
         output shouldBeEqualTo input
     }
 
-    private data class ClassWithPairMixedTypes(val person: Pair<String, Int>): Serializable
+    private data class ClassWithPairMixedTypes(
+        val person: Pair<String, Int>,
+    ): Serializable
 
     @Test
     fun `read pair mixed types`() {
@@ -76,10 +85,13 @@ class KotlinFeatures {
         val expected = ClassWithPairMixedTypes("John" to 30)
 
         mapper.writeValueAsString(expected) shouldBeEqualTo json
-        mapper.readValue<ClassWithPairMixedTypes>(json) shouldBeEqualTo expected
+        mapper.readValueOrNull<ClassWithPairMixedTypes>(json) shouldBeEqualTo expected
     }
 
-    private data class ClassWithRanges(val ages: IntRange, val distance: LongRange): Serializable
+    private data class ClassWithRanges(
+        val ages: IntRange,
+        val distance: LongRange,
+    ): Serializable
 
     @Test
     fun `read ranges`() {
@@ -90,10 +102,12 @@ class KotlinFeatures {
         log.trace { "json=$json" }
 
         json shouldBeEqualTo expectedJson
-        mapper.readValue<ClassWithRanges>(json) shouldBeEqualTo expected
+        mapper.readValueOrNull<ClassWithRanges>(json) shouldBeEqualTo expected
     }
 
-    data class ClassWithPairMixedNullableTypes(val person: Pair<String?, Int?>): Serializable
+    data class ClassWithPairMixedNullableTypes(
+        val person: Pair<String?, Int?>,
+    ): Serializable
 
     @Test
     fun `bind pair mixed nullable types`() {
@@ -104,11 +118,17 @@ class KotlinFeatures {
         log.trace { "json=$json" }
         json shouldBeEqualTo expectedJson
 
-        mapper.readValue<ClassWithPairMixedNullableTypes>(json) shouldBeEqualTo expected
+        mapper.readValueOrNull<ClassWithPairMixedNullableTypes>(json) shouldBeEqualTo expected
     }
 
-    data class GenericParametersClass<A, B: Any>(val one: A, val two: B): Serializable
-    data class GenericParameterConsumer(val thing: GenericParametersClass<String?, Int>)
+    data class GenericParametersClass<A, B: Any>(
+        val one: A,
+        val two: B,
+    ): Serializable
+
+    data class GenericParameterConsumer(
+        val thing: GenericParametersClass<String?, Int>,
+    ): Serializable
 
     @Test
     fun `generic parameters in constructor`() {
@@ -119,7 +139,7 @@ class KotlinFeatures {
         log.debug { "json=$json" }
         json shouldBeEqualTo expectedJson
 
-        val actual = mapper.readValue<GenericParameterConsumer>(json)
+        val actual = mapper.readValueOrNull<GenericParameterConsumer>(json)
         actual shouldBeEqualTo expected
     }
 
@@ -128,7 +148,12 @@ class KotlinFeatures {
 
     @Test
     fun `generate iterator to json`() {
-        val expected = KotlinPersonIterator(listOf(TinyPerson("Fred", 10), TinyPerson("Max", 11)))
+        val expected = KotlinPersonIterator(
+            listOf(
+                TinyPerson("Fred", 10),
+                TinyPerson("Max", 11)
+            )
+        )
         val expectedJson = """[{"name":"Fred","age":10},{"name":"Max","age":11}]"""
 
         val typeRef = jacksonTypeRef<Iterator<TinyPerson>>()
@@ -137,14 +162,13 @@ class KotlinFeatures {
         log.trace { "json=$json" }
         json shouldBeEqualTo expectedJson
 
-        val actual = mapper.readValue<List<TinyPerson>>(json)
+        val actual = mapper.readValueOrNull<List<TinyPerson>>(json)
         actual.shouldNotBeNull()
         actual shouldContainAll expected.people
     }
 
     data class Company(
         val name: String,
-
         @JsonSerialize(`as` = java.util.Iterator::class, contentAs = TinyPerson::class)
         @JsonDeserialize(`as` = KotlinPersonIterator::class)
         val people: KotlinPersonIterator,
@@ -152,7 +176,12 @@ class KotlinFeatures {
 
     @Test
     fun `generate iterator as field`() {
-        val people = KotlinPersonIterator(listOf(TinyPerson("Fred", 10), TinyPerson("Max", 11)))
+        val people = KotlinPersonIterator(
+            listOf(
+                TinyPerson("Fred", 10),
+                TinyPerson("Max", 11)
+            )
+        )
         val company = Company("KidVille", people)
         val expectedJson = """{"name":"KidVille","people":[{"name":"Fred","age":10},{"name":"Max","age":11}]}"""
 
@@ -166,9 +195,12 @@ class KotlinFeatures {
     }
 
     @JvmInline
-    value class PersonId(val id: Long)
+    value class PersonId(val id: Long): Serializable
 
-    data class Person(val id: PersonId, val name: String): Serializable
+    data class Person(
+        val id: PersonId,
+        val name: String,
+    ): Serializable
 
     @Test
     fun `read value class`() {
@@ -179,7 +211,7 @@ class KotlinFeatures {
         log.debug { "json=$json" }
         json shouldBeEqualTo expectedJson
 
-        val parsed = mapper.readValue<Person>(json)
+        val parsed = mapper.readValueOrNull<Person>(json)
         parsed shouldBeEqualTo person
     }
 }

@@ -44,7 +44,9 @@ fun caffeineSpecOf(specification: String): CaffeineSpec =
  * @param initializer Caffeine 빌더 메소드
  * @return [caffeine] instance
  */
-inline fun caffeine(initializer: Caffeine<Any, Any>.() -> Unit): Caffeine<Any, Any> =
+inline fun caffeine(
+    @BuilderInference initializer: Caffeine<Any, Any>.() -> Unit,
+) =
     Caffeine.newBuilder().apply(initializer)
 
 /**
@@ -53,7 +55,9 @@ inline fun caffeine(initializer: Caffeine<Any, Any>.() -> Unit): Caffeine<Any, A
  * @param initializer Caffeine builder method
  * @return [caffeine] instance
  */
-inline fun caffeineWithVirtualThread(initializer: Caffeine<Any, Any>.() -> Unit): Caffeine<Any, Any> =
+inline fun caffeineWithVirtualThread(
+    @BuilderInference initializer: Caffeine<Any, Any>.() -> Unit,
+) =
     Caffeine.newBuilder()
         .executor(VirtualThreadExecutor)
         .apply(initializer)
@@ -92,8 +96,9 @@ fun <K: Any, V: Any> Caffeine<Any, Any>.cache(): Cache<K, V> = build()
  * @param loader    Cache item loader
  * @return [AsyncCache] instance
  */
-fun <K: Any, V: Any> Caffeine<Any, Any>.loadingCache(loader: (K) -> V): LoadingCache<K, V> =
-    build { key: K -> loader(key) }
+fun <K: Any, V: Any> Caffeine<Any, Any>.loadingCache(
+    @BuilderInference loader: (key: K) -> V,
+): LoadingCache<K, V> = build { key: K -> loader(key) }
 
 
 /**
@@ -141,7 +146,7 @@ fun <K: Any, V: Any> Caffeine<Any, Any>.asyncCache(): AsyncCache<K, V> = buildAs
  * @return [AsyncLoadingCache] instance
  */
 inline fun <K: Any, V: Any> Caffeine<Any, Any>.asyncLoadingCache(
-    crossinline loader: (key: K) -> CompletableFuture<V>,
+    @BuilderInference crossinline loader: (key: K) -> CompletableFuture<V>,
 ): AsyncLoadingCache<K, V> = buildAsync { key: K, _: Executor -> loader(key) }
 
 /**
@@ -167,7 +172,7 @@ inline fun <K: Any, V: Any> Caffeine<Any, Any>.asyncLoadingCache(
  * @return [AsyncLoadingCache] instance
  */
 inline fun <K: Any, V: Any> Caffeine<Any, Any>.asyncLoadingCache(
-    crossinline loader: (key: K, executor: Executor) -> CompletableFuture<V>,
+    @BuilderInference crossinline loader: (key: K, executor: Executor) -> CompletableFuture<V>,
 ): AsyncLoadingCache<K, V> =
     buildAsync { key: K, executor: Executor -> loader(key, executor) }
 
@@ -196,7 +201,7 @@ inline fun <K: Any, V: Any> Caffeine<Any, Any>.asyncLoadingCache(
  * @return [AsyncLoadingCache] 함수
  */
 inline fun <K: Any, V: Any> Caffeine<Any, Any>.suspendLoadingCache(
-    crossinline loader: suspend (key: K) -> V,
+    @BuilderInference crossinline loader: suspend (key: K) -> V,
 ): AsyncLoadingCache<K, V> {
     return buildAsync { key, executor: Executor ->
         CoroutineScope(executor.asCoroutineDispatcher()).future {
@@ -232,7 +237,7 @@ inline fun <K: Any, V: Any> Caffeine<Any, Any>.suspendLoadingCache(
  */
 inline fun <K: Any, V: Any> AsyncCache<K, V>.getSuspending(
     key: K,
-    crossinline loader: suspend (key: K) -> V,
+    @BuilderInference crossinline loader: suspend (key: K) -> V,
 ): CompletableFuture<V> {
     return this.get(key) { k: K, executor: Executor ->
         CoroutineScope(executor.asCoroutineDispatcher()).future {

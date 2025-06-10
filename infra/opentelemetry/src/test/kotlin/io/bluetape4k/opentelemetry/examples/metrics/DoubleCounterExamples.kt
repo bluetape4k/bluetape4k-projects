@@ -6,7 +6,7 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.opentelemetry.AbstractOtelTest
 import io.bluetape4k.opentelemetry.common.attributesOf
 import io.bluetape4k.opentelemetry.common.toAttributeKey
-import io.bluetape4k.opentelemetry.coroutines.useSpanSuspending
+import io.bluetape4k.opentelemetry.coroutines.useSuspendSpan
 import io.opentelemetry.api.OpenTelemetry
 import io.opentelemetry.api.metrics.DoubleCounter
 import io.opentelemetry.api.trace.SpanKind
@@ -40,7 +40,7 @@ class DoubleCounterExamples: AbstractOtelTest() {
 
         tracer.spanBuilder("calculate space")
             .setSpanKind(SpanKind.INTERNAL)
-            .useSpanSuspending { span ->
+            .useSuspendSpan { span ->
                 try {
                     val extensionsToFind = listOf("jar", "kt", "java", "class", "xml", "properties", "txt")
                     calculateSpaceUsedByFilesWithExtensionsAsync(extensionsToFind, homeDir, diskSpaceCounter)

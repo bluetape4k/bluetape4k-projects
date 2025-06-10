@@ -16,8 +16,10 @@ import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
+@Disabled("AbstractCoCacheTest is deprecated, use AbstractSuspendCacheTest instead")
 abstract class AbstractCoCacheTest {
 
     companion object: KLoggingChannel() {

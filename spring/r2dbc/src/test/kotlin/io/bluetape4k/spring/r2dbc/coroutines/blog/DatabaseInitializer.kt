@@ -1,6 +1,6 @@
 package io.bluetape4k.spring.r2dbc.coroutines.blog
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import io.bluetape4k.spring.r2dbc.coroutines.blog.domain.CommentRepository
 import io.bluetape4k.spring.r2dbc.coroutines.blog.domain.PostRepository
@@ -15,7 +15,7 @@ class DatabaseInitializer(
     private val commentRepository: CommentRepository,
 ) {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     /**
      * Spring Boot Application이 준비되면 호출되는 Event Listener
@@ -24,12 +24,12 @@ class DatabaseInitializer(
     fun init() {
         log.info { "Insert new two posts ... " }
 
-        // TODO: Transactional하게 두 개의 Post와 Comment를 저장해야 한다
+        // Transactional 하게 2개의 Post와 4개의 Comment를 저장합니다.
         runBlocking {
             postRepository.init()
             commentRepository.init()
         }
 
-        log.info { "Done insert new two posts ..." }
+        log.info { "Done insert new two posts and four comments ..." }
     }
 }

@@ -52,12 +52,8 @@ dependencies {
     compileOnly(Libs.quarkus_vertx)
     compileOnly(Libs.quarkus_reactive_routes)
 
-//    compileOnly(Libs.opentelemetry_api_incubator)
-
     api(Libs.vertx_lang_kotlin)
     api(Libs.vertx_lang_kotlin_coroutines)
-
-    compileOnly(Libs.camel_quarkus_kotlin)
 
     // Coroutines
     api(project(":bluetape4k-coroutines"))

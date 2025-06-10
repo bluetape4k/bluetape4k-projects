@@ -4,7 +4,7 @@ import io.bluetape4k.aws.dynamodb.enhanced.table
 import io.bluetape4k.aws.dynamodb.examples.food.model.Schema
 import io.bluetape4k.aws.dynamodb.examples.food.model.UserDocument
 import io.bluetape4k.aws.dynamodb.repository.DynamoDbCoroutineRepository
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Repository
@@ -17,7 +17,7 @@ class UserRepository(
     @Value("\${aws.dynamodb.tablePrefix:local-}") tablePrefix: String,
 ): DynamoDbCoroutineRepository<UserDocument> {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     override val itemClass: Class<UserDocument> = UserDocument::class.java
 

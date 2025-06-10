@@ -16,6 +16,7 @@ plugins {
     kotlin("plugin.serialization") version Versions.kotlin apply false
     kotlin("plugin.atomicfu") version Versions.kotlin
     kotlin("kapt") version Versions.kotlin apply false
+    id(Plugins.kotlinx_benchmark) version Plugins.Versions.kotlinx_benchmark apply false
 
     id(Plugins.detekt) version Plugins.Versions.detekt
 
@@ -29,6 +30,7 @@ plugins {
     id(Plugins.shadow) version Plugins.Versions.shadow apply false
 
     id(Plugins.graalvm_native) version Plugins.Versions.graalvm_native apply false
+    id(Plugins.kosogor) version Plugins.Versions.kosogor
 }
 
 // NOTE: Nexus 에 등록된 것 때문에 사용한다
@@ -385,8 +387,6 @@ subprojects {
             dependency(Libs.guava)
 
             dependency(Libs.kryo)
-            dependency(Libs.marshalling)
-            dependency(Libs.marshalling_river)
 
             // Jackson (이상하게 mavenBom 에 적용이 안되어서 강제로 추가하였다)
             dependency(Libs.jackson_bom)
@@ -589,12 +589,12 @@ subprojects {
                 create<MavenPublication>("Bluetape4k") {
                     val binaryJar = components["java"]
 
-                    val sourcesJar by tasks.creating(Jar::class) {
+                    val sourcesJar by tasks.registering(Jar::class) {
                         archiveClassifier.set("sources")
                         from(sourceSets["main"].allSource)
                     }
 
-                    val javadocJar by tasks.creating(Jar::class) {
+                    val javadocJar by tasks.registering(Jar::class) {
                         archiveClassifier.set("javadoc")
                         val javadocDir = layout.buildDirectory.asFile.get().resolve("javadoc")
                         from(javadocDir.path)

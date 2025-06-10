@@ -2,7 +2,7 @@ package io.bluetape4k.io.okio.encrypt
 
 import io.bluetape4k.crypto.encrypt.Encryptor
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.trace
 import io.bluetape4k.support.requireGe
 import okio.Buffer
 import okio.ForwardingSource
@@ -30,7 +30,7 @@ open class DecryptSource(
         var streamEnd = false
         while (sourceBuffer.size < byteCount && !streamEnd) {
             val bytesRead = super.read(sourceBuffer, byteCount - sourceBuffer.size)
-            log.debug { "byteCount=$byteCount, sourceBuffer.size=${sourceBuffer.size}" }
+            log.trace { "byteCount=$byteCount, sourceBuffer.size=${sourceBuffer.size}" }
             if (bytesRead < 0) {
                 streamEnd = true
             }
@@ -43,10 +43,10 @@ open class DecryptSource(
 
         // source로 부터 읽은 데이터를 복호화
         val bytes = sourceBuffer.readByteArray()
-        log.debug { "source buffer bytes: ${bytes.size}" }
+        log.trace { "source buffer bytes: ${bytes.size}" }
         if (bytes.isNotEmpty()) {
             val decrypted = encryptor.decrypt(bytes)
-            log.debug { "decrypted bytes: ${decrypted.size}" }
+            log.trace { "decrypted bytes: ${decrypted.size}" }
             decryptedBuffer.write(decrypted)
         }
 

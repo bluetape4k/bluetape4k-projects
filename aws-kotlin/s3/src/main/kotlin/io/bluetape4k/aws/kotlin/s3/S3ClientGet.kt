@@ -20,6 +20,7 @@ import io.bluetape4k.aws.kotlin.s3.model.getObjectAclRequestOf
 import io.bluetape4k.aws.kotlin.s3.model.getObjectRequestOf
 import io.bluetape4k.aws.kotlin.s3.model.getObjectRetentionRequestOf
 import io.bluetape4k.aws.kotlin.s3.model.headObjectRequestOf
+import io.bluetape4k.coroutines.flow.async
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotEmpty
 import kotlinx.coroutines.flow.DEFAULT_CONCURRENCY
@@ -27,7 +28,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flatMapMerge
-import kotlinx.coroutines.flow.flow
 import java.io.OutputStream
 import java.nio.file.Path
 import kotlin.time.Duration
@@ -68,6 +68,7 @@ suspend inline fun S3Client.get(
     val request = getObjectRequestOf(bucketName, key, configurer = configurer)
     return getObject(request) { it }
 }
+
 
 /**
  * [bucketName]의 [key]에 해당하는 객체를 가져와 [block]을 통해 원하는 수형으로 변환합니다.
@@ -227,12 +228,10 @@ fun S3Client.getAll(
     concurrency: Int = DEFAULT_CONCURRENCY,
     vararg getObjectRequests: GetObjectRequest,
 ): Flow<GetObjectResponse> {
-    return getObjectRequests.asFlow()
-        .flatMapMerge(concurrency) { request ->
-            flow {
-                val response = getObject(request) { it }
-                emit(response)
-            }
+    return getObjectRequests
+        .asFlow()
+        .async { request ->
+            getObject(request) { it }
         }
 }
 

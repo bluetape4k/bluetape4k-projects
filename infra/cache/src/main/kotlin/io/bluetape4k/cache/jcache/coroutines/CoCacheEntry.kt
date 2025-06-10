@@ -11,6 +11,7 @@ import javax.cache.Cache
  * @property key cache key
  * @property value cache value
  */
+@Deprecated("Use SuspendCacheEntry instead", ReplaceWith("SuspendCacheEntry"))
 data class CoCacheEntry<K: Any, V: Any>(
     private val key: K,
     private val value: V,

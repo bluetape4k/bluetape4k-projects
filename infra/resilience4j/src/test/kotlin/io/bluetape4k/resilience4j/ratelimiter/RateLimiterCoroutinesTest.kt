@@ -2,7 +2,7 @@ package io.bluetape4k.resilience4j.ratelimiter
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.resilience4j.CoHelloWorldService
+import io.bluetape4k.resilience4j.SuspendHelloWorldService
 import io.github.resilience4j.kotlin.ratelimiter.decorateSuspendFunction
 import io.github.resilience4j.kotlin.ratelimiter.executeSuspendFunction
 import io.github.resilience4j.ratelimiter.RateLimiter
@@ -28,7 +28,7 @@ class RateLimiterCoroutinesTest {
     fun `rate limit에 걸리지 않을 때에는 method를 수행됩니다`() = runSuspendTest {
         val rateLimiter = RateLimiter.of("testName", noWaitConfig())
         val metrics = rateLimiter.metrics
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         val result = rateLimiter.executeSuspendFunction {
             helloWorldService.returnHelloWorld()
@@ -45,7 +45,7 @@ class RateLimiterCoroutinesTest {
     fun `예외를 발생시키는 함수에 대해서도 실행되어야 합니다`() = runSuspendTest {
         val rateLimiter = RateLimiter.of("testName", noWaitConfig())
         val metrics = rateLimiter.metrics
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         assertFailsWith<IllegalStateException> {
             rateLimiter.executeSuspendFunction {
@@ -63,7 +63,7 @@ class RateLimiterCoroutinesTest {
     fun `rate limit이 꽉 찬 경우에는 실행되지 않습니다`() = runSuspendTest {
         val rateLimiter = RateLimiter.of("testName", noWaitConfig())
         val metrics = rateLimiter.metrics
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         repeat(10) {
             rateLimiter.executeSuspendFunction {
@@ -87,7 +87,7 @@ class RateLimiterCoroutinesTest {
     fun `method를 decorate 합니다`() = runSuspendTest {
         val rateLimiter = RateLimiter.of("testName", noWaitConfig())
         val metrics = rateLimiter.metrics
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         val function = rateLimiter.decorateSuspendFunction {
             helloWorldService.returnHelloWorld()
@@ -104,7 +104,7 @@ class RateLimiterCoroutinesTest {
     fun `인자가 있는 method를 decorate 합니다`() = runSuspendTest {
         val rateLimiter = RateLimiter.of("testName", noWaitConfig())
         val metrics = rateLimiter.metrics
-        val helloWorldService = CoHelloWorldService()
+        val helloWorldService = SuspendHelloWorldService()
 
         val function = rateLimiter.decorateSuspendFunction {
             helloWorldService.returnMessage("Hello debop")

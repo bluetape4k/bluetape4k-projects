@@ -11,15 +11,13 @@ import kotlinx.coroutines.flow.flow
 import java.time.temporal.ChronoUnit
 import java.time.temporal.Temporal
 
-fun <T> TemporalOpenedProgression<T>.asFlow(): Flow<T> where T: Temporal, T: Comparable<T> =
-    flow {
-        sequence().forEach { emit(it) }
-    }
+fun <T> TemporalOpenedProgression<T>.asFlow(): Flow<T> where T: Temporal, T: Comparable<T> = flow {
+    sequence().forEach { emit(it) }
+}
 
-fun <T> TemporalOpenedRange<T>.asFlow(): Flow<T> where T: Temporal, T: Comparable<T> =
-    flow {
-        sequence().forEach { emit(it) }
-    }
+fun <T> TemporalOpenedRange<T>.asFlow(): Flow<T> where T: Temporal, T: Comparable<T> = flow {
+    sequence().forEach { emit(it) }
+}
 
 @Suppress("UNCHECKED_CAST")
 fun <T> TemporalOpenedRange<T>.windowedFlow(

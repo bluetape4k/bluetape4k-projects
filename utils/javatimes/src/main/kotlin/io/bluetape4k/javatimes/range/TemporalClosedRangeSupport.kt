@@ -63,7 +63,9 @@ fun <T> TemporalClosedRange<T>.windowed(
         val increment = step.temporalAmount(unit)
 
         while (current <= endInclusive) {
-            yield(List(size) { (current + it.temporalAmount(unit)) as T }.takeWhile { it <= endInclusive })
+            val item = List(size) { (current + it.temporalAmount(unit)) as T }
+                .takeWhile { it <= endInclusive }
+            yield(item)
             current = (current + increment) as T
         }
     }
@@ -223,9 +225,9 @@ fun <T> TemporalClosedRange<T>.zipWithNext(unit: ChronoUnit): Sequence<Pair<T, T
     assert(unit in SupportChronoUnits) { "Not supported ChronoUnit. unit=$unit" }
 
     return sequence {
-        var current = start.startOf(unit)
+        var current: T = start.startOf(unit)
         val increment = 1.temporalAmount(unit)
-        val limit: T = (endInclusive - increment) as T
+        val limit = (endInclusive - increment) as T
 
         while (current <= limit) {
             val second = (current + increment) as T

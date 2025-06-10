@@ -27,6 +27,10 @@ import java.nio.charset.Charset
  *
  * @property settings TSV 파서 설정
  */
+@Deprecated(
+    message = "Use SuspendRecordReader instead. This will be removed in future versions.",
+    replaceWith = ReplaceWith("SuspendRecordReader")
+)
 class CoTsvRecordReader(
     private val settings: TsvParserSettings = DefaultTsvParserSettings,
 ): CoRecordReader {

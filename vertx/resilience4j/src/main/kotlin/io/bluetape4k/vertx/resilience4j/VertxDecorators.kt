@@ -33,11 +33,11 @@ object VertxDecorators: KLoggingChannel() {
      * @param supplier Resilience4j Component 들로 decorate 할 Vert.x [Future]를 생성하는 함수
      * @param [supplier] 를 decorate 한 함수
      */
-    fun <T> ofSupplier(supplier: () -> Future<T>): CoVertxDecorateSupplier<T> {
-        return CoVertxDecorateSupplier(supplier)
+    fun <T> ofSupplier(@BuilderInference supplier: () -> Future<T>): SuspendVertxDecorateSupplier<T> {
+        return SuspendVertxDecorateSupplier(supplier)
     }
 
-    class CoVertxDecorateSupplier<T>(private var supplier: () -> Future<T>) {
+    class SuspendVertxDecorateSupplier<T>(private var supplier: () -> Future<T>) {
 
         fun withBulkhead(bulkhead: Bulkhead) = apply {
             supplier = bulkhead.decorateVertxFuture(supplier)
@@ -65,31 +65,35 @@ object VertxDecorators: KLoggingChannel() {
             supplier = timeLimiter.decorateVertxFuture(scheduler, supplier)
         }
 
-        fun withFallback(handler: (T?, Throwable?) -> T) = apply {
+        fun withFallback(
+            @BuilderInference handler: (T?, Throwable?) -> T,
+        ) = apply {
             supplier = supplier.recover(handler)
         }
 
-        fun withFallback(exceptionHandler: (Throwable?) -> T) = apply {
+        fun withFallback(
+            @BuilderInference exceptionHandler: (Throwable?) -> T,
+        ) = apply {
             supplier = supplier.recover(exceptionHandler)
         }
 
         fun withFallback(
             resultPredicate: (T) -> Boolean,
-            resultHandler: (T) -> T,
+            @BuilderInference resultHandler: (T) -> T,
         ) = apply {
             supplier = supplier.recover(resultPredicate, resultHandler)
         }
 
         fun withFallback(
             exceptionType: Class<out Throwable>,
-            exceptionHandler: (Throwable?) -> T,
+            @BuilderInference exceptionHandler: (Throwable?) -> T,
         ) = apply {
             supplier = supplier.recover(exceptionType, exceptionHandler)
         }
 
         fun withFallback(
             exceptionTypes: Iterable<Class<out Throwable>>,
-            exceptionHandler: (Throwable?) -> T,
+            @BuilderInference exceptionHandler: (Throwable?) -> T,
         ) = apply {
             supplier = supplier.recover(exceptionTypes, exceptionHandler)
         }

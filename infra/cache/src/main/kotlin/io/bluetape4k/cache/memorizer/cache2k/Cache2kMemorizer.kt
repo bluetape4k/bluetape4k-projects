@@ -12,7 +12,9 @@ import kotlin.concurrent.withLock
  * @param R cache value type
  * @param evaluator cache value를 반환하는 메소드
  */
-fun <T: Any, R: Any> Cache<T, R>.memorizer(evaluator: (T) -> R): Memorizer<T, R> =
+fun <T: Any, R: Any> Cache<T, R>.memorizer(
+    @BuilderInference evaluator: (T) -> R,
+): Memorizer<T, R> =
     Cache2kMemorizer(this, evaluator)
 
 /**
@@ -35,7 +37,7 @@ fun <T: Any, R: Any> ((T) -> R).withMemorizer(cache: Cache<T, R>): Memorizer<T, 
  */
 class Cache2kMemorizer<in T: Any, out R: Any>(
     private val cache: Cache<T, R>,
-    private val evaluator: (T) -> R,
+    @BuilderInference private val evaluator: (T) -> R,
 ): Memorizer<T, R> {
 
     private val lock = ReentrantLock()
