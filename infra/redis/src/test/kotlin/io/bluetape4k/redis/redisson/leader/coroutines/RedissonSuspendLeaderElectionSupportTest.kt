@@ -20,7 +20,7 @@ class RedissonSuspendLeaderElectionSupportTest: AbstractRedissonTest() {
 
         coroutineScope {
             launch {
-                redissonClient.runSuspendIfLeader(jobName) {
+                redissonClient.suspendRunIfLeader(jobName) {
                     log.debug { "작업 1 을 시작합니다." }
                     delay(10)
                     log.debug { "작업 1 을 종료합니다." }
@@ -28,7 +28,7 @@ class RedissonSuspendLeaderElectionSupportTest: AbstractRedissonTest() {
             }.log("job1")
 
             launch {
-                redissonClient.runSuspendIfLeader(jobName) {
+                redissonClient.suspendRunIfLeader(jobName) {
                     log.debug { "작업 2 을 시작합니다." }
                     delay(10)
                     log.debug { "작업 2 을 종료합니다." }

@@ -62,7 +62,7 @@ class RedissonSuspendLeaderElection private constructor(
             // val lockId = redissonClient.getLockId(lockName)
 
             // Redis IO 를 줄이기 위해 Default Snowflake 를 사용합니다.
-            val lockId = Snowflakers.Global.nextId()
+            val lockId = Snowflakers.Default.nextId()
 
             val acquired = lock.tryLockAsync(
                 waitTimeMills,

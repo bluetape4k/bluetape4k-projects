@@ -13,5 +13,8 @@ interface SuspendLeaderElection {
      * @param action leader 로 승격되면 수행할 코드 블럭
      * @return 작업 결과
      */
-    suspend fun <T> runIfLeader(lockName: String, action: suspend () -> T): T
+    suspend fun <T> runIfLeader(
+        lockName: String,
+        action: suspend () -> T,
+    ): T
 }
