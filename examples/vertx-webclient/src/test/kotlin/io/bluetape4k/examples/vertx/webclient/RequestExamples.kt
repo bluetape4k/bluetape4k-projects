@@ -3,8 +3,8 @@ package io.bluetape4k.examples.vertx.webclient
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import io.bluetape4k.vertx.tests.withTestContextSuspending
-import io.bluetape4k.vertx.web.coHandler
+import io.bluetape4k.vertx.tests.withSuspendTestContext
+import io.bluetape4k.vertx.web.suspendHandler
 import io.vertx.core.Vertx
 import io.vertx.core.buffer.Buffer
 import io.vertx.ext.web.Router
@@ -33,7 +33,7 @@ class RequestExamples {
             // Request Body를 얻기 위해서는 `BodyHandler` 를 추가해야 합니다.
             router.route().handler(BodyHandler.create())
 
-            router.route("/simple").coHandler { ctx ->
+            router.route("/simple").suspendHandler { ctx ->
                 log.debug { "routing context=${ctx.body().asString()}" }
                 ctx.response().end("OK")
             }
@@ -49,7 +49,7 @@ class RequestExamples {
 
     @Test
     fun `put simple string as request body`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-        vertx.withTestContextSuspending(testContext) {
+        vertx.withSuspendTestContext(testContext) {
             vertx.deployVerticle(PostStringServer()).coAwait()
 
             val client = WebClient.create(vertx)

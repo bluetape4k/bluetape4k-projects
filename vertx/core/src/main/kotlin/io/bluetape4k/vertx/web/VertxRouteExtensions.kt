@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
  * route 핸들러 목록에 요청 핸들러를 추가합니다.
  *
  * ```
- * router.get("/some/path").coHandler { ctx ->
+ * router.get("/some/path").suspendHandler { ctx ->
  *    ctx.response().end("Hello, World!")
  *    // ctx.next() // 다음 핸들러로 이동
  *    // ctx.fail(500) // 실패 핸들러로 이동
@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
  * @param requestHandler request handler
  * @return a reference to this, so the API can be used fluently
  */
-inline fun Route.coHandler(
+inline fun Route.suspendHandler(
     crossinline requestHandler: suspend (RoutingContext) -> Unit,
 ): Route {
     return handler { ctx ->
@@ -38,7 +38,7 @@ inline fun Route.coHandler(
  * 실패 route 핸들러 목록에 실패 핸들러(`requestHandler`) 를 추가합니다.
  *
  * ```
- * router.get("/some/path").coFailureHandler { ctx ->
+ * router.get("/some/path").suspendFailureHandler { ctx ->
  *   ctx.response().end("Hello, World!")
  *   // ctx.next() // 다음 핸들러로 이동
  *   // ctx.fail(500) // 실패 핸들러로 이동
@@ -49,7 +49,7 @@ inline fun Route.coHandler(
  * @param requestHandler  실패를 처리하는 요청 핸들러
  * @return a reference to this, so the API can be used fluently
  */
-inline fun Route.coFailureHandler(
+inline fun Route.suspendFailureHandler(
     crossinline requestHandler: suspend (RoutingContext) -> Unit,
 ): Route {
     return failureHandler { ctx ->

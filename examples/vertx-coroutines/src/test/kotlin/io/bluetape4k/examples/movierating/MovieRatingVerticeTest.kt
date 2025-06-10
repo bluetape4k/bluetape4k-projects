@@ -3,7 +3,7 @@ package io.bluetape4k.examples.movierating
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import io.bluetape4k.vertx.tests.withTestContextSuspending
+import io.bluetape4k.vertx.tests.withSuspendTestContext
 import io.vertx.core.Vertx
 import io.vertx.ext.web.client.WebClient
 import io.vertx.ext.web.codec.BodyCodec
@@ -37,7 +37,7 @@ class MovieRatingVerticeTest {
 
     @Test
     fun `get movie by id`(vertx: Vertx, testContext: VertxTestContext) = runSuspendTest {
-        vertx.withTestContextSuspending(testContext) {
+        vertx.withSuspendTestContext(testContext) {
             val client = WebClient.create(vertx)
 
             val movieId = "starwars"
@@ -59,7 +59,7 @@ class MovieRatingVerticeTest {
 
     @Test
     fun `get rating`(vertx: Vertx, testContext: VertxTestContext) = runSuspendTest {
-        vertx.withTestContextSuspending(testContext) {
+        vertx.withSuspendTestContext(testContext) {
             val client = WebClient.create(vertx)
 
             val movieId = "starwars"
@@ -81,7 +81,7 @@ class MovieRatingVerticeTest {
 
     @Test
     fun `post movie rating`(vertx: Vertx, testContext: VertxTestContext) = runSuspendTest {
-        vertx.withTestContextSuspending(testContext) {
+        vertx.withSuspendTestContext(testContext) {
             val client = WebClient.create(vertx)
 
             val movieId = "starwars"

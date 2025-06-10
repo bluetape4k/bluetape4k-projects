@@ -33,11 +33,11 @@ object VertxDecorators: KLoggingChannel() {
      * @param supplier Resilience4j Component 들로 decorate 할 Vert.x [Future]를 생성하는 함수
      * @param [supplier] 를 decorate 한 함수
      */
-    fun <T> ofSupplier(@BuilderInference supplier: () -> Future<T>): CoVertxDecorateSupplier<T> {
-        return CoVertxDecorateSupplier(supplier)
+    fun <T> ofSupplier(@BuilderInference supplier: () -> Future<T>): SuspendVertxDecorateSupplier<T> {
+        return SuspendVertxDecorateSupplier(supplier)
     }
 
-    class CoVertxDecorateSupplier<T>(private var supplier: () -> Future<T>) {
+    class SuspendVertxDecorateSupplier<T>(private var supplier: () -> Future<T>) {
 
         fun withBulkhead(bulkhead: Bulkhead) = apply {
             supplier = bulkhead.decorateVertxFuture(supplier)

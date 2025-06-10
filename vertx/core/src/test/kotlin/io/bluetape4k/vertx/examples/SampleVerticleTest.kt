@@ -1,9 +1,9 @@
 package io.bluetape4k.vertx.examples
 
-import io.bluetape4k.junit5.coroutines.runSuspendTest
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import io.bluetape4k.vertx.tests.withTestContextSuspending
+import io.bluetape4k.vertx.tests.withSuspendTestContext
 import io.vertx.core.Vertx
 import io.vertx.ext.web.client.WebClient
 import io.vertx.ext.web.codec.BodyCodec
@@ -11,6 +11,7 @@ import io.vertx.junit5.VertxExtension
 import io.vertx.junit5.VertxTestContext
 import io.vertx.kotlin.coroutines.awaitResult
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
@@ -74,8 +75,8 @@ class SampleVerticleTest {
     }
 
     @Test
-    fun `use SampleVerticle in coroutines`(vertx: Vertx, testContext: VertxTestContext) = runSuspendTest {
-        vertx.withTestContextSuspending(testContext) {
+    fun `use SampleVerticle in coroutines`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
+        vertx.withSuspendTestContext(testContext) {
             val webClient = WebClient.create(vertx)
             val deploymentCheckpoint = testContext.checkpoint()
             val requestCheckpoint = testContext.checkpoint(REPEAT_SIZE)
@@ -84,7 +85,7 @@ class SampleVerticleTest {
             awaitResult<String> { vertx.deployVerticle(SampleVerticle(), it) }
             deploymentCheckpoint.flag()  //testContext 에게 현 단계까지 완료되었음을 알린다.
 
-            repeat(REPEAT_SIZE) { requestIndex ->
+            val jobs = List(REPEAT_SIZE) { requestIndex ->
                 launch {
                     val resp = awaitResult { handler ->
                         log.debug { "Request $requestIndex" }
@@ -102,6 +103,7 @@ class SampleVerticleTest {
                     }
                 }
             }
+            jobs.joinAll()
         }
     }
 }

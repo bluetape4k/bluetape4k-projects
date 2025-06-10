@@ -5,7 +5,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.info
-import io.bluetape4k.vertx.tests.withTestContextSuspending
+import io.bluetape4k.vertx.tests.withSuspendTestContext
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Promise
 import io.vertx.core.Vertx
@@ -45,7 +45,7 @@ class SimpleExamples {
 
     @Test
     fun `use webclient to simple server`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-        vertx.withTestContextSuspending(testContext) {
+        vertx.withSuspendTestContext(testContext) {
             vertx.deployVerticle(SimpleServer()).coAwait()
 
             val client = WebClient.create(vertx)
