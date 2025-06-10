@@ -11,6 +11,8 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.redisson.api.RScoredSortedSet
+import org.redisson.api.SetIntersectionArgs
+import org.redisson.api.SetUnionArgs
 
 /**
  * Scored sorted set examples
@@ -140,13 +142,18 @@ class ScoredSortedSetExamples: AbstractRedissonCoroutineTest() {
         zset3.addAllAsync(map3).coAwait()
 
         val union = redisson.getScoredSortedSet<String>(randomName())
-
-        union.unionAsync(RScoredSortedSet.Aggregate.SUM, zset1.name, zset3.name).coAwait() shouldBeEqualTo 4
+        val unionArgs = SetUnionArgs.names(zset1.name, zset3.name).apply {
+            aggregate(RScoredSortedSet.Aggregate.SUM)
+        }
+        union.unionAsync(unionArgs).coAwait() shouldBeEqualTo 4
+        // union.unionAsync(RScoredSortedSet.Aggregate.SUM, zset1.name, zset3.name).coAwait() shouldBeEqualTo 4
         union.readAll() shouldBeEqualTo listOf("1", "2", "3", "4")
 
         val intersection = redisson.getScoredSortedSet<String>(randomName())
-        intersection.intersectionAsync(RScoredSortedSet.Aggregate.MAX, zset1.name, zset2.name)
-            .coAwait() shouldBeEqualTo 1
+        val intersectionArgs = SetIntersectionArgs.names(zset1.name, zset2.name).apply {
+            aggregate(RScoredSortedSet.Aggregate.MAX)
+        }
+        intersection.intersectionAsync(intersectionArgs).coAwait() shouldBeEqualTo 1
         intersection.readAll() shouldBeEqualTo listOf("2")
         intersection.getScore("2") shouldBeEqualTo 20.0
 

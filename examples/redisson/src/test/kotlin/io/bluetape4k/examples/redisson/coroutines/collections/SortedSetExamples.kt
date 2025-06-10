@@ -32,7 +32,7 @@ class SortedSetExamples: AbstractRedissonCoroutineTest() {
         sset.first() shouldBeEqualTo 1
         sset.last() shouldBeEqualTo 3
 
-        sset.remove(1).shouldBeTrue()
+        sset.removeAsync(1).coAwait().shouldBeTrue()
 
         sset.deleteAsync().coAwait()
     }

@@ -2,7 +2,7 @@ package io.bluetape4k.examples.redisson.coroutines.locks
 
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.junit5.coroutines.MultijobTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -134,9 +134,9 @@ class LockExamples: AbstractRedissonCoroutineTest() {
         val lockCounter = atomic(0)
         val lockIndex = atomic(0)
 
-        MultijobTester()
-            .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerJob(2)
+        SuspendedJobTester()
+            .numThreads(2 * Runtimex.availableProcessors)
+            .roundsPerJob(2 * 2 * Runtimex.availableProcessors)
             .add {
                 val index = lockIndex.incrementAndGet()
                 val lockId = redisson.getLockId(lock.name)

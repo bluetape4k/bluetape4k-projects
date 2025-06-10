@@ -64,7 +64,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
             val options = MapCacheOptions.name<Long, Actor>(name)
                 .loader(actorLoader)
                 .retryAttempts(3)
-                .retryInterval(Duration.ofMillis(10))
+                .retryDelay { attempt -> Duration.ofMillis(attempt * 10L) }
                 .codec(RedissonCodecs.LZ4Fury)
 
             val cache: RMapCache<Long, Actor?> = redisson.getMapCache(options)
@@ -81,7 +81,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
             val options = LocalCachedMapOptions.name<Long, Actor>(name)
                 .loader(actorLoader)
                 .retryAttempts(3)
-                .retryInterval(Duration.ofMillis(10))
+                .retryDelay { attempt -> Duration.ofMillis(attempt * 10L) }
                 .timeToLive(Duration.ofSeconds(10))   // 로컬 캐시의 TTL
                 .codec(RedissonCodecs.LZ4Fury)
 
@@ -141,7 +141,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
             val options = MapCacheOptions.name<Long, Actor>(name)
                 .loaderAsync(actorLoaderAsync)
                 .retryAttempts(3)
-                .retryInterval(Duration.ofMillis(10))
+                .retryDelay { attempt -> Duration.ofMillis(attempt * 10L) }
                 .codec(RedissonCodecs.LZ4Fury)
 
             val cache: RMapCache<Long, Actor?> = redisson.getMapCache(options)
@@ -158,7 +158,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
             val options = LocalCachedMapOptions.name<Long, Actor>(name)
                 .loaderAsync(actorLoaderAsync)
                 .retryAttempts(3)
-                .retryInterval(Duration.ofMillis(10))
+                .retryDelay { attempt -> Duration.ofMillis(attempt * 10L) }
                 .timeToLive(Duration.ofSeconds(10))   // 로컬 캐시의 TTL
                 .codec(RedissonCodecs.LZ4Fury)
 

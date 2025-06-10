@@ -2,6 +2,7 @@ package io.bluetape4k.examples.redisson.coroutines.locks
 
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -148,12 +149,50 @@ class MultiLockExamples: AbstractRedissonCoroutineTest() {
                 // mlock2에 속한 lock4 는 lock 이 걸리지 않았다
                 lock4.isLocked.shouldBeFalse()
             }
+            .run()
 
         // 같은 Thread 에서 기존 lock이 걸려 있는데, 또 lock을 걸면 TTL이 갱신된다
         mlock.tryLock(1, 60, TimeUnit.SECONDS).shouldBeTrue()
 
         Thread.sleep(10)
         mlock.unlock()
+    }
+
+    @Test
+    fun `tryLock with RedissionMultiLock in suspended jobs`() = runSuspendIO {
+        val lock1 = redisson.getLock(randomName())
+        val lock2 = redisson.getLock(randomName())
+        val lock3 = redisson.getLock(randomName())
+        val lock4 = redisson.getLock(randomName())
+
+        val mlock = RedissonMultiLock(lock1, lock2, lock3)
+        val lockId = redisson.getLockId("mlock")
+
+        log.debug { "Main Thread에서 MultiRock에 대해서 lock을 잡습니다." }
+        mlock.tryLockAsync(1, 60, TimeUnit.SECONDS, lockId).coAwait().shouldBeTrue()
+        assertIsLocked(lock1, lock2, lock3)
+
+        SuspendedJobTester()
+            .numThreads(16)
+            .roundsPerJob(2)
+            .add {
+                val mlock2 = RedissonMultiLock(lock1, lock2, lock4)
+                val lockId2 = redisson.getLockId("mlock2")
+
+                log.debug { "다른 Thread 에서 새로운 MultiRock에 대해서 lock을 잡으려고 하면 실패한다." }
+                mlock2.tryLockAsync(1, 60, TimeUnit.SECONDS, lockId2).coAwait().shouldBeFalse()
+                // 이미 Lock이 잡혀있다
+                assertIsLocked(lock1, lock2, lock3)
+                // mlock2에 속한 lock4 는 lock 이 걸리지 않았다
+                lock4.isLocked.shouldBeFalse()
+            }
+            .run()
+
+        // 같은 Thread 에서 기존 lock이 걸려 있는데, 또 lock을 걸면 TTL이 갱신된다
+        mlock.tryLockAsync(1, 60, TimeUnit.SECONDS, lockId).coAwait().shouldBeTrue()
+
+        delay(10)
+        mlock.unlockAsync(lockId).coAwait()
     }
 
     private fun assertIsLocked(vararg locks: RLock) {
