@@ -9,6 +9,7 @@ import org.junit.platform.launcher.TestPlan
 import java.io.Serializable
 import java.time.Duration
 import java.time.Instant
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.jvm.optionals.getOrNull
 
 class MermaidTestExecutionListener: TestExecutionListener {
@@ -24,7 +25,7 @@ class MermaidTestExecutionListener: TestExecutionListener {
         val resultStatus: TestExecutionResult.Status? = null,
     ): Serializable
 
-    private val tasks = mutableListOf<Task>()
+    private val tasks = CopyOnWriteArrayList<Task>()
 
     private val TestIdentifier.className: String?
         get() = (this.source.getOrNull() as? MethodSource)?.className
