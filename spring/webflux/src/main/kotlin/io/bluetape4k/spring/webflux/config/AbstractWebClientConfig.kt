@@ -4,11 +4,9 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import io.bluetape4k.utils.Runtimex
 import io.netty.channel.ChannelOption
-import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.handler.ssl.SslContext
 import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
-import org.apache.commons.lang3.concurrent.BasicThreadFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.http.client.ReactorResourceFactory
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
@@ -16,8 +14,6 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.netty.resources.LoopResources
 import java.time.Duration
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 
 /**
  * [WebClient]를 Webflux 서버가 사용하는 ThreadPool 을 사용하지 않고, 별도의 ThreadPool 을 사용하도록 설정합니다.
@@ -29,32 +25,22 @@ abstract class AbstractWebClientConfig {
 
     companion object: KLoggingChannel()
 
-    protected open val threadCount: Int = Runtimex.availableProcessors
+    protected open val threadCount: Int = 4 * Runtimex.availableProcessors
 
-    protected open val webClientThreadFactory: BasicThreadFactory =
-        BasicThreadFactory.Builder()
-            .namingPattern("web-client-thread-%d")
-            .daemon(true)
-            .priority(Thread.MAX_PRIORITY)
-            .build()
-
-    protected open fun getWebClientExecutor(): ExecutorService {
-        return Executors.newFixedThreadPool(threadCount, webClientThreadFactory)
+    @Bean
+    open fun loopResources(): LoopResources {
+        log.info { "Create custom LoopResources bean." }
+        return LoopResources.create("web-client-thread-", -1, threadCount, true, true)
     }
 
     @Bean
-    open fun getEventLoopGroup(): NioEventLoopGroup {
-        log.info { "Create custom NioEventLoopGroup. threadCount=$threadCount " }
-        return NioEventLoopGroup(threadCount, webClientThreadFactory)
-    }
-
-    @Bean
-    open fun reactorResourceFactory(eventLoopGroup: NioEventLoopGroup): ReactorResourceFactory {
+    open fun reactorResourceFactory(loopResources: LoopResources): ReactorResourceFactory {
         log.info { "Create custom ReactorResourceFactory bean." }
         return ReactorResourceFactory().apply {
-            loopResources = LoopResources { eventLoopGroup }
-            isUseGlobalResources = false
-            this.setShutdownTimeout(Duration.ofSeconds(3))
+            // loopResources 를 지정하지 않으면, ReactorResourceFactory 에서 기본 설정의 loopResources 를 생성한다.
+            this.loopResources = loopResources
+            this.isUseGlobalResources = false
+            this.setShutdownTimeout(Duration.ofSeconds(5))
         }
     }
 
@@ -92,6 +78,7 @@ abstract class AbstractWebClientConfig {
         return WebClient.builder()
             .clientConnector(connector)
             .exchangeStrategies(exchangeStrategies)
+
             .build()
     }
 }
