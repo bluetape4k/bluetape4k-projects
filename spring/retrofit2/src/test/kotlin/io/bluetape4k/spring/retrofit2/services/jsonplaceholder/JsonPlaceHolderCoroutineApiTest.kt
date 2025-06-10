@@ -4,7 +4,7 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.resilience4j.CoDecorators
+import io.bluetape4k.resilience4j.SuspendDecorators
 import io.bluetape4k.support.uninitialized
 import io.github.resilience4j.circuitbreaker.CircuitBreaker
 import io.github.resilience4j.retry.Retry
@@ -48,7 +48,7 @@ class JsonPlaceHolderCoroutineApiTest: AbstractJsonPlaceHolderApiTest() {
         val circuitBreaker = CircuitBreaker.ofDefaults("post")
         val retry = Retry.ofDefaults("post")
 
-        CoDecorators.ofSupplier { api.posts() }
+        SuspendDecorators.ofSupplier { api.posts() }
             .withCircuitBreaker(circuitBreaker)
             .withRetry(retry)
             .invoke()
