@@ -26,10 +26,11 @@ class R2dbcBlogApplication: AbstractR2dbcConfiguration() {
 
     @Bean
     fun initializer(connectionFactory: ConnectionFactory): ConnectionFactoryInitializer {
+        val populator = CompositeDatabasePopulator().apply {
+            addPopulators(resourceDatabasePopulatorOf(ClassPathResource("data/schema.sql")))
+        }
+
         return connectionFactoryInitializer(connectionFactory) {
-            val populator = CompositeDatabasePopulator().apply {
-                addPopulators(resourceDatabasePopulatorOf(ClassPathResource("data/schema.sql")))
-            }
             setDatabasePopulator(populator)
         }
     }

@@ -24,12 +24,12 @@ class DatabaseInitializer(
     fun init() {
         log.info { "Insert new two posts ... " }
 
-        // TODO: Transactional하게 두 개의 Post와 Comment를 저장해야 한다
+        // Transactional 하게 2개의 Post와 4개의 Comment를 저장합니다.
         runBlocking {
             postRepository.init()
             commentRepository.init()
         }
 
-        log.info { "Done insert new two posts ..." }
+        log.info { "Done insert new two posts and four comments ..." }
     }
 }

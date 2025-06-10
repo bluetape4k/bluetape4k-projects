@@ -1,9 +1,9 @@
 package io.bluetape4k.spring.r2dbc.coroutines.blog.domain
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.spring.r2dbc.coroutines.awaitCount
-import io.bluetape4k.spring.r2dbc.coroutines.awaitInsert
-import io.bluetape4k.spring.r2dbc.coroutines.awaitSelect
+import io.bluetape4k.spring.r2dbc.coroutines.suspendCount
+import io.bluetape4k.spring.r2dbc.coroutines.suspendInsert
+import io.bluetape4k.spring.r2dbc.coroutines.suspendSelect
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.r2dbc.core.R2dbcEntityOperations
 import org.springframework.data.relational.core.query.Criteria
@@ -20,17 +20,17 @@ class CommentRepository(
     companion object: KLoggingChannel()
 
     suspend fun save(comment: Comment): Comment {
-        return operations.awaitInsert(comment)
+        return operations.suspendInsert(comment)
     }
 
     suspend fun countByPostId(postId: Long): Long {
         val query = Query.query(Criteria.where(Comment::postId.name).isEqual(postId))
-        return operations.awaitCount<Comment>(query)
+        return operations.suspendCount<Comment>(query)
     }
 
     fun findAllByPostId(postId: Long): Flow<Comment> {
         val query = Query.query(Criteria.where(Comment::postId.name).isEqual(postId))
-        return operations.awaitSelect(query)
+        return operations.suspendSelect(query)
     }
 
     suspend fun init() {
