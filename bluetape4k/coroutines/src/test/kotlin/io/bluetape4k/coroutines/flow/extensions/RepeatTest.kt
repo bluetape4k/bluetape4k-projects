@@ -33,18 +33,12 @@ class RepeatTest: AbstractFlowTest() {
 
     private fun <T> Iterable<T>.cycled(): Sequence<T> {
         val self = this@cycled
-        return object: Sequence<T> {
-            override fun iterator(): Iterator<T> =
-                object: Iterator<T> {
-                    private var iter = self.iterator()
-                    override fun hasNext(): Boolean = true
-                    override fun next(): T {
-                        if (!iter.hasNext()) {
-                            iter = self.iterator()
-                        }
-                        return iter.next()
-                    }
+        return sequence {
+            while (true) {
+                for (item in self) {
+                    yield(item)
                 }
+            }
         }
     }
 
