@@ -4,8 +4,6 @@ import com.sksamuel.scrimage.AwtImage
 import com.sksamuel.scrimage.metadata.ImageMetadata
 import com.sksamuel.scrimage.nio.GifWriter
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.withContext
 import java.io.OutputStream
 
 /**
@@ -19,23 +17,23 @@ import java.io.OutputStream
  *
  * @param progressive 진행형 Gif 이미지를 생성할지 여부
  */
-class CoGifWriter(
+class SuspendGifWriter(
     progressive: Boolean = false,
-): GifWriter(progressive), CoImageWriter {
+): GifWriter(progressive), SuspendImageWriter {
 
     companion object: KLoggingChannel() {
         @JvmStatic
-        val Default = CoGifWriter(false)
+        val Default = SuspendGifWriter(false)
 
         @JvmStatic
-        val Progressive = CoGifWriter(true)
+        val Progressive = SuspendGifWriter(true)
     }
 
     /**
      * 진행형 Gif 이미지를 생성합니다.
      */
-    override fun withProgressive(progressive: Boolean): CoGifWriter {
-        return CoGifWriter(progressive)
+    override fun withProgressive(progressive: Boolean): SuspendGifWriter {
+        return SuspendGifWriter(progressive)
     }
 
     /**
@@ -45,9 +43,7 @@ class CoGifWriter(
      * @param metadata 이미지 메타데이터
      * @param out 이미지를 쓸 [OutputStream]
      */
-    override suspend fun writeSuspending(image: AwtImage, metadata: ImageMetadata, out: OutputStream) {
-        withContext(currentCoroutineContext()) {
-            write(image, metadata, out)
-        }
+    override suspend fun suspendWrite(image: AwtImage, metadata: ImageMetadata, out: OutputStream) {
+        write(image, metadata, out)
     }
 }

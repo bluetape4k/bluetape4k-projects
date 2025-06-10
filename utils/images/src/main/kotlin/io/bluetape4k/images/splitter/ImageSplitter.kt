@@ -2,8 +2,8 @@ package io.bluetape4k.images.splitter
 
 import io.bluetape4k.coroutines.flow.async
 import io.bluetape4k.images.ImageFormat
-import io.bluetape4k.images.coroutines.CoImageWriter
-import io.bluetape4k.images.coroutines.CoJpegWriter
+import io.bluetape4k.images.coroutines.SuspendImageWriter
+import io.bluetape4k.images.coroutines.SuspendJpegWriter
 import io.bluetape4k.images.immutableImageOf
 import io.bluetape4k.io.toByteArray
 import io.bluetape4k.logging.KLogging
@@ -104,7 +104,7 @@ class ImageSplitter private constructor(val defaultMaxHeight: Int) {
         input: InputStream,
         format: ImageFormat = ImageFormat.JPG,
         splitHeight: Int = this.defaultMaxHeight,
-        writer: CoImageWriter = CoJpegWriter.Default,
+        writer: SuspendImageWriter = SuspendJpegWriter.Default,
     ): Flow<ByteArray> {
         return channelFlow {
             split(input, format, splitHeight).buffer()

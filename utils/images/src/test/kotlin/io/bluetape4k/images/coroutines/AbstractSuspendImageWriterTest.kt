@@ -2,11 +2,11 @@ package io.bluetape4k.images.coroutines
 
 import com.sksamuel.scrimage.format.Format
 import io.bluetape4k.images.AbstractImageTest
-import io.bluetape4k.images.forCoWriter
+import io.bluetape4k.images.forSuspendWriter
 import io.bluetape4k.images.immutableImageOf
-import io.bluetape4k.images.immutableImageOfSuspending
+import io.bluetape4k.images.suspendImmutableImageOf
+import io.bluetape4k.io.suspendWrite
 import io.bluetape4k.io.writeAsync
-import io.bluetape4k.io.writeSuspending
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
@@ -23,11 +23,11 @@ import java.nio.file.Path
 import kotlin.system.measureTimeMillis
 
 @TempFolderTest
-abstract class AbstractCoImageWriterTest: AbstractImageTest() {
+abstract class AbstractSuspendImageWriterTest: AbstractImageTest() {
 
     companion object: KLoggingChannel()
 
-    abstract val writer: CoImageWriter
+    abstract val writer: SuspendImageWriter
     abstract val imageFormat: Format
 
     protected open val useTempFolder = true
@@ -36,12 +36,12 @@ abstract class AbstractCoImageWriterTest: AbstractImageTest() {
     @MethodSource("getImageFileNames")
     fun `use async image writer`(filename: String, tempFolder: TempFolder) = runSuspendIO {
         measureTimeMillis {
-            val image = immutableImageOfSuspending(Path.of("$BASE_PATH/$filename.jpg"))
+            val image = suspendImmutableImageOf(Path.of("$BASE_PATH/$filename.jpg"))
 
-            val bytes = image.forCoWriter(writer).bytes()
+            val bytes = image.forSuspendWriter(writer).bytes()
             if (useTempFolder) {
                 val dest = tempFolder.createFile("${filename}_compressed.$imageFormat")
-                dest.toPath().writeSuspending(bytes)
+                dest.toPath().suspendWrite(bytes)
             } else {
                 Path.of("$BASE_PATH/${filename}_compressed.$imageFormat").writeAsync(bytes).await()
             }
@@ -53,13 +53,13 @@ abstract class AbstractCoImageWriterTest: AbstractImageTest() {
     @ParameterizedTest
     @MethodSource("getImageFileNames")
     fun `async image writer in coroutines`(filename: String, tempFolder: TempFolder) = runSuspendIO {
-        val image = immutableImageOfSuspending(Path.of("$BASE_PATH/$filename.jpg"))
+        val image = suspendImmutableImageOf(Path.of("$BASE_PATH/$filename.jpg"))
 
         SuspendedJobTester()
             .numThreads(4)
             .roundsPerJob(8)
             .add {
-                val bytes = image.forCoWriter(writer).bytes()
+                val bytes = image.forSuspendWriter(writer).bytes()
                 val path = tempFolder.createFile().toPath()
                 path.writeAsync(bytes).await()
                 log.debug { "Save $filename.$imageFormat to $path" }

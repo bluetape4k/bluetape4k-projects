@@ -1,7 +1,7 @@
 package io.bluetape4k.images
 
-import io.bluetape4k.images.coroutines.CoJpegWriter
-import io.bluetape4k.images.coroutines.CoPngWriter
+import io.bluetape4k.images.coroutines.SuspendJpegWriter
+import io.bluetape4k.images.coroutines.SuspendPngWriter
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.test.runTest
@@ -19,12 +19,12 @@ class ImmutableImageSupportTest: AbstractImageTest() {
     @MethodSource("getImageFileNames")
     fun `load and write jpg image async`(filename: String, tempFolder: TempFolder) = runTest {
         val image =
-            loadImageSuspending(Path.of("${BASE_PATH}/$filename.jpg"))
+            suspendLoadImage(Path.of("${BASE_PATH}/$filename.jpg"))
 
         if (useTempFile) {
-            image.forCoWriter(CoJpegWriter.Default).write(tempFolder.createFile().toPath())
+            image.forSuspendWriter(SuspendJpegWriter.Default).write(tempFolder.createFile().toPath())
         } else {
-            image.forCoWriter(CoJpegWriter.Default)
+            image.forSuspendWriter(SuspendJpegWriter.Default)
                 .write(Path.of("${BASE_PATH}/${filename}_async.jpg"))
         }
     }
@@ -33,12 +33,12 @@ class ImmutableImageSupportTest: AbstractImageTest() {
     @MethodSource("getImageFileNames")
     fun `load and write png image async`(filename: String, tempFolder: TempFolder) = runTest {
         val image =
-            loadImageSuspending(Path.of("${BASE_PATH}/$filename.png"))
+            suspendLoadImage(Path.of("${BASE_PATH}/$filename.png"))
 
         if (useTempFile) {
-            image.forCoWriter(CoPngWriter.MaxCompression).write(tempFolder.createFile().toPath())
+            image.forSuspendWriter(SuspendPngWriter.MaxCompression).write(tempFolder.createFile().toPath())
         } else {
-            image.forCoWriter(CoPngWriter.MaxCompression)
+            image.forSuspendWriter(SuspendPngWriter.MaxCompression)
                 .write(Path.of("${BASE_PATH}/${filename}_async.png"))
         }
     }

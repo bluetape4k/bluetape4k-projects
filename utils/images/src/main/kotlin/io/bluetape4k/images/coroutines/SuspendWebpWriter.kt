@@ -4,8 +4,6 @@ import com.sksamuel.scrimage.AwtImage
 import com.sksamuel.scrimage.metadata.ImageMetadata
 import com.sksamuel.scrimage.webp.WebpWriter
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.withContext
 import java.io.OutputStream
 
 /**
@@ -22,17 +20,17 @@ import java.io.OutputStream
  * writer.write(image, File("output.webp"))
  * ```
  */
-class CoWebpWriter(
+class SuspendWebpWriter(
     private val z: Int = -1,
     private val q: Int = -1,
     private val m: Int = -1,
     private val lossless: Boolean = false,
     private val noAlpha: Boolean = false,
-): WebpWriter(z, q, m, lossless, noAlpha), CoImageWriter {
+): WebpWriter(z, q, m, lossless, noAlpha), SuspendImageWriter {
 
     companion object: KLoggingChannel() {
         @JvmStatic
-        val Default = CoWebpWriter()
+        val Default = SuspendWebpWriter()
 
         /**
          * Max lossless compression - 압축에 많은 시간이 걸린다. 배치 작업 시 사용하기 좋다.
@@ -41,29 +39,27 @@ class CoWebpWriter(
         val MaxLosslessCompression = Default.withZ(9)
     }
 
-    override fun withLossless(): CoWebpWriter {
-        return CoWebpWriter(z, q, m, true, noAlpha)
+    override fun withLossless(): SuspendWebpWriter {
+        return SuspendWebpWriter(z, q, m, true, noAlpha)
     }
 
-    override fun withoutAlpha(): CoWebpWriter {
-        return CoWebpWriter(z, q, m, lossless, true)
+    override fun withoutAlpha(): SuspendWebpWriter {
+        return SuspendWebpWriter(z, q, m, lossless, true)
     }
 
-    override fun withQ(q: Int): CoWebpWriter {
-        return CoWebpWriter(z, q, m, lossless, noAlpha)
+    override fun withQ(q: Int): SuspendWebpWriter {
+        return SuspendWebpWriter(z, q, m, lossless, noAlpha)
     }
 
-    override fun withM(m: Int): CoWebpWriter {
-        return CoWebpWriter(z, q, m, lossless, noAlpha)
+    override fun withM(m: Int): SuspendWebpWriter {
+        return SuspendWebpWriter(z, q, m, lossless, noAlpha)
     }
 
-    override fun withZ(z: Int): CoWebpWriter {
-        return CoWebpWriter(z, q, m, lossless, noAlpha)
+    override fun withZ(z: Int): SuspendWebpWriter {
+        return SuspendWebpWriter(z, q, m, lossless, noAlpha)
     }
 
-    override suspend fun writeSuspending(image: AwtImage, metadata: ImageMetadata, out: OutputStream) {
-        withContext(currentCoroutineContext()) {
-            write(image, metadata, out)
-        }
+    override suspend fun suspendWrite(image: AwtImage, metadata: ImageMetadata, out: OutputStream) {
+        write(image, metadata, out)
     }
 }

@@ -4,8 +4,6 @@ import com.sksamuel.scrimage.AwtImage
 import com.sksamuel.scrimage.metadata.ImageMetadata
 import com.sksamuel.scrimage.nio.PngWriter
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.withContext
 import java.io.OutputStream
 
 /**
@@ -19,36 +17,34 @@ import java.io.OutputStream
  *
  * @param compressionLevel
  */
-class CoPngWriter(
+class SuspendPngWriter(
     compressionLevel: Int = 9,
-): PngWriter(compressionLevel), CoImageWriter {
+): PngWriter(compressionLevel), SuspendImageWriter {
 
     companion object: KLoggingChannel() {
         @JvmStatic
-        val MaxCompression = CoPngWriter(9)
+        val MaxCompression = SuspendPngWriter(9)
 
         @JvmStatic
-        val MinCompression = CoPngWriter(1)
+        val MinCompression = SuspendPngWriter(1)
 
         @JvmStatic
-        val NoComppression = CoPngWriter(0)
+        val NoComppression = SuspendPngWriter(0)
     }
 
-    override fun withCompression(compression: Int): CoPngWriter {
-        return CoPngWriter(compression)
+    override fun withCompression(compression: Int): SuspendPngWriter {
+        return SuspendPngWriter(compression)
     }
 
-    override fun withMaxCompression(): CoPngWriter {
+    override fun withMaxCompression(): SuspendPngWriter {
         return MaxCompression
     }
 
-    override fun withMinCompression(): CoPngWriter {
+    override fun withMinCompression(): SuspendPngWriter {
         return MinCompression
     }
 
-    override suspend fun writeSuspending(image: AwtImage, metadata: ImageMetadata, out: OutputStream) {
-        withContext(currentCoroutineContext()) {
-            write(image, metadata, out)
-        }
+    override suspend fun suspendWrite(image: AwtImage, metadata: ImageMetadata, out: OutputStream) {
+        write(image, metadata, out)
     }
 }

@@ -4,8 +4,6 @@ import com.sksamuel.scrimage.AwtImage
 import com.sksamuel.scrimage.metadata.ImageMetadata
 import com.sksamuel.scrimage.nio.JpegWriter
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.withContext
 import java.io.OutputStream
 
 /**
@@ -20,36 +18,34 @@ import java.io.OutputStream
  * @property compression 압축 정보 (기본 80, 0 이면 최대 압축, 100이면 최소 압축)
  * @property progressive 프로그레시브 JPEG 여부
  */
-class CoJpegWriter(
+class SuspendJpegWriter(
     val compression: Int = 80,
     val progressive: Boolean = false,
-): JpegWriter(compression, progressive), CoImageWriter {
+): JpegWriter(compression, progressive), SuspendImageWriter {
 
     companion object: KLoggingChannel() {
         @JvmStatic
-        val Default = CoJpegWriter(80, false)
+        val Default = SuspendJpegWriter(80, false)
 
         @JvmStatic
-        val CompressionFromMetaData = CoJpegWriter(-1, false)
+        val CompressionFromMetaData = SuspendJpegWriter(-1, false)
     }
 
     /**
      * 압축 정보를 변경합니다.
      */
-    override fun withCompression(compression: Int): CoJpegWriter {
-        return CoJpegWriter(compression, progressive)
+    override fun withCompression(compression: Int): SuspendJpegWriter {
+        return SuspendJpegWriter(compression, progressive)
     }
 
     /**
      * 프로그레시브 JPEG 여부를 변경합니다.
      */
-    override fun withProgressive(progressive: Boolean): CoJpegWriter {
-        return CoJpegWriter(compression, progressive)
+    override fun withProgressive(progressive: Boolean): SuspendJpegWriter {
+        return SuspendJpegWriter(compression, progressive)
     }
 
-    override suspend fun writeSuspending(image: AwtImage, metadata: ImageMetadata, out: OutputStream) {
-        withContext(currentCoroutineContext()) {
-            write(image, metadata, out)
-        }
+    override suspend fun suspendWrite(image: AwtImage, metadata: ImageMetadata, out: OutputStream) {
+        write(image, metadata, out)
     }
 }

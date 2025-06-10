@@ -9,9 +9,9 @@ import java.io.OutputStream
 /**
  * [AnimatedImageWriter] 를 Coroutines 를 이용하여 비동기 방식으로 처리할 수 있도록 한다.
  */
-interface CoAnimatedImageWriter: AnimatedImageWriter {
+interface SuspendAnimatedImageWriter: AnimatedImageWriter {
 
-    suspend fun writeSuspending(gif: AnimatedGif, out: OutputStream) {
+    suspend fun suspendWrite(gif: AnimatedGif, out: OutputStream) {
         withContext(currentCoroutineContext()) {
             write(gif, out)
         }

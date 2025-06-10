@@ -1,9 +1,9 @@
 package io.bluetape4k.images.filters
 
-import io.bluetape4k.images.bytesSuspending
-import io.bluetape4k.images.coroutines.CoJpegWriter
+import io.bluetape4k.images.coroutines.SuspendJpegWriter
 import io.bluetape4k.images.fonts.fontOf
-import io.bluetape4k.images.forCoWriter
+import io.bluetape4k.images.forSuspendWriter
+import io.bluetape4k.images.suspendBytes
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeEqualTo
@@ -25,9 +25,9 @@ class WatermarkFilterTest: AbstractFilterTest() {
 
         val resultFilename = "debop_watermark_cover.jpg"
         if (saveResult) {
-            marked.forCoWriter(CoJpegWriter.Default).write(resultFilename)
+            marked.forSuspendWriter(SuspendJpegWriter.Default).write(resultFilename)
         }
-        marked.bytesSuspending(CoJpegWriter.Default) shouldBeEqualTo loadResourceImageBytes(resultFilename)
+        marked.suspendBytes(SuspendJpegWriter.Default) shouldBeEqualTo loadResourceImageBytes(resultFilename)
     }
 
     @Test
@@ -43,9 +43,9 @@ class WatermarkFilterTest: AbstractFilterTest() {
 
         val resultFilename = "debop_watermark_stamp.jpg"
         if (saveResult) {
-            marked.forCoWriter(CoJpegWriter.Default).write(resultFilename)
+            marked.forSuspendWriter(SuspendJpegWriter.Default).write(resultFilename)
         }
-        marked.bytesSuspending(CoJpegWriter.Default) shouldBeEqualTo loadResourceImageBytes(resultFilename)
+        marked.suspendBytes(SuspendJpegWriter.Default) shouldBeEqualTo loadResourceImageBytes(resultFilename)
     }
 
     @Test
@@ -65,9 +65,9 @@ class WatermarkFilterTest: AbstractFilterTest() {
 
         val resultFilename = "debop_watermark.jpg"
         if (saveResult) {
-            marked.forCoWriter(CoJpegWriter.Default).write(resultFilename)
+            marked.forSuspendWriter(SuspendJpegWriter.Default).write(resultFilename)
         }
 
-        marked.bytesSuspending(CoJpegWriter.Default) shouldBeEqualTo loadResourceImageBytes(resultFilename)
+        marked.suspendBytes(SuspendJpegWriter.Default) shouldBeEqualTo loadResourceImageBytes(resultFilename)
     }
 }

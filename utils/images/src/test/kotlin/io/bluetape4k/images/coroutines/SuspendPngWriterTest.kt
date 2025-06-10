@@ -3,10 +3,10 @@ package io.bluetape4k.images.coroutines
 import com.sksamuel.scrimage.format.Format
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 
-class CoPngWriterTest: AbstractCoImageWriterTest() {
+class SuspendPngWriterTest: AbstractSuspendImageWriterTest() {
 
     companion object: KLoggingChannel()
 
-    override val writer: CoImageWriter = CoPngWriter.MaxCompression
+    override val writer: SuspendImageWriter = SuspendPngWriter.MaxCompression
     override val imageFormat: Format = Format.PNG
 }

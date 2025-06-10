@@ -1,7 +1,7 @@
 package io.bluetape4k.images.coroutines.animated
 
 import com.sksamuel.scrimage.nio.AnimatedGif
-import io.bluetape4k.io.writeSuspending
+import io.bluetape4k.io.suspendWrite
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -10,8 +10,8 @@ import java.io.OutputStream
 import java.nio.file.Path
 import java.nio.file.Paths
 
-class CoAnimatedWriteContext(
-    val writer: CoAnimatedImageWriter,
+class SuspendAnimatedWriteContext(
+    val writer: SuspendAnimatedImageWriter,
     val gif: AnimatedGif,
 ) {
 
@@ -19,7 +19,7 @@ class CoAnimatedWriteContext(
 
     suspend fun bytes(): ByteArray {
         return ByteArrayOutputStream().use { bos ->
-            writer.writeSuspending(gif, bos)
+            writer.suspendWrite(gif, bos)
             bos.toByteArray()
         }
     }
@@ -38,11 +38,11 @@ class CoAnimatedWriteContext(
     }
 
     suspend fun write(path: Path): Path {
-        path.writeSuspending(bytes())
+        path.suspendWrite(bytes())
         return path
     }
 
     suspend fun write(out: OutputStream) {
-        writer.writeSuspending(gif, out)
+        writer.suspendWrite(gif, out)
     }
 }
