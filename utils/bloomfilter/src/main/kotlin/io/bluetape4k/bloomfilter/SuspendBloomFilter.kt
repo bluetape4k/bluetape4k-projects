@@ -7,8 +7,7 @@ import kotlin.math.pow
  *
  * @see [BloomFilter]
  */
-@Deprecated("Use SuspendBloomFilter instead", ReplaceWith("SuspendBloomFilter"))
-interface CoBloomFilter<T: Any> {
+interface SuspendBloomFilter<T: Any> {
 
     /**
      * Maximum bit size

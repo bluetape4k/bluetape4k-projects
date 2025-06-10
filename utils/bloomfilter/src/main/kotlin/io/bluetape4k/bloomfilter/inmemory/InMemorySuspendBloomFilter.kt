@@ -4,6 +4,7 @@ import io.bluetape4k.bloomfilter.CoBloomFilter
 import io.bluetape4k.bloomfilter.DEFAULT_ERROR_RATE
 import io.bluetape4k.bloomfilter.DEFAULT_MAX_NUM
 import io.bluetape4k.bloomfilter.Hasher
+import io.bluetape4k.bloomfilter.SuspendBloomFilter
 import io.bluetape4k.bloomfilter.optimalK
 import io.bluetape4k.bloomfilter.optimalM
 import io.bluetape4k.logging.KLogging
@@ -32,31 +33,29 @@ import java.util.*
  * @property m BloomFilter 크기
  * @property k Hash 함수 개수
  */
-@Deprecated("Use InMemorySuspendBloomFilter instead", ReplaceWith("InMemorySuspendBloomFilter"))
-class InMemoryCoBloomFilter<T: Any>(
+class InMemorySuspendBloomFilter<T: Any>(
     override val m: Int,
     override val k: Int,
-): CoBloomFilter<T> {
+): SuspendBloomFilter<T> {
 
     companion object: KLogging() {
         private const val SEED32: Int = 89478583
 
         /**
-         * [InMemoryCoBloomFilter] 를 생성합니다.
+         * [InMemorySuspendBloomFilter] 를 생성합니다.
          *
          * @param maxNum 최대 요소 개수 (기본값: [DEFAULT_MAX_NUM])
          * @param errorRate 오류율 (기본값: [DEFAULT_ERROR_RATE])
          */
-        @Deprecated("Use InMemorySuspendBloomFilter instead", ReplaceWith("InMemorySuspendBloomFilter"))
         @JvmStatic
         operator fun <T: Serializable> invoke(
             maxNum: Long = DEFAULT_MAX_NUM,
             errorRate: Double = DEFAULT_ERROR_RATE,
-        ): InMemoryCoBloomFilter<T> {
+        ): InMemorySuspendBloomFilter<T> {
             val m = optimalM(maxNum, errorRate).assertPositiveNumber("m")
             val k = optimalK(maxNum, m).assertPositiveNumber("k")
 
-            return InMemoryCoBloomFilter<T>(m, k).apply {
+            return InMemorySuspendBloomFilter<T>(m, k).apply {
                 log.info { "Create InMemoryBloomFilter. m=$m, k=$k" }
             }
         }
