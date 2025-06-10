@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.vertx.webclient
 
 import io.bluetape4k.jackson.Jackson
-import io.bluetape4k.junit5.coroutines.runSuspendTest
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.vertx.tests.withTestContextSuspending
@@ -58,7 +58,7 @@ class ResponseExamples {
     }
 
     @Test
-    fun `response as json object`(vertx: Vertx, testContext: VertxTestContext) = runSuspendTest {
+    fun `response as json object`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
         vertx.withTestContextSuspending(testContext) {
             vertx.deployVerticle(JsonServer()).coAwait()
 
@@ -75,7 +75,7 @@ class ResponseExamples {
     }
 
     @Test
-    fun `response as custom class`(vertx: Vertx, testContext: VertxTestContext) = runSuspendTest {
+    fun `response as custom class`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
         vertx.withTestContextSuspending(testContext) {
             vertx.deployVerticle(JsonServer()).coAwait()
 
