@@ -20,17 +20,14 @@ inline fun <T> retrofit2.Call<T>.executeAsync(
 
     val callback = object: retrofit2.Callback<T> {
         override fun onResponse(call: retrofit2.Call<T>, response: retrofit2.Response<T>) {
-            when {
-                response.isSuccessful -> promise.complete(response)
-                else -> {
-                    val ex = retrofit2.HttpException(response)
-                    if (call.isCanceled) {
-                        cancelHandler(ex)
-                        promise.cancel(true)
-                    } else {
-                        promise.completeExceptionally(ex)
-                    }
+            if (call.isCanceled) {
+                val ex = retrofit2.HttpException(response)
+                if (call.isCanceled) {
+                    cancelHandler(ex)
+                    promise.cancel(true)
                 }
+            } else {
+                promise.complete(response)
             }
         }
 
