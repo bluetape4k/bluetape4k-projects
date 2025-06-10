@@ -4,7 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.support.requireInRange
 
-class BitInputStream(private val bytes: ByteArray) {
+internal class BitInputStream(private val bytes: ByteArray) {
 
     companion object: KLogging()
 

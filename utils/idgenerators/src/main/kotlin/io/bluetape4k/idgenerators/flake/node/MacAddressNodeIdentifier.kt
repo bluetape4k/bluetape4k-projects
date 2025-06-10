@@ -55,8 +55,8 @@ class MacAddressNodeIdentifier private constructor(
 
     override fun get(): Long {
         var macAsLong = 0L
-        for (i in 0 until MAC_ADDRESS_LENGTH) {
-            val temp = (macAddress[i].toLong() and 0xFFL) shl ((5 - i) * 8)
+        repeat(MAC_ADDRESS_LENGTH) {
+            val temp = (macAddress[it].toLong() and 0xFFL) shl ((5 - it) * 8)
             macAsLong = macAsLong or temp
         }
         return macAsLong

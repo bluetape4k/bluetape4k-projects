@@ -3,10 +3,10 @@ package io.bluetape4k.idgenerators.uuid
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import io.bluetape4k.utils.Runtimex
-import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
@@ -72,10 +72,11 @@ class NamebasedUuidGeneratorTest {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `generate timebased uuids in multi job`() = runTest {
+    fun `generate timebased uuids in multi jobs`() = runSuspendDefault {
         val idMap = ConcurrentHashMap<UUID, Int>()
 
         SuspendedJobTester()
+            .numThreads(2 * Runtimex.availableProcessors)
             .roundsPerJob(TEST_COUNT * 2 * Runtimex.availableProcessors)
             .add {
                 val id = uuidGenerator.nextId()

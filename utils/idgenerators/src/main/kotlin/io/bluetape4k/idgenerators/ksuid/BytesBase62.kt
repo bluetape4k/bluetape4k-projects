@@ -12,7 +12,7 @@ import io.bluetape4k.support.emptyByteArray
  * val decoded = BytesBase62.decode(encoded)
  * ```
  */
-object BytesBase62: KLogging() {
+internal object BytesBase62: KLogging() {
 
     /**
      * [data]를 Base62로 인코딩한 문자열을 반환합니다.
