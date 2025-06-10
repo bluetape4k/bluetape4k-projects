@@ -361,17 +361,25 @@ inline fun <T, R> Sequence<T>.sliding(
     crossinline transform: (List<T>) -> R,
 ): Sequence<R> = windowed(size, 1, partialWindows) { transform(it) }
 
-fun <T> Sequence<T>.repeat(): Sequence<T> {
-    return object: Sequence<T> {
-        override fun iterator(): Iterator<T> = object: Iterator<T> {
-            private var iter = this@repeat.iterator()
-            override fun hasNext(): Boolean = true
-            override fun next(): T {
-                if (!iter.hasNext()) {
-                    iter = this@repeat.iterator()
-                }
-                return iter.next()
-            }
+fun <T> Sequence<T>.repeat(): Sequence<T> = sequence {
+    val self = this@repeat
+    while (true) {
+        for (item in self) {
+            yield(item)
         }
     }
 }
+
+//    return object: Sequence<T> {
+//        override fun iterator(): Iterator<T> = object: Iterator<T> {
+//            private var iter = this@repeat.iterator()
+//            override fun hasNext(): Boolean = true
+//            override fun next(): T {
+//                if (!iter.hasNext()) {
+//                    iter = this@repeat.iterator()
+//                }
+//                return iter.next()
+//            }
+//        }
+//    }
+// }

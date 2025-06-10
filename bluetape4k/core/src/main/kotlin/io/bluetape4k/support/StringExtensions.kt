@@ -637,21 +637,31 @@ fun CharSequence.uniqueChars(): String = buildString {
 fun CharSequence.sliding(size: Int): Sequence<CharSequence> {
     size.assertPositiveNumber("size")
     val self = this@sliding
-    return object: Sequence<CharSequence> {
-        override fun iterator(): Iterator<CharSequence> {
-            return object: Iterator<CharSequence> {
-                private var start = 0
-                private var end = size
+    return sequence {
+        var start = 0
+        var end = size
 
-                override fun hasNext(): Boolean = end <= self.length
-
-                override fun next(): CharSequence {
-                    if (!hasNext()) throw NoSuchElementException("No more elements in sliding sequence. start=$start, end=$end, size=$size")
-                    return self.subSequence(start++, end++)
-                }
-            }
+        while (end <= self.length) {
+            yield(self.subSequence(start, end))
+            start++
+            end++
         }
     }
+//    return object: Sequence<CharSequence> {
+//        override fun iterator(): Iterator<CharSequence> {
+//            return object: Iterator<CharSequence> {
+//                private var start = 0
+//                private var end = size
+//
+//                override fun hasNext(): Boolean = end <= self.length
+//
+//                override fun next(): CharSequence {
+//                    if (!hasNext()) throw NoSuchElementException("No more elements in sliding sequence. start=$start, end=$end, size=$size")
+//                    return self.subSequence(start++, end++)
+//                }
+//            }
+//        }
+//    }
 }
 
 /**
@@ -669,21 +679,31 @@ fun CharSequence.sliding(size: Int): Sequence<CharSequence> {
 fun String.sliding(size: Int): Sequence<String> {
     size.assertPositiveNumber("size")
     val self = this@sliding
-    return object: Sequence<String> {
-        override fun iterator(): Iterator<String> {
-            return object: Iterator<String> {
-                private var start = 0
-                private var end = size
+    return sequence {
+        var start = 0
+        var end = size
 
-                override fun hasNext(): Boolean = end <= self.length
-
-                override fun next(): String {
-                    if (!hasNext()) throw NoSuchElementException("No more elements in sliding sequence. start=$start, end=$end, size=$size")
-                    return self.substring(start++, end++)
-                }
-            }
+        while (end <= self.length) {
+            yield(self.substring(start, end))
+            start++
+            end++
         }
     }
+//    return object: Sequence<String> {
+//        override fun iterator(): Iterator<String> {
+//            return object: Iterator<String> {
+//                private var start = 0
+//                private var end = size
+//
+//                override fun hasNext(): Boolean = end <= self.length
+//
+//                override fun next(): String {
+//                    if (!hasNext()) throw NoSuchElementException("No more elements in sliding sequence. start=$start, end=$end, size=$size")
+//                    return self.substring(start++, end++)
+//                }
+//            }
+//        }
+//    }
 }
 
 /**

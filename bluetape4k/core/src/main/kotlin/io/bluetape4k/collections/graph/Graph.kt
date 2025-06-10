@@ -44,40 +44,24 @@ object Graph {
         source: T,
         crossinline adjacents: (T) -> Sequence<T>,
     ): Sequence<T> {
-        return object: Sequence<T> {
-            override fun iterator(): Iterator<T> {
-                val toScan = ArrayDeque<T>().apply {
-                    when (order) {
-                        TraversalOrder.DFS -> addFirst(source)
-                        TraversalOrder.BFS -> addLast(source)
-                    }
+        return sequence {
+            val toScan = ArrayDeque<T>().apply {
+                when (order) {
+                    TraversalOrder.DFS -> addFirst(source)
+                    TraversalOrder.BFS -> addLast(source)
                 }
-                val visited = mutableSetOf<T>()
-                val nodesToEmit = mutableListOf<T>()
+            }
+            val visited = mutableSetOf<T>()
 
-                return object: Iterator<T> {
-                    private var nextNode: T? = null
+            while (toScan.isNotEmpty()) {
+                val currentNode = toScan.removeFirst()
+                yield(currentNode)
+                visited.add(currentNode)
 
-                    override fun hasNext(): Boolean {
-                        if (toScan.isNotEmpty()) {
-                            val currentNode = toScan.removeFirst()
-                            nodesToEmit.addLast(currentNode)
-                            visited.add(currentNode)
-                            val nextNodes = adjacents(currentNode).filterNot { visited.contains(it) }
-                            when (order) {
-                                TraversalOrder.DFS ->
-                                    nextNodes.toList().sortedDescending().forEach { toScan.addFirst(it) }
-                                TraversalOrder.BFS ->
-                                    toScan.addAll(nextNodes.toList())
-                            }
-                        }
-                        return nodesToEmit.isNotEmpty()
-                    }
-
-                    override fun next(): T {
-                        if (!hasNext()) throw NoSuchElementException()
-                        return nodesToEmit.removeFirst()
-                    }
+                val nextNodes = adjacents(currentNode).filterNot { visited.contains(it) }
+                when (order) {
+                    TraversalOrder.DFS -> nextNodes.sortedDescending().forEach { toScan.addFirst(it) }
+                    TraversalOrder.BFS -> toScan.addAll(nextNodes)
                 }
             }
         }
