@@ -2,16 +2,11 @@ package io.bluetape4k.naivebayes
 
 import io.bluetape4k.logging.KLogging
 import kotlinx.atomicfu.atomic
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flatMapMerge
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.toList
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.exp
 import kotlin.math.ln
+import kotlin.reflect.KProperty1
 
 
 /**
@@ -36,9 +31,9 @@ class NaiveBayesClassifier<F: Any, C: Any>(
     }
 
     @Volatile
-    private var probabilities: Map<FeatureProbability.Key<F, C>, FeatureProbability<F, C>> = mutableMapOf()
+    private var probabilities: Map<FeatureProbability.Key<F, C>, FeatureProbability<F, C>> = ConcurrentHashMap()
 
-    private val _population: MutableList<BayesInput<F, C>> = mutableListOf()
+    private val _population: MutableList<BayesInput<F, C>> = CopyOnWriteArrayList()
     val population: List<BayesInput<F, C>> get() = _population.toList()
 
     private val modelStaler = atomic(false)
@@ -63,17 +58,12 @@ class NaiveBayesClassifier<F: Any, C: Any>(
     }
 
     private fun rebuildModel() {
-        probabilities = _population
-            .flatMap { it.features }
-            .distinct()
+        probabilities = _population.flatMap { it.features }.distinct()
             .flatMap { f ->
-                _population
-                    .map { it.category }
-                    .distinct()
+                _population.map { it.category }.distinct()
                     .map { c -> FeatureProbability.Key(f, c) }
             }
-            .map { it to FeatureProbability(it.feature, it.category, this) }
-            .toMap()
+            .associateWith { FeatureProbability(it.feature, it.category, this) }
 
         modelStaler.value = false
     }
@@ -87,66 +77,68 @@ class NaiveBayesClassifier<F: Any, C: Any>(
     /**
      *  Predicts a category `C` for a given set of `F` features
      */
-    suspend fun predict(vararg features: F): C? = predictWithProbability(features.toSet())?.category
+    fun predict(vararg features: F): C? = predictWithProbability(features.toSet())?.category
 
     /**
      * Predicts a category `C` for a given set of `F` features
      */
-    suspend fun predict(features: Iterable<F>): C? = predictWithProbability(features)?.category
+    fun predict(features: Iterable<F>): C? = predictWithProbability(features)?.category
 
     /**
      *  Predicts a category `C` for a given set of `F` features,
      *  but also returns the probability of that category being correct.
      */
-    suspend fun predictWithProbability(features: Iterable<F>): CategoryProbability<C>? = coroutineScope {
+    fun predictWithProbability(features: Iterable<F>): CategoryProbability<C>? {
         if (modelStaled) {
             rebuildModel()
         }
 
         val f = features.toSet()
 
-        categories.asFlow()
+        return categories
             .filter { category: C ->
                 population.any { it.category == category } && probabilities.values.any { it.feature in f }
             }
-            .flatMapMerge { category: C ->
-                val probIfCategory = async {
-                    probabilities.values
-                        .filter { it.category == category }
-                        .sumOf {
-                            if (it.feature in f) {
-                                ln(it.probability)
-                            } else {
-                                ln(1.0 - it.probability)
-                            }
-                        }
-                        .run { exp(this) }
-                }
+            .map { category: C ->
+                val probIfCategory = calcProbability(
+                    probabilities.values,
+                    category,
+                    features,
+                    FeatureProbability<F, C>::probability
+                )
 
-                val probIfNotCategory = async {
-                    probabilities.values
-                        .filter { it.category == category }
-                        .sumOf {
-                            if (it.feature in f) {
-                                ln(it.notProbability)
-                            } else {
-                                ln(1.0 - it.notProbability)
-                            }
-                        }
-                        .run { exp(this) }
-                }
+                val probIfNotCategory = calcProbability(
+                    probabilities.values,
+                    category,
+                    features,
+                    FeatureProbability<F, C>::notProbability
+                )
 
-                flowOf(
-                    CategoryProbability(
-                        category = category,
-                        probability = probIfCategory.await() / (probIfCategory.await() + probIfNotCategory.await())
-                    )
+                CategoryProbability(
+                    category = category,
+                    probability = probIfCategory / (probIfCategory + probIfNotCategory)
                 )
             }
-            .buffer()
             .filter { it.probability >= 0.1 }
             .toList()
             .maxByOrNull { it.probability }
+    }
+
+    private fun calcProbability(
+        porobabilities: Collection<FeatureProbability<F, C>>,
+        category: C,
+        features: Iterable<F>,
+        props: KProperty1<FeatureProbability<F, C>, Double>,
+    ): Double {
+        return porobabilities
+            .filter { it.category == category }
+            .sumOf {
+                if (it.feature in features) {
+                    ln(props.get(it))
+                } else {
+                    ln(1.0 - props.get(it))
+                }
+            }.let { exp(it) }
     }
 
     class FeatureProbability<F: Any, C: Any>(val feature: F, val category: C, nbc: NaiveBayesClassifier<F, C>) {

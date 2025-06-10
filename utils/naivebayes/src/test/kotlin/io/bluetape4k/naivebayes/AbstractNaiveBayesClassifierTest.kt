@@ -3,7 +3,6 @@ package io.bluetape4k.naivebayes
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.tokenizer.korean.tokenizer.KoreanTokenizer
 import io.bluetape4k.tokenizer.korean.utils.KoreanPos
-import kotlinx.coroutines.runBlocking
 import java.io.Serializable
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -18,8 +17,8 @@ abstract class AbstractNaiveBayesClassifierTest {
             .map { it.replace(Regex("[^A-Za-z]"), "").lowercase() }
             .filter { it.isNotEmpty() }
 
-    fun String.tokenize(): Sequence<String> = runBlocking {
-        KoreanTokenizer.tokenize(this@tokenize)
+    fun String.tokenize(): Sequence<String> {
+        return KoreanTokenizer.tokenize(this@tokenize)
             .asSequence()
             .filter { it.pos == KoreanPos.Noun || it.pos == KoreanPos.Adjective }
             .map { it.text.lowercase() }
