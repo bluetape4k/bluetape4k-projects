@@ -31,15 +31,12 @@ open class Interval(
         return comparison
     }
 
-    override fun equalProperties(other: Any): Boolean {
-        return (other is Intervalable) && start == other.start && end == other.end
-    }
+    override fun equalProperties(other: Any): Boolean =
+        other is Intervalable &&
+                start == other.start &&
+                end == other.end
 
-    override fun equals(other: Any?): Boolean {
-        return other != null && equalProperties(other)
-    }
-
+    override fun equals(other: Any?): Boolean = other != null && equalProperties(other)
     override fun hashCode(): Int = if (isEmpty) -1 else hashOf(start, end)
-
     override fun toString(): String = "$start:$end"
 }
