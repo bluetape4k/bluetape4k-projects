@@ -22,6 +22,10 @@ dependencies {
     api(Libs.jakarta_annotation_api)
     compileOnly(Libs.findbugs)
 
+    // Timebased UUID
+    api(project(":bluetape4k-idgenerators"))
+    api(Libs.java_uuid_generator)
+
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))
     compileOnly(Libs.kotlinx_coroutines_core)

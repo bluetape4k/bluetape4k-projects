@@ -2,7 +2,6 @@ package io.bluetape4k.spring.util
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
 import kotlinx.coroutines.delay
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
@@ -20,18 +19,18 @@ class StopWatchSupportTest {
         }
 
         sw.totalTimeMillis shouldBeGreaterOrEqualTo 100L
-        log.trace { sw.prettyPrint() }
+        println(sw.prettyPrint())
     }
 
     @Test
     fun `run with StopWatch with coroutines`() = runSuspendTest {
-        val sw = withStopWatch("coroutines") {
+        val sw = withSuspendStopWatch("coroutines") {
             delay(100)
             print("block")
         }
 
+        println(sw.prettyPrint())
         sw.totalTimeMillis shouldBeGreaterOrEqualTo 100L
-        log.trace { sw.prettyPrint() }
     }
 
     @Test
@@ -59,12 +58,12 @@ class StopWatchSupportTest {
     fun `run tasks with coroutines`() = runSuspendTest {
         val sw = StopWatch("run tasks with coroutines")
 
-        val result1 = sw.task("task1") {
+        val result1 = sw.suspendTask("task1") {
             delay(10)
             42
         }
 
-        val result2 = sw.task("task2") {
+        val result2 = sw.suspendTask("task2") {
             delay(10)
             45
         }
