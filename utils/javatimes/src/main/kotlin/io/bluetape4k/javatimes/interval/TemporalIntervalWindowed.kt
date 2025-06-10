@@ -174,27 +174,6 @@ fun <T> ReadableTemporalInterval<T>.windowed(
             current = (current + increment) as T
         }
     }
-
-//    return object: Sequence<List<T>> {
-//        override fun iterator(): Iterator<List<T>> {
-//            return object: Iterator<List<T>> {
-//                private var current: T = startInclusive.startOf(unit)
-//                private val increment = step.temporalAmount(unit)
-//
-//                override fun hasNext(): Boolean = current < endExclusive
-//
-//                override fun next(): List<T> {
-//                    if (!hasNext()) throw NoSuchElementException("No more elements in the sequence")
-//                    val result = List(size) {
-//                        (current + it.temporalAmount(unit)) as T
-//                    }.takeWhile { it < endExclusive }
-//
-//                    current = (current + increment) as T
-//                    return result
-//                }
-//            }
-//        }
-//    }
 }
 
 /**
@@ -367,26 +346,6 @@ fun <T> ReadableTemporalInterval<T>.zipWithNext(unit: ChronoUnit): Sequence<Pair
             current = next
         }
     }
-
-//    return object: Sequence<Pair<T, T>> {
-//        override fun iterator(): Iterator<Pair<T, T>> {
-//            return object: Iterator<Pair<T, T>> {
-//                private var current: T = startInclusive.startOf(unit)
-//                private val increment = 1.temporalAmount(unit)
-//                private val limit: T = (endExclusive - increment) as T
-//
-//                override fun hasNext(): Boolean = current < limit
-//
-//                override fun next(): Pair<T, T> {
-//                    if (!hasNext()) throw NoSuchElementException("No more elements in the sequence")
-//                    val next = (current + increment) as T
-//                    val result = current to next
-//                    current = next
-//                    return result
-//                }
-//            }
-//        }
-//    }
 }
 
 /**

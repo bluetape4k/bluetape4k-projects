@@ -647,21 +647,6 @@ fun CharSequence.sliding(size: Int): Sequence<CharSequence> {
             end++
         }
     }
-//    return object: Sequence<CharSequence> {
-//        override fun iterator(): Iterator<CharSequence> {
-//            return object: Iterator<CharSequence> {
-//                private var start = 0
-//                private var end = size
-//
-//                override fun hasNext(): Boolean = end <= self.length
-//
-//                override fun next(): CharSequence {
-//                    if (!hasNext()) throw NoSuchElementException("No more elements in sliding sequence. start=$start, end=$end, size=$size")
-//                    return self.subSequence(start++, end++)
-//                }
-//            }
-//        }
-//    }
 }
 
 /**
@@ -689,21 +674,6 @@ fun String.sliding(size: Int): Sequence<String> {
             end++
         }
     }
-//    return object: Sequence<String> {
-//        override fun iterator(): Iterator<String> {
-//            return object: Iterator<String> {
-//                private var start = 0
-//                private var end = size
-//
-//                override fun hasNext(): Boolean = end <= self.length
-//
-//                override fun next(): String {
-//                    if (!hasNext()) throw NoSuchElementException("No more elements in sliding sequence. start=$start, end=$end, size=$size")
-//                    return self.substring(start++, end++)
-//                }
-//            }
-//        }
-//    }
 }
 
 /**

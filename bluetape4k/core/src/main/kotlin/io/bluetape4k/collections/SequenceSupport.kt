@@ -369,17 +369,3 @@ fun <T> Sequence<T>.repeat(): Sequence<T> = sequence {
         }
     }
 }
-
-//    return object: Sequence<T> {
-//        override fun iterator(): Iterator<T> = object: Iterator<T> {
-//            private var iter = this@repeat.iterator()
-//            override fun hasNext(): Boolean = true
-//            override fun next(): T {
-//                if (!iter.hasNext()) {
-//                    iter = this@repeat.iterator()
-//                }
-//                return iter.next()
-//            }
-//        }
-//    }
-// }
