@@ -1,6 +1,9 @@
 package io.bluetape4k.captcha
 
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Runtimex
@@ -71,6 +74,35 @@ class CaptchaCodeGeneratorTest: AbstractCaptchaTest() {
         MultithreadingTester()
             .numThreads(Runtimex.availableProcessors * 4)
             .roundsPerThread(4)
+            .add {
+                val codeLength = Random.nextInt(4, 10)
+                val code = codeGenerator.next(codeLength)
+                code.all { it.isDigit() || it.isUpperCase() }.shouldBeTrue()
+            }
+            .run()
+    }
+
+    @Test
+    fun `버추얼 스레딩 환경에서 안전하게 동작합니다`() {
+        val codeGenerator = CaptchaCodeGenerator.DEFAULT
+
+        StructuredTaskScopeTester()
+            .roundsPerTask(Runtimex.availableProcessors * 4 * 4)
+            .add {
+                val codeLength = Random.nextInt(4, 10)
+                val code = codeGenerator.next(codeLength)
+                code.all { it.isDigit() || it.isUpperCase() }.shouldBeTrue()
+            }
+            .run()
+    }
+
+    @Test
+    fun `코루틴 환경에서 안전하게 동작합니다`() = runSuspendIO {
+        val codeGenerator = CaptchaCodeGenerator.DEFAULT
+
+        SuspendedJobTester()
+            .numThreads(Runtimex.availableProcessors * 4)
+            .roundsPerJob(Runtimex.availableProcessors * 4 * 4)
             .add {
                 val codeLength = Random.nextInt(4, 10)
                 val code = codeGenerator.next(codeLength)

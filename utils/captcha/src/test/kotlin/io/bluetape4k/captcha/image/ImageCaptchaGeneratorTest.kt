@@ -4,6 +4,11 @@ import io.bluetape4k.captcha.AbstractCaptchaTest
 import io.bluetape4k.captcha.CaptchaCodeGenerator
 import io.bluetape4k.captcha.config.CaptchaConfig
 import io.bluetape4k.captcha.config.CaptchaTheme
+import io.bluetape4k.codec.Base58
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
 import io.bluetape4k.logging.KLogging
@@ -101,5 +106,79 @@ class ImageCaptchaGeneratorTest: AbstractCaptchaTest() {
 
             captcha.writeToFile(path)
         }
+    }
+
+    @Test
+    fun `멀티 스레딩 환경에서 대문자와 숫자를 랜덤 코드로 Image Captcha 생성`(tempFolder: TempFolder) {
+        val newConfig = config.copy(noiseCount = 6, theme = CaptchaTheme.LIGHT)
+        val codeGen = CaptchaCodeGenerator(symbols = CaptchaCodeGenerator.UPPER_DIGITS)
+        val captchaGen = ImageCaptchaGenerator(newConfig, codeGen)
+
+        MultithreadingTester()
+            .numThreads(Runtime.getRuntime().availableProcessors() * 4)
+            .roundsPerThread(4)
+            .add {
+                val captcha = captchaGen.generate()
+                captcha.content.shouldNotBeNull()
+
+                val suffix = Base58.randomString(12)
+                val path = if (useTempFolder) {
+                    tempFolder.createFile().toPath()
+                } else {
+                    Path.of("./captcha-upper-digits-$suffix.webp")
+                }
+
+                captcha.writeToFile(path)
+            }
+            .run()
+    }
+
+    @Test
+    fun `버추얼 스레딩 환경에서 대문자와 숫자를 랜덤 코드로 Image Captcha 생성`(tempFolder: TempFolder) {
+        val newConfig = config.copy(noiseCount = 6, theme = CaptchaTheme.LIGHT)
+        val codeGen = CaptchaCodeGenerator(symbols = CaptchaCodeGenerator.UPPER_DIGITS)
+        val captchaGen = ImageCaptchaGenerator(newConfig, codeGen)
+
+        StructuredTaskScopeTester()
+            .roundsPerTask(Runtime.getRuntime().availableProcessors() * 4 * 4)
+            .add {
+                val captcha = captchaGen.generate()
+                captcha.content.shouldNotBeNull()
+
+                val suffix = Base58.randomString(12)
+                val path = if (useTempFolder) {
+                    tempFolder.createFile().toPath()
+                } else {
+                    Path.of("./captcha-upper-digits-$suffix.webp")
+                }
+
+                captcha.writeToFile(path)
+            }
+            .run()
+    }
+
+    @Test
+    fun `코루틴 환경에서 대문자와 숫자를 랜덤 코드로 Image Captcha 생성`(tempFolder: TempFolder) = runSuspendIO {
+        val newConfig = config.copy(noiseCount = 6, theme = CaptchaTheme.LIGHT)
+        val codeGen = CaptchaCodeGenerator(symbols = CaptchaCodeGenerator.UPPER_DIGITS)
+        val captchaGen = ImageCaptchaGenerator(newConfig, codeGen)
+
+        SuspendedJobTester()
+            .numThreads(Runtime.getRuntime().availableProcessors() * 4)
+            .roundsPerJob(Runtime.getRuntime().availableProcessors() * 4 * 4)
+            .add {
+                val captcha = captchaGen.generate()
+                captcha.content.shouldNotBeNull()
+
+                val suffix = Base58.randomString(12)
+                val path = if (useTempFolder) {
+                    tempFolder.createFile().toPath()
+                } else {
+                    Path.of("./captcha-upper-digits-$suffix.webp")
+                }
+
+                captcha.writeToFile(path)
+            }
+            .run()
     }
 }
