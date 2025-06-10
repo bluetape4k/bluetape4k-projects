@@ -8,12 +8,15 @@ import ch.qos.logback.classic.spi.LoggingEvent
 import ch.qos.logback.core.Appender
 import ch.qos.logback.core.AppenderBase
 import ch.qos.logback.core.status.Status
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logback.kafka.exporter.DefaultKafkaExporter
 import io.bluetape4k.logback.kafka.keyprovider.NullKafkaKeyProvider
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.toUtf8String
 import io.bluetape4k.testcontainers.mq.KafkaServer
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -94,26 +97,29 @@ class KafkaAppenderIT: AbstractKafkaIntegrationTest() {
     }
 
     @Test
-    fun `logging to kafka by KafkaAppender`() {
+    fun `logging to kafka by KafkaAppender`() = runSuspendIO {
         val messageCount = 512
         val messageSize = 256
 
         val logger = loggerContext.getLogger("ROOT")
 
-        //
-        // 로그를 Kafka 로 전송한다.
-        //
-        kafkaAppender.start()
-        kafkaAppender.isStarted.shouldBeTrue()
+        launch {
+            //
+            // 로그를 Kafka 로 전송한다.
+            //
+            kafkaAppender.start()
+            kafkaAppender.isStarted.shouldBeTrue()
 
-        repeat(messageCount) {
-            val message = getMessage(it, messageSize)
-            val loggingEvent = LoggingEvent("a.b.c.d", logger, Level.INFO, message, null, null)
-            kafkaAppender.doAppend(loggingEvent)
+            repeat(messageCount) {
+                val message = getMessage(it, messageSize)
+                val loggingEvent = LoggingEvent("a.b.c.d", logger, Level.INFO, message, null, null)
+                kafkaAppender.doAppend(loggingEvent)
+            }
+
+            kafkaAppender.stop()
+            kafkaAppender.isStarted.shouldBeFalse()
         }
-
-        kafkaAppender.stop()
-        kafkaAppender.isStarted.shouldBeFalse()
+        yield()
 
         //
         // 로그 정보를 Kafka 로 부터 읽어온다.
