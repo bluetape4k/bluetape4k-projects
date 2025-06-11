@@ -1,6 +1,6 @@
 package io.bluetape4k.http.hc5.async
 
-import io.bluetape4k.coroutines.support.coAwait
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.http.hc5.async.methods.toProducer
 import org.apache.hc.client5.http.async.methods.SimpleHttpRequest
 import org.apache.hc.client5.http.async.methods.SimpleHttpResponse
@@ -27,11 +27,11 @@ import org.apache.hc.core5.http.protocol.HttpContext
  * @param callback [FutureCallback] 인스턴스
  * @return [SimpleHttpResponse] 인스턴스
  */
-suspend fun CloseableHttpAsyncClient.executeSuspending(
+suspend fun CloseableHttpAsyncClient.suspendExecute(
     request: SimpleHttpRequest,
     responseConsumer: SimpleResponseConsumer = SimpleResponseConsumer.create(),
     context: HttpContext = HttpClientContext.create(),
     callback: FutureCallback<SimpleHttpResponse>? = null,
 ): SimpleHttpResponse {
-    return execute(request.toProducer(), responseConsumer, context, callback).coAwait()
+    return execute(request.toProducer(), responseConsumer, context, callback).suspendAwait()
 }

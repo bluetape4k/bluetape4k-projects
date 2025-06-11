@@ -25,7 +25,7 @@ import javax.net.ssl.SSLContext
 inline fun tlsStrategy(
     initializer: ClientTlsStrategyBuilder.() -> Unit,
 ): TlsStrategy {
-    return ClientTlsStrategyBuilder.create().apply(initializer).build()
+    return ClientTlsStrategyBuilder.create().apply(initializer).buildAsync()
 }
 
 /**

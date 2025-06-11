@@ -1,8 +1,8 @@
 package io.bluetape4k.exposed.redisson.repository
 
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.redis.redisson.coroutines.coAwait
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -31,7 +31,7 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
 
     val cache: RMap<ID, T?>
 
-    suspend fun exists(id: ID): Boolean = cache.containsKeyAsync(id).coAwait()
+    suspend fun exists(id: ID): Boolean = cache.containsKeyAsync(id).suspendAwait()
 
     suspend fun findFreshById(id: ID): T? =
         entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
@@ -42,7 +42,7 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
     suspend fun findFreshAll(ids: Collection<ID>): List<T> =
         entityTable.selectAll().where { entityTable.id inList ids }.map { it.toEntity() }
 
-    suspend fun get(id: ID): T? = cache.getAsync(id).coAwait()
+    suspend fun get(id: ID): T? = cache.getAsync(id).suspendAwait()
 
     suspend fun findAll(
         limit: Int? = null,
@@ -54,15 +54,15 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
 
     suspend fun getAll(ids: Collection<ID>, batchSize: Int = DefaultBatchSize): List<T>
 
-    suspend fun put(entity: T) = cache.fastPutAsync(entity.id, entity).coAwait()
+    suspend fun put(entity: T) = cache.fastPutAsync(entity.id, entity).suspendAwait()
     suspend fun putAll(entities: Collection<T>, batchSize: Int = DefaultBatchSize) {
-        cache.putAllAsync(entities.associateBy { it.id }, batchSize).coAwait()
+        cache.putAllAsync(entities.associateBy { it.id }, batchSize).suspendAwait()
     }
 
-    suspend fun invalidate(vararg ids: ID): Long = cache.fastRemoveAsync(*ids).coAwait()
-    suspend fun invalidateAll(): Boolean = cache.clearAsync().coAwait()
+    suspend fun invalidate(vararg ids: ID): Long = cache.fastRemoveAsync(*ids).suspendAwait()
+    suspend fun invalidateAll(): Boolean = cache.clearAsync().suspendAwait()
     suspend fun invalidateByPattern(patterns: String, count: Int = DefaultBatchSize): Long {
         val keys = cache.keySet(patterns, count)
-        return cache.fastRemoveAsync(*keys.toTypedArray()).coAwait()
+        return cache.fastRemoveAsync(*keys.toTypedArray()).suspendAwait()
     }
 }

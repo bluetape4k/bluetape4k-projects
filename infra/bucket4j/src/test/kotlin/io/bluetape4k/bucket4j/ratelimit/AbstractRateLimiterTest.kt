@@ -36,10 +36,10 @@ abstract class AbstractRateLimiterTest {
         // 초기 Token = 10 개, 5개를 소모한다
         val result = rateLimiter.consume(key, token)
         // 5개 소모, 5개 남음
-        result shouldBeEqualTo RateLimitResult(token, AbstractCoRateLimiterTest.INITIAL_CAPACITY - token)
+        result shouldBeEqualTo RateLimitResult(token, INITIAL_CAPACITY - token)
 
         // 10개 소비를 요청 -> 5개만 남았으므로 0개 소비한 것으로 반환
-        val result2 = rateLimiter.consume(key, AbstractCoRateLimiterTest.INITIAL_CAPACITY)
+        val result2 = rateLimiter.consume(key, INITIAL_CAPACITY)
         result2 shouldBeEqualTo RateLimitResult(0, result.availableTokens)
 
         // 나머지 토큰 모두를 소비하면, 유효한 토큰이 0개임

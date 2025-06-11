@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.Actor
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
@@ -8,7 +9,6 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.RedissonCodecs
 import io.bluetape4k.redis.redisson.coroutines.awaitAll
-import io.bluetape4k.redis.redisson.coroutines.coAwait
 import kotlinx.coroutines.delay
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
@@ -186,7 +186,7 @@ class CacheWriteBehindExample: AbstractCacheExample() {
 
             } finally {
                 // 캐시를 삭제한다.
-                cache.deleteAsync().coAwait()
+                cache.deleteAsync().suspendAwait()
             }
         }
 
@@ -229,7 +229,7 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                 dbActorCount shouldBeEqualTo ACTOR_SIZE.toLong()
 
                 // 캐시의 데이터를 모두 삭제한다 -> DB의 데이터도 삭제된다 !!!
-                cache.fastRemoveAsync(*writeIds.toTypedArray()).coAwait()
+                cache.fastRemoveAsync(*writeIds.toTypedArray()).suspendAwait()
 
                 await coUntil {
                     delay(100)

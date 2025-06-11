@@ -1,9 +1,9 @@
 package io.bluetape4k.http.hc5.examples
 
 import io.bluetape4k.http.hc5.AbstractHc5Test
-import io.bluetape4k.http.hc5.async.executeSuspending
 import io.bluetape4k.http.hc5.async.httpAsyncClient
 import io.bluetape4k.http.hc5.async.methods.simpleHttpRequestOf
+import io.bluetape4k.http.hc5.async.suspendExecute
 import io.bluetape4k.http.hc5.reactor.ioReactorConfig
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -45,7 +45,7 @@ class AsyncClientMessageTrailers: AbstractHc5Test() {
         val request = simpleHttpRequestOf(Method.POST, target, path)
 
         log.debug { "Executing request $request" }
-        val response = client.executeSuspending(request)
+        val response = client.suspendExecute(request)
         log.debug { "Response: $request -> ${StatusLine(response)}" }
         log.debug { "Body: ${response.body}" }
 

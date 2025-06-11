@@ -1,6 +1,5 @@
 package io.bluetape4k.bloomfilter.inmemory
 
-import io.bluetape4k.bloomfilter.CoBloomFilter
 import io.bluetape4k.bloomfilter.DEFAULT_ERROR_RATE
 import io.bluetape4k.bloomfilter.DEFAULT_MAX_NUM
 import io.bluetape4k.bloomfilter.Hasher

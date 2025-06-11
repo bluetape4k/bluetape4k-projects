@@ -54,7 +54,7 @@ class ProducerSupportTest: AbstractKafkaTest() {
     fun `send one message in suspend`(@RandomValue message: String) = runSuspendIO {
         val record = ProducerRecord<String, String>(TEST_TOPIC_NAME, null, message)
 
-        val metadata = producer.awaitSend(record)
+        val metadata = producer.suspendSend(record)
         metadata.verifyRecordMetadata()
     }
 
@@ -82,7 +82,7 @@ class ProducerSupportTest: AbstractKafkaTest() {
         measureSendRecords(MESSAGE_SIZE) {
             val defers = messages.map { message ->
                 val record = ProducerRecord<String, String>(TEST_TOPIC_NAME, null, message)
-                async(Dispatchers.IO) { producer.awaitSend(record) }
+                async(Dispatchers.IO) { producer.suspendSend(record) }
             }
 
             defers.awaitAll().forEach { metadata ->

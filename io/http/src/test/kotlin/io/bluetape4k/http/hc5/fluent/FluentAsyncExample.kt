@@ -1,7 +1,7 @@
 package io.bluetape4k.http.hc5.fluent
 
 import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
-import io.bluetape4k.coroutines.support.coAwait
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
@@ -134,7 +134,7 @@ class FluentAsyncExample: AbstractHc5Test() {
                 val request = requests[index]
                 log.trace { "Reqeust $request" }
 
-                val content = async.execute(request).coAwait()
+                val content = async.execute(request).suspendAwait()
                 log.trace { "Content type=${content.type} from $request" }
             }
             .run()

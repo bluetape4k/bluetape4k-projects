@@ -1,9 +1,9 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.RedissonCodecs
-import io.bluetape4k.redis.redisson.coroutines.coAwait
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
@@ -38,10 +38,10 @@ class PriorityQueueExamples: AbstractRedissonCoroutineTest() {
         queue.count() shouldBeEqualTo 6
 
         // 첫번째 요소 조회
-        queue.peekAsync().coAwait() shouldBeEqualTo Item("a", 3)
+        queue.peekAsync().suspendAwait() shouldBeEqualTo Item("a", 3)
         // 첫번째 요소 가져오기
-        queue.pollAsync().coAwait() shouldBeEqualTo Item("a", 3)
+        queue.pollAsync().suspendAwait() shouldBeEqualTo Item("a", 3)
 
-        queue.deleteAsync().coAwait()
+        queue.deleteAsync().suspendAwait()
     }
 }

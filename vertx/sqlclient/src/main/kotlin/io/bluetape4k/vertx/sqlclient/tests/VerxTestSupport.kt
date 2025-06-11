@@ -1,9 +1,7 @@
 package io.bluetape4k.vertx.sqlclient.tests
 
-import io.bluetape4k.vertx.sqlclient.withRollbackSuspending
 import io.bluetape4k.vertx.sqlclient.withSuspendRollback
 import io.bluetape4k.vertx.sqlclient.withSuspendTransaction
-import io.bluetape4k.vertx.sqlclient.withTransactionSuspending
 import io.vertx.core.Vertx
 import io.vertx.junit5.VertxTestContext
 import io.vertx.sqlclient.Pool
@@ -40,24 +38,6 @@ suspend fun Vertx.testWithSuspendTransaction(
     }
 }
 
-@Deprecated(
-    message = "Use testWithSuspendTransaction instead",
-    replaceWith = ReplaceWith("testWithSuspendTransaction(testContext, pool, block)")
-)
-@Suppress("UnusedReceiverParameter")
-suspend fun Vertx.testWithTransactionSuspending(
-    testContext: VertxTestContext,
-    pool: Pool,
-    @BuilderInference block: suspend (conn: SqlConnection) -> Unit,
-) {
-    try {
-        pool.withTransactionSuspending(block)
-        testContext.completeNow()
-    } catch (e: Throwable) {
-        testContext.failNow(e)
-    }
-}
-
 /**
  * Vertx Sql Client 작업 테스트를 [testContext]하에서
  * 테스트 시에 기존 데이터에 영향을 주지 않도록, Tx 작업이 성공하더라도 Rollback을 하도록 합니다.
@@ -84,24 +64,6 @@ suspend fun Vertx.testWithSuspendRollback(
 ) {
     try {
         pool.withSuspendRollback(block)
-        testContext.completeNow()
-    } catch (e: Throwable) {
-        testContext.failNow(e)
-    }
-}
-
-@Deprecated(
-    message = "Use testWithSuspendRollback instead",
-    replaceWith = ReplaceWith("testWithSuspendRollback(testContext, pool, block)")
-)
-@Suppress("UnusedReceiverParameter")
-suspend fun Vertx.testWithRollbackSuspending(
-    testContext: VertxTestContext,
-    pool: Pool,
-    @BuilderInference block: suspend (conn: SqlConnection) -> Unit,
-) {
-    try {
-        pool.withRollbackSuspending(block)
         testContext.completeNow()
     } catch (e: Throwable) {
         testContext.failNow(e)

@@ -20,6 +20,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransact
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
+@Suppress("DEPRECATION")
 class KsuidMillisTableTest: AbstractCustomIdTableTest() {
 
     companion object: KLogging()

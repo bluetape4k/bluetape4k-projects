@@ -1,6 +1,6 @@
 package io.bluetape4k.http.hc5.examples
 
-import io.bluetape4k.coroutines.support.coAwait
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.async.minimalHttpAsyncClientOf
 import io.bluetape4k.http.hc5.http.ContentTypes
@@ -46,7 +46,7 @@ class ReactiveClientFullDuplexExchange: AbstractHc5Test() {
         val consumer = ReactiveResponseConsumer()
 
         client.execute(requestProducer, consumer, null)
-        val streamingResponse = consumer.responseFuture.coAwait()
+        val streamingResponse = consumer.responseFuture.suspendAwait()
 
         log.debug { "head=${streamingResponse.head}" }
         streamingResponse.head.headers.forEach { header ->

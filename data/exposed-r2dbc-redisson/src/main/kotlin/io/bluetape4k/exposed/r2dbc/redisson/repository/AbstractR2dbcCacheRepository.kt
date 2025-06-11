@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.redisson.repository
 
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.r2dbc.redisson.map.R2dbcEntityMapLoader
 import io.bluetape4k.exposed.r2dbc.redisson.map.R2dbcEntityMapWriter
@@ -11,7 +12,6 @@ import io.bluetape4k.logging.info
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import io.bluetape4k.redis.redisson.cache.localCachedMap
 import io.bluetape4k.redis.redisson.cache.mapCache
-import io.bluetape4k.redis.redisson.coroutines.coAwait
 import io.bluetape4k.support.requireNotNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -166,7 +166,7 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
                 }
                 .map { it.toEntity() }
                 .onEach {
-                    cache.fastPutAsync(it.id, it).coAwait()
+                    cache.fastPutAsync(it.id, it).suspendAwait()
                 }
                 .toList()
         }
@@ -175,7 +175,7 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     override suspend fun getAll(ids: Collection<ID>, batchSize: Int): List<T> {
         return ids.chunked(batchSize).flatMap { chunk ->
             log.debug { " 캐시에서 ${chunk.size} 개의 엔티티를 가져옵니다. chunk=${chunk}" }
-            cache.getAllAsync(chunk.toSet()).coAwait().values.filterNotNull()
+            cache.getAllAsync(chunk.toSet()).suspendAwait().values.filterNotNull()
         }
     }
 }

@@ -3,7 +3,7 @@ package io.bluetape4k.bucket4j.ratelimit.distributed
 import io.bluetape4k.bucket4j.distributed.AsyncBucketProxyProvider
 import io.bluetape4k.bucket4j.ratelimit.RateLimitResult
 import io.bluetape4k.bucket4j.ratelimit.SuspendRateLimiter
-import io.bluetape4k.coroutines.support.coAwait
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
@@ -44,7 +44,7 @@ class DistributedSuspendRateLimiter(
         return try {
             val bucketProxy = asyncBucketProxyProvider.resolveBucket(key)
 
-            if (bucketProxy.tryConsume(numToken).coAwait()) {
+            if (bucketProxy.tryConsume(numToken).suspendAwait()) {
                 RateLimitResult(numToken, bucketProxy.availableTokens.await())
             } else {
                 RateLimitResult(0, bucketProxy.availableTokens.await())

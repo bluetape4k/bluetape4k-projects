@@ -8,7 +8,7 @@ import io.bluetape4k.javatimes.todayZonedDateTime
 import io.bluetape4k.javatimes.weekOfWeekyear
 import io.bluetape4k.javatimes.weekyear
 import io.bluetape4k.javatimes.zonedDateTimeOf
-import io.bluetape4k.junit5.coroutines.MultijobTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
@@ -110,9 +110,9 @@ class WeekRangeCollectionTest: AbstractPeriodTest() {
         val now = nowZonedDateTime()
         val today = todayZonedDateTime()
 
-        MultijobTester()
+        SuspendedJobTester()
             .numThreads(8)
-            .roundsPerJob(5)
+            .roundsPerJob(5 * 8)
             .add {
                 weekCounts.forEach { weekCount ->
                     val wrs = WeekRangeCollection(now, weekCount)

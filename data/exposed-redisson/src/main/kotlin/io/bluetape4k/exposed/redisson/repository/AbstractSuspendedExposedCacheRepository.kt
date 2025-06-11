@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.redisson.repository
 
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.redisson.map.EntityMapLoader
 import io.bluetape4k.exposed.redisson.map.EntityMapWriter
@@ -14,7 +15,6 @@ import io.bluetape4k.logging.info
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import io.bluetape4k.redis.redisson.cache.localCachedMap
 import io.bluetape4k.redis.redisson.cache.mapCache
-import io.bluetape4k.redis.redisson.coroutines.coAwait
 import io.bluetape4k.support.requireNotNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -165,14 +165,14 @@ abstract class AbstractSuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID:
                 }
                 .map { it.toEntity() }
         }.await().apply {
-            cache.putAllAsync(associateBy { it.id }).coAwait()
+            cache.putAllAsync(associateBy { it.id }).suspendAwait()
         }
     }
 
     override suspend fun getAll(ids: Collection<ID>, batchSize: Int): List<T> {
         return ids.chunked(batchSize).flatMap { chunk ->
             log.debug { " 캐시에서 ${chunk.size} 개의 엔티티를 가져옵니다. chunk=${chunk}" }
-            cache.getAllAsync(chunk.toSet()).coAwait().values.filterNotNull()
+            cache.getAllAsync(chunk.toSet()).suspendAwait().values.filterNotNull()
         }
     }
 }

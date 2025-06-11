@@ -1,5 +1,6 @@
 package io.bluetape4k.redis.redisson.coroutines
 
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.Dispatchers

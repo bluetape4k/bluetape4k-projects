@@ -1,8 +1,8 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.redis.redisson.coroutines.coAwait
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
@@ -32,26 +32,26 @@ class BoundedBlockingQueueExamples: AbstractRedissonCoroutineTest() {
         queue.trySetCapacity(ITEM_SIZE).shouldBeTrue()
 
         repeat(ITEM_SIZE) {
-            queue.offerAsync(it + 1).coAwait().shouldBeTrue()
+            queue.offerAsync(it + 1).suspendAwait().shouldBeTrue()
         }
 
         // 크기 제한으로 추가 못한다
-        queue.offerAsync(ITEM_SIZE + 1).coAwait().shouldBeFalse()
+        queue.offerAsync(ITEM_SIZE + 1).suspendAwait().shouldBeFalse()
 
         val job = scope.launch {
             delay(1000)
-            queue.takeAsync().coAwait() shouldBeEqualTo 1
+            queue.takeAsync().suspendAwait() shouldBeEqualTo 1
         }
         yield()
 
         // 요소 [6]을 추가합니다. (10초간 시도)
-        queue.offerAsync(ITEM_SIZE + 1, 10, TimeUnit.SECONDS).coAwait().shouldBeTrue()
+        queue.offerAsync(ITEM_SIZE + 1, 10, TimeUnit.SECONDS).suspendAwait().shouldBeTrue()
 
         job.join()
 
         // 요소 [1]은 job 내부에서 가겨갔기 때문에 삭제되었습니다.
-        queue.containsAsync(1).coAwait().shouldBeFalse()
+        queue.containsAsync(1).suspendAwait().shouldBeFalse()
 
-        queue.deleteAsync().coAwait()
+        queue.deleteAsync().suspendAwait()
     }
 }

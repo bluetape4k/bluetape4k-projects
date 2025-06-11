@@ -24,6 +24,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertFails
 import kotlin.test.assertFailsWith
 
+@Suppress("DEPRECATION")
 class ImplicitSelectAllTest: R2dbcExposedTestBase() {
 
     companion object: KLoggingChannel()

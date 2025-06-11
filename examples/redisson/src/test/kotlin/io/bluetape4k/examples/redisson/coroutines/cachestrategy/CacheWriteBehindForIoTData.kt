@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.exposed.dao.id.TimebasedUUIDTable
 import io.bluetape4k.javatimes.millis
 import io.bluetape4k.junit5.awaitility.coUntil
@@ -8,7 +9,6 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.RedissonCodecs
 import io.bluetape4k.redis.redisson.coroutines.awaitAll
-import io.bluetape4k.redis.redisson.coroutines.coAwait
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -46,6 +46,7 @@ import kotlin.random.Random
 /**
  * 대량의 IoT 데이터를 Write-Behind 방식으로 DB에 저장하는 서비스입니다.
  */
+@Suppress("DEPRECATION")
 class CacheWriteBehindForIoTData: AbstractCacheExample() {
 
     companion object: KLoggingChannel()
@@ -249,7 +250,7 @@ class CacheWriteBehindForIoTData: AbstractCacheExample() {
             val cache = redisson.getMapCache(options)
             try {
                 val dataSize = 1000
-                cache.fastPutAsync("sensor-1", generateSensorData("sensor-1", dataSize)).coAwait()
+                cache.fastPutAsync("sensor-1", generateSensorData("sensor-1", dataSize)).suspendAwait()
 
                 Thread.sleep(100)
 
@@ -266,7 +267,7 @@ class CacheWriteBehindForIoTData: AbstractCacheExample() {
 
             } finally {
                 // 캐시를 삭제한다.
-                cache.deleteAsync().coAwait()
+                cache.deleteAsync().suspendAwait()
             }
         }
     }

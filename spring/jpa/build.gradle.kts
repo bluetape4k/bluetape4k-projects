@@ -53,7 +53,6 @@ dependencies {
 
     api(Libs.jakarta_persistence_api)
     api(Libs.hibernate_core)
-    testImplementation(Libs.hibernate_testing)
 
     // Querydsl
     // Hibernate 6+ jakarta 용은 claasifier로 ":jpa" 대신 ":jakarta" 를 사용해야 합니다.

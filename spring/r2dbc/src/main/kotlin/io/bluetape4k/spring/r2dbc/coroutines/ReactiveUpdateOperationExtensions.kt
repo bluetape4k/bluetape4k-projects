@@ -8,7 +8,3 @@ import org.springframework.data.relational.core.query.Update
 
 suspend inline fun <reified T: Any> ReactiveUpdateOperation.suspendUpdate(query: Query, update: Update): Long =
     update<T>().matching(query).apply(update).awaitSingle()
-
-@Deprecated("Use suspendUpdate instead", ReplaceWith("suspendUpdate(query, update)"))
-suspend inline fun <reified T: Any> ReactiveUpdateOperation.coUpdate(query: Query, update: Update): Long =
-    update<T>().matching(query).apply(update).awaitSingle()

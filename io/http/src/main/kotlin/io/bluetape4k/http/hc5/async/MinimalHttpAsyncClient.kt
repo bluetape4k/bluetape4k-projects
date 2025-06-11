@@ -1,6 +1,6 @@
 package io.bluetape4k.http.hc5.async
 
-import io.bluetape4k.coroutines.support.coAwait
+import io.bluetape4k.coroutines.support.suspendAwait
 import org.apache.hc.client5.http.DnsResolver
 import org.apache.hc.client5.http.SystemDefaultDnsResolver
 import org.apache.hc.client5.http.impl.async.HttpAsyncClients
@@ -83,7 +83,7 @@ fun minimalH2AsyncClientOf(
     h2config: H2Config,
     ioReactorConfig: IOReactorConfig = IOReactorConfig.DEFAULT,
     dnsResolver: DnsResolver = SystemDefaultDnsResolver.INSTANCE,
-    tlsStrategy: TlsStrategy = DefaultClientTlsStrategy.getDefault(),
+    tlsStrategy: TlsStrategy = DefaultClientTlsStrategy.createDefault(),
 ): MinimalH2AsyncClient {
     return HttpAsyncClients.createHttp2Minimal(h2config, ioReactorConfig, dnsResolver, tlsStrategy)
 }
@@ -101,5 +101,5 @@ suspend fun MinimalHttpAsyncClient.leaseSuspending(
     context: HttpContext = HttpClientContext.create(),
     callback: FutureCallback<AsyncClientEndpoint>? = null,
 ): AsyncClientEndpoint {
-    return lease(host, context, callback).coAwait()
+    return lease(host, context, callback).suspendAwait()
 }

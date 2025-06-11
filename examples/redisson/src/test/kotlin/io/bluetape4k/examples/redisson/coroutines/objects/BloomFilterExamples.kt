@@ -1,11 +1,11 @@
 package io.bluetape4k.examples.redisson.coroutines.objects
 
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.redis.redisson.coroutines.coAwait
 import io.bluetape4k.support.toUtf8Bytes
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
@@ -70,6 +70,6 @@ class BloomFilterExamples: AbstractRedissonCoroutineTest() {
         // 존재하지 않는 요소는 false 를 반환한다
         bloomFilter.contains(excludedMessage).shouldBeFalse()
 
-        bloomFilter.deleteAsync().coAwait().shouldBeTrue()
+        bloomFilter.deleteAsync().suspendAwait().shouldBeTrue()
     }
 }

@@ -1,11 +1,11 @@
 package io.bluetape4k.redis.redisson.leader.coroutines
 
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
 import io.bluetape4k.leader.coroutines.SuspendLeaderElection
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
-import io.bluetape4k.redis.redisson.coroutines.suspendAwait
 import io.bluetape4k.redis.redisson.leader.RedissonLeaderElectionOptions
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.uninitialized

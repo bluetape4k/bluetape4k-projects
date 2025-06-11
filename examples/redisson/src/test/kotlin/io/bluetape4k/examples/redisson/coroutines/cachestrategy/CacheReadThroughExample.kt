@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.Actor
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
@@ -7,7 +8,6 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.RedissonCodecs
-import io.bluetape4k.redis.redisson.coroutines.coAwait
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.delay
 import org.amshove.kluent.shouldBeEqualTo
@@ -149,7 +149,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
             try {
                 checkReadThroughCacheAsync(cache)
             } finally {
-                cache.deleteAsync().coAwait()
+                cache.deleteAsync().suspendAwait()
             }
         }
 
@@ -167,7 +167,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
             try {
                 checkReadThroughCacheAsync(cache)
             } finally {
-                cache.deleteAsync().coAwait()
+                cache.deleteAsync().suspendAwait()
             }
         }
 
@@ -195,7 +195,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
             cache[0].shouldBeNull()
 
             // DB에 있는 모든 Actor를 한번에 로드하여 캐시에 저장한다. 이미 캐시에 있는 것은 교체한다
-            cache.fastRemoveAsync(*actorIds.toTypedArray()).coAwait()
+            cache.fastRemoveAsync(*actorIds.toTypedArray()).suspendAwait()
             cache.loadAll(true, Runtimex.availableProcessors * 2)
 
             delay(100)

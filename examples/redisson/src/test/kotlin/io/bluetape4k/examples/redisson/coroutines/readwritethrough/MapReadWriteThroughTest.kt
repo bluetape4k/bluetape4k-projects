@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.redisson.coroutines.readwritethrough
 
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.jdbc.sql.extract
 import io.bluetape4k.jdbc.sql.runQuery
@@ -9,7 +10,6 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.redis.redisson.RedissonCodecs
-import io.bluetape4k.redis.redisson.coroutines.coAwait
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import org.amshove.kluent.shouldBeEqualTo
@@ -277,7 +277,7 @@ class MapReadWriteThroughTest: AbstractRedissonCoroutineTest() {
             launch {
                 val id = 300_000 + it
                 val actor = newActor(id)
-                map.fastPutAsync(id, actor).coAwait().shouldBeTrue()
+                map.fastPutAsync(id, actor).suspendAwait().shouldBeTrue()
             }
         }
         insertJobs.joinAll()
@@ -288,12 +288,12 @@ class MapReadWriteThroughTest: AbstractRedissonCoroutineTest() {
         val checkJob = List(ACTOR_SIZE) {
             launch {
                 val id = 300_000 + it
-                map.getAsync(id).coAwait().shouldNotBeNull()
+                map.getAsync(id).suspendAwait().shouldNotBeNull()
             }
         }
         checkJob.joinAll()
 
-        map.deleteAsync().coAwait()
+        map.deleteAsync().suspendAwait()
     }
 
     @Test
@@ -317,7 +317,7 @@ class MapReadWriteThroughTest: AbstractRedissonCoroutineTest() {
             launch {
                 val id = 400_000 + it
                 val actor = newActor(id)
-                map.fastPutAsync(id, actor).coAwait().shouldBeTrue()
+                map.fastPutAsync(id, actor).suspendAwait().shouldBeTrue()
             }
         }
         insertJobs.joinAll()
@@ -331,11 +331,11 @@ class MapReadWriteThroughTest: AbstractRedissonCoroutineTest() {
         val checkJob = List(ACTOR_SIZE) {
             launch {
                 val id = 400_000 + it
-                map.getAsync(id).coAwait().shouldNotBeNull()
+                map.getAsync(id).suspendAwait().shouldNotBeNull()
             }
         }
         checkJob.joinAll()
 
-        map.deleteAsync().coAwait()
+        map.deleteAsync().suspendAwait()
     }
 }

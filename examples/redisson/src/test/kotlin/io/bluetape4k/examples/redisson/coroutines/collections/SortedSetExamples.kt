@@ -1,9 +1,9 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.redis.redisson.coroutines.coAwait
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
@@ -32,8 +32,8 @@ class SortedSetExamples: AbstractRedissonCoroutineTest() {
         sset.first() shouldBeEqualTo 1
         sset.last() shouldBeEqualTo 3
 
-        sset.removeAsync(1).coAwait().shouldBeTrue()
+        sset.removeAsync(1).suspendAwait().shouldBeTrue()
 
-        sset.deleteAsync().coAwait()
+        sset.deleteAsync().suspendAwait()
     }
 }

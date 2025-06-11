@@ -1,9 +1,9 @@
 package io.bluetape4k.redis.redisson.memorizer
 
 import io.bluetape4k.cache.memorizer.SuspendMemorizer
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.redis.redisson.coroutines.suspendAwait
 import org.redisson.api.RMap
 
 /**

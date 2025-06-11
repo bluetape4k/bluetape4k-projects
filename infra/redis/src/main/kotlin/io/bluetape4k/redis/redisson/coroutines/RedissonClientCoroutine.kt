@@ -1,6 +1,7 @@
 package io.bluetape4k.redis.redisson.coroutines
 
 import io.bluetape4k.LibraryName
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.support.requireNotBlank
 import org.redisson.api.BatchOptions
 import org.redisson.api.BatchResult
@@ -21,44 +22,9 @@ suspend inline fun RedissonClient.withSuspendedBatch(
     createBatch(options).apply(action).executeAsync().suspendAwait()
 
 /**
- * Redisson 작업을 Coroutines 환경에서 Batch 모드에서 실행하도록 합니다.
- */
-@Deprecated(
-    message = "use withSuspendedBatch()",
-    replaceWith = ReplaceWith("withSuspendedBatch(options, action)"),
-)
-suspend inline fun RedissonClient.withBatchSuspending(
-    options: BatchOptions = BatchOptions.defaults(),
-    action: RBatch.() -> Unit,
-): BatchResult<*> =
-    createBatch(options).apply(action).executeAsync().suspendAwait()
-
-/**
  * Redisson 작업을 Coroutines 환경에서 Transaction model 에서 실행하도록 합니다.
  */
 suspend inline fun RedissonClient.withSuspendedTransaction(
-    options: TransactionOptions = TransactionOptions.defaults(),
-    action: RTransaction.() -> Unit,
-) {
-    val tx: RTransaction = createTransaction(options)
-    try {
-        action(tx)
-        tx.commitAsync().suspendAwait()
-    } catch (e: TransactionException) {
-        runCatching { tx.rollbackAsync().suspendAwait() }
-        throw e
-    }
-}
-
-
-/**
- * Redisson 작업을 Coroutines 환경에서 Transaction model 에서 실행하도록 합니다.
- */
-@Deprecated(
-    message = "use withSuspendedTransaction()",
-    replaceWith = ReplaceWith("withSuspendedTransaction(options, action)"),
-)
-suspend inline fun RedissonClient.withTransactionSuspending(
     options: TransactionOptions = TransactionOptions.defaults(),
     action: RTransaction.() -> Unit,
 ) {

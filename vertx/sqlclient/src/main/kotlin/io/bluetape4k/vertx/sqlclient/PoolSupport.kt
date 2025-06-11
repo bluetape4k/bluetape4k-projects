@@ -42,30 +42,6 @@ suspend fun <T> Pool.withSuspendTransaction(
     }
 }
 
-@Deprecated(
-    message = "Use withSuspendTransaction instead",
-    replaceWith = ReplaceWith("withSuspendTransaction(action)")
-)
-suspend fun <T> Pool.withTransactionSuspending(
-    @BuilderInference action: suspend (conn: SqlConnection) -> T,
-): T {
-    val conn = connection.coAwait()
-    val tx = conn.begin().coAwait()
-
-    return try {
-        val result = action(conn)
-        tx.commit().coAwait()
-        result
-    } catch (e: TransactionRollbackException) {
-        throw (e)
-    } catch (e: Throwable) {
-        runCatching { tx.rollback().coAwait() }
-        throw SQLException(e)
-    } finally {
-        conn.close().coAwait()
-    }
-}
-
 /**
  * 테스트 시에 기존 데이터에 영향을 주지 않도록, Tx 작업이 성공하더라도 Rollback을 하도록 합니다.
  *
@@ -83,29 +59,6 @@ suspend fun <T> Pool.withTransactionSuspending(
  * @return 작업 결과
  */
 suspend fun <T> Pool.withSuspendRollback(
-    @BuilderInference action: suspend (conn: SqlConnection) -> T,
-): T {
-    val conn = connection.coAwait()
-    val tx = conn.begin().coAwait()
-    return try {
-        val result = action(conn)
-        tx.rollback().coAwait()
-        result
-    } catch (e: TransactionRollbackException) {
-        throw (e)
-    } catch (e: Throwable) {
-        runCatching { tx.rollback().coAwait() }
-        throw SQLException(e)
-    } finally {
-        conn.close().coAwait()
-    }
-}
-
-@Deprecated(
-    message = "Use withSuspendRollback instead",
-    replaceWith = ReplaceWith("withSuspendRollback(action)")
-)
-suspend fun <T> Pool.withRollbackSuspending(
     @BuilderInference action: suspend (conn: SqlConnection) -> T,
 ): T {
     val conn = connection.coAwait()

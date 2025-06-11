@@ -69,7 +69,6 @@ dependencies {
 
     api(Libs.hibernate_core)
     api(Libs.hibernate_micrometer)
-    testImplementation(Libs.hibernate_testing)
 
     // NOTE: Kotlin 2.1.0 에서 QueryDSL 5.1.0 과 같이 사용하는 경우 예에가 발생한다. (QueryDSL만 사용하는 것을 추천합니다)
     // kapt(Libs.hibernate_jpamodelgen)

@@ -3,8 +3,8 @@ package io.bluetape4k.examples.vertx.sqlclient
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import io.bluetape4k.vertx.sqlclient.tests.testWithTransactionSuspending
-import io.bluetape4k.vertx.sqlclient.withTransactionSuspending
+import io.bluetape4k.vertx.sqlclient.tests.testWithSuspendTransaction
+import io.bluetape4k.vertx.sqlclient.withSuspendTransaction
 import io.vertx.core.Vertx
 import io.vertx.junit5.VertxTestContext
 import io.vertx.kotlin.core.json.json
@@ -28,7 +28,7 @@ class JDBCPoolExamples: AbstractSqlClientTest() {
         // setup 에서는 testContext 가 불필요합니다. 만약 injection을 받으면 꼭 completeNow() 를 호출해야 합니다.
         runBlocking(vertx.dispatcher()) {
             val pool = vertx.getH2Pool()
-            pool.withTransactionSuspending { conn: SqlConnection ->
+            pool.withSuspendTransaction { conn: SqlConnection ->
                 conn
                     .query(
                         """
@@ -50,7 +50,7 @@ class JDBCPoolExamples: AbstractSqlClientTest() {
     @Test
     fun `connect to mysql`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
         val pool = vertx.getH2Pool()
-        vertx.testWithTransactionSuspending(testContext, pool) {
+        vertx.testWithSuspendTransaction(testContext, pool) {
             val rows = pool.query("SELECT * from test").execute().coAwait()
 
             val records = rows.map { it.toJson() }
@@ -66,7 +66,7 @@ class JDBCPoolExamples: AbstractSqlClientTest() {
     fun `connect to mysql in coroutines`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
         val pool = vertx.getH2Pool()
 
-        vertx.testWithTransactionSuspending(testContext, pool) {
+        vertx.testWithSuspendTransaction(testContext, pool) {
             val rows = pool.query("SELECT * from test").execute().coAwait()
             val records = rows.map { it.toJson() }
 
@@ -82,7 +82,7 @@ class JDBCPoolExamples: AbstractSqlClientTest() {
     fun `query with parameters`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
         val pool = vertx.getH2Pool()
 
-        vertx.testWithTransactionSuspending(testContext, pool) {
+        vertx.testWithSuspendTransaction(testContext, pool) {
             val rows = pool.preparedQuery("SELECT * from test where id = ?")
                 .execute(Tuple.of(1))
                 .coAwait()
@@ -102,8 +102,8 @@ class JDBCPoolExamples: AbstractSqlClientTest() {
     fun `with transaction`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
         val pool = vertx.getH2Pool()
 
-        vertx.testWithTransactionSuspending(testContext, pool) {
-            val rows = pool.withTransactionSuspending { conn ->
+        vertx.testWithSuspendTransaction(testContext, pool) {
+            val rows = pool.withSuspendTransaction { conn ->
                 conn.query("SELECT COUNT(*) FROM test").execute().coAwait()
             }
 

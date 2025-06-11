@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Nested
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
+@Suppress("DEPRECATION")
 class SuspendedReadWriteThroughCacheTest {
 
     companion object: KLoggingChannel()

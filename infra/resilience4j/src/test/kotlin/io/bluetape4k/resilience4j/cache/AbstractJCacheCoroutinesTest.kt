@@ -112,7 +112,7 @@ abstract class AbstractJCacheCoroutinesTest {
 
     @Test
     fun `using coroutinesCache`() = runSuspendTest {
-        val coCache = CoCache.of(jcache)
+        val coCache = SuspendCache.of(jcache)
 
         coCache.eventPublisher
             .onError { evt -> log.error { "Fail to get cache. $evt" } }

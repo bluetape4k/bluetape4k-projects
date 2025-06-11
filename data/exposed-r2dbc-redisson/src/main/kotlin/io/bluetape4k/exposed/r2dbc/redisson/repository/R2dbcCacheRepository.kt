@@ -1,8 +1,8 @@
 package io.bluetape4k.exposed.r2dbc.redisson.repository
 
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.redis.redisson.coroutines.coAwait
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.flow.toList
@@ -35,7 +35,7 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
 
     val cache: RMap<ID, T?>
 
-    suspend fun exists(id: ID): Boolean = cache.containsKeyAsync(id).coAwait()
+    suspend fun exists(id: ID): Boolean = cache.containsKeyAsync(id).suspendAwait()
 
     suspend fun findFreshById(id: ID): T? =
         entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
@@ -54,18 +54,18 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
         where: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE },
     ): List<T>
 
-    suspend fun get(id: ID): T? = cache.getAsync(id).coAwait()
+    suspend fun get(id: ID): T? = cache.getAsync(id).suspendAwait()
     suspend fun getAll(ids: Collection<ID>, batchSize: Int = DefaultBatchSize): List<T>
 
-    suspend fun put(entity: T): Boolean? = cache.fastPutAsync(entity.id, entity).coAwait()
+    suspend fun put(entity: T): Boolean? = cache.fastPutAsync(entity.id, entity).suspendAwait()
     suspend fun putAll(entities: Collection<T>, batchSize: Int = DefaultBatchSize) {
-        cache.putAllAsync(entities.associateBy { it.id }, batchSize).coAwait()
+        cache.putAllAsync(entities.associateBy { it.id }, batchSize).suspendAwait()
     }
 
-    suspend fun invalidate(vararg ids: ID): Long = cache.fastRemoveAsync(*ids).coAwait()
-    suspend fun invalidateAll(): Boolean = cache.clearAsync().coAwait()
+    suspend fun invalidate(vararg ids: ID): Long = cache.fastRemoveAsync(*ids).suspendAwait()
+    suspend fun invalidateAll(): Boolean = cache.clearAsync().suspendAwait()
     suspend fun invalidateByPattern(patterns: String, count: Int = DefaultBatchSize): Long {
         val keys = cache.keySet(patterns, count)
-        return cache.fastRemoveAsync(*keys.toTypedArray()).coAwait()
+        return cache.fastRemoveAsync(*keys.toTypedArray()).suspendAwait()
     }
 }
