@@ -8,9 +8,11 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 
+@Disabled("Use InMemorySuspendBloomFilterTest instead")
 class InMemoryCoBloomFilterTest {
 
     companion object: KLoggingChannel() {

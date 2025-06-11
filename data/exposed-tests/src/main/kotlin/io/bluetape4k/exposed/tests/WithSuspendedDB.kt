@@ -11,6 +11,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTrans
 import org.jetbrains.exposed.v1.jdbc.transactions.transactionManager
 import kotlin.coroutines.CoroutineContext
 
+@Suppress("DEPRECATION")
 suspend fun withSuspendedDb(
     testDB: TestDB,
     context: CoroutineContext? = Dispatchers.IO,

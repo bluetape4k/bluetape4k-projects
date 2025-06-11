@@ -10,9 +10,11 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 
+@Disabled("Use RedissonSuspendBloomFilterTest instead")
 class RedissonCoBloomFilterTest: AbstractRedissonTest() {
 
     companion object: KLoggingChannel() {
@@ -61,5 +63,4 @@ class RedissonCoBloomFilterTest: AbstractRedissonTest() {
             .any { bloomFilter.contains(it) }
             .shouldBeFalse()
     }
-
 }

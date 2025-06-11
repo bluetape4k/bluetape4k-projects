@@ -46,7 +46,6 @@ inline fun poolingHttpClientConnectionManager(
 fun poolingHttpClientConnectionManagerOf(): PoolingHttpClientConnectionManager =
     poolingHttpClientConnectionManager { }
 
-
 /**
  * [PoolingHttpClientConnectionManager] 를 생성합니다.
  */
@@ -59,15 +58,25 @@ fun poolingHttpClientConnectionManagerOf(
     dnsResolver: DnsResolver? = null,
     connFactory: HttpConnectionFactory<ManagedHttpClientConnection>? = null,
 ): PoolingHttpClientConnectionManager =
-    PoolingHttpClientConnectionManager(
-        socketFactoryRegistry,
-        poolConcurrencyPolicy,
-        poolReusePolicy,
-        timeToLive,
-        schemePortResolver,
-        dnsResolver,
-        connFactory
-    )
+    poolingHttpClientConnectionManager {
+        // .setSocketFactoryRegistry(socketFactoryRegistry)
+        setPoolConcurrencyPolicy(poolConcurrencyPolicy)
+        setConnPoolPolicy(poolReusePolicy)
+        // .setTimeToLive(timeToLive)
+        setSchemePortResolver(schemePortResolver)
+        setDnsResolver(dnsResolver)
+
+        connFactory?.let { setConnectionFactory(it) }
+    }
+//    PoolingHttpClientConnectionManager(
+//        socketFactoryRegistry,
+//        poolConcurrencyPolicy,
+//        poolReusePolicy,
+//        timeToLive,
+//        schemePortResolver,
+//        dnsResolver,
+//        connFactory
+//    )
 
 /**
  * [PoolingHttpClientConnectionManager] 를 생성합니다.
@@ -94,9 +103,9 @@ fun poolingHttpClientConnectionManagerOf(
         setDnsResolver(dnsResolver)
         setConnectionFactory(connFactory)
 
-        maxConnTotal?.run { setMaxConnTotal(maxConnTotal) }
-        maxConnPerRoute?.run { setMaxConnPerRoute(maxConnPerRoute) }
-        socketConfigResolver?.run { setSocketConfigResolver(socketConfigResolver) }
+        maxConnTotal?.let { setMaxConnTotal(it) }
+        maxConnPerRoute?.let { setMaxConnPerRoute(it) }
+        socketConfigResolver?.let { setSocketConfigResolver(it) }
 
         setDefaultConnectionConfig(connectionConfig)
         setDefaultSocketConfig(socketConfig)

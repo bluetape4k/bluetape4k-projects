@@ -48,7 +48,7 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.coSelect(
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelect(cql: String): List<T> =
     suspendSelect(statementOf(cql))
 
-@Deprecated("Use suspendSelect with cql instead", ReplaceWith("suspendSelect(cql)"))
+@Deprecated("Use suspendSelect with cql instead", ReplaceWith("suspendSelect<T>(cql)"))
 suspend inline fun <reified T: Any> AsyncCassandraOperations.coSelect(cql: String): List<T> =
     coSelect(statementOf(cql))
 
@@ -59,7 +59,7 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelect(
     suspendSelect(statementOf(cql), consumer)
 }
 
-@Deprecated("Use suspendSelect with cql and consumer instead", ReplaceWith("suspendSelect(cql, consumer)"))
+@Deprecated("Use suspendSelect with cql and consumer instead", ReplaceWith("suspendSelect<T>(cql, consumer)"))
 suspend inline fun <reified T: Any> AsyncCassandraOperations.coSelect(
     cql: String,
     crossinline consumer: (T) -> Unit,
@@ -74,7 +74,7 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelect(
     select(query, { consumer(it) }, T::class.java).await()
 }
 
-@Deprecated("Use suspendSelect with query and consumer instead", ReplaceWith("suspendSelect(query, consumer)"))
+@Deprecated("Use suspendSelect with query and consumer instead", ReplaceWith("suspendSelect<T>(query, consumer)"))
 suspend inline fun <reified T: Any> AsyncCassandraOperations.coSelect(
     query: Query,
     crossinline consumer: (T) -> Unit,

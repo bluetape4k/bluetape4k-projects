@@ -29,10 +29,10 @@ class MeasuredCall<T: Any> internal constructor(
         val request = wrappedCall.request()
         try {
             val response = wrappedCall.execute()
-            metrics.measureRequestDuration(stopwatch.time, request, response, false)
+            metrics.measureRequestDuration(stopwatch.duration, request, response, false)
             return response
         } catch (e: Throwable) {
-            metrics.measureRequestException(stopwatch.time, request, e, false)
+            metrics.measureRequestException(stopwatch.duration, request, e, false)
             throw e
         }
     }
@@ -50,12 +50,12 @@ class MeasuredCall<T: Any> internal constructor(
         object: Callback<T> {
             val stopwatch = StopWatch.createStarted()
             override fun onResponse(call: Call<T>, response: Response<T>) {
-                metrics.measureRequestDuration(stopwatch.time, request, response, true)
+                metrics.measureRequestDuration(stopwatch.duration, request, response, true)
                 callback.onResponse(call, response)
             }
 
             override fun onFailure(call: Call<T>, error: Throwable) {
-                metrics.measureRequestException(stopwatch.time, request, error, true)
+                metrics.measureRequestException(stopwatch.duration, request, error, true)
                 callback.onFailure(call, error)
             }
         }

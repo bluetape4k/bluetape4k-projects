@@ -30,6 +30,7 @@ import java.util.concurrent.CompletionStage
  * @param loadAllIdsFromDB 모든 ID를 로드하는 함수
  * @param scope CoroutineScope
  */
+@Suppress("DEPRECATION")
 open class SuspendedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
     private val loadByIdFromDB: suspend (ID) -> E?,
     private val loadAllIdsFromDB: suspend (channel: Channel<ID>) -> Unit,
