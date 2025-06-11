@@ -1,5 +1,3 @@
-import jdk.tools.jlink.resources.plugins
-
 plugins {
     id(Plugins.quarkus)
     kotlin("plugin.allopen")
