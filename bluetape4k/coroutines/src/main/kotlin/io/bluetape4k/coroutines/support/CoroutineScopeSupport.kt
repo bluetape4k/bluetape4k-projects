@@ -24,5 +24,6 @@ import kotlinx.coroutines.CoroutineScope
  * }.join()
  * ```
  */
+@Deprecated(message = "제대로 된 Id 값이라 볼 수 없다. SnowflakeId 같은 것을 사용하세요")
 val CoroutineScope.currentCoroutineId: Long
     get() = this.coroutineContext.hashCode().toLong()

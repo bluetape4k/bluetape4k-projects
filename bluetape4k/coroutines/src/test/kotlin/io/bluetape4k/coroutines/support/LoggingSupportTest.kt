@@ -41,7 +41,7 @@ class LoggingSupportTest {
 
         scope
             .launch {
-                coLogging { "Hello world!" }
+                suspendLogging { "Hello world!" }
             }
             .join()
 

@@ -1,7 +1,6 @@
 package io.bluetape4k.coroutines.support
 
 import kotlinx.atomicfu.atomic
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.buffer
@@ -16,6 +15,7 @@ import java.util.stream.IntStream
 import java.util.stream.LongStream
 import java.util.stream.Stream
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * Java Stream 을 [Flow] 처럼 사용합니다.
@@ -32,8 +32,7 @@ fun <T> Stream<T>.asFlow(): Flow<T> = consumeAsFlow()
  *
  * ```
  * val stream = Stream.of(1, 2, 3)
- * stream.consumeAsFlow()
- *    .collect { println(it) }  // 1, 2, 3
+ * stream.suspendForEach { delay(10); println(it) }  // 1, 2, 3
  * ```
  *
  * @see [consumeAsFlow]
@@ -41,8 +40,22 @@ fun <T> Stream<T>.asFlow(): Flow<T> = consumeAsFlow()
  * @param coroutineContext [CoroutineContext] 인스턴스
  * @param consumer 요소를 처리하는 suspend 함수
  */
+suspend fun <T> Stream<T>.suspendForEach(
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
+    consumer: suspend (T) -> Unit,
+) {
+    consumeAsFlow()
+        .buffer()
+        .flowOn(coroutineContext)
+        .collect { consumer(it) }
+}
+
+@Deprecated(
+    message = "Use suspendForEach instead",
+    replaceWith = ReplaceWith("suspendForEach(coroutineContext, consumer)")
+)
 suspend fun <T> Stream<T>.coForEach(
-    coroutineContext: CoroutineContext = Dispatchers.Default,
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
     consumer: suspend (T) -> Unit,
 ) {
     consumeAsFlow()
@@ -56,7 +69,7 @@ suspend fun <T> Stream<T>.coForEach(
  *
  * ```
  * val stream = Stream.of(1, 2, 3)
- * val flow = stream.coMap { it * 2 }
+ * val flow = stream.suspendMap { it * 2 }
  * flow.collect { println(it) }  // 2, 4, 6
  * ```
  *
@@ -66,8 +79,22 @@ suspend fun <T> Stream<T>.coForEach(
  * @param transform 요소를 변환하는 suspend 함수
  * @return [Flow] 인스턴스
  */
+inline fun <T, R> Stream<T>.suspendMap(
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
+    crossinline transform: suspend (T) -> R,
+): Flow<R> = channelFlow {
+    consumeAsFlow()
+        .buffer()
+        .flowOn(coroutineContext)
+        .collect { send(transform(it)) }
+}
+
+@Deprecated(
+    message = "Use suspendMap instead",
+    replaceWith = ReplaceWith("suspendMap(coroutineContext, transform)")
+)
 inline fun <T, R> Stream<T>.coMap(
-    coroutineContext: CoroutineContext = Dispatchers.Default,
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
     crossinline transform: suspend (T) -> R,
 ): Flow<R> = channelFlow {
     consumeAsFlow()
@@ -91,14 +118,29 @@ fun IntStream.asFlow(): Flow<Int> = consumeAsFlow()
  *
  * ```
  * val stream = IntStream.range(1, 4)
- * stream.coForEach { delay(10); println(it) }  // 1, 2, 3
+ * stream.suspendForEach { delay(10); println(it) }  // 1, 2, 3
  * ```
  *
  * @param coroutineContext [CoroutineContext] 인스턴스
  * @param consumer 요소를 처리하는 suspend 함수
  */
+suspend inline fun IntStream.suspendForEach(
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
+    crossinline consumer: suspend (Int) -> Unit,
+) {
+    consumeAsFlow()
+        .buffer()
+        .flowOn(coroutineContext)
+        .onEach { consumer(it) }
+        .collect()
+}
+
+@Deprecated(
+    message = "Use suspendForEach instead",
+    replaceWith = ReplaceWith("suspendForEach(coroutineContext, consumer)")
+)
 suspend inline fun IntStream.coForEach(
-    coroutineContext: CoroutineContext = Dispatchers.Default,
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
     crossinline consumer: suspend (Int) -> Unit,
 ) {
     consumeAsFlow()
@@ -113,7 +155,7 @@ suspend inline fun IntStream.coForEach(
  *
  * ```
  * val stream = IntStream.range(1, 4)
- * val flow = stream.coMap { delay(1); it * 2 }
+ * val flow = stream.suspendMap { delay(1); it * 2 }
  * flow.collect { println(it) }  // 2, 4, 6
  * ```
  *
@@ -121,8 +163,23 @@ suspend inline fun IntStream.coForEach(
  * @param transform 요소를 변환하는 suspend 함수
  * @return [Flow] 인스턴스
  */
+inline fun <R> IntStream.suspendMap(
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
+    crossinline transform: suspend (Int) -> R,
+): Flow<R> = channelFlow {
+    consumeAsFlow()
+        .buffer()
+        .flowOn(coroutineContext)
+        .onEach { send(transform(it)) }
+        .collect()
+}
+
+@Deprecated(
+    message = "Use suspendMap instead",
+    replaceWith = ReplaceWith("suspendMap(coroutineContext, transform)")
+)
 inline fun <R> IntStream.coMap(
-    coroutineContext: CoroutineContext = Dispatchers.Default,
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
     crossinline transform: suspend (Int) -> R,
 ): Flow<R> = channelFlow {
     consumeAsFlow()
@@ -162,14 +219,29 @@ fun LongStream.asFlow(): Flow<Long> = consumeAsFlow()
  *
  * ```
  * val stream = LongStream.range(1, 4)
- * stream.coForEach { delay(10); println(it) }  // 1, 2, 3
+ * stream.suspendForEach { delay(10); println(it) }  // 1, 2, 3
  * ```
  *
  * @param coroutineContext [CoroutineContext] 인스턴스
  * @param consumer 요소를 처리하는 suspend 함수
  */
+suspend inline fun LongStream.suspendForEach(
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
+    crossinline consumer: suspend (Long) -> Unit,
+) {
+    consumeAsFlow()
+        .buffer()
+        .flowOn(coroutineContext)
+        .onEach { consumer(it) }
+        .collect()
+}
+
+@Deprecated(
+    message = "Use suspendForEach instead",
+    replaceWith = ReplaceWith("suspendForEach(coroutineContext, consumer)")
+)
 suspend inline fun LongStream.coForEach(
-    coroutineContext: CoroutineContext = Dispatchers.Default,
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
     crossinline consumer: suspend (Long) -> Unit,
 ) {
     consumeAsFlow()
@@ -192,8 +264,23 @@ suspend inline fun LongStream.coForEach(
  * @param transform 요소를 변환하는 suspend 함수
  * @return [Flow] 인스턴스
  */
+inline fun <R> LongStream.suspendMap(
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
+    crossinline transform: suspend (Long) -> R,
+): Flow<R> = channelFlow {
+    consumeAsFlow()
+        .buffer()
+        .flowOn(coroutineContext)
+        .onEach { send(transform(it)) }
+        .collect()
+}
+
+@Deprecated(
+    message = "Use suspendMap instead",
+    replaceWith = ReplaceWith("suspendMap(coroutineContext, transform)")
+)
 inline fun <R> LongStream.coMap(
-    coroutineContext: CoroutineContext = Dispatchers.Default,
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
     crossinline transform: suspend (Long) -> R,
 ): Flow<R> = channelFlow {
     consumeAsFlow()
@@ -233,15 +320,30 @@ fun DoubleStream.asFlow(): Flow<Double> = consumeAsFlow()
  *
  * ```
  * val stream = DoubleStream.of(1.0, 2.0, 3.0)
- * stream.coForEach { delay(10); println(it) }  // 1.0, 2.0, 3.0
+ * stream.suspendForEach { delay(10); println(it) }  // 1.0, 2.0, 3.0
  * ```
  *
  * @param coroutineContext [CoroutineContext] 인스턴스
  * @param consumer 요소를 처리하는 suspend 함수
  * @receiver [DoubleStream] 인스턴스
  */
+suspend inline fun DoubleStream.suspendForEach(
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
+    crossinline consumer: suspend (Double) -> Unit,
+) {
+    consumeAsFlow()
+        .buffer()
+        .flowOn(coroutineContext)
+        .onEach { consumer(it) }
+        .collect()
+}
+
+@Deprecated(
+    message = "Use suspendForEach instead",
+    replaceWith = ReplaceWith("suspendForEach(coroutineContext, consumer)")
+)
 suspend inline fun DoubleStream.coForEach(
-    coroutineContext: CoroutineContext = Dispatchers.Default,
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
     crossinline consumer: suspend (Double) -> Unit,
 ) {
     consumeAsFlow()
@@ -267,8 +369,23 @@ suspend inline fun DoubleStream.coForEach(
  * @receiver [DoubleStream] 인스턴스
  * @return [Flow] 인스턴스
  */
+inline fun <R> DoubleStream.suspendMap(
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
+    crossinline mapper: suspend (Double) -> R,
+): Flow<R> = channelFlow {
+    consumeAsFlow()
+        .buffer()
+        .flowOn(coroutineContext)
+        .onEach { send(mapper(it)) }
+        .collect()
+}
+
+@Deprecated(
+    message = "Use suspendMap instead",
+    replaceWith = ReplaceWith("suspendMap(coroutineContext, mapper)")
+)
 inline fun <R> DoubleStream.coMap(
-    coroutineContext: CoroutineContext = Dispatchers.Default,
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
     crossinline mapper: suspend (Double) -> R,
 ): Flow<R> = channelFlow {
     consumeAsFlow()

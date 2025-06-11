@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.coroutines.dispatchers
 
-import io.bluetape4k.coroutines.support.coLogging
 import io.bluetape4k.coroutines.support.log
+import io.bluetape4k.coroutines.support.suspendLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -41,7 +41,7 @@ class DispatcherExamples {
                 // thread 는 cpu core 수 만큼 사용한다 
                 // thread name 에 @coroutine#number 가 붙는다 
                 val threadName = Thread.currentThread().name
-                coLogging { "Running on thread $threadName" }
+                suspendLogging { "Running on thread $threadName" }
             }
         }.joinAll()
     }
@@ -56,7 +56,7 @@ class DispatcherExamples {
                 // Dispatchers.IO 를 지정하면 DefaultDispatcher-worker-1 @coroutine#2 형태로 나타납니다.
                 launch(Dispatchers.IO) {
                     val threadName = Thread.currentThread().name
-                    coLogging { "thread name=$threadName" }
+                    suspendLogging { "thread name=$threadName" }
                     threadName shouldContain "DefaultDispatcher-worker"
                 }.log("IO")
             } finally {
@@ -82,7 +82,7 @@ class DispatcherExamples {
                 delay(Random.nextLong(100, 200))
 
                 val threadName = Thread.currentThread().name
-                coLogging { "Running on thread $threadName" }
+                suspendLogging { "Running on thread $threadName" }
             }
         }
         jobs.joinAll()
@@ -97,7 +97,7 @@ class DispatcherExamples {
                 launch(parallel) {
                     delay(Random.nextLong(100, 200))
                     val threadName = Thread.currentThread().name
-                    coLogging { "Running on thread $threadName" }
+                    suspendLogging { "Running on thread $threadName" }
                 }
             }.joinAll()
         }
@@ -114,7 +114,7 @@ class DispatcherExamples {
             val jobs = List(REPEAT_SIZE) {
                 launch(dispatcher) {
                     counter.incrementAndGet()
-                    coLogging { "count=${counter.value}, thread=${Thread.currentThread().name}" }
+                    suspendLogging { "count=${counter.value}, thread=${Thread.currentThread().name}" }
                 }
             }
             jobs.joinAll()
@@ -140,21 +140,21 @@ class DispatcherExamples {
 
             // `Dispatchers.Unconfined` 를 사용하면 suspend 후 다른 Thread에서 실행됩니다.
             launch(Dispatchers.Unconfined) {
-                coLogging { "thread=" + Thread.currentThread().name }   // Name 1
+                suspendLogging { "thread=" + Thread.currentThread().name }   // Name 1
                 Thread.currentThread().name shouldContain "Name1"
 
                 suspendCoroutine { cont ->
                     continuation = cont
                 }
 
-                coLogging { "thread=" + Thread.currentThread().name }   // Name 2
+                suspendLogging { "thread=" + Thread.currentThread().name }   // Name 2
                 Thread.currentThread().name shouldContain "Name2"
 
                 // Name2 job 종료
                 delay(100)
                 job2.join()
 
-                coLogging { "thread=" + Thread.currentThread().name }   // DefaultExecutor
+                suspendLogging { "thread=" + Thread.currentThread().name }   // DefaultExecutor
                 Thread.currentThread().name shouldContain "DefaultExecutor"
             }.log("Unconfined")
                 .join()

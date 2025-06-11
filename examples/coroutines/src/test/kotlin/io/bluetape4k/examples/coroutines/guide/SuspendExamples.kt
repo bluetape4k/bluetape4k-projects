@@ -38,7 +38,7 @@ class SuspendExamples {
                 executeAsync(delayMillis)
                     .onSuccess { result ->
                         log.trace { "Completed result=$result" }
-                        cont.resume(result) { cancellation ->
+                        cont.resume(result) { cancellation, _, _ ->
                             log.trace { "Cancel suspend" }
                             cont.cancel(cancellation)
                         }

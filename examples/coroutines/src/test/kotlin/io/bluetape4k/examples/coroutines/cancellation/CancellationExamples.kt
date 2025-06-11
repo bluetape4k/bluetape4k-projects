@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.coroutines.cancellation
 
-import io.bluetape4k.coroutines.support.coLogging
 import io.bluetape4k.coroutines.support.log
+import io.bluetape4k.coroutines.support.suspendLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
@@ -125,7 +125,7 @@ class CancellationExamples {
             while (isActive) {
                 delay(100)         // delay 나 yield 로 suspend point 를 줘야 `isActive` 를 조회할 수 있다
                 counter.incrementAndGet()
-                coLogging { "[#1] Printing. count=${counter.value}" }
+                suspendLogging { "[#1] Printing. count=${counter.value}" }
             }
         }.log("#1")
 

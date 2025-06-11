@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.coroutines.guide
 
-import io.bluetape4k.coroutines.support.coLogging
 import io.bluetape4k.coroutines.support.log
+import io.bluetape4k.coroutines.support.suspendLogging
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -52,11 +52,11 @@ class CoroutineContextExamples {
         fun `CoroutineScope 상속하기`() = runTest(CoroutineName("test")) {
             val activity = Activity()
 
-            coLogging { "Launched coroutines ..." }
+            suspendLogging { "Launched coroutines ..." }
             activity.doSomething()
             delay(10)
 
-            coLogging { "Destroying activity..." }
+            suspendLogging { "Destroying activity..." }
             activity.destroy()      // cancel all child coroutines
         }
     }
@@ -65,24 +65,24 @@ class CoroutineContextExamples {
     inner class Context8 {
         @Test
         fun `run two coroutines with name`() = runTest(CoroutineName("main")) {
-            coLogging { "Started main coroutine" }
+            suspendLogging { "Started main coroutine" }
 
             val v1 = async(CoroutineName("v1")) {
-                coLogging { "Starting v1" }
+                suspendLogging { "Starting v1" }
                 delay(Random.nextLong(10))
-                coLogging { "Computing v1" }
+                suspendLogging { "Computing v1" }
                 252
             }.log("coroutines 1")
 
             val v2 = async(CoroutineName("v2")) {
-                coLogging { "Starting v2" }
+                suspendLogging { "Starting v2" }
                 delay(Random.nextLong(20))
-                coLogging { "Computing v2" }
+                suspendLogging { "Computing v2" }
                 6
             }.log("coroutines 2")
 
             val result = v1.await() / v2.await()
-            coLogging { "The answer for v1 / v2 = $result" }
+            suspendLogging { "The answer for v1 / v2 = $result" }
         }
     }
 
