@@ -561,15 +561,15 @@ subprojects {
         testImplementation(Libs.random_beans)
     }
 
-    tasks.withType<Jar> {
-        manifest.attributes["Specification-Title"] = project.name
-        manifest.attributes["Specification-Version"] = project.version
-        manifest.attributes["Implementation-Title"] = project.name
-        manifest.attributes["Implementation-Version"] = project.version
-        manifest.attributes["Automatic-Module-Name"] = project.name.replace('-', '.')
-        manifest.attributes["Created-By"] =
-            "${System.getProperty("java.version")} (${System.getProperty("java.specification.vendor")})"
-    }
+//    tasks.withType<Jar> {
+//        manifest.attributes["Specification-Title"] = project.name
+//        manifest.attributes["Specification-Version"] = project.version
+//        manifest.attributes["Implementation-Title"] = project.name
+//        manifest.attributes["Implementation-Version"] = project.version
+//        manifest.attributes["Automatic-Module-Name"] = project.name.replace('-', '.')
+//        manifest.attributes["Created-By"] =
+//            "${System.getProperty("java.version")} (${System.getProperty("java.specification.vendor")})"
+//    }
 
     /*
         1. mavenLocal 에 publish 시에는 ./gradlew publishMavenPublicationToMavenLocalRepository 를 수행

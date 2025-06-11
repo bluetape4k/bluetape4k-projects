@@ -32,18 +32,18 @@ includeModules("vertx", withBaseDir = true)
 // Examples (library style examples)
 includeModules("examples", withProjectName = true, withBaseDir = true)
 
-// Workshop (application style examples)
+// Workshop (application style examples) --> moved to bluetape4k-workshop
 //
-//includeModules("workshop/docker", false, false)
-//includeModules("workshop/kafka", false, false)
+// includeModules("workshop/docker", false, false)
+// includeModules("workshop/kafka", false, false)
 //
-//includeModules("workshop/ratelimiter", false, false)
+// includeModules("workshop/ratelimiter", false, false)
 includeModules("workshop/quarkus", false, false)
-includeModules("workshop/spring-boot", false, false)
-//includeModules("workshop/spring-cloud", false, false)
-includeModules("workshop/spring-data", false, false)
-//includeModules("workshop/spring-security", false, false)
-includeModules("workshop/vertx", false, false)
+// includeModules("workshop/spring-boot", false, false)
+// includeModules("workshop/spring-cloud", false, false)
+// includeModules("workshop/spring-data", false, false)
+// includeModules("workshop/spring-security", false, false)
+// includeModules("workshop/vertx", false, false)
 
 fun includeModules(baseDir: String, withProjectName: Boolean = true, withBaseDir: Boolean = true) {
     files("$rootDir/$baseDir").files
