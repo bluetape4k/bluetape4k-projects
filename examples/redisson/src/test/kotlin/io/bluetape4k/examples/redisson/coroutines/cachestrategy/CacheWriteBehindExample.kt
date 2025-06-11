@@ -29,6 +29,7 @@ import org.redisson.api.options.MapCacheOptions
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 
+@Suppress("DEPRECATION")
 class CacheWriteBehindExample: AbstractCacheExample() {
 
     companion object: KLoggingChannel() {

@@ -7,7 +7,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.RepeatedTest
 
-class RedisFutureSupportTest: AbstractLettuceTest() {
+class AsyncCommandsTest: AbstractLettuceTest() {
 
     companion object: KLogging() {
         private const val REPEAT_SIZE = 3

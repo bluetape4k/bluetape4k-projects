@@ -1,6 +1,8 @@
 package io.bluetape4k.vertx.sqlclient.tests
 
 import io.bluetape4k.vertx.sqlclient.withRollbackSuspending
+import io.bluetape4k.vertx.sqlclient.withSuspendRollback
+import io.bluetape4k.vertx.sqlclient.withSuspendTransaction
 import io.bluetape4k.vertx.sqlclient.withTransactionSuspending
 import io.vertx.core.Vertx
 import io.vertx.junit5.VertxTestContext
@@ -13,7 +15,7 @@ import io.vertx.sqlclient.SqlConnection
  * ```
  * val pool = JDBCPool.create(vertx)    // MySQLClient.create(vertx)
  *
- * vertx.testWithTransactionSuspending(testContext, pool) { conn ->
+ * vertx.testWithSuspendTransaction(testContext, pool) { conn ->
  *    val rows = conn.query("select * from Person where id=#{id}")
  *      .execute(mapOf("id" to 1))
  *      .coAwait()
@@ -24,6 +26,24 @@ import io.vertx.sqlclient.SqlConnection
  * @param pool Sql Client Pool
  * @param block Transactional 작업
  */
+@Suppress("UnusedReceiverParameter")
+suspend fun Vertx.testWithSuspendTransaction(
+    testContext: VertxTestContext,
+    pool: Pool,
+    @BuilderInference block: suspend (conn: SqlConnection) -> Unit,
+) {
+    try {
+        pool.withSuspendTransaction(block)
+        testContext.completeNow()
+    } catch (e: Throwable) {
+        testContext.failNow(e)
+    }
+}
+
+@Deprecated(
+    message = "Use testWithSuspendTransaction instead",
+    replaceWith = ReplaceWith("testWithSuspendTransaction(testContext, pool, block)")
+)
 @Suppress("UnusedReceiverParameter")
 suspend fun Vertx.testWithTransactionSuspending(
     testContext: VertxTestContext,
@@ -45,7 +65,7 @@ suspend fun Vertx.testWithTransactionSuspending(
  * ```
  * val pool = JDBCPool.create(vertx)    // MySQLClient.create(vertx)
  *
- * vertx.testWithRollbackSuspending(testContext, pool) { conn ->
+ * vertx.testWithSuspendRollback(testContext, pool) { conn ->
  *    val rows = conn.query("select * from Person where id=#{id}")
  *      .execute(mapOf("id" to 1))
  *      .coAwait()
@@ -56,6 +76,24 @@ suspend fun Vertx.testWithTransactionSuspending(
  * @param pool Sql Client Pool
  * @param block Transactional 작업
  */
+@Suppress("UnusedReceiverParameter")
+suspend fun Vertx.testWithSuspendRollback(
+    testContext: VertxTestContext,
+    pool: Pool,
+    @BuilderInference block: suspend (conn: SqlConnection) -> Unit,
+) {
+    try {
+        pool.withSuspendRollback(block)
+        testContext.completeNow()
+    } catch (e: Throwable) {
+        testContext.failNow(e)
+    }
+}
+
+@Deprecated(
+    message = "Use testWithSuspendRollback instead",
+    replaceWith = ReplaceWith("testWithSuspendRollback(testContext, pool, block)")
+)
 @Suppress("UnusedReceiverParameter")
 suspend fun Vertx.testWithRollbackSuspending(
     testContext: VertxTestContext,

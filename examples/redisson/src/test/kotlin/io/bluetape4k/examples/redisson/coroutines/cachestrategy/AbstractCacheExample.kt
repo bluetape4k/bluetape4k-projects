@@ -33,6 +33,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 
+@Suppress("DEPRECATION")
 @SpringBootTest(
     classes = [CacheApplication::class],
     properties = [

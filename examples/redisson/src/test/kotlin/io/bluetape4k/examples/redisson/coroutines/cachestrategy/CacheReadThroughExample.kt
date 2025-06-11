@@ -31,6 +31,7 @@ import org.redisson.api.options.MapCacheOptions
 import java.time.Duration
 import kotlin.system.measureTimeMillis
 
+@Suppress("DEPRECATION")
 class CacheReadThroughExample: AbstractCacheExample() {
 
     companion object: KLoggingChannel() {

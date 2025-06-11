@@ -18,7 +18,7 @@ suspend inline fun RedissonClient.withSuspendedBatch(
     options: BatchOptions = BatchOptions.defaults(),
     action: RBatch.() -> Unit,
 ): BatchResult<*> =
-    createBatch(options).apply(action).executeAsync().coAwait()
+    createBatch(options).apply(action).executeAsync().suspendAwait()
 
 /**
  * Redisson 작업을 Coroutines 환경에서 Batch 모드에서 실행하도록 합니다.
@@ -31,7 +31,7 @@ suspend inline fun RedissonClient.withBatchSuspending(
     options: BatchOptions = BatchOptions.defaults(),
     action: RBatch.() -> Unit,
 ): BatchResult<*> =
-    createBatch(options).apply(action).executeAsync().coAwait()
+    createBatch(options).apply(action).executeAsync().suspendAwait()
 
 /**
  * Redisson 작업을 Coroutines 환경에서 Transaction model 에서 실행하도록 합니다.
@@ -43,9 +43,9 @@ suspend inline fun RedissonClient.withSuspendedTransaction(
     val tx: RTransaction = createTransaction(options)
     try {
         action(tx)
-        tx.commitAsync().coAwait()
+        tx.commitAsync().suspendAwait()
     } catch (e: TransactionException) {
-        runCatching { tx.rollbackAsync().coAwait() }
+        runCatching { tx.rollbackAsync().suspendAwait() }
         throw e
     }
 }
@@ -65,9 +65,9 @@ suspend inline fun RedissonClient.withTransactionSuspending(
     val tx: RTransaction = createTransaction(options)
     try {
         action(tx)
-        tx.commitAsync().coAwait()
+        tx.commitAsync().suspendAwait()
     } catch (e: TransactionException) {
-        runCatching { tx.rollbackAsync().coAwait() }
+        runCatching { tx.rollbackAsync().suspendAwait() }
         throw e
     }
 }

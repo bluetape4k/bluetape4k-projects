@@ -5,7 +5,7 @@ import io.bluetape4k.leader.coroutines.SuspendLeaderElection
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
-import io.bluetape4k.redis.redisson.coroutines.coAwait
+import io.bluetape4k.redis.redisson.coroutines.suspendAwait
 import io.bluetape4k.redis.redisson.leader.RedissonLeaderElectionOptions
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.uninitialized
@@ -69,7 +69,7 @@ class RedissonSuspendLeaderElection private constructor(
                 leaseTimeMills,
                 TimeUnit.MILLISECONDS,
                 lockId
-            ).coAwait()
+            ).suspendAwait()
 
             if (acquired) {
                 log.debug { "Leader로 승격되어 작업을 수행합니다. lock=$lockName, lockId=$lockId" }
@@ -77,7 +77,7 @@ class RedissonSuspendLeaderElection private constructor(
                     result = action()
                 } finally {
                     if (lock.isHeldByThread(lockId)) {
-                        lock.unlockAsync(lockId).coAwait()
+                        lock.unlockAsync(lockId).suspendAwait()
                         log.debug { "작업이 완료되어 Leader 권한을 반납했습니다. lock=$lockName, lockId=$lockId" }
                     }
                 }

@@ -9,7 +9,7 @@ import io.bluetape4k.vertx.sqlclient.mybatis.selectList
 import io.bluetape4k.vertx.sqlclient.mybatis.selectOne
 import io.bluetape4k.vertx.sqlclient.schema.PersonMapper
 import io.bluetape4k.vertx.sqlclient.schema.PersonSchema.person
-import io.bluetape4k.vertx.sqlclient.tests.testWithRollbackSuspending
+import io.bluetape4k.vertx.sqlclient.tests.testWithSuspendRollback
 import io.vertx.core.Vertx
 import io.vertx.junit5.VertxTestContext
 import io.vertx.sqlclient.SqlConnection
@@ -29,7 +29,7 @@ abstract class AbstractSubqueryTest: AbstractVertxSqlClientTest() {
 
     @Test
     fun `select not equal sub query`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-        vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+        vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
             val selectProvider = select(person.allColumns()) {
                 from(person)
                 where {
@@ -47,7 +47,7 @@ abstract class AbstractSubqueryTest: AbstractVertxSqlClientTest() {
 
     @Test
     fun `select equal sub query 2`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-        vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+        vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
             val selectProvider = select(person.allColumns()) {
                 from(person)
                 where {
@@ -71,7 +71,7 @@ abstract class AbstractSubqueryTest: AbstractVertxSqlClientTest() {
 
     @Test
     fun `in sub query`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-        vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+        vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
             val selectProvider = select(person.allColumns()) {
                 from(person)
                 where {
@@ -97,7 +97,7 @@ abstract class AbstractSubqueryTest: AbstractVertxSqlClientTest() {
 
     @Test
     fun `not in sub query`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-        vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+        vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
             val selectProvider = select(person.allColumns()) {
                 from(person)
                 where {
@@ -123,7 +123,7 @@ abstract class AbstractSubqueryTest: AbstractVertxSqlClientTest() {
 
     @Test
     fun `less than sub query`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-        vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+        vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
             val selectProvider = select(person.allColumns()) {
                 from(person)
                 where {
@@ -144,7 +144,7 @@ abstract class AbstractSubqueryTest: AbstractVertxSqlClientTest() {
 
     @Test
     fun `less than or equal sub query`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-        vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+        vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
             val selectProvider = select(person.allColumns()) {
                 from(person)
                 where {
@@ -167,7 +167,7 @@ abstract class AbstractSubqueryTest: AbstractVertxSqlClientTest() {
 
     @Test
     fun `greater than sub query`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-        vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+        vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
             val selectProvider = select(person.allColumns()) {
                 from(person)
                 where {
@@ -190,7 +190,7 @@ abstract class AbstractSubqueryTest: AbstractVertxSqlClientTest() {
 
     @Test
     fun `greater than or equal sub query`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-        vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+        vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
             val selectProvider = select(person.allColumns()) {
                 from(person)
                 where {

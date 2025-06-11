@@ -13,7 +13,7 @@ import io.bluetape4k.vertx.sqlclient.schema.PersonMapper
 import io.bluetape4k.vertx.sqlclient.schema.PersonSchema.address
 import io.bluetape4k.vertx.sqlclient.schema.PersonSchema.person
 import io.bluetape4k.vertx.sqlclient.templates.toParameters
-import io.bluetape4k.vertx.sqlclient.tests.testWithRollbackSuspending
+import io.bluetape4k.vertx.sqlclient.tests.testWithSuspendRollback
 import io.vertx.core.Vertx
 import io.vertx.junit5.VertxTestContext
 import io.vertx.sqlclient.SqlConnection
@@ -57,7 +57,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
     inner class CountTest {
         @Test
         fun `raw count`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val countStatement = countFrom(person) {
                     where { person.id isLessThan 3 }
                 }.renderForVertx()
@@ -72,7 +72,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `raw count all rows`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val countStatement = countFrom(person) {
                     allRows()
                 }.renderForVertx()
@@ -87,7 +87,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `raw count last name`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val countStatement = count(person.lastName) {
                     from(person)
                 }.renderForVertx()
@@ -102,7 +102,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `raw count distinct last name`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val countStatement = countDistinct(person.lastName) {
                     from(person)
                 }.renderForVertx()
@@ -121,7 +121,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `delete by id`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val deleteProvider = deleteFrom(person) {
                     where { person.id isLessThan 3 }
                 }.renderForVertx()
@@ -136,7 +136,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `delete 2`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val deleteProvider = deleteFrom(person) {
                     where {
                         person.id isLessThan 4
@@ -154,7 +154,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `delete 3`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val deleteProvider = deleteFrom(person) {
                     where {
                         person.id isLessThan 4
@@ -172,7 +172,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `delete 4`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val deleteProvider = deleteFrom(person) {
                     where {
                         group {
@@ -196,7 +196,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `delete 5`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val deleteProvider = deleteFrom(person) {
                     where {
                         person.id isLessThan 4
@@ -219,7 +219,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `delete 6`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val deleteProvider = deleteFrom(person) {
                     where {
                         person.id isLessThan 4
@@ -246,7 +246,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `insert record`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val record = Person(100, "Joe", "Jones", LocalDate.now(), true, "Developer", 1)
 
                 val insertProvider = insert(record) {
@@ -273,7 +273,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `insert into`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val insertProvider = insertInto(person) {
                     set(person.id) toConstant "100"                     // literal
                     set(person.firstName) toStringConstant "Joe"        // literal
@@ -303,7 +303,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `general insert special conditions`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val insertProvider = insertInto(person) {
                     set(person.id) toConstant "100"                     // literal
                     set(person.firstName) toStringConstant "Joe"        // literal
@@ -331,7 +331,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `insert multi records`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val record1 = Person(100, "Joe", "Jones", LocalDate.now(), true, "Developer", 1)
                 val record2 = Person(101, "Sarah", "Smith", LocalDate.now(), true, "Architect", 2)
 
@@ -361,7 +361,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `batch insert by batchInsert`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val record1 = Person(100, "Joe", "Jones", LocalDate.now(), true, "Developer", 1)
                 val record2 = Person(101, "Sarah", "Smith", LocalDate.now(), true, "Architect", 2)
 
@@ -385,7 +385,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `batch insert direct`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val record1 = Person(100, "Joe", "Jones", LocalDate.now(), true, "Developer", 1)
                 val record2 = Person(101, "Sarah", "Smith", LocalDate.now(), true, "Architect", 2)
 
@@ -407,7 +407,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `insert select`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val insertProvider = insertSelect {
                     into(person)
                     columns(
@@ -455,7 +455,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `insert select no columns`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) {
+            vertx.testWithSuspendRollback(testContext, pool) {
                 assertFailsWith<KInvalidSQLException> {
                     insertSelect {
                         // columns(person.id, person.firstName, person.lastName, person.birthDate, person.employed, person.occupation, person.addressId)
@@ -478,7 +478,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `insert select no select statement`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) {
+            vertx.testWithSuspendRollback(testContext, pool) {
                 assertFailsWith<KInvalidSQLException> {
                     insertSelect {
                         into(person)
@@ -502,7 +502,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `batch insert no table`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
 
                 val record1 = Person(100, "Joe", "Jones", LocalDate.now(), true, "Developer", 1)
                 val record2 = Person(101, "Sarah", "Smith", LocalDate.now(), true, "Architect", 2)
@@ -520,7 +520,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `insert record no table`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) {
+            vertx.testWithSuspendRollback(testContext, pool) {
                 val record = Person(100, "Joe", "Jones", LocalDate.now(), true, "Developer", 1)
 
                 assertFailsWith<KInvalidSQLException> {
@@ -536,7 +536,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `insert multi records no table`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) {
+            vertx.testWithSuspendRollback(testContext, pool) {
                 val record1 = Person(100, "Joe", "Jones", LocalDate.now(), true, "Developer", 1)
                 val record2 = Person(101, "Sarah", "Smith", LocalDate.now(), true, "Architect", 2)
 
@@ -557,7 +557,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `general insert with generated key`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val insertProvider: GeneralInsertStatementProvider = insertInto(generatedAlways) {
                     set(generatedAlways.firstName) toValue "Fred"
                     set(generatedAlways.lastName) toValue "Flintstone"
@@ -579,7 +579,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `insert select with generated key`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val insertProvider: InsertSelectStatementProvider = insertSelect {
                     into(generatedAlways)
                     columns(generatedAlways.firstName, generatedAlways.lastName)
@@ -608,7 +608,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `raw select`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val selectProvider = select(
                     person.id alias "A_ID",
                     person.firstName,
@@ -640,7 +640,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `raw select distinct`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val selectProvider = selectDistinct(person.lastName) {
                     from(person)
                 }.renderForVertx()
@@ -656,7 +656,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `raw select with missing record`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val selectProvider = select(person.allColumns()) {
                     from(person)
                     where { person.id isEqualTo -1 }
@@ -670,7 +670,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `raw select by primary key`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val selectProvider = select(person.allColumns()) {
                     from(person)
                     where { person.id isEqualTo 1 }
@@ -687,7 +687,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `raw select with union`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val selectProvider = select(person.allColumns()) {
                     from(person)
                     where { person.id isEqualTo 1 }
@@ -721,7 +721,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `raw select with union and alias`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val selectProvider = select(person.id alias "A_ID", person.firstName) {
                     from(person)
                     where { person.id isEqualTo 1 }
@@ -755,7 +755,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `raw select with union and distinct`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val selectProvider = select(person.id alias "A_ID", person.firstName) {
                     from(person)
                     where { person.id isEqualTo 1 }
@@ -789,7 +789,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `raw select with unionAll and distinct`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val selectProvider = select(person.id alias "A_ID", person.firstName) {
                     from(person)
                     where { person.id isEqualTo 1 }
@@ -823,7 +823,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `raw select with join`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val selectProvider = select(
                     person.id alias "A_ID",
                     person.firstName,
@@ -861,7 +861,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `raw select with complex where 1`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val selectProvider = select(person.allColumns()) {
                     from(person)
                     where {
@@ -894,7 +894,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `raw select with complex where 2`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val selectProvider = select(person.allColumns()) {
                     from(person)
                     where {
@@ -927,7 +927,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `raw select with complex where in`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val selectProvider = select(person.allColumns()) {
                     from(person)
                     where { person.id.isIn(1, 3, 4, 5) }
@@ -954,7 +954,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `raw update 1`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val updateProvider = update(person) {
                     set(person.lastName) equalTo "Smith"
                     where { person.firstName isEqualTo "Fred" }
@@ -974,7 +974,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `raw update 1 - one step`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val result = conn.update(person) {
                     set(person.lastName) equalTo "Smith"
                     where { person.firstName isEqualTo "Fred" }
@@ -985,7 +985,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `raw update 2`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val updateProvider = update(person) {
                     set(person.firstName) equalTo "Sam"
                     where {
@@ -1006,7 +1006,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `raw update 3`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val updateProvider = update(person) {
                     set(person.firstName) equalTo "Sam"
                     where {
@@ -1032,7 +1032,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `raw update 4`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val updateProvider = update(person) {
                     set(person.firstName) equalTo "Sam"
                     where {
@@ -1057,7 +1057,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `raw update 5`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val updateProvider = update(person) {
                     set(person.firstName) equalTo "Sam"
                     where {
@@ -1079,7 +1079,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `raw update 6`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val updateProvider = update(person) {
                     set(person.occupation) equalToOrNull null
                     where {
@@ -1103,7 +1103,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `raw update 6 - one step`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val result = conn.update(person) {
                     set(person.occupation) equalToOrNull null
                     where {
@@ -1118,7 +1118,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
         @Test
         fun `update with type converter and null value`(vertx: Vertx, testContext: VertxTestContext) =
             runSuspendIO {
-                vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+                vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                     val updateProvider = update(person) {
                         set(person.firstName) equalToOrNull "Sam"
                         set(person.lastName).equalToNull()
@@ -1150,7 +1150,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
         @Test
         fun `update with type converter and non null value`(vertx: Vertx, testContext: VertxTestContext) =
             runSuspendIO {
-                vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+                vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                     val updateProvider = update(person) {
                         set(person.firstName) equalTo "Sam"
                         set(person.lastName) equalTo "Smith"
@@ -1180,7 +1180,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `update set null`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val updateProvider = update(person) {
                     set(person.addressId).equalToNull()
                     where { person.id isEqualTo 3 }
@@ -1208,7 +1208,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `update set to constant`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val updateProvider = update(person) {
                     set(person.addressId) equalToConstant "5"
                     where { person.id isEqualTo 3 }
@@ -1237,7 +1237,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `update set to column`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val updateProvider = update(person) {
                     set(person.addressId) equalTo person.id
                     where { person.id isEqualTo 3 }
@@ -1265,7 +1265,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 
         @Test
         fun `update set equalTo when present`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val updateProvider = update(person) {
                     set(person.addressId) equalTo 5
                     set(person.firstName) equalToWhenPresent null       // null 인 경우 set 에서 제외된다.
@@ -1303,7 +1303,7 @@ abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
     inner class SearchTest {
         @Test
         fun `update set equalTo when present`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-            vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+            vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
                 val search1 = SearchParameters(id = null, firstName = "f", lastName = null)
 
                 val selectProvider = select(person.allColumns()) {

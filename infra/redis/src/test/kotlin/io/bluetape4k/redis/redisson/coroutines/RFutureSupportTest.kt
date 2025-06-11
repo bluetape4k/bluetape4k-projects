@@ -38,13 +38,13 @@ class RFutureSupportTest: AbstractRedissonCoroutineTest() {
         // 당연하게도 아무리 비동기라도 round-trip이 많은 것보다 RBatch 가 낫다. 또는 `putAllAsync` 를 이용하는 게 낫다
         val defers = List(ITEM_COUNT) {
             async(Dispatchers.IO) {
-                map.putAsync(it, it).awaitSuspend()
+                map.putAsync(it, it).suspendAwait()
             }
         }
         val lists: List<Int> = defers.awaitAll()
         lists.size shouldBeEqualTo ITEM_COUNT
 
-        map.deleteAsync().awaitSuspend()
+        map.deleteAsync().suspendAwait()
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -59,7 +59,7 @@ class RFutureSupportTest: AbstractRedissonCoroutineTest() {
         val lists: List<Int> = futures.awaitAll()
 
         lists.size shouldBeEqualTo ITEM_COUNT
-        map.deleteAsync().awaitSuspend()
+        map.deleteAsync().suspendAwait()
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -69,11 +69,11 @@ class RFutureSupportTest: AbstractRedissonCoroutineTest() {
         val items = (0 until ITEM_COUNT).associateWith { it }
 
         // 당연하게도 아무리 비동기라도 round-trip이 많은 것보다 RBatch 가 낫다. 또는 `putAllAsync` 를 이용하는 게 낫다
-        map.putAllAsync(items).awaitSuspend()
+        map.putAllAsync(items).suspendAwait()
 
-        val lists = map.getAllAsync(items.keys).awaitSuspend()
+        val lists = map.getAllAsync(items.keys).suspendAwait()
         lists shouldBeEqualTo items
         lists.size shouldBeEqualTo ITEM_COUNT
-        map.deleteAsync().awaitSuspend()
+        map.deleteAsync().suspendAwait()
     }
 }

@@ -23,10 +23,8 @@ class PersonRepositoryTest(
     companion object: KLoggingChannel()
 
     @BeforeEach
-    fun beforeEach() {
-        runSuspendIO {
-            insertPeople()
-        }
+    fun beforeEach() = runSuspendIO {
+        insertPeople()
     }
 
     @Test

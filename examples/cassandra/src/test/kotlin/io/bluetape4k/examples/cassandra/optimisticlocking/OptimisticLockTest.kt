@@ -6,6 +6,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.cql.updateOptions
 import io.bluetape4k.spring.cassandra.query.eq
 import io.bluetape4k.spring.cassandra.suspendInsert
+import io.bluetape4k.spring.cassandra.suspendTruncate
 import kotlinx.coroutines.reactor.awaitSingle
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -20,7 +21,6 @@ import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.data.cassandra.core.CassandraOperations
 import org.springframework.data.cassandra.core.ReactiveCassandraOperations
 import org.springframework.data.cassandra.core.query.Criteria
-import org.springframework.data.cassandra.core.truncate
 import kotlin.test.assertFailsWith
 
 @SpringBootTest(classes = [OptimisticLockTestConfiguration::class])
@@ -34,7 +34,7 @@ class OptimisticLockTest @Autowired constructor(
 
     @BeforeEach
     fun setup() = runSuspendIO {
-        operations.truncate<SimplePerson>()
+        reactiveOps.suspendTruncate<SimplePerson>()
         repository.deleteAll()
     }
 

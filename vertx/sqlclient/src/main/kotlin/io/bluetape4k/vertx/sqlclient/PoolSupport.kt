@@ -11,7 +11,7 @@ import java.sql.SQLException
  *
  * ```
  * val pool = JDBCPool.create(vertx)    // MySQLClient.create(vertx)
- * val rows = pool.withTransactionSuspending {
+ * val rows = pool.withSuspendTransaction {
  *     SqlTemplate.forQuery("select * from Person where id=#{id}")
  *      .execute(mapOf("id" to 1))
  *      .await()
@@ -22,6 +22,30 @@ import java.sql.SQLException
  * @receiver [Pool] 인스턴스
  * @return DB 작업 결과
  */
+suspend fun <T> Pool.withSuspendTransaction(
+    @BuilderInference action: suspend (conn: SqlConnection) -> T,
+): T {
+    val conn = connection.coAwait()
+    val tx = conn.begin().coAwait()
+
+    return try {
+        val result = action(conn)
+        tx.commit().coAwait()
+        result
+    } catch (e: TransactionRollbackException) {
+        throw (e)
+    } catch (e: Throwable) {
+        runCatching { tx.rollback().coAwait() }
+        throw SQLException(e)
+    } finally {
+        conn.close().coAwait()
+    }
+}
+
+@Deprecated(
+    message = "Use withSuspendTransaction instead",
+    replaceWith = ReplaceWith("withSuspendTransaction(action)")
+)
 suspend fun <T> Pool.withTransactionSuspending(
     @BuilderInference action: suspend (conn: SqlConnection) -> T,
 ): T {
@@ -47,7 +71,7 @@ suspend fun <T> Pool.withTransactionSuspending(
  *
  * ```
  * val pool = JDBCPool.create(vertx)    // MySQLClient.create(vertx)
- * val rows = pool.withRollbackSuspending {
+ * val rows = pool.withSuspendRollback {
  *     SqlTemplate.forQuery("select * from Person where id=#{id}")
  *      .execute(mapOf("id" to 1))
  *      .await()
@@ -58,6 +82,29 @@ suspend fun <T> Pool.withTransactionSuspending(
  * @param action Transaction 하에서 수행할 작업
  * @return 작업 결과
  */
+suspend fun <T> Pool.withSuspendRollback(
+    @BuilderInference action: suspend (conn: SqlConnection) -> T,
+): T {
+    val conn = connection.coAwait()
+    val tx = conn.begin().coAwait()
+    return try {
+        val result = action(conn)
+        tx.rollback().coAwait()
+        result
+    } catch (e: TransactionRollbackException) {
+        throw (e)
+    } catch (e: Throwable) {
+        runCatching { tx.rollback().coAwait() }
+        throw SQLException(e)
+    } finally {
+        conn.close().coAwait()
+    }
+}
+
+@Deprecated(
+    message = "Use withSuspendRollback instead",
+    replaceWith = ReplaceWith("withSuspendRollback(action)")
+)
 suspend fun <T> Pool.withRollbackSuspending(
     @BuilderInference action: suspend (conn: SqlConnection) -> T,
 ): T {

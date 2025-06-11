@@ -1,7 +1,7 @@
 package io.bluetape4k.redis.redisson.nearcache
 
 import io.bluetape4k.codec.Base58
-import io.bluetape4k.coroutines.support.coAwait
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.junit5.awaitility.coUntil
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.RepeatedTest
 import org.redisson.api.RMapCache
 import org.redisson.api.options.LocalCachedMapOptions
+import java.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
@@ -145,8 +146,8 @@ class RedissonNearCacheTest {
 
             nearCache1.fastPut(key, value).shouldBeTrue()
 
-            nearCache1.expire(1.seconds.toJavaDuration())
-            nearCache2.expire(1.seconds.toJavaDuration())
+            nearCache1.expire(Duration.ofSeconds(1))
+            nearCache2.expire(Duration.ofSeconds(1))
 
             Thread.sleep(500)
 
@@ -172,11 +173,11 @@ class RedissonNearCacheTest {
             val valueToAdd = randomName()
 
             log.debug { "near cache1: put key=$keyToAdd" }
-            nearCache1.fastPutIfAbsentAsync(keyToAdd, valueToAdd).coAwait()
+            nearCache1.fastPutIfAbsentAsync(keyToAdd, valueToAdd).suspendAwait()
 
-            await atMost 1.seconds.toJavaDuration() coUntil { nearCache2.containsKeyAsync(keyToAdd).coAwait() }
+            await atMost 1.seconds.toJavaDuration() coUntil { nearCache2.containsKeyAsync(keyToAdd).suspendAwait() }
 
-            nearCache2.getAsync(keyToAdd).coAwait() shouldBeEqualTo valueToAdd
+            nearCache2.getAsync(keyToAdd).suspendAwait() shouldBeEqualTo valueToAdd
         }
 
         @RepeatedTest(REPEAT_SIZE)
@@ -185,19 +186,19 @@ class RedissonNearCacheTest {
             val valueToRemove = randomName()
 
             log.debug { "near cache1: put key=$keyToRemove" }
-            nearCache1.fastPutIfAbsentAsync(keyToRemove, valueToRemove).coAwait()
+            nearCache1.fastPutIfAbsentAsync(keyToRemove, valueToRemove).suspendAwait()
 
             await atMost 1.seconds.toJavaDuration() coUntil {
-                nearCache2.containsKeyAsync(keyToRemove).coAwait()
+                nearCache2.containsKeyAsync(keyToRemove).suspendAwait()
             }
-            nearCache2.getAsync(keyToRemove).coAwait() shouldBeEqualTo valueToRemove
+            nearCache2.getAsync(keyToRemove).suspendAwait() shouldBeEqualTo valueToRemove
 
-            nearCache1.fastRemoveAsync(keyToRemove).coAwait() shouldBeEqualTo 1
+            nearCache1.fastRemoveAsync(keyToRemove).suspendAwait() shouldBeEqualTo 1
 
             await atMost 1.seconds.toJavaDuration() coUntil {
-                nearCache2.containsKeyAsync(keyToRemove).coAwait().not()
+                nearCache2.containsKeyAsync(keyToRemove).suspendAwait().not()
             }
-            nearCache2.getAsync(keyToRemove).coAwait().shouldBeNull()
+            nearCache2.getAsync(keyToRemove).suspendAwait().shouldBeNull()
         }
 
         @RepeatedTest(REPEAT_SIZE)
@@ -206,31 +207,31 @@ class RedissonNearCacheTest {
             val value = randomValue()
 
             // 기존 NearCache의 FrontCache에는 key가 존재하지 않는다
-            nearCache1.containsKeyAsync(key).coAwait().shouldBeFalse()
-            nearCache2.containsKeyAsync(key).coAwait().shouldBeFalse()
+            nearCache1.containsKeyAsync(key).suspendAwait().shouldBeFalse()
+            nearCache2.containsKeyAsync(key).suspendAwait().shouldBeFalse()
 
             // BackCache에 key를 추가한다
             log.debug { "put cache item to back cache. key=$key" }
-            backCache.fastPutIfAbsentAsync(key, value).coAwait().shouldBeTrue()
+            backCache.fastPutIfAbsentAsync(key, value).suspendAwait().shouldBeTrue()
 
             await atMost 5.seconds.toJavaDuration() coUntil {
-                nearCache1.containsKeyAsync(key).coAwait()
+                nearCache1.containsKeyAsync(key).suspendAwait()
             }
             // NearCache 들에게 신규 아이템이 반영된다.
-            nearCache1.containsKeyAsync(key).coAwait().shouldBeTrue()
-            nearCache2.containsKeyAsync(key).coAwait().shouldBeTrue()
+            nearCache1.containsKeyAsync(key).suspendAwait().shouldBeTrue()
+            nearCache2.containsKeyAsync(key).suspendAwait().shouldBeTrue()
 
             // BackCache에 key 를 삭제한다
             log.debug { "remove cache item from back cache. key=$key" }
-            backCache.fastRemoveAsync(key).coAwait() shouldBeEqualTo 1
+            backCache.fastRemoveAsync(key).suspendAwait() shouldBeEqualTo 1
 
             await atMost 5.seconds.toJavaDuration() coUntil {
-                nearCache1.containsKeyAsync(key).coAwait().not()
+                nearCache1.containsKeyAsync(key).suspendAwait().not()
             }
 
             // NearCache 들에게 삭제가 반영된다.
-            nearCache1.containsKeyAsync(key).coAwait().shouldBeFalse()
-            nearCache2.containsKeyAsync(key).coAwait().shouldBeFalse()
+            nearCache1.containsKeyAsync(key).suspendAwait().shouldBeFalse()
+            nearCache2.containsKeyAsync(key).suspendAwait().shouldBeFalse()
         }
 
         @RepeatedTest(REPEAT_SIZE)
@@ -241,36 +242,36 @@ class RedissonNearCacheTest {
             val key2 = randomName()
             val value2 = randomValue()
 
-            nearCache1.fastPutAsync(key1, value1).coAwait().shouldBeTrue()
+            nearCache1.fastPutAsync(key1, value1).suspendAwait().shouldBeTrue()
             launch {
                 nearCache1.expireAsync(1.seconds.toJavaDuration())
             }
 
             delay(500)
 
-            nearCache2.containsKeyAsync(key1).coAwait().shouldBeTrue()
+            nearCache2.containsKeyAsync(key1).suspendAwait().shouldBeTrue()
 
             delay(500)
 
             await atMost 3.seconds.toJavaDuration() coUntil {
-                nearCache2.containsKeyAsync(key1).coAwait().not()
+                nearCache2.containsKeyAsync(key1).suspendAwait().not()
             }
 
             delay(100)
             // 1초가 지나서 expire 되었다.
-            nearCache1.containsKeyAsync(key1).coAwait().shouldBeFalse()
+            nearCache1.containsKeyAsync(key1).suspendAwait().shouldBeFalse()
 
             // key2 에 대해서 expire 를 설정하지 않았으므로, 삭제되지 않는다.
             // 
-            nearCache2.fastPutAsync(key2, value2).coAwait().shouldBeTrue()
+            nearCache2.fastPutAsync(key2, value2).suspendAwait().shouldBeTrue()
             launch {
-                nearCache2.expireAsync(1.seconds.toJavaDuration())
+                nearCache2.expireAsync(Duration.ofSeconds(1))
             }
             delay(1000)
             await atMost 3.seconds.toJavaDuration() coUntil {
-                nearCache1.containsKeyAsync(key2).coAwait().not()
+                nearCache1.containsKeyAsync(key2).suspendAwait().not()
             }
-            nearCache1.containsKeyAsync(key2).coAwait().shouldBeFalse()
+            nearCache1.containsKeyAsync(key2).suspendAwait().shouldBeFalse()
         }
     }
 }
