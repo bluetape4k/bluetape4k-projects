@@ -45,6 +45,7 @@ dependencies {
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))
     implementation(Libs.kotlinx_coroutines_core)
+    implementation(Libs.kotlinx_coroutines_reactive)
     implementation(Libs.kotlinx_coroutines_reactor)
     implementation(Libs.kotlinx_coroutines_debug)
     implementation(Libs.kotlinx_coroutines_test)

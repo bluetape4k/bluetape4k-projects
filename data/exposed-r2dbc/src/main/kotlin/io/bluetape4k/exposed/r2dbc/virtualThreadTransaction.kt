@@ -41,14 +41,11 @@ suspend fun <T> virtualThreadTransactionAsync(
     transactionIsolation: IsolationLevel? = null,
     readOnly: Boolean = false,
     statement: suspend R2dbcTransaction.() -> T,
-): Deferred<T> {
-    val vtExecutor = executor ?: VirtualThreadExecutor
-    return suspendTransactionAsync(
-        vtExecutor.asCoroutineDispatcher(),
-        db = db,
-        transactionIsolation = transactionIsolation,
-        readOnly = readOnly
-    ) {
-        statement()
-    }
+): Deferred<T> = suspendTransactionAsync(
+    (executor ?: VirtualThreadExecutor).asCoroutineDispatcher(),
+    db = db,
+    transactionIsolation = transactionIsolation,
+    readOnly = readOnly
+) {
+    statement()
 }

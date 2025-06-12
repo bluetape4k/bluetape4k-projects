@@ -65,6 +65,7 @@ dependencies {
 
     api(Libs.mutiny_kotlin)
     api(Libs.kotlinx_coroutines_core)
+    api(Libs.kotlinx_coroutines_reactive)
     testImplementation(Libs.kotlinx_coroutines_test)
 
     testImplementation(project(":bluetape4k-junit5"))

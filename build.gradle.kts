@@ -62,6 +62,7 @@ allprojects {
                 password = bluetape4kGprKey
             }
         }
+        mavenLocal()
     }
 }
 
@@ -83,6 +84,7 @@ subprojects {
 
         plugin(Plugins.dokka)
         plugin(Plugins.testLogger)
+        plugin(Plugins.kosogor)
     }
 
     java {
@@ -255,10 +257,10 @@ subprojects {
             }
         }
 
-        dokkaHtml.configure {
-            val dokkaDir = layout.buildDirectory.asFile.get().resolve("dokka")
-            outputDirectory.set(dokkaDir)
-            // outputDirectory.set(layout.buildDirectory.asFile.get().resolve("dokka"))
+        dokka {
+            dokkaPublications.html {
+                outputDirectory.set(project.file("docs/api"))
+            }
         }
 
         clean {
