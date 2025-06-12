@@ -3,7 +3,7 @@ package io.bluetape4k.exposed.r2dbc.redisson.scenario
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.r2dbc.redisson.scenario.R2dbcCacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
-import io.bluetape4k.junit5.awaitility.coUntil
+import io.bluetape4k.junit5.awaitility.suspendUntil
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeGreaterThan
@@ -39,7 +39,7 @@ interface R2dbcWriteBehindScenario<T: HasIdentifier<ID>, ID: Any>: R2dbcCacheTes
             await
                 .atMost(Duration.ofSeconds(10))
                 .withPollInterval(Duration.ofMillis(1000))
-                .coUntil { getAllCountFromDB() >= entities.size.toLong() }
+                .suspendUntil { getAllCountFromDB() >= entities.size.toLong() }
 
             // DB에서 조회한 값
             val dbCount = getAllCountFromDB()

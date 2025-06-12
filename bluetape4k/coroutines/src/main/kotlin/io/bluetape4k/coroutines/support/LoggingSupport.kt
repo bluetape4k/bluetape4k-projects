@@ -59,28 +59,6 @@ suspend fun suspendLogging(msg: suspend () -> Any?) {
     }
 }
 
-@Deprecated(
-    message = "Use `suspendLogging` instead. This function will be removed in future versions.",
-    replaceWith = ReplaceWith("suspendLogging(msg)")
-)
-suspend fun coLogging(msg: suspend () -> Any?) {
-    val name = coroutineContext[CoroutineName]?.name
-    val props = coroutineContext[PropertyCoroutineContext]?.properties
-
-    val msgText = msg.invoke()
-    if (props != null) {
-        if (name != null) {
-            log.debug { "[$name, $props] $msgText" }
-        } else {
-            log.debug { "[$props] $msgText" }
-        }
-    } else if (name != null) {
-        log.debug { "[$name] $msgText" }
-    } else {
-        log.debug { msgText }
-    }
-}
-
 /**
  * Coroutine Context 에서 CoroutineName 과 PropertyCoroutineContext 를 참조하여 로그를 남깁니다.
  *
@@ -92,12 +70,4 @@ suspend fun coLogging(msg: suspend () -> Any?) {
  */
 suspend fun suspendLogging(msg: String) {
     suspendLogging { msg }
-}
-
-@Deprecated(
-    message = "Use `suspendLogging` instead. This function will be removed in future versions.",
-    replaceWith = ReplaceWith("suspendLogging(msg)")
-)
-suspend fun coLogging(msg: String) {
-    coLogging { msg }
 }

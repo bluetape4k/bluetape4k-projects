@@ -2,7 +2,7 @@ package io.bluetape4k.examples.redisson.coroutines.objects
 
 import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
-import io.bluetape4k.junit5.awaitility.coUntil
+import io.bluetape4k.junit5.awaitility.suspendUntil
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -41,7 +41,7 @@ class TopicExamples: AbstractRedissonCoroutineTest() {
         topic.publishAsync("message-2").suspendAwait()
 
         // topic 에 listener가 2개, 메시지 2개 전송
-        await coUntil { receivedCount == 2 * 2 }
+        await suspendUntil { receivedCount == 2 * 2 }
 
         topic.removeAllListenersAsync().suspendAwait()
     }

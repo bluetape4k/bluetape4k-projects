@@ -4,7 +4,6 @@ import io.bluetape4k.support.EMPTY_STRING
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
 
-
 /**
  * 객체를 JSON으로 직렬화/역직렬화하는 Serializer 의 최상위 인터페이스
  *
@@ -50,10 +49,6 @@ interface JsonSerializer {
     fun serializeAsString(graph: Any?): String =
         graph?.let { serialize(it).toUtf8String() } ?: EMPTY_STRING
 
-    @Deprecated("Use deserializeFromString instead", ReplaceWith("deserializeFromString(jsonText, clazz)"))
-    fun <T: Any> deserializeAsString(jsonText: String?, clazz: Class<T>): T? =
-        jsonText?.let { deserialize(it.toUtf8Bytes(), clazz) }
-
     /**
      * JSON 직렬화된 문자열을 읽어, 객체로 변환합니다.
      *
@@ -80,23 +75,6 @@ interface JsonSerializer {
  */
 inline fun <reified T: Any> JsonSerializer.deserialize(bytes: ByteArray?): T? =
     deserialize(bytes, T::class.java)
-
-/**
- * [JsonSerializer]를 이용하여 [jsonText]를 역직렬화하여 객체를 빌드합니다. 실패시 null 반환
- *
- * ```
- * val serializer = JacksonSerializer()
- * val jsonText = serializer.serializeAsString(data)
- * val data = serializer.deserializeAsString<Data>(jsonText)
- * ```
- *
- * @param T 역직렬화할 대상 수형
- * @param jsonText JSON 직렬화된 문자열
- * @return 역직렬화된 객체, 실패 시 null 반환
- */
-@Deprecated("Use deserializeFromString instead", ReplaceWith("deserializeFromString<T>(jsonText)"))
-inline fun <reified T: Any> JsonSerializer.deserializeAsString(jsonText: String?): T? =
-    deserializeAsString(jsonText, T::class.java)
 
 /**
  * [JsonSerializer]를 이용하여 [jsonText]를 역직렬화하여 객체를 빌드합니다. 실패시 null 반환
