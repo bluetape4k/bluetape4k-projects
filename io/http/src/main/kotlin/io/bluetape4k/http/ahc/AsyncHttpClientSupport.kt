@@ -2,10 +2,7 @@ package io.bluetape4k.http.ahc
 
 import io.bluetape4k.netty.isPresentNettyTransportNativeEpoll
 import io.bluetape4k.netty.isPresentNettyTransportNativeKQueue
-import io.bluetape4k.support.classIsPresent
 import io.bluetape4k.utils.Systemx
-import io.netty.channel.epoll.EpollEventLoopGroup
-import io.netty.channel.kqueue.KQueueEventLoopGroup
 import org.asynchttpclient.AsyncHttpClient
 import org.asynchttpclient.AsyncHttpClientConfig
 import org.asynchttpclient.DefaultAsyncHttpClientConfig
@@ -15,16 +12,15 @@ import org.asynchttpclient.filter.ResponseFilter
 
 // NOTE: 비동기 방식에서는 OS 차원에서 open file 제한을 늘려야 합니다.
 // 참고 : https://gist.github.com/tombigel/d503800a282fcadbee14b537735d202c
-
 val defaultAsyncHttpClientConfig: DefaultAsyncHttpClientConfig by lazy(mode = LazyThreadSafetyMode.PUBLICATION) {
     DefaultAsyncHttpClientConfig.Builder().apply {
         runCatching {
-            if (Systemx.isUnix && classIsPresent("io.netty.channel.epoll.EpollEventLoopGroup")) {
-                setEventLoopGroup(EpollEventLoopGroup())
+            if (Systemx.isUnix && isPresentNettyTransportNativeEpoll()) {
+                // setEventLoopGroup(EpollEventLoopGroup())
                 setUseNativeTransport(true)
 
-            } else if (Systemx.isMac && classIsPresent("io.netty.channel.kqueue.KQueueEventLoopGroup")) {
-                setEventLoopGroup(KQueueEventLoopGroup())
+            } else if (Systemx.isMac && isPresentNettyTransportNativeKQueue()) {
+                // setEventLoopGroup(KQueueEventLoopGroup())
                 setUseNativeTransport(true)
             } else {
                 // Nothing to do
@@ -60,14 +56,14 @@ inline fun asyncHttpClientConfig(
             when {
                 Systemx.isUnix -> {
                     if (isPresentNettyTransportNativeEpoll()) {
-                        setEventLoopGroup(EpollEventLoopGroup())
+                        // setEventLoopGroup(EpollEventLoopGroup())
                         setUseNativeTransport(true)
                     }
                 }
 
-                Systemx.isMac  -> {
+                Systemx.isMac -> {
                     if (isPresentNettyTransportNativeKQueue()) {
-                        setEventLoopGroup(KQueueEventLoopGroup())
+                        // setEventLoopGroup(KQueueEventLoopGroup())
                         setUseNativeTransport(true)
                     }
                 }
