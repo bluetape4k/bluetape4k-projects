@@ -8,7 +8,6 @@ import io.bluetape4k.http.hc5.http.charCodingConfig
 import io.bluetape4k.http.hc5.http.connectionConfig
 import io.bluetape4k.http.hc5.http.http1Config
 import io.bluetape4k.http.hc5.http.managedHttpConnectionFactory
-import io.bluetape4k.http.hc5.http.registryOf
 import io.bluetape4k.http.hc5.http.requestConfig
 import io.bluetape4k.http.hc5.http.socketConfig
 import io.bluetape4k.http.hc5.http.tlsConfig
@@ -23,9 +22,7 @@ import org.apache.hc.client5.http.classic.methods.HttpGet
 import org.apache.hc.client5.http.config.RequestConfig
 import org.apache.hc.client5.http.cookie.BasicCookieStore
 import org.apache.hc.client5.http.cookie.StandardCookieSpec
-import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager
-import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory
-import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder
 import org.apache.hc.core5.http.Header
 import org.apache.hc.core5.http.HttpHost
 import org.apache.hc.core5.http.ParseException
@@ -35,8 +32,6 @@ import org.apache.hc.core5.http.impl.io.DefaultHttpResponseParserFactory
 import org.apache.hc.core5.http.message.BasicHeader
 import org.apache.hc.core5.http.message.BasicLineParser
 import org.apache.hc.core5.http.ssl.TLS
-import org.apache.hc.core5.pool.PoolConcurrencyPolicy
-import org.apache.hc.core5.pool.PoolReusePolicy
 import org.apache.hc.core5.util.CharArrayBuffer
 import org.apache.hc.core5.util.TimeValue
 import org.apache.hc.core5.util.Timeout
@@ -106,12 +101,12 @@ class ClientConfiguration: AbstractHc5Test() {
 //            register("http", PlainConnectionSocketFactory.INSTANCE)
 //            register("https", SSLConnectionSocketFactory(sslContext))
 //        }
-        val socketFactoryRegistry = registryOf(
-            mapOf(
-                "http" to PlainConnectionSocketFactory.INSTANCE,
-                "https" to SSLConnectionSocketFactory(sslContext)
-            )
-        )
+//        val socketFactoryRegistry = registryOf(
+//            mapOf(
+//                "http" to PlainConnectionSocketFactory.INSTANCE,
+//                "https" to SSLConnectionSocketFactory(sslContext)
+//            )
+//        )
 
         // Use custom DNS resolver to override the system DNS resolution.
         val dnsResolver = object: SystemDefaultDnsResolver() {
@@ -125,29 +120,44 @@ class ClientConfiguration: AbstractHc5Test() {
         }
 
         // Create a connection manager with custom configuration.
-        val connManager = PoolingHttpClientConnectionManager(
-            socketFactoryRegistry,
-            PoolConcurrencyPolicy.STRICT,
-            PoolReusePolicy.LIFO,
-            TimeValue.ofMinutes(5),
-            null,
-            dnsResolver,
-            connFactory
-        )
+        val connManager = PoolingHttpClientConnectionManagerBuilder.create()
+            .setConnectionFactory(connFactory)
+            .setDnsResolver(dnsResolver)
+            .setDefaultConnectionConfig(connectionConfig {
+                setConnectTimeout(Timeout.ofSeconds(30))
+                setSocketTimeout(Timeout.ofSeconds(30))
+                setTimeToLive(TimeValue.ofMinutes(5))
+            })
+            .setSocketConfigResolver {
+                socketConfig {
+                    setTcpNoDelay(true)
+                    setSoKeepAlive(true)
+                }
+            }
+            .build()
+//        val connManager = PoolingHttpClientConnectionManager(
+//            socketFactoryRegistry,
+//            PoolConcurrencyPolicy.STRICT,
+//            PoolReusePolicy.LIFO,
+//            TimeValue.ofMinutes(5),
+//            null,
+//            dnsResolver,
+//            connFactory
+//        )
 
         // Configure the connection manager to use socket configuration either
         // by default or for a specific host.
-        connManager.defaultSocketConfig = socketConfig { setTcpNoDelay(true) }
+        // connManager.defaultSocketConfig = socketConfig { setTcpNoDelay(true) }
 
         // Validate connection after 10 sec of inactivity
-        connManager.setDefaultConnectionConfig(
-            connectionConfig {
-                setConnectTimeout(Timeout.ofSeconds(30))
-                setSocketTimeout(Timeout.ofSeconds(30))
-                setValidateAfterInactivity(TimeValue.ofSeconds(10))
-                setTimeToLive(TimeValue.ofHours(1))
-            }
-        )
+//        connManager.setDefaultConnectionConfig(
+//            connectionConfig {
+//                setConnectTimeout(Timeout.ofSeconds(30))
+//                setSocketTimeout(Timeout.ofSeconds(30))
+//                setValidateAfterInactivity(TimeValue.ofSeconds(10))
+//                setTimeToLive(TimeValue.ofHours(1))
+//            }
+//        )
 
         // Use TLS v1.3 only
         connManager.setDefaultTlsConfig(

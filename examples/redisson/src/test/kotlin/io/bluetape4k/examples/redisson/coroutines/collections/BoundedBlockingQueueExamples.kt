@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit
  *
  * 참고: [RBoundedBlockingQueue](https://github.com/redisson/redisson/wiki/7.-distributed-collections/#711-bounded-blocking-queue)
  */
+@Suppress("DEPRECATION")
 class BoundedBlockingQueueExamples: AbstractRedissonCoroutineTest() {
 
     companion object: KLoggingChannel() {
