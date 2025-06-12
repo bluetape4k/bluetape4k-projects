@@ -112,9 +112,9 @@ object Versions {
     const val netty = "4.2.2.Final"  // https://mvnrepository.com/artifact/io.netty/netty-all
 
     const val aws = "1.12.785"          // https://mvnrepository.com/artifact/com.amazonaws
-    const val aws2 = "2.31.57"          // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
-    const val aws2_crt = "0.38.4"       // https://mvnrepository.com/artifact/software.amazon.awssdk.crt/aws-crt
-    const val aws_kotlin = "1.4.98"     // https://mvnrepository.com/artifact/aws.sdk.kotlin/aws-http-jvm
+    const val aws2 = "2.31.62"          // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
+    const val aws2_crt = "0.38.5"       // https://mvnrepository.com/artifact/software.amazon.awssdk.crt/aws-crt
+    const val aws_kotlin = "1.4.102"     // https://mvnrepository.com/artifact/aws.sdk.kotlin/aws-http-jvm
     const val aws_smithy_kotlin = "1.4.16" // https://mvnrepository.com/artifact/aws.smithy.kotlin/http-client-engine-crt-jvm
 
     const val aws_spring_cloud = "3.3.1"  // https://mvnrepository.com/artifact/io.awspring.cloud/spring-cloud-aws-starter
