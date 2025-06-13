@@ -20,28 +20,25 @@ import java.nio.channels.SelectionKey
 import java.nio.channels.ServerSocketChannel
 import java.nio.channels.SocketChannel
 
-class AsyncSocketTest: AbstractOkioTest() {
+class SuspendSocketTest: AbstractOkioTest() {
 
     companion object: KLoggingChannel() {
         private const val DEFAULT_TIMEOUT_MS = 25_000L
     }
 
     @Test
-    fun `use async socket`() = runSocketTest { client, server ->
+    fun `use suspend socket`() = runSocketTest { client, server ->
         val clientSource = client.asSuspendSource().buffered()
         val clientSink = client.asSuspendSink().buffered()
 
         val serverSource = server.asSuspendSource().buffered()
         val serverSink = server.asSuspendSink().buffered()
 
-        clientSink.writeUtf8("abc")
-        clientSink.flush()
-
+        clientSink.writeUtf8("abc").flush()
         serverSource.request(3)
         serverSource.readUtf8(3) shouldBeEqualTo "abc"
 
-        serverSink.writeUtf8("def")
-        serverSink.flush()
+        serverSink.writeUtf8("def").flush()
         clientSource.request(3)
         clientSource.readUtf8(3) shouldBeEqualTo "def"
     }
