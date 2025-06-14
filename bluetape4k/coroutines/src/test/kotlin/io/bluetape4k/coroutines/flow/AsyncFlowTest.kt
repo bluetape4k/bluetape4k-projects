@@ -1,6 +1,7 @@
 package io.bluetape4k.coroutines.flow
 
 import io.bluetape4k.concurrent.virtualthread.VT
+import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Runtimex
@@ -8,6 +9,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
@@ -62,6 +64,7 @@ class AsyncFlowTest {
                 log.debug { "Started $it" }
                 it
             }
+            .log("#1")
             .map {
                 delay(Random.nextLong(MAX_DELAY_TIME))
                 it * it / it

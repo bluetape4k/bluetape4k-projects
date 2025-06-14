@@ -31,7 +31,7 @@ class ReactorContextExamples {
         flux.awaitFirst()
         captured.shouldBeNull()
 
-        // Coroutines에서 ReactorContext에 key-value를 전달합니다.
+        // Coroutines에서 ReactorContext로 key-value를 전달합니다.
         withContext(Context.of(key, value).asCoroutineContext()) {
             flux.awaitFirst()
         }
@@ -55,7 +55,7 @@ class ReactorContextExamples {
 
         captured.shouldBeNull()
 
-        // contextWrite 에서 Context에 key-value를 저장하면, flow에서 사용할 수 있습니다.
+        // contextWrite 에서 Reactor Context로 key-value를 저장하면, flow에서 사용할 수 있습니다.
         flow.asFlux()
             .contextWrite { context -> context.put(key, value) }
             .subscribe()
