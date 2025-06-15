@@ -31,6 +31,7 @@ class BufferCursorTest: AbstractOkioTest() {
     fun factories() = _factories
     fun buffers() = _buffers
 
+    // TODO: LZ4, ZSTD 에서 실제 압축한 길이만큼만 resizeBuffer() 를 이용해서 사용할 수 있다.
     @RepeatedTest(REPEAT_SIZE)
     fun `api example`() {
         val buffer = Buffer()
@@ -49,6 +50,7 @@ class BufferCursorTest: AbstractOkioTest() {
         buffer shouldBeEqualTo bufferOf("xoxo")
     }
 
+    // TODO: LZ4, ZSTD 에서 실제 압축한 길이만큼만 resizeBuffer() 를 이용해서 사용할 수 있다.
     @RepeatedTest(REPEAT_SIZE)
     fun `api example by kotlin function`() {
         val buffer = Buffer()
@@ -196,17 +198,17 @@ class BufferCursorTest: AbstractOkioTest() {
 
     @ParameterizedTest
     @MethodSource("buffers")
-    fun `double acquire`(buffer: Buffer) {
+    fun `Cursor를 중복해서 얻으려고 하면 예외가 발생합니다`(buffer: Buffer) {
         assertFailsWith<IllegalStateException> {
             buffer.readUnsafe { cursor ->
-                buffer.readUnsafe(cursor)  // double acquire
+                buffer.readUnsafe(cursor)  // 중복해서 cursor 획득하려고 하면 예외를 발생시킨다
             }
         }
     }
 
     @ParameterizedTest
     @MethodSource("buffers")
-    fun `release without acquire`(buffer: Buffer) {
+    fun `Cursor를 얻지 않고 해제하려고 하면 예외가 발생합니다`(buffer: Buffer) {
         val cursor = Buffer.UnsafeCursor()
         assertFailsWith<IllegalStateException> {
             cursor.close()
@@ -215,7 +217,7 @@ class BufferCursorTest: AbstractOkioTest() {
 
     @ParameterizedTest
     @MethodSource("buffers")
-    fun `release after release`(buffer: Buffer) {
+    fun `Cursor를 해제한 이후에 또 해제하려고 하면 예외가 발생합니다`(buffer: Buffer) {
         val cursor = buffer.readUnsafe()
         cursor.close()
 

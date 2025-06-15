@@ -22,13 +22,13 @@ inline fun <R> Buffer.readAndWriteUnsafe(
     cursor: Buffer.UnsafeCursor = Buffer.UnsafeCursor(),
     block: (cursor: Buffer.UnsafeCursor) -> R,
 ): R {
-    return readAndWriteUnsafe(cursor).use {
-        block(it)
+    return readAndWriteUnsafe(cursor).use { cursor ->
+        block(cursor)
     }
 }
 
 // TODO: refactoring to Timeout.run
-suspend inline fun <R> withTimeout(timeout: Timeout, crossinline block: suspend () -> R): R {
+suspend inline fun <R: Any> withTimeoutOrNull(timeout: Timeout, crossinline block: suspend () -> R): R? {
     if (timeout.timeoutNanos() == 0L && !timeout.hasDeadline()) {
         return block()
     }
@@ -40,12 +40,12 @@ suspend inline fun <R> withTimeout(timeout: Timeout, crossinline block: suspend 
             timeout.deadlineNanoTime() - now
         )
 
-        timeout.timeoutNanos() != 0L                          -> timeout.timeoutNanos()
-        timeout.hasDeadline()                                 -> timeout.deadlineNanoTime() - now
-        else                                                  -> throw AssertionError()
+        timeout.timeoutNanos() != 0L -> timeout.timeoutNanos()
+        timeout.hasDeadline() -> timeout.deadlineNanoTime() - now
+        else -> throw AssertionError()
     }
 
-    return kotlinx.coroutines.withTimeout((waitNanos / 1_000_000f).toLong()) {
+    return kotlinx.coroutines.withTimeoutOrNull((waitNanos / 1_000_000f).toLong()) {
         block()
     }
 }

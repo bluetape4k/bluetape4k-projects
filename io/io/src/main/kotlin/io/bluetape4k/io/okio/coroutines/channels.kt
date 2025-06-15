@@ -18,7 +18,9 @@ import kotlin.coroutines.resumeWithException
 /**
  * [AsynchronousFileChannel]을 [SuspendSink]로 변환합니다.
  */
-fun AsynchronousSocketChannel.asSuspendSink(coroutineContext: CoroutineContext = Dispatchers.IO): SuspendSink {
+fun AsynchronousSocketChannel.asSuspendSink(
+    coroutineContext: CoroutineContext = Dispatchers.IO,
+): SuspendSink {
     val channel = this
 
     return object: SuspendSink, KLoggingChannel() {
@@ -45,33 +47,29 @@ fun AsynchronousSocketChannel.asSuspendSink(coroutineContext: CoroutineContext =
     }
 }
 
-suspend fun AsynchronousSocketChannel.suspendRead(buffer: ByteBuffer): Int {
-    return suspendCancellableCoroutine { cont ->
+suspend fun AsynchronousSocketChannel.suspendRead(buffer: ByteBuffer): Int =
+    suspendCancellableCoroutine { cont ->
         read(buffer, cont, ChannelCompletionHandler)
         cont.invokeOnCancellation { close() }
     }
-}
 
-suspend fun AsynchronousFileChannel.suspendRead(buffer: ByteBuffer, position: Long): Int {
-    return suspendCancellableCoroutine { cont ->
-        read(buffer, position, cont, ChannelCompletionHandler)
-        cont.invokeOnCancellation { close() }
-    }
-}
-
-suspend fun AsynchronousSocketChannel.suspendWrite(buffer: ByteBuffer): Int {
-    return suspendCancellableCoroutine { cont ->
+suspend fun AsynchronousSocketChannel.suspendWrite(buffer: ByteBuffer): Int =
+    suspendCancellableCoroutine { cont ->
         write(buffer, cont, ChannelCompletionHandler)
         cont.invokeOnCancellation { close() }
     }
-}
 
-suspend fun AsynchronousFileChannel.suspendWrite(buffer: ByteBuffer, position: Long): Int {
-    return suspendCancellableCoroutine { cont ->
-        write(buffer, position, cont, ChannelCompletionHandler)
+suspend fun AsynchronousFileChannel.suspendRead(buffer: ByteBuffer, position: Long): Int =
+    suspendCancellableCoroutine { cont ->
         cont.invokeOnCancellation { close() }
+        read(buffer, position, cont, ChannelCompletionHandler)
     }
-}
+
+suspend fun AsynchronousFileChannel.suspendWrite(buffer: ByteBuffer, position: Long): Int =
+    suspendCancellableCoroutine { cont ->
+        cont.invokeOnCancellation { close() }
+        write(buffer, position, cont, ChannelCompletionHandler)
+    }
 
 internal object ChannelCompletionHandler: CompletionHandler<Int, CancellableContinuation<Int>> {
 

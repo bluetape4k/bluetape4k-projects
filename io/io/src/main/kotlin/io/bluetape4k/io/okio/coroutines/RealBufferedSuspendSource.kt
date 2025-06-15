@@ -133,7 +133,7 @@ internal class RealBufferedSuspendSource(
 
     override suspend fun readByteString(): ByteString {
         checkNotClosed()
-        buffer.writeAll(source)
+        buffer.suspendWriteAll(source)
         return buffer.readByteString()
     }
 
@@ -168,7 +168,7 @@ internal class RealBufferedSuspendSource(
 
     override suspend fun readByteArray(): ByteArray {
         checkNotClosed()
-        buffer.writeAll(source)
+        buffer.suspendWriteAll(source)
         return buffer.readByteArray()
     }
 
@@ -254,7 +254,7 @@ internal class RealBufferedSuspendSource(
 
     override suspend fun readUtf8(): String {
         checkNotClosed()
-        buffer.writeAll(source)
+        buffer.suspendWriteAll(source)
         return buffer.readUtf8()
     }
 

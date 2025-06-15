@@ -154,6 +154,6 @@ internal class RealBufferedSuspendSink(
     }
 
     private fun checkNotClosed() {
-        check(!closed.get()) { "RealBufferedSuspendSync is closed" }
+        check(!closed.get()) { "RealBufferedSuspendSink is closed" }
     }
 }

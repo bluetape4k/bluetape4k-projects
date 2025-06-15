@@ -3,6 +3,7 @@ package io.bluetape4k.io.okio.coroutines
 import io.bluetape4k.io.okio.coroutines.internal.SEGMENT_SIZE
 import io.bluetape4k.io.okio.coroutines.internal.await
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import kotlinx.coroutines.coroutineScope
 import okio.Buffer
 import okio.Timeout
@@ -18,6 +19,7 @@ fun Socket.asSuspendSource(): SuspendSource {
         val buffer = ByteBuffer.allocateDirect(SEGMENT_SIZE.toInt())
 
         override suspend fun read(sink: Buffer, byteCount: Long): Long = coroutineScope {
+            byteCount.requireZeroOrPositiveNumber("byteCount")
             channel.await(SelectionKey.OP_READ)
 
             buffer.clear()

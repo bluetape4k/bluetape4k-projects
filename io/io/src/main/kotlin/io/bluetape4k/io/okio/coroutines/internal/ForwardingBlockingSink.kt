@@ -2,35 +2,38 @@ package io.bluetape4k.io.okio.coroutines.internal
 
 import io.bluetape4k.io.okio.coroutines.SuspendSink
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import okio.Buffer
 import okio.Sink
 import okio.Timeout
+import kotlin.coroutines.CoroutineContext
 
-internal class ForwardingSink(
+internal class ForwardingBlockingSink(
     val delegate: SuspendSink,
+    private val context: CoroutineContext = Dispatchers.IO,
 ): Sink {
 
     companion object: KLoggingChannel()
 
     val timeout = Timeout()
 
-    override fun write(source: Buffer, byteCount: Long) = runBlocking {
-        withTimeout(timeout) {
+    override fun write(source: Buffer, byteCount: Long) = runBlocking(context) {
+        withTimeoutOrNull(timeout) {
             delegate.write(source, byteCount)
-        }
+        } ?: Unit
     }
 
-    override fun flush() = runBlocking {
-        withTimeout(timeout) {
+    override fun flush() = runBlocking(context) {
+        withTimeoutOrNull(timeout) {
             delegate.flush()
-        }
+        } ?: Unit
     }
 
-    override fun close() = runBlocking {
-        withTimeout(timeout) {
+    override fun close() = runBlocking(context) {
+        withTimeoutOrNull(timeout) {
             delegate.close()
-        }
+        } ?: Unit
     }
 
     override fun timeout(): Timeout {
