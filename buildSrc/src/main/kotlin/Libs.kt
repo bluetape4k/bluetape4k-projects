@@ -892,6 +892,7 @@ object Libs {
 
     val fastjson2 = fastjson2("fastjson2")
     val fastjson2_kotlin = fastjson2("fastjson2-kotlin")
+    val fastjson2_extension = fastjson2("fastjson2-extension")
     val fastjson2_extension_spring6 = fastjson2("fastjson2-extension-spring6")
 
     // Json assertions
