@@ -168,17 +168,17 @@ object Versions {
     const val prometheus = "0.16.0"     // https://mvnrepository.com/artifact/io.prometheus/simpleclient
 
     // NOTE: spring boot 2.7.x 를 사용할 시 micrometer는 1.9+ 를 사용해야 합니다.
-    const val micrometer = "1.15.0"         // https://mvnrepository.com/artifact/io.micrometer/micrometer-core
-    const val micrometerTracing = "1.5.0"   // https://mvnrepository.com/artifact/io.micrometer/micrometer-tracing
+    const val micrometer = "1.15.1"         // https://mvnrepository.com/artifact/io.micrometer/micrometer-core
+    const val micrometerTracing = "1.5.1"   // https://mvnrepository.com/artifact/io.micrometer/micrometer-tracing
     const val micrometerContextPropagation = "1.1.3" // https://mvnrepository.com/artifact/io.micrometer/context-propagation
 
-    const val opentelemetry = "1.50.0" // https://mvnrepository.com/artifact/io.opentelemetry/opentelemetry-bom
+    const val opentelemetry = "1.51.0" // https://mvnrepository.com/artifact/io.opentelemetry/opentelemetry-bom
     const val opentelemetryAlpha = "$opentelemetry-alpha" // https://mvnrepository.com/artifact/io.opentelemetry/opentelemetry-bom-alpha
 
     const val opentelemetryJavaAgent = "2.16.0" // https://mvnrepository.com/artifact/io.opentelemetry.javaagent/opentelemetry-javaagent
     const val opentelemetryInstrumentationAlpha = "$opentelemetryJavaAgent-alpha" // https://mvnrepository.com/artifact/io.opentelemetry.instrumentation/opentelemetry-instrumentation-bom-alpha
 
-    const val caffeine = "3.2.0"        // https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine
+    const val caffeine = "3.2.1"        // https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine
     const val ehcache = "3.10.8"        // https://mvnrepository.com/artifact/org.ehcache/ehcache
     const val cache2k = "2.6.1.Final"   // https://mvnrepository.com/artifact/org.cache2k/cache2k-core
 
@@ -300,9 +300,8 @@ object Libs {
     val kotlinx_coroutines_test_jvm = kotlinxCoroutines("test-jvm")
 
     // Coroutines Flow를 Reactor처럼 테스트 할 수 있도록 해줍니다.
-    // 참고: https://github.com/cashapp/turbine/
-    const val turbine = "app.cash.turbine:turbine:1.1.0"
-    const val turbine_jvm = "app.cash.turbine:turbine-jvm:1.1.0"
+    const val turbine = "app.cash.turbine:turbine:1.2.1"  // 참고: https://github.com/cashapp/turbine/
+    const val turbine_jvm = "app.cash.turbine:turbine-jvm:1.2.1"
 
     fun kotlinxSerialization(module: String, version: String = Versions.kotlinx_serialization) =
         "org.jetbrains.kotlinx:kotlinx-serialization-$module:$version"
