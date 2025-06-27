@@ -22,7 +22,7 @@ includeModules("data", withBaseDir = false)
 includeModules("infra", withBaseDir = false)
 includeModules("io", withBaseDir = false)
 includeModules("javers", withBaseDir = true)
-includeModules("quarkus", withBaseDir = true)
+// includeModules("quarkus", withBaseDir = true)           // quarkus 는 bluetape4k-quarkus 로 이동 예정
 includeModules("spring", withBaseDir = true)
 includeModules("tokenizer", withBaseDir = true)
 includeModules("testing", withBaseDir = false)
@@ -38,7 +38,7 @@ includeModules("examples", withProjectName = true, withBaseDir = true)
 // includeModules("workshop/kafka", false, false)
 //
 // includeModules("workshop/ratelimiter", false, false)
-includeModules("workshop/quarkus", false, false)
+// includeModules("workshop/quarkus", false, false)         // quarkus 는 bluetape4k-quarkus 로 이동 예정
 // includeModules("workshop/spring-boot", false, false)
 // includeModules("workshop/spring-cloud", false, false)
 // includeModules("workshop/spring-data", false, false)
