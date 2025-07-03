@@ -1,6 +1,7 @@
 package io.bluetape4k.io.okio.compress
 
 import io.bluetape4k.io.compressor.Compressor
+import io.bluetape4k.io.okio.bufferOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.support.requireGe
@@ -31,7 +32,8 @@ open class CompressableSink(
 
         // 압축
         val compressed = compressor.compress(plainBytes)
-        val compressedSink = Buffer().write(compressed)
-        super.write(compressedSink, compressedSink.size)
+//        val compressedSink = Buffer().write(compressed)
+//        super.write(compressedSink, compressedSink.size)
+        super.write(bufferOf(compressed), compressed.size.toLong())
     }
 }

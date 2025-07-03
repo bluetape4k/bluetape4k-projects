@@ -22,25 +22,16 @@ configurations {
 }
 
 dependencies {
-    api(project(":bluetape4k-logging"))
+    api(project(":bluetape4k-core"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    api(Libs.kotlinx_atomicfu)
-
     // Apache Commons
-    api(Libs.commons_lang3)
-    api(Libs.commons_codec)
-    api(Libs.commons_compress)
-    api(Libs.commons_io)
+    api(Libs.commons_collections4)
 
-    // Coroutines
-    compileOnly(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
-
-    // Reactor
-    compileOnly(Libs.reactor_core)
-    compileOnly(Libs.reactor_kotlin_extensions)
-    testImplementation(Libs.reactor_test)
+    // Eclipse Collections
+    compileOnly(Libs.eclipse_collections)
+    compileOnly(Libs.eclipse_collections_forkjoin)
+    testImplementation(Libs.eclipse_collections_testutils)
 
     // Pods4k
     compileOnly(Libs.pods4k_core)
