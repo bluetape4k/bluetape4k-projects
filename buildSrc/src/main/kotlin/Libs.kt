@@ -82,6 +82,7 @@ object Versions {
     const val spring_integration = "6.5.0"  // https://mvnrepository.com/artifact/org.springframework.integration/spring-integration-core
     const val reactor_bom = "2024.0.7"      // https://mvnrepository.com/artifact/io.projectreactor/reactor-bom
     const val spring_statemachine = "4.0.0" // https://mvnrepository.com/artifact/org.springframework.statemachine/spring-statemachine-core
+    const val spring_modulith = "1.3.3"     // https://mvnrepository.com/artifact/org.springframework.modulith/spring-modulith-bom
 
     const val chaos_monkey = "3.2.2"        // https://mvnrepository.com/artifact/de.codecentric/chaos-monkey-spring-boot
     const val blockhound = "1.0.13.RELEASE" // https://mvnrepository.com/artifact/io.projectreactor.tools/blockhound
@@ -476,12 +477,49 @@ object Libs {
     val spring_integration_xmpp = springIntegration("xmpp")
     val spring_integration_zookeeper = springIntegration("zookeeper")
 
-
     fun springStatemachine(module: String) =
         "org.springframework.statemachine:spring-statemachine-$module:${Versions.spring_statemachine}"
 
     val spring_statemachine_bom = springStatemachine("bom")
     val spring_statemachine_core = springStatemachine("core")
+
+    // Spring Modulith
+    fun springModulith(module: String) = "org.springframework.modulith:spring-modulith-$module:${Versions.spring_modulith}"
+    fun springModulithEvents(module: String) = springModulith("events-$module")
+    fun springModulithStarter(module: String) = springModulith("starter-$module")
+
+    val spring_modulith_bom = springModulith("bom")
+
+    val spring_modulith_actuator = springModulith("actuator")
+    val spring_modulith_api = springModulith("api")
+    val spring_modulith_apt = springModulith("apt")
+    val spring_modulith_core = springModulith("core")
+    val spring_modulith_docs = springModulith("docs")
+    val spring_modulith_junit = springModulith("junit")
+    val spring_modulith_moments = springModulith("moments")
+    val spring_modulith_observability = springModulith("observability")
+    val spring_modulith_test = springModulith("test")
+
+    val spring_modulith_events_amqp = springModulithEvents("amqp")
+    val spring_modulith_events_api = springModulithEvents("api")
+    val spring_modulith_events_aws_sns = springModulithEvents("aws-sns")
+    val spring_modulith_events_aws_sqs = springModulithEvents("aws-sqs")
+    val spring_modulith_events_core = springModulithEvents("core")
+    val spring_modulith_events_jackson = springModulithEvents("jackson")
+    val spring_modulith_events_jpa = springModulithEvents("jpa")
+    val spring_modulith_events_kafka = springModulithEvents("kafka")
+    val spring_modulith_events_messaging = springModulithEvents("messaging")
+    val spring_modulith_events_mongodb = springModulithEvents("mongodb")
+    val spring_modulith_events_tests = springModulithEvents("tests")
+
+    val spring_modulith_starter_core = springModulithStarter("core")
+    val spring_modulith_starter_insight = springModulithStarter("insight")
+    val spring_modulith_starter_jdbc = springModulithStarter("jdbc")
+    val spring_modulith_starter_jpa = springModulithStarter("jpa")
+    val spring_modulith_starter_mongodb = springModulithStarter("mongodb")
+    val spring_modulith_starter_neo4j = springModulithStarter("neo4j")
+    val spring_modulith_starter_test = springModulithStarter("test")
+
 
     // Chaos Monkey (https://github.com/codecentric/chaos-monkey-spring-boot)
     const val chaos_monkey_spring_boot = "de.codecentric:chaos-monkey-spring-boot:${Versions.chaos_monkey}"
