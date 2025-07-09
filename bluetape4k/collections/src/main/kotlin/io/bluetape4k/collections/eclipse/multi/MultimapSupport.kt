@@ -49,20 +49,6 @@ fun <K, V> Map<K, V>.toImmutableBagMultimap(): ImmutableBagMultimap<K, V> =
 fun <K, V> Map<K, V>.toBagMultimap(): MutableBagMultimap<K, V> =
     HashBagMultimap.newMultimap(this.map { Tuples.pair(it.key, it.value) })
 
-
-inline fun <T, K, V> Iterable<T>.toListMultimap(mapper: (T) -> Pair<K, V>): MutableListMultimap<K, V> =
-    FastListMultimap.newMultimap(this.map { mapper(it).toTuplePair() })
-
-inline fun <T, K, V> Iterable<T>.toSetMultimap(mapper: (T) -> Pair<K, V>): MutableSetMultimap<K, V> =
-    UnifiedSetMultimap.newMultimap(this.map { mapper(it).toTuplePair() })
-
-inline fun <T, K> Iterable<T>.groupByListMultimap(keySelector: (T) -> K): MutableListMultimap<K, T> =
-    toListMultimap { keySelector(it) to it }
-
-inline fun <T, K> Iterable<T>.groupBySetMultimap(keySelector: (T) -> K): MutableSetMultimap<K, T> =
-    toSetMultimap { keySelector(it) to it }
-
-
 fun <K, V> Multimap<K, V>.filter(predicate: (K, Iterable<V>) -> Boolean): Multimap<K, V> =
     selectKeysMultiValues { key, values -> predicate(key, values) }
 
@@ -71,3 +57,21 @@ inline fun <K, V, R> Multimap<K, V>.toList(mapper: (K, Iterable<V>) -> R): List<
 
 inline fun <K, V, R> Multimap<K, V>.toSet(mapper: (K, Iterable<V>) -> R): Set<R> =
     keyMultiValuePairsView().map { mapper(it.one, it.two) }.toSet()
+
+inline fun <T, K, V> Iterable<T>.toListMultimap(mapper: (T) -> Pair<K, V>): MutableListMultimap<K, V> =
+    FastListMultimap.newMultimap(this.map { mapper(it).toTuplePair() })
+
+inline fun <T, K, V> Iterable<T>.toSetMultimap(mapper: (T) -> Pair<K, V>): MutableSetMultimap<K, V> =
+    UnifiedSetMultimap.newMultimap(this.map { mapper(it).toTuplePair() })
+
+inline fun <T, K, V> Iterable<T>.toBagMultimap(mapper: (T) -> Pair<K, V>): MutableBagMultimap<K, V> =
+    HashBagMultimap.newMultimap(this.map { mapper(it).toTuplePair() })
+
+inline fun <T, K> Iterable<T>.groupByListMultimap(keySelector: (T) -> K): MutableListMultimap<K, T> =
+    toListMultimap { keySelector(it) to it }
+
+inline fun <T, K> Iterable<T>.groupBySetMultimap(keySelector: (T) -> K): MutableSetMultimap<K, T> =
+    toSetMultimap { keySelector(it) to it }
+
+inline fun <T, K> Iterable<T>.groupByBagMultimap(keySelector: (T) -> K): MutableBagMultimap<K, T> =
+    toBagMultimap { keySelector(it) to it }
