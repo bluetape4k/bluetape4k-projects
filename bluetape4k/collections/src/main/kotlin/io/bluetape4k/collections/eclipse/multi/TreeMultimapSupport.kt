@@ -14,7 +14,9 @@ inline fun <K: Comparable<K>, V> Iterable<V>.toTreeMultimap(keySelector: (V) -> 
         }
     }
 
-inline fun <K: Comparable<K>, V> Iterable<V>.toTreeMultimap(comparator: Comparator<K>, keySelector: (V) -> K) =
+inline fun <K: Comparable<K>, V> Iterable<V>.toTreeMultimap(
+    comparator: Comparator<K>, keySelector: (V) -> K,
+): TreeMultimap<K, V> =
     TreeMultimap<K, V>(comparator).also { map ->
         forEach { element ->
             map.getIfAbsentPut(keySelector(element), fastListOf()).add(element)

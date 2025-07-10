@@ -5,23 +5,26 @@ import org.eclipse.collections.impl.list.mutable.FastList
 
 fun <T> emptyFastList(): FastList<T> = FastList.newList()
 
-inline fun <T> FastList(
-    size: Int = 10,
-    @BuilderInference initializer: (index: Int) -> T,
+inline fun <T> fastList(
+    initialCapacity: Int = 10,
+    initializer: (index: Int) -> T,
 ): FastList<T> {
-    size.assertZeroOrPositiveNumber("size")
+    initialCapacity.assertZeroOrPositiveNumber("initialCapacity")
 
-    val list = FastList.newList<T>(size)
-    repeat(size) { index ->
-        list.add(initializer(index))
+    return FastList.newList<T>(initialCapacity).apply {
+        repeat(initialCapacity) { index ->
+            add(initializer(index))
+        }
     }
-    return list
 }
 
-fun <T> FastList(initialCapacity: Int): FastList<T> = FastList.newList<T>(initialCapacity)
 fun <T> fastListOf(vararg elements: T): FastList<T> = FastList.newListWith<T>(*elements)
 
-fun <T> Iterable<T>.toFastList(): FastList<T> = FastList.newList(this)
-fun <T> Sequence<T>.toFastList(): FastList<T> = FastList.newList(this.asIterable())
-fun <T> Iterator<T>.toFastList(): FastList<T> = FastList.newList(this.asIterable())
-fun <T> Array<T>.toFastList(): FastList<T> = FastList.newListWith(*this)
+fun <T> Iterable<T>.toFastList(): FastList<T> = when (this) {
+    is FastList<T> -> this
+    else -> FastList.newList(this)
+}
+
+fun <T> Sequence<T>.toFastList(): FastList<T> = this.asIterable().toFastList()
+fun <T> Iterator<T>.toFastList(): FastList<T> = this.asIterable().toFastList()
+fun <T> Array<T>.toFastList(): FastList<T> = this.asIterable().toFastList()
