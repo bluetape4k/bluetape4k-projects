@@ -1,6 +1,6 @@
 package io.bluetape4k.collections.eclipse.multi
 
-import io.bluetape4k.collections.fastListOf
+import io.bluetape4k.collections.eclipse.fastListOf
 import org.eclipse.collections.impl.map.sorted.mutable.TreeSortedMap
 
 typealias TreeMultimap<K, V> = TreeSortedMap<K, MutableList<V>>

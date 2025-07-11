@@ -7,10 +7,10 @@ import org.eclipse.collections.impl.set.mutable.UnifiedSet
 
 fun <T> emptyUnifiedSet(): ImmutableSet<T> = Sets.immutable.empty()
 
-inline fun <T> UnifiedSet(size: Int, initializer: (Int) -> T): UnifiedSet<T> =
+inline fun <T> unifiedSet(size: Int, initializer: (Int) -> T): UnifiedSet<T> =
     UnifiedSet.newSet<T>(size).apply {
-        forEachIndexed { index, _ ->
-            add(initializer(index))
+        repeat(size) {
+            add(initializer(it))
         }
     }
 

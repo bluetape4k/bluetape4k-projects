@@ -1,6 +1,6 @@
-package io.bluetape4k.collections
+package io.bluetape4k.collections.eclipse
 
-import io.bluetape4k.support.assertZeroOrPositiveNumber
+import io.bluetape4k.collections.asIterable
 import org.eclipse.collections.impl.list.mutable.FastList
 
 fun <T> emptyFastList(): FastList<T> = FastList.newList()
@@ -8,15 +8,12 @@ fun <T> emptyFastList(): FastList<T> = FastList.newList()
 inline fun <T> fastList(
     initialCapacity: Int = 10,
     initializer: (index: Int) -> T,
-): FastList<T> {
-    initialCapacity.assertZeroOrPositiveNumber("initialCapacity")
-
-    return FastList.newList<T>(initialCapacity).apply {
+): FastList<T> =
+    FastList.newList<T>(initialCapacity).apply {
         repeat(initialCapacity) { index ->
             add(initializer(index))
         }
     }
-}
 
 fun <T> fastListOf(vararg elements: T): FastList<T> = FastList.newListWith<T>(*elements)
 

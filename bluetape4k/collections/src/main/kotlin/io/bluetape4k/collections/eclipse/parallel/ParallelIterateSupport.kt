@@ -1,6 +1,6 @@
 package io.bluetape4k.collections.eclipse.parallel
 
-import io.bluetape4k.collections.fastListOf
+import io.bluetape4k.collections.eclipse.fastListOf
 import org.eclipse.collections.api.block.predicate.Predicate
 import org.eclipse.collections.api.block.procedure.Procedure
 import org.eclipse.collections.api.block.procedure.primitive.ObjectIntProcedure
