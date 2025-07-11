@@ -75,3 +75,12 @@ inline fun <T, K> Iterable<T>.groupBySetMultimap(keySelector: (T) -> K): Mutable
 
 inline fun <T, K> Iterable<T>.groupByBagMultimap(keySelector: (T) -> K): MutableBagMultimap<K, T> =
     toBagMultimap { keySelector(it) to it }
+
+fun <K, V> Iterable<Pair<K, V>>.toListMultimap(): MutableListMultimap<K, V> =
+    FastListMultimap.newMultimap(this.map { it.toTuplePair() })
+
+fun <K, V> Iterable<Pair<K, V>>.toSetMultimap(): MutableSetMultimap<K, V> =
+    UnifiedSetMultimap.newMultimap(this.map { it.toTuplePair() })
+
+fun <K, V> Iterable<Pair<K, V>>.toBagMultimap(): MutableBagMultimap<K, V> =
+    HashBagMultimap.newMultimap(this.map { it.toTuplePair() })
