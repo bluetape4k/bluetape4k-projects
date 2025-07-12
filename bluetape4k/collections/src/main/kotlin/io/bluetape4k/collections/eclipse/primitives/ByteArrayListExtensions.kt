@@ -2,6 +2,7 @@ package io.bluetape4k.collections.eclipse.primitives
 
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.collections.eclipse.toUnifiedSet
+import io.bluetape4k.support.asByte
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.eclipse.collections.api.ByteIterable
 import org.eclipse.collections.impl.list.mutable.primitive.ByteArrayList
@@ -14,6 +15,10 @@ fun Iterable<Byte>.toByteArrayList(): ByteArrayList =
     }
 
 fun Sequence<Byte>.toByteArrayList(): ByteArrayList = asIterable().toByteArrayList()
+
+fun Iterable<Number>.asByteArrayList() = ByteArrayList().also { array ->
+    forEach { number -> array.add(number.asByte()) }
+}
 
 inline fun byteArrayList(
     initialCapacity: Int = 10,

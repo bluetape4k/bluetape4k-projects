@@ -2,6 +2,7 @@ package io.bluetape4k.collections.eclipse.primitives
 
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.collections.eclipse.toUnifiedSet
+import io.bluetape4k.support.asChar
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.eclipse.collections.api.CharIterable
 import org.eclipse.collections.impl.list.mutable.primitive.CharArrayList
@@ -14,6 +15,10 @@ fun Iterable<Char>.toCharArrayList(): CharArrayList =
     }
 
 fun Sequence<Char>.toCharArrayList(): CharArrayList = asIterable().toCharArrayList()
+
+fun Iterable<Any>.asCharArrayList() = CharArrayList().also { array ->
+    forEach { number -> array.add(number.asChar()) }
+}
 
 inline fun charArrayList(
     initialCapacity: Int = 10,

@@ -2,6 +2,7 @@ package io.bluetape4k.collections.eclipse.primitives
 
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.collections.eclipse.toUnifiedSet
+import io.bluetape4k.support.asFloat
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.eclipse.collections.api.FloatIterable
 import org.eclipse.collections.impl.list.mutable.primitive.FloatArrayList
@@ -14,6 +15,10 @@ fun Iterable<Float>.toFloatArrayList(): FloatArrayList =
     }
 
 fun Sequence<Float>.toFloatArrayList(): FloatArrayList = asIterable().toFloatArrayList()
+
+fun Iterable<Number>.asFloatArrayList() = FloatArrayList().also { array ->
+    forEach { number -> array.add(number.asFloat()) }
+}
 
 inline fun floatArrayList(
     initialCapacity: Int = 10,

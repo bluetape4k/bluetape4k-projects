@@ -2,6 +2,7 @@ package io.bluetape4k.collections.eclipse.primitives
 
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.collections.eclipse.toUnifiedSet
+import io.bluetape4k.support.asShort
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.eclipse.collections.api.ShortIterable
 import org.eclipse.collections.impl.list.mutable.primitive.ShortArrayList
@@ -14,6 +15,10 @@ fun Iterable<Short>.toShortArrayList(): ShortArrayList =
     }
 
 fun Sequence<Short>.toShortArrayList(): ShortArrayList = asIterable().toShortArrayList()
+
+fun Iterable<Number>.asShortArrayList() = ShortArrayList().also { array ->
+    forEach { number -> array.add(number.asShort()) }
+}
 
 inline fun shortArrayList(
     initialCapacity: Int = 10,

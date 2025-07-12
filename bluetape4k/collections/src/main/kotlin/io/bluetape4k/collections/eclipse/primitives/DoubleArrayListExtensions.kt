@@ -2,18 +2,24 @@ package io.bluetape4k.collections.eclipse.primitives
 
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.collections.eclipse.toUnifiedSet
+import io.bluetape4k.support.asDouble
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.eclipse.collections.api.DoubleIterable
 import org.eclipse.collections.impl.list.mutable.primitive.DoubleArrayList
 
 fun DoubleArray.toDoubleArrayList(): DoubleArrayList = DoubleArrayList.newListWith(*this)
 
-fun Iterable<Double>.toDoubleArrayList(): DoubleArrayList =
+fun Iterable<Double>.toDoubleArrayList() =
     DoubleArrayList().also { array ->
         forEach { array.add(it) }
     }
 
-fun Sequence<Double>.toDoubleArrayList(): DoubleArrayList = asIterable().toDoubleArrayList()
+fun Sequence<Double>.toDoubleArrayList() = asIterable().toDoubleArrayList()
+
+fun Iterable<Number>.asDoubleArrayList() = DoubleArrayList().also { array ->
+    forEach { number -> array.add(number.asDouble()) }
+}
+
 
 inline fun doubleArrayList(
     initialCapacity: Int = 10,

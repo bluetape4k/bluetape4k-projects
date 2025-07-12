@@ -2,11 +2,13 @@ package io.bluetape4k.collections.eclipse.primitives
 
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.collections.eclipse.toUnifiedSet
+import io.bluetape4k.support.asLong
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.eclipse.collections.api.LongIterable
 import org.eclipse.collections.impl.list.mutable.primitive.LongArrayList
 
 fun LongArray.toLongArrayList(): LongArrayList = LongArrayList.newListWith(*this)
+
 
 fun Iterable<Long>.toLongArrayList(): LongArrayList =
     LongArrayList().also { array ->
@@ -14,6 +16,10 @@ fun Iterable<Long>.toLongArrayList(): LongArrayList =
     }
 
 fun Sequence<Long>.toLongArrayList(): LongArrayList = asIterable().toLongArrayList()
+
+fun Iterable<Number>.asLongArrayList() = LongArrayList().also { array ->
+    forEach { number -> array.add(number.asLong()) }
+}
 
 inline fun longArrayList(
     initialCapacity: Int = 10,
