@@ -1,5 +1,7 @@
 package io.bluetape4k.collections.eclipse.primitives
 
+import io.bluetape4k.collections.eclipse.toFastList
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.eclipse.collections.api.FloatIterable
 import org.eclipse.collections.impl.list.mutable.primitive.FloatArrayList
@@ -40,11 +42,23 @@ fun FloatIterable.asIterator(): Iterator<Float> = iterator {
     }
 }
 
-fun FloatIterable.asIterable(): Iterable<Float> = Iterable { asIterator() }
-
 fun FloatIterable.asSequence(): Sequence<Float> = sequence {
     val iter = floatIterator()
     while (iter.hasNext()) {
         yield(iter.next())
     }
 }
+
+fun FloatIterable.asIterable() = Iterable { asIterator() }
+fun FloatIterable.asList() = asIterable().toList()
+fun FloatIterable.asMutableList() = asIterable().toMutableList()
+fun FloatIterable.asSet() = asIterable().toSet()
+fun FloatIterable.asMutableSet() = asIterable().toMutableSet()
+
+fun FloatIterable.asFastList() = asIterable().toFastList()
+fun FloatIterable.asUnifiedSet() = asIterable().toUnifiedSet()
+
+fun FloatIterable.maxOrNull() = if (isEmpty) null else max()
+fun FloatIterable.minOrNull() = if (isEmpty) null else min()
+
+fun FloatIterable.product(): Double = asIterable().fold(1.0) { acc, i -> acc * i }

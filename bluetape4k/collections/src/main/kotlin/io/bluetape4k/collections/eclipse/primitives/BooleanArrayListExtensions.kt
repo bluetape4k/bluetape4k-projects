@@ -1,5 +1,7 @@
 package io.bluetape4k.collections.eclipse.primitives
 
+import io.bluetape4k.collections.eclipse.toFastList
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.eclipse.collections.api.BooleanIterable
 import org.eclipse.collections.impl.list.mutable.primitive.BooleanArrayList
@@ -41,11 +43,19 @@ fun BooleanIterable.asIterator(): Iterator<Boolean> = iterator {
     }
 }
 
-fun BooleanIterable.asIterable(): Iterable<Boolean> = Iterable { asIterator() }
-
 fun BooleanIterable.asSequence(): Sequence<Boolean> = sequence {
     val iter = booleanIterator()
     while (iter.hasNext()) {
         yield(iter.next())
     }
 }
+
+
+fun BooleanIterable.asIterable(): Iterable<Boolean> = Iterable { asIterator() }
+fun BooleanIterable.asList() = asIterable().toList()
+fun BooleanIterable.asMutableList() = asIterable().toMutableList()
+fun BooleanIterable.asSet() = asIterable().toSet()
+fun BooleanIterable.asMutableSet() = asIterable().toMutableSet()
+
+fun BooleanIterable.asFastList() = asIterable().toFastList()
+fun BooleanIterable.asUnifiedSet() = asIterable().toUnifiedSet()

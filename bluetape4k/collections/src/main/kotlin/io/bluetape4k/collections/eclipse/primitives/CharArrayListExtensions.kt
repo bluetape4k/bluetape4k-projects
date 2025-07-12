@@ -1,5 +1,7 @@
 package io.bluetape4k.collections.eclipse.primitives
 
+import io.bluetape4k.collections.eclipse.toFastList
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.eclipse.collections.api.CharIterable
 import org.eclipse.collections.impl.list.mutable.primitive.CharArrayList
@@ -40,11 +42,21 @@ fun CharIterable.asIterator(): Iterator<Char> = iterator {
     }
 }
 
-fun CharIterable.asIterable(): Iterable<Char> = Iterable { asIterator() }
-
 fun CharIterable.asSequence(): Sequence<Char> = sequence {
     val iter = charIterator()
     while (iter.hasNext()) {
         yield(iter.next())
     }
 }
+
+fun CharIterable.asIterable(): Iterable<Char> = Iterable { asIterator() }
+fun CharIterable.asList() = asIterable().toList()
+fun CharIterable.asMutableList() = asIterable().toMutableList()
+fun CharIterable.asSet() = asIterable().toSet()
+fun CharIterable.asMutableSet() = asIterable().toMutableSet()
+
+fun CharIterable.asFastList() = asIterable().toFastList()
+fun CharIterable.asUnifiedSet() = asIterable().toUnifiedSet()
+
+fun CharIterable.maxOrNull() = if (isEmpty) null else max()
+fun CharIterable.minOrNull() = if (isEmpty) null else min()

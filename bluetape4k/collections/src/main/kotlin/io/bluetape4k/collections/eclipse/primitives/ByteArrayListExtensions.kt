@@ -1,5 +1,7 @@
 package io.bluetape4k.collections.eclipse.primitives
 
+import io.bluetape4k.collections.eclipse.toFastList
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.eclipse.collections.api.ByteIterable
 import org.eclipse.collections.impl.list.mutable.primitive.ByteArrayList
@@ -40,11 +42,23 @@ fun ByteIterable.asIterator(): Iterator<Byte> = iterator {
     }
 }
 
-fun ByteIterable.asIterable(): Iterable<Byte> = Iterable { asIterator() }
-
 fun ByteIterable.asSequence(): Sequence<Byte> = sequence {
     val iter = byteIterator()
     while (iter.hasNext()) {
         yield(iter.next())
     }
 }
+
+fun ByteIterable.asIterable(): Iterable<Byte> = Iterable { asIterator() }
+fun ByteIterable.asList() = asIterable().toList()
+fun ByteIterable.asMutableList() = asIterable().toMutableList()
+fun ByteIterable.asSet() = asIterable().toSet()
+fun ByteIterable.asMutableSet() = asIterable().toMutableSet()
+
+fun ByteIterable.asFastList() = asIterable().toFastList()
+fun ByteIterable.asUnifiedSet() = asIterable().toUnifiedSet()
+
+fun ByteIterable.maxOrNull() = if (isEmpty) null else max()
+fun ByteIterable.minOrNull() = if (isEmpty) null else min()
+
+fun ByteIterable.product(): Double = asIterable().fold(1.0) { acc, i -> acc * i }
