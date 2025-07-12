@@ -6,11 +6,11 @@ import org.eclipse.collections.impl.list.mutable.FastList
 fun <T> emptyFastList(): FastList<T> = FastList.newList()
 
 inline fun <T> fastList(
-    initialCapacity: Int = 10,
+    size: Int = 10,
     initializer: (index: Int) -> T,
 ): FastList<T> =
-    FastList.newList<T>(initialCapacity).apply {
-        repeat(initialCapacity) { index ->
+    FastList.newList<T>(size).apply {
+        repeat(size) { index ->
             add(initializer(index))
         }
     }

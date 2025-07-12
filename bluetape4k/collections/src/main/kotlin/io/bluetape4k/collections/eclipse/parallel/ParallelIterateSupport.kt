@@ -13,13 +13,15 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.ForkJoinPool
 
 const val DEFAULT_PARALLEL_BATCH_SIZE = 10_000
+const val DEFAULT_REORDER = false
+
 val AVAILABLE_PROCESSORS: Int = Runtime.getRuntime().availableProcessors()
 val PARALLEL_EXECUTOR_SERVICE: ExecutorService = ForkJoinPool.commonPool()
 
 inline fun <T> Iterable<T>.parFilter(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
-    reorder: Boolean = false,
+    reorder: Boolean = DEFAULT_REORDER,
     crossinline predicate: (T) -> Boolean,
 ): Collection<T> =
     ParallelIterate.select(
@@ -34,7 +36,7 @@ inline fun <T> Iterable<T>.parFilter(
 inline fun <T> Iterable<T>.parFilterNot(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
-    reorder: Boolean = false,
+    reorder: Boolean = DEFAULT_REORDER,
     crossinline predicate: (T) -> Boolean,
 ): Collection<T> =
     ParallelIterate.reject(
@@ -72,7 +74,6 @@ inline fun <T> Iterable<T>.parForEach(
 }
 
 inline fun <T> Iterable<T>.parForEachWithIndex(
-    batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
     crossinline action: (index: Int, element: T) -> Unit,
 ) {
@@ -99,7 +100,7 @@ inline fun <T> Iterable<T>.parForEachWithIndex(
 inline fun <T, R> Iterable<T>.parMap(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
-    reorder: Boolean = false,
+    reorder: Boolean = DEFAULT_REORDER,
     crossinline mapper: (T) -> R,
 ): Collection<R> =
     ParallelIterate.collect(
@@ -114,7 +115,7 @@ inline fun <T, R> Iterable<T>.parMap(
 inline fun <T, R> Iterable<T>.parFlatMap(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
-    reorder: Boolean = false,
+    reorder: Boolean = DEFAULT_REORDER,
     crossinline mapper: (element: T) -> Collection<R>,
 ): Collection<R> =
     ParallelIterate.flatCollect(
@@ -126,12 +127,28 @@ inline fun <T, R> Iterable<T>.parFlatMap(
         reorder
     )
 
-inline fun <K, V, R: MutableMultimap<K, V>> Iterable<V>.parGroupBy(
+inline fun <T, R> Iterable<T>.parFilterMap(
+    batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
+    executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
+    reorder: Boolean = DEFAULT_REORDER,
+    crossinline predicate: (T) -> Boolean,
+    crossinline mapper: (T) -> R,
+): Collection<R> =
+    ParallelIterate.collectIf(
+        this,
+        Predicate { predicate(it) },
+        { mapper(it) },
+        fastListOf(),
+        batchSize,
+        executor,
+        reorder
+    )
+
+inline fun <K, V> Iterable<V>.parGroupBy(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
     concurrentMultimap: MutableMultimap<K, V> = SynchronizedPutFastListMultimap.newMultimap<K, V>(),
     crossinline keyFunction: (V) -> K,
-    multimapFactory: () -> R,
 ): MutableMultimap<K, V> =
     ParallelIterate.groupBy(
         this,
