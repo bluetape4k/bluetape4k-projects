@@ -22,7 +22,7 @@ inline fun byteArrayList(
     initialCapacity.requireZeroOrPositiveNumber("initialCapacity")
     return ByteArrayList(initialCapacity).apply {
         repeat(initialCapacity) { index ->
-            this[index] = initializer(index)
+            add(initializer(index))
         }
     }
 }

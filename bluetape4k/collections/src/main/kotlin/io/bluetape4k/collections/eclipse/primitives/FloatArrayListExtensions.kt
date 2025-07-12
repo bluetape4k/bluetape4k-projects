@@ -22,7 +22,7 @@ inline fun floatArrayList(
     initialCapacity.requireZeroOrPositiveNumber("initialCapacity")
     return FloatArrayList(initialCapacity).apply {
         repeat(initialCapacity) { index ->
-            this[index] = initializer(index)
+            add(initializer(index))
         }
     }
 }

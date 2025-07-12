@@ -22,7 +22,7 @@ inline fun booleanArrayList(
     initialCapacity.requireZeroOrPositiveNumber("initialCapacity")
     return BooleanArrayList(initialCapacity).apply {
         repeat(initialCapacity) { index ->
-            this[index] = initializer(index)
+            add(initializer(index))
         }
     }
 }

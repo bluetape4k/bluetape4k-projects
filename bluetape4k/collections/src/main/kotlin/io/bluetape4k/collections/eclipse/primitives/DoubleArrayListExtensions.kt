@@ -22,7 +22,7 @@ inline fun doubleArrayList(
     initialCapacity.requireZeroOrPositiveNumber("initialCapacity")
     return DoubleArrayList(initialCapacity).apply {
         repeat(initialCapacity) { index ->
-            this[index] = initializer(index)
+            add(initializer(index))
         }
     }
 }

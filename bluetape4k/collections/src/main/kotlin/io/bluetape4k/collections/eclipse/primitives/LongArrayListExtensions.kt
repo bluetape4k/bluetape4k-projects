@@ -22,7 +22,7 @@ inline fun longArrayList(
     initialCapacity.requireZeroOrPositiveNumber("initialCapacity")
     return LongArrayList(initialCapacity).apply {
         repeat(initialCapacity) { index ->
-            this[index] = initializer(index)
+            add(initializer(index))
         }
     }
 }

@@ -22,7 +22,7 @@ inline fun shortArrayList(
     initialCapacity.requireZeroOrPositiveNumber("initialCapacity")
     return ShortArrayList(initialCapacity).apply {
         repeat(initialCapacity) { index ->
-            this[index] = initializer(index)
+            add(initializer(index))
         }
     }
 }
