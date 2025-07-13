@@ -67,7 +67,7 @@ class FastListSupportTest: AbstractCollectionTest() {
     fun `FastList 확장 toFastList가 FastList를 반환하는지 확인`() {
         val original = fastListOf(1, 2, 3)
         val converted = original.toFastList()
-        (converted === original).shouldBeTrue()
+        converted shouldBeEqualTo original
     }
 
     @Test

@@ -17,11 +17,7 @@ inline fun <T> unifiedSet(size: Int, initializer: (Int) -> T): UnifiedSet<T> =
 fun <T> unifiedSetOf(vararg elements: T): UnifiedSet<T> = UnifiedSet.newSetWith<T>(*elements)
 fun <T> unifiedSetOf(size: Int): UnifiedSet<T> = UnifiedSet.newSet<T>(size)
 
-fun <T> Iterable<T>.toUnifiedSet(): UnifiedSet<T> = when (this) {
-    is UnifiedSet<T> -> this
-    else -> UnifiedSet.newSet(this)
-}
-
+fun <T> Iterable<T>.toUnifiedSet(): UnifiedSet<T> = UnifiedSet.newSet(this)
 fun <T> Sequence<T>.toUnifiedSet(): UnifiedSet<T> = this.asIterable().toUnifiedSet()
 fun <T> Iterator<T>.toUnifiedSet(): UnifiedSet<T> = this.asIterable().toUnifiedSet()
 fun <T> Array<T>.toUnifiedSet(): UnifiedSet<T> = this.asIterable().toUnifiedSet()

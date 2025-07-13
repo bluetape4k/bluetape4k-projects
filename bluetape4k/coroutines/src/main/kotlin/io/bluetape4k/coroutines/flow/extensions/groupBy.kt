@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.toList
 import java.io.Serializable
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
@@ -102,7 +103,7 @@ internal fun <T, K, V> groupByInternal(
     valueSelector: (T) -> V,
 ): Flow<GroupedFlow<K, V>> = flow {
     val map = ConcurrentHashMap<K, FlowGroup<K, V>>()
-    val mainStopped = atomic(false)
+    val mainStopped = AtomicBoolean(false)
 
     try {
         source.collect {
@@ -111,14 +112,14 @@ internal fun <T, K, V> groupByInternal(
             if (group != null) {
                 group.next(valueSelector(it))
             } else {
-                if (!mainStopped.value) {
+                if (!mainStopped.get()) {
                     group = FlowGroup(k, map)
                     map[k] = group
 
                     try {
                         emit(group)
                     } catch (e: CancellationException) {
-                        mainStopped.value = true
+                        mainStopped.set(true)
                         if (map.isEmpty()) {
                             throw CancellationException()
                         }
@@ -151,9 +152,9 @@ private class FlowGroup<K, V>(
     private var value: V = uninitialized()
     private var error: Throwable? = null
 
-    private val hasValue = atomic(false)
-    private val done = atomic(false)
-    private val cancelled = atomic(false)
+    private val hasValue = AtomicBoolean(false)
+    private val done = AtomicBoolean(false)
+    private val cancelled = AtomicBoolean(false)
 
     private val consumerReady = Resumable()
     private val valueReady = Resumable()
@@ -168,8 +169,8 @@ private class FlowGroup<K, V>(
         consumerReady.resume()
 
         while (true) {
-            val d = done.value
-            val has = hasValue.value
+            val d = done.get()
+            val has = hasValue.get()
 
             if (d && !has) {
                 error?.let { throw it }
@@ -179,13 +180,13 @@ private class FlowGroup<K, V>(
             if (has) {
                 val v = value
                 value = uninitialized()
-                hasValue.value = false
+                hasValue.set(false)
 
                 try {
                     collector.emit(v)
                 } catch (e: Throwable) {
                     map.remove(this.key)
-                    cancelled.value = true
+                    cancelled.set(true)
                     consumerReady.resume()
                     throw e
                 }
@@ -199,22 +200,22 @@ private class FlowGroup<K, V>(
     }
 
     suspend fun next(value: V) {
-        if (cancelled.value) return
+        if (cancelled.get()) return
 
         consumerReady.await()
         this.value = value
-        this.hasValue.value = true
+        this.hasValue.set(true)
         valueReady.resume()
     }
 
     fun error(ex: Throwable) {
         error = ex
-        done.value = true
+        done.set(true)
         valueReady.resume()
     }
 
     fun complete() {
-        done.value = true
+        done.set(true)
         valueReady.resume()
     }
 }

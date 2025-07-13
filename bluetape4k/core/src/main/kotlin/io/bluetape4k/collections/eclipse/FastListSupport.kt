@@ -17,11 +17,12 @@ inline fun <T> fastList(
 
 fun <T> fastListOf(vararg elements: T): FastList<T> = FastList.newListWith<T>(*elements)
 
-fun <T> Iterable<T>.toFastList(): FastList<T> = when (this) {
-    is FastList<T> -> this
-    else -> FastList.newList(this)
-}
-
+fun <T> Iterable<T>.toFastList(): FastList<T> = FastList.newList(this)
 fun <T> Sequence<T>.toFastList(): FastList<T> = this.asIterable().toFastList()
 fun <T> Iterator<T>.toFastList(): FastList<T> = this.asIterable().toFastList()
 fun <T> Array<T>.toFastList(): FastList<T> = this.asIterable().toFastList()
+
+fun <T> Iterable<T>.asFastList(): FastList<T> = when (this) {
+    is FastList -> this
+    else -> toFastList()
+}

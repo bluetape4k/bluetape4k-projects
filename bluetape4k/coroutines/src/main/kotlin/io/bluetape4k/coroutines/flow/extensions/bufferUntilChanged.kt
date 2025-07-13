@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 
@@ -29,7 +30,7 @@ fun <T, K> Flow<T>.bufferUntilChanged(groupSelector: (T) -> K): Flow<List<T>> = 
 
 
     val self = this@bufferUntilChanged
-    val elements = mutableListOf<T>()
+    val elements = fastListOf<T>()
     var prevGroup: K? = null
 
     self.collect { element ->

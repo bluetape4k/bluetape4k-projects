@@ -2,12 +2,12 @@ package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.coroutines.flow.exceptions.STOP
 import io.bluetape4k.coroutines.flow.exceptions.StopFlowException
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration
 
 /**
@@ -56,7 +56,7 @@ fun <T> Flow<T>.takeUntil(delayMillis: Long): Flow<T> = takeUntilInternal(this, 
 
 internal fun <T> takeUntilInternal(source: Flow<T>, notifier: Flow<Any?>): Flow<T> = flow {
     coroutineScope {
-        val gate = atomic(false)
+        val gate = AtomicBoolean(false)
 
         val job = launch(start = CoroutineStart.UNDISPATCHED) {
             try {
@@ -66,13 +66,13 @@ internal fun <T> takeUntilInternal(source: Flow<T>, notifier: Flow<Any?>): Flow<
             } catch (e: StopFlowException) {
                 // Nothing to do
             } finally {
-                gate.value = true
+                gate.set(true)
             }
         }
 
         try {
             source.collect {
-                if (gate.value) {
+                if (gate.get()) {
                     throw STOP
                 }
                 emit(it)
