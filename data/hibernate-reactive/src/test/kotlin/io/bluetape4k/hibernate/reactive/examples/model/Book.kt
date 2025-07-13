@@ -58,7 +58,7 @@ class Book private constructor(
 
 
     override fun equalProperties(other: Any): Boolean =
-        other is Book && isbn == other.isbn && title == other.title && published == other.published
+        other is Book && isbn == other.isbn && title == other.title && published.isEqual(other.published)
 
     override fun equals(other: Any?): Boolean = other != null && super.equals(other)
 
