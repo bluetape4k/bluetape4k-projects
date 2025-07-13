@@ -1,7 +1,5 @@
 package io.bluetape4k.collections.eclipse.ranges
 
-import io.bluetape4k.collections.eclipse.primitives.intArrayList
-import io.bluetape4k.collections.eclipse.primitives.longArrayList
 import io.bluetape4k.support.requireGt
 import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList
 import org.eclipse.collections.impl.list.mutable.primitive.LongArrayList
@@ -11,8 +9,19 @@ import org.eclipse.collections.impl.list.primitive.LongInterval
 fun intIntervalOf(start: Int, endInclusive: Int, step: Int = 1): IntInterval =
     IntInterval.fromToBy(start, endInclusive, step)
 
-fun IntInterval.toIntArrayList(): IntArrayList = intArrayList(this.size()) { it }
-fun IntInterval.toLongArrayList(): LongArrayList = longArrayList(this.size()) { it.toLong() }
+fun IntInterval.toIntArrayList(): IntArrayList =
+    IntArrayList(size()).also { array ->
+        forEach { element ->
+            array.add(element)
+        }
+    }
+
+fun IntInterval.toLongArrayList(): LongArrayList =
+    LongArrayList(size()).also { array ->
+        forEach { element ->
+            array.add(element.toLong())
+        }
+    }
 
 inline fun IntInterval.forEach(crossinline block: (Int) -> Unit) {
     this.each { block(it) }
@@ -61,7 +70,12 @@ inline fun IntInterval.sliding(
 fun longIntervalOf(start: Long, endInclusive: Long, step: Long = 1): LongInterval =
     LongInterval.fromToBy(start, endInclusive, step)
 
-fun LongInterval.toLongArrayList(): LongArrayList = longArrayList(this.size()) { it.toLong() }
+fun LongInterval.toLongArrayList(): LongArrayList =
+    LongArrayList().also { array ->
+        forEach {
+            array.add(it)
+        }
+    }
 
 inline fun LongInterval.forEach(crossinline block: (Long) -> Unit) {
     this.each { block(it) }

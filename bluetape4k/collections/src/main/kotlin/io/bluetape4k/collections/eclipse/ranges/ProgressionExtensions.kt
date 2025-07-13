@@ -4,26 +4,23 @@ import org.eclipse.collections.impl.list.mutable.primitive.CharArrayList
 import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList
 import org.eclipse.collections.impl.list.mutable.primitive.LongArrayList
 
-fun CharProgression.toCharArrayList(): CharArrayList {
-    val array = CharArrayList(this.count())
-    forEachIndexed { index, value ->
-        array[index] = value
+fun CharProgression.toCharArrayList(): CharArrayList =
+    CharArrayList().also { array ->
+        forEach {
+            array.add(it)
+        }
     }
-    return array
-}
 
-fun IntProgression.toIntArrayList(): IntArrayList {
-    val array = IntArrayList(this.count())
-    forEachIndexed { index, value ->
-        array[index] = value
+fun IntProgression.toIntArrayList(): IntArrayList =
+    IntArrayList().also { array ->
+        forEach {
+            array.add(it)
+        }
     }
-    return array
-}
 
-fun LongProgression.toLongArrayList(): LongArrayList {
-    val array = LongArrayList(this.count())
-    forEachIndexed { index, value ->
-        array[index] = value
+fun LongProgression.toLongArrayList(): LongArrayList =
+    LongArrayList().also { array ->
+        forEach {
+            array.add(it)
+        }
     }
-    return array
-}
