@@ -10,14 +10,12 @@ import jakarta.persistence.Convert
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
 import java.io.Serializable
 
 @Entity(name = "converter_purchase")
 @Access(AccessType.FIELD)
 class Purchase: IntJpaEntity() {
 
-    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "purchase_id")
     override var id: Int? = null

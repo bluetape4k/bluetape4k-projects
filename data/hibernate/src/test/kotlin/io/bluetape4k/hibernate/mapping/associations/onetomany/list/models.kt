@@ -11,7 +11,6 @@ import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.JoinTable
 import jakarta.persistence.ManyToOne
@@ -70,7 +69,7 @@ class Child(
 ): IntJpaEntity() {
 
     override fun equalProperties(other: Any): Boolean {
-        return other is Child && name == other.name && birthday == other.birthday
+        return other is Child && name == other.name && birthday.isEqual(other.birthday)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -168,7 +167,6 @@ class Batch(
     val name: String,
 ): IntJpaEntity() {
 
-    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @field:Column(name = "batch_id")
     override var id: Int? = null
@@ -220,7 +218,6 @@ class BatchItem(
     val name: String,
 ): IntJpaEntity() {
 
-    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @field:Column(name = "batch_item_id")
     override var id: Int? = null
