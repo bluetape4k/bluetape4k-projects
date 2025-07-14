@@ -28,4 +28,13 @@ fun <T> Iterable<T>.asFastList(): FastList<T> = when (this) {
 }
 
 fun <T, R> Iterable<T>.fastMap(transform: (T) -> R): FastList<R> =
-    toFastList().collect { transform(it) }
+    asFastList().collect { transform(it) }
+
+fun <T, R: Any> Iterable<T>.fastMapNotNull(mapper: (T) -> R?): FastList<R> =
+    asFastList().collectIf<R>({ it != null }) { mapper(it) }
+
+fun <T> Iterable<T>.fastFilter(predicate: (T) -> Boolean): FastList<T> =
+    asFastList().select { predicate(it) }
+
+fun <T> Iterable<T>.fastFilterNot(predicate: (T) -> Boolean): FastList<T> =
+    asFastList().select { !predicate(it) }
