@@ -508,7 +508,7 @@ fun <T> Flow<T>.throttleTime(
                             if (trailing && lastValue != null) {
                                 throttled?.run {
                                     throttled = null
-                                    this.join()
+                                    join()
                                     trySend()
                                 }
                             }
@@ -520,7 +520,7 @@ fun <T> Flow<T>.throttleTime(
         }
 
         throttled?.run {
-            throttled = null
+            // throttled = null
             cancelAndJoin()
         }
     }

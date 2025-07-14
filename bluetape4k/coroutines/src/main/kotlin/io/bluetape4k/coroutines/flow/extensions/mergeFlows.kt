@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions
 
+import io.bluetape4k.collections.eclipse.toFastList
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -19,7 +20,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  *     .assertResultSet(6, 7, 8, 9, 10, 1, 2, 3, 4, 5)
  * ```
  */
-fun <T> Iterable<Flow<T>>.merge(): Flow<T> = mergeInternal(this.toList())
+fun <T> Iterable<Flow<T>>.merge(): Flow<T> = mergeInternal(this.toFastList())
 
 /**
  * 여러 Flow 소스를 무제한으로 병합합니다.
@@ -32,7 +33,7 @@ fun <T> Iterable<Flow<T>>.merge(): Flow<T> = mergeInternal(this.toList())
  *     .assertResultSet(6, 7, 8, 9, 10, 1, 2, 3, 4, 5)
  * ```
  */
-fun <T> merge(vararg sources: Flow<T>): Flow<T> = mergeInternal(sources.asList())
+fun <T> merge(vararg sources: Flow<T>): Flow<T> = mergeInternal(sources.toFastList())
 
 /**
  * 여러 Flow 소스를 무제한으로 병합합니다.

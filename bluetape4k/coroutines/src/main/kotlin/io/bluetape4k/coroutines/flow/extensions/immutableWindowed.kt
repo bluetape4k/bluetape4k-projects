@@ -2,6 +2,8 @@ package io.bluetape4k.coroutines.flow.extensions
 
 import com.danrusu.pods4k.immutableArrays.ImmutableArray
 import com.danrusu.pods4k.immutableArrays.toImmutableArray
+import io.bluetape4k.collections.eclipse.asFastList
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.support.requireGt
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.Flow
@@ -38,21 +40,21 @@ private fun <T> Flow<T>.immutableWindowedInternal(
     size.requireGt(0, "size")
     step.requireGt(0, "step")
 
-    var elements = mutableListOf<T>()
+    var elements = fastListOf<T>()
     val counter = atomic(0)
 
     this@immutableWindowedInternal.collect { elem ->
         elements.add(elem)
         if (counter.incrementAndGet() == size) {
             send(elements.toImmutableArray())
-            elements = elements.drop(step).toMutableList()
+            elements = elements.drop(step).asFastList()
             counter.addAndGet(-step)
         }
     }
     if (partialWindows) {
         while (counter.value > 0) {
             send(elements.toImmutableArray())
-            elements = elements.drop(step).toMutableList()
+            elements = elements.drop(step).asFastList()
             counter.addAndGet(-step)
         }
     }

@@ -4,6 +4,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
 import kotlin.time.Duration
 
 /**
@@ -98,38 +99,35 @@ private fun <T> repeatInternal(
     infinite: Boolean,
     durationFunc: DelayDurationFunction?,
 ): Flow<T> = when {
-    infinite   -> repeatIndefinitely(flow, durationFunc)
+    infinite -> repeatIndefinitely(flow, durationFunc)
     count <= 0 -> emptyFlow()
-    else       -> repeatAtMostCount(flow, count, durationFunc)
+    else -> repeatAtMostCount(flow, count, durationFunc)
 }
 
 private fun <T> repeatIndefinitely(
     flow: Flow<T>,
     durationFunc: DelayDurationFunction?,
 ): Flow<T> = when (durationFunc) {
-    null                          ->
-        kotlinx.coroutines.flow.flow {
-            while (true) {
-                emitAll(flow)
-            }
+    null -> flow {
+        while (true) {
+            emitAll(flow)
         }
+    }
 
-    is FixedDelayDurationFunction ->
-        kotlinx.coroutines.flow.flow {
-            while (true) {
-                emitAll(flow)
-                delay(durationFunc.duration)
-            }
+    is FixedDelayDurationFunction -> flow {
+        while (true) {
+            emitAll(flow)
+            delay(durationFunc.duration)
         }
+    }
 
-    else                          ->
-        kotlinx.coroutines.flow.flow {
-            var soFar = 1
-            while (true) {
-                emitAll(flow)
-                delay(durationFunc(soFar++))
-            }
+    else -> flow {
+        var soFar = 1
+        while (true) {
+            emitAll(flow)
+            delay(durationFunc(soFar++))
         }
+    }
 }
 
 private fun <T> repeatAtMostCount(
@@ -137,26 +135,23 @@ private fun <T> repeatAtMostCount(
     count: Int,
     durationFunc: DelayDurationFunction?,
 ): Flow<T> = when (durationFunc) {
-    null                          ->
-        kotlinx.coroutines.flow.flow {
-            repeat(count) {
-                emitAll(flow)
-            }
+    null -> flow {
+        repeat(count) {
+            emitAll(flow)
         }
+    }
 
-    is FixedDelayDurationFunction ->
-        kotlinx.coroutines.flow.flow {
-            repeat(count) {
-                emitAll(flow)
-                delay(durationFunc.duration)
-            }
+    is FixedDelayDurationFunction -> flow {
+        repeat(count) {
+            emitAll(flow)
+            delay(durationFunc.duration)
         }
+    }
 
-    else                          ->
-        kotlinx.coroutines.flow.flow {
-            repeat(count) {
-                emitAll(flow)
-                delay(durationFunc(it))
-            }
+    else -> flow {
+        repeat(count) {
+            emitAll(flow)
+            delay(durationFunc(it))
         }
+    }
 }

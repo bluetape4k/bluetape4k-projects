@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions
 
+import io.bluetape4k.collections.eclipse.asFastList
 import io.bluetape4k.support.requireGe
 import io.bluetape4k.support.requireGt
 import kotlinx.atomicfu.atomic
@@ -7,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.map
+import org.eclipse.collections.impl.list.mutable.FastList
 
 /**
  * Flow 요소들을 windowing 을 수행하여 `Flow<List<T>>` 로 변환합니다.
@@ -44,29 +46,32 @@ fun <T> Flow<T>.windowed(size: Int, step: Int = 1, partialWindow: Boolean = fals
 fun <T> Flow<T>.windowedFlow(size: Int, step: Int, partialWindow: Boolean = false): Flow<Flow<T>> =
     windowedInternal(size, step, partialWindow).map { it.asFlow() }
 
-private fun <T> Flow<T>.windowedInternal(size: Int, step: Int = 1, partialWindow: Boolean = false): Flow<List<T>> =
-    channelFlow {
-        size.requireGt(0, "size")
-        step.requireGt(0, "step")
-        size.requireGe(step, "step")
+private fun <T> Flow<T>.windowedInternal(
+    size: Int,
+    step: Int = 1,
+    partialWindow: Boolean = false,
+): Flow<List<T>> = channelFlow {
+    size.requireGt(0, "size")
+    step.requireGt(0, "step")
+    size.requireGe(step, "step")
 
-        var elements: MutableList<T> = ArrayList(size)
-        val counter = atomic(0)
+    var elements = FastList<T>(size)
+    val counter = atomic(0)
 
-        this@windowedInternal.collect { element ->
-            elements.add(element)
-            if (counter.incrementAndGet() == size) {
-                send(elements)
-                elements = elements.drop(step).toMutableList()
-                counter.addAndGet(-step)
-            }
-        }
-
-        if (partialWindow) {
-            while (counter.value > 0) {
-                send(elements)
-                elements = elements.drop(step).toMutableList()
-                counter.addAndGet(-step)
-            }
+    this@windowedInternal.collect { element ->
+        elements.add(element)
+        if (counter.incrementAndGet() == size) {
+            send(elements)
+            elements = elements.drop(step).asFastList()
+            counter.addAndGet(-step)
         }
     }
+
+    if (partialWindow) {
+        while (counter.value > 0) {
+            send(elements)
+            elements = elements.drop(step).asFastList()
+            counter.addAndGet(-step)
+        }
+    }
+}

@@ -7,10 +7,10 @@
         <provider>org.hibernate.reactive.provider.ReactivePersistenceProvider</provider>
 
         <!-- 테스트 시에는 build/classes 에 있는 entity 를 scan 한다  -->
-        <jar-file>build/classes</jar-file>
+        <jar-file>../../build/bluetape4k-hibernate-reactive/classes</jar-file>
         <!-- bluetape4k-hibernate 테스트 코드의 Entity 정보를 사용한다 -->
         <!-- 이를 위해서는 build.gradle.kts 에서 bluetape4k-hibernate의 testArchives 를 참조해야 한다 -->
-        <jar-file>../hibernate/build/classes/kotlin/test/io/bluetape4k/hibernate/mapping</jar-file>
+        <jar-file>../../build/bluetape4k-hibernate/classes/kotlin/test/io/bluetape4k/hibernate/mapping</jar-file>
 
         <!--        <class>Author</class>-->
         <!--        <class>Book</class>-->

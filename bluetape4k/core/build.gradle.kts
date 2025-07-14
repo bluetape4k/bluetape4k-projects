@@ -29,9 +29,9 @@ dependencies {
 
     // Apache Commons
     api(Libs.commons_lang3)
-    api(Libs.commons_codec)
-    api(Libs.commons_compress)
-    api(Libs.commons_io)
+    compileOnly(Libs.commons_codec)
+    compileOnly(Libs.commons_compress)
+    compileOnly(Libs.commons_io)
 
     // Coroutines
     compileOnly(Libs.kotlinx_coroutines_core)
@@ -42,9 +42,13 @@ dependencies {
     compileOnly(Libs.reactor_kotlin_extensions)
     testImplementation(Libs.reactor_test)
 
-    // Pods4k
+    // Collections
+    api(Libs.eclipse_collections)
+    api(Libs.eclipse_collections_forkjoin)
+    testImplementation(Libs.eclipse_collections_testutils)
     compileOnly(Libs.pods4k_core)
     compileOnly(Libs.pods4k_transformations_to_standard_collections)
+    compileOnly(Libs.commons_collections4)
 
     // Benchmark
     testImplementation(Libs.kotlinx_benchmark_runtime)
