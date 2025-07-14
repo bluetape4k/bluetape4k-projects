@@ -26,3 +26,6 @@ fun <T> Iterable<T>.asFastList(): FastList<T> = when (this) {
     is FastList -> this
     else -> toFastList()
 }
+
+fun <T, R> Iterable<T>.fastMap(transform: (T) -> R): FastList<R> =
+    toFastList().collect { transform(it) }
