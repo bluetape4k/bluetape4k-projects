@@ -6,7 +6,7 @@ import io.bluetape4k.collections.eclipse.primitives.toFloatArrayList
 import io.bluetape4k.collections.eclipse.primitives.toIntArrayList
 import io.bluetape4k.collections.eclipse.primitives.toLongArrayList
 import io.bluetape4k.collections.eclipse.toFastList
-import org.eclipse.collections.impl.list.mutable.FastList
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import org.eclipse.collections.impl.list.mutable.primitive.DoubleArrayList
 import org.eclipse.collections.impl.list.mutable.primitive.FloatArrayList
 import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList
@@ -16,7 +16,8 @@ import java.util.stream.IntStream
 import java.util.stream.LongStream
 import java.util.stream.Stream
 
-fun <T> Stream<T>.toFastList(): FastList<T> = asIterable().toFastList()
+fun <T> Stream<T>.toFastList() = asIterable().toFastList()
+fun <T> Stream<T>.toUnifiedSet() = asIterable().toUnifiedSet()
 
 fun IntStream.toIntArrayList(): IntArrayList = asIterable().toIntArrayList()
 fun LongStream.toLongArrayList(): LongArrayList = asIterable().toLongArrayList()
