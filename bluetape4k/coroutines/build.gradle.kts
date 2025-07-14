@@ -16,15 +16,14 @@ dependencies {
     testImplementation(Libs.kotlinx_coroutines_debug)
     testImplementation(Libs.kotlinx_coroutines_test)
 
-    // Eclipse Collections
-    compileOnly(Libs.eclipse_collections)
-    compileOnly(Libs.eclipse_collections_forkjoin)
+    // Collections
+    api(Libs.eclipse_collections)
+    api(Libs.eclipse_collections_forkjoin)
     testImplementation(Libs.eclipse_collections_testutils)
-
-    // Pods4k Immutable Array
     compileOnly(Libs.pods4k_core)
     compileOnly(Libs.pods4k_transformations_to_standard_collections)
-
+    compileOnly(Libs.commons_collections4)
+    
     // Test Fixture
     compileOnly(Libs.kluent)
     compileOnly(Libs.kotlin_test_junit5)

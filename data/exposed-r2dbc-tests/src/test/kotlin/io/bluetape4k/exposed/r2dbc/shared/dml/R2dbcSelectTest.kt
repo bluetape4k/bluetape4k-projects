@@ -1,5 +1,9 @@
 package io.bluetape4k.exposed.r2dbc.shared.dml
 
+import io.bluetape4k.collections.eclipse.fastListOf
+import io.bluetape4k.collections.eclipse.toFastList
+import io.bluetape4k.coroutines.flow.extensions.toFastList
+import io.bluetape4k.coroutines.flow.extensions.toUnifiedSet
 import io.bluetape4k.exposed.r2dbc.shared.dml.DMLTestData.withCitiesAndUsers
 import io.bluetape4k.exposed.r2dbc.shared.dml.DMLTestData.withSales
 import io.bluetape4k.exposed.r2dbc.shared.dml.DMLTestData.withSalesAndSomeAmounts
@@ -12,7 +16,6 @@ import io.bluetape4k.support.toBigDecimal
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
@@ -553,7 +556,7 @@ class R2dbcSelectTest: R2dbcExposedTestBase() {
         Assumptions.assumeTrue { testDB in supportingAnyAndAllFromArrays }
 
         withSales(testDB) { _, sales ->
-            val amounts = listOf(100.0, 1000.0).map { it.toBigDecimal() }
+            val amounts = fastListOf(100.0, 1000.0).map { it.toBigDecimal() }
 
             val rows = sales.selectAll()
                 .where {
@@ -561,7 +564,7 @@ class R2dbcSelectTest: R2dbcExposedTestBase() {
                 }
                 .orderBy(sales.amount)
                 .map { it[sales.product] }
-                .toList()
+                .toFastList()
 
             rows.subList(0, 3).forEach { it shouldBeEqualTo "tea" }
             rows.subList(3, 6).forEach { it shouldBeEqualTo "coffee" }
@@ -823,7 +826,7 @@ class R2dbcSelectTest: R2dbcExposedTestBase() {
              * ```
              */
             val orOp = allUsers.map { Op.build { users.name eq it } }.compoundOr()
-            val userNameOr = users.selectAll().where(orOp).map { it[users.name] }.toSet()
+            val userNameOr = users.selectAll().where(orOp).map { it[users.name] }.toUnifiedSet()
             userNameOr shouldBeEqualTo allUsers
 
             /**
@@ -897,7 +900,7 @@ class R2dbcSelectTest: R2dbcExposedTestBase() {
 
             // 이미 query에는 comment가 존재하므로 IllegalStateException 발생
             assertFailsWith<IllegalStateException> {
-                query.comment("Testing").toList()
+                query.comment("Testing").toFastList()
             }
 
             val commentedBackSql =
@@ -924,7 +927,7 @@ class R2dbcSelectTest: R2dbcExposedTestBase() {
         }
 
         withTables(testDB, alphabet) {
-            val allLetters = ('A'..'Z').toList()
+            val allLetters = ('A'..'Z').toFastList()
             val amount = 10
             val start = 8L
 
@@ -936,7 +939,7 @@ class R2dbcSelectTest: R2dbcExposedTestBase() {
             val limitResult = alphabet.selectAll()
                 .limit(amount)
                 .map { it[alphabet.letter] }
-                .toList()
+                .toFastList()
             limitResult shouldBeEqualTo allLetters.take(amount)
 
             // SELECT alphabet.letter FROM alphabet LIMIT 10 OFFSET 8
@@ -944,7 +947,7 @@ class R2dbcSelectTest: R2dbcExposedTestBase() {
                 .limit(amount)
                 .offset(start)
                 .map { it[alphabet.letter] }
-                .toList()
+                .toFastList()
             limitOffsetResult shouldBeEqualTo allLetters.drop(start.toInt()).take(amount)
 
             if (testDB !in TestDB.ALL_MYSQL_MARIADB_LIKE) {
@@ -952,11 +955,10 @@ class R2dbcSelectTest: R2dbcExposedTestBase() {
                 val offsetResult = alphabet.selectAll()
                     .offset(start)
                     .map { it[alphabet.letter] }
-                    .toList()
+                    .toFastList()
 
                 offsetResult shouldBeEqualTo allLetters.drop(start.toInt())
             }
         }
     }
-
 }
