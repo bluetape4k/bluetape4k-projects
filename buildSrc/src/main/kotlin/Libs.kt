@@ -324,27 +324,6 @@ object Libs {
     val kotlinx_benchmark_runtime = kotlinxBenchmark("runtime")
     val kotlinx_benchmark_runtime_jvm = kotlinxBenchmark("runtime-jvm")
 
-    // javax api
-    const val javax_activation_api = "javax.activation:javax.activation-api:1.2.0"
-    const val javax_annotation_api = "javax.annotation:javax.annotation-api:1.3.2"
-    const val javax_cache_api = "javax.cache:cache-api:1.1.1"
-    const val javax_inject = "javax.inject:javax.inject:1"
-    const val javax_interceptor_api = "javax.interceptor:javax.interceptor-api:1.2.2"
-    const val javax_persistence_api = "javax.persistence:javax.persistence-api:2.2"
-    const val javax_servlet_api = "javax.servlet:javax.servlet-api:4.0.1"
-    const val javax_transaction_api = "javax.transaction:jta:1.1"
-    const val javax_validation_api = "javax.validation:validation-api:2.0.1.Final"
-    const val javax_ws_rs_api = "javax.ws.rs:javax.ws.rs-api:2.1.1"
-    const val javax_xml_bind = "javax.xml.bind:jaxb-api:2.3.1"
-
-    // javax expression
-    const val javax_el_api = "javax.el:javax.el-api:3.0.0"      // https://mvnrepository.com/artifact/javax.el/javax.el-api
-    const val javax_el = "org.glassfish:javax.el:3.0.1-b12"     // https://mvnrepository.com/artifact/org.glassfish/javax.el
-
-    // json 구현체
-    const val javax_json_api = "javax.json:javax.json-api:1.1.4"
-    const val javax_json = "org.glassfish:javax.json:1.1.4"
-
     // Java Money
     const val javax_money_api = "javax.money:money-api:1.1"    // https://mvnrepository.com/artifact/javax.money/money-api
     const val javamoney_moneta = "org.javamoney:moneta:1.4.5"  // https://mvnrepository.com/artifact/org.javamoney/moneta

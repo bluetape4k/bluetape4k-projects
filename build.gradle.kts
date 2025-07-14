@@ -346,20 +346,6 @@ subprojects {
             dependency(Libs.logback)
             dependency(Libs.logback_core)
 
-            // Javax API
-            dependency(Libs.javax_activation_api)
-            dependency(Libs.javax_annotation_api)
-            dependency(Libs.javax_el_api)
-            dependency(Libs.javax_cache_api)
-            dependency(Libs.javax_inject)
-            dependency(Libs.javax_json_api)
-            dependency(Libs.javax_persistence_api)
-            dependency(Libs.javax_servlet_api)
-            dependency(Libs.javax_transaction_api)
-            dependency(Libs.javax_validation_api)
-            dependency(Libs.javax_ws_rs_api)
-            dependency(Libs.javax_xml_bind)
-
             // jakarta
             dependency(Libs.jakarta_activation_api)
             dependency(Libs.jakarta_annotation_api)
@@ -456,10 +442,10 @@ subprojects {
             dependency(Libs.querydsl_jpa)
 
             // Validators
-            dependency(Libs.javax_validation_api)
+            dependency(Libs.jakarta_el_api)
+            dependency(Libs.jakarta_validation_api)
             dependency(Libs.hibernate_validator)
             dependency(Libs.hibernate_validator_annotation_processor)
-            dependency(Libs.javax_el)
 
             dependency(Libs.hikaricp)
             dependency(Libs.mysql_connector_j)

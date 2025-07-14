@@ -27,7 +27,7 @@ dependencies {
 
     // https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api
     // feign 12.3 에서는 아직 javax.ws.rs-api 를 사용합니다.
-    api(Libs.javax_ws_rs_api)
+    // api(Libs.javax_ws_rs_api)
 
     // Feign
     api(Libs.feign_core)

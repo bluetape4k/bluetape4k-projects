@@ -11,7 +11,6 @@ dependencies {
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // Cache Providers
-    api(Libs.javax_cache_api)
     api(Libs.caffeine)
     api(Libs.caffeine_jcache)
     compileOnly(Libs.cache2k_core)

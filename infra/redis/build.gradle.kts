@@ -87,7 +87,6 @@ dependencies {
     compileOnly(Libs.protobuf_java_util)
     compileOnly(Libs.protobuf_kotlin)
 
-    compileOnly(Libs.javax_cache_api)
     compileOnly(Libs.caffeine)
     compileOnly(Libs.caffeine_jcache)
 
