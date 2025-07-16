@@ -11,9 +11,9 @@ import okio.Options
 import okio.Timeout
 import java.util.concurrent.atomic.AtomicBoolean
 
-internal class RealBufferedSuspendSource(
-    private val source: SuspendSource,
-): BufferedSuspendSource {
+internal class RealBufferedSuspendedSource(
+    private val source: SuspendedSource,
+): BufferedSuspendedSource {
 
     companion object: KLoggingChannel()
 
@@ -235,7 +235,7 @@ internal class RealBufferedSuspendSource(
         buffer.readFully(sink, byteCount)
     }
 
-    override suspend fun readAll(sink: SuspendSink): Long {
+    override suspend fun readAll(sink: SuspendedSink): Long {
         checkNotClosed()
         var totalBytesWritten = 0L
         while (source.read(buffer, SEGMENT_SIZE) != -1L) {
@@ -370,7 +370,7 @@ internal class RealBufferedSuspendSource(
         return true
     }
 
-    override fun peek(): BufferedSuspendSource {
+    override fun peek(): BufferedSuspendedSource {
         TODO("Not yet implemented")
     }
 

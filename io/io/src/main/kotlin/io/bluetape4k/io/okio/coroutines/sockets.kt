@@ -11,10 +11,10 @@ import java.net.Socket
 import java.nio.ByteBuffer
 import java.nio.channels.SelectionKey
 
-fun Socket.asSuspendSource(): SuspendSource {
+fun Socket.asSuspendSource(): SuspendedSource {
     val channel = this.channel!!
 
-    return object: SuspendSource, KLoggingChannel() {
+    return object: SuspendedSource, KLoggingChannel() {
         val timeout = Timeout()
         val buffer = ByteBuffer.allocateDirect(SEGMENT_SIZE.toInt())
 
@@ -42,10 +42,10 @@ fun Socket.asSuspendSource(): SuspendSource {
     }
 }
 
-fun Socket.asSuspendSink(): SuspendSink {
+fun Socket.asSuspendSink(): SuspendedSink {
     val channel = this.channel!!
 
-    return object: SuspendSink, KLoggingChannel() {
+    return object: SuspendedSink, KLoggingChannel() {
         val timeout = Timeout()
         val cursor = Buffer.UnsafeCursor()
 

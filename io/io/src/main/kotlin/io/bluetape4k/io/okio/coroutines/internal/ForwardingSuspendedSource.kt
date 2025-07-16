@@ -1,6 +1,6 @@
 package io.bluetape4k.io.okio.coroutines.internal
 
-import io.bluetape4k.io.okio.coroutines.SuspendSource
+import io.bluetape4k.io.okio.coroutines.SuspendedSource
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -9,10 +9,10 @@ import okio.Source
 import okio.Timeout
 import kotlin.coroutines.CoroutineContext
 
-internal class ForwardingSuspendSource(
+internal class ForwardingSuspendedSource(
     val delegate: Source,
     private val context: CoroutineContext = Dispatchers.IO,
-): SuspendSource {
+): SuspendedSource {
 
     companion object: KLoggingChannel()
 

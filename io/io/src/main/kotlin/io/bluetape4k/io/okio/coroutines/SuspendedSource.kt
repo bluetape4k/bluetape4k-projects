@@ -6,7 +6,7 @@ import okio.Timeout
 /**
  * Coroutines 방식으로 [okio.Source] 기능을 제공하는 인터페이스
  */
-interface SuspendSource {
+interface SuspendedSource {
 
     /**
      * 이 소스에서 최소 1바이트 이상, 최대 `byteCount` 바이트를 제거하고 `sink`에 추가합니다.
@@ -19,14 +19,14 @@ interface SuspendSource {
     suspend fun read(sink: Buffer, byteCount: Long): Long
 
     /**
-     * 모든 버퍼링된 바이트를 최종 목적지로 전송하고 이 [AsyncSource]가 보유한 리소스를 해제합니다.
+     * 모든 버퍼링된 바이트를 최종 목적지로 전송하고 이 [SuspendedSource]가 보유한 리소스를 해제합니다.
      */
     suspend fun close()
 
     /**
-     * 이 [AsyncSource]의 [Timeout]을 반환합니다.
+     * 이 [SuspendedSource]의 [Timeout]을 반환합니다.
      */
-    suspend fun timeout(): Timeout
+    suspend fun timeout(): Timeout = Timeout.NONE
 }
 
 /**
@@ -34,4 +34,4 @@ interface SuspendSource {
  * 반환된 소스는 메모리 버퍼로 대량 읽기를 수행합니다.
  * 데이터에 대한 편리하고 효율적인 액세스를 얻으려면 소스를 읽는 모든 곳에서 이를 사용하십시오.
  */
-fun SuspendSource.buffered(): BufferedSuspendSource = RealBufferedSuspendSource(this)
+fun SuspendedSource.buffered(): BufferedSuspendedSource = RealBufferedSuspendedSource(this)

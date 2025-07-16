@@ -16,14 +16,14 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 /**
- * [AsynchronousFileChannel]을 [SuspendSink]로 변환합니다.
+ * [AsynchronousFileChannel]을 [SuspendedSink]로 변환합니다.
  */
 fun AsynchronousSocketChannel.asSuspendSink(
     coroutineContext: CoroutineContext = Dispatchers.IO,
-): SuspendSink {
+): SuspendedSink {
     val channel = this
 
-    return object: SuspendSink, KLoggingChannel() {
+    return object: SuspendedSink, KLoggingChannel() {
         val cursor = Buffer.UnsafeCursor()
         val timeout = Timeout.NONE
 

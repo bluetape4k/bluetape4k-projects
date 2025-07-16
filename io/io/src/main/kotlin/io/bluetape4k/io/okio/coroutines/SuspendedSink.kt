@@ -6,7 +6,7 @@ import okio.Timeout
 /**
  * Coroutines 방식으로 비동기로 [okio.Sink] 기능을 제공하는 인터페이스
  */
-interface SuspendSink {
+interface SuspendedSink {
 
     /**
      * [source]로부터 `byteCount` 바이트를 제거하고 이를 현재 Sink에 추가합니다.
@@ -22,17 +22,17 @@ interface SuspendSink {
     suspend fun flush()
 
     /**
-     * 모든 버퍼링된 바이트를 최종 목적지로 전송하고 이 [AsyncSink]가 보유한 리소스를 해제합니다.
+     * 모든 버퍼링된 바이트를 최종 목적지로 전송하고 이 [SuspendedSink]가 보유한 리소스를 해제합니다.
      */
     suspend fun close()
 
     /**
-     * 이 [AsyncSink]의 [Timeout]을 반환합니다.
+     * 이 [SuspendedSink]의 [Timeout]을 반환합니다.
      */
-    suspend fun timeout(): Timeout
+    suspend fun timeout(): Timeout = Timeout.NONE
 }
 
 /**
- * [SuspendSink]에 버퍼링하여 쓰기를 수행합니다.
+ * [SuspendedSink]에 버퍼링하여 쓰기를 수행합니다.
  */
-fun SuspendSink.buffered(): BufferedSuspendSink = RealBufferedSuspendSink(this)
+fun SuspendedSink.buffered(): BufferedSuspendedSink = RealBufferedSuspendedSink(this)

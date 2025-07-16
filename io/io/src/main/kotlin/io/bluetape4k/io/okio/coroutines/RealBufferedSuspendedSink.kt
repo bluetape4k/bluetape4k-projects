@@ -7,24 +7,24 @@ import okio.ByteString
 import okio.Timeout
 import java.util.concurrent.atomic.AtomicBoolean
 
-internal class RealBufferedSuspendSink(
-    private val sink: SuspendSink,
-): BufferedSuspendSink {
+internal class RealBufferedSuspendedSink(
+    private val sink: SuspendedSink,
+): BufferedSuspendedSink {
 
     companion object: KLoggingChannel()
 
     private var closed = AtomicBoolean(false)
     override val buffer = Buffer()
 
-    override suspend fun write(byteString: ByteString): BufferedSuspendSink {
+    override suspend fun write(byteString: ByteString): BufferedSuspendedSink {
         return emitCompleteSegments { buffer.write(byteString) }
     }
 
-    override suspend fun write(source: ByteArray, offset: Int, byteCount: Int): BufferedSuspendSink {
+    override suspend fun write(source: ByteArray, offset: Int, byteCount: Int): BufferedSuspendedSink {
         return emitCompleteSegments { buffer.write(source, offset, byteCount) }
     }
 
-    override suspend fun write(source: SuspendSource, byteCount: Long) = apply {
+    override suspend fun write(source: SuspendedSource, byteCount: Long) = apply {
         checkNotClosed()
         var remaining = byteCount
         while (remaining > 0L) {
@@ -39,7 +39,7 @@ internal class RealBufferedSuspendSink(
         emitCompleteSegments { buffer.write(source, byteCount) }
     }
 
-    override suspend fun writeAll(source: SuspendSource): Long {
+    override suspend fun writeAll(source: SuspendedSource): Long {
         checkNotClosed()
         var totalBytesRead = 0L
         while (true) {
@@ -146,7 +146,7 @@ internal class RealBufferedSuspendSink(
 
     override fun toString(): String = "buffer($sink)"
 
-    private suspend inline fun emitCompleteSegments(block: () -> Unit): BufferedSuspendSink = apply {
+    private suspend inline fun emitCompleteSegments(block: () -> Unit): BufferedSuspendedSink = apply {
         checkNotClosed()
         block()
         val byteCount = buffer.completeSegmentByteCount()

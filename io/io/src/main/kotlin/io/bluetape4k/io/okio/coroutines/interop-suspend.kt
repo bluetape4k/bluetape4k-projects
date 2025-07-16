@@ -15,7 +15,7 @@ import okio.Source
  * @param sink 바이트를 쓸 [AsyncSink]
  * @return 쓰여진 바이트 수, `source`가 소진된 경우 0
  */
-suspend fun Buffer.suspendReadAll(sink: SuspendSink): Long {
+suspend fun Buffer.suspendReadAll(sink: SuspendedSink): Long {
     val size = this.size
     sink.write(this, size)  // Buffer의 모든 바이트를 sink에 쓰기
     return size
@@ -29,7 +29,7 @@ suspend fun Buffer.suspendReadAll(sink: SuspendSink): Long {
  * @param sink 바이트를 쓸 [AsyncSink]
  * @return 쓰여진 바이트 수, `source`가 소진된 경우 0
  */
-suspend fun BufferedSource.suspendReadAll(sink: SuspendSink): Long {
+suspend fun BufferedSource.suspendReadAll(sink: SuspendedSink): Long {
     var totalBytesWritten = 0L
     while (read(this.buffer, SEGMENT_SIZE) != -1L) {
         val emitByteCount = buffer.completeSegmentByteCount()
@@ -52,7 +52,7 @@ suspend fun BufferedSource.suspendReadAll(sink: SuspendSink): Long {
  * @param source 읽을 [AsyncSource]
  * @return 읽은 바이트 수, `source`가 소진된 경우 0
  */
-suspend fun BufferedSink.suspendWriteAll(source: SuspendSource): Long {
+suspend fun BufferedSink.suspendWriteAll(source: SuspendedSource): Long {
     var totalBytesRead = 0L
     while (true) {
         val readCount = source.read(this.buffer, SEGMENT_SIZE)
@@ -69,7 +69,7 @@ suspend fun BufferedSink.suspendWriteAll(source: SuspendSource): Long {
  * @param sink 바이트를 쓸 [Sink]
  * @return 쓰여진 바이트 수, `source`가 소진된 경우 0
  */
-suspend fun BufferedSuspendSource.suspendReadAll(sink: Sink): Long {
+suspend fun BufferedSuspendedSource.suspendReadAll(sink: Sink): Long {
     var totalBytesWritten = 0L
     while (read(this.buffer, SEGMENT_SIZE) != -1L) {
         val emitByteCount = buffer.completeSegmentByteCount()
@@ -88,7 +88,7 @@ suspend fun BufferedSuspendSource.suspendReadAll(sink: Sink): Long {
 /**
  * `source`로부터 모든 바이트를 읽어 이 sink에 추가합니다. `source`가 소진된 경우 0이 반환됩니다.
  */
-suspend fun BufferedSuspendSink.suspendWriteAll(source: Source): Long {
+suspend fun BufferedSuspendedSink.suspendWriteAll(source: Source): Long {
     var totalBytesRead = 0L
     while (true) {
         val readCount = source.read(this.buffer, SEGMENT_SIZE)
@@ -102,7 +102,7 @@ suspend fun BufferedSuspendSink.suspendWriteAll(source: Source): Long {
 /**
  * `source`로 부터 `byteCount` 바이트를 읽어 이 sink에 추가합니다.
  */
-suspend fun BufferedSuspendSink.suspendWrite(source: Source, byteCount: Long): BufferedSuspendSink {
+suspend fun BufferedSuspendedSink.suspendWrite(source: Source, byteCount: Long): BufferedSuspendedSink {
     byteCount.requireZeroOrPositiveNumber("byteCount")
     var remaining = byteCount
     while (remaining > 0L) {
