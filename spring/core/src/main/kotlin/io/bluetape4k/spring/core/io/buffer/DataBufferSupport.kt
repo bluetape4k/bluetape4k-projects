@@ -68,20 +68,55 @@ fun Resource.readAsDataBuffer(
  * starts the writing process when subscribed to, and that publishes any
  * writing errors and the completions signal
  */
-fun Publisher<DataBuffer>.write(outputStream: OutputStream): Flow<DataBuffer> {
-    return DataBufferUtils.write(this, outputStream).asFlow()
+@JvmName("writeDataBufferToOutputStream")
+fun Publisher<out DataBuffer>.write(outputStream: OutputStream): Flow<DataBuffer> {
+    return DataBufferUtils.write(this as Publisher<DataBuffer>, outputStream).asFlow()
 }
 
-fun Publisher<DataBuffer>.write(channel: WritableByteChannel): Flow<DataBuffer> {
-    return DataBufferUtils.write(this, channel).asFlow()
+/**
+ * Write the given stream of [DataBuffer] to the given
+ * [WritableByteChannel]. Does **not** close the channel when the flux is terminated,
+ * and does **not** `release(DataBuffer) release` the data buffers in the source.
+ *
+ * If releasing is required, then subscribe to the returned [Flow] with a `collect`
+ *
+ * Note that the writing process does not start until the returned [Flow]
+ *
+ * @receiver  the stream of data buffers to be written
+ * @param channel the writable byte channel to write to
+ * @return a Flow containing the same buffers as in `source`, that
+ * starts the writing process when subscribed to, and that publishes any
+ * writing errors and the completions signal
+ */
+@JvmName("writeDataBufferToWritableByteChannel")
+fun Publisher<out DataBuffer>.write(channel: WritableByteChannel): Flow<DataBuffer> {
+    return DataBufferUtils.write(this as Publisher<DataBuffer>, channel).asFlow()
 }
 
-fun Publisher<DataBuffer>.write(channel: AsynchronousFileChannel, position: Long = 0): Flow<DataBuffer> {
+/**
+ * 주어진 [Publisher]의 버퍼를 지정된 [AsynchronousFileChannel]에 씁니다.
+ *
+ * @receiver the publisher to write
+ * @param channel the asynchronous file channel to write to
+ * @param position the position in the file to start writing at
+ * @return a flow containing the written data buffers
+ */
+@JvmName("writeDataBufferToAsynchronousFileChannel")
+fun Publisher<out DataBuffer>.write(channel: AsynchronousFileChannel, position: Long = 0): Flow<DataBuffer> {
     return DataBufferUtils.write(this, channel, position).asFlow()
 }
 
-suspend fun Publisher<DataBuffer>.write(destination: Path, vararg options: OpenOption) {
-    DataBufferUtils.write(this, destination, *options).awaitSingle()
+/**
+ * 주어진 [Publisher]의 버퍼를 지정된 [Path]에 씁니다.
+ *
+ * @receiver the publisher to write
+ * @param destination the path to write to
+ * @param options the options for opening the file
+ * @return a flow containing the written data buffers
+ */
+@JvmName("writeDataBufferToPath")
+suspend fun Publisher<out DataBuffer>.write(destination: Path, vararg options: OpenOption) {
+    DataBufferUtils.write(this as Publisher<DataBuffer>, destination, *options).awaitSingle()
 }
 
 /**
@@ -134,10 +169,8 @@ fun <T: DataBuffer> T.touch(hint: Any): T {
  * @receiver the data buffer to release
  * @return `true` if the buffer was released; ``false` otherwise.
  */
-fun DataBuffer.release(): Boolean {
-    return DataBufferUtils.release(this)
-}
+fun DataBuffer.release(): Boolean =
+    DataBufferUtils.release(this)
 
-suspend fun Publisher<out DataBuffer>.join(maxByteCount: Int = -1): DataBuffer {
-    return DataBufferUtils.join(this, maxByteCount).awaitSingle()
-}
+suspend fun Publisher<out DataBuffer>.join(maxByteCount: Int = -1): DataBuffer =
+    DataBufferUtils.join(this, maxByteCount).awaitSingle()

@@ -1,30 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
-    <!-- @formatter:off -->
-    <springProperty scope="context" name="APP_NAME" source="spring.application.name"/>
 
-    <!-- You can override this to have a custom pattern -->
-    <property name="CONSOLE_LOG_PATTERN"
-              value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %highlight(${LOG_LEVEL_PATTERN:-%5p}) %magenta(${PID:- }) %clr(---){faint} %clr([%25.25t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
-
-    <!-- Appender to log to console -->
-    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <!-- Minimum logging level to be presented in the console logs-->
-            <level>DEBUG</level>
-        </filter>
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <immediateFlush>true</immediateFlush>
         <encoder>
-            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
-            <charset>utf8</charset>
+            <!-- @formatter:off -->
+            <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) [%blue(%32.32t)] %yellow(%logger{36}):%line: %msg%n%throwable</pattern>
+            <!-- @formatter:on -->
+            <charset>UTF-8</charset>
         </encoder>
     </appender>
-    <!-- formatter:on -->
 
     <logger name="io.bluetape4k.spring" level="DEBUG"/>
-<!--    <logger name="org.springframework.boot" level="DEBUG"/>-->
+    <logger name="org.springframework" level="DEBUG"/>
 
     <root level="INFO">
-        <appender-ref ref="console"/>
+        <appender-ref ref="Console"/>
     </root>
+
 </configuration>
