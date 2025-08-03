@@ -54,7 +54,7 @@ dependencies {
 
     // Redisson Map Read/Write Through 예제를 위해 
     testImplementation(project(":bluetape4k-jdbc"))
-    testRuntimeOnly(Libs.h2)
+    testRuntimeOnly(Libs.h2_v2)
     testImplementation(Libs.hikaricp)
     testImplementation(Libs.springBootStarter("jdbc"))
 

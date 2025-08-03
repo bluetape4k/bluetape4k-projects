@@ -44,14 +44,14 @@ class CacheReadThroughExample: AbstractCacheExample() {
             ActorTable.deleteAll()
             populateSampleData()
 
-            // 데이터 전체 로딩 시간을 측정하기 위해, 샘플 데이터를 많이 추가합니다.
-            val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toList()
-            transaction {
-                ActorTable.batchInsert(writeIds) { id ->
-                    this[ActorTable.id] = id
-                    this[ActorTable.firstname] = faker.name().firstName()
-                    this[ActorTable.lastname] = faker.name().lastName()
-                }
+            Thread.sleep(1)
+
+            // 데이터 전체 로딩 시간을 측정하기 위해, 샘플 데이터를 ACTOR_SIZE 만큼 추가합니다.
+            val writeIds = Snowflakers.Global.nextIds(ACTOR_SIZE).toList()
+            ActorTable.batchInsert(writeIds, shouldReturnGeneratedValues = false) { id ->
+                this[ActorTable.id] = id
+                this[ActorTable.firstname] = faker.name().firstName()
+                this[ActorTable.lastname] = faker.name().lastName()
             }
         }
     }
@@ -99,7 +99,10 @@ class CacheReadThroughExample: AbstractCacheExample() {
             cache.keys shouldHaveSize 0
 
             val actorIds = transaction {
-                ActorTable.select(ActorTable.id).map { it[ActorTable.id].value }
+                ActorTable
+                    .select(ActorTable.id)
+                    .orderBy(ActorTable.id)
+                    .map { it[ActorTable.id].value }
             }
 
             // CacheApplicationListener 에서 5명의 Actor를 추가해 놓았다.
@@ -176,7 +179,10 @@ class CacheReadThroughExample: AbstractCacheExample() {
             cache.keys shouldHaveSize 0
 
             val actorIds = newSuspendedTransaction {
-                ActorTable.select(ActorTable.id).map { it[ActorTable.id].value }
+                ActorTable
+                    .select(ActorTable.id)
+                    .orderBy(ActorTable.id)
+                    .map { it[ActorTable.id].value }
             }
 
             // 모든 테스트에 500 개 이상의 Actor 가 이미 DB에 존재한다.

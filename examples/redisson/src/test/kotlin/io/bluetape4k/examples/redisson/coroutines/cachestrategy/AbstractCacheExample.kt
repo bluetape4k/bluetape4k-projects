@@ -228,32 +228,30 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
     }
 
     protected fun populateSampleData() {
-        transaction {
-            ActorSchema.ActorEntity.new {
-                firstname = "Sunghyouk"
-                lastname = "Bae"
-                description = faker.lorem().sentence(1024, 128)
-            }
-            ActorSchema.ActorEntity.new {
-                firstname = "Misook"
-                lastname = "Kwon"
-                description = faker.lorem().sentence(1024, 128)
-            }
-            ActorSchema.ActorEntity.new {
-                firstname = "Jehyoung"
-                lastname = "Bae"
-                description = faker.lorem().sentence(1024, 128)
-            }
-            ActorSchema.ActorEntity.new {
-                firstname = "Jinseok"
-                lastname = "Kwon"
-                description = faker.lorem().sentence(1024, 128)
-            }
-            ActorSchema.ActorEntity.new {
-                firstname = "Kildong"
-                lastname = "Hong"
-                description = faker.lorem().sentence(1024, 128)
-            }
+        ActorSchema.ActorEntity.new {
+            firstname = "Sunghyouk"
+            lastname = "Bae"
+            description = faker.lorem().sentence(1024, 128)
+        }
+        ActorSchema.ActorEntity.new {
+            firstname = "Misook"
+            lastname = "Kwon"
+            description = faker.lorem().sentence(1024, 128)
+        }
+        ActorSchema.ActorEntity.new {
+            firstname = "Jehyoung"
+            lastname = "Bae"
+            description = faker.lorem().sentence(1024, 128)
+        }
+        ActorSchema.ActorEntity.new {
+            firstname = "Jinseok"
+            lastname = "Kwon"
+            description = faker.lorem().sentence(1024, 128)
+        }
+        ActorSchema.ActorEntity.new {
+            firstname = "Kildong"
+            lastname = "Hong"
+            description = faker.lorem().sentence(1024, 128)
         }
     }
 }
