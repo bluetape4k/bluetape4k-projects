@@ -15,7 +15,7 @@ object Plugins {
         const val jacoco = "0.8.11"
         const val jarTest = "1.0.1"
         const val testLogger = "4.0.0"
-        const val shadow = "8.3.6"      // https://plugins.gradle.org/plugin/com.gradleup.shadow
+        const val shadow = "9.0.2"      // https://plugins.gradle.org/plugin/com.gradleup.shadow
         const val kotlinx_benchmark = "0.4.14" // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-benchmark-plugin
 
         const val spring_boot = "3.5.4"   // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies
