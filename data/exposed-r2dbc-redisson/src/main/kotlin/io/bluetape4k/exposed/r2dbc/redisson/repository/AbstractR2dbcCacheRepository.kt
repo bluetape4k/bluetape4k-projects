@@ -21,7 +21,6 @@ import kotlinx.coroutines.flow.toList
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
-import org.jetbrains.exposed.v1.core.SqlExpressionBuilder
 import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.r2dbc.selectAll
@@ -153,9 +152,9 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
         offset: Long?,
         sortBy: Expression<*>,
         sortOrder: SortOrder,
-        where: SqlExpressionBuilder.() -> Op<Boolean>,
+        where: () -> Op<Boolean>,
     ): List<T> {
-        return suspendTransaction(scope.coroutineContext) {
+        return suspendTransaction {
             entityTable
                 .selectAll()
                 .where(where)
@@ -173,9 +172,10 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     }
 
     override suspend fun getAll(ids: Collection<ID>, batchSize: Int): List<T> {
-        return ids.chunked(batchSize).flatMap { chunk ->
-            log.debug { " 캐시에서 ${chunk.size} 개의 엔티티를 가져옵니다. chunk=${chunk}" }
-            cache.getAllAsync(chunk.toSet()).suspendAwait().values.filterNotNull()
-        }
+        return ids.chunked(batchSize)
+            .flatMap { chunk ->
+                log.debug { " 캐시에서 ${chunk.size} 개의 엔티티를 가져옵니다. chunk=${chunk}" }
+                cache.getAllAsync(chunk.toSet()).suspendAwait().values.filterNotNull()
+            }
     }
 }

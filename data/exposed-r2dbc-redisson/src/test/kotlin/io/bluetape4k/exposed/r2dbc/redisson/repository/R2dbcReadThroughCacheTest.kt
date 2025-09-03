@@ -36,12 +36,12 @@ class R2dbcReadThroughCacheTest {
             statement: suspend R2dbcTransaction.() -> Unit,
         ) = withUserTable(testDB, context = context, statement = statement)
 
-        override suspend fun getExistingId() = suspendTransaction {
-            UserTable.select(UserTable.id).first()[UserTable.id].value
+        override suspend fun getExistingId(): Long {
+            return UserTable.select(UserTable.id).first()[UserTable.id].value
         }
 
-        override suspend fun getExistingIds() = suspendTransaction {
-            UserTable.select(UserTable.id)
+        override suspend fun getExistingIds(): List<Long> {
+            return UserTable.select(UserTable.id)
                 .map { it[UserTable.id].value }
                 .toFastList()
         }

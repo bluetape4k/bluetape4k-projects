@@ -6,8 +6,9 @@ import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
-import org.jetbrains.exposed.v1.core.SqlExpressionBuilder
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.redisson.api.RMap
 
@@ -48,7 +49,7 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
         offset: Long? = null,
         sortBy: Expression<*> = entityTable.id,
         sortOrder: SortOrder = SortOrder.ASC,
-        where: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE },
+        where: () -> Op<Boolean> = { Op.TRUE },
     ): List<T>
 
     fun getAll(ids: Collection<ID>, batchSize: Int = 100): List<T>

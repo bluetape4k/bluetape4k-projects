@@ -31,6 +31,16 @@ import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.anyFrom
 import org.jetbrains.exposed.v1.core.compoundAnd
 import org.jetbrains.exposed.v1.core.compoundOr
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.greaterEq
+import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.core.inSubQuery
+import org.jetbrains.exposed.v1.core.inTable
+import org.jetbrains.exposed.v1.core.isNotNull
+import org.jetbrains.exposed.v1.core.neq
+import org.jetbrains.exposed.v1.core.notInList
+import org.jetbrains.exposed.v1.core.notInSubQuery
+import org.jetbrains.exposed.v1.core.notInTable
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.jdbc.Query
 import org.jetbrains.exposed.v1.jdbc.andWhere
@@ -876,7 +886,7 @@ class SelectTest: AbstractExposedTest() {
              *     OR (users."name" = 'Something')
              * ```
              */
-            val orOp = allUsers.map { Op.build { users.name eq it } }.compoundOr()
+            val orOp = allUsers.map { users.name eq it }.compoundOr()
             val userNameOr = users.selectAll().where(orOp).map { it[users.name] }.toSet()
             userNameOr shouldBeEqualTo allUsers
 
@@ -893,7 +903,7 @@ class SelectTest: AbstractExposedTest() {
              *    AND (users."name" = 'Something')
              * ```
              */
-            val andOp = allUsers.map { Op.build { users.name eq it } }.compoundAnd()
+            val andOp = allUsers.map { users.name eq it }.compoundAnd()
             users.selectAll().where(andOp).count() shouldBeEqualTo 0L
         }
     }

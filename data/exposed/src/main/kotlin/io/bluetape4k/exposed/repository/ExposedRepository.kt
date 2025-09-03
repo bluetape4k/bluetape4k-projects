@@ -3,15 +3,13 @@ package io.bluetape4k.exposed.repository
 import io.bluetape4k.exposed.core.HasIdentifier
 import org.jetbrains.exposed.v1.core.AbstractQuery
 import org.jetbrains.exposed.v1.core.Column
-import org.jetbrains.exposed.v1.core.ISqlExpressionBuilder
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
-import org.jetbrains.exposed.v1.core.SqlExpressionBuilder
-import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.v1.core.Transaction
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.jdbc.batchInsert
@@ -47,14 +45,14 @@ interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
     fun count(): Long = table.selectAll().count()
 
     @Deprecated("Use countBy() instead", replaceWith = ReplaceWith("countBy(predicate)"))
-    fun count(predicate: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE }): Long =
+    fun count(predicate: () -> Op<Boolean> = { Op.TRUE }): Long =
         table.selectAll().where(predicate).count()
 
     @Deprecated("Use countBy() instead", replaceWith = ReplaceWith("countBy(op)"))
     fun count(op: Op<Boolean>): Long =
         table.selectAll().where(op).count()
 
-    fun countBy(predicate: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE }): Long =
+    fun countBy(predicate: () -> Op<Boolean> = { Op.TRUE }): Long =
         table.selectAll().where(predicate).count()
 
     fun countBy(op: Op<Boolean>): Long =
@@ -81,7 +79,7 @@ interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
         limit: Int? = null,
         offset: Long? = null,
         sortOrder: SortOrder = SortOrder.ASC,
-        predicate: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE },
+        predicate: () -> Op<Boolean> = { Op.TRUE },
     ): List<T> =
         table.selectAll()
             .where(predicate)
@@ -93,20 +91,20 @@ interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
             .map { it.toEntity() }
 
     fun findWithFilters(
-        vararg filters: SqlExpressionBuilder.() -> Op<Boolean>,
+        vararg filters: () -> Op<Boolean>,
         limit: Int? = null,
         offset: Long? = null,
         sortOrder: SortOrder = SortOrder.ASC,
     ): List<T> {
         val condition: Op<Boolean> = filters.fold(Op.TRUE as Op<Boolean>) { acc, filter ->
-            acc.and(filter.invoke(SqlExpressionBuilder))
+            acc.and(filter.invoke())
         }
         return findAll(limit, offset, sortOrder) { condition }
     }
 
     fun findFirstOrNull(
         offset: Long? = null,
-        predicate: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE },
+        predicate: () -> Op<Boolean> = { Op.TRUE },
     ): T? =
         table.selectAll()
             .where(predicate)
@@ -118,7 +116,7 @@ interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
 
     fun findLastOrNull(
         offset: Long? = null,
-        predicate: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE },
+        predicate: () -> Op<Boolean> = { Op.TRUE },
     ): T? =
         table.selectAll()
             .where(predicate)
@@ -139,7 +137,7 @@ interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
     fun deleteById(id: ID): Int =
         table.deleteWhere { table.id eq id }
 
-    fun deleteAll(limit: Int? = null, op: (IdTable<ID>).(ISqlExpressionBuilder) -> Op<Boolean> = { Op.TRUE }): Int =
+    fun deleteAll(limit: Int? = null, op: (IdTable<ID>).() -> Op<Boolean> = { Op.TRUE }): Int =
         table.deleteWhere(limit = limit, op = op)
 
 
@@ -149,7 +147,7 @@ interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
 
     fun deleteAllIgnore(
         limit: Int? = null,
-        op: (IdTable<ID>).(ISqlExpressionBuilder) -> Op<Boolean> = { Op.TRUE },
+        op: (IdTable<ID>).() -> Op<Boolean> = { Op.TRUE },
     ): Int = table.deleteIgnoreWhere(limit, op = op)
 
 

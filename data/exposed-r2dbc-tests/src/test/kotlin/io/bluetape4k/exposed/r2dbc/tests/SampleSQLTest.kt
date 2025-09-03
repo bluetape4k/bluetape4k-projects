@@ -1,8 +1,8 @@
 package io.bluetape4k.exposed.r2dbc.tests
 
-import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import kotlinx.coroutines.test.runTest
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.r2dbc.insert
@@ -30,7 +30,7 @@ class SampleSQLTest: R2dbcExposedTestBase() {
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `r2dbc with H2`(testDB: TestDB) = runSuspendTest {
+    fun `r2dbc with H2`(testDB: TestDB) = runTest {
         withTables(testDB, Users, Cities) {
             val cityId = Cities.insert {
                 it[name] = "Hanam"

@@ -19,14 +19,13 @@ import org.amshove.kluent.shouldBeTrue
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.IntegerColumnType
 import org.jetbrains.exposed.v1.core.Op
-import org.jetbrains.exposed.v1.core.SqlExpressionBuilder
-import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.greaterEq
 import org.jetbrains.exposed.v1.core.StdOutSqlLogger
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.castTo
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.greaterEq
 import org.jetbrains.exposed.v1.core.stringLiteral
 import org.jetbrains.exposed.v1.core.vendors.OracleDialect
 import org.jetbrains.exposed.v1.core.vendors.PostgreSQLDialect
@@ -506,8 +505,8 @@ class FastjsonColumnTest: AbstractExposedTest() {
             val userArray = fastjson<Array<User>>("user_array")
         }
 
-        fun selectIdWhere(condition: SqlExpressionBuilder.() -> Op<Boolean>): List<EntityID<Int>> {
-            val query = iterables.select(iterables.id).where(SqlExpressionBuilder.condition())
+        fun selectIdWhere(condition: () -> Op<Boolean>): List<EntityID<Int>> {
+            val query = iterables.select(iterables.id).where(condition())
             return query.map { it[iterables.id] }
         }
 

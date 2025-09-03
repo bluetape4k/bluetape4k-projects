@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.singleOrNull
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.javatime.CurrentTimestamp
 import org.jetbrains.exposed.v1.javatime.timestamp
 import org.jetbrains.exposed.v1.r2dbc.R2dbcTransaction
@@ -154,7 +155,7 @@ object UserSchema: KLogging() {
         context: CoroutineContext,
         statement: suspend R2dbcTransaction.() -> Unit,
     ) {
-        withTables(testDB, UserCredentialTable, context = context) {
+        withTables(testDB, UserCredentialTable) {
             insertUserCredential("debop", 5L)
             insertUserCredential("midoogi", 100L)
             insertUserCredential(faker.internet().username(), 200L)

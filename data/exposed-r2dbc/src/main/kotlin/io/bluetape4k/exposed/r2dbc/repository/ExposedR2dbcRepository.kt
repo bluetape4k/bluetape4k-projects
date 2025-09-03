@@ -9,14 +9,12 @@ import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.singleOrNull
 import org.jetbrains.exposed.v1.core.AbstractQuery
 import org.jetbrains.exposed.v1.core.Column
-import org.jetbrains.exposed.v1.core.ISqlExpressionBuilder
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
-import org.jetbrains.exposed.v1.core.SqlExpressionBuilder
-import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.r2dbc.R2dbcTransaction
@@ -52,7 +50,7 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
 
     suspend fun count(): Long = table.selectAll().count()
 
-    suspend fun countBy(predicate: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE }): Long =
+    suspend fun countBy(predicate: () -> Op<Boolean> = { Op.TRUE }): Long =
         table.selectAll().where(predicate).count()
 
     suspend fun countBy(op: Op<Boolean>): Long =
@@ -79,7 +77,7 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
         limit: Int? = null,
         offset: Long? = null,
         sortOrder: SortOrder = SortOrder.ASC,
-        predicate: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE },
+        predicate: () -> Op<Boolean> = { Op.TRUE },
     ): Flow<T> =
         table.selectAll()
             .where(predicate)
@@ -91,20 +89,20 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
             .map { it.toEntity() }
 
     fun findWithFilters(
-        vararg filters: SqlExpressionBuilder.() -> Op<Boolean>,
+        vararg filters: () -> Op<Boolean>,
         limit: Int? = null,
         offset: Long? = null,
         sortOrder: SortOrder = SortOrder.ASC,
     ): Flow<T> {
         val condition: Op<Boolean> = filters.fold(Op.TRUE as Op<Boolean>) { acc, filter ->
-            acc.and(filter.invoke(SqlExpressionBuilder))
+            acc.and(filter.invoke())
         }
         return findAll(limit, offset, sortOrder) { condition }
     }
 
     suspend fun findFirstOrNull(
         offset: Long? = null,
-        predicate: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE },
+        predicate: () -> Op<Boolean> = { Op.TRUE },
     ): T? =
         table.selectAll()
             .where(predicate)
@@ -117,7 +115,7 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
 
     suspend fun findLastOrNull(
         offset: Long? = null,
-        predicate: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE },
+        predicate: () -> Op<Boolean> = { Op.TRUE },
     ): T? =
         table.selectAll()
             .where(predicate)
@@ -141,7 +139,7 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
 
     suspend fun deleteAll(
         limit: Int? = null,
-        op: (IdTable<ID>).(ISqlExpressionBuilder) -> Op<Boolean> = { Op.TRUE },
+        op: (IdTable<ID>).() -> Op<Boolean> = { Op.TRUE },
     ): Int =
         table.deleteWhere(limit = limit, op = op)
 
@@ -151,7 +149,7 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
 
     suspend fun deleteAllIgnore(
         limit: Int? = null,
-        op: (IdTable<ID>).(ISqlExpressionBuilder) -> Op<Boolean> = { Op.TRUE },
+        op: (IdTable<ID>).() -> Op<Boolean> = { Op.TRUE },
     ): Int =
         table.deleteIgnoreWhere(limit, op = op)
 

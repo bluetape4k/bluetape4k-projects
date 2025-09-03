@@ -8,7 +8,6 @@ import org.jetbrains.exposed.v1.core.transactions.nullableTransactionScope
 import org.jetbrains.exposed.v1.r2dbc.R2dbcTransaction
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import org.jetbrains.exposed.v1.r2dbc.transactions.transactionManager
-import kotlin.coroutines.CoroutineContext
 
 private val registeredOnShutdown = kotlin.collections.HashSet<TestDB>()
 
@@ -23,7 +22,6 @@ private object CurrentTestDBInterceptor: StatementInterceptor {
 suspend fun withDb(
     testDB: TestDB,
     configure: (DatabaseConfig.Builder.() -> Unit)? = {},
-    context: CoroutineContext? = null,
     statement: suspend R2dbcTransaction.(TestDB) -> Unit,
 ) {
 
@@ -46,9 +44,8 @@ suspend fun withDb(
     }
     val database = testDB.db!!
     suspendTransaction(
-        transactionIsolation = database.transactionManager.defaultIsolationLevel,
-        context = context,
-        db = database
+        transactionIsolation = database.transactionManager.defaultIsolationLevel!!,
+        db = database,
     ) {
         maxAttempts = 1
         registerInterceptor(CurrentTestDBInterceptor)

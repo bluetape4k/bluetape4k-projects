@@ -15,7 +15,6 @@ import io.bluetape4k.support.requireNotNull
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
-import org.jetbrains.exposed.v1.core.SqlExpressionBuilder
 import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -136,7 +135,7 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
         offset: Long?,
         sortBy: Expression<*>,
         sortOrder: SortOrder,
-        where: SqlExpressionBuilder.() -> Op<Boolean>,
+        where: () -> Op<Boolean>,
     ): List<T> {
         return entityTable
             .selectAll()

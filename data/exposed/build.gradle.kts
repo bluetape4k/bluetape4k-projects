@@ -14,7 +14,7 @@ dependencies {
     compileOnly(Libs.exposed_java_time)
     compileOnly(Libs.exposed_json)
     compileOnly(Libs.exposed_money)
-    compileOnly(Libs.exposed_migration)
+    compileOnly(Libs.exposed_migration_jdbc)
     compileOnly(Libs.exposed_spring_boot_starter)
 
     testImplementation(project(":bluetape4k-exposed-tests"))

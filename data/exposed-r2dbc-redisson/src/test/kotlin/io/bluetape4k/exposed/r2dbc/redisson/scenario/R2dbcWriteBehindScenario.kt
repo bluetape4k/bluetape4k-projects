@@ -4,8 +4,8 @@ import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.r2dbc.redisson.scenario.R2dbcCacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.junit5.awaitility.suspendUntil
-import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeGreaterThan
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.withPollInterval
@@ -31,7 +31,7 @@ interface R2dbcWriteBehindScenario<T: HasIdentifier<ID>, ID: Any>: R2dbcCacheTes
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `Write Behind 로 대량의 데이터를 추가합니다`(testDB: TestDB) = runSuspendIO {
+    fun `Write Behind 로 대량의 데이터를 추가합니다`(testDB: TestDB) = runTest {
         withR2dbcEntityTable(testDB) {
             val entities = createNewEntities(1000)
             repository.putAll(entities)

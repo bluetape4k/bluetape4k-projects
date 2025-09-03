@@ -6,7 +6,7 @@ import org.jetbrains.exposed.v1.core.ExpressionWithColumnType
 import org.jetbrains.exposed.v1.core.IColumnType
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.QueryBuilder
-import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.asLiteral
+import org.jetbrains.exposed.v1.core.asLiteral
 import org.jetbrains.exposed.v1.core.stringLiteral
 import org.jetbrains.exposed.v1.core.vendors.currentDialect
 
