@@ -9,7 +9,6 @@ dependencies {
 
     api(Libs.exposed_r2dbc)
     api(Libs.exposed_migration_r2dbc)
-    // api(Libs.exposed_r2dbc_tests)
     compileOnly(Libs.exposed_java_time)
 
     // R2DBC

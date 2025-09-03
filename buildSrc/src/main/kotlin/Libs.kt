@@ -1173,9 +1173,7 @@ object Libs {
     val exposed_migration_r2dbc = exposed("migration-r2dbc")
     val exposed_money = exposed("money")
     val exposed_r2dbc = exposed("r2dbc")
-    val exposed_r2dbc_tests = exposed("r2dbc-tests")
     val exposed_spring_boot_starter = exposed("spring-boot-starter")
-    val exposed_tests = exposed("tests")
     const val exposed_spring_transaction = "org.jetbrains.exposed:spring-transaction:${Versions.exposed}"
 
 

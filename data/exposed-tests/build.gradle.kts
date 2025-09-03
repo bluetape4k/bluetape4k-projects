@@ -9,7 +9,6 @@ dependencies {
     api(Libs.exposed_core)
     api(Libs.exposed_jdbc)
     api(Libs.exposed_dao)
-    // api(Libs.exposed_tests)
     compileOnly(Libs.exposed_crypt)
     compileOnly(Libs.exposed_kotlin_datetime)
     compileOnly(Libs.exposed_java_time)
