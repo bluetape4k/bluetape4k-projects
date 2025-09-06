@@ -13,7 +13,7 @@ class JacksonBColumnType<T: Any>(
     override val usesBinaryFormat: Boolean = true
 
     override fun sqlType(): String = when (val dialect = currentDialect) {
-        is H2Dialect -> dialect.originalDataTypeProvider.jsonBType()
+        is H2Dialect -> (currentDialect as H2Dialect).originalDataTypeProvider.jsonBType()
         else -> dialect.dataTypeProvider.jsonBType()
     }
 }
