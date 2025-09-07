@@ -18,6 +18,7 @@ import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.redisson.api.EvictionMode
 import org.redisson.api.RMap
 import org.redisson.api.RedissonClient
@@ -137,27 +138,31 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
         sortOrder: SortOrder,
         where: () -> Op<Boolean>,
     ): List<T> {
-        return entityTable
-            .selectAll()
-            .where(where)
-            .apply {
-                orderBy(sortBy, sortOrder)
-                limit?.run { limit(limit) }
-                offset?.run { offset(offset) }
-            }.map { it.toEntity() }
-            .apply {
-                log.debug { "DB에서 엔티티를 조회했습니다. entities=$this" }
-                cache.putAll(associateBy { it.id })
-            }
+        return transaction {
+            entityTable
+                .selectAll()
+                .where(where)
+                .apply {
+                    orderBy(sortBy, sortOrder)
+                    limit?.run { limit(limit) }
+                    offset?.run { offset(offset) }
+                }.map { it.toEntity() }
+                .apply {
+                    log.debug { "DB에서 엔티티를 조회했습니다. entities=$this" }
+                    cache.putAll(associateBy { it.id })
+                }
+        }
 
     }
 
     override fun getAll(ids: Collection<ID>, batchSize: Int): List<T> {
         val chunkedIds = ids.chunked(batchSize)
 
-        return chunkedIds.flatMap { chunk ->
-            log.debug { " 캐시에서 ${chunk.size} 개의 엔티티를 가져옵니다. chunk=${chunk}" }
-            cache.getAll(chunk.toSet()).values.filterNotNull()
+        return transaction {
+            chunkedIds.flatMap { chunk ->
+                log.debug { " 캐시에서 ${chunk.size} 개의 엔티티를 가져옵니다. chunk=${chunk}" }
+                cache.getAll(chunk.toSet()).values.filterNotNull()
+            }
         }
     }
 }

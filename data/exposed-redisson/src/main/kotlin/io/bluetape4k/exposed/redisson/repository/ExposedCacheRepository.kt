@@ -10,6 +10,7 @@ import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.redisson.api.RMap
 
 /**
@@ -32,14 +33,17 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      */
     fun exists(id: ID): Boolean = cache.containsKey(id)
 
-    fun findFreshById(id: ID): T? =
+    fun findFreshById(id: ID): T? = transaction {
         entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
+    }
 
-    fun findFreshAll(vararg ids: ID): List<T> =
+    fun findFreshAll(vararg ids: ID): List<T> = transaction {
         entityTable.selectAll().where { entityTable.id inList ids.toList() }.map { it.toEntity() }
+    }
 
-    fun findFreshAll(ids: Collection<ID>): List<T> =
+    fun findFreshAll(ids: Collection<ID>): List<T> = transaction {
         entityTable.selectAll().where { entityTable.id inList ids }.map { it.toEntity() }
+    }
 
 
     fun get(id: ID): T? = cache[id]

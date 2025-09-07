@@ -14,6 +14,7 @@ import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.r2dbc.selectAll
+import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import org.redisson.api.RMap
 
 /**
@@ -38,14 +39,17 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
 
     suspend fun exists(id: ID): Boolean = cache.containsKeyAsync(id).suspendAwait()
 
-    suspend fun findFreshById(id: ID): T? =
+    suspend fun findFreshById(id: ID): T? = suspendTransaction {
         entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
+    }
 
-    suspend fun findFreshAll(vararg ids: ID): List<T> =
+    suspend fun findFreshAll(vararg ids: ID): List<T> = suspendTransaction {
         entityTable.selectAll().where { entityTable.id inList ids.toList() }.map { it.toEntity() }.toList()
+    }
 
-    suspend fun findFreshAll(ids: Collection<ID>): List<T> =
+    suspend fun findFreshAll(ids: Collection<ID>): List<T> = suspendTransaction {
         entityTable.selectAll().where { entityTable.id inList ids }.map { it.toEntity() }.toList()
+    }
 
     suspend fun findAll(
         limit: Int? = null,

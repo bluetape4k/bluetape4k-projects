@@ -11,6 +11,7 @@ import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.redisson.api.RMap
 
 /**
@@ -34,14 +35,17 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
 
     suspend fun exists(id: ID): Boolean = cache.containsKeyAsync(id).suspendAwait()
 
-    suspend fun findFreshById(id: ID): T? =
+    suspend fun findFreshById(id: ID): T? = transaction {
         entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
+    }
 
-    suspend fun findFreshAll(vararg ids: ID): List<T> =
+    suspend fun findFreshAll(vararg ids: ID): List<T> = transaction {
         entityTable.selectAll().where { entityTable.id inList ids.toList() }.map { it.toEntity() }
+    }
 
-    suspend fun findFreshAll(ids: Collection<ID>): List<T> =
+    suspend fun findFreshAll(ids: Collection<ID>): List<T> = transaction {
         entityTable.selectAll().where { entityTable.id inList ids }.map { it.toEntity() }
+    }
 
     suspend fun get(id: ID): T? = cache.getAsync(id).suspendAwait()
 
