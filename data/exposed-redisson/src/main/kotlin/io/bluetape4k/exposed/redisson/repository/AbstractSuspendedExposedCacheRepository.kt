@@ -42,7 +42,6 @@ import java.time.Duration
  * @param cacheName Redis Cache Name
  * @param config ExposedRedisCacheConfig
  */
-@Suppress("DEPRECATION")
 abstract class AbstractSuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     val redissonClient: RedissonClient,
     override val cacheName: String,

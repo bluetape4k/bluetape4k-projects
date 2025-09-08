@@ -3,6 +3,7 @@ package io.bluetape4k.exposed.redisson.repository
 import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -11,7 +12,7 @@ import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
 import org.redisson.api.RMap
 
 /**
@@ -35,17 +36,20 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
 
     suspend fun exists(id: ID): Boolean = cache.containsKeyAsync(id).suspendAwait()
 
-    suspend fun findFreshById(id: ID): T? = transaction {
-        entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
-    }
+    suspend fun findFreshById(id: ID): T? =
+        suspendedTransactionAsync(Dispatchers.IO) {
+            entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
+        }.await()
 
-    suspend fun findFreshAll(vararg ids: ID): List<T> = transaction {
-        entityTable.selectAll().where { entityTable.id inList ids.toList() }.map { it.toEntity() }
-    }
+    suspend fun findFreshAll(vararg ids: ID): List<T> =
+        suspendedTransactionAsync(Dispatchers.IO) {
+            entityTable.selectAll().where { entityTable.id inList ids.toList() }.map { it.toEntity() }
+        }.await()
 
-    suspend fun findFreshAll(ids: Collection<ID>): List<T> = transaction {
-        entityTable.selectAll().where { entityTable.id inList ids }.map { it.toEntity() }
-    }
+    suspend fun findFreshAll(ids: Collection<ID>): List<T> =
+        suspendedTransactionAsync(Dispatchers.IO) {
+            entityTable.selectAll().where { entityTable.id inList ids }.map { it.toEntity() }
+        }.await()
 
     suspend fun get(id: ID): T? = cache.getAsync(id).suspendAwait()
 

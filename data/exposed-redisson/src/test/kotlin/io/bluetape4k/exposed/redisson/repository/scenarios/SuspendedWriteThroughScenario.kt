@@ -70,7 +70,7 @@ interface SuspendedWriteThroughScenario<T: HasIdentifier<ID>, ID: Any>: Suspende
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `putAll - 캐시에 저장하면, DB에도 저장된다`(testDB: TestDB) = runSuspendIO {
         // NOTE: MySQL/MariaDB 에서는 Isolation level을 java.sql.Connection.TRANSACTION_READ_COMMITTED 로 설정해야 제대로 작동합니다.
-        Assumptions.assumeTrue { testDB !in TestDB.ALL_MYSQL_MARIADB }
+        Assumptions.assumeTrue { testDB !in TestDB.ALL_MYSQL_LIKE }
 
         withSuspendedEntityTable(testDB) {
             val ids = getExistingIds()
