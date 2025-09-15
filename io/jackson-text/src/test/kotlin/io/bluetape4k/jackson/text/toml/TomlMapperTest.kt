@@ -65,14 +65,14 @@ class TomlMapperTest: AbstractJacksonTextTest() {
             val output = tomlMapper.writeValueAsString(input)
             log.debug { "output=\n$output\n----------" }
 
-            val expected = """
+            val expected =
+                """
                 |firstName = '${input.firstName}'
                 |lastName = '${input.lastName}'
                 |verified = false
                 |gender = 'MALE'
                 |userImage = 'AQIDBA=='
-                |
-                """.trimMargin()
+                |""".trimMargin()
 
             output shouldBeEqualTo expected
         }
@@ -86,7 +86,7 @@ class TomlMapperTest: AbstractJacksonTextTest() {
                 |verified = true
                 |gender = "FEMALE"
                 |userImage = "AQIDBA=="  # base64 encoded byte array
-                """.trimMargin()
+                |""".trimMargin()
 
             val expected = FiveMinuteUser("Bob", "Palmer", true, Gender.FEMALE, byteArrayOf(1, 2, 3, 4))
 
