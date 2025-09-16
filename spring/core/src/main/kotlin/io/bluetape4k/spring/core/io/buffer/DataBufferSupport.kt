@@ -68,6 +68,7 @@ fun Resource.readAsDataBuffer(
  * starts the writing process when subscribed to, and that publishes any
  * writing errors and the completions signal
  */
+@Suppress("UNCHECKED_CAST")
 @JvmName("writeDataBufferToOutputStream")
 fun Publisher<out DataBuffer>.write(outputStream: OutputStream): Flow<DataBuffer> {
     return DataBufferUtils.write(this as Publisher<DataBuffer>, outputStream).asFlow()
@@ -88,6 +89,7 @@ fun Publisher<out DataBuffer>.write(outputStream: OutputStream): Flow<DataBuffer
  * starts the writing process when subscribed to, and that publishes any
  * writing errors and the completions signal
  */
+@Suppress("UNCHECKED_CAST")
 @JvmName("writeDataBufferToWritableByteChannel")
 fun Publisher<out DataBuffer>.write(channel: WritableByteChannel): Flow<DataBuffer> {
     return DataBufferUtils.write(this as Publisher<DataBuffer>, channel).asFlow()
@@ -114,6 +116,7 @@ fun Publisher<out DataBuffer>.write(channel: AsynchronousFileChannel, position: 
  * @param options the options for opening the file
  * @return a flow containing the written data buffers
  */
+@Suppress("UNCHECKED_CAST")
 @JvmName("writeDataBufferToPath")
 suspend fun Publisher<out DataBuffer>.write(destination: Path, vararg options: OpenOption) {
     DataBufferUtils.write(this as Publisher<DataBuffer>, destination, *options).awaitSingle()
