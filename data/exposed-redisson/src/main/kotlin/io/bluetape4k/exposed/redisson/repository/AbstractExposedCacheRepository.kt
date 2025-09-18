@@ -131,6 +131,16 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
             }
         }
 
+    /**
+     * DB에서 조건에 맞는 엔티티 목록을 조회하고, 조회된 엔티티들을 캐시에 저장합니다.
+     *
+     * @param limit 조회할 최대 개수 (nullable)
+     * @param offset 조회 시작 위치 (nullable)
+     * @param sortBy 정렬 기준 컬럼
+     * @param sortOrder 정렬 순서
+     * @param where 조회 조건을 반환하는 함수
+     * @return 조회된 엔티티 목록
+     */
     override fun findAll(
         limit: Int?,
         offset: Long?,
@@ -152,15 +162,21 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
                     cache.putAll(associateBy { it.id })
                 }
         }
-
     }
 
+    /**
+     * 주어진 ID 목록을 batchSize 단위로 나누어 캐시에서 엔티티를 조회합니다.
+     *
+     * @param ids 조회할 엔티티의 ID 목록
+     * @param batchSize 한 번에 조회할 배치 크기
+     * @return 조회된 엔티티 목록
+     */
     override fun getAll(ids: Collection<ID>, batchSize: Int): List<T> {
         val chunkedIds = ids.chunked(batchSize)
 
         return transaction {
             chunkedIds.flatMap { chunk ->
-                log.debug { " 캐시에서 ${chunk.size} 개의 엔티티를 가져옵니다. chunk=${chunk}" }
+                log.debug { "캐시에서 ${chunk.size}개의 엔티티를 가져옵니다. chunk=$chunk" }
                 cache.getAll(chunk.toSet()).values.filterNotNull()
             }
         }
