@@ -9,6 +9,11 @@ import io.r2dbc.postgresql.codec.Json
 import org.springframework.core.convert.converter.Converter
 import org.springframework.data.convert.ReadingConverter
 
+/**
+ * PostgreSQL의 Json 타입을 Map\<String, Any?\>로 변환하는 Converter입니다.
+ *
+ * @property mapper Jackson ObjectMapper 인스턴스
+ */
 @ReadingConverter
 class JsonToMapConverter(private val mapper: ObjectMapper): Converter<Json, Map<String, Any?>> {
 
