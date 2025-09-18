@@ -46,7 +46,7 @@ import java.math.BigDecimal
 import java.util.*
 import kotlin.reflect.KClass
 
-private val log = KotlinLogging.logger { }
+private val log by lazy { KotlinLogging.logger { } }
 
 /**
  * Column 값을 [TimebasedUuid.Reordered]이 생성한 UUID 값으로 설정합니다.

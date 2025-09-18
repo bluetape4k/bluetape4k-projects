@@ -5,7 +5,6 @@ import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.migration.jdbc.MigrationUtils
 
-
 /**
  * [SchemaUtils.createMissingTablesAndColumns] 를 대체하기 위한 함수입니다.
  */

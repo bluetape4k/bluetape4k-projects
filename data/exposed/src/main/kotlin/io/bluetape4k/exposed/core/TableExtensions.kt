@@ -8,7 +8,6 @@ import org.jetbrains.exposed.v1.core.vendors.PrimaryKeyMetadata
 import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import org.jetbrains.exposed.v1.jdbc.vendors.currentDialectMetadata
 
-
 /**
  * 테이블의 컬럼 메타데이터 목록을 반환합니다.
  *
