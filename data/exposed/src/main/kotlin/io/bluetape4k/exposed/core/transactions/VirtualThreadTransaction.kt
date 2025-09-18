@@ -10,6 +10,16 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transactionManager
 import java.util.concurrent.ExecutorService
 
+/**
+ * 가상 스레드에서 트랜잭션을 실행하고 결과를 반환합니다.
+ *
+ * @param executor 사용할 ExecutorService (기본값: VirtualThreadExecutor)
+ * @param db 사용할 Database (기본값: null)
+ * @param transactionIsolation 트랜잭션 격리 수준 (기본값: null)
+ * @param readOnly 읽기 전용 여부 (기본값: false)
+ * @param statement 실행할 트랜잭션 블록
+ * @return 트랜잭션 블록의 실행 결과
+ */
 fun <T> newVirtualThreadTransaction(
     executor: ExecutorService? = VirtualThreadExecutor,
     db: Database? = null,
@@ -24,6 +34,13 @@ fun <T> newVirtualThreadTransaction(
     statement = statement
 ).await()
 
+/**
+ * 현재 트랜잭션 컨텍스트 내에서 가상 스레드 트랜잭션을 실행합니다.
+ *
+ * @param executor 사용할 ExecutorService (기본값: VirtualThreadExecutor)
+ * @param statement 실행할 트랜잭션 블록
+ * @return 트랜잭션 블록의 실행 결과
+ */
 fun <T> Transaction.withVirtualThreadTransaction(
     executor: ExecutorService? = VirtualThreadExecutor,
     statement: JdbcTransaction.() -> T,
@@ -33,6 +50,16 @@ fun <T> Transaction.withVirtualThreadTransaction(
     statement = statement
 ).await()
 
+/**
+ * 가상 스레드에서 비동기적으로 트랜잭션을 실행합니다.
+ *
+ * @param executor 사용할 ExecutorService (기본값: VirtualThreadExecutor)
+ * @param db 사용할 Database (기본값: null)
+ * @param transactionIsolation 트랜잭션 격리 수준 (기본값: null)
+ * @param readOnly 읽기 전용 여부 (기본값: false)
+ * @param statement 실행할 트랜잭션 블록
+ * @return VirtualFuture\<T\> 트랜잭션 블록의 실행 결과를 담는 Future
+ */
 fun <T> virtualThreadTransactionAsync(
     executor: ExecutorService? = VirtualThreadExecutor,
     db: Database? = null,

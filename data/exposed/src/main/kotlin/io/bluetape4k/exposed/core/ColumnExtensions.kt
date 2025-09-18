@@ -111,6 +111,15 @@ fun Column<String>.ksuidMillisGenerated(): Column<String> =
     clientDefault { KsuidMillis.nextId() }
 
 
+/**
+ * 컬럼 타입(`IColumnType`)에 해당하는 Kotlin 언어 타입을 반환합니다.
+ *
+ * Exposed의 다양한 컬럼 타입에 대해 매핑되는 Kotlin 타입을 반환하며,
+ * 알 수 없는 타입의 경우 `null`을 반환합니다.
+ *
+ * @receiver IColumnType\<*\> Exposed 컬럼 타입
+ * @return KClass\<*\>? 매핑되는 Kotlin 타입, 없으면 null
+ */
 fun IColumnType<*>.getLanguageType(): KClass<*>? {
     log.debug { "get language type for ${this.javaClass.simpleName}" }
 
@@ -147,7 +156,7 @@ fun IColumnType<*>.getLanguageType(): KClass<*>? {
         is KotlinOffsetDateTimeColumnType -> java.time.OffsetDateTime::class
         is KotlinDurationColumnType -> java.time.Duration::class
 
-        // exposed-json 모듈을 추가해야 함 
+        // exposed-json 모듈을 추가해야 함
         // is JsonColumnType<*> -> Any::class
 
         is EntityIDColumnType<*> -> this.idColumn.columnType.getLanguageType()
@@ -159,9 +168,21 @@ fun IColumnType<*>.getLanguageType(): KClass<*>? {
     }
 }
 
+/**
+ * 컬럼의 Kotlin 언어 타입을 반환합니다.
+ *
+ * @receiver Column<*> Exposed 컬럼
+ * @return KClass<*>? 매핑되는 Kotlin 타입, 없으면 null
+ */
 @JvmName("getColumnLanguageType")
 fun Column<*>.getLanguageType(): KClass<*>? = this.columnType.getLanguageType()
 
+/**
+ * EntityID 컬럼의 Kotlin 언어 타입을 반환합니다.
+ *
+ * @receiver Column<EntityID<ID>> Exposed EntityID 컬럼
+ * @return KClass<*>? 매핑되는 Kotlin 타입, 없으면 null
+ */
 @JvmName("getEntityColumnLanguageType")
 fun <ID: Any> Column<EntityID<ID>>.getLanguageType(): KClass<*>? =
     this.columnType.getLanguageType()
