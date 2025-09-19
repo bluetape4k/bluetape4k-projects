@@ -13,7 +13,7 @@ import javax.crypto.Cipher
  *
  * @see CipherSink
  */
-class CipherSource(
+open class CipherSource(
     delegate: okio.Source,
     private val cipher: Cipher,
 ): ForwardingSource(delegate) {
