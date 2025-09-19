@@ -1,7 +1,7 @@
 package io.bluetape4k.resilience4j.cache
 
 /**
- * [CoCache] 를 사용하여 캐시된 값을 반환합니다.
+ * [SuspendCache] 를 사용하여 캐시된 값을 반환합니다.
  *
  * @param cache    캐시 객체
  * @param cacheKey 캐시 키
@@ -16,7 +16,7 @@ suspend fun <K, V> withCaache(
 }
 
 /**
- * [CoCache]를 Coroutine 환경에서 값을 [loader]로 로딩합니다.
+ * [SuspendCache]를 Coroutine 환경에서 값을 [loader]로 로딩합니다.
  *
  * ```
  * val cache = CoCache.of(jcache)
@@ -34,7 +34,7 @@ fun <K, V> SuspendCache<K, V>.decorateSuspendSupplier(
 }
 
 /**
- * [CoCache]를 Coroutine 환경에서 값을 [loader]를 실행하여 로딩합니다.
+ * [SuspendCache]를 Coroutine 환경에서 값을 [loader]를 실행하여 로딩합니다.
  *
  * ```
  * val cache = CoCache.of(jcache)
@@ -52,7 +52,7 @@ inline fun <K, V> SuspendCache<K, V>.decorateSuspendFunction(
 }
 
 /**
- * [CoCache]를 Coroutine 환경에서 값을 [loader]로 로딩합니다.
+ * [SuspendCache]를 Coroutine 환경에서 값을 [loader]로 로딩합니다.
  *
  * ```
  * val cache = CoCache.of(jcache)
