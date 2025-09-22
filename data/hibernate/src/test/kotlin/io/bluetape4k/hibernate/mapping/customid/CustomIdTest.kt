@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 
 class CustomIdTest(
-    @Autowired private val repository: CustomIdRepository,
+    @param:Autowired private val repository: CustomIdRepository,
 ): AbstractHibernateTest() {
 
     companion object: KLogging()

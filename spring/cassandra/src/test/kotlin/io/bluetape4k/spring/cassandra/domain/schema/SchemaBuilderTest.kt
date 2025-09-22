@@ -10,7 +10,7 @@ import org.springframework.data.cassandra.core.CassandraOperations
 
 @SpringBootTest(classes = [SchemaBuilderTestConfiguration::class])
 class SchemaBuilderTest(
-    @Autowired private val operations: CassandraOperations,
+    @param:Autowired private val operations: CassandraOperations,
 ): io.bluetape4k.spring.cassandra.AbstractCassandraTest() {
 
     companion object: KLoggingChannel()

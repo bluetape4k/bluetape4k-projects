@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
 class PostRepositoryTest(
-    @Autowired private val postRepository: PostRepository,
+    @param:Autowired private val postRepository: PostRepository,
 ): AbstractR2dbcBlogApplicationTest() {
 
     companion object: KLoggingChannel()

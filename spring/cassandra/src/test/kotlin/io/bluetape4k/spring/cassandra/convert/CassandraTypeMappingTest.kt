@@ -12,7 +12,7 @@ import org.springframework.data.cassandra.core.CassandraOperations
 
 @SpringBootTest(classes = [ConvertTestConfiguration::class])
 class CassandraTypeMappingTest(
-    @Autowired private val operations: CassandraOperations,
+    @param:Autowired private val operations: CassandraOperations,
 ): io.bluetape4k.spring.cassandra.AbstractCassandraTest() {
 
     companion object: KLoggingChannel() {

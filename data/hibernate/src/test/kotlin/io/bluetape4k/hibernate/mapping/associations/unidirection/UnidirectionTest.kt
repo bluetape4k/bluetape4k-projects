@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 
 class UnidirectionTest(
-    @Autowired private val cloudRepo: CloudRepository,
-    @Autowired private val snowflakeRepo: SnowflakeRepository,
+    @param:Autowired private val cloudRepo: CloudRepository,
+    @param:Autowired private val snowflakeRepo: SnowflakeRepository,
 ): AbstractHibernateTest() {
 
     companion object: KLogging() {

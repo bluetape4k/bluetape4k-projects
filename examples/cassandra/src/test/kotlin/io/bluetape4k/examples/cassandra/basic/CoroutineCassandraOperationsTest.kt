@@ -31,7 +31,7 @@ import org.springframework.data.cassandra.core.AsyncCassandraTemplate
 
 @SpringBootTest(classes = [BasicConfiguration::class])
 class CoroutineCassandraOperationsTest(
-    @Autowired private val cqlSession: CqlSession,
+    @param:Autowired private val cqlSession: CqlSession,
 ): AbstractCassandraCoroutineTest("basic-user-ops") {
 
     companion object: KLoggingChannel() {

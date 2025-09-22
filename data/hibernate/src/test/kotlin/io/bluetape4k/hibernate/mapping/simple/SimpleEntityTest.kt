@@ -15,7 +15,7 @@ import org.springframework.dao.DataIntegrityViolationException
 import kotlin.test.assertFailsWith
 
 class SimpleEntityTest(
-    @Autowired private val simpleRepo: SimpleEntityRepository,
+    @param:Autowired private val simpleRepo: SimpleEntityRepository,
 ): AbstractHibernateTest() {
 
     companion object: KLogging()

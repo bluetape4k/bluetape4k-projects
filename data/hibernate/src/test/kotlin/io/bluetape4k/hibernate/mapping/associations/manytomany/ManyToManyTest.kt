@@ -27,8 +27,8 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.repository.findByIdOrNull
 
 class ManyToManyTest(
-    @Autowired private val accountRepo: BankAccountRepository,
-    @Autowired private val ownerRepo: AccountOwnerRepository,
+    @param:Autowired private val accountRepo: BankAccountRepository,
+    @param:Autowired private val ownerRepo: AccountOwnerRepository,
 ): AbstractHibernateTest() {
 
     companion object: KLogging()

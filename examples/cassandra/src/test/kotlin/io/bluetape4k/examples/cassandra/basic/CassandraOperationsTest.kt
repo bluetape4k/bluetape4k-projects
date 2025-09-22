@@ -24,7 +24,7 @@ import org.springframework.data.cassandra.core.selectOneById
 
 @SpringBootTest(classes = [BasicConfiguration::class])
 class CassandraOperationsTest(
-    @Autowired private val operations: CassandraOperations,
+    @param:Autowired private val operations: CassandraOperations,
 ): AbstractCassandraTest() {
 
     companion object: KLoggingChannel() {

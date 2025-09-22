@@ -36,7 +36,7 @@ import java.io.Serializable
 @SpringBootTest(classes = [ReactiveDeleteOperationsTest.TestConfiguration::class])
 @EnableReactiveCassandraRepositories
 class ReactiveDeleteOperationsTest(
-    @Autowired private val operations: ReactiveCassandraOperations,
+    @param:Autowired private val operations: ReactiveCassandraOperations,
 ): AbstractCassandraCoroutineTest("delete-op") {
 
     companion object: KLoggingChannel() {

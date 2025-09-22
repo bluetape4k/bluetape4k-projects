@@ -25,7 +25,7 @@ import kotlin.test.assertFailsWith
 
 @SpringBootTest(classes = [DomainTestConfiguration::class])
 class AsyncOptimisticLockingTest(
-    @Autowired private val cqlSession: CqlSession,
+    @param:Autowired private val cqlSession: CqlSession,
 ): AbstractCassandraCoroutineTest("coroutines-optimistic-locking") {
 
     companion object: KLoggingChannel()

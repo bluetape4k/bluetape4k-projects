@@ -13,7 +13,7 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient
 
 @Repository
 class UserRepository(
-    @Autowired override val client: DynamoDbEnhancedAsyncClient,
+    @param:Autowired override val client: DynamoDbEnhancedAsyncClient,
     @Value("\${aws.dynamodb.tablePrefix:local-}") tablePrefix: String,
 ): DynamoDbCoroutineRepository<UserDocument> {
 

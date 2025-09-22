@@ -105,7 +105,7 @@ subprojects {
                 "-Xjvm-default=all-compatibility",
                 "-Xinline-classes",
                 "-Xstring-concat=indy",         // since Kotlin 1.4.20 for JVM 9+
-                "-Xenable-builder-inference",   // since Kotlin 1.6
+                // "-Xenable-builder-inference",   // since Kotlin 1.6
                 "-Xcontext-receivers"           // since Kotlin 1.6
             )
             val experimentalAnnotations = listOf(

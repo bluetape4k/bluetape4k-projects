@@ -13,7 +13,7 @@ import org.springframework.data.projection.TargetAware
 
 @SpringBootTest(classes = [ProjectionTestConfiguration::class])
 class ProjectionTest(
-    @Autowired private val repository: CustomerRepository,
+    @param:Autowired private val repository: CustomerRepository,
 ): AbstractCassandraCoroutineTest("projection") {
 
     companion object: KLogging()

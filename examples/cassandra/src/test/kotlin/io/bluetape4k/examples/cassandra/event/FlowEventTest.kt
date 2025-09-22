@@ -21,8 +21,8 @@ import org.springframework.data.cassandra.core.truncate
 
 @SpringBootTest(classes = [EventTestConfiguration::class])
 class FlowEventTest(
-    @Autowired private val operations: CassandraOperations,
-    @Autowired private val reactiveOperations: ReactiveCassandraOperations,
+    @param:Autowired private val operations: CassandraOperations,
+    @param:Autowired private val reactiveOperations: ReactiveCassandraOperations,
 ): AbstractCassandraCoroutineTest("event") {
 
     companion object: KLoggingChannel()

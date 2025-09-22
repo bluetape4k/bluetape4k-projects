@@ -12,7 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest(classes = [StreamNullableTestConfiguration::class])
 class StreamNullableTest(
-    @Autowired private val repository: PersonRepository,
+    @param:Autowired private val repository: PersonRepository,
 ): AbstractCassandraTest() {
 
     companion object: KLogging() {

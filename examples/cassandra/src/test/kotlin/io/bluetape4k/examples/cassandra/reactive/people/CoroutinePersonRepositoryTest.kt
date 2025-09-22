@@ -19,7 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest(classes = [PersonConfiguration::class])
 class CoroutinePersonRepositoryTest(
-    @Autowired private val repository: CoroutinePersonRepository,
+    @param:Autowired private val repository: CoroutinePersonRepository,
 ): AbstractCassandraCoroutineTest("person") {
 
     companion object: KLoggingChannel()

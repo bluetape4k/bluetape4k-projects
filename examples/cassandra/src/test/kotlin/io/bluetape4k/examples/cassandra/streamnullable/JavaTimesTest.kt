@@ -13,7 +13,7 @@ import java.time.ZoneId
 
 @SpringBootTest(classes = [StreamNullableTestConfiguration::class])
 class JavaTimesTest(
-    @Autowired private val repository: OrderRepository,
+    @param:Autowired private val repository: OrderRepository,
 ): AbstractCassandraTest() {
 
     companion object: KLogging()

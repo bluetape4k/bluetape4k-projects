@@ -23,7 +23,7 @@ import java.util.*
 
 @SpringBootTest(classes = [ConversionTestConfiguration::class])
 class ConversionTest(
-    @Autowired private val operations: ReactiveCassandraOperations,
+    @param:Autowired private val operations: ReactiveCassandraOperations,
 ): AbstractCassandraCoroutineTest("conversion") {
 
     companion object: KLoggingChannel()

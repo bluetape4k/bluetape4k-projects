@@ -20,8 +20,8 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.repository.findByIdOrNull
 
 class CavalierHorseTest(
-    @Autowired private val cavalierRepo: CavalierRepository,
-    @Autowired private val horseRepo: HorseRepository,
+    @param:Autowired private val cavalierRepo: CavalierRepository,
+    @param:Autowired private val horseRepo: HorseRepository,
 ): AbstractHibernateTest() {
 
     companion object: KLogging()

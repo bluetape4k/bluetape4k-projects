@@ -20,8 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jpa.repository.JpaRepository
 
 class UnidirectionalOneToOneTest(
-    @Autowired private val carRepo: CarRepository,
-    @Autowired private val wheelRepo: WheelRepository,
+    @param:Autowired private val carRepo: CarRepository,
+    @param:Autowired private val wheelRepo: WheelRepository,
 ): AbstractHibernateTest() {
 
     @Test
