@@ -64,9 +64,6 @@ dependencies {
     api(project(":bluetape4k-io"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    api(Libs.jakarta_annotation_api)
-    api(Libs.jakarta_persistence_api)
-
     api(Libs.hibernate_core)
     api(Libs.hibernate_micrometer)
 
