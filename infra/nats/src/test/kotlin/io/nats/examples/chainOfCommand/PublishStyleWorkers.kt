@@ -11,7 +11,7 @@ object PublishStyleWorkers {
 
         companion object: KLogging()
 
-        override fun command(cmd: String, msg: Message, transactionId: String, aId: String, bId: String) {
+        override fun command(cmd: String, msg: Message, transactionId: String?, aId: String?, bId: String?) {
             when (cmd) {
                 "step1" -> {
                     log.debug { "Worker $endpointId step 1 processing transaction $transactionId. Publishing step 1 to B$bId" }
@@ -38,7 +38,7 @@ object PublishStyleWorkers {
 
         companion object: KLogging()
 
-        override fun command(cmd: String, msg: Message, transactionId: String, aId: String, bId: String) {
+        override fun command(cmd: String, msg: Message, transactionId: String?, aId: String?, bId: String?) {
             when (cmd) {
                 "step1" -> {
                     log.debug { "Worker $endpointId step 1 processing transaction $transactionId. Publishing step 1 to A$aId" }

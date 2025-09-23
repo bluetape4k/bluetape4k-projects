@@ -315,7 +315,7 @@ class SimplicationMigrationExample: AbstractNatsTest() {
             // The minimum wait time when calling next is 1 second (1000ms)
             println("\nI. next (1 message)")
             try {
-                val msg = consumerContext.next(1000)
+                val msg = consumerContext.next(1000)!!
                 println("   Received " + msg.subject)
                 msg.ack()
             } catch (se: JetStreamStatusCheckedException) {

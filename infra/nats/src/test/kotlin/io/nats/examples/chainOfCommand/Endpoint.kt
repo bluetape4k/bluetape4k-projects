@@ -38,7 +38,7 @@ abstract class Endpoint(
         command(cmd, msg, transactionId, aId, bId)
     }
 
-    protected abstract fun command(cmd: String, msg: Message, transactionId: String, aId: String, bId: String)
+    protected abstract fun command(cmd: String, msg: Message, transactionId: String?, aId: String?, bId: String?)
 
     override fun close() {
         nc.close()
