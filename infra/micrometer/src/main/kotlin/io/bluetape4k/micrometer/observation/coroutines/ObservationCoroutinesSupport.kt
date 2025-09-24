@@ -56,27 +56,25 @@ suspend inline fun <T: Any> withObservationContext(
     crossinline block: suspend CoroutineScope.() -> T?,
 ): T? = Mono.deferContextual { contextView ->
     name.requireNotBlank("name")
-    ContextSnapshotFactory.builder().build()
-        .setThreadLocalsFrom<T>(contextView, ObservationThreadLocalAccessor.KEY).use { _ ->
-            val observation = observationRegistry.start(name)
-            Mono.just(observation)
-                .flatMap {
-                    // Tracing 정보를 보려면, 아래와 같이 TracingObservationHandler.TracingContext 에서 가져오면 된다.
-                    //                val tracingContext = observation.context.get<TracingObservationHandler.TracingContext>(TracingObservationHandler.TracingContext::class.java)
-                    //                log.info(
-                    //                    "tracingContext traceId=${tracingContext?.span?.context()?.traceId()}, " +
-                    //                        "spanId=${tracingContext?.span?.context()?.spanId()}"
-                    //                )
-                    mono(Context.of(ObservationThreadLocalAccessor.KEY, it).asCoroutineContext()) {
-                        it.openScope().use {
-                            block()
-                        }
-                    }
-                }.doOnError {
-                    observation.error(it)
-                    observation.stop()
-                }.doOnSuccess {
-                    observation.stop()
+    val snapshotFactory = ContextSnapshotFactory.builder().build()
+    snapshotFactory.setThreadLocalsFrom<T>(contextView, ObservationThreadLocalAccessor.KEY).use { _ ->
+        val observation = observationRegistry.start(name)
+        Mono.defer {
+            // Tracing 정보를 보려면, 아래와 같이 TracingObservationHandler.TracingContext 에서 가져오면 된다.
+            //                val tracingContext = observation.context.get<TracingObservationHandler.TracingContext>(TracingObservationHandler.TracingContext::class.java)
+            //                log.info(
+            //                    "tracingContext traceId=${tracingContext?.span?.context()?.traceId()}, " +
+            //                        "spanId=${tracingContext?.span?.context()?.spanId()}"
+            //                )
+            mono(Context.of(ObservationThreadLocalAccessor.KEY, observation).asCoroutineContext()) {
+                observation.openScope().use {
+                    block()
                 }
+            }
+        }.doOnError {
+            observation.error(it)
+        }.doFinally {
+            observation.stop()
         }
+    }
 }.awaitSingleOrNull()
