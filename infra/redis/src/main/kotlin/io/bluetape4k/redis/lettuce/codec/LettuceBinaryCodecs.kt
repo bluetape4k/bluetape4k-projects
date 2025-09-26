@@ -9,7 +9,7 @@ import io.bluetape4k.protobuf.serializers.ProtobufSerializer
 
 object LettuceBinaryCodecs {
 
-    val Default: LettuceBinaryCodec<Any> by lazy { lz4Fury() }
+    val Default: LettuceBinaryCodec<Any> by lazy { lz4Fory() }
 
     fun <V: Any> codec(serializer: BinarySerializer): LettuceBinaryCodec<V> =
         LettuceBinaryCodec(serializer)
@@ -37,7 +37,15 @@ object LettuceBinaryCodecs {
     /**
      * Fury Serializer를 사용하는 [LettuceBinaryCodec]를 생성합니다.
      */
+    @Deprecated("Fury is deprecated. Use fory() instead.", ReplaceWith("fory()"))
     fun <V: Any> fury(): LettuceBinaryCodec<V> = codec(BinarySerializers.Fury)
+
+
+    /**
+     * Fory Serializer를 사용하는 [LettuceBinaryCodec]를 생성합니다.
+     */
+    fun <V: Any> fory(): LettuceBinaryCodec<V> = codec(BinarySerializers.Fory)
+
 
     /**
      * Jdk Serializer와 Gzip Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
@@ -57,7 +65,14 @@ object LettuceBinaryCodecs {
     /**
      * Fury Serializer와 Gzip Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
      */
+    @Deprecated("Fury is deprecated. Use fory() instead.", ReplaceWith("gzipFory()"))
     fun <V: Any> gzipFury(): LettuceBinaryCodec<V> = codec(BinarySerializers.GZipFury)
+
+    /**
+     * Fory Serializer와 Gzip Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
+     */
+    fun <V: Any> gzipFory(): LettuceBinaryCodec<V> = codec(BinarySerializers.GZipFory)
+
 
     /**
      * Jdk Serializer와 Deflate Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
@@ -77,7 +92,13 @@ object LettuceBinaryCodecs {
     /**
      * Fury Serializer와 Deflate Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
      */
+    @Deprecated("Fury is deprecated. Use fory() instead.", ReplaceWith("deflateFory()"))
     fun <V: Any> deflateFury(): LettuceBinaryCodec<V> = codec(BinarySerializers.DeflateFury)
+
+    /**
+     * Fory Serializer와 Deflate Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
+     */
+    fun <V: Any> deflateFory(): LettuceBinaryCodec<V> = codec(BinarySerializers.DeflateFory)
 
     /**
      * Jdk Serializer와 LZ4 Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
@@ -97,7 +118,13 @@ object LettuceBinaryCodecs {
     /**
      * Fury Serializer와 LZ4 Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
      */
+    @Deprecated("Fury is deprecated. Use fory() instead.", ReplaceWith("lz4Fory()"))
     fun <V: Any> lz4Fury(): LettuceBinaryCodec<V> = codec(BinarySerializers.LZ4Fury)
+
+    /**
+     * Fury Serializer와 LZ4 Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
+     */
+    fun <V: Any> lz4Fory(): LettuceBinaryCodec<V> = codec(BinarySerializers.LZ4Fory)
 
     /**
      * Jdk Serializer와 Snappy Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
@@ -117,7 +144,14 @@ object LettuceBinaryCodecs {
     /**
      * Fury Serializer와 Snappy Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
      */
+    @Deprecated("Fury is deprecated. Use fory() instead.", ReplaceWith("snappyFory()"))
     fun <V: Any> snappyFury(): LettuceBinaryCodec<V> = codec(BinarySerializers.SnappyFury)
+
+    /**
+     * Fory Serializer와 Snappy Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
+     */
+    fun <V: Any> snappyFory(): LettuceBinaryCodec<V> = codec(BinarySerializers.SnappyFory)
+
 
     /**
      * Jdk Serializer와 Zstd Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
@@ -137,5 +171,11 @@ object LettuceBinaryCodecs {
     /**
      * Fury Serializer와 Zstd Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
      */
+    @Deprecated("Fury is deprecated. Use fory() instead.", ReplaceWith("zstdFory()"))
     fun <V: Any> zstdFury(): LettuceBinaryCodec<V> = codec(BinarySerializers.ZstdFury)
+
+    /**
+     * Fory Serializer와 Zstd Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
+     */
+    fun <V: Any> zstdFory(): LettuceBinaryCodec<V> = codec(BinarySerializers.ZstdFory)
 }
