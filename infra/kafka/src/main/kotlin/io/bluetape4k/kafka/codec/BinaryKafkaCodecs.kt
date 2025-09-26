@@ -33,7 +33,13 @@ class KryoKafkaCodec: BinaryKafkaCodec(BinarySerializers.Kryo)
 /**
  * [BinarySerializers.Fury]를 이용한 Kafka Codec
  */
+@Deprecated("Fury is deprecated. Use Fory instead", ReplaceWith("ForyKafkaCodec"))
 class FuryKafkaCodec: BinaryKafkaCodec(BinarySerializers.Fury)
+
+/**
+ * [BinarySerializers.Fory]를 이용한 Kafka Codec
+ */
+class ForyKafkaCodec: BinaryKafkaCodec(BinarySerializers.Fory)
 
 /**
  * [BinarySerializers.LZ4Jdk]를 이용한 Kafka Codec
@@ -48,7 +54,13 @@ class LZ4KryoKafkaCodec: BinaryKafkaCodec(BinarySerializers.LZ4Kryo)
 /**
  * [BinarySerializers.LZ4Fury]를 이용한 Kafka Codec
  */
+@Deprecated("LZ4Fury is deprecated. Use LZ4Fory instead", ReplaceWith("LZ4ForyKafkaCodec"))
 class LZ4FuryKafkaCodec: BinaryKafkaCodec(BinarySerializers.LZ4Fury)
+
+/**
+ * [BinarySerializers.LZ4Fory]를 이용한 Kafka Codec
+ */
+class LZ4ForyKafkaCodec: BinaryKafkaCodec(BinarySerializers.LZ4Fory)
 
 /**
  * [BinarySerializers.SnappyJdk]를 이용한 Kafka Codec
@@ -63,7 +75,14 @@ class SnappyKryoKafkaCodec: BinaryKafkaCodec(BinarySerializers.SnappyKryo)
 /**
  * [BinarySerializers.SnappyFury]를 이용한 Kafka Codec
  */
+@Deprecated("SnappyFury is deprecated. Use SnappyFory instead", ReplaceWith("SnappyForyKafkaCodec"))
 class SnappyFuryKafkaCodec: BinaryKafkaCodec(BinarySerializers.SnappyFury)
+
+/**
+ * [BinarySerializers.SnappyFory]를 이용한 Kafka Codec
+ */
+class SnappyForyKafkaCodec: BinaryKafkaCodec(BinarySerializers.SnappyFory)
+
 
 /**
  * [BinarySerializers.ZstdJdk]를 이용한 Kafka Codec
@@ -78,4 +97,10 @@ class ZstdKryoKafkaCodec: BinaryKafkaCodec(BinarySerializers.ZstdKryo)
 /**
  * [BinarySerializers.ZstdFury]를 이용한 Kafka Codec
  */
+@Deprecated("ZstdFury is deprecated. Use ZstdFory instead", ReplaceWith("ZstdForyKafkaCodec"))
 class ZstdFuryKafkaCodec: BinaryKafkaCodec(BinarySerializers.ZstdFury)
+
+/**
+ * [BinarySerializers.ZstdFory]를 이용한 Kafka Codec
+ */
+class ZstdForyKafkaCodec: BinaryKafkaCodec(BinarySerializers.ZstdFory)

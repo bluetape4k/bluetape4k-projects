@@ -27,19 +27,19 @@ class BinarySerializedBlobColumTypeTest: AbstractExposedTest() {
     companion object: KLogging()
 
     private object T1: IntIdTable() {
-        val zstdFury = binarySerializedBlob<Embeddable>("zstd_fury", BinarySerializers.ZstdFury).nullable()
+        val zstdFory = binarySerializedBlob<Embeddable>("zstd_fury", BinarySerializers.ZstdFory).nullable()
         val zstdKryo = binarySerializedBlob<Embeddable>("zstd_kryo", BinarySerializers.ZstdKryo).nullable()
-        val lz4Fury = binarySerializedBlob<Embeddable2>("lz4_fury", BinarySerializers.LZ4Fury).nullable()
+        val lz4Fory = binarySerializedBlob<Embeddable2>("lz4_fury", BinarySerializers.LZ4Fory).nullable()
         val lz4Kryo = binarySerializedBlob<Embeddable2>("lz4_kryo", BinarySerializers.LZ4Kryo).nullable()
     }
 
     class E1(id: EntityID<Int>): IntEntity(id) {
         companion object: EntityClass<Int, E1>(T1)
 
-        var zstdFury by T1.zstdFury
+        var zstdFory by T1.zstdFory
         var zstdKryo by T1.zstdKryo
 
-        var lz4Fury by T1.lz4Fury
+        var lz4Fory by T1.lz4Fory
         var lz4Kryo by T1.lz4Kryo
 
         override fun equals(other: Any?): Boolean = idEquals(other)
@@ -73,10 +73,10 @@ class BinarySerializedBlobColumTypeTest: AbstractExposedTest() {
             val embedded2 = Embeddable2("Alice", 20, "Seoul", "12914")
 
             val id1 = T1.insertAndGetId {
-                it[zstdFury] = embedded
+                it[zstdFory] = embedded
                 it[zstdKryo] = embedded
 
-                it[lz4Fury] = embedded2
+                it[lz4Fory] = embedded2
                 it[lz4Kryo] = embedded2
             }
             flushCache()
@@ -86,10 +86,10 @@ class BinarySerializedBlobColumTypeTest: AbstractExposedTest() {
             row[T1.id] shouldBeEqualTo id1
 
             row[T1.zstdKryo] shouldBeEqualTo embedded
-            row[T1.zstdFury] shouldBeEqualTo embedded
+            row[T1.zstdFory] shouldBeEqualTo embedded
 
             row[T1.lz4Kryo] shouldBeEqualTo embedded2
-            row[T1.lz4Fury] shouldBeEqualTo embedded2
+            row[T1.lz4Fory] shouldBeEqualTo embedded2
         }
     }
 
@@ -100,10 +100,10 @@ class BinarySerializedBlobColumTypeTest: AbstractExposedTest() {
             val embedded = Embeddable("Alice", 20, "Seoul")
             val embedded2 = Embeddable2("Alice", 20, "Seoul", "12914")
             val e1 = E1.new {
-                zstdFury = embedded
+                zstdFory = embedded
                 zstdKryo = embedded
 
-                lz4Fury = embedded2
+                lz4Fory = embedded2
                 lz4Kryo = embedded2
             }
             entityCache.clear()
@@ -113,10 +113,10 @@ class BinarySerializedBlobColumTypeTest: AbstractExposedTest() {
             loaded shouldBeEqualTo e1
 
             loaded.zstdKryo shouldBeEqualTo embedded
-            loaded.zstdFury shouldBeEqualTo embedded
+            loaded.zstdFory shouldBeEqualTo embedded
 
             loaded.lz4Kryo shouldBeEqualTo embedded2
-            loaded.lz4Fury shouldBeEqualTo embedded2
+            loaded.lz4Fory shouldBeEqualTo embedded2
         }
     }
 }

@@ -18,7 +18,7 @@ import org.jetbrains.exposed.v1.core.statements.api.ExposedBlob
  */
 fun <T: Any> Table.binarySerializedBlob(
     name: String,
-    serializer: BinarySerializer = BinarySerializers.LZ4Fury,
+    serializer: BinarySerializer = BinarySerializers.LZ4Fory,
 ): Column<T> =
     registerColumn(name, BinarySerializedBlobColumnType(serializer))
 

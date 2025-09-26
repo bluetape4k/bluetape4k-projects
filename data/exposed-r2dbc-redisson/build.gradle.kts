@@ -21,7 +21,8 @@ dependencies {
     // Codecs
     api(project(":bluetape4k-io"))
     api(Libs.kryo)
-    api(Libs.fury_kotlin)
+    api(Libs.fory_kotlin)  // new Apache Fory
+    api(Libs.fury_kotlin)  // old Apache Fury
 
     // Compressor
     compileOnly(Libs.snappy_java)

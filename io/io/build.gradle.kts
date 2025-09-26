@@ -67,7 +67,8 @@ dependencies {
 
     // Binary Serializers
     compileOnly(Libs.kryo)
-    compileOnly(Libs.fury_kotlin)
+    compileOnly(Libs.fory_kotlin)  // new Apache Fory
+    compileOnly(Libs.fury_kotlin)  // old Apache Fury
 
     // Benchmark
     testImplementation(Libs.kotlinx_benchmark_runtime)

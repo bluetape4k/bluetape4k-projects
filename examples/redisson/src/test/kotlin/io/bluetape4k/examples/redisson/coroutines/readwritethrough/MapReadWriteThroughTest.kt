@@ -191,7 +191,7 @@ class MapReadWriteThroughTest: AbstractRedissonCoroutineTest() {
             .loader(actorLoader)
             .writer(actorWriter)
             .writeMode(WriteMode.WRITE_THROUGH)   // 추가될 때마다 즉시 DB에 저장된다.
-            .codec(RedissonCodecs.LZ4FuryComposite)
+            .codec(RedissonCodecs.LZ4ForyComposite)
 
         // DB에 5개의 record가 있고, Redis에는 아무 것도 없다
         val map = redisson.getMapCache(options)

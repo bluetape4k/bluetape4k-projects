@@ -50,7 +50,9 @@ import kotlin.random.Random
 @Suppress("DEPRECATION")
 class CacheWriteBehindForIoTData: AbstractCacheExample() {
 
-    companion object: KLoggingChannel()
+    companion object: KLoggingChannel() {
+        private val defaultCodec = RedissonCodecs.LZ4Fory
+    }
 
     object SensorDataTable: TimebasedUUIDTable("sensor_data") {
         val serialNo = varchar("sensor_serial_no", 255)
@@ -154,7 +156,7 @@ class CacheWriteBehindForIoTData: AbstractCacheExample() {
                 .writeBehindDelay(100)        // 기본 delay 는 1000 ms 입니다.
                 .writeRetryAttempts(3) // 재시도 횟수
                 .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
-                .codec(RedissonCodecs.LZ4Fury)
+                .codec(defaultCodec)
 
             // 대량 데이터를 Write Behind 방식으로 저장하는 MapCache를 생성한다.
             val cache = redisson.getMapCache(options)
@@ -245,7 +247,7 @@ class CacheWriteBehindForIoTData: AbstractCacheExample() {
                 .writeBehindDelay(100)        // 기본 delay 는 1000 ms 입니다.
                 .writeRetryAttempts(3) // 재시도 횟수
                 .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
-                .codec(RedissonCodecs.LZ4Fury)
+                .codec(defaultCodec)
 
             // 대량 데이터를 Write Behind 방식으로 저장하는 MapCache를 생성한다.
             val cache = redisson.getMapCache(options)

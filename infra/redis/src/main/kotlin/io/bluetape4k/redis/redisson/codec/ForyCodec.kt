@@ -15,30 +15,29 @@ import org.redisson.client.protocol.Decoder
 import org.redisson.client.protocol.Encoder
 
 /**
- * Fury 알고리즘으로 직렬화/역직렬화를 수행하는 Codec
+ * Apache Fory 알고리즘으로 직렬화/역직렬화를 수행하는 Codec
  *
  * @see io.bluetape4k.io.serialize.FurySerializer
  * @see io.bluetape4k.io.serialize.BinarySerializers.Fury
  *
  * @property fallbackCodec  대체 Codec ([Kryo5Codec]) 인스턴스
  */
-@Deprecated("Apache Fury 프로젝트가 중단되어 유지보수가 되지 않음에 따라 사용을 권장하지 않습니다. 대신 ForyCodec 사용을 권장합니다.", ReplaceWith("ForyCodec"))
-class FuryCodec @JvmOverloads constructor(
+class ForyCodec @JvmOverloads constructor(
     private val fallbackCodec: Codec = RedissonCodecs.Kryo5,
 ): BaseCodec() {
 
     // classLoader를 인자로 받는 보조 생성자는 Redisson에서 환경설정 정보를 바탕으로 동적으로 Codec 생성 시에 필요합니다.
     @Suppress("UNUSED_PARAMETER")
     constructor(classLoader: ClassLoader): this(RedissonCodecs.Kryo5)
-    constructor(classLoader: ClassLoader, codec: FuryCodec): this(copy(classLoader, codec.fallbackCodec))
+    constructor(classLoader: ClassLoader, codec: ForyCodec): this(copy(classLoader, codec.fallbackCodec))
 
     companion object: KLogging()
 
-    private val fury by unsafeLazy { BinarySerializers.Fury }
+    private val fory by unsafeLazy { BinarySerializers.Fory }
 
     private val encoder: Encoder = Encoder { graph ->
         try {
-            val bytes = fury.serialize(graph)
+            val bytes = fory.serialize(graph)
             Unpooled.wrappedBuffer(bytes)
         } catch (e: Exception) {
             log.warn(e) { "Value is not suitable for FuryCodec. Using fallbackCodec[$fallbackCodec]. Value class=${graph.javaClass}" }
@@ -49,7 +48,7 @@ class FuryCodec @JvmOverloads constructor(
     private val decoder: Decoder<Any> = Decoder<Any> { buf: ByteBuf, state: State ->
         try {
             val bytes = ByteBufUtil.getBytes(buf, buf.readerIndex(), buf.readableBytes(), true)
-            fury.deserialize(bytes)
+            fory.deserialize(bytes)
         } catch (e: Exception) {
             log.warn(e) { "Value is not suitable for FuryCodec. Using fallbackCodec[$fallbackCodec]" }
             fallbackCodec.valueDecoder.decode(buf, state)

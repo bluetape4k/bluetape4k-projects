@@ -15,7 +15,8 @@ dependencies {
 
     // Codecs
     implementation(Libs.kryo)
-    implementation(Libs.fury_kotlin)
+    implementation(Libs.fory_kotlin)  // new Apache Fory
+    implementation(Libs.fury_kotlin)  // old Apache Fury
 
     // Compressor
     implementation(Libs.snappy_java)

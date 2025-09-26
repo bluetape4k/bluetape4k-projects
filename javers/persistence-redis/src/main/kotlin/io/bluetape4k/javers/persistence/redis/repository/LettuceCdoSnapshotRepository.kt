@@ -27,7 +27,7 @@ import org.javers.core.metamodel.`object`.CdoSnapshot
 class LettuceCdoSnapshotRepository(
     val name: String,
     private val client: RedisClient,
-    codec: JaversCodec<ByteArray> = JaversCodecs.LZ4Fury,
+    codec: JaversCodec<ByteArray> = JaversCodecs.LZ4Fory,
 ): AbstractCdoSnapshotRepository<ByteArray>(codec) {
 
     companion object: KLogging() {

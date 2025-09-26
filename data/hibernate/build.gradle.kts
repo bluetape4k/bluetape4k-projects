@@ -90,8 +90,9 @@ dependencies {
     compileOnly(Libs.jackson_module_kotlin)
     compileOnly(Libs.jackson_module_blackbird)
 
-    testImplementation(Libs.kryo)
-    testImplementation(Libs.fury_kotlin)
+    compileOnly(Libs.kryo)
+    compileOnly(Libs.fory_kotlin)  // new Apache Fory
+    compileOnly(Libs.fury_kotlin)  // old Apache Fury
 
     testImplementation(Libs.commons_compress)
     testImplementation(Libs.snappy_java)

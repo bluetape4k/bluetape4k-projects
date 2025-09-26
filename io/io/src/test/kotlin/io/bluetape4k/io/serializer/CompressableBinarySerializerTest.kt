@@ -38,6 +38,13 @@ class CompressableBinarySerializerTest {
             BinarySerializers.LZ4Fury,
             BinarySerializers.SnappyFury,
             BinarySerializers.ZstdFury,
+
+            BinarySerializers.BZip2Fory,
+            BinarySerializers.DeflateFory,
+            BinarySerializers.GZipFory,
+            BinarySerializers.LZ4Fory,
+            BinarySerializers.SnappyFory,
+            BinarySerializers.ZstdFory,
         )
     }
 

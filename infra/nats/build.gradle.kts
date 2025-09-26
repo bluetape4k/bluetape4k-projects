@@ -33,6 +33,7 @@ dependencies {
 
     // Serializers
     testImplementation(Libs.kryo)
-    testImplementation(Libs.fury_kotlin)
+    testImplementation(Libs.fory_kotlin)  // new Apache Fory
+    testImplementation(Libs.fury_kotlin)  // old Apache Fury
 
 }

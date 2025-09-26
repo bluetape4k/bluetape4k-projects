@@ -36,6 +36,8 @@ class CacheReadThroughExample: AbstractCacheExample() {
 
     companion object: KLoggingChannel() {
         const val ACTOR_SIZE = 500
+
+        private val defaultCodec = RedissonCodecs.LZ4Fory
     }
 
     @BeforeEach
@@ -66,7 +68,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
                 .loader(actorLoader)
                 .retryAttempts(3)
                 .retryDelay { attempt -> Duration.ofMillis(attempt * 10L) }
-                .codec(RedissonCodecs.LZ4Fury)
+                .codec(defaultCodec)
 
             val cache: RMapCache<Long, Actor?> = redisson.getMapCache(options)
             try {
@@ -84,7 +86,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
                 .retryAttempts(3)
                 .retryDelay { attempt -> Duration.ofMillis(attempt * 10L) }
                 .timeToLive(Duration.ofSeconds(10))   // 로컬 캐시의 TTL
-                .codec(RedissonCodecs.LZ4Fury)
+                .codec(defaultCodec)
 
             val cache: RLocalCachedMap<Long, Actor?> = redisson.getLocalCachedMap(options)
             try {
@@ -146,7 +148,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
                 .loaderAsync(actorLoaderAsync)
                 .retryAttempts(3)
                 .retryDelay { attempt -> Duration.ofMillis(attempt * 10L) }
-                .codec(RedissonCodecs.LZ4Fury)
+                .codec(defaultCodec)
 
             val cache: RMapCache<Long, Actor?> = redisson.getMapCache(options)
             try {
@@ -164,7 +166,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
                 .retryAttempts(3)
                 .retryDelay { attempt -> Duration.ofMillis(attempt * 10L) }
                 .timeToLive(Duration.ofSeconds(10))   // 로컬 캐시의 TTL
-                .codec(RedissonCodecs.LZ4Fury)
+                .codec(defaultCodec)
 
             val cache: RLocalCachedMap<Long, Actor?> = redisson.getLocalCachedMap(options)
             try {

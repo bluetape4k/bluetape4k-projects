@@ -30,6 +30,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
 
     companion object: KLoggingChannel() {
         const val ACTOR_SIZE = 50
+        private val defaultCodec = RedissonCodecs.LZ4Fory
     }
 
     @BeforeEach
@@ -50,7 +51,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                 .writeMode(WriteMode.WRITE_THROUGH)
                 .writeRetryAttempts(3) // 재시도 횟수
                 .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
-                .codec(RedissonCodecs.LZ4Fury)
+                .codec(defaultCodec)
 
             // 캐시를 생성한다.
             val cache = redisson.getMapCache(options)
@@ -84,7 +85,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                 .writeMode(WriteMode.WRITE_THROUGH)
                 .writeRetryAttempts(3) // 재시도 횟수
                 .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
-                .codec(RedissonCodecs.LZ4Fury)
+                .codec(defaultCodec)
 
             // 캐시를 생성한다.
             val cache = redisson.getLocalCachedMap(options)
@@ -126,7 +127,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                 .writeMode(WriteMode.WRITE_THROUGH)
                 .writeRetryAttempts(3) // 재시도 횟수
                 .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
-                .codec(RedissonCodecs.LZ4Fury)
+                .codec(defaultCodec)
 
             // 캐시를 생성한다.
             val cache = redisson.getMapCache(options)
@@ -166,7 +167,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                 .writeMode(WriteMode.WRITE_THROUGH)
                 .writeRetryAttempts(3) // 재시도 횟수
                 .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
-                .codec(RedissonCodecs.LZ4Fury)
+                .codec(defaultCodec)
 
             // 캐시를 생성한다.
             val cache = redisson.getLocalCachedMap(options)

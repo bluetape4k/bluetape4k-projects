@@ -27,7 +27,7 @@ class PriorityQueueExamples: AbstractRedissonCoroutineTest() {
     @Test
     fun `use PriorityQueue`() = runTest {
         val queueName = randomName()
-        val queue = redisson.getPriorityQueue<Item>(queueName, RedissonCodecs.LZ4Fury)
+        val queue = redisson.getPriorityQueue<Item>(queueName, RedissonCodecs.LZ4Fory)
 
         queue.add(Item("b", 1))
         queue.add(Item("c", 2))

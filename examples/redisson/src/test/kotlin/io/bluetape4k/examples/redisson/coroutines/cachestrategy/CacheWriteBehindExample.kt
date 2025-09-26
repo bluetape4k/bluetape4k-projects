@@ -35,6 +35,7 @@ class CacheWriteBehindExample: AbstractCacheExample() {
 
     companion object: KLoggingChannel() {
         const val ACTOR_SIZE = 50
+        private val defaultCodec = RedissonCodecs.LZ4Fory
     }
 
     @BeforeEach
@@ -58,7 +59,7 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                 .writeBehindDelay(100)        // 기본 delay 는 1000 ms 입니다.
                 .writeRetryAttempts(3) // 재시도 횟수
                 .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
-                .codec(RedissonCodecs.LZ4Fury)
+                .codec(defaultCodec)
 
             // 캐시를 생성한다.
             val cache = redisson.getMapCache(options)
@@ -97,7 +98,7 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                 .writeBehindDelay(100)        // 기본 delay 는 1000 ms 입니다.
                 .writeRetryAttempts(3) // 재시도 횟수
                 .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
-                .codec(RedissonCodecs.LZ4Fury)
+                .codec(defaultCodec)
 
             // 캐시를 생성한다.
             val cache: RLocalCachedMap<Long, Actor?> = redisson.getLocalCachedMap(options)
@@ -152,7 +153,7 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                 .writeBehindDelay(100)        // 기본 delay 는 1000 ms 입니다.
                 .writeRetryAttempts(3) // 재시도 횟수
                 .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
-                .codec(RedissonCodecs.LZ4Fury)
+                .codec(defaultCodec)
 
             // 캐시를 생성한다.
             val cache = redisson.getMapCache(options)
@@ -202,7 +203,7 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                 .writeBehindDelay(100)        // 기본 delay 는 1000 ms 입니다.
                 .writeRetryAttempts(3) // 재시도 횟수
                 .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
-                .codec(RedissonCodecs.LZ4Fury)
+                .codec(defaultCodec)
                 .timeToLive(Duration.ofSeconds(1))   // 로컬 캐시의 TTL
 
             // 캐시를 생성한다.
