@@ -28,9 +28,21 @@ object RedisBinarySerializers {
     val SnappyKryo by unsafeLazy { RedisBinarySerializer(BinarySerializers.SnappyKryo) }
     val ZstdKryo by unsafeLazy { RedisBinarySerializer(BinarySerializers.ZstdKryo) }
 
+    @Deprecated("Apache Fory를 사용하세요", ReplaceWith("GzipFory"))
     val GzipFury by unsafeLazy { RedisBinarySerializer(BinarySerializers.GZipFury) }
+
+    @Deprecated("Apache Fory를 사용하세요", ReplaceWith("LZ4Fory"))
     val LZ4Fury by unsafeLazy { RedisBinarySerializer(BinarySerializers.LZ4Fury) }
+
+    @Deprecated("Apache Fory를 사용하세요", ReplaceWith("SnappyFory"))
     val SnappyFury by unsafeLazy { RedisBinarySerializer(BinarySerializers.SnappyFury) }
+
+    @Deprecated("Apache Fory를 사용하세요", ReplaceWith("ZstdFory"))
     val ZstdFury by unsafeLazy { RedisBinarySerializer(BinarySerializers.ZstdFury) }
+
+    val GzipFory by unsafeLazy { RedisBinarySerializer(BinarySerializers.GZipFory) }
+    val LZ4Fory by unsafeLazy { RedisBinarySerializer(BinarySerializers.LZ4Fory) }
+    val SnappyFory by unsafeLazy { RedisBinarySerializer(BinarySerializers.SnappyFory) }
+    val ZstdFory by unsafeLazy { RedisBinarySerializer(BinarySerializers.ZstdFory) }
 
 }
