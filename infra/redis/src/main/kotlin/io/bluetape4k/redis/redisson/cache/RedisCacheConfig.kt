@@ -33,7 +33,7 @@ data class RedisCacheConfig(
     val deleteFromDBOnInvalidate: Boolean = false,
     val ttl: Duration = Duration.ZERO,
     val maxSize: Int = 0,
-    val codec: Codec = RedissonCodecs.LZ4FuryComposite,  // mapKey Codec은 String, mapValue Codec은 LZ4Fury
+    val codec: Codec = RedissonCodecs.LZ4ForyComposite,  // mapKey Codec은 String, mapValue Codec은 LZ4Fury
 
     // NearCache 관련 설정
     val nearCacheMaxIdleTime: Duration = Duration.ZERO,
