@@ -5,7 +5,7 @@ import io.r2dbc.spi.ConnectionFactory
 import io.r2dbc.spi.R2dbcException
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
-import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.dao.DataAccessException
 import org.springframework.r2dbc.connection.ConnectionFactoryUtils
 import org.springframework.transaction.support.TransactionSynchronizationManager

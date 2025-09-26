@@ -8,13 +8,5 @@ import org.springframework.data.relational.core.query.Query
 suspend inline fun <reified T: Any> ReactiveDeleteOperation.suspendDelete(query: Query): Long =
     delete<T>().matching(query).all().awaitSingle()
 
-@Deprecated("Use `suspendDelete` instead", ReplaceWith("suspendDelete(query)"))
-suspend inline fun <reified T: Any> ReactiveDeleteOperation.coDelete(query: Query): Long =
-    delete<T>().matching(query).all().awaitSingle()
-
 suspend inline fun <reified T: Any> ReactiveDeleteOperation.suspendDeleteAll(): Long =
-    delete<T>().matching(Query.empty()).all().awaitSingle()
-
-@Deprecated("Use `suspendDeleteAll` instead", ReplaceWith("suspendDeleteAll()"))
-suspend inline fun <reified T: Any> ReactiveDeleteOperation.coDeleteAll(): Long =
     delete<T>().matching(Query.empty()).all().awaitSingle()

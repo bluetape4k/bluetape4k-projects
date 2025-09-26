@@ -29,7 +29,7 @@ import java.io.Serializable
 
 @SpringBootTest
 class ReactiveInsertOperationsTest(
-    @Autowired private val operations: ReactiveCassandraOperations,
+    @param:Autowired private val operations: ReactiveCassandraOperations,
 ): AbstractCassandraCoroutineTest("insert-op") {
 
     companion object: KLoggingChannel() {

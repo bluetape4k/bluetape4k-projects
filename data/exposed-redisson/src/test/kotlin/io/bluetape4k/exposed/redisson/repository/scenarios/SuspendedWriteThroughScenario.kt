@@ -4,7 +4,7 @@ import io.bluetape4k.collections.toVarargArray
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.redisson.repository.scenarios.SuspendedCacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.tests.TestDB
-import io.bluetape4k.junit5.awaitility.coUntil
+import io.bluetape4k.junit5.awaitility.suspendUntil
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
@@ -70,14 +70,14 @@ interface SuspendedWriteThroughScenario<T: HasIdentifier<ID>, ID: Any>: Suspende
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `putAll - 캐시에 저장하면, DB에도 저장된다`(testDB: TestDB) = runSuspendIO {
         // NOTE: MySQL/MariaDB 에서는 Isolation level을 java.sql.Connection.TRANSACTION_READ_COMMITTED 로 설정해야 제대로 작동합니다.
-        Assumptions.assumeTrue { testDB !in TestDB.ALL_MYSQL_MARIADB }
+        Assumptions.assumeTrue { testDB !in TestDB.ALL_MYSQL_LIKE }
 
         withSuspendedEntityTable(testDB) {
             val ids = getExistingIds()
             delay(10)
 
             await.withPollInterval(Duration.ofMillis(100))
-                .coUntil { getExistingIds().size == 3 }
+                .suspendUntil { getExistingIds().size == 3 }
 
             // @ParameterizedTest 때문에 testDB 들이 꼬인다... 대기 시간을 둬서, 다른 DB와의 영항을 미치지 않게 한다
             if (cacheConfig.isReadWrite) {

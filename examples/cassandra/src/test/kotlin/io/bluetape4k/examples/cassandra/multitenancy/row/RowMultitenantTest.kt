@@ -17,7 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest(classes = [RowMultitenantTestConfiguration::class])
 class RowMultitenantTest(
-    @Autowired private val repository: EmployeeRepository,
+    @param:Autowired private val repository: EmployeeRepository,
 ): AbstractCassandraCoroutineTest("mt-table") {
 
     companion object: KLoggingChannel() {

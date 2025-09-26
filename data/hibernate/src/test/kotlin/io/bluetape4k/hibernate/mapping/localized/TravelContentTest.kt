@@ -8,7 +8,7 @@ import org.springframework.data.repository.findByIdOrNull
 import java.util.*
 
 class TravelContentTest(
-    @Autowired private val repository: TravelContentRepository,
+    @param:Autowired private val repository: TravelContentRepository,
 ): AbstractHibernateTest() {
 
     @Test

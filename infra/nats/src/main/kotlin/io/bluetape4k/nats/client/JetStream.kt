@@ -1,6 +1,6 @@
 package io.bluetape4k.nats.client
 
-import io.bluetape4k.coroutines.support.coAwait
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.support.toUtf8Bytes
 import io.nats.client.JetStream
 import io.nats.client.PublishOptions
@@ -30,4 +30,4 @@ suspend fun JetStream.coPublish(
     headers: Headers? = null,
     options: PublishOptions? = null,
 ): PublishAck =
-    publishAsync(subject, headers, body?.toUtf8Bytes(), options).coAwait()
+    publishAsync(subject, headers, body?.toUtf8Bytes(), options).suspendAwait()

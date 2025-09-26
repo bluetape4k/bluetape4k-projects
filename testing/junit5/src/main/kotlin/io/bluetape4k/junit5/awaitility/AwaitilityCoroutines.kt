@@ -16,8 +16,8 @@ import java.time.Duration
  *
  * @param block 판단을 위한 코드 블럭
  */
-suspend inline infix fun ConditionFactory.coAwait(crossinline block: suspend () -> Unit) {
-    coUntil { block(); true }
+suspend inline infix fun ConditionFactory.suspendAwait(crossinline block: suspend () -> Unit) {
+    suspendUntil { block(); true }
 }
 
 /**
@@ -29,7 +29,7 @@ suspend inline infix fun ConditionFactory.coAwait(crossinline block: suspend () 
  *
  * @param block 판단을 위한 코드 블럭
  */
-suspend inline infix fun ConditionFactory.coUntil(
+suspend inline infix fun ConditionFactory.suspendUntil(
     crossinline block: suspend () -> Boolean,
 ) = coroutineScope {
     while (isActive) {
@@ -42,6 +42,15 @@ suspend inline infix fun ConditionFactory.coUntil(
     }
 }
 
+/**
+ * [block]이 true 를 반환할 때까지 대기한다
+ *
+ * ```
+ * await atMost 5.seconds coAwait { ... }
+ * ```
+ *
+ * @param block 판단을 위한 코드 블럭
+ */
 suspend inline fun ConditionFactory.suspendAwait(
     pollInterval: Duration = Duration.ofMillis(10),
     crossinline block: suspend () -> Unit,
@@ -49,6 +58,15 @@ suspend inline fun ConditionFactory.suspendAwait(
     suspendUntil(pollInterval) { block(); true }
 }
 
+/**
+ * [block]이 true 를 반환할 때까지 대기한다
+ *
+ * ```
+ * await atMost 5.seconds coUntil { ... }
+ * ```
+ *
+ * @param block 판단을 위한 코드 블럭
+ */
 @Suppress("UnusedReceiverParameter")
 suspend inline fun ConditionFactory.suspendUntil(
     pollInterval: Duration = Duration.ofMillis(10),

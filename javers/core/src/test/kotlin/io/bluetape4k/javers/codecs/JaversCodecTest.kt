@@ -37,6 +37,13 @@ class JaversCodecTest {
         JaversCodecs.LZ4Kryo,
         JaversCodecs.SnappyKryo,
         JaversCodecs.ZstdKryo,
+
+        JaversCodecs.Fory,
+        JaversCodecs.GZipFory,
+        JaversCodecs.SnappyFory,
+        JaversCodecs.LZ4Fory,
+        JaversCodecs.SnappyFory,
+        JaversCodecs.ZstdFory,
     )
 
     private val idSeq = atomic(0)

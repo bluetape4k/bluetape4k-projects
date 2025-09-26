@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
 class CommentRepositoryTest(
-    @Autowired private val commentRepository: CommentRepository,
+    @param:Autowired private val commentRepository: CommentRepository,
 ): AbstractR2dbcBlogApplicationTest() {
 
     companion object: KLoggingChannel()

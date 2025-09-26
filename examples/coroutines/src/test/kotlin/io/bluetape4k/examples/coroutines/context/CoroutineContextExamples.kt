@@ -1,8 +1,8 @@
 package io.bluetape4k.examples.coroutines.context
 
 import io.bluetape4k.coroutines.context.PropertyCoroutineContext
-import io.bluetape4k.coroutines.support.coLogging
 import io.bluetape4k.coroutines.support.log
+import io.bluetape4k.coroutines.support.suspendLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CoroutineName
@@ -63,13 +63,13 @@ class CoroutineContextExamples {
 
         // ctx의 모든 element 들을 누적한다
         val str = ctx.fold("") { acc, element -> "$acc $element" }
-        coLogging { "ctx=$str" }
+        suspendLogging { "ctx=$str" }
         str shouldContain "key1=1, key2=two" shouldContain "JobImpl{Active}"
 
         val empty = emptyList<CoroutineContext>()
         val ctxs: List<CoroutineContext> = ctx.fold(empty) { acc, element -> acc + element }
         val strs = ctxs.joinToString()
-        coLogging { "ctxs=$strs" }
+        suspendLogging { "ctxs=$strs" }
         strs shouldContain "key1=1, key2=two" shouldContain "JobImpl{Active}"
     }
 

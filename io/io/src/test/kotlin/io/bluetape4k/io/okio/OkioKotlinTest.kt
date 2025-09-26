@@ -9,9 +9,9 @@ import okio.Buffer
 import okio.sink
 import okio.source
 import org.amshove.kluent.shouldBeEqualTo
-import org.apache.commons.io.output.ByteArrayOutputStream
 import org.junit.jupiter.api.BeforeAll
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.net.Socket
 import java.nio.file.StandardOpenOption
 import kotlin.test.Test

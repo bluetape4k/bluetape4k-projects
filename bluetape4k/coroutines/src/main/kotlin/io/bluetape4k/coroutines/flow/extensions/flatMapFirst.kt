@@ -1,6 +1,5 @@
 package io.bluetape4k.coroutines.flow.extensions
 
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
@@ -9,6 +8,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
@@ -68,17 +68,17 @@ fun <T> Flow<Flow<T>>.exhaustAll(): Flow<T> = flattenFirst()
  * ```
  */
 fun <T> Flow<Flow<T>>.flattenFirst(): Flow<T> = channelFlow {
-    val busy = atomic(false)
+    val busy = AtomicBoolean(false)
 
     collect { inner ->
-        if (busy.compareAndSet(expect = false, update = true)) {
+        if (busy.compareAndSet(false, true)) {
             // Do not pay for dispatch here, it's never necessary
             launch(start = CoroutineStart.UNDISPATCHED) {
                 try {
                     inner.collect { send(it) }
-                    busy.value = false
+                    busy.set(false)
                 } catch (e: CancellationException) {
-                    busy.value = false
+                    busy.set(false)
                 }
             }
         }

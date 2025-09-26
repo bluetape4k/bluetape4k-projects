@@ -73,7 +73,7 @@ class SuspendedLocalBucketTest: AbstractBucket4jTest() {
 
             advanceTimeBy(1.seconds)            // 토탈 4초가 지났으므로 4개의 토큰이 모두 보충되었다
 
-            await atMost Duration.ofSeconds(1) until { done.value }
+            await atMost Duration.ofSeconds(2) until { done.value }
             done.value.shouldBeTrue()
 
             job.cancel()

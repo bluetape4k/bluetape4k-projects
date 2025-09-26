@@ -1,11 +1,11 @@
 package io.bluetape4k.http.hc5.examples
 
-import io.bluetape4k.coroutines.support.coAwait
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.async.asyncClientConnectionManager
 import io.bluetape4k.http.hc5.async.methods.simpleHttpRequest
 import io.bluetape4k.http.hc5.async.minimalHttpAsyncClientOf
-import io.bluetape4k.http.hc5.http.executeSuspending
+import io.bluetape4k.http.hc5.http.suspendExecute
 import io.bluetape4k.http.hc5.http.tlsConfigOf
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -35,7 +35,7 @@ class AsyncClientH2Multiplexing: AbstractHc5Test() {
         )
         client.start()
 
-        val endpoint: AsyncClientEndpoint = client.lease(httpHost, null).coAwait()
+        val endpoint: AsyncClientEndpoint = client.lease(httpHost, null).suspendAwait()
         val requestUris = listOf("/httpbin/ip", "/httpbin/user-agent", "/httpbin/headers")
         // val latch = CountDownLatch(requestUris.size)
 
@@ -48,7 +48,7 @@ class AsyncClientH2Multiplexing: AbstractHc5Test() {
 
                 log.debug { "Executing request $request" }
 
-                val response = endpoint.executeSuspending(request)
+                val response = endpoint.suspendExecute(request)
 
                 log.debug { "$request -> ${StatusLine(response)}" }
                 log.debug { response.body }

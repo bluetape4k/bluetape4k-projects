@@ -11,7 +11,7 @@ import java.sql.SQLException
  *
  * ```
  * val pool = JDBCPool.create(vertx)    // MySQLClient.create(vertx)
- * val rows = pool.withTransactionSuspending {
+ * val rows = pool.withSuspendTransaction {
  *     SqlTemplate.forQuery("select * from Person where id=#{id}")
  *      .execute(mapOf("id" to 1))
  *      .await()
@@ -22,7 +22,7 @@ import java.sql.SQLException
  * @receiver [Pool] 인스턴스
  * @return DB 작업 결과
  */
-suspend fun <T> Pool.withTransactionSuspending(
+suspend fun <T> Pool.withSuspendTransaction(
     @BuilderInference action: suspend (conn: SqlConnection) -> T,
 ): T {
     val conn = connection.coAwait()
@@ -47,7 +47,7 @@ suspend fun <T> Pool.withTransactionSuspending(
  *
  * ```
  * val pool = JDBCPool.create(vertx)    // MySQLClient.create(vertx)
- * val rows = pool.withRollbackSuspending {
+ * val rows = pool.withSuspendRollback {
  *     SqlTemplate.forQuery("select * from Person where id=#{id}")
  *      .execute(mapOf("id" to 1))
  *      .await()
@@ -58,7 +58,7 @@ suspend fun <T> Pool.withTransactionSuspending(
  * @param action Transaction 하에서 수행할 작업
  * @return 작업 결과
  */
-suspend fun <T> Pool.withRollbackSuspending(
+suspend fun <T> Pool.withSuspendRollback(
     @BuilderInference action: suspend (conn: SqlConnection) -> T,
 ): T {
     val conn = connection.coAwait()

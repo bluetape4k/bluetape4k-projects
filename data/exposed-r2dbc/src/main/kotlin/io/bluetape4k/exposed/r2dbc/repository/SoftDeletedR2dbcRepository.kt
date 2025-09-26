@@ -5,8 +5,8 @@ import io.bluetape4k.exposed.dao.id.SoftDeletedIdTable
 import kotlinx.coroutines.flow.Flow
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
-import org.jetbrains.exposed.v1.core.SqlExpressionBuilder
 import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.r2dbc.update
 
 /**
@@ -41,7 +41,7 @@ interface SoftDeletedR2dbcRepository<T: HasIdentifier<ID>, ID: Any>: ExposedR2db
         limit: Int? = null,
         offset: Long? = null,
         sortOrder: SortOrder = SortOrder.ASC,
-        predicate: SqlExpressionBuilder.() -> Op<Boolean> = { Op.TRUE },
+        predicate: () -> Op<Boolean> = { Op.TRUE },
     ): Flow<T> =
         findAll(limit, offset, sortOrder) {
             (table.isDeleted eq false).and(predicate)

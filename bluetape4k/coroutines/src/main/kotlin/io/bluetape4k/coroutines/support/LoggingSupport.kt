@@ -36,12 +36,12 @@ fun <T: Job> T.log(tag: Any): T = apply {
  *
  * ```
  * val task = async { ... }
- * coLogging { task.await() }
+ * suspendLogging { task.await() }
  * ```
  *
  * @param msg 로그에 표시할 메시지
  */
-suspend fun coLogging(msg: suspend () -> Any?) {
+suspend fun suspendLogging(msg: suspend () -> Any?) {
     val name = coroutineContext[CoroutineName]?.name
     val props = coroutineContext[PropertyCoroutineContext]?.properties
 
@@ -63,11 +63,11 @@ suspend fun coLogging(msg: suspend () -> Any?) {
  * Coroutine Context 에서 CoroutineName 과 PropertyCoroutineContext 를 참조하여 로그를 남깁니다.
  *
  * ```
- * coLogging { "message" }
+ * suspendLogging { "message" }
  * ```
  *
  * @param msg 로그에 표시할 메시지
  */
-suspend fun coLogging(msg: String) {
-    coLogging { msg }
+suspend fun suspendLogging(msg: String) {
+    suspendLogging { msg }
 }

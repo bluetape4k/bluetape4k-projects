@@ -110,12 +110,12 @@ class BufferedSinkTest {
     fun `write last integer in segment`(factory: Factory) {
         val data = Buffer()
         val sink = getSink(factory, data)
-        sink.writeUtf8("a".repeat(SEGMENT_SIZE.toInt() - 4))
+        sink.writeUtf8("a".repeat(SEGMENT_SIZE - 4))
         sink.writeInt(-0x543210ff)
         sink.writeInt(-0x789abcdf)
         sink.flush()
 
-        data.readUtf8(SEGMENT_SIZE - 4L) shouldBeEqualTo "a".repeat(SEGMENT_SIZE.toInt() - 4)
+        data.readUtf8(SEGMENT_SIZE - 4L) shouldBeEqualTo "a".repeat(SEGMENT_SIZE - 4)
         data.toString() shouldBeEqualTo "[hex=abcdef0187654321]"
     }
 
@@ -434,8 +434,8 @@ class BufferedSinkTest {
         val data = Buffer()
         val sink = getSink(factory, data)
 
-        val expected = Fakers.randomString(SEGMENT_SIZE.toInt() * 3)
-        val nioByteBuffer = ByteBuffer.allocateDirect(SEGMENT_SIZE.toInt() * 4)
+        val expected = Fakers.randomString(SEGMENT_SIZE * 3)
+        val nioByteBuffer = ByteBuffer.allocateDirect(SEGMENT_SIZE * 4)
         nioByteBuffer.put(expected.toUtf8Bytes())
         nioByteBuffer.flip()
 

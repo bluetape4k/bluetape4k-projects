@@ -54,6 +54,7 @@ allprojects {
     repositories {
         mavenCentral()
         google()
+        mavenLocal()
         maven {
             name = "bluetape4k"
             url = uri("https://maven.pkg.github.com/bluetape4k/bluetape4k-projects")
@@ -83,6 +84,7 @@ subprojects {
 
         plugin(Plugins.dokka)
         plugin(Plugins.testLogger)
+        plugin(Plugins.kosogor)
     }
 
     java {
@@ -103,7 +105,7 @@ subprojects {
                 "-Xjvm-default=all-compatibility",
                 "-Xinline-classes",
                 "-Xstring-concat=indy",         // since Kotlin 1.4.20 for JVM 9+
-                "-Xenable-builder-inference",   // since Kotlin 1.6
+                // "-Xenable-builder-inference",   // since Kotlin 1.6
                 "-Xcontext-receivers"           // since Kotlin 1.6
             )
             val experimentalAnnotations = listOf(
@@ -255,10 +257,10 @@ subprojects {
             }
         }
 
-        dokkaHtml.configure {
-            val dokkaDir = layout.buildDirectory.asFile.get().resolve("dokka")
-            outputDirectory.set(dokkaDir)
-            // outputDirectory.set(layout.buildDirectory.asFile.get().resolve("dokka"))
+        dokka {
+            dokkaPublications.html {
+                outputDirectory.set(project.file("docs/api"))
+            }
         }
 
         clean {
@@ -344,20 +346,6 @@ subprojects {
             dependency(Libs.logback)
             dependency(Libs.logback_core)
 
-            // Javax API
-            dependency(Libs.javax_activation_api)
-            dependency(Libs.javax_annotation_api)
-            dependency(Libs.javax_el_api)
-            dependency(Libs.javax_cache_api)
-            dependency(Libs.javax_inject)
-            dependency(Libs.javax_json_api)
-            dependency(Libs.javax_persistence_api)
-            dependency(Libs.javax_servlet_api)
-            dependency(Libs.javax_transaction_api)
-            dependency(Libs.javax_validation_api)
-            dependency(Libs.javax_ws_rs_api)
-            dependency(Libs.javax_xml_bind)
-
             // jakarta
             dependency(Libs.jakarta_activation_api)
             dependency(Libs.jakarta_annotation_api)
@@ -390,7 +378,6 @@ subprojects {
 
             // Jackson (이상하게 mavenBom 에 적용이 안되어서 강제로 추가하였다)
             dependency(Libs.jackson_bom)
-            dependency(Libs.jackson_annotations)
             dependency(Libs.jackson_core)
             dependency(Libs.jackson_databind)
             dependency(Libs.jackson_datatype_jdk8)
@@ -454,10 +441,10 @@ subprojects {
             dependency(Libs.querydsl_jpa)
 
             // Validators
-            dependency(Libs.javax_validation_api)
+            dependency(Libs.jakarta_el_api)
+            dependency(Libs.jakarta_validation_api)
             dependency(Libs.hibernate_validator)
             dependency(Libs.hibernate_validator_annotation_processor)
-            dependency(Libs.javax_el)
 
             dependency(Libs.hikaricp)
             dependency(Libs.mysql_connector_j)
@@ -561,15 +548,15 @@ subprojects {
         testImplementation(Libs.random_beans)
     }
 
-    tasks.withType<Jar> {
-        manifest.attributes["Specification-Title"] = project.name
-        manifest.attributes["Specification-Version"] = project.version
-        manifest.attributes["Implementation-Title"] = project.name
-        manifest.attributes["Implementation-Version"] = project.version
-        manifest.attributes["Automatic-Module-Name"] = project.name.replace('-', '.')
-        manifest.attributes["Created-By"] =
-            "${System.getProperty("java.version")} (${System.getProperty("java.specification.vendor")})"
-    }
+//    tasks.withType<Jar> {
+//        manifest.attributes["Specification-Title"] = project.name
+//        manifest.attributes["Specification-Version"] = project.version
+//        manifest.attributes["Implementation-Title"] = project.name
+//        manifest.attributes["Implementation-Version"] = project.version
+//        manifest.attributes["Automatic-Module-Name"] = project.name.replace('-', '.')
+//        manifest.attributes["Created-By"] =
+//            "${System.getProperty("java.version")} (${System.getProperty("java.specification.vendor")})"
+//    }
 
     /*
         1. mavenLocal 에 publish 시에는 ./gradlew publishMavenPublicationToMavenLocalRepository 를 수행

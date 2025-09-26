@@ -22,6 +22,7 @@ import org.redisson.client.protocol.Encoder
  *
  * @property fallbackCodec  대체 Codec ([Kryo5Codec]) 인스턴스
  */
+@Deprecated("Apache Fury 프로젝트가 중단되어 유지보수가 되지 않음에 따라 사용을 권장하지 않습니다. 대신 ForyCodec 사용을 권장합니다.", ReplaceWith("ForyCodec"))
 class FuryCodec @JvmOverloads constructor(
     private val fallbackCodec: Codec = RedissonCodecs.Kryo5,
 ): BaseCodec() {

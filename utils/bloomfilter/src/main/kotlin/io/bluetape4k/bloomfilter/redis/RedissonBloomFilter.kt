@@ -66,16 +66,19 @@ class RedissonBloomFilter<T: Any> private constructor(
         }
     }
 
+    private val bitSet by lazy { redisson.getBitSet(bloomName) }
+
     override val isEmpty: Boolean get() = !redisson.getBitSet(bloomName).isExists
 
     override fun add(value: T) {
-        val offsets = Hasher.murmurHashOffset(value, k, m)
+        val offsets = getOffsets(value)
 
-        val batch = redisson.createBatch()
-        val bloomAsync = batch.getBitSet(bloomName)
-
-        offsets.forEach { bloomAsync.setAsync(it.toLong()) }
-        batch.execute()
+        bitSet.set(offsets, true)
+//        val batch = redisson.createBatch()
+//        val bloomAsync = batch.getBitSet(bloomName)
+//
+//        offsets.forEach { bloomAsync.setAsync(it.toLong()) }
+//        batch.execute()
     }
 
     /**
@@ -90,14 +93,18 @@ class RedissonBloomFilter<T: Any> private constructor(
      * ```
      */
     override fun contains(value: T): Boolean {
-        val offsets = Hasher.murmurHashOffset(value, k, m)
-        val batch = redisson.createBatch()
-        val bloomAsync = batch.getBitSet(bloomName)
+        val offsets = getOffsets(value)
+        val result = bitSet.get(*offsets)
+        return result.all { it }
 
-        offsets.forEach { bloomAsync.getAsync(it.toLong()) }
-        val result = batch.execute()
-
-        return result.responses.all { it as Boolean }
+//        val offsets = Hasher.murmurHashOffset(value, k, m)
+//        val batch = redisson.createBatch()
+//        val bloomAsync = batch.getBitSet(bloomName)
+//
+//        offsets.forEach { bloomAsync.getAsync(it.toLong()) }
+//        val result = batch.execute()
+//
+//        return result.responses.all { it as Boolean }
     }
 
     override fun count(): Long {
@@ -107,4 +114,7 @@ class RedissonBloomFilter<T: Any> private constructor(
     override fun clear() {
         redisson.getBitSet(bloomName).clear()
     }
+
+    private fun getOffsets(value: T): LongArray =
+        Hasher.murmurHashOffset(value, k, m).map { it.toLong() }.toLongArray()
 }

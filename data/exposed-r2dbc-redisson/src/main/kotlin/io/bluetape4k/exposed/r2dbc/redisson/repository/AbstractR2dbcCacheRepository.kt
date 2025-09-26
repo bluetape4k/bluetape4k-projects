@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.redisson.repository
 
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.r2dbc.redisson.map.R2dbcEntityMapLoader
 import io.bluetape4k.exposed.r2dbc.redisson.map.R2dbcEntityMapWriter
@@ -11,7 +12,6 @@ import io.bluetape4k.logging.info
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import io.bluetape4k.redis.redisson.cache.localCachedMap
 import io.bluetape4k.redis.redisson.cache.mapCache
-import io.bluetape4k.redis.redisson.coroutines.coAwait
 import io.bluetape4k.support.requireNotNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +21,6 @@ import kotlinx.coroutines.flow.toList
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
-import org.jetbrains.exposed.v1.core.SqlExpressionBuilder
 import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.r2dbc.selectAll
@@ -148,14 +147,24 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
             }
         }
 
+    /**
+     * 지정한 조건에 따라 DB에서 엔티티 목록을 조회하고, 조회된 엔티티를 캐시에 저장합니다.
+     *
+     * @param limit 조회할 최대 개수 (nullable)
+     * @param offset 조회 시작 위치 (nullable)
+     * @param sortBy 정렬 기준 컬럼
+     * @param sortOrder 정렬 순서
+     * @param where 조회 조건을 반환하는 함수
+     * @return 조회된 엔티티 목록
+     */
     override suspend fun findAll(
         limit: Int?,
         offset: Long?,
         sortBy: Expression<*>,
         sortOrder: SortOrder,
-        where: SqlExpressionBuilder.() -> Op<Boolean>,
+        where: () -> Op<Boolean>,
     ): List<T> {
-        return suspendTransaction(scope.coroutineContext) {
+        return suspendTransaction {
             entityTable
                 .selectAll()
                 .where(where)
@@ -166,16 +175,24 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
                 }
                 .map { it.toEntity() }
                 .onEach {
-                    cache.fastPutAsync(it.id, it).coAwait()
+                    cache.fastPutAsync(it.id, it).suspendAwait()
                 }
                 .toList()
         }
     }
 
+    /**
+     * 주어진 ID 목록을 배치 단위로 캐시에서 조회합니다.
+     *
+     * @param ids 조회할 엔티티 ID 목록
+     * @param batchSize 한 번에 조회할 배치 크기
+     * @return 조회된 엔티티 목록
+     */
     override suspend fun getAll(ids: Collection<ID>, batchSize: Int): List<T> {
-        return ids.chunked(batchSize).flatMap { chunk ->
-            log.debug { " 캐시에서 ${chunk.size} 개의 엔티티를 가져옵니다. chunk=${chunk}" }
-            cache.getAllAsync(chunk.toSet()).coAwait().values.filterNotNull()
-        }
+        return ids.chunked(batchSize)
+            .flatMap { chunk ->
+                log.debug { " 캐시에서 ${chunk.size} 개의 엔티티를 가져옵니다. chunk=${chunk}" }
+                cache.getAllAsync(chunk.toSet()).suspendAwait().values.filterNotNull()
+            }
     }
 }

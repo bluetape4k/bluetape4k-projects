@@ -36,4 +36,7 @@ dependencies {
     compileOnly(Libs.reactor_core)
     compileOnly(Libs.reactor_kotlin_extensions)
     testImplementation(Libs.reactor_test)
+
+    // Netty
+    compileOnly(Libs.netty_buffer)
 }

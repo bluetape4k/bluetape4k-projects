@@ -7,9 +7,10 @@ import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.spring.cassandra.selectOne
+import io.bluetape4k.spring.cassandra.suspendInsert
+import io.bluetape4k.spring.cassandra.suspendSelectOne
+import io.bluetape4k.spring.cassandra.suspendTruncate
 import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeNull
@@ -18,12 +19,11 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.cassandra.core.ReactiveCassandraOperations
-import org.springframework.data.cassandra.core.truncate
 import java.util.*
 
 @SpringBootTest(classes = [ConversionTestConfiguration::class])
 class ConversionTest(
-    @Autowired private val operations: ReactiveCassandraOperations,
+    @param:Autowired private val operations: ReactiveCassandraOperations,
 ): AbstractCassandraCoroutineTest("conversion") {
 
     companion object: KLoggingChannel()
@@ -40,7 +40,7 @@ class ConversionTest(
 
     @BeforeEach
     fun setup() = runSuspendTest {
-        operations.truncate<Addressbook>().awaitSingleOrNull()
+        operations.suspendTruncate<Addressbook>()
     }
 
     @Test
@@ -55,9 +55,9 @@ class ConversionTest(
             me = Contact("Debop", "Bae"),
             friends = mutableListOf(newContact(), newContact())
         )
-        operations.insert(addressbook).awaitSingle()
+        operations.suspendInsert(addressbook)
 
-        val row = operations.selectOne<Row>(selectFrom("addressbook").all().build()).awaitSingle()
+        val row = operations.suspendSelectOne<Row>(selectFrom("addressbook").all().build())
 
         row.getString("id") shouldBeEqualTo "private"
         row.getString("me")!! shouldContain """"firstname":"Debop""""
@@ -73,7 +73,7 @@ class ConversionTest(
         )
         operations.insert(addressbook).awaitSingle()
 
-        val loaded = operations.selectOne<Addressbook>(selectFrom("addressbook").all().build()).awaitSingle()
+        val loaded = operations.suspendSelectOne<Addressbook>(selectFrom("addressbook").all().build())
 
         loaded.me shouldBeEqualTo addressbook.me
         loaded.friends shouldBeEqualTo addressbook.friends
@@ -94,7 +94,7 @@ class ConversionTest(
 
         operations.insert(addressbook).awaitSingle()
 
-        val loaded = operations.selectOne<Addressbook>(selectFrom("addressbook").all().build()).awaitSingle()
+        val loaded = operations.suspendSelectOne<Addressbook>(selectFrom("addressbook").all().build())
 
         loaded.me shouldBeEqualTo addressbook.me
         loaded.friends shouldBeEqualTo addressbook.friends

@@ -72,7 +72,7 @@ class PipeTest: AbstractOkioTest() {
         val expectedHash = "4e90583a19f57e0d3ca0346617a91308fe157f30".decodeHex()
         log.debug { "expected hash=${expectedHash.hex()}" }
 
-        // Write data to the shik
+        // Write data to the sink
         val sinkHash = executorService.submit<ByteString> {
             val hashingSink = HashingSink.sha1(pipe.sink)
             val random = Random(0)

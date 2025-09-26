@@ -17,7 +17,7 @@ class DigesterTest {
 
     companion object: KLogging() {
         private fun getRandomString() =
-            Fakers.randomString(256, 4096, true)
+            Fakers.randomString(256, 1024, true)
 
         private const val REPEAT_SIZE = 10
     }

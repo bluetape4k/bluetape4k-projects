@@ -53,7 +53,7 @@ dependencies {
     // NOTE: Java 9+ 환경에서 kapt가 제대로 동작하려면 javax.annotation-api 를 참조해야 합니다.
     api(Libs.jakarta_annotation_api)
 
-    api(Libs.jakarta_persistence_api)
+//    api(Libs.jakarta_persistence_api)
     api(Libs.hibernate_reactive_core)
 
     // hibernate-reactive 는 querydsl 을 사용하지 못한다. 대신 jpamodelgen 을 사용합니다.
@@ -65,6 +65,7 @@ dependencies {
 
     api(Libs.mutiny_kotlin)
     api(Libs.kotlinx_coroutines_core)
+    api(Libs.kotlinx_coroutines_reactive)
     testImplementation(Libs.kotlinx_coroutines_test)
 
     testImplementation(project(":bluetape4k-junit5"))
@@ -77,7 +78,8 @@ dependencies {
     testImplementation(project(":bluetape4k-jackson"))
 
     testImplementation(Libs.kryo)
-    testImplementation(Libs.fury_kotlin)
+    testImplementation(Libs.fory_kotlin)  // new Apache Fory
+    testImplementation(Libs.fury_kotlin)  // old Apache Fury
 
     testImplementation(Libs.lz4_java)
     testImplementation(Libs.snappy_java)

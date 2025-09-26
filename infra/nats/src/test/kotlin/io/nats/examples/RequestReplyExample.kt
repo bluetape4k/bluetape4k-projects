@@ -38,7 +38,7 @@ class RequestReplyExample: AbstractNatsTest() {
 
             // ### Request
             // Make a request and wait a most 1 second for a response.
-            val m = nc.request("greet.bob", null, Duration.ofSeconds(1))
+            val m = nc.request("greet.bob", null, Duration.ofSeconds(1))!!
             log.debug { "Response received: ${m.data.toUtf8String()}" }  // hello bob
 
             try {

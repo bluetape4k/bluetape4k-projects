@@ -15,7 +15,7 @@ import reactor.util.context.Context
 
 @SpringBootTest(classes = [RowLevelMultitenantTestConfiguration::class])
 class RowLevelMultitenantTest(
-    @Autowired private val repository: EmployeeRepository,
+    @param:Autowired private val repository: EmployeeRepository,
 ): AbstractCassandraCoroutineTest("row_level_multitenancy") {
 
     companion object: KLoggingChannel()

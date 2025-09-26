@@ -4,10 +4,10 @@ import io.bluetape4k.exposed.r2dbc.domain.MovieDTO
 import io.bluetape4k.exposed.r2dbc.repository.MovieSchema.withMovieAndActors
 import io.bluetape4k.exposed.r2dbc.tests.R2dbcExposedTestBase
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
-import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeEmpty
@@ -30,7 +30,7 @@ class MovieR2dbcRepositoryTest: R2dbcExposedTestBase() {
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `find movie by id`(testDB: TestDB) = runSuspendIO {
+    fun `find movie by id`(testDB: TestDB) = runTest {
         withMovieAndActors(testDB) {
             val movieId = 1L
             val movie = repository.findById(movieId)
@@ -42,7 +42,7 @@ class MovieR2dbcRepositoryTest: R2dbcExposedTestBase() {
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `search movies`(testDB: TestDB) = runSuspendIO {
+    fun `search movies`(testDB: TestDB) = runTest {
         withMovieAndActors(testDB) {
             val params = mapOf("producerName" to "Johnny")
 
@@ -56,7 +56,7 @@ class MovieR2dbcRepositoryTest: R2dbcExposedTestBase() {
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `create movie`(testDB: TestDB) = runSuspendIO {
+    fun `create movie`(testDB: TestDB) = runTest {
         withMovieAndActors(testDB) {
             val movie = newMovieDTO()
 
@@ -72,7 +72,7 @@ class MovieR2dbcRepositoryTest: R2dbcExposedTestBase() {
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `delete movie`(testDB: TestDB) = runSuspendIO {
+    fun `delete movie`(testDB: TestDB) = runTest {
         withMovieAndActors(testDB) {
             val newMovie = newMovieDTO()
             val savedMovie = repository.save(newMovie)
@@ -84,7 +84,7 @@ class MovieR2dbcRepositoryTest: R2dbcExposedTestBase() {
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `get all movies and actors`(testDB: TestDB) = runSuspendIO {
+    fun `get all movies and actors`(testDB: TestDB) = runTest {
         withMovieAndActors(testDB) {
             val movieWithActors = repository.getAllMoviesWithActors().toList()
 
@@ -97,7 +97,7 @@ class MovieR2dbcRepositoryTest: R2dbcExposedTestBase() {
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `get movie by id with actors`(testDB: TestDB) = runSuspendIO {
+    fun `get movie by id with actors`(testDB: TestDB) = runTest {
         withMovieAndActors(testDB) {
             val movieId = 1L
             val movieWithActors = repository.getMovieWithActors(movieId)
@@ -112,7 +112,7 @@ class MovieR2dbcRepositoryTest: R2dbcExposedTestBase() {
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `get movie and actor count`(testDB: TestDB) = runSuspendIO {
+    fun `get movie and actor count`(testDB: TestDB) = runTest {
         withMovieAndActors(testDB) {
             val movieWithActors = repository.getMovieActorsCount().toList()
 
@@ -125,7 +125,7 @@ class MovieR2dbcRepositoryTest: R2dbcExposedTestBase() {
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `find movies with acting producers`(testDB: TestDB) = runSuspendIO {
+    fun `find movies with acting producers`(testDB: TestDB) = runTest {
         withMovieAndActors(testDB) {
             val results = repository.findMoviesWithActingProducers().toList()
 

@@ -19,8 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jpa.repository.JpaRepository
 
 class CoupleTest(
-    @Autowired private val husbandRepo: HusbandRepository,
-    @Autowired private val wifeRepo: WifeRepository,
+    @param:Autowired private val husbandRepo: HusbandRepository,
+    @param:Autowired private val wifeRepo: WifeRepository,
 ): AbstractHibernateTest() {
 
     @Test

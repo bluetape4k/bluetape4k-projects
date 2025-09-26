@@ -39,10 +39,11 @@ dependencies {
     api(Libs.awaitility_kotlin)
 
     api(project(":bluetape4k-quarkus-core"))
+    api(project(":bluetape4k-io"))
     api(project(":bluetape4k-mutiny"))
     api(project(":bluetape4k-vertx-core"))
-    compileOnly(project(":bluetape4k-testcontainers"))
     compileOnly(project(":bluetape4k-junit5"))
+    compileOnly(project(":bluetape4k-testcontainers"))
 
     api(Libs.quarkus_kotlin)
     implementation(Libs.quarkus_arc)

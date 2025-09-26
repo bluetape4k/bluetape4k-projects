@@ -64,8 +64,7 @@ inline fun okhttp3ClientBuilderOf(
     dispatcher: okhttp3.Dispatcher = okhttp3DispatcherWithVirtualThread(),
     initializer: OkHttpClient.Builder.() -> Unit = {},
 ): OkHttpClient.Builder {
-    return OkHttpClient.Builder()
-        .apply {
+    return OkHttpClient.Builder().apply {
             connectionPool(connectionPool)
             dispatcher(dispatcher)
             connectTimeout(Duration.ofSeconds(10))
@@ -117,9 +116,7 @@ inline fun okhttp3Client(
     dispatcher: okhttp3.Dispatcher = okhttp3DispatcherWithVirtualThread(),
     initializer: OkHttpClient.Builder.() -> Unit = {},
 ): OkHttpClient {
-    return okhttp3ClientBuilderOf(connectionPool, dispatcher)
-        .apply(initializer)
-        .build()
+    return okhttp3ClientBuilderOf(connectionPool, dispatcher).apply(initializer).build()
 }
 
 /**
@@ -348,8 +345,7 @@ fun okhttp3.Response?.bodyAsString(): String? = this?.body?.string()
  * @param request [okhttp3.Request] 인스턴스
  * @receiver [OkHttpClient] 인스턴스
  */
-fun OkHttpClient.execute(request: okhttp3.Request): okhttp3.Response =
-    newCall(request).execute()
+fun OkHttpClient.execute(request: okhttp3.Request): okhttp3.Response = newCall(request).execute()
 
 /**
  * [OkHttpClient]를 비동기 방식으로 실행합니다. (단 CompletableFuture를 반환하므로, Non-Blocking 은 아닙니다)
@@ -409,8 +405,7 @@ inline fun OkHttpClient.executeAsync(
  * @param request [okhttp3.Request] 인스턴스
  * @receiver [OkHttpClient] 인스턴스
  */
-suspend inline fun OkHttpClient.suspendExecute(request: okhttp3.Request): Response =
-    newCall(request).suspendExecute()
+suspend inline fun OkHttpClient.suspendExecute(request: okhttp3.Request): Response = newCall(request).suspendExecute()
 
 /**
  * [Call]을 Coroutines 방식으로 실행합니다. (Non-Blocking 방식입니다)
@@ -444,54 +439,6 @@ suspend inline fun Call.suspendExecute(): Response = suspendCancellableCoroutine
     enqueue(responseCallback)
 }
 
-/**
- * Coroutines 환경에서 [request]를 전송하고, [okhttp3.Response]를 반환합니다.
- *
- * ```
- * runBlocking {
- *     val response = client.executeSuspending(request)
- * }
- * ```
- *
- * @param request [okhttp3.Request] 인스턴스
- * @receiver [OkHttpClient] 인스턴스
- */
-@Deprecated("Use `suspendExecute` instead", ReplaceWith("suspendExecute(request)"))
-suspend inline fun OkHttpClient.executeSuspending(request: okhttp3.Request): Response =
-    newCall(request).executeSuspending()
-
-/**
- * [Call]을 Coroutines 방식으로 실행합니다. (Non-Blocking 방식입니다)
- *
- * ```
- * runBlocking {
- *      val response = call.executeSuspending()
- * }
- * ```
- *
- * @receiver [Call] 인스턴스
- */
-@Deprecated("Use `suspendExecute` instead", ReplaceWith("suspendExecute()"))
-suspend inline fun Call.executeSuspending(): Response = suspendCancellableCoroutine { cont ->
-    cont.invokeOnCancellation {
-        this.cancel()
-    }
-
-    val responseCallback = object: Callback {
-        override fun onResponse(call: Call, response: Response) {
-            cont.resume(response) { cause, _, _ -> call.cancel() }
-        }
-
-        override fun onFailure(call: Call, e: IOException) {
-            if (call.isCanceled()) {
-                cont.cancel(e)
-            } else {
-                cont.resumeWithException(e)
-            }
-        }
-    }
-    enqueue(responseCallback)
-}
 
 /**
  * [okhttp3.Response]를 출력합니다.

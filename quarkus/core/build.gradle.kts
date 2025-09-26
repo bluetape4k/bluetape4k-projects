@@ -34,8 +34,8 @@ dependencies {
     api(project(":bluetape4k-io"))
     api(project(":bluetape4k-mutiny"))
     api(project(":bluetape4k-vertx-core"))
-    testImplementation(project(":bluetape4k-testcontainers"))
     testImplementation(project(":bluetape4k-junit5"))
+    testImplementation(project(":bluetape4k-testcontainers"))
 
     implementation(Libs.kotlin_scripting_compiler_embeddable)
     implementation(Libs.kotlin_scripting_compiler_impl_embeddable)

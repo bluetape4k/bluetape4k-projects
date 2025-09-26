@@ -8,6 +8,7 @@ dependencies {
     implementation(platform(Libs.exposed_bom))
 
     api(Libs.exposed_r2dbc)
+    api(Libs.exposed_migration_r2dbc)
     testImplementation(Libs.exposed_java_time)
     compileOnly(project(":bluetape4k-exposed"))
     testImplementation(project(":bluetape4k-exposed-r2dbc-tests"))
@@ -20,9 +21,9 @@ dependencies {
     implementation(Libs.r2dbc_postgresql)
 
     // Coroutines
-    compileOnly(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
-    compileOnly(Libs.kotlinx_coroutines_reactive)
+    api(project(":bluetape4k-coroutines"))
+    api(Libs.kotlinx_coroutines_core)
+    api(Libs.kotlinx_coroutines_reactive)
     testImplementation(Libs.kotlinx_coroutines_test)
 
     compileOnly(project(":bluetape4k-io"))

@@ -16,17 +16,15 @@ import org.springframework.data.cassandra.core.CassandraOperations
 
 @SpringBootTest(classes = [PersonTestConfiguration::class])
 class PersonRepositoryTest(
-    @Autowired private val operations: CassandraOperations,
-    @Autowired private val repository: PersonRepository,
+    @param:Autowired private val operations: CassandraOperations,
+    @param:Autowired private val repository: PersonRepository,
 ): AbstractCassandraCoroutineTest("kotlin-person-repo") {
 
     companion object: KLoggingChannel()
 
     @BeforeEach
-    fun beforeEach() {
-        runSuspendIO {
-            insertPeople()
-        }
+    fun beforeEach() = runSuspendIO {
+        insertPeople()
     }
 
     @Test

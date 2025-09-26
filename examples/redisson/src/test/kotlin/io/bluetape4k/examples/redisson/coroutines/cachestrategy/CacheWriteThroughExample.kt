@@ -1,17 +1,18 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.Actor
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
-import io.bluetape4k.junit5.awaitility.coUntil
+import io.bluetape4k.junit5.awaitility.suspendUntil
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.RedissonCodecs
 import io.bluetape4k.redis.redisson.coroutines.awaitAll
-import io.bluetape4k.redis.redisson.coroutines.coAwait
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
 import org.awaitility.kotlin.await
+import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.jdbc.deleteAll
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
@@ -24,10 +25,12 @@ import org.redisson.api.options.LocalCachedMapOptions
 import org.redisson.api.options.MapCacheOptions
 import java.time.Duration
 
+@Suppress("DEPRECATION")
 class CacheWriteThroughExample: AbstractCacheExample() {
 
     companion object: KLoggingChannel() {
         const val ACTOR_SIZE = 50
+        private val defaultCodec = RedissonCodecs.LZ4Fory
     }
 
     @BeforeEach
@@ -48,7 +51,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                 .writeMode(WriteMode.WRITE_THROUGH)
                 .writeRetryAttempts(3) // 재시도 횟수
                 .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
-                .codec(RedissonCodecs.LZ4Fury)
+                .codec(defaultCodec)
 
             // 캐시를 생성한다.
             val cache = redisson.getMapCache(options)
@@ -82,7 +85,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                 .writeMode(WriteMode.WRITE_THROUGH)
                 .writeRetryAttempts(3) // 재시도 횟수
                 .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
-                .codec(RedissonCodecs.LZ4Fury)
+                .codec(defaultCodec)
 
             // 캐시를 생성한다.
             val cache = redisson.getLocalCachedMap(options)
@@ -124,7 +127,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                 .writeMode(WriteMode.WRITE_THROUGH)
                 .writeRetryAttempts(3) // 재시도 횟수
                 .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
-                .codec(RedissonCodecs.LZ4Fury)
+                .codec(defaultCodec)
 
             // 캐시를 생성한다.
             val cache = redisson.getMapCache(options)
@@ -137,7 +140,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                     cache.fastPutAsync(id, newActorDTO(id))
                 }.awaitAll()
 
-                await coUntil {
+                await suspendUntil {
                     newSuspendedTransaction {
                         // DB에 삽입된 데이터를 확인한다. (options.loader() 가 없으므로, 캐시에는 저장되지 않는다)
                         ActorTable.selectAll().where { ActorTable.id inList writeIds }.count()
@@ -151,7 +154,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
 
             } finally {
                 // 캐시를 삭제한다.
-                cache.deleteAsync().coAwait()
+                cache.deleteAsync().suspendAwait()
             }
         }
 
@@ -164,7 +167,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                 .writeMode(WriteMode.WRITE_THROUGH)
                 .writeRetryAttempts(3) // 재시도 횟수
                 .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
-                .codec(RedissonCodecs.LZ4Fury)
+                .codec(defaultCodec)
 
             // 캐시를 생성한다.
             val cache = redisson.getLocalCachedMap(options)
@@ -182,7 +185,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                     cache[id].shouldNotBeNull()
                 }
 
-                await coUntil {
+                await suspendUntil {
                     newSuspendedTransaction {
                         // DB에 삽입된 데이터를 확인한다. (options.loader() 가 없으므로, 캐시에는 저장되지 않는다)
                         ActorTable.selectAll().where { ActorTable.id inList writeIds }.count()
@@ -197,7 +200,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
 
             } finally {
                 // 캐시를 삭제한다.
-                cache.deleteAsync().coAwait()
+                cache.deleteAsync().suspendAwait()
             }
         }
     }

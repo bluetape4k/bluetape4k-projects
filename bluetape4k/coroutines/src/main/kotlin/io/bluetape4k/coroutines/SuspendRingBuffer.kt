@@ -18,6 +18,7 @@ class SuspendRingBuffer<T: Any>(
 ): Iterable<T?> by buffer {
 
     companion object: KLogging() {
+        @JvmStatic
         operator fun <T: Any> invoke(size: Int, empty: T): SuspendRingBuffer<T> {
             val list = MutableList(size) { empty } as MutableList<T?>
             val buffer = CopyOnWriteArrayList(list)

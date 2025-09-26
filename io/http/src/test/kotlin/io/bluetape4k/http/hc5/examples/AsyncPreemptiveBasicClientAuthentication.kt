@@ -1,10 +1,10 @@
 package io.bluetape4k.http.hc5.examples
 
-import io.bluetape4k.coroutines.support.coAwait
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.http.hc5.AbstractHc5Test
-import io.bluetape4k.http.hc5.async.executeSuspending
 import io.bluetape4k.http.hc5.async.httpAsyncClient
 import io.bluetape4k.http.hc5.async.methods.simpleHttpRequestOf
+import io.bluetape4k.http.hc5.async.suspendExecute
 import io.bluetape4k.http.hc5.http.httpClientContext
 import io.bluetape4k.http.hc5.http.toProducer
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -53,7 +53,7 @@ class AsyncPreemptiveBasicClientAuthentication: AbstractHc5Test() {
         repeat(3) {
             val request = simpleHttpRequestOf(Method.GET, httpHost, path)
             log.debug { "Executing request $request" }
-            val response = client.executeSuspending(request, localContext)
+            val response = client.suspendExecute(request, localContext)
 
             log.debug { "Response: $request -> ${StatusLine(response)}" }
             log.debug { "Body: ${response.body}" }
@@ -71,7 +71,7 @@ class AsyncPreemptiveBasicClientAuthentication: AbstractHc5Test() {
                         localContext,
                         null
                     )
-                    .coAwait()
+                    .suspendAwait()
                     .also { response ->
                         log.debug { "Response: $request -> ${StatusLine(response)}" }
                         log.debug { "Body: ${response.body.bodyText}" }

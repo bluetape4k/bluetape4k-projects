@@ -1,6 +1,6 @@
 package io.bluetape4k.io.okio.coroutines.internal
 
-import io.bluetape4k.io.okio.coroutines.SuspendSink
+import io.bluetape4k.io.okio.coroutines.SuspendedSink
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -12,7 +12,7 @@ import kotlin.coroutines.CoroutineContext
 internal class ForwardingSuspendSink(
     val delegate: Sink,
     private val context: CoroutineContext = Dispatchers.IO,
-): SuspendSink {
+): SuspendedSink {
 
     companion object: KLoggingChannel()
 

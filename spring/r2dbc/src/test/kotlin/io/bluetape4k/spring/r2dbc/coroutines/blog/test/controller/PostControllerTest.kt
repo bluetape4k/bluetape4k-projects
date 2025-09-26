@@ -23,7 +23,7 @@ import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.test.web.reactive.server.returnResult
 
 class PostControllerTest(
-    @Autowired private val client: WebTestClient,
+    @param:Autowired private val client: WebTestClient,
 ): AbstractR2dbcBlogApplicationTest() {
 
     companion object: KLoggingChannel()

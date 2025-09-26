@@ -18,7 +18,7 @@ import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional
 
 @Repository
 class CustomerRepository(
-    @Autowired override val client: DynamoDbEnhancedAsyncClient,
+    @param:Autowired override val client: DynamoDbEnhancedAsyncClient,
     @Value("\${aws.dynamodb.tablePrefix:local-}") tablePrefix: String,
 ): DynamoDbCoroutineRepository<CustomerDocument> {
 

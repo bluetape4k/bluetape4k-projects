@@ -25,7 +25,7 @@ import org.springframework.data.cassandra.core.truncate
 
 @SpringBootTest(classes = [PersonTestConfiguration::class])
 class TemplateTest(
-    @Autowired private val operations: CassandraOperations,
+    @param:Autowired private val operations: CassandraOperations,
 ): AbstractCassandraTest() {
 
     companion object: KLogging() {

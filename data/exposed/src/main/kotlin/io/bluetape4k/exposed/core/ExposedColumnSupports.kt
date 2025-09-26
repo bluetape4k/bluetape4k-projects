@@ -12,7 +12,7 @@ import org.jetbrains.exposed.v1.core.Column
 import java.util.*
 import kotlin.reflect.KClass
 
-private val log = KotlinLogging.logger {}
+private val log by lazy { KotlinLogging.logger {} }
 
 /**
  * Column의 언어 타입을 찾습니다.

@@ -10,7 +10,7 @@ import org.springframework.data.cassandra.core.CassandraOperations
 
 @SpringBootTest(classes = [SchemaGeneratorTestConfiguration::class])
 class SchemaGeneratorTest(
-    @Autowired private val operations: CassandraOperations,
+    @param:Autowired private val operations: CassandraOperations,
 ): AbstractCassandraTest() {
 
     companion object: KLoggingChannel()

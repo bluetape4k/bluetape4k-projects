@@ -45,7 +45,7 @@ import org.springframework.data.cassandra.repository.config.EnableReactiveCassan
 @SpringBootTest(classes = [ReactiveDomainTestConfiguration::class])
 @EnableReactiveCassandraRepositories
 class ReactiveCassandraTemplateTest(
-    @Autowired private val operations: ReactiveCassandraOperations,
+    @param:Autowired private val operations: ReactiveCassandraOperations,
 ): AbstractCassandraCoroutineTest("reactive-template") {
 
     companion object: KLoggingChannel() {

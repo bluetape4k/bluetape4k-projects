@@ -1,10 +1,10 @@
 package io.bluetape4k.examples.redisson.coroutines.objects
 
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import io.bluetape4k.redis.redisson.coroutines.coAwait
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
 import org.redisson.api.BatchOptions
@@ -36,20 +36,20 @@ class BatchExamples: AbstractRedissonCoroutineTest() {
 
 
         // 모든 비동기 작업을 Batch로 수행한다.
-        val results = batch.executeAsync().coAwait()
+        val results = batch.executeAsync().suspendAwait()
 
         // NOTE: fastPutAsync 의 결과는 new insert 인 경우는 true, update 는 false 를 반환한다.
         results.responses.forEachIndexed { index, result ->
             log.debug { "response[$index]=$result" }
         }
-        future.coAwait() shouldBeEqualTo results.responses[3]
+        future.suspendAwait() shouldBeEqualTo results.responses[3]
 
-        map1.getAsync("1").coAwait() shouldBeEqualTo "2"
-        map2.getAsync("2").coAwait() shouldBeEqualTo "3"
-        map3.getAsync("2").coAwait() shouldBeEqualTo "5"
+        map1.getAsync("1").suspendAwait() shouldBeEqualTo "2"
+        map2.getAsync("2").suspendAwait() shouldBeEqualTo "3"
+        map3.getAsync("2").suspendAwait() shouldBeEqualTo "5"
 
-        map1.deleteAsync().coAwait()
-        map2.deleteAsync().coAwait()
-        map3.deleteAsync().coAwait()
+        map1.deleteAsync().suspendAwait()
+        map2.deleteAsync().suspendAwait()
+        map3.deleteAsync().suspendAwait()
     }
 }

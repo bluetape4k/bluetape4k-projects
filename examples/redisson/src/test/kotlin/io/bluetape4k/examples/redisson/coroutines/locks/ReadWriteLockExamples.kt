@@ -1,10 +1,10 @@
 package io.bluetape4k.examples.redisson.coroutines.locks
 
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import io.bluetape4k.redis.redisson.coroutines.coAwait
 import io.bluetape4k.redis.redisson.coroutines.getLockId
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.joinAll
@@ -39,7 +39,7 @@ class ReadWriteLockExamples: AbstractRedissonCoroutineTest() {
         log.debug { "WriteLock을 획득합니다... threadId=${Thread.currentThread().threadId()}" }
         val writeLock = lock.writeLock()
         val writeLockId = redisson.getLockId(lockName)
-        writeLock.tryLockAsync(1, 60, TimeUnit.SECONDS, writeLockId).coAwait().shouldBeTrue()
+        writeLock.tryLockAsync(1, 60, TimeUnit.SECONDS, writeLockId).suspendAwait().shouldBeTrue()
 
         delay(1000)
 
@@ -47,11 +47,11 @@ class ReadWriteLockExamples: AbstractRedissonCoroutineTest() {
             log.debug { "WriteLock이 걸린 상태에서 ReadLock 을 획득 시도합니다... -> 실패해야 합니다. ${Thread.currentThread().threadId()}" }
             val readLock = lock.readLock()
             val readLockId = redisson.getLockId(lockName)
-            readLock.tryLockAsync(1, 60, TimeUnit.SECONDS, readLockId).coAwait().shouldBeFalse()
+            readLock.tryLockAsync(1, 60, TimeUnit.SECONDS, readLockId).suspendAwait().shouldBeFalse()
         }.join()
 
         log.debug { "WriteLock을 반납합니다... threadId=${Thread.currentThread().threadId()}" }
-        writeLock.unlockAsync(writeLockId).coAwait()
+        writeLock.unlockAsync(writeLockId).suspendAwait()
 
         // read lock 을 여러 개를 동시에 획득, 작업을 수행
         val jobs = List(3) {
@@ -62,7 +62,7 @@ class ReadWriteLockExamples: AbstractRedissonCoroutineTest() {
                 log.debug { "ReadLock을 획득합니다... $it:${Thread.currentThread().threadId()}, readLockId=$readLockId" }
                 val readLock = lock.readLock()
 
-                readLock.tryLockAsync(1, 60, TimeUnit.SECONDS, readLockId).coAwait().shouldBeTrue()
+                readLock.tryLockAsync(1, 60, TimeUnit.SECONDS, readLockId).suspendAwait().shouldBeTrue()
 
                 try {
                     log.debug { "Some suspending job" }
@@ -73,7 +73,7 @@ class ReadWriteLockExamples: AbstractRedissonCoroutineTest() {
 
                 } finally {
                     // 같은 coroutine context id 에서만 unlock 이 가능하다
-                    readLock.unlockAsync(readLockId).coAwait()
+                    readLock.unlockAsync(readLockId).suspendAwait()
                 }
             }
         }

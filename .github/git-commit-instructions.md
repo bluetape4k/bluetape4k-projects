@@ -1,0 +1,2 @@
+- 커밋 메시지는 한국어로 작성한다
+- 커밋 메시지는 머릿말을 둔다 (예: feat, fix, docs, style, refactor, perf, test, chore)

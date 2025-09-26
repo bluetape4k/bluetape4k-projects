@@ -20,8 +20,8 @@ import java.time.Instant
 
 @SpringBootTest(classes = [AuditingTestConfiguration::class])
 class AuditingTest(
-    @Autowired private val repository: OrderRepository,
-    @Autowired private val customRepo: CustomAuditingRepository,
+    @param:Autowired private val repository: OrderRepository,
+    @param:Autowired private val customRepo: CustomAuditingRepository,
 ): AbstractCassandraCoroutineTest("auditing") {
 
     companion object: KLoggingChannel()

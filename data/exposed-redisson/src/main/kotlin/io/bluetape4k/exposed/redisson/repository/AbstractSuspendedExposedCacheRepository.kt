@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.redisson.repository
 
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.redisson.map.EntityMapLoader
 import io.bluetape4k.exposed.redisson.map.EntityMapWriter
@@ -14,14 +15,12 @@ import io.bluetape4k.logging.info
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import io.bluetape4k.redis.redisson.cache.localCachedMap
 import io.bluetape4k.redis.redisson.cache.mapCache
-import io.bluetape4k.redis.redisson.coroutines.coAwait
 import io.bluetape4k.support.requireNotNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
-import org.jetbrains.exposed.v1.core.SqlExpressionBuilder
 import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -147,12 +146,22 @@ abstract class AbstractSuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID:
             }
         }
 
+    /**
+     * DB에서 조건에 맞는 엔티티 목록을 조회하고, 조회된 엔티티를 캐시에 저장합니다.
+     *
+     * @param limit 조회할 최대 개수 (nullable)
+     * @param offset 조회 시작 위치 (nullable)
+     * @param sortBy 정렬 기준 컬럼
+     * @param sortOrder 정렬 순서
+     * @param where 조회 조건을 반환하는 함수
+     * @return 조회된 엔티티 목록
+     */
     override suspend fun findAll(
         limit: Int?,
         offset: Long?,
         sortBy: Expression<*>,
         sortOrder: SortOrder,
-        where: SqlExpressionBuilder.() -> Op<Boolean>,
+        where: () -> Op<Boolean>,
     ): List<T> {
         return suspendedTransactionAsync(scope.coroutineContext) {
             entityTable.selectAll()
@@ -164,14 +173,21 @@ abstract class AbstractSuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID:
                 }
                 .map { it.toEntity() }
         }.await().apply {
-            cache.putAllAsync(associateBy { it.id }).coAwait()
+            cache.putAllAsync(associateBy { it.id }).suspendAwait()
         }
     }
 
+    /**
+     * 주어진 ID 목록을 배치 단위로 캐시에서 조회합니다.
+     *
+     * @param ids 조회할 엔티티 ID 목록
+     * @param batchSize 한 번에 조회할 배치 크기
+     * @return 조회된 엔티티 목록
+     */
     override suspend fun getAll(ids: Collection<ID>, batchSize: Int): List<T> {
         return ids.chunked(batchSize).flatMap { chunk ->
-            log.debug { " 캐시에서 ${chunk.size} 개의 엔티티를 가져옵니다. chunk=${chunk}" }
-            cache.getAllAsync(chunk.toSet()).coAwait().values.filterNotNull()
+            log.debug { "캐시에서 ${chunk.size}개의 엔티티를 가져옵니다. chunk=$chunk" }
+            cache.getAllAsync(chunk.toSet()).suspendAwait().values.filterNotNull()
         }
     }
 }

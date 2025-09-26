@@ -1,6 +1,6 @@
 package io.bluetape4k.quarkus.tests.resources
 
-import io.bluetape4k.coroutines.support.coAwait
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -65,9 +65,9 @@ class RedisTestResourceTest: AbstractQuarkusTest() {
         val rmap = redisson.getMap<String, String>(mapName)
 
         log.debug { "Put asynchronously" }
-        rmap.fastPutAsync("key", "value").coAwait().shouldBeTrue()
+        rmap.fastPutAsync("key", "value").suspendAwait().shouldBeTrue()
 
         log.debug { "Get asynchronously" }
-        rmap.getAsync("key").coAwait() shouldBeEqualTo "value"
+        rmap.getAsync("key").suspendAwait() shouldBeEqualTo "value"
     }
 }

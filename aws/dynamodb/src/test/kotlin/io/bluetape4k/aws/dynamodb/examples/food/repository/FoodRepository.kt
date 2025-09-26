@@ -20,7 +20,7 @@ import java.time.Instant
 
 @Repository
 class FoodRepository(
-    @Autowired override val client: DynamoDbEnhancedAsyncClient,
+    @param:Autowired override val client: DynamoDbEnhancedAsyncClient,
     @Value("\${aws.dynamodb.tablePrefix:local-}") tablePrefix: String,
 ): DynamoDbCoroutineRepository<FoodDocument> {
 

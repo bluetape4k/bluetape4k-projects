@@ -13,7 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 class JsonPlaceClientTest(
-    @Autowired private val jsonPlaceClient: JsonPlaceClient,
+    @param:Autowired private val jsonPlaceClient: JsonPlaceClient,
 ) {
 
     companion object: KLogging()

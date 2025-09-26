@@ -26,8 +26,7 @@ fun currentVertx(): Vertx = Vertx.currentContext()?.owner() ?: Vertx.vertx()
  *
  * @param block Virtx Dispatcher 내에서 수행할 코드 블럭
  */
-suspend inline fun <T> Vertx.withVertxDispatcher(crossinline block: suspend CoroutineScope.() -> T): T {
-    return withContext(this.dispatcher()) {
-        block(this)
-    }
-}
+suspend inline fun <T> Vertx.withVertxDispatcher(
+    crossinline block: suspend CoroutineScope.() -> T,
+): T =
+    withContext(this.dispatcher()) { block(this) }

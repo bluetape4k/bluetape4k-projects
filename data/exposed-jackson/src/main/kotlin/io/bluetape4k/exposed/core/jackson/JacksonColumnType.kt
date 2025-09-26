@@ -8,10 +8,10 @@ import org.jetbrains.exposed.v1.core.ColumnType
 import org.jetbrains.exposed.v1.core.JsonColumnMarker
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.statements.api.PreparedStatementApi
+import org.jetbrains.exposed.v1.core.statements.api.RowApi
 import org.jetbrains.exposed.v1.core.vendors.H2Dialect
 import org.jetbrains.exposed.v1.core.vendors.PostgreSQLDialect
 import org.jetbrains.exposed.v1.core.vendors.currentDialect
-import org.postgresql.util.PGobject
 
 open class JacksonColumnType<T: Any>(
     /**
@@ -31,16 +31,19 @@ open class JacksonColumnType<T: Any>(
 
     @Suppress("UNCHECKED_CAST")
     override fun valueFromDB(value: Any): T? {
-        return when {
-            currentDialect is PostgreSQLDialect && value is PGobject -> deserialize(value.value!!)
-            value is String -> deserialize(value)
-            value is ByteArray -> deserialize(value.toUtf8String())
+        return when (value) {
+            is String -> deserialize(value)
+            is ByteArray -> deserialize(value.toUtf8String())
             else -> value as? T ?: error("Unexpected value $value of type ${value::class.qualifiedName}")
         }
     }
 
     override fun parameterMarker(value: T?): String = when {
         currentDialect is H2Dialect && value != null -> "? FORMAT JSON"
+        currentDialect is PostgreSQLDialect && value != null -> {
+            val castType = if (usesBinaryFormat) "jsonb" else "json"
+            "?::$castType"
+        }
         else -> super.parameterMarker(value)
     }
 
@@ -53,26 +56,23 @@ open class JacksonColumnType<T: Any>(
 
     override fun nonNullValueToString(value: T): String = when (currentDialect) {
         is H2Dialect -> "JSON '${notNullValueToDB(value)}'"
-        else -> super.nonNullValueToString(value)
+        else -> "'${notNullValueToDB(value)}'"
     }
 
     override fun setParameter(stmt: PreparedStatementApi, index: Int, value: Any?) {
         val parameterValue = when (currentDialect) {
-            is PostgreSQLDialect -> value?.let {
-                PGobject().apply {
-                    type = sqlType()
-                    this.value = value as? String
-                }
-            }
             is H2Dialect -> (value as? String)?.toUtf8Bytes()
             else -> value
         }
         super.setParameter(stmt, index, parameterValue)
     }
 
-    override fun nonNullValueAsDefaultString(value: T): String = when {
-        currentDialect is H2Dialect -> "JSON '${notNullValueToDB(value)}'"
-        else -> "'${notNullValueToDB(value)}'"
+    override fun readObject(rs: RowApi, index: Int): Any? {
+        return if (currentDialect is PostgreSQLDialect) {
+            rs.getString(index)
+        } else {
+            super.readObject(rs, index)
+        }
     }
 }
 
@@ -107,6 +107,6 @@ inline fun <reified T: Any> Table.jackson(
 ): Column<T> =
     jackson(
         name,
-        { jacksonSerializer.serializeAsString(it) },
-        { jacksonSerializer.deserializeFromString<T>(it)!! }
+        serialize = { jacksonSerializer.serializeAsString(it) },
+        deserialize = { jacksonSerializer.deserializeFromString<T>(it)!! }
     )

@@ -1,12 +1,12 @@
 package io.bluetape4k.examples.redisson.coroutines.objects
 
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.redis.redisson.coroutines.coAwait
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -27,34 +27,34 @@ class AtomicLongExamples: AbstractRedissonCoroutineTest() {
         val counter = redisson.getAtomicLong(randomName())
         val jobs = List(TEST_COUNT) {
             scope.launch {
-                counter.incrementAndGetAsync().coAwait()
+                counter.incrementAndGetAsync().suspendAwait()
             }
         }
         jobs.joinAll()
 
-        counter.async.coAwait() shouldBeEqualTo TEST_COUNT.toLong()
-        counter.deleteAsync().coAwait().shouldBeTrue()
+        counter.async.suspendAwait() shouldBeEqualTo TEST_COUNT.toLong()
+        counter.deleteAsync().suspendAwait().shouldBeTrue()
     }
 
     @RepeatedTest(REPEAT_SIZE)
     fun `AtomicLog operatiions`() = runSuspendIO {
         val counter = redisson.getAtomicLong(randomName())
 
-        counter.setAsync(0).coAwait()
-        counter.addAndGetAsync(10L).coAwait() shouldBeEqualTo 10L
+        counter.setAsync(0).suspendAwait()
+        counter.addAndGetAsync(10L).suspendAwait() shouldBeEqualTo 10L
 
-        counter.compareAndSetAsync(-1L, 42L).coAwait().shouldBeFalse()
-        counter.compareAndSetAsync(10L, 42L).coAwait().shouldBeTrue()
+        counter.compareAndSetAsync(-1L, 42L).suspendAwait().shouldBeFalse()
+        counter.compareAndSetAsync(10L, 42L).suspendAwait().shouldBeTrue()
 
-        counter.decrementAndGetAsync().coAwait() shouldBeEqualTo 41L
-        counter.incrementAndGetAsync().coAwait() shouldBeEqualTo 42L
+        counter.decrementAndGetAsync().suspendAwait() shouldBeEqualTo 41L
+        counter.incrementAndGetAsync().suspendAwait() shouldBeEqualTo 42L
 
-        counter.getAndAddAsync(3L).coAwait() shouldBeEqualTo 42L
+        counter.getAndAddAsync(3L).suspendAwait() shouldBeEqualTo 42L
 
-        counter.getAndDecrementAsync().coAwait() shouldBeEqualTo 45L
-        counter.getAndIncrementAsync().coAwait() shouldBeEqualTo 44L
+        counter.getAndDecrementAsync().suspendAwait() shouldBeEqualTo 45L
+        counter.getAndIncrementAsync().suspendAwait() shouldBeEqualTo 44L
 
-        counter.deleteAsync().coAwait().shouldBeTrue()
+        counter.deleteAsync().suspendAwait().shouldBeTrue()
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -65,12 +65,12 @@ class AtomicLongExamples: AbstractRedissonCoroutineTest() {
             .numThreads(Runtimex.availableProcessors)
             .roundsPerJob(32 * 8)
             .add {
-                counter.incrementAndGetAsync().coAwait()
+                counter.incrementAndGetAsync().suspendAwait()
             }
             .run()
 
-        counter.async.coAwait() shouldBeEqualTo 32 * 8L
-        counter.deleteAsync().coAwait().shouldBeTrue()
+        counter.async.suspendAwait() shouldBeEqualTo 32 * 8L
+        counter.deleteAsync().suspendAwait().shouldBeTrue()
     }
 
     @RepeatedTest(REPEAT_SIZE)

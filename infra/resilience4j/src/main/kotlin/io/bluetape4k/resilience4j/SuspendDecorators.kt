@@ -183,9 +183,9 @@ object SuspendDecorators: KLoggingChannel() {
      * .invoke(21, 2)  // 42
      * ```
      *
-     * @param T input type
-     * @param R return type
-     * @param function Suspendable function
+     * @param T first input type
+     * @param U second input type
+     * @param consumer Suspendable function
      */
     fun <T, U> ofBiConsumer(consumer: suspend (T, U) -> Unit): DecoratorForSuspendFunction2<T, U, Unit> {
         return DecoratorForSuspendFunction2(consumer)

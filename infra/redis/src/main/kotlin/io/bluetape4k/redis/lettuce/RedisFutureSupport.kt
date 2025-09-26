@@ -8,6 +8,17 @@ import kotlinx.coroutines.future.await
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
 
+
+/**
+ * Awaits for completions of [RedisFuture] without blocking a thread.
+ *
+ * ```
+ * val result = redisAsyncCommands.get("key").suspendAwait()
+ * ```
+ */
+suspend fun <T> RedisFuture<T>.suspendAwait(): T = await()
+
+
 /**
  * Awaits for completions of [RedisFuture] without blocking a thread.
  *
@@ -15,6 +26,10 @@ import java.util.concurrent.Executor
  * val result = redisAsyncCommands.get("key").coAwait()
  * ```
  */
+@Deprecated(
+    message = "Use suspendAwait() instead.",
+    replaceWith = ReplaceWith("suspendAwait()"),
+)
 suspend fun <T> RedisFuture<T>.coAwait(): T = await()
 
 /**

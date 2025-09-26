@@ -20,6 +20,7 @@ import java.util.concurrent.CompletionStage
  * @param writeToDb DB에 데이터를 쓰는 함수입니다.
  * @param deleteFromDb DB에서 데이터를 삭제하는 함수입니다.
  */
+@Suppress("DEPRECATION")
 open class SuspendedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     private val writeToDb: suspend (map: Map<ID, E>) -> Unit,
     private val deleteFromDb: suspend (keys: Collection<ID>) -> Unit,

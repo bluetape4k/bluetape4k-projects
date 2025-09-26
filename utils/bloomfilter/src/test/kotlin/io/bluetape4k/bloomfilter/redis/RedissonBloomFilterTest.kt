@@ -36,7 +36,7 @@ class RedissonBloomFilterTest: AbstractRedissonTest() {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `verify not exists`() {
+    fun `verify exists random string`() {
         val values = List(ITEM_COUNT) { Fakers.fixedString(256) }
             .onEach { bloomFilter.add(it) }
 

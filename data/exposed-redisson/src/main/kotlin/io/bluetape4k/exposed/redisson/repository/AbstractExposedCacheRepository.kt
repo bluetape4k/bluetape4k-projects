@@ -15,10 +15,10 @@ import io.bluetape4k.support.requireNotNull
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
-import org.jetbrains.exposed.v1.core.SqlExpressionBuilder
 import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.redisson.api.EvictionMode
 import org.redisson.api.RMap
 import org.redisson.api.RedissonClient
@@ -131,34 +131,54 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
             }
         }
 
+    /**
+     * DB에서 조건에 맞는 엔티티 목록을 조회하고, 조회된 엔티티들을 캐시에 저장합니다.
+     *
+     * @param limit 조회할 최대 개수 (nullable)
+     * @param offset 조회 시작 위치 (nullable)
+     * @param sortBy 정렬 기준 컬럼
+     * @param sortOrder 정렬 순서
+     * @param where 조회 조건을 반환하는 함수
+     * @return 조회된 엔티티 목록
+     */
     override fun findAll(
         limit: Int?,
         offset: Long?,
         sortBy: Expression<*>,
         sortOrder: SortOrder,
-        where: SqlExpressionBuilder.() -> Op<Boolean>,
+        where: () -> Op<Boolean>,
     ): List<T> {
-        return entityTable
-            .selectAll()
-            .where(where)
-            .apply {
-                orderBy(sortBy, sortOrder)
-                limit?.run { limit(limit) }
-                offset?.run { offset(offset) }
-            }.map { it.toEntity() }
-            .apply {
-                log.debug { "DB에서 엔티티를 조회했습니다. entities=$this" }
-                cache.putAll(associateBy { it.id })
-            }
-
+        return transaction {
+            entityTable
+                .selectAll()
+                .where(where)
+                .apply {
+                    orderBy(sortBy, sortOrder)
+                    limit?.run { limit(limit) }
+                    offset?.run { offset(offset) }
+                }.map { it.toEntity() }
+                .apply {
+                    log.debug { "DB에서 엔티티를 조회했습니다. entities=$this" }
+                    cache.putAll(associateBy { it.id })
+                }
+        }
     }
 
+    /**
+     * 주어진 ID 목록을 batchSize 단위로 나누어 캐시에서 엔티티를 조회합니다.
+     *
+     * @param ids 조회할 엔티티의 ID 목록
+     * @param batchSize 한 번에 조회할 배치 크기
+     * @return 조회된 엔티티 목록
+     */
     override fun getAll(ids: Collection<ID>, batchSize: Int): List<T> {
         val chunkedIds = ids.chunked(batchSize)
 
-        return chunkedIds.flatMap { chunk ->
-            log.debug { " 캐시에서 ${chunk.size} 개의 엔티티를 가져옵니다. chunk=${chunk}" }
-            cache.getAll(chunk.toSet()).values.filterNotNull()
+        return transaction {
+            chunkedIds.flatMap { chunk ->
+                log.debug { "캐시에서 ${chunk.size}개의 엔티티를 가져옵니다. chunk=$chunk" }
+                cache.getAll(chunk.toSet()).values.filterNotNull()
+            }
         }
     }
 }

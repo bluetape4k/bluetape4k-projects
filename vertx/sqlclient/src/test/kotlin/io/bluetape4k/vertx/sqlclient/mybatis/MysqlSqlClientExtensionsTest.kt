@@ -5,7 +5,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.vertx.sqlclient.schema.PersonMapper
 import io.bluetape4k.vertx.sqlclient.schema.PersonSchema.person
-import io.bluetape4k.vertx.sqlclient.tests.testWithRollbackSuspending
+import io.bluetape4k.vertx.sqlclient.tests.testWithSuspendRollback
 import io.vertx.core.Vertx
 import io.vertx.junit5.VertxTestContext
 import io.vertx.sqlclient.SqlConnection
@@ -34,7 +34,7 @@ class MysqlSqlClientExtensionsTest: AbstractSqlClientExtensionsTest() {
      */
     @Test
     fun `update set to subquery in mysql`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
-        vertx.testWithRollbackSuspending(testContext, pool) { conn: SqlConnection ->
+        vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
             val rows = conn.select(add(max(person.addressId), constant<Int>("1"))) {
                 from(person)
                 groupBy(person.addressId)

@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.coroutines.exceptions
 
-import io.bluetape4k.coroutines.support.coLogging
 import io.bluetape4k.coroutines.support.log
+import io.bluetape4k.coroutines.support.suspendLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.info
@@ -99,7 +99,7 @@ class ExceptionHandlingExamples {
                     delay(100L)
                     throw RuntimeException("Boom!")
                 } catch (e: Throwable) {
-                    coLogging { "에외를 잡았습니다." }
+                    suspendLogging { "에외를 잡았습니다." }
                     e shouldBeInstanceOf RuntimeException::class
                     capturedException = e
                 }
@@ -124,14 +124,14 @@ class ExceptionHandlingExamples {
 
         scope.launch(exceptionHandler) {
             delay(100L)
-            coLogging { "예외가 발생합니다 ..." }
+            suspendLogging { "예외가 발생합니다 ..." }
             throw RuntimeException("Boom!")
         }.log("#1")
 
         scope.launch(exceptionHandler) {
             delay(200L)
             run2.value = true
-            coLogging { "이 코드는 실행되어야 합니다" }
+            suspendLogging { "이 코드는 실행되어야 합니다" }
         }.log("#2")
 
         yield()
@@ -294,7 +294,7 @@ class ExceptionHandlingExamples {
         scope.launch {
             delay(200)
             job2Executed = true
-            coLogging { "이 코드는 출력되어야 합니다." }
+            suspendLogging { "이 코드는 출력되어야 합니다." }
         }.log("#2")
 
         job.complete()

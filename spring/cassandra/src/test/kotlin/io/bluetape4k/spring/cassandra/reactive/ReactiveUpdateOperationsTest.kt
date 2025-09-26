@@ -35,7 +35,7 @@ import java.io.Serializable
 
 @SpringBootTest
 class ReactiveUpdateOperationsTest(
-    @Autowired private val operations: ReactiveCassandraOperations,
+    @param:Autowired private val operations: ReactiveCassandraOperations,
 ): AbstractCassandraCoroutineTest("update-op") {
 
     companion object: KLoggingChannel() {

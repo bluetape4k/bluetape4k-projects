@@ -21,7 +21,8 @@ dependencies {
     // Codecs
     api(project(":bluetape4k-io"))
     api(Libs.kryo)
-    api(Libs.fury_kotlin)
+    api(Libs.fory_kotlin)  // new Apache Fory
+    api(Libs.fury_kotlin)  // old Apache Fury
 
     // Compressor
     compileOnly(Libs.snappy_java)
@@ -37,9 +38,9 @@ dependencies {
     implementation(Libs.r2dbc_postgresql)
 
     // Coroutines
-    compileOnly(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
-    compileOnly(Libs.kotlinx_coroutines_reactive)
+    api(project(":bluetape4k-coroutines"))
+    api(Libs.kotlinx_coroutines_core)
+    api(Libs.kotlinx_coroutines_reactive)
     testImplementation(Libs.kotlinx_coroutines_test)
 
     compileOnly(project(":bluetape4k-io"))

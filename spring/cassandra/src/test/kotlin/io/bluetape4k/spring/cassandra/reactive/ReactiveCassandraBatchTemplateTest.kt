@@ -42,7 +42,7 @@ import kotlin.test.assertFailsWith
 @SpringBootTest(classes = [ReactiveDomainTestConfiguration::class])
 @EnableReactiveCassandraRepositories
 class ReactiveCassandraBatchTemplateTest(
-    @Autowired private val operations: ReactiveCassandraOperations,
+    @param:Autowired private val operations: ReactiveCassandraOperations,
 ): AbstractCassandraCoroutineTest("reactive-batch-template") {
 
     companion object: KLoggingChannel()

@@ -24,7 +24,7 @@ import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest(classes = [BasicConfiguration::class])
 class BasicUserRepositoryTest(
-    @Autowired private val repository: BasicUserRepository,
+    @param:Autowired private val repository: BasicUserRepository,
 ): AbstractCassandraCoroutineTest("basic-user") {
 
     companion object: KLoggingChannel()

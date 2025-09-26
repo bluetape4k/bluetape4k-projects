@@ -26,11 +26,12 @@ dependencies {
     compileOnly(Libs.spring_kafka)
 
     // Codec
-    api(Libs.kryo)
-    api(Libs.fury_kotlin)
+    compileOnly(Libs.kryo)
+    compileOnly(Libs.fory_kotlin)  // new Apache Fory
+    compileOnly(Libs.fury_kotlin)  // old Apache Fury
 
     // Compressor
-    api(Libs.lz4_java)
+    compileOnly(Libs.lz4_java)
     compileOnly(Libs.snappy_java)
     compileOnly(Libs.zstd_jni)
 }

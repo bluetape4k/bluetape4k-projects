@@ -14,7 +14,7 @@ dependencies {
     compileOnly(Libs.exposed_java_time)
     compileOnly(Libs.exposed_json)
     compileOnly(Libs.exposed_money)
-    compileOnly(Libs.exposed_migration)
+    compileOnly(Libs.exposed_migration_jdbc)
     compileOnly(Libs.exposed_spring_boot_starter)
 
     testImplementation(project(":bluetape4k-exposed-tests"))
@@ -52,6 +52,7 @@ dependencies {
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))
     compileOnly(Libs.kotlinx_coroutines_core)
+    compileOnly(Libs.kotlinx_coroutines_reactive)
     compileOnly(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_test)
 
@@ -61,7 +62,8 @@ dependencies {
 
     // Serializer
     compileOnly(Libs.kryo)
-    compileOnly(Libs.fury_kotlin)
+    compileOnly(Libs.fory_kotlin)  // new Apache Fory
+    compileOnly(Libs.fury_kotlin)  // old Apache Fury
 
     // Compressors
     compileOnly(project(":bluetape4k-io"))

@@ -16,7 +16,7 @@ class JavaStreamSupportTest {
     @Test
     fun `int stream with coMap`() = runTest {
         val list = IntStream.range(1, 10)
-            .coMap {
+            .suspendMap {
                 delay(Random.nextLong(10))
                 it
             }
@@ -28,10 +28,11 @@ class JavaStreamSupportTest {
     @Test
     fun `int stream with coForEach`() = runTest {
         val list = mutableListOf<Int>()
-        IntStream.range(1, 10).coForEach {
-            delay(Random.nextLong(10))
-            list.add(it)
-        }
+        IntStream.range(1, 10)
+            .suspendForEach {
+                delay(Random.nextLong(10))
+                list.add(it)
+            }
         list shouldBeEqualTo List(9) { it + 1 }
     }
 }

@@ -5,6 +5,7 @@ import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.toUtf8Bytes
+import net.datafaker.Faker
 import okio.Buffer
 import okio.appendingSink
 import okio.blackholeSink
@@ -18,12 +19,14 @@ import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.nio.file.Files
+import java.util.*
 
 @TempFolderTest
 class OkioTest {
 
     companion object: KLogging() {
-        val faker = Fakers.faker
+        @JvmStatic
+        val faker = Faker(Locale.getDefault())
     }
 
     private lateinit var temp: TempFolder

@@ -50,7 +50,7 @@ import org.springframework.data.domain.Sort
 
 @SpringBootTest(classes = [DomainTestConfiguration::class])
 class AsyncCassandraTemplateTest(
-    @Autowired private val cqlSession: CqlSession,
+    @param:Autowired private val cqlSession: CqlSession,
 ): AbstractCassandraCoroutineTest("coroutines-template") {
 
     companion object: KLoggingChannel()

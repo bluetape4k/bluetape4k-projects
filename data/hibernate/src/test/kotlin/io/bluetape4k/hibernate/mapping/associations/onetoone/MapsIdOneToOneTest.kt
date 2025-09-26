@@ -28,7 +28,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.repository.findByIdOrNull
 
 class MapsIdOneToOneTest(
-    @Autowired private val authorRepo: AuthorRepository,
+    @param:Autowired private val authorRepo: AuthorRepository,
 ): AbstractHibernateTest() {
 
     companion object: KLogging() {

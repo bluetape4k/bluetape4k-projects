@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.dao.id
 
+import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
 
 /**
@@ -10,6 +11,6 @@ abstract class SoftDeletedIdTable<T: Any>(name: String = ""): IdTable<T>(name) {
     /**
      * Soft Deleted 여부를 나타내는 필드입니다.
      */
-    val isDeleted = bool("is_deleted").default(false)
+    val isDeleted: Column<Boolean> = bool("is_deleted").default(false)
 
 }

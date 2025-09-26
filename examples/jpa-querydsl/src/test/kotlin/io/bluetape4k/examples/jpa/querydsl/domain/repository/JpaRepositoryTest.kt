@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
 class JpaRepositoryTest(
-    @Autowired private val memberRepo: MemberRepository,
+    @param:Autowired private val memberRepo: MemberRepository,
 ): AbstractDomainTest() {
 
     companion object: KLogging()

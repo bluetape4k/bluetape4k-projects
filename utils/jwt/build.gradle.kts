@@ -25,10 +25,6 @@ dependencies {
     compileOnly(Libs.snappy_java)
     compileOnly(Libs.zstd_jni)
 
-    // Serialization
-    compileOnly(Libs.kryo)
-    compileOnly(Libs.fury_kotlin)
-
     // Caching
     compileOnly(project(":bluetape4k-cache"))
     testImplementation(Libs.caffeine_jcache)

@@ -116,7 +116,7 @@ interface SuspendedReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: Suspended
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `getAll - 여러 ID의 엔티티를 한번에 조회한다`(testDB: TestDB) = runSuspendIO {
+    fun `getAll - 여러 ID의 엔티티를 한번에 조회한다`(testDB: TestDB) = runTest {
         withSuspendedEntityTable(testDB) {
             val ids = getExistingIds() + getNonExistentId()
             val entities = repository.getAll(ids, batchSize = 2)

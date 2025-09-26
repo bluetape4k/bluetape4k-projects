@@ -1,8 +1,8 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.redis.redisson.coroutines.coAwait
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
@@ -32,31 +32,31 @@ class BucketExamples: AbstractRedissonCoroutineTest() {
         val bucket: RBucket<String> = redisson.getBucket(randomName())
 
         // bucket에 object를 설정한다
-        bucket.setAsync("000", 60, TimeUnit.SECONDS).coAwait()
+        bucket.setAsync("000", 60, TimeUnit.SECONDS).suspendAwait()
         delay(100)
 
         // 기존 TTL을 유지하면서 object 를 set 한다
-        bucket.setAndKeepTTLAsync("123").coAwait()
+        bucket.setAndKeepTTLAsync("123").suspendAwait()
 
         // TTL 정보
-        bucket.remainTimeToLiveAsync().coAwait() shouldBeInRange (0L until 60 * 1000L)
+        bucket.remainTimeToLiveAsync().suspendAwait() shouldBeInRange (0L until 60 * 1000L)
 
         // "123" 값을 가지고 있으면 "2032" 로 변경한다
-        bucket.compareAndSetAsync("123", "2032").coAwait().shouldBeTrue()
+        bucket.compareAndSetAsync("123", "2032").suspendAwait().shouldBeTrue()
 
         // 기존 값을 가져오고, 새로운 값으로 설정
-        bucket.getAndSetAsync("5081").coAwait() shouldBeEqualTo "2032"
+        bucket.getAndSetAsync("5081").suspendAwait() shouldBeEqualTo "2032"
 
         // bucket에 object가 없을 때에 set을 수행한다
-        bucket.setIfAbsentAsync("7777", Duration.ofSeconds(60)).coAwait().shouldBeFalse()
+        bucket.setIfAbsentAsync("7777", Duration.ofSeconds(60)).suspendAwait().shouldBeFalse()
 
         // 기존 값이 있을 때에만 새로 설정한다
-        bucket.setIfExistsAsync("9999").coAwait().shouldBeTrue()
+        bucket.setIfExistsAsync("9999").suspendAwait().shouldBeTrue()
 
         // object size
         bucket.size() shouldBeGreaterThan 0L
 
-        bucket.deleteAsync().coAwait()
+        bucket.deleteAsync().suspendAwait()
     }
 
     @Test
@@ -64,18 +64,18 @@ class BucketExamples: AbstractRedissonCoroutineTest() {
         val bucket: RBucket<String> = redisson.getBucket(randomName())
 
         // bucket에 object를 설정한다
-        bucket.setAsync("000", 60, TimeUnit.SECONDS).coAwait()
+        bucket.setAsync("000", 60, TimeUnit.SECONDS).suspendAwait()
 
         val job = scope.launch {
-            bucket.compareAndSetAsync("000", "111").coAwait().shouldBeTrue()
+            bucket.compareAndSetAsync("000", "111").suspendAwait().shouldBeTrue()
         }
 
         delay(100)
         job.join()
 
-        bucket.getAndDeleteAsync().coAwait() shouldBeEqualTo "111"
+        bucket.getAndDeleteAsync().suspendAwait() shouldBeEqualTo "111"
 
-        bucket.deleteAsync().coAwait()
+        bucket.deleteAsync().suspendAwait()
     }
 
     @Test
@@ -87,7 +87,7 @@ class BucketExamples: AbstractRedissonCoroutineTest() {
         val bucketName3 = randomName()
 
         // 기존에 데이터를 가진 bucket 이 없다
-        val existBuckets1 = buckets.getAsync<String>(bucketName1, bucketName2, bucketName3).coAwait()
+        val existBuckets1 = buckets.getAsync<String>(bucketName1, bucketName2, bucketName3).suspendAwait()
         existBuckets1.size shouldBeEqualTo 0
 
 
@@ -96,17 +96,17 @@ class BucketExamples: AbstractRedissonCoroutineTest() {
             bucketName2 to "object2"
         )
         // 복수의 bucket에 한번에 데이터를 저장한다 (기존에 데이터가 있는 bucket 이 하나라도 있다면 실패한다)
-        buckets.trySetAsync(map).coAwait().shouldBeTrue()
+        buckets.trySetAsync(map).suspendAwait().shouldBeTrue()
 
         // object를 가진 bucket 은 2개이다.
-        val values = buckets.getAsync<String>(bucketName1, bucketName2, bucketName3).coAwait()
+        val values = buckets.getAsync<String>(bucketName1, bucketName2, bucketName3).suspendAwait()
         values.size shouldBeEqualTo 2
 
         val bucket1 = redisson.getBucket<String>(bucketName1)
         bucket1.get() shouldBeEqualTo "object1"
 
-        redisson.getBucket<String>(bucketName1).deleteAsync().coAwait().shouldBeTrue()
-        redisson.getBucket<String>(bucketName2).deleteAsync().coAwait().shouldBeTrue()
-        redisson.getBucket<String>(bucketName3).deleteAsync().coAwait().shouldBeFalse()
+        redisson.getBucket<String>(bucketName1).deleteAsync().suspendAwait().shouldBeTrue()
+        redisson.getBucket<String>(bucketName2).deleteAsync().suspendAwait().shouldBeTrue()
+        redisson.getBucket<String>(bucketName3).deleteAsync().suspendAwait().shouldBeFalse()
     }
 }

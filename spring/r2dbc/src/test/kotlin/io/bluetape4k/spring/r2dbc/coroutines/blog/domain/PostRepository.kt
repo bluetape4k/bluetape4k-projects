@@ -10,16 +10,14 @@ import io.bluetape4k.spring.r2dbc.coroutines.suspendFindOneByIdOrNull
 import io.bluetape4k.spring.r2dbc.coroutines.suspendInsert
 import io.bluetape4k.spring.r2dbc.coroutines.suspendSelectAll
 import kotlinx.coroutines.flow.Flow
-import org.springframework.data.r2dbc.convert.MappingR2dbcConverter
 import org.springframework.data.r2dbc.core.R2dbcEntityOperations
-import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.stereotype.Repository
 
 @Repository
 class PostRepository(
-    private val client: DatabaseClient,
+//    private val client: DatabaseClient,
     private val operations: R2dbcEntityOperations,
-    private val mappingR2dbcConverter: MappingR2dbcConverter,
+//    private val mappingR2dbcConverter: MappingR2dbcConverter,
 ) {
     companion object: KLoggingChannel()
 

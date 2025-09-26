@@ -29,14 +29,14 @@ fun Connection.request(
     body: String?,
     headers: Headers? = null,
     timeout: Duration? = null,
-): Message {
+): Message? {
     return request(subject, headers, body?.toUtf8Bytes(), timeout?.toJavaDuration())
 }
 
 fun Connection.request(
     message: Message,
     timeout: Duration? = null,
-): Message {
+): Message? {
     return request(message, timeout?.toJavaDuration())
 }
 

@@ -3,7 +3,7 @@ package io.bluetape4k.coroutines.flow.extensions.subject
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.coroutines.tests.withSingleThread
-import io.bluetape4k.junit5.awaitility.coUntil
+import io.bluetape4k.junit5.awaitility.suspendUntil
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.atomicfu.atomic
@@ -321,7 +321,7 @@ class PublishSubjectTest {
             }
             subject.complete()
 
-            await coUntil { job.isCancelled }
+            await suspendUntil { job.isCancelled }
 
             job.isCancelled.shouldBeTrue()
             subject.collectorCount shouldBeEqualTo 0

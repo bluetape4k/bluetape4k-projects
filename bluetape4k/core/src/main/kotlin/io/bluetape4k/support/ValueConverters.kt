@@ -41,11 +41,11 @@ fun Any?.asDouble(defaultValue: Double = 0.0): Double = asDoubleOrNull() ?: defa
  */
 fun Any?.asDoubleOrNull(): Double? = runCatching {
     when (this) {
-        null            -> null
-        is Double       -> this
-        is Number       -> this.toDouble()
+        null -> null
+        is Double -> this
+        is Number -> this.toDouble()
         is CharSequence -> this.toString().toDouble()
-        else            -> this.toString().parseNumber()
+        else -> this.toString().parseNumber()
     }
 }.getOrNull()
 
@@ -73,11 +73,11 @@ fun Any?.asFloat(defaultValue: Float = 0.0F): Float = asFloatOrNull() ?: default
  */
 fun Any?.asFloatOrNull(): Float? = runCatching {
     when (this) {
-        null            -> null
-        is Float        -> this
-        is Number       -> this.toFloat()
+        null -> null
+        is Float -> this
+        is Number -> this.toFloat()
         is CharSequence -> this.toString().parseNumber()
-        else            -> this.asDoubleOrNull()?.toFloat()
+        else -> this.asDoubleOrNull()?.toFloat()
     }
 }.getOrNull()
 
@@ -105,11 +105,11 @@ fun Any?.asLong(defaultValue: Long = 0L): Long = asLongOrNull() ?: defaultValue
  */
 fun Any?.asLongOrNull(): Long? = runCatching {
     when (this) {
-        null            -> null
-        is Long         -> this
-        is Number       -> this.toLong()
+        null -> null
+        is Long -> this
+        is Number -> this.toLong()
         is CharSequence -> this.toString().toLong()
-        else            -> this.asBigDecimalOrNull()?.toLong()
+        else -> this.asBigDecimalOrNull()?.toLong()
     }
 }.getOrNull()
 
@@ -138,10 +138,10 @@ fun Any?.asInt(defaultValue: Int = 0): Int = asIntOrNull() ?: defaultValue
  */
 fun Any?.asIntOrNull(): Int? = runCatching {
     when (this) {
-        null      -> null
-        is Int    -> this
+        null -> null
+        is Int -> this
         is Number -> this.toInt()
-        else      -> this.asLongOrNull()?.toInt()
+        else -> this.asLongOrNull()?.toInt()
     }
 }.getOrNull()
 
@@ -170,10 +170,10 @@ fun Any?.asShort(defaultValue: Short = 0): Short = asShortOrNull() ?: defaultVal
  */
 fun Any?.asShortOrNull(): Short? = runCatching {
     when (this) {
-        null      -> null
-        is Short  -> this
+        null -> null
+        is Short -> this
         is Number -> this.toShort()
-        else      -> this.asLongOrNull()?.toShort()
+        else -> this.asLongOrNull()?.toShort()
     }
 }.getOrNull()
 
@@ -202,11 +202,11 @@ fun Any?.asByte(defaultValue: Byte = 0.toByte()): Byte = asByteOrNull() ?: defau
  */
 fun Any?.asByteOrNull(): Byte? = runCatching {
     when (this) {
-        null      -> null
-        is Char   -> this.code.toByte()
-        is Byte   -> this
+        null -> null
+        is Char -> this.code.toByte()
+        is Byte -> this
         is Number -> this.toByte()
-        else      -> this.asLongOrNull()?.toByte()
+        else -> this.asLongOrNull()?.toByte()
     }
 }.getOrNull()
 
@@ -235,11 +235,11 @@ fun Any?.asChar(defaultValue: Char = 0.toChar()): Char = asCharOrNull() ?: defau
  */
 fun Any?.asCharOrNull(): Char? = runCatching {
     when (this) {
-        null            -> null
-        is Char         -> this
-        is Byte         -> this.toInt().toChar()
+        null -> null
+        is Char -> this
+        is Byte -> this.toInt().toChar()
         is CharSequence -> if (this.length == 1) first() else asIntOrNull()?.toChar()
-        else            -> asIntOrNull()?.toChar()
+        else -> asIntOrNull()?.toChar()
     }
 }.getOrNull()
 
@@ -278,11 +278,11 @@ fun Any?.asBoolean(defaultValue: Boolean = false): Boolean = asBooleanOrNull() ?
  */
 fun Any?.asBooleanOrNull(): Boolean? = runCatching {
     when (this) {
-        null       -> null
+        null -> null
         is Boolean -> this
-        is Number  -> this.toInt() != 0
-        is Char    -> this == 'y' || this == 'Y'
-        else       -> this.toString().toBoolean()
+        is Number -> this.toInt() != 0
+        is Char -> this == 'y' || this == 'Y'
+        else -> this.toString().toBoolean()
     }
 }.getOrNull()
 
@@ -313,10 +313,10 @@ fun Any?.asBigDecimal(defaultValue: BigDecimal = BigDecimal.ZERO): BigDecimal = 
  */
 fun Any?.asBigDecimalOrNull(): BigDecimal? = runCatching {
     when (this) {
-        null          -> null
+        null -> null
         is BigDecimal -> this
-        is Number     -> BigDecimal.valueOf(this.toDouble())
-        else          -> BigDecimal(toString())
+        is Number -> BigDecimal.valueOf(this.toDouble())
+        else -> BigDecimal(toString())
     }
 }.getOrNull()
 
@@ -347,10 +347,10 @@ fun Any?.asBigInt(defaultValue: BigInteger = BigInteger.ZERO): BigInteger = asBi
  */
 fun Any?.asBigIntOrNull(): BigInteger? = runCatching {
     when (this) {
-        null          -> null
+        null -> null
         is BigInteger -> this
-        is Number     -> BigInteger.valueOf(this.toLong())
-        else          -> BigInteger(toString())
+        is Number -> BigInteger.valueOf(this.toLong())
+        else -> BigInteger(toString())
     }
 }.getOrNull()
 
@@ -410,12 +410,12 @@ fun Any?.asDate(defaultValue: Date = Date(0L)): Date = asDateOrNull() ?: default
  */
 fun Any?.asDateOrNull(): Date? = runCatching {
     when (this) {
-        null                -> null
-        is Number           -> Date(this.toLong())
-        is Date             -> this
-        is Instant          -> Date.from(this)
+        null -> null
+        is Number -> Date(this.toLong())
+        is Date -> this
+        is Instant -> Date.from(this)
         is TemporalAccessor -> Date.from(Instant.from(this))
-        else                -> SIMPLE_DATE_FORMAT.parse(asString())
+        else -> SIMPLE_DATE_FORMAT.parse(asString())
     }
 }.getOrNull()
 
@@ -448,12 +448,12 @@ fun Any?.asTimestamp(
  */
 fun Any?.asTimestampOrNull(): Timestamp? = runCatching {
     when (this) {
-        null                -> null
-        is Number           -> Timestamp(this.toLong())
-        is Timestamp        -> this
-        is Instant          -> Timestamp.from(this)
+        null -> null
+        is Number -> Timestamp(this.toLong())
+        is Timestamp -> this
+        is Instant -> Timestamp.from(this)
         is TemporalAccessor -> Timestamp.from(Instant.from(this))
-        else                -> Timestamp.valueOf(this.asString())
+        else -> Timestamp.valueOf(this.asString())
     }
 }.getOrNull()
 
@@ -486,11 +486,11 @@ fun Any?.asInstant(
  */
 fun Any?.asInstantOrNull(): Instant? = runCatching {
     when (this) {
-        null                -> null
-        is Number           -> Instant.ofEpochMilli(this.toLong())
-        is Instant          -> this
+        null -> null
+        is Number -> Instant.ofEpochMilli(this.toLong())
+        is Instant -> this
         is TemporalAccessor -> Instant.from(this)
-        else                -> Instant.parse(this.asString())
+        else -> Instant.parse(this.asString())
     }
 }.getOrNull()
 
@@ -523,11 +523,11 @@ fun Any?.asLocalDate(
  */
 fun Any?.asLocalDateOrNull(): LocalDate? = runCatching {
     when (this) {
-        null                -> null
-        is LocalDate        -> this
-        is Instant          -> LocalDate.ofInstant(this, ZoneId.systemDefault())
+        null -> null
+        is LocalDate -> this
+        is Instant -> LocalDate.ofInstant(this, ZoneId.systemDefault())
         is TemporalAccessor -> LocalDate.from(this)
-        else                -> LocalDate.parse(this.toString())
+        else -> LocalDate.parse(this.toString())
     }
 }.getOrNull()
 
@@ -558,11 +558,11 @@ fun Any?.asLocalTime(defaultValue: LocalTime = LocalTime.MIN): LocalTime = asLoc
  */
 fun Any?.asLocalTimeOrNull(): LocalTime? = runCatching {
     when (this) {
-        null                -> null
-        is LocalTime        -> this
-        is Instant          -> LocalTime.ofInstant(this, ZoneId.systemDefault())
+        null -> null
+        is LocalTime -> this
+        is Instant -> LocalTime.ofInstant(this, ZoneId.systemDefault())
         is TemporalAccessor -> LocalTime.from(this)
-        else                -> LocalTime.parse(this.toString())
+        else -> LocalTime.parse(this.toString())
     }
 }.getOrNull()
 
@@ -594,11 +594,11 @@ fun Any?.asLocalDateTime(defaultValue: LocalDateTime = LocalDateTime.MIN): Local
  */
 fun Any?.asLocalDateTimeOrNull(): LocalDateTime? = runCatching {
     when (this) {
-        null                -> null
-        is LocalDateTime    -> this
-        is Instant          -> LocalDateTime.ofInstant(this, ZoneId.systemDefault())
+        null -> null
+        is LocalDateTime -> this
+        is Instant -> LocalDateTime.ofInstant(this, ZoneId.systemDefault())
         is TemporalAccessor -> LocalDateTime.from(this)
-        else                -> LocalDateTime.parse(this.toString())
+        else -> LocalDateTime.parse(this.toString())
     }
 }.getOrNull()
 
@@ -630,10 +630,10 @@ fun Any?.asOffsetDateTime(defaultValue: OffsetDateTime = OffsetDateTime.MIN): Of
  */
 fun Any?.asOffsetDateTimeOrNull(): OffsetDateTime? = runCatching {
     when (this) {
-        null                -> null
-        is OffsetDateTime   -> this
+        null -> null
+        is OffsetDateTime -> this
         is TemporalAccessor -> OffsetDateTime.from(this)
-        else                -> OffsetDateTime.parse(this.toString())
+        else -> OffsetDateTime.parse(this.toString())
     }
 }.getOrNull()
 
@@ -662,9 +662,9 @@ fun Any?.asUUID(defaultValue: UUID = UUID.randomUUID()): UUID = asUUIDOrNull() ?
  */
 fun Any?.asUUIDOrNull(): UUID? = runCatching {
     when (this) {
-        null    -> null
+        null -> null
         is UUID -> this
-        else    -> UUID.fromString(this.toString())
+        else -> UUID.fromString(this.toString())
     }
 }.getOrNull()
 
@@ -696,9 +696,9 @@ fun Any?.asByteArray(charset: Charset = Charsets.UTF_8, defaultValue: ByteArray 
  */
 fun Any?.asByteArrayOrNull(charset: Charset = Charsets.UTF_8): ByteArray? = runCatching {
     when (this) {
-        null         -> null
+        null -> null
         is ByteArray -> this
-        else         -> toString().toByteArray(charset)
+        else -> toString().toByteArray(charset)
     }
 }.getOrNull()
 

@@ -8,8 +8,6 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.utils.Systemx
-import io.netty.channel.epoll.EpollEventLoopGroup
-import io.netty.channel.kqueue.KQueueEventLoopGroup
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
@@ -117,10 +115,10 @@ class AsyncHttpClientTest: AbstractHttpTest() {
 
             runCatching {
                 if (Systemx.isUnix) {
-                    setEventLoopGroup(EpollEventLoopGroup())
+                    // setEventLoopGroup(EpollEventLoopGroup())
                     setUseNativeTransport(true)
                 } else if (Systemx.isMac) {
-                    setEventLoopGroup(KQueueEventLoopGroup())
+                    // setEventLoopGroup(KQueueEventLoopGroup())
                     setUseNativeTransport(true)
                 } else {
                     // Nothing to do

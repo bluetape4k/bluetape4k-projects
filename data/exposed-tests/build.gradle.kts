@@ -14,7 +14,7 @@ dependencies {
     compileOnly(Libs.exposed_java_time)
     compileOnly(Libs.exposed_json)
     compileOnly(Libs.exposed_money)
-    compileOnly(Libs.exposed_migration)
+    compileOnly(Libs.exposed_migration_jdbc)
     compileOnly(Libs.exposed_spring_boot_starter)
     compileOnly(project(":bluetape4k-exposed"))
 
@@ -45,6 +45,7 @@ dependencies {
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))
     implementation(Libs.kotlinx_coroutines_core)
+    implementation(Libs.kotlinx_coroutines_reactive)
     implementation(Libs.kotlinx_coroutines_reactor)
     implementation(Libs.kotlinx_coroutines_debug)
     implementation(Libs.kotlinx_coroutines_test)

@@ -36,6 +36,6 @@ dependencies {
         exclude(group = "junit", module = "junit")
     }
 
-    testImplementation(Libs.javax_el)
+    testImplementation(Libs.jakarta_el_api)
     testImplementation(Libs.hibernate_validator)
 }

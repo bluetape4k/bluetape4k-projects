@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController
 import kotlin.random.Random
 
 @RestController
-class IndexController(@Autowired private val openTelemetry: OpenTelemetry) {
+class IndexController(@param:Autowired private val openTelemetry: OpenTelemetry) {
 
     companion object: KLoggingChannel()
 

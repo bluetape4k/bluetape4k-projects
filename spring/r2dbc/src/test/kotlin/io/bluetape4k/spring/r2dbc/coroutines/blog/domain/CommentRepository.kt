@@ -9,12 +9,11 @@ import org.springframework.data.r2dbc.core.R2dbcEntityOperations
 import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Query
 import org.springframework.data.relational.core.query.isEqual
-import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.stereotype.Repository
 
 @Repository
 class CommentRepository(
-    private val client: DatabaseClient,
+//    private val client: DatabaseClient,
     private val operations: R2dbcEntityOperations,
 ) {
     companion object: KLoggingChannel()

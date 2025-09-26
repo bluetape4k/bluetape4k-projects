@@ -216,6 +216,7 @@ open class CharArrayMap<V>(startSize: Int): HashMap<Any, V>(), Serializable {
         return null
     }
 
+    @Suppress("PROPERTY_HIDES_JAVA_FIELD")
     override val size: Int get() = _count
 
     override fun toString(): String = buildString {

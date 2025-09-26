@@ -1,6 +1,7 @@
 package io.bluetape4k.apache
 
 import org.apache.commons.lang3.StringUtils
+import org.apache.commons.lang3.Strings
 
 
 /**
@@ -104,7 +105,7 @@ fun String.abbrMiddle(length: Int, middle: String = "..."): String =
  * @return A new String if suffix was appended, the same string otherwise.
  */
 fun String.appendIfMissing(suffix: CharSequence, vararg suffixes: CharSequence): String =
-    StringUtils.appendIfMissing(this, suffix, *suffixes)
+    Strings.CS.appendIfMissing(this, suffix, *suffixes)
 
 /**
  * Appends the suffix to the end of the string if the string does not
@@ -139,7 +140,7 @@ fun String.appendIfMissing(suffix: CharSequence, vararg suffixes: CharSequence):
  * @return A new String if suffix was appended, the same string otherwise.
  */
 fun String.appendIfMissingIgnoreCase(suffix: CharSequence, vararg suffixes: CharSequence): String =
-    StringUtils.appendIfMissingIgnoreCase(this, suffix, *suffixes)
+    Strings.CI.appendIfMissing(this, suffix, *suffixes)
 
 /**
  * Centers a String in a larger String of size {@code size}
@@ -268,7 +269,7 @@ fun CharSequence.containsAny(vararg searchChars: Char): Boolean =
  * @return `true` if any of the search CharSequences are found, `false` otherwise
  */
 fun CharSequence.containsAny(vararg searchCharSequences: CharSequence): Boolean =
-    StringUtils.containsAny(this, *searchCharSequences)
+    Strings.CS.containsAny(this, *searchCharSequences)
 
 
 /**
@@ -296,7 +297,7 @@ fun CharSequence.containsAny(vararg searchCharSequences: CharSequence): Boolean 
  * @return `true` if any of the search CharSequences are found, `false` otherwise
  */
 fun CharSequence.containsAnyIgnoreCase(vararg searchCharSequences: CharSequence): Boolean =
-    StringUtils.containsAnyIgnoreCase(this, *searchCharSequences)
+    Strings.CI.containsAny(this, *searchCharSequences)
 
 /**
  * Checks if CharSequence contains a search CharSequence irrespective of case,
@@ -321,7 +322,7 @@ fun CharSequence.containsAnyIgnoreCase(vararg searchCharSequences: CharSequence)
  * @return true if the CharSequence contains the search CharSequence irrespective of case or false if not or `null` string input
  */
 fun CharSequence.containsIgnoreCase(searchStr: CharSequence): Boolean =
-    StringUtils.containsIgnoreCase(this, searchStr)
+    Strings.CI.contains(this, searchStr)
 
 /**
  * Checks that the CharSequence does not contain certain characters.
@@ -525,9 +526,9 @@ fun String.deleteWhitespace(): String = StringUtils.deleteWhitespace(this)
 fun String.deference(other: String): String = StringUtils.difference(this, other)
 
 
-fun String.endsWithAny(vararg searchStrings: String): Boolean = StringUtils.endsWithAny(this, *searchStrings)
+fun String.endsWithAny(vararg searchStrings: String): Boolean = Strings.CS.endsWithAny(this, *searchStrings)
 
-fun String.endsWithIgnoreCase(suffix: CharSequence): Boolean = StringUtils.endsWithIgnoreCase(this, suffix)
+fun String.endsWithIgnoreCase(suffix: CharSequence): Boolean = Strings.CI.endsWith(this, suffix)
 
 /**
  * Checks if a String contains Unicode digits,
@@ -663,7 +664,7 @@ fun indexOfDifference(vararg css: CharSequence): Int = StringUtils.indexOfDiffer
 fun CharSequence.indexOfDifference(other: CharSequence?): Int = StringUtils.indexOfDifference(this, other)
 
 fun CharSequence.indexOfIgnoreCase(searchStr: CharSequence, startPos: Int = 0): Int =
-    StringUtils.indexOfIgnoreCase(this, searchStr, startPos)
+    Strings.CI.indexOf(this, searchStr, startPos)
 
 /**
  * Checks if the CharSequence contains only Unicode letters.
@@ -913,7 +914,7 @@ fun CharSequence.lastIndexOfAny(vararg searchStrs: CharSequence): Int =
  * @return the last index of the search CharSequence (always <= startPos), -1 if no match
  */
 fun CharSequence.lastIndexOfIgnoreCase(searchStr: CharSequence?, startPos: Int = length): Int =
-    StringUtils.lastIndexOfIgnoreCase(this, searchStr, startPos)
+    Strings.CI.lastIndexOf(this, searchStr, startPos)
 
 /**
  * Left pad a String with a specified character.
@@ -982,7 +983,7 @@ fun String.leftPad(size: Int, padStr: String): String =
  * @param remove  the String to search for and remove, may be null
  * @return the substring with the string removed if found, `null` if null String input
  */
-fun String.remove(remove: String?): String = StringUtils.remove(this, remove)
+fun String.remove(remove: String?): String = Strings.CS.remove(this, remove)
 
 /**
  * Removes a substring only if it is at the end of a source string,
@@ -1004,7 +1005,7 @@ fun String.remove(remove: String?): String = StringUtils.remove(this, remove)
  * @param remove  the String to search for and remove, may be null
  * @return the substring with the string removed if found, `null` if null String input
  */
-fun String.removeEnd(remove: String): String = StringUtils.removeEnd(this, remove)
+fun String.removeEnd(remove: String): String = Strings.CS.removeEnd(this, remove)
 
 /**
  * Case insensitive removal of a substring if it is at the end of a source string,
@@ -1028,7 +1029,7 @@ fun String.removeEnd(remove: String): String = StringUtils.removeEnd(this, remov
  * @param remove  the String to search for (case-insensitive) and remove, may be null
  * @return the substring with the string removed if found, `null` if null String input
  */
-fun String.removeEndIgnoreCase(remove: String): String = StringUtils.removeEndIgnoreCase(this, remove)
+fun String.removeEndIgnoreCase(remove: String): String = Strings.CI.removeEnd(this, remove)
 
 /**
  * Removes a substring only if it is at the beginning of a source string,
@@ -1051,7 +1052,7 @@ fun String.removeEndIgnoreCase(remove: String): String = StringUtils.removeEndIg
  * @param remove  the String to search for and remove, may be null
  * @return the substring with the string removed if found, `null` if null String input
  */
-fun String.removeStart(remove: String): String = StringUtils.removeStart(this, remove)
+fun String.removeStart(remove: String): String = Strings.CS.removeStart(this, remove)
 
 /**
  * Case insensitive removal of a substring if it is at the beginning of a source string,
@@ -1077,7 +1078,7 @@ fun String.removeStart(remove: String): String = StringUtils.removeStart(this, r
  *  `null` if null String input
  * @since 2.4
  */
-fun String.removeStartIgnoreCase(remove: String): String = StringUtils.removeStartIgnoreCase(this, remove)
+fun String.removeStartIgnoreCase(remove: String): String = Strings.CI.removeStart(this, remove)
 
 /**
  * Repeat a String {@code repeat} times to form a
@@ -1123,7 +1124,7 @@ fun String.repeat(separator: String?, repeat: Int): String = StringUtils.repeat(
  * @return the text with any replacements processed, `null` if null String input
  */
 fun String.replaceIgnoreCase(searchStr: String?, replacement: String?, max: Int = -1): String =
-    StringUtils.replaceIgnoreCase(this, searchStr, replacement, max)
+    Strings.CI.replace(this, searchStr, replacement, max)
 
 /**
  * Replaces a String with another String inside a larger String, once.
@@ -1145,7 +1146,7 @@ fun String.replaceIgnoreCase(searchStr: String?, replacement: String?, max: Int 
  * @return the text with any replacements processed, `null` if null String input
  */
 fun String.replaceOnce(searchString: String?, replacement: String?): String {
-    return StringUtils.replace(this, searchString, replacement, 1)
+    return Strings.CS.replace(this, searchString, replacement, 1)
 }
 
 /**
@@ -1170,7 +1171,7 @@ fun String.replaceOnce(searchString: String?, replacement: String?): String {
  * @return the text with any replacements processed, `null` if null String input
  */
 fun String.replaceOnceIgnoreCase(searchString: String?, replacement: String?): String {
-    return StringUtils.replaceIgnoreCase(this, searchString, replacement, 1)
+    return Strings.CI.replace(this, searchString, replacement, 1)
 }
 
 /**
@@ -1257,7 +1258,7 @@ fun String.rightPad(size: Int, padStr: String): String = StringUtils.rightPad(th
  *   the input {@code sequence} begins with any of the provided case-sensitive {@code searchStrings}.
  */
 fun CharSequence.startsWithAny(vararg searchStrs: CharSequence?): Boolean =
-    StringUtils.startsWithAny(this, *searchStrs)
+    Strings.CS.startsWithAny(this, *searchStrs)
 
 /**
  * Case insensitive check if a CharSequence starts with a specified prefix.
@@ -1277,7 +1278,7 @@ fun CharSequence.startsWithAny(vararg searchStrs: CharSequence?): Boolean =
  * @return {@code true} if the CharSequence starts with the prefix, case-insensitive, or both `null`
  */
 fun CharSequence.startsWithIgnoreCase(prefix: CharSequence?): Boolean =
-    StringUtils.startsWithIgnoreCase(this, prefix)
+    Strings.CI.startsWith(this, prefix)
 
 /**
  * Strips any of a set of characters from the start and end of a String.

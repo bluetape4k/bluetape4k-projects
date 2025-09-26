@@ -24,7 +24,13 @@ object BinarySerializers {
     /**
      * Fury BinarySerializer
      */
+    @Deprecated("Apache Fury 프로젝트가 중단되어 유지보수가 되지 않음에 따라 사용을 권장하지 않습니다. 대신 Fory 사용을 권장합니다.", ReplaceWith("Fory"))
     val Fury: FuryBinarySerializer by unsafeLazy { FuryBinarySerializer() }
+
+    /**
+     * Fory BinarySerializer
+     */
+    val Fory: ForyBinarySerializer by unsafeLazy { ForyBinarySerializer() }
 
     /**
      * Jdk 직렬화 후 BZip2 알고리즘으로 압축하는 BinarySerializer
@@ -113,6 +119,7 @@ object BinarySerializers {
     /**
      * Fury 직렬화 후 BZip2 알고리즘으로 압축하는 BinarySerializer
      */
+    @Deprecated("Apache Fory로 변경됨", replaceWith = ReplaceWith("BZip2Fory"))
     val BZip2Fury: CompressableBinarySerializer by unsafeLazy {
         CompressableBinarySerializer(Fury, Compressors.BZip2)
     }
@@ -120,6 +127,7 @@ object BinarySerializers {
     /**
      * Fury 직렬화 후 Deflate 알고리즘으로 압축하는 BinarySerializer
      */
+    @Deprecated("Apache Fory로 변경됨", replaceWith = ReplaceWith("DeflateFory"))
     val DeflateFury: CompressableBinarySerializer by unsafeLazy {
         CompressableBinarySerializer(Fury, Compressors.Deflate)
     }
@@ -127,6 +135,7 @@ object BinarySerializers {
     /**
      * Fury 직렬화 후 GZip 알고리즘으로 압축하는 BinarySerializer
      */
+    @Deprecated("Apache Fory로 변경됨", replaceWith = ReplaceWith("GZipFory"))
     val GZipFury: CompressableBinarySerializer by unsafeLazy {
         CompressableBinarySerializer(Fury, Compressors.GZip)
     }
@@ -134,6 +143,7 @@ object BinarySerializers {
     /**
      *  Fury 직렬화 후 LZ4 알고리즘으로 압축하는 BinarySerializer
      */
+    @Deprecated("Apache Fory로 변경됨", replaceWith = ReplaceWith("LZ4Fory"))
     val LZ4Fury: CompressableBinarySerializer by unsafeLazy {
         CompressableBinarySerializer(Fury, Compressors.LZ4)
     }
@@ -141,6 +151,7 @@ object BinarySerializers {
     /**
      * Fury 직렬화 후 Snappy 알고리즘으로 압축하는 BinarySerializer
      */
+    @Deprecated("Apache Fory로 변경됨", replaceWith = ReplaceWith("SnappyFory"))
     val SnappyFury: CompressableBinarySerializer by unsafeLazy {
         CompressableBinarySerializer(Fury, Compressors.Snappy)
     }
@@ -148,8 +159,51 @@ object BinarySerializers {
     /**
      * Fury 직렬화 후 Zstd 알고리즘으로 압축하는 BinarySerializer
      */
+    @Deprecated("Apache Fory로 변경됨", replaceWith = ReplaceWith("ZstdFory"))
     val ZstdFury: CompressableBinarySerializer by unsafeLazy {
         CompressableBinarySerializer(Fury, Compressors.Zstd)
+    }
+
+    /**
+     * Fory 직렬화 후 BZip2 알고리즘으로 압축하는 BinarySerializer
+     */
+    val BZip2Fory: CompressableBinarySerializer by unsafeLazy {
+        CompressableBinarySerializer(Fory, Compressors.BZip2)
+    }
+
+    /**
+     * Fory 직렬화 후 Deflate 알고리즘으로 압축하는 BinarySerializer
+     */
+    val DeflateFory: CompressableBinarySerializer by unsafeLazy {
+        CompressableBinarySerializer(Fory, Compressors.Deflate)
+    }
+
+    /**
+     * Fory 직렬화 후 GZip 알고리즘으로 압축하는 BinarySerializer
+     */
+    val GZipFory: CompressableBinarySerializer by unsafeLazy {
+        CompressableBinarySerializer(Fory, Compressors.GZip)
+    }
+
+    /**
+     *  Fory 직렬화 후 LZ4 알고리즘으로 압축하는 BinarySerializer
+     */
+    val LZ4Fory: CompressableBinarySerializer by unsafeLazy {
+        CompressableBinarySerializer(Fory, Compressors.LZ4)
+    }
+
+    /**
+     * Fory 직렬화 후 Snappy 알고리즘으로 압축하는 BinarySerializer
+     */
+    val SnappyFory: CompressableBinarySerializer by unsafeLazy {
+        CompressableBinarySerializer(Fory, Compressors.Snappy)
+    }
+
+    /**
+     * Fory 직렬화 후 Zstd 알고리즘으로 압축하는 BinarySerializer
+     */
+    val ZstdFory: CompressableBinarySerializer by unsafeLazy {
+        CompressableBinarySerializer(Fory, Compressors.Zstd)
     }
 
 }

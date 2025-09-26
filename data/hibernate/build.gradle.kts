@@ -64,12 +64,8 @@ dependencies {
     api(project(":bluetape4k-io"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    api(Libs.jakarta_annotation_api)
-    api(Libs.jakarta_persistence_api)
-
     api(Libs.hibernate_core)
     api(Libs.hibernate_micrometer)
-    testImplementation(Libs.hibernate_testing)
 
     // NOTE: Kotlin 2.1.0 에서 QueryDSL 5.1.0 과 같이 사용하는 경우 예에가 발생한다. (QueryDSL만 사용하는 것을 추천합니다)
     // kapt(Libs.hibernate_jpamodelgen)
@@ -94,8 +90,9 @@ dependencies {
     compileOnly(Libs.jackson_module_kotlin)
     compileOnly(Libs.jackson_module_blackbird)
 
-    testImplementation(Libs.kryo)
-    testImplementation(Libs.fury_kotlin)
+    compileOnly(Libs.kryo)
+    compileOnly(Libs.fory_kotlin)  // new Apache Fory
+    compileOnly(Libs.fury_kotlin)  // old Apache Fury
 
     testImplementation(Libs.commons_compress)
     testImplementation(Libs.snappy_java)

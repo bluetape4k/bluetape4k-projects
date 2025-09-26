@@ -9,7 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.future.asCompletableFuture
-import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransactionAsync
+import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import org.redisson.api.map.MapWriterAsync
 import java.util.concurrent.CompletionStage
 
@@ -34,19 +34,19 @@ open class R2dbcEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     }
 
     override fun write(map: Map<ID, E>): CompletionStage<Void> = scope.async {
-        suspendTransactionAsync(context = scope.coroutineContext) {
+        suspendTransaction {
             try {
                 writeToDb(map)
             } catch (e: Throwable) {
                 log.error(e) { "R2dbc로 DB에 엔티티 Write 중 오류 발생" }
                 throw e
             }
-        }.await()
+        }
         null
     }.asCompletableFuture()
 
     override fun delete(ids: Collection<ID>): CompletionStage<Void> = scope.async {
-        suspendTransactionAsync(context = scope.coroutineContext) {
+        suspendTransaction {
             try {
                 log.debug { "캐시 변경 사항을 DB에 반영합니다... ids=$ids" }
                 deleteFromDb(ids)
@@ -54,7 +54,7 @@ open class R2dbcEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
                 log.error(e) { "R2dbc로 엔티티 삭제 중 오류 발생" }
                 throw e
             }
-        }.await()
+        }
         null
     }.asCompletableFuture()
 }

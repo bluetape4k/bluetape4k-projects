@@ -2,9 +2,9 @@ package io.bluetape4k.http.hc5.examples
 
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.async.asyncClientConnectionManager
-import io.bluetape4k.http.hc5.async.executeSuspending
 import io.bluetape4k.http.hc5.async.httpAsyncClientOf
 import io.bluetape4k.http.hc5.async.methods.simpleHttpRequest
+import io.bluetape4k.http.hc5.async.suspendExecute
 import io.bluetape4k.http.hc5.ssl.sslContext
 import io.bluetape4k.http.hc5.ssl.tlsStrategyOf
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -49,7 +49,7 @@ class AsyncClientCustomSSL: AbstractHc5Test() {
 
             log.debug { "Executing request $request" }
 
-            val response = client.executeSuspending(request, context = clientContext)
+            val response = client.suspendExecute(request, context = clientContext)
 
             log.debug { "$request -> ${StatusLine(response)}" }
             log.debug { response.body }

@@ -4,7 +4,7 @@ import io.bluetape4k.cache.jcache.coroutines.RedissonSuspendCache
 import io.bluetape4k.cache.jcache.coroutines.SuspendCache
 import io.bluetape4k.cache.jcache.jcacheConfiguration
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
-import io.bluetape4k.junit5.awaitility.coUntil
+import io.bluetape4k.junit5.awaitility.suspendUntil
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.storage.RedisServer
@@ -39,15 +39,15 @@ class RedisNearSuspendCacheTest: AbstractNearSuspendCacheTest() {
         val value = getValue()
 
         nearSuspendCache1.put(key, value)
-        await coUntil { nearSuspendCache2.containsKey(key) }
+        await suspendUntil { nearSuspendCache2.containsKey(key) }
 
         nearSuspendCache1.containsKey(key).shouldBeTrue()
         nearSuspendCache2.containsKey(key).shouldBeTrue()
 
         // NOTE: backCache 에서 cache expire 가 수행될 때까지 대기한다 (backCache.entries 에 접근하면 expired event 가 발생한다)
         // NearCache 내에서 Expire 검사 Thread로 동작해야 합니다.
-        await coUntil { !nearSuspendCache2.containsKey(key) }
-        await coUntil { !nearSuspendCache1.containsKey(key) }
+        await suspendUntil { !nearSuspendCache2.containsKey(key) }
+        await suspendUntil { !nearSuspendCache1.containsKey(key) }
 
         backSuspendCache.containsKey(key).shouldBeFalse()
         nearSuspendCache1.containsKey(key).shouldBeFalse()

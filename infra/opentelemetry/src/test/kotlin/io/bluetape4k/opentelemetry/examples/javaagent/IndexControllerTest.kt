@@ -17,7 +17,7 @@ import org.springframework.test.web.reactive.server.expectBody
     classes = [OtelSpringBootApp::class],
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
-class IndexControllerTest(@Autowired private val client: WebTestClient) {
+class IndexControllerTest(@param:Autowired private val client: WebTestClient) {
 
     companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 5

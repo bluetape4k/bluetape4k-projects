@@ -27,8 +27,8 @@ import org.springframework.data.repository.findByIdOrNull
 import java.io.Serializable
 
 class OneToManyMapTest(
-    @Autowired private val carRepo: OneToManyCarRepository,
-    @Autowired private val carPartRepo: OneToManyCarPartRepository,
+    @param:Autowired private val carRepo: OneToManyCarRepository,
+    @param:Autowired private val carPartRepo: OneToManyCarPartRepository,
 ): AbstractHibernateTest() {
 
     companion object: KLogging()

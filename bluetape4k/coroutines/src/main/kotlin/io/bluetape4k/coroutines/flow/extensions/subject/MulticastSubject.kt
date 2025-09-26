@@ -84,13 +84,14 @@ class MulticastSubject<T> private constructor(
     @Suppress("UNCHECKED_CAST")
     override suspend fun emitError(ex: Throwable?) {
         terminated = ex
-        collectorsRef.getAndSet(TERMINATED as Array<ResumableCollector<T>>).forEach { collector ->
-            try {
-                collector.error(ex)
-            } catch (_: CancellationException) {
-                // ignored at this point
+        collectorsRef.getAndSet(TERMINATED as Array<ResumableCollector<T>>)
+            .forEach { collector ->
+                try {
+                    collector.error(ex)
+                } catch (_: CancellationException) {
+                    // ignored at this point
+                }
             }
-        }
     }
 
     @Suppress("UNCHECKED_CAST")

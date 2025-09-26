@@ -20,5 +20,4 @@ class ApacheBase64Sink(delegate: Sink): AbstractBase64Sink(delegate) {
     override fun getEncodedBuffer(plainByteString: ByteString): Buffer {
         return bufferOf(plainByteString.toByteArray().encodeBase64ByteArray())
     }
-
 }

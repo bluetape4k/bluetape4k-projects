@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.channels.onSuccess
 import kotlinx.coroutines.flow.Flow
@@ -32,7 +33,7 @@ import kotlin.time.Duration.Companion.milliseconds
  */
 fun <T: Any?> Flow<T>.bufferingDebounce(timeout: Duration): Flow<List<T>> = channelFlow {
     val itemChannel = produceIn(this)
-    var bufferedItems = mutableListOf<T>()
+    var bufferedItems = fastListOf<T>()
     var deboundedTimeout = timeout
 
     whileSelect {
@@ -40,7 +41,7 @@ fun <T: Any?> Flow<T>.bufferingDebounce(timeout: Duration): Flow<List<T>> = chan
         if (bufferedItems.isNotEmpty()) {
             onTimeout(deboundedTimeout) {
                 send(bufferedItems)
-                bufferedItems = mutableListOf()
+                bufferedItems = fastListOf()
                 deboundedTimeout = timeout
                 true
             }

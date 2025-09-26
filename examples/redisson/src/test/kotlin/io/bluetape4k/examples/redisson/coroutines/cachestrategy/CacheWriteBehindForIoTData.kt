@@ -1,14 +1,14 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.exposed.dao.id.TimebasedUUIDTable
 import io.bluetape4k.javatimes.millis
-import io.bluetape4k.junit5.awaitility.coUntil
+import io.bluetape4k.junit5.awaitility.suspendUntil
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.RedissonCodecs
 import io.bluetape4k.redis.redisson.coroutines.awaitAll
-import io.bluetape4k.redis.redisson.coroutines.coAwait
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -22,7 +22,8 @@ import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
 import org.awaitility.kotlin.withPollDelay
 import org.awaitility.kotlin.withPollInterval
-import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.inList
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.javatime.CurrentTimestamp
 import org.jetbrains.exposed.v1.javatime.timestamp
 import org.jetbrains.exposed.v1.jdbc.batchInsert
@@ -46,9 +47,12 @@ import kotlin.random.Random
 /**
  * 대량의 IoT 데이터를 Write-Behind 방식으로 DB에 저장하는 서비스입니다.
  */
+@Suppress("DEPRECATION")
 class CacheWriteBehindForIoTData: AbstractCacheExample() {
 
-    companion object: KLoggingChannel()
+    companion object: KLoggingChannel() {
+        private val defaultCodec = RedissonCodecs.LZ4Fory
+    }
 
     object SensorDataTable: TimebasedUUIDTable("sensor_data") {
         val serialNo = varchar("sensor_serial_no", 255)
@@ -152,7 +156,7 @@ class CacheWriteBehindForIoTData: AbstractCacheExample() {
                 .writeBehindDelay(100)        // 기본 delay 는 1000 ms 입니다.
                 .writeRetryAttempts(3) // 재시도 횟수
                 .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
-                .codec(RedissonCodecs.LZ4Fury)
+                .codec(defaultCodec)
 
             // 대량 데이터를 Write Behind 방식으로 저장하는 MapCache를 생성한다.
             val cache = redisson.getMapCache(options)
@@ -243,30 +247,30 @@ class CacheWriteBehindForIoTData: AbstractCacheExample() {
                 .writeBehindDelay(100)        // 기본 delay 는 1000 ms 입니다.
                 .writeRetryAttempts(3) // 재시도 횟수
                 .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
-                .codec(RedissonCodecs.LZ4Fury)
+                .codec(defaultCodec)
 
             // 대량 데이터를 Write Behind 방식으로 저장하는 MapCache를 생성한다.
             val cache = redisson.getMapCache(options)
             try {
                 val dataSize = 1000
-                cache.fastPutAsync("sensor-1", generateSensorData("sensor-1", dataSize)).coAwait()
+                cache.fastPutAsync("sensor-1", generateSensorData("sensor-1", dataSize)).suspendAwait()
 
                 Thread.sleep(100)
 
                 // 1ms 마다 생성되는 데이터를 10ms 단위로 sampling 해서 저장합니다. 따라서, DB에는 dataSize / 10 개만 저장된다.
-                await withPollDelay Duration.ofMillis(100) coUntil { getSensorDataCountFromDBAsync("sensor-1") >= dataSize / 10 }
+                await withPollDelay Duration.ofMillis(100) suspendUntil { getSensorDataCountFromDBAsync("sensor-1") >= dataSize / 10 }
 
                 listOf(
                     cache.fastPutAsync("sensor-2", generateSensorData("sensor-2", dataSize)),
                     cache.fastPutAsync("sensor-3", generateSensorData("sensor-3", dataSize))
                 ).awaitAll()
 
-                await withPollDelay Duration.ofMillis(100) coUntil { getSensorDataCountFromDBAsync("sensor-2") >= dataSize / 10 }
-                await withPollDelay Duration.ofMillis(100) coUntil { getSensorDataCountFromDBAsync("sensor-3") >= dataSize / 10 }
+                await withPollDelay Duration.ofMillis(100) suspendUntil { getSensorDataCountFromDBAsync("sensor-2") >= dataSize / 10 }
+                await withPollDelay Duration.ofMillis(100) suspendUntil { getSensorDataCountFromDBAsync("sensor-3") >= dataSize / 10 }
 
             } finally {
                 // 캐시를 삭제한다.
-                cache.deleteAsync().coAwait()
+                cache.deleteAsync().suspendAwait()
             }
         }
     }

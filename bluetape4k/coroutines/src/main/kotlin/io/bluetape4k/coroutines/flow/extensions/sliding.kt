@@ -1,8 +1,10 @@
 package io.bluetape4k.coroutines.flow.extensions
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.support.requireGt
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
+import org.eclipse.collections.impl.list.mutable.FastList
 
 /**
  * Flow 요소들을 sliding 방식으로 요소를 선택해서 제공합니다.
@@ -32,20 +34,20 @@ fun <T> Flow<T>.sliding(size: Int, partialWindow: Boolean = true): Flow<List<T>>
  */
 fun <T> Flow<T>.bufferedSliding(size: Int): Flow<List<T>> = channelFlow {
     size.requireGt(1, "size")
-    val queue = ArrayList<T>(size)
+    val queue = FastList<T>(size)
 
     this@bufferedSliding.collect { element ->
         if (queue.size >= size) {
             queue.removeFirst()
         }
         queue.add(element)
-        send(queue.toList())
+        send(queue.toFastList())
     }
 
     while (queue.isNotEmpty()) {
         queue.removeFirst()
         if (queue.isNotEmpty()) {
-            send(queue.toList())
+            send(queue.toFastList())
         }
     }
 }

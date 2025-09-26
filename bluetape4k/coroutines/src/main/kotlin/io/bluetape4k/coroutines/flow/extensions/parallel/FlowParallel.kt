@@ -9,6 +9,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 
 
 /**
@@ -44,8 +45,7 @@ internal class FlowParallel<T>(
                 source.collect {
                     var idx = index.value
 
-                    outer@
-                    while (true) {
+                    outer@ while (true) {
 
                         for (i in 0 until n) {
                             val j = idx
@@ -77,7 +77,7 @@ internal class FlowParallel<T>(
 
     class RailCollector<T>(private val resumeGenerator: Resumable): Resumable() {
 
-        private val consumerReady = atomic(false)
+        private val consumerReady = AtomicBoolean(false)
 
         @Suppress("UNCHECKED_CAST")
         private var value: T = null as T
@@ -92,8 +92,8 @@ internal class FlowParallel<T>(
         private var done: Boolean = false
 
         fun next(value: T): Boolean {
-            if (consumerReady.value) {
-                consumerReady.value = false
+            if (consumerReady.get()) {
+                consumerReady.set(false)
                 this.value = value
                 this.hasValue = true
                 resume()
@@ -115,7 +115,7 @@ internal class FlowParallel<T>(
 
         suspend fun drain(collector: FlowCollector<T>) {
             while (true) {
-                consumerReady.value = true
+                consumerReady.set(true)
                 resumeGenerator.resume()
 
                 await()

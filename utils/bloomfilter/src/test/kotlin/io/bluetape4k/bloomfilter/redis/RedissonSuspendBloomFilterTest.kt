@@ -1,11 +1,11 @@
 package io.bluetape4k.bloomfilter.redis
 
 import io.bluetape4k.LibraryName
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
@@ -32,7 +32,7 @@ class RedissonSuspendBloomFilterTest: AbstractRedissonTest() {
     }
 
     @Test
-    fun `get bit size of bloom filter`() = runTest {
+    fun `get bit size of bloom filter`() = runSuspendIO {
         log.debug { "maximum size=${bloomFilter.m}, hash function count=${bloomFilter.k}" }
 
         bloomFilter.m shouldBeEqualTo Int.MAX_VALUE
@@ -40,7 +40,7 @@ class RedissonSuspendBloomFilterTest: AbstractRedissonTest() {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `verify not exists`() = runTest {
+    fun `verify exists random string`() = runSuspendIO {
         val values = List(ITEM_COUNT) { Fakers.fixedString(256) }
             .onEach { bloomFilter.add(it) }
 
@@ -50,7 +50,7 @@ class RedissonSuspendBloomFilterTest: AbstractRedissonTest() {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `verify not exists random string`() = runTest {
+    fun `verify not exists random string`() = runSuspendIO {
         val values = List(10 * ITEM_COUNT) { Fakers.fixedString(256) }
         val testValues = List(ITEM_COUNT) { Fakers.fixedString(256) }
 

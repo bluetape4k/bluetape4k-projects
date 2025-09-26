@@ -11,7 +11,7 @@ import reactor.test.StepVerifier
 
 @SpringBootTest(classes = [PersonConfiguration::class])
 class ReactivePersonRepositoryTest(
-    @Autowired private val repository: ReactivePersonRepository,
+    @param:Autowired private val repository: ReactivePersonRepository,
 ): AbstractCassandraTest() {
 
     companion object: KLoggingChannel()

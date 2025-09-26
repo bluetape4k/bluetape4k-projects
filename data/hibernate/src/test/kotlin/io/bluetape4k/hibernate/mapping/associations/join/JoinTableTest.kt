@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 
 class JoinTableTest(
-    @Autowired private val userRepo: JoinUserRepository,
-    @Autowired private val customerRepo: JoinCustomerRepository,
+    @param:Autowired private val userRepo: JoinUserRepository,
+    @param:Autowired private val customerRepo: JoinCustomerRepository,
 ): AbstractHibernateTest() {
 
     companion object: KLogging() {

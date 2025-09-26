@@ -55,7 +55,6 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
     override val collectorCount: Int
         get() = collectors.size
 
-
     /**
      * Start collecting signals from this PublishSubject.
      */

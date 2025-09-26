@@ -88,7 +88,7 @@ abstract class AbstractVertxSqlClientTest {
 
         log.info { "Initialize database" }
         val dbType = if (pool is MySQLPoolImpl) "mysql" else "h2"
-        pool.withTransactionSuspending { conn ->
+        pool.withSuspendTransaction { conn ->
             schemaFileNames.forEach { path ->
                 val query = Resourcex.getString("mybatis/schema/$dbType/$path")
                 conn.query(query).execute().coAwait()

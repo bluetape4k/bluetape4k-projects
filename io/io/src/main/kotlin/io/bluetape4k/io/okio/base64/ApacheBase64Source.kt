@@ -14,10 +14,7 @@ import okio.Source
  */
 class ApacheBase64Source(delegate: Source): AbstractBase64Source(delegate) {
 
-    companion object: KLogging() {
-        const val MAX_REQUEST_LENGTH = 9223372036854775804L // 4 * (Long.MAX_VALUE / 4)
-        const val BASE64_BLOCK = 4 // 4바이트 블록을 읽어 3바이트 디코딩
-    }
+    companion object: KLogging() 
 
     override fun decodeBase64Bytes(encodedString: String): ByteString? {
         return encodedString.decodeBase64String().encodeUtf8()

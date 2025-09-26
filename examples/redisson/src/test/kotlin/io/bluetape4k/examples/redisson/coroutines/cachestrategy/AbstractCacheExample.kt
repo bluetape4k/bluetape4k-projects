@@ -17,7 +17,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ChannelResult
 import kotlinx.coroutines.future.asCompletableFuture
 import kotlinx.coroutines.launch
-import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.inList
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.select
@@ -33,6 +34,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 
+@Suppress("DEPRECATION")
 @SpringBootTest(
     classes = [CacheApplication::class],
     properties = [
@@ -227,32 +229,30 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
     }
 
     protected fun populateSampleData() {
-        transaction {
-            ActorSchema.ActorEntity.new {
-                firstname = "Sunghyouk"
-                lastname = "Bae"
-                description = faker.lorem().sentence(1024, 128)
-            }
-            ActorSchema.ActorEntity.new {
-                firstname = "Misook"
-                lastname = "Kwon"
-                description = faker.lorem().sentence(1024, 128)
-            }
-            ActorSchema.ActorEntity.new {
-                firstname = "Jehyoung"
-                lastname = "Bae"
-                description = faker.lorem().sentence(1024, 128)
-            }
-            ActorSchema.ActorEntity.new {
-                firstname = "Jinseok"
-                lastname = "Kwon"
-                description = faker.lorem().sentence(1024, 128)
-            }
-            ActorSchema.ActorEntity.new {
-                firstname = "Kildong"
-                lastname = "Hong"
-                description = faker.lorem().sentence(1024, 128)
-            }
+        ActorSchema.ActorEntity.new {
+            firstname = "Sunghyouk"
+            lastname = "Bae"
+            description = faker.lorem().sentence(1024, 128)
+        }
+        ActorSchema.ActorEntity.new {
+            firstname = "Misook"
+            lastname = "Kwon"
+            description = faker.lorem().sentence(1024, 128)
+        }
+        ActorSchema.ActorEntity.new {
+            firstname = "Jehyoung"
+            lastname = "Bae"
+            description = faker.lorem().sentence(1024, 128)
+        }
+        ActorSchema.ActorEntity.new {
+            firstname = "Jinseok"
+            lastname = "Kwon"
+            description = faker.lorem().sentence(1024, 128)
+        }
+        ActorSchema.ActorEntity.new {
+            firstname = "Kildong"
+            lastname = "Hong"
+            description = faker.lorem().sentence(1024, 128)
         }
     }
 }

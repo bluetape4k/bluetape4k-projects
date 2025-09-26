@@ -4,7 +4,7 @@ import io.bluetape4k.cache.jcache.coroutines.CaffeineSuspendCache
 import io.bluetape4k.cache.jcache.coroutines.SuspendCache
 import io.bluetape4k.cache.jcache.coroutines.SuspendCacheEntry
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
-import io.bluetape4k.junit5.awaitility.coUntil
+import io.bluetape4k.junit5.awaitility.suspendUntil
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -84,7 +84,7 @@ abstract class AbstractNearSuspendCacheTest
         nearSuspendCache1.get(key).shouldBeNull()
 
         backSuspendCache.put(key, value)
-        await coUntil { nearSuspendCache1.containsKey(key) }
+        await suspendUntil { nearSuspendCache1.containsKey(key) }
 
         // get 시에 front 에 없으면 back 에서 가져온다 (CacheEntryEvent 는 비동기이므로 즉시 반영되지는 않습니다)
         nearSuspendCache1.get(key) shouldBeEqualTo value
@@ -100,7 +100,7 @@ abstract class AbstractNearSuspendCacheTest
             backSuspendCache.containsKey(key).shouldBeFalse()
 
             nearSuspendCache1.put(key, value)
-            await coUntil { nearSuspendCache2.containsKey(key) }
+            await suspendUntil { nearSuspendCache2.containsKey(key) }
 
             backSuspendCache.get(key) shouldBeEqualTo value
             nearSuspendCache2.get(key) shouldBeEqualTo value
@@ -114,13 +114,13 @@ abstract class AbstractNearSuspendCacheTest
         backSuspendCache.containsKey(key).shouldBeFalse()
 
         nearSuspendCache1.put(key, value)
-        await coUntil { nearSuspendCache2.containsKey(key) }
+        await suspendUntil { nearSuspendCache2.containsKey(key) }
 
         backSuspendCache.get(key) shouldBeEqualTo value
         nearSuspendCache2.get(key) shouldBeEqualTo value
 
         nearSuspendCache1.remove(key).shouldBeTrue()
-        await coUntil { !nearSuspendCache2.containsKey(key) }
+        await suspendUntil { !nearSuspendCache2.containsKey(key) }
 
         backSuspendCache.containsKey(key).shouldBeFalse()
         nearSuspendCache1.containsKey(key).shouldBeFalse()
@@ -137,14 +137,14 @@ abstract class AbstractNearSuspendCacheTest
 
         // nearCoCache1 에 cache entry 를 생성하면, nearCoCache2 에도 비동기적으로 생성된다.
         nearSuspendCache1.put(key, value)
-        await coUntil { nearSuspendCache2.containsKey(key) }
+        await suspendUntil { nearSuspendCache2.containsKey(key) }
 
         backSuspendCache.get(key) shouldBeEqualTo value
         nearSuspendCache2.get(key) shouldBeEqualTo value
 
         // nearCoCache1 에 cache entry를 update하면, nearCoCache2 에도 비동기적으로 update 된다.
         this@AbstractNearSuspendCacheTest.nearSuspendCache1.replace(key, value, value2).shouldBeTrue()
-        await coUntil { nearSuspendCache2.get(key) == value2 }
+        await suspendUntil { nearSuspendCache2.get(key) == value2 }
 
         backSuspendCache.get(key) shouldBeEqualTo value2
         nearSuspendCache2.get(key) shouldBeEqualTo value2
@@ -161,7 +161,7 @@ abstract class AbstractNearSuspendCacheTest
 
         nearSuspendCache1.put(key1, value1)
         nearSuspendCache2.put(key2, value2)
-        await coUntil {
+        await suspendUntil {
             nearSuspendCache1.containsKey(key2) &&
                     nearSuspendCache2.containsKey(key1)
         }
@@ -179,7 +179,7 @@ abstract class AbstractNearSuspendCacheTest
         val keys = entries.keys
 
         nearSuspendCache1.putAll(entries)
-        await coUntil { keys.all { nearSuspendCache2.containsKey(it) } }
+        await suspendUntil { keys.all { nearSuspendCache2.containsKey(it) } }
 
         nearSuspendCache2.getAll().toList() shouldContainSame entries.map { SuspendCacheEntry(it.key, it.value) }
     }
@@ -190,7 +190,7 @@ abstract class AbstractNearSuspendCacheTest
         val keys = entries.keys
 
         nearSuspendCache1.putAllFlow(entries.map { it.key to it.value }.asFlow())
-        await coUntil { keys.all { nearSuspendCache2.containsKey(it) } }
+        await suspendUntil { keys.all { nearSuspendCache2.containsKey(it) } }
 
         nearSuspendCache2.getAll().toList() shouldContainSame entries.map { SuspendCacheEntry(it.key, it.value) }
     }
@@ -202,7 +202,7 @@ abstract class AbstractNearSuspendCacheTest
         val value2 = getValue()
 
         nearSuspendCache1.put(key, value)
-        await coUntil { nearSuspendCache2.containsKey(key) }
+        await suspendUntil { nearSuspendCache2.containsKey(key) }
 
         // 이미 cache entry 생성이 전파되어 반영되었다.
         nearSuspendCache2.putIfAbsent(key, value2).shouldBeFalse()
@@ -212,7 +212,7 @@ abstract class AbstractNearSuspendCacheTest
         val key2 = getKey()
         nearSuspendCache2.putIfAbsent(key2, value2).shouldBeTrue()
         nearSuspendCache2.get(key2) shouldBeEqualTo value2
-        await coUntil { nearSuspendCache1.containsKey(key2) }
+        await suspendUntil { nearSuspendCache1.containsKey(key2) }
 
         nearSuspendCache1.get(key2) shouldBeEqualTo value2
     }
@@ -224,13 +224,13 @@ abstract class AbstractNearSuspendCacheTest
         val value2 = getValue()
 
         nearSuspendCache1.put(key, value)
-        await coUntil { nearSuspendCache2.containsKey(key) }
+        await suspendUntil { nearSuspendCache2.containsKey(key) }
         nearSuspendCache2.get(key) shouldBeEqualTo value
         // cache entry가 일치하지 않으면 삭제되지 않는다
         nearSuspendCache2.remove(key, value2).shouldBeFalse()
         // cache entry를 삭제한다
         nearSuspendCache2.remove(key, value).shouldBeTrue()
-        await coUntil { !nearSuspendCache1.containsKey(key) }
+        await suspendUntil { !nearSuspendCache1.containsKey(key) }
 
         nearSuspendCache1.containsKey(key).shouldBeFalse()
         nearSuspendCache2.containsKey(key).shouldBeFalse()
@@ -243,22 +243,22 @@ abstract class AbstractNearSuspendCacheTest
         val value2 = getValue()
 
         nearSuspendCache1.put(key, value)
-        await coUntil { nearSuspendCache2.containsKey(key) }
+        await suspendUntil { nearSuspendCache2.containsKey(key) }
 
         nearSuspendCache1.containsKey(key).shouldBeTrue()
         nearSuspendCache2.containsKey(key).shouldBeTrue()
 
         nearSuspendCache1.getAndRemove(key) shouldBeEqualTo value
-        await coUntil { !nearSuspendCache2.containsKey(key) }
+        await suspendUntil { !nearSuspendCache2.containsKey(key) }
 
         nearSuspendCache1.containsKey(key).shouldBeFalse()
         nearSuspendCache2.containsKey(key).shouldBeFalse()
 
         backSuspendCache.put(key, value2)
-        await coUntil { nearSuspendCache1.containsKey(key) }
+        await suspendUntil { nearSuspendCache1.containsKey(key) }
 
         nearSuspendCache1.getAndRemove(key) shouldBeEqualTo value2
-        await coUntil { !nearSuspendCache2.containsKey(key) }
+        await suspendUntil { !nearSuspendCache2.containsKey(key) }
 
         nearSuspendCache1.containsKey(key).shouldBeFalse()
         nearSuspendCache2.containsKey(key).shouldBeFalse()
@@ -271,10 +271,10 @@ abstract class AbstractNearSuspendCacheTest
         val value2 = getValue()
 
         nearSuspendCache2.put(key, value)
-        await coUntil { nearSuspendCache1.containsKey(key) }
+        await suspendUntil { nearSuspendCache1.containsKey(key) }
 
         this@AbstractNearSuspendCacheTest.nearSuspendCache1.replace(key, value, value2).shouldBeTrue()
-        await coUntil { nearSuspendCache2.get(key) == value2 }
+        await suspendUntil { nearSuspendCache2.get(key) == value2 }
 
         nearSuspendCache2.get(key) shouldBeEqualTo value2
 
@@ -292,10 +292,10 @@ abstract class AbstractNearSuspendCacheTest
         nearSuspendCache1.replace(key, value).shouldBeFalse()
 
         nearSuspendCache1.put(key, value)
-        await coUntil { nearSuspendCache2.containsKey(key) }
+        await suspendUntil { nearSuspendCache2.containsKey(key) }
 
         nearSuspendCache2.replace(key, value2).shouldBeTrue()
-        await coUntil { nearSuspendCache1.get(key) == value2 }
+        await suspendUntil { nearSuspendCache1.get(key) == value2 }
 
         nearSuspendCache1.get(key) shouldBeEqualTo value2
     }
@@ -312,23 +312,23 @@ abstract class AbstractNearSuspendCacheTest
         nearSuspendCache1.containsKey(key).shouldBeFalse()
 
         nearSuspendCache1.put(key, value)
-        await coUntil { nearSuspendCache2.containsKey(key) }
+        await suspendUntil { nearSuspendCache2.containsKey(key) }
 
         // key 가 등록되어 있으므로, replace를 수행한다
         nearSuspendCache2.getAndReplace(key, value2) shouldBeEqualTo value
         nearSuspendCache2.get(key) shouldBeEqualTo value2
-        await coUntil { nearSuspendCache1.get(key) == value2 }
+        await suspendUntil { nearSuspendCache1.get(key) == value2 }
         nearSuspendCache1.get(key) shouldBeEqualTo value2
 
         nearSuspendCache1.put(key, value)
-        await coUntil { nearSuspendCache2.get(key) == value }
+        await suspendUntil { nearSuspendCache2.get(key) == value }
 
         nearSuspendCache2.put(key, value2)
-        await coUntil { nearSuspendCache1.get(key) == value2 }
+        await suspendUntil { nearSuspendCache1.get(key) == value2 }
 
         nearSuspendCache1.getAndReplace(key, value3) shouldBeEqualTo value2
         nearSuspendCache1.get(key) shouldBeEqualTo value3
-        await coUntil { nearSuspendCache2.get(key) == value3 }
+        await suspendUntil { nearSuspendCache2.get(key) == value3 }
 
         nearSuspendCache2.get(key) shouldBeEqualTo value3
     }
@@ -342,13 +342,13 @@ abstract class AbstractNearSuspendCacheTest
 
         nearSuspendCache1.put(key1, value1)
         nearSuspendCache2.put(key2, value2)
-        await coUntil {
+        await suspendUntil {
             nearSuspendCache1.containsKey(key2) &&
                     nearSuspendCache2.containsKey(key1)
         }
 
         nearSuspendCache2.removeAll(key1, key2)
-        await coUntil {
+        await suspendUntil {
             !nearSuspendCache1.containsKey(key1) &&
                     !nearSuspendCache1.containsKey(key2)
         }
@@ -364,13 +364,13 @@ abstract class AbstractNearSuspendCacheTest
         val entries = List(100) { getKey() to getValue() }.toMap()
 
         nearSuspendCache1.putAll(entries)
-        await coUntil { nearSuspendCache2.entries().toList().isNotEmpty() }
+        await suspendUntil { nearSuspendCache2.entries().toList().isNotEmpty() }
 
         nearSuspendCache2.entries().toList().shouldNotBeEmpty()
 
         // 모든 cache entry를 삭제하면 backCache에서 삭제되고, 이것이 전파되어 nearCache1에서도 삭제된다.
         nearSuspendCache2.removeAll()
-        await coUntil { nearSuspendCache1.entries().toList().isEmpty() }
+        await suspendUntil { nearSuspendCache1.entries().toList().isEmpty() }
 
         nearSuspendCache1.entries().toList().shouldBeEmpty()
     }
@@ -384,7 +384,7 @@ abstract class AbstractNearSuspendCacheTest
 
         nearSuspendCache1.put(key1, value1)
         nearSuspendCache2.put(key2, value2)
-        await coUntil {
+        await suspendUntil {
             nearSuspendCache1.containsKey(key2) &&
                     nearSuspendCache2.containsKey(key1)
         }
@@ -410,7 +410,7 @@ abstract class AbstractNearSuspendCacheTest
         nearSuspendCache1.put(key1, value1)
         nearSuspendCache2.put(key2, value2)
 
-        await coUntil {
+        await suspendUntil {
             nearSuspendCache1.containsKey(key2) &&
                     nearSuspendCache2.containsKey(key1)
         }

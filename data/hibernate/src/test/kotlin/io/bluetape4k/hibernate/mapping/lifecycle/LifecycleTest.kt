@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired
  * NOTE: SpringBoot 환경에 `@EnableJpaAuditing(modifyOnCreate = true)` 설정이 필요하다.
  */
 class LifecycleTest(
-    @Autowired private val repository: LifecycleRepository,
+    @param:Autowired private val repository: LifecycleRepository,
 ): AbstractHibernateTest() {
 
     companion object: KLogging()

@@ -1,11 +1,18 @@
 package io.bluetape4k.io.okio.coroutines
 
-//fun Source.toAsync(context: CoroutineContext = Dispatchers.IO): AsyncSource {
-//    if (this is ForwardingSource) return this.delegate
-//    return ForwardingAsyncSource(this, context)
-//}
-//
-//fun AsyncSource.toBlocking(): Source {
-//    if (this is ForwardingAsyncSource) return this.delegate
-//    return ForwardingSource(this)
-//}
+import io.bluetape4k.io.okio.coroutines.internal.ForwardingBlockingSource
+import io.bluetape4k.io.okio.coroutines.internal.ForwardingSuspendedSource
+import kotlinx.coroutines.Dispatchers
+import kotlin.coroutines.CoroutineContext
+
+fun okio.Source.toSuspend(context: CoroutineContext = Dispatchers.IO): SuspendedSource {
+    if (this is ForwardingBlockingSource)
+        return this.delegate
+    return ForwardingSuspendedSource(this, context)
+}
+
+fun SuspendedSource.toBlocking(): okio.Source {
+    if (this is ForwardingSuspendedSource)
+        return this.delegate
+    return ForwardingBlockingSource(this)
+}

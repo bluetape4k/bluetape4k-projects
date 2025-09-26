@@ -19,7 +19,7 @@ class AwaitilityCoroutinesTest {
         val start = System.currentTimeMillis()
         val end = start + 100
 
-        await coAwait {
+        await suspendAwait {
             log.debug { "awaiting in suspend function." }
             delay(100)
             log.debug { "finish suspend function." }
@@ -34,7 +34,7 @@ class AwaitilityCoroutinesTest {
         val start = System.currentTimeMillis()
         val end = start + 100
 
-        await coUntil {
+        await suspendUntil {
             log.debug { "await untilSuspending ..." }
             System.currentTimeMillis() > end
         }

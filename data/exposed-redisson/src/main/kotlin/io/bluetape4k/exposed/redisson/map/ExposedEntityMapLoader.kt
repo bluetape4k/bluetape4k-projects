@@ -4,6 +4,7 @@ import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.logging.KLogging
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
 
 

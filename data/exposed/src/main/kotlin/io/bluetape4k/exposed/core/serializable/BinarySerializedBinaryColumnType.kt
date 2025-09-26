@@ -16,7 +16,7 @@ import org.jetbrains.exposed.v1.core.Table
 fun <T: Any> Table.binarySerializedBinary(
     name: String,
     length: Int,
-    serializer: BinarySerializer = BinarySerializers.LZ4Fury,
+    serializer: BinarySerializer = BinarySerializers.LZ4Fory,
 ): Column<T> = registerColumn(name, BinarySerializedBinaryColumnType(serializer, length))
 
 class BinarySerializedBinaryColumnType<T: Any>(serializer: BinarySerializer, length: Int):

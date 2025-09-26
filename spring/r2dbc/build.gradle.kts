@@ -20,6 +20,7 @@ dependencies {
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))
+    compileOnly(Libs.kotlinx_coroutines_reactive)
     testImplementation(Libs.kotlinx_coroutines_test)
 
     // PostgreSql Server

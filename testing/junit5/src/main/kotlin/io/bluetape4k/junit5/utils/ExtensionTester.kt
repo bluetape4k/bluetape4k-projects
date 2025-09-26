@@ -9,6 +9,7 @@ import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 /**
  *  테스트 클래스를 Jupiter engine 으로 실행할 수 있도록 합니다.
  */
+@Deprecated("Deprecated since 1.11")
 object ExtensionTester {
 
     /**

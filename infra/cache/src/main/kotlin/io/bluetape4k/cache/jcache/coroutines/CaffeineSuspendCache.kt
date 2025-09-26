@@ -15,7 +15,7 @@ import java.util.concurrent.CompletableFuture
 import javax.cache.configuration.CacheEntryListenerConfiguration
 
 /**
- * Caffeine 기반의 [AsyncCache]를 이용하는 Coroutines 기반의 [CoCache] 구현체입니다.
+ * Caffeine 기반의 [AsyncCache]를 이용하는 Coroutines 기반의 [SuspendCache] 구현체입니다.
  *
  * ```
  * val coCache = CaffeineCoCache<String, Any> {

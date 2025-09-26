@@ -7,8 +7,8 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.vertx.sqlclient.templates.tupleMapperOfRecord
-import io.bluetape4k.vertx.sqlclient.tests.testWithTransactionSuspending
-import io.bluetape4k.vertx.sqlclient.withTransactionSuspending
+import io.bluetape4k.vertx.sqlclient.tests.testWithSuspendTransaction
+import io.bluetape4k.vertx.sqlclient.withSuspendTransaction
 import io.vertx.core.Vertx
 import io.vertx.core.json.JsonObject
 import io.vertx.junit5.VertxTestContext
@@ -37,7 +37,7 @@ class SqlClientTemplateExamples: AbstractSqlClientTest() {
         runBlocking(vertx.dispatcher()) {
             val pool = vertx.getH2Pool()
             try {
-                pool.withTransactionSuspending { conn ->
+                pool.withSuspendTransaction { conn ->
                     conn.query("DROP TABLE users IF EXISTS").execute().coAwait()
                     conn.query(
                         """
@@ -59,7 +59,7 @@ class SqlClientTemplateExamples: AbstractSqlClientTest() {
     @Test
     fun `query example`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
         val pool = vertx.getH2Pool()
-        vertx.testWithTransactionSuspending(testContext, pool) {
+        vertx.testWithSuspendTransaction(testContext, pool) {
             val parameters = mapOf("ID" to 1)
             val rowSet: RowSet<Row> = SqlTemplate
                 .forQuery(pool, "SELECT * FROM users WHERE id = #{ID}")
@@ -82,7 +82,7 @@ class SqlClientTemplateExamples: AbstractSqlClientTest() {
     @Test
     fun `insert example`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
         val pool = vertx.getH2Pool()
-        vertx.testWithTransactionSuspending(testContext, pool) {
+        vertx.testWithSuspendTransaction(testContext, pool) {
             val parameters = mapOf(
                 "id" to 3,
                 "firstName" to "Dale",
@@ -101,7 +101,7 @@ class SqlClientTemplateExamples: AbstractSqlClientTest() {
     @Test
     fun `query using row mapper`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
         val pool = vertx.getH2Pool()
-        vertx.testWithTransactionSuspending(testContext, pool) {
+        vertx.testWithSuspendTransaction(testContext, pool) {
             val parameters = mapOf("id" to 1)
             val users: RowSet<User> = SqlTemplate
                 .forQuery(pool, "SELECT * FROM users WHERE id = #{id}")
@@ -119,7 +119,7 @@ class SqlClientTemplateExamples: AbstractSqlClientTest() {
     fun `binding row with anemic JsonMapperr`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
         val pool = vertx.getH2Pool()
 
-        vertx.testWithTransactionSuspending(testContext, pool) {
+        vertx.testWithSuspendTransaction(testContext, pool) {
             val parameters = mapOf("id" to 1)
             val users: RowSet<JsonObject> = SqlTemplate
                 .forQuery(pool, "SELECT * FROM users WHERE id = #{id}")
@@ -139,7 +139,7 @@ class SqlClientTemplateExamples: AbstractSqlClientTest() {
     fun `binding parameter with custom mapper`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
         val pool = vertx.getH2Pool()
 
-        vertx.testWithTransactionSuspending(testContext, pool) {
+        vertx.testWithSuspendTransaction(testContext, pool) {
             val user = User(
                 id = 4,
                 firstName = "Iron",
@@ -163,7 +163,7 @@ class SqlClientTemplateExamples: AbstractSqlClientTest() {
     fun `binding parameter with anemic json mapper`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
         val pool = vertx.getH2Pool()
 
-        vertx.testWithTransactionSuspending(testContext, pool) {
+        vertx.testWithSuspendTransaction(testContext, pool) {
             val user = json {
                 obj {
                     put(User::id.name, 5)
@@ -188,7 +188,7 @@ class SqlClientTemplateExamples: AbstractSqlClientTest() {
     @Test
     fun `binding row with jackson databind`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
         val pool = vertx.getH2Pool()
-        vertx.testWithTransactionSuspending(testContext, pool) {
+        vertx.testWithSuspendTransaction(testContext, pool) {
             val users: RowSet<User> = SqlTemplate
                 .forQuery(pool, "SELECT * FROM users WHERE id = #{id}")
                 .mapTo(User::class.java)
@@ -204,7 +204,7 @@ class SqlClientTemplateExamples: AbstractSqlClientTest() {
     @Test
     fun `binding parameter with jackson databind`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
         val pool = vertx.getH2Pool()
-        vertx.testWithTransactionSuspending(testContext, pool) {
+        vertx.testWithSuspendTransaction(testContext, pool) {
             val user = User(6, faker.name().firstName(), faker.name().lastName())
 
             val result: SqlResult<Void> = SqlTemplate

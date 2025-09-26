@@ -1,11 +1,16 @@
 package io.bluetape4k.io.okio.coroutines
 
-//fun Sink.toAsync(context: CoroutineContext = Dispatchers.IO): AsyncSink {
-//    if (this is ForwardingSink) return this.delegate
-//    return ForwardingAsyncSink(this, context)
-//}
+import io.bluetape4k.io.okio.coroutines.internal.ForwardingBlockingSink
+import io.bluetape4k.io.okio.coroutines.internal.ForwardingSuspendSink
+import kotlinx.coroutines.Dispatchers
+import kotlin.coroutines.CoroutineContext
 
-//fun AsyncSink.toBlocking(): Sink {
-//    if (this is ForwardingAsyncSink) return this.delegate
-//    return ForwardingSink(this)
-//}
+fun okio.Sink.toSuspend(context: CoroutineContext = Dispatchers.IO): SuspendedSink {
+    if (this is ForwardingBlockingSink) return this.delegate
+    return ForwardingSuspendSink(this, context)
+}
+
+fun SuspendedSink.toBlocking(): okio.Sink {
+    if (this is ForwardingSuspendSink) return this.delegate
+    return ForwardingBlockingSink(this)
+}

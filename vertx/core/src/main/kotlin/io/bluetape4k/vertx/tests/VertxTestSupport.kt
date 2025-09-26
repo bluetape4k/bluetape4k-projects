@@ -1,10 +1,9 @@
 package io.bluetape4k.vertx.tests
 
+import io.bluetape4k.vertx.withVertxDispatcher
 import io.vertx.core.Vertx
 import io.vertx.junit5.VertxTestContext
-import io.vertx.kotlin.coroutines.dispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.withContext
 
 /**
  * Vertx Framework 테스트 시 [VertxTestContext]를 사용하여 테스트를 수행합니다.
@@ -58,16 +57,16 @@ inline fun withTestContext(
  * @param testContext [VertxTestContext] 인스턴스
  * @param block 실행할 Coroutines 테스트 코드 블럭
  */
-suspend inline fun Vertx.withSuspendTestContext(
+suspend inline fun <T: Any> Vertx.withSuspendTestContext(
     testContext: VertxTestContext,
-    crossinline block: suspend CoroutineScope.() -> Unit,
-) {
-    withContext(dispatcher()) {
-        try {
-            block()
-            testContext.completeNow()
-        } catch (e: Throwable) {
-            testContext.failNow(e)
-        }
+    crossinline block: suspend CoroutineScope.() -> T,
+): T? = withVertxDispatcher {
+    try {
+        val result = block()
+        testContext.completeNow()
+        result
+    } catch (e: Throwable) {
+        testContext.failNow(e)
+        null
     }
 }

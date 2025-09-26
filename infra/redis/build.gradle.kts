@@ -67,7 +67,8 @@ dependencies {
 
     // Codecs
     compileOnly(Libs.kryo)
-    compileOnly(Libs.fury_kotlin)
+    compileOnly(Libs.fory_kotlin)  // new Apache Fory
+    compileOnly(Libs.fury_kotlin)  // old Apache Fury
 
     compileOnly(Libs.jackson_dataformat_protobuf)
 
@@ -87,7 +88,6 @@ dependencies {
     compileOnly(Libs.protobuf_java_util)
     compileOnly(Libs.protobuf_kotlin)
 
-    compileOnly(Libs.javax_cache_api)
     compileOnly(Libs.caffeine)
     compileOnly(Libs.caffeine_jcache)
 

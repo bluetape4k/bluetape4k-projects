@@ -3,7 +3,6 @@ package io.bluetape4k.junit5.tempfolder
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.logging.warn
-import org.junit.jupiter.api.extension.ExtensionContext
 import java.io.Closeable
 import java.io.File
 import java.io.IOException
@@ -13,7 +12,7 @@ import java.nio.file.Paths
 /**
  * 테스트 시 사용할 임시 폴더와 임시 파일을 생성하고 관리해주는 클래스입니다.
  */
-class TempFolder: ExtensionContext.Store.CloseableResource, Closeable {
+class TempFolder: Closeable {
 
     companion object: KLogging() {
         private const val PREFIX = "bluetape4k_"

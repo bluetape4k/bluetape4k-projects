@@ -1,7 +1,7 @@
 package io.bluetape4k.kafka.coroutines
 
 import io.bluetape4k.coroutines.flow.async
-import io.bluetape4k.coroutines.support.coAwait
+import io.bluetape4k.coroutines.support.suspendAwait
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collectLatest
@@ -25,23 +25,15 @@ import org.apache.kafka.clients.producer.RecordMetadata
  *    StringSerializer(),
  * )
  * val record = ProducerRecord("test-topic", "test-key", "test-value")
- * producer.sendSuspending(record)
+ * producer.suspendSend(record)
  * ```
  *
  *
  * @param record 발행할 메시지 ([ProducerRecord])
  * @return 발행 결과를 표현하는 [RecordMetadata] instance
  */
-suspend fun <K, V> Producer<K, V>.awaitSend(record: ProducerRecord<K, V>): RecordMetadata {
-    return send(record).coAwait()
-}
-
-@Deprecated(
-    message = "Use `awaitSend` instead.",
-    replaceWith = ReplaceWith("awaitSend(record)")
-)
-suspend fun <K, V> Producer<K, V>.sendSuspending(record: ProducerRecord<K, V>): RecordMetadata {
-    return send(record).coAwait()
+suspend fun <K, V> Producer<K, V>.suspendSend(record: ProducerRecord<K, V>): RecordMetadata {
+    return send(record).suspendAwait()
 }
 
 /**
@@ -64,24 +56,11 @@ suspend fun <K, V> Producer<K, V>.sendAsFlow(records: Flow<ProducerRecord<K, V>>
     return records
         .buffer()
         .async {
-            awaitSend(it)
+            suspendSend(it)
         }
         .onCompletion { flush() }
 }
 
-@Deprecated(
-    message = "Use `sendAsFlow` instead.",
-    replaceWith = ReplaceWith("sendAsFlow(records)")
-)
-suspend fun <K, V> Producer<K, V>.sendFlow(records: Flow<ProducerRecord<K, V>>): Flow<RecordMetadata> {
-    // TODO: callback flow 를 이용하는 게 낫지 않나?
-    return records
-        .buffer()
-        .async {
-            sendSuspending(it)
-        }
-        .onCompletion { flush() }
-}
 
 /**
  * 복수의 [ProducerRecord] 를 producing 하면서, 마지막 producing 한 결과만 반환하게 한다.
@@ -104,23 +83,7 @@ suspend fun <K, V> Producer<K, V>.sendAsFlowParallel(
     return records
         .buffer()
         .async {
-            awaitSend(it)
-        }
-        .onCompletion { flush() }
-        .last()
-}
-
-@Deprecated(
-    message = "Use `sendAsFlowParallel` instead.",
-    replaceWith = ReplaceWith("sendAsFlowParallel(records)")
-)
-suspend fun <K, V> Producer<K, V>.sendFlowParallel(
-    records: Flow<ProducerRecord<K, V>>,
-): RecordMetadata {
-    return records
-        .buffer()
-        .async {
-            sendSuspending(it)
+            suspendSend(it)
         }
         .onCompletion { flush() }
         .last()
@@ -146,7 +109,7 @@ suspend fun <K, V> Producer<K, V>.sendAndForget(
 ) {
     records
         .async {
-            send(it).coAwait()
+            send(it).suspendAwait()
         }
         .collectLatest {
             if (needFlush) {

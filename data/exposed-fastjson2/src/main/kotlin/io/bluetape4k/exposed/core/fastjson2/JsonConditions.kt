@@ -6,7 +6,7 @@ import org.jetbrains.exposed.v1.core.ExpressionWithColumnType
 import org.jetbrains.exposed.v1.core.IColumnType
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.QueryBuilder
-import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.asLiteral
+import org.jetbrains.exposed.v1.core.asLiteral
 import org.jetbrains.exposed.v1.core.stringLiteral
 import org.jetbrains.exposed.v1.core.vendors.currentDialect
 
@@ -44,7 +44,7 @@ fun <T> ExpressionWithColumnType<*>.contains(
     candidate: T,
     path: String? = null,
 ): Contains = when (candidate) {
-    is Iterable<*>, is Array<*> -> Contains(this, stringLiteral(asLiteral(candidate).toString()), path, columnType)
+    // is Iterable<*>, is Array<*> -> Contains(this, stringLiteral(asLiteral(candidate).toString()), path, columnType)
     is String -> Contains(this, stringLiteral(candidate), path, columnType)
     else -> Contains(this, asLiteral(candidate), path, columnType)
 }

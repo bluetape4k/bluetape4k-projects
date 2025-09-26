@@ -89,7 +89,7 @@ class ObjectStoreExample: AbstractNatsTest() {
             val oi = store.getInfo(df.name)
             printObjectInfo("Upload: ", oi)
             val digest = getDigestEntry(df.inputFile)
-            checkDigests("  | Input vs ObjectInfo", digest, oi.digest)
+            checkDigests("  | Input vs ObjectInfo", digest, oi.digest!!)
         }
     }
 
@@ -128,7 +128,7 @@ class ObjectStoreExample: AbstractNatsTest() {
 
             val digest = getDigestEntry(df.inputFile)
             val oi = store.getInfo(df.name)
-            checkDigests("  | Download vs ObjectInfo", digest, oi.digest)
+            checkDigests("  | Download vs ObjectInfo", digest, oi.digest!!)
         }
     }
 

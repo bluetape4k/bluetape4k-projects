@@ -6,7 +6,7 @@ import io.bluetape4k.bloomfilter.Hasher
 import io.bluetape4k.bloomfilter.SuspendBloomFilter
 import io.bluetape4k.bloomfilter.optimalK
 import io.bluetape4k.bloomfilter.optimalM
-import io.bluetape4k.coroutines.support.coAwait
+import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import io.bluetape4k.support.requireNotBlank
@@ -76,7 +76,7 @@ class RedissonSuspendBloomFilter<T: Any> private constructor(
 
     override suspend fun add(value: T) {
         val offsets = getOffsets(value)
-        bitSet.setAsync(offsets, true).coAwait()
+        bitSet.setAsync(offsets, true).suspendAwait()
     }
 
     /**
@@ -92,16 +92,16 @@ class RedissonSuspendBloomFilter<T: Any> private constructor(
      */
     override suspend fun contains(value: T): Boolean {
         val offsets = getOffsets(value)
-        val result = bitSet.getAsync(*offsets).coAwait()
+        val result = bitSet.getAsync(*offsets).suspendAwait()
         return result.all { it }
     }
 
     override suspend fun count(): Long {
-        return bitSet.lengthAsync().coAwait()
+        return bitSet.lengthAsync().suspendAwait()
     }
 
     override suspend fun clear() {
-        bitSet.clearAsync().coAwait()
+        bitSet.clearAsync().suspendAwait()
     }
 
     private fun getOffsets(value: T): LongArray =

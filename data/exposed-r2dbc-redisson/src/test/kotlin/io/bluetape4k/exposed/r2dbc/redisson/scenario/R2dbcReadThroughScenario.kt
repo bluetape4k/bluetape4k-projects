@@ -5,7 +5,6 @@ import io.bluetape4k.coroutines.flow.extensions.asFlow
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.r2dbc.redisson.scenario.R2dbcCacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
-import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
@@ -31,7 +30,7 @@ interface R2dbcReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: R2dbcCacheTes
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `get(id) - ID로 조회 시 DB에서 읽어서 캐시에 저장 후 반환한다`(testDB: TestDB) = runSuspendIO {
+    fun `get(id) - ID로 조회 시 DB에서 읽어서 캐시에 저장 후 반환한다`(testDB: TestDB) = runTest {
         withR2dbcEntityTable(testDB) {
             val id = getExistingId()
 
@@ -50,7 +49,7 @@ interface R2dbcReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: R2dbcCacheTes
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `exists(id) - 캐시에 해당 ID가 존재하는지 검사, 실제 없다면 DB에서 로드한다`(testDB: TestDB) = runSuspendIO {
+    fun `exists(id) - 캐시에 해당 ID가 존재하는지 검사, 실제 없다면 DB에서 로드한다`(testDB: TestDB) = runTest {
         withR2dbcEntityTable(testDB) {
             val ids = getExistingIds()
 
@@ -64,7 +63,7 @@ interface R2dbcReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: R2dbcCacheTes
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `invalidte(id) - Read through에서 캐시 invalidate 는 DB에 영향을 주지 않는다`(testDB: TestDB) = runSuspendIO {
+    fun `invalidte(id) - Read through에서 캐시 invalidate 는 DB에 영향을 주지 않는다`(testDB: TestDB) = runTest {
         withR2dbcEntityTable(testDB) {
             val id = getExistingId()
             log.debug { "existingId: $id" }
@@ -87,7 +86,7 @@ interface R2dbcReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: R2dbcCacheTes
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `존재하지 않는 ID로 캐시 조회하면, null을 반환한다`(testDB: TestDB) = runSuspendIO {
+    fun `존재하지 않는 ID로 캐시 조회하면, null을 반환한다`(testDB: TestDB) = runTest {
         withR2dbcEntityTable(testDB) {
             // 임의의 존재하지 않는 ID 생성 방법은 구현 클래스에서 정의
             val nonExistentId = getNonExistentId()
@@ -109,13 +108,13 @@ interface R2dbcReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: R2dbcCacheTes
             entities.size shouldBeEqualTo repository.entityTable.selectAll().count().toInt()
 
             // @ParameterizedTest 때문에 testDB 들이 꼬인다... 대기 시간을 둬서, 다른 DB와의 영항을 미치지 않게 한다
-            // delay(DEFAULT_DELAY)
+            delay(DEFAULT_DELAY)
         }
     }
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `getAll - 여러 ID의 엔티티를 한번에 조회한다`(testDB: TestDB) = runSuspendIO {
+    fun `getAll - 여러 ID의 엔티티를 한번에 조회한다`(testDB: TestDB) = runTest {
         withR2dbcEntityTable(testDB) {
             val ids = getExistingIds() + getNonExistentId()
             val entities = repository.getAll(ids, batchSize = 2)
@@ -130,7 +129,7 @@ interface R2dbcReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: R2dbcCacheTes
      */
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `캐시 키 패턴으로 캐시 무효화하기`(testDB: TestDB) = runSuspendIO {
+    fun `캐시 키 패턴으로 캐시 무효화하기`(testDB: TestDB) = runTest {
         withR2dbcEntityTable(testDB) {
             // @ParameterizedTest 때문에 testDB 들이 꼬인다... 대기 시간을 둬서, 다른 DB와의 영항을 미치지 않게 한다
             if (cacheConfig.isReadWrite) {

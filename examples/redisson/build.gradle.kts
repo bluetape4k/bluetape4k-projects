@@ -15,7 +15,8 @@ dependencies {
 
     // Codecs
     implementation(Libs.kryo)
-    implementation(Libs.fury_kotlin)
+    implementation(Libs.fory_kotlin)  // new Apache Fory
+    implementation(Libs.fury_kotlin)  // old Apache Fury
 
     // Compressor
     implementation(Libs.snappy_java)
@@ -29,7 +30,6 @@ dependencies {
 
     // Cache
     implementation(project(":bluetape4k-cache"))
-    implementation(Libs.javax_cache_api)
     implementation(Libs.caffeine)
     implementation(Libs.caffeine_jcache)
 
@@ -55,7 +55,7 @@ dependencies {
 
     // Redisson Map Read/Write Through 예제를 위해 
     testImplementation(project(":bluetape4k-jdbc"))
-    testRuntimeOnly(Libs.h2)
+    testRuntimeOnly(Libs.h2_v2)
     testImplementation(Libs.hikaricp)
     testImplementation(Libs.springBootStarter("jdbc"))
 
