@@ -31,7 +31,7 @@ class MariaDBServer private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "mariadb"
-        const val TAG = "11"
+        const val TAG = "12"
         const val NAME = "mariadb"
         const val PORT: Int = 3306
         const val USERNAME = "test"
