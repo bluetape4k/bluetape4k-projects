@@ -192,6 +192,8 @@ object Versions {
     const val kafka = "3.8.1"           // https://mvnrepository.com/artifact/org.apache.kafka/kafka
     const val spring_kafka = "3.3.3"    // https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka
 
+    const val timefold_solver = "1.26.0" // https://mvnrepository.com/artifact/ai.timefold.solver/timefold-solver-core
+
     const val pods4k = "0.7.0"              // https://mvnrepository.com/artifact/com.danrusu.pods4k/bom
     const val eclipse_collections = "13.0.0"  // https://mvnrepository.com/artifact/org.eclipse.collections/eclipse-collections
     const val jctools = "4.0.5"             // https://mvnrepository.com/artifact/org.jctools/jctools-core
@@ -1127,6 +1129,22 @@ object Libs {
     const val jnats = "io.nats:jnats:2.22.0"     // https://mvnrepository.com/artifact/io.nats/jnats
     const val nats_spring = "io.nats:nats-spring:0.6.2+3.5"  // https://mvnrepository.com/artifact/io.nats/nats-spring
     const val nats_spring_cloud_stream_binder = "io.nats:nats-spring-cloud-stream-binder:0.6.2+3.5" //https://mvnrepository.com/artifact/io.nats/nats-spring-cloud-stream-binder
+
+    // Timefold Solver
+    fun timefoldSolver(module: String, version: String = Versions.timefold_solver) = "ai.timefold.solver:timefold-solver-$module:$version"
+
+    val timefold_solver_bom = timefoldSolver("bom")
+    val timefold_solver_benchmark = timefoldSolver("benchmark")
+    val timefold_solver_core = timefoldSolver("core")
+    val timefold_solver_jackson = timefoldSolver("jackson")
+    val timefold_solver_jaxb = timefoldSolver("jaxb")
+    val timefold_solver_jsonb = timefoldSolver("jsonb")
+    val timefold_solver_migration = timefoldSolver("migration")
+    val timefold_solver_persistence_common = timefoldSolver("persistence-common")
+    val timefold_solver_persistence_jpa = timefoldSolver("persistence-jpa")
+    val timefold_solver_spring_boot_starter = timefoldSolver("spring-boot-starter")
+    val timefold_solver_test = timefoldSolver("test")
+    val timefold_solver_webui = timefoldSolver("webui")
 
     // Zipkin
     const val zipkin_brave = "io.zipkin.brave:brave:6.3.0"              // https://mvnrepository.com/artifact/io.zipkin.brave/brave
