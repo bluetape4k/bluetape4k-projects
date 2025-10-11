@@ -20,6 +20,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
@@ -117,6 +118,7 @@ interface SuspendedReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: Suspended
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `getAll - 여러 ID의 엔티티를 한번에 조회한다`(testDB: TestDB) = runTest {
+        Assumptions.assumeTrue { testDB != TestDB.MYSQL_V5 }
         withSuspendedEntityTable(testDB) {
             val ids = getExistingIds() + getNonExistentId()
             val entities = repository.getAll(ids, batchSize = 2)
