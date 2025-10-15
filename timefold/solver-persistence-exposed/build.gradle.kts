@@ -5,6 +5,7 @@ configurations {
 dependencies {
     implementation(platform(Libs.timefold_solver_bom))
 
+    api(Libs.timefold_solver_core)
     api(Libs.timefold_solver_persistence_common)
     testImplementation(Libs.timefold_solver_test)
 
