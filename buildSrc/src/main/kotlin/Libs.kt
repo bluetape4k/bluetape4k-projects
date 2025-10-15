@@ -134,6 +134,7 @@ object Versions {
     const val asynchttpclient = "2.12.4"  // https://mvnrepository.com/artifact/org.asynchttpclient/async-http-client
 
     const val jackson = "2.20.0" // https://mvnrepository.com/artifact/com.fasterxml.jackson/jackson-bom
+    const val jackson3 = "3.0.0" // https://mvnrepository.com/artifact/tools.jackson/jackson-bom
     const val fastjson2 = "2.0.59" // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2
     const val jjwt = "0.11.5"    // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api
 
@@ -866,6 +867,48 @@ object Libs {
     // https://github.com/FasterXML/jackson-modules-base/blob/master/blackbird/README.md
     val jackson_module_blackbird = jacksonModule("blackbird")
     val jackson_module_jsonSchema = jacksonModule("jsonSchema")
+
+    // Jackson 3
+    const val jackson3_bom = "tools.jackson:jackson-bom:${Versions.jackson3}"
+
+    fun jackson3(group: String, module: String, version: String = Versions.jackson3): String {
+        return if (group == "core") "tools.jackson.$group:jackson-$module:$version"
+        else "tools.jackson.$group:jackson-$group-$module:$version"
+    }
+
+    fun jackson3Core(module: String) = jackson3("core", module)
+    val jackson3_core = jackson3Core("core")
+    val jackson3_databind = jackson3Core("databind")
+
+    fun jackson3DataType(module: String) = jackson3("datatype", module)
+    val jackson3_datatype_eclipse_collections = jackson3DataType("eclipse-collections")
+    val jackson3_datatype_guava = jackson3DataType("guava")
+    val jackson3_datatype_jsr353 = jackson3DataType("jsr353")
+    val jackson3_datatype_moneta = jackson3DataType("moneta")
+
+
+    fun jackson3DataFormat(module: String) = jackson3("dataformat", module)
+    // Binary
+    val jackson3_dataformat_avro = jackson3DataFormat("avro")
+    val jackson3_dataformat_cbor = jackson3DataFormat("cbor")
+    val jackson3_dataformat_ion = jackson3DataFormat("ion")
+    val jackson3_dataformat_protobuf = jackson3DataFormat("protobuf")
+    val jackson3_dataformat_smile = jackson3DataFormat("smile")
+
+    // Text
+    val jackson3_dataformat_csv = jackson3DataFormat("csv")
+    val jackson3_dataformat_properties = jackson3DataFormat("properties")
+    val jackson3_dataformat_yaml = jackson3DataFormat("yaml")
+    val jackson3_dataformat_toml = jackson3DataFormat("toml")
+
+    fun jackson3Module(module: String) = jackson3("module", module)
+    val jackson3_module_kotlin = jackson3Module("kotlin")
+    val jackson3_module_paranamer = jackson3Module("parameter")
+    // val jackson3_module_parameter_names = jackson3Module("parameter-names")
+    // Java 11+ 에서는 afterburner 대신 blackbird를 사용하세요
+    // https://github.com/FasterXML/jackson-modules-base/blob/master/blackbird/README.md
+    val jackson3_module_blackbird = jackson3Module("blackbird")
+    val jackson3_module_jsonSchema = jackson3Module("jsonSchema")
 
     // FastJson2
     fun fastjson2(module: String) = "com.alibaba.fastjson2:$module:${Versions.fastjson2}"
