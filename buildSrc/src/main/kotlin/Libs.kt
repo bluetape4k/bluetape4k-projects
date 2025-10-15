@@ -80,7 +80,7 @@ object Versions {
     const val spring_boot = Plugins.Versions.spring_boot
     const val spring_cloud = "2025.0.0"     // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies
     const val spring_integration = "6.5.2"  // https://mvnrepository.com/artifact/org.springframework.integration/spring-integration-core
-    const val reactor_bom = "2024.0.10"      // https://mvnrepository.com/artifact/io.projectreactor/reactor-bom
+    const val reactor_bom = "2024.0.11"      // https://mvnrepository.com/artifact/io.projectreactor/reactor-bom
     const val spring_statemachine = "4.0.1" // https://mvnrepository.com/artifact/org.springframework.statemachine/spring-statemachine-core
 
     const val chaos_monkey = "3.2.2"        // https://mvnrepository.com/artifact/de.codecentric/chaos-monkey-spring-boot
@@ -112,25 +112,25 @@ object Versions {
     const val netty = "4.2.6.Final"  // https://mvnrepository.com/artifact/io.netty/netty-all
 
     const val aws = "1.12.791"          // https://mvnrepository.com/artifact/com.amazonaws
-    const val aws2 = "2.34.1"           // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
-    const val aws2_crt = "0.39.0"      // https://mvnrepository.com/artifact/software.amazon.awssdk.crt/aws-crt
-    const val aws_kotlin = "1.5.43"     // https://mvnrepository.com/artifact/aws.sdk.kotlin/aws-http-jvm
-    const val aws_smithy_kotlin = "1.5.10" // https://mvnrepository.com/artifact/aws.smithy.kotlin/http-client-engine-crt-jvm
+    const val aws2 = "2.35.6"           // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
+    const val aws2_crt = "0.39.2"      // https://mvnrepository.com/artifact/software.amazon.awssdk.crt/aws-crt
+    const val aws_kotlin = "1.5.61"     // https://mvnrepository.com/artifact/aws.sdk.kotlin/aws-http-jvm
+    const val aws_smithy_kotlin = "1.5.14" // https://mvnrepository.com/artifact/aws.smithy.kotlin/http-client-engine-crt-jvm
 
     const val aws_spring_cloud = "3.4.0"  // https://mvnrepository.com/artifact/io.awspring.cloud/spring-cloud-aws-starter
 
-    const val grpc = "1.75.0"       // https://mvnrepository.com/artifact/io.grpc/grpc-stub
+    const val grpc = "1.76.0"       // https://mvnrepository.com/artifact/io.grpc/grpc-stub
     const val grpc_kotlin = "1.5.0" // https://mvnrepository.com/artifact/io.grpc/grpc-kotlin-stub
     const val protobuf = "4.32.1"   // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java
-    const val grpc_google_common_protos = "2.61.2" // https://mvnrepository.com/artifact/com.google.api.grpc/proto-google-common-protos
+    const val grpc_google_common_protos = "2.61.3" // https://mvnrepository.com/artifact/com.google.api.grpc/proto-google-common-protos
     const val avro = "1.12.0"       // https://mvnrepository.com/artifact/org.apache.avro/avro
 
     const val feign = "13.6"         // https://mvnrepository.com/artifact/io.github.openfeign/feign-core
-    const val httpclient5 = "5.5"  // https://mvnrepository.com/artifact/org.apache.httpcomponents.client5/httpclient5
+    const val httpclient5 = "5.5.1"  // https://mvnrepository.com/artifact/org.apache.httpcomponents.client5/httpclient5
     const val httpcore5 = "5.3.6"    // https://mvnrepository.com/artifact/org.apache.httpcomponents.core5/httpcore5
     const val retrofit2 = "3.0.0"   // https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
-    const val okhttp3 = "5.1.0"     // https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
-    const val okio = "3.16.0"        // https://mvnrepository.com/artifact/com.squareup.okio/okio
+    const val okhttp3 = "5.2.1"     // https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
+    const val okio = "3.16.2"        // https://mvnrepository.com/artifact/com.squareup.okio/okio
     const val asynchttpclient = "2.12.4"  // https://mvnrepository.com/artifact/org.asynchttpclient/async-http-client
 
     const val jackson = "2.20.0" // https://mvnrepository.com/artifact/com.fasterxml.jackson/jackson-bom
