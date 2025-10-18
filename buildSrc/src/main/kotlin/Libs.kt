@@ -19,14 +19,14 @@ object Plugins {
         const val kotlinx_benchmark = "0.4.14" // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-benchmark-plugin
 
         const val spring_boot = "3.5.6"   // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies
-        const val quarkus = "3.28.3"      // https://mvnrepository.com/artifact/io.quarkus/quarkus-bom
+        const val quarkus = "3.28.4"      // https://mvnrepository.com/artifact/io.quarkus/quarkus-bom
         
         const val docker_compose = "0.17.16"  // https://plugins.gradle.org/plugin/com.avast.gradle.docker-compose
 
         // 참고: https://docs.gatling.io/reference/integrations/build-tools/gradle-plugin/
         const val gatling = "3.14.5"  // https://plugins.gradle.org/plugin/io.gatling.gradle
 
-        const val graalvm_native = "0.11.1" // https://mvnrepository.com/artifact/org.graalvm.buildtools.native/org.graalvm.buildtools.native.gradle.plugin
+        const val graalvm_native = "0.11.2" // https://mvnrepository.com/artifact/org.graalvm.buildtools.native/org.graalvm.buildtools.native.gradle.plugin
 
         const val kosogor = "1.0.23" // https://plugins.gradle.org/plugin/tanvd.kosogor
     }
