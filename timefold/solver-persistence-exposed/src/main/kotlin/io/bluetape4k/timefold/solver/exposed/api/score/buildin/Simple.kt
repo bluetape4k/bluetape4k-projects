@@ -14,7 +14,7 @@ import org.jetbrains.exposed.v1.core.VarCharColumnType
  */
 fun Table.simpleScore(
     name: String,
-    length: Int,
+    length: Int = 255,
 ): Column<SimpleScore> = registerColumn(name, SimpleScoreColumnType(length))
 
 class SimpleScoreColumnType(length: Int):
