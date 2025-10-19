@@ -13,7 +13,7 @@ import org.jetbrains.exposed.v1.core.VarCharColumnType
  */
 fun Table.bendableScore(
     name: String,
-    length: Int,
+    length: Int = 255,
 ): Column<BendableScore> = registerColumn(name, BendableScoreColumnType(length))
 
 class BendableScoreColumnType(length: Int):
