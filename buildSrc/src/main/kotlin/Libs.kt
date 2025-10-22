@@ -201,8 +201,8 @@ object Versions {
 
     const val ow2_asm = "9.8"               // https://mvnrepository.com/artifact/org.ow2.asm/asm
 
-    const val junit_jupiter = "5.13.4"      // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
-    const val junit_platform = "1.13.4"     // https://mvnrepository.com/artifact/org.junit.platform/junit-platform-launcher
+    const val junit_jupiter = "5.14.0"      // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
+    const val junit_platform = "1.14.0"     // https://mvnrepository.com/artifact/org.junit.platform/junit-platform-launcher
     const val assertj_core = "3.27.4"       // https://mvnrepository.com/artifact/org.assertj/assertj-core
     const val kluent = "1.73"               // https://mvnrepository.com/artifact/org.amshove.kluent/kluent
     const val mockk = "1.14.5"             // https://mvnrepository.com/artifact/io.mockk/mockk
@@ -1403,7 +1403,7 @@ object Libs {
     val junit_platform_commons = junitPlatform("commons")
     val junit_platform_engine = junitPlatform("engine")
     val junit_platform_launcher = junitPlatform("launcher")
-    val junit_platform_runner = junitPlatform("runner")
+    // val junit_platform_runner = junitPlatform("runner")
     val junit_platform_suite_api = junitPlatform("suite-api")
     val junit_platform_suite_engine = junitPlatform("suite-engine")
 

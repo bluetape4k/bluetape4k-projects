@@ -467,7 +467,6 @@ subprojects {
             dependency(Libs.junit_platform_commons)
             dependency(Libs.junit_platform_engine)
             dependency(Libs.junit_platform_launcher)
-            dependency(Libs.junit_platform_runner)
 
             dependency(Libs.kluent)
             dependency(Libs.assertj_core)
