@@ -109,7 +109,7 @@ object Versions {
 
     const val bucket4j = "8.15.0"       // https://mvnrepository.com/artifact/com.bucket4j/bucket4j_jdk17-core
     const val resilience4j = "2.3.0"   // https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-bom
-    const val netty = "4.2.6.Final"  // https://mvnrepository.com/artifact/io.netty/netty-all
+    const val netty = "4.2.7.Final"  // https://mvnrepository.com/artifact/io.netty/netty-all
 
     const val aws = "1.12.791"          // https://mvnrepository.com/artifact/com.amazonaws
     const val aws2 = "2.36.1"           // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
