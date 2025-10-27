@@ -18,13 +18,13 @@ object Plugins {
         const val shadow = "9.2.2"      // https://plugins.gradle.org/plugin/com.gradleup.shadow
         const val kotlinx_benchmark = "0.4.14" // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-benchmark-plugin
 
-        const val spring_boot = "3.5.6"   // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies
+        const val spring_boot = "3.5.7"   // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies
         const val quarkus = "3.29.0"      // https://mvnrepository.com/artifact/io.quarkus/quarkus-bom
         
         const val docker_compose = "0.17.18"  // https://plugins.gradle.org/plugin/com.avast.gradle.docker-compose
 
         // 참고: https://docs.gatling.io/reference/integrations/build-tools/gradle-plugin/
-        const val gatling = "3.14.6.4"  // https://plugins.gradle.org/plugin/io.gatling.gradle
+        const val gatling = "3.14.7"  // https://plugins.gradle.org/plugin/io.gatling.gradle
 
         const val graalvm_native = "0.11.2" // https://mvnrepository.com/artifact/org.graalvm.buildtools.native/org.graalvm.buildtools.native.gradle.plugin
 
@@ -1296,11 +1296,11 @@ object Libs {
     val javers_spring_boot_starter_sql = javers("spring-boot-starter-sql")
 
     // MyBatis Mapping 에 사용한다
-    const val byte_buddy = "net.bytebuddy:byte-buddy:1.17.7"   // https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy-agent
-    const val byte_buddy_agent = "net.bytebuddy:byte-buddy-agent:1.17.7"   // https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy-agent
+    const val byte_buddy = "net.bytebuddy:byte-buddy:1.17.8"   // https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy-agent
+    const val byte_buddy_agent = "net.bytebuddy:byte-buddy-agent:1.17.8"   // https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy-agent
 
     const val hikaricp = "com.zaxxer:HikariCP:7.0.2"                    // https://mvnrepository.com/artifact/com.zaxxer/HikariCP
-    const val tomcat_jdbc = "org.apache.tomcat:tomcat-jdbc:11.0.11"      // https://mvnrepository.com/artifact/org.apache.tomcat/tomcat-jdbc
+    const val tomcat_jdbc = "org.apache.tomcat:tomcat-jdbc:11.0.13"      // https://mvnrepository.com/artifact/org.apache.tomcat/tomcat-jdbc
 
     // Agroal Data 
     fun agroal(module: String, version: String = Versions.agroal) = "io.agroal:agroal-$module:$version"
@@ -1320,12 +1320,12 @@ object Libs {
     const val h2 = "com.h2database:h2:1.4.197"
 
     // MyBatis 테스트 시에 h2 v2 를 사용한다
-    const val h2_v2 = "com.h2database:h2:2.3.232"    // https://mvnrepository.com/artifact/com.h2database/h2
+    const val h2_v2 = "com.h2database:h2:2.4.240"    // https://mvnrepository.com/artifact/com.h2database/h2
     const val hsqldb = "org.hsqldb:hsqldb:2.7.4"     // https://mvnrepository.com/artifact/org.hsqldb/hsqldb
-    const val flyway_core = "org.flywaydb:flyway-core:11.13.1"  // https://mvnrepository.com/artifact/org.flywaydb/flyway-core
+    const val flyway_core = "org.flywaydb:flyway-core:11.15.0"  // https://mvnrepository.com/artifact/org.flywaydb/flyway-core
 
     // UUID Generator
-    const val java_uuid_generator = "com.fasterxml.uuid:java-uuid-generator:5.1.0"   // https://mvnrepository.com/artifact/com.fasterxml.uuid/java-uuid-generator
+    const val java_uuid_generator = "com.fasterxml.uuid:java-uuid-generator:5.1.1"   // https://mvnrepository.com/artifact/com.fasterxml.uuid/java-uuid-generator
     const val uuid_creator = "com.github.f4b6a3:uuid-creator:6.1.1"   // https://mvnrepository.com/artifact/com.github.f4b6a3/uuid-creator
 
     // Cache2K
