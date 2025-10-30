@@ -1250,7 +1250,7 @@ object Libs {
     const val r2dbc_mariadb = "org.mariadb:r2dbc-mariadb:1.3.0"  // https://github.com/mariadb-corporation/mariadb-connector-r2dbc
 
     // https://github.com/pgjdbc/r2dbc-postgresql
-    const val r2dbc_postgresql = "org.postgresql:r2dbc-postgresql:1.1.0.RELEASE" // https://mvnrepository.com/artifact/org.postgresql/r2dbc-postgresql
+    const val r2dbc_postgresql = "org.postgresql:r2dbc-postgresql:1.1.1.RELEASE" // https://mvnrepository.com/artifact/org.postgresql/r2dbc-postgresql
 
     // QueryDSL
     fun querydsl(module: String) = "com.querydsl:querydsl-$module:${Versions.querydsl}"
