@@ -36,6 +36,7 @@ class AwaitilityCoroutinesTest {
 
         await suspendUntil {
             log.debug { "await untilSuspending ..." }
+            delay(10)
             System.currentTimeMillis() > end
         }
         yield()
@@ -65,6 +66,7 @@ class AwaitilityCoroutinesTest {
 
         await.suspendUntil(Duration.ofMillis(50)) {
             log.debug { "await untilSuspending ..." }
+            delay(10)
             System.currentTimeMillis() > end
         }
         yield()
