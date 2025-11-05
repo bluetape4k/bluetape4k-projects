@@ -183,7 +183,7 @@ fun createSampleUser(favoriteMovieSize: Int = 100): User {
         city = faker.address().city()
         state = faker.address().state()
         email = faker.internet().emailAddress()
-        username = faker.internet().username()
+        username = faker.credentials().username()
 
         homeAddr = Address(
             faker.address().fullAddress(),

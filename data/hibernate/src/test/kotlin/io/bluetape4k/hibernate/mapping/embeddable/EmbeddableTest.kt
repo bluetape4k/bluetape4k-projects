@@ -11,8 +11,8 @@ class EmbeddableTest: AbstractHibernateTest() {
 
     private fun newPerson(): EmbeddablePerson {
         return EmbeddablePerson(
-            faker.internet().username(),
-            faker.internet().password()
+            faker.credentials().username(),
+            faker.credentials().password()
         ).apply {
             email = faker.internet().emailAddress()
             homeAddress = EmbeddableAddress(

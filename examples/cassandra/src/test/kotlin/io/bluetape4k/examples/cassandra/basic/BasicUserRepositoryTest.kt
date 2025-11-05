@@ -32,7 +32,7 @@ class BasicUserRepositoryTest(
     private fun newBasicUser(): BasicUser {
         return BasicUser(
             faker.random().nextLong(10000, 100000),
-            faker.internet().username(),
+            faker.credentials().username(),
             faker.name().firstName(),
             faker.name().lastName()
         )

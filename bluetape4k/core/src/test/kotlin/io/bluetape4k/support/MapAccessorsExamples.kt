@@ -69,7 +69,7 @@ class MapAccessorsExamples {
     fun `map property delegation example`() {
         val map = mutableMapOf<String, String>(
             "id" to faker.idNumber().ssnValid(),
-            "name" to faker.internet().username(),
+            "name" to faker.credentials().username(),
         )
 
         val user = User(map)

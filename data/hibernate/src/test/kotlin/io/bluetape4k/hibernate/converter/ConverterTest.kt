@@ -14,7 +14,7 @@ class ConverterTest: AbstractHibernateTest() {
     companion object: KLogging()
 
     private fun buildEntity(): ConvertableEntity =
-        ConvertableEntity(faker.internet().username()).apply {
+        ConvertableEntity(faker.credentials().username()).apply {
             locale = Locale.of(faker.nation().isoLanguage())
             duration = Duration.ofDays(3)
             password = faker.passport().valid()

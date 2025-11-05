@@ -47,15 +47,15 @@ class ReactiveCassandraBatchTemplateTest(
 
     companion object: KLoggingChannel()
 
-    private val group1 = Group(GroupKey("users", "0x01", faker.internet().username()))
-    private val group2 = Group(GroupKey("users", "0x01", faker.internet().username()))
+    private val group1 = Group(GroupKey("users", "0x01", faker.credentials().username()))
+    private val group2 = Group(GroupKey("users", "0x01", faker.credentials().username()))
 
     private fun newGroup(): Group {
         return Group(
             GroupKey(
                 faker.internet().domainName(),
                 faker.internet().domainWord(),
-                faker.internet().username()
+                faker.credentials().username()
             )
         ).apply {
             email = faker.internet().emailAddress()
@@ -67,7 +67,7 @@ class ReactiveCassandraBatchTemplateTest(
         return FlatGroup(
             faker.internet().domainName(),
             faker.internet().domainWord(),
-            faker.internet().username()
+            faker.credentials().username()
         ).apply {
             email = faker.internet().emailAddress()
             age = faker.random().nextInt(10, 80)

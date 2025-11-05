@@ -17,7 +17,7 @@ class UserTest: AbstractKotlinDynamoDbTest() {
 
     companion object: KLoggingChannel() {
         private fun newUser(): User = User(
-            userId = faker.internet().username(),
+            userId = faker.credentials().username(),
             name = faker.name().fullName(),
             email = faker.internet().emailAddress(),
             age = faker.number().numberBetween(20, 100)

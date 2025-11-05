@@ -87,7 +87,7 @@ abstract class AbstractJsonSerializerTest: AbstractFastjson2Test() {
             .add {
                 val user = User(
                     id = faker.random().nextInt(),
-                    name = faker.internet().username()
+                    name = faker.credentials().username()
                 )
                 val bytes = serializer.serialize(user)
                 bytes.shouldNotBeEmpty()
@@ -125,7 +125,7 @@ abstract class AbstractJsonSerializerTest: AbstractFastjson2Test() {
             .add {
                 val user = User(
                     id = faker.random().nextInt(),
-                    name = faker.internet().username()
+                    name = faker.credentials().username()
                 )
                 val bytes = serializer.serialize(user)
                 bytes.shouldNotBeEmpty()
@@ -164,7 +164,7 @@ abstract class AbstractJsonSerializerTest: AbstractFastjson2Test() {
             .add {
                 val user = User(
                     id = faker.random().nextInt(),
-                    name = faker.internet().username()
+                    name = faker.credentials().username()
                 )
                 val bytes = serializer.serialize(user)
                 bytes.shouldNotBeEmpty()

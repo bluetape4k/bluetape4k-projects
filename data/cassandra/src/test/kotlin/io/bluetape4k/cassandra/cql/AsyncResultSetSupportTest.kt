@@ -32,7 +32,7 @@ class AsyncResultSetSupportTest: AbstractCassandraTest() {
             val ps = session.prepareSuspending("INSERT INTO bulks(id, name) VALUES(?, ?)")
             val futures = List(SIZE) {
                 val id = it.toString()
-                val name = faker.internet().username()
+                val name = faker.credentials().username()
 
                 session.executeAsync(ps.bind(id, name))
             }
