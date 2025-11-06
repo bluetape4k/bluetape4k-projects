@@ -36,7 +36,10 @@ suspend fun withSuspendedTables(
                 } catch (ex: Throwable) {
                     logger.error(ex) { "Fail to drop tables, ${tables.joinToString { it.tableName }}" }
                     val database = testDB.db!!
-                    inTopLevelTransaction(database.transactionManager.defaultIsolationLevel, db = database) {
+                    inTopLevelTransaction(
+                        db = database,
+                        transactionIsolation = database.transactionManager.defaultIsolationLevel
+                    ) {
                         maxAttempts = 1
                         SchemaUtils.drop(*tables)
                     }
