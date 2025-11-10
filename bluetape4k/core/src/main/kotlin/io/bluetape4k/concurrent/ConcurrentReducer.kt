@@ -15,29 +15,27 @@ import java.util.concurrent.Executors
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 
+fun <T> concurrentReducerOf(
+    maxConcurrency: Int = Runtimex.availableProcessors * 2,
+    maxQueueSize: Int = 1000,
+): ConcurrentReducer<T> {
+    maxConcurrency.requirePositiveNumber("maxConcurrency")
+    maxQueueSize.requirePositiveNumber("maxQueueSize")
+
+    return ConcurrentReducer(maxConcurrency, maxQueueSize)
+}
+
 /**
  * 복수의 비동기 작업들을 [Semaphore]를 이용하여 제한된 숫자만큼만 동시에 실행되게끔 합니다.
  *
  * @property maxConcurrency 최대 동시 실행 가능한 작업 수 (Semaphore 수)
  * @property maxQueueSize   최대 큐 사이즈
  */
-class ConcurrentReducer<T> private constructor(
+class ConcurrentReducer<T> internal constructor(
     private val maxConcurrency: Int,
     private val maxQueueSize: Int,
 ) {
-
-    companion object: KLogging() {
-        @JvmStatic
-        operator fun <T> invoke(
-            maxConcurrency: Int = Runtimex.availableProcessors * 2,
-            maxQueueSize: Int = 1000,
-        ): ConcurrentReducer<T> {
-            maxConcurrency.requirePositiveNumber("maxConcurrency")
-            maxQueueSize.requirePositiveNumber("maxQueueSize")
-
-            return ConcurrentReducer(maxConcurrency, maxQueueSize)
-        }
-    }
+    companion object: KLogging()
 
     private val queue: BlockingQueue<Job<T>> = ArrayBlockingQueue(maxQueueSize)
     private val limit: Semaphore = Semaphore(maxConcurrency)
