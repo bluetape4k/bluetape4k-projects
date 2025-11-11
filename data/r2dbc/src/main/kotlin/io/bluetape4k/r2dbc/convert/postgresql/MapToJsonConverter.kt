@@ -30,6 +30,6 @@ class MapToJsonConverter(
         Json.of(mapper.writeValueAsString(source))
     } catch (e: JsonProcessingException) {
         log.error(e) { "Fail to serialize map to Json. source=$source" }
-        Json.of("")
+        null
     }
 }
