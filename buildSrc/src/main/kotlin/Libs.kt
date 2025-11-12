@@ -1166,7 +1166,7 @@ object Libs {
     const val spring_kafka_test = "org.springframework.kafka:spring-kafka-test:${Versions.spring_kafka}"
 
     // Pulsar
-    const val pulsar_client = "org.apache.pulsar:pulsar-client:4.1.0"  // https://mvnrepository.com/artifact/org.apache.pulsar/pulsar-client
+    const val pulsar_client = "org.apache.pulsar:pulsar-client:4.0.7"  // https://mvnrepository.com/artifact/org.apache.pulsar/pulsar-client
 
     // Nats
     const val jnats = "io.nats:jnats:2.23.0"     // https://mvnrepository.com/artifact/io.nats/jnats
