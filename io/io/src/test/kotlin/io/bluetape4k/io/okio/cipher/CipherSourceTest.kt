@@ -38,7 +38,7 @@ class CipherSourceTest: AbstractCipherTest() {
     @RepeatedTest(REPEAT_SIZE)
     fun `decrypt by cipher source with chunked with Default Locale`() {
         // NOTE Input is longer than 1 cipher block of 16 bytes
-        val expected = faker.lorem().paragraph()
+        val expected = faker.lorem().paragraph().repeat(4)
         val expectedBytes = expected.toUtf8Bytes()
 
         val cipheredSource = bufferOf(encryptCipher.doFinal(expectedBytes))
@@ -53,7 +53,7 @@ class CipherSourceTest: AbstractCipherTest() {
         output.readByteArray() shouldBeEqualTo expectedBytes.copyOfRange(5, 15)
 
         decoded.read(output, 100)
-        output.readByteArray() shouldBeEqualTo expectedBytes.copyOfRange(15, 115)
+        output.readByteArray() shouldBeEqualTo expectedBytes.copyOfRange(15, minOf(115, expectedBytes.size))
     }
 
     @RepeatedTest(REPEAT_SIZE)
