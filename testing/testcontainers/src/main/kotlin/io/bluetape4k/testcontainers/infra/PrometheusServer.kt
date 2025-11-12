@@ -30,8 +30,8 @@ class PrometheusServer private constructor(
 ): GenericContainer<PrometheusServer>(imageName), GenericServer {
 
     companion object: KLogging() {
-        const val IMAGE = "bitnami/prometheus"
-        const val TAG = "2.51.1"
+        const val IMAGE = "prom/prometheus"
+        const val TAG = "v3.7.3"
         const val NAME = "prometheus"
 
         const val PORT = 9090
