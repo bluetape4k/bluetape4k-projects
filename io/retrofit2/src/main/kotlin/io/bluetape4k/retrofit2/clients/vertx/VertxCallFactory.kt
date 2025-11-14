@@ -14,6 +14,7 @@ import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
+import kotlin.reflect.KClass
 
 /**
  * Vertx의 [HttpClient]를 사용하는 Retrofit2용 Call.Factory 인 [VertxCallFactory]를 생성합니다.
@@ -165,6 +166,14 @@ class VertxCallFactory private constructor(
         override fun timeout(): okio.Timeout {
             return timeout
         }
+
+        override fun <T: Any> tag(type: KClass<T>): T? = null
+
+        override fun <T> tag(type: Class<out T>): T? = null
+
+        override fun <T: Any> tag(type: KClass<T>, computeIfAbsent: () -> T): T = computeIfAbsent()
+
+        override fun <T: Any> tag(type: Class<T>, computeIfAbsent: () -> T): T = computeIfAbsent()
 
         private fun throwAlreadyExecuted() {
             error("Already executed. request=$okRequest")
