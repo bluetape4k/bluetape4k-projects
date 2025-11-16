@@ -24,7 +24,7 @@ object Plugins {
         const val docker_compose = "0.17.18"  // https://plugins.gradle.org/plugin/com.avast.gradle.docker-compose
 
         // 참고: https://docs.gatling.io/reference/integrations/build-tools/gradle-plugin/
-        const val gatling = "3.14.7"  // https://plugins.gradle.org/plugin/io.gatling.gradle
+        const val gatling = "3.14.9"  // https://plugins.gradle.org/plugin/io.gatling.gradle
 
         const val graalvm_native = "0.11.2" // https://mvnrepository.com/artifact/org.graalvm.buildtools.native/org.graalvm.buildtools.native.gradle.plugin
 
@@ -158,8 +158,8 @@ object Versions {
     const val r2dbc = "1.0.0.RELEASE"        // https://mvnrepository.com/artifact/io.r2dbc/r2dbc-spi
     const val agroal = "2.8"          // https://mvnrepository.com/artifact/io.agroal/agroal-api
 
-    const val blaze_persistence = "3.29.0" // https://mvnrepository.com/artifact/io.quarkus.platform/quarkus-blaze-persistence-bom
-    const val javers = "7.8.6"             // https://mvnrepository.com/artifact/org.javers/javers-core
+    const val blaze_persistence = "3.29.3" // https://mvnrepository.com/artifact/io.quarkus.platform/quarkus-blaze-persistence-bom
+    const val javers = "7.9.0"             // https://mvnrepository.com/artifact/org.javers/javers-core
 
     const val slf4j = "2.0.17"       // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
     const val logback = "1.5.20"     // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
@@ -169,11 +169,11 @@ object Versions {
     const val prometheus = "0.16.0"     // https://mvnrepository.com/artifact/io.prometheus/simpleclient
 
     // NOTE: spring boot 2.7.x 를 사용할 시 micrometer는 1.9+ 를 사용해야 합니다.
-    const val micrometer = "1.15.5"         // https://mvnrepository.com/artifact/io.micrometer/micrometer-core
-    const val micrometerTracing = "1.5.5"   // https://mvnrepository.com/artifact/io.micrometer/micrometer-tracing
-    const val micrometerContextPropagation = "1.1.3" // https://mvnrepository.com/artifact/io.micrometer/context-propagation
+    const val micrometer = "1.16.0"         // https://mvnrepository.com/artifact/io.micrometer/micrometer-core
+    const val micrometerTracing = "1.6.0"   // https://mvnrepository.com/artifact/io.micrometer/micrometer-tracing
+    const val micrometerContextPropagation = "1.2.0" // https://mvnrepository.com/artifact/io.micrometer/context-propagation
 
-    const val opentelemetry = "1.55.0" // https://mvnrepository.com/artifact/io.opentelemetry/opentelemetry-bom
+    const val opentelemetry = "1.56.0" // https://mvnrepository.com/artifact/io.opentelemetry/opentelemetry-bom
     const val opentelemetryAlpha = "$opentelemetry-alpha" // https://mvnrepository.com/artifact/io.opentelemetry/opentelemetry-bom-alpha
 
     const val opentelemetryJavaAgent = "2.21.0" // https://mvnrepository.com/artifact/io.opentelemetry.javaagent/opentelemetry-javaagent
@@ -220,12 +220,12 @@ object Versions {
 
     const val logback_slack_appender = "1.6.1"  // https://mvnrepository.com/artifact/com.github.maricn/logback-slack-appender
 
-    const val sentry_logback = "8.25.0"  // https://mvnrepository.com/artifact/io.sentry/sentry-logback
+    const val sentry_logback = "8.26.0"  // https://mvnrepository.com/artifact/io.sentry/sentry-logback
 
     const val scrimage = "4.3.5"  // https://mvnrepository.com/artifact/com.sksamuel.scrimage/scrimage-core
 
     // Gatling
-    const val gatling = "3.14.7" // https://mvnrepository.com/artifact/io.gatling/gatling-core
+    const val gatling = "3.14.9" // https://mvnrepository.com/artifact/io.gatling/gatling-core
 }
 
 object Libs {
@@ -409,7 +409,7 @@ object Libs {
     const val kryo = "com.esotericsoftware:kryo:5.6.2" // https://mvnrepository.com/artifact/com.esotericsoftware/kryo
     const val kryo5 = "com.esotericsoftware:kryo:5.6.2" // https://mvnrepository.com/artifact/com.esotericsoftware/kryo
     const val fury_kotlin = "org.apache.fury:fury-kotlin:0.10.3" // https://mvnrepository.com/artifact/org.apache.fury/fury-kotlin
-    const val fory_kotlin = "org.apache.fory:fory-kotlin:0.13.0" // https://mvnrepository.com/artifact/org.apache.fory/fory-kotlin
+    const val fory_kotlin = "org.apache.fory:fory-kotlin:0.13.1" // https://mvnrepository.com/artifact/org.apache.fory/fory-kotlin
 
     // Spring Boot
     const val spring_boot_dependencies = "org.springframework.boot:spring-boot-dependencies:${Versions.spring_boot}"
@@ -674,7 +674,7 @@ object Libs {
     val avro_protobuf = avro("avro-protobuf")
 
     // https://mvnrepository.com/artifact/com.github.avro-kotlin.avro4k/avro4k-core
-    const val avro_kotlin = "com.github.avro-kotlin.avro4k:avro4k-core:2.6.0"
+    const val avro_kotlin = "com.github.avro-kotlin.avro4k:avro4k-core:2.7.0"
 
     fun awsSdk(name: String, version: String = Versions.aws) = "com.amazonaws:aws-java-sdk-$name:$version"
     val aws_bom = awsSdk("bom")
