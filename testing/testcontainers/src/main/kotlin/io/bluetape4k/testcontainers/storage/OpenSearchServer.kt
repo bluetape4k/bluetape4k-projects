@@ -5,7 +5,7 @@ import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
-import org.opensearch.testcontainers.OpensearchContainer
+import org.opensearch.testcontainers.OpenSearchContainer
 import org.springframework.data.elasticsearch.client.ClientConfiguration
 import org.testcontainers.utility.DockerImageName
 
@@ -22,13 +22,13 @@ import org.testcontainers.utility.DockerImageName
  * @param useDefaultPort Default port 를 사용할지 여부
  * @param reuse          재사용 여부
  */
-class OpensearchServer private constructor(
+class OpenSearchServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean,
     reuse: Boolean,
-): OpensearchContainer<OpensearchServer>(imageName), GenericServer {
+): OpenSearchContainer<OpenSearchServer>(imageName), GenericServer {
 
-    companion object: KLogging() {
+    companion object Companion: KLogging() {
         const val IMAGE = "opensearchproject/opensearch"
         const val TAG = "1"
         const val NAME = "opensearch"
@@ -41,8 +41,8 @@ class OpensearchServer private constructor(
             imageName: DockerImageName,
             useDefaultPort: Boolean = false,
             reuse: Boolean = true,
-        ): OpensearchServer {
-            return OpensearchServer(imageName, useDefaultPort, reuse)
+        ): OpenSearchServer {
+            return OpenSearchServer(imageName, useDefaultPort, reuse)
         }
 
         @JvmStatic
@@ -51,7 +51,7 @@ class OpensearchServer private constructor(
             tag: String = TAG,
             useDefaultPort: Boolean = false,
             reuse: Boolean = true,
-        ): OpensearchServer {
+        ): OpenSearchServer {
             val imageName = DockerImageName.parse("$image:$tag")
             return invoke(imageName, useDefaultPort, reuse)
         }
@@ -76,10 +76,10 @@ class OpensearchServer private constructor(
 
     object Launcher {
         /**
-         * 기본 [OpensearchServer]를 제공합니다.
+         * 기본 [OpenSearchServer]를 제공합니다.
          */
-        val opensearch: OpensearchServer by lazy {
-            OpensearchServer().apply {
+        val openSearch: OpenSearchServer by lazy {
+            OpenSearchServer().apply {
                 start()
                 ShutdownQueue.register(this)
             }
@@ -88,10 +88,10 @@ class OpensearchServer private constructor(
         /**
          * Spring Data Elasticsearch 를 사용 할 때 사용할 클라이언트 설정을 제공합니다.
          *
-         * @param opensearch [OpensearchServer] 인스턴스
+         * @param opensearch [OpenSearchServer] 인스턴스
          * @return Spring Data Elasticsearch에서 제공하는 [ClientConfiguration] 인스턴스
          */
-        fun getClientConfiguration(opensearch: OpensearchServer): ClientConfiguration {
+        fun getClientConfiguration(opensearch: OpenSearchServer): ClientConfiguration {
             return ClientConfiguration.builder()
                 .connectedTo(opensearch.url)
                 //.usingSsl(opensearch.createSslContextFromCa())

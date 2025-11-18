@@ -134,7 +134,7 @@ object Versions {
     const val asynchttpclient = "2.12.4"  // https://mvnrepository.com/artifact/org.asynchttpclient/async-http-client
 
     const val jackson = "2.20.1" // https://mvnrepository.com/artifact/com.fasterxml.jackson/jackson-bom
-    const val jackson3 = "3.0.1" // https://mvnrepository.com/artifact/tools.jackson/jackson-bom
+    const val jackson3 = "3.0.2" // https://mvnrepository.com/artifact/tools.jackson/jackson-bom
     const val fastjson2 = "2.0.60" // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2
     const val jjwt = "0.11.5"    // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api
 
@@ -1166,10 +1166,10 @@ object Libs {
     const val spring_kafka_test = "org.springframework.kafka:spring-kafka-test:${Versions.spring_kafka}"
 
     // Pulsar
-    const val pulsar_client = "org.apache.pulsar:pulsar-client:4.0.7"  // https://mvnrepository.com/artifact/org.apache.pulsar/pulsar-client
+    const val pulsar_client = "org.apache.pulsar:pulsar-client:4.1.1"  // https://mvnrepository.com/artifact/org.apache.pulsar/pulsar-client
 
     // Nats
-    const val jnats = "io.nats:jnats:2.23.0"     // https://mvnrepository.com/artifact/io.nats/jnats
+    const val jnats = "io.nats:jnats:2.24.0"     // https://mvnrepository.com/artifact/io.nats/jnats
     const val nats_spring = "io.nats:nats-spring:0.6.2+3.5"  // https://mvnrepository.com/artifact/io.nats/nats-spring
     const val nats_spring_cloud_stream_binder = "io.nats:nats-spring-cloud-stream-binder:0.6.2+3.5" //https://mvnrepository.com/artifact/io.nats/nats-spring-cloud-stream-binder
 
@@ -1296,11 +1296,11 @@ object Libs {
     val javers_spring_boot_starter_sql = javers("spring-boot-starter-sql")
 
     // MyBatis Mapping 에 사용한다
-    const val byte_buddy = "net.bytebuddy:byte-buddy:1.17.8"   // https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy-agent
-    const val byte_buddy_agent = "net.bytebuddy:byte-buddy-agent:1.17.8"   // https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy-agent
+    const val byte_buddy = "net.bytebuddy:byte-buddy:1.18.1"   // https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy-agent
+    const val byte_buddy_agent = "net.bytebuddy:byte-buddy-agent:1.18.1"   // https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy-agent
 
     const val hikaricp = "com.zaxxer:HikariCP:7.0.2"                    // https://mvnrepository.com/artifact/com.zaxxer/HikariCP
-    const val tomcat_jdbc = "org.apache.tomcat:tomcat-jdbc:11.0.13"      // https://mvnrepository.com/artifact/org.apache.tomcat/tomcat-jdbc
+    const val tomcat_jdbc = "org.apache.tomcat:tomcat-jdbc:11.0.14"      // https://mvnrepository.com/artifact/org.apache.tomcat/tomcat-jdbc
 
     // Agroal Data 
     fun agroal(module: String, version: String = Versions.agroal) = "io.agroal:agroal-$module:$version"
@@ -1314,7 +1314,7 @@ object Libs {
     const val postgresql_driver = "org.postgresql:postgresql:42.7.8"  // https://mvnrepository.com/artifact/org.postgresql/postgresql
     const val pgjdbc_ng = "com.impossibl.pgjdbc-ng:pgjdbc-ng:0.8.9"  // https://mvnrepository.com/artifact/com.impossibl.pgjdbc-ng/pgjdbc-ng
     const val oracle_ojdbc8 = "com.oracle.ojdbc:ojdbc8:19.3.0.0"
-    const val clickhouse_jdbc = "com.clickhouse:clickhouse-jdbc:0.9.3" // https://mvnrepository.com/artifact/com.clickhouse/clickhouse-jdbc
+    const val clickhouse_jdbc = "com.clickhouse:clickhouse-jdbc:0.9.4" // https://mvnrepository.com/artifact/com.clickhouse/clickhouse-jdbc
 
     // NOTE: Apache Ignite 에서는 꼭 1.4.197 를 써야 합니다.
     const val h2 = "com.h2database:h2:1.4.197"
@@ -1322,7 +1322,7 @@ object Libs {
     // MyBatis 테스트 시에 h2 v2 를 사용한다
     const val h2_v2 = "com.h2database:h2:2.3.232"    // https://mvnrepository.com/artifact/com.h2database/h2
     const val hsqldb = "org.hsqldb:hsqldb:2.7.4"     // https://mvnrepository.com/artifact/org.hsqldb/hsqldb
-    const val flyway_core = "org.flywaydb:flyway-core:11.15.0"  // https://mvnrepository.com/artifact/org.flywaydb/flyway-core
+    const val flyway_core = "org.flywaydb:flyway-core:11.17.0"  // https://mvnrepository.com/artifact/org.flywaydb/flyway-core
 
     // UUID Generator
     const val java_uuid_generator = "com.fasterxml.uuid:java-uuid-generator:5.1.1"   // https://mvnrepository.com/artifact/com.fasterxml.uuid/java-uuid-generator
@@ -1425,8 +1425,8 @@ object Libs {
     // https://github.com/j-easy/easy-random 으로 Upgrade 하기
     const val random_beans = "io.github.benas:random-beans:${Versions.random_beans}"
 
-    const val mockserver_netty = "org.mock-server:mockserver-netty:5.10.0"
-    const val mockserver_client_java = "org.mock-server:mockserver-client-java:5.10.0"
+    const val mockserver_netty = "org.mock-server:mockserver-netty:5.15.0"  // https://mvnrepository.com/artifact/org.mock-server/mockserver-netty
+    const val mockserver_client_java = "org.mock-server:mockserver-client-java:5.15.0"  // https://mvnrepository.com/artifact/org.mock-server/mockserver-client-java
 
     const val system_rules = "com.github.stefanbirkner:system-rules:1.19.0"
 
@@ -1481,11 +1481,11 @@ object Libs {
     const val kubernetes_client_java = "io.kubernetes:client-java:24.0.0"   // https://mvnrepository.com/artifact/io.kubernetes/client-java
 
     // Minio
-    const val minio = "io.minio:minio:8.5.17" // https://mvnrepository.com/artifact/io.minio/minio
+    const val minio = "io.minio:minio:8.6.0" // https://mvnrepository.com/artifact/io.minio/minio
     val testcontainers_minio = testcontainers("minio")
 
     // Milvus
-    const val milvus_sdk_java = "io.milvus:milvus-sdk-java:2.5.9" // https://mvnrepository.com/artifact/io.milvus/milvus-sdk-java
+    const val milvus_sdk_java = "io.milvus:milvus-sdk-java:2.6.7" // https://mvnrepository.com/artifact/io.milvus/milvus-sdk-java
 
     // Immudb
     const val immudb4j = "io.codenotary:immudb4j:1.0.1" // https://mvnrepository.com/artifact/io.codenotary/immudb4j
@@ -1503,10 +1503,10 @@ object Libs {
     const val jna_platform = "net.java.dev.jna:jna-platform:${Versions.jna}"
 
     // wiremock
-    const val wiremock = "org.wiremock:wiremock:3.13.1" // https://mvnrepository.com/artifact/org.wiremock/wiremock
+    const val wiremock = "org.wiremock:wiremock:3.13.2" // https://mvnrepository.com/artifact/org.wiremock/wiremock
 
     // OpenSearch Testcontainers
-    const val testcontainers_opensearch = "org.opensearch:opensearch-testcontainers:2.1.4"  // https://mvnrepository.com/artifact/org.opensearch/opensearch-testcontainers
+    const val testcontainers_opensearch = "org.opensearch:opensearch-testcontainers:4.0.0"  // https://mvnrepository.com/artifact/org.opensearch/opensearch-testcontainers
 
     // rest-assured
     fun restAssured(module: String) = "io.rest-assured:$module:${Versions.rest_assured}"
