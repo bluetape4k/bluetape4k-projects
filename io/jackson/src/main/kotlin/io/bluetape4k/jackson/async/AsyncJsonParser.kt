@@ -15,6 +15,7 @@ import io.bluetape4k.jackson.createNode
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import jakarta.json.stream.JsonParsingException
+import java.io.Serializable
 import java.util.*
 
 /**
@@ -53,7 +54,7 @@ class AsyncJsonParser(
     private data class StackFrame(
         val node: JsonNode,
         val fieldName: String? = null,
-    )
+    ): Serializable
 
     private val parser: NonBlockingJsonParser by lazy {
         jsonFactory.createNonBlockingByteArrayParser() as NonBlockingJsonParser
