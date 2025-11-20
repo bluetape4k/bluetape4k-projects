@@ -3,6 +3,7 @@ package io.bluetape4k.junit5.utils
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.internal.platformClassName
 import org.junit.jupiter.engine.JupiterTestEngine
+import org.junit.platform.engine.CancellationToken
 import org.junit.platform.engine.DiscoverySelector
 import org.junit.platform.engine.ExecutionRequest
 import org.junit.platform.engine.OutputDirectoryCreator
@@ -45,7 +46,8 @@ object ExtensionTester {
                 listener,
                 discoveryRequest.configurationParameters,
                 TemporaryOutputDirectoryCreator(),
-                NamespacedHierarchicalStore(NamespacedHierarchicalStore(null))
+                NamespacedHierarchicalStore(NamespacedHierarchicalStore(null)),
+                CancellationToken.create()
             )
         )
 
@@ -60,9 +62,9 @@ object ExtensionTester {
 
         private val root by lazy { Files.createTempDirectory(PREFIX) }
 
-        override fun getRootDirectory(): Path? = root
+        override fun getRootDirectory(): Path = root
 
-        override fun createOutputDirectory(testDescriptor: TestDescriptor): Path? {
+        override fun createOutputDirectory(testDescriptor: TestDescriptor): Path {
             return Path.of(root.name, testDescriptor.platformClassName())
         }
     }

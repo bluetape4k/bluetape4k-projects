@@ -31,7 +31,7 @@ class StopwatchExtension(private val logger: Logger = log): BeforeTestExecutionC
 
     override fun afterTestExecution(context: ExtensionContext) {
         val testMethod = context.requiredTestMethod
-        val startNano = context.store(StopwatchExtension::class).get(testMethod, Long::class.java)
+        val startNano = context.store(StopwatchExtension::class).get(testMethod, Long::class.java) ?: 0L
         val nanos = Duration.ofNanos(System.nanoTime() - startNano)
 
         val millis = nanos.toMillis()
@@ -40,6 +40,5 @@ class StopwatchExtension(private val logger: Logger = log): BeforeTestExecutionC
         } else {
             logger.info { "Completed test [${testMethod.name}] took $millis msecs." }
         }
-
     }
 }
