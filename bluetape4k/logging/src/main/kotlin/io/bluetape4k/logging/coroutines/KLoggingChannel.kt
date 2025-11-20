@@ -111,6 +111,7 @@ open class KLoggingChannel: KLogging() {
         }
     }
 
+    @JvmRecord
     data class LogEvent(
         val level: Level = Level.DEBUG,
         val msg: String? = null,

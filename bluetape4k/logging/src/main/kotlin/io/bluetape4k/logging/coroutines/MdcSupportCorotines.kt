@@ -6,7 +6,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.slf4j.MDCContext
 import kotlinx.coroutines.withContext
-import kotlin.coroutines.coroutineContext
 
 /**
  * Coroutine 환경 하에서 MDC를 사용하여 로깅 컨텍스트를 설정합니다.
@@ -43,7 +42,6 @@ suspend inline fun <T> withCoroutineLoggingContext(
         }
     }
 }
-
 
 /**
  * Coroutine 환경 하에서 MDC를 사용하여 로깅 컨텍스트를 설정합니다.
@@ -103,7 +101,7 @@ suspend inline fun <T> withCoroutineLoggingContext(
     map: Map<String, Any?>,
     restorePrevious: Boolean = true,
     crossinline block: suspend CoroutineScope.() -> T,
-): T = withContext(coroutineContext + MDCContext()) {
+): T = withContext(currentCoroutineContext() + MDCContext()) {
     withLoggingContext(map, restorePrevious) {
         block(this)
     }
