@@ -35,7 +35,7 @@ import java.time.LocalDate
 class Book private constructor(
     val isbn: String,
     val title: String,
-    @Past
+    @field:Past
     var published: LocalDate,
 ): AbstractValueObject() {
 

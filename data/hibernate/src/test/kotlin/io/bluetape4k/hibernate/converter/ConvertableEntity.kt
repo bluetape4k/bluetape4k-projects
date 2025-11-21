@@ -22,7 +22,7 @@ import java.util.*
 @Entity(name = "convertable_entity")
 @Access(AccessType.FIELD)
 class ConvertableEntity(
-    @NotBlank
+    @field:NotBlank
     val name: String,
 ): IntJpaEntity() {
 

@@ -81,7 +81,7 @@ class AddressEntity(
 @Entity(name = "join_user")
 @Access(AccessType.FIELD)
 class JoinUser private constructor(
-    @NotBlank
+    @field:NotBlank
     val name: String,
 ): IntJpaEntity() {
 
@@ -135,7 +135,7 @@ class JoinUser private constructor(
 @Access(AccessType.FIELD)
 @SecondaryTable(name = "join_customer_address", pkJoinColumns = [PrimaryKeyJoinColumn(name = "customer_id")])
 class JoinCustomer private constructor(
-    @NotBlank
+    @field:NotBlank
     val name: String,
     var email: String?,
 ): IntJpaEntity() {

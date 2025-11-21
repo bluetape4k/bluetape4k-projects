@@ -22,7 +22,7 @@ import org.hibernate.annotations.DynamicUpdate
 @DynamicInsert
 @DynamicUpdate
 class TreeNode private constructor(
-    @NotBlank
+    @field:NotBlank
     var title: String,
 ): LongJpaTreeEntity<TreeNode>() {
 

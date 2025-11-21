@@ -25,7 +25,7 @@ import java.time.LocalDateTime
 @Access(AccessType.FIELD)
 class LifecycleEntity private constructor(
     @Column(nullable = false)
-    @NotBlank
+    @field:NotBlank
     var name: String,
 ): IntJpaEntity() {
 

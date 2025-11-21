@@ -64,7 +64,7 @@ class Father(val name: String): IntJpaEntity() {
 @DynamicInsert
 @DynamicUpdate
 class Child(
-    @NotBlank val name: String,
+    @field:NotBlank val name: String,
     val birthday: LocalDate,
 ): IntJpaEntity() {
 
@@ -91,7 +91,7 @@ class Child(
 @Access(AccessType.FIELD)
 @DynamicInsert
 @DynamicUpdate
-class Order(@NotBlank val no: String): IntJpaEntity() {
+class Order(@field:NotBlank val no: String): IntJpaEntity() {
 
     @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
     @OrderBy("name")
@@ -135,7 +135,7 @@ class Order(@NotBlank val no: String): IntJpaEntity() {
 @Access(AccessType.FIELD)
 @DynamicInsert
 @DynamicUpdate
-class OrderItem(@NotBlank val name: String): IntJpaEntity() {
+class OrderItem(@field:NotBlank val name: String): IntJpaEntity() {
 
     @ManyToOne
     @JoinColumn(name = "order_id")
