@@ -23,7 +23,7 @@ abstract class AbstractSuspendRecordReaderTest {
     protected abstract val productTypePath: String
     protected abstract val extraWordsPath: String
 
-    private val mapper: (Record) -> ProductType = { record: Record ->
+    private val transform: (Record) -> ProductType = { record: Record ->
         val tagFamily = record.getValue(0, "").trim()
         val representative = record.getValue(1, "").trim()
         val synonym = record.getValue<String?>(2, null)?.trim()
@@ -45,9 +45,9 @@ abstract class AbstractSuspendRecordReaderTest {
 
     @Test
     fun `read record from csv file with number types`() = runSuspendIO {
-        Resourcex.getInputStream(productTypePath)!!.buffered().use { input ->
+        Resourcex.getInputStream(productTypePath)!!.buffered().use { bis ->
             reader
-                .read(input, UTF_8, true)
+                .read(bis, UTF_8, true)
                 .buffer()
                 .collect { record ->
                     log.trace { "product type record=$record" }
@@ -62,9 +62,9 @@ abstract class AbstractSuspendRecordReaderTest {
 
     @Test
     fun `read product type from csv file with mapper`() = runSuspendIO {
-        Resourcex.getInputStream(productTypePath)!!.buffered().use { input ->
+        Resourcex.getInputStream(productTypePath)!!.buffered().use { bis ->
             reader
-                .read(input, UTF_8, true, mapper)
+                .read(bis, UTF_8, true, transform)
                 .buffer()
                 .collect { productType ->
                     log.trace { "ProductType=$productType" }
@@ -77,9 +77,9 @@ abstract class AbstractSuspendRecordReaderTest {
 
     @Test
     fun `read extra words from csv file `() = runSuspendIO {
-        Resourcex.getInputStream(extraWordsPath)!!.buffered().use { input ->
+        Resourcex.getInputStream(extraWordsPath)!!.buffered().use { bis ->
             reader
-                .read(input, UTF_8, true)
+                .read(bis, UTF_8, true)
                 .buffer()
                 .collect { record ->
                     log.trace { "extra words record=$record" }

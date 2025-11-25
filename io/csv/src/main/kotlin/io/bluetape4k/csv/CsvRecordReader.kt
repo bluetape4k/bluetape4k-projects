@@ -34,11 +34,11 @@ class CsvRecordReader(
         input: InputStream,
         encoding: Charset,
         skipHeaders: Boolean,
-        recordMapper: (Record) -> T,
+        transform: (Record) -> T,
     ): Sequence<T> {
         return CsvParser(settings).iterateRecords(input, encoding)
             .drop(if (skipHeaders) 1 else 0)
-            .map { record -> recordMapper(record) }
+            .map { record -> transform(record) }
             .asSequence()
     }
 }

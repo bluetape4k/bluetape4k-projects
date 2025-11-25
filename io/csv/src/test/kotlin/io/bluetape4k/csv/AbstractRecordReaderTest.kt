@@ -43,9 +43,9 @@ abstract class AbstractRecordReaderTest {
 
     @Test
     fun `read record from csv file with number types`() {
-        Resourcex.getInputStream(productTypePath)!!.buffered().use { input ->
+        Resourcex.getInputStream(productTypePath)!!.buffered().use { bis ->
 
-            val records = reader.read(input, UTF_8, true)
+            val records = reader.read(bis, UTF_8, true)
 
             records.forEach { record ->
                 log.trace { "product type record=$record" }
@@ -60,8 +60,8 @@ abstract class AbstractRecordReaderTest {
 
     @Test
     fun `read product type from csv file with mapper`() {
-        Resourcex.getInputStream(productTypePath)!!.buffered().use { input ->
-            val productTypes = reader.read(input, UTF_8, true, mapper)
+        Resourcex.getInputStream(productTypePath)!!.buffered().use { bis ->
+            val productTypes = reader.read(bis, UTF_8, true, mapper)
 
             productTypes.forEach { productType ->
                 log.trace { "ProductType=$productType" }
@@ -74,8 +74,8 @@ abstract class AbstractRecordReaderTest {
 
     @Test
     fun `read extra words from csv file `() {
-        Resourcex.getInputStream(extraWordsPath)!!.buffered().use { input ->
-            val records = reader.read(input, UTF_8, true)
+        Resourcex.getInputStream(extraWordsPath)!!.buffered().use { bis ->
+            val records = reader.read(bis, UTF_8, true)
 
             records.forEach { record ->
                 log.trace { "extra words record=$record" }

@@ -36,7 +36,7 @@ interface SuspendRecordReader: Closeable {
         input: InputStream,
         encoding: Charset = Charsets.UTF_8,
         skipHeaders: Boolean = true,
-        recordMapper: (Record) -> T,
+        transform: (Record) -> T,
     ): Flow<T>
 
     /**

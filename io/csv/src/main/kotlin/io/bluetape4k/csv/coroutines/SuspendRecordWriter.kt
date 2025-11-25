@@ -31,14 +31,13 @@ interface SuspendRecordWriter: Closeable {
 
     suspend fun writeAll(rows: Sequence<Iterable<*>>)
 
-    suspend fun <T> writeAll(entities: Sequence<T>, mapper: (T) -> Iterable<*>) {
-        writeAll(entities.map(mapper))
+    suspend fun <T> writeAll(entities: Sequence<T>, transform: (T) -> Iterable<*>) {
+        writeAll(entities.map(transform))
     }
 
     suspend fun writeAll(rows: Flow<Iterable<*>>)
 
-    suspend fun <T> writeAll(entities: Flow<T>, mapper: (T) -> Iterable<*>) {
-        writeAll(entities.map { mapper(it) })
+    suspend fun <T> writeAll(entities: Flow<T>, transform: (T) -> Iterable<*>) {
+        writeAll(entities.map(transform))
     }
-
 }

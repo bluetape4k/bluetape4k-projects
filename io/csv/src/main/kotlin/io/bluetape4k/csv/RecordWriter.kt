@@ -18,10 +18,10 @@ interface RecordWriter: Closeable {
     /**
      * 하나의 엔티티를 여러 컬럼의 정보로 매핑하여 하나의 Record로 저장합니다.
      * @param entity T
-     * @param mapper Function1<T, Iterable<*>>
+     * @param transform Function1<T, Iterable<*>>
      */
-    fun <T> writeRow(entity: T, mapper: (T) -> Iterable<*>) {
-        writeRow(mapper(entity))
+    fun <T> writeRow(entity: T, transform: (T) -> Iterable<*>) {
+        writeRow(transform(entity))
     }
 
     /**
@@ -34,9 +34,9 @@ interface RecordWriter: Closeable {
      * 복수개의 정보를 저장소에 씁니다.
      *
      * @param entities 저장할 엔티티들
-     * @param mapper 엔티티를 레코드로 변환하는 함수
+     * @param transform 엔티티를 레코드로 변환하는 함수
      */
-    fun <T> writeAll(entities: Sequence<T>, mapper: (T) -> Iterable<*>) {
-        writeAll(entities.map(mapper))
+    fun <T> writeAll(entities: Sequence<T>, transform: (T) -> Iterable<*>) {
+        writeAll(entities.map(transform))
     }
 }

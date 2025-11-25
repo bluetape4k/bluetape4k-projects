@@ -39,13 +39,13 @@ class SuspendTsvRecordReader(
         input: InputStream,
         encoding: Charset,
         skipHeaders: Boolean,
-        recordMapper: (Record) -> T,
+        transform: (Record) -> T,
     ): Flow<T> {
         return TsvParser(settings)
             .iterateRecords(input, encoding)
             .asFlow()
             .drop(if (skipHeaders) 1 else 0)
-            .map { recordMapper(it) }
+            .map { transform(it) }
     }
 
     override fun close() {
