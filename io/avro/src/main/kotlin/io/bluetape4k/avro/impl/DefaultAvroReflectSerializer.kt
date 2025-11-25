@@ -33,9 +33,8 @@ class DefaultAvroReflectSerializer private constructor(
         @JvmStatic
         operator fun invoke(
             codecFactory: CodecFactory = DEFAULT_CODEC_FACTORY,
-        ): DefaultAvroReflectSerializer {
-            return DefaultAvroReflectSerializer(codecFactory)
-        }
+        ): DefaultAvroReflectSerializer =
+            DefaultAvroReflectSerializer(codecFactory)
     }
 
     override fun <T> serialize(graph: T?): ByteArray? {

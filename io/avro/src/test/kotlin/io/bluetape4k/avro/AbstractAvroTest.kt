@@ -9,5 +9,4 @@ abstract class AbstractAvroTest {
         @JvmStatic
         val faker = Fakers.faker
     }
-
 }
