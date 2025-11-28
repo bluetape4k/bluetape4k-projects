@@ -154,7 +154,7 @@ object Versions {
     const val hibernate_validator = "9.1.0.Final" // https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator
     const val querydsl = "5.1.0"                  // https://mvnrepository.com/artifact/com.querydsl/querydsl-jpa
 
-    const val exposed = "1.0.0-rc-3"       // https://mvnrepository.com/artifact/org.jetbrains.exposed/exposed-core
+    const val exposed = "1.0.0-rc-4"       // https://mvnrepository.com/artifact/org.jetbrains.exposed/exposed-core
     const val r2dbc = "1.0.0.RELEASE"        // https://mvnrepository.com/artifact/io.r2dbc/r2dbc-spi
     const val agroal = "2.8"          // https://mvnrepository.com/artifact/io.agroal/agroal-api
 
@@ -1241,7 +1241,7 @@ object Libs {
     // R2DBC (버전은 spring-data 버전을 사용한다)
     fun r2dbc(module: String, version: String = Versions.r2dbc): String = "io.r2dbc:r2dbc-$module:$version"
     val r2dbc_spi = r2dbc("spi")
-    val r2dbc_h2 = r2dbc("h2")
+    val r2dbc_h2 = r2dbc("h2", "1.1.0.RELEASE")
     val r2dbc_pool = r2dbc("pool", "1.0.2.RELEASE")
     val r2dbc_proxy = r2dbc("spi", "1.1.6.RELEASE")
 
@@ -1320,7 +1320,7 @@ object Libs {
     const val h2 = "com.h2database:h2:1.4.197"
 
     // MyBatis 테스트 시에 h2 v2 를 사용한다
-    const val h2_v2 = "com.h2database:h2:2.3.232"    // https://mvnrepository.com/artifact/com.h2database/h2
+    const val h2_v2 = "com.h2database:h2:2.4.240"    // https://mvnrepository.com/artifact/com.h2database/h2
     const val hsqldb = "org.hsqldb:hsqldb:2.7.4"     // https://mvnrepository.com/artifact/org.hsqldb/hsqldb
     const val flyway_core = "org.flywaydb:flyway-core:11.17.1"  // https://mvnrepository.com/artifact/org.flywaydb/flyway-core
 
