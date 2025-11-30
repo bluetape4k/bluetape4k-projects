@@ -111,17 +111,17 @@ object Versions {
     const val resilience4j = "2.3.0"   // https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-bom
     const val netty = "4.2.7.Final"  // https://mvnrepository.com/artifact/io.netty/netty-all
 
-    const val aws = "1.12.791"          // https://mvnrepository.com/artifact/com.amazonaws
-    const val aws2 = "2.38.5"           // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
-    const val aws2_crt = "0.39.4"      // https://mvnrepository.com/artifact/software.amazon.awssdk.crt/aws-crt
-    const val aws_kotlin = "1.5.81"     // https://mvnrepository.com/artifact/aws.sdk.kotlin/aws-http-jvm
+    const val aws = "1.12.794"          // https://mvnrepository.com/artifact/com.amazonaws
+    const val aws2 = "2.39.5"           // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
+    const val aws2_crt = "0.40.1"      // https://mvnrepository.com/artifact/software.amazon.awssdk.crt/aws-crt
+    const val aws_kotlin = "1.5.92"     // https://mvnrepository.com/artifact/aws.sdk.kotlin/aws-http-jvm
     const val aws_smithy_kotlin = "1.5.20" // https://mvnrepository.com/artifact/aws.smithy.kotlin/http-client-engine-crt-jvm
 
     const val aws_spring_cloud = "3.4.1"  // https://mvnrepository.com/artifact/io.awspring.cloud/spring-cloud-aws-starter
 
-    const val grpc = "1.76.0"       // https://mvnrepository.com/artifact/io.grpc/grpc-stub
+    const val grpc = "1.77.0"       // https://mvnrepository.com/artifact/io.grpc/grpc-stub
     const val grpc_kotlin = "1.5.0" // https://mvnrepository.com/artifact/io.grpc/grpc-kotlin-stub
-    const val protobuf = "4.33.0"   // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java
+    const val protobuf = "4.33.1"   // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java
     const val grpc_google_common_protos = "2.63.1" // https://mvnrepository.com/artifact/com.google.api.grpc/proto-google-common-protos
     const val avro = "1.12.1"       // https://mvnrepository.com/artifact/org.apache.avro/avro
 
@@ -129,12 +129,12 @@ object Versions {
     const val httpclient5 = "5.5.1"  // https://mvnrepository.com/artifact/org.apache.httpcomponents.client5/httpclient5
     const val httpcore5 = "5.3.6"    // https://mvnrepository.com/artifact/org.apache.httpcomponents.core5/httpcore5
     const val retrofit2 = "3.0.0"   // https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
-    const val okhttp3 = "5.3.0"     // https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
-    const val okio = "3.16.2"        // https://mvnrepository.com/artifact/com.squareup.okio/okio
+    const val okhttp3 = "5.3.2"     // https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
+    const val okio = "3.16.4"        // https://mvnrepository.com/artifact/com.squareup.okio/okio
     const val asynchttpclient = "2.12.4"  // https://mvnrepository.com/artifact/org.asynchttpclient/async-http-client
 
     const val jackson = "2.20.1" // https://mvnrepository.com/artifact/com.fasterxml.jackson/jackson-bom
-    const val jackson3 = "3.0.2" // https://mvnrepository.com/artifact/tools.jackson/jackson-bom
+    const val jackson3 = "3.0.3" // https://mvnrepository.com/artifact/tools.jackson/jackson-bom
     const val fastjson2 = "2.0.60" // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2
     const val jjwt = "0.11.5"    // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api
 
@@ -150,7 +150,7 @@ object Versions {
     // https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-core
 
     const val hibernate = "6.6.37.Final"           // https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-core
-    const val hibernate_reactive = "2.4.8.Final"  // https://mvnrepository.com/artifact/org.hibernate.reactive/hibernate-reactive-core
+    const val hibernate_reactive = "2.4.9.Final"  // https://mvnrepository.com/artifact/org.hibernate.reactive/hibernate-reactive-core
     const val hibernate_validator = "9.1.0.Final" // https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator
     const val querydsl = "5.1.0"                  // https://mvnrepository.com/artifact/com.querydsl/querydsl-jpa
 
@@ -188,10 +188,10 @@ object Versions {
 
     const val cassandra = "4.19.2"          // https://mvnrepository.com/artifact/org.apache.cassandra/java-driver-core
     const val scylla_java = "4.13.0.0"
-    const val elasticsearch = "9.1.6"       // https://mvnrepository.com/artifact/org.elasticsearch.client/elasticsearch-rest-client
+    const val elasticsearch = "9.1.7"       // https://mvnrepository.com/artifact/org.elasticsearch.client/elasticsearch-rest-client
 
-    const val kafka = "3.8.1"           // https://mvnrepository.com/artifact/org.apache.kafka/kafka
-    const val spring_kafka = "3.3.10"    // https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka
+    const val kafka = "3.9.1"           // https://mvnrepository.com/artifact/org.apache.kafka/kafka
+    const val spring_kafka = "3.3.11"    // https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka
 
     const val timefold_solver = "1.27.0" // https://mvnrepository.com/artifact/ai.timefold.solver/timefold-solver-core
 
