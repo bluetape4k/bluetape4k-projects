@@ -36,7 +36,7 @@ plugins {
 // NOTE: Nexus 에 등록된 것 때문에 사용한다
 // NOTE: .zshrc 에 정의하던가, ~/.gradle/gradle.properties 에 정의해주셔야 합니다.
 fun getEnvOrProjectProperty(propertyKey: String, envKey: String): String {
-    return project.findProperty(propertyKey) as? String ?: System.getenv(envKey) ?: ""
+    return project.findProperty(propertyKey) as? String ?: System.getenv()[envKey] ?: ""
 }
 
 val bluetape4kGprUser: String = getEnvOrProjectProperty("gpr.user", "BLUETAPE4K_GITHUB_USERNAME")

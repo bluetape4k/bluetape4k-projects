@@ -4,8 +4,8 @@ import ai.timefold.solver.core.api.score.buildin.simple.SimpleScore
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.ColumnTransformer
 import org.jetbrains.exposed.v1.core.ColumnWithTransform
+import org.jetbrains.exposed.v1.core.IntegerColumnType
 import org.jetbrains.exposed.v1.core.Table
-import org.jetbrains.exposed.v1.core.VarCharColumnType
 
 // SimpleScoreColumnType
 
@@ -14,20 +14,19 @@ import org.jetbrains.exposed.v1.core.VarCharColumnType
  */
 fun Table.simpleScore(
     name: String,
-    length: Int = 255,
-): Column<SimpleScore> = registerColumn(name, SimpleScoreColumnType(length))
+): Column<SimpleScore> = registerColumn(name, SimpleScoreColumnType())
 
-class SimpleScoreColumnType(length: Int):
-    ColumnWithTransform<String, SimpleScore>(VarCharColumnType(length), SimpleScoreTransformer())
+class SimpleScoreColumnType():
+    ColumnWithTransform<Int, SimpleScore>(IntegerColumnType(), SimpleScoreTransformer())
 
-class SimpleScoreTransformer(): ColumnTransformer<String, SimpleScore> {
+class SimpleScoreTransformer(): ColumnTransformer<Int, SimpleScore> {
     /**
      * Entity Property 를 DB Column 수형으로 변환합니다.
      */
-    override fun unwrap(value: SimpleScore): String = value.toString()
+    override fun unwrap(value: SimpleScore): Int = value.score()
 
     /**
      * DB Column 값을 Entity Property 수형으로 변환합니다.
      */
-    override fun wrap(value: String): SimpleScore = SimpleScore.parseScore(value)
+    override fun wrap(value: Int): SimpleScore = SimpleScore.of(value)
 }
