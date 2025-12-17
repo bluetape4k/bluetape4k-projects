@@ -40,8 +40,9 @@ class SystemxTest {
     @Test
     fun `System Env 값 얻기`() {
         val envs = Systemx.getenv()
-        envs["JAVA_HOME"]!!.shouldNotBeEmpty()
+        log.debug { "PATH=${envs["PATH"]}" }
+        envs["PATH"].shouldNotBeNull().shouldNotBeEmpty()
 
-        Systemx.getenv("JAVA_HOME") shouldBeEqualTo envs["JAVA_HOME"]
+        Systemx.getenv("PATH") shouldBeEqualTo envs["PATH"]
     }
 }

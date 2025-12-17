@@ -29,6 +29,7 @@ dependencies {
     // R2DBC
     api(Libs.r2dbc_pool)
     compileOnly(Libs.springBootStarter("data-r2dbc"))
+    compileOnly(Libs.h2_v2)
     compileOnly(Libs.r2dbc_h2)
     compileOnly(Libs.r2dbc_mysql)
     compileOnly(Libs.r2dbc_postgresql)
