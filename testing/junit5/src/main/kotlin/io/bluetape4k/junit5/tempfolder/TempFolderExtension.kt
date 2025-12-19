@@ -63,7 +63,7 @@ class TempFolderExtension: ParameterResolver {
         extensionContext: ExtensionContext,
     ): Any? {
         return extensionContext.getStore(NAMESPACE)
-            .getOrComputeIfAbsent(
+            .computeIfAbsent(
                 parameterContext,
                 { TempFolder() },
                 TempFolder::class.java

@@ -83,6 +83,7 @@ class ThreadSupportTest {
 
         constructor(group: ThreadGroup?, name: String): super(group, name)
 
+        @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
         override fun run() {
             latch.countDown()
             try {
