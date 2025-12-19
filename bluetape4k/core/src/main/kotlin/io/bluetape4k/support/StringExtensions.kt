@@ -12,7 +12,8 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
 
-private typealias JChar = Character
+@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+private typealias JChar = java.lang.Character
 
 const val EMPTY_STRING = ""
 const val TRIMMING = "..."

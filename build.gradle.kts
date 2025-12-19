@@ -102,11 +102,12 @@ subprojects {
             apiVersion.set(KotlinVersion.KOTLIN_2_2)
             freeCompilerArgs = listOf(
                 "-Xjsr305=strict",
-                "-Xjvm-default=all-compatibility",
+                "-jvm-default=enable",
                 "-Xinline-classes",
                 "-Xstring-concat=indy",         // since Kotlin 1.4.20 for JVM 9+
                 // "-Xenable-builder-inference",   // since Kotlin 1.6
-                "-Xcontext-receivers"           // since Kotlin 1.6
+                "-Xcontext-parameters",           // since Kotlin 1.6
+                "-Xannotation-default-target=param-property"
             )
             val experimentalAnnotations = listOf(
                 "kotlin.RequiresOptIn",
