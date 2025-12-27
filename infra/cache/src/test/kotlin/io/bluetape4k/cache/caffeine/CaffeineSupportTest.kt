@@ -31,7 +31,7 @@ class CaffeineSupportTest {
             "value"
         }
         value shouldBeEqualTo "value"
-        cache.put("key", value!!)
+        cache.put("key", value)
 
         cache.getIfPresent("key")!! shouldBeEqualTo "value"
         cache.invalidate("key")

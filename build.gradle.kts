@@ -144,7 +144,7 @@ subprojects {
             // OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
             jvmArgs(
                 "-Xshare:off",
-                "-Xmx4G",
+                "-Xmx8G",
                 "-XX:+UseZGC",
                 "-XX:-MaxFDLimit",
                 "-XX:+UnlockExperimentalVMOptions",
