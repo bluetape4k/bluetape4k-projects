@@ -44,11 +44,11 @@ class BufferingDebouncedTest: AbstractFlowTest() {
         val source =
             flow {
                 emit(1)
-                delay(110)
+                delay(150)
                 emit(2)
-                delay(90)
+                delay(150)
                 emit(3)
-                delay(110)
+                delay(150)
                 throw RuntimeException("Boom!")
                 delay(90)
                 emit(4)
