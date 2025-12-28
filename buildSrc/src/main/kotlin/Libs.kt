@@ -1092,6 +1092,8 @@ object Libs {
     // mongodb 4.x
     fun mongo(module: String, version: String = Versions.mongo_driver) = "org.mongodb:$module:$version"
     val mongo_bson = mongo("bson")
+    val mongo_bson_kotlin = mongo("bson-kotlin")
+    val mongo_bson_kotlinx = mongo("bson-kotlinx")
     val mongodb_driver_core = mongo("mongodb-driver-core")
     val mongodb_driver_sync = mongo("mongodb-driver-sync")
     val mongodb_driver_reactivestreams = mongo("mongodb-driver-reactivestreams")

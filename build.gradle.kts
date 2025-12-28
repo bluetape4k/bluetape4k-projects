@@ -423,8 +423,14 @@ subprojects {
             dependency(Libs.grpc_kotlin_stub)
 
             dependency(Libs.mongo_bson)
+            dependency(Libs.mongo_bson_kotlin)
+            dependency(Libs.mongo_bson_kotlinx)
             dependency(Libs.mongodb_driver_core)
             dependency(Libs.mongodb_driver_reactivestreams)
+            dependency(Libs.mongodb_driver_sync)
+            dependency(Libs.mongodb_driver_kotlin_coroutine)
+            dependency(Libs.mongodb_driver_kotlin_extensions)
+            dependency(Libs.mongodb_driver_kotlin_sync)
 
             // Kafka
             dependency(Libs.kafka_clients)
