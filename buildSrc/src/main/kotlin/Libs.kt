@@ -1096,6 +1096,9 @@ object Libs {
     val mongodb_driver_sync = mongo("mongodb-driver-sync")
     val mongodb_driver_reactivestreams = mongo("mongodb-driver-reactivestreams")
     val mongodb_driver_legacy = mongo("mongodb-driver-legacy")
+    val mongodb_driver_kotlin_coroutine = mongo("mongodb-driver-kotlin-coroutine")
+    val mongodb_driver_kotlin_extensions = mongo("mongodb-driver-kotlin-extensions")
+    val mongodb_driver_kotlin_sync = mongo("mongodb-driver-kotlin-sync")
 
     // Redis
     const val lettuce_core = "io.lettuce:lettuce-core:${Versions.lettuce}"
