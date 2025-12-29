@@ -59,7 +59,6 @@ dependencies {
 
     // MongoDB
     compileOnly(Libs.testcontainers_mongodb)
-    compileOnly(Libs.mongodb_driver_sync)
     compileOnly(Libs.mongodb_driver_kotlin_sync)
 
     // Cassandra
