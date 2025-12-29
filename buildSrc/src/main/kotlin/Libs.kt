@@ -1089,7 +1089,7 @@ object Libs {
 
     const val reflectasm = "com.esotericsoftware:reflectasm:${Versions.reflectasm}"
 
-    // mongodb 4.x
+    // mongodb 5.x
     fun mongo(module: String, version: String = Versions.mongo_driver) = "org.mongodb:$module:$version"
     val mongo_bson = mongo("bson")
     val mongo_bson_kotlin = mongo("bson-kotlin")
@@ -1118,6 +1118,10 @@ object Libs {
     val redisson_spring_data_30 = redisson("redisson-spring-data-30")
     val redisson_spring_data_31 = redisson("redisson-spring-data-31")
     val redisson_spring_data_32 = redisson("redisson-spring-data-32")
+    val redisson_spring_data_33 = redisson("redisson-spring-data-33")
+    val redisson_spring_data_34 = redisson("redisson-spring-data-34")
+    val redisson_spring_data_35 = redisson("redisson-spring-data-35")
+    val redisson_spring_data_40 = redisson("redisson-spring-data-40")
 
     // Cassandra
     fun cassandra(module: String, version: String = Versions.cassandra): String =
