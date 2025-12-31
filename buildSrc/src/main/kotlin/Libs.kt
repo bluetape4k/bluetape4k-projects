@@ -883,9 +883,10 @@ object Libs {
     fun jackson3DataType(module: String) = jackson3("datatype", module)
     val jackson3_datatype_eclipse_collections = jackson3DataType("eclipse-collections")
     val jackson3_datatype_guava = jackson3DataType("guava")
+    val jackson3_datatype_json_org = jackson3DataType("json-org")
     val jackson3_datatype_jsr353 = jackson3DataType("jsr353")
+    val jackson3_datatype_javax_money = jackson3DataType("javax-money")
     val jackson3_datatype_moneta = jackson3DataType("moneta")
-
 
     fun jackson3DataFormat(module: String) = jackson3("dataformat", module)
     // Binary
@@ -908,7 +909,7 @@ object Libs {
     // Java 11+ 에서는 afterburner 대신 blackbird를 사용하세요
     // https://github.com/FasterXML/jackson-modules-base/blob/master/blackbird/README.md
     val jackson3_module_blackbird = jackson3Module("blackbird")
-    val jackson3_module_jsonSchema = jackson3Module("jsonSchema")
+    val jackson3_module_no_ctor_deser = jackson3Module("no-ctor-deser")
 
     // FastJson2
     fun fastjson2(module: String) = "com.alibaba.fastjson2:$module:${Versions.fastjson2}"
