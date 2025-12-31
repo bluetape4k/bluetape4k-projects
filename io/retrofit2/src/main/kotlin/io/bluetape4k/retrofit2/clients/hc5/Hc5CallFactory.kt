@@ -17,6 +17,7 @@ import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
+import kotlin.reflect.KClass
 
 /**
  * Apache HttpClient 5.x 를 사용하는 OkHttp3용 Call.Factory 구현체입니다.
@@ -151,6 +152,14 @@ class Hc5CallFactory private constructor(
         override fun timeout(): Timeout {
             return timeout
         }
+
+        override fun <T: Any> tag(type: KClass<T>): T? = null
+
+        override fun <T> tag(type: Class<out T>): T? = null
+
+        override fun <T: Any> tag(type: KClass<T>, computeIfAbsent: () -> T): T = computeIfAbsent()
+
+        override fun <T: Any> tag(type: Class<T>, computeIfAbsent: () -> T): T = computeIfAbsent()
 
         private fun throwAlreadyExecuted() {
             error("Already executed. request=$okRequest")

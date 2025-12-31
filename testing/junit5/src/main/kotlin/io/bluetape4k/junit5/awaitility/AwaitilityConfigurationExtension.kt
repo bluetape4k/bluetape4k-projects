@@ -11,7 +11,7 @@ class AwaitilityConfigurationExtension: BeforeAllCallback {
 
     companion object: KLogging()
 
-    override fun beforeAll(context: ExtensionContext?) {
+    override fun beforeAll(context: ExtensionContext) {
         log.trace { "Setup Awaitility configuration ..." }
         Awaitility.catchUncaughtExceptions()
         Awaitility.waitAtMost(Duration.ofSeconds(5))
@@ -19,5 +19,4 @@ class AwaitilityConfigurationExtension: BeforeAllCallback {
         Awaitility.setDefaultPollDelay(Duration.ofMillis(10))
         // Awaitility.pollInSameThread()
     }
-
 }

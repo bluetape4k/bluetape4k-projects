@@ -65,7 +65,7 @@ abstract class AbstractDetectTempEmailTest {
         ]
     )
     fun `임시 이메일에 대한 임시 여부 검출하기`(emailDomain: String) = runTest {
-        val email = faker.internet().username() + "@" + emailDomain
+        val email = faker.credentials().username() + "@" + emailDomain
         val result = detectTempEmailApi.detect(email)
         log.debug { "Email=$email, disposable=${result.disposable}" }
         result.disposable.shouldBeTrue()

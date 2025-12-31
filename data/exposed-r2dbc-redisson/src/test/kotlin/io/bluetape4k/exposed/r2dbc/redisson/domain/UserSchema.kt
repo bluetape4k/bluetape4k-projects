@@ -158,7 +158,7 @@ object UserSchema: KLogging() {
         withTables(testDB, UserCredentialTable) {
             insertUserCredential("debop", 5L)
             insertUserCredential("midoogi", 100L)
-            insertUserCredential(faker.internet().username(), 200L)
+            insertUserCredential(faker.credentials().username(), 200L)
             commit()
 
             statement()
@@ -168,7 +168,7 @@ object UserSchema: KLogging() {
     fun newUserCredentialDTO(loginId: String? = null): UserCredentialDTO {
         return UserCredentialDTO(
             id = TimebasedUuid.Reordered.nextId(),
-            loginId = loginId ?: (faker.internet().username() + "_" + Base58.randomString(8)),
+            loginId = loginId ?: (faker.credentials().username() + "_" + Base58.randomString(8)),
             email = Base58.randomString(4) + "." + faker.internet().emailAddress(),
             lastLoginAt = LocalDateTime.now().minusDays(200).toInstant()
         )
@@ -176,7 +176,7 @@ object UserSchema: KLogging() {
 
     suspend fun insertUserCredential(loginId: String? = null, lastDays: Long = 100L): UUID {
         return UserCredentialTable.insertAndGetId {
-            it[UserCredentialTable.loginId] = loginId ?: faker.internet().username()
+            it[UserCredentialTable.loginId] = loginId ?: faker.credentials().username()
             it[UserCredentialTable.email] = faker.internet().safeEmailAddress()
             it[UserCredentialTable.lastLoginAt] = LocalDateTime.now().minusDays(lastDays).toInstant()
         }.value

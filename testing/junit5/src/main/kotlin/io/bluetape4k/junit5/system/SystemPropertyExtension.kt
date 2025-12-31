@@ -86,7 +86,7 @@ class SystemPropertyExtension: BeforeAllCallback, BeforeEachCallback, AfterEachC
 
     private fun writeRestoreContextInClass(context: ExtensionContext, restoreContext: SystemPropertyRestoreContext) {
         val key = makeKey(context.requiredTestClass.name)
-        context.store(this.javaClass).getOrComputeIfAbsent(key) { restoreContext }
+        context.store(this.javaClass).computeIfAbsent(key) { restoreContext }
     }
 
     private fun readRestoreContextInMethod(context: ExtensionContext): SystemPropertyRestoreContext? {
@@ -96,6 +96,6 @@ class SystemPropertyExtension: BeforeAllCallback, BeforeEachCallback, AfterEachC
 
     private fun writeRestoreContextInMethod(context: ExtensionContext, restoreContext: SystemPropertyRestoreContext) {
         val key = makeKey(context.requiredTestMethod.name)
-        context.store(this.javaClass).getOrComputeIfAbsent(key) { restoreContext }
+        context.store(this.javaClass).computeIfAbsent(key) { restoreContext }
     }
 }

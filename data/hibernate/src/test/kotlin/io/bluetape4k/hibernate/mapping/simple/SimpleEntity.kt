@@ -20,7 +20,7 @@ import jakarta.validation.constraints.NotBlank
 @Access(AccessType.FIELD)
 class SimpleEntity private constructor(
     @Column(nullable = false)
-    @NotBlank
+    @field:NotBlank
     var name: String,
 ): LongJpaEntity() {
 

@@ -42,15 +42,15 @@ class JsonEncryptTest {
 
     private fun createUser(): User {
         return User(
-            username = faker.internet().username(),
-            password = faker.internet().password(),
+            username = faker.name().name(),
+            password = Fakers.fixedString(6),
             mobile = faker.phoneNumber().cellPhone()
         )
     }
 
     @Test
     fun `encrypt string property`() {
-        val user = User(faker.internet().username(), "mypassword", "010-8955-0581")
+        val user = User(faker.name().name(), "mypassword", "010-8955-0581")
         log.debug { mapper.prettyWriteAsString(user) }
 
         val encrypted = mapper.writeAsString(user)!!

@@ -80,7 +80,7 @@ class MapsIdOneToOneTest(
 @Entity(name = "onetoone_author")
 @Access(AccessType.FIELD)
 class Author private constructor(
-    @NotBlank
+    @field:NotBlank
     val name: String,
 ): IntJpaEntity() {
 

@@ -1,6 +1,5 @@
 package io.bluetape4k.coroutines
 
-
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex

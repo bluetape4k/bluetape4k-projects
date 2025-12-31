@@ -166,7 +166,7 @@ class BankAccount(val number: String): IntJpaEntity() {
 
 @Entity(name = "manytomany_account_owner")
 @Access(AccessType.FIELD)
-class AccountOwner(@NotBlank val ssn: String): IntJpaEntity() {
+class AccountOwner(@field:NotBlank val ssn: String): IntJpaEntity() {
 
     // NOTE: many-to-many 관계에서는 cascade에 REMOVE, DETACH를 포함시키면 상대 entity도 삭제된다.
     @ManyToMany(cascade = [PERSIST, MERGE, REFRESH], fetch = LAZY)

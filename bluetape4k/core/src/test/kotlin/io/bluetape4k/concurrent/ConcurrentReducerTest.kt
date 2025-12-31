@@ -27,7 +27,7 @@ class ConcurrentReducerTest {
     fun `invalid max concurrency`() {
         // max concurrency 값은 양수이어야 합니다.
         assertFailsWith<IllegalArgumentException> {
-            ConcurrentReducer<Any>(0, 10)
+            concurrentReducerOf<Any>(0, 10)
         }
     }
 
@@ -41,7 +41,7 @@ class ConcurrentReducerTest {
 
     @Test
     fun `task return null`() {
-        val reducer = ConcurrentReducer<String>(1, 10)
+        val reducer = concurrentReducerOf<String>(1, 10)
         val promise = reducer.add(job(null))
 
         promise.isDone.shouldBeTrue()
@@ -51,7 +51,7 @@ class ConcurrentReducerTest {
 
     @Test
     fun `when job throw exception`() {
-        val reducer = ConcurrentReducer<String>(1, 10)
+        val reducer = concurrentReducerOf<String>(1, 10)
         val promise = reducer.add { throw IllegalStateException("Boom!") }
 
         promise.isDone.shouldBeTrue()
@@ -60,7 +60,7 @@ class ConcurrentReducerTest {
 
     @Test
     fun `when job return failure`() {
-        val reducer = ConcurrentReducer<String>(1, 10)
+        val reducer = concurrentReducerOf<String>(1, 10)
         val promise = reducer.add {
             failedCompletableFutureOf(IllegalStateException("Boom!"))
         }
@@ -71,7 +71,7 @@ class ConcurrentReducerTest {
 
     @Test
     fun `when job canceled`() {
-        val reducer = ConcurrentReducer<String>(2, 10)
+        val reducer = concurrentReducerOf<String>(2, 10)
         val request1 = CompletableFuture<String>()
         val request2 = CompletableFuture<String>()
 
@@ -117,7 +117,7 @@ class ConcurrentReducerTest {
 
     @Test
     fun `3개의 짧은 작업을 2개만 동시 실행으로 제한할 때`() {
-        val reducer = ConcurrentReducer<String>(2, 10)
+        val reducer = concurrentReducerOf<String>(2, 10)
         val request1 = CompletableFuture<String>()
         val request2 = CompletableFuture<String>()
         val request3 = CompletableFuture<String>()
@@ -161,7 +161,7 @@ class ConcurrentReducerTest {
         val maxCounter = atomic(0)
         val queueSize = 6
         val maxConcurrency = 5
-        val reducer = ConcurrentReducer<String>(maxConcurrency, queueSize)
+        val reducer = concurrentReducerOf<String>(maxConcurrency, queueSize)
 
         val jobs = mutableListOf<CountingJob>()
         val promises = mutableListOf<CompletableFuture<String>>()
@@ -193,7 +193,7 @@ class ConcurrentReducerTest {
 
     @Test
     fun `큐 사이즈를 초과해 작업을 추가하면 CapacityReachedException이 발생한다`() {
-        val reducer = ConcurrentReducer<String>(10, 10)
+        val reducer = concurrentReducerOf<String>(10, 10)
         repeat(20) {
             reducer.add { CompletableFuture() }
         }
@@ -210,7 +210,7 @@ class ConcurrentReducerTest {
         val concurrency = 4
         val queueSize = 10
         val future = CompletableFuture<String>()
-        val reducer = ConcurrentReducer<String>(concurrency, queueSize)
+        val reducer = concurrentReducerOf<String>(concurrency, queueSize)
 
         repeat(20) {
             reducer.add { future }

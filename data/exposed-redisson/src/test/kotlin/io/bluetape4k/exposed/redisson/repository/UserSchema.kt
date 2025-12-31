@@ -238,7 +238,7 @@ object UserSchema: KLogging() {
                 it[UserCredentialTable.lastLoginAt] = LocalDateTime.now().minusDays(100).toInstant()
             }
             UserCredentialTable.insert {
-                it[UserCredentialTable.loginId] = faker.internet().username()
+                it[UserCredentialTable.loginId] = faker.credentials().username()
                 it[UserCredentialTable.email] = faker.internet().safeEmailAddress()
                 it[UserCredentialTable.lastLoginAt] = LocalDateTime.now().minusDays(200).toInstant()
             }
@@ -268,7 +268,7 @@ object UserSchema: KLogging() {
                 it[UserCredentialTable.lastLoginAt] = LocalDateTime.now().minusDays(100).toInstant()
             }
             UserCredentialTable.insert {
-                it[UserCredentialTable.loginId] = faker.internet().username()
+                it[UserCredentialTable.loginId] = faker.credentials().username()
                 it[UserCredentialTable.email] = faker.internet().safeEmailAddress()
                 it[UserCredentialTable.lastLoginAt] = LocalDateTime.now().minusDays(200).toInstant()
             }
@@ -284,7 +284,7 @@ object UserSchema: KLogging() {
     fun newUserCredentialDTO(loginId: String? = null): UserCredentialDTO {
         return UserCredentialDTO(
             id = TimebasedUuid.Reordered.nextId(),
-            loginId = loginId ?: (faker.internet().username() + "_" + Base58.randomString(8)),
+            loginId = loginId ?: (faker.credentials().username() + "_" + Base58.randomString(8)),
             email = Base58.randomString(4) + "." + faker.internet().emailAddress(),
             lastLoginAt = LocalDateTime.now().minusDays(200).toInstant()
         )
@@ -292,7 +292,7 @@ object UserSchema: KLogging() {
 
     fun insertUserCredential(loginId: String? = null): UUID {
         return UserCredentialTable.insertAndGetId {
-            it[UserCredentialTable.loginId] = loginId ?: faker.internet().username()
+            it[UserCredentialTable.loginId] = loginId ?: faker.credentials().username()
             it[UserCredentialTable.email] = faker.internet().safeEmailAddress()
             it[UserCredentialTable.lastLoginAt] = LocalDateTime.now().minusDays(200).toInstant()
         }.value

@@ -107,7 +107,7 @@ class JsonUuidEncodeTest {
         userId = UUID.randomUUID(),
         plainUserId = UUID.randomUUID(),
         encodedUserId = UUID.randomUUID(),
-        username = faker.internet().username()
+        username = faker.name().name()
     )
 
     private fun verifyJsonUuidEncoder(user: User) {

@@ -16,6 +16,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import jakarta.json.stream.JsonParsingException
 import kotlinx.coroutines.flow.Flow
+import java.io.Serializable
 import java.util.*
 
 /**
@@ -54,7 +55,7 @@ class SuspendJsonParser(
     private data class StackFrame(
         val node: JsonNode,
         val fieldName: String? = null,
-    )
+    ): Serializable
 
     private val parser: NonBlockingJsonParser by lazy {
         jsonFactory.createNonBlockingByteArrayParser() as NonBlockingJsonParser

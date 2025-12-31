@@ -3,7 +3,6 @@ package io.bluetape4k.junit5.system
 import io.bluetape4k.junit5.utils.ExtensionTester
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.parallel.Execution
@@ -14,7 +13,7 @@ import org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod
 /**
  * 다른 테스트 클래스와 메소드를 수행하고, 시스템 속성이 원복되는지 확인한다
  */
-@Disabled("Deprecated since 1.11")
+// @Disabled("Deprecated since 1.11")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Execution(ExecutionMode.SAME_THREAD)
 class SystemPropertyExtensionMetaTest {

@@ -11,7 +11,7 @@
         </encoder>
     </appender>
 
-    <!--    <logger name="io.bluetape4k.examples.redisson" level="DEBUG"/> -->
+    <logger name="io.bluetape4k.examples.redisson" level="DEBUG"/>
     <!--    <logger name="io.lettuce.core" level="DEBUG"/>-->
     <!--    <logger name="org.redisson" level="DEBUG"/>-->
 

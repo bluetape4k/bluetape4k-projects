@@ -67,7 +67,7 @@ fun <T> virtualThreadTransactionAsync(
     readOnly: Boolean = false,
     statement: JdbcTransaction.() -> T,
 ): VirtualFuture<T> = virtualFuture(executor = executor ?: VirtualThreadExecutor) {
-    val isolationLevel = transactionIsolation ?: db.transactionManager.defaultIsolationLevel
+    val isolationLevel = transactionIsolation ?: db?.transactionManager?.defaultIsolationLevel
     transaction(db = db, transactionIsolation = isolationLevel, readOnly = readOnly) {
         statement(this)
     }

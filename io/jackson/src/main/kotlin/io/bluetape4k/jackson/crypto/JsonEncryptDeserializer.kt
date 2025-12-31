@@ -26,7 +26,7 @@ class JsonEncryptDeserializer(
 
     companion object: KLogging() {
         private val defaultDeserializer = JsonEncryptDeserializer()
-        private val deserializers: MutableMap<KClass<out Encryptor>, JsonEncryptDeserializer> = ConcurrentHashMap()
+        private val deserializers = ConcurrentHashMap<KClass<out Encryptor>, JsonEncryptDeserializer>()
     }
 
     override fun createContextual(ctxt: DeserializationContext?, property: BeanProperty?): JsonDeserializer<*> {
@@ -34,7 +34,7 @@ class JsonEncryptDeserializer(
 
         return when (annotation) {
             null -> defaultDeserializer
-            else -> deserializers.getOrPut(annotation.encryptor) {
+            else -> deserializers.computeIfAbsent(annotation.encryptor) {
                 JsonEncryptDeserializer(annotation).apply {
                     log.debug { "Create JsonEncryptDeserializer ...${annotation.encryptor}" }
                 }

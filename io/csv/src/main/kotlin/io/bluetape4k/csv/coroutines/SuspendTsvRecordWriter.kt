@@ -5,7 +5,6 @@ import com.univocity.parsers.tsv.TsvWriterSettings
 import io.bluetape4k.csv.DefaultTsvWriterSettings
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.buffer
 import java.io.Writer
 
 /**
@@ -53,7 +52,7 @@ class SuspendTsvRecordWriter private constructor(
     }
 
     override suspend fun writeAll(rows: Flow<Iterable<*>>) {
-        rows.buffer().collect { writeRow(it) }
+        rows.collect { writeRow(it) }
     }
 
     override fun close() {

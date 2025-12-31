@@ -12,4 +12,4 @@ import org.apache.avro.file.CodecFactory
  */
 val DEFAULT_CODEC_FACTORY: CodecFactory by lazy {
     CodecFactory.zstandardCodec(3, true, true)
-} // { CodecFactory.snappyCodec() } 
+}

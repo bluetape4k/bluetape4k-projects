@@ -36,7 +36,9 @@ dependencies {
 
     // Mongo
     compileOnly(Libs.mongo_bson)
+    compileOnly(Libs.mongo_bson_kotlinx)
     compileOnly(Libs.mongodb_driver_sync)
+    compileOnly(Libs.mongodb_driver_kotlin_sync)
 
     // Codec
     compileOnly(Libs.kryo)

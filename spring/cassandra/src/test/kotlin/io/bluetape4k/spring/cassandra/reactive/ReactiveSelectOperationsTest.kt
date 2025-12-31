@@ -285,7 +285,7 @@ class ReactiveSelectOperationsTest(
     private data class Human(@field:Id var id: String)
 
     private data class Jedi(
-        @Column("firstName")
+        @field:Column("firstName")
         var firstName: String? = null,
     )
 

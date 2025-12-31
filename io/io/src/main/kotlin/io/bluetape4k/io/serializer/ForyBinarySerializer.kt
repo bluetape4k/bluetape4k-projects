@@ -5,6 +5,7 @@ import org.apache.fory.Fory
 import org.apache.fory.ThreadSafeFory
 import org.apache.fory.config.CompatibleMode
 import org.apache.fory.config.Language
+import java.util.concurrent.TimeUnit
 
 /**
  * [Fory](https://fory.apache.org/) 를 이용한 Binary 직렬화/역직렬화를 수행하는 [BinarySerializer]
@@ -28,7 +29,7 @@ class ForyBinarySerializer(
                 .withCompatibleMode(CompatibleMode.COMPATIBLE)
                 .withRefTracking(true)
                 .requireClassRegistration(false)
-                .buildThreadSafeForyPool(4, 4 * Runtime.getRuntime().availableProcessors())
+                .buildThreadSafeForyPool(4, 4 * Runtime.getRuntime().availableProcessors(), 5L, TimeUnit.MINUTES)
         }
     }
 

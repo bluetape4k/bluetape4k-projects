@@ -12,19 +12,19 @@ import org.springframework.data.elasticsearch.client.ClientConfiguration
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchClients
 
 @Execution(ExecutionMode.SAME_THREAD)
-class OpensearchServerTest {
+class OpenSearchServerTest {
 
-    companion object: KLogging()
+    companion object Companion: KLogging()
 
     @Nested
     inner class UseDockerPort {
         @Test
         fun `launch opensearch server`() {
-            OpensearchServer().use { es ->
+            OpenSearchServer().use { es ->
                 es.start()
                 es.isRunning.shouldBeTrue()
 
-                val config = OpensearchServer.Launcher.getClientConfiguration(es)
+                val config = OpenSearchServer.Launcher.getClientConfiguration(es)
                 assertCreateRestClient(config)
             }
         }
@@ -34,12 +34,12 @@ class OpensearchServerTest {
     inner class UseDefaultPort {
         @Test
         fun `launch opensearch server with default port`() {
-            OpensearchServer(useDefaultPort = true).use { es ->
+            OpenSearchServer(useDefaultPort = true).use { es ->
                 es.start()
                 es.isRunning.shouldBeTrue()
-                es.port shouldBeEqualTo OpensearchServer.HTTP_PORT
+                es.port shouldBeEqualTo OpenSearchServer.HTTP_PORT
 
-                val config = OpensearchServer.Launcher.getClientConfiguration(es)
+                val config = OpenSearchServer.Launcher.getClientConfiguration(es)
                 assertCreateRestClient(config)
             }
         }

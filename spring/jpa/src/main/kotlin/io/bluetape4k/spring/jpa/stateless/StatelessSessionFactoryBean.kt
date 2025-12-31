@@ -36,7 +36,7 @@ import java.sql.Connection
  * 참고 : https://gist.github.com/jelies/5181262
  */
 class StatelessSessionFactoryBean(
-    @Autowired val sf: SessionFactory,
+    @field:Autowired val sf: SessionFactory,
 ): FactoryBean<StatelessSession> {
 
     companion object: KLogging()

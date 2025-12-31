@@ -17,12 +17,7 @@ val currentDialectTest: DatabaseDialect
     get() = TransactionManager.current().db.dialect
 
 val currentDialectIfAvailableTest: DatabaseDialect?
-    get() =
-        if (TransactionManager.isInitialized() && TransactionManager.currentOrNull() != null) {
-            currentDialectTest
-        } else {
-            null
-        }
+    get() = TransactionManager.currentOrNull()?.db?.dialect
 
 inline fun <reified E: Enum<E>> enumSetOf(vararg elements: E): EnumSet<E> =
     elements.toCollection(EnumSet.noneOf(E::class.java))

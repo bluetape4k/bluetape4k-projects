@@ -31,7 +31,7 @@ import kotlin.time.Duration.Companion.milliseconds
  * @param timeout 디바운스 타임아웃
  * @return 디바운스된 [List] 요소를 발행하는 [Flow]
  */
-fun <T: Any?> Flow<T>.bufferingDebounce(timeout: Duration): Flow<List<T>> = channelFlow {
+fun <T> Flow<T>.bufferingDebounce(timeout: Duration): Flow<List<T>> = channelFlow {
     val itemChannel = produceIn(this)
     var bufferedItems = fastListOf<T>()
     var deboundedTimeout = timeout

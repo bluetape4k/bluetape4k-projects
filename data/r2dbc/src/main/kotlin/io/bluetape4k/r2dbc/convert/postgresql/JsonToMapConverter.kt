@@ -24,7 +24,7 @@ class JsonToMapConverter(private val mapper: ObjectMapper): Converter<Json, Map<
             mapper.readValue(source.asString())
         } catch (e: JsonProcessingException) {
             log.error(e) { "Fail to parse Json: $source" }
-            emptyMap()
+            null
         }
     }
 }

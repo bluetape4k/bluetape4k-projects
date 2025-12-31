@@ -7,11 +7,7 @@ import org.apache.hc.client5.http.config.ConnectionConfig
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder
 import org.apache.hc.client5.http.io.ManagedHttpClientConnection
-import org.apache.hc.client5.http.socket.ConnectionSocketFactory
-import org.apache.hc.client5.http.socket.LayeredConnectionSocketFactory
-import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory
 import org.apache.hc.core5.function.Resolver
-import org.apache.hc.core5.http.config.Registry
 import org.apache.hc.core5.http.io.HttpConnectionFactory
 import org.apache.hc.core5.http.io.SocketConfig
 import org.apache.hc.core5.pool.PoolConcurrencyPolicy
@@ -50,7 +46,7 @@ fun poolingHttpClientConnectionManagerOf(): PoolingHttpClientConnectionManager =
  * [PoolingHttpClientConnectionManager] 를 생성합니다.
  */
 fun poolingHttpClientConnectionManagerOf(
-    socketFactoryRegistry: Registry<ConnectionSocketFactory> = defaultSocketFactoryRegistry,
+    // socketFactoryRegistry: Registry<ConnectionSocketFactory> = defaultSocketFactoryRegistry,
     poolConcurrencyPolicy: PoolConcurrencyPolicy = PoolConcurrencyPolicy.STRICT,
     poolReusePolicy: PoolReusePolicy = PoolReusePolicy.LIFO,
     timeToLive: TimeValue = TimeValue.NEG_ONE_MILLISECOND,
@@ -82,7 +78,7 @@ fun poolingHttpClientConnectionManagerOf(
  * [PoolingHttpClientConnectionManager] 를 생성합니다.
  */
 fun poolingHttpClientConnectionManagerOf(
-    sslSocketFactory: LayeredConnectionSocketFactory = SSLConnectionSocketFactory.getSocketFactory(),
+    // sslSocketFactory: LayeredConnectionSocketFactory = SSLConnectionSocketFactory.getSocketFactory(),
     poolConcurrencyPolicy: PoolConcurrencyPolicy = PoolConcurrencyPolicy.STRICT,
     poolReusePolicy: PoolReusePolicy = PoolReusePolicy.LIFO,
     schemePortResolver: SchemePortResolver? = null,
@@ -96,7 +92,7 @@ fun poolingHttpClientConnectionManagerOf(
     initializer: PoolingHttpClientConnectionManagerBuilder.() -> Unit = {},
 ): PoolingHttpClientConnectionManager =
     poolingHttpClientConnectionManager {
-        setSSLSocketFactory(sslSocketFactory)
+//        setSSLSocketFactory(sslSocketFactory)
         setPoolConcurrencyPolicy(poolConcurrencyPolicy)
         setConnPoolPolicy(poolReusePolicy)
         setSchemePortResolver(schemePortResolver)

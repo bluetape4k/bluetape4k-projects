@@ -78,10 +78,9 @@ suspend fun <T> virtualThreadTransactionAsync(
 
     async(dispatcher) {
         suspendTransaction(
-            transactionIsolation ?: db.transactionManager.defaultIsolationLevel
-            ?: error("Default transaction isolation not set"),
-            readOnly ?: db.transactionManager.defaultReadOnly,
-            db
+            db = db,
+            transactionIsolation = transactionIsolation ?: db?.transactionManager?.defaultIsolationLevel,
+            readOnly = readOnly ?: db?.transactionManager?.defaultReadOnly,
         ) {
             statement()
         }

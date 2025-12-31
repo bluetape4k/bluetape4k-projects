@@ -14,7 +14,7 @@ class JsonStringConverterTest: AbstractHibernateTest() {
     companion object: KLogging()
 
     private fun newOption(): Purchase.Option {
-        return Purchase.Option(faker.internet().username(), faker.random().hex(128))
+        return Purchase.Option(faker.credentials().username(), faker.random().hex(128))
     }
 
     @Test

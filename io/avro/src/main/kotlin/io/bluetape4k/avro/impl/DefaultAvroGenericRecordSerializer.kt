@@ -87,8 +87,8 @@ class DefaultAvroGenericRecordSerializer private constructor(
         return try {
             SeekableByteArrayInput(avroBytes).use { sin ->
                 val datumReader = GenericDatumReader<GenericData.Record>(schema)
-                DataFileReader(sin, datumReader).use { reader ->
-                    if (reader.hasNext()) reader.next()
+                DataFileReader(sin, datumReader).use { dfr ->
+                    if (dfr.hasNext()) dfr.next()
                     else null
                 }
             }

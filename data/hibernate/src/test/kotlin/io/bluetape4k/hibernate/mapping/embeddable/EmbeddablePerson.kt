@@ -30,11 +30,11 @@ import org.hibernate.annotations.DynamicUpdate
 @DynamicInsert
 @DynamicUpdate
 class EmbeddablePerson private constructor(
-    @NotBlank
+    @field:NotBlank
     @Column(name = "user_id", nullable = false, length = 32, unique = true)
     var userId: String,
 
-    @NotBlank
+    @field:NotBlank
     @Convert(converter = RC4StringConverter::class)
     var password: String,
 ): IntJpaEntity() {

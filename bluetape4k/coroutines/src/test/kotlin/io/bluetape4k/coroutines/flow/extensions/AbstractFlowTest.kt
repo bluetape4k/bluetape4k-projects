@@ -14,6 +14,7 @@ abstract class AbstractFlowTest {
         val faker = Fakers.faker
     }
 
+    @JvmRecord
     data class OrderRow(
         val orderId: Int,
         val itemId: Int,
@@ -21,6 +22,7 @@ abstract class AbstractFlowTest {
         val itemQuantity: Int = Random.nextInt(10, 99),
     ): Serializable
 
+    @JvmRecord
     data class Order(
         val id: Int,
         val items: List<OrderItem>,
@@ -33,6 +35,7 @@ abstract class AbstractFlowTest {
         }
     }
 
+    @JvmRecord
     data class OrderItem(
         val id: Int,
         val name: String,

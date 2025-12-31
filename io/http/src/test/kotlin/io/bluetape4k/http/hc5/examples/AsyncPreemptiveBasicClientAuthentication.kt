@@ -75,7 +75,6 @@ class AsyncPreemptiveBasicClientAuthentication: AbstractHc5Test() {
                     .also { response ->
                         log.debug { "Response: $request -> ${StatusLine(response)}" }
                         log.debug { "Body: ${response.body.bodyText}" }
-
                     }
             }
         }

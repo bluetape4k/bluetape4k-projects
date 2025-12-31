@@ -17,7 +17,7 @@ class RecordingExecutionListener: EngineExecutionListener {
         addEvent(ExecutionEvent.dynamicTestRegistered(testDescriptor))
     }
 
-    override fun executionSkipped(testDescriptor: TestDescriptor, reason: String?) {
+    override fun executionSkipped(testDescriptor: TestDescriptor, reason: String) {
         addEvent(ExecutionEvent.executionSkipped(testDescriptor, reason))
     }
 

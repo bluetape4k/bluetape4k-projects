@@ -38,6 +38,8 @@ dependencies {
     compileOnly(Libs.redisson)
     compileOnly(Libs.mongodb_driver_sync)
     compileOnly(Libs.mongodb_driver_reactivestreams)
+    compileOnly(Libs.mongodb_driver_kotlin_sync)
+    compileOnly(Libs.mongodb_driver_kotlin_coroutine)
 
     testImplementation(project(":bluetape4k-testcontainers"))
     testImplementation(Libs.testcontainers)

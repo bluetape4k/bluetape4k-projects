@@ -36,7 +36,7 @@ plugins {
 // NOTE: Nexus 에 등록된 것 때문에 사용한다
 // NOTE: .zshrc 에 정의하던가, ~/.gradle/gradle.properties 에 정의해주셔야 합니다.
 fun getEnvOrProjectProperty(propertyKey: String, envKey: String): String {
-    return project.findProperty(propertyKey) as? String ?: System.getenv(envKey) ?: ""
+    return project.findProperty(propertyKey) as? String ?: System.getenv()[envKey] ?: ""
 }
 
 val bluetape4kGprUser: String = getEnvOrProjectProperty("gpr.user", "BLUETAPE4K_GITHUB_USERNAME")
@@ -98,15 +98,16 @@ subprojects {
             languageVersion.set(JavaLanguageVersion.of(21))
         }
         compilerOptions {
-            languageVersion.set(KotlinVersion.KOTLIN_2_1)
-            apiVersion.set(KotlinVersion.KOTLIN_2_1)
+            languageVersion.set(KotlinVersion.KOTLIN_2_3)
+            apiVersion.set(KotlinVersion.KOTLIN_2_3)
             freeCompilerArgs = listOf(
                 "-Xjsr305=strict",
-                "-Xjvm-default=all-compatibility",
+                "-jvm-default=enable",
                 "-Xinline-classes",
                 "-Xstring-concat=indy",         // since Kotlin 1.4.20 for JVM 9+
                 // "-Xenable-builder-inference",   // since Kotlin 1.6
-                "-Xcontext-receivers"           // since Kotlin 1.6
+                "-Xcontext-parameters",           // since Kotlin 1.6
+                "-Xannotation-default-target=param-property"
             )
             val experimentalAnnotations = listOf(
                 "kotlin.RequiresOptIn",
@@ -120,6 +121,15 @@ subprojects {
             )
             freeCompilerArgs.addAll(experimentalAnnotations.map { "-opt-in=$it" })
         }
+
+        @Suppress("OPT_IN_USAGE")
+        kotlinDaemonJvmArgs = listOf(
+            "-Xmx2G",
+            "-XX:MaxMetaspaceSize=512m",
+            "-XX:+UseZGC",
+            "-XX:+UseStringDeduplication",
+            "-XX:+EnableDynamicAgentLoading"
+        )
     }
 
     tasks {
@@ -134,7 +144,7 @@ subprojects {
             // OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
             jvmArgs(
                 "-Xshare:off",
-                "-Xmx4G",
+                "-Xmx8G",
                 "-XX:+UseZGC",
                 "-XX:-MaxFDLimit",
                 "-XX:+UnlockExperimentalVMOptions",
@@ -413,8 +423,14 @@ subprojects {
             dependency(Libs.grpc_kotlin_stub)
 
             dependency(Libs.mongo_bson)
+            dependency(Libs.mongo_bson_kotlin)
+            dependency(Libs.mongo_bson_kotlinx)
             dependency(Libs.mongodb_driver_core)
             dependency(Libs.mongodb_driver_reactivestreams)
+            dependency(Libs.mongodb_driver_sync)
+            dependency(Libs.mongodb_driver_kotlin_coroutine)
+            dependency(Libs.mongodb_driver_kotlin_extensions)
+            dependency(Libs.mongodb_driver_kotlin_sync)
 
             // Kafka
             dependency(Libs.kafka_clients)
@@ -467,7 +483,6 @@ subprojects {
             dependency(Libs.junit_platform_commons)
             dependency(Libs.junit_platform_engine)
             dependency(Libs.junit_platform_launcher)
-            dependency(Libs.junit_platform_runner)
 
             dependency(Libs.kluent)
             dependency(Libs.assertj_core)

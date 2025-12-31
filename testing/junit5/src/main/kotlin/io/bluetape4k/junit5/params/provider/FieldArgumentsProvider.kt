@@ -30,11 +30,11 @@ class FieldArgumentsProvider: ArgumentsProvider, AnnotationConsumer<FieldSource>
 
     private lateinit var variableName: String
 
-    override fun provideArguments(paramDefs: ParameterDeclarations, context: ExtensionContext): Stream<out Arguments>? {
+    override fun provideArguments(paramDefs: ParameterDeclarations, context: ExtensionContext): Stream<out Arguments> {
         return context.testClass
             .map { getField(it) }
             .map { getValue(it, context.testInstance.get()) }
-            .orElseThrow { IllegalArgumentException("Fail to load test arguments") }
+            .orElseThrow { IllegalArgumentException("Fail to load test arguments") }!!
     }
 
     override fun accept(fieldSource: FieldSource) {

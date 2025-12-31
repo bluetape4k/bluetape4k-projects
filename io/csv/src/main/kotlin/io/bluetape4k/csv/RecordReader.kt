@@ -28,13 +28,13 @@ interface RecordReader: Closeable {
      * @param input CSV 파일의 입력 스트림
      * @param encoding CSV 파일의 인코딩
      * @param skipHeaders CSV 파일의 헤더를 건너뛸지 여부
-     * @param recordMapper Record 를 원하는 타입으로 변환하는 함수
+     * @param transform Record 를 원하는 타입으로 변환하는 함수
      */
     fun <T> read(
         input: InputStream,
         encoding: Charset = Charsets.UTF_8,
         skipHeaders: Boolean = true,
-        recordMapper: (Record) -> T,
+        transform: (Record) -> T,
     ): Sequence<T>
 
     /**

@@ -122,7 +122,7 @@ class CoroutineCassandraOperationsTest(
     private fun newBasicUser(id: Long = 42L): BasicUser =
         BasicUser(
             42L,
-            faker.internet().username(),
+            faker.credentials().username(),
             faker.name().firstName(),
             faker.name().lastName()
         )

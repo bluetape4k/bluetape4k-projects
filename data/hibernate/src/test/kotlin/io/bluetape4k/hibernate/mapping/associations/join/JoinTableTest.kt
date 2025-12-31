@@ -27,8 +27,8 @@ class JoinTableTest(
                         faker.address().zipCode()
                     )
 
-                    nicknames.add(faker.internet().username())
-                    nicknames.add(faker.internet().username())
+                    nicknames.add(faker.credentials().username())
+                    nicknames.add(faker.credentials().username())
                 }
         }
 

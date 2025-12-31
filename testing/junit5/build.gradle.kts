@@ -14,7 +14,6 @@ dependencies {
     api(Libs.junit_jupiter_params)
     compileOnly(Libs.junit_jupiter_migrationsupport)
     api(Libs.junit_platform_launcher)
-    runtimeOnly(Libs.junit_platform_runner)
 
     api(Libs.kluent)
     api(Libs.mockk)

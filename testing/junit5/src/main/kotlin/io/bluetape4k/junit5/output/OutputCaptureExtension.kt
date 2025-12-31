@@ -37,10 +37,15 @@ class OutputCaptureExtension: BeforeEachCallback, AfterEachCallback, ParameterRe
     private fun getOutputCapturer(context: ExtensionContext): OutputCapturer {
         return context
             .getStore(NAMESPACE)
-            .getOrComputeIfAbsent(
+            .computeIfAbsent(
                 OutputCapturer::class.java,
                 { ReflectionSupport.newInstance(it) },
                 OutputCapturer::class.java
             )
+//            .getOrComputeIfAbsent(
+//                OutputCapturer::class.java,
+//                { ReflectionSupport.newInstance(it) },
+//                OutputCapturer::class.java
+//            )
     }
 }
