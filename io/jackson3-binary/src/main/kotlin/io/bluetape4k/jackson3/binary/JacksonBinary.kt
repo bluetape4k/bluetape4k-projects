@@ -64,7 +64,6 @@ object JacksonBinary: KLogging() {
                 .findAndAddModules()
                 .enable(
                     CBORWriteFeature.WRITE_TYPE_HEADER,
-                    CBORWriteFeature.STRINGREF
                 )
                 .enable(*enabledSerializationFeatures.toTypedArray())
                 .disable(*disabledSerializationFeatures.toTypedArray())
