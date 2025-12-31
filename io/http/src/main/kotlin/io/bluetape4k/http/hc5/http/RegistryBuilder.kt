@@ -48,6 +48,7 @@ fun <T> registryOf(items: Map<String, T>): Registry<T> = registry {
 /**
  * 기본 [Registry]`<ConnectionSocketFactory>` 를 생성합니다.
  */
+@Deprecated(message = "Deprecated ConnectionSocketFactory")
 val defaultSocketFactoryRegistry: Registry<ConnectionSocketFactory> by lazy {
     RegistryBuilder.create<ConnectionSocketFactory>()
         .register(URIScheme.HTTP.id, PlainConnectionSocketFactory.getSocketFactory())
@@ -66,6 +67,7 @@ val defaultSocketFactoryRegistry: Registry<ConnectionSocketFactory> by lazy {
  * @param ssl [SSLConnectionSocketFactory] 를 등록합니다.
  * @return [Registry]`<ConnectionSocketFactory>` 인스턴스
  */
+@Deprecated(message = "Deprecated ConnectionSocketFactory")
 fun registryOfConnectionSocketFactory(
     plain: ConnectionSocketFactory = PlainConnectionSocketFactory.getSocketFactory(),
     ssl: ConnectionSocketFactory = SSLConnectionSocketFactory.getSocketFactory(),
