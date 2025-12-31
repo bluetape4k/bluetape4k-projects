@@ -1,10 +1,3 @@
-dependencyManagement {
-    imports {
-        mavenBom(Libs.jackson3_bom)
-        mavenBom(Libs.testcontainers_bom)
-    }
-}
-
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
 }
