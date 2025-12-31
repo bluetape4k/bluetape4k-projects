@@ -78,7 +78,7 @@ object Versions {
     const val kotlinx_benchmark = Plugins.Versions.kotlinx_benchmark
 
     const val spring_boot = Plugins.Versions.spring_boot
-    const val spring_cloud = "2025.0.0"     // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies
+    const val spring_cloud = "2025.0.1"     // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies
     const val spring_integration = "6.5.4"  // https://mvnrepository.com/artifact/org.springframework.integration/spring-integration-core
     const val reactor_bom = "2024.0.13"      // https://mvnrepository.com/artifact/io.projectreactor/reactor-bom
     const val spring_statemachine = "4.0.1" // https://mvnrepository.com/artifact/org.springframework.statemachine/spring-statemachine-core
@@ -96,11 +96,11 @@ object Versions {
         const val reactive_messaging_http = "1.0.3"
     }
 
-    const val resteasy = "6.2.14.Final"       // https://mvnrepository.com/artifact/org.jboss.resteasy/resteasy-bom
-    const val mutiny = "2.9.5"                // https://mvnrepository.com/artifact/io.smallrye.reactive/mutiny
+    const val resteasy = "6.2.15.Final"       // https://mvnrepository.com/artifact/org.jboss.resteasy/resteasy-bom
+    const val mutiny = "3.0.3"                // https://mvnrepository.com/artifact/io.smallrye.reactive/mutiny
     const val camel_quarkus = "3.29.0"       // https://mvnrepository.com/artifact/org.apache.camel.quarkus/camel-quarkus-bom
 
-    const val vertx = "4.5.22"               // https://mvnrepository.com/artifact/io.vertx/vertx-core
+    const val vertx = "4.5.23"               // https://mvnrepository.com/artifact/io.vertx/vertx-core
 
     const val swagger = "2.2.37"              // https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations
     const val springdoc_openapi = "2.8.13"    // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui
@@ -112,22 +112,22 @@ object Versions {
     const val netty = "4.2.9.Final"  // https://mvnrepository.com/artifact/io.netty/netty-all
 
     const val aws = "1.12.794"          // https://mvnrepository.com/artifact/com.amazonaws
-    const val aws2 = "2.40.15"           // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
+    const val aws2 = "2.40.17"           // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
     const val aws2_crt = "0.41.0"       // https://mvnrepository.com/artifact/software.amazon.awssdk.crt/aws-crt
-    const val aws_kotlin = "1.5.109"     // https://mvnrepository.com/artifact/aws.sdk.kotlin/aws-http-jvm
+    const val aws_kotlin = "1.5.111"     // https://mvnrepository.com/artifact/aws.sdk.kotlin/aws-http-jvm
     const val aws_smithy_kotlin = "1.5.24" // https://mvnrepository.com/artifact/aws.smithy.kotlin/http-client-engine-crt-jvm
 
     const val aws_spring_cloud = "3.4.2"  // https://mvnrepository.com/artifact/io.awspring.cloud/spring-cloud-aws-starter
 
-    const val grpc = "1.77.0"       // https://mvnrepository.com/artifact/io.grpc/grpc-stub
+    const val grpc = "1.78.0"       // https://mvnrepository.com/artifact/io.grpc/grpc-stub
     const val grpc_kotlin = "1.5.0" // https://mvnrepository.com/artifact/io.grpc/grpc-kotlin-stub
-    const val protobuf = "4.33.1"   // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java
-    const val grpc_google_common_protos = "2.63.1" // https://mvnrepository.com/artifact/com.google.api.grpc/proto-google-common-protos
+    const val protobuf = "4.33.2"   // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java
+    const val grpc_google_common_protos = "2.63.2" // https://mvnrepository.com/artifact/com.google.api.grpc/proto-google-common-protos
     const val avro = "1.12.1"       // https://mvnrepository.com/artifact/org.apache.avro/avro
 
     const val feign = "13.6"         // https://mvnrepository.com/artifact/io.github.openfeign/feign-core
-    const val httpclient5 = "5.5.1"  // https://mvnrepository.com/artifact/org.apache.httpcomponents.client5/httpclient5
-    const val httpcore5 = "5.3.6"    // https://mvnrepository.com/artifact/org.apache.httpcomponents.core5/httpcore5
+    const val httpclient5 = "5.6"  // https://mvnrepository.com/artifact/org.apache.httpcomponents.client5/httpclient5
+    const val httpcore5 = "5.4"    // https://mvnrepository.com/artifact/org.apache.httpcomponents.core5/httpcore5
     const val retrofit2 = "3.0.0"   // https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
     const val okhttp3 = "5.3.2"     // https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
     const val okio = "3.16.4"        // https://mvnrepository.com/artifact/com.squareup.okio/okio
@@ -142,7 +142,7 @@ object Versions {
     const val reflectasm = "1.11.9"     // https://mvnrepository.com/artifact/com.esotericsoftware/reflectasm
 
     const val mongo_driver = "5.5.2"   // https://mvnrepository.com/artifact/org.mongodb/mongodb-driver-sync
-    const val lettuce = "6.8.1.RELEASE" // https://mvnrepository.com/artifact/io.lettuce/lettuce-core
+    const val lettuce = "6.8.2.RELEASE" // https://mvnrepository.com/artifact/io.lettuce/lettuce-core
     const val redisson = "3.52.0"       // https://mvnrepository.com/artifact/org.redisson/redisson
 
     // NOTE: Hibernate 는 jakarta 버전인 경우 orm, validator 등이 group 에 포함됩니다.
@@ -199,7 +199,7 @@ object Versions {
     const val eclipse_collections = "13.0.0"  // https://mvnrepository.com/artifact/org.eclipse.collections/eclipse-collections
     const val jctools = "4.0.5"             // https://mvnrepository.com/artifact/org.jctools/jctools-core
 
-    const val ow2_asm = "9.9"               // https://mvnrepository.com/artifact/org.ow2.asm/asm
+    const val ow2_asm = "9.9.1"             // https://mvnrepository.com/artifact/org.ow2.asm/asm
 
     const val junit_jupiter = "6.0.1"       // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
     const val junit_platform = "6.0.1"      // https://mvnrepository.com/artifact/org.junit.platform/junit-platform-launcher
