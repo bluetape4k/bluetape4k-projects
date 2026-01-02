@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JacksonAnnotationsInside
  * @property value masking 될 필드의 값을 대체할 문자열
  */
 @JacksonAnnotationsInside
-//@JsonSerialize(using = JsonMaskerSerializer::class)
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FIELD, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY)
 annotation class JsonMasker(

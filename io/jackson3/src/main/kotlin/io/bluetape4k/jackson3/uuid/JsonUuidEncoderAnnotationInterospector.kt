@@ -18,6 +18,12 @@ class JsonUuidEncoderAnnotationInterospector: JacksonAnnotationIntrospector() {
 
     companion object: KLogging() {
         private val ANNOTATION_TYPE: Class<JsonUuidEncoder> = JsonUuidEncoder::class.java
+
+        private val base62Serializer = JsonUuidBase62Serializer()
+        private val base62Deserializer = JsonUuidBase62Deserializer()
+
+        private val uuidSerializer = UUIDSerializer()
+        private val uuidDeserializer = UUIDDeserializer()
     }
 
     override fun findSerializer(config: MapperConfig<*>, a: Annotated): Any? {
@@ -26,10 +32,10 @@ class JsonUuidEncoderAnnotationInterospector: JacksonAnnotationIntrospector() {
         if (a.rawType == UUID::class.java) {
             return annotation?.let {
                 when (it.value) {
-                    JsonUuidEncoderType.BASE62 -> JsonUuidBase62Serializer::class.java
-                    JsonUuidEncoderType.PLAIN -> UUIDSerializer::class.java
+                    JsonUuidEncoderType.BASE62 -> base62Serializer
+                    JsonUuidEncoderType.PLAIN -> uuidSerializer
                 }
-            } ?: UUIDSerializer::class.java
+            } ?: uuidSerializer
         }
         return null
     }
@@ -41,10 +47,10 @@ class JsonUuidEncoderAnnotationInterospector: JacksonAnnotationIntrospector() {
         if (rawDeserializationType(a) == UUID::class.java) {
             return annotation?.let {
                 when (it.value) {
-                    JsonUuidEncoderType.BASE62 -> JsonUuidBase62Deserializer::class.java
-                    JsonUuidEncoderType.PLAIN -> UUIDDeserializer::class.java
+                    JsonUuidEncoderType.BASE62 -> base62Deserializer
+                    JsonUuidEncoderType.PLAIN -> uuidDeserializer
                 }
-            } ?: UUIDDeserializer::class.java
+            } ?: uuidDeserializer
         }
         return null
     }
