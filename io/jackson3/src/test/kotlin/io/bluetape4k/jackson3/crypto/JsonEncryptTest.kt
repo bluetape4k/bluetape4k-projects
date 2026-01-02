@@ -31,10 +31,10 @@ class JsonEncryptTest {
     data class User(
         val username: String,
 
-        @field:JsonEncrypt(encryptor = AES::class)
+        @get:JsonEncrypt(encryptor = AES::class)
         val password: String,
 
-        @field:JsonEncrypt(encryptor = RC4::class)
+        @get:JsonEncrypt(encryptor = RC4::class)
         val mobile: String,
     )
 

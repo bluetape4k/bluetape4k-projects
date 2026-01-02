@@ -91,13 +91,13 @@ class JsonMaskerTest {
     data class User(
         val name: String,
 
-        @field:JsonMasker("masked: personal information")
+        @get:JsonMasker("masked: personal information")
         val mobile: String,
 
-        @field:JsonMasker
+        @get:JsonMasker
         val salary: BigDecimal,
 
-        @field:JsonMasker("masked: confidential information")
+        @get:JsonMasker("masked: confidential information")
         val rsu: Long = 0L,
 
         @field:JsonMasker
