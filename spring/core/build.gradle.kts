@@ -8,12 +8,12 @@ configurations {
 }
 
 dependencies {
-    api(project(":bluetape4k-io"))
+    compileOnly(project(":bluetape4k-io"))
     compileOnly(project(":bluetape4k-jackson"))
     testImplementation(project(":bluetape4k-junit5"))
 
     // Spring 
-    api(Libs.spring("context-support"))
+    compileOnly(Libs.spring("context-support"))
     compileOnly(Libs.spring("messaging"))
     compileOnly(Libs.spring("web"))
     compileOnly(Libs.springData("commons"))
@@ -23,8 +23,8 @@ dependencies {
     compileOnly(Libs.findbugs)
 
     // Timebased UUID
-    api(project(":bluetape4k-idgenerators"))
-    api(Libs.java_uuid_generator)
+    compileOnly(project(":bluetape4k-idgenerators"))
+    compileOnly(Libs.java_uuid_generator)
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))

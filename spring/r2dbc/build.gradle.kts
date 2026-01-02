@@ -14,9 +14,10 @@ dependencies {
     testImplementation(project(":bluetape4k-spring-tests"))
 
     // R2DBC
-    api(Libs.springBootStarter("data-r2dbc"))
+    implementation(Libs.springBootStarter("data-r2dbc"))
     implementation(Libs.r2dbc_pool)
     testImplementation(Libs.r2dbc_h2)
+    testImplementation(Libs.h2_v2)
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))

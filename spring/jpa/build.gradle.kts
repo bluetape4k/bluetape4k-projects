@@ -56,7 +56,7 @@ dependencies {
     // Querydsl
     // Hibernate 6+ jakarta 용은 claasifier로 ":jpa" 대신 ":jakarta" 를 사용해야 합니다.
     // https://github.com/querydsl/querydsl/issues/3493
-    api(Libs.querydsl_jpa + ":jakarta")
+    implementation(Libs.querydsl_jpa + ":jakarta")
     kapt(Libs.querydsl_apt + ":jakarta")
     kaptTest(Libs.querydsl_apt + ":jakarta")
 
@@ -65,7 +65,7 @@ dependencies {
     // Validator
     // api(Libs.javax_validation_api)
     api(Libs.jakarta_validation_api)
-    api(Libs.hibernate_validator)
+    implementation(Libs.hibernate_validator)
 
     // Converter
     compileOnly(project(":bluetape4k-crypto"))
@@ -84,7 +84,7 @@ dependencies {
     // kapt(Libs.querydsl_kotlin_codegen)
     // kaptTest(Libs.querydsl_kotlin_codegen)
 
-    api(Libs.springBootStarter("data-jpa"))
+    implementation(Libs.springBootStarter("data-jpa"))
     testImplementation(Libs.springBoot("autoconfigure"))
     testImplementation(Libs.springBootStarter("test")) {
         exclude(group = "junit", module = "junit")

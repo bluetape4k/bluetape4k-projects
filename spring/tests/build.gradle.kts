@@ -8,15 +8,15 @@ configurations {
 
 dependencies {
 
-    implementation(Libs.springBootStarter("webflux"))
+    compileOnly(Libs.springBootStarter("webflux"))
     implementation(Libs.springBootStarter("test")) {
         exclude(group = "junit", module = "junit")
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(group = "org.mockito", module = "mockito-core")
     }
 
-    api(project(":bluetape4k-spring-webflux"))
-    implementation(project(":bluetape4k-jackson"))
+    compileOnly(project(":bluetape4k-spring-webflux"))
+    compileOnly(project(":bluetape4k-jackson"))
     implementation(project(":bluetape4k-junit5"))
 
     // Coroutines

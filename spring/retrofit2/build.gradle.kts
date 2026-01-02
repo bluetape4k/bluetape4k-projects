@@ -8,7 +8,7 @@ configurations {
 }
 
 dependencies {
-    api(project(":bluetape4k-micrometer"))
+    implementation(project(":bluetape4k-micrometer"))
     testImplementation(project(":bluetape4k-junit5"))
 
     // Spring Framework
@@ -52,10 +52,10 @@ dependencies {
     compileOnly(Libs.async_http_client_extras_rxjava2)
 
     // Jackson
-    api(project(":bluetape4k-jackson"))
-    api(Libs.jackson_core)
-    api(Libs.jackson_databind)
-    api(Libs.jackson_module_kotlin)
+    implementation(project(":bluetape4k-jackson"))
+    implementation(Libs.jackson_core)
+    implementation(Libs.jackson_databind)
+    implementation(Libs.jackson_module_kotlin)
     compileOnly(Libs.jackson_module_blackbird)
 
     // Resilience4j

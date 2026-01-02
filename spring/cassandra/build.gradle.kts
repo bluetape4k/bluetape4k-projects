@@ -38,8 +38,8 @@ dependencies {
     compileOnly(Libs.springBoot("configuration-processor"))
     annotationProcessor(Libs.springBoot("configuration-processor"))
 
-    api(Libs.springBootStarter("data-cassandra"))
-    api(Libs.springBootStarter("aop"))
+    implementation(Libs.springBootStarter("aop"))
+    implementation(Libs.springBootStarter("data-cassandra"))
     testImplementation(Libs.springBootStarter("test")) {
         exclude(group = "junit", module = "junit")
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
@@ -47,9 +47,9 @@ dependencies {
     }
 
     // Coroutines
-    api(project(":bluetape4k-coroutines"))
-    api(Libs.kotlinx_coroutines_core)
-    api(Libs.kotlinx_coroutines_reactor)
+    implementation(project(":bluetape4k-coroutines"))
+    implementation(Libs.kotlinx_coroutines_core)
+    implementation(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_test)
 
     compileOnly(Libs.reactor_core)
