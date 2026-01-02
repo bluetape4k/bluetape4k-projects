@@ -1,7 +1,6 @@
 package io.bluetape4k.jackson3.mask
 
 import com.fasterxml.jackson.annotation.JacksonAnnotationsInside
-import tools.jackson.databind.annotation.JsonSerialize
 
 /**
  * Json Property 를 문자열로 변환 시, 민감한 정보를 mask 처리를 수행할 수 있도록 합니다.
@@ -21,7 +20,7 @@ import tools.jackson.databind.annotation.JsonSerialize
  * @property value masking 될 필드의 값을 대체할 문자열
  */
 @JacksonAnnotationsInside
-@JsonSerialize(using = JsonMaskerSerializer::class)
+//@JsonSerialize(using = JsonMaskerSerializer::class)
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FIELD, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY)
 annotation class JsonMasker(

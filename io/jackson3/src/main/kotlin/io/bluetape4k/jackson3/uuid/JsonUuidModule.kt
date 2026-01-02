@@ -1,10 +1,8 @@
 package io.bluetape4k.jackson3.uuid
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import tools.jackson.databind.module.SimpleModule
-import java.util.*
 
 /**
  * UUID 수형을 Base62 로 인코딩/디코딩 하는 [JsonUuidEncoder] 를 사용할 수 있도록 하는 Module 입니다.
@@ -15,17 +13,8 @@ class JsonUuidModule: SimpleModule() {
 
     companion object: KLogging()
 
-    private val interospector = JsonUuidEncoderAnnotationInterospector()
-
-    init {
-        log.debug { "Add Jackson3 JsonUuidBase62Serializer, JsonUuidBase62Deserializer ..." }
-
-        addSerializer(UUID::class.java, JsonUuidBase62Serializer())
-        addDeserializer(UUID::class.java, JsonUuidBase62Deserializer())
-    }
-
     override fun setupModule(context: SetupContext) {
         log.info { "Setup JsonUuidModule ..." }
-        context.insertAnnotationIntrospector(interospector)
+        context.insertAnnotationIntrospector(JsonUuidEncoderAnnotationInterospector())
     }
 }

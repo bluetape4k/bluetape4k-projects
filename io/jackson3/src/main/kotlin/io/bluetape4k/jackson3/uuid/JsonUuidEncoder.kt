@@ -33,6 +33,7 @@ import com.fasterxml.jackson.annotation.JacksonAnnotationsInside
  */
 @JacksonAnnotationsInside
 @Retention(AnnotationRetention.RUNTIME)
+@Target(AnnotationTarget.FIELD, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY)
 annotation class JsonUuidEncoder(
     val value: JsonUuidEncoderType = JsonUuidEncoderType.BASE62,
 )

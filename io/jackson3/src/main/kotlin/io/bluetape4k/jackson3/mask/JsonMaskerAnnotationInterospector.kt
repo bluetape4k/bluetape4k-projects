@@ -1,7 +1,6 @@
 package io.bluetape4k.jackson3.mask
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import tools.jackson.databind.cfg.MapperConfig
 import tools.jackson.databind.introspect.Annotated
 import tools.jackson.databind.introspect.JacksonAnnotationIntrospector
@@ -20,7 +19,6 @@ class JsonMaskerAnnotationInterospector: JacksonAnnotationIntrospector() {
 
     override fun findSerializer(config: MapperConfig<*>?, a: Annotated?): Any? {
         val jsonMasker = _findAnnotation(a, ANNOTATION_TYPE)
-        log.debug { "annotatedMethod=$a, annotation=$jsonMasker" }
         return jsonMasker?.let { JsonMaskerSerializer(it) }
     }
 }

@@ -31,10 +31,10 @@ class JsonEncryptTest {
     data class User(
         val username: String,
 
-        @get:JsonEncrypt(encryptor = AES::class)
+        @field:JsonEncrypt(encryptor = AES::class)
         val password: String,
 
-        @get:JsonEncrypt(encryptor = RC4::class)
+        @field:JsonEncrypt(encryptor = RC4::class)
         val mobile: String,
     )
 
@@ -60,8 +60,7 @@ class JsonEncryptTest {
 
     @RepeatedTest(REPEAT_COUNT)
     fun `encrypt json property`() {
-        val expected = createUser()
-        verifyEncryptProperty(expected)
+        verifyEncryptProperty(createUser())
     }
 
     @RepeatedTest(REPEAT_COUNT)

@@ -1,7 +1,6 @@
 package io.bluetape4k.jackson3.uuid
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import tools.jackson.databind.cfg.MapperConfig
 import tools.jackson.databind.deser.jdk.UUIDDeserializer
 import tools.jackson.databind.introspect.Annotated
@@ -23,7 +22,6 @@ class JsonUuidEncoderAnnotationInterospector: JacksonAnnotationIntrospector() {
 
     override fun findSerializer(config: MapperConfig<*>, a: Annotated): Any? {
         val annotation = _findAnnotation(a, ANNOTATION_TYPE)
-        log.debug { "annotatedMethod=$a, annotation=$annotation" }
 
         if (a.rawType == UUID::class.java) {
             return annotation?.let {
@@ -39,7 +37,6 @@ class JsonUuidEncoderAnnotationInterospector: JacksonAnnotationIntrospector() {
 
     override fun findDeserializer(config: MapperConfig<*>, a: Annotated): Any? {
         val annotation = _findAnnotation(a, ANNOTATION_TYPE)
-        log.debug { "annotatedMethod=$a, annotation=$annotation" }
 
         if (rawDeserializationType(a) == UUID::class.java) {
             return annotation?.let {

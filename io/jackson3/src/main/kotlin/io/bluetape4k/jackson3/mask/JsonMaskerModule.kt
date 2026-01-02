@@ -1,7 +1,6 @@
 package io.bluetape4k.jackson3.mask
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import tools.jackson.databind.module.SimpleModule
 
@@ -15,11 +14,6 @@ import tools.jackson.databind.module.SimpleModule
 class JsonMaskerModule: SimpleModule() {
 
     companion object: KLogging()
-
-    init {
-        log.debug { "Add Jackson 3 JsonMaskerSerializer ..." }
-        addSerializer(Any::class.java, JsonMaskerSerializer())
-    }
 
     override fun setupModule(context: SetupContext) {
         log.info { "Setup JsonMaskerModule ..." }

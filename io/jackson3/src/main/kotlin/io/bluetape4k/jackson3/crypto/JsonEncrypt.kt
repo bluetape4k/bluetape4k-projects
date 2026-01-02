@@ -3,8 +3,6 @@ package io.bluetape4k.jackson3.crypto
 import com.fasterxml.jackson.annotation.JacksonAnnotationsInside
 import io.bluetape4k.crypto.encrypt.AES
 import io.bluetape4k.crypto.encrypt.Encryptor
-import tools.jackson.databind.annotation.JsonDeserialize
-import tools.jackson.databind.annotation.JsonSerialize
 import kotlin.reflect.KClass
 
 /**
@@ -31,10 +29,8 @@ import kotlin.reflect.KClass
  * @constructor Create empty Json encrypt
  */
 @JacksonAnnotationsInside
-@JsonSerialize(using = JsonEncryptSerializer::class)
-@JsonDeserialize(using = JsonEncryptDeserializer::class)
 @Retention(AnnotationRetention.RUNTIME)
-@Target(AnnotationTarget.FIELD, AnnotationTarget.PROPERTY_GETTER)
+@Target(AnnotationTarget.FIELD, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY)
 annotation class JsonEncrypt(
     val encryptor: KClass<out Encryptor> = AES::class,
 )
