@@ -21,11 +21,11 @@ class JsonUuidEncoderAnnotationInterospector: JacksonAnnotationIntrospector() {
         private val ANNOTATION_TYPE: Class<JsonUuidEncoder> = JsonUuidEncoder::class.java
     }
 
-    override fun findSerializer(config: MapperConfig<*>, annotatedMethod: Annotated): Any? {
-        val annotation = _findAnnotation(annotatedMethod, ANNOTATION_TYPE)
-        log.debug { "annotatedMethod=$annotatedMethod, annotation=$annotation" }
+    override fun findSerializer(config: MapperConfig<*>, a: Annotated): Any? {
+        val annotation = _findAnnotation(a, ANNOTATION_TYPE)
+        log.debug { "annotatedMethod=$a, annotation=$annotation" }
 
-        if (annotatedMethod.rawType == UUID::class.java) {
+        if (a.rawType == UUID::class.java) {
             return annotation?.let {
                 when (it.value) {
                     JsonUuidEncoderType.BASE62 -> JsonUuidBase62Serializer::class.java
@@ -37,11 +37,11 @@ class JsonUuidEncoderAnnotationInterospector: JacksonAnnotationIntrospector() {
     }
 
 
-    override fun findDeserializer(config: MapperConfig<*>, annotatedMethod: Annotated): Any? {
-        val annotation = _findAnnotation(annotatedMethod, ANNOTATION_TYPE)
-        log.debug { "annotatedMethod=$annotatedMethod, annotation=$annotation" }
+    override fun findDeserializer(config: MapperConfig<*>, a: Annotated): Any? {
+        val annotation = _findAnnotation(a, ANNOTATION_TYPE)
+        log.debug { "annotatedMethod=$a, annotation=$annotation" }
 
-        if (rawDeserializationType(annotatedMethod) == UUID::class.java) {
+        if (rawDeserializationType(a) == UUID::class.java) {
             return annotation?.let {
                 when (it.value) {
                     JsonUuidEncoderType.BASE62 -> JsonUuidBase62Deserializer::class.java
