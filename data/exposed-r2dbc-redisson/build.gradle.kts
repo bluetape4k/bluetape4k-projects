@@ -10,7 +10,7 @@ dependencies {
     api(Libs.exposed_r2dbc)
     api(Libs.exposed_java_time)
     api(Libs.exposed_kotlin_datetime)
-    api(project(":bluetape4k-exposed"))
+
     api(project(":bluetape4k-exposed-r2dbc"))
     testImplementation(project(":bluetape4k-exposed-r2dbc-tests"))
 

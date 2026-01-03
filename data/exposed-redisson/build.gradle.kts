@@ -7,12 +7,13 @@ dependencies {
     // Exposed
     implementation(platform(Libs.exposed_bom))
 
-    api(project(":bluetape4k-exposed"))
     api(Libs.exposed_core)
     api(Libs.exposed_jdbc)
     api(Libs.exposed_dao)
     api(Libs.exposed_java_time)
     api(Libs.exposed_kotlin_datetime)
+
+    api(project(":bluetape4k-exposed"))
     testImplementation(project(":bluetape4k-exposed-tests"))
 
     // Redisson
