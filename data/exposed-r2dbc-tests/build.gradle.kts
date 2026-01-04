@@ -7,6 +7,7 @@ dependencies {
     // Exposed
     implementation(platform(Libs.exposed_bom))
 
+    api(Libs.exposed_core)
     api(Libs.exposed_r2dbc)
     api(Libs.exposed_migration_r2dbc)
     compileOnly(Libs.exposed_java_time)
@@ -20,18 +21,17 @@ dependencies {
     api(Libs.r2dbc_postgresql)
 
     // Coroutines
-    api(project(":bluetape4k-coroutines"))
-    api(Libs.kotlinx_coroutines_core)
-    api(Libs.kotlinx_coroutines_reactive)
-    api(Libs.kotlinx_coroutines_reactor)
+    compileOnly(project(":bluetape4k-coroutines"))
+    compileOnly(Libs.kotlinx_coroutines_core)
+    compileOnly(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_test)
 
     // Bluetape4k Modules for Testing
-    implementation(project(":bluetape4k-junit5"))
-    implementation(project(":bluetape4k-testcontainers"))
-    compileOnly(Libs.testcontainers_mariadb)
-    compileOnly(Libs.testcontainers_mysql)
-    compileOnly(Libs.testcontainers_postgresql)
+    api(project(":bluetape4k-junit5"))
+    api(project(":bluetape4k-testcontainers"))
+    api(Libs.testcontainers_mariadb)
+    api(Libs.testcontainers_mysql)
+    api(Libs.testcontainers_postgresql)
 
     implementation(project(":bluetape4k-idgenerators"))
     implementation(project(":bluetape4k-javatimes"))

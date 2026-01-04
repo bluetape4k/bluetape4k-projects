@@ -24,5 +24,4 @@ dependencies {
     implementation(Libs.java_uuid_generator)
 
     testImplementation(project(":bluetape4k-junit5"))
-    testImplementation(project(":bluetape4k-testcontainers"))
 }

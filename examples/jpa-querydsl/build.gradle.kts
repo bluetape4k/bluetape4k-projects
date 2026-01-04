@@ -37,9 +37,9 @@ dependencies {
     implementation(project(":bluetape4k-hibernate"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    api(Libs.jakarta_annotation_api)
-    api(Libs.jakarta_persistence_api)
-    api(Libs.hibernate_core)
+    implementation(Libs.jakarta_annotation_api)
+    implementation(Libs.jakarta_persistence_api)
+    implementation(Libs.hibernate_core)
 
     // QueryDsl
     implementation(Libs.querydsl_jpa + ":jakarta")

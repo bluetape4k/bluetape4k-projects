@@ -1,4 +1,3 @@
-@Suppress("UnstableApiUsage")
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
 }
@@ -7,8 +6,8 @@ dependencies {
     // Exposed
     implementation(platform(Libs.exposed_bom))
     api(Libs.exposed_core)
-    api(Libs.exposed_jdbc)
-    api(Libs.exposed_dao)
+    compileOnly(Libs.exposed_jdbc)
+    compileOnly(Libs.exposed_dao)
     compileOnly(Libs.exposed_crypt)
     compileOnly(Libs.exposed_kotlin_datetime)
     compileOnly(Libs.exposed_java_time)
@@ -20,11 +19,11 @@ dependencies {
     testImplementation(project(":bluetape4k-exposed-tests"))
 
     // Entity ID generators
-    api(project(":bluetape4k-idgenerators"))
-    api(Libs.java_uuid_generator)
+    implementation(project(":bluetape4k-idgenerators"))
+    implementation(Libs.java_uuid_generator)
 
-    // Bluetape4k
-    compileOnly(project(":bluetape4k-jdbc"))
+    // JDBC
+    // compileOnly(project(":bluetape4k-jdbc"))
 
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
@@ -52,7 +51,6 @@ dependencies {
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))
     compileOnly(Libs.kotlinx_coroutines_core)
-    compileOnly(Libs.kotlinx_coroutines_reactive)
     compileOnly(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_test)
 
@@ -60,13 +58,14 @@ dependencies {
     // Custom Column Types
     //
 
+    compileOnly(project(":bluetape4k-io"))
+
     // Serializer
-    compileOnly(Libs.kryo)
+    compileOnly(Libs.kryo5)
     compileOnly(Libs.fory_kotlin)  // new Apache Fory
     compileOnly(Libs.fury_kotlin)  // old Apache Fury
 
     // Compressors
-    compileOnly(project(":bluetape4k-io"))
     compileOnly(Libs.lz4_java)
     compileOnly(Libs.snappy_java)
     compileOnly(Libs.zstd_jni)

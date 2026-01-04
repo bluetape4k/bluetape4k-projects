@@ -35,7 +35,7 @@ dependencies {
     kapt(Libs.cassandra_java_driver_mapper_processor)
     kaptTest(Libs.cassandra_java_driver_mapper_processor)
 
-    api(Libs.kotlinx_coroutines_core)
-    api(Libs.kotlinx_coroutines_reactor)
+    implementation(Libs.kotlinx_coroutines_core)
+    implementation(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_test)
 }

@@ -7,7 +7,7 @@ configurations {
 }
 
 dependencies {
-    api(Libs.mapstruct)
+    implementation(Libs.mapstruct)
     kapt(Libs.mapstruct_processor)
     kaptTest(Libs.mapstruct_processor)
 

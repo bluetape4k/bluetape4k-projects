@@ -9,43 +9,43 @@ configurations {
 
 dependencies {
     // Redisson
-    api(project(":bluetape4k-redis"))
-    api(Libs.redisson)
-    api(Libs.redisson_spring_boot_starter)
+    testImplementation(project(":bluetape4k-redis"))
+    testImplementation(Libs.redisson)
+    testImplementation(Libs.redisson_spring_boot_starter)
 
     // Codecs
-    implementation(Libs.kryo)
-    implementation(Libs.fory_kotlin)  // new Apache Fory
-    implementation(Libs.fury_kotlin)  // old Apache Fury
+    testImplementation(Libs.kryo)
+    testImplementation(Libs.fory_kotlin)  // new Apache Fory
+    testImplementation(Libs.fury_kotlin)  // old Apache Fury
 
     // Compressor
-    implementation(Libs.snappy_java)
-    implementation(Libs.lz4_java)
-    implementation(Libs.zstd_jni)
+    testImplementation(Libs.lz4_java)
+    testImplementation(Libs.snappy_java)
+    testImplementation(Libs.zstd_jni)
 
     // Protobuf
-    implementation(Libs.protobuf_java)
-    implementation(Libs.protobuf_java_util)
-    implementation(Libs.protobuf_kotlin)
+    testImplementation(Libs.protobuf_java)
+    testImplementation(Libs.protobuf_java_util)
+    testImplementation(Libs.protobuf_kotlin)
 
     // Cache
-    implementation(project(":bluetape4k-cache"))
-    implementation(Libs.caffeine)
-    implementation(Libs.caffeine_jcache)
+    testImplementation(project(":bluetape4k-cache"))
+    testImplementation(Libs.caffeine)
+    testImplementation(Libs.caffeine_jcache)
 
     // JSON
-    implementation(project(":bluetape4k-jackson"))
-    implementation(Libs.jackson_module_kotlin)
-    implementation(Libs.jackson_module_blackbird)
-    implementation(Libs.jackson_dataformat_protobuf)
+    testImplementation(project(":bluetape4k-jackson"))
+    testImplementation(Libs.jackson_module_kotlin)
+    testImplementation(Libs.jackson_module_blackbird)
+    testImplementation(Libs.jackson_dataformat_protobuf)
 
     // Grpc
-    implementation(project(":bluetape4k-grpc"))
+    testImplementation(project(":bluetape4k-grpc"))
 
     // Coroutines
-    implementation(project(":bluetape4k-coroutines"))
-    implementation(Libs.kotlinx_coroutines_core)
-    implementation(Libs.kotlinx_coroutines_reactor)
+    testImplementation(project(":bluetape4k-coroutines"))
+    testImplementation(Libs.kotlinx_coroutines_core)
+    testImplementation(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_test)
 
     // Bluetape4k Modules for Testing

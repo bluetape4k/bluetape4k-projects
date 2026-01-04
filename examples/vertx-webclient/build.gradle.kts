@@ -8,21 +8,18 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
 
     // Vertx
-    api(project(":bluetape4k-vertx-core"))
-    testImplementation(Libs.vertx_junit5)
-
-    // Vertx Kotlin
+    implementation(project(":bluetape4k-vertx-core"))
     implementation(Libs.vertx_core)
     implementation(Libs.vertx_lang_kotlin)
     implementation(Libs.vertx_lang_kotlin_coroutines)
     implementation(Libs.vertx_web)
     implementation(Libs.vertx_web_client)
+    testImplementation(Libs.vertx_junit5)
 
     // Vetx SqlClient Templates 에서 Jackson Databind 를 이용한 매핑을 사용한다
     implementation(project(":bluetape4k-jackson"))
     implementation(Libs.jackson_module_kotlin)
-    implementation(Libs.jackson_datatype_jdk8)
-    implementation(Libs.jackson_datatype_jsr310)
+    implementation(Libs.jackson_module_blackbird)
 
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))

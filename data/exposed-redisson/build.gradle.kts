@@ -10,8 +10,8 @@ dependencies {
     api(Libs.exposed_core)
     api(Libs.exposed_jdbc)
     api(Libs.exposed_dao)
-    api(Libs.exposed_java_time)
-    api(Libs.exposed_kotlin_datetime)
+    implementation(Libs.exposed_java_time)
+    implementation(Libs.exposed_kotlin_datetime)
 
     api(project(":bluetape4k-exposed"))
     testImplementation(project(":bluetape4k-exposed-tests"))
@@ -20,11 +20,13 @@ dependencies {
     api(project(":bluetape4k-redis"))
     api(Libs.redisson)
 
-    // Codecs
+
     testImplementation(project(":bluetape4k-io"))
-    testImplementation(Libs.kryo)
-    testImplementation(Libs.fory_kotlin)  // new Apache Fory
-    testImplementation(Libs.fury_kotlin)  // old Apache Fury
+
+    // Codecs
+    compileOnly(Libs.kryo5)
+    compileOnly(Libs.fory_kotlin)  // new Apache Fory
+    compileOnly(Libs.fury_kotlin)  // old Apache Fury
     
     // Compressor
     compileOnly(Libs.snappy_java)

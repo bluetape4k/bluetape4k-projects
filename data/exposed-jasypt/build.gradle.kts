@@ -1,4 +1,3 @@
-@Suppress("UnstableApiUsage")
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
 }
@@ -9,7 +8,8 @@ dependencies {
 
     api(Libs.exposed_core)
     api(Libs.exposed_jdbc)
-    api(Libs.exposed_dao)
+    implementation(Libs.exposed_dao)
+
     api(project(":bluetape4k-exposed"))
     testImplementation(project(":bluetape4k-exposed-tests"))
 
@@ -31,5 +31,4 @@ dependencies {
     testImplementation(Libs.mysql_connector_j)
     testImplementation(Libs.postgresql_driver)
     testImplementation(Libs.pgjdbc_ng)
-
 }

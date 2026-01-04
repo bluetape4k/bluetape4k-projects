@@ -1,7 +1,6 @@
 package io.bluetape4k.exposed.tests
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.testcontainers.database.CockroachServer
 import io.bluetape4k.testcontainers.database.MariaDBServer
 import io.bluetape4k.testcontainers.database.MySQL5Server
 import io.bluetape4k.testcontainers.database.MySQL8Server
@@ -17,5 +16,5 @@ object Containers: KLogging() {
 
     val Postgres by lazy { PostgreSQLServer.Launcher.postgres }
 
-    val Cockroach by lazy { CockroachServer.Launcher.cockroach }
+    // val Cockroach by lazy { CockroachServer.Launcher.cockroach }
 }

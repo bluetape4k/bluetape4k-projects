@@ -156,22 +156,22 @@ enum class TestDB(
                 stmt.execute("SET TIMEZONE='UTC';")
             }
         }
-    ),
-
-    COCKROACH(
-        connection = {
-            Containers.Cockroach.jdbcUrl + "?allowMultiQueries=true" // + "?sslmode=disable"
-        },
-        driver = JdbcDrivers.DRIVER_CLASS_POSTGRESQL,
-        afterConnection = { connection ->
-            connection.createStatement().use { stmt ->
-                stmt.execute("SET autocommit_before_ddl = on")
-            }
-        },
-        dbConfig = {
-            defaultIsolationLevel = java.sql.Connection.TRANSACTION_READ_COMMITTED
-        }
     );
+
+//    COCKROACH(
+//        connection = {
+//            Containers.Cockroach.jdbcUrl + "?allowMultiQueries=true" // + "?sslmode=disable"
+//        },
+//        driver = JdbcDrivers.DRIVER_CLASS_POSTGRESQL,
+//        afterConnection = { connection ->
+//            connection.createStatement().use { stmt ->
+//                stmt.execute("SET autocommit_before_ddl = on")
+//            }
+//        },
+//        dbConfig = {
+//            defaultIsolationLevel = java.sql.Connection.TRANSACTION_READ_COMMITTED
+//        }
+//    );
 
     var db: Database? = null
 
@@ -214,7 +214,7 @@ enum class TestDB(
         val ALL_MYSQL_LIKE = ALL_MYSQL_MARIADB + H2_MYSQL + H2_MARIADB
         val ALL_POSTGRES = setOf(POSTGRESQL, POSTGRESQLNG)
         val ALL_POSTGRES_LIKE = setOf(POSTGRESQL, POSTGRESQLNG, H2_PSQL)
-        val ALL_COCKROACH = setOf(COCKROACH)
+        // val ALL_COCKROACH = setOf(COCKROACH)
 
         val ALL = TestDB.entries.toSet()
 

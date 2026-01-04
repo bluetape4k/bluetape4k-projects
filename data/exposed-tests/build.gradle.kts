@@ -26,31 +26,28 @@ dependencies {
     api(project(":bluetape4k-junit5"))
     api(project(":bluetape4k-testcontainers"))
     api(Libs.testcontainers)
-    api(Libs.testcontainers_junit_jupiter)
     api(Libs.testcontainers_mariadb)
     api(Libs.testcontainers_mysql)
     api(Libs.testcontainers_postgresql)
-    implementation(Libs.testcontainers_cockroachdb)
+    // compileOnly(Libs.testcontainers_cockroachdb)
 
     // Database Drivers
     compileOnly(Libs.hikaricp)
 
     // Database Drivers
-    api(Libs.h2_v2)
-    api(Libs.mariadb_java_client)
-    api(Libs.mysql_connector_j)
-    api(Libs.postgresql_driver)
-    api(Libs.pgjdbc_ng)
+    compileOnly(Libs.h2_v2)
+    compileOnly(Libs.mariadb_java_client)
+    compileOnly(Libs.mysql_connector_j)
+    compileOnly(Libs.postgresql_driver)
+    compileOnly(Libs.pgjdbc_ng)
 
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))
     implementation(Libs.kotlinx_coroutines_core)
-    implementation(Libs.kotlinx_coroutines_reactive)
-    implementation(Libs.kotlinx_coroutines_reactor)
     implementation(Libs.kotlinx_coroutines_debug)
     implementation(Libs.kotlinx_coroutines_test)
 
     // Id Generators
-    implementation(project(":bluetape4k-idgenerators"))
-    implementation(Libs.java_uuid_generator)
+    compileOnly(project(":bluetape4k-idgenerators"))
+    compileOnly(Libs.java_uuid_generator)
 }
