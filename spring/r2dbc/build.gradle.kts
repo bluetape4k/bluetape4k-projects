@@ -20,7 +20,7 @@ dependencies {
     testImplementation(Libs.h2_v2)
 
     // Coroutines
-    api(project(":bluetape4k-coroutines"))
+    implementation(project(":bluetape4k-coroutines"))
     api(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_test)
 
