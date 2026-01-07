@@ -15,13 +15,13 @@ dependencies {
 
     // R2DBC
     api(Libs.springBootStarter("data-r2dbc"))
-    api(Libs.r2dbc_pool)
-    testImplementation(Libs.r2dbc_h2)
-    testImplementation(Libs.h2_v2)
+    compileOnly(Libs.r2dbc_pool)
+    testRuntimeOnly(Libs.r2dbc_h2)
+    testRuntimeOnly(Libs.h2_v2)
 
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))
-    api(Libs.kotlinx_coroutines_reactor)
+    implementation(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_test)
 
     // PostgreSql Server

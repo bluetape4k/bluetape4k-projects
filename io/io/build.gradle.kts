@@ -26,13 +26,13 @@ dependencies {
     implementation(project(":bluetape4k-crypto"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    api(Libs.kotlinx_atomicfu)
+    compileOnly(Libs.kotlinx_atomicfu)
 
     // Apache Commons
     api(Libs.commons_lang3)
-    api(Libs.commons_codec)
-    api(Libs.commons_compress)
-    api(Libs.commons_io)
+    compileOnly(Libs.commons_codec)
+    compileOnly(Libs.commons_compress)
+    compileOnly(Libs.commons_io)
 
     // Okio
     api(Libs.okio)

@@ -6,6 +6,7 @@ configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
 }
 
+// Declares dependencies for testing and coroutines support
 dependencies {
 
     compileOnly(Libs.springBootStarter("webflux"))
