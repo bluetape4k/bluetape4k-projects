@@ -56,7 +56,6 @@ object Jackson: KLogging() {
             // Classpath에 있는 모든 Jackson용 Module을 찾아서 추가합니다.
             findAndAddModules()
 
-            // 내부의 Module은 직접 등록합니다. (findAndRegisterModules() 에서 등록해주지 않는다)
             // 리소스에 services 로 등록해줘서 이제 자동으로 등록됩니다.
             // addModules(JsonUuidModule())
 
