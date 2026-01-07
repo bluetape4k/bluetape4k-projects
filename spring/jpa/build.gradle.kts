@@ -64,7 +64,7 @@ dependencies {
 
     // Validator
     // api(Libs.javax_validation_api)
-    api(Libs.jakarta_validation_api)
+    implementation(Libs.jakarta_validation_api)
     implementation(Libs.hibernate_validator)
 
     // Converter
@@ -93,8 +93,8 @@ dependencies {
     }
 
     testImplementation(Libs.hikaricp)
-    testImplementation(Libs.h2_v2)
-    testImplementation(Libs.mysql_connector_j)
+    testRuntimeOnly(Libs.h2_v2)
+    testRuntimeOnly(Libs.mysql_connector_j)
 
     testImplementation(project(":bluetape4k-testcontainers"))
     testImplementation(Libs.testcontainers_mysql)
@@ -106,5 +106,5 @@ dependencies {
     testImplementation(Libs.caffeine_jcache)
 
     // JDBC 와 같이 사용
-    testImplementation(project(":bluetape4k-jdbc"))
+    // testImplementation(project(":bluetape4k-jdbc"))
 }

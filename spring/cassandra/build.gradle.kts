@@ -24,8 +24,8 @@ dependencies {
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // NOTE: Cassandra 4 oss 버전을 사용합니다.
-    api(Libs.cassandra_java_driver_core)
-    api(Libs.cassandra_java_driver_query_builder)
+    implementation(Libs.cassandra_java_driver_core)
+    implementation(Libs.cassandra_java_driver_query_builder)
     compileOnly(Libs.cassandra_java_driver_mapper_runtime)
     compileOnly(Libs.cassandra_java_driver_metrics_micrometer)
 
@@ -38,7 +38,6 @@ dependencies {
     compileOnly(Libs.springBoot("configuration-processor"))
     annotationProcessor(Libs.springBoot("configuration-processor"))
 
-    implementation(Libs.springBootStarter("aop"))
     implementation(Libs.springBootStarter("data-cassandra"))
     testImplementation(Libs.springBootStarter("test")) {
         exclude(group = "junit", module = "junit")
