@@ -24,15 +24,15 @@ dependencies {
 
     // MySQL
     compileOnly(Libs.testcontainers_mysql)
-    testImplementation(Libs.mysql_connector_j)
+    testRuntimeOnly(Libs.mysql_connector_j)
 
     // MariaDB
     compileOnly(Libs.testcontainers_mariadb)
-    testImplementation(Libs.mariadb_java_client)
+    testRuntimeOnly(Libs.mariadb_java_client)
 
     // Postgres
     compileOnly(Libs.testcontainers_postgresql)
-    testImplementation(Libs.postgresql_driver)
+    testRuntimeOnly(Libs.postgresql_driver)
 
     // CockroachDB
     compileOnly(Libs.testcontainers_cockroachdb)
@@ -129,17 +129,18 @@ dependencies {
     testImplementation(Libs.metrics_jmx)
 
     // Minio
-    compileOnly(Libs.minio)
     compileOnly(Libs.testcontainers_minio)
+    compileOnly(Libs.minio)
 
     // Immudb
-    compileOnly(Libs.immudb4j)
+    testRuntimeOnly(Libs.immudb4j)
 
     // Curator framework for ZooKeeper
     compileOnly(Libs.curator_framework)
 
     // Ollama
     compileOnly(Libs.testcontainers_ollama)
+
     testImplementation(Libs.rest_assured)
     testImplementation(Libs.rest_assured_kotlin)
 
@@ -151,19 +152,18 @@ dependencies {
 
     // ClickHouse
     compileOnly(Libs.testcontainers_clickhouse)
-    testImplementation(Libs.clickhouse_jdbc)
-    testImplementation(Libs.httpclient5)
+    testRuntimeOnly(Libs.clickhouse_jdbc)
+    testRuntimeOnly(Libs.httpclient5)
 
     // Weaviate
     compileOnly(Libs.testcontainers_weaviate)
-    compileOnly(Libs.weaviate_client)
+    testRuntimeOnly(Libs.weaviate_client)
 
     // ChromaDB
     compileOnly(Libs.testcontainers_chromadb)
 
     // TiDB
     compileOnly(Libs.testcontainers_tidb)
-    testImplementation(Libs.mysql_connector_j)
 
     testImplementation(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)
