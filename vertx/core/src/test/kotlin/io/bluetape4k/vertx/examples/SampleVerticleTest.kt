@@ -9,7 +9,7 @@ import io.vertx.ext.web.client.WebClient
 import io.vertx.ext.web.codec.BodyCodec
 import io.vertx.junit5.VertxExtension
 import io.vertx.junit5.VertxTestContext
-import io.vertx.kotlin.coroutines.awaitResult
+import io.vertx.kotlin.coroutines.coAwait
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -82,19 +82,20 @@ class SampleVerticleTest {
             val requestCheckpoint = testContext.checkpoint(REPEAT_SIZE)
 
             log.debug { "Deply SampleVerticle" }
-            awaitResult<String> { vertx.deployVerticle(SampleVerticle(), it) }
+            vertx.deployVerticle(SampleVerticle()).coAwait()
             deploymentCheckpoint.flag()  //testContext 에게 현 단계까지 완료되었음을 알린다.
 
             val jobs = List(REPEAT_SIZE) { requestIndex ->
                 launch {
-                    val resp = awaitResult { handler ->
-                        log.debug { "Request $requestIndex" }
+                    log.debug { "Request $requestIndex" }
+                    val resp =
                         webClient.get(11981, "localhost", "/")
                             .`as`(BodyCodec.string())
-                            .send(handler)
-                    }
+                            .send()
+                            .coAwait()
+
+                    log.debug { "Response $resp" }
                     testContext.verify {
-                        log.debug { "Response $resp" }
                         resp.statusCode() shouldBeEqualTo 200
                         resp.body() shouldContain "Yo!"
                         // testContext에 완료되었음을 알린다 (CountDownLatch와 유사)

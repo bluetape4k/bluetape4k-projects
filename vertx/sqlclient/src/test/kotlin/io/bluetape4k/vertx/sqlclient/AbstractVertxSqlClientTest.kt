@@ -2,7 +2,7 @@ package io.bluetape4k.vertx.sqlclient
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.info
+import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.database.MySQL8Server
 import io.bluetape4k.utils.Resourcex
@@ -17,7 +17,7 @@ import io.vertx.kotlin.mysqlclient.mySQLConnectOptionsOf
 import io.vertx.kotlin.sqlclient.poolOptionsOf
 import io.vertx.mysqlclient.MySQLBuilder
 import io.vertx.mysqlclient.MySQLConnectOptions
-import io.vertx.mysqlclient.impl.MySQLPoolImpl
+import io.vertx.mysqlclient.MySQLConnection
 import io.vertx.sqlclient.Pool
 import io.vertx.sqlclient.PoolOptions
 import kotlinx.coroutines.runBlocking
@@ -42,7 +42,6 @@ abstract class AbstractVertxSqlClientTest {
                 database = databaseName,
                 user = username,
                 password = password,
-                tcpKeepAlive = true
             )
 
         val h2ConnectOptions: JDBCConnectOptions by lazy {
@@ -65,13 +64,12 @@ abstract class AbstractVertxSqlClientTest {
                 .connectingTo(connectOptions)
                 .using(this@getMySQLPool)
                 .build()
-            // return MySQLPool.pool(this@getMySQLPool, connectOptions, poolOptions)
         }
 
         fun Vertx.getH2Pool(
             connectOptions: JDBCConnectOptions = h2ConnectOptions,
             poolOptions: PoolOptions = defaultPoolOptions,
-        ): JDBCPool {
+        ): Pool {
             return JDBCPool.pool(this, connectOptions, poolOptions)
         }
     }
@@ -86,10 +84,11 @@ abstract class AbstractVertxSqlClientTest {
     fun setup(vertx: Vertx) = runSuspendTest(vertx.dispatcher()) {
         pool = vertx.getPool()
 
-        log.info { "Initialize database" }
-        val dbType = if (pool is MySQLPoolImpl) "mysql" else "h2"
+        log.debug { "Initialize database. pool=$pool, connect=${pool.connection.coAwait()}" }
+        val dbType = if (pool.connection.coAwait() is MySQLConnection) "mysql" else "h2"
         pool.withSuspendTransaction { conn ->
             schemaFileNames.forEach { path ->
+                log.debug { "dbType=$dbType, path=$path" }
                 val query = Resourcex.getString("mybatis/schema/$dbType/$path")
                 conn.query(query).execute().coAwait()
             }

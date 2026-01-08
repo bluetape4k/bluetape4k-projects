@@ -47,7 +47,7 @@ class LifecycleExample {
     @Test
     fun `deploy sample verticle with custom vertx`(testContext: VertxTestContext) =
         withTestContext(testContext) {
-            vertx.deployVerticle(SampleVerticle(), testContext.succeeding { testContext.completeNow() })
+            vertx.deployVerticle(SampleVerticle())
         }
 
     @Test
@@ -56,7 +56,8 @@ class LifecycleExample {
 
         vertx.deployVerticle(
             SampleVerticle(),
-            testContext.succeeding {
+        ).onSuccess {
+            testContext.succeeding<Unit> {
                 webClient.get(11981, "localhost", "/yo")
                     .`as`(BodyCodec.string())
                     .send()
@@ -68,7 +69,7 @@ class LifecycleExample {
                         }
                     }
             }
-        )
+        }
     }
 
     @Test
