@@ -15,8 +15,6 @@ val defaultVertxHttpClientOptions: HttpClientOptions = httpClientOptionsOf(
     useAlpn = true,
     trustAll = true,
     logActivity = true,
-    tryUsePerFrameWebSocketCompression = true,
-    tryUsePerMessageWebSocketCompression = true
 )
 
 /**

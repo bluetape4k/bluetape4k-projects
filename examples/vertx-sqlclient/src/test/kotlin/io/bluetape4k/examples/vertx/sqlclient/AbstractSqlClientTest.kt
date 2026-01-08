@@ -62,7 +62,7 @@ abstract class AbstractSqlClientTest {
         fun Vertx.getH2Pool(
             connectOptions: JDBCConnectOptions = h2ConnectOptions,
             poolOptions: PoolOptions = defaultPoolOptions,
-        ): JDBCPool =
+        ): Pool =
             JDBCPool.pool(this, connectOptions, poolOptions)
     }
 }
