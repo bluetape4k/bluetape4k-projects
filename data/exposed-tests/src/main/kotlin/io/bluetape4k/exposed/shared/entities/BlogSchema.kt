@@ -1,9 +1,6 @@
 package io.bluetape4k.exposed.shared.entities
 
-import io.bluetape4k.exposed.dao.idEquals
-import io.bluetape4k.exposed.dao.idHashCode
-import io.bluetape4k.exposed.dao.idValue
-import io.bluetape4k.exposed.dao.toStringBuilder
+import io.bluetape4k.ToStringBuilder
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
@@ -120,9 +117,7 @@ object BlogSchema {
         val comments: SizedIterable<PostComment> by PostComment referrersOn PostCommentTable
         val tags: SizedIterable<Tag> by Tag via PostTagTable // Tag.via (PostTagTable.post, PostTagTable.tag)
 
-        override fun equals(other: Any?): Boolean = idEquals(other)
-        override fun hashCode(): Int = idHashCode()
-        override fun toString(): String = toStringBuilder()
+        override fun toString(): String = ToStringBuilder(this)
             .add("title", title)
             .toString()
     }
@@ -134,10 +129,8 @@ object BlogSchema {
         var createdOn by PostDetailTable.createdOn
         var createdBy by PostDetailTable.createdBy
 
-        override fun equals(other: Any?): Boolean = idEquals(other)
-        override fun hashCode(): Int = idHashCode()
-        override fun toString(): String = toStringBuilder()
-            .add("post id", post.idValue)
+        override fun toString(): String = ToStringBuilder(this)
+            .add("post id", post.id)
             .add("createdOn", createdOn)
             .add("createdBy", createdBy)
             .toString()
@@ -150,10 +143,8 @@ object BlogSchema {
         var post by Post referencedOn PostCommentTable.postId
         var review by PostCommentTable.review
 
-        override fun equals(other: Any?): Boolean = idEquals(other)
-        override fun hashCode(): Int = idHashCode()
-        override fun toString(): String = toStringBuilder()
-            .add("post id", post.idValue)
+        override fun toString(): String = ToStringBuilder(this)
+            .add("post id", post.id)
             .add("review", review)
             .toString()
     }
@@ -164,9 +155,7 @@ object BlogSchema {
         var name by TagTable.name
         val posts: SizedIterable<Post> by Post via PostTagTable // Post.via(PostTagTable.tag, PostTagTable.post) 와 같다.
 
-        override fun equals(other: Any?): Boolean = idEquals(other)
-        override fun hashCode(): Int = idHashCode()
-        override fun toString(): String = toStringBuilder()
+        override fun toString(): String = ToStringBuilder(this)
             .add("name", name)
             .toString()
     }

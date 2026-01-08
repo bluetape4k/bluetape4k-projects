@@ -17,10 +17,10 @@ dependencies {
 
     api(Libs.r2dbc_spi)
     api(Libs.r2dbc_pool)
-    implementation(Libs.r2dbc_h2)
-    implementation(Libs.r2dbc_mariadb)
-    implementation(Libs.r2dbc_mysql)
-    implementation(Libs.r2dbc_postgresql)
+    testRuntimeOnly(Libs.r2dbc_h2)
+    testRuntimeOnly(Libs.r2dbc_mariadb)
+    testRuntimeOnly(Libs.r2dbc_mysql)
+    testRuntimeOnly(Libs.r2dbc_postgresql)
 
     // Coroutines
     api(project(":bluetape4k-coroutines"))
@@ -38,9 +38,9 @@ dependencies {
     testImplementation(Libs.testcontainers_mysql)
     testImplementation(Libs.testcontainers_postgresql)
 
-    // Database Drivers
-    testImplementation(Libs.h2_v2)
-    testImplementation(Libs.mariadb_java_client)
-    testImplementation(Libs.mysql_connector_j)
-    testImplementation(Libs.postgresql_driver)
+    // Database Drivers for Testcontainers Databases
+    testRuntimeOnly(Libs.h2_v2)
+    testRuntimeOnly(Libs.mariadb_java_client)
+    testRuntimeOnly(Libs.mysql_connector_j)
+    testRuntimeOnly(Libs.postgresql_driver)
 }

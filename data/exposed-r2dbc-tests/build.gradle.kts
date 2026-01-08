@@ -9,22 +9,25 @@ dependencies {
 
     api(Libs.exposed_core)
     api(Libs.exposed_r2dbc)
-    api(Libs.exposed_migration_r2dbc)
-    compileOnly(Libs.exposed_java_time)
+    implementation(Libs.exposed_migration_r2dbc)
+    implementation(Libs.exposed_java_time)
 
-    // R2DBC
-    api(Libs.r2dbc_spi)
-    api(Libs.r2dbc_pool)
-    api(Libs.r2dbc_h2)
-    api(Libs.r2dbc_mariadb)
-    api(Libs.r2dbc_mysql)
-    api(Libs.r2dbc_postgresql)
+    implementation(project(":bluetape4k-idgenerators"))
+    implementation(project(":bluetape4k-javatimes"))
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))
     compileOnly(Libs.kotlinx_coroutines_core)
     compileOnly(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_test)
+
+    // R2DBC
+    api(Libs.r2dbc_spi)
+    api(Libs.r2dbc_pool)
+    implementation(Libs.r2dbc_h2)
+    implementation(Libs.r2dbc_mariadb)
+    implementation(Libs.r2dbc_mysql)
+    implementation(Libs.r2dbc_postgresql)
 
     // Bluetape4k Modules for Testing
     api(project(":bluetape4k-junit5"))
@@ -33,10 +36,7 @@ dependencies {
     api(Libs.testcontainers_mysql)
     api(Libs.testcontainers_postgresql)
 
-    implementation(project(":bluetape4k-idgenerators"))
-    implementation(project(":bluetape4k-javatimes"))
-
-    // Database Drivers
+    // Database Drivers for Testcontainers Database
     compileOnly(Libs.h2_v2)
     compileOnly(Libs.mariadb_java_client)
     compileOnly(Libs.mysql_connector_j)

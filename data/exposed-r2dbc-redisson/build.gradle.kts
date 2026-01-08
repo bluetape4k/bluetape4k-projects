@@ -9,8 +9,8 @@ dependencies {
 
     api(Libs.exposed_core)
     api(Libs.exposed_r2dbc)
-    implementation(Libs.exposed_java_time)
-    implementation(Libs.exposed_kotlin_datetime)
+    compileOnly(Libs.exposed_java_time)
+    compileOnly(Libs.exposed_kotlin_datetime)
 
     api(project(":bluetape4k-exposed-r2dbc"))
     testImplementation(project(":bluetape4k-exposed-r2dbc-tests"))
@@ -22,31 +22,32 @@ dependencies {
     // Codecs
     api(project(":bluetape4k-io"))
 
-    compileOnly(Libs.kryo5)
-    compileOnly(Libs.fory_kotlin)  // new Apache Fory
-    compileOnly(Libs.fury_kotlin)  // old Apache Fury
+    // Serializers
+    runtimeOnly(Libs.kryo5)
+    runtimeOnly(Libs.fory_kotlin)  // new Apache Fory
+    runtimeOnly(Libs.fury_kotlin)  // old Apache Fury
 
     // Compressor
-    compileOnly(Libs.snappy_java)
-    compileOnly(Libs.lz4_java)
-    compileOnly(Libs.zstd_jni)
-
-    // R2DBC
-    api(Libs.r2dbc_spi)
-    api(Libs.r2dbc_pool)
-    implementation(Libs.r2dbc_h2)
-    implementation(Libs.r2dbc_mariadb)
-    implementation(Libs.r2dbc_mysql)
-    implementation(Libs.r2dbc_postgresql)
+    runtimeOnly(Libs.lz4_java)
+    runtimeOnly(Libs.snappy_java)
+    runtimeOnly(Libs.zstd_jni)
 
     // Coroutines
-    compileOnly(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
-    compileOnly(Libs.kotlinx_coroutines_reactive)
+    implementation(project(":bluetape4k-coroutines"))
+    implementation(Libs.kotlinx_coroutines_core)
+    implementation(Libs.kotlinx_coroutines_reactive)
     testImplementation(Libs.kotlinx_coroutines_test)
 
     testImplementation(project(":bluetape4k-idgenerators"))
     testImplementation(project(":bluetape4k-javatimes"))
+
+    // R2DBC
+    api(Libs.r2dbc_spi)
+    api(Libs.r2dbc_pool)
+    testRuntimeOnly(Libs.r2dbc_h2)
+    testRuntimeOnly(Libs.r2dbc_mariadb)
+    testRuntimeOnly(Libs.r2dbc_mysql)
+    testRuntimeOnly(Libs.r2dbc_postgresql)
 
     // Bluetape4k Modules for Testing
     testImplementation(project(":bluetape4k-junit5"))
@@ -55,10 +56,10 @@ dependencies {
     testImplementation(Libs.testcontainers_mysql)
     testImplementation(Libs.testcontainers_postgresql)
 
-    // Database Drivers
-    testImplementation(Libs.h2_v2)
-    testImplementation(Libs.mariadb_java_client)
-    testImplementation(Libs.mysql_connector_j)
-    testImplementation(Libs.postgresql_driver)
+    // Database Drivers for Testcontainers Database
+    testRuntimeOnly(Libs.h2_v2)
+    testRuntimeOnly(Libs.mariadb_java_client)
+    testRuntimeOnly(Libs.mysql_connector_j)
+    testRuntimeOnly(Libs.postgresql_driver)
 
 }

@@ -1,8 +1,6 @@
 package io.bluetape4k.exposed.shared.entities
 
-import io.bluetape4k.exposed.dao.idEquals
-import io.bluetape4k.exposed.dao.idHashCode
-import io.bluetape4k.exposed.dao.toStringBuilder
+import io.bluetape4k.ToStringBuilder
 import io.bluetape4k.exposed.shared.entities.LongIdTables.Cities
 import io.bluetape4k.exposed.shared.entities.LongIdTables.City
 import io.bluetape4k.exposed.shared.entities.LongIdTables.People
@@ -79,9 +77,7 @@ object LongIdTables {
         var name: String by Cities.name
         val towns: SizedIterable<Town> by Town referrersOn Towns.cityId
 
-        override fun equals(other: Any?): Boolean = idEquals(other)
-        override fun hashCode(): Int = idHashCode()
-        override fun toString(): String = toStringBuilder()
+        override fun toString(): String = ToStringBuilder(this)
             .add("name", name)
             .toString()
     }
@@ -92,9 +88,7 @@ object LongIdTables {
         var name by People.name
         var city by City referencedOn People.cityId
 
-        override fun equals(other: Any?): Boolean = idEquals(other)
-        override fun hashCode(): Int = idHashCode()
-        override fun toString(): String = toStringBuilder()
+        override fun toString(): String = ToStringBuilder(this)
             .add("name", name)
             .add("city", city.name)
             .toString()
@@ -106,9 +100,7 @@ object LongIdTables {
 
         var city by City referencedOn Towns.cityId
 
-        override fun equals(other: Any?): Boolean = idEquals(other)
-        override fun hashCode(): Int = idHashCode()
-        override fun toString(): String = toStringBuilder()
+        override fun toString(): String = ToStringBuilder(this)
             .add("city", city.name)
             .toString()
     }

@@ -1,9 +1,6 @@
 package io.bluetape4k.exposed.shared.entities
 
-import io.bluetape4k.exposed.core.timebasedGenerated
-import io.bluetape4k.exposed.dao.idEquals
-import io.bluetape4k.exposed.dao.idHashCode
-import io.bluetape4k.exposed.dao.toStringBuilder
+import io.bluetape4k.ToStringBuilder
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
@@ -76,10 +73,9 @@ object BoardSchema {
      * ```
      */
     object Categories: IntIdTable("categories") {
-        val uniqueId = varchar("uniqueId", 22).timebasedGenerated().uniqueIndex()
+        val uniqueId = uuid("uniqueId").autoGenerate().uniqueIndex()
         val title = varchar("title", 50)
     }
-
 
     class Board(id: EntityID<Int>): IntEntity(id) {
         companion object: IntEntityClass<Board>(Boards)
@@ -87,9 +83,7 @@ object BoardSchema {
         var name by Boards.name
         val posts by Post optionalReferrersOn Posts.boardId  // one-to-many
 
-        override fun equals(other: Any?): Boolean = idEquals(other)
-        override fun hashCode(): Int = idHashCode()
-        override fun toString(): String = toStringBuilder()
+        override fun toString(): String = ToStringBuilder(this)
             .add("name", name)
             .toString()
     }
@@ -103,9 +97,10 @@ object BoardSchema {
         var category: Category? by Category optionalReferencedOn Posts.categoryId   // many-to-one
         var optCategory: Category? by Category optionalReferencedOn Posts.optCategoryId  // many-to-one
 
-        override fun equals(other: Any?): Boolean = idEquals(other)
-        override fun hashCode(): Int = idHashCode()
-        override fun toString(): String = toStringBuilder().toString()
+        override fun toString(): String = ToStringBuilder(this)
+            .add("boardId", board?.id)
+            .add("category", category?.id)
+            .toString()
     }
 
     class Category(id: EntityID<Int>): IntEntity(id) {
@@ -115,9 +110,7 @@ object BoardSchema {
         var title by Categories.title
         val posts by Post optionalReferrersOn Posts.optCategoryId  // one-to-many
 
-        override fun equals(other: Any?): Boolean = idEquals(other)
-        override fun hashCode(): Int = idHashCode()
-        override fun toString(): String = toStringBuilder()
+        override fun toString(): String = ToStringBuilder(this)
             .add("uniqueId", uniqueId)
             .add("title", title)
             .toString()

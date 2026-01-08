@@ -34,11 +34,11 @@ dependencies {
 
     // Database Drivers
     compileOnly(Libs.hikaricp)
-    testImplementation(Libs.h2_v2)
-    testImplementation(Libs.mariadb_java_client)
-    testImplementation(Libs.mysql_connector_j)
-    testImplementation(Libs.postgresql_driver)
-    testImplementation(Libs.pgjdbc_ng)
+    testRuntimeOnly(Libs.h2_v2)
+    testRuntimeOnly(Libs.mariadb_java_client)
+    testRuntimeOnly(Libs.mysql_connector_j)
+    testRuntimeOnly(Libs.postgresql_driver)
+    testRuntimeOnly(Libs.pgjdbc_ng)
 
     // Spring Boot
     testImplementation(Libs.springBootStarter("jdbc"))
@@ -61,16 +61,16 @@ dependencies {
     compileOnly(project(":bluetape4k-io"))
 
     // Serializer
-    compileOnly(Libs.kryo5)
-    compileOnly(Libs.fory_kotlin)  // new Apache Fory
-    compileOnly(Libs.fury_kotlin)  // old Apache Fury
+    testRuntimeOnly(Libs.kryo5)
+    testRuntimeOnly(Libs.fory_kotlin)  // new Apache Fory
+    testRuntimeOnly(Libs.fury_kotlin)  // old Apache Fury
 
     // Compressors
-    compileOnly(Libs.lz4_java)
-    compileOnly(Libs.snappy_java)
-    compileOnly(Libs.zstd_jni)
+    testRuntimeOnly(Libs.lz4_java)
+    testRuntimeOnly(Libs.snappy_java)
+    testRuntimeOnly(Libs.zstd_jni)
 
     // Encryption
     compileOnly(project(":bluetape4k-crypto"))
-    compileOnly(Libs.jasypt)
+    testRuntimeOnly(Libs.jasypt)
 }

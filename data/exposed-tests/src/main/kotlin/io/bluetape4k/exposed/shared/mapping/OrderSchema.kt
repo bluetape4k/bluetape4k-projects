@@ -1,8 +1,6 @@
 package io.bluetape4k.exposed.shared.mapping
 
-import io.bluetape4k.exposed.dao.idEquals
-import io.bluetape4k.exposed.dao.idHashCode
-import io.bluetape4k.exposed.dao.toStringBuilder
+import io.bluetape4k.ToStringBuilder
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
@@ -55,9 +53,7 @@ object OrderSchema: KLogging() {
         val details by OrderDetail referrersOn OrderDetailTable.orderId
         var orderDate by OrderTable.orderDate
 
-        override fun equals(other: Any?): Boolean = idEquals(other)
-        override fun hashCode(): Int = idHashCode()
-        override fun toString(): String = toStringBuilder()
+        override fun toString(): String = ToStringBuilder(this)
             .add("orderDate", orderDate)
             .toString()
     }
@@ -72,9 +68,7 @@ object OrderSchema: KLogging() {
 
         val orderId by OrderDetailTable.orderId
 
-        override fun equals(other: Any?): Boolean = idEquals(other)
-        override fun hashCode(): Int = idHashCode()
-        override fun toString(): String = toStringBuilder()
+        override fun toString(): String = ToStringBuilder(this)
             .add("orderId", orderId)
             .add("lineNumber", lineNumber)
             .add("description", description)
@@ -87,9 +81,7 @@ object OrderSchema: KLogging() {
 
         var description by ItemTable.description
 
-        override fun equals(other: Any?): Boolean = idEquals(other)
-        override fun hashCode(): Int = idHashCode()
-        override fun toString(): String = toStringBuilder()
+        override fun toString(): String = ToStringBuilder(this)
             .add("description", description)
             .toString()
     }
@@ -102,9 +94,7 @@ object OrderSchema: KLogging() {
         var lineNumber by OrderLineTable.lineNumber
         var quantity by OrderLineTable.quantity
 
-        override fun equals(other: Any?): Boolean = idEquals(other)
-        override fun hashCode(): Int = idHashCode()
-        override fun toString(): String = toStringBuilder()
+        override fun toString(): String = ToStringBuilder(this)
             .add("orderId", order.id.value)
             .add("itemId", item?.id?.value)
             .add("lineNumber", lineNumber)
@@ -118,9 +108,7 @@ object OrderSchema: KLogging() {
         var userName by UserTable.userName
         var parent by User optionalReferencedOn UserTable.parentId
 
-        override fun equals(other: Any?): Boolean = idEquals(other)
-        override fun hashCode(): Int = idHashCode()
-        override fun toString(): String = toStringBuilder()
+        override fun toString(): String = ToStringBuilder(this)
             .add("userName", userName)
             .add("parentId", parent?.id?._value)
             .toString()

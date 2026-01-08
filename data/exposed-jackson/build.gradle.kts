@@ -6,8 +6,8 @@ dependencies {
     // Exposed
     implementation(platform(Libs.exposed_bom))
     api(Libs.exposed_core)
-    api(Libs.exposed_jdbc)
-    implementation(Libs.exposed_dao)
+    compileOnly(Libs.exposed_jdbc)
+    compileOnly(Libs.exposed_dao)
     api(project(":bluetape4k-exposed"))
     testImplementation(project(":bluetape4k-exposed-tests"))
 
@@ -17,12 +17,12 @@ dependencies {
     compileOnly(Libs.jackson_module_blackbird)
 
     // Database Drivers
-    testImplementation(Libs.hikaricp)
-    testImplementation(Libs.h2_v2)
-    testImplementation(Libs.mariadb_java_client)
-    testImplementation(Libs.mysql_connector_j)
-    testImplementation(Libs.postgresql_driver)
-    testImplementation(Libs.pgjdbc_ng)
+    testRuntimeOnly(Libs.hikaricp)
+    testRuntimeOnly(Libs.h2_v2)
+    testRuntimeOnly(Libs.mariadb_java_client)
+    testRuntimeOnly(Libs.mysql_connector_j)
+    testRuntimeOnly(Libs.postgresql_driver)
+    testRuntimeOnly(Libs.pgjdbc_ng)
 
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))

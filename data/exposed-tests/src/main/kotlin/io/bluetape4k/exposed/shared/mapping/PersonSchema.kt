@@ -1,8 +1,6 @@
 package io.bluetape4k.exposed.shared.mapping
 
-import io.bluetape4k.exposed.dao.idEquals
-import io.bluetape4k.exposed.dao.idHashCode
-import io.bluetape4k.exposed.dao.toStringBuilder
+import io.bluetape4k.ToStringBuilder
 import io.bluetape4k.exposed.shared.mapping.PersonSchema.Address
 import io.bluetape4k.exposed.shared.mapping.PersonSchema.AddressTable
 import io.bluetape4k.exposed.shared.mapping.PersonSchema.Person
@@ -90,9 +88,7 @@ object PersonSchema {
         var state by AddressTable.state
         var zip by AddressTable.zip
 
-        override fun equals(other: Any?): Boolean = idEquals(other)
-        override fun hashCode(): Int = idHashCode()
-        override fun toString(): String = toStringBuilder()
+        override fun toString(): String = ToStringBuilder(this)
             .add("street", street)
             .add("city", city)
             .add("state", state)
@@ -110,9 +106,7 @@ object PersonSchema {
         var occupation by PersonTable.occupation
         var address by Address referencedOn PersonTable.addressId
 
-        override fun equals(other: Any?): Boolean = idEquals(other)
-        override fun hashCode(): Int = idHashCode()
-        override fun toString(): String = toStringBuilder()
+        override fun toString(): String = ToStringBuilder(this)
             .add("firstName", firstName)
             .add("lastName", lastName)
             .add("birthDate", birthDate)

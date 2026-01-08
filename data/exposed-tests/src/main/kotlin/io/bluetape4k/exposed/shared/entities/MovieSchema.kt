@@ -1,8 +1,6 @@
 package io.bluetape4k.exposed.shared.entities
 
-import io.bluetape4k.exposed.dao.idEquals
-import io.bluetape4k.exposed.dao.idHashCode
-import io.bluetape4k.exposed.dao.toStringBuilder
+import io.bluetape4k.ToStringBuilder
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withSuspendedTables
@@ -56,11 +54,11 @@ object MovieSchema: KLogging() {
 
         val actors by ActorEntity via ActorInMovieTable
 
-        override fun equals(other: Any?): Boolean = idEquals(other)
-        override fun hashCode(): Int = idHashCode()
-        override fun toString(): String =
-            toStringBuilder().add("name", name).add("producerName", producerName).add("releaseDate", releaseDate)
-                .toString()
+        override fun toString(): String = ToStringBuilder(this)
+            .add("name", name)
+            .add("producerName", producerName)
+            .add("releaseDate", releaseDate)
+            .toString()
     }
 
     class ActorEntity(id: EntityID<Long>): LongEntity(id) {
@@ -72,10 +70,11 @@ object MovieSchema: KLogging() {
 
         val movies by MovieEntity via ActorInMovieTable
 
-        override fun equals(other: Any?): Boolean = idEquals(other)
-        override fun hashCode(): Int = idHashCode()
-        override fun toString(): String =
-            toStringBuilder().add("firstName", firstName).add("lastName", lastName).add("birthday", birthday).toString()
+        override fun toString(): String = ToStringBuilder(this)
+            .add("firstName", firstName)
+            .add("lastName", lastName)
+            .add("birthday", birthday)
+            .toString()
     }
 
     @Suppress("UnusedReceiverParameter")

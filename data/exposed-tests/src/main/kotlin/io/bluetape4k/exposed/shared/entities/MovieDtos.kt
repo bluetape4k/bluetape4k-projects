@@ -1,7 +1,10 @@
 package io.bluetape4k.exposed.shared.entities
 
-import io.bluetape4k.exposed.core.HasIdentifier
 import java.io.Serializable
+
+internal interface HasIdentifier<ID>: java.io.Serializable {
+    val id: ID
+}
 
 /**
  * 영화 정보를 나타내는 DTO
