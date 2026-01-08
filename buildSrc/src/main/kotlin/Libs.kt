@@ -169,14 +169,14 @@ object Versions {
     const val prometheus = "0.16.0"     // https://mvnrepository.com/artifact/io.prometheus/simpleclient
 
     // NOTE: spring boot 2.7.x 를 사용할 시 micrometer는 1.9+ 를 사용해야 합니다.
-    const val micrometer = "1.16.0"         // https://mvnrepository.com/artifact/io.micrometer/micrometer-core
-    const val micrometerTracing = "1.6.0"   // https://mvnrepository.com/artifact/io.micrometer/micrometer-tracing
+    const val micrometer = "1.16.1"         // https://mvnrepository.com/artifact/io.micrometer/micrometer-core
+    const val micrometerTracing = "1.6.1"   // https://mvnrepository.com/artifact/io.micrometer/micrometer-tracing
     const val micrometerContextPropagation = "1.2.0" // https://mvnrepository.com/artifact/io.micrometer/context-propagation
 
-    const val opentelemetry = "1.56.0" // https://mvnrepository.com/artifact/io.opentelemetry/opentelemetry-bom
+    const val opentelemetry = "1.57.0" // https://mvnrepository.com/artifact/io.opentelemetry/opentelemetry-bom
     const val opentelemetryAlpha = "$opentelemetry-alpha" // https://mvnrepository.com/artifact/io.opentelemetry/opentelemetry-bom-alpha
 
-    const val opentelemetryJavaAgent = "2.22.0" // https://mvnrepository.com/artifact/io.opentelemetry.javaagent/opentelemetry-javaagent
+    const val opentelemetryJavaAgent = "2.23.0" // https://mvnrepository.com/artifact/io.opentelemetry.javaagent/opentelemetry-javaagent
     const val opentelemetryInstrumentationAlpha = "$opentelemetryJavaAgent-alpha" // https://mvnrepository.com/artifact/io.opentelemetry.instrumentation/opentelemetry-instrumentation-bom-alpha
 
     const val caffeine = "3.2.3"        // https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine
@@ -1176,7 +1176,7 @@ object Libs {
     const val spring_kafka_test = "org.springframework.kafka:spring-kafka-test:${Versions.spring_kafka}"
 
     // Pulsar
-    const val pulsar_client = "org.apache.pulsar:pulsar-client:4.1.1"  // https://mvnrepository.com/artifact/org.apache.pulsar/pulsar-client
+    const val pulsar_client = "org.apache.pulsar:pulsar-client:4.0.8"  // https://mvnrepository.com/artifact/org.apache.pulsar/pulsar-client
 
     // Nats
     const val jnats = "io.nats:jnats:2.24.0"     // https://mvnrepository.com/artifact/io.nats/jnats
