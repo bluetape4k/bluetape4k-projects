@@ -107,7 +107,6 @@ object BlogSchema {
         }
     }
 
-
     class Post(id: EntityID<Long>): LongEntity(id) {
         companion object: LongEntityClass<Post>(PostTable)
 
@@ -117,7 +116,10 @@ object BlogSchema {
         val comments: SizedIterable<PostComment> by PostComment referrersOn PostCommentTable
         val tags: SizedIterable<Tag> by Tag via PostTagTable // Tag.via (PostTagTable.post, PostTagTable.tag)
 
+        override fun equals(other: Any?): Boolean = other is Post && id._value == other.id._value
+        override fun hashCode(): Int = id._value?.hashCode() ?: System.identityHashCode(this)
         override fun toString(): String = ToStringBuilder(this)
+            .add("id", id._value)
             .add("title", title)
             .toString()
     }
@@ -129,8 +131,11 @@ object BlogSchema {
         var createdOn by PostDetailTable.createdOn
         var createdBy by PostDetailTable.createdBy
 
+        override fun equals(other: Any?): Boolean = other is PostDetail && id._value == other.id._value
+        override fun hashCode(): Int = id._value?.hashCode() ?: System.identityHashCode(this)
         override fun toString(): String = ToStringBuilder(this)
-            .add("post id", post.id)
+            .add("id", id._value)
+            .add("post_id", post.id)
             .add("createdOn", createdOn)
             .add("createdBy", createdBy)
             .toString()
@@ -143,7 +148,10 @@ object BlogSchema {
         var post by Post referencedOn PostCommentTable.postId
         var review by PostCommentTable.review
 
+        override fun equals(other: Any?): Boolean = other is PostComment && id._value == other.id._value
+        override fun hashCode(): Int = id._value?.hashCode() ?: System.identityHashCode(this)
         override fun toString(): String = ToStringBuilder(this)
+            .add("id", id._value)
             .add("post id", post.id)
             .add("review", review)
             .toString()
@@ -155,7 +163,10 @@ object BlogSchema {
         var name by TagTable.name
         val posts: SizedIterable<Post> by Post via PostTagTable // Post.via(PostTagTable.tag, PostTagTable.post) 와 같다.
 
+        override fun equals(other: Any?): Boolean = other is Tag && id._value == other.id._value
+        override fun hashCode(): Int = id._value?.hashCode() ?: System.identityHashCode(this)
         override fun toString(): String = ToStringBuilder(this)
+            .add("id", id._value)
             .add("name", name)
             .toString()
     }

@@ -53,7 +53,10 @@ object OrderSchema: KLogging() {
         val details by OrderDetail referrersOn OrderDetailTable.orderId
         var orderDate by OrderTable.orderDate
 
+        override fun equals(other: Any?): Boolean = other is Order && id._value == other.id._value
+        override fun hashCode(): Int = id._value?.hashCode() ?: System.identityHashCode(this)
         override fun toString(): String = ToStringBuilder(this)
+            .add("id", id._value)
             .add("orderDate", orderDate)
             .toString()
     }
@@ -68,7 +71,10 @@ object OrderSchema: KLogging() {
 
         val orderId by OrderDetailTable.orderId
 
+        override fun equals(other: Any?): Boolean = other is OrderDetail && id._value == other.id._value
+        override fun hashCode(): Int = id._value?.hashCode() ?: System.identityHashCode(this)
         override fun toString(): String = ToStringBuilder(this)
+            .add("id", id._value)
             .add("orderId", orderId)
             .add("lineNumber", lineNumber)
             .add("description", description)
@@ -81,7 +87,10 @@ object OrderSchema: KLogging() {
 
         var description by ItemTable.description
 
+        override fun equals(other: Any?): Boolean = other is Item && id._value == other.id._value
+        override fun hashCode(): Int = id._value?.hashCode() ?: System.identityHashCode(this)
         override fun toString(): String = ToStringBuilder(this)
+            .add("id", id._value)
             .add("description", description)
             .toString()
     }
@@ -94,7 +103,10 @@ object OrderSchema: KLogging() {
         var lineNumber by OrderLineTable.lineNumber
         var quantity by OrderLineTable.quantity
 
+        override fun equals(other: Any?): Boolean = other is OrderLine && id._value == other.id._value
+        override fun hashCode(): Int = id._value?.hashCode() ?: System.identityHashCode(this)
         override fun toString(): String = ToStringBuilder(this)
+            .add("id", id._value)
             .add("orderId", order.id.value)
             .add("itemId", item?.id?.value)
             .add("lineNumber", lineNumber)
@@ -108,7 +120,10 @@ object OrderSchema: KLogging() {
         var userName by UserTable.userName
         var parent by User optionalReferencedOn UserTable.parentId
 
+        override fun equals(other: Any?): Boolean = other is User && id._value == other.id._value
+        override fun hashCode(): Int = id._value?.hashCode() ?: System.identityHashCode(this)
         override fun toString(): String = ToStringBuilder(this)
+            .add("id", id._value)
             .add("userName", userName)
             .add("parentId", parent?.id?._value)
             .toString()

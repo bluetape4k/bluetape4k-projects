@@ -54,7 +54,10 @@ object MovieSchema: KLogging() {
 
         val actors by ActorEntity via ActorInMovieTable
 
+        override fun equals(other: Any?): Boolean = other is MovieEntity && id._value == other.id._value
+        override fun hashCode(): Int = id._value?.hashCode() ?: System.identityHashCode(this)
         override fun toString(): String = ToStringBuilder(this)
+            .add("id", id._value)
             .add("name", name)
             .add("producerName", producerName)
             .add("releaseDate", releaseDate)
@@ -70,7 +73,10 @@ object MovieSchema: KLogging() {
 
         val movies by MovieEntity via ActorInMovieTable
 
+        override fun equals(other: Any?): Boolean = other is ActorEntity && id._value == other.id._value
+        override fun hashCode(): Int = id._value?.hashCode() ?: System.identityHashCode(this)
         override fun toString(): String = ToStringBuilder(this)
+            .add("id", id._value)
             .add("firstName", firstName)
             .add("lastName", lastName)
             .add("birthday", birthday)

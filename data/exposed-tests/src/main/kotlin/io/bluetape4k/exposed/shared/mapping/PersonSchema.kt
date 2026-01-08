@@ -88,7 +88,10 @@ object PersonSchema {
         var state by AddressTable.state
         var zip by AddressTable.zip
 
+        override fun equals(other: Any?): Boolean = other is Address && id._value == other.id._value
+        override fun hashCode(): Int = id._value?.hashCode() ?: System.identityHashCode(this)
         override fun toString(): String = ToStringBuilder(this)
+            .add("id", id._value)
             .add("street", street)
             .add("city", city)
             .add("state", state)
@@ -106,7 +109,10 @@ object PersonSchema {
         var occupation by PersonTable.occupation
         var address by Address referencedOn PersonTable.addressId
 
+        override fun equals(other: Any?): Boolean = other is Person && id._value == other.id._value
+        override fun hashCode(): Int = id._value?.hashCode() ?: System.identityHashCode(this)
         override fun toString(): String = ToStringBuilder(this)
+            .add("id", id._value)
             .add("firstName", firstName)
             .add("lastName", lastName)
             .add("birthDate", birthDate)

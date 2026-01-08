@@ -97,7 +97,10 @@ object BoardSchema {
         var category: Category? by Category optionalReferencedOn Posts.categoryId   // many-to-one
         var optCategory: Category? by Category optionalReferencedOn Posts.optCategoryId  // many-to-one
 
+        override fun equals(other: Any?): Boolean = other is Post && id._value == other.id._value
+        override fun hashCode(): Int = id._value?.hashCode() ?: System.identityHashCode(this)
         override fun toString(): String = ToStringBuilder(this)
+            .add("id", id._value)
             .add("boardId", board?.id)
             .add("category", category?.id)
             .toString()
@@ -110,7 +113,10 @@ object BoardSchema {
         var title by Categories.title
         val posts by Post optionalReferrersOn Posts.optCategoryId  // one-to-many
 
+        override fun equals(other: Any?): Boolean = other is Category && id._value == other.id._value
+        override fun hashCode(): Int = id._value?.hashCode() ?: System.identityHashCode(this)
         override fun toString(): String = ToStringBuilder(this)
+            .add("id", id._value)
             .add("uniqueId", uniqueId)
             .add("title", title)
             .toString()
