@@ -23,9 +23,9 @@ abstract class AbstractLettuceTest: AbstractRedisTest() {
     open fun beforeAll() {
         client = LettuceClients.clientOf(redis.host, redis.port)
 
-        commands = LettuceClients.commands(client, LettuceBinaryCodecs.lz4Fury())
-        asyncCommands = LettuceClients.asyncCommands(client, LettuceBinaryCodecs.lz4Fury())
-        suspendCommands = LettuceClients.coroutinesCommands(client, LettuceBinaryCodecs.lz4Fury())
+        commands = LettuceClients.commands(client, LettuceBinaryCodecs.lz4Fory())
+        asyncCommands = LettuceClients.asyncCommands(client, LettuceBinaryCodecs.lz4Fory())
+        suspendCommands = LettuceClients.coroutinesCommands(client, LettuceBinaryCodecs.lz4Fory())
 
     }
 

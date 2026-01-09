@@ -407,7 +407,6 @@ object Libs {
 
     const val kryo = "com.esotericsoftware:kryo:5.6.2" // https://mvnrepository.com/artifact/com.esotericsoftware/kryo
     const val kryo5 = "com.esotericsoftware:kryo:5.6.2" // https://mvnrepository.com/artifact/com.esotericsoftware/kryo
-    const val fury_kotlin = "org.apache.fury:fury-kotlin:0.10.3" // https://mvnrepository.com/artifact/org.apache.fury/fury-kotlin
     const val fory_kotlin = "org.apache.fory:fory-kotlin:0.14.1" // https://mvnrepository.com/artifact/org.apache.fory/fory-kotlin
 
     // Spring Boot

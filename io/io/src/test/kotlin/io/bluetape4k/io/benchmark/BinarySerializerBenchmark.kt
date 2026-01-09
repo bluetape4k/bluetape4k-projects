@@ -29,7 +29,6 @@ class BinarySerializerBenchmark {
 
     private val jdk = BinarySerializers.Jdk
     private val kryo = BinarySerializers.Kryo
-    private val fury = BinarySerializers.Fury
     private val jsonMapper = jacksonObjectMapper().findAndRegisterModules()
 
     data class SimpleData(
@@ -87,15 +86,6 @@ class BinarySerializerBenchmark {
     @Benchmark
     fun kryo() {
         with(kryo) {
-            val bytes = serialize(targets)
-            val results = deserialize<List<SimpleData>>(bytes)!!
-            results.shouldNotBeEmpty() shouldHaveSize targets.size
-        }
-    }
-
-    @Benchmark
-    fun fury() {
-        with(fury) {
             val bytes = serialize(targets)
             val results = deserialize<List<SimpleData>>(bytes)!!
             results.shouldNotBeEmpty() shouldHaveSize targets.size

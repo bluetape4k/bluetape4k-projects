@@ -18,7 +18,6 @@ import org.redisson.client.codec.Codec
 import org.redisson.client.codec.StringCodec
 import org.redisson.client.handler.State
 import org.redisson.codec.CborJacksonCodec
-import org.redisson.codec.FuryCodec
 
 /**
  * NOTE: Exposed Entity 는 Redis 의 Codec 으로는 변환이 불가능하다.
@@ -34,59 +33,48 @@ class ExposedEntityRedissonCodecTest: AbstractExposedTest() {
 
     private fun getRedissonBinaryCodecs() = listOf(
         CborJacksonCodec(),
-        FuryCodec(),
         ByteArrayCodec(),
         StringCodec(),
 
         RedissonCodecs.Default,
 
         RedissonCodecs.Kryo5,
-        RedissonCodecs.Fury,
         RedissonCodecs.Fory,
         RedissonCodecs.Jdk,
 
         RedissonCodecs.Kryo5Composite,
-        RedissonCodecs.FuryComposite,
         RedissonCodecs.ForyComposite,
         RedissonCodecs.JdkComposite,
 
         RedissonCodecs.SnappyKryo5,
-        RedissonCodecs.SnappyFury,
         RedissonCodecs.SnappyFory,
         RedissonCodecs.SnappyJdk,
 
         RedissonCodecs.SnappyKryo5Composite,
-        RedissonCodecs.SnappyFuryComposite,
         RedissonCodecs.SnappyForyComposite,
         RedissonCodecs.SnappyJdkComposite,
 
         RedissonCodecs.LZ4Kryo5,
-        RedissonCodecs.LZ4Fury,
         RedissonCodecs.LZ4Fory,
         RedissonCodecs.LZ4Jdk,
 
         RedissonCodecs.LZ4Kryo5Composite,
-        RedissonCodecs.LZ4FuryComposite,
         RedissonCodecs.LZ4ForyComposite,
         RedissonCodecs.LZ4JdkComposite,
 
         RedissonCodecs.ZstdKryo5,
-        RedissonCodecs.ZstdFury,
         RedissonCodecs.ZstdFory,
         RedissonCodecs.ZstdJdk,
 
         RedissonCodecs.ZstdKryo5Composite,
-        RedissonCodecs.ZstdFuryComposite,
         RedissonCodecs.ZstdForyComposite,
         RedissonCodecs.ZstdJdkComposite,
 
         RedissonCodecs.GzipKryo5,
-        RedissonCodecs.GzipFury,
         RedissonCodecs.GzipFory,
         RedissonCodecs.GzipJdk,
 
         RedissonCodecs.GzipKryo5Composite,
-        RedissonCodecs.GzipFuryComposite,
         RedissonCodecs.GzipForyComposite,
         RedissonCodecs.GzipJdkComposite,
     )

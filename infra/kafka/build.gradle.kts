@@ -37,7 +37,6 @@ dependencies {
     // Codecs
     compileOnly(Libs.kryo)
     compileOnly(Libs.fory_kotlin)  // new Apache Fory
-    compileOnly(Libs.fury_kotlin)  // old Apache Fury
 
     // Compressors
     compileOnly(Libs.commons_compress)

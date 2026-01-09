@@ -59,7 +59,7 @@ class RedissonNearCacheTest {
             .maxIdle(2.seconds.toJavaDuration())
             .reconnectionStrategy(LocalCachedMapOptions.ReconnectionStrategy.CLEAR)
             .syncStrategy(LocalCachedMapOptions.SyncStrategy.INVALIDATE)
-            .codec(RedissonCodecs.LZ4Fury)                                    // Codec 적용
+            .codec(RedissonCodecs.LZ4Fory)                                    // Codec 적용
     }
 
     private lateinit var nearCache1: RedissonNearCache<String, Any>
@@ -70,7 +70,7 @@ class RedissonNearCacheTest {
     fun beforeAll() {
         nearCache1 = RedissonNearCache(redisson1, options)
         nearCache2 = RedissonNearCache(redisson2, options)
-        backCache = redisson.getMapCache(cacheName, RedissonCodecs.LZ4Fury)  // Codec 적용
+        backCache = redisson.getMapCache(cacheName, RedissonCodecs.LZ4Fory)  // Codec 적용
     }
 
     @Nested

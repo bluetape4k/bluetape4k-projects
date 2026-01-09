@@ -68,7 +68,6 @@ dependencies {
     // Codecs
     compileOnly(Libs.kryo)
     compileOnly(Libs.fory_kotlin)  // new Apache Fory
-    compileOnly(Libs.fury_kotlin)  // old Apache Fury
 
     compileOnly(Libs.jackson_dataformat_protobuf)
 

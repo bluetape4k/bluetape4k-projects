@@ -20,11 +20,6 @@ class KafkaCodecTest {
     }
 
     @Nested
-    inner class FuryKafkaCodecTest: AbstractKafkaCodecTest() {
-        override val codec: KafkaCodec<Any?> = KafkaCodecs.Fury
-    }
-
-    @Nested
     inner class ForyKafkaCodecTest: AbstractKafkaCodecTest() {
         override val codec: KafkaCodec<Any?> = KafkaCodecs.Fory
     }
@@ -37,11 +32,6 @@ class KafkaCodecTest {
     @Nested
     inner class Lz4KryoKafkaCodecTest: AbstractKafkaCodecTest() {
         override val codec: KafkaCodec<Any?> = KafkaCodecs.Lz4Kryo
-    }
-
-    @Nested
-    inner class Lz4FuryKafkaCodecTest: AbstractKafkaCodecTest() {
-        override val codec: KafkaCodec<Any?> = KafkaCodecs.Lz4Fury
     }
 
     @Nested
@@ -60,11 +50,6 @@ class KafkaCodecTest {
     }
 
     @Nested
-    inner class SnappyFuryKafkaCodecTest: AbstractKafkaCodecTest() {
-        override val codec: KafkaCodec<Any?> = KafkaCodecs.SnappyFury
-    }
-
-    @Nested
     inner class SnappyForyKafkaCodecTest: AbstractKafkaCodecTest() {
         override val codec: KafkaCodec<Any?> = KafkaCodecs.SnappyFory
     }
@@ -77,11 +62,6 @@ class KafkaCodecTest {
     @Nested
     inner class ZstdKryoKafkaCodecTest: AbstractKafkaCodecTest() {
         override val codec: KafkaCodec<Any?> = KafkaCodecs.ZstdKryo
-    }
-
-    @Nested
-    inner class ZstdFuryKafkaCodecTest: AbstractKafkaCodecTest() {
-        override val codec: KafkaCodec<Any?> = KafkaCodecs.ZstdFury
     }
 
     @Nested

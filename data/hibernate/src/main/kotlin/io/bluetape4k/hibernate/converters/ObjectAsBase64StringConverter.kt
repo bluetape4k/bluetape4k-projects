@@ -102,35 +102,3 @@ class SnappyKryoObjectAsBase64StringConverter: AbstractObjectAsBase64StringConve
  */
 @Converter
 class ZstdKryoObjectAsBase64StringConverter: AbstractObjectAsBase64StringConverter(BinarySerializers.ZstdKryo)
-
-/**
- * 객체를 Fury 직렬화를 통해 Base64 인코딩된 문자열로 변환해서 DB에 저장합니다.
- *
- * @see BinarySerializers.Fury
- */
-@Converter
-class FuryObjectAsBase64StringConverter: AbstractObjectAsBase64StringConverter(BinarySerializers.Fury)
-
-/**
- * 객체를 Fury 직렬화, LZ4로 압축 한 후 Base64 인코딩된 문자열로 변환해서 DB에 저장합니다.
- *
- * @see BinarySerializers.LZ4Fury
- */
-@Converter
-class LZ4FuryObjectAsBase64StringConverter: AbstractObjectAsBase64StringConverter(BinarySerializers.LZ4Fury)
-
-/**
- * 객체를 Fury 직렬화, Snappy로 압축 한 후 Base64 인코딩된 문자열로 변환해서 DB에 저장합니다.
- *
- * @see BinarySerializers.SnappyFury
- */
-@Converter
-class SnappyFuryObjectAsBase64StringConverter: AbstractObjectAsBase64StringConverter(BinarySerializers.SnappyFury)
-
-/**
- * 객체를 Fury 직렬화, Zstd로 압축 한 후 Base64 인코딩된 문자열로 변환해서 DB에 저장합니다.
- *
- * @see BinarySerializers.ZstdFury
- */
-@Converter
-class ZstdFuryObjectAsBase64StringConverter: AbstractObjectAsBase64StringConverter(BinarySerializers.ZstdFury)

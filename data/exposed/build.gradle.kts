@@ -63,7 +63,6 @@ dependencies {
     // Serializer
     testRuntimeOnly(Libs.kryo5)
     testRuntimeOnly(Libs.fory_kotlin)  // new Apache Fory
-    testRuntimeOnly(Libs.fury_kotlin)  // old Apache Fury
 
     // Compressors
     testRuntimeOnly(Libs.lz4_java)

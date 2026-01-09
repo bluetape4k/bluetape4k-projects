@@ -74,15 +74,14 @@ class EncodingExample: AbstractNatsTest() {
         private fun serializers() = listOf(
             BinarySerializers.LZ4Jdk,
             BinarySerializers.LZ4Kryo,
-            BinarySerializers.LZ4Fury,
+            BinarySerializers.LZ4Fory,
             BinarySerializers.SnappyJdk,
             BinarySerializers.SnappyKryo,
-            BinarySerializers.SnappyFury,
+            BinarySerializers.SnappyFory,
             BinarySerializers.ZstdJdk,
             BinarySerializers.ZstdKryo,
-            BinarySerializers.ZstdFury
+            BinarySerializers.ZstdFory,
         )
-
 
         @ParameterizedTest
         @MethodSource("serializers")

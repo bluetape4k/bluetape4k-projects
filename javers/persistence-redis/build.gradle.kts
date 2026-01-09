@@ -29,7 +29,6 @@ dependencies {
     // Codec
     compileOnly(Libs.kryo)
     compileOnly(Libs.fory_kotlin)  // new Apache Fory
-    compileOnly(Libs.fury_kotlin)  // old Apache Fury
 
     // Compressor
     compileOnly(Libs.lz4_java)

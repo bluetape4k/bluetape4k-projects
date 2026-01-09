@@ -73,7 +73,6 @@ dependencies {
 
     testImplementation(Libs.kryo)
     testImplementation(Libs.fory_kotlin)  // new Apache Fory
-    testImplementation(Libs.fury_kotlin)  // old Apache Fury
 
     testImplementation(Libs.lz4_java)
     testImplementation(Libs.snappy_java)

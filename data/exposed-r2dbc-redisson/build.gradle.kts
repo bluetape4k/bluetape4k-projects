@@ -25,7 +25,6 @@ dependencies {
     // Serializers
     runtimeOnly(Libs.kryo5)
     runtimeOnly(Libs.fory_kotlin)  // new Apache Fory
-    runtimeOnly(Libs.fury_kotlin)  // old Apache Fury
 
     // Compressor
     runtimeOnly(Libs.lz4_java)

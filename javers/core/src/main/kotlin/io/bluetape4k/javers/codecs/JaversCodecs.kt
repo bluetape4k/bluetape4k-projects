@@ -37,24 +37,6 @@ object JaversCodecs {
     val SnappyKryo by unsafeLazy { CompressableBinaryJaversCodec(Kryo, Compressors.Snappy) }
     val ZstdKryo by unsafeLazy { CompressableBinaryJaversCodec(Kryo, Compressors.Zstd) }
 
-    @Deprecated("Fury is deprecated, use ProtoBuf or other serializers", ReplaceWith("Fory"))
-    val Fury by unsafeLazy { BinaryJaversCodec(BinarySerializers.Fury) }
-
-    @Deprecated("Fury is deprecated, use ProtoBuf or other serializers", ReplaceWith("GZipFory"))
-    val GZipFury by unsafeLazy { CompressableBinaryJaversCodec(Fury, Compressors.GZip) }
-
-    @Deprecated("Fury is deprecated, use ProtoBuf or other serializers", ReplaceWith("DeflateFory"))
-    val DeflateFury by unsafeLazy { CompressableBinaryJaversCodec(Fury, Compressors.Deflate) }
-
-    @Deprecated("Fury is deprecated, use ProtoBuf or other serializers", ReplaceWith("LZ4Fory"))
-    val LZ4Fury by unsafeLazy { CompressableBinaryJaversCodec(Fury, Compressors.LZ4) }
-
-    @Deprecated("Fury is deprecated, use ProtoBuf or other serializers", ReplaceWith("SnappyFory"))
-    val SnappyFury by unsafeLazy { CompressableBinaryJaversCodec(Fury, Compressors.Snappy) }
-
-    @Deprecated("Fury is deprecated, use ProtoBuf or other serializers", ReplaceWith("ZstdFory"))
-    val ZstdFury by unsafeLazy { CompressableBinaryJaversCodec(Fury, Compressors.Zstd) }
-
     val Fory by unsafeLazy { BinaryJaversCodec(BinarySerializers.Fory) }
 
     val GZipFory by unsafeLazy { CompressableBinaryJaversCodec(Fory, Compressors.GZip) }
