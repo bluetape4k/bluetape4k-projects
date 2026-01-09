@@ -64,6 +64,9 @@ dependencies {
     api(project(":bluetape4k-io"))
     testImplementation(project(":bluetape4k-junit5"))
 
+    api(Libs.jakarta_persistence_api)
+    api(Libs.jakarta_transaction_api)
+    
     api(Libs.hibernate_core)
     api(Libs.hibernate_micrometer)
 
@@ -78,9 +81,8 @@ dependencies {
     kapt(Libs.querydsl_apt + ":jakarta")
     kaptTest(Libs.querydsl_apt + ":jakarta")
 
-    api(Libs.jakarta_el_api)
-
     // Validator
+    api(Libs.jakarta_el_api)
     api(Libs.jakarta_validation_api)
     api(Libs.hibernate_validator)
 
@@ -114,8 +116,8 @@ dependencies {
     }
 
     testImplementation(Libs.hikaricp)
-    testImplementation(Libs.h2_v2)
-    testImplementation(Libs.mysql_connector_j)
+    testRuntimeOnly(Libs.h2_v2)
+    testRuntimeOnly(Libs.mysql_connector_j)
 
     testImplementation(project(":bluetape4k-testcontainers"))
     testImplementation(Libs.testcontainers_mysql)
