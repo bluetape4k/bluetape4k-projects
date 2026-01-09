@@ -1,6 +1,6 @@
 package io.bluetape4k.timefold.solver.exposed.api.score.buildin
 
-import ai.timefold.solver.core.api.score.buildin.simplelong.SimpleLongScore
+import ai.timefold.solver.core.api.score.buildin.hardmediumsoft.HardMediumSoftScore
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.logging.KLogging
@@ -13,26 +13,30 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
-class SimpleLongScoreTest: AbstractScoreExposedTest() {
+class HardMediumSoftScoreTest: AbstractScoreExposedTest() {
 
     companion object: KLogging()
 
     object T1: IntIdTable() {
         val name = varchar("name", 255)
-        val simpleLongScore = simpleLongScore("simple_long_score")
+        val hardMediumSoftScore = hardMediumSoftScore("hardmediumsoft_score")
     }
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `SimpleLongScore 를 DB 에 저장 및 조회하기`(testDB: TestDB) {
+    fun `HardMediumSoftScore 를 DB 에 저장 및 조회하기`(testDB: TestDB) {
         withTables(testDB, T1) {
 
             val name = faker.name().name()
-            val simpleLongScore = SimpleLongScore.of(faker.random().nextLong())
+            val hardMediumSoftScore = HardMediumSoftScore.of(
+                faker.random().nextInt(),
+                faker.random().nextInt(),
+                faker.random().nextInt()
+            )
 
             val id = T1.insertAndGetId {
                 it[T1.name] = name
-                it[T1.simpleLongScore] = simpleLongScore
+                it[T1.hardMediumSoftScore] = hardMediumSoftScore
             }
 
             val row = T1
@@ -43,7 +47,7 @@ class SimpleLongScoreTest: AbstractScoreExposedTest() {
             log.debug { "row=$row" }
 
             row[T1.name] shouldBeEqualTo name
-            row[T1.simpleLongScore] shouldBeEqualTo simpleLongScore
+            row[T1.hardMediumSoftScore] shouldBeEqualTo hardMediumSoftScore
         }
     }
 }

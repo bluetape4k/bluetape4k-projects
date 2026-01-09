@@ -28,7 +28,7 @@ class SimpleScoreTest: AbstractScoreExposedTest() {
         withTables(testDB, T1) {
 
             val name = faker.name().name()
-            val simpleScore = SimpleScore.of(faker.number().randomDigit())
+            val simpleScore = SimpleScore.of(faker.random().nextInt())
 
             val id = T1.insertAndGetId {
                 it[T1.name] = name
