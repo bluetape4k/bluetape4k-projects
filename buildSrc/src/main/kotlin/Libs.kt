@@ -158,12 +158,12 @@ object Versions {
     const val r2dbc = "1.0.0.RELEASE"        // https://mvnrepository.com/artifact/io.r2dbc/r2dbc-spi
     const val agroal = "2.8"          // https://mvnrepository.com/artifact/io.agroal/agroal-api
 
-    const val blaze_persistence = "3.29.4" // https://mvnrepository.com/artifact/io.quarkus.platform/quarkus-blaze-persistence-bom
-    const val javers = "7.9.0"             // https://mvnrepository.com/artifact/org.javers/javers-core
+    const val blaze_persistence = "3.30.6"  // https://mvnrepository.com/artifact/io.quarkus.platform/quarkus-blaze-persistence-bom
+    const val javers = "7.10.0"             // https://mvnrepository.com/artifact/org.javers/javers-core
 
     const val slf4j = "2.0.17"       // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
-    const val logback = "1.5.21"     // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
-    const val log4j = "2.25.2"       // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core
+    const val logback = "1.5.24"     // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
+    const val log4j = "2.25.3"       // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core
 
     const val metrics = "4.2.37"        // https://mvnrepository.com/artifact/io.dropwizard.metrics/metrics-core
     const val prometheus = "0.16.0"     // https://mvnrepository.com/artifact/io.prometheus/simpleclient
@@ -187,7 +187,6 @@ object Versions {
     const val hazelcast = "5.6.0"           // https://mvnrepository.com/artifact/com.hazelcast/hazelcast
 
     const val cassandra = "4.19.2"          // https://mvnrepository.com/artifact/org.apache.cassandra/java-driver-core
-    const val scylla_java = "4.13.0.0"
     const val elasticsearch = "9.1.7"       // https://mvnrepository.com/artifact/org.elasticsearch.client/elasticsearch-rest-client
 
     const val kafka = "3.9.1"           // https://mvnrepository.com/artifact/org.apache.kafka/kafka
@@ -201,15 +200,15 @@ object Versions {
 
     const val ow2_asm = "9.9.1"             // https://mvnrepository.com/artifact/org.ow2.asm/asm
 
-    const val junit_jupiter = "6.0.1"       // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
-    const val junit_platform = "6.0.1"      // https://mvnrepository.com/artifact/org.junit.platform/junit-platform-launcher
+    const val junit_jupiter = "6.0.2"       // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
+    const val junit_platform = "6.0.2"      // https://mvnrepository.com/artifact/org.junit.platform/junit-platform-launcher
     const val assertj_core = "3.27.6"       // https://mvnrepository.com/artifact/org.assertj/assertj-core
     const val kluent = "1.73"               // https://mvnrepository.com/artifact/org.amshove.kluent/kluent
-    const val mockk = "1.14.6"              // https://mvnrepository.com/artifact/io.mockk/mockk
+    const val mockk = "1.14.7"              // https://mvnrepository.com/artifact/io.mockk/mockk
     const val springmockk = "5.0.1"         // https://mvnrepository.com/artifact/com.ninja-squad/springmockk
     const val awaitility = "4.3.0"          // https://mvnrepository.com/artifact/org.awaitility/awaitility
     const val jmh = "1.37"                  // https://mvnrepository.com/artifact/org.openjdk.jmh/jmh-core
-    const val testcontainers = "1.21.3"     // https://mvnrepository.com/artifact/org.testcontainers/testcontainers
+    const val testcontainers = "1.21.4"     // https://mvnrepository.com/artifact/org.testcontainers/testcontainers
     const val jna = "5.18.1"                // https://mvnrepository.com/artifact/net.java.dev.jna/jna
     const val archunit = "1.4.1"            // https://mvnrepository.com/artifact/com.tngtech.archunit/archunit-junit5
     const val rest_assured = "5.5.6"        // https://mvnrepository.com/artifact/io.rest-assured/rest-assured
@@ -1136,14 +1135,6 @@ object Libs {
     val cassandra_java_driver_metrics_microprofile = cassandra("metrics-microprofile")
     val cassandra_java_driver_query_builder = cassandra("query-builder")
     val cassandra_java_driver_test_infra = cassandra("test-infra")
-
-    // ScyllaDB
-    fun scyllaJava(module: String, version: String = Versions.scylla_java) = "com.scylladb:java-driver-$module:$version"
-    val scylla_java_driver_core = scyllaJava("core")
-    val scylla_java_driver_query_builder = scyllaJava("query-builder")
-    val scylla_java_driver_mapper_processor = scyllaJava("mapper-processor")
-    val scylla_java_driver_mapper_runtime = scyllaJava("mapper-runtime")
-    val scylla_java_driver_metrics_micrometer = scyllaJava("metrics-micrometer")
 
     // ElasticSearch
     fun elasticsearch(module: String) = "org.elasticsearch.client:elasticsearch-$module:${Versions.elasticsearch}"

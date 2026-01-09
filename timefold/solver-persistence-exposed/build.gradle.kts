@@ -11,9 +11,7 @@ dependencies {
 
     api(Libs.exposed_core)
     compileOnly(project(":bluetape4k-exposed"))
-    compileOnly(project(":bluetape4k-exposed-r2dbc"))
     testImplementation(project(":bluetape4k-exposed-tests"))
-    testImplementation(project(":bluetape4k-exposed-r2dbc-tests"))
 
     // JDBC Drivers
     testImplementation(Libs.hikaricp)
