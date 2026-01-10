@@ -14,7 +14,7 @@ dependencies {
     /* Jackson */
     api(project(":bluetape4k-jackson"))
     api(Libs.jackson_module_kotlin)
-    compileOnly(Libs.jackson_module_blackbird)
+    implementation(Libs.jackson_module_blackbird)
 
     // Database Drivers
     testRuntimeOnly(Libs.hikaricp)

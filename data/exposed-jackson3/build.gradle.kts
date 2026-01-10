@@ -1,4 +1,3 @@
-@Suppress("UnstableApiUsage")
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
 }
@@ -15,7 +14,7 @@ dependencies {
     /* Jackson */
     api(project(":bluetape4k-jackson3"))
     api(Libs.jackson3_module_kotlin)
-    compileOnly(Libs.jackson3_module_blackbird)
+    implementation(Libs.jackson3_module_blackbird)
 
     // Database Drivers
     testRuntimeOnly(Libs.hikaricp)

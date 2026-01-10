@@ -65,7 +65,7 @@ class FastjsonColumnTest: AbstractExposedTest() {
      */
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `JSON 컬럼에 대해 삽입 및 조회하기`(testDB: TestDB) {
+    fun `fastjson 컬럼에 대해 삽입 및 조회하기`(testDB: TestDB) {
         withFastjsonTable(testDB) { tester, _, _ ->
             val newData = DataHolder(User("Pro", "Alpha"), 999, true, "A")
             val newId = tester.insertAndGetId {
@@ -86,7 +86,7 @@ class FastjsonColumnTest: AbstractExposedTest() {
      */
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `update JSON 컬럼`(testDB: TestDB) {
+    fun `update fastjson 컬럼`(testDB: TestDB) {
         withFastjsonTable(testDB) { tester, _, data1 ->
             tester.selectAll().single()[tester.fastjsonColumn] shouldBeEqualTo data1
 
@@ -114,7 +114,7 @@ class FastjsonColumnTest: AbstractExposedTest() {
      */
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `JSON 컬럼의 특정 속성만 조회하기`(testDB: TestDB) {
+    fun `fastjson 컬럼의 특정 속성만 조회하기`(testDB: TestDB) {
         Assumptions.assumeTrue { testDB !in TestDB.ALL_H2 }
 
         withFastjsonTable(testDB) { tester, user1, data1 ->
@@ -155,7 +155,7 @@ class FastjsonColumnTest: AbstractExposedTest() {
      */
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `extract 해서 검색하기`(testDB: TestDB) {
+    fun `fastjson extract 해서 검색하기`(testDB: TestDB) {
         Assumptions.assumeTrue { testDB !in TestDB.ALL_H2 }
 
         withFastjsonTable(testDB) { tester, _, data1 ->
@@ -183,7 +183,7 @@ class FastjsonColumnTest: AbstractExposedTest() {
      */
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `data class 를 Jackson 으로 직렬화하기`(testDB: TestDB) {
+    fun `data class 를 fastjson 으로 직렬화하기`(testDB: TestDB) {
         data class Fake(val number: Int)
 
         withDb(testDB) {
@@ -215,7 +215,7 @@ class FastjsonColumnTest: AbstractExposedTest() {
      */
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `DAO 함수로 Jackson 컬럼 사용하기`(testDB: TestDB) {
+    fun `DAO 함수로 fastjson 컬럼 사용하기`(testDB: TestDB) {
         val dataTable = FastjsonSchema.FastjsonTable
         val dataEntity = FastjsonSchema.FastjsonEntity
 
@@ -263,7 +263,7 @@ class FastjsonColumnTest: AbstractExposedTest() {
      */
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `json contains 함수 사용하기`(testDB: TestDB) {
+    fun `fastjson contains 함수 사용하기`(testDB: TestDB) {
         Assumptions.assumeTrue { testDB in supportsJsonContains }
 
         withFastjsonTable(testDB) { tester, user1, data1 ->
@@ -314,7 +314,7 @@ class FastjsonColumnTest: AbstractExposedTest() {
      */
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `json exists 함수 사용하기`(testDB: TestDB) {
+    fun `fastjson exists 함수 사용하기`(testDB: TestDB) {
         Assumptions.assumeTrue { testDB !in TestDB.ALL_H2 }
 
         withFastjsonTable(testDB) { tester, _, data1 ->
@@ -379,7 +379,7 @@ class FastjsonColumnTest: AbstractExposedTest() {
      */
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `jackson 컬럼 배열 값에 extract 사용하기`(testDB: TestDB) {
+    fun `fastjson 컬럼 배열 값에 extract 사용하기`(testDB: TestDB) {
         Assumptions.assumeTrue { testDB !in TestDB.ALL_H2 }
 
         withFastjsonArrays(testDB) { tester, singleId, tripleId ->
@@ -420,7 +420,7 @@ class FastjsonColumnTest: AbstractExposedTest() {
      */
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `배열 수형의 jackson 컬럼에서 contains 사용하기`(testDB: TestDB) {
+    fun `배열 수형의 fastjson 컬럼에서 contains 사용하기`(testDB: TestDB) {
         Assumptions.assumeTrue { testDB in supportsJsonContains }
 
         withFastjsonArrays(testDB) { tester, _, tripleId ->
@@ -457,7 +457,7 @@ class FastjsonColumnTest: AbstractExposedTest() {
      */
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `배열 수형의 jackson 컬럼에 exists 사용하기`(testDB: TestDB) {
+    fun `배열 수형의 fastjson 컬럼에 exists 사용하기`(testDB: TestDB) {
         Assumptions.assumeTrue { testDB !in TestDB.ALL_H2 }
 
         withFastjsonArrays(testDB) { tester, _, tripleId ->
@@ -496,7 +496,7 @@ class FastjsonColumnTest: AbstractExposedTest() {
      */
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `Iterables 수형의 json 컬럼에 contains 사용하기`(testDB: TestDB) {
+    fun `Iterables 수형의 fastjson 컬럼에 contains 사용하기`(testDB: TestDB) {
         Assumptions.assumeTrue { testDB in supportsJsonContains }
 
         val iterables = object: IntIdTable("iterables") {
@@ -548,7 +548,7 @@ class FastjsonColumnTest: AbstractExposedTest() {
      */
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `jackson 컬럼의 default 값 사용하기`(testDB: TestDB) {
+    fun `fastjson 컬럼의 default 값 사용하기`(testDB: TestDB) {
         val defaultUser = User("UNKNOWN", "UNASSIGNED")
         val defaultTester = object: Table("default_tester") {
             val user1 = fastjson<User>("user_1").default(defaultUser)
@@ -619,7 +619,7 @@ class FastjsonColumnTest: AbstractExposedTest() {
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `nullable jackson column`(testDB: TestDB) {
+    fun `nullable fastjson column`(testDB: TestDB) {
         val tester = object: IntIdTable("nullable_tester") {
             val user = fastjson<User>("user").nullable()
         }
@@ -643,7 +643,7 @@ class FastjsonColumnTest: AbstractExposedTest() {
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `jackson column with upsert`(testDB: TestDB) {
+    fun `fastjson column with upsert`(testDB: TestDB) {
         Assumptions.assumeTrue(testDB !in TestDB.ALL_H2_V1)
 
         withFastjsonTable(testDB) { tester, _, _ ->
@@ -673,7 +673,7 @@ class FastjsonColumnTest: AbstractExposedTest() {
      */
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `jackson with transformer`(testDB: TestDB) {
+    fun `fastjson column with transformer`(testDB: TestDB) {
         val tester = object: Table("tester") {
             val numbers: Column<DoubleArray> = fastjson<IntArray>("numbers").transform(
                 wrap = { DoubleArray(it.size) { i -> 1.0 * it[i] } },
@@ -707,7 +707,7 @@ class FastjsonColumnTest: AbstractExposedTest() {
      */
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `jackson column with databaseGenerated`(testDB: TestDB) {
+    fun `fastjson column with databaseGenerated`(testDB: TestDB) {
 
         val defaultUser = User("name", "team")
 
