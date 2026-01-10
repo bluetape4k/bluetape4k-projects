@@ -3,10 +3,10 @@ package io.bluetape4k.vertx.examples
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import io.bluetape4k.vertx.AbstractVertxTest
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpMethod
-import io.vertx.junit5.VertxExtension
 import io.vertx.junit5.VertxTestContext
 import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.kotlin.coroutines.dispatcher
@@ -19,11 +19,9 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import java.util.concurrent.TimeUnit
 
-@ExtendWith(VertxExtension::class)
-class VertxJunit5Examples {
+class VertxJunit5Examples: AbstractVertxTest() {
 
     companion object: KLoggingChannel()
 

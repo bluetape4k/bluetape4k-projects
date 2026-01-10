@@ -1,4 +1,4 @@
-package io.bluetape4k.vertx.examples
+package io.bluetape4k.vertx
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug

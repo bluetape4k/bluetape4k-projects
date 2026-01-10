@@ -3,6 +3,8 @@ package io.bluetape4k.vertx.examples
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import io.bluetape4k.vertx.AbstractVertxTest
+import io.bluetape4k.vertx.SampleVerticle
 import io.bluetape4k.vertx.tests.withSuspendTestContext
 import io.vertx.core.Vertx
 import io.vertx.ext.web.client.WebClient
@@ -20,7 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.fail
 
 @ExtendWith(VertxExtension::class)
-class SampleVerticleTest {
+class SampleVerticleTest: AbstractVertxTest() {
 
     companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 10

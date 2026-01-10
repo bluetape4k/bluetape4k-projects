@@ -2,6 +2,8 @@ package io.bluetape4k.vertx.examples
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.vertx.AbstractVertxTest
+import io.bluetape4k.vertx.SampleVerticle
 import io.bluetape4k.vertx.tests.withSuspendTestContext
 import io.bluetape4k.vertx.tests.withTestContext
 import io.vertx.core.Vertx
@@ -23,7 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith
  * [Lifecycle example](https://vertx.io/docs/vertx-junit5/java/#_lifecycle_methods)
  */
 @ExtendWith(VertxExtension::class)
-class LifecycleExample {
+class LifecycleExample: AbstractVertxTest() {
 
     companion object: KLoggingChannel()
 
