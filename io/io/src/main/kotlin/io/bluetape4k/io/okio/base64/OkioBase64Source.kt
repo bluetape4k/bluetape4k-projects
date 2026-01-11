@@ -8,14 +8,19 @@ import okio.Source
 /**
  * Base64로 인코딩된 [Source]를 읽어 디코딩하여 전달하는 [Source] 구현체.
  *
- * @see Base64Sink
+ * @see OkioBase64Sink
+ * @see ApacheBase64Source
  */
-class Base64Source(delegate: Source): AbstractBase64Source(delegate) {
+class OkioBase64Source(delegate: Source): AbstractBase64Source(delegate) {
 
     companion object: KLogging()
 
     override fun decodeBase64Bytes(encodedString: String): ByteString? {
         return encodedString.decodeBase64()
     }
+}
 
+fun Source.asBase64Source(): OkioBase64Source = when (this) {
+    is OkioBase64Source -> this
+    else -> OkioBase64Source(this)
 }

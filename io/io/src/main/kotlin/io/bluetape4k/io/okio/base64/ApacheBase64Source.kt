@@ -1,10 +1,11 @@
 package io.bluetape4k.io.okio.base64
 
-import io.bluetape4k.codec.decodeBase64String
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.toUtf8String
 import okio.ByteString
 import okio.ByteString.Companion.encodeUtf8
 import okio.Source
+import java.util.*
 
 /**
  * 데이터를 Apache Commons의 Base64로 인코딩하여 [Source]에 쓰는 [Source] 구현체.
@@ -14,9 +15,14 @@ import okio.Source
  */
 class ApacheBase64Source(delegate: Source): AbstractBase64Source(delegate) {
 
-    companion object: KLogging() 
+    companion object: KLogging()
 
     override fun decodeBase64Bytes(encodedString: String): ByteString? {
-        return encodedString.decodeBase64String().encodeUtf8()
+        return Base64.getUrlDecoder().decode(encodedString).toUtf8String().encodeUtf8()
     }
+}
+
+fun Source.asApacheBase64Source(): ApacheBase64Source = when (this) {
+    is ApacheBase64Source -> this
+    else -> ApacheBase64Source(this)
 }

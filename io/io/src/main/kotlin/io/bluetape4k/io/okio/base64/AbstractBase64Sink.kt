@@ -25,8 +25,8 @@ import okio.Sink
  *
  * @see ApacheBase64Sink
  * @see ApacheBase64Source
- * @see Base64Sink
- * @see Base64Source
+ * @see OkioBase64Sink
+ * @see OkioBase64Source
  */
 abstract class AbstractBase64Sink(delegate: Sink): ForwardingSink(delegate) {
 

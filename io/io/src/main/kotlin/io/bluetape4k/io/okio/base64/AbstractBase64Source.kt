@@ -24,22 +24,28 @@ abstract class AbstractBase64Source(delegate: Source): ForwardingSource(delegate
         const val BASE64_BLOCK = 4 // 4바이트 블록을 읽어 3바이트 디코딩
     }
 
-    private val sourceBuffer: Buffer = Buffer()
-    private val decodeBuffer: Buffer = Buffer()
+    private val sourceBuffer = okio.Buffer()
+    private val decodedBuffer = okio.Buffer()
 
+    /**
+     * Base64로 인코딩된 문자열을 디코딩하여 바이트 배열로 변환합니다.
+     *
+     * @param encodedString Base64로 인코딩된 문자열
+     * @return 디코딩된 바이트 배열
+     */
     protected abstract fun decodeBase64Bytes(encodedString: String): ByteString?
 
     override fun read(sink: Buffer, byteCount: Long): Long {
         byteCount.requireLt(MAX_REQUEST_LENGTH, "byteCount")
 
         // 요청한 바이트가 이미 버퍼에 있으면 바로 반환
-        if (decodeBuffer.size >= byteCount) {
-            sink.write(decodeBuffer, byteCount)  // decodedBuffer를 읽어 sink에 byteCount만큼 쓴다
+        if (decodedBuffer.size >= byteCount) {
+            sink.write(decodedBuffer, byteCount)  // decodedBuffer를 읽어 sink에 byteCount만큼 쓴다
             return byteCount
         }
 
         var streamEnded = false
-        while (decodeBuffer.size < byteCount && !streamEnded) {
+        while (decodedBuffer.size < byteCount && !streamEnded) {
             val bytesRead = super.read(sourceBuffer, byteCount)
             if (bytesRead < 0) {
                 streamEnded = true
@@ -48,16 +54,18 @@ abstract class AbstractBase64Source(delegate: Source): ForwardingSource(delegate
             // 모든 가능한 block을 Base64 디코딩
             val allFullBlocks = BASE64_BLOCK * (sourceBuffer.size / BASE64_BLOCK)
             val decoded = decodeBase64Bytes(sourceBuffer.readUtf8(allFullBlocks))
-            log.debug { "decoded: $decoded" }
             check(decoded != null) { "base64 decode failed. decoded is null." }
+            if (decoded.size > 0) {
+                log.debug { "decoded: $decoded" }
+            }
 
-            decodeBuffer.write(decoded)
+            decodedBuffer.write(decoded)
         }
 
         // 요청한 바이트 수(또는 가능한 모든 바이트) 반환
-        val bytesToReturn = byteCount.coerceAtMost(decodeBuffer.size)
-        sink.write(decodeBuffer, bytesToReturn)
+        val bytesToReturn = byteCount.coerceAtMost(decodedBuffer.size)
+        sink.write(decodedBuffer, bytesToReturn)
 
-        return if (streamEnded) -1 else bytesToReturn
+        return if (streamEnded) -1L else bytesToReturn
     }
 }

@@ -20,6 +20,7 @@ open class CipherSource(
 
     companion object: KLogging()
 
+    // read 함수를 호출할 때마다 데이터를 읽고 복호화하기 위한 버퍼
     private val sourceBuffer = Buffer()
     private val decipheredBuffer = Buffer()
 
@@ -34,7 +35,7 @@ open class CipherSource(
         var streamEnd = false
         while (sourceBuffer.size < bytesToRead && !streamEnd) {
             val bytesRead = super.read(sourceBuffer, bytesToRead - sourceBuffer.size)
-            log.trace { "bytesRead=$bytesToRead, sourceBuffer=$sourceBuffer" }
+            log.trace { "bytesRead=$bytesRead, sourceBuffer=$sourceBuffer" }
             if (bytesRead < 0) {
                 streamEnd = true
             }
@@ -59,6 +60,22 @@ open class CipherSource(
         sink.write(decipheredBuffer, bytesToReturn)
 
         // 복호화해서 쓴 바이트 수 반환, 더 이상 복호화할 것이 없으면 -1 반환
-        return if (bytesToReturn > 0) bytesToReturn else -1
+        return if (bytesToReturn > 0) bytesToReturn else -1L
+    }
+
+    fun readAll(sink: Buffer): Long {
+        var totalBytesRead = 0L
+        while (true) {
+            val bytesRead = read(sink, DEFAULT_BUFFER_SIZE.toLong())
+            if (bytesRead == -1L) break
+            totalBytesRead += bytesRead
+        }
+        return totalBytesRead
+    }
+
+    override fun close() {
+        super.close()
+        sourceBuffer.close()
+        decipheredBuffer.close()
     }
 }

@@ -8,7 +8,9 @@ import okio.Sink
 import javax.crypto.Cipher
 
 /**
- * 데이터를 암호화하여 [Sink]에 씁니다.
+ * 데이터를 암호화하여 [delegate]에 씁니다.
+ *
+ * @see [CipherSource]
  */
 open class CipherSink(
     delegate: Sink,
@@ -19,12 +21,13 @@ open class CipherSink(
 
     override fun write(source: okio.Buffer, byteCount: Long) {
         val bytesToRead = byteCount.coerceAtMost(source.size)
-        log.trace { "Write data from source with cipher. bytes to read=$bytesToRead" }
+        log.trace { "소스 데이터를 암호화하여 씁니다. 암호화한 데이터 크기=$bytesToRead" }
 
         val plainBytes = source.readByteArray(bytesToRead)
-        log.trace { "Encrypt plain bytes: ${plainBytes.size} bytes" }
+        log.trace { "암호화할 바이트 수: ${plainBytes.size} bytes" }
 
         val encryptedBytes = cipher.doFinal(plainBytes)
+        log.trace { "암호화한 바이트 수: ${encryptedBytes.size} bytes" }
         val encryptedSink = bufferOf(encryptedBytes)
 
         super.write(encryptedSink, encryptedSink.size)

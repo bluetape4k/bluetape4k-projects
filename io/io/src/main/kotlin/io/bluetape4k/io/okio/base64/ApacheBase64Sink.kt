@@ -1,11 +1,11 @@
 package io.bluetape4k.io.okio.base64
 
-import io.bluetape4k.codec.encodeBase64ByteArray
 import io.bluetape4k.io.okio.bufferOf
 import io.bluetape4k.logging.KLogging
 import okio.Buffer
 import okio.ByteString
 import okio.Sink
+import java.util.*
 
 /**
  * 데이터를 Apache Commons의 Base64로 인코딩하여 [Sink]에 쓰는 [Sink] 구현체.
@@ -18,6 +18,12 @@ class ApacheBase64Sink(delegate: Sink): AbstractBase64Sink(delegate) {
     companion object: KLogging()
 
     override fun getEncodedBuffer(plainByteString: ByteString): Buffer {
-        return bufferOf(plainByteString.toByteArray().encodeBase64ByteArray())
+        val encodedBytes = Base64.getUrlEncoder().encode(plainByteString.toByteArray())
+        return bufferOf(encodedBytes)
     }
+}
+
+fun Sink.asApacheBase64Sink(): ApacheBase64Sink = when (this) {
+    is ApacheBase64Sink -> this
+    else -> ApacheBase64Sink(this)
 }

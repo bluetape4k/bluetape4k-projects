@@ -5,12 +5,12 @@ import io.bluetape4k.support.toUtf8Bytes
 import okio.ByteString.Companion.toByteString
 import okio.Source
 
-class Base64SourceTest: AbstractBaseNSourceTest() {
+class OkioBase64SourceTest: AbstractBaseNSourceTest() {
 
     companion object: KLogging()
 
     override fun getSource(delegate: Source): Source {
-        return Base64Source(delegate)
+        return OkioBase64Source(delegate)
     }
 
     override fun getEncodedString(plainString: String): String {
