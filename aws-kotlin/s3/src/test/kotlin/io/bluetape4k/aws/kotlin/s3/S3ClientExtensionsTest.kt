@@ -65,10 +65,12 @@ class S3ClientExtensionsTest: AbstractKotlinS3Test() {
         val downloadLength = s3Client.getAsFile(BUCKET_NAME, key, downloadFile)
 
         log.debug { "Download file=$downloadFile, length=${downloadFile.length()}" }
-        downloadFile.exists().shouldBeTrue()
-        downloadFile.length() shouldBeEqualTo downloadLength
-        downloadFile.length() shouldBeEqualTo file.length()
-        downloadFile.deleteIfExists()
+        with(downloadFile) {
+            exists().shouldBeTrue()
+            length() shouldBeEqualTo downloadLength
+            length() shouldBeEqualTo file.length()
+            deleteIfExists()
+        }
     }
 
     @ParameterizedTest(name = "multijob up/down {0}")
@@ -92,10 +94,12 @@ class S3ClientExtensionsTest: AbstractKotlinS3Test() {
                 val downloadLength = s3Client.getAsFile(BUCKET_NAME, key, downloadFile)
 
                 log.debug { "Download file=$downloadFile, length=${downloadFile.length()}" }
-                downloadFile.exists().shouldBeTrue()
-                downloadFile.length() shouldBeEqualTo downloadLength
-                downloadFile.length() shouldBeEqualTo file.length()
-                downloadFile.deleteIfExists()
+                with(downloadFile) {
+                    exists().shouldBeTrue()
+                    length() shouldBeEqualTo downloadLength
+                    length() shouldBeEqualTo file.length()
+                    deleteIfExists()
+                }
             }
             .run()
     }
