@@ -133,7 +133,9 @@ class VertxJunit5Examples: AbstractVertxTest() {
             testContext: VertxTestContext,
         ) = runSuspendTest(vertx.dispatcher()) {
             val client = vertx.createHttpClient()
-            val request = client.request(HttpMethod.GET, 9999, "localhost", "/").coAwait()
+            val request = client
+                .request(HttpMethod.GET, 9999, "localhost", "/")
+                .coAwait()
 
             val response = request.send().coAwait()
             val buffer = response.body().coAwait()

@@ -9,7 +9,9 @@ import io.vertx.core.Promise
 
 class SampleVerticle: AbstractVerticle() {
 
-    companion object: KLoggingChannel()
+    companion object: KLoggingChannel() {
+        const val PORT = 11981
+    }
 
     override fun start(startPromise: Promise<Void>) {
         vertx.createHttpServer()
@@ -20,7 +22,7 @@ class SampleVerticle: AbstractVerticle() {
                     .end("Yo!")
                 log.info { "Handle a request on path ${req.path()} from ${req.remoteAddress().host()}" }
             }
-            .listen(11981)
+            .listen(PORT)
             .onSuccess { server ->
                 log.info { "Server is now listening! server=$server" }
                 startPromise.complete()

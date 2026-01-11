@@ -56,22 +56,22 @@ class LifecycleExample: AbstractVertxTest() {
     fun `request to server`(testContext: VertxTestContext) = withTestContext(testContext) {
         val webClient = WebClient.create(vertx)
 
-        vertx.deployVerticle(
-            SampleVerticle(),
-        ).onSuccess {
-            testContext.succeeding<Unit> {
-                webClient.get(11981, "localhost", "/yo")
-                    .`as`(BodyCodec.string())
-                    .send()
-                    .onSuccess { resp ->
-                        testContext.verify {
-                            resp.statusCode() shouldBeEqualTo 200
-                            resp.body() shouldContain "Yo!"
-                            testContext.completeNow()
+        vertx
+            .deployVerticle(SampleVerticle())
+            .onSuccess {
+                testContext.succeeding<Unit> {
+                    webClient.get(SampleVerticle.PORT, "localhost", "/yo")
+                        .`as`(BodyCodec.string())
+                        .send()
+                        .onSuccess { resp ->
+                            testContext.verify {
+                                resp.statusCode() shouldBeEqualTo 200
+                                resp.body() shouldContain "Yo!"
+                                testContext.completeNow()
+                            }
                         }
-                    }
+                }
             }
-        }
     }
 
     @Test
@@ -80,7 +80,8 @@ class LifecycleExample: AbstractVertxTest() {
             val webClient = WebClient.create(vertx)
 
             vertx.deployVerticle(SampleVerticle()).coAwait()
-            val response = webClient.get(11981, "localhost", "/yo")
+
+            val response = webClient.get(SampleVerticle.PORT, "localhost", "/yo")
                 .`as`(BodyCodec.string())
                 .send()
                 .coAwait()

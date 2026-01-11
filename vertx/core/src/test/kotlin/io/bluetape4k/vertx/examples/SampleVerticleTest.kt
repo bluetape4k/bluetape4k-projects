@@ -59,7 +59,7 @@ class SampleVerticleTest: AbstractVertxTest() {
 
                 repeat(REPEAT_SIZE) {
                     log.debug { "Request $it" }
-                    webClient.get(11981, "localhost", "/")
+                    webClient.get(SampleVerticle.PORT, "localhost", "/")
                         .`as`(BodyCodec.string())
                         .send()
                         .onSuccess { resp ->
@@ -91,7 +91,7 @@ class SampleVerticleTest: AbstractVertxTest() {
                 launch {
                     log.debug { "Request $requestIndex" }
                     val resp =
-                        webClient.get(11981, "localhost", "/")
+                        webClient.get(SampleVerticle.PORT, "localhost", "/")
                             .`as`(BodyCodec.string())
                             .send()
                             .coAwait()
