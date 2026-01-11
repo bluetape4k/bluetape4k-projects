@@ -1,9 +1,9 @@
 package io.bluetape4k.io.okio.compress
 
 import io.bluetape4k.io.compressor.Compressor
+import io.bluetape4k.io.okio.bufferOf
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
-import io.bluetape4k.support.requireGt
+import io.bluetape4k.logging.debug
 import okio.Buffer
 
 /**
@@ -19,29 +19,22 @@ open class DecompressableSource(
     companion object: KLogging()
 
     override fun read(sink: Buffer, byteCount: Long): Long {
-        // 요청한 바이트 수(또는 가능한 모든 바이트) 반환
-        byteCount.requireGt(0, "byteCount")
+        val sourceBuffer = okio.Buffer()
 
-        val sourceBuffer = Buffer()
-        val decompressedBuffer = Buffer()
+        // 압축 복원은 한 번에 모든 데이터를 복원해야 함
+        val bytesRead = super.read(sourceBuffer, Long.MAX_VALUE)
 
-        var streamEnd = false
-        while (sourceBuffer.size < byteCount && !streamEnd) {
-            val bytesRead = super.read(sourceBuffer, byteCount - sourceBuffer.size)
-            log.trace { "byteCount=$byteCount, sourceBuffer.size=${sourceBuffer.size}" }
-            if (bytesRead < 0) {
-                streamEnd = true
-            }
+        if (bytesRead < 0) {
+            return -1 // End of stream
         }
 
-        val bytes = sourceBuffer.readByteArray()
-        log.trace { "source buffer bytes: ${bytes.size}" }
-        val decompressed = compressor.decompress(bytes)
-        log.trace { "decompressed bytes: ${decompressed.size}" }
-        decompressedBuffer.write(decompressed)
-
-        sink.write(decompressedBuffer, decompressedBuffer.size)
-
-        return decompressedBuffer.size
+        val decompressed = compressor.decompress(sourceBuffer.readByteArray())
+        log.debug { "압축 복원: compressed=$bytesRead bytes, decompressed=${decompressed.size} bytes" }
+        sink.write(bufferOf(decompressed), decompressed.size.toLong())
+        return decompressed.size.toLong()
     }
+}
+
+fun okio.Source.asDecompressSource(compressor: Compressor): DecompressableSource {
+    return DecompressableSource(this, compressor)
 }

@@ -29,7 +29,7 @@ open class CipherSource(
         val bytesToRead =
             cipher.blockSize * (1 + (byteCount / cipher.blockSize) + if (byteCount % cipher.blockSize > 0) 1 else 0)
         bytesToRead.requireGe(0L, "bytesToRead")
-        log.debug { "Read data from source with cipher. bytes to read=$bytesToRead" }
+        log.debug { "암호화된 데이터를 읽어서 sink 에 씁니다. bytes to read=$bytesToRead" }
 
         // 요청한 바이트 수(또는 가능한 모든 바이트) 반환
         var streamEnd = false
@@ -49,7 +49,7 @@ open class CipherSource(
         }
         if (streamEnd) {
             // 끝에 도달하면 (패딩과 함께) 완료
-            log.debug { "Finalize with padding if we are at the end." }
+            log.trace { "Finalize with padding if we are at the end." }
             cipher.doFinal()?.let {
                 decipheredBuffer.write(it)
             }

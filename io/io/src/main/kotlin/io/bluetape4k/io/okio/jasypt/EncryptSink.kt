@@ -1,10 +1,9 @@
-package io.bluetape4k.io.okio.encrypt
+package io.bluetape4k.io.okio.jasypt
 
 import io.bluetape4k.crypto.encrypt.Encryptor
 import io.bluetape4k.io.okio.bufferOf
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
-import io.bluetape4k.support.requireGe
+import io.bluetape4k.logging.debug
 import okio.Buffer
 import okio.ForwardingSink
 import okio.Sink
@@ -22,17 +21,16 @@ open class EncryptSink(
     companion object: KLogging()
 
     override fun write(source: Buffer, byteCount: Long) {
-        // Encryptor는 한 번에 모든 데이터를 암호화해야 함
-        byteCount.requireGe(source.size, "byteCount")
-
+        // Jasypt 는 Cipher랑 달리 한번에 모두 써야 한다.
         // 요청한 바이트 수(또는 가능한 모든 바이트) 반환
-        val bytesToRead = byteCount.coerceAtMost(source.size)
-        val plainBytes = source.readByteArray(bytesToRead)
-        log.trace { "Encrypting: ${plainBytes.size} bytes" }
+        val plainBytes = source.readByteArray()
 
         // 암호화
-        val encrypted = encryptor.encrypt(plainBytes)
-        val encryptedSink = bufferOf(encrypted)
-        super.write(encryptedSink, encryptedSink.size)
+        val encryptedBytes = encryptor.encrypt(plainBytes)
+        log.debug { "암호화: 원본 크기:${plainBytes.size} bytes, 암호화 크기: ${encryptedBytes.size} bytes." }
+        super.write(bufferOf(encryptedBytes), encryptedBytes.size.toLong())
     }
 }
+
+fun Sink.asEncryptSink(encryptor: Encryptor): EncryptSink =
+    EncryptSink(this, encryptor)

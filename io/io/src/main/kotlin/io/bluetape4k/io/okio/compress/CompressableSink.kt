@@ -3,8 +3,7 @@ package io.bluetape4k.io.okio.compress
 import io.bluetape4k.io.compressor.Compressor
 import io.bluetape4k.io.okio.bufferOf
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
-import io.bluetape4k.support.requireGe
+import io.bluetape4k.logging.debug
 import okio.Buffer
 import okio.ForwardingSink
 import okio.Sink
@@ -16,24 +15,25 @@ import okio.Sink
  */
 open class CompressableSink(
     delegate: Sink,
-    val compressor: Compressor,
+    private val compressor: Compressor,
 ): ForwardingSink(delegate) {
 
     companion object: KLogging()
 
     override fun write(source: Buffer, byteCount: Long) {
-        // Compressor는 한 번에 모든 데이터를 압축해야 함
-        byteCount.requireGe(source.size, "byteCount")
+        // byteCount.requirePositiveNumber("byteCount")
 
-        // 요청한 바이트 수(또는 가능한 모든 바이트) 반환
-        val bytesToRead = byteCount.coerceAtMost(source.size)
+        // 압축은 `source`의 모든 데이터를 압축해야 함
+        val bytesToRead = source.size
         val plainBytes = source.readByteArray(bytesToRead)
-        log.trace { "Compressing: ${plainBytes.size} bytes" }
 
         // 압축
         val compressed = compressor.compress(plainBytes)
-//        val compressedSink = Buffer().write(compressed)
-//        super.write(compressedSink, compressedSink.size)
+        log.debug { "압축: source=${plainBytes.size} bytes, compressed=${compressed.size} bytes" }
         super.write(bufferOf(compressed), compressed.size.toLong())
     }
+}
+
+fun okio.Sink.asCompressSink(compressor: Compressor): CompressableSink {
+    return CompressableSink(this, compressor)
 }
