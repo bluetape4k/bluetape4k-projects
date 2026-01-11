@@ -66,7 +66,7 @@ dependencies {
     compileOnly(Libs.brotli4j_native)
 
     // Binary Serializers
-    compileOnly(Libs.kryo)
+    compileOnly(Libs.kryo5)
     compileOnly(Libs.fory_kotlin)  // new Apache Fory
 
     // Benchmark
@@ -75,6 +75,7 @@ dependencies {
     testImplementation(Libs.jmh_core)
 
     // Binary Serializer 와 비교하기 하기 위해 Benchmark 에서 사용합니다.
+    testImplementation(Libs.jackson_datatype_jsr310)
     testImplementation(Libs.jackson_module_kotlin)
     testImplementation(Libs.jackson_module_blackbird)
 }
