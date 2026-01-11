@@ -12,6 +12,7 @@ import io.bluetape4k.logging.debug
 import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.RepeatedTest
 
 @RandomizedTest
@@ -25,13 +26,17 @@ class FileCoroutinesTest {
         private fun randomStrings(size: Int = 20): List<String> = List(size) { randomString() }
     }
 
+    private lateinit var tempFolder: TempFolder
+
+    @BeforeAll
+    fun setup(tempFolder: TempFolder) {
+        this.tempFolder = tempFolder
+    }
+
     @RepeatedTest(REPEAT_SIZE)
-    fun `Coroutine 하에서 ByteArray를 파일에 쓰고 읽기`(
-        tempDir: TempFolder,
-        @RandomValue bytes: ByteArray,
-    ) = runSuspendIO {
+    fun `Coroutine 하에서 ByteArray를 파일에 쓰고 읽기`(@RandomValue bytes: ByteArray) = runSuspendIO {
         val filename = Fakers.randomUuid().encodeBase62() + ".dat"
-        val path = tempDir.createFile(filename).toPath()
+        val path = tempFolder.createFile(filename).toPath()
         log.debug { "Write and Read contents. path=$path" }
 
         val written = path.suspendWrite(bytes)
@@ -43,10 +48,10 @@ class FileCoroutinesTest {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `Coroutine 하에서 문자열 컬렉션을 파일에 쓰고 읽기`(tempDir: TempFolder) = runSuspendIO {
+    fun `Coroutine 하에서 문자열 컬렉션을 파일에 쓰고 읽기`() = runSuspendIO {
         val contents = randomStrings()
         val filename = Fakers.randomUuid().encodeBase62() + ".txt"
-        val path = tempDir.createFile(filename).toPath()
+        val path = tempFolder.createFile(filename).toPath()
         log.debug { "Write and Read contents. path=$path" }
 
         // 비동기로 쓰기

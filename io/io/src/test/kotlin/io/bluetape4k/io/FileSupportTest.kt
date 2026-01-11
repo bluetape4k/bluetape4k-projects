@@ -12,6 +12,7 @@ import io.bluetape4k.logging.debug
 import kotlinx.coroutines.future.await
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.RepeatedTest
 
 @RandomizedTest
@@ -25,13 +26,17 @@ class FileSupportTest {
         private fun randomStrings(size: Int = 20): List<String> = List(size) { randomString() }
     }
 
+    private lateinit var tempFolder: TempFolder
+
+    @BeforeAll
+    fun setup(tempFolder: TempFolder) {
+        this.tempFolder = tempFolder
+    }
+
     @RepeatedTest(REPEAT_SIZE)
-    fun `비동기 방식으로 ByteArray를 파일에 읽고 쓰기`(
-        tempDir: TempFolder,
-        @RandomValue bytes: ByteArray,
-    ) {
+    fun `비동기 방식으로 ByteArray를 파일에 읽고 쓰기`(@RandomValue bytes: ByteArray) {
         val filename = Fakers.randomUuid().encodeBase62() + ".dat"
-        val path = tempDir.createFile(filename).toPath()
+        val path = tempFolder.createFile(filename).toPath()
         log.debug { "Write and Read ByteArray asynchronously. path=$path" }
 
         path.writeAsync(bytes)
@@ -48,12 +53,9 @@ class FileSupportTest {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `Coroutine 환경에서 비동기 방식으로 ByteArray를 파일에 읽고 쓰기`(
-        tempDir: TempFolder,
-        @RandomValue bytes: ByteArray,
-    ) = runSuspendIO {
+    fun `Coroutine 환경에서 비동기 방식으로 ByteArray를 파일에 읽고 쓰기`(@RandomValue bytes: ByteArray) = runSuspendIO {
         val filename = Fakers.randomUuid().encodeBase62() + ".dat"
-        val path = tempDir.createFile(filename).toPath()
+        val path = tempFolder.createFile(filename).toPath()
         log.debug { "Write and Read ByteArray in coroutines. path=$path" }
 
         val written = path.writeAsync(bytes).await()
@@ -81,10 +83,10 @@ class FileSupportTest {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `Coroutine 환경에서 비동기 방식으로 문자열 컬렉션을 파일에 읽고 쓰기`(tempDir: TempFolder) = runSuspendIO {
+    fun `Coroutine 환경에서 비동기 방식으로 문자열 컬렉션을 파일에 읽고 쓰기`() = runSuspendIO {
         val contents = randomStrings()
         val filename = Fakers.randomUuid().encodeBase62() + ".txt"
-        val path = tempDir.createFile(filename).toPath()
+        val path = tempFolder.createFile(filename).toPath()
         log.debug { "Write and Read contents in coroutines. path=$path" }
 
         val writtenSize = path.writeLinesAsync(contents).await()
