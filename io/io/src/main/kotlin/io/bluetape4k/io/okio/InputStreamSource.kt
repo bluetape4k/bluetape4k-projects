@@ -11,7 +11,7 @@ fun InputStream.asSource(timeout: Timeout = Timeout.NONE) =
     InputStreamSource(this, timeout)
 
 class InputStreamSource(
-    private val input: java.io.InputStream,
+    private val input: InputStream,
     private val timeout: Timeout = Timeout.NONE,
 ): Source {
 

@@ -9,7 +9,25 @@ import okio.Source
 import java.io.InputStream
 
 /**
- * [Buffer]를 [BufferedSource]로 변환합니다.
+ * Buffer의 내용을 `cursor`를 통해 읽기 작업([block]) 수행합니다.
+ */
+inline fun <T> Buffer.readUnsafeAndClose(
+    cursor: Buffer.UnsafeCursor = Buffer.UnsafeCursor(),
+    block: (cursor: Buffer.UnsafeCursor) -> T,
+): T =
+    readUnsafe(cursor).use { block(it) }
+
+/**
+ * Buffer의 내용을 `cursor`를 통해 읽기 작업([block]) 수행합니다.
+ */
+inline fun <T> Buffer.readAndWriteUnsafeAndClose(
+    cursor: Buffer.UnsafeCursor = Buffer.UnsafeCursor(),
+    block: (cursor: Buffer.UnsafeCursor) -> T,
+): T =
+    readAndWriteUnsafe(cursor).use { block(it) }
+
+/**
+ * [Buffer] 를 [BufferedSource] 로 변환합니다.
  */
 fun Buffer.asBufferedSource(): BufferedSource = (this as Source).buffered()
 
@@ -36,6 +54,15 @@ fun bufferOf(vararg texts: String): Buffer {
 }
 
 /**
+ * [lines]를 새로운 [Buffer]에 순서대로 쓴 후 반환합니다.
+ */
+fun bufferOf(lines: Iterable<String>): Buffer {
+    return Buffer().apply {
+        lines.forEach { writeUtf8(it) }
+    }
+}
+
+/**
  * [bytes]를 담은 [Buffer]를 생성합니다.
  *
  * @param bytes Buffer에 쓸 [ByteArray]
@@ -50,6 +77,9 @@ fun bufferOf(bytes: ByteArray): Buffer = Buffer().write(bytes)
 @JvmName("bufferOfBytes")
 fun bufferOf(vararg bytes: Byte): Buffer = Buffer().write(bytes)
 
+/**
+ * [input] 내용을 담은 [Buffer]에 씁니다.
+ */
 fun bufferOf(input: InputStream, byteCount: Long = input.available().toLong()): Buffer =
     Buffer().readFrom(input, byteCount)
 
@@ -66,7 +96,7 @@ fun bufferOf(byteString: ByteString): Buffer = Buffer().write(byteString)
  */
 fun bufferOf(source: Buffer, offset: Long = 0L, size: Long = source.size): Buffer {
     return Buffer().apply {
-        source.clone().copyTo(this, offset, size)
+        source.copyTo(this, offset, size)
     }
 }
 
