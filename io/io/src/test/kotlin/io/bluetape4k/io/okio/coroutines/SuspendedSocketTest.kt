@@ -20,7 +20,7 @@ import java.nio.channels.SelectionKey
 import java.nio.channels.ServerSocketChannel
 import java.nio.channels.SocketChannel
 
-class SuspendSocketTest: AbstractOkioTest() {
+class SuspendedSocketTest: AbstractOkioTest() {
 
     companion object: KLoggingChannel() {
         private const val DEFAULT_TIMEOUT_MS = 25_000L

@@ -5,7 +5,7 @@ import io.bluetape4k.io.compressor.Compressors
 
 object Compressable {
 
-    object Sink {
+    object Sinks {
 
         fun compressableSink(delegate: okio.Sink, compressor: Compressor): CompressableSink {
             return CompressableSink(delegate, compressor)
@@ -36,7 +36,7 @@ object Compressable {
         }
     }
 
-    object Source {
+    object Sources {
 
         fun decompressableSource(delegate: okio.Source, compressor: Compressor): DecompressableSource {
             return DecompressableSource(delegate, compressor)

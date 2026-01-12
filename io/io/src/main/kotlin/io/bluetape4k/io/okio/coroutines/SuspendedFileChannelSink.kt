@@ -29,9 +29,9 @@ class SuspendedFileChannelSink(
         val byteBuffer = ByteBuffer.wrap(source.readByteArray(length))
 
         val byteWritten = channel.write(byteBuffer, position).suspendAwait()
+        log.debug { "채널 $position 위치에 $byteWritten bytes 를 썼습니다. " }
 
         position += byteWritten
-        log.debug { "채널 $position 위치에 $byteWritten bytes 를 썼습니다. " }
     }
 
     override suspend fun flush() = coroutineScope {

@@ -34,7 +34,7 @@ class SuspendedFileChannelSource(
 
             buffer.flip()
             sink.write(buffer)
-            log.debug { "Read $bytesRead bytes from channel at position $position" }
+            log.debug { "채널 $position 위치에서 $bytesRead bytes 를 읽었습니다." }
 
             position += bytesRead
             remaining -= bytesRead

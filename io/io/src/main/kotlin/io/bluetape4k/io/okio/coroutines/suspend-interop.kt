@@ -30,16 +30,17 @@ suspend fun Buffer.suspendReadAll(sink: SuspendedSink): Long {
  */
 suspend fun BufferedSource.suspendReadAll(sink: SuspendedSink): Long {
     var totalBytesWritten = 0L
-    while (read(this.buffer, SEGMENT_SIZE) != -1L) {
-        val emitByteCount = buffer.completeSegmentByteCount()
+    val tempBuffer = Buffer()
+    while (read(tempBuffer, SEGMENT_SIZE) != -1L) {
+        val emitByteCount = tempBuffer.completeSegmentByteCount()
         if (emitByteCount > 0L) {
             totalBytesWritten += emitByteCount
-            sink.write(this.buffer, emitByteCount)
+            sink.write(tempBuffer, emitByteCount)
         }
     }
-    if (buffer.size > 0L) {
-        totalBytesWritten += this.buffer.size
-        sink.write(this.buffer, this.buffer.size)
+    if (tempBuffer.size > 0L) {
+        totalBytesWritten += tempBuffer.size
+        sink.write(tempBuffer, tempBuffer.size)
     }
     return totalBytesWritten
 }
@@ -70,18 +71,20 @@ suspend fun BufferedSink.suspendWriteAll(source: SuspendedSource): Long {
  */
 suspend fun BufferedSuspendedSource.suspendReadAll(sink: Sink): Long {
     var totalBytesWritten = 0L
-    while (read(this.buffer, SEGMENT_SIZE) != -1L) {
-        val emitByteCount = buffer.completeSegmentByteCount()
+    val tempBuffer = Buffer()
+    while (read(tempBuffer, SEGMENT_SIZE) != -1L) {
+        val emitByteCount = tempBuffer.completeSegmentByteCount()
         if (emitByteCount > 0L) {
             totalBytesWritten += emitByteCount
-            sink.write(this.buffer, emitByteCount)
+            sink.write(tempBuffer, emitByteCount)
         }
     }
-    if (buffer.size > 0L) {
-        totalBytesWritten += buffer.size
-        sink.write(this.buffer, buffer.size)
+    if (tempBuffer.size > 0L) {
+        totalBytesWritten += tempBuffer.size
+        sink.write(tempBuffer, tempBuffer.size)
     }
     return totalBytesWritten
+
 }
 
 /**

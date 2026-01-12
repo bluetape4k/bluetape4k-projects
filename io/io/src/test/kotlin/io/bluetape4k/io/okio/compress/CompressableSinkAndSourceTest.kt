@@ -12,7 +12,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.random.Random
 
-class CompressableSinkTest: AbstractOkioTest() {
+class CompressableSinkAndSourceTest: AbstractOkioTest() {
 
     companion object: KLogging()
 
@@ -32,14 +32,14 @@ class CompressableSinkTest: AbstractOkioTest() {
         val data = bufferOf(original)
 
         val sink = Buffer()
-        Compressable.Sink.compressableSink(sink, compressor).use { compressableSink ->
+        Compressable.Sinks.compressableSink(sink, compressor).use { compressableSink ->
             // Write data to compressable sink
             compressableSink.write(data, data.size)
             compressableSink.flush()
         }
 
         val source = Buffer()
-        val decompressableSource = Compressable.Source.decompressableSource(sink, compressor)
+        val decompressableSource = Compressable.Sources.decompressableSource(sink, compressor)
         decompressableSource.read(source, sink.size)
 
         // Verify the decompressed data matches the original
@@ -53,14 +53,14 @@ class CompressableSinkTest: AbstractOkioTest() {
         val data = bufferOf(original)
 
         val sink = Buffer()
-        Compressable.Sink.compressableSink(sink, compressor).use { compressableSink ->
+        Compressable.Sinks.compressableSink(sink, compressor).use { compressableSink ->
             // Write data to compressable sink
             compressableSink.write(data, data.size)
             compressableSink.flush()
         }
 
         val source = Buffer()
-        val decompressableSource = Compressable.Source.decompressableSource(sink, compressor)
+        val decompressableSource = Compressable.Sources.decompressableSource(sink, compressor)
         decompressableSource.read(source, sink.size)
 
         // Verify the decompressed data matches the original
@@ -74,14 +74,14 @@ class CompressableSinkTest: AbstractOkioTest() {
         val data = bufferOf(original)
 
         val sink = Buffer()
-        Compressable.Sink.compressableSink(sink, compressor).use { compressableSink ->
+        Compressable.Sinks.compressableSink(sink, compressor).use { compressableSink ->
             // Write data to compressable sink
             compressableSink.write(data, data.size)
             compressableSink.flush()
         }
 
         val source = Buffer()
-        val decompressableSource = Compressable.Source.decompressableSource(sink, compressor)
+        val decompressableSource = Compressable.Sources.decompressableSource(sink, compressor)
         decompressableSource.read(source, sink.size)
 
         // Verify the decompressed data matches the original
