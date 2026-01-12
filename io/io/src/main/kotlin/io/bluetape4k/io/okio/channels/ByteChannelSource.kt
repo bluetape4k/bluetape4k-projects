@@ -22,25 +22,25 @@ class ByteChannelSource(
         if (!channel.isOpen) error("Channel[$channel] is closed")
         if (byteCount <= 0L) return -1L
 
-        Buffer.UnsafeCursor().use { cursor ->
-            sink.readAndWriteUnsafe(cursor).use { ignored ->
-                timeout.throwIfReached()
-                val oldSize = sink.size
-                val length = byteCount.toInt()
+        val cursor = Buffer.UnsafeCursor()
 
-                cursor.expandBuffer(length)
-                val read = channel.read(ByteBuffer.wrap(cursor.data, cursor.start, length))
-                log.debug { "채널의 ${cursor.start} 위치에서 $read 바이트를 읽었습니다." }
+        sink.readAndWriteUnsafe(cursor).use { ignored ->
+            timeout.throwIfReached()
+            val oldSize = sink.size
+            val length = byteCount.toInt()
 
-                return when (read) {
-                    -1 -> {
-                        cursor.resizeBuffer(oldSize)
-                        -1L
-                    }
-                    else -> {
-                        cursor.resizeBuffer(oldSize + read)
-                        read.toLong()
-                    }
+            cursor.expandBuffer(length)
+            val read = channel.read(ByteBuffer.wrap(cursor.data, cursor.start, length))
+            log.debug { "채널의 ${cursor.start} 위치에서 $read 바이트를 읽었습니다." }
+
+            return when (read) {
+                -1 -> {
+                    cursor.resizeBuffer(oldSize)
+                    -1L
+                }
+                else -> {
+                    cursor.resizeBuffer(oldSize + read)
+                    read.toLong()
                 }
             }
         }
@@ -57,6 +57,7 @@ class ByteChannelSource(
     }
 
     override fun timeout(): Timeout = timeout
+
     override fun close() {
         channel.close()
     }
