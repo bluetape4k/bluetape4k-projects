@@ -1,7 +1,8 @@
 package io.bluetape4k.io.okio.coroutines
 
-import io.bluetape4k.io.okio.coroutines.internal.SEGMENT_SIZE
+import io.bluetape4k.io.okio.SEGMENT_SIZE
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.error
 import io.bluetape4k.support.requireInRange
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import okio.Buffer
@@ -11,14 +12,23 @@ import okio.Options
 import okio.Timeout
 import java.util.concurrent.atomic.AtomicBoolean
 
-internal class RealBufferedSuspendedSource(
+/**
+ * `source`에서 읽은 내용을 버퍼링하는 새로운 소스를 반환합니다.
+ * 반환된 소스는 메모리 버퍼로 대량 읽기를 수행합니다.
+ * 데이터에 대한 편리하고 효율적인 액세스를 얻으려면 소스를 읽는 모든 곳에서 이를 사용하십시오.
+ */
+fun SuspendedSource.buffered(): BufferedSuspendedSource = RealBufferedSuspendedSource(this)
+
+
+class RealBufferedSuspendedSource(
     private val source: SuspendedSource,
 ): BufferedSuspendedSource {
 
     companion object: KLoggingChannel()
 
+    override val buffer: Buffer = Buffer()
+
     private val closed = AtomicBoolean(false)
-    override val buffer = Buffer()
 
     override suspend fun exhausted(): Boolean {
         checkNotClosed()
@@ -27,13 +37,14 @@ internal class RealBufferedSuspendedSource(
 
     override suspend fun require(byteCount: Long) {
         if (!request(byteCount)) {
-            throw EOFException("source exhausted. Required $byteCount bytes")
+            throw EOFException("source exhausted. Require $byteCount bytes but source is exhausted.")
         }
     }
 
     override suspend fun request(byteCount: Long): Boolean {
         byteCount.requireZeroOrPositiveNumber("byteCount")
         checkNotClosed()
+
         while (buffer.size < byteCount) {
             if (source.read(buffer, SEGMENT_SIZE) == -1L) {
                 return false
@@ -138,6 +149,7 @@ internal class RealBufferedSuspendedSource(
     }
 
     override suspend fun readByteString(byteCount: Long): ByteString {
+        byteCount.requireZeroOrPositiveNumber("byteCount")
         require(byteCount)
         return buffer.readByteString(byteCount)
     }
@@ -173,6 +185,7 @@ internal class RealBufferedSuspendedSource(
     }
 
     override suspend fun readByteArray(byteCount: Long): ByteArray {
+        byteCount.requireZeroOrPositiveNumber("byteCount")
         require(byteCount)
         return buffer.readByteArray(byteCount)
     }
@@ -200,10 +213,10 @@ internal class RealBufferedSuspendedSource(
 
         if (buffer.size == 0L) {
             val read = source.read(buffer, SEGMENT_SIZE)
-            if (read == -1L) {
+            if (read == -1L)
                 return -1L
-            }
         }
+
         val toRead = minOf(byteCount, buffer.size)
         return buffer.read(sink, toRead)
     }
@@ -221,6 +234,7 @@ internal class RealBufferedSuspendedSource(
             }
             throw e
         }
+
         buffer.readFully(sink)
     }
 
@@ -234,6 +248,7 @@ internal class RealBufferedSuspendedSource(
         }
         buffer.readFully(sink, byteCount)
     }
+
 
     override suspend fun readAll(sink: SuspendedSink): Long {
         checkNotClosed()
@@ -266,14 +281,15 @@ internal class RealBufferedSuspendedSource(
     override suspend fun readUtf8Line(): String? {
         val newline = indexOf('\n'.code.toByte())
 
-        return if (newline != -1L) {
-            if (buffer.size != 0L) {
-                readUtf8(buffer.size)
-            } else {
-                null
-            }
-        } else {
-            buffer.readUtf8Line(newline)
+        return when (newline) {
+            -1L ->
+                if (buffer.size != 0L) {
+                    readUtf8(buffer.size)
+                } else {
+                    null
+                }
+
+            else -> buffer.readUtf8Line(newline)
         }
     }
 
@@ -353,11 +369,21 @@ internal class RealBufferedSuspendedSource(
         }
     }
 
-    override suspend fun indexOfElement(targetBytes: ByteString, fromIndex: Long, toIndex: Long): Long {
-        TODO("Not yet implemented")
+    override suspend fun indexOfElement(
+        targetBytes: ByteString,
+        fromIndex: Long,
+        toIndex: Long,
+    ): Long {
+        val index = indexOf(targetBytes, fromIndex)
+        return if (index in 0 until toIndex) index else -1L
     }
 
-    override suspend fun rangeEquals(offset: Long, bytes: ByteString, bytesOffset: Int, byteCount: Int): Boolean {
+    override suspend fun rangeEquals(
+        offset: Long,
+        bytes: ByteString,
+        bytesOffset: Int,
+        byteCount: Int,
+    ): Boolean {
         checkNotClosed()
         if (offset < 0L || bytesOffset < 0L || byteCount < 0L || bytes.size - bytesOffset < byteCount) {
             return false
@@ -370,23 +396,27 @@ internal class RealBufferedSuspendedSource(
         return true
     }
 
-    override fun peek(): BufferedSuspendedSource {
-        TODO("Not yet implemented")
+    override fun peek(): BufferedSuspendedSource = apply {
+        buffer.peek()
     }
 
     override suspend fun close() {
-        TODO("Not yet implemented")
+        if (closed.compareAndSet(false, true)) {
+            try {
+                source.close()
+            } catch (e: Exception) {
+                log.error(e) { "Error closing source" }
+            }
+        }
     }
 
-    override suspend fun timeout(): Timeout {
-        return source.timeout()
-    }
+    override fun timeout(): Timeout = source.timeout()
 
     private fun checkNotClosed() {
-        check(!closed.get()) { "RealBufferedSuspendSource is closed" }
+        check(!closed.get()) { "RealBufferedSuspendedSource is closed" }
     }
 
-    internal fun Buffer.readUtf8Line(newline: Long): String = when {
+    private fun Buffer.readUtf8Line(newline: Long): String = when {
         newline > 0L && this[newline - 1].toInt() == '\r'.code -> {
             // Read everything until '\r\n', then skip the '\r\n'.
             val result = readUtf8(newline - 1)

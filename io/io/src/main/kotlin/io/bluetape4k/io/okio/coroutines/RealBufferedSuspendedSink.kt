@@ -1,30 +1,44 @@
 package io.bluetape4k.io.okio.coroutines
 
-import io.bluetape4k.io.okio.coroutines.internal.SEGMENT_SIZE
+import io.bluetape4k.io.okio.SEGMENT_SIZE
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import okio.Buffer
 import okio.ByteString
 import okio.Timeout
 import java.util.concurrent.atomic.AtomicBoolean
 
-internal class RealBufferedSuspendedSink(
-    private val sink: SuspendedSink,
-): BufferedSuspendedSink {
+fun SuspendedSink.buffered(): BufferedSuspendedSink = RealBufferedSuspendedSink(this)
+
+/**
+ * [BufferedSuspendedSink]의 실제 구현체로, 내부 버퍼를 사용하여 비동기적으로 데이터를 기록한다.
+ *
+ * @property sink 데이터를 기록할 실제 [SuspendedSink] 인스턴스
+ * @constructor [sink]를 받아 [RealBufferedSuspendedSink] 인스턴스를 생성한다.
+ */
+internal class RealBufferedSuspendedSink(private val sink: SuspendedSink): BufferedSuspendedSink {
 
     companion object: KLoggingChannel()
 
-    private var closed = AtomicBoolean(false)
-    override val buffer = Buffer()
+    override val buffer: Buffer = Buffer()
 
-    override suspend fun write(byteString: ByteString): BufferedSuspendedSink {
-        return emitCompleteSegments { buffer.write(byteString) }
+    private val closed = AtomicBoolean(false)
+
+    override suspend fun write(byteString: ByteString): BufferedSuspendedSink = emitCompleteSegments {
+        buffer.write(byteString)
     }
 
-    override suspend fun write(source: ByteArray, offset: Int, byteCount: Int): BufferedSuspendedSink {
-        return emitCompleteSegments { buffer.write(source, offset, byteCount) }
+    override suspend fun write(
+        source: ByteArray,
+        offset: Int,
+        byteCount: Int,
+    ): BufferedSuspendedSink = emitCompleteSegments {
+        buffer.write(source, offset, byteCount)
     }
 
-    override suspend fun write(source: SuspendedSource, byteCount: Long) = apply {
+    override suspend fun write(
+        source: SuspendedSource,
+        byteCount: Long,
+    ): BufferedSuspendedSink = apply {
         checkNotClosed()
         var remaining = byteCount
         while (remaining > 0L) {
@@ -36,7 +50,9 @@ internal class RealBufferedSuspendedSink(
     }
 
     override suspend fun write(source: Buffer, byteCount: Long) {
-        emitCompleteSegments { buffer.write(source, byteCount) }
+        emitCompleteSegments {
+            buffer.write(source, byteCount)
+        }
     }
 
     override suspend fun writeAll(source: SuspendedSource): Long {
@@ -51,51 +67,52 @@ internal class RealBufferedSuspendedSink(
         return totalBytesRead
     }
 
+
     override suspend fun writeUtf8(
         string: String,
         beginIndex: Int,
         endIndex: Int,
-    ) = emitCompleteSegments {
+    ): BufferedSuspendedSink = emitCompleteSegments {
         buffer.writeUtf8(string, beginIndex, endIndex)
     }
 
-    override suspend fun writeUtf8CodePoint(codePoint: Int) = emitCompleteSegments {
+    override suspend fun writeUtf8CodePoint(codePoint: Int): BufferedSuspendedSink = emitCompleteSegments {
         buffer.writeUtf8CodePoint(codePoint)
     }
 
-    override suspend fun writeByte(b: Int) = emitCompleteSegments {
+    override suspend fun writeByte(b: Int): BufferedSuspendedSink = emitCompleteSegments {
         buffer.writeByte(b)
     }
 
-    override suspend fun writeShort(s: Int) = emitCompleteSegments {
+    override suspend fun writeShort(s: Int): BufferedSuspendedSink = emitCompleteSegments {
         buffer.writeShort(s)
     }
 
-    override suspend fun writeShortLe(s: Int) = emitCompleteSegments {
+    override suspend fun writeShortLe(s: Int): BufferedSuspendedSink = emitCompleteSegments {
         buffer.writeShortLe(s)
     }
 
-    override suspend fun writeInt(i: Int) = emitCompleteSegments {
+    override suspend fun writeInt(i: Int): BufferedSuspendedSink = emitCompleteSegments {
         buffer.writeInt(i)
     }
 
-    override suspend fun writeIntLe(i: Int) = emitCompleteSegments {
+    override suspend fun writeIntLe(i: Int): BufferedSuspendedSink = emitCompleteSegments {
         buffer.writeIntLe(i)
     }
 
-    override suspend fun writeLong(v: Long) = emitCompleteSegments {
+    override suspend fun writeLong(v: Long): BufferedSuspendedSink = emitCompleteSegments {
         buffer.writeLong(v)
     }
 
-    override suspend fun writeLongLe(v: Long) = emitCompleteSegments {
+    override suspend fun writeLongLe(v: Long): BufferedSuspendedSink = emitCompleteSegments {
         buffer.writeLongLe(v)
     }
 
-    override suspend fun writeDecimalLong(v: Long) = emitCompleteSegments {
+    override suspend fun writeDecimalLong(v: Long): BufferedSuspendedSink = emitCompleteSegments {
         buffer.writeDecimalLong(v)
     }
 
-    override suspend fun writeHexadecimalUnsignedLong(v: Long) = emitCompleteSegments {
+    override suspend fun writeHexadecimalUnsignedLong(v: Long): BufferedSuspendedSink = emitCompleteSegments {
         buffer.writeHexadecimalUnsignedLong(v)
     }
 
@@ -107,18 +124,23 @@ internal class RealBufferedSuspendedSink(
         sink.flush()
     }
 
-    override suspend fun emit() = apply {
+    override suspend fun emit(): BufferedSuspendedSink = apply {
         checkNotClosed()
         val byteCount = buffer.size
-        if (byteCount > 0L) sink.write(buffer, byteCount)
+        if (byteCount > 0L) {
+            sink.write(buffer, byteCount)
+        }
     }
 
-    override suspend fun emitCompleteSegments() = emitCompleteSegments {
-        // Nothing to do 
+    override suspend fun emitCompleteSegments(): BufferedSuspendedSink = emitCompleteSegments {
+        // Noting to do
     }
+
 
     override suspend fun close() {
-        if (closed.get()) return
+        if (closed.get()) {
+            return
+        }
 
         // Emit buffered data to the underlying sink. If this fails, we still need
         // to close the sink; otherwise we risk leaking resources.
@@ -133,27 +155,32 @@ internal class RealBufferedSuspendedSink(
         try {
             sink.close()
         } catch (e: Throwable) {
-            if (thrown == null) thrown = e
+            thrown = thrown ?: e
         }
+
         closed.set(true)
 
-        if (thrown != null) throw thrown
+        if (thrown != null) {
+            throw thrown
+        }
     }
 
-    override suspend fun timeout(): Timeout {
-        return sink.timeout()
-    }
+    override fun timeout(): Timeout = sink.timeout()
 
-    override fun toString(): String = "buffer($sink)"
-
-    private suspend inline fun emitCompleteSegments(block: () -> Unit): BufferedSuspendedSink = apply {
+    private suspend inline fun emitCompleteSegments(block: suspend () -> Unit): BufferedSuspendedSink = apply {
         checkNotClosed()
         block()
         val byteCount = buffer.completeSegmentByteCount()
-        if (byteCount > 0L) sink.write(buffer, byteCount)
+        if (byteCount > 0L) {
+            sink.write(buffer, byteCount)
+        }
     }
 
     private fun checkNotClosed() {
-        check(!closed.get()) { "RealBufferedSuspendSink is closed" }
+        check(!closed.get()) { "RealBufferedSuspendedSink is already closed" }
+    }
+
+    override fun toString(): String {
+        return "RealBufferedSuspendedSink(sink=$sink)"
     }
 }

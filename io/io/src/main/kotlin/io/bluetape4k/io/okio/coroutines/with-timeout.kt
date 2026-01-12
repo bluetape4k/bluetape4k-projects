@@ -1,10 +1,12 @@
-package io.bluetape4k.io.okio.coroutines.internal
+package io.bluetape4k.io.okio.coroutines
 
 import okio.Timeout
 
-// TODO: refactoring to Timeout.run
-suspend inline fun <R: Any> withTimeoutOrNull(timeout: Timeout, crossinline block: suspend () -> R): R? {
-    if (timeout.timeoutNanos() == 0L && !timeout.hasDeadline()) {
+suspend inline fun <T: Any> withTimeoutOrNull(
+    timeout: Timeout,
+    crossinline block: suspend () -> T,
+): T? {
+    if (timeout == Timeout.NONE || (timeout.timeoutNanos() == 0L && !timeout.hasDeadline())) {
         return block()
     }
 
@@ -17,10 +19,10 @@ suspend inline fun <R: Any> withTimeoutOrNull(timeout: Timeout, crossinline bloc
 
         timeout.timeoutNanos() != 0L -> timeout.timeoutNanos()
         timeout.hasDeadline() -> timeout.deadlineNanoTime() - now
-        else -> throw AssertionError()
+        else -> throw AssertionError("Unexpected Timeout state")
     }
 
-    return kotlinx.coroutines.withTimeoutOrNull((waitNanos / 1_000_000f).toLong()) {
+    return kotlinx.coroutines.withTimeoutOrNull((waitNanos / 1_000_000F).toLong()) {
         block()
     }
 }

@@ -9,29 +9,24 @@ import okio.Source
 import okio.Timeout
 import kotlin.coroutines.CoroutineContext
 
-internal class ForwardingBlockingSource(
+internal class ForwardBlockingSource(
     val delegate: SuspendedSource,
     private val context: CoroutineContext = Dispatchers.IO,
 ): Source {
 
     companion object: KLoggingChannel()
 
-    private val timeout = Timeout()
-
     override fun read(sink: Buffer, byteCount: Long): Long = runBlocking(context) {
-        withTimeoutOrNull(timeout) {
+        withTimeoutOrNull(timeout()) {
             delegate.read(sink, byteCount)
         } ?: -1L
     }
 
     override fun close() = runBlocking(context) {
-        withTimeoutOrNull(timeout) {
+        withTimeoutOrNull(timeout()) {
             delegate.close()
         } ?: Unit
     }
 
-
-    override fun timeout(): Timeout {
-        return timeout
-    }
+    override fun timeout(): Timeout = delegate.timeout()
 }

@@ -14,7 +14,7 @@ interface SuspendedSink {
      * @param source    읽어드릴 버퍼
      * @param byteCount 읽어들일 바이트 수
      */
-    suspend fun write(source: Buffer, byteCount: Long)
+    suspend fun write(source: Buffer, byteCount: Long = source.size)
 
     /**
      * 모든 버퍼링된 바이트를 최종 목적지로 전송합니다.
@@ -29,10 +29,5 @@ interface SuspendedSink {
     /**
      * 이 [SuspendedSink]의 [Timeout]을 반환합니다.
      */
-    suspend fun timeout(): Timeout = Timeout.NONE
+    fun timeout(): Timeout = Timeout.NONE
 }
-
-/**
- * [SuspendedSink]에 버퍼링하여 쓰기를 수행합니다.
- */
-fun SuspendedSink.buffered(): BufferedSuspendedSink = RealBufferedSuspendedSink(this)

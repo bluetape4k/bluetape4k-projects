@@ -9,34 +9,30 @@ import okio.Sink
 import okio.Timeout
 import kotlin.coroutines.CoroutineContext
 
-internal class ForwardingBlockingSink(
+internal class ForwardBlockingSink(
     val delegate: SuspendedSink,
     private val context: CoroutineContext = Dispatchers.IO,
 ): Sink {
 
     companion object: KLoggingChannel()
 
-    val timeout = Timeout()
-
     override fun write(source: Buffer, byteCount: Long) = runBlocking(context) {
-        withTimeoutOrNull(timeout) {
+        withTimeoutOrNull(timeout()) {
             delegate.write(source, byteCount)
         } ?: Unit
     }
 
     override fun flush() = runBlocking(context) {
-        withTimeoutOrNull(timeout) {
+        withTimeoutOrNull(timeout()) {
             delegate.flush()
         } ?: Unit
     }
 
     override fun close() = runBlocking(context) {
-        withTimeoutOrNull(timeout) {
+        withTimeoutOrNull(timeout()) {
             delegate.close()
         } ?: Unit
     }
 
-    override fun timeout(): Timeout {
-        return timeout
-    }
+    override fun timeout(): Timeout = delegate.timeout()
 }

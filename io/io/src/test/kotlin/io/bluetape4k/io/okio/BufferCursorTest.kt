@@ -2,8 +2,6 @@ package io.bluetape4k.io.okio
 
 import io.bluetape4k.apache.reflectionToString
 import io.bluetape4k.io.okio.TestUtil.SEGMENT_SIZE
-import io.bluetape4k.io.okio.coroutines.internal.readAndWriteUnsafe
-import io.bluetape4k.io.okio.coroutines.internal.readUnsafe
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import okio.Buffer
@@ -128,7 +126,7 @@ class BufferCursorTest: AbstractOkioTest() {
     @ParameterizedTest
     @MethodSource("buffers")
     fun `access byte by byte always resetting to zero`(buffer: Buffer) {
-        buffer.readUnsafe { cursor ->
+        buffer.readUnsafeAndClose { cursor ->
             val actual = ByteArray(buffer.size.toInt())
             for (i in 0 until buffer.size) {
                 cursor.seek(i)
@@ -142,7 +140,7 @@ class BufferCursorTest: AbstractOkioTest() {
     @ParameterizedTest
     @MethodSource("buffers")
     fun `segment by segment navigation`(buffer: Buffer) {
-        buffer.readUnsafe { cursor ->
+        buffer.readUnsafeAndClose { cursor ->
             cursor.offset shouldBeEqualTo -1L
 
             var lastOffset = cursor.offset
@@ -164,7 +162,7 @@ class BufferCursorTest: AbstractOkioTest() {
         val buffer = factory.newBuffer()
         buffer.clone().readUtf8() shouldBeEqualTo "abcdefghijkl"  // abc//defg//hijkl (segment 마다 따로 저장되어 있다)
 
-        buffer.readUnsafe { cursor ->
+        buffer.readUnsafeAndClose { cursor ->
             cursor.seek(5L) shouldBeEqualTo 2  // 2 for 2 bytes left in the segment: "fg"
             cursor.offset shouldBeEqualTo 5L
             (cursor.end - cursor.start) shouldBeEqualTo 2
@@ -200,7 +198,7 @@ class BufferCursorTest: AbstractOkioTest() {
     @MethodSource("buffers")
     fun `Cursor를 중복해서 얻으려고 하면 예외가 발생합니다`(buffer: Buffer) {
         assertFailsWith<IllegalStateException> {
-            buffer.readUnsafe { cursor ->
+            buffer.readUnsafeAndClose { cursor ->
                 buffer.readUnsafe(cursor)  // 중복해서 cursor 획득하려고 하면 예외를 발생시킨다
             }
         }
@@ -236,7 +234,7 @@ class BufferCursorTest: AbstractOkioTest() {
 
         log.debug { "buffer=${buffer.reflectionToString()}" }
 
-        buffer.readAndWriteUnsafe { cursor ->
+        buffer.readAndWriteUnsafeAndClose { cursor ->
             cursor.resizeBuffer(originalSize + 3) shouldBeEqualTo originalSize
 
             cursor.seek(originalSize)
@@ -259,7 +257,7 @@ class BufferCursorTest: AbstractOkioTest() {
         buffer.clone().copyTo(expected)
         expected.writeUtf8("x".repeat(1_000_000))
 
-        buffer.readAndWriteUnsafe { cursor ->
+        buffer.readAndWriteUnsafeAndClose { cursor ->
             cursor.resizeBuffer(originalSize + 1_000_000)
             cursor.seek(originalSize)
 
@@ -292,7 +290,7 @@ class BufferCursorTest: AbstractOkioTest() {
     @MethodSource("buffers")
     fun `resize acquire readonly`(buffer: Buffer) {
         assertFailsWith<IllegalStateException> {
-            buffer.readUnsafe { cursor ->
+            buffer.readUnsafeAndClose { cursor ->
                 cursor.resizeBuffer(10)
             }
         }
@@ -302,7 +300,7 @@ class BufferCursorTest: AbstractOkioTest() {
     @MethodSource("buffers")
     fun `expand acquired readonly`(buffer: Buffer) {
         assertFailsWith<IllegalStateException> {
-            buffer.readUnsafe { cursor ->
+            buffer.readUnsafeAndClose { cursor ->
                 cursor.expandBuffer(10)
             }
         }
@@ -315,7 +313,7 @@ class BufferCursorTest: AbstractOkioTest() {
         val originalSize = buffer.size
         val expected = Buffer()
         buffer.clone().copyTo(expected, 0, originalSize - 3)
-        buffer.readAndWriteUnsafe { cursor ->
+        buffer.readAndWriteUnsafeAndClose { cursor ->
             cursor.resizeBuffer(originalSize - 3) shouldBeEqualTo originalSize
         }
         buffer shouldBeEqualTo expected
@@ -331,7 +329,7 @@ class BufferCursorTest: AbstractOkioTest() {
         buffer.clone().copyTo(toShrink, 0, originalSize)
 
         val unsafeCursor = Buffer.UnsafeCursor()
-        toShrink.readAndWriteUnsafe(unsafeCursor) { cursor ->
+        toShrink.readAndWriteUnsafeAndClose(unsafeCursor) { cursor ->
             cursor.resizeBuffer(originalSize)
             log.debug { "cursor=${cursor.reflectionToString()}" }
         }
@@ -344,7 +342,7 @@ class BufferCursorTest: AbstractOkioTest() {
     fun `shrink adjust offset`(buffer: Buffer) {
         Assumptions.assumeTrue { buffer.size > 4 }
 
-        buffer.readAndWriteUnsafe { cursor ->
+        buffer.readAndWriteUnsafeAndClose { cursor ->
             cursor.seek(buffer.size - 1)
             cursor.resizeBuffer(3)
             log.debug { "cursor=${cursor.reflectionToString()}" }
@@ -361,7 +359,7 @@ class BufferCursorTest: AbstractOkioTest() {
     fun `resize to same size seeks to end`(buffer: Buffer) {
         val originalSize = buffer.size
 
-        buffer.readAndWriteUnsafe { cursor ->
+        buffer.readAndWriteUnsafeAndClose { cursor ->
             cursor.seek(buffer.size / 2)
             buffer.size shouldBeEqualTo originalSize
 
@@ -385,7 +383,7 @@ class BufferCursorTest: AbstractOkioTest() {
         buffer.clone().copyTo(expected)
         expected.writeUtf8("a")
 
-        buffer.readAndWriteUnsafe { cursor ->
+        buffer.readAndWriteUnsafeAndClose { cursor ->
             cursor.seek(buffer.size / 2)
             buffer.size shouldBeEqualTo originalSize
 
@@ -409,7 +407,7 @@ class BufferCursorTest: AbstractOkioTest() {
         val originalSize = buffer.size
 
         log.debug { "buffer=${buffer.reflectionToString()}" }
-        buffer.readAndWriteUnsafe { cursor ->
+        buffer.readAndWriteUnsafeAndClose { cursor ->
             cursor.seek(buffer.size / 2)
             buffer.size shouldBeEqualTo originalSize
 
@@ -467,7 +465,7 @@ class BufferCursorTest: AbstractOkioTest() {
     fun `expand new segment`(buffer: Buffer) {
         val originalSize = buffer.size
 
-        buffer.readAndWriteUnsafe { cursor ->
+        buffer.readAndWriteUnsafeAndClose { cursor ->
             val addedByteCount = cursor.expandBuffer(SEGMENT_SIZE)
             addedByteCount shouldBeEqualTo SEGMENT_SIZE.toLong()
             cursor.offset = originalSize
@@ -481,7 +479,7 @@ class BufferCursorTest: AbstractOkioTest() {
     fun `expand moves offset to old size`(buffer: Buffer) {
         val originalSize = buffer.size
 
-        buffer.readAndWriteUnsafe { cursor ->
+        buffer.readAndWriteUnsafeAndClose { cursor ->
             cursor.seek(buffer.size / 2)
             buffer.size shouldBeEqualTo originalSize
 

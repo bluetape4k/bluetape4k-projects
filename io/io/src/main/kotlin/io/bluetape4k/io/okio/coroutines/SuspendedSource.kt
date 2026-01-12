@@ -16,7 +16,7 @@ interface SuspendedSource {
      * @param byteCount 읽어들일 바이트 수
      * @return 실제로 읽어들인 바이트 수
      */
-    suspend fun read(sink: Buffer, byteCount: Long): Long
+    suspend fun read(sink: Buffer, byteCount: Long = sink.size): Long
 
     /**
      * 모든 버퍼링된 바이트를 최종 목적지로 전송하고 이 [SuspendedSource]가 보유한 리소스를 해제합니다.
@@ -26,12 +26,5 @@ interface SuspendedSource {
     /**
      * 이 [SuspendedSource]의 [Timeout]을 반환합니다.
      */
-    suspend fun timeout(): Timeout = Timeout.NONE
+    fun timeout(): Timeout = Timeout.NONE
 }
-
-/**
- * `source`에서 읽은 내용을 버퍼링하는 새로운 소스를 반환합니다.
- * 반환된 소스는 메모리 버퍼로 대량 읽기를 수행합니다.
- * 데이터에 대한 편리하고 효율적인 액세스를 얻으려면 소스를 읽는 모든 곳에서 이를 사용하십시오.
- */
-fun SuspendedSource.buffered(): BufferedSuspendedSource = RealBufferedSuspendedSource(this)

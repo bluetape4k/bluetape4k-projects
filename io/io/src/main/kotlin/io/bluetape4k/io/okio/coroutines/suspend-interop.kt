@@ -1,6 +1,6 @@
 package io.bluetape4k.io.okio.coroutines
 
-import io.bluetape4k.io.okio.coroutines.internal.SEGMENT_SIZE
+import io.bluetape4k.io.okio.SEGMENT_SIZE
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import okio.Buffer
 import okio.BufferedSink
@@ -20,7 +20,6 @@ suspend fun Buffer.suspendReadAll(sink: SuspendedSink): Long {
     sink.write(this, size)  // Buffer의 모든 바이트를 sink에 쓰기
     return size
 }
-
 
 /**
  * 이 [BufferedSource]의 모든 바이트를 제거하고 `sink`에 추가합니다. `sink`에 쓰여진 총 바이트 수를 반환합니다.
