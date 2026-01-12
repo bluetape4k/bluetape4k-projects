@@ -1,5 +1,6 @@
 package io.bluetape4k.io.okio.coroutines
 
+import io.bluetape4k.io.okio.SEGMENT_SIZE
 import okio.Buffer
 import okio.Timeout
 
@@ -27,4 +28,15 @@ interface SuspendedSource {
      * 이 [SuspendedSource]의 [Timeout]을 반환합니다.
      */
     fun timeout(): Timeout = Timeout.NONE
+
+
+    suspend fun readAll(sink: Buffer): Long {
+        var totalBytesRead = 0L
+        while (true) {
+            val bytesToRead = read(sink, SEGMENT_SIZE)
+            if (bytesToRead <= 0L) break
+            totalBytesRead += bytesToRead
+        }
+        return totalBytesRead
+    }
 }

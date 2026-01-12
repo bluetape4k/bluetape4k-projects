@@ -24,13 +24,14 @@ open class DecompressableSource(
         // 압축 복원은 한 번에 모든 데이터를 복원해야 함
         val bytesRead = super.read(sourceBuffer, Long.MAX_VALUE)
 
-        if (bytesRead < 0) {
+        if (bytesRead < 0L) {
             return -1 // End of stream
         }
 
         val decompressed = compressor.decompress(sourceBuffer.readByteArray())
         log.debug { "압축 복원: compressed=$bytesRead bytes, decompressed=${decompressed.size} bytes" }
         sink.write(bufferOf(decompressed), decompressed.size.toLong())
+
         return decompressed.size.toLong()
     }
 }

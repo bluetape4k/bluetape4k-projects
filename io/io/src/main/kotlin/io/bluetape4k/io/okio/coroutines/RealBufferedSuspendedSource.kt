@@ -355,7 +355,7 @@ class RealBufferedSuspendedSource(
         var current = fromIndex
         while (true) {
             val result = buffer.indexOf(bytes, current)
-            if (result != -1L) {
+            if (result > 0L) {
                 return result
             }
 
@@ -405,7 +405,7 @@ class RealBufferedSuspendedSource(
             try {
                 source.close()
             } catch (e: Exception) {
-                log.error(e) { "Error closing source" }
+                log.error(e) { "Error closing source[$source]" }
             }
         }
     }

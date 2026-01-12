@@ -22,7 +22,7 @@ open class CipherSink(
 
     override fun write(source: okio.Buffer, byteCount: Long) {
         val bytesToRead = byteCount.coerceAtMost(source.size)
-        log.debug { "소스 데이터를 암호화하여 씁니다. 암호화한 데이터 크기=$bytesToRead" }
+        log.debug { "소스 데이터를 암호화하여 씁니다. 암호화할 데이터 크기=$bytesToRead" }
 
         val plainBytes = source.readByteArray(bytesToRead)
         log.trace { "암호화할 바이트 수: ${plainBytes.size} bytes" }

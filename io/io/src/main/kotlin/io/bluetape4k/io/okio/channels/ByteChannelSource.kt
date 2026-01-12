@@ -50,7 +50,7 @@ class ByteChannelSource(
         var totalBytesRead = 0L
         while (true) {
             val bytesToRead = read(sink, DEFAULT_BUFFER_SIZE.toLong())
-            if (bytesToRead == -1L) break
+            if (bytesToRead <= 0L) break
             totalBytesRead += bytesToRead
         }
         return totalBytesRead

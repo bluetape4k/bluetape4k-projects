@@ -67,7 +67,7 @@ open class CipherSource(
         var totalBytesRead = 0L
         while (true) {
             val bytesRead = read(sink, DEFAULT_BUFFER_SIZE.toLong())
-            if (bytesRead == -1L) break
+            if (bytesRead <= 0L) break
             totalBytesRead += bytesRead
         }
         return totalBytesRead
