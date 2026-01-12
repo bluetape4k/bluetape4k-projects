@@ -1,11 +1,15 @@
 package io.bluetape4k.io.okio
 
 import io.bluetape4k.junit5.concurrency.TestingExecutors
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.system.assumeNotWindows
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import io.bluetape4k.logging.warn
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import okio.Buffer
 import okio.ByteString
 import okio.ByteString.Companion.decodeHex
@@ -363,5 +367,71 @@ class PipeTest: AbstractOkioTest() {
         readBuffer.readUtf8() shouldBeEqualTo "jkl"
         log.debug { "Read jkl" }
         assertElapsed(4000.0, start)
+    }
+
+    /**
+     * The writer has 12 bytes to write. It alternates sleeping 1000 ms, then writing 3 bytes. The
+     * reader is reading as fast as it can. That should make for an approximate timeline like this:
+     *
+     * ```
+     *    0: writer sleeps until 1000
+     *    0: reader blocks
+     * 1000: writer writes 'abc', sleeps until 2000
+     * 1000: reader reads 'abc'
+     * 2000: writer writes 'def', sleeps until 3000
+     * 2000: reader reads 'def'
+     * 3000: writer writes 'ghi', sleeps until 4000
+     * 3000: reader reads 'ghi'
+     * 4000: writer writes 'jkl', returns
+     * 4000: reader reads 'jkl', returns
+     * ```
+     */
+    @Test
+    fun `source blocks on slow writer in coroutines`() = runSuspendIO {
+        val pipe = Pipe(100L)
+
+        val job = launch {
+            delay(1000L)
+            log.debug { "Write abc" }
+            pipe.sink.write(bufferOf("abc"), 3L)
+
+            delay(1000L)
+            log.debug { "Write def" }
+            pipe.sink.write(bufferOf("def"), 3L)
+
+            delay(1000L)
+            log.debug { "Write ghi" }
+            pipe.sink.write(bufferOf("ghi"), 3L)
+
+            delay(1000L)
+            log.debug { "Write jkl" }
+            pipe.sink.write(bufferOf("jkl"), 3L)
+        }
+        yield()
+
+        val start = now()
+        val readBuffer = Buffer()
+
+        pipe.source.read(readBuffer, Long.MAX_VALUE) shouldBeEqualTo 3L
+        readBuffer.readUtf8() shouldBeEqualTo "abc"
+        log.debug { "Read abc" }
+        assertElapsed(1000.0, start)
+
+        pipe.source.read(readBuffer, Long.MAX_VALUE) shouldBeEqualTo 3L
+        readBuffer.readUtf8() shouldBeEqualTo "def"
+        log.debug { "Read def" }
+        assertElapsed(2000.0, start)
+
+        pipe.source.read(readBuffer, Long.MAX_VALUE) shouldBeEqualTo 3L
+        readBuffer.readUtf8() shouldBeEqualTo "ghi"
+        log.debug { "Read ghi" }
+        assertElapsed(3000.0, start)
+
+        pipe.source.read(readBuffer, Long.MAX_VALUE) shouldBeEqualTo 3L
+        readBuffer.readUtf8() shouldBeEqualTo "jkl"
+        log.debug { "Read jkl" }
+        assertElapsed(4000.0, start)
+
+        job.join() // Wait for the job to complete
     }
 }

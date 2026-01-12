@@ -10,7 +10,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.EnumSource
+import org.junit.jupiter.params.provider.MethodSource
 import java.io.InterruptedIOException
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -21,6 +21,10 @@ class WaitUntilNotifiedTest: AbstractOkioTest() {
     companion object: KLogging()
 
     private lateinit var executor: ScheduledExecutorService
+
+    private fun factories() = TimeoutFactory.factories
+    private fun timeouts() = factories().map { it.newTimeout() }
+
 
     @BeforeEach
     fun beforeEach() {
@@ -33,9 +37,8 @@ class WaitUntilNotifiedTest: AbstractOkioTest() {
     }
 
     @ParameterizedTest
-    @EnumSource(TimeoutFactory::class)
-    @Synchronized
-    fun `notified with timeout`(factory: TimeoutFactory) {
+    @MethodSource("factories")
+    fun `notified with timeout`(factory: TimeoutFactory) = synchronized(this) {
         val timeout = factory.newTimeout()
         timeout.timeout(5000, TimeUnit.MILLISECONDS)
         val start = now()
@@ -54,9 +57,8 @@ class WaitUntilNotifiedTest: AbstractOkioTest() {
     }
 
     @ParameterizedTest
-    @EnumSource(TimeoutFactory::class)
-    @Synchronized
-    fun `wait until notified`(factory: TimeoutFactory) {
+    @MethodSource("factories")
+    fun `wait until notified`(factory: TimeoutFactory) = synchronized(this) {
         assumeNotWindows()
         val timeout = factory.newTimeout()
         timeout.timeout(1000, TimeUnit.MILLISECONDS)
@@ -73,9 +75,8 @@ class WaitUntilNotifiedTest: AbstractOkioTest() {
     }
 
     @ParameterizedTest
-    @EnumSource(TimeoutFactory::class)
-    @Synchronized
-    fun `deadline only`(factory: TimeoutFactory) {
+    @MethodSource("factories")
+    fun `deadline only`(factory: TimeoutFactory) = synchronized(this) {
         assumeNotWindows()
         val timeout = factory.newTimeout()
         timeout.deadline(1000, TimeUnit.MILLISECONDS)
@@ -92,9 +93,8 @@ class WaitUntilNotifiedTest: AbstractOkioTest() {
     }
 
     @ParameterizedTest
-    @EnumSource(TimeoutFactory::class)
-    @Synchronized
-    fun `deadline before timeout`(factory: TimeoutFactory) {
+    @MethodSource("factories")
+    fun `deadline before timeout`(factory: TimeoutFactory) = synchronized(this) {
         assumeNotWindows()
         val timeout = factory.newTimeout()
         timeout.timeout(5000, TimeUnit.SECONDS)
@@ -112,9 +112,8 @@ class WaitUntilNotifiedTest: AbstractOkioTest() {
     }
 
     @ParameterizedTest
-    @EnumSource(TimeoutFactory::class)
-    @Synchronized
-    fun `deadline already reached`(factory: TimeoutFactory) {
+    @MethodSource("factories")
+    fun `deadline already reached`(factory: TimeoutFactory) = synchronized(this) {
         assumeNotWindows()
         val timeout = factory.newTimeout()
         timeout.deadlineNanoTime(System.nanoTime())
@@ -131,9 +130,8 @@ class WaitUntilNotifiedTest: AbstractOkioTest() {
     }
 
     @ParameterizedTest
-    @EnumSource(TimeoutFactory::class)
-    @Synchronized
-    fun `thread interrupted`(factory: TimeoutFactory) {
+    @MethodSource("factories")
+    fun `thread interrupted`(factory: TimeoutFactory) = synchronized(this) {
         assumeNotWindows()
         val timeout = factory.newTimeout()
         val start = now()
@@ -152,9 +150,8 @@ class WaitUntilNotifiedTest: AbstractOkioTest() {
     }
 
     @ParameterizedTest
-    @EnumSource(TimeoutFactory::class)
-    @Synchronized
-    fun `thread interrupted on throw if reached`(factory: TimeoutFactory) {
+    @MethodSource("factories")
+    fun `thread interrupted on throw if reached`(factory: TimeoutFactory) = synchronized(this) {
         assumeNotWindows()
         val timeout = factory.newTimeout()
 
@@ -171,9 +168,8 @@ class WaitUntilNotifiedTest: AbstractOkioTest() {
     }
 
     @ParameterizedTest
-    @EnumSource(TimeoutFactory::class)
-    @Synchronized
-    fun `cancel before wait does nothing`(factory: TimeoutFactory) {
+    @MethodSource("factories")
+    fun `cancel before wait does nothing`(factory: TimeoutFactory) = synchronized(this) {
         assumeNotWindows()
         val timeout = factory.newTimeout()
         timeout.timeout(1000, TimeUnit.MILLISECONDS)
@@ -191,7 +187,7 @@ class WaitUntilNotifiedTest: AbstractOkioTest() {
     }
 
     @ParameterizedTest
-    @EnumSource(TimeoutFactory::class)
+    @MethodSource("factories")
     @Synchronized
     fun `canceled timeout does not throw when not notified on time`(factory: TimeoutFactory) {
         val timeout = factory.newTimeout()
@@ -205,7 +201,7 @@ class WaitUntilNotifiedTest: AbstractOkioTest() {
 
 
     @ParameterizedTest
-    @EnumSource(TimeoutFactory::class)
+    @MethodSource("factories")
     @Synchronized
     fun `multiple cancels are idempotent`(factory: TimeoutFactory) {
         val timeout = factory.newTimeout()

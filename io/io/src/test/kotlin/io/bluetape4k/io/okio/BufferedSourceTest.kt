@@ -3,6 +3,7 @@ package io.bluetape4k.io.okio
 import io.bluetape4k.io.okio.TestUtil.SEGMENT_SIZE
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.support.asByte
 import io.bluetape4k.support.toUtf8Bytes
 import okio.ArrayIndexOutOfBoundsException
 import okio.Buffer
@@ -27,7 +28,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.nio.ByteBuffer
 
-class BufferedSourceTest {
+class BufferedSourceTest: AbstractOkioTest() {
 
     companion object: KLogging()
 
@@ -140,18 +141,19 @@ class BufferedSourceTest {
                 override val isOneByteAtTime: Boolean = false
                 override fun toString(): String = "PeekBufferedSource"
             }
+
+            val factories: List<Factory> = listOf(
+                Factory.BUFFER,
+                Factory.REAL_BUFFERED_SOURCE,
+                Factory.ONE_BYTE_AT_A_TIME_BUFFERED_SOURCE,
+                Factory.ONE_BYTE_AT_A_TIME_BUFFER,
+                Factory.PEEK_BUFFER,
+                Factory.PEEK_BUFFERED_SOURCE
+            )
         }
     }
 
-    fun factories(): List<Factory> = listOf(
-        Factory.BUFFER,
-        Factory.REAL_BUFFERED_SOURCE,
-        Factory.ONE_BYTE_AT_A_TIME_BUFFERED_SOURCE,
-        Factory.ONE_BYTE_AT_A_TIME_BUFFER,
-        Factory.PEEK_BUFFER,
-        Factory.PEEK_BUFFERED_SOURCE
-    )
-
+    fun factories(): List<Factory> = Factory.factories
     fun pipes(): List<Pipe> = factories().map { it.pipe() }
 
     @ParameterizedTest
@@ -163,6 +165,8 @@ class BufferedSourceTest {
 
             source.readByte() shouldBeEqualTo 0xab.toByte()
             source.readByte() shouldBeEqualTo 0xcd.toByte()
+
+            // 모두 읽었으므로 더 이상 읽을 수 없다
             source.exhausted().shouldBeTrue()
         }
     }
@@ -171,6 +175,7 @@ class BufferedSourceTest {
     @MethodSource("pipes")
     fun `read byte too short throws`(pipe: Pipe) {
         assertFailsWith<EOFException> {
+            // 아무 것도 없으므로, 읽으려고 하면 EOFException이 발생한다
             pipe.source.readByte()
         }
     }
@@ -184,6 +189,8 @@ class BufferedSourceTest {
 
             source.readShort() shouldBeEqualTo 0xabcd.toShort()
             source.readShort() shouldBeEqualTo 0xef01.toShort()
+
+            // 모두 읽었으므로 더 이상 읽을 수 없다
             source.exhausted().shouldBeTrue()
         }
     }
@@ -197,6 +204,8 @@ class BufferedSourceTest {
 
             source.readShortLe() shouldBeEqualTo 0xcdab.toShort()
             source.readShortLe() shouldBeEqualTo 0x01ef.toShort()
+
+            // 모두 읽었으므로 더 이상 읽을 수 없다
             source.exhausted().shouldBeTrue()
         }
     }
@@ -212,6 +221,8 @@ class BufferedSourceTest {
             // skip the first segment
             source.skip(SEGMENT_SIZE - 1L)
             source.readShort() shouldBeEqualTo 0xabcd.toShort()
+
+            // 모두 읽었으므로 더 이상 읽을 수 없다
             source.exhausted().shouldBeTrue()
         }
     }
@@ -272,8 +283,8 @@ class BufferedSourceTest {
             )
             sink.emit()
 
-            source.readIntLe().toLong() shouldBeEqualTo 0x01efcdab
-            source.readIntLe().toLong() shouldBeEqualTo 0x21436587
+            source.readIntLe() shouldBeEqualTo 0x01efcdab
+            source.readIntLe() shouldBeEqualTo 0x21436587
             source.exhausted().shouldBeTrue()
         }
     }
@@ -283,7 +294,14 @@ class BufferedSourceTest {
     fun `read int split across multiple segments`(pipe: Pipe) {
         with(pipe) {
             sink.writeUtf8("a".repeat(SEGMENT_SIZE - 3))
-            sink.write(byteArrayOf(0xab.toByte(), 0xcd.toByte(), 0xef.toByte(), 0x01.toByte()))
+            sink.write(
+                byteArrayOf(
+                    0xab.toByte(),
+                    0xcd.toByte(),
+                    0xef.toByte(),
+                    0x01.toByte(),
+                )
+            )
             sink.emit()
 
             // skip the first segment
@@ -381,7 +399,7 @@ class BufferedSourceTest {
                     0xab.toByte(),
                     0xcd.toByte(),
                     0xef.toByte(),
-                    0x01.toByte(),
+                    0x10.toByte(),
                     0x87.toByte(),
                     0x65.toByte(),
                     0x43.toByte(),
@@ -392,7 +410,7 @@ class BufferedSourceTest {
 
             // skip the first segment
             source.skip(SEGMENT_SIZE - 7L)
-            source.readLong() shouldBeEqualTo -0x543210fe789abcdfL
+            source.readLong() shouldBeEqualTo -0x543210ef789abcdfL
             source.exhausted().shouldBeTrue()
         }
     }
@@ -411,7 +429,6 @@ class BufferedSourceTest {
         }
     }
 
-
     @ParameterizedTest
     @MethodSource("pipes")
     fun `read all`(pipe: Pipe) {
@@ -422,8 +439,10 @@ class BufferedSourceTest {
             sink.emit()
 
             val readBuffer = Buffer()
-            source.readAll(readBuffer) shouldBeEqualTo 6
+            source.readAll(readBuffer) shouldBeEqualTo 6L
             readBuffer.readUtf8() shouldBeEqualTo "abcdef"
+
+            // 모두 읽었으므로 더 이상 읽을 수 없다
             source.exhausted().shouldBeTrue()
         }
     }
@@ -446,9 +465,9 @@ class BufferedSourceTest {
         sink.writeUtf8("a".repeat(10))
 
         with(pipe) {
-            source.read(sink, 10) shouldBeEqualTo -1L  // source is exhausted
-            sink.size shouldBeEqualTo 10L  // 기존 "a".repeat(10) 이 그대로 남아있어야 함
-            source.exhausted()
+            source.read(sink, 10) shouldBeEqualTo -1L  // -1 indicates EOF, source is exhausted
+            sink.size shouldBeEqualTo 10L  // 기본 "a".repeat(10) 이 그대로 남아있어야 함
+            source.exhausted().shouldBeTrue()
         }
     }
 
@@ -458,13 +477,13 @@ class BufferedSourceTest {
         val sink = Buffer()
         sink.writeUtf8("a".repeat(10))
 
-        // Either 0 or -1 is reasonable here.
-
         with(pipe) {
             val readCount = source.read(sink, 0)
-            readCount shouldBeInRange -1L..0L
-            sink.size shouldBeEqualTo 10L
-            source.exhausted()
+            readCount shouldBeInRange -1L..0L  // -1 indicates EOF, 0 indicates no bytes read
+
+            sink.size shouldBeEqualTo 10L // sink should remain unchanged
+
+            source.exhausted().shouldBeTrue()  // source is still exhausted
         }
     }
 
@@ -472,14 +491,14 @@ class BufferedSourceTest {
     @MethodSource("pipes")
     fun `read fully`(pipe: Pipe) {
         with(pipe) {
-            sink.writeUtf8("a".repeat(10000))
+            sink.writeUtf8("a".repeat(10_000))
             sink.emit()
 
             val readBuffer = Buffer()
-            source.readFully(readBuffer, 9999)
+            source.readFully(readBuffer, 9999L)
             readBuffer.readUtf8() shouldBeEqualTo "a".repeat(9999)
-            source.readUtf8() shouldBeEqualTo "a"
-            source.exhausted().shouldBeTrue()
+            source.readUtf8() shouldBeEqualTo "a"  // 마지막 한 바이트는 남아있어야 함
+            source.exhausted().shouldBeTrue()  // source is exhausted after reading all bytes
         }
     }
 
@@ -493,12 +512,12 @@ class BufferedSourceTest {
             val readBuffer = Buffer()
 
             assertFailsWith<EOFException> {
-                source.readFully(readBuffer, 5)   // 저장된 내용보다 더 많이 읽으려고 하면 EOFException 발생
+                source.readFully(readBuffer, 5) // 저장된 내용보다 더 많이 읽으려고 하면 EOFException이 발생해야 함
             }
 
-            // Verify we read all that we could from the source.
+            // 내용 자체는 읽을 수 있어야 함
             readBuffer.readUtf8() shouldBeEqualTo "Hi"
-            source.exhausted().shouldBeTrue()
+            source.exhausted().shouldBeTrue()  // source is exhausted after reading all bytes
         }
     }
 
@@ -513,27 +532,31 @@ class BufferedSourceTest {
             sink.write(data, data.size)
             sink.emit()
 
+
             val bytes = ByteArray(SEGMENT_SIZE + 5)
-            source.readFully(bytes)
+            source.readFully(bytes)  // source 의 내용을 모두 읽어 bytes 에 저장한다
             bytes shouldBeEqualTo expected
+            source.exhausted().shouldBeTrue()  // source is exhausted after reading all bytes
         }
     }
 
     @ParameterizedTest
     @MethodSource("pipes")
-    fun `read fully byte array when too short then throws`(pipe: Pipe) {
+    fun `read fully byte array too short throws`(pipe: Pipe) {
         with(pipe) {
             sink.writeUtf8("Hello")
             sink.emit()
 
             val bytes = ByteArray(6)
+
             assertFailsWith<EOFException> {
                 // bytes 크기만큼 읽으려고 하지만, source의 크기가 그에 미치지 못하면 EOFException 발생
                 source.readFully(bytes)
             }
 
-            // Verify we read all that we could from the source.
+            // 내용 자체는 읽을 수 있어야 함
             bytes shouldBeEqualTo "Hello".toByteArray() + byteArrayOf(0)
+            source.exhausted().shouldBeTrue()  // source is exhausted after reading all bytes
         }
     }
 
@@ -549,7 +572,7 @@ class BufferedSourceTest {
             val read = source.read(bytes)
             if (factory.isOneByteAtTime) {
                 read shouldBeEqualTo 1
-                bytes shouldBeEqualTo byteArrayOf('a'.code.toByte(), 0, 0)
+                bytes shouldBeEqualTo byteArrayOf('a'.asByte(), 0, 0)
             } else {
                 read shouldBeEqualTo 3
                 bytes shouldBeEqualTo "abc".toUtf8Bytes()
@@ -562,14 +585,14 @@ class BufferedSourceTest {
     fun `read into byte array not enough`(factory: Factory) {
         val pipe = factory.pipe()
         with(pipe) {
-            sink.writeUtf8("abcd")   // size = 4
+            sink.writeUtf8("abcd")
             sink.emit()
 
-            val bytes = ByteArray(5)    // size = 5
+            val bytes = ByteArray(5)
             val read = source.read(bytes)
             if (factory.isOneByteAtTime) {
                 read shouldBeEqualTo 1
-                bytes shouldBeEqualTo byteArrayOf('a'.code.toByte(), 0, 0, 0, 0)
+                bytes shouldBeEqualTo byteArrayOf('a'.asByte(), 0, 0, 0, 0)
             } else {
                 read shouldBeEqualTo 4
                 bytes shouldBeEqualTo "abcd".toUtf8Bytes() + byteArrayOf(0)
@@ -582,14 +605,14 @@ class BufferedSourceTest {
     fun `read into byte array with offset and count`(factory: Factory) {
         val pipe = factory.pipe()
         with(pipe) {
-            sink.writeUtf8("abcd")   // size = 4
+            sink.writeUtf8("abcd")  // size = 4
             sink.emit()
 
             val bytes = ByteArray(7)
             val read = source.read(bytes, 2, 3)
             if (factory.isOneByteAtTime) {
                 read shouldBeEqualTo 1
-                bytes shouldBeEqualTo byteArrayOf(0, 0, 'a'.code.toByte(), 0, 0, 0, 0)
+                bytes shouldBeEqualTo byteArrayOf(0, 0, 'a'.asByte(), 0, 0, 0, 0)
             } else {
                 read shouldBeEqualTo 3
                 bytes shouldBeEqualTo byteArrayOf(0, 0) + "abc".toUtf8Bytes() + byteArrayOf(0, 0)
@@ -616,22 +639,24 @@ class BufferedSourceTest {
             sink.writeUtf8("abcd")
             sink.emit()
 
-            source.readByteArray(3) shouldBeEqualTo byteArrayOf('a'.code.toByte(), 'b'.code.toByte(), 'c'.code.toByte())
+            source.readByteArray(3) shouldBeEqualTo "abc".toUtf8Bytes()
             source.readUtf8(1) shouldBeEqualTo "d"
+            source.exhausted().shouldBeTrue()  // source is exhausted after reading all bytes
         }
     }
 
     @ParameterizedTest
     @MethodSource("pipes")
-    fun `read byte array two short throws`(pipe: Pipe) {
+    fun `read byte array too short throws`(pipe: Pipe) {
         with(pipe) {
             sink.writeUtf8("abc")
             sink.emit()
 
             assertFailsWith<EOFException> {
-                source.readByteArray(4)
+                source.readByteArray(4)  // source 의 크기가 5보다 작으므로 EOFException 발생
             }
-            source.readUtf8() shouldBeEqualTo "abc"
+            source.readUtf8() shouldBeEqualTo "abc"  // 내용 자체는 읽을 수 있어야 함
+            source.exhausted().shouldBeTrue()  // source is exhausted after reading all bytes
         }
     }
 
@@ -644,6 +669,7 @@ class BufferedSourceTest {
             sink.emit()
 
             source.readByteString().utf8() shouldBeEqualTo string
+            source.exhausted().shouldBeTrue()  // source is exhausted after reading all bytes
         }
     }
 
@@ -651,12 +677,12 @@ class BufferedSourceTest {
     @MethodSource("pipes")
     fun `read byteString partial`(pipe: Pipe) {
         with(pipe) {
-            val string = "abcd" + "e".repeat(SEGMENT_SIZE)
-            sink.writeUtf8(string)
+            sink.writeUtf8("abcd")
             sink.emit()
 
             source.readByteString(3).utf8() shouldBeEqualTo "abc"
             source.readUtf8(1) shouldBeEqualTo "d"
+            source.exhausted().shouldBeTrue()  // source is exhausted after reading all bytes
         }
     }
 
@@ -668,9 +694,10 @@ class BufferedSourceTest {
             sink.emit()
 
             assertFailsWith<EOFException> {
-                source.readByteString(4)
+                source.readByteString(4)  // source 의 크기가 4보다 작으므로 EOFException 발생
             }
-            source.readUtf8() shouldBeEqualTo "abc"
+            source.readUtf8() shouldBeEqualTo "abc"  // 내용 자체는 읽을 수 있어야 함
+            source.exhausted().shouldBeTrue()  // source is exhausted after reading all bytes
         }
     }
 
@@ -679,7 +706,8 @@ class BufferedSourceTest {
     fun `read specific charset partial`(pipe: Pipe) {
         with(pipe) {
             val str =
-                "0000007600000259000002c80000006c000000e40000007300000259000002cc000000720000006100000070000000740000025900000072".decodeHex()
+                "0000007600000259000002c80000006c000000e40000007300000259000002cc000000720000006100000070000000740000025900000072"
+                    .decodeHex()
             log.debug { "decode hex to utf32=${str.string(Charsets.UTF_32)}" }
             sink.write(str)
             sink.emit()
@@ -693,7 +721,8 @@ class BufferedSourceTest {
     fun `read specific charset`(pipe: Pipe) {
         with(pipe) {
             val str =
-                "0000007600000259000002c80000006c000000e40000007300000259000002cc000000720000006100000070000000740000025900000072".decodeHex()
+                "0000007600000259000002c80000006c000000e40000007300000259000002cc000000720000006100000070000000740000025900000072"
+                    .decodeHex()
             log.debug { "decode hex to utf32=${str.string(Charsets.UTF_32)}" }
             sink.write(str)
             sink.emit()
@@ -710,10 +739,11 @@ class BufferedSourceTest {
             sink.emit()
 
             assertFailsWith<EOFException> {
-                source.readString(4, Charsets.US_ASCII)
+                source.readString(4, Charsets.US_ASCII)  // source 의 크기가 4보다 작으므로 EOFException 발생
             }
 
-            source.readUtf8() shouldBeEqualTo "abc"
+            source.readUtf8() shouldBeEqualTo "abc"  // 내용 자체는 읽을 수 있어야 함
+            source.exhausted().shouldBeTrue()  // source is exhausted after reading all bytes
         }
     }
 
@@ -726,6 +756,8 @@ class BufferedSourceTest {
 
             source.skip(SEGMENT_SIZE - 1L)
             source.readUtf8(2) shouldBeEqualTo "aa"
+            source.readUtf8() shouldBeEqualTo "a".repeat(SEGMENT_SIZE - 1)
+            source.exhausted().shouldBeTrue()  // source is exhausted after reading all bytes
         }
     }
 
@@ -738,6 +770,7 @@ class BufferedSourceTest {
             sink.emit()
 
             source.readUtf8(SEGMENT_SIZE.toLong()) shouldBeEqualTo expected
+            source.exhausted().shouldBeTrue()  // source is exhausted after reading all bytes
         }
     }
 
@@ -771,10 +804,11 @@ class BufferedSourceTest {
             sink.emit()
 
             assertFailsWith<EOFException> {
-                source.readUtf8(4L)
+                source.readUtf8(4)  // source 의 크기가 4보다 작으므로 EOFException 발생
             }
 
-            source.readUtf8() shouldBeEqualTo "abc"
+            source.readUtf8() shouldBeEqualTo "abc"  // 내용 자체는 읽을 수 있어야 함
+            source.exhausted().shouldBeTrue()  // source is exhausted after reading all bytes
         }
     }
 
@@ -788,11 +822,11 @@ class BufferedSourceTest {
             sink.emit()
 
             source.skip(1)
-            source.readByte() shouldBeEqualTo 'b'.code.toByte()
-            source.skip(SEGMENT_SIZE - 2L)
-            source.readByte() shouldBeEqualTo 'b'.code.toByte()
+            source.readByte() shouldBeEqualTo 'b'.asByte()  // skip the first byte 'a'
+            source.skip(SEGMENT_SIZE - 2L)  // skip the next segment of 'b's
+            source.readByte() shouldBeEqualTo 'b'.asByte()  // skip the first byte 'a'
             source.skip(1)
-            source.exhausted().shouldBeTrue()
+            source.exhausted().shouldBeTrue()  // source is exhausted after reading all bytes
         }
     }
 
@@ -804,10 +838,10 @@ class BufferedSourceTest {
             sink.emit()
 
             assertFailsWith<EOFException> {
-                source.skip(2)
+                source.skip(2)  // source 의 크기가 2보다 작으므로 EOFException 발생
             }
 
-            source.exhausted().shouldBeTrue()
+            source.exhausted().shouldBeTrue()  // source is exhausted after reading all bytes
         }
     }
 
@@ -815,47 +849,45 @@ class BufferedSourceTest {
     @MethodSource("pipes")
     fun `source indexOf`(pipe: Pipe) {
         with(pipe) {
-            // The segment is empty.
-            source.indexOf('a'.code.toByte()) shouldBeEqualTo -1L
+            // The segment is empty
+            source.indexOf('a'.asByte()) shouldBeEqualTo -1L
 
             // The segment has one value.
             sink.writeUtf8("a")
             sink.emit()
-            source.indexOf('a'.code.toByte()) shouldBeEqualTo 0L
-            source.indexOf('b'.code.toByte()) shouldBeEqualTo -1L
+            source.indexOf('a'.asByte()) shouldBeEqualTo 0L
+            source.indexOf('b'.asByte()) shouldBeEqualTo -1L  // 'b' is not present
 
-            // The segment has lots of data.
+            // The segment has multiple values.
             sink.writeUtf8("b".repeat(SEGMENT_SIZE - 2))  // ab...b
             sink.emit()
-            source.indexOf('a'.code.toByte()) shouldBeEqualTo 0L
-            source.indexOf('b'.code.toByte()) shouldBeEqualTo 1L
-            source.indexOf('c'.code.toByte()) shouldBeEqualTo -1L
+            source.indexOf('a'.asByte()) shouldBeEqualTo 0L  // 'a' is at the start
+            source.indexOf('b'.asByte()) shouldBeEqualTo 1L  // 'b' is at the second position
+            source.indexOf('c'.asByte()) shouldBeEqualTo -1L  // 'c' is not present
 
-            // The segment doesn't start at 0, it starts at 2.
-            source.skip(2)  // b...b
-            source.indexOf('a'.code.toByte()) shouldBeEqualTo -1L
-            source.indexOf('b'.code.toByte()) shouldBeEqualTo 0L
-            source.indexOf('c'.code.toByte()) shouldBeEqualTo -1L
+            source.skip(2)  // b..b
+            source.indexOf('a'.asByte()) shouldBeEqualTo -1L  // 'a' is not present
+            source.indexOf('b'.asByte()) shouldBeEqualTo 0L  // 'b' is at the start
+            source.indexOf('c'.asByte()) shouldBeEqualTo -1L  // 'c' is not present
 
-            // The segment is full.
-            sink.writeUtf8("c")  // b...bc
+            // The segment is full
+            sink.writeUtf8("c")// b...bc
             sink.emit()
-            source.indexOf('a'.code.toByte()) shouldBeEqualTo -1L
-            source.indexOf('b'.code.toByte()) shouldBeEqualTo 0L
-            source.indexOf('c'.code.toByte()) shouldBeEqualTo SEGMENT_SIZE - 3L
+            source.indexOf('a'.asByte()) shouldBeEqualTo -1L  // 'a' is not present
+            source.indexOf('b'.asByte()) shouldBeEqualTo 0L  // 'b' is at the start
+            source.indexOf('c'.asByte()) shouldBeEqualTo SEGMENT_SIZE - 3L  // 'c' is at the end
 
-            // The segment doesn't start at 2, it starts at 4.
-            source.skip(2)  // b...bc
-            source.indexOf('a'.code.toByte()) shouldBeEqualTo -1L
-            source.indexOf('b'.code.toByte()) shouldBeEqualTo 0L
-            source.indexOf('c'.code.toByte()) shouldBeEqualTo SEGMENT_SIZE - 5L
+            source.skip(2)
+            source.indexOf('a'.asByte()) shouldBeEqualTo -1L  // 'a' is not present
+            source.indexOf('b'.asByte()) shouldBeEqualTo 0L  // 'b' is at the start
+            source.indexOf('c'.asByte()) shouldBeEqualTo SEGMENT_SIZE - 5L  // 'c' is at the end
 
             // Tow segments
-            sink.writeUtf8("d")  // b...bcd, d is in the 2nd segment
+            sink.writeUtf8("d") // b...bcd, d is in the 2nd segment
             sink.emit()
 
-            source.indexOf('d'.code.toByte()) shouldBeEqualTo SEGMENT_SIZE - 4L
-            source.indexOf('e'.code.toByte()) shouldBeEqualTo -1L
+            source.indexOf('d'.asByte()) shouldBeEqualTo SEGMENT_SIZE - 4L  // 'd' is at the end of the first segment
+            source.indexOf('e'.asByte()) shouldBeEqualTo -1L  // 'e' is not present
         }
     }
 
@@ -863,12 +895,14 @@ class BufferedSourceTest {
     @MethodSource("pipes")
     fun `index of byte with start offset`(pipe: Pipe) {
         with(pipe) {
-            sink.writeUtf8("a").writeUtf8("b".repeat(SEGMENT_SIZE)).writeUtf8("c")
+            sink.writeUtf8("a")
+                .writeUtf8("b".repeat(SEGMENT_SIZE))
+                .writeUtf8("c")
             sink.emit()
 
-            source.indexOf('a'.code.toByte(), 0L) shouldBeEqualTo 0
-            source.indexOf('b'.code.toByte(), 15L) shouldBeEqualTo 15
-            source.indexOf('c'.code.toByte(), SEGMENT_SIZE.toLong()) shouldBeEqualTo SEGMENT_SIZE + 1L
+            source.indexOf('a'.asByte(), 0L) shouldBeEqualTo 0L
+            source.indexOf('b'.asByte(), 15L) shouldBeEqualTo 15L
+            source.indexOf('c'.asByte(), SEGMENT_SIZE.toLong()) shouldBeEqualTo SEGMENT_SIZE + 1L
         }
     }
 
@@ -879,8 +913,8 @@ class BufferedSourceTest {
 
         val pipe = factory.pipe()
         with(pipe) {
-            val a = 'a'.code.toByte()
-            val c = 'c'.code.toByte()
+            val a = 'a'.asByte()
+            val c = 'c'.asByte()
             val size = SEGMENT_SIZE * 5
             val bytes = ByteArray(size) { a }
 
@@ -890,7 +924,7 @@ class BufferedSourceTest {
                 SEGMENT_SIZE - 1, SEGMENT_SIZE, SEGMENT_SIZE + 1,
                 size / 2 - 1, size / 2, size / 2 + 1,
                 size - SEGMENT_SIZE - 1, size - SEGMENT_SIZE, size - SEGMENT_SIZE + 1,
-                size - 3, size - 2, size - 1,
+                size - 3, size - 2, size - 1
             )
 
             // In each iteration, we write c to the known point and then search for it using different
@@ -914,25 +948,29 @@ class BufferedSourceTest {
 
                 // Reset.
                 source.readUtf8()
-                bytes[p] = a
+                bytes[p] = a  // Reset the byte at position p to 'a'
             }
         }
     }
 
     @ParameterizedTest
     @MethodSource("pipes")
-    fun `index of byte invailid bounds must throw exception`(pipe: Pipe) {
+    fun `index of byte invalid bounds must throw exception`(pipe: Pipe) {
         with(pipe) {
             sink.writeUtf8("abc")
             sink.emit()
 
             assertFailsWith<IllegalArgumentException> {
-                source.indexOf('a'.code.toByte(), -1)
+                source.indexOf('a'.asByte(), -1)  // start < 0
+            }
+            assertFailsWith<IllegalArgumentException> {
+                source.indexOf('a'.asByte(), -1, 2)  // start < 0
+            }
+            assertFailsWith<IllegalArgumentException> {
+                source.indexOf('a'.asByte(), 10, 2)  // start > end
             }
 
-            assertFailsWith<IllegalArgumentException> {
-                source.indexOf('a'.code.toByte(), 10, 0)
-            }
+            source.indexOf('a'.asByte(), 0, 10)  // end > size
         }
     }
 
@@ -940,19 +978,20 @@ class BufferedSourceTest {
     @MethodSource("pipes")
     fun `index of byte string`(pipe: Pipe) {
         with(pipe) {
-            source.indexOf("flop".encodeUtf8()) shouldBeEqualTo -1L
+            source.indexOf("flop".encodeUtf8()) shouldBeEqualTo -1L  // The segment is empty
 
             sink.writeUtf8("flip flop")
             sink.emit()
-            source.indexOf("flop".encodeUtf8()) shouldBeEqualTo 5L
-            source.readUtf8() // Clear stream
+            source.indexOf("flop".encodeUtf8()) shouldBeEqualTo 5L  // "flop" starts at index 5
+            source.readUtf8()
 
             // Make sure we backtrack and resume searching after partial match.
             sink.writeUtf8("hi hi hi hey")
             sink.emit()
-            source.indexOf("hi hi hey".encodeUtf8()) shouldBeEqualTo 3L
+            source.indexOf("hi hi hey".encodeUtf8()) shouldBeEqualTo 3L  // "hi hi hey" starts at index 3
         }
     }
+
 
     @ParameterizedTest
     @MethodSource("pipes")
@@ -1083,10 +1122,10 @@ class BufferedSourceTest {
             sink.writeUtf8("aaa")
             sink.emit()
 
-            source.indexOf('a'.code.toByte()) shouldBeEqualTo 0L
-            source.indexOf('a'.code.toByte(), 0L) shouldBeEqualTo 0L
-            source.indexOf('a'.code.toByte(), 1L) shouldBeEqualTo 1L
-            source.indexOf('a'.code.toByte(), 2L) shouldBeEqualTo 2L
+            source.indexOf('a'.asByte()) shouldBeEqualTo 0L
+            source.indexOf('a'.asByte(), 0L) shouldBeEqualTo 0L
+            source.indexOf('a'.asByte(), 1L) shouldBeEqualTo 1L
+            source.indexOf('a'.asByte(), 2L) shouldBeEqualTo 2L
         }
     }
 
@@ -1478,9 +1517,9 @@ class BufferedSourceTest {
             sink.emit()
 
             source.select(options) shouldBeEqualTo 2
-            source.readByte() shouldBeEqualTo ','.code.toByte()
+            source.readByte() shouldBeEqualTo ','.asByte()
             source.select(options) shouldBeEqualTo 1
-            source.readByte() shouldBeEqualTo ','.code.toByte()
+            source.readByte() shouldBeEqualTo ','.asByte()
             source.select(options) shouldBeEqualTo 0
             source.exhausted().shouldBeTrue()
         }

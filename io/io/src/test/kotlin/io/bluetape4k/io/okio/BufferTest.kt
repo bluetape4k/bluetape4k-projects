@@ -18,6 +18,8 @@ import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.nio.ByteBuffer
+import java.util.*
 
 class BufferTest: AbstractOkioTest() {
 
@@ -437,5 +439,114 @@ class BufferTest: AbstractOkioTest() {
 
         val snapshot: ByteString = buf.snapshot(1)
         snapshot.size shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `buffer input stream byte by byte`() {
+        val source = Buffer()
+        source.writeUtf8("abc")
+        val input = source.inputStream()
+        input.available() shouldBeEqualTo 3
+        input.read() shouldBeEqualTo 'a'.code
+        input.read() shouldBeEqualTo 'b'.code
+        input.read() shouldBeEqualTo 'c'.code
+        input.read() shouldBeEqualTo -1 // End of stream
+        input.available() shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `buffer input stream bulk reads`() {
+        val source = Buffer()
+        source.writeUtf8("abc")
+        val byteArray = ByteArray(4)
+        Arrays.fill(byteArray, (-5).toByte())
+
+        val input = source.inputStream()
+        input.read(byteArray) shouldBeEqualTo 3
+        byteArray.contentToString() shouldBeEqualTo "[97, 98, 99, -5]"
+
+        Arrays.fill(byteArray, (-7).toByte())
+        input.read(byteArray) shouldBeEqualTo -1 // End of stream
+        byteArray.contentToString() shouldBeEqualTo "[-7, -7, -7, -7]"
+    }
+
+    @Test
+    fun `copy to output stream`() {
+        val source = bufferOf("party")
+
+        val target = Buffer()
+        source.copyTo(target.outputStream())
+        target.readUtf8() shouldBeEqualTo "party"
+        source.readUtf8() shouldBeEqualTo "party"
+    }
+
+    @Test
+    fun `copy to output stream with offset and length`() {
+        val source = bufferOf("party")
+
+        val target = Buffer()
+        source.copyTo(target.outputStream(), offset = 2L, source.size - 2L)
+        target.readUtf8() shouldBeEqualTo "rty"
+        source.readUtf8() shouldBeEqualTo "party"
+    }
+
+    @Test
+    fun `copy to output stream with offset and length 2`() {
+        val source = bufferOf("party")
+
+        val target = Buffer()
+        source.copyTo(target.outputStream(), offset = 1L, source.size - 2L)
+        target.readUtf8() shouldBeEqualTo "art"
+        source.readUtf8() shouldBeEqualTo "party"
+    }
+
+    @Test
+    fun `copy to output stream with length`() {
+        val source = bufferOf("party")
+
+        val target = Buffer()
+        source.copyTo(target.outputStream(), byteCount = 3L)
+        target.readUtf8() shouldBeEqualTo "par"
+        source.readUtf8() shouldBeEqualTo "party"
+    }
+
+    @Test
+    fun `copy to output stream with empty range`() {
+        val source = bufferOf("hello")
+
+        val target = Buffer()
+        source.copyTo(target.outputStream(), offset = 1L, 0L)
+        target.readUtf8() shouldBeEqualTo ""
+        source.readUtf8() shouldBeEqualTo "hello"
+    }
+
+    @Test
+    fun `write to output stream`() {
+        val source = bufferOf("party")
+
+        val target = Buffer()
+        source.writeTo(target.outputStream())
+
+        target.readUtf8() shouldBeEqualTo "party"
+        source.readUtf8() shouldBeEqualTo ""
+    }
+
+    @Test
+    fun `write to output stream with byte count`() {
+        val source = bufferOf("party")
+
+        val target = Buffer()
+        source.writeTo(target.outputStream(), byteCount = 3L)
+
+        target.readUtf8() shouldBeEqualTo "par"
+        source.readUtf8() shouldBeEqualTo "ty"
+    }
+
+    @Test
+    fun `read empty buffer to byte buffer`() {
+        val bb = ByteBuffer.allocate(128)
+        val buffer = Buffer()
+
+        buffer.read(bb) shouldBeEqualTo -1 // No data to read
     }
 }

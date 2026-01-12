@@ -10,7 +10,7 @@ import java.io.ByteArrayInputStream
 import java.nio.ByteBuffer
 import kotlin.test.Test
 
-class ByteStringKotlinTest {
+class ByteStringKotlinTest: AbstractOkioTest() {
 
     @Test
     fun `array to byte string`() {

@@ -1,13 +1,11 @@
 package io.bluetape4k.io.okio
 
-import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8Bytes
-import net.datafaker.Faker
 import okio.Buffer
-import okio.appendingSink
 import okio.blackholeSink
 import okio.sink
 import okio.source
@@ -18,16 +16,11 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.nio.file.Files
-import java.util.*
 
 @TempFolderTest
-class OkioTest {
+class OkioTest: AbstractOkioTest() {
 
-    companion object: KLogging() {
-        @JvmStatic
-        val faker = Faker(Locale.getDefault())
-    }
+    companion object: KLogging()
 
     private lateinit var temp: TempFolder
 
@@ -39,13 +32,13 @@ class OkioTest {
     @Test
     fun `read write file`() {
         val file = temp.createFile()
-        val content = Fakers.randomString()
+        val content = faker.lorem().paragraph()
 
         file.sink().buffered().use { sink ->
             sink.writeUtf8(content)
         }
+        log.debug { "Write content to file: $file" }
         file.exists().shouldBeTrue()
-        file.length() shouldBeEqualTo content.length.toLong()
 
         file.source().buffered().use { source ->
             source.readUtf8() shouldBeEqualTo content
@@ -53,50 +46,9 @@ class OkioTest {
     }
 
     @Test
-    fun `append file by appendingSink`() {
-        val file = temp.createFile()
-        val content1 = Fakers.randomString()
-        val content2 = Fakers.randomString()
-
-        file.appendingSink().buffered().use { sink ->
-            sink.writeUtf8(content1)
-        }
-        file.exists().shouldBeTrue()
-        file.length() shouldBeEqualTo content1.length.toLong()
-
-        // appending 을 위한 sink
-        file.appendingSink().buffered().use { sink ->
-            sink.writeUtf8(content2)
-        }
-        file.length() shouldBeEqualTo (content1.length + content2.length).toLong()
-
-        file.source().buffered().use { source ->
-            source.readUtf8() shouldBeEqualTo content1 + content2
-        }
-    }
-
-    @Test
-    fun `read write path`() {
-        val path = temp.createFile().toPath()
-        val content = Fakers.randomString()
-
-        path.sink().buffered().use { sink ->
-            sink.writeUtf8(content)
-        }
-        Files.exists(path).shouldBeTrue()
-        Files.size(path) shouldBeEqualTo content.length.toLong()
-
-        path.source().buffered().use { source ->
-            source.readUtf8() shouldBeEqualTo content
-        }
-    }
-
-    @Test
-    fun `sink from output stream`() {
+    fun `output stream 을 sink 로 사용하기`() {
         val content = "a" + "b".repeat(9998) + "c"
-        val data = Buffer().apply {
-            writeUtf8(content)
-        }
+        val data = bufferOf(content)
 
         val out = ByteArrayOutputStream()
         val sink = out.sink()
@@ -105,24 +57,25 @@ class OkioTest {
         sink.write(data, 3)
         out.toString(Charsets.UTF_8) shouldBeEqualTo "abb"
 
-        // sink 에 data 의 현재 position 부터 끝까지 쓴다.
+        // sink 에 data의 현재 위치부터 끝까지 쓴다.
         sink.write(data, data.size)
         out.toString(Charsets.UTF_8) shouldBeEqualTo content
+
+        out.close()
     }
 
     @Test
-    fun `source from InputStream`() {
+    fun `input stream 을 source 로 사용하기`() {
         val content = "a" + "b".repeat(TestUtil.SEGMENT_SIZE * 2) + "c"
         val inputStream = ByteArrayInputStream(content.toUtf8Bytes())
 
-        // Source: ab....bc
         val source = inputStream.source()
         val sink = Buffer()
 
-        // Source로 부터 읽어서 sink 에 저장한다 
+        // Source로 부터 3개의 문자를 읽어서 sink 에 저장한다
         // Source: ab....bc. Sink: abb.
-        source.read(sink, 3) shouldBeEqualTo 3
-        sink.readUtf8(3) shouldBeEqualTo "abb"
+        source.read(sink, 3) shouldBeEqualTo 3L
+        sink.readUtf8() shouldBeEqualTo "abb"
 
         // Source: b...bc. Sink: b...b.
         source.read(sink, 20000) shouldBeEqualTo TestUtil.SEGMENT_SIZE.toLong()
@@ -132,12 +85,14 @@ class OkioTest {
         source.read(sink, 20000) shouldBeEqualTo TestUtil.SEGMENT_SIZE - 1L
         sink.readUtf8() shouldBeEqualTo "b".repeat(TestUtil.SEGMENT_SIZE - 2) + "c"
 
-        // Source and sink are empty.
-        source.read(sink, 1) shouldBeEqualTo -1
+        // Source and sink are empty
+        source.read(sink, 1) shouldBeEqualTo -1L
+        sink.exhausted().shouldBeTrue()
+        inputStream.close()
     }
 
     @Test
-    fun `source from InputStream with Segment size`() {
+    fun `input stream을 source로 이용하고, segment size 만큼 읽어오기`() {
         val inputStream = ByteArrayInputStream(ByteArray(TestUtil.SEGMENT_SIZE))
         val source = inputStream.source()
         val sink = Buffer()
@@ -147,7 +102,7 @@ class OkioTest {
     }
 
     @Test
-    fun `source from input stream bounds`() {
+    fun `input stream 을 source로 이용할 때, byteCount를 음수로 사용하면 예외가 발생한다`() {
         val source = ByteArrayInputStream(ByteArray(100)).source()
 
         assertFailsWith<IllegalArgumentException> {
@@ -156,14 +111,15 @@ class OkioTest {
     }
 
     @Test
-    fun `use blackhole sink`() {
-        val data = Buffer()
-        data.writeUtf8("blackhole")
+    fun `전달된 데이터를 단순히 버리는 blackhole sink 사용하기`() {
+        val data = bufferOf("blackhole")
 
-        // blackhole sink 는 데이터를 버린다.
+        // blackhole sink 는 데이터를 버린다. (테스트를 위해 사용한다)
         val blackhole = blackholeSink()
-
+        // blackhole sink 에 5개의 문자를 쓴다
         blackhole.write(data, 5L)
+
+        // 남은 4개의 데이터
         data.readUtf8() shouldBeEqualTo "hole"
     }
 }

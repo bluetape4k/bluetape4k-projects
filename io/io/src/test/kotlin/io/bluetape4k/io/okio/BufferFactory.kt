@@ -1,47 +1,44 @@
 package io.bluetape4k.io.okio
 
-import io.bluetape4k.io.okio.TestUtil.bufferWithRandomSegmentLayout
-import io.bluetape4k.io.okio.TestUtil.bufferWithSegments
 import okio.Buffer
 import kotlin.random.Random
 
-enum class BufferFactory {
+interface BufferFactory {
 
-    EMPTY {
-        override fun newBuffer(): Buffer {
-            return Buffer()
+    fun newBuffer(): Buffer
+
+    companion object {
+        val EMPTY: BufferFactory = object: BufferFactory {
+            override fun newBuffer(): Buffer = Buffer()
         }
-    },
-
-    SMALL_BUFFER {
-        override fun newBuffer(): Buffer {
-            return Buffer().writeUtf8("abcde")
+        val SMALL_BUFFER: BufferFactory = object: BufferFactory {
+            override fun newBuffer(): Buffer = bufferOf("abcde")
         }
-    },
-    SMALL_SEGMENTED_BUFFER {
-        override fun newBuffer(): Buffer {
-            return bufferWithSegments("abc", "defg", "hijkl")
+        val SMALL_SEGMENTED_BUFFER: BufferFactory = object: BufferFactory {
+            override fun newBuffer(): Buffer = TestUtil.bufferWithSegments("abc", "defg", "hijkl")
         }
-    },
-    LARGE_BUFFER {
-        override fun newBuffer(): Buffer {
-            val dice = Random(0)
-            val largeByteArray = ByteArray(512 * 1024)
-            dice.nextBytes(largeByteArray)
-
-            return Buffer().write(largeByteArray)
+        val LARGE_BUFFER: BufferFactory = object: BufferFactory {
+            override fun newBuffer(): Buffer {
+                val largeByteArray = ByteArray(512 * 1024)
+                Random.nextBytes(largeByteArray)
+                return Buffer().write(largeByteArray)
+            }
         }
-    },
-
-    LARGE_BUFFER_WITH_RANDOM_LAYOUT {
-        override fun newBuffer(): Buffer {
-            val dice = Random(0)
-            val largeByteArray = ByteArray(512 * 1024)
-            dice.nextBytes(largeByteArray)
-
-            return bufferWithRandomSegmentLayout(dice, largeByteArray)
+        val LARGE_BUFFER_WITH_RANDOM_LAYOUT: BufferFactory = object:
+            BufferFactory {
+            override fun newBuffer(): Buffer {
+                val largeByteArray = ByteArray(512 * 1024)
+                Random.nextBytes(largeByteArray)
+                return TestUtil.bufferWithRandomSegmentLayout(largeByteArray)
+            }
         }
-    };
 
-    abstract fun newBuffer(): Buffer
+        val factories: List<BufferFactory> = listOf(
+            EMPTY,
+            SMALL_BUFFER,
+            SMALL_SEGMENTED_BUFFER,
+            LARGE_BUFFER,
+            LARGE_BUFFER_WITH_RANDOM_LAYOUT
+        )
+    }
 }

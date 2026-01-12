@@ -4,17 +4,23 @@ import okio.AsyncTimeout
 import okio.ForwardingTimeout
 import okio.Timeout
 
-enum class TimeoutFactory {
+interface TimeoutFactory {
 
-    BASE {
-        override fun newTimeout() = Timeout()
-    },
-    FORWARDING {
-        override fun newTimeout() = ForwardingTimeout(BASE.newTimeout())
-    },
-    ASYNC {
-        override fun newTimeout() = AsyncTimeout()
-    };
+    fun newTimeout(): Timeout
 
-    abstract fun newTimeout(): Timeout
+    companion object {
+        val BASE: TimeoutFactory = object: TimeoutFactory {
+            override fun newTimeout() = Timeout()
+        }
+
+        val FORWARDING: TimeoutFactory = object: TimeoutFactory {
+            override fun newTimeout() = ForwardingTimeout(BASE.newTimeout())
+        }
+
+        val ASYNC: TimeoutFactory = object: TimeoutFactory {
+            override fun newTimeout() = AsyncTimeout()
+        }
+
+        val factories: List<TimeoutFactory> = listOf(BASE, FORWARDING, ASYNC)
+    }
 }

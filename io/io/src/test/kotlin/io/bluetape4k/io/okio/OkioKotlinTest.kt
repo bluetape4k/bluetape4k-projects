@@ -17,7 +17,7 @@ import java.nio.file.StandardOpenOption
 import kotlin.test.Test
 
 @TempFolderTest
-class OkioKotlinTest {
+class OkioKotlinTest: AbstractOkioTest() {
 
     companion object: KLogging() {
         val faker = Fakers.faker
@@ -57,6 +57,7 @@ class OkioKotlinTest {
             sink.write(Buffer().writeUtf8(content), content.length.toLong())
         }
         file.readText() shouldBeEqualTo content
+        file.delete()
     }
 
     @Test
@@ -69,6 +70,7 @@ class OkioKotlinTest {
             sink.write(Buffer().writeUtf8(content), content.length.toLong())
         }
         file.readText() shouldBeEqualTo "a$content"
+        file.delete()
     }
 
     @Test
@@ -76,20 +78,25 @@ class OkioKotlinTest {
         val file = temp.createFile()
         file.writeText("a")
 
-        val source = file.source()
-        val buffer = Buffer()
-        source.read(buffer, 1L)
-        buffer.readUtf8() shouldBeEqualTo "a"
+        file.source().use { source ->
+            val buffer = Buffer()
+            source.read(buffer, 1L)
+            buffer.readUtf8() shouldBeEqualTo "a"
+        }
+
+        file.delete()
     }
 
     @Test
     fun `path as sink`() {
         val file = temp.createFile()
 
-        val sink = file.toPath().sink()
-        sink.write(Buffer().writeUtf8("a"), 1L)
-
+        file.toPath().sink().use { sink ->
+            sink.write(Buffer().writeUtf8("a"), 1L)
+        }
         file.readText() shouldBeEqualTo "a"
+
+        file.delete()
     }
 
     @Test
@@ -97,8 +104,9 @@ class OkioKotlinTest {
         val file = temp.createFile()
         file.writeText("a")
 
-        val sink = file.toPath().sink(StandardOpenOption.APPEND)
-        sink.write(Buffer().writeUtf8("b"), 1L)
+        file.toPath().sink(StandardOpenOption.APPEND).use { sink ->
+            sink.write(Buffer().writeUtf8("b"), 1L)
+        }
 
         file.readText() shouldBeEqualTo "ab"
     }
@@ -109,10 +117,13 @@ class OkioKotlinTest {
         val content = Fakers.randomString()
         file.writeText(content)
 
-        val source = file.toPath().source()
-        val buffer = Buffer()
-        source.read(buffer, content.length.toLong())
-        buffer.readUtf8() shouldBeEqualTo content
+        file.toPath().source().use { source ->
+            val buffer = Buffer()
+            source.read(buffer, content.length.toLong())
+            buffer.readUtf8() shouldBeEqualTo content
+        }
+
+        file.delete()
     }
 
     @Test
@@ -122,10 +133,12 @@ class OkioKotlinTest {
         val file = temp.createFile()
         file.writeText(content)
 
-        val source = file.toPath().source(StandardOpenOption.READ)
-        val buffer = Buffer()
-        source.read(buffer, content.length.toLong())
-        buffer.readUtf8() shouldBeEqualTo content
+        file.toPath().source(StandardOpenOption.READ).use { source ->
+            val buffer = Buffer()
+            source.read(buffer, content.length.toLong())
+            buffer.readUtf8() shouldBeEqualTo content
+        }
+        file.delete()   // Clean up after test
     }
 
     @Test
@@ -140,6 +153,7 @@ class OkioKotlinTest {
         sink.write(Buffer().writeUtf8(content), content.length.toLong())
 
         bos.toByteArray() shouldBeEqualTo content.toUtf8Bytes()
+        bos.close()
     }
 
     @Test
@@ -150,9 +164,10 @@ class OkioKotlinTest {
         val socket = object: Socket() {
             override fun getInputStream() = bis
         }
-        val source = socket.source()
-        val buffer = Buffer()
-        source.read(buffer, contentBytes.size.toLong())
-        buffer.readUtf8() shouldBeEqualTo content
+        socket.source().use { source ->
+            val buffer = Buffer()
+            source.read(buffer, contentBytes.size.toLong())
+            buffer.readUtf8() shouldBeEqualTo content
+        }
     }
 }

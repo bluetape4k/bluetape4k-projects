@@ -48,7 +48,7 @@ object TestUtil: KLogging() {
         return result
     }
 
-    fun bufferWithRandomSegmentLayout(random: Random, data: ByteArray): Buffer {
+    fun bufferWithRandomSegmentLayout(data: ByteArray): Buffer {
         val result = Buffer()
 
         // Writing to result directly will yield packed segments. Instead, write to
@@ -56,9 +56,9 @@ object TestUtil: KLogging() {
         var pos = 0
         var byteCount: Int
         while (pos < data.size) {
-            byteCount = SEGMENT_SIZE / 2 + random.nextInt(SEGMENT_SIZE / 2)
+            byteCount = SEGMENT_SIZE / 2 + Random.nextInt(SEGMENT_SIZE / 2)
             if (byteCount > data.size - pos) byteCount = data.size - pos
-            val offset = random.nextInt(SEGMENT_SIZE - byteCount)
+            val offset = Random.nextInt(SEGMENT_SIZE - byteCount)
 
             val segment = Buffer().apply {
                 write(ByteArray(offset))
@@ -69,7 +69,6 @@ object TestUtil: KLogging() {
             result.write(segment, byteCount.toLong())
             pos += byteCount
         }
-
         return result
     }
 

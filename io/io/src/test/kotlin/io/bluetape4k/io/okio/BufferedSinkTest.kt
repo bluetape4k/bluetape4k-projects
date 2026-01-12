@@ -21,7 +21,7 @@ import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 
-class BufferedSinkTest {
+class BufferedSinkTest: AbstractOkioTest() {
 
     companion object: KLogging()
 

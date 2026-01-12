@@ -48,7 +48,7 @@ class CompressableSinkAndSourceTest: AbstractOkioTest() {
 
     @ParameterizedTest(name = "compressor={0}")
     @MethodSource("compressors")
-    fun `compress string`(compressor: Compressor) {
+    fun `compress a large string`(compressor: Compressor) {
         val original = faker.lorem().paragraph().repeat(1024)
         val data = bufferOf(original)
 
@@ -69,7 +69,7 @@ class CompressableSinkAndSourceTest: AbstractOkioTest() {
 
     @ParameterizedTest(name = "compressor={0}")
     @MethodSource("compressors")
-    fun `compress byteString`(compressor: Compressor) {
+    fun `compress a byte string`(compressor: Compressor) {
         val original = byteStringOf(Random.nextBytes(1024 * 1024)) // 1MB of random bytes
         val data = bufferOf(original)
 

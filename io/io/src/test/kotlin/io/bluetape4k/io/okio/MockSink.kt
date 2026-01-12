@@ -56,5 +56,4 @@ class MockSink: Sink {
         logs.add("close()")
         throwIfScheduled()
     }
-
 }

@@ -12,7 +12,7 @@ import kotlin.test.Test
 import org.junit.jupiter.api.Timeout as JUnitTimeout
 
 @JUnitTimeout(5, unit = TimeUnit.SECONDS)
-class TimeoutTest {
+class TimeoutTest: AbstractOkioTest() {
 
     companion object: KLogging() {
         val smallerTimeoutNanos = TimeUnit.MILLISECONDS.toNanos(500L)

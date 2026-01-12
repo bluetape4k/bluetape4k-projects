@@ -3,6 +3,7 @@ package io.bluetape4k.io.okio
 import io.bluetape4k.io.okio.TestUtil.SEGMENT_SIZE
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import okio.Buffer
 import okio.Deflater
 import okio.DeflaterSink
@@ -28,12 +29,14 @@ class DeflaterSinkTest: AbstractOkioTest() {
         val data = bufferOf(original)
 
         val sink = Buffer()
-        val deflaterSink = DeflaterSink(sink, Deflater())
-        deflaterSink.write(data, data.size)  // data 를 읽어서 deflaterSink에 쓴다
-        deflaterSink.close()  // deflaterSink를 닫는다
 
-        val inflated = inflate(sink)
-        inflated.readUtf8() shouldBeEqualTo original
+        DeflaterSink(sink, Deflater()).use { deflaterSink ->
+            deflaterSink.write(data, data.size)  // data 를 읽어서 deflaterSink에 쓴다
+        }
+
+        inflate(sink).use { inflated ->
+            inflated.readUtf8() shouldBeEqualTo original
+        }
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -42,13 +45,15 @@ class DeflaterSinkTest: AbstractOkioTest() {
         val data = bufferOf(original)
 
         val sink = Buffer()
-        val deflaterSink = DeflaterSink(sink, Deflater())
-        deflaterSink.write(data, data.size)
-        deflaterSink.flush()
-        // deflaterSink.close()
 
-        val inflated = inflate(sink)
-        inflated.readUtf8() shouldBeEqualTo original
+        DeflaterSink(sink, Deflater()).use { deflaterSink ->
+            deflaterSink.write(data, data.size)
+            deflaterSink.flush()
+        }
+
+        inflate(sink).use { inflated ->
+            inflated.readUtf8() shouldBeEqualTo original
+        }
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -57,12 +62,14 @@ class DeflaterSinkTest: AbstractOkioTest() {
         val data = bufferOf(original)
 
         val sink = Buffer()
-        val deflaterSink = DeflaterSink(sink, Deflater())
-        deflaterSink.write(data, data.size)
-        deflaterSink.close()
 
-        val inflated = inflate(sink)
-        inflated.readUtf8() shouldBeEqualTo original
+        DeflaterSink(sink, Deflater()).use { deflaterSink ->
+            deflaterSink.write(data, data.size)
+        }
+
+        inflate(sink).use { inflated ->
+            inflated.readUtf8() shouldBeEqualTo original
+        }
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -71,43 +78,50 @@ class DeflaterSinkTest: AbstractOkioTest() {
         val data = bufferOf(original)
 
         val sink = Buffer()
-        val deflaterSink = DeflaterSink(sink, Deflater())
-        deflaterSink.write(data, data.size)
-        deflaterSink.close()
 
-        val inflated = inflate(sink)
-        inflated.readByteString() shouldBeEqualTo original
+        DeflaterSink(sink, Deflater()).use {
+            it.write(data, data.size)
+        }
+
+        inflate(sink).use {
+            it.readByteString() shouldBeEqualTo original
+        }
     }
 
     @RepeatedTest(REPEAT_SIZE)
     fun `multiple segments without compression`() {
         val buffer = Buffer()
         val deflater = Deflater().apply { setLevel(Deflater.NO_COMPRESSION) }
-
-        val deflaterSink = DeflaterSink(buffer, deflater)
         val byteCount = SEGMENT_SIZE * 4
-        deflaterSink.write(bufferOf("a".repeat(byteCount)), byteCount.toLong())
-        deflaterSink.close()
 
-        inflate(buffer).readUtf8(byteCount.toLong()) shouldBeEqualTo "a".repeat(byteCount)
+        DeflaterSink(buffer, deflater).use {
+            it.write(bufferOf("a".repeat(byteCount)), byteCount.toLong())
+        }
+
+        inflate(buffer).use {
+            it.readUtf8(byteCount.toLong()) shouldBeEqualTo "a".repeat(byteCount)
+        }
     }
 
     @Test
     fun `deflate into non empty sink`() {
-        val original = Fakers.randomString(8192)
+        val original = Fakers.randomString(SEGMENT_SIZE)
 
         repeat(SEGMENT_SIZE) {
+            log.debug { "Deflater 압축[$it]" }
             val data = bufferOf(original)
             val sink = Buffer().writeUtf8("a".repeat(it))
 
-            val deflaterSink = DeflaterSink(sink, Deflater())
-            deflaterSink.write(data, data.size)
-            deflaterSink.close()
+            DeflaterSink(sink, Deflater()).use { deflaterSink ->
+                deflaterSink.write(data, data.size)
+            }
 
             // 기존 정보를 건너 뛴다 
             sink.skip(it.toLong())
-            val inflated = inflate(sink)
-            inflated.readUtf8() shouldBeEqualTo original
+
+            inflate(sink).use { inflated ->
+                inflated.readUtf8() shouldBeEqualTo original
+            }
         }
     }
 
@@ -160,7 +174,7 @@ class DeflaterSinkTest: AbstractOkioTest() {
         val inflatedIn = InflaterInputStream(deflatedIn, inflater)
 
         val result = Buffer()
-        val buffer = ByteArray(8192)
+        val buffer = ByteArray(SEGMENT_SIZE)
 
         while (!inflater.needsInput() || deflated.size > 0 || inflatedIn.available() > 0) {
             // while (inflatedIn.available() > 0) {

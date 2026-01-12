@@ -12,6 +12,7 @@ import okio.source
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
+import org.junit.jupiter.api.BeforeAll
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
 import java.nio.channels.ReadableByteChannel
@@ -20,12 +21,19 @@ import java.nio.file.StandardOpenOption
 import kotlin.test.Test
 
 @TempFolderTest
-class NioTest {
+class NioTest: AbstractOkioTest() {
 
     companion object: KLogging() {
         private const val TEST_STRING = "abcdefghijklmnopqrstuvwxyz"
         private const val TEST_STRING_TRAILING = "defghijklmnopqrstuvw"
         private const val TEST_STRING_LEADING = "abcdefghijklmnopqrst"
+    }
+
+    private lateinit var tempFolder: TempFolder
+
+    @BeforeAll
+    fun beforeAll(tempFolder: TempFolder) {
+        this.tempFolder = tempFolder
     }
 
     @Test
@@ -47,7 +55,7 @@ class NioTest {
     }
 
     @Test
-    fun `writable channel nio file`(tempFolder: TempFolder) {
+    fun `writable channel nio file`() {
         val file = tempFolder.createFile()
         val fileChannel: FileChannel = FileChannel.open(file.toPath(), StandardOpenOption.WRITE)
 
@@ -81,7 +89,7 @@ class NioTest {
     }
 
     @Test
-    fun `readable channel nio file`(tempFolder: TempFolder) {
+    fun `readable channel nio file`() {
         val file = tempFolder.createFile()
         // 파일에 데이터를 쓴다.
         file.sink().buffered().use { initialData ->
