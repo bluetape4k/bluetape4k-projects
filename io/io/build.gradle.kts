@@ -29,10 +29,10 @@ dependencies {
     compileOnly(Libs.kotlinx_atomicfu)
 
     // Apache Commons
+    api(Libs.commons_io)
     api(Libs.commons_lang3)
     compileOnly(Libs.commons_codec)
     compileOnly(Libs.commons_compress)
-    compileOnly(Libs.commons_io)
 
     // Okio
     api(Libs.okio)
