@@ -19,7 +19,6 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.math.BigInteger
 import java.nio.ByteBuffer
-import java.nio.charset.Charset
 
 class BufferedSinkTest: AbstractOkioTest() {
 
@@ -50,10 +49,12 @@ class BufferedSinkTest: AbstractOkioTest() {
     @MethodSource("factories")
     fun `write nothing`(factory: Factory) {
         val data = Buffer()
-        val sink = getSink(factory, data)
-        sink.writeUtf8("")
-        sink.flush()
-        data.size shouldBeEqualTo 0
+
+        getSink(factory, data).use { sink ->
+            sink.writeUtf8("")
+            sink.flush()
+            data.size shouldBeEqualTo 0L
+        }
     }
 
     @ParameterizedTest
@@ -61,9 +62,11 @@ class BufferedSinkTest: AbstractOkioTest() {
     fun `write bytes`(factory: Factory) {
         val data = Buffer()
         val sink = getSink(factory, data)
+
         sink.writeByte(0xab)
         sink.writeByte(0xcd)
         sink.flush()
+
         data.toString() shouldBeEqualTo "[hex=abcd]"
     }
 
@@ -72,9 +75,10 @@ class BufferedSinkTest: AbstractOkioTest() {
     fun `write last byte in segment`(factory: Factory) {
         val data = Buffer()
         val sink = getSink(factory, data)
+
         sink.writeUtf8("a".repeat(SEGMENT_SIZE - 1))
-        sink.writeByte(0x20)
-        sink.writeByte(0x21)
+        sink.writeByte(0x20)  // space
+        sink.writeByte(0x21)  // "!"
         sink.flush()
 
         data.readUtf8(SEGMENT_SIZE - 1L) shouldBeEqualTo "a".repeat(SEGMENT_SIZE - 1)
@@ -90,6 +94,7 @@ class BufferedSinkTest: AbstractOkioTest() {
         sink.writeInt(-0x543210ff)
         sink.writeInt(-0x789abcdf)
         sink.flush()
+
         data.toString() shouldBeEqualTo "[hex=abcdef0187654321]"
     }
 
@@ -102,6 +107,7 @@ class BufferedSinkTest: AbstractOkioTest() {
         sink.writeIntLe(-0x543210ff)
         sink.writeIntLe(-0x789abcdf)
         sink.flush()
+
         data.toString() shouldBeEqualTo "[hex=01efcdab21436587]"
     }
 
@@ -149,14 +155,14 @@ class BufferedSinkTest: AbstractOkioTest() {
         val data = Buffer()
         val sink = getSink(factory, data)
 
-        sink.write("동해물과 백두산이".encodeUtf8())
+        sink.write(byteStringOf("동해물과 백두산이"))
         sink.flush()
 
         val readString = data.readByteString()
         log.debug { "Read string=$readString" }
         log.debug { "Read string hex=${readString.hex()}" }
 
-        readString shouldBeEqualTo "동해물과 백두산이".encodeUtf8()
+        readString shouldBeEqualTo byteStringOf("동해물과 백두산이")
         readString shouldBeEqualTo "eb8f99ed95b4ebacbceab3bc20ebb0b1eb9190ec82b0ec9db4".decodeHex()
         readString.hex() shouldBeEqualTo "eb8f99ed95b4ebacbceab3bc20ebb0b1eb9190ec82b0ec9db4"
     }
@@ -214,8 +220,7 @@ class BufferedSinkTest: AbstractOkioTest() {
         sink.flush()
 
         val readString = data.readByteString()
-        log.debug { "Read string=$readString" }
-        log.debug { "Read string hex=${readString.hex()}" }
+        log.debug { "Read string=$readString, hex=${readString.hex()}" }
 
         readString.utf8() shouldBeEqualTo "동해물과 백두산이"
         readString.hex() shouldBeEqualTo "eb8f99ed95b4ebacbceab3bc20ebb0b1eb9190ec82b0ec9db4"
@@ -231,8 +236,7 @@ class BufferedSinkTest: AbstractOkioTest() {
         sink.flush()
 
         val readString = data.readByteString()
-        log.debug { "Read string=$readString" }
-        log.debug { "Read string hex=${readString.hex()}" }
+        log.debug { "Read string=$readString, hex=${readString.hex()}" }
 
         readString.utf8() shouldBeEqualTo "과 백두"
         readString.hex() shouldBeEqualTo "eab3bc20ebb0b1eb9190"
@@ -244,12 +248,11 @@ class BufferedSinkTest: AbstractOkioTest() {
         val data = Buffer()
         val sink = getSink(factory, data)
 
-        sink.writeString("동해물과 백두산이", Charset.forName("utf-32be"))
+        sink.writeString("동해물과 백두산이", Charsets.UTF_32BE)
         sink.flush()
 
         val readString = data.readByteString()
-        log.debug { "Read string=$readString" }
-        log.debug { "Read string hex=${readString.hex()}" }
+        log.debug { "Read string=$readString, hex=${readString.hex()}" }
 
         readString.hex() shouldBeEqualTo "0000b3d90000d5740000bb3c0000acfc000000200000bc310000b4500000c0b00000c774"
     }
@@ -260,7 +263,7 @@ class BufferedSinkTest: AbstractOkioTest() {
         val data = Buffer()
         val sink = getSink(factory, data)
 
-        sink.writeString("동해물과 백두산이", 3, 7, Charset.forName("utf-32be"))
+        sink.writeString("동해물과 백두산이", 3, 7, Charsets.UTF_32BE)
         sink.flush()
 
         val readString = data.readByteString()
@@ -324,8 +327,8 @@ class BufferedSinkTest: AbstractOkioTest() {
         val source: Source = bufferOf("abcd")
 
         try {
-            sink.write(source, 8)
-            fail("Expected EOF")
+            sink.write(source, 8)  // source 크기보다 커서 EOFException이 발생해야 한다.
+            fail("EOFException 이 발생해야 합니다.")
         } catch (expected: EOFException) {
             // Nothing to do
         }
@@ -342,8 +345,9 @@ class BufferedSinkTest: AbstractOkioTest() {
         val sink = getSink(factory, data)
 
         sink.writeByte('a'.code)
-        sink.close()
-        data.readByte().toInt() shouldBeEqualTo 'a'.code
+        sink.close() // flush() 를 해준다.
+
+        data.readByte().toInt().toChar() shouldBeEqualTo 'a'
     }
 
     @ParameterizedTest
@@ -354,6 +358,7 @@ class BufferedSinkTest: AbstractOkioTest() {
 
         val out = sink.outputStream()
 
+        // byte array bounds 를 넘어서면 예외가 발생합니다.
         assertFailsWith<ArrayIndexOutOfBoundsException> {
             out.write(ByteArray(100), 50, 51)
         }

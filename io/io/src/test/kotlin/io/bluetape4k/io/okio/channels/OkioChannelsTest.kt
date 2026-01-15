@@ -71,9 +71,11 @@ class OkioChannelsTest: AbstractOkioTest() {
     fun `write channel`() {
         val channel = Buffer()
 
-        val sink = channel.asSink().buffer()
-        sink.write(Buffer().writeUtf8(QUOTE), 75)
-        sink.flush()
+        channel.asSink().buffer().use { sink ->
+            sink.write(Buffer().writeUtf8(QUOTE), 75)
+            // BufferedSink 에 쓴 후에는 flush 를 해줘야 실제로 쓴다.
+            // sink.flush()
+        }
 
         channel.readUtf8() shouldBeEqualTo QUOTE.substring(0, 75)
     }
@@ -89,8 +91,8 @@ class OkioChannelsTest: AbstractOkioTest() {
         Files.exists(path).shouldBeTrue()
         Files.size(path) shouldBeEqualTo QUOTE.length.toLong()
 
-        val buffer = Buffer()
         FileChannel.open(path, r).asSource().use { source ->
+            val buffer = Buffer()
             source.read(buffer, 44)
             buffer.readUtf8() shouldBeEqualTo QUOTE.substring(0, 44)
 
@@ -119,9 +121,10 @@ class OkioChannelsTest: AbstractOkioTest() {
         // 나머지 부분을 추가로 쓴다
         FileChannel.open(path, append).asSink().use { sink ->
             sink.write(buffer, buffer.size)
+            // sink.flush()
         }
         Files.exists(path).shouldBeTrue()
-        Files.size(path) shouldBeGreaterOrEqualTo QUOTE.length.toLong()
+        Files.size(path) shouldBeGreaterOrEqualTo QUOTE.length.toLong()     // 한글이 들어가서 바이트 수는 더 늘어납니다.
 
         FileChannel.open(path, r).asSource().buffer().use { source ->
             source.readUtf8() shouldBeEqualTo QUOTE

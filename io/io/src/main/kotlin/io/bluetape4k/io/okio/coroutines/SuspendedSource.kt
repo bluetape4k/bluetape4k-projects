@@ -17,7 +17,7 @@ interface SuspendedSource {
      * @param byteCount 읽어들일 바이트 수
      * @return 실제로 읽어들인 바이트 수
      */
-    suspend fun read(sink: Buffer, byteCount: Long = sink.size): Long
+    suspend fun read(sink: Buffer, byteCount: Long): Long
 
     /**
      * 모든 버퍼링된 바이트를 최종 목적지로 전송하고 이 [SuspendedSource]가 보유한 리소스를 해제합니다.

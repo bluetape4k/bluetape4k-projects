@@ -15,7 +15,7 @@ class BufferCursorKotlinTest: AbstractOkioTest() {
         private const val REPEAT_SIZE = 5
 
         private val _factories = BufferFactory.factories
-        private val _buffers = _factories.map { it.newBuffer() }
+        private val _buffers by lazy { _factories.map { it.newBuffer() } }
     }
 
     fun factories() = _factories
@@ -23,20 +23,28 @@ class BufferCursorKotlinTest: AbstractOkioTest() {
 
     @ParameterizedTest
     @MethodSource("factories")
-    fun `cursor reuse`(factory: BufferFactory) {
+    fun `read unsafe cursor`(factory: BufferFactory) {
         val cursor = Buffer.UnsafeCursor()
 
-        val buffer1 = factory.newBuffer()
-        buffer1.readUnsafe(cursor)
-        cursor.buffer shouldBeEqualTo buffer1
+        val buffer = factory.newBuffer()
+        buffer.readUnsafe(cursor)
+        cursor.buffer shouldBeEqualTo buffer
         cursor.readWrite.shouldBeFalse()
+
         cursor.close()
         cursor.buffer.shouldBeNull()
+    }
 
-        val buffer2 = factory.newBuffer()
-        buffer2.readAndWriteUnsafe(cursor)
-        cursor.buffer shouldBeEqualTo buffer2
+    @ParameterizedTest
+    @MethodSource("factories")
+    fun `read write unsafe cursor`(factory: BufferFactory) {
+        val cursor = Buffer.UnsafeCursor()
+
+        val buffer = factory.newBuffer()
+        buffer.readAndWriteUnsafe(cursor)
+        cursor.buffer shouldBeEqualTo buffer
         cursor.readWrite.shouldBeTrue()
+
         cursor.close()
         cursor.buffer.shouldBeNull()
     }
