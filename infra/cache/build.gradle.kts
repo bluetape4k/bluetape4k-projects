@@ -20,6 +20,7 @@ dependencies {
     compileOnly(Libs.ehcache_transactions)
 
     compileOnly(Libs.redisson)
+    compileOnly(Libs.jackson_module_kotlin)
 
     compileOnly(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)
