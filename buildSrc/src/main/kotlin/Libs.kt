@@ -934,7 +934,9 @@ object Libs {
 
     // Compression
     const val snappy_java = "org.xerial.snappy:snappy-java:1.1.10.8"  // https://mvnrepository.com/artifact/org.xerial.snappy/snappy-java
-    const val lz4_java = "at.yawk.lz4:lz4-java:1.10.2"                     // https://mvnrepository.com/artifact/at.yawk.lz4/lz4-java
+    const val lz4_java = "org.lz4:lz4-java:1.8.0"                     // https://mvnrepository.com/artifact/org.lz4/lz4-java
+    // kafka clients 내부에 기존 lz4-java 를 사용한다.
+    // const val lz4_java = "at.yawk.lz4:lz4-java:1.10.2"                     // https://mvnrepository.com/artifact/at.yawk.lz4/lz4-java
 
     // https://github.com/hyperxpro/Brotli4j
     const val brotli4j = "com.aayushatharva.brotli4j:brotli4j:1.20.0" // https://mvnrepository.com/artifact/com.aayushatharva.brotli4j/brotli4j
