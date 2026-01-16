@@ -20,13 +20,14 @@ import kotlin.random.Random
 class DeflaterSinkTest: AbstractOkioTest() {
 
     companion object: KLogging() {
-        private const val REPEAT_SIZE = 3
+        private const val REPEAT_SIZE = 5
     }
 
     @RepeatedTest(REPEAT_SIZE)
     fun `deflate with close`() {
         val original = Fakers.randomString(SEGMENT_SIZE)
         val data = bufferOf(original)
+        log.debug { "data=$data" }
 
         val sink = Buffer()
 
@@ -43,6 +44,7 @@ class DeflaterSinkTest: AbstractOkioTest() {
     fun `deflate with sync flush`() {
         val original = Fakers.randomString(SEGMENT_SIZE)
         val data = bufferOf(original)
+        log.debug { "data=$data" }
 
         val sink = Buffer()
 
@@ -56,10 +58,11 @@ class DeflaterSinkTest: AbstractOkioTest() {
         }
     }
 
-    @RepeatedTest(REPEAT_SIZE)
+    @Test
     fun `deflate well compressed`() {
         val original = "a".repeat(1024 * 1024)
         val data = bufferOf(original)
+        log.debug { "data=$data" }
 
         val sink = Buffer()
 
@@ -76,6 +79,7 @@ class DeflaterSinkTest: AbstractOkioTest() {
     fun `deflate poorly compressed`() {
         val original = byteStringOf(Random.nextBytes(1024 * 1024))
         val data = bufferOf(original)
+        log.debug { "data=$data" }
 
         val sink = Buffer()
 
@@ -103,12 +107,11 @@ class DeflaterSinkTest: AbstractOkioTest() {
         }
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `deflate into non empty sink`() {
         val original = Fakers.randomString(SEGMENT_SIZE)
 
         repeat(SEGMENT_SIZE) {
-            log.debug { "Deflater 압축[$it]" }
             val data = bufferOf(original)
             val sink = Buffer().writeUtf8("a".repeat(it))
 
@@ -130,7 +133,7 @@ class DeflaterSinkTest: AbstractOkioTest() {
      * the easiest way to force close() to emit a large amount of data to the
      * underlying sink.
      */
-    @RepeatedTest(REPEAT_SIZE)
+    @Test
     fun `close with exception when writing and closing`() {
         val mockSink = MockSink()
         mockSink.scheduleThrow(0, IOException("first"))
@@ -150,7 +153,7 @@ class DeflaterSinkTest: AbstractOkioTest() {
     /**
      * 이 테스트는 Deflater에서 NullPointerException을 IOException으로 다시 던지는지 확인합니다.
      */
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `rethrow null pointer as IOException`() {
         val deflater = Deflater()
         // close to cause a NullPointerException
