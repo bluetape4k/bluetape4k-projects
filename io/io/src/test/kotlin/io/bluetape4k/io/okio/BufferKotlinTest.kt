@@ -2,14 +2,19 @@ package io.bluetape4k.io.okio
 
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.support.asByte
 import okio.Buffer
 import org.amshove.kluent.shouldBeEqualTo
+import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
 class BufferKotlinTest: AbstractOkioTest() {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val REPEAT_SIZE = 5
+    }
 
     @Test
     fun `get from buffer`() {
@@ -19,20 +24,21 @@ class BufferKotlinTest: AbstractOkioTest() {
         actual[1] shouldBeEqualTo 'b'.asByte()
         actual[2] shouldBeEqualTo 'c'.asByte()
 
-        kotlin.test.assertFailsWith<IndexOutOfBoundsException> {
+        assertFailsWith<IndexOutOfBoundsException> {
             actual[-1]
         }
 
-        kotlin.test.assertFailsWith<IndexOutOfBoundsException> {
+        assertFailsWith<IndexOutOfBoundsException> {
             actual[3]
         }
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `copy to output stream`() {
         val expectedText = Fakers.randomString()
 
         val source = bufferOf(expectedText)
+        log.debug { "source=$source" }
 
         val target = Buffer()
         source.copyTo(target.outputStream())   // source -> target
@@ -41,11 +47,12 @@ class BufferKotlinTest: AbstractOkioTest() {
         source.readUtf8() shouldBeEqualTo expectedText
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `copy to output stream with offset`() {
         val expectedText = Fakers.randomString()
 
         val source = bufferOf(expectedText)
+        log.debug { "source=$source" }
 
         val target = Buffer()
         source.copyTo(target.outputStream(), offset = 2)   // source -> target
@@ -54,11 +61,12 @@ class BufferKotlinTest: AbstractOkioTest() {
         source.readUtf8() shouldBeEqualTo expectedText
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `copy to output stream with byte count`() {
-        val expectedText = Fakers.randomString(256, 256)
+        val expectedText = Fakers.fixedString(256)
 
         val source = bufferOf(expectedText)
+        log.debug { "source=$source" }
 
         val target = Buffer()
         source.copyTo(target.outputStream(), byteCount = 3)   // source -> target
@@ -72,6 +80,7 @@ class BufferKotlinTest: AbstractOkioTest() {
         val expectedText = Fakers.randomString(256, 256)
 
         val source = bufferOf(expectedText)
+        log.debug { "source=$source" }
 
         val target = Buffer()
         source.copyTo(target.outputStream(), offset = 1, byteCount = 3)   // source -> target
@@ -80,11 +89,12 @@ class BufferKotlinTest: AbstractOkioTest() {
         source.readUtf8() shouldBeEqualTo expectedText
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `write to output stream`() {
         val expectedText = Fakers.randomString()
 
         val source = bufferOf(expectedText)
+        log.debug { "source=$source" }
 
         val target = Buffer()
         source.writeTo(target.outputStream())   // source -> target  (move)
@@ -93,11 +103,12 @@ class BufferKotlinTest: AbstractOkioTest() {
         source.readUtf8() shouldBeEqualTo ""
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `write to output stream with byteCount`() {
         val expectedText = Fakers.randomString()
 
         val source = bufferOf(expectedText)
+        log.debug { "source=$source" }
 
         val target = Buffer()
         source.writeTo(target.outputStream(), 3)   // source -> target  (move)

@@ -26,6 +26,7 @@ import org.amshove.kluent.shouldNotBeEmpty
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import java.io.Serializable
 import java.nio.ByteBuffer
 
 class BufferedSourceTest: AbstractOkioTest() {
@@ -36,7 +37,7 @@ class BufferedSourceTest: AbstractOkioTest() {
         val name: String,
         val sink: BufferedSink,
         val source: BufferedSource,
-    ) {
+    ): Serializable {
         override fun toString(): String = name
     }
 
@@ -1188,6 +1189,7 @@ class BufferedSourceTest: AbstractOkioTest() {
     @MethodSource("factories")
     fun `use input stream`(factory: Factory) {
         val pipe = factory.pipe()
+
         with(pipe) {
             sink.writeUtf8("abc")
             sink.emit()
@@ -1220,6 +1222,7 @@ class BufferedSourceTest: AbstractOkioTest() {
     @MethodSource("factories")
     fun `inputStream offset count`(factory: Factory) {
         val pipe = factory.pipe()
+
         with(pipe) {
             sink.writeUtf8("abcde")
             sink.emit()
@@ -1573,9 +1576,10 @@ class BufferedSourceTest: AbstractOkioTest() {
             sink.writeUtf8("abcc").writeUtf8("abcd").writeUtf8("abce")
             sink.emit()
 
-            source.select(options) shouldBeEqualTo 2
-            source.select(options) shouldBeEqualTo 0
-            source.select(options) shouldBeEqualTo 1
+            source.select(options) shouldBeEqualTo 2  // options[2] abcc
+            source.select(options) shouldBeEqualTo 0  // options[0] abcd
+            source.select(options) shouldBeEqualTo 1  // options[1] abce
+
             source.exhausted().shouldBeTrue()
         }
     }
@@ -1607,7 +1611,7 @@ class BufferedSourceTest: AbstractOkioTest() {
             sink.writeUtf8("abcdef")
             sink.emit()
 
-            source.select(options) shouldBeEqualTo 0
+            source.select(options) shouldBeEqualTo 0  // options[0] - abcd
             source.readUtf8() shouldBeEqualTo "ef"
             source.exhausted().shouldBeTrue()
         }
@@ -1717,7 +1721,6 @@ class BufferedSourceTest: AbstractOkioTest() {
             }.message shouldBeEqualTo "Peek source is invalid because upstream source was used"
         }
     }
-
 
     @ParameterizedTest
     @MethodSource("pipes")

@@ -42,7 +42,7 @@ object TestUtil: KLogging() {
                 writeUtf8(segment)
                 skip(offsetInSegment.toLong())
             }
-            log.debug { "buffer=$buffer, buffer.size=${buffer.size}" }
+            log.debug { "Buffer with segments. buffer=$buffer, buffer.size=${buffer.size}" }
             result.write(buffer.clone(), buffer.size)
         }
         return result
@@ -66,6 +66,7 @@ object TestUtil: KLogging() {
                 skip(offset.toLong())
             }
 
+            log.debug { "Buffer with random segment layout. segment=$segment" }
             result.write(segment, byteCount.toLong())
             pos += byteCount
         }
