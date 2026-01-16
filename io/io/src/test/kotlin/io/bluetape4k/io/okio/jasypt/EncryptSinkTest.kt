@@ -4,6 +4,7 @@ import io.bluetape4k.crypto.encrypt.Encryptor
 import io.bluetape4k.io.okio.bufferOf
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import okio.Buffer
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.params.ParameterizedTest
@@ -31,6 +32,7 @@ class EncryptSinkTest: AbstractEncryptTest() {
     @MethodSource("encryptors")
     fun `encrypt random string with large size`(encryptor: Encryptor) {
         val plainText = Fakers.randomString(8192, 16384)
+        log.debug { "plainText=$plainText" }
         val source = bufferOf(plainText)
 
         val sink = Buffer()

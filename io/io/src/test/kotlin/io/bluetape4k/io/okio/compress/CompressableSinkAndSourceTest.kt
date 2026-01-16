@@ -35,7 +35,7 @@ class CompressableSinkAndSourceTest: AbstractOkioTest() {
         Compressable.Sinks.compressableSink(sink, compressor).use { compressableSink ->
             // Write data to compressable sink
             compressableSink.write(data, data.size)
-            compressableSink.flush()
+            // compressableSink.flush()
         }
 
         val source = Buffer()

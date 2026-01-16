@@ -28,11 +28,13 @@ open class DecompressableSource(
             return -1 // End of stream
         }
 
+        val sourceSize = sourceBuffer.size
         val decompressed = compressor.decompress(sourceBuffer.readByteArray())
-        log.debug { "압축 복원: compressed=$bytesRead bytes, decompressed=${decompressed.size} bytes" }
-        sink.write(bufferOf(decompressed), decompressed.size.toLong())
+        val decompressedBuffer = bufferOf(decompressed)
+        log.debug { "압축 복원: compressed=$sourceSize bytes, decompressed=${decompressedBuffer.size} bytes" }
+        sink.write(decompressedBuffer, decompressedBuffer.size)
 
-        return decompressed.size.toLong()
+        return decompressedBuffer.size
     }
 }
 

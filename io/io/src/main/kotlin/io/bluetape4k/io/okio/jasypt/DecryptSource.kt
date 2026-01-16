@@ -3,7 +3,6 @@ package io.bluetape4k.io.okio.jasypt
 import io.bluetape4k.crypto.encrypt.Encryptor
 import io.bluetape4k.io.okio.bufferOf
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import okio.Buffer
 import okio.ForwardingSource
 import okio.Source
@@ -31,11 +30,9 @@ open class DecryptSource(
         }
 
         val decryptedBytes = encryptor.decrypt(encryptedBytes)
-        sink.write(bufferOf(decryptedBytes), decryptedBytes.size.toLong())
-
-        log.debug { "복호화: 암호 데이터 크기: ${encryptedBytes.size} bytes, 복화화 데이터 크기: ${decryptedBytes.size} bytes." }
-
-        return decryptedBytes.size.toLong()
+        val source = bufferOf(decryptedBytes)
+        sink.write(source, source.size)
+        return source.size
     }
 }
 
