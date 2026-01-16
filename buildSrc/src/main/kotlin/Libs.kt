@@ -84,7 +84,7 @@ object Versions {
     const val spring_statemachine = "4.0.1" // https://mvnrepository.com/artifact/org.springframework.statemachine/spring-statemachine-core
 
     const val chaos_monkey = "3.2.2"        // https://mvnrepository.com/artifact/de.codecentric/chaos-monkey-spring-boot
-    const val blockhound = "1.0.15.RELEASE" // https://mvnrepository.com/artifact/io.projectreactor.tools/blockhound
+    const val blockhound = "1.0.16.RELEASE" // https://mvnrepository.com/artifact/io.projectreactor.tools/blockhound
 
     const val quarkus = Plugins.Versions.quarkus
 
@@ -96,11 +96,11 @@ object Versions {
         const val reactive_messaging_http = "1.0.3"
     }
 
-    const val resteasy = "6.2.15.Final"       // https://mvnrepository.com/artifact/org.jboss.resteasy/resteasy-bom
+    const val resteasy = "7.0.1.Final"       // https://mvnrepository.com/artifact/org.jboss.resteasy/resteasy-bom
     const val mutiny = "3.1.0"                // https://mvnrepository.com/artifact/io.smallrye.reactive/mutiny
     const val camel_quarkus = "3.30.0"       // https://mvnrepository.com/artifact/org.apache.camel.quarkus/camel-quarkus-bom
 
-    const val vertx = "4.5.23"    // https://mvnrepository.com/artifact/io.vertx/vertx-core
+    const val vertx = "4.5.24"    // https://mvnrepository.com/artifact/io.vertx/vertx-core
 
     const val swagger = "2.2.37"              // https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations
     const val springdoc_openapi = "2.8.13"    // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui
@@ -112,10 +112,10 @@ object Versions {
     const val netty = "4.2.9.Final"  // https://mvnrepository.com/artifact/io.netty/netty-all
 
     const val aws = "1.12.797"          // https://mvnrepository.com/artifact/com.amazonaws
-    const val aws2 = "2.41.5"           // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
-    const val aws2_crt = "0.42.1"       // https://mvnrepository.com/artifact/software.amazon.awssdk.crt/aws-crt
-    const val aws_kotlin = "1.5.117"     // https://mvnrepository.com/artifact/aws.sdk.kotlin/aws-http-jvm
-    const val aws_smithy_kotlin = "1.5.26" // https://mvnrepository.com/artifact/aws.smithy.kotlin/http-client-engine-crt-jvm
+    const val aws2 = "2.41.8"           // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
+    const val aws2_crt = "0.42.2"       // https://mvnrepository.com/artifact/software.amazon.awssdk.crt/aws-crt
+    const val aws_kotlin = "1.5.121"     // https://mvnrepository.com/artifact/aws.sdk.kotlin/aws-http-jvm
+    const val aws_smithy_kotlin = "1.5.27" // https://mvnrepository.com/artifact/aws.smithy.kotlin/http-client-engine-crt-jvm
 
     const val aws_spring_cloud = "3.4.2"  // https://mvnrepository.com/artifact/io.awspring.cloud/spring-cloud-aws-starter
 
@@ -934,7 +934,7 @@ object Libs {
 
     // Compression
     const val snappy_java = "org.xerial.snappy:snappy-java:1.1.10.8"  // https://mvnrepository.com/artifact/org.xerial.snappy/snappy-java
-    const val lz4_java = "org.lz4:lz4-java:1.8.0"                     // https://mvnrepository.com/artifact/org.lz4/lz4-java
+    const val lz4_java = "at.yawk.lz4:lz4-java:1.10.2"                     // https://mvnrepository.com/artifact/at.yawk.lz4/lz4-java
 
     // https://github.com/hyperxpro/Brotli4j
     const val brotli4j = "com.aayushatharva.brotli4j:brotli4j:1.20.0" // https://mvnrepository.com/artifact/com.aayushatharva.brotli4j/brotli4j
@@ -946,12 +946,12 @@ object Libs {
     }:1.20.0"
     const val brotli_dec = "org.brotli:dec:0.1.2"               // https://mvnrepository.com/artifact/org.brotli/dec
     const val zstd_jni = "com.github.luben:zstd-jni:1.5.7-6"    // https://mvnrepository.com/artifact/com.github.luben/zstd-jni
-    const val xz = "org.tukaani:xz:1.10"                         // https://mvnrepository.com/artifact/org.tukaani/xz
+    const val xz = "org.tukaani:xz:1.11"                         // https://mvnrepository.com/artifact/org.tukaani/xz
 
     // Cryptography
     const val jasypt = "org.jasypt:jasypt:1.9.3"   // https://mvnrepository.com/artifact/org.jasypt/jasypt
-    const val bouncycastle_bcprov = "org.bouncycastle:bcprov-jdk18on:1.82"  // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on
-    const val bouncycastle_bcpkix = "org.bouncycastle:bcpkix-jdk18on:1.82"  // https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk18on
+    const val bouncycastle_bcprov = "org.bouncycastle:bcprov-jdk18on:1.83"  // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on
+    const val bouncycastle_bcpkix = "org.bouncycastle:bcpkix-jdk18on:1.83"  // https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk18on
 
     // Hashing
     // https://mvnrepository.com/artifact/net.openhft/zero-allocation-hashing

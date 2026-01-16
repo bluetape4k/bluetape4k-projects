@@ -8,8 +8,6 @@ dependencies {
 
     api(Libs.java_uuid_generator)  // https://github.com/cowtowncoder/java-uuid-generator
 
-    api(Libs.commons_codec)
-
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))
     compileOnly(Libs.kotlinx_coroutines_core)

@@ -5,7 +5,7 @@ configurations {
 dependencies {
     api(project(":bluetape4k-core"))
     api(project(":bluetape4k-io"))
-    api(project(":bluetape4k-coroutines"))
+    compileOnly(project(":bluetape4k-coroutines"))
     testImplementation(project(":bluetape4k-junit5"))
 
     // Images
