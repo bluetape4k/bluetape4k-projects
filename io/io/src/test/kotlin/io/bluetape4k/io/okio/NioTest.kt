@@ -13,6 +13,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.RepeatedTest
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
 import java.nio.channels.ReadableByteChannel
@@ -24,6 +25,7 @@ import kotlin.test.Test
 class NioTest: AbstractOkioTest() {
 
     companion object: KLogging() {
+        private const val REPEAT_SIZE = 5
         private const val TEST_STRING = "abcdefghijklmnopqrstuvwxyz"
         private const val TEST_STRING_TRAILING = "defghijklmnopqrstuvw"
         private const val TEST_STRING_LEADING = "abcdefghijklmnopqrst"
@@ -54,7 +56,7 @@ class NioTest: AbstractOkioTest() {
         sink.isOpen.shouldBeFalse()
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `writable channel nio file`() {
         val file = tempFolder.createFile()
         val fileChannel: FileChannel = FileChannel.open(file.toPath(), StandardOpenOption.WRITE)
@@ -88,7 +90,7 @@ class NioTest: AbstractOkioTest() {
         buffer.close()
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `readable channel nio file`() {
         val file = tempFolder.createFile()
         // 파일에 데이터를 쓴다.
