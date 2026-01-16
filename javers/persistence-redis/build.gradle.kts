@@ -27,7 +27,7 @@ dependencies {
     compileOnly(Libs.redisson)
 
     // Codec
-    compileOnly(Libs.kryo)
+    compileOnly(Libs.kryo5)
     compileOnly(Libs.fory_kotlin)  // new Apache Fory
 
     // Compressor

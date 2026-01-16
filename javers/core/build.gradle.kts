@@ -36,12 +36,13 @@ dependencies {
 
     // Mongo
     compileOnly(Libs.mongo_bson)
+    compileOnly(Libs.mongo_bson_kotlin)
     compileOnly(Libs.mongo_bson_kotlinx)
     compileOnly(Libs.mongodb_driver_sync)
     compileOnly(Libs.mongodb_driver_kotlin_sync)
 
     // Codec
-    compileOnly(Libs.kryo)
+    compileOnly(Libs.kryo5)
     compileOnly(Libs.fory_kotlin)
 
     // Compression

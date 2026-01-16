@@ -26,7 +26,7 @@ dependencies {
     compileOnly(Libs.spring_kafka)
 
     // Codec
-    compileOnly(Libs.kryo)
+    compileOnly(Libs.kryo5)
     compileOnly(Libs.fory_kotlin)  // new Apache Fory
 
     // Compressor
