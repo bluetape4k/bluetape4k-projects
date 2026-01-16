@@ -7,6 +7,8 @@ import io.bluetape4k.logging.trace
 import kotlinx.atomicfu.atomic
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.TimeoutException
 import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.milliseconds
@@ -60,6 +62,7 @@ class VirtualFutureTest {
         virtualFutures.await() shouldBeEqualTo (0 until taskSize).toList()
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `run many tasks with virtual thread tester`() {
         val taskCount = atomic(0)

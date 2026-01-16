@@ -4,6 +4,8 @@ import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.ExecutionException
 import kotlin.test.assertFailsWith
 
@@ -11,6 +13,7 @@ class StructuredScopeSupportTest {
 
     companion object: KLogging()
 
+    @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `첫번째 완료된 작업의 결과를 얻는다`() {
         val result = structuredTaskScopeFirst<String> { scope ->
@@ -31,6 +34,7 @@ class StructuredScopeSupportTest {
         result shouldBeEqualTo "result1"
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `첫번째 성공한 결과를 반환한다`() {
         val result = structuredTaskScopeFirst<String> { scope ->
@@ -51,6 +55,7 @@ class StructuredScopeSupportTest {
         result shouldBeEqualTo "result2"
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `모든 작업이 실패한다면, 첫번째 예외를 반환한다`() {
         assertFailsWith<IllegalStateException> {
@@ -70,6 +75,7 @@ class StructuredScopeSupportTest {
         }.cause shouldBeInstanceOf RuntimeException::class
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `모든 SubTask 들이 완료될 때 결과를 반환한다`() {
         val results = structuredTaskScopeAll { scope ->
@@ -90,6 +96,7 @@ class StructuredScopeSupportTest {
         results shouldBeEqualTo listOf("result1", "result2")
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `Subtask에서 예외가 발생하면 예외를 던진다`() {
         assertFailsWith<ExecutionException> {
