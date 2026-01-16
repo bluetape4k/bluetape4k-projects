@@ -13,6 +13,7 @@ import org.amshove.kluent.internal.assertFailsWith
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -20,7 +21,9 @@ import java.io.ByteArrayOutputStream
 @TempFolderTest
 class OkioTest: AbstractOkioTest() {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val REPEAT_SIZE = 5
+    }
 
     private lateinit var temp: TempFolder
 
@@ -29,7 +32,7 @@ class OkioTest: AbstractOkioTest() {
         temp = tempFolder
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `read write file`() {
         val file = temp.createFile()
         val content = faker.lorem().paragraph()

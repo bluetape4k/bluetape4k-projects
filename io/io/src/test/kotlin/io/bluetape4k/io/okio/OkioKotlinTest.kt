@@ -10,6 +10,7 @@ import okio.sink
 import okio.source
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.RepeatedTest
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.net.Socket
@@ -20,7 +21,7 @@ import kotlin.test.Test
 class OkioKotlinTest: AbstractOkioTest() {
 
     companion object: KLogging() {
-        val faker = Fakers.faker
+        private const val REPEAT_SIZE = 5
     }
 
     private lateinit var temp: TempFolder
@@ -49,18 +50,20 @@ class OkioKotlinTest: AbstractOkioTest() {
         }
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `file as sink for writing`() {
         val content = Fakers.randomString()
         val file = temp.createFile()
+
         file.sink().use { sink ->
             sink.write(Buffer().writeUtf8(content), content.length.toLong())
         }
+
         file.readText() shouldBeEqualTo content
         file.delete()
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `file as sink for appending`() {
         val content = Fakers.randomString()
 
@@ -111,7 +114,7 @@ class OkioKotlinTest: AbstractOkioTest() {
         file.readText() shouldBeEqualTo "ab"
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `path as source`() {
         val file = temp.createFile()
         val content = Fakers.randomString()
@@ -126,7 +129,7 @@ class OkioKotlinTest: AbstractOkioTest() {
         file.delete()
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `path as source with options`() {
         val content = Fakers.randomString()
 
@@ -141,7 +144,7 @@ class OkioKotlinTest: AbstractOkioTest() {
         file.delete()   // Clean up after test
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `socket as Sink`() {
         val content = Fakers.randomString()
 
@@ -156,7 +159,7 @@ class OkioKotlinTest: AbstractOkioTest() {
         bos.close()
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `socket as Source`() {
         val content = Fakers.randomString()
         val contentBytes = content.toUtf8Bytes()
