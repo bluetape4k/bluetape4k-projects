@@ -9,6 +9,7 @@ import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.Serializable
+import java.math.BigDecimal
 import java.util.*
 import java.util.stream.Stream
 
@@ -46,6 +47,7 @@ class CompressableBinarySerializerTest {
     @ParameterizedTest(name = "serialize and compress object - {0}")
     @MethodSource("getSerializers")
     fun `serialize and compress object`(serializer: BinarySerializer, @RandomValue origin: SimpleData) {
+        log.debug { "origin=$origin" }
         val compressed = serializer.serialize(origin)
         val actual = serializer.deserialize<SimpleData>(compressed)
 
@@ -74,6 +76,7 @@ class CompressableBinarySerializerTest {
         val biography: String,
         val zip: String,
         val address: String,
-        val amount: Double? = null,  // NOTE: Fury 가 BigDecimal, BigInteger를 지원하지 않음
+        val price: BigDecimal,
+        val amount: Double,
     ): Serializable
 }

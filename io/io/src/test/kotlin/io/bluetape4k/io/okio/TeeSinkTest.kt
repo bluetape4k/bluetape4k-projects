@@ -37,17 +37,15 @@ class TeeSinkTest: AbstractOkioTest() {
         private val sinkB: okio.Sink,
     ): okio.Sink {
 
-        private val timeout = okio.Timeout()
-
         override fun write(source: okio.Buffer, byteCount: Long) {
             // Writing to sink mutates source. Work around that.
-            sinkA.timeout().intersectWith(timeout) {
+            sinkA.timeout().intersectWith(timeout()) {
                 val buffer = okio.Buffer()
                 source.copyTo(buffer, byteCount = byteCount)
                 sinkA.write(buffer, byteCount)
             }
 
-            sinkB.timeout().intersectWith(timeout) {
+            sinkB.timeout().intersectWith(timeout()) {
                 sinkB.write(source, byteCount)
             }
         }

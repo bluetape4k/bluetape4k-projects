@@ -52,13 +52,13 @@ class TimeoutTest: AbstractOkioTest() {
         timeoutB.timeout(biggerTimeoutNanos, TimeUnit.NANOSECONDS)
 
         timeoutA.intersectWith(timeoutB) {
-            smallerTimeoutNanos shouldBeEqualTo timeoutA.timeoutNanos()
-            biggerTimeoutNanos shouldBeEqualTo timeoutB.timeoutNanos()
+            timeoutA.timeoutNanos() shouldBeEqualTo smallerTimeoutNanos
+            timeoutB.timeoutNanos() shouldBeEqualTo biggerTimeoutNanos
         }
 
         timeoutB.intersectWith(timeoutA) {
-            smallerTimeoutNanos shouldBeEqualTo timeoutA.timeoutNanos()
-            smallerTimeoutNanos shouldBeEqualTo timeoutB.timeoutNanos()
+            timeoutA.timeoutNanos() shouldBeEqualTo smallerTimeoutNanos
+            timeoutB.timeoutNanos() shouldBeEqualTo smallerTimeoutNanos
         }
 
         timeoutA.timeoutNanos() shouldBeEqualTo smallerTimeoutNanos

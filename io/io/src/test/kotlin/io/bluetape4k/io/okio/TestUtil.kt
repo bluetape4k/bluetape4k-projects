@@ -22,10 +22,9 @@ object TestUtil: KLogging() {
     }
 
     fun randomBytes(length: Int): ByteString {
-        val random = Random(0)
         val randomBytes = ByteArray(length)
-        random.nextBytes(randomBytes)
-        return ByteString.of(*randomBytes)
+        Random.nextBytes(randomBytes)
+        return byteStringOf(*randomBytes)
     }
 
     /**

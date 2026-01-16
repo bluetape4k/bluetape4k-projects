@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.InterruptedIOException
+import java.time.Duration
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import kotlin.test.fail
@@ -218,5 +219,9 @@ class WaitUntilNotifiedTest: AbstractOkioTest() {
 
     private fun Timeout.cancelLater(delay: Long) {
         executor.schedule({ cancel() }, delay, TimeUnit.MILLISECONDS)
+    }
+
+    private fun Timeout.cancelLater(delay: Duration) {
+        executor.schedule({ cancel() }, delay.toMillis(), TimeUnit.MILLISECONDS)
     }
 }

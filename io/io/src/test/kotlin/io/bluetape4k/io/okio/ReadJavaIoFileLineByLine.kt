@@ -17,8 +17,8 @@ class ReadJavaIoFileLineByLine: AbstractOkioTest() {
         file.source().use { source ->
             source.buffer().use { buffered ->
                 buffered.readUtf8Lines()
-                    .forEach {
-                        log.debug { "Line: $it" }
+                    .forEachIndexed { index, line ->
+                        log.debug { "Line[$index]: $line" }
                     }
             }
         }
