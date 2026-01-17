@@ -2,8 +2,7 @@ package io.bluetape4k.images.coroutines.animated
 
 import com.sksamuel.scrimage.nio.AnimatedGif
 import com.sksamuel.scrimage.nio.AnimatedImageWriter
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.coroutineScope
 import java.io.OutputStream
 
 /**
@@ -11,9 +10,7 @@ import java.io.OutputStream
  */
 interface SuspendAnimatedImageWriter: AnimatedImageWriter {
 
-    suspend fun suspendWrite(gif: AnimatedGif, out: OutputStream) {
-        withContext(currentCoroutineContext()) {
-            write(gif, out)
-        }
+    suspend fun suspendWrite(gif: AnimatedGif, out: OutputStream) = coroutineScope {
+        write(gif, out)
     }
 }

@@ -10,6 +10,8 @@ import io.bluetape4k.utils.Runtimex
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.JRE
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
@@ -58,6 +60,7 @@ class NamebasedUuidGeneratorTest {
             .run()
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @RepeatedTest(REPEAT_SIZE)
     fun `generate timebased uuids in virtual threads`() {
         val idMap = ConcurrentHashMap<UUID, Int>()

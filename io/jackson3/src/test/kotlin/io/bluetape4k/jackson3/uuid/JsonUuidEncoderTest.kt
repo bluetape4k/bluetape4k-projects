@@ -16,6 +16,8 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.JRE
 import java.util.*
 
 @RandomizedTest
@@ -90,6 +92,7 @@ class JsonUuidEncodeTest {
             .run()
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `convert uuid to base62 string in virtual threads`() {
         StructuredTaskScopeTester()

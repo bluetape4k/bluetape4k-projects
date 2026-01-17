@@ -5,6 +5,8 @@ import kotlinx.atomicfu.atomic
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeLessOrEqualTo
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.JRE
 import kotlin.system.measureTimeMillis
 import kotlin.test.assertFailsWith
 
@@ -13,6 +15,7 @@ class StructuredTaskScopeTesterTest {
         private const val REPEAT_SIZE = 5
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `예외를 발생시키는 코드는 실패한다`() {
         val block = { throw RuntimeException("BAM!") }
@@ -25,6 +28,7 @@ class StructuredTaskScopeTesterTest {
         }
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `thread 수가 복수이면 실행시간은 테스트 코드의 실행 시간의 총합보다 작아야 한다`() {
         val time = measureTimeMillis {
@@ -37,6 +41,7 @@ class StructuredTaskScopeTesterTest {
         time shouldBeLessOrEqualTo 200
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `하나의 코드블럭을 여러번 수행 시 수행 횟수는 같아야 한다`() {
         val block = CountingTask()
@@ -49,6 +54,7 @@ class StructuredTaskScopeTesterTest {
         block.count shouldBeEqualTo 10
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `두 개의 코드 블럭을 병렬로 실행`() {
         val block1 = CountingTask()
@@ -63,6 +69,7 @@ class StructuredTaskScopeTesterTest {
         block2.count shouldBeEqualTo 4
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `실행할 코드블럭을 등록하지 않으면 예외가 발생한다`() {
         assertFailsWith<IllegalStateException> {

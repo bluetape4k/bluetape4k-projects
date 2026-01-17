@@ -19,6 +19,8 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotContain
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.JRE
 
 @RandomizedTest
 class JsonEncryptTest {
@@ -98,6 +100,7 @@ class JsonEncryptTest {
             .run()
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `encrypt json property in virtual threads`() {
         StructuredTaskScopeTester()

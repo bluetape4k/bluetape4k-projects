@@ -13,6 +13,8 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.JRE
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.junit.jupiter.params.provider.ValueSource
@@ -69,6 +71,7 @@ class GeoipCountryFinderTest: AbstractGeoipTest() {
         }
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `find country in virtual threads`() {
         val ipAddresses = getIpAddresses()

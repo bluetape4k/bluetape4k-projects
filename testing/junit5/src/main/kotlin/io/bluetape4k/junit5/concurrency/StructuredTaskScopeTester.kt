@@ -6,7 +6,7 @@ import java.util.concurrent.StructuredTaskScope
 import java.util.concurrent.ThreadFactory
 
 /**
- * Virtual threads 환경에서 테스트 코드를 실행하는 유틸리티 클래스입니다.
+ * Java 21의 Virtual threads 환경에서 테스트 코드를 실행하는 유틸리티 클래스입니다.
  *
  * ```
  * StructuredTaskScopeTester()

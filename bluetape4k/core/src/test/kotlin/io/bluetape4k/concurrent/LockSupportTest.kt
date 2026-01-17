@@ -12,6 +12,8 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
@@ -124,6 +126,7 @@ class LockSupportTest {
         counter shouldBeEqualTo 16
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `read and write lock in multi virtual thread`() {
         val lock = ReentrantReadWriteLock()

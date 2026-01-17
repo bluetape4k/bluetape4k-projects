@@ -19,6 +19,8 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.JRE
 import java.awt.Color
 import java.nio.file.Path
 
@@ -133,6 +135,7 @@ class ImageCaptchaGeneratorTest: AbstractCaptchaTest() {
             .run()
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `버추얼 스레딩 환경에서 대문자와 숫자를 랜덤 코드로 Image Captcha 생성`(tempFolder: TempFolder) {
         val newConfig = config.copy(noiseCount = 6, theme = CaptchaTheme.LIGHT)

@@ -4,7 +4,7 @@ import io.bluetape4k.io.suspendWrite
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.utils.Resourcex
-import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collectIndexed
@@ -60,8 +60,8 @@ abstract class AbstractImageTest {
             .buffer()
             .collectIndexed { index, bytes ->
                 val path = Paths.get("$BASE_PATH/${filename}_${index}.${format.name}")
-                withContext(currentCoroutineContext()) {
-                    if (Files.exists(path)) {
+                if (Files.exists(path)) {
+                    withContext(Dispatchers.IO) {
                         Files.delete(path)
                     }
                 }

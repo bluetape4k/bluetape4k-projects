@@ -12,6 +12,8 @@ import org.amshove.kluent.internal.assertFailsWith
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.JRE
 import java.math.BigInteger
 import java.util.*
 import kotlin.random.Random
@@ -73,6 +75,7 @@ class Base62Test {
             .run()
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `Virtual Threads 환경에서 UUID 값을 Base62 인코딩, 디코딩하기`() {
         StructuredTaskScopeTester()

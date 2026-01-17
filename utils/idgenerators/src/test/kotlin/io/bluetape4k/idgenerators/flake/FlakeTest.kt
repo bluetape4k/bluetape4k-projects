@@ -16,6 +16,8 @@ import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.JRE
 import java.time.Clock
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
@@ -97,6 +99,7 @@ class FlakeTest {
             .run()
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `generate id in virtual threading`() {
         val flake = Flake()

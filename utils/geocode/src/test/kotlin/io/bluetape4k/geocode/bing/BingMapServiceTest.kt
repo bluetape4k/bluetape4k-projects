@@ -12,10 +12,12 @@ import io.bluetape4k.utils.Resourcex
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
+@Disabled("Bing API Key를 갱신해야 합니다.")
 class BingMapServiceTest: AbstractGeocodeTest() {
 
     companion object: KLoggingChannel()

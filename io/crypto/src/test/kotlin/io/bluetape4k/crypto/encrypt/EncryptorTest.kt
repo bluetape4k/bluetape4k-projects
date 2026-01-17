@@ -11,6 +11,8 @@ import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
+import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.JRE
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 
@@ -93,6 +95,7 @@ class EncryptorTest {
             .run()
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @ParameterizedTest(name = "encrypt string by {0}")
     @FieldSource("encryptors")
     fun `encrypt and decrypt string in virtual threads`(encryptor: Encryptor) {

@@ -11,6 +11,8 @@ import io.bluetape4k.utils.Runtimex
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.ConcurrentHashMap
 
 class KsuidMillisTest {
@@ -50,6 +52,7 @@ class KsuidMillisTest {
             .run()
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @RepeatedTest(REPEAT_SIZE)
     fun `generate ksuid in virtual threads`() {
         val idMap = ConcurrentHashMap<String, Int>()

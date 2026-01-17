@@ -17,6 +17,8 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import kotlinx.coroutines.future.await
+import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.JRE
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.nio.file.Path
@@ -83,6 +85,7 @@ abstract class AbstractSuspendImageWriterTest: AbstractImageTest() {
             .run()
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @ParameterizedTest
     @MethodSource("getImageFileNames")
     fun `async image writer in virtual threading`(filename: String, tempFolder: TempFolder) {

@@ -12,6 +12,8 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.JRE
 import java.io.Serializable
 
 class KotlinValueClassTest {
@@ -69,6 +71,7 @@ class KotlinValueClassTest {
             .run()
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `json serdes value class in virtual threads`() {
         StructuredTaskScopeTester()

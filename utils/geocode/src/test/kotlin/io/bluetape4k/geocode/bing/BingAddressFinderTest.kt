@@ -7,9 +7,11 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
+@Disabled("Bing API Key를 갱신해야 합니다.")
 class BingAddressFinderTest: AbstractGeocodeTest() {
 
     companion object: KLoggingChannel()

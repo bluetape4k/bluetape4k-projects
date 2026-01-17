@@ -9,6 +9,8 @@ import io.bluetape4k.logging.trace
 import io.bluetape4k.utils.Runtimex
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.JRE
 import kotlin.test.assertFailsWith
 
 class AtomicRoundrobinTest {
@@ -80,6 +82,7 @@ class AtomicRoundrobinTest {
         atomic.get() shouldBeEqualTo 0
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `Virtual Thread 환경에서 라운드-로빈 방식으로 값을 증가시킨다`() {
         val atomic = AtomicIntRoundrobin(Runtimex.availableProcessors)

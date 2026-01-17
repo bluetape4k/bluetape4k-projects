@@ -67,14 +67,14 @@ abstract class AbstractNearCacheTest {
         val key = randomKey()
         val value = randomValue()
 
-        nearCache1.get(key).shouldBeNull()
+        nearCache1[key].shouldBeNull()
 
         backCache.put(key, value)
         await until { nearCache1.containsKey(key) && nearCache2.containsKey(key) }
 
         // 이 것은 cache entry event listener 를 통해 backCache -> frontCache로 전달된다
-        nearCache1.get(key) shouldBeEqualTo value
-        nearCache2.get(key) shouldBeEqualTo value
+        nearCache1[key] shouldBeEqualTo value
+        nearCache2[key] shouldBeEqualTo value
     }
 
     @RepeatedTest(TEST_SIZE)
@@ -125,13 +125,13 @@ abstract class AbstractNearCacheTest {
 
         backCache.get(key) shouldBeEqualTo oldValue     // write through로 인해
         nearCache2.containsKey(key).shouldBeTrue()
-        nearCache2.get(key) shouldBeEqualTo oldValue    // read through로 인해
+        nearCache2[key] shouldBeEqualTo oldValue    // read through로 인해
 
         nearCache1.replace(key, newValue)
-        await until { nearCache2.get(key) == newValue }
+        await until { nearCache2[key] == newValue }
 
         backCache.get(key) shouldBeEqualTo newValue     // write through로 인해
-        nearCache2.get(key) shouldBeEqualTo newValue
+        nearCache2[key] shouldBeEqualTo newValue
     }
 
     @RepeatedTest(TEST_SIZE)
@@ -173,9 +173,9 @@ abstract class AbstractNearCacheTest {
         nearCache1.put(key, value)    // write through -> backCache -> event -> nearCache2
         await until { nearCache2.containsKey(key) }
 
-        nearCache1.get(key) shouldBeEqualTo value
+        nearCache1[key] shouldBeEqualTo value
         backCache.get(key) shouldBeEqualTo value
-        nearCache2.get(key) shouldBeEqualTo value
+        nearCache2[key] shouldBeEqualTo value
     }
 
     @RepeatedTest(TEST_SIZE)
@@ -187,8 +187,8 @@ abstract class AbstractNearCacheTest {
         nearCache1.putAll(map)
         await until { nearCache2.getAll(*map.keys.toTypedArray()).size == map.size }
 
-        map.keys.all { nearCache1.get(it) != null }.shouldBeTrue()
-        map.keys.all { nearCache2.get(it) != null }.shouldBeTrue()
+        map.keys.all { nearCache1[it] != null }.shouldBeTrue()
+        map.keys.all { nearCache2[it] != null }.shouldBeTrue()
 
         nearCache2.getAll(map.keys.toSet()) shouldContainSame map
     }
@@ -328,8 +328,8 @@ abstract class AbstractNearCacheTest {
         backCache.put(key, value2)
         await until { nearCache1[key] == value2 && nearCache2[key] == value2 }
 
-        nearCache1.get(key) shouldBeEqualTo value2
-        nearCache2.get(key) shouldBeEqualTo value2
+        nearCache1[key] shouldBeEqualTo value2
+        nearCache2[key] shouldBeEqualTo value2
 
         nearCache1.getAndRemove(key) shouldBeEqualTo value2
         await until { nearCache2[key] == null }
@@ -350,8 +350,8 @@ abstract class AbstractNearCacheTest {
         nearCache1.replace(key, oldValue, newValue).shouldBeTrue()
         await until { nearCache2[key] == newValue }
 
-        nearCache1.get(key) shouldBeEqualTo newValue
-        nearCache2.get(key) shouldBeEqualTo newValue
+        nearCache1[key] shouldBeEqualTo newValue
+        nearCache2[key] shouldBeEqualTo newValue
         backCache.get(key) shouldBeEqualTo newValue
 
         // 이미 newValue를 가진다
@@ -370,7 +370,7 @@ abstract class AbstractNearCacheTest {
         nearCache2.replace(key, newValue).shouldBeTrue()
         await until { nearCache1[key] == newValue }
 
-        nearCache1.get(key) shouldBeEqualTo newValue
+        nearCache1[key] shouldBeEqualTo newValue
 
         nearCache1.remove(key)
         await until { nearCache2[key] == null }
@@ -396,8 +396,8 @@ abstract class AbstractNearCacheTest {
         nearCache2.getAndReplace(key, newValue) shouldBeEqualTo oldValue
         await until { nearCache1[key] == newValue }
 
-        nearCache1.get(key) shouldBeEqualTo newValue
-        nearCache2.get(key) shouldBeEqualTo newValue
+        nearCache1[key] shouldBeEqualTo newValue
+        nearCache2[key] shouldBeEqualTo newValue
 
         nearCache1.clear()
         nearCache2.clear()
@@ -410,8 +410,8 @@ abstract class AbstractNearCacheTest {
 
         nearCache1.getAndReplace(key, newValue) shouldBeEqualTo oldValue2
         await until { nearCache2[key] == newValue }
-        nearCache1.get(key) shouldBeEqualTo newValue
-        nearCache2.get(key) shouldBeEqualTo newValue
+        nearCache1[key] shouldBeEqualTo newValue
+        nearCache2[key] shouldBeEqualTo newValue
 
         // key가 존재하지 않으므로 replace도 하지 않는다
         nearCache1.remove(key)

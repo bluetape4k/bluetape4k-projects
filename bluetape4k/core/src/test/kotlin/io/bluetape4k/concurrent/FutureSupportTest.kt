@@ -14,6 +14,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.FutureTask
 import java.util.concurrent.atomic.AtomicInteger
@@ -80,6 +82,7 @@ class FutureSupportTest {
 
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `Massive Future as CompletaboeFuture in Virtual Threads`() {
         val counter = AtomicInteger(0)

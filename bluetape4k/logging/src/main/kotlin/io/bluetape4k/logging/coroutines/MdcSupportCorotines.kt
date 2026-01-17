@@ -101,8 +101,10 @@ suspend inline fun <T> withCoroutineLoggingContext(
     map: Map<String, Any?>,
     restorePrevious: Boolean = true,
     crossinline block: suspend CoroutineScope.() -> T,
-): T = withContext(currentCoroutineContext() + MDCContext()) {
-    withLoggingContext(map, restorePrevious) {
-        block(this)
+): T = coroutineScope {
+    withContext(MDCContext()) {
+        withLoggingContext(map, restorePrevious) {
+            block(this)
+        }
     }
 }

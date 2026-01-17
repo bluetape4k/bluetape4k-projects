@@ -14,6 +14,8 @@ import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.JRE
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
@@ -127,6 +129,7 @@ class SemaphoreExamples: AbstractRedissonCoroutineTest() {
         }
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `semaphore in virtual threads`() {
         val semaphoreName = randomName()

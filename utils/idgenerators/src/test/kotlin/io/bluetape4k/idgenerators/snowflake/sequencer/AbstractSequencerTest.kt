@@ -17,6 +17,8 @@ import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.JRE
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import java.util.concurrent.ConcurrentHashMap
@@ -91,6 +93,7 @@ abstract class AbstractSequencerTest {
             .run()
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `generate sequence in virtual threads`() {
         val idMap = ConcurrentHashMap<Long, Int>()

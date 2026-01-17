@@ -11,6 +11,8 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.JRE
 import kotlin.random.Random
 
 class CaptchaCodeGeneratorTest: AbstractCaptchaTest() {
@@ -82,6 +84,7 @@ class CaptchaCodeGeneratorTest: AbstractCaptchaTest() {
             .run()
     }
 
+    @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `버추얼 스레딩 환경에서 안전하게 동작합니다`() {
         val codeGenerator = CaptchaCodeGenerator.DEFAULT
