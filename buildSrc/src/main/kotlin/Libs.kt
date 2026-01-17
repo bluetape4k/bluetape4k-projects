@@ -706,6 +706,7 @@ object Libs {
     val aws2_s3 = awsSdkV2("s3")
     val aws2_s3_transfer_manager = awsSdkV2("s3-transfer-manager")
     val aws2_ses = awsSdkV2("ses")
+    val aws2_sesv2 = awsSdkV2("sesv2")
     val aws2_sns = awsSdkV2("sns")
     val aws2_sqs = awsSdkV2("sqs")
     val aws2_sts = awsSdkV2("sts")
