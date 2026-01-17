@@ -21,10 +21,10 @@ import io.bluetape4k.utils.ShutdownQueue
 
 
 /**
- * [SnsClient] 인스턴스를 생성합니다.
+ * [SesClient] 인스턴스를 생성합니다.
  *
  * ```
- * val snsClient = snsClientOf(
+ * val sesClient = sesClientOf(
  *  endpoint = "http://localhost:4566",
  *  region = "us-east-1",
  *  credentialsProvider = credentialsProvider
@@ -36,9 +36,9 @@ import io.bluetape4k.utils.ShutdownQueue
  * @param credentialsProvider AWS credentials provider
  * @param httpClientEngine [HttpClientEngine] 엔진 (기본적으로 [aws.smithy.kotlin.runtime.http.engine.crt.CrtHttpEngine] 를 사용합니다.)
  * @param configurer SNS client 설정 빌더
- * @return [SnsClient] 인스턴스
+ * @return [SesClient] 인스턴스
  */
-inline fun snsClientOf(
+inline fun sesClientOf(
     endpoint: String? = null,
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,

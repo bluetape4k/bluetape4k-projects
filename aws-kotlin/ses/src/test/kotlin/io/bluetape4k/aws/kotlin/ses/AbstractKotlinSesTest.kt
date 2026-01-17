@@ -29,7 +29,7 @@ abstract class AbstractKotlinSesTest {
 
         const val domain = "example.com"
         const val senderEmail = "from-user@example.com"
-        const val receiverEamil = "to-use@example.com"
+        const val receiverEmail = "to-use@example.com"
     }
 
     protected val sesClient: SesClient = SesClient {

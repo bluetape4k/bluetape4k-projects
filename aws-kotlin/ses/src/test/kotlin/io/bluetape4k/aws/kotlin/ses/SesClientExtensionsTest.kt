@@ -32,7 +32,7 @@ class SesClientExtensionsTest: AbstractKotlinSesTest() {
         runSuspendIO {
             // 테스트 시 사용할 email 주소를 등록합니다.
             sesClient.verifyEmailAddress(VerifyEmailAddressRequest.invoke { this.emailAddress = senderEmail })
-            sesClient.verifyEmailAddress(VerifyEmailAddressRequest.invoke { this.emailAddress = receiverEamil })
+            sesClient.verifyEmailAddress(VerifyEmailAddressRequest.invoke { this.emailAddress = receiverEmail })
         }
     }
 
@@ -41,7 +41,7 @@ class SesClientExtensionsTest: AbstractKotlinSesTest() {
         val request = SendEmailRequest {
             source = senderEmail
             destination {
-                toAddresses = listOf(receiverEamil)
+                toAddresses = listOf(receiverEmail)
             }
             message {
                 subject { data = "제목" }
@@ -60,7 +60,7 @@ class SesClientExtensionsTest: AbstractKotlinSesTest() {
     fun `send raw email`() = runSuspendIO {
         val request = SendRawEmailRequest {
             source = senderEmail
-            destinations = listOf(receiverEamil)
+            destinations = listOf(receiverEmail)
             rawMessage {
                 data = "Hello, world!".toUtf8Bytes()
             }
@@ -93,7 +93,7 @@ class SesClientExtensionsTest: AbstractKotlinSesTest() {
         val request = SendTemplatedEmailRequest {
             source = senderEmail
             destination {
-                toAddresses = listOf(receiverEamil)
+                toAddresses = listOf(receiverEmail)
             }
             this.template = newTemplateName
             templateData = """{"name": "world"}"""
