@@ -24,7 +24,7 @@ abstract class AbstractKotlinSqsTest {
 
         @JvmStatic
         protected fun randomString(min: Int = 256, max: Int = 2048): String {
-            return io.bluetape4k.junit5.faker.Fakers.randomString(min, max)
+            return Fakers.randomString(min, max)
         }
     }
 
