@@ -114,6 +114,8 @@ dependencies {
     testImplementation(Libs.aws2_cloudwatchevents)
     testImplementation(Libs.aws2_cloudwatchlogs)
     testImplementation(Libs.aws2_dynamodb_enhanced)
+    testImplementation(Libs.aws2_kafka)
+    testImplementation(Libs.aws2_kinesis)
     testImplementation(Libs.aws2_kms)
     testImplementation(Libs.aws2_s3)
     testImplementation(Libs.aws2_ses)
