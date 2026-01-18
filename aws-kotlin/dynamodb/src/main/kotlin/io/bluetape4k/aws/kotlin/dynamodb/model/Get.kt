@@ -10,7 +10,7 @@ inline fun getOf(
     key: Map<String, AttributeValue>? = null,
     expressionAttributeNames: Map<String, String>? = null,
     projectionExpression: String? = null,
-    crossinline configurer: Get.Builder.() -> Unit = {},
+    crossinline builder: Get.Builder.() -> Unit = {},
 ): Get {
     tableName.requireNotBlank("tableName")
 
@@ -19,7 +19,8 @@ inline fun getOf(
         this.key = key
         this.expressionAttributeNames = expressionAttributeNames
         this.projectionExpression = projectionExpression
-        configurer()
+
+        builder()
     }
 }
 
@@ -29,13 +30,14 @@ inline fun getOf(
     key: Map<String, Any?>? = null,
     expressionAttributeNames: Map<String, String>? = null,
     projectionExpression: String? = null,
-    crossinline configurer: Get.Builder.() -> Unit = {},
+    crossinline builder: Get.Builder.() -> Unit = {},
 ): Get {
     return Get {
         this.tableName = tableName
         this.key = key?.mapValues { it.toAttributeValue() }
         this.expressionAttributeNames = expressionAttributeNames
         this.projectionExpression = projectionExpression
-        configurer()
+
+        builder()
     }
 }

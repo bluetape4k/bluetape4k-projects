@@ -13,7 +13,7 @@ inline fun updateOf(
     expressionAttributeValues: Map<String, AttributeValue>,
     expressionAttributeNames: Map<String, String>? = null,
     conditionExpression: String? = null,
-    crossinline configurer: Update.Builder.() -> Unit = {},
+    crossinline builder: Update.Builder.() -> Unit = {},
 ): Update {
     tableName.requireNotBlank("tableName")
     key.requireNotEmpty("key")
@@ -28,7 +28,7 @@ inline fun updateOf(
         this.expressionAttributeNames = expressionAttributeNames
         this.conditionExpression = conditionExpression
 
-        configurer()
+        builder()
     }
 }
 
@@ -40,7 +40,7 @@ inline fun updateOf(
     expressionAttributeValues: Map<String, AttributeValue>,
     expressionAttributeNames: Map<String, String>? = null,
     conditionExpression: String? = null,
-    crossinline configurer: Update.Builder.() -> Unit = {},
+    crossinline builder: Update.Builder.() -> Unit = {},
 ): Update {
     return updateOf(
         tableName,
@@ -49,6 +49,6 @@ inline fun updateOf(
         expressionAttributeValues,
         expressionAttributeNames,
         conditionExpression,
-        configurer
+        builder
     )
 }

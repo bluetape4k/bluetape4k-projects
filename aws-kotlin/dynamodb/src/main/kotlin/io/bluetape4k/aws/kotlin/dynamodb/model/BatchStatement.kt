@@ -11,7 +11,7 @@ inline fun batchStatementRequestOf(
     parameters: List<AttributeValue>? = null,
     consistentRead: Boolean? = null,
     returnValuesOnConditionCheckFailure: ReturnValuesOnConditionCheckFailure? = null,
-    crossinline configurer: BatchStatementRequest.Builder.() -> Unit = {},
+    crossinline builder: BatchStatementRequest.Builder.() -> Unit = {},
 ): BatchStatementRequest {
     statement.requireNotBlank("statement")
 
@@ -21,7 +21,7 @@ inline fun batchStatementRequestOf(
         this.consistentRead = consistentRead
         this.returnValuesOnConditionCheckFailure = returnValuesOnConditionCheckFailure
 
-        configurer()
+        builder()
     }
 }
 
@@ -31,7 +31,7 @@ inline fun batchStatementRequestOf(
     parameters: List<Any?>? = null,
     consistentRead: Boolean? = null,
     returnValuesOnConditionCheckFailure: ReturnValuesOnConditionCheckFailure? = null,
-    crossinline configurer: BatchStatementRequest.Builder.() -> Unit = {},
+    crossinline builder: BatchStatementRequest.Builder.() -> Unit = {},
 ): BatchStatementRequest {
     statement.requireNotBlank("statement")
 
@@ -41,6 +41,6 @@ inline fun batchStatementRequestOf(
         this.consistentRead = consistentRead
         this.returnValuesOnConditionCheckFailure = returnValuesOnConditionCheckFailure
 
-        configurer()
+        builder()
     }
 }

@@ -8,26 +8,24 @@ import aws.sdk.kotlin.services.dynamodb.model.ReturnConsumedCapacity
 inline fun batchExecutionStatementRequestOf(
     returnConsumedCapacity: ReturnConsumedCapacity? = null,
     statements: List<BatchStatementRequest>? = null,
-    crossinline configurer: BatchExecuteStatementRequest.Builder.() -> Unit = {},
-): BatchExecuteStatementRequest {
-    return BatchExecuteStatementRequest.invoke {
+    crossinline builder: BatchExecuteStatementRequest.Builder.() -> Unit = {},
+): BatchExecuteStatementRequest =
+    BatchExecuteStatementRequest {
         this.returnConsumedCapacity = returnConsumedCapacity
         this.statements = statements
 
-        configurer()
+        builder()
     }
-}
 
 @JvmName("batchExecutionStatementRequestOfArray")
 inline fun batchExecutionStatementRequestOf(
     returnConsumedCapacity: ReturnConsumedCapacity? = null,
     vararg statements: BatchStatementRequest,
-    crossinline configurer: BatchExecuteStatementRequest.Builder.() -> Unit = {},
-): BatchExecuteStatementRequest {
-    return BatchExecuteStatementRequest.invoke {
+    crossinline builder: BatchExecuteStatementRequest.Builder.() -> Unit = {},
+): BatchExecuteStatementRequest =
+    BatchExecuteStatementRequest {
         this.returnConsumedCapacity = returnConsumedCapacity
         this.statements = statements.toList()
 
-        configurer()
+        builder()
     }
-}

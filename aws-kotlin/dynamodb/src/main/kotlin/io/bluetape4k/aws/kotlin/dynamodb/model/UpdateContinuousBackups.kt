@@ -7,7 +7,7 @@ import io.bluetape4k.support.requireNotBlank
 inline fun updateContinuousBackupsRequestOf(
     tableName: String,
     pointInTimeRecoverySpecification: PointInTimeRecoverySpecification? = null,
-    crossinline configurer: UpdateContinuousBackupsRequest.Builder.() -> Unit = {},
+    crossinline builder: UpdateContinuousBackupsRequest.Builder.() -> Unit = {},
 ): UpdateContinuousBackupsRequest {
     tableName.requireNotBlank("tableName")
 
@@ -15,6 +15,6 @@ inline fun updateContinuousBackupsRequestOf(
         this.tableName = tableName
         this.pointInTimeRecoverySpecification = pointInTimeRecoverySpecification
 
-        configurer()
+        builder()
     }
 }

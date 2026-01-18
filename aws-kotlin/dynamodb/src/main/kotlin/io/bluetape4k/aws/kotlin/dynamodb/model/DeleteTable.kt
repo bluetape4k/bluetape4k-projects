@@ -5,12 +5,13 @@ import io.bluetape4k.support.requireNotBlank
 
 inline fun deleteTableRequest(
     tableName: String,
-    crossinline configurer: DeleteTableRequest.Builder.() -> Unit = {},
+    crossinline builder: DeleteTableRequest.Builder.() -> Unit = {},
 ): DeleteTableRequest {
     tableName.requireNotBlank("tableName")
 
     return DeleteTableRequest {
         this.tableName = tableName
-        configurer()
+
+        builder()
     }
 }

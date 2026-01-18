@@ -18,7 +18,6 @@ fun JsonNode.toAttributeValue(): AttributeValue = when (this.nodeType) {
             key to value.toAttributeValue()
         }
     )
-
     JsonNodeType.POJO -> AttributeValue.M(
         this.properties().asSequence().associate { (key, value) ->
             key to value.toAttributeValue()

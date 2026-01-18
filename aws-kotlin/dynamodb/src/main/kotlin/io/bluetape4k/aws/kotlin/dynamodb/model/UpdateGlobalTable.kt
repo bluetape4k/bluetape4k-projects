@@ -10,7 +10,7 @@ import io.bluetape4k.support.requireNotBlank
 inline fun updateGlobalTableRequestOf(
     globalTableName: String,
     replicaUpdates: List<ReplicaUpdate>?,
-    crossinline configurer: UpdateGlobalTableRequest.Builder.() -> Unit = {},
+    crossinline builder: UpdateGlobalTableRequest.Builder.() -> Unit = {},
 ): UpdateGlobalTableRequest {
     globalTableName.requireNotBlank("globalTableName")
 
@@ -18,16 +18,15 @@ inline fun updateGlobalTableRequestOf(
         this.globalTableName = globalTableName
         this.replicaUpdates = replicaUpdates
 
-        configurer()
+        builder()
     }
 }
-
 
 inline fun updateGlobalTableSettingsRequestOf(
     globalTableName: String,
     globalTableProvisionedWriteCapacityAutoScalingSettingsUpdate: AutoScalingSettingsUpdate? = null,
     globalTableGlobalSecondaryIndexSettingsUpdate: List<GlobalTableGlobalSecondaryIndexSettingsUpdate>? = null,
-    crossinline configurer: UpdateGlobalTableSettingsRequest.Builder.() -> Unit = {},
+    crossinline builder: UpdateGlobalTableSettingsRequest.Builder.() -> Unit = {},
 ): UpdateGlobalTableSettingsRequest {
     globalTableName.requireNotBlank("globalTableName")
 
@@ -37,6 +36,6 @@ inline fun updateGlobalTableSettingsRequestOf(
             globalTableProvisionedWriteCapacityAutoScalingSettingsUpdate
         this.globalTableGlobalSecondaryIndexSettingsUpdate = globalTableGlobalSecondaryIndexSettingsUpdate
 
-        configurer()
+        builder()
     }
 }

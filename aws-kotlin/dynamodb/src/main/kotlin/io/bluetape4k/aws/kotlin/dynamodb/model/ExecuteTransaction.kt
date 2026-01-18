@@ -9,7 +9,7 @@ inline fun executeTransactionRequestOf(
     transactionStatements: List<ParameterizedStatement>,
     clientRequestToken: String? = null,
     returnConsumedCapacity: ReturnConsumedCapacity? = null,
-    crossinline configurer: ExecuteTransactionRequest.Builder.() -> Unit = {},
+    crossinline builder: ExecuteTransactionRequest.Builder.() -> Unit = {},
 ): ExecuteTransactionRequest {
     transactionStatements.requireNotEmpty("transactionStatements")
 
@@ -18,6 +18,6 @@ inline fun executeTransactionRequestOf(
         this.clientRequestToken = clientRequestToken
         this.returnConsumedCapacity = returnConsumedCapacity
 
-        configurer()
+        builder()
     }
 }

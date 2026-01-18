@@ -6,21 +6,23 @@ import aws.sdk.kotlin.services.dynamodb.model.Put
 import aws.sdk.kotlin.services.dynamodb.model.TransactWriteItem
 import aws.sdk.kotlin.services.dynamodb.model.Update
 
-fun transactWriteItemOf(put: Put): TransactWriteItem = TransactWriteItem {
-    this.put = put
-}
+fun transactWriteItemOf(put: Put): TransactWriteItem =
+    TransactWriteItem {
+        this.put = put
+    }
 
 inline fun transactWriteItemOf(
     conditionCheck: ConditionCheck? = null,
     delete: Delete? = null,
     put: Put? = null,
     update: Update? = null,
-    crossinline configurer: TransactWriteItem.Builder.() -> Unit = {},
-): TransactWriteItem = TransactWriteItem {
-    this.conditionCheck = conditionCheck
-    this.put = put
-    this.update = update
-    this.delete = delete
+    crossinline builder: TransactWriteItem.Builder.() -> Unit = {},
+): TransactWriteItem =
+    TransactWriteItem {
+        this.conditionCheck = conditionCheck
+        this.put = put
+        this.update = update
+        this.delete = delete
 
-    configurer()
-}
+        builder()
+    }

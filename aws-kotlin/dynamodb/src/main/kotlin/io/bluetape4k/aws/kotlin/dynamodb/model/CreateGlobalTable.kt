@@ -7,7 +7,7 @@ import io.bluetape4k.support.requireNotBlank
 inline fun createGlobalTableRequestOf(
     globalTableName: String,
     replicationGroup: List<Replica>? = null,
-    crossinline configurer: CreateGlobalTableRequest.Builder.() -> Unit = {},
+    crossinline builder: CreateGlobalTableRequest.Builder.() -> Unit = {},
 ): CreateGlobalTableRequest {
     globalTableName.requireNotBlank("globalTableName")
 
@@ -15,6 +15,6 @@ inline fun createGlobalTableRequestOf(
         this.globalTableName = globalTableName
         this.replicationGroup = replicationGroup
 
-        configurer()
+        builder()
     }
 }

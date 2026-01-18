@@ -8,15 +8,15 @@ inline fun getItemRequestOf(
     consistentRead: Boolean? = null,
     expressionAttributeNames: Map<String, String>? = null,
     key: Map<String, AttributeValue>? = null,
-    crossinline configurer: GetItemRequest.Builder.() -> Unit = {},
+    crossinline builder: GetItemRequest.Builder.() -> Unit = {},
 ): GetItemRequest {
 
-    return GetItemRequest.invoke {
+    return GetItemRequest {
         this.attributesToGet = attributesToGet
         this.consistentRead = consistentRead
         this.expressionAttributeNames = expressionAttributeNames
         this.key = key
 
-        configurer()
+        builder()
     }
 }

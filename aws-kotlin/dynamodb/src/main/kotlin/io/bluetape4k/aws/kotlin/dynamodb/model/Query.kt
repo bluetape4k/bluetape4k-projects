@@ -9,15 +9,16 @@ inline fun queryRequestOf(
     tableName: String,
     attributesToGet: List<String>? = null,
     exclusiveStartKey: Map<String, AttributeValue>? = null,
-    crossinline configurer: QueryRequest.Builder.() -> Unit = {},
+    crossinline builder: QueryRequest.Builder.() -> Unit = {},
 ): QueryRequest {
     tableName.requireNotBlank("tableName")
 
-    return QueryRequest.invoke {
+    return QueryRequest {
         this.tableName = tableName
         this.attributesToGet = attributesToGet
         this.exclusiveStartKey = exclusiveStartKey
-        configurer()
+
+        builder()
     }
 }
 
@@ -26,12 +27,11 @@ inline fun queryRequestOf(
     tableName: String,
     attributesToGet: List<String>? = null,
     exclusiveStartKey: Map<String, Any?>? = null,
-    crossinline configurer: QueryRequest.Builder.() -> Unit = {},
-): QueryRequest {
-    return queryRequestOf(
+    crossinline builder: QueryRequest.Builder.() -> Unit = {},
+): QueryRequest =
+    queryRequestOf(
         tableName,
         attributesToGet,
         exclusiveStartKey?.mapValues { it.toAttributeValue() },
-        configurer,
+        builder,
     )
-}

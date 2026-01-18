@@ -10,7 +10,7 @@ import io.bluetape4k.support.requireNotEmpty
 inline fun putOf(
     tableName: String,
     item: Map<String, AttributeValue>,
-    crossinline configurer: Put.Builder.() -> Unit = {},
+    crossinline builder: Put.Builder.() -> Unit = {},
 ): Put {
     tableName.requireNotBlank("tableName")
     item.requireNotEmpty("item")
@@ -19,7 +19,7 @@ inline fun putOf(
         this.tableName = tableName
         this.item = item
 
-        configurer()
+        builder()
     }
 }
 
@@ -27,29 +27,26 @@ inline fun putOf(
 inline fun putOf(
     tableName: String,
     item: Map<String, Any?>,
-    crossinline configurer: Put.Builder.() -> Unit = {},
-): Put {
-    return putOf(tableName, item.mapValues { it.toAttributeValue() }, configurer)
-}
-
+    crossinline builder: Put.Builder.() -> Unit = {},
+): Put =
+    putOf(tableName, item.mapValues { it.toAttributeValue() }, builder)
 
 @JvmName("putRequestOfAttributeValue")
 inline fun putRequestOf(
     item: Map<String, AttributeValue>,
-    crossinline configurer: PutRequest.Builder.() -> Unit = {},
+    crossinline builder: PutRequest.Builder.() -> Unit = {},
 ): PutRequest {
     item.requireNotEmpty("item")
 
     return PutRequest.invoke {
         this.item = item
-        configurer()
+        builder()
     }
 }
 
 @JvmName("putRequestOfAny")
 inline fun putRequestOf(
     item: Map<String, Any?>,
-    crossinline configurer: PutRequest.Builder.() -> Unit = {},
-): PutRequest {
-    return putRequestOf(item.mapValues { it.toAttributeValue() }, configurer)
-}
+    crossinline builder: PutRequest.Builder.() -> Unit = {},
+): PutRequest =
+    putRequestOf(item.mapValues { it.toAttributeValue() }, builder)

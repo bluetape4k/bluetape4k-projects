@@ -11,7 +11,7 @@ inline fun executeStatementRequestOf(
     consistentRead: Boolean? = null,
     limit: Int? = null,
     nextToken: String? = null,
-    crossinline configurer: ExecuteStatementRequest.Builder.() -> Unit = {},
+    crossinline builder: ExecuteStatementRequest.Builder.() -> Unit = {},
 ): ExecuteStatementRequest {
     statement.requireNotBlank("statement")
 
@@ -22,7 +22,7 @@ inline fun executeStatementRequestOf(
         this.limit = limit
         this.nextToken = nextToken
 
-        configurer()
+        builder()
     }
 }
 
@@ -33,7 +33,7 @@ inline fun executeStatementRequestOf(
     consistentRead: Boolean? = null,
     limit: Int? = null,
     nextToken: String? = null,
-    crossinline configurer: ExecuteStatementRequest.Builder.() -> Unit = {},
+    crossinline builder: ExecuteStatementRequest.Builder.() -> Unit = {},
 ): ExecuteStatementRequest {
     return executeStatementRequestOf(
         statement,
@@ -41,6 +41,6 @@ inline fun executeStatementRequestOf(
         consistentRead,
         limit,
         nextToken,
-        configurer,
+        builder,
     )
 }

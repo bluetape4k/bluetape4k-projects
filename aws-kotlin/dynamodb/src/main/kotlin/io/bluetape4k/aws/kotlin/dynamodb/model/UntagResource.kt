@@ -6,13 +6,13 @@ import io.bluetape4k.support.requireNotBlank
 inline fun untagResourceRequestOf(
     resourceArn: String,
     tagKeys: List<String>,
-    crossinline configurer: UntagResourceRequest.Builder.() -> Unit = {},
+    crossinline builder: UntagResourceRequest.Builder.() -> Unit = {},
 ): UntagResourceRequest {
     resourceArn.requireNotBlank("resourceArn")
 
     return UntagResourceRequest {
         this.resourceArn = resourceArn
         this.tagKeys = tagKeys
-        configurer()
+        builder()
     }
 }

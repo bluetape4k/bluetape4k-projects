@@ -7,7 +7,7 @@ inline fun capacityOf(
     capacityUnits: Double? = null,
     readCapacityUnits: Double? = null,
     writeCapacityUnits: Double? = null,
-    crossinline configurer: Capacity.Builder.() -> Unit = {},
+    crossinline builder: Capacity.Builder.() -> Unit = {},
 ): Capacity {
     capacityUnits?.requirePositiveNumber("capacityUnits")
     readCapacityUnits?.requirePositiveNumber("readCapacityUnits")
@@ -18,6 +18,6 @@ inline fun capacityOf(
         this.readCapacityUnits = readCapacityUnits
         this.writeCapacityUnits = writeCapacityUnits
 
-        configurer()
+        builder()
     }
 }

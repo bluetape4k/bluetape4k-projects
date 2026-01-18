@@ -41,7 +41,7 @@ val log by lazy { KotlinLogging.logger { } }
  * @param region AWS 리전
  * @param credentialsProvider AWS 자격 증명 제공자
  * @param httpClientEngine [HttpClientEngine] 엔진 (기본적으로 [aws.smithy.kotlin.runtime.http.engine.crt.CrtHttpEngine] 를 사용합니다.)
- * @param configurer [DynamoDbClient.Config.Builder] 를 통해 [DynamoDbClient.Config] 를 설정합니다.
+ * @param builder [DynamoDbClient.Config.Builder] 를 통해 [DynamoDbClient.Config] 를 설정합니다.
  *
  * @return [DynamoDbClient] 인스턴스
  */
@@ -50,7 +50,7 @@ inline fun dynamoDbClientOf(
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
     httpClientEngine: HttpClientEngine = defaultCrtHttpEngineOf(),
-    crossinline configurer: DynamoDbClient.Config.Builder.() -> Unit = {},
+    crossinline builder: DynamoDbClient.Config.Builder.() -> Unit = {},
 ): DynamoDbClient {
     endpointUrl.requireNotBlank("endpoint")
 
@@ -60,7 +60,7 @@ inline fun dynamoDbClientOf(
         credentialsProvider?.let { this.credentialsProvider = it }
         httpClient = httpClientEngine
 
-        configurer()
+        builder()
     }
 }
 
@@ -73,7 +73,7 @@ suspend inline fun DynamoDbClient.createTable(
     attributeDefinitions: List<AttributeDefinition>? = null,
     readCapacityUnits: Long? = null,
     writeCapacityUnits: Long? = null,
-    crossinline configurer: CreateTableRequest.Builder.() -> Unit = {},
+    crossinline builder: CreateTableRequest.Builder.() -> Unit = {},
 ): CreateTableResponse {
     tableName.requireNotBlank("tableName")
 
@@ -88,7 +88,7 @@ suspend inline fun DynamoDbClient.createTable(
             }
         }
 
-        configurer()
+        builder()
     }
 }
 
@@ -146,7 +146,7 @@ suspend fun DynamoDbClient.waitForTableReady(name: String, timeout: Duration = 6
 suspend inline fun DynamoDbClient.putItem(
     tableName: String,
     item: Map<String, Any?>,
-    crossinline configurer: PutItemRequest.Builder.() -> Unit = {},
+    crossinline builder: PutItemRequest.Builder.() -> Unit = {},
 ): PutItemResponse {
     tableName.requireNotBlank("tableName")
 
@@ -154,7 +154,7 @@ suspend inline fun DynamoDbClient.putItem(
         this.tableName = tableName
         this.item = item.mapValues { it.value.toAttributeValue() }
 
-        configurer()
+        builder()
     }
 }
 
@@ -162,7 +162,7 @@ inline fun DynamoDbClient.scanPaginated(
     tableName: String,
     exclusiveStartKey: Map<String, Any?>,
     limit: Int = 1,
-    crossinline configurer: ScanRequest.Builder.() -> Unit = {},
+    crossinline builder: ScanRequest.Builder.() -> Unit = {},
 ): Flow<ScanResponse> {
     tableName.requireNotBlank("tableName")
 
@@ -171,6 +171,6 @@ inline fun DynamoDbClient.scanPaginated(
         this.exclusiveStartKey = exclusiveStartKey.mapValues { it.value.toAttributeValue() }
         this.limit = limit
 
-        configurer()
+        builder()
     }
 }

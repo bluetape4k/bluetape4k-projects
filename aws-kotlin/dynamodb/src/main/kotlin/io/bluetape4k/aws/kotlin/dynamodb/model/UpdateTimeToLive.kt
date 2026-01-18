@@ -7,7 +7,7 @@ import io.bluetape4k.support.requireNotBlank
 inline fun updateTimeToLiveRequestOf(
     tableName: String,
     timeToLiveSpecification: TimeToLiveSpecification? = null,
-    crossinline configurer: UpdateTimeToLiveRequest.Builder.() -> Unit = {},
+    crossinline builder: UpdateTimeToLiveRequest.Builder.() -> Unit = {},
 ): UpdateTimeToLiveRequest {
     tableName.requireNotBlank("tableName")
 
@@ -15,6 +15,6 @@ inline fun updateTimeToLiveRequestOf(
         this.tableName = tableName
         this.timeToLiveSpecification = timeToLiveSpecification
 
-        configurer()
+        builder()
     }
 }

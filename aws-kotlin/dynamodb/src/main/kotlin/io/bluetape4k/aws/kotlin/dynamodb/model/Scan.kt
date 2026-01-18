@@ -10,17 +10,17 @@ inline fun scanRequestOf(
     attributesToGet: List<String>? = null,
     exclusiveStartKey: Map<String, AttributeValue>? = null,
     indexName: String? = null,
-    crossinline configurer: ScanRequest.Builder.() -> Unit = {},
+    crossinline builder: ScanRequest.Builder.() -> Unit = {},
 ): ScanRequest {
     tableName.requireNotBlank("tableName")
 
-    return ScanRequest.invoke {
+    return ScanRequest {
         this.tableName = tableName
         this.attributesToGet = attributesToGet
         this.exclusiveStartKey = exclusiveStartKey
         this.indexName = indexName
 
-        configurer()
+        builder()
     }
 }
 
@@ -30,7 +30,7 @@ inline fun scanRequestOf(
     attributesToGet: List<String>? = null,
     exclusiveStartKey: Map<String, Any?>? = null,
     indexName: String? = null,
-    crossinline configurer: ScanRequest.Builder.() -> Unit = {},
+    crossinline builder: ScanRequest.Builder.() -> Unit = {},
 ): ScanRequest {
     tableName.requireNotBlank("tableName")
 
@@ -40,6 +40,6 @@ inline fun scanRequestOf(
         this.exclusiveStartKey = exclusiveStartKey?.mapValues { it.toAttributeValue() }
         this.indexName = indexName
 
-        configurer()
+        builder()
     }
 }

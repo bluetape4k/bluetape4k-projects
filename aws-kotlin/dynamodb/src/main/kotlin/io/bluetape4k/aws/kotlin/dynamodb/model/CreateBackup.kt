@@ -6,7 +6,7 @@ import io.bluetape4k.support.requireNotBlank
 inline fun createBackupRequestOf(
     tableName: String,
     backupName: String,
-    crossinline configurer: CreateBackupRequest.Builder.() -> Unit = {},
+    crossinline builder: CreateBackupRequest.Builder.() -> Unit = {},
 ): CreateBackupRequest {
     tableName.requireNotBlank("tableName")
     backupName.requireNotBlank("backupName")
@@ -15,6 +15,6 @@ inline fun createBackupRequestOf(
         this.tableName = tableName
         this.backupName = backupName
 
-        configurer()
+        builder()
     }
 }

@@ -11,17 +11,17 @@ inline fun putItemRequestOf(
     tableName: String,
     item: Map<String, AttributeValue>,
     returnValues: ReturnValue? = null,
-    crossinline configurer: PutItemRequest.Builder.() -> Unit = {},
+    crossinline builder: PutItemRequest.Builder.() -> Unit = {},
 ): PutItemRequest {
     tableName.requireNotBlank("tableName")
     item.requireNotEmpty("item")
 
-    return PutItemRequest.invoke {
+    return PutItemRequest {
         this.tableName = tableName
         this.item = item
         this.returnValues = returnValues
 
-        configurer()
+        builder()
     }
 }
 
@@ -30,12 +30,11 @@ inline fun putItemRequestOf(
     tableName: String,
     item: Map<String, Any?>,
     returnValues: ReturnValue? = null,
-    crossinline configurer: PutItemRequest.Builder.() -> Unit = {},
-): PutItemRequest {
-    return putItemRequestOf(
+    crossinline builder: PutItemRequest.Builder.() -> Unit = {},
+): PutItemRequest =
+    putItemRequestOf(
         tableName,
         item.mapValues { it.toAttributeValue() },
         returnValues,
-        configurer,
+        builder,
     )
-}

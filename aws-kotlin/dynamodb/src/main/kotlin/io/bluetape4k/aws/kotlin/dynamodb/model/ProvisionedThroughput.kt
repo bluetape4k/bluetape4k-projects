@@ -4,14 +4,14 @@ import aws.sdk.kotlin.services.dynamodb.model.ProvisionedThroughput
 import io.bluetape4k.support.requirePositiveNumber
 
 fun provisionedThroughputOf(
-    readCapacity: Long = 100L,
-    writeCapacity: Long = 10L,
+    readCapacityUnits: Long? = null,
+    writeCapacityUnits: Long? = null,
 ): ProvisionedThroughput {
-    readCapacity.requirePositiveNumber("readCapacity")
-    writeCapacity.requirePositiveNumber("writeCapacity")
+    readCapacityUnits?.requirePositiveNumber("readCapacity")
+    writeCapacityUnits?.requirePositiveNumber("writeCapacity")
 
     return ProvisionedThroughput {
-        this.readCapacityUnits = readCapacity
-        this.writeCapacityUnits = writeCapacity
+        this.readCapacityUnits = readCapacityUnits
+        this.writeCapacityUnits = writeCapacityUnits
     }
 }

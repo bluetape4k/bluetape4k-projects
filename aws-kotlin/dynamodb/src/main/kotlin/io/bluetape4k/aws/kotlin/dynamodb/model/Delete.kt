@@ -10,7 +10,7 @@ import io.bluetape4k.support.requireNotEmpty
 inline fun deleteOf(
     tableName: String,
     key: Map<String, AttributeValue>? = null,
-    crossinline configurer: Delete.Builder.() -> Unit = {},
+    crossinline builder: Delete.Builder.() -> Unit = {},
 ): Delete {
     tableName.requireNotBlank("tableName")
 
@@ -18,7 +18,7 @@ inline fun deleteOf(
         this.tableName = tableName
         this.key = key
 
-        configurer()
+        builder()
     }
 }
 
@@ -26,7 +26,7 @@ inline fun deleteOf(
 inline fun deleteOf(
     tableName: String,
     key: Map<String, Any?>? = null,
-    crossinline configurer: Delete.Builder.() -> Unit = {},
+    crossinline builder: Delete.Builder.() -> Unit = {},
 ): Delete {
     tableName.requireNotBlank("tableName")
 
@@ -34,32 +34,34 @@ inline fun deleteOf(
         this.tableName = tableName
         this.key = key?.mapValues { it.toAttributeValue() }
 
-        configurer()
+        builder()
     }
 }
 
 @JvmName("deleteRequestOfAttributeValue")
 inline fun deleteRequestOf(
     key: Map<String, AttributeValue>,
-    crossinline configurer: DeleteRequest.Builder.() -> Unit = {},
+    crossinline builder: DeleteRequest.Builder.() -> Unit = {},
 ): DeleteRequest {
     key.requireNotEmpty("key")
 
     return DeleteRequest {
         this.key = key
-        configurer()
+
+        builder()
     }
 }
 
 @JvmName("deleteRequestOfAny")
 inline fun deleteRequestOf(
     key: Map<String, Any?>,
-    crossinline configurer: DeleteRequest.Builder.() -> Unit = {},
+    crossinline builder: DeleteRequest.Builder.() -> Unit = {},
 ): DeleteRequest {
     key.requireNotEmpty("key")
 
-    return DeleteRequest.invoke {
+    return DeleteRequest {
         this.key = key.mapValues { it.toAttributeValue() }
-        configurer()
+
+        builder()
     }
 }

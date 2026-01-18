@@ -6,13 +6,11 @@ import aws.sdk.kotlin.services.dynamodb.model.StreamViewType
 inline fun streamSpecificationOf(
     streamEnabled: Boolean? = null,
     streamViewType: StreamViewType? = null,
-    crossinline configurer: StreamSpecification.Builder.() -> Unit = {},
-): StreamSpecification {
-
-    return StreamSpecification {
+    crossinline builder: StreamSpecification.Builder.() -> Unit = {},
+): StreamSpecification =
+    StreamSpecification {
         this.streamEnabled = streamEnabled
         this.streamViewType = streamViewType
 
-        configurer()
+        builder()
     }
-}

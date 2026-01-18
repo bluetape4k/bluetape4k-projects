@@ -9,7 +9,7 @@ inline fun conditionCheckOf(
     expressionAttributeNames: Map<String, String>? = null,
     expressionAttributeValues: Map<String, AttributeValue>? = null,
     key: Map<String, AttributeValue>? = null,
-    crossinline configurer: ConditionCheck.Builder.() -> Unit = {},
+    crossinline builder: ConditionCheck.Builder.() -> Unit = {},
 ): ConditionCheck {
 
     return ConditionCheck {
@@ -18,7 +18,7 @@ inline fun conditionCheckOf(
         this.expressionAttributeValues = expressionAttributeValues
         this.key = key
 
-        configurer()
+        builder()
     }
 }
 
@@ -28,7 +28,7 @@ inline fun conditionCheckOf(
     expressionAttributeNames: Map<String, String>? = null,
     expressionAttributeValues: Map<String, Any?>? = null,
     key: Map<String, Any?>? = null,
-    crossinline configurer: ConditionCheck.Builder.() -> Unit = {},
+    crossinline builder: ConditionCheck.Builder.() -> Unit = {},
 ): ConditionCheck {
 
     return ConditionCheck {
@@ -37,6 +37,6 @@ inline fun conditionCheckOf(
         this.expressionAttributeValues = expressionAttributeValues?.mapValues { it.toAttributeValue() }
         this.key = key?.mapValues { it.toAttributeValue() }
 
-        configurer()
+        builder()
     }
 }

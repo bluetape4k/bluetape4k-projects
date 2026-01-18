@@ -8,14 +8,14 @@ import aws.sdk.kotlin.services.dynamodb.model.Condition
 inline fun conditionOf(
     comparisonOperator: ComparisonOperator,
     attributeValueList: List<AttributeValue>,
-    crossinline configurer: Condition.Builder.() -> Unit = {},
+    crossinline builder: Condition.Builder.() -> Unit = {},
 ): Condition {
 
-    return Condition.invoke {
+    return Condition {
         this.comparisonOperator = comparisonOperator
         this.attributeValueList = attributeValueList
 
-        configurer()
+        builder()
     }
 }
 
@@ -23,13 +23,13 @@ inline fun conditionOf(
 inline fun conditionOf(
     comparisonOperator: ComparisonOperator,
     attributeValueList: List<Any?>,
-    crossinline configurer: Condition.Builder.() -> Unit = {},
+    crossinline builder: Condition.Builder.() -> Unit = {},
 ): Condition {
 
-    return Condition.invoke {
+    return Condition {
         this.comparisonOperator = comparisonOperator
         this.attributeValueList = attributeValueList.map { it.toAttributeValue() }
 
-        configurer()
+        builder()
     }
 }

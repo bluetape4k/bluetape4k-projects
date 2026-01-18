@@ -7,19 +7,19 @@ import aws.sdk.kotlin.services.dynamodb.model.AttributeValueUpdate
 inline fun <T> attributeValueUpdateOf(
     value: T,
     action: AttributeAction,
-    crossinline configurer: AttributeValueUpdate.Builder.() -> Unit = {},
+    crossinline builder: AttributeValueUpdate.Builder.() -> Unit = {},
 ): AttributeValueUpdate =
-    attributeValueUpdateOf(value.toAttributeValue(), action, configurer)
+    attributeValueUpdateOf(value.toAttributeValue(), action, builder)
 
 inline fun attributeValueUpdateOf(
     value: AttributeValue,
     action: AttributeAction,
-    crossinline configurer: AttributeValueUpdate.Builder.() -> Unit = {},
+    crossinline builder: AttributeValueUpdate.Builder.() -> Unit = {},
 ): AttributeValueUpdate {
     return AttributeValueUpdate {
         this.value = value
         this.action = action
 
-        configurer()
+        builder()
     }
 }

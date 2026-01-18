@@ -10,38 +10,38 @@ import aws.sdk.kotlin.services.dynamodb.model.ReplicaUpdate
 import aws.sdk.kotlin.services.dynamodb.model.TableClass
 import io.bluetape4k.support.requireNotBlank
 
-fun replicaOf(
+inline fun replicaOf(
     regionName: String,
-    configurer: Replica.Builder.() -> Unit = {},
+    crossinline builder: Replica.Builder.() -> Unit = {},
 ): Replica {
     regionName.requireNotBlank("regionName")
 
     return Replica {
         this.regionName = regionName
-        configurer()
+
+        builder()
     }
 }
 
-fun replicaUpdateOf(
+inline fun replicaUpdateOf(
     create: CreateReplicaAction? = null,
     delete: DeleteReplicaAction? = null,
-    configurer: ReplicaUpdate.Builder.() -> Unit = {},
-): ReplicaUpdate {
-    return ReplicaUpdate.invoke {
+    crossinline builder: ReplicaUpdate.Builder.() -> Unit = {},
+): ReplicaUpdate =
+    ReplicaUpdate {
         this.create = create
         this.delete = delete
 
-        configurer()
+        builder()
     }
-}
 
-fun replicaSettingsUpdateOf(
+inline fun replicaSettingsUpdateOf(
     regionName: String,
     replicaGlobalSecondaryIndexSettingsUpdate: List<ReplicaGlobalSecondaryIndexSettingsUpdate>? = null,
     replicaProvisionedReadCapacityAutoScalingSettingsUpdate: AutoScalingSettingsUpdate? = null,
     replicaProvisionedReadCapacityUnits: Long? = null,
     replicaTableClass: TableClass? = null,
-    configurer: ReplicaSettingsUpdate.Builder.() -> Unit = {},
+    crossinline builder: ReplicaSettingsUpdate.Builder.() -> Unit = {},
 ): ReplicaSettingsUpdate {
     regionName.requireNotBlank("regionName")
 
@@ -53,6 +53,6 @@ fun replicaSettingsUpdateOf(
         this.replicaProvisionedReadCapacityUnits = replicaProvisionedReadCapacityUnits
         this.replicaTableClass = replicaTableClass
 
-        configurer()
+        builder()
     }
 }

@@ -12,15 +12,16 @@ import aws.sdk.kotlin.services.dynamodb.model.ProjectionType
  *
  * @param projectionType 프로젝션 타입
  * @param nonKeyAttributes 프로젝션에 포함할 속성 목록
- * @param configurer 프로젝션 설정
+ * @param builder 프로젝션 설정
  * @return [Projection] 인스턴스
  */
 inline fun projectionOf(
     projectionType: ProjectionType,
     nonKeyAttributes: List<String>? = null,
-    crossinline configurer: Projection.Builder.() -> Unit = {},
+    crossinline builder: Projection.Builder.() -> Unit = {},
 ): Projection = Projection {
     this.projectionType = projectionType
     this.nonKeyAttributes = nonKeyAttributes
-    configurer()
+
+    builder()
 }
