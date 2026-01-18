@@ -13,18 +13,18 @@ inline fun getObjectRequestOf(
     key: String,
     versionId: String? = null,
     partNumber: Int? = null,
-    crossinline configurer: GetObjectRequest.Builder.() -> Unit = {},
+    crossinline builder: GetObjectRequest.Builder.() -> Unit = {},
 ): GetObjectRequest {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
 
-    return GetObjectRequest.invoke {
+    return GetObjectRequest {
         this.bucket = bucket
         this.key = key
         this.versionId = versionId
         this.partNumber = partNumber
 
-        configurer()
+        builder()
     }
 }
 
@@ -32,17 +32,17 @@ inline fun getObjectAclRequestOf(
     bucket: String,
     key: String,
     versionId: String? = null,
-    crossinline configurer: GetObjectAclRequest.Builder.() -> Unit = {},
+    crossinline builder: GetObjectAclRequest.Builder.() -> Unit = {},
 ): GetObjectAclRequest {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
 
-    return GetObjectAclRequest.invoke {
+    return GetObjectAclRequest {
         this.bucket = bucket
         this.key = key
         this.versionId = versionId
 
-        configurer()
+        builder()
     }
 }
 
@@ -50,16 +50,16 @@ inline fun getObjectRetentionRequestOf(
     bucket: String,
     key: String,
     versionId: String? = null,
-    crossinline configurer: GetObjectRetentionRequest.Builder.() -> Unit = {},
+    crossinline builder: GetObjectRetentionRequest.Builder.() -> Unit = {},
 ): GetObjectRetentionRequest {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
 
-    return GetObjectRetentionRequest.invoke {
+    return GetObjectRetentionRequest {
         this.bucket = bucket
         this.key = key
         this.versionId = versionId
 
-        configurer()
+        builder()
     }
 }

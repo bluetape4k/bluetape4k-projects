@@ -11,50 +11,50 @@ inline fun deleteObjectRequestOf(
     bucket: String,
     key: String,
     versionId: String? = null,
-    crossinline configurer: DeleteObjectRequest.Builder.() -> Unit = {},
+    crossinline builder: DeleteObjectRequest.Builder.() -> Unit = {},
 ): DeleteObjectRequest {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
 
-    return DeleteObjectRequest.invoke {
+    return DeleteObjectRequest {
         this.bucket = bucket
         this.key = key
         this.versionId = versionId
 
-        configurer()
+        builder()
     }
 }
 
 inline fun deleteObjectsRequestOf(
     bucket: String,
     identifiers: List<ObjectIdentifier>,
-    crossinline configurer: DeleteObjectsRequest.Builder.() -> Unit,
+    crossinline builder: DeleteObjectsRequest.Builder.() -> Unit,
 ): DeleteObjectsRequest {
     bucket.requireNotBlank("bucket")
     identifiers.requireNotEmpty("identifiers")
 
-    return DeleteObjectsRequest.invoke {
+    return DeleteObjectsRequest {
         this.bucket = bucket
 
         this.delete {
             this.objects = identifiers
         }
 
-        configurer()
+        builder()
     }
 }
 
 inline fun deleteObjectsRequestOf(
     bucket: String,
     delete: Delete,
-    crossinline configurer: DeleteObjectsRequest.Builder.() -> Unit,
+    crossinline builder: DeleteObjectsRequest.Builder.() -> Unit,
 ): DeleteObjectsRequest {
     bucket.requireNotBlank("bucket")
 
-    return DeleteObjectsRequest.invoke {
+    return DeleteObjectsRequest {
         this.bucket = bucket
         this.delete = delete
 
-        configurer()
+        builder()
     }
 }

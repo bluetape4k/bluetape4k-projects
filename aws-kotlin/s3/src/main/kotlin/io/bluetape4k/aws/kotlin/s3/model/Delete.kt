@@ -1,6 +1,7 @@
 package io.bluetape4k.aws.kotlin.s3.model
 
 import aws.sdk.kotlin.services.s3.model.Delete
+import io.bluetape4k.support.requireNotEmpty
 
 /**
  * S3 Object 를 삭제하는 [Delete] 객체를 생성합니다.
@@ -17,12 +18,15 @@ import aws.sdk.kotlin.services.s3.model.Delete
 inline fun deleteOf(
     vararg keys: String,
     quiet: Boolean? = null,
-    crossinline block: Delete.Builder.() -> Unit = {},
+    crossinline builder: Delete.Builder.() -> Unit = {},
 ): Delete {
+    keys.requireNotEmpty("keys")
+    
     return Delete {
         this.objects = keys.map { it.toObjectIdentifier() }
         this.quiet = quiet
-        block()
+
+        builder()
     }
 }
 
@@ -41,11 +45,14 @@ inline fun deleteOf(
 inline fun deleteOf(
     keys: Collection<String>,
     quiet: Boolean? = null,
-    crossinline block: Delete.Builder.() -> Unit = {},
+    crossinline builder: Delete.Builder.() -> Unit = {},
 ): Delete {
+    keys.requireNotEmpty("keys")
+
     return Delete {
         this.objects = keys.map { it.toObjectIdentifier() }
         this.quiet = quiet
-        block()
+
+        builder()
     }
 }

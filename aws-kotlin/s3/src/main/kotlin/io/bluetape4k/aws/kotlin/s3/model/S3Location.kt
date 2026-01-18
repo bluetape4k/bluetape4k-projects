@@ -5,12 +5,13 @@ import io.bluetape4k.support.requireNotBlank
 
 inline fun s3LocationOf(
     bucket: String,
-    crossinline configurer: S3Location.Builder.() -> Unit = {},
+    crossinline builder: S3Location.Builder.() -> Unit = {},
 ): S3Location {
     bucket.requireNotBlank("bucket")
 
     return S3Location.invoke {
         this.bucketName = bucket
-        configurer()
+
+        builder()
     }
 }

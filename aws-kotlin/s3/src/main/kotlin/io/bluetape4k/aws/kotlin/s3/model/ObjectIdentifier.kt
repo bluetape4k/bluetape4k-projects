@@ -18,14 +18,15 @@ import io.bluetape4k.support.requireNotBlank
 inline fun objectIdentifierOf(
     key: String,
     versionId: String? = null,
-    crossinline block: ObjectIdentifier.Builder.() -> Unit = {},
+    crossinline builder: ObjectIdentifier.Builder.() -> Unit = {},
 ): ObjectIdentifier {
     key.requireNotBlank("key")
 
     return ObjectIdentifier {
         this.key = key
         this.versionId = versionId
-        block()
+
+        builder()
     }
 }
 

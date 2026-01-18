@@ -12,6 +12,7 @@ import io.bluetape4k.io.exists
 import kotlinx.coroutines.flow.DEFAULT_CONCURRENCY
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.callbackFlow
 import java.io.File
 import java.nio.file.Path
 
@@ -30,7 +31,7 @@ import java.nio.file.Path
  * ```
  * @param bucketName 버킷 이름
  * @param key 객체 키
- * @param configurer [PutObjectRequest.Builder] 를 통해 [PutObjectRequest] 를 설정합니다.
+ * @param builder [PutObjectRequest.Builder] 를 통해 [PutObjectRequest] 를 설정합니다.
  * @return [PutObjectResponse] 인스턴스
  */
 suspend inline fun S3Client.put(
@@ -40,9 +41,9 @@ suspend inline fun S3Client.put(
     metadata: Map<String, String>? = null,
     acl: ObjectCannedAcl? = null,
     contentType: String? = null,
-    crossinline configurer: PutObjectRequest.Builder.() -> Unit = {},
+    crossinline builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
-    val request = putObjectRequestOf(bucketName, key, body, metadata, acl, contentType, configurer)
+    val request = putObjectRequestOf(bucketName, key, body, metadata, acl, contentType, builder)
     return putObject(request)
 }
 
@@ -57,7 +58,7 @@ suspend inline fun S3Client.put(
  * @param key 객체 키
  * @param bytes 저장할 바이트 배열
  * @param metadata 메타데이터
- * @param configurer [PutObjectRequest.Builder] 를 통해 [PutObjectRequest] 를 설정합니다.
+ * @param builder [PutObjectRequest.Builder] 를 통해 [PutObjectRequest] 를 설정합니다.
  * @return [PutObjectResponse] 인스턴스
  */
 suspend inline fun S3Client.putFromByteArray(
@@ -67,10 +68,9 @@ suspend inline fun S3Client.putFromByteArray(
     metadata: Map<String, String>? = null,
     acl: ObjectCannedAcl? = null,
     contentType: String? = null,
-    crossinline configurer: PutObjectRequest.Builder.() -> Unit = {},
-): PutObjectResponse {
-    return put(bucketName, key, ByteStream.fromBytes(bytes), metadata, acl, contentType, configurer)
-}
+    crossinline builder: PutObjectRequest.Builder.() -> Unit = {},
+): PutObjectResponse =
+    put(bucketName, key, ByteStream.fromBytes(bytes), metadata, acl, contentType, builder)
 
 /**
  * [bucketName]의 [key]에 [text]를 저장합니다.
@@ -82,7 +82,7 @@ suspend inline fun S3Client.putFromByteArray(
  * @param key 객체 키
  * @param text 저장할 문자열
  * @param metadata 메타데이터
- * @param configurer [PutObjectRequest.Builder] 를 통해 [PutObjectRequest] 를 설정합니다.
+ * @param builder [PutObjectRequest.Builder] 를 통해 [PutObjectRequest] 를 설정합니다.
  * @return [PutObjectResponse] 인스턴스
  */
 suspend inline fun S3Client.putFromString(
@@ -92,10 +92,9 @@ suspend inline fun S3Client.putFromString(
     metadata: Map<String, String>? = null,
     acl: ObjectCannedAcl? = null,
     contentType: String? = null,
-    crossinline configurer: PutObjectRequest.Builder.() -> Unit = {},
-): PutObjectResponse {
-    return put(bucketName, key, ByteStream.fromString(text), metadata, acl, contentType, configurer)
-}
+    crossinline builder: PutObjectRequest.Builder.() -> Unit = {},
+): PutObjectResponse =
+    put(bucketName, key, ByteStream.fromString(text), metadata, acl, contentType, builder)
 
 /**
  * [bucketName]의 [key]에 [file]의 정보를 저장합니다.
@@ -107,7 +106,7 @@ suspend inline fun S3Client.putFromString(
  * @param key 객체 키
  * @param file 저장할 파일
  * @param metadata 메타데이터
- * @param configurer [PutObjectRequest.Builder] 를 통해 [PutObjectRequest] 를 설정합니다.
+ * @param builder [PutObjectRequest.Builder] 를 통해 [PutObjectRequest] 를 설정합니다.
  * @return [PutObjectResponse] 인스턴스
  * @throws IllegalArgumentException 파일이 존재하지 않을 경우
  * @see putFromPath
@@ -119,23 +118,24 @@ suspend inline fun S3Client.putFromFile(
     metadata: Map<String, String>? = null,
     acl: ObjectCannedAcl? = null,
     contentType: String? = null,
-    crossinline configurer: PutObjectRequest.Builder.() -> Unit = {},
+    crossinline builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
     require(file.exists()) { "File not found: $file" }
-    return put(bucketName, key, ByteStream.fromFile(file), metadata, acl, contentType, configurer)
+
+    return put(bucketName, key, ByteStream.fromFile(file), metadata, acl, contentType, builder)
 }
 
 /**
- * [bucketName]의 [key]에 [path]의 파일 정보를 저장합니다.
+ * [bucketName]의 [key]에 [filePath]의 파일 정보를 저장합니다.
  *
  * ```
  * val response = s3Client.putFromPath("bucket-name", "key", Paths.get("test.txt"))
  * ```
  * @param bucketName 버킷 이름
  * @param key 객체 키
- * @param path 저장할 파일 경로
+ * @param filePath 저장할 파일 경로
  * @param metadata 메타데이터
- * @param configurer [PutObjectRequest.Builder] 를 통해 [PutObjectRequest] 를 설정합니다.
+ * @param builder [PutObjectRequest.Builder] 를 통해 [PutObjectRequest] 를 설정합니다.
  * @return [PutObjectResponse] 인스턴스
  * @throws IllegalArgumentException 파일이 존재하지 않을 경우
  * @see putFromFile
@@ -143,14 +143,15 @@ suspend inline fun S3Client.putFromFile(
 suspend inline fun S3Client.putFromPath(
     bucketName: String,
     key: String,
-    path: Path,
+    filePath: Path,
     metadata: Map<String, String>? = null,
     acl: ObjectCannedAcl? = null,
     contentType: String? = null,
-    crossinline configurer: PutObjectRequest.Builder.() -> Unit = {},
+    crossinline builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
-    require(path.exists()) { "File not found: $path" }
-    return put(bucketName, key, ByteStream.fromFile(path.toFile()), metadata, acl, contentType, configurer)
+    require(filePath.exists()) { "File not found: $filePath" }
+
+    return put(bucketName, key, ByteStream.fromFile(filePath.toFile()), metadata, acl, contentType, builder)
 }
 
 /**
@@ -168,10 +169,11 @@ suspend inline fun S3Client.putFromPath(
 fun S3Client.putAll(
     concurrency: Int = DEFAULT_CONCURRENCY,
     vararg putRequests: PutObjectRequest,
-): Flow<PutObjectResponse> {
-    return putRequests
+): Flow<PutObjectResponse> = callbackFlow {
+    putRequests
         .asFlow()
         .async {
-            putObject(it)
+            val putResponse = putObject(it)
+            send(putResponse)
         }
 }

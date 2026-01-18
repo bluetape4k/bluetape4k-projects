@@ -6,13 +6,13 @@ import io.bluetape4k.support.requireNotBlank
 inline fun deleteBucketRequestOf(
     bucket: String,
     expectedBucketOwner: String? = null,
-    crossinline configurer: DeleteBucketRequest.Builder.() -> Unit = {},
+    crossinline builder: DeleteBucketRequest.Builder.() -> Unit = {},
 ): DeleteBucketRequest {
     bucket.requireNotBlank("bucket")
 
     return DeleteBucketRequest {
         this.bucket = bucket
         this.expectedBucketOwner = expectedBucketOwner
-        configurer()
+        builder()
     }
 }

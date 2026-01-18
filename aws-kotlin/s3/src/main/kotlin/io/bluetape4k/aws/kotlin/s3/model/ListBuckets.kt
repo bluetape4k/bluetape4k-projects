@@ -5,12 +5,11 @@ import aws.sdk.kotlin.services.s3.model.ListBucketsRequest
 inline fun listBucketsRequestOf(
     maxBuckets: Int? = null,
     continuationToken: String? = null,
-    crossinline configurer: ListBucketsRequest.Builder.() -> Unit = {},
-): ListBucketsRequest {
-    return ListBucketsRequest {
+    crossinline builder: ListBucketsRequest.Builder.() -> Unit = {},
+): ListBucketsRequest =
+    ListBucketsRequest {
         this.maxBuckets = maxBuckets
         this.continuationToken = continuationToken
 
-        configurer()
+        builder()
     }
-}

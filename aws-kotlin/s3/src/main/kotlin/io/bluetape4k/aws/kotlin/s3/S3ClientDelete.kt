@@ -24,13 +24,13 @@ import io.bluetape4k.support.requireNotEmpty
 suspend inline fun S3Client.deleteAll(
     bucket: String,
     vararg keys: String,
-    crossinline block: Delete.Builder.() -> Unit = {},
+    crossinline builder: Delete.Builder.() -> Unit = {},
 ): DeleteObjectsResponse {
     bucket.requireNotBlank("bucketName")
 
     return deleteObjects {
         this.bucket = bucket
-        this.delete = deleteOf(*keys, block = block)
+        this.delete = deleteOf(*keys, builder = builder)
     }
 }
 
@@ -48,7 +48,7 @@ suspend inline fun S3Client.deleteAll(
 suspend inline fun S3Client.deleteAll(
     bucket: String,
     keys: Collection<String>,
-    crossinline block: Delete.Builder.() -> Unit = {},
+    crossinline bulider: Delete.Builder.() -> Unit = {},
 ): DeleteObjectsResponse {
     bucket.requireNotBlank("bucketName")
     keys.requireNotEmpty("keys")
@@ -56,7 +56,7 @@ suspend inline fun S3Client.deleteAll(
 
     return deleteObjects {
         this.bucket = bucket
-        this.delete = deleteOf(keys, block = block)
+        this.delete = deleteOf(keys, builder = bulider)
     }
 }
 
@@ -74,17 +74,17 @@ suspend inline fun S3Client.deleteAll(
  * ```
  *
  * @param bucket 삭제할 Object 가 있는 버킷 이름
- * @param configurer [DeleteObjectsRequest.Builder]를 통해 [DeleteObjectsRequest]를 설정합니다.
+ * @param builder [DeleteObjectsRequest.Builder]를 통해 [DeleteObjectsRequest]를 설정합니다.
  * @return [DeleteObjectsResponse] 인스턴스
  */
 suspend inline fun S3Client.deleteAll(
     bucket: String,
-    crossinline configurer: DeleteObjectsRequest.Builder.() -> Unit,
+    crossinline builder: DeleteObjectsRequest.Builder.() -> Unit,
 ): DeleteObjectsResponse {
     bucket.requireNotBlank("bucketName")
 
     return deleteObjects {
         this.bucket = bucket
-        configurer()
+        builder()
     }
 }

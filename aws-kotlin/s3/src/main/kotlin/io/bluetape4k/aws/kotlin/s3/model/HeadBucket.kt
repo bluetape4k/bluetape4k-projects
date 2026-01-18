@@ -6,7 +6,7 @@ import io.bluetape4k.support.requireNotBlank
 inline fun headBucketRequestOf(
     bucket: String,
     expectedBucketOwner: String? = null,
-    crossinline configurer: HeadBucketRequest.Builder.() -> Unit = {},
+    crossinline builder: HeadBucketRequest.Builder.() -> Unit = {},
 ): HeadBucketRequest {
     bucket.requireNotBlank("bucket")
 
@@ -14,6 +14,6 @@ inline fun headBucketRequestOf(
         this.bucket = bucket
         this.expectedBucketOwner = expectedBucketOwner
 
-        configurer()
+        builder()
     }
 }

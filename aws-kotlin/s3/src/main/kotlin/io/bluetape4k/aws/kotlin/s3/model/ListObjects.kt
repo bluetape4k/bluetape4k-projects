@@ -10,7 +10,7 @@ inline fun listObjectsRequestOf(
     delimiter: String? = null,
     maxKeys: Int? = null,
     encondingType: EncodingType? = null,
-    crossinline configurer: ListObjectsRequest.Builder.() -> Unit = {},
+    crossinline builder: ListObjectsRequest.Builder.() -> Unit = {},
 ): ListObjectsRequest {
     bucket.requireNotBlank("bucket")
 
@@ -21,6 +21,6 @@ inline fun listObjectsRequestOf(
         this.maxKeys = maxKeys
         this.encodingType = encondingType
 
-        configurer()
+        builder()
     }
 }

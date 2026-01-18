@@ -11,7 +11,7 @@ inline fun copyObjectRequestOf(
     destBucket: String,
     destKey: String,
     acl: ObjectCannedAcl? = null,
-    crossinline configurer: CopyObjectRequest.Builder.() -> Unit = {},
+    crossinline builder: CopyObjectRequest.Builder.() -> Unit = {},
 ): CopyObjectRequest {
     srcBucket.requireNotBlank("srcBucket")
     srcKey.requireNotBlank("srcKey")
@@ -24,6 +24,6 @@ inline fun copyObjectRequestOf(
         this.key = destKey
         this.acl = acl
 
-        configurer()
+        builder()
     }
 }

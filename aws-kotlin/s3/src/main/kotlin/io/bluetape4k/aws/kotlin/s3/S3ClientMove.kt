@@ -25,9 +25,9 @@ suspend inline fun S3Client.move(
     srcKey: String,
     destBucket: String,
     destKey: String,
-    crossinline configurer: CopyObjectRequest.Builder.() -> Unit = {},
+    crossinline builder: CopyObjectRequest.Builder.() -> Unit = {},
 ): CopyObjectResponse {
-    val response = copy(srcBucket, srcKey, destBucket, destKey, configurer)
+    val response = copy(srcBucket, srcKey, destBucket, destKey, builder)
 
     if (response.copyObjectResult?.eTag?.isNotBlank() == true) {
         deleteObject {
