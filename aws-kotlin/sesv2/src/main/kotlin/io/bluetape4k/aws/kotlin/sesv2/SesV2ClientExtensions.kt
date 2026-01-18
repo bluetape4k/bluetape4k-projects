@@ -37,14 +37,14 @@ inline fun sesV2ClientOf(
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
     httpClientEngine: HttpClientEngine = defaultCrtHttpEngineOf(),
-    crossinline configurer: SesV2Client.Config.Builder.() -> Unit = {},
+    crossinline builder: SesV2Client.Config.Builder.() -> Unit = {},
 ): SesV2Client = SesV2Client {
     endpoint?.let { this.endpointUrl = Url.parse(it) }
     region?.let { this.region = it }
     credentialsProvider?.let { this.credentialsProvider = it }
     httpClient = httpClientEngine
 
-    configurer()
+    builder()
 }.apply {
     ShutdownQueue.register(this)
 }
