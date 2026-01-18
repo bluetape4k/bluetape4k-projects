@@ -84,11 +84,11 @@ class Rule2RunBlockingSynchronousCode: AbstractVirtualThreadTest() {
 
         val startMs = System.currentTimeMillis()
 
-        val priceInEur = virtualFuture<Int> { readPriceInEur() }
-        val exchangeRateEurToUsd = virtualFuture<Float> { readExchangeRateEurToUsd() }
+        val priceInEur = virtualFuture { readPriceInEur() }
+        val exchangeRateEurToUsd = virtualFuture { readExchangeRateEurToUsd() }
         val netAmountInUsd = priceInEur.await() * exchangeRateEurToUsd.await()
 
-        val tax = virtualFuture<Float> { readTax(netAmountInUsd) }
+        val tax = virtualFuture { readTax(netAmountInUsd) }
         val grossAmountInUsd = netAmountInUsd * (1 + tax.get())
 
         grossAmountInUsd.toInt() shouldBeEqualTo 108

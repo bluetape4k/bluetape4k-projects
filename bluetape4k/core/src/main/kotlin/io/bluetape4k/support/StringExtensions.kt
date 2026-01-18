@@ -343,7 +343,7 @@ fun String?.ellipsisEnd(maxLength: Int = ELLIPSIS_LENGTH): String {
  * @return 축약된 문자열
  */
 fun String?.ellipsisMid(maxLength: Int = ELLIPSIS_LENGTH): String {
-    if (this == null || this.isEmpty()) return EMPTY_STRING
+    if (this.isNullOrEmpty()) return EMPTY_STRING
 
     if (!needEllipsis(maxLength))
         return this

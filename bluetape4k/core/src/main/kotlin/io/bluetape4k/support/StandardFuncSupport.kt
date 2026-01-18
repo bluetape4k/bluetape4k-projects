@@ -164,7 +164,7 @@ inline fun <T: Any, R> whenAnyNotNull(vararg options: T?, block: (List<T>) -> R)
 }
 
 /**
- * [options] 의 모든 요소가 not null 일 때 [block] 을 수행합니다.
+ * Iterable 의 모든 요소가 not null 일 때 [block] 을 수행합니다.
  *
  * ```
  * listOf(a, b, c).whenAllNotNull { list ->

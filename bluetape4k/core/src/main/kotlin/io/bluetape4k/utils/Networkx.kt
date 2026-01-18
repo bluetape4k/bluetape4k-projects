@@ -128,7 +128,7 @@ object Networkx: KLogging() {
         var num = 0
         while (i < s.length) {
             val c = s[i]
-            if (c < '0' || c > '9') return -1
+            if (c !in '0'..'9') return -1
             num = (num * 10) + (c - '0')
             i += 1
         }

@@ -4,7 +4,6 @@ package io.bluetape4k.ranges
  * 시작값은 포함, 끝 값은 미포함하는 범위를 나타냅니다. (`startInclusive <= x < endExclusive`)
  *
  * @param T
- * @constructor Create empty Closed open range
  */
 interface ClosedOpenRange<T: Comparable<T>>: Range<T> {
 
@@ -29,7 +28,7 @@ interface ClosedOpenRange<T: Comparable<T>>: Range<T> {
     override val last: T get() = endExclusive
 
     override fun contains(value: T): Boolean =
-        value >= startInclusive && value < endExclusive
+        value in startInclusive..<endExclusive
 
     override fun isEmpty(): Boolean = startInclusive >= endExclusive
 }

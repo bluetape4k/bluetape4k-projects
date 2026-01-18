@@ -106,7 +106,7 @@ fun <T: Comparable<T>> T.assertInRange(start: T, endInclusive: T, parameterName:
 }
 
 fun <T: Comparable<T>> T.assertInOpenRange(start: T, endExclusive: T, name: String): T = apply {
-    assert(this >= start && this < endExclusive) { "$start <= $name[$this] < $endExclusive" }
+    assert(this in start..<endExclusive) { "$start <= $name[$this] < $endExclusive" }
 }
 
 fun <T> T.assertZeroOrPositiveNumber(parameterName: String): T where T: Number, T: Comparable<T> = apply {

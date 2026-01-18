@@ -26,7 +26,7 @@ fun availableLocaleSet(predicate: (Locale) -> Boolean): Set<Locale> =
     LocaleUtils.availableLocaleSet().filter(predicate).toSet()
 
 /**
- * [languate]를 사용하는 국가들의 [Locale]을 반환합니다.
+ * [language]를 사용하는 국가들의 [Locale]을 반환합니다.
  */
 fun countriesByLanguage(language: String): List<Locale> =
     LocaleUtils.countriesByLanguage(language)
@@ -47,8 +47,7 @@ fun Locale.isLanguageUndetermined(): Boolean = LocaleUtils.isLanguageUndetermine
 fun languageByCountry(countryCode: String): List<Locale> = LocaleUtils.languagesByCountry(countryCode)
 
 /**
- * Obtains the list of locales to search through when performing
- * a locale search.
+ * obtains the list of locales to search through when performing a locale search.
  *
  * ```
  * localeLookupList(Locale("fr", "CA", "xxx"))

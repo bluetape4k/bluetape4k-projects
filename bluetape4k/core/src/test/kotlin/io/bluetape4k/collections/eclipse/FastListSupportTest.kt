@@ -56,7 +56,7 @@ class FastListSupportTest: AbstractCollectionTest() {
 
     @Test
     fun `FastList에 null 요소 허용 여부 확인`() {
-        val list = fastListOf<String?>(null, "A", null)
+        val list = fastListOf(null, "A", null)
         list.size shouldBeEqualTo 3
         list[0] shouldBeEqualTo null
         list[1] shouldBeEqualTo "A"

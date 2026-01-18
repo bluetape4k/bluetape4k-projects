@@ -39,7 +39,7 @@ fun <K, V> setterOperator(func: (K, V) -> Unit): SetterOperator<K, V> {
 /**
  * Getter, Setter 작업을 Kotlin 스타일로 표현할 수 있도록 했습니다
  *
- * @see systemProperty
+ * @see io.bluetape4k.support.sysProperty
  *
  * @param K  key type
  * @param V     value type

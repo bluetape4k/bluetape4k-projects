@@ -103,7 +103,7 @@ fun <T: Comparable<T>> T.requireInRange(start: T, endInclusive: T, parameterName
 }
 
 fun <T: Comparable<T>> T.requireInOpenRange(start: T, endExclusive: T, parameterName: String): T = apply {
-    require(this >= start && this < endExclusive) { "$start <= $parameterName[$this] < $endExclusive" }
+    require(this in start..<endExclusive) { "$start <= $parameterName[$this] < $endExclusive" }
 }
 
 fun <T> T.requireZeroOrPositiveNumber(parameterName: String): T where T: Number, T: Comparable<T> = apply {

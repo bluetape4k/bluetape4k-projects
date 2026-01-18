@@ -33,10 +33,10 @@ class BooleanSupportTest {
 
     @Test
     fun `compare booleans`() {
-        compareBoolean(true, true) shouldBeEqualTo 0
-        compareBoolean(true, false) shouldBeEqualTo 1
-        compareBoolean(false, true) shouldBeEqualTo -1
-        compareBoolean(false, false) shouldBeEqualTo 0
+        compareBoolean(left = true, right = true) shouldBeEqualTo 0
+        compareBoolean(left = true, right = false) shouldBeEqualTo 1
+        compareBoolean(left = false, right = true) shouldBeEqualTo -1
+        compareBoolean(left = false, right = false) shouldBeEqualTo 0
     }
 
     @Test

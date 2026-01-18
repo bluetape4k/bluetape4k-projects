@@ -3,7 +3,6 @@ package io.bluetape4k.apache
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.Strings
 
-
 /**
  * Abbreviates a String using a given replacement marker. This will turn
  * "Now is the time for all good men" into "...is the time for..." if "..." was defined

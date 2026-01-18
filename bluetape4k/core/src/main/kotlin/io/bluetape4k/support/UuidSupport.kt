@@ -55,7 +55,7 @@ fun LongArray.toUUID(): UUID {
  * UUID 형식의 문자열 포맷을 나타내는 정규식입니다.
  */
 private val UUID_REGEX =
-    "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\$".toRegex()
+    "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$".toRegex()
 
 /**
  * 문자열이 UUID 형식인지 판단합니다.

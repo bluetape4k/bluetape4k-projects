@@ -1,6 +1,5 @@
 package io.bluetape4k.collections.graph
 
-import Graph
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.Dispatchers

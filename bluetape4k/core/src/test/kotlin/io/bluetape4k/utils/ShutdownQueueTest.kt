@@ -2,7 +2,6 @@ package io.bluetape4k.utils
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.utils.ShutdownQueueTest.Shutdownable
 import org.junit.jupiter.api.Test
 import java.io.Closeable
 

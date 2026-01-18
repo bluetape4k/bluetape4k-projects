@@ -27,21 +27,21 @@ fun DoubleStream.toDoubleArrayList(): DoubleArrayList = asIterable().toDoubleArr
 fun IntArrayList.toIntStream(): IntStream =
     IntStream.builder()
         .also { builder ->
-            forEach { builder.accept(it) }
+            this@toIntStream.forEach { builder.accept(it) }
         }
         .build()
 
 fun LongArrayList.toLongStream(): LongStream =
     LongStream.builder()
         .also { builder ->
-            forEach { builder.accept(it) }
+            this@toLongStream.forEach { builder.accept(it) }
         }
         .build()
 
 fun FloatArrayList.toDoubleStream(): DoubleStream =
     DoubleStream.builder()
         .also { builder ->
-            forEach { builder.accept(it.toDouble()) }
+            this@toDoubleStream.forEach { builder.accept(it.toDouble()) }
         }
         .build()
 
@@ -49,6 +49,6 @@ fun FloatArrayList.toDoubleStream(): DoubleStream =
 fun DoubleArrayList.toDoubleStream(): DoubleStream =
     DoubleStream.builder()
         .also { builder ->
-            forEach { builder.accept(it) }
+            this@toDoubleStream.forEach { builder.accept(it) }
         }
         .build()

@@ -111,7 +111,7 @@ object Systemx {
 
     val LineSeparator: String by unsafeLazy { System.lineSeparator() }
 
-    val FileSeparator: String by unsafeLazy { java.nio.file.FileSystems.getDefault().getSeparator() }
+    val FileSeparator: String by unsafeLazy { java.nio.file.FileSystems.getDefault().separator }
 
     val PathSeparator: String by unsafeLazy { java.io.File.pathSeparator }
 

@@ -47,7 +47,9 @@ class JavaStreamSupportTest {
     @Test
     fun `IntStream to Sequence`() {
         var count = 0
-        IntStream.range(0, 100).asSequence().forEach { count++ }
+        IntStream.range(0, 100).asSequence().forEach {
+            count = it + 1
+        }
         count shouldBeEqualTo 100
     }
 

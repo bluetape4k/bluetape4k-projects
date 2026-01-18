@@ -3,7 +3,6 @@ package io.bluetape4k.concurrent.virtualthread
 import java.util.concurrent.StructuredTaskScope
 import java.util.concurrent.ThreadFactory
 
-
 /**
  * [StructuredTaskScope.ShutdownOnFailure] 를 사용하여 구조화된 작업을 수행합니다.
  *

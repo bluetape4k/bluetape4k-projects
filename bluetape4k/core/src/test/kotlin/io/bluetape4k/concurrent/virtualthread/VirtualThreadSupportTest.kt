@@ -31,7 +31,7 @@ class VirtualThreadSupportTest: AbstractVirtualThreadTest() {
         }
 
         log.debug { "Builder class=${builder.javaClass.name}" }
-        builder.javaClass.name shouldBeEqualTo "java.lang.ThreadBuilders\$PlatformThreadBuilder"
+        builder.javaClass.name shouldBeEqualTo $$"java.lang.ThreadBuilders$PlatformThreadBuilder"
 
         val thread = builder.unstarted {
             log.debug { "Unstarted Platform Thread" }
@@ -57,7 +57,7 @@ class VirtualThreadSupportTest: AbstractVirtualThreadTest() {
         }
 
         log.debug { "Builder class=${builder.javaClass.name}" }
-        builder.javaClass.name shouldBeEqualTo "java.lang.ThreadBuilders\$VirtualThreadBuilder"
+        builder.javaClass.name shouldBeEqualTo $$"java.lang.ThreadBuilders$VirtualThreadBuilder"
 
         val thread = builder.unstarted {
             log.debug { "Unstarted Virtual Thread" }
@@ -80,7 +80,7 @@ class VirtualThreadSupportTest: AbstractVirtualThreadTest() {
         }
 
         log.debug { "Factory class=${factory.javaClass.name}" }
-        factory.javaClass.name shouldBeEqualTo "java.lang.ThreadBuilders\$VirtualThreadFactory"
+        factory.javaClass.name shouldBeEqualTo $$"java.lang.ThreadBuilders$VirtualThreadFactory"
 
         val thread = factory.newThread {
             Thread.sleep(100)

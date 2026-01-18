@@ -8,8 +8,6 @@ import io.bluetape4k.support.toBigInt
 import io.bluetape4k.support.toUuid
 import java.math.BigInteger
 import java.util.*
-import kotlin.collections.component1
-import kotlin.collections.component2
 
 /**
  * Base62 인코딩 및 디코딩을 수행하는 객체입니다.
@@ -28,7 +26,7 @@ object Base62: KLogging() {
 
     private const val DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
     private val BASE = BigInteger.valueOf(62)
-    private val PATTERN = "^[0-9A-Za-z]+\$".toRegex()
+    private val PATTERN = "^[0-9A-Za-z]+$".toRegex()
     const val DEFAULT_BIT_LIMIT = 128
 
     /**

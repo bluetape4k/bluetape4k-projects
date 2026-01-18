@@ -21,7 +21,9 @@ class ImmutableArrayExtensionsTest {
             immutableArrayOf("4", "5")
         )
 
-        val intChunk = array.chunked(3, true) { it.map { it.asInt() } }
+        val intChunk = array.chunked(3, true) { chunk ->
+            chunk.map { it.asInt() }
+        }
         intChunk shouldBeEqualTo immutableArrayOf(
             immutableArrayOf(1, 2, 3),
             immutableArrayOf(4, 5)
@@ -33,7 +35,9 @@ class ImmutableArrayExtensionsTest {
             immutableArrayOf("1", "2", "3")
         )
 
-        val intChunkNotPartial = array.chunked(3, false) { it.map { it.asInt() } }
+        val intChunkNotPartial = array.chunked(3, false) { chunk ->
+            chunk.map { it.asInt() }
+        }
         intChunkNotPartial shouldBeEqualTo immutableArrayOf(
             immutableArrayOf(1, 2, 3)
         )

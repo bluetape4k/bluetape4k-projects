@@ -3,6 +3,7 @@ package io.bluetape4k.codec
 import io.bluetape4k.support.EMPTY_STRING
 import io.bluetape4k.support.emptyByteArray
 import io.bluetape4k.support.toUtf8Bytes
+import io.bluetape4k.support.unsafeLazy
 import java.util.*
 
 /**
@@ -11,8 +12,8 @@ import java.util.*
 class Base64StringEncoder: StringEncoder {
 
     companion object {
-        private val encoder: Base64.Encoder = Base64.getUrlEncoder()
-        private val decoder: Base64.Decoder = Base64.getUrlDecoder()
+        private val encoder: Base64.Encoder by unsafeLazy { Base64.getUrlEncoder() }
+        private val decoder: Base64.Decoder by unsafeLazy { Base64.getUrlDecoder() }
     }
 
     /**

@@ -21,7 +21,7 @@ interface ClosedClosedRange<T: Comparable<T>>: Range<T>, ClosedRange<T> {
     override val last: T get() = endInclusive
 
     override fun contains(value: T): Boolean =
-        value >= startInclusive && value <= endInclusive
+        value in startInclusive..endInclusive
 
     override fun isEmpty(): Boolean =
         startInclusive > endInclusive
@@ -40,12 +40,10 @@ data class DefaultClosedClosedRange<T: Comparable<T>>(
 ): ClosedClosedRange<T>, ClosedRange<T> by startInclusive..endInclusive {
 
     override fun contains(value: T): Boolean =
-        value >= startInclusive && value <= endInclusive
+        value in startInclusive..endInclusive
 
     override fun isEmpty(): Boolean = startInclusive >= endInclusive
-
     override fun toString(): String = "[$startInclusive..$endInclusive]"
-
 }
 
 /**

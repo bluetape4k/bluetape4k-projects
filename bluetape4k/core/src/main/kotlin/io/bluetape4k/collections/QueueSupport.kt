@@ -21,7 +21,7 @@ import kotlin.collections.ArrayDeque
  * @param collections 초기 데이터 (기본: 빈 리스트)
  * @return [ArrayBlockingQueue] 인스턴스
  */
-fun <E> arrayBlockingQueueOf(
+fun <E: Any> arrayBlockingQueueOf(
     capacity: Int,
     fair: Boolean = false,
     collections: Collection<E> = emptyList(),
@@ -36,7 +36,6 @@ fun <E> arrayBlockingQueueOf(
  * ```
  *
  * @param initialCapacity 초기 용량
- * @param collections     초기 데이터 (기본: 빈 리스트)
  */
 fun <E> arrayDequeOf(initialCapacity: Int): ArrayDeque<E> = ArrayDeque(initialCapacity)
 
@@ -61,10 +60,9 @@ fun <E> arrayDequeOf(collections: Collection<E>): ArrayDeque<E> = ArrayDeque(col
  * val queue = concurrentLinkedQueueOf<String>()  // 빈 큐 생성
  * ```
  *
- * @param collections 초기 데이터 (기본: 빈 리스트)
  * @return [ConcurrentLinkedQueue] 인스턴스
  */
-fun <E> concurrentLinkedQueueOf(): ConcurrentLinkedQueue<E> = ConcurrentLinkedQueue()
+fun <E: Any> concurrentLinkedQueueOf(): ConcurrentLinkedQueue<E> = ConcurrentLinkedQueue()
 
 /**
  * [ConcurrentLinkedQueue]를 생성합니다.
@@ -76,7 +74,7 @@ fun <E> concurrentLinkedQueueOf(): ConcurrentLinkedQueue<E> = ConcurrentLinkedQu
  * @param collections 초기 데이터
  * @return [ConcurrentLinkedQueue] 인스턴스
  */
-fun <E> concurrentLinkedQueueOf(collections: Collection<E>): ConcurrentLinkedQueue<E> =
+fun <E: Any> concurrentLinkedQueueOf(collections: Collection<E>): ConcurrentLinkedQueue<E> =
     ConcurrentLinkedQueue(collections)
 
 /**
@@ -87,10 +85,9 @@ fun <E> concurrentLinkedQueueOf(collections: Collection<E>): ConcurrentLinkedQue
  * ```
  *
  * @param capacity    큐의 용량
- * @param collections 초기 데이터 (기본: 빈 리스트)
  * @return [LinkedBlockingDeque] 인스턴스
  */
-fun <E> linkedBlokcingDequeOf(capacity: Int = Int.MAX_VALUE): LinkedBlockingDeque<E> =
+fun <E: Any> linkedBlokcingDequeOf(capacity: Int = Int.MAX_VALUE): LinkedBlockingDeque<E> =
     LinkedBlockingDeque(capacity)
 
 /**
@@ -104,7 +101,7 @@ fun <E> linkedBlokcingDequeOf(capacity: Int = Int.MAX_VALUE): LinkedBlockingDequ
  * @return [LinkedBlockingDeque] 인스턴스
  * @see LinkedBlockingDeque
  */
-fun <E> linkedBlokcingDequeOf(collections: Collection<E>): LinkedBlockingDeque<E> =
+fun <E: Any> linkedBlokcingDequeOf(collections: Collection<E>): LinkedBlockingDeque<E> =
     LinkedBlockingDeque(collections)
 
 /**
@@ -117,7 +114,7 @@ fun <E> linkedBlokcingDequeOf(collections: Collection<E>): LinkedBlockingDeque<E
  * @param capacity    큐의 용량
  * @return [LinkedBlockingQueue] 인스턴스
  */
-fun <E> linkedBlokcingQueueOf(capacity: Int = Int.MAX_VALUE): LinkedBlockingQueue<E> =
+fun <E: Any> linkedBlokcingQueueOf(capacity: Int = Int.MAX_VALUE): LinkedBlockingQueue<E> =
     LinkedBlockingQueue(capacity)
 
 /**
@@ -131,7 +128,7 @@ fun <E> linkedBlokcingQueueOf(capacity: Int = Int.MAX_VALUE): LinkedBlockingQueu
  * @return [LinkedBlockingQueue] 인스턴스
  * @see LinkedBlockingQueue
  */
-fun <E> linkedBlokcingQueueOf(collections: Collection<E>): LinkedBlockingQueue<E> =
+fun <E: Any> linkedBlokcingQueueOf(collections: Collection<E>): LinkedBlockingQueue<E> =
     LinkedBlockingQueue(collections)
 
 /**
@@ -147,7 +144,7 @@ fun <E> linkedBlokcingQueueOf(collections: Collection<E>): LinkedBlockingQueue<E
 fun <E: Comparable<E>> priorityBlockingQueueOf(
     capacity: Int = Int.MAX_VALUE,
 ): PriorityBlockingQueue<E> =
-    PriorityBlockingQueue<E>(capacity)
+    PriorityBlockingQueue(capacity)
 
 /**
  * [PriorityBlockingQueue]를 생성합니다.
@@ -164,7 +161,7 @@ fun <E: Comparable<E>> priorityBlockingQueueOf(
     capacity: Int = Int.MAX_VALUE,
     comparator: Comparator<E>,
 ): PriorityBlockingQueue<E> =
-    PriorityBlockingQueue<E>(capacity, comparator)
+    PriorityBlockingQueue(capacity, comparator)
 
 /**
  * [PriorityQueue]를 생성합니다.
@@ -179,7 +176,7 @@ fun <E: Comparable<E>> priorityBlockingQueueOf(
 fun <E: Comparable<E>> priorityQueueOf(
     capacity: Int = Int.MAX_VALUE,
 ): PriorityQueue<E> =
-    PriorityQueue<E>(capacity)
+    PriorityQueue(capacity)
 
 /**
  * [PriorityQueue]를 생성합니다.
@@ -196,7 +193,7 @@ fun <E: Comparable<E>> priorityQueueOf(
     capacity: Int = Int.MAX_VALUE,
     comparator: Comparator<E>,
 ): PriorityQueue<E> =
-    PriorityQueue<E>(capacity, comparator)
+    PriorityQueue(capacity, comparator)
 
 /**
  * [SynchronousQueue]를 생성합니다.
@@ -215,4 +212,4 @@ fun <E: Comparable<E>> priorityQueueOf(
  * @param fair 공정한 정책 여부 (기본: false)
  * @return [SynchronousQueue] 인스턴스
  */
-fun <E> synchronousQueueOf(fair: Boolean = false) = SynchronousQueue<E>(fair)
+fun <E: Any> synchronousQueueOf(fair: Boolean = false) = SynchronousQueue<E>(fair)

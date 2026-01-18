@@ -97,8 +97,7 @@ fun KClass<*>.hierarchy(): Iterable<Class<*>> =
 /**
  * Gets an `Iterable` that can iterate over a class hierarchy in ascending (subclass to superclass) order.
  *
- * @param type the type to get the class hierarchy from
- * @param interfacesBehavior switch indicating whether to include or exclude interfaces
+ * @param interfaceBehavior switch indicating whether to include or exclude interfaces
  * @return Iterable an Iterable over the class hierarchy of the given class
  * @since 3.2
  */
@@ -110,9 +109,9 @@ fun KClass<*>.isAssignable(toClass: KClass<*>, autoboxing: Boolean = true): Bool
     ClassUtils.isAssignable(this.java, toClass.java, autoboxing)
 
 /**
- * Is the specified class an inner class or static nested class.
+ * Is the specified class an inner class or static nested class?
  *
- * @receiver the class to check, may be null
+ * @receiver the class to check may be null
  * @return {@code true} if the class is an inner or static nested class, false if not or `null`
  */
 fun KClass<*>.isInnerClass(): Boolean = ClassUtils.isInnerClass(this.java)

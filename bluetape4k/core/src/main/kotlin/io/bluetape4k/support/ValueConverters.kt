@@ -703,7 +703,7 @@ fun Any?.asByteArrayOrNull(charset: Charset = Charsets.UTF_8): ByteArray? = runC
 }.getOrNull()
 
 //
-// Floor, Round for specific decimal point
+// 특정 소숫점을 위한 Floor, Round 함수
 //
 
 //private val decimalFormats = ConcurrentHashMap<Int, DecimalFormat>()

@@ -273,7 +273,7 @@ object FutureUtils {
      *
      * @param futures Iterable<CompletableFuture<V>> 변환할 결과를 가지고 있는 Iterable
      * @param executor Executor
-     * @param action Function1<V, R> 변환할 함수
+     * @param combiner Function1<List<V>, R> 변환할 함수
      */
     fun <R> combine(
         futures: Iterable<CompletableFuture<out Any?>>,

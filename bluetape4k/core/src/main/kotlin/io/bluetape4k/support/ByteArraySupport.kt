@@ -15,11 +15,11 @@ import java.util.*
  * array.takeItems(10) // [1, 2, 3, 4, 5]
  * ```
  *
- * @param count 가져올 갯수 ( 0 < count <= size)
+ * @param count 가져올 갯수 (0 < count <= size)
  */
 fun ByteArray.takeItems(count: Int): ByteArray = when {
     count <= 0 -> emptyByteArray
-    else       -> this.copyOfRange(0, count.coerceAtMost(size))
+    else -> this.copyOfRange(0, count.coerceAtMost(size))
 }
 
 /**
@@ -33,12 +33,12 @@ fun ByteArray.takeItems(count: Int): ByteArray = when {
  * array.dropItems(10) // []
  * ```
  *
- * @param count drop 할 갯수 ( 0 < count <= size)
+ * @param count drop 할 갯수 (0 < count <= size)
  */
 fun ByteArray.dropItems(count: Int): ByteArray = when {
-    count <= 0    -> this.copyOf()
+    count <= 0 -> this.copyOf()
     count >= size -> emptyByteArray
-    else          -> this.copyOfRange(count, size)
+    else -> this.copyOfRange(count, size)
 }
 
 /**
@@ -328,8 +328,8 @@ fun ByteArray.rotate(distance: Int, fromIndex: Int = 0, toIndex: Int = size - 1)
     }
 
     val length = toIndex - fromIndex + 1
-    // Obtain m = (-distance mod length), a non-negative value less than "length". This is how many
-    // places left to rotate.
+    // obtain m = (-distance mod length), a non-negative value less than "length".
+    // This is how many places left to rotate.
     var m = -distance % length
     m = if (m < 0) m + length else m
 

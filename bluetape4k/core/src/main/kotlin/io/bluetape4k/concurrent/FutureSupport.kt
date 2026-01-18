@@ -82,7 +82,7 @@ private class FutureToCompletableFutureWrapper<T> private constructor(
         }
     }
 
-    override fun whenComplete(action: BiConsumer<in T, in Throwable>?): CompletableFuture<T> {
+    override fun whenComplete(action: BiConsumer<in T, in Throwable>): CompletableFuture<T> {
         return super.whenComplete(action).apply {
             service.shutdown()
         }

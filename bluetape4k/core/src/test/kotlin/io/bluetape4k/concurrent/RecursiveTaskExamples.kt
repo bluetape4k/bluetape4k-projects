@@ -33,8 +33,7 @@ class RecursiveTaskExamples {
         ): RecursiveTask<BigInteger>() {
 
             override fun compute(): BigInteger {
-                val range = toValue - fromValue
-                return when (range) {
+                return when (val range = toValue - fromValue) {
                     0    -> fromValue.toBigInteger()
                     1    -> fromValue.toBigInteger() * toValue.toBigInteger()
                     else -> {

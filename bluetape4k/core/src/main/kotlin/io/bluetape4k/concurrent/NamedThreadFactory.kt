@@ -8,8 +8,8 @@ import java.util.concurrent.ThreadFactory
 /**
  * NamedThreadFactory
  *
- * @property prefix   The prefix of thread name
- * @property isDaemon The daemon flag of thread
+ * @property prefix   스레드 명의 접두사
+ * @property isDaemon 스레드 데몬 여부
  */
 class NamedThreadFactory private constructor(
     val prefix: String,
@@ -34,8 +34,8 @@ class NamedThreadFactory private constructor(
     /**
      * Create a new thread
      *
-     * @param body The body of thread
-     * @return The new thread
+     * @param body 스레드 실행할 람다
+     * @return 새로은 스레드 객체
      */
     fun newThread(body: () -> Unit): Thread {
         return newThread(Runnable { body() })

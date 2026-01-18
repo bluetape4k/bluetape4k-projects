@@ -16,7 +16,7 @@ fun getSystemThreadGroup(): ThreadGroup {
 }
 
 /**
- * Finds all active thread groups which match the given predicate.
+ * [predicate]를 만족하는 활성화된 스레드 그룹을 모두 찾습니다.
  *
  * @param predicate the predicate
  * @return An unmodifiable {@link Collection} of active thread groups matching the given predicate

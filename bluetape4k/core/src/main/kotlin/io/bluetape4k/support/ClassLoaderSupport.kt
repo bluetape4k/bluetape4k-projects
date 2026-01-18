@@ -11,7 +11,7 @@ fun getThreadURLs(): Array<URL> = Thread.currentThread().contextClassLoader.urls
 
 val ClassLoader.urls: Array<URL>
     get() = when (this) {
-        is java.net.URLClassLoader -> this@urls.getURLs()
+        is java.net.URLClassLoader -> this@urls.urLs
         else                       -> EMPTY_URL_ARRAY
     }
 

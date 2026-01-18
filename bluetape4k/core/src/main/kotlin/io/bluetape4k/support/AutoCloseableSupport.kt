@@ -22,7 +22,7 @@ inline fun AutoCloseable.closeSafe(errorHandler: (error: Throwable) -> Unit = { 
 /**
  * close 시에 제한시간[timeoutMillis]을 지정하여 수행합니다.
  *
- * @param timeout close 의 최대 수행 시간
+ * @param timeoutMillis close 의 최대 수행 시간
  * @param errorHandler close 에서 예외 발생 시 수행할 함수
  */
 inline fun AutoCloseable.closeTimeout(

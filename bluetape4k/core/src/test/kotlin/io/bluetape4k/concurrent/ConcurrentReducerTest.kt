@@ -244,7 +244,7 @@ class ConcurrentReducerTest {
 
         val future = CompletableFuture<String>()
 
-        override fun invoke(): CompletionStage<String>? {
+        override fun invoke(): CompletionStage<String> {
             val count = activeCount()
             log.trace { "Active count=$count, maxCount=${maxCount.value}" }
             if (count > maxCount.value) {
