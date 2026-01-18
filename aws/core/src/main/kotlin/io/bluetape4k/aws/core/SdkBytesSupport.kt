@@ -12,4 +12,4 @@ fun String.toSdkBytes(cs: Charset = Charsets.UTF_8): SdkBytes = SdkBytes.fromStr
 fun String.toUtf8SdkBytes(): SdkBytes = SdkBytes.fromUtf8String(this)
 
 fun InputStream.toSdkBytes(): SdkBytes = SdkBytes.fromInputStream(this)
-fun ByteBuffer.toSdkBytes() = SdkBytes.fromByteBuffer(this)
+fun ByteBuffer.toSdkBytes(): SdkBytes = SdkBytes.fromByteBuffer(this)
