@@ -3,10 +3,10 @@ package io.bluetape4k.resilience4j.cache
 import io.github.resilience4j.cache.Cache
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 /**
  * Resilience4j [Cache] 를 사용하여 캐시된 값을 반환합니다.
@@ -65,7 +65,7 @@ inline fun <K, V> Cache<K, V>.decorateSuspendFunction(
 suspend inline fun <K, V> Cache<K, V>.executeSuspendFunction(
     key: K,
     crossinline loader: suspend (K) -> V,
-): V = suspendCoroutine { cont ->
+): V = suspendCancellableCoroutine { cont ->
 
     val cachedValue = runCatching { computeIfAbsent(key!!) { null } }.getOrNull()
     if (cachedValue != null) {

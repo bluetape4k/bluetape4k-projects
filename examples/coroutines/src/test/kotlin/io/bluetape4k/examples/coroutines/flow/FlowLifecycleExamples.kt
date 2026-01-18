@@ -4,6 +4,7 @@ import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -22,7 +23,6 @@ import kotlinx.coroutines.withContext
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import kotlin.coroutines.coroutineContext
 
 class FlowLifecycleExamples {
 
@@ -118,7 +118,7 @@ class FlowLifecycleExamples {
                 .collect { println(it) }
         }
 
-        private suspend fun present(place: String, message: String) {
+        private suspend fun present(place: String, message: String) = coroutineScope {
             val name = coroutineContext[CoroutineName]?.name
             println("[$name] $message on $place")
         }

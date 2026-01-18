@@ -2,7 +2,7 @@ package io.bluetape4k.coroutines.slf4j
 
 import io.bluetape4k.logging.withLoggingContext
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.slf4j.MDCContext
 import kotlinx.coroutines.withContext
 
@@ -34,11 +34,9 @@ suspend inline fun <T> withCoroutineLoggingContext(
     pair: Pair<String, String?>,
     restorePrevious: Boolean = true,
     crossinline block: suspend CoroutineScope.() -> T,
-): T = coroutineScope {
-    withContext(coroutineContext + MDCContext()) {
-        withLoggingContext(pair, restorePrevious) {
-            block(this)
-        }
+): T = withContext(Dispatchers.IO + MDCContext()) {
+    withLoggingContext(pair, restorePrevious) {
+        block(this)
     }
 }
 
@@ -100,10 +98,8 @@ suspend inline fun <T> withCoroutineLoggingContext(
     map: Map<String, String?>,
     restorePrevious: Boolean = true,
     crossinline block: suspend CoroutineScope.() -> T,
-): T = coroutineScope {
-    withContext(coroutineContext + MDCContext()) {
-        withLoggingContext(map, restorePrevious) {
-            block(this)
-        }
+): T = withContext(Dispatchers.IO + MDCContext()) {
+    withLoggingContext(map, restorePrevious) {
+        block(this)
     }
 }

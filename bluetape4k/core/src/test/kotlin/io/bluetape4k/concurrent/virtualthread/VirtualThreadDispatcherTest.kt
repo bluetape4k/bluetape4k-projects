@@ -13,7 +13,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.RepeatedTest
 import kotlin.system.measureTimeMillis
 
@@ -48,22 +47,6 @@ class VirtualThreadDispatcherTest {
                 launch {
                     delay(SLEEP_TIME)
                     log.trace { "Job $it is done" }
-                }
-            }
-            jobs.joinAll()
-        }
-        log.debug { "Elapsed time: $elapsedTime ms" }
-    }
-
-    @RepeatedTest(REPEAT_SIZE)
-    fun `Virtual Thread Dispatcher with withContext`() = runSuspendVT {
-        val elapsedTime = measureTimeMillis {
-            val jobs = List(TASK_SIZE) {
-                launch {
-                    withContext(coroutineContext) {
-                        Thread.sleep(SLEEP_TIME)
-                        log.trace { "Job $it is done" }
-                    }
                 }
             }
             jobs.joinAll()

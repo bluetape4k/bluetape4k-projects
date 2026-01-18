@@ -35,7 +35,8 @@ class CompletableFutureExamples {
     fun `예외를 발생시키는 suspend 함수를 CompletableFuture로 변환하기`() = runTest {
         // 예외를 Catch하기 위해 SupervisorJob을 사용합니다.
         assertFailsWith<BluetapeException> {
-            withContext(SupervisorJob()) {
+            val job = coroutineContext + SupervisorJob()
+            withContext(job) {
                 val future = future {
                     delay(Random.nextLong(10, 20))
                     log.debug { "예외를 발생시킵니다." }
