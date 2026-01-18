@@ -31,8 +31,8 @@ class SesClientExtensionsTest: AbstractKotlinSesTest() {
     fun setup() {
         runSuspendIO {
             // 테스트 시 사용할 email 주소를 등록합니다.
-            sesClient.verifyEmailAddress(VerifyEmailAddressRequest.invoke { this.emailAddress = senderEmail })
-            sesClient.verifyEmailAddress(VerifyEmailAddressRequest.invoke { this.emailAddress = receiverEmail })
+            sesClient.verifyEmailAddress(VerifyEmailAddressRequest { this.emailAddress = senderEmail })
+            sesClient.verifyEmailAddress(VerifyEmailAddressRequest { this.emailAddress = receiverEmail })
         }
     }
 

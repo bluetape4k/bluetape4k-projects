@@ -8,10 +8,11 @@ inline fun sendMailRequestOf(
     source: String,
     destination: Destination,
     message: Message,
-    crossinline configurer: SendEmailRequest.Builder.() -> Unit = {},
-): SendEmailRequest = SendEmailRequest {
-    this.source = source
-    this.destination = destination
-    this.message = message
-    configurer()
-}
+    crossinline builder: SendEmailRequest.Builder.() -> Unit = {},
+): SendEmailRequest =
+    SendEmailRequest {
+        this.source = source
+        this.destination = destination
+        this.message = message
+        builder()
+    }

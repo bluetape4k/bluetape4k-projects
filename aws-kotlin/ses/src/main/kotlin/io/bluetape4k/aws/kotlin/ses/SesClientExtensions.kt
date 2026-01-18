@@ -43,14 +43,14 @@ inline fun sesClientOf(
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
     httpClientEngine: HttpClientEngine = defaultCrtHttpEngineOf(),
-    crossinline configurer: SesClient.Config.Builder.() -> Unit = {},
+    crossinline builder: SesClient.Config.Builder.() -> Unit = {},
 ): SesClient = SesClient {
     endpoint?.let { this.endpointUrl = Url.parse(it) }
     region?.let { this.region = it }
     credentialsProvider?.let { this.credentialsProvider = it }
     httpClient = httpClientEngine
 
-    configurer()
+    builder()
 }.apply {
     ShutdownQueue.register(this)
 }

@@ -7,46 +7,41 @@ import aws.sdk.kotlin.services.ses.model.Message
 inline fun contentOf(
     data: String,
     charset: String = Charsets.UTF_8.name(),
-    crossinline configurer: Content.Builder.() -> Unit = {},
-): Content {
-    return Content {
+    crossinline builder: Content.Builder.() -> Unit = {},
+): Content =
+    Content {
         this.data = data
         this.charset = charset
 
-        configurer()
+        builder()
     }
-}
 
 inline fun htmlBodyOf(
     html: Content? = null,
-    crossinline configurer: Body.Builder.() -> Unit = {},
-): Body {
-    return Body {
+    crossinline builder: Body.Builder.() -> Unit = {},
+): Body =
+    Body {
         html?.let { this.html = it }
-        configurer()
+        builder()
     }
-}
 
 inline fun textBodyOf(
     text: Content? = null,
-    crossinline configurer: Body.Builder.() -> Unit = {},
-): Body {
-    return Body {
+    crossinline builder: Body.Builder.() -> Unit = {},
+): Body =
+    Body {
         text?.let { this.text = it }
-        configurer()
+        builder()
     }
-}
-
 
 inline fun messageOf(
     subject: Content,
     body: Body,
-    crossinline configurer: Message.Builder.() -> Unit = {},
-): Message {
-    return Message {
+    crossinline builder: Message.Builder.() -> Unit = {},
+): Message =
+    Message {
         this.subject = subject
         this.body = body
 
-        configurer()
+        builder()
     }
-}

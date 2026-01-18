@@ -4,8 +4,7 @@ import aws.sdk.kotlin.services.ses.model.RawMessage
 
 fun rawMessageOf(
     data: ByteArray,
-): RawMessage {
-    return RawMessage {
+): RawMessage =
+    RawMessage {
         this.data = data
     }
-}
