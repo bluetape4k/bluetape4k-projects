@@ -3,16 +3,16 @@ package io.bluetape4k.aws.sns.model
 import software.amazon.awssdk.services.sns.model.ConfirmSubscriptionRequest
 
 inline fun ConfirmSubscriptionRequest(
-    initializer: ConfirmSubscriptionRequest.Builder.() -> Unit,
+    builder: ConfirmSubscriptionRequest.Builder.() -> Unit,
 ): ConfirmSubscriptionRequest =
-    ConfirmSubscriptionRequest.builder().apply(initializer).build()
+    ConfirmSubscriptionRequest.builder().apply(builder).build()
 
-fun confirmSubscriptionRequestOf(
+inline fun confirmSubscriptionRequestOf(
     topicArn: String,
     token: String,
-    initializer: ConfirmSubscriptionRequest.Builder.() -> Unit = {},
+    builder: ConfirmSubscriptionRequest.Builder.() -> Unit = {},
 ): ConfirmSubscriptionRequest = ConfirmSubscriptionRequest {
     topicArn(topicArn)
     token(token)
-    initializer()
+    builder()
 }

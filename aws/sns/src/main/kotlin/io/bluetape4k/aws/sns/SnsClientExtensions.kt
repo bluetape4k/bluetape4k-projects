@@ -12,22 +12,22 @@ import software.amazon.awssdk.services.sns.model.CreatePlatformEndpointResponse
 import software.amazon.awssdk.services.sns.model.CreateTopicResponse
 import java.net.URI
 
-inline fun SnsClient(initializer: SnsClientBuilder.() -> Unit): SnsClient =
-    SnsClient.builder().apply(initializer).build()
+inline fun SnsClient(builder: SnsClientBuilder.() -> Unit): SnsClient =
+    SnsClient.builder().apply(builder).build()
 
-fun snsClientOf(
+inline fun snsClientOf(
     endpoint: URI,
     region: Region,
     credentialsProvider: AwsCredentialsProvider,
     httpClient: SdkHttpClient = SdkHttpClientProvider.Apache.apacheHttpClient,
-    initializer: SnsClientBuilder.() -> Unit = {},
+    builder: SnsClientBuilder.() -> Unit = {},
 ): SnsClient = SnsClient {
     endpointOverride(endpoint)
     region(region)
     credentialsProvider(credentialsProvider)
     httpClient(httpClient)
 
-    initializer()
+    builder()
 }
 
 fun SnsClient.createEndpoint(token: String, platformApplicationArn: String): CreatePlatformEndpointResponse {

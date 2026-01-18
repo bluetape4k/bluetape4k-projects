@@ -8,13 +8,13 @@ import software.amazon.awssdk.services.sqs.model.DeleteMessageRequest
 /**
  * 제공된 초기화자를 사용하여 DeleteMessageRequest를 구성합니다.
  *
- * @param initializer DeleteMessageRequest.Builder를 초기화하는 람다입니다.
+ * @param builder DeleteMessageRequest.Builder를 초기화하는 람다입니다.
  * @return DeleteMessageRequest 인스턴스를 반환합니다.
  */
 inline fun deleteMessageRequest(
-    initializer: DeleteMessageRequest.Builder.() -> Unit,
+    builder: DeleteMessageRequest.Builder.() -> Unit,
 ): DeleteMessageRequest {
-    return DeleteMessageRequest.builder().apply(initializer).build()
+    return DeleteMessageRequest.builder().apply(builder).build()
 }
 
 /**
@@ -38,13 +38,13 @@ fun deleteMessageRequestOf(
 /**
  * 제공된 초기화자를 사용하여 DeleteMessageBatchRequest를 구성합니다.
  *
- * @param initializer DeleteMessageBatchRequest.Builder를 초기화하는 람다입니다.
+ * @param builder DeleteMessageBatchRequest.Builder를 초기화하는 람다입니다.
  * @return DeleteMessageBatchRequest 인스턴스를 반환합니다.
  */
 inline fun deleteMessageBatchRequest(
-    initializer: DeleteMessageBatchRequest.Builder.() -> Unit,
+    builder: DeleteMessageBatchRequest.Builder.() -> Unit,
 ): DeleteMessageBatchRequest {
-    return DeleteMessageBatchRequest.builder().apply(initializer).build()
+    return DeleteMessageBatchRequest.builder().apply(builder).build()
 }
 
 /**
@@ -68,13 +68,13 @@ fun deleteMessageBatchRequestOf(
 /**
  * 제공된 초기화자를 사용하여 DeleteMessageBatchRequestEntry를 구성합니다.
  *
- * @param initializer DeleteMessageBatchRequestEntry.Builder를 초기화하는 람다입니다.
+ * @param builder DeleteMessageBatchRequestEntry.Builder를 초기화하는 람다입니다.
  * @return DeleteMessageBatchRequestEntry 인스턴스를 반환합니다.
  */
 inline fun deleteMessageBatchRequestEntry(
-    initializer: DeleteMessageBatchRequestEntry.Builder.() -> Unit,
+    builder: DeleteMessageBatchRequestEntry.Builder.() -> Unit,
 ): DeleteMessageBatchRequestEntry {
-    return DeleteMessageBatchRequestEntry.builder().apply(initializer).build()
+    return DeleteMessageBatchRequestEntry.builder().apply(builder).build()
 }
 
 /**

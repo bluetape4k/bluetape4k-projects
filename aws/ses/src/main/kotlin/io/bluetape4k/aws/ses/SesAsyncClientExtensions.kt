@@ -29,13 +29,13 @@ import java.util.concurrent.CompletableFuture
  * val response = client.send(request).await()
  * ```
  *
- * @param initializer [SesAsyncClientBuilder]를 이용한 초기화 람다
+ * @param builder [SesAsyncClientBuilder]를 이용한 초기화 람다
  * @return [SesAsyncClient] 인스턴스
  */
 inline fun SesAsyncClient(
-    initializer: SesAsyncClientBuilder.() -> Unit,
+    builder: SesAsyncClientBuilder.() -> Unit,
 ): SesAsyncClient {
-    return SesAsyncClient.builder().apply(initializer).build()
+    return SesAsyncClient.builder().apply(builder).build()
         .apply {
             ShutdownQueue.register(this)
         }
@@ -53,17 +53,17 @@ inline fun SesAsyncClient(
  * ```
  *
  * @param region [Region] 지역
- * @param initializer [SesAsyncClientBuilder]를 이용한 초기화 람다
+ * @param builder [SesAsyncClientBuilder]를 이용한 초기화 람다
  * @return [SesAsyncClient] 인스턴스
  */
-fun sesAsyncClientOf(
+inline fun sesAsyncClientOf(
     region: Region,
-    initializer: SesAsyncClientBuilder.() -> Unit = {},
+    builder: SesAsyncClientBuilder.() -> Unit = {},
 ): SesAsyncClient = SesAsyncClient {
     region(region)
     httpClient(SdkAsyncHttpClientProvider.Netty.nettyNioAsyncHttpClient)
 
-    initializer()
+    builder()
 }
 
 /**
@@ -78,17 +78,17 @@ fun sesAsyncClientOf(
  * ```
  *
  * @param endpointProvider [SesEndpointProvider] 엔드포인트 제공자
- * @param initializer [SesAsyncClientBuilder]를 이용한 초기화 람다
+ * @param builder [SesAsyncClientBuilder]를 이용한 초기화 람다
  * @return [SesAsyncClient] 인스턴스
  */
-fun sesAsyncClientOf(
+inline fun sesAsyncClientOf(
     endpointProvider: SesEndpointProvider,
-    initializer: SesAsyncClientBuilder.() -> Unit = {},
+    builder: SesAsyncClientBuilder.() -> Unit = {},
 ): SesAsyncClient = SesAsyncClient {
     endpointProvider(endpointProvider)
     httpClient(nettyNioAsyncHttpClientOf())
 
-    initializer()
+    builder()
 }
 
 /**

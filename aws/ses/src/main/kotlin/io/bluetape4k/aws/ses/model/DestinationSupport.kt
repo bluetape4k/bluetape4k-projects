@@ -13,11 +13,11 @@ import software.amazon.awssdk.services.ses.model.Destination
  * }
  * ```
  *
- * @param initializer [Destination.Builder] 초기화 람다
+ * @param builder [Destination.Builder] 초기화 람다
  * @return [Destination] 인스턴스
  */
-inline fun Destination(initializer: Destination.Builder.() -> Unit): Destination {
-    return Destination.builder().apply(initializer).build()
+inline fun Destination(builder: Destination.Builder.() -> Unit): Destination {
+    return Destination.builder().apply(builder).build()
 }
 
 /**

@@ -25,11 +25,11 @@ import java.util.concurrent.ScheduledExecutorService
  * waiter.waitUntil(...)
  * ```
  *
- * @param initializer [SesAsyncWaiter.Builder] 초기화 람다
+ * @param builder [SesAsyncWaiter.Builder] 초기화 람다
  * @return [SesAsyncWaiter] 인스턴스
  */
-inline fun SesAsyncWaiter(initializer: SesAsyncWaiter.Builder.() -> Unit): SesAsyncWaiter {
-    return SesAsyncWaiter.builder().apply(initializer).build()
+inline fun SesAsyncWaiter(builder: SesAsyncWaiter.Builder.() -> Unit): SesAsyncWaiter {
+    return SesAsyncWaiter.builder().apply(builder).build()
 }
 
 /**

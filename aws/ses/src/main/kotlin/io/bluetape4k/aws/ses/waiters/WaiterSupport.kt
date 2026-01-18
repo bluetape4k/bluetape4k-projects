@@ -5,9 +5,9 @@ import software.amazon.awssdk.retries.api.BackoffStrategy
 import java.time.Duration
 
 inline fun WaiterOverrideConfiguration(
-    initializer: WaiterOverrideConfiguration.Builder.() -> Unit,
+    builder: WaiterOverrideConfiguration.Builder.() -> Unit,
 ): WaiterOverrideConfiguration {
-    return WaiterOverrideConfiguration.builder().apply(initializer).build()
+    return WaiterOverrideConfiguration.builder().apply(builder).build()
 }
 
 fun waiterOverrideConfigurationOf(

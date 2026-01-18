@@ -4,17 +4,17 @@ import software.amazon.awssdk.awscore.AwsRequestOverrideConfiguration
 import software.amazon.awssdk.services.sns.model.ListPhoneNumbersOptedOutRequest
 
 inline fun ListPhoneNumbersOptedOutRequest(
-    initializer: ListPhoneNumbersOptedOutRequest.Builder.() -> Unit,
+    builder: ListPhoneNumbersOptedOutRequest.Builder.() -> Unit,
 ): ListPhoneNumbersOptedOutRequest =
-    ListPhoneNumbersOptedOutRequest.builder().apply(initializer).build()
+    ListPhoneNumbersOptedOutRequest.builder().apply(builder).build()
 
-fun listPhoneNumbersOptedOutRequestOf(
+inline fun listPhoneNumbersOptedOutRequestOf(
     nextToken: String? = null,
     overrideConfiguration: AwsRequestOverrideConfiguration? = null,
-    initializer: ListPhoneNumbersOptedOutRequest.Builder.() -> Unit = {},
+    builder: ListPhoneNumbersOptedOutRequest.Builder.() -> Unit = {},
 ): ListPhoneNumbersOptedOutRequest = ListPhoneNumbersOptedOutRequest {
     nextToken?.run { nextToken(this) }
     overrideConfiguration?.run { overrideConfiguration(this) }
 
-    initializer()
+    builder()
 }

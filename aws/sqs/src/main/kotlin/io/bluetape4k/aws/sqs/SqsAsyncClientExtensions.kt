@@ -28,15 +28,15 @@ import java.util.concurrent.CompletableFuture
  * Create [SqsAsyncClient] instance
  * 사용 후에는 꼭 `close()`를 호출하거나 , `use` 를 사용해서 cleanup 해주어야 합니다.
  */
-inline fun sqsAsyncClient(initializer: SqsAsyncClientBuilder.() -> Unit): SqsAsyncClient {
-    return SqsAsyncClient.builder().apply(initializer).build()
+inline fun sqsAsyncClient(builder: SqsAsyncClientBuilder.() -> Unit): SqsAsyncClient {
+    return SqsAsyncClient.builder().apply(builder).build()
 }
 
-fun sqsAsyncClientOf(
+inline fun sqsAsyncClientOf(
     endpoint: URI,
     region: Region,
     credentialsProvider: AwsCredentialsProvider,
-    initializer: SqsAsyncClientBuilder.() -> Unit = {},
+    builder: SqsAsyncClientBuilder.() -> Unit = {},
 ): SqsAsyncClient = sqsAsyncClient {
     endpointOverride(endpoint)
     region(region)
@@ -44,7 +44,7 @@ fun sqsAsyncClientOf(
 
     httpClient(SdkAsyncHttpClientProvider.Netty.nettyNioAsyncHttpClient)
 
-    initializer()
+    builder()
 }
 
 fun SqsAsyncClient.createQueue(queueName: String): CompletableFuture<String> {

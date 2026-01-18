@@ -4,17 +4,17 @@ import software.amazon.awssdk.awscore.AwsRequestOverrideConfiguration
 import software.amazon.awssdk.services.sns.model.GetTopicAttributesRequest
 
 inline fun GetTopicAttributesRequest(
-    initializer: GetTopicAttributesRequest.Builder.() -> Unit,
+    builder: GetTopicAttributesRequest.Builder.() -> Unit,
 ): GetTopicAttributesRequest =
-    GetTopicAttributesRequest.builder().apply(initializer).build()
+    GetTopicAttributesRequest.builder().apply(builder).build()
 
-fun getTopicAttributesRequestOf(
+inline fun getTopicAttributesRequestOf(
     topicArn: String? = null,
     overrideConfiguration: AwsRequestOverrideConfiguration? = null,
-    initializer: GetTopicAttributesRequest.Builder.() -> Unit = {},
+    builder: GetTopicAttributesRequest.Builder.() -> Unit = {},
 ): GetTopicAttributesRequest = GetTopicAttributesRequest {
     topicArn?.run { topicArn(this) }
     overrideConfiguration?.run { overrideConfiguration(this) }
 
-    initializer()
+    builder()
 }

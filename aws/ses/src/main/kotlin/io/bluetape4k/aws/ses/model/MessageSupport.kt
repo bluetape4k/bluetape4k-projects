@@ -27,11 +27,11 @@ import java.nio.charset.Charset
  * }
  * ```
  *
- * @param initializer [Message.Builder] 초기화 람다
+ * @param builder [Message.Builder] 초기화 람다
  * @return [Message] 인스턴스
  */
-inline fun Message(initializer: Message.Builder.() -> Unit): Message {
-    return Message.builder().apply(initializer).build()
+inline fun Message(builder: Message.Builder.() -> Unit): Message {
+    return Message.builder().apply(builder).build()
 }
 
 /**
@@ -66,11 +66,11 @@ fun messageOf(subject: Content, body: Body): Message {
  * }
  * ```
  *
- * @param initializer [Body.Builder] 초기화 람다
+ * @param builder [Body.Builder] 초기화 람다
  * @return [Body] 인스턴스
  */
-fun Body(initializer: Body.Builder.() -> Unit): Body {
-    return Body.builder().apply(initializer).build()
+inline fun Body(builder: Body.Builder.() -> Unit): Body {
+    return Body.builder().apply(builder).build()
 }
 
 /**
@@ -130,11 +130,11 @@ fun bodyAsHtml(html: String, charset: Charset = Charsets.UTF_8): Body = Body {
  * }
  * ```
  *
- * @param initializer [Content.Builder] 초기화 람다
+ * @param builder [Content.Builder] 초기화 람다
  * @return [Content] 인스턴스
  */
-inline fun Content(initializer: Content.Builder.() -> Unit): Content {
-    return Content.builder().apply(initializer).build()
+inline fun Content(builder: Content.Builder.() -> Unit): Content {
+    return Content.builder().apply(builder).build()
 }
 
 /**
@@ -163,11 +163,11 @@ fun contentOf(data: String? = null, charset: Charset = Charsets.UTF_8) = Content
  * }
  * ```
  *
- * @param initializer [MessageTag.Builder] 초기화 람다
+ * @param builder [MessageTag.Builder] 초기화 람다
  * @return [MessageTag] 인스턴스
  */
-inline fun MessageTag(initializer: MessageTag.Builder.() -> Unit): MessageTag {
-    return MessageTag.builder().apply(initializer).build()
+inline fun MessageTag(builder: MessageTag.Builder.() -> Unit): MessageTag {
+    return MessageTag.builder().apply(builder).build()
 }
 
 /**

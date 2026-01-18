@@ -23,22 +23,22 @@ import software.amazon.awssdk.services.sqs.model.SendMessageBatchResponse
 import software.amazon.awssdk.services.sqs.model.SendMessageResponse
 import java.net.URI
 
-inline fun sqsClient(initializer: SqsClientBuilder.() -> Unit): SqsClient {
-    return SqsClient.builder().apply(initializer).build()
+inline fun sqsClient(builder: SqsClientBuilder.() -> Unit): SqsClient {
+    return SqsClient.builder().apply(builder).build()
 }
 
-fun sqsClientOf(
+inline fun sqsClientOf(
     endpoint: URI,
     region: Region,
     credentialsProvider: AwsCredentialsProvider,
-    initializer: SqsClientBuilder.() -> Unit = {},
+    builder: SqsClientBuilder.() -> Unit = {},
 ): SqsClient = sqsClient {
     endpointOverride(endpoint)
     region(region)
     credentialsProvider(credentialsProvider)
 
     httpClient(SdkHttpClientProvider.Apache.apacheHttpClient)
-    initializer()
+    builder()
 }
 
 fun SqsClient.createQueue(queueName: String): String {

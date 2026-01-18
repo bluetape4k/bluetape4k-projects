@@ -14,22 +14,22 @@ import software.amazon.awssdk.services.sns.model.CreatePlatformEndpointResponse
 import software.amazon.awssdk.services.sns.model.CreateTopicResponse
 import java.util.concurrent.CompletableFuture
 
-inline fun SnsAsyncClient(initializer: SnsAsyncClientBuilder.() -> Unit): SnsAsyncClient =
-    SnsAsyncClient.builder().apply(initializer).build()
+inline fun SnsAsyncClient(builder: SnsAsyncClientBuilder.() -> Unit): SnsAsyncClient =
+    SnsAsyncClient.builder().apply(builder).build()
 
-fun snsAsyncClientOf(
+inline fun snsAsyncClientOf(
     endpoint: Endpoint,
     region: Region,
     credentialsProvider: AwsCredentialsProvider,
     httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.Netty.nettyNioAsyncHttpClient,
-    initializer: SnsAsyncClientBuilder.() -> Unit = {},
+    builder: SnsAsyncClientBuilder.() -> Unit = {},
 ): SnsAsyncClient = SnsAsyncClient {
     endpoint(endpoint)
     region(region)
     credentialsProvider(credentialsProvider)
     httpClient(httpClient)
 
-    initializer()
+    builder()
 }
 
 

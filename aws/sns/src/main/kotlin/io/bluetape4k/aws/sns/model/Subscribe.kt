@@ -11,12 +11,12 @@ fun subscribeRequestOf(
     protocol: String,
     endpoint: String,
     overrideConfiguration: AwsRequestOverrideConfiguration? = null,
-    initializer: SubscribeRequest.Builder.() -> Unit = {},
+    builder: SubscribeRequest.Builder.() -> Unit = {},
 ): SubscribeRequest = SubscribeRequest {
     topicArn(topicArn)
     protocol(protocol)
     endpoint(endpoint)
     overrideConfiguration?.run { overrideConfiguration(this) }
 
-    initializer()
+    builder()
 }

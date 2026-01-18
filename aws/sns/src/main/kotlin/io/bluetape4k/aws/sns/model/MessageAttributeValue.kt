@@ -3,24 +3,23 @@ package io.bluetape4k.aws.sns.model
 import software.amazon.awssdk.services.sns.model.MessageAttributeValue
 
 inline fun MessageAttributeValue(
-    initializer: MessageAttributeValue.Builder.() -> Unit,
+    builder: MessageAttributeValue.Builder.() -> Unit,
 ): MessageAttributeValue =
-    MessageAttributeValue.builder().apply(initializer).build()
+    MessageAttributeValue.builder().apply(builder).build()
 
-fun messageAttributeValueOf(
+inline fun messageAttributeValueOf(
     valueAsString: String,
     dataType: String = "String",
-    initializer: MessageAttributeValue.Builder.() -> Unit = {},
+    builder: MessageAttributeValue.Builder.() -> Unit = {},
 ): MessageAttributeValue = MessageAttributeValue {
     stringValue(valueAsString)
     dataType(dataType)
 
-    initializer()
+    builder()
 }
 
-
-fun String.toMessageAttributeValue(
+inline fun String.toMessageAttributeValue(
     dataType: String = "String",
-    initializer: MessageAttributeValue.Builder.() -> Unit = {},
+    builder: MessageAttributeValue.Builder.() -> Unit = {},
 ): MessageAttributeValue =
-    messageAttributeValueOf(this, dataType, initializer)
+    messageAttributeValueOf(this, dataType, builder)

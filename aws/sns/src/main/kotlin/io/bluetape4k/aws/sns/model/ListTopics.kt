@@ -4,17 +4,17 @@ import software.amazon.awssdk.awscore.AwsRequestOverrideConfiguration
 import software.amazon.awssdk.services.sns.model.ListTopicsRequest
 
 inline fun ListTopicsRequest(
-    initializer: ListTopicsRequest.Builder.() -> Unit,
+    builder: ListTopicsRequest.Builder.() -> Unit,
 ): ListTopicsRequest =
-    ListTopicsRequest.builder().apply(initializer).build()
+    ListTopicsRequest.builder().apply(builder).build()
 
-fun listTopicsRequestOf(
+inline fun listTopicsRequestOf(
     nextToken: String? = null,
     overrideConfiguration: AwsRequestOverrideConfiguration? = null,
-    initializer: ListTopicsRequest.Builder.() -> Unit = {},
+    builder: ListTopicsRequest.Builder.() -> Unit = {},
 ): ListTopicsRequest = ListTopicsRequest {
     nextToken?.run { nextToken(this) }
     overrideConfiguration?.run { overrideConfiguration(this) }
 
-    initializer()
+    builder()
 }

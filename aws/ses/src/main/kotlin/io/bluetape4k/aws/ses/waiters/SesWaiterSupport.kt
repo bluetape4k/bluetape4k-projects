@@ -23,11 +23,11 @@ import software.amazon.awssdk.services.ses.waiters.SesWaiter
  * waiter.waitUntil(...)
  * ```
  *
- * @param initializer [SesWaiter.Builder] 초기화 람다
+ * @param builder [SesWaiter.Builder] 초기화 람다
  * @return [SesWaiter] 인스턴스
  */
-inline fun SesWaiter(initializer: SesWaiter.Builder.() -> Unit): SesWaiter {
-    return SesWaiter.builder().apply(initializer).build()
+inline fun SesWaiter(builder: SesWaiter.Builder.() -> Unit): SesWaiter {
+    return SesWaiter.builder().apply(builder).build()
 }
 
 /**

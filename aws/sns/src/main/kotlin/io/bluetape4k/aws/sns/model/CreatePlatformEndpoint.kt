@@ -4,17 +4,17 @@ import software.amazon.awssdk.awscore.AwsRequestOverrideConfiguration
 import software.amazon.awssdk.services.sns.model.CreatePlatformEndpointRequest
 
 inline fun CreatePlatformEndpointRequest(
-    initializer: CreatePlatformEndpointRequest.Builder.() -> Unit,
+    builder: CreatePlatformEndpointRequest.Builder.() -> Unit,
 ): CreatePlatformEndpointRequest =
-    CreatePlatformEndpointRequest.builder().apply(initializer).build()
+    CreatePlatformEndpointRequest.builder().apply(builder).build()
 
-fun createPlatformEndpointRequestOf(
+inline fun createPlatformEndpointRequestOf(
     platformApplicationArn: String,
     token: String,
     customUserData: String? = null,
     attributes: Map<String, String>? = null,
     overrideConfiguration: AwsRequestOverrideConfiguration? = null,
-    initializer: CreatePlatformEndpointRequest.Builder.() -> Unit = {},
+    builder: CreatePlatformEndpointRequest.Builder.() -> Unit = {},
 ): CreatePlatformEndpointRequest = CreatePlatformEndpointRequest {
     platformApplicationArn(platformApplicationArn)
     token(token)
@@ -22,5 +22,5 @@ fun createPlatformEndpointRequestOf(
     attributes?.run { attributes(this) }
     overrideConfiguration?.run { overrideConfiguration(this) }
 
-    initializer()
+    builder()
 }
