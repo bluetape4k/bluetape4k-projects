@@ -103,7 +103,7 @@ class CoroutineCassandraOperationsTest(
         val user = newBasicUser()
         operations.suspendInsert(user)
 
-        val id = operations.suspendSelect<Long>(selectFrom(USER_TABLE).column("user_id").build())!!
+        val id = operations.suspendSelect<Long>(selectFrom(USER_TABLE).column("user_id").build())
         id.shouldNotBeNull() shouldHaveSize 1 shouldContain user.id
 
         val row = operations.suspendSelectOneOrNull<Row>(selectFrom(USER_TABLE).column("user_id").asCql())

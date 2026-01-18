@@ -153,7 +153,7 @@ class TableStatementExamples {
         createTable("foo")
             .withPartitionKey("k", DataTypes.INT)
             .withColumn("v", DataTypes.TEXT)
-            .withLZ4Compression(1024, 0.5)
+            .withLZ4Compression(1024)
             .asCql() shouldBeEqualTo "CREATE TABLE foo (k int PRIMARY KEY,v text) " +
                 "WITH compression={'class':'LZ4Compressor','chunk_length_kb':1024,'crc_check_chance':0.5}"
 

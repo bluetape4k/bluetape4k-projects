@@ -6,6 +6,7 @@ import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import tools.jackson.core.JsonGenerator
+import tools.jackson.core.ObjectWriteContext
 import java.io.StringWriter
 
 class YamlGenerationExample: AbstractYamlExample() {
@@ -15,7 +16,7 @@ class YamlGenerationExample: AbstractYamlExample() {
     @Test
     fun `generate POJO`() {
         StringWriter().use { writer ->
-            yamlFactory.createGenerator(writer).use { generator ->
+            yamlFactory.createGenerator(ObjectWriteContext.empty(), writer).use { generator ->
                 generator.writeBradDoc()
             }
 

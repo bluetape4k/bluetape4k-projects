@@ -19,7 +19,7 @@ open class CharArraySet(val map: CharArrayMap<Any>): java.util.AbstractSet<Any>(
         fun unmodifiableSet(set: CharArraySet): CharArraySet {
             return when (set) {
                 EMPTY_SET                                   -> EMPTY_SET
-                is CharArrayMap.UnmodifiableCharArrayMap<*> -> set
+                // is CharArrayMap.UnmodifiableCharArrayMap<*> -> set
                 else                                        -> CharArraySet(CharArrayMap.unmodifiableMap(set.map))
             }
         }
