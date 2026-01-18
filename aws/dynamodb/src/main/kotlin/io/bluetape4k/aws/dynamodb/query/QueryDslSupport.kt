@@ -7,8 +7,8 @@ import software.amazon.awssdk.services.dynamodb.model.QueryRequest
 /**
  * [QueryRequest] 를 DSL 형태로 생성하기 위한 함수
  */
-inline fun queryRequest(initializer: QueryRequestBuilderDSL.() -> Unit): QueryRequest =
-    QueryRequestBuilderDSL().apply(initializer).build()
+inline fun queryRequest(builder: QueryRequestBuilderDSL.() -> Unit): QueryRequest =
+    QueryRequestBuilderDSL().apply(builder).build()
 
 @DynamoDslMarker
 class QueryRequestBuilderDSL {
@@ -50,14 +50,14 @@ class QueryRequestBuilderDSL {
     }
 }
 
-inline fun QueryRequestBuilderDSL.primaryKey(keyName: String, initializer: PrimaryKeyBuilder.() -> Unit) {
-    primaryKey = PrimaryKeyBuilder(keyName).apply(initializer).build()
+inline fun QueryRequestBuilderDSL.primaryKey(keyName: String, builder: PrimaryKeyBuilder.() -> Unit) {
+    primaryKey = PrimaryKeyBuilder(keyName).apply(builder).build()
 }
 
-inline fun QueryRequestBuilderDSL.sortKey(keyName: String, initializer: SortKeyBuilder.() -> Unit) {
-    sortKey = SortKeyBuilder(keyName).apply(initializer).build()
+inline fun QueryRequestBuilderDSL.sortKey(keyName: String, builder: SortKeyBuilder.() -> Unit) {
+    sortKey = SortKeyBuilder(keyName).apply(builder).build()
 }
 
-inline fun QueryRequestBuilderDSL.filtering(initializer: RootFilterBuilder.() -> Unit) {
-    filtering = RootFilterBuilder().apply(initializer).build()
+inline fun QueryRequestBuilderDSL.filtering(builder: RootFilterBuilder.() -> Unit) {
+    filtering = RootFilterBuilder().apply(builder).build()
 }

@@ -32,7 +32,7 @@ class RootFilter(val filterConnections: List<FilterConnection>): FilterQuery {
 
         fun filter(condition: FilterQuery) {
             when (condition) {
-                is RootFilter     -> {
+                is RootFilter -> {
                     val nestedProps = condition.getFilterRequestProperties()
                     filterExpression += "(${nestedProps.filterExpression})"
                     expressionAttributeValues.putAll(nestedProps.expressionAttributeValues)
@@ -96,7 +96,7 @@ class ConcreteFilter(
         var filterExpression = ""
 
         when (dynamoFunction) {
-            is Attribute       -> {
+            is Attribute -> {
                 val exprAttrName = toExprAttrName(dynamoFunction.attributeName)
                 filterExpression += exprAttrName
                 expressionAttributeNames[exprAttrName] = dynamoFunction.attributeName
@@ -108,13 +108,13 @@ class ConcreteFilter(
                 }
 
                 when (comparator) {
-                    is Equals              -> singleValueComparator("=", comparator)
-                    is NotEquals           -> singleValueComparator("<>", comparator)
-                    is GreaterThan         -> singleValueComparator(">", comparator)
+                    is Equals -> singleValueComparator("=", comparator)
+                    is NotEquals -> singleValueComparator("<>", comparator)
+                    is GreaterThan -> singleValueComparator(">", comparator)
                     is GreaterThanOrEquals -> singleValueComparator(">=", comparator)
-                    is LessThan            -> singleValueComparator("<", comparator)
-                    is LessThanOrEquals    -> singleValueComparator("<=", comparator)
-                    is Between             -> {
+                    is LessThan -> singleValueComparator("<", comparator)
+                    is LessThanOrEquals -> singleValueComparator("<=", comparator)
+                    is Between -> {
                         val leftExprAttrValue = toExprAttrValue(dynamoFunction.attributeName + "left")
                         val rightExprAttrValue = toExprAttrValue(dynamoFunction.attributeName + "right")
 
@@ -123,14 +123,12 @@ class ConcreteFilter(
                         expressionAttributeValues[rightExprAttrValue] = comparator.right.toAttributeValue()
                     }
 
-                    is InList              -> {
-                        val attrValues = comparator.right
-                            .map {
-                                toExprAttrValue(dynamoFunction.attributeName).apply {
-                                    expressionAttributeValues[this] = it.toAttributeValue()
-                                }
+                    is InList -> {
+                        val attrValues = comparator.right.joinToString {
+                            toExprAttrValue(dynamoFunction.attributeName).apply {
+                                expressionAttributeValues[this] = it.toAttributeValue()
                             }
-                            .joinToString()
+                        }
 
                         filterExpression += " IN ($attrValues)"
                     }
@@ -148,7 +146,7 @@ class ConcreteFilter(
     }
 }
 
-//Represents a connector and an individual condition 'AND X' , 'OR (Y AND Z)' , etc
+// Represents a connector and an individual condition 'AND X', 'OR (Y AND Z)', ...
 data class FilterConnection(
     val value: FilterQuery,
     val connectionToLeft: FilterBooleanConnection?,
@@ -218,7 +216,6 @@ class RootFilterBuilder: FilterQueryBuilder {
 
     override fun build(): RootFilter = RootFilter(filterQueries)
 
-    //Following 2 method are equivalent to bracketed conditions
     infix fun and(setup: RootFilterBuilder.() -> Unit): RootFilterBuilder = apply {
         val value = RootFilterBuilder().apply(setup)
         filterQueries.add(FilterConnection(value.build(), FilterBooleanConnection.AND))

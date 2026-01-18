@@ -21,7 +21,7 @@ import java.time.Instant
 @Repository
 class FoodRepository(
     @param:Autowired override val client: DynamoDbEnhancedAsyncClient,
-    @Value("\${aws.dynamodb.tablePrefix:local-}") tablePrefix: String,
+    @Value($$"${aws.dynamodb.tablePrefix:local-}") tablePrefix: String,
 ): DynamoDbCoroutineRepository<FoodDocument> {
 
     companion object: KLoggingChannel()

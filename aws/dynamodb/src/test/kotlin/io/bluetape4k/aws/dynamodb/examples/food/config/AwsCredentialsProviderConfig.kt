@@ -12,12 +12,12 @@ import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 class AwsCredentialsProviderConfig {
 
     companion object: KLoggingChannel()
-    
+
     @Bean
     @Primary
     fun defaultCredentials(
-        @Value("\${aws.accessKey:accessKey}") accessKey: String,
-        @Value("\${aws.securityKey:securityKey") securityKey: String,
+        @Value($$"${aws.accessKey:accessKey}") accessKey: String,
+        @Value($$"${aws.securityKey:securityKey") securityKey: String,
     ): AwsCredentialsProvider {
         return staticCredentialsProviderOf(accessKey, securityKey)
     }

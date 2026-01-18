@@ -16,7 +16,7 @@ class FoodApplicationTest: AbstractFoodApplicationTest() {
     @Autowired
     private lateinit var repository: FoodRepository
 
-    @Value("\${aws.dynamodb.endpoint}")
+    @Value($$"${aws.dynamodb.endpoint}")
     private lateinit var dynamoDbEndpoint: String
 
     @Test

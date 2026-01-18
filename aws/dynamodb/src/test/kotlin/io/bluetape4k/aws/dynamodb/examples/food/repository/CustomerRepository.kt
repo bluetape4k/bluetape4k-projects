@@ -19,7 +19,7 @@ import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional
 @Repository
 class CustomerRepository(
     @param:Autowired override val client: DynamoDbEnhancedAsyncClient,
-    @Value("\${aws.dynamodb.tablePrefix:local-}") tablePrefix: String,
+    @Value($$"${aws.dynamodb.tablePrefix:local-}") tablePrefix: String,
 ): DynamoDbCoroutineRepository<CustomerDocument> {
 
     companion object: KLoggingChannel()

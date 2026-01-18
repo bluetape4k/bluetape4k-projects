@@ -15,8 +15,8 @@ import java.net.URI
 
 @Configuration
 class DynamoDbConfig(
-    @Value("\${aws.region}") private val awsRegion: String,
-    @Value("\${aws.dynamodb.endpoint}") private val endpoint: String,
+    @Value($$"${aws.region}") private val awsRegion: String,
+    @Value($$"${aws.dynamodb.endpoint}") private val endpoint: String,
     private val awsCredentialsProvider: AwsCredentialsProvider,
 ) {
 

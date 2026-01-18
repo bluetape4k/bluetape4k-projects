@@ -49,13 +49,13 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue
  * ```
  *
  * @param T DynamoDB Entity Type
- * @param initializer Enhanced Query Builder DSL
+ * @param builder Enhanced Query Builder DSL
  * @return [QueryEnhancedRequest] 인스턴스
  */
-fun <T: DynamoDbEntity> queryEnhancedRequest(
-    initializer: EnhancedQueryBuilderKt<T>.() -> Unit,
+inline fun <T: DynamoDbEntity> queryEnhancedRequest(
+    builder: EnhancedQueryBuilderKt<T>.() -> Unit,
 ): QueryEnhancedRequest {
-    return EnhancedQueryBuilderKt<T>().apply(initializer).build()
+    return EnhancedQueryBuilderKt<T>().apply(builder).build()
 }
 
 @DynamoDslMarker
@@ -122,20 +122,20 @@ class EnhancedQueryBuilderKt<T: Any> {
 
 inline fun <T: DynamoDbEntity> EnhancedQueryBuilderKt<T>.primaryKey(
     keyName: String = "primaryKey",
-    initializer: PrimaryKeyBuilder.() -> Unit,
+    builder: PrimaryKeyBuilder.() -> Unit,
 ) {
-    primaryKey = PrimaryKeyBuilder(keyName).apply(initializer).build()
+    primaryKey = PrimaryKeyBuilder(keyName).apply(builder).build()
 }
 
 inline fun <T: DynamoDbEntity> EnhancedQueryBuilderKt<T>.sortKey(
     keyName: String = "sortKey",
-    initializer: SortKeyBuilder.() -> Unit,
+    builder: SortKeyBuilder.() -> Unit,
 ) {
-    sortKey = SortKeyBuilder(keyName).apply(initializer).build()
+    sortKey = SortKeyBuilder(keyName).apply(builder).build()
 }
 
 inline fun <T: DynamoDbEntity> EnhancedQueryBuilderKt<T>.filtering(
-    initializer: RootFilterBuilder.() -> Unit,
+    builder: RootFilterBuilder.() -> Unit,
 ) {
-    filtering = RootFilterBuilder().apply(initializer).build()
+    filtering = RootFilterBuilder().apply(builder).build()
 }

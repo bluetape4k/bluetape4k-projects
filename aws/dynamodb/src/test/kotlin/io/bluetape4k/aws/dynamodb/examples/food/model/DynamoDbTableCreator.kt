@@ -19,8 +19,8 @@ import software.amazon.awssdk.services.dynamodb.model.ProjectionType
 @Component
 class DynamoDbTableCreator(
     private val tableCreator: DynamoDbAsyncTableCreator,
-    private val asyncClient: DynamoDbEnhancedAsyncClient,
-    @Value("\${aws.dynamodb.tablePrefix:local-}") val tablePrefix: String,
+    asyncClient: DynamoDbEnhancedAsyncClient,
+    @Value($$"${aws.dynamodb.tablePrefix:local-}") val tablePrefix: String,
 ) {
     companion object: KLogging() {
         const val READ_CAPACITY_UNITS = 100L

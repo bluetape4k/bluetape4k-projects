@@ -14,7 +14,7 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient
 @Repository
 class UserRepository(
     @param:Autowired override val client: DynamoDbEnhancedAsyncClient,
-    @Value("\${aws.dynamodb.tablePrefix:local-}") tablePrefix: String,
+    @Value($$"${aws.dynamodb.tablePrefix:local-}") tablePrefix: String,
 ): DynamoDbCoroutineRepository<UserDocument> {
 
     companion object: KLoggingChannel()
