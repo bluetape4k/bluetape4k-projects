@@ -23,7 +23,7 @@ import io.bluetape4k.support.requireNotBlank
  * @param messageAttributes 메시지 속성
  * @param messageDeduplicationId 메시지 중복 제거 ID
  * @param messageGroupId 메시지 그룹 ID
- * @param configurer [PublishRequest.Builder]를 통해 추가적인 설정을 할 수 있는 람다 함수
+ * @param builder [PublishRequest.Builder]를 통해 추가적인 설정을 할 수 있는 람다 함수
  * @return [PublishRequest] 인스턴스
  */
 inline fun publishRequestOf(
@@ -35,7 +35,7 @@ inline fun publishRequestOf(
     messageAttributes: Map<String, MessageAttributeValue>? = null,
     messageDeduplicationId: String? = null,
     messageGroupId: String? = null,
-    crossinline configurer: PublishRequest.Builder.() -> Unit = {},
+    crossinline builder: PublishRequest.Builder.() -> Unit = {},
 ): PublishRequest {
     topicArn.requireNotBlank("topicArn")
     phoneNumber.requireNotBlank("phoneNumber")
@@ -50,7 +50,7 @@ inline fun publishRequestOf(
         messageDeduplicationId?.let { this.messageDeduplicationId = it }
         messageGroupId?.let { this.messageGroupId = it }
 
-        configurer()
+        builder()
     }
 }
 
@@ -60,7 +60,7 @@ inline fun publishBatchRequestEntryOf(
     messageAttributes: Map<String, MessageAttributeValue>? = null,
     messageDeduplicationId: String? = null,
     messageGroupId: String? = null,
-    crossinline configurer: PublishBatchRequestEntry.Builder.() -> Unit = {},
+    crossinline builder: PublishBatchRequestEntry.Builder.() -> Unit = {},
 ): PublishBatchRequestEntry {
     id.requireNotBlank("id")
     message.requireNotBlank("message")
@@ -72,6 +72,6 @@ inline fun publishBatchRequestEntryOf(
         messageDeduplicationId?.let { this.messageDeduplicationId = it }
         messageGroupId?.let { this.messageGroupId = it }
 
-        configurer()
+        builder()
     }
 }

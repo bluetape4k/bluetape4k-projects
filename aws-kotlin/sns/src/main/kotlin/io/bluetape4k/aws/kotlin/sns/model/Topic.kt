@@ -16,14 +16,14 @@ import io.bluetape4k.support.requireNotBlank
  * @param name 생성할 Topic 의 이름
  * @param tags Topic 에 추가할 Tag 목록
  * @param attributes Topic 에 추가할 속성 목록
- * @param configurer [CreateTopicRequest.Builder] 를 통해 추가적인 설정을 할 수 있는 람다 함수
+ * @param builder [CreateTopicRequest.Builder] 를 통해 추가적인 설정을 할 수 있는 람다 함수
  * @return [CreateTopicRequest] 인스턴스
  */
 inline fun createTopicRequestOf(
     name: String,
     tags: List<Tag>? = null,
     attributes: Map<String, String>? = null,
-    crossinline configurer: CreateTopicRequest.Builder.() -> Unit = {},
+    crossinline builder: CreateTopicRequest.Builder.() -> Unit = {},
 ): CreateTopicRequest {
     name.requireNotBlank("name")
 
@@ -32,7 +32,7 @@ inline fun createTopicRequestOf(
         tags?.let { this.tags = it }
         attributes?.let { this.attributes = it }
 
-        configurer()
+        builder()
     }
 }
 
@@ -45,17 +45,18 @@ inline fun createTopicRequestOf(
  * ```
  *
  * @param topicArn 삭제할 Topic 의 ARN
- * @param configurer [DeleteTopicRequest.Builder] 를 통해 추가적인 설정을 할 수 있는 람다 함수
+ * @param builder [DeleteTopicRequest.Builder] 를 통해 추가적인 설정을 할 수 있는 람다 함수
  * @return [DeleteTopicRequest] 인스턴스
  */
 inline fun deleteTopicRequestOf(
     topicArn: String,
-    crossinline configurer: DeleteTopicRequest.Builder.() -> Unit = {},
+    crossinline builder: DeleteTopicRequest.Builder.() -> Unit = {},
 ): DeleteTopicRequest {
     topicArn.requireNotBlank("topicArn")
 
     return DeleteTopicRequest {
         this.topicArn = topicArn
-        configurer()
+
+        builder()
     }
 }

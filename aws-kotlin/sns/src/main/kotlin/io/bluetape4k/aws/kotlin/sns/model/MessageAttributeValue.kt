@@ -10,17 +10,18 @@ import aws.sdk.kotlin.services.sns.model.MessageAttributeValue
  * ```
  *
  * @param stringValue 문자열 값
- * @param configurer [MessageAttributeValue.Builder]를 설정하는 람다
+ * @param builder [MessageAttributeValue.Builder]를 설정하는 람다
  * @return [MessageAttributeValue] 인스턴스
  */
 inline fun messageAttributeValueOf(
     stringValue: String,
-    crossinline configurer: MessageAttributeValue.Builder.() -> Unit = {},
-): MessageAttributeValue = MessageAttributeValue {
-    this.stringValue = stringValue
-    this.dataType = "String"
-    configurer()
-}
+    crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
+): MessageAttributeValue =
+    MessageAttributeValue {
+        this.stringValue = stringValue
+        this.dataType = "String"
+        builder()
+    }
 
 /**
  * [binaryValue] 바이너리 값을 가지는 [MessageAttributeValue]를 생성합니다.
@@ -30,17 +31,18 @@ inline fun messageAttributeValueOf(
  * ```
  *
  * @param binaryValue 바이너리 값
- * @param configurer [MessageAttributeValue.Builder]를 설정하는 람다
+ * @param builder [MessageAttributeValue.Builder]를 설정하는 람다
  * @return [MessageAttributeValue] 인스턴스
  */
 inline fun messageAttributeValueOf(
     binaryValue: ByteArray,
-    crossinline configurer: MessageAttributeValue.Builder.() -> Unit = {},
-): MessageAttributeValue = MessageAttributeValue {
-    this.binaryValue = binaryValue
-    this.dataType = "Binary"
-    configurer()
-}
+    crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
+): MessageAttributeValue =
+    MessageAttributeValue {
+        this.binaryValue = binaryValue
+        this.dataType = "Binary"
+        builder()
+    }
 
 /**
  * [numberValue] 숫자 값을 가지는 [MessageAttributeValue]를 생성합니다.
@@ -50,14 +52,15 @@ inline fun messageAttributeValueOf(
  * ```
  *
  * @param numberValue 숫자 값
- * @param configurer [MessageAttributeValue.Builder]를 설정하는 람다
+ * @param builder [MessageAttributeValue.Builder]를 설정하는 람다
  * @return [MessageAttributeValue] 인스턴스
  */
 inline fun <T: Number> messageAttributeValueOf(
     numberValue: T,
-    crossinline configurer: MessageAttributeValue.Builder.() -> Unit = {},
-): MessageAttributeValue = MessageAttributeValue {
-    this.stringValue = numberValue.toString()
-    this.dataType = "Number"
-    configurer()
-}
+    crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
+): MessageAttributeValue =
+    MessageAttributeValue {
+        this.stringValue = numberValue.toString()
+        this.dataType = "Number"
+        builder()
+    }

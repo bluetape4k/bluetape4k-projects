@@ -12,17 +12,17 @@ import io.bluetape4k.support.requireNotBlank
  * ```
  *
  * @param nextToken 다음 페이지를 조회하기 위한 토큰
- * @param configurer [ListTopicsRequest.Builder]를 통해 추가적인 설정을 할 수 있는 람다 함수
+ * @param builder [ListTopicsRequest.Builder]를 통해 추가적인 설정을 할 수 있는 람다 함수
  * @return [ListTopicsRequest] 인스턴스
  */
 inline fun listTopicsRequestOf(
     nextToken: String,
-    crossinline configurer: ListTopicsRequest.Builder.() -> Unit = {},
+    crossinline builder: ListTopicsRequest.Builder.() -> Unit = {},
 ): ListTopicsRequest {
     nextToken.requireNotBlank("nextToken")
 
     return ListTopicsRequest {
         this.nextToken = nextToken
-        configurer()
+        builder()
     }
 }

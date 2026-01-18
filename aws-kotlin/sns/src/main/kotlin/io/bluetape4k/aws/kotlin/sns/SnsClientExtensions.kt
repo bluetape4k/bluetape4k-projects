@@ -57,17 +57,18 @@ inline fun snsClientOf(
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
     httpClientEngine: HttpClientEngine = defaultCrtHttpEngineOf(),
-    crossinline configurer: SnsClient.Config.Builder.() -> Unit = {},
-): SnsClient = SnsClient {
-    endpoint?.let { this.endpointUrl = Url.parse(it) }
-    region?.let { this.region = it }
-    credentialsProvider?.let { this.credentialsProvider = it }
-    httpClient = httpClientEngine
+    crossinline builder: SnsClient.Config.Builder.() -> Unit = {},
+): SnsClient =
+    SnsClient {
+        endpoint?.let { this.endpointUrl = Url.parse(it) }
+        region?.let { this.region = it }
+        credentialsProvider?.let { this.credentialsProvider = it }
+        httpClient = httpClientEngine
 
-    configurer()
-}.apply {
-    ShutdownQueue.register(this)
-}
+        builder()
+    }.apply {
+        ShutdownQueue.register(this)
+    }
 
 /**
  * 플랫폼 엔드포인트를 생성합니다.
@@ -80,13 +81,13 @@ inline fun snsClientOf(
  *
  * @param token 토큰
  * @param platformApplicationArn 플랫폼 애플리케이션 ARN
- * @param configurer 플랫폼 엔드포인트 생성 설정 빌더
+ * @param builder 플랫폼 엔드포인트 생성 설정 빌더
  * @return [CreatePlatformEndpointResponse] 인스턴스
  */
 suspend inline fun SnsClient.createPlatformEndpoint(
     token: String,
     platformApplicationArn: String,
-    crossinline configurer: CreatePlatformEndpointRequest.Builder.() -> Unit = {},
+    crossinline builder: CreatePlatformEndpointRequest.Builder.() -> Unit = {},
 ): CreatePlatformEndpointResponse {
     token.requireNotBlank("token")
     platformApplicationArn.requireNotBlank("platformApplicationArn")
@@ -95,7 +96,7 @@ suspend inline fun SnsClient.createPlatformEndpoint(
         this.token = token
         this.platformApplicationArn = platformApplicationArn
 
-        configurer()
+        builder()
     }
 }
 
@@ -110,12 +111,12 @@ suspend inline fun SnsClient.createPlatformEndpoint(
  *
  * @param topicName topic 이름
  * @param attributes topic 속성
- * @param configurer [CreateTopicRequest]를 빌드하는 람다 함수
+ * @param builder [CreateTopicRequest]를 빌드하는 람다 함수
  */
 suspend inline fun SnsClient.createTopic(
     topicName: String,
     attributes: Map<String, String>? = null,
-    crossinline configurer: CreateTopicRequest.Builder.() -> Unit = {},
+    crossinline builder: CreateTopicRequest.Builder.() -> Unit = {},
 ): CreateTopicResponse {
     topicName.requireNotBlank("topicName")
 
@@ -123,7 +124,7 @@ suspend inline fun SnsClient.createTopic(
         this.name = topicName
         this.attributes = attributes
 
-        configurer()
+        builder()
     }
 }
 
@@ -138,12 +139,12 @@ suspend inline fun SnsClient.createTopic(
  *
  * @param topicName topic 이름
  * @param attributes topic 속성
- * @param configurer [CreateTopicRequest]를 빌드하는 람다 함수
+ * @param builder [CreateTopicRequest]를 빌드하는 람다 함수
  */
 suspend inline fun SnsClient.createFifoTopic(
     topicName: String,
     attributes: MutableMap<String, String> = mutableMapOf(),
-    crossinline configurer: CreateTopicRequest.Builder.() -> Unit = {},
+    crossinline builder: CreateTopicRequest.Builder.() -> Unit = {},
 ): CreateTopicResponse {
     topicName.requireNotBlank("topicName")
     require(topicName.endsWithIgnoreCase(".fifo")) { "FIFO topic name must end with .fifo" }
@@ -155,7 +156,7 @@ suspend inline fun SnsClient.createFifoTopic(
         this.name = topicName
         this.attributes = attributes
 
-        configurer()
+        builder()
     }
 }
 
@@ -172,22 +173,25 @@ suspend inline fun SnsClient.createFifoTopic(
  * @param endpoint endpoint
  * @param protocol 프로토콜
  * @param returnSubscriptionArn 구독 ARN 반환 여부
- * @param configurer [SubscribeRequest]를 빌드하는 람다 함수
+ * @param builder [SubscribeRequest]를 빌드하는 람다 함수
  */
 suspend inline fun SnsClient.subscribe(
     topicArn: String,
     endpoint: String,
     protocol: String = "sms",
     returnSubscriptionArn: Boolean = true,
-    crossinline configurer: SubscribeRequest.Builder.() -> Unit = {},
+    crossinline builder: SubscribeRequest.Builder.() -> Unit = {},
 ): SubscribeResponse {
+    topicArn.requireNotBlank("topicArn")
+    endpoint.requireNotBlank("endpoint")
+
     return subscribe {
         this.topicArn = topicArn
         this.endpoint = endpoint
         this.protocol = protocol
         this.returnSubscriptionArn = returnSubscriptionArn
 
-        configurer()
+        builder()
     }
 }
 
@@ -199,18 +203,18 @@ suspend inline fun SnsClient.subscribe(
  * ```
  *
  * @param phoneNumber 전화번호
- * @param configurer [CheckIfPhoneNumberIsOptedOutRequest]를 빌드하는 람다 함수
+ * @param builder [CheckIfPhoneNumberIsOptedOutRequest]를 빌드하는 람다 함수
  * @return [CheckIfPhoneNumberIsOptedOutResponse] 인스턴스
  */
 suspend inline fun SnsClient.checkIfPhoneNumberIsOptedOut(
     phoneNumber: String,
-    crossinline configurer: CheckIfPhoneNumberIsOptedOutRequest.Builder.() -> Unit = {},
+    crossinline builder: CheckIfPhoneNumberIsOptedOutRequest.Builder.() -> Unit = {},
 ): CheckIfPhoneNumberIsOptedOutResponse {
     phoneNumber.requireNotBlank("phoneNumber")
 
     return checkIfPhoneNumberIsOptedOut {
         this.phoneNumber = phoneNumber
-        configurer()
+        builder()
     }
 }
 
@@ -226,7 +230,7 @@ suspend inline fun SnsClient.checkIfPhoneNumberIsOptedOut(
  * @param topicArn topic ARN
  * @param message 메시지
  * @param subject 제목
- * @param configurer [PublishRequest]를 빌드하는 람다 함수
+ * @param builder [PublishRequest]를 빌드하는 람다 함수
  *
  * @return [PublishResponse] 인스턴스
  */
@@ -234,7 +238,7 @@ suspend inline fun SnsClient.publish(
     topicArn: String,
     message: String,
     subject: String? = null,
-    crossinline configurer: PublishRequest.Builder.() -> Unit = {},
+    crossinline builder: PublishRequest.Builder.() -> Unit = {},
 ): PublishResponse {
     topicArn.requireNotBlank("topicArn")
     message.requireNotBlank("message")
@@ -244,7 +248,7 @@ suspend inline fun SnsClient.publish(
         this.message = message
         subject?.let { this.subject = it }
 
-        configurer()
+        builder()
     }
 }
 
@@ -272,21 +276,21 @@ suspend inline fun SnsClient.publish(
  *
  * @param topicArn topic ARN
  * @param entries 발행할 메시지 목록
- * @param configurer [PublishBatchRequest]를 빌드하는 람다 함수
+ * @param builder [PublishBatchRequest]를 빌드하는 람다 함수
  *
  * @return [PublishBatchResponse] 인스턴스
  */
 suspend inline fun SnsClient.publishBatch(
     topicArn: String,
     entries: List<PublishBatchRequestEntry>,
-    crossinline configurer: PublishBatchRequest.Builder.() -> Unit = {},
+    crossinline builder: PublishBatchRequest.Builder.() -> Unit = {},
 ): PublishBatchResponse {
     topicArn.requireNotBlank("topicArn")
 
     return publishBatch {
         this.topicArn = topicArn
         this.publishBatchRequestEntries = entries
-        configurer()
+        builder()
     }
 }
 
@@ -299,18 +303,18 @@ suspend inline fun SnsClient.publishBatch(
  * ```
  *
  * @param subscriptionArn 구독 ARN
- * @param configurer [UnsubscribeRequest]를 빌드하는 람다 함수
+ * @param builder [UnsubscribeRequest]를 빌드하는 람다 함수
  * @return [UnsubscribeResponse] 인스턴스
  */
 suspend inline fun SnsClient.unsubscribe(
     subscriptionArn: String,
-    crossinline configurer: UnsubscribeRequest.Builder.() -> Unit = {},
+    crossinline builder: UnsubscribeRequest.Builder.() -> Unit = {},
 ): UnsubscribeResponse {
     subscriptionArn.requireNotBlank("subscriptionArn")
 
     return unsubscribe {
         this.subscriptionArn = subscriptionArn
-        configurer()
+        builder()
     }
 }
 
@@ -322,17 +326,17 @@ suspend inline fun SnsClient.unsubscribe(
  * ```
  *
  * @param topicArn topic ARN
- * @param configurer [DeleteTopicRequest]를 빌드하는 람다 함수
+ * @param builder [DeleteTopicRequest]를 빌드하는 람다 함수
  * @return [DeleteTopicResponse] 인스턴스
  */
 suspend inline fun SnsClient.deleteTopic(
     topicArn: String,
-    crossinline configurer: DeleteTopicRequest.Builder.() -> Unit = {},
+    crossinline builder: DeleteTopicRequest.Builder.() -> Unit = {},
 ): DeleteTopicResponse {
     topicArn.requireNotBlank("topicArn")
 
     return deleteTopic {
         this.topicArn = topicArn
-        configurer()
+        builder()
     }
 }
