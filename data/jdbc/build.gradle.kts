@@ -25,8 +25,8 @@ dependencies {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
 
-    runtimeOnly(Libs.h2)
+    runtimeOnly(Libs.h2_v2)
     testImplementation(Libs.testcontainers_mysql)
-    testImplementation(Libs.mysql_connector_j)
-    testImplementation(Libs.mariadb_java_client)
+    testRuntimeOnly(Libs.mysql_connector_j)
+    testRuntimeOnly(Libs.mariadb_java_client)
 }

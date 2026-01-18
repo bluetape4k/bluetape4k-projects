@@ -1,16 +1,11 @@
 CREATE TABLE IF NOT EXISTS test_bean
 (
-    id
-    INT
-    IDENTITY
-    PRIMARY
-    KEY,
-    description
-    VARCHAR
-(
-    1024
-),
-    createdAt TIMESTAMP Default current_timestamp
-    );
+    id          INT AUTO_INCREMENT,
+    description VARCHAR(1024),
+    createdAt   TIMESTAMP Default current_timestamp,
+
+    primary key (id)
+);
+
 DELETE
 FROM test_bean;

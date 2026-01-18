@@ -1,5 +1,5 @@
-INSERT INTO test_bean (id, description)
-VALUES (1, 'python');
+INSERT INTO test_bean (description)
+VALUES ('python');
 INSERT INTO test_bean (description)
 VALUES ('ruby');
 INSERT INTO test_bean (description)
