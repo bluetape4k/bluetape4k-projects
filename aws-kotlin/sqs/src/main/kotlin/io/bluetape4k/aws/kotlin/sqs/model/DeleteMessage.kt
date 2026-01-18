@@ -10,19 +10,20 @@ import io.bluetape4k.support.requireNotBlank
  *
  * @param queueUrl 메시지를 삭제할 Amazon SQS 큐의 URL입니다.
  * @param receiptHandle 삭제할 메시지와 연관된 영수증 핸들입니다.
- * @param configurer DeleteMessageRequest.Builder를 사용하여 DeleteMessageRequest를 구성하는 람다입니다.
+ * @param builder DeleteMessageRequest.Builder를 사용하여 DeleteMessageRequest를 구성하는 람다입니다.
  */
 inline fun deleteMessageRequestOf(
     queueUrl: String,
     receiptHandle: String? = null,
-    crossinline configurer: DeleteMessageRequest.Builder.() -> Unit = {},
+    crossinline builder: DeleteMessageRequest.Builder.() -> Unit = {},
 ): DeleteMessageRequest {
     queueUrl.requireNotBlank("queueUrl")
 
     return DeleteMessageRequest {
         this.queueUrl = queueUrl
         receiptHandle?.let { this.receiptHandle = it }
-        configurer()
+
+        builder()
     }
 }
 
@@ -36,7 +37,7 @@ inline fun deleteMessageRequestOf(
 inline fun deleteMessageBatchRequestEntryOf(
     id: String,
     receiptHandle: String? = null,
-    crossinline configurer: DeleteMessageBatchRequestEntry.Builder.() -> Unit = {},
+    crossinline builder: DeleteMessageBatchRequestEntry.Builder.() -> Unit = {},
 ): DeleteMessageBatchRequestEntry {
     id.requireNotBlank("id")
 
@@ -44,7 +45,7 @@ inline fun deleteMessageBatchRequestEntryOf(
         this.id = id
         receiptHandle?.let { this.receiptHandle = it }
 
-        configurer()
+        builder()
     }
 }
 
@@ -58,7 +59,7 @@ inline fun deleteMessageBatchRequestEntryOf(
 inline fun deleteMessageBatchRequestOf(
     queueUrl: String,
     entries: Collection<DeleteMessageBatchRequestEntry>,
-    crossinline configurer: DeleteMessageBatchRequest.Builder.() -> Unit = {},
+    crossinline builder: DeleteMessageBatchRequest.Builder.() -> Unit = {},
 ): DeleteMessageBatchRequest {
     queueUrl.requireNotBlank("queueUrl")
 
@@ -66,7 +67,7 @@ inline fun deleteMessageBatchRequestOf(
         this.queueUrl = queueUrl
         this.entries = entries.toList()
 
-        configurer()
+        builder()
     }
 }
 
@@ -80,7 +81,7 @@ inline fun deleteMessageBatchRequestOf(
 inline fun deleteMessageBatchRequestOf(
     queueUrl: String,
     vararg entries: DeleteMessageBatchRequestEntry,
-    crossinline configurer: DeleteMessageBatchRequest.Builder.() -> Unit = {},
+    crossinline builder: DeleteMessageBatchRequest.Builder.() -> Unit = {},
 ): DeleteMessageBatchRequest {
     queueUrl.requireNotBlank("queueUrl")
 
@@ -88,6 +89,6 @@ inline fun deleteMessageBatchRequestOf(
         this.queueUrl = queueUrl
         this.entries = entries.toList()
 
-        configurer()
+        builder()
     }
 }

@@ -12,7 +12,7 @@ import io.bluetape4k.support.requirePositiveNumber
  * @param waitTimeSeconds 메시지가 없을 경우 대기할 시간(초)입니다. 기본값은 30초입니다.
  * @param visibilityTimeout 메시지를 처리하는 동안 숨겨진 시간(초)입니다. 기본값은 null입니다.
  * @param attributeNames 수신할 메시지의 속성 이름 컬렉션입니다. 기본값은 null입니다.
- * @param configurer ReceiveMessageRequest.Builder를 초기화하는 람다입니다. 기본값은 빈 람다입니다.
+ * @param builder ReceiveMessageRequest.Builder를 초기화하는 람다입니다. 기본값은 빈 람다입니다.
  * @return ReceiveMessageRequest 인스턴스를 반환합니다.
  */
 inline fun receiveMessageRequestOf(
@@ -21,7 +21,7 @@ inline fun receiveMessageRequestOf(
     waitTimeSeconds: Int = 30,
     visibilityTimeout: Int? = null,
     attributeNames: Collection<String>? = null,
-    crossinline configurer: ReceiveMessageRequest.Builder.() -> Unit = {},
+    crossinline builder: ReceiveMessageRequest.Builder.() -> Unit = {},
 ): ReceiveMessageRequest {
     queueUrl.requireNotBlank("queueUrl")
     maxNumberOfMessages.requirePositiveNumber("maxNumberOfMessages")
@@ -34,6 +34,6 @@ inline fun receiveMessageRequestOf(
         visibilityTimeout?.let { this.visibilityTimeout = it }
         attributeNames?.let { this.messageAttributeNames = it.toList() }
 
-        configurer()
+        builder()
     }
 }

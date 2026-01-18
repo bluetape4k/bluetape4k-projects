@@ -11,13 +11,13 @@ import io.bluetape4k.support.requireNotBlank
  * @param queueUrl 메시지를 보낼 Amazon SQS 큐의 URL입니다.
  * @param messageBody 전송할 메시지의 본문입니다.
  * @param delaySeconds 메시지를 보내기 전 대기할 시간(초)입니다. 기본값은 null입니다.
- * @param configurer SendMessageRequest.Builder를 초기화하는 람다입니다. 기본값은 빈 람다입니다.
+ * @param builder SendMessageRequest.Builder를 초기화하는 람다입니다. 기본값은 빈 람다입니다.
  */
 inline fun sendMessageRequestOf(
     queueUrl: String,
     messageBody: String,
     delaySeconds: Int? = null,
-    crossinline configurer: SendMessageRequest.Builder.() -> Unit = {},
+    crossinline builder: SendMessageRequest.Builder.() -> Unit = {},
 ): SendMessageRequest {
     queueUrl.requireNotBlank("queueUrl")
     messageBody.requireNotBlank("messageBody")
@@ -27,7 +27,7 @@ inline fun sendMessageRequestOf(
         this.messageBody = messageBody
         delaySeconds?.let { this.delaySeconds = it }
 
-        configurer()
+        builder()
     }
 }
 
@@ -38,7 +38,7 @@ inline fun sendMessageRequestOf(
  * @param messageBody 전송할 메시지의 본문입니다.
  * @param messageGroupId 메시지 그룹의 식별자입니다.
  * @param delaySeconds 메시지를 보내기 전 대기할 시간(초)입니다. 기본값은 null입니다.
- * @param configurer SendMessageBatchRequestEntry.Builder를 초기화하는 람다입니다. 기본값은 빈 람다입니다.
+ * @param builder SendMessageBatchRequestEntry.Builder를 초기화하는 람다입니다. 기본값은 빈 람다입니다.
  *
  * @return SendMessageBatchRequestEntry 인스턴스를 반환합니다.
  */
@@ -47,7 +47,7 @@ inline fun sendMessageBatchRequestEntryOf(
     messageBody: String,
     messageGroupId: String? = null,
     delaySeconds: Int? = null,
-    crossinline configurer: SendMessageBatchRequestEntry.Builder.() -> Unit = {},
+    crossinline builder: SendMessageBatchRequestEntry.Builder.() -> Unit = {},
 ): SendMessageBatchRequestEntry {
     id.requireNotBlank("id")
     messageBody.requireNotBlank("messageBody")
@@ -58,7 +58,7 @@ inline fun sendMessageBatchRequestEntryOf(
         messageGroupId?.let { this.messageGroupId = it }
         delaySeconds?.let { this.delaySeconds = it }
 
-        configurer()
+        builder()
     }
 }
 
@@ -73,7 +73,7 @@ inline fun sendMessageBatchRequestEntryOf(
 inline fun sendMessageBatchRequestOf(
     queueUrl: String,
     entries: Collection<SendMessageBatchRequestEntry>,
-    crossinline configurer: SendMessageBatchRequest.Builder.() -> Unit = {},
+    crossinline builder: SendMessageBatchRequest.Builder.() -> Unit = {},
 ): SendMessageBatchRequest {
     queueUrl.requireNotBlank("queueUrl")
 
@@ -81,7 +81,7 @@ inline fun sendMessageBatchRequestOf(
         this.queueUrl = queueUrl
         this.entries = entries.toList()
 
-        configurer()
+        builder()
     }
 }
 
@@ -96,7 +96,7 @@ inline fun sendMessageBatchRequestOf(
 inline fun sendMessageBatchRequestOf(
     queueUrl: String,
     vararg entries: SendMessageBatchRequestEntry,
-    crossinline configurer: SendMessageBatchRequest.Builder.() -> Unit = {},
+    crossinline builder: SendMessageBatchRequest.Builder.() -> Unit = {},
 ): SendMessageBatchRequest {
     queueUrl.requireNotBlank("queueUrl")
 
@@ -104,6 +104,6 @@ inline fun sendMessageBatchRequestOf(
         this.queueUrl = queueUrl
         this.entries = entries.toList()
 
-        configurer()
+        builder()
     }
 }
