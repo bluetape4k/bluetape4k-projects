@@ -15,11 +15,11 @@ import software.amazon.awssdk.services.ses.model.SendTemplatedEmailRequest
  *    ...
  * ```
  *
- * @param initializer [SendEmailRequest.Builder] 초기화 람다
+ * @param builder [SendEmailRequest.Builder] 초기화 람다
  * @return [SendEmailRequest] 인스턴스
  */
-inline fun SendEmailRequest(initializer: SendEmailRequest.Builder.() -> Unit): SendEmailRequest {
-    return SendEmailRequest.builder().apply(initializer).build()
+inline fun SendEmailRequest(builder: SendEmailRequest.Builder.() -> Unit): SendEmailRequest {
+    return SendEmailRequest.builder().apply(builder).build()
 }
 
 /**
@@ -71,13 +71,13 @@ fun sendEmailRequestOf(
  *    ...
  * ```
  *
- * @param initializer [SendTemplatedEmailRequest.Builder] 초기화 람다
+ * @param builder [SendTemplatedEmailRequest.Builder] 초기화 람다
  * @return [SendTemplatedEmailRequest] 인스턴스
  */
 inline fun SendTemplatedEmailRequest(
-    initializer: SendTemplatedEmailRequest.Builder.() -> Unit,
+    builder: SendTemplatedEmailRequest.Builder.() -> Unit,
 ): SendTemplatedEmailRequest {
-    return SendTemplatedEmailRequest.builder().apply(initializer).build()
+    return SendTemplatedEmailRequest.builder().apply(builder).build()
 }
 
 /**

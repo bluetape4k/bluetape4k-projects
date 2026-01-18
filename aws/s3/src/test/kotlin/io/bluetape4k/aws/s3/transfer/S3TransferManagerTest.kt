@@ -49,7 +49,7 @@ class S3TransferManagerTest: AbstractS3Test() {
     @MethodSource("getImageNames")
     fun `upload and download file by transfer manager`(filename: String) = runSuspendIO {
         val key = "transfer/$filename"
-        val path = "$IMAGE_PATH/$filename"
+        val path = "$imageBasePath/$filename"
         val file = File(path)
         file.exists().shouldBeTrue()
 

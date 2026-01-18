@@ -10,6 +10,7 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.ses.SesAsyncClient
 import software.amazon.awssdk.services.ses.SesClient
+import java.net.URI
 
 abstract class AbstractSesTest {
 
@@ -21,7 +22,7 @@ abstract class AbstractSesTest {
         }
 
         @JvmStatic
-        protected val endpoint by lazy {
+        protected val endpoint: URI by lazy {
             awsSES.getEndpointOverride(LocalStackContainer.Service.SES)
         }
 

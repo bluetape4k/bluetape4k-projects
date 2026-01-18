@@ -115,7 +115,7 @@ abstract class AbstractS3Test {
         }
     }
 
-    val IMAGE_PATH: String = "src/test/resources/images"
+    protected val imageBasePath: String = "src/test/resources/images"
 
     protected fun getImageNames(): List<String> {
         return listOf(

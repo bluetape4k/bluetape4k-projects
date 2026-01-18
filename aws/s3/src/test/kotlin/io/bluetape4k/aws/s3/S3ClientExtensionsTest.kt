@@ -59,7 +59,7 @@ class S3ClientExtensionsTest: AbstractS3Test() {
     @MethodSource("getImageNames")
     fun `upload and download binary file`(filename: String) {
         val key = UUID.randomUUID().toString()
-        val path = "$IMAGE_PATH/$filename"
+        val path = "$imageBasePath/$filename"
         val file = File(path)
         file.exists().shouldBeTrue()
 
