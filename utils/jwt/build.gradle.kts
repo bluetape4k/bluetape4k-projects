@@ -20,6 +20,10 @@ dependencies {
     api(Libs.jackson_module_kotlin)
     api(Libs.jackson_module_blackbird)
 
+    // Serializer
+    compileOnly(Libs.fory_kotlin)
+    compileOnly(Libs.kryo5)
+
     // Compressor
     compileOnly(Libs.lz4_java)
     compileOnly(Libs.snappy_java)

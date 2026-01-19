@@ -56,7 +56,7 @@ class ResultCallAdapterFactory: CallAdapter.Factory() {
 
             return object: CallAdapter<Any, Call<Result<*>>> {
                 override fun responseType(): Type {
-                    return getParameterUpperBound(0, upperBound as ParameterizedType)
+                    return getParameterUpperBound(0, upperBound)
                 }
 
                 @Suppress("UNCHECKED_CAST")

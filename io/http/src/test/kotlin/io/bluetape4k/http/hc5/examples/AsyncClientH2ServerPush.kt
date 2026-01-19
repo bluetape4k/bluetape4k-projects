@@ -40,6 +40,8 @@ class AsyncClientH2ServerPush: AbstractHc5Test() {
             }
         )
         client.start()
+
+        @Suppress("DEPRECATION")
         client.register("*") {
             object: AbstractBinPushConsumer() {
                 override fun capacityIncrement(): Int = Int.MAX_VALUE

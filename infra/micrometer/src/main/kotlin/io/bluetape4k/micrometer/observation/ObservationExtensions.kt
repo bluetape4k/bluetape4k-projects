@@ -18,9 +18,12 @@ inline fun <T> withObservation(
     name: String,
     registry: ObservationRegistry,
     crossinline block: () -> T,
-): T {
-    return Observation.createNotStarted(name, registry).observe<T> { block.invoke() } as T
-}
+): T =
+    Observation
+        .createNotStarted(name, registry)
+        .observe<T> {
+            block.invoke()
+        }
 
 inline fun <T> Observation.observe(block: () -> T): T {
     return withObservationContext { _: Observation.Context ->

@@ -91,6 +91,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
         val member2 = Member("member-2", 20, teamA)
         tem.persist(member2)
 
+        @Suppress("DEPRECATION")
         val count = queryFactory.select(qmember).from(qmember).fetchCount()
         log.debug { "Member count=$count" }
         count.toInt() shouldBeEqualTo MEMBER_COUNT + 1
@@ -176,6 +177,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
     @Test
     fun `페이징 적용 시 - fetchResults 사용`() {
 
+        @Suppress("DEPRECATION")
         val queryResults = queryFactory
             .selectFrom(qmember)
             .offset(1)
@@ -189,6 +191,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
 
         members shouldHaveSize 3
 
+        @Suppress("DEPRECATION")
         val memberCount = queryFactory
             .selectFrom(qmember)
             .fetchCount()
