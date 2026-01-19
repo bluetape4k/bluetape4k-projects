@@ -29,9 +29,7 @@ dependencies {
     implementation(project(":bluetape4k-jackson"))
     implementation(Libs.jackson_module_kotlin)
     implementation(Libs.jackson_module_blackbird)
-    // implementation(Libs.jackson_datatype_jdk8)
     implementation(Libs.jackson_datatype_jsr310)
-    implementation(Libs.jackson_datatype_jsr353)
 
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))

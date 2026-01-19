@@ -19,11 +19,4 @@ val USER_TUPLE_MAPPER: TupleMapper<User> = TupleMapper.mapper { user ->
     user.javaClass.kotlin.memberProperties.associate {
         it.name to it.get(user)
     }
-
-    // 직접 매핑
-//    mapOf(
-//        "id" to user.id,
-//        "firstName" to user.firstName,
-//        "lastName" to user.lastName,
-//    )
 }

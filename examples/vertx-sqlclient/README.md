@@ -30,5 +30,5 @@ package io.bluetape4k.workshop.sqlclient;
 import io.vertx.codegen.annotations.ModuleGen;
 ```
 
-참고 자료 :
+참고 자료:
 [Mapping with Vert.x data objects](https://vertx.io/docs/vertx-sql-client-templates/java/#_mapping_with_vert_x_data_objects)

@@ -42,7 +42,7 @@ dependencies {
     // Vetx SqlClient Templates 에서 Jackson Databind 를 이용한 매핑을 사용한다
     implementation(project(":bluetape4k-jackson"))
     implementation(Libs.jackson_module_kotlin)
-    implementation(Libs.jackson_datatype_jdk8)
+    implementation(Libs.jackson_module_blackbird)
     implementation(Libs.jackson_datatype_jsr310)
 
     testImplementation(Libs.h2)
