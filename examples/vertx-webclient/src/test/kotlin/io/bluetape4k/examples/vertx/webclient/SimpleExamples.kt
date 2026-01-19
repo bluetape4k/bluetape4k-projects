@@ -49,7 +49,8 @@ class SimpleExamples {
             vertx.deployVerticle(SimpleServer()).coAwait()
 
             val client = WebClient.create(vertx)
-            val response = client.get(port, "localhost", "/")
+            val response = client
+                .get(port, "localhost", "/")
                 .`as`(BodyCodec.string())
                 .send()
                 .coAwait()
