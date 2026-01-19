@@ -37,7 +37,6 @@ import java.util.*
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.CoroutineContext
 
-@Suppress("ExposedReference")
 object UserSchema: KLogging() {
 
     private val faker = Fakers.faker

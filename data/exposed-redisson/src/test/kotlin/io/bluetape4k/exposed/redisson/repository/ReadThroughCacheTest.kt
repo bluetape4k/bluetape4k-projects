@@ -89,7 +89,7 @@ class ReadThroughCacheTest {
                 .map { it[UserCredentialTable.id].value }
         }
 
-        override fun getNonExistentId() = UUID.randomUUID()
+        override fun getNonExistentId(): UUID = UUID.randomUUID()
     }
 
     @Nested

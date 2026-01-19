@@ -42,7 +42,7 @@ open class ExposedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
                 .apply {
                     offset += limit
                 }
-        }.takeWhile { offset < recordCount }.asIterable().flatMap { it }
+        }.takeWhile { offset < recordCount }.asIterable().flatten()
     }
 ) {
     companion object: KLogging() {

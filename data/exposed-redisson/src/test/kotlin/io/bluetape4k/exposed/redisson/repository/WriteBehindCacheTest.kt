@@ -91,7 +91,7 @@ class WriteBehindCacheTest {
                 .map { it[UserCredentialTable.id].value }
         }
 
-        override fun getNonExistentId() = UUID.randomUUID()
+        override fun getNonExistentId(): UUID = UUID.randomUUID()
 
         override fun createNewEntity(): UserCredentialDTO = UserSchema.newUserCredentialDTO()
     }

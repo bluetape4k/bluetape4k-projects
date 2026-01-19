@@ -139,7 +139,7 @@ class SuspendedReadWriteThroughCacheTest {
                 .map { it[UserCredentialTable.id].value }
         }
 
-        override suspend fun getNonExistentId() = UUID.randomUUID()
+        override suspend fun getNonExistentId(): UUID = UUID.randomUUID()
 
         override suspend fun createNewEntity(): UserCredentialDTO = UserSchema.newUserCredentialDTO()
 

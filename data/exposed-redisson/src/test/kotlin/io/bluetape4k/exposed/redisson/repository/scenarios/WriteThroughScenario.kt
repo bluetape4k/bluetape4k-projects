@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.redisson.repository.scenarios
 
-import io.bluetape4k.collections.toVarargArray
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.redisson.repository.scenarios.CacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.tests.TestDB
@@ -49,7 +48,7 @@ interface WriteThroughScenario<T: HasIdentifier<ID>, ID: Any>: CacheTestScenario
             assertSameEntityWithoutUpdatedAt(entityFromCache, updatedEntity)
 
             // DB에서 조회한 값
-            val entityFromDB = repository.findFreshById(id)
+            val entityFromDB = repository.findByIdFromDb(id)
             entityFromDB.shouldNotBeNull()
 
             assertSameEntityWithoutUpdatedAt(entityFromDB, entityFromCache)
@@ -82,7 +81,7 @@ interface WriteThroughScenario<T: HasIdentifier<ID>, ID: Any>: CacheTestScenario
             }
 
             // DB에서 조회한 값
-            val entitiesFromDB = repository.findFreshAll(*ids.toVarargArray())
+            val entitiesFromDB = repository.findAllFromDb(ids)
             entitiesFromDB.shouldNotBeEmpty() shouldHaveSize ids.size
 
             entitiesFromDB.forEach { entity ->
@@ -131,11 +130,11 @@ interface WriteThroughScenario<T: HasIdentifier<ID>, ID: Any>: CacheTestScenario
 
             if (cacheConfig.deleteFromDBOnInvalidate) {
                 // 캐시에서 삭제했으므로, DB에서도 삭제된다.
-                val userFromDB = repository.findFreshById(id)
+                val userFromDB = repository.findByIdFromDb(id)
                 userFromDB.shouldBeNull()
             } else {
                 // 캐시에서 삭제했지만, DB에는 여전히 존재한다.
-                val userFromDB = repository.findFreshById(id)
+                val userFromDB = repository.findByIdFromDb(id)
                 userFromDB shouldBeEqualTo entityFromCache
             }
         }

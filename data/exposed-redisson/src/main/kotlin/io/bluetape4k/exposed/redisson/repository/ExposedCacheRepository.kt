@@ -55,7 +55,18 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param id 엔티티 식별자
      * @return 엔티티 또는 null
      */
+    @Deprecated(message = "use findFreshById", replaceWith = ReplaceWith("findByIdFromDb(id)"))
     fun findFreshById(id: ID): T? = transaction {
+        entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
+    }
+
+    /**
+     * DB에서 최신 데이터를 조회합니다.
+     *
+     * @param id 엔티티 식별자
+     * @return 엔티티 또는 null
+     */
+    fun findByIdFromDb(id: ID): T? = transaction {
         entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
     }
 
@@ -65,7 +76,18 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param ids 엔티티 식별자 목록
      * @return 엔티티 리스트
      */
+    @Deprecated(message = "use findAllFromDb", replaceWith = ReplaceWith("findAllFromDb(ids)"))
     fun findFreshAll(vararg ids: ID): List<T> = transaction {
+        entityTable.selectAll().where { entityTable.id inList ids.toList() }.map { it.toEntity() }
+    }
+
+    /**
+     * DB에서 여러 엔티티를 조회합니다.
+     *
+     * @param ids 엔티티 식별자 목록
+     * @return 엔티티 리스트
+     */
+    fun findAllFromDb(vararg ids: ID): List<T> = transaction {
         entityTable.selectAll().where { entityTable.id inList ids.toList() }.map { it.toEntity() }
     }
 
@@ -75,7 +97,18 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param ids 엔티티 식별자 컬렉션
      * @return 엔티티 리스트
      */
+    @Deprecated(message = "use findAllFromDb", replaceWith = ReplaceWith("findAllFromDb(ids)"))
     fun findFreshAll(ids: Collection<ID>): List<T> = transaction {
+        entityTable.selectAll().where { entityTable.id inList ids }.map { it.toEntity() }
+    }
+
+    /**
+     * DB에서 여러 엔티티를 조회합니다.
+     *
+     * @param ids 엔티티 식별자 컬렉션
+     * @return 엔티티 리스트
+     */
+    fun findAllFromDb(ids: Collection<ID>): List<T> = transaction {
         entityTable.selectAll().where { entityTable.id inList ids }.map { it.toEntity() }
     }
 

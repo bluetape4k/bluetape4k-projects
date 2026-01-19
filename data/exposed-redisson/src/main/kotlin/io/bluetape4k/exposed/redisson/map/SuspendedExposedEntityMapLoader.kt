@@ -11,7 +11,6 @@ import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -49,7 +48,7 @@ open class SuspendedExposedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
         entityTable.select(entityTable.id)
             .fetchBatchedResultFlow()
             .buffer(3)
-            .flowOn(scope.coroutineContext)
+            // .flowOn(scope.coroutineContext)
             .cancellable()
             .catch { cause ->
                 log.error(cause) { "DB에서 모든 ID 로딩 중 오류 발생" }

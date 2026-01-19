@@ -61,10 +61,23 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param id 엔티티의 식별자
      * @return 조회된 엔티티 또는 null
      */
-    suspend fun findFreshById(id: ID): T? =
-        suspendedTransactionAsync(Dispatchers.IO) {
-            entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
-        }.await()
+
+    @Deprecated("use findByIdFromDb", replaceWith = ReplaceWith("findByIdFromDb(id)"))
+    @Suppress("DEPRECATION")
+    suspend fun findFreshById(id: ID): T? = suspendedTransactionAsync(Dispatchers.IO) {
+        entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
+    }.await()
+
+    /**
+     * 주어진 ID로 DB에서 최신 엔티티를 조회합니다.
+     *
+     * @param id 엔티티의 식별자
+     * @return 조회된 엔티티 또는 null
+     */
+    @Suppress("DEPRECATION")
+    suspend fun findByIdFromDb(id: ID): T? = suspendedTransactionAsync(Dispatchers.IO) {
+        entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
+    }.await()
 
     /**
      * 여러 ID로 DB에서 최신 엔티티 목록을 조회합니다.
@@ -72,10 +85,23 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param ids 엔티티 식별자 목록
      * @return 조회된 엔티티 목록
      */
-    suspend fun findFreshAll(vararg ids: ID): List<T> =
-        suspendedTransactionAsync(Dispatchers.IO) {
-            entityTable.selectAll().where { entityTable.id inList ids.toList() }.map { it.toEntity() }
-        }.await()
+    @Deprecated("use findAllFromDb", replaceWith = ReplaceWith("findAllFromDb(ids)"))
+    @Suppress("DEPRECATION")
+    suspend fun findFreshAll(vararg ids: ID): List<T> = suspendedTransactionAsync(Dispatchers.IO) {
+        entityTable.selectAll().where { entityTable.id inList ids.toList() }.map { it.toEntity() }
+    }.await()
+
+    /**
+     * 여러 ID로 DB에서 최신 엔티티 목록을 조회합니다.
+     *
+     * @param ids 엔티티 식별자 목록
+     * @return 조회된 엔티티 목록
+     */
+    @Suppress("DEPRECATION")
+    suspend fun findAllFromDb(vararg ids: ID): List<T> = suspendedTransactionAsync(Dispatchers.IO) {
+        entityTable.selectAll().where { entityTable.id inList ids.toList() }.map { it.toEntity() }
+    }.await()
+
 
     /**
      * 여러 ID로 DB에서 최신 엔티티 목록을 조회합니다.
@@ -83,10 +109,22 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param ids 엔티티 식별자 컬렉션
      * @return 조회된 엔티티 목록
      */
-    suspend fun findFreshAll(ids: Collection<ID>): List<T> =
-        suspendedTransactionAsync(Dispatchers.IO) {
-            entityTable.selectAll().where { entityTable.id inList ids }.map { it.toEntity() }
-        }.await()
+    @Deprecated("use findAllFromDb", replaceWith = ReplaceWith("findAllFromDb(ids)"))
+    @Suppress("DEPRECATION")
+    suspend fun findFreshAll(ids: Collection<ID>): List<T> = suspendedTransactionAsync(Dispatchers.IO) {
+        entityTable.selectAll().where { entityTable.id inList ids }.map { it.toEntity() }
+    }.await()
+
+    /**
+     * 여러 ID로 DB에서 최신 엔티티 목록을 조회합니다.
+     *
+     * @param ids 엔티티 식별자 컬렉션
+     * @return 조회된 엔티티 목록
+     */
+    @Suppress("DEPRECATION")
+    suspend fun findAllFromDb(ids: Collection<ID>): List<T> = suspendedTransactionAsync(Dispatchers.IO) {
+        entityTable.selectAll().where { entityTable.id inList ids }.map { it.toEntity() }
+    }.await()
 
     /**
      * 캐시에서 엔티티를 조회합니다.
@@ -128,7 +166,7 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      *
      * @param entity 저장할 엔티티
      */
-    suspend fun put(entity: T) = cache.fastPutAsync(entity.id, entity).suspendAwait()
+    suspend fun put(entity: T): Boolean = cache.fastPutAsync(entity.id, entity).suspendAwait()
 
     /**
      * 여러 엔티티를 캐시에 일괄 저장합니다.

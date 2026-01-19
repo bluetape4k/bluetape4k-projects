@@ -37,7 +37,7 @@ interface SuspendedReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: Suspended
             val id = getExistingId()
 
             // DB에서 조회한 값
-            val entityFromDB = repository.findFreshById(id)
+            val entityFromDB = repository.findByIdFromDb(id)
             entityFromDB.shouldNotBeNull()
 
             // 캐시에서 조회한 값
@@ -93,7 +93,7 @@ interface SuspendedReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: Suspended
             // 임의의 존재하지 않는 ID 생성 방법은 구현 클래스에서 정의
             val nonExistentId = getNonExistentId()
 
-            val entityFromDB = repository.findFreshById(nonExistentId)
+            val entityFromDB = repository.findByIdFromDb(nonExistentId)
             entityFromDB.shouldBeNull()
 
             val entityFromCache = repository.get(nonExistentId)

@@ -163,6 +163,7 @@ abstract class AbstractSuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID:
         sortOrder: SortOrder,
         where: () -> Op<Boolean>,
     ): List<T> {
+        @Suppress("DEPRECATION")
         return suspendedTransactionAsync(scope.coroutineContext) {
             entityTable.selectAll()
                 .where(where)

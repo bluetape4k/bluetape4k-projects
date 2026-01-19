@@ -95,7 +95,7 @@ class SuspendedReadThroughCacheTest {
                 .map { it[UserCredentialTable.id].value }
         }
 
-        override suspend fun getNonExistentId() = UUID.randomUUID()
+        override suspend fun getNonExistentId(): UUID = UUID.randomUUID()
     }
 
     @Nested

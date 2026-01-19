@@ -60,7 +60,7 @@ open class SuspendedExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
     companion object: KLoggingChannel() {
         private const val DEFAULT_BATCH_SIZE = 1000
 
-        private suspend fun <K: Any, V: HasIdentifier<K>> writeThrough(
+        private fun <K: Any, V: HasIdentifier<K>> writeThrough(
             map: Map<K, V>,
             entityTable: IdTable<K>,
             updateBody: IdTable<K>.(UpdateStatement, V) -> Unit,
@@ -92,7 +92,7 @@ open class SuspendedExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
             }
         }
 
-        private suspend fun <K: Any, V: HasIdentifier<K>> writeBehind(
+        private fun <K: Any, V: HasIdentifier<K>> writeBehind(
             map: Map<K, V>,
             entityTable: IdTable<K>,
             batchInsertBody: BatchInsertStatement.(V) -> Unit,
@@ -100,12 +100,14 @@ open class SuspendedExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
         ) {
             // Write Behind 시에는 캐시에 남길 일이 없으므로, 자동증가 ID인 경우에도 batchInsert 를 수행합니다.
             val entitiesToInsert = map.values
-            entitiesToInsert.chunked(batchSize).forEach { chunk ->
-                log.debug { "캐시 변경 사항을 DB에 반영합니다... ids=${chunk.map { it.id }}" }
-                entityTable.batchInsert(chunk, shouldReturnGeneratedValues = false) {
-                    batchInsertBody(this, it)
+            entitiesToInsert
+                .chunked(batchSize)
+                .forEach { chunk ->
+                    log.debug { "캐시 변경 사항을 DB에 반영합니다... ids=${chunk.map { it.id }}" }
+                    entityTable.batchInsert(chunk, shouldReturnGeneratedValues = false) {
+                        batchInsertBody(this, it)
+                    }
                 }
-            }
         }
     }
 
