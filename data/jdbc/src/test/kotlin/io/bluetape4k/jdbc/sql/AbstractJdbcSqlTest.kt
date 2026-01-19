@@ -74,8 +74,8 @@ abstract class AbstractJdbcSqlTest: AbstractJdbcTest() {
         }
     }
 
-    protected fun Statement.verifyQuery(sql: String) {
-        val rs = executeQuery(sql)
+    protected fun Statement.verifyQuery(sqlString: String) {
+        val rs = executeQuery(sqlString)
         rs.shouldNotBeNull()
         rs.next().shouldBeTrue()
     }

@@ -7,7 +7,6 @@ class GetColumnToken<out T: Any>(
     val withColumnLabel: (String) -> T?,
     val withColumnIndex: (Int) -> T?,
 ) {
-
     /**
      * 해당 컬럼명의 정보를 가져옵니다.
      * @param columnLabel 데이터를 가져올 컬럼 명

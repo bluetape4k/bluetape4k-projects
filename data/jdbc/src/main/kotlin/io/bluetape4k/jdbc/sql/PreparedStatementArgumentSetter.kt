@@ -13,6 +13,7 @@ import java.sql.NClob
 import java.sql.PreparedStatement
 import java.sql.Ref
 import java.sql.RowId
+import java.sql.SQLType
 import java.sql.SQLXML
 import java.sql.Time
 import java.sql.Timestamp
@@ -45,29 +46,41 @@ class PreparedStatementArgumentSetter private constructor(
         }
     }
 
-    val array: ArgumentSetter<Array> by lazy {
-        DefaultArgumentSetter { index: Int, value: Array -> setArray(index, value) }
-    }
+    val array: ArgumentSetter<Array> =
+        DefaultArgumentSetter { index: Int, value: Array ->
+            setArray(index, value)
+        }
 
-    val asciiStream: ArgumentWithLengthSetter<InputStream> by lazy {
+    val asciiStream: ArgumentWithLengthSetter<InputStream> =
         ArgumentWithLengthSetter(
-            { index: Int, stream: InputStream -> setAsciiStream(index, stream) },
-            { index: Int, stream: InputStream, length -> setAsciiStream(index, stream, length) },
-            { index: Int, stream: InputStream, length: Long -> setAsciiStream(index, stream, length) }
+            { index: Int, stream: InputStream ->
+                setAsciiStream(index, stream)
+            },
+            { index: Int, stream: InputStream, length ->
+                setAsciiStream(index, stream, length)
+            },
+            { index: Int, stream: InputStream, length: Long ->
+                setAsciiStream(index, stream, length)
+            }
         )
-    }
 
-    val bigDecimal: ArgumentSetter<BigDecimal> by lazy {
-        DefaultArgumentSetter { index: Int, value: BigDecimal -> setBigDecimal(index, value) }
-    }
+    val bigDecimal: ArgumentSetter<BigDecimal> =
+        DefaultArgumentSetter { index: Int, value: BigDecimal ->
+            setBigDecimal(index, value)
+        }
 
-    val binaryStream: ArgumentWithLengthSetter<InputStream> by lazy {
+    val binaryStream: ArgumentWithLengthSetter<InputStream> =
         ArgumentWithLengthSetter(
-            { index: Int, stream: InputStream -> setBinaryStream(index, stream) },
-            { index: Int, stream: InputStream, length -> setBinaryStream(index, stream, length) },
-            { index: Int, stream: InputStream, length: Long -> setBinaryStream(index, stream, length) }
+            { index: Int, stream: InputStream ->
+                setBinaryStream(index, stream)
+            },
+            { index: Int, stream: InputStream, length ->
+                setBinaryStream(index, stream, length)
+            },
+            { index: Int, stream: InputStream, length: Long ->
+                setBinaryStream(index, stream, length)
+            }
         )
-    }
 
     /**
      * ```
@@ -75,95 +88,130 @@ class PreparedStatementArgumentSetter private constructor(
      * blob[3] = InputStream
      * ```
      */
-    val blob: BlobArgumentSetter by lazy {
+    val blob: BlobArgumentSetter =
         BlobArgumentSetter(
-            { index: Int, blob: Blob -> setBlob(index, blob) },
-            { index: Int, stream: InputStream -> setBlob(index, stream) },
-            { index: Int, stream: InputStream, length: Long -> setBlob(index, stream, length) }
+            { index: Int, blob: Blob ->
+                setBlob(index, blob)
+            },
+            { index: Int, stream: InputStream ->
+                setBlob(index, stream)
+            },
+            { index: Int, stream: InputStream, length: Long ->
+                setBlob(index, stream, length)
+            }
         )
-    }
 
-    val boolean: ArgumentSetter<Boolean> by lazy {
-        DefaultArgumentSetter { index: Int, value: Boolean -> setBoolean(index, value) }
-    }
+    val boolean: ArgumentSetter<Boolean> =
+        DefaultArgumentSetter { index: Int, value: Boolean ->
+            setBoolean(index, value)
+        }
 
-    val byte: ArgumentSetter<Byte> by lazy {
-        DefaultArgumentSetter { index: Int, value: Byte -> setByte(index, value) }
-    }
+    val byte: ArgumentSetter<Byte> =
+        DefaultArgumentSetter { index: Int, value: Byte ->
+            setByte(index, value)
+        }
 
-    val bytes: ArgumentSetter<ByteArray> by lazy {
-        DefaultArgumentSetter { index: Int, value: ByteArray -> setBytes(index, value) }
-    }
+    val bytes: ArgumentSetter<ByteArray> =
+        DefaultArgumentSetter { index: Int, value: ByteArray ->
+            setBytes(index, value)
+        }
 
-    val characterStream: ArgumentWithLengthSetter<Reader> by lazy {
+    val characterStream: ArgumentWithLengthSetter<Reader> =
         ArgumentWithLengthSetter(
-            { index: Int, reader: Reader -> setCharacterStream(index, reader) },
-            { index: Int, reader: Reader, length: Int -> setCharacterStream(index, reader, length) },
-            { index: Int, reader: Reader, length: Long -> setCharacterStream(index, reader, length) }
+            { index: Int, reader: Reader ->
+                setCharacterStream(index, reader)
+            },
+            { index: Int, reader: Reader, length: Int ->
+                setCharacterStream(index, reader, length)
+            },
+            { index: Int, reader: Reader, length: Long ->
+                setCharacterStream(index, reader, length)
+            }
         )
-    }
 
-    val clob: ClobArgumentSetter by lazy {
+    val clob: ClobArgumentSetter =
         ClobArgumentSetter(
-            { index: Int, clob: Clob -> setClob(index, clob) },
-            { index: Int, reader: Reader -> setClob(index, reader) },
-            { index: Int, reader: Reader, length: Long -> setClob(index, reader, length) }
+            { index: Int, clob: Clob ->
+                setClob(index, clob)
+            },
+            { index: Int, reader: Reader ->
+                setClob(index, reader)
+            },
+            { index: Int, reader: Reader, length: Long ->
+                setClob(index, reader, length)
+            }
         )
-    }
 
-    val date: CombinedArgumentSetter<Date, Calendar> by lazy {
+    val date: CombinedArgumentSetter<Date, Calendar> =
         CombinedArgumentSetter(
-            { index: Int, date: Date -> setDate(index, date) },
-            { index: Int, date: Date, calendar: Calendar -> setDate(index, date, calendar) }
+            { index: Int, date: Date ->
+                setDate(index, date)
+            },
+            { index: Int, date: Date, calendar: Calendar ->
+                setDate(index, date, calendar)
+            }
         )
-    }
 
-    val double: ArgumentSetter<Double> by lazy {
-        DefaultArgumentSetter { index: Int, value: Double -> setDouble(index, value) }
-    }
+    val double: ArgumentSetter<Double> =
+        DefaultArgumentSetter { index: Int, value: Double ->
+            setDouble(index, value)
+        }
 
-    val float: ArgumentSetter<Float> by lazy {
-        DefaultArgumentSetter { index: Int, value: Float -> setFloat(index, value) }
-    }
+    val float: ArgumentSetter<Float> =
+        DefaultArgumentSetter { index: Int, value: Float ->
+            setFloat(index, value)
+        }
 
-    val int: ArgumentSetter<Int> by lazy {
-        DefaultArgumentSetter { index: Int, value: Int -> setInt(index, value) }
-    }
+    val int: ArgumentSetter<Int> =
+        DefaultArgumentSetter { index: Int, value: Int ->
+            setInt(index, value)
+        }
 
-    val long: ArgumentSetter<Long> by lazy {
-        DefaultArgumentSetter { index: Int, value: Long -> setLong(index, value) }
-    }
+    val long: ArgumentSetter<Long> =
+        DefaultArgumentSetter { index: Int, value: Long ->
+            setLong(index, value)
+        }
 
-    val ncharacterStream: CombinedArgumentSetter<Reader, Long> by lazy {
+    val ncharacterStream: CombinedArgumentSetter<Reader, Long> =
         CombinedArgumentSetter(
-            { index: Int, reader: Reader -> setNCharacterStream(index, reader) },
-            { index: Int, reader: Reader, length: Long -> setNCharacterStream(index, reader, length) }
+            { index: Int, reader: Reader ->
+                setNCharacterStream(index, reader)
+            },
+            { index: Int, reader: Reader, length: Long ->
+                setNCharacterStream(index, reader, length)
+            }
         )
-    }
 
-    val nclob: NClobArgumentSetter by lazy {
+    val nclob: NClobArgumentSetter =
         NClobArgumentSetter(
             { index: Int, nclob: NClob -> setNClob(index, nclob) },
             { index: Int, reader: Reader -> setNClob(index, reader) },
             { index: Int, reader: Reader, length: Long -> setNClob(index, reader, length) }
         )
-    }
 
-    val nstring: ArgumentSetter<String> by lazy {
-        DefaultArgumentSetter { index: Int, value: String -> setNString(index, value) }
-    }
+    val nstring: ArgumentSetter<String> =
+        DefaultArgumentSetter { index: Int, value: String ->
+            setNString(index, value)
+        }
 
-    val `null`: CombinedArgumentSetter<Int, String> by lazy {
+    val `null`: CombinedArgumentSetter<Int, String> =
         CombinedArgumentSetter(
             { index: Int, sqlType: Int -> setNull(index, sqlType) },
             { index: Int, sqlType: Int, typeName: String -> setNull(index, sqlType, typeName) }
         )
-    }
 
-    val `object`: ObjectArgumentSetter by lazy {
+    val `object`: ObjectArgumentSetter =
         ObjectArgumentSetter(
-            { index: Int, value: Any -> setObject(index, value) },
-            { index: Int, value: Any, sqlType: Int -> setObject(index, value, sqlType) },
+            { index: Int, value: Any ->
+                setObject(index, value)
+            },
+            { index: Int, value: Any, sqlType: Int ->
+                setObject(
+                    index,
+                    value,
+                    sqlType
+                )
+            },
             { index: Int, value: Any, sqlType: Int, scaleOrLength: Int ->
                 setObject(
                     index,
@@ -173,39 +221,115 @@ class PreparedStatementArgumentSetter private constructor(
                 )
             }
         )
-    }
 
-    val ref: ArgumentSetter<Ref> by lazy {
-        DefaultArgumentSetter { index: Int, value: Ref -> setRef(index, value) }
-    }
+    val ref: ArgumentSetter<Ref> =
+        DefaultArgumentSetter { index: Int, value: Ref ->
+            setRef(index, value)
+        }
 
-    val rowId: ArgumentSetter<RowId> by lazy {
-        DefaultArgumentSetter { index: Int, value: RowId -> setRowId(index, value) }
-    }
+    val rowId: ArgumentSetter<RowId> =
+        DefaultArgumentSetter { index: Int, value: RowId ->
+            setRowId(index, value)
+        }
 
-    val sqlxml: ArgumentSetter<SQLXML> by lazy {
-        DefaultArgumentSetter { index: Int, value: SQLXML -> setSQLXML(index, value) }
-    }
+    val sqlxml: ArgumentSetter<SQLXML> =
+        DefaultArgumentSetter { index: Int, value: SQLXML ->
+            setSQLXML(index, value)
+        }
 
-    val string: ArgumentSetter<String> by lazy {
-        DefaultArgumentSetter { index: Int, value: String -> setString(index, value) }
-    }
+    val string: ArgumentSetter<String> =
+        DefaultArgumentSetter { index: Int, value: String ->
+            setString(index, value)
+        }
 
-    val time: CombinedArgumentSetter<Time, Calendar> by lazy {
+    val time: CombinedArgumentSetter<Time, Calendar> =
         CombinedArgumentSetter(
-            { index: Int, time: Time -> setTime(index, time) },
-            { index: Int, time: Time, calendar: Calendar -> setTime(index, time, calendar) }
+            { index: Int, time: Time ->
+                setTime(index, time)
+            },
+            { index: Int, time: Time, calendar: Calendar ->
+                setTime(index, time, calendar)
+            }
         )
-    }
 
-    val timestamp: CombinedArgumentSetter<Timestamp, Calendar> by lazy {
+    val timestamp: CombinedArgumentSetter<Timestamp, Calendar> =
         CombinedArgumentSetter(
-            { index: Int, timestamp: Timestamp -> setTimestamp(index, timestamp) },
-            { index: Int, timestamp: Timestamp, calendar: Calendar -> setTimestamp(index, timestamp, calendar) }
+            { index: Int, timestamp: Timestamp ->
+                setTimestamp(index, timestamp)
+            },
+            { index: Int, timestamp: Timestamp, calendar: Calendar ->
+                setTimestamp(index, timestamp, calendar)
+            }
         )
+
+    val url: ArgumentSetter<URL> =
+        DefaultArgumentSetter { index: Int, value: URL ->
+            setURL(index, value)
+        }
+
+    override fun setObject(
+        parameterIndex: Int,
+        x: Any?,
+        targetSqlType: SQLType?,
+        scaleOrLength: Int,
+    ) {
+        super.setObject(parameterIndex, x, targetSqlType, scaleOrLength)
     }
 
-    val url: ArgumentSetter<URL> by lazy {
-        DefaultArgumentSetter { index: Int, value: URL -> setURL(index, value) }
+    override fun setObject(parameterIndex: Int, x: Any?, targetSqlType: SQLType?) {
+        super.setObject(parameterIndex, x, targetSqlType)
     }
+
+    override fun executeLargeUpdate(): Long {
+        return super.executeLargeUpdate()
+    }
+
+    override fun getLargeUpdateCount(): Long {
+        return super.getLargeUpdateCount()
+    }
+
+    override fun setLargeMaxRows(max: Long) {
+        super.setLargeMaxRows(max)
+    }
+
+    override fun getLargeMaxRows(): Long {
+        return super.getLargeMaxRows()
+    }
+
+    override fun executeLargeBatch(): LongArray? {
+        return super.executeLargeBatch()
+    }
+
+    override fun executeLargeUpdate(sql: String?): Long {
+        return super.executeLargeUpdate(sql)
+    }
+
+    override fun executeLargeUpdate(sql: String?, autoGeneratedKeys: Int): Long {
+        return super.executeLargeUpdate(sql, autoGeneratedKeys)
+    }
+
+    override fun executeLargeUpdate(sql: String?, columnIndexes: IntArray?): Long {
+        return super.executeLargeUpdate(sql, columnIndexes)
+    }
+
+    override fun executeLargeUpdate(sql: String?, columnNames: kotlin.Array<out String?>?): Long {
+        return super.executeLargeUpdate(sql, columnNames)
+    }
+
+    override fun enquoteLiteral(`val`: String?): String? {
+        return super.enquoteLiteral(`val`)
+    }
+
+    override fun enquoteIdentifier(identifier: String?, alwaysQuote: Boolean): String? {
+        return super.enquoteIdentifier(identifier, alwaysQuote)
+    }
+
+    override fun isSimpleIdentifier(identifier: String?): Boolean {
+        return super.isSimpleIdentifier(identifier)
+    }
+
+    override fun enquoteNCharLiteral(`val`: String?): String? {
+        return super.enquoteNCharLiteral(`val`)
+    }
+
 }
