@@ -8,7 +8,7 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
 
     // Vertx
-    api(project(":bluetape4k-vertx-core"))
+    implementation(project(":bluetape4k-vertx-core"))
     testImplementation(Libs.vertx_junit5)
 
     // Vertx Kotlin
@@ -28,14 +28,14 @@ dependencies {
     // Json
     implementation(project(":bluetape4k-jackson"))
     implementation(Libs.jackson_module_kotlin)
-    implementation(Libs.jackson_datatype_jdk8)
+    implementation(Libs.jackson_module_blackbird)
+    // implementation(Libs.jackson_datatype_jdk8)
     implementation(Libs.jackson_datatype_jsr310)
+    implementation(Libs.jackson_datatype_jsr353)
 
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))
     implementation(Libs.kotlinx_coroutines_core)
     implementation(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_test)
-
-    implementation(Libs.logback)
 }
