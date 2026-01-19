@@ -13,7 +13,7 @@ dependencies {
     testImplementation(Libs.jsonpath)
     testImplementation(Libs.jsonassert)
 
-    implementation(project(":bluetape4k-coroutines"))
-    implementation(Libs.kotlinx_coroutines_core)
+    testImplementation(project(":bluetape4k-coroutines"))
+    testImplementation(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)
 }

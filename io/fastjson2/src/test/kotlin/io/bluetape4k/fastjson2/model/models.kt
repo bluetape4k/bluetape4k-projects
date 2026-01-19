@@ -1,6 +1,5 @@
 package io.bluetape4k.fastjson2.model
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo
 import io.bluetape4k.junit5.faker.Fakers
 import java.io.Serializable
 import java.util.*
@@ -38,16 +37,13 @@ enum class Generation {
     FOURTY
 }
 
-// DefaultObjectMapper를 사용해도 @JsonTypeInfo 를 지정하면 JSON에 class 정보를 포함시켜줍니다.
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "@class")
 data class Address(
     var street: String? = null,
     var phone: String? = null,
     val props: MutableList<String> = mutableListOf(),
 )
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-interface Person {
+interface Person: Serializable {
     val name: String
     val age: Int
 }

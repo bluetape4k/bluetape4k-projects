@@ -10,9 +10,9 @@ fun Any?.toJsonBytes(context: JSONWriter.Context? = null): ByteArray? =
     JSONB.toBytes(this, context)
 
 inline fun <reified T: Any> ByteArray?.readBytesOrNull(vararg features: JSONReader.Feature): T? =
-    JSONB.parseObject<T>(this, reference<T>(), *features)
+    JSONB.parseObject(this, reference<T>(), *features)
 
 inline fun <reified T: Any> InputStream?.readBytesOrNull(
     length: Int = this@readBytesOrNull?.available() ?: 0,
     vararg features: JSONReader.Feature,
-): T? = JSONB.parseObject<T>(this, length, reference<T>().type, *features)
+): T? = JSONB.parseObject(this, length, reference<T>().type, *features)

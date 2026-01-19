@@ -26,7 +26,7 @@ inline fun <reified T: Any> String?.readValueAsList(vararg features: JSONReader.
     JSON.parseArray<T>(this, reference<T>().type, *features).orEmpty()
 
 inline fun <reified T: Any> InputStream?.readValueOrNull(vararg features: JSONReader.Feature): T? =
-    JSON.parseObject<T>(this, reference<T>().type, *features)
+    JSON.parseObject(this, reference<T>().type, *features)
 
 inline fun <reified T: Any> InputStream.readValueAsList(
     vararg features: JSONReader.Feature,
