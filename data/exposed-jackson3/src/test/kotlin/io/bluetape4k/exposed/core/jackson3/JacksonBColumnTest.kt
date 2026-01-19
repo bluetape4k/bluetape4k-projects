@@ -158,7 +158,6 @@ class JacksonBColumnTest: AbstractExposedTest() {
                 it[jacksonBColumn] = data1.copy(logins = 1000)
             }
 
-            // Postgres requires type casting to compare jsonb field as integer value in DB ???
             val logins = when (currentDialectTest) {
                 is PostgreSQLDialect ->
                     tester.jacksonBColumn.extract<Int>("logins").castTo(IntegerColumnType())
@@ -263,7 +262,6 @@ class JacksonBColumnTest: AbstractExposedTest() {
             val userIsInAlphaTeam = tester.jacksonBColumn.contains(alphaTeamUserAsJson)
             tester.selectAll().where { userIsInAlphaTeam }.count() shouldBeEqualTo 1L
 
-            // test target contains candidate at specified path
             if (testDB in TestDB.ALL_MYSQL_MARIADB) {
                 val userIsInAlphaTeam2 = tester.jacksonBColumn.contains("\"Alpha\"", ".user.team")
                 val alphaTeamUsers = tester.select(tester.id).where { userIsInAlphaTeam2 }
@@ -299,7 +297,6 @@ class JacksonBColumnTest: AbstractExposedTest() {
             val hasLogins = tester.jacksonBColumn.exists(".logins", optional = optional)
             tester.selectAll().where { hasLogins }.count() shouldBeEqualTo 2L
 
-            // test data at path exists with filter condition & optional arguments
             if (currentDialectTest is PostgreSQLDialect) {
                 // SELECT jackson_b_table.id FROM jackson_b_table
                 //  WHERE JSONB_PATH_EXISTS(jackson_b_table.jackson_b_column, '$.logins ? (@ == 1000)')
@@ -310,7 +307,7 @@ class JacksonBColumnTest: AbstractExposedTest() {
 
                 // SELECT jackson_b_table.id FROM jackson_b_table
                 //  WHERE JSONB_PATH_EXISTS(jackson_b_table.jackson_b_column, '$.user.team ? (@ == $team)', '{"team":"A"}')
-                val (jsonPath, optionalArg) = ".user.team ? (@ == \$team)" to "{\"team\":\"$teamA\"}"
+                val (jsonPath, optionalArg) = $$".user.team ? (@ == $team)" to "{\"team\":\"$teamA\"}"
                 val isOnTeamA = tester.jacksonBColumn.exists(jsonPath, optional = optionalArg)
                 val usersOnTeamA = tester.select(tester.id).where { isOnTeamA }
                 usersOnTeamA.single()[tester.id] shouldBeEqualTo newId

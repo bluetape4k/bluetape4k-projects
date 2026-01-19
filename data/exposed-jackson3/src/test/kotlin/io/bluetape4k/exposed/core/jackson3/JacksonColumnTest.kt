@@ -162,7 +162,6 @@ class JacksonColumnTest: AbstractExposedTest() {
                 it[jacksonColumn] = data1.copy(logins = 1000)
             }
 
-            // Postgres requires type casting to compare json field as integer value in DB
             val logins = when (currentDialectTest) {
                 is PostgreSQLDialect -> tester.jacksonColumn.extract<Int>("logins").castTo(IntegerColumnType())
                 else -> tester.jacksonColumn.extract<Int>(".logins")
@@ -279,7 +278,6 @@ class JacksonColumnTest: AbstractExposedTest() {
             var userIsInAlphaTeam = tester.jacksonColumn.contains(stringLiteral(alphaTeamUserAsJson))
             tester.selectAll().where { userIsInAlphaTeam }.count() shouldBeEqualTo 1L
 
-            // test target contains candidate at specified path
             if (testDB in TestDB.ALL_MYSQL_LIKE) {
                 userIsInAlphaTeam = tester.jacksonColumn.contains("\"Alpha\"", ".user.team")
                 val alphaTeamUsers = tester.select(tester.id).where { userIsInAlphaTeam }
@@ -335,7 +333,6 @@ class JacksonColumnTest: AbstractExposedTest() {
             val hasLogins = tester.jacksonColumn.exists(".logins", optional = optional)
             tester.selectAll().where { hasLogins }.count() shouldBeEqualTo 2L
 
-            // test data at path exists with filter condition & optional arguments
             val testDialect = currentDialectTest
             if (testDialect is OracleDialect || testDialect is SQLServerDialect) {
                 val filterPath = when (testDialect) {
@@ -347,8 +344,8 @@ class JacksonColumnTest: AbstractExposedTest() {
                 usersWithMaxLogins.single()[tester.id] shouldBeEqualTo newId
 
                 val (jsonPath, optionalArg) = when (testDialect) {
-                    is OracleDialect -> "?(@.user.team == \$team)" to "PASSING '$teamA' AS \"team\""
-                    else -> ".user.team ? (@ == \$team)" to "{\"team\":\"$teamA\"}"
+                    is OracleDialect -> $$"?(@.user.team == $team)" to "PASSING '$teamA' AS \"team\""
+                    else -> $$".user.team ? (@ == $team)" to "{\"team\":\"$teamA\"}"
                 }
                 val isOnTeamA = tester.jacksonColumn.exists(jsonPath, optional = optionalArg)
                 val usersOnTeamA = tester.select(tester.id).where { isOnTeamA }
