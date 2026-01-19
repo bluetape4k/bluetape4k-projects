@@ -1,5 +1,7 @@
 package io.bluetape4k.bucket4j.ratelimit.local
 
+import io.bluetape4k.bucket4j.coroutines.SuspendLocalBucket
+import io.bluetape4k.bucket4j.coroutines.SuspendLocalBucket.Companion.DEFAULT_MAX_WAIT_TIME
 import io.bluetape4k.bucket4j.local.LocalSuspendBucketProvider
 import io.bluetape4k.bucket4j.ratelimit.RateLimitResult
 import io.bluetape4k.bucket4j.ratelimit.SuspendRateLimiter
@@ -41,9 +43,9 @@ class LocalSuspendRateLimiter(
         log.debug { "rate limit for key=$key, numToken=$numToken" }
 
         return try {
-            val bucketProxy = bucketProvider.resolveBucket(key)
+            val bucketProxy: SuspendLocalBucket = bucketProvider.resolveBucket(key)
 
-            if (bucketProxy.tryConsume(numToken)) {
+            if (bucketProxy.tryConsume(numToken, DEFAULT_MAX_WAIT_TIME)) {
                 RateLimitResult(numToken, bucketProxy.availableTokens)
             } else {
                 RateLimitResult(0, bucketProxy.availableTokens)

@@ -81,7 +81,7 @@ class SuspendedLocalBucketTest: AbstractBucket4jTest() {
     }
 
     @Nested
-    inner class CoTryConsume {
+    inner class SuspendTryConsume {
 
         @Test
         fun `소비해야 할 토큰이 0 이하인 경우 예외를 던져야 한다`() = runTest {

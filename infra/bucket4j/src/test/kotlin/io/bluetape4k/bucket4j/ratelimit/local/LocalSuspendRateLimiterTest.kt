@@ -9,11 +9,7 @@ class LocalSuspendRateLimiterTest: AbstractSuspendRateLimiterTest() {
 
     companion object: KLogging()
 
-    val bucketProvider by lazy {
-        LocalSuspendBucketProvider(defaultBucketConfiguration)
-    }
+    val bucketProvider = LocalSuspendBucketProvider(defaultBucketConfiguration)
 
-    override val rateLimiter: SuspendRateLimiter<String> by lazy {
-        LocalSuspendRateLimiter(bucketProvider)
-    }
+    override val rateLimiter: SuspendRateLimiter<String> = LocalSuspendRateLimiter(bucketProvider)
 }

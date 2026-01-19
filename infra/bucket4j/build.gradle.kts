@@ -9,7 +9,6 @@ configurations {
 dependencies {
     api(project(":bluetape4k-core"))
     compileOnly(project(":bluetape4k-cache"))
-    compileOnly(project(":bluetape4k-coroutines"))
     testImplementation(project(":bluetape4k-junit5"))
 
     // Bucket4j
@@ -25,6 +24,7 @@ dependencies {
     compileOnly(Libs.redisson)
 
     // Coroutines
+    compileOnly(project(":bluetape4k-coroutines"))
     compileOnly(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_test)

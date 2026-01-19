@@ -24,17 +24,17 @@ import io.lettuce.core.cluster.RedisClusterClient
  * ```
  *
  * @param redisClient Lettuce의 [io.lettuce.core.RedisClient] 인스턴스
- * @param initializer ProxyManager 를 초기화하는 람다 함수
+ * @param builder ProxyManager 를 초기화하는 람다 함수
  * @receiver
  * @return
  */
-fun lettuceBasedProxyManagerOf(
+inline fun lettuceBasedProxyManagerOf(
     redisClient: RedisClient,
-    initializer: Bucket4jLettuce.LettuceBasedProxyManagerBuilder<ByteArray>.() -> Unit,
+    builder: Bucket4jLettuce.LettuceBasedProxyManagerBuilder<ByteArray>.() -> Unit,
 ): LettuceBasedProxyManager<ByteArray> {
     return Bucket4jLettuce
         .casBasedBuilder(redisClient)
-        .apply(initializer)
+        .apply(builder)
         .build()
 }
 
@@ -56,17 +56,17 @@ fun lettuceBasedProxyManagerOf(
  * }
  * ```
  *
- * @param redisClient Lettuce의 [io.lettuce.core.RedisClient] 인스턴스
- * @param initializer ProxyManager 를 초기화하는 람다 함수
+ * @param redisClusterClient Lettuce의 [io.lettuce.core.cluster.RedisClusterClient] 인스턴스
+ * @param builder ProxyManager 를 초기화하는 람다 함수
  * @receiver
  * @return
  */
-fun lettuceBasedProxyManagerOf(
+inline fun lettuceBasedProxyManagerOf(
     redisClusterClient: RedisClusterClient,
-    initializer: Bucket4jLettuce.LettuceBasedProxyManagerBuilder<ByteArray>.() -> Unit,
+    builder: Bucket4jLettuce.LettuceBasedProxyManagerBuilder<ByteArray>.() -> Unit,
 ): LettuceBasedProxyManager<ByteArray> {
     return Bucket4jLettuce
         .casBasedBuilder(redisClusterClient)
-        .apply(initializer)
+        .apply(builder)
         .build()
 }

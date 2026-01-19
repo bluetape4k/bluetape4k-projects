@@ -14,11 +14,11 @@ import io.github.bucket4j.ConfigurationBuilder
  * }
  * ```
  *
- * @param initializer [ConfigurationBuilder]를 이용한 초기화 람다
+ * @param builder [ConfigurationBuilder]를 이용한 초기화 람다
  * @return [BucketConfiguration] 인스턴스
  */
-inline fun bucketConfiguration(initializer: ConfigurationBuilder.() -> Unit): BucketConfiguration =
-    BucketConfiguration.builder().apply(initializer).build()
+inline fun bucketConfiguration(builder: ConfigurationBuilder.() -> Unit): BucketConfiguration =
+    BucketConfiguration.builder().apply(builder).build()
 
 
 /**

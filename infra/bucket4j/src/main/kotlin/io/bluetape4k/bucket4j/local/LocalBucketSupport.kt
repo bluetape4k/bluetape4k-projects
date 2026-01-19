@@ -18,11 +18,11 @@ import io.github.bucket4j.local.LocalBucketBuilder
  * }
  * ```
  *
- * @param initializer  [LocalBucketBuilder] 를 이용한 초기화 람다
+ * @param builder  [LocalBucketBuilder] 를 이용한 초기화 람다
  * @return [LocalBucket] instance
  */
-inline fun localBucket(initializer: LocalBucketBuilder.() -> Unit): LocalBucket =
-    Bucket.builder().apply(initializer).build()
+inline fun localBucket(builder: LocalBucketBuilder.() -> Unit): LocalBucket =
+    Bucket.builder().apply(builder).build()
 
 /**
  * 바이너리 스냅샷으로부터 [LocalBucket]을 복원합니다.

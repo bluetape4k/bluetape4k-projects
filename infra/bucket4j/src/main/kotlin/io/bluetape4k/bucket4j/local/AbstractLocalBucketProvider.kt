@@ -1,5 +1,6 @@
 package io.bluetape4k.bucket4j.local
 
+import com.github.benmanes.caffeine.cache.LoadingCache
 import io.bluetape4k.bucket4j.internal.Slf4jBucketListener
 import io.bluetape4k.cache.caffeine.caffeine
 import io.bluetape4k.cache.caffeine.loadingCache
@@ -32,12 +33,12 @@ abstract class AbstractLocalBucketProvider(
     /**
      * Custom Key: [Bucket] 을 저장하는 캐시
      */
-    protected open val cache by lazy {
+    protected open val cache: LoadingCache<String, LocalBucket> by lazy {
         caffeine {
             executor(VirtualThreadExecutor)
             maximumSize(100000)
             expireAfterAccess(Duration.ofHours(6))
-        }.loadingCache<String, LocalBucket> {
+        }.loadingCache {
             createBucket()
         }
     }
@@ -64,7 +65,7 @@ abstract class AbstractLocalBucketProvider(
      * @param key Custom Key
      * @return [LocalBucket] 인스턴스
      */
-    fun resolveBucket(key: String): LocalBucket {
+    open fun resolveBucket(key: String): LocalBucket {
         log.debug { "Loading lcoal bucket. key=$key" }
         val bucketKey = getBucketKey(key)
 

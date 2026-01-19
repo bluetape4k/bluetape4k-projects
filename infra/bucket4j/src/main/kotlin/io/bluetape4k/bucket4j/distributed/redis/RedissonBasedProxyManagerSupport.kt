@@ -26,17 +26,17 @@ import org.redisson.command.CommandAsyncExecutor
  * ```
  *
  * @param redisson [Redisson] instance
- * @param initializer ProxyManager 를 초기화하는 람다 함수
+ * @param builder ProxyManager 를 초기화하는 람다 함수
  * @receiver
  * @return [RedissonBasedProxyManager] 인스턴스
  */
 inline fun redissonBasedProxyManagerOf(
     redisson: RedissonClient,
-    initializer: Bucket4jRedisson.RedissonBasedProxyManagerBuilder<ByteArray>.() -> Unit,
+    builder: Bucket4jRedisson.RedissonBasedProxyManagerBuilder<ByteArray>.() -> Unit,
 ): RedissonBasedProxyManager<ByteArray> {
     return redissonBasedProxyManagerOf(
         (redisson as Redisson).commandExecutor,
-        initializer
+        builder
     )
 }
 
@@ -60,16 +60,16 @@ inline fun redissonBasedProxyManagerOf(
  * ```
  *
  * @param commandAsyncExecutor Redisson의 [CommandAsyncExecutor] 인스턴스
- * @param initializer ProxyManager 를 초기화하는 람다 함수
+ * @param builder ProxyManager 를 초기화하는 람다 함수
  * @receiver
  * @return [RedissonBasedProxyManager] 인스턴스
  */
 inline fun redissonBasedProxyManagerOf(
     commandAsyncExecutor: CommandAsyncExecutor,
-    initializer: Bucket4jRedisson.RedissonBasedProxyManagerBuilder<ByteArray>.() -> Unit,
+    builder: Bucket4jRedisson.RedissonBasedProxyManagerBuilder<ByteArray>.() -> Unit,
 ): RedissonBasedProxyManager<ByteArray> {
     return Bucket4jRedisson
         .RedissonBasedProxyManagerBuilder(Mapper.BYTES, commandAsyncExecutor)
-        .apply(initializer)
+        .apply(builder)
         .build()
 }
