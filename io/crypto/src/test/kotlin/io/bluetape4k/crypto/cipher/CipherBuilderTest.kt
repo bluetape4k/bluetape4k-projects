@@ -25,14 +25,15 @@ class CipherBuilderTest: AbstractCipherTest() {
     @RepeatedTest(REPEAT_SIZE)
     fun `create AES cipher for encryption`() {
         repeat(100) {
-            val content = Fakers.randomString(128, 1024)
+            val content = Fakers.faker.lorem().paragraph(16) // Fakers.randomString(128, 1024)
 
             val encryptedBytes = encryptCipher.doFinal(content.toUtf8Bytes())
             val decryptedBytes = decryptCipher.update(encryptedBytes) +
                     runCatching { decryptCipher.doFinal() }.getOrDefault(emptyByteArray)
             val decryptedContent = decryptedBytes.toUtf8String()
 
-            log.debug { "content: $content, decrypted content=${decryptedContent}" }
+            log.debug { "content  :$content" }
+            log.debug { "decrypted:$decryptedContent" }
             decryptedContent shouldBeEqualTo content
         }
     }
@@ -53,7 +54,8 @@ class CipherBuilderTest: AbstractCipherTest() {
                         runCatching { decryptCipher.doFinal() }.getOrDefault(emptyByteArray)
                 val decryptedContent = decryptedBytes.toUtf8String()
 
-                log.debug { "content: $content, decrypted content=${decryptedContent}" }
+                log.debug { "content  :$content" }
+                log.debug { "decrypted:$decryptedContent" }
                 decryptedContent shouldBeEqualTo content
             }
             .run()
@@ -75,7 +77,8 @@ class CipherBuilderTest: AbstractCipherTest() {
                         runCatching { decryptCipher.doFinal() }.getOrDefault(emptyByteArray)
                 val decryptedContent = decryptedBytes.toUtf8String()
 
-                log.debug { "content: $content, decrypted content=${decryptedContent}" }
+                log.debug { "content  :$content" }
+                log.debug { "decrypted:$decryptedContent" }
                 decryptedContent shouldBeEqualTo content
             }
             .run()
