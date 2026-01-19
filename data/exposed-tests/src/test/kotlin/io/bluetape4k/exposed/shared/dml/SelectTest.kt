@@ -165,7 +165,7 @@ class SelectTest: AbstractExposedTest() {
 
 
     /**
-     * [SizedIterable] 을 이용한 쿼리 실행
+     * [org.jetbrains.exposed.v1.jdbc.SizedIterable] 을 이용한 쿼리 실행
      */
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)

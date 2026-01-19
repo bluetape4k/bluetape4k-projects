@@ -47,7 +47,7 @@ fun withDb(
         val registeredDb = testDB.db
         try {
             if (newConfiguration) {
-                testDB.db = testDB.connect(configure ?: {})
+                testDB.db = testDB.connect(configure)
             }
             val database = testDB.db!!
             transaction(

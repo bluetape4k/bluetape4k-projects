@@ -11,6 +11,7 @@ import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContainSame
@@ -198,6 +199,8 @@ class LongIdTableEntityTest: AbstractExposedTest() {
             val tId2 = Towns.insertAndGetId {
                 it[cityId] = cId.value
             }
+
+            log.debug { "cId: $cId, tId: $tId, tId2: $tId2" }
 
             /**
              * lazy loaded referencedOn

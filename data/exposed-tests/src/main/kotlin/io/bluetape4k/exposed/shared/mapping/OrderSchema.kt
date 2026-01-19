@@ -141,6 +141,7 @@ object OrderSchema: KLogging() {
                 ?: 0
     }
 
+    @Suppress("UnusedReceiverParameter")
     fun AbstractExposedTest.withOrdersTables(
         testDB: TestDB,
         statement: JdbcTransaction.(

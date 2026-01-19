@@ -126,7 +126,7 @@ object DMLTestData {
         ) -> Unit,
     ) {
         val users = Users
-        val userFlags = Flags
+        // val userFlags = Flags
         val cities = Cities
         val userData = UserData
 
@@ -242,12 +242,14 @@ object DMLTestData {
     ) {
         val someAmounts = SomeAmounts
 
-        withTables(dialect, someAmounts) {
-            fun insertAmount(amount: BigDecimal) {
-                someAmounts.insert {
-                    it[SomeAmounts.amount] = amount
-                }
+        fun insertAmount(amount: BigDecimal) {
+            someAmounts.insert {
+                it[SomeAmounts.amount] = amount
             }
+        }
+
+        withTables(dialect, someAmounts) {
+
             insertAmount("650.70".toBigDecimal())
             insertAmount("1500.25".toBigDecimal())
             insertAmount("1000.00".toBigDecimal())
