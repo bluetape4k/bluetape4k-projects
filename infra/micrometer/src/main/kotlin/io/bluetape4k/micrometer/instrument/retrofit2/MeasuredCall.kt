@@ -1,7 +1,7 @@
 package io.bluetape4k.micrometer.instrument.retrofit2
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.debug
 import okhttp3.Request
 import org.apache.commons.lang3.time.StopWatch
 import retrofit2.Call
@@ -18,12 +18,12 @@ class MeasuredCall<T: Any> internal constructor(
     /**
      * Synchronously send the request and return its response.
      *
-     * @throws IOException if a problem occurred talking to the server.
-     * @throws RuntimeException (and subclasses) if an unexpected error occurs creating the request or
+     * @throws [okio.IOException] if a problem occurred talking to the server.
+     * @throws [RuntimeException] (and subclasses) if an unexpected error occurs creating the request or
      * decoding the response.
      */
     override fun execute(): Response<T> {
-        log.trace { "Execute call ... wrappedCall=$wrappedCall" }
+        log.debug { "Execute call ... wrappedCall=$wrappedCall" }
 
         val stopwatch = StopWatch.createStarted()
         val request = wrappedCall.request()
@@ -42,7 +42,7 @@ class MeasuredCall<T: Any> internal constructor(
      * occurred talking to the server, creating the request, or processing the response.
      */
     override fun enqueue(callback: Callback<T>) {
-        log.trace { "Enqueue call ... wrappedCall=$wrappedCall" }
+        log.debug { "Enqueue call ... wrappedCall=$wrappedCall" }
         wrappedCall.enqueue(measuredCallback(wrappedCall.request(), callback))
     }
 

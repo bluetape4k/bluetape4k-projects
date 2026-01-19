@@ -9,11 +9,8 @@ enum class Outcome(private val code: Int) {
     SERVER_ERROR(5);
 
     companion object {
-
-        val VALS = Outcome.values()
-
         @JvmStatic
         fun fromHttpStatus(statusCode: Int): Outcome =
-            VALS.firstOrNull { it.code == statusCode / 100 } ?: UNKNOWN
+            Outcome.entries.firstOrNull { it.code == statusCode / 100 } ?: UNKNOWN
     }
 }

@@ -22,7 +22,7 @@ inline fun <T> withObservation(
     Observation
         .createNotStarted(name, registry)
         .observe<T> {
-            block.invoke()
+            block()
         }
 
 inline fun <T> Observation.observe(block: () -> T): T {

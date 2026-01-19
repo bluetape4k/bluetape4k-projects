@@ -1,7 +1,7 @@
 package io.bluetape4k.micrometer.instrument.retrofit2
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.debug
 import retrofit2.Call
 import retrofit2.CallAdapter
 import java.lang.reflect.Type
@@ -44,7 +44,7 @@ class MeasuredCallAdapter<R: Any, T: Any> internal constructor(
     `</pre> *
      */
     override fun adapt(call: Call<R>): T {
-        log.trace { "Adapt call with MeasuredCall ... call=$call" }
+        log.debug { "Adapt call with MeasuredCall ... call=$call" }
         return nextCallAdapter.adapt(MeasuredCall(call, metricsCollector))
     }
 }

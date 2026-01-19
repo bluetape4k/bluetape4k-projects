@@ -2,7 +2,7 @@ package io.bluetape4k.micrometer.observation
 
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.debug
 
 abstract class AbstractObservationTest {
 
@@ -12,6 +12,6 @@ abstract class AbstractObservationTest {
     }
 
     protected val observationRegistry = simpleObservationRegistryOf { ctx ->
-        log.trace { "Current context: $ctx" }
+        log.debug { "Current context: $ctx" }
     }
 }

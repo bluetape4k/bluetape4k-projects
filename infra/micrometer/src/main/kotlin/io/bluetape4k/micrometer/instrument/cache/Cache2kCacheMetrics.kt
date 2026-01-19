@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
 
 class Cache2kCacheMetrics(
     private val cache: org.cache2k.Cache<*, *>,
-    private val tags: Iterable<Tag> = emptyList(),
+    tags: Iterable<Tag> = emptyList(),
 ): CacheMeterBinder<Any>(cache, cache.name, tags) {
 
     companion object: KLogging() {

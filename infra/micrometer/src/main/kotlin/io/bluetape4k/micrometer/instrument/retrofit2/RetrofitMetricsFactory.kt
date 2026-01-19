@@ -18,21 +18,20 @@ open class RetrofitMetricsFactory(var metricsRecorder: MetricsRecorder): CallAda
 
     companion object: KLogging() {
         private fun getUri(annotations: Array<Annotation>): String {
-            return annotations.asSequence()
-                .mapNotNull { annotation ->
+            return annotations
+                .firstNotNullOfOrNull { annotation ->
                     when (annotation) {
-                        is GET     -> annotation.value
-                        is POST    -> annotation.value
-                        is PUT     -> annotation.value
-                        is DELETE  -> annotation.value
-                        is PATCH   -> annotation.value
+                        is GET -> annotation.value
+                        is POST -> annotation.value
+                        is PUT -> annotation.value
+                        is DELETE -> annotation.value
+                        is PATCH -> annotation.value
                         is OPTIONS -> annotation.value
-                        is HEAD    -> annotation.value
-                        is HTTP    -> annotation.path
-                        else       -> null
+                        is HEAD -> annotation.value
+                        is HTTP -> annotation.path
+                        else -> null
                     }
                 }
-                .firstOrNull()
                 ?: throw UnsupportedOperationException("No Retrofit Annotation is provided.")
         }
     }
