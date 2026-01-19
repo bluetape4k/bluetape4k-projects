@@ -4,7 +4,6 @@ import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -118,8 +117,8 @@ class FlowLifecycleExamples {
                 .collect { println(it) }
         }
 
-        private suspend fun present(place: String, message: String) = coroutineScope {
-            val name = coroutineContext[CoroutineName]?.name
+        private suspend fun present(place: String, message: String) {
+            val name = currentCoroutineContext()[CoroutineName]?.name
             println("[$name] $message on $place")
         }
 
