@@ -6,12 +6,12 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.isActive
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.coroutines.coroutineContext
 
 
 /**
@@ -199,7 +199,7 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
             done.value = true
         }
 
-        override suspend fun replay(consumer: InnerCollector<T>) {
+        override suspend fun replay(consumer: InnerCollector<T>) = coroutineScope {
             log.debug { "Replay emit ..." }
 
             while (true) {
@@ -207,7 +207,7 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
                 val empty = consumer.index == size
                 if (d && empty) {
                     error.value?.let { throw it }
-                    return
+                    return@coroutineScope
                 }
                 if (!empty) {
                     try {
@@ -269,7 +269,7 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
         }
 
         @Suppress("UNCHECKED_CAST")
-        override suspend fun replay(consumer: InnerCollector<T>) {
+        override suspend fun replay(consumer: InnerCollector<T>) = coroutineScope {
             while (true) {
                 val d = done.value
                 var index = consumer.node as? Node<T>
@@ -282,7 +282,7 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
 
                 if (d && empty) {
                     error.value?.let { throw it }
-                    return
+                    return@coroutineScope
                 }
                 if (!empty) {
                     try {
@@ -385,7 +385,7 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
         }
 
         @Suppress("UNCHECKED_CAST")
-        override suspend fun replay(consumer: InnerCollector<T>) {
+        override suspend fun replay(consumer: InnerCollector<T>) = coroutineScope {
             while (true) {
                 val d = done.value
                 var index = consumer.node as? Node<T>
@@ -398,7 +398,7 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
 
                 if (d && empty) {
                     error?.let { throw it }
-                    return
+                    return@coroutineScope
                 }
                 if (!empty) {
                     try {

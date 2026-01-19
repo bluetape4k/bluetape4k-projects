@@ -4,9 +4,9 @@ import io.bluetape4k.coroutines.flow.exceptions.StopFlowException
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.uninitialized
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.isActive
-import kotlin.coroutines.coroutineContext
 
 /**
  * 상태 정보(값, 예외, 완료 여부)를 가지고, 상태변화를 보관하고 있다가,
@@ -66,34 +66,35 @@ class ResumableCollector<T>: Resumable() {
      * @param collector 버퍼링할 [FlowCollector]
      * @param onComplete 완료나 예외가 발생하면 수행할 함수
      */
-    suspend fun drain(collector: FlowCollector<T>, onComplete: ((ResumableCollector<T>) -> Unit)? = null) {
-        while (coroutineContext.isActive) {
-            readyConsumer()
-            awaitSignal()
+    suspend fun drain(collector: FlowCollector<T>, onComplete: ((ResumableCollector<T>) -> Unit)? = null) =
+        coroutineScope {
+            while (coroutineContext.isActive) {
+                readyConsumer()
+                awaitSignal()
 
-            if (hasValue.value) {
-                val v = value
-                value = uninitialized()
-                hasValue.value = false
+                if (hasValue.value) {
+                    val v = value
+                    value = uninitialized()
+                    hasValue.value = false
 
-                try {
-                    if (coroutineContext.isActive) {
-                        collector.emit(v)
-                        // log.trace { "drain value. v=$v" }
-                    } else {
-                        throw StopFlowException("current coroutine is not active")
+                    try {
+                        if (coroutineContext.isActive) {
+                            collector.emit(v)
+                            // log.trace { "drain value. v=$v" }
+                        } else {
+                            throw StopFlowException("current coroutine is not active")
+                        }
+                    } catch (ex: Throwable) {
+                        onComplete?.invoke(this@ResumableCollector)
+                        readyConsumer()             // unblock waiters
+                        throw ex
                     }
-                } catch (ex: Throwable) {
-                    onComplete?.invoke(this)
-                    readyConsumer()             // unblock waiters
-                    throw ex
+                }
+
+                if (done.value) {
+                    error?.let { throw it }
+                    break
                 }
             }
-
-            if (done.value) {
-                error?.let { throw it }
-                break
-            }
         }
-    }
 }

@@ -5,8 +5,8 @@ import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
 import kotlin.coroutines.cancellation.CancellationException
-import kotlin.coroutines.coroutineContext
 
 @PublishedApi
 internal val log = KotlinLogging.logger { }
@@ -41,7 +41,7 @@ fun <T: Job> T.log(tag: Any): T = apply {
  *
  * @param msg 로그에 표시할 메시지
  */
-suspend fun suspendLogging(msg: suspend () -> Any?) {
+suspend fun suspendLogging(msg: suspend () -> Any?) = coroutineScope {
     val name = coroutineContext[CoroutineName]?.name
     val props = coroutineContext[PropertyCoroutineContext]?.properties
 

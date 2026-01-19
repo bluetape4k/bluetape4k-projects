@@ -3,6 +3,7 @@ package io.bluetape4k.coroutines.flow.extensions
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.trace
+import io.bluetape4k.support.unsafeLazy
 import kotlinx.atomicfu.AtomicIntArray
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
@@ -10,9 +11,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import org.slf4j.Logger
 import java.util.concurrent.ConcurrentLinkedQueue
 
-private val log = KotlinLogging.logger { }
+private val log: Logger by unsafeLazy { KotlinLogging.logger { } }
 
 /**
  * 모든 [Flow]를 동시에 시작하고, 다른 소스의 항목이 발행되기 전에 첫 번째 소스에서 모든 항목을 발행합니다.
@@ -30,7 +32,7 @@ private val log = KotlinLogging.logger { }
  * @param T
  * @return
  */
-fun <T> Iterable<Flow<T>>.concatFlows(): Flow<T> =
+fun <T: Any> Iterable<Flow<T>>.concatFlows(): Flow<T> =
     concatArrayEagerInternal(this.toFastList())
 
 /**
@@ -46,7 +48,7 @@ fun <T> Iterable<Flow<T>>.concatFlows(): Flow<T> =
  *     .take(6)    // 1, 2, 3, 4, 5, 6
  * ```
  */
-suspend fun <T> Flow<Flow<T>>.concatFlows(): Flow<T> =
+suspend fun <T: Any> Flow<Flow<T>>.concatFlows(): Flow<T> =
     concatArrayEagerInternal(this.toFastList())
 
 /**
@@ -65,7 +67,7 @@ suspend fun <T> Flow<Flow<T>>.concatFlows(): Flow<T> =
  * concatArrayEager(flow1, flow2)   // (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
  * ```
  */
-fun <T> concatArrayEager(vararg sources: Flow<T>): Flow<T> =
+fun <T: Any> concatArrayEager(vararg sources: Flow<T>): Flow<T> =
     concatArrayEagerInternal(sources.toFastList())
 
 /**
@@ -78,7 +80,7 @@ fun <T> concatArrayEager(vararg sources: Flow<T>): Flow<T> =
  * @return collect 한 모든 [Flow]들을 순서대로 발행하는 [Flow]
  */
 @Suppress("SYNTHETIC_PROPERTY_WITHOUT_JAVA_ORIGIN")
-internal fun <T> concatArrayEagerInternal(sources: List<Flow<T>>): Flow<T> = channelFlow {
+internal fun <T: Any> concatArrayEagerInternal(sources: List<Flow<T>>): Flow<T> = channelFlow {
     coroutineScope {
         val size = sources.size
         val queues = List(size) { ConcurrentLinkedQueue<T>() }

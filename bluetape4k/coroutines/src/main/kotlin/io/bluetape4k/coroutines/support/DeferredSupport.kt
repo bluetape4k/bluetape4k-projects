@@ -50,7 +50,7 @@ suspend inline fun <K, T: Collection<K>, R> Deferred<T>.mapAll(
 ): Deferred<Collection<R>> = coroutineScope {
     val self = this@mapAll
     async(start = coroutineStart) {
-        self.await().map { transform(it) }.flatten()
+        self.await().flatMap { transform(it) }
     }
 }
 
@@ -66,12 +66,12 @@ suspend inline fun <K, T: Collection<K>, R> Deferred<T>.concatMap(
 
 suspend fun <T> awaitAny(vararg args: Deferred<T>): T {
     require(args.isNotEmpty())
-    return select { args.forEach { it.onAwait { it } } }
+    return select { args.forEach { arg -> arg.onAwait { it } } }
 }
 
 suspend fun <T> Collection<Deferred<T>>.awaitAny(): T {
     require(this.isNotEmpty())
-    return select { forEach { it.onAwait { it } } }
+    return select { forEach { item -> item.onAwait { it } } }
 }
 
 suspend fun <T> Collection<Deferred<T>>.awaitAnyAndCancelOthers(): T {

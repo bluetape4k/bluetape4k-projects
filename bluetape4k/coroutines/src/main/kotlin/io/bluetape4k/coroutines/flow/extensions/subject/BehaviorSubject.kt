@@ -5,11 +5,11 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.isActive
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.coroutines.coroutineContext
 
 /**
  * 컬렉터가 없을 때에도 최근의 Item 한 개를 캐시했다가 새로운 collectors 에게 replay 합니다.
@@ -119,7 +119,7 @@ class BehaviorSubject<T> private constructor(
     }
 
 
-    override suspend fun collectSafely(collector: FlowCollector<T>) {
+    override suspend fun collectSafely(collector: FlowCollector<T>) = coroutineScope<Unit> {
         val inner = InnerCollector()
 
         suspend fun tryEmit(isActive: Boolean, value: T) {
@@ -151,7 +151,7 @@ class BehaviorSubject<T> private constructor(
                 if (next == DONE) {
                     val ex = error
                     ex?.let { throw it }
-                    return
+                    return@coroutineScope
                 }
 
                 tryEmit(coroutineContext.isActive, next.value)

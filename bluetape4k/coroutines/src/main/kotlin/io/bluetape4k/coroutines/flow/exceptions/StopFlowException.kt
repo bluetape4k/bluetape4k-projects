@@ -3,7 +3,7 @@ package io.bluetape4k.coroutines.flow.exceptions
 import kotlinx.coroutines.CancellationException
 
 /**
- * Flow를 강제로 중단시키는 예외입니다. ([CancellationException]을 상속 받습니다)
+ * [kotlinx.coroutines.flow.Flow]를 강제로 중단시키는 예외입니다. ([CancellationException]을 상속 받습니다)
  *
  * @see kotlinx.coroutines.CancellationException
  */

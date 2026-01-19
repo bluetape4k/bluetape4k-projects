@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * result2 shouldBeEqualTo listOf(3, 4)
  * ```
  */
-class UnicastWorkSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
+class UnicastWorkSubject<T: Any>: AbstractFlow<T>(), SubjectApi<T> {
 
     companion object: KLoggingChannel() {
         @JvmField

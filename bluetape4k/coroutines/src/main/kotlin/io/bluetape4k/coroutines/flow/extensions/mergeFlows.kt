@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  *     .assertResultSet(6, 7, 8, 9, 10, 1, 2, 3, 4, 5)
  * ```
  */
-fun <T> Iterable<Flow<T>>.merge(): Flow<T> = mergeInternal(this.toFastList())
+fun <T: Any> Iterable<Flow<T>>.merge(): Flow<T> = mergeInternal(this.toFastList())
 
 /**
  * 여러 Flow 소스를 무제한으로 병합합니다.
@@ -33,12 +33,12 @@ fun <T> Iterable<Flow<T>>.merge(): Flow<T> = mergeInternal(this.toFastList())
  *     .assertResultSet(6, 7, 8, 9, 10, 1, 2, 3, 4, 5)
  * ```
  */
-fun <T> merge(vararg sources: Flow<T>): Flow<T> = mergeInternal(sources.toFastList())
+fun <T: Any> merge(vararg sources: Flow<T>): Flow<T> = mergeInternal(sources.toFastList())
 
 /**
  * 여러 Flow 소스를 무제한으로 병합합니다.
  */
-internal fun <T> mergeInternal(sources: List<Flow<T>>): Flow<T> = channelFlow {
+internal fun <T: Any> mergeInternal(sources: List<Flow<T>>): Flow<T> = channelFlow {
     val queue = ConcurrentLinkedQueue<T>()
     val done = atomic(sources.size)
     val ready = Resumable()
@@ -65,8 +65,8 @@ internal fun <T> mergeInternal(sources: List<Flow<T>>): Flow<T> = channelFlow {
 
             when {
                 isDone && value == null -> break
-                value != null           -> send(value)
-                else                    -> ready.await()
+                value != null -> send(value)
+                else -> ready.await()
             }
         }
     }

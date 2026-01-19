@@ -19,7 +19,7 @@ import kotlin.coroutines.cancellation.CancellationException
 /**
  * Key 로 Grouping 된 [Flow] 를 표현하는 interface 입니다.
  */
-interface GroupedFlow<K, V>: Flow<V> {
+interface GroupedFlow<K: Any, V>: Flow<V> {
 
     /**
      * The grouped key of the flow
@@ -30,7 +30,7 @@ interface GroupedFlow<K, V>: Flow<V> {
 /**
  * [GroupedFlow]의 Value들만 묶어, `List<V>` 형태의 요소를 제공하는 [Flow]로 변환합니다.
  */
-fun <K, V> GroupedFlow<K, V>.toValues(): Flow<List<V>> = flowFromSuspend { toList() }
+fun <K: Any, V> GroupedFlow<K, V>.toValues(): Flow<List<V>> = flowFromSuspend { toList() }
 
 data class GroupItem<K, V>(
     val key: K,
@@ -40,7 +40,7 @@ data class GroupItem<K, V>(
 /**
  * [GroupedFlow]의 key 와 value들을 묶어, `Pair<K, List<V>>` 형태의 요소를 제공하는 [Flow]로 변환합니다.
  */
-fun <K, V> GroupedFlow<K, V>.toGroupItems(): Flow<GroupItem<K, V>> = flowFromSuspend {
+fun <K: Any, V> GroupedFlow<K, V>.toGroupItems(): Flow<GroupItem<K, V>> = flowFromSuspend {
     val values = toList()
     GroupItem(key, values)
 }
@@ -48,7 +48,7 @@ fun <K, V> GroupedFlow<K, V>.toGroupItems(): Flow<GroupItem<K, V>> = flowFromSus
 /**
  * [GroupedFlow]의 Flow 를 [destination] Map에 `Map<K, List<V>>` 형태로 변환합니다.
  */
-suspend fun <K, V> Flow<GroupedFlow<K, V>>.toMap(
+suspend fun <K: Any, V> Flow<GroupedFlow<K, V>>.toMap(
     destination: MutableMap<K, List<V>> = mutableMapOf(),
 ): MutableMap<K, List<V>> {
     this.flatMapMerge { it.toGroupItems() }
@@ -71,7 +71,7 @@ suspend fun <K, V> Flow<GroupedFlow<K, V>>.toMap(
  * ### Note
  * [groupBy] 함수 뒤에 [log] 함수를 사용하면 작동이 안됩니다. (버그)
  */
-fun <T, K> Flow<T>.groupBy(keySelector: (T) -> K): Flow<GroupedFlow<K, T>> =
+fun <T, K: Any> Flow<T>.groupBy(keySelector: (T) -> K): Flow<GroupedFlow<K, T>> =
     groupByInternal(this, keySelector) { it }
 
 /**
@@ -86,7 +86,7 @@ fun <T, K> Flow<T>.groupBy(keySelector: (T) -> K): Flow<GroupedFlow<K, T>> =
  * ### Note
  * [groupBy] 함수 뒤에 [log] 함수를 사용하면 작동이 안됩니다. (버그)
  */
-fun <T, K, V> Flow<T>.groupBy(
+fun <T, K: Any, V> Flow<T>.groupBy(
     keySelector: (T) -> K,
     valueSelector: (T) -> V,
 ): Flow<GroupedFlow<K, V>> =
@@ -97,7 +97,7 @@ fun <T, K, V> Flow<T>.groupBy(
  */
 @Suppress("SYNTHETIC_PROPERTY_WITHOUT_JAVA_ORIGIN")
 @PublishedApi
-internal fun <T, K, V> groupByInternal(
+internal fun <T, K: Any, V> groupByInternal(
     source: Flow<T>,
     keySelector: (T) -> K,
     valueSelector: (T) -> V,
@@ -143,7 +143,7 @@ internal fun <T, K, V> groupByInternal(
     }
 }
 
-private class FlowGroup<K, V>(
+private class FlowGroup<K: Any, V>(
     override val key: K,
     private val map: ConcurrentMap<K, FlowGroup<K, V>>,
 ): AbstractFlow<V>(), GroupedFlow<K, V> {

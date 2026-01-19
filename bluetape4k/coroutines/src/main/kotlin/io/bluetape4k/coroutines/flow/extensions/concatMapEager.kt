@@ -2,6 +2,7 @@ package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.trace
+import io.bluetape4k.support.unsafeLazy
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
@@ -9,10 +10,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import org.slf4j.Logger
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.experimental.ExperimentalTypeInference
 
-private val log by lazy { KotlinLogging.logger { } }
+private val log: Logger by unsafeLazy { KotlinLogging.logger { } }
 
 /**
  * 업스트림 값을 [Flow]로 매핑하고 한번에 모두 시작한 다음, 다른 소스의 항목이 발행되기 전에 첫 번째 소스에서 모든 항목을 발행합니다.
@@ -34,7 +36,7 @@ private val log by lazy { KotlinLogging.logger { } }
  *
  * @return a [Flow] that emits items from the sources
  */
-fun <T, R> Flow<T>.concatMapEager(transform: suspend (T) -> Flow<R>): Flow<R> =
+fun <T: Any, R: Any> Flow<T>.concatMapEager(transform: suspend (T) -> Flow<R>): Flow<R> =
     concatMapEagerInternal(transform)
 
 /**
@@ -48,7 +50,7 @@ fun <T, R> Flow<T>.concatMapEager(transform: suspend (T) -> Flow<R>): Flow<R> =
  * @return 변환된 요소를 발행하는 Flow
  */
 @OptIn(ExperimentalTypeInference::class)
-internal fun <T, R> Flow<T>.concatMapEagerInternal(
+internal fun <T: Any, R: Any> Flow<T>.concatMapEagerInternal(
     @BuilderInference transform: suspend (T) -> Flow<R>,
 ): Flow<R> = channelFlow {
     coroutineScope {
@@ -112,7 +114,7 @@ internal fun <T, R> Flow<T>.concatMapEagerInternal(
     }
 }
 
-private class ConcatMapEagerInnerQueue<R> {
+private class ConcatMapEagerInnerQueue<R: Any> {
     val queue = ConcurrentLinkedQueue<R>()
     val done = atomic(false)
 }

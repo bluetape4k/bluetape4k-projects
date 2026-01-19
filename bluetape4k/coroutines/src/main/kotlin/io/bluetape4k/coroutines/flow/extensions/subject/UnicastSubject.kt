@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * us.collectorCancelled.shouldBeTrue()
  * ```
  */
-class UnicastSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
+class UnicastSubject<T: Any>: AbstractFlow<T>(), SubjectApi<T> {
 
     companion object: KLoggingChannel() {
         private val terminatedCollector = FlowCollector<Any?> {
