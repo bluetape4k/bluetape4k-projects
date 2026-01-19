@@ -32,6 +32,7 @@ class InitMemberService {
             val member = Member("member-$it", it, selectedTeam)
             em.persist(member)
         }
+
         em.flush()
     }
 }

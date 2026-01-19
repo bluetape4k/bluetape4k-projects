@@ -12,6 +12,7 @@
         </encoder>
     </appender>
 
+    <logger name="io.bluetape4k.examples.jpa.querydsl" level="DEBUG"/>
     <logger name="io.bluetape4k.hibernate" level="DEBUG"/>
 
     <!-- HQL 실행 통계를 로그에 출력합니다.-->

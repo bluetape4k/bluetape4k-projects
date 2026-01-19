@@ -189,6 +189,8 @@ class QuerydslExamples: AbstractQuerydslTest() {
         val limit = queryResults.limit
         val members = queryResults.results
 
+        log.debug { "total=$total, offset=$offset, limit=$limit" }
+
         members shouldHaveSize 3
 
         @Suppress("DEPRECATION")
@@ -331,6 +333,8 @@ class QuerydslExamples: AbstractQuerydslTest() {
 
         val members = tuples.map { it.get(qmember) }
         val teams = tuples.map { it.get(qteam) }
+
+        log.debug { "members=$members, teams=$teams" }
     }
 
     /**
