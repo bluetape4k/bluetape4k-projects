@@ -8,6 +8,7 @@ import jakarta.persistence.Persistence
 abstract class AbstractHibernateReactiveTest {
 
     companion object: KLoggingChannel() {
+        @JvmStatic
         val faker = Fakers.faker
     }
 

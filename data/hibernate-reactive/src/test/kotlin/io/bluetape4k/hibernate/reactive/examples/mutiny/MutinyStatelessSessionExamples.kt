@@ -30,13 +30,19 @@ class MutinyStatelessSessionExamples: AbstractMutinyTest() {
     private val author1 = Author(faker.name().name())
     private val author2 = Author(faker.name().name())
     private val book1 = Book(
-        faker.numerify("#-#####-###-#"), faker.book().title(), LocalDate.of(1994, Month.JANUARY, 1)
+        faker.numerify("#-#####-###-#"),
+        faker.book().title(),
+        LocalDate.of(1994, Month.JANUARY, 1)
     )
     private val book2 = Book(
-        faker.numerify("#-#####-###-#"), faker.book().title(), LocalDate.of(1999, Month.MAY, 1)
+        faker.numerify("#-#####-###-#"),
+        faker.book().title(),
+        LocalDate.of(1999, Month.MAY, 1)
     )
     private val book3 = Book(
-        faker.numerify("#-#####-###-#"), faker.book().title(), LocalDate.of(1992, Month.JUNE, 1)
+        faker.numerify("#-#####-###-#"),
+        faker.book().title(),
+        LocalDate.of(1992, Month.JUNE, 1)
     )
 
     @BeforeAll
