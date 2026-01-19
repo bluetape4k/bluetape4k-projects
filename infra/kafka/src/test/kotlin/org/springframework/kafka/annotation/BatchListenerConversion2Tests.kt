@@ -109,7 +109,7 @@ class BatchListenerConversion2Tests {
         @Bean
         fun producerConfigs(): Map<String, Any?> {
             val props = KafkaTestUtils.producerProps(embeddedKafka)
-            props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
+            props[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
             return props
         }
 

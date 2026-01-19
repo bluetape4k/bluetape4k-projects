@@ -16,23 +16,23 @@ dependencies {
 
     // Kafka
     api(Libs.kafka_clients)
-    api(Libs.kafka_streams)
+    compileOnly(Libs.kafka_streams)
     compileOnly(Libs.kafka_generator)
     testImplementation(Libs.kafka_streams_test_utils)
     testImplementation(Libs.kafka_server_common)
     testImplementation(Libs.testcontainers_kafka)
 
     // Spring Kafka
-    api(Libs.spring_kafka)
+    implementation(Libs.spring_kafka)
     compileOnly(Libs.spring_kafka_test)
-    api(project(":bluetape4k-spring-core"))
-    compileOnly(Libs.springData("commons"))
+    implementation(project(":bluetape4k-spring-core"))
+    implementation(Libs.springData("commons"))
 
     // Jackson
-    api(project(":bluetape4k-jackson"))
-    api(Libs.jackson_databind)
-    api(Libs.jackson_module_kotlin)
-    api(Libs.jackson_module_blackbird)
+    implementation(project(":bluetape4k-jackson"))
+    implementation(Libs.jackson_databind)
+    implementation(Libs.jackson_module_kotlin)
+    implementation(Libs.jackson_module_blackbird)
 
     // Codecs
     compileOnly(Libs.kryo)
@@ -45,14 +45,14 @@ dependencies {
     compileOnly(Libs.zstd_jni)
 
     // Coroutines
-    api(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
-    compileOnly(Libs.kotlinx_coroutines_reactor)
+    implementation(project(":bluetape4k-coroutines"))
+    implementation(Libs.kotlinx_coroutines_core)
+    implementation(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_test)
 
     // Reactor
-    compileOnly(Libs.reactor_kafka)
-    compileOnly(Libs.reactor_kotlin_extensions)
+    implementation(Libs.reactor_kafka)
+    implementation(Libs.reactor_kotlin_extensions)
     testImplementation(Libs.reactor_test)
 
     testImplementation(Libs.springBootStarter("test")) {

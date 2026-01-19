@@ -53,10 +53,10 @@ import java.util.*
     partitions = 1,
     topics = [INPUT_TOPIC, OUTPUT_TOPIC],
     brokerProperties = [
-        "auto.create.topics.enable=\${topics.authCreate:false}",
-        "delete.topic.enable=\${topic.delete:true}"
+        $$"auto.create.topics.enable=${topics.authCreate:false}",
+        $$"delete.topic.enable=${topic.delete:true}"
     ],
-    brokerPropertiesLocation = "classpath:/\${broker.filename:broker}.properties"
+    brokerPropertiesLocation = $$"classpath:/${broker.filename:broker}.properties"
 )
 class WordCountExamples {
 
@@ -106,7 +106,7 @@ class WordCountExamples {
     @EnableKafkaStreams
     class Config {
 
-        @Value("\${" + EmbeddedKafkaBroker.SPRING_EMBEDDED_KAFKA_BROKERS + "}")
+        @Value($$"${" + EmbeddedKafkaBroker.SPRING_EMBEDDED_KAFKA_BROKERS + "}")
         val brokerAddresses: String = uninitialized()
 
         @Bean
@@ -124,7 +124,7 @@ class WordCountExamples {
             return KafkaTemplate(producerFactory())
         }
 
-        @Value("\${spring.kafka.streams.state.dir:streams-state}")
+        @Value($$"${spring.kafka.streams.state.dir:streams-state}")
         private var stateStoreLocation: String? = null
 
         @Bean(name = [KafkaStreamsDefaultConfiguration.DEFAULT_STREAMS_CONFIG_BEAN_NAME])

@@ -52,7 +52,6 @@ suspend fun <K, V> Producer<K, V>.suspendSend(record: ProducerRecord<K, V>): Rec
  * @return producing 된 결과 ([RecordMetadata])의 flow
  */
 suspend fun <K, V> Producer<K, V>.sendAsFlow(records: Flow<ProducerRecord<K, V>>): Flow<RecordMetadata> {
-    // TODO: callback flow 를 이용하는 게 낫지 않나?
     return records
         .buffer()
         .async {
@@ -108,6 +107,7 @@ suspend fun <K, V> Producer<K, V>.sendAndForget(
     needFlush: Boolean = false,
 ) {
     records
+        .buffer()
         .async {
             send(it).suspendAwait()
         }

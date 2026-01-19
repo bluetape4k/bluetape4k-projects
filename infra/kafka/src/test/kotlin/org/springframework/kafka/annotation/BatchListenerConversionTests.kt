@@ -151,7 +151,7 @@ class BatchListenerConversionTests {
             template: KafkaTemplate<Int, Any?>,
         ): KafkaListenerContainerFactory<*> {
             val factory = ConcurrentKafkaListenerContainerFactory<Int, Foo>()
-            factory.setConsumerFactory(consumerFactory(embeddedKafka))
+            factory.consumerFactory = consumerFactory(embeddedKafka)
             factory.isBatchListener = true
             factory.setBatchMessageConverter(BatchMessagingMessageConverter(converter()))
             factory.setReplyTemplate(template(embeddedKafka))

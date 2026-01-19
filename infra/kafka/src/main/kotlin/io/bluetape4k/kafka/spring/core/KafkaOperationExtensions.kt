@@ -43,7 +43,9 @@ suspend inline fun <K, V> KafkaOperations<K, V>.awaitSend(
             }
         }
     }
-    cont.invokeOnCancellation { result?.cancel(true) }
+    cont.invokeOnCancellation {
+        result?.cancel(true)
+    }
 }
 
 @Deprecated(
@@ -62,7 +64,9 @@ suspend inline fun <K, V> KafkaOperations<K, V>.sendSuspending(
             }
         }
     }
-    cont.invokeOnCancellation { result?.cancel(true) }
+    cont.invokeOnCancellation {
+        result?.cancel(true)
+    }
 }
 
 /**

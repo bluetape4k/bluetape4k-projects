@@ -17,12 +17,12 @@ import org.springframework.messaging.Message
  * @param record 전송할 [ProducerRecord]
  * @return [SendResult] 발송 결과
  */
-suspend fun <K: Any, V: Any> KafkaOperations<K, V>.awaitSend(record: ProducerRecord<K, V>): SendResult<K, V> =
+suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendAndAwait(record: ProducerRecord<K, V>): SendResult<K, V> =
     send(record).await()
 
 @Deprecated(
-    message = "Use `awaitSend` instead.",
-    replaceWith = ReplaceWith("awaitSend(record)")
+    message = "Use `sendAndAwait` instead.",
+    replaceWith = ReplaceWith("sendAndAwait(record)")
 )
 suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendSuspending(record: ProducerRecord<K, V>): SendResult<K, V> =
     send(record).await()
@@ -39,12 +39,12 @@ suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendSuspending(record: Produc
  * @return [SendResult] 발송 결과
  * @see Message
  */
-suspend fun <K: Any, V: Any> KafkaOperations<K, V>.awaitSend(message: Message<*>): SendResult<K, V> =
+suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendAndAwait(message: Message<*>): SendResult<K, V> =
     send(message).await()
 
 @Deprecated(
-    message = "Use `awaitSend` instead.",
-    replaceWith = ReplaceWith("awaitSend(message)")
+    message = "Use `sendAndAwait` instead.",
+    replaceWith = ReplaceWith("sendAndAwait(message)")
 )
 suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendSuspending(message: Message<*>): SendResult<K, V> =
     send(message).await()
@@ -56,12 +56,12 @@ suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendSuspending(message: Messa
  * @param value 발송할 값
  * @return [SendResult] 발송 결과
  */
-suspend fun <K: Any, V: Any> KafkaOperations<K, V>.awaitSend(topic: String, value: V): SendResult<K, V> =
+suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendAndAwait(topic: String, value: V): SendResult<K, V> =
     send(topic, value).await()
 
 @Deprecated(
-    message = "Use `awaitSend` instead.",
-    replaceWith = ReplaceWith("awaitSend(topic, value)")
+    message = "Use `sendAndAwait` instead.",
+    replaceWith = ReplaceWith("sendAndAwait(topic, value)")
 )
 suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendSuspending(topic: String, value: V): SendResult<K, V> =
     send(topic, value).await()
@@ -74,12 +74,12 @@ suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendSuspending(topic: String,
  * @param value 발송할 값
  * @return [SendResult] 발송 결과
  */
-suspend fun <K: Any, V: Any> KafkaOperations<K, V>.awaitSend(topic: String, key: K, value: V): SendResult<K, V> =
+suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendAndAwait(topic: String, key: K, value: V): SendResult<K, V> =
     send(topic, key, value).await()
 
 @Deprecated(
-    message = "Use `awaitSend` instead.",
-    replaceWith = ReplaceWith("awaitSend(topic, key, value)")
+    message = "Use `sendAndAwait` instead.",
+    replaceWith = ReplaceWith("sendAndAwait(topic, key, value)")
 )
 suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendSuspending(topic: String, key: K, value: V): SendResult<K, V> =
     send(topic, key, value).await()
@@ -93,7 +93,7 @@ suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendSuspending(topic: String,
  * @param value 발송할 값
  * @return [SendResult] 발송 결과
  */
-suspend fun <K: Any, V: Any> KafkaOperations<K, V>.awaitSend(
+suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendAndAwait(
     topic: String,
     partition: Int,
     key: K,
@@ -102,8 +102,8 @@ suspend fun <K: Any, V: Any> KafkaOperations<K, V>.awaitSend(
     send(topic, partition, key, value).await()
 
 @Deprecated(
-    message = "Use `awaitSend` instead.",
-    replaceWith = ReplaceWith("awaitSend(topic, partition, key, value)")
+    message = "Use `sendAndAwait` instead.",
+    replaceWith = ReplaceWith("sendAndAwait(topic, partition, key, value)")
 )
 suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendSuspending(
     topic: String,
@@ -123,7 +123,7 @@ suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendSuspending(
  * @param value 발송할 값
  * @return [SendResult] 발송 결과
  */
-suspend fun <K: Any, V: Any> KafkaOperations<K, V>.awaitSend(
+suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendAndAwait(
     topic: String,
     partition: Int,
     timestamp: Long,
@@ -133,8 +133,8 @@ suspend fun <K: Any, V: Any> KafkaOperations<K, V>.awaitSend(
     send(topic, partition, timestamp, key, value).await()
 
 @Deprecated(
-    message = "Use `awaitSend` instead.",
-    replaceWith = ReplaceWith("awaitSend(topic, partition, timestamp, key, value)")
+    message = "Use `sendAndAwait` instead.",
+    replaceWith = ReplaceWith("sendAndAwait(topic, partition, timestamp, key, value)")
 )
 suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendSuspending(
     topic: String,

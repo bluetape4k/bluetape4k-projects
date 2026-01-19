@@ -36,6 +36,4 @@ fun topicPartitionOf(tp: String): TopicPartition {
         val partition = tp.substring(index + 1)
         return TopicPartition(topic, partition.toInt())
     }
-//    val (topic, partition) = tp.split("-", limit = 2)
-//    return TopicPartition(topic, partition.toInt())
 }

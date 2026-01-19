@@ -151,7 +151,7 @@ class KafkaTemplateTests {
         }
 
         val metrics = template.execute { it.metrics() }
-        metrics.shouldNotBeEmpty()
+        metrics.shouldNotBeNull().shouldNotBeEmpty()
         val metrics2 = template.metrics()
         metrics2.shouldNotBeEmpty()
 
@@ -208,7 +208,7 @@ class KafkaTemplateTests {
         }
 
         val metrics = template.execute { it.metrics() }
-        metrics.shouldNotBeEmpty()
+        metrics.shouldNotBeNull().shouldNotBeEmpty()
 
         val metrics2 = template.metrics()
         metrics2.shouldNotBeEmpty()
@@ -330,7 +330,7 @@ class KafkaTemplateTests {
         consumer.getSingleRecord(INT_KEY_TOPIC)
         pf.destroy()
         cpl.onError(
-            records.get(0),
+            records[0],
             RecordMetadata(TopicPartition(INT_KEY_TOPIC, -1), 0L, 0, 0L, 0, 0),
             RuntimeException("x")
         )

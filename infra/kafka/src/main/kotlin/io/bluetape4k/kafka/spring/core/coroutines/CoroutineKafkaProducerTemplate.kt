@@ -113,22 +113,6 @@ class CoroutineKafkaProducerTemplate<K, V>(
         return doOnProducer { producer -> producer.metrics() }
     }
 
-//    /**
-//     * Flush the producer.
-//     * @return {@link Mono#empty()}.
-//     * @deprecated - flush does not make sense in the context of a reactive flow since,
-//     * the send completions signal is a send result, which implies that a flush is
-//     * redundant. If you use this method with reactor-kafka 1.3 or later, it must be
-//     * scheduled to avoid a deadlock; see
-//     * https://issues.apache.org/jira/browse/KAFKA-10790 (since 2.7).
-//     */
-//    @Deprecated("")
-//    suspend fun flush() {
-//        doOnProducer { producer ->
-//            producer.flush()
-//        }
-//    }
-
     suspend fun <T> doOnProducer(action: (producer: Producer<K, V>) -> T): T {
         return sender.doOnProducer { action(it) }.awaitSingle()
     }

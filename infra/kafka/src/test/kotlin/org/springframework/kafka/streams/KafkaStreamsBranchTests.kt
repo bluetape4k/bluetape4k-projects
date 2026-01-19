@@ -83,7 +83,7 @@ class KafkaStreamsBranchTests {
 
     private fun createConsumer(): Consumer<String, String> {
         val consumerProps = embeddedKafka.consumerProps(UUID.randomUUID().toString(), false)
-        consumerProps.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 10_000)
+        consumerProps[ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG] = 10_000
 
         val kafkaConsumerFactory =
             DefaultKafkaConsumerFactory(consumerProps, StringDeserializer(), StringDeserializer())
@@ -95,7 +95,7 @@ class KafkaStreamsBranchTests {
     @EnableKafkaStreams
     class KafkaStreamsConfig {
 
-        @Value("\${" + EmbeddedKafkaBroker.SPRING_EMBEDDED_KAFKA_BROKERS + "}")
+        @Value($$"${" + EmbeddedKafkaBroker.SPRING_EMBEDDED_KAFKA_BROKERS + "}")
         val brokerAddresses: String = uninitialized()
 
         @Bean
@@ -130,16 +130,27 @@ class KafkaStreamsBranchTests {
         fun trueFalseStream(kStreamBuilder: StreamsBuilder): KStream<String, String> {
             return KafkaStreamBrancher<String, String>()
                 .branch(
-                    { _, value -> value.asBoolean() == true },
+                    { _, value ->
+                        value.asBoolean()
+                    },
                     { ks ->
                         ks.to(TRUE_TOPIC, Produced.with(Serdes.String(), Serdes.String()))
                     }
                 )
                 .branch(
-                    { _, value -> value.asBoolean() == false },
-                    { ks -> ks.to(FALSE_TOPIC, Produced.with(Serdes.String(), Serdes.String())) }
+                    { _, value ->
+                        !value.asBoolean()
+                    },
+                    { ks ->
+                        ks.to(FALSE_TOPIC, Produced.with(Serdes.String(), Serdes.String()))
+                    }
                 )
-                .onTopOf(kStreamBuilder.stream(TRUE_FALSE_INPUT_TOPIC, Consumed.with(Serdes.String(), Serdes.String())))
+                .onTopOf(
+                    kStreamBuilder.stream(
+                        TRUE_FALSE_INPUT_TOPIC,
+                        Consumed.with(Serdes.String(), Serdes.String())
+                    )
+                )
         }
     }
 }

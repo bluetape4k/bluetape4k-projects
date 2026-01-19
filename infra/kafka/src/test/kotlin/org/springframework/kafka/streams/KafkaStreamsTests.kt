@@ -67,12 +67,12 @@ import java.util.concurrent.atomic.AtomicBoolean
 @TestPropertySource(properties = ["streaming.topic.two=streamingTopic2"])
 @EmbeddedKafka(
     partitions = 1,
-    topics = [STREAMING_TOPIC1, "\${streaming.topic.two}", FOOS],
+    topics = [STREAMING_TOPIC1, $$"${streaming.topic.two}", FOOS],
     brokerProperties = [
-        "auto.create.topics.enable=\${topics.authCreate:false}",
-        "delete.topic.enable=\${topic.delete:true}"
+        $$"auto.create.topics.enable=${topics.authCreate:false}",
+        $$"delete.topic.enable=${topic.delete:true}"
     ],
-    brokerPropertiesLocation = "classpath:/\${broker.filename:broker}.properties"
+    brokerPropertiesLocation = $$"classpath:/${broker.filename:broker}.properties"
 )
 class KafkaStreamsTests {
 
@@ -93,7 +93,7 @@ class KafkaStreamsTests {
     @Autowired
     private val embeddedKafka: EmbeddedKafkaBroker = uninitialized()
 
-    @Value("\${streaming.topic.two}")
+    @Value($$"${streaming.topic.two}")
     private var streamingTopic2: String = ""
 
     @Autowired
@@ -147,11 +147,11 @@ class KafkaStreamsTests {
     @EnableKafkaStreams
     class KafkaStreamsConfig {
 
-        @Value("\${" + EmbeddedKafkaBroker.SPRING_EMBEDDED_KAFKA_BROKERS + "}")
+        @Value($$"${" + EmbeddedKafkaBroker.SPRING_EMBEDDED_KAFKA_BROKERS + "}")
         val brokerAddresses: String = uninitialized()
 
 
-        @Value("\${streaming.topic.two}")
+        @Value($$"${streaming.topic.two}")
         private val streamingTopic2: String? = null
 
         @Bean
@@ -251,7 +251,7 @@ class KafkaStreamsTests {
         }
 
 
-        @KafkaListener(topics = ["\${streaming.topic.two}"])
+        @KafkaListener(topics = [$$"${streaming.topic.two}"])
         fun listener(payload: ConsumerRecord<*, String?>?) {
             resultFuture().complete(payload)
         }

@@ -57,7 +57,6 @@ abstract class AbstractKafkaCodecTest: AbstractKafkaTest() {
         actual.amount shouldBeEqualTo master.amount
     }
 
-
     data class MessageData(
         val name: String,
         val description: String?,
