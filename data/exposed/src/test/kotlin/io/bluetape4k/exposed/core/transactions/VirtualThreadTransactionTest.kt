@@ -49,6 +49,7 @@ class VirtualThreadTransactionTest: AbstractExposedTest() {
         override val primaryKey = PrimaryKey(id)
     }
 
+    @Suppress("UnusedReceiverParameter")
     fun JdbcTransaction.getTesterById(id: Int): ResultRow? = newVirtualThreadTransaction {
         VTester.selectAll()
             .where { VTester.id eq id }
@@ -135,7 +136,7 @@ class VirtualThreadTransactionTest: AbstractExposedTest() {
             var virtualThreadOk = true
             var platformThreadOk = true
 
-            val row = newVirtualThreadTransaction {
+            newVirtualThreadTransaction {
                 try {
                     VTester.selectAll().toList()
                 } catch (e: Throwable) {
@@ -144,7 +145,7 @@ class VirtualThreadTransactionTest: AbstractExposedTest() {
                 }
             }
 
-            val row2 = transaction {
+            transaction {
                 try {
                     VTester.selectAll().toList()
                 } catch (e: Throwable) {
@@ -170,7 +171,6 @@ class VirtualThreadTransactionTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `virtual thread 트랜잭션에서 예외 처리`(testDB: TestDB) {
         withTables(testDB, VTester) {
-            val database = this.db
             val outerConn = this.connection
             val id = TesterEntity.new { }.id
             commit()

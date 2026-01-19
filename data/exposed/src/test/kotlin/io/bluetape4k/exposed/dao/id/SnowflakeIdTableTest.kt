@@ -82,6 +82,7 @@ class SnowflakeIdTableTest: AbstractCustomIdTableTest() {
     fun `Coroutine 환경에서 복수의 Unique한 엔티티를 생성한다`(testDB: TestDB, entityCount: Int) = runSuspendIO {
         withSuspendedTables(testDB, T1) {
             val tasks = List(entityCount) {
+                @Suppress("DEPRECATION")
                 suspendedTransactionAsync(Dispatchers.IO) {
                     E1.new {
                         name = faker.name().fullName()

@@ -88,6 +88,7 @@ object MovieSchema: KLogging() {
             .toString()
     }
 
+    @Suppress("UnusedReceiverParameter")
     fun AbstractExposedTest.withMovieAndActors(
         testDB: TestDB,
         statement: JdbcTransaction.() -> Unit,
@@ -98,6 +99,7 @@ object MovieSchema: KLogging() {
         }
     }
 
+    @Suppress("UnusedReceiverParameter")
     suspend fun AbstractExposedTest.withSuspendedMovieAndActors(
         testDB: TestDB,
         context: CoroutineContext? = Dispatchers.IO,

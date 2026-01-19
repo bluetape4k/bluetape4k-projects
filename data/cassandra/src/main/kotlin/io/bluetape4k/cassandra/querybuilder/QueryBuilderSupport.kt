@@ -6,7 +6,6 @@ import com.datastax.oss.driver.api.querybuilder.BindMarker
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder
 import com.datastax.oss.driver.api.querybuilder.Raw
 
-
 /**
  * [QueryBuilder]를 이용해 Named [BindMarker] 를 생성합니다.
  *

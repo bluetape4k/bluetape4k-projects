@@ -20,10 +20,9 @@ class RowSupportTest: AbstractCassandraTest() {
             session.executeSuspending("TRUNCATE row_table")
 
             val ps = session.prepareSuspending("INSERT INTO row_table(id, name, num) VALUES(?, ?, ?)")
-            repeat(100) {
-                val id = it.toString()
+            repeat(100) { num ->
+                val id = num.toString()
                 val name = "name-$id"
-                val num = it
                 session.executeSuspending(ps.bind(id, name, num))
             }
         }

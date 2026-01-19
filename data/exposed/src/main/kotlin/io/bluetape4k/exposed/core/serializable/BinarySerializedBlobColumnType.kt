@@ -13,8 +13,6 @@ import org.jetbrains.exposed.v1.core.statements.api.ExposedBlob
 /**
  * 엔티티의 속성으로 사용하는 객체를 [BinarySerializer] 를 이용해
  * 직렬화/역직렬화하여 [ExposedBlob] Column에 저장하도록 하는 Column 을 생성합니다.
- *
- * @sample io.bluetape4k.exposed.core.serializable.BinarySerializedBlobColumTypeTest.T1
  */
 fun <T: Any> Table.binarySerializedBlob(
     name: String,

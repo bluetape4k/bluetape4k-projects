@@ -42,7 +42,7 @@ class ActorRepository: ExposedRepository<ActorDTO, Long> {
         val id = ActorTable.insertAndGetId {
             it[firstName] = actor.firstName
             it[lastName] = actor.lastName
-            it[birthday] = actor.birthday?.let { LocalDate.parse(it) }
+            it[birthday] = actor.birthday?.let { birthday -> LocalDate.parse(birthday) }
         }
         return actor.copy(id = id.value)
     }

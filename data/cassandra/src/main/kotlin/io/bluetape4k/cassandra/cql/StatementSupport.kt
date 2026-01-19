@@ -12,7 +12,6 @@ import com.datastax.oss.driver.api.core.cql.SimpleStatementBuilder
 import com.datastax.oss.driver.internal.core.cql.DefaultPrepareRequest
 import io.bluetape4k.support.requireNotBlank
 
-
 /**
  * [SimpleStatement]를 [PrepareRequest]로 변환합니다.
  *

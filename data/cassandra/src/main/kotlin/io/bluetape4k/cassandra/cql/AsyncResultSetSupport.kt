@@ -18,20 +18,6 @@ import kotlinx.coroutines.future.await
  * }
  */
 fun AsyncResultSet.asFlow(): Flow<Row> = asFlow { it }
-//    channelFlow {
-//        var current = this@asFlow
-//        while (current.remaining() > 0) {
-//            // emitAll(current.currentPage().asFlow())
-//            current.currentPage().forEach { row ->
-//                send(row)
-//            }
-//            if (current.hasMorePages()) {
-//                current = current.fetchNextPage().await()
-//            } else {
-//                break
-//            }
-//        }
-//    }
 
 /**
  * [AsyncResultSet]의 현재 Page 뿐 아니라 Next Page들을 계속 읽어서 [mapper]를 이용한 변환한 값을 emit 하는 [Flow]로 반환합니다.
@@ -44,9 +30,7 @@ fun AsyncResultSet.asFlow(): Flow<Row> = asFlow { it }
  * @param mapper [Row]를 변환할 함수
  * @return [Flow] 인스턴스
  */
-inline fun <T> AsyncResultSet.asFlow(
-    @BuilderInference crossinline mapper: suspend (row: Row) -> T,
-): Flow<T> = channelFlow {
+inline fun <T> AsyncResultSet.asFlow(crossinline mapper: suspend (row: Row) -> T): Flow<T> = channelFlow {
     var current = this@asFlow
     while (current.remaining() > 0) {
         current.currentPage()

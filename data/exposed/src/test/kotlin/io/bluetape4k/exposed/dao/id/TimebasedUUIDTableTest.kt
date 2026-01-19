@@ -138,7 +138,7 @@ class TimebasedUUIDTableTest: AbstractCustomIdTableTest() {
     @MethodSource("getTestDBAndEntityCount")
     fun `batch insert in coroutines`(testDB: TestDB, entityCount: Int) = runSuspendIO {
         withSuspendedTables(testDB, T1) {
-            val entities = generateSequence<Pair<String, Int>> {
+            val entities: Sequence<Pair<String, Int>> = generateSequence {
                 val name = faker.name().fullName()
                 val age = faker.number().numberBetween(8, 80)
                 name to age
@@ -169,7 +169,7 @@ class TimebasedUUIDTableTest: AbstractCustomIdTableTest() {
         Assumptions.assumeTrue { testDB in TestDB.ALL_MYSQL_MARIADB + TestDB.POSTGRESQL }
 
         withSuspendedTables(testDB, T1) {
-            val entities = generateSequence<Pair<String, Int>> {
+            val entities: Sequence<Pair<String, Int>> = generateSequence {
                 val name = faker.name().fullName()
                 val age = faker.number().numberBetween(8, 80)
                 name to age

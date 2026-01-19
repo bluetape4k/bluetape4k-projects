@@ -39,7 +39,7 @@ fun currentTimeTerm(): Term = QueryBuilder.currentTime()
 fun currentTimeUuidTerm(): Term = QueryBuilder.currentTimeUuid()
 
 fun tupleTerm(vararg args: Any): Term =
-    QueryBuilder.tuple(args.map { if (it is Term) it else it.literal() })
+    QueryBuilder.tuple(args.map { (it as? Term) ?: it.literal() })
 
 fun Iterable<Term>.tuple(): Term = QueryBuilder.tuple(this)
 fun Term.minTimeUuid(): Term = QueryBuilder.minTimeUuid(this)

@@ -8,8 +8,6 @@ import org.jetbrains.exposed.v1.core.dao.id.IdTable
 
 /**
  * Entity ID 값을 Timebased UUID 를 Base62로 인코딩한 문자열을 사용하는 Table
- *
- * @sample io.bluetape4k.exposed.dao.id.TimebasedUUIDBase62TableTest.T1
  */
 open class TimebasedUUIDBase62Table(name: String = "", columnName: String = "id"): IdTable<String>(name) {
 

@@ -12,10 +12,10 @@ abstract class AbstractCustomIdTableTest: AbstractExposedTest() {
     fun getTestDBAndEntityCount(): List<Arguments> {
         val recordCounts = listOf(50, 500)
 
-        return TestDB.enabledDialects().map { testDB ->
+        return TestDB.enabledDialects().flatMap { testDB ->
             recordCounts.map { entityCount ->
                 Arguments.of(testDB, entityCount)
             }
-        }.flatten()
+        }
     }
 }

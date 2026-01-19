@@ -8,11 +8,13 @@ import io.bluetape4k.support.asLongOrNull
 import io.bluetape4k.support.asShortOrNull
 import io.bluetape4k.support.asStringOrNull
 import io.bluetape4k.support.asUUIDOrNull
+import io.bluetape4k.support.unsafeLazy
 import org.jetbrains.exposed.v1.core.Column
+import org.slf4j.Logger
 import java.util.*
 import kotlin.reflect.KClass
 
-private val log by lazy { KotlinLogging.logger {} }
+private val log: Logger by unsafeLazy { KotlinLogging.logger {} }
 
 /**
  * Column의 언어 타입을 찾습니다.

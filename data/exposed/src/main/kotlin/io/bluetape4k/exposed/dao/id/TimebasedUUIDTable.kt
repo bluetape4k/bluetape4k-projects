@@ -10,8 +10,6 @@ import java.util.*
 
 /**
  * Entity ID 값을 Timebased UUID 를 사용하는 Table
- *
- * @sample io.bluetape4k.exposed.dao.id.TimebasedUUIDTableTest.T1
  */
 open class TimebasedUUIDTable(name: String = "", columnName: String = "id"): IdTable<UUID>(name) {
 

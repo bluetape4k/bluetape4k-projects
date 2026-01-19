@@ -10,8 +10,6 @@ import org.jetbrains.exposed.v1.core.Table
 
 /**
  * 엔티티의 속성으로 사용하는 객체를 [BinarySerializer] 를 이용해 직렬화/역직렬화하여 Binary Column 에 저장할 수 있는 Column 을 생성합니다.
- *
- * @sample io.bluetape4k.exposed.core.serializable.BinarySerializedBinaryColumnTypeTest.T1
  */
 fun <T: Any> Table.binarySerializedBinary(
     name: String,

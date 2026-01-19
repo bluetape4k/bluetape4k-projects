@@ -20,8 +20,6 @@ abstract class StringEntity(id: EntityID<String>): Entity<String>(id)
  * argument [E] provided to this [StringEntityClass] instance. If this `StringEntityClass` is defined as a companion
  * object of a custom `StringEntity` class, the parameter will be set to this immediately enclosing class by default.
  *
- * @sample io.bluetape4k.exposed.dao.id.TimebasedUUIDBase62TableTest.E1
- *
  * @param [entityCtor] The function invoked to instantiate a [StringEntity] using a provided [EntityID] value.
  * If a reference to a specific constructor or a custom function is not passed as an argument, reflection will
  * be used to determine the primary constructor of the associated entity class on first access. If this `StringEntityClass`

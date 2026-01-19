@@ -62,7 +62,7 @@ object CqlSessionProvider: KLoggingChannel() {
             sessionCache.remove(it.key)
         }
 
-        return sessionCache.getOrPut(keyspace) {
+        return sessionCache.computeIfAbsent(keyspace) { keyspace ->
             log.info { "Creating new CqlSession for $keyspace" }
 
             // keyspace가 없을 수 있으므로, adminSession으로 신규 keyspace를 생성하도록 합니다.

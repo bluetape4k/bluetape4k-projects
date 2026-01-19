@@ -6,6 +6,6 @@ package io.bluetape4k.exposed.core
  * @param ID 엔티티의 식별자 타입
  * @property id 엔티티의 고유 식별자
  */
-interface HasIdentifier<ID>: java.io.Serializable {
+interface HasIdentifier<ID: Any>: java.io.Serializable {
     val id: ID
 }

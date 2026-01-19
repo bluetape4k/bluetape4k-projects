@@ -76,9 +76,8 @@ class LimitConcurrencyExamples: AbstractCassandraTest() {
         val insertsCounter = atomic(0)
         val executor = Executors.newFixedThreadPool(CONCURRENCY_LEVEL)
 
-        repeat(TOTAL_NUMBER_OF_INSERTS) {
+        repeat(TOTAL_NUMBER_OF_INSERTS) { counter ->
             semaphore.acquire()
-            val counter = it
 
             executor.submit {
                 try {

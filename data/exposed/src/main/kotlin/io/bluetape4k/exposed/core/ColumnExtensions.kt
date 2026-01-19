@@ -52,7 +52,6 @@ private val log by lazy { KotlinLogging.logger { } }
  * Column 값을 [TimebasedUuid.Reordered]이 생성한 UUID 값으로 설정합니다.
  *
  * @see TimebasedUuid.Reordered
- * @sample io.bluetape4k.exposed.core.ColumnExtensionsTest
  */
 @JvmName("timebasedGeneratedUUID")
 fun Column<UUID>.timebasedGenerated(): Column<UUID> =
@@ -62,7 +61,6 @@ fun Column<UUID>.timebasedGenerated(): Column<UUID> =
  * Column 값을 [TimebasedUuid.Reordered] 이 생성한 Timebased UUID의 Base62 인코딩한 문자열로 설정합니다.
  *
  * @see TimebasedUuid.Reordered
- * @sample io.bluetape4k.exposed.core.ColumnExtensionsTest
  */
 @JvmName("timebasedGeneratedString")
 fun Column<String>.timebasedGenerated(): Column<String> =
@@ -78,7 +76,6 @@ fun Column<Long>.snowflakeIdGenerated(): Column<Long> =
  * Column 값을 [io.bluetape4k.idgenerators.snowflake.Snowflake] 값으로 설정합니다.
  *
  * @see [io.bluetape4k.idgenerators.snowflake.Snowflake]
- * @sample io.bluetape4k.exposed.core.ColumnExtensionsTest
  */
 @JvmName("snowflakeGeneratedLong")
 fun Column<Long>.snowflakeGenerated(): Column<Long> =
@@ -88,7 +85,6 @@ fun Column<Long>.snowflakeGenerated(): Column<Long> =
  * Column 값을 [io.bluetape4k.idgenerators.snowflake.Snowflake] ID의 문자열로 설정합니다.
  *
  * @see io.bluetape4k.idgenerators.snowflake.Snowflake
- * @sample io.bluetape4k.exposed.core.ColumnExtensionsTest
  */
 @JvmName("snowflakeGeneratedString")
 fun Column<String>.snowflakeGenerated(): Column<String> =
@@ -96,16 +92,12 @@ fun Column<String>.snowflakeGenerated(): Column<String> =
 
 /**
  * Column 값을 [Ksuid]의 생성 값으로 설정합니다.
- *
- * @sample io.bluetape4k.exposed.core.ColumnExtensionsTest
  */
 fun Column<String>.ksuidGenerated(): Column<String> =
     clientDefault { Ksuid.nextId() }
 
 /**
  * Column 값을 [KsuidMillis]의 생성 값으로 설정합니다.
- *
- * @sample io.bluetape4k.exposed.core.ColumnExtensionsTest
  */
 fun Column<String>.ksuidMillisGenerated(): Column<String> =
     clientDefault { KsuidMillis.nextId() }

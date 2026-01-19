@@ -41,8 +41,8 @@ class BasicExamples: AbstractCassandraTest() {
             |);
             """.trimMargin()
 
-        private val SongId = "756716f7-2e54-4715-9f00-91dcbea6cf50"
-        private val PlayListId = "2cc9ccb7-6221-4ccb-8387-f22b6a1b354d"
+        private const val SongId = "756716f7-2e54-4715-9f00-91dcbea6cf50"
+        private const val PlayListId = "2cc9ccb7-6221-4ccb-8387-f22b6a1b354d"
 
         private val INSERT_SONGS =
             """
