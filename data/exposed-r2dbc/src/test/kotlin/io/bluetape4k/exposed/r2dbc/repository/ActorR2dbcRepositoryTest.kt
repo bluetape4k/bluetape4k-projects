@@ -1,8 +1,8 @@
 package io.bluetape4k.exposed.r2dbc.repository
 
 import io.bluetape4k.exposed.r2dbc.domain.ActorDTO
-import io.bluetape4k.exposed.r2dbc.repository.MovieSchema.ActorTable
-import io.bluetape4k.exposed.r2dbc.repository.MovieSchema.withMovieAndActors
+import io.bluetape4k.exposed.r2dbc.domain.MovieSchema.ActorTable
+import io.bluetape4k.exposed.r2dbc.domain.MovieSchema.withMovieAndActors
 import io.bluetape4k.exposed.r2dbc.tests.R2dbcExposedTestBase
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel

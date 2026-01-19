@@ -1,7 +1,8 @@
 package io.bluetape4k.exposed.r2dbc.repository
 
 import io.bluetape4k.exposed.r2dbc.domain.ActorDTO
-import io.bluetape4k.exposed.r2dbc.repository.MovieSchema.ActorTable
+import io.bluetape4k.exposed.r2dbc.domain.MovieSchema.ActorTable
+import io.bluetape4k.exposed.r2dbc.domain.toActorDTO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.Flow
@@ -41,7 +42,7 @@ class ActorR2dbcRepository: ExposedR2dbcRepository<ActorDTO, Long> {
         val id = ActorTable.insertAndGetId {
             it[firstName] = actor.firstName
             it[lastName] = actor.lastName
-            it[birthday] = actor.birthday?.let { LocalDate.parse(it) }
+            it[birthday] = actor.birthday?.let { day -> LocalDate.parse(day) }
         }
         return actor.copy(id = id.value)
     }

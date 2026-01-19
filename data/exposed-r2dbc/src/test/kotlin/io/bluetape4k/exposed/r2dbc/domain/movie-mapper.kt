@@ -1,11 +1,7 @@
-package io.bluetape4k.exposed.r2dbc.repository
+package io.bluetape4k.exposed.r2dbc.domain
 
-import io.bluetape4k.exposed.r2dbc.domain.ActorDTO
-import io.bluetape4k.exposed.r2dbc.domain.MovieDTO
-import io.bluetape4k.exposed.r2dbc.domain.MovieWithActorDTO
-import io.bluetape4k.exposed.r2dbc.domain.MovieWithProducingActorDTO
-import io.bluetape4k.exposed.r2dbc.repository.MovieSchema.ActorTable
-import io.bluetape4k.exposed.r2dbc.repository.MovieSchema.MovieTable
+import io.bluetape4k.exposed.r2dbc.domain.MovieSchema.ActorTable
+import io.bluetape4k.exposed.r2dbc.domain.MovieSchema.MovieTable
 import org.jetbrains.exposed.v1.core.ResultRow
 
 fun ResultRow.toActorDTO() = ActorDTO(
