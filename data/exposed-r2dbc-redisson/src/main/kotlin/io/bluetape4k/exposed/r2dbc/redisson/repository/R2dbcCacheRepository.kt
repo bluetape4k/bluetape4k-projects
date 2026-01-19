@@ -63,7 +63,18 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param id 엔티티의 식별자
      * @return 조회된 엔티티 또는 null
      */
+    @Deprecated("use findByIdFromDb", replaceWith = ReplaceWith("findByIdFromDb(id)"), level = DeprecationLevel.WARNING)
     suspend fun findFreshById(id: ID): T? = suspendTransaction {
+        entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
+    }
+
+    /**
+     * 주어진 ID로 DB에서 최신 엔티티를 조회합니다.
+     *
+     * @param id 엔티티의 식별자
+     * @return 조회된 엔티티 또는 null
+     */
+    suspend fun findByIdFromDb(id: ID): T? = suspendTransaction {
         entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
     }
 
@@ -73,7 +84,18 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param ids 엔티티 식별자 목록
      * @return 조회된 엔티티 리스트
      */
+    @Deprecated("use findAllFromDb", replaceWith = ReplaceWith("findAllFromDb(ids)"), level = DeprecationLevel.WARNING)
     suspend fun findFreshAll(vararg ids: ID): List<T> = suspendTransaction {
+        entityTable.selectAll().where { entityTable.id inList ids.toList() }.map { it.toEntity() }.toList()
+    }
+
+    /**
+     * 여러 ID로 DB에서 최신 엔티티 목록을 조회합니다.
+     *
+     * @param ids 엔티티 식별자 목록
+     * @return 조회된 엔티티 리스트
+     */
+    suspend fun findAllFromDb(vararg ids: ID): List<T> = suspendTransaction {
         entityTable.selectAll().where { entityTable.id inList ids.toList() }.map { it.toEntity() }.toList()
     }
 
@@ -83,7 +105,18 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param ids 엔티티 식별자 컬렉션
      * @return 조회된 엔티티 리스트
      */
+    @Deprecated("use findAllFromDb", replaceWith = ReplaceWith("findAllFromDb(ids)"), level = DeprecationLevel.WARNING)
     suspend fun findFreshAll(ids: Collection<ID>): List<T> = suspendTransaction {
+        entityTable.selectAll().where { entityTable.id inList ids }.map { it.toEntity() }.toList()
+    }
+
+    /**
+     * 여러 ID로 DB에서 최신 엔티티 목록을 조회합니다.
+     *
+     * @param ids 엔티티 식별자 컬렉션
+     * @return 조회된 엔티티 리스트
+     */
+    suspend fun findAllFromDb(ids: Collection<ID>): List<T> = suspendTransaction {
         entityTable.selectAll().where { entityTable.id inList ids }.map { it.toEntity() }.toList()
     }
 

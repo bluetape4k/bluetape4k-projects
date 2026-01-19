@@ -106,7 +106,7 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
 
     protected fun createLocalCacheMap(): RLocalCachedMap<ID, T?> =
         localCachedMap(cacheName, redissonClient) {
-            log.info { "RLocalCacheMap 를 생성합니다. config=$config" }
+            log.info { "RLocalCacheMap 를 생성합니다. local cacheName=$cacheName, config=$config" }
 
             if (config.isReadOnly) {
                 loaderAsync(r2dbcEntityMapLoader)
@@ -129,7 +129,8 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
 
     protected fun createMapCache(): RMapCache<ID, T?> =
         mapCache(cacheName, redissonClient) {
-            log.info { "RMapCache 를 생성합니다. config=$config" }
+            log.info { "RMapCache 를 생성합니다. remote cacheName=$cacheName, config=$config" }
+
             if (config.isReadOnly) {
                 loaderAsync(r2dbcEntityMapLoader)
             } else {
@@ -163,22 +164,20 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
         sortBy: Expression<*>,
         sortOrder: SortOrder,
         where: () -> Op<Boolean>,
-    ): List<T> {
-        return suspendTransaction {
-            entityTable
-                .selectAll()
-                .where(where)
-                .apply {
-                    orderBy(sortBy, sortOrder)
-                    limit?.run { limit(limit) }
-                    offset?.run { offset(offset) }
-                }
-                .map { it.toEntity() }
-                .onEach {
-                    cache.fastPutAsync(it.id, it).suspendAwait()
-                }
-                .toList()
-        }
+    ): List<T> = suspendTransaction {
+        entityTable
+            .selectAll()
+            .where(where)
+            .apply {
+                orderBy(sortBy, sortOrder)
+                limit?.run { limit(limit) }
+                offset?.run { offset(offset) }
+            }
+            .map { it.toEntity() }
+            .onEach {
+                cache.fastPutAsync(it.id, it).suspendAwait()
+            }
+            .toList()
     }
 
     /**
@@ -189,9 +188,10 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
      * @return 조회된 엔티티 목록
      */
     override suspend fun getAll(ids: Collection<ID>, batchSize: Int): List<T> {
-        return ids.chunked(batchSize)
+        return ids
+            .chunked(batchSize)
             .flatMap { chunk ->
-                log.debug { " 캐시에서 ${chunk.size} 개의 엔티티를 가져옵니다. chunk=${chunk}" }
+                log.debug { "캐시에서 ${chunk.size} 개의 엔티티를 가져옵니다. chunk=${chunk}" }
                 cache.getAllAsync(chunk.toSet()).suspendAwait().values.filterNotNull()
             }
     }

@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.singleOrNull
@@ -50,7 +49,7 @@ open class R2dbcExposedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
             .select(entityTable.id)
             .fetchBatchedResults(batchSize)
             .buffer(3)
-            .flowOn(scope.coroutineContext)
+            // .flowOn(scope.coroutineContext)
             .cancellable()
             .catch { cause ->
                 log.error(cause) { "R2dbc를 이용하여 DB에서 모든 ID 로딩 중 오류 발생" }
