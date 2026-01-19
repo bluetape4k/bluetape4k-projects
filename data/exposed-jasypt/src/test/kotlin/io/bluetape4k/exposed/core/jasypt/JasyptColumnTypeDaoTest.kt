@@ -79,7 +79,7 @@ class JasyptColumnTypeDaoTest: AbstractExposedTest() {
             val insertedVarchar = faker.name().firstName()
             val insertedBinary = faker.address().fullAddress().toUtf8Bytes()
 
-            val entity = E1.new {
+            E1.new {
                 varchar = insertedVarchar
                 binary = insertedBinary
             }

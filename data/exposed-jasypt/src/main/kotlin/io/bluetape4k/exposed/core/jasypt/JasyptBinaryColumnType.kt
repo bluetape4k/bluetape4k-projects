@@ -5,7 +5,7 @@ import org.jetbrains.exposed.v1.core.ColumnTransformer
 import org.jetbrains.exposed.v1.core.ColumnWithTransform
 
 class JasyptBinaryColumnType(
-    private val encryptor: io.bluetape4k.crypto.encrypt.Encryptor,
+    encryptor: io.bluetape4k.crypto.encrypt.Encryptor,
     length: Int,
 ): ColumnWithTransform<ByteArray, ByteArray>(BinaryColumnType(length), JasyptByteArrayEncryptionTransformer(encryptor))
 

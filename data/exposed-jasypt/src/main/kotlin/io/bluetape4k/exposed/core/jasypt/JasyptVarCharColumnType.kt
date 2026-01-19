@@ -5,7 +5,7 @@ import org.jetbrains.exposed.v1.core.ColumnWithTransform
 import org.jetbrains.exposed.v1.core.VarCharColumnType
 
 class JasyptVarCharColumnType(
-    private val encryptor: io.bluetape4k.crypto.encrypt.Encryptor,
+    encryptor: io.bluetape4k.crypto.encrypt.Encryptor,
     colLength: Int,
 ): ColumnWithTransform<String, String>(VarCharColumnType(colLength), JasyptStringEncryptionTransformer(encryptor))
 
