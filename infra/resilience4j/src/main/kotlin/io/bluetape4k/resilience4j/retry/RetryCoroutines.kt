@@ -99,8 +99,7 @@ suspend inline fun <T: Any, U: Any, R: Any> withRetry(
  * val result = func1(21)  // 42
  * ```
  *
- * @param retry Retry 설정
- * @param block 실행할 작업
+ * @param func 실행할 작업
  * @return 작업 결과
  */
 inline fun <T, R> Retry.decorateSuspendFunction1(

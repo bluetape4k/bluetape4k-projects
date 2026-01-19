@@ -7,6 +7,7 @@ class CaffeineJCacheCoroutinesTest: AbstractJCacheCoroutinesTest() {
 
     companion object: KLoggingChannel()
 
-    override val jcache: Cache<String, String> =
+    override val jcache: Cache<String, String> by lazy {
         CaffeineJCacheProvider.getJCache("caffeine.coroutines")
+    }
 }

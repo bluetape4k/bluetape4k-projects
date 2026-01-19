@@ -1,6 +1,6 @@
 package io.bluetape4k.resilience4j.cache
 
-import io.bluetape4k.codec.encodeBase62
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.concurrent.futureOf
 import io.bluetape4k.concurrent.onSuccess
 import io.bluetape4k.junit5.coroutines.runSuspendTest
@@ -9,18 +9,18 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.trace
 import io.github.resilience4j.cache.Cache
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.*
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 
 abstract class AbstractJCacheCoroutinesTest {
 
     companion object: KLoggingChannel() {
-        fun randomKey(prefix: String): String = "$prefix-${UUID.randomUUID().encodeBase62()}"
+        fun randomKey(prefix: String): String = "$prefix-${Base58.randomString(8)}"
     }
 
     abstract val jcache: javax.cache.Cache<String, String>
@@ -44,11 +44,10 @@ abstract class AbstractJCacheCoroutinesTest {
         cache.eventPublisher
             .onError { evt -> log.error(evt.throwable) { "Fail to get cache. $evt" } }
 
-        val _called = atomic(0)
-        val called by _called
+        val called = AtomicInteger(0)
         val function: suspend (String) -> String = { name: String ->
-            _called.incrementAndGet()
-            log.debug { "Cache function invoked. name=$name, called=$called" }
+            called.incrementAndGet()
+            log.debug { "Cache function invoked. name=$name, called=${called.get()}" }
             greeting(name)
         }
 
@@ -58,17 +57,17 @@ abstract class AbstractJCacheCoroutinesTest {
         val key2 = randomKey("key")
 
         cachedFunc(key1) shouldBeEqualTo "Hi $key1!"
-        called shouldBeEqualTo 1
+        called.get() shouldBeEqualTo 1
         cachedFunc(key2) shouldBeEqualTo "Hi $key2!"
-        called shouldBeEqualTo 2
+        called.get() shouldBeEqualTo 2
 
         cache.metrics.numberOfCacheHits shouldBeEqualTo 0
         cache.metrics.numberOfCacheMisses shouldBeEqualTo 4
 
         cachedFunc(key1) shouldBeEqualTo "Hi $key1!"
-        called shouldBeEqualTo 2
+        called.get() shouldBeEqualTo 2
         cachedFunc(key2) shouldBeEqualTo "Hi $key2!"
-        called shouldBeEqualTo 2
+        called.get() shouldBeEqualTo 2
 
         cache.metrics.numberOfCacheHits shouldBeEqualTo 2
         cache.metrics.numberOfCacheMisses shouldBeEqualTo 4
@@ -76,13 +75,13 @@ abstract class AbstractJCacheCoroutinesTest {
 
     @Test
     fun `decorate completableFuture function for Cache`() {
-        val _called = atomic(0L)
-        val called by _called
+        val called = AtomicLong(0L)
+
         val function: (String) -> CompletableFuture<String> = { name ->
             futureOf {
-                log.trace { "Run function ... call count=${called + 1}" }
+                log.trace { "Run function ... call count=${called.get() + 1L}" }
                 Thread.sleep(100L)
-                _called.incrementAndGet()
+                called.incrementAndGet()
                 "Hi $name!"
             }
         }
@@ -90,22 +89,22 @@ abstract class AbstractJCacheCoroutinesTest {
         val cachedFunc = cache.decorateCompletableFutureFunction(function)
 
         cachedFunc("debop").onSuccess {
-            called shouldBeEqualTo 1L
+            called.get() shouldBeEqualTo 1L
             it shouldBeEqualTo "Hi debop!"
         }.join()
 
         cachedFunc("debop").onSuccess {
-            called shouldBeEqualTo 1L
+            called.get() shouldBeEqualTo 1L
             it shouldBeEqualTo "Hi debop!"
         }.join()
 
         cachedFunc("Sunghyouk").onSuccess {
-            called shouldBeEqualTo 2L
+            called.get() shouldBeEqualTo 2L
             it shouldBeEqualTo "Hi Sunghyouk!"
         }.join()
 
         cachedFunc("Sunghyouk").onSuccess {
-            called shouldBeEqualTo 2L
+            called.get() shouldBeEqualTo 2L
             it shouldBeEqualTo "Hi Sunghyouk!"
         }.join()
     }
@@ -117,12 +116,11 @@ abstract class AbstractJCacheCoroutinesTest {
         coCache.eventPublisher
             .onError { evt -> log.error { "Fail to get cache. $evt" } }
 
-        val _called = atomic(0)
-        val called by _called
+        val called = AtomicInteger(0)
 
         val loader: suspend (String) -> String = { name: String ->
-            _called.incrementAndGet()
-            log.debug { "Cached item... called=$called" }
+            called.incrementAndGet()
+            log.debug { "Cached item... called=${called.get()}" }
             delay(1)
             greeting(name)
         }
@@ -133,19 +131,19 @@ abstract class AbstractJCacheCoroutinesTest {
         val key2 = randomKey("coKey")
 
         cachedLoader(key1) shouldBeEqualTo "Hi $key1!"
-        called shouldBeEqualTo 1
+        called.get() shouldBeEqualTo 1
 
         cachedLoader(key2) shouldBeEqualTo "Hi $key2!"
-        called shouldBeEqualTo 2
+        called.get() shouldBeEqualTo 2
 
         // 캐시에 새로 등록하므로 CacheHits 는 0 이다.
         coCache.metrics.getNumberOfCacheHits() shouldBeEqualTo 0
         coCache.metrics.getNumberOfCacheMisses() shouldBeEqualTo 2
 
         cachedLoader(key1) shouldBeEqualTo "Hi $key1!"
-        called shouldBeEqualTo 2
+        called.get() shouldBeEqualTo 2
         cachedLoader(key2) shouldBeEqualTo "Hi $key2!"
-        called shouldBeEqualTo 2
+        called.get() shouldBeEqualTo 2
 
         // 캐시에 두 key가 등록되었으므로 CacheHits 는 2가 된다
         coCache.metrics.getNumberOfCacheHits() shouldBeEqualTo 2

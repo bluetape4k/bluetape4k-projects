@@ -13,7 +13,7 @@ import kotlin.coroutines.cancellation.CancellationException
  */
 internal fun isCancellation(coroutineContext: CoroutineContext, error: Throwable? = null): Boolean {
 
-    // If job is missing then there is no cancellation
+    // job 이 없다면, `cancellation` 이 없다
     val job = coroutineContext[Job] ?: return false
 
     return job.isCancelled || (error != null && error is CancellationException)

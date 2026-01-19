@@ -13,7 +13,7 @@ class SuspendHelloWorldService {
     private val _invocationCount = atomic(0)
     val invocationCount by _invocationCount
 
-    private val sync = Channel<Unit>(Channel.UNLIMITED)
+    private val sync: Channel<Unit> = Channel(Channel.UNLIMITED)
 
     suspend fun returnHelloWorld(): String {
         delay(1) // so tests are fast, but compiler agrees suspend modifier is required

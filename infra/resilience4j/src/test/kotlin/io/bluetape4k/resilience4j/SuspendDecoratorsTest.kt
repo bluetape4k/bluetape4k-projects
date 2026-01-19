@@ -37,9 +37,9 @@ class SuspendDecoratorsTest {
 
     companion object: KLoggingChannel()
 
-    val retry = Retry.ofDefaults("coDecorator")
-    val circuitBreaker = CircuitBreaker.ofDefaults("coDecorator")
-    val rateLimiter = RateLimiter.ofDefaults("coDecorator")
+    val retry: Retry = Retry.ofDefaults("coDecorator")
+    val circuitBreaker: CircuitBreaker = CircuitBreaker.ofDefaults("coDecorator")
+    val rateLimiter: RateLimiter = RateLimiter.ofDefaults("coDecorator")
 
     private val service = mockk<Service>(relaxUnitFun = true)
 

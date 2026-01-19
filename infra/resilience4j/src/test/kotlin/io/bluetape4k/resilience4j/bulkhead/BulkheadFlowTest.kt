@@ -7,6 +7,7 @@ import io.github.resilience4j.bulkhead.Bulkhead
 import io.github.resilience4j.bulkhead.BulkheadConfig
 import io.github.resilience4j.bulkhead.BulkheadFullException
 import io.github.resilience4j.kotlin.bulkhead.bulkhead
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -192,7 +193,8 @@ class BulkheadFlowTest {
                 .build()
         }.registerEventListener()
 
-        val job = launch(parentJob) {
+        val parentScope = CoroutineScope(parentJob)
+        val job = parentScope.launch {
             launch(start = CoroutineStart.ATOMIC) {
                 flow {
                     phaser.arrive()

@@ -5,6 +5,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException
 import io.github.resilience4j.circuitbreaker.CircuitBreaker
 import io.github.resilience4j.kotlin.circuitbreaker.circuitBreaker
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -18,6 +19,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Phaser
 import kotlin.test.assertFailsWith
 
@@ -31,7 +33,7 @@ class FlowCircuitBreakerTest {
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
 
-        val results = mutableListOf<Int>()
+        val results = CopyOnWriteArrayList<Int>()
 
         // When
         flow {
@@ -58,7 +60,7 @@ class FlowCircuitBreakerTest {
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
 
-        val results = mutableListOf<Int>()
+        val results = CopyOnWriteArrayList<Int>()
 
         assertFailsWith<CallNotPermittedException> {
             flow {
@@ -86,7 +88,7 @@ class FlowCircuitBreakerTest {
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
 
-        val results = mutableListOf<Int>()
+        val results = CopyOnWriteArrayList<Int>()
 
         assertFailsWith<CallNotPermittedException> {
             flow {
@@ -114,7 +116,7 @@ class FlowCircuitBreakerTest {
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
 
-        val results = mutableListOf<Int>()
+        val results = CopyOnWriteArrayList<Int>()
 
         assertFailsWith<IllegalStateException> {
             flow {
@@ -176,7 +178,8 @@ class FlowCircuitBreakerTest {
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
 
-        val job = launch(parentJob) {
+        val parentScope = CoroutineScope(parentJob)
+        val job = parentScope.launch {
             launch(start = CoroutineStart.ATOMIC) {
                 flow {
                     phaser.arrive()

@@ -14,8 +14,12 @@ import javax.cache.spi.CachingProvider
 
 object Cache2kJCacheProvider: KLogging() {
 
-    private val cachingProvider: CachingProvider by lazy { Caching.getCachingProvider(JCacheProvider::class.qualifiedName) }
-    private val cacheManager: CacheManager by lazy { cachingProvider.cacheManager }
+    private val cachingProvider: CachingProvider by lazy {
+        Caching.getCachingProvider(JCacheProvider::class.qualifiedName)
+    }
+    private val cacheManager: CacheManager by lazy {
+        cachingProvider.cacheManager
+    }
 
     /**
      * Cache2k 의 [JCache] 를 빌드합니다.

@@ -5,17 +5,17 @@ import kotlin.reflect.KClass
 inline fun <T, R> (suspend () -> T).andThen(
     crossinline resultHandler: suspend (T) -> R,
 ): suspend () -> R = {
-    resultHandler.invoke(this.invoke())
+    resultHandler(this.invoke())
 }
 
 inline fun <T, R> (suspend () -> T).andThen(
     crossinline handler: suspend (T?, Throwable?) -> R,
 ): (suspend () -> R) = {
     try {
-        val result = this.invoke()
-        handler.invoke(result, null)
+        val result = this()
+        handler(result, null)
     } catch (e: Throwable) {
-        handler.invoke(null, e)
+        handler(null, e)
     }
 }
 
@@ -27,7 +27,7 @@ inline fun <T, R> (suspend () -> T).andThen(
         val result = this.invoke()
         resultHandler(result)
     } catch (e: Throwable) {
-        exceptionHandler.invoke(e)
+        exceptionHandler(e)
     }
 }
 
@@ -38,7 +38,7 @@ inline fun <T> (suspend () -> T).recover(
     try {
         this.invoke()
     } catch (e: Throwable) {
-        exceptionHandler.invoke(e)
+        exceptionHandler(e)
     }
 }
 
@@ -48,8 +48,8 @@ inline fun <T> (suspend () -> T).recover(
 ): suspend () -> T = {
     val result = this.invoke()
 
-    if (resultPredicatoe.invoke(result)) {
-        resultHandler.invoke(result)
+    if (resultPredicatoe(result)) {
+        resultHandler(result)
     } else {
         result
     }
@@ -63,7 +63,7 @@ inline fun <X: Throwable, T> (suspend () -> T).recover(
         this.invoke()
     } catch (e: Throwable) {
         if (exceptionType.java.isAssignableFrom(e.javaClass)) {
-            exceptionHandler.invoke(e)
+            exceptionHandler(e)
         } else {
             throw e
         }
@@ -78,7 +78,7 @@ inline fun <X: Throwable, T> (suspend () -> T).recover(
         this.invoke()
     } catch (e: Throwable) {
         if (exceptionTypes.any { it.isAssignableFrom(e.javaClass) }) {
-            exceptionHandler.invoke(e)
+            exceptionHandler(e)
         } else {
             throw e
         }

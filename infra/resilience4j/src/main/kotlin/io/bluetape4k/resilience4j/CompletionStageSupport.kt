@@ -208,7 +208,7 @@ fun <T> CompletionStage<T>.recover(
 }
 
 /**
- * `() -> CompletionStage<T>` 함수를 실행하고 결과가 [resultPredicate]를 만족하면 [resultHandler]를 실행하여 변환합니다.
+ * `() -> CompletionStage<T>` 함수를 실행하고 [handler]를 실행하여 변환합니다.
  *
  * ```
  * val future: () -> CompletionStage<Int> = { futureOf { 42 } }

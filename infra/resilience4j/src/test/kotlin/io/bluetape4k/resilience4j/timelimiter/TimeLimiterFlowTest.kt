@@ -12,6 +12,7 @@ import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.TimeoutException
 import kotlin.test.assertFailsWith
 
@@ -23,7 +24,7 @@ class TimeLimiterFlowTest {
     fun `실행이 성공하는 메소드를 flow로 수행한다`() = runSuspendTest {
         val timelimiter = TimeLimiter.ofDefaults()
         val helloWorldService = SuspendHelloWorldService()
-        val results = mutableListOf<String>()
+        val results = CopyOnWriteArrayList<String>()
 
         flow {
             repeat(3) {
@@ -45,7 +46,7 @@ class TimeLimiterFlowTest {
     fun `예외를 일으키는 메소드도 flow로 실행됩니다`() = runSuspendTest {
         val timelimiter = TimeLimiter.ofDefaults()
         val helloWorldService = SuspendHelloWorldService()
-        val results = mutableListOf<String>()
+        val results = CopyOnWriteArrayList<String>()
 
         assertFailsWith<IllegalStateException> {
             flow<String> {
@@ -65,7 +66,7 @@ class TimeLimiterFlowTest {
             .build()
         val timelimiter = TimeLimiter.of(config)
         val helloWorldService = SuspendHelloWorldService()
-        val results = mutableListOf<String>()
+        val results = CopyOnWriteArrayList<String>()
 
         assertFailsWith<TimeoutException> {
             flow<String> {
