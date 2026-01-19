@@ -4,16 +4,16 @@ import io.nats.client.api.KeyValueConfiguration
 
 inline fun keyValueConfiguration(
     name: String,
-    initializer: KeyValueConfiguration.Builder.() -> Unit = {},
+    @BuilderInference builder: KeyValueConfiguration.Builder.() -> Unit = {},
 ): KeyValueConfiguration {
-    return KeyValueConfiguration.builder(name).apply(initializer).build()
+    return KeyValueConfiguration.builder(name).apply(builder).build()
 }
 
 inline fun keyValueConfiguration(
     kvConfig: KeyValueConfiguration? = null,
-    initializer: KeyValueConfiguration.Builder.() -> Unit,
+    @BuilderInference builder: KeyValueConfiguration.Builder.() -> Unit,
 ): KeyValueConfiguration {
-    return KeyValueConfiguration.builder(kvConfig).apply(initializer).build()
+    return KeyValueConfiguration.builder(kvConfig).apply(builder).build()
 }
 
 fun keyValueConfigurationOf(

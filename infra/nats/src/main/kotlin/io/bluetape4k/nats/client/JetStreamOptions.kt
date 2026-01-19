@@ -6,8 +6,10 @@ import java.time.Duration
 @JvmField
 val defaultJetStreamOptions: JetStreamOptions = JetStreamOptions.DEFAULT_JS_OPTIONS
 
-inline fun jetStreamOptions(initializer: JetStreamOptions.Builder.() -> Unit): JetStreamOptions {
-    return JetStreamOptions.builder().apply(initializer).build()
+inline fun jetStreamOptions(
+    @BuilderInference builder: JetStreamOptions.Builder.() -> Unit,
+): JetStreamOptions {
+    return JetStreamOptions.builder().apply(builder).build()
 }
 
 fun jetStreamOptionsOf(

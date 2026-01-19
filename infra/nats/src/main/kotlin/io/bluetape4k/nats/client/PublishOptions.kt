@@ -4,14 +4,16 @@ import io.nats.client.PublishOptions
 import java.util.*
 
 inline fun publishOptions(
-    initializer: PublishOptions.Builder.() -> Unit,
-): PublishOptions {
-    return PublishOptions.builder().apply(initializer).build()
-}
+    @BuilderInference builder: PublishOptions.Builder.() -> Unit,
+): PublishOptions =
+    PublishOptions.builder()
+        .apply(builder)
+        .build()
 
 fun publishOptionsOf(
     properties: Properties,
-    initializer: PublishOptions.Builder.() -> Unit = {},
-): PublishOptions {
-    return PublishOptions.Builder(properties).apply(initializer).build()
-}
+    @BuilderInference builder: PublishOptions.Builder.() -> Unit = {},
+): PublishOptions =
+    PublishOptions.Builder(properties)
+        .apply(builder)
+        .build()

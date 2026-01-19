@@ -3,22 +3,22 @@ package io.bluetape4k.nats.client.api
 import io.nats.client.api.StreamConfiguration
 
 inline fun streamConfiguration(
-    initializer: StreamConfiguration.Builder.() -> Unit,
+    @BuilderInference builder: StreamConfiguration.Builder.() -> Unit,
 ): StreamConfiguration {
-    return StreamConfiguration.builder().apply(initializer).build()
+    return StreamConfiguration.builder().apply(builder).build()
 }
 
 inline fun streamConfiguration(
     streamName: String,
-    initializer: StreamConfiguration.Builder.() -> Unit,
+    @BuilderInference builder: StreamConfiguration.Builder.() -> Unit,
 ): StreamConfiguration = streamConfiguration {
     name(streamName)
-    initializer()
+    builder()
 }
 
 inline fun streamConfiguration(
     sc: StreamConfiguration,
-    initializer: StreamConfiguration.Builder.() -> Unit,
+    @BuilderInference builder: StreamConfiguration.Builder.() -> Unit,
 ): StreamConfiguration {
-    return StreamConfiguration.builder(sc).apply(initializer).build()
+    return StreamConfiguration.builder(sc).apply(builder).build()
 }

@@ -85,10 +85,7 @@ class SimplicationMigrationExample: AbstractNatsTest() {
             println("  Sync")
             val syncSub = js.subscribe("events.>", pushSubscriptionOptions)
             while (true) {
-                val msg = syncSub.nextMessage(100L)
-                if (msg == null) {
-                    break
-                }
+                val msg = syncSub.nextMessage(100L) ?: break
                 println("    Read: ${msg.subject}")
                 msg.ack()
             }

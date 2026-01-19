@@ -4,14 +4,14 @@ import io.nats.client.api.ObjectStoreConfiguration
 
 inline fun objectStoreConfiguration(
     storeName: String,
-    initializer: ObjectStoreConfiguration.Builder.() -> Unit,
+    @BuilderInference builder: ObjectStoreConfiguration.Builder.() -> Unit,
 ): ObjectStoreConfiguration {
-    return ObjectStoreConfiguration.builder(storeName).apply(initializer).build()
+    return ObjectStoreConfiguration.builder(storeName).apply(builder).build()
 }
 
 inline fun objectStoreConfiguration(
     osc: ObjectStoreConfiguration? = null,
-    initializer: ObjectStoreConfiguration.Builder.() -> Unit,
+    @BuilderInference builder: ObjectStoreConfiguration.Builder.() -> Unit,
 ): ObjectStoreConfiguration {
-    return ObjectStoreConfiguration.builder(osc).apply(initializer).build()
+    return ObjectStoreConfiguration.builder(osc).apply(builder).build()
 }

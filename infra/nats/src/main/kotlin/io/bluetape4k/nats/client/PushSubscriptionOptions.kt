@@ -3,9 +3,9 @@ package io.bluetape4k.nats.client
 import io.nats.client.PushSubscribeOptions
 
 inline fun pushSubscriptionOptions(
-    initializer: PushSubscribeOptions.Builder.() -> Unit,
+    @BuilderInference builder: PushSubscribeOptions.Builder.() -> Unit,
 ): PushSubscribeOptions =
-    PushSubscribeOptions.builder().apply(initializer).build()
+    PushSubscribeOptions.builder().apply(builder).build()
 
 
 fun pushSubscriptionOf(stream: String): PushSubscribeOptions =

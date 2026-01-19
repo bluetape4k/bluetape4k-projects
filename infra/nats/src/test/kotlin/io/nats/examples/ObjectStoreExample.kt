@@ -53,7 +53,7 @@ class ObjectStoreExample: AbstractNatsTest() {
         val dataFiles = createDataFiles(tempFolder)
         getConnection().use { nc ->
             // Setup deletes an existing store, makes a new one.
-            // Comment out if the store is set up, maye to see what upload over an object does
+            // Comment out if the store is set up, mave to see what upload over an object does
             setupStore(nc)
 
             // upload objects
@@ -158,13 +158,8 @@ class ObjectStoreExample: AbstractNatsTest() {
         val name: String = if (isTextIsNotBinary) "text-$size.txt" else "binary-$size.dat"
         val description: String = "$size bytes " + if (isTextIsNotBinary) "text file" else "binary file"
 
-        val inputFile: File
-        val outputFile: File
-
-        init {
-            inputFile = tempFolder.createFile("input-$name")
-            outputFile = tempFolder.createFile("output-$name")
-        }
+        val inputFile: File = tempFolder.createFile("input-$name")
+        val outputFile: File = tempFolder.createFile("output-$name")
 
         companion object: KLogging() {
             @JvmStatic

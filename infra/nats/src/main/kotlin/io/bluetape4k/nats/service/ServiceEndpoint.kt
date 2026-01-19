@@ -4,9 +4,10 @@ import io.nats.service.Endpoint
 import io.nats.service.Group
 import io.nats.service.ServiceEndpoint
 
-inline fun serviceEndpoint(initializer: ServiceEndpoint.Builder.() -> Unit): ServiceEndpoint {
-    return ServiceEndpoint.builder().apply(initializer).build()
-}
+inline fun serviceEndpoint(
+    builder: ServiceEndpoint.Builder.() -> Unit,
+): ServiceEndpoint =
+    ServiceEndpoint.builder().apply(builder).build()
 
 fun serviceEndpointOf(
     group: Group? = null,

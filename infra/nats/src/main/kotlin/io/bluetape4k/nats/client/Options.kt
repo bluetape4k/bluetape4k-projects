@@ -3,15 +3,17 @@ package io.bluetape4k.nats.client
 import io.nats.client.Options
 import java.util.*
 
-inline fun natsOptions(initializer: Options.Builder.() -> Unit): Options {
-    return Options.builder().apply(initializer).build()
+inline fun natsOptions(
+    @BuilderInference builder: Options.Builder.() -> Unit,
+): Options {
+    return Options.builder().apply(builder).build()
 }
 
 inline fun natsOptions(
     properties: Properties,
-    initializer: Options.Builder.() -> Unit = {},
+    builder: Options.Builder.() -> Unit = {},
 ): Options {
-    return Options.Builder(properties).apply(initializer).build()
+    return Options.Builder(properties).apply(builder).build()
 }
 
 fun natsOptionsOf(

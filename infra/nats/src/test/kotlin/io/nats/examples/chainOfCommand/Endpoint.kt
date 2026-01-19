@@ -10,18 +10,17 @@ import io.nats.client.Nats
 import java.time.Duration
 
 abstract class Endpoint(
-    val id: Int,
-    val type: String,
+    id: Int,
+    type: String,
 ): AutoCloseable {
 
     companion object: KLogging()
 
     val endpointId = type + id
-    val nc: Connection
+    val nc: Connection = Nats.connect(AbstractNatsTest.nats.url)
     val dispatcher: Dispatcher
 
     init {
-        nc = Nats.connect(AbstractNatsTest.nats.url)
         dispatcher = nc.createDispatcher(::handle)
         dispatcher.subscribe("$endpointId.>")
         nc.flush(Duration.ofSeconds(1))

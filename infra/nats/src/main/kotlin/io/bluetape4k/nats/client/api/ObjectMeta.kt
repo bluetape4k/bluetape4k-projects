@@ -5,15 +5,15 @@ import io.nats.client.api.ObjectMeta
 
 inline fun objectMeta(
     objectName: String,
-    initializer: ObjectMeta.Builder.() -> Unit,
+    @BuilderInference builder: ObjectMeta.Builder.() -> Unit,
 ): ObjectMeta {
     objectName.requireNotBlank("objectName")
-    return ObjectMeta.builder(objectName).apply(initializer).build()
+    return ObjectMeta.builder(objectName).apply(builder).build()
 }
 
 inline fun objectMeta(
     om: ObjectMeta,
-    initializer: ObjectMeta.Builder.() -> Unit,
+    @BuilderInference builder: ObjectMeta.Builder.() -> Unit,
 ): ObjectMeta {
-    return ObjectMeta.builder(om).apply(initializer).build()
+    return ObjectMeta.builder(om).apply(builder).build()
 }

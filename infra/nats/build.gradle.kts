@@ -32,7 +32,7 @@ dependencies {
     testImplementation(Libs.zstd_jni)
 
     // Serializers
-    testImplementation(Libs.kryo)
+    testImplementation(Libs.kryo5)
     testImplementation(Libs.fory_kotlin)  // new Apache Fory
 
 }

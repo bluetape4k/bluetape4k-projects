@@ -5,9 +5,10 @@ import io.nats.service.Service
 import io.nats.service.ServiceBuilder
 import io.nats.service.ServiceEndpoint
 
-inline fun natsService(initializer: ServiceBuilder.() -> Unit): Service {
-    return ServiceBuilder().apply(initializer).build()
-}
+inline fun natsService(
+    builder: ServiceBuilder.() -> Unit,
+): Service =
+    ServiceBuilder().apply(builder).build()
 
 fun natsServiceOf(
     nc: Connection,

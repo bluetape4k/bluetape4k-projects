@@ -54,8 +54,9 @@ class CoreReplyRequestPatterns: AbstractNatsTest() {
 
         /**
          * Originator will
-         * 1. publish something that multiple workers will respond to
-         * 2. handle the responses from the workers
+         *
+         * - publish something that multiple workers will respond to
+         * - handle the responses from the workers
          */
         inner class Originator(val nc: Connection): Runnable {
 
@@ -200,8 +201,8 @@ class CoreReplyRequestPatterns: AbstractNatsTest() {
 
     @Nested
     inner class Combo {
-        private val WORKER_A_COUNT = 5
-        private val WORKER_B_COUNT = 3
+        private val workerACount = 5
+        private val workerBCount = 3
 
         private fun extractTaskTypeFromSubject(msg: Message): String {
             val at = msg.subject.lastIndexOf(".")
@@ -330,16 +331,16 @@ class CoreReplyRequestPatterns: AbstractNatsTest() {
         fun `scalable workers one reply per request`() {
             getConnection().use { nc ->
                 // Start the workers first. They have to be subscribed before messages get published
-                for (workerId in 1..WORKER_A_COUNT) {
+                for (workerId in 1..workerACount) {
                     thread(start = true) { Worker(nc, "A$workerId", "TaskTypeA", false).run() }
                 }
 
-                for (workerId in 1..WORKER_B_COUNT) {
+                for (workerId in 1..workerBCount) {
                     thread(start = true) { Worker(nc, "B$workerId", "TaskTypeB", true).run() }
                 }
 
                 // Start the originator and let it run
-                val threadA = thread(start = true) { OriginatorA(nc, WORKER_A_COUNT).run() }
+                val threadA = thread(start = true) { OriginatorA(nc, workerACount).run() }
 
                 val threadB = thread(start = true) { OriginatorB(nc).run() }
 

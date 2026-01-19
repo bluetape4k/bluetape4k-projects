@@ -67,10 +67,10 @@ class FetchMessagesExample: AbstractSimpleExample() {
                 while (msg != null) {
                     log.trace { "msg=${msg.data.toUtf8String()}" }
                     msg.ack()
-                    if (++receivedMessages == maxMessages) {
-                        msg = null
+                    msg = if (++receivedMessages == maxMessages) {
+                        null
                     } else {
-                        msg = consumer.nextMessage()
+                        consumer.nextMessage()
                     }
                 }
             }

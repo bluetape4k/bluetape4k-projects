@@ -4,6 +4,6 @@ import io.nats.client.api.ConsumerConfiguration
 
 inline fun consumerConfiguration(
     cc: ConsumerConfiguration? = null,
-    initializer: ConsumerConfiguration.Builder.() -> Unit,
+    @BuilderInference builder: ConsumerConfiguration.Builder.() -> Unit,
 ): ConsumerConfiguration =
-    ConsumerConfiguration.builder(cc).apply(initializer).build()
+    ConsumerConfiguration.builder(cc).apply(builder).build()

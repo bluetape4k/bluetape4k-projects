@@ -2,9 +2,10 @@ package io.bluetape4k.nats.service
 
 import io.nats.service.Endpoint
 
-inline fun endpoint(initializer: Endpoint.Builder.() -> Unit): Endpoint {
-    return Endpoint.builder().apply(initializer).build()
-}
+inline fun endpoint(
+    @BuilderInference builder: Endpoint.Builder.() -> Unit,
+): Endpoint =
+    Endpoint.builder().apply(builder).build()
 
 fun endpointOf(endpoint: Endpoint): Endpoint = endpoint { endpoint(endpoint) }
 
