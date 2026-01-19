@@ -49,7 +49,7 @@ interface AvroReflectSerializer {
      * Avro의 직렬화된 정보를 역직렬화하여 [clazz] 형식의 인스턴스를 빌드합니다.
      *
      * @param T 대상 수형
-     * @param avroBytes [SpecificRecord]의 직렬화된 정보
+     * @param avroText Avro 직렬화된 문자열
      * @return 역직렬화된 Avro 인스턴스, 실패 시에는 null 반환
      */
     fun <T> deserializeFromString(avroText: String?, clazz: Class<T>): T? {
@@ -58,11 +58,10 @@ interface AvroReflectSerializer {
 }
 
 /**
- * [base64String]을 읽어 Avro 역직렬화를 수행하여, 지정된 수형의 인스턴스를 빌드합니다.
+ * [avroBytes]을 읽어 Avro 역직렬화를 수행하여, 지정된 수형의 인스턴스를 빌드합니다.
  *
  * @param T 역직렬화할 수형
- * @param base64String Avro 직렬화된 문자열
- * @param clazz 역직렬화할 수형
+ * @param avroBytes Avro 직렬화된 데이터
  * @return 역직렬화된 Avro 인스턴스, 실패 시에는 null 반환
  */
 inline fun <reified T: Any> AvroReflectSerializer.deserialize(avroBytes: ByteArray?): T? {
@@ -70,10 +69,10 @@ inline fun <reified T: Any> AvroReflectSerializer.deserialize(avroBytes: ByteArr
 }
 
 /**
- * [base64String]을 읽어 Avro 역직렬화를 수행하여, 지정된 수형의 인스턴스를 빌드합니다.
+ * [avroText]을 읽어 Avro 역직렬화를 수행하여, 지정된 수형의 인스턴스를 빌드합니다.
  *
  * @param T 역직렬화할 수형
- * @param base64String Avro 직렬화된 문자열
+ * @param avroText Avro 직렬화된 문자열
  * @return 역직렬화된 Avro 인스턴스, 실패 시에는 null 반환
  */
 inline fun <reified T: Any> AvroReflectSerializer.deserializeFromString(avroText: String?): T? {

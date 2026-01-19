@@ -56,8 +56,8 @@ interface AvroGenericRecordSerializer {
     /**
      * base64로 인코딩된 Avro 직렬화 정보를 Avro [Record]로 역직렬화합니다.
      *
-     * @param base64String 직렬화된 데이터
      * @param schema Avro 객체의 [Schema] 정보
+     * @param avroText 직렬화된 데이터
      * @return 역직렬화된 Avro [Record], 실패 시에는 null 반환
      */
     fun deserializeFromString(schema: Schema, avroText: String?): GenericData.Record? {

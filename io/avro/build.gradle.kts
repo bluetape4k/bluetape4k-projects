@@ -32,7 +32,7 @@ dependencies {
     api(Libs.avro_kotlin)
 
     // Compressor
-    api(Libs.snappy_java)
+    compileOnly(Libs.snappy_java)
     compileOnly(Libs.lz4_java)
     compileOnly(Libs.zstd_jni)
 }
