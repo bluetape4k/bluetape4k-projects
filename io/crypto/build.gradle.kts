@@ -10,9 +10,9 @@ dependencies {
     api(Libs.jasypt)
     api(Libs.bouncycastle_bcprov)
     api(Libs.bouncycastle_bcpkix)
-    api(Libs.commons_codec)
 
     // Coroutines
+    testImplementation(project(":bluetape4k-coroutines"))
     testImplementation(Libs.kotlinx_coroutines_test)
 
 }
