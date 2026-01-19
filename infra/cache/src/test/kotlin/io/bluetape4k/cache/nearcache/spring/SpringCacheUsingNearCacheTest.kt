@@ -1,6 +1,7 @@
 package io.bluetape4k.cache.nearcache.spring
 
 import io.bluetape4k.cache.jcache.jcachingProvider
+import io.bluetape4k.cache.nearcache.redis.RedisNearCacheConfig
 import io.bluetape4k.cache.nearcache.redis.RedisNearCachingProvider
 import io.bluetape4k.cache.nearcache.redis.redisNearCacheConfigurationOf
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
@@ -60,10 +61,10 @@ class SpringCacheUsingNearCacheTest {
 
             /**
              * BackCache 용 redisson jcache 설정인 [RedissonConfiguration] 과
-             * FrontCache 및 공용 설정인 [NearCacheConfig] 을 포함하는 [RedisNearCacheConfig]
+             * FrontCache 및 공용 설정인 [io.bluetape4k.cache.nearcache.NearCacheConfig] 을 포함하는 [RedisNearCacheConfig]
              * 을 생성합니다.
              */
-            val redisNearCacheConfig = redisNearCacheConfigurationOf<Any, Any> {
+            val redisNearCacheConfig: RedisNearCacheConfig<Any, Any> = redisNearCacheConfigurationOf<Any, Any> {
                 this.redissonConfig = redissonConfig as RedissonConfiguration<Any, Any>
             }
 
@@ -88,7 +89,7 @@ class SpringCacheUsingNearCacheTest {
     /**
      * NearCache 를 통해 Spring Cache를 사용하는 SpringBootApplication 입니다.
      *
-     * ** `spring.cache.jcache.provider` 프로퍼티가 [io.bluetape4k.cache.nearcache.redis.RedisNearCachingProvider] 로 설정되어야 합니다.**
+     * ** `spring.cache.jcache.provider` 프로퍼티가 [RedisNearCachingProvider] 로 설정되어야 합니다.**
      *
      * (이 테스트에서의 @SpringBootTest 어노테이션에서 정의해 두었습니다)
      */

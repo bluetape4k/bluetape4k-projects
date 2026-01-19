@@ -88,7 +88,7 @@ abstract class AbstractNearCacheTest {
         await until { nearCache2.containsKey(key) }
 
         backCache.get(key) shouldBeEqualTo value   // 이 것은 write through 로
-        nearCache2.get(key) shouldBeEqualTo value  // 이 것은 cache entry event listener 로 추가됨
+        nearCache2[key] shouldBeEqualTo value  // 이 것은 cache entry event listener 로 추가됨
     }
 
     @RepeatedTest(TEST_SIZE)
@@ -109,7 +109,7 @@ abstract class AbstractNearCacheTest {
 
         backCache.containsKey(key).shouldBeFalse()
         nearCache2.containsKey(key).shouldBeFalse()
-        nearCache2.get(key).shouldBeNull()
+        nearCache2[key].shouldBeNull()
     }
 
     @RepeatedTest(TEST_SIZE)

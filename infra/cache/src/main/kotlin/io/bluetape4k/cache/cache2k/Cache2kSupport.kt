@@ -65,18 +65,18 @@ inline fun <reified K: Any, reified V: Any> cache2k(
  * @param K       cache key type
  * @param V       cache value type
  * @param name    cache name
- * @param setting [Cache2kConfig]을 이용한 설정 코드 block
+ * @param builder [Cache2kConfig]을 이용한 설정 코드 block
  * @return [Cache2kConfig] instance
  */
 inline fun <reified K: Any, reified V: Any> cache2kConfiguration(
     name: String,
-    @BuilderInference setting: Cache2kConfig<K, V>.() -> Unit,
+    @BuilderInference builder: Cache2kConfig<K, V>.() -> Unit,
 ): Cache2kConfig<K, V> {
     name.requireNotBlank("name")
 
     return Cache2kConfig.of(K::class.java, V::class.java)
         .apply { this.name = name }
-        .apply(setting)
+        .apply(builder)
 }
 
 /**

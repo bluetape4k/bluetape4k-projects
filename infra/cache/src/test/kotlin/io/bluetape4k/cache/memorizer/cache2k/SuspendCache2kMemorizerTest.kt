@@ -5,19 +5,21 @@ import io.bluetape4k.cache.memorizer.AbstractSuspendMemorizerTest
 import io.bluetape4k.cache.memorizer.SuspendFactorialProvider
 import io.bluetape4k.cache.memorizer.SuspendFibonacciProvider
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import kotlinx.coroutines.delay
+import org.cache2k.Cache
 import java.util.concurrent.Executors
 
 class SuspendCache2kMemorizerTest: AbstractSuspendMemorizerTest() {
 
     companion object: KLoggingChannel()
 
-    private val cache = cache2k<Int, Int> {
+    private val cache: Cache<Int, Int> = cache2k<Int, Int> {
         this.name("suspend-heavy-func")
         this.executor(Executors.newVirtualThreadPerTaskExecutor())
     }.build()
 
     override val heavyFunc: suspend (Int) -> Int = cache.suspendMemorizer {
-        kotlinx.coroutines.delay(100L)
+        delay(100L)
         it * it
     }
 

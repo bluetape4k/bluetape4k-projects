@@ -7,10 +7,9 @@ class CaffeineSuspendCacheTest: AbstractSuspendCacheTest() {
 
     companion object: KLoggingChannel()
 
-    override val suspendCache by lazy {
+    override val suspendCache =
         CaffeineSuspendCache<String, Any> {
             expireAfterWrite(Duration.ofSeconds(60))
             maximumSize(100_000)
         }
-    }
 }

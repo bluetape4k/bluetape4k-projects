@@ -21,7 +21,7 @@ fun <T: Any, R: Any> ((T) -> CompletableFuture<R>).asyncMemorizer(): AsyncInMemo
  *
  * @property evaluator 캐시 값을 생성하는 메소드
  */
-class AsyncInMemoryMemorizer<in T, R>(
+class AsyncInMemoryMemorizer<in T: Any, R: Any>(
     @BuilderInference private val evaluator: (T) -> CompletableFuture<R>,
 ): AsyncMemorizer<T, R> {
 

@@ -38,14 +38,14 @@ val DefaultEhCacheCacheManager: CacheManager by lazy {
  * val value = cache.get("key") // value is "value"
  * ```
  *
- * @param initializer [ConfigurationBuilder] 초기화 람다
+ * @param builder [ConfigurationBuilder] 초기화 람다
  */
 inline fun ehcacheManager(
-    @BuilderInference initializer: ConfigurationBuilder.() -> Unit,
+    @BuilderInference builder: ConfigurationBuilder.() -> Unit,
 ): CacheManager {
     val configuration = ConfigurationBuilder.newConfigurationBuilder()
         .withDefaultClassLoader()
-        .apply(initializer)
+        .apply(builder)
         .build()
 
     return CacheManagerBuilder.newCacheManager(configuration).apply {

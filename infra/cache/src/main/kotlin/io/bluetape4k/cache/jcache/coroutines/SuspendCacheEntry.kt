@@ -4,7 +4,7 @@ import java.io.Serializable
 import javax.cache.Cache
 
 /**
- * [CoCache]의 entry를 표현합니다.
+ * [SuspendCache]의 entry를 표현합니다.
  *
  * @param K key type
  * @param V value type

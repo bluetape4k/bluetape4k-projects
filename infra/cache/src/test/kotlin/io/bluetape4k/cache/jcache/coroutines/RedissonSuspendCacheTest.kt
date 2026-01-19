@@ -12,11 +12,10 @@ class RedissonSuspendCacheTest: AbstractSuspendCacheTest() {
         val redisson by lazy { RedisServer.Launcher.RedissonLib.getRedisson() }
     }
 
-    override val suspendCache: SuspendCache<String, Any> by lazy {
+    override val suspendCache: SuspendCache<String, Any> =
         RedissonSuspendCache(
             "coroutine-cache-" + UUID.randomUUID().encodeBase62(),
             redisson,
             MutableConfiguration()
         )
-    }
 }

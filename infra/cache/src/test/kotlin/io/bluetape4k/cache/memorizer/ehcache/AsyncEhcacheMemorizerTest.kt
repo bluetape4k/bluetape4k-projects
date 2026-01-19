@@ -6,15 +6,17 @@ import io.bluetape4k.cache.memorizer.AbstractAsyncMemorizerTest
 import io.bluetape4k.cache.memorizer.AsyncFactorialProvider
 import io.bluetape4k.cache.memorizer.AsyncFibonacciProvider
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import org.ehcache.Cache
+import org.ehcache.CacheManager
 import java.util.concurrent.CompletableFuture
 
 class AsyncEhcacheMemorizerTest: AbstractAsyncMemorizerTest() {
 
     companion object: KLoggingChannel()
 
-    private val ehcacheManager = ehcacheManager { }
+    private val ehcacheManager: CacheManager = ehcacheManager { }
 
-    val cache = ehcacheManager.getOrCreateCache<Int, Int>("async-heavy")
+    val cache: Cache<Int, Int> = ehcacheManager.getOrCreateCache<Int, Int>("async-heavy")
 
     override val heavyFunc: (Int) -> CompletableFuture<Int> = cache.asyncMemorizer {
         CompletableFuture.supplyAsync {

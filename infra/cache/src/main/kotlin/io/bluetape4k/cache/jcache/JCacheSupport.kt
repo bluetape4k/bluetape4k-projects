@@ -29,15 +29,15 @@ internal val jcacheLock = ReentrantLock()
  *
  * @param K     key type
  * @param V     value type
- * @param initializer Jcache configuration setup block
+ * @param builder Jcache configuration setup block
  * @return [CompleteConfiguration] instance
  */
 inline fun <reified K, reified V> jcacheConfiguration(
-    @BuilderInference initializer: MutableConfiguration<K, V>.() -> Unit,
+    @BuilderInference builder: MutableConfiguration<K, V>.() -> Unit,
 ): MutableConfiguration<K, V> {
     return MutableConfiguration<K, V>()
         .apply { setTypes(K::class.java, V::class.java) }
-        .apply(initializer)
+        .apply(builder)
 }
 
 /**

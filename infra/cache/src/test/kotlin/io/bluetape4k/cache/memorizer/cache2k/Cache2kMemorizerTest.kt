@@ -5,13 +5,14 @@ import io.bluetape4k.cache.memorizer.AbstractMemorizerTest
 import io.bluetape4k.cache.memorizer.FactorialProvider
 import io.bluetape4k.cache.memorizer.FibonacciProvider
 import io.bluetape4k.logging.KLogging
+import org.cache2k.Cache
 import java.util.concurrent.ForkJoinPool
 
 class Cache2kMemorizerTest: AbstractMemorizerTest() {
 
     companion object: KLogging()
 
-    val cache = cache2k<Int, Int> {
+    val cache: Cache<Int, Int> = cache2k<Int, Int> {
         this.name("heavyFunc")
         this.executor(ForkJoinPool.commonPool())
     }.build()

@@ -1,5 +1,7 @@
 package io.bluetape4k.cache.memorizer.caffeine
 
+import com.github.benmanes.caffeine.cache.Cache
+import com.github.benmanes.caffeine.cache.Caffeine
 import io.bluetape4k.cache.caffeine.cache
 import io.bluetape4k.cache.caffeine.caffeine
 import io.bluetape4k.cache.memorizer.AbstractMemorizerTest
@@ -12,11 +14,11 @@ class CaffeineMemorizerTest: AbstractMemorizerTest() {
 
     companion object: KLogging()
 
-    private val caffeine = caffeine {
+    private val caffeine: Caffeine<Any, Any> = caffeine {
         executor(ForkJoinPool.commonPool())
     }
 
-    val cache = caffeine.cache<Int, Int>()
+    val cache: Cache<Int, Int> = caffeine.cache()
 
     override val heavyFunc: (Int) -> Int = cache.memorizer {
         Thread.sleep(100)

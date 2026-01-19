@@ -41,26 +41,26 @@ fun caffeineSpecOf(specification: String): CaffeineSpec =
  * }
  * ```
  *
- * @param initializer Caffeine 빌더 메소드
+ * @param builder Caffeine 빌더 메소드
  * @return [caffeine] instance
  */
 inline fun caffeine(
-    @BuilderInference initializer: Caffeine<Any, Any>.() -> Unit,
+    @BuilderInference builder: Caffeine<Any, Any>.() -> Unit,
 ) =
-    Caffeine.newBuilder().apply(initializer)
+    Caffeine.newBuilder().apply(builder)
 
 /**
  * `executor` 가 `VirtualThreadExecutor`인 [Caffeine]`<Any, Any>` 빌드합니다.
  *
- * @param initializer Caffeine builder method
+ * @param builder Caffeine builder method
  * @return [caffeine] instance
  */
 inline fun caffeineWithVirtualThread(
-    @BuilderInference initializer: Caffeine<Any, Any>.() -> Unit,
+    @BuilderInference builder: Caffeine<Any, Any>.() -> Unit,
 ) =
     Caffeine.newBuilder()
         .executor(VirtualThreadExecutor)
-        .apply(initializer)
+        .apply(builder)
 
 /**
  * Caffeine Cache인 [Cache]`<K, V>` 를 생성합니다.

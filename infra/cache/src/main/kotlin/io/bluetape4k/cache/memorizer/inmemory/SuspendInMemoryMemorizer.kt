@@ -6,7 +6,7 @@ import io.bluetape4k.logging.trace
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-class SuspendInMemoryMemorizer<in T, out R>(
+class SuspendInMemoryMemorizer<in T: Any, out R: Any>(
     @BuilderInference private val evaluator: suspend (T) -> R,
 ): SuspendMemorizer<T, R> {
 

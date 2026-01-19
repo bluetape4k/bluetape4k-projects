@@ -5,14 +5,13 @@ configurations {
 dependencies {
     api(project(":bluetape4k-io"))
     api(project(":bluetape4k-idgenerators"))
-    compileOnly(project(":bluetape4k-coroutines"))
     testImplementation(project(":bluetape4k-netty"))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // Cache Providers
-    api(Libs.caffeine)
-    api(Libs.caffeine_jcache)
+    compileOnly(Libs.caffeine)
+    compileOnly(Libs.caffeine_jcache)
     compileOnly(Libs.cache2k_core)
     compileOnly(Libs.cache2k_jcache)
     compileOnly(Libs.ehcache)
@@ -22,6 +21,7 @@ dependencies {
     compileOnly(Libs.redisson)
     compileOnly(Libs.jackson_module_kotlin)
 
+    compileOnly(project(":bluetape4k-coroutines"))
     compileOnly(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)
 

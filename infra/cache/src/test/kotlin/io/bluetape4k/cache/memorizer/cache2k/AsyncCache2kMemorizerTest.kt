@@ -5,6 +5,7 @@ import io.bluetape4k.cache.memorizer.AbstractAsyncMemorizerTest
 import io.bluetape4k.cache.memorizer.AsyncFactorialProvider
 import io.bluetape4k.cache.memorizer.AsyncFibonacciProvider
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import org.cache2k.Cache
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ForkJoinPool
 
@@ -13,7 +14,7 @@ class AsyncCache2kMemorizerTest: AbstractAsyncMemorizerTest() {
     companion object: KLoggingChannel()
 
 
-    val cache = cache2k<Int, Int> {
+    val cache: Cache<Int, Int> = cache2k<Int, Int> {
         this.name("async-heavyFunc")
         this.executor(ForkJoinPool.commonPool())
     }.build()
