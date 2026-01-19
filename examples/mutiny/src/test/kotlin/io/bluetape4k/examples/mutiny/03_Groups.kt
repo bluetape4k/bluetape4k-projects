@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CountDownLatch
-import java.util.function.Supplier
 
 
 class GroupsExamples {
@@ -49,7 +48,7 @@ class GroupsExamples {
         val latch = CountDownLatch(1)
         Uni.createFrom().item(123)
             .onItem().call { x -> asyncLog(">>> ", x) }
-            .onTermination().call(Supplier { asyncLog("--- ", "") })
+            .onTermination().call { asyncLog("--- ", "") }
             .subscribe().with { x ->
                 log.debug { x }
                 latch.countDown()

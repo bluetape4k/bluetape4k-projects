@@ -12,7 +12,7 @@
         </encoder>
     </appender>
 
-    <!--    <logger name="io.bluetape4k.examples" level="DEBUG"/>-->
+    <logger name="io.bluetape4k.examples.mutiny" level="DEBUG"/>
 
     <root level="INFO">
         <appender-ref ref="Console"/>
