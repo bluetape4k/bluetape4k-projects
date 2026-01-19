@@ -21,37 +21,37 @@ class KLoggingChannelTest {
     }
 
     @Test
-    fun `logging trace`() = runBlocking<Unit> {
+    fun `logging trace`() = runBlocking {
         trace { "Message at ${Instant.now()}" }
         trace(error) { "Error at ${Instant.now()}" }
     }
 
     @Test
-    fun `logging debug`() = runBlocking<Unit> {
+    fun `logging debug`() = runBlocking {
         debug { "Message at ${Instant.now()}" }
         debug(error) { "Error at ${Instant.now()}" }
     }
 
     @Test
-    fun `logging info`() = runBlocking<Unit> {
+    fun `logging info`() = runBlocking {
         info { "Message at ${Instant.now()}" }
         info(error) { "Error at ${Instant.now()}" }
     }
 
     @Test
-    fun `logging warn`() = runBlocking<Unit> {
+    fun `logging warn`() = runBlocking {
         warn { "Message at ${Instant.now()}" }
         warn(error) { "Error at ${Instant.now()}" }
     }
 
     @Test
-    fun `logging error`() = runBlocking<Unit> {
+    fun `logging error`() = runBlocking {
         error { "Message at ${Instant.now()}" }
         error(error) { "Error at ${Instant.now()}" }
     }
 
     @Test
-    fun `logging in coroutines`() = runBlocking<Unit> {
+    fun `logging in coroutines`() = runBlocking {
         val jobs = List(10) {
             launch(Dispatchers.IO) {
                 debug { "Message at $it" }
