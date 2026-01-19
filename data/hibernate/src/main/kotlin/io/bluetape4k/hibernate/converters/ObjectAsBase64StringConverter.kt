@@ -22,8 +22,7 @@ import jakarta.persistence.Converter
  *     var data: Any? = null
  * }
  *
- * @property serializer
- * @constructor Create empty Abstract object as byte array converter
+ * @property serializer 바이너리 직렬화 
  */
 @Converter
 abstract class AbstractObjectAsBase64StringConverter(

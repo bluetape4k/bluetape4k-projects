@@ -115,7 +115,7 @@ class Author private constructor(
 
 @Entity(name = "onetoone_picture")
 @Access(AccessType.FIELD)
-class Picture private constructor(): IntJpaEntity() {
+class Picture: IntJpaEntity() {
 
     companion object {
         @JvmStatic
@@ -127,8 +127,8 @@ class Picture private constructor(): IntJpaEntity() {
     }
 
     // 이렇게 Id 를 설정하지만, 실제 TABLE에는 id column 은 없다. primary key @MapsId에 해당하는 author_id 가 된다.
-    @Id
-    override var id: Int? = null
+//    @Id
+//    override var id: Int? = null
 
     @MapsId
     @OneToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
@@ -157,7 +157,7 @@ class Picture private constructor(): IntJpaEntity() {
 
 @Entity(name = "onetoone_biography")
 @Access(AccessType.FIELD)
-class Biography private constructor(): AbstractJpaEntity<Int>() {
+class Biography: AbstractJpaEntity<Int>() {
 
     companion object {
         @JvmStatic

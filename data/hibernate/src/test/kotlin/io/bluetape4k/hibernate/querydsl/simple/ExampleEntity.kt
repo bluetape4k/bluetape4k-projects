@@ -29,7 +29,7 @@ class ExampleEntity: LongJpaTreeEntity<ExampleEntity>() { // AbstractJpaTreeEnti
         }
     }
 
-    @NotBlank
+    @get:NotBlank
     var name: String = ""
         protected set
 

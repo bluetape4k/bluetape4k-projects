@@ -113,7 +113,7 @@ class Wife: IntJpaEntity() {
     var name: String = ""
 
     // Bidirectional one-to-one
-    @OneToOne(mappedBy = "wife", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "wife")
     var husband: Husband? = null
 
     override fun equalProperties(other: Any): Boolean {

@@ -36,7 +36,7 @@ value class Ssn(val value: String): Serializable {
 @Access(AccessType.FIELD)
 @DynamicInsert
 @DynamicUpdate
-class CustomIdEntity private constructor(): AbstractJpaEntity<Email>() {
+class CustomIdEntity: AbstractJpaEntity<Email>() {
 
     companion object {
         @JvmStatic

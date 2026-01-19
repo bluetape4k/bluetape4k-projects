@@ -20,7 +20,7 @@ data class CarIdentifier(
 @Entity
 @IdClass(CarIdentifier::class)
 @Access(AccessType.FIELD)
-class IdClassCar private constructor(): AbstractPersistenceObject() {
+class IdClassCar: AbstractPersistenceObject() {
 
     companion object {
         @JvmStatic

@@ -8,7 +8,6 @@ import jakarta.persistence.AccessType
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
-import jakarta.persistence.Id
 import jakarta.persistence.MapsId
 import jakarta.persistence.OneToOne
 import jakarta.persistence.PrimaryKeyJoinColumn
@@ -75,8 +74,8 @@ class Car(val brand: String): IntJpaEntity() {
 @Access(AccessType.FIELD)
 class Wheel(val name: String): IntJpaEntity() {
 
-    @Id
-    override var id: Int? = null
+//    @Id
+//    override var id: Int? = null
 
     @MapsId
     @PrimaryKeyJoinColumn(name = "car_id")

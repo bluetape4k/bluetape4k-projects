@@ -16,10 +16,9 @@ import org.hibernate.persister.entity.EntityPersister
  *
  * 이벤트가 발생한 후에 로깅을 수행합니다.
  */
-class HibernateEntityListener:
-    PostCommitDeleteEventListener,
-    PostCommitInsertEventListener,
-    PostCommitUpdateEventListener {
+class HibernateEntityListener: PostCommitDeleteEventListener,
+                               PostCommitInsertEventListener,
+                               PostCommitUpdateEventListener {
 
     companion object: KLogging()
 

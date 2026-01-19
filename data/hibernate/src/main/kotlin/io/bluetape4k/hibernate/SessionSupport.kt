@@ -4,8 +4,9 @@ import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requirePositiveNumber
 import org.hibernate.Session
+import org.slf4j.Logger
 
-private val log by lazy { KotlinLogging.logger { } }
+private val log: Logger by lazy { KotlinLogging.logger { } }
 
 /**
  * [batchSize]를 설정하고 [block]을 실행합니다.

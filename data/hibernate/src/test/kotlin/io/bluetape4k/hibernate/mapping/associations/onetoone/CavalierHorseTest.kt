@@ -57,7 +57,7 @@ class CavalierHorseTest(
 
 @Entity(name = "onetoone_cavalier")
 @Access(AccessType.FIELD)
-class Cavalier private constructor(): IntJpaEntity() {
+class Cavalier: IntJpaEntity() {
 
     companion object {
         @JvmStatic
@@ -96,7 +96,7 @@ class Cavalier private constructor(): IntJpaEntity() {
 
 @Entity(name = "onetoone_horse")
 @Access(AccessType.FIELD)
-class Horse private constructor(): IntJpaEntity() {
+class Horse: IntJpaEntity() {
 
     companion object {
         @JvmStatic

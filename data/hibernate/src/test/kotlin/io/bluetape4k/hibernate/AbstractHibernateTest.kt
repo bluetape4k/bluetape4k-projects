@@ -11,7 +11,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 
 /**
- * `@DataJpaTest`를 사용하려면 SprinBootApplication 이 정의되어 있어야 합니다 (see [SpringDataJpaTestApplication])
+ * `@DataJpaTest`를 사용하려면 SprinBootApplication 이 정의되어 있어야 합니다 (see [HibernateApplication])
  *
  * 참고: [Hibernate Configuration](https://docs.jboss.org/hibernate/orm/5.6/userguide/html_single/Hibernate_User_Guide.html#configurations)
  */

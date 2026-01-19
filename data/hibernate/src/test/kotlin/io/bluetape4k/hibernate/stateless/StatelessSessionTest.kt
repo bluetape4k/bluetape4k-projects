@@ -130,6 +130,7 @@ class StatelessSessionTest: AbstractHibernateTest() {
         }
 
         val masters = tem.entityManager.withStateless { stateless ->
+            @Suppress("DEPRECATION")
             stateless.createNativeQuery("select * from stateless_master").list()
         }
 
@@ -139,7 +140,7 @@ class StatelessSessionTest: AbstractHibernateTest() {
             val row = it as Array<Any?>
             val id = row[0].asInt()
             val name = row[1].asString()
-            val master = StatelessMaster(name).also { it.id = id }
+            val master = StatelessMaster(name).also { master -> master.id = id }
             log.debug { "master=$master" }
         }
 

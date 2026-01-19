@@ -100,7 +100,8 @@ dependencies {
     testImplementation(Libs.lz4_java)
     testImplementation(Libs.zstd_jni)
 
-    compileOnly(project(":bluetape4k-idgenerators"))
+    api(project(":bluetape4k-idgenerators"))
+    api(Libs.java_uuid_generator)
 
     // TODO: querydsl-kotlin-codegen 은 tree entity 도 못 만들고, spring-data-jpa 의 repository에서 문제가 생긴다.
     // https://github.com/querydsl/querydsl/issues/3454

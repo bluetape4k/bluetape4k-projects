@@ -8,7 +8,7 @@ import org.hibernate.StatelessSession
 /**
  * [block]을 [StatelessSession] 환경하에서 작업을 수행합니다.
  *
- * 참고 : [Hibernate’s StatelessSession – What it is and how to use it](https://thorben-janssen.com/hibernates-statelesssession/)
+ * 참고: [Hibernate’s StatelessSession – What it is and how to use it](https://thorben-janssen.com/hibernates-statelesssession/)
  *
  * ```
  * sessionFactory.withStateless { stateless ->
@@ -48,7 +48,7 @@ inline fun <T: Any> SessionFactory.withStatelss(block: (StatelessSession) -> T?)
 /**
  * [block]을 [StatelessSession] 환경하에서 작업을 수행합니다.
  *
- * 참고 : [Hibernate’s StatelessSession – What it is and how to use it](https://thorben-janssen.com/hibernates-statelesssession/)
+ * 참고: [Hibernate’s StatelessSession – What it is and how to use it](https://thorben-janssen.com/hibernates-statelesssession/)
  *
  * ```
  * entityManager.withStateless { stateless ->
