@@ -81,7 +81,7 @@ object BookSchema {
     }
 
     /**
-     * CompositeIdTable with 2 key columns - string & long (neither db-generated)
+     * CompositeIdTable with 2 key columns - string and long (neither db-generated)
      *
      * ```sql
      * CREATE TABLE IF NOT EXISTS reviews (

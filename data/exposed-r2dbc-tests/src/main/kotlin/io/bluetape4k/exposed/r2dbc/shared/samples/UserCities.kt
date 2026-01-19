@@ -63,7 +63,7 @@ object UserTable: IntIdTable() {
 
 
 /**
- * City - User  Many-to-many relationship table
+ * City - User Many-to-many relationship table
  *
  * ```sql
  * CREATE TABLE IF NOT EXISTS usertocity (

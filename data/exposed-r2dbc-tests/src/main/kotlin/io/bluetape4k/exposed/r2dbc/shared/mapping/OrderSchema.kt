@@ -112,7 +112,7 @@ object OrderSchema {
                 it[id] = 44
                 it[description] = "Outfield Glove"
             }
-            val item4 = ItemTable.insertAndGetId {
+            ItemTable.insertAndGetId {
                 it[id] = 55
                 it[description] = "Catcher Glove"
             }
