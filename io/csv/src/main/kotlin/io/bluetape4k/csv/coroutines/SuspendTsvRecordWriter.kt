@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import java.io.Writer
 
 /**
- * TSV 포맷으로 데이터를 파일로 쓰는 [CoRecordWriter] 입니다.
+ * TSV 포맷으로 데이터를 파일로 쓰는 [SuspendRecordWriter] 입니다.
  *
  * ```
  * val writer = CoTsvRecordWriter(output)

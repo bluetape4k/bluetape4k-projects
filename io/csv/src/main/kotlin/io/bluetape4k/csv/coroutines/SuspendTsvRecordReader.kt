@@ -16,7 +16,7 @@ import java.nio.charset.Charset
  * Coroutines 환경 하에서 TSV 포맷의 Record 를 읽어드립니다.
  *
  * ```
- * val reader = CoTsvRecordReader()
+ * val reader = SuspendTsvRecordReader()
  * val items:Flow<Item> = reader.read(input, Charsets.UTF_8, skipHeaders = true) { record ->
  *     // record 처리
  *     // record to item by recordMapper

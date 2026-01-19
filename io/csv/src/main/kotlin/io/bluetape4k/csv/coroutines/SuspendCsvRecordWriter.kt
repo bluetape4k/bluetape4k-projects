@@ -8,10 +8,10 @@ import kotlinx.coroutines.flow.Flow
 import java.io.Writer
 
 /**
- * CSV 포맷으로 데이터를 파일로 쓰는 [CoRecordWriter] 입니다.
+ * CSV 포맷으로 데이터를 파일로 쓰는 [SuspendRecordWriter] 입니다.
  *
  * ```
- * val writer = CoCsvRecordWriter(output)
+ * val writer = SuspendCsvRecordWriter(output)
  * writer.writeHeaders(listOf("name", "age"))
  * writer.writeRow(listOf("Alice", 20))
  * writer.writeRow(listOf("Bob", 30))

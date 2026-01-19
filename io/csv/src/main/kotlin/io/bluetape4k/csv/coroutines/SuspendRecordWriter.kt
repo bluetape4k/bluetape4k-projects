@@ -8,7 +8,7 @@ import java.io.Closeable
  * Coroutines 환경하에서 CSV/TSV Record를 쓰는 Writer 입니다.
  *
  * ```
- * val writer = CoCsvRecordWriter(output)
+ * val writer = SuspendCsvRecordWriter(output)
  * writer.writeHeaders(listOf("name", "age"))
  * writer.writeRow(listOf("Alice", 20))
  * writer.writeRow(listOf("Bob", 30))

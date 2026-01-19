@@ -37,8 +37,8 @@ class TsvRecordReader(
         transform: (Record) -> T,
     ): Sequence<T> {
         return TsvParser(settings).iterateRecords(input, encoding)
+            .asSequence()
             .drop(if (skipHeaders) 1 else 0)
             .map { record -> transform(record) }
-            .asSequence()
     }
 }

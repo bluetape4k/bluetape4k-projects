@@ -36,9 +36,10 @@ class CsvRecordReader(
         skipHeaders: Boolean,
         transform: (Record) -> T,
     ): Sequence<T> {
-        return CsvParser(settings).iterateRecords(input, encoding)
+        return CsvParser(settings)
+            .iterateRecords(input, encoding)
+            .asSequence()
             .drop(if (skipHeaders) 1 else 0)
             .map { record -> transform(record) }
-            .asSequence()
     }
 }
