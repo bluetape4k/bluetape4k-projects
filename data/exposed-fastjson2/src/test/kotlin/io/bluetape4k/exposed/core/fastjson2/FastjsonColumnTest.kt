@@ -163,7 +163,7 @@ class FastjsonColumnTest: AbstractExposedTest() {
                 it[fastjsonColumn] = data1.copy(logins = 1000)
             }
 
-            // Postgres requires type casting to compare json field as integer value in DB
+            // Postgres 는 json 필드를 integer 값과 비교하기 위해 타입 캐스팅이 필요합니다.
             val logins = when (currentDialectTest) {
                 is PostgreSQLDialect -> tester.fastjsonColumn.extract<Int>("logins").castTo(IntegerColumnType())
                 else -> tester.fastjsonColumn.extract<Int>(".logins")
@@ -280,7 +280,6 @@ class FastjsonColumnTest: AbstractExposedTest() {
             var userIsInAlphaTeam = tester.fastjsonColumn.contains(stringLiteral(alphaTeamUserAsJson))
             tester.selectAll().where { userIsInAlphaTeam }.count() shouldBeEqualTo 1L
 
-            // test target contains candidate at specified path
             if (testDB in TestDB.ALL_MYSQL_LIKE) {
                 userIsInAlphaTeam = tester.fastjsonColumn.contains("\"Alpha\"", ".user.team")
                 val alphaTeamUsers = tester.select(tester.id).where { userIsInAlphaTeam }
@@ -336,7 +335,6 @@ class FastjsonColumnTest: AbstractExposedTest() {
             val hasLogins = tester.fastjsonColumn.exists(".logins", optional = optional)
             tester.selectAll().where { hasLogins }.count() shouldBeEqualTo 2L
 
-            // test data at path exists with filter condition & optional arguments
             val testDialect = currentDialectTest
             if (testDialect is OracleDialect || testDialect is SQLServerDialect) {
                 val filterPath = when (testDialect) {
@@ -348,8 +346,8 @@ class FastjsonColumnTest: AbstractExposedTest() {
                 usersWithMaxLogins.single()[tester.id] shouldBeEqualTo newId
 
                 val (jsonPath, optionalArg) = when (testDialect) {
-                    is OracleDialect -> "?(@.user.team == \$team)" to "PASSING '$teamA' AS \"team\""
-                    else -> ".user.team ? (@ == \$team)" to "{\"team\":\"$teamA\"}"
+                    is OracleDialect -> $$"?(@.user.team == $team)" to "PASSING '$teamA' AS \"team\""
+                    else -> $$".user.team ? (@ == $team)" to "{\"team\":\"$teamA\"}"
                 }
                 val isOnTeamA = tester.fastjsonColumn.exists(jsonPath, optional = optionalArg)
                 val usersOnTeamA = tester.select(tester.id).where { isOnTeamA }

@@ -311,7 +311,7 @@ class FastjsonBColumnTest: AbstractExposedTest() {
 
                 // SELECT fastjson_b_table.id FROM fastjson_b_table
                 //  WHERE JSONB_PATH_EXISTS(fastjson_b_table.fastjson_b_column, '$.user.team ? (@ == $team)', '{"team":"A"}')
-                val (jsonPath, optionalArg) = ".user.team ? (@ == \$team)" to "{\"team\":\"$teamA\"}"
+                val (jsonPath, optionalArg) = $$".user.team ? (@ == $team)" to "{\"team\":\"$teamA\"}"
                 val isOnTeamA = tester.fastjsonBColumn.exists(jsonPath, optional = optionalArg)
                 val usersOnTeamA = tester.select(tester.id).where { isOnTeamA }
                 usersOnTeamA.single()[tester.id] shouldBeEqualTo newId

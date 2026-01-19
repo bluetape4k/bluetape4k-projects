@@ -32,16 +32,16 @@ open class FastjsonColumnType<T: Any>(
 
     @Suppress("UNCHECKED_CAST")
     override fun valueFromDB(value: Any): T? {
-        return when {
-            value is String -> deserialize(value)
-            value is ByteArray -> deserialize(value.toUtf8String())
+        return when (value) {
+            is String -> deserialize(value)
+            is ByteArray -> deserialize(value.toUtf8String())
             else -> value as? T ?: error("Unexpected value $value of type ${value::class.qualifiedName}")
         }
     }
 
-    override fun parameterMarker(value: T?): String = when {
-        currentDialect is H2Dialect && value != null -> "? FORMAT JSON"
-        currentDialect is PostgreSQLDialect && value != null -> {
+    override fun parameterMarker(value: T?): String = when (currentDialect) {
+        is H2Dialect if value != null -> "? FORMAT JSON"
+        is PostgreSQLDialect if value != null -> {
             val castType = if (usesBinaryFormat) "jsonb" else "json"
             "?::$castType"
         }
