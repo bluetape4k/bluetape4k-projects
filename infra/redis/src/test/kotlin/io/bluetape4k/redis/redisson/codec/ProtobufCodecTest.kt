@@ -52,7 +52,7 @@ class ProtobufCodecTest: AbstractRedissonTest() {
     private fun newSimpleMessage() = simpleMessage {
         id = faker.random().nextLong()
         name = faker.name().fullName()
-        description = Fakers.randomString(1024, 4096, true)
+        description = Fakers.randomString(1024, 4096)
         timestamp = Instant.now().toProtobufTimestamp()
     }
 

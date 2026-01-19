@@ -56,7 +56,7 @@ dependencies {
     compileOnly(Libs.lettuce_core)
 
     // Spring Data Redis
-    compileOnly(Libs.springData("redis"))
+    // compileOnly(Libs.springData("redis"))
     compileOnly(Libs.springBootStarter("data-redis"))
 
     testImplementation(Libs.springBootStarter("test")) {
@@ -65,16 +65,20 @@ dependencies {
         exclude(module = "mockito-core")
     }
 
-    // Codecs
-    compileOnly(Libs.kryo)
-    compileOnly(Libs.fory_kotlin)  // new Apache Fory
-
-    compileOnly(Libs.jackson_dataformat_protobuf)
-
     // Json
     compileOnly(project(":bluetape4k-jackson"))
     compileOnly(Libs.jackson_module_kotlin)
     compileOnly(Libs.jackson_module_blackbird)
+    compileOnly(Libs.jackson_dataformat_protobuf)
+
+    // Protobuf
+    compileOnly(Libs.protobuf_java)
+    compileOnly(Libs.protobuf_java_util)
+    compileOnly(Libs.protobuf_kotlin)
+
+    // Codecs
+    compileOnly(Libs.fory_kotlin)
+    compileOnly(Libs.kryo5)
 
     // Compressor
     compileOnly(Libs.commons_compress)
@@ -82,11 +86,7 @@ dependencies {
     compileOnly(Libs.lz4_java)
     compileOnly(Libs.zstd_jni)
 
-    // Protobuf
-    compileOnly(Libs.protobuf_java)
-    compileOnly(Libs.protobuf_java_util)
-    compileOnly(Libs.protobuf_kotlin)
-
+    // Cache
     compileOnly(Libs.caffeine)
     compileOnly(Libs.caffeine_jcache)
 

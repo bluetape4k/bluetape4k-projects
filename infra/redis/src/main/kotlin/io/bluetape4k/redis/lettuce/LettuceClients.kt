@@ -27,10 +27,12 @@ object LettuceClients: KLogging() {
         host: String = RedisConst.DEFAULT_HOST,
         port: Int = RedisConst.DEFAULT_PORT,
         timeoutInMillis: Long = RedisConst.DEFAULT_TIMEOUT_MILLIS,
-    ): RedisURI {
-        return RedisURI.builder().withHost(host).withPort(port)
-            .withTimeout(timeoutInMillis.milliseconds.toJavaDuration()).build()
-    }
+    ): RedisURI =
+        RedisURI.builder()
+            .withHost(host)
+            .withPort(port)
+            .withTimeout(timeoutInMillis.milliseconds.toJavaDuration())
+            .build()
 
     /**
      * [RedisClient] 인스턴스를 생성합니다.

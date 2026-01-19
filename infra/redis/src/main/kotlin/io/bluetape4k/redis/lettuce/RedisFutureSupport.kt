@@ -8,7 +8,6 @@ import kotlinx.coroutines.future.await
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
 
-
 /**
  * Awaits for completions of [RedisFuture] without blocking a thread.
  *

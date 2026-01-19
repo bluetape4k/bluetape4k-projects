@@ -12,6 +12,7 @@ object RedisBinarySerializers {
 
     val Jdk by unsafeLazy { RedisBinarySerializer(BinarySerializers.Jdk) }
     val Kryo by unsafeLazy { RedisBinarySerializer(BinarySerializers.Kryo) }
+    val Fory by unsafeLazy { RedisBinarySerializer(BinarySerializers.Fory) }
 
     val Gzip by unsafeLazy { RedisCompressSerializer(Compressors.GZip) }
     val LZ4 by unsafeLazy { RedisCompressSerializer(Compressors.LZ4) }

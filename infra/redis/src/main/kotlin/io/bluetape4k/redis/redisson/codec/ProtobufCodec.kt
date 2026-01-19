@@ -21,9 +21,10 @@ typealias AnyMessage = com.google.protobuf.Any
  * Proto Buffer 객체를 Redisson 에서 사용하기 위한 Codec
  *
  * @property fallbackCodec 내부 코덱
- * @constructor Create empty Protobuf codec
  */
-class ProtobufCodec @JvmOverloads constructor(private val fallbackCodec: Codec = RedissonCodecs.Default): BaseCodec() {
+class ProtobufCodec @JvmOverloads constructor(
+    private val fallbackCodec: Codec = RedissonCodecs.Default,
+): BaseCodec() {
 
     // classLoader를 인자로 받는 보조 생성자는 Redisson에서 환경설정 정보를 바탕으로 동적으로 Codec 생성 시에 필요합니다.
     @Suppress("UNUSED_PARAMETER")
@@ -45,7 +46,7 @@ class ProtobufCodec @JvmOverloads constructor(private val fallbackCodec: Codec =
     }
 
     @Suppress("UNCHECKED_CAST")
-    private val decoder: Decoder<Any> = Decoder<Any> { buf: ByteBuf, state: State ->
+    private val decoder: Decoder<Any> = Decoder { buf: ByteBuf, state: State ->
         try {
             val bytes = buf.getBytes(copy = false)
             val any = AnyMessage.parseFrom(bytes)

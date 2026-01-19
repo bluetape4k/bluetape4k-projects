@@ -9,13 +9,13 @@ import org.redisson.api.options.LocalCachedMapOptions
  *
  * @param name 캐시 이름
  * @param redissonClient RedissonClient
- * @param block LocalCachedMapOptions 설정
+ * @param builder LocalCachedMapOptions 설정
  */
 inline fun <reified K: Any, reified V: Any> localCachedMap(
     name: String,
     redissonClient: RedissonClient,
-    block: LocalCachedMapOptions<K, V>.() -> Unit = {},
+    @BuilderInference builder: LocalCachedMapOptions<K, V>.() -> Unit = {},
 ): RLocalCachedMap<K, V> {
-    val options = LocalCachedMapOptions.name<K, V>(name).apply(block)
+    val options = LocalCachedMapOptions.name<K, V>(name).apply(builder)
     return redissonClient.getLocalCachedMap(options)
 }

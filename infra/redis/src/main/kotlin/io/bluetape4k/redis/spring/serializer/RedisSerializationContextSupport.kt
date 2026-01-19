@@ -25,18 +25,18 @@ import org.springframework.data.redis.serializer.StringRedisSerializer
  * @param K Key type
  * @param V Value type
  * @param defaultSerializer  default serializer
- * @param initializer  [RedisSerializationContext.RedisSerializationContextBuilder] initializer
+ * @param builder  [RedisSerializationContext.RedisSerializationContextBuilder] initializer
  * @return [RedisSerializationContext] instance
  */
 inline fun <K: Any, V: Any> redisSerializationContext(
     defaultSerializer: RedisSerializer<*>? = null,
-    initializer: RedisSerializationContext.RedisSerializationContextBuilder<K, V>.() -> Unit,
+    @BuilderInference builder: RedisSerializationContext.RedisSerializationContextBuilder<K, V>.() -> Unit,
 ): RedisSerializationContext<K, V> {
     val context = defaultSerializer?.let {
         RedisSerializationContext.newSerializationContext(it)
     } ?: RedisSerializationContext.newSerializationContext<K, V>()
 
-    return context.apply(initializer).build()
+    return context.apply(builder).build()
 }
 
 /**
@@ -65,15 +65,16 @@ fun <K: Any, V: Any> redisSerializationContextOf(
     keySerializer: RedisSerializer<K>,
     valueSerializer: RedisSerializer<V>,
     defaultSerializer: RedisSerializer<*>? = null,
-    initializer: RedisSerializationContext.RedisSerializationContextBuilder<K, V>.() -> Unit = {},
-): RedisSerializationContext<K, V> = redisSerializationContext(defaultSerializer) {
-    key(keySerializer)
-    value(valueSerializer)
-    hashKey(keySerializer)
-    hashValue(valueSerializer)
+    @BuilderInference builder: RedisSerializationContext.RedisSerializationContextBuilder<K, V>.() -> Unit = {},
+): RedisSerializationContext<K, V> =
+    redisSerializationContext(defaultSerializer) {
+        key(keySerializer)
+        value(valueSerializer)
+        hashKey(keySerializer)
+        hashValue(valueSerializer)
 
-    initializer()
-}
+        builder()
+    }
 
 /**
  * Spring Data Redis용 [RedisSerializationContext]`<String, V>` 를 빌드합니다.
@@ -97,12 +98,13 @@ fun <K: Any, V: Any> redisSerializationContextOf(
 fun <V: Any> redisSerializationContextOf(
     valueSerializer: RedisSerializer<V>,
     defaultSerializer: RedisSerializer<*>? = null,
-    initializer: RedisSerializationContext.RedisSerializationContextBuilder<String, V>.() -> Unit = {},
-): RedisSerializationContext<String, V> = redisSerializationContext(defaultSerializer) {
-    key(StringRedisSerializer.UTF_8)
-    value(valueSerializer)
-    hashKey(StringRedisSerializer.UTF_8)
-    hashValue(valueSerializer)
+    @BuilderInference builder: RedisSerializationContext.RedisSerializationContextBuilder<String, V>.() -> Unit = {},
+): RedisSerializationContext<String, V> =
+    redisSerializationContext(defaultSerializer) {
+        key(StringRedisSerializer.UTF_8)
+        value(valueSerializer)
+        hashKey(StringRedisSerializer.UTF_8)
+        hashValue(valueSerializer)
 
-    initializer()
-}
+        builder()
+    }

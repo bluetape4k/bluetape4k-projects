@@ -4,11 +4,11 @@ import io.bluetape4k.concurrent.sequence
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.future.await
 import org.redisson.api.RFuture
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
-import kotlin.coroutines.coroutineContext
 
 /**
  * [RFuture]의 컬렉션을 하나의 CompletableFuture로 변환합니다.
@@ -34,7 +34,7 @@ fun <V> Iterable<RFuture<out V>>.sequence(
  * }
  */
 suspend fun <V> Collection<RFuture<out V>>.awaitAll(): List<V> {
-    val executor = coroutineContext[CoroutineDispatcher]?.asExecutor()
+    val executor = currentCoroutineContext()[CoroutineDispatcher]?.asExecutor()
         ?: Dispatchers.Default.asExecutor()
 
     return sequence(executor).await()

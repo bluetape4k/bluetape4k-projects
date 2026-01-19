@@ -30,8 +30,8 @@ class RedisCompressSerializer private constructor(
         }
     }
 
-    override fun serialize(t: ByteArray?): ByteArray? {
-        return t?.let { compressor.compress(it) }
+    override fun serialize(value: ByteArray?): ByteArray? {
+        return value?.let { compressor.compress(it) }
     }
 
     override fun deserialize(bytes: ByteArray?): ByteArray? {

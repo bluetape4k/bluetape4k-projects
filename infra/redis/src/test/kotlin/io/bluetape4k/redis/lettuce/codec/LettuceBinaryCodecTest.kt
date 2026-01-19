@@ -21,34 +21,34 @@ class LettuceBinaryCodecTest: AbstractLettuceTest() {
 
     private fun getRedisCodecs(): List<LettuceBinaryCodec<out Any>> = listOf(
         LettuceBinaryCodecs.jdk(),
+        LettuceBinaryCodecs.fory(),
         LettuceBinaryCodecs.kryo(),
         LettuceBinaryCodecs.protobuf(),
-        LettuceBinaryCodecs.fory(),
 
         LettuceBinaryCodecs.gzipJdk(),
+        LettuceBinaryCodecs.gzipFory(),
         LettuceBinaryCodecs.gzipKryo(),
         LettuceBinaryCodecs.gzipProtobuf(),
-        LettuceBinaryCodecs.gzipFory(),
 
         LettuceBinaryCodecs.deflateJdk(),
+        LettuceBinaryCodecs.deflateFory(),
         LettuceBinaryCodecs.deflateKryo(),
         LettuceBinaryCodecs.deflateProtobuf(),
-        LettuceBinaryCodecs.deflateFory(),
 
         LettuceBinaryCodecs.lz4Jdk(),
+        LettuceBinaryCodecs.lz4Fory(),
         LettuceBinaryCodecs.lz4Kryo(),
         LettuceBinaryCodecs.lz4Protobuf(),
-        LettuceBinaryCodecs.lz4Fory(),
 
         LettuceBinaryCodecs.snappyJdk(),
+        LettuceBinaryCodecs.snappyFory(),
         LettuceBinaryCodecs.snappyKryo(),
         LettuceBinaryCodecs.snappyProtobuf(),
-        LettuceBinaryCodecs.snappyFory(),
 
         LettuceBinaryCodecs.zstdJdk(),
+        LettuceBinaryCodecs.zstdFory(),
         LettuceBinaryCodecs.zstdKryo(),
         LettuceBinaryCodecs.zstdProtobuf(),
-        LettuceBinaryCodecs.zstdFory(),
     )
 
     @ParameterizedTest(name = "codec={0}")

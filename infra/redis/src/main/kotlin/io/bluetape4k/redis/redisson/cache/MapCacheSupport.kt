@@ -9,13 +9,13 @@ import org.redisson.api.options.MapCacheOptions
  *
  * @param name 캐시 이름
  * @param redissonClient RedissonClient
- * @param block MapCacheOptions 설정
+ * @param builder MapCacheOptions 설정
  */
 inline fun <reified K: Any, reified V: Any> mapCache(
     name: String,
     redissonClient: RedissonClient,
-    block: MapCacheOptions<K, V>.() -> Unit = {},
+    @BuilderInference builder: MapCacheOptions<K, V>.() -> Unit = {},
 ): RMapCache<K, V> {
-    val options = MapCacheOptions.name<K, V>(name).apply(block)
+    val options = MapCacheOptions.name<K, V>(name).apply(builder)
     return redissonClient.getMapCache(options)
 }

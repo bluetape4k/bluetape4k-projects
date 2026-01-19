@@ -48,7 +48,10 @@ class RedissonSuspendLeaderElection private constructor(
      * @param action leader 로 승격되면 수행할 코드 블럭
      * @return 작업 결과
      */
-    override suspend fun <T> runIfLeader(lockName: String, action: suspend () -> T): T = coroutineScope {
+    override suspend fun <T> runIfLeader(
+        lockName: String,
+        action: suspend () -> T,
+    ): T = coroutineScope {
         lockName.requireNotBlank("lockName")
 
         val lock: RLock = redissonClient.getLock(lockName)

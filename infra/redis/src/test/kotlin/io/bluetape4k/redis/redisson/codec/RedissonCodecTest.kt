@@ -32,45 +32,45 @@ class RedissonCodecTest: AbstractRedissonTest() {
     private fun getRedissonBinaryCodecs() = listOf(
         RedissonCodecs.Default,
 
-        RedissonCodecs.Kryo5,
-        RedissonCodecs.Fory,
         RedissonCodecs.Jdk,
+        RedissonCodecs.Fory,
+        RedissonCodecs.Kryo5,
 
-        RedissonCodecs.Kryo5Composite,
-        RedissonCodecs.ForyComposite,
         RedissonCodecs.JdkComposite,
+        RedissonCodecs.ForyComposite,
+        RedissonCodecs.Kryo5Composite,
 
-        RedissonCodecs.SnappyKryo5,
-        RedissonCodecs.SnappyFory,
         RedissonCodecs.SnappyJdk,
+        RedissonCodecs.SnappyFory,
+        RedissonCodecs.SnappyKryo5,
 
-        RedissonCodecs.SnappyKryo5Composite,
-        RedissonCodecs.SnappyForyComposite,
         RedissonCodecs.SnappyJdkComposite,
+        RedissonCodecs.SnappyForyComposite,
+        RedissonCodecs.SnappyKryo5Composite,
 
-        RedissonCodecs.LZ4Kryo5,
-        RedissonCodecs.LZ4Fory,
         RedissonCodecs.LZ4Jdk,
+        RedissonCodecs.LZ4Fory,
+        RedissonCodecs.LZ4Kryo5,
 
-        RedissonCodecs.LZ4Kryo5Composite,
-        RedissonCodecs.LZ4ForyComposite,
         RedissonCodecs.LZ4JdkComposite,
+        RedissonCodecs.LZ4ForyComposite,
+        RedissonCodecs.LZ4Kryo5Composite,
 
-        RedissonCodecs.ZstdKryo5,
-        RedissonCodecs.ZstdFory,
         RedissonCodecs.ZstdJdk,
+        RedissonCodecs.ZstdFory,
+        RedissonCodecs.ZstdKryo5,
 
-        RedissonCodecs.ZstdKryo5Composite,
-        RedissonCodecs.ZstdForyComposite,
         RedissonCodecs.ZstdJdkComposite,
+        RedissonCodecs.ZstdForyComposite,
+        RedissonCodecs.ZstdKryo5Composite,
 
-        RedissonCodecs.GzipKryo5,
-        RedissonCodecs.GzipFory,
         RedissonCodecs.GzipJdk,
+        RedissonCodecs.GzipFory,
+        RedissonCodecs.GzipKryo5,
 
-        RedissonCodecs.GzipKryo5Composite,
-        RedissonCodecs.GzipForyComposite,
         RedissonCodecs.GzipJdkComposite,
+        RedissonCodecs.GzipForyComposite,
+        RedissonCodecs.GzipKryo5Composite,
     )
 
     @ParameterizedTest(name = "codec={0}")

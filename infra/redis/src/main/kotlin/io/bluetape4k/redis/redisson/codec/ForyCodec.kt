@@ -13,12 +13,13 @@ import org.redisson.client.codec.Codec
 import org.redisson.client.handler.State
 import org.redisson.client.protocol.Decoder
 import org.redisson.client.protocol.Encoder
+import org.redisson.codec.Kryo5Codec
 
 /**
  * Apache Fory 알고리즘으로 직렬화/역직렬화를 수행하는 Codec
  *
- * @see io.bluetape4k.io.serialize.FurySerializer
- * @see io.bluetape4k.io.serialize.BinarySerializers.Fury
+ * @see io.bluetape4k.io.serializer.ForyBinarySerializer
+ * @see io.bluetape4k.io.serializer.BinarySerializers.Fory
  *
  * @property fallbackCodec  대체 Codec ([Kryo5Codec]) 인스턴스
  */
@@ -45,7 +46,7 @@ class ForyCodec @JvmOverloads constructor(
         }
     }
 
-    private val decoder: Decoder<Any> = Decoder<Any> { buf: ByteBuf, state: State ->
+    private val decoder: Decoder<Any> = Decoder { buf: ByteBuf, state: State ->
         try {
             val bytes = ByteBufUtil.getBytes(buf, buf.readerIndex(), buf.readableBytes(), true)
             fory.deserialize(bytes)

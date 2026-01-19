@@ -38,7 +38,7 @@ class Lz4Codec @JvmOverloads constructor(
         Unpooled.wrappedBuffer(lz4.compress(bytes))
     }
 
-    private val decoder: Decoder<Any> = Decoder<Any> { buf: ByteBuf, state: State ->
+    private val decoder: Decoder<Any> = Decoder { buf: ByteBuf, state: State ->
         val bytes = ByteBufUtil.getBytes(buf, buf.readerIndex(), buf.readableBytes(), true)
         val decoded = Unpooled.wrappedBuffer(lz4.decompress(bytes))
 

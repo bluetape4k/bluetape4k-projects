@@ -18,6 +18,7 @@ inline fun RedissonClient.withTransaction(
     action: RTransaction.() -> Unit,
 ) {
     val tx = createTransaction(options)
+
     try {
         action(tx)
         tx.commit()

@@ -15,11 +15,11 @@ import org.springframework.data.redis.serializer.RedisSerializer
  * redisTemplate.opsForValue().set("key", TestBean(1, "description"))  // TestBean 객체는 Kryo로 직렬화되고, LZ4 압축된 상태로 저장됩니다.
  * ```
  *
- * @property bs Binary Serializer
+ * @property serializer Binary Serializer
  * @see BinarySerializer
  */
 class RedisBinarySerializer private constructor(
-    private val bs: BinarySerializer,
+    private val serializer: BinarySerializer,
 ): RedisSerializer<Any> {
 
     companion object: KLogging() {
@@ -30,10 +30,10 @@ class RedisBinarySerializer private constructor(
     }
 
     override fun serialize(t: Any?): ByteArray? {
-        return t?.let { bs.serialize(it) }
+        return t?.let { serializer.serialize(it) }
     }
 
     override fun deserialize(bytes: ByteArray?): Any? {
-        return bs.deserialize(bytes)
+        return serializer.deserialize(bytes)
     }
 }
