@@ -35,7 +35,8 @@ class EmployeeRepositoryImpl: RowAwareEmployeeRepository {
 
         // 예제를 정확한 수행을 확인하기 위해 CQL에서 명시적인 tenantId 값을 볼 수 있는 SimpleStatement를 사용합니다.
         // production에서는 prepared statement 를 사용하세요
-        val selectStmt = QueryBuilder.selectFrom("row_mt_emp").all()
+        val selectStmt = QueryBuilder
+            .selectFrom("row_mt_emp").all()
             .whereColumn("tenantId").eq(TenantIdProvider.tenantId.get().literal())
             .whereColumn("name").eq(name.literal())
             .build()

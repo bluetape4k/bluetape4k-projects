@@ -9,7 +9,7 @@ import java.util.*
  * Auditable Entity 를 나타내는 추상화 클래스입니다.
  *
  * @param U createdBy, lastModifiedBy 등 엔티티의 변화를 수행하는 Actor 의 수형 (보통 String 이다)
- * @param ID Entity PrimaryKey의 수형
+ * @param PK Entity PrimaryKey의 수형
  */
 abstract class AbstractCassandraAuditable<U: Any, PK: Any>
     : AbstractCassandraPersistable<PK>(), Auditable<U, PK, Instant> {

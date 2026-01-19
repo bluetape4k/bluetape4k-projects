@@ -57,7 +57,8 @@ class TemplateTest(
         val person = newPerson()
         operations.insert<Person>().inTable(PERSON_TABLE).one(person)
 
-        val people = operations.query<Person>()
+        val people = operations
+            .query<Person>()
             .matching(query(where("firstname").isEqualTo(person.firstname)))
             .all()
 
@@ -69,7 +70,8 @@ class TemplateTest(
         val person = newPerson()
         operations.insert<Person>().inTable(PERSON_TABLE).one(person)
 
-        val firstnameOnly = operations.query<Person>()
+        val firstnameOnly = operations
+            .query<Person>()
             .asType<FirstnameOnly>()
             .matching(query(where("firstname").isEqualTo(person.firstname)))
             .oneValue()
@@ -82,7 +84,8 @@ class TemplateTest(
         val person = newPerson()
         operations.insert<Person>().inTable(PERSON_TABLE).one(person)
 
-        val count = operations.query<Person>()
+        val count = operations
+            .query<Person>()
             .matching(query(where("firstname").isEqualTo(person.firstname)))
             .count()
 
@@ -94,9 +97,10 @@ class TemplateTest(
         val person = newPerson()
         operations.insert<Person>().inTable(PERSON_TABLE).one(person)
 
-        val people = operations.select<Person>(
-            query(where("firstname").isEqualTo(person.firstname))
-        )
+        val people = operations
+            .select<Person>(
+                query(where("firstname").isEqualTo(person.firstname))
+            )
 
         people shouldBeEqualTo listOf(person)
     }
@@ -106,12 +110,16 @@ class TemplateTest(
         val person = newPerson()
 
         // Spring의 InsertOperations 를 사용하는 것을 추천합니다.
-        operations.cqlOperations.execute(
-            insertInto(PERSON_TABLE).value("firstname", person.firstname.literal()).asCql()
-        )
+        operations.cqlOperations
+            .execute(
+                insertInto(PERSON_TABLE)
+                    .value("firstname", person.firstname.literal())
+                    .asCql()
+            )
 
         // RowMapper를 data class 로 mapping 할 때 속성에 기본값이 있다면 그 값을 씁니다.
-        val loaded = operations.query<Person>()
+        val loaded = operations
+            .query<Person>()
             .matching(query(where("firstname").isEqualTo(person.firstname)))
             .firstValue()!!
 

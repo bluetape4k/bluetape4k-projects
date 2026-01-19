@@ -16,7 +16,7 @@ class ConversionTestConfiguration: AbstractReactiveCassandraTestConfiguration() 
 
     @Bean
     override fun customConversions(): CassandraCustomConversions {
-        val converters = mutableListOf<Converter<*, *>>(
+        val converters: MutableList<Converter<*, *>> = mutableListOf(
             ContactWriteConverter(),
             ContactReadConverter(),
             CustomAddressbookReadConverter(),

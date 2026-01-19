@@ -25,5 +25,7 @@ data class TypeWithMapId(
 ): MapIdentifiable, Serializable {
 
     override fun getMapId(): MapId =
-        BasicMapId.id("firstname", firstname).with("lastname", lastname)
+        BasicMapId
+            .id("firstname", firstname)
+            .with("lastname", lastname)
 }

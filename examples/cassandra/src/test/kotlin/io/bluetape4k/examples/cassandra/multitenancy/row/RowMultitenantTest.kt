@@ -43,6 +43,7 @@ class RowMultitenantTest(
 
         // tenant 정보를 제공하여 tenantId 를 검색 조건에 들도록 합니다.
         TenantIdProvider.tenantId.set("apple")
+
         val job1 = launch(Dispatchers.IO + TenantIdProvider.tenantId.asContextElement()) {
             repeat(REPEAT_TIMES) {
                 val loaded = repository.findAllByName("Steve").toList()

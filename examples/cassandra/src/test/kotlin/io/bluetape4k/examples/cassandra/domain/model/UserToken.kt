@@ -21,7 +21,6 @@ data class UserToken(
     @field:Column("user_comment")
     var userComment: String? = null,
 
-    @field: Column("admin_comment")
+    @field:Column("admin_comment")
     var adminComment: String? = null,
-
-    ): Serializable
+): Serializable

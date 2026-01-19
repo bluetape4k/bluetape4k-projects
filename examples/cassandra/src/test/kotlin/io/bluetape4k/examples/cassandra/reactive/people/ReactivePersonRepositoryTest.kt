@@ -2,6 +2,7 @@ package io.bluetape4k.examples.cassandra.reactive.people
 
 import io.bluetape4k.examples.cassandra.AbstractCassandraTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -30,7 +31,10 @@ class ReactivePersonRepositoryTest(
                 )
             )
 
-        StepVerifier.create(deleteAndInsert).expectNextCount(4).verifyComplete()
+        StepVerifier
+            .create(deleteAndInsert)
+            .expectNextCount(4)
+            .verifyComplete()
     }
 
     @Test
@@ -47,8 +51,13 @@ class ReactivePersonRepositoryTest(
             )
             .last()
             .flatMap { repository.count() }
-            .doOnNext { println(it) }
+            .doOnNext {
+                log.debug { "count=$it" }
+            }
 
-        StepVerifier.create(saveAndCount).expectNext(6L).verifyComplete()
+        StepVerifier
+            .create(saveAndCount)
+            .expectNext(6L)
+            .verifyComplete()
     }
 }

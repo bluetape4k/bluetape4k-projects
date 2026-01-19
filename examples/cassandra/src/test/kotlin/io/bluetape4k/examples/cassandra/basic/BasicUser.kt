@@ -37,7 +37,6 @@ data class BasicUser(
  * @property city
  * @property country
  * @property zip
- * @constructor Create empty Address
  */
 @UserDefinedType("basic_user_addr")
 data class Address(

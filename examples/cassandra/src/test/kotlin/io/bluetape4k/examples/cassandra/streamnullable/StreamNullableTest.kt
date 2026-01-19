@@ -49,5 +49,4 @@ class StreamNullableTest(
         val stream = repository.findAll()
         stream.toList().sorted() shouldBeEqualTo listOf(homer, bart)
     }
-
 }
