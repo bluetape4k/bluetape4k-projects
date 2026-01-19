@@ -21,8 +21,9 @@ abstract class AbstractR2dbcTest {
     @BeforeEach
     fun beforeEach() {
         runSuspendIO {
-            client.execute(
-                """
+            client
+                .execute(
+                    """
                     CREATE TABLE IF NOT EXISTS users (
                       user_id serial NOT NULL,
                       username varchar(255) NOT NULL,
@@ -41,20 +42,25 @@ abstract class AbstractR2dbcTest {
                       description varchar(255) NOT NULL,
                       PRIMARY KEY (logs_id)
                     );
-                """.trimIndent()
-            ).fetch().awaitRowsUpdated()
+                    """.trimIndent()
+                )
+                .fetch()
+                .awaitRowsUpdated()
         }
     }
 
     @AfterEach
     fun afterEach() {
         runSuspendIO {
-            client.execute(
-                """
+            client
+                .execute(
+                    """
                     DROP TABLE users;
                     DROP TABLE logs;
-                """.trimIndent()
-            ).fetch().awaitRowsUpdated()
+                    """.trimIndent()
+                )
+                .fetch()
+                .awaitRowsUpdated()
         }
     }
 

@@ -99,7 +99,7 @@ internal class InsertValuesSpecImpl(
             error("No values specified")
         }
         val names = values.keys.joinToString(", ")
-        val namedArguments = values.keys.map { ":$it" }.joinToString(", ")
+        val namedArguments = values.keys.joinToString(", ") { ":$it" }
         val sql = "INSERT INTO $table ($names) VALUES ($namedArguments)"
         log.debug { "Insert sql=$sql" }
 

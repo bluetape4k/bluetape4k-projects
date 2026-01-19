@@ -25,8 +25,7 @@ private val log by lazy { KotlinLogging.logger {} }
 fun DatabaseClient.GenericExecuteSpec.bindMap(parameters: Map<String, Any?>): DatabaseClient.GenericExecuteSpec {
     return parameters.entries.fold(this) { spec, entry ->
         log.trace { "bind map. name=${entry.key}, value=${entry.value}" }
-        val value = entry.value
-        when (value) {
+        when (val value = entry.value) {
             null -> spec.bindNull(entry.key, String::class.java)
             else -> spec.bind(entry.key, value.toParameter())
         }
@@ -52,8 +51,7 @@ fun DatabaseClient.GenericExecuteSpec.bindMap(parameters: Map<String, Any?>): Da
 fun DatabaseClient.GenericExecuteSpec.bindIndexedMap(parameters: Map<Int, Any?>): DatabaseClient.GenericExecuteSpec {
     return parameters.entries.fold(this) { spec, entry ->
         log.trace { "bind indexed map. index=${entry.key}, value=${entry.value}" }
-        val value = entry.value
-        when (value) {
+        when (val value = entry.value) {
             null -> spec.bindNull(entry.key, String::class.java)
             else -> spec.bind(entry.key, value.toParameter())
         }
@@ -61,16 +59,16 @@ fun DatabaseClient.GenericExecuteSpec.bindIndexedMap(parameters: Map<Int, Any?>)
 }
 
 /**
- * [sql]을 실행합니다.
+ * [sqlString]을 실행합니다.
  *
- * @param sql SQL 구문
+ * @param sqlString SQL 구문
  */
-fun DatabaseClient.execute(sql: String): DatabaseClient.GenericExecuteSpec {
-    return sql(sql)
+fun DatabaseClient.execute(sqlString: String): DatabaseClient.GenericExecuteSpec {
+    return sql(sqlString)
 }
 
-fun DatabaseClient.execute(sql: String, parameters: Map<String, Any?>): DatabaseClient.GenericExecuteSpec {
-    return sql(sql).bindMap(parameters)
+fun DatabaseClient.execute(sqlString: String, parameters: Map<String, Any?>): DatabaseClient.GenericExecuteSpec {
+    return sql(sqlString).bindMap(parameters)
 }
 
 inline fun <reified V: Any> DatabaseClient.GenericExecuteSpec.bindNullable(

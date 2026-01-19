@@ -21,11 +21,9 @@ suspend inline fun <T: Any> DatabaseClient.withTransactionSuspending(
 ): T? {
     val tm = R2dbcTransactionManager(this.connectionFactory)
 
-    return TransactionalOperator.create(tm, transactionDefinition).executeAndAwait { block(it) }
-
-    // executeAndAwait 의 원본 코드인데, 왜 Dispatchers.Unconfined 를 사용하지?
-//        .execute { tx -> mono(Dispatchers.IO) { block(tx) } }
-//        .map { value -> Optional.of(value) }.defaultIfEmpty(Optional.empty())
-//        .awaitLast()
-//        .orElse(null)
+    return TransactionalOperator
+        .create(tm, transactionDefinition)
+        .executeAndAwait {
+            block(it)
+        }
 }

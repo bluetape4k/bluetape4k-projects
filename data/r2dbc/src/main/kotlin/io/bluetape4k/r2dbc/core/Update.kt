@@ -45,18 +45,18 @@ inline fun <reified T: Any> ReactiveUpdateOperation.UpdateWithQuery.using(
     val firstIdColumn = idColumns.first()
     val outboundRow = dataAccessStrategy.getOutboundRow(obj)
     val where = Criteria.where(firstIdColumn.reference).`is`(
-        outboundRow[firstIdColumn].value ?: error("Identifier value not set (${firstIdColumn.reference})")
+        outboundRow[firstIdColumn]?.value ?: error("Identifier value not set (${firstIdColumn.reference})")
     )
     val criteria = idColumns.drop(1).fold(where) { criteria, idColumn ->
         criteria.and(idColumn.reference).`is`(
-            outboundRow[idColumn].value ?: error("Identitifer value not set (${idColumn.reference})")
+            outboundRow[idColumn]?.value ?: error("Identitifer value not set (${idColumn.reference})")
         )
     }
 
     val firstColumn = columns.first()
-    val firstUpdate = Update.update(firstColumn.reference, outboundRow[firstColumn].value)
+    val firstUpdate = Update.update(firstColumn.reference, outboundRow[firstColumn]?.value)
     val update = columns.drop(1).fold(firstUpdate) { update, column ->
-        update.set(column.reference, outboundRow[column].value)
+        update.set(column.reference, outboundRow[column]?.value)
     }
 
     return matching(query(criteria)).apply(update)

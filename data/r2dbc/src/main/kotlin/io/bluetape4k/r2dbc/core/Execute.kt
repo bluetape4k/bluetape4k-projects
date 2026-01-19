@@ -13,26 +13,26 @@ import org.springframework.r2dbc.core.RowsFetchSpec
 import kotlin.reflect.KClass
 
 /**
- * 지정한 [sql] 을 수행할 [DatabaseClient.GenericExecuteSpec] 을 생성합니다.
+ * 지정한 [sqlString] 을 수행할 [DatabaseClient.GenericExecuteSpec] 을 생성합니다.
  *
- * @param sql 수행할 SQL 구문
+ * @param sqlString 수행할 SQL 구문
  * @return [DatabaseClient.GenericExecuteSpec] 인스턴스
  */
-fun R2dbcClient.execute(sql: String): DatabaseClient.GenericExecuteSpec =
-    this.databaseClient.sql(sql)
+fun R2dbcClient.execute(sqlString: String): DatabaseClient.GenericExecuteSpec =
+    this.databaseClient.sql(sqlString)
 
 /**
- * 지정한 [sql] 을 수행할 [DatabaseClient.GenericExecuteSpec] 을 생성합니다.
+ * 지정한 [sqlString] 을 수행할 [DatabaseClient.GenericExecuteSpec] 을 생성합니다.
  *
- * @param sql 수행할 SQL 구문
+ * @param sqlString 수행할 SQL 구문
  * @param parameters Binding 할 parameters
  * @return [DatabaseClient.GenericExecuteSpec] 인스턴스
  */
 fun R2dbcClient.execute(
-    sql: String,
+    sqlString: String,
     parameters: Map<String, Any?>,
 ): DatabaseClient.GenericExecuteSpec =
-    databaseClient.sql(sql).bindMap(parameters)
+    databaseClient.sql(sqlString).bindMap(parameters)
 
 /**
  * 지정한 [query]로부터 SQL 문과 Parameters 정보를 이용하여 [DatabaseClient.GenericExecuteSpec]를 생성합니다.
