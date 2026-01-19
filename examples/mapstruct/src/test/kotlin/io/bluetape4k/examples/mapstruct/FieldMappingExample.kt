@@ -9,6 +9,7 @@ import org.mapstruct.InheritInverseConfiguration
 import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Mappings
+import java.io.Serializable
 
 class FieldMappingExample: AbstractMapstructTest() {
 
@@ -69,11 +70,27 @@ class FieldMappingExample: AbstractMapstructTest() {
     }
 }
 
-data class Customer(var id: Long?, var name: String?, var orderItems: List<OrderItem>?)
-data class OrderItem(var name: String?, var quantity: Long?)
+data class Customer(
+    var id: Long?,
+    var name: String?,
+    var orderItems: List<OrderItem>?,
+): Serializable
 
-data class CustomerDto(var customerId: Long?, var customerName: String?, var orders: Set<OrderItemDto>?)
-data class OrderItemDto(var name: String?, var quantity: Long?)
+data class OrderItem(
+    var name: String?,
+    var quantity: Long?,
+): Serializable
+
+data class CustomerDto(
+    var customerId: Long?,
+    var customerName: String?,
+    var orders: Set<OrderItemDto>?,
+): Serializable
+
+data class OrderItemDto(
+    var name: String?,
+    var quantity: Long?,
+): Serializable
 
 @Mapper(uses = [OrderItemMapper::class])
 interface CustomerMapper {
