@@ -9,6 +9,7 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
@@ -17,7 +18,6 @@ import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.coroutineContext
 
 class CoroutineContextExamples {
 
@@ -145,9 +145,10 @@ class CoroutineContextExamples {
     /**
      * CoroutineScope 에서 [UuidProviderCoroutineContext] 가 있으면 새로운 Uuid 문자열을 제공합니다.
      */
-    private suspend fun nextUuid(): String =
+    private suspend fun nextUuid(): String = coroutineScope {
         coroutineContext[UuidProviderCoroutineContext]?.nextUuid()
             ?: error("UuidProviderCoroutineContext not present")
+    }
 
     data class User(val id: String, val name: String)
 

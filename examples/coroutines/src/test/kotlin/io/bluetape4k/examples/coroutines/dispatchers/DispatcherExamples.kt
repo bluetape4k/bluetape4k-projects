@@ -11,6 +11,7 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -21,7 +22,6 @@ import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 import kotlin.random.Random
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -143,7 +143,7 @@ class DispatcherExamples {
                 suspendLogging { "thread=" + Thread.currentThread().name }   // Name 1
                 Thread.currentThread().name shouldContain "Name1"
 
-                suspendCoroutine { cont ->
+                suspendCancellableCoroutine { cont ->
                     continuation = cont
                 }
 

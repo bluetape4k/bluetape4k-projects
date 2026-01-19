@@ -7,7 +7,6 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.info
 import kotlinx.atomicfu.atomic
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
@@ -48,8 +47,7 @@ class CancellationExamples {
 
     @Test
     fun `작업 취소 시는 cancellation 예외를 catch 합니다`() = runTest {
-        val job = Job()
-        launch(job) {
+        val job = launch {
             try {
                 repeat(1000) {
                     delay(200)
@@ -61,6 +59,7 @@ class CancellationExamples {
             }
         }.log("job")
         delay(1100)
+
         job.cancelAndJoin()
         log.debug { "Cancelled successfully" }
     }
@@ -70,8 +69,7 @@ class CancellationExamples {
         val counter = atomic(0)
         val count by counter
         var cleanup = false
-        val job = Job()
-        launch(job) {
+        val job = launch {
             try {
                 delay(200)
                 // 이 작업은 수행되지 않습니다.
@@ -120,8 +118,7 @@ class CancellationExamples {
     @Test
     fun `Job isActive 를 활용하여 suspend point 잡기`() = runTest {
         val counter = atomic(0)
-        val job = Job()
-        launch(job) {
+        val job = launch {
             while (isActive) {
                 delay(100)         // delay 나 yield 로 suspend point 를 줘야 `isActive` 를 조회할 수 있다
                 counter.incrementAndGet()

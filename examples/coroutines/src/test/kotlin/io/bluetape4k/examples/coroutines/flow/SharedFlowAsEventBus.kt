@@ -7,6 +7,7 @@ import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -15,7 +16,6 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.junit.jupiter.api.Test
-import kotlin.coroutines.coroutineContext
 
 class SharedFlowAsEventBus {
 
@@ -36,7 +36,7 @@ class SharedFlowAsEventBus {
         }
 
         suspend fun close() {
-            coroutineContext.cancelChildren()
+            currentCoroutineContext().cancelChildren()
         }
     }
 
@@ -48,8 +48,8 @@ class SharedFlowAsEventBus {
 
     class EventListener(
         private val name: String,
-        private val eventBus: EventBus<Event>,
-        private val scope: CoroutineScope,
+        eventBus: EventBus<Event>,
+        scope: CoroutineScope,
     ) {
 
         companion object: KLogging()

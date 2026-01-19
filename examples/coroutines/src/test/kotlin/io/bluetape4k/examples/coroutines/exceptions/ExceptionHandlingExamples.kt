@@ -177,6 +177,7 @@ class ExceptionHandlingExamples {
         var job2Executed = false
 
         val job = SupervisorJob()
+
         // 예외를 전파시키지 않습니다.
         launch(job + exceptionHandler) {
             delay(100)
@@ -245,7 +246,7 @@ class ExceptionHandlingExamples {
     /**
      * [CancellationException]은 부모에게 전파되지 않습니다.
      */
-    object MyNonPropagatingException: CancellationException()
+    class MyNonPropagatingException: CancellationException()
 
     @Test
     fun `자식이 취소된다고 부모가 취소되지는 않습니다`() = runTest {
@@ -258,7 +259,7 @@ class ExceptionHandlingExamples {
                 delay(100)
                 fail("취소되었기 때문에 실행되면 안됩니다.")
             }.log("#11")
-            throw MyNonPropagatingException
+            throw MyNonPropagatingException()
         }.log("#1")
 
         yield()

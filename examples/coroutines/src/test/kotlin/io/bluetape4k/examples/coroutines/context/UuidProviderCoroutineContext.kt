@@ -5,8 +5,6 @@ import kotlin.coroutines.CoroutineContext
 
 /**
  * Unique uuid string 을 제공하는 [CoroutineContext] 구현체입니다.
- *
- * @constructor Create empty Uuid provider coroutine context
  */
 abstract class UuidProviderCoroutineContext: CoroutineContext.Element {
 
