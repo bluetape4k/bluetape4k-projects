@@ -8,12 +8,13 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
 import org.springframework.transaction.PlatformTransactionManager
+import javax.sql.DataSource
 
 @Configuration
 class JdbcConfiguration {
 
     @Bean
-    fun dataSource() =
+    fun dataSource(): DataSource =
         EmbeddedDatabaseBuilder()
             .setType(EmbeddedDatabaseType.H2)
             .generateUniqueName(true)

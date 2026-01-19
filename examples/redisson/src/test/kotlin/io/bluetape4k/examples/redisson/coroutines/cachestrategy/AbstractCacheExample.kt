@@ -94,7 +94,7 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
     protected val actorLoaderAsync: MapLoaderAsync<Long, Actor?> = object: MapLoaderAsync<Long, Actor?>, KLogging() {
         val scope = CoroutineScope(Dispatchers.IO)
 
-        override fun load(key: Long?): CompletionStage<Actor?>? = scope.async {
+        override fun load(key: Long?): CompletionStage<Actor?> = scope.async {
             log.debug { "Loading actor async with id=$key" }
             newSuspendedTransaction {
                 ActorTable
@@ -105,7 +105,7 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
             }
         }.asCompletableFuture()
 
-        override fun loadAllKeys(): AsyncIterator<Long>? {
+        override fun loadAllKeys(): AsyncIterator<Long> {
             log.debug { "Loading all actor keys async ..." }
 
             val batchSize = 50
