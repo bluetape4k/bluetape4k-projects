@@ -13,8 +13,10 @@ import io.opentelemetry.sdk.trace.SdkTracerProviderBuilder
 @JvmField
 val noopTraceProvider: TracerProvider = TracerProvider.noop()
 
-inline fun sdkTracerProvider(initializer: SdkTracerProviderBuilder.() -> Unit): SdkTracerProvider {
-    return SdkTracerProvider.builder().apply(initializer).build()
+inline fun sdkTracerProvider(
+    @BuilderInference builder: SdkTracerProviderBuilder.() -> Unit,
+): SdkTracerProvider {
+    return SdkTracerProvider.builder().apply(builder).build()
 }
 
 
@@ -51,6 +53,9 @@ inline fun sdkTracerProvider(initializer: SdkTracerProviderBuilder.() -> Unit): 
  *
  * @return 새로 생성된`Span` 인스턴스
  */
-inline fun Tracer.startSpan(spanName: String, initializer: SpanBuilder.() -> Unit): Span {
-    return spanBuilder(spanName).apply(initializer).startSpan()
+inline fun Tracer.startSpan(
+    spanName: String,
+    @BuilderInference builder: SpanBuilder.() -> Unit,
+): Span {
+    return spanBuilder(spanName).apply(builder).startSpan()
 }

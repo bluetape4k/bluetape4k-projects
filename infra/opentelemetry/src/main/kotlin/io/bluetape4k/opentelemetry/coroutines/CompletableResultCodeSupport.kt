@@ -1,12 +1,12 @@
 package io.bluetape4k.opentelemetry.coroutines
 
 import io.opentelemetry.sdk.common.CompletableResultCode
+import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.concurrent.CompletionException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
-suspend fun CompletableResultCode.await(): CompletableResultCode = suspendCoroutine { cont ->
+suspend fun CompletableResultCode.await(): CompletableResultCode = suspendCancellableCoroutine { cont ->
     if (isDone) {
         cont.resume(this)
     } else {

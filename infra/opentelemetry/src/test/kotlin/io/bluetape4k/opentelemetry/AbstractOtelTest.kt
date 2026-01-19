@@ -1,5 +1,6 @@
 package io.bluetape4k.opentelemetry
 
+import io.bluetape4k.junit5.params.provider.argumentOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.opentelemetry.metrics.loggingMetricExporterOf
 import io.bluetape4k.opentelemetry.metrics.periodicMetricReader
@@ -56,7 +57,7 @@ abstract class AbstractOtelTest {
     }
 
     protected fun getOpenTelemetries() = listOf<Arguments>(
-        Arguments.of("global", globalOpenTelemetry),
-        Arguments.of("logging", loggingOtel)
+        argumentOf("global", globalOpenTelemetry),
+        argumentOf("logging", loggingOtel)
     )
 }

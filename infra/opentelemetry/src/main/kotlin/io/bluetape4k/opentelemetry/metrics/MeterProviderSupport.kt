@@ -13,9 +13,11 @@ val NoopMeterProvider: MeterProvider = MeterProvider.noop()
 /**
  * [SdkMeterProvider] 를 생성합니다.
  *
- * @param initializer [SdkMeterProviderBuilder] 를 설정하는 람다입니다.
+ * @param builder [SdkMeterProviderBuilder] 를 설정하는 람다입니다.
  * @return [SdkMeterProvider] 인스턴스
  */
-inline fun sdkMeterProvider(initializer: SdkMeterProviderBuilder.() -> Unit): SdkMeterProvider {
-    return SdkMeterProvider.builder().apply(initializer).build()
+inline fun sdkMeterProvider(
+    @BuilderInference builder: SdkMeterProviderBuilder.() -> Unit,
+): SdkMeterProvider {
+    return SdkMeterProvider.builder().apply(builder).build()
 }

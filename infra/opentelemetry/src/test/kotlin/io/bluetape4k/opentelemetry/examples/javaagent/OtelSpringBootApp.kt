@@ -8,7 +8,6 @@ import io.bluetape4k.opentelemetry.trace.loggingSpanExporterOf
 import io.bluetape4k.opentelemetry.trace.sdkTracerProvider
 import io.bluetape4k.opentelemetry.trace.simpleSpanProcessorOf
 import io.opentelemetry.api.OpenTelemetry
-import org.springframework.boot.WebApplicationType
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
@@ -40,7 +39,5 @@ class OtelSpringBootApp {
 }
 
 fun main(vararg args: String) {
-    runApplication<OtelSpringBootApp>(*args) {
-        webApplicationType = WebApplicationType.REACTIVE
-    }
+    runApplication<OtelSpringBootApp>(*args)
 }

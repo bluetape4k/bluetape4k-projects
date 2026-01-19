@@ -65,7 +65,6 @@ suspend inline fun <T> SpanBuilder.useSuspendSpan(
     block
 )
 
-
 /**
  * [span]이 속한 Context 하에서 [block]을 실행합니다.
  * Coroutines 환경 하에서는 OpenTelemetry의 Context가 전달 안되기 때문에 `withContext`에 `span.asContextElement()`를 전달합니다.

@@ -45,14 +45,18 @@ fun openTelemetryOf(propagators: ContextPropagators): OpenTelemetry =
 /**
  * [OpenTelemetrySdkBuilder] 를 이용하여 [OpenTelemetrySdk] 인스턴스를 빌드합니다.
  */
-inline fun openTelemetrySdk(setup: OpenTelemetrySdkBuilder.() -> Unit): OpenTelemetrySdk =
-    OpenTelemetrySdk.builder().apply(setup).build()
+inline fun openTelemetrySdk(
+    @BuilderInference builder: OpenTelemetrySdkBuilder.() -> Unit,
+): OpenTelemetrySdk =
+    OpenTelemetrySdk.builder().apply(builder).build()
 
 /**
  * [OpenTelemetrySdkBuilder] 를 이용하여 [OpenTelemetrySdk] 인스턴스를 빌드하고 Global OpenTelemetry 로 지정합니다.
  */
-inline fun openTelemetrySdkGlobal(setup: OpenTelemetrySdkBuilder.() -> Unit): OpenTelemetrySdk =
-    OpenTelemetrySdk.builder().apply(setup).buildAndRegisterGlobal()
+inline fun openTelemetrySdkGlobal(
+    @BuilderInference builder: OpenTelemetrySdkBuilder.() -> Unit,
+): OpenTelemetrySdk =
+    OpenTelemetrySdk.builder().apply(builder).buildAndRegisterGlobal()
 
 /**
  * [OpenTelemetrySdk]를 생성합니다.
@@ -81,22 +85,28 @@ fun openTelemetrySdkOf(
  * [TracerBuilder]를 이용하여 [Tracer] 인스턴스를 빌드합니다.
  *
  * @param tracerName tracer name
- * @param setup tracer building block
+ * @param builder tracer building block
  * @return [Tracer] instance
  */
-inline fun OpenTelemetry.tracer(tracerName: String, setup: TracerBuilder.() -> Unit): Tracer {
+inline fun OpenTelemetry.tracer(
+    tracerName: String,
+    @BuilderInference builder: TracerBuilder.() -> Unit,
+): Tracer {
     tracerName.assertNotBlank("tracerName")
-    return tracerProvider.tracerBuilder(tracerName).apply(setup).build()
+    return tracerProvider.tracerBuilder(tracerName).apply(builder).build()
 }
 
 /**
  * [MeterBuilder]를 이용하여 [Meter] 인스턴스를 빌드합니다.
  *
  * @param meterName meter name
- * @param setup meter building block
+ * @param builder meter building block
  * @return [Meter] instance
  */
-inline fun OpenTelemetry.meter(meterName: String, setup: MeterBuilder.() -> Unit): Meter {
+inline fun OpenTelemetry.meter(
+    meterName: String,
+    @BuilderInference builder: MeterBuilder.() -> Unit,
+): Meter {
     meterName.assertNotBlank("meterName")
-    return meterProvider.meterBuilder(meterName).apply(setup).build()
+    return meterProvider.meterBuilder(meterName).apply(builder).build()
 }

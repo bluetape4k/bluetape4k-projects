@@ -26,12 +26,12 @@ fun inMemoryMetricReaderDeltaOf(): InMemoryMetricReader = InMemoryMetricReader.c
  * 주기적으로 Metric 정보를 읽어서 [exporter] 로 내보내는 [io.opentelemetry.sdk.metrics.export.MetricReader] 를 생성한다.
  *
  * @param exporter Metric 정보를 내보내는 [MetricExporter]
- * @param initializer [PeriodicMetricReaderBuilder] 를 설정하는 람다입니다.
+ * @param builder [PeriodicMetricReaderBuilder] 를 설정하는 람다입니다.
  * @return [PeriodicMetricReader] instance
  */
 fun periodicMetricReader(
     exporter: MetricExporter,
-    initializer: PeriodicMetricReaderBuilder.() -> Unit,
+    @BuilderInference builder: PeriodicMetricReaderBuilder.() -> Unit,
 ): PeriodicMetricReader {
-    return PeriodicMetricReader.builder(exporter).apply(initializer).build()
+    return PeriodicMetricReader.builder(exporter).apply(builder).build()
 }

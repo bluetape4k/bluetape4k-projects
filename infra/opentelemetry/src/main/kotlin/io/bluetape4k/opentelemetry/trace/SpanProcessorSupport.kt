@@ -12,7 +12,7 @@ fun simpleSpanProcessorOf(exporter: SpanExporter): SpanProcessor {
 
 inline fun batchSpanProcess(
     exporter: SpanExporter,
-    initializer: BatchSpanProcessorBuilder.() -> Unit,
+    @BuilderInference builder: BatchSpanProcessorBuilder.() -> Unit,
 ): BatchSpanProcessor {
-    return BatchSpanProcessor.builder(exporter).apply(initializer).build()
+    return BatchSpanProcessor.builder(exporter).apply(builder).build()
 }
