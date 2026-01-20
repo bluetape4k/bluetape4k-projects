@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
  *     val mobile: String
  * ): Serializable
  *
- * val user = User("debop", "011-8955-5081")
+ * val user = User("debop", "011-5555-5555")
  * val jsonText = objectMapper.writeAsString(user)
  *
  * // jsonText is { "user": "debop", "mobile": "__masked__" }

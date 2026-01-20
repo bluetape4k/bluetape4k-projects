@@ -19,6 +19,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
+import java.io.Serializable
 
 class SuspendJsonParserTest {
 
@@ -31,7 +32,7 @@ class SuspendJsonParserTest {
         val inner: Model? = null,
         val nullable: Double? = null,
         val booleanValue: Boolean = true,
-    ): java.io.Serializable {
+    ): Serializable {
         var innerArray: Array<Model>? = null
         var intArray: IntArray? = null
     }

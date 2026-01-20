@@ -34,7 +34,7 @@ class JsonEncryptSerializer(
 
         return when (annotation) {
             null -> defaultSerializer
-            else -> serializers.computeIfAbsent(annotation.encryptor) {
+            else -> serializers.getOrPut(annotation.encryptor) {
                 JsonEncryptSerializer(annotation).apply {
                     log.debug { "create JsonEncryptSerializer ... ${annotation.encryptor}" }
                 }

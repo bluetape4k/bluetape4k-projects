@@ -34,7 +34,7 @@ class KotlinFeatures {
         val json = """{"name":"John Smith", "age":30}"""
 
         val inferRightSide = mapper.readValueOrNull<BasicPerson>(json)
-        val inferLeftSide: BasicPerson = mapper.readValueOrNull(json)!!
+        val inferLeftSide = mapper.readValueOrNull<BasicPerson>(json)!!
         val person = mapper.readValueOrNull<BasicPerson>(json)!!
 
         val expected = BasicPerson("John Smith", 30)
@@ -52,7 +52,7 @@ class KotlinFeatures {
             BasicPerson("Sunghyouk Bae", 54)
         )
 
-        val persons: List<BasicPerson> = mapper.readValueOrNull(json)!!
+        val persons = mapper.readValueOrNull<List<BasicPerson>>(json)!!
         persons shouldHaveSize 2
         persons shouldBeEqualTo expected
     }

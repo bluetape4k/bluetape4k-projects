@@ -18,6 +18,7 @@ import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
+import java.io.Serializable
 import java.util.*
 
 @RandomizedTest
@@ -51,7 +52,7 @@ class JsonUuidEncodeTest {
 
         // Faker 를 이용하여 의미있는 이름을 사용합니다.
         val username: String,
-    )
+    ): Serializable
 
 
     @RepeatedTest(REPEAT_COUNT)

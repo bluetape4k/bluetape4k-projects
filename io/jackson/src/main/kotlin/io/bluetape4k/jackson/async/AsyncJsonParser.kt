@@ -94,7 +94,7 @@ class AsyncJsonParser(
      * 전체 Json Tree가 빌드되면, root node 를 반환합니다.
      *
      * @param token
-     * @return Json Object의 root node or null if not yet built
+     * @return JSON object의 root node or null if not yet built
      */
     private fun buildTree(token: JsonToken): JsonNode? {
         try {

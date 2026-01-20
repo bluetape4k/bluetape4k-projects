@@ -33,7 +33,7 @@ class JsonMaskerSerializer(
 
         return when (annotation) {
             null -> defaultSerializer
-            else -> serializers.computeIfAbsent(annotation.value) {
+            else -> serializers.getOrPut(annotation.value) {
                 JsonMaskerSerializer(annotation)
                     .apply {
                         log.debug { "Create JsonMaskerSerializer ... ${annotation.value}" }

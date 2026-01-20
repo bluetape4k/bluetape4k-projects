@@ -14,6 +14,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
+import java.io.Serializable
 
 class AsyncJsonParserTest {
 
@@ -26,7 +27,7 @@ class AsyncJsonParserTest {
         val inner: Model? = null,
         val nullable: Double? = null,
         val booleanValue: Boolean = true,
-    ) {
+    ): Serializable {
         var innerArray: Array<Model>? = null
         var intArray: IntArray? = null
     }

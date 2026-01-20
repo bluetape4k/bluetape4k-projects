@@ -16,7 +16,9 @@ abstract class AbstractJsonSerializerTest {
 
     companion object: KLogging() {
         private const val REPEAT_SIZE = 5
-        val faker = Fakers.faker
+
+        @JvmStatic
+        protected val faker = Fakers.faker
     }
 
     protected abstract val serializer: JsonSerializer

@@ -1,6 +1,7 @@
 package io.bluetape4k.jackson.crypto
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.crypto.encrypt.AES
 import io.bluetape4k.crypto.encrypt.RC4
 import io.bluetape4k.jackson.Jackson
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
+import java.io.Serializable
 
 @RandomizedTest
 class JsonEncryptTest {
@@ -38,26 +40,26 @@ class JsonEncryptTest {
 
         @get:JsonEncrypt(encryptor = RC4::class)
         val mobile: String,
-    )
+    ): Serializable
 
     private val mapper = Jackson.defaultJsonMapper
 
     private fun createUser(): User {
         return User(
             username = faker.name().name(),
-            password = Fakers.fixedString(6),
+            password = Base58.randomString(8),
             mobile = faker.phoneNumber().cellPhone()
         )
     }
 
     @Test
     fun `encrypt string property`() {
-        val user = User(faker.name().name(), "mypassword", "010-8955-0581")
+        val user = User(faker.name().name(), "mypassword", "010-5555-5555")
         log.debug { mapper.prettyWriteAsString(user) }
 
         val encrypted = mapper.writeAsString(user)!!
         encrypted shouldNotContain "mypassword"
-        encrypted shouldNotContain "010-8955-5081"
+        encrypted shouldNotContain "010-5555-5555"
     }
 
     @RepeatedTest(REPEAT_COUNT)

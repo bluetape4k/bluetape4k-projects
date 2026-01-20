@@ -18,7 +18,7 @@ class DataBindExample {
 
     val mapper = Jackson.defaultJsonMapper
 
-    interface InviteTo
+    interface InviteTo: Serializable
 
     @JsonTypeName("CONTACT")
     data class InviteToContact(val name: String? = null): InviteTo

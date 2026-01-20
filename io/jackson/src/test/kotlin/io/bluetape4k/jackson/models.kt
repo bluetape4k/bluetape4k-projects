@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 import io.bluetape4k.AbstractValueObject
 import io.bluetape4k.ToStringBuilder
 import io.bluetape4k.support.hashOf
+import java.io.Serializable
 import java.time.Instant
 import java.util.*
 import kotlin.random.Random
@@ -21,10 +22,10 @@ data class Address(
     var street: String? = null,
     var phone: String? = null,
     val props: MutableList<String> = mutableListOf(),
-)
+): Serializable
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-interface Person {
+interface Person: Serializable {
     val name: String
     val age: Int
 }
@@ -46,7 +47,6 @@ data class OptionalData(
     override val age: Int,
     val spec: Optional<String>,
 ): Person
-
 
 data class OptionalCollection(
     override val name: String,

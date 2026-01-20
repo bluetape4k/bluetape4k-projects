@@ -11,9 +11,10 @@ import java.io.InputStream
 import java.io.Reader
 import java.io.StringWriter
 import java.net.URL
+import kotlin.use
 
 /**
- * Jackson Json Library 가 제공하는 [JsonMapper] 를 빌드합니다.
+ * Jackson JSON Library 가 제공하는 [ObjectMapper] 를 빌드합니다.
  *
  * ```
  * val mapper: ObjectMapper = objectMapper {
@@ -22,8 +23,8 @@ import java.net.URL
  *
  * @param initializer JsonMapper 빌더 초기화 람다
  */
-inline fun objectMapper(initializer: JsonMapper.Builder.() -> Unit): ObjectMapper {
-    return JsonMapper.builder().apply(initializer).build()
+inline fun objectMapper(@BuilderInference builder: JsonMapper.Builder.() -> Unit): ObjectMapper {
+    return JsonMapper.builder().apply(builder).build()
 }
 
 inline fun <reified T> jacksonTypeReference(): TypeReference<T> = object: TypeReference<T>() {}
@@ -44,7 +45,9 @@ inline fun <reified T: Any> ObjectMapper.readValueOrNull(src: File): T? =
     runCatching { readValue(src, jacksonTypeReference<T>()) }.getOrNull()
 
 inline fun <reified T: Any> ObjectMapper.readValueOrNull(src: URL): T? =
-    runCatching { readValue(src, jacksonTypeReference<T>()) }.getOrNull()
+    runCatching {
+        src.openStream().use { input -> readValueOrNull<T>(input) }
+    }.getOrNull()
 
 inline fun <reified T: Any> ObjectMapper.readValueOrNull(parser: JsonParser): T? =
     runCatching { readValue(parser, jacksonTypeReference<T>()) }.getOrNull()
@@ -64,7 +67,7 @@ fun <T: Any> ObjectMapper.writeAsString(graph: T?): String? =
 /**
  * JsonNode 를 문자열로 변환합니다.
  */
-fun ObjectMapper.writeTree(jsonNode: JsonNode): String {
+fun ObjectMapper.writeAsString(jsonNode: JsonNode): String {
     return StringWriter().use { writer ->
         createGenerator(writer).use { generator ->
             writeTree(generator, jsonNode)
@@ -92,3 +95,16 @@ fun <T: Any> ObjectMapper.prettyWriteAsString(graph: T?): String? =
  */
 fun <T: Any> ObjectMapper.prettyWriteAsBytes(graph: T?): ByteArray? =
     graph?.run { writerWithDefaultPrettyPrinter().writeValueAsBytes(graph) }
+
+
+/**
+ * JsonNode 를 문자열로 변환합니다.
+ */
+fun ObjectMapper.writeTree(jsonNode: JsonNode): String {
+    return StringWriter().use { writer ->
+        createGenerator(writer).use { generator ->
+            writeTree(generator, jsonNode)
+        }
+        writer.toString()
+    }
+}
