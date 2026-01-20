@@ -5,7 +5,7 @@ import org.apache.hc.core5.ssl.SSLContexts
 import javax.net.ssl.SSLContext
 
 /**
- * [initializer]를 이용해 [SSLContextBuilder] 를 빌드합니다.
+ * [builder]를 이용해 [SSLContextBuilder] 를 빌드합니다.
  *
  * ```
  * val sslContext = sslContext {
@@ -15,14 +15,13 @@ import javax.net.ssl.SSLContext
  * }
  * ```
  *
- * @param initializer [SSLContextBuilder] 초기화 람다
+ * @param builder [SSLContextBuilder] 초기화 람다
  * @return [SSLContext]
  */
 inline fun sslContext(
-    initializer: SSLContextBuilder.() -> Unit,
-): SSLContext {
-    return SSLContexts.custom().apply(initializer).build()
-}
+    @BuilderInference builder: SSLContextBuilder.() -> Unit,
+): SSLContext =
+    SSLContexts.custom().apply(builder).build()
 
 /**
  * 기본 [SSLContext] 를 생성합니다.

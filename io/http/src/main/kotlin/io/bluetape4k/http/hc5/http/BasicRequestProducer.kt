@@ -26,9 +26,8 @@ fun BasicHttpRequest.toProducer(): BasicRequestProducer = basicRequestProducerOf
 fun basicRequestProducerOf(
     request: BasicHttpRequest,
     dataProducer: AsyncEntityProducer? = null,
-): BasicRequestProducer {
-    return BasicRequestProducer(request, dataProducer)
-}
+): BasicRequestProducer =
+    BasicRequestProducer(request, dataProducer)
 
 /**
  * [BasicRequestProducer]를 빌드합니다.
@@ -46,9 +45,8 @@ fun basicRequestProducerOf(
     method: Method,
     uri: URI,
     dataProducer: AsyncEntityProducer? = null,
-): BasicRequestProducer {
-    return BasicRequestProducer(method.name, uri, dataProducer)
-}
+): BasicRequestProducer =
+    BasicRequestProducer(method.name, uri, dataProducer)
 
 /**
  * [BasicRequestProducer]를 빌드합니다.
@@ -67,6 +65,5 @@ fun basicRequestProducerOf(
     methodName: String,
     uri: URI,
     dataProducer: AsyncEntityProducer? = null,
-): BasicRequestProducer {
-    return BasicRequestProducer(methodName, uri, dataProducer)
-}
+): BasicRequestProducer =
+    BasicRequestProducer(methodName, uri, dataProducer)

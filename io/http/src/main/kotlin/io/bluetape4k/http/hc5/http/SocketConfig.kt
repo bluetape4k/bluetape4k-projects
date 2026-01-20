@@ -9,21 +9,23 @@ val defaultSocketConfig: SocketConfig = SocketConfig.DEFAULT
 /**
  * [SocketConfig] 를 생성합니다.
  *
- * @param initializer [SocketConfig.Builder] 초기화 람다
+ * @param builder [SocketConfig.Builder] 초기화 람다
  * @return [SocketConfig] 인스턴스
  */
-inline fun socketConfig(initializer: SocketConfig.Builder.() -> Unit): SocketConfig {
-    return SocketConfig.custom().apply(initializer).build()
-}
+inline fun socketConfig(
+    @BuilderInference builder: SocketConfig.Builder.() -> Unit,
+): SocketConfig =
+    SocketConfig.custom().apply(builder).build()
 
-fun socketConfigOf(
+inline fun socketConfigOf(
     soTimeout: Timeout = Timeout.ofMinutes(3),
     soReuseStrategy: Boolean = true,
     soLinger: Timeout = Timeout.ofMinutes(3),
-    initializer: SocketConfig.Builder.() -> Unit = {},
-): SocketConfig = socketConfig {
-    setSoTimeout(soTimeout)
-    setSoReuseAddress(soReuseStrategy)
-    setSoLinger(soLinger)
-    initializer()
-}
+    @BuilderInference builder: SocketConfig.Builder.() -> Unit = {},
+): SocketConfig =
+    socketConfig {
+        setSoTimeout(soTimeout)
+        setSoReuseAddress(soReuseStrategy)
+        setSoLinger(soLinger)
+        builder()
+    }

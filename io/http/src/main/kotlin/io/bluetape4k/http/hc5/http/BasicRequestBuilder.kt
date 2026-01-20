@@ -17,15 +17,14 @@ import org.apache.hc.core5.http.support.BasicRequestBuilder
  * ```
  *
  * @param method HTTP Method
- * @param initializer [BasicRequestBuilder] 초기화 람다
+ * @param builder [BasicRequestBuilder] 초기화 람다
  * @return [BasicHttpRequest]
  */
 inline fun basicHttpRequest(
     method: String,
-    initializer: BasicRequestBuilder.() -> Unit,
-): BasicHttpRequest {
-    return BasicRequestBuilder.create(method).apply(initializer).build()
-}
+    @BuilderInference builder: BasicRequestBuilder.() -> Unit,
+): BasicHttpRequest =
+    BasicRequestBuilder.create(method).apply(builder).build()
 
 /**
  * [BasicHttpRequest] 를 생성합니다.
@@ -38,13 +37,14 @@ inline fun basicHttpRequest(
  * ```
  *
  * @param method [Method]
- * @param initializer [BasicRequestBuilder] 초기화 람다
+ * @param builder [BasicRequestBuilder] 초기화 람다
  * @return [BasicHttpRequest]
  */
 inline fun basicHttpRequest(
     method: Method,
-    initializer: BasicRequestBuilder.() -> Unit,
-): BasicHttpRequest = basicHttpRequest(method.name, initializer)
+    @BuilderInference builder: BasicRequestBuilder.() -> Unit,
+): BasicHttpRequest =
+    basicHttpRequest(method.name, builder)
 
 /**
  * [BasicHttpRequest] 를 생성합니다.
@@ -61,22 +61,23 @@ inline fun basicHttpRequest(
  * @param host [HttpHost]
  * @param path 요청 경로
  * @param headers [Header] 리스트
- * @param initializer [BasicRequestBuilder] 초기화 람다
+ * @param builder [BasicRequestBuilder] 초기화 람다
  * @return [BasicHttpRequest]
  */
-fun basicHttpRequestOf(
+inline fun basicHttpRequestOf(
     method: String,
     host: HttpHost,
     path: String,
     headers: Iterable<Header>? = null,
-    initializer: BasicRequestBuilder.() -> Unit = {},
-): BasicHttpRequest = basicHttpRequest(method) {
-    setHttpHost(host)
-    setPath(path)
-    headers?.run { setHeaders(headers.iterator()) }
+    @BuilderInference builder: BasicRequestBuilder.() -> Unit = {},
+): BasicHttpRequest =
+    basicHttpRequest(method) {
+        setHttpHost(host)
+        setPath(path)
+        headers?.run { setHeaders(headers.iterator()) }
 
-    initializer()
-}
+        builder()
+    }
 
 /**
  * [BasicHttpRequest] 를 생성합니다.
@@ -93,19 +94,20 @@ fun basicHttpRequestOf(
  * @param host [HttpHost]
  * @param path 요청 경로
  * @param headers [Header] 리스트
- * @param initializer [BasicRequestBuilder] 초기화 람다
+ * @param builder [BasicRequestBuilder] 초기화 람다
  * @return [BasicHttpRequest]
  */
-fun basicHttpRequestOf(
+inline fun basicHttpRequestOf(
     method: Method,
     host: HttpHost,
     path: String,
     headers: Iterable<Header>? = null,
-    initializer: BasicRequestBuilder.() -> Unit = {},
-): BasicHttpRequest = basicHttpRequest(method) {
-    setHttpHost(host)
-    setPath(path)
-    headers?.run { setHeaders(headers.iterator()) }
+    @BuilderInference builder: BasicRequestBuilder.() -> Unit = {},
+): BasicHttpRequest =
+    basicHttpRequest(method) {
+        setHttpHost(host)
+        setPath(path)
+        headers?.run { setHeaders(headers.iterator()) }
 
-    initializer()
-}
+        builder()
+    }

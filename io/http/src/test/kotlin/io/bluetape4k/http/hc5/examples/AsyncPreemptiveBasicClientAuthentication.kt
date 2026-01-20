@@ -11,8 +11,8 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 import org.apache.hc.client5.http.async.methods.SimpleResponseConsumer
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials
 import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient
@@ -59,11 +59,11 @@ class AsyncPreemptiveBasicClientAuthentication: AbstractHc5Test() {
             log.debug { "Body: ${response.body}" }
         }
 
-        val deferreds = List(10) {
+        val jobs = List(10) {
             val request = simpleHttpRequestOf(Method.GET, httpHost, path)
             log.debug { "Executing request concurrently $request" }
 
-            async(Dispatchers.IO) {
+            launch(Dispatchers.IO) {
                 client
                     .execute(
                         request.toProducer(),
@@ -78,7 +78,7 @@ class AsyncPreemptiveBasicClientAuthentication: AbstractHc5Test() {
                     }
             }
         }
-        deferreds.awaitAll()
+        jobs.joinAll()
 
         log.debug { "Shutting down" }
     }

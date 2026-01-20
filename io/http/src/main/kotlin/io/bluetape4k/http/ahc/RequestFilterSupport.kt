@@ -7,14 +7,16 @@ import org.asynchttpclient.filter.RequestFilter
 /**
  * [RequestFilter]를 생성합니다.
  *
- * @param initializer [FilterContextBuilder]를 이용하여 [FilterContext]를 생성하는 intializer
+ * @param builder [FilterContextBuilder]를 이용하여 [FilterContext]를 생성하는 intializer
  * @return [RequestFilter] instance
  */
 @JvmName("requestFilterWithBuilder")
-inline fun requestFilter(crossinline initializer: FilterContextBuilder<*>.() -> Unit): RequestFilter {
+inline fun requestFilter(
+    @BuilderInference crossinline builder: FilterContextBuilder<*>.() -> Unit,
+): RequestFilter {
     return object: RequestFilter {
         override fun <T> filter(ctx: FilterContext<T>): FilterContext<T> {
-            return FilterContextBuilder(ctx).apply(initializer).build()
+            return FilterContextBuilder(ctx).apply(builder).build()
         }
     }
 }
@@ -22,14 +24,14 @@ inline fun requestFilter(crossinline initializer: FilterContextBuilder<*>.() -> 
 /**
  * [RequestFilter]를 생성합니다.
  *
- * @param block [FilterContext]를 받아서 처리하는 함수
+ * @param handler [FilterContext]를 받아서 처리하는 함수
  * @return [RequestFilter] instance
  */
 @JvmName("requestFilter")
-inline fun requestFilter(crossinline block: (FilterContext<*>) -> Unit): RequestFilter {
+inline fun requestFilter(crossinline handler: (FilterContext<*>) -> Unit): RequestFilter {
     return object: RequestFilter {
-        override fun <T: Any?> filter(ctx: FilterContext<T>): FilterContext<T> {
-            block(ctx)
+        override fun <T> filter(ctx: FilterContext<T>): FilterContext<T> {
+            handler(ctx)
             return ctx
         }
     }

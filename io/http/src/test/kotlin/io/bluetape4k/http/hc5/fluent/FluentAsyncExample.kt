@@ -34,13 +34,13 @@ class FluentAsyncExample: AbstractHc5Test() {
     companion object: KLoggingChannel()
 
     val requests = listOf(
-        requestGet("http://www.naver.com/"),
-        requestGet("http://www.daum.net/"),
-        requestGet("http://www.chosun.com/"),
+        requestGet("https://www.naver.com/"),
+        requestGet("https://www.daum.net/"),
+        requestGet("https://www.chosun.com/"),
         requestGet("https://news.kbs.co.kr/news/pc/main/main.html"),
-        requestGet("http://www.ytn.co.kr/"),
-        requestGet("http://www.mbc.co.kr/"),
-        requestGet("http://www.sbs.co.kr/"),
+        requestGet("https://www.ytn.co.kr/"),
+        requestGet("https://www.mbc.co.kr/"),
+        requestGet("https://www.sbs.co.kr/"),
     )
 
     @Test

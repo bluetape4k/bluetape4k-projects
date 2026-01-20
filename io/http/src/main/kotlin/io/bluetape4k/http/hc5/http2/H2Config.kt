@@ -18,13 +18,13 @@ fun h2ConfigOf(): H2Config = H2Config.DEFAULT
  * }
  * ```
  *
- * @param initlializer [H2Config.Builder] 초기화 람다
+ * @param builder [H2Config.Builder] 초기화 람다
  * @return [H2Config] 인스턴스
  */
 inline fun h2Config(
-    initlializer: H2Config.Builder.() -> Unit,
+    @BuilderInference builder: H2Config.Builder.() -> Unit,
 ): H2Config {
-    return H2Config.custom().apply(initlializer).build()
+    return H2Config.custom().apply(builder).build()
 }
 
 /**
@@ -40,14 +40,14 @@ inline fun h2Config(
  * ```
  *
  * @param source [H2Config] 기존 설정
- * @param initlializer [H2Config.Builder] 초기화 람다
+ * @param builder [H2Config.Builder] 초기화 람다
  * @return [H2Config] 인스턴스
  */
 inline fun h2Config(
     source: H2Config,
-    initlializer: H2Config.Builder.() -> Unit = {},
+    @BuilderInference builder: H2Config.Builder.() -> Unit = {},
 ): H2Config =
-    H2Config.copy(source).apply(initlializer).build()
+    H2Config.copy(source).apply(builder).build()
 
 /**
  * [H2Config] 를 생성합니다.
@@ -66,7 +66,7 @@ inline fun h2Config(
  * @param headerTableSize headerTableSize 설정
  * @param initialWindowSize initialWindowSize 설정
  * @param compressionEnabled compressionEnabled 설정
- * @param initlializer [H2Config.Builder] 초기화 람다
+ * @param builder [H2Config.Builder] 초기화 람다
  * @return [H2Config] 인스턴스
  */
 inline fun h2Config(
@@ -74,11 +74,12 @@ inline fun h2Config(
     headerTableSize: Int = H2Config.DEFAULT.headerTableSize,
     initialWindowSize: Int = H2Config.DEFAULT.initialWindowSize,
     compressionEnabled: Boolean = H2Config.DEFAULT.isCompressionEnabled,
-    initlializer: H2Config.Builder.() -> Unit = {},
-): H2Config = h2Config {
-    setPushEnabled(pushEnabled)
-    setHeaderTableSize(headerTableSize)
-    setInitialWindowSize(initialWindowSize)
-    setCompressionEnabled(compressionEnabled)
-    initlializer()
-}
+    @BuilderInference builder: H2Config.Builder.() -> Unit = {},
+): H2Config =
+    h2Config {
+        setPushEnabled(pushEnabled)
+        setHeaderTableSize(headerTableSize)
+        setInitialWindowSize(initialWindowSize)
+        setCompressionEnabled(compressionEnabled)
+        builder()
+    }

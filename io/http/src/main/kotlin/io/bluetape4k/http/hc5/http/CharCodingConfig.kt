@@ -19,13 +19,13 @@ fun charCodingConfigOf(): CharCodingConfig =
  * }
  * ```
  *
- * @param initializer [CharCodingConfig.Builder] 초기화 람다
+ * @param builder [CharCodingConfig.Builder] 초기화 람다
  * @return [CharCodingConfig]
  */
 inline fun charCodingConfig(
-    initializer: CharCodingConfig.Builder.() -> Unit,
+    @BuilderInference builder: CharCodingConfig.Builder.() -> Unit,
 ): CharCodingConfig =
-    CharCodingConfig.custom().apply(initializer).build()
+    CharCodingConfig.custom().apply(builder).build()
 
 /**
  * [source] 를 복사하여 [CharCodingConfig] 를 생성합니다.
@@ -37,11 +37,11 @@ inline fun charCodingConfig(
  * ```
  *
  * @param source [CharCodingConfig] 복사할 대상
- * @param initializer [CharCodingConfig.Builder] 초기화 람다
+ * @param builder [CharCodingConfig.Builder] 초기화 람다
  * @return [CharCodingConfig]
  */
 inline fun charCodingConfig(
     source: CharCodingConfig,
-    initializer: CharCodingConfig.Builder.() -> Unit,
+    @BuilderInference builder: CharCodingConfig.Builder.() -> Unit,
 ): CharCodingConfig =
-    CharCodingConfig.copy(source).apply(initializer).build()
+    CharCodingConfig.copy(source).apply(builder).build()

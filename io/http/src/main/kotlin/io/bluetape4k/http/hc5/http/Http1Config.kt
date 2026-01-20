@@ -17,13 +17,13 @@ fun http1ConfigOf(): Http1Config = Http1Config.DEFAULT
  * }
  * ```
  *
- * @param initializer [Http1Config.Builder] 초기화 람다
+ * @param builder [Http1Config.Builder] 초기화 람다
  * @return [Http1Config] 인스턴스
  */
 inline fun http1Config(
-    initializer: Http1Config.Builder.() -> Unit,
+    @BuilderInference builder: Http1Config.Builder.() -> Unit,
 ): Http1Config {
-    return Http1Config.custom().apply(initializer).build()
+    return Http1Config.custom().apply(builder).build()
 }
 
 /**
@@ -38,11 +38,11 @@ inline fun http1Config(
  * ```
  *
  * @param source [Http1Config] 복사할 인스턴스
- * @param initlializer [Http1Config.Builder] 초기화 람다
+ * @param builder [Http1Config.Builder] 초기화 람다
  * @return [Http1Config] 인스턴스
  */
 inline fun http1Config(
     source: Http1Config,
-    initlializer: Http1Config.Builder.() -> Unit = {},
+    @BuilderInference builder: Http1Config.Builder.() -> Unit = {},
 ): Http1Config =
-    Http1Config.copy(source).apply(initlializer).build()
+    Http1Config.copy(source).apply(builder).build()

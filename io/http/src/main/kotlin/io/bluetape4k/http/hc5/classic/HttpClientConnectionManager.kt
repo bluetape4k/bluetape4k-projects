@@ -22,11 +22,13 @@ val defaultHttpClientConnectionManager: PoolingHttpClientConnectionManager =
  * val httpClient = httpClient { setConnectionManager(cm) }
  * ```
  *
- * @param initializer [PoolingHttpClientConnectionManagerBuilder] 를 초기화하는 람다 함수
+ * @param builder [PoolingHttpClientConnectionManagerBuilder] 를 초기화하는 람다 함수
  * @return [HttpClientConnectionManager] instance
  */
 inline fun httpClientConnectionManager(
-    initializer: PoolingHttpClientConnectionManagerBuilder.() -> Unit,
-): PoolingHttpClientConnectionManager {
-    return PoolingHttpClientConnectionManagerBuilder.create().apply(initializer).build()
-}
+    @BuilderInference builder: PoolingHttpClientConnectionManagerBuilder.() -> Unit,
+): PoolingHttpClientConnectionManager =
+    PoolingHttpClientConnectionManagerBuilder
+        .create()
+        .apply(builder)
+        .build()

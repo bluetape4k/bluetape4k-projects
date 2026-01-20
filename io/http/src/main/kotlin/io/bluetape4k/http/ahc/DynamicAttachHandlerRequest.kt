@@ -15,7 +15,7 @@ class DynamicAttachHandlerRequest(
 
     companion object: KLogging()
 
-    override fun <T: Any?> filter(ctx: FilterContext<T>): FilterContext<T> {
+    override fun <T> filter(ctx: FilterContext<T>): FilterContext<T> {
         headerNames.forEach { name ->
             runCatching {
                 val value = headerValueSupplier(name)

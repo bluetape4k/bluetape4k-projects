@@ -33,12 +33,13 @@ import java.io.Serializable
  * }
  * ```
  *
- * @param initializer  [EntityBuilder]를 이용한 초기화 코드
+ * @param builder  [EntityBuilder]를 이용한 초기화 코드
  * @return [HttpEntity] 인스턴스
  */
-inline fun httpEntity(initializer: EntityBuilder.() -> Unit): HttpEntity {
-    return EntityBuilder.create().apply(initializer).build()
-}
+inline fun httpEntity(
+    @BuilderInference builder: EntityBuilder.() -> Unit,
+): HttpEntity =
+    EntityBuilder.create().apply(builder).build()
 
 /**
  * [HttpEntity]를 생성합니다.
@@ -53,23 +54,24 @@ inline fun httpEntity(initializer: EntityBuilder.() -> Unit): HttpEntity {
  * @param contentType 컨텐츠 타입
  * @param contentEncoding 컨텐츠 인코딩
  * @param gzipCompressed GZIP 압축 여부
- * @param initializer [EntityBuilder]를 이용한 초기화 코드
+ * @param builder [EntityBuilder]를 이용한 초기화 코드
  * @return [HttpEntity] 인스턴스
  */
-fun httpEntityOf(
+inline fun httpEntityOf(
     text: String? = null,
     contentType: ContentType = ContentTypes.TEXT_PLAIN_UTF8,
     contentEncoding: String? = null,
     gzipCompressed: Boolean? = null,
-    initializer: EntityBuilder.() -> Unit = {},
-): HttpEntity = httpEntity {
-    setText(text)
-    setContentType(contentType)
-    contentEncoding?.run { setContentEncoding(this) }
-    gzipCompressed?.ifTrue { gzipCompressed() }
+    @BuilderInference builder: EntityBuilder.() -> Unit = {},
+): HttpEntity =
+    httpEntity {
+        setText(text)
+        setContentType(contentType)
+        contentEncoding?.run { setContentEncoding(this) }
+        gzipCompressed?.ifTrue { gzipCompressed() }
 
-    initializer()
-}
+        builder()
+    }
 
 /**
  * [HttpEntity]를 생성합니다.
@@ -84,23 +86,24 @@ fun httpEntityOf(
  * @param contentType 컨텐츠 타입
  * @param contentEncoding 컨텐츠 인코딩
  * @param gzipCompressed GZIP 압축 여부
- * @param initializer [EntityBuilder]를 이용한 초기화 코드
+ * @param builder [EntityBuilder]를 이용한 초기화 코드
  * @return [HttpEntity] 인스턴스
  */
-fun httpEntityOf(
+inline fun httpEntityOf(
     binary: ByteArray,
     contentType: ContentType = ContentType.DEFAULT_BINARY,
     contentEncoding: String? = null,
     gzipCompressed: Boolean? = null,
-    initializer: EntityBuilder.() -> Unit = {},
-): HttpEntity = httpEntity {
-    setBinary(binary)
-    setContentType(contentType)
-    contentEncoding?.run { setContentEncoding(this) }
-    gzipCompressed?.ifTrue { gzipCompressed() }
+    @BuilderInference builder: EntityBuilder.() -> Unit = {},
+): HttpEntity =
+    httpEntity {
+        setBinary(binary)
+        setContentType(contentType)
+        contentEncoding?.run { setContentEncoding(this) }
+        gzipCompressed?.ifTrue { gzipCompressed() }
 
-    initializer()
-}
+        builder()
+    }
 
 /**
  * [HttpEntity]를 생성합니다.
@@ -115,23 +118,24 @@ fun httpEntityOf(
  * @param contentType 컨텐츠 타입
  * @param contentEncoding 컨텐츠 인코딩
  * @param gzipCompressed GZIP 압축 여부
- * @param initializer [EntityBuilder]를 이용한 초기화 코드
+ * @param builder [EntityBuilder]를 이용한 초기화 코드
  * @return [HttpEntity] 인스턴스
  */
-fun httpEntityOf(
+inline fun httpEntityOf(
     inputStream: InputStream,
     contentType: ContentType = ContentType.DEFAULT_BINARY,
     contentEncoding: String? = null,
     gzipCompressed: Boolean? = null,
-    initializer: EntityBuilder.() -> Unit = {},
-): HttpEntity = httpEntity {
-    setStream(inputStream)
-    setContentType(contentType)
-    contentEncoding?.run { setContentEncoding(this) }
-    gzipCompressed?.ifTrue { gzipCompressed() }
+    @BuilderInference builder: EntityBuilder.() -> Unit = {},
+): HttpEntity =
+    httpEntity {
+        setStream(inputStream)
+        setContentType(contentType)
+        contentEncoding?.run { setContentEncoding(this) }
+        gzipCompressed?.ifTrue { gzipCompressed() }
 
-    initializer()
-}
+        builder()
+    }
 
 /**
  * [HttpEntity]를 생성합니다.
@@ -146,23 +150,24 @@ fun httpEntityOf(
  * @param contentType 컨텐츠 타입
  * @param contentEncoding 컨텐츠 인코딩
  * @param gzipCompressed GZIP 압축 여부
- * @param initializer [EntityBuilder]를 이용한 초기화 코드
+ * @param builder [EntityBuilder]를 이용한 초기화 코드
  * @return [HttpEntity] 인스턴스
  */
-fun httpEntityOf(
+inline fun httpEntityOf(
     file: File,
     contentType: ContentType = ContentType.DEFAULT_BINARY,
     contentEncoding: String? = null,
     gzipCompressed: Boolean? = null,
-    initializer: EntityBuilder.() -> Unit = {},
-): HttpEntity = httpEntity {
-    setFile(file)
-    setContentType(contentType)
-    contentEncoding?.run { setContentEncoding(this) }
-    gzipCompressed?.ifTrue { gzipCompressed() }
+    @BuilderInference builder: EntityBuilder.() -> Unit = {},
+): HttpEntity =
+    httpEntity {
+        setFile(file)
+        setContentType(contentType)
+        contentEncoding?.run { setContentEncoding(this) }
+        gzipCompressed?.ifTrue { gzipCompressed() }
 
-    initializer()
-}
+        builder()
+    }
 
 /**
  * [HttpEntity]를 생성합니다.
@@ -177,23 +182,24 @@ fun httpEntityOf(
  * @param contentType 컨텐츠 타입
  * @param contentEncoding 컨텐츠 인코딩
  * @param gzipCompressed GZIP 압축 여부
- * @param initializer [EntityBuilder]를 이용한 초기화 코드
+ * @param builder [EntityBuilder]를 이용한 초기화 코드
  * @return [HttpEntity] 인스턴스
  */
-fun httpEntityOf(
+inline fun httpEntityOf(
     serializable: Serializable,
     contentType: ContentType = ContentType.DEFAULT_BINARY,
     contentEncoding: String? = null,
     gzipCompressed: Boolean? = null,
-    initializer: EntityBuilder.() -> Unit = {},
-): HttpEntity = httpEntity {
-    setSerializable(serializable)
-    setContentType(contentType)
-    contentEncoding?.run { setContentEncoding(this) }
-    gzipCompressed?.ifTrue { gzipCompressed() }
+    @BuilderInference builder: EntityBuilder.() -> Unit = {},
+): HttpEntity =
+    httpEntity {
+        setSerializable(serializable)
+        setContentType(contentType)
+        contentEncoding?.run { setContentEncoding(this) }
+        gzipCompressed?.ifTrue { gzipCompressed() }
 
-    initializer()
-}
+        builder()
+    }
 
 /**
  * [HttpEntity]를 생성합니다.
@@ -208,20 +214,21 @@ fun httpEntityOf(
  * @param contentType 컨텐츠 타입
  * @param contentEncoding 컨텐츠 인코딩
  * @param gzipCompressed GZIP 압축 여부
- * @param initializer [EntityBuilder]를 이용한 초기화 코드
+ * @param builder [EntityBuilder]를 이용한 초기화 코드
  * @return [HttpEntity] 인스턴스
  */
-fun httpEntityOf(
+inline fun httpEntityOf(
     parameters: List<NameValuePair>,
     contentType: ContentType = ContentTypes.TEXT_PLAIN_UTF8,
     contentEncoding: String? = null,
     gzipCompressed: Boolean? = null,
-    initializer: EntityBuilder.() -> Unit = {},
-): HttpEntity = httpEntity {
-    setParameters(parameters)
-    setContentType(contentType)
-    contentEncoding?.run { setContentEncoding(this) }
-    gzipCompressed?.ifTrue { gzipCompressed() }
+    @BuilderInference builder: EntityBuilder.() -> Unit = {},
+): HttpEntity =
+    httpEntity {
+        setParameters(parameters)
+        setContentType(contentType)
+        contentEncoding?.run { setContentEncoding(this) }
+        gzipCompressed?.ifTrue { gzipCompressed() }
 
-    initializer()
-}
+        builder()
+    }

@@ -49,7 +49,7 @@ class AsyncClientConnectionConfig: AbstractHc5Test() {
                 log.debug { "scheme name=${host.schemeName}" }
                 if (host.schemeName.contentEquals("https", ignoreCase = true)) {
                     tlsConfigOf(
-                        supportedProtocols = TLS.values().asList(),
+                        supportedProtocols = TLS.entries,
                         handshakeTimeout = Timeout.ofSeconds(60),
                     )
                 } else {

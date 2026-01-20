@@ -5,7 +5,7 @@ import org.apache.hc.core5.util.TimeValue
 import org.apache.hc.core5.util.Timeout
 
 /**
- * [initializer]를 이용해 [IOReactorConfig] 를 빌드합니다.
+ * [builder]를 이용해 [IOReactorConfig] 를 빌드합니다.
  *
  * ```
  * val ioReactorConfig = ioReactorConfig {
@@ -14,13 +14,13 @@ import org.apache.hc.core5.util.Timeout
  * }
  * ```
  *
- * @param initializer [IOReactorConfig.Builder] DSL
+ * @param builder [IOReactorConfig.Builder] DSL
  * @return [IOReactorConfig]
  */
 inline fun ioReactorConfig(
-    initializer: IOReactorConfig.Builder.() -> Unit,
+    @BuilderInference builder: IOReactorConfig.Builder.() -> Unit,
 ): IOReactorConfig =
-    IOReactorConfig.custom().apply(initializer).build()
+    IOReactorConfig.custom().apply(builder).build()
 
 
 /**
@@ -39,7 +39,7 @@ inline fun ioReactorConfig(
  * @param soTimeout Socket Timeout
  * @param soLinger Socket Linger
  * @param soKeepAlive Socket Keep Alive
- * @param initializer [IOReactorConfig.Builder] DSL
+ * @param builder [IOReactorConfig.Builder] DSL
  * @return [IOReactorConfig]
  */
 inline fun ioReactorConfigOf(
@@ -47,12 +47,13 @@ inline fun ioReactorConfigOf(
     soTimeout: Timeout = IOReactorConfig.DEFAULT.soTimeout,
     soLinger: TimeValue = IOReactorConfig.DEFAULT.soLinger,
     soKeepAlive: Boolean = IOReactorConfig.DEFAULT.isSoKeepAlive,
-    initializer: IOReactorConfig.Builder.() -> Unit = {},
-): IOReactorConfig = ioReactorConfig {
-    setIoThreadCount(ioThreadCount)
-    setSoTimeout(soTimeout)
-    setSoLinger(soLinger)
-    setSoKeepAlive(soKeepAlive)
+    @BuilderInference builder: IOReactorConfig.Builder.() -> Unit = {},
+): IOReactorConfig =
+    ioReactorConfig {
+        setIoThreadCount(ioThreadCount)
+        setSoTimeout(soTimeout)
+        setSoLinger(soLinger)
+        setSoKeepAlive(soKeepAlive)
 
-    initializer()
-}
+        builder()
+    }

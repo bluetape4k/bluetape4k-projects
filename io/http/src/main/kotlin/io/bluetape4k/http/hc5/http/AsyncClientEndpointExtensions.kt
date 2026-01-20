@@ -24,9 +24,12 @@ import org.apache.hc.core5.http.nio.AsyncResponseConsumer
  * @param request 요청 정보 [SimpleHttpRequest]
  * @return 응답 정보 [SimpleHttpResponse]
  */
-suspend fun AsyncClientEndpoint.suspendExecute(request: SimpleHttpRequest): SimpleHttpResponse {
-    return execute(request.toProducer(), SimpleResponseConsumer.create(), null).suspendAwait()
-}
+suspend inline fun AsyncClientEndpoint.suspendExecute(request: SimpleHttpRequest): SimpleHttpResponse =
+    execute(
+        request.toProducer(),
+        SimpleResponseConsumer.create(),
+        null
+    ).suspendAwait()
 
 /**
  * Coroutines 환경에서 [AsyncClientEndpoint]를 이용하여
@@ -37,7 +40,7 @@ suspend fun AsyncClientEndpoint.suspendExecute(request: SimpleHttpRequest): Simp
  *      val endpoint = asyncClientEndpointOf()
  *      val requestProducer = simpleRequestProducerOf("http://localhost:8080")
  *      val responseConsumer = simpleResponseConsumerOf()
- *      val response = endpoint.executeSuspending(requestProducer, responseConsumer)
+ *      val entity = endpoint.executeSuspending(requestProducer, responseConsumer)
  * }
  * ```
  *
@@ -46,10 +49,9 @@ suspend fun AsyncClientEndpoint.suspendExecute(request: SimpleHttpRequest): Simp
  * @param callback 응답 콜백 [FutureCallback]
  * @return 응답 정보 [T]
  */
-suspend fun <T: Any> AsyncClientEndpoint.suspendExecute(
+suspend inline fun <T: Any> AsyncClientEndpoint.suspendExecute(
     requestProducer: AsyncRequestProducer,
     responseConsumer: AsyncResponseConsumer<T>,
     callback: FutureCallback<T>? = null,
-): T {
-    return execute(requestProducer, responseConsumer, callback).suspendAwait()
-}
+): T =
+    execute(requestProducer, responseConsumer, callback).suspendAwait()

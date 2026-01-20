@@ -14,13 +14,13 @@ import org.apache.hc.client5.http.protocol.HttpClientContext
  * }
  * ```
  *
- * @param initializer [ContextBuilder] 초기화 람다
+ * @param builder [ContextBuilder] 초기화 람다
  * @return [HttpClientContext]
  */
 inline fun httpClientContext(
-    initializer: ContextBuilder.() -> Unit,
+    @BuilderInference builder: ContextBuilder.() -> Unit,
 ): HttpClientContext =
-    ContextBuilder.create().apply(initializer).build()
+    ContextBuilder.create().apply(builder).build()
 
 /**
  * [ContextBuilder] 를 생성합니다.

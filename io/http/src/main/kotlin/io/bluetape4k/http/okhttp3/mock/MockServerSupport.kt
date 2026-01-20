@@ -11,8 +11,8 @@ import java.util.concurrent.TimeUnit
 
 val MockWebServer.baseUrl: String get() = url("/").toString()
 
-inline fun mockResponse(initializer: MockResponse.() -> Unit): MockResponse {
-    return MockResponse().apply(initializer)
+inline fun mockResponse(builder: MockResponse.() -> Unit): MockResponse {
+    return MockResponse().apply(builder)
 }
 
 fun MockWebServer.enqueueBody(body: String?, vararg headers: String) {

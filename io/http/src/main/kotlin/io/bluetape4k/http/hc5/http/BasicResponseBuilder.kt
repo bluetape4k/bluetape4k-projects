@@ -15,15 +15,14 @@ import org.apache.hc.core5.http.support.BasicResponseBuilder
  * ```
  *
  * @param status [Int] HTTP Status Code
- * @param initializer [BasicResponseBuilder] 초기화 람다
+ * @param builder [BasicResponseBuilder] 초기화 람다
  * @return [BasicHttpResponse] 인스턴스
  */
 inline fun basicHttpResponse(
     status: Int,
-    initializer: BasicResponseBuilder.() -> Unit,
-): BasicHttpResponse {
-    return BasicResponseBuilder.create(status).apply(initializer).build()
-}
+    @BuilderInference builder: BasicResponseBuilder.() -> Unit,
+): BasicHttpResponse =
+    BasicResponseBuilder.create(status).apply(builder).build()
 
 /**
  * [BasicHttpResponse] 를 빌드합니다.
@@ -36,12 +35,11 @@ inline fun basicHttpResponse(
  * ```
  *
  * @param response [HttpResponse] 기본 응답 정보
- * @param initializer [BasicResponseBuilder] 초기화 람다
+ * @param builder [BasicResponseBuilder] 초기화 람다
  * @return [BasicHttpResponse] 인스턴스
  */
-fun basicHttpResponse(
+inline fun basicHttpResponse(
     response: HttpResponse,
-    initializer: BasicResponseBuilder.() -> Unit,
-): BasicHttpResponse {
-    return BasicResponseBuilder.copy(response).apply(initializer).build()
-}
+    @BuilderInference builder: BasicResponseBuilder.() -> Unit,
+): BasicHttpResponse =
+    BasicResponseBuilder.copy(response).apply(builder).build()

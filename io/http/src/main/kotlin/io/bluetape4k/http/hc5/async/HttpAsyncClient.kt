@@ -27,11 +27,13 @@ val defaultHttpAsyncClient: CloseableHttpAsyncClient =
  * }
  * ```
  *
- * @param initializer [HttpAsyncClientBuilder] 설정
+ * @param builder [HttpAsyncClientBuilder] 설정
  * @return [CloseableHttpAsyncClient] 인스턴스
  */
-inline fun httpAsyncClient(initializer: HttpAsyncClientBuilder.() -> Unit): CloseableHttpAsyncClient {
-    return HttpAsyncClients.custom().apply(initializer).build().apply { this.start() }
+inline fun httpAsyncClient(
+    @BuilderInference builder: HttpAsyncClientBuilder.() -> Unit,
+): CloseableHttpAsyncClient {
+    return HttpAsyncClients.custom().apply(builder).build().apply { this.start() }
 }
 
 /**
@@ -47,15 +49,15 @@ inline fun httpAsyncClient(initializer: HttpAsyncClientBuilder.() -> Unit): Clos
  * ```
  *
  * @param cm [AsyncClientConnectionManager] 설정
- * @param initializer [HttpAsyncClientBuilder] 설정
+ * @param builder [HttpAsyncClientBuilder] 설정
  * @return [CloseableHttpAsyncClient] 인스턴스
  */
 fun httpAsyncClientOf(
     cm: AsyncClientConnectionManager = defaultAsyncClientConnectionManager,
-    initializer: HttpAsyncClientBuilder.() -> Unit = {},
+    @BuilderInference builder: HttpAsyncClientBuilder.() -> Unit = {},
 ): CloseableHttpAsyncClient = httpAsyncClient {
     setConnectionManager(cm)
-    initializer()
+    builder()
 }
 
 /**
@@ -89,13 +91,13 @@ val defaultH2AsyncClient: CloseableHttpAsyncClient =
  * }
  * ```
  *
- * @param initializer [H2AsyncClientBuilder] 설정
+ * @param builder [H2AsyncClientBuilder] 설정
  * @return [CloseableHttpAsyncClient] 인스턴스
  */
 inline fun h2AsyncClient(
-    initializer: H2AsyncClientBuilder.() -> Unit,
+    @BuilderInference builder: H2AsyncClientBuilder.() -> Unit,
 ): CloseableHttpAsyncClient {
-    return HttpAsyncClients.customHttp2().apply(initializer).build().apply { start() }
+    return HttpAsyncClients.customHttp2().apply(builder).build().apply { start() }
 }
 
 /**
@@ -116,15 +118,15 @@ fun h2AsyncClientOf(): CloseableHttpAsyncClient =
  * ```
  *
  * @param h2config [H2Config] 설정
- * @param initializer [H2AsyncClientBuilder] 설정
+ * @param builder [H2AsyncClientBuilder] 설정
  */
 fun h2AsyncClientOf(
     h2config: H2Config = H2Config.DEFAULT,
-    initializer: H2AsyncClientBuilder.() -> Unit = {},
+    @BuilderInference builder: H2AsyncClientBuilder.() -> Unit = {},
 ): CloseableHttpAsyncClient {
     return h2AsyncClient {
         setH2Config(h2config)
-        initializer()
+        builder()
     }
 }
 

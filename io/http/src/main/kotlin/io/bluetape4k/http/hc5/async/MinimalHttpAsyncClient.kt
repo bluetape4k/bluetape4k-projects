@@ -96,7 +96,7 @@ fun minimalH2AsyncClientOf(
  * @param callback [FutureCallback] 콜백
  * @return [AsyncClientEndpoint] 인스턴스
  */
-suspend fun MinimalHttpAsyncClient.leaseSuspending(
+suspend inline fun MinimalHttpAsyncClient.leaseSuspending(
     host: HttpHost,
     context: HttpContext = HttpClientContext.create(),
     callback: FutureCallback<AsyncClientEndpoint>? = null,

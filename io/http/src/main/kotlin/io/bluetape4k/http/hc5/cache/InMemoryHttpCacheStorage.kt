@@ -1,6 +1,7 @@
 package io.bluetape4k.http.hc5.cache
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import org.apache.hc.client5.http.cache.HttpCacheEntrySerializer
 import org.apache.hc.client5.http.cache.HttpCacheStorage
@@ -52,7 +53,7 @@ class InMemoryHttpCacheStorage<T>(
     }
 
     override fun bulkRestore(storageKeys: MutableCollection<String>): MutableMap<String, T> {
-        log.trace { "bulk store cache. storageKeys=${storageKeys.joinToString(",")}" }
+        log.debug { "bulk store cache. storageKeys=${storageKeys.joinToString(",")}" }
         if (storageKeys.isEmpty()) {
             return mutableMapOf()
         }
@@ -64,7 +65,7 @@ class InMemoryHttpCacheStorage<T>(
     }
 
     override fun updateCAS(storageKey: String, cas: T, storageObject: T): Boolean {
-        log.trace { "update cas. storageKey=$storageKey, cas=$cas, storageObject=$storageObject" }
+        log.debug { "update cas. storageKey=$storageKey, cas=$cas, storageObject=$storageObject" }
 
         val oldValue = cache[storageKey]
         return if (cas == oldValue) {
@@ -78,7 +79,7 @@ class InMemoryHttpCacheStorage<T>(
     override fun getStorageObject(cas: T): T = cas
 
     override fun store(storageKey: String, storageObject: T) {
-        log.trace { "store cache. storageKey=$storageKey, storageObject=$storageObject" }
+        log.debug { "store cache. storageKey=$storageKey, storageObject=$storageObject" }
         cache[storageKey] = storageObject
     }
 }

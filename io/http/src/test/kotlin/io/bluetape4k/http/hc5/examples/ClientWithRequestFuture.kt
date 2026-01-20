@@ -53,6 +53,7 @@ class ClientWithRequestFuture: AbstractHc5Test() {
                 futureTask2.cancel(true)
                 Thread.sleep(10)
                 val wasItOk2 = futureTask2.get()
+                log.debug { "It was ok? $wasItOk2" }
                 fail("여기까지 실행되면 안됩니다. 작업이 취소되어야 합니다.")
             } catch (e: CancellationException) {
                 log.debug { "We cancelled it, so this is expected" }

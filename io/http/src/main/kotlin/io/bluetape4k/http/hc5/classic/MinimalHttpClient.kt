@@ -20,6 +20,5 @@ import org.apache.hc.client5.http.io.HttpClientConnectionManager
  */
 fun minimalHttpClientOf(
     connManager: HttpClientConnectionManager = defaultHttpClientConnectionManager,
-): MinimalHttpClient {
-    return HttpClients.createMinimal(connManager)
-}
+): MinimalHttpClient =
+    HttpClients.createMinimal(connManager)

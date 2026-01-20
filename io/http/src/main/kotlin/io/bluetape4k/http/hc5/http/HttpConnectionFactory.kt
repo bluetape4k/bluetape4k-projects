@@ -24,13 +24,13 @@ import org.apache.hc.core5.http.io.HttpMessageWriterFactory
  * }
  * ```
  *
- * @param initializer [ManagedHttpClientConnectionFactory.Builder] 초기화 람다
+ * @param builder [ManagedHttpClientConnectionFactory.Builder] 초기화 람다
  * @return [HttpConnectionFactory]`<ManagedHttpClientConnection>` 인스턴스
  */
 inline fun managedHttpConnectionFactory(
-    initializer: ManagedHttpClientConnectionFactory.Builder.() -> Unit,
+    @BuilderInference builder: ManagedHttpClientConnectionFactory.Builder.() -> Unit,
 ): HttpConnectionFactory<ManagedHttpClientConnection> =
-    ManagedHttpClientConnectionFactory.builder().apply(initializer).build()
+    ManagedHttpClientConnectionFactory.builder().apply(builder).build()
 
 
 /**
@@ -53,20 +53,20 @@ inline fun managedHttpConnectionFactory(
  * @param charCodingConfig [CharCodingConfig] 설정
  * @param requestWriterFactory [HttpMessageWriterFactory] 인스턴스 (기본: [DefaultHttpRequestWriterFactory.INSTANCE])
  * @param responseParserFactory [HttpMessageParserFactory] 인스턴스 (기본: [DefaultHttpResponseParserFactory.INSTANCE])
- * @param initializer [ManagedHttpClientConnectionFactory.Builder] 초기화 람다
+ * @param builder [ManagedHttpClientConnectionFactory.Builder] 초기화 람다
  * @return [HttpConnectionFactory]`<ManagedHttpClientConnection>` 인스턴스
  */
-fun managedHttpConnectionFactoryOf(
+inline fun managedHttpConnectionFactoryOf(
     http1Config: Http1Config = Http1Config.DEFAULT,
     charCodingConfig: CharCodingConfig = CharCodingConfig.DEFAULT,
     requestWriterFactory: HttpMessageWriterFactory<ClassicHttpRequest> = DefaultHttpRequestWriterFactory.INSTANCE,
     responseParserFactory: HttpMessageParserFactory<ClassicHttpResponse> = DefaultHttpResponseParserFactory.INSTANCE,
-    initializer: ManagedHttpClientConnectionFactory.Builder.() -> Unit = {},
+    @BuilderInference builder: ManagedHttpClientConnectionFactory.Builder.() -> Unit = {},
 ): HttpConnectionFactory<ManagedHttpClientConnection> =
     managedHttpConnectionFactory {
         http1Config(http1Config)
         charCodingConfig(charCodingConfig)
         requestWriterFactory(requestWriterFactory)
         responseParserFactory(responseParserFactory)
-        initializer()
+        builder()
     }

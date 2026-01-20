@@ -7,7 +7,6 @@ import io.bluetape4k.http.AbstractHttpTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
-import io.bluetape4k.utils.Systemx
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
@@ -56,7 +55,7 @@ class AsyncHttpClientTest: AbstractHttpTest() {
 
     @Test
     fun `Coroutine GET 호출`() = runSuspendIO {
-        executeGetSuspend(ahc)
+        suspendExecuteGet(ahc)
     }
 
     @EnabledOnOs(OS.LINUX, OS.MAC)
@@ -68,7 +67,7 @@ class AsyncHttpClientTest: AbstractHttpTest() {
     @EnabledOnOs(OS.LINUX, OS.MAC)
     @RepeatedTest(REPEAT_SIZE)
     fun `netty native event poll 사용해서 Coroutines 환경에서 실행하기`() = runSuspendIO {
-        executeGetSuspend(ahc, TEST_SIZE)
+        suspendExecuteGet(ahc, TEST_SIZE)
     }
 
     private fun executeGetAsync(ahc: AsyncHttpClient, count: Int = TEST_SIZE) {
@@ -90,7 +89,7 @@ class AsyncHttpClientTest: AbstractHttpTest() {
         futures.allAsList().join()
     }
 
-    private suspend fun executeGetSuspend(ahc: AsyncHttpClient, count: Int = TEST_SIZE) = coroutineScope {
+    private suspend fun suspendExecuteGet(ahc: AsyncHttpClient, count: Int = TEST_SIZE) = coroutineScope {
         val jobs = List(count) {
             launch(Dispatchers.IO) {
                 val response = ahc
@@ -105,25 +104,6 @@ class AsyncHttpClientTest: AbstractHttpTest() {
         jobs.joinAll()
     }
 
-    private fun getAsyncHttpClientConfig(): AsyncHttpClientConfig {
-        return asyncHttpClientConfig {
-            setKeepAlive(true)
-            setCompressionEnforced(true)
-            setFollowRedirect(true)
-            setTcpNoDelay(true)
-            setSoReuseAddress(true)
-
-            runCatching {
-                if (Systemx.isUnix) {
-                    // setEventLoopGroup(EpollEventLoopGroup())
-                    setUseNativeTransport(true)
-                } else if (Systemx.isMac) {
-                    // setEventLoopGroup(KQueueEventLoopGroup())
-                    setUseNativeTransport(true)
-                } else {
-                    // Nothing to do
-                }
-            }
-        }
-    }
+    private fun getAsyncHttpClientConfig(): AsyncHttpClientConfig =
+        asyncHttpClientConfig { }
 }

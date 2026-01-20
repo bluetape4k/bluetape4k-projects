@@ -18,11 +18,13 @@ import java.nio.charset.Charset
  * }
  * ```
  *
- * @param initializer 초기화 람다
+ * @param builder 초기화 람다
  * @return [HttpEntity]
  */
-inline fun multipartEntity(initializer: MultipartEntityBuilder.() -> Unit): HttpEntity =
-    MultipartEntityBuilder.create().apply(initializer).build()
+inline fun multipartEntity(
+    @BuilderInference builder: MultipartEntityBuilder.() -> Unit,
+): HttpEntity =
+    MultipartEntityBuilder.create().apply(builder).build()
 
 /**
  * Multi-part 포맷의 [HttpEntity]를 빌드합니다.
@@ -50,7 +52,7 @@ inline fun multipartEntity(initializer: MultipartEntityBuilder.() -> Unit): Http
  * @param subType 서브 타입
  * @param contentType [ContentType]
  * @param parameters [BasicNameValuePair] 컬렉션
- * @param initializer 초기화 람다
+ * @param builder 초기화 람다
  * @return [HttpEntity] 인스턴스
  */
 inline fun multipartEntity(
@@ -60,17 +62,18 @@ inline fun multipartEntity(
     subType: String? = null,
     contentType: ContentType? = null,
     parameters: Collection<BasicNameValuePair> = emptyList(),
-    initializer: MultipartEntityBuilder.() -> Unit = {},
-): HttpEntity = multipartEntity {
-    setMode(mode)
-    setCharset(charset)
+    @BuilderInference builder: MultipartEntityBuilder.() -> Unit = {},
+): HttpEntity =
+    multipartEntity {
+        setMode(mode)
+        setCharset(charset)
 
-    boundary?.run { setBoundary(boundary) }
-    subType?.run { setMimeSubtype(subType) }
-    contentType?.run { setContentType(contentType) }
-    parameters.forEach {
-        addParameter(it)
+        boundary?.run { setBoundary(boundary) }
+        subType?.run { setMimeSubtype(subType) }
+        contentType?.run { setContentType(contentType) }
+        parameters.forEach {
+            addParameter(it)
+        }
+
+        builder()
     }
-
-    initializer()
-}

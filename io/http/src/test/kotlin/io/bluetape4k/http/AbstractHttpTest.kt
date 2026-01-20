@@ -7,7 +7,7 @@ import org.junit.jupiter.api.fail
 abstract class AbstractHttpTest {
 
     companion object: KLogging() {
-        const val HELLOWORLD_URL = "http://publicobject.com/helloworld.txt"
+        const val HELLOWORLD_URL = "https://publicobject.com/helloworld.txt"
         const val HTTPBIN_URL = "https://httpbin.org"
         const val NGHTTP2_HTTPBIN_URL = "https://nghttp2.org/httpbin"
         const val JSON_PLACEHOLDER_URL = "https://jsonplaceholder.typicode.com"

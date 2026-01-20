@@ -27,7 +27,7 @@ class FluentExecutorExamples: AbstractHc5Test() {
 
     private val executor: Executor = Executor.newInstance()
         .auth(httpHostOf(httpbinBaseUrl), "user", "passwd".toCharArray())
-        .auth(httpHostOf("http://nghttp2.org"), "user", "passwd".toCharArray())
+        .auth(httpHostOf("https://nghttp2.org"), "user", "passwd".toCharArray())
         .authPreemptive(httpHostOf(httpbinBaseUrl))
 
     @Test

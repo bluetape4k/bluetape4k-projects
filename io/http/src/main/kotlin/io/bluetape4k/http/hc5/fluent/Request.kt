@@ -24,7 +24,7 @@ fun requestOf(method: Method, uri: URI): Request = Request.create(method, uri)
  * val request = requestOf(Method.GET, "https://example.com")
  * ```
  *
- * @param method 요청 메소드
+ * @param methodName 요청 메소드
  * @param uri 요청 주소 [String]
  * @return 요청 정보 [Request]
  */

@@ -25,17 +25,17 @@ class Hc5Examples: AbstractHc5Test() {
         defaultHttpClient().use { httpclient ->
             val httpget = HttpGet("$httpbinBaseUrl/get")
             val executor = Executors.newScheduledThreadPool(1)
-            executor.schedule(
-                {
-                    httpget.cancel()
-                    log.debug { "$httpget is canceled by timeout." }
-                },
-                1,
-                TimeUnit.SECONDS
-            )
-            log.debug { "Executing request ${httpget.method} ${httpget.uri}" }
-
             try {
+                executor.schedule(
+                    {
+                        httpget.cancel()
+                        log.debug { "$httpget is canceled by timeout." }
+                    },
+                    1,
+                    TimeUnit.SECONDS
+                )
+                log.debug { "Executing request ${httpget.method} ${httpget.uri}" }
+
                 httpclient.execute(httpget) { response ->
                     log.debug { "-------------" }
                     log.debug { "$httpget -> ${StatusLine(response)}" }
@@ -60,16 +60,15 @@ class Hc5Examples: AbstractHc5Test() {
 
         httpClient {
             setDefaultCredentialsProvider(credentialsProvider)
-        }
-            .use { httpclient ->
-                val httpget = HttpGet("$httpbinBaseUrl/basic-auth/$username/$password")
-                log.debug { "Executing request ${httpget.method} ${httpget.uri}" }
+        }.use { httpclient ->
+            val httpget = HttpGet("$httpbinBaseUrl/basic-auth/$username/$password")
+            log.debug { "Executing request ${httpget.method} ${httpget.uri}" }
 
-                httpclient.execute(httpget) { response ->
-                    log.debug { "-------------" }
-                    log.debug { "$httpget -> ${StatusLine(response)}" }
-                    response.entity.consume()
-                }
+            httpclient.execute(httpget) { response ->
+                log.debug { "-------------" }
+                log.debug { "$httpget -> ${StatusLine(response)}" }
+                response.entity.consume()
             }
+        }
     }
 }

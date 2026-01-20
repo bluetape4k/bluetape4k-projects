@@ -17,10 +17,11 @@ import java.io.File
  * ```
  */
 inline fun cachingHttpClient(
-    initializer: CachingHttpClientBuilder.() -> Unit,
-): CloseableHttpClient {
-    return CachingHttpClientBuilder.create().apply(initializer).build()
-}
+    @BuilderInference builder: CachingHttpClientBuilder.() -> Unit,
+): CloseableHttpClient =
+    CachingHttpClientBuilder.create()
+        .apply(builder)
+        .build()
 
 /**
  * Cache를 지원하는 [CloseableHttpClient]를 생성합니다.
@@ -33,13 +34,12 @@ inline fun cachingHttpClient(
  */
 inline fun cachingHttpClient(
     cacheStorage: HttpCacheStorage,
-    initializer: CachingHttpClientBuilder.() -> Unit = {},
-): CloseableHttpClient {
-    return CachingHttpClientBuilder.create()
+    @BuilderInference builder: CachingHttpClientBuilder.() -> Unit = {},
+): CloseableHttpClient =
+    CachingHttpClientBuilder.create()
         .setHttpCacheStorage(cacheStorage)
-        .apply(initializer)
+        .apply(builder)
         .build()
-}
 
 /**
  * 메모리에 캐시하는 [CloseableHttpClient]를 생성합니다.

@@ -56,8 +56,7 @@ class ClientPreemptiveDigestAuthentication: AbstractHc5Test() {
 
                 val authExchange = localContext.getAuthExchange(httpHost)
                 if (authExchange != null) {
-                    val authScheme = authExchange.authScheme
-                    when (authScheme) {
+                    when (val authScheme = authExchange.authScheme) {
                         is BasicScheme -> log.debug { "Basic auth scheme: ${authScheme.name}, ${authScheme.realm}" }
                         is DigestScheme -> log.debug { "Digest auth scheme: ${authScheme.name}, count: ${authScheme.nounceCount}" }
                     }
@@ -99,8 +98,7 @@ class ClientPreemptiveDigestAuthentication: AbstractHc5Test() {
                         response.code shouldBeEqualTo 200
 
                         val authExchange = localContext.getAuthExchange(httpHost)!!
-                        val authScheme = authExchange.authScheme
-                        when (authScheme) {
+                        when (val authScheme = authExchange.authScheme) {
                             is BasicScheme -> log.debug { "Basic auth scheme: ${authScheme.name}, ${authScheme.realm}" }
                             is DigestScheme -> log.debug { "Digest auth scheme: ${authScheme.name}, count: ${authScheme.nounceCount}" }
                         }

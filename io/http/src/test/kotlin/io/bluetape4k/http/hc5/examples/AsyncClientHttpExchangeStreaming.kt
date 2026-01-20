@@ -43,7 +43,7 @@ class AsyncClientHttpExchangeStreaming: AbstractHc5Test() {
         // NOTE: 먼저 start() 를 호출해주어야 합니다.
         client.start()
 
-        requestUris.map { path ->
+        requestUris.forEach { path ->
             val request = basicHttpRequestOf(Method.GET, target, path)
 
             client.execute(

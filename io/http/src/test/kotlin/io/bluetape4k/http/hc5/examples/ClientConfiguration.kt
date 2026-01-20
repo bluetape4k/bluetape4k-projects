@@ -11,7 +11,6 @@ import io.bluetape4k.http.hc5.http.managedHttpConnectionFactory
 import io.bluetape4k.http.hc5.http.requestConfig
 import io.bluetape4k.http.hc5.http.socketConfig
 import io.bluetape4k.http.hc5.http.tlsConfig
-import io.bluetape4k.http.hc5.ssl.sslContextOfSystem
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.apache.hc.client5.http.ContextBuilder
@@ -93,7 +92,7 @@ class ClientConfiguration: AbstractHc5Test() {
 
         // SSL context for secure connections can be created either based on
         // system or application specific properties.
-        val sslContext = sslContextOfSystem()
+//        val sslContext = sslContextOfSystem()
 
         // Create a registry of custom connection socket factories for supported
         // protocol schemes.

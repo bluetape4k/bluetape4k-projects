@@ -17,9 +17,9 @@ import java.io.File
  * ```
  */
 inline fun cachingHttpAsyncClient(
-    initializer: CachingHttpAsyncClientBuilder.() -> Unit,
+    @BuilderInference builder: CachingHttpAsyncClientBuilder.() -> Unit,
 ): CloseableHttpAsyncClient {
-    return CachingHttpAsyncClientBuilder.create().apply(initializer).build()
+    return CachingHttpAsyncClientBuilder.create().apply(builder).build()
 }
 
 /**
@@ -33,11 +33,11 @@ inline fun cachingHttpAsyncClient(
  */
 inline fun cachingHttpAsyncClient(
     cacheStorage: HttpAsyncCacheStorage,
-    initializer: CachingHttpAsyncClientBuilder.() -> Unit = {},
+    @BuilderInference builder: CachingHttpAsyncClientBuilder.() -> Unit = {},
 ): CloseableHttpAsyncClient {
     return CachingHttpAsyncClientBuilder.create()
         .setHttpCacheStorage(cacheStorage)
-        .apply(initializer)
+        .apply(builder)
         .build()
 }
 

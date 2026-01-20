@@ -19,14 +19,14 @@ import org.apache.hc.core5.http.Method
  * ```
  *
  * @param method HTTP Method
- * @param initializer [SimpleRequestBuilder] 초기화 람다
+ * @param builder [SimpleRequestBuilder] 초기화 람다
  * @return [SimpleHttpRequest] 인스턴스
  */
 inline fun simpleHttpRequest(
     method: String,
-    initializer: SimpleRequestBuilder.() -> Unit,
+    @BuilderInference builder: SimpleRequestBuilder.() -> Unit,
 ): SimpleHttpRequest {
-    return SimpleRequestBuilder.create(method).apply(initializer).build()
+    return SimpleRequestBuilder.create(method).apply(builder).build()
 }
 
 /**
@@ -40,14 +40,14 @@ inline fun simpleHttpRequest(
  * ```
  *
  * @param method [Method] HTTP Method
- * @param initializer [SimpleRequestBuilder] 초기화 람다
+ * @param builder [SimpleRequestBuilder] 초기화 람다
  * @return [SimpleHttpRequest] 인스턴스
  */
 inline fun simpleHttpRequest(
     method: Method,
-    initializer: SimpleRequestBuilder.() -> Unit,
+    @BuilderInference builder: SimpleRequestBuilder.() -> Unit,
 ): SimpleHttpRequest {
-    return SimpleRequestBuilder.create(method).apply(initializer).build()
+    return SimpleRequestBuilder.create(method).apply(builder).build()
 }
 
 /**
@@ -62,23 +62,23 @@ inline fun simpleHttpRequest(
  * @param path 요청 경로
  * @param body [SimpleBody] 정보
  * @param headers [Header] 정보
- * @param initializer [SimpleRequestBuilder] 초기화 람다
+ * @param builder [SimpleRequestBuilder] 초기화 람다
  * @return [SimpleHttpRequest] 인스턴스
  */
-fun simpleHttpRequestOf(
+inline fun simpleHttpRequestOf(
     method: String,
     host: HttpHost,
     path: String,
     body: SimpleBody? = null,
     headers: Iterable<Header>? = null,
-    initializer: SimpleRequestBuilder.() -> Unit = {},
+    @BuilderInference builder: SimpleRequestBuilder.() -> Unit = {},
 ): SimpleHttpRequest = simpleHttpRequest(method) {
     setHttpHost(host)
     setPath(path)
     body?.run { setBody(body) }
     headers?.run { setHeaders(headers.iterator()) }
 
-    initializer()
+    builder()
 }
 
 /**
@@ -93,22 +93,22 @@ fun simpleHttpRequestOf(
  * @param path 요청 경로
  * @param body [SimpleBody] 정보
  * @param headers [Header] 정보
- * @param initializer [SimpleRequestBuilder] 초기화 람다
+ * @param builder [SimpleRequestBuilder] 초기화 람다
  * @return [SimpleHttpRequest] 인스턴스
  */
-fun simpleHttpRequestOf(
+inline fun simpleHttpRequestOf(
     method: Method,
     host: HttpHost,
     path: String,
     body: SimpleBody? = null,
     headers: Iterable<Header>? = null,
-    initializer: SimpleRequestBuilder.() -> Unit = {},
+    @BuilderInference builder: SimpleRequestBuilder.() -> Unit = {},
 ): SimpleHttpRequest = simpleHttpRequest(method) {
     setHttpHost(host)
     setPath(path)
     body?.run { setBody(body) }
     headers?.run { setHeaders(headers.iterator()) }
-    initializer()
+    builder()
 }
 
 /**

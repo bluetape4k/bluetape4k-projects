@@ -27,7 +27,6 @@ import okhttp3.Callback
 import okhttp3.Headers
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
@@ -54,7 +53,7 @@ class Recipes: AbstractHttpTest() {
         readTimeout(Duration.ofSeconds(5))
     }
 
-    private val MEDIA_TYPE_MARKDOWN: MediaType = "text/x-markdown; charset=utf-8".toMediaTypeOrNull()!!
+    private val mediaTypeMarkDown: MediaType = "text/x-markdown; charset=utf-8".toMediaTypeOrNull()!!
 
     private fun printHeaders(headers: Headers) {
         log.debug {
@@ -209,15 +208,14 @@ class Recipes: AbstractHttpTest() {
 
     @Test
     fun `Timeout 발생 처리`() {
-        val client = OkHttpClient.Builder()
-            .connectTimeout(Duration.ofSeconds(1))
-            .writeTimeout(Duration.ofSeconds(1))
-            .readTimeout(Duration.ofSeconds(1))
-            .build()
+        val client = okhttp3Client {
+            connectTimeout(Duration.ofSeconds(1))
+            writeTimeout(Duration.ofSeconds(1))
+            readTimeout(Duration.ofSeconds(1))
+        }
 
-        val request = Request.Builder()
-            .url("http://nghttp2.org/httpbin/delay/2")          // 2 초간 지연을 시킵니다.
-            .build()
+        // 2 초간 지연을 시킵니다.
+        val request = okhttp3RequestOf("https://nghttp2.org/httpbin/delay/2")
 
         // 동기 방식에서의 Timeout 발생
         assertFailsWith<SocketTimeoutException> {
@@ -227,15 +225,14 @@ class Recipes: AbstractHttpTest() {
 
     @Test
     fun `비동기 호출에 대한 Timeout 처리`() {
-        val client = OkHttpClient.Builder()
-            .connectTimeout(Duration.ofSeconds(1))
-            .writeTimeout(Duration.ofSeconds(1))
-            .readTimeout(Duration.ofSeconds(1))
-            .build()
+        val client = okhttp3Client {
+            connectTimeout(Duration.ofSeconds(1))
+            writeTimeout(Duration.ofSeconds(1))
+            readTimeout(Duration.ofSeconds(1))
+        }
 
-        val request = Request.Builder()
-            .url("http://nghttp2.org/httpbin/delay/2")          // 2 초간 지연을 시킵니다.
-            .build()
+        // 2 초간 지연을 시킵니다.
+        val request = okhttp3RequestOf("https://nghttp2.org/httpbin/delay/2")
 
         assertFailsWith<CompletionException> {
             client.executeAsync(request)

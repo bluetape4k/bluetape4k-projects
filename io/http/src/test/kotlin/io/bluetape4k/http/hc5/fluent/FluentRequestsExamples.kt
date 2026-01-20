@@ -14,8 +14,6 @@ import org.junit.jupiter.api.Test
 
 /**
  * This example demonstrates basics of request execution with the HttpClient fluent API.
- *
- * @see [Requests]
  */
 @TempFolderTest
 class FluentRequestsExamples: AbstractHc5Test() {

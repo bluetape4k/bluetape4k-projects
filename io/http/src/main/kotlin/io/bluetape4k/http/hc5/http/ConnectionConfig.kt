@@ -11,7 +11,7 @@ import org.apache.hc.core5.util.Timeout
 val defaultConnectionConfig: ConnectionConfig = ConnectionConfig.DEFAULT
 
 /**
- * [initializer]를 이용해 [ConnectionConfig] 를 생성합니다.
+ * [builder]를 이용해 [ConnectionConfig] 를 생성합니다.
  *
  * ```
  * val connectionConfig = connectionConfig {
@@ -21,13 +21,13 @@ val defaultConnectionConfig: ConnectionConfig = ConnectionConfig.DEFAULT
  * }
  * ```
  *
- * @param initializer 환경 설정을 수행할 람다 함수
+ * @param builder 환경 설정을 수행할 람다 함수
  * @return [ConnectionConfig] 인스턴스
  */
 inline fun connectionConfig(
-    initializer: ConnectionConfig.Builder.() -> Unit,
+    @BuilderInference builder: ConnectionConfig.Builder.() -> Unit,
 ): ConnectionConfig =
-    ConnectionConfig.custom().apply(initializer).build()
+    ConnectionConfig.custom().apply(builder).build()
 
 /**
  * [ConnectionConfig] 를 생성합니다.
@@ -42,20 +42,21 @@ inline fun connectionConfig(
  * @param socketTimeout socket timeout
  * @param valiateAfterInactivity validate after inactivity
  * @param timeToLive time to live
- * @param initializer 환경 설정을 수행할 람다 함수
+ * @param builder 환경 설정을 수행할 람다 함수
  * @return [ConnectionConfig] 인스턴스
  */
-fun connectionConfigOf(
+inline fun connectionConfigOf(
     connectTimeout: Timeout = defaultConnectionConfig.connectTimeout,
     socketTimeout: Timeout = defaultConnectionConfig.socketTimeout,
     valiateAfterInactivity: TimeValue = defaultConnectionConfig.validateAfterInactivity,
     timeToLive: TimeValue = defaultConnectionConfig.timeToLive,
-    initializer: ConnectionConfig.Builder.() -> Unit = {},
-): ConnectionConfig = connectionConfig {
-    setConnectTimeout(connectTimeout)
-    setSocketTimeout(socketTimeout)
-    setValidateAfterInactivity(valiateAfterInactivity)
-    setTimeToLive(timeToLive)
+    @BuilderInference builder: ConnectionConfig.Builder.() -> Unit = {},
+): ConnectionConfig =
+    connectionConfig {
+        setConnectTimeout(connectTimeout)
+        setSocketTimeout(socketTimeout)
+        setValidateAfterInactivity(valiateAfterInactivity)
+        setTimeToLive(timeToLive)
 
-    initializer()
-}
+        builder()
+    }

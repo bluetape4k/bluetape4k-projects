@@ -1,7 +1,7 @@
 package io.bluetape4k.http.hc5.cache
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.debug
 import org.apache.hc.client5.http.cache.HttpCacheEntrySerializer
 import org.apache.hc.client5.http.cache.HttpCacheStorage
 import org.apache.hc.client5.http.cache.HttpCacheStorageEntry
@@ -43,22 +43,22 @@ class JavaCacheHttpCacheStorage<T>(
     override fun digestToStorageKey(key: String): String = key
 
     override fun restore(storageKey: String): T? {
-        log.trace { "retrieve cache. storageKey=$storageKey" }
+        log.debug { "retrieve cache. storageKey=$storageKey" }
         return cache[storageKey]
     }
 
     override fun getForUpdateCAS(storageKey: String): T? {
-        log.trace { "get for update cas. storageKey=$storageKey" }
+        log.debug { "get for update cas. storageKey=$storageKey" }
         return cache[storageKey]
     }
 
     override fun delete(storageKey: String) {
-        log.trace { "delete cache. storageKey=$storageKey" }
+        log.debug { "delete cache. storageKey=$storageKey" }
         cache.remove(storageKey)
     }
 
     override fun bulkRestore(storageKeys: MutableCollection<String>): MutableMap<String, T> {
-        log.trace { "bulk store cache. storageKeys=${storageKeys.joinToString(",")}" }
+        log.debug { "bulk store cache. storageKeys=${storageKeys.joinToString(",")}" }
         if (storageKeys.isEmpty()) {
             return mutableMapOf()
         }
@@ -70,14 +70,14 @@ class JavaCacheHttpCacheStorage<T>(
     }
 
     override fun updateCAS(storageKey: String, cas: T, storageObject: T): Boolean {
-        log.trace { "update cas. storageKey=$storageKey, cas=$cas, storageObject=$storageObject" }
+        log.debug { "update cas. storageKey=$storageKey, cas=$cas, storageObject=$storageObject" }
         return cache.replace(storageKey, cas, storageObject)
     }
 
     override fun getStorageObject(cas: T): T = cas
 
     override fun store(storageKey: String, storageObject: T) {
-        log.trace { "store cache. storageKey=$storageKey, storageObject=$storageObject" }
+        log.debug { "store cache. storageKey=$storageKey, storageObject=$storageObject" }
         cache.put(storageKey, storageObject)
     }
 }

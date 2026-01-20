@@ -14,7 +14,7 @@ class AttachHeaderRequestFilter(val headers: Map<String, Any?>): RequestFilter {
 
     companion object: KLogging()
 
-    override fun <T: Any?> filter(ctx: FilterContext<T>): FilterContext<T> {
+    override fun <T> filter(ctx: FilterContext<T>): FilterContext<T> {
         this.headers.forEach { (name, value) ->
             log.trace { "Add header name=$name, value=$value" }
             ctx.request.headers.add(name, value)

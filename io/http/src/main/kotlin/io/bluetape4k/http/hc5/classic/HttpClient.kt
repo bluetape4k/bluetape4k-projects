@@ -16,14 +16,14 @@ import org.apache.hc.client5.http.io.HttpClientConnectionManager
  * val httpClient = httpClient { setConnectionManager(cm) }
  * ```
  *
- * @param initializer [HttpClientBuilder] 를 초기화하는 람다 함수
+ * @param builder [HttpClientBuilder] 를 초기화하는 람다 함수
  * @return [CloseableHttpClient]
  * @see HttpClientBuilder
  */
 inline fun httpClient(
-    initializer: HttpClientBuilder.() -> Unit,
+    @BuilderInference builder: HttpClientBuilder.() -> Unit,
 ): CloseableHttpClient {
-    return HttpClientBuilder.create().apply(initializer).build()
+    return HttpClientBuilder.create().apply(builder).build()
 }
 
 /**
@@ -55,15 +55,15 @@ fun httpClientOf(): CloseableHttpClient = HttpClients.createDefault()
  * ```
  *
  * @param connectionManager [HttpClientConnectionManager]
- * @param initializer [HttpClientBuilder] 를 초기화하는 람다 함수
+ * @param builder [HttpClientBuilder] 를 초기화하는 람다 함수
  * @return [CloseableHttpClient]
  */
-fun httpClientOf(
+inline fun httpClientOf(
     connectionManager: HttpClientConnectionManager,
-    initializer: HttpClientBuilder.() -> Unit = {},
+    @BuilderInference builder: HttpClientBuilder.() -> Unit = {},
 ): CloseableHttpClient = httpClient {
     setConnectionManager(connectionManager)
-    initializer()
+    builder()
 }
 
 /**

@@ -104,7 +104,7 @@ class OkHttp3SupportTest: AbstractHttpTest() {
                 get()
             }
 
-            val jobs = List(TEST_SIZE) { index ->
+            val tasks = List(TEST_SIZE) { index ->
                 async(Dispatchers.IO) {
                     val sw = StopWatch.createStarted()
 
@@ -117,7 +117,7 @@ class OkHttp3SupportTest: AbstractHttpTest() {
                 }
             }
 
-            val responses = jobs.awaitAll()
+            val responses = tasks.awaitAll()
             responses.all { it.isSuccessful }.shouldBeTrue()
         }
 

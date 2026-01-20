@@ -41,7 +41,7 @@ import org.apache.hc.core5.reactor.IOReactorStatus
  * @param context  [HttpContext] 인스턴스
  * @return `requestConsumer` 에서 처리한 결과
  */
-suspend fun <T: Any> CloseableHttpAsyncClient.suspendExecute(
+suspend inline fun <T: Any> CloseableHttpAsyncClient.suspendExecute(
     requestProducer: AsyncRequestProducer,
     responseConsumer: AsyncResponseConsumer<T>,
     pushHandlerFactory: HandlerFactory<AsyncPushConsumer>? = null,
@@ -76,7 +76,7 @@ suspend fun <T: Any> CloseableHttpAsyncClient.suspendExecute(
  * @param context [HttpClientContext] 인스턴스
  * @return [SimpleHttpResponse] 인스턴스
  */
-suspend fun CloseableHttpAsyncClient.suspendExecute(
+suspend inline fun CloseableHttpAsyncClient.suspendExecute(
     request: SimpleHttpRequest,
     context: HttpClientContext = HttpClientContext.create(),
     callback: FutureCallback<SimpleHttpResponse>? = null,
@@ -108,7 +108,7 @@ suspend fun CloseableHttpAsyncClient.suspendExecute(
  * @param callback [FutureCallback] 인스턴스
  * @return `requestConsumer` 에서 처리한 결과
  */
-suspend fun <T: Any> CloseableHttpAsyncClient.suspendExecute(
+suspend inline fun <T: Any> CloseableHttpAsyncClient.suspendExecute(
     requestProducer: AsyncRequestProducer,
     responseConsumer: AsyncResponseConsumer<T>,
     callback: FutureCallback<T>? = null,
@@ -148,7 +148,7 @@ suspend fun <T: Any> CloseableHttpAsyncClient.suspendExecute(
  * @param callback [FutureCallback] 인스턴스
  * @return `requestConsumer` 에서 처리한 결과
  */
-suspend fun <T: Any> CloseableHttpAsyncClient.suspendExecute(
+suspend inline fun <T: Any> CloseableHttpAsyncClient.suspendExecute(
     target: HttpHost,
     requestProducer: AsyncRequestProducer,
     responseConsumer: AsyncResponseConsumer<T>,

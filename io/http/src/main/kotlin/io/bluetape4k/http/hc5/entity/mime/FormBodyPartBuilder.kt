@@ -16,11 +16,13 @@ import org.apache.hc.client5.http.entity.mime.FormBodyPartBuilder
  * }
  * ```
  *
- * @param initializer 초기화 람다
+ * @param builder 초기화 람다
  * @return [FormBodyPart]
  */
-inline fun formBodyPart(initializer: FormBodyPartBuilder.() -> Unit): FormBodyPart =
-    FormBodyPartBuilder.create().apply(initializer).build()
+inline fun formBodyPart(
+    @BuilderInference builder: FormBodyPartBuilder.() -> Unit,
+): FormBodyPart =
+    FormBodyPartBuilder.create().apply(builder).build()
 
 /**
  * [FormBodyPart] 를 생성합니다.
@@ -35,18 +37,19 @@ inline fun formBodyPart(initializer: FormBodyPartBuilder.() -> Unit): FormBodyPa
  *
  * @param name 파트 이름
  * @param body 파트 바디
- * @param initializer 초기화 람다
+ * @param builder 초기화 람다
  * @return [FormBodyPart]
  */
 inline fun formBodyPart(
     name: String,
     body: ContentBody,
-    initializer: FormBodyPartBuilder.() -> Unit = {},
-): FormBodyPart = formBodyPart {
-    setName(name)
-    setBody(body)
-    initializer()
-}
+    @BuilderInference builder: FormBodyPartBuilder.() -> Unit = {},
+): FormBodyPart =
+    formBodyPart {
+        setName(name)
+        setBody(body)
+        builder()
+    }
 
 /**
  * [FormBodyPart] 를 생성합니다.
@@ -63,19 +66,20 @@ inline fun formBodyPart(
  * @param name 파트 이름
  * @param body 파트 바디
  * @param fields 파트 필드
- * @param initializer 초기화 람다
+ * @param builder 초기화 람다
  * @return [FormBodyPart]
  */
-fun formBodyPartOf(
+inline fun formBodyPartOf(
     name: String,
     body: ContentBody,
     fields: Map<String, String>,
-    initializer: FormBodyPartBuilder.() -> Unit = {},
-): FormBodyPart = formBodyPart {
-    setName(name)
-    setBody(body)
-    fields.forEach { (name, value) ->
-        addField(name, value)
+    @BuilderInference builder: FormBodyPartBuilder.() -> Unit = {},
+): FormBodyPart =
+    formBodyPart {
+        setName(name)
+        setBody(body)
+        fields.forEach { (name, value) ->
+            addField(name, value)
+        }
+        builder()
     }
-    initializer()
-}

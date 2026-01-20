@@ -55,7 +55,7 @@ class ClientConnectionConfig: AbstractHc5Test() {
                 // Use different settings for specific hosts
                 if (host.schemeName.equals("https", true)) {
                     tlsConfig {
-                        setSupportedProtocols(*TLS.values())
+                        setSupportedProtocols(*TLS.entries.toTypedArray())
                         setHandshakeTimeout(Timeout.ofSeconds(10))
                     }
                 } else {

@@ -13,13 +13,13 @@ import org.apache.hc.client5.http.config.RequestConfig
  * }
  * ```
  *
- * @param initializer [RequestConfig.Builder] 를 초기화합니다.
+ * @param builder [RequestConfig.Builder] 를 초기화합니다.
  * @return [RequestConfig] 인스턴스
  */
 inline fun requestConfig(
-    initializer: RequestConfig.Builder.() -> Unit,
+    @BuilderInference builder: RequestConfig.Builder.() -> Unit,
 ): RequestConfig {
-    return RequestConfig.custom().apply(initializer).build()
+    return RequestConfig.custom().apply(builder).build()
 }
 
 /**

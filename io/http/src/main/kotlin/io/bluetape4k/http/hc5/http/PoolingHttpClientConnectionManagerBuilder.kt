@@ -25,9 +25,9 @@ import org.apache.hc.core5.util.TimeValue
  * ```
  */
 inline fun poolingHttpClientConnectionManager(
-    initializer: PoolingHttpClientConnectionManagerBuilder.() -> Unit,
+    @BuilderInference builder: PoolingHttpClientConnectionManagerBuilder.() -> Unit,
 ): PoolingHttpClientConnectionManager =
-    PoolingHttpClientConnectionManagerBuilder.create().apply(initializer).build()
+    PoolingHttpClientConnectionManagerBuilder.create().apply(builder).build()
 
 /**
  * [PoolingHttpClientConnectionManager] 를 생성합니다.
@@ -77,7 +77,7 @@ fun poolingHttpClientConnectionManagerOf(
 /**
  * [PoolingHttpClientConnectionManager] 를 생성합니다.
  */
-fun poolingHttpClientConnectionManagerOf(
+inline fun poolingHttpClientConnectionManagerOf(
     // sslSocketFactory: LayeredConnectionSocketFactory = SSLConnectionSocketFactory.getSocketFactory(),
     poolConcurrencyPolicy: PoolConcurrencyPolicy = PoolConcurrencyPolicy.STRICT,
     poolReusePolicy: PoolReusePolicy = PoolReusePolicy.LIFO,
@@ -89,7 +89,7 @@ fun poolingHttpClientConnectionManagerOf(
     connectionConfig: ConnectionConfig = ConnectionConfig.DEFAULT,
     socketConfig: SocketConfig = SocketConfig.DEFAULT,
     socketConfigResolver: Resolver<HttpRoute, SocketConfig>? = null,
-    initializer: PoolingHttpClientConnectionManagerBuilder.() -> Unit = {},
+    @BuilderInference builder: PoolingHttpClientConnectionManagerBuilder.() -> Unit = {},
 ): PoolingHttpClientConnectionManager =
     poolingHttpClientConnectionManager {
 //        setSSLSocketFactory(sslSocketFactory)
@@ -106,5 +106,5 @@ fun poolingHttpClientConnectionManagerOf(
         setDefaultConnectionConfig(connectionConfig)
         setDefaultSocketConfig(socketConfig)
 
-        initializer()
+        builder()
     }

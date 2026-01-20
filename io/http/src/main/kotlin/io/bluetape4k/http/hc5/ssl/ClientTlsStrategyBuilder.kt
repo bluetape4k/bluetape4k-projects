@@ -7,7 +7,7 @@ import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLContext
 
 /**
- * [initializer]를 이용해 [ClientTlsStrategyBuilder] 를 빌드합니다.
+ * [builder]를 이용해 [ClientTlsStrategyBuilder] 를 빌드합니다.
  *
  * ```
  * val tlsStrategy = tlsStrategy {
@@ -19,14 +19,13 @@ import javax.net.ssl.SSLContext
  * }
  * ```
  *
- * @param initializer [ClientTlsStrategyBuilder] 초기화 람다
+ * @param builder [ClientTlsStrategyBuilder] 초기화 람다
  * @return [TlsStrategy]
  */
 inline fun tlsStrategy(
-    initializer: ClientTlsStrategyBuilder.() -> Unit,
-): TlsStrategy {
-    return ClientTlsStrategyBuilder.create().apply(initializer).buildAsync()
-}
+    @BuilderInference builder: ClientTlsStrategyBuilder.() -> Unit,
+): TlsStrategy =
+    ClientTlsStrategyBuilder.create().apply(builder).buildAsync()
 
 /**
  * [sslContext]를 이용해 [TlsStrategy] 를 생성합니다.
@@ -46,7 +45,7 @@ inline fun tlsStrategy(
  * @param ciphers Ciphers
  * @param sslBufferMode SSL Buffer Mode
  * @param hostnameVerifier Hostname Verifier
- * @param initializer [ClientTlsStrategyBuilder] 초기화 람다
+ * @param builder [ClientTlsStrategyBuilder] 초기화 람다
  * @return [TlsStrategy]
  */
 inline fun tlsStrategyOf(
@@ -55,13 +54,14 @@ inline fun tlsStrategyOf(
     ciphers: Array<String>? = null,
     sslBufferMode: SSLBufferMode = SSLBufferMode.STATIC,
     hostnameVerifier: HostnameVerifier = defaultHostnameVerifier,
-    initializer: ClientTlsStrategyBuilder.() -> Unit = {},
-): TlsStrategy = tlsStrategy {
-    sslContext?.run { setSslContext(sslContext) }
-    tlsVersions?.run { setTlsVersions(*tlsVersions) }
-    ciphers?.run { setCiphers(*ciphers) }
-    setSslBufferMode(sslBufferMode)
-    setHostnameVerifier(hostnameVerifier)
+    @BuilderInference builder: ClientTlsStrategyBuilder.() -> Unit = {},
+): TlsStrategy =
+    tlsStrategy {
+        sslContext?.run { setSslContext(sslContext) }
+        tlsVersions?.run { setTlsVersions(*tlsVersions) }
+        ciphers?.run { setCiphers(*ciphers) }
+        setSslBufferMode(sslBufferMode)
+        setHostnameVerifier(hostnameVerifier)
 
-    initializer()
-}
+        builder()
+    }

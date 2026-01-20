@@ -16,14 +16,14 @@ import org.apache.hc.core5.http.ContentType
  * ```
  *
  * @param status HTTP Status Code
- * @param initializer [SimpleResponseBuilder] 초기화 람다
+ * @param builder [SimpleResponseBuilder] 초기화 람다
  * @return [SimpleHttpResponse] 인스턴스
  */
 inline fun simpleHttpResponse(
     status: Int,
-    initializer: SimpleResponseBuilder.() -> Unit,
+    @BuilderInference builder: SimpleResponseBuilder.() -> Unit,
 ): SimpleHttpResponse {
-    return SimpleResponseBuilder.create(status).apply(initializer).build()
+    return SimpleResponseBuilder.create(status).apply(builder).build()
 }
 
 /**
@@ -36,18 +36,18 @@ inline fun simpleHttpResponse(
  * @param status HTTP Status Code
  * @param content 응답 본문
  * @param contentType 응답 Content-Type
- * @param initializer [SimpleResponseBuilder] 초기화 람다
+ * @param builder [SimpleResponseBuilder] 초기화 람다
  * @return [SimpleHttpResponse] 인스턴스
  */
-fun simpleHttpResponseOf(
+inline fun simpleHttpResponseOf(
     status: Int,
     content: String,
     contentType: ContentType = ContentType.TEXT_PLAIN,
-    initializer: SimpleResponseBuilder.() -> Unit = {},
+    @BuilderInference builder: SimpleResponseBuilder.() -> Unit = {},
 ): SimpleHttpResponse =
     simpleHttpResponse(status) {
         setBody(content, contentType)
-        initializer()
+        builder()
     }
 
 /**
@@ -60,16 +60,16 @@ fun simpleHttpResponseOf(
  * @param status HTTP Status Code
  * @param content 응답 본문 (ByteArray)
  * @param contentType 응답 Content-Type
- * @param initializer [SimpleResponseBuilder] 초기화 람다
+ * @param builder [SimpleResponseBuilder] 초기화 람다
  * @return [SimpleHttpResponse] 인스턴스
  */
-fun simpleHttpResponseOf(
+inline fun simpleHttpResponseOf(
     status: Int,
     content: ByteArray,
     contentType: ContentType = ContentType.TEXT_PLAIN,
-    initializer: SimpleResponseBuilder.() -> Unit = {},
+    @BuilderInference builder: SimpleResponseBuilder.() -> Unit = {},
 ): SimpleHttpResponse =
     simpleHttpResponse(status) {
         setBody(content, contentType)
-        initializer()
+        builder()
     }

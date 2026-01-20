@@ -34,9 +34,8 @@ import kotlin.coroutines.resumeWithException
 fun okHttp3ConnectionPool(
     maxIdleConnections: Int = Runtimex.availableProcessors,
     keepAliveDurations: Duration = Duration.ofMinutes(5),
-): ConnectionPool {
-    return ConnectionPool(maxIdleConnections, keepAliveDurations.toSeconds(), TimeUnit.SECONDS)
-}
+): ConnectionPool =
+    ConnectionPool(maxIdleConnections, keepAliveDurations.toSeconds(), TimeUnit.SECONDS)
 
 /**
  * [OkHttpClient]의 Connection Pool을 생성합니다.
@@ -56,24 +55,24 @@ fun okHttp3ConnectionPool(
  * ```
  *
  * @param connectionPool [ConnectionPool] 인스턴스
- * @param initializer [OkHttpClient.Builder] 초기화 람다
+ * @param builder [OkHttpClient.Builder] 초기화 람다
  * @return [OkHttpClient.Builder] 인스턴스
  */
 inline fun okhttp3ClientBuilderOf(
     connectionPool: ConnectionPool = okHttp3ConnectionPool(),
     dispatcher: okhttp3.Dispatcher = okhttp3DispatcherWithVirtualThread(),
-    initializer: OkHttpClient.Builder.() -> Unit = {},
-): OkHttpClient.Builder {
-    return OkHttpClient.Builder().apply {
+    @BuilderInference builder: OkHttpClient.Builder.() -> Unit = {},
+): OkHttpClient.Builder =
+    OkHttpClient.Builder()
+        .apply {
             connectionPool(connectionPool)
             dispatcher(dispatcher)
             connectTimeout(Duration.ofSeconds(10))
             readTimeout(Duration.ofSeconds(10))
             writeTimeout(Duration.ofSeconds(30))
 
-            initializer()
+            builder()
         }
-}
 
 fun okhttp3DispatcherWithVirtualThread(
     threadName: String = "okhttp3-virtual-thread-",
@@ -108,16 +107,15 @@ fun okhttp3DispatcherOf(
  * ```
  *
  * @param connectionPool [ConnectionPool] 인스턴스
- * @param initializer [OkHttpClient.Builder] 초기화 람다
+ * @param builder [OkHttpClient.Builder] 초기화 람다
  * @return [OkHttpClient] 인스턴스
  */
 inline fun okhttp3Client(
     connectionPool: ConnectionPool = okHttp3ConnectionPool(),
     dispatcher: okhttp3.Dispatcher = okhttp3DispatcherWithVirtualThread(),
-    initializer: OkHttpClient.Builder.() -> Unit = {},
-): OkHttpClient {
-    return okhttp3ClientBuilderOf(connectionPool, dispatcher).apply(initializer).build()
-}
+    @BuilderInference builder: OkHttpClient.Builder.() -> Unit = {},
+): OkHttpClient =
+    okhttp3ClientBuilderOf(connectionPool, dispatcher).apply(builder).build()
 
 /**
  * OkHttp3의 [CacheControl]을 생성합니다.
@@ -136,14 +134,13 @@ inline fun okhttp3Client(
  * }
  * ```
  *
- * @param initializer [CacheControl.Builder] 초기화 람다
+ * @param builder [CacheControl.Builder] 초기화 람다
  * @return [CacheControl] 인스턴스
  */
 inline fun okhttp3CacheControl(
-    initializer: CacheControl.Builder.() -> Unit,
-): CacheControl {
-    return CacheControl.Builder().apply(initializer).build()
-}
+    @BuilderInference builder: CacheControl.Builder.() -> Unit,
+): CacheControl =
+    CacheControl.Builder().apply(builder).build()
 
 /**
  * OkHttp3의 [CacheControl]을 생성합니다.
@@ -172,7 +169,7 @@ inline fun okhttp3CacheControl(
  * @param immutable 캐시 불변
  * @return [CacheControl] 인스턴스
  */
-fun okhttp3CacheControlOf(
+inline fun okhttp3CacheControlOf(
     maxAgeInSeconds: Int = 0,
     maxStaleInSeconds: Int = 0,
     minFreshInSeconds: Int = 0,
@@ -181,8 +178,9 @@ fun okhttp3CacheControlOf(
     noStore: Boolean = false,
     noTransform: Boolean = false,
     immutable: Boolean = false,
-): CacheControl {
-    return okhttp3CacheControl {
+    @BuilderInference builder: CacheControl.Builder.() -> Unit = {},
+): CacheControl =
+    okhttp3CacheControl {
         maxAge(maxAgeInSeconds, TimeUnit.SECONDS)
         maxStale(maxStaleInSeconds, TimeUnit.SECONDS)
         minFresh(minFreshInSeconds, TimeUnit.SECONDS)
@@ -191,8 +189,9 @@ fun okhttp3CacheControlOf(
         if (noStore) noStore()
         if (noTransform) noTransform()
         if (immutable) immutable()
+
+        builder()
     }
-}
 
 /**
  * OkHttp3의 [okhttp3.Request]를 생성합니다.
@@ -206,14 +205,13 @@ fun okhttp3CacheControlOf(
  * }
  * ```
  *
- * @param initializer [okhttp3.Request.Builder] 초기화 람다
+ * @param builder [okhttp3.Request.Builder] 초기화 람다
  * @return [okhttp3.Request] 인스턴스
  */
 inline fun okhttp3Request(
-    initializer: okhttp3.Request.Builder.() -> Unit,
-): okhttp3.Request {
-    return okhttp3.Request.Builder().apply(initializer).build()
-}
+    @BuilderInference builder: okhttp3.Request.Builder.() -> Unit,
+): okhttp3.Request =
+    okhttp3.Request.Builder().apply(builder).build()
 
 /**
  * OkHttp3의 [okhttp3.Request]를 생성합니다.
@@ -228,20 +226,19 @@ inline fun okhttp3Request(
  *
  * @param url 요청 URL
  * @param nameAndValues 헤더 정보
- * @param initializer [okhttp3.Request.Builder] 초기화 람다
+ * @param builder [okhttp3.Request.Builder] 초기화 람다
  * @return [okhttp3.Request] 인스턴스
  */
 inline fun okhttp3RequestOf(
     url: String,
     vararg nameAndValues: String,
-    initializer: okhttp3.Request.Builder.() -> Unit = {},
-): okhttp3.Request {
-    return okhttp3Request {
+    @BuilderInference builder: okhttp3.Request.Builder.() -> Unit = {},
+): okhttp3.Request =
+    okhttp3Request {
         url(url)
-        okhttp3.Headers.Companion.headersOf(*nameAndValues)
-        initializer()
+        okhttp3.Headers.headersOf(*nameAndValues)
+        builder()
     }
-}
 
 /**
  * OkHttp3의 [okhttp3.Request]를 생성합니다.
@@ -256,20 +253,19 @@ inline fun okhttp3RequestOf(
  *
  * @param url 요청 URL
  * @param headers 헤더 정보
- * @param initializer [okhttp3.Request.Builder] 초기화 람다
+ * @param builder [okhttp3.Request.Builder] 초기화 람다
  * @return [okhttp3.Request] 인스턴스
  */
 inline fun okhttp3RequestOf(
     url: String,
     headers: okhttp3.Headers,
-    initializer: okhttp3.Request.Builder.() -> Unit = {},
-): okhttp3.Request {
-    return okhttp3Request {
+    @BuilderInference builder: okhttp3.Request.Builder.() -> Unit = {},
+): okhttp3.Request =
+    okhttp3Request {
         url(url)
         headers(headers)
-        initializer()
+        builder()
     }
-}
 
 /**
  * OkHttp3의 [okhttp3.Response]를 생성합니다.
@@ -287,14 +283,13 @@ inline fun okhttp3RequestOf(
  * }
  * ```
  *
- * @param initializer [okhttp3.Response.Builder] 초기화 람다
+ * @param builder [okhttp3.Response.Builder] 초기화 람다
  * @return [okhttp3.Response] 인스턴스
  */
 inline fun okhttp3Response(
-    initializer: okhttp3.Response.Builder.() -> Unit,
-): okhttp3.Response {
-    return okhttp3.Response.Builder().apply(initializer).build()
-}
+    @BuilderInference builder: okhttp3.Response.Builder.() -> Unit,
+): okhttp3.Response =
+    okhttp3.Response.Builder().apply(builder).build()
 
 /**
  * OkHttp3의 Response Body를 InputStream으로 변환합니다.
@@ -405,7 +400,8 @@ inline fun OkHttpClient.executeAsync(
  * @param request [okhttp3.Request] 인스턴스
  * @receiver [OkHttpClient] 인스턴스
  */
-suspend inline fun OkHttpClient.suspendExecute(request: okhttp3.Request): Response = newCall(request).suspendExecute()
+suspend inline fun OkHttpClient.suspendExecute(request: okhttp3.Request): Response =
+    newCall(request).suspendExecute()
 
 /**
  * [Call]을 Coroutines 방식으로 실행합니다. (Non-Blocking 방식입니다)

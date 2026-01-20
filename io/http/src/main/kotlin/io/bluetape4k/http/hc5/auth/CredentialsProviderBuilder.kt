@@ -16,14 +16,13 @@ import org.apache.hc.core5.http.HttpHost
  * }
  * ```
  *
- * @param initializer [CredentialsProviderBuilder] 초기화 람다
+ * @param builder [CredentialsProviderBuilder] 초기화 람다
  * @return [CredentialsProvider] 인스턴스
  */
 inline fun credentialsProvider(
-    initializer: CredentialsProviderBuilder.() -> Unit,
-): CredentialsProvider {
-    return CredentialsProviderBuilder.create().apply(initializer).build()
-}
+    @BuilderInference builder: CredentialsProviderBuilder.() -> Unit,
+): CredentialsProvider =
+    CredentialsProviderBuilder.create().apply(builder).build()
 
 /**
  * 빈 [CredentialsProvider]를 생성합니다.
@@ -48,17 +47,18 @@ fun emptyCredentialsProvider(): CredentialsProvider = credentialsProvider { }
  *
  * @param authScope [AuthScope]
  * @param credentials [Credentials]
- * @param initializer [CredentialsProviderBuilder] 초기화 람다
+ * @param builder [CredentialsProviderBuilder] 초기화 람다
  * @return [CredentialsProvider] 인스턴스
  */
-fun credentialsProviderOf(
+inline fun credentialsProviderOf(
     authScope: AuthScope,
     credentials: Credentials,
-    initializer: CredentialsProviderBuilder.() -> Unit = {},
-): CredentialsProvider = credentialsProvider {
-    add(authScope, credentials)
-    initializer()
-}
+    @BuilderInference builder: CredentialsProviderBuilder.() -> Unit = {},
+): CredentialsProvider =
+    credentialsProvider {
+        add(authScope, credentials)
+        builder()
+    }
 
 /**
  * [HttpHost]와 [Credentials]를 추가한 [CredentialsProvider]를 생성합니다.
@@ -72,17 +72,18 @@ fun credentialsProviderOf(
  *
  * @param httpHost [HttpHost]
  * @param credentials [Credentials]
- * @param initializer [CredentialsProviderBuilder] 초기화 람다
+ * @param builder [CredentialsProviderBuilder] 초기화 람다
  * @return [CredentialsProvider] 인스턴스
  */
-fun credentialsProviderOf(
+inline fun credentialsProviderOf(
     httpHost: HttpHost,
     credentials: Credentials,
-    initializer: CredentialsProviderBuilder.() -> Unit = {},
-): CredentialsProvider = credentialsProvider {
-    add(httpHost, credentials)
-    initializer()
-}
+    @BuilderInference builder: CredentialsProviderBuilder.() -> Unit = {},
+): CredentialsProvider =
+    credentialsProvider {
+        add(httpHost, credentials)
+        builder()
+    }
 
 /**
  * [AuthScope]와 [username], [password]를 추가한 [CredentialsProvider]를 생성합니다.
@@ -98,18 +99,19 @@ fun credentialsProviderOf(
  * @param authScope [AuthScope]
  * @param username 사용자 이름
  * @param password 비밀번호
- * @param initializer [CredentialsProviderBuilder] 초기화 람다
+ * @param builder [CredentialsProviderBuilder] 초기화 람다
  * @return [CredentialsProvider] 인스턴스
  */
-fun credentialsProviderOf(
+inline fun credentialsProviderOf(
     authScope: AuthScope,
     username: String,
     password: CharArray,
-    initializer: CredentialsProviderBuilder.() -> Unit = {},
-): CredentialsProvider = credentialsProvider {
-    add(authScope, username, password)
-    initializer()
-}
+    @BuilderInference builder: CredentialsProviderBuilder.() -> Unit = {},
+): CredentialsProvider =
+    credentialsProvider {
+        add(authScope, username, password)
+        builder()
+    }
 
 /**
  * [HttpHost]와 [username], [password]를 추가한 [CredentialsProvider]를 생성합니다.
@@ -127,15 +129,16 @@ fun credentialsProviderOf(
  * @param httpHost [HttpHost]
  * @param username 사용자 이름
  * @param password 비밀번호
- * @param initializer [CredentialsProviderBuilder] 초기화 람다
+ * @param builder [CredentialsProviderBuilder] 초기화 람다
  * @return [CredentialsProvider] 인스턴스
  */
-fun credentialsProviderOf(
+inline fun credentialsProviderOf(
     httpHost: HttpHost,
     username: String,
     password: CharArray,
-    initializer: CredentialsProviderBuilder.() -> Unit = {},
-): CredentialsProvider = credentialsProvider {
-    add(httpHost, username, password)
-    initializer()
-}
+    @BuilderInference builder: CredentialsProviderBuilder.() -> Unit = {},
+): CredentialsProvider =
+    credentialsProvider {
+        add(httpHost, username, password)
+        builder()
+    }
