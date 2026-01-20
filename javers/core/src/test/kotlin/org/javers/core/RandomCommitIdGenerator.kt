@@ -2,7 +2,7 @@ package org.javers.core
 
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.debug
 import kotlinx.atomicfu.locks.ReentrantLock
 import org.javers.core.commit.CommitId
 import java.util.function.Supplier
@@ -26,9 +26,8 @@ class RandomCommitIdGenerator: Supplier<CommitId> {
             val next = CommitId(snowflake.nextId(), 0)
             commits[next] = counter
 
-            log.trace { "Generate random CommitId. next commitId=$next, counter=$counter" }
+            log.debug { "Generate random CommitId. next commitId=$next, counter=$counter" }
             return next
         }
     }
-
 }

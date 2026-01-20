@@ -8,10 +8,8 @@ enum class EntityEventType(val status: String) {
     override fun toString(): String = status
 
     companion object {
-        val VALS: Array<EntityEventType> = values()
-
         fun valueOf(status: String): EntityEventType? {
-            return VALS.firstOrNull { it.status == status }
+            return entries.firstOrNull { it.status == status }
         }
     }
 }

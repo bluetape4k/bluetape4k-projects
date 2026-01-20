@@ -4,6 +4,7 @@ import com.google.common.collect.Multimap
 import com.google.common.collect.Multiset
 import org.javers.core.metamodel.annotation.Id
 import org.javers.core.metamodel.annotation.ShallowReference
+import java.io.Serializable
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.*
@@ -13,15 +14,15 @@ data class ShallowPhone(
     @Id var id: Long,
     var number: String? = null,
     var category: CategoryC? = null,
-)
+): Serializable
 
 data class SnapshotEntity(
     @Id var id: Int,
     var entityRef: SnapshotEntity? = null,
     var valueObjectRef: DummyAddress? = null,
-) {
+): Serializable {
 
-    enum class DummyEnum { val1, val2, val3 }
+    enum class DummyEnum { VAL1, VAL2, VAL3 }
 
     var dob: LocalDate? = null
 

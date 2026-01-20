@@ -15,19 +15,18 @@ artifacts {
 }
 
 dependencies {
+    api(Libs.javers_core)
+
     api(project(":bluetape4k-io"))
-    api(project(":bluetape4k-grpc"))
     api(project(":bluetape4k-jackson"))
-    api(project(":bluetape4k-idgenerators"))
-    compileOnly(project(":bluetape4k-hibernate"))
-    compileOnly(project(":bluetape4k-redis"))
-    compileOnly(project(":bluetape4k-cache"))
+    implementation(project(":bluetape4k-cache"))
+    implementation(project(":bluetape4k-grpc"))
+    implementation(project(":bluetape4k-hibernate"))
+    implementation(project(":bluetape4k-idgenerators"))
+    implementation(project(":bluetape4k-redis"))
 
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-
-    api(Libs.javers_core)
-    testImplementation(Libs.guava)
 
     // Cache for Javers repository
     compileOnly(Libs.caffeine)
@@ -40,6 +39,8 @@ dependencies {
     compileOnly(Libs.mongo_bson_kotlinx)
     compileOnly(Libs.mongodb_driver_sync)
     compileOnly(Libs.mongodb_driver_kotlin_sync)
+    compileOnly(Libs.mongodb_driver_kotlin_coroutine)
+    compileOnly(Libs.mongodb_driver_kotlin_extensions)
 
     // Codec
     compileOnly(Libs.kryo5)

@@ -1,6 +1,7 @@
 package io.bluetape4k.javers.repository.jcache
 
 import io.bluetape4k.cache.jcache.getOrCreate
+import io.bluetape4k.cache.jcache.jcacheConfiguration
 import io.bluetape4k.javers.codecs.JaversCodec
 import io.bluetape4k.javers.codecs.JaversCodecs
 import io.bluetape4k.javers.repository.AbstractCdoSnapshotRepository
@@ -8,6 +9,7 @@ import io.bluetape4k.logging.KLogging
 import org.javers.core.commit.CommitId
 import org.javers.core.metamodel.`object`.CdoSnapshot
 import java.util.concurrent.locks.ReentrantLock
+import javax.cache.expiry.EternalExpiryPolicy
 import kotlin.concurrent.withLock
 
 /**
@@ -33,9 +35,20 @@ class JCacheCdoSnapshotRepository(
     private val snapshotCacheName = prefix + SNAPSHOT_SUFFIX
     private val commitSeqCacheName = prefix + COMMIT_SEQ_SUFFIX
 
-    private val snapshotCache: javax.cache.Cache<String, MutableList<String>> =
-        cacheManager.getOrCreate(snapshotCacheName)
-    private val commitSeqCache: javax.cache.Cache<CommitId, Long> = cacheManager.getOrCreate(commitSeqCacheName)
+    private val snapshotCache: javax.cache.Cache<String, MutableList<String>> by lazy {
+        val cfg = jcacheConfiguration<String, MutableList<String>> {
+            setExpiryPolicyFactory(EternalExpiryPolicy.factoryOf())
+            setStoreByValue(true)
+        }
+        cacheManager.getOrCreate(snapshotCacheName, cfg)
+    }
+    private val commitSeqCache: javax.cache.Cache<CommitId, Long> by lazy {
+        val cfg = jcacheConfiguration<CommitId, Long> {
+            setExpiryPolicyFactory(EternalExpiryPolicy.factoryOf())
+            setStoreByValue(true)
+        }
+        cacheManager.getOrCreate(commitSeqCacheName, cfg)
+    }
 
     override fun getKeys(): List<String> {
         return snapshotCache.map { it.key }
@@ -59,7 +72,7 @@ class JCacheCdoSnapshotRepository(
         lock.withLock {
             val globalIdValue = snapshot.globalId.value()
 
-            // NOTE: JCache 는 Reference 가 아닌 Value 를 저장해야 하므로, 매번 Replace 형식이 되어야 한다
+            // NOTE: JCache 는 기본적으로 Reference를 저장하지만, 여기서는 Value로 저장해야 합니다.
             val snapshots = snapshotCache.get(globalIdValue) ?: mutableListOf()
             val encoded = encode(snapshot)
             snapshots.add(0, encoded)

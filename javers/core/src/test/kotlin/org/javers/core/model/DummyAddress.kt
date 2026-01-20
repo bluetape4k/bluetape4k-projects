@@ -1,6 +1,8 @@
 package org.javers.core.model
 
-abstract class AbstractDummyAddress {
+import java.io.Serializable
+
+abstract class AbstractDummyAddress: Serializable {
     var inheritedInt: Int? = null
 }
 
@@ -22,7 +24,9 @@ data class DummyAddress(val city: String, val street: String? = null): AbstractD
     }
 }
 
-data class DummyNetworkAddress(var address: String? = null) {
+data class DummyNetworkAddress(
+    var address: String? = null,
+): Serializable {
 
     var version: Version? = null
 

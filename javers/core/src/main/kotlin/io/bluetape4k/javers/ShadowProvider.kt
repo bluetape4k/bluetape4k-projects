@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import org.javers.core.Javers
 import org.javers.core.metamodel.type.TypeMapper
 import org.javers.shadow.ShadowFactory
+import java.lang.reflect.Field
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -31,7 +32,7 @@ object ShadowProvider: KLogging() {
      */
     private fun getTypeMapper(javers: Javers): TypeMapper {
         return typeMappers.computeIfAbsent(javers) {
-            val field = javers.javaClass.declaredFields.find { it.name == "typeMapper" }!!
+            val field: Field = javers.javaClass.declaredFields.find { it.name == "typeMapper" }!!
             field.isAccessible = true
             field.get(javers) as TypeMapper
         }

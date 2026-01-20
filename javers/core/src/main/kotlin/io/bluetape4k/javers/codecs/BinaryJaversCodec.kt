@@ -13,12 +13,12 @@ class BinaryJaversCodec(
     private val mapCodec: MapJaversCodec = MapJaversCodec()
 
     override fun encode(jsonElement: JsonObject): ByteArray {
-        val map: Map<String, Any?> = mapCodec.encode(jsonElement)
-        return serializer.serialize(map)
+        return serializer.serialize(mapCodec.encode(jsonElement))
     }
 
     override fun decode(encodedData: ByteArray): JsonObject? {
-        val map: Map<String, Any?>? = serializer.deserialize(encodedData)
-        return map?.let { mapCodec.decode(it) }
+        return serializer.deserialize<Map<String, Any?>>(encodedData)?.let {
+            mapCodec.decode(it)
+        }
     }
 }

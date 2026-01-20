@@ -6,7 +6,6 @@ import org.javers.core.metamodel.`object`.CdoSnapshot
 import org.javers.core.metamodel.`object`.SnapshotType
 import org.javers.repository.api.QueryParams
 
-
 fun <R> CdoSnapshot.mapProperties(mapper: (key: String, value: Any?) -> R): List<R> =
     this.state.mapProperties(mapper)
 

@@ -2,11 +2,12 @@ package io.bluetape4k.javers.codecs
 
 import com.google.gson.JsonObject
 import io.bluetape4k.io.compressor.Compressor
+import io.bluetape4k.io.compressor.Compressors
 
 
 class CompressableBinaryJaversCodec(
     private val innerCodec: BinaryJaversCodec,
-    private val compressor: Compressor,
+    private val compressor: Compressor = Compressors.GZip,
 ): JaversCodec<ByteArray> {
 
     override fun encode(jsonElement: JsonObject): ByteArray {

@@ -12,6 +12,7 @@ import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldHaveSize
+import org.javers.core.Javers
 import org.javers.core.JaversBuilder
 import org.javers.core.diff.changetype.NewObject
 import org.javers.core.diff.changetype.ObjectRemoved
@@ -24,7 +25,7 @@ class ObjectDiffExamples {
 
     companion object: KLogging()
 
-    private val javers = JaversBuilder.javers().build()
+    private val javers: Javers = JaversBuilder.javers().build()
 
     @Test
     fun `두 객체의 변화를 찾습니다`() {

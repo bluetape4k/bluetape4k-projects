@@ -7,6 +7,7 @@ import org.javers.core.Javers
 import org.javers.core.JaversBuilder
 import org.javers.core.model.SnapshotEntity
 import org.javers.core.repository.AbstractJaversCommitTest
+import org.javers.shadow.Shadow
 import org.junit.jupiter.api.Test
 
 class SnapshotToShadowTest: AbstractJaversCommitTest() {
@@ -25,7 +26,7 @@ class SnapshotToShadowTest: AbstractJaversCommitTest() {
         val snapshot = javers.commit("a", entity).snapshots.first()
 
         // snapshot 으로부터 원본 entity를 가지고 올 수 있도록 해주는 Shadow을 만든다
-        val shadow = javers.getShadow<SnapshotEntity>(snapshot)
+        val shadow: Shadow<SnapshotEntity> = javers.getShadow(snapshot)
 
         shadow.shouldNotBeNull()
         shadow.get() shouldBeEqualTo entity

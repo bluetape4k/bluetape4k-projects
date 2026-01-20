@@ -207,7 +207,6 @@ abstract class AbstractCdoSnapshotRepository<T: Any>(
         if (queryParams.snapshotType().isPresent) {
             results = results.filterByType(queryParams.snapshotType().get())
         }
-
         results = results.filterByCommitProperties(queryParams.commitProperties())
 
         return results.drop(queryParams.skip()).take(queryParams.limit()).toMutableList()

@@ -33,6 +33,6 @@ interface JaversDispatcher {
  *
  * @param domainObjectId 삭제된 domain object의 id
  */
-inline fun <reified T> JaversDispatcher.sendDeletedById(domainObjectId: Any) {
+inline fun <reified T: Any> JaversDispatcher.sendDeletedById(domainObjectId: Any) {
     sendDeletedById(domainObjectId, T::class.java)
 }

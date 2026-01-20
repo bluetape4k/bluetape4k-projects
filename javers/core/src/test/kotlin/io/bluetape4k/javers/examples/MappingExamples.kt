@@ -54,13 +54,13 @@ class MappingExamples {
     }
 
     @TypeName("Entity")
-    data class Entity(@Id var id: Point, var data: String? = null)
+    data class Entity(@Id var id: Point, var data: String? = null): Serializable
 
     class Point(val x: Double = 0.0, val y: Double = 0.0) {
         fun myToString(): String = "(${x.toInt()},${y.toInt()})"
     }
 
-    class PointComparator: CustomValueComparator<Point> {
+    class PointComparator: CustomValueComparator<Point>, Serializable {
         override fun equals(a: Point, b: Point): Boolean = a.myToString() == b.myToString()
         override fun toString(value: Point): String = value.myToString()
     }

@@ -23,24 +23,24 @@ object JaversCodecs {
 
     val Jdk by unsafeLazy { BinaryJaversCodec(BinarySerializers.Jdk) }
 
-    val GZipJdk by unsafeLazy { CompressableBinaryJaversCodec(Jdk, Compressors.GZip) }
     val DeflateJdk by unsafeLazy { CompressableBinaryJaversCodec(Jdk, Compressors.Deflate) }
+    val GZipJdk by unsafeLazy { CompressableBinaryJaversCodec(Jdk, Compressors.GZip) }
     val LZ4Jdk by unsafeLazy { CompressableBinaryJaversCodec(Jdk, Compressors.LZ4) }
     val SnappyJdk by unsafeLazy { CompressableBinaryJaversCodec(Jdk, Compressors.Snappy) }
     val ZstdJdk by unsafeLazy { CompressableBinaryJaversCodec(Jdk, Compressors.Zstd) }
 
     val Kryo by unsafeLazy { BinaryJaversCodec(BinarySerializers.Kryo) }
 
-    val GZipKryo by unsafeLazy { CompressableBinaryJaversCodec(Kryo, Compressors.GZip) }
     val DeflateKryo by unsafeLazy { CompressableBinaryJaversCodec(Kryo, Compressors.Deflate) }
+    val GZipKryo by unsafeLazy { CompressableBinaryJaversCodec(Kryo, Compressors.GZip) }
     val LZ4Kryo by unsafeLazy { CompressableBinaryJaversCodec(Kryo, Compressors.LZ4) }
     val SnappyKryo by unsafeLazy { CompressableBinaryJaversCodec(Kryo, Compressors.Snappy) }
     val ZstdKryo by unsafeLazy { CompressableBinaryJaversCodec(Kryo, Compressors.Zstd) }
 
     val Fory by unsafeLazy { BinaryJaversCodec(BinarySerializers.Fory) }
 
-    val GZipFory by unsafeLazy { CompressableBinaryJaversCodec(Fory, Compressors.GZip) }
     val DeflateFory by unsafeLazy { CompressableBinaryJaversCodec(Fory, Compressors.Deflate) }
+    val GZipFory by unsafeLazy { CompressableBinaryJaversCodec(Fory, Compressors.GZip) }
     val LZ4Fory by unsafeLazy { CompressableBinaryJaversCodec(Fory, Compressors.LZ4) }
     val SnappyFory by unsafeLazy { CompressableBinaryJaversCodec(Fory, Compressors.Snappy) }
     val ZstdFory by unsafeLazy { CompressableBinaryJaversCodec(Fory, Compressors.Zstd) }

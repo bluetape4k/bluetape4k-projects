@@ -69,5 +69,4 @@ class Cache2KCdoSnapshotRepository(
     override fun loadSnapshots(globalIdValue: String): List<CdoSnapshot> {
         return snapshotCache[globalIdValue]?.mapNotNull { decode(it) } ?: emptyList()
     }
-
 }

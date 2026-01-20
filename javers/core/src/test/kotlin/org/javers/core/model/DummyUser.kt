@@ -3,9 +3,10 @@ package org.javers.core.model
 import org.javers.core.metamodel.annotation.DiffIgnore
 import org.javers.core.metamodel.annotation.Id
 import org.javers.core.metamodel.annotation.PropertyName
+import java.io.Serializable
 import java.time.LocalDateTime
 
-abstract class AbstractDummyUser {
+abstract class AbstractDummyUser: Serializable {
     var inhertedInt: Int? = null
 }
 
@@ -136,7 +137,7 @@ class DummyUser(@Id val name: String, var surname: String? = null): AbstractDumm
 data class DummyUserDetails(
     @Id val id: Int = DEFAULT_ID,
     var dummyAddress: DummyAddress? = null,
-) {
+): Serializable {
 
     companion object {
         const val DEFAULT_ID = 1

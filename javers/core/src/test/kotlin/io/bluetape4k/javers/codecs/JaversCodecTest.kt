@@ -4,7 +4,6 @@ import com.google.gson.JsonObject
 import io.bluetape4k.javers.repository.jql.queryByInstanceId
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import kotlinx.atomicfu.atomic
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldContainSame
@@ -14,6 +13,7 @@ import org.javers.core.model.ShallowPhone
 import org.javers.core.model.SnapshotEntity
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import java.util.concurrent.atomic.AtomicInteger
 
 class JaversCodecTest {
 
@@ -23,30 +23,37 @@ class JaversCodecTest {
 
     private fun getStringCodecs() = listOf(
         JaversCodecs.String,
+        JaversCodecs.DeflateString,
         JaversCodecs.GZipString,
-        JaversCodecs.SnappyString,
         JaversCodecs.LZ4String,
         JaversCodecs.SnappyString,
         JaversCodecs.ZstdString,
     )
 
     private fun getBinaryCodecs() = listOf(
+        JaversCodecs.Jdk,
+        JaversCodecs.DeflateJdk,
+        JaversCodecs.GZipJdk,
+        JaversCodecs.LZ4Jdk,
+        JaversCodecs.SnappyJdk,
+        JaversCodecs.ZstdJdk,
+
         JaversCodecs.Kryo,
+        JaversCodecs.DeflateKryo,
         JaversCodecs.GZipKryo,
-        JaversCodecs.SnappyKryo,
         JaversCodecs.LZ4Kryo,
         JaversCodecs.SnappyKryo,
         JaversCodecs.ZstdKryo,
 
         JaversCodecs.Fory,
+        JaversCodecs.DeflateFory,
         JaversCodecs.GZipFory,
-        JaversCodecs.SnappyFory,
         JaversCodecs.LZ4Fory,
         JaversCodecs.SnappyFory,
         JaversCodecs.ZstdFory,
     )
 
-    private val idSeq = atomic(0)
+    private val idSeq = AtomicInteger(0)
 
     @ParameterizedTest(name = "GsonCodec={0}")
     @MethodSource("getStringCodecs")
@@ -60,7 +67,7 @@ class JaversCodecTest {
         entity.entityRef = SnapshotEntity(42)
         javers.commit("a", entity)
 
-        val query = queryByInstanceId<SnapshotEntity>(idSeq.value)
+        val query = queryByInstanceId<SnapshotEntity>(idSeq.get())
 
         val snapshots = javers.findSnapshots(query)
         snapshots.forEach { log.debug { "snapshot=$it" } }
@@ -91,7 +98,7 @@ class JaversCodecTest {
         entity.entityRef = SnapshotEntity(43)
         javers.commit("a", entity)
 
-        val query = queryByInstanceId<SnapshotEntity>(idSeq.value)
+        val query = queryByInstanceId<SnapshotEntity>(idSeq.get())
 
         val snapshots = javers.findSnapshots(query)
         snapshots.forEach { log.debug { "snapshot=$it" } }

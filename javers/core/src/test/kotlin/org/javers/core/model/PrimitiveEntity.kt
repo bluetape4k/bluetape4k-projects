@@ -1,10 +1,13 @@
 package org.javers.core.model
 
 import org.javers.core.metamodel.annotation.Id
+import java.io.Serializable
 
 enum class SomeEnum { A, B }
 
-data class PrimitiveEntity(@Id val id: String = "a") {
+data class PrimitiveEntity(
+    @Id val id: String = "a",
+): Serializable {
 
     var intField: Int = 0
     var longField: Long = 0L

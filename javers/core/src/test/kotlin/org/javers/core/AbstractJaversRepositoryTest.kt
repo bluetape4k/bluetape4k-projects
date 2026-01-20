@@ -201,7 +201,7 @@ abstract class AbstractJaversRepositoryTest {
             arrayOfIntegers = intArrayOf(1, 2)
             listOfDates = mutableListOf(LocalDate.of(2001, 1, 1), LocalDate.of(2001, 1, 2))
             mapOfValues[LocalDate.of(2001, 1, 1)] = BigDecimal(1.1)
-            mapOfGenericValues["enumSet"] = EnumSet.of(SnapshotEntity.DummyEnum.val1, SnapshotEntity.DummyEnum.val2)
+            mapOfGenericValues["enumSet"] = EnumSet.of(SnapshotEntity.DummyEnum.VAL1, SnapshotEntity.DummyEnum.VAL2)
         }
 
         javers.commit("author", cdo)    // v. 1

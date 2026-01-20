@@ -2,6 +2,7 @@ package io.bluetape4k.javers.examples
 
 import org.javers.core.metamodel.annotation.Id
 import org.javers.core.metamodel.annotation.TypeName
+import java.io.Serializable
 import java.time.ZonedDateTime
 
 enum class Position {
@@ -15,17 +16,24 @@ enum class Position {
     Hero
 }
 
-data class Address(var city: String, var street: String = "")
+data class Address(var city: String, var street: String = ""): Serializable
 
 @TypeName("Person")
-data class Person(@Id val login: String, var name: String) {
+data class Person(
+    @Id val login: String,
+    var name: String,
+): Serializable {
     val addresses: MutableList<Address> = mutableListOf()
     val addressMap: MutableMap<String, Address> = mutableMapOf()
     var position: Position? = null
 }
 
 @TypeName("Employee")
-data class Employee(@Id val name: String, var salary: Int = 1000, val position: Position = Position.Developer) {
+data class Employee(
+    @Id val name: String,
+    var salary: Int = 1000,
+    val position: Position = Position.Developer,
+): Serializable {
 
     var age: Int? = null
 
@@ -44,8 +52,7 @@ data class Employee(@Id val name: String, var salary: Int = 1000, val position: 
     }
 }
 
-
 @TypeName("Boss")
-data class Boss(@Id val name: String) {
+data class Boss(@Id val name: String): Serializable {
     val suordinates: MutableCollection<Person> = mutableListOf()
 }

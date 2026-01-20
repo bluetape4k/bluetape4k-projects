@@ -11,7 +11,8 @@
         </encoder>
     </appender>
 
-    <!--    <logger name="io.bluetape4k.javers" level="DEBUG"/>-->
+    <logger name="io.bluetape4k.javers" level="DEBUG"/>
+    <logger name="org.javers" level="DEBUG"/>
 
     <root level="INFO">
         <appender-ref ref="Console"/>

@@ -2,8 +2,11 @@ package org.javers.core.model
 
 import org.javers.core.metamodel.annotation.Id
 import org.javers.core.metamodel.annotation.ShallowReference
+import java.io.Serializable
 
-abstract class AbstractCategory @JvmOverloads constructor(var name: String? = null) {
+abstract class AbstractCategory @JvmOverloads constructor(
+    var name: String? = null,
+): Serializable {
 
     var parent: AbstractCategory? = null
     val categories: MutableList<AbstractCategory> = mutableListOf()
@@ -30,7 +33,7 @@ data class CategoryVo(var name: String? = null) {
     }
 }
 
-data class PhoneWithShallowCategory(@Id var id: Long) {
+data class PhoneWithShallowCategory(@Id var id: Long): Serializable {
 
     var number: String = "123"
     var deepCategory: CategoryC? = null
