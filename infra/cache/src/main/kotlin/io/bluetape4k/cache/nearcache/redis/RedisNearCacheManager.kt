@@ -186,7 +186,7 @@ class RedisNearCacheManager(
 
         log.debug { "Create backCache using Redis" }
         val backCache =
-            JCaching.Redisson.getOrCreateCache(cacheName, cacheRedisson!!, redissonConfiguration.jcacheConfig)
+            JCaching.Redisson.getOrCreateCache(cacheName, cacheRedisson, redissonConfiguration.jcacheConfig)
 
         log.debug { "Create new NearCache. cacheName=$cacheName" }
         val nearCacheCfg = nearCacheConfig as? NearCacheConfig<K, V> ?: NearCacheConfig()
