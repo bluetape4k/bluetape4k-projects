@@ -41,7 +41,7 @@ class AsyncJsonParser(
 
     companion object: KLogging()
 
-    private class Stack {
+    private class Stack: Serializable {
         private val nodes = LinkedList<StackFrame>()
 
         fun push(node: JsonNode, fieldName: String? = null) = nodes.add(StackFrame(node, fieldName))

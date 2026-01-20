@@ -11,9 +11,11 @@ import kotlinx.atomicfu.AtomicInt
 import kotlinx.atomicfu.atomic
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import tools.jackson.module.kotlin.treeToValue
+import java.io.Serializable
 
 class AsyncJsonParserTest {
 
@@ -26,7 +28,7 @@ class AsyncJsonParserTest {
         val inner: Model? = null,
         val nullable: Double? = null,
         val booleanValue: Boolean = true,
-    ) {
+    ): Serializable {
         var innerArray: Array<Model>? = null
         var intArray: IntArray? = null
     }
@@ -56,7 +58,7 @@ class AsyncJsonParserTest {
         val parsed = atomic(0)
         val parser = getSingleModelParser(parsed)
 
-        val bytes = mapper.writeAsBytes(model)!!
+        val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
         // 1 byte 씩 consume 한다
         bytes.forEach {
             parser.consume(byteArrayOf(it))
@@ -70,7 +72,7 @@ class AsyncJsonParserTest {
         val parsed = atomic(0)
         val parser = getSingleModelParser(parsed)
 
-        val bytes = mapper.writeAsBytes(model)!!
+        val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
         val chunkSize = 20
         bytes.toList().chunked(chunkSize).forEach {
             parser.consume(it.toByteArray())
@@ -84,7 +86,7 @@ class AsyncJsonParserTest {
         val parsed = atomic(0)
         val parser = getSingleModelParser(parsed)
 
-        val bytes = mapper.writeAsBytes(model)!!
+        val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
         val repeatSize = 3
         repeat(repeatSize) {
             bytes.forEach {
@@ -99,7 +101,7 @@ class AsyncJsonParserTest {
         val parsed = atomic(0)
         val parser = getSingleModelParser(parsed)
 
-        val bytes = mapper.writeAsBytes(model)!!
+        val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
         val repeatSize = 3
         val chunkSize = 20
         repeat(repeatSize) {
@@ -142,11 +144,11 @@ class AsyncJsonParserTest {
             }
         }
 
-        val bytes = mapper.writeAsBytes(model)!!
+        val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
         parser.consume("[".toByteArray())
         List(modelSize) {
-            bytes.forEach {
-                parser.consume(byteArrayOf(it))
+            bytes.forEach { byte ->
+                parser.consume(byteArrayOf(byte))
             }
             if (it != modelSize - 1) {
                 parser.consume(",".toByteArray())

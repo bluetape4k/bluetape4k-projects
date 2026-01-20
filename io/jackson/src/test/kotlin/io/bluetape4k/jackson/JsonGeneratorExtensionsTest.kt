@@ -1,11 +1,11 @@
 package io.bluetape4k.jackson
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.io.Serializable
 import java.io.StringWriter
@@ -16,7 +16,7 @@ class JsonGeneratorExtensionsTest {
         private val faker = Fakers.faker
     }
 
-    private val mapper = jacksonObjectMapper()
+    private val mapper = Jackson.defaultJsonMapper
 
     @Test
     fun `generate string value`() {
@@ -61,8 +61,8 @@ class JsonGeneratorExtensionsTest {
             }
             val json = writer.toString()
             log.debug { "json=$json" }
-            val dummies = mapper.readValueOrNull<List<Dummy>>(json)!!
-            dummies shouldHaveSize 3
+            val dummies = mapper.readValueOrNull<List<Dummy>>(json)
+            dummies.shouldNotBeNull() shouldHaveSize 3
         }
     }
 
@@ -75,8 +75,8 @@ class JsonGeneratorExtensionsTest {
             }
             val json = writer.toString()
             log.debug { "json=$json" }
-            val dummies = mapper.readValueOrNull<List<Dummy>>(json)!!
-            dummies shouldHaveSize 3
+            val dummies = mapper.readValueOrNull<List<Dummy>>(json)
+            dummies.shouldNotBeNull() shouldHaveSize 3
         }
     }
 }

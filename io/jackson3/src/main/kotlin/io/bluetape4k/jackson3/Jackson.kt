@@ -43,11 +43,6 @@ object Jackson: KLogging() {
             // Classpath에 있는 모든 Jackson용 Module을 찾아서 추가합니다.
             findAndAddModules()
 
-            // 리소스에 services 로 등록해줘서 이제 자동으로 등록됩니다.
-//            addModules(JsonEncryptModule())
-//            addModules(JsonMaskerModule())
-//            addModules(JsonUuidModule())
-
             addModule(
                 kotlinModule {
                     enable(KotlinFeature.NullIsSameAsDefault)

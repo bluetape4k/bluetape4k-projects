@@ -11,6 +11,7 @@ import java.io.InputStream
 import java.io.Reader
 import java.io.StringWriter
 import java.nio.file.Path
+import kotlin.use
 
 private val log by lazy { KotlinLogging.logger { } }
 
@@ -68,6 +69,18 @@ fun <T: Any> JsonMapper.writeAsString(graph: T?): String? =
     graph?.run { writeValueAsString(graph) }
 
 /**
+ * JsonNode 를 문자열로 변환합니다.
+ */
+fun JsonMapper.writeAsString(jsonNode: JsonNode): String {
+    return StringWriter().use { writer ->
+        createGenerator(writer).use { generator ->
+            writeTree(generator, jsonNode)
+        }
+        writer.toString()
+    }
+}
+
+/**
  * 객체를 JSON 형식의 [ByteArray]로 변환합니다.
  */
 fun <T: Any> JsonMapper.writeAsBytes(graph: T?): ByteArray? =
@@ -85,11 +98,10 @@ fun <T: Any> JsonMapper.prettyWriteAsString(graph: T?): String? =
 fun <T: Any> JsonMapper.prettyWriteAsBytes(graph: T?): ByteArray? =
     graph?.run { writerWithDefaultPrettyPrinter().writeValueAsBytes(graph) }
 
-
 /**
  * JsonNode 를 문자열로 변환합니다.
  */
-fun JsonMapper.writeAsString(jsonNode: JsonNode): String {
+fun JsonMapper.writeTree(jsonNode: JsonNode): String {
     return StringWriter().use { writer ->
         createGenerator(writer).use { generator ->
             writeTree(generator, jsonNode)

@@ -1,5 +1,6 @@
 package io.bluetape4k.jackson3.crypto
 
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.crypto.encrypt.AES
 import io.bluetape4k.crypto.encrypt.RC4
 import io.bluetape4k.jackson3.Jackson
@@ -15,12 +16,15 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeNull
 import org.amshove.kluent.shouldNotContain
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
+import tools.jackson.databind.json.JsonMapper
 import tools.jackson.module.kotlin.readValue
+import java.io.Serializable
 
 @RandomizedTest
 class JsonEncryptTest {
@@ -38,14 +42,14 @@ class JsonEncryptTest {
 
         @get:JsonEncrypt(encryptor = RC4::class)
         val mobile: String,
-    )
+    ): Serializable
 
-    private val mapper = Jackson.defaultJsonMapper
+    private val mapper: JsonMapper = Jackson.defaultJsonMapper
 
     private fun createUser(): User {
         return User(
             username = faker.name().name(),
-            password = Fakers.fixedString(6),
+            password = Base58.randomString(12),
             mobile = faker.phoneNumber().cellPhone()
         )
     }
@@ -114,14 +118,14 @@ class JsonEncryptTest {
     }
 
     private fun verifyEncryptProperty(expected: User) {
-        val encrypted = mapper.writeValueAsString(expected)
+        val encrypted = mapper.writeAsString(expected).shouldNotBeNull()
 
         val actual = mapper.readValue<User>(encrypted)
         actual shouldBeEqualTo expected
     }
 
     private fun verifyEncryptPropertyInCollection(expected: Collection<User>) {
-        val encrypted = mapper.writeValueAsString(expected)
+        val encrypted = mapper.writeAsString(expected).shouldNotBeNull()
 
         val actual = mapper.readValue<List<User>>(encrypted)
         actual shouldBeEqualTo expected

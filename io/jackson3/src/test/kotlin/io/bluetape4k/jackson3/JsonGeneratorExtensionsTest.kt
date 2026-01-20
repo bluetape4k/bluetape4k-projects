@@ -5,8 +5,9 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import tools.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.databind.json.JsonMapper
 import java.io.Serializable
 import java.io.StringWriter
 
@@ -16,7 +17,7 @@ class JsonGeneratorExtensionsTest {
         private val faker = Fakers.faker
     }
 
-    private val mapper = jacksonObjectMapper()
+    private val mapper: JsonMapper = Jackson.defaultJsonMapper
 
     @Test
     fun `generate string value`() {
@@ -61,7 +62,7 @@ class JsonGeneratorExtensionsTest {
             }
             val json = writer.toString()
             log.debug { "json=$json" }
-            val dummies = mapper.readValueOrNull<List<Dummy>>(json)!!
+            val dummies = mapper.readValueOrNull<List<Dummy>>(json).shouldNotBeNull()
             dummies shouldHaveSize 3
         }
     }
@@ -75,7 +76,7 @@ class JsonGeneratorExtensionsTest {
             }
             val json = writer.toString()
             log.debug { "json=$json" }
-            val dummies = mapper.readValueOrNull<List<Dummy>>(json)!!
+            val dummies = mapper.readValueOrNull<List<Dummy>>(json).shouldNotBeNull()
             dummies shouldHaveSize 3
         }
     }

@@ -30,7 +30,7 @@ class JsonEncryptAnnotationInterospector: JacksonAnnotationIntrospector() {
         log.debug { "find serializer. annotated=$a, jsonEncrypt=$jsonEncrypt" }
 
         return jsonEncrypt?.let {
-            serializers.computeIfAbsent(jsonEncrypt.encryptor) {
+            serializers.getOrPut(jsonEncrypt.encryptor) {
                 JsonEncryptSerializer(jsonEncrypt)
             }
         }
@@ -41,7 +41,7 @@ class JsonEncryptAnnotationInterospector: JacksonAnnotationIntrospector() {
         log.debug { "find deserializer. annotated=$a, jsonEncrypt=$jsonEncrypt" }
 
         return jsonEncrypt?.let {
-            deserializers.computeIfAbsent(jsonEncrypt.encryptor) {
+            deserializers.getOrPut(jsonEncrypt.encryptor) {
                 JsonEncryptDeserializer(jsonEncrypt)
             }
         }

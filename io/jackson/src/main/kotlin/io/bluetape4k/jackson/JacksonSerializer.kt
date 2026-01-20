@@ -1,6 +1,7 @@
 package io.bluetape4k.jackson
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.json.JsonMapper
 import io.bluetape4k.json.JsonSerializer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
@@ -24,7 +25,7 @@ import io.bluetape4k.support.emptyByteArray
  * @param mapper Jackson [ObjectMapper] 인스턴스
  */
 open class JacksonSerializer(
-    val mapper: ObjectMapper = Jackson.defaultJsonMapper,
+    val mapper: JsonMapper = Jackson.defaultJsonMapper,
 ): JsonSerializer {
 
     companion object: KLogging()

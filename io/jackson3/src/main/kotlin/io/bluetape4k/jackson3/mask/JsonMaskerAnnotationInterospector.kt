@@ -22,7 +22,7 @@ class JsonMaskerAnnotationInterospector: JacksonAnnotationIntrospector() {
     override fun findSerializer(config: MapperConfig<*>?, a: Annotated?): Any? {
         val jsonMasker = _findAnnotation(a, ANNOTATION_TYPE)
         return jsonMasker?.let {
-            serializers.computeIfAbsent(jsonMasker.value) {
+            serializers.getOrPut(jsonMasker.value) {
                 JsonMaskerSerializer(jsonMasker)
             }
         }

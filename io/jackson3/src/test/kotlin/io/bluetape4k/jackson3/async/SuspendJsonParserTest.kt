@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import tools.jackson.module.kotlin.treeToValue
@@ -62,7 +63,7 @@ class SuspendJsonParserTest {
         val parsed = atomic(0)
         val parser = getSingleModelParser(parsed)
 
-        val bytes = mapper.writeAsBytes(model)!!
+        val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
         // 1 byte 씩 consume 한다
         val flow = bytes.map { byteArrayOf(it) }.asFlow()
         parser.consume(flow)
@@ -75,7 +76,7 @@ class SuspendJsonParserTest {
         val parsed = atomic(0)
         val parser = getSingleModelParser(parsed)
 
-        val bytes = mapper.writeAsBytes(model)!!
+        val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
         val chunkSize = 20
 
         val flow: Flow<ByteArray> = bytes.toList()
@@ -92,7 +93,7 @@ class SuspendJsonParserTest {
         val parsed = atomic(0)
         val parser = getSingleModelParser(parsed)
 
-        val bytes = mapper.writeAsBytes(model)!!
+        val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
         val repeatSize = 3
         repeat(repeatSize) {
             val flow = bytes.map { byteArrayOf(it) }.asFlow()
@@ -148,7 +149,7 @@ class SuspendJsonParserTest {
             deserialized shouldBeEqualTo Array(modelSize) { model }
         }
 
-        val bytes = mapper.writeAsBytes(model)!!
+        val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
         parser.consume(flowOf("[".toByteArray()))
 
         repeat(modelSize) {

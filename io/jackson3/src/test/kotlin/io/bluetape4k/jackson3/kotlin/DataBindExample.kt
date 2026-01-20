@@ -9,16 +9,18 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
+import tools.jackson.databind.json.JsonMapper
 import java.io.Serializable
 
 class DataBindExample {
 
     companion object: KLogging()
 
-    val mapper = Jackson.defaultJsonMapper
+    val mapper: JsonMapper = Jackson.defaultJsonMapper
 
-    interface InviteTo
+    interface InviteTo: Serializable
 
     @JsonTypeName("CONTACT")
     data class InviteToContact(val name: String? = null): InviteTo
@@ -56,7 +58,7 @@ class DataBindExample {
         log.debug { "json=$json" }
         json shouldBeEqualTo """{"kind":"CONTACT","to":{"name":"Foo"}}"""
 
-        val parsed = mapper.readValueOrNull<Invite>(json)!!
+        val parsed = mapper.readValueOrNull<Invite>(json).shouldNotBeNull()
         parsed shouldBeEqualTo invite
         parsed.to shouldBeEqualTo contact
     }
@@ -76,7 +78,7 @@ class DataBindExample {
         log.debug { "json=$json" }
         json shouldBeEqualTo expectedJson
 
-        val parsed = mapper.readValueOrNull<List<Invite>>(json)!!
+        val parsed = mapper.readValueOrNull<List<Invite>>(json).shouldNotBeNull()
         parsed shouldHaveSize 2
         parsed[0].to shouldBeEqualTo contact
         parsed[1].to shouldBeEqualTo user

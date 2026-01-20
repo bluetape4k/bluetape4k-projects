@@ -1,7 +1,6 @@
 package io.bluetape4k.jackson3.crypto
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import io.bluetape4k.support.safeLet
 import tools.jackson.core.JsonGenerator
 import tools.jackson.databind.SerializationContext
@@ -24,7 +23,6 @@ class JsonEncryptSerializer(
         safeLet(annotation, value) { ann, v ->
             val encryptor = JsonEncryptors.getEncryptor(ann.encryptor)
             val encryptedText = encryptor.encrypt(v)
-            log.debug { "encrypt value. plain=$value, encryptedText=$encryptedText" }
             gen.writeString(encryptedText)
         } ?: gen.writeRaw(value)
     }

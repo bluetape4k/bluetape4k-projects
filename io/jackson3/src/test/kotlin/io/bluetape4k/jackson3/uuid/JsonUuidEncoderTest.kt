@@ -14,10 +14,13 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
+import tools.jackson.databind.json.JsonMapper
+import java.io.Serializable
 import java.util.*
 
 @RandomizedTest
@@ -28,7 +31,7 @@ class JsonUuidEncodeTest {
         private val faker = Fakers.faker
     }
 
-    private val mapper = Jackson.defaultJsonMapper
+    private val mapper: JsonMapper = Jackson.defaultJsonMapper
 
     /*
         JSON 변환 시 다음과 같이 변환됩니다.
@@ -51,7 +54,7 @@ class JsonUuidEncodeTest {
 
         // Faker 를 이용하여 의미있는 이름을 사용합니다.
         val username: String,
-    )
+    ): Serializable
 
 
     @RepeatedTest(REPEAT_COUNT)
@@ -114,10 +117,10 @@ class JsonUuidEncodeTest {
     )
 
     private fun verifyJsonUuidEncoder(user: User) {
-        val jsonText = mapper.writeAsString(user)!!
+        val jsonText = mapper.writeAsString(user).shouldNotBeNull()
         log.debug { "jsonText=$jsonText" }
 
-        val actual = mapper.readValueOrNull<User>(jsonText)!!
+        val actual = mapper.readValueOrNull<User>(jsonText).shouldNotBeNull()
         actual shouldBeEqualTo user
     }
 }
