@@ -20,9 +20,9 @@ import io.grpc.ServerBuilder
  */
 inline fun grpcServerBuilder(
     port: Int,
-    @BuilderInference initializer: ServerBuilder<*>.() -> Unit,
+    @BuilderInference builder: ServerBuilder<*>.() -> Unit,
 ): ServerBuilder<*> =
-    ServerBuilder.forPort(port).apply(initializer)
+    ServerBuilder.forPort(port).apply(builder)
 
 /**
  * [ServerBuilder]를 이용하여 gRPC Server를 설정하고, [Server]를 빌드합니다.
@@ -37,11 +37,11 @@ inline fun grpcServerBuilder(
  * ```
  *
  * @param port        서버 port
- * @param initializer 서버 빌더 초기화 람다
+ * @param builder 서버 빌더 초기화 람다
  * @return [Server] 인스턴스
  */
 inline fun grpcServer(
     port: Int,
-    @BuilderInference initializer: ServerBuilder<*>.() -> Unit,
+    @BuilderInference builder: ServerBuilder<*>.() -> Unit,
 ): Server =
-    grpcServerBuilder(port, initializer).build()
+    grpcServerBuilder(port, builder).build()

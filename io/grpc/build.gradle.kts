@@ -56,7 +56,7 @@ dependencies {
     compileOnly(project(":bluetape4k-money"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    api(Libs.jakarta_annotation_api)
+    // api(Libs.jakarta_annotation_api)
 
     api(Libs.grpc_api)
     api(Libs.grpc_alts)
@@ -72,7 +72,6 @@ dependencies {
 
     api(Libs.protobuf_java)
     api(Libs.protobuf_java_util)
-    compileOnly(Libs.protobuf_kotlin)
 
     // grpc-kotlin
     // 참고: https://github.com/grpc/grpc-kotlin/blob/master/compiler/README.md
@@ -80,8 +79,8 @@ dependencies {
     api(Libs.protobuf_kotlin)
 
     // Coroutines
-    api(project(":bluetape4k-coroutines"))
-    api(Libs.kotlinx_coroutines_core)
+    implementation(project(":bluetape4k-coroutines"))
+    implementation(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)
 
     testImplementation(Libs.assertj_core)

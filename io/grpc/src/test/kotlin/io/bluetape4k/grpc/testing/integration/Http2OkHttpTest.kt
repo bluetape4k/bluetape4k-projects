@@ -15,7 +15,7 @@ import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.SslProvider
 import io.netty.handler.ssl.SupportedCipherSuiteFilter
 import org.amshove.kluent.shouldBeEqualTo
-import org.junit.BeforeClass
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.io.IOException
@@ -81,7 +81,7 @@ class Http2OkHttpTest: AbstractInteropTest() {
         return builder
     }
 
-    @BeforeClass
+    @BeforeAll
     fun loadConscrypt() {
         TestUtils.installConscryptIfAvailable()
     }

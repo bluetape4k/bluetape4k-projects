@@ -27,8 +27,10 @@ class TestServiceServer private constructor(
 
     override fun createServer(): Server {
         val executor = Executors.newSingleThreadScheduledExecutor()
+        val service = ServerInterceptors.intercept(TestServiceImpl(executor), TestServiceImpl.interceptors)
+
         return builder
-            .addService(ServerInterceptors.intercept(TestServiceImpl(executor), TestServiceImpl.interceptors))
+            .addService(service)
             .build()
     }
 }

@@ -14,7 +14,9 @@ import java.util.concurrent.TimeUnit
  *
  * @property channel gRPC Channel instance.
  */
-abstract class AbstractGrpcInprocessClient(protected val channel: ManagedChannel): Closeable {
+abstract class AbstractGrpcInprocessClient(
+    protected val channel: ManagedChannel,
+): Closeable {
 
     constructor(name: String): this(buildChannelByName(name))
     constructor(host: String, port: Int): this(buildChannelByAddress(host, port))
@@ -41,7 +43,7 @@ abstract class AbstractGrpcInprocessClient(protected val channel: ManagedChannel
 
     override fun close() {
         if (!channel.isShutdown) {
-            log.debug { "Close client's grpc channel..." }
+            log.debug { "Close client's grpc channel... channel=$channel" }
             runCatching {
                 channel.shutdown().awaitTermination(5, TimeUnit.SECONDS)
             }

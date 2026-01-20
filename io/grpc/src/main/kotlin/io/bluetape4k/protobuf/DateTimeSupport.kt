@@ -42,13 +42,13 @@ fun LocalDateTime.toProtoDateTime(): ProtoDateTime =
 
 
 /**
- * [com.google.type.Time] 수형을 [java.time.LocalTime] 수형으로 변환합니다.
+ * [com.google.type.TimeOfDay] 수형을 [java.time.LocalTime] 수형으로 변환합니다.
  */
 fun ProtoTime.toLocalTime(): LocalTime =
     LocalTime.of(hours, minutes, seconds, nanos)
 
 /**
- * [java.time.LocalTime] 수형을 [com.google.type.Time] 수형으로 변환합니다.
+ * [java.time.LocalTime] 수형을 [com.google.type.TimeOfDay] 수형으로 변환합니다.
  */
 fun LocalTime.toProtoTime(): ProtoTime =
     ProtoTime.newBuilder()

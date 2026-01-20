@@ -60,9 +60,9 @@ abstract class AbstractGrpcInprocessServer(
         lock.withLock {
             if (!isShutdown) {
                 runCatching {
+                    running.set(false)
                     server.shutdown().awaitTermination(5, TimeUnit.SECONDS)
                 }
-                running.set(false)
             }
         }
     }

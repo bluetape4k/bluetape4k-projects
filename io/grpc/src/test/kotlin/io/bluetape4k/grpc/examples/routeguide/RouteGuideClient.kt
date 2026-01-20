@@ -19,12 +19,6 @@ import kotlinx.coroutines.runBlocking
 import java.util.concurrent.ForkJoinPool
 import kotlin.random.Random
 
-/**
- * RouteGuideClient
- *
- * @author Debop
- * @since 2020/04/29
- */
 class RouteGuideClient private constructor(channel: ManagedChannel): AbstractGrpcClient(channel) {
 
     companion object: KLogging() {

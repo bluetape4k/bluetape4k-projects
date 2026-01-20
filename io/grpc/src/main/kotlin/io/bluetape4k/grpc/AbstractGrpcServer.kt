@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.logging.warn
+import io.bluetape4k.support.ifFalse
 import io.bluetape4k.utils.ShutdownQueue
 import io.grpc.BindableService
 import io.grpc.Server
@@ -66,13 +67,13 @@ abstract class AbstractGrpcServer(
     override fun stop() {
         lock.withLock {
             if (!isShutdown) {
+                log.debug { "Shutdown gRPC server..." }
                 runCatching {
-                    server.shutdown()
-                    if (!server.awaitTermination(5, TimeUnit.SECONDS)) {
+                    running.set(false)
+                    server.shutdown().awaitTermination(5, TimeUnit.SECONDS).ifFalse {
                         log.warn { "Timed out waiting for server shutdown" }
                     }
                 }
-                running.set(false)
             }
         }
     }

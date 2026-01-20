@@ -6,8 +6,9 @@ import com.google.protobuf.util.Durations
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flow
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.TimeUnit
 
 class RouteGuideService @JvmOverloads constructor(
@@ -57,18 +58,19 @@ class RouteGuideService @JvmOverloads constructor(
             .build()
     }
 
-    override fun routeChat(requests: Flow<RouteNote>): Flow<RouteNote> {
-        return flow {
-            requests.collect { note ->
-                val notes = routeNotes.computeIfAbsent(note.location) { mutableListOf() }
+    override fun routeChat(requests: Flow<RouteNote>): Flow<RouteNote> = channelFlow {
+        requests
+            .collect { note ->
+                val notes = routeNotes.computeIfAbsent(note.location) {
+                    CopyOnWriteArrayList()
+                }
 
                 // thread-safe snapshot
                 notes.forEach { prevNote ->
-                    emit(prevNote)
+                    send(prevNote)
                 }
 
                 notes.add(note)
             }
-        }
     }
 }

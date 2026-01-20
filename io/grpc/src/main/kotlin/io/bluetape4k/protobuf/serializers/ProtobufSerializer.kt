@@ -3,6 +3,7 @@ package io.bluetape4k.protobuf.serializers
 import io.bluetape4k.io.serializer.AbstractBinarySerializer
 import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.io.serializer.BinarySerializers
+import io.bluetape4k.logging.warn
 import io.bluetape4k.protobuf.ProtoAny
 import io.bluetape4k.protobuf.ProtoMessage
 import io.bluetape4k.support.isNullOrEmpty
@@ -17,10 +18,10 @@ import java.util.concurrent.ConcurrentHashMap
  * val message = serializer.deserialize(bytes)
  * ```
  *
- * @property fallbackSerializer Protobuf 방식으로 직렬화 예외 시 수행할 대체 serializer
+ * @property fallback Protobuf 방식으로 직렬화 예외 시 수행할 대체 serializer
  */
 class ProtobufSerializer(
-    private val fallbackSerializer: BinarySerializer = BinarySerializers.Jdk,
+    private val fallback: BinarySerializer = BinarySerializers.Jdk,
 ): AbstractBinarySerializer() {
 
     companion object {
@@ -29,7 +30,7 @@ class ProtobufSerializer(
 
     override fun doSerialize(graph: Any): ByteArray {
         return if (graph is ProtoMessage) ProtoAny.pack(graph).toByteArray()
-        else fallbackSerializer.serialize(graph)
+        else fallback.serialize(graph)
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -45,8 +46,9 @@ class ProtobufSerializer(
                 Class.forName(className) as Class<ProtoMessage>
             }
             protoAny.unpack(clazz) as? T
-        } catch (e: Exception) {
-            fallbackSerializer.deserialize(bytes)
+        } catch (e: Throwable) {
+            log.warn(e) { "Can't deserialize by protobuf. use fallback serializer." }
+            fallback.deserialize(bytes)
         }
     }
 }

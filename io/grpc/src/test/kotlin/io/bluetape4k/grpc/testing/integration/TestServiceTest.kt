@@ -7,7 +7,6 @@ import io.bluetape4k.junit5.output.OutputCapture
 import io.bluetape4k.junit5.output.OutputCapturer
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import io.bluetape4k.logging.trace
 import io.bluetape4k.support.toUtf8Bytes
 import io.grpc.ServerBuilder
 import io.grpc.StatusException
@@ -167,7 +166,7 @@ class TestServiceTest {
                 .build()
 
             emit(request)
-            log.trace { "Sent request. ${request.payload.body.size()}" }
+            log.debug { "Sent request. ${request.payload.body.size()}" }
             delay(delayMs)
         }
     }
@@ -185,7 +184,7 @@ class TestServiceTest {
                 .build()
 
             emit(request)
-            log.trace { "Sent request. ${request.payload.body.size()}" }
+            log.debug { "Sent request. ${request.payload.body.size()}" }
             delay(delayMs)
         }
     }

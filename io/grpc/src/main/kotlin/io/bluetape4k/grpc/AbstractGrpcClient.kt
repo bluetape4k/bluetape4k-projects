@@ -1,17 +1,21 @@
 package io.bluetape4k.grpc
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.grpc.ManagedChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import java.io.Closeable
+import java.util.concurrent.TimeUnit
 
 /**
  * gRPC 통신을 수행하는 Client의 최상위 추상화 클래스입니다.
  *
  * @property channel [ManagedChannel] 인스턴스
  */
-abstract class AbstractGrpcClient(protected val channel: ManagedChannel): Closeable {
+abstract class AbstractGrpcClient(
+    protected val channel: ManagedChannel,
+): Closeable {
 
     constructor(host: String = DEFAULT_HOST, port: Int = DEFAULT_PORT): this(buildForAddress(host, port))
 
@@ -28,7 +32,10 @@ abstract class AbstractGrpcClient(protected val channel: ManagedChannel): Closea
 
     override fun close() {
         if (!channel.isShutdown) {
-            runCatching { channel.shutdown() }
+            log.debug { "Shutdown GrpcClient channel. channel=$channel" }
+            runCatching {
+                channel.shutdown().awaitTermination(5, TimeUnit.SECONDS)
+            }
         }
     }
 }

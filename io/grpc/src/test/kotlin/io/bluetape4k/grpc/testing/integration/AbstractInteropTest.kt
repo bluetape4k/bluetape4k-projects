@@ -461,7 +461,6 @@ abstract class AbstractInteropTest {
         if (requests != null && responses != null) {
             checkTracers(tracer, requests, responses)
         }
-
     }
 
     // Failure is checked in the end by the passed flag.

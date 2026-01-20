@@ -15,17 +15,17 @@ import io.grpc.ManagedChannelBuilder
  *
  * @param host 호스트
  * @param port 포트
- * @param initializer [ManagedChannelBuilder] 초기화 람다
+ * @param builder [ManagedChannelBuilder] 초기화 람다
  * @return [ManagedChannel] 인스턴스
  */
 inline fun managedChannel(
     host: String,
     port: Int,
-    @BuilderInference initializer: ManagedChannelBuilder<*>.() -> Unit,
+    @BuilderInference builder: ManagedChannelBuilder<*>.() -> Unit,
 ): ManagedChannel =
     ManagedChannelBuilder
         .forAddress(host, port)
-        .apply(initializer)
+        .apply(builder)
         .build()
 
 /**
@@ -39,13 +39,13 @@ inline fun managedChannel(
  * ```
  *
  * @param target 타겟 (호스트:포트)
- * @param initializer [ManagedChannelBuilder] 초기화 람다
+ * @param builder [ManagedChannelBuilder] 초기화 람다
  * @return [ManagedChannel] 인스턴스
  */
 inline fun managedChannel(
     target: String,
-    @BuilderInference initializer: ManagedChannelBuilder<*>.() -> Unit,
+    @BuilderInference builder: ManagedChannelBuilder<*>.() -> Unit,
 ): ManagedChannel = ManagedChannelBuilder
     .forTarget(target)
-    .apply(initializer)
+    .apply(builder)
     .build()
