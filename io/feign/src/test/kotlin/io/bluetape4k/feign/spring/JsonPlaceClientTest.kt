@@ -1,7 +1,7 @@
 package io.bluetape4k.feign.spring
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
@@ -27,7 +27,7 @@ class JsonPlaceClientTest(
     fun `get all posts`() {
         val posts = jsonPlaceClient.posts()
         posts.forEach {
-            log.trace { "post: $it" }
+            log.debug { "post: $it" }
         }
         posts.shouldNotBeEmpty()
     }

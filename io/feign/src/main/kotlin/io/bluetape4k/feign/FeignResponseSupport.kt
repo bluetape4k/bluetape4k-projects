@@ -6,21 +6,21 @@ import java.io.Reader
 /**
  * [feign.Response.Builder]를 빌드합니다.
  *
- * @param initializer [feign.Response.Builder]를 초기화하는 함수
+ * @param builder [feign.Response.Builder]를 초기화하는 함수
  * @return [feign.Response] 인스턴스
  */
-inline fun feignResponseBuilder(initializer: Response.Builder.() -> Unit): Response.Builder {
-    return Response.builder().apply(initializer)
+inline fun feignResponseBuilder(builder: Response.Builder.() -> Unit): Response.Builder {
+    return Response.builder().apply(builder)
 }
 
 /**
  * [feign.Response]를 빌드합니다.
  *
- * @param initializer [feign.Response.Builder]를 초기화하는 함수
+ * @param builder [feign.Response.Builder]를 초기화하는 함수
  * @return [feign.Response] 인스턴스
  */
-inline fun feignResponse(initializer: Response.Builder.() -> Unit): Response {
-    return feignResponseBuilder(initializer).build()
+inline fun feignResponse(builder: Response.Builder.() -> Unit): Response {
+    return feignResponseBuilder(builder).build()
 }
 
 /**

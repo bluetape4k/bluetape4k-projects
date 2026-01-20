@@ -20,8 +20,6 @@ dependencies {
     // Coroutines
     api(project(":bluetape4k-coroutines"))
     api(Libs.kotlinx_coroutines_core)
-    api(Libs.kotlinx_coroutines_jdk8)
-    compileOnly(Libs.kotlinx_coroutines_reactive)
     compileOnly(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_test)
 
@@ -35,7 +33,7 @@ dependencies {
     api(Libs.feign_kotlin)
     api(Libs.feign_slf4j)
     api(Libs.feign_jackson)
-    api(Libs.feign_reactive_wrappers)
+    compileOnly(Libs.feign_reactive_wrappers)
     compileOnly(Libs.feign_micrometer)
     compileOnly(Libs.feign_jaxrs)
     compileOnly(Libs.feign_jaxrs2)
@@ -52,7 +50,7 @@ dependencies {
     // feign_hc5 를 사용하려면, httpcore5, httpcore5-h2 도 버전을 맞춰줘야 한다 
     api(Libs.httpclient5)
     api(Libs.httpcore5)
-    api(Libs.httpcore5_h2)
+    compileOnly(Libs.httpcore5_h2)
 
     // Vertx
     compileOnly(project(":bluetape4k-vertx-core"))
@@ -73,8 +71,8 @@ dependencies {
     compileOnly(Libs.fastjson2_kotlin)
 
     // Gson
-    compileOnly(Libs.gson)
-    compileOnly(Libs.gson_javatime_serializers)
+//    compileOnly(Libs.gson)
+//    compileOnly(Libs.gson_javatime_serializers)
 
     // Resilience4j
     compileOnly(project(":bluetape4k-resilience4j"))
@@ -82,9 +80,6 @@ dependencies {
     compileOnly(Libs.resilience4j_kotlin)
     compileOnly(Libs.resilience4j_feign)
     compileOnly(Libs.resilience4j_cache)
-    compileOnly(Libs.resilience4j_retry)
-    compileOnly(Libs.resilience4j_circuitbreaker)
-    compileOnly(Libs.resilience4j_reactor)
 
     //
     // Spring Cloud OpenFeign 사용

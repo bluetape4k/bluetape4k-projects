@@ -26,14 +26,14 @@ import java.util.concurrent.Executors
  * ```
  *
  * @param C Context Type
- * @param intializer CoroutineFeign.CoroutineBuilder 초기화 블럭
+ * @param builder CoroutineFeign.CoroutineBuilder 초기화 블럭
  * @receiver CoroutineFeign.CoroutineBuilder
  * @return [CoroutineFeign.CoroutineBuilder] instance
  */
 inline fun <C: Any> coroutineFeignBuilder(
-    @BuilderInference intializer: CoroutineFeign.CoroutineBuilder<C>.() -> Unit,
+    @BuilderInference builder: CoroutineFeign.CoroutineBuilder<C>.() -> Unit,
 ): CoroutineFeign.CoroutineBuilder<C> {
-    return CoroutineFeign.CoroutineBuilder<C>().apply(intializer)
+    return CoroutineFeign.CoroutineBuilder<C>().apply(builder)
 }
 
 /**
@@ -54,6 +54,7 @@ inline fun <C: Any> coroutineFeignBuilder(
  * @param decoder Decoder instance (default: Decoder.Default())
  * @param opptions Request.Options instance (default: [defaultRequestOptions])
  * @param logLevel feign.Logger.Level instance (default: feign.Logger.Level.BASIC)
+ * @param builder CoroutineFeign.CoroutineBuilder 초기화 블럭
  *
  * @see [AsyncClient.Default]
  * @see [io.bluetape4k.http.hc5.async.httpAsyncClientOf]
@@ -64,7 +65,7 @@ inline fun <C: Any> coroutineFeignBuilderOf(
     decoder: Decoder = Decoder.Default(),
     opptions: Request.Options = defaultRequestOptions,
     logLevel: feign.Logger.Level = feign.Logger.Level.BASIC,
-    initializer: CoroutineFeign.CoroutineBuilder<C>.() -> Unit = {},
+    builder: CoroutineFeign.CoroutineBuilder<C>.() -> Unit = {},
 ): CoroutineFeign.CoroutineBuilder<C> {
     return coroutineFeignBuilder {
         client(asyncClient)
@@ -73,7 +74,7 @@ inline fun <C: Any> coroutineFeignBuilderOf(
         options(opptions)
         logLevel(logLevel)
 
-        initializer()
+        builder()
     }
 }
 

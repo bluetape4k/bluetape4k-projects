@@ -198,6 +198,7 @@ abstract class AbstractClientTest: AbstractFeignTest() {
         server.enqueue(MockResponse().setBody("AAAAAAAA").addHeader("Content-Length", Long.MAX_VALUE))
 
         val response = api.post("foo")
+        log.debug { "response=$response" }
 
         // NOTE: LogLevel 을 FULL 로 하면 미리 다 가져오기 때문에 length 에 값을 가지게 된다.
         // response.body().length().shouldBeNull()

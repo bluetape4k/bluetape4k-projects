@@ -16,14 +16,16 @@ import feign.codec.Encoder
  * val api = feignBuilder.target<HttpbinApi>("https://nghttp2.org/httpbin")
  * ```
  *
- * @param intializer [Feign.Builder]를 초기화하는 함수
+ * @param builder [Feign.Builder]를 초기화하는 함수
  * @return [feign.Feign.Builder] 인스턴스
  */
-inline fun feignBuilder(intializer: Feign.Builder.() -> Unit): Feign.Builder {
+inline fun feignBuilder(
+    @BuilderInference builder: Feign.Builder.() -> Unit,
+): Feign.Builder {
     return Feign.Builder()
         .encoder(Encoder.Default())
         .decoder(Decoder.Default())
-        .apply(intializer)
+        .apply(builder)
 }
 
 /**
@@ -84,5 +86,5 @@ fun feingBuilderOf(
  */
 inline fun <reified T: Any> Feign.Builder.client(baseUrl: String? = null): T = when {
     baseUrl.isNullOrBlank() -> target(Target.EmptyTarget.create(T::class.java))
-    else                    -> target(T::class.java, baseUrl)
+    else -> target(T::class.java, baseUrl)
 }

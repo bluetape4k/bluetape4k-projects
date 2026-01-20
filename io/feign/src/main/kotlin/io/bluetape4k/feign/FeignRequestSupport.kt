@@ -19,11 +19,11 @@ val defaultRequestOptions = Options()
  * }
  * ```
  *
- * @param intializer [feign.Request.Options]를 초기화하는 함수
+ * @param builder [feign.Request.Options]를 초기화하는 함수
  * @return [feign.Request.Options] 인스턴스
  */
-inline fun requestOptions(intializer: Options.() -> Unit): Options {
-    return Options().apply(intializer)
+inline fun requestOptions(builder: Options.() -> Unit): Options {
+    return Options().apply(builder)
 }
 
 /**

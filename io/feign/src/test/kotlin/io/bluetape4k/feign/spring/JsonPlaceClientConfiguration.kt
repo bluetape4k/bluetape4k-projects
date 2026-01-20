@@ -12,12 +12,8 @@ class JsonPlaceClientConfiguration {
     companion object: KLogging()
 
     @Bean
-    fun jsonMapper(): JsonMapper {
-        return Jackson.defaultJsonMapper
-    }
+    fun jsonMapper(): JsonMapper = Jackson.defaultJsonMapper
 
     @Bean
-    fun decoder(mapper: JsonMapper): Decoder {
-        return JacksonDecoder2(mapper)
-    }
+    fun decoder(mapper: JsonMapper): Decoder = JacksonDecoder2(mapper)
 }
