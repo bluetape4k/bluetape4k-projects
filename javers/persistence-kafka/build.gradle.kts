@@ -19,15 +19,14 @@ dependencies {
     testImplementation(project(path = ":bluetape4k-javers-core", configuration = "testJar"))
 
     api(Libs.javers_core)
-    testImplementation(Libs.guava)
 
     // Kafka
     api(Libs.kafka_clients)
     compileOnly(Libs.spring_kafka)
 
     // Codec
-    compileOnly(Libs.kryo5)
     compileOnly(Libs.fory_kotlin)  // new Apache Fory
+    compileOnly(Libs.kryo5)
 
     // Compressor
     compileOnly(Libs.lz4_java)

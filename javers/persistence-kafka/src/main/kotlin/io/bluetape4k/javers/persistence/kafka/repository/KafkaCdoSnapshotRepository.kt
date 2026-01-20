@@ -38,7 +38,7 @@ class KafkaCdoSnapshotRepository(
             val key = snapshot.globalId.value()
             val value = encode(snapshot)
             log.trace { "Produce snapshot. key=$key, value=$value" }
-            kafkaOperations.sendDefault(key, value)
+            kafkaOperations.sendDefault(key, value).get()
         } catch (e: Throwable) {
             log.error(e) { "Fail to procude snapshot. key=${snapshot.globalId.value()}" }
         }

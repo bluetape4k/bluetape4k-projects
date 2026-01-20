@@ -80,7 +80,7 @@ class RedissonCdoSnapshotRepository(
     }
 
     override fun loadSnapshots(globalIdValue: String): List<CdoSnapshot> {
-        // NOTE: 최신 데이터가 처음에 오도록 역순 정렬이 필요합니다. (Stack처럼 사용합니다)
+        // NOTE: 최신 데이터가 처음에 오도록 역순 정렬해야 합니다. (Stack처럼 사용합니다)
         val loaded = snapshots.getAll(globalIdValue)
             .mapNotNull { value ->
                 log.debug { "value size=${value.size}" }
