@@ -36,8 +36,8 @@ dependencies {
     compileOnly(Libs.jackson_datatype_jdk8)
     compileOnly(Libs.jackson_datatype_jsr310)
 
-    testImplementation(Libs.h2)
-    testImplementation(Libs.mysql_connector_j)
+    testRuntimeOnly(Libs.h2)
+    testRuntimeOnly(Libs.mysql_connector_j)
 
     // Testcontainers
     testImplementation(project(":bluetape4k-testcontainers"))
@@ -45,8 +45,7 @@ dependencies {
     testImplementation(Libs.testcontainers_mysql)
 
     // Coroutines
-    api(project(":bluetape4k-coroutines"))
-    api(Libs.kotlinx_coroutines_core)
-    compileOnly(Libs.kotlinx_coroutines_reactor)
+    implementation(project(":bluetape4k-coroutines"))
+    implementation(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)
 }

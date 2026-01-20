@@ -15,7 +15,6 @@ dependencies {
     compileOnly(Libs.hikaricp)
     compileOnly(Libs.tomcat_jdbc)
 
-    compileOnly(Libs.agroal_hikari)
     compileOnly(Libs.agroal_pool)
     compileOnly(Libs.agroal_spring_boot_starter)
 
@@ -25,8 +24,8 @@ dependencies {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
 
-    runtimeOnly(Libs.h2_v2)
+    testRuntimeOnly(Libs.h2_v2)
     testImplementation(Libs.testcontainers_mysql)
     testRuntimeOnly(Libs.mysql_connector_j)
-    testRuntimeOnly(Libs.mariadb_java_client)
+    // testRuntimeOnly(Libs.mariadb_java_client)
 }
