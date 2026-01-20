@@ -26,7 +26,7 @@ class BitBufImpl internal constructor(override val byteBuf: ByteBuf): BitBuf {
     override var readerIndex: Long =
         byteBuf.readerIndex().toLong() * BITS_SIZE
         get() {
-            if (byteBuf.readerIndex() != ceil(field / Companion.BITS_SIZE_DOUBLE).toInt()) {
+            if (byteBuf.readerIndex() != ceil(field / BITS_SIZE_DOUBLE).toInt()) {
                 field =
                     byteBuf.readerIndex().toLong() * BITS_SIZE
             }
@@ -34,12 +34,12 @@ class BitBufImpl internal constructor(override val byteBuf: ByteBuf): BitBuf {
         }
         set(value) {
             field = value
-            byteBuf.readerIndex(ceil(field / Companion.BITS_SIZE_DOUBLE).toInt())
+            byteBuf.readerIndex(ceil(field / BITS_SIZE_DOUBLE).toInt())
         }
 
     override var writerIndex: Long = byteBuf.writerIndex().toLong() * Byte.SIZE_BITS
         get() {
-            if (byteBuf.writerIndex() != ceil(field / Companion.BITS_SIZE_DOUBLE).toInt()) {
+            if (byteBuf.writerIndex() != ceil(field / BITS_SIZE_DOUBLE).toInt()) {
                 field =
                     byteBuf.writerIndex().toLong() * BITS_SIZE
             }
@@ -47,7 +47,7 @@ class BitBufImpl internal constructor(override val byteBuf: ByteBuf): BitBuf {
         }
         set(value) {
             field = value
-            byteBuf.writerIndex(ceil(field / Companion.BITS_SIZE_DOUBLE).toInt())
+            byteBuf.writerIndex(ceil(field / BITS_SIZE_DOUBLE).toInt())
         }
 
     override fun getBoolean(index: Long): Boolean = getUnsignedBits(index, 1) == 1u

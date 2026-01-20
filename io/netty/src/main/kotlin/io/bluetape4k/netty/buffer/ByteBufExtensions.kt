@@ -287,7 +287,7 @@ fun ByteBuf.readNullableUIntSmart(): Int? {
     val peek = getByte(readerIndex()).toInt()
     return if (peek >= 0) {
         val result = readUnsignedShort()
-        return if (result == Short.MAX_VALUE.toInt()) null else result
+        if (result == Short.MAX_VALUE.toInt()) null else result
     } else {
         readInt() and Int.MAX_VALUE
     }
