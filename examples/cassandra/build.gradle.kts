@@ -3,8 +3,9 @@ plugins {
     kotlin("plugin.spring")
     kotlin("plugin.noarg")
     kotlin("plugin.allopen")
-
+    id(Plugins.graalvm_native)
 }
+
 allOpen {
     annotation("com.datastax.oss.driver.api.mapper.annotations.Entity")
 }
