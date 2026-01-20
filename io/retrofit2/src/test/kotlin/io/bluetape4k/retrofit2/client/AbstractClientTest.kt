@@ -10,7 +10,6 @@ import io.bluetape4k.retrofit2.AbstractRetrofitTest
 import io.bluetape4k.retrofit2.retrofitOf
 import io.bluetape4k.retrofit2.service
 import io.bluetape4k.retrofit2.services.TestService
-import io.bluetape4k.support.closeSafe
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
 import okhttp3.mockwebserver.MockResponse
@@ -34,14 +33,13 @@ abstract class AbstractClientTest: AbstractRetrofitTest() {
 
     protected abstract val callFactory: okhttp3.Call.Factory
 
-    private val server: MockWebServer = MockWebServer()
+    private lateinit var server: MockWebServer
     private lateinit var service: TestService.EmptyService
     private lateinit var api: TestService.TestInterface
 
     @BeforeEach
     fun beforeEach() {
-        // server = MockWebServer().apply { start() }
-        server.closeSafe()
+        server = MockWebServer().apply { start() }
         server.start()
         service = retrofitOf(server.baseUrl, callFactory).service()
         api = retrofitOf(server.baseUrl, callFactory, ScalarsConverterFactory.create()).service()
@@ -49,7 +47,7 @@ abstract class AbstractClientTest: AbstractRetrofitTest() {
 
     @AfterEach
     fun afterEach() {
-        server.closeSafe()
+        server.shutdown()
     }
 
     @Test
