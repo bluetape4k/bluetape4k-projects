@@ -29,7 +29,7 @@ class SnsClientTest: AbstractSnsTest() {
     private lateinit var subscriptionArn: String
     private lateinit var token: String
 
-    val phoneNumber = "+821089555081"
+    val phoneNumber = "+821088885555"
 
     @Test
     @Order(1)

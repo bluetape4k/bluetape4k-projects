@@ -45,7 +45,7 @@ class BucketExamples: AbstractRedissonCoroutineTest() {
         bucket.compareAndSetAsync("123", "2032").suspendAwait().shouldBeTrue()
 
         // 기존 값을 가져오고, 새로운 값으로 설정
-        bucket.getAndSetAsync("5081").suspendAwait() shouldBeEqualTo "2032"
+        bucket.getAndSetAsync("5555").suspendAwait() shouldBeEqualTo "2032"
 
         // bucket에 object가 없을 때에 set을 수행한다
         bucket.setIfAbsentAsync("7777", Duration.ofSeconds(60)).suspendAwait().shouldBeFalse()

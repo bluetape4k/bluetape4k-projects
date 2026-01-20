@@ -52,12 +52,12 @@ class JsonEncryptTest {
 
     @Test
     fun `encrypt string property`() {
-        val user = User(faker.name().name(), "mypassword", "010-8955-0581")
+        val user = User(faker.name().name(), "mypassword", "010-8888-5555")
         log.debug { mapper.prettyWriteAsString(user) }
 
         val encrypted = mapper.writeAsString(user)!!
         encrypted shouldNotContain "mypassword"
-        encrypted shouldNotContain "010-8955-5081"
+        encrypted shouldNotContain "010-8888-5555"
     }
 
     @RepeatedTest(REPEAT_COUNT)

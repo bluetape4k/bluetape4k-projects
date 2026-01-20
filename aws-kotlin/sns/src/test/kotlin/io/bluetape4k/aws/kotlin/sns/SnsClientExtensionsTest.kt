@@ -33,7 +33,7 @@ class SnsClientExtensionsTest: AbstractKotlinSnsTest() {
     private lateinit var testToken: String
 
     // Debop's phone number
-    private val testPhoneNumber = "+821089555081"
+    private val testPhoneNumber = "+821088885555"
 
     @Test
     @Order(1)

@@ -33,7 +33,7 @@ class JsonMaskerTest {
 
     @Test
     fun `masking field with @JsonMasker`() {
-        val user = User("debop", "010-8955-5081", BigDecimal.TEN)
+        val user = User("debop", "010-8888-5555", BigDecimal.TEN)
         log.debug { mapper.prettyWriteAsString(user) }
         verifyJsonMasker(user)
     }
