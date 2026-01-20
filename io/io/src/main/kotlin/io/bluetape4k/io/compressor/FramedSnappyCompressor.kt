@@ -1,5 +1,6 @@
 package io.bluetape4k.io.compressor
 
+import io.bluetape4k.io.okio.bufferOf
 import okio.Buffer
 import org.apache.commons.compress.compressors.snappy.FramedSnappyCompressorInputStream
 import org.apache.commons.compress.compressors.snappy.FramedSnappyCompressorOutputStream
@@ -29,9 +30,9 @@ class FramedSnappyCompressor: AbstractCompressor() {
     }
 
     override fun doDecompress(compressed: ByteArray): ByteArray {
-        ByteArrayInputStream(compressed).use { input ->
+        return ByteArrayInputStream(compressed).use { input ->
             FramedSnappyCompressorInputStream(input).use { snappy ->
-                return Buffer().readFrom(snappy).readByteArray()
+                bufferOf(snappy).readByteArray()
             }
         }
     }

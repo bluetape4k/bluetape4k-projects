@@ -15,10 +15,9 @@ import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
 
 @RandomizedTest
-class ByteBufferExtensionsTest {
+class ByteBufferExtensionsTest: AbstractIOTest() {
 
     companion object: KLogging() {
-        private const val REPEAT_SIZE = 3
         private const val BUFFER_SIZE = 1024
     }
 

@@ -7,7 +7,7 @@ import org.amshove.kluent.internal.assertFailsWith
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
-class HexDumpSupportTest {
+class HexDumpSupportTest: AbstractIOTest() {
 
     companion object: KLogging()
 

@@ -8,7 +8,7 @@ import okio.Buffer
 import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousFileChannel
 
-fun AsynchronousFileChannel.asSuspendSourced(): SuspendedFileChannelSource =
+fun AsynchronousFileChannel.asSuspendedSource(): SuspendedFileChannelSource =
     SuspendedFileChannelSource(this)
 
 class SuspendedFileChannelSource(

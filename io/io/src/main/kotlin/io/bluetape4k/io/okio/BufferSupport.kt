@@ -77,10 +77,13 @@ fun bufferOf(bytes: ByteArray): Buffer = Buffer().write(bytes)
 @JvmName("bufferOfBytes")
 fun bufferOf(vararg bytes: Byte): Buffer = Buffer().write(bytes)
 
+fun bufferOf(input: InputStream): Buffer =
+    Buffer().readFrom(input)
+
 /**
  * [input] 내용을 담은 [Buffer]에 씁니다.
  */
-fun bufferOf(input: InputStream, byteCount: Long = input.available().toLong()): Buffer =
+fun bufferOf(input: InputStream, byteCount: Long): Buffer =
     Buffer().readFrom(input, byteCount)
 
 /**

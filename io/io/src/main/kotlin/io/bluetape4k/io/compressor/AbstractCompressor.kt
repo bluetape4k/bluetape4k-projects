@@ -5,7 +5,6 @@ import io.bluetape4k.logging.warn
 import io.bluetape4k.support.emptyByteArray
 import io.bluetape4k.support.isNullOrEmpty
 
-
 /**
  * [Compressor]의 최상위 추상화 클래스입니다.
  */

@@ -126,9 +126,8 @@ internal class RealBufferedSuspendedSink(private val sink: SuspendedSink): Buffe
 
     override suspend fun emit(): BufferedSuspendedSink = apply {
         checkNotClosed()
-        val byteCount = buffer.size
-        if (byteCount > 0L) {
-            sink.write(buffer, byteCount)
+        if (buffer.size > 0L) {
+            sink.write(buffer, buffer.size)
         }
     }
 

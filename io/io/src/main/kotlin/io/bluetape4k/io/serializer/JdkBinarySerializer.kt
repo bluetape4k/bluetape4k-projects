@@ -22,23 +22,19 @@ class JdkBinarySerializer(
     companion object: KLogging()
 
     override fun doSerialize(graph: Any): ByteArray {
-        // log.trace { "serialize by jdk. graph=$graph" }
-
         val output = Buffer()
         ObjectOutputStream(output.outputStream()).use { oos ->
             oos.writeObject(graph)
             oos.flush()
         }
-        return output.readByteArray().apply { output.close() }
+        return output.readByteArray()
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T: Any> doDeserialize(bytes: ByteArray): T? {
-        // log.trace { "deserialize by jdk. bytes.size=${bytes.size}" }
-
-        ByteArrayInputStream(bytes).use { bis ->
+        return ByteArrayInputStream(bytes).use { bis ->
             ObjectInputStream(bis).use { ois ->
-                return ois.readObject() as? T
+                ois.readObject() as? T
             }
         }
     }

@@ -8,7 +8,7 @@ import okio.Buffer
 import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousSocketChannel
 
-fun AsynchronousSocketChannel.asSuspendSink(): SuspendedSocketChannelSink =
+fun AsynchronousSocketChannel.asSuspendedSink(): SuspendedSocketChannelSink =
     SuspendedSocketChannelSink(this)
 
 class SuspendedSocketChannelSink(

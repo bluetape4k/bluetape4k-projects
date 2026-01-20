@@ -15,10 +15,12 @@ import java.util.*
  */
 class ApacheBase64Source(delegate: Source): AbstractBase64Source(delegate) {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private val urlDecoder = Base64.getUrlDecoder()
+    }
 
-    override fun decodeBase64Bytes(encodedString: String): ByteString? {
-        return Base64.getUrlDecoder().decode(encodedString).toUtf8String().encodeUtf8()
+    override fun decodeBase64Bytes(encodedString: String): ByteString {
+        return urlDecoder.decode(encodedString).toUtf8String().encodeUtf8()
     }
 }
 

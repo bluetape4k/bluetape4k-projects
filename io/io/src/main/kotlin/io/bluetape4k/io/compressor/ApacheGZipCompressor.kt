@@ -1,5 +1,6 @@
 package io.bluetape4k.io.compressor
 
+import io.bluetape4k.io.okio.bufferOf
 import io.bluetape4k.logging.KLogging
 import okio.Buffer
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
@@ -32,9 +33,9 @@ class ApacheGZipCompressor: AbstractCompressor() {
     }
 
     override fun doDecompress(compressed: ByteArray): ByteArray {
-        ByteArrayInputStream(compressed).use { input ->
+        return ByteArrayInputStream(compressed).use { input ->
             GzipCompressorInputStream(input).use { gzip ->
-                return Buffer().readFrom(gzip).readByteArray()
+                bufferOf(gzip).readByteArray()
             }
         }
     }

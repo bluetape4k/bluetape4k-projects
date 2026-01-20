@@ -1,7 +1,6 @@
 package io.bluetape4k.io
 
 import io.bluetape4k.io.apache.ApacheByteArrayOutputStream
-import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
@@ -17,17 +16,9 @@ import java.nio.channels.Channels
 import kotlin.io.copyTo
 
 @RandomizedTest
-class InputStreamSupportTest {
+class InputStreamSupportTest: AbstractIOTest() {
 
-    companion object: KLogging() {
-        private const val REPEAT_SIZE = 3
-
-        @JvmStatic
-        private val faker = Fakers.faker
-
-        @JvmStatic
-        private fun randomString(length: Int = 2048): String = Fakers.fixedString(length)
-    }
+    companion object: KLogging()
 
     @RepeatedTest(REPEAT_SIZE)
     fun `input stream copy to writer with string`() {

@@ -278,10 +278,8 @@ class RealBufferedSuspendedSource(
         return buffer.readUtf8(byteCount)
     }
 
-    override suspend fun readUtf8Line(): String? {
-        val newline = indexOf('\n'.code.toByte())
-
-        return when (newline) {
+    override suspend fun readUtf8Line(): String? =
+        when (val newline = indexOf('\n'.code.toByte())) {
             -1L ->
                 if (buffer.size != 0L) {
                     readUtf8(buffer.size)
@@ -291,7 +289,6 @@ class RealBufferedSuspendedSource(
 
             else -> buffer.readUtf8Line(newline)
         }
-    }
 
     override suspend fun readUtf8LineStrict(): String {
         return readUtf8LineStrict(Long.MAX_VALUE)

@@ -30,16 +30,16 @@ class KryoBinarySerializer(
             output.flush()
             output.buffer
         }
-        return buffer.readByteArray().apply { buffer.close() }
+        return buffer.readByteArray()
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T: Any> doDeserialize(bytes: ByteArray): T? {
-        ByteArrayInputStream(bytes).use { bis ->
+        return ByteArrayInputStream(bytes).use { bis ->
             withKryoInput { input ->
                 input.inputStream = bis
                 withKryo {
-                    return readClassAndObject(input) as? T
+                    readClassAndObject(input) as? T
                 }
             }
         }

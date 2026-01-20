@@ -8,7 +8,7 @@ import java.io.File
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
 
-class RandomAccessFileSupportTest {
+class RandomAccessFileSupportTest: AbstractIOTest() {
 
     companion object: KLogging()
 

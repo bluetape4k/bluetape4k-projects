@@ -28,19 +28,19 @@ class ForyBinarySerializer(
                 .withAsyncCompilation(true)
                 .withCompatibleMode(CompatibleMode.COMPATIBLE)
                 .withRefTracking(true)
+                .withRefCopy(true)
+                .withCodegen(true)
                 .requireClassRegistration(false)
                 .buildThreadSafeForyPool(4, 4 * Runtime.getRuntime().availableProcessors(), 5L, TimeUnit.MINUTES)
         }
     }
 
     override fun doSerialize(graph: Any): ByteArray {
-        // log.trace { "serialize by fory. graph=$graph" }
         return fory.serialize(graph)
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T: Any> doDeserialize(bytes: ByteArray): T? {
-        // log.trace { "deserialize by fory. bytes.size=${bytes.size}" }
         return fory.deserialize(bytes) as? T
     }
 }

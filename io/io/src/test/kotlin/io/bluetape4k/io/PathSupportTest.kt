@@ -11,7 +11,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 @TempFolderTest
-class PathSupportTest {
+class PathSupportTest: AbstractIOTest() {
 
     companion object: KLogging()
 

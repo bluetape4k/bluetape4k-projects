@@ -36,7 +36,7 @@ open class CipherSource(
         while (sourceBuffer.size < bytesToRead && !streamEnd) {
             val bytesRead = super.read(sourceBuffer, bytesToRead - sourceBuffer.size)
             log.trace { "bytesRead=$bytesRead, sourceBuffer=$sourceBuffer" }
-            if (bytesRead < 0) {
+            if (bytesRead <= 0) {
                 streamEnd = true
             }
         }

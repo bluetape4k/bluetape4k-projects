@@ -1,5 +1,6 @@
 package io.bluetape4k.io.compressor
 
+import io.bluetape4k.io.okio.bufferOf
 import okio.Buffer
 import org.apache.commons.compress.compressors.lz4.FramedLZ4CompressorInputStream
 import org.apache.commons.compress.compressors.lz4.FramedLZ4CompressorOutputStream
@@ -29,9 +30,9 @@ class FramedLZ4Compressor: AbstractCompressor() {
     }
 
     override fun doDecompress(compressed: ByteArray): ByteArray {
-        ByteArrayInputStream(compressed).use { input ->
+        return ByteArrayInputStream(compressed).use { input ->
             FramedLZ4CompressorInputStream(input).use { lz4 ->
-                return Buffer().readFrom(lz4).readByteArray()
+                bufferOf(lz4).readByteArray()
             }
         }
     }

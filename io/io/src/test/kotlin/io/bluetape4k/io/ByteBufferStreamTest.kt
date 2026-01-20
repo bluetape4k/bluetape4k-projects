@@ -1,20 +1,12 @@
 package io.bluetape4k.io
 
-import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
 
-class ByteBufferStreamTest {
+class ByteBufferStreamTest: AbstractIOTest() {
 
     companion object: KLogging() {
-        private const val REPEAT_SIZE = 3
-
-        @JvmStatic
-        private val faker = Fakers.faker
-
-        @JvmStatic
-        val randomBytes: ByteArray by lazy { faker.random().nextRandomBytes(1024 * 16) }
     }
 
     @RepeatedTest(REPEAT_SIZE)

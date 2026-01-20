@@ -3,6 +3,7 @@ package io.bluetape4k.io.serializer
 import io.bluetape4k.io.compressor.Compressor
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
+import io.bluetape4k.support.isNullOrEmpty
 
 /**
  * 압축을 지원하는 [BinarySerializer]
@@ -21,11 +22,16 @@ open class CompressableBinarySerializer(
     companion object: KLogging()
 
     override fun serialize(graph: Any?): ByteArray {
-        return graph?.run { compressor.compress(super.serialize(graph)) } ?: emptyByteArray
+        if (graph == null)
+            return emptyByteArray
+
+        return compressor.compress(super.serialize(graph))
     }
 
     override fun <T: Any> deserialize(bytes: ByteArray?): T? {
-        return bytes?.run { super.deserialize(compressor.decompress(bytes)) }
+        if (bytes.isNullOrEmpty())
+            return null
+        return super.deserialize(compressor.decompress(bytes))
     }
 
     override fun toString(): String {

@@ -21,7 +21,6 @@ import java.io.OutputStreamWriter
 import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousFileChannel
 import java.nio.charset.Charset
-import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import java.util.concurrent.CompletableFuture
@@ -491,4 +490,8 @@ fun Path.bufferedWriter(
  * @receiver File 파일
  * @return 파일을 내용을 담은 [ByteArray]
  */
-fun File.toByteArray(): ByteArray = Files.newInputStream(this.toPath()).readBytes()
+fun File.toByteArray(): ByteArray {
+    return FileInputStream(this).use { input ->
+        input.readBytes()
+    }
+}

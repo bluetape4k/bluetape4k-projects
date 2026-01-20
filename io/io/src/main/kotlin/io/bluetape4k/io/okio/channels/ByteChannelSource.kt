@@ -33,15 +33,12 @@ class ByteChannelSource(
             val read = channel.read(ByteBuffer.wrap(cursor.data, cursor.start, length))
             log.debug { "채널의 ${cursor.start} 위치에서 $read 바이트를 읽었습니다." }
 
-            return when (read) {
-                -1 -> {
-                    cursor.resizeBuffer(oldSize)
-                    -1L
-                }
-                else -> {
-                    cursor.resizeBuffer(oldSize + read)
-                    read.toLong()
-                }
+            return if (read > 0) {
+                cursor.resizeBuffer(oldSize + read)
+                read.toLong()
+            } else {
+                cursor.resizeBuffer(oldSize)
+                -1L
             }
         }
     }

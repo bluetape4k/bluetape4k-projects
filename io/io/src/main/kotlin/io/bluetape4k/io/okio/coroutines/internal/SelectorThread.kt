@@ -51,6 +51,7 @@ internal class SelectorThread: Thread("okio selector") {
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun run() {
         while (true) {
             try {
@@ -66,12 +67,10 @@ internal class SelectorThread: Thread("okio selector") {
                             val key = iter.next()
 
                             if (!key.isValid) {
-                                @Suppress("UNCHECKED_CAST")
                                 val cont = key.attach(null) as CancellableContinuation<Unit>
                                 if (!cont.isCompleted) cont.resumeWithException(IOException("closed"))
                                 iter.remove()
                             } else if (key.readyOps() > 0) {
-                                @Suppress("UNCHECKED_CAST")
                                 val cont = key.attach(null) as CancellableContinuation<Unit>
                                 cont.resume(Unit)
                                 iter.remove()

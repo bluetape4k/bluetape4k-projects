@@ -17,7 +17,6 @@ class SuspendedFileChannelSink(
 
     companion object: KLoggingChannel()
 
-
     private var position = 0L
 
     override suspend fun write(source: Buffer, byteCount: Long) {

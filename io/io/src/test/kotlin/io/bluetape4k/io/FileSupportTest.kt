@@ -17,14 +17,9 @@ import org.junit.jupiter.api.RepeatedTest
 
 @RandomizedTest
 @TempFolderTest
-class FileSupportTest {
+class FileSupportTest: AbstractIOTest() {
 
-    companion object: KLogging() {
-        private const val REPEAT_SIZE = 3
-        private val faker = Fakers.faker
-        private fun randomString(length: Int = 256): String = Fakers.fixedString(length)
-        private fun randomStrings(size: Int = 20): List<String> = List(size) { randomString() }
-    }
+    companion object: KLogging()
 
     private lateinit var tempFolder: TempFolder
 

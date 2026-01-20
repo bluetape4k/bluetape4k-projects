@@ -1,5 +1,6 @@
 package io.bluetape4k.io.compressor
 
+import io.bluetape4k.io.okio.bufferOf
 import okio.Buffer
 import java.io.ByteArrayInputStream
 import java.util.zip.DeflaterOutputStream
@@ -29,9 +30,9 @@ class DeflateCompressor: AbstractCompressor() {
     }
 
     override fun doDecompress(compressed: ByteArray): ByteArray {
-        ByteArrayInputStream(compressed).use { input ->
+        return ByteArrayInputStream(compressed).use { input ->
             InflaterInputStream(input).use { inflate ->
-                return Buffer().readFrom(inflate).readByteArray()
+                bufferOf(inflate).readByteArray()
             }
         }
     }

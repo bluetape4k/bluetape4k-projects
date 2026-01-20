@@ -23,10 +23,8 @@ configurations {
 
 dependencies {
     api(project(":bluetape4k-core"))
-    implementation(project(":bluetape4k-crypto"))
+    compileOnly(project(":bluetape4k-crypto"))
     testImplementation(project(":bluetape4k-junit5"))
-
-    compileOnly(Libs.kotlinx_atomicfu)
 
     // Apache Commons
     api(Libs.commons_io)
@@ -38,8 +36,8 @@ dependencies {
     api(Libs.okio)
 
     // Coroutines
-    api(project(":bluetape4k-coroutines"))
-    api(Libs.kotlinx_coroutines_core)
+    compileOnly(project(":bluetape4k-coroutines"))
+    compileOnly(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)
 
     // Reactor
@@ -57,11 +55,10 @@ dependencies {
     compileOnly(Libs.caffeine_jcache)
 
     // Compression
-    compileOnly(Libs.snappy_java)
     compileOnly(Libs.lz4_java)
+    compileOnly(Libs.snappy_java)
     compileOnly(Libs.xz)
     compileOnly(Libs.zstd_jni)
-
     compileOnly(Libs.brotli4j)
     compileOnly(Libs.brotli4j_native)
 
