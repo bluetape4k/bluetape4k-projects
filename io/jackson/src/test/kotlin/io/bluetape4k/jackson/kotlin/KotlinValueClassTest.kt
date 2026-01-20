@@ -1,5 +1,6 @@
 package io.bluetape4k.jackson.kotlin
 
+import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
@@ -10,6 +11,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledOnJre
@@ -23,7 +25,7 @@ class KotlinValueClassTest {
         private val faker = Fakers.faker
     }
 
-    private val mapper = Jackson.defaultJsonMapper
+    private val mapper: JsonMapper = Jackson.defaultJsonMapper
 
     data class SomeValue(
         val id: Identifier,
@@ -83,8 +85,8 @@ class KotlinValueClassTest {
     }
 
     private fun verifySerializeValueClass(someValue: SomeValue) {
-        val json = mapper.writeValueAsString(someValue)
-        val actual = mapper.readValue<SomeValue>(json)
+        val json = mapper.writeValueAsString(someValue).shouldNotBeNull()
+        val actual = mapper.readValue<SomeValue>(json).shouldNotBeNull()
         actual shouldBeEqualTo someValue
     }
 }

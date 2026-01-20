@@ -1,5 +1,6 @@
 package io.bluetape4k.jackson
 
+import com.fasterxml.jackson.databind.json.JsonMapper
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -16,7 +17,7 @@ class JsonGeneratorExtensionsTest {
         private val faker = Fakers.faker
     }
 
-    private val mapper = Jackson.defaultJsonMapper
+    private val mapper: JsonMapper = Jackson.defaultJsonMapper
 
     @Test
     fun `generate string value`() {

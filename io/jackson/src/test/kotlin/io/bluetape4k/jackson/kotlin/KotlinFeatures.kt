@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.jackson.readValueOrNull
+import io.bluetape4k.jackson.writeAsString
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
@@ -34,8 +35,8 @@ class KotlinFeatures {
         val json = """{"name":"John Smith", "age":30}"""
 
         val inferRightSide = mapper.readValueOrNull<BasicPerson>(json)
-        val inferLeftSide = mapper.readValueOrNull<BasicPerson>(json)!!
-        val person = mapper.readValueOrNull<BasicPerson>(json)!!
+        val inferLeftSide = mapper.readValueOrNull<BasicPerson>(json).shouldNotBeNull()
+        val person = mapper.readValueOrNull<BasicPerson>(json).shouldNotBeNull()
 
         val expected = BasicPerson("John Smith", 30)
 
@@ -52,7 +53,7 @@ class KotlinFeatures {
             BasicPerson("Sunghyouk Bae", 54)
         )
 
-        val persons = mapper.readValueOrNull<List<BasicPerson>>(json)!!
+        val persons = mapper.readValueOrNull<List<BasicPerson>>(json).shouldNotBeNull()
         persons shouldHaveSize 2
         persons shouldBeEqualTo expected
     }
@@ -67,7 +68,7 @@ class KotlinFeatures {
         val expected = """{"name":{"first":"John","second":"Smith"},"age":30}"""
         val input = ClassWithPair(Pair("John", "Smith"), 30)
 
-        val json = mapper.writeValueAsString(input)
+        val json = mapper.writeAsString(input).shouldNotBeNull()
         log.debug { "json=$json" }
         json shouldBeEqualTo expected
 
@@ -84,7 +85,7 @@ class KotlinFeatures {
         val json = """{"person":{"first":"John","second":30}}"""
         val expected = ClassWithPairMixedTypes("John" to 30)
 
-        mapper.writeValueAsString(expected) shouldBeEqualTo json
+        mapper.writeAsString(expected) shouldBeEqualTo json
         mapper.readValueOrNull<ClassWithPairMixedTypes>(json) shouldBeEqualTo expected
     }
 
@@ -98,7 +99,7 @@ class KotlinFeatures {
         val expected = ClassWithRanges(18..40, 5L..50L)
         val expectedJson = """{"ages":{"start":18,"end":40},"distance":{"start":5,"end":50}}"""
 
-        val json = mapper.writeValueAsString(expected)
+        val json = mapper.writeAsString(expected).shouldNotBeNull()
         log.trace { "json=$json" }
 
         json shouldBeEqualTo expectedJson
@@ -114,7 +115,7 @@ class KotlinFeatures {
         val expected = ClassWithPairMixedNullableTypes(Pair("John", null))
         val expectedJson = """{"person":{"first":"John","second":null}}"""
 
-        val json = mapper.writeValueAsString(expected)
+        val json = mapper.writeAsString(expected).shouldNotBeNull()
         log.trace { "json=$json" }
         json shouldBeEqualTo expectedJson
 
@@ -135,7 +136,7 @@ class KotlinFeatures {
         val expected = GenericParameterConsumer(GenericParametersClass(null, 123))
         val expectedJson = """{"thing":{"one":null,"two":123}}"""
 
-        val json = mapper.writeValueAsString(expected)
+        val json = mapper.writeAsString(expected).shouldNotBeNull()
         log.debug { "json=$json" }
         json shouldBeEqualTo expectedJson
 
@@ -207,7 +208,7 @@ class KotlinFeatures {
         val person = Person(PersonId(1L), "debop")
         val expectedJson = """{"id":1,"name":"debop"}"""
 
-        val json = mapper.writeValueAsString(person)
+        val json = mapper.writeValueAsString(person).shouldNotBeNull()
         log.debug { "json=$json" }
         json shouldBeEqualTo expectedJson
 

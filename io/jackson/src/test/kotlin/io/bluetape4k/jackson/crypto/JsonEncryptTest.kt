@@ -1,5 +1,6 @@
 package io.bluetape4k.jackson.crypto
 
+import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.crypto.encrypt.AES
@@ -17,6 +18,7 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeNull
 import org.amshove.kluent.shouldNotContain
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
@@ -42,7 +44,7 @@ class JsonEncryptTest {
         val mobile: String,
     ): Serializable
 
-    private val mapper = Jackson.defaultJsonMapper
+    private val mapper: JsonMapper = Jackson.defaultJsonMapper
 
     private fun createUser(): User {
         return User(
@@ -57,7 +59,7 @@ class JsonEncryptTest {
         val user = User(faker.name().name(), "mypassword", "010-5555-5555")
         log.debug { mapper.prettyWriteAsString(user) }
 
-        val encrypted = mapper.writeAsString(user)!!
+        val encrypted = mapper.writeAsString(user).shouldNotBeNull()
         encrypted shouldNotContain "mypassword"
         encrypted shouldNotContain "010-5555-5555"
     }

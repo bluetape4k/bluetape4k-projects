@@ -1,5 +1,6 @@
 package io.bluetape4k.jackson.mask
 
+import com.fasterxml.jackson.databind.json.JsonMapper
 import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.jackson.prettyWriteAsString
 import io.bluetape4k.jackson.writeAsString
@@ -14,6 +15,7 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldContain
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledOnJre
@@ -29,7 +31,7 @@ class JsonMaskerTest {
         private val faker = Fakers.faker
     }
 
-    private val mapper = Jackson.defaultJsonMapper
+    private val mapper: JsonMapper = Jackson.defaultJsonMapper
 
     @Test
     fun `masking field with @JsonMasker`() {
@@ -78,7 +80,7 @@ class JsonMaskerTest {
     }
 
     private fun verifyJsonMasker(user: User) {
-        val jsonText = mapper.writeAsString(user)!!
+        val jsonText = mapper.writeAsString(user).shouldNotBeNull()
         jsonText shouldContain "masked: personal information"   // mobile
         jsonText shouldContain JsonMasker.DEFAULT_MASKED_STRING  // salary
     }
