@@ -2,6 +2,7 @@ package io.bluetape4k.examples.cassandra.auditing
 
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeAfter
 import org.amshove.kluent.shouldBeEqualTo
@@ -23,7 +24,7 @@ class AuditingTest(
     }
 
     @BeforeEach
-    fun setup() = runSuspendIO {
+    fun setup() = runSuspendTest {
         repository.deleteAll()
     }
 

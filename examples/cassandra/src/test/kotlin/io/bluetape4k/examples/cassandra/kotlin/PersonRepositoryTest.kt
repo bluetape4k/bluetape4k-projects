@@ -2,6 +2,7 @@ package io.bluetape4k.examples.cassandra.kotlin
 
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
@@ -23,7 +24,7 @@ class PersonRepositoryTest(
     companion object: KLoggingChannel()
 
     @BeforeEach
-    fun beforeEach() = runSuspendIO {
+    fun beforeEach() = runSuspendTest {
         insertPeople()
     }
 

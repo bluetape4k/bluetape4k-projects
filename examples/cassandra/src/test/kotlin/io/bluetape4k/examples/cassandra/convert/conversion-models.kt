@@ -27,15 +27,15 @@ data class Addressbook(
 
     var address: Address = Address.EMPTY,
     val preferredCurrencies: MutableMap<Int, Currency> = mutableMapOf(),
-)
+): Serializable
 
 // ContactWriteConverter, ContactReadConverter 를 통해 JSON 으로 저장
 data class Contact(
     val firstname: String,
     val lastname: String,
-)
+): Serializable
 
 data class CustomAddressbook(
     val theId: String?,
     val myDetailsAsJson: String?,
-)
+): Serializable

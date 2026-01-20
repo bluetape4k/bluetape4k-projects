@@ -4,6 +4,7 @@ import com.datastax.oss.driver.api.querybuilder.SchemaBuilder
 import io.bluetape4k.cassandra.cql.executeSuspending
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
@@ -39,10 +40,8 @@ class BasicUserRepositoryTest(
     }
 
     @BeforeEach
-    fun beforeEach() {
-        runSuspendIO {
-            repository.deleteAll()
-        }
+    fun beforeEach() = runSuspendTest {
+        repository.deleteAll()
     }
 
     @Test

@@ -2,6 +2,7 @@ package io.bluetape4k.examples.cassandra.multitenancy.row
 
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asContextElement
@@ -31,7 +32,7 @@ class RowMultitenantTest(
     )
 
     @BeforeEach
-    fun beforeEach() = runSuspendIO {
+    fun beforeEach() = runSuspendTest {
         repository.deleteAll()
 
         val saved = repository.saveAll(employees.asFlow()).toList()

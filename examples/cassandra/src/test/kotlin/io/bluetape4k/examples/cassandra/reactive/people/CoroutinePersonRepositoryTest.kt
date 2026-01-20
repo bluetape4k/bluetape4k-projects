@@ -2,6 +2,7 @@ package io.bluetape4k.examples.cassandra.reactive.people
 
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -25,7 +26,7 @@ class CoroutinePersonRepositoryTest(
     companion object: KLoggingChannel()
 
     @BeforeEach
-    fun setup() = runSuspendIO {
+    fun setup() = runSuspendTest {
         repository.deleteAll()
         repository.saveAll(
             flowOf(

@@ -2,6 +2,7 @@ package io.bluetape4k.examples.cassandra.reactive.auditing
 
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
@@ -27,7 +28,7 @@ class AuditingTest(
     companion object: KLoggingChannel()
 
     @BeforeEach
-    fun setup() = runSuspendIO {
+    fun setup() = runSuspendTest {
         repository.deleteAll()
     }
 

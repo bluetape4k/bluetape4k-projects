@@ -3,7 +3,6 @@ package io.bluetape4k.examples.coroutines.guide
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.slf4j.MDCContext
 import kotlinx.coroutines.withContext
 import org.amshove.kluent.shouldBeEqualTo
@@ -20,7 +19,7 @@ class MDCContextExamples {
         log.debug { "Before operation" }
         MDC.get("traceId") shouldBeEqualTo "100"
 
-        withContext(Dispatchers.IO + MDCContext()) {
+        withContext(MDCContext()) {
             MDC.put("traceId", "200")
             log.debug { "Inside operation" }
             MDC.get("traceId") shouldBeEqualTo "200"
