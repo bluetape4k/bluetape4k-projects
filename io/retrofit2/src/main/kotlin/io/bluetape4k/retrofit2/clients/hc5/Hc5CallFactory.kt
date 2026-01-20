@@ -34,7 +34,9 @@ import kotlin.reflect.KClass
  * @param asyncClient Apache HttpClient 5.x의 CloseableHttpAsyncClient 인스턴스
  * @return OkHttp3의 Call.Factory 구현체
  */
-fun hc5CallFactoryOf(asyncClient: CloseableHttpAsyncClient = httpAsyncClientSystemOf()): Hc5CallFactory {
+fun hc5CallFactoryOf(
+    asyncClient: CloseableHttpAsyncClient = httpAsyncClientSystemOf(),
+): Hc5CallFactory {
     return Hc5CallFactory(asyncClient)
 }
 

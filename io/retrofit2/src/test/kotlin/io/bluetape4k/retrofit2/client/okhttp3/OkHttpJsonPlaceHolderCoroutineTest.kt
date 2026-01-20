@@ -9,6 +9,6 @@ class OkHttpJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderCoroutineTest()
 
     companion object: KLoggingChannel()
 
-    override val callFactory: Call.Factory = okhttp3Client { }
+    override val callFactory: Call.Factory = okhttp3Client()
 
 }

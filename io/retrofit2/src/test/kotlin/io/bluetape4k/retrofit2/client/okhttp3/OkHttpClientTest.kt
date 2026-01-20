@@ -11,7 +11,7 @@ class OkHttpClientTest: AbstractClientTest() {
 
     companion object: KLogging()
 
-    override val callFactory: Call.Factory = okhttp3Client { }
+    override val callFactory: Call.Factory = okhttp3Client()
 
     @Test
     override fun `can support Deflate`() {

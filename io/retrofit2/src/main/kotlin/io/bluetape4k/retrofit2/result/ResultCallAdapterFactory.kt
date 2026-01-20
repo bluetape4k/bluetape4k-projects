@@ -1,7 +1,7 @@
 package io.bluetape4k.retrofit2.result
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import retrofit2.Call
 import retrofit2.CallAdapter
@@ -52,7 +52,7 @@ class ResultCallAdapterFactory: CallAdapter.Factory() {
         val isResultType = upperBound is ParameterizedType && upperBound.rawType == Result::class.java
 
         if (isResultType) {
-            log.trace { "returnType is Result, create ResultCall ..." }
+            log.debug { "returnType is Result, create CallAdapter for Call ..." }
 
             return object: CallAdapter<Any, Call<Result<*>>> {
                 override fun responseType(): Type {

@@ -1,6 +1,6 @@
 package io.bluetape4k.retrofit2.result
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.retrofit2.AbstractRetrofitTest
 import io.bluetape4k.retrofit2.clients.vertx.vertxCallFactoryOf
 import io.bluetape4k.retrofit2.defaultJsonConverterFactory
@@ -20,7 +20,7 @@ import retrofit2.http.Path
 
 class ResultCallTest: AbstractRetrofitTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     /**
      * [Json Place Holder](https://jsonplaceholder.typicode.com/) 에서 제공하는 API 로서 Json 데이터 통신에 대한 테스트를 손쉽게 할 수 있습니다.

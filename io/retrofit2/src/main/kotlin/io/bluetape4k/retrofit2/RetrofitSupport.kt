@@ -1,5 +1,6 @@
 package io.bluetape4k.retrofit2
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.jakewharton.retrofit2.adapter.reactor.ReactorCallAdapterFactory
 import io.bluetape4k.jackson.Jackson
@@ -7,6 +8,10 @@ import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.retrofit2.result.ResultCallAdapterFactory
 import io.bluetape4k.support.classIsPresent
+import okhttp3.Call
+import okhttp3.OkHttpClient
+import retrofit2.CallAdapter
+import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
@@ -20,13 +25,13 @@ private val log by lazy { KotlinLogging.logger { } }
  * [ScalarsConverterFactory]의 가본 값
  */
 @JvmField
-val defaultScalarsConverterFactory = ScalarsConverterFactory.create()
+val defaultScalarsConverterFactory: ScalarsConverterFactory = ScalarsConverterFactory.create()
 
 /**
  * [JacksonConverterFactory]의 가본 값
  */
 @JvmField
-val defaultJsonConverterFactory: retrofit2.Converter.Factory = jacksonConverterFactoryOf()
+val defaultJsonConverterFactory: Converter.Factory = jacksonConverterFactoryOf()
 
 /**
  * [JacksonConverterFactory]를 생성합니다.
@@ -39,8 +44,8 @@ val defaultJsonConverterFactory: retrofit2.Converter.Factory = jacksonConverterF
  * @return [JacksonConverterFactory] 인스턴스
  */
 fun jacksonConverterFactoryOf(
-    mapper: JsonMapper = Jackson.defaultJsonMapper,
-): retrofit2.Converter.Factory =
+    mapper: ObjectMapper = Jackson.defaultJsonMapper,
+): Converter.Factory =
     JacksonConverterFactory.create(mapper)
 
 /**
@@ -57,13 +62,13 @@ fun jacksonConverterFactoryOf(
  * }
  * ```
  *
- * @param initialize [Retrofit.Builder] 초기화 람다
+ * @param builder [Retrofit.Builder] 초기화 람다
  * @return [Retrofit.Builder] 인스턴스
  */
 inline fun retrofitBuilder(
-    initialize: Retrofit.Builder.() -> Unit,
+    @BuilderInference builder: Retrofit.Builder.() -> Unit,
 ): Retrofit.Builder =
-    Retrofit.Builder().apply(initialize)
+    Retrofit.Builder().apply(builder)
 
 /**
  * [Retrofit.Builder]를 생성합니다.
@@ -78,14 +83,14 @@ inline fun retrofitBuilder(
  * ```
  *
  * @param baseUrl 기본 URL
- * @param converterFactory [retrofit2.Converter.Factory] (기본값: [defaultScalarsConverterFactory])
- * @param initialize [Retrofit.Builder] 초기화 람다
+ * @param converterFactory [Converter.Factory] (기본값: [defaultScalarsConverterFactory])
+ * @param builder [Retrofit.Builder] 초기화 람다
  * @return [Retrofit.Builder] 인스턴스
  */
 inline fun retrofitBuilderOf(
     baseUrl: String = "",
-    converterFactory: retrofit2.Converter.Factory = defaultScalarsConverterFactory,
-    initialize: Retrofit.Builder.() -> Unit = {},
+    converterFactory: Converter.Factory = defaultScalarsConverterFactory,
+    @BuilderInference builder: Retrofit.Builder.() -> Unit = {},
 ): Retrofit.Builder =
     retrofitBuilder {
         if (baseUrl.isNotBlank()) {
@@ -96,7 +101,7 @@ inline fun retrofitBuilderOf(
             addConverterFactory(defaultJsonConverterFactory)
         }
 
-        initialize()
+        builder()
     }
 
 /**
@@ -111,16 +116,16 @@ inline fun retrofitBuilderOf(
  * ```
  *
  * @param baseUrl 기본 URL
- * @param converterFactory [retrofit2.Converter.Factory] (기본값: [defaultScalarsConverterFactory])
- * @param initialize [Retrofit.Builder] 초기화 람다
+ * @param converterFactory [Converter.Factory] (기본값: [defaultScalarsConverterFactory])
+ * @param builder [Retrofit.Builder] 초기화 람다
  * @return [Retrofit] 인스턴스
  */
 inline fun retrofit(
     baseUrl: String = "",
-    converterFactory: retrofit2.Converter.Factory = defaultScalarsConverterFactory,
-    initialize: Retrofit.Builder.() -> Unit,
+    converterFactory: Converter.Factory = defaultScalarsConverterFactory,
+    @BuilderInference builder: Retrofit.Builder.() -> Unit,
 ): Retrofit {
-    return retrofitBuilderOf(baseUrl, converterFactory, initialize).build()
+    return retrofitBuilderOf(baseUrl, converterFactory, builder).build()
 }
 
 /**
@@ -134,16 +139,16 @@ inline fun retrofit(
  * ```
  *
  * @param baseUrl 기본 URL
- * @param callFactory [okhttp3.Call.Factory] (기본값: [okhttp3.OkHttpClient()])
- * @param converterFactory [retrofit2.Converter.Factory] (기본값: [defaultScalarsConverterFactory])
- * @param callAdapterFactories [retrofit2.CallAdapter.Factory] (기본값: [ResultCallAdapterFactory()])
+ * @param callFactory [Call.Factory] (기본값: [okhttp3.OkHttpClient()])
+ * @param converterFactory [Converter.Factory] (기본값: [defaultScalarsConverterFactory])
+ * @param callAdapterFactories [CallAdapter.Factory] (기본값: [ResultCallAdapterFactory()])
  * @return [Retrofit] 인스턴스
  */
 fun retrofitOf(
     baseUrl: String = "",
-    callFactory: okhttp3.Call.Factory = okhttp3.OkHttpClient(),
-    converterFactory: retrofit2.Converter.Factory = defaultScalarsConverterFactory,
-    vararg callAdapterFactories: retrofit2.CallAdapter.Factory = arrayOf(ResultCallAdapterFactory()),
+    callFactory: Call.Factory = OkHttpClient(),
+    converterFactory: Converter.Factory = defaultScalarsConverterFactory,
+    vararg callAdapterFactories: CallAdapter.Factory = arrayOf(ResultCallAdapterFactory()),
 ): Retrofit {
     log.debug { "Create Retrofit. baseUrl=$baseUrl, callFactory=${callFactory.javaClass.simpleName}" }
     return retrofit(baseUrl, converterFactory) {

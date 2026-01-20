@@ -19,14 +19,13 @@ import kotlin.coroutines.resumeWithException
  *      httpClient(defaultAsyncHttpClient)
  * }
  * ```
- * @param initializer [AsyncHttpClient] 제공 함수
+ * @param builder [AsyncHttpClient] 제공 함수
  * @return okhttp3.Call.Factory
  */
 inline fun asyncHttpClientCallFactory(
-    initializer: AsyncHttpClientCallFactory.AsyncHttpClientCallFactoryBuilder.() -> Unit,
-): okhttp3.Call.Factory {
-    return AsyncHttpClientCallFactory.builder().apply(initializer).build()
-}
+    @BuilderInference builder: AsyncHttpClientCallFactory.AsyncHttpClientCallFactoryBuilder.() -> Unit,
+): okhttp3.Call.Factory =
+    AsyncHttpClientCallFactory.builder().apply(builder).build()
 
 /**
  * Retrofit2에서 OkHttp3를 대신 AsyncHttpClient를 사용할 수 있도록 해주는 Call.Factroy 입니다.
@@ -40,13 +39,12 @@ inline fun asyncHttpClientCallFactory(
  */
 inline fun asyncHttpClientCallFactoryOf(
     client: AsyncHttpClient = defaultAsyncHttpClient,
-    initializer: AsyncHttpClientCallFactory.AsyncHttpClientCallFactoryBuilder.() -> Unit = {},
-): okhttp3.Call.Factory {
-    return asyncHttpClientCallFactory {
+    @BuilderInference builder: AsyncHttpClientCallFactory.AsyncHttpClientCallFactoryBuilder.() -> Unit = {},
+): okhttp3.Call.Factory =
+    asyncHttpClientCallFactory {
         httpClient(client)
-        initializer()
+        builder()
     }
-}
 
 /**
  * [BoundRequestBuilder] 를 Coroutines 를 이용하여 실행합니다.
@@ -58,16 +56,18 @@ inline fun asyncHttpClientCallFactoryOf(
  * @receiver BoundRequestBuilder ahc의 요청 빌더
  * @return Response ahc의 응답
  */
-suspend fun BoundRequestBuilder.coExecute(): Response = suspendCancellableCoroutine { cont ->
-    execute(DefaultCoroutineCompletionHandler(cont))
-}
+suspend fun BoundRequestBuilder.coExecute(): Response =
+    suspendCancellableCoroutine { cont ->
+        execute(DefaultCoroutineCompletionHandler(cont))
+    }
 
 internal class DefaultCoroutineCompletionHandler(
     private val cont: CancellableContinuation<Response>,
 ): AsyncCompletionHandler<Response>() {
 
     override fun onCompleted(response: Response): Response {
-        return response.apply { cont.resume(response) }
+        cont.resume(response)
+        return response
     }
 
     override fun onThrowable(t: Throwable) {

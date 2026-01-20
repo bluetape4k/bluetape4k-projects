@@ -8,9 +8,6 @@ import java.io.IOException
 fun Throwable.toIOException(): IOException {
     return when (this) {
         is IOException -> this
-        else           -> {
-            val message = this.message ?: this.toString()
-            IOException(message, this)
-        }
+        else -> IOException(this.message ?: this.toString(), this)
     }
 }

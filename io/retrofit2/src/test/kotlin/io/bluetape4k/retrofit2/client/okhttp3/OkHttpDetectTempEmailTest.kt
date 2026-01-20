@@ -9,6 +9,6 @@ class OkHttpDetectTempEmailTest: AbstractDetectTempEmailTest() {
 
     companion object: KLogging()
 
-    override val callFactory: Call.Factory = okhttp3Client { }
+    override val callFactory: Call.Factory = okhttp3Client()
 
 }

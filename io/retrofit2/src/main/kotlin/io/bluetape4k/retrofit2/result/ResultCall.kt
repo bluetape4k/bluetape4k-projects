@@ -84,6 +84,7 @@ class ResultCall<T> private constructor(
 
             override fun onFailure(call: Call<T>, t: Throwable) {
                 log.warn(t) { "Failed to execute call. call=$call" }
+
                 val errorMessage = when (t) {
                     is IOException   -> "Network error"
                     is HttpException -> "Http error"
