@@ -6,6 +6,7 @@ import io.bluetape4k.jackson3.text.FiveMinuteUser
 import io.bluetape4k.jackson3.text.Gender
 import io.bluetape4k.jackson3.text.Name
 import io.bluetape4k.jackson3.text.Outer
+import io.bluetape4k.jackson3.text.trimYamlDocMarker
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo

@@ -49,6 +49,10 @@ object JacksonText {
         val defaultFactory: CsvFactory by lazy { CsvFactory() }
 
         val defaultJsonMapper: JsonMapper by lazy { Jackson.defaultJsonMapper }
+
+        val defaultSerializer: CsvJacksonSerializer by lazy {
+            CsvJacksonSerializer(defaultMapper)
+        }
     }
 
     /**
@@ -88,6 +92,10 @@ object JacksonText {
         val defaultFactory: JavaPropsFactory by lazy { JavaPropsFactory() }
 
         val defaultJsonMapper: JsonMapper by lazy { Jackson.defaultJsonMapper }
+
+        val defaultSerializer: PropsJacksonSerializer by lazy {
+            PropsJacksonSerializer(defaultMapper)
+        }
     }
 
     object Toml {
@@ -104,6 +112,10 @@ object JacksonText {
         val defaultFactory: TomlFactory by lazy { TomlFactory() }
 
         val defaultJsonMapper: JsonMapper by lazy { Jackson.defaultJsonMapper }
+
+        val defaultSerializer: TomlJacksonSerializer by lazy {
+            TomlJacksonSerializer(defaultMapper)
+        }
     }
 
     /**
@@ -135,5 +147,9 @@ object JacksonText {
         val defaultFactory: YAMLFactory by lazy { YAMLFactory() }
 
         val defaultJsonMapper: JsonMapper by lazy { Jackson.defaultJsonMapper }
+
+        val defaultSerializer: YamlJacksonSerializer by lazy {
+            YamlJacksonSerializer(defaultMapper)
+        }
     }
 }

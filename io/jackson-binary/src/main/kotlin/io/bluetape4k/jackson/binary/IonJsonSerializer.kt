@@ -17,6 +17,7 @@ import io.bluetape4k.logging.KLogging
  *
  * @param mapper Jackson [IonObjectMapper] 인스턴스
  */
+@Deprecated("use IonJacksonSerializer", replaceWith = ReplaceWith("IonJacksonSerializer"))
 class IonJsonSerializer(
     mapper: IonObjectMapper = JacksonBinary.ION.defaultMapper,
 ): JacksonSerializer(mapper) {

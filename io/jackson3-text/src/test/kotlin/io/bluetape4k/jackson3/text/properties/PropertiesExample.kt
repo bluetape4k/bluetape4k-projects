@@ -9,6 +9,7 @@ import io.bluetape4k.jackson3.text.JacksonText
 import io.bluetape4k.jackson3.text.Point
 import io.bluetape4k.jackson3.text.Points
 import io.bluetape4k.jackson3.text.Rectangle
+import io.bluetape4k.jackson3.text.getNode
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo

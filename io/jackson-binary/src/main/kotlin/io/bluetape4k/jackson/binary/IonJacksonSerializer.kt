@@ -1,14 +1,14 @@
-package io.bluetape4k.jackson3.binary
+package io.bluetape4k.jackson.binary
 
-import io.bluetape4k.jackson3.JacksonSerializer
+import com.fasterxml.jackson.dataformat.ion.IonObjectMapper
+import io.bluetape4k.jackson.JacksonSerializer
 import io.bluetape4k.logging.KLogging
-import tools.jackson.dataformat.ion.IonObjectMapper
 
 /**
  * Binary JSON 직렬화를 위한 Ion Serializer
  *
  * ```
- * val serializer = IonJsonSerializer()
+ * val serializer = IonJacksonSerializer()
  * val bytes = serializer.serialize(obj)
  * val obj = serializer.deserialize(bytes, type)
  * // or
@@ -17,8 +17,7 @@ import tools.jackson.dataformat.ion.IonObjectMapper
  *
  * @param mapper Jackson [IonObjectMapper] 인스턴스
  */
-@Deprecated("use IonJacksonSerializer", replaceWith = ReplaceWith("IonJacksonSerializer"))
-class IonJsonSerializer(
+class IonJacksonSerializer(
     mapper: IonObjectMapper = JacksonBinary.ION.defaultMapper,
 ): JacksonSerializer(mapper) {
 

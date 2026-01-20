@@ -8,7 +8,7 @@ import tools.jackson.dataformat.smile.SmileMapper
  * Binary JSON 직렬화를 위한 Smile Serializer
  *
  * ```
- * val serializer = SmileJsonSerializer()
+ * val serializer = SmileJacksonSerializer()
  * val bytes = serializer.serialize(obj)
  * val obj = serializer.deserialize(bytes, type)
  * // or
@@ -17,8 +17,7 @@ import tools.jackson.dataformat.smile.SmileMapper
  *
  * @param mapper Jackson [SmileMapper] 인스턴스
  */
-@Deprecated("use SmileJacksonSerializer", replaceWith = ReplaceWith("SmileJacksonSerializer"))
-class SmileJsonSerializer(
+class SmileJacksonSerializer(
     mapper: SmileMapper = JacksonBinary.Smile.defaultMapper,
 ): JacksonSerializer(mapper) {
 

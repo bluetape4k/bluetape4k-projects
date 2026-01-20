@@ -7,6 +7,7 @@ import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 
 @RandomizedTest
@@ -19,7 +20,7 @@ abstract class AbstractJacksonBinaryTest {
         private const val REPEAT_SIZE = 5
     }
 
-    protected abstract val binaryJsonSerializer: JsonSerializer
+    protected abstract val binaryJacksonSerializer: JsonSerializer
 
     @RepeatedTest(REPEAT_SIZE)
     fun `serialize and deserialize simple POJO`(@RandomValue expected: FiveMinuteUser) {
@@ -71,8 +72,8 @@ abstract class AbstractJacksonBinaryTest {
 
     // NOTE: TypeReference 를 사용하려면 reified 이어야 합니다.
     protected inline fun <reified T: Any> assertBinarySerialization(input: T) {
-        val output = binaryJsonSerializer.serialize(input)
-        val actual = binaryJsonSerializer.deserialize<T>(output)!!
+        val output = binaryJacksonSerializer.serialize(input)
+        val actual = binaryJacksonSerializer.deserialize<T>(output).shouldNotBeNull()
         actual shouldBeEqualTo input
     }
 }

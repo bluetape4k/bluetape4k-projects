@@ -17,6 +17,7 @@ import io.bluetape4k.logging.KLogging
  *
  * @param mapper Jackson [SmileMapper] 인스턴스
  */
+@Deprecated("use SmileJacksonSerializer", replaceWith = ReplaceWith("SmileJacksonSerializer"))
 class SmileJsonSerializer(
     mapper: SmileMapper = JacksonBinary.Smile.defaultMapper,
 ): JacksonSerializer(mapper) {

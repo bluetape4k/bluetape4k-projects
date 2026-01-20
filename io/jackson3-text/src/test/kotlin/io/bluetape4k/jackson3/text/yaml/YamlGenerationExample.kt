@@ -1,5 +1,6 @@
 package io.bluetape4k.jackson3.text.yaml
 
+import io.bluetape4k.jackson3.text.trimYamlDocMarker
 import io.bluetape4k.jackson3.writeValue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug

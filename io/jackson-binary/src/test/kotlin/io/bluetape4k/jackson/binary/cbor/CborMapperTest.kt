@@ -9,6 +9,6 @@ class CborMapperTest: AbstractJacksonBinaryTest() {
 
     companion object: KLogging()
 
-    override val binaryJsonSerializer: JsonSerializer = JacksonBinary.CBOR.defaultJsonSerializer
+    override val binaryJacksonSerializer: JsonSerializer = JacksonBinary.CBOR.defaultSerializer
 
 }

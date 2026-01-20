@@ -1,4 +1,4 @@
-package io.bluetape4k.jackson.text.properties
+package io.bluetape4k.jackson.text
 
 /**
  *

@@ -2,25 +2,25 @@ package io.bluetape4k.jackson3.binary
 
 import io.bluetape4k.jackson3.JacksonSerializer
 import io.bluetape4k.logging.KLogging
-import tools.jackson.dataformat.cbor.CBORMapper
+import tools.jackson.dataformat.ion.IonObjectMapper
 
 /**
- * Binary JSON 직렬화를 위한 CBOR Serializer
+ * Binary JSON 직렬화를 위한 Ion Serializer
  *
  * ```
- * val serializer = CborJsonSerializer()
+ * val serializer = IonJacksonSerializer()
  * val bytes = serializer.serialize(obj)
  * val obj = serializer.deserialize(bytes, type)
  * // or
  * val obj = serializer.deserialize<ObjectType>(bytes)
  * ```
  *
- * @param mapper Jackson [CBORMapper] 인스턴스
+ * @param mapper Jackson [IonObjectMapper] 인스턴스
  */
-@Deprecated("use CborJacksonSerializer", replaceWith = ReplaceWith("CborJacksonSerializer"))
-class CborJsonSerializer(
-    mapper: CBORMapper = JacksonBinary.CBOR.defaultMapper,
+class IonJacksonSerializer(
+    mapper: IonObjectMapper = JacksonBinary.ION.defaultMapper,
 ): JacksonSerializer(mapper) {
 
     companion object: KLogging()
+
 }

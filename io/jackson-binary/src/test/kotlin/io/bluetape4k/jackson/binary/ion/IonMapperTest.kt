@@ -9,6 +9,6 @@ class IonMapperTest: AbstractJacksonBinaryTest() {
 
     companion object: KLogging()
 
-    override val binaryJsonSerializer: JsonSerializer = JacksonBinary.ION.defaultJsonSerializer
+    override val binaryJacksonSerializer: JsonSerializer = JacksonBinary.ION.defaultSerializer
 
 }

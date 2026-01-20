@@ -1,14 +1,14 @@
-package io.bluetape4k.jackson3.binary
+package io.bluetape4k.jackson.binary
 
-import io.bluetape4k.jackson3.JacksonSerializer
+import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper
+import io.bluetape4k.jackson.JacksonSerializer
 import io.bluetape4k.logging.KLogging
-import tools.jackson.dataformat.cbor.CBORMapper
 
 /**
  * Binary JSON 직렬화를 위한 CBOR Serializer
  *
  * ```
- * val serializer = CborJsonSerializer()
+ * val serializer = CborJacksonSerializer()
  * val bytes = serializer.serialize(obj)
  * val obj = serializer.deserialize(bytes, type)
  * // or
@@ -17,8 +17,7 @@ import tools.jackson.dataformat.cbor.CBORMapper
  *
  * @param mapper Jackson [CBORMapper] 인스턴스
  */
-@Deprecated("use CborJacksonSerializer", replaceWith = ReplaceWith("CborJacksonSerializer"))
-class CborJsonSerializer(
+class CborJacksonSerializer(
     mapper: CBORMapper = JacksonBinary.CBOR.defaultMapper,
 ): JacksonSerializer(mapper) {
 

@@ -17,6 +17,7 @@ import io.bluetape4k.logging.KLogging
  *
  * @param mapper Jackson [CBORMapper] 인스턴스
  */
+@Deprecated("use CborJacksonSerializer", replaceWith = ReplaceWith("CborJacksonSerializer"))
 class CborJsonSerializer(
     mapper: CBORMapper = JacksonBinary.CBOR.defaultMapper,
 ): JacksonSerializer(mapper) {

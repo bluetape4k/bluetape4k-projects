@@ -7,6 +7,7 @@ import io.bluetape4k.LibraryName
 import io.bluetape4k.io.toInputStream
 import io.bluetape4k.jackson3.text.AbstractJacksonTextTest
 import io.bluetape4k.jackson3.text.JacksonText
+import io.bluetape4k.jackson3.writeAsString
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
@@ -19,6 +20,7 @@ import tools.jackson.dataformat.javaprop.JavaPropsFactory
 import tools.jackson.dataformat.javaprop.JavaPropsMapper
 import tools.jackson.dataformat.yaml.YAMLMapper
 import tools.jackson.module.kotlin.readValue
+import java.io.Serializable
 import java.util.*
 import javax.sql.DataSource
 
@@ -28,7 +30,7 @@ class ParseNamedDataSourcePropertiesTest: AbstractJacksonTextTest() {
 
     private val propsMapper: JavaPropsMapper by lazy { JacksonText.Props.defaultMapper }
     private val propsFactory: JavaPropsFactory by lazy { JacksonText.Props.defaultFactory }
-    private val objectMapper: JsonMapper by lazy { JacksonText.Props.defaultJsonMapper }
+    private val jsonMapper: JsonMapper by lazy { JacksonText.Props.defaultJsonMapper }
 
     private val yamlMapper: YAMLMapper by lazy { JacksonText.Yaml.defaultMapper }
 
@@ -92,7 +94,7 @@ class ParseNamedDataSourcePropertiesTest: AbstractJacksonTextTest() {
             val bluetape4k = Bluetape4kProperty(mapOf("default" to default, "read" to read))
             val root = RootProperty(bluetape4k)
 
-            val propertyString = propsMapper.writeValueAsString(root) // writeValueAsProperties
+            val propertyString = propsMapper.writeAsString(root).shouldNotBeNull() // writeValueAsProperties
             log.debug { "properties=\n$propertyString\n------" }
             propertyString shouldBeEqualTo properties
 
@@ -163,7 +165,7 @@ class ParseNamedDataSourcePropertiesTest: AbstractJacksonTextTest() {
             val property = Bluetape4kProperty(mapOf("default" to default, "read" to read))
             val root = RootProperty(property)
 
-            val yamlString = yamlMapper.writeValueAsString(root)
+            val yamlString = yamlMapper.writeAsString(root).shouldNotBeNull()
 
             log.debug { "yaml=\n$yamlString\n------" }
             yamlString shouldBeEqualTo yaml
@@ -204,7 +206,7 @@ class ParseNamedDataSourcePropertiesTest: AbstractJacksonTextTest() {
         JsonSubTypes.Type(value = Dbcp2DataSourceProperty::class),
         JsonSubTypes.Type(value = HikariDataSourceProperty::class)
     )
-    interface DataSourceProperty<DS: DataSource> {
+    interface DataSourceProperty<DS: DataSource>: Serializable {
         val driverClassName: String
         val url: String
         val username: String?
@@ -227,8 +229,7 @@ class ParseNamedDataSourcePropertiesTest: AbstractJacksonTextTest() {
 
         // Properties에서 값이 없는 경우에는 empty string으로 지정된다. Parsing 후에는 empty string으로 지정된다.
         var connectionProperties: String = "",
-
-        ): DataSourceProperty<DataSource>
+    ): DataSourceProperty<DataSource>
 
     @JsonTypeName("hikari")
     data class HikariDataSourceProperty(

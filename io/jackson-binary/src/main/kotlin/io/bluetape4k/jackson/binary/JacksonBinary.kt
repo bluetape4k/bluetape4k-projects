@@ -80,8 +80,8 @@ object JacksonBinary: KLogging() {
         /**
          * CBOR 알고리즘을 사용하는 Jackson Binary JSON Serializer
          */
-        val defaultJsonSerializer: CborJsonSerializer by lazy {
-            CborJsonSerializer(CBOR.defaultMapper)
+        val defaultSerializer: CborJacksonSerializer by lazy {
+            CborJacksonSerializer(CBOR.defaultMapper)
         }
     }
 
@@ -114,8 +114,8 @@ object JacksonBinary: KLogging() {
         /**
          * ION 알고리즘을 사용하는 Jackson Binary JSON Serializer
          */
-        val defaultJsonSerializer: IonJsonSerializer by lazy {
-            IonJsonSerializer(ION.defaultMapper)
+        val defaultSerializer: IonJacksonSerializer by lazy {
+            IonJacksonSerializer(ION.defaultMapper)
         }
     }
 
@@ -149,8 +149,8 @@ object JacksonBinary: KLogging() {
         /**
          * Smile 알고리즘을 사용하는 Jackson Binary JSON Serializer
          */
-        val defaultJsonSerializer: SmileJsonSerializer by lazy {
-            SmileJsonSerializer(Smile.defaultMapper)
+        val defaultSerializer: SmileJacksonSerializer by lazy {
+            SmileJacksonSerializer(Smile.defaultMapper)
         }
     }
 }

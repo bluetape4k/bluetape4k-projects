@@ -9,6 +9,6 @@ class SmileMapperTest: AbstractJacksonBinaryTest() {
 
     companion object: KLogging()
 
-    override val binaryJsonSerializer: JsonSerializer = JacksonBinary.Smile.defaultJsonSerializer
+    override val binaryJacksonSerializer: JsonSerializer = JacksonBinary.Smile.defaultSerializer
 
 }

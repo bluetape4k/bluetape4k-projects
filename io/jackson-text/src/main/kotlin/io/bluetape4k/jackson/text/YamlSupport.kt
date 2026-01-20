@@ -1,4 +1,4 @@
-package io.bluetape4k.jackson3.text.yaml
+package io.bluetape4k.jackson.text
 
 /**
  * YAML 문서의 시작을 나타내는 마커를 제거합니다.

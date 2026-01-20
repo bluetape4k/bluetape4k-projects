@@ -7,6 +7,7 @@ import io.bluetape4k.jackson.text.FiveMinuteUser
 import io.bluetape4k.jackson.text.Gender
 import io.bluetape4k.jackson.text.Name
 import io.bluetape4k.jackson.text.Outer
+import io.bluetape4k.jackson.text.trimYamlDocMarker
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
