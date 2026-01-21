@@ -10,7 +10,6 @@ import java.util.*
 
 @Table("user_tokens")
 data class UserToken(
-
     @field:PrimaryKeyColumn(name = "user_id", type = PrimaryKeyType.PARTITIONED, ordinal = 0)
     val userId: UUID = Uuids.timeBased(),
 
@@ -21,7 +20,6 @@ data class UserToken(
     @field:Column("user_comment")
     var userComment: String? = null,
 
-    @field: Column("admin_comment")
+    @field:Column("admin_comment")
     var adminComment: String? = null,
-
-    ): Serializable
+): Serializable

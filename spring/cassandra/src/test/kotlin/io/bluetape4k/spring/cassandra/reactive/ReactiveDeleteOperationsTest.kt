@@ -36,7 +36,7 @@ import java.io.Serializable
 @SpringBootTest(classes = [ReactiveDeleteOperationsTest.TestConfiguration::class])
 @EnableReactiveCassandraRepositories
 class ReactiveDeleteOperationsTest(
-    @param:Autowired private val operations: ReactiveCassandraOperations,
+    @param:Autowired private val reactiveOps: ReactiveCassandraOperations,
 ): AbstractCassandraCoroutineTest("delete-op") {
 
     companion object: KLoggingChannel() {
@@ -72,17 +72,16 @@ class ReactiveDeleteOperationsTest(
     @BeforeEach
     fun beforeEach() {
         runBlocking {
-            operations.suspendTruncate<Person>()
+            reactiveOps.suspendTruncate<Person>()
 
-            operations.suspendInsert(han)
-            operations.suspendInsert(luke)
+            reactiveOps.suspendInsert(han)
+            reactiveOps.suspendInsert(luke)
         }
     }
 
-
     @Test
     fun `matching 을 이용하여 엔티티 삭제하기`() = runSuspendTest {
-        val writeResult = operations
+        val writeResult = reactiveOps
             .delete<Person>()
             .matching(query(where("id").eq(han.id)))
             .all()
@@ -93,7 +92,7 @@ class ReactiveDeleteOperationsTest(
 
     @Test
     fun `matching 되는 대체 타입 중 컬럼을 삭제하기`() = runSuspendTest {
-        val writeResult = operations
+        val writeResult = reactiveOps
             .delete<Jedi>().inTable(PERSON_TABLE_NAME)
             .matching(query(where("id").inValues(han.id, luke.id)))
             .all()
@@ -101,7 +100,7 @@ class ReactiveDeleteOperationsTest(
 
         writeResult.wasApplied().shouldBeTrue()
 
-        operations.suspendCount<Person>() shouldBeEqualTo 0L
-        operations.selectAsFlow<Person>(Query.empty()).toList().shouldBeEmpty()
+        reactiveOps.suspendCount<Person>() shouldBeEqualTo 0L
+        reactiveOps.selectAsFlow<Person>(Query.empty()).toList().shouldBeEmpty()
     }
 }

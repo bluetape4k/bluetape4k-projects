@@ -75,5 +75,4 @@ data class AllPossibleTypes(
     // supported by conversion
     var localDateTime: LocalDateTime? = null,
     var zoneId: ZoneId = ZoneId.systemDefault(),
-
-    ): Serializable
+): Serializable

@@ -12,7 +12,6 @@ import io.bluetape4k.spring.cassandra.suspendCount
 import io.bluetape4k.spring.cassandra.suspendExists
 import io.bluetape4k.spring.cassandra.suspendInsert
 import io.bluetape4k.spring.cassandra.suspendTruncate
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
@@ -43,12 +42,12 @@ import org.springframework.data.cassandra.core.query
 import org.springframework.data.cassandra.core.query.Query
 import org.springframework.data.cassandra.core.query.query
 import org.springframework.data.cassandra.core.query.where
+import java.io.Serializable
 import kotlin.test.assertFailsWith
-import kotlin.test.assertTrue
 
 @SpringBootTest
 class ReactiveSelectOperationsTest(
-    @param:Autowired private val operations: ReactiveCassandraOperations,
+    @param:Autowired private val reactiveOps: ReactiveCassandraOperations,
 ): AbstractCassandraCoroutineTest("reactive-select-op") {
 
     companion object: KLoggingChannel() {
@@ -63,20 +62,20 @@ class ReactiveSelectOperationsTest(
 
     @BeforeEach
     fun beforeEach() {
-        runBlocking(Dispatchers.IO) {
-            operations.suspendTruncate<Person>()
+        runBlocking {
+            reactiveOps.suspendTruncate<Person>()
 
             han = newPerson()
             luke = newPerson()
 
-            operations.suspendInsert(han)
-            operations.suspendInsert(luke)
+            reactiveOps.suspendInsert(han)
+            reactiveOps.suspendInsert(luke)
         }
     }
 
     @Test
     fun `context loading`() {
-        operations.shouldNotBeNull()
+        reactiveOps.shouldNotBeNull()
     }
 
     @Test
@@ -84,10 +83,11 @@ class ReactiveSelectOperationsTest(
         // NOTE: Profile을 이용하여, Consistency Level, PageSize, Keyspace 등을 동적으로 설정할 수 있다.
         // 참고 : https://docs.datastax.com/en/developer/java-driver/4.15/manual/core/configuration/
 
-        session.context.config.profiles.forEach { (name, profile) ->
-            println("profile name : $name")
-            println("profile options : ${profile.entrySet().joinToString()}")
-        }
+        session.context.config.profiles
+            .forEach { (name, profile) ->
+                println("profile name : $name")
+                println("profile options : ${profile.entrySet().joinToString()}")
+            }
 
         val stmt = simpleStatement("SELECT * FROM $PERSON_TABLE_NAME") {
             setExecutionProfileName("olap")
@@ -98,14 +98,18 @@ class ReactiveSelectOperationsTest(
 
     @Test
     fun `find all by query`() = runSuspendIO {
-        val result = operations.query<Person>().all().asFlow().toList()
+        val result = reactiveOps.query<Person>()
+            .all()
+            .asFlow()
+            .toList()
+
         result shouldHaveSize 2
         result shouldContainSame listOf(han, luke)
     }
 
     @Test
     fun `find all with collection`() = runSuspendIO {
-        val result = operations.query<Human>()
+        val result = reactiveOps.query<Human>()
             .inTable(PERSON_TABLE_NAME)
             .all()
             .asFlow()
@@ -117,7 +121,7 @@ class ReactiveSelectOperationsTest(
 
     @Test
     fun `find all with projection`() = runSuspendIO {
-        val result = operations.query<Person>()
+        val result = reactiveOps.query<Person>()
             .cast<Jedi>()
             .all()
             .asFlow()
@@ -130,52 +134,69 @@ class ReactiveSelectOperationsTest(
 
     @Test
     fun `find by returning all values as closed interface porjection`() = runSuspendIO {
-        val result = operations
+        val result = reactiveOps
             .query<Person>()
             .cast<PersonProjection>()
             .all()
             .asFlow()
             .toList()
 
-        assertTrue { result.all { it is PersonProjection } }
+        result.all { it is PersonProjection }.shouldBeTrue()
         result shouldHaveSize 2
         result.map { it.firstName } shouldContainSame listOf(han.firstName, luke.firstName)
     }
 
     @Test
     fun `find by`() = runSuspendIO {
-        val result = operations.query<Person>().matching(queryLuke()).all().asFlow().toList()
+        val result = reactiveOps.query<Person>()
+            .matching(queryLuke())
+            .all()
+            .asFlow()
+            .toList()
+
         result shouldBeEqualTo listOf(luke)
     }
 
     @Test
     fun `find by no match`() = runSuspendIO {
-        val result = operations.query<Person>().matching(querySpock()).all().asFlow().toList()
+        val result = reactiveOps.query<Person>()
+            .matching(querySpock())
+            .all()
+            .asFlow()
+            .toList()
+
         result.shouldBeEmpty()
     }
 
     @Test
     fun `find by too many results`() = runSuspendIO {
         assertFailsWith<IncorrectResultSizeDataAccessException> {
-            operations.query<Person>().one().awaitSingleOrNull()
+            reactiveOps.query<Person>().one().awaitSingleOrNull()
         }
     }
 
     @Test
     fun `find by returing first`() = runSuspendIO {
-        val result = operations.query<Person>().matching(queryLuke()).first().awaitSingleOrNull()
+        val result = reactiveOps.query<Person>()
+            .matching(queryLuke())
+            .first()
+            .awaitSingleOrNull()
+
         result shouldBeEqualTo luke
     }
 
     @Test
     fun `find by returing first for many results`() = runSuspendIO {
-        val result = operations.query<Person>().first().awaitSingleOrNull()
+        val result = reactiveOps.query<Person>()
+            .first()
+            .awaitSingleOrNull()
+
         result shouldBeIn arrayOf(han, luke)
     }
 
     @Test
     fun `find by returning first as closed interface projection`() = runSuspendIO {
-        val result = operations.query<Person>()
+        val result = reactiveOps.query<Person>()
             .cast<PersonProjection>()
             .matching(query(where("firstName").eq(han.firstName)).withAllowFiltering())
             .first()
@@ -187,9 +208,10 @@ class ReactiveSelectOperationsTest(
 
     @Test
     fun `find by returning first as open interface projection`() = runSuspendIO {
-        val result = operations.query<Person>()
+        val query = query(where("firstName").eq(han.firstName)).withAllowFiltering()
+        val result = reactiveOps.query<Person>()
             .cast<PersonSpELProjection>()
-            .matching(query(where("firstName").eq(han.firstName)).withAllowFiltering())
+            .matching(query)
             .first()
             .awaitSingleOrNull()
 
@@ -199,17 +221,21 @@ class ReactiveSelectOperationsTest(
 
     @Test
     fun `조건절 없이 모든 레코드 Count 얻기`() = runSuspendIO {
-        val count = operations.suspendCount<Person>()
+        val count = reactiveOps.suspendCount<Person>()
         count shouldBeEqualTo 2L
 
-        val count2 = operations.query<Person>().count().awaitSingle()
+        val count2 = reactiveOps.query<Person>()
+            .count()
+            .awaitSingle()
+
         count2 shouldBeEqualTo 2L
     }
 
     @Test
     fun `조건절에 매칭되는 레코드의 count 얻기`() = runSuspendIO {
-        val count = operations.query<Person>()
-            .matching(query(where("firstName").eq(luke.firstName)).withAllowFiltering())
+        val query = query(where("firstName").eq(luke.firstName)).withAllowFiltering()
+        val count = reactiveOps.query<Person>()
+            .matching(query)
             .count()
             .awaitSingle()
 
@@ -218,19 +244,24 @@ class ReactiveSelectOperationsTest(
 
     @Test
     fun `조건절 없이 모든 레코드 exists`() = runSuspendIO {
-        operations.query<Person>().exists().awaitSingle().shouldBeTrue()
+        reactiveOps.query<Person>()
+            .exists()
+            .awaitSingle()
+            .shouldBeTrue()
     }
 
     @Test
     fun `조건절에 매칭되는 레코드의 exists 얻기`() = runSuspendIO {
-        operations.query<Person>()
-            .matching(query(where("firstName").eq(luke.firstName)).withAllowFiltering())
+        val query = query(where("firstName").eq(luke.firstName)).withAllowFiltering()
+        reactiveOps.query<Person>()
+            .matching(query)
             .exists()
             .awaitSingle()
             .shouldBeTrue()
 
-        operations.query<Person>()
-            .matching(query(where("firstName").eq("not-exists")).withAllowFiltering())
+        val query2 = query(where("firstName").eq("not-exists")).withAllowFiltering()
+        reactiveOps.query<Person>()
+            .matching(query2)
             .exists()
             .awaitSingle()
             .shouldBeFalse()
@@ -238,23 +269,32 @@ class ReactiveSelectOperationsTest(
 
     @Test
     fun `레코드가 없는 테이블의 exists`() = runSuspendIO {
-        operations.suspendTruncate<Person>()
-        operations.suspendExists<Person>().shouldBeFalse()
-        operations.query<Person>().exists().awaitSingle().shouldBeFalse()
+        reactiveOps.suspendTruncate<Person>()
+        reactiveOps.suspendExists<Person>().shouldBeFalse()
+        reactiveOps.query<Person>().exists().awaitSingle().shouldBeFalse()
     }
 
     @Test
     fun `조건에 매칭되는 것이 없는 경우 exists는 false 반환`() = runSuspendIO {
-        operations.query<Person>().matching(querySpock()).exists().awaitSingle().shouldBeFalse()
-        operations.suspendExists<Person>(querySpock()).shouldBeFalse()
+        reactiveOps.query<Person>()
+            .matching(querySpock())
+            .exists()
+            .awaitSingle()
+            .shouldBeFalse()
+
+        reactiveOps.suspendExists<Person>(querySpock()).shouldBeFalse()
     }
 
     @Test
     fun `projection interface를 반환할 때는 구현된 target object 를 반환한다`() = runSuspendIO {
-        val result = operations.query<Person>().cast<Contact>().all().asFlow()
-        result.toList().all { it is Person }.shouldBeTrue()
-    }
+        val result = reactiveOps.query<Person>()
+            .cast<Contact>()
+            .all()
+            .asFlow()
+            .toList()
 
+        result.all { it is Person }.shouldBeTrue()
+    }
 
     private fun newPerson(): Person {
         return Person(
@@ -264,7 +304,7 @@ class ReactiveSelectOperationsTest(
         )
     }
 
-    private interface Contact
+    private interface Contact: Serializable
 
     @Table(PERSON_TABLE_NAME)
     data class Person(
@@ -273,29 +313,29 @@ class ReactiveSelectOperationsTest(
         @field:Indexed val lastName: String? = null,
     ): Contact
 
-    private interface PersonProjection {
+    private interface PersonProjection: Serializable {
         val firstName: String?
     }
 
-    private interface PersonSpELProjection {
+    private interface PersonSpELProjection: Serializable {
         @get:Value("#{target.firstName}")
         val name: String?
     }
 
-    private data class Human(@field:Id var id: String)
+    private data class Human(@field:Id var id: String): Serializable
 
     private data class Jedi(
         @field:Column("firstName")
         var firstName: String? = null,
-    )
+    ): Serializable
 
-    private data class Sith(val rank: String)
+    private data class Sith(val rank: String): Serializable
 
-    private interface PlanetProjection {
+    private interface PlanetProjection: Serializable {
         val name: String
     }
 
-    private interface PlatnetSpELProjection {
+    private interface PlatnetSpELProjection: Serializable {
         @get:Value("#{target.name}")
         val id: String
         // @Value("#{target.name}")

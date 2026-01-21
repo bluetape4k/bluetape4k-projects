@@ -10,8 +10,18 @@ import org.springframework.data.cassandra.core.EntityWriteResult
 import org.springframework.data.cassandra.core.InsertOptions
 import org.springframework.data.cassandra.core.UpdateOptions
 import org.springframework.data.cassandra.core.WriteResult
+import org.springframework.data.cassandra.core.count
+import org.springframework.data.cassandra.core.delete
+import org.springframework.data.cassandra.core.deleteById
+import org.springframework.data.cassandra.core.exists
 import org.springframework.data.cassandra.core.query.Query
 import org.springframework.data.cassandra.core.query.Update
+import org.springframework.data.cassandra.core.select
+import org.springframework.data.cassandra.core.selectOne
+import org.springframework.data.cassandra.core.selectOneById
+import org.springframework.data.cassandra.core.slice
+import org.springframework.data.cassandra.core.truncate
+import org.springframework.data.cassandra.core.update
 import org.springframework.data.domain.Slice
 import org.springframework.data.domain.SliceImpl
 
@@ -19,13 +29,13 @@ suspend fun AsyncCassandraOperations.suspendExecute(stmt: Statement<*>): AsyncRe
     execute(stmt).await()
 
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelect(statement: Statement<*>): List<T> =
-    select(statement, T::class.java).await() ?: emptyList()
+    select<T>(statement).await() ?: emptyList()
 
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelect(
     statement: Statement<*>,
     crossinline consumer: (T) -> Unit,
 ) {
-    select(statement, { consumer(it) }, T::class.java).await()
+    select<T>(statement) { consumer(it) }.await()
 }
 
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelect(cql: String): List<T> =
@@ -42,11 +52,11 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelect(
     query: Query,
     crossinline consumer: (T) -> Unit,
 ) {
-    select(query, { consumer(it) }, T::class.java).await()
+    select<T>(query) { consumer(it) }.await()
 }
 
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelectOneOrNull(statement: Statement<*>): T? {
-    return selectOne(statement, T::class.java).await()
+    return selectOne<T>(statement).await()
 }
 
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelectOneOrNull(cql: String): T? {
@@ -54,43 +64,43 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelectOneOrN
 }
 
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelect(query: Query): List<T> =
-    select(query, T::class.java).await() ?: emptyList()
+    select<T>(query).await() ?: emptyList()
 
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelectOneOrNull(query: Query): T? =
-    selectOne(query, T::class.java).await()
+    selectOne<T>(query).await()
 
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSlice(statement: Statement<*>): Slice<T> =
-    slice(statement, T::class.java).await() ?: SliceImpl(emptyList())
+    slice<T>(statement).await() ?: SliceImpl(emptyList())
 
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSlice(query: Query): Slice<T> =
-    slice(query, T::class.java).await() ?: SliceImpl(emptyList())
+    slice<T>(query).await() ?: SliceImpl(emptyList())
 
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendUpdate(query: Query, update: Update): Boolean? =
-    update(query, update, T::class.java).await()
+    update<T>(query, update).await()
 
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendDelete(query: Query): Boolean? =
-    delete(query, T::class.java).await()
+    delete<T>(query).await()
 
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendCount(): Long? =
-    count(T::class.java).await()
+    count<T>().await()
 
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendCount(query: Query): Long? =
-    count(query, T::class.java).await()
+    count<T>(query).await()
 
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendExists(id: Any): Boolean? =
-    exists(id, T::class.java).await()
+    exists<T>(id).await()
 
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendExists(query: Query): Boolean? =
-    exists(query, T::class.java).await()
+    exists<T>(query).await()
 
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelectOneById(id: Any): T? =
-    selectOneById(id, T::class.java).await()
+    selectOneById<T>(id).await()
 
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendDeleteById(id: Any): Boolean? =
-    deleteById(id, T::class.java).await()
+    deleteById<T>(id).await()
 
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendTruncate() {
-    truncate(T::class.java).await()
+    truncate<T>().await()
 }
 
 suspend fun <T: Any> AsyncCassandraOperations.suspendInsert(entity: T): T? =

@@ -8,7 +8,6 @@ import io.bluetape4k.spring.cassandra.AbstractReactiveCassandraTestConfiguration
 import io.bluetape4k.spring.cassandra.cql.insertOptions
 import io.bluetape4k.spring.cassandra.suspendSelectOneById
 import io.bluetape4k.spring.cassandra.suspendTruncate
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
@@ -29,7 +28,7 @@ import java.io.Serializable
 
 @SpringBootTest
 class ReactiveInsertOperationsTest(
-    @param:Autowired private val operations: ReactiveCassandraOperations,
+    @param:Autowired private val reactiveOps: ReactiveCassandraOperations,
 ): AbstractCassandraCoroutineTest("insert-op") {
 
     companion object: KLoggingChannel() {
@@ -57,20 +56,20 @@ class ReactiveInsertOperationsTest(
 
     @BeforeEach
     fun beforeEach() {
-        runBlocking(Dispatchers.IO) {
-            operations.suspendTruncate<Person>()
+        runBlocking {
+            reactiveOps.suspendTruncate<Person>()
         }
     }
 
     @Test
     fun `context loading`() {
-        operations.shouldNotBeNull()
+        reactiveOps.shouldNotBeNull()
     }
 
     @Test
     fun `insert one entity`() = runSuspendIO {
         val person = newPerson()
-        val writeResult = operations.insert<Person>()
+        val writeResult = reactiveOps.insert<Person>()
             .inTable(PERSON_TABLE_NAME)
             .one(person)
             .awaitSingle()
@@ -78,14 +77,14 @@ class ReactiveInsertOperationsTest(
         writeResult.wasApplied().shouldBeTrue()
         writeResult.entity shouldBeEqualTo person
 
-        operations.suspendSelectOneById<Person>(person.id) shouldBeEqualTo person
+        reactiveOps.suspendSelectOneById<Person>(person.id) shouldBeEqualTo person
     }
 
     @Test
     fun `insert one entity with options`() = runSuspendIO {
         val person = newPerson()
 
-        operations.insert<Person>()
+        reactiveOps.insert<Person>()
             .inTable(PERSON_TABLE_NAME)
             .one(person)
             .awaitSingle()
@@ -93,7 +92,7 @@ class ReactiveInsertOperationsTest(
 
         // 이미 있기 때문에 insert 되지 않는다 
         val options = insertOptions { withIfNotExists() }
-        val writeResult = operations.insert<Person>()
+        val writeResult = reactiveOps.insert<Person>()
             .inTable(PERSON_TABLE_NAME)
             .withOptions(options)
             .one(person)
@@ -102,7 +101,7 @@ class ReactiveInsertOperationsTest(
 
         // 기존에 없으므로 insert 된다
         val person2 = newPerson()
-        val writeResult2 = operations.insert<Person>()
+        val writeResult2 = reactiveOps.insert<Person>()
             .inTable(PERSON_TABLE_NAME)
             .withOptions(options)
             .one(person2)

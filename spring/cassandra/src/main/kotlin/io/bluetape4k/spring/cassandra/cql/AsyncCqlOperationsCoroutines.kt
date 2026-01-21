@@ -46,7 +46,7 @@ suspend inline fun <reified T: Any> AsyncCqlOperations.coQuery(
 /**
  * Coroutine 환경에서 [AsyncCqlOperations]의 `query` 함수를 실행합니다.
  *
- * ```
+ * ```kotlin
  * val users = asyncCqlOperations.querySuspending<User>(
  *     "SELECT * FROM users WHERE id = ?",
  *     userId

@@ -10,7 +10,6 @@ import io.bluetape4k.spring.cassandra.suspendInsert
 import io.bluetape4k.spring.cassandra.suspendSelectOne
 import io.bluetape4k.spring.cassandra.suspendTruncate
 import io.bluetape4k.spring.cassandra.suspendUpdate
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
@@ -35,7 +34,7 @@ import java.io.Serializable
 
 @SpringBootTest
 class ReactiveUpdateOperationsTest(
-    @param:Autowired private val operations: ReactiveCassandraOperations,
+    @param:Autowired private val reactiveOps: ReactiveCassandraOperations,
 ): AbstractCassandraCoroutineTest("update-op") {
 
     companion object: KLoggingChannel() {
@@ -55,7 +54,7 @@ class ReactiveUpdateOperationsTest(
 
     private data class Jedi(
         @field:Column("firstname") val name: String,
-    )
+    ): Serializable
 
     private fun newPerson(): Person {
         return Person(
@@ -70,25 +69,25 @@ class ReactiveUpdateOperationsTest(
 
     @BeforeEach
     fun beforeEach() {
-        runBlocking(Dispatchers.IO) {
-            operations.suspendTruncate<Person>()
+        runBlocking {
+            reactiveOps.suspendTruncate<Person>()
 
-            operations.suspendInsert(han)
-            operations.suspendInsert(luke)
+            reactiveOps.suspendInsert(han)
+            reactiveOps.suspendInsert(luke)
         }
     }
 
 
     @Test
     fun `update all matching`() = runSuspendIO {
-        val writeResult = operations.update<Person>()
+        val writeResult = reactiveOps.update<Person>()
             .matching(queryHan())
             .apply(Update.update("firstname", "Han"))
             .awaitSingle()
 
         writeResult.wasApplied().shouldBeTrue()
 
-        val writeResult2 = operations.suspendUpdate<Person>(
+        val writeResult2 = reactiveOps.suspendUpdate<Person>(
             query = queryHan(),
             update = Update.update("firstname", "Han")
         )
@@ -97,7 +96,7 @@ class ReactiveUpdateOperationsTest(
 
     @Test
     fun `update with different domain class and collection`() = runSuspendIO {
-        val writeResult = operations.update<Jedi>()
+        val writeResult = reactiveOps.update<Jedi>()
             .inTable(PERSON_TABLE_NAME)
             .matching(query(where("id").eq(han.id)))
             .apply(Update.update("name", "Han"))
@@ -105,7 +104,7 @@ class ReactiveUpdateOperationsTest(
 
         writeResult.wasApplied().shouldBeTrue()
 
-        val loaded = operations.suspendSelectOne<Person>(queryHan())
+        val loaded = reactiveOps.suspendSelectOne<Person>(queryHan())
         loaded shouldNotBeEqualTo han
         loaded.firstName shouldBeEqualTo "Han"
     }
