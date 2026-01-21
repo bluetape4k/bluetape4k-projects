@@ -65,7 +65,7 @@ class RedissonSuspendBloomFilter<T: Any> private constructor(
             val k = optimalK(maxNum, m)
 
             return RedissonSuspendBloomFilter<T>(redisson, bloomName, m, k).apply {
-                log.info { "Create RedissonBloomFilter, name=$bloomName, m=$m, k=$k" }
+                log.info { "Create RedissonSuspendBloomFilter, name=$bloomName, m=$m, k=$k" }
             }
         }
     }

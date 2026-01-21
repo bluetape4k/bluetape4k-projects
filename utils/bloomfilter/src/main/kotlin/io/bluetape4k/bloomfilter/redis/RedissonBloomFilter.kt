@@ -72,13 +72,7 @@ class RedissonBloomFilter<T: Any> private constructor(
 
     override fun add(value: T) {
         val offsets = getOffsets(value)
-
         bitSet.set(offsets, true)
-//        val batch = redisson.createBatch()
-//        val bloomAsync = batch.getBitSet(bloomName)
-//
-//        offsets.forEach { bloomAsync.setAsync(it.toLong()) }
-//        batch.execute()
     }
 
     /**
@@ -96,15 +90,6 @@ class RedissonBloomFilter<T: Any> private constructor(
         val offsets = getOffsets(value)
         val result = bitSet.get(*offsets)
         return result.all { it }
-
-//        val offsets = Hasher.murmurHashOffset(value, k, m)
-//        val batch = redisson.createBatch()
-//        val bloomAsync = batch.getBitSet(bloomName)
-//
-//        offsets.forEach { bloomAsync.getAsync(it.toLong()) }
-//        val result = batch.execute()
-//
-//        return result.responses.all { it as Boolean }
     }
 
     override fun count(): Long {

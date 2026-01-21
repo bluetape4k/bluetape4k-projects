@@ -13,7 +13,7 @@ import java.io.Serializable
 import java.util.*
 
 /**
- * Coroutines 방식의 Bloom Filter Bitset을 메모리에 저장하는 [CoBloomFilter] 구현체 입니다.
+ * Coroutines 방식의 Bloom Filter Bitset을 메모리에 저장하는 [SuspendBloomFilter] 구현체 입니다.
  *
  * ```
  * val bloomFilter = InMemoryCoBloomFilter<String>()

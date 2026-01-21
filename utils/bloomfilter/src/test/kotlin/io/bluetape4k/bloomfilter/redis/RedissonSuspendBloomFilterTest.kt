@@ -21,7 +21,7 @@ class RedissonSuspendBloomFilterTest: AbstractRedissonTest() {
     }
 
     private val bloomFilter: RedissonSuspendBloomFilter<String> by lazy {
-        RedissonSuspendBloomFilter(redisson, "$LibraryName:bloomfilter:test")
+        RedissonSuspendBloomFilter(redisson, "$LibraryName:suspendbloomfilter:test")
     }
 
     @BeforeEach

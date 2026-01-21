@@ -16,8 +16,8 @@ import kotlin.math.pow
  *
  * @param T 요소의 수형
  *
- * @see [CoBloomFilter]
  * @see [MutableBloomFilter]
+ * @see [SuspendBloomFilter]
  */
 interface BloomFilter<T: Any> {
 
