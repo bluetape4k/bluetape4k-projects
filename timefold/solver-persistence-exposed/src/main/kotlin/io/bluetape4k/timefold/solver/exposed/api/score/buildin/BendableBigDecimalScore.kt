@@ -12,13 +12,13 @@ import org.jetbrains.exposed.v1.core.VarCharColumnType
  */
 fun Table.bendableBigDecimalScore(
     name: String,
-    limit: Int = 255,
-): Column<BendableBigDecimalScore> = registerColumn(name, BendableBigDecimalScoreColumnType())
+    length: Int = 255,
+): Column<BendableBigDecimalScore> = registerColumn(name, BendableBigDecimalScoreColumnType(length))
 
-class BendableBigDecimalScoreColumnType(limit: Int = 255):
+class BendableBigDecimalScoreColumnType(limit: Int):
     ColumnWithTransform<String, BendableBigDecimalScore>(VarCharColumnType(limit), BendableBigDecimalScoreTransformer())
 
-class BendableBigDecimalScoreTransformer(): ColumnTransformer<String, BendableBigDecimalScore> {
+class BendableBigDecimalScoreTransformer: ColumnTransformer<String, BendableBigDecimalScore> {
     /**
      * Entity Property 를 DB Column 수형으로 변환합니다.
      */

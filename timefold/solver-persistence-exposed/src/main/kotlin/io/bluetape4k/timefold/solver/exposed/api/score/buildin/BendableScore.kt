@@ -19,7 +19,7 @@ fun Table.bendableScore(
 class BendableScoreColumnType(length: Int):
     ColumnWithTransform<String, BendableScore>(VarCharColumnType(length), BendableScoreTransformer())
 
-class BendableScoreTransformer(): ColumnTransformer<String, BendableScore> {
+class BendableScoreTransformer: ColumnTransformer<String, BendableScore> {
     /**
      * Entity Property 를 DB Column 수형으로 변환합니다.
      */

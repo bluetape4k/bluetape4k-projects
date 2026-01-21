@@ -14,10 +14,10 @@ fun Table.simpleLongScore(
     name: String,
 ): Column<SimpleLongScore> = registerColumn(name, SimpleLongScoreColumnType())
 
-class SimpleLongScoreColumnType():
+class SimpleLongScoreColumnType:
     ColumnWithTransform<Long, SimpleLongScore>(LongColumnType(), SimpleLongScoreTransformer())
 
-class SimpleLongScoreTransformer(): ColumnTransformer<Long, SimpleLongScore> {
+class SimpleLongScoreTransformer: ColumnTransformer<Long, SimpleLongScore> {
     /**
      * Entity Property 를 DB Column 수형으로 변환합니다.
      */

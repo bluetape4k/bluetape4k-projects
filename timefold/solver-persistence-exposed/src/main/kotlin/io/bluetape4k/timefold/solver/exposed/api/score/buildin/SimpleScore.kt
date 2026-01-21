@@ -16,10 +16,10 @@ fun Table.simpleScore(
     name: String,
 ): Column<SimpleScore> = registerColumn(name, SimpleScoreColumnType())
 
-class SimpleScoreColumnType():
+class SimpleScoreColumnType:
     ColumnWithTransform<Int, SimpleScore>(IntegerColumnType(), SimpleScoreTransformer())
 
-class SimpleScoreTransformer(): ColumnTransformer<Int, SimpleScore> {
+class SimpleScoreTransformer: ColumnTransformer<Int, SimpleScore> {
     /**
      * Entity Property 를 DB Column 수형으로 변환합니다.
      */

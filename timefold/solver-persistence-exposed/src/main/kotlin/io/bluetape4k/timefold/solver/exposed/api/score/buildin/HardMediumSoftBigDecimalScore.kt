@@ -21,7 +21,7 @@ class HardMediumSoftBigDecimalScoreColumnType(length: Int):
         HardMediumSoftBigDecimalScoreTransformer()
     )
 
-class HardMediumSoftBigDecimalScoreTransformer(): ColumnTransformer<String, HardMediumSoftBigDecimalScore> {
+class HardMediumSoftBigDecimalScoreTransformer: ColumnTransformer<String, HardMediumSoftBigDecimalScore> {
     /**
      * Entity Property 를 DB Column 수형으로 변환합니다.
      */

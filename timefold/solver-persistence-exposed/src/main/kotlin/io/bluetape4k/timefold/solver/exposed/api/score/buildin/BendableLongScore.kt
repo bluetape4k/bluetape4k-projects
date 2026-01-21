@@ -12,13 +12,13 @@ import org.jetbrains.exposed.v1.core.VarCharColumnType
  */
 fun Table.bendableLongScore(
     name: String,
-    limit: Int = 255,
-): Column<BendableLongScore> = registerColumn(name, BendableLongScoreColumnType())
+    length: Int = 255,
+): Column<BendableLongScore> = registerColumn(name, BendableLongScoreColumnType(length))
 
-class BendableLongScoreColumnType(limit: Int = 255):
+class BendableLongScoreColumnType(limit: Int):
     ColumnWithTransform<String, BendableLongScore>(VarCharColumnType(limit), BendableLongScoreTransformer())
 
-class BendableLongScoreTransformer(): ColumnTransformer<String, BendableLongScore> {
+class BendableLongScoreTransformer: ColumnTransformer<String, BendableLongScore> {
     /**
      * Entity Property 를 DB Column 수형으로 변환합니다.
      */

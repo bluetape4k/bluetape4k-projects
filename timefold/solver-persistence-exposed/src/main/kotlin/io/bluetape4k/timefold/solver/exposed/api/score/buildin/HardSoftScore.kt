@@ -18,7 +18,7 @@ fun Table.hardSoftScore(
 class HardSoftScoreColumnType(length: Int):
     ColumnWithTransform<String, HardSoftScore>(VarCharColumnType(length), HardSoftScoreTransformer())
 
-class HardSoftScoreTransformer(): ColumnTransformer<String, HardSoftScore> {
+class HardSoftScoreTransformer: ColumnTransformer<String, HardSoftScore> {
     /**
      * Entity Property 를 DB Column 수형으로 변환합니다.
      */
