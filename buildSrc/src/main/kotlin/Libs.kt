@@ -185,7 +185,7 @@ object Versions {
     const val cassandra = "4.19.2"          // https://mvnrepository.com/artifact/org.apache.cassandra/java-driver-core
     const val elasticsearch = "9.1.7"       // https://mvnrepository.com/artifact/org.elasticsearch.client/elasticsearch-rest-client
 
-    const val kafka = "3.9.1"           // https://mvnrepository.com/artifact/org.apache.kafka/kafka
+    const val kafka = "3.8.1"           // https://mvnrepository.com/artifact/org.apache.kafka/kafka
     const val spring_kafka = "3.3.11"    // https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka
 
     const val timefold_solver = "1.30.0" // https://mvnrepository.com/artifact/ai.timefold.solver/timefold-solver-core
@@ -935,7 +935,7 @@ object Libs {
     const val snappy_java = "org.xerial.snappy:snappy-java:1.1.10.8"  // https://mvnrepository.com/artifact/org.xerial.snappy/snappy-java
     const val lz4_java = "org.lz4:lz4-java:1.8.0"                     // https://mvnrepository.com/artifact/org.lz4/lz4-java
     // kafka clients 내부에 기존 lz4-java 를 사용한다.
-    // const val lz4_java = "at.yawk.lz4:lz4-java:1.10.2"                     // https://mvnrepository.com/artifact/at.yawk.lz4/lz4-java
+    // const val lz4_java = "at.yawk.lz4:lz4-java:1.8.1"                     // https://mvnrepository.com/artifact/at.yawk.lz4/lz4-java
 
     // https://github.com/hyperxpro/Brotli4j
     const val brotli4j = "com.aayushatharva.brotli4j:brotli4j:1.20.0" // https://mvnrepository.com/artifact/com.aayushatharva.brotli4j/brotli4j
@@ -1315,7 +1315,7 @@ object Libs {
     const val postgresql_driver = "org.postgresql:postgresql:42.7.9"  // https://mvnrepository.com/artifact/org.postgresql/postgresql
     const val pgjdbc_ng = "com.impossibl.pgjdbc-ng:pgjdbc-ng:0.8.9"  // https://mvnrepository.com/artifact/com.impossibl.pgjdbc-ng/pgjdbc-ng
     const val oracle_ojdbc8 = "com.oracle.ojdbc:ojdbc8:19.3.0.0"
-    const val clickhouse_jdbc = "com.clickhouse:clickhouse-jdbc:0.9.6" // https://mvnrepository.com/artifact/com.clickhouse/clickhouse-jdbc
+    const val clickhouse_jdbc = "com.clickhouse:clickhouse-jdbc:0.9.5" // https://mvnrepository.com/artifact/com.clickhouse/clickhouse-jdbc
 
     // NOTE: Apache Ignite 에서는 꼭 1.4.197 를 써야 합니다.
     const val h2 = "com.h2database:h2:1.4.197"

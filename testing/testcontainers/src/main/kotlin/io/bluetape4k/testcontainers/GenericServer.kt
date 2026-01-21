@@ -8,12 +8,6 @@ import org.testcontainers.containers.ContainerState
  * Testcontainers를 사용하는 Server의 기본 정보를 제공합니다.
  */
 interface GenericServer: ContainerState {
-
-//    /**
-//     * Server의 host 정보를 제공합니다.
-//     */
-//    override fun getHost(): String = super.getHost()
-
     /**
      * Server의 기본 포트를 제공합니다.
      */
@@ -23,7 +17,6 @@ interface GenericServer: ContainerState {
      * Server의 URL 정보를 제공합니다.
      */
     val url: String get() = "$host:$port"
-
 }
 
 private val log by lazy { KotlinLogging.logger {} }
@@ -61,8 +54,8 @@ fun <T: GenericServer> T.writeToSystemProperties(name: String, extraProps: Map<S
             appendLine("\t$SERVER_PREFIX.$name.url=$url")
 
             extraProps.forEach { (key, value) ->
-                value?.run {
-                    appendLine("\t$SERVER_PREFIX.$name.$key=$this")
+                value?.let {
+                    appendLine("\t$SERVER_PREFIX.$name.$key=$it")
                 }
             }
         }

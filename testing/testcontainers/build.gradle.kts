@@ -46,12 +46,13 @@ dependencies {
     compileOnly(Libs.redisson)
     compileOnly(Libs.lettuce_core)
 
-//    compileOnly(Libs.kryo)
-//    compileOnly(Libs.fory_kotlin)  // new Apache Fory
+    compileOnly(Libs.fory_kotlin)  // new Apache Fory
+    compileOnly(Libs.kryo)
 
-//    compileOnly(Libs.commons_compress)
-//    compileOnly(Libs.snappy_java)
-//    compileOnly(Libs.lz4_java)
+    compileOnly(Libs.commons_compress)
+    compileOnly(Libs.lz4_java)
+    compileOnly(Libs.snappy_java)
+    compileOnly(Libs.zstd_jni)
 
     // Hazelcast
     compileOnly(Libs.hazelcast)

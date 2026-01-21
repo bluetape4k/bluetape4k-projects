@@ -50,14 +50,16 @@ class RedisServerTest: AbstractContainerTest() {
     }
 
     private fun verifyRedisServer(redisServer: RedisServer) {
-        Thread.sleep(1)
         val redisson = redissonClient(redisServer.url)
-        Thread.sleep(1)
 
-        val map = redisson.getMap<String, String>("map")
-        map.fastPut("key1", "value1")
+        try {
+            val map = redisson.getMap<String, String>("map")
+            map.fastPut("key1", "value1")
 
-        val map2 = redisson.getMap<String, String>("map")
-        map2["key1"] shouldBeEqualTo "value1"
+            val map2 = redisson.getMap<String, String>("map")
+            map2["key1"] shouldBeEqualTo "value1"
+        } finally {
+            redisson.shutdown()
+        }
     }
 }
