@@ -61,10 +61,9 @@ abstract class AbstractSuspendImageWriterTest: AbstractImageTest() {
             .numThreads(4)
             .roundsPerJob(8)
             .add {
-                val bytes = image.forSuspendWriter(writer).bytes()
-                val path = tempFolder.createFile().toPath()
-                path.writeAsync(bytes).await()
-                log.debug { "Save $filename.$imageFormat to $path" }
+                val file = tempFolder.createFile().toPath()
+                image.forSuspendWriter(writer).write(file)
+                log.debug { "Save $filename.$imageFormat to $file" }
             }
             .run()
     }

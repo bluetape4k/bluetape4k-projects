@@ -12,9 +12,8 @@ import java.io.ByteArrayOutputStream
  *
  * @return [ByteArray]
  */
-fun WriteContext.toByteArray(): ByteArray {
-    return ByteArrayOutputStream().use { bos ->
+fun WriteContext.toByteArray(): ByteArray =
+    ByteArrayOutputStream().use { bos ->
         this@toByteArray.write(bos)
         bos.toByteArray()
     }
-}

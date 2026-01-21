@@ -116,7 +116,7 @@ fun BufferedImage.drawImage(
 /**
  * [BufferedImage]에 [action]을 수행합니다.
  *
- * ```
+ * ```kotlin
  * val image = bufferedImageOf(100, 100)
  *
  * image.useGraphics { graphics ->
@@ -128,7 +128,9 @@ fun BufferedImage.drawImage(
  *
  * @param action 그래픽 작업
  */
-inline fun BufferedImage.useGraphics(action: (graphics: Graphics2D) -> Unit) {
+inline fun BufferedImage.useGraphics(
+    @BuilderInference action: (graphics: Graphics2D) -> Unit,
+) {
     val graphics = this.createGraphics()
     try {
         action(graphics)

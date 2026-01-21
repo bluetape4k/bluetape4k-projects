@@ -1,10 +1,7 @@
 package io.bluetape4k.images.coroutines
 
-import com.sksamuel.scrimage.AwtImage
-import com.sksamuel.scrimage.metadata.ImageMetadata
 import com.sksamuel.scrimage.nio.JpegWriter
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import java.io.OutputStream
 
 /**
  * Coroutines 방식으로 JPEG 이미지를 생성한다.
@@ -43,9 +40,5 @@ class SuspendJpegWriter(
      */
     override fun withProgressive(progressive: Boolean): SuspendJpegWriter {
         return SuspendJpegWriter(compression, progressive)
-    }
-
-    override suspend fun suspendWrite(image: AwtImage, metadata: ImageMetadata, out: OutputStream) {
-        write(image, metadata, out)
     }
 }

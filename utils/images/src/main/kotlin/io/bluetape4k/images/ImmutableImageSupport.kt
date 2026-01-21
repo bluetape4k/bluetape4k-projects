@@ -100,9 +100,8 @@ suspend fun suspendImmutableImageOf(path: Path): ImmutableImage =
  * @param file 이미지 파일
  * @return 이미지 정보를 담은 [ImmutableImage]
  */
-suspend fun suspendLoadImage(file: File): ImmutableImage {
-    return suspendLoadImage(file.toPath())
-}
+suspend fun suspendLoadImage(file: File): ImmutableImage =
+    suspendLoadImage(file.toPath())
 
 /**
  * Coroutines 환경에서 [Path]의 파일을 읽어 [ImmutableImage]로 변환합니다.
@@ -114,9 +113,8 @@ suspend fun suspendLoadImage(file: File): ImmutableImage {
  * @param path 이미지 파일의 경로
  * @return 이미지 정보를 담은 [ImmutableImage]
  */
-suspend fun suspendLoadImage(path: Path): ImmutableImage {
-    return immutableImageOf(path.suspendReadAllBytes())
-}
+suspend fun suspendLoadImage(path: Path): ImmutableImage =
+    immutableImageOf(path.suspendReadAllBytes())
 
 /**
  * Coroutines 환경에서 [ImmutableImage] 정보를 [writer]를 통해 [ByteArray]로 변환합니다.
@@ -129,12 +127,11 @@ suspend fun suspendLoadImage(path: Path): ImmutableImage {
  * @param writer 이미지를 쓰기 위한 [SuspendImageWriter]
  * @return 이미지 정보를 담은 ByteArray
  */
-suspend fun ImmutableImage.suspendBytes(writer: SuspendImageWriter): ByteArray {
-    return ByteArrayOutputStream(DEFAULT_BUFFER_SIZE).use { bos ->
+suspend inline fun ImmutableImage.suspendBytes(writer: SuspendImageWriter): ByteArray =
+    ByteArrayOutputStream(DEFAULT_BUFFER_SIZE).use { bos ->
         writer.suspendWrite(this, this.metadata, bos)
         bos.toByteArray()
     }
-}
 
 /**
  * Coroutines 환경에서 [ImmutableImage] 정보를 [writer]를 통해 [destPath]에 저장합니다.
@@ -183,8 +180,10 @@ fun ImmutableImage.forSuspendWriter(writer: SuspendImageWriter): SuspendWriteCon
  *
  * @param action 그래픽 작업
  */
-inline fun ImmutableImage.useGraphics(action: (graphics: Graphics2D) -> Unit) {
-    val graphics = this.awt().createGraphics()
+inline fun ImmutableImage.useGraphics(
+    @BuilderInference action: (graphics: Graphics2D) -> Unit,
+) {
+    val graphics: Graphics2D = this.awt().createGraphics()
     try {
         action(graphics)
     } finally {

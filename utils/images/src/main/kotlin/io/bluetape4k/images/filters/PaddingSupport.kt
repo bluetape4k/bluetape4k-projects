@@ -10,4 +10,10 @@ fun paddingOf(constant: Int): Padding = Padding(constant)
 /**
  * [Padding] 생성자
  */
-fun paddingOf(top: Int, right: Int, bottom: Int, left: Int): Padding = Padding(top, right, bottom, left)
+fun paddingOf(
+    top: Int,
+    right: Int,
+    bottom: Int,
+    left: Int,
+): Padding =
+    Padding(top, right, bottom, left)

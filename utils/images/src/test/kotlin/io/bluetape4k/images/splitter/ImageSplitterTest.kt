@@ -8,7 +8,7 @@ import io.bluetape4k.io.toInputStream
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
@@ -27,7 +27,7 @@ import kotlin.test.assertFailsWith
 @TempFolderTest
 class ImageSplitterTest: AbstractImageTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val AQUA_JPG = "images/splitter/aqua.jpg"
         private const val EVERLAND_JPG = "images/splitter/everland.jpg"
     }

@@ -1,10 +1,7 @@
 package io.bluetape4k.images.coroutines
 
-import com.sksamuel.scrimage.AwtImage
-import com.sksamuel.scrimage.metadata.ImageMetadata
 import com.sksamuel.scrimage.webp.WebpWriter
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import java.io.OutputStream
 
 /**
  * Coroutines 방식으로 WebP 형식의 이미지를 생성하는 [CoImageWriter] 입니다.
@@ -57,9 +54,5 @@ class SuspendWebpWriter(
 
     override fun withZ(z: Int): SuspendWebpWriter {
         return SuspendWebpWriter(z, q, m, lossless, noAlpha)
-    }
-
-    override suspend fun suspendWrite(image: AwtImage, metadata: ImageMetadata, out: OutputStream) {
-        write(image, metadata, out)
     }
 }

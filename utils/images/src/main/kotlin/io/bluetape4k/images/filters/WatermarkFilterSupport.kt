@@ -54,6 +54,5 @@ fun watermarkFilterOf(
     antiAlias: Boolean = true,
     alpha: Double = 0.1,
     color: Color = Color.WHITE,
-): WatermarkFilter {
-    return WatermarkFilter(text, x, y, font, antiAlias, alpha, color)
-}
+): WatermarkFilter =
+    WatermarkFilter(text, x, y, font, antiAlias, alpha, color)

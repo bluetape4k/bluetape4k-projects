@@ -1,10 +1,7 @@
 package io.bluetape4k.images.coroutines
 
-import com.sksamuel.scrimage.AwtImage
-import com.sksamuel.scrimage.metadata.ImageMetadata
 import com.sksamuel.scrimage.nio.PngWriter
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import java.io.OutputStream
 
 /**
  * Coroutines 방식으로 PNG 파일을 생성하는 [CoImageWriter] 입니다.
@@ -42,9 +39,5 @@ class SuspendPngWriter(
 
     override fun withMinCompression(): SuspendPngWriter {
         return MinCompression
-    }
-
-    override suspend fun suspendWrite(image: AwtImage, metadata: ImageMetadata, out: OutputStream) {
-        write(image, metadata, out)
     }
 }

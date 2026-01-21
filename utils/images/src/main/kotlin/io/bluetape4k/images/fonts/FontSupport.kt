@@ -3,6 +3,7 @@ package io.bluetape4k.images.fonts
 import com.sksamuel.scrimage.FontUtils
 import io.bluetape4k.utils.Resourcex
 import java.awt.Font
+import java.io.InputStream
 
 /**
  * 기본 폰트 크기 (12)
@@ -24,9 +25,8 @@ val DEFAULT_FONT = fontOf()
 fun fontOf(
     style: Int = Font.PLAIN,
     size: Int = DEFAULT_FONT_SIZE,
-): Font {
-    return Font(Font.SANS_SERIF, style, size)
-}
+): Font =
+    Font(Font.SANS_SERIF, style, size)
 
 /**
  * True type [Font]를 생성합니다.
@@ -39,6 +39,6 @@ fun createTrueTypeFont(
     fontName: String = "Roboto-Regular.ttf",
     size: Int = DEFAULT_FONT_SIZE,
 ): Font {
-    val fontStream = Resourcex.getInputStream("/fonts/$fontName")
+    val fontStream: InputStream? = Resourcex.getInputStream("/fonts/$fontName")
     return FontUtils.createTrueType(fontStream, size)
 }
