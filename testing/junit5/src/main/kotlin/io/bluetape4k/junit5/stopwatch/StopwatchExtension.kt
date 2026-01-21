@@ -6,7 +6,6 @@ import io.bluetape4k.logging.info
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback
 import org.junit.jupiter.api.extension.BeforeTestExecutionCallback
 import org.junit.jupiter.api.extension.ExtensionContext
-import org.slf4j.Logger
 import java.time.Duration
 
 /**
@@ -19,13 +18,15 @@ import java.time.Duration
  * }
  * ```
  */
-class StopwatchExtension(private val logger: Logger = log): BeforeTestExecutionCallback, AfterTestExecutionCallback {
+class StopwatchExtension(
+    private val logger: org.slf4j.Logger = log,
+): BeforeTestExecutionCallback, AfterTestExecutionCallback {
 
     companion object: KLogging()
 
     override fun beforeTestExecution(context: ExtensionContext) {
         val testMethod = context.requiredTestMethod
-        logger.info { "Starting test [${testMethod.name}]" }
+        logger.info { "Starting test: [${testMethod.name}]" }
         context.store(StopwatchExtension::class).put(testMethod, System.nanoTime())
     }
 
@@ -36,9 +37,9 @@ class StopwatchExtension(private val logger: Logger = log): BeforeTestExecutionC
 
         val millis = nanos.toMillis()
         if (millis <= 0L) {
-            logger.info { "Completed test [${testMethod.name}] took $nanos nanos" }
+            logger.info { "Completed test: [${testMethod.name}] took $nanos nanos" }
         } else {
-            logger.info { "Completed test [${testMethod.name}] took $millis msecs." }
+            logger.info { "Completed test: [${testMethod.name}] took $millis msecs." }
         }
     }
 }

@@ -3,7 +3,7 @@ configurations {
 }
 
 dependencies {
-    testImplementation(platform(Libs.junit_bom))
+    implementation(platform(Libs.junit_bom))
     
     api(project(":bluetape4k-logging"))
 
@@ -12,8 +12,8 @@ dependencies {
     api(Libs.junit_jupiter)
     api(Libs.junit_jupiter_engine)
     api(Libs.junit_jupiter_params)
-    compileOnly(Libs.junit_jupiter_migrationsupport)
     api(Libs.junit_platform_launcher)
+    compileOnly(Libs.junit_jupiter_migrationsupport)
 
     api(Libs.kluent)
     api(Libs.mockk)

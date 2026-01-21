@@ -48,7 +48,8 @@ import org.junit.jupiter.api.extension.ParameterResolver
 class TempFolderExtension: ParameterResolver {
 
     companion object: KLogging() {
-        private val NAMESPACE = ExtensionContext.Namespace.create(TempFolderExtension::class.java)
+        private val NAMESPACE: ExtensionContext.Namespace =
+            ExtensionContext.Namespace.create(TempFolderExtension::class.java)
     }
 
     override fun supportsParameter(

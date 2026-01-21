@@ -1,7 +1,7 @@
 package io.bluetape4k.junit5.tempfolder
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import java.io.Closeable
 import java.io.File
@@ -25,7 +25,7 @@ class TempFolder: Closeable {
     init {
         try {
             rootFile = Files.createTempDirectory(PREFIX).toFile()
-            log.trace { "임시폴더를 생성했습니다. [${rootFile.path}]" }
+            log.debug { "임시 폴더를 생성했습니다. [${rootFile.path}]" }
         } catch (e: IOException) {
             throw TempFolderException("임시폴더를 생성하는데 실패했습니다.", e)
         }
@@ -34,10 +34,10 @@ class TempFolder: Closeable {
     fun createFile(): File {
         return try {
             Files.createTempFile(rootFile.toPath(), PREFIX, null).toFile().apply {
-                log.trace { "임시파일을 생성했습니다. file=[$this]" }
+                log.debug { "임시 파일을 생성했습니다. file=[$this]" }
             }
         } catch (e: IOException) {
-            throw TempFolderException("임시파일을 생성하는데 실패했습니다.", e)
+            throw TempFolderException("임시 파일을 생성하는데 실패했습니다.", e)
         }
     }
 
@@ -47,10 +47,10 @@ class TempFolder: Closeable {
         return try {
             val path = Paths.get(rootFile.path, filename)
             Files.createFile(path).toFile().apply {
-                log.trace { "임시파일을 생성했습니다. file=[$this]" }
+                log.debug { "임시 파일을 생성했습니다. file=[$this]" }
             }
         } catch (e: IOException) {
-            throw TempFolderException("임시파일을 생성하는데 실패했습니다. filename=$filename", e)
+            throw TempFolderException("임시 파일을 생성하는데 실패했습니다. filename=$filename", e)
         }
     }
 
@@ -60,17 +60,17 @@ class TempFolder: Closeable {
         return try {
             val path = Paths.get(rootFile.path, dir)
             Files.createDirectory(path).toFile().apply {
-                log.trace { "임시폴더를 생성했습니다. dir=[$this]" }
+                log.debug { "임시 폴더를 생성했습니다. dir=[$this]" }
             }
         } catch (e: IOException) {
-            throw TempFolderException("임시파일을 생성하는데 실패했습니다. dir=$dir", e)
+            throw TempFolderException("임시 파일을 생성하는데 실패했습니다. dir=$dir", e)
         }
     }
 
     override fun close() {
         runCatching { destroy() }
             .onFailure {
-                log.warn(it) { "임시폴더를 삭제하는데 실패했습니다. [${rootFile.path}]" }
+                log.warn(it) { "임시 폴더를 삭제하는데 실패했습니다. [${rootFile.path}]" }
             }
     }
 
@@ -79,11 +79,11 @@ class TempFolder: Closeable {
             return
         }
 
-        log.trace { "임시폴더를 삭제합니다. [${rootFile.path}]" }
+        log.debug { "임시 폴더를 삭제합니다. [${rootFile.path}]" }
         try {
             root.deleteRecursively()
         } catch (e: Throwable) {
-            throw TempFolderException("임시폴더를 삭제하는데 실패했습니다. [${rootFile.path}]", e)
+            throw TempFolderException("임시 폴더를 삭제하는데 실패했습니다. [${rootFile.path}]", e)
         }
     }
 }

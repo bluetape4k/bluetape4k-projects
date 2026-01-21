@@ -22,7 +22,7 @@ class FakeValueExtension: TestInstancePostProcessor, ParameterResolver {
         private val faker = Fakers.faker
 
         private fun resolve(targetType: Class<*>, annotation: FakeValue): Any {
-            log.trace { "targetType=$targetType, annotation=$annotation" }
+            log.trace { "resolve targetType=$targetType, annotation=$annotation" }
 
             return when {
                 targetType.isAssignableFrom(List::class.java) || targetType.isAssignableFrom(Collection::class.java) ->
@@ -43,7 +43,7 @@ class FakeValueExtension: TestInstancePostProcessor, ParameterResolver {
         }
 
         private fun Faker.getValues(annotation: FakeValue): Sequence<Any> {
-            log.trace { "provider=${annotation.provider}" }
+            log.trace { "get value. provider=${annotation.provider}" }
 
             val names = annotation.provider.split(".", limit = 2)
             val providerName = names[0]

@@ -70,7 +70,7 @@ class StructuredTaskScopeTester {
             }
 
             scope.join().throwIfFailed {
-                log.error(it) { "Test blocks failed with exception: $it" }
+                log.error(it) { "Test blocks failed with exception." }
                 throw it
             }
         }

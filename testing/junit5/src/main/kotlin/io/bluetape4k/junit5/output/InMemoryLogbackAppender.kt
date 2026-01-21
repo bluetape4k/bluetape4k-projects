@@ -42,7 +42,6 @@ import kotlin.reflect.KClass
 class InMemoryLogbackAppender private constructor(name: String): AppenderBase<ILoggingEvent>() {
 
     companion object: KLogging() {
-
         @JvmStatic
         operator fun invoke(name: String = "root"): InMemoryLogbackAppender = InMemoryLogbackAppender(name)
 
@@ -53,8 +52,8 @@ class InMemoryLogbackAppender private constructor(name: String): AppenderBase<IL
         operator fun invoke(kclazz: KClass<*>): InMemoryLogbackAppender = invoke(kclazz.qualifiedName!!)
     }
 
-    private val logger by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        var logger = LoggerFactory.getLogger(name)
+    private val logger: ch.qos.logback.classic.Logger by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        var logger: org.slf4j.Logger = LoggerFactory.getLogger(name)
         while (logger !is ch.qos.logback.classic.Logger) {
             Thread.sleep(1)
             logger = LoggerFactory.getLogger(name)

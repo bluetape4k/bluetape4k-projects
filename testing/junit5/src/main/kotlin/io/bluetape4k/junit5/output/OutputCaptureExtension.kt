@@ -42,10 +42,5 @@ class OutputCaptureExtension: BeforeEachCallback, AfterEachCallback, ParameterRe
                 { ReflectionSupport.newInstance(it) },
                 OutputCapturer::class.java
             )
-//            .getOrComputeIfAbsent(
-//                OutputCapturer::class.java,
-//                { ReflectionSupport.newInstance(it) },
-//                OutputCapturer::class.java
-//            )
     }
 }

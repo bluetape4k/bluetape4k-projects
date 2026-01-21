@@ -42,7 +42,10 @@ class MermaidTestExecutionListener: TestExecutionListener {
         }
     }
 
-    override fun executionFinished(testIdentifier: TestIdentifier, testExecutionResult: TestExecutionResult) {
+    override fun executionFinished(
+        testIdentifier: TestIdentifier,
+        testExecutionResult: TestExecutionResult,
+    ) {
         if (testIdentifier.isTest) {
             val task = tasks.find {
                 it.uniqueId == testIdentifier.uniqueId
