@@ -24,8 +24,8 @@ dependencies {
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // NOTE: Cassandra 4 oss 버전을 사용합니다.
-    implementation(Libs.cassandra_java_driver_core)
-    implementation(Libs.cassandra_java_driver_query_builder)
+    api(Libs.cassandra_java_driver_core)
+    api(Libs.cassandra_java_driver_query_builder)
     compileOnly(Libs.cassandra_java_driver_mapper_runtime)
     compileOnly(Libs.cassandra_java_driver_metrics_micrometer)
 
@@ -51,7 +51,7 @@ dependencies {
     implementation(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_test)
 
-    compileOnly(Libs.reactor_core)
-    compileOnly(Libs.reactor_kotlin_extensions)
+    implementation(Libs.reactor_core)
+    implementation(Libs.reactor_kotlin_extensions)
     testImplementation(Libs.reactor_test)
 }
