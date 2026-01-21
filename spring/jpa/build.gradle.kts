@@ -60,19 +60,17 @@ dependencies {
     kapt(Libs.querydsl_apt + ":jakarta")
     kaptTest(Libs.querydsl_apt + ":jakarta")
 
-    api(Libs.jakarta_el_api)
-
     // Validator
-    // api(Libs.javax_validation_api)
-    implementation(Libs.jakarta_validation_api)
+    api(Libs.jakarta_el_api)
+    api(Libs.jakarta_validation_api)
     implementation(Libs.hibernate_validator)
 
     // Converter
     compileOnly(project(":bluetape4k-crypto"))
     compileOnly(project(":bluetape4k-jackson"))
 
-    testImplementation(Libs.kryo)
     testImplementation(Libs.fory_kotlin)  // new Apache Fory
+    testImplementation(Libs.kryo)
 
     testImplementation(Libs.lz4_java)
     testImplementation(Libs.snappy_java)

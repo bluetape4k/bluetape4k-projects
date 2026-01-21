@@ -21,8 +21,8 @@
     </appender>
     <!-- formatter:on -->
 
-    <logger name="io.bluetape4k.spring" level="TRACE"/>
-    <logger name="org.springframework.boot" level="DEBUG"/>
+<!--    <logger name="io.bluetape4k.spring.jpa" level="DEBUG"/>-->
+<!--    <logger name="org.springframework" level="DEBUG"/>-->
 
     <root level="INFO">
         <appender-ref ref="console"/>

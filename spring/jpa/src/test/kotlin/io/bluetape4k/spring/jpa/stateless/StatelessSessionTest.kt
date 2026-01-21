@@ -1,5 +1,6 @@
 package io.bluetape4k.spring.jpa.stateless
 
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.hibernate.stateless.withStateless
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
@@ -23,13 +24,14 @@ import kotlin.system.measureTimeMillis
 class StatelessSessionTest: AbstractJpaTest() {
 
     companion object: KLogging() {
-        private const val COUNT = 100
+        private const val COUNT = 10 // 1_000
+        private const val DETAIL_COUNT = 10 // 1_000
         private const val REPEAT_COUNT = 3
 
         private val faker = Fakers.faker
 
         fun getStatelessEntity(index: Int): StatelessEntity {
-            return StatelessEntity(faker.name().name() + index).apply {
+            return StatelessEntity(Base58.randomString(12) + index).apply {
                 firstname = faker.name().firstName()
                 lastname = faker.name().lastName()
                 age = faker.number().numberBetween(10, 99)
@@ -64,7 +66,9 @@ class StatelessSessionTest: AbstractJpaTest() {
         fun `simple entity with session`() {
             val elapsed = measureTimeMillis {
                 repeat(COUNT) {
-                    tem.persist(getStatelessEntity(it))
+                    val entity = getStatelessEntity(it)
+                    log.debug { "Persist entity: $entity" }
+                    tem.persist(entity)
                 }
                 flush()
             }
@@ -75,8 +79,9 @@ class StatelessSessionTest: AbstractJpaTest() {
         fun `one-to-many entity with session`() {
             val elapsed = measureTimeMillis {
                 repeat(COUNT) {
-                    val master = createMaster("master-$it")
+                    val master = createMaster("stateful master-$it")
                     tem.persist(master)
+                    log.debug { "Persist master: $master" }
                 }
                 tem.flush()
             }
@@ -92,7 +97,9 @@ class StatelessSessionTest: AbstractJpaTest() {
             val elapsed = measureTimeMillis {
                 tem.entityManager.withStateless { stateless ->
                     repeat(COUNT) {
-                        stateless.insert(getStatelessEntity(it))
+                        val entity = getStatelessEntity(it)
+                        log.debug { "Persist entity: $entity" }
+                        stateless.insert(entity)
                     }
                 }
             }
@@ -104,8 +111,9 @@ class StatelessSessionTest: AbstractJpaTest() {
             val elapsed = measureTimeMillis {
                 tem.entityManager.withStateless { stateless ->
                     repeat(COUNT) {
-                        val master = createMaster("master-$it")
+                        val master = createMaster("stateless master-$it")
                         stateless.insert(master)
+                        log.debug { "Persist master: $master" }
                         master.details.forEach { detail ->
                             stateless.insert(detail)
                         }
@@ -129,14 +137,14 @@ class StatelessSessionTest: AbstractJpaTest() {
             }
         }
 
-        val masters = tem.entityManager.withStateless { stateless ->
+        val rows: List<Any> = tem.entityManager.withStateless { stateless ->
             stateless.createNativeQuery("select * from stateless_master m", Any::class.java).list()
-        } ?: emptyList<Any?>()
+        } ?: emptyList()
 
-        masters.shouldNotBeEmpty()
+        rows.shouldNotBeEmpty()
 
-        masters.forEach {
-            val row = it as Array<Any?>
+        rows.forEach { row ->
+            val row = row as Array<Any?>
             val id = row[0].asInt()
             val name = row[1].asString()
             val master = StatelessMaster(name).also { it.id = id }
@@ -144,7 +152,7 @@ class StatelessSessionTest: AbstractJpaTest() {
         }
     }
 
-    private fun createMaster(name: String, detailCount: Int = 10): StatelessMaster {
+    private fun createMaster(name: String, detailCount: Int = DETAIL_COUNT): StatelessMaster {
         val master = StatelessMaster(name)
         repeat(detailCount) { index ->
             val detail = StatelessDetail("details-$index").also { it.master = master }

@@ -30,13 +30,15 @@ class StatelessEntity(val name: String): IntJpaEntity() {
         other is StatelessEntity && name == other.name
 
     override fun equals(other: Any?): Boolean = other != null && super.equals(other)
-
     override fun hashCode(): Int = id?.hashCode() ?: name.hashCode()
-
-    override fun buildStringHelper(): ToStringBuilder {
-        return super.buildStringHelper()
+    override fun buildStringHelper(): ToStringBuilder =
+        super.buildStringHelper()
             .add("name", name)
-    }
+            .add("firstname", firstname)
+            .add("lastname", lastname)
+            .add("age", age)
+            .add("street", street)
+            .add("city", city)
 }
 
 @Entity
@@ -52,14 +54,10 @@ class StatelessMaster(val name: String): IntJpaEntity() {
         other is StatelessMaster && name == other.name
 
     override fun equals(other: Any?): Boolean = other != null && super.equals(other)
-
     override fun hashCode(): Int = id?.hashCode() ?: name.hashCode()
-
-    override fun buildStringHelper(): ToStringBuilder {
-        return super.buildStringHelper()
+    override fun buildStringHelper(): ToStringBuilder =
+        super.buildStringHelper()
             .add("name", name)
-    }
-
 }
 
 @Entity
@@ -76,11 +74,8 @@ class StatelessDetail(val name: String): IntJpaEntity() {
         other is StatelessDetail && name == other.name
 
     override fun equals(other: Any?): Boolean = other != null && super.equals(other)
-
     override fun hashCode(): Int = id?.hashCode() ?: name.hashCode()
-
-    override fun buildStringHelper(): ToStringBuilder {
-        return super.buildStringHelper()
+    override fun buildStringHelper(): ToStringBuilder =
+        super.buildStringHelper()
             .add("name", name)
-    }
 }

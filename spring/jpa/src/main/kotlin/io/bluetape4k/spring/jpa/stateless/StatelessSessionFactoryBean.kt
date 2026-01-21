@@ -57,7 +57,7 @@ class StatelessSessionFactoryBean(
             return ReflectionUtils.invokeMethod(invocation.method, stateless, invocation.arguments)
         }
 
-        private fun getCurrentStatelessSession(): StatelessSession? {
+        private fun getCurrentStatelessSession(): StatelessSession {
             check(TransactionSynchronizationManager.isActualTransactionActive()) {
                 "현 스레드에 활성화된 Transaction이 없습니다. StatelessSession은 Transaction하에서만 작동됩니다."
             }
@@ -89,7 +89,7 @@ class StatelessSessionFactoryBean(
         }
     }
 
-    class StatelessSessionSynchronization(
+    private class StatelessSessionSynchronization(
         private val sf: SessionFactory,
         private val stateless: StatelessSession,
     ): TransactionSynchronization {
