@@ -15,19 +15,11 @@ dependencies {
 
     // JDBC Drivers
     testImplementation(Libs.hikaricp)
-    testImplementation(Libs.h2_v2)
-    testImplementation(Libs.mariadb_java_client)
-    testImplementation(Libs.mysql_connector_j)
-    testImplementation(Libs.postgresql_driver)
-    testImplementation(Libs.pgjdbc_ng)
-
-    // R2DBC Drivers
-    compileOnly(Libs.r2dbc_spi)
-    compileOnly(Libs.r2dbc_pool)
-    testImplementation(Libs.r2dbc_h2)
-    testImplementation(Libs.r2dbc_mariadb)
-    testImplementation(Libs.r2dbc_mysql)
-    testImplementation(Libs.r2dbc_postgresql)
+    testRuntimeOnly(Libs.h2_v2)
+    testRuntimeOnly(Libs.mariadb_java_client)
+    testRuntimeOnly(Libs.mysql_connector_j)
+    testRuntimeOnly(Libs.postgresql_driver)
+    testRuntimeOnly(Libs.pgjdbc_ng)
 
     // Bluetape4k Modules for Testing
     testImplementation(project(":bluetape4k-junit5"))
