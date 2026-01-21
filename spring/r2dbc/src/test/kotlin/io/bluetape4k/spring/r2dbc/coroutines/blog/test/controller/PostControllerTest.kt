@@ -45,7 +45,7 @@ class PostControllerTest(
             .returnResult<Post>().responseBody
             .awaitSingle()
 
-        log.debug { "Post[1]=$post" }
+        log.debug { "Posts[1]=$post" }
         post.id shouldBeEqualTo 1
     }
 

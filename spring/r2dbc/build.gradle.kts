@@ -15,7 +15,7 @@ dependencies {
 
     // R2DBC
     api(Libs.springBootStarter("data-r2dbc"))
-    compileOnly(Libs.r2dbc_pool)
+    testImplementation(Libs.r2dbc_pool)
     testRuntimeOnly(Libs.r2dbc_h2)
     testRuntimeOnly(Libs.h2_v2)
 
@@ -36,6 +36,4 @@ dependencies {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(group = "org.mockito", module = "mockito-core")
     }
-
-    testImplementation(Libs.datafaker)
 }
