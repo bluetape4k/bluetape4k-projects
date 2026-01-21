@@ -340,7 +340,7 @@ object KoreanConjugation: KLogging() {
                     expandChar_쥐다(lastChar, onset)
                 } else if (vowel == 'ㅣ' && coda == ' ') {
                     expandChar_마시다(lastChar, onset)
-                } else if (vowel in `VOWEL_뀌다` && coda == ' ') {
+                } else if (vowel in VOWEL_뀌다 && coda == ' ') {
                     expandChar_꿰다(lastChar, onset, vowel)
                 } else if (coda == ' ') {
                     // 나머지 받침없는 서술어 (둘러서다, 켜다, 세다, 캐다, 차다)

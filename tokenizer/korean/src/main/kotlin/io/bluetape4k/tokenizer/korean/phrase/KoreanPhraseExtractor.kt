@@ -122,7 +122,7 @@ object KoreanPhraseExtractor: KLogging() {
     private fun trimSpacesFromPhrase(phrasesToTrim: Collection<KoreanPhrase>): List<KoreanPhrase> {
         return phrasesToTrim.mapIndexed { i, phrase ->
             when {
-                phrasesToTrim.size == 1     -> {
+                phrasesToTrim.size == 1 -> {
                     KoreanPhrase(
                         phrase.tokens
                             .dropWhile { it.pos == Space }
@@ -131,7 +131,7 @@ object KoreanPhraseExtractor: KLogging() {
                     )
                 }
 
-                i == 0                      ->
+                i == 0 ->
                     KoreanPhrase(phrase.tokens.dropWhile { it.pos == Space }, phrase.pos)
 
                 i == phrasesToTrim.size - 1 -> {
@@ -139,7 +139,7 @@ object KoreanPhraseExtractor: KLogging() {
                     KoreanPhrase(tokens, phrase.pos)
                 }
 
-                else                        -> phrase
+                else -> phrase
             }
         }
     }
@@ -164,13 +164,12 @@ object KoreanPhraseExtractor: KLogging() {
 
             fun checkMaxLength(): Boolean {
                 return phraseChunkWithoutSpaces.size <= MaxPhrasesPerPhraseChunk &&
-                        phraseChunkWithoutSpaces.map { it.length }.sum() <= MaxCharsPerPhraseChunkWithoutSpaces
+                        phraseChunkWithoutSpaces.sumOf { it.length } <= MaxCharsPerPhraseChunkWithoutSpaces
             }
 
             fun checkMinLength(): Boolean {
                 return phraseChunkWithoutSpaces.size >= MinPhrasesPerPhraseChunk ||
-                        (phraseChunkWithoutSpaces.size <= MinPhrasesPerPhraseChunk &&
-                                phraseChunkWithoutSpaces.map { it.length }.sum() >= MinCharsPerPhraseChunkWithoutSpaces)
+                        (phraseChunkWithoutSpaces.sumOf { it.length } >= MinCharsPerPhraseChunkWithoutSpaces)
             }
 
             fun checkMinLengthPerToken(): Boolean {
@@ -202,7 +201,7 @@ object KoreanPhraseExtractor: KLogging() {
         tokens
             .onEach { token ->
                 when {
-                    curTrie.any { it?.curPos == token.pos }     -> {
+                    curTrie.any { it?.curPos == token.pos } -> {
                         // Extend the current phase
                         val (ct, nt) = getTries(token, curTrie)
 
@@ -226,7 +225,7 @@ object KoreanPhraseExtractor: KLogging() {
                         curTrie = nt
                     }
 
-                    else                                        -> {
+                    else -> {
                         // Add a single word
                         phrases.add(KoreanPhrase(listOf(token), token.pos))
                         curTrie = collapseTrie
@@ -290,13 +289,13 @@ object KoreanPhraseExtractor: KLogging() {
             val buffer = mutableListOf<KoreanPhrase>()
 
             phrases1
-                .onEach {
-                    if (it.pos == Noun || it.pos == ProperNoun) {
-                        buffer.add(it)
+                .onEach { phrase ->
+                    if (phrase.pos == Noun || phrase.pos == ProperNoun) {
+                        buffer.add(phrase)
                     } else {
                         val tempPhrase =
-                            if (buffer.isNotEmpty()) arrayListOf(KoreanPhrase(buffer.flatMap { it.tokens }), it)
-                            else arrayListOf(it)
+                            if (buffer.isNotEmpty()) arrayListOf(KoreanPhrase(buffer.flatMap { it.tokens }), phrase)
+                            else arrayListOf(phrase)
                         output.addAll(tempPhrase)
                         buffer.clear()
                     }

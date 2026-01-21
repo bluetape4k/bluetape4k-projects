@@ -9,17 +9,17 @@ object KoreanSentenceSplitter: KLogging() {
 
     private val re: Regex =
         """
-        |(?x)[^.!?…\s]   # First char is non-punct, non-ws
-        |[^.!?…]*        # Greedily consume up to punctuation.
-        |(?:             # Group for unrolling the loop.
-        |[.!?…]          # (special) inner punctuation ok if
-        |(?!['\"]?\s|$)  # not followed by ws or EOS.
-        |[^.!?…]*        # Greedily consume up to punctuation.
-        |)*              # Zero or more (special normal*)
-        |[.!?…]?         # Optional ending punctuation.
-        |['\"]?          # Optional closing quote.
-        |(?=\s|$)
-        |"""
+            |(?x)[^.!?…\s]   # First char is non-punct, non-ws
+            |[^.!?…]*        # Greedily consume up to punctuation.
+            |(?:             # Group for unrolling the loop.
+            |[.!?…]          # (special) inner punctuation ok if
+            |(?!['\"]?\s|$)  # not followed by ws or EOS.
+            |[^.!?…]*        # Greedily consume up to punctuation.
+            |)*              # Zero or more (special normal*)
+            |[.!?…]?         # Optional ending punctuation.
+            |['"]?          # Optional closing quote.
+            |(?=\s|$)
+            |"""
             .trimMargin()
             .toRegex()
 
@@ -35,9 +35,9 @@ object KoreanSentenceSplitter: KLogging() {
      * )
      *```
      */
-    fun split(text: CharSequence): List<Sentence> {
+    fun split(text: CharSequence): Sequence<Sentence> {
         if (text.isEmpty()) {
-            return emptyList()
+            return emptySequence()
         }
 
         return re
@@ -45,7 +45,5 @@ object KoreanSentenceSplitter: KLogging() {
             .map { mr ->
                 Sentence(mr.groupValues[0], mr.range.first, mr.range.last + 1)
             }
-            .toList()
     }
-
 }

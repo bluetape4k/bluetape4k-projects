@@ -200,7 +200,7 @@ object KoreanDictionaryProvider: KLogging() {
             val result = mutableMapOf<Int, Map<String, String>>()
 
             grouped.forEach { (index, pair) ->
-                result[index] = pair.map { (k, v) -> k to v }.toMap()
+                result[index] = pair.associate { (k, v) -> k to v }
             }
 
             result

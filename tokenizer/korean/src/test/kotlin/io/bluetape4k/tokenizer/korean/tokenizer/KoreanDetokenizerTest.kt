@@ -3,7 +3,6 @@ package io.bluetape4k.tokenizer.korean.tokenizer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.tokenizer.korean.KoreanProcessor.detokenize
 import io.bluetape4k.tokenizer.korean.TestBase
-import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
@@ -13,7 +12,7 @@ class KoreanDetokenizerTest: TestBase() {
     companion object: KLogging()
 
     @Test
-    fun `should detokenize the input text`() = runTest {
+    fun `should detokenize the input text`() {
 
         var actual = detokenize(listOf("연세", "대학교", "보건", "대학원", "에", "오신", "것", "을", "환영", "합니다", "!"))
         actual shouldBeEqualTo "연세대학교 보건 대학원에 오신것을 환영합니다!"
@@ -27,7 +26,7 @@ class KoreanDetokenizerTest: TestBase() {
     }
 
     @Test
-    fun `should detokenize the edge cases`() = runTest {
+    fun `should detokenize the edge cases`() {
         detokenize(listOf("")) shouldBeEqualTo ""
         detokenize(emptyList()) shouldBeEqualTo ""
         detokenize(listOf("완벽")) shouldBeEqualTo "완벽"

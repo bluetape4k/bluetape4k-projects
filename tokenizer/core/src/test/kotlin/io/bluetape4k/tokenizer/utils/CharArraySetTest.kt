@@ -31,6 +31,7 @@ class CharArraySetTest {
                     .forEach {
                         set.add(it).shouldBeTrue()
                     }
+
                 log.debug { "size=${set.size}" }
                 set.shouldNotBeEmpty()
 

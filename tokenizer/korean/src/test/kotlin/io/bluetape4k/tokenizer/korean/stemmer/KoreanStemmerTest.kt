@@ -10,7 +10,6 @@ import io.bluetape4k.tokenizer.korean.utils.KoreanPos.Eomi
 import io.bluetape4k.tokenizer.korean.utils.KoreanPos.Exclamation
 import io.bluetape4k.tokenizer.korean.utils.KoreanPos.PreEomi
 import io.bluetape4k.tokenizer.korean.utils.KoreanPos.Verb
-import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainSame
 import org.junit.jupiter.api.Test
@@ -20,7 +19,7 @@ class KoreanStemmerTest: TestBase() {
     companion object: KLogging()
 
     @Test
-    fun `should stem to Adjective`() = runTest {
+    fun `should stem to Adjective`() {
         val tokens = listOf(
             KoreanToken("아", Exclamation, 0, 1),
             KoreanToken("이럴", Adjective, 1, 2),
@@ -38,7 +37,7 @@ class KoreanStemmerTest: TestBase() {
     }
 
     @Test
-    fun `가느다란 원형`() = runTest {
+    fun `가느다란 원형`() {
         val tokens = KoreanTokenizer.tokenizeTopN("가느다란").flatMap { it.first() }
         val actual = KoreanStemmer.stem(tokens)
 

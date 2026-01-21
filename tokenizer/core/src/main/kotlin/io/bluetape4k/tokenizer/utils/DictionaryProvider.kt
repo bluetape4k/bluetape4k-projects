@@ -37,7 +37,7 @@ object DictionaryProvider: KLogging() {
     ): Sequence<String> {
         log.debug { "Read a file. path=$path" }
 
-        val stream = classLoader.getResourceAsStream(path)
+        val stream: InputStream? = classLoader.getResourceAsStream(path)
         check(stream != null) { "Can't open file. path=$path" }
 
         return if (path.endsWith(".gz")) {
@@ -86,8 +86,12 @@ object DictionaryProvider: KLogging() {
         val set = ConcurrentSkipListSet<String>()
 
         paths.asFlow()
-            .async { path -> readFileByLineFromResources(path) }
-            .collect { words -> set.addAll(words) }
+            .async { path ->
+                readFileByLineFromResources(path)
+            }
+            .collect { words ->
+                set.addAll(words)
+            }
 
         return set
     }
@@ -99,8 +103,12 @@ object DictionaryProvider: KLogging() {
         val set = newCharArraySet()
 
         paths.asFlow()
-            .async { path -> readFileByLineFromResources(path) }
-            .collect { words -> set.addAll(words) }
+            .async { path ->
+                readFileByLineFromResources(path)
+            }
+            .collect { words ->
+                set.addAll(words)
+            }
 
         return set
     }

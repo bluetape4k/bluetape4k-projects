@@ -42,7 +42,7 @@ object KoreanChunker: KLogging() {
         KoreanParticle to """([ㄱ-ㅣ]+)""".toRegex().toPattern(),
         Punctuation to """([\p{Punct}·…’]+)""".toRegex().toPattern(),
         URL to com.twitter.twittertext.Regex.VALID_URL,
-        Email to """([\p{Alnum}.\-_]+@[\p{Alnum}\.]+)""".toRegex().toPattern(),
+        Email to """([\p{Alnum}.\-_]+@[\p{Alnum}.]+)""".toRegex().toPattern(),
         Hashtag to com.twitter.twittertext.Regex.VALID_HASHTAG,
         ScreenName to com.twitter.twittertext.Regex.VALID_MENTION_OR_LIST,
         CashTag to com.twitter.twittertext.Regex.VALID_CASHTAG,

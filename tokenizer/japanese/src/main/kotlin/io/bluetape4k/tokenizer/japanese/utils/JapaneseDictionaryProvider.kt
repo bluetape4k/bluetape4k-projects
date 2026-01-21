@@ -1,6 +1,6 @@
 package io.bluetape4k.tokenizer.japanese.utils
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.tokenizer.utils.CharArraySet
 import io.bluetape4k.tokenizer.utils.DictionaryProvider
@@ -10,7 +10,7 @@ import kotlinx.coroutines.runBlocking
 /**
  * 일본어 사전을 제공하는 유틸리티 클래스
  */
-object JapaneseDictionaryProvider: KLogging() {
+object JapaneseDictionaryProvider: KLoggingChannel() {
 
     const val BASE_PATH = "japanesetext"
 

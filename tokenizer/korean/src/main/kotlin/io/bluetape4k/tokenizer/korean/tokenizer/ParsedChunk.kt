@@ -113,7 +113,11 @@ data class ParsedChunk(
     }
 
     operator fun plus(that: ParsedChunk): ParsedChunk {
-        return copy(posNodes = posNodes + that.posNodes, words = words + that.words, profile)
+        return copy(
+            posNodes = posNodes + that.posNodes,
+            words = words + that.words,
+            profile = profile
+        )
         // ParsedChunk(posNodes + that.posNodes, words + that.words, profile)
     }
 

@@ -53,10 +53,10 @@ object KoreanSubstantive: KLogging() {
         }
 
         return when (chunk.length) {
-            3    -> nameDictionaryContains("family_name", chunk[0].toString()) &&
+            3 -> nameDictionaryContains("family_name", chunk[0].toString()) &&
                     nameDictionaryContains("given_name", chunk.subSequence(1, 3).toString())
 
-            4    -> nameDictionaryContains("family_name", chunk.subSequence(0, 2).toString()) &&
+            4 -> nameDictionaryContains("family_name", chunk.subSequence(0, 2).toString()) &&
                     nameDictionaryContains("given_name", chunk.subSequence(2, 4).toString())
 
             else -> false
@@ -116,7 +116,7 @@ object KoreanSubstantive: KLogging() {
         if (isName(chunk)) return true
 
         val s = chunk.toString()
-        if (s.length < 3 || s.length > 5) {
+        if (s.length !in 3..5) {
             return false
         }
 
@@ -129,9 +129,9 @@ object KoreanSubstantive: KLogging() {
         // Recover missing 'ㅇ' (우혀니 -> 우현, 우현이, 빠순이 -> 빠순, 빠순이)
         val recovered: String = decomposed.mapIndexed { i, hc ->
             when (i) {
-                s.lastIndex     -> '이'
+                s.lastIndex -> '이'
                 s.lastIndex - 1 -> composeHangul(hc.copy(coda = decomposed.last().onset))
-                else            -> composeHangul(hc)
+                else -> composeHangul(hc)
             }
         }.joinToString("")
 
@@ -153,14 +153,16 @@ object KoreanSubstantive: KLogging() {
         var collapsing = false
 
         posNodes.forEach {
-            if (it.pos == Noun && it.text.length == 1 && collapsing) {
-                val text = nodes[0].text + it.text
-                val offset = nodes[0].offset
-                nodes[0] = KoreanToken(text, Noun, offset, text.length, unknown = true)
-                collapsing = true
-            } else if (it.pos == Noun && it.text.length == 1 && !collapsing) {
-                nodes.add(0, it)
-                collapsing = true
+            if (it.pos == Noun && it.text.length == 1) {
+                if (collapsing) {
+                    val text = nodes[0].text + it.text
+                    val offset = nodes[0].offset
+                    nodes[0] = KoreanToken(text, Noun, offset, text.length, unknown = true)
+                    // collapsing = true
+                } else {
+                    nodes.add(0, it)
+                    collapsing = true
+                }
             } else {
                 nodes.add(0, it)
                 collapsing = false

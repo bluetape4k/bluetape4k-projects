@@ -12,13 +12,17 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeLessThan
 import org.amshove.kluent.shouldContainSame
 import org.junit.jupiter.api.Test
+import java.io.Serializable
 import kotlin.system.measureTimeMillis
 
 class NounPhraseExtractorTest: TestBase() {
 
     companion object: KLogging()
 
-    data class SampleTextPair(val text: String, val phrases: String)
+    data class SampleTextPair(
+        val text: String,
+        val phrases: String,
+    ): Serializable
 
     val superLongText = "허니버터칩정규직크리스마스".repeat(50)
 

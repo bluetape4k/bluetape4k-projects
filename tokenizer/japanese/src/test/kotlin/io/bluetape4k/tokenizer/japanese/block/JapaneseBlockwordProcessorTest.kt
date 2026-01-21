@@ -16,9 +16,7 @@ import java.util.*
 
 class JapaneseBlockwordProcessorTest: AbstractTokenizerTest() {
 
-    companion object: KLogging() {
-        private const val REPEAT_SIZE = 5
-    }
+    companion object: KLogging()
 
     private val options = blockwordOptionsOf(locale = Locale.JAPANESE)
 

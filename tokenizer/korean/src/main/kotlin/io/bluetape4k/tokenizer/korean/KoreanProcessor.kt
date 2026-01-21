@@ -68,7 +68,7 @@ object KoreanProcessor: KLogging() {
      * normalizeCodaN("쵸킨데") shouldBeEqualTo "쵸킨데"
      * ```
      *
-     * @param input 입력 문자열
+     * @param text 입력 문자열
      * @return 정규화된 문자열
      */
     fun normalize(text: CharSequence): CharSequence {
@@ -137,7 +137,7 @@ object KoreanProcessor: KLogging() {
      * 한글 문장을 [n] 개수만큼 형태소 분석하여 [KoreanToken]의 리스트로 반환합니다.
      *
      * @param text 한글 문장
-     * @param topN 최대 분석 개수 (default: 1)
+     * @param n 최대 분석 개수 (default: 1)
      * @return 형태소 분석된 [KoreanToken] 리스트
      */
     fun tokenizeTopN(
@@ -265,11 +265,11 @@ object KoreanProcessor: KLogging() {
      * )
      *```
      */
-    fun splitSentences(text: CharSequence): List<Sentence> =
+    fun splitSentences(text: CharSequence): Sequence<Sentence> =
         KoreanSentenceSplitter.split(text)
 
     /**
-     * 형태소 분석한 결과에서 [filterSpam], [addHashtags]를 적용한 구문만을 추출합니다.
+     * 형태소 분석한 결과에서 [filterSpam], [enableHashtags]를 적용한 구문만을 추출합니다.
      *
      * ```
      * val phrases = extractPhrases(tokenize("성탄절 쇼핑 성탄절 쇼핑 성탄절 쇼핑 성탄절 쇼핑"), filterSpam = false)
@@ -334,7 +334,7 @@ object KoreanProcessor: KLogging() {
      * actual shouldBeEqualTo "뭐 완벽하진 않지만 그럭저럭 쓸 만하군..."
      * ```
      *
-     * @param input 분석된 단어들
+     * @param tokens 분석된 단어들
      * @return 복원된 문장
      */
     fun detokenize(tokens: Collection<String>): String {

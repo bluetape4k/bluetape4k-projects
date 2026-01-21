@@ -3,7 +3,6 @@ configurations {
 }
 
 dependencies {
-    api(project(":bluetape4k-core"))
     api(project(":bluetape4k-io"))
     testImplementation(project(":bluetape4k-junit5"))
 
@@ -13,7 +12,7 @@ dependencies {
     testImplementation(Libs.jackson_module_blackbird)
 
     // Coroutines
-    compileOnly(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
+    api(project(":bluetape4k-coroutines"))
+    api(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)
 }

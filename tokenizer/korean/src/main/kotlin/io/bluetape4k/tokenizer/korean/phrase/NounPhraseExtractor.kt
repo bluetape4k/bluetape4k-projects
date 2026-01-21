@@ -147,13 +147,12 @@ object NounPhraseExtractor: KLogging() {
 
             fun checkMaxLength(): Boolean {
                 return phraseChunkWithoutSpaces.size <= MaxPhrasesPerPhraseChunk &&
-                        phraseChunkWithoutSpaces.map { it.length }.sum() <= MaxCharsPerPhraseChunkWithoutSpaces
+                        phraseChunkWithoutSpaces.sumOf { it.length } <= MaxCharsPerPhraseChunkWithoutSpaces
             }
 
             fun checkMinLength(): Boolean {
                 return phraseChunkWithoutSpaces.size >= MinPhrasesPerPhraseChunk ||
-                        (phraseChunkWithoutSpaces.size <= MinPhrasesPerPhraseChunk &&
-                                phraseChunkWithoutSpaces.map { it.length }.sum() >= MinCharsPerPhraseChunkWithoutSpaces)
+                        (phraseChunkWithoutSpaces.sumOf { it.length } >= MinCharsPerPhraseChunkWithoutSpaces)
             }
 
             fun checkMinLengthPerToken(): Boolean {
@@ -276,13 +275,13 @@ object NounPhraseExtractor: KLogging() {
             val buffer = CopyOnWriteArrayList<KoreanPhrase>()
 
             phrases1
-                .onEach {
-                    if (it.pos == Noun || it.pos == ProperNoun) {
-                        buffer.add(it)
+                .onEach { phrase ->
+                    if (phrase.pos == Noun || phrase.pos == ProperNoun) {
+                        buffer.add(phrase)
                     } else {
                         val tempPhrase =
-                            if (buffer.isNotEmpty()) mutableListOf(KoreanPhrase(buffer.flatMap { it.tokens }), it)
-                            else listOf(it)
+                            if (buffer.isNotEmpty()) mutableListOf(KoreanPhrase(buffer.flatMap { it.tokens }), phrase)
+                            else listOf(phrase)
                         output.addAll(tempPhrase)
                         buffer.clear()
                     }

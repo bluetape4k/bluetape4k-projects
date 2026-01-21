@@ -36,11 +36,11 @@ class KoreanChunkerTest: TestBase() {
     @Test
     fun `findAllPatterns should find all patterns`() {
         var actual = findAllPatterns(
-            getPatternMatcher(URL, "스팀(http://store.steampowered.com)에서 드디어 여름세일을 시작합니다."),
+            getPatternMatcher(URL, "스팀(https://store.steampowered.com)에서 드디어 여름세일을 시작합니다."),
             URL
         )
         actual shouldBeEqualTo listOf(
-            ChunkMatch(2, 32, "(http://store.steampowered.com", URL)
+            ChunkMatch(2, 33, "(https://store.steampowered.com", URL)
         )
 
         actual = findAllPatterns(
@@ -68,12 +68,12 @@ class KoreanChunkerTest: TestBase() {
         )
 
         actual = findAllPatterns(
-            getPatternMatcher(CashTag, "주식정보 트윗 안내 : Twitter의 주식은 \$twtr, Apple의 주식은 \$appl 입니다."),
+            getPatternMatcher(CashTag, $$"주식정보 트윗 안내 : Twitter의 주식은 $twtr, Apple의 주식은 $appl 입니다."),
             CashTag
         )
         actual shouldBeEqualTo listOf(
-            ChunkMatch(start = 43, end = 49, text = " \$appl", pos = CashTag),
-            ChunkMatch(start = 25, end = 31, text = " \$twtr", pos = CashTag)
+            ChunkMatch(start = 43, end = 49, text = $$" $appl", pos = CashTag),
+            ChunkMatch(start = 25, end = 31, text = $$" $twtr", pos = CashTag)
         )
 
         actual = findAllPatterns(getPatternMatcher(Korean, "Hey! Can you speak Korean? 한국말! 오케이?"), Korean)
@@ -164,9 +164,9 @@ class KoreanChunkerTest: TestBase() {
             KoreanToken(text = "#나는_해적왕이_될_사나이다", pos = Hashtag, offset = 17, length = 15)
         )
 
-        actual = getChunksByPos("캐쉬태그는 주식정보 트윗할 때 사용합니다. \$twtr", CashTag)
+        actual = getChunksByPos($$"캐쉬태그는 주식정보 트윗할 때 사용합니다. $twtr", CashTag)
         actual shouldBeEqualTo listOf(
-            KoreanToken(text = "\$twtr", pos = CashTag, offset = 24, length = 5)
+            KoreanToken(text = $$"$twtr", pos = CashTag, offset = 24, length = 5)
         )
 
         actual = getChunksByPos("Black action solier 출두요~!", Korean)

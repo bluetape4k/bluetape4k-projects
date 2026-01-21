@@ -64,7 +64,7 @@ abstract class TestBase {
                 """
                 |
                 |Parsed ${parseTimes.size}
-                |Total time: ${parseTimes.map { it.time }.sum()} msec,
+                |Total time: ${parseTimes.sumOf { it.time }} msec,
                 |Average time: $averageTime msec,
                 |Max time: ${maxItem?.time}, ${maxItem?.chunk}
                 |Not Match count: $notMatchCount

@@ -12,7 +12,7 @@
         </encoder>
     </appender>
 
-    <logger name="io.bluetape4k.tokenizer" level="TRACE"/>
+    <logger name="io.bluetape4k.tokenizer" level="DEBUG"/>
 
     <root level="INFO">
         <appender-ref ref="Console"/>

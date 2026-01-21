@@ -15,13 +15,17 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeLessThan
 import org.junit.jupiter.api.Test
+import java.io.Serializable
 import kotlin.system.measureTimeMillis
 
 class KoreanPhraseExtractorTest: TestBase() {
 
     companion object: KLogging()
 
-    data class SampleTextPair(val text: String, val phrases: String)
+    data class SampleTextPair(
+        val text: String,
+        val phrases: String,
+    ): Serializable
 
     private val spamText = "레알 시발 저거 카지노 포르노 야동 보다가 개빡쳤음"
     private val superLongText = "허니버터칩정규직크리스마스".repeat(50)

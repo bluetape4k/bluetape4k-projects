@@ -5,19 +5,18 @@ import io.bluetape4k.logging.error
 import io.bluetape4k.tokenizer.korean.TestBase
 import io.bluetape4k.tokenizer.utils.CharArraySet
 import io.bluetape4k.tokenizer.utils.DictionaryProvider
-import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class KoreanConjugationTest: TestBase() {
 
     @Test
-    fun `동사 활용`() = runTest {
+    fun `동사 활용`() {
         assertConjudations("$BASE_PATH/verb_conjugate.txt", false)
     }
 
     @Test
-    fun `형용사 활용`() = runTest {
+    fun `형용사 활용`() {
         assertConjudations("$BASE_PATH/adj_conjugate.txt", true)
     }
 
