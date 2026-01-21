@@ -9,7 +9,7 @@ import io.bluetape4k.exposed.r2dbc.tests.withTables
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.javatimes.toInstant
 import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.singleOrNull
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
@@ -26,7 +26,7 @@ import java.util.*
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.CoroutineContext
 
-object UserSchema: KLogging() {
+object UserSchema: KLoggingChannel() {
 
     private val faker = Fakers.faker
 

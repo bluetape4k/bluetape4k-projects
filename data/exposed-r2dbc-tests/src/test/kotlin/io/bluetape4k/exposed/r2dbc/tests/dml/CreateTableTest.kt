@@ -4,7 +4,7 @@ import io.bluetape4k.exposed.r2dbc.tests.R2dbcExposedTestBase
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.exposed.r2dbc.tests.inProperCase
 import io.bluetape4k.exposed.r2dbc.tests.withDb
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
@@ -24,7 +24,7 @@ import kotlin.test.assertFails
 
 class CreateTableTest: R2dbcExposedTestBase() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     object TableWithDuplicatedColumn: Table("myTable") {
         val id1 = integer("id")

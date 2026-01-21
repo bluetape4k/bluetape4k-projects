@@ -39,7 +39,7 @@ object ExtensionTester {
         val listener = RecordingExecutionListener()
 
         // 찾은 테스트 리소스를 실행합니다.
-        val testDescriptor = testEngine.discover(discoveryRequest, UniqueId.forEngine(testEngine.id))!!
+        val testDescriptor: TestDescriptor = testEngine.discover(discoveryRequest, UniqueId.forEngine(testEngine.id))
         testEngine.execute(
             ExecutionRequest.create(
                 testDescriptor,

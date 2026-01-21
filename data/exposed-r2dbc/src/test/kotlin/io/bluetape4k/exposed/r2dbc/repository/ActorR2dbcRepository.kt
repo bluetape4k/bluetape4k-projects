@@ -3,7 +3,7 @@ package io.bluetape4k.exposed.r2dbc.repository
 import io.bluetape4k.exposed.r2dbc.domain.ActorDTO
 import io.bluetape4k.exposed.r2dbc.domain.MovieSchema.ActorTable
 import io.bluetape4k.exposed.r2dbc.domain.toActorDTO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -16,7 +16,7 @@ import java.time.LocalDate
 
 class ActorR2dbcRepository: ExposedR2dbcRepository<ActorDTO, Long> {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     override val table = ActorTable
     override suspend fun ResultRow.toEntity(): ActorDTO = toActorDTO()

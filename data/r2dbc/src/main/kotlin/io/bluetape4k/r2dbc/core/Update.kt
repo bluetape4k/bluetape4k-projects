@@ -7,9 +7,11 @@ import io.bluetape4k.r2dbc.query.Query
 import io.bluetape4k.r2dbc.support.bindMap
 import io.bluetape4k.r2dbc.support.toParameter
 import org.springframework.data.r2dbc.core.ReactiveUpdateOperation
+import org.springframework.data.r2dbc.mapping.OutboundRow
 import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Query.query
 import org.springframework.data.relational.core.query.Update
+import org.springframework.data.relational.core.sql.SqlIdentifier
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.FetchSpec
 import reactor.core.publisher.Mono
@@ -30,7 +32,7 @@ inline fun <reified T: Any> UpdateTableSpec.table(): ReactiveUpdateOperation.Rea
 
 inline fun <reified T: Any> ReactiveUpdateOperation.UpdateWithQuery.using(
     obj: T,
-    client: io.bluetape4k.r2dbc.R2dbcClient,
+    client: R2dbcClient,
 ): Mono<Long> {
     val dataAccessStrategy = client.entityTemplate.dataAccessStrategy
     val idColumns = dataAccessStrategy.getIdentifierColumns(T::class.java)
@@ -42,19 +44,19 @@ inline fun <reified T: Any> ReactiveUpdateOperation.UpdateWithQuery.using(
         error("There are no not-identifier columns to update")
     }
 
-    val firstIdColumn = idColumns.first()
-    val outboundRow = dataAccessStrategy.getOutboundRow(obj)
-    val where = Criteria.where(firstIdColumn.reference).`is`(
+    val firstIdColumn: SqlIdentifier = idColumns.first()
+    val outboundRow: OutboundRow = dataAccessStrategy.getOutboundRow(obj)
+    val where: Criteria = Criteria.where(firstIdColumn.reference).`is`(
         outboundRow[firstIdColumn]?.value ?: error("Identifier value not set (${firstIdColumn.reference})")
     )
-    val criteria = idColumns.drop(1).fold(where) { criteria, idColumn ->
+    val criteria: Criteria = idColumns.drop(1).fold(where) { criteria, idColumn ->
         criteria.and(idColumn.reference).`is`(
             outboundRow[idColumn]?.value ?: error("Identitifer value not set (${idColumn.reference})")
         )
     }
 
-    val firstColumn = columns.first()
-    val firstUpdate = Update.update(firstColumn.reference, outboundRow[firstColumn]?.value)
+    val firstColumn: SqlIdentifier = columns.first()
+    val firstUpdate: Update = Update.update(firstColumn.reference, outboundRow[firstColumn]?.value)
     val update = columns.drop(1).fold(firstUpdate) { update, column ->
         update.set(column.reference, outboundRow[column]?.value)
     }

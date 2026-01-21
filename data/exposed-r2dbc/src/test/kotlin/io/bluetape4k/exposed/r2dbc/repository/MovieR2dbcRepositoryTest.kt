@@ -4,7 +4,7 @@ import io.bluetape4k.exposed.r2dbc.domain.MovieDTO
 import io.bluetape4k.exposed.r2dbc.domain.MovieSchema.withMovieAndActors
 import io.bluetape4k.exposed.r2dbc.tests.R2dbcExposedTestBase
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
@@ -17,7 +17,7 @@ import org.junit.jupiter.params.provider.MethodSource
 
 class MovieR2dbcRepositoryTest: R2dbcExposedTestBase() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private fun newMovieDTO(): MovieDTO = MovieDTO(
             id = 0L,
             name = faker.book().title(),

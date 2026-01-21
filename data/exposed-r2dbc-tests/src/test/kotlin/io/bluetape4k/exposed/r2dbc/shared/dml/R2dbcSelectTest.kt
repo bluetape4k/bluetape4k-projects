@@ -10,7 +10,7 @@ import io.bluetape4k.exposed.r2dbc.shared.dml.DMLTestData.withSalesAndSomeAmount
 import io.bluetape4k.exposed.r2dbc.tests.R2dbcExposedTestBase
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.exposed.r2dbc.tests.withTables
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toBigDecimal
 import kotlinx.coroutines.flow.map
@@ -56,7 +56,7 @@ import kotlin.test.assertFailsWith
 
 class R2dbcSelectTest: R2dbcExposedTestBase() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     /**
      * 간단한 조건절을 가진 SELECT 문

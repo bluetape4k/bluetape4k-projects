@@ -12,7 +12,7 @@ import io.bluetape4k.exposed.r2dbc.domain.toActorDTO
 import io.bluetape4k.exposed.r2dbc.domain.toMovieDTO
 import io.bluetape4k.exposed.r2dbc.domain.toMovieWithActorDTO
 import io.bluetape4k.exposed.r2dbc.domain.toMovieWithProducingActorDTO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -33,7 +33,7 @@ import java.time.LocalDate
 
 class MovieR2dbcRepository: ExposedR2dbcRepository<MovieDTO, Long> {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private val MovieActorJoin: Join by lazy {
             MovieTable
                 .innerJoin(ActorInMovieTable)
