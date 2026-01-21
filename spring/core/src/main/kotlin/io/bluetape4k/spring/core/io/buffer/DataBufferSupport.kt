@@ -140,7 +140,7 @@ fun Publisher<out DataBuffer>.takeUntilByteCount(maxByteCount: Long): Flow<DataB
  *
  * @receiver the publisher to filters
  * @param maxByteCount the maximum byte count
- * @return a flux with the remaining part of the given publisher
+ * @return 주어진 publisher의 나머지 부분을 flux 로 반환한다.
  */
 fun Publisher<out DataBuffer>.skipUntilByteCount(maxByteCount: Long): Flow<DataBuffer> {
     return DataBufferUtils.skipUntilByteCount(this, maxByteCount).asFlow()

@@ -90,7 +90,6 @@ fun Class<*>.findDeclaredMethod(methodName: String, vararg paramTypes: Class<*>)
  * 현 수형의 [methodName]의 메소드 정보를 찾습니다.
  *
  * @param methodName method name to find
- * @param paramTypes types of method parameter
  * @return 메소드 정보, 찾지 못하면 null 반환
  */
 fun Class<*>.findMethodWithMinimalParameters(methodName: String): Method? {
@@ -122,7 +121,7 @@ fun Array<out Method>.findMethodWithMinimalParameters(methodName: String): Metho
 
 /**
  * 지정한 수형에서 [signature]에 해당하는 [Method]를 찾습니다.
- * [signature] 는 `methodName[([arg_list])]` 형식의 메소드의 signature를 표현한 것입니다.
+ * [signature] 는 [Method]의 signature를 표현한 것입니다.
  *
  * @receiver Class<*>
  * @param signature 메소드의 signature
@@ -172,7 +171,7 @@ fun Method.findPropertyDescriptor(clazz: Class<*>): PropertyDescriptor? =
     BeanUtils.findPropertyForMethod(this, clazz)
 
 /**
- * Obtain a new MethodParameter object for the write method of the specified property.
+ * 특정 속성의 쓰기 메소드를 위한 MethodParameter 객체를 얻습니다.
  *
  * @receiver the PropertyDescriptor for the property
  * @return a corresponding MethodParameter object
@@ -197,8 +196,6 @@ fun Class<*>.isSimpleProperty(): Boolean = BeanUtils.isSimpleProperty(this)
 /**
  * Check if the given type represents a "simple" value type: a primitive or primitive wrapper,
  * an enum, a String or other CharSequence, a Number, a Date, a Temporal, a URI, a URL, a Locale, or a Class.
- *
- * [Void] and [void] are not considered simple value types.
  *
  * @receiver the type to check
  * @return whether the given type represents a "simple" value type

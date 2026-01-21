@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.warn
 import org.springframework.beans.BeansException
 import org.springframework.beans.factory.BeanFactory
+import org.springframework.beans.factory.getBean
 import kotlin.reflect.KClass
 
 private val log by lazy { KotlinLogging.logger {} }
@@ -18,7 +19,7 @@ private val log by lazy { KotlinLogging.logger {} }
  * @receiver BeanFactory Bean Container
  * @param T 원하는 Bean의 수형
  */
-inline fun <reified T: Any> BeanFactory.get(): T = getBean(T::class.java)
+inline fun <reified T: Any> BeanFactory.get(): T = getBean<T>()
 
 /**
  * 지정된 이름의 Bean을 찾습니다. 없으면 null을 반환합니다.

@@ -38,8 +38,6 @@ fun String.matchesProperty(propertyPath: String): Boolean =
 /**
  * Determine the canonical name for the given property path.
  * Removes surrounding quotes from map keys:<br>
- * {@code map['key']} -> {@code map[`key`]}<br>
- * {@code map["key"]} -> {@code map[`key`]}
  */
 fun String.canonicalPropertyName(): String =
     PropertyAccessorUtils.canonicalPropertyName(this)

@@ -1,6 +1,10 @@
 package io.bluetape4k.spring.core
 
-import org.springframework.core.style.*
+import org.springframework.core.style.DefaultToStringStyler
+import org.springframework.core.style.DefaultValueStyler
+import org.springframework.core.style.ToStringCreator
+import org.springframework.core.style.ToStringStyler
+import org.springframework.core.style.ValueStyler
 
 /**
  * [ToStringCreator]에 빈 라인을 추가합니다.
@@ -10,7 +14,7 @@ fun ToStringCreator.append(): ToStringCreatorAppendTokens = ToStringCreatorAppen
 /**
  * [ToStringCreator]를 이용하여 겍체를 문자열로 표현할 수 있도록 합니다.
  *
- * ```
+ * ```kotlin
  * override fun toString(): String {
  *     return toStringCreatorOf(this) {
  *         append("name", name)
@@ -24,16 +28,19 @@ fun ToStringCreator.append(): ToStringCreatorAppendTokens = ToStringCreatorAppen
  * @param body 문자열로 표현할 코드
  * @return ToStringCreator
  *
- * @see [io.bluetape4k.core.ToStringBuilder]
+ * @see [io.bluetape4k.ToStringBuilder]
  */
-inline fun toStringCreatorOf(obj: Any, body: ToStringCreator.() -> Unit): ToStringCreator {
+inline fun toStringCreatorOf(
+    obj: Any,
+    @BuilderInference body: ToStringCreator.() -> Unit,
+): ToStringCreator {
     return ToStringCreator(obj).apply(body)
 }
 
 /**
  * [ToStringCreator]를 이용하여 겍체를 문자열로 표현할 수 있도록 합니다.
  *
- * ```
+ * ```kotlin
  * override fun toString(): String {
  *     return toStringCreatorOf(this) {
  *         append("name", name)
@@ -48,12 +55,12 @@ inline fun toStringCreatorOf(obj: Any, body: ToStringCreator.() -> Unit): ToStri
  * @param body 문자열로 표현할 코드
  * @return ToStringCreator
  *
- * @see [io.bluetape4k.core.ToStringBuilder]
+ * @see [io.bluetape4k.ToStringBuilder]
  */
 inline fun toStringCreatorOf(
     obj: Any,
     valueStyler: ValueStyler = DefaultValueStyler(),
-    body: ToStringCreator.() -> Unit,
+    @BuilderInference body: ToStringCreator.() -> Unit,
 ): ToStringCreator {
     return ToStringCreator(obj, valueStyler).apply(body)
 }
@@ -72,16 +79,16 @@ inline fun toStringCreatorOf(
  * ```
  *
  * @param obj 문자열로 표현할 객체
- * @param valueStyler 표현 방식
+ * @param styler 표현 방식
  * @param body 문자열로 표현할 코드
  * @return ToStringCreator
  *
- * @see [io.bluetape4k.core.ToStringBuilder]
+ * @see [io.bluetape4k.ToStringBuilder]
  */
 inline fun toStringCreatorOf(
     obj: Any,
     styler: ToStringStyler = DefaultToStringStyler(DefaultValueStyler()),
-    body: ToStringCreator.() -> Unit,
+    @BuilderInference body: ToStringCreator.() -> Unit,
 ): ToStringCreator =
     ToStringCreator(obj, styler).apply(body)
 

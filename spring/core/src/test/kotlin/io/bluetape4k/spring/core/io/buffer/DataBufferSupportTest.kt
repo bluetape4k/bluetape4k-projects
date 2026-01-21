@@ -1,15 +1,21 @@
 package io.bluetape4k.spring.core.io.buffer
 
 import io.bluetape4k.io.getAllBytes
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.spring.AbstractSpringTest
 import io.netty.buffer.PooledByteBufAllocator
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asPublisher
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
+import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
@@ -20,31 +26,34 @@ import java.io.ByteArrayOutputStream
 /**
  * DataBufferSupport 확장 함수 테스트
  */
-class DataBufferSupportTest {
+class DataBufferSupportTest: AbstractSpringTest() {
+
+    companion object: KLogging()
 
     private val bufferFactory = DefaultDataBufferFactory(true)
-
     private val nettyBufferFactory = NettyDataBufferFactory(PooledByteBufAllocator.DEFAULT)
 
-    @Test
+
+    @RepeatedTest(REPEAT_SIZE)
     fun `InputStream을 DataBuffer Flow로 읽을 수 있다`() = runTest {
-        val content = "hello world".toByteArray()
+        val content = faker.lorem().paragraph(8).toByteArray()
         val inputStream = ByteArrayInputStream(content)
 
         val result = inputStream.readAsDataBuffers(bufferFactory)
-            .toList()
-            .flatMap {
-                it.readableByteBuffers().asSequence().flatMap { byteBuffer ->
-                    byteBuffer.getAllBytes().asSequence()
-                }.toList()
+            .flatMapConcat {
+                it.readableByteBuffers()
+                    .asFlow()
+                    .flatMapConcat { byteBuffer ->
+                        byteBuffer.getAllBytes().toTypedArray().asFlow()
+                    }
             }
 
-        result.take(content.size) shouldBeEqualTo content.toList()
+        result.take(content.size).toList() shouldBeEqualTo content.toList()
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `DataBuffer Flow를 OutputStream에 쓸 수 있다`() = runTest {
-        val content = "kotlin spring".toByteArray()
+        val content = faker.lorem().paragraph(8).toByteArray()
         val dataBuffer: DataBuffer = bufferFactory.wrap(content)
         val outputStream = ByteArrayOutputStream()
 
@@ -76,14 +85,15 @@ class DataBufferSupportTest {
         val dataBuffer = bufferFactory.wrap(content)
         val publisher = flowOf(dataBuffer).asPublisher()
 
-        val result = publisher.takeUntilByteCount(3).toList()
-        val bytes = result.flatMap {
-            it.readableByteBuffers().asSequence()
-                .flatMap { byteBuffer ->
-                    byteBuffer.getAllBytes().asSequence()
+        val result = publisher.takeUntilByteCount(3)
+        val bytes = result.flatMapConcat {
+            it.readableByteBuffers()
+                .asFlow()
+                .flatMapConcat { byteBuffer ->
+                    byteBuffer.getAllBytes().toTypedArray().asFlow()
                 }
         }
-        bytes shouldBeEqualTo content.take(3)
+        bytes.toList() shouldBeEqualTo content.take(3)
     }
 
     @Test

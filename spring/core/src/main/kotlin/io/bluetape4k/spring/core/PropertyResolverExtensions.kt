@@ -1,6 +1,8 @@
 package io.bluetape4k.spring.core
 
 import org.springframework.core.env.PropertyResolver
+import org.springframework.core.env.getProperty
+import org.springframework.core.env.getRequiredProperty
 import kotlin.reflect.KClass
 
 /**
@@ -66,7 +68,7 @@ operator fun <T: Any> PropertyResolver.get(key: String, targetType: KClass<T>): 
  * @return T? 속성 값, 없는 경우에는 null을 반환
  */
 inline fun <reified T: Any> PropertyResolver.getAs(key: String): T? {
-    return getProperty(key, T::class.java)
+    return getProperty<T>(key)
 }
 
 
@@ -101,7 +103,7 @@ operator fun <T: Any> PropertyResolver.get(key: String, targetType: KClass<T>, d
  * @return T? 속성 값, 없는 경우에는 null을 반환
  */
 inline fun <reified T: Any> PropertyResolver.getAs(key: String, defaultValue: T): T {
-    return getProperty(key, T::class.java, defaultValue)
+    return getProperty<T>(key, defaultValue)
 }
 
 
@@ -140,5 +142,5 @@ fun <T: Any> PropertyResolver.getRequiredProperty(key: String, targetType: KClas
  * @return T 속성 값의 수형
  */
 inline fun <reified T: Any> PropertyResolver.getRequiredPropertyAs(key: String): T {
-    return getRequiredProperty(key, T::class.java)
+    return getRequiredProperty<T>(key)
 }

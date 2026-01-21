@@ -16,13 +16,13 @@ private val log by lazy { KotlinLogging.logger { } }
  * println(sw.prettyPrint())
  * ```
  *
- * @param id StopWatch의 Id 값
+ * @param id StopWatch의 `id`
  * @param body 실행할 함수
  * @return StopWatch 인스턴스
  */
 inline fun withStopWatch(
     id: String = TimebasedUuid.Epoch.nextIdAsString(),
-    body: () -> Unit,
+    @BuilderInference body: () -> Unit,
 ): StopWatch = StopWatch(id).apply {
     start()
     try {
@@ -42,13 +42,13 @@ inline fun withStopWatch(
  * println(sw.prettyPrint())
  * ```
  *
- * @param id StopWatch의 Id 값
+ * @param id StopWatch의 `id`
  * @param body 실행할 함수
  * @return StopWatch 인스턴스
  */
 suspend inline fun withSuspendStopWatch(
     id: String = TimebasedUuid.Epoch.nextIdAsString(),
-    body: suspend () -> Unit,
+    @BuilderInference body: suspend () -> Unit,
 ): StopWatch = StopWatch(id).apply {
     start()
     try {
@@ -77,7 +77,7 @@ suspend inline fun withSuspendStopWatch(
  */
 inline fun <T> StopWatch.task(
     taskName: String = TimebasedUuid.Epoch.nextIdAsString(),
-    body: () -> T,
+    @BuilderInference body: () -> T,
 ): T {
     check(!isRunning) { "StopWatch already started, please stop at first." }
     return try {
@@ -106,7 +106,7 @@ inline fun <T> StopWatch.task(
  */
 suspend inline fun <T> StopWatch.suspendTask(
     taskName: String = TimebasedUuid.Epoch.nextIdAsString(),
-    body: suspend () -> T,
+    @BuilderInference body: suspend () -> T,
 ): T {
     check(!isRunning) { "StopWatch already started, please stop at first." }
     return try {

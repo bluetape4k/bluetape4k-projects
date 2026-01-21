@@ -1,6 +1,7 @@
 package io.bluetape4k.spring.core
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.spring.AbstractSpringTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
@@ -10,10 +11,11 @@ import org.springframework.core.env.MutablePropertySources
 import org.springframework.core.env.PropertiesPropertySource
 import org.springframework.core.env.PropertyResolver
 import org.springframework.core.env.PropertySourcesPropertyResolver
+import org.springframework.core.env.getRequiredProperty
 import java.util.*
 import kotlin.test.assertFailsWith
 
-class PropertyResolverExtensionsTest {
+class PropertyResolverExtensionsTest: AbstractSpringTest() {
 
     companion object: KLogging()
 
@@ -72,7 +74,7 @@ class PropertyResolverExtensionsTest {
         }
 
         testProperties["required.key"] = "required.value"
-        propertyResolver.getRequiredProperty("required.key", String::class) shouldBeEqualTo "required.value"
+        propertyResolver.getRequiredProperty<String>("required.key") shouldBeEqualTo "required.value"
     }
 
 
