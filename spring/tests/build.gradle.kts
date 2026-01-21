@@ -29,4 +29,7 @@ dependencies {
     implementation(Libs.reactor_core)
     implementation(Libs.reactor_kotlin_extensions)
     implementation(Libs.reactor_test)
+
+    testImplementation(project(":bluetape4k-testcontainers"))
+    testImplementation(Libs.testcontainers)
 }

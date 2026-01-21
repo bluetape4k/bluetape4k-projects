@@ -78,7 +78,6 @@ abstract class AbstractWebClientConfig {
         return WebClient.builder()
             .clientConnector(connector)
             .exchangeStrategies(exchangeStrategies)
-
             .build()
     }
 }
