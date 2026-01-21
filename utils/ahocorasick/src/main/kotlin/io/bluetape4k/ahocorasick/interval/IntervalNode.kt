@@ -1,6 +1,7 @@
 package io.bluetape4k.ahocorasick.interval
 
 import io.bluetape4k.AbstractValueObject
+import java.util.*
 
 class IntervalNode(inputs: Collection<Intervalable>): AbstractValueObject() {
 
@@ -8,7 +9,7 @@ class IntervalNode(inputs: Collection<Intervalable>): AbstractValueObject() {
 
     var left: IntervalNode? = null
     var right: IntervalNode? = null
-    val intervals = mutableListOf<Intervalable>()
+    val intervals = LinkedList<Intervalable>()
     val median: Int
 
     init {
@@ -27,8 +28,8 @@ class IntervalNode(inputs: Collection<Intervalable>): AbstractValueObject() {
             return
         }
 
-        val toLeft = mutableListOf<Intervalable>()
-        val toRight = mutableListOf<Intervalable>()
+        val toLeft = LinkedList<Intervalable>()
+        val toRight = LinkedList<Intervalable>()
 
         inputs.forEach { input ->
             when {
@@ -46,7 +47,7 @@ class IntervalNode(inputs: Collection<Intervalable>): AbstractValueObject() {
     }
 
     fun findOverlaps(interval: Intervalable): MutableList<Intervalable> {
-        val overlaps = mutableListOf<Intervalable>()
+        val overlaps = LinkedList<Intervalable>()
 
         when {
             interval.start > median -> {
@@ -84,7 +85,7 @@ class IntervalNode(inputs: Collection<Intervalable>): AbstractValueObject() {
 
 
     private fun checkForOverlaps(interval: Intervalable, direction: Direction): List<Intervalable> {
-        val overlaps = mutableListOf<Intervalable>()
+        val overlaps = LinkedList<Intervalable>()
 
         this.intervals.forEach {
             when (direction) {

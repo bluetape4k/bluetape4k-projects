@@ -38,5 +38,5 @@ open class Interval(
 
     override fun equals(other: Any?): Boolean = other != null && equalProperties(other)
     override fun hashCode(): Int = if (isEmpty) -1 else hashOf(start, end)
-    override fun toString(): String = "$start:$end"
+    override fun toString(): String = "Interval($start:$end)"
 }

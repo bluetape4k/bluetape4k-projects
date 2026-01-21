@@ -14,7 +14,7 @@ class State(val depth: Int = 0): ValueObject {
     companion object: KLogging()
 
     private val rootState: State? get() = if (depth == 0) this else null
-    private val success = mutableMapOf<Char, State>()
+    private val success = LinkedHashMap<Char, State>()
     private val emits = TreeSet<String>()
 
     var failure: State? = null

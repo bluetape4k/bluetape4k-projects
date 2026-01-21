@@ -1,5 +1,7 @@
 package io.bluetape4k.ahocorasick.trie
 
+import java.util.*
+
 fun interface EmitHandler {
     fun emit(emit: Emit): Boolean
 }
@@ -9,7 +11,7 @@ interface StatefulEmitHandler: EmitHandler {
 }
 
 abstract class AbstractStatefulEmitHandler: StatefulEmitHandler {
-    override val emits: MutableList<Emit> = mutableListOf()
+    override val emits: LinkedList<Emit> = LinkedList()
     fun addEmit(emit: Emit): Boolean = emits.add(emit)
 }
 

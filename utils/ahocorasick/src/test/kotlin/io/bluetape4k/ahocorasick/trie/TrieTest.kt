@@ -384,10 +384,10 @@ class TrieTest {
             .addKeyword("")
             .build()
 
-        val sentence = """
+        val sentence = $$"""
                   |Try a natural lip and subtle bronzer to keep all the focus
                   |on those big bright eyes with NARS Eyeshadow Duo in Rated R And the winner is...
-                  |Boots No7 Advanced Renewal Anti-ageing Glycolic Peel Kit (${'$'}25 amazon.com) won
+                  |Boots No7 Advanced Renewal Anti-ageing Glycolic Peel Kit ($25 amazon.com) won
                   |most-appealing peel.
                   """.trimMargin()
 

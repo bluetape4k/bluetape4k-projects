@@ -103,7 +103,7 @@ class Trie(private val config: TrieConfig = TrieConfig.DEFAULT) {
         val results = mutableListOf<Token>()
 
         collectedEmits
-            .map { emit ->
+            .forEach { emit ->
                 if (emit.start - lastCollectionIndex > 1) {
                     results.add(createFragment(emit, text, lastCollectionIndex))
                 }
