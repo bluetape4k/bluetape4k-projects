@@ -30,8 +30,7 @@ class RetrofitClientsRegistrar: ImportBeanDefinitionRegistrar {
 
         val basePackages = getBasePackages(importingClassMetadata)
         basePackages
-            .map(scanner::findCandidateComponents)
-            .flatten()
+            .flatMap(scanner::findCandidateComponents)
             .forEach { candidate ->
                 log.debug { "Found Retrofit2Client candidate=$candidate" }
                 val beanDefinition = candidate as AnnotatedBeanDefinition

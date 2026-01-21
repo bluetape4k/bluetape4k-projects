@@ -23,9 +23,7 @@ import kotlin.math.absoluteValue
 @RandomizedTest
 class JsonPlaceHolderApiAsyncTest: AbstractJsonPlaceHolderApiTest() {
 
-    companion object: KLoggingChannel() {
-        private const val REPEAT_SIZE = 3
-    }
+    companion object: KLoggingChannel()
 
     @Autowired
     private val api: JsonPlaceHolderApi = uninitialized()

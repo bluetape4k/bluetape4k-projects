@@ -14,6 +14,7 @@ import okhttp3.OkHttpClient
 import org.asynchttpclient.Dsl
 import org.springframework.beans.factory.FactoryBean
 import org.springframework.beans.factory.InitializingBean
+import org.springframework.beans.factory.getBean
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
 import retrofit2.CallAdapter
@@ -32,7 +33,7 @@ class RetrofitClientFactoryBean: FactoryBean<Any?>, ApplicationContextAware, Ini
     override fun getObject(): Any? {
         log.debug { "Get Retrofit2Client Service ..." }
 
-        val retrofitClientContext = this.ctx.getBean(RetrofitClientContext::class.java)
+        val retrofitClientContext = this.ctx.getBean<RetrofitClientContext>()
         val retrofitBuilder = Retrofit.Builder().baseUrl(this.baseUrl)
 
         val client = retrofitClientContext.getInstance(this.name, OkHttpClient::class.java)
@@ -67,7 +68,7 @@ class RetrofitClientFactoryBean: FactoryBean<Any?>, ApplicationContextAware, Ini
         log.debug { "Try to create DefaultCallFactory." }
         return if (classIsPresent("io.vertx.core.http.HttpClient")) {
             log.debug { "Create Vert.x HttpClient" }
-            return vertxCallFactoryOf()
+            vertxCallFactoryOf()
         } else {
             log.info { "Add Call.Factory with AsyncHttpClient" }
             val ahc = Dsl.asyncHttpClient()

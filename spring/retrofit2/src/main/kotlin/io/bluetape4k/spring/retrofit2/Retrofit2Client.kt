@@ -24,7 +24,7 @@ annotation class Retrofit2Client(
     val name: String = "",
 
     /**
-     * 스프링의 [Qualifier] annotation을 쓸 경우에 지정
+     * 스프링의 [org.springframework.beans.factory.annotation.Qualifier] annotation을 쓸 경우에 지정
      */
     val qualifier: String = "",
 
@@ -34,7 +34,7 @@ annotation class Retrofit2Client(
     val baseUrl: String = "",
 
     /**
-     * Retrofit2 Client를 위한 사용자 정의 [Configuration] 입니다.
+     * Retrofit2 Client를 위한 사용자 정의 [org.springframework.context.annotation.Configuration] 입니다.
      * 시스템의 기본 설정 이외에 추가 설정할 수 있게 해줍니다.
      */
     val configuration: Array<KClass<*>> = [],

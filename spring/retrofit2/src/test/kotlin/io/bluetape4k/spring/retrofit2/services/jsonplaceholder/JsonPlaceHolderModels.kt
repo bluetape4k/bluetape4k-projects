@@ -5,8 +5,8 @@ import java.io.Serializable
 data class Post(
     val userId: Int,
     val id: Int,
-    var title: String?,
-    var body: String?,
+    var title: String? = null,
+    var body: String? = null,
 ): Serializable
 
 data class Comment(
@@ -36,9 +36,16 @@ data class Address(
     val geo: Geo,
 ): Serializable
 
-data class Geo(val lat: Double, val lng: Double): Serializable
+data class Geo(
+    val lat: Double,
+    val lng: Double,
+): Serializable
 
-data class Company(val name: String, val catchPhrase: String, val bs: String): Serializable
+data class Company(
+    val name: String,
+    val catchPhrase: String,
+    val bs: String,
+): Serializable
 
 data class Todo(
     val userId: Int,

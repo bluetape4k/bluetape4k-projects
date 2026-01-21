@@ -6,7 +6,6 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.micrometer.instrument.retrofit2.MicrometerRetrofitMetricsRecorder
 import io.bluetape4k.support.uninitialized
 import io.micrometer.core.instrument.MeterRegistry
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import org.amshove.kluent.shouldBeGreaterThan
@@ -44,7 +43,7 @@ class HttpbinApiTest {
     fun `measure retrofit2 call`() = runSuspendIO {
         val runCount = 3
         val tasks = List(runCount) {
-            async(Dispatchers.IO) {
+            async {
                 httpbinApi.getLocalIpAddress()
             }
         }
