@@ -23,7 +23,7 @@ import org.redisson.codec.Kryo5Codec
  *
  * @property fallbackCodec  대체 Codec ([Kryo5Codec]) 인스턴스
  */
-class ForyCodec @JvmOverloads constructor(
+class ForyCodec(
     private val fallbackCodec: Codec = RedissonCodecs.Kryo5,
 ): BaseCodec() {
 

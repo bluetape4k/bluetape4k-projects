@@ -287,7 +287,6 @@ fun String?.quoted(): String {
  * @param size 생성할 문자열의 길이
  * @return 랜덤한 Alpha numeric 문자열
  */
-@JvmOverloads
 fun randomString(size: Int = 10): String {
     size.assertZeroOrPositiveNumber("size")
     return RandomStringUtils.secureStrong().nextAlphanumeric(size)
@@ -412,7 +411,6 @@ fun CharSequence?.deleteChars(vararg chars: Char): String {
  * @receiver Iterable<T> 문자열로 변환할 요소들
  * @param defaultValue 요소가 null이거나 empty인 경우 사용할 기본 문자열 (기본값: "")
  */
-@JvmOverloads
 fun <T: Any> Iterable<T>.asStringList(defaultValue: String = EMPTY_STRING): List<String> =
     map { it.asString(defaultValue) }
 
@@ -585,7 +583,6 @@ fun String.takeLast(count: Int = 1): String =
  * @param ignoreCase 대소문자 구분 여부 (기본: false)
  * @return [prefix]가 접두사로 붙은 문자열
  */
-@JvmOverloads
 fun String.prefixIfAbsent(prefix: String, ignoreCase: Boolean = false): String =
     if (this.startsWith(prefix, ignoreCase)) this else prefix + this
 
@@ -600,7 +597,6 @@ fun String.prefixIfAbsent(prefix: String, ignoreCase: Boolean = false): String =
  * @param ignoreCase 대소문자 구분 여부 (기본: false)
  * @return [suffix]가 접미사로 붙은 문자열
  */
-@JvmOverloads
 fun String.suffixIfAbsent(suffix: String, ignoreCase: Boolean = false): String =
     if (this.endsWith(suffix, ignoreCase)) this else this + suffix
 

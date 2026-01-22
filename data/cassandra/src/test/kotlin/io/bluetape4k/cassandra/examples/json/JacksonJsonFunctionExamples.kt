@@ -32,7 +32,7 @@ import java.io.Serializable
 class JacksonJsonFunctionExamples: AbstractCassandraTest() {
 
     companion object: KLoggingChannel() {
-        data class User @JvmOverloads constructor(
+        data class User(
             val name: String? = null,
             val age: Int? = null,
         ): Serializable

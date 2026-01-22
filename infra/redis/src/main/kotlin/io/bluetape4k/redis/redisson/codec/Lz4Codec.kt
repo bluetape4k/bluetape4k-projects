@@ -17,7 +17,7 @@ import org.redisson.client.protocol.Encoder
  *
  * Redisson 의 LZ4CodecV2 가 예외가 발생하여 개발한 것임
  */
-class Lz4Codec @JvmOverloads constructor(
+class Lz4Codec(
     private val innerCodec: Codec = RedissonCodecs.Default,
 ): BaseCodec() {
 
@@ -28,7 +28,7 @@ class Lz4Codec @JvmOverloads constructor(
 
     companion object: KLogging()
 
-    private val lz4 get() = Compressors.LZ4
+    private val lz4 = Compressors.LZ4
 
     private val encoder: Encoder = Encoder { graph ->
         val encoded = innerCodec.valueEncoder.encode(graph)

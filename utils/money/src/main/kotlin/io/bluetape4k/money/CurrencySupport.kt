@@ -68,7 +68,6 @@ fun String.isAvailableCurrency(vararg providers: String): Boolean =
  * @param  currencyCode 통화 코드 (예: KRW, USD, EUR, CNY ...)
  * @return [CurrencyUnit] 인스턴스
  */
-@JvmOverloads
 fun currencyUnitOf(currencyCode: String = DefaultCurrencyCode): CurrencyUnit {
     currencyCode.requireNotBlank("currencyCode")
     return currencyCache.getOrPut(currencyCode) { Monetary.getCurrency(currencyCode) }

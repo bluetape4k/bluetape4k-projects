@@ -132,7 +132,7 @@ object Runtimex: KLogging() {
     /**
      * Consumes a stream
      */
-    internal class StreamGobbler @JvmOverloads constructor(
+    internal class StreamGobbler(
         private val input: InputStream,
         private val output: OutputStream? = null,
         private val prefix: String? = null,

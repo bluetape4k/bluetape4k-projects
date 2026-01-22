@@ -15,7 +15,7 @@ import org.redisson.client.protocol.Encoder
 /**
  * Gzip 알고리즘으로 값을 압축/복원하는 Codec
  */
-class GzipCodec @JvmOverloads constructor(
+class GzipCodec(
     private val innerCodec: Codec = RedissonCodecs.Default,
 ): BaseCodec() {
 
@@ -26,7 +26,7 @@ class GzipCodec @JvmOverloads constructor(
 
     companion object: KLogging()
 
-    private val gzip get() = Compressors.GZip
+    private val gzip = Compressors.GZip
 
     private val encoder: Encoder = Encoder { graph ->
         val encoded = innerCodec.valueEncoder.encode(graph)

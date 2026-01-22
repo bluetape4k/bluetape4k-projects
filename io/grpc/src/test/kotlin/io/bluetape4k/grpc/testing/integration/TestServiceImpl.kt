@@ -23,7 +23,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
-class TestServiceImpl @JvmOverloads constructor(
+class TestServiceImpl(
     executor: Executor = Executors.newSingleThreadScheduledExecutor(),
 ): TestServiceGrpcKt.TestServiceCoroutineImplBase(executor.asCoroutineDispatcher()) {
 

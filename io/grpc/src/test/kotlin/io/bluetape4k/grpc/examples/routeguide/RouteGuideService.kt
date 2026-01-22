@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.filter
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.TimeUnit
 
-class RouteGuideService @JvmOverloads constructor(
+class RouteGuideService(
     val features: Collection<Feature>,
     val ticker: Ticker = Ticker.systemTicker(),
 ): RouteGuideGrpcKt.RouteGuideCoroutineImplBase() {
@@ -26,7 +26,7 @@ class RouteGuideService @JvmOverloads constructor(
     }
 
     override fun listFeatures(request: Rectangle): Flow<Feature> {
-        return features.asFlow().filter { it.exists() && it.location in request }
+        return features.asFlow().filter { it.exists() && (it.location in request) }
     }
 
     override suspend fun recordRoute(requests: Flow<Point>): RouteSummary {

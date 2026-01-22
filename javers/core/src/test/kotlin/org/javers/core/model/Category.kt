@@ -4,7 +4,7 @@ import org.javers.core.metamodel.annotation.Id
 import org.javers.core.metamodel.annotation.ShallowReference
 import java.io.Serializable
 
-abstract class AbstractCategory @JvmOverloads constructor(
+abstract class AbstractCategory(
     var name: String? = null,
 ): Serializable {
 
@@ -17,7 +17,7 @@ abstract class AbstractCategory @JvmOverloads constructor(
     }
 }
 
-class CategoryC @JvmOverloads constructor(
+class CategoryC(
     var id: Long,
     name: String = "name",
 ): AbstractCategory("$name$id")

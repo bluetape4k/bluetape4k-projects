@@ -33,7 +33,6 @@ class TestServiceClient private constructor(channel: ManagedChannel): AbstractGr
         }
 
         @JvmStatic
-        @JvmOverloads
         operator fun invoke(
             channelBuilder: ManagedChannelBuilder<*>,
             dispatcher: CoroutineDispatcher = Dispatchers.IO,

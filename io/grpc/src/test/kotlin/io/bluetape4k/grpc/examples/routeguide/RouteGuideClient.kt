@@ -36,7 +36,6 @@ class RouteGuideClient private constructor(channel: ManagedChannel): AbstractGrp
             return RouteGuideClient(channel)
         }
 
-        @JvmOverloads
         operator fun invoke(
             channelBuilder: ManagedChannelBuilder<*>,
             dispatcher: CoroutineDispatcher = Dispatchers.IO,

@@ -15,7 +15,7 @@ import org.redisson.client.protocol.Encoder
 /**
  * Zstd 알고리즘으로 압축을 수행하는 Codec
  */
-class ZstdCodec @JvmOverloads constructor(
+class ZstdCodec(
     private val innerCodec: Codec = RedissonCodecs.Default,
 ): BaseCodec() {
 
@@ -26,7 +26,7 @@ class ZstdCodec @JvmOverloads constructor(
 
     companion object: KLogging()
 
-    private val zstd get() = Compressors.Zstd
+    private val zstd = Compressors.Zstd
 
     private val encoder: Encoder = Encoder { graph ->
         val encoded = innerCodec.valueEncoder.encode(graph)

@@ -22,7 +22,7 @@ typealias AnyMessage = com.google.protobuf.Any
  *
  * @property fallbackCodec 내부 코덱
  */
-class ProtobufCodec @JvmOverloads constructor(
+class ProtobufCodec(
     private val fallbackCodec: Codec = RedissonCodecs.Default,
 ): BaseCodec() {
 
