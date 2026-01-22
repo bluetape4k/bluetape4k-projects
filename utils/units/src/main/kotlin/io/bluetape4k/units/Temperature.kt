@@ -18,12 +18,12 @@ operator fun <T: Number> T.times(temperature: Temperature): Temperature = temper
 /**
  * Convert Celsius to Fahrenheit
  */
-fun Double.C2F(): Double = this * 1.8 + 32.0
+fun Double.c2F(): Double = this * 1.8 + 32.0
 
 /**
  * Convert Fahrenheit to Celsius
  */
-fun Double.F2C(): Double = (this - 32.0) / 1.8
+fun Double.f2C(): Double = (this - 32.0) / 1.8
 
 /**
  * 온도 단위

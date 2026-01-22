@@ -80,7 +80,7 @@ class TemperatureTest {
 
     @Test
     fun `temperature oprators`() {
-        // NOTE: Kelvin 만 가능하고, 다른 온도 단위로 연산하면 예외 발생한다 (온도 단위가 다르기 때문)
+        // Hint: Kelvin 만 가능하고, 다른 온도 단위로 연산하면 예외 발생한다 -> 비교를 위해서는 같은 온도단위로 해줘야 한다.
         val a = 100.0.kelvin()
         val b = 200.0.kelvin()
 
@@ -89,6 +89,19 @@ class TemperatureTest {
         a * 2 shouldBeEqualTo b
         2 * a shouldBeEqualTo b
         b / 2 shouldBeEqualTo a
+    }
+
+    @Test
+    fun `temperature oprators in Celsius`() {
+        // Hint: Kelvin 만 가능하고, 다른 온도 단위로 연산하면 예외 발생한다 -> 비교를 위해서는 같은 온도단위로 해줘야 한다.
+        val a = 100.0.celsius()
+        val b = 200.0.celsius()
+
+        a + a shouldBeEqualTo (100.celsius() + 100.celsius())
+        b - a shouldBeEqualTo (200.celsius() - 100.celsius())
+        a * 2 shouldBeEqualTo (100.celsius().inKelvin().kelvin() * 2)
+        2 * a shouldBeEqualTo (2 * 100.celsius().inKelvin().kelvin())
+        b / 2 shouldBeEqualTo (200.celsius() / 2)
     }
 
     @Test
