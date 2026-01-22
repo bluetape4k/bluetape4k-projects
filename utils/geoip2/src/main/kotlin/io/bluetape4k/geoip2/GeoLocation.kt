@@ -10,14 +10,16 @@ import java.io.Serializable
  * @property longitude 경도
  * @property timeZone 시간대
  * @property accuracyRadius 정확도 반경
- * @property metroCode 메트로 코드
+ * @property averageIncome 평균 수익
+ * @property populationDensity 인구밀도
  */
 data class GeoLocation(
     val latitude: Double,
     val longitude: Double,
     val timeZone: String? = null,
     val accuracyRadius: Int? = null,
-    val metroCode: Int? = null,
+    val averageIncome: Int? = null,
+    val populationDensity: Int? = null,
 ): Serializable {
 
     companion object {
@@ -30,11 +32,12 @@ data class GeoLocation(
         @JvmStatic
         fun fromLocation(location: Location): GeoLocation {
             return GeoLocation(
-                latitude = location.latitude,
-                longitude = location.longitude,
-                timeZone = location.timeZone,
-                accuracyRadius = location.accuracyRadius,
-                metroCode = location.metroCode
+                latitude = location.latitude(),
+                longitude = location.longitude(),
+                timeZone = location.timeZone(),
+                accuracyRadius = location.accuracyRadius(),
+                averageIncome = location.averageIncome(),
+                populationDensity = location.populationDensity()
             )
         }
     }

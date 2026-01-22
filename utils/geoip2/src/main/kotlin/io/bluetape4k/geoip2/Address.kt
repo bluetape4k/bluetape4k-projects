@@ -40,13 +40,13 @@ data class Address(
         fun fromCity(ipAddress: InetAddress, cityResponse: CityResponse): Address {
             return Address(
                 ipAddress = ipAddress.toString(),
-                city = cityResponse.city.name,
-                country = cityResponse.country.name,
-                continent = cityResponse.continent.name,
-                geoLocation = GeoLocation.fromLocation(cityResponse.location),
-                countryIsoCode = cityResponse.country.isoCode,
+                city = cityResponse.city().name(),
+                country = cityResponse.country().name(),
+                continent = cityResponse.continent().name(),
+                geoLocation = GeoLocation.fromLocation(cityResponse.location()),
+                countryIsoCode = cityResponse.country().isoCode(),
             ).apply {
-                traits = cityResponse.traits
+                traits = cityResponse.traits()
             }
         }
 
@@ -61,11 +61,11 @@ data class Address(
         fun fromCountry(ipAddress: InetAddress, countryResponse: CountryResponse): Address {
             return Address(
                 ipAddress = ipAddress.toString(),
-                country = countryResponse.country.name,
-                continent = countryResponse.continent.name,
-                countryIsoCode = countryResponse.country.isoCode,
+                country = countryResponse.country().name(),
+                continent = countryResponse.continent().name(),
+                countryIsoCode = countryResponse.country().isoCode(),
             ).apply {
-                traits = countryResponse.traits
+                traits = countryResponse.traits()
             }
         }
     }

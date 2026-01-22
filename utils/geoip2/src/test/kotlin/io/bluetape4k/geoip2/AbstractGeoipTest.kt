@@ -31,18 +31,18 @@ abstract class AbstractGeoipTest {
 
     protected fun CountryResponse.prettyPrint(): String = buildString {
         val response = this@prettyPrint
-        append("country=").appendLine(response.country.name)
-        append("registered country=").appendLine(response.registeredCountry.name)
-        append("continent=").appendLine(response.continent.name)
-        append("traits=").appendLine(response.traits)
+        append("country=").appendLine(response.country().name())
+        append("registered country=").appendLine(response.registeredCountry().name())
+        append("continent=").appendLine(response.continent().name())
+        append("traits=").appendLine(response.traits())
     }
 
     protected fun CityResponse.prettyPrint(): String = buildString {
         val response = this@prettyPrint
-        append("country=").appendLine(response.country.name)
-        append("city=").appendLine(response.city.name)
-        append("location=").appendLine(response.location)
-        append("continent=").appendLine(response.continent.name)
-        append("traits=").appendLine(response.traits)
+        append("country=").appendLine(response.country().name())
+        append("city=").appendLine(response.city().name())
+        append("location=").appendLine(response.location())
+        append("continent=").appendLine(response.continent().name())
+        append("traits=").appendLine(response.traits())
     }
 }

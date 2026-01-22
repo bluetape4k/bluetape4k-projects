@@ -9,6 +9,8 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Runtimex
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
@@ -53,15 +55,15 @@ class GeoipCountryFinderTest: AbstractGeoipTest() {
         }
 
         val index = AtomicIntRoundrobin(ipAddresses.size)
-        val resultMap = ConcurrentHashMap<String, String?>()
+        val resultMap = ConcurrentHashMap<String, String>()
 
         MultithreadingTester()
             .numThreads(2 * Runtimex.availableProcessors)
             .roundsPerThread(10)
             .add {
                 val ip = ipAddresses[index.next()]
-                val address = countryFinder.findAddress(InetAddress.getByName(ip))!!
-                resultMap.putIfAbsent(ip, address.country)
+                val address = countryFinder.findAddress(InetAddress.getByName(ip))
+                address?.country?.let { country -> resultMap.putIfAbsent(ip, country) }
             }
             .run()
 
@@ -80,14 +82,14 @@ class GeoipCountryFinderTest: AbstractGeoipTest() {
         }
 
         val index = AtomicIntRoundrobin(ipAddresses.size)
-        val resultMap = ConcurrentHashMap<String, String?>()
+        val resultMap = ConcurrentHashMap<String, String>()
 
         StructuredTaskScopeTester()
             .roundsPerTask(10 * 2 * Runtimex.availableProcessors)
             .add {
                 val ip = ipAddresses[index.next()]
-                val address = countryFinder.findAddress(InetAddress.getByName(ip))!!
-                resultMap.putIfAbsent(ip, address.country)
+                val address = countryFinder.findAddress(InetAddress.getByName(ip))
+                address?.country?.let { country -> resultMap.putIfAbsent(ip, country) }
             }
             .run()
 
@@ -105,15 +107,17 @@ class GeoipCountryFinderTest: AbstractGeoipTest() {
         }
 
         val index = AtomicIntRoundrobin(ipAddresses.size)
-        val resultMap = ConcurrentHashMap<String, String?>()
+        val resultMap = ConcurrentHashMap<String, String>()
 
         SuspendedJobTester()
             .numThreads(2 * Runtimex.availableProcessors)
             .roundsPerJob(10 * 2 * Runtimex.availableProcessors)
             .add {
-                val ip = ipAddresses[index.next()]
-                val address = countryFinder.findAddress(InetAddress.getByName(ip))!!
-                resultMap.putIfAbsent(ip, address.country)
+                withContext(Dispatchers.IO) {
+                    val ip = ipAddresses[index.next()]
+                    val address = countryFinder.findAddress(InetAddress.getByName(ip))
+                    address?.country?.let { country -> resultMap.putIfAbsent(ip, country) }
+                }
             }
             .run()
 
