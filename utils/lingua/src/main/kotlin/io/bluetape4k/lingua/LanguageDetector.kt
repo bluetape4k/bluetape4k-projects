@@ -19,13 +19,16 @@ import com.github.pemistahl.lingua.api.LanguageDetectorBuilder
  * detector.detectLanguageOf("안녕하세요.") shouldBeEqualTo Language.KOREAN
  * ```
  *
- * @param initializer [LanguageDetectorBuilder] 초기화 람다
+ * @param builder [LanguageDetectorBuilder] 초기화 람다
  * @return [LanguageDetector] 인스턴스
  */
 inline fun allLanguageDetector(
-    initializer: LanguageDetectorBuilder.() -> Unit,
+    @BuilderInference builder: LanguageDetectorBuilder.() -> Unit,
 ): LanguageDetector =
-    LanguageDetectorBuilder.fromAllLanguages().apply(initializer).build()
+    LanguageDetectorBuilder
+        .fromAllLanguages()
+        .apply(builder)
+        .build()
 
 /**
  * 지정된 [languages]를 제외한 언어를 검출하는 [LanguageDetector]를 생성합니다.
@@ -42,14 +45,17 @@ inline fun allLanguageDetector(
  * ```
  *
  * @param languages 제외할 언어
- * @param initializer [LanguageDetectorBuilder] 초기화 람다
+ * @param builder [LanguageDetectorBuilder] 초기화 람다
  * @return [LanguageDetector] 인스턴스
  */
 inline fun allLanguageWithoutDetector(
     languages: Set<Language>,
-    initializer: LanguageDetectorBuilder.() -> Unit,
+    @BuilderInference builder: LanguageDetectorBuilder.() -> Unit,
 ): LanguageDetector =
-    LanguageDetectorBuilder.fromAllLanguagesWithout(*languages.toTypedArray()).apply(initializer).build()
+    LanguageDetectorBuilder
+        .fromAllLanguagesWithout(*languages.toTypedArray())
+        .apply(builder)
+        .build()
 
 
 /**
@@ -66,13 +72,13 @@ inline fun allLanguageWithoutDetector(
  * detector.detectLanguageOf("안녕하세요.") shouldBeEqualTo Language.KOREAN
  * ```
  *
- * @param initializer [LanguageDetectorBuilder] 초기화 람다
+ * @param builder [LanguageDetectorBuilder] 초기화 람다
  * @return [LanguageDetector] 인스턴스
  */
 inline fun allSpokenLanguageDetector(
-    initializer: LanguageDetectorBuilder.() -> Unit,
+    @BuilderInference builder: LanguageDetectorBuilder.() -> Unit,
 ): LanguageDetector =
-    LanguageDetectorBuilder.fromAllSpokenLanguages().apply(initializer).build()
+    LanguageDetectorBuilder.fromAllSpokenLanguages().apply(builder).build()
 
 /**
  * 지정된 [languages] 언어를 검출하는 [LanguageDetector]를 생성합니다.
@@ -90,16 +96,19 @@ inline fun allSpokenLanguageDetector(
  * ```
  *
  * @param languages 검출할 언어
- * @param initializer [LanguageDetectorBuilder] 초기화 람다
+ * @param builder [LanguageDetectorBuilder] 초기화 람다
  * @return [LanguageDetector] 인스턴스
  *
  */
 @JvmName("languageDetectorOfLanguage")
 inline fun languageDetectorOf(
     languages: Set<Language>,
-    initializer: LanguageDetectorBuilder.() -> Unit,
+    @BuilderInference builder: LanguageDetectorBuilder.() -> Unit,
 ): LanguageDetector =
-    LanguageDetectorBuilder.fromLanguages(*languages.toTypedArray()).apply(initializer).build()
+    LanguageDetectorBuilder
+        .fromLanguages(*languages.toTypedArray())
+        .apply(builder)
+        .build()
 
 /**
  * 지정된 [languages] 언어를 검출하는 [LanguageDetector]를 생성합니다.
@@ -156,15 +165,18 @@ fun languageDetectorOf(
  * ```
  *
  * @param isoCodes 검출할 언어
- * @param initializer [LanguageDetectorBuilder] 초기화 람다
+ * @param builder [LanguageDetectorBuilder] 초기화 람다
  * @return [LanguageDetector] 인스턴스
  */
 @JvmName("languageDetectorOfIsoCode639_1")
 inline fun languageDetectorOf(
     isoCodes: Set<IsoCode639_1>,
-    initializer: LanguageDetectorBuilder.() -> Unit,
+    @BuilderInference builder: LanguageDetectorBuilder.() -> Unit,
 ): LanguageDetector =
-    LanguageDetectorBuilder.fromIsoCodes639_1(* isoCodes.toTypedArray()).apply(initializer).build()
+    LanguageDetectorBuilder
+        .fromIsoCodes639_1(*isoCodes.toTypedArray())
+        .apply(builder)
+        .build()
 
 /**
  * 지정된 [isoCodes] 언어를 검출하는 [LanguageDetector]를 생성합니다.
@@ -182,12 +194,15 @@ inline fun languageDetectorOf(
  * ```
  *
  * @param isoCodes 검출할 언어
- * @param initializer [LanguageDetectorBuilder] 초기화 람다
+ * @param builder [LanguageDetectorBuilder] 초기화 람다
  * @return [LanguageDetector] 인스턴스
  */
 @JvmName("languageDetectorOfIsoCode639_3")
 inline fun languageDetectorOf(
     isoCodes: Set<IsoCode639_3>,
-    initializer: LanguageDetectorBuilder.() -> Unit,
+    @BuilderInference builder: LanguageDetectorBuilder.() -> Unit,
 ): LanguageDetector =
-    LanguageDetectorBuilder.fromIsoCodes639_3(* isoCodes.toTypedArray()).apply(initializer).build()
+    LanguageDetectorBuilder
+        .fromIsoCodes639_3(*isoCodes.toTypedArray())
+        .apply(builder)
+        .build()

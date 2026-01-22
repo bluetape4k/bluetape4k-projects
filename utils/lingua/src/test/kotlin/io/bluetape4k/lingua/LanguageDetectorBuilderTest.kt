@@ -22,10 +22,7 @@ class LanguageDetectorBuilderTest: AbstractLinguaTest() {
     @Test
     fun `특정 언어를 제외한 LanguageDetector를 생성할 수 있다`() {
         val exceptLanguages = setOf(Language.ENGLISH, Language.KOREAN)
-        val detector = allLanguageWithoutDetector(
-            exceptLanguages
-        ) {
-
+        val detector = allLanguageWithoutDetector(exceptLanguages) {
             withMinimumRelativeDistance(0.1)
             withPreloadedLanguageModels()
             withLowAccuracyMode()

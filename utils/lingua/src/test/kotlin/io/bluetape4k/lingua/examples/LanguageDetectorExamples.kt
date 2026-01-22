@@ -70,7 +70,7 @@ class LanguageDetectorExamples: AbstractLinguaTest() {
     fun `긴 문장의 한국어를 검출한다`() {
         val korean = """
             [Lingua](https://github.com/pemistahl/lingua) 를 이용하여, 문장에서 언어를 자동 감지하는 기능을 제공합니다.
-        """.trimIndent()
+            """.trimIndent()
 
         detectorForAllLanguages.detectLanguageOf(korean) shouldBeEqualTo Language.KOREAN
     }
@@ -81,7 +81,7 @@ class LanguageDetectorExamples: AbstractLinguaTest() {
             In order to execute the steps below, you will need Java 8 or greater. 
             Even though the library itself runs on Java >= 6, 
             the FilesWriter classes make use of the java.nio api which was introduced with Java 8.
-        """.trimIndent()
+            """.trimIndent()
 
         detectorForAllLanguages.detectLanguageOf(english) shouldBeEqualTo Language.ENGLISH
     }
@@ -90,7 +90,7 @@ class LanguageDetectorExamples: AbstractLinguaTest() {
     fun `긴 문장의 일본어를 검출한다`() {
         val japanese = """
             すみません。 いまなんじですか。
-        """.trimIndent()
+            """.trimIndent()
 
         detectorForAllLanguages.detectLanguageOf(japanese) shouldBeEqualTo Language.JAPANESE
     }
@@ -99,19 +99,22 @@ class LanguageDetectorExamples: AbstractLinguaTest() {
     fun `긴 문장의 태국어를 검출한다`() {
         val thai = """
             ในทางหลวงหมายเลข 1 มีการจราจรแออัดมาก
-        """.trimIndent()
+            """.trimIndent()
 
         detectorForAllLanguages.detectLanguageOf(thai) shouldBeEqualTo Language.THAI
+    }
 
+    @Test
+    fun `한국어와 태국어가 같이 있다면 한국어로 판단한다`() {
         val koreanAndThai = """
             안녕 ในทางหลวงหมายเลข 1 มีการจราจรแออัดมาก
-        """.trimIndent()
+            """.trimIndent()
 
         detectorForAllLanguages.detectLanguageOf(koreanAndThai) shouldBeEqualTo Language.KOREAN
 
         val thaiAndKorean = """
             ในทางหลวงหมายเลข 1 มีการจราจรแออัดมาก 안녕
-        """.trimIndent()
+            """.trimIndent()
 
         detectorForAllLanguages.detectLanguageOf(thaiAndKorean) shouldBeEqualTo Language.KOREAN
     }
@@ -120,22 +123,22 @@ class LanguageDetectorExamples: AbstractLinguaTest() {
     fun `한국어와 영어가 섞인 경우 한국어로 판단한다`() {
         val korean = """
             Lingua를 이용하여, 문장에서 Language를 자동 감지하는 기능을 제공합니다.
-        """.trimIndent()
+            """.trimIndent()
 
         detectorForAllLanguages.detectLanguageOf(korean) shouldBeEqualTo Language.KOREAN
     }
 
     @Test
-    fun `한국어와 일본어가 섞인 경우 한국어로 판단한다`() {
+    fun `한국어와 일본어가 섞인 경우 일본어로 판단한다`() {
         val japaneseFirst = """
             すみません。 いまなんじですか。 (죄송합니다. 지금 몇 시인가요?)
-        """.trimIndent()
+            """.trimIndent()
 
         detectorForAllLanguages.detectLanguageOf(japaneseFirst) shouldBeEqualTo Language.JAPANESE
 
         val koreanFirst = """
             죄송합니다. 지금 몇 시인가요? (すみません。 いまなんじですか。)
-        """.trimIndent()
+            """.trimIndent()
 
         detectorForAllLanguages.detectLanguageOf(koreanFirst) shouldBeEqualTo Language.JAPANESE
     }

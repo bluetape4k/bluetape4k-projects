@@ -37,13 +37,13 @@ class UnicodeDetector {
             return null
         }
 
-        val c = when {
-            locale.language == "ko" && char.isKorean   -> char
-            locale.language == "ja" && char.isJapanese -> char
-            locale.language == "en" && char.isAscii    -> char
-            locale.language == "zh" && char.isChinese  -> char
-            locale.language == "th" && char.isThai     -> char
-            else                                       -> null
+        val c = when (locale.language) {
+            "ko" if char.isKorean -> char
+            "ja" if char.isJapanese -> char
+            "en" if char.isAscii -> char
+            "zh" if char.isChinese -> char
+            "th" if char.isThai -> char
+            else -> null
         }
         log.trace { "char=$char, languge=${locale.language}, c=$c" }
 
