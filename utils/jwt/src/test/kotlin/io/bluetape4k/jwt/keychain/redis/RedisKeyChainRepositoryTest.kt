@@ -14,5 +14,4 @@ class RedisKeyChainRepositoryTest: AbstractKeyChainRepositoryTest() {
     override val repository: KeyChainRepository by lazy {
         RedisKeyChainRepository(redisson)
     }
-
 }

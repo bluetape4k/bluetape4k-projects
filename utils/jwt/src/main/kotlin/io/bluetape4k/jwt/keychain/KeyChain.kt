@@ -2,7 +2,6 @@ package io.bluetape4k.jwt.keychain
 
 import io.bluetape4k.AbstractValueObject
 import io.bluetape4k.ToStringBuilder
-import io.bluetape4k.codec.encodeBase62
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.jwt.JwtConsts.DEFAULT_KEY_ROTATION_TTL_MILLIS
 import io.bluetape4k.jwt.JwtConsts.DefaultSignatureAlgorithm
@@ -28,7 +27,7 @@ class KeyChain private constructor(
         operator fun invoke(
             algorithm: SignatureAlgorithm = DefaultSignatureAlgorithm,
             keyPair: KeyPair = Keys.keyPairFor(algorithm),
-            id: String = TimebasedUuid.nextUUID().encodeBase62(),
+            id: String = TimebasedUuid.Reordered.nextIdAsString(),
             createdAt: Long = System.currentTimeMillis(),
             expiredTtl: Duration = Duration.ofMillis(DEFAULT_KEY_ROTATION_TTL_MILLIS),
         ): KeyChain {

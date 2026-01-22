@@ -16,9 +16,10 @@ import io.jsonwebtoken.JwtParser
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SigningKeyResolverAdapter
 import java.security.Key
+import java.util.concurrent.ConcurrentHashMap
 
 
-internal val jwtParserCache = mutableMapOf<JwtProvider, JwtParser>()
+internal val jwtParserCache = ConcurrentHashMap<JwtProvider, JwtParser>()
 
 internal fun JwtProvider.currentJwtParser(): JwtParser =
     jwtParserCache.getOrPut(this) {
@@ -45,11 +46,11 @@ internal fun getSigningKeyResolverAdapter(findKeyChain: (String) -> KeyChain?): 
 
 internal val defaltCompressionCodecResolver = CompressionCodecResolver { header ->
     when (header.compressionAlgorithm?.uppercase()) {
-        Lz4Codec.ALGORITHM     -> JwtCodecs.Lz4
-        SnappyCodec.ALGORITHM  -> JwtCodecs.Snappy
-        ZstdCodec.ALGORITHM    -> JwtCodecs.Zstd
-        GzipCodec.ALGORITHM    -> JwtCodecs.Gzip
+        Lz4Codec.ALGORITHM -> JwtCodecs.Lz4
+        SnappyCodec.ALGORITHM -> JwtCodecs.Snappy
+        ZstdCodec.ALGORITHM -> JwtCodecs.Zstd
+        GzipCodec.ALGORITHM -> JwtCodecs.Gzip
         DeflateCodec.ALGORITHM -> JwtCodecs.Deflate
-        else                   -> null
+        else -> null
     }
 }

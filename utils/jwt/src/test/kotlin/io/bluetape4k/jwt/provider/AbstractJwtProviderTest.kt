@@ -8,13 +8,14 @@ import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.jwt.AbstractJwtTest
 import io.bluetape4k.jwt.codec.Lz4Codec
 import io.bluetape4k.jwt.keychain.repository.KeyChainRepository
-import io.bluetape4k.jwt.keychain.repository.inmemory.InMemoryKeyChainRepository
 import io.bluetape4k.jwt.utils.dateOfEpochSeconds
 import io.bluetape4k.jwt.utils.epochSeconds
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import io.jsonwebtoken.JwtException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
@@ -39,7 +40,7 @@ abstract class AbstractJwtProviderTest: AbstractJwtTest() {
         private val compressCodec = Lz4Codec()
     }
 
-    protected val repository: KeyChainRepository = InMemoryKeyChainRepository()
+    abstract val repository: KeyChainRepository
 
     abstract val provider: JwtProvider
 
@@ -179,16 +180,18 @@ abstract class AbstractJwtProviderTest: AbstractJwtTest() {
             .numThreads(16)
             .roundsPerJob(16 * 32)
             .add {
-                val jwt = provider.compose {
-                    claim("author", "debop")
-                    claim("service", LibraryName)
-                    issuer = LibraryName
-                    issuedAt = now
-                    claim("custom-data", customData)
-                    compressionCodec = compressCodec
+                withContext(Dispatchers.Default) {
+                    val jwt = provider.compose {
+                        claim("author", "debop")
+                        claim("service", LibraryName)
+                        issuer = LibraryName
+                        issuedAt = now
+                        claim("custom-data", customData)
+                        compressionCodec = compressCodec
+                    }
+                    log.trace { "created jwt=$jwt" }
+                    jwts.add(jwt)
                 }
-                log.trace { "created jwt=$jwt" }
-                jwts.add(jwt)
             }
             .run()
 

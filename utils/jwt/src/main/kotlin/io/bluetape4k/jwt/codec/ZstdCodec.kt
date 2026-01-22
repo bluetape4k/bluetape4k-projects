@@ -2,7 +2,6 @@ package io.bluetape4k.jwt.codec
 
 import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.support.unsafeLazy
 import io.jsonwebtoken.impl.compression.AbstractCompressionCodec
 
 class ZstdCodec: AbstractCompressionCodec() {
@@ -11,7 +10,7 @@ class ZstdCodec: AbstractCompressionCodec() {
         const val ALGORITHM = "ZSTD"
     }
 
-    private val zstd by unsafeLazy { Compressors.Zstd }
+    private val zstd = Compressors.Zstd
 
     override fun getAlgorithmName(): String = ALGORITHM
 

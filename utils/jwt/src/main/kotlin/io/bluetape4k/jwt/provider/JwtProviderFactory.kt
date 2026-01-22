@@ -19,9 +19,8 @@ object JwtProviderFactory: KLogging() {
     /**
      * [DefaultJwtProvider]를 생성합니다.
      *
-     * @param signatureAlgorithm   RSA 공개키 기반의 암호화 알고리즘 (기본은 RSA 256)
-     * @param keyRotationQueueSize  오래된 키를 파싱하기 위해, rotate 되기 전의 [KeyChain]을 보관하는 Queue 의 크기 (기본 = 3)
-     * @param keyRotationMinutes [KeyChain]을 rotate 하는 주기 (분단위) (기본 0, 0 이하이면 자동 rotate하지 않습니다)
+     * @param signatureAlgorithm  RSA 공개키 기반의 암호화 알고리즘 (기본은 RSA 256)
+     * @param keyChainRepository  KeyChain Repository
      * @return [DefaultJwtProvider] instance
      */
     fun default(
@@ -34,7 +33,7 @@ object JwtProviderFactory: KLogging() {
     /**
      * [FixedJwtProvider]를 생성합니다.
      *
-     * @param keyChainId KeyChain 의 Id (jwt header에 kid 로 제공됩니다)
+     * @param kid KeyChain 의 Id (jwt header에 kid 로 제공됩니다)
      * @param signatureAlgorithm   RSA 공개키 기반의 암호화 알고리즘 (기본은 RSA 256)
      * @param keyPair 암호화에 사용할 public, private key
      *
@@ -50,10 +49,10 @@ object JwtProviderFactory: KLogging() {
 
 
     /**
-     * JWT 의 파싱된 정보인 [io.bluetape4k.jwt.reader.JwtReader]를 캐싱하는 [JCachedJwtProvider] 인스턴스를 생성합니다.
+     * JWT 의 파싱된 정보인 [io.bluetape4k.jwt.reader.JwtReader]를 캐싱하는 [JCacheJwtProvider] 인스턴스를 생성합니다.
      *
-     * @param cache [JwtReaderDto]를 저장하는 JCache
      * @param delegate [JwtProvider] 인스턴스
+     * @param cache [JwtReaderDto]를 저장하는 JCache
      */
     fun jcached(
         delegate: JwtProvider,

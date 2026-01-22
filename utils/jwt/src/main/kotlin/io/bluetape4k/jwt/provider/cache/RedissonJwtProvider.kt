@@ -26,7 +26,6 @@ import java.util.concurrent.TimeUnit
  * @property cache Redisson [RMapCache] 인스턴스
  * @property ttl   캐시 엔트리의 유효기간 (기본값: 3일)
  * @property delegate [JwtProvider] 인스턴스
- * @constructor Create empty Redisson jwt provider
  */
 class RedissonJwtProvider private constructor(
     private val delegate: JwtProvider,

@@ -3,6 +3,8 @@ package io.bluetape4k.jwt.provider.cache
 import com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
 import io.bluetape4k.cache.jcache.getOrCreate
 import io.bluetape4k.cache.jcache.jcacheManager
+import io.bluetape4k.jwt.keychain.repository.KeyChainRepository
+import io.bluetape4k.jwt.keychain.repository.inmemory.InMemoryKeyChainRepository
 import io.bluetape4k.jwt.provider.AbstractJwtProviderTest
 import io.bluetape4k.jwt.provider.JwtProvider
 import io.bluetape4k.jwt.provider.JwtProviderFactory
@@ -13,11 +15,12 @@ class JCacheJwtProviderTest: AbstractJwtProviderTest() {
 
     companion object: KLogging()
 
+    override val repository: KeyChainRepository = InMemoryKeyChainRepository()
+
     private val jcache =
         jcacheManager<CaffeineCachingProvider>().getOrCreate<String, JwtReaderDto>("jwt")
 
     private val delegate = JwtProviderFactory.default(keyChainRepository = repository)
 
     override val provider: JwtProvider = JwtProviderFactory.jcached(delegate, jcache)
-
 }

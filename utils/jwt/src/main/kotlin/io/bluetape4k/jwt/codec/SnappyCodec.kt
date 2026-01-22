@@ -3,7 +3,6 @@ package io.bluetape4k.jwt.codec
 import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.io.compressor.SnappyCompressor
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.support.unsafeLazy
 import io.jsonwebtoken.impl.compression.AbstractCompressionCodec
 
 class SnappyCodec: AbstractCompressionCodec() {
@@ -12,7 +11,7 @@ class SnappyCodec: AbstractCompressionCodec() {
         const val ALGORITHM = "SNAPPY"
     }
 
-    private val snappy: SnappyCompressor by unsafeLazy { Compressors.Snappy }
+    private val snappy: SnappyCompressor = Compressors.Snappy
 
     override fun getAlgorithmName(): String = ALGORITHM
 

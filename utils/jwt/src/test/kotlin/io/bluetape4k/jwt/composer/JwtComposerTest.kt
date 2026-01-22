@@ -26,11 +26,11 @@ class JwtComposerTest: AbstractJwtTest() {
     companion object: KLogging()
 
     private fun getCodecs() = listOf(
+        JwtCodecs.Deflate,
+        JwtCodecs.Gzip,
         JwtCodecs.Lz4,
         JwtCodecs.Snappy,
         JwtCodecs.Zstd,
-        JwtCodecs.Gzip,
-        JwtCodecs.Deflate
     )
 
     private val composer = JwtComposer(KeyChain())

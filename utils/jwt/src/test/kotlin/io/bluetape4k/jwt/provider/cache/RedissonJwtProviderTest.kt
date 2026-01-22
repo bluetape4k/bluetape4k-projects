@@ -1,6 +1,8 @@
 package io.bluetape4k.jwt.provider.cache
 
 import io.bluetape4k.LibraryName
+import io.bluetape4k.jwt.keychain.repository.KeyChainRepository
+import io.bluetape4k.jwt.keychain.repository.redis.RedisKeyChainRepository
 import io.bluetape4k.jwt.provider.AbstractJwtProviderTest
 import io.bluetape4k.jwt.provider.JwtProvider
 import io.bluetape4k.jwt.provider.JwtProviderFactory
@@ -21,7 +23,16 @@ class RedissonJwtProviderTest: AbstractJwtProviderTest() {
         redissonClient.getMapCache<String, JwtReaderDto>("$LibraryName:jwt:reaer", LZ4Codec())
     }
 
-    private val delegate = JwtProviderFactory.default(keyChainRepository = repository)
+    private val delegate by lazy {
+        JwtProviderFactory.default(keyChainRepository = repository)
+    }
 
-    override val provider: JwtProvider = JwtProviderFactory.redissonCached(delegate, readerCache)
+    override val repository: KeyChainRepository by lazy {
+        RedisKeyChainRepository(redissonClient)
+    }
+
+    override val provider: JwtProvider by lazy {
+        JwtProviderFactory.redissonCached(delegate, readerCache)
+    }
+
 }

@@ -23,15 +23,15 @@ class JwtComposerDslTest: AbstractJwtTest() {
     companion object: KLogging()
 
     private fun getCodecs() = listOf(
+        JwtCodecs.Deflate,
+        JwtCodecs.Gzip,
         JwtCodecs.Lz4,
         JwtCodecs.Snappy,
         JwtCodecs.Zstd,
-        JwtCodecs.Gzip,
-        JwtCodecs.Deflate
     )
 
     private val keyChain = KeyChain()
-    private val composer by lazy { JwtComposer(keyChain) }
+    private val composer = JwtComposer(keyChain)
 
     @Test
     fun `jwt composed by dsl`() {
@@ -77,7 +77,8 @@ class JwtComposerDslTest: AbstractJwtTest() {
             header("x-author", "debop")
             issuer = LibraryName
             claim("small-data", LibraryName)
-            // 아주 긴 문장이라면
+
+            // 아주 긴 문장
             claim("long-claim", randomString(4096).replicate(4))
             claim("long-data", randomString(4096).replicate(4))
             expirationAfterMinutes = 60L

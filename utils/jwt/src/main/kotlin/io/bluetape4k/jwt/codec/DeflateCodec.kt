@@ -2,7 +2,6 @@ package io.bluetape4k.jwt.codec
 
 import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.support.unsafeLazy
 import io.jsonwebtoken.impl.compression.AbstractCompressionCodec
 
 class DeflateCodec: AbstractCompressionCodec() {
@@ -11,7 +10,7 @@ class DeflateCodec: AbstractCompressionCodec() {
         const val ALGORITHM = "DEFLATE"
     }
 
-    private val deflate by unsafeLazy { Compressors.Deflate }
+    private val deflate = Compressors.Deflate
 
     override fun getAlgorithmName(): String = ALGORITHM
 

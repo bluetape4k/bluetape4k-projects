@@ -14,26 +14,28 @@ class KeyChainTest: AbstractJwtTest() {
 
     @Test
     fun `RSA Algorithm이 같아도 매번 다른 KeyPair를 가진다`() {
-        rsaAlgorithm.forEach { algorithm ->
-            log.debug { "algorithm=$algorithm" }
+        rsaAlgorithm
+            .forEach { algorithm ->
+                log.debug { "algorithm=$algorithm" }
 
-            val keyPair1 = Keys.keyPairFor(algorithm)
-            val keyPair2 = Keys.keyPairFor(algorithm)
+                val keyPair1 = Keys.keyPairFor(algorithm)
+                val keyPair2 = Keys.keyPairFor(algorithm)
 
-            keyPair2.public shouldNotBeEqualTo keyPair1.public
-            keyPair2.private shouldNotBeEqualTo keyPair1.private
-        }
+                keyPair2.public shouldNotBeEqualTo keyPair1.public
+                keyPair2.private shouldNotBeEqualTo keyPair1.private
+            }
     }
 
     @Test
     fun `convert KeyChain to DTO`() {
-        rsaAlgorithm.forEach { algorithm ->
-            log.debug { "algorithm=$algorithm" }
+        rsaAlgorithm
+            .forEach { algorithm ->
+                log.debug { "algorithm=$algorithm" }
 
-            val keyChain = KeyChain(algorithm)
-            val dto = keyChain.toDto()
-            val actual = dto.toKeyChain()
-            actual shouldBeEqualTo keyChain
-        }
+                val keyChain = KeyChain(algorithm)
+                val dto = keyChain.toDto()
+                val actual = dto.toKeyChain()
+                actual shouldBeEqualTo keyChain
+            }
     }
 }

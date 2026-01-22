@@ -8,6 +8,7 @@ import io.bluetape4k.jwt.keychain.KeyChain
 import io.bluetape4k.jwt.utils.epochSeconds
 import io.bluetape4k.jwt.utils.millisToSeconds
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import io.bluetape4k.support.requireNotBlank
 import io.jsonwebtoken.Claims
@@ -47,6 +48,7 @@ class JwtComposer(
      */
     fun header(key: String, value: Any) = apply {
         key.requireNotBlank("key")
+
         if (key !in JwtComposer.RESERVED_HEADER_NAMES) {
             headers[key] = value
         }
@@ -61,6 +63,7 @@ class JwtComposer(
      */
     fun claim(name: String, value: Any, check: Boolean = true) = apply {
         name.requireNotBlank("name")
+
         if (check) {
             when (name) {
                 Claims.EXPIRATION -> throw IllegalArgumentException("use expiration() instead of claim()")
@@ -105,7 +108,7 @@ class JwtComposer(
      * @return A compact URL-safe JWT string.
      */
     fun compose(): String {
-        log.trace { "Compose JWT. keyChain id=${keyChain.id}, algorithm=${keyChain.algorithm.name}" }
+        log.debug { "Compose JWT. keyChain id=${keyChain.id}, algorithm=${keyChain.algorithm.name}" }
 
         return jwt {
             setHeaderParam(HEADER_KEY_ID, keyChain.id)

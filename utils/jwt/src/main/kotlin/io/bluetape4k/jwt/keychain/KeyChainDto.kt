@@ -2,7 +2,6 @@ package io.bluetape4k.jwt.keychain
 
 import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.jwt.keychain.KeyChainDto.Companion.serializer
-import io.bluetape4k.support.unsafeLazy
 import io.jsonwebtoken.SignatureAlgorithm
 import java.io.Serializable
 import java.security.KeyPair
@@ -15,7 +14,7 @@ data class KeyChainDto(
     val expiredTtl: Long,
 ): Serializable {
     companion object {
-        internal val serializer by unsafeLazy { BinarySerializers.LZ4Jdk }
+        internal val serializer = BinarySerializers.LZ4Jdk
     }
 
     var publicKey: ByteArray? = null
