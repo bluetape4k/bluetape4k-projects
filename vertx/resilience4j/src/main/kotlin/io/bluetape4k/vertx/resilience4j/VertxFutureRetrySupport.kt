@@ -43,7 +43,10 @@ inline fun <T> Retry.decorateVertxFuture(
 ): () -> Future<T> = {
     val promise = Promise.promise<T>()
 
-    Retry.decorateCompletionStage(this, scheduler) { supplier().toCompletionStage() }
+    Retry
+        .decorateCompletionStage(this, scheduler) {
+            supplier().toCompletionStage()
+        }
         .get()
         .whenComplete { result, cause ->
             if (cause != null) promise.fail(cause)

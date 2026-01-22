@@ -22,8 +22,6 @@ dependencies {
     // Coroutines
     api(project(":bluetape4k-coroutines"))
     api(Libs.kotlinx_coroutines_core)
-    compileOnly(Libs.kotlinx_coroutines_reactive)
-    compileOnly(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_test)
 
 }

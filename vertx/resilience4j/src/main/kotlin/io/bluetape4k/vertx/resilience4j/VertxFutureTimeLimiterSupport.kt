@@ -10,7 +10,7 @@ import java.util.concurrent.ScheduledExecutorService
  * Vert.x [Future]를 [TimeLimiter]로 decorate 하여 실행합니다.
  */
 inline fun <T, F: Future<T>> TimeLimiter.executeVertxFuture(
-    scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(Thread.ofVirtual().factory()),
+    scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(),
     @BuilderInference crossinline supplier: () -> F,
 ): Future<T> {
     return decorateVertxFuture(scheduler, supplier).invoke()
