@@ -2,8 +2,8 @@ package io.bluetape4k.idgenerators.flake
 
 import io.bluetape4k.codec.Url62
 import io.bluetape4k.idgenerators.IdGenerator
-import io.bluetape4k.idgenerators.flake.node.MacAddressNodeIdentifier
-import io.bluetape4k.idgenerators.flake.node.NodeIdentifier
+import io.bluetape4k.idgenerators.utils.node.MacAddressNodeIdentifier
+import io.bluetape4k.idgenerators.utils.node.NodeIdentifier
 import io.bluetape4k.logging.KLogging
 import java.math.BigInteger
 import java.nio.ByteBuffer
@@ -102,8 +102,12 @@ class Flake private constructor(
     override fun nextId(): ByteArray {
         lock.withLock {
             updateState()
-            val idBuffer = ByteBuffer.allocate(ID_SIZE_BYTES)
-            return idBuffer.putLong(currentTime).put(nodeId).putShort(sequence.toShort()).array()
+            val idBuffer: ByteBuffer = ByteBuffer.allocate(ID_SIZE_BYTES)
+            return idBuffer
+                .putLong(currentTime)
+                .put(nodeId)
+                .putShort(sequence.toShort())
+                .array()
         }
     }
 

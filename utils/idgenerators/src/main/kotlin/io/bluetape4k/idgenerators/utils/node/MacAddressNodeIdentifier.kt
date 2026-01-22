@@ -1,4 +1,4 @@
-package io.bluetape4k.idgenerators.flake.node
+package io.bluetape4k.idgenerators.utils.node
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank

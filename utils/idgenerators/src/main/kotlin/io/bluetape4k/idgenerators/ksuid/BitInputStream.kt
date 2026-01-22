@@ -15,7 +15,7 @@ internal class BitInputStream(private val bytes: ByteArray) {
 
     fun seekBit(pos: Int) {
         offset += pos
-        if (offset < 0 || offset > bitLength) {
+        if (offset !in 0..bitLength) {
             throw IndexOutOfBoundsException("Invalid offset. offset=$offset, pos=$pos")
         }
     }

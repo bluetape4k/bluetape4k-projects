@@ -41,11 +41,10 @@ class GlobalSequencer: Sequencer {
      *
      * MAX_MACHINE_ID * MAX_SEQUENCE 값보더 더 많은 sequence를 생성하려면 최대 1 msec가 소요됩니다.
      */
-    override fun nextSequence(): SnowflakeId {
+    override fun nextSequence(): SnowflakeId =
         lock.withLock {
-            return nextSequenceInternal()
+            nextSequenceInternal()
         }
-    }
 
     override fun nextSequences(size: Int): Sequence<SnowflakeId> =
         generateSequence { nextSequence() }.take(size)

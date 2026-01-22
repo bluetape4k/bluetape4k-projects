@@ -1,5 +1,6 @@
 package io.bluetape4k.idgenerators.hashids
 
+import io.bluetape4k.collections.toLongArray
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import java.io.Serializable
@@ -79,9 +80,9 @@ class Hashids(
             return EMPTY_STRING
         }
         return when {
-            numbers.size == 1                  -> encodeSingle(numbers[0])
+            numbers.size == 1 -> encodeSingle(numbers[0])
             numbers.all { it.isValidNumber() } -> encodeArray(*numbers)
-            else                               -> numbersToArrayList(numbers).joinToString(NUMBER_SEPARATOR) {
+            else -> numbersToArrayList(numbers).joinToString(NUMBER_SEPARATOR) {
                 if (it.first) {  // valid number 인 경우
                     encodeArray(*it.second)
                 } else {
@@ -120,15 +121,14 @@ class Hashids(
         return result
     }
 
-    private fun numberToArray(number: Long): LongArray = when (number) {
-        in 0..MAX_NUMBER -> longArrayOf(number)
-        else             -> {
+    private fun numberToArray(number: Long): LongArray {
+        return if (number in 0..MAX_NUMBER) longArrayOf(number)
+        else {
             val quotient = number / MAX_NUMBER
             val reminder = number % MAX_NUMBER
-            when {
-                number.sign > 0 -> longArrayOf(reminder, quotient)
-                else            -> longArrayOf(-reminder, 0, -quotient)
-            }
+
+            if (number.sign > 0) longArrayOf(reminder, quotient)
+            else longArrayOf(-reminder, 0, -quotient)
         }
     }
 
@@ -138,7 +138,12 @@ class Hashids(
         log.trace { "numbersHash=$numbersHash, initialChar=$initialChar" }
 
         val (encodedString, encodingAlphabet) = initEncode(
-            numbers.asList(), separators, initialChar, 0, alphabet, initialChar
+            numbers.asList(),
+            separators,
+            initialChar,
+            0,
+            alphabet,
+            initialChar
         )
         val tempReturnString = addGuardsIfNecessary(encodedString, numbersHash)
 
@@ -166,14 +171,14 @@ class Hashids(
     }
 
     private fun arrayToLong(array: LongArray): Long = when (array.size) {
-        1    -> array[0]
-        2    -> {
+        1 -> array[0]
+        2 -> {
             val reminder = array[0]
             val quotient = array[1]
             quotient * MAX_NUMBER + reminder
         }
 
-        3    -> {
+        3 -> {
             val reminder = array[0]
             val quotient = array[2]
             -(quotient * MAX_NUMBER + reminder)
@@ -194,10 +199,9 @@ class Hashids(
         val returnValue = unhashSubHashes(hashBreakdown.iterator(), lottery, mutableListOf(), alphabet)
         log.trace { "returnValue=${returnValue.joinToString()}" }
 
-        val decodedValue = when {
-            encode(*returnValue) != hash -> longArrayOf()
-            else                         -> returnValue
-        }
+        val decodedValue =
+            if (encode(*returnValue) != hash) longArrayOf()
+            else returnValue
         log.trace { "Decode hash=[$hash], returnValue=${returnValue.joinToString()}, decodedValue=${decodedValue.joinToString()}" }
         return decodedValue
     }
@@ -217,7 +221,10 @@ class Hashids(
         }
 
         val toEncode =
-            numRegex.findAll(hexStr).map { it.groupValues }.flatten().map { it.toLong(16) }.toList().toLongArray()
+            numRegex.findAll(hexStr)
+                .flatMap { it.groupValues }
+                .map { it.toLong(16) }
+                .toLongArray()
 
         return encode(*toEncode)
     }
@@ -249,18 +256,14 @@ class Hashids(
 
         val guardCount = ceil(adjustedAlphabet.length.toDouble() / GUARD_DIV).toInt()
 
-        return when {
-            adjustedAlphabet.length < 3 -> {
-                val guards = adjustedSeparators.substring(0, guardCount)
-                val seps = adjustedSeparators.substring(guardCount)
-                AlphabetAndSeparators(adjustedAlphabet, seps, guards)
-            }
-
-            else                        -> {
-                val guards = adjustedAlphabet.substring(0, guardCount)
-                val alphabet = adjustedAlphabet.substring(guardCount)
-                AlphabetAndSeparators(alphabet, adjustedSeparators, guards)
-            }
+        return if (adjustedAlphabet.length < 3) {
+            val guards = adjustedSeparators.substring(0, guardCount)
+            val seps = adjustedSeparators.substring(guardCount)
+            AlphabetAndSeparators(adjustedAlphabet, seps, guards)
+        } else {
+            val guards = adjustedAlphabet.substring(0, guardCount)
+            val alphabet = adjustedAlphabet.substring(guardCount)
+            AlphabetAndSeparators(alphabet, adjustedSeparators, guards)
         }
     }
 
@@ -273,18 +276,14 @@ class Hashids(
         return if (shuffledSeparators.isEmpty() || moreSeparators) {
             val sepsLength = alphabetWithoutSeparators.calcSeparatorsLength()
 
-            when {
-                sepsLength > shuffledSeparators.length -> {
-                    val difference = sepsLength - shuffledSeparators.length
-                    val seps = shuffledSeparators + alphabetWithoutSeparators.substring(0, difference)
-                    val alpha = alphabetWithoutSeparators.substring(difference)
-                    AlphabetAndSeparators(consistentShuffle(alpha, salt), seps)
-                }
-
-                else                                   -> {
-                    val seps = shuffledSeparators.substring(0, sepsLength)
-                    AlphabetAndSeparators(consistentShuffle(alphabetWithoutSeparators, salt), seps)
-                }
+            if (sepsLength > shuffledSeparators.length) {
+                val difference = sepsLength - shuffledSeparators.length
+                val seps = shuffledSeparators + alphabetWithoutSeparators.substring(0, difference)
+                val alpha = alphabetWithoutSeparators.substring(difference)
+                AlphabetAndSeparators(consistentShuffle(alpha, salt), seps)
+            } else {
+                val seps = shuffledSeparators.substring(0, sepsLength)
+                AlphabetAndSeparators(consistentShuffle(alphabetWithoutSeparators, salt), seps)
             }
         } else {
             AlphabetAndSeparators(consistentShuffle(alphabetWithoutSeparators, salt), shuffledSeparators)
@@ -299,14 +298,10 @@ class Hashids(
         val guard0 = guards[guardIndex(numbersHash, encodedStr, 0)]
         val retStr = guard0 + encodedStr
 
-        return when {
-            retStr.length < hashLength -> {
-                val guard2 = guards[guardIndex(numbersHash, retStr, 2)]
-                retStr + guard2
-            }
-
-            else                       -> retStr
-        }
+        return if (retStr.length < hashLength) {
+            val guard2 = guards[guardIndex(numbersHash, retStr, 2)]
+            retStr + guard2
+        } else retStr
     }
 
     private fun extractLotteryCharAndHashArray(initialSplit: List<String>): Pair<Char, List<String>> {
@@ -314,7 +309,10 @@ class Hashids(
         val nthElementOfSplit = initialSplit[index]
 
         val lotteryChar = nthElementOfSplit.first()
-        val breakdown = nthElementOfSplit.substring(1).replace(separatorsRegex, SPACE).split(SPACE)
+        val breakdown = nthElementOfSplit
+            .substring(1)
+            .replace(separatorsRegex, SPACE)
+            .split(SPACE)
 
         return lotteryChar to breakdown
     }
@@ -341,18 +339,22 @@ class Hashids(
         return doHash(input, alphabet, HashData(EMPTY_STRING, input)).hash
     }
 
-    private tailrec fun doHash(number: Long, alphabet: String, data: HashData): HashData = when {
-        data.current > 0 -> {
+    private tailrec fun doHash(number: Long, alphabet: String, data: HashData): HashData {
+        return if (data.current > 0) {
             val newHashChar = alphabet[(data.current % alphabet.length).toInt()]
             val newCurrent = data.current / alphabet.length
             doHash(number, alphabet, HashData("$newHashChar${data.hash}", newCurrent))
-        }
-
-        else             -> data
+        } else data
     }
 
     private fun unhash(input: String, alphabet: String): Long {
-        return doUnhash(input.toCharArray(), alphabet, alphabet.length.toDouble(), 0, 0)
+        return doUnhash(
+            input.toCharArray(),
+            alphabet,
+            alphabet.length.toDouble(),
+            0,
+            0
+        )
     }
 
     private tailrec fun doUnhash(
@@ -395,7 +397,9 @@ class Hashids(
         }
 
         return shuffle(
-            ShuffleData(String(currentAlphabet), data.salt, cumulativeValue, saltReminder + 1), currentPos - 1, limit
+            ShuffleData(String(currentAlphabet), data.salt, cumulativeValue, saltReminder + 1),
+            currentPos - 1,
+            limit
         )
     }
 
@@ -450,7 +454,7 @@ class Hashids(
                 tempReturnStr.substring(pos, pos + hashLength)
             }
 
-            else       -> tempReturnStr
+            else -> tempReturnStr
         }
 
         return ensureMinLength(halfLength, newAlphabet, newReturnStr)

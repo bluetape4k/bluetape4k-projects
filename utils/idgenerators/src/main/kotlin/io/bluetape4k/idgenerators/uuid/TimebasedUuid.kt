@@ -10,19 +10,6 @@ import java.util.*
  */
 object TimebasedUuid {
 
-    private val generator: TimebasedUuidGenerator by lazy { TimebasedUuidGenerator() }
-
-    /**
-     * Timebased UUID 를 생성합니다.
-     */
-    fun nextUUID(): UUID = generator.nextUUID()
-
-    fun nextUUIDs(size: Int): Sequence<UUID> = generator.nextUUIDs(size)
-
-    fun nextBase62String(): String = generator.nextBase62String()
-
-    fun nextBase62Strings(size: Int): Sequence<String> = generator.nextBase62Strings(size)
-
     /**
      * UUID v6 형식의 Timebased UUID Identifier를 생성합니다.
      */
@@ -67,4 +54,32 @@ object TimebasedUuid {
             return nextId().encodeBase62()
         }
     }
+
+    @Deprecated("use TimebasedUuid.Reordered")
+    private val generator: TimebasedUuidGenerator by lazy { TimebasedUuidGenerator() }
+
+    @Deprecated(
+        "use TimebasedUuid.Reorderd.nextId()",
+        replaceWith = ReplaceWith("TimebasedUuid.Reorderd.nextId()")
+    )
+    fun nextUUID(): UUID = generator.nextUUID()
+
+    @Deprecated(
+        "use TimebasedUuid.Reorderd.nextIds(size)",
+        replaceWith = ReplaceWith("TimebasedUuid.Reorderd.nextIds(size)")
+    )
+    fun nextUUIDs(size: Int): Sequence<UUID> = generator.nextUUIDs(size)
+
+    @Deprecated(
+        "use TimebasedUuid.Reorderd.nextIdAsString()",
+        replaceWith = ReplaceWith("TimebasedUuid.Reorderd.nextIdAsString()")
+    )
+    fun nextBase62String(): String = generator.nextBase62String()
+
+    @Deprecated(
+        "use TimebasedUuid.Reorderd.nextIdAsStrings(size)",
+        replaceWith = ReplaceWith("TimebasedUuid.Reorderd.nextIdAsStrings(size)")
+    )
+    fun nextBase62Strings(size: Int): Sequence<String> = generator.nextBase62Strings(size)
+
 }

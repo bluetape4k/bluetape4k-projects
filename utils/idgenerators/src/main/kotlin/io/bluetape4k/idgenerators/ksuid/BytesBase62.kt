@@ -83,7 +83,6 @@ internal object BytesBase62: KLogging() {
         return output.toArray()
     }
 
-
     /**
      * 이 배열은 6비트 양수 정수 인덱스 값을 RFC 2045의 표 1에 지정된 "Base62 Alphabet" 동등물로 변환합니다.
      *
@@ -103,7 +102,7 @@ internal object BytesBase62: KLogging() {
      * Base62 알파벳에 없지만 배열 범위 내에 있는 문자는 -1로 변환됩니다.
      *
      *
-     * NOTE: 여기에는 Base62 알파벳에 62와 63 값을 나타낼 수 있는 특수 문자가 없으므로 두 값 모두 이 디코딩 테이블에 없습니다.
+     * HINT: 여기에는 Base62 알파벳에 62와 63 값을 나타낼 수 있는 특수 문자가 없으므로 두 값 모두 이 디코딩 테이블에 없습니다.
      *
      * Thanks to "commons" project in ws.apache.org for this code.
      * http://svn.apache.org/repos/asf/webservices/commons/trunk/modules/util/

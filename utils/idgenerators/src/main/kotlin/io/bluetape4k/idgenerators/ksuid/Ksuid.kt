@@ -3,7 +3,7 @@ package io.bluetape4k.idgenerators.ksuid
 import io.bluetape4k.codec.encodeHexString
 import io.bluetape4k.idgenerators.IdGenerator
 import io.bluetape4k.logging.KLogging
-import java.io.ByteArrayOutputStream
+import io.bluetape4k.logging.trace
 import java.nio.ByteBuffer
 import java.security.SecureRandom
 import java.time.Instant
@@ -66,19 +66,24 @@ object Ksuid: IdGenerator<String>, KLogging() {
      * @param timestamp KSUID의 타임스탬프
      */
     private fun generate(timestamp: ByteArray): String {
-        val uid = ByteArrayOutputStream().use { bos ->
-            bos.write(timestamp)
-            bos.write(generatePayload())
-            BytesBase62.encode(bos.toByteArray())
-        }
-        // log.trace { "generated uid=$uid" }
+        val buffer = ByteBuffer.allocate(MAX_ENCODED_LEN)
+        buffer.put(timestamp)
+        buffer.put(generatePayload())
+
+//        val array = ByteArray(MAX_ENCODED_LEN)
+//        timestamp.copyInto(array)
+//        generatePayload().copyInto(array, timestamp.size)
+
+        val uid = BytesBase62.encode(buffer.array())
+        log.trace { "generated uid=$uid" }
+
         return uid.substring(0, MAX_ENCODED_LEN)
-        // return if (uid.length > MAX_ENCODED_LEN) uid.substring(0, MAX_ENCODED_LEN) else uid
     }
 
     private fun generateTimestamp(epochSeconds: Long = System.currentTimeMillis() / 1000): ByteArray {
-        val timestamp = (epochSeconds - EPOCH_SECONDS).toInt()
-        return ByteBuffer.allocate(TIMESTAMP_LEN).putInt(timestamp).array()
+        return ByteBuffer.allocate(TIMESTAMP_LEN)
+            .putInt((epochSeconds - EPOCH_SECONDS).toInt())
+            .array()
     }
 
     private fun generatePayload(): ByteArray {
@@ -118,5 +123,4 @@ object Ksuid: IdGenerator<String>, KLogging() {
         val payload = decodedKsuid.copyOfRange(TIMESTAMP_LEN, decodedKsuid.size - TIMESTAMP_LEN)
         return payload.encodeHexString()
     }
-
 }

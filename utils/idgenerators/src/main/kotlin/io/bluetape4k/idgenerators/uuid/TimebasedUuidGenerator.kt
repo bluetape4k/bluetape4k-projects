@@ -1,18 +1,18 @@
 package io.bluetape4k.idgenerators.uuid
 
 import com.fasterxml.uuid.Generators
-import com.fasterxml.uuid.NoArgGenerator
+import com.fasterxml.uuid.impl.TimeBasedReorderedGenerator
 import io.bluetape4k.codec.Url62
 import io.bluetape4k.idgenerators.IdGenerator
 import java.util.*
 
 /**
- * Timebased UUID를 생성하는 Generator입니다.
+ * UUID V7 형식의 Timebased UUID를 생성하는 Generator입니다.
  */
 class TimebasedUuidGenerator: IdGenerator<UUID> {
 
-    private val generator: NoArgGenerator by lazy {
-        Generators.timeBasedEpochGenerator()
+    private val generator: TimeBasedReorderedGenerator by lazy {
+        Generators.timeBasedReorderedGenerator()
     }
 
     override fun nextId(): UUID = generator.generate()
@@ -40,14 +40,14 @@ class TimebasedUuidGenerator: IdGenerator<UUID> {
         generateSequence { nextUUID() }.take(size)
 
     /**
-     * 새로운 Time based UUID를 생성하고, 이를 [Base62]로 인코딩해서 반환합니다.
-     * @return UUID 값을 [Base62]로 인코딩한 문자열
+     * 새로운 Time based UUID를 생성하고, 이를 Base62 로 인코딩해서 반환합니다.
+     * @return UUID 값을 Base62 로 인코딩한 문자열
      */
     fun nextBase62String(): String = Url62.encode(nextUUID())
 
     /**
-     * 지정한 size 만큼 Time based UUID를 생성하고, 이를 [Base62]로 인코딩해서 반환합니다.
-     * @return UUID 값을 [Base62]로 인코딩한 문자열의 컬렉션
+     * 지정한 size 만큼 Time based UUID를 생성하고, 이를 Base62 로 인코딩해서 반환합니다.
+     * @return UUID 값을 Base62 로 인코딩한 문자열의 컬렉션
      */
     fun nextBase62Strings(size: Int): Sequence<String> =
         generateSequence { nextBase62String() }.take(size)

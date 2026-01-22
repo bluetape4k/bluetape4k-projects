@@ -6,7 +6,7 @@ import io.bluetape4k.idgenerators.IdGenerator
 import java.util.*
 
 /**
- * 랜덤 UUID 생성기의 구현입니다.
+ * UUID V4 형식의 랜덤 UUID 생성기의 구현입니다.
  *
  * JUG에서 제공하는 모든 구현과 마찬가지로 이 생성기는 완전히 스레드 안전합니다.
  */

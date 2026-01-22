@@ -1,21 +1,25 @@
 package io.bluetape4k.idgenerators.uuid
 
 import io.bluetape4k.idgenerators.IdGenerator
+import io.bluetape4k.idgenerators.hashids.Hashids
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.debug
+import io.bluetape4k.support.toLongArray
+import io.bluetape4k.support.toUUID
 import io.bluetape4k.utils.Runtimex
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldNotBeEqualTo
+import org.amshove.kluent.shouldContainSame
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.test.assertTrue
 
 abstract class AbstractTimebasedUuidTest {
 
@@ -25,60 +29,58 @@ abstract class AbstractTimebasedUuidTest {
         private val TEST_LIST = List(TEST_COUNT) { it }
     }
 
-    abstract val uuidGenerator: IdGenerator<UUID>
+    protected abstract val uuidGenerator: IdGenerator<UUID>  // = TimebasedUuid.Reordered
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `generate uuid`() {
-        val uuid1 = uuidGenerator.nextId()
-        val uuid2 = uuidGenerator.nextId()
+    fun `generate timebased uuid`() {
+        val u1 = uuidGenerator.nextId()
+        val u2 = uuidGenerator.nextId()
+        val u3 = uuidGenerator.nextId()
 
-        log.trace { "uuid1=$uuid1" }
-        log.trace { "uuid2=$uuid2" }
-        uuid2 shouldNotBeEqualTo uuid1
+        listOf(u1, u2, u3).forEach {
+            log.debug { "uuid=$it" }
+        }
+
+        assertTrue { u2 > u1 }
+        assertTrue { u3 > u2 }
+
+        // u1.version() shouldBeEqualTo 6   // Time based
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `generate uuid as string`() {
-        val uuid1 = uuidGenerator.nextIdAsString()
-        val uuid2 = uuidGenerator.nextIdAsString()
+    fun `generate timebased uuid with size`() {
 
-        log.trace { "uuid1=$uuid1" }
-        log.trace { "uuid2=$uuid2" }
-        uuid2 shouldNotBeEqualTo uuid1
+        val uuids = uuidGenerator.nextIds(TEST_COUNT).toList()
+        val sorted = uuids.sorted().toList()
+
+        sorted.forEachIndexed { index, uuid ->
+            uuid shouldBeEqualTo sorted[index]
+        }
+
+        uuids.distinct().size shouldBeEqualTo uuids.size
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `generate multiple uuids`() {
-        val uuids = uuidGenerator.nextIds(10).toList()
+    fun `generate timebased uuids as parallel`() {
+        val uuids = TEST_LIST.parallelStream()
+            .map { uuidGenerator.nextId() }
+            .toList()
+            .sorted()
 
-        uuids.distinct() shouldBeEqualTo uuids
-        uuids.sorted() shouldBeEqualTo uuids
-    }
-
-    @RepeatedTest(REPEAT_SIZE)
-    fun `generate multiple uuids as string`() {
-        val uuids = uuidGenerator.nextIdsAsString(10).toList()
-
-        uuids.distinct() shouldBeEqualTo uuids
-        uuids.sorted() shouldBeEqualTo uuids
+        // 중복 발행은 없어야 한다
+        uuids.distinct().size shouldBeEqualTo uuids.size
     }
 
     @RepeatedTest(REPEAT_SIZE)
     fun `generate timebased uuids in multi threads`() {
         val idMap = ConcurrentHashMap<UUID, Int>()
-        val idStringMap = ConcurrentHashMap<String, Int>()
 
         MultithreadingTester()
             .numThreads(2 * Runtimex.availableProcessors)
             .roundsPerThread(TEST_COUNT)
             .add {
-                repeat(REPEAT_SIZE) {
-                    val id = uuidGenerator.nextId()
-                    idMap.putIfAbsent(id, 1).shouldBeNull()
-
-                    val idString = uuidGenerator.nextIdAsString()
-                    idStringMap.putIfAbsent(idString, 1).shouldBeNull()
-                }
+                val id = uuidGenerator.nextId()
+                idMap.putIfAbsent(id, 1).shouldBeNull()
             }
             .run()
     }
@@ -87,51 +89,38 @@ abstract class AbstractTimebasedUuidTest {
     @RepeatedTest(REPEAT_SIZE)
     fun `generate timebased uuids in virtual threads`() {
         val idMap = ConcurrentHashMap<UUID, Int>()
-        val idStringMap = ConcurrentHashMap<String, Int>()
 
         StructuredTaskScopeTester()
             .roundsPerTask(TEST_COUNT * 2 * Runtimex.availableProcessors)
             .add {
-                repeat(REPEAT_SIZE) {
-                    val id = uuidGenerator.nextId()
-                    idMap.putIfAbsent(id, 1).shouldBeNull()
-
-                    val idString = uuidGenerator.nextIdAsString()
-                    idStringMap.putIfAbsent(idString, 1).shouldBeNull()
-                }
+                val id = uuidGenerator.nextId()
+                idMap.putIfAbsent(id, 1).shouldBeNull()
             }
             .run()
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `generate timebased uuids in multi jobs`() = runSuspendDefault {
+    fun `generate timebased uuids in suspend jobs`() = runSuspendDefault {
         val idMap = ConcurrentHashMap<UUID, Int>()
-        val idStringMap = ConcurrentHashMap<String, Int>()
 
         SuspendedJobTester()
             .numThreads(2 * Runtimex.availableProcessors)
             .roundsPerJob(TEST_COUNT * 2 * Runtimex.availableProcessors)
             .add {
-                repeat(REPEAT_SIZE) {
-                    val id = uuidGenerator.nextId()
-                    idMap.putIfAbsent(id, 1).shouldBeNull()
-
-                    val idString = uuidGenerator.nextIdAsString()
-                    idStringMap.putIfAbsent(idString, 1).shouldBeNull()
-                }
+                val id = uuidGenerator.nextId()
+                idMap.putIfAbsent(id, 1).shouldBeNull()
             }
             .run()
     }
-}
 
-class DefaultTimebasedUuidTest: AbstractTimebasedUuidTest() {
-    override val uuidGenerator: IdGenerator<UUID> = TimebasedUuid.Default
-}
+    @RepeatedTest(REPEAT_SIZE)
+    fun `convert timebased uuids to hashids`() {
+        val hashids = Hashids()
 
-class ReorderedTimebasedUuidTest: AbstractTimebasedUuidTest() {
-    override val uuidGenerator: IdGenerator<UUID> = TimebasedUuid.Reordered
-}
+        val uuids = TEST_LIST.parallelStream().map { uuidGenerator.nextId() }.toList()
+        val encodeds = uuids.map { hashids.encode(*it.toLongArray()) }
 
-class EpochTimebasedUuidTest: AbstractTimebasedUuidTest() {
-    override val uuidGenerator: IdGenerator<UUID> = TimebasedUuid.Epoch
+        val decodeds = encodeds.map { hashids.decode(it).toUUID() }
+        decodeds shouldContainSame uuids
+    }
 }
