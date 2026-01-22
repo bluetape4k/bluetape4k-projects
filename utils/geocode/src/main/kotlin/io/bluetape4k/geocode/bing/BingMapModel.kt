@@ -1,5 +1,7 @@
 package io.bluetape4k.geocode.bing
 
+import java.io.Serializable
+
 /**
  * Bing Maps API 에서 제공하는 주소 정보를 나타내는 데이터 클래스들입니다.
  *
@@ -26,12 +28,12 @@ object BingMapModel {
         val resourceSets: Array<ResourceSet> = emptyArray(),
         val statusCode: Int? = null,
         val statusDescription: String? = null,
-    )
+    ): Serializable
 
     data class ResourceSet(
         val estimatedTotal: Int? = null,
         val resources: Array<Resource> = emptyArray(),
-    )
+    ): Serializable
 
     data class Resource(
         val bbox: Array<Double> = emptyArray(),
@@ -42,14 +44,14 @@ object BingMapModel {
         val entityType: String? = null,
         val geocodePoints: Array<Point> = emptyArray(),
         val matchCodes: Array<String>,
-    )
+    ): Serializable
 
     data class Point(
         val type: String,
         val coordinates: Array<Double> = emptyArray(),
         val calculationMethod: String? = null,
         val usageTypes: Array<String> = emptyArray(),
-    )
+    ): Serializable
 
     data class Address(
         val addressLine: String? = null,
@@ -58,5 +60,5 @@ object BingMapModel {
         val formattedAddress: String? = null,
         val locality: String? = null,
         val postalCode: String? = null,
-    )
+    ): Serializable
 }

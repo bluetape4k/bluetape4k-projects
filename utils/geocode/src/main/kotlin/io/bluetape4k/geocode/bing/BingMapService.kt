@@ -32,7 +32,7 @@ import io.bluetape4k.utils.Resourcex
  */
 object BingMapService: KLogging() {
 
-    const val BASE_URL = "http://dev.virtualearth.net"
+    const val BASE_URL = "https://dev.virtualearth.net"
     const val REST_V1 = "/REST/v1"
 
     @JvmStatic

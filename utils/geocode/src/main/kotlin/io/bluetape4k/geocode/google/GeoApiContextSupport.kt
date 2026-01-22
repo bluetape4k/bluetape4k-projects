@@ -17,14 +17,14 @@ import com.google.maps.OkHttpRequestHandler
  * ```
  *
  * @param requestHandlerBuilder [GeoApiContext.RequestHandler.Builder] 인스턴스
- * @param initializer [GeoApiContext.Builder] 초기화 람다
+ * @param builder [GeoApiContext.Builder] 초기화 람다
  * @return [GeoApiContext] 인스턴스
  */
 inline fun geoApiContext(
     requestHandlerBuilder: GeoApiContext.RequestHandler.Builder = OkHttpRequestHandler.Builder(),
-    initializer: GeoApiContext.Builder.() -> Unit,
+    @BuilderInference builder: GeoApiContext.Builder.() -> Unit,
 ): GeoApiContext =
     GeoApiContext
         .Builder(requestHandlerBuilder)
-        .apply(initializer)
+        .apply(builder)
         .build()
