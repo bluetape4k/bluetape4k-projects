@@ -16,7 +16,7 @@ import java.time.ZonedDateTime
  *
  * @see [ITimeCalendar]
  */
-open class TimeCalendar @JvmOverloads constructor(
+open class TimeCalendar(
     private val config: TimeCalendarConfig = TimeCalendarConfig.Default,
 ): AbstractValueObject(), ITimeCalendar {
 
@@ -27,7 +27,9 @@ open class TimeCalendar @JvmOverloads constructor(
         @JvmStatic
         val EmptyOffset: TimeCalendar = TimeCalendar(TimeCalendarConfig.EmptyOffset)
 
-        @JvmOverloads
+        @JvmStatic
+        fun invoke(cfg: TimeCalendarConfig = TimeCalendarConfig.Default): TimeCalendar = TimeCalendar(cfg)
+
         @JvmStatic
         fun of(cfg: TimeCalendarConfig = TimeCalendarConfig.Default): TimeCalendar = TimeCalendar(cfg)
     }
@@ -38,22 +40,22 @@ open class TimeCalendar @JvmOverloads constructor(
 
     override fun mapStart(moment: ZonedDateTime): ZonedDateTime = when {
         moment > MinPeriodTime -> moment + startOffset
-        else                   -> moment
+        else -> moment
     }
 
     override fun mapEnd(moment: ZonedDateTime): ZonedDateTime = when {
         moment < MaxPeriodTime -> moment + endOffset
-        else                   -> moment
+        else -> moment
     }
 
     override fun unmapStart(moment: ZonedDateTime): ZonedDateTime = when {
         moment > MinPeriodTime -> moment - startOffset
-        else                   -> moment
+        else -> moment
     }
 
     override fun unmapEnd(moment: ZonedDateTime): ZonedDateTime = when {
         moment < MaxPeriodTime -> moment - endOffset
-        else                   -> moment
+        else -> moment
     }
 
     override fun equalProperties(other: Any): Boolean {
@@ -63,10 +65,9 @@ open class TimeCalendar @JvmOverloads constructor(
                 firstDayOfWeek == other.firstDayOfWeek
     }
 
-    override fun buildStringHelper(): ToStringBuilder {
-        return super.buildStringHelper()
+    override fun buildStringHelper(): ToStringBuilder =
+        super.buildStringHelper()
             .add("startOffset", startOffset)
             .add("endOffset", endOffset)
             .add("firstDayOfWeek", firstDayOfWeek)
-    }
 }

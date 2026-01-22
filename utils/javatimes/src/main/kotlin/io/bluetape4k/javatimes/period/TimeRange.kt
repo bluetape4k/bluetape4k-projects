@@ -15,7 +15,6 @@ open class TimeRange(
     readonly: Boolean = false,
 ): TimePeriod(start ?: MinPeriodTime, end ?: MaxPeriodTime, readonly), ITimeRange {
 
-    @JvmOverloads
     constructor(moment: ZonedDateTime, readonly: Boolean = false): this(moment, moment, readonly)
 
     companion object: KLogging() {

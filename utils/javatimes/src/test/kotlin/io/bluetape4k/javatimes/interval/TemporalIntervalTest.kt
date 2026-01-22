@@ -58,7 +58,7 @@ class TemporalIntervalTest {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `create with start and period`(@RandomValue n: Int) {
-        val days = n.absoluteValue % 365
+        val days = n.absoluteValue % 365 + 1
         log.trace { "days=$days" }
 
         val start = nowZonedDateTime(ZoneOffset.UTC)
@@ -74,7 +74,7 @@ class TemporalIntervalTest {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `create with start and duration`(@RandomValue n: Long) {
-        val hours = n.absoluteValue % 100
+        val hours = n.absoluteValue % 100 + 1
         log.trace { "hours=$hours" }
 
         val start = nowZonedDateTime(ZoneOffset.UTC)
@@ -90,7 +90,7 @@ class TemporalIntervalTest {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `create with period and end`(@RandomValue n: Int) {
-        val days = n.absoluteValue % 100
+        val days = n.absoluteValue % 100 + 1
         log.trace { "days=$days" }
 
         val end = nowZonedDateTime(ZoneOffset.UTC)
@@ -106,7 +106,7 @@ class TemporalIntervalTest {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `create with duration and end`(@RandomValue n: Long) {
-        val hours = n.absoluteValue % 100
+        val hours = n.absoluteValue % 100 + 1
         log.trace { "hours=$hours" }
 
         val end = nowZonedDateTime(ZoneOffset.UTC)

@@ -20,7 +20,10 @@ interface ReadableTemporalInterval<T>:
 
         @JvmStatic
         val EMPTY_INTERVAL =
-            temporalIntervalOf<Instant>(Instant.ofEpochMilli(0L), Instant.ofEpochMilli(0L))
+            temporalIntervalOf<Instant>(
+                Instant.ofEpochMilli(0L),
+                Instant.ofEpochMilli(0L)
+            )
     }
 
     val zoneId: ZoneId

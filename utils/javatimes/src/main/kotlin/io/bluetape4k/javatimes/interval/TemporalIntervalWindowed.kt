@@ -32,9 +32,8 @@ private val SupportChronoUnits =
 fun <T> ReadableTemporalInterval<T>.chunked(
     size: Int,
     unit: ChronoUnit,
-): Sequence<List<T>> where T: Temporal, T: Comparable<T> {
-    return windowed(size, size, unit)
-}
+): Sequence<List<T>> where T: Temporal, T: Comparable<T> =
+    windowed(size, size, unit)
 
 /**
  * 기간을 년 단위로 [size] 크기로 나눈 결과를 Sequence 로 반환합니다.
@@ -44,9 +43,8 @@ fun <T> ReadableTemporalInterval<T>.chunked(
  * val chunked = interval.chunkYears(3) // 3년 단위로 나눈 결과
  * ```
  */
-fun <T> ReadableTemporalInterval<T>.chunkYears(size: Int): Sequence<List<T>> where T: Temporal, T: Comparable<T> {
-    return chunked(size, ChronoUnit.YEARS)
-}
+fun <T> ReadableTemporalInterval<T>.chunkYears(size: Int): Sequence<List<T>> where T: Temporal, T: Comparable<T> =
+    chunked(size, ChronoUnit.YEARS)
 
 /**
  * 기간을 월 단위로 [size] 크기로 나눈 결과를 Sequence 로 반환합니다.
@@ -56,9 +54,8 @@ fun <T> ReadableTemporalInterval<T>.chunkYears(size: Int): Sequence<List<T>> whe
  * val chunked = interval.chunkMonths(3) // 3개월 단위로 나눈 결과
  * ```
  */
-fun <T> ReadableTemporalInterval<T>.chunkMonths(size: Int): Sequence<List<T>> where T: Temporal, T: Comparable<T> {
-    return chunked(size, ChronoUnit.MONTHS)
-}
+fun <T> ReadableTemporalInterval<T>.chunkMonths(size: Int): Sequence<List<T>> where T: Temporal, T: Comparable<T> =
+    chunked(size, ChronoUnit.MONTHS)
 
 /**
  * 기간을 주 단위로 [size] 크기로 나눈 결과를 Sequence 로 반환합니다.
@@ -68,9 +65,8 @@ fun <T> ReadableTemporalInterval<T>.chunkMonths(size: Int): Sequence<List<T>> wh
  * val chunked = interval.chunkWeeks(3) // 3주 단위로 나눈 결과
  * ```
  */
-fun <T> ReadableTemporalInterval<T>.chunkWeeks(size: Int): Sequence<List<T>> where T: Temporal, T: Comparable<T> {
-    return chunked(size, ChronoUnit.WEEKS)
-}
+fun <T> ReadableTemporalInterval<T>.chunkWeeks(size: Int): Sequence<List<T>> where T: Temporal, T: Comparable<T> =
+    chunked(size, ChronoUnit.WEEKS)
 
 /**
  * 기간을 일 단위로 [size] 크기로 나눈 결과를 Sequence 로 반환합니다.
@@ -80,9 +76,8 @@ fun <T> ReadableTemporalInterval<T>.chunkWeeks(size: Int): Sequence<List<T>> whe
  * val chunked = interval.chunkDays(3) // 3일 단위로 나눈 결과
  * ```
  */
-fun <T> ReadableTemporalInterval<T>.chunkDays(size: Int): Sequence<List<T>> where T: Temporal, T: Comparable<T> {
-    return chunked(size, ChronoUnit.DAYS)
-}
+fun <T> ReadableTemporalInterval<T>.chunkDays(size: Int): Sequence<List<T>> where T: Temporal, T: Comparable<T> =
+    chunked(size, ChronoUnit.DAYS)
 
 /**
  * 기간을 시간 단위로 [size] 크기로 나눈 결과를 Sequence 로 반환합니다.
@@ -92,9 +87,8 @@ fun <T> ReadableTemporalInterval<T>.chunkDays(size: Int): Sequence<List<T>> wher
  * val chunked = interval.chunkHours(3) // 3시간 단위로 나눈 결과
  * ```
  */
-fun <T> ReadableTemporalInterval<T>.chunkHours(size: Int): Sequence<List<T>> where T: Temporal, T: Comparable<T> {
-    return chunked(size, ChronoUnit.HOURS)
-}
+fun <T> ReadableTemporalInterval<T>.chunkHours(size: Int): Sequence<List<T>> where T: Temporal, T: Comparable<T> =
+    chunked(size, ChronoUnit.HOURS)
 
 /**
  * 기간을 분 단위로 [size] 크기로 나눈 결과를 Sequence 로 반환합니다.
@@ -104,9 +98,8 @@ fun <T> ReadableTemporalInterval<T>.chunkHours(size: Int): Sequence<List<T>> whe
  * val chunked = interval.chunkMinutes(3) // 3분 단위로 나눈 결과
  * ```
  */
-fun <T> ReadableTemporalInterval<T>.chunkMinutes(size: Int): Sequence<List<T>> where T: Temporal, T: Comparable<T> {
-    return chunked(size, ChronoUnit.MINUTES)
-}
+fun <T> ReadableTemporalInterval<T>.chunkMinutes(size: Int): Sequence<List<T>> where T: Temporal, T: Comparable<T> =
+    chunked(size, ChronoUnit.MINUTES)
 
 /**
  * 기간을 초 단위로 [size] 크기로 나눈 결과를 Sequence 로 반환합니다.
@@ -116,9 +109,8 @@ fun <T> ReadableTemporalInterval<T>.chunkMinutes(size: Int): Sequence<List<T>> w
  * val chunked = interval.chunkSeconds(3) // 3초 단위로 나눈 결과
  * ```
  */
-fun <T> ReadableTemporalInterval<T>.chunkSeconds(size: Int): Sequence<List<T>> where T: Temporal, T: Comparable<T> {
-    return chunked(size, ChronoUnit.SECONDS)
-}
+fun <T> ReadableTemporalInterval<T>.chunkSeconds(size: Int): Sequence<List<T>> where T: Temporal, T: Comparable<T> =
+    chunked(size, ChronoUnit.SECONDS)
 
 /**
  * 기간을 밀리초 단위로 [size] 크기로 나눈 결과를 Sequence 로 반환합니다.
@@ -128,9 +120,8 @@ fun <T> ReadableTemporalInterval<T>.chunkSeconds(size: Int): Sequence<List<T>> w
  * val chunked = interval.chunkMillis(3) // 3밀리초 단위로 나눈 결과
  * ```
  */
-fun <T> ReadableTemporalInterval<T>.chunkMillis(size: Int): Sequence<List<T>> where T: Temporal, T: Comparable<T> {
-    return chunked(size, ChronoUnit.MILLIS)
-}
+fun <T> ReadableTemporalInterval<T>.chunkMillis(size: Int): Sequence<List<T>> where T: Temporal, T: Comparable<T> =
+    chunked(size, ChronoUnit.MILLIS)
 
 //
 // windowed
@@ -154,8 +145,7 @@ fun <T> ReadableTemporalInterval<T>.windowed(
     size: Int,
     step: Int = 1,
     unit: ChronoUnit = ChronoUnit.YEARS,
-): Sequence<List<T>>
-        where T: Temporal, T: Comparable<T> {
+): Sequence<List<T>> where T: Temporal, T: Comparable<T> {
     size.assertPositiveNumber("size")
     step.assertPositiveNumber("step")
     assert(unit in SupportChronoUnits) { "Not supported ChronoUnit. unit=$unit" }
@@ -170,7 +160,6 @@ fun <T> ReadableTemporalInterval<T>.windowed(
             }.takeWhile { it < endExclusive }
 
             yield(item)
-
             current = (current + increment) as T
         }
     }

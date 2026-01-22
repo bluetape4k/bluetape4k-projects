@@ -88,7 +88,7 @@ object TimeLines: KLogging() {
         }
 
         val gaps = TimePeriodCollection()
-        val periodStart = moments.minOrNull()
+        val periodStart: ITimeLineMoment? = moments.minOrNull()
 
         // 1. find leading gap
         periodStart?.let { start ->

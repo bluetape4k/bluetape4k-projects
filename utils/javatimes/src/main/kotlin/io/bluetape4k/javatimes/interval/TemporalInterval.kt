@@ -67,10 +67,10 @@ class TemporalInterval<T> private constructor(
         fun parse(str: String): ZonedDateTimeInterval {
             val (leftStr, rightStr) = str.split(ReadableTemporalInterval.SEPARATOR, limit = 2)
 
-            val start = ZonedDateTime.parse(leftStr.trim())
-            val endExclusive = ZonedDateTime.parse(rightStr.trim())
-
-            return temporalIntervalOf(start, endExclusive)
+            return temporalIntervalOf(
+                ZonedDateTime.parse(leftStr.trim()),
+                ZonedDateTime.parse(rightStr.trim())
+            )
         }
 
         /**
@@ -86,10 +86,10 @@ class TemporalInterval<T> private constructor(
         fun parseWithOffset(str: CharSequence): ZonedDateTimeInterval {
             val (leftStr, rightStr) = str.split(ReadableTemporalInterval.SEPARATOR, limit = 2)
 
-            val start = ZonedDateTime.parse(leftStr.trim(), DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-            val endExclusive = ZonedDateTime.parse(rightStr.trim(), DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-
-            return temporalIntervalOf(start, endExclusive)
+            return temporalIntervalOf(
+                start = ZonedDateTime.parse(leftStr.trim(), DateTimeFormatter.ISO_OFFSET_DATE_TIME),
+                endExclusive = ZonedDateTime.parse(rightStr.trim(), DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+            )
         }
 
     }
@@ -99,16 +99,14 @@ class TemporalInterval<T> private constructor(
      * @param duration TemporalAmount
      * @return TemporalInterval
      */
-    fun withAmountAfterStart(duration: TemporalAmount): TemporalInterval<T> {
-        return temporalIntervalOf(startInclusive, duration, zoneId)
-    }
+    fun withAmountAfterStart(duration: TemporalAmount): TemporalInterval<T> =
+        temporalIntervalOf(startInclusive, duration, zoneId)
 
     /**
      * End 를 기준으로 지정한 `duration`을 가지는 [TemporalInterval]을 빌드한다
      * @param duration TemporalAmount
      * @return TemporalInterval
      */
-    fun withAmountBeforeEnd(duration: TemporalAmount): TemporalInterval<T> {
-        return temporalIntervalOf(duration, endExclusive, zoneId)
-    }
+    fun withAmountBeforeEnd(duration: TemporalAmount): TemporalInterval<T> =
+        temporalIntervalOf(duration, endExclusive, zoneId)
 }

@@ -40,32 +40,38 @@ fun <T: Temporal> T.subtract(amount: TemporalAmount): T = this.minus(amount) as 
 /**
  * 현 시각 기준으로 월 초 시각을 반환합니다.
  */
-val <T: Temporal> T.firstOfMonth: T get() = with(TemporalAdjusters.firstDayOfMonth()) as T
+val <T: Temporal> T.firstOfMonth: T
+    get() = with(TemporalAdjusters.firstDayOfMonth()) as T
 
 /**
  * 현 시각 기준으로 월 말 시각을 반환합니다.
  */
-val <T: Temporal> T.lastOfMonth: T get() = with(TemporalAdjusters.lastDayOfMonth()) as T
+val <T: Temporal> T.lastOfMonth: T
+    get() = with(TemporalAdjusters.lastDayOfMonth()) as T
 
 /**
  * 현 시각 기준으로 다음 월의 시작 시각을 반환합니다.
  */
-val <T: Temporal> T.firstOfNextMonth: T get() = with(TemporalAdjusters.firstDayOfNextMonth()) as T
+val <T: Temporal> T.firstOfNextMonth: T
+    get() = with(TemporalAdjusters.firstDayOfNextMonth()) as T
 
 /**
  * 현 시각 기준으로 연초 시각을 반환합니다.
  */
-val <T: Temporal> T.firstOfYear: T get() = with(TemporalAdjusters.firstDayOfYear()) as T
+val <T: Temporal> T.firstOfYear: T
+    get() = with(TemporalAdjusters.firstDayOfYear()) as T
 
 /**
  * 현 시각 기준으로 연말 시각을 반환합니다.
  */
-val <T: Temporal> T.lastOfYear: T get() = with(TemporalAdjusters.lastDayOfYear()) as T
+val <T: Temporal> T.lastOfYear: T
+    get() = with(TemporalAdjusters.lastDayOfYear()) as T
 
 /**
  * 현 시각 기준으로 다음 년의 시작 시각을 반환합니다.
  */
-val <T: Temporal> T.firstOfNextYear: T get() = with(TemporalAdjusters.firstDayOfNextYear()) as T
+val <T: Temporal> T.firstOfNextYear: T
+    get() = with(TemporalAdjusters.firstDayOfNextYear()) as T
 
 /**
  * 현 시각 기준으로 월의 [ordinal]번째 [dayOfWeek] 요일의 시각을 반환합니다.
@@ -76,42 +82,50 @@ fun <T: Temporal> T.dayOfWeekInMonth(ordinal: Int, dayOfWeek: DayOfWeek): T =
 /**
  * 현 시각 기준으로 해당 월의 첫번째 [dayOfWeek] 요일의 시각을 반환합니다.
  */
-fun <T: Temporal> T.firstInMonth(dayOfWeek: DayOfWeek): T = with(TemporalAdjusters.firstInMonth(dayOfWeek)) as T
+fun <T: Temporal> T.firstInMonth(dayOfWeek: DayOfWeek): T =
+    with(TemporalAdjusters.firstInMonth(dayOfWeek)) as T
 
 /**
  * 현 시각 기준으로 해당 월의 마지막 [dayOfWeek] 요일의 시각을 반환합니다.
  */
-fun <T: Temporal> T.lastInMonth(dayOfWeek: DayOfWeek): T = with(TemporalAdjusters.lastInMonth(dayOfWeek)) as T
+fun <T: Temporal> T.lastInMonth(dayOfWeek: DayOfWeek): T =
+    with(TemporalAdjusters.lastInMonth(dayOfWeek)) as T
 
 /**
  * 현 시각 기준으로 해당 월의 전 주의 [dayOfWeek] 요일의 시각을 반환합니다.
  */
-fun <T: Temporal> T.previous(dayOfWeek: DayOfWeek): T = with(TemporalAdjusters.previous(dayOfWeek)) as T
+fun <T: Temporal> T.previous(dayOfWeek: DayOfWeek): T =
+    with(TemporalAdjusters.previous(dayOfWeek)) as T
 
 /**
  * 현 시각 기준으로 해당 월의 전 주의 [dayOfWeek] 요일의 시각 또는 같은 주의 [dayOfWeek] 요일의 시각을 반환합니다.
  */
-fun <T: Temporal> T.previousOrSame(dayOfWeek: DayOfWeek): T = with(TemporalAdjusters.previousOrSame(dayOfWeek)) as T
+fun <T: Temporal> T.previousOrSame(dayOfWeek: DayOfWeek): T =
+    with(TemporalAdjusters.previousOrSame(dayOfWeek)) as T
 
 /**
  * 현 시각 기준으로 해당 월의 다음 주의 [dayOfWeek] 요일의 시각을 반환합니다.
  */
-fun <T: Temporal> T.next(dayOfWeek: DayOfWeek): T = with(TemporalAdjusters.next(dayOfWeek)) as T
+fun <T: Temporal> T.next(dayOfWeek: DayOfWeek): T =
+    with(TemporalAdjusters.next(dayOfWeek)) as T
 
 /**
  * 현 시각 기준으로 해당 월의 다음 주의 [dayOfWeek] 요일의 시각 또는 같은 주의 [dayOfWeek] 요일의 시각을 반환합니다.
  */
-fun <T: Temporal> T.nextOrSame(dayOfWeek: DayOfWeek): T = with(TemporalAdjusters.nextOrSame(dayOfWeek)) as T
+fun <T: Temporal> T.nextOrSame(dayOfWeek: DayOfWeek): T =
+    with(TemporalAdjusters.nextOrSame(dayOfWeek)) as T
 
 /**
  * 현 [Temporal] 이 [temporalUnit]을 지원하는지 여부
  */
-infix fun <T: Temporal> T.supports(temporalUnit: TemporalUnit): Boolean = isSupported(temporalUnit)
+infix fun <T: Temporal> T.supports(temporalUnit: TemporalUnit): Boolean =
+    isSupported(temporalUnit)
 
 /**
  * 현 [TemporalAccessor]를 [Instant]로 변환합니다.
  */
-fun <T: TemporalAccessor> T.toInstant(): Instant = Instant.from(this)
+fun <T: TemporalAccessor> T.toInstant(): Instant =
+    Instant.from(this)
 
 /**
  * [Temporal] 을 Epoch 이후의 milli seconds 단위로 표현한 값 (기존 Date#time, Timestamp 와 같은 값을 나타낸다)
@@ -205,7 +219,6 @@ fun <T: Temporal> T.startOf(chronoUnit: ChronoUnit): T = when (chronoUnit) {
     ChronoUnit.MILLIS  -> startOfMillis()
     else               -> throw IllegalArgumentException("Unsupported ChronoUnit. chronoUnit=$chronoUnit")
 }
-
 
 /**
  * [Temporal]의 년의 시작 시각을 반환합니다.

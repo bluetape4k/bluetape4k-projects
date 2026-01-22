@@ -8,7 +8,7 @@ import io.bluetape4k.javatimes.todayZonedDateTime
 import java.time.ZonedDateTime
 
 class SchoolDay(
-    private val moment: ZonedDateTime = todayZonedDateTime() + 8.hours(),
+    moment: ZonedDateTime = todayZonedDateTime() + 8.hours(),
 ): TimePeriodChain() {
 
     val lesson1: Lesson

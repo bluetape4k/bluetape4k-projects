@@ -25,6 +25,7 @@ fun <T: Date> dateProgressionOf(
             "step의 증감이 반대가 되면 안됩니다. start=$start, endInclusive=$endInclusive, step=$step"
         }
     }
+
     return DateGenericProgression.fromClosedRange(start, endInclusive, step)
 }
 

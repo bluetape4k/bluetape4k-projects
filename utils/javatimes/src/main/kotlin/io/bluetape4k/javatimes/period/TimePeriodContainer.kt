@@ -11,12 +11,11 @@ import java.time.ZonedDateTime
 /**
  * [ITimePeriodContainer]의 기본 구현체
  */
-open class TimePeriodContainer @JvmOverloads constructor(
+open class TimePeriodContainer(
     override val periods: MutableList<ITimePeriod> = mutableListOf(),
 ): TimePeriod(), ITimePeriodContainer, MutableList<ITimePeriod> by periods {
 
     companion object: KLogging() {
-        @JvmStatic
         operator fun invoke(element: ITimePeriod, vararg elements: ITimePeriod): TimePeriodContainer {
             return TimePeriodContainer().apply {
                 add(element)
@@ -58,7 +57,7 @@ open class TimePeriodContainer @JvmOverloads constructor(
 
     override fun add(element: ITimePeriod): Boolean = when (element) {
         is ITimePeriodContainer -> addAll(element)
-        else                    -> if (containsPeriod(element)) false else periods.add(element)
+        else -> if (containsPeriod(element)) false else periods.add(element)
     }
 
     override fun add(index: Int, element: ITimePeriod) {

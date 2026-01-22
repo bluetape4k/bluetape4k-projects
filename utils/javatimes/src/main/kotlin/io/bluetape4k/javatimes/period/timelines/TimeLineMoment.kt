@@ -29,11 +29,10 @@ open class TimeLineMoment(override val moment: ZonedDateTime): AbstractValueObje
 
     override fun hashCode(): Int = moment.hashCode()
 
-    override fun buildStringHelper(): ToStringBuilder {
-        return super.buildStringHelper()
+    override fun buildStringHelper(): ToStringBuilder =
+        super.buildStringHelper()
             .add("moment", moment)
             .add("startCount", startCount)
             .add("endCount", endCount)
             .add("periods", periods)
-    }
 }

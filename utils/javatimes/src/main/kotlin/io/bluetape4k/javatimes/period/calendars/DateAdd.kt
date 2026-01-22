@@ -143,7 +143,6 @@ open class DateAdd protected constructor() {
         return end
     }
 
-    @JvmOverloads
     protected open fun calculateEnd(
         start: ZonedDateTime,
         offset: Duration?,

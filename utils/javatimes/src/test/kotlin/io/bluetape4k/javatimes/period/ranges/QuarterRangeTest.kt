@@ -38,7 +38,7 @@ class QuarterRangeTest: AbstractPeriodTest() {
     fun `default constructor`() {
         val yearStart = nowZonedDateTime().startOfYear()
 
-        Quarter.values().forEach { quarter ->
+        Quarter.entries.forEach { quarter ->
             val offset = quarter.number - 1L
             val qr = QuarterRange(yearStart.plusMonths(offset * MonthsPerQuarter))
 

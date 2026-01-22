@@ -68,7 +68,8 @@ abstract class TemporalOpenedRangeTest<T> where T: Temporal, T: Comparable<T> {
         val range = start.startOfHour() until (start.startOfHour() + 5.hours()) as T
         log.debug { "range=$range" }
 
-        val windowed = range.windowedFlowHours(3, 1)
+        val windowed = range
+            .windowedFlowHours(3, 1)
             .onEach { log.trace { "windowed $it" } }
             .toList()
 
@@ -80,7 +81,8 @@ abstract class TemporalOpenedRangeTest<T> where T: Temporal, T: Comparable<T> {
         val range = start.startOfHour() until (start.startOfHour() + 5.hours()) as T
         log.debug { "range=$range" }
 
-        val chunked = range.chunkedFlowHours(3)
+        val chunked = range
+            .chunkedFlowHours(3)
             .onEach { log.trace { "chunked $it" } }
             .toList()
 

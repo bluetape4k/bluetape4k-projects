@@ -5,8 +5,6 @@ import java.time.ZonedDateTime
 
 /**
  * 시간 블록을 나타내는 최상위 인터페이스
- *
- * @constructor Create empty I time block
  */
 interface ITimeBlock: ITimePeriod {
 

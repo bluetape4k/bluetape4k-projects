@@ -8,13 +8,13 @@ import java.time.OffsetDateTime
 import java.time.OffsetTime
 import java.time.ZonedDateTime
 
-typealias InstantInterval = TemporalInterval<Instant>
+internal typealias InstantInterval = TemporalInterval<Instant>
 
-typealias LocalDateInterval = TemporalInterval<LocalDate>
-typealias LocalTimeInterval = TemporalInterval<LocalTime>
-typealias LocalDateTimeInterval = TemporalInterval<LocalDateTime>
+internal typealias LocalDateInterval = TemporalInterval<LocalDate>
+internal typealias LocalTimeInterval = TemporalInterval<LocalTime>
+internal typealias LocalDateTimeInterval = TemporalInterval<LocalDateTime>
 
-typealias OffsetTimeInterval = TemporalInterval<OffsetTime>
-typealias OffsetDateTimeInterval = TemporalInterval<OffsetDateTime>
+internal typealias OffsetTimeInterval = TemporalInterval<OffsetTime>
+internal typealias OffsetDateTimeInterval = TemporalInterval<OffsetDateTime>
 
-typealias ZonedDateTimeInterval = TemporalInterval<ZonedDateTime>
+internal typealias ZonedDateTimeInterval = TemporalInterval<ZonedDateTime>

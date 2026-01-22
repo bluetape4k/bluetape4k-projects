@@ -13,8 +13,11 @@ open class WeekRange(
     calendar: ITimeCalendar = TimeCalendar.Default,
 ): WeekTimeRange(startTime, 1, calendar) {
 
-    constructor(weekyear: Int, weekOfWeekyear: Int, calendar: ITimeCalendar = TimeCalendar.Default)
-            : this(startOfWeekOfWeekyear(weekyear, weekOfWeekyear), calendar)
+    constructor(
+        weekyear: Int,
+        weekOfWeekyear: Int,
+        calendar: ITimeCalendar = TimeCalendar.Default,
+    ): this(startOfWeekOfWeekyear(weekyear, weekOfWeekyear), calendar)
 
     val firstDayOfWeek: ZonedDateTime get() = start
     val lastDayOfWeek: ZonedDateTime get() = end

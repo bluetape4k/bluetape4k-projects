@@ -68,7 +68,8 @@ fun LocalDateTime.toInstant(): Instant = toZonedDateTime(ZoneOffset.UTC).toInsta
  *
  * @param offset 변환할 zone offset (기본 값: [SystemOffset])
  */
-fun LocalDateTime.toOffsetDateTime(offset: ZoneOffset = SystemOffset) = OffsetDateTime.of(this, offset)
+fun LocalDateTime.toOffsetDateTime(offset: ZoneOffset = SystemOffset): OffsetDateTime =
+    OffsetDateTime.of(this, offset)
 
 /**
  * [LocalDateTime]을 [ZonedDateTime]로 변환합니다.
@@ -80,7 +81,8 @@ fun LocalDateTime.toOffsetDateTime(offset: ZoneOffset = SystemOffset) = OffsetDa
  *
  * @param offset 변환할 zone offset (기본 값: [SystemOffset])
  */
-fun LocalDateTime.toZonedDateTime(offset: ZoneOffset = SystemOffset) = ZonedDateTime.of(this, offset)
+fun LocalDateTime.toZonedDateTime(offset: ZoneOffset = SystemOffset): ZonedDateTime =
+    ZonedDateTime.of(this, offset)
 
 //fun LocalDateTime.startOfYear(): LocalDateTime = this.withDayOfYear(1).truncatedTo(ChronoUnit.DAYS)
 //fun LocalDateTime.startOfMonth(): LocalDateTime = this.withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS)

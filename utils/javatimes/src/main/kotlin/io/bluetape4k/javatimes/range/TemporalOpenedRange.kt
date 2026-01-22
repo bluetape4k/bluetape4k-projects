@@ -1,7 +1,6 @@
 package io.bluetape4k.javatimes.range
 
 import io.bluetape4k.logging.KLogging
-import java.io.Serializable
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
@@ -18,8 +17,7 @@ import java.time.temporal.Temporal
  * @param endExclusive  완료 시각 (제외)
  */
 class TemporalOpenedRange<T>(start: T, endExclusive: T):
-    TemporalOpenedProgression<T>(start, endExclusive, Duration.ofMillis(1)), Serializable
-        where T: Temporal, T: Comparable<T> {
+    TemporalOpenedProgression<T>(start, endExclusive, Duration.ofMillis(1)) where T: Temporal, T: Comparable<T> {
 
     companion object: KLogging() {
         @JvmField

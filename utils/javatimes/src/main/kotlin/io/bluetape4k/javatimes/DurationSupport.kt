@@ -112,7 +112,6 @@ fun durationOfWeek(week: Int): Duration =
  * @param nanos Int   나노초(default: 0)
  * @return Duration
  */
-@JvmOverloads
 fun durationOfDay(
     days: Int,
     hours: Int = 0,
@@ -147,7 +146,6 @@ fun durationOfDay(
  * @param nanos Int   나노초(default: 0)
  * @return Duration
  */
-@JvmOverloads
 fun durationOfHour(
     hours: Int,
     minutes: Int = 0,
@@ -178,7 +176,6 @@ fun durationOfHour(
  * @param nanos Int   나노초(default: 0)
  * @return Duration
  */
-@JvmOverloads
 fun durationOfMinute(
     minutes: Int,
     seconds: Int = 0,
@@ -205,7 +202,6 @@ fun durationOfMinute(
  * @param nanos Int   나노초(default: 0)
  * @return Duration
  */
-@JvmOverloads
 fun durationOfSecond(
     seconds: Int,
     nanos: Int = 0,

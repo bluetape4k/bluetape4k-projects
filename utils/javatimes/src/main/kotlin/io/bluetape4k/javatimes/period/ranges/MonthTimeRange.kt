@@ -9,7 +9,7 @@ import java.time.ZonedDateTime
 /**
  * 월 단위로 [monthCount] 만큼의 기간을 표현하는 클래스입니다.
  */
-open class MonthTimeRange @JvmOverloads constructor(
+open class MonthTimeRange(
     startTime: ZonedDateTime = todayZonedDateTime(),
     val monthCount: Int = 1,
     calendar: ITimeCalendar = TimeCalendar.Default,

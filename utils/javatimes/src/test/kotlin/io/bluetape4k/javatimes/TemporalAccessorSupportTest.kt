@@ -18,7 +18,16 @@ class TemporalAccessorSupportTest {
 
     @Test
     fun `format string for Instant`() {
-        val instant = localDateTimeOf(2020, 10, 14, 6, 55, 44, 123).toInstant(ZoneOffset.UTC)
+        val instant = localDateTimeOf(
+            2020,
+            10,
+            14,
+            6,
+            55,
+            44,
+            123
+        ).toInstant(ZoneOffset.UTC)
+
         instant.toString() shouldBeEqualTo "2020-10-14T06:55:44.123Z"
         instant.toIsoInstantString() shouldBeEqualTo "2020-10-14T06:55:44.123Z"
         instant.toIsoString() shouldBeEqualTo "2020-10-14T06:55:44.123Z"
@@ -26,7 +35,16 @@ class TemporalAccessorSupportTest {
 
     @Test
     fun `format string for LocalDateTime`() {
-        with(localDateTimeOf(2020, 10, 14, 6, 55, 44, 123)) {
+        val localDateTime = localDateTimeOf(
+            2020,
+            10,
+            14,
+            6,
+            55,
+            44,
+            123
+        )
+        with(localDateTime) {
 
             toIsoString() shouldBeEqualTo "2020-10-14T06:55:44.123"
             toIsoDateString() shouldBeEqualTo "2020-10-14"
@@ -53,7 +71,17 @@ class TemporalAccessorSupportTest {
 
     @Test
     fun `format string for OffsetDateTime`() {
-        with(offsetDateTimeOf(2020, 10, 14, 6, 55, 44, 123, ZoneOffset.ofHours(9))) {
+        val offsetDateTime = offsetDateTimeOf(
+            2020,
+            10,
+            14,
+            6,
+            55,
+            44,
+            123,
+            ZoneOffset.ofHours(9)
+        )
+        with(offsetDateTime) {
             toIsoString() shouldBeEqualTo "2020-10-14T06:55:44.123+09:00"
             toIsoDateString() shouldBeEqualTo "2020-10-14+09:00"
             toIsoTimeString() shouldBeEqualTo "06:55:44.123+09:00"
@@ -71,7 +99,17 @@ class TemporalAccessorSupportTest {
 
     @Test
     fun `format string for ZonedDateTime`() {
-        with(zonedDateTimeOf(2020, 10, 14, 6, 55, 44, 123, ZoneId.of("Asia/Seoul"))) {
+        val zonedDateTime = zonedDateTimeOf(
+            2020,
+            10,
+            14,
+            6,
+            55,
+            44,
+            123,
+            ZoneId.of("Asia/Seoul")
+        )
+        with(zonedDateTime) {
             toIsoString() shouldBeEqualTo "2020-10-14T06:55:44.000000123+09:00[Asia/Seoul]"
             toIsoDateString() shouldBeEqualTo "2020-10-14+09:00"
             toIsoTimeString() shouldBeEqualTo "06:55:44.000000123+09:00"
@@ -89,7 +127,14 @@ class TemporalAccessorSupportTest {
 
     @Test
     fun `TemporalAccessor query operator`() {
-        val now = localDateTimeOf(2020, 10, 14, 6, 55, 44)
+        val now = localDateTimeOf(
+            2020,
+            10,
+            14,
+            6,
+            55,
+            44
+        )
 
         now.precision shouldBeEqualTo ChronoUnit.NANOS
 

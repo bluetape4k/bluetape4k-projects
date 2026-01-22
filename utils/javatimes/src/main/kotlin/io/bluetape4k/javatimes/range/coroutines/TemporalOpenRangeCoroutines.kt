@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.time.temporal.ChronoUnit
 import java.time.temporal.Temporal
+import java.time.temporal.TemporalAmount
 
 fun <T> TemporalOpenedProgression<T>.asFlow(): Flow<T> where T: Temporal, T: Comparable<T> = flow {
     sequence().forEach { emit(it) }
@@ -32,10 +33,16 @@ fun <T> TemporalOpenedRange<T>.windowedFlow(
 
     return flow {
         var current: T = start.startOf(unit)
-        val increment = step.temporalAmount(unit)
+        val increment: TemporalAmount = step.temporalAmount(unit)
 
         while (current < endExclusive) {
-            val item = List(size) { (current + it.temporalAmount(unit)) as T }.takeWhile { it < endExclusive }
+            var index = 0
+            val item = generateSequence {
+                (current + (index++).temporalAmount(unit)) as T
+            }
+                .takeWhile { it < endExclusive }
+                .toList()
+
             emit(item)
             current = (current + increment) as T
         }
@@ -128,11 +135,11 @@ fun <T> TemporalOpenedRange<T>.zipWithNextFlow(unit: ChronoUnit): Flow<Pair<T, T
 
     return flow {
         var current: T = start.startOf(unit)
-        val increment = 1.temporalAmount(unit)
+        val increment: TemporalAmount = 1.temporalAmount(unit)
         val limit: T = (endExclusive - increment) as T
 
         while (current < limit) {
-            val next = (current + increment) as T
+            val next: T = (current + increment) as T
             emit(current to next)
             current = next
         }

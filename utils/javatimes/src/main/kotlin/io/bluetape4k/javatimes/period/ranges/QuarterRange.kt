@@ -16,8 +16,11 @@ open class QuarterRange(
     calendar: ITimeCalendar = TimeCalendar.Default,
 ): QuarterTimeRange(startTime, 1, calendar) {
 
-    constructor(year: Int, quarter: Quarter, calendar: ITimeCalendar = TimeCalendar.Default)
-            : this(startOfQuarter(year, quarter), calendar)
+    constructor(
+        year: Int,
+        quarter: Quarter,
+        calendar: ITimeCalendar = TimeCalendar.Default,
+    ): this(startOfQuarter(year, quarter), calendar)
 
     val year: Int get() = startYear
     val quarter: Quarter get() = quarterOfStart

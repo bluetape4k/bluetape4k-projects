@@ -24,7 +24,6 @@ open class QuarterTimeRange(
 
     val isMultipleCalendarQuarters: Boolean = isMultipleCalendarYears || quarterOfStart != quarterOfEnd
 
-
     fun monthSequence(): Sequence<MonthRange> =
         monthRanges(startMonthOfStart, quarterCount * MonthsPerQuarter, calendar)
 

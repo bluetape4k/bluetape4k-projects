@@ -7,6 +7,7 @@ import io.bluetape4k.javatimes.startOf
 import io.bluetape4k.javatimes.temporalAmount
 import io.bluetape4k.support.assertPositiveNumber
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flow
 import java.time.temporal.ChronoUnit
 import java.time.temporal.Temporal
@@ -14,16 +15,14 @@ import java.time.temporal.Temporal
 /**
  * [TemporalClosedProgression]를 Flow 로 변환합니다.
  */
-fun <T> TemporalClosedProgression<T>.asFlow(): Flow<T> where T: Temporal, T: Comparable<T> = flow {
-    sequence().forEach { value -> emit(value) }
-}
+fun <T> TemporalClosedProgression<T>.asFlow(): Flow<T> where T: Temporal, T: Comparable<T> =
+    sequence().asFlow()
 
 /**
  * [TemporalClosedRange]를 Flow 로 변환합니다.
  */
-fun <T> TemporalClosedRange<T>.asFlow(): Flow<T> where T: Temporal, T: Comparable<T> = flow {
-    sequence().forEach { value -> emit(value) }
-}
+fun <T> TemporalClosedRange<T>.asFlow(): Flow<T> where T: Temporal, T: Comparable<T> =
+    sequence().asFlow()
 
 /**
  * [TemporalClosedRange]를 [size] 만큼의 크기로 이동하면서 window를 만들어서 emit 하는 [Flow]를 빌드합니다.

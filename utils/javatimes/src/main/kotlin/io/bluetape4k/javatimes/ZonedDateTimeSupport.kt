@@ -232,19 +232,19 @@ fun endOfWeek(year: Int, monthOfYear: Int, dayOfMonth: Int): ZonedDateTime =
 /**
  * [year], 주차([weekOfWeekyear])의 시작 시각을 [ZonedDateTime]으로 반환합니다.
  */
-fun startOfWeekOfWeekyear(weekyear: Int, weekOfWeekyear: Int): ZonedDateTime {
-    return ZonedDateTime.now()
+fun startOfWeekOfWeekyear(weekyear: Int, weekOfWeekyear: Int): ZonedDateTime =
+    ZonedDateTime.now()
         .with(IsoFields.WEEK_BASED_YEAR, weekyear.toLong())
         .with(IsoFields.WEEK_OF_WEEK_BASED_YEAR, weekOfWeekyear.toLong())
         .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-}
 
 /**
  * [year], 주차([weekOfWeekyear])의 마지막 시각을 [ZonedDateTime]으로 반환합니다.
  */
-fun endOfWeekOfWeekyear(weekyear: Int, weekOfWeekyear: Int): ZonedDateTime {
-    return startOfWeekOfWeekyear(weekyear, weekOfWeekyear).plusDays(DaysPerWeek.toLong()).minusNanos(1)
-}
+fun endOfWeekOfWeekyear(weekyear: Int, weekOfWeekyear: Int): ZonedDateTime =
+    startOfWeekOfWeekyear(weekyear, weekOfWeekyear)
+        .plusDays(DaysPerWeek.toLong())
+        .minusNanos(1)
 
 /**
  * 현 시각의 다음 주 같은 요일의 시각을 반환한다.
@@ -279,7 +279,8 @@ infix fun ZonedDateTime?.max(that: ZonedDateTime?): ZonedDateTime? = when {
 /**
  * [ZonedDateTime]가 [that]과 같은지 여부를 반환합니다.
  */
-fun ZonedDateTime.equalTo(that: OffsetDateTime): Boolean = this.toOffsetDateTime().isEqual(that)
+fun ZonedDateTime.equalTo(that: OffsetDateTime): Boolean =
+    this.toOffsetDateTime().isEqual(that)
 
 /**
  * [ZonedDateTime]가 [that]과 초 단위까지 같은지 여부를 반환합니다.

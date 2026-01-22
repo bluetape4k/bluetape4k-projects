@@ -90,9 +90,7 @@ class TimeLine<T: ITimePeriod> private constructor(
                 val intersection = limits.intersectRange(p)
                 // log.trace { "intersection=$intersection" }
                 if (intersection != null && !intersection.isMoment) {
-                    if (mapper != null) {
-                        intersection.setup(mapPeriodStart(intersection.start), mapPeriodEnd(intersection.end))
-                    }
+                    intersection.setup(mapPeriodStart(intersection.start), mapPeriodEnd(intersection.end))
                     intersections.add(intersection)
                 }
             }

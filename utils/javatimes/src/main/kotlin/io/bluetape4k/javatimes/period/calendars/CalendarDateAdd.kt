@@ -149,7 +149,7 @@ open class CalendarDateAdd private constructor(): DateAdd() {
 
             if (end != null || remaining == null) {
                 log.trace { "결과. endInclusive=$end, remaining=$remaining" }
-                return Pair(end, remaining)
+                break
             }
 
             when (seekDir) {

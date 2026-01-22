@@ -187,7 +187,7 @@ class TimeBlockTest: AbstractPeriodTest() {
     fun `change readonly block`() {
         assertFailsWith<IllegalStateException> {
             val block = TimeBlock(zonedDateTimeOf(), 1.hours(), true)
-            block.start = block.start - 1.hours()
+            block.start -= 1.hours()
         }
     }
 
@@ -210,7 +210,7 @@ class TimeBlockTest: AbstractPeriodTest() {
     fun `change end with readonly is true`() {
         assertFailsWith<IllegalStateException> {
             val block = TimeBlock(nowZonedDateTime(), 1.hours(), true)
-            block.end = block.end + 1.hours()
+            block.end += 1.hours()
         }
     }
 

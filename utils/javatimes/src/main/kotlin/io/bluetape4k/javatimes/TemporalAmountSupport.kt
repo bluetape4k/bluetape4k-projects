@@ -13,7 +13,9 @@ import java.time.temporal.TemporalAmount
  * [TemporalAmount]의 모든 [ChronoUnit] 단위의 값들을 nanoseconds로 변환하여 합산합니다.
  */
 val TemporalAmount.nanos: Double
-    get() = units.fold(0.0) { acc, it -> acc + Duration.of(get(it), it).toNanos().toDouble() }
+    get() = units.fold(0.0) { acc, it ->
+        acc + Duration.of(get(it), it).toNanos().toDouble()
+    }
 
 // NOTE: ChronoUnit.DAYS 아래만 가능합니다. (Period 는 정확한 계산할 수 없습니다)
 //
@@ -22,7 +24,9 @@ val TemporalAmount.nanos: Double
  * [TemporalAmount]의 모든 [ChronoUnit] 단위의 값들을 milliseconds로 변환하여 합산합니다.
  */
 val TemporalAmount.millis: Long
-    get() = units.fold(0L) { acc, unit -> acc + Duration.of(get(unit), unit).toMillis() }
+    get() = units.fold(0L) { acc, unit ->
+        acc + Duration.of(get(unit), unit).toMillis()
+    }
 
 /**
  * [TemporalAmount]가 milliseconds 정밀도로 0인지 여부를 반환합니다.
@@ -50,7 +54,8 @@ val TemporalAmount.isNegative: Boolean
  * 2.temporalAmount(ChronoUnit.HOURS) // Duration.ofHours(2)
  * ```
  */
-fun Int.temporalAmount(chronoUnit: ChronoUnit): TemporalAmount = toLong().temporalAmount(chronoUnit)
+fun Int.temporalAmount(chronoUnit: ChronoUnit): TemporalAmount =
+    toLong().temporalAmount(chronoUnit)
 
 /**
  * [chronoUnit]의 숫자를 [TemporalAmount]로 변환합니다.
@@ -61,15 +66,15 @@ fun Int.temporalAmount(chronoUnit: ChronoUnit): TemporalAmount = toLong().tempor
  * ```
  */
 fun Long.temporalAmount(chronoUnit: ChronoUnit): TemporalAmount = when (chronoUnit) {
-    ChronoUnit.YEARS   -> Period.ofYears(this.toInt())
-    ChronoUnit.MONTHS  -> Period.ofMonths(this.toInt())
-    ChronoUnit.WEEKS   -> Period.ofWeeks(this.toInt())
-    ChronoUnit.DAYS    -> Duration.ofDays(this)
-    ChronoUnit.HOURS   -> Duration.ofHours(this)
+    ChronoUnit.YEARS -> Period.ofYears(this.toInt())
+    ChronoUnit.MONTHS -> Period.ofMonths(this.toInt())
+    ChronoUnit.WEEKS -> Period.ofWeeks(this.toInt())
+    ChronoUnit.DAYS -> Duration.ofDays(this)
+    ChronoUnit.HOURS -> Duration.ofHours(this)
     ChronoUnit.MINUTES -> Duration.ofMinutes(this)
     ChronoUnit.SECONDS -> Duration.ofSeconds(this)
-    ChronoUnit.MILLIS  -> Duration.ofMillis(this)
-    ChronoUnit.MICROS  -> Duration.ofNanos(this * 1000L)
-    ChronoUnit.NANOS   -> Duration.ofNanos(this)
-    else               -> throw IllegalArgumentException("Not supported ChronoUnit. chronounit=$chronoUnit")
+    ChronoUnit.MILLIS -> Duration.ofMillis(this)
+    ChronoUnit.MICROS -> Duration.ofNanos(this * 1000L)
+    ChronoUnit.NANOS -> Duration.ofNanos(this)
+    else -> throw IllegalArgumentException("Not supported ChronoUnit. chronounit=$chronoUnit")
 }

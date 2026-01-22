@@ -67,7 +67,7 @@ fun monthRanges(
 }
 
 /**
- * [startTime]으로부터 [end]까지의 [MonthRange] 시퀀스를 생성합니다.
+ * [start]으로부터 [end]까지의 [MonthRange] 시퀀스를 생성합니다.
  *
  * ```
  * val months = monthRanges(ZonedDateTime.now(), ZonedDateTime.now().plusMonths(3))

@@ -1,7 +1,6 @@
 package io.bluetape4k.javatimes.range
 
 import io.bluetape4k.logging.KLogging
-import java.io.Serializable
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
@@ -13,8 +12,7 @@ import java.time.temporal.Temporal
 class TemporalClosedRange<T>(
     start: T,
     endInclusive: T,
-): TemporalClosedProgression<T>(start, endInclusive, Duration.ofMillis(1)),
-   ClosedRange<T>, Serializable
+): TemporalClosedProgression<T>(start, endInclusive, Duration.ofMillis(1)), ClosedRange<T>
         where T: Temporal, T: Comparable<T> {
 
     companion object: KLogging() {

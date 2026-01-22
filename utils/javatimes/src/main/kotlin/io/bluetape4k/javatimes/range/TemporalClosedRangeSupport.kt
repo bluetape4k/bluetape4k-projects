@@ -52,8 +52,7 @@ fun <T> TemporalClosedRange<T>.windowed(
     size: Int,
     step: Int = 1,
     unit: ChronoUnit = ChronoUnit.YEARS,
-): Sequence<List<T>>
-        where T: Temporal, T: Comparable<T> {
+): Sequence<List<T>> where T: Temporal, T: Comparable<T> {
     size.assertPositiveNumber("size")
     step.assertPositiveNumber("step")
     assert(SupportChronoUnits.contains(unit)) { "Not supoorted ChronoUnit. unit=$unit" }

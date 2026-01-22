@@ -56,7 +56,7 @@ abstract class AbstractTemporalInterval<T>: ReadableTemporalInterval<T> where T:
      * the specific moment in <code>[start, end]</code>
      * @param moment
      */
-    override fun overlaps(moment: T): Boolean = moment >= startInclusive && moment < endExclusive
+    override fun overlaps(moment: T): Boolean = moment in startInclusive..<endExclusive
 
     /**
      * given interval is inner inverval of this interval

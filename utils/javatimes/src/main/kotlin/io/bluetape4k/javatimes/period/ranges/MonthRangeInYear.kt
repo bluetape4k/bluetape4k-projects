@@ -22,7 +22,10 @@ open class MonthRangeInYear(
             startMonthOfYear: Int,
             endMonthOfYear: Int,
         ): MonthRangeInYear {
-            return MonthRangeInYear(Month.of(startMonthOfYear), Month.of(endMonthOfYear))
+            return MonthRangeInYear(
+                Month.of(startMonthOfYear),
+                Month.of(endMonthOfYear)
+            )
         }
     }
 
