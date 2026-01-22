@@ -1,6 +1,7 @@
 package io.bluetape4k.vertx.sqlclient.schema
 
 import org.mybatis.dynamic.sql.SqlTable
+import java.io.Serializable
 
 object GeneratedAlwaysTable {
 
@@ -19,4 +20,4 @@ data class GeneratedAlwaysRecord(
     var firstName: String? = null,
     var lastName: String? = null,
     var fullName: String? = null,
-): java.io.Serializable
+): Serializable

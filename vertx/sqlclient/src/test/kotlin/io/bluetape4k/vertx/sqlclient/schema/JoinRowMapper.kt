@@ -1,24 +1,25 @@
 package io.bluetape4k.vertx.sqlclient.schema
 
 import io.bluetape4k.vertx.sqlclient.getIntOrNull
+import io.bluetape4k.vertx.sqlclient.getStringOrNull
 import io.vertx.sqlclient.templates.RowMapper
 
 @JvmField
 val OrderRecordRowMapper = RowMapper { row ->
     OrderRecord(
-        itemId = row.getInteger("item_id"),
-        orderId = row.getInteger("order_id"),
-        quantity = row.getInteger("quantity"),
-        description = row.getString("description")
+        itemId = row.getIntOrNull("item_id"),
+        orderId = row.getIntOrNull("order_id"),
+        quantity = row.getIntOrNull("quantity"),
+        description = row.getStringOrNull("description")
     )
 }
 
 @JvmField
 val UserRowMapper = RowMapper {
     User(
-        userId = it.getInteger("user_id"),
-        userName = it.getString("user_name"),
-        parentId = it.getInteger("parent_id")
+        userId = it.getIntOrNull("user_id"),
+        userName = it.getStringOrNull("user_name"),
+        parentId = it.getIntOrNull("parent_id")
     )
 }
 

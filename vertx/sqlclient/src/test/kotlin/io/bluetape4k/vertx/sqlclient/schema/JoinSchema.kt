@@ -48,7 +48,7 @@ object JoinSchema {
 data class OrderMaster(
     val orderId: Int? = null,
     var orderDate: LocalDate? = null,
-): Comparable<OrderMaster>, java.io.Serializable {
+): Comparable<OrderMaster>, Serializable {
     val details: MutableList<OrderDetail> = mutableListOf()
 
     override fun compareTo(other: OrderMaster): Int {
@@ -61,7 +61,7 @@ data class OrderDetail(
     var lineNumber: Int? = null,
     var description: String? = null,
     var quantity: Int? = null,
-): Comparable<OrderDetail>, java.io.Serializable {
+): Comparable<OrderDetail>, Serializable {
     override fun compareTo(other: OrderDetail): Int {
         return orderId?.compareTo(other.orderId ?: 0)
             ?: lineNumber?.compareTo(other.lineNumber ?: 0)
@@ -72,7 +72,7 @@ data class OrderDetail(
 data class ItemMaster(
     var itemId: Int? = null,
     var description: String? = null,
-): Comparable<ItemMaster>, java.io.Serializable {
+): Comparable<ItemMaster>, Serializable {
     override fun compareTo(other: ItemMaster): Int {
         return itemId?.compareTo(other.itemId ?: 0) ?: 0
     }
@@ -83,7 +83,7 @@ data class OrderLine(
     var itemId: Int? = null,
     var lineNumber: Int? = null,
     var quantity: Int? = null,
-): Comparable<OrderLine>, java.io.Serializable {
+): Comparable<OrderLine>, Serializable {
     override fun compareTo(other: OrderLine): Int {
         return orderId?.compareTo(other.orderId ?: 0)
             ?: itemId?.compareTo(other.itemId ?: 0)
@@ -96,7 +96,7 @@ data class User(
     var userId: Int? = null,
     var userName: String? = null,
     var parentId: Int? = null,
-): Comparable<User>, java.io.Serializable {
+): Comparable<User>, Serializable {
     override fun compareTo(other: User): Int {
         return userId?.compareTo(other.userId ?: 0)
             ?: userName?.compareTo(other.userName ?: "")

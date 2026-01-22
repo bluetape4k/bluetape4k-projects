@@ -20,23 +20,22 @@ dependencies {
     // Vertx SqlClient
     api(Libs.vertx_sql_client)
     api(Libs.vertx_sql_client_templates)
-    compileOnly(Libs.vertx_mysql_client)
-    compileOnly(Libs.vertx_pg_client)
+    implementation(Libs.vertx_mysql_client)
+    implementation(Libs.vertx_pg_client)
 
     // Vertx Jdbc (MySQL, Postgres 를 제외한 H2 같은 것은 기존 JDBC 를 Wrapping한 것을 사용합니다)
     compileOnly(Libs.vertx_jdbc_client)
     compileOnly(Libs.agroal_pool)
 
     // MyBatis
-    api(Libs.mybatis_dynamic_sql)
+    implementation(Libs.mybatis_dynamic_sql)
 
     // Vetx SqlClient Templates 에서 Jackson Databind 를 이용한 매핑을 사용한다
     compileOnly(project(":bluetape4k-jackson"))
     compileOnly(Libs.jackson_module_kotlin)
-    compileOnly(Libs.jackson_datatype_jdk8)
-    compileOnly(Libs.jackson_datatype_jsr310)
+    compileOnly(Libs.jackson_module_blackbird)
 
-    testRuntimeOnly(Libs.h2)
+    testRuntimeOnly(Libs.h2_v2)
     testRuntimeOnly(Libs.mysql_connector_j)
 
     // Testcontainers

@@ -24,8 +24,7 @@ inline fun <reified ID: Number> SqlResult<*>.getGeneratedId(
             this.property(lastInsertedId)
         }
 
-        else               -> {
+        else ->
             this.property(JDBCPool.GENERATED_KEYS).getValue(columnName) as? ID
-        }
     }
 }

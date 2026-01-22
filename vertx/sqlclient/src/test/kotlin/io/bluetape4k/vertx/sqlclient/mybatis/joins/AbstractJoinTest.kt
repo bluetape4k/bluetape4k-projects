@@ -180,19 +180,23 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
         fun `full join with aliases`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
             vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
 
-                // select ol.order_id, ol.quantity, im.item_id, im.description
-                // from OrderMaster om
-                // join OrderLine ol on om.order_id = ol.order_id
-                // left join ItemMaster im on ol.item_id = im.item_id
-                //
-                // union
-                //
-                // select ol.order_id, ol.quantity, im.item_id, im.description
-                // from OrderMaster om
-                // join OrderLine ol on om.order_id = ol.order_id
-                // right join ItemMaster im on ol.item_id = im.item_id
-                //
-                // order by order_id, item_id
+                /**
+                 * ```sql
+                 * select ol.order_id, ol.quantity, im.item_id, im.description
+                 * from OrderMaster om
+                 * join OrderLine ol on om.order_id = ol.order_id
+                 * left join ItemMaster im on ol.item_id = im.item_id
+                 *
+                 * union
+                 *
+                 * select ol.order_id, ol.quantity, im.item_id, im.description
+                 * from OrderMaster om
+                 * join OrderLine ol on om.order_id = ol.order_id
+                 * right join ItemMaster im on ol.item_id = im.item_id
+                 *
+                 * order by order_id, item_id
+                 * ```
+                 */
                 val orderRecords: RowSet<OrderRecord> = conn.select(
                     listOf(orderLine.orderId, orderLine.quantity, itemMaster.itemId, itemMaster.description),
                     OrderRecordRowMapper
@@ -233,19 +237,23 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
         fun `full join with subquery`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
             vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
 
-                // select ol.order_id, quantity, im.item_id, description
-                // from (select * from OrderMaster) om
-                // join (select * from OrderLine) ol on om.order_id = ol.order_id
-                // left join (select * from ItemMaster) im on ol.item_id = im.item_id
-                //
-                // union all
-                // select ol.order_id, quantity, im.item_id, description
-                // from (select * from OrderMaster) om
-                // join (select * from OrderLine) ol on om.order_id = ol.order_id
-                // right join (select * from ItemMaster) im on ol.item_id = im.item_id
-                //
-                // order by order_id, item_id
-
+                /**
+                 * ```sql
+                 * select ol.order_id, quantity, im.item_id, description
+                 * from (select * from OrderMaster) om
+                 * join (select * from OrderLine) ol on om.order_id = ol.order_id
+                 * left join (select * from ItemMaster) im on ol.item_id = im.item_id
+                 *
+                 * union all
+                 *
+                 * select ol.order_id, quantity, im.item_id, description
+                 * from (select * from OrderMaster) om
+                 * join (select * from OrderLine) ol on om.order_id = ol.order_id
+                 * right join (select * from ItemMaster) im on ol.item_id = im.item_id
+                 *
+                 * order by order_id, item_id
+                 * ```
+                 */
                 val orderRecords = conn.select(
                     listOf(
                         "ol"(orderLine.orderId),
@@ -323,19 +331,23 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
         fun `full join without aliases`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
             vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
 
-                // select ol.order_id, ol.quantity, ItemMaster.item_id, ItemMaster.description
-                // from OrderMaster om
-                // join OrderLine ol on om.order_id = ol.order_id
-                // left join ItemMaster on ol.item_id = ItemMaster.item_id
-                //
-                // union
-                //
-                // select ol2.order_id, ol2.quantity, ItemMaster.item_id, ItemMaster.description
-                // from OrderMaster om2
-                // join OrderLine ol2 on om2.order_id = ol2.order_id
-                // right join ItemMaster on ol2.item_id = ItemMaster.item_id
-                //
-                // order by order_id, item_id
+                /**
+                 * ```sql
+                 * select ol.order_id, ol.quantity, ItemMaster.item_id, ItemMaster.description
+                 * from OrderMaster om
+                 * join OrderLine ol on om.order_id = ol.order_id
+                 * left join ItemMaster on ol.item_id = ItemMaster.item_id
+                 *
+                 * union
+                 *
+                 * select ol2.order_id, ol2.quantity, ItemMaster.item_id, ItemMaster.description
+                 * from OrderMaster om2
+                 * join OrderLine ol2 on om2.order_id = ol2.order_id
+                 * right join ItemMaster on ol2.item_id = ItemMaster.item_id
+                 *
+                 * order by order_id, item_id
+                 * ```
+                 */
                 val orderRecords: RowSet<OrderRecord> = conn.select(
                     listOf(orderLine.orderId, orderLine.quantity, itemMaster.itemId, itemMaster.description),
                     OrderRecordRowMapper
@@ -565,10 +577,14 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
         @Test
         fun `self join`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
             vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
-                // select u1.user_id, u1.user_name, u1.parent_id
-                // from Users u1
-                // join Users u2 on u1.user_id = u2.parent_id
-                // where u2.user_id = #{p1}
+                /**
+                 * ```sql
+                 * select u1.user_id, u1.user_name, u1.parent_id
+                 *   from Users u1
+                 *        join Users u2 on u1.user_id = u2.parent_id
+                 *  where u2.user_id = #{p1}
+                 * ```
+                 */
                 val user2 = JoinSchema.UsersTable()
                 val users: RowSet<User> = conn.select(
                     listOf(user.userId, user.userName, user.parentId),
@@ -587,10 +603,13 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
         @Test
         fun `self join with new alias`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
             vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
-                // select Users.user_id, Users.user_name, Users.parent_id
-                // from Users
-                // join Users u2 on Users.user_id = u2.parent_id
-                // where u2.user_id = #{p1}
+                /**
+                 * ```sql
+                 * select Users.user_id, Users.user_name, Users.parent_id
+                 * from Users
+                 * join Users u2 on Users.user_id = u2.parent_id
+                 * ```
+                 */
                 val user2 = user.withAlias("u2")
                 val users = conn.select(
                     listOf(user.userId, user.userName, user.parentId),
@@ -609,10 +628,14 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
         @Test
         fun `self join with new alias and override`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
             vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
-                // select u1.user_id, u1.user_name, u1.parent_id
-                // from Users u1
-                // join Users u2 on u1.user_id = u2.parent_id
-                // where u2.user_id = #{p1}
+                /**
+                 * ```sql
+                 *  select u1.user_id, u1.user_name, u1.parent_id
+                 *  from Users u1
+                 *  join Users u2 on u1.user_id = u2.parent_id
+                 *  where u2.user_id = #{p1}
+                 *  ```
+                 */
                 val user2 = user.withAlias("other_user")
                 val users = conn.select(
                     listOf(user.userId, user.userName, user.parentId),
@@ -635,11 +658,14 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
         @Test
         fun `covering index`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
             vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
-                // select p1.*
-                // from (select p2.id from Person p2 where p2.address_id = #{p1}) p2
-                // join Person p1 on p2.id = p1.id
-                // where p1.id < #{p2}
-                //
+                /**
+                 * ```sql
+                 * select p1.*
+                 * from (select p2.id from Person p2 where p2.address_id = #{p1}) p2
+                 * join Person p1 on p2.id = p1.id
+                 * where p1.id < #{p2}
+                 * ```
+                 */
                 val p2 = person.withAlias("p2")
                 val selectProvider = select(person.allColumns()) {
                     from {

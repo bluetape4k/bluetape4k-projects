@@ -2,6 +2,7 @@ package io.bluetape4k.vertx.sqlclient.schema
 
 import org.mybatis.dynamic.sql.AliasableSqlTable
 import org.mybatis.dynamic.sql.util.kotlin.elements.column
+import java.io.Serializable
 import java.time.LocalDate
 
 
@@ -50,7 +51,7 @@ data class Address(
     var city: String? = null,
     var state: String? = null,
     var addressType: AddressType? = null,
-): java.io.Serializable
+): Serializable
 
 enum class AddressType {
     HOME,
@@ -66,7 +67,7 @@ data class Person(
     val employed: Boolean? = null,
     val occupation: String? = null,
     val addressId: Int? = null,
-): java.io.Serializable
+): Serializable
 
 
 data class PersonWithAddress(
@@ -77,4 +78,4 @@ data class PersonWithAddress(
     val employed: Boolean? = null,
     val occupation: String? = null,
     val address: Address? = null,
-): java.io.Serializable
+): Serializable

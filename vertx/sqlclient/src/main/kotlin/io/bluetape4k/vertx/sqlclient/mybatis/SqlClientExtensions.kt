@@ -424,7 +424,7 @@ suspend inline fun <reified T: Any> SqlClient.selectListAs(provider: SelectState
  * @param provider Select statement provider
  * @param mapper Row Mapper
  */
-suspend fun <T> SqlClient.selectList(
+suspend fun <T: Any> SqlClient.selectList(
     provider: SelectStatementProvider,
     mapper: RowMapper<T>,
 ): List<T> {

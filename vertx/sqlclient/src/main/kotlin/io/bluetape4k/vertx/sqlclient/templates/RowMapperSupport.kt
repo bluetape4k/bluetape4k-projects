@@ -11,7 +11,7 @@ import io.vertx.sqlclient.templates.RowMapper
 @Deprecated("제대로 동작하지 않습니다")
 inline fun <reified T: Any> rowMapperAs(
     jsonMapper: JsonMapper = Jackson.defaultJsonMapper,
-): RowMapper<T> = RowMapper<T> { row: Row ->
+): RowMapper<T> = RowMapper { row: Row ->
     // vertx 내부에서도 Json 변환 후 Record 를 만드는데, Jackson의 모듈들이 등록되지 않아 JsonMapper를 사용한다.
     jsonMapper.readValue(row.toJson().encode())
 }
