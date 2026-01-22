@@ -5,6 +5,7 @@ import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import java.time.LocalDate
 
@@ -118,7 +119,7 @@ class NaiveBayesClassifierEnglishTest: AbstractNaiveBayesClassifierTest() {
             amount = 13.99,
             memo = "NETFLIX VIDEO ON DEMAND #21"
         )
-        val result1 = nbc.predictWithProbability(input1.memo.splitWords().toSet())!!
+        val result1 = nbc.predictWithProbability(input1.memo.splitWords().toSet()).shouldNotBeNull()
         log.debug { "result1=$result1" }
         result1.category shouldBeEqualTo "ENTERTAINMENT"
 
@@ -128,7 +129,7 @@ class NaiveBayesClassifierEnglishTest: AbstractNaiveBayesClassifierTest() {
             amount = 17.21,
             memo = "FROGG COFFEE BAR AND CREPERIE"
         )
-        val result2 = nbc.predictWithProbability(input2.memo.splitWords().toSet())!!
+        val result2 = nbc.predictWithProbability(input2.memo.splitWords().toSet()).shouldNotBeNull()
         log.debug { "result2=$result2" }
         result2.category shouldBeEqualTo "COFFEE"
     }

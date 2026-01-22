@@ -24,7 +24,10 @@ abstract class AbstractNaiveBayesClassifierTest {
             .map { it.text.lowercase() }
     }
 
-    data class Email(val message: String, val isSpam: Boolean)
+    data class Email(
+        val message: String,
+        val isSpam: Boolean,
+    ): Serializable
 
     data class BankTransaction(
         val date: LocalDate,

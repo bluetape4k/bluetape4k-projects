@@ -1,9 +1,11 @@
 package io.bluetape4k.naivebayes
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import java.time.LocalDate
 
@@ -106,13 +108,23 @@ class NaiveBayesClassifierKoreanTest: AbstractNaiveBayesClassifierTest() {
         )
 
         // TEST 1
-        val input1 = BankTransaction(date = LocalDate.of(2018, 3, 31), amount = 13.99, memo = "넷플릭스 비디오 #123")
-        val result1 = nbc.predictWithProbability(input1.memo.tokenize().toSet())
-        result1?.category shouldBeEqualTo "ENTERTAINMENT"
+        val input1 = BankTransaction(
+            date = LocalDate.of(2018, 3, 31),
+            amount = 13.99,
+            memo = "넷플릭스 비디오 #123"
+        )
+        val result1 = nbc.predictWithProbability(input1.memo.tokenize().toSet()).shouldNotBeNull()
+        log.debug { "result1=$result1" }
+        result1.category shouldBeEqualTo "ENTERTAINMENT"
 
         // TEST 2
-        val input2 = BankTransaction(date = LocalDate.of(2018, 3, 6), amount = 17.21, memo = "커피 까페모카 2잔")
-        val result2 = nbc.predictWithProbability(input2.memo.tokenize().toSet())
-        result2?.category shouldBeEqualTo "COFFEE"
+        val input2 = BankTransaction(
+            date = LocalDate.of(2018, 3, 6),
+            amount = 17.21,
+            memo = "커피 까페모카 2잔"
+        )
+        val result2 = nbc.predictWithProbability(input2.memo.tokenize().toSet()).shouldNotBeNull()
+        log.debug { "result2=$result2" }
+        result2.category shouldBeEqualTo "COFFEE"
     }
 }

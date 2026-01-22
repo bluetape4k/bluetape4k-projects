@@ -96,6 +96,7 @@ class NaiveBayesClassifier<F: Any, C: Any>(
         val f = features.toSet()
 
         return categories
+            .asSequence()
             .filter { category: C ->
                 population.any { it.category == category } && probabilities.values.any { it.feature in f }
             }
