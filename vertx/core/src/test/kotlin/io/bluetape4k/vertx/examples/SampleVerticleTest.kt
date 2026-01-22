@@ -69,8 +69,8 @@ class SampleVerticleTest: AbstractVertxTest() {
                                 requestCheckpoint.flag()
                             }
                         }
-                        .onFailure {
-                            fail(it)
+                        .onFailure { e ->
+                            fail(e)
                         }
                 }
             }

@@ -6,5 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(VertxExtension::class)
 abstract class AbstractVertxTest {
+
     companion object: KLoggingChannel()
+
 }

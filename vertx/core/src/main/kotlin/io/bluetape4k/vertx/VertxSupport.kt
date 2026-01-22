@@ -29,4 +29,6 @@ fun currentVertx(): Vertx = Vertx.currentContext()?.owner() ?: Vertx.vertx()
 suspend inline fun <T> Vertx.withVertxDispatcher(
     crossinline block: suspend CoroutineScope.() -> T,
 ): T =
-    withContext(this.dispatcher()) { block(this) }
+    withContext(dispatcher()) {
+        block()
+    }
