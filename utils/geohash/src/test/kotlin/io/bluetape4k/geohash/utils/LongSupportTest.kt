@@ -11,8 +11,7 @@ class LongSupportTest {
     @Test
     fun `same number have 64 bits prefix`() {
         for (a in 0L until 120_000_000L step 101L) {
-            val b = a
-            a.commonPrefixLength(b) shouldBeEqualTo 64
+            a.commonPrefixLength(a) shouldBeEqualTo 64
         }
     }
 

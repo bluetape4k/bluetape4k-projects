@@ -159,12 +159,6 @@ fun GeoHash.setBoundingBox(latitudeRange: DoubleArray, longitudeRange: DoubleArr
     this.boundingBox = BoundingBox(latitudeRange[0], latitudeRange[1], longitudeRange[0], longitudeRange[1])
 }
 
-/**
- * [GeoHash]의 위도와 경도 정보를 나눕니다.
- *
- * @param latitude 위도
- * @param longitude 경도
- */
 internal fun GeoHash.divideRangeDecode(range: DoubleArray, b: Boolean): DoubleArray {
     val mid = (range[0] + range[1]) / 2.0
     if (b) {

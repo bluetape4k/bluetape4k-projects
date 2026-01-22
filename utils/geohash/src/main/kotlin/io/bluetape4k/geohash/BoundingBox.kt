@@ -260,14 +260,14 @@ data class BoundingBox(
     }
 
     private fun containsLatitude(latitude: Double): Boolean {
-        return latitude >= southLatitude && latitude <= northLatitude
+        return latitude in southLatitude..northLatitude
     }
 
     private fun containsLongitude(longitude: Double): Boolean {
         return if (intersects180Meridian) {
             longitude >= westLongitude || longitude <= eastLongitude
         } else {
-            longitude >= westLongitude && longitude <= eastLongitude
+            longitude in westLongitude..eastLongitude
         }
     }
 }

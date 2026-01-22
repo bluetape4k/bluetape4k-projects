@@ -26,7 +26,8 @@ object RandomGeoHashes: KLogging() {
 
     /**
      * Create a completely random [GeoHash] with a random number of bits.
-     * precision will be between [5,64] bits.
+     *
+     * Precision will be between [5,64] bits.
      */
     fun create(): GeoHash {
         return geoHashWithBits(randomLatitude(), randomLongitude(), randomPrecision())

@@ -38,7 +38,7 @@ class GeoHashSizeTableTest {
 
     private interface BoundingBoxSizeTableVerifier {
         /**
-         * generate a bounding box using a certain strategy for the given numer of bits
+         * generate a bounding box using a certain strategy for the given number of bits
          */
         fun generate(bits: Int): BoundingBox
 

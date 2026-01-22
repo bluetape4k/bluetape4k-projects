@@ -13,8 +13,8 @@ abstract class AbstractGeoHashTest {
         log.debug {
             """
             Bounding Box:
-            center=$boundingBoxCenter
-            corners=$boundingBox
+                center=$boundingBoxCenter
+                corners=$boundingBox
             """.trimIndent()
         }
     }

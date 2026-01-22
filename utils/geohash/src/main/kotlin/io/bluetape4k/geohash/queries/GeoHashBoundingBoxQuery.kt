@@ -13,7 +13,6 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import java.io.Serializable
 
-
 /**
  * 지정된 경계 상자를 기준으로 GeoHash로 표현된 지점을 검색하는 [GeoHashBoundingBoxQuery]를 생성합니다.
  *
@@ -75,7 +74,7 @@ class GeoHashBoundingBoxQuery(
             generateSearchHashes(westBox)
         }
 
-        // Finally create the combined bounding box
+        // 결합된 Bounding Box 를 생성합니다.
         for (hash in searchHashes) {
             if (boundingBox == null) boundingBox = hash.boundingBox.copy()
             else boundingBox!!.expandToInclude(hash.boundingBox)
@@ -127,7 +126,7 @@ class GeoHashBoundingBoxQuery(
         val centerHash = geoHashWithBits(center.latitude, center.longitude, fittingBits)
 
         if (hashContainsBoundingBox(centerHash, bbox)) {
-            // If the centerHash completly fits into the provided bounding box, just add the hash and continue
+            // If the centerHash completely fits into the provided bounding box, just add the hash and continue
             searchHashes.add(centerHash)
             log.trace { "Add center hash. $centerHash" }
         } else {

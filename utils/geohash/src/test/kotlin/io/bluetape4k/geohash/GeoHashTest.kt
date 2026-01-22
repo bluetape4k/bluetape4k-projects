@@ -102,6 +102,7 @@ class GeoHashTest: AbstractGeoHashTest() {
         }
     }
 
+    // FIXME: 버그 수정
     @Disabled("버그 수정 필요")
     @Test
     fun `convert with BinaryString`() {

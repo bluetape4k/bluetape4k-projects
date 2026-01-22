@@ -282,7 +282,7 @@ class GeoHash internal constructor(): Comparable<GeoHash>, Serializable {
 
     fun toBinaryString(): String = buildString {
         var bitsCopy = bits
-        for (i in 0 until significantBits) {
+        repeat(significantBits - 1) {
             if ((bitsCopy and FIRST_BIT_FLAGGED) == FIRST_BIT_FLAGGED) {
                 append('1')
             } else {
@@ -297,7 +297,7 @@ class GeoHash internal constructor(): Comparable<GeoHash>, Serializable {
      */
     private fun mask(): Long {
         return when (significantBits.toInt()) {
-            0    -> 0
+            0 -> 0
             else -> FIRST_BIT_FLAGGED shr (significantBits - 1)
         }
     }
@@ -331,7 +331,7 @@ class GeoHash internal constructor(): Comparable<GeoHash>, Serializable {
     }
 
     override fun toString(): String = when (significantBits % 5) {
-        0    -> "${padLeft(java.lang.Long.toBinaryString(bits), 64, "0")} -> $boundingBox -> ${toBase32()}"
+        0 -> "${padLeft(java.lang.Long.toBinaryString(bits), 64, "0")} -> $boundingBox -> ${toBase32()}"
         else -> "${padLeft(java.lang.Long.toBinaryString(bits), 64, "0")} -> $boundingBox, bits: $significantBits"
     }
 }

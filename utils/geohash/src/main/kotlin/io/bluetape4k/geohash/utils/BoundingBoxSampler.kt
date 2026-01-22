@@ -34,7 +34,7 @@ class BoundingBoxSampler private constructor(
     private val maxAttempts = maxSamples * 8
 
     /**
-     * Return next sample, or NULL if all samples have been returned
+     * Return next [GeoHash], or NULL if all samples have been returned
      *
      * @return
      */

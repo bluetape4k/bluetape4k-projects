@@ -47,7 +47,7 @@ class GeoHashDecodingBenchmark {
     @Benchmark
     fun decodeFromBase32() {
         randomHashes.forEach {
-            val geoHash = geoHashOfString(it)
+            geoHashOfString(it)
         }
     }
 }

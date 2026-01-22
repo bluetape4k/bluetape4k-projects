@@ -21,11 +21,11 @@ class GeoHashEncodingBenchmark {
 
     @Benchmark
     fun createGeoHashWith32() {
-        val hash = RandomGeoHashes.createWithPrecision(32)
+        RandomGeoHashes.createWithPrecision(32)
     }
 
     @Benchmark
     fun createGeoHashWith60() {
-        val hash = RandomGeoHashes.createWithPrecision(60)
+        RandomGeoHashes.createWithPrecision(60)
     }
 }

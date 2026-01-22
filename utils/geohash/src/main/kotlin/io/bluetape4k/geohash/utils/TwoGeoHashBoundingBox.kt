@@ -43,39 +43,7 @@ data class TwoGeoHashBoundingBox(
     val boundingBox: BoundingBox,
 ): Serializable {
 
-    companion object: KLogging() {
-//        @JvmStatic
-//        operator fun invoke(southWest: GeoHash, northEast: GeoHash): TwoGeoHashBoundingBox {
-//            require(southWest.significantBits() == northEast.significantBits()) {
-//                "Does it make sense to iterate between hashes that have different precisions?"
-//            }
-//            val southWestCorner = geoHashOfLongValue(southWest.longValue, southWest.significantBits())
-//            val northEastCorner = geoHashOfLongValue(northEast.longValue, northEast.significantBits())
-//            val boundingBox = BoundingBox(
-//                southWestCorner.boundingBox.southLatitude,
-//                northEastCorner.boundingBox.northLatitude,
-//                southWestCorner.boundingBox.westLongitude,
-//                northEastCorner.boundingBox.eastLongitude
-//            )
-//            return TwoGeoHashBoundingBox(southWestCorner, northEastCorner, boundingBox)
-//        }
-//
-//        @JvmStatic
-//        fun withCharacterPrecision(bbox: BoundingBox, numberOfCharacter: Int): TwoGeoHashBoundingBox {
-//            val southWest = geoHashWithCharacters(bbox.southLatitude, bbox.westLongitude, numberOfCharacter)
-//            val northEast = geoHashWithCharacters(bbox.northLatitude, bbox.eastLongitude, numberOfCharacter)
-//
-//            return invoke(southWest, northEast)
-//        }
-//
-//        @JvmStatic
-//        fun withBitPrecision(bbox: BoundingBox, numberOfBits: Int): TwoGeoHashBoundingBox {
-//            val southWest = geoHashWithBits(bbox.southLatitude, bbox.westLongitude, numberOfBits)
-//            val northEast = geoHashWithBits(bbox.northLatitude, bbox.eastLongitude, numberOfBits)
-//
-//            return invoke(southWest, northEast)
-//        }
-    }
+    companion object: KLogging()
 
     fun toBase32(): String {
         return southWestCorner.toBase32() + northEastCorner.toBase32()
