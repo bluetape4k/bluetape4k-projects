@@ -3,10 +3,9 @@ package io.bluetape4k.captcha
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotEmpty
 import io.bluetape4k.support.requirePositiveNumber
-import java.util.*
+import kotlin.random.Random
 
 class CaptchaCodeGenerator private constructor(
-    val random: Random,
     val symbols: String,
 ) {
 
@@ -23,11 +22,10 @@ class CaptchaCodeGenerator private constructor(
 
         @JvmStatic
         operator fun invoke(
-            random: Random = Random(),
             symbols: String = UPPER_DIGITS,
         ): CaptchaCodeGenerator {
             symbols.requireNotEmpty("symbols")
-            return CaptchaCodeGenerator(random, symbols)
+            return CaptchaCodeGenerator(symbols)
         }
 
         @JvmStatic
@@ -46,7 +44,7 @@ class CaptchaCodeGenerator private constructor(
         length.requirePositiveNumber("length")
 
         val buf = CharArray(length) {
-            symbols[random.nextInt(symbols.length)]
+            symbols[Random.nextInt(symbols.length)]
         }
         return String(buf)
     }

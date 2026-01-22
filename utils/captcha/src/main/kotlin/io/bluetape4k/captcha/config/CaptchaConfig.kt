@@ -3,6 +3,7 @@ package io.bluetape4k.captcha.config
 import io.bluetape4k.logging.KLogging
 import java.awt.Color
 import java.awt.Font
+import java.io.Serializable
 
 /**
  * Captcha 생성 설정 정보
@@ -33,7 +34,7 @@ data class CaptchaConfig(
     val fontStyles: MutableList<Int> = DEFAULT_FONT_STYLES,
     val fontPaths: MutableList<String> = DEFAULT_FONTS,
     val fontSize: Int = (height * 0.9).toInt(),
-) {
+): Serializable {
 
     companion object: KLogging() {
         const val DEFAULT_WIDTH = 200
@@ -65,6 +66,7 @@ data class CaptchaConfig(
         val DEFAULT_FONT_STYLES = mutableListOf(Font.PLAIN, Font.BOLD, Font.ITALIC, Font.BOLD or Font.ITALIC)
         val DEFAULT_FONTS = mutableListOf<String>()
         val DEFAULT_FONTS_IN_RESOURCE = mutableListOf(
+            "/fonts/ComicMono-Bold.ttf",
             "/fonts/JetBrainsMonoNL-Bold.ttf",
             "/fonts/Monaco.ttf",
             "/fonts/Roboto-Bold.ttf",

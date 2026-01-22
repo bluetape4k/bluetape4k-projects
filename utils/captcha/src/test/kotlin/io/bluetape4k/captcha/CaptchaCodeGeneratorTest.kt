@@ -3,10 +3,12 @@ package io.bluetape4k.captcha
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
-import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Runtimex
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.RepeatedTest
@@ -100,16 +102,18 @@ class CaptchaCodeGeneratorTest: AbstractCaptchaTest() {
     }
 
     @Test
-    fun `코루틴 환경에서 안전하게 동작합니다`() = runSuspendIO {
+    fun `코루틴 환경에서 안전하게 동작합니다`() = runSuspendDefault {
         val codeGenerator = CaptchaCodeGenerator.DEFAULT
 
         SuspendedJobTester()
             .numThreads(Runtimex.availableProcessors * 4)
             .roundsPerJob(Runtimex.availableProcessors * 4 * 4)
             .add {
-                val codeLength = Random.nextInt(4, 10)
-                val code = codeGenerator.next(codeLength)
-                code.all { it.isDigit() || it.isUpperCase() }.shouldBeTrue()
+                withContext(Dispatchers.Default) {
+                    val codeLength = Random.nextInt(4, 10)
+                    val code = codeGenerator.next(codeLength)
+                    code.all { it.isDigit() || it.isUpperCase() }.shouldBeTrue()
+                }
             }
             .run()
     }
