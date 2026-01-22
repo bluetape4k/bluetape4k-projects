@@ -61,10 +61,10 @@ class BasicExamples: AbstractKotlinS3Test() {
         log.debug { "Bucket의 모든 Object를 조회합니다 ..." }
 
         // 테스트용 Bucket 생성
-        val bucketName = TimebasedUuid.nextBase62String().lowercase()
+        val bucketName = TimebasedUuid.Reordered.nextIdAsString().lowercase()
         s3Client.ensureBucketExists(bucketName)
 
-        val keys = List(5) { TimebasedUuid.nextBase62String().lowercase() }
+        val keys = List(5) { TimebasedUuid.Reordered.nextIdAsString().lowercase() }
         val uploadTasks = keys.map { key ->
             async(Dispatchers.IO) {
                 s3Client.putFromString(bucketName, key, randomString())
@@ -85,7 +85,7 @@ class BasicExamples: AbstractKotlinS3Test() {
 
     @Test
     fun `put get object as ByteArray`() = runSuspendIO {
-        val key = TimebasedUuid.nextBase62String().lowercase()
+        val key = TimebasedUuid.Reordered.nextIdAsString().lowercase()
         val contents = randomString().toUtf8Bytes()
 
         // Put Object
@@ -100,7 +100,7 @@ class BasicExamples: AbstractKotlinS3Test() {
 
     @Test
     fun `put get object as String`() = runSuspendIO {
-        val key = TimebasedUuid.nextBase62String().lowercase()
+        val key = TimebasedUuid.Reordered.nextIdAsString().lowercase()
         val contents = randomString()
 
         // Put Object
@@ -114,7 +114,7 @@ class BasicExamples: AbstractKotlinS3Test() {
 
     @Test
     fun `put get object as File`(temp: TempFolder) = runSuspendIO {
-        val key = TimebasedUuid.nextBase62String().lowercase()
+        val key = TimebasedUuid.Reordered.nextIdAsString().lowercase()
         val content = randomString()
 
         val file = temp.createFile()
@@ -134,7 +134,7 @@ class BasicExamples: AbstractKotlinS3Test() {
 
     @Test
     fun `get bucket acl`() = runSuspendIO {
-        val key = TimebasedUuid.nextBase62String().lowercase()
+        val key = TimebasedUuid.Reordered.nextIdAsString().lowercase()
         s3Client.putFromByteArray(BUCKET_NAME, key, "acl-content".toUtf8Bytes())
 
         val aclResponse = s3Client.getObjectAcl(BUCKET_NAME, key)

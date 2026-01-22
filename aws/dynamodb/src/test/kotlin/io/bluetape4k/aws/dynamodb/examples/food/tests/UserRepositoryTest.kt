@@ -25,7 +25,7 @@ class UserRepositoryTest: AbstractFoodApplicationTest() {
     private fun createUser(): UserDocument {
         val index = Random.nextInt(UserDocument.UserStatus.entries.size)
         val status = UserDocument.UserStatus.entries[index]
-        return UserDocument("matrix", TimebasedUuid.nextBase62String(), status)
+        return UserDocument("matrix", TimebasedUuid.Reordered.nextIdAsString(), status)
     }
 
     @Test

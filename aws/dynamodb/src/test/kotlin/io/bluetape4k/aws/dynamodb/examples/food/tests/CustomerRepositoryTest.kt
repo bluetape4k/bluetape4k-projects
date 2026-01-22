@@ -24,7 +24,7 @@ class CustomerRepositoryTest: AbstractFoodApplicationTest() {
 
     private fun createCustomer(): CustomerDocument =
         CustomerDocument(
-            customerId = TimebasedUuid.nextBase62String(),
+            customerId = TimebasedUuid.Reordered.nextIdAsString(),
             nationId = faker.nation().nationality(),
             grade = CustomerGrade.entries[Random.nextInt(CustomerGrade.entries.size)],
             updatedAt = Instant.now()

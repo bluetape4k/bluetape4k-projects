@@ -123,7 +123,7 @@ class SpringCacheUsingNearCacheTest {
 
     @Test
     fun `cacheable value should be calculated only once`() {
-        val arg = TimebasedUuid.nextBase62String()
+        val arg = TimebasedUuid.Reordered.nextIdAsString()
         // Cacheable 메소드 최초 호출 전에는 cache 에 값 없음
         cache.get(arg) shouldBeEqualTo null
         val first = someCacheable.someCacheableFunc(arg)
