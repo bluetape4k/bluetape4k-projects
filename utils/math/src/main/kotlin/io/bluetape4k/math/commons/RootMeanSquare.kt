@@ -60,9 +60,7 @@ fun DoubleArray.rmse(actual: DoubleArray): Double = asSequence().rmse(actual.asS
  * 참고 : http://en.wikipedia.org/wiki/Root_mean_square_error
  */
 fun <N: Number> Sequence<N>.normalizedRmse(actual: Sequence<N>): Double {
-    val rmse = rmse(actual)
-
-    return when (rmse) {
+    return when (val rmse = rmse(actual)) {
         0.0  -> 0.0
         else -> {
             val (min, max) = actual.map { it.toDouble() }.minMax()

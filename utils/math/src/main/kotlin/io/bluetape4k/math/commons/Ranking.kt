@@ -53,7 +53,7 @@ inline fun <T, V> Sequence<T>.ranking(
     crossinline valueSelector: (T) -> V,
 ): Map<T, Int> where V: Number, V: Comparable<V> {
     val ranks: Map<V, Int> = this.map { valueSelector(it) }.ranking(nanStrategy, tiesStrategy)
-    return this.map { it to ranks[valueSelector(it)]!! }.toMap()
+    return this.associateWith { ranks[valueSelector(it)]!! }
 }
 
 /**

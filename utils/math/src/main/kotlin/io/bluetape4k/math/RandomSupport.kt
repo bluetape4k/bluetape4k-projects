@@ -5,25 +5,24 @@ import io.bluetape4k.support.coerce
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.random.Random
 
-fun <T> List<T>.randomFirst(): T =
+fun <T: Any> List<T>.randomFirst(): T =
     randomFirstOrNull() ?: throw NoSuchElementException("No elements found!")
 
-fun <T> List<T>.randomFirstOrNull(): T? {
-    if (size == 0) return null
+fun <T: Any> List<T>.randomFirstOrNull(): T? {
+    if (isEmpty()) return null
     val random = ThreadLocalRandom.current().nextInt(0, size)
     return this[random]
 }
 
-fun <T> Sequence<T>.randomFirst(): T = toList().randomFirst()
-fun <T> Sequence<T>.randomFirstOrNull(): T? = toList().randomFirstOrNull()
-fun <T> Iterable<T>.randomFirst(): T = toList().randomFirst()
-fun <T> Iterable<T>.randomFirstOrNull(): T? = toList().randomFirstOrNull()
-
+fun <T: Any> Sequence<T>.randomFirst(): T = toList().randomFirst()
+fun <T: Any> Sequence<T>.randomFirstOrNull(): T? = toList().randomFirstOrNull()
+fun <T: Any> Iterable<T>.randomFirst(): T = toList().randomFirst()
+fun <T: Any> Iterable<T>.randomFirstOrNull(): T? = toList().randomFirstOrNull()
 
 /**
  * `sampleSize` 만큼의 unique 한 random 요소를 반환한다
  */
-fun <T> List<T>.randomDistinct(sampleSize: Int): List<T> {
+fun <T: Any> List<T>.randomDistinct(sampleSize: Int): List<T> {
     if (isEmpty()) return emptyList()
     val cappedSampleSize = sampleSize.coerce(1, size)
 
@@ -37,14 +36,14 @@ fun <T> List<T>.randomDistinct(sampleSize: Int): List<T> {
         .toList()
 }
 
-fun <T> Sequence<T>.randomDistinct(sampleSize: Int): List<T> = toList().randomDistinct(sampleSize)
-fun <T> Iterable<T>.randomDistinct(sampleSize: Int): List<T> = toList().randomDistinct(sampleSize)
+fun <T: Any> Sequence<T>.randomDistinct(sampleSize: Int): List<T> = toList().randomDistinct(sampleSize)
+fun <T: Any> Iterable<T>.randomDistinct(sampleSize: Int): List<T> = toList().randomDistinct(sampleSize)
 
 /**
  * `sampleSize` 만큼의 random 요소를 반환한다
  */
-fun <T> List<T>.random(sampleSize: Int): List<T> {
-    if (size == 0) return emptyList()
+fun <T: Any> List<T>.random(sampleSize: Int): List<T> {
+    if (isEmpty()) return emptyList()
     val cappedSampleSize = sampleSize.coerce(1, size)
 
     return (0..Int.MAX_VALUE).asSequence()
@@ -59,12 +58,12 @@ fun <T> List<T>.random(sampleSize: Int): List<T> {
 /**
  * `sampleSize` 만큼의 random 요소를 반환한다
  */
-fun <T> Sequence<T>.random(sampleSize: Int): List<T> = toList().random(sampleSize)
+fun <T: Any> Sequence<T>.random(sampleSize: Int): List<T> = toList().random(sampleSize)
 
 /**
  * `sampleSize` 만큼의 random 요소를 반환한다
  */
-fun <T> Iterable<T>.random(sampleSize: Int): List<T> = toList().random(sampleSize)
+fun <T: Any> Iterable<T>.random(sampleSize: Int): List<T> = toList().random(sampleSize)
 
 /**
  * Simulates a weighted TRUE/FALSE coin flip, with a percentage of probability towards TRUE
@@ -94,15 +93,15 @@ fun weightedCoinFlip(trueProbability: Double): Boolean {
  *  Assigns a probabilty to each distinct `T` item, and randomly selects `T` values given those probabilities.
  *  In other words, this is a Probability Density Function (PDF) for discrete `T` values
  */
-class WeightedDice<T> private constructor(val probabilities: Map<T, Double>) {
+class WeightedDice<T: Any> private constructor(probabilities: Map<T, Double>) {
 
     companion object {
-        operator fun <E> invoke(vararg values: Pair<E, Double>): WeightedDice<E> {
+        operator fun <E: Any> invoke(vararg values: Pair<E, Double>): WeightedDice<E> {
             assert(values.isNotEmpty()) { "values is empty." }
             return WeightedDice(values.toMap())
         }
 
-        operator fun <E> invoke(probabilities: Map<E, Double>): WeightedDice<E> {
+        operator fun <E: Any> invoke(probabilities: Map<E, Double>): WeightedDice<E> {
             assert(probabilities.isNotEmpty()) { "probabilities is empty." }
             return WeightedDice(probabilities)
         }

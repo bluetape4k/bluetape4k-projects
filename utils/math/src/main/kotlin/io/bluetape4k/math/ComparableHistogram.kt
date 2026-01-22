@@ -48,7 +48,6 @@ inline fun <T: Any, C: Comparable<C>> Iterable<T>.binByComparable(
  *
  * @param T
  * @param C
- * @param binIncrements Histogram 막대 갯수
  * @param incrementer   값 증가 값
  * @param valueMapper   Value mapper
  * @param groupOp       grouping operator (eg: count or max)
@@ -84,11 +83,15 @@ inline fun <T: Any, C: Comparable<C>, G: Any> Iterable<T>.binByComparable(
     }
 
     return bins.asSequence()
-        .map {
-            val binWithList = it to mutableListOf<T>()
+        .map { range ->
+            val binWithList = range to mutableListOf<T>()
             groupByC.entries.asSequence()
-                .filter { it.key in binWithList.first }
-                .forEach { binWithList.second.addAll(it.value) }
+                .filter {
+                    it.key in binWithList.first
+                }
+                .forEach {
+                    binWithList.second.addAll(it.value)
+                }
 
             Bin(binWithList.first, groupOp(binWithList.second))
         }

@@ -1,17 +1,23 @@
 package io.bluetape4k.math
 
-inline fun <T, K, R> Sequence<T>.aggregateBy(
+inline fun <T: Any, K: Any, R> Sequence<T>.aggregateBy(
     keySelector: (T) -> K,
-    aggregator: (elements: Iterable<T>) -> R,
+    @BuilderInference aggregator: (elements: Iterable<T>) -> R,
 ): Map<K, R> =
     aggregateBy(keySelector, { it }, aggregator)
 
-inline fun <T, K, R> Iterable<T>.aggregateBy(
+inline fun <T: Any, K: Any, R> Iterable<T>.aggregateBy(
     keySelector: (T) -> K,
-    aggregator: (elements: Iterable<T>) -> R,
+    @BuilderInference aggregator: (elements: Iterable<T>) -> R,
 ): Map<K, R> =
     aggregateBy(keySelector, { it }, aggregator)
 
+inline fun <T: Any, K: Any, V: Any, R> Iterable<T>.aggregateBy(
+    keySelector: (T) -> K,
+    valueTransform: (T) -> V,
+    @BuilderInference aggregator: (values: Iterable<V>) -> R,
+): Map<K, R> =
+    asSequence().aggregateBy(keySelector, valueTransform, aggregator)
 
 /**
  * 컬렉션에 대해 집계를 수행합니다.
@@ -31,19 +37,11 @@ inline fun <T, K, R> Iterable<T>.aggregateBy(
  * )
  * ```
  */
-inline fun <T, K, V, R> Sequence<T>.aggregateBy(
+inline fun <T: Any, K: Any, V: Any, R> Sequence<T>.aggregateBy(
     keySelector: (T) -> K,
     valueTransform: (T) -> V,
-    aggregator: (values: Iterable<V>) -> R,
-): Map<K, R> {
-    return groupBy(keySelector, valueTransform)
+    @BuilderInference aggregator: (values: Iterable<V>) -> R,
+): Map<K, R> =
+    groupBy(keySelector, valueTransform)
         .map { it.key to aggregator(it.value) }
         .toMap()
-}
-
-inline fun <T, K, V, R> Iterable<T>.aggregateBy(
-    keySelector: (T) -> K,
-    valueTransform: (T) -> V,
-    aggregator: (values: Iterable<V>) -> R,
-): Map<K, R> =
-    asSequence().aggregateBy(keySelector, valueTransform, aggregator)

@@ -21,7 +21,7 @@ fun <N: Number> fractionOf(numerator: N): Fraction =
 fun <N: Number> fractionOf(numerator: N, denominator: N): Fraction =
     Fraction(numerator.toInt(), denominator.toInt())
 
-fun FractionOf(value: Double, epsilon: Double = 0.0, maxIterations: Int = 100): Fraction =
+fun fractionOf(value: Double, epsilon: Double = 0.0, maxIterations: Int = 100): Fraction =
     Fraction(value, epsilon, maxIterations)
 
 fun <N: Number> reducedFractionOf(numerator: N, denominator: N): Fraction =

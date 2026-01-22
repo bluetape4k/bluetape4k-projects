@@ -24,7 +24,6 @@ fun betaLn(xs: Iterable<Double>, ys: Iterable<Double>): DoubleArray {
     return results.toDoubleArray()
 }
 
-
 fun betaLn(xs: DoubleArray, ys: DoubleArray): DoubleArray {
     val minSize = minOf(xs.size, ys.size)
     return DoubleArray(minSize) {

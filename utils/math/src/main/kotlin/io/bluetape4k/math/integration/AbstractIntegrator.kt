@@ -13,6 +13,7 @@ abstract class AbstractIntegrator: Integrator {
 
     override val relativeAccuracy: Double
         get() = apacheIntegrator.relativeAccuracy
+
     override val absoluteAccuracy: Double
         get() = apacheIntegrator.absoluteAccuracy
 

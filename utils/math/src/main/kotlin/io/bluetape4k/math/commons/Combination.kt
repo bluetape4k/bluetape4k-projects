@@ -3,9 +3,9 @@ package io.bluetape4k.math.commons
 import io.bluetape4k.math.special.binomial
 import io.bluetape4k.math.special.factorial
 import io.bluetape4k.math.special.factorialLn
-import java.lang.Math.pow
 import kotlin.math.exp
 import kotlin.math.floor
+import kotlin.math.pow
 
 /**
  * 순열에서 조합을 구한다.
@@ -86,7 +86,7 @@ fun variationsWithRepetition(n: Int, k: Int): Double {
     if (n < 0 || k < 0) {
         return 0.0
     }
-    return pow(n.toDouble(), k.toDouble())
+    return n.toDouble().pow(k.toDouble())
 }
 
 /**

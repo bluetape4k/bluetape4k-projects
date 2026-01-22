@@ -24,6 +24,5 @@ inline fun <T: Any, G: Any> Iterable<T>.binByBigDecimal(
     rangeStart: BigDecimal? = null,
 ): BinModel<G, BigDecimal> {
     assert(count() > 0) { "Collection must not be empty." }
-
     return binByComparable({ it + binSize }, valueMapper, groupOp, rangeStart)
 }

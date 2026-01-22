@@ -13,7 +13,17 @@ abstract class AbstractEquator: Equator {
     override val absoluteAccuracy: Double
         get() = solver.absoluteAccuracy
 
-    override fun solve(maxEval: Int, min: Double, max: Double, evaluator: (Double) -> Double): Double {
-        return solver.solve(maxEval, UnivariateFunction { x: Double -> evaluator(x) }, min, max)
+    override fun solve(
+        maxEval: Int,
+        min: Double,
+        max: Double,
+        evaluator: (Double) -> Double,
+    ): Double {
+        return solver.solve(
+            maxEval,
+            UnivariateFunction { x: Double -> evaluator(x) },
+            min,
+            max
+        )
     }
 }

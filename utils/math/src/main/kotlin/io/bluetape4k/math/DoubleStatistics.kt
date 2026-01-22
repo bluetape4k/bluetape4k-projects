@@ -37,17 +37,18 @@ val DoubleArray.skewness: Double
     get() = descriptiveStatistics.skewness
 
 fun Sequence<Double>.doubleRange() = asIterable().doubleRange()
+
 fun Iterable<Double>.doubleRange() =
     (minOrNull() ?: throw RuntimeException("At least one element must be present"))..
             (maxOrNull() ?: throw RuntimeException("At least one element must be present"))
 
-inline fun <T, K> Sequence<T>.rangeBy(
+inline fun <T: Any, K: Any> Sequence<T>.rangeBy(
     keySelector: (T) -> K,
     doubleSelector: (T) -> Double,
 ): Map<K, ClosedRange<Double>> =
     aggregateBy(keySelector, doubleSelector) { it.range() }
 
-inline fun <T, K> Iterable<T>.rangeBy(
+inline fun <T: Any, K: Any> Iterable<T>.rangeBy(
     keySelector: (T) -> K,
     doubleSelector: (T) -> Double,
 ): Map<K, ClosedRange<Double>> =

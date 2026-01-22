@@ -18,7 +18,7 @@ fun Iterable<Neuron>.findBest(features: DoubleArray, distance: (DoubleArray, Dou
  * @param features Data.
  * @param distance Distance function. The neuron's features are passed as the first argument to
  * [DistanceMeasure.compute(double[],double[])].
- * @receiver List of neurons to scan. If the list is empty [null] will be returned.
+ * @receiver List of neurons to scan. If the list is empty `null` will be returned.
  * @return the two neurons whose features are closest to the given data.
  */
 fun Iterable<Neuron>.findBestAndSecondBest(

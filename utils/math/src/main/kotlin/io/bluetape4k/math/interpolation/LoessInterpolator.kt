@@ -7,4 +7,5 @@ typealias ApacheLoessInterpolator = org.apache.commons.math3.analysis.interpolat
 class LoessInterpolator: AbstractInterpolator() {
 
     override val apacheInterpolator: UnivariateInterpolator = ApacheLoessInterpolator()
+
 }

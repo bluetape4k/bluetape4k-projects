@@ -43,9 +43,7 @@ enum class DistanceMeasureMethod(val measurer: DistanceMeasure) {
         measurer.compute(a.point, b.point)
 
     companion object {
-        val VALS = entries.toTypedArray()
-
         fun parse(measureMethod: String): DistanceMeasureMethod? =
-            VALS.find { it.name.equals(measureMethod, true) }
+            entries.find { it.name.equals(measureMethod, true) }
     }
 }
