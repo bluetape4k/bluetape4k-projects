@@ -108,7 +108,7 @@ fun <T: MonetaryAmount> T.round(rounding: MonetaryRounding = Monetary.getRoundin
 fun <T: MonetaryAmount> T.defaultRound(): T = this.with(Monetary.getDefaultRounding()) as T
 
 /**
- * EU의 오늘자 환율 정보를 이용하여 [receiver]의 금액을 대상 금액으로 환전합니다
+ * EU의 오늘자 환율 정보를 이용하여 @receiver 의 금액을 대상 금액으로 환전합니다
  *
  * ```
  * 1.05L.inUSD().convertTo("KRW")        // USD 1.05 를 원화로 환젼

@@ -70,7 +70,9 @@ fun String.isAvailableCurrency(vararg providers: String): Boolean =
  */
 fun currencyUnitOf(currencyCode: String = DefaultCurrencyCode): CurrencyUnit {
     currencyCode.requireNotBlank("currencyCode")
-    return currencyCache.getOrPut(currencyCode) { Monetary.getCurrency(currencyCode) }
+    return currencyCache.computeIfAbsent(currencyCode) {
+        Monetary.getCurrency(currencyCode)
+    }
 }
 
 /**
@@ -86,5 +88,7 @@ fun currencyUnitOf(currencyCode: String = DefaultCurrencyCode): CurrencyUnit {
  * @return [CurrencyUnit] 인스턴스
  */
 fun currencyUnitOf(locale: Locale): CurrencyUnit {
-    return currencyCacheByLocale.getOrPut(locale) { Monetary.getCurrency(locale) }
+    return currencyCacheByLocale.computeIfAbsent(locale) {
+        Monetary.getCurrency(locale)
+    }
 }

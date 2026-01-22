@@ -72,7 +72,7 @@ fun fastMoneyMinorOf(currencyCode: String, amountMinor: Long, factionDigits: Int
  * fastMoneyMinorOf("USD", 1245, 2) // $12.45
  * ```
  *
- * @param currencyCode 통화 코드 ("KRW", "USD", "EUR", "CNY")
+ * @param currency 통화 단위
  * @param amountMinor  소숫점이 포함된 실제 통화량에서 소수점을 뺀 Long 수형의 숫자 (123.59 일 경우 12359)
  * @param factionDigits 실제 통화량에 해당하는 소수점 위치를 표현 (123.59 인 경우 2)
  * @return [FastMoney] instance
@@ -106,12 +106,12 @@ fun Number.toFastMoney(currency: CurrencyUnit = DefaultCurrencyUnit): FastMoney 
 fun Number.toFastMoney(currencyCode: String): FastMoney = fastMoneyOf(this, currencyCode)
 
 /**
- * FastMoney는 통화량을 Long 수형만 지원하므로 [amountMinor]에 소수점 이하의 정보인 [factionDigits]를 같이 제공하여 [FastMoney]를 생성한다
+ * FastMoney는 통화량을 Long 수형만 지원하므로 [factionDigits]를 같이 제공하여 [FastMoney]를 생성한다
  *
  * ```
  * 1245L.toFastMoneyMinor(currencyOf("USD"), 2)  // USD 12.45
  * ```
- * @param receiver      소숫점이 포함된 실제 통화량에서 소수점을 뺀 Long 수형의 숫자 (123.59 일 경우 12359)
+ * @receiver 소숫점이 포함된 실제 통화량에서 소수점을 뺀 Long 수형의 숫자 (123.59 일 경우 12359)
  * @param currency      통화 단위 ([CurrencyUnit])
  * @param factionDigits 실제 통화량에 해당하는 소수점 위치를 표현 (123.59 인 경우 2)
  * @return [FastMoney] instance
@@ -120,12 +120,12 @@ fun Long.toFastMoneyMinor(currency: CurrencyUnit = DefaultCurrencyUnit, factionD
     fastMoneyMinorOf(currency, this, factionDigits)
 
 /**
- * FastMoney는 통화량을 Long 수형만 지원하므로 [amountMinor]에 소수점 이하의 정보인 [factionDigits]를 같이 제공하여 [FastMoney]를 생성한다
+ * FastMoney는 통화량을 Long 수형만 지원하므로 @receiver에 소수점 이하의 정보인 [factionDigits]를 같이 제공하여 [FastMoney]를 생성한다
  *
  * ```
  * 1245L.toFastMoneyMinor(currencyOf("USD"), 2)  // USD 12.45
  * ```
- * @param receiver      소숫점이 포함된 실제 통화량에서 소수점을 뺀 Long 수형의 숫자 (123.59 일 경우 12359)
+ * @receiver      소숫점이 포함된 실제 통화량에서 소수점을 뺀 Long 수형의 숫자 (123.59 일 경우 12359)
  * @param currencyCode  통화 코드 ("KRW", "USD", "EUR", "CNY")
  * @param factionDigits 실제 통화량에 해당하는 소수점 위치를 표현 (123.59 인 경우 2)
  * @return [FastMoney] instance

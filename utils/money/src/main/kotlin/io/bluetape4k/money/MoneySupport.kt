@@ -18,7 +18,7 @@ import javax.money.CurrencyUnit
 fun moneyOf(amount: Number, currency: CurrencyUnit = DefaultCurrencyUnit): Money = Money.of(amount, currency)
 
 /**
- * [currency] 통화단위를 가지는 [amount] 금액의 [Money]를 빌드합니다.
+ * [currencyCode] 통화단위를 가지는 [amount] 금액의 [Money]를 빌드합니다.
  *
  * ```
  * val won = moneyOf(1024L, "KRW")      // 1,024 KRW
@@ -51,7 +51,8 @@ fun Number.toMoney(currency: CurrencyUnit = DefaultCurrencyUnit): Money = moneyO
  * val dollar = 1.05.toMoney("USD")  // 1.05 USD
  * ```
  *
- * @param currency 통화단위 코드 ("KRW", "USD", "EUR")
+ * @receiver 통화 금액
+ * @param currencyCode 통화단위 코드 ("KRW", "USD", "EUR")
  */
 fun Number.toMoney(currencyCode: String): Money = moneyOf(this, currencyCode)
 
