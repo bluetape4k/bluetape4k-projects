@@ -9,8 +9,7 @@ dependencies {
     // Images
     api(Libs.scrimage_core)
     api(Libs.scrimage_filters)
-    api(Libs.scrimage_webp)
-
+    implementation(Libs.scrimage_webp)
 
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))
