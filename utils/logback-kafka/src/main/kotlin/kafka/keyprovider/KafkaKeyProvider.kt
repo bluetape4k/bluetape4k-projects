@@ -1,6 +1,6 @@
 package io.bluetape4k.logback.kafka.keyprovider
 
-interface KafkaKeyProvider<E> {
+interface KafkaKeyProvider<E: Any> {
 
     /**
      * 로그 Event를 기준으로 Key를 생성

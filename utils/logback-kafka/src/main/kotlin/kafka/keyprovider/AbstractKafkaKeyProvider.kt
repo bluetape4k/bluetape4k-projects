@@ -3,7 +3,7 @@ package io.bluetape4k.logback.kafka.keyprovider
 import ch.qos.logback.core.spi.ContextAwareBase
 import ch.qos.logback.core.spi.LifeCycle
 
-abstract class AbstractKafkaKeyProvider<E>: ContextAwareBase(), KafkaKeyProvider<E>, LifeCycle {
+abstract class AbstractKafkaKeyProvider<E: Any>: ContextAwareBase(), KafkaKeyProvider<E>, LifeCycle {
 
     protected var errorWasShown: Boolean = false
 

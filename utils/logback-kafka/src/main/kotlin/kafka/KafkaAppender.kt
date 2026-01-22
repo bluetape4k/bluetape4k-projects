@@ -11,13 +11,14 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.ByteArraySerializer
 import java.util.concurrent.ConcurrentLinkedQueue
 
-class KafkaAppender<E>: AbstractKafkaAppender<E>() {
+class KafkaAppender<E: Any>: AbstractKafkaAppender<E>() {
 
     companion object {
         /**
          * Kafka Client의 로그는 따로 처리하기 위해 (`org.apache.kafka.clients`)
          */
-        internal val KAFKA_LOGGER_PREFIX = Producer::class.java.packageName.replaceFirst(".producer", "", true)
+        internal val KAFKA_LOGGER_PREFIX =
+            Producer::class.java.packageName.replaceFirst(".producer", "", true)
     }
 
     private val attacher = AppenderAttachableImpl<E>()
@@ -25,7 +26,7 @@ class KafkaAppender<E>: AbstractKafkaAppender<E>() {
     // Kafka Client가 출력하는 로그는 따로 처리하기 위해 queue에 담아둔다.
     private val deferQueue = ConcurrentLinkedQueue<E>()
 
-    private val producer: Producer<ByteArray?, ByteArray?>? by lazy { createProducer() }
+    private val producer: Producer<ByteArray, ByteArray>? by lazy { createProducer() }
 
     private val exportExceptionHandler = ExportExceptionHandler<E> { event, exception ->
         if (exception != null) {
@@ -65,7 +66,7 @@ class KafkaAppender<E>: AbstractKafkaAppender<E>() {
         val key = keyProvider?.get(event)
         val timestamp: Long? = if (appendTimestamp) getTimestamp(event) else null
 
-        val record = ProducerRecord(topic, partition, timestamp, key, value)
+        val record: ProducerRecord<ByteArray, ByteArray> = ProducerRecord(topic, partition, timestamp, key, value)
 
         if (producer != null) {
             exporter!!.export(producer!!, record, event, exportExceptionHandler)
@@ -129,7 +130,7 @@ class KafkaAppender<E>: AbstractKafkaAppender<E>() {
         return attacher.isAttached(appender)
     }
 
-    internal fun createProducer(): Producer<ByteArray?, ByteArray?>? {
+    internal fun createProducer(): Producer<ByteArray, ByteArray>? {
         producerConfig[ProducerConfig.BOOTSTRAP_SERVERS_CONFIG] = bootstrapServers ?: DEFAULT_BOOTSTRAP_SERVERS
         producerConfig[ProducerConfig.ACKS_CONFIG] = acks ?: DEFAULT_ACKS
 

@@ -7,7 +7,7 @@ import org.apache.kafka.common.errors.TimeoutException
 
 class DefaultKafkaExporter: KafkaExporter {
 
-    override fun <K, V, E> export(
+    override fun <K: Any, V: Any, E: Any> export(
         producer: Producer<K, V>,
         record: ProducerRecord<K, V>,
         event: E,

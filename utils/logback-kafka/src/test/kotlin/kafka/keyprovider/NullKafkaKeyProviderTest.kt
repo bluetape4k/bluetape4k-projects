@@ -8,11 +8,6 @@ class NullKafkaKeyProviderTest: AbstractKafkaKeyProviderTest() {
     override val keyProvider = NullKafkaKeyProvider()
 
     @Test
-    fun `get null key with null event`() {
-        keyProvider.get(null).shouldBeNull()
-    }
-
-    @Test
     fun `get null key with any event`() {
         keyProvider.get("value").shouldBeNull()
         keyProvider.get(123).shouldBeNull()

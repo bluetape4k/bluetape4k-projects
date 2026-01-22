@@ -4,7 +4,7 @@ import ch.qos.logback.core.Context
 import ch.qos.logback.core.CoreConstants
 import io.bluetape4k.logback.kafka.utils.hashBytes
 
-class HostnameKafkaKeyProvider: AbstractKafkaKeyProvider<Any?>() {
+class HostnameKafkaKeyProvider: AbstractKafkaKeyProvider<Any>() {
 
     private var hostnameHash: ByteArray? = null
 
@@ -23,6 +23,6 @@ class HostnameKafkaKeyProvider: AbstractKafkaKeyProvider<Any?>() {
         }
     }
 
-    override fun get(e: Any?): ByteArray? = hostnameHash
+    override fun get(e: Any): ByteArray? = hostnameHash
 
 }

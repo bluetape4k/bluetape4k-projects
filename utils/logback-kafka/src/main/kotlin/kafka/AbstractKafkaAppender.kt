@@ -8,7 +8,7 @@ import io.bluetape4k.logback.kafka.exporter.KafkaExporter
 import io.bluetape4k.logback.kafka.keyprovider.HostnameKafkaKeyProvider
 import io.bluetape4k.logback.kafka.keyprovider.KafkaKeyProvider
 
-abstract class AbstractKafkaAppender<E>: UnsynchronizedAppenderBase<E>(), AppenderAttachable<E> {
+abstract class AbstractKafkaAppender<E: Any>: UnsynchronizedAppenderBase<E>(), AppenderAttachable<E> {
 
     companion object {
         const val DEFAULT_BOOTSTRAP_SERVERS = "localhost:9093"

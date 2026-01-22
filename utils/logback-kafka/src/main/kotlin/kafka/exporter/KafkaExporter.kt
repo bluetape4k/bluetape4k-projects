@@ -5,7 +5,7 @@ import org.apache.kafka.clients.producer.ProducerRecord
 
 interface KafkaExporter {
 
-    fun <K, V, E> export(
+    fun <K: Any, V: Any, E: Any> export(
         producer: Producer<K, V>,
         record: ProducerRecord<K, V>,
         event: E,

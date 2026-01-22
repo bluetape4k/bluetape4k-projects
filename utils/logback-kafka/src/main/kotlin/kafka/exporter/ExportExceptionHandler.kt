@@ -5,7 +5,7 @@ package io.bluetape4k.logback.kafka.exporter
  *
  * @param E Event Type
  */
-fun interface ExportExceptionHandler<E> {
+fun interface ExportExceptionHandler<E: Any> {
 
     fun handle(event: E, throwable: Throwable?)
 

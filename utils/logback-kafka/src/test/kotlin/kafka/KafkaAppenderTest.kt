@@ -11,6 +11,7 @@ import io.bluetape4k.logback.kafka.keyprovider.KafkaKeyProvider
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.mockk.Called
+import io.mockk.CapturingSlot
 import io.mockk.clearAllMocks
 import io.mockk.confirmVerified
 import io.mockk.every
@@ -37,7 +38,7 @@ class KafkaAppenderTest {
     private val keyProvider = mockk<KafkaKeyProvider<ILoggingEvent>>(relaxed = true)
     private val exporter = mockk<KafkaExporter>(relaxed = true)
 
-    protected val sampleEvent = LoggingEvent(
+    private val sampleEvent = LoggingEvent(
         "fqcn",
         ctx.getLogger("logger"),
         Level.TRACE,
@@ -125,14 +126,15 @@ class KafkaAppenderTest {
         appender.doAppend(sampleEvent)
 
         verify { keyProvider.get(sampleEvent) }
-        verify { exporter.export(any<Producer<ByteArray?, ByteArray?>>(), any(), sampleEvent, any()) }
+        verify { exporter.export(any<Producer<ByteArray, ByteArray>>(), any(), sampleEvent, any()) }
     }
 
     @Test
     fun `로그 발송 시 이미 지정된 partition이 있다면 그 값을 사용한다`() {
         every { encoder.encode(any<ILoggingEvent>()) } returns ByteArray(2)
         // 참고: https://notwoods.github.io/mockk-guidebook/docs/mockito-migrate/argument-captor/
-        val producerRecordCaptor = slot<ProducerRecord<ByteArray?, ByteArray?>>()
+        val producerRecordCaptor: CapturingSlot<ProducerRecord<ByteArray, ByteArray>> =
+            slot<ProducerRecord<ByteArray, ByteArray>>()
         appender.partition = 3
         appender.start()
 
@@ -140,7 +142,7 @@ class KafkaAppenderTest {
 
         verify {
             exporter.export(
-                any<Producer<ByteArray?, ByteArray?>>(),
+                any<Producer<ByteArray, ByteArray>>(),
                 capture(producerRecordCaptor),
                 sampleEvent,
                 any()
@@ -176,7 +178,7 @@ class KafkaAppenderTest {
 
         appender.doAppend(sampleEvent)
 
-        verify { exporter.export(any<Producer<ByteArray?, ByteArray?>>(), any(), kafkaClientEvent, any()) }
-        verify { exporter.export(any<Producer<ByteArray?, ByteArray?>>(), any(), sampleEvent, any()) }
+        verify { exporter.export(any<Producer<ByteArray, ByteArray>>(), any(), kafkaClientEvent, any()) }
+        verify { exporter.export(any<Producer<ByteArray, ByteArray>>(), any(), sampleEvent, any()) }
     }
 }
