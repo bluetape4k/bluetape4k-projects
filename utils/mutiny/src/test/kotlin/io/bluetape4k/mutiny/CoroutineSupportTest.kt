@@ -4,6 +4,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.smallrye.mutiny.Uni
 import io.smallrye.mutiny.coroutines.awaitSuspending
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
@@ -19,12 +20,15 @@ class CoroutineSupportTest {
         val expected1 = 42L
         val expected2 = 43L
 
-        val u1: Uni<Long> = asUni(Dispatchers.Default) {
+        val defaultScope = CoroutineScope(Dispatchers.Default)
+        val u1: Uni<Long> = defaultScope.asUni() {
             delay(100L)
             log.debug { "suspend method 1 실행 in Uni" }
             expected1
         }
-        val u2: Uni<Long> = asUni(Dispatchers.IO) {
+
+        val ioScope = CoroutineScope(Dispatchers.IO)
+        val u2: Uni<Long> = ioScope.asUni {
             delay(100L)
             log.debug { "suspend method 2 실행 in Uni" }
             expected2

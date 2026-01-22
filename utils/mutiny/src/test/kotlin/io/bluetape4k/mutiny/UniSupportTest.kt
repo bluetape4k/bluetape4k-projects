@@ -49,6 +49,7 @@ class UniSupportTest {
     @Test
     fun `convert uni to uni`() {
         uniConvertOf(10) { uniOf { "[$it]" } }
-            .subscribe().with(::println) { failure -> println(failure.message) }
+            .subscribe()
+            .with(::println) { failure -> println(failure.message) }
     }
 }
