@@ -10,6 +10,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
+import org.jetbrains.exposed.v1.core.java.javaUUID
 import org.jetbrains.exposed.v1.dao.IntEntity
 import org.jetbrains.exposed.v1.dao.IntEntityClass
 import org.jetbrains.exposed.v1.jdbc.batchInsert
@@ -24,7 +25,7 @@ class ColumnExtensionsTest: AbstractExposedTest() {
     }
 
     object ClientGenerated: IntIdTable() {
-        val timebasedUuid = uuid("timebased_uuid").timebasedGenerated()
+        val timebasedUuid = javaUUID("timebased_uuid").timebasedGenerated()
         val timebasedUuidBase62 = varchar("timebased_uuid_base62", 32).timebasedGenerated()
         val snowflake = long("snowflake").snowflakeGenerated()
         val ksuid = varchar("ksuid", 27).ksuidGenerated()

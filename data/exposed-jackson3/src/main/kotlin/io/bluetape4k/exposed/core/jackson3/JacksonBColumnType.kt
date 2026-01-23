@@ -4,6 +4,7 @@ import io.bluetape4k.jackson3.JacksonSerializer
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.vendors.H2Dialect
+import org.jetbrains.exposed.v1.core.vendors.SQLiteDialect
 import org.jetbrains.exposed.v1.core.vendors.currentDialect
 
 /**
@@ -16,6 +17,7 @@ import org.jetbrains.exposed.v1.core.vendors.currentDialect
 class JacksonBColumnType<T: Any>(
     serialize: (T) -> String,
     deserialize: (String) -> T,
+    castToJsonFormat: Boolean = false,
 ): JacksonColumnType<T>(serialize, deserialize) {
 
     /**
@@ -23,12 +25,28 @@ class JacksonBColumnType<T: Any>(
      */
     override val usesBinaryFormat: Boolean = true
 
+    override val needsBinaryFormatCast: Boolean = castToJsonFormat
+        get() = field && currentDialect is SQLiteDialect
+
     /**
      * 현재 DB Dialect에 맞는 JSONB 타입의 SQL 타입 문자열을 반환합니다.
      */
     override fun sqlType(): String = when (val dialect = currentDialect) {
-        is H2Dialect -> (currentDialect as H2Dialect).originalDataTypeProvider.jsonBType()
+        is H2Dialect -> dialect.originalDataTypeProvider.jsonBType()
         else -> dialect.dataTypeProvider.jsonBType()
+    }
+
+    override fun parameterMarker(value: T?): String = if (currentDialect is SQLiteDialect) {
+        "JSONB(?)"
+    } else {
+        super.parameterMarker(value)
+    }
+
+    override fun nonNullValueAsDefaultString(value: T): String {
+        return when (currentDialect) {
+            is SQLiteDialect -> "(JSONB(${nonNullValueToString(value)}))"
+            else -> super.nonNullValueAsDefaultString(value)
+        }
     }
 }
 

@@ -26,6 +26,7 @@ open class JacksonColumnType<T: Any>(
 ): ColumnType<T>(), JsonColumnMarker {
 
     override val usesBinaryFormat: Boolean = false
+    override val needsBinaryFormatCast: Boolean = false
 
     override fun sqlType(): String = currentDialect.dataTypeProvider.jsonType()
 

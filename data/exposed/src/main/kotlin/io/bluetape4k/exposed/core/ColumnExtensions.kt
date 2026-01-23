@@ -29,8 +29,8 @@ import org.jetbrains.exposed.v1.core.Table.Dual.clientDefault
 import org.jetbrains.exposed.v1.core.UIntegerColumnType
 import org.jetbrains.exposed.v1.core.ULongColumnType
 import org.jetbrains.exposed.v1.core.UShortColumnType
-import org.jetbrains.exposed.v1.core.UUIDColumnType
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.java.UUIDColumnType
 import org.jetbrains.exposed.v1.core.statements.api.ExposedBlob
 import org.jetbrains.exposed.v1.datetime.KotlinDurationColumnType
 import org.jetbrains.exposed.v1.datetime.KotlinLocalDateColumnType

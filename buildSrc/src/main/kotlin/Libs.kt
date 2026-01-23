@@ -150,7 +150,7 @@ object Versions {
     const val hibernate_validator = "9.1.0.Final" // https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator
     const val querydsl = "5.1.0"                  // https://mvnrepository.com/artifact/com.querydsl/querydsl-jpa
 
-    const val exposed = "1.0.0-rc-4"       // https://mvnrepository.com/artifact/org.jetbrains.exposed/exposed-core
+    const val exposed = "1.0.0"       // https://mvnrepository.com/artifact/org.jetbrains.exposed/exposed-core
     const val r2dbc = "1.0.0.RELEASE"        // https://mvnrepository.com/artifact/io.r2dbc/r2dbc-spi
     const val agroal = "3.0"          // https://mvnrepository.com/artifact/io.agroal/agroal-api
 
@@ -1236,7 +1236,9 @@ object Libs {
     val exposed_money = exposed("money")
     val exposed_r2dbc = exposed("r2dbc")
     val exposed_spring_boot_starter = exposed("spring-boot-starter")
+    val exposed_spring_boot4_starter = exposed("spring-boot4-starter")
     const val exposed_spring_transaction = "org.jetbrains.exposed:spring-transaction:${Versions.exposed}"
+    const val exposed_spring7_transaction = "org.jetbrains.exposed:spring7-transaction:${Versions.exposed}"
 
 
     // R2DBC (버전은 spring-data 버전을 사용한다)

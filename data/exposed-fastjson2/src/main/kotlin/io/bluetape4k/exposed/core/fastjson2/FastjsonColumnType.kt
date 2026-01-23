@@ -28,6 +28,8 @@ open class FastjsonColumnType<T: Any>(
 
     override val usesBinaryFormat: Boolean = false
 
+    override val needsBinaryFormatCast: Boolean = false
+
     override fun sqlType(): String = currentDialect.dataTypeProvider.jsonType()
 
     @Suppress("UNCHECKED_CAST")

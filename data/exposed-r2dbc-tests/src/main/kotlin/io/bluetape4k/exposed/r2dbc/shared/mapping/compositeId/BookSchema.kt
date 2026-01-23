@@ -2,6 +2,7 @@ package io.bluetape4k.exposed.r2dbc.shared.mapping.compositeId
 
 import org.jetbrains.exposed.v1.core.dao.id.CompositeIdTable
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
+import org.jetbrains.exposed.v1.core.java.javaUUID
 
 /**
  * Composite Id 를 가지는 Entity를 표현하는 ERD 입니다.
@@ -25,7 +26,7 @@ object BookSchema {
      */
     object Publishers: CompositeIdTable("publishers") {
         val pubId = integer("pub_id").autoIncrement().entityId()
-        val isbn = uuid("isbn_code").autoGenerate().entityId()
+        val isbn = javaUUID("isbn_code").autoGenerate().entityId()
         val name = varchar("publisher_name", 32)
 
         override val primaryKey = PrimaryKey(pubId, isbn)
@@ -49,7 +50,7 @@ object BookSchema {
      */
     object Authors: IntIdTable("authors") {
         val publisherId = integer("publisher_id")
-        val publisherIsbn = uuid("publisher_isbn")
+        val publisherIsbn = javaUUID("publisher_isbn")
         val penName = varchar("pen_name", 32)
 
         // FK constraint with multiple columns is created as a table-level constraint
@@ -133,7 +134,7 @@ object BookSchema {
         val areaCode = integer("area_code").entityId()
         val staff = long("staff").nullable()
         val publisherId = integer("publisher_id").nullable()
-        val publisherIsbn = uuid("publisher_isbn").nullable()
+        val publisherIsbn = javaUUID("publisher_isbn").nullable()
 
         override val primaryKey = PrimaryKey(zipCode, name, areaCode)
 

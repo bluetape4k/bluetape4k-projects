@@ -4,6 +4,7 @@ import io.bluetape4k.ToStringBuilder
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
+import org.jetbrains.exposed.v1.core.java.javaUUID
 import org.jetbrains.exposed.v1.dao.IntEntity
 import org.jetbrains.exposed.v1.dao.IntEntityClass
 import org.jetbrains.exposed.v1.dao.LongEntity
@@ -73,7 +74,7 @@ object BoardSchema {
      * ```
      */
     object Categories: IntIdTable("categories") {
-        val uniqueId = uuid("uniqueId").autoGenerate().uniqueIndex()
+        val uniqueId = javaUUID("uniqueId").autoGenerate().uniqueIndex()
         val title = varchar("title", 50)
     }
 
