@@ -5,6 +5,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.util.concurrent.ConcurrentHashMap
 
 class SuspendInMemoryMemorizer<in T: Any, out R: Any>(
     @BuilderInference private val evaluator: suspend (T) -> R,
@@ -12,7 +13,7 @@ class SuspendInMemoryMemorizer<in T: Any, out R: Any>(
 
     companion object: KLogging()
 
-    private val resultCache: MutableMap<T, R> = mutableMapOf()
+    private val resultCache: MutableMap<T, R> = ConcurrentHashMap<T, R>()
     private val mutex = Mutex()
 
     override suspend fun invoke(input: T): R {

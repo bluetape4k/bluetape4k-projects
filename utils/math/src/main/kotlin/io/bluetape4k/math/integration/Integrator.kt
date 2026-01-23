@@ -48,6 +48,7 @@ interface Integrator {
             xs[i] = x
             ys[i] = y
         }
+
         return integrate(xs, ys, interpolator)
     }
 }

@@ -44,7 +44,7 @@ class QuarterTest {
 
     @Test
     fun `특정 Quarter의 시작 월과 마지막 월`() {
-        Quarter.VALS.forEach { q ->
+        Quarter.entries.forEach { q ->
             q.startMonth shouldBeEqualTo (q.number - 1) * 3 + 1
             q.endMonth shouldBeEqualTo q.startMonth + 2
         }
@@ -52,8 +52,8 @@ class QuarterTest {
 
     @Test
     fun `Quarter 더하기`() {
-        val quarters1 = Quarter.VALS
-        val quarters2 = Quarter.VALS
+        val quarters1 = Quarter.entries
+        val quarters2 = Quarter.entries
 
         quarters1.forEach { q1 ->
             quarters2.forEach { q2 ->
@@ -67,7 +67,7 @@ class QuarterTest {
     @ParameterizedTest(name = "increment quarter {0}")
     @ValueSource(ints = [0, 1, 2, 3, 4, 100, -1, -5, -11])
     fun `increment quarter`(quarterCount: Int) {
-        Quarter.VALS.forEach { q ->
+        Quarter.entries.forEach { q ->
             val newQ = q.increment(quarterCount)
             log.trace { "$q increment by $quarterCount. newQ=$newQ" }
             if (quarterCount == 0) {
@@ -78,8 +78,8 @@ class QuarterTest {
 
     @Test
     fun `Quarter 빼기`() {
-        val quarters1 = Quarter.VALS
-        val quarters2 = Quarter.VALS
+        val quarters1 = Quarter.entries
+        val quarters2 = Quarter.entries
 
         quarters1.forEach { q1 ->
             quarters2.forEach { q2 ->
@@ -92,7 +92,7 @@ class QuarterTest {
     @ParameterizedTest(name = "decrement quarter {0}")
     @ValueSource(ints = [0, 1, 2, 3, 4, 100, -1, -5, -11])
     fun `decrement quarter`(quarterCount: Int) {
-        Quarter.VALS.forEach { q ->
+        Quarter.entries.forEach { q ->
             val newQ = q.decrement(quarterCount)
             log.trace { "$q decrement by $quarterCount. newQ=$newQ" }
             if (quarterCount == 0) {

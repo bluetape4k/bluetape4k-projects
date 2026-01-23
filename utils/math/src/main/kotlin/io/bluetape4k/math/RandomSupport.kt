@@ -26,9 +26,10 @@ fun <T: Any> List<T>.randomDistinct(sampleSize: Int): List<T> {
     if (isEmpty()) return emptyList()
     val cappedSampleSize = sampleSize.coerce(1, size)
 
+    val random = ThreadLocalRandom.current()
     return (0..Int.MAX_VALUE).asSequence()
         .map {
-            ThreadLocalRandom.current().nextInt(0, size)
+            random.nextInt(0, size)
         }
         .distinct()
         .take(cappedSampleSize)
@@ -46,9 +47,10 @@ fun <T: Any> List<T>.random(sampleSize: Int): List<T> {
     if (isEmpty()) return emptyList()
     val cappedSampleSize = sampleSize.coerce(1, size)
 
+    val random = ThreadLocalRandom.current()
     return (0..Int.MAX_VALUE).asSequence()
         .map {
-            ThreadLocalRandom.current().nextInt(0, size)
+            random.nextInt(0, size)
         }
         .take(cappedSampleSize)
         .map { this[it] }
@@ -121,7 +123,7 @@ class WeightedDice<T: Any> private constructor(probabilities: Map<T, Double>) {
 
     fun roll(): T = Random.nextDouble(0.0, sum).let { rnd ->
         rangedDistribution
-            .asIterable()
+            .asSequence()
             .first { rng ->
                 rnd in rng.value
             }

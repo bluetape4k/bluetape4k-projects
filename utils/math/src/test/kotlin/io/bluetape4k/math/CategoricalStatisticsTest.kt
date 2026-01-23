@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
+import java.io.Serializable
 
 class CategoricalStatisticsTest {
 
@@ -37,7 +38,7 @@ class CategoricalStatisticsTest {
         val category: String,
         val section: Int,
         val defectRate: Double,
-    )
+    ): Serializable
 
     data class CategoryAndSection(val category: String, val section: Int)
 

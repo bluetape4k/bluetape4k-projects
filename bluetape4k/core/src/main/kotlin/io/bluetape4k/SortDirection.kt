@@ -18,8 +18,6 @@ enum class SortDirection(val direction: Int) {
     DESC(-1);
 
     companion object {
-        val VALS = entries.toTypedArray()
-
         /**
          * 정렬 방향을 반환합니다.
          *

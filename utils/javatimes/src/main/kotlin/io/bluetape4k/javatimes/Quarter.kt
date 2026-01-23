@@ -35,7 +35,7 @@ enum class Quarter(val number: Int) {
      * @param that Quarter
      * @return Quarter
      */
-    operator fun plus(that: Quarter): Quarter = VALS[(ordinal + that.ordinal + 1) % QuartersPerYear]
+    operator fun plus(that: Quarter): Quarter = entries[(ordinal + that.ordinal + 1) % QuartersPerYear]
 
     /**
      * Quarter를 [quaterCount]만큼 증가시킨 [Quarter]를 반환합니다.
@@ -50,7 +50,7 @@ enum class Quarter(val number: Int) {
     fun increment(quaterCount: Int): Quarter {
         var index = (ordinal + quaterCount) % QuartersPerYear
         if (index < 0) index += QuartersPerYear
-        return VALS[index]
+        return entries[index]
     }
 
     /**
@@ -62,7 +62,7 @@ enum class Quarter(val number: Int) {
     operator fun minus(that: Quarter): Quarter {
         var index = (ordinal - that.ordinal - 1) % QuartersPerYear
         if (index < 0) index += QuartersPerYear
-        return VALS[index]
+        return entries[index]
     }
 
     /**
@@ -79,7 +79,7 @@ enum class Quarter(val number: Int) {
     fun decrement(quarterCount: Int): Quarter {
         var index = (ordinal - quarterCount) % QuartersPerYear
         if (index < 0) index += QuartersPerYear
-        return VALS[index]
+        return entries[index]
     }
 
     /**
@@ -105,8 +105,8 @@ enum class Quarter(val number: Int) {
 
     companion object {
 
-        @JvmField
-        val VALS: Array<Quarter> = entries.toTypedArray()
+//        @JvmField
+//        val VALS: Array<Quarter> = entries.toTypedArray()
 
         /**
          * [numberOfQuarter]에 해당하는 Quarter를 반환합니다.
@@ -117,7 +117,7 @@ enum class Quarter(val number: Int) {
         @JvmStatic
         fun of(numberOfQuarter: Int): Quarter {
             numberOfQuarter.assertInRange(1, 4, "numberOfQuarter")
-            return VALS[numberOfQuarter - 1]
+            return entries[numberOfQuarter - 1]
         }
 
         /**
@@ -129,7 +129,7 @@ enum class Quarter(val number: Int) {
         @JvmStatic
         fun ofMonth(monthOfYear: Int): Quarter {
             monthOfYear.assertInRange(1, 12, "monthOfYear")
-            return VALS[(monthOfYear - 1) / MonthsPerQuarter]
+            return entries[(monthOfYear - 1) / MonthsPerQuarter]
         }
     }
 }

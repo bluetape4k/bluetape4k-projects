@@ -33,6 +33,7 @@ interface Equator {
             xs[i] = x
             ys[i] = y
         }
+
         return solve(maxEval, xs, ys)
     }
 }

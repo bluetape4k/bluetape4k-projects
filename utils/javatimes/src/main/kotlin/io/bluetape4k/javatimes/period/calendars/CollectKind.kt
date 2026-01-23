@@ -13,12 +13,10 @@ enum class CollectKind {
 
     companion object {
 
-        val VALS = entries.toTypedArray()
-
         @JvmStatic
         fun of(value: Int): CollectKind {
             value.requireInRange(0, 4, "value")
-            return VALS[value]
+            return entries[value]
         }
     }
 }

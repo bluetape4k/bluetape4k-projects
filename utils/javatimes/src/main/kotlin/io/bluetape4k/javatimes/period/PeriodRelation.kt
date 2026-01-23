@@ -62,11 +62,9 @@ enum class PeriodRelation {
 
     companion object {
 
-        val VALS = entries.toTypedArray()
-
         val NotOverlappedRelations = listOf(NoRelation, After, StartTouching, EndTouching, Before)
 
         fun parse(relation: String): PeriodRelation? =
-            VALS.find { it.name.equals(relation.trim(), true) }
+            entries.find { it.name.equals(relation.trim(), true) }
     }
 }
