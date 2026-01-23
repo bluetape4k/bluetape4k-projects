@@ -59,26 +59,26 @@ object TimebasedUuid {
     private val generator: TimebasedUuidGenerator by lazy { TimebasedUuidGenerator() }
 
     @Deprecated(
-        "use TimebasedUuid.Reorderd.nextId()",
-        replaceWith = ReplaceWith("TimebasedUuid.Reorderd.nextId()")
+        "use TimebasedUuid.Reordered.nextId()",
+        replaceWith = ReplaceWith("TimebasedUuid.Reordered.nextId()")
     )
     fun nextUUID(): UUID = generator.nextUUID()
 
     @Deprecated(
-        "use TimebasedUuid.Reorderd.nextIds(size)",
-        replaceWith = ReplaceWith("TimebasedUuid.Reorderd.nextIds(size)")
+        "use TimebasedUuid.Reordered.nextIds(size)",
+        replaceWith = ReplaceWith("TimebasedUuid.Reordered.nextIds(size)")
     )
     fun nextUUIDs(size: Int): Sequence<UUID> = generator.nextUUIDs(size)
 
     @Deprecated(
-        "use TimebasedUuid.Reorderd.nextIdAsString()",
-        replaceWith = ReplaceWith("TimebasedUuid.Reorderd.nextIdAsString()")
+        "use TimebasedUuid.Reordered.nextIdAsString()",
+        replaceWith = ReplaceWith("TimebasedUuid.Reordered.nextIdAsString()")
     )
     fun nextBase62String(): String = generator.nextBase62String()
 
     @Deprecated(
-        "use TimebasedUuid.Reorderd.nextIdAsStrings(size)",
-        replaceWith = ReplaceWith("TimebasedUuid.Reorderd.nextIdAsStrings(size)")
+        "use TimebasedUuid.Reordered.nextIdAsStrings(size)",
+        replaceWith = ReplaceWith("TimebasedUuid.Reordered.nextIdAsStrings(size)")
     )
     fun nextBase62Strings(size: Int): Sequence<String> = generator.nextBase62Strings(size)
 
