@@ -38,7 +38,9 @@ class AsyncPreemptiveBasicClientAuthentication: AbstractHc5Test() {
 
     @AfterEach
     fun afterEach() {
-        client.close(CloseMode.GRACEFUL)
+        runCatching {
+            client.close(CloseMode.GRACEFUL)
+        }
     }
 
     @Test
