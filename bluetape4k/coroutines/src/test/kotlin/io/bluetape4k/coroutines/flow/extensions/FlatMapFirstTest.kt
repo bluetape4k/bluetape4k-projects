@@ -3,7 +3,6 @@ package io.bluetape4k.coroutines.flow.extensions
 import io.bluetape4k.coroutines.tests.assertResult
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -12,6 +11,7 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicInteger
 
 class FlatMapFirstTest: AbstractFlowTest() {
 
@@ -50,13 +50,13 @@ class FlatMapFirstTest: AbstractFlowTest() {
 
     @Test
     fun `flat map first with take`() = runTest {
-        val item = atomic(0)
+        val item = AtomicInteger(0)
 
         // flatMapFirst 동작 시 collect 작업 후에 emit 된 것 중 가장 최신 것만 선택한다
         flowRangeOf(1, 10)
             .onEach { delay(100) }.log("source")
             .flatMapFirst {
-                item.value = it
+                item.set(it)
                 flowRangeOf(it * 100, 5)
                     .onEach { delay(30) }.log("iner")
             }
@@ -66,7 +66,7 @@ class FlatMapFirstTest: AbstractFlowTest() {
                 300, 301,
             )  // 200 이 없는 이유는 1 -> 100 은 flatMapFirst에서 작업할 때, 2, 3이 송출되고, 가장 최근인 300 대가 송출된다
 
-        item.value shouldBeEqualTo 3
+        item.get() shouldBeEqualTo 3
     }
 
     @Test

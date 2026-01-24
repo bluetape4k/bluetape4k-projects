@@ -101,8 +101,8 @@ class AsyncJsonParser(
         try {
             return parseJsonToken(token)
         } catch (e: Exception) {
-            log.error(e) { "JSON 파싱 오류: ${e.message}" }
-            throw JsonParsingException("JSON 파싱 오류: ${e.message}", e, null)
+            log.error(e) { "JSON 파싱 오류" }
+            throw JsonParsingException("JSON 파싱 오류", e, null)
         }
     }
 

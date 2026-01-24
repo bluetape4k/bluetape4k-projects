@@ -5,10 +5,10 @@ import io.bluetape4k.javers.codecs.JaversCodec
 import io.bluetape4k.javers.codecs.JaversCodecs
 import io.bluetape4k.javers.repository.AbstractCdoSnapshotRepository
 import io.bluetape4k.logging.KLogging
-import kotlinx.atomicfu.locks.ReentrantLock
 import org.cache2k.Cache
 import org.javers.core.commit.CommitId
 import org.javers.core.metamodel.`object`.CdoSnapshot
+import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 /**

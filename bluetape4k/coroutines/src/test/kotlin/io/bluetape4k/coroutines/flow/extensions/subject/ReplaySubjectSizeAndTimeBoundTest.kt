@@ -5,7 +5,6 @@ import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.coroutines.tests.withSingleThread
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.onEach
@@ -20,7 +19,8 @@ import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
-
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * NOTE: 시간에 따라 Buffering 을 수행하므로, [runTest] 를 사용하지 않고, [runSuspendTest] 를 사용해야 합니다.
@@ -149,7 +149,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
         withSingleThread {
             val replay = ReplaySubject<Int>(10, 1L, TimeUnit.MINUTES)
             val result = mutableListOf<Int>()
-            val exc = atomic<Throwable?>(null)
+            val exc = AtomicReference<Throwable>(null)
 
             val job = launch {
                 // 예외가 emit 되면, collect 가 중단된다
@@ -159,7 +159,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
                         .log("#1")
                         .collect { result.add(it) }
                 } catch (ex: Throwable) {
-                    exc.value = ex
+                    exc.set(ex)
                 }
             }.log("job")
             replay.awaitCollector()
@@ -176,14 +176,14 @@ class ReplaySubjectSizeAndTimeBoundTest {
             job.join()
 
             result shouldBeEqualTo listOf(0, 1, 2, 3, 4)
-            exc.value shouldBeInstanceOf RuntimeException::class
+            exc.get() shouldBeInstanceOf RuntimeException::class
         }
     }
 
     @Test
     fun `error offline`() = runSuspendTest {
         val replay = ReplaySubject<Int>(10, 1L, TimeUnit.MINUTES)
-        val exc = atomic<Throwable?>(null)
+        val exc = AtomicReference<Throwable>(null)
 
         repeat(5) {
             replay.emit(it)
@@ -200,11 +200,11 @@ class ReplaySubjectSizeAndTimeBoundTest {
                 .log("#1")
                 .collect { result.add(it) }
         } catch (ex: Throwable) {
-            exc.value = ex
+            exc.set(ex)
         }
 
         result shouldBeEqualTo listOf(0, 1, 2, 3, 4)
-        exc.value shouldBeInstanceOf RuntimeException::class
+        exc.get() shouldBeInstanceOf RuntimeException::class
     }
 
     @Test
@@ -424,7 +424,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
 
             val expected = 3
             val n = 10
-            val counter1 = atomic(0)
+            val counter1 = AtomicInteger(0)
 
             val job1 = launch {
                 replay
@@ -448,7 +448,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
             await until { job1.isCancelled && replay.collectorCount == 0 }
 
             job1.isCancelled.shouldBeTrue()
-            counter1.value shouldBeEqualTo expected
+            counter1.get() shouldBeEqualTo expected
             replay.collectorCount shouldBeEqualTo 0
         }
     }
@@ -461,8 +461,8 @@ class ReplaySubjectSizeAndTimeBoundTest {
             val expected = 3
             val n = 10
 
-            val counter1 = atomic(0)
-            val counter2 = atomic(0)
+            val counter1 = AtomicInteger(0)
+            val counter2 = AtomicInteger(0)
 
             val job1 = launch {
                 replay
@@ -492,8 +492,8 @@ class ReplaySubjectSizeAndTimeBoundTest {
             job1.isCancelled.shouldBeTrue()
             job2.isCompleted.shouldBeTrue()
 
-            counter1.value shouldBeEqualTo expected
-            counter2.value shouldBeEqualTo n
+            counter1.get() shouldBeEqualTo expected
+            counter2.get() shouldBeEqualTo n
             replay.collectorCount shouldBeEqualTo 0
         }
     }

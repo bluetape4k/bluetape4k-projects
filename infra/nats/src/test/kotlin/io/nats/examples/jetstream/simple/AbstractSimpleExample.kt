@@ -4,7 +4,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.nats.AbstractNatsTest
 import io.bluetape4k.nats.client.publish
 import io.nats.client.JetStream
-import kotlinx.atomicfu.atomic
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.random.Random
 
 abstract class AbstractSimpleExample: AbstractNatsTest() {
@@ -25,14 +25,14 @@ abstract class AbstractSimpleExample: AbstractNatsTest() {
     ): Runnable {
 
         private var pubNo: Int = 0
-        private val keepGoing = atomic(true)
+        private val keepGoing = AtomicBoolean(true)
 
         fun stopPublishing() {
-            keepGoing.compareAndSet(expect = true, update = false)
+            keepGoing.compareAndSet(true, false)
         }
 
         override fun run() {
-            while (keepGoing.value) {
+            while (keepGoing.get()) {
                 Thread.sleep(Random.nextLong(jitter.toLong()))
                 js.publish(subject, "$messageText-${++pubNo}")
             }

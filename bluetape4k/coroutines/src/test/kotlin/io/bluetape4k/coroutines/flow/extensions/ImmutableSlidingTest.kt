@@ -6,7 +6,6 @@ import com.danrusu.pods4k.immutableArrays.immutableArrayOf
 import com.danrusu.pods4k.immutableArrays.toImmutableArray
 import com.danrusu.pods4k.immutableArrays.toImmutableIntArray
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flowOf
@@ -23,6 +22,7 @@ import org.amshove.kluent.shouldBeLessOrEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicInteger
 
 class ImmutableSlidingTest {
 
@@ -30,19 +30,18 @@ class ImmutableSlidingTest {
 
     @Test
     fun `sliding flow to immutable array`() = runTest {
-        val slidingCounter = atomic(0)
-        val slidingCount by slidingCounter
+        val slidingCount = AtomicInteger(0)
         val slidingSize = 5
 
         val sliding = flowRangeOf(1, 20).log("source")
             .immutableSliding(slidingSize).log("sliding")
             .onEach { slide ->
                 slide.size shouldBeLessOrEqualTo slidingSize
-                slidingCounter.incrementAndGet()
+                slidingCount.incrementAndGet()
             }
             .toList()
 
-        slidingCount shouldBeEqualTo 20
+        slidingCount.get() shouldBeEqualTo 20
         sliding shouldHaveSize 20
 
         sliding.first().toImmutableIntArray() shouldBeEqualTo immutableArrayOf(1, 2, 3, 4, 5)
@@ -51,18 +50,18 @@ class ImmutableSlidingTest {
 
     @Test
     fun `sliding flow with partial window to immutable array`() = runTest {
-        val slidingCounter = atomic(0)
+        val slidingCount = AtomicInteger(0)
         val slidingSize = 3
 
         val sliding = flowRangeOf(1, 20).log("source")
             .immutableSliding(slidingSize).log("sliding")
             .onEach { slide ->
                 slide.size shouldBeLessOrEqualTo slidingSize
-                slidingCounter.incrementAndGet()
+                slidingCount.incrementAndGet()
             }
             .toList()
 
-        slidingCounter.value shouldBeEqualTo 20
+        slidingCount.get() shouldBeEqualTo 20
         sliding shouldHaveSize 20
 
         sliding.first().toImmutableIntArray() shouldBeEqualTo immutableArrayOf(1, 2, 3)

@@ -7,7 +7,6 @@ import io.bluetape4k.logging.info
 import io.bluetape4k.logging.trace
 import io.bluetape4k.logging.warn
 import io.bluetape4k.utils.Runtimex
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +24,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.util.concurrent.atomic.AtomicInteger
 import javax.cache.configuration.MutableCacheEntryListenerConfiguration
 import kotlin.system.measureTimeMillis
 
@@ -82,13 +82,13 @@ class NearSuspendCache<K: Any, V: Any> private constructor(
     private suspend fun checkBackCacheExpiration() {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         val job = scope.launch {
-            val entrySizer = atomic(0)
+            val entrySizer = AtomicInteger(0)
 
             while (!isClosed() && isActive) {
                 runCatching {
                     delay(checkExpiryPeriod)
                     log.trace { "backCache의 cache entry가 expire 되었는지 검사합니다... check expiration period=$checkExpiryPeriod" }
-                    entrySizer.value = 0
+                    entrySizer.set(0)
                     val elapsed = measureTimeMillis {
                         entries().chunked(100)
                             .onEach { entries ->
@@ -110,7 +110,7 @@ class NearSuspendCache<K: Any, V: Any> private constructor(
                             }
                             .collect()
                     }
-                    log.trace { "bachCache cache entry expire 검사 완료. entrySize=${entrySizer.value}, elapsed=$elapsed msec" }
+                    log.trace { "bachCache cache entry expire 검사 완료. entrySize=${entrySizer.get()}, elapsed=$elapsed msec" }
                 }
             }
         }

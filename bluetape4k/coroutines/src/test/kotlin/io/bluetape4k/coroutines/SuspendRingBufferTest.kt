@@ -4,7 +4,6 @@ import io.bluetape4k.coroutines.flow.extensions.bufferedSliding
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
@@ -15,6 +14,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 
 class SuspendRingBufferTest {
@@ -40,7 +40,7 @@ class SuspendRingBufferTest {
     fun `push items in multi-jobs`() = runTest {
         val bufferSize = 16
         val buffer = SuspendRingBuffer(bufferSize, Double.NaN)
-        val counter = atomic(0)
+        val counter = AtomicInteger(0)
 
         SuspendedJobTester()
             .numThreads(8)

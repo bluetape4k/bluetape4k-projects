@@ -5,7 +5,6 @@ import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -13,6 +12,7 @@ import kotlinx.coroutines.future.future
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.FutureTask
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 
 class FutureSupportTest {
@@ -24,7 +24,7 @@ class FutureSupportTest {
 
     @Test
     fun `Massive future as CompletableFuture in multi-threads`() {
-        val counter = atomic(0)
+        val counter = AtomicInteger(0)
 
         MultithreadingTester()
             .numThreads(16)
@@ -32,7 +32,7 @@ class FutureSupportTest {
             .add {
                 val task: FutureTask<Int> = FutureTask {
                     Thread.sleep(Random.nextLong(10))
-                    log.trace { "counter=${counter.value}" }
+                    log.trace { "counter=${counter.get()}" }
                     counter.incrementAndGet()
                 }
                 task.run()
@@ -41,12 +41,12 @@ class FutureSupportTest {
             }
             .run()
 
-        counter.value shouldBeEqualTo 16 * ITEM_COUNT / 4
+        counter.get() shouldBeEqualTo 16 * ITEM_COUNT / 4
     }
 
     @Test
     fun `Massive Future as CompletableFuture in Coroutines`() = runSuspendDefault {
-        val counter = atomic(0)
+        val counter = AtomicInteger(0)
 
         SuspendedJobTester()
             .numThreads(16)
@@ -54,7 +54,7 @@ class FutureSupportTest {
             .add {
                 val task = future(Dispatchers.Default, start = CoroutineStart.DEFAULT) {
                     delay(Random.nextLong(10))
-                    log.trace { "counter=${counter.value}" }
+                    log.trace { "counter=${counter.get()}" }
                     counter.incrementAndGet()
                 }
                 val result = task.suspendAwait()
@@ -62,6 +62,6 @@ class FutureSupportTest {
             }
             .run()
 
-        counter.value shouldBeEqualTo 16 * ITEM_COUNT / 4
+        counter.get() shouldBeEqualTo 16 * ITEM_COUNT / 4
     }
 }

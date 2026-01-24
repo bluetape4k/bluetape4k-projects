@@ -5,9 +5,9 @@ import io.bluetape4k.exceptions.BluetapeException
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
-import kotlinx.atomicfu.locks.ReentrantLock
 import org.cache2k.Cache
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 /**

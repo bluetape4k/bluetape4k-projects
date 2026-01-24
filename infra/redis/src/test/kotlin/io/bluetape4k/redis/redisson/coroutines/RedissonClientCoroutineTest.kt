@@ -6,11 +6,11 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.leader.coroutines.RedissonSuspendLeaderElection
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicInteger
 
 class RedissonClientCoroutineTest: AbstractRedissonCoroutineTest() {
 
@@ -67,7 +67,7 @@ class RedissonClientCoroutineTest: AbstractRedissonCoroutineTest() {
 
         val lockName = randomName()
         val leaderElection = RedissonSuspendLeaderElection(redissonClient)
-        val counter = atomic(0)
+        val counter = AtomicInteger(0)
 
         try {
             SuspendedJobTester()
@@ -91,7 +91,7 @@ class RedissonClientCoroutineTest: AbstractRedissonCoroutineTest() {
                 }
                 .run()
 
-            counter.value shouldBeEqualTo 32
+            counter.get() shouldBeEqualTo 32
         } finally {
             map.delete()
         }

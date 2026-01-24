@@ -13,7 +13,7 @@ import java.util.concurrent.Executors
  * withSingleThread { dispatcher ->
  *      val subject = PublishSubject<Int>()
  *      val n = 10_000
- *      val counter = atomic(0)
+ *      val counter = AtomicInteger(0)
  *
  *      val job = launch(dispatcher) {
  *          subject.collect {
@@ -64,6 +64,7 @@ suspend inline fun withParallels(
     crossinline block: suspend (executors: List<CoroutineDispatcher>) -> Unit,
 ) {
     parallelism.requirePositiveNumber("parallelism")
+
     val executors = Array(parallelism) { Executors.newSingleThreadExecutor() }
 
     try {

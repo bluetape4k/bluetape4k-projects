@@ -6,10 +6,10 @@ import io.bluetape4k.junit5.awaitility.suspendUntil
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import kotlinx.atomicfu.atomic
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
 import org.redisson.client.codec.StringCodec
+import java.util.concurrent.atomic.AtomicInteger
 
 
 class TopicExamples: AbstractRedissonCoroutineTest() {
@@ -19,8 +19,7 @@ class TopicExamples: AbstractRedissonCoroutineTest() {
     @Test
     fun `add topic listener`() = runSuspendIO {
         val topic = redisson.getTopic(randomName(), StringCodec.INSTANCE)
-        val receivedCounter = atomic(0)
-        val receivedCount by receivedCounter
+        val receivedCounter = AtomicInteger(0)
 
         // topic 예 listener를 등록합니다.
         // listener id 를 반환한다.
@@ -41,7 +40,7 @@ class TopicExamples: AbstractRedissonCoroutineTest() {
         topic.publishAsync("message-2").suspendAwait()
 
         // topic 에 listener가 2개, 메시지 2개 전송
-        await suspendUntil { receivedCount == 2 * 2 }
+        await suspendUntil { receivedCounter.get() == 2 * 2 }
 
         topic.removeAllListenersAsync().suspendAwait()
     }

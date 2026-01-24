@@ -1,8 +1,9 @@
 package io.bluetape4k.coroutines.flow.extensions.subject
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.atomicfu.atomic
-import kotlinx.atomicfu.atomicArrayOfNulls
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.atomic.AtomicReferenceArray
 
 /**
  * 하나의 Producer와 하나의 Consumer만 사용할 수 있는 큐입니다.
@@ -38,58 +39,66 @@ internal class SpscArrayQueue<T> private constructor(capacity: Int) {
         }
     }
 
-    private val referenceArray = atomicArrayOfNulls<Any>(nextPowerOf2(capacity))
-        .apply {
-            repeat(size) {
-                get(it).lazySet(EMPTY)
+//    private val referenceArray = atomicArrayOfNulls<Any>(nextPowerOf2(capacity))
+//        .apply {
+//            repeat(size) {
+//                get(it).lazySet(EMPTY)
+//            }
+//        }
+
+    private val referenceArray =
+        AtomicReferenceArray<AtomicReference<Any>>(nextPowerOf2(capacity))
+            .apply {
+                repeat(length()) {
+                    lazySet(it, AtomicReference<Any>(EMPTY))
+                }
             }
-        }
 
-    private val consumerIndex = atomic(0)
-    private val producerIndex = atomic(0)
+    private val consumerIndex = AtomicInteger(0)
+    private val producerIndex = AtomicInteger(0)
 
-    val isEmpty: Boolean get() = consumerIndex.value == producerIndex.value
+    val isEmpty: Boolean get() = consumerIndex.get() == producerIndex.get()
 
     fun offer(value: T): Boolean {
-        val mask = referenceArray.size - 1
-        val pi = producerIndex.value
+        val mask = referenceArray.length() - 1
+        val pi = producerIndex.get()
 
         val offset = pi and mask
 
-        if (referenceArray[offset].value == EMPTY) {
+        if (referenceArray[offset].get() == EMPTY) {
             referenceArray[offset].lazySet(value)
-            producerIndex.value = pi + 1
+            producerIndex.set(pi + 1)
             return true
         }
         return false
     }
 
     fun poll(out: Array<Any?>): Boolean {
-        val mask = referenceArray.size - 1
-        val ci = consumerIndex.value
+        val mask = referenceArray.length() - 1
+        val ci = consumerIndex.get()
         val offset = ci and mask
 
-        if (referenceArray[offset].value == EMPTY) {
+        if (referenceArray[offset].get() == EMPTY) {
             return false
         }
-        out[0] = referenceArray[offset].value
+        out[0] = referenceArray[offset].get()
         referenceArray[offset].lazySet(EMPTY)
-        consumerIndex.value = ci + 1
+        consumerIndex.set(ci + 1)
         return true
     }
 
     fun clear() {
-        val mask = referenceArray.size - 1
-        var ci = consumerIndex.value
+        val mask = referenceArray.length() - 1
+        var ci = consumerIndex.get()
 
         while (true) {
             val offset = ci and mask
-            if (referenceArray[offset].value == EMPTY) {
+            if (referenceArray[offset].get() == EMPTY) {
                 break
             }
             referenceArray[offset].lazySet(EMPTY)
             ci++
         }
-        consumerIndex.value = ci
+        consumerIndex.set(ci)
     }
 }

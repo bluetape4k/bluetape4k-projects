@@ -120,7 +120,10 @@ fun <T, R> Flow<T>.replay(
     timeSource: (TimeUnit) -> Long,
     transform: suspend (Flow<T>) -> Flow<R>,
 ): Flow<R> =
-    replay({ ReplaySubject(maxSize, maxTimeout.inWholeMilliseconds, TimeUnit.MILLISECONDS, timeSource) }, transform)
+    replay(
+        { ReplaySubject(maxSize, maxTimeout.inWholeMilliseconds, TimeUnit.MILLISECONDS, timeSource) },
+        transform
+    )
 
 /**
  * 하나의 collector 를 upstream source 로 공유하고, 여러 소비자에게 값을 multicasts 합니다

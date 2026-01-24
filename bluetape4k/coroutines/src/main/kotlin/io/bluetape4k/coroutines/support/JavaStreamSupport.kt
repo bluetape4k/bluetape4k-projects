@@ -1,6 +1,5 @@
 package io.bluetape4k.coroutines.support
 
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.buffer
@@ -10,6 +9,7 @@ import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.stream.consumeAsFlow
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.stream.DoubleStream
 import java.util.stream.IntStream
 import java.util.stream.LongStream
@@ -190,10 +190,10 @@ inline fun <R> IntStream.coMap(
 }
 
 internal class IntStreamFlow(private val stream: IntStream): Flow<Int> {
-    private val consumed = atomic(false)
+    private val consumed = AtomicBoolean(false)
 
     override suspend fun collect(collector: FlowCollector<Int>) {
-        if (!consumed.compareAndSet(expect = false, update = true))
+        if (!consumed.compareAndSet(false, true))
             error("IntStream.consumeAsFlow can be collected only once")
 
         stream.use { stream ->
@@ -291,10 +291,10 @@ inline fun <R> LongStream.coMap(
 }
 
 internal class LongStreamFlow(private val stream: LongStream): Flow<Long> {
-    private val consumed = atomic(false)
+    private val consumed = AtomicBoolean(false)
 
     override suspend fun collect(collector: FlowCollector<Long>) {
-        if (!consumed.compareAndSet(expect = false, update = true))
+        if (!consumed.compareAndSet(false, true))
             error("LongStream.consumeAsFlow can be collected only once")
 
         stream.use { stream ->
@@ -396,10 +396,10 @@ inline fun <R> DoubleStream.coMap(
 }
 
 internal class DoubleStreamFlow(private val stream: DoubleStream): Flow<Double> {
-    private val consumed = atomic(false)
+    private val consumed = AtomicBoolean(false)
 
     override suspend fun collect(collector: FlowCollector<Double>) {
-        if (!consumed.compareAndSet(expect = false, update = true))
+        if (!consumed.compareAndSet(false, true))
             error("LongStream.consumeAsFlow can be collected only once")
 
         stream.use { stream ->

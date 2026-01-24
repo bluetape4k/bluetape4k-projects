@@ -1,7 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
@@ -10,6 +9,7 @@ import org.amshove.kluent.shouldBeLessOrEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicInteger
 
 class WindowedTest: AbstractFlowTest() {
 
@@ -20,7 +20,7 @@ class WindowedTest: AbstractFlowTest() {
 
         @Test
         fun `windowed flow`() = runTest {
-            val windowedCounter = atomic(0)
+            val windowedCount = AtomicInteger(0)
             val windowedSize = 5
             val windowedStep = 1
 
@@ -28,11 +28,11 @@ class WindowedTest: AbstractFlowTest() {
                 .windowed(windowedSize, windowedStep).log("windowed")
                 .onEach { windowed ->
                     windowed.size shouldBeLessOrEqualTo windowedSize
-                    windowedCounter.incrementAndGet()
+                    windowedCount.incrementAndGet()
                 }
                 .toList()
 
-            windowedCounter.value shouldBeEqualTo 16
+            windowedCount.get() shouldBeEqualTo 16
             windowed shouldHaveSize 16
             windowed.first() shouldBeEqualTo listOf(1, 2, 3, 4, 5)
             windowed.last() shouldBeEqualTo listOf(16, 17, 18, 19, 20)
@@ -40,7 +40,7 @@ class WindowedTest: AbstractFlowTest() {
 
         @Test
         fun `windowed flow with remaining`() = runTest {
-            val windowedCounter = atomic(0)
+            val windowedCounter = AtomicInteger(0)
             val windowedSize = 5
             val windowedStep = 1
 
@@ -52,7 +52,7 @@ class WindowedTest: AbstractFlowTest() {
                 }
                 .toList()
 
-            windowedCounter.value shouldBeEqualTo 20
+            windowedCounter.get() shouldBeEqualTo 20
             windowed shouldHaveSize 20
             windowed.first() shouldBeEqualTo listOf(1, 2, 3, 4, 5)
             windowed.last() shouldBeEqualTo listOf(20)
@@ -60,7 +60,7 @@ class WindowedTest: AbstractFlowTest() {
 
         @Test
         fun `windowed flow no duplicated`() = runTest {
-            val windowedCounter = atomic(0)
+            val windowedCounter = AtomicInteger(0)
             val windowedSize = 5
             val windowedStep = 5
 
@@ -72,7 +72,7 @@ class WindowedTest: AbstractFlowTest() {
                 }
                 .toList()
 
-            windowedCounter.value shouldBeEqualTo 4
+            windowedCounter.get() shouldBeEqualTo 4
             windowed shouldHaveSize 4
             windowed.first() shouldBeEqualTo listOf(1, 2, 3, 4, 5)
             windowed.last() shouldBeEqualTo listOf(16, 17, 18, 19, 20)
@@ -83,7 +83,7 @@ class WindowedTest: AbstractFlowTest() {
     inner class WindowedFlow {
         @Test
         fun `windowed flow`() = runTest {
-            val windowedCounter = atomic(0)
+            val windowedCount = AtomicInteger(0)
             val windowedSize = 5
             val windowedStep = 1
 
@@ -92,11 +92,11 @@ class WindowedTest: AbstractFlowTest() {
                 .onEach { windowed ->
                     val items = windowed.toList()
                     items.size shouldBeLessOrEqualTo windowedSize
-                    windowedCounter.incrementAndGet()
+                    windowedCount.incrementAndGet()
                 }
                 .toList()
 
-            windowedCounter.value shouldBeEqualTo 16
+            windowedCount.get() shouldBeEqualTo 16
             windowed shouldHaveSize 16
             windowed.first().toList() shouldBeEqualTo listOf(1, 2, 3, 4, 5)
             windowed.last().toList() shouldBeEqualTo listOf(16, 17, 18, 19, 20)
@@ -104,7 +104,7 @@ class WindowedTest: AbstractFlowTest() {
 
         @Test
         fun `windowed flow with remaining`() = runTest {
-            val windowedCounter = atomic(0)
+            val windowedCount = AtomicInteger(0)
             val windowedSize = 5
             val windowedStep = 1
 
@@ -113,11 +113,11 @@ class WindowedTest: AbstractFlowTest() {
                 .onEach { windowed ->
                     val items = windowed.toList()
                     items.size shouldBeLessOrEqualTo windowedSize
-                    windowedCounter.incrementAndGet()
+                    windowedCount.incrementAndGet()
                 }
                 .toList()
 
-            windowedCounter.value shouldBeEqualTo 20
+            windowedCount.get() shouldBeEqualTo 20
             windowed shouldHaveSize 20
             windowed.first().toList() shouldBeEqualTo listOf(1, 2, 3, 4, 5)
             windowed.last().toList() shouldBeEqualTo listOf(20)
@@ -125,7 +125,7 @@ class WindowedTest: AbstractFlowTest() {
 
         @Test
         fun `windowed flow no duplicated`() = runTest {
-            val windowedCounter = atomic(0)
+            val windowedCount = AtomicInteger(0)
             val windowedSize = 5
             val windowedStep = 5
 
@@ -134,11 +134,11 @@ class WindowedTest: AbstractFlowTest() {
                 .onEach { windowed ->
                     val items = windowed.toList()
                     items.size shouldBeEqualTo windowedSize
-                    windowedCounter.incrementAndGet()
+                    windowedCount.incrementAndGet()
                 }
                 .toList()
 
-            windowedCounter.value shouldBeEqualTo 4
+            windowedCount.get() shouldBeEqualTo 4
             windowed shouldHaveSize 4
             windowed.first().toList() shouldBeEqualTo listOf(1, 2, 3, 4, 5)
             windowed.last().toList() shouldBeEqualTo listOf(16, 17, 18, 19, 20)

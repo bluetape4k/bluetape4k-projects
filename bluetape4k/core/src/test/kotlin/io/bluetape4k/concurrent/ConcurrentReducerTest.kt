@@ -3,8 +3,6 @@ package io.bluetape4k.concurrent
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.trace
-import kotlinx.atomicfu.AtomicInt
-import kotlinx.atomicfu.atomic
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeInstanceOf
@@ -14,6 +12,8 @@ import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertFailsWith
 
 /**
@@ -78,9 +78,9 @@ class ConcurrentReducerTest {
         val promise1 = reducer.add(job(request1))
         val promise2 = reducer.add(job(request2))
 
-        val wasInvoked = atomic(false)
+        val wasInvoked = AtomicBoolean(false)
         val promise3 = reducer.add {
-            wasInvoked.value = true
+            wasInvoked.set(true)
             null
         }
 
@@ -112,7 +112,7 @@ class ConcurrentReducerTest {
         reducer.activeCount shouldBeEqualTo 0
         reducer.queuedCount shouldBeEqualTo 0
 
-        wasInvoked.value.shouldBeFalse()
+        wasInvoked.get().shouldBeFalse()
     }
 
     @Test
@@ -157,8 +157,8 @@ class ConcurrentReducerTest {
 
     @Test
     fun `concurrency 보다 많은 작업이 실행될 떄`() {
-        val activeCounter = atomic(0)
-        val maxCounter = atomic(0)
+        val activeCounter = AtomicInteger(0)
+        val maxCounter = AtomicInteger(0)
         val queueSize = 6
         val maxConcurrency = 5
         val reducer = concurrentReducerOf<String>(maxConcurrency, queueSize)
@@ -183,12 +183,12 @@ class ConcurrentReducerTest {
         await until { reducer.activeCount == 0 }
 
         promises.all { it.isDone }.shouldBeTrue()
-        activeCounter.value shouldBeEqualTo 0
+        activeCounter.get() shouldBeEqualTo 0
         reducer.activeCount shouldBeEqualTo 0
         reducer.queuedCount shouldBeEqualTo 0
         reducer.remainingActiveCapacity shouldBeEqualTo maxConcurrency
         reducer.remainingQueueCapacity shouldBeEqualTo queueSize
-        maxCounter.value shouldBeEqualTo maxConcurrency
+        maxCounter.get() shouldBeEqualTo maxConcurrency
     }
 
     @Test
@@ -235,7 +235,7 @@ class ConcurrentReducerTest {
 
     private class CountingJob(
         private val activeCount: () -> Int,
-        private val maxCount: AtomicInt,
+        private val maxCount: AtomicInteger,
     ): () -> CompletionStage<String>? {
 
         companion object {
@@ -246,9 +246,9 @@ class ConcurrentReducerTest {
 
         override fun invoke(): CompletionStage<String> {
             val count = activeCount()
-            log.trace { "Active count=$count, maxCount=${maxCount.value}" }
-            if (count > maxCount.value) {
-                maxCount.value = count
+            log.trace { "Active count=$count, maxCount=${maxCount.get()}" }
+            if (count > maxCount.get()) {
+                maxCount.set(count)
             }
             return future
         }

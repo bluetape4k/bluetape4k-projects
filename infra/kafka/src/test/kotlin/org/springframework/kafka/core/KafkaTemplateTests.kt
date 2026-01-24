@@ -10,7 +10,6 @@ import io.bluetape4k.spring.messaging.support.message
 import io.bluetape4k.support.toUtf8String
 import io.bluetape4k.support.uninitialized
 import io.mockk.mockk
-import kotlinx.atomicfu.atomic
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContainSame
@@ -48,6 +47,7 @@ import org.springframework.test.context.junit4.SpringRunner
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
 @RunWith(SpringRunner::class)
@@ -294,7 +294,7 @@ class KafkaTemplateTests {
         val latch = CountDownLatch(2)
         val records = mutableListOf<ProducerRecord<Int, String>>()
         val meta = mutableListOf<RecordMetadata>()
-        val onErrorDelegateCalls = atomic(0)
+        val onErrorDelegateCalls = AtomicInteger(0)
 
         class PL: ProducerListener<Int, String> {
             override fun onSuccess(producerRecord: ProducerRecord<Int, String>, recordMetadata: RecordMetadata) {
@@ -334,7 +334,7 @@ class KafkaTemplateTests {
             RecordMetadata(TopicPartition(INT_KEY_TOPIC, -1), 0L, 0, 0L, 0, 0),
             RuntimeException("x")
         )
-        onErrorDelegateCalls.value shouldBeEqualTo 2
+        onErrorDelegateCalls.get() shouldBeEqualTo 2
     }
 
     @Test
@@ -368,10 +368,10 @@ class KafkaTemplateTests {
         template.flush()
 
         val latch = CountDownLatch(1)
-        val theResult = atomic<SendResult<Int, String>?>(null)
+        val theResult = AtomicReference<SendResult<Int, String>>(null)
 
         future.onSuccess { result ->
-            theResult.value = result
+            theResult.set(result)
             latch.countDown()
         }
 

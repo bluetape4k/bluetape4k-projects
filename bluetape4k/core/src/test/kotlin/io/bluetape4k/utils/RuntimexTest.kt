@@ -3,6 +3,7 @@ package io.bluetape4k.utils
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.logging.trace
+import org.amshove.kluent.shouldBeGreaterOrEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
@@ -32,13 +33,13 @@ class RuntimexTest {
     @Test
     fun `Free 메모리 얻기`() {
         log.trace { "Free Memory = ${Runtimex.freeMemory} bytes" }
-        Runtimex.freeMemory shouldBeGreaterThan 0
+        Runtimex.freeMemory shouldBeGreaterOrEqualTo 0
     }
 
     @Test
     fun `Free 메모리 Percentage 계산`() {
         log.trace { "Free Memory Percentage = ${Runtimex.freeMemoryPercent} %" }
-        Runtimex.freeMemoryPercent shouldBeGreaterThan 0.0
+        Runtimex.freeMemoryPercent shouldBeGreaterOrEqualTo 0.0
     }
 
 

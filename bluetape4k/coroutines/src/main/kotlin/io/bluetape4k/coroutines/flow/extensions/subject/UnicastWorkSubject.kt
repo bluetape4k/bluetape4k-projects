@@ -3,11 +3,10 @@ package io.bluetape4k.coroutines.flow.extensions.subject
 import io.bluetape4k.coroutines.flow.exceptions.FlowNoElementException
 import io.bluetape4k.coroutines.flow.extensions.Resumable
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
 import java.util.concurrent.ConcurrentLinkedQueue
-
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * Collector가 수집하기 전까지 요소를 버퍼링합니다.
@@ -35,34 +34,33 @@ class UnicastWorkSubject<T: Any>: AbstractFlow<T>(), SubjectApi<T> {
     val resumable = Resumable()
     private val queue = ConcurrentLinkedQueue<T>()
 
-    private val terminal = atomic<Throwable?>(null)
-    private val currentRef = atomic<FlowCollector<T>?>(null)
-    private val current by currentRef
+    private val terminal = AtomicReference<Throwable>(null)
+    private val current = AtomicReference<FlowCollector<T>>(null)
 
     override val hasCollectors: Boolean
-        get() = current != null
+        get() = current.get() != null
 
     override val collectorCount: Int
         get() = if (hasCollectors) 1 else 0
 
     override suspend fun collectSafely(collector: FlowCollector<T>) {
         while (true) {
-            val curr = current
+            val curr = current.get()
             if (curr != null) {
                 error("Only one collector allowed.")
             }
-            if (currentRef.compareAndSet(curr, collector)) {
+            if (current.compareAndSet(curr, collector)) {
                 break
             }
         }
 
         while (true) {
-            val t = terminal.value
+            val t = terminal.get()
             val v = queue.poll()
 
             // 종료되었거나 요소가 없을 때
             if (t != null && v == null) {
-                currentRef.getAndSet(null)
+                current.getAndSet(null)
                 if (t != terminated) {
                     throw t
                 }
@@ -72,7 +70,7 @@ class UnicastWorkSubject<T: Any>: AbstractFlow<T>(), SubjectApi<T> {
                 try {
                     collector.emit(v)
                 } catch (e: Throwable) {
-                    currentRef.getAndSet(null)
+                    current.getAndSet(null)
                     throw e
                 }
             } else {
@@ -88,12 +86,12 @@ class UnicastWorkSubject<T: Any>: AbstractFlow<T>(), SubjectApi<T> {
 
 
     override suspend fun emitError(ex: Throwable?) {
-        terminal.value = ex
+        terminal.set(ex)
         resumable.resume()
     }
 
     override suspend fun complete() {
-        terminal.value = terminated
+        terminal.set(terminated)
         resumable.resume()
     }
 }

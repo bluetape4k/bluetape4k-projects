@@ -4,7 +4,6 @@ import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.junit.jupiter.api.Test
-import kotlin.collections.set
 
 class GetterSetterTest {
 

@@ -6,11 +6,11 @@ import io.bluetape4k.concurrent.virtualthread.virtualFuture
 import io.bluetape4k.concurrent.virtualthread.virtualThread
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
-import kotlinx.atomicfu.locks.withLock
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /**
  * ### Rule 6

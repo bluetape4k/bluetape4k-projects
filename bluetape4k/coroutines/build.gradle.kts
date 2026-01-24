@@ -6,8 +6,6 @@ dependencies {
     api(project(":bluetape4k-core"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    api(Libs.kotlinx_atomicfu)
-
     // Coroutines
     api(Libs.kotlinx_coroutines_core)
     api(Libs.kotlinx_coroutines_slf4j)

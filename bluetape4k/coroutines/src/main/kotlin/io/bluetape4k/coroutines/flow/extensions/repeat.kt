@@ -134,24 +134,11 @@ private fun <T> repeatAtMostCount(
     flow: Flow<T>,
     count: Int,
     durationFunc: DelayDurationFunction?,
-): Flow<T> = when (durationFunc) {
-    null -> flow {
-        repeat(count) {
-            emitAll(flow)
-        }
-    }
-
-    is FixedDelayDurationFunction -> flow {
-        repeat(count) {
-            emitAll(flow)
-            delay(durationFunc.duration)
-        }
-    }
-
-    else -> flow {
-        repeat(count) {
-            emitAll(flow)
-            delay(durationFunc(it))
+): Flow<T> = flow {
+    repeat(count) {
+        emitAll(flow)
+        durationFunc?.let { func ->
+            delay(func(it))
         }
     }
 }

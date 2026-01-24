@@ -12,7 +12,6 @@ import io.vertx.ext.web.codec.BodyCodec
 import io.vertx.junit5.VertxExtension
 import io.vertx.junit5.VertxTestContext
 import io.vertx.kotlin.coroutines.coAwait
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import org.amshove.kluent.shouldBeEqualTo
@@ -20,6 +19,7 @@ import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.fail
+import java.util.concurrent.atomic.AtomicInteger
 
 @ExtendWith(VertxExtension::class)
 class SampleVerticleTest: AbstractVertxTest() {
@@ -30,7 +30,7 @@ class SampleVerticleTest: AbstractVertxTest() {
 
     @Test
     fun `count three ticks`(vertx: Vertx, testContext: VertxTestContext) {
-        val counter = atomic(0)
+        val counter = AtomicInteger(0)
         vertx.setPeriodic(100) {
             if (counter.incrementAndGet() == 3) {
                 testContext.completeNow()

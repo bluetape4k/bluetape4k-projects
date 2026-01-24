@@ -11,7 +11,6 @@ import io.smallrye.mutiny.Uni
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import io.smallrye.mutiny.subscription.UniSubscriber
 import io.smallrye.mutiny.subscription.UniSubscription
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
@@ -23,9 +22,12 @@ import java.io.IOException
 import java.time.Duration
 import java.util.*
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ForkJoinPool
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.random.Random
 
 class UniBasicExamples {
@@ -77,7 +79,7 @@ class UniBasicExamples {
 
     @Test
     fun `04 Supplier와 상태를 이용하여 Uni 인스턴스 생성하기 - fold와 유사`() = runTest {
-        val uni = Uni.createFrom().item({ atomic(0) }) {
+        val uni = Uni.createFrom().item({ AtomicInteger(0) }) {
             it.addAndGet(10)
         }
 
@@ -88,10 +90,10 @@ class UniBasicExamples {
     @Test
     fun `05 deferred - Supplier와 상태를 이용하여, 구독 시마다 값을 계산해서 제공한다`() {
         // 구독 시점에 값을 계산해서 제공해준다
-        val ids = atomic(0L)
+        val ids = AtomicLong(0L)
         val deferred = Uni.createFrom().deferred { Uni.createFrom().item(ids::incrementAndGet) }
 
-        val results = mutableListOf<Long>()
+        val results = CopyOnWriteArrayList<Long>()
 
         // Uni 지만 하나의 값만 제공하는 게 아니라 deferred 를 이용하면, subscription 요청 때마다 item을 제공한다
         repeat(5) {
@@ -125,11 +127,12 @@ class UniBasicExamples {
 
     @Test
     fun `07 Uni from emitter and state`() {
-        val uni: Uni<Long> = Uni.createFrom().emitter({ atomic(0L) }) { state, emitter ->
-            emitter.complete(state.addAndGet(10))
-        }
+        val uni: Uni<Long> = Uni.createFrom()
+            .emitter({ AtomicLong(0L) }) { state, emitter ->
+                emitter.complete(state.addAndGet(10))
+            }
 
-        val results = mutableListOf<Long>()
+        val results = CopyOnWriteArrayList<Long>()
         repeat(5) {
             uni.subscribe().with { results.add(it) }
         }

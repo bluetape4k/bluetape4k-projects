@@ -3,8 +3,8 @@ package io.bluetape4k.cache.memorizer.caffeine
 import com.github.benmanes.caffeine.cache.Cache
 import io.bluetape4k.cache.memorizer.AsyncMemorizer
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.atomicfu.locks.ReentrantLock
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 /**

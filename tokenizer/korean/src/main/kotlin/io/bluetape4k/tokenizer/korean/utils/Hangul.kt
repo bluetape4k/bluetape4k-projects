@@ -1,6 +1,7 @@
 package io.bluetape4k.tokenizer.korean.utils
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.tokenizer.korean.utils.Hangul.DOUBLE_CODAS
 import java.io.Serializable
 
 /**

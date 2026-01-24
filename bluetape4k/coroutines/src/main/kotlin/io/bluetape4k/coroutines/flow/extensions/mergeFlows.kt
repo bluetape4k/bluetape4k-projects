@@ -1,12 +1,12 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.collections.eclipse.toFastList
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * 여러 Flow 소스를 무제한으로 병합합니다.
@@ -40,7 +40,7 @@ fun <T: Any> merge(vararg sources: Flow<T>): Flow<T> = mergeInternal(sources.toF
  */
 internal fun <T: Any> mergeInternal(sources: List<Flow<T>>): Flow<T> = channelFlow {
     val queue = ConcurrentLinkedQueue<T>()
-    val done = atomic(sources.size)
+    val done = AtomicInteger(sources.size)
     val ready = Resumable()
 
     coroutineScope {
@@ -60,7 +60,7 @@ internal fun <T: Any> mergeInternal(sources: List<Flow<T>>): Flow<T> = channelFl
         }
 
         while (true) {
-            val isDone = done.value == 0
+            val isDone = done.get() == 0
             val value = queue.poll()
 
             when {

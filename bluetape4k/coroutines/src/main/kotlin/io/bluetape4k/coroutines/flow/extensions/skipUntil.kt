@@ -1,6 +1,5 @@
 package io.bluetape4k.coroutines.flow.extensions
 
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -8,6 +7,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration
 
 /**
@@ -105,15 +105,15 @@ fun <T> Flow<T>.dropUntil(delayMillis: Long): Flow<T> = skipUntil(delayedFlow(de
 
 internal fun <T> skipUntilInternal(source: Flow<T>, notifier: Flow<Any?>): Flow<T> = flow {
     coroutineScope {
-        val gate = atomic(false)
+        val gate = AtomicBoolean(false)
 
         val job = launch(start = CoroutineStart.UNDISPATCHED) {
             notifier.take(1).collect()
-            gate.value = true
+            gate.set(true)
         }
 
         source.collect {
-            if (gate.value) {
+            if (gate.get()) {
                 emit(it)
             }
         }

@@ -4,7 +4,6 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.coroutines.flow.extensions.subject.SubjectApi
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
@@ -12,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * 하나의 collector 를 upstream source 로 공유하고, 여러 소비자에게 값을 multicasts 합니다
@@ -38,7 +38,7 @@ internal fun <T, R> multicastInternal(
     transform: suspend (Flow<T>) -> Flow<R>,
 ): Flow<R> = flow {
     coroutineScope {
-        val cancelled = atomic(false)
+        val cancelled = AtomicBoolean(false)
         val subject = subjectSupplier()
         val result = transform(subject)
 
@@ -47,7 +47,7 @@ internal fun <T, R> multicastInternal(
         // publish
         launch(start = CoroutineStart.UNDISPATCHED) {
             try {
-                result.onCompletion { cancelled.value = true }
+                result.onCompletion { cancelled.set(true) }
                     .collect {
                         inner.next(it)
                     }
@@ -61,11 +61,11 @@ internal fun <T, R> multicastInternal(
         launch(start = CoroutineStart.UNDISPATCHED) {
             try {
                 source.collect {
-                    if (cancelled.value) {
+                    if (cancelled.get()) {
                         throw CancellationException()
                     }
                     subject.emit(it)
-                    if (cancelled.value) {
+                    if (cancelled.get()) {
                         throw CancellationException()
                     }
                 }

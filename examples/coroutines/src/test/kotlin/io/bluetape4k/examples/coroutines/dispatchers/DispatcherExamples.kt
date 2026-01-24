@@ -3,7 +3,6 @@ package io.bluetape4k.examples.coroutines.dispatchers
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.coroutines.support.suspendLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -20,6 +19,7 @@ import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.random.Random
@@ -109,16 +109,16 @@ class DispatcherExamples {
     @Test
     fun `dispatcher with single thread`() = runTest {
         newSingleThreadContext("single").use { dispatcher ->
-            val counter = atomic(0)
+            val counter = AtomicInteger(0)
 
             val jobs = List(REPEAT_SIZE) {
                 launch(dispatcher) {
                     counter.incrementAndGet()
-                    suspendLogging { "count=${counter.value}, thread=${Thread.currentThread().name}" }
+                    suspendLogging { "count=${counter.get()}, thread=${Thread.currentThread().name}" }
                 }
             }
             jobs.joinAll()
-            counter.value shouldBeEqualTo REPEAT_SIZE
+            counter.get() shouldBeEqualTo REPEAT_SIZE
         }
     }
 

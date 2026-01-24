@@ -5,7 +5,6 @@ import io.bluetape4k.concurrent.sequence
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
@@ -15,6 +14,7 @@ import org.amshove.kluent.shouldNotBeEmpty
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.io.Serializable
+import java.util.concurrent.atomic.AtomicInteger
 
 class AsyncResultSetSupportTest: AbstractCassandraTest() {
 
@@ -43,7 +43,7 @@ class AsyncResultSetSupportTest: AbstractCassandraTest() {
     @Test
     fun `load as flow`() = runSuspendIO {
         log.debug { "Load all bulks" }
-        val counter = atomic(0)
+        val counter = AtomicInteger(0)
 
         val flow = session.executeSuspending("SELECT * FROM bulks").asFlow()
         flow
@@ -58,8 +58,8 @@ class AsyncResultSetSupportTest: AbstractCassandraTest() {
             }
             .collect()
 
-        log.debug { "Loaded record count=${counter.value}" }
-        counter.value shouldBeEqualTo SIZE
+        log.debug { "Loaded record count=${counter.get()}" }
+        counter.get() shouldBeEqualTo SIZE
     }
 
     data class Bulk(val id: String, val name: String): Serializable
@@ -67,7 +67,7 @@ class AsyncResultSetSupportTest: AbstractCassandraTest() {
     @Test
     fun `load as flow with row mapper`() = runSuspendIO {
         log.debug { "Load all bulks" }
-        val counter = atomic(0)
+        val counter = AtomicInteger(0)
 
         val flow = session
             .executeSuspending("SELECT * FROM bulks")
@@ -81,7 +81,7 @@ class AsyncResultSetSupportTest: AbstractCassandraTest() {
             }
             .collect()
 
-        log.debug { "Loaded record count=${counter.value}" }
-        counter.value shouldBeEqualTo SIZE
+        log.debug { "Loaded record count=${counter.get()}" }
+        counter.get() shouldBeEqualTo SIZE
     }
 }

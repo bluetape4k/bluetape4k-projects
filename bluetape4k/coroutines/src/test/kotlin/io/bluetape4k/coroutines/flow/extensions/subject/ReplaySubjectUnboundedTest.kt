@@ -5,7 +5,6 @@ import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.coroutines.tests.withSingleThread
 import io.bluetape4k.junit5.awaitility.suspendUntil
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.onEach
@@ -17,6 +16,9 @@ import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 
 class ReplaySubjectUnboundedTest {
 
@@ -72,7 +74,7 @@ class ReplaySubjectUnboundedTest {
             val replay = ReplaySubject<Int>()
 
             val result = mutableListOf<Int>()
-            val exc = atomic<Throwable?>(null)
+            val exc = AtomicReference<Throwable>(null)
 
             val job = launch {
                 try {
@@ -81,7 +83,7 @@ class ReplaySubjectUnboundedTest {
                         .log("#1")
                         .collect { result.add(it) }
                 } catch (e: Throwable) {
-                    exc.value = e
+                    exc.set(e)
                 }
             }.log("job")
             replay.awaitCollector()
@@ -94,7 +96,7 @@ class ReplaySubjectUnboundedTest {
             job.join()
 
             result shouldBeEqualTo mutableListOf(0, 1, 2, 3, 4)
-            exc.value shouldBeInstanceOf RuntimeException::class
+            exc.get() shouldBeInstanceOf RuntimeException::class
         }
     }
 
@@ -103,7 +105,7 @@ class ReplaySubjectUnboundedTest {
         val replay = ReplaySubject<Int>()
 
         val result = mutableListOf<Int>()
-        val exc = atomic<Throwable?>(null)
+        val exc = AtomicReference<Throwable>(null)
 
         repeat(5) {
             replay.emit(it)
@@ -115,18 +117,18 @@ class ReplaySubjectUnboundedTest {
                 .log("#1")
                 .collect { result.add(it) }
         } catch (e: Throwable) {
-            exc.value = e
+            exc.set(e)
         }
 
         result shouldBeEqualTo mutableListOf(0, 1, 2, 3, 4)
-        exc.value shouldBeInstanceOf RuntimeException::class
+        exc.get() shouldBeInstanceOf RuntimeException::class
     }
 
     @Test
     fun `take online`() = runTest {
         withSingleThread {
             val replay = ReplaySubject<Int>()
-            val result = mutableListOf<Int>()
+            val result = CopyOnWriteArrayList<Int>()
 
             val job = launch {
                 replay
@@ -156,7 +158,7 @@ class ReplaySubjectUnboundedTest {
         }
         replay.complete()
 
-        val result = mutableListOf<Int>()
+        val result = CopyOnWriteArrayList<Int>()
         replay
             .take(3)
             .log("#1")
@@ -170,7 +172,7 @@ class ReplaySubjectUnboundedTest {
         withSingleThread {
             val replay = ReplaySubject<Int>()
 
-            val result1 = mutableListOf<Int>()
+            val result1 = CopyOnWriteArrayList<Int>()
             val job1 = launch {
                 replay
                     .onEach { delay(50) }
@@ -178,7 +180,7 @@ class ReplaySubjectUnboundedTest {
                     .collect { result1.add(it) }
             }.log("job1")
 
-            val result2 = mutableListOf<Int>()
+            val result2 = CopyOnWriteArrayList<Int>()
             val job2 = launch {
                 replay
                     .onEach { delay(100) }
@@ -206,7 +208,7 @@ class ReplaySubjectUnboundedTest {
         withSingleThread {
             val replay = ReplaySubject<Int>()
 
-            val result1 = mutableListOf<Int>()
+            val result1 = CopyOnWriteArrayList<Int>()
             val job1 = launch {
                 replay
                     .onEach { delay(50) }
@@ -214,7 +216,7 @@ class ReplaySubjectUnboundedTest {
                     .collect { result1.add(it) }
             }.log("job1")
 
-            val result2 = mutableListOf<Int>()
+            val result2 = CopyOnWriteArrayList<Int>()
             val job2 = launch {
                 replay
                     .onEach { delay(100) }
@@ -245,7 +247,7 @@ class ReplaySubjectUnboundedTest {
 
             val expected = 3
             val n = 10
-            val counter1 = atomic(0)
+            val counter1 = AtomicInteger(0)
 
             val job1 = launch {
                 replay
@@ -266,7 +268,7 @@ class ReplaySubjectUnboundedTest {
             await suspendUntil { job1.isCancelled && replay.collectorCount == 0 }
 
             job1.isCancelled.shouldBeTrue()
-            counter1.value shouldBeEqualTo expected
+            counter1.get() shouldBeEqualTo expected
             replay.collectorCount shouldBeEqualTo 0
         }
     }
@@ -279,8 +281,8 @@ class ReplaySubjectUnboundedTest {
             val expected = 3
             val n = 10
 
-            val counter1 = atomic(0)
-            val counter2 = atomic(0)
+            val counter1 = AtomicInteger(0)
+            val counter2 = AtomicInteger(0)
 
             val job1 = launch {
                 replay
@@ -312,8 +314,8 @@ class ReplaySubjectUnboundedTest {
             job1.isCancelled.shouldBeTrue()
             job2.isCompleted.shouldBeTrue()
 
-            counter1.value shouldBeEqualTo expected
-            counter2.value shouldBeEqualTo n
+            counter1.get() shouldBeEqualTo expected
+            counter2.get() shouldBeEqualTo n
             replay.collectorCount shouldBeEqualTo 0
         }
     }

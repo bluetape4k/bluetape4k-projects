@@ -11,7 +11,6 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.trace
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import org.apache.hc.client5.http.fluent.Async
@@ -24,6 +23,7 @@ import java.util.*
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * This example demonstrates how the he HttpClient fluent API can be used to execute multiple
@@ -85,7 +85,7 @@ class FluentAsyncExample: AbstractHc5Test() {
     fun `execute multiple request in multi threading`() {
         val executor = Executors.newFixedThreadPool(2)
         val async = Async.newInstance().use(executor)
-        val counter = atomic(0)
+        val counter = AtomicInteger(0)
 
         try {
             MultithreadingTester()
@@ -109,7 +109,7 @@ class FluentAsyncExample: AbstractHc5Test() {
     @Test
     fun `execute multiple request in virtual threads`() {
         val async = Async.newInstance().use(VirtualThreadExecutor)
-        val counter = atomic(0)
+        val counter = AtomicInteger(0)
 
         StructuredTaskScopeTester()
             .roundsPerTask(requests.size)
@@ -127,7 +127,7 @@ class FluentAsyncExample: AbstractHc5Test() {
     @Test
     fun `execute multiple request in multi job`() = runSuspendIO {
         val async = Async.newInstance().use(Dispatchers.IO.asExecutor())
-        val counter = atomic(0)
+        val counter = AtomicInteger(0)
 
         SuspendedJobTester()
             .numThreads(requests.size / 2)

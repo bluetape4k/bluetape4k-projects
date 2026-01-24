@@ -9,18 +9,20 @@ import io.bluetape4k.mutiny.onEach
 import io.smallrye.mutiny.Multi
 import io.smallrye.mutiny.Uni
 import io.smallrye.mutiny.subscription.MultiSubscriber
-import kotlinx.atomicfu.atomic
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.Flow
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.random.Random
 
 class MultiBasicExamples {
@@ -87,11 +89,11 @@ class MultiBasicExamples {
     @Test
     fun `03 Multi from emitter`() {
         val service = Executors.newScheduledThreadPool(1)
-        val ref = atomic<ScheduledFuture<*>?>(null)
-        val counter = atomic(0)
+        val ref = AtomicReference<ScheduledFuture<*>>(null)
+        val counter = AtomicInteger(0)
         val latch = CountDownLatch(1)
 
-        val captures = mutableListOf<String>()
+        val captures = CopyOnWriteArrayList<String>()
 
         Multi.createFrom()
             .emitter { emitter ->
@@ -100,7 +102,7 @@ class MultiBasicExamples {
                         emitter.emit("tick")
                         log.debug { "Emit: tick" }
                         if (counter.incrementAndGet() == 5) {
-                            ref.value?.cancel(true)
+                            ref.get()?.cancel(true)
                             emitter.complete()
                             latch.countDown()
                         }
@@ -109,7 +111,7 @@ class MultiBasicExamples {
                     500,
                     TimeUnit.MILLISECONDS
                 )
-                ref.value = scheduledFuture
+                ref.set(scheduledFuture)
             }
             .subscribe()
             .with(
@@ -129,33 +131,35 @@ class MultiBasicExamples {
     fun `04 Multi control subscription`() {
         Multi.createFrom()
             .ticks().every(Duration.ofSeconds(1))
-            .subscribe().withSubscriber(object: MultiSubscriber<Long> {
+            .subscribe()
+            .withSubscriber(
+                object: MultiSubscriber<Long> {
+                    private lateinit var subscription: Flow.Subscription
+                    private var counter = AtomicInteger()
 
-                private lateinit var subscription: Flow.Subscription
-                private var counter = 0
-
-                override fun onSubscribe(s: Flow.Subscription) {
-                    subscription = s
-                    subscription.request(1)
-                }
-
-                override fun onItem(item: Long) {
-                    log.debug { "Tick: $item" }
-                    if (counter++ == 10) {
-                        subscription.cancel()
-                    } else {
+                    override fun onSubscribe(s: Flow.Subscription) {
+                        subscription = s
                         subscription.request(1)
                     }
-                }
 
-                override fun onFailure(failure: Throwable?) {
-                    failure?.printStackTrace()
-                }
+                    override fun onItem(item: Long) {
+                        log.debug { "Tick: $item" }
+                        if (counter.getAndIncrement() == 10) {
+                            subscription.cancel()
+                        } else {
+                            subscription.request(1)
+                        }
+                    }
 
-                override fun onCompletion() {
-                    log.debug { "Done" }
+                    override fun onFailure(failure: Throwable?) {
+                        failure?.printStackTrace()
+                    }
+
+                    override fun onCompletion() {
+                        log.debug { "Done" }
+                    }
                 }
-            })
+            )
     }
 
     object Service {

@@ -11,7 +11,6 @@ import io.bluetape4k.cassandra.querybuilder.bindMarker
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -25,6 +24,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
 
 class LimitConcurrencyExamples: AbstractCassandraTest() {
@@ -40,8 +40,7 @@ class LimitConcurrencyExamples: AbstractCassandraTest() {
     private val semaphore = Semaphore(IN_FLIGHT_REQUESTS)
     private val requestLatch = CountDownLatch(TOTAL_NUMBER_OF_INSERTS)
 
-    private val _insertAsyncCount = atomic(0)
-    private val insertAsyncCount by _insertAsyncCount
+    private val insertAsyncCount = AtomicInteger(0)
 
     @BeforeAll
     fun setup() {
@@ -73,7 +72,7 @@ class LimitConcurrencyExamples: AbstractCassandraTest() {
     private fun insertConcurrent(session: CqlSession) {
         val pst = prepareStatemet(session)
 
-        val insertsCounter = atomic(0)
+        val insertsCounter = AtomicInteger(0)
         val executor = Executors.newFixedThreadPool(CONCURRENCY_LEVEL)
 
         repeat(TOTAL_NUMBER_OF_INSERTS) { counter ->
@@ -94,7 +93,7 @@ class LimitConcurrencyExamples: AbstractCassandraTest() {
 
         requestLatch.await(10, TimeUnit.SECONDS)
 
-        println("Finish executing ${insertsCounter.value} queries with a concurrency level of $CONCURRENCY_LEVEL")
+        println("Finish executing ${insertsCounter.get()} queries with a concurrency level of $CONCURRENCY_LEVEL")
         executor.shutdown()
         executor.awaitTermination(10, TimeUnit.SECONDS)
     }
@@ -143,7 +142,7 @@ class LimitConcurrencyExamples: AbstractCassandraTest() {
 
         return session.executeAsync(stmt)
             .whenComplete { _, err ->
-                if (err == null) _insertAsyncCount.incrementAndGet()
+                if (err == null) insertAsyncCount.incrementAndGet()
                 else err.printStackTrace()
             }
     }

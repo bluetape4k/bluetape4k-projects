@@ -21,12 +21,14 @@ class SuspendRingBuffer<T: Any>(
         operator fun <T: Any> invoke(size: Int, empty: T): SuspendRingBuffer<T> {
             val list = MutableList(size) { empty } as MutableList<T?>
             val buffer = CopyOnWriteArrayList(list)
+
             return SuspendRingBuffer(buffer)
         }
 
         fun <T: Any> boxing(size: Int): SuspendRingBuffer<T> {
             val list: MutableList<T?> = MutableList(size) { null }
             val buffer = CopyOnWriteArrayList(list)
+
             return SuspendRingBuffer(buffer)
         }
     }
@@ -41,6 +43,7 @@ class SuspendRingBuffer<T: Any>(
     suspend fun get(index: Int): T = mutex.withLock {
         require(index >= 0) { "Index must be positive" }
         require(index < size) { "Index $index is out of circular buffer size $size" }
+
         buffer[startIndex.forward(index)] as T
     }
 
@@ -50,7 +53,9 @@ class SuspendRingBuffer<T: Any>(
 
     suspend fun snapshot(): List<T> = mutex.withLock {
         val copy = buffer.toList()
-        List(size) { copy[startIndex.forward(it)] as T }
+        List(size) {
+            copy[startIndex.forward(it)] as T
+        }
     }
 
     suspend fun push(element: T) {

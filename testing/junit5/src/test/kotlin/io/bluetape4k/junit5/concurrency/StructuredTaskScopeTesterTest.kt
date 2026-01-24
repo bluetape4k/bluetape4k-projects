@@ -1,12 +1,13 @@
 package io.bluetape4k.junit5.concurrency
 
 import io.bluetape4k.logging.KLogging
-import kotlinx.atomicfu.atomic
+import io.bluetape4k.logging.trace
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeLessOrEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
 import kotlin.test.assertFailsWith
 
@@ -79,13 +80,13 @@ class StructuredTaskScopeTesterTest {
 
 
     private class CountingTask: () -> Unit {
-        private val counter = atomic(0)
-        val count by counter
+        private val counter = AtomicInteger(0)
+        val count get() = counter.get()
 
         override fun invoke() {
             Thread.sleep(1)
             counter.incrementAndGet()
-            // log.trace { "Execution count: $count" }
+            log.trace { "Execution count: $count" }
         }
     }
 }

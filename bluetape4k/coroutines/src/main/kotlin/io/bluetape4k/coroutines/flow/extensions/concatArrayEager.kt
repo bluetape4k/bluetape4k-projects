@@ -4,7 +4,6 @@ import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.support.unsafeLazy
-import kotlinx.atomicfu.AtomicIntArray
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -13,6 +12,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.atomic.AtomicIntegerArray
 
 private val log: Logger by unsafeLazy { KotlinLogging.logger { } }
 
@@ -84,7 +84,7 @@ internal fun <T: Any> concatArrayEagerInternal(sources: List<Flow<T>>): Flow<T> 
     coroutineScope {
         val size = sources.size
         val queues = List(size) { ConcurrentLinkedQueue<T>() }
-        val dones = AtomicIntArray(sources.size)
+        val dones = AtomicIntegerArray(sources.size)
         val reader = Resumable()
 
         repeat(size) {
@@ -98,7 +98,7 @@ internal fun <T: Any> concatArrayEagerInternal(sources: List<Flow<T>>): Flow<T> 
                         reader.resume()
                     }
                 } finally {
-                    dones[it].value = 1
+                    dones[it] = 1
                     reader.resume()
                 }
             }
@@ -107,7 +107,7 @@ internal fun <T: Any> concatArrayEagerInternal(sources: List<Flow<T>>): Flow<T> 
         var index = 0
         while (isActive && index < size) {
             val queue = queues[index]
-            val done = dones[index].value != 0
+            val done = dones[index] != 0
 
             if (done && queue.isEmpty()) {
                 index++

@@ -10,7 +10,6 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8Bytes
 import io.grpc.ServerBuilder
 import io.grpc.StatusException
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.first
@@ -22,6 +21,7 @@ import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.test.assertFailsWith
 
 @OutputCapture
@@ -98,7 +98,7 @@ class TestServiceTest {
         val requests = getStreamingOutputCallRequests(times = 1).first()
         val responses = client.streamingOutputCall(requests)
 
-        val responseCount = atomic(0L)
+        val responseCount = AtomicLong(0L)
         responses
             .buffer()
             .collect { response ->
@@ -109,7 +109,7 @@ class TestServiceTest {
         with(output.capture()) {
             this shouldContain "Response. payload {"
         }
-        responseCount.value shouldBeEqualTo 4L
+        responseCount.get() shouldBeEqualTo 4L
     }
 
     @Test

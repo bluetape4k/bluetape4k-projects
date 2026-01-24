@@ -4,12 +4,12 @@ import io.bluetape4k.collections.toList
 import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContainSame
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicInteger
 
 class DequeExamples: io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest() {
 
@@ -47,7 +47,7 @@ class DequeExamples: io.bluetape4k.examples.redisson.coroutines.AbstractRedisson
 
     @Test
     fun `deque in multi-job`() = runTest {
-        val counter = atomic(0)
+        val counter = AtomicInteger(0)
         val deque = redisson.getDeque<Int>(randomName())
         deque.clear()
 
@@ -59,8 +59,8 @@ class DequeExamples: io.bluetape4k.examples.redisson.coroutines.AbstractRedisson
             }
             .run()
 
-        counter.value shouldBeEqualTo 16 * 4
-        deque.sizeAsync().suspendAwait() shouldBeEqualTo counter.value
+        counter.get() shouldBeEqualTo 16 * 4
+        deque.sizeAsync().suspendAwait() shouldBeEqualTo counter.get()
 
         // 순서는 틀립니다.
         deque.iterator().toList() shouldContainSame List(16 * 4) { it + 1 }

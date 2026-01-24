@@ -3,13 +3,13 @@ package io.bluetape4k.coroutines.flow.extensions.parallel
 import io.bluetape4k.coroutines.flow.exceptions.FlowOperationException
 import io.bluetape4k.coroutines.flow.extensions.Resumable
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 
 
 /**
@@ -39,11 +39,11 @@ internal class FlowParallel<T>(
                 }
             }
 
-            val index = atomic(0)
+            val index = AtomicInteger(0)
 
             try {
                 source.collect {
-                    var idx = index.value
+                    var idx = index.get()
 
                     outer@ while (true) {
 

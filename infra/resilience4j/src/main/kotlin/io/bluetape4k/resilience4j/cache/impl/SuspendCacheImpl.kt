@@ -9,7 +9,7 @@ import io.github.resilience4j.cache.event.CacheOnHitEvent
 import io.github.resilience4j.cache.event.CacheOnMissEvent
 import io.github.resilience4j.core.EventConsumer
 import io.github.resilience4j.core.EventProcessor
-import kotlinx.atomicfu.atomic
+import java.util.concurrent.atomic.AtomicLong
 import javax.cache.Cache
 
 /**
@@ -137,8 +137,8 @@ class SuspendCacheImpl<K, V>(override val jcache: Cache<K, V>): SuspendCache<K, 
     }
 
     private class SuspendCacheMetrics: SuspendCache.Metrics {
-        private val cacheMisses = atomic(0L)
-        private val cacheHits = atomic(0L)
+        private val cacheMisses = AtomicLong(0L)
+        private val cacheHits = AtomicLong(0L)
 
         fun onCacheMiss() {
             cacheMisses.incrementAndGet()
@@ -151,11 +151,11 @@ class SuspendCacheImpl<K, V>(override val jcache: Cache<K, V>): SuspendCache<K, 
         /**
          * Returns the current number of cache hits
          */
-        override fun getNumberOfCacheHits(): Long = cacheHits.value
+        override fun getNumberOfCacheHits(): Long = cacheHits.get()
 
         /**
          * Retruns the current number of cache misses
          */
-        override fun getNumberOfCacheMisses(): Long = cacheMisses.value
+        override fun getNumberOfCacheMisses(): Long = cacheMisses.get()
     }
 }

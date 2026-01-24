@@ -2,7 +2,6 @@ package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.coroutines.tests.assertResult
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -11,6 +10,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration.Companion.seconds
 
 class DelayTest: AbstractFlowTest() {
@@ -28,45 +28,45 @@ class DelayTest: AbstractFlowTest() {
 
     @Test
     fun `delayed flow with milliseconds`() = runTest {
-        val emitted = atomic(false)
+        val emitted = AtomicBoolean(false)
 
         launch {
             delayedFlow(1, 2_000)
                 .collect {
                     it shouldBeEqualTo 1
-                    emitted.compareAndSet(expect = false, update = true)
+                    emitted.compareAndSet(false, true)
                 }
         }
 
         runCurrent()
-        emitted.value.shouldBeFalse()
+        emitted.get().shouldBeFalse()
 
         advanceTimeBy(1_000)
-        emitted.value.shouldBeFalse()
+        emitted.get().shouldBeFalse()
 
         advanceTimeBy(1_100)
-        emitted.value.shouldBeTrue()
+        emitted.get().shouldBeTrue()
     }
 
     @Test
     fun `delayed flow with kotlin duration`() = runTest {
-        val emitted = atomic(false)
+        val emitted = AtomicBoolean(false)
 
         launch {
             delayedFlow(1, 2.seconds)
                 .collect {
                     it shouldBeEqualTo 1
-                    emitted.compareAndSet(expect = false, update = true)
+                    emitted.compareAndSet(false, true)
                 }
         }
 
         runCurrent()
-        emitted.value.shouldBeFalse()
+        emitted.get().shouldBeFalse()
 
         advanceTimeBy(1_000)
-        emitted.value.shouldBeFalse()
+        emitted.get().shouldBeFalse()
 
         advanceTimeBy(1_100)
-        emitted.value.shouldBeTrue()
+        emitted.get().shouldBeTrue()
     }
 }

@@ -1,9 +1,9 @@
 package io.bluetape4k.collections
 
 import io.bluetape4k.logging.KLogging
-import kotlinx.atomicfu.atomic
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.stream.IntStream
 import java.util.stream.Stream
 import kotlin.streams.toList
@@ -15,9 +15,9 @@ class JavaStreamSupportTest {
 
     @Test
     fun `Sequence as ParallelStream`() {
-        val counter = atomic(0)
+        val counter = AtomicInteger(0)
         (1..1000).asParallelStream().forEach { counter.incrementAndGet() }
-        counter.value shouldBeEqualTo 1000
+        counter.get() shouldBeEqualTo 1000
     }
 
     @Test

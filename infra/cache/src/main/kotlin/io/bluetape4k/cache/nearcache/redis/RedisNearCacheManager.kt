@@ -11,8 +11,6 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotNull
-import kotlinx.atomicfu.atomic
-import kotlinx.atomicfu.locks.ReentrantLock
 import org.redisson.Redisson
 import org.redisson.jcache.configuration.JCacheConfiguration
 import org.redisson.jcache.configuration.RedissonConfiguration
@@ -20,6 +18,8 @@ import java.lang.management.ManagementFactory
 import java.net.URI
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.locks.ReentrantLock
 import javax.cache.Cache
 import javax.cache.CacheException
 import javax.cache.CacheManager
@@ -56,7 +56,7 @@ class RedisNearCacheManager(
     private val statBeans = ConcurrentHashMap<NearCache<*, *>, NearCacheStatisticsMXBean>()
     private val managementBeans = ConcurrentHashMap<NearCache<*, *>, NearCacheManagementMXBean>()
 
-    private val closed = atomic(false)
+    private val closed = AtomicBoolean(false)
     private val lock = ReentrantLock()
 
 //    @Volatile
@@ -508,7 +508,7 @@ class RedisNearCacheManager(
                 }
                 log.debug { "Shutdown redisson instance. redisson=$redisson" }
                 redisson?.shutdown()
-                closed.value = true
+                closed.set(true)
             }
         }
     }
@@ -532,7 +532,7 @@ class RedisNearCacheManager(
      * @return true if this [CacheManager] instance is closed; false if it
      * is still open
      */
-    override fun isClosed(): Boolean = closed.value
+    override fun isClosed(): Boolean = closed.get()
 
     /**
      * Provides a standard mechanism to access the underlying concrete caching

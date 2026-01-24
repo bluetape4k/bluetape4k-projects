@@ -11,7 +11,6 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import io.bluetape4k.redis.redisson.coroutines.getLockId
 import io.bluetape4k.utils.Runtimex
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -41,7 +40,7 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
     @Test
     fun `acquire fair lock`() = runSuspendIO {
         val lock = redisson.getFairLock(randomName())
-        val lockCounter = atomic(0)
+        val lockCounter = AtomicInteger(0)
 
         val size = 10
 
@@ -60,14 +59,14 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
             }
         }
         jobs.joinAll()
-        lockCounter.value shouldBeEqualTo size
+        lockCounter.get() shouldBeEqualTo size
     }
 
     @Test
     fun `멀티 스레딩 환경에서 Fair Lock 을 제대로 획득합니다`() {
         val lock = redisson.getFairLock(randomName())
-        val lockCounter = atomic(0)
-        val lockIndex = atomic(0)
+        val lockCounter = AtomicInteger(0)
+        val lockIndex = AtomicInteger(0)
 
         MultithreadingTester()
             .numThreads(Runtimex.availableProcessors * 2)
@@ -87,15 +86,15 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
             }
             .run()
 
-        lockCounter.value shouldBeEqualTo Runtimex.availableProcessors * 2 * 2
+        lockCounter.get() shouldBeEqualTo Runtimex.availableProcessors * 2 * 2
     }
 
     @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `Virtual threads 에서 Fair Lock 을 제대로 획득합니다`() {
         val lock = redisson.getFairLock(randomName())
-        val lockCounter = atomic(0)
-        val lockIndex = atomic(0)
+        val lockCounter = AtomicInteger(0)
+        val lockIndex = AtomicInteger(0)
 
         StructuredTaskScopeTester()
             .roundsPerTask(Runtimex.availableProcessors * 4)
@@ -114,14 +113,14 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
             }
             .run()
 
-        lockCounter.value shouldBeEqualTo Runtimex.availableProcessors * 4
+        lockCounter.get() shouldBeEqualTo Runtimex.availableProcessors * 4
     }
 
     @Test
     fun `코루틴 환경에서 Fair Lock 을 제대로 획득합니다`() = runSuspendIO {
         val lock = redisson.getFairLock(randomName())
-        val lockCounter = atomic(0)
-        val lockIndex = atomic(0)
+        val lockCounter = AtomicInteger(0)
+        val lockIndex = AtomicInteger(0)
 
         SuspendedJobTester()
             .numThreads(Runtimex.availableProcessors * 2)
@@ -143,7 +142,7 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
             }
             .run()
 
-        lockCounter.value shouldBeEqualTo Runtimex.availableProcessors * 4
+        lockCounter.get() shouldBeEqualTo Runtimex.availableProcessors * 4
     }
 
     /**

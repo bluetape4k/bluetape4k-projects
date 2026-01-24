@@ -16,8 +16,6 @@ dependencies {
     // 참고: https://github.com/cashapp/turbine/
     testImplementation(Libs.turbine)
 
-    testImplementation(Libs.kotlinx_atomicfu)
-
     // ID Generators
     testImplementation(project(":bluetape4k-idgenerators"))
     testImplementation(Libs.java_uuid_generator)

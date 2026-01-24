@@ -3,7 +3,6 @@ package io.bluetape4k.support
 import io.bluetape4k.concurrent.FutureUtils
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertFailsWith
@@ -19,6 +18,7 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicBoolean
 
 class TimeoutSupportTest {
 
@@ -71,16 +71,16 @@ class TimeoutSupportTest {
     @Suppress("UNREACHABLE_CODE")
     @Test
     fun `함수 실행이 timeout에 걸릴때는 예외를 발생시키는 CompletableFuture 반환한다`() {
-        val isWorking = atomic(false)
+        val isWorking = AtomicBoolean(false)
         val future = asyncRunWithTimeout(100) {
             var i = 0
-            isWorking.value = true
+            isWorking.set(true)
             while (true) {
                 Thread.sleep(100)
                 log.trace { "Working... $i" }
                 i++
             }
-            isWorking.value = false
+            isWorking.set(false)
             "Hello"
         }
         Thread.sleep(200)
@@ -90,36 +90,36 @@ class TimeoutSupportTest {
         assertFailsWith<ExecutionException> {
             future.get()
         }
-        log.trace { "작업 종료: ${isWorking.value}" }
+        log.trace { "작업 종료: ${isWorking.get()}" }
     }
 
     @Test
     fun `함수 실행이 timeout 에 걸리지 않으면 작업 결과를 반환한다`() {
-        val isWorking = atomic(false)
+        val isWorking = AtomicBoolean(false)
         val future = asyncRunWithTimeout(100) {
-            isWorking.value = true
+            isWorking.set(true)
             var i = 0
             while (i < 2) {
                 Thread.sleep(10)
                 log.trace { "Working... $i" }
                 i++
             }
-            isWorking.value = false
+            isWorking.set(false)
             "Hello"
         }
 
-        await until { !isWorking.value }
+        await until { !isWorking.get() }
 
         future.get() shouldBeEqualTo "Hello"
-        log.trace { "작업 종료: ${isWorking.value}" }
+        log.trace { "작업 종료: ${isWorking.get()}" }
     }
 
     @Test
     fun `함수 실행이 timeout에 걸릴때는 null을 반환한다`() {
-        val workIsStarted = atomic(false)
+        val workIsStarted = AtomicBoolean(false)
         val result = withTimeoutOrNull(100) {
             var i = 0
-            workIsStarted.value = true
+            workIsStarted.set(true)
             while (true) {
                 Thread.sleep(10)
                 log.trace { "Working... $i" }
@@ -130,28 +130,28 @@ class TimeoutSupportTest {
         }
 
         result.shouldBeNull()
-        workIsStarted.value.shouldBeTrue()
+        workIsStarted.get().shouldBeTrue()
         Thread.sleep(10)
-        log.trace { "작업 시작 여부: ${workIsStarted.value}" }
+        log.trace { "작업 시작 여부: ${workIsStarted.get()}" }
     }
 
     @Test
     fun `함수 실행이 timeout 보다 빨리 끝나면 함수 실행 반환값을 반환한다`() {
-        val isWorking = atomic(false)
+        val isWorking = AtomicBoolean(false)
         val result = withTimeoutOrNull(500) {
-            isWorking.value = true
+            isWorking.set(true)
             var i = 0
             while (i < 2) {
                 Thread.sleep(100)
                 log.trace { "Working... $i" }
                 i++
             }
-            isWorking.value = false
+            isWorking.set(false)
             "Hello"
         }
 
         result shouldBeEqualTo "Hello"
-        log.trace { "작업 종료: ${isWorking.value}" }
-        isWorking.value.shouldBeFalse()
+        log.trace { "작업 종료: ${isWorking.get()}" }
+        isWorking.get().shouldBeFalse()
     }
 }

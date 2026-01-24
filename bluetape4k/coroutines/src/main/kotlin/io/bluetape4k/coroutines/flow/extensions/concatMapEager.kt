@@ -3,7 +3,6 @@ package io.bluetape4k.coroutines.flow.extensions
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.support.unsafeLazy
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -12,6 +11,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.experimental.ExperimentalTypeInference
 
 private val log: Logger by unsafeLazy { KotlinLogging.logger { } }
@@ -56,7 +56,7 @@ internal fun <T: Any, R: Any> Flow<T>.concatMapEagerInternal(
     coroutineScope {
         val resumeOutput = Resumable()
         val innerQueues = ConcurrentLinkedQueue<ConcatMapEagerInnerQueue<R>>()
-        val innerDone = atomic(false)
+        val innerDone = AtomicBoolean(false)
 
         launch(start = CoroutineStart.UNDISPATCHED) {
             try {
@@ -74,13 +74,13 @@ internal fun <T: Any, R: Any> Flow<T>.concatMapEagerInternal(
                                 resumeOutput.resume()
                             }
                         } finally {
-                            newQueue.done.value = true
+                            newQueue.done.set(true)
                             resumeOutput.resume()
                         }
                     }
                 }
             } finally {
-                innerDone.value = true
+                innerDone.set(true)
                 resumeOutput.resume()
             }
         }
@@ -88,7 +88,7 @@ internal fun <T: Any, R: Any> Flow<T>.concatMapEagerInternal(
         var innerQueue: ConcatMapEagerInnerQueue<R>? = null
         while (isActive) {
             if (innerQueue == null) {
-                val done = innerDone.value
+                val done = innerDone.get()
                 innerQueue = innerQueues.poll()
 
                 if (done && innerQueue == null) {
@@ -96,7 +96,7 @@ internal fun <T: Any, R: Any> Flow<T>.concatMapEagerInternal(
                 }
             }
             if (innerQueue != null) {
-                val done = innerQueue.done.value
+                val done = innerQueue.done.get()
                 val value = innerQueue.queue.poll()
 
                 if (done && value == null) {
@@ -116,5 +116,5 @@ internal fun <T: Any, R: Any> Flow<T>.concatMapEagerInternal(
 
 private class ConcatMapEagerInnerQueue<R: Any> {
     val queue = ConcurrentLinkedQueue<R>()
-    val done = atomic(false)
+    val done = AtomicBoolean(false)
 }

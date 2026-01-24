@@ -1,8 +1,8 @@
 package io.bluetape4k.cache.memorizer.cache2k
 
 import io.bluetape4k.cache.memorizer.Memorizer
-import kotlinx.atomicfu.locks.ReentrantLock
 import org.cache2k.Cache
+import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 /**

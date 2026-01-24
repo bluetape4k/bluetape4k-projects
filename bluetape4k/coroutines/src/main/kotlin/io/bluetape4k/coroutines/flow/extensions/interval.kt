@@ -1,12 +1,12 @@
 package io.bluetape4k.coroutines.flow.extensions
 
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -63,7 +63,7 @@ fun <T> Flow<T>.interval(
  */
 fun intervalFlowOf(initialDelay: Duration, delay: Duration): Flow<Long> = flow {
     delay(initialDelay)
-    val sequencer = atomic(0L)
+    val sequencer = AtomicLong(0L)
     while (true) {
         emit(sequencer.getAndIncrement())
         delay(delay)
@@ -81,7 +81,7 @@ fun intervalFlowOf(initialDelay: Duration, delay: Duration): Flow<Long> = flow {
  */
 fun intervalFlowOf(initialDelayMillis: Long, delayMillis: Long): Flow<Long> = flow {
     delay(initialDelayMillis.coerceAtLeast(0))
-    val sequencer = atomic(0L)
+    val sequencer = AtomicLong(0L)
     while (true) {
         emit(sequencer.getAndIncrement())
         delay(delayMillis.coerceAtLeast(0).milliseconds)

@@ -2,7 +2,6 @@ package io.bluetape4k.exposed.tests
 
 import io.bluetape4k.logging.info
 import io.bluetape4k.utils.Runtimex
-import kotlinx.atomicfu.locks.withLock
 import org.jetbrains.exposed.v1.core.DatabaseConfig
 import org.jetbrains.exposed.v1.core.Key
 import org.jetbrains.exposed.v1.core.statements.StatementInterceptor
@@ -11,6 +10,7 @@ import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transactionManager
 import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 internal val registeredOnShutdown = mutableSetOf<TestDB>()
 

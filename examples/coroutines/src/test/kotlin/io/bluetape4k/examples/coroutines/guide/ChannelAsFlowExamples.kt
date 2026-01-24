@@ -6,7 +6,6 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -26,6 +25,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicLong
 
 class ChannelAsFlowExamples {
 
@@ -66,8 +66,8 @@ class ChannelAsFlowExamples {
         val jobs = mutableListOf<Job>()
         val jobSize = 5
 
-        val totalProduced = atomic(0L)
-        val totalConsumed = atomic(0L)
+        val totalProduced = AtomicLong(0L)
+        val totalConsumed = AtomicLong(0L)
 
         jobs += List(jobSize) {
             launch(producerDispatcher) {
@@ -104,7 +104,7 @@ class ChannelAsFlowExamples {
         delay(2000)
         consumedJobs.forEach { it.cancelAndJoin() }
 
-        log.debug { "Produced: ${totalProduced.value}, Consumed: ${totalConsumed.value}" }
-        totalProduced.value shouldBeEqualTo totalConsumed.value
+        log.debug { "Produced: ${totalProduced.get()}, Consumed: ${totalConsumed.get()}" }
+        totalProduced.get() shouldBeEqualTo totalConsumed.get()
     }
 }

@@ -5,6 +5,8 @@ import com.datastax.oss.driver.api.core.Version
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder
 import io.bluetape4k.LibraryName
+import io.bluetape4k.cassandra.CassandraAdmin.DEFAULT_KEYSPACE
+import io.bluetape4k.cassandra.CassandraAdmin.DEFAULT_REPLICATION_FACTOR
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info

@@ -3,7 +3,6 @@ package io.bluetape4k.coroutines.flow.extensions
 import io.bluetape4k.collections.tryForEach
 import io.bluetape4k.coroutines.flow.exceptions.FlowOperationException
 import io.bluetape4k.support.uninitialized
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
@@ -159,10 +158,10 @@ private class FlowGroup<K: Any, V>(
     private val consumerReady = Resumable()
     private val valueReady = Resumable()
 
-    private var once = atomic(false)
+    private var once = AtomicBoolean(false)
 
     override suspend fun collectSafely(collector: FlowCollector<V>) {
-        if (!once.compareAndSet(expect = false, update = true)) {
+        if (!once.compareAndSet(false, true)) {
             error("A GroupedFlow can only be collected at most once.")
         }
 

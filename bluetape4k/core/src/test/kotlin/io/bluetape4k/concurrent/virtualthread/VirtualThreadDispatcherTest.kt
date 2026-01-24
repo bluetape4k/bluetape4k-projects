@@ -8,12 +8,12 @@ import io.bluetape4k.junit5.coroutines.runSuspendVT
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import org.junit.jupiter.api.RepeatedTest
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
 
 class VirtualThreadDispatcherTest {
@@ -56,7 +56,7 @@ class VirtualThreadDispatcherTest {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `multi job with virtual thread dispatcher`() = runSuspendVT {
-        val jobNumber = atomic(0)
+        val jobNumber = AtomicInteger(0)
 
         // 1초씩 delay 하는 TASK_SIZE개의 작업을 수행 시 거의 1초에 완료된다 (Virtual Thread)
         SuspendedJobTester()
@@ -71,7 +71,7 @@ class VirtualThreadDispatcherTest {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `multi job with default dispatcher`() = runSuspendDefault {
-        val jobNumber = atomic(0)
+        val jobNumber = AtomicInteger(0)
 
         // 1초씩 delay 하는 TASK_SIZE개의 작업을 수행 시 거의 1초에 완료된다 (Default Dispatcher)
         SuspendedJobTester()
@@ -86,7 +86,7 @@ class VirtualThreadDispatcherTest {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `multi job with IO dispatcher`() = runSuspendIO {
-        val jobNumber = atomic(0)
+        val jobNumber = AtomicInteger(0)
 
         // 1초씩 delay 하는 TASK_SIZE개의 작업을 수행 시 거의 1초에 완료된다 (Default Dispatcher)
         SuspendedJobTester()

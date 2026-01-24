@@ -6,7 +6,6 @@ import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.Job
@@ -31,6 +30,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import java.util.concurrent.atomic.AtomicLong
 
 @OptIn(DelicateCoroutinesApi::class)
 class SharedFlowExamples {
@@ -72,8 +72,8 @@ class SharedFlowExamples {
 
     @Test
     fun `복수개의 Producer로 event 발송과 복수개의 Consumer로 수신 예제`() = runTest {
-        val totalProduced = atomic(0L)
-        val totalConsumed = atomic(0L)
+        val totalProduced = AtomicLong(0L)
+        val totalConsumed = AtomicLong(0L)
 
         val eventBus = BroadcastEventBus()
         val producers = mutableListOf<Job>()
@@ -108,14 +108,14 @@ class SharedFlowExamples {
         }
         yield()
 
-        await atMost Duration.ofSeconds(5) until { totalConsumed.value > 0L }
+        await atMost Duration.ofSeconds(5) until { totalConsumed.get() > 0L }
         delay(10)
         producers.forEach { it.cancelAndJoin() }
         delay(100)
         consumers.forEach { it.cancelAndJoin() }
 
-        log.debug { "produced=${totalProduced.value}, consumed=${totalConsumed.value}" }
-        totalProduced.value shouldBeGreaterThan 0L
-        totalConsumed.value shouldBeGreaterThan 0L
+        log.debug { "produced=${totalProduced.get()}, consumed=${totalConsumed.get()}" }
+        totalProduced.get() shouldBeGreaterThan 0L
+        totalConsumed.get() shouldBeGreaterThan 0L
     }
 }

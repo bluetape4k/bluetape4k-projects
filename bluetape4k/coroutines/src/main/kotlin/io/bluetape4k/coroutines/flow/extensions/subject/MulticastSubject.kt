@@ -5,11 +5,12 @@ import io.bluetape4k.coroutines.flow.extensions.Resumable
 import io.bluetape4k.coroutines.flow.extensions.ResumableCollector
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 
 
 /**
@@ -54,25 +55,24 @@ class MulticastSubject<T> private constructor(
     }
 
     @Suppress("UNCHECKED_CAST")
-    private val collectorsRef = atomic(EMPTY as Array<ResumableCollector<T>>)
-    private val collectors by collectorsRef
+    private val collectors = AtomicReference(EMPTY as Array<ResumableCollector<T>>)
 
     private val producer = Resumable()
 
-    private val remainingCollectors = atomic(expectedCollectorSize)
+    private val remainingCollectors = AtomicInteger(expectedCollectorSize)
 
     @Volatile
     private var terminated: Throwable? = null
 
     override val hasCollectors: Boolean
-        get() = collectors.isNotEmpty()
+        get() = collectors.get().isNotEmpty()
 
     override val collectorCount: Int
-        get() = collectors.size
+        get() = collectors.get().size
 
     override suspend fun emit(value: T) {
         awaitCollectors()
-        collectors.forEach { collector ->
+        collectors.get().forEach { collector ->
             try {
                 collector.next(value)
             } catch (e: CancellationException) {
@@ -84,7 +84,7 @@ class MulticastSubject<T> private constructor(
     @Suppress("UNCHECKED_CAST")
     override suspend fun emitError(ex: Throwable?) {
         terminated = ex
-        collectorsRef.getAndSet(TERMINATED as Array<ResumableCollector<T>>)
+        collectors.getAndSet(TERMINATED as Array<ResumableCollector<T>>)
             .forEach { collector ->
                 try {
                     collector.error(ex)
@@ -97,7 +97,7 @@ class MulticastSubject<T> private constructor(
     @Suppress("UNCHECKED_CAST")
     override suspend fun complete() {
         terminated = DONE
-        collectorsRef.getAndSet(TERMINATED as Array<ResumableCollector<T>>)
+        collectors.getAndSet(TERMINATED as Array<ResumableCollector<T>>)
             .forEach { collector ->
                 try {
                     collector.complete()
@@ -111,7 +111,7 @@ class MulticastSubject<T> private constructor(
         val rc = ResumableCollector<T>()
         if (add(rc)) {
             while (true) {
-                val a = remainingCollectors.value
+                val a = remainingCollectors.get()
                 if (a == 0) {
                     break
                 }
@@ -132,7 +132,7 @@ class MulticastSubject<T> private constructor(
     }
 
     private suspend fun awaitCollectors() {
-        if (remainingCollectors.value > 0) {
+        if (remainingCollectors.get() > 0) {
             producer.await()
         }
     }
@@ -140,14 +140,14 @@ class MulticastSubject<T> private constructor(
     @Suppress("UNCHECKED_CAST")
     private fun add(inner: ResumableCollector<T>): Boolean {
         while (true) {
-            val array = collectors
+            val array = collectors.get()
             if (areEqualAsAny(array, TERMINATED)) {
                 return false
             }
             val n = array.size
             val b = array.copyOf(n + 1)
             b[n] = inner
-            if (collectorsRef.compareAndSet(array, b as Array<ResumableCollector<T>>)) {
+            if (collectors.compareAndSet(array, b as Array<ResumableCollector<T>>)) {
                 return true
             }
         }
@@ -156,7 +156,7 @@ class MulticastSubject<T> private constructor(
     @Suppress("UNCHECKED_CAST")
     private fun remove(inner: ResumableCollector<T>) {
         while (true) {
-            val array = collectors
+            val array = collectors.get()
             val n = array.size
             if (n == 0) {
                 return
@@ -173,7 +173,7 @@ class MulticastSubject<T> private constructor(
                 array.copyInto(b, 0, 0, j)
                 array.copyInto(b, j, j + 1)
             }
-            if (collectorsRef.compareAndSet(array, b as Array<ResumableCollector<T>>)) {
+            if (collectors.compareAndSet(array, b as Array<ResumableCollector<T>>)) {
                 return
             }
         }

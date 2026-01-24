@@ -2,7 +2,6 @@ package io.bluetape4k.coroutines.flow.extensions
 
 import app.cash.turbine.test
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flowOf
@@ -19,6 +18,7 @@ import org.amshove.kluent.shouldBeLessOrEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicInteger
 
 class SlidingTest: AbstractFlowTest() {
 
@@ -26,19 +26,18 @@ class SlidingTest: AbstractFlowTest() {
 
     @Test
     fun `sliding flow`() = runTest {
-        val slidingCounter = atomic(0)
-        val slidingCount by slidingCounter
+        val slidingCount = AtomicInteger(0)
         val slidingSize = 5
 
         val sliding = flowRangeOf(1, 20).log("source")
             .sliding(slidingSize).log("sliding")
             .onEach { slide ->
                 slide.size shouldBeLessOrEqualTo slidingSize
-                slidingCounter.incrementAndGet()
+                slidingCount.incrementAndGet()
             }
             .toList()
 
-        slidingCount shouldBeEqualTo 20
+        slidingCount.get() shouldBeEqualTo 20
         sliding shouldHaveSize 20
 
         sliding.first() shouldBeEqualTo listOf(1, 2, 3, 4, 5)
@@ -47,18 +46,18 @@ class SlidingTest: AbstractFlowTest() {
 
     @Test
     fun `sliding flow with remaining`() = runTest {
-        val slidingCounter = atomic(0)
+        val slidingCount = AtomicInteger(0)
         val slidingSize = 3
 
         val sliding = flowRangeOf(1, 20).log("source")
             .sliding(slidingSize).log("sliding")
             .onEach { slide ->
                 slide.size shouldBeLessOrEqualTo slidingSize
-                slidingCounter.incrementAndGet()
+                slidingCount.incrementAndGet()
             }
             .toList()
 
-        slidingCounter.value shouldBeEqualTo 20
+        slidingCount.get() shouldBeEqualTo 20
         sliding shouldHaveSize 20
 
         sliding.first() shouldBeEqualTo listOf(1, 2, 3)

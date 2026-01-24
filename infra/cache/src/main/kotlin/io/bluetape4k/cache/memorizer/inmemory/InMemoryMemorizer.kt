@@ -2,8 +2,8 @@ package io.bluetape4k.cache.memorizer.inmemory
 
 import io.bluetape4k.cache.memorizer.Memorizer
 import io.bluetape4k.logging.KLogging
-import kotlinx.atomicfu.locks.ReentrantLock
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 /**

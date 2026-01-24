@@ -4,8 +4,8 @@ import io.bluetape4k.jwt.composer.JwtComposer
 import io.bluetape4k.jwt.composer.JwtComposerDsl
 import io.bluetape4k.jwt.composer.composeJwt
 import io.bluetape4k.jwt.keychain.KeyChain
-import kotlinx.atomicfu.locks.withLock
 import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 abstract class AbstractJwtProvider: JwtProvider {
 

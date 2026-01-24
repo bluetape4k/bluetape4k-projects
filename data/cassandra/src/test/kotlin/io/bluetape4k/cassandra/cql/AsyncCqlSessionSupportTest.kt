@@ -3,23 +3,23 @@ package io.bluetape4k.cassandra.cql
 import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.atomicfu.atomic
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicBoolean
 
 class AsyncCqlSessionSupportTest: AbstractCassandraTest() {
 
     companion object: KLoggingChannel() {
-        private val initialized = atomic(false)
+        private val initialized = AtomicBoolean(false)
     }
 
     @BeforeEach
     fun setup() {
         runSuspendIO {
-            if (initialized.compareAndSet(expect = false, update = true)) {
+            if (initialized.compareAndSet(false, true)) {
                 session.executeSuspending("DROP TABLE IF EXISTS user")
                 session.executeSuspending("CREATE TABLE IF NOT EXISTS user (id text PRIMARY KEY, username text);")
             }

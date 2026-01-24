@@ -109,7 +109,10 @@ inline fun <T, R> Flow<T>.async(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     @BuilderInference crossinline block: suspend CoroutineScope.(T) -> R,
 ): AsyncFlow<R> {
-    val deferredFlow = map { input -> LazyDeferred(coroutineContext) { block(input) } }
+    val deferredFlow: Flow<LazyDeferred<R>> = map { input ->
+        LazyDeferred(coroutineContext) { block(input) }
+    }
+    
     return AsyncFlow(deferredFlow)
 }
 

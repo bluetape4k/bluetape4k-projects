@@ -5,7 +5,6 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.AbstractContainerTest
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.launch
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
@@ -24,6 +23,7 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -57,16 +57,16 @@ class KafkaServerTest: AbstractContainerTest() {
         fun `producing and consuming messages`() {
             val producer = KafkaServer.Launcher.createStringProducer()
 
-            val produced = atomic(false)
+            val produced = AtomicBoolean(false)
             val record = ProducerRecord(TOPIC_NAME, "message-key", "Hello world")
             producer.send(record) { metadata, exception ->
                 exception.shouldBeNull()
                 metadata.topic() shouldBeEqualTo TOPIC_NAME
                 metadata.partition() shouldBeGreaterOrEqualTo 0
-                produced.value = true
+                produced.set(true)
             }
             producer.flush()
-            await.until { produced.value }
+            await.until { produced.get() }
 
             val consumer = KafkaServer.Launcher.createStringConsumer()
             consumer.subscribe(listOf(TOPIC_NAME))

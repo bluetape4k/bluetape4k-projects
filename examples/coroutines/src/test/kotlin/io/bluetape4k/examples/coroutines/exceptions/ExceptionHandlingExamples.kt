@@ -6,7 +6,6 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.info
 import io.bluetape4k.logging.warn
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -27,6 +26,7 @@ import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.cancellation.CancellationException
 
 class ExceptionHandlingExamples {
@@ -120,7 +120,7 @@ class ExceptionHandlingExamples {
     fun `SupervisorJob을 활용하여 예외처리하기`() = runTest {
         val job = SupervisorJob()
         val scope = CoroutineScope(job)
-        val run2 = atomic(false)
+        val run2 = AtomicBoolean(false)
 
         scope.launch(exceptionHandler) {
             delay(100L)
@@ -130,7 +130,7 @@ class ExceptionHandlingExamples {
 
         scope.launch(exceptionHandler) {
             delay(200L)
-            run2.value = true
+            run2.set(true)
             suspendLogging { "이 코드는 실행되어야 합니다" }
         }.log("#2")
 
@@ -138,7 +138,7 @@ class ExceptionHandlingExamples {
 
         job.complete().shouldBeTrue()
         job.join()
-        run2.value.shouldBeTrue()
+        run2.get().shouldBeTrue()
 
         scope.cancel()
     }
@@ -149,10 +149,12 @@ class ExceptionHandlingExamples {
      */
     @Test
     fun `SupervisorJob을 잘 못 사용하는 예`() = runTest {
-        val secondJob = atomic(false)
+        val secondJob = AtomicBoolean(false)
         // 이렇게 주입해버리면, parent job 으로서 complete(), join() 을 못하므로 문제가 발생합니다.
         // 자식 Job 에게는 SupervisorJob 이 적용되지 않는다
-        val job = launch(SupervisorJob() + exceptionHandler) {
+        val scope = CoroutineScope(SupervisorJob() + exceptionHandler)
+
+        val job = scope.launch {
             // 예외를 전파시켜 버립니다.
             launch {
                 delay(100)
@@ -162,42 +164,42 @@ class ExceptionHandlingExamples {
             launch {
                 // 위의 Job
                 delay(200)
-                secondJob.value = true
+                secondJob.set(true)
                 log.error { "출력되지 않습니다." }
             }.log("#2")
         }.log("Parent")
 
         job.join()
         // secondJob 이 실행되지 않습니다. - SupervisorJob 잘 못 적용한 사례
-        secondJob.value.shouldBeFalse()
+        secondJob.get().shouldBeFalse()
     }
 
     @Test
     fun `SupervisorJob을 이용하여 예외 시에도 다른 모든 Child를 실행하기`() = runTest {
-        var job2Executed = false
-
+        val job2Executed = AtomicBoolean(false)
         val job = SupervisorJob()
 
         // 예외를 전파시키지 않습니다.
-        launch(job + exceptionHandler) {
+        val scope = CoroutineScope(job + exceptionHandler)
+        scope.launch {
             delay(100)
             throw RuntimeException("Boom!")
         }.log("#1")
 
-        launch(job + exceptionHandler) {
+        scope.launch {
             delay(200)
-            job2Executed = true
+            job2Executed.set(true)
             log.info { "Job2는 실행됩니다." }
         }.log("#2")
 
         job.complete()
         job.join()
-        job2Executed.shouldBeTrue()
+        job2Executed.get().shouldBeTrue()
     }
 
     @Test
     fun `supervisorScope 를 이용하여 예외 전파를 래핑하기`() = runTest {
-        var job2Executed = false
+        val job2Executed = AtomicBoolean(false)
 
         // supervisorScope 를 이용하면 child 간의 예외에 대한 영향을 받지 않습니다.
         val job = supervisorScope {
@@ -209,13 +211,13 @@ class ExceptionHandlingExamples {
 
             launch(exceptionHandler) {
                 delay(200)
-                job2Executed = true
+                job2Executed.set(true)
                 log.info { "Job2는 실행됩니다." }
             }.log("#2")
         }
         job.join()
         log.info { "Done" }
-        job2Executed.shouldBeTrue()
+        job2Executed.get().shouldBeTrue()
     }
 
     @Test
@@ -250,7 +252,7 @@ class ExceptionHandlingExamples {
 
     @Test
     fun `자식이 취소된다고 부모가 취소되지는 않습니다`() = runTest {
-        var job2Executed = false
+        val job2Executed = AtomicBoolean(false)
 
         // 자식 1
         launch {
@@ -267,19 +269,19 @@ class ExceptionHandlingExamples {
         // 자식 2 - 자식 1과 상관없이 실행된다.
         launch {
             delay(200)
-            job2Executed = true
+            job2Executed.set(true)
             log.info { "Child2 는 Child1 과 상관없이 실행됩니다." }
         }.log("#2").join()
 
-        job2Executed.shouldBeTrue()
+        job2Executed.get().shouldBeTrue()
     }
 
     @Test
     fun `Coroutine exception handler를 사용하여 작업하기`() = runTest {
-        var hasException = false
-        var job2Executed = false
+        val hasException = AtomicBoolean(false)
+        val job2Executed = AtomicBoolean(false)
         val handler = CoroutineExceptionHandler { _, exception ->
-            hasException = true
+            hasException.set(true)
             log.error(exception) { "예외가 발생했습니다." }
         }
 
@@ -294,13 +296,14 @@ class ExceptionHandlingExamples {
 
         scope.launch {
             delay(200)
-            job2Executed = true
+            job2Executed.set(true)
             suspendLogging { "이 코드는 출력되어야 합니다." }
         }.log("#2")
 
         job.complete()
         job.join()
-        hasException.shouldBeTrue()
-        job2Executed.shouldBeTrue()
+
+        hasException.get().shouldBeTrue()
+        job2Executed.get().shouldBeTrue()
     }
 }

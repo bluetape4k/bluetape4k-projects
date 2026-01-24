@@ -35,8 +35,6 @@ import io.grpc.internal.testing.TestClientStreamTracer
 import io.grpc.internal.testing.TestServerStreamTracer
 import io.grpc.internal.testing.TestStreamTracer
 import io.grpc.testing.TestUtils
-import kotlinx.atomicfu.AtomicRef
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
@@ -66,10 +64,10 @@ abstract class AbstractInteropTest {
     @get:Rule
     val globalTimeout: TestRule
 
-    private val serverCallCapture = atomic<ServerCall<*, *>?>(null)
-    private val clientCallCapture = atomic<ClientCall<*, *>?>(null)
+    private val serverCallCapture = AtomicReference<ServerCall<*, *>>(null)
+    private val clientCallCapture = AtomicReference<ClientCall<*, *>>(null)
     private val requestHeadersCapture = AtomicReference<Metadata?>()
-    private val contextCapture = atomic<Context?>(null)
+    private val contextCapture = AtomicReference<Context>(null)
     private var testServiceExecutor: ScheduledExecutorService? = null
     private var server: Server? = null
     private val serverStreamTracers = LinkedBlockingQueue<ServerStreamTracerInfo>()
@@ -409,7 +407,7 @@ abstract class AbstractInteropTest {
             .withDeadlineAfter(5, TimeUnit.SECONDS)
             .unaryCall(Messages.SimpleRequest.getDefaultInstance())
 
-        clientCallCapture.value?.attributes?.get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR)
+        clientCallCapture.get()?.attributes?.get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR)
     }
 
 
@@ -420,7 +418,7 @@ abstract class AbstractInteropTest {
             .withDeadlineAfter(5, TimeUnit.SECONDS)
             .unaryCall(Messages.SimpleRequest.getDefaultInstance())
 
-        clientCallCapture.value?.attributes?.get(Grpc.TRANSPORT_ATTR_LOCAL_ADDR)
+        clientCallCapture.get()?.attributes?.get(Grpc.TRANSPORT_ATTR_LOCAL_ADDR)
     }
 
     protected fun operationTimeoutMillis(): Int {
@@ -581,14 +579,14 @@ abstract class AbstractInteropTest {
          * Capture the request attributes. Useful for testing ServerCalls.
          * [ServerCall.getAttributes]
          */
-        private fun recordServerCallInterceptor(serverCallCapture: AtomicRef<ServerCall<*, *>?>): ServerInterceptor {
+        private fun recordServerCallInterceptor(serverCallCapture: AtomicReference<ServerCall<*, *>>): ServerInterceptor {
             return object: ServerInterceptor {
                 override fun <ReqT, RespT> interceptCall(
                     call: ServerCall<ReqT, RespT>,
                     headers: io.grpc.Metadata,
                     next: ServerCallHandler<ReqT, RespT>,
                 ): Listener<ReqT> {
-                    serverCallCapture.value = call
+                    serverCallCapture.set(call)
                     return next.startCall(call, headers)
                 }
             }
@@ -598,32 +596,31 @@ abstract class AbstractInteropTest {
          * Capture the request attributes. Useful for testing ClientCalls.
          * [ClientCall.getAttributes]
          */
-        private fun recordClientCallInterceptor(clientCallCapture: AtomicRef<ClientCall<*, *>?>): ClientInterceptor {
+        private fun recordClientCallInterceptor(clientCallCapture: AtomicReference<ClientCall<*, *>>): ClientInterceptor {
             return object: ClientInterceptor {
                 override fun <ReqT, RespT> interceptCall(
                     method: MethodDescriptor<ReqT, RespT>,
                     callOptions: CallOptions?,
                     next: Channel,
                 ): ClientCall<ReqT, RespT> {
-                    return next.newCall(method, callOptions).also { clientCallCapture.value = it }
+                    return next.newCall(method, callOptions).also { clientCallCapture.set(it) }
                 }
             }
         }
 
-        private fun recordContextInterceptor(contextCapture: AtomicRef<Context?>): ServerInterceptor {
+        private fun recordContextInterceptor(contextCapture: AtomicReference<Context>): ServerInterceptor {
             return object: ServerInterceptor {
                 override fun <ReqT, RespT> interceptCall(
                     call: ServerCall<ReqT, RespT>,
                     headers: io.grpc.Metadata,
                     next: ServerCallHandler<ReqT, RespT>,
                 ): Listener<ReqT> {
-                    contextCapture.value = Context.current()
+                    contextCapture.set(Context.current())
                     return next.startCall(call, headers)
                 }
             }
         }
     }
-
 
     /**
      * Constructor for tests.

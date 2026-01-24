@@ -4,11 +4,12 @@ import io.bluetape4k.coroutines.flow.exceptions.FlowOperationException
 import io.bluetape4k.coroutines.flow.extensions.Resumable
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.uninitialized
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * 병렬 flow인 [source]를 소비하고 값을 순차적인 Flow 로 변환합니다.
@@ -24,24 +25,24 @@ internal class FlowSequential<T>(private val source: ParallelFlow<T>): AbstractF
             val resumeCollector = Resumable()
             val collectors = Array(n) { RailCollector<T>(resumeCollector) }
 
-            val done = atomic(false)
-            val error = atomic<Throwable?>(null)
+            val done = AtomicBoolean(false)
+            val error = AtomicReference<Throwable?>(null)
 
             launch {
                 try {
                     source.collect(*collectors)
 
-                    done.value = true
+                    done.set(true)
                     resumeCollector.resume()
                 } catch (ex: Throwable) {
-                    error.value = ex
-                    done.value = true
+                    error.set(ex)
+                    done.set(true)
                     resumeCollector.resume()
                 }
             }
 
             while (true) {
-                val d = done.value
+                val d = done.get()
                 var empty = true
 
                 for (rail in collectors) {
@@ -62,13 +63,12 @@ internal class FlowSequential<T>(private val source: ParallelFlow<T>): AbstractF
                             throw ex
                         }
                         rail.resume()
-
                         break
                     }
                 }
 
                 if (d && empty) {
-                    val ex = error.value
+                    val ex = error.get()
                     if (ex != null) {
                         throw ex
                     }

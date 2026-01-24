@@ -8,9 +8,9 @@ import io.bluetape4k.utils.ShutdownQueue
 import io.grpc.BindableService
 import io.grpc.Server
 import io.grpc.inprocess.InProcessServerBuilder
-import kotlinx.atomicfu.locks.ReentrantLock
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 /**

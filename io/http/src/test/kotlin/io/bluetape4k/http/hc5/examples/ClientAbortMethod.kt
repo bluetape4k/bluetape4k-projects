@@ -5,7 +5,6 @@ import io.bluetape4k.http.hc5.entity.consume
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.future.future
 import org.amshove.kluent.internal.assertFails
@@ -15,6 +14,7 @@ import org.apache.hc.client5.http.impl.classic.HttpClients
 import org.apache.hc.core5.http.message.StatusLine
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicBoolean
 
 class ClientAbortMethod: AbstractHc5Test() {
 
@@ -22,14 +22,14 @@ class ClientAbortMethod: AbstractHc5Test() {
 
     @Test
     fun `abort http method before its normal completion`() = runSuspendTest {
-        val executed = atomic(false)
+        val executed = AtomicBoolean(false)
 
         HttpClients.createDefault().use { httpclient ->
             val httpget = HttpGet("$httpbinBaseUrl/get")
 
             val task = future {
                 log.debug { "Execute request ${httpget.method} ${httpget.uri}" }
-                executed.value = true
+                executed.set(true)
 
                 // abort 되면 RequestFailedException 예외가 발생합니다.
                 assertFails {
@@ -40,7 +40,8 @@ class ClientAbortMethod: AbstractHc5Test() {
                     }
                 }
             }
-            await.until { !executed.value }
+            await.until { !executed.get() }
+
             httpget.cancel().shouldBeTrue()
             task.await()
         }

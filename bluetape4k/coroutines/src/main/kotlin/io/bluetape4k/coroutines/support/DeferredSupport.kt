@@ -39,6 +39,7 @@ suspend inline fun <T, R> Deferred<T>.map(
     crossinline transform: suspend (T) -> R,
 ): Deferred<R> = coroutineScope {
     val self = this@map
+
     async(start = coroutineStart) {
         transform(self.await())
     }
@@ -49,6 +50,7 @@ suspend inline fun <K, T: Collection<K>, R> Deferred<T>.mapAll(
     crossinline transform: (K) -> Iterable<R>,
 ): Deferred<Collection<R>> = coroutineScope {
     val self = this@mapAll
+
     async(start = coroutineStart) {
         self.await().flatMap { transform(it) }
     }
@@ -59,6 +61,7 @@ suspend inline fun <K, T: Collection<K>, R> Deferred<T>.concatMap(
     crossinline transform: (K) -> R,
 ): Deferred<Collection<R>> = coroutineScope {
     val self = this@concatMap
+
     async(start = coroutineStart) {
         self.await().map { transform(it) }
     }

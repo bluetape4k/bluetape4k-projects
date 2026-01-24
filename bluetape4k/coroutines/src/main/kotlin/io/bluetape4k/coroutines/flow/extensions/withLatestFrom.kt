@@ -1,12 +1,12 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.coroutines.flow.extensions.utils.NULL_VALUE
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * 두 개의 [Flow]를 결합하여 하나의 [Flow]로 만듭니다. 각 값은 두 번째 [Flow]의 최신 값과 결합됩니다(있는 경우).
@@ -33,25 +33,25 @@ fun <A, B, R> Flow<A>.withLatestFrom(
     other: Flow<B>,
     transform: suspend (A, B) -> R,
 ): Flow<R> = flow {
-    val otherRef = atomic<Any?>(null)
+    val otherRef = AtomicReference<Any?>(null)
 
     try {
         coroutineScope {
             // other 을 collect 해서 가장 최신의 값을 otherRef 에 저장하도록 한다
             launch(start = CoroutineStart.UNDISPATCHED) {
-                other.collect { otherRef.value = it ?: NULL_VALUE }
+                other.collect { otherRef.set(it ?: NULL_VALUE) }
             }
 
             // source 로부터 값이 emit 되면 otherRef의 값과 함께 transform을 호출하도록 한다.
             // 만약 otherRef 값이 null 이라면 collect 를 중단한다
             collect { value: A ->
                 emit(
-                    transform(value, NULL_VALUE.unbox(otherRef.value ?: return@collect))
+                    transform(value, NULL_VALUE.unbox(otherRef.get() ?: return@collect))
                 )
             }
         }
     } finally {
-        otherRef.value = null
+        otherRef.set(null)
     }
 }
 

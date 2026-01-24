@@ -6,8 +6,6 @@ dependencies {
     testImplementation(project(":bluetape4k-mutiny"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    testImplementation(Libs.kotlinx_atomicfu)
-
     // Smallrye Mutiny
     testImplementation(Libs.mutiny)
     testImplementation(Libs.mutiny_kotlin)

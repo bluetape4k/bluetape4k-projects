@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import org.redisson.api.redisnode.RedisNodes
-import kotlin.collections.set
 
 @Execution(ExecutionMode.SAME_THREAD)
 class RedisClusterServerTest {

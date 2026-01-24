@@ -2,12 +2,12 @@ package io.bluetape4k.javers.commit
 
 import io.bluetape4k.idgenerators.snowflake.Snowflake
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
-import kotlinx.atomicfu.locks.ReentrantLock
-import kotlinx.atomicfu.locks.withLock
 import org.javers.core.commit.CommitId
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.locks.ReentrantLock
 import java.util.function.Supplier
+import kotlin.concurrent.withLock
 
 class SnowflakeCommitIdGenerator(
     private val snowflake: Snowflake = Snowflakers.Default,

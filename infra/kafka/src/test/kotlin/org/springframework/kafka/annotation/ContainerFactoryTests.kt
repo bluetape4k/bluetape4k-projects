@@ -3,7 +3,6 @@ package org.springframework.kafka.annotation
 import io.bluetape4k.kafka.spring.test.utils.getPropertyValue
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.mockk.mockk
-import kotlinx.atomicfu.atomic
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
@@ -11,6 +10,7 @@ import org.amshove.kluent.shouldContainSame
 import org.junit.jupiter.api.Test
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
+import java.util.concurrent.atomic.AtomicBoolean
 
 class ContainerFactoryTests {
 
@@ -27,7 +27,7 @@ class ContainerFactoryTests {
         factory.setPhase(42)
         factory.containerProperties.ackCount = 123
 
-        val customized = atomic(false)
+        val customized = AtomicBoolean(false)
         factory.setContainerCustomizer {
             customized.compareAndSet(false, true)
         }
@@ -38,7 +38,7 @@ class ContainerFactoryTests {
         container.phase shouldBeEqualTo 42
         container.containerProperties.ackCount shouldBeEqualTo 123
         container.getPropertyValue<Int>("concurrency") shouldBeEqualTo 22
-        customized.value.shouldBeTrue()
+        customized.get().shouldBeTrue()
 
         val container2 = factory.createContainer("foo")
         container.containerProperties.kafkaConsumerProperties shouldContainSame container2.containerProperties.kafkaConsumerProperties

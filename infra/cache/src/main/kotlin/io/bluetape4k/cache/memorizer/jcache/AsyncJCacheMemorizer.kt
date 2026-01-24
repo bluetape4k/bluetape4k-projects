@@ -2,8 +2,8 @@ package io.bluetape4k.cache.memorizer.jcache
 
 import io.bluetape4k.cache.memorizer.AsyncMemorizer
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.atomicfu.locks.ReentrantLock
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.locks.ReentrantLock
 import javax.cache.Cache
 import kotlin.concurrent.withLock
 

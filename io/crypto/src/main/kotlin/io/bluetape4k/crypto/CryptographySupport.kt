@@ -1,13 +1,13 @@
 package io.bluetape4k.crypto
 
 import io.bluetape4k.support.emptyByteArray
-import kotlinx.atomicfu.locks.ReentrantLock
-import kotlinx.atomicfu.locks.withLock
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.jasypt.salt.ZeroSaltGenerator
 import java.security.SecureRandom
 import java.security.Security
 import java.util.*
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /**
  * 난수 발생 기본 알고리즘

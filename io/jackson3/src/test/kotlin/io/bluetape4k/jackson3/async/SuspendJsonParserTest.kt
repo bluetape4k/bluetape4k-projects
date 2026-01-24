@@ -7,8 +7,6 @@ import io.bluetape4k.jackson3.writeAsBytes
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8String
-import kotlinx.atomicfu.AtomicInt
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flowOf
@@ -21,6 +19,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import tools.jackson.module.kotlin.treeToValue
 import java.io.Serializable
+import java.util.concurrent.atomic.AtomicInteger
 
 class SuspendJsonParserTest {
 
@@ -60,7 +59,7 @@ class SuspendJsonParserTest {
 
     @Test
     fun `parse one byte`() = runTest {
-        val parsed = atomic(0)
+        val parsed = AtomicInteger(0)
         val parser = getSingleModelParser(parsed)
 
         val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
@@ -68,12 +67,12 @@ class SuspendJsonParserTest {
         val flow = bytes.map { byteArrayOf(it) }.asFlow()
         parser.consume(flow)
 
-        parsed.value shouldBeEqualTo 1
+        parsed.get() shouldBeEqualTo 1
     }
 
     @Test
     fun `parse chunks`() = runTest {
-        val parsed = atomic(0)
+        val parsed = AtomicInteger(0)
         val parser = getSingleModelParser(parsed)
 
         val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
@@ -85,12 +84,12 @@ class SuspendJsonParserTest {
             .asFlow()
         parser.consume(flow)
 
-        parsed.value shouldBeEqualTo 1
+        parsed.get() shouldBeEqualTo 1
     }
 
     @Test
     fun `parse object sequence`() = runTest {
-        val parsed = atomic(0)
+        val parsed = AtomicInteger(0)
         val parser = getSingleModelParser(parsed)
 
         val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
@@ -99,12 +98,12 @@ class SuspendJsonParserTest {
             val flow = bytes.map { byteArrayOf(it) }.asFlow()
             parser.consume(flow)
         }
-        parsed.value shouldBeEqualTo repeatSize
+        parsed.get() shouldBeEqualTo repeatSize
     }
 
     @Test
     fun `parse chunk sequence`() = runTest {
-        val parsed = atomic(0)
+        val parsed = AtomicInteger(0)
         val parser = getSingleModelParser(parsed)
 
         val bytes: ByteArray = mapper.writeAsBytes(model)!!
@@ -120,10 +119,10 @@ class SuspendJsonParserTest {
             parser.consume(flow)
         }
 
-        parsed.value shouldBeEqualTo repeatSize
+        parsed.get() shouldBeEqualTo repeatSize
     }
 
-    private fun getSingleModelParser(parsed: AtomicInt): SuspendJsonParser {
+    private fun getSingleModelParser(parsed: AtomicInteger): SuspendJsonParser {
         return SuspendJsonParser { root ->
             try {
                 parsed.incrementAndGet()
@@ -137,7 +136,7 @@ class SuspendJsonParserTest {
 
     @Test
     fun `parse array object`() = runTest {
-        val parsed = atomic(0)
+        val parsed = AtomicInteger(0)
         val modelSize = 5
 
         val parser = SuspendJsonParser { root ->
@@ -162,6 +161,6 @@ class SuspendJsonParserTest {
         }
         parser.consume(flowOf("]".toByteArray()))
 
-        parsed.value shouldBeEqualTo 1
+        parsed.get() shouldBeEqualTo 1
     }
 }

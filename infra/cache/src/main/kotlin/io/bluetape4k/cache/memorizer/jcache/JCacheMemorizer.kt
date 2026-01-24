@@ -3,7 +3,7 @@ package io.bluetape4k.cache.memorizer.jcache
 import io.bluetape4k.cache.jcache.getOrPut
 import io.bluetape4k.cache.memorizer.Memorizer
 import io.bluetape4k.logging.KLogging
-import kotlinx.atomicfu.locks.ReentrantLock
+import java.util.concurrent.locks.ReentrantLock
 import javax.cache.Cache
 import kotlin.concurrent.withLock
 

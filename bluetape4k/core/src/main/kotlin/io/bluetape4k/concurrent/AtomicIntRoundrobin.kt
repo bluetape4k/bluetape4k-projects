@@ -3,9 +3,9 @@ package io.bluetape4k.concurrent
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireInRange
 import io.bluetape4k.support.requirePositiveNumber
-import kotlinx.atomicfu.atomic
-import kotlinx.atomicfu.locks.withLock
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /**
  * [AtomicIntRoundrobin] 은 [maximum] 값까지의 순환 카운터를 제공합니다.
@@ -32,13 +32,13 @@ class AtomicIntRoundrobin private constructor(val maximum: Int) {
         }
     }
 
-    private val currentValue = atomic(0)
+    private val currentValue = AtomicInteger(0)
     private val lock = ReentrantLock()
 
     /**
      * 현재 값을 반환합니다.
      */
-    fun get(): Int = lock.withLock { currentValue.value }
+    fun get(): Int = lock.withLock { currentValue.get() }
 
     /**
      * 현재 값을 설정합니다.
@@ -48,7 +48,7 @@ class AtomicIntRoundrobin private constructor(val maximum: Int) {
     fun set(value: Int) {
         value.requireInRange(0, maximum - 1, "value")
         lock.withLock {
-            currentValue.value = value
+            currentValue.set(value)
         }
     }
 
@@ -57,9 +57,9 @@ class AtomicIntRoundrobin private constructor(val maximum: Int) {
      */
     fun next(): Int = lock.withLock {
         currentValue.incrementAndGet()
-        if (currentValue.value >= maximum) {
-            currentValue.value = 0
+        if (currentValue.get() >= maximum) {
+            currentValue.set(0)
         }
-        currentValue.value
+        currentValue.get()
     }
 }

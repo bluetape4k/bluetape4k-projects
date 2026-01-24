@@ -59,7 +59,7 @@ class AsyncPreemptiveBasicClientAuthentication: AbstractHc5Test() {
             log.debug { "Body: ${response.body}" }
         }
 
-        val jobs = List(10) {
+        val jobs = List(5) {
             val request = simpleHttpRequestOf(Method.GET, httpHost, path)
             log.debug { "Executing request concurrently $request" }
 

@@ -6,7 +6,6 @@ import io.bluetape4k.coroutines.tests.withSingleThread
 import io.bluetape4k.junit5.awaitility.suspendUntil
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.onEach
@@ -19,6 +18,8 @@ import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.test.assertFailsWith
 
@@ -107,8 +108,7 @@ class PublishSubjectTest {
         withSingleThread { dispatcher ->
             val subject = PublishSubject<Int>()
             val n = 10_000
-            val counter = atomic(0)
-            val count by counter
+            val counter = AtomicInteger(0)
 
             val job = launch(dispatcher) {
                 subject.collect {
@@ -124,7 +124,7 @@ class PublishSubjectTest {
             subject.complete()
             job.join()
 
-            count shouldBeEqualTo n
+            counter.get() shouldBeEqualTo n
         }
     }
 
@@ -132,9 +132,8 @@ class PublishSubjectTest {
     fun `예외를 emit 한 경우 try-catch로 잡을 수 있다`() = runTest {
         withSingleThread { dispatcher ->
             val subject = PublishSubject<Int>()
-            val counter = atomic(0)
-            val count by counter
-            val error = atomic<Throwable?>(null)
+            val counter = AtomicInteger(0)
+            val error = AtomicReference<Throwable>(null)
 
             val job = launch(dispatcher) {
                 try {
@@ -142,7 +141,7 @@ class PublishSubjectTest {
                         .log("#1")
                         .collect { counter.incrementAndGet() }
                 } catch (e: Throwable) {
-                    error.value = e
+                    error.set(e)
                 }
             }.log("job")
 
@@ -153,8 +152,8 @@ class PublishSubjectTest {
 
             job.join()
 
-            count shouldBeEqualTo 0
-            error.value shouldBeInstanceOf RuntimeException::class
+            counter.get() shouldBeEqualTo 0
+            error.get() shouldBeInstanceOf RuntimeException::class
         }
     }
 
@@ -162,8 +161,8 @@ class PublishSubjectTest {
     fun `multiple collectors`() = runTest {
         val subject = PublishSubject<Int>()
         val n = 10_000
-        val counter1 = atomic(0)
-        val counter2 = atomic(0)
+        val counter1 = AtomicInteger(0)
+        val counter2 = AtomicInteger(0)
 
         withSingleThread { dispatcher ->
             val job1 = launch(dispatcher) {
@@ -188,8 +187,8 @@ class PublishSubjectTest {
             job1.join()
             job2.join()
         }
-        counter1.value shouldBeEqualTo n
-        counter2.value shouldBeEqualTo n
+        counter1.get() shouldBeEqualTo n
+        counter2.get() shouldBeEqualTo n
     }
 
     @Test
@@ -197,8 +196,8 @@ class PublishSubjectTest {
         val subject = PublishSubject<Int>()
         val n = 10
 
-        val counter1 = atomic(0)
-        val counter2 = atomic(0)
+        val counter1 = AtomicInteger(0)
+        val counter2 = AtomicInteger(0)
 
         coroutineScope {
             launch {
@@ -224,8 +223,8 @@ class PublishSubjectTest {
             subject.complete()
         }
 
-        counter1.value shouldBeEqualTo n
-        counter2.value shouldBeEqualTo n
+        counter1.get() shouldBeEqualTo n
+        counter2.get() shouldBeEqualTo n
     }
 
     @Test
@@ -233,8 +232,8 @@ class PublishSubjectTest {
         val subject = PublishSubject<Int>()
         val n = 100
 
-        val counter1 = atomic(0)
-        val counter2 = atomic(0)
+        val counter1 = AtomicInteger(0)
+        val counter2 = AtomicInteger(0)
 
         coroutineScope {
             launch {
@@ -259,8 +258,8 @@ class PublishSubjectTest {
             subject.complete()
         }
 
-        counter1.value shouldBeEqualTo n
-        counter2.value shouldBeEqualTo n / 2
+        counter1.get() shouldBeEqualTo n
+        counter2.get() shouldBeEqualTo n / 2
     }
 
     @Test
@@ -268,14 +267,14 @@ class PublishSubjectTest {
         val subject = PublishSubject<Int>()
         subject.complete()
 
-        val counter = atomic(0)
+        val counter = AtomicInteger(0)
 
         // subject가 이미 completed 되었으므로, collect 를 수행하지 않습니다.
         subject
             .log("#1")
             .collect { counter.incrementAndGet() } // completed 이후에는 collect 가 동작하지 않는다
 
-        counter.value shouldBeEqualTo 0
+        counter.get() shouldBeEqualTo 0
     }
 
     @Test
@@ -283,7 +282,7 @@ class PublishSubjectTest {
         val subject = PublishSubject<Int>()
         subject.emitError(RuntimeException("Boom!"))
 
-        val counter = atomic(0)
+        val counter = AtomicInteger(0)
 
         // subject 에서 예외를 emit 했으므로, collect 시에 emit된 예외가 발생합니다.
         assertFailsWith<RuntimeException> {
@@ -291,7 +290,8 @@ class PublishSubjectTest {
                 .log("#1")
                 .collect { counter.incrementAndGet() }
         } // completed 이후에는 collect 가 동작하지 않는다
-        counter.value shouldBeEqualTo 0
+
+        counter.get() shouldBeEqualTo 0
     }
 
     @Test
@@ -301,7 +301,7 @@ class PublishSubjectTest {
             val n = 10
             val expected = 3
 
-            val counter1 = atomic(0)
+            val counter1 = AtomicInteger(0)
 
             val job = launch {
                 subject
@@ -325,7 +325,7 @@ class PublishSubjectTest {
 
             job.isCancelled.shouldBeTrue()
             subject.collectorCount shouldBeEqualTo 0
-            counter1.value shouldBeEqualTo expected
+            counter1.get() shouldBeEqualTo expected
         }
     }
 }

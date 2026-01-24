@@ -2,7 +2,6 @@ package io.bluetape4k.examples.coroutines.flow
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
@@ -13,12 +12,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicLong
 
 class FlowBasicExamples {
 
     companion object: KLoggingChannel()
 
-    private val sequencer = atomic(0L)
+    private val sequencer = AtomicLong(0L)
 
     private suspend fun computeNextValue(): Long {
         delay(10)
@@ -27,7 +27,7 @@ class FlowBasicExamples {
 
     @BeforeEach
     fun setup() {
-        sequencer.value = 0
+        sequencer.set(0L)
     }
 
     /**

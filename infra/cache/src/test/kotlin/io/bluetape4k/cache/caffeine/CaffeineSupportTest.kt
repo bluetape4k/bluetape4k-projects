@@ -2,7 +2,6 @@ package io.bluetape4k.cache.caffeine
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
@@ -10,6 +9,7 @@ import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
+import java.util.concurrent.atomic.AtomicInteger
 
 class CaffeineSupportTest {
 
@@ -100,7 +100,7 @@ class CaffeineSupportTest {
 
     @Test
     fun `loading async cache by suspend function`() {
-        val counter = atomic(0)
+        val counter = AtomicInteger(0)
 
         val asyncCache = caffeine.suspendLoadingCache { key: String ->
             log.debug { "loading cache value of [$key] by suspend function..." }
@@ -111,14 +111,14 @@ class CaffeineSupportTest {
 
         asyncCache.getIfPresent("key").shouldBeNull()
         asyncCache.get("key").get() shouldBeEqualTo "value of key"
-        counter.value shouldBeEqualTo 1
+        counter.get() shouldBeEqualTo 1
 
         val valueFuture = asyncCache.get("key")
         valueFuture.get() shouldBeEqualTo "value of key"
-        counter.value shouldBeEqualTo 1
+        counter.get() shouldBeEqualTo 1
 
         asyncCache.getIfPresent("key")!!.get() shouldBeEqualTo "value of key"
-        counter.value shouldBeEqualTo 1
+        counter.get() shouldBeEqualTo 1
 
         asyncCache.synchronous().invalidate("key")
         asyncCache.getIfPresent("key").shouldBeNull()
@@ -127,7 +127,7 @@ class CaffeineSupportTest {
     @Test
     fun `get suspend method with AsyncCache`() {
         val asyncCache = caffeine.asyncCache<String, String>()
-        val counter = atomic(0)
+        val counter = AtomicInteger(0)
 
         val suspendValue = asyncCache.getSuspending("key") { key ->
             log.debug { "run suspend function to evaluate value of $key" }
@@ -136,9 +136,9 @@ class CaffeineSupportTest {
             "suspend value of $key"
         }
         suspendValue.get() shouldBeEqualTo "suspend value of key"
-        counter.value shouldBeEqualTo 1
+        counter.get() shouldBeEqualTo 1
 
         asyncCache.getIfPresent("key")!!.get() shouldBeEqualTo "suspend value of key"
-        counter.value shouldBeEqualTo 1
+        counter.get() shouldBeEqualTo 1
     }
 }

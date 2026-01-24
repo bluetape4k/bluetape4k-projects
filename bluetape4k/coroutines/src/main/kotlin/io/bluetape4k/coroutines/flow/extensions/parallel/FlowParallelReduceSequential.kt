@@ -2,9 +2,9 @@ package io.bluetape4k.coroutines.flow.extensions.parallel
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.uninitialized
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * [source]의 값들을 병렬로 reduce하고 그 값을 emit합니다.
@@ -26,10 +26,10 @@ internal class FlowParallelReduceSequential<T>(
         var hasValue = false
 
         rails.forEach { rail ->
-            if (!hasValue && rail.hasValue.value) {
+            if (!hasValue && rail.hasValue.get()) {
                 accumulator = rail.accumulator
                 hasValue = true
-            } else if (hasValue && rail.hasValue.value) {
+            } else if (hasValue && rail.hasValue.get()) {
                 accumulator = combine(accumulator, rail.accumulator)
             }
         }
@@ -41,13 +41,13 @@ internal class FlowParallelReduceSequential<T>(
 
     class ReducerCollector<T>(private val combine: suspend (T, T) -> T): FlowCollector<T> {
         var accumulator: T = uninitialized()
-        val hasValue = atomic(false)
+        val hasValue = AtomicBoolean(false)
 
         override suspend fun emit(value: T) {
-            if (hasValue.value) {
+            if (hasValue.get()) {
                 accumulator = combine(accumulator, value)
             } else {
-                hasValue.value = true
+                hasValue.set(true)
                 accumulator = value
             }
         }

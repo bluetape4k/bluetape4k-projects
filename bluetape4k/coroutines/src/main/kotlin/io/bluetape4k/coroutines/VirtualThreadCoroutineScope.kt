@@ -7,11 +7,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelChildren
+import java.io.Closeable
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 
-open class VirtualThreadCoroutineScope: CoroutineScope {
+open class VirtualThreadCoroutineScope: CoroutineScope, Closeable {
     companion object: KLogging() {
         val Instance: VirtualThreadCoroutineScope by lazy { VirtualThreadCoroutineScope() }
     }
@@ -23,6 +25,11 @@ open class VirtualThreadCoroutineScope: CoroutineScope {
     fun clearJobs(cause: CancellationException? = null) {
         log.debug { "clearJobs: cause=$cause" }
         coroutineContext.cancelChildren(cause)
+        coroutineContext.cancel()
+    }
+
+    override fun close() {
+        clearJobs()
     }
 
     override fun toString(): String =

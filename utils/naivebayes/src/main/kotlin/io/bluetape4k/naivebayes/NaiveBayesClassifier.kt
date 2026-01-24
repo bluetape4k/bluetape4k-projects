@@ -1,9 +1,9 @@
 package io.bluetape4k.naivebayes
 
 import io.bluetape4k.logging.KLogging
-import kotlinx.atomicfu.atomic
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.reflect.KProperty1
@@ -36,8 +36,8 @@ class NaiveBayesClassifier<F: Any, C: Any>(
     private val _population: MutableList<BayesInput<F, C>> = CopyOnWriteArrayList()
     val population: List<BayesInput<F, C>> get() = _population.toList()
 
-    private val modelStaler = atomic(false)
-    private var modelStaled: Boolean by modelStaler
+    private val modelStaler = AtomicBoolean(false)
+    private val modelStaled: Boolean get() = modelStaler.get()
 
     /**
      * Adds an observation of features to a category
@@ -47,7 +47,7 @@ class NaiveBayesClassifier<F: Any, C: Any>(
             _population.removeAt(0)
         }
         _population += BayesInput(category, features.toSet())
-        modelStaler.value = true
+        modelStaler.set(true)
     }
 
     /**
@@ -65,7 +65,7 @@ class NaiveBayesClassifier<F: Any, C: Any>(
             }
             .associateWith { FeatureProbability(it.feature, it.category, this) }
 
-        modelStaler.value = false
+        modelStaler.set(false)
     }
 
     /**

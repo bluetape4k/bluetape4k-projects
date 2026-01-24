@@ -9,7 +9,6 @@ import io.smallrye.mutiny.Uni
 import io.smallrye.mutiny.coroutines.asFlow
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import io.smallrye.mutiny.infrastructure.Infrastructure
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -25,6 +24,7 @@ import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.function.Supplier
 import java.util.stream.Collectors
 import kotlin.concurrent.thread
@@ -35,14 +35,13 @@ class ThreadingExamples {
 
     companion object: KLoggingChannel()
 
-    private val counter = atomic(0)
-    private var count by counter
+    private val counter = AtomicInteger(0)
 
     private val executor = Executors.newFixedThreadPool(4, NamedThreadFactory("mutiny"))
 
     @BeforeEach
     fun setup() {
-        count = 0
+        counter.set(0)
     }
 
     @Test
@@ -55,7 +54,7 @@ class ThreadingExamples {
             .runSubscriptionOn(executor)
             .subscribe().with { log.debug { it } }
 
-        await until { count >= 10 }
+        await until { counter.get() >= 10 }
     }
 
     @Test
@@ -68,7 +67,7 @@ class ThreadingExamples {
             .emitOn(executor)
             .subscribe().with { log.debug { it } }
 
-        await until { counter.value >= 10 }
+        await until { counter.get() >= 10 }
     }
 
     private fun generate(): Uni<Int> = Uni.createFrom().completionStage {
@@ -81,7 +80,6 @@ class ThreadingExamples {
         )
     }
 
-
     @Test
     fun `03 Infra Executor`() {
         log.debug { "👀 emitOn (dispatch blocking event processing to the Mutiny default worker pool)" }
@@ -91,7 +89,7 @@ class ThreadingExamples {
             .emitOn(executor)
             .subscribe().with { log.debug { it } }
 
-        await until { count >= 10 }
+        await until { counter.get() >= 10 }
     }
 
     private fun generateInWorkerPool(): Uni<Int> =

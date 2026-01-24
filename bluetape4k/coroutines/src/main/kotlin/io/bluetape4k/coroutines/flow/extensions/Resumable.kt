@@ -1,8 +1,8 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.logging.KLogging
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.suspendCancellableCoroutine
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -25,13 +25,12 @@ open class Resumable {
         val RESULT_SUCCESS = Result.success(VALUE)
     }
 
-    private val continuationRef = atomic<Continuation<Any>?>(null)
-    private val continuation by continuationRef
+    private val continuation = AtomicReference<Continuation<Any>?>(null)
 
     suspend fun await() {
         suspendCancellableCoroutine { cont ->
             while (true) {
-                val current = continuation
+                val current = continuation.get()
                 if (current == READLY) {
                     cont.resumeWith(RESULT_SUCCESS)
                     break
@@ -39,19 +38,19 @@ open class Resumable {
                 if (current != null) {
                     throw IllegalStateException("Only one thread can await a Resumable")
                 }
-                if (continuationRef.compareAndSet(current, cont)) {
+                if (continuation.compareAndSet(current, cont)) {
                     break
                 }
             }
         }
-        continuationRef.getAndSet(null)
+        continuation.getAndSet(null)
     }
 
     fun resume() {
         if (continuation == READLY) {
             return
         }
-        continuationRef.getAndSet(READLY)?.resumeWith(RESULT_SUCCESS)
+        continuation.getAndSet(READLY)?.resumeWith(RESULT_SUCCESS)
     }
 
     /**

@@ -1,6 +1,6 @@
 package io.bluetape4k.utils
 
-import kotlinx.atomicfu.atomic
+import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -22,14 +22,14 @@ open class SingletonHolder<T: Any>(factory: () -> T) {
 
     @Volatile
     private var _factory: (() -> T)? = factory
-    private val instance = atomic<T?>(null)
+    private val instance = AtomicReference<T>(null)
     private val lock = ReentrantLock()
 
     fun getInstance(): T {
-        instance.value?.let { return it }
+        instance.get()?.let { return it }
 
         lock.withLock {
-            instance.value?.let { return it }
+            instance.get()?.let { return it }
 
             val created = _factory?.invoke()
             instance.compareAndSet(null, created)

@@ -15,7 +15,6 @@ import io.smallrye.mutiny.Uni
 import io.smallrye.mutiny.coroutines.asFlow
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import io.smallrye.mutiny.tuples.Tuple2
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
@@ -36,6 +35,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 import java.util.stream.Collectors
 import kotlin.random.Random
 
@@ -274,19 +274,19 @@ class CompositionTransformationExamples {
     }
 
     class Generator(start: Long) {
-        private val counter = atomic(start)
+        private val counter = AtomicLong(start)
 
         fun next(): Uni<Long> = Uni.createFrom().completionStage(
             CompletableFuture.supplyAsync(
                 counter::getAndIncrement,
-                CompletableFuture.delayedExecutor(Random.nextLong(100), TimeUnit.MILLISECONDS)
+                CompletableFuture.delayedExecutor(Random.nextLong(10, 100), TimeUnit.MILLISECONDS)
             )
         )
     }
 
     @Test
     fun `13 Multi Broadcast`() {
-        val counter = atomic(0)
+        val counter = AtomicInteger(0)
         val executor = Executors.newCachedThreadPool()
 
         val multi = Multi.createBy()
@@ -352,7 +352,7 @@ class CompositionTransformationExamples {
             jobs.joinAll()
             counter.get() shouldBeEqualTo 10
         } finally {
-            scope.clearJobs()
+            scope.close()
         }
     }
 
@@ -392,7 +392,8 @@ class CompositionTransformationExamples {
                 avg.onItem().transform { res -> "Average age in $city is $res" }
             }
             .merge()
-            .asFlow().toList()
+            .asFlow()
+            .toList()
 
         log.debug { "Average:\n${agePerCity.joinToString("\n")}" }
 
@@ -422,7 +423,8 @@ class CompositionTransformationExamples {
             .onItem().transform { it.toInt() }
             .group().intoLists().of(5)
             .select().first(2)
-            .asFlow().toList()
+            .asFlow()
+            .toList()
 
         buckets shouldBeEqualTo listOf((0..4).toList(), (5..9).toList())
     }

@@ -9,7 +9,6 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.coroutines.getLockId
 import io.bluetape4k.utils.Runtimex
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.amshove.kluent.shouldBeEqualTo
@@ -19,6 +18,7 @@ import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 
 class LockExamples: AbstractRedissonCoroutineTest() {
 
@@ -102,8 +102,8 @@ class LockExamples: AbstractRedissonCoroutineTest() {
     @Test
     fun `멀티 스레딩 환경에서 Lock 얻기는 성공합니다`() {
         val lock = redisson.getLock(randomName())
-        val lockCounter = atomic(0)
-        val lockIndex = atomic(0)
+        val lockCounter = AtomicInteger(0)
+        val lockIndex = AtomicInteger(0)
 
         MultithreadingTester()
             .numThreads(Runtimex.availableProcessors * 2)
@@ -125,14 +125,14 @@ class LockExamples: AbstractRedissonCoroutineTest() {
             }
             .run()
 
-        lockCounter.value shouldBeEqualTo Runtimex.availableProcessors * 2 * 2
+        lockCounter.get() shouldBeEqualTo Runtimex.availableProcessors * 2 * 2
     }
 
     @Test
     fun `코루틴 환경에서 Lock 얻기는 성공합니다`() = runSuspendIO {
         val lock = redisson.getLock(randomName())
-        val lockCounter = atomic(0)
-        val lockIndex = atomic(0)
+        val lockCounter = AtomicInteger(0)
+        val lockIndex = AtomicInteger(0)
 
         SuspendedJobTester()
             .numThreads(2 * Runtimex.availableProcessors)
@@ -155,6 +155,6 @@ class LockExamples: AbstractRedissonCoroutineTest() {
             }
             .run()
 
-        lockCounter.value shouldBeEqualTo Runtimex.availableProcessors * 2 * 2
+        lockCounter.get() shouldBeEqualTo Runtimex.availableProcessors * 2 * 2
     }
 }

@@ -6,7 +6,6 @@ import io.bluetape4k.coroutines.tests.withSingleThread
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.take
@@ -18,6 +17,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertFailsWith
 
 class UnicastSubjectTest {
@@ -135,10 +135,12 @@ class UnicastSubjectTest {
 
             yield()
 
-            val result = atomic(0)
-            us.collect { result.incrementAndGet() }
+            val result = AtomicInteger(0)
+            us.collect {
+                result.incrementAndGet()
+            }
 
-            result.value shouldBeEqualTo BUFFER_SIZE
+            result.get() shouldBeEqualTo BUFFER_SIZE
         }
     }
 

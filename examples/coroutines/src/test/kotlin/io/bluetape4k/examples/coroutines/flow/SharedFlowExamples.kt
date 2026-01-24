@@ -3,7 +3,6 @@ package io.bluetape4k.examples.coroutines.flow
 import app.cash.turbine.test
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -18,6 +17,7 @@ import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * 복수의 collector 에게 동시에 데이터를 전달하는 SharedFlow 를 사용하는 예제
@@ -34,8 +34,8 @@ class SharedFlowExamples {
     fun `shared flow 기본 사용법`() = runTest {
         coroutineScope {
             val mutableSharedFlow = MutableSharedFlow<String>(replay = 0) // replay = 0: 캐시를 사용하지 않음
-            val collected1 = atomic(0)
-            val collected2 = atomic(0)
+            val collected1 = AtomicInteger(0)
+            val collected2 = AtomicInteger(0)
 
             launch {
                 mutableSharedFlow
@@ -72,8 +72,8 @@ class SharedFlowExamples {
             delay(100)
 
             // 복수의 collector 들도 모두 같은 데이터를 수신한다.
-            collected1.value shouldBeEqualTo 2
-            collected2.value shouldBeEqualTo 2
+            collected1.get() shouldBeEqualTo 2
+            collected2.get() shouldBeEqualTo 2
 
             coroutineContext.cancelChildren()
         }
@@ -89,8 +89,8 @@ class SharedFlowExamples {
         sharedFlow.emit("Message2")
         sharedFlow.emit("Message3")
 
-        val collectCounter1 = atomic(0)
-        val collectCounter2 = atomic(0)
+        val collectCounter1 = AtomicInteger(0)
+        val collectCounter2 = AtomicInteger(0)
 
         coroutineScope {
             sharedFlow.replayCache shouldBeEqualTo listOf("Message2", "Message3")
@@ -121,8 +121,8 @@ class SharedFlowExamples {
             }
 
             delay(100)
-            collectCounter1.value shouldBeEqualTo 2
-            collectCounter2.value shouldBeEqualTo 2
+            collectCounter1.get() shouldBeEqualTo 2
+            collectCounter2.get() shouldBeEqualTo 2
 
             coroutineContext.cancelChildren()
         }
@@ -156,9 +156,9 @@ class SharedFlowExamples {
 
         val sharedFlow = flow.shareIn(this, started = SharingStarted.Eagerly, replay = 0)
 
-        val counter1 = atomic(0)
-        val counter2 = atomic(0)
-        val counter3 = atomic(0)
+        val counter1 = AtomicInteger(0)
+        val counter2 = AtomicInteger(0)
+        val counter3 = AtomicInteger(0)
 
         delay(500)
         launch {
@@ -180,9 +180,9 @@ class SharedFlowExamples {
 
         delay(5000)
 
-        counter1.value shouldBeEqualTo 3
-        counter2.value shouldBeEqualTo 2
-        counter3.value shouldBeEqualTo 1
+        counter1.get() shouldBeEqualTo 3
+        counter2.get() shouldBeEqualTo 2
+        counter3.get() shouldBeEqualTo 1
 
         coroutineContext.cancelChildren()
     }

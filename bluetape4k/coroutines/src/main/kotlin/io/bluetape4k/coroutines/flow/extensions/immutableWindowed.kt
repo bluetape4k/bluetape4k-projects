@@ -5,9 +5,9 @@ import com.danrusu.pods4k.immutableArrays.toImmutableArray
 import io.bluetape4k.collections.eclipse.asFastList
 import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.support.requireGt
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Flow 요소들을 windowing 을 수행하여 `Flow<ImmutableArray<T>>` 로 변환합니다.
@@ -41,7 +41,7 @@ private fun <T> Flow<T>.immutableWindowedInternal(
     step.requireGt(0, "step")
 
     var elements = fastListOf<T>()
-    val counter = atomic(0)
+    val counter = AtomicInteger(0)
 
     this@immutableWindowedInternal.collect { elem ->
         elements.add(elem)
@@ -52,7 +52,7 @@ private fun <T> Flow<T>.immutableWindowedInternal(
         }
     }
     if (partialWindows) {
-        while (counter.value > 0) {
+        while (counter.get() > 0) {
             send(elements.toImmutableArray())
             elements = elements.drop(step).asFastList()
             counter.addAndGet(-step)

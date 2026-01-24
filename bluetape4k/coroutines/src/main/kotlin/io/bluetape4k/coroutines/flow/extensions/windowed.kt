@@ -3,12 +3,12 @@ package io.bluetape4k.coroutines.flow.extensions
 import io.bluetape4k.collections.eclipse.asFastList
 import io.bluetape4k.support.requireGe
 import io.bluetape4k.support.requireGt
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.map
 import org.eclipse.collections.impl.list.mutable.FastList
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Flow 요소들을 windowing 을 수행하여 `Flow<List<T>>` 로 변환합니다.
@@ -56,7 +56,7 @@ private fun <T> Flow<T>.windowedInternal(
     size.requireGe(step, "step")
 
     var elements = FastList<T>(size)
-    val counter = atomic(0)
+    val counter = AtomicInteger(0)
 
     this@windowedInternal.collect { element ->
         elements.add(element)
@@ -68,7 +68,7 @@ private fun <T> Flow<T>.windowedInternal(
     }
 
     if (partialWindow) {
-        while (counter.value > 0) {
+        while (counter.get() > 0) {
             send(elements)
             elements = elements.drop(step).asFastList()
             counter.addAndGet(-step)

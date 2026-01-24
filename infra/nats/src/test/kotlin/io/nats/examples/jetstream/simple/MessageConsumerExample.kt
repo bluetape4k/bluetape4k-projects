@@ -6,9 +6,9 @@ import io.bluetape4k.nats.client.api.consumerConfiguration
 import io.bluetape4k.nats.client.createOrReplaceStream
 import io.nats.client.MessageConsumer
 import io.nats.client.MessageHandler
-import kotlinx.atomicfu.atomic
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.atomic.AtomicInteger
 
 class MessageConsumerExample: AbstractSimpleExample() {
 
@@ -36,7 +36,7 @@ class MessageConsumerExample: AbstractSimpleExample() {
             val consumerContext = streamContext.createOrUpdateConsumer(consumerConfiguration { durable(CONSUMER_NAME) })
 
             val latch = CountDownLatch(1)
-            val counter = atomic(0)
+            val counter = AtomicInteger(0)
             val startTime = System.nanoTime()
 
             val handler = MessageHandler { msg ->
@@ -56,7 +56,7 @@ class MessageConsumerExample: AbstractSimpleExample() {
             consumer.stop()
             Thread.sleep(1000)
 
-            report("Final", startTime, counter.value)
+            report("Final", startTime, counter.get())
         }
     }
 

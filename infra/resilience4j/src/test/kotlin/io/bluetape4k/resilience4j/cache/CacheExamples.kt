@@ -7,11 +7,11 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import io.github.resilience4j.cache.Cache
 import io.github.resilience4j.decorators.Decorators
-import kotlinx.atomicfu.atomic
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
 
 class CacheExamples {
 
@@ -32,11 +32,11 @@ class CacheExamples {
         cache.eventPublisher.onEvent { log.debug { "onEvent=$it" } }
         cache.eventPublisher.onError { log.warn(it.throwable) { "OnError. FlowEvent=${it}" } }
 
-        val _called = atomic(0)
-        val called by _called
+        val called = AtomicInteger(0)
+
 
         val function: () -> String = {
-            _called.incrementAndGet()
+            called.incrementAndGet()
             "Do something"
         }
 
@@ -48,7 +48,7 @@ class CacheExamples {
         cachedFunction.apply("cacheKey") shouldBeEqualTo "Do something"
         cachedFunction.apply("cacheKey") shouldBeEqualTo "Do something"
 
-        called shouldBeEqualTo 1
+        called.get() shouldBeEqualTo 1
         cache.metrics.numberOfCacheHits shouldBeEqualTo 1
         cache.metrics.numberOfCacheMisses shouldBeEqualTo 1
     }

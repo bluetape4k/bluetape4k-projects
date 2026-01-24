@@ -1,41 +1,41 @@
 package io.bluetape4k.resilience4j
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import java.util.concurrent.atomic.AtomicInteger
 
 
 class SuspendHelloWorldService {
 
     companion object: KLoggingChannel()
 
-    private val _invocationCount = atomic(0)
-    val invocationCount by _invocationCount
+    private val invocationCounter = AtomicInteger(0)
+    val invocationCount: Int get() = invocationCounter.get()
 
     private val sync: Channel<Unit> = Channel(Channel.UNLIMITED)
 
     suspend fun returnHelloWorld(): String {
         delay(1) // so tests are fast, but compiler agrees suspend modifier is required
-        _invocationCount.incrementAndGet()
+        invocationCounter.incrementAndGet()
         return "Hello world"
     }
 
     suspend fun returnMessage(message: String): String {
         delay(1) // so tests are fast, but compiler agrees suspend modifier is required
-        _invocationCount.incrementAndGet()
+        invocationCounter.incrementAndGet()
         return message
     }
 
     suspend fun throwException() {
         delay(1) // so tests are fast, but compiler agrees suspend modifier is required
-        _invocationCount.incrementAndGet()
+        invocationCounter.incrementAndGet()
         error("test exception")
     }
 
     suspend fun throwExceptionWithMessage(message: String): String {
         delay(1)
-        _invocationCount.incrementAndGet()
+        invocationCounter.incrementAndGet()
         error(message)
     }
 
@@ -43,7 +43,7 @@ class SuspendHelloWorldService {
      * Suspend until a matching [proceed] call.
      */
     suspend fun await() {
-        _invocationCount.incrementAndGet()
+        invocationCounter.incrementAndGet()
         sync.receive()
     }
 

@@ -1,7 +1,10 @@
 package io.bluetape4k.coroutines
 
+import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.newFixedThreadPoolContext
 import java.io.Closeable
@@ -31,8 +34,8 @@ class ThreadPoolCoroutineScope(
     name: String = "ThreadPoolCoroutineScope",
 ): CoroutineScope, Closeable {
 
-    private val job = SupervisorJob()
-    private val dispatcher = newFixedThreadPoolContext(poolSize, name)
+    private val job: CompletableJob = SupervisorJob()
+    private val dispatcher: ExecutorCoroutineDispatcher = newFixedThreadPoolContext(poolSize, name)
 
     override val coroutineContext: CoroutineContext = dispatcher + job
 
@@ -43,12 +46,14 @@ class ThreadPoolCoroutineScope(
      */
     fun clearJobs(cause: CancellationException? = null) {
         coroutineContext.cancelChildren(cause)
+        coroutineContext.cancel(cause)
     }
 
     /**
      * ThreadPoolCoroutineScope를 종료합니다.
      */
     override fun close() {
+        clearJobs()
         dispatcher.close()
     }
 

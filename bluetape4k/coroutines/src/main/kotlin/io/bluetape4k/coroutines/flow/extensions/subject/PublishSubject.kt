@@ -2,10 +2,10 @@ package io.bluetape4k.coroutines.flow.extensions.subject
 
 import io.bluetape4k.coroutines.flow.extensions.ResumableCollector
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
 import java.util.concurrent.CancellationException
+import java.util.concurrent.atomic.AtomicReference
 
 
 /**
@@ -17,8 +17,8 @@ import java.util.concurrent.CancellationException
  * withSingleThread { dispatcher ->
  *     val subject = PublishSubject<Int>()
  *     val n = 10_000
- *     val counter = atomic(0)
- *     val count by counter
+ *     val counter = AtomicInteger(0)
+ *     val count get() = counter.get()
  *     val job = launch(dispatcher) {
  *         subject.collect {
  *             counter.incrementAndGet()
@@ -44,16 +44,17 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
         private val TERMINATED = arrayOf<ResumableCollector<Any>>()
     }
 
-    private val _collectors = atomic(EMPTY as Array<ResumableCollector<T>>)
-    private val collectors by _collectors
+    private val collectors: AtomicReference<Array<ResumableCollector<T>>> =
+        AtomicReference(EMPTY as Array<ResumableCollector<T>>)
+
 
     private var error: Throwable? = null
 
     override val hasCollectors: Boolean
-        get() = collectors.isNotEmpty()
+        get() = collectors.get().isNotEmpty()
 
     override val collectorCount: Int
-        get() = collectors.size
+        get() = collectors.get().size
 
     /**
      * Start collecting signals from this PublishSubject.
@@ -73,7 +74,7 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
      */
     override suspend fun emit(value: T) {
         // 등록된 모든 collector 에게 value 를 전달합니다.
-        collectors.forEach { collector ->
+        collectors.get().forEach { collector ->
             try {
                 collector.next(value)
             } catch (e: CancellationException) {
@@ -88,7 +89,7 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
     override suspend fun emitError(ex: Throwable?) {
         if (this.error == null) {
             this.error = ex
-            val colls = _collectors.getAndSet(TERMINATED as Array<ResumableCollector<T>>)
+            val colls = collectors.getAndSet(TERMINATED as Array<ResumableCollector<T>>)
             colls.forEach { collector ->
                 runCatching { collector.error(ex) }
             }
@@ -99,7 +100,7 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
      * Indicate no further items will be emitted
      */
     override suspend fun complete() {
-        val colls = _collectors.getAndSet(TERMINATED as Array<ResumableCollector<T>>)
+        val colls = collectors.getAndSet(TERMINATED as Array<ResumableCollector<T>>)
         colls.forEach { collector ->
             runCatching { collector.complete() }
         }
@@ -108,14 +109,14 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
 
     private fun add(inner: ResumableCollector<T>): Boolean {
         while (true) {
-            val a = collectors
+            val a = collectors.get()
             if (areEqualAsAny(a, TERMINATED)) {
                 return false
             }
             val n = a.size
             val b = a.copyOf(n + 1)
             b[n] = inner
-            if (_collectors.compareAndSet(a, b as Array<ResumableCollector<T>>)) {
+            if (collectors.compareAndSet(a, b as Array<ResumableCollector<T>>)) {
                 return true
             }
         }
@@ -123,7 +124,7 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
 
     private fun remove(inner: ResumableCollector<T>) {
         while (true) {
-            val a = collectors
+            val a = collectors.get()
             val n = a.size
             if (n == 0) {
                 return
@@ -140,7 +141,7 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
                 a.copyInto(b, 0, 0, j)
                 a.copyInto(b, j, j + 1)
             }
-            if (_collectors.compareAndSet(a, b as Array<ResumableCollector<T>>)) {
+            if (collectors.compareAndSet(a, b as Array<ResumableCollector<T>>)) {
                 return
             }
         }

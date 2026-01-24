@@ -25,8 +25,6 @@ dependencies {
     api(project(":bluetape4k-logging"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    api(Libs.kotlinx_atomicfu)
-
     // Apache Commons
     api(Libs.commons_lang3)
     compileOnly(Libs.commons_codec)

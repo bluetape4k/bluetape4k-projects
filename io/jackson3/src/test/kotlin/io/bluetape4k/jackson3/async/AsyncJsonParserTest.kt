@@ -7,8 +7,6 @@ import io.bluetape4k.jackson3.writeAsBytes
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8String
-import kotlinx.atomicfu.AtomicInt
-import kotlinx.atomicfu.atomic
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeNull
@@ -16,6 +14,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import tools.jackson.module.kotlin.treeToValue
 import java.io.Serializable
+import java.util.concurrent.atomic.AtomicInteger
 
 class AsyncJsonParserTest {
 
@@ -55,7 +54,7 @@ class AsyncJsonParserTest {
 
     @Test
     fun `parse one byte`() {
-        val parsed = atomic(0)
+        val parsed = AtomicInteger(0)
         val parser = getSingleModelParser(parsed)
 
         val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
@@ -64,12 +63,12 @@ class AsyncJsonParserTest {
             parser.consume(byteArrayOf(it))
         }
 
-        parsed.value shouldBeEqualTo 1
+        parsed.get() shouldBeEqualTo 1
     }
 
     @Test
     fun `parse chunks`() {
-        val parsed = atomic(0)
+        val parsed = AtomicInteger(0)
         val parser = getSingleModelParser(parsed)
 
         val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
@@ -78,12 +77,12 @@ class AsyncJsonParserTest {
             parser.consume(it.toByteArray())
         }
 
-        parsed.value shouldBeEqualTo 1
+        parsed.get() shouldBeEqualTo 1
     }
 
     @Test
     fun `parse object sequence`() {
-        val parsed = atomic(0)
+        val parsed = AtomicInteger(0)
         val parser = getSingleModelParser(parsed)
 
         val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
@@ -93,12 +92,12 @@ class AsyncJsonParserTest {
                 parser.consume(byteArrayOf(it))
             }
         }
-        parsed.value shouldBeEqualTo repeatSize
+        parsed.get() shouldBeEqualTo repeatSize
     }
 
     @Test
     fun `parse chunk sequence`() {
-        val parsed = atomic(0)
+        val parsed = AtomicInteger(0)
         val parser = getSingleModelParser(parsed)
 
         val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
@@ -111,10 +110,10 @@ class AsyncJsonParserTest {
             }
         }
 
-        parsed.value shouldBeEqualTo repeatSize
+        parsed.get() shouldBeEqualTo repeatSize
     }
 
-    private fun getSingleModelParser(parsed: AtomicInt): AsyncJsonParser {
+    private fun getSingleModelParser(parsed: AtomicInteger): AsyncJsonParser {
         return AsyncJsonParser { root ->
             try {
                 parsed.incrementAndGet()
@@ -128,7 +127,7 @@ class AsyncJsonParserTest {
 
     @Test
     fun `parse array object`() {
-        val parsed = atomic(0)
+        val parsed = AtomicInteger(0)
         val modelSize = 5
 
         val parser = AsyncJsonParser { root ->
@@ -156,6 +155,6 @@ class AsyncJsonParserTest {
         }
         parser.consume("]".toByteArray())
 
-        parsed.value shouldBeEqualTo 1
+        parsed.get() shouldBeEqualTo 1
     }
 }

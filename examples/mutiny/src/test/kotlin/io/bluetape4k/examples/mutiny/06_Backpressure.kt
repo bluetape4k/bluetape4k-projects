@@ -5,13 +5,13 @@ import io.smallrye.mutiny.Multi
 import io.smallrye.mutiny.subscription.BackPressureStrategy
 import io.smallrye.mutiny.subscription.MultiEmitter
 import io.smallrye.mutiny.subscription.MultiSubscriber
-import kotlinx.atomicfu.atomic
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.Flow
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
 class BackpressureExamples {
@@ -23,7 +23,7 @@ class BackpressureExamples {
         println("👀 Backpressure: Drop")
 
         // subscription이 최초 5 개만 받는다. 나머지 emit 되는 요소는 onOverlow 에서 drop 된다.
-        val isCompleted = atomic(false)
+        val isCompleted = AtomicBoolean(false)
 
         Multi.createFrom()
             .emitter({ emitter -> emitTooFast(emitter) }, BackPressureStrategy.ERROR)
@@ -40,16 +40,16 @@ class BackpressureExamples {
 
                 override fun onFailure(failure: Throwable) {
                     println("\n🔥 ${failure.message}")
-                    isCompleted.value = true
+                    isCompleted.set(true)
                 }
 
                 override fun onCompletion() {
                     print("\n✅")
-                    isCompleted.value = true
+                    isCompleted.set(true)
                 }
             })
 
-        await atMost Duration.ofSeconds(10) until { isCompleted.value }
+        await atMost Duration.ofSeconds(10) until { isCompleted.get() }
     }
 
     @Test
@@ -57,9 +57,12 @@ class BackpressureExamples {
         println("👀 Backpressure: Buffer")
 
         // subscription이 3 개만 받는다. 나머지 emit 되는 요소는 onOverlow 에서 buffering 된다.
-        val isCompleted = atomic(false)
+        val isCompleted = AtomicBoolean(false)
         Multi.createFrom()
-            .emitter({ emitter -> emitTooFast(emitter) }, BackPressureStrategy.ERROR)
+            .emitter(
+                { emitter -> emitTooFast(emitter) },
+                BackPressureStrategy.ERROR
+            )
             .onOverflow().invoke { _ -> print("🚨 ") }.buffer(10)
             .subscribe()
             .withSubscriber(object: MultiSubscriber<String> {
@@ -73,16 +76,16 @@ class BackpressureExamples {
 
                 override fun onFailure(failure: Throwable) {
                     println("\n🔥 ${failure.message}")
-                    isCompleted.value = true
+                    isCompleted.set(true)
                 }
 
                 override fun onCompletion() {
                     print("\n✅")
-                    isCompleted.value = true
+                    isCompleted.set(true)
                 }
             })
 
-        await atMost Duration.ofSeconds(10) until { isCompleted.value }
+        await atMost Duration.ofSeconds(10) until { isCompleted.get() }
     }
 
     private fun emitTooFast(emitter: MultiEmitter<in String>) {

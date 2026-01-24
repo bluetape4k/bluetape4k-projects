@@ -4,13 +4,13 @@ import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import io.bluetape4k.utils.Runtimex
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 
 class SuspendLazyTest {
@@ -21,7 +21,7 @@ class SuspendLazyTest {
 
     @Test
     fun `get suspend lazy value in coroutine scope`() = runTest {
-        val callCounter = atomic(0)
+        val callCounter = AtomicInteger(0)
 
         val lazyValue = suspendLazy {
             delay(Random.nextLong(100))
@@ -29,19 +29,19 @@ class SuspendLazyTest {
             callCounter.incrementAndGet()
             TEST_NUMBER
         }
-        callCounter.value shouldBeEqualTo 0
+        callCounter.get() shouldBeEqualTo 0
 
         yield()
 
         lazyValue() shouldBeEqualTo TEST_NUMBER
         lazyValue() shouldBeEqualTo TEST_NUMBER
 
-        callCounter.value shouldBeEqualTo 1
+        callCounter.get() shouldBeEqualTo 1
     }
 
     @Test
     fun `get suspend lazy value in coroutine scope with Multijob`() = runTest {
-        val callCounter = atomic(0)
+        val callCounter = AtomicInteger(0)
 
         val lazyValue = suspendLazy {
             delay(Random.nextLong(100))
@@ -49,7 +49,7 @@ class SuspendLazyTest {
             callCounter.incrementAndGet()
             TEST_NUMBER
         }
-        callCounter.value shouldBeEqualTo 0
+        callCounter.get() shouldBeEqualTo 0
 
         SuspendedJobTester()
             .numThreads(Runtimex.availableProcessors)
@@ -62,12 +62,12 @@ class SuspendLazyTest {
             }
             .run()
 
-        callCounter.value shouldBeEqualTo 1
+        callCounter.get() shouldBeEqualTo 1
     }
 
     @Test
     fun `get lazy value in blocking mode`() = runTest {
-        val callCounter = atomic(0)
+        val callCounter = AtomicInteger(0)
 
         val lazyValue = suspendBlockingLazy {
             Thread.sleep(Random.nextLong(100))
@@ -75,19 +75,19 @@ class SuspendLazyTest {
             callCounter.incrementAndGet()
             TEST_NUMBER
         }
-        callCounter.value shouldBeEqualTo 0
+        callCounter.get() shouldBeEqualTo 0
 
         yield()
 
         lazyValue() shouldBeEqualTo TEST_NUMBER
         lazyValue() shouldBeEqualTo TEST_NUMBER
 
-        callCounter.value shouldBeEqualTo 1
+        callCounter.get() shouldBeEqualTo 1
     }
 
     @Test
     fun `get lazy value in blocking mode with IO dispatchers`() = runTest {
-        val callCounter = atomic(0)
+        val callCounter = AtomicInteger(0)
 
         val lazyValue = suspendBlockingLazyIO {
             Thread.sleep(Random.nextLong(100))
@@ -95,7 +95,7 @@ class SuspendLazyTest {
             callCounter.incrementAndGet()
             TEST_NUMBER
         }
-        callCounter.value shouldBeEqualTo 0
+        callCounter.get() shouldBeEqualTo 0
 
         yield()
 
@@ -107,12 +107,12 @@ class SuspendLazyTest {
         lazy1.await() shouldBeEqualTo TEST_NUMBER
         lazy2.await() shouldBeEqualTo TEST_NUMBER
 
-        callCounter.value shouldBeEqualTo 1
+        callCounter.get() shouldBeEqualTo 1
     }
 
     @Test
     fun `get lazy value in blocking mode with Multijob`() {
-        val callCounter = atomic(0)
+        val callCounter = AtomicInteger(0)
 
         val lazyValue = suspendBlockingLazyIO {
             Thread.sleep(Random.nextLong(1000))
@@ -120,7 +120,7 @@ class SuspendLazyTest {
             callCounter.incrementAndGet()
             TEST_NUMBER
         }
-        callCounter.value shouldBeEqualTo 0
+        callCounter.get() shouldBeEqualTo 0
 
         runTest {
             SuspendedJobTester()
@@ -131,6 +131,6 @@ class SuspendLazyTest {
                 }
                 .run()
         }
-        callCounter.value shouldBeEqualTo 1
+        callCounter.get() shouldBeEqualTo 1
     }
 }

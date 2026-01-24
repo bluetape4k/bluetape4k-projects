@@ -4,12 +4,12 @@ import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
-import kotlinx.atomicfu.atomic
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -65,7 +65,7 @@ class VirtualFutureTest {
     @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `run many tasks with virtual thread tester`() {
-        val taskCount = atomic(0)
+        val taskCount = AtomicInteger(0)
 
         // 1초씩 대기하는 1000 개의 작업을 Virtual Thread를 이용하면, 2초내에 모든 작업이 완료됩니다.
         StructuredTaskScopeTester()
@@ -73,15 +73,15 @@ class VirtualFutureTest {
             .add {
                 Thread.sleep(100)
                 taskCount.incrementAndGet()
-                log.trace { "Run task ...${taskCount.value}" }
+                log.trace { "Run task ...${taskCount.get()}" }
             }
             .add {
                 Thread.sleep(100)
                 taskCount.incrementAndGet()
-                log.trace { "Run task ...${taskCount.value}" }
+                log.trace { "Run task ...${taskCount.get()}" }
             }
             .run()
 
-        taskCount.value shouldBeEqualTo 2
+        taskCount.get() shouldBeEqualTo 2
     }
 }
