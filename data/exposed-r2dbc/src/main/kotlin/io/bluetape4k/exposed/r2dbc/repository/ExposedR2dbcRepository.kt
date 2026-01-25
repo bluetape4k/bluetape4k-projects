@@ -16,9 +16,12 @@ import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
+import org.jetbrains.exposed.v1.core.statements.BatchUpsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
+import org.jetbrains.exposed.v1.core.statements.UpsertBuilder
 import org.jetbrains.exposed.v1.r2dbc.R2dbcTransaction
 import org.jetbrains.exposed.v1.r2dbc.batchInsert
+import org.jetbrains.exposed.v1.r2dbc.batchUpsert
 import org.jetbrains.exposed.v1.r2dbc.deleteIgnoreWhere
 import org.jetbrains.exposed.v1.r2dbc.deleteWhere
 import org.jetbrains.exposed.v1.r2dbc.select
@@ -276,7 +279,12 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
         insertStatement: BatchInsertStatement.(E) -> Unit,
     ): List<T> =
         table
-            .batchInsert(entities, ignore, shouldReturnGeneratedValues, insertStatement)
+            .batchInsert(
+                data = entities,
+                ignore = ignore,
+                shouldReturnGeneratedValues = shouldReturnGeneratedValues,
+                body = insertStatement
+            )
             .map { it.toEntity() }
 
     /**
@@ -293,40 +301,85 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
         insertStatement: BatchInsertStatement.(E) -> Unit,
     ): List<T> =
         table
-            .batchInsert(entities, ignore, shouldReturnGeneratedValues, insertStatement)
+            .batchInsert(
+                data = entities,
+                ignore = ignore,
+                shouldReturnGeneratedValues = shouldReturnGeneratedValues,
+                body = insertStatement
+            )
             .map { it.toEntity() }
 
     /**
-     * 여러 엔티티를 일괄로 수정합니다.
-     * @param entities 수정할 엔티티 목록
-     * @param ignore 중복 무시 여부
-     * @param shouldReturnGeneratedValues 생성된 값 반환 여부
-     * @param updateStatement 수정 내용
+     * 여러 엔티티를 일괄 Upsert 합니다.
+     *
+     * See [Batch Insert](https://github.com/JetBrains/Exposed/wiki/DSL#batch-insert) for more details.
+     *
+     * @param entities Upsert 할 엔티티 컬렉션
+     * @param keys (optional) Columns to include in the condition that determines a unique constraint match. If no columns are provided,
+     *             primary keys will be used. If the table does not have any primary keys, the first unique index will be attempted.
+     * @param onUpdate Lambda block with an [UpdateStatement] as its argument, allowing values to be assigned to the UPDATE clause.
+     *  To specify manually that the insert value should be used when updating a column, for example within an expression
+     *  or function, invoke `insertValue()` with the desired column as the function argument.
+     *  If left null, all columns will be updated with the values provided for the insert.
+     * @param onUpdateExclude List of specific columns to exclude from updating. If left null, all columns will be updated with the values provided for the insert.
+     * @param shouldReturnGeneratedValues Specifies whether newly generated values (for example, auto-incremented IDs) should be returned.
+     * @return Upsert 된 엔티티 목록
      */
-    suspend fun batchUpdate(
-        entities: Iterable<T>,
-        ignore: Boolean = false,
+    suspend fun <E: Any> batchUpsert(
+        entities: Iterable<E>,
+        vararg keys: Column<*>,
+        onUpdate: (UpsertBuilder.(UpdateStatement) -> Unit)? = null,
+        onUpdateExclude: List<Column<*>>? = null,
+        where: (() -> Op<Boolean>)? = null,
         shouldReturnGeneratedValues: Boolean = true,
-        updateStatement: BatchInsertStatement.(T) -> Unit,
+        body: BatchUpsertStatement.(E) -> Unit,
     ): List<T> =
         table
-            .batchInsert(entities, ignore, shouldReturnGeneratedValues, updateStatement)
+            .batchUpsert(
+                data = entities,
+                keys = keys,
+                onUpdate = onUpdate,
+                onUpdateExclude = onUpdateExclude,
+                where = where,
+                shouldReturnGeneratedValues = shouldReturnGeneratedValues,
+                body = body,
+            )
             .map { it.toEntity() }
 
     /**
-     * 여러 엔티티를 일괄로 수정합니다.
-     * @param entities 수정할 엔티티 시퀀스
-     * @param ignore 중복 무시 여부
-     * @param shouldReturnGeneratedValues 생성된 값 반환 여부
-     * @param updateStatement 수정 내용
+     * 여러 엔티티를 일괄 Upsert 합니다.
+     *
+     * See [Batch Insert](https://github.com/JetBrains/Exposed/wiki/DSL#batch-insert) for more details.
+     *
+     * @param entities Upsert 할 엔티티 시퀀스
+     * @param keys (optional) Columns to include in the condition that determines a unique constraint match. If no columns are provided,
+     *             primary keys will be used. If the table does not have any primary keys, the first unique index will be attempted.
+     * @param onUpdate Lambda block with an [UpdateStatement] as its argument, allowing values to be assigned to the UPDATE clause.
+     *  To specify manually that the insert value should be used when updating a column, for example within an expression
+     *  or function, invoke `insertValue()` with the desired column as the function argument.
+     *  If left null, all columns will be updated with the values provided for the insert.
+     * @param onUpdateExclude List of specific columns to exclude from updating. If left null, all columns will be updated with the values provided for the insert.
+     * @param shouldReturnGeneratedValues Specifies whether newly generated values (for example, auto-incremented IDs) should be returned.
+     * @return Upsert 된 엔티티 목록
      */
-    suspend fun batchUpdate(
-        entities: Sequence<T>,
-        ignore: Boolean = false,
+    suspend fun <E: Any> batchUpdate(
+        entities: Sequence<E>,
+        vararg keys: Column<*>,
+        onUpdate: (UpsertBuilder.(UpdateStatement) -> Unit)? = null,
+        onUpdateExclude: List<Column<*>>? = null,
+        where: (() -> Op<Boolean>)? = null,
         shouldReturnGeneratedValues: Boolean = true,
-        updateStatement: BatchInsertStatement.(T) -> Unit,
+        body: BatchUpsertStatement.(E) -> Unit,
     ): List<T> =
         table
-            .batchInsert(entities, ignore, shouldReturnGeneratedValues, updateStatement)
+            .batchUpsert(
+                data = entities,
+                keys = keys,
+                onUpdate = onUpdate,
+                onUpdateExclude = onUpdateExclude,
+                where = where,
+                shouldReturnGeneratedValues = shouldReturnGeneratedValues,
+                body = body,
+            )
             .map { it.toEntity() }
 }

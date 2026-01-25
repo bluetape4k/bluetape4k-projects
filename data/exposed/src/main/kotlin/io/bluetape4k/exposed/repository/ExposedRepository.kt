@@ -384,8 +384,8 @@ interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
         body: BatchUpsertStatement.(E) -> Unit,
     ): List<T> = table
         .batchUpsert(
-            entities,
-            *keys,
+            data = entities,
+            keys = keys,
             onUpdate = onUpdate,
             onUpdateExclude = onUpdateExclude,
             where = where,
@@ -420,8 +420,8 @@ interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
         body: BatchUpsertStatement.(E) -> Unit,
     ): List<T> = table
         .batchUpsert(
-            entities,
-            *keys,
+            data = entities,
+            keys = keys,
             onUpdate = onUpdate,
             onUpdateExclude = onUpdateExclude,
             where = where,
