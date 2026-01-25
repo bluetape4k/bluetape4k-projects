@@ -9,7 +9,9 @@ configurations {
 // Declares dependencies for testing and coroutines support
 dependencies {
 
+    compileOnly(Libs.springBootStarter("web"))
     compileOnly(Libs.springBootStarter("webflux"))
+
     implementation(Libs.springBootStarter("test")) {
         exclude(group = "junit", module = "junit")
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")

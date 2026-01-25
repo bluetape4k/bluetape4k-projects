@@ -2,7 +2,6 @@ package io.bluetape4k.spring.tests
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import io.bluetape4k.testcontainers.http.HttpbinServer
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
@@ -13,12 +12,9 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.returnResult
 import kotlin.test.Test
 
-class WebTestExtensionsTest {
+class WebTestClientExtensionsTest: AbstractSpringTest() {
 
-    companion object: KLoggingChannel() {
-        private val httpbin by lazy { HttpbinServer.Launcher.httpbin }
-        private val baseUrl by lazy { httpbin.url }
-    }
+    companion object: KLoggingChannel()
 
     private val client: WebTestClient = WebTestClient
         .bindToServer()
