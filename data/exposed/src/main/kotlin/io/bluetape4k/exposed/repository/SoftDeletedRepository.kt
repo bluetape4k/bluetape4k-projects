@@ -45,5 +45,4 @@ interface SoftDeletedRepository<T: HasIdentifier<ID>, ID: Any>: ExposedRepositor
         findAll(limit, offset, sortOrder) {
             (table.isDeleted eq false).and(predicate)
         }
-
 }

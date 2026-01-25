@@ -362,7 +362,8 @@ class ActorRepositoryTest: AbstractExposedTest() {
             inserted.all { it.id > 0L }.shouldBeTrue()
 
             // Update all inserted actors
-            val updated = repository.batchUpdate(inserted) { actor ->
+            val updated = repository.batchUpsert(inserted) { actor ->
+                this[repository.table.id] = actor.id
                 this[repository.table.firstName] = actor.firstName + " Updated"
                 this[repository.table.lastName] = actor.firstName + " Updated"
             }
@@ -390,7 +391,8 @@ class ActorRepositoryTest: AbstractExposedTest() {
             inserted.all { it.id > 0L }.shouldBeTrue()
 
             // Update all inserted actors
-            val updated = repository.batchUpdate(inserted.asSequence()) { actor ->
+            val updated = repository.batchUpsert(inserted.asSequence()) { actor ->
+                this[repository.table.id] = actor.id
                 this[repository.table.firstName] = actor.firstName + " Updated"
                 this[repository.table.lastName] = actor.firstName + " Updated"
             }

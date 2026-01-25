@@ -11,8 +11,11 @@ import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
+import org.jetbrains.exposed.v1.core.statements.BatchUpsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
+import org.jetbrains.exposed.v1.core.statements.UpsertBuilder
 import org.jetbrains.exposed.v1.jdbc.batchInsert
+import org.jetbrains.exposed.v1.jdbc.batchUpsert
 import org.jetbrains.exposed.v1.jdbc.deleteIgnoreWhere
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.select
@@ -182,6 +185,26 @@ interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
     }
 
     /**
+     * 여러 조건을 and로 결합하여 엔티티를 조회합니다.
+     * @param filters 조건 람다 가변 인자
+     * @param limit 최대 개수
+     * @param offset 시작 위치
+     * @param sortOrder 정렬 순서
+     * @return 엔티티 목록
+     */
+    fun findBy(
+        vararg filters: () -> Op<Boolean>,
+        limit: Int? = null,
+        offset: Long? = null,
+        sortOrder: SortOrder = SortOrder.ASC,
+    ): List<T> {
+        val condition: Op<Boolean> = filters.fold(Op.TRUE as Op<Boolean>) { acc, filter ->
+            acc.and(filter.invoke())
+        }
+        return findAll(limit, offset, sortOrder) { condition }
+    }
+
+    /**
      * 조건에 맞는 첫 번째 엔티티를 조회합니다.
      * @param offset 시작 위치
      * @param predicate 조건
@@ -254,21 +277,24 @@ interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
         table.deleteWhere(limit = limit, op = op)
 
     /**
-     * 엔티티를 무시하고 삭제합니다.
+     * 엔티티를 삭제합니다. 예외를 무시합니다.
+     * 
      * @param entity 삭제할 엔티티
      * @return 삭제된 행 수
      */
     fun deleteIgnore(entity: T): Int = table.deleteIgnoreWhere { table.id eq entity.id }
 
     /**
-     * ID로 엔티티를 무시하고 삭제합니다.
+     * 해당 id를 가진 레코드를 삭제합니다. 예외는 무시합니다.
+     *
      * @param id 엔티티 ID
      * @return 삭제된 행 수
      */
     fun deleteByIdIgnore(id: ID): Int = table.deleteIgnoreWhere { table.id eq id }
 
     /**
-     * 조건에 맞는 모든 엔티티를 무시하고 삭제합니다.
+     * 조건에 맞는 모든 엔티티를 삭제합니다. 삭제 실패는 무시합니다.
+     *
      * @param limit 최대 삭제 개수
      * @param op 조건
      * @return 삭제된 행 수
@@ -302,7 +328,12 @@ interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
         shouldReturnGeneratedValues: Boolean = true,
         insertStatement: BatchInsertStatement.(E) -> Unit,
     ): List<T> = table
-        .batchInsert(entities, ignore, shouldReturnGeneratedValues, insertStatement)
+        .batchInsert(
+            data = entities,
+            ignore = ignore,
+            shouldReturnGeneratedValues = shouldReturnGeneratedValues,
+            body = insertStatement
+        )
         .map { it.toEntity() }
 
     /**
@@ -319,40 +350,83 @@ interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
         shouldReturnGeneratedValues: Boolean = true,
         insertStatement: BatchInsertStatement.(E) -> Unit,
     ): List<T> = table
-        .batchInsert(entities, ignore, shouldReturnGeneratedValues, insertStatement)
+        .batchInsert(
+            data = entities,
+            ignore = ignore,
+            shouldReturnGeneratedValues = shouldReturnGeneratedValues,
+            body = insertStatement
+        )
         .map { it.toEntity() }
 
     /**
-     * 여러 엔티티를 일괄 수정합니다.
-     * @param entities 수정할 엔티티 목록
-     * @param ignore 중복 무시 여부
-     * @param shouldReturnGeneratedValues 생성된 값 반환 여부
-     * @param updateStatement 수정 내용
-     * @return 수정된 엔티티 목록
+     * 여러 엔티티를 일괄 Upsert 합니다.
+     *
+     * See [Batch Insert](https://github.com/JetBrains/Exposed/wiki/DSL#batch-insert) for more details.
+     *
+     * @param entities Upsert 할 엔티티 컬렉션
+     * @param keys (optional) Columns to include in the condition that determines a unique constraint match. If no columns are provided,
+     *             primary keys will be used. If the table does not have any primary keys, the first unique index will be attempted.
+     * @param onUpdate Lambda block with an [UpdateStatement] as its argument, allowing values to be assigned to the UPDATE clause.
+     *  To specify manually that the insert value should be used when updating a column, for example within an expression
+     *  or function, invoke `insertValue()` with the desired column as the function argument.
+     *  If left null, all columns will be updated with the values provided for the insert.
+     * @param onUpdateExclude List of specific columns to exclude from updating. If left null, all columns will be updated with the values provided for the insert.
+     * @param shouldReturnGeneratedValues Specifies whether newly generated values (for example, auto-incremented IDs) should be returned.
+     * @return Upsert 된 엔티티 목록
      */
-    fun batchUpdate(
-        entities: Iterable<T>,
-        ignore: Boolean = false,
+    fun <E: Any> batchUpsert(
+        entities: Iterable<E>,
+        vararg keys: Column<*>,
+        onUpdate: (UpsertBuilder.(UpdateStatement) -> Unit)? = null,
+        onUpdateExclude: List<Column<*>>? = null,
+        where: (() -> Op<Boolean>)? = null,
         shouldReturnGeneratedValues: Boolean = true,
-        updateStatement: BatchInsertStatement.(T) -> Unit,
+        body: BatchUpsertStatement.(E) -> Unit,
     ): List<T> = table
-        .batchInsert(entities, ignore, shouldReturnGeneratedValues, updateStatement)
+        .batchUpsert(
+            entities,
+            *keys,
+            onUpdate = onUpdate,
+            onUpdateExclude = onUpdateExclude,
+            where = where,
+            shouldReturnGeneratedValues = shouldReturnGeneratedValues,
+            body = body
+        )
         .map { it.toEntity() }
 
     /**
-     * 여러 엔티티를 일괄 수정합니다.
-     * @param entities 수정할 엔티티 시퀀스
-     * @param ignore 중복 무시 여부
-     * @param shouldReturnGeneratedValues 생성된 값 반환 여부
-     * @param updateStatement 수정 내용
-     * @return 수정된 엔티티 목록
+     * 여러 엔티티를 일괄 Upsert 합니다.
+     *
+     * See [Batch Insert](https://github.com/JetBrains/Exposed/wiki/DSL#batch-insert) for more details.
+     *
+     * @param entities Upsert 할 엔티티 시퀀스
+     * @param keys (optional) Columns to include in the condition that determines a unique constraint match. If no columns are provided,
+     *             primary keys will be used. If the table does not have any primary keys, the first unique index will be attempted.
+     * @param onUpdate Lambda block with an [UpdateStatement] as its argument, allowing values to be assigned to the UPDATE clause.
+     *  To specify manually that the insert value should be used when updating a column, for example within an expression
+     *  or function, invoke `insertValue()` with the desired column as the function argument.
+     *  If left null, all columns will be updated with the values provided for the insert.
+     * @param onUpdateExclude List of specific columns to exclude from updating. If left null, all columns will be updated with the values provided for the insert.
+     * @param shouldReturnGeneratedValues Specifies whether newly generated values (for example, auto-incremented IDs) should be returned.
+     * @return Upsert 된 엔티티 목록
      */
-    fun batchUpdate(
-        entities: Sequence<T>,
-        ignore: Boolean = false,
+    fun <E: Any> batchUpsert(
+        entities: Sequence<E>,
+        vararg keys: Column<*>,
+        onUpdate: (UpsertBuilder.(UpdateStatement) -> Unit)? = null,
+        onUpdateExclude: List<Column<*>>? = null,
+        where: (() -> Op<Boolean>)? = null,
         shouldReturnGeneratedValues: Boolean = true,
-        updateStatement: BatchInsertStatement.(T) -> Unit,
+        body: BatchUpsertStatement.(E) -> Unit,
     ): List<T> = table
-        .batchInsert(entities, ignore, shouldReturnGeneratedValues, updateStatement)
+        .batchUpsert(
+            entities,
+            *keys,
+            onUpdate = onUpdate,
+            onUpdateExclude = onUpdateExclude,
+            where = where,
+            shouldReturnGeneratedValues = shouldReturnGeneratedValues,
+            body = body
+        )
         .map { it.toEntity() }
 }
