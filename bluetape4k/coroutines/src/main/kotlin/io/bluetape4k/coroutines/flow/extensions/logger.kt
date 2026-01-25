@@ -23,7 +23,7 @@ private val logger = KotlinLogging.logger { }
  * @param tag 로깅에 사용할 태그
  */
 @Suppress("IMPLICIT_CAST_TO_ANY")
-fun <T> Flow<T>.log(tag: Any, log: org.slf4j.Logger = logger): Flow<T> =
+fun <T> Flow<T>.log(tag: Any, log: org.slf4j.Logger = logger) =
     this
         .onStart {
             log.debug { "[$tag] \uD83D\uDE80" }  // Flow 시작
@@ -34,7 +34,7 @@ fun <T> Flow<T>.log(tag: Any, log: org.slf4j.Logger = logger): Flow<T> =
         .onEach {
             val item = when (it) {
                 is Flow<*> -> it.toFastList()
-                else       -> it
+                else -> it
             }
             log.debug { "[$tag] ➡️emit $item" } // Flow의 각 아이템을 emit할 때 로깅
         }

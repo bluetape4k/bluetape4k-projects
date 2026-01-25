@@ -40,17 +40,18 @@ class CallbackFlowExamples {
     }
 
     // Kafka Producing 에 쓸 수 있다
-    private fun flowFrom(api: ProduceApi, message: Flow<Message>) = callbackFlow {
-        val callback = { result: Result ->
-            channel.trySend(result)
-            Unit
-        }
+    private fun flowFrom(api: ProduceApi, message: Flow<Message>) =
+        callbackFlow {
+            val callback = { result: Result ->
+                channel.trySend(result)
+                Unit
+            }
 
-        message
-            .onEach { message -> api.produce(message, callback) }
-            .onCompletion { channel.close() }
-            .collect()
-    }
+            message
+                .onEach { message -> api.produce(message, callback) }
+                .onCompletion { channel.close() }
+                .collect()
+        }
 
     @Test
     fun `get messages by callback flow`() = runTest {
@@ -60,7 +61,7 @@ class CallbackFlowExamples {
             Message(1, "Message 1"),
             Message(2, "Message 2"),
             Message(3, "Message 3"),
-        ).log("messaage")
+        ).log("M")
 
         val results = flowFrom(api, messages).log("results")
 

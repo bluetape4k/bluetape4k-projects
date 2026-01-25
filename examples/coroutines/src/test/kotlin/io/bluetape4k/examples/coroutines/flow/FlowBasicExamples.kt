@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.coroutines.flow
 
+import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.channels.Channel
@@ -67,7 +68,6 @@ class FlowBasicExamples {
     }
 
     private fun makeFlow() = flow {
-        log.debug { "Flow started" }
         for (i in 1..3) {
             delay(1000)
             emit(i)
@@ -80,16 +80,16 @@ class FlowBasicExamples {
      */
     @Test
     fun `flow {} is statement 이므로 실행 시마다 flow가 생성된다 `() = runTest {
-        val flow = makeFlow()
+        val flow = makeFlow().log("#1")
 
         delay(1000)
-        log.debug { "Collect flow ... " }
+        log.debug { "Collect flow at first... " }
         flow.collect { value ->
             log.debug { "collect $value" }
         }
 
         delay(1000)
-        log.debug { "Collect again ..." }
+        log.debug { "Collect flow again ..." }
         flow.collect { value ->
             log.debug { "consume $value" }
         }
@@ -101,15 +101,15 @@ class FlowBasicExamples {
     @Test
     fun `flow {} 는 빌더이므로 collect 시마다 새로 flow를 생성합니다`() = runTest {
         coroutineScope {
-            val flow = makeFlow()
+            val flow = makeFlow().log("#1")
             launch {
                 flow.collect { value ->
-                    log.debug { "collect $value" }
+                    log.debug { "👀#1 collect $value" }
                 }
             }
             launch {
                 flow.collect { value ->
-                    log.debug { "consume $value" }
+                    log.debug { "👀#2 collect $value" }
                 }
             }
         }

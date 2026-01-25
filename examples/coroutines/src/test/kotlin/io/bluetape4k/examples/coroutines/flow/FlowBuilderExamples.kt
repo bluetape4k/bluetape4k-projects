@@ -39,7 +39,7 @@ class FlowBuilderExamples {
         emptyFlow<Int>()
             .log("empty")
             .collect {
-                fail("아무것도 실행되면 안됩니다.")
+                fail("어떤 것도 Collect 되면 안됩니다.")
             }
     }
 

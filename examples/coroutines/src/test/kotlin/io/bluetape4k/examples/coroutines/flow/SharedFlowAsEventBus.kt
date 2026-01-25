@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.coroutines.flow
 
+import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -29,7 +30,7 @@ class SharedFlowAsEventBus {
         private val _events = MutableSharedFlow<T>(replay = 0, extraBufferCapacity = 64)
 
         // The public flow that will be used to listen to events.
-        val events: Flow<T> = _events.asSharedFlow()
+        val events: Flow<T> = _events.asSharedFlow().log("events")
 
         suspend fun sendEvent(event: T) {
             _events.emit(event)

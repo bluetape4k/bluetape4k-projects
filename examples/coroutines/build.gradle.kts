@@ -7,7 +7,6 @@ dependencies {
     testImplementation(project(":bluetape4k-coroutines"))
     testImplementation(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_slf4j)
-    // implementation(Libs.kotlinx_coroutines_reactive)
     testImplementation(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_debug)
     testImplementation(Libs.kotlinx_coroutines_test)
