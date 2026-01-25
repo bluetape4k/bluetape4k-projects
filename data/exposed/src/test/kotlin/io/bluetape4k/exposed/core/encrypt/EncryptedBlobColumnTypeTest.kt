@@ -1,8 +1,8 @@
 package io.bluetape4k.exposed.core.encrypt
 
 import io.bluetape4k.crypto.encrypt.Encryptors
+import io.bluetape4k.exposed.dao.entityToStringBuilder
 import io.bluetape4k.exposed.dao.idEquals
-import io.bluetape4k.exposed.dao.toStringBuilder
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
@@ -39,7 +39,7 @@ class EncryptedBlobColumnTypeTest: AbstractExposedTest() {
 
         override fun equals(other: Any?): Boolean = idEquals(other)
         override fun hashCode(): Int = id.hashCode()
-        override fun toString(): String = toStringBuilder()
+        override fun toString(): String = entityToStringBuilder()
             .add("name", name)
             .add("aesBlob", aesBlob?.toUtf8String())
             .add("rc4Blob", rc4Blob?.toUtf8String())

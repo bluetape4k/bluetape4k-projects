@@ -1,10 +1,10 @@
 package io.bluetape4k.exposed.repository
 
 import io.bluetape4k.exposed.core.HasIdentifier
+import io.bluetape4k.exposed.dao.entityToStringBuilder
 import io.bluetape4k.exposed.dao.id.SoftDeletedIdTable
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.idHashCode
-import io.bluetape4k.exposed.dao.toStringBuilder
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
@@ -37,7 +37,7 @@ class SoftDeletedRepositoryTest: AbstractExposedTest() {
 
         override fun equals(other: Any?): Boolean = idEquals(other)
         override fun hashCode(): Int = idHashCode()
-        override fun toString(): String = toStringBuilder()
+        override fun toString(): String = entityToStringBuilder()
             .add("name", name)
             .add("isDeleted", isDeleted)
             .toString()

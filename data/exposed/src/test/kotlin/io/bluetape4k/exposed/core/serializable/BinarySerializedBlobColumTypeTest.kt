@@ -1,6 +1,7 @@
 package io.bluetape4k.exposed.core.serializable
 
 import io.bluetape4k.exposed.dao.idEquals
+import io.bluetape4k.exposed.dao.idHashCode
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
@@ -43,7 +44,7 @@ class BinarySerializedBlobColumTypeTest: AbstractExposedTest() {
         var lz4Kryo by T1.lz4Kryo
 
         override fun equals(other: Any?): Boolean = idEquals(other)
-        override fun hashCode(): Int = id.hashCode()
+        override fun hashCode(): Int = idHashCode()
         override fun toString(): String = "E1(id=$id)"
     }
 

@@ -27,5 +27,12 @@ fun <ID: Any> Entity<ID>.idHashCode(): Int = idValue.hashCode()
 /**
  * Exposed Entity 를 문자열로 표현하기 위해 [ToStringBuilder] 를 생성합니다.
  */
+@Deprecated("use entityToStringBuilder()", replaceWith = ReplaceWith("entityToStringBuilder()"))
 fun <ID: Any> Entity<ID>.toStringBuilder(): ToStringBuilder =
+    ToStringBuilder(this).add("id", idValue)
+
+/**
+ * Exposed Entity 를 문자열로 표현하기 위해 [ToStringBuilder] 를 생성합니다.
+ */
+fun <ID: Any> Entity<ID>.entityToStringBuilder(): ToStringBuilder =
     ToStringBuilder(this).add("id", idValue)

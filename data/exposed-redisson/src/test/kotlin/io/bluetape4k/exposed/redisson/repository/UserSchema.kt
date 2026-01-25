@@ -2,13 +2,13 @@ package io.bluetape4k.exposed.redisson.repository
 
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.exposed.core.HasIdentifier
+import io.bluetape4k.exposed.dao.entityToStringBuilder
 import io.bluetape4k.exposed.dao.id.TimebasedUUIDBase62Table
 import io.bluetape4k.exposed.dao.id.TimebasedUUIDEntity
 import io.bluetape4k.exposed.dao.id.TimebasedUUIDEntityClass
 import io.bluetape4k.exposed.dao.id.TimebasedUUIDTable
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.idHashCode
-import io.bluetape4k.exposed.dao.toStringBuilder
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withSuspendedTables
 import io.bluetape4k.exposed.tests.withTables
@@ -66,7 +66,7 @@ object UserSchema: KLogging() {
 
         override fun equals(other: Any?): Boolean = idEquals(other)
         override fun hashCode(): Int = idHashCode()
-        override fun toString(): String = toStringBuilder()
+        override fun toString(): String = entityToStringBuilder()
             .add("firstName", firstName)
             .add("lastName", lastName)
             .add("email", email)
@@ -197,7 +197,7 @@ object UserSchema: KLogging() {
 
         override fun equals(other: Any?): Boolean = idEquals(other)
         override fun hashCode(): Int = idHashCode()
-        override fun toString(): String = toStringBuilder()
+        override fun toString(): String = entityToStringBuilder()
             .add("loginId", loginId)
             .add("email", email)
             .toString()

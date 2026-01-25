@@ -1,6 +1,7 @@
 package io.bluetape4k.exposed.core.compress
 
 import io.bluetape4k.exposed.dao.idEquals
+import io.bluetape4k.exposed.dao.idHashCode
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
@@ -39,7 +40,7 @@ class CompressedBinaryColumnTypeTest: AbstractExposedTest() {
         var zstdData by T1.zstdData
 
         override fun equals(other: Any?): Boolean = idEquals(other)
-        override fun hashCode(): Int = id.hashCode()
+        override fun hashCode(): Int = idHashCode()
         override fun toString(): String = "E1(id=$id)"
     }
 

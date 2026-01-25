@@ -11,6 +11,7 @@ import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.junit.jupiter.api.Assumptions
+import java.io.Serializable
 
 @Suppress("UnusedReceiverParameter")
 object FastjsonSchema {
@@ -73,11 +74,11 @@ object FastjsonSchema {
     }
 
 
-    data class DataHolder(val user: User, val logins: Int, val active: Boolean, val team: String?)
+    data class DataHolder(val user: User, val logins: Int, val active: Boolean, val team: String?): Serializable
 
-    data class User(val name: String, val team: String?)
+    data class User(val name: String, val team: String?): Serializable
 
-    data class UserGroup(val users: List<User>)
+    data class UserGroup(val users: List<User>): Serializable
 
     fun AbstractExposedTest.withFastjsonTable(
         testDB: TestDB,
