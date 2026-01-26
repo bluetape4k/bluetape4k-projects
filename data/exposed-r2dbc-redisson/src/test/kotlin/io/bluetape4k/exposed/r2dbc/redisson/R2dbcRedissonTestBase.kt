@@ -2,7 +2,7 @@ package io.bluetape4k.exposed.r2dbc.redisson
 
 import io.bluetape4k.LibraryName
 import io.bluetape4k.codec.Base58
-import io.bluetape4k.exposed.r2dbc.tests.R2dbcExposedTestBase
+import io.bluetape4k.exposed.r2dbc.tests.AbstractExposedR2dbcTest
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
@@ -15,7 +15,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.redisson.api.RedissonClient
 
-abstract class R2dbcRedissonTestBase: R2dbcExposedTestBase() {
+abstract class R2dbcRedissonTestBase: AbstractExposedR2dbcTest() {
 
     companion object: KLoggingChannel() {
 

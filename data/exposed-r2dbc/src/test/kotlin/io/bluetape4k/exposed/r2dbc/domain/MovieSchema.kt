@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.domain
 
-import io.bluetape4k.exposed.r2dbc.tests.R2dbcExposedTestBase
+import io.bluetape4k.exposed.r2dbc.tests.AbstractExposedR2dbcTest
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.exposed.r2dbc.tests.withTables
 import io.bluetape4k.logging.KLogging
@@ -43,7 +43,7 @@ object MovieSchema: KLogging() {
     }
 
     @Suppress("UnusedReceiverParameter")
-    suspend fun R2dbcExposedTestBase.withMovieAndActors(
+    suspend fun AbstractExposedR2dbcTest.withMovieAndActors(
         testDB: TestDB,
         statement: suspend R2dbcTransaction.() -> Unit,
     ) {

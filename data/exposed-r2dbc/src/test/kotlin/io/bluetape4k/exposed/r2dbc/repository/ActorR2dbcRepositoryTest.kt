@@ -3,7 +3,7 @@ package io.bluetape4k.exposed.r2dbc.repository
 import io.bluetape4k.exposed.r2dbc.domain.ActorDTO
 import io.bluetape4k.exposed.r2dbc.domain.MovieSchema.ActorTable
 import io.bluetape4k.exposed.r2dbc.domain.MovieSchema.withMovieAndActors
-import io.bluetape4k.exposed.r2dbc.tests.R2dbcExposedTestBase
+import io.bluetape4k.exposed.r2dbc.tests.AbstractExposedR2dbcTest
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
-class ActorR2dbcRepositoryTest: R2dbcExposedTestBase() {
+class ActorR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
 
     companion object: KLoggingChannel() {
         fun newActorDTO(): ActorDTO = ActorDTO(

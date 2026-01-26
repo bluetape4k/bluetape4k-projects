@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.statements
 
-import io.bluetape4k.exposed.r2dbc.tests.R2dbcExposedTestBase
+import io.bluetape4k.exposed.r2dbc.tests.AbstractExposedR2dbcTest
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.exposed.r2dbc.tests.withTables
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
-class BatchInsertOnConflictDoNothingTest: R2dbcExposedTestBase() {
+class BatchInsertOnConflictDoNothingTest: AbstractExposedR2dbcTest() {
 
     companion object: KLoggingChannel()
 

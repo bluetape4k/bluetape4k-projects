@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.r2dbc
 
-import io.bluetape4k.exposed.r2dbc.tests.R2dbcExposedTestBase
+import io.bluetape4k.exposed.r2dbc.tests.AbstractExposedR2dbcTest
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.exposed.r2dbc.tests.withTables
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -26,7 +26,7 @@ import kotlin.test.assertFails
 import kotlin.test.assertFailsWith
 
 @Suppress("DEPRECATION")
-class ImplicitSelectAllTest: R2dbcExposedTestBase() {
+class ImplicitSelectAllTest: AbstractExposedR2dbcTest() {
 
     companion object: KLoggingChannel()
 
