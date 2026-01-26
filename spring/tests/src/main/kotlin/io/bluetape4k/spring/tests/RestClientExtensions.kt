@@ -53,14 +53,14 @@ inline fun <reified T: Any> RestClient.httpPost(
 
 inline fun <reified T: Any> RestClient.httpPost(
     uri: String,
-    publisher: Flow<T>,
+    flow: Flow<T>,
     contentType: MediaType? = null,
     accept: MediaType = MediaType.ALL,
 ): RestClient.ResponseSpec =
     post()
         .uri(uri)
         .apply { contentType?.let { contentType(it) } }
-        .body(publisher)
+        .body(flow)
         .accept(accept)
         .retrieve()
 
@@ -94,14 +94,14 @@ inline fun <reified T: Any> RestClient.httpPut(
 
 inline fun <reified T: Any> RestClient.httpPut(
     uri: String,
-    publisher: Flow<T>,
+    flow: Flow<T>,
     contentType: MediaType? = null,
     accept: MediaType = MediaType.ALL,
 ): RestClient.ResponseSpec =
     put()
         .uri(uri)
         .apply { contentType?.let { contentType(it) } }
-        .body(publisher)
+        .body(flow)
         .accept(accept)
         .retrieve()
 
@@ -117,32 +117,6 @@ fun RestClient.httpPatch(
             contentType?.let { contentType(it) }
             value?.let { body(it) }
         }
-        .accept(accept)
-        .retrieve()
-
-inline fun <reified T: Any> RestClient.httpPatch(
-    uri: String,
-    publisher: Publisher<T>,
-    contentType: MediaType? = null,
-    accept: MediaType = MediaType.ALL,
-): RestClient.ResponseSpec =
-    patch()
-        .uri(uri)
-        .apply { contentType?.let { contentType(it) } }
-        .body(publisher)
-        .accept(accept)
-        .retrieve()
-
-inline fun <reified T: Any> RestClient.httpPatch(
-    uri: String,
-    flow: Flow<T>,
-    contentType: MediaType? = null,
-    accept: MediaType = MediaType.ALL,
-): RestClient.ResponseSpec =
-    patch()
-        .uri(uri)
-        .apply { contentType?.let { contentType(it) } }
-        .body(flow)
         .accept(accept)
         .retrieve()
 

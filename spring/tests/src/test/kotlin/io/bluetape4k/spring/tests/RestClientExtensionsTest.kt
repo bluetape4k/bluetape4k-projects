@@ -8,10 +8,14 @@ import io.bluetape4k.workshop.shared.httpPatch
 import io.bluetape4k.workshop.shared.httpPost
 import io.bluetape4k.workshop.shared.httpPut
 import kotlinx.coroutines.flow.flowOf
+import org.amshove.kluent.shouldContain
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Nested
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.toEntity
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 class RestClientExtensionsTest: AbstractSpringTest() {
 
@@ -26,27 +30,29 @@ class RestClientExtensionsTest: AbstractSpringTest() {
     inner class Get {
         @Test
         fun `httGet httpbin`() {
-            client.httpGet("/get")
+            val response = client.httpGet("/get")
                 .toEntity<String>()
-            // .jsonPath("$.url").isEqualTo("$baseUrl/get")
+                .body.shouldNotBeNull()
+
+            log.debug { "response=$response" }
+            response shouldContain "$baseUrl/get"
         }
 
         @Test
         fun `httGet httpbin anything`() {
-            client.httpGet("/anything")
-                .toEntity<String>()
-            // .jsonPath("$.url").isEqualTo("$baseUrl/anything")
-
             val response = client.httpGet("/anything")
                 .toEntity<String>()
+                .body.shouldNotBeNull()
 
-            log.debug { "anything response=$response" }
+            log.debug { "response=$response" }
+            response shouldContain "$baseUrl/anything"
         }
 
         @Test
         fun `httGet httpbin not found`() {
-            client.httpGet("/not-existing")
-
+            assertFailsWith<HttpClientErrorException.NotFound> {
+                client.httpGet("/not-existing").toEntity<String>()
+            }
         }
     }
 
@@ -54,21 +60,33 @@ class RestClientExtensionsTest: AbstractSpringTest() {
     inner class Post {
         @Test
         fun `httpPost httpbin`() {
-            client.httpPost("/post")
+            val response = client.httpPost("/post")
                 .toEntity<String>()
-            // .jsonPath("$.url").isEqualTo("$baseUrl/post")
+                .body.shouldNotBeNull()
+
+            log.debug { "response=$response" }
+            response shouldContain "$baseUrl/post"
         }
 
         @Test
         fun `httpPost httpbin with body`() {
-            client.httpPost("/post", "Hello, World!")
+            val response = client.httpPost("/post", "Hello, World!")
                 .toEntity<String>()
+                .body.shouldNotBeNull()
+
+            log.debug { "response=$response" }
+            response shouldContain "$baseUrl/post"
+            response shouldContain "Hello, World!"
         }
 
         @Test
         fun `httpPost httpbin with flow`() {
-            client.httpPost("/post", flowOf("Hello", ",", "World!"))
+            val response = client.httpPost("/post", flowOf("Hello", ",", "World!"))
                 .toEntity<String>()
+                .body.shouldNotBeNull()
+
+            log.debug { "response=$response" }
+            response shouldContain "$baseUrl/post"
         }
     }
 
@@ -76,35 +94,58 @@ class RestClientExtensionsTest: AbstractSpringTest() {
     inner class Patch {
         @Test
         fun `httpPatch httpbin`() {
-            client.httpPatch("/patch")
+            val response = client.httpPatch("/patch")
                 .toEntity<String>()
+                .body.shouldNotBeNull()
+
+            log.debug { "response=$response" }
+            response shouldContain "$baseUrl/patch"
         }
 
         @Test
         fun `httpPatch httpbin with body`() {
-            client.httpPatch("/patch", "Hello, World!")
+            val response = client.httpPatch("/patch", "Hello, World!")
                 .toEntity<String>()
+                .body.shouldNotBeNull()
+
+            log.debug { "response=$response" }
+            response shouldContain "$baseUrl/patch"
+            response shouldContain "Hello, World!"
         }
+
     }
 
     @Nested
     inner class Put {
         @Test
         fun `httpPut httpbin`() {
-            client.httpPut("/put")
+            val response = client.httpPut("/put")
                 .toEntity<String>()
+                .body.shouldNotBeNull()
+
+            log.debug { "response=$response" }
+            response shouldContain "$baseUrl/put"
         }
 
         @Test
         fun `httpPut httpbin with body`() {
-            client.httpPut("/put", "Hello, World!")
+            val response = client.httpPut("/put", "Hello, World!")
                 .toEntity<String>()
+                .body.shouldNotBeNull()
+
+            log.debug { "response=$response" }
+            response shouldContain "$baseUrl/put"
+            response shouldContain "Hello, World!"
         }
 
         @Test
         fun `httpPut httpbin with flow`() {
-            client.httpPut("/put", flowOf("Hello", ",", "World!"))
+            val response = client.httpPut("/put", flowOf("Hello", ",", "World!"))
                 .toEntity<String>()
+                .body.shouldNotBeNull()
+
+            log.debug { "response=$response" }
+            response shouldContain "$baseUrl/put"
         }
     }
 
@@ -112,8 +153,12 @@ class RestClientExtensionsTest: AbstractSpringTest() {
     inner class Delete {
         @Test
         fun `httpDelete httpbin`() {
-            client.httpDelete("/delete")
+            val response = client.httpDelete("/delete")
                 .toEntity<String>()
+                .body.shouldNotBeNull()
+
+            log.debug { "response=$response" }
+            response shouldContain "$baseUrl/delete"
         }
     }
 }
