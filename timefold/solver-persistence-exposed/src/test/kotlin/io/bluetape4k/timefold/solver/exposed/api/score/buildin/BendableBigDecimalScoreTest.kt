@@ -1,13 +1,20 @@
 package io.bluetape4k.timefold.solver.exposed.api.score.buildin
 
 import ai.timefold.solver.core.api.score.buildin.bendablebigdecimal.BendableBigDecimalScore
+import io.bluetape4k.exposed.dao.entityToStringBuilder
+import io.bluetape4k.exposed.dao.idEquals
+import io.bluetape4k.exposed.dao.idHashCode
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.dao.IntEntity
+import org.jetbrains.exposed.v1.dao.IntEntityClass
+import org.jetbrains.exposed.v1.dao.flushCache
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.junit.jupiter.params.ParameterizedTest
@@ -20,6 +27,20 @@ class BendableBigDecimalScoreTest: AbstractScoreExposedTest() {
     object T1: IntIdTable() {
         val name = varchar("name", 255)
         val bendableBigDecimal = bendableBigDecimalScore("bendable_bigdecimal_score")
+    }
+
+    class E1(id: EntityID<Int>): IntEntity(id) {
+        companion object: IntEntityClass<E1>(T1)
+
+        var name by T1.name
+        var bendableBigDecimal by T1.bendableBigDecimal
+
+        override fun equals(other: Any?): Boolean = idEquals(other)
+        override fun hashCode(): Int = idHashCode()
+        override fun toString(): String = entityToStringBuilder()
+            .add("name", name)
+            .add("bendableBigDecimal", bendableBigDecimal)
+            .toString()
     }
 
     @ParameterizedTest
@@ -57,6 +78,36 @@ class BendableBigDecimalScoreTest: AbstractScoreExposedTest() {
 
             row[T1.name] shouldBeEqualTo name
             row[T1.bendableBigDecimal] shouldBeEqualTo bendableBigDecimal
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `BendableLongScore 를 가진 인테티 저장 및 로드하기`(testDB: TestDB) {
+        withTables(testDB, T1) {
+            val saved = E1.new {
+                this.name = faker.name().name()
+                this.bendableBigDecimal = BendableBigDecimalScore.of(
+                    arrayOf(
+                        faker.random().nextDouble().toBigDecimal(),
+                        faker.random().nextDouble().toBigDecimal(),
+                        faker.random().nextDouble().toBigDecimal(),
+                        faker.random().nextDouble().toBigDecimal()
+                    ),
+                    arrayOf(
+                        faker.random().nextDouble().toBigDecimal(),
+                        faker.random().nextDouble().toBigDecimal(),
+                        faker.random().nextDouble().toBigDecimal(),
+                        faker.random().nextDouble().toBigDecimal()
+                    )
+                )
+            }
+            log.debug { "saved=$saved" }
+            flushCache()
+
+            val loaded = E1.findById(saved.id)
+            log.debug { "loaded=$loaded" }
+            loaded shouldBeEqualTo saved
         }
     }
 }

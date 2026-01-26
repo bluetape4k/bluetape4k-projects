@@ -1,13 +1,20 @@
 package io.bluetape4k.timefold.solver.exposed.api.score.buildin
 
 import ai.timefold.solver.core.api.score.buildin.bendable.BendableScore
+import io.bluetape4k.exposed.dao.entityToStringBuilder
+import io.bluetape4k.exposed.dao.idEquals
+import io.bluetape4k.exposed.dao.idHashCode
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.dao.IntEntity
+import org.jetbrains.exposed.v1.dao.IntEntityClass
+import org.jetbrains.exposed.v1.dao.flushCache
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.junit.jupiter.params.ParameterizedTest
@@ -20,6 +27,20 @@ class BendableScoreTest: AbstractScoreExposedTest() {
     object T1: IntIdTable() {
         val name = varchar("name", 255)
         val bendable = bendableScore("bendable_score")
+    }
+
+    class E1(id: EntityID<Int>): IntEntity(id) {
+        companion object: IntEntityClass<E1>(T1)
+
+        var name by T1.name
+        var bendable by T1.bendable
+
+        override fun equals(other: Any?): Boolean = idEquals(other)
+        override fun hashCode(): Int = idHashCode()
+        override fun toString(): String = entityToStringBuilder()
+            .add("name", name)
+            .add("bendable", bendable)
+            .toString()
     }
 
     @ParameterizedTest
@@ -57,6 +78,36 @@ class BendableScoreTest: AbstractScoreExposedTest() {
 
             row[T1.name] shouldBeEqualTo name
             row[T1.bendable] shouldBeEqualTo bendable
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `BendableScore 를 가진 인테티 저장 및 로드하기`(testDB: TestDB) {
+        withTables(testDB, T1) {
+            val saved = E1.new {
+                this.name = faker.name().name()
+                this.bendable = BendableScore.of(
+                    intArrayOf(
+                        faker.random().nextInt(),
+                        faker.random().nextInt(),
+                        faker.random().nextInt(),
+                        faker.random().nextInt(),
+                    ),
+                    intArrayOf(
+                        faker.random().nextInt(),
+                        faker.random().nextInt(),
+                        faker.random().nextInt(),
+                        faker.random().nextInt(),
+                    )
+                )
+            }
+            log.debug { "saved=$saved" }
+            flushCache()
+
+            val loaded = E1.findById(saved.id)
+            log.debug { "loaded=$loaded" }
+            loaded shouldBeEqualTo saved
         }
     }
 }
