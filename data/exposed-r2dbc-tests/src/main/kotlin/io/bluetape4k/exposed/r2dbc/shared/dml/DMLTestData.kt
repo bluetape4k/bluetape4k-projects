@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.shared.dml
 
-import io.bluetape4k.exposed.r2dbc.tests.R2dbcExposedTestBase
+import io.bluetape4k.exposed.r2dbc.tests.AbstractExposedR2dbcTest
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.exposed.r2dbc.tests.withTables
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
@@ -120,7 +120,7 @@ object DMLTestData {
 
 
     @Suppress("UnusedReceiverParameter")
-    suspend fun R2dbcExposedTestBase.withCitiesAndUsers(
+    suspend fun AbstractExposedR2dbcTest.withCitiesAndUsers(
         testDB: TestDB,
         statement: suspend R2dbcTransaction.(
             cities: Cities,
@@ -209,7 +209,7 @@ object DMLTestData {
     }
 
     @Suppress("UnusedReceiverParameter")
-    suspend fun R2dbcExposedTestBase.withSales(
+    suspend fun AbstractExposedR2dbcTest.withSales(
         dialect: TestDB,
         statement: suspend R2dbcTransaction.(testDB: TestDB, sales: Sales) -> Unit,
     ) {
@@ -239,7 +239,7 @@ object DMLTestData {
     }
 
     @Suppress("UnusedReceiverParameter")
-    suspend fun R2dbcExposedTestBase.withSomeAmounts(
+    suspend fun AbstractExposedR2dbcTest.withSomeAmounts(
         testDB: TestDB,
         statement: suspend R2dbcTransaction.(testDB: TestDB, someAmounts: SomeAmounts) -> Unit,
     ) {
@@ -261,7 +261,7 @@ object DMLTestData {
     }
 
     @Suppress("UnusedReceiverParameter")
-    suspend fun R2dbcExposedTestBase.withSalesAndSomeAmounts(
+    suspend fun AbstractExposedR2dbcTest.withSalesAndSomeAmounts(
         testDB: TestDB,
         statement: suspend R2dbcTransaction.(
             testDB: TestDB,

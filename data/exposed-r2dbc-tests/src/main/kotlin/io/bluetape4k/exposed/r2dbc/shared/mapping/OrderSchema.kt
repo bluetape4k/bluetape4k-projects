@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.shared.mapping
 
-import io.bluetape4k.exposed.r2dbc.tests.R2dbcExposedTestBase
+import io.bluetape4k.exposed.r2dbc.tests.AbstractExposedR2dbcTest
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.exposed.r2dbc.tests.withTables
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
@@ -55,7 +55,7 @@ object OrderSchema {
     }
 
     @Suppress("UnusedReceiverParameter")
-    suspend fun R2dbcExposedTestBase.withOrdersTables(
+    suspend fun AbstractExposedR2dbcTest.withOrdersTables(
         testDB: TestDB,
         statement: suspend R2dbcTransaction.(
             orders: OrderTable,

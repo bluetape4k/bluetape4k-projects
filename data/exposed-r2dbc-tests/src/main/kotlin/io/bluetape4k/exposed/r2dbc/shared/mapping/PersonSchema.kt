@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.shared.mapping
 
-import io.bluetape4k.exposed.r2dbc.tests.R2dbcExposedTestBase
+import io.bluetape4k.exposed.r2dbc.tests.AbstractExposedR2dbcTest
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.exposed.r2dbc.tests.withTables
 import org.jetbrains.exposed.v1.core.Table
@@ -120,7 +120,7 @@ object PersonSchema {
     ): Serializable
 
     @Suppress("UnusedReceiverParameter")
-    suspend fun R2dbcExposedTestBase.withPersons(
+    suspend fun AbstractExposedR2dbcTest.withPersons(
         testDB: TestDB,
         block: suspend R2dbcTransaction.(PersonTable, AddressTable) -> Unit,
     ) {
@@ -130,7 +130,7 @@ object PersonSchema {
     }
 
     @Suppress("UnusedReceiverParameter")
-    suspend fun R2dbcExposedTestBase.withPersonsAndAddress(
+    suspend fun AbstractExposedR2dbcTest.withPersonsAndAddress(
         testDB: TestDB,
         statement: suspend R2dbcTransaction.(
             persons: PersonSchema.PersonTable,

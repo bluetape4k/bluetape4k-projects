@@ -9,7 +9,7 @@ import org.jetbrains.exposed.v1.r2dbc.insert
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
-class SampleSQLTest: R2dbcExposedTestBase() {
+class SampleSQLTest: AbstractExposedR2dbcTest() {
 
     companion object: KLoggingChannel()
 

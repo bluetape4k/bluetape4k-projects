@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.tests.dml
 
-import io.bluetape4k.exposed.r2dbc.tests.R2dbcExposedTestBase
+import io.bluetape4k.exposed.r2dbc.tests.AbstractExposedR2dbcTest
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.exposed.r2dbc.tests.inProperCase
 import io.bluetape4k.exposed.r2dbc.tests.withDb
@@ -22,7 +22,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertFails
 
-class CreateTableTest: R2dbcExposedTestBase() {
+class CreateTableTest: AbstractExposedR2dbcTest() {
 
     companion object: KLoggingChannel()
 

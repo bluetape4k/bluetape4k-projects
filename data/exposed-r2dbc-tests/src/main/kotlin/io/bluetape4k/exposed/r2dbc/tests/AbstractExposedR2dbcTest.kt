@@ -5,12 +5,7 @@ import io.bluetape4k.logging.KLogging
 import org.jetbrains.exposed.v1.core.Schema
 import java.util.*
 
-@Deprecated(
-    "use AbstractExposedR2dbcTest instead",
-    ReplaceWith("AbstractExposedR2dbcTest"),
-    level = DeprecationLevel.ERROR
-)
-abstract class R2dbcExposedTestBase {
+abstract class AbstractExposedR2dbcTest {
 
     init {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"))

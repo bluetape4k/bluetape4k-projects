@@ -7,7 +7,7 @@ import io.bluetape4k.coroutines.flow.extensions.toUnifiedSet
 import io.bluetape4k.exposed.r2dbc.shared.dml.DMLTestData.withCitiesAndUsers
 import io.bluetape4k.exposed.r2dbc.shared.dml.DMLTestData.withSales
 import io.bluetape4k.exposed.r2dbc.shared.dml.DMLTestData.withSalesAndSomeAmounts
-import io.bluetape4k.exposed.r2dbc.tests.R2dbcExposedTestBase
+import io.bluetape4k.exposed.r2dbc.tests.AbstractExposedR2dbcTest
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.exposed.r2dbc.tests.withTables
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -54,7 +54,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertFailsWith
 
-class R2dbcSelectTest: R2dbcExposedTestBase() {
+class R2dbcSelectTest: AbstractExposedR2dbcTest() {
 
     companion object: KLoggingChannel()
 
