@@ -4,6 +4,7 @@ import io.bluetape4k.cache.jcache.getConfiguration
 import io.bluetape4k.cache.jcache.jcacheConfiguration
 import io.bluetape4k.cache.jcache.jcachingProvider
 import io.bluetape4k.cache.nearcache.NearCache
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.storage.RedisServer
 import org.amshove.kluent.shouldBeEqualTo
@@ -15,7 +16,6 @@ import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import org.redisson.jcache.configuration.JCacheConfiguration
 import org.redisson.jcache.configuration.RedissonConfiguration
-import java.util.*
 import javax.cache.expiry.CreatedExpiryPolicy
 import javax.cache.expiry.Duration
 
@@ -46,7 +46,7 @@ class RedisNearCacheManagerTest {
         val nearCacheManager = jcachingProvider<RedisNearCachingProvider>().cacheManager
         nearCacheManager shouldBeInstanceOf RedisNearCacheManager::class
 
-        val cache = nearCacheManager.createCache(UUID.randomUUID().toString(), redisNearCacheCfg)
+        val cache = nearCacheManager.createCache(Base58.randomString(12), redisNearCacheCfg)
         cache shouldBeInstanceOf NearCache::class
 
         val nearCache = cache as NearCache<Any, Any>

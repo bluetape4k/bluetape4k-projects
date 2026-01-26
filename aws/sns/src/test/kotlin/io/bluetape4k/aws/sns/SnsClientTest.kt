@@ -1,7 +1,7 @@
 package io.bluetape4k.aws.sns
 
 import io.bluetape4k.aws.sns.model.SubscribeRequest
-import io.bluetape4k.codec.encodeBase62
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.hashOf
@@ -15,14 +15,13 @@ import org.junit.jupiter.api.TestMethodOrder
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import software.amazon.awssdk.services.sns.model.SubscribeResponse
-import java.util.*
 
 @Execution(ExecutionMode.SAME_THREAD)
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class SnsClientTest: AbstractSnsTest() {
 
     companion object: KLogging() {
-        private val TOPIC_NAME = UUID.randomUUID().encodeBase62().lowercase() + ".fifo"
+        private val TOPIC_NAME = Base58.randomString(8).lowercase() + ".fifo"
     }
 
     private lateinit var topicArn: String

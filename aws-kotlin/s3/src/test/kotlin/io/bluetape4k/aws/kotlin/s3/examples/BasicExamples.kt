@@ -15,7 +15,7 @@ import io.bluetape4k.aws.kotlin.s3.getObjectAcl
 import io.bluetape4k.aws.kotlin.s3.putFromByteArray
 import io.bluetape4k.aws.kotlin.s3.putFromFile
 import io.bluetape4k.aws.kotlin.s3.putFromString
-import io.bluetape4k.idgenerators.uuid.TimebasedUuid
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
@@ -61,10 +61,10 @@ class BasicExamples: AbstractKotlinS3Test() {
         log.debug { "Bucket의 모든 Object를 조회합니다 ..." }
 
         // 테스트용 Bucket 생성
-        val bucketName = TimebasedUuid.Reordered.nextIdAsString().lowercase()
+        val bucketName = Base58.randomString(16).lowercase()
         s3Client.ensureBucketExists(bucketName)
 
-        val keys = List(5) { TimebasedUuid.Reordered.nextIdAsString().lowercase() }
+        val keys = List(5) { Base58.randomString(16).lowercase() }
         val uploadTasks = keys.map { key ->
             async(Dispatchers.IO) {
                 s3Client.putFromString(bucketName, key, randomString())
@@ -85,7 +85,7 @@ class BasicExamples: AbstractKotlinS3Test() {
 
     @Test
     fun `put get object as ByteArray`() = runSuspendIO {
-        val key = TimebasedUuid.Reordered.nextIdAsString().lowercase()
+        val key = Base58.randomString(16).lowercase()
         val contents = randomString().toUtf8Bytes()
 
         // Put Object
@@ -100,7 +100,7 @@ class BasicExamples: AbstractKotlinS3Test() {
 
     @Test
     fun `put get object as String`() = runSuspendIO {
-        val key = TimebasedUuid.Reordered.nextIdAsString().lowercase()
+        val key = Base58.randomString(16).lowercase()
         val contents = randomString()
 
         // Put Object
@@ -114,7 +114,7 @@ class BasicExamples: AbstractKotlinS3Test() {
 
     @Test
     fun `put get object as File`(temp: TempFolder) = runSuspendIO {
-        val key = TimebasedUuid.Reordered.nextIdAsString().lowercase()
+        val key = Base58.randomString(16).lowercase()
         val content = randomString()
 
         val file = temp.createFile()
@@ -134,7 +134,7 @@ class BasicExamples: AbstractKotlinS3Test() {
 
     @Test
     fun `get bucket acl`() = runSuspendIO {
-        val key = TimebasedUuid.Reordered.nextIdAsString().lowercase()
+        val key = Base58.randomString(16).lowercase()
         s3Client.putFromByteArray(BUCKET_NAME, key, "acl-content".toUtf8Bytes())
 
         val aclResponse = s3Client.getObjectAcl(BUCKET_NAME, key)

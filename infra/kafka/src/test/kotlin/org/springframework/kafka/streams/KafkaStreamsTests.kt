@@ -1,5 +1,6 @@
 package org.springframework.kafka.streams
 
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.kafka.spring.test.utils.getPropertyValue
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
@@ -57,7 +58,6 @@ import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.kafka.test.utils.KafkaTestUtils
 import org.springframework.test.context.TestPropertySource
 import java.time.Duration
-import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -116,8 +116,8 @@ class KafkaStreamsTests {
 
         this.streamsBuilderFactoryBean.start()
 
-        val payload1 = "foo" + UUID.randomUUID().toString()
-        val payload2 = "foo" + UUID.randomUUID().toString()
+        val payload1 = "foo" + Base58.randomString(32) // UUID.randomUUID().toString()
+        val payload2 = "foo" + Base58.randomString(32) // UUID.randomUUID().toString()
 
         this.kafkaTemplate.sendDefault(0, payload1)
         this.kafkaTemplate.sendDefault(0, payload2)

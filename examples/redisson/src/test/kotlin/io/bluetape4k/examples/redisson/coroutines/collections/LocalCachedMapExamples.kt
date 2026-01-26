@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -10,7 +11,6 @@ import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.redisson.api.RLocalCachedMap
 import org.redisson.api.options.LocalCachedMapOptions
-import java.util.*
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
@@ -25,7 +25,7 @@ class LocalCachedMapExamples: AbstractRedissonCoroutineTest() {
 
     @Test
     fun `simple local cached map`() = runTest {
-        val cachedMapName = "local:" + UUID.randomUUID().toString()
+        val cachedMapName = "local:" + Base58.randomString(8)
 
         val options = LocalCachedMapOptions.name<String, Int>(cachedMapName)
             .cacheSize(10000)

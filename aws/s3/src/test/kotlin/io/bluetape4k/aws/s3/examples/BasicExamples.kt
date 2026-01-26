@@ -7,6 +7,7 @@ import io.bluetape4k.aws.s3.model.listBucketsRequestOf
 import io.bluetape4k.aws.s3.model.objectIdentifierOf
 import io.bluetape4k.aws.s3.putAsByteArray
 import io.bluetape4k.aws.s3.putAsString
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.codec.encodeBase62
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -62,7 +63,7 @@ class BasicExamples: AbstractS3Test() {
         // Batch 로 삭제하기 위해서는 key name 으로 만든 [ObjectIdentifier] 정보가 필요합니다.
         val objectSize = 10
         val objectIds = List(objectSize) {
-            val key = UUID.randomUUID().toString()
+            val key = Base58.randomString(16)
             s3Client.putAsByteArray(BUCKET_NAME, key, randomString().toUtf8Bytes())
             objectIdentifierOf(key)
         }
@@ -81,7 +82,7 @@ class BasicExamples: AbstractS3Test() {
 
     @Test
     fun `get bucket acl`() {
-        val key = UUID.randomUUID().toString()
+        val key = Base58.randomString(16)
         s3Client.putAsByteArray(BUCKET_NAME, key, "acl-content".toUtf8Bytes())
 
         val aclResponse = s3Client.getObjectAcl { it.bucket(BUCKET_NAME).key(key) }

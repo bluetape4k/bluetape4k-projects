@@ -1,6 +1,6 @@
 package io.bluetape4k.aws.kotlin.s3
 
-import io.bluetape4k.idgenerators.uuid.TimebasedUuid
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.io.deleteIfExists
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -27,7 +27,7 @@ class S3ClientExtensionsTest: AbstractKotlinS3Test() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `upload and download s3 object as String`() = runSuspendIO {
-        val key = TimebasedUuid.Reordered.nextIdAsString().lowercase()
+        val key = Base58.randomString(16).lowercase()
         val content = randomString()
 
         val response = s3Client.putFromString(BUCKET_NAME, key, content)
@@ -40,7 +40,7 @@ class S3ClientExtensionsTest: AbstractKotlinS3Test() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `upload and download s3 object as ByteArray`() = runSuspendIO {
-        val key = TimebasedUuid.Reordered.nextIdAsString().lowercase()
+        val key = Base58.randomString(16).lowercase()
         val content = randomString().toUtf8Bytes()
 
         val response = s3Client.putFromByteArray(BUCKET_NAME, key, content)
@@ -54,7 +54,7 @@ class S3ClientExtensionsTest: AbstractKotlinS3Test() {
     @ParameterizedTest(name = "upload/download {0}")
     @MethodSource("getImageNames")
     fun `upload and download binary file`(filename: String, tempFolder: TempFolder) = runSuspendIO {
-        val key = TimebasedUuid.Reordered.nextIdAsString().lowercase()
+        val key = Base58.randomString(16).lowercase()
         val filepath = "$IMAGE_PATH/$filename"
         val file = File(filepath)
 
@@ -83,7 +83,7 @@ class S3ClientExtensionsTest: AbstractKotlinS3Test() {
             .numThreads(Runtimex.availableProcessors)
             .roundsPerJob(Runtimex.availableProcessors)
             .add {
-                val key = TimebasedUuid.Reordered.nextIdAsString().lowercase()
+                val key = Base58.randomString(16).lowercase()
                 val filepath = "$IMAGE_PATH/$filename"
                 val file = File(filepath)
 

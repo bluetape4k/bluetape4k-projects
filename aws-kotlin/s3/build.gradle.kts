@@ -26,7 +26,4 @@ dependencies {
     // Testcontainers for AWS (LocalStack)
     testImplementation(project(":bluetape4k-testcontainers"))
     testImplementation(Libs.testcontainers_localstack)
-
-    // bluetape4k
-    testImplementation(project(":bluetape4k-idgenerators"))
 }

@@ -3,6 +3,7 @@ package io.bluetape4k.aws.s3.examples
 import io.bluetape4k.aws.s3.AbstractS3Test
 import io.bluetape4k.aws.s3.getAsByteArray
 import io.bluetape4k.aws.s3.putAsByteArray
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8Bytes
@@ -12,7 +13,6 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeEmpty
 import org.junit.jupiter.api.Test
-import java.util.*
 
 class S3AsyncOps: AbstractS3Test() {
 
@@ -20,7 +20,7 @@ class S3AsyncOps: AbstractS3Test() {
 
     @Test
     fun `put object asynchronously`() = runTest {
-        val key = UUID.randomUUID().toString()
+        val key = Base58.randomString(16)
         val response = s3AsyncClient
             .putAsByteArray(BUCKET_NAME, key, randomString().toUtf8Bytes())
             .await()
@@ -32,7 +32,7 @@ class S3AsyncOps: AbstractS3Test() {
 
     @Test
     fun `get object asynchronously`() = runTest {
-        val key = UUID.randomUUID().toString()
+        val key = Base58.randomString(16)
         val value = randomString()
 
         // Put object

@@ -1,6 +1,7 @@
 package io.bluetape4k.aws.s3.transfer
 
 import io.bluetape4k.aws.s3.AbstractS3Test
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.io.deleteIfExists
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -16,7 +17,6 @@ import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
-import java.util.*
 
 class S3TransferManagerTest: AbstractS3Test() {
 
@@ -29,7 +29,7 @@ class S3TransferManagerTest: AbstractS3Test() {
 
     @Test
     fun `upload and download text by transfer manager`() = runSuspendIO {
-        val key = UUID.randomUUID().toString()
+        val key = Base58.randomString(16)
         val content = randomString()
 
         val upload = s3TransferManager.uploadByteArray(BUCKET_NAME, key, content.toUtf8Bytes())

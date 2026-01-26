@@ -1,5 +1,6 @@
 package org.springframework.kafka.streams
 
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.kafka.spring.test.utils.consumerProps
 import io.bluetape4k.kafka.spring.test.utils.getRecords
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -35,7 +36,6 @@ import org.springframework.kafka.support.KafkaStreamBrancher
 import org.springframework.kafka.test.EmbeddedKafkaBroker
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.kafka.test.utils.KafkaTestUtils
-import java.util.*
 
 @SpringBootTest
 @EmbeddedKafka(
@@ -82,7 +82,7 @@ class KafkaStreamsBranchTests {
     }
 
     private fun createConsumer(): Consumer<String, String> {
-        val consumerProps = embeddedKafka.consumerProps(UUID.randomUUID().toString(), false)
+        val consumerProps = embeddedKafka.consumerProps(Base58.randomString(8), false)
         consumerProps[ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG] = 10_000
 
         val kafkaConsumerFactory =

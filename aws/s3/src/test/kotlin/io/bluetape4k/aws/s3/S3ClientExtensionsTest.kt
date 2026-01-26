@@ -1,5 +1,6 @@
 package io.bluetape4k.aws.s3
 
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.io.deleteIfExists
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -16,7 +17,6 @@ import org.junit.jupiter.api.parallel.ExecutionMode
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
-import java.util.*
 
 @Execution(ExecutionMode.CONCURRENT)
 class S3ClientExtensionsTest: AbstractS3Test() {
@@ -30,7 +30,7 @@ class S3ClientExtensionsTest: AbstractS3Test() {
 
     @Test
     fun `put and get s3 object`() {
-        val key = UUID.randomUUID().toString()
+        val key = Base58.randomString(16)
         val content = randomString()
 
         val response = s3Client.putAsString(BUCKET_NAME, key, content)
@@ -44,7 +44,7 @@ class S3ClientExtensionsTest: AbstractS3Test() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `upload and download as byte array`() {
-        val key = UUID.randomUUID().toString()
+        val key = Base58.randomString(16)
         val filepath = "files/product_type.csv"
         val bytes = Resourcex.getBytes(filepath)
 
@@ -58,7 +58,7 @@ class S3ClientExtensionsTest: AbstractS3Test() {
     @ParameterizedTest(name = "upload/download {0}")
     @MethodSource("getImageNames")
     fun `upload and download binary file`(filename: String) {
-        val key = UUID.randomUUID().toString()
+        val key = Base58.randomString(16)
         val path = "$imageBasePath/$filename"
         val file = File(path)
         file.exists().shouldBeTrue()
