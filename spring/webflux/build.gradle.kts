@@ -19,6 +19,7 @@ dependencies {
     api(project(":bluetape4k-netty"))
     implementation(project(":bluetape4k-jackson"))
     testImplementation(project(":bluetape4k-junit5"))
+    testImplementation(project(":bluetape4k-spring-tests"))
 
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))

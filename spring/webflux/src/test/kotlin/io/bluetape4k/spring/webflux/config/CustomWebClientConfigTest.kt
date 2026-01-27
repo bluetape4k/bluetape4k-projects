@@ -4,6 +4,7 @@ import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import io.bluetape4k.spring.tests.httpGet
 import io.bluetape4k.support.uninitialized
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.async
@@ -35,9 +36,8 @@ class CustomWebClientConfigTest {
 
     @Test
     fun `get by custom webclient`() = runSuspendIO {
-        val response = webClient.get()
-            .uri("https://www.google.com")
-            .retrieve()
+        val response = webClient
+            .httpGet("https://www.google.com")
             .awaitBody<String>()
 
         // 로그의 Thread name 을 확인해야 합니다.
@@ -50,9 +50,8 @@ class CustomWebClientConfigTest {
     fun `async get by custom webclient`() = runSuspendIO {
         val task = List(2 * Runtimex.availableProcessors) {
             async {
-                webClient.get()
-                    .uri("https://www.google.com")
-                    .retrieve()
+                webClient
+                    .httpGet("https://www.google.com")
                     .awaitBody<String>()
             }
         }
@@ -65,25 +64,22 @@ class CustomWebClientConfigTest {
             .numThreads(Runtimex.availableProcessors)
             .roundsPerJob(Runtimex.availableProcessors)
             .add {
-                val body = webClient.get()
-                    .uri("https://www.google.com")
-                    .retrieve()
+                val body = webClient
+                    .httpGet("https://www.google.com")
                     .awaitBody<String>()
 
                 log.debug { "구글 샤이트=${body.length}" }
             }
             .add {
-                val body = webClient.get()
-                    .uri("https://www.naver.com")
-                    .retrieve()
+                val body = webClient
+                    .httpGet("https://www.naver.com")
                     .awaitBody<String>()
 
                 log.debug { "네이버 샤이트=${body.length}" }
             }
             .add {
-                val body = webClient.get()
-                    .uri("https://www.daum.net")
-                    .retrieve()
+                val body = webClient
+                    .httpGet("https://www.daum.net")
                     .awaitBody<String>()
 
                 log.debug { "다음 샤이트=${body.length}" }
