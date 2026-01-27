@@ -14,7 +14,6 @@ plugins {
     kotlin("plugin.noarg") version Versions.kotlin apply false
     kotlin("plugin.jpa") version Versions.kotlin apply false
     kotlin("plugin.serialization") version Versions.kotlin apply false
-    kotlin("plugin.atomicfu") version Versions.kotlin
     kotlin("kapt") version Versions.kotlin apply false
     id(Plugins.kotlinx_benchmark) version Plugins.Versions.kotlinx_benchmark apply false
 
@@ -94,9 +93,7 @@ subprojects {
     }
 
     kotlin {
-        jvmToolchain {
-            languageVersion.set(JavaLanguageVersion.of(21))
-        }
+        jvmToolchain(21)
         compilerOptions {
             languageVersion.set(KotlinVersion.KOTLIN_2_3)
             apiVersion.set(KotlinVersion.KOTLIN_2_3)
@@ -105,7 +102,7 @@ subprojects {
                 "-jvm-default=enable",
                 "-Xinline-classes",
                 "-Xstring-concat=indy",         // since Kotlin 1.4.20 for JVM 9+
-                // "-Xenable-builder-inference",   // since Kotlin 1.6
+                "-Xenable-builder-inference",   // since Kotlin 1.6
                 "-Xcontext-parameters",           // since Kotlin 1.6
                 "-Xannotation-default-target=param-property"
             )
