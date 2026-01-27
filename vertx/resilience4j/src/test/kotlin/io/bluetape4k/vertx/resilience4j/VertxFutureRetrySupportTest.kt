@@ -81,7 +81,7 @@ class VertxFutureRetrySupportTest: AbstractVertxFutureTest() {
                 RetryConfig {
                     waitDuration(Duration.ofMillis(10))
                     retryOnResult {
-                        log.debug { "invocation count=${service.invocationCounter}" }
+                        log.debug { "invocation count=${service.invocationCount}" }
                         service.invocationCount < 2
                     }
                 }

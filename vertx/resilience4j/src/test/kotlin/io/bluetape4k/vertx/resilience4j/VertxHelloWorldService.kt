@@ -3,14 +3,14 @@ package io.bluetape4k.vertx.resilience4j
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.vertx.core.Future
-import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.atomicfu.atomic
 
 class VertxHelloWorldService {
 
     companion object: KLoggingChannel()
 
-    val invocationCounter = AtomicInteger(0)
-    val invocationCount get() = invocationCounter.get()
+    private val invocationCounter = atomic(0)
+    val invocationCount by invocationCounter
 
     fun returnHelloWorld(): Future<String> {
         return Future.future { promise ->

@@ -2,7 +2,7 @@ package io.bluetape4k.bloomfilter.inmemory
 
 import io.bluetape4k.bloomfilter.AbstractBloomFilterTest
 import io.bluetape4k.bloomfilter.DEFAULT_ERROR_RATE
-import io.bluetape4k.junit5.faker.Fakers
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
@@ -48,8 +48,7 @@ class InMemoryMutableBloomFilterTest: AbstractBloomFilterTest() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `요소가 존재하지 않음을 검증`() {
-
-        val items = List(ITEM_SIZE) { Fakers.fixedString(16) }.distinct()
+        val items = List(ITEM_SIZE) { Base58.randomString(16) }.distinct()
         items.forEach {
             bloomFilter.add(it)
         }
@@ -64,8 +63,8 @@ class InMemoryMutableBloomFilterTest: AbstractBloomFilterTest() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `remove items`() {
-        val expectedItem = Fakers.fixedString(16)
-        val tailItems = List(ITEM_SIZE) { Fakers.fixedString(16) }.distinct()
+        val expectedItem = Base58.randomString(16)
+        val tailItems = List(ITEM_SIZE) { Base58.randomString(16) }.distinct()
 
         // 하나의 요소 등록 작업 
         bloomFilter.add(expectedItem)
@@ -89,8 +88,8 @@ class InMemoryMutableBloomFilterTest: AbstractBloomFilterTest() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `get approximate count`() {
-        val expectedItem = Fakers.fixedString(16)
-        val tailItems = List(ITEM_SIZE) { Fakers.fixedString(16) }.distinct()
+        val expectedItem = Base58.randomString(16)
+        val tailItems = List(ITEM_SIZE) { Base58.randomString(16) }.distinct()
 
         // 하나의 요소 등록 작업
         bloomFilter.add(expectedItem)

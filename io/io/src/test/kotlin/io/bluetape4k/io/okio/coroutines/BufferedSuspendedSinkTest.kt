@@ -17,7 +17,6 @@ class BufferedSuspendedSinkTest: AbstractOkioTest() {
 
     // 테스트용 FakeSuspendedSink
     private class FakeSuspendedSink: SuspendedSink {
-
         companion object: KLoggingChannel()
 
         val buffer = Buffer()
@@ -35,7 +34,6 @@ class BufferedSuspendedSinkTest: AbstractOkioTest() {
         }
 
         override fun timeout() = Timeout.NONE
-
     }
 
     @Test

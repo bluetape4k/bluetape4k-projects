@@ -37,7 +37,7 @@ class HasherTest: AbstractBloomFilterTest() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `murmur3 hash offset with serializable type`() {
-        val person = Person(Fakers.faker.credentials().username(), Fakers.faker.random().nextInt(19, 88))
+        val person = Person(faker.credentials().username(), faker.random().nextInt(19, 88))
 
         val offsets = Hasher.murmurHashOffset(person, 4, Int.MAX_VALUE)
         log.trace { "value=$person, offsets=${offsets.contentToString()}" }
@@ -70,7 +70,7 @@ class HasherTest: AbstractBloomFilterTest() {
     fun `murmur3 hash for object`() {
         val murmur3 = LongHashFunction.murmur_3()
 
-        val person1 = Person(Fakers.faker.credentials().username(), Fakers.faker.random().nextInt(19, 88))
+        val person1 = Person(faker.credentials().username(), faker.random().nextInt(19, 88))
         val person2 = person1.copy()
         val person3 = person1.copy(age = 9)
 
@@ -92,7 +92,7 @@ class HasherTest: AbstractBloomFilterTest() {
     fun `murmur3 hash for object as byte array`() {
         val murmur3 = LongHashFunction.murmur_3()
 
-        val person1 = Person(Fakers.faker.credentials().username(), Fakers.faker.random().nextInt(19, 88))
+        val person1 = Person(faker.credentials().username(), faker.random().nextInt(19, 88))
         val person2 = person1.copy()
         val person3 = person1.copy(age = 9)
 

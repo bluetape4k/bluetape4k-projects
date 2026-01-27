@@ -1,6 +1,6 @@
 package io.bluetape4k.bloomfilter.inmemory
 
-import io.bluetape4k.junit5.faker.Fakers
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -32,7 +32,7 @@ class InMemoryBloomFilterTest {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `verify not exists`() {
-        val values = List(ITEM_COUNT) { Fakers.fixedString(256) }
+        val values = List(ITEM_COUNT) { Base58.randomString(256) }
             .onEach { bloomFilter.add(it) }
 
         values.all { bloomFilter.contains(it) }.shouldBeTrue()
@@ -42,8 +42,8 @@ class InMemoryBloomFilterTest {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `verify not exists random string`() {
-        val values = List(10 * ITEM_COUNT) { Fakers.fixedString(256) }
-        val testValues = List(ITEM_COUNT) { Fakers.fixedString(256) }
+        val values = List(10 * ITEM_COUNT) { Base58.randomString(256) }
+        val testValues = List(ITEM_COUNT) { Base58.randomString(256) }
 
         values.forEach { bloomFilter.add(it) }
         values.all { bloomFilter.contains(it) }.shouldBeTrue()

@@ -2,8 +2,8 @@ package io.bluetape4k.concurrent
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import kotlinx.atomicfu.atomic
 import java.util.concurrent.ThreadFactory
-import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * NamedThreadFactory
@@ -29,7 +29,7 @@ class NamedThreadFactory private constructor(
 
     val group: ThreadGroup by lazy { ThreadGroup(Thread.currentThread().threadGroup, name) }
 
-    private val threadNumber = AtomicInteger(1)
+    private val threadNumber = atomic(1)
 
     /**
      * Create a new thread

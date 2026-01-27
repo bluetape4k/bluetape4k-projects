@@ -4,6 +4,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.AppenderBase
 import io.bluetape4k.logging.KLogging
 import org.slf4j.LoggerFactory
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.reflect.KClass
 
 /**
@@ -62,7 +63,7 @@ class InMemoryLogbackAppender private constructor(name: String): AppenderBase<IL
         LoggerFactory.getLogger(name) as ch.qos.logback.classic.Logger
     }
 
-    private val events = mutableListOf<ILoggingEvent>()
+    private val events = CopyOnWriteArrayList<ILoggingEvent>()
 
     val size: Int get() = events.size
     val lastMessage: String? get() = events.lastOrNull()?.message

@@ -5,12 +5,12 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import io.bluetape4k.support.requireInRange
 import io.bluetape4k.support.requireZeroOrPositiveNumber
+import kotlinx.atomicfu.atomic
 import okio.Buffer
 import okio.ByteString
 import okio.EOFException
 import okio.Options
 import okio.Timeout
-import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * `source`에서 읽은 내용을 버퍼링하는 새로운 소스를 반환합니다.
@@ -28,7 +28,7 @@ class RealBufferedSuspendedSource(
 
     override val buffer: Buffer = Buffer()
 
-    private val closed = AtomicBoolean(false)
+    private val closed = atomic(false)
 
     override suspend fun exhausted(): Boolean {
         checkNotClosed()
@@ -410,7 +410,7 @@ class RealBufferedSuspendedSource(
     override fun timeout(): Timeout = source.timeout()
 
     private fun checkNotClosed() {
-        check(!closed.get()) { "RealBufferedSuspendedSource is closed" }
+        check(!closed.value) { "RealBufferedSuspendedSource is closed" }
     }
 
     private fun Buffer.readUtf8Line(newline: Long): String = when {

@@ -10,7 +10,8 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.assertPositiveNumber
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.setAll
-import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.atomicfu.AtomicBoolean
+import kotlinx.atomicfu.atomic
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -78,7 +79,7 @@ class InMemoryMutableBloomFilter private constructor(
 
     private val buckets: LongArray = LongArray(buckets2words(m))
     private val hashLocks: Array<ReentrantLock> = Array(HASH_LOCK_SIZE) { ReentrantLock() }
-    private val hashBooleans: Array<AtomicBoolean> = Array(HASH_LOCK_SIZE) { AtomicBoolean(false) }
+    private val hashBooleans = Array(HASH_LOCK_SIZE) { atomic(false) }
     private val lock = ReentrantLock()
 
     override val isEmpty: Boolean
@@ -97,7 +98,10 @@ class InMemoryMutableBloomFilter private constructor(
             val (wordNum, bucketShift, bucketMask) = calcBucketInfo(hash)
             var isExecuted = false
 
-            while (!isExecuted && (reuse || (!reuse && getHashBoolean(hash).compareAndSet(false, true)))) {
+            while (!isExecuted && (reuse || (!reuse && getHashBoolean(hash).compareAndSet(
+                    expect = false,
+                    update = true
+                )))) {
                 val bucketValue = (buckets[wordNum] and bucketMask) ushr bucketShift
                 if (bucketValue < BUCKET_MAX_VALUE) {
                     buckets[wordNum] = (buckets[wordNum] and bucketMask.inv()) or ((bucketValue + 1) shl bucketShift)
@@ -153,7 +157,10 @@ class InMemoryMutableBloomFilter private constructor(
             val (wordNum, bucketShift, bucketMask) = calcBucketInfo(hash)
             var isExecuted = false
 
-            while (!isExecuted && (reuse || (!reuse && getHashBoolean(hash).compareAndSet(false, true)))) {
+            while (!isExecuted && (reuse || (!reuse && getHashBoolean(hash).compareAndSet(
+                    expect = false,
+                    update = true
+                )))) {
                 val bucketValue = (buckets[wordNum] and bucketMask) ushr bucketShift
                 if (bucketValue in 1 until BUCKET_MAX_VALUE) {
                     buckets[wordNum] = (buckets[wordNum] and bucketMask.inv()) or ((bucketValue - 1) shl bucketShift)
@@ -199,7 +206,7 @@ class InMemoryMutableBloomFilter private constructor(
         lock.withLock {
             buckets.setAll { 0L }
             hashLocks.filter { it.isLocked }.forEach { it.unlock() }
-            hashBooleans.forEach { it.set(false) }
+            hashBooleans.forEach { it.value = false }
         }
     }
 
