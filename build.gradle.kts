@@ -102,7 +102,6 @@ subprojects {
                 "-jvm-default=enable",
                 "-Xinline-classes",
                 "-Xstring-concat=indy",         // since Kotlin 1.4.20 for JVM 9+
-                "-Xenable-builder-inference",   // since Kotlin 1.6
                 "-Xcontext-parameters",           // since Kotlin 1.6
                 "-Xannotation-default-target=param-property"
             )
@@ -533,7 +532,7 @@ subprojects {
         testImplementation(Libs.kotlin_test)
         testImplementation(Libs.kotlin_test_junit5)
 
-        compileOnly(Libs.kotlinx_coroutines_core)
+        implementation(Libs.kotlinx_coroutines_core)
 
         // 개발 시에는 logback 이 검증하기에 더 좋고, Production에서 비동기 로깅은 log4j2 가 성능이 좋다고 합니다.
         api(Libs.slf4j_api)
