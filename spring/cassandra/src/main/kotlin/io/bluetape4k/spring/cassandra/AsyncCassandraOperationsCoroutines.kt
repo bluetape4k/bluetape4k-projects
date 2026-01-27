@@ -52,7 +52,7 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelect(
     query: Query,
     crossinline consumer: (T) -> Unit,
 ) {
-    select<T>(query) { consumer(it) }.await()
+    select<T>(query, consumer).await()
 }
 
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelectOneOrNull(statement: Statement<*>): T? {

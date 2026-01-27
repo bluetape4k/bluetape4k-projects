@@ -18,7 +18,7 @@ object Plugins {
         const val shadow = "9.3.1"      // https://plugins.gradle.org/plugin/com.gradleup.shadow
         const val kotlinx_benchmark = "0.4.15" // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-benchmark-plugin
 
-        const val spring_boot = "3.5.9"   // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies
+        const val spring_boot = "3.5.10"   // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies
         const val quarkus = "3.30.6"      // https://mvnrepository.com/artifact/io.quarkus/quarkus-bom
         
         const val docker_compose = "0.17.20"  // https://plugins.gradle.org/plugin/com.avast.gradle.docker-compose
@@ -67,9 +67,7 @@ object Versions {
 
     const val kotlin = "2.3.0"                 // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib
     const val kotlinx_coroutines = "1.10.2"     // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
-    const val kotlinx_serialization = "1.9.0"   // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-json-jvm
-
-    const val kotlinx_atomicfu = "0.29.0"       // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/atomicfu
+    const val kotlinx_serialization = "1.10.0"   // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-json-jvm
 
     const val kotlinx_benchmark = Plugins.Versions.kotlinx_benchmark
 
@@ -255,8 +253,6 @@ object Libs {
     val kotlin_bom = kotlin("bom")
     val kotlin_stdlib = kotlin("stdlib")
     val kotlin_stdlib_common = kotlin("stdlib-common")
-    val kotlin_stdlib_jdk7 = kotlin("stdlib-jdk7")
-    val kotlin_stdlib_jdk8 = kotlin("stdlib-jdk8")
     val kotlin_reflect = kotlin("reflect")
     val kotlin_test = kotlin("test")
     val kotlin_test_common = kotlin("test-common")
@@ -286,9 +282,6 @@ object Libs {
     val kotlinx_coroutines_core_common = kotlinxCoroutines("core-common")
     val kotlinx_coroutines_core_jvm = kotlinxCoroutines("core-jvm")
     val kotlinx_coroutines_debug = kotlinxCoroutines("debug")
-    val kotlinx_coroutines_jdk7 = kotlinxCoroutines("jdk7")
-    val kotlinx_coroutines_jdk8 = kotlinxCoroutines("jdk8")
-    val kotlinx_coroutines_jdk9 = kotlinxCoroutines("jdk9")
     val kotlinx_coroutines_reactive = kotlinxCoroutines("reactive")
     val kotlinx_coroutines_reactor = kotlinxCoroutines("reactor")
     val kotlinx_coroutines_rx2 = kotlinxCoroutines("rx2")
@@ -311,9 +304,6 @@ object Libs {
     val kotlinx_serialization_properties_jvm = kotlinxSerialization("properties-jvm")
     val kotlinx_serialization_protobuf = kotlinxSerialization("protobuf")
     val kotlinx_serialization_protobuf_jvm = kotlinxSerialization("protobuf-jvm")
-
-    const val kotlinx_atomicfu = "org.jetbrains.kotlinx:atomicfu:${Versions.kotlinx_atomicfu}"
-    const val kotlinx_atomicfu_jvm = "org.jetbrains.kotlinx:atomicfu-jvm:${Versions.kotlinx_atomicfu}"
 
     // https://github.com/Kotlin/kotlinx-benchmark
     fun kotlinxBenchmark(module: String, version: String = Versions.kotlinx_benchmark) =
