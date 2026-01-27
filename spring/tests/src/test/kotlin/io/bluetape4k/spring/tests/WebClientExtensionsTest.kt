@@ -3,11 +3,6 @@ package io.bluetape4k.spring.tests
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import io.bluetape4k.workshop.shared.httpDelete
-import io.bluetape4k.workshop.shared.httpGet
-import io.bluetape4k.workshop.shared.httpPatch
-import io.bluetape4k.workshop.shared.httpPost
-import io.bluetape4k.workshop.shared.httpPut
 import kotlinx.coroutines.flow.flowOf
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeNull

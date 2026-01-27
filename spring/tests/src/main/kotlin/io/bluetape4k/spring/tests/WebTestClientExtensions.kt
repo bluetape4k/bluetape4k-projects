@@ -7,33 +7,36 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.body
 
-
 fun WebTestClient.httpGet(
     uri: String,
-    httpStatus: HttpStatus = HttpStatus.OK,
+    httpStatus: HttpStatus? = null,
     accept: MediaType = MediaType.ALL,
 ): WebTestClient.ResponseSpec =
     get()
         .uri(uri)
         .accept(accept)
         .exchange()
-        .expectStatus().isEqualTo(httpStatus)
+        .apply {
+            httpStatus?.let { expectStatus().isEqualTo(it) }
+        }
 
 fun WebTestClient.httpHead(
     uri: String,
-    httpStatus: HttpStatus = HttpStatus.OK,
+    httpStatus: HttpStatus? = null,
     accept: MediaType = MediaType.ALL,
 ): WebTestClient.ResponseSpec =
     head()
         .uri(uri)
         .accept(accept)
         .exchange()
-        .expectStatus().isEqualTo(httpStatus)
+        .apply {
+            httpStatus?.let { expectStatus().isEqualTo(it) }
+        }
 
 fun WebTestClient.httpPost(
     uri: String,
     value: Any? = null,
-    httpStatus: HttpStatus = HttpStatus.OK,
+    httpStatus: HttpStatus? = null,
     contentType: MediaType? = null,
     accept: MediaType = MediaType.ALL,
 ): WebTestClient.ResponseSpec =
@@ -45,12 +48,14 @@ fun WebTestClient.httpPost(
         }
         .accept(accept)
         .exchange()
-        .expectStatus().isEqualTo(httpStatus)
+        .apply {
+            httpStatus?.let { expectStatus().isEqualTo(it) }
+        }
 
 inline fun <reified T: Any> WebTestClient.httpPost(
     uri: String,
     publisher: Publisher<T>,
-    httpStatus: HttpStatus = HttpStatus.OK,
+    httpStatus: HttpStatus? = null,
     contentType: MediaType? = null,
     accept: MediaType = MediaType.ALL,
 ): WebTestClient.ResponseSpec =
@@ -60,12 +65,14 @@ inline fun <reified T: Any> WebTestClient.httpPost(
         .body(publisher)
         .accept(accept)
         .exchange()
-        .expectStatus().isEqualTo(httpStatus)
+        .apply {
+            httpStatus?.let { expectStatus().isEqualTo(it) }
+        }
 
 inline fun <reified T: Any> WebTestClient.httpPost(
     uri: String,
     flow: Flow<T>,
-    httpStatus: HttpStatus = HttpStatus.OK,
+    httpStatus: HttpStatus? = null,
     contentType: MediaType? = null,
     accept: MediaType = MediaType.ALL,
 ): WebTestClient.ResponseSpec =
@@ -75,12 +82,14 @@ inline fun <reified T: Any> WebTestClient.httpPost(
         .body(flow)
         .accept(accept)
         .exchange()
-        .expectStatus().isEqualTo(httpStatus)
+        .apply {
+            httpStatus?.let { expectStatus().isEqualTo(it) }
+        }
 
 fun WebTestClient.httpPut(
     uri: String,
     value: Any? = null,
-    httpStatus: HttpStatus = HttpStatus.OK,
+    httpStatus: HttpStatus? = null,
     contentType: MediaType? = null,
     accept: MediaType = MediaType.ALL,
 ): WebTestClient.ResponseSpec =
@@ -92,12 +101,14 @@ fun WebTestClient.httpPut(
         }
         .accept(accept)
         .exchange()
-        .expectStatus().isEqualTo(httpStatus)
+        .apply {
+            httpStatus?.let { expectStatus().isEqualTo(it) }
+        }
 
 inline fun <reified T: Any> WebTestClient.httpPut(
     uri: String,
     publisher: Publisher<T>,
-    httpStatus: HttpStatus = HttpStatus.OK,
+    httpStatus: HttpStatus? = null,
     contentType: MediaType? = null,
     accept: MediaType = MediaType.ALL,
 ): WebTestClient.ResponseSpec =
@@ -107,12 +118,14 @@ inline fun <reified T: Any> WebTestClient.httpPut(
         .body(publisher)
         .accept(accept)
         .exchange()
-        .expectStatus().isEqualTo(httpStatus)
+        .apply {
+            httpStatus?.let { expectStatus().isEqualTo(it) }
+        }
 
 inline fun <reified T: Any> WebTestClient.httpPut(
     uri: String,
     flow: Flow<T>,
-    httpStatus: HttpStatus = HttpStatus.OK,
+    httpStatus: HttpStatus? = null,
     contentType: MediaType? = null,
     accept: MediaType = MediaType.ALL,
 ): WebTestClient.ResponseSpec =
@@ -122,13 +135,15 @@ inline fun <reified T: Any> WebTestClient.httpPut(
         .body(flow)
         .accept(accept)
         .exchange()
-        .expectStatus().isEqualTo(httpStatus)
+        .apply {
+            httpStatus?.let { expectStatus().isEqualTo(it) }
+        }
 
 
 fun WebTestClient.httpPatch(
     uri: String,
     value: Any? = null,
-    httpStatus: HttpStatus = HttpStatus.OK,
+    httpStatus: HttpStatus? = null,
     contentType: MediaType? = null,
     accept: MediaType = MediaType.ALL,
 ): WebTestClient.ResponseSpec =
@@ -140,15 +155,19 @@ fun WebTestClient.httpPatch(
         }
         .accept(accept)
         .exchange()
-        .expectStatus().isEqualTo(httpStatus)
+        .apply {
+            httpStatus?.let { expectStatus().isEqualTo(it) }
+        }
 
 fun WebTestClient.httpDelete(
     uri: String,
-    httpStatus: HttpStatus = HttpStatus.OK,
+    httpStatus: HttpStatus? = null,
     vararg accepts: MediaType = arrayOf(MediaType.ALL),
 ): WebTestClient.ResponseSpec =
     delete()
         .uri(uri)
         .accept(*accepts)
         .exchange()
-        .expectStatus().isEqualTo(httpStatus)
+        .apply {
+            httpStatus?.let { expectStatus().isEqualTo(it) }
+        }
