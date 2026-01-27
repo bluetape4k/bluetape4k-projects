@@ -77,6 +77,9 @@ subprojects {
         // Kotlin 1.9.20 부터는 pluginId 를 지정해줘야 합니다.
         plugin("org.jetbrains.kotlin.jvm")
 
+        // Atomicfu
+        plugin("org.jetbrains.kotlinx.atomicfu")
+
         // plugin("jacoco")
         plugin("maven-publish")
 
@@ -127,6 +130,12 @@ subprojects {
             "-XX:+UseStringDeduplication",
             "-XX:+EnableDynamicAgentLoading"
         )
+    }
+
+    atomicfu {
+        version = Versions.kotlinx_atomicfu
+        transformJvm = true
+        jvmVariant = "VH"     //  FU, VH, BOTH
     }
 
     tasks {
