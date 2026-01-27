@@ -46,9 +46,11 @@ inline fun <reified T: Any> RestClient.httpPost(
 ): RestClient.ResponseSpec =
     post()
         .uri(uri)
-        .apply { contentType?.let { contentType(it) } }
+        .apply {
+            contentType?.let { contentType(it) }
+            accept?.let { accept(it) }
+        }
         .body(publisher)
-        .apply { accept?.let { accept(it) } }
         .retrieve()
 
 inline fun <reified T: Any> RestClient.httpPost(
@@ -59,9 +61,11 @@ inline fun <reified T: Any> RestClient.httpPost(
 ): RestClient.ResponseSpec =
     post()
         .uri(uri)
-        .apply { contentType?.let { contentType(it) } }
+        .apply {
+            contentType?.let { contentType(it) }
+            accept?.let { accept(it) }
+        }
         .body(flow)
-        .apply { accept?.let { accept(it) } }
         .retrieve()
 
 fun RestClient.httpPut(
@@ -87,9 +91,11 @@ inline fun <reified T: Any> RestClient.httpPut(
 ): RestClient.ResponseSpec =
     put()
         .uri(uri)
-        .apply { contentType?.let { contentType(it) } }
+        .apply {
+            contentType?.let { contentType(it) }
+            accept?.let { accept(it) }
+        }
         .body(publisher)
-        .apply { accept?.let { accept(it) } }
         .retrieve()
 
 inline fun <reified T: Any> RestClient.httpPut(
@@ -100,9 +106,11 @@ inline fun <reified T: Any> RestClient.httpPut(
 ): RestClient.ResponseSpec =
     put()
         .uri(uri)
-        .apply { contentType?.let { contentType(it) } }
+        .apply {
+            contentType?.let { contentType(it) }
+            accept?.let { accept(it) }
+        }
         .body(flow)
-        .apply { accept?.let { accept(it) } }
         .retrieve()
 
 fun RestClient.httpPatch(
