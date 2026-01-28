@@ -33,7 +33,7 @@ internal class FlowParallelReduce<T, R>(
         }
     }
 
-    class ReducerCollector<T, R>(private val combine: suspend (R, T) -> R): FlowCollector<T> {
+    private class ReducerCollector<T, R>(private val combine: suspend (R, T) -> R): FlowCollector<T> {
 
         @Suppress("UNCHECKED_CAST")
         var accumulator: R = null as R

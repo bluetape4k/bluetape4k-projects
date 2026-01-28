@@ -19,7 +19,6 @@ internal class FlowSequential<T>(private val source: ParallelFlow<T>): AbstractF
     companion object: KLoggingChannel()
 
     override suspend fun collectSafely(collector: FlowCollector<T>) {
-
         coroutineScope {
             val n = source.parallelism
             val resumeCollector = Resumable()
@@ -81,7 +80,7 @@ internal class FlowSequential<T>(private val source: ParallelFlow<T>): AbstractF
         }
     }
 
-    class RailCollector<T>(private val resumeCollector: Resumable): Resumable(), FlowCollector<T> {
+    private class RailCollector<T>(private val resumeCollector: Resumable): Resumable(), FlowCollector<T> {
 
         var value: T = uninitialized()
 

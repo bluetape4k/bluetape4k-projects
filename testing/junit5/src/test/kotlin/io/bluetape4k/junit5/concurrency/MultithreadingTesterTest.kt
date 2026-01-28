@@ -2,12 +2,12 @@ package io.bluetape4k.junit5.concurrency
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
+import kotlinx.atomicfu.atomic
 import org.amshove.kluent.internal.assertFails
 import org.amshove.kluent.internal.assertFailsWith
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeLessOrEqualTo
 import org.junit.jupiter.api.Test
-import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
 
 class MultithreadingTesterTest {
@@ -103,8 +103,8 @@ class MultithreadingTesterTest {
     }
 
     private class CountingTask: () -> Unit {
-        private val counter = AtomicInteger(0)
-        val count: Int get() = counter.get()
+        private val counter = atomic(0)
+        val count: Int by counter
 
         override fun invoke() {
             Thread.sleep(1)

@@ -5,11 +5,11 @@ import io.bluetape4k.idgenerators.IdGenerator
 import io.bluetape4k.idgenerators.utils.node.MacAddressNodeIdentifier
 import io.bluetape4k.idgenerators.utils.node.NodeIdentifier
 import io.bluetape4k.logging.KLogging
+import kotlinx.atomicfu.atomic
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.time.Clock
 import java.util.*
-import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -91,13 +91,8 @@ class Flake private constructor(
     @Volatile
     private var lastTime: Long = clock.millis()
 
-    private val sequencer = AtomicInteger(0)
-    private var sequence: Int
-        get() = sequencer.get()
-        set(value) {
-            sequencer.set(value)
-        }
-
+    private val sequencer = atomic(0)
+    private var sequence: Int by sequencer
 
     override fun nextId(): ByteArray {
         lock.withLock {

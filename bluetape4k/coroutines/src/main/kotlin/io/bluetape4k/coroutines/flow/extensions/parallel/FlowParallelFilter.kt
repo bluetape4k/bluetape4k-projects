@@ -23,7 +23,7 @@ internal class FlowParallelFilter<T>(
         source.collect(*rails)
     }
 
-    class FilterCollector<T>(
+    private class FilterCollector<T>(
         val collector: FlowCollector<T>,
         val predicate: suspend (T) -> Boolean,
     ): FlowCollector<T> {

@@ -3,10 +3,10 @@ package io.bluetape4k.coroutines.flow.extensions.subject
 import io.bluetape4k.coroutines.flow.exceptions.FlowNoElementException
 import io.bluetape4k.coroutines.flow.extensions.Resumable
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.atomic.AtomicReference
 
 /**
  * Collector가 수집하기 전까지 요소를 버퍼링합니다.
@@ -31,21 +31,21 @@ class UnicastWorkSubject<T: Any>: AbstractFlow<T>(), SubjectApi<T> {
         val terminated = FlowNoElementException("No more elements")
     }
 
-    val resumable = Resumable()
+    private val resumable = Resumable()
     private val queue = ConcurrentLinkedQueue<T>()
 
-    private val terminal = AtomicReference<Throwable>(null)
-    private val current = AtomicReference<FlowCollector<T>>(null)
+    private val terminal = atomic<Throwable?>(null)
+    private val current = atomic<FlowCollector<T>?>(null)
 
     override val hasCollectors: Boolean
-        get() = current.get() != null
+        get() = current.value != null
 
     override val collectorCount: Int
         get() = if (hasCollectors) 1 else 0
 
     override suspend fun collectSafely(collector: FlowCollector<T>) {
         while (true) {
-            val curr = current.get()
+            val curr = current.value
             if (curr != null) {
                 error("Only one collector allowed.")
             }
@@ -55,7 +55,7 @@ class UnicastWorkSubject<T: Any>: AbstractFlow<T>(), SubjectApi<T> {
         }
 
         while (true) {
-            val t = terminal.get()
+            val t = terminal.value
             val v = queue.poll()
 
             // 종료되었거나 요소가 없을 때
@@ -86,12 +86,12 @@ class UnicastWorkSubject<T: Any>: AbstractFlow<T>(), SubjectApi<T> {
 
 
     override suspend fun emitError(ex: Throwable?) {
-        terminal.set(ex)
+        terminal.value = ex
         resumable.resume()
     }
 
     override suspend fun complete() {
-        terminal.set(terminated)
+        terminal.value = terminated
         resumable.resume()
     }
 }

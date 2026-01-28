@@ -23,7 +23,7 @@ internal class FlowParallelTransform<T, R>(
         source.collect(*rails)
     }
 
-    class OnEachCollector<T, R>(
+    private class OnEachCollector<T, R>(
         val collector: FlowCollector<R>,
         val callback: suspend FlowCollector<R>.(T) -> Unit,
     ): FlowCollector<T> {

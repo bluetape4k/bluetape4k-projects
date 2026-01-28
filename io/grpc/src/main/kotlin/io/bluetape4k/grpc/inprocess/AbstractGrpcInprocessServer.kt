@@ -4,13 +4,15 @@ import io.bluetape4k.grpc.GrpcServer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
+import io.bluetape4k.logging.warn
+import io.bluetape4k.support.ifFalse
 import io.bluetape4k.utils.ShutdownQueue
 import io.grpc.BindableService
 import io.grpc.Server
 import io.grpc.inprocess.InProcessServerBuilder
+import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.locks.reentrantLock
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 /**
@@ -33,10 +35,10 @@ abstract class AbstractGrpcInprocessServer(
         builder.apply { services.forEach { addService(it) } }.build()
     }
 
-    private val running = AtomicBoolean(false)
-    private val lock = ReentrantLock()
+    private val running = atomic(false)
+    private val lock = reentrantLock()
 
-    override val isRunning: Boolean get() = running.get()
+    override val isRunning: Boolean by running
     override val isShutdown: Boolean get() = server.isShutdown
 
     override fun start() {
@@ -44,7 +46,7 @@ abstract class AbstractGrpcInprocessServer(
             log.debug { "Starting InProcess gRPC Server..." }
             server.start()
             log.info { "Start InProcess gRPC Server." }
-            running.set(true)
+            running.value = true
 
             ShutdownQueue.register {
                 if (!isShutdown) {
@@ -60,8 +62,12 @@ abstract class AbstractGrpcInprocessServer(
         lock.withLock {
             if (!isShutdown) {
                 runCatching {
-                    running.set(false)
-                    server.shutdown().awaitTermination(5, TimeUnit.SECONDS)
+                    running.value = false
+                    server.shutdown()
+                        .awaitTermination(5, TimeUnit.SECONDS)
+                        .ifFalse {
+                            log.warn { "Timed out waiting for server shutdown" }
+                        }
                 }
             }
         }

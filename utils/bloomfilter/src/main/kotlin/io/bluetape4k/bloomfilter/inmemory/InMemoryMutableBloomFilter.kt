@@ -78,7 +78,7 @@ class InMemoryMutableBloomFilter private constructor(
 
     private val buckets: LongArray = LongArray(buckets2words(m))
     private val hashLocks: Array<ReentrantLock> = Array(HASH_LOCK_SIZE) { ReentrantLock() }
-    private val hashBooleans: Array<AtomicBoolean> = Array(HASH_LOCK_SIZE) { AtomicBoolean(false) }
+    private val hashBooleans = Array(HASH_LOCK_SIZE) { AtomicBoolean(false) }
     private val lock = ReentrantLock()
 
     override val isEmpty: Boolean

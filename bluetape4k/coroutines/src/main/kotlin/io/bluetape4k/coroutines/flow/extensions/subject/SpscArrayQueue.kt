@@ -1,7 +1,7 @@
 package io.bluetape4k.coroutines.flow.extensions.subject
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.atomicfu.atomic
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.atomic.AtomicReferenceArray
 
@@ -54,20 +54,20 @@ internal class SpscArrayQueue<T> private constructor(capacity: Int) {
                 }
             }
 
-    private val consumerIndex = AtomicInteger(0)
-    private val producerIndex = AtomicInteger(0)
+    private val consumerIndex = atomic(0)
+    private val producerIndex = atomic(0)
 
-    val isEmpty: Boolean get() = consumerIndex.get() == producerIndex.get()
+    val isEmpty: Boolean get() = consumerIndex.value == producerIndex.value
 
     fun offer(value: T): Boolean {
         val mask = referenceArray.length() - 1
-        val pi = producerIndex.get()
+        val pi = producerIndex.value
 
         val offset = pi and mask
 
         if (referenceArray[offset].get() == EMPTY) {
             referenceArray[offset].lazySet(value)
-            producerIndex.set(pi + 1)
+            producerIndex.value = pi + 1
             return true
         }
         return false
@@ -75,7 +75,7 @@ internal class SpscArrayQueue<T> private constructor(capacity: Int) {
 
     fun poll(out: Array<Any?>): Boolean {
         val mask = referenceArray.length() - 1
-        val ci = consumerIndex.get()
+        val ci = consumerIndex.value
         val offset = ci and mask
 
         if (referenceArray[offset].get() == EMPTY) {
@@ -83,13 +83,13 @@ internal class SpscArrayQueue<T> private constructor(capacity: Int) {
         }
         out[0] = referenceArray[offset].get()
         referenceArray[offset].lazySet(EMPTY)
-        consumerIndex.set(ci + 1)
+        consumerIndex.value = ci + 1
         return true
     }
 
     fun clear() {
         val mask = referenceArray.length() - 1
-        var ci = consumerIndex.get()
+        var ci = consumerIndex.value
 
         while (true) {
             val offset = ci and mask
@@ -99,6 +99,6 @@ internal class SpscArrayQueue<T> private constructor(capacity: Int) {
             referenceArray[offset].lazySet(EMPTY)
             ci++
         }
-        consumerIndex.set(ci)
+        consumerIndex.value = ci
     }
 }

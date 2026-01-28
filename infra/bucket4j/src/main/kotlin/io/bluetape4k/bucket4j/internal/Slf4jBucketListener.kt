@@ -3,7 +3,7 @@ package io.bluetape4k.bucket4j.internal
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.github.bucket4j.BucketListener
-import java.util.concurrent.atomic.AtomicLong
+import kotlinx.atomicfu.atomic
 
 /**
  * [BucketListener] 구현체를 SLF4J Logger로 래핑하는 [BucketListener] 구현체
@@ -23,35 +23,35 @@ class Slf4jBucketListener(val log: org.slf4j.Logger = this.log): BucketListener 
 
     companion object: KLoggingChannel()
 
-    private val consumedCounter = AtomicLong(0L)
-    private val rejectedCounter = AtomicLong(0L)
-    private val delayedNanosCounter = AtomicLong(0L)
-    private val parkedNanosCounter = AtomicLong(0L)
-    private val interruptedCounter = AtomicLong(0L)
+    private val consumedCounter = atomic(0L)
+    private val rejectedCounter = atomic(0L)
+    private val delayedNanosCounter = atomic(0L)
+    private val parkedNanosCounter = atomic(0L)
+    private val interruptedCounter = atomic(0L)
 
 
     override fun onConsumed(tokens: Long) {
         consumedCounter.addAndGet(tokens)
-        log.debug { "Bucket on consumed($tokens). all consumed=${consumedCounter.get()}" }
+        log.debug { "Bucket on consumed($tokens). all consumed=${consumedCounter.value}" }
     }
 
     override fun onRejected(tokens: Long) {
         rejectedCounter.addAndGet(tokens)
-        log.debug { "Bucket on rejected($tokens). all rejected=${rejectedCounter.get()}" }
+        log.debug { "Bucket on rejected($tokens). all rejected=${rejectedCounter.value}" }
     }
 
     override fun onDelayed(nanos: Long) {
         delayedNanosCounter.addAndGet(nanos)
-        log.debug { "Bucket on delayed($nanos). all delayed nanos=${delayedNanosCounter.get()}" }
+        log.debug { "Bucket on delayed($nanos). all delayed nanos=${delayedNanosCounter.value}" }
     }
 
     override fun onParked(nanos: Long) {
         parkedNanosCounter.addAndGet(nanos)
-        log.debug { "Bucket on parked($nanos). all parked nanos=${parkedNanosCounter.get()}" }
+        log.debug { "Bucket on parked($nanos). all parked nanos=${parkedNanosCounter.value}" }
     }
 
     override fun onInterrupted(e: InterruptedException?) {
         interruptedCounter.incrementAndGet()
-        log.debug(e) { "Bucket on interrupted. all interrupted=${interruptedCounter.get()}" }
+        log.debug(e) { "Bucket on interrupted. all interrupted=${interruptedCounter.value}" }
     }
 }

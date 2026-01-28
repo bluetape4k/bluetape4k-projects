@@ -3,10 +3,10 @@ package io.bluetape4k.coroutines.flow.extensions
 import io.bluetape4k.coroutines.flow.exceptions.StopFlowException
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.uninitialized
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.isActive
-import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * 상태 정보(값, 예외, 완료 여부)를 가지고, 상태변화를 보관하고 있다가,
@@ -20,28 +20,28 @@ class ResumableCollector<T>: Resumable() {
     var value: T = uninitialized()
     var error: Throwable? = null
 
-    private val done = AtomicBoolean(false)
-    private val hasValue = AtomicBoolean(false)
+    private val done = atomic(false)
+    private val hasValue = atomic(false)
 
     private val consumerReady = Resumable()
 
     suspend fun next(value: T) {
         whenConsumerReady {
             this.value = value
-            this.hasValue.set(true)
+            this.hasValue.value = true
         }
     }
 
     suspend fun error(error: Throwable?) {
         whenConsumerReady {
             this.error = error
-            this.done.set(true)
+            this.done.value = true
         }
     }
 
     suspend fun complete() {
         whenConsumerReady {
-            this.done.set(true)
+            this.done.value = true
         }
     }
 
@@ -72,10 +72,10 @@ class ResumableCollector<T>: Resumable() {
                 readyConsumer()
                 awaitSignal()
 
-                if (hasValue.get()) {
+                if (hasValue.value) {
                     val v = value
                     value = uninitialized()
-                    hasValue.set(false)
+                    hasValue.value = false
 
                     try {
                         if (coroutineContext.isActive) {
@@ -91,7 +91,7 @@ class ResumableCollector<T>: Resumable() {
                     }
                 }
 
-                if (done.get()) {
+                if (done.value) {
                     error?.let { throw it }
                     break
                 }

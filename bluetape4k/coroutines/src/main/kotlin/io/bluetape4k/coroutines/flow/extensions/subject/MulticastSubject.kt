@@ -5,12 +5,11 @@ import io.bluetape4k.coroutines.flow.extensions.Resumable
 import io.bluetape4k.coroutines.flow.extensions.ResumableCollector
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
-import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.atomic.AtomicReference
 
 
 /**
@@ -55,24 +54,24 @@ class MulticastSubject<T> private constructor(
     }
 
     @Suppress("UNCHECKED_CAST")
-    private val collectors = AtomicReference(EMPTY as Array<ResumableCollector<T>>)
+    private val collectors = atomic(EMPTY as Array<ResumableCollector<T>>)
 
     private val producer = Resumable()
 
-    private val remainingCollectors = AtomicInteger(expectedCollectorSize)
+    private val remainingCollectors = atomic(expectedCollectorSize)
 
     @Volatile
     private var terminated: Throwable? = null
 
     override val hasCollectors: Boolean
-        get() = collectors.get().isNotEmpty()
+        get() = collectors.value.isNotEmpty()
 
     override val collectorCount: Int
-        get() = collectors.get().size
+        get() = collectors.value.size
 
     override suspend fun emit(value: T) {
         awaitCollectors()
-        collectors.get().forEach { collector ->
+        collectors.value.forEach { collector ->
             try {
                 collector.next(value)
             } catch (e: CancellationException) {
@@ -111,7 +110,7 @@ class MulticastSubject<T> private constructor(
         val rc = ResumableCollector<T>()
         if (add(rc)) {
             while (true) {
-                val a = remainingCollectors.get()
+                val a = remainingCollectors.value
                 if (a == 0) {
                     break
                 }
@@ -132,7 +131,7 @@ class MulticastSubject<T> private constructor(
     }
 
     private suspend fun awaitCollectors() {
-        if (remainingCollectors.get() > 0) {
+        if (remainingCollectors.value > 0) {
             producer.await()
         }
     }
@@ -140,7 +139,7 @@ class MulticastSubject<T> private constructor(
     @Suppress("UNCHECKED_CAST")
     private fun add(inner: ResumableCollector<T>): Boolean {
         while (true) {
-            val array = collectors.get()
+            val array = collectors.value
             if (areEqualAsAny(array, TERMINATED)) {
                 return false
             }
@@ -156,7 +155,7 @@ class MulticastSubject<T> private constructor(
     @Suppress("UNCHECKED_CAST")
     private fun remove(inner: ResumableCollector<T>) {
         while (true) {
-            val array = collectors.get()
+            val array = collectors.value
             val n = array.size
             if (n == 0) {
                 return

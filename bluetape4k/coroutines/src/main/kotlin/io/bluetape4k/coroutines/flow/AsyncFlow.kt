@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow
 
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -10,7 +11,6 @@ import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.map
-import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -26,7 +26,7 @@ internal class LazyDeferred<out T>(
     val coroutineContext: CoroutineContext = EmptyCoroutineContext,
     @BuilderInference val block: suspend CoroutineScope.() -> T,
 ) {
-    private val deferred = AtomicReference<Deferred<T>?>(null)
+    private val deferred = atomic<Deferred<T>?>(null)
 
     /**
      * [block]을 비동기 방식으로 실행합니다.
@@ -41,7 +41,7 @@ internal class LazyDeferred<out T>(
     /**
      * [Deferred]의 실행이 완료될 때까지 대기하고, 결과를 반환합니다. deferred 가 실행되지 않았으면 에러를 발생시킵니다.
      */
-    suspend fun await(): T = deferred.get()?.await() ?: error("Coroutine not started")
+    suspend fun await(): T = deferred.value?.await() ?: error("Coroutine not started")
 }
 
 /**
@@ -112,7 +112,7 @@ inline fun <T, R> Flow<T>.async(
     val deferredFlow: Flow<LazyDeferred<R>> = map { input ->
         LazyDeferred(coroutineContext) { block(input) }
     }
-    
+
     return AsyncFlow(deferredFlow)
 }
 

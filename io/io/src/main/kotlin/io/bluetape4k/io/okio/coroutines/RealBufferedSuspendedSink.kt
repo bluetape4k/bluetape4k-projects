@@ -2,10 +2,10 @@ package io.bluetape4k.io.okio.coroutines
 
 import io.bluetape4k.io.okio.SEGMENT_SIZE
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import kotlinx.atomicfu.atomic
 import okio.Buffer
 import okio.ByteString
 import okio.Timeout
-import java.util.concurrent.atomic.AtomicBoolean
 
 fun SuspendedSink.buffered(): BufferedSuspendedSink = RealBufferedSuspendedSink(this)
 
@@ -21,7 +21,7 @@ internal class RealBufferedSuspendedSink(private val sink: SuspendedSink): Buffe
 
     override val buffer: Buffer = Buffer()
 
-    private val closed = AtomicBoolean(false)
+    private val closed = atomic(false)
 
     override suspend fun write(byteString: ByteString): BufferedSuspendedSink = emitCompleteSegments {
         buffer.write(byteString)
@@ -137,7 +137,7 @@ internal class RealBufferedSuspendedSink(private val sink: SuspendedSink): Buffe
 
 
     override suspend fun close() {
-        if (closed.get()) {
+        if (closed.value) {
             return
         }
 
@@ -157,7 +157,7 @@ internal class RealBufferedSuspendedSink(private val sink: SuspendedSink): Buffe
             thrown = thrown ?: e
         }
 
-        closed.set(true)
+        closed.value = true
 
         if (thrown != null) {
             throw thrown
@@ -176,7 +176,7 @@ internal class RealBufferedSuspendedSink(private val sink: SuspendedSink): Buffe
     }
 
     private fun checkNotClosed() {
-        check(!closed.get()) { "RealBufferedSuspendedSink is already closed" }
+        check(!closed.value) { "RealBufferedSuspendedSink is already closed" }
     }
 
     override fun toString(): String {

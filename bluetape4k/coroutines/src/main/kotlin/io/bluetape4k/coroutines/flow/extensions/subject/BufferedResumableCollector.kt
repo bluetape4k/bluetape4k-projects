@@ -2,10 +2,9 @@ package io.bluetape4k.coroutines.flow.extensions.subject
 
 import io.bluetape4k.coroutines.flow.extensions.Resumable
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.FlowCollector
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicLong
 
 
 /**
@@ -48,13 +47,13 @@ class BufferedResumableCollector<T> private constructor(capacity: Int): Resumabl
 
     private val queue: SpscArrayQueue<T> = SpscArrayQueue(capacity)
 
-    private val done = AtomicBoolean(false)
-    private val cancelled = AtomicBoolean(false)
+    private val done = atomic(false)
+    private val cancelled = atomic(false)
 
     @Volatile
     private var error: Throwable? = null
 
-    private val available = AtomicLong(0L)
+    private val available = atomic(0L)
 
     private val valueReady = Resumable()
 
@@ -62,7 +61,7 @@ class BufferedResumableCollector<T> private constructor(capacity: Int): Resumabl
     private val limit: Int = capacity - (capacity shr 2)
 
     suspend fun next(value: T) {
-        while (!cancelled.get()) {
+        while (!cancelled.value) {
             if (queue.offer(value)) {
                 if (available.getAndIncrement() == 0L) {
                     valueReady.resume()
@@ -71,19 +70,19 @@ class BufferedResumableCollector<T> private constructor(capacity: Int): Resumabl
             }
             await()
         }
-        if (cancelled.get()) {
+        if (cancelled.value) {
             throw CancellationException("Cancel in next.")
         }
     }
 
     fun error(ex: Throwable?) {
         error = ex
-        done.set(true)
+        done.value = true
         valueReady.resume()
     }
 
     fun complete() {
-        done.set(true)
+        done.value = true
         valueReady.resume()
     }
 
@@ -97,7 +96,7 @@ class BufferedResumableCollector<T> private constructor(capacity: Int): Resumabl
         while (true) {
             val ne = !queue.poll(output)
 
-            if (done.get() && ne) {
+            if (done.value && ne) {
                 error?.let { throw it }
                 break
             }
@@ -109,7 +108,7 @@ class BufferedResumableCollector<T> private constructor(capacity: Int): Resumabl
                     collector.emit(output[0] as T)
                 } catch (ex: Throwable) {
                     onCrash?.invoke(this)
-                    cancelled.set(true)
+                    cancelled.value = true
                     resume()
 
                     throw ex

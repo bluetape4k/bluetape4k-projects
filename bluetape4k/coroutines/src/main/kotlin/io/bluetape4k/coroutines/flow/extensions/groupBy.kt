@@ -3,6 +3,7 @@ package io.bluetape4k.coroutines.flow.extensions
 import io.bluetape4k.collections.tryForEach
 import io.bluetape4k.coroutines.flow.exceptions.FlowOperationException
 import io.bluetape4k.support.uninitialized
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
@@ -67,8 +68,7 @@ suspend fun <K: Any, V> Flow<GroupedFlow<K, V>>.toMap(
  *     .assertResultSet(listOf(1, 4, 7, 10), listOf(2, 5, 8), listOf(3, 6, 9))
  * ```
  *
- * ### Note
- * [groupBy] 함수 뒤에 [log] 함수를 사용하면 작동이 안됩니다. (버그)
+ * ### Note [groupBy] 함수 뒤에 [log] 함수를 사용하면 작동이 안됩니다. (버그)
  */
 fun <T, K: Any> Flow<T>.groupBy(keySelector: (T) -> K): Flow<GroupedFlow<K, T>> =
     groupByInternal(this, keySelector) { it }
@@ -82,8 +82,7 @@ fun <T, K: Any> Flow<T>.groupBy(keySelector: (T) -> K): Flow<GroupedFlow<K, T>> 
  *     .flatMapMerge { it.toValues() }
  *     .assertResultSet(listOf(2, 4, 6, 8, 10), listOf(3, 5, 7, 9, 11))
  * ```
- * ### Note
- * [groupBy] 함수 뒤에 [log] 함수를 사용하면 작동이 안됩니다. (버그)
+ * ### Note [groupBy] 함수 뒤에 [log] 함수를 사용하면 작동이 안됩니다. (버그)
  */
 fun <T, K: Any, V> Flow<T>.groupBy(
     keySelector: (T) -> K,
@@ -149,43 +148,43 @@ private class FlowGroup<K: Any, V>(
 
     @Volatile
     private var value: V = uninitialized()
+
+    @Volatile
     private var error: Throwable? = null
 
-    private val hasValue = AtomicBoolean(false)
-    private val done = AtomicBoolean(false)
-    private val cancelled = AtomicBoolean(false)
+    private val hasValue = atomic(false)
+    private val done = atomic(false)
+    private val cancelled = atomic(false)
 
     private val consumerReady = Resumable()
     private val valueReady = Resumable()
 
-    private var once = AtomicBoolean(false)
+    private val once = atomic(false)
 
     override suspend fun collectSafely(collector: FlowCollector<V>) {
-        if (!once.compareAndSet(false, true)) {
+        if (!once.compareAndSet(expect = false, update = true)) {
             error("A GroupedFlow can only be collected at most once.")
         }
 
         consumerReady.resume()
 
         while (true) {
-            val d = done.get()
-            val has = hasValue.get()
 
-            if (d && !has) {
+            if (done.value && !hasValue.value) {
                 error?.let { throw it }
                 break
             }
 
-            if (has) {
+            if (hasValue.value) {
                 val v = value
                 value = uninitialized()
-                hasValue.set(false)
+                hasValue.value = false
 
                 try {
                     collector.emit(v)
                 } catch (e: Throwable) {
                     map.remove(this.key)
-                    cancelled.set(true)
+                    cancelled.value = true
                     consumerReady.resume()
                     throw e
                 }
@@ -199,22 +198,22 @@ private class FlowGroup<K: Any, V>(
     }
 
     suspend fun next(value: V) {
-        if (cancelled.get()) return
+        if (cancelled.value) return
 
         consumerReady.await()
         this.value = value
-        this.hasValue.set(true)
+        this.hasValue.value = true
         valueReady.resume()
     }
 
     fun error(ex: Throwable) {
         error = ex
-        done.set(true)
+        done.value = true
         valueReady.resume()
     }
 
     fun complete() {
-        done.set(true)
+        done.value = true
         valueReady.resume()
     }
 }

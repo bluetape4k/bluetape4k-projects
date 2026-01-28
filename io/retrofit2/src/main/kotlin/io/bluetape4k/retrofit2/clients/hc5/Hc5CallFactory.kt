@@ -6,6 +6,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import io.bluetape4k.retrofit2.toIOException
+import kotlinx.atomicfu.atomic
 import okio.Timeout
 import org.apache.hc.client5.http.async.methods.SimpleHttpResponse
 import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient
@@ -16,7 +17,6 @@ import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicReference
 import kotlin.reflect.KClass
 
 /**
@@ -70,7 +70,8 @@ class Hc5CallFactory private constructor(
         private val callTimeout: Duration = CallTimeout,
     ): okhttp3.Call {
 
-        private val promiseRef = AtomicReference<CompletableFuture<okhttp3.Response>>(null)
+        private val promiseRef = atomic<CompletableFuture<okhttp3.Response>?>(null)
+        private var promise by promiseRef
         private val timeout = callTimeout.toTimeout()
 
         override fun execute(): okhttp3.Response {
@@ -95,7 +96,7 @@ class Hc5CallFactory private constructor(
         }
 
         private fun executeAsync(): CompletableFuture<okhttp3.Response> {
-            if (promiseRef.get() != null) {
+            if (promise != null) {
                 throwAlreadyExecuted()
             }
             val promise = CompletableFuture<okhttp3.Response>()
@@ -128,11 +129,11 @@ class Hc5CallFactory private constructor(
         }
 
         override fun isExecuted(): Boolean {
-            return promiseRef.get()?.isDone ?: false
+            return promise?.isDone ?: false
         }
 
         override fun cancel() {
-            promiseRef.get()?.let { promise ->
+            promise?.let { promise ->
                 if (!promise.cancel(true)) {
                     log.warn { "Cannot cancel promise. $promise" }
                 }
@@ -140,7 +141,7 @@ class Hc5CallFactory private constructor(
         }
 
         override fun isCanceled(): Boolean {
-            return promiseRef.get()?.isCancelled ?: false
+            return promise?.isCancelled ?: false
         }
 
         override fun clone(): okhttp3.Call {

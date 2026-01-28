@@ -80,7 +80,8 @@ internal class SuspendLazyBlockImpl<out T>(
     private val lazyValue: Lazy<T> = lazy(mode, initializer)
 
     override suspend fun invoke(): T = with(lazyValue) {
-        if (isInitialized()) value else withContext(dispatcher) { value }
+        if (isInitialized()) value
+        else withContext(dispatcher) { value }
     }
 }
 

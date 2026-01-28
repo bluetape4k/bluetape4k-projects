@@ -3,14 +3,13 @@ package io.bluetape4k.coroutines.flow.extensions.parallel
 import io.bluetape4k.coroutines.flow.exceptions.FlowOperationException
 import io.bluetape4k.coroutines.flow.extensions.Resumable
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
-
 
 /**
  * [source]의 요소를 주어진 수의 병렬 collector 에 라운드 로빈 방식으로 전달합니다.
@@ -46,7 +45,6 @@ internal class FlowParallel<T>(
                     var idx = index.get()
 
                     outer@ while (true) {
-
                         for (i in 0 until n) {
                             val j = idx
                             val rail = rails[j]
@@ -59,7 +57,6 @@ internal class FlowParallel<T>(
                                 break@outer
                             }
                         }
-
                         index.lazySet(idx)
                         generator.await()
                     }
@@ -75,9 +72,9 @@ internal class FlowParallel<T>(
         }
     }
 
-    class RailCollector<T>(private val resumeGenerator: Resumable): Resumable() {
+    private class RailCollector<T>(private val resumeGenerator: Resumable): Resumable() {
 
-        private val consumerReady = AtomicBoolean(false)
+        private val consumerReady = atomic(false)
 
         @Suppress("UNCHECKED_CAST")
         private var value: T = null as T
@@ -92,8 +89,7 @@ internal class FlowParallel<T>(
         private var done: Boolean = false
 
         fun next(value: T): Boolean {
-            if (consumerReady.get()) {
-                consumerReady.set(false)
+            if (consumerReady.compareAndSet(expect = true, update = false)) {
                 this.value = value
                 this.hasValue = true
                 resume()
@@ -115,7 +111,7 @@ internal class FlowParallel<T>(
 
         suspend fun drain(collector: FlowCollector<T>) {
             while (true) {
-                consumerReady.set(true)
+                consumerReady.value = true
                 resumeGenerator.resume()
 
                 await()

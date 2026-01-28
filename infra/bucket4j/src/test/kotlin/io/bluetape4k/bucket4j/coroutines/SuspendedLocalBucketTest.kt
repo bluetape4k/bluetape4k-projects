@@ -63,7 +63,7 @@ class SuspendedLocalBucketTest: AbstractBucket4jTest() {
             // 9개의 토큰을 소비하려고 한다 (기본 5개에 1촟당 1개씩 보충)
             val job = launch {
                 bucket.consume(9L)
-                done.set(true)
+                done.compareAndSet(false, true)
             }
 
             // 4개의 토큰이 더 필요하므로, 4초가 지연되어야 한다
@@ -118,7 +118,7 @@ class SuspendedLocalBucketTest: AbstractBucket4jTest() {
             // 9개의 토큰을 소비하려고 한다 (기본 5개에 1촟당 1개씩 보충)
             val task = async {
                 val consumed = bucket.tryConsume(9L, Duration.ofSeconds(5))
-                done.set(true)
+                done.compareAndSet(false, true)
                 consumed
             }
 

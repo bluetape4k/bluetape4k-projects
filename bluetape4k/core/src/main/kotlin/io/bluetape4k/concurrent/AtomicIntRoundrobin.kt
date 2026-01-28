@@ -3,7 +3,7 @@ package io.bluetape4k.concurrent
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireInRange
 import io.bluetape4k.support.requirePositiveNumber
-import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.atomicfu.atomic
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -32,13 +32,13 @@ class AtomicIntRoundrobin private constructor(val maximum: Int) {
         }
     }
 
-    private val currentValue = AtomicInteger(0)
+    private val currentValue = atomic(0)
     private val lock = ReentrantLock()
 
     /**
      * 현재 값을 반환합니다.
      */
-    fun get(): Int = lock.withLock { currentValue.get() }
+    fun get(): Int = currentValue.value
 
     /**
      * 현재 값을 설정합니다.
@@ -47,9 +47,7 @@ class AtomicIntRoundrobin private constructor(val maximum: Int) {
      */
     fun set(value: Int) {
         value.requireInRange(0, maximum - 1, "value")
-        lock.withLock {
-            currentValue.set(value)
-        }
+        currentValue.value = value
     }
 
     /**
@@ -57,9 +55,7 @@ class AtomicIntRoundrobin private constructor(val maximum: Int) {
      */
     fun next(): Int = lock.withLock {
         currentValue.incrementAndGet()
-        if (currentValue.get() >= maximum) {
-            currentValue.set(0)
-        }
-        currentValue.get()
+        currentValue.compareAndSet(maximum, 0)
+        currentValue.value
     }
 }

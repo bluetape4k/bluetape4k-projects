@@ -9,11 +9,11 @@ import io.bluetape4k.logging.warn
 import io.bluetape4k.retrofit2.toIOException
 import io.vertx.core.http.HttpClient
 import io.vertx.kotlin.core.http.requestOptionsOf
+import kotlinx.atomicfu.atomic
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicReference
 import kotlin.reflect.KClass
 
 /**
@@ -75,13 +75,14 @@ class VertxCallFactory private constructor(
     /**
      * Vertx의 [HttpClient]를 사용하여, Http 통신을 수행하는 Call 입니다.
      *
-     * @property okRequest OkHttp의 [Request] 인스턴스
+     * @property okRequest OkHttp의 [okRequest] 인스턴스
      */
     private inner class VertxCall(
         private val okRequest: okhttp3.Request,
     ): okhttp3.Call {
 
-        private val promiseRef = AtomicReference<CompletableFuture<okhttp3.Response>>(null)
+        private val promiseRef = atomic<CompletableFuture<okhttp3.Response>?>(null)
+        private var promise by promiseRef
         private val timeout = callTimeout.toTimeout()
 
         override fun execute(): okhttp3.Response {
@@ -105,7 +106,7 @@ class VertxCallFactory private constructor(
         }
 
         private fun executeAsync(): CompletableFuture<okhttp3.Response> {
-            if (promiseRef.get() != null) {
+            if (promise != null) {
                 throwAlreadyExecuted()
             }
             val promise = CompletableFuture<okhttp3.Response>()
@@ -140,11 +141,11 @@ class VertxCallFactory private constructor(
         }
 
         override fun isExecuted(): Boolean {
-            return promiseRef.get()?.isDone ?: false
+            return promise?.isDone ?: false
         }
 
         override fun cancel() {
-            promiseRef.get()?.let { promise ->
+            promise?.let { promise ->
                 if (!promise.cancel(true)) {
                     log.warn { "Cannot cancel promise. $promise" }
                 }
@@ -152,7 +153,7 @@ class VertxCallFactory private constructor(
         }
 
         override fun isCanceled(): Boolean {
-            return promiseRef.get()?.isCancelled ?: false
+            return promise?.isCancelled ?: false
         }
 
         override fun clone(): okhttp3.Call {

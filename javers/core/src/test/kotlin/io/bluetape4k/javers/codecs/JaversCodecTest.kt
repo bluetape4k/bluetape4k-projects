@@ -4,6 +4,7 @@ import com.google.gson.JsonObject
 import io.bluetape4k.javers.repository.jql.queryByInstanceId
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import kotlinx.atomicfu.atomic
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldContainSame
@@ -13,7 +14,6 @@ import org.javers.core.model.ShallowPhone
 import org.javers.core.model.SnapshotEntity
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import java.util.concurrent.atomic.AtomicInteger
 
 class JaversCodecTest {
 
@@ -53,7 +53,7 @@ class JaversCodecTest {
         JaversCodecs.ZstdFory,
     )
 
-    private val idSeq = AtomicInteger(0)
+    private val idSeq = atomic(0)
 
     @ParameterizedTest(name = "GsonCodec={0}")
     @MethodSource("getStringCodecs")
@@ -67,7 +67,7 @@ class JaversCodecTest {
         entity.entityRef = SnapshotEntity(42)
         javers.commit("a", entity)
 
-        val query = queryByInstanceId<SnapshotEntity>(idSeq.get())
+        val query = queryByInstanceId<SnapshotEntity>(idSeq.value)
 
         val snapshots = javers.findSnapshots(query)
         snapshots.forEach { log.debug { "snapshot=$it" } }
@@ -98,7 +98,7 @@ class JaversCodecTest {
         entity.entityRef = SnapshotEntity(43)
         javers.commit("a", entity)
 
-        val query = queryByInstanceId<SnapshotEntity>(idSeq.get())
+        val query = queryByInstanceId<SnapshotEntity>(idSeq.value)
 
         val snapshots = javers.findSnapshots(query)
         snapshots.forEach { log.debug { "snapshot=$it" } }

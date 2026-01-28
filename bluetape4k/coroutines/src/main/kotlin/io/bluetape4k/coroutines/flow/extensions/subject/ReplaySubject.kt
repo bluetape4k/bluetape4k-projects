@@ -3,14 +3,13 @@ package io.bluetape4k.coroutines.flow.extensions.subject
 import io.bluetape4k.coroutines.flow.extensions.Resumable
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.isActive
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
 
 
@@ -45,10 +44,9 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
     private val buffer: Buffer<T>
 
     @Suppress("UNCHECKED_CAST")
-    private val collectors: AtomicReference<Array<InnerCollector<T>>> =
-        AtomicReference(EMPTY as Array<InnerCollector<T>>)
+    private val collectors = atomic<Array<InnerCollector<T>>>(EMPTY as Array<InnerCollector<T>>)
 
-    private val done = AtomicBoolean(false)
+    private val done = atomic(false)
 
     constructor() {
         buffer = UnboundedReplayBuffer()
@@ -68,10 +66,10 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
     }
 
     override val hasCollectors: Boolean
-        get() = collectors.get().isNotEmpty()
+        get() = collectors.value.isNotEmpty()
 
     override val collectorCount: Int
-        get() = collectors.get().size
+        get() = collectors.value.size
 
 
     override suspend fun collectSafely(collector: FlowCollector<T>) {
@@ -81,21 +79,21 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
     }
 
     override suspend fun emit(value: T) {
-        if (done.get()) {
+        if (done.value) {
             return
         }
         buffer.emit(value)
-        collectors.get().forEach { collector ->
+        collectors.value.forEach { collector ->
             collector.resume()
         }
     }
 
     @Suppress("UNCHECKED_CAST")
     override suspend fun emitError(ex: Throwable?) {
-        if (done.get()) {
+        if (done.value) {
             return
         }
-        done.set(true)
+        done.value = true
         buffer.error(ex)
 
         collectors.getAndSet(TERMINATED as Array<InnerCollector<T>>).forEach { collector ->
@@ -105,10 +103,10 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
 
     @Suppress("UNCHECKED_CAST")
     override suspend fun complete() {
-        if (done.get()) {
+        if (done.value) {
             return
         }
-        done.set(true)
+        done.value = true
         buffer.complete()
 
         collectors.getAndSet(TERMINATED as Array<InnerCollector<T>>).forEach { collector ->
@@ -119,7 +117,7 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
     @Suppress("UNCHECKED_CAST")
     private fun add(inner: InnerCollector<T>): Boolean {
         while (true) {
-            val a = collectors.get()
+            val a = collectors.value
             if (areEqualAsAny(a, TERMINATED)) {
                 return false
             }
@@ -135,7 +133,7 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
     @Suppress("UNCHECKED_CAST")
     private fun remove(inner: InnerCollector<T>) {
         while (true) {
-            val a = collectors.get()
+            val a = collectors.value
             val n = a.size
             if (n == 0) {
                 return
@@ -175,10 +173,10 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
 
         private companion object: KLoggingChannel()
 
-        private val size = AtomicLong(0L)
+        private val size = atomic(0L)
         private val list = ArrayDeque<T>()
-        private val done = AtomicBoolean(false)
-        private val error = AtomicReference<Throwable>(null)
+        private val done = atomic(false)
+        private val error = atomic<Throwable?>(null)
 
         override fun emit(value: T) {
             list.add(value)
@@ -186,22 +184,22 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
         }
 
         override fun error(e: Throwable?) {
-            error.set(e)
-            done.set(true)
+            error.value = e
+            done.value = true
         }
 
         override fun complete() {
-            done.set(true)
+            done.value = true
         }
 
         override suspend fun replay(consumer: InnerCollector<T>) = coroutineScope {
             log.debug { "Replay emit ..." }
 
             while (true) {
-                val d = done.get()
-                val empty = consumer.index == size.get()
+                val d = done.value
+                val empty = consumer.index == size.value
                 if (d && empty) {
-                    error.get()?.let { throw it }
+                    error.value?.let { throw it }
                     return@coroutineScope
                 }
                 if (!empty) {
@@ -227,8 +225,8 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
 
         private var size: Int = 0
 
-        private val done = AtomicBoolean(false)
-        private val error = AtomicReference<Throwable>(null)
+        private val done = atomic(false)
+        private val error = atomic<Throwable?>(null)
 
         @Volatile
         private var head: Node<T>
@@ -255,18 +253,18 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
         }
 
         override fun error(e: Throwable?) {
-            error.set(e)
-            done.set(true)
+            error.value = e
+            done.value = true
         }
 
         override fun complete() {
-            done.set(true)
+            done.value = true
         }
 
         @Suppress("UNCHECKED_CAST")
         override suspend fun replay(consumer: InnerCollector<T>) = coroutineScope {
             while (true) {
-                val d = done.get()
+                val d = done.value
                 var index = consumer.node as? Node<T>
                 if (index == null) {
                     index = head
@@ -276,7 +274,7 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
                 val empty = next == null
 
                 if (d && empty) {
-                    error.get()?.let { throw it }
+                    error.value?.let { throw it }
                     return@coroutineScope
                 }
                 if (!empty) {
@@ -308,10 +306,8 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
     ): Buffer<T> {
         private var size: Int = 0
 
-        private val done = AtomicBoolean(false)
-
-        @Volatile
-        private var error: Throwable? = null
+        private val done = atomic(false)
+        private val error = atomic<Throwable?>(null)
 
         @Volatile
         private var head: Node<T>
@@ -356,12 +352,12 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
         }
 
         override fun error(e: Throwable?) {
-            error = e
-            done.set(true)
+            error.value = e
+            done.value = true
         }
 
         override fun complete() {
-            done.set(true)
+            done.value = true
         }
 
         fun findHead(): Node<T> {
@@ -382,7 +378,7 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
         @Suppress("UNCHECKED_CAST")
         override suspend fun replay(consumer: InnerCollector<T>) = coroutineScope {
             while (true) {
-                val d = done.get()
+                val d = done.value
                 var index = consumer.node as? Node<T>
                 if (index == null) {
                     index = findHead()
@@ -392,7 +388,7 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
                 val empty = next == null
 
                 if (d && empty) {
-                    error?.let { throw it }
+                    error.value?.let { throw it }
                     return@coroutineScope
                 }
                 if (!empty) {

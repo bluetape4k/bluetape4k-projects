@@ -13,7 +13,7 @@ import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
 import kotlin.test.assertFailsWith
 
-class AtomicRoundrobinTest {
+class AtomicIntRoundrobinTest {
 
     companion object: KLogging()
 
