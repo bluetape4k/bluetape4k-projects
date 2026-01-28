@@ -3,6 +3,7 @@ package io.bluetape4k.coroutines.flow.extensions
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.support.unsafeLazy
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -74,7 +75,7 @@ internal fun <T: Any, R: Any> Flow<T>.concatMapEagerInternal(
                                 resumeOutput.resume()
                             }
                         } finally {
-                            newQueue.done.set(true)
+                            newQueue.done.value = true
                             resumeOutput.resume()
                         }
                     }
@@ -96,7 +97,7 @@ internal fun <T: Any, R: Any> Flow<T>.concatMapEagerInternal(
                 }
             }
             if (innerQueue != null) {
-                val done = innerQueue.done.get()
+                val done = innerQueue.done.value
                 val value = innerQueue.queue.poll()
 
                 if (done && value == null) {
@@ -116,5 +117,5 @@ internal fun <T: Any, R: Any> Flow<T>.concatMapEagerInternal(
 
 private class ConcatMapEagerInnerQueue<R: Any> {
     val queue = ConcurrentLinkedQueue<R>()
-    val done = AtomicBoolean(false)
+    val done = atomic(false)
 }

@@ -2,10 +2,11 @@ package io.bluetape4k.coroutines.flow.extensions.subject
 
 import io.bluetape4k.coroutines.flow.extensions.ResumableCollector
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import kotlinx.atomicfu.AtomicRef
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
 import java.util.concurrent.CancellationException
-import java.util.concurrent.atomic.AtomicReference
 
 
 /**
@@ -44,17 +45,17 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
         private val TERMINATED = arrayOf<ResumableCollector<Any>>()
     }
 
-    private val collectors: AtomicReference<Array<ResumableCollector<T>>> =
-        AtomicReference(EMPTY as Array<ResumableCollector<T>>)
+    private val collectors: AtomicRef<Array<ResumableCollector<T>>> =
+        atomic(EMPTY as Array<ResumableCollector<T>>)
 
 
     private var error: Throwable? = null
 
     override val hasCollectors: Boolean
-        get() = collectors.get().isNotEmpty()
+        get() = collectors.value.isNotEmpty()
 
     override val collectorCount: Int
-        get() = collectors.get().size
+        get() = collectors.value.size
 
     /**
      * Start collecting signals from this PublishSubject.
@@ -74,7 +75,7 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
      */
     override suspend fun emit(value: T) {
         // 등록된 모든 collector 에게 value 를 전달합니다.
-        collectors.get().forEach { collector ->
+        collectors.value.forEach { collector ->
             try {
                 collector.next(value)
             } catch (e: CancellationException) {
@@ -109,7 +110,7 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
 
     private fun add(inner: ResumableCollector<T>): Boolean {
         while (true) {
-            val a = collectors.get()
+            val a = collectors.value
             if (areEqualAsAny(a, TERMINATED)) {
                 return false
             }
@@ -124,7 +125,7 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
 
     private fun remove(inner: ResumableCollector<T>) {
         while (true) {
-            val a = collectors.get()
+            val a = collectors.value
             val n = a.size
             if (n == 0) {
                 return

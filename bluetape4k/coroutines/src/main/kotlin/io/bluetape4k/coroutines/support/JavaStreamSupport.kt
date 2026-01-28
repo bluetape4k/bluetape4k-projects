@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.support
 
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.buffer
@@ -190,10 +191,10 @@ inline fun <R> IntStream.coMap(
 }
 
 internal class IntStreamFlow(private val stream: IntStream): Flow<Int> {
-    private val consumed = AtomicBoolean(false)
+    private val consumed = atomic(false)
 
     override suspend fun collect(collector: FlowCollector<Int>) {
-        if (!consumed.compareAndSet(false, true))
+        if (!consumed.compareAndSet(expect = false, update = true))
             error("IntStream.consumeAsFlow can be collected only once")
 
         stream.use { stream ->

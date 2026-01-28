@@ -3,6 +3,7 @@ package io.bluetape4k.coroutines.flow.extensions.subject
 import io.bluetape4k.coroutines.flow.extensions.Resumable
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.AbstractFlow
@@ -50,7 +51,9 @@ class BehaviorSubject<T> private constructor(
         }
     }
 
-    private val collectors: AtomicReference<Array<InnerCollector>> = AtomicReference(EMPTY)
+    private val collectors = atomic<Array<InnerCollector>>(EMPTY)
+
+    @Volatile
     private var error: Throwable? = null
 
     val value: T get() = valueOrNull ?: error("No value")
@@ -61,8 +64,8 @@ class BehaviorSubject<T> private constructor(
             return if (currentValue == NONE) null else currentValue
         }
 
-    override val hasCollectors: Boolean get() = collectors.get().isNotEmpty()
-    override val collectorCount: Int get() = collectors.get().size
+    override val hasCollectors: Boolean get() = collectors.value.isNotEmpty()
+    override val collectorCount: Int get() = collectors.value.size
 
     override suspend fun emit(value: T) {
         if (current == DONE)
@@ -72,7 +75,7 @@ class BehaviorSubject<T> private constructor(
         current.set(next)
         current = next
 
-        collectors.get().forEach { innerCollector ->
+        collectors.value.forEach { innerCollector ->
             try {
                 innerCollector.consumeReady.await()
                 innerCollector.resume()
@@ -165,7 +168,7 @@ class BehaviorSubject<T> private constructor(
     @Suppress("UNCHECKED_CAST")
     private fun add(inner: InnerCollector): Boolean {
         while (true) {
-            val a = collectors.get()
+            val a = collectors.value
             if (areEqualAsAny(a, TERMINATED)) {
                 return false
             }
@@ -181,7 +184,7 @@ class BehaviorSubject<T> private constructor(
     @Suppress("UNCHECKED_CAST")
     private fun remove(inner: InnerCollector) {
         while (true) {
-            val a = collectors.get()
+            val a = collectors.value
             val n = a.size
             if (n == 0) {
                 return
