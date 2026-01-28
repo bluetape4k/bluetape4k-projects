@@ -10,9 +10,9 @@ import io.grpc.BindableService
 import io.grpc.Server
 import io.grpc.ServerBuilder
 import io.grpc.ServerServiceDefinition
+import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.locks.reentrantLock
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 /**
@@ -33,13 +33,13 @@ abstract class AbstractGrpcServer(
 
     protected val server: Server by lazy { createServer() }
 
-    private val running = AtomicBoolean(false)
-    private val lock = ReentrantLock()
+    private val running = atomic(false)
+    private val lock = reentrantLock()
 
     val port: Int get() = server.port
     val serviceDefinitions: List<ServerServiceDefinition> get() = server.services
 
-    override val isRunning: Boolean get() = running.get()
+    override val isRunning: Boolean by running
     override val isShutdown: Boolean get() = server.isShutdown
 
     protected open fun createServer(): Server {
@@ -51,7 +51,7 @@ abstract class AbstractGrpcServer(
         lock.withLock {
             log.debug { "Starting gRPC Server..." }
             server.start()
-            running.set(true)
+            running.value = true
             log.info { "Start gRPC Server. port=$port, services=$serviceDefinitions" }
 
             ShutdownQueue.register {
@@ -69,10 +69,12 @@ abstract class AbstractGrpcServer(
             if (!isShutdown) {
                 log.debug { "Shutdown gRPC server..." }
                 runCatching {
-                    running.set(false)
-                    server.shutdown().awaitTermination(5, TimeUnit.SECONDS).ifFalse {
-                        log.warn { "Timed out waiting for server shutdown" }
-                    }
+                    running.value = false
+                    server.shutdown()
+                        .awaitTermination(5, TimeUnit.SECONDS)
+                        .ifFalse {
+                            log.warn { "Timed out waiting for server shutdown" }
+                        }
                 }
             }
         }
