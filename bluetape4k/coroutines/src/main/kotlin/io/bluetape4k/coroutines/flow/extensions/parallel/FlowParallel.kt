@@ -72,7 +72,7 @@ internal class FlowParallel<T>(
         }
     }
 
-    class RailCollector<T>(private val resumeGenerator: Resumable): Resumable() {
+    private class RailCollector<T>(private val resumeGenerator: Resumable): Resumable() {
 
         private val consumerReady = atomic(false)
 

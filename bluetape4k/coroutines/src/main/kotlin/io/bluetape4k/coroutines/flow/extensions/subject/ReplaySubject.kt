@@ -3,7 +3,6 @@ package io.bluetape4k.coroutines.flow.extensions.subject
 import io.bluetape4k.coroutines.flow.extensions.Resumable
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import kotlinx.atomicfu.AtomicRef
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.coroutineScope
@@ -45,7 +44,7 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
     private val buffer: Buffer<T>
 
     @Suppress("UNCHECKED_CAST")
-    private val collectors: AtomicRef<Array<InnerCollector<T>>> = atomic(EMPTY as Array<InnerCollector<T>>)
+    private val collectors = atomic<Array<InnerCollector<T>>>(EMPTY as Array<InnerCollector<T>>)
 
     private val done = atomic(false)
 

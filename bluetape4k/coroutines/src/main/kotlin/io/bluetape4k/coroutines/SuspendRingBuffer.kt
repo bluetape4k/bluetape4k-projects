@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -13,7 +14,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 class SuspendRingBuffer<T: Any>(
     private val buffer: CopyOnWriteArrayList<T?>,
     private var startIndex: Int = 0,
-    size: Int = 0,
+    _size: Int = 0,
 ): Iterable<T?> by buffer {
 
     companion object: KLogging() {
@@ -35,7 +36,7 @@ class SuspendRingBuffer<T: Any>(
 
     private val mutex: Mutex = Mutex()
 
-    var size: Int = size
+    var size: Int = _size
         private set
 
     val isFull: Boolean get() = size == buffer.size
@@ -53,7 +54,8 @@ class SuspendRingBuffer<T: Any>(
 
     suspend fun snapshot(): List<T> = mutex.withLock {
         val copy = buffer.toList()
-        List(size) {
+
+        fastList(size) {
             copy[startIndex.forward(it)] as T
         }
     }
@@ -61,7 +63,9 @@ class SuspendRingBuffer<T: Any>(
     suspend fun push(element: T) {
         mutex.withLock {
             buffer[startIndex.forward(size)] = element
-            if (isFull) startIndex++ else size++
+
+            if (isFull) startIndex++
+            else size++
         }
     }
 

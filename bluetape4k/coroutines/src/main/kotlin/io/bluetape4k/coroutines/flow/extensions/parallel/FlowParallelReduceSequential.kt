@@ -39,10 +39,10 @@ internal class FlowParallelReduceSequential<T>(
         }
     }
 
-    class ReducerCollector<T>(private val combine: suspend (T, T) -> T): FlowCollector<T> {
+    private class ReducerCollector<T>(private val combine: suspend (T, T) -> T): FlowCollector<T> {
         var accumulator: T = uninitialized()
         private val _hasValue = atomic(false)
-        internal var hasValue by _hasValue
+        var hasValue by _hasValue
 
 
         override suspend fun emit(value: T) {
