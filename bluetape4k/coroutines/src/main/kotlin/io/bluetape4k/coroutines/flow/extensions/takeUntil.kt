@@ -21,7 +21,8 @@ import kotlin.time.Duration
  * @param other 소스 [Flow]의 흐름을 제어하는 [Flow]
  * @return Flow<T> 인스턴스
  */
-fun <T> Flow<T>.takeUntil(other: Flow<Any?>): Flow<T> = takeUntilInternal(this, other)
+fun <T> Flow<T>.takeUntil(other: Flow<Any?>): Flow<T> =
+    takeUntilInternal(this, other)
 
 /**
  * [delay] 만큼 지연해서 flow 를 collect 하도록 합니다.
@@ -36,7 +37,8 @@ fun <T> Flow<T>.takeUntil(other: Flow<Any?>): Flow<T> = takeUntilInternal(this, 
  * @param delay 지연할 시간
  * @return Flow<T> 인스턴스
  */
-fun <T> Flow<T>.takeUntil(delay: Duration): Flow<T> = takeUntilInternal(this, delayedFlow(delay))
+fun <T> Flow<T>.takeUntil(delay: Duration): Flow<T> =
+    takeUntilInternal(this, delayedFlow(delay))
 
 /**
  * [delayMillis] 만큼 지연해서 flow 를 collect 하도록 합니다.
@@ -51,7 +53,8 @@ fun <T> Flow<T>.takeUntil(delay: Duration): Flow<T> = takeUntilInternal(this, de
  * @param delayMillis 지연할 시간 (단위: MilliSeconds)
  * @return Flow<T> 인스턴스
  */
-fun <T> Flow<T>.takeUntil(delayMillis: Long): Flow<T> = takeUntilInternal(this, delayedFlow(delayMillis))
+fun <T> Flow<T>.takeUntil(delayMillis: Long): Flow<T> =
+    takeUntilInternal(this, delayedFlow(delayMillis))
 
 
 internal fun <T> takeUntilInternal(source: Flow<T>, notifier: Flow<Any?>): Flow<T> = flow {

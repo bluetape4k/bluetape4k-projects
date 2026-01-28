@@ -12,6 +12,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicIntegerArray
 
 private val log: Logger by unsafeLazy { KotlinLogging.logger { } }
@@ -104,13 +105,13 @@ internal fun <T: Any> concatArrayEagerInternal(sources: List<Flow<T>>): Flow<T> 
             }
         }
 
-        var index = 0
-        while (isActive && index < size) {
-            val queue = queues[index]
-            val done = dones[index] != 0
+        val index = AtomicInteger(0)
+        while (isActive && index.get() < size) {
+            val queue = queues[index.get()]
+            val done = dones[index.get()] != 0
 
             if (done && queue.isEmpty()) {
-                index++
+                index.incrementAndGet()
                 continue
             }
             val value = queue.poll()

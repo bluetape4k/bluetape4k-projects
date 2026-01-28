@@ -17,6 +17,7 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicInteger
 
 class ChannelFlowExamples {
 
@@ -43,7 +44,7 @@ class ChannelFlowExamples {
     private fun allUsersByFlow(api: UserApi): Flow<User> = flow {
         var page = 0
         do {
-            log.debug { "Fetching page $page" }
+            log.debug { "🦀Fetching page $page" }
             val users = api.takePage(page++)
             emitAll(users)
         } while (users.toList().isNotEmpty())
@@ -63,7 +64,6 @@ class ChannelFlowExamples {
                 it.name == "User3"
             }
 
-
         user.shouldNotBeNull()
         user.name shouldBeEqualTo "User3"
     }
@@ -71,15 +71,16 @@ class ChannelFlowExamples {
 
     private fun allUsersByCannelFlow(api: UserApi): Flow<User> = channelFlow {
         var page = 0
+        val sent = AtomicInteger()
         do {
-            log.debug { "Fetching page $page" }
-            var sent = 0
+            log.debug { "🦀Fetching page $page" }
+            sent.set(0)
             val users = api.takePage(page++)
             users.collect {
                 send(it)
-                sent++
+                sent.incrementAndGet()
             }
-        } while (sent > 0)
+        } while (sent.get() > 0)
     }
 
     /**
@@ -88,7 +89,7 @@ class ChannelFlowExamples {
     @Test
     fun `get users by cannel flow`() = runTest {
         val api = FakeUserApi()
-        val users = allUsersByCannelFlow(api).log("channel")
+        val users = allUsersByCannelFlow(api).log("C")
 
         val user = users
             .firstOrNull {

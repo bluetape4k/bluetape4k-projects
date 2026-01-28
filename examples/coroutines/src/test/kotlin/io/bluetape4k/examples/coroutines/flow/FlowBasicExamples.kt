@@ -3,6 +3,7 @@ package io.bluetape4k.examples.coroutines.flow
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
@@ -13,13 +14,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.concurrent.atomic.AtomicLong
 
 class FlowBasicExamples {
 
     companion object: KLoggingChannel()
 
-    private val sequencer = AtomicLong(0L)
+    private val sequencer = atomic(0L)
+    private var sequence: Long by sequencer
 
     private suspend fun computeNextValue(): Long {
         delay(10)
@@ -28,7 +29,7 @@ class FlowBasicExamples {
 
     @BeforeEach
     fun setup() {
-        sequencer.set(0L)
+        sequence = 0L
     }
 
     /**
@@ -82,16 +83,15 @@ class FlowBasicExamples {
     fun `flow {} is statement 이므로 실행 시마다 flow가 생성된다 `() = runTest {
         val flow = makeFlow().log("#1")
 
-        delay(1000)
         log.debug { "Collect flow at first... " }
         flow.collect { value ->
-            log.debug { "collect $value" }
+            log.debug { "👀#1 collect $value" }
         }
 
         delay(1000)
-        log.debug { "Collect flow again ..." }
+        log.debug { "Collect flow at seconds ..." }
         flow.collect { value ->
-            log.debug { "consume $value" }
+            log.debug { "👀#2 collect $value" }
         }
     }
 

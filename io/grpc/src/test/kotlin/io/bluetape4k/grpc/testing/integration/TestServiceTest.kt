@@ -21,7 +21,6 @@ import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import java.util.concurrent.atomic.AtomicLong
 import kotlin.test.assertFailsWith
 
 @OutputCapture
@@ -98,18 +97,18 @@ class TestServiceTest {
         val requests = getStreamingOutputCallRequests(times = 1).first()
         val responses = client.streamingOutputCall(requests)
 
-        val responseCount = AtomicLong(0L)
+        var responseCount = 0
         responses
             .buffer()
             .collect { response ->
                 log.debug { "Response. $response" }
-                responseCount.incrementAndGet()
+                responseCount++
             }
 
         with(output.capture()) {
             this shouldContain "Response. payload {"
         }
-        responseCount.get() shouldBeEqualTo 4L
+        responseCount shouldBeEqualTo 4
     }
 
     @Test

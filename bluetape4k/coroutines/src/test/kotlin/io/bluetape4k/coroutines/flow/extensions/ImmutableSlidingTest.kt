@@ -111,7 +111,6 @@ class ImmutableSlidingTest {
                 }
             }
             .launchIn(this)
-
         yield()
 
         launch {

@@ -44,7 +44,7 @@ class SharedFlowExamples {
                         collected1.incrementAndGet()
                     }
             }
-
+            yield()
             launch {
                 mutableSharedFlow
                     .log("#2")
@@ -52,7 +52,6 @@ class SharedFlowExamples {
                         collected2.incrementAndGet()
                     }
             }
-
             yield()
 
             launch {

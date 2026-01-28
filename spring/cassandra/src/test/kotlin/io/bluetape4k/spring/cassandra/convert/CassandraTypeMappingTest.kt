@@ -2,13 +2,13 @@ package io.bluetape4k.spring.cassandra.convert
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
+import kotlinx.atomicfu.atomic
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.cassandra.core.CassandraOperations
-import java.util.concurrent.atomic.AtomicBoolean
 
 @SpringBootTest(classes = [ConvertTestConfiguration::class])
 class CassandraTypeMappingTest(
@@ -16,12 +16,12 @@ class CassandraTypeMappingTest(
 ): io.bluetape4k.spring.cassandra.AbstractCassandraTest() {
 
     companion object: KLoggingChannel() {
-        private val initialized = AtomicBoolean()
+        private val initialized = atomic(false)
     }
 
     @BeforeEach
     fun beforeEach() {
-        if (initialized.compareAndSet(false, true)) {
+        if (initialized.compareAndSet(expect = false, update = true)) {
             // TODO: 초기화                                  
         }
     }

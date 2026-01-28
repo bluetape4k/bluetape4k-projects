@@ -79,7 +79,7 @@ class NearSuspendCache<K: Any, V: Any> private constructor(
         }
     }
 
-    private suspend fun checkBackCacheExpiration() {
+    private fun checkBackCacheExpiration() {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         val job = scope.launch {
             val entrySizer = AtomicInteger(0)
@@ -132,8 +132,8 @@ class NearSuspendCache<K: Any, V: Any> private constructor(
             "front cache, back cache 모두 clear 합니다. 단 back cache 를 공유한 다른 near cache에는 전파되지 않습니다. " +
                     "전파를 위해서는 removeAll을 사용하세요"
         }
-        val frontClearJob = launch(coroutineContext) { frontCache.clear() }
-        val backClearJob = launch(coroutineContext) { backCache.clear() }
+        val frontClearJob = launch { frontCache.clear() }
+        val backClearJob = launch { backCache.clear() }
 
         frontClearJob.join()
         backClearJob.join()
@@ -154,7 +154,7 @@ class NearSuspendCache<K: Any, V: Any> private constructor(
         frontCache.get(key)
             ?: backCache.get(key)
                 ?.also { value ->
-                    launch(coroutineContext) {
+                    launch {
                         frontCache.put(key, value)
                     }
                 }

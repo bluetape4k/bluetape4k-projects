@@ -28,6 +28,7 @@ import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
 import java.io.IOException
+import java.io.Serializable
 import java.time.Duration
 import java.util.*
 import java.util.concurrent.CompletableFuture
@@ -316,9 +317,8 @@ class CompositionTransformationExamples {
 
     @Test
     fun `13-1 Multi Broadcast in coroutines`() = runSuspendDefault {
-        val scope = DefaultCoroutineScope()
         val counter = AtomicInteger(0)
-        try {
+        DefaultCoroutineScope().use { scope ->
             val multi: Multi<Int> = Multi.createBy()
                 .repeating().supplier(counter::getAndIncrement)
                 .atMost(10)
@@ -351,8 +351,6 @@ class CompositionTransformationExamples {
             )
             jobs.joinAll()
             counter.get() shouldBeEqualTo 10
-        } finally {
-            scope.close()
         }
     }
 
@@ -412,7 +410,7 @@ class CompositionTransformationExamples {
         val identifier: String,
         val age: Int,
         val city: String,
-    )
+    ): Serializable
 
     @Test
     fun `15 Multi Buckets`() = runTest {
@@ -475,5 +473,4 @@ class CompositionTransformationExamples {
         log.debug { "multi=$multi" }
         multi shouldBeEqualTo listOf(123)
     }
-
 }

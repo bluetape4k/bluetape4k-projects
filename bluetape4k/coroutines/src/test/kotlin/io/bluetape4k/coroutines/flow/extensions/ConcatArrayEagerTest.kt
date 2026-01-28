@@ -55,19 +55,19 @@ class ConcatArrayEagerTest: AbstractFlowTest() {
 
     @Test
     fun `cancel concat`() = runTest {
-        var counter = 0
+        val counter = AtomicInteger()
 
         concatArrayEager(
             flowRangeOf(1, 5).log("#1")
                 .onEach {
                     delay(200)
-                    counter++
+                    counter.incrementAndGet()
                 }
         )
             .take(3)
             .assertResult(1, 2, 3)
 
-        counter shouldBeEqualTo 3
+        counter.get() shouldBeEqualTo 3
     }
 
     @Test

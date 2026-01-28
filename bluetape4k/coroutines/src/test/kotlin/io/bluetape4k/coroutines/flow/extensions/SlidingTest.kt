@@ -67,7 +67,6 @@ class SlidingTest: AbstractFlowTest() {
     @Test
     fun `buffered sliding - 버퍼링을 하면서 sliding 합니다`() = runTest {
         val flow = flowOf(1, 2, 3, 4, 5)
-
         val sliding = flow.bufferedSliding(3).log("buffered sliding")
 
         sliding.test {

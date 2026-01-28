@@ -12,6 +12,7 @@
     </appender>
 
     <logger name="io.bluetape4k.coroutines" level="DEBUG"/>
+    <logger name="Bluetape4k" leve="DEBUG"/>
 
     <root level="INFO">
         <appender-ref ref="Console"/>

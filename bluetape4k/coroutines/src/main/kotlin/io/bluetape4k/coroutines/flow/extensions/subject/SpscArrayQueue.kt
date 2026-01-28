@@ -39,13 +39,6 @@ internal class SpscArrayQueue<T> private constructor(capacity: Int) {
         }
     }
 
-//    private val referenceArray = atomicArrayOfNulls<Any>(nextPowerOf2(capacity))
-//        .apply {
-//            repeat(size) {
-//                get(it).lazySet(EMPTY)
-//            }
-//        }
-
     private val referenceArray =
         AtomicReferenceArray<AtomicReference<Any>>(nextPowerOf2(capacity))
             .apply {

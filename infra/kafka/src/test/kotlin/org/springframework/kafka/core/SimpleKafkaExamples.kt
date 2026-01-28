@@ -4,6 +4,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.uninitialized
 import io.bluetape4k.testcontainers.mq.KafkaServer
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
@@ -28,7 +29,6 @@ import org.springframework.kafka.support.Acknowledgment
 import org.springframework.kafka.support.KafkaHeaders
 import org.springframework.messaging.handler.annotation.Header
 import org.springframework.messaging.handler.annotation.Payload
-import java.util.concurrent.atomic.AtomicInteger
 
 @SpringBootTest
 class SimpleKafkaExamples {
@@ -80,11 +80,12 @@ class SimpleKafkaExamples {
     @Autowired
     private val kafkaTemplate: KafkaTemplate<String, String> = uninitialized()
 
-    private val consumed = AtomicInteger(0)
+    private val consumedCounter = atomic(0)
+    private var consumed by consumedCounter
 
     @BeforeEach
     fun beforeEach() {
-        consumed.set(0)
+        consumed = 0
     }
 
     @Test
@@ -113,7 +114,7 @@ class SimpleKafkaExamples {
         result2.recordMetadata.partition() shouldBeEqualTo result.recordMetadata.partition()
         result2.recordMetadata.offset() shouldBeGreaterThan result.recordMetadata.offset()
 
-        await until { consumed.get() >= 2 * 3 }
+        await until { consumed >= 2 * 3 }
         log.debug { "all consumer has been consumed." }
     }
 
@@ -124,7 +125,7 @@ class SimpleKafkaExamples {
     )
     private fun listen(message: String, ack: Acknowledgment) {
         log.debug { "Receive Message in group simple-group: $message" }
-        consumed.incrementAndGet()
+        consumedCounter.incrementAndGet()
         runCatching { ack.acknowledge() }
     }
 
@@ -140,7 +141,7 @@ class SimpleKafkaExamples {
         ack: Acknowledgment,
     ) {
         log.debug { "Received message: [$message], partition=$partition, offset=$offset" }
-        consumed.incrementAndGet()
+        consumedCounter.incrementAndGet()
         runCatching { ack.acknowledge() }
     }
 
@@ -154,7 +155,7 @@ class SimpleKafkaExamples {
         ack: Acknowledgment,
     ) {
         log.debug { "Received message: record=$record" }
-        consumed.incrementAndGet()
+        consumedCounter.incrementAndGet()
         runCatching { ack.acknowledge() }
     }
 }

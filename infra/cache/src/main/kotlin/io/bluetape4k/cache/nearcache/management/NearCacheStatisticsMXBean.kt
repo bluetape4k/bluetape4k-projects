@@ -1,7 +1,7 @@
 package io.bluetape4k.cache.nearcache.management
 
+import kotlinx.atomicfu.atomic
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicLong
 import javax.cache.management.CacheStatisticsMXBean
 
 /**
@@ -9,28 +9,28 @@ import javax.cache.management.CacheStatisticsMXBean
  */
 open class NearCacheStatisticsMXBean: CacheStatisticsMXBean {
 
-    private val removals = AtomicLong()
-    private val hits = AtomicLong()
-    private val puts = AtomicLong()
-    private val misses = AtomicLong()
-    private val evictions = AtomicLong()
-    private val removeTime = AtomicLong()
-    private val getTime = AtomicLong()
-    private val putTime = AtomicLong()
+    private val removals = atomic(0L)
+    private val hits = atomic(0L)
+    private val puts = atomic(0L)
+    private val misses = atomic(0L)
+    private val evictions = atomic(0L)
+    private val removeTime = atomic(0L)
+    private val getTime = atomic(0L)
+    private val putTime = atomic(0L)
 
     /**
      * Clears the statistics counters to 0 for the associated Cache.
      */
     override fun clear() {
-        removals.set(0)
-        hits.set(0)
-        puts.set(0)
-        misses.set(0)
-        evictions.set(0)
+        removals.value = 0
+        hits.value = 0
+        puts.value = 0
+        misses.value = 0
+        evictions.value = 0
 
-        removeTime.set(0)
-        getTime.set(0)
-        putTime.set(0)
+        removeTime.value = 0
+        getTime.value = 0
+        putTime.value = 0
     }
 
     open fun addHits(value: Long) {
@@ -56,7 +56,7 @@ open class NearCacheStatisticsMXBean: CacheStatisticsMXBean {
      *
      * @return the number of hits
      */
-    override fun getCacheHits(): Long = hits.get()
+    override fun getCacheHits(): Long = hits.value
 
     /**
      * This is a measure of cache efficiency.
@@ -107,7 +107,7 @@ open class NearCacheStatisticsMXBean: CacheStatisticsMXBean {
      *
      * @return the number of misses
      */
-    override fun getCacheMisses(): Long = misses.get()
+    override fun getCacheMisses(): Long = misses.value
 
     /**
      * Returns the percentage of cache accesses that did not find a requested entry
@@ -140,7 +140,7 @@ open class NearCacheStatisticsMXBean: CacheStatisticsMXBean {
      *
      * @return the number of gets
      */
-    override fun getCacheGets(): Long = hits.get() + misses.get()
+    override fun getCacheGets(): Long = hits.value + misses.value
 
     open fun addPuts(value: Long) {
         puts.addAndGet(value)
@@ -158,7 +158,7 @@ open class NearCacheStatisticsMXBean: CacheStatisticsMXBean {
      *
      * @return the number of puts
      */
-    override fun getCachePuts(): Long = puts.get()
+    override fun getCachePuts(): Long = puts.value
 
     open fun addRemovals(value: Long) {
         removals.addAndGet(value)
@@ -170,7 +170,7 @@ open class NearCacheStatisticsMXBean: CacheStatisticsMXBean {
      *
      * @return the number of removals
      */
-    override fun getCacheRemovals(): Long = removals.get()
+    override fun getCacheRemovals(): Long = removals.value
 
     open fun addEvitions(value: Long) {
         evictions.addAndGet(value)
@@ -183,7 +183,7 @@ open class NearCacheStatisticsMXBean: CacheStatisticsMXBean {
      *
      * @return the number of evictions
      */
-    override fun getCacheEvictions(): Long = evictions.get()
+    override fun getCacheEvictions(): Long = evictions.value
 
     private fun get(value: Long, timeInNanos: Long): Float {
         if (value == 0L || timeInNanos == 0L) {
@@ -206,7 +206,7 @@ open class NearCacheStatisticsMXBean: CacheStatisticsMXBean {
      *
      * @return the time in µs
      */
-    override fun getAverageGetTime(): Float = get(cacheGets, getTime.get())
+    override fun getAverageGetTime(): Float = get(cacheGets, getTime.value)
 
     open fun addPutTime(value: Long) {
         putTime.addAndGet(value)
@@ -217,7 +217,7 @@ open class NearCacheStatisticsMXBean: CacheStatisticsMXBean {
      *
      * @return the time in µs
      */
-    override fun getAveragePutTime(): Float = get(cachePuts, putTime.get())
+    override fun getAveragePutTime(): Float = get(cachePuts, putTime.value)
 
     open fun addRemoveTime(value: Long) {
         removeTime.addAndGet(value)
@@ -228,5 +228,5 @@ open class NearCacheStatisticsMXBean: CacheStatisticsMXBean {
      *
      * @return the time in µs
      */
-    override fun getAverageRemoveTime(): Float = get(cacheRemovals, removeTime.get())
+    override fun getAverageRemoveTime(): Float = get(cacheRemovals, removeTime.value)
 }

@@ -2,11 +2,11 @@ package io.bluetape4k.junit5.coroutines
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertFails
 import kotlin.test.assertFailsWith
 
@@ -84,8 +84,8 @@ class SuspendedJobTesterTest {
     }
 
     private class CountingJob: suspend () -> Unit {
-        val counter = AtomicInteger(0)
-        val count: Int get() = counter.get()
+        private val counter = atomic(0)
+        val count: Int by counter
 
         override suspend fun invoke() {
             delay(10)

@@ -27,7 +27,6 @@ class LockExamples: AbstractRedissonCoroutineTest() {
     @Test
     fun `lock example`() = runSuspendIO {
         val lockName = randomName()
-
         val lock1 = redisson.getLock(lockName)
         val lockId1 = redisson.getLockId(lockName)
 
@@ -68,7 +67,6 @@ class LockExamples: AbstractRedissonCoroutineTest() {
     @Test
     fun `tryLock with expiration`() = runSuspendIO {
         val lockName = randomName()
-
         val lock = redisson.getLock(lockName)
         val lockId = redisson.getLockId(lockName)
 

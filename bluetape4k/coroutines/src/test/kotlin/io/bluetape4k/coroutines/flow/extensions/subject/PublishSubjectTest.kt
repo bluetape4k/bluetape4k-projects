@@ -18,6 +18,7 @@ import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.cancellation.CancellationException
@@ -31,8 +32,8 @@ class PublishSubjectTest {
     fun `multicast values to one or more flow collectors`() = runTest {
         val subject = PublishSubject<Int>()
 
-        val result1 = mutableListOf<Int>()
-        val result2 = mutableListOf<Int>()
+        val result1 = CopyOnWriteArrayList<Int>()
+        val result2 = CopyOnWriteArrayList<Int>()
 
         coroutineScope {
             launch {
@@ -66,8 +67,8 @@ class PublishSubjectTest {
 
     @Test
     fun `basic create`() = runTest {
-        val result1 = mutableListOf<Int>()
-        val result2 = mutableListOf<Int>()
+        val result1 = CopyOnWriteArrayList<Int>()
+        val result2 = CopyOnWriteArrayList<Int>()
 
         withSingleThread { dispatcher ->
             val subject = PublishSubject<Int>()

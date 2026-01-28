@@ -10,6 +10,7 @@ import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.javatimes.toInstant
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.singleOrNull
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
@@ -23,7 +24,6 @@ import org.jetbrains.exposed.v1.r2dbc.selectAll
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
-import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.CoroutineContext
 
 object UserSchema: KLoggingChannel() {
@@ -104,10 +104,10 @@ object UserSchema: KLoggingChannel() {
         }
     }
 
-    private val lastUserId = AtomicLong(1000L)
+    private val lastUserId = atomic(1000L)
 
     fun newUserDTO(): UserDTO = UserDTO(
-        id = lastUserId.andIncrement,
+        id = lastUserId.getAndIncrement(),
         firstName = faker.name().firstName(),
         lastName = faker.name().lastName(),
         email = Base58.randomString(4) + "." + faker.internet().emailAddress(),

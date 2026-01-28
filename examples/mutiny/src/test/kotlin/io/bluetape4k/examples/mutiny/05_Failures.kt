@@ -118,7 +118,8 @@ class FailuresExample {
             .onFailure().recoverWithCompletion()  // 예외가 발생하면 종료한다
             .onCompletion().invoke { log.debug("✅") }
             .select().first(10)
-            .asFlow().toList()
+            .asFlow()
+            .toList()
 
         log.debug { "items=$items" }
 
@@ -135,7 +136,8 @@ class FailuresExample {
             .onFailure().invoke { _ -> log.debug { "💥" } }
             .onFailure().recoverWithItem(666)
             .onCompletion().invoke { log.debug { "✅" } }
-            .asFlow().toList()
+            .asFlow()
+            .toList()
 
         items shouldContain 666
     }
@@ -149,7 +151,8 @@ class FailuresExample {
             .onFailure().recoverWithMulti { _ -> multiOf(666, 999) }
             .onCompletion().invoke { log.debug { "✅" } }
             .log()
-            .asFlow().toList()
+            .asFlow()
+            .toList()
 
         items shouldContainAll listOf(666, 999)
     }

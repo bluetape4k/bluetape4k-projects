@@ -61,13 +61,9 @@ internal class FlowParallel<T>(
                         generator.await()
                     }
                 }
-                for (rail in rails) {
-                    rail.complete()
-                }
+                rails.forEach { rail -> rail.complete() }
             } catch (ex: Throwable) {
-                for (rail in rails) {
-                    rail.error(ex)
-                }
+                rails.forEach { rail -> rail.error(ex) }
             }
         }
     }
@@ -131,9 +127,7 @@ internal class FlowParallel<T>(
                 }
 
                 if (done) {
-                    if (error != null) {
-                        throw FlowOperationException("Fail to drain", error)
-                    }
+                    error?.let { throw FlowOperationException("Fail to drain", it) }
                     return
                 }
             }

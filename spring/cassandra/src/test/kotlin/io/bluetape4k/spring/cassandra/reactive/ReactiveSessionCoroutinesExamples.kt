@@ -14,6 +14,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.spring.cassandra.suspendExecute
 import io.bluetape4k.spring.cassandra.suspendPrepare
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.runBlocking
@@ -25,7 +26,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.cassandra.ReactiveResultSet
 import org.springframework.data.cassandra.ReactiveSession
 import java.io.Serializable
-import java.util.concurrent.atomic.AtomicBoolean
 
 @SpringBootTest(classes = [ReactiveTestConfiguration::class])
 class ReactiveSessionCoroutinesExamples(
@@ -34,7 +34,7 @@ class ReactiveSessionCoroutinesExamples(
 
     companion object: KLoggingChannel() {
         private const val ACTOR_TABLE_NAME = "reactive_session_coroutines_actor"
-        private val initialized = AtomicBoolean(false)
+        private val initialized = atomic(false)
     }
 
     data class Actor(
@@ -47,7 +47,7 @@ class ReactiveSessionCoroutinesExamples(
     fun setup() {
         runBlocking {
             with(reactiveSession) {
-                if (initialized.compareAndSet(false, true)) {
+                if (initialized.compareAndSet(expect = false, update = true)) {
                     suspendExecute(
                         SchemaBuilder
                             .dropTable(ACTOR_TABLE_NAME)

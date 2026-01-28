@@ -34,7 +34,6 @@ class CacheExamples {
 
         val called = AtomicInteger(0)
 
-
         val function: () -> String = {
             called.incrementAndGet()
             "Do something"

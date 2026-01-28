@@ -9,6 +9,7 @@ import io.bluetape4k.http.hc5.reactor.ioReactorConfig
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8Bytes
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.test.runTest
 import org.apache.hc.client5.http.async.AsyncExecChainHandler
 import org.apache.hc.client5.http.impl.ChainElement
@@ -24,12 +25,11 @@ import org.apache.hc.core5.io.CloseMode
 import org.apache.hc.core5.util.Timeout
 import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
-import java.util.concurrent.atomic.AtomicLong
 
 class AsyncClientInterceptors: AbstractHc5Test() {
 
     companion object: KLoggingChannel() {
-        private val counter = AtomicLong(0L)
+        private val counter = atomic(0L)
     }
 
     @Test

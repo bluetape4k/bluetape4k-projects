@@ -147,11 +147,12 @@ class FlowLifecycleExamples {
      * `launchIn` 은 지정된 coroutine context에서 `collect` 를 수행하게 합니다.
      */
     @Test
-    fun `launchIn - lauch to start flow processing on another coroutine`() = runTest(CoroutineName("test")) {
-        flowOf("User1", "User2")
-            .onStart { log.debug { "Users:" } }
-            .flowOn(CoroutineName("users"))
-            .onEach { log.debug { it } }
-            .launchIn(this)
-    }
+    fun `launchIn - lauch to start flow processing on another coroutine`() =
+        runTest(CoroutineName("test")) {
+            flowOf("User1", "User2")
+                .onStart { log.debug { "Users:" } }
+                .flowOn(CoroutineName("users"))
+                .onEach { log.debug { it } }
+                .launchIn(this)
+        }
 }

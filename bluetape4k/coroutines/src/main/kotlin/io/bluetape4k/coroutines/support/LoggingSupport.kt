@@ -9,7 +9,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlin.coroutines.cancellation.CancellationException
 
 @PublishedApi
-internal val log = KotlinLogging.logger { }
+internal val log by lazy { KotlinLogging.logger {} }
 
 /**
  * Job이 완료되거나 취소되면 로그를 남깁니다.

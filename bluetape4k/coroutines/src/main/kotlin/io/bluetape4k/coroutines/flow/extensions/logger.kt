@@ -9,7 +9,8 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.onStart
 
-private val logger = KotlinLogging.logger { }
+@PublishedApi
+internal val logger by lazy { KotlinLogging.logger {} }
 
 /**
  * [Flow]의 `onStart`, `onEmpty`, `onEach`, `onCompletion` 이벤트를 로깅합니다.

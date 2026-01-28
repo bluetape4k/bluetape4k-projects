@@ -25,6 +25,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicLong
 
 class ChannelAsFlowExamples {
@@ -63,7 +64,7 @@ class ChannelAsFlowExamples {
     fun `send event to channel receive as flow`() = runTest {
 
         val eventBus = SingleShotEventBus()
-        val jobs = mutableListOf<Job>()
+        val jobs = CopyOnWriteArrayList<Job>()
         val jobSize = 5
 
         val totalProduced = AtomicLong(0L)

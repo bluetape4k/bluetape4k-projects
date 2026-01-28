@@ -46,7 +46,10 @@ class MultiBasicExamples {
         // Range (10 <= x < 15)
         val list = multiRangeOf(10, 15)
             .onEach { log.debug { "range: $it" } }
-            .collect().asList().await().indefinitely()
+            .collect()
+            .asList()
+            .await()
+            .indefinitely()
 
         list shouldBeEqualTo listOf(10, 11, 12, 13, 14)
 
@@ -54,7 +57,10 @@ class MultiBasicExamples {
         val randomNumbers = generateSequence { Random.nextInt() }.take(5).toList()
         val randoms = Multi.createFrom().iterable(randomNumbers)
             .onItem().invoke { item -> log.debug { "range: $item" } }
-            .collect().asList().await().indefinitely()
+            .collect()
+            .asList()
+            .await()
+            .indefinitely()
 
         randoms shouldBeEqualTo randomNumbers
     }
@@ -184,7 +190,8 @@ class MultiBasicExamples {
         // repeat from Uni
         Multi.createBy()
             .repeating().deferUni { Service.asyncFetchValue() }.atMost(10)
-            .subscribe().with({ log.debug { it } }, Throwable::printStackTrace, latch::countDown)
+            .subscribe()
+            .with({ log.debug { it } }, Throwable::printStackTrace, latch::countDown)
 
         latch.await()
 
@@ -195,7 +202,8 @@ class MultiBasicExamples {
             .repeating()
             .completionStage(Service::queryDb)
             .whilst { it < 1_000_000L }
-            .subscribe().with { log.debug { it } }
+            .subscribe()
+            .with { log.debug { it } }
     }
 
     class MyResource {
@@ -214,6 +222,7 @@ class MultiBasicExamples {
         Multi.createFrom()
             .resource(MultiBasicExamples::MyResource, MyResource::stream)
             .withFinalizer(MyResource::close)
-            .subscribe().with(::println)
+            .subscribe()
+            .with(::println)
     }
 }

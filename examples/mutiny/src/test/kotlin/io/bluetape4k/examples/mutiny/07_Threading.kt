@@ -9,6 +9,7 @@ import io.smallrye.mutiny.Uni
 import io.smallrye.mutiny.coroutines.asFlow
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import io.smallrye.mutiny.infrastructure.Infrastructure
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -24,24 +25,23 @@ import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicInteger
 import java.util.function.Supplier
 import java.util.stream.Collectors
 import kotlin.concurrent.thread
 import kotlin.random.Random
 
-
 class ThreadingExamples {
 
     companion object: KLoggingChannel()
 
-    private val counter = AtomicInteger(0)
-
     private val executor = Executors.newFixedThreadPool(4, NamedThreadFactory("mutiny"))
+
+    private val counter = atomic(0)
+    private var count by counter
 
     @BeforeEach
     fun setup() {
-        counter.set(0)
+        count = 0
     }
 
     @Test
@@ -54,7 +54,7 @@ class ThreadingExamples {
             .runSubscriptionOn(executor)
             .subscribe().with { log.debug { it } }
 
-        await until { counter.get() >= 10 }
+        await until { count >= 10 }
     }
 
     @Test
@@ -67,7 +67,7 @@ class ThreadingExamples {
             .emitOn(executor)
             .subscribe().with { log.debug { it } }
 
-        await until { counter.get() >= 10 }
+        await until { count >= 10 }
     }
 
     private fun generate(): Uni<Int> = Uni.createFrom().completionStage {
@@ -89,7 +89,7 @@ class ThreadingExamples {
             .emitOn(executor)
             .subscribe().with { log.debug { it } }
 
-        await until { counter.get() >= 10 }
+        await until { count >= 10 }
     }
 
     private fun generateInWorkerPool(): Uni<Int> =
@@ -142,7 +142,6 @@ class ThreadingExamples {
 
         Uni.createFrom().item(42).awaitSuspending() shouldBeEqualTo 42
     }
-
 
     @Test
     fun `05 Threading blocking check`() {

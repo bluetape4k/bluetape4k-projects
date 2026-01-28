@@ -18,6 +18,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Test
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
@@ -33,13 +34,10 @@ class ReplaySubjectSizeAndTimeBoundTest {
     fun `basic online`() = runSuspendTest {
         withSingleThread {
             val replay = ReplaySubject<Int>(10, 1L, TimeUnit.MINUTES)
-            val result = mutableListOf<Int>()
+            val result = CopyOnWriteArrayList<Int>()
 
             val job = launch {
-                replay
-                    .onEach { delay(10) }
-                    .log("#1")
-                    .collect { result.add(it) }
+                replay.onEach { delay(10) }.log("#1").collect { result.add(it) }
             }.log("job")
 
             replay.awaitCollector()
@@ -64,11 +62,8 @@ class ReplaySubjectSizeAndTimeBoundTest {
         replay.complete()
 
 
-        val result = mutableListOf<Int>()
-        replay
-            .onEach { delay(10) }
-            .log("#1")
-            .collect { result.add(it) }
+        val result = CopyOnWriteArrayList<Int>()
+        replay.onEach { delay(10) }.log("#1").collect { result.add(it) }
 
         result shouldBeEqualTo listOf(0, 1, 2, 3, 4)
     }
@@ -77,13 +72,10 @@ class ReplaySubjectSizeAndTimeBoundTest {
     fun `timed online`() = runSuspendTest {
         withSingleThread {
             val replay = ReplaySubject<Int>(1L, TimeUnit.MINUTES)
-            val result = mutableListOf<Int>()
+            val result = CopyOnWriteArrayList<Int>()
 
             val job = launch {
-                replay
-                    .onEach { delay(10) }
-                    .log("#1")
-                    .collect { result.add(it) }
+                replay.onEach { delay(10) }.log("#1").collect { result.add(it) }
             }
             replay.awaitCollector()
 
@@ -107,11 +99,8 @@ class ReplaySubjectSizeAndTimeBoundTest {
         }
         replay.complete()
 
-        val result = mutableListOf<Int>()
-        replay
-            .onEach { delay(10) }
-            .log("#1")
-            .collect { result.add(it) }
+        val result = CopyOnWriteArrayList<Int>()
+        replay.onEach { delay(10) }.log("#1").collect { result.add(it) }
 
         result shouldBeEqualTo listOf(0, 1, 2, 3, 4)
     }
@@ -126,20 +115,14 @@ class ReplaySubjectSizeAndTimeBoundTest {
         }
         replay.complete()
 
-        val result = mutableListOf<Int>()
-        replay
-            .onEach { delay(10) }
-            .log("#1")
-            .collect { result.add(it) }
+        val result = CopyOnWriteArrayList<Int>()
+        replay.onEach { delay(10) }.log("#1").collect { result.add(it) }
 
         result shouldBeEqualTo listOf(0, 1, 2, 3, 4)
 
         // Cold stream 처럼 collect 반복해도 같은 값을 emit 해준다 
-        val result2 = mutableListOf<Int>()
-        replay
-            .onEach { delay(10) }
-            .log("#1")
-            .collect { result2.add(it) }
+        val result2 = CopyOnWriteArrayList<Int>()
+        replay.onEach { delay(10) }.log("#1").collect { result2.add(it) }
 
         result shouldBeEqualTo listOf(0, 1, 2, 3, 4)
     }
@@ -148,16 +131,13 @@ class ReplaySubjectSizeAndTimeBoundTest {
     fun `error online`() = runSuspendTest {
         withSingleThread {
             val replay = ReplaySubject<Int>(10, 1L, TimeUnit.MINUTES)
-            val result = mutableListOf<Int>()
+            val result = CopyOnWriteArrayList<Int>()
             val exc = AtomicReference<Throwable>(null)
 
             val job = launch {
                 // 예외가 emit 되면, collect 가 중단된다
                 try {
-                    replay
-                        .onEach { delay(10) }
-                        .log("#1")
-                        .collect { result.add(it) }
+                    replay.onEach { delay(10) }.log("#1").collect { result.add(it) }
                 } catch (ex: Throwable) {
                     exc.set(ex)
                 }
@@ -193,12 +173,9 @@ class ReplaySubjectSizeAndTimeBoundTest {
         replay.emit(6)
 
         // 예외 이후에는 emit 된 요소는 consume 되지 않는다
-        val result = mutableListOf<Int>()
+        val result = CopyOnWriteArrayList<Int>()
         try {
-            replay
-                .onEach { delay(10) }
-                .log("#1")
-                .collect { result.add(it) }
+            replay.onEach { delay(10) }.log("#1").collect { result.add(it) }
         } catch (ex: Throwable) {
             exc.set(ex)
         }
@@ -211,13 +188,10 @@ class ReplaySubjectSizeAndTimeBoundTest {
     fun `take online`() = runSuspendTest {
         withSingleThread {
             val replay = ReplaySubject<Int>(10, 1L, TimeUnit.MINUTES)
-            val result = mutableListOf<Int>()
+            val result = CopyOnWriteArrayList<Int>()
 
             val job = launch {
-                replay.take(3)
-                    .onEach { delay(10) }
-                    .log("#1")
-                    .collect { result.add(it) }
+                replay.take(3).onEach { delay(10) }.log("#1").collect { result.add(it) }
             }.log("job")
             replay.awaitCollector()
 
@@ -240,11 +214,8 @@ class ReplaySubjectSizeAndTimeBoundTest {
         }
         replay.complete()
 
-        val result = mutableListOf<Int>()
-        replay.take(3)
-            .onEach { delay(10) }
-            .log("#1")
-            .collect { result.add(it) }
+        val result = CopyOnWriteArrayList<Int>()
+        replay.take(3).onEach { delay(10) }.log("#1").collect { result.add(it) }
 
         result shouldBeEqualTo listOf(0, 1, 2)
     }
@@ -254,13 +225,10 @@ class ReplaySubjectSizeAndTimeBoundTest {
         withSingleThread {
             // 2개만 버퍼링 합니다.
             val replay = ReplaySubject<Int>(2, 1L, TimeUnit.MINUTES)
-            val result = mutableListOf<Int>()
+            val result = CopyOnWriteArrayList<Int>()
 
             val job = launch {
-                replay
-                    .onEach { delay(10) }
-                    .log("#1")
-                    .collect { result.add(it) }
+                replay.onEach { delay(10) }.log("#1").collect { result.add(it) }
             }.log("job")
 
             replay.awaitCollector()
@@ -274,9 +242,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
 
             // cold-stream과 같이 consumer를 다시 수행한다면 버퍼링된 2개만 제공된다
             result.clear()
-            replay
-                .log("#2")
-                .collect { result.add(it) }
+            replay.log("#2").collect { result.add(it) }
             result shouldBeEqualTo listOf(3, 4)
         }
     }
@@ -291,11 +257,8 @@ class ReplaySubjectSizeAndTimeBoundTest {
         }
         replay.complete()
 
-        val result = mutableListOf<Int>()
-        replay
-            .onEach { delay(10) }
-            .log("#1")
-            .collect { result.add(it) }
+        val result = CopyOnWriteArrayList<Int>()
+        replay.onEach { delay(10) }.log("#1").collect { result.add(it) }
 
         result shouldBeEqualTo listOf(3, 4)
     }
@@ -312,10 +275,8 @@ class ReplaySubjectSizeAndTimeBoundTest {
 
         delay(300)
 
-        val result = mutableListOf<Int>()
-        replay
-            .log("#1")
-            .collect { result.add(it) }
+        val result = CopyOnWriteArrayList<Int>()
+        replay.log("#1").collect { result.add(it) }
 
         result.isEmpty().shouldBeTrue()
     }
@@ -335,11 +296,8 @@ class ReplaySubjectSizeAndTimeBoundTest {
         replay.emit(4)
         replay.complete()
 
-        val result = mutableListOf<Int>()
-        replay
-            .onEach { delay(10) }
-            .log("#1")
-            .collect { result.add(it) }
+        val result = CopyOnWriteArrayList<Int>()
+        replay.onEach { delay(10) }.log("#1").collect { result.add(it) }
 
         result shouldBeEqualTo listOf(3, 4)
     }
@@ -349,20 +307,14 @@ class ReplaySubjectSizeAndTimeBoundTest {
         withSingleThread {
             val replay = ReplaySubject<Int>(10, 1L, TimeUnit.MINUTES)
 
-            val result1 = mutableListOf<Int>()
+            val result1 = CopyOnWriteArrayList<Int>()
             val job1 = launch {
-                replay
-                    .onEach { delay(50) }
-                    .log("#1")
-                    .collect { result1.add(it) }
+                replay.onEach { delay(50) }.log("#1").collect { result1.add(it) }
             }.log("job1")
 
-            val result2 = mutableListOf<Int>()
+            val result2 = CopyOnWriteArrayList<Int>()
             val job2 = launch {
-                replay
-                    .onEach { delay(100) }
-                    .log("#2")
-                    .collect { result2.add(it) }
+                replay.onEach { delay(100) }.log("#2").collect { result2.add(it) }
             }.log("job2")
 
             replay.awaitCollector()
@@ -386,20 +338,14 @@ class ReplaySubjectSizeAndTimeBoundTest {
         withSingleThread {
             val replay = ReplaySubject<Int>(10, 1L, TimeUnit.MINUTES)
 
-            val result1 = mutableListOf<Int>()
+            val result1 = CopyOnWriteArrayList<Int>()
             val job1 = launch {
-                replay
-                    .onEach { delay(50) }
-                    .log("#1")
-                    .collect { result1.add(it) }
+                replay.onEach { delay(50) }.log("#1").collect { result1.add(it) }
             }.log("job1")
 
-            val result2 = mutableListOf<Int>()
+            val result2 = CopyOnWriteArrayList<Int>()
             val job2 = launch {
-                replay.take(3)
-                    .onEach { delay(50) }
-                    .log("#2")
-                    .collect { result2.add(it) }
+                replay.take(3).onEach { delay(50) }.log("#2").collect { result2.add(it) }
             }.log("job2")
 
             replay.awaitCollector()
@@ -427,9 +373,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
             val counter1 = AtomicInteger(0)
 
             val job1 = launch {
-                replay
-                    .log("#1")
-                    .collect {
+                replay.log("#1").collect {
                         if (counter1.incrementAndGet() == expected) {
                             this.cancel()
                         }
@@ -465,9 +409,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
             val counter2 = AtomicInteger(0)
 
             val job1 = launch {
-                replay
-                    .log("#1")
-                    .collect {
+                replay.log("#1").collect {
                         if (counter1.incrementAndGet() == expected) {
                             this.cancel()
                         }
@@ -475,9 +417,7 @@ class ReplaySubjectSizeAndTimeBoundTest {
             }.log("job1")
 
             val job2 = launch {
-                replay
-                    .log("#2")
-                    .collect { counter2.incrementAndGet() }
+                replay.log("#2").collect { counter2.incrementAndGet() }
             }.log("job2")
 
             replay.awaitCollector()

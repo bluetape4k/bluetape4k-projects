@@ -5,6 +5,7 @@ import io.bluetape4k.http.hc5.classic.httpClient
 import io.bluetape4k.http.hc5.entity.consume
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import kotlinx.atomicfu.atomic
 import org.apache.hc.client5.http.classic.ExecChain
 import org.apache.hc.client5.http.classic.ExecChainHandler
 import org.apache.hc.client5.http.classic.methods.HttpGet
@@ -18,11 +19,12 @@ import org.apache.hc.core5.http.io.entity.StringEntity
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse
 import org.apache.hc.core5.http.message.StatusLine
 import org.junit.jupiter.api.Test
-import java.util.concurrent.atomic.AtomicLong
 
 class ClientInterceptors: AbstractHc5Test() {
 
     companion object: KLogging()
+
+    private val counter = atomic(0L)
 
     @Test
     fun `client interceptors`() {
@@ -50,9 +52,9 @@ class ClientInterceptors: AbstractHc5Test() {
     }
 
     private fun requestInterceptor(): HttpRequestInterceptor {
-        val counter = AtomicLong(0L)
+
         return HttpRequestInterceptor { request: HttpRequest, _, _ ->
-            log.debug { "add request-id. ${counter.get()}" }
+            log.debug { "add request-id. ${counter.value}" }
             request.setHeader("request-id", counter.incrementAndGet().toString())
         }
     }

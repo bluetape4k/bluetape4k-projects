@@ -30,7 +30,6 @@ internal class FlowSequential<T>(private val source: ParallelFlow<T>): AbstractF
             launch {
                 try {
                     source.collect(*collectors)
-
                     done.set(true)
                     resumeCollector.resume()
                 } catch (ex: Throwable) {
@@ -44,10 +43,11 @@ internal class FlowSequential<T>(private val source: ParallelFlow<T>): AbstractF
                 val d = done.get()
                 var empty = true
 
-                for (rail in collectors) {
+                collectors.forEach { rail ->
                     if (rail.hasValue) {
                         empty = false
                         val v = rail.value
+
                         @Suppress("UNCHECKED_CAST")
                         rail.value = null as T
                         rail.hasValue = false
@@ -55,22 +55,20 @@ internal class FlowSequential<T>(private val source: ParallelFlow<T>): AbstractF
                         try {
                             collector.emit(v)
                         } catch (ex: Throwable) {
-                            for (r in collectors) {
-                                r.error = ex
-                                r.resume()
+                            collectors.forEach {
+                                it.error = ex
+                                it.resume()
                             }
                             throw ex
                         }
                         rail.resume()
-                        break
+                        return@forEach
                     }
                 }
 
                 if (d && empty) {
                     val ex = error.get()
-                    if (ex != null) {
-                        throw ex
-                    }
+                    ex?.let { throw it }
                     return@coroutineScope
                 }
                 if (empty) {
@@ -97,8 +95,8 @@ internal class FlowSequential<T>(private val source: ParallelFlow<T>): AbstractF
 
             await()
 
-            if (error != null) {
-                throw FlowOperationException("Error occurred while emitting value. $value", error)
+            error?.let {
+                throw FlowOperationException("Error occurred while emitting value. $value", it)
             }
         }
     }

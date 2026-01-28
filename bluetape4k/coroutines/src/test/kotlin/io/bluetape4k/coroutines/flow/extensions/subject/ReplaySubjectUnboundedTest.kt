@@ -28,7 +28,7 @@ class ReplaySubjectUnboundedTest {
     fun `basic online`() = runTest {
         withSingleThread {
             val replay = ReplaySubject<Int>()
-            val result = mutableListOf<Int>()
+            val result = CopyOnWriteArrayList<Int>()
 
             val job = launch {
                 replay
@@ -59,7 +59,7 @@ class ReplaySubjectUnboundedTest {
         replay.complete()
 
 
-        val result = mutableListOf<Int>()
+        val result = CopyOnWriteArrayList<Int>()
         replay
             .onEach { delay(10) }
             .log("#1")
@@ -73,7 +73,7 @@ class ReplaySubjectUnboundedTest {
         withSingleThread {
             val replay = ReplaySubject<Int>()
 
-            val result = mutableListOf<Int>()
+            val result = CopyOnWriteArrayList<Int>()
             val exc = AtomicReference<Throwable>(null)
 
             val job = launch {
@@ -104,7 +104,7 @@ class ReplaySubjectUnboundedTest {
     fun `error offline`() = runTest {
         val replay = ReplaySubject<Int>()
 
-        val result = mutableListOf<Int>()
+        val result = CopyOnWriteArrayList<Int>()
         val exc = AtomicReference<Throwable>(null)
 
         repeat(5) {
@@ -235,8 +235,8 @@ class ReplaySubjectUnboundedTest {
             job1.join()
             job2.join()
 
-            result1 shouldBeEqualTo mutableListOf<Int>(0, 1, 2, 3, 4)
-            result2 shouldBeEqualTo mutableListOf<Int>(0, 1, 2)
+            result1 shouldBeEqualTo mutableListOf(0, 1, 2, 3, 4)
+            result2 shouldBeEqualTo mutableListOf(0, 1, 2)
         }
     }
 

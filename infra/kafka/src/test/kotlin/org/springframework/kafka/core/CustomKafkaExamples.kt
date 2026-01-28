@@ -5,6 +5,7 @@ import io.bluetape4k.kafka.codec.StringKafkaCodec
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.mq.KafkaServer
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldNotBeNull
@@ -24,12 +25,15 @@ import org.springframework.kafka.support.KafkaHeaders
 import org.springframework.messaging.handler.annotation.Header
 import org.springframework.messaging.handler.annotation.Headers
 import org.springframework.messaging.handler.annotation.Payload
-import java.util.concurrent.atomic.AtomicInteger
+import java.io.Serializable
 
 @SpringBootTest
 class CustomKafkaExamples {
 
-    data class Greeting(val name: String, val message: String)
+    data class Greeting(
+        val name: String,
+        val message: String,
+    ): Serializable
 
     @Configuration
     @EnableKafka
@@ -87,7 +91,7 @@ class CustomKafkaExamples {
     @Autowired
     private lateinit var kafkaTemplate: KafkaTemplate<String, Greeting>
 
-    private val receiveCounter = AtomicInteger(0)
+    private val receiveCounter = atomic(0)
 
     @Test
     fun `context loading`() {
@@ -103,7 +107,7 @@ class CustomKafkaExamples {
         log.debug { "produceRecord=${result.producerRecord}" }
         log.debug { "recordMetadata=${result.recordMetadata}" }
 
-        await until { receiveCounter.get() >= 2 }
+        await until { receiveCounter.value >= 2 }
     }
 
     @KafkaListener(topics = [CUSTOM_TOPIC_NAME], groupId = "custom")

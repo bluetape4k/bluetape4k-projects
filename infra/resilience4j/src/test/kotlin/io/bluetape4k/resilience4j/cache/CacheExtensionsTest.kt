@@ -61,7 +61,6 @@ class CacheExtensionsTest {
 
         val cachedFunc = cache.decorateCompletableFutureFunction(function)
 
-
         cachedFunc("debop").onSuccess {
             callCount.get() shouldBeEqualTo 1L
             it shouldBeEqualTo "Hi debop!"
