@@ -133,7 +133,6 @@ subprojects {
     }
 
     atomicfu {
-        version = Versions.kotlinx_atomicfu
         transformJvm = true
         jvmVariant = "VH"     //  FU, VH, BOTH
     }
