@@ -1,4 +1,4 @@
-# Vert.x Sql Client Example
+# Module Vert.x Sql Client Example
 
 [Vert.x Sql Client](https://vertx.io/docs/vertx-sql-client/java/) 와
 [MyBatis Dynamic SQL](https://mybatis.org/mybatis-dynamic-sql/docs/introduction.html) 을

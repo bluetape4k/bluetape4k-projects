@@ -260,21 +260,13 @@ subprojects {
                 "${System.getProperty("java.version")} (${System.getProperty("java.specification.vendor")})"
         }
 
-        // https://kotlin.github.io/dokka/1.6.0/user_guide/gradle/usage/
-        withType<org.jetbrains.dokka.gradle.DokkaTask>().configureEach {
-            val javadocDir = layout.buildDirectory.asFile.get().resolve("javadoc")
-            outputDirectory.set(javadocDir)
-            // outputDirectory.set(layout.buildDirectory.asFile.get().resolve("javadoc"))
-            dokkaSourceSets {
-                configureEach {
-                    includes.from("README.md")
-                }
-            }
-        }
-
         dokka {
             dokkaPublications.html {
-                outputDirectory.set(project.file("docs/api"))
+                val javadocDir = layout.buildDirectory.asFile.get().resolve("javadoc")
+                outputDirectory.set(javadocDir)
+            }
+            dokkaSourceSets.configureEach {
+                includes.from(project.files("README.md"))
             }
         }
 
