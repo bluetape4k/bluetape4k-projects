@@ -308,7 +308,7 @@ object Libs {
     val kotlinx_serialization_protobuf_jvm = kotlinxSerialization("protobuf-jvm")
 
     // Source: https://mvnrepository.com/artifact/org.jetbrains.kotlinx/atomicfu
-    val kotlinx_atomicfu = "org.jetbrains.kotlinx:atomicfu:${Versions.kotlinx_atomicfu}"
+    const val kotlinx_atomicfu = "org.jetbrains.kotlinx:atomicfu:${Versions.kotlinx_atomicfu}"
 
     // https://github.com/Kotlin/kotlinx-benchmark
     fun kotlinxBenchmark(module: String, version: String = Versions.kotlinx_benchmark) =
