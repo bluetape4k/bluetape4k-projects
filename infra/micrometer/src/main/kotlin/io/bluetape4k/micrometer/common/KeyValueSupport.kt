@@ -15,7 +15,10 @@ import io.micrometer.common.KeyValues
  * @param value
  * @return
  */
-fun keyValueOf(key: String, value: String): KeyValue = KeyValue.of(key, value)
+fun keyValueOf(key: String, value: String): KeyValue {
+    key.requireNotBlank("key")
+    return KeyValue.of(key, value)
+}
 
 /**
  * Create a [KeyValue] from key and a value with value validation.
@@ -39,19 +42,14 @@ fun <T: Any> keyValueOf(key: String, value: T, valueValidator: (T) -> Boolean): 
  * @param keyValues
  * @return
  */
-fun keyValuesOf(vararg keyValues: String): KeyValues {
-    return KeyValues.of(*keyValues)
-}
-
-fun keyValuesOf(vararg keyValues: Pair<String, String>): KeyValues {
-    return keyValuesOf(*keyValues.map { (k, v) -> KeyValue.of(k, v) }.toTypedArray())
-}
-
-fun keyValueOf(keyValues: Map<String, String>): KeyValues {
-    val kvs = keyValues.map { (k, v) -> KeyValue.of(k, v) }
-    return keyValueOf(kvs)
-}
+fun keyValuesOf(vararg keyValues: String): KeyValues = KeyValues.of(*keyValues)
 
 fun keyValueOf(keyValues: Iterable<KeyValue>): KeyValues = KeyValues.of(keyValues)
 
 fun keyValuesOf(vararg keyValues: KeyValue): KeyValues = KeyValues.of(*keyValues)
+
+fun keyValuesOf(vararg keyValues: Pair<String, String>): KeyValues =
+    keyValueOf(keyValues.associate { it.first to it.second })
+
+fun keyValueOf(keyValues: Map<String, String>): KeyValues =
+    keyValueOf(keyValues.map { (k, v) -> KeyValue.of(k, v) })

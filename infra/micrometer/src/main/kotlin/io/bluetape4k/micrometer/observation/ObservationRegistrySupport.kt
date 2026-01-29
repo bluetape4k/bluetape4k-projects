@@ -17,7 +17,9 @@ val NoopObservationRegistry: ObservationRegistry get() = ObservationRegistry.NOO
  * }
  * ```
  */
-inline fun observationRegistryOf(crossinline observationHandler: (Observation.Context) -> Boolean = { true }): ObservationRegistry {
+inline fun observationRegistryOf(
+    crossinline observationHandler: (Observation.Context) -> Boolean = { true },
+): ObservationRegistry {
     return ObservationRegistry.create().apply {
         this.observationConfig().observationHandler { observationHandler(it) }
     }
@@ -34,7 +36,9 @@ inline fun observationRegistryOf(crossinline observationHandler: (Observation.Co
  * }
  * ```
  */
-inline fun simpleObservationRegistryOf(crossinline observationHandler: (Observation.Context) -> Unit = { }): ObservationRegistry {
+inline fun simpleObservationRegistryOf(
+    crossinline observationHandler: (Observation.Context) -> Unit = { },
+): ObservationRegistry {
     return ObservationRegistry.create().apply {
         this.observationConfig().observationHandler {
             observationHandler(it)
@@ -47,21 +51,25 @@ fun ObservationRegistry.start(
     name: String,
     contextualName: String = name,
 ): Observation {
-    return createNotStarted(name, contextualName).start()
+    val context = Observation.Context().apply {
+        put("name", name)
+        put("contextualName", contextualName)
+    }
+    return Observation.start(name, { context }, this)
 }
 
 fun ObservationRegistry.createNotStarted(
     name: String,
     contextualName: String = name,
 ): Observation {
+    val context = Observation.Context().apply {
+        put("name", name)
+        put("contextualName", contextualName)
+    }
+
     return Observation.createNotStarted(
         name,
-        {
-            Observation.Context().apply {
-                put("name", name)
-                put("contextualName", contextualName)
-            }
-        },
+        { context },
         this
     )
 }
