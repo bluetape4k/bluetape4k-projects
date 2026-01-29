@@ -1,7 +1,6 @@
 package io.bluetape4k.exposed.redisson.repository.scenarios
 
 import io.bluetape4k.collections.toVarargArray
-import io.bluetape4k.coroutines.flow.extensions.asFlow
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.redisson.repository.scenarios.CacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.tests.TestDB
@@ -9,8 +8,6 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -143,7 +140,7 @@ interface SuspendedReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: Suspended
             repository.getAll(getExistingIds())
 
             val invalidated = repository.invalidateByPattern("*1*") +
-                    ('A'..'Z').asFlow().map { repository.invalidateByPattern("*$it*") }.toList().sum()
+                    ('A'..'Z').sumOf { repository.invalidateByPattern("*$it*") }
 
             invalidated shouldBeGreaterThan 0
         }

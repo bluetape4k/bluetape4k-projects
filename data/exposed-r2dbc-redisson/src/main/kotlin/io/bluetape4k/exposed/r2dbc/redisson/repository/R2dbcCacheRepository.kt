@@ -1,11 +1,12 @@
 package io.bluetape4k.exposed.r2dbc.redisson.repository
 
+import io.bluetape4k.collections.eclipse.toFastList
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
-import kotlinx.coroutines.flow.toList
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -65,7 +66,11 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      */
     @Deprecated("use findByIdFromDb", replaceWith = ReplaceWith("findByIdFromDb(id)"), level = DeprecationLevel.WARNING)
     suspend fun findFreshById(id: ID): T? = suspendTransaction {
-        entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
+        entityTable
+            .selectAll()
+            .where { entityTable.id eq id }
+            .singleOrNull()
+            ?.toEntity()
     }
 
     /**
@@ -75,7 +80,11 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @return 조회된 엔티티 또는 null
      */
     suspend fun findByIdFromDb(id: ID): T? = suspendTransaction {
-        entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
+        entityTable
+            .selectAll()
+            .where { entityTable.id eq id }
+            .singleOrNull()
+            ?.toEntity()
     }
 
     /**
@@ -86,7 +95,12 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      */
     @Deprecated("use findAllFromDb", replaceWith = ReplaceWith("findAllFromDb(ids)"), level = DeprecationLevel.WARNING)
     suspend fun findFreshAll(vararg ids: ID): List<T> = suspendTransaction {
-        entityTable.selectAll().where { entityTable.id inList ids.toList() }.map { it.toEntity() }.toList()
+        entityTable
+            .selectAll()
+            .where { entityTable.id inList ids.toFastList() }
+            .map { it.toEntity() }
+            .toFastList()
+
     }
 
     /**
@@ -96,7 +110,11 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @return 조회된 엔티티 리스트
      */
     suspend fun findAllFromDb(vararg ids: ID): List<T> = suspendTransaction {
-        entityTable.selectAll().where { entityTable.id inList ids.toList() }.map { it.toEntity() }.toList()
+        entityTable
+            .selectAll()
+            .where { entityTable.id inList ids.toFastList() }
+            .map { it.toEntity() }
+            .toFastList()
     }
 
     /**
@@ -107,7 +125,11 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      */
     @Deprecated("use findAllFromDb", replaceWith = ReplaceWith("findAllFromDb(ids)"), level = DeprecationLevel.WARNING)
     suspend fun findFreshAll(ids: Collection<ID>): List<T> = suspendTransaction {
-        entityTable.selectAll().where { entityTable.id inList ids }.map { it.toEntity() }.toList()
+        entityTable
+            .selectAll()
+            .where { entityTable.id inList ids }
+            .map { it.toEntity() }
+            .toFastList()
     }
 
     /**
@@ -117,7 +139,11 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @return 조회된 엔티티 리스트
      */
     suspend fun findAllFromDb(ids: Collection<ID>): List<T> = suspendTransaction {
-        entityTable.selectAll().where { entityTable.id inList ids }.map { it.toEntity() }.toList()
+        entityTable
+            .selectAll()
+            .where { entityTable.id inList ids }
+            .map { it.toEntity() }
+            .toFastList()
     }
 
     /**

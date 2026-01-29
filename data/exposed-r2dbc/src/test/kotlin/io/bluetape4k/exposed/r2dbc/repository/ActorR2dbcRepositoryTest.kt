@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.repository
 
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.exposed.r2dbc.domain.ActorDTO
 import io.bluetape4k.exposed.r2dbc.domain.MovieSchema.ActorTable
 import io.bluetape4k.exposed.r2dbc.domain.MovieSchema.withMovieAndActors
@@ -7,7 +8,6 @@ import io.bluetape4k.exposed.r2dbc.tests.AbstractExposedR2dbcTest
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -53,7 +53,7 @@ class ActorR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
     fun `search actors by lastName`(testDB: TestDB) = runTest {
         withMovieAndActors(testDB) {
             val params = mapOf("lastName" to "Depp")
-            val actors = repository.searchActors(params).toList()
+            val actors = repository.searchActors(params).toFastList()
 
             actors.shouldNotBeEmpty()
             actors.forEach {
@@ -161,10 +161,10 @@ class ActorR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `findAll with limit and offset`(testDB: TestDB) = runTest {
         withMovieAndActors(testDB) {
-            repository.findAll(limit = 2).toList() shouldHaveSize 2
-            repository.findAll { ActorTable.lastName eq "Depp" }.toList() shouldHaveSize 1
-            repository.findAll(limit = 3) { ActorTable.lastName eq "Depp" }.toList() shouldHaveSize 1
-            repository.findAll(limit = 3, offset = 1) { ActorTable.lastName eq "Depp" }.toList() shouldHaveSize 0
+            repository.findAll(limit = 2).toFastList() shouldHaveSize 2
+            repository.findAll { ActorTable.lastName eq "Depp" }.toFastList() shouldHaveSize 1
+            repository.findAll(limit = 3) { ActorTable.lastName eq "Depp" }.toFastList() shouldHaveSize 1
+            repository.findAll(limit = 3, offset = 1) { ActorTable.lastName eq "Depp" }.toFastList() shouldHaveSize 0
         }
     }
 
@@ -178,6 +178,7 @@ class ActorR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
 
             // Delete savedActor
             repository.delete(savedActor) shouldBeEqualTo 1
+
             // Already deleted
             repository.delete(savedActor) shouldBeEqualTo 0
         }
@@ -226,5 +227,4 @@ class ActorR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
             repository.deleteAllIgnore() shouldBeEqualTo count.toInt() - 1
         }
     }
-
 }

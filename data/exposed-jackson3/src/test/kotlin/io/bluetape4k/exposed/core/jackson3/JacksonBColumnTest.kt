@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.core.jackson3
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.exposed.core.jackson3.JacksonSchema.DataHolder
 import io.bluetape4k.exposed.core.jackson3.JacksonSchema.User
 import io.bluetape4k.exposed.core.jackson3.JacksonSchema.withJacksonBArrays
@@ -588,9 +589,13 @@ class JacksonBColumnTest: AbstractExposedTest() {
         }
     }
 
-    private class KeyExistsOp(left: Expression<*>, right: Expression<*>): ComparisonOp(left, right, "??")
+    private class KeyExistsOp(
+        left: Expression<*>,
+        right: Expression<*>,
+    ): ComparisonOp(left, right, "??")
 
-    private infix fun ExpressionWithColumnType<*>.keyExists(other: String) = KeyExistsOp(this, stringParam(other))
+    private infix fun ExpressionWithColumnType<*>.keyExists(other: String) =
+        KeyExistsOp(this, stringParam(other))
 
     /**
      * ```sql
@@ -610,10 +615,16 @@ class JacksonBColumnTest: AbstractExposedTest() {
         Assumptions.assumeTrue(testDB in TestDB.ALL_POSTGRES)
 
         withJacksonBTable(testDB) { tester, _, data1 ->
-            val topLevelKeyResult = tester.selectAll().where { tester.jacksonBColumn keyExists "logins" }.single()
+            val topLevelKeyResult = tester
+                .selectAll()
+                .where { tester.jacksonBColumn keyExists "logins" }
+                .single()
             topLevelKeyResult[tester.jacksonBColumn] shouldBeEqualTo data1
 
-            val nestedKeyResult = tester.selectAll().where { tester.jacksonBColumn keyExists "name" }.toList()
+            val nestedKeyResult = tester
+                .selectAll()
+                .where { tester.jacksonBColumn keyExists "name" }
+                .toFastList()
             nestedKeyResult.shouldBeEmpty()
         }
     }

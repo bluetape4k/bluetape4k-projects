@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.core
 
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.exposed.dao.id.SnowflakeIdTable
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
@@ -8,10 +9,10 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
@@ -57,9 +58,10 @@ class SuspendedQueryTest: AbstractExposedTest() {
                 .fetchBatchedResultFlow(10)
                 .buffer(capacity = 4)
                 .onEach { log.debug { "fetch rows. rows.size=${it.size}" } }
-                .map { rows -> rows.map { it[ProductTable.id].value } }
-                .toList()
-                .flatten()
+                .flatMapConcat { rows ->
+                    rows.asFlow().map { it[ProductTable.id].value }
+                }
+                .toFastList()
 
             batchedIds.size shouldBeEqualTo products.size
 
@@ -72,7 +74,7 @@ class SuspendedQueryTest: AbstractExposedTest() {
                 .flatMapMerge { rows ->
                     rows.asFlow().map { it[ProductTable.id].value }
                 }
-                .toList()
+                .toFastList()
 
             reversedIds.size shouldBeEqualTo products.size
         }
@@ -111,9 +113,10 @@ class SuspendedQueryTest: AbstractExposedTest() {
                 .fetchBatchedResultFlow(10)
                 .buffer(capacity = 4)
                 .onEach { log.debug { "fetch rows. rows.size=${it.size}" } }
-                .map { rows -> rows.map { it[ItemTable.id].value } }
-                .toList()
-                .flatten()
+                .flatMapConcat { rows ->
+                    rows.asFlow().map { it[ItemTable.id].value }
+                }
+                .toFastList()
                 .sorted()
 
             batchedIds.size shouldBeEqualTo items.size
@@ -124,9 +127,10 @@ class SuspendedQueryTest: AbstractExposedTest() {
                 .fetchBatchedResultFlow(10, SortOrder.DESC)
                 .buffer(capacity = 4)
                 .onEach { log.debug { "fetch rows. rows.size=${it.size}" } }
-                .map { rows -> rows.map { it[ItemTable.id].value } }
-                .toList()
-                .flatten()
+                .flatMapConcat { rows ->
+                    rows.asFlow().map { it[ItemTable.id].value }
+                }
+                .toFastList()
                 .sorted()
 
             reversedIds.size shouldBeEqualTo items.size

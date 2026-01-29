@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.core.jackson
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.exposed.core.jackson.JacksonSchema.DataHolder
 import io.bluetape4k.exposed.core.jackson.JacksonSchema.User
 import io.bluetape4k.exposed.core.jackson.JacksonSchema.withJacksonArrays
@@ -272,7 +273,7 @@ class JacksonColumnTest: AbstractExposedTest() {
             }
 
             val userIsInactive = tester.jacksonColumn.contains("""{"active":false}""")
-            val rows = tester.selectAll().where { userIsInactive }.toList()
+            val rows = tester.selectAll().where { userIsInactive }.toFastList()
             rows.shouldBeEmpty()
 
             val alphaTeamUserAsJson = """{"user":${DefaultJacksonSerializer.serializeAsString(alphaTeamUser)}}"""

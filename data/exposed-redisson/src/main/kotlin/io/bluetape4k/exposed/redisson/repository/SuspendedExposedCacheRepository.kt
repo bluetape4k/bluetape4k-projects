@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.redisson.repository
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -65,7 +66,11 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
     @Deprecated("use findByIdFromDb", replaceWith = ReplaceWith("findByIdFromDb(id)"))
     @Suppress("DEPRECATION")
     suspend fun findFreshById(id: ID): T? = suspendedTransactionAsync(Dispatchers.IO) {
-        entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
+        entityTable
+            .selectAll()
+            .where { entityTable.id eq id }
+            .singleOrNull()
+            ?.toEntity()
     }.await()
 
     /**
@@ -76,7 +81,11 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      */
     @Suppress("DEPRECATION")
     suspend fun findByIdFromDb(id: ID): T? = suspendedTransactionAsync(Dispatchers.IO) {
-        entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
+        entityTable
+            .selectAll()
+            .where { entityTable.id eq id }
+            .singleOrNull()
+            ?.toEntity()
     }.await()
 
     /**
@@ -88,7 +97,10 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
     @Deprecated("use findAllFromDb", replaceWith = ReplaceWith("findAllFromDb(ids)"))
     @Suppress("DEPRECATION")
     suspend fun findFreshAll(vararg ids: ID): List<T> = suspendedTransactionAsync(Dispatchers.IO) {
-        entityTable.selectAll().where { entityTable.id inList ids.toList() }.map { it.toEntity() }
+        entityTable
+            .selectAll()
+            .where { entityTable.id inList ids.toFastList() }
+            .map { it.toEntity() }
     }.await()
 
     /**
@@ -99,7 +111,10 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      */
     @Suppress("DEPRECATION")
     suspend fun findAllFromDb(vararg ids: ID): List<T> = suspendedTransactionAsync(Dispatchers.IO) {
-        entityTable.selectAll().where { entityTable.id inList ids.toList() }.map { it.toEntity() }
+        entityTable
+            .selectAll()
+            .where { entityTable.id inList ids.toFastList() }
+            .map { it.toEntity() }
     }.await()
 
 
@@ -112,7 +127,10 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
     @Deprecated("use findAllFromDb", replaceWith = ReplaceWith("findAllFromDb(ids)"))
     @Suppress("DEPRECATION")
     suspend fun findFreshAll(ids: Collection<ID>): List<T> = suspendedTransactionAsync(Dispatchers.IO) {
-        entityTable.selectAll().where { entityTable.id inList ids }.map { it.toEntity() }
+        entityTable
+            .selectAll()
+            .where { entityTable.id inList ids }
+            .map { it.toEntity() }
     }.await()
 
     /**
@@ -123,7 +141,10 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      */
     @Suppress("DEPRECATION")
     suspend fun findAllFromDb(ids: Collection<ID>): List<T> = suspendedTransactionAsync(Dispatchers.IO) {
-        entityTable.selectAll().where { entityTable.id inList ids }.map { it.toEntity() }
+        entityTable
+            .selectAll()
+            .where { entityTable.id inList ids }
+            .map { it.toEntity() }
     }.await()
 
     /**

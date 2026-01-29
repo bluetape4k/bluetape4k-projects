@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.repository
 
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.dao.id.SoftDeletedIdTable
 import io.bluetape4k.exposed.r2dbc.tests.AbstractExposedR2dbcTest
@@ -7,7 +8,6 @@ import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.exposed.r2dbc.tests.withTables
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.coroutines.flow.toList
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.jetbrains.exposed.v1.core.Column
@@ -64,12 +64,12 @@ class SoftDeletedR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
 
             repository.softDeleteById(contact1Id)
 
-            val activeEntities: List<ContactDTO> = repository.findActive().toList()
+            val activeEntities: List<ContactDTO> = repository.findActive().toFastList()
             activeEntities shouldHaveSize 1
             activeEntities.single().id shouldBeEqualTo contact2Id
 
             repository.restoreById(contact1Id)
-            val restoredEntities = repository.findActive().toList()
+            val restoredEntities = repository.findActive().toFastList()
             restoredEntities shouldHaveSize 2
             restoredEntities.map { it.id } shouldBeEqualTo listOf(contact1Id, contact2Id)
         }

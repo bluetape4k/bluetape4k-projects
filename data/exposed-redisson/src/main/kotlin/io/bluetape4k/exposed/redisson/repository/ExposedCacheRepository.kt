@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.redisson.repository
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.collections.toVarargArray
 import io.bluetape4k.exposed.core.HasIdentifier
 import org.jetbrains.exposed.v1.core.Expression
@@ -57,7 +58,11 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      */
     @Deprecated(message = "use findFreshById", replaceWith = ReplaceWith("findByIdFromDb(id)"))
     fun findFreshById(id: ID): T? = transaction {
-        entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
+        entityTable
+            .selectAll()
+            .where { entityTable.id eq id }
+            .singleOrNull()
+            ?.toEntity()
     }
 
     /**
@@ -67,7 +72,11 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @return 엔티티 또는 null
      */
     fun findByIdFromDb(id: ID): T? = transaction {
-        entityTable.selectAll().where { entityTable.id eq id }.singleOrNull()?.toEntity()
+        entityTable
+            .selectAll()
+            .where { entityTable.id eq id }
+            .singleOrNull()
+            ?.toEntity()
     }
 
     /**
@@ -78,7 +87,10 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      */
     @Deprecated(message = "use findAllFromDb", replaceWith = ReplaceWith("findAllFromDb(ids)"))
     fun findFreshAll(vararg ids: ID): List<T> = transaction {
-        entityTable.selectAll().where { entityTable.id inList ids.toList() }.map { it.toEntity() }
+        entityTable
+            .selectAll()
+            .where { entityTable.id inList ids.toFastList() }
+            .map { it.toEntity() }
     }
 
     /**
@@ -88,7 +100,10 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @return 엔티티 리스트
      */
     fun findAllFromDb(vararg ids: ID): List<T> = transaction {
-        entityTable.selectAll().where { entityTable.id inList ids.toList() }.map { it.toEntity() }
+        entityTable
+            .selectAll()
+            .where { entityTable.id inList ids.toFastList() }
+            .map { it.toEntity() }
     }
 
     /**
@@ -99,7 +114,10 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      */
     @Deprecated(message = "use findAllFromDb", replaceWith = ReplaceWith("findAllFromDb(ids)"))
     fun findFreshAll(ids: Collection<ID>): List<T> = transaction {
-        entityTable.selectAll().where { entityTable.id inList ids }.map { it.toEntity() }
+        entityTable
+            .selectAll()
+            .where { entityTable.id inList ids }
+            .map { it.toEntity() }
     }
 
     /**
@@ -109,7 +127,10 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @return 엔티티 리스트
      */
     fun findAllFromDb(ids: Collection<ID>): List<T> = transaction {
-        entityTable.selectAll().where { entityTable.id inList ids }.map { it.toEntity() }
+        entityTable
+            .selectAll()
+            .where { entityTable.id inList ids }
+            .map { it.toEntity() }
     }
 
     /**

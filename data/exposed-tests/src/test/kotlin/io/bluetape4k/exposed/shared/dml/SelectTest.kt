@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.shared.dml
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.exposed.shared.dml.DMLTestData.withCitiesAndUsers
 import io.bluetape4k.exposed.shared.dml.DMLTestData.withSales
 import io.bluetape4k.exposed.shared.dml.DMLTestData.withSalesAndSomeAmounts
@@ -157,7 +158,10 @@ class SelectTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `조건절에 not equal 사용`(testDB: TestDB) {
         withCitiesAndUsers(testDB) { _, users, _ ->
-            val rows = users.selectAll().where { users.id neq "andrey" }.toList()
+            val rows = users
+                .selectAll()
+                .where { users.id neq "andrey" }
+                .toFastList()
 
             rows.map { it[users.id] } shouldNotContain "andrey"
         }
@@ -207,7 +211,11 @@ class SelectTest: AbstractExposedTest() {
              *  ORDER BY users."name" ASC
              * ```
              */
-            val r1 = users.selectAll().where { users.id inList listOf("andrey", "alex") }.orderBy(users.name).toList()
+            val r1 = users
+                .selectAll()
+                .where { users.id inList listOf("andrey", "alex") }
+                .orderBy(users.name)
+                .toFastList()
 
             r1.size shouldBeEqualTo 2
             r1[0][users.name] shouldBeEqualTo "Alex"
@@ -221,7 +229,10 @@ class SelectTest: AbstractExposedTest() {
              *  WHERE users.id NOT IN ('ABC', 'DEF')
              * ```
              */
-            val r2 = users.selectAll().where { users.id notInList listOf("ABC", "DEF") }.toList()
+            val r2 = users
+                .selectAll()
+                .where { users.id notInList listOf("ABC", "DEF") }
+                .toFastList()
 
             users.selectAll().count() shouldBeEqualTo r2.size.toLong()
         }
@@ -241,9 +252,12 @@ class SelectTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `inList with pair expression 02`(testDB: TestDB) {
         withCitiesAndUsers(testDB) { _, users, _ ->
-            val rows = users.selectAll().where {
-                (users.id to users.name) inList listOf("andrey" to "Andrey", "sergey" to "Sergey")
-            }.toList()
+            val rows = users
+                .selectAll()
+                .where {
+                    (users.id to users.name) inList listOf("andrey" to "Andrey", "sergey" to "Sergey")
+                }
+                .toFastList()
 
             rows shouldHaveSize 2
             rows[0][users.name] shouldBeEqualTo "Andrey"
@@ -282,9 +296,11 @@ class SelectTest: AbstractExposedTest() {
              *  WHERE posts.board = 1
              * ```
              */
-            val result1 = Posts.selectAll().where {
-                Posts.boardId inList listOf(board1.id)
-            }.singleOrNull()?.get(Posts.id)
+            val result1 = Posts
+                .selectAll()
+                .where { Posts.boardId inList listOf(board1.id) }
+                .singleOrNull()
+                ?.get(Posts.id)
 
             result1 shouldBeEqualTo post1.id
 
@@ -298,9 +314,9 @@ class SelectTest: AbstractExposedTest() {
              *  WHERE board.id IN (1, 2, 3, 4, 5)
              * ```
              */
-            val result2 = Board.find {
-                Boards.id inList listOf(1, 2, 3, 4, 5)
-            }.singleOrNull()
+            val result2 = Board
+                .find { Boards.id inList listOf(1, 2, 3, 4, 5) }
+                .singleOrNull()
             result2 shouldBeEqualTo board1
 
             /**
@@ -313,9 +329,9 @@ class SelectTest: AbstractExposedTest() {
              *  WHERE board.id  NOT IN (1, 2, 3, 4, 5)
              * ```
              */
-            val result3 = Board.find {
-                Boards.id notInList listOf(1, 2, 3, 4, 5)
-            }.singleOrNull()
+            val result3 = Board
+                .find { Boards.id notInList listOf(1, 2, 3, 4, 5) }
+                .singleOrNull()
             result3.shouldBeNull()
         }
     }
@@ -336,9 +352,12 @@ class SelectTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `inSubQuery 연산자 예제 - 01`(testDB: TestDB) {
         withCitiesAndUsers(testDB) { cities, _, _ ->
-            val subQuery: Query = cities.select(cities.id).where { cities.id eq 2 }
+            val subQuery: Query = cities
+                .select(cities.id)
+                .where { cities.id eq 2 }
 
-            val r: Query = cities.selectAll().where { cities.id inSubQuery subQuery }
+            val r: Query = cities.selectAll()
+                .where { cities.id inSubQuery subQuery }
 
             r.count() shouldBeEqualTo 1L
         }
@@ -360,7 +379,9 @@ class SelectTest: AbstractExposedTest() {
         withCitiesAndUsers(testDB) { cities, _, _ ->
             val subQuery: Query = cities.select(cities.id)
 
-            val r: Query = cities.selectAll().where { cities.id notInSubQuery subQuery }
+            val r: Query = cities
+                .selectAll()
+                .where { cities.id notInSubQuery subQuery }
 
             r.count() shouldBeEqualTo 0L
         }
@@ -390,9 +411,9 @@ class SelectTest: AbstractExposedTest() {
         Assumptions.assumeTrue { testDB in supportingInAnyAllFromTables }
 
         withSalesAndSomeAmounts(testDB) { _, sales, someAmounts ->
-            val rows = sales.selectAll().where {
-                sales.amount inTable someAmounts
-            }
+            val rows = sales.selectAll()
+                .where { sales.amount inTable someAmounts }
+
             rows.count() shouldBeEqualTo 2L
         }
     }
@@ -413,9 +434,9 @@ class SelectTest: AbstractExposedTest() {
         Assumptions.assumeTrue { testDB in supportingInAnyAllFromTables }
 
         withSalesAndSomeAmounts(testDB) { _, sales, someAmounts ->
-            val rows = sales.selectAll().where {
-                sales.amount notInTable someAmounts
-            }
+            val rows = sales
+                .selectAll()
+                .where { sales.amount notInTable someAmounts }
             rows.count() shouldBeEqualTo 5L
         }
     }
@@ -439,11 +460,13 @@ class SelectTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `eq AnyFrom SubQuery`(testDB: TestDB) {
         withCitiesAndUsers(testDB) { cities, _, _ ->
-            val subquery: Query = cities.select(cities.id).where { cities.id eq 2 }
+            val subquery: Query = cities
+                .select(cities.id)
+                .where { cities.id eq 2 }
 
-            val rows = cities.selectAll().where {
-                cities.id eq anyFrom(subquery)
-            }
+            val rows = cities
+                .selectAll()
+                .where { cities.id eq anyFrom(subquery) }
 
             rows.count() shouldBeEqualTo 1L
         }
@@ -465,11 +488,13 @@ class SelectTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `neq AnyFrom SubQuery`(dialect: TestDB) {
         withCitiesAndUsers(dialect) { cities, _, _ ->
-            val subquery: Query = cities.select(cities.id).where { cities.id eq 2 }
+            val subquery: Query = cities
+                .select(cities.id)
+                .where { cities.id eq 2 }
 
-            val rows = cities.selectAll().where {
-                cities.id neq anyFrom(subquery)
-            }
+            val rows = cities
+                .selectAll()
+                .where { cities.id neq anyFrom(subquery) }
 
             rows.count() shouldBeEqualTo 2L
         }
@@ -494,9 +519,11 @@ class SelectTest: AbstractExposedTest() {
         Assumptions.assumeTrue { testDB in supportingAnyAndAllFromArrays }
 
         withCitiesAndUsers(testDB) { _, users, _ ->
-            val rows = users.selectAll().where {
-                users.id eq anyFrom(arrayOf("andrey", "alex"))
-            }.orderBy(users.name).toList()
+            val rows = users
+                .selectAll()
+                .where { users.id eq anyFrom(arrayOf("andrey", "alex")) }
+                .orderBy(users.name)
+                .toFastList()
 
             rows shouldHaveSize 2
             rows[0][users.name] shouldBeEqualTo "Alex"
@@ -523,9 +550,11 @@ class SelectTest: AbstractExposedTest() {
         Assumptions.assumeTrue { testDB in supportingAnyAndAllFromArrays }
 
         withCitiesAndUsers(testDB) { _, users, _ ->
-            val rows = users.selectAll().where {
-                users.id eq anyFrom(listOf("andrey", "alex"))
-            }.orderBy(users.name).toList()
+            val rows = users
+                .selectAll()
+                .where { users.id eq anyFrom(listOf("andrey", "alex")) }
+                .orderBy(users.name)
+                .toFastList()
 
             rows shouldHaveSize 2
             rows[0][users.name] shouldBeEqualTo "Alex"
@@ -551,9 +580,10 @@ class SelectTest: AbstractExposedTest() {
         Assumptions.assumeTrue { testDB in supportingAnyAndAllFromArrays }
 
         withCitiesAndUsers(testDB) { _, users, _ ->
-            val rows = users.selectAll().where {
-                users.id neq anyFrom(arrayOf("andrey"))
-            }.orderBy(users.name)
+            val rows = users
+                .selectAll()
+                .where { users.id neq anyFrom(arrayOf("andrey")) }
+                .orderBy(users.name)
 
             rows.count() shouldBeEqualTo 4L
         }
@@ -577,9 +607,10 @@ class SelectTest: AbstractExposedTest() {
         Assumptions.assumeTrue { testDB in supportingAnyAndAllFromArrays }
 
         withCitiesAndUsers(testDB) { _, users, _ ->
-            val rows = users.selectAll().where {
-                users.id neq anyFrom(listOf("andrey"))
-            }.orderBy(users.name)
+            val rows = users
+                .selectAll()
+                .where { users.id neq anyFrom(listOf("andrey")) }
+                .orderBy(users.name)
 
             rows.count() shouldBeEqualTo 4L
         }
@@ -604,9 +635,11 @@ class SelectTest: AbstractExposedTest() {
         withSales(testDB) { _, sales ->
             val amounts = arrayOf(100, 1000).map { it.toBigDecimal() }.toTypedArray()
 
-            val rows = sales.selectAll().where {
-                sales.amount greaterEq anyFrom(amounts)
-            }.orderBy(sales.amount).map { it[sales.product] }
+            val rows = sales
+                .selectAll()
+                .where { sales.amount greaterEq anyFrom(amounts) }
+                .orderBy(sales.amount)
+                .map { it[sales.product] }
 
             rows.subList(0, 3).forEach { it shouldBeEqualTo "tea" }
             rows.subList(3, 6).forEach { it shouldBeEqualTo "coffee" }
@@ -632,9 +665,11 @@ class SelectTest: AbstractExposedTest() {
         withSales(testDB) { _, sales ->
             val amounts = listOf(100.0, 1000.0).map { it.toBigDecimal() }
 
-            val rows = sales.selectAll().where {
-                sales.amount greaterEq anyFrom(amounts)
-            }.orderBy(sales.amount).map { it[sales.product] }
+            val rows = sales
+                .selectAll()
+                .where { sales.amount greaterEq anyFrom(amounts) }
+                .orderBy(sales.amount)
+                .map { it[sales.product] }
 
             rows.subList(0, 3).forEach { it shouldBeEqualTo "tea" }
             rows.subList(3, 6).forEach { it shouldBeEqualTo "coffee" }
@@ -657,9 +692,11 @@ class SelectTest: AbstractExposedTest() {
         Assumptions.assumeTrue { testDB in supportingInAnyAllFromTables }
 
         withSalesAndSomeAmounts(testDB) { _, sales, someAmounts ->
-            val rows = sales.selectAll().where {
-                sales.amount eq anyFrom(someAmounts)
-            }
+            val rows = sales
+                .selectAll()
+                .where {
+                    sales.amount eq anyFrom(someAmounts)
+                }
 
             rows.count() shouldBeEqualTo 2L        // 650.70, 1500.25
         }
@@ -682,9 +719,11 @@ class SelectTest: AbstractExposedTest() {
         Assumptions.assumeTrue { testDB in supportingInAnyAllFromTables }
 
         withSalesAndSomeAmounts(testDB) { _, sales, someAmounts ->
-            val rows = sales.selectAll().where {
-                sales.amount neq anyFrom(someAmounts)
-            }
+            val rows = sales
+                .selectAll()
+                .where {
+                    sales.amount neq anyFrom(someAmounts)
+                }
             rows.count() shouldBeEqualTo 7L    // except 650.70, 1500.25 이어야 하는데 ...
         }
     }
@@ -712,11 +751,17 @@ class SelectTest: AbstractExposedTest() {
         Assumptions.assumeTrue { testDB != TestDB.MYSQL_V5 }
 
         withSales(testDB) { _, sales ->
-            val subquery = sales.select(sales.amount).where { sales.product eq "tea" }
+            val subquery = sales
+                .select(sales.amount)
+                .where { sales.product eq "tea" }
 
-            val rows = sales.selectAll().where {
-                sales.amount greaterEq allFrom(subquery)
-            }.orderBy(sales.amount).map { it[sales.product] }
+            val rows = sales
+                .selectAll()
+                .where {
+                    sales.amount greaterEq allFrom(subquery)
+                }
+                .orderBy(sales.amount)
+                .map { it[sales.product] }
 
             rows shouldHaveSize 4
             rows.first() shouldBeEqualTo "tea"
@@ -744,9 +789,12 @@ class SelectTest: AbstractExposedTest() {
         withSales(testDB) { _, sales ->
             val amounts = arrayOf(100.0, 1000.0).map { it.toBigDecimal() }.toTypedArray()
 
-            val rows = sales.selectAll().where {
-                sales.amount greaterEq allFrom(amounts)
-            }.toList()
+            val rows = sales
+                .selectAll()
+                .where {
+                    sales.amount greaterEq allFrom(amounts)
+                }
+                .toFastList()
 
             rows shouldHaveSize 3
             rows.all { it[sales.product] == "coffee" }.shouldBeTrue()
@@ -773,9 +821,12 @@ class SelectTest: AbstractExposedTest() {
         withSales(testDB) { _, sales ->
             val amounts = arrayOf(100.0, 1000.0).map { it.toBigDecimal() }
 
-            val rows = sales.selectAll().where {
-                sales.amount greaterEq allFrom(amounts)
-            }.toList()
+            val rows = sales
+                .selectAll()
+                .where {
+                    sales.amount greaterEq allFrom(amounts)
+                }
+                .toFastList()
 
             rows shouldHaveSize 3
             rows.all { it[sales.product] == "coffee" }.shouldBeTrue()
@@ -799,7 +850,12 @@ class SelectTest: AbstractExposedTest() {
         Assumptions.assumeTrue { testDB in supportingInAnyAllFromTables }
 
         withSalesAndSomeAmounts(testDB) { _, sales, someAmounts ->
-            val rows = sales.selectAll().where { sales.amount greaterEq allFrom(someAmounts) }.toList()
+            val rows = sales
+                .selectAll()
+                .where {
+                    sales.amount greaterEq allFrom(someAmounts)
+                }
+                .toFastList()
 
             rows shouldHaveSize 3
             rows.all { it[sales.product] == "coffee" }.shouldBeTrue()
@@ -831,7 +887,9 @@ class SelectTest: AbstractExposedTest() {
              *   ) subquery
              * ```
              */
-            cities.selectAll().withDistinct().count() shouldBeEqualTo 2L
+            cities.selectAll()
+                .withDistinct()
+                .count() shouldBeEqualTo 2L
 
             /**
              * ```sql
@@ -842,7 +900,9 @@ class SelectTest: AbstractExposedTest() {
              *   ) subquery
              * ```
              */
-            cities.select(cities.name).withDistinct().count() shouldBeEqualTo 1L
+            cities.select(cities.name)
+                .withDistinct()
+                .count() shouldBeEqualTo 1L
 
             /**
              * ```sql
@@ -855,7 +915,9 @@ class SelectTest: AbstractExposedTest() {
              *   ) subquery
              * ```
              */
-            cities.selectAll().withDistinctOn(cities.name).count() shouldBeEqualTo 1L
+            cities.selectAll()
+                .withDistinctOn(cities.name)
+                .count() shouldBeEqualTo 1L
         }
     }
 
@@ -887,7 +949,11 @@ class SelectTest: AbstractExposedTest() {
              * ```
              */
             val orOp = allUsers.map { users.name eq it }.compoundOr()
-            val userNameOr = users.selectAll().where(orOp).map { it[users.name] }.toSet()
+            val userNameOr = users
+                .selectAll()
+                .where(orOp)
+                .map { it[users.name] }
+                .toSet()
             userNameOr shouldBeEqualTo allUsers
 
             /**
@@ -904,7 +970,10 @@ class SelectTest: AbstractExposedTest() {
              * ```
              */
             val andOp = allUsers.map { users.name eq it }.compoundAnd()
-            users.selectAll().where(andOp).count() shouldBeEqualTo 0L
+            users
+                .selectAll()
+                .where(andOp)
+                .count() shouldBeEqualTo 0L
         }
     }
 
@@ -947,25 +1016,35 @@ class SelectTest: AbstractExposedTest() {
         val updatedText = "${text}_updated"
 
         withCitiesAndUsers(testDB) { cities, _, _ ->
-            val query = cities.selectAll().where { cities.name eq "Munich" }.limit(1).groupBy(cities.id, cities.name)
+            val query = cities
+                .selectAll()
+                .where { cities.name eq "Munich" }
+                .limit(1)
+                .groupBy(cities.id, cities.name)
+
             val originalQuery = query.copy()
             val originalSql = query.prepareSQL(this, false)
 
             // query 선두에 comment 추가
-            val commentedFrontSql = query.comment(text).prepareSQL(this, false)
+            val commentedFrontSql = query
+                .comment(text)
+                .prepareSQL(this, false)
             commentedFrontSql shouldBeEqualTo "/*$text*/ $originalSql"
 
             // query에는 comment가 선두에 추가되었고, 후미에 추가한다.
-            val commentedTwiceSql = query.comment(text, AbstractQuery.CommentPosition.BACK).prepareSQL(this, false)
+            val commentedTwiceSql = query
+                .comment(text, AbstractQuery.CommentPosition.BACK)
+                .prepareSQL(this, false)
             commentedTwiceSql shouldBeEqualTo "/*$text*/ $originalSql /*$text*/"
 
             // 이미 query에는 comment가 존재하므로 IllegalStateException 발생
             expectException<IllegalStateException> {
-                query.comment("Testing").toList()
+                query.comment("Testing").toFastList()
             }
 
             val commentedBackSql =
-                query.adjustComments(AbstractQuery.CommentPosition.FRONT) // 새로운 주석이 지정되지 않았으므로, 기존 주석이 삭제된다.
+                query
+                    .adjustComments(AbstractQuery.CommentPosition.FRONT) // 새로운 주석이 지정되지 않았으므로, 기존 주석이 삭제된다.
                     .adjustComments(AbstractQuery.CommentPosition.BACK, updatedText)  // 기존 주석이 삭제되고, 새로운 주석이 추가된다.
                     .prepareSQL(this, false)
 
@@ -988,7 +1067,7 @@ class SelectTest: AbstractExposedTest() {
         }
 
         withTables(testDB, alphabet) {
-            val allLetters = ('A'..'Z').toList()
+            val allLetters = ('A'..'Z').toFastList()
             val amount = 10
             val start = 8L
 
@@ -997,20 +1076,29 @@ class SelectTest: AbstractExposedTest() {
             }
 
             // SELECT alphabet.letter FROM alphabet LIMIT 10
-            val limitResult = alphabet.selectAll().limit(amount).map { it[alphabet.letter] }
+            val limitResult = alphabet
+                .selectAll()
+                .limit(amount)
+                .map { it[alphabet.letter] }
             limitResult shouldBeEqualTo allLetters.take(amount)
 
             // SELECT alphabet.letter FROM alphabet LIMIT 10 OFFSET 8
-            val limitOffsetResult = alphabet.selectAll().limit(amount).offset(start).map { it[alphabet.letter] }
+            val limitOffsetResult = alphabet
+                .selectAll()
+                .limit(amount)
+                .offset(start)
+                .map { it[alphabet.letter] }
             limitOffsetResult shouldBeEqualTo allLetters.drop(start.toInt()).take(amount)
 
             if (testDB !in TestDB.ALL_MYSQL_LIKE) {
                 // SELECT alphabet.letter FROM alphabet OFFSET 8
-                val offsetResult = alphabet.selectAll().offset(start).map { it[alphabet.letter] }
+                val offsetResult = alphabet
+                    .selectAll()
+                    .offset(start)
+                    .map { it[alphabet.letter] }
 
                 offsetResult shouldBeEqualTo allLetters.drop(start.toInt())
             }
         }
     }
-
 }

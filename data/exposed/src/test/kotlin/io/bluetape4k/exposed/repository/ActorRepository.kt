@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.repository
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.exposed.domain.dto.ActorDTO
 import io.bluetape4k.exposed.domain.mapper.toActorDTO
 import io.bluetape4k.exposed.domain.model.MovieSchema.ActorEntity
@@ -33,7 +34,7 @@ class ActorRepository: ExposedRepository<ActorDTO, Long> {
             }
         }
 
-        return ActorEntity.wrapRows(query).toList()
+        return ActorEntity.wrapRows(query).toFastList()
     }
 
     fun save(actor: ActorDTO): ActorDTO {

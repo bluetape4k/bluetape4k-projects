@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.core.fastjson2
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.exposed.core.fastjson2.FastjsonSchema.DataHolder
 import io.bluetape4k.exposed.core.fastjson2.FastjsonSchema.User
 import io.bluetape4k.exposed.core.fastjson2.FastjsonSchema.withFastjsonBArrays
@@ -592,9 +593,13 @@ class FastjsonBColumnTest: AbstractExposedTest() {
         }
     }
 
-    private class KeyExistsOp(left: Expression<*>, right: Expression<*>): ComparisonOp(left, right, "??")
+    private class KeyExistsOp(
+        left: Expression<*>,
+        right: Expression<*>,
+    ): ComparisonOp(left, right, "??")
 
-    private infix fun ExpressionWithColumnType<*>.keyExists(other: String) = KeyExistsOp(this, stringParam(other))
+    private infix fun ExpressionWithColumnType<*>.keyExists(other: String) =
+        KeyExistsOp(this, stringParam(other))
 
     /**
      * ```sql
@@ -614,10 +619,16 @@ class FastjsonBColumnTest: AbstractExposedTest() {
         Assumptions.assumeTrue(testDB in TestDB.ALL_POSTGRES)
 
         withFastjsonBTable(testDB) { tester, _, data1 ->
-            val topLevelKeyResult = tester.selectAll().where { tester.fastjsonBColumn keyExists "logins" }.single()
+            val topLevelKeyResult = tester
+                .selectAll()
+                .where { tester.fastjsonBColumn keyExists "logins" }
+                .single()
             topLevelKeyResult[tester.fastjsonBColumn] shouldBeEqualTo data1
 
-            val nestedKeyResult = tester.selectAll().where { tester.fastjsonBColumn keyExists "name" }.toList()
+            val nestedKeyResult = tester
+                .selectAll()
+                .where { tester.fastjsonBColumn keyExists "name" }
+                .toFastList()
             nestedKeyResult.shouldBeEmpty()
         }
     }

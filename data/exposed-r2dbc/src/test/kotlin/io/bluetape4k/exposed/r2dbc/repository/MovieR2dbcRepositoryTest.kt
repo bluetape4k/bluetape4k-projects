@@ -1,12 +1,12 @@
 package io.bluetape4k.exposed.r2dbc.repository
 
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.exposed.r2dbc.domain.MovieDTO
 import io.bluetape4k.exposed.r2dbc.domain.MovieSchema.withMovieAndActors
 import io.bluetape4k.exposed.r2dbc.tests.AbstractExposedR2dbcTest
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
@@ -46,7 +46,7 @@ class MovieR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
         withMovieAndActors(testDB) {
             val params = mapOf("producerName" to "Johnny")
 
-            val movies = repository.searchMovies(params).toList()
+            val movies = repository.searchMovies(params).toFastList()
             movies.forEach {
                 log.debug { "movie: $it" }
             }
@@ -86,7 +86,7 @@ class MovieR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `get all movies and actors`(testDB: TestDB) = runTest {
         withMovieAndActors(testDB) {
-            val movieWithActors = repository.getAllMoviesWithActors().toList()
+            val movieWithActors = repository.getAllMoviesWithActors().toFastList()
 
             movieWithActors.shouldNotBeEmpty()
             movieWithActors.forEach { movie ->
@@ -114,7 +114,7 @@ class MovieR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `get movie and actor count`(testDB: TestDB) = runTest {
         withMovieAndActors(testDB) {
-            val movieWithActors = repository.getMovieActorsCount().toList()
+            val movieWithActors = repository.getMovieActorsCount().toFastList()
 
             movieWithActors.shouldNotBeEmpty()
             movieWithActors.forEach {
@@ -127,7 +127,7 @@ class MovieR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `find movies with acting producers`(testDB: TestDB) = runTest {
         withMovieAndActors(testDB) {
-            val results = repository.findMoviesWithActingProducers().toList()
+            val results = repository.findMoviesWithActingProducers().toFastList()
 
             results shouldHaveSize 1
             results.forEach {

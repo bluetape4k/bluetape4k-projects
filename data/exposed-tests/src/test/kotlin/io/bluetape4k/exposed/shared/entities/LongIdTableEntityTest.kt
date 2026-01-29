@@ -95,7 +95,6 @@ object LongIdTables {
             .toString()
     }
 
-
     class Town(id: EntityID<Long>): LongEntity(id) {
         companion object: LongEntityClass<Town>(Towns)
 
@@ -143,8 +142,8 @@ class LongIdTableEntityTest: AbstractExposedTest() {
             val allCities = City.all().map { it.name }
             allCities shouldContainSame listOf("Mumbai", "Pune")
 
-            val allPeople = Person.all().map { it.name to it.city.name }
-            allPeople shouldContainSame listOf(
+            val allPeople = Person.all().associate { it.name to it.city.name }
+            allPeople shouldContainSame mapOf(
                 "David D'souza" to "Mumbai",
                 "Tushar Mumbaikar" to "Mumbai",
                 "Tanu Arora" to "Pune"
@@ -178,8 +177,8 @@ class LongIdTableEntityTest: AbstractExposedTest() {
             val allCities = City.all().map { it.name }
             allCities shouldContainSame listOf("Mumbai")
 
-            val allPeople = Person.all().map { it.name to it.city.name }
-            allPeople shouldContainSame listOf(
+            val allPeople = Person.all().associate { it.name to it.city.name }
+            allPeople shouldContainSame mapOf(
                 "David D'souza" to "Mumbai",
                 "Tushar Mumbaikar" to "Mumbai"
             )

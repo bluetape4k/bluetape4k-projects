@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.r2dbc
 
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -51,4 +52,4 @@ suspend fun <T: Comparable<T>> Flow<T>.sorted(): List<T> = toList().sorted()
  *
  * @return 중복이 제거된 List
  */
-suspend fun <T> Flow<T>.distinct(): List<T> = distinctUntilChanged().toList()
+suspend fun <T> Flow<T>.distinct(): List<T> = distinctUntilChanged().toFastList()

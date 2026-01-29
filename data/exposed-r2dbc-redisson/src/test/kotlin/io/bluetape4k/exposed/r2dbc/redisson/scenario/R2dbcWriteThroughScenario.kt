@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.redisson.scenario
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.r2dbc.redisson.scenario.R2dbcCacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
@@ -105,7 +106,7 @@ interface R2dbcWriteThroughScenario<T: HasIdentifier<ID>, ID: Any>: R2dbcCacheTe
             }
 
             // DB에서 조회한 값
-            val entitiesFromDB = repository.findAllFromDb(ids).toList()
+            val entitiesFromDB = repository.findAllFromDb(ids).toFastList()
             entitiesFromDB.shouldNotBeEmpty() shouldHaveSize ids.size
 
             entitiesFromDB.forEach { entity ->
