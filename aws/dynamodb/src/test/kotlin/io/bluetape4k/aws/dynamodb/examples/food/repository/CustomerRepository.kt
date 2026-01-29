@@ -7,8 +7,8 @@ import io.bluetape4k.aws.dynamodb.model.QueryEnhancedRequest
 import io.bluetape4k.aws.dynamodb.model.dynamoDbKeyOf
 import io.bluetape4k.aws.dynamodb.repository.DynamoDbCoroutineRepository
 import io.bluetape4k.aws.dynamodb.repository.findFirst
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.coroutines.flow.toList
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Repository
@@ -33,6 +33,6 @@ class CustomerRepository(
         val queryRequest = QueryEnhancedRequest {
             queryConditional(QueryConditional.keyEqualTo(dynamoDbKeyOf(partitionKey)))
         }
-        return table.query(queryRequest).findFirst().toList()
+        return table.query(queryRequest).findFirst().toFastList()
     }
 }

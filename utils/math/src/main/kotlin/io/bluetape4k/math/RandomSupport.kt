@@ -1,5 +1,6 @@
 package io.bluetape4k.math
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.ranges.ClosedOpenDoubleRange
 import io.bluetape4k.support.coerce
 import java.util.concurrent.ThreadLocalRandom
@@ -34,7 +35,7 @@ fun <T: Any> List<T>.randomDistinct(sampleSize: Int): List<T> {
         .distinct()
         .take(cappedSampleSize)
         .map { this[it] }
-        .toList()
+        .toFastList()
 }
 
 fun <T: Any> Sequence<T>.randomDistinct(sampleSize: Int): List<T> = toList().randomDistinct(sampleSize)
@@ -54,7 +55,7 @@ fun <T: Any> List<T>.random(sampleSize: Int): List<T> {
         }
         .take(cappedSampleSize)
         .map { this[it] }
-        .toList()
+        .toFastList()
 }
 
 /**

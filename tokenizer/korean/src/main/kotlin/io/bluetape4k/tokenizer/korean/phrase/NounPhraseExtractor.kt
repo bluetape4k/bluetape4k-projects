@@ -1,5 +1,6 @@
 package io.bluetape4k.tokenizer.korean.phrase
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.tokenizer.korean.tokenizer.KoreanToken
 import io.bluetape4k.tokenizer.korean.utils.Hangul
@@ -102,13 +103,14 @@ object NounPhraseExtractor: KLogging() {
             return phrasesToTrim
                 .mapIndexed { i, phrase ->
                     when {
-                        phrasesToTrim.size == 1     -> KoreanPhrase(phrase.tokens
+                        phrasesToTrim.size == 1 -> KoreanPhrase(
+                            phrase.tokens
                             .dropWhile { it.pos == Space }
                             .dropLastWhile { it.pos == Space },
                             phrase.pos
                         )
 
-                        i == 0                      -> KoreanPhrase(
+                        i == 0 -> KoreanPhrase(
                             phrase.tokens.dropWhile { it.pos == Space },
                             phrase.pos
                         )
@@ -118,14 +120,13 @@ object NounPhraseExtractor: KLogging() {
                             KoreanPhrase(tokens, phrase.pos)
                         }
 
-                        else                        -> phrase
+                        else -> phrase
                     }
                 }
         }
 
         val trimNon = trimNonNouns()
-        val result = trimSpacesFromPhrase(trimNon)
-        return result.toList()
+        return trimSpacesFromPhrase(trimNon)
     }
 
     private fun trimPhrase(phrase: KoreanPhrase): KoreanPhrase {
@@ -181,7 +182,7 @@ object NounPhraseExtractor: KLogging() {
             val curTrie = trie.firstOrNull { it != null && it.curPos == token.pos }
             val nextTrie = curTrie?.nextTrie
                 ?.map { if (it == KoreanPosx.SelfNode) curTrie else it }
-                ?.toList()
+                ?.toFastList()
                 ?: emptyList()
 
             return Pair(curTrie, nextTrie)
@@ -189,7 +190,6 @@ object NounPhraseExtractor: KLogging() {
 
         val phrases = mutableListOf<KoreanPhrase>()
         var curTrie: List<KoreanPosTrie?> = CollapseTrie
-
 
         tokens
             .onEach { token ->
@@ -211,14 +211,14 @@ object NounPhraseExtractor: KLogging() {
                         curTrie = nt
                     }
 
-                    CollapseTrie.any { it.curPos == token.pos }          -> {
+                    CollapseTrie.any { it.curPos == token.pos } -> {
                         // Start a new phrase
                         val (ct, nt) = getTries(token, CollapseTrie)
                         phrases.add(KoreanPhrase(listOf(token), ct?.ending ?: Noun))
                         curTrie = nt
                     }
 
-                    else                                                 -> {
+                    else -> {
                         // Add a single word
                         phrases.add(KoreanPhrase(listOf(token), token.pos))
                         curTrie = CollapseTrie
@@ -295,7 +295,7 @@ object NounPhraseExtractor: KLogging() {
 
         fun collapsePhrases(phrases1: KoreanPhraseChunk): List<KoreanPhraseChunk> {
             fun addPhraseToBuffer(phrase: KoreanPhrase, buffer: List<KoreanPhraseChunk>): List<KoreanPhraseChunk> =
-                buffer.map { it + phrase }.toList()
+                buffer.map { it + phrase }.toFastList()
 
             // NOTE: 현재 이 부분은 변경하면 안됩니다.
             //
@@ -311,9 +311,9 @@ object NounPhraseExtractor: KLogging() {
                         if (it.pos == Noun || it.pos == ProperNoun) {
                             output.addAll(bufferWithThisPhrase)
                         }
-                        bufferWithThisPhrase.toList()
+                        bufferWithThisPhrase
                     } else if (it.pos != Space && isNonNounPhraseCandidate(it)) {
-                        addPhraseToBuffer(it, buffer).toList()
+                        addPhraseToBuffer(it, buffer)
                     } else {
                         output.addAll(buffer)
                         newBuffer()

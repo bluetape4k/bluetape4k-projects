@@ -4,12 +4,12 @@ import aws.sdk.kotlin.services.dynamodb.model.TableClass
 import io.bluetape4k.aws.kotlin.dynamodb.model.partitionKeyOf
 import io.bluetape4k.aws.kotlin.dynamodb.model.sortKeyOf
 import io.bluetape4k.aws.kotlin.dynamodb.model.stringAttrDefinitionOf
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.toList
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.MethodOrderer
@@ -70,7 +70,7 @@ class DynamoDbClientExtensionsTest: AbstractKotlinDynamoDbTest() {
                     null
                 }
             }
-            .toList()
+            .toFastList()
 
 
         results.forEach {

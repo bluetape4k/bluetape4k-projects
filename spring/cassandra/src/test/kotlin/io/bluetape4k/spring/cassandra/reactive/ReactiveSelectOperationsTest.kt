@@ -2,6 +2,7 @@ package io.bluetape4k.spring.cassandra.reactive
 
 import com.datastax.oss.driver.api.core.uuid.Uuids
 import io.bluetape4k.cassandra.cql.simpleStatement
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
@@ -12,7 +13,6 @@ import io.bluetape4k.spring.cassandra.suspendCount
 import io.bluetape4k.spring.cassandra.suspendExists
 import io.bluetape4k.spring.cassandra.suspendInsert
 import io.bluetape4k.spring.cassandra.suspendTruncate
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -101,7 +101,7 @@ class ReactiveSelectOperationsTest(
         val result = reactiveOps.query<Person>()
             .all()
             .asFlow()
-            .toList()
+            .toFastList()
 
         result shouldHaveSize 2
         result shouldContainSame listOf(han, luke)
@@ -113,7 +113,7 @@ class ReactiveSelectOperationsTest(
             .inTable(PERSON_TABLE_NAME)
             .all()
             .asFlow()
-            .toList()
+            .toFastList()
 
         result shouldHaveSize 2
         result shouldContainSame listOf(Human(han.id!!), Human(luke.id!!))
@@ -125,7 +125,7 @@ class ReactiveSelectOperationsTest(
             .cast<Jedi>()
             .all()
             .asFlow()
-            .toList()
+            .toFastList()
 
         result.all { it is Jedi }.shouldBeTrue()
         result shouldHaveSize 2
@@ -139,7 +139,7 @@ class ReactiveSelectOperationsTest(
             .cast<PersonProjection>()
             .all()
             .asFlow()
-            .toList()
+            .toFastList()
 
         result.all { it is PersonProjection }.shouldBeTrue()
         result shouldHaveSize 2
@@ -152,7 +152,7 @@ class ReactiveSelectOperationsTest(
             .matching(queryLuke())
             .all()
             .asFlow()
-            .toList()
+            .toFastList()
 
         result shouldBeEqualTo listOf(luke)
     }
@@ -163,7 +163,7 @@ class ReactiveSelectOperationsTest(
             .matching(querySpock())
             .all()
             .asFlow()
-            .toList()
+            .toFastList()
 
         result.shouldBeEmpty()
     }
@@ -291,7 +291,7 @@ class ReactiveSelectOperationsTest(
             .cast<Contact>()
             .all()
             .asFlow()
-            .toList()
+            .toFastList()
 
         result.all { it is Person }.shouldBeTrue()
     }

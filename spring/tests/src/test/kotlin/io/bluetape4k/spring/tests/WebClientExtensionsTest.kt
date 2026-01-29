@@ -27,7 +27,8 @@ class WebClientExtensionsTest: AbstractSpringTest() {
     inner class Get {
         @Test
         fun `httGet httpbin`() = runSuspendIO {
-            val response = client.httpGet("/get")
+            val response = client
+                .httpGet("/get")
                 .awaitBody<String>()
 
             log.debug { "response=$response" }
@@ -36,7 +37,8 @@ class WebClientExtensionsTest: AbstractSpringTest() {
 
         @Test
         fun `httGet httpbin anything`() = runSuspendIO {
-            val response = client.httpGet("/anything")
+            val response = client
+                .httpGet("/anything")
                 .awaitBody<String>()
 
             log.debug { "response=$response" }
@@ -46,7 +48,8 @@ class WebClientExtensionsTest: AbstractSpringTest() {
         @Test
         fun `httGet httpbin not found`() = runSuspendIO {
             assertFailsWith<WebClientResponseException.NotFound> {
-                val response = client.httpGet("/not-existing")
+                val response = client
+                    .httpGet("/not-existing")
                     .awaitBodyOrNull<String>()
 
                 log.debug { "response=$response" }
@@ -59,7 +62,8 @@ class WebClientExtensionsTest: AbstractSpringTest() {
     inner class Post {
         @Test
         fun `httpPost httpbin`() = runSuspendIO {
-            val response = client.httpPost("/post")
+            val response = client
+                .httpPost("/post")
                 .awaitBody<String>()
 
             log.debug { "response=$response" }
@@ -68,7 +72,8 @@ class WebClientExtensionsTest: AbstractSpringTest() {
 
         @Test
         fun `httpPost httpbin with body`() = runSuspendIO {
-            val response = client.httpPost("/post", "Hello, World!")
+            val response = client
+                .httpPost("/post", "Hello, World!")
                 .awaitBody<String>()
 
             log.debug { "response=$response" }
@@ -78,7 +83,8 @@ class WebClientExtensionsTest: AbstractSpringTest() {
 
         @Test
         fun `httpPost httpbin with flow`() = runSuspendIO {
-            val response = client.httpPost("/post", flowOf("Hello", ", ", "World!"))
+            val response = client
+                .httpPost("/post", flowOf("Hello", ", ", "World!"))
                 .awaitBody<String>()
 
             log.debug { "response=$response" }
@@ -115,7 +121,8 @@ class WebClientExtensionsTest: AbstractSpringTest() {
     inner class Put {
         @Test
         fun `httpPut httpbin`() = runSuspendIO {
-            val response = client.httpPut("/put")
+            val response = client
+                .httpPut("/put")
                 .awaitBody<String>()
 
             log.debug { "response=$response" }
@@ -124,7 +131,8 @@ class WebClientExtensionsTest: AbstractSpringTest() {
 
         @Test
         fun `httpPut httpbin with body`() = runSuspendIO {
-            val response = client.httpPut("/put", "Hello, World!")
+            val response = client
+                .httpPut("/put", "Hello, World!")
                 .awaitBody<String>()
 
             log.debug { "response=$response" }
@@ -134,7 +142,8 @@ class WebClientExtensionsTest: AbstractSpringTest() {
 
         @Test
         fun `httpPut httpbin with flow`() = runSuspendIO {
-            val response = client.httpPut("/put", flowOf("Hello", ", ", "World!"))
+            val response = client
+                .httpPut("/put", flowOf("Hello", ", ", "World!"))
                 .awaitBody<String>()
 
             log.debug { "response=$response" }
@@ -147,7 +156,8 @@ class WebClientExtensionsTest: AbstractSpringTest() {
     inner class Delete {
         @Test
         fun `httpDelete httpbin`() = runSuspendIO {
-            val response = client.httpDelete("/delete")
+            val response = client
+                .httpDelete("/delete")
                 .awaitBodyOrNull<String>()
 
             log.debug { "response=$response" }

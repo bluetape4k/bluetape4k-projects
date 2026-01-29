@@ -1,6 +1,7 @@
 package io.bluetape4k.aws.kotlin.sqs.model
 
 import aws.sdk.kotlin.services.sqs.model.ReceiveMessageRequest
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requirePositiveNumber
 
@@ -32,7 +33,7 @@ inline fun receiveMessageRequestOf(
         this.maxNumberOfMessages = maxNumberOfMessages
         this.waitTimeSeconds = waitTimeSeconds
         visibilityTimeout?.let { this.visibilityTimeout = it }
-        attributeNames?.let { this.messageAttributeNames = it.toList() }
+        attributeNames?.let { this.messageAttributeNames = it.toFastList() }
 
         builder()
     }

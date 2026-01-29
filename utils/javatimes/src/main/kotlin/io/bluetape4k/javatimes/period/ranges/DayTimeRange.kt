@@ -1,5 +1,6 @@
 package io.bluetape4k.javatimes.period.ranges
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.javatimes.HoursPerDay
 import io.bluetape4k.javatimes.period.ITimeCalendar
 import io.bluetape4k.javatimes.period.TimeCalendar
@@ -19,10 +20,10 @@ open class DayTimeRange(
     fun hourSequence(): Sequence<HourRange> =
         hourRanges(startDayOfStart, dayCount * HoursPerDay, calendar)
 
-    fun hours(): List<HourRange> = hourSequence().toList()
+    fun hours(): List<HourRange> = hourSequence().toFastList()
 
     fun minuteSequence(): Sequence<MinuteRange> =
         hourSequence().flatMap { it.minuteSequence() }
 
-    fun minutes(): List<MinuteRange> = minuteSequence().toList()
+    fun minutes(): List<MinuteRange> = minuteSequence().toFastList()
 }

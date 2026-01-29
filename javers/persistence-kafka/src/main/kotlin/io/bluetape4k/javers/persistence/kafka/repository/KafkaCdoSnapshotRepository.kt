@@ -21,7 +21,7 @@ class KafkaCdoSnapshotRepository(
 
     companion object: KLogging()
 
-    override fun getKeys(): List<String> = emptyList()
+    override fun getKeys(): Set<String> = emptySet()
 
     override fun contains(globalIdValue: String): Boolean = false
 

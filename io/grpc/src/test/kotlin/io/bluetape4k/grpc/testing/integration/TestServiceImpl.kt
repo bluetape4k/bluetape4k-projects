@@ -11,13 +11,11 @@ import io.grpc.Status
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -137,8 +135,7 @@ class TestServiceImpl(
      */
     override fun halfDuplexCall(requests: Flow<Messages.StreamingOutputCallRequest>): Flow<Messages.StreamingOutputCallResponse> {
         return flow {
-            val requestList = requests.toList()
-            emitAll(requestList.asFlow().flatMapConcat { streamingOutputCall(it) })
+            emitAll(requests.flatMapConcat { streamingOutputCall(it) })
         }
     }
 }

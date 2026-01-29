@@ -22,7 +22,7 @@ class JacksonTest {
         mapper.registeredModuleIds.size shouldBeGreaterThan 0
 
         val modules = ObjectMapper.findModules()
-        mapper.registeredModuleIds shouldContainAll modules.map { it.typeId.toString() }.toList()
+        mapper.registeredModuleIds shouldContainAll modules.map { it.typeId.toString() }
 
         // classpath 에 있는 JsonUuidModule 을 자동으로 등록했다
         mapper.registeredModuleIds shouldContain JsonUuidModule::class.qualifiedName

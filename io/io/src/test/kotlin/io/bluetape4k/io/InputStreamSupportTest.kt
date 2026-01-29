@@ -1,11 +1,13 @@
 package io.bluetape4k.io
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.io.apache.ApacheByteArrayOutputStream
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
+import io.bluetape4k.utils.Systemx
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
 import java.io.ByteArrayInputStream
@@ -188,10 +190,10 @@ class InputStreamSupportTest: AbstractIOTest() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `input stream to line sequence`() {
-        val expected = randomString()
+        val expected = randomString() + Systemx.LineSeparator + randomString()
 
         expected.toInputStream().use { bis ->
-            bis.toUtf8LineSequence().toList() shouldBeEqualTo expected.lineSequence().toList()
+            bis.toUtf8LineSequence().toFastList() shouldBeEqualTo expected.lineSequence().toFastList()
         }
     }
 

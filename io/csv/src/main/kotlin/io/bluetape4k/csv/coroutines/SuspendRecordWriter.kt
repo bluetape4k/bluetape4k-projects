@@ -1,5 +1,6 @@
 package io.bluetape4k.csv.coroutines
 
+import io.bluetape4k.collections.eclipse.toFastList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.io.Closeable
@@ -20,7 +21,7 @@ interface SuspendRecordWriter: Closeable {
     suspend fun writeHeaders(headers: Iterable<String>)
 
     suspend fun writeHeaders(vararg headers: String) {
-        writeHeaders(headers.toList())
+        writeHeaders(headers.toFastList())
     }
 
     suspend fun writeRow(row: Iterable<*>)

@@ -1,5 +1,6 @@
 package io.bluetape4k.tokenizer.korean
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -174,7 +175,6 @@ class KoreanTextProcessorTest: TestBase() {
 
     @Test
     fun `should split sentences`() = runSuspendTest {
-        val actual = splitSentences("가을이다! 남자는 가을을 탄다...... 그렇지? 루루야! 버버리코트 사러 가자!!!!").toList()
         val expected = listOf(
             Sentence("가을이다!", 0, 5),
             Sentence("남자는 가을을 탄다......", 6, 22),
@@ -182,6 +182,9 @@ class KoreanTextProcessorTest: TestBase() {
             Sentence("루루야!", 28, 32),
             Sentence("버버리코트 사러 가자!!!!", 33, 48)
         )
+
+        val actual = splitSentences("가을이다! 남자는 가을을 탄다...... 그렇지? 루루야! 버버리코트 사러 가자!!!!").toFastList()
+
         actual shouldBeEqualTo expected
     }
 

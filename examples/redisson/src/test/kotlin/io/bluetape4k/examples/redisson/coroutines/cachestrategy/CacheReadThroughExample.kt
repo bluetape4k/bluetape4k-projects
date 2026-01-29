@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.Actor
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
@@ -49,7 +50,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
             Thread.sleep(1)
 
             // 데이터 전체 로딩 시간을 측정하기 위해, 샘플 데이터를 ACTOR_SIZE 만큼 추가합니다.
-            val writeIds = Snowflakers.Global.nextIds(ACTOR_SIZE).toList()
+            val writeIds = Snowflakers.Global.nextIds(ACTOR_SIZE).toFastList()
             ActorTable.batchInsert(writeIds, shouldReturnGeneratedValues = false) { id ->
                 this[ActorTable.id] = id
                 this[ActorTable.firstname] = faker.name().firstName()

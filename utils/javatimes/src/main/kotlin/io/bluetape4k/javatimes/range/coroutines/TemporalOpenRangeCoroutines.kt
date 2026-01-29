@@ -1,5 +1,6 @@
 package io.bluetape4k.javatimes.range.coroutines
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.javatimes.range.SupportChronoUnits
 import io.bluetape4k.javatimes.range.TemporalOpenedProgression
 import io.bluetape4k.javatimes.range.TemporalOpenedRange
@@ -41,7 +42,7 @@ fun <T> TemporalOpenedRange<T>.windowedFlow(
                 (current + (index++).temporalAmount(unit)) as T
             }
                 .takeWhile { it < endExclusive }
-                .toList()
+                .toFastList()
 
             emit(item)
             current = (current + increment) as T

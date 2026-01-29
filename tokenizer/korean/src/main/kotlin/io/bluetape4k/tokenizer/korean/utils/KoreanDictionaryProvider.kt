@@ -194,7 +194,6 @@ object KoreanDictionaryProvider: KLogging() {
     val typoDictionaryByLength: Map<Int, Map<String, String>> by publicLazy {
         runBlocking(Dispatchers.IO) {
             val grouped = DictionaryProvider.readWordMap("$BASE_PATH/typos/typos.txt")
-                .toList()
                 .groupBy { it.first.length }
             // val grouped = readWordMap("typos/typos.txt").toList().groupBy { it.first.length }
             val result = mutableMapOf<Int, Map<String, String>>()

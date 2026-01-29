@@ -1,5 +1,7 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
+import io.bluetape4k.collections.eclipse.toFastList
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.exposed.dao.id.TimebasedUUIDTable
 import io.bluetape4k.javatimes.millis
@@ -16,7 +18,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.future.asCompletableFuture
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
@@ -107,7 +108,7 @@ class CacheWriteBehindForIoTData: AbstractCacheExample() {
         private val sensorDataWriter = object: MapWriter<String, List<SensorData>> {
             override fun write(map: Map<String, List<SensorData>>) {
                 val sampling = map.map { entry ->
-                    entry.key to entry.value.debounceSampling(Duration.ofMillis(10)).toList()
+                    entry.key to entry.value.debounceSampling(Duration.ofMillis(10)).toFastList()
                 }.toMap()
 
                 transaction {
@@ -192,7 +193,7 @@ class CacheWriteBehindForIoTData: AbstractCacheExample() {
                 val scope = CoroutineScope(Dispatchers.IO)
                 return scope.async {
                     val sampling = map.map { entry ->
-                        entry.key to entry.value.debounceSampling(Duration.ofMillis(10)).toList()
+                        entry.key to entry.value.debounceSampling(Duration.ofMillis(10)).toFastList()
                     }.toMap()
 
                     newSuspendedTransaction {

@@ -50,8 +50,8 @@ class JCacheCdoSnapshotRepository(
         cacheManager.getOrCreate(commitSeqCacheName, cfg)
     }
 
-    override fun getKeys(): List<String> {
-        return snapshotCache.map { it.key }
+    override fun getKeys(): Set<String> {
+        return snapshotCache.map { it.key }.toSet()
     }
 
     override fun contains(globalIdValue: String): Boolean {

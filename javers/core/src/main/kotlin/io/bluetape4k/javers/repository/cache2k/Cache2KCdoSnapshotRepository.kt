@@ -39,8 +39,8 @@ class Cache2KCdoSnapshotRepository(
         }.build()
     }
 
-    override fun getKeys(): List<String> {
-        return snapshotCache.keys().toList()
+    override fun getKeys(): Set<String> {
+        return snapshotCache.keys()
     }
 
     override fun contains(globalIdValue: String): Boolean {

@@ -1,5 +1,6 @@
 package io.bluetape4k.javatimes.range
 
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.javatimes.add
 import io.bluetape4k.javatimes.days
 import io.bluetape4k.javatimes.hours
@@ -13,7 +14,6 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Disabled
@@ -71,7 +71,7 @@ abstract class TemporalOpenedRangeTest<T> where T: Temporal, T: Comparable<T> {
         val windowed = range
             .windowedFlowHours(3, 1)
             .onEach { log.trace { "windowed $it" } }
-            .toList()
+            .toFastList()
 
         windowed.size shouldBeEqualTo 5
     }
@@ -84,7 +84,7 @@ abstract class TemporalOpenedRangeTest<T> where T: Temporal, T: Comparable<T> {
         val chunked = range
             .chunkedFlowHours(3)
             .onEach { log.trace { "chunked $it" } }
-            .toList()
+            .toFastList()
 
         chunked.size shouldBeEqualTo 2
     }

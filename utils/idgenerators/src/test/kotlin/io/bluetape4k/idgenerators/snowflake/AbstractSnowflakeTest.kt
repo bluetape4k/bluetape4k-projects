@@ -58,7 +58,7 @@ abstract class AbstractSnowflakeTest {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `generate snowflake ids`() {
-        val ids = snowflake.nextIds(TEST_COUNT).toList()
+        val ids = snowflake.nextIds(TEST_COUNT).toFastList()
         ids.distinct() shouldBeEqualTo ids
     }
 
@@ -92,7 +92,7 @@ abstract class AbstractSnowflakeTest {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `generate snowflake ids as string`() {
-        val ids = snowflake.nextIdsAsString(TEST_COUNT).toList()
+        val ids = snowflake.nextIdsAsString(TEST_COUNT).toFastList()
         ids.distinct() shouldBeEqualTo ids
     }
 
@@ -190,7 +190,7 @@ abstract class AbstractSnowflakeTest {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `parse snowflake ids as sequence`() {
-        val ids = snowflake.nextIds(TEST_COUNT).toList()
+        val ids = snowflake.nextIds(TEST_COUNT).toFastList()
         val snowflakeIds = ids.map { snowflake.parse(it) }
 
         snowflakeIds.map { it.value } shouldBeEqualTo ids
@@ -247,7 +247,7 @@ abstract class AbstractSnowflakeTest {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `parse snowflake id as String as parallel`() {
-        val ids = snowflake.nextIdsAsString(TEST_COUNT).toList()
+        val ids = snowflake.nextIdsAsString(TEST_COUNT).toFastList()
         val snowflakeIds = ids
             .parMap { snowflake.parse(it).value }
             .sorted()

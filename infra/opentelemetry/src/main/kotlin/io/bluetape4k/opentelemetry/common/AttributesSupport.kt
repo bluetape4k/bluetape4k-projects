@@ -66,9 +66,9 @@ fun Map<*, *>.toAttributes(): Attributes = attributes {
             is Float -> put(keyStr, value.toDouble())
             is Double -> put(keyStr, value)
             is Boolean -> put(keyStr, value)
-            is LongArray -> put<List<Long>>(AttributeKey.longArrayKey(keyStr), value.toList())
-            is DoubleArray -> put<List<Double>>(AttributeKey.doubleArrayKey(keyStr), value.toList())
-            is BooleanArray -> put<List<Boolean>>(AttributeKey.booleanArrayKey(keyStr), value.toList())
+            is LongArray -> put(AttributeKey.longArrayKey(keyStr), value.toList())
+            is DoubleArray -> put(AttributeKey.doubleArrayKey(keyStr), value.toList())
+            is BooleanArray -> put(AttributeKey.booleanArrayKey(keyStr), value.toList())
             is Array<*> -> put(
                 AttributeKey.stringArrayKey(keyStr),
                 *value.map { it.toString() }.toTypedArray()

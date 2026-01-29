@@ -1,5 +1,7 @@
 package io.bluetape4k.tokenizer.korean.tokenizer
 
+import io.bluetape4k.collections.eclipse.emptyFastList
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.trace
@@ -150,11 +152,11 @@ object KoreanTokenizer: KLogging() {
                             val parsed = parseKoreanChunk(it, profile, topN)
 
                             // Collapse sequence of one-char nouns into one unknown noun: (가Noun 회Noun -> 가회Noun*)
-                            parsed.map(KoreanSubstantive::collapseNouns).toList()
+                            parsed.map(KoreanSubstantive::collapseNouns)
                         }
                     }
 
-                    else   -> listOf(listOf(it))
+                    else -> listOf(listOf(it))
                 }
             }
         } catch (e: Exception) {
@@ -242,8 +244,8 @@ object KoreanTokenizer: KLogging() {
 
                             val nextTrie = t.curTrie.nextTrie
                                 ?.map { if (it == KoreanPosx.SelfNode) t.curTrie else it }
-                                ?.toList()
-                                ?: emptyList()
+                                ?.toFastList()
+                                ?: emptyFastList()
 
                             CandidateParse(solution.parse + candidateToAdd, nextTrie, t.curTrie.ending)
                         }
@@ -254,7 +256,6 @@ object KoreanTokenizer: KLogging() {
                 solutions[end] = (currentSolutions + candidates)
                     .sortedWith(compareBy({ it.parse.score }, { it.parse.posTieBreaker }))
                     .take(TOP_N_PER_STATE)
-                    .toList()
 
                 //                solutions[end]?.forEach {
                 //                    log.trace { "score=${it.parse.score}, posNodes=${it.parse.posNodes}" }
@@ -267,7 +268,7 @@ object KoreanTokenizer: KLogging() {
                 val token = KoreanToken(chunk.text, Noun, 0, chunk.length, unknown = true)
                 listOf(listOf(token))
             } else {
-                solutions[chunk.length]!!.sortedBy { it.parse.score }.map { it.parse.posNodes }.toList()
+                solutions[chunk.length]!!.sortedBy { it.parse.score }.map { it.parse.posNodes }
             }
 
         return (directMatch + topCandidates).distinct()

@@ -1,13 +1,14 @@
 package io.bluetape4k.aws.kotlin.ses.model
 
 import aws.sdk.kotlin.services.ses.model.Destination
+import io.bluetape4k.collections.eclipse.toFastList
 
 inline fun destinationOf(
     vararg toAddress: String,
     crossinline builder: Destination.Builder.() -> Unit = {},
 ): Destination =
     Destination {
-        this.toAddresses = toAddress.toList()
+        this.toAddresses = toAddress.toFastList()
 
         builder()
     }

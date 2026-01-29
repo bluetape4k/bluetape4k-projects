@@ -42,8 +42,8 @@ class CaffeineCdoSnapshotRepository(
         }.build()
     }
 
-    override fun getKeys(): List<String> {
-        return snapshotCache.asMap().map { it.key }
+    override fun getKeys(): Set<String> {
+        return snapshotCache.asMap().map { it.key }.toSet()
     }
 
     override fun contains(globalIdValue: String): Boolean {

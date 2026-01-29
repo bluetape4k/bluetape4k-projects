@@ -2,6 +2,7 @@ package io.bluetape4k.aws.dynamodb.query
 
 import io.bluetape4k.aws.dynamodb.model.Expression
 import io.bluetape4k.aws.dynamodb.model.toAttributeValue
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import software.amazon.awssdk.enhanced.dynamodb.Expression
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
@@ -205,7 +206,7 @@ infix fun ConcreteFilterBuilder.inList(values: List<Any>) {
 }
 
 fun ConcreteFilterBuilder.inList(vararg values: Any) {
-    comparator = InList(values.toList())
+    comparator = InList(values.toFastList())
 }
 
 @DynamoDslMarker

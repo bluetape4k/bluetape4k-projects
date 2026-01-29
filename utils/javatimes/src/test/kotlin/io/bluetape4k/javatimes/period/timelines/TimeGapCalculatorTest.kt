@@ -1,5 +1,6 @@
 package io.bluetape4k.javatimes.period.timelines
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.javatimes.days
 import io.bluetape4k.javatimes.hours
 import io.bluetape4k.javatimes.isWeekend
@@ -37,7 +38,7 @@ class TimeGapCalculatorTest: AbstractPeriodTest() {
     @Test
     fun `no periods`() = runTest {
         val gaps = calculator.gaps(TimePeriodCollection.EMPTY, limits)
-        gaps.toList() shouldBeEqualTo listOf(limits)
+        gaps.toFastList() shouldBeEqualTo listOf(limits)
     }
 
     @Test
@@ -75,7 +76,7 @@ class TimeGapCalculatorTest: AbstractPeriodTest() {
         )
 
         val gaps = calculator.gaps(excludePeriods, limits)
-        gaps.toList() shouldBeEqualTo listOf(limits)
+        gaps.toFastList() shouldBeEqualTo listOf(limits)
     }
 
     @Test
@@ -116,7 +117,7 @@ class TimeGapCalculatorTest: AbstractPeriodTest() {
 
         val gaps = calculator.gaps(excludePeriods, limits)
 
-        gaps.toList() shouldBeEqualTo listOf(
+        gaps.toFastList() shouldBeEqualTo listOf(
             TimeRange(limits.start, excludeRange.start),
             TimeRange(excludeRange.end, limits.end)
         )

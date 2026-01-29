@@ -57,7 +57,7 @@ abstract class AbstractCdoSnapshotRepository<T: Any>(
         this.jsonConverter = jsonConverter
     }
 
-    protected abstract fun getKeys(): List<String>
+    protected abstract fun getKeys(): Set<String>
     protected abstract fun contains(globalIdValue: String): Boolean
     protected fun contains(globalId: GlobalId): Boolean = contains(globalId.value())
 
@@ -98,7 +98,7 @@ abstract class AbstractCdoSnapshotRepository<T: Any>(
 
     override fun getLatest(globalId: GlobalId): Optional<CdoSnapshot> = when {
         contains(globalId) -> loadSnapshots(globalId).firstOrNull().toOptional()
-        else               -> Optional.empty()
+        else -> Optional.empty()
     }
 
     override fun getLatest(globalIds: MutableCollection<GlobalId>): MutableList<CdoSnapshot> {

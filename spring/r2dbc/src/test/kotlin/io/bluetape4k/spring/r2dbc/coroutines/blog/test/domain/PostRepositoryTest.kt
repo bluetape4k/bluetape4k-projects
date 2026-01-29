@@ -1,11 +1,11 @@
 package io.bluetape4k.spring.r2dbc.coroutines.blog.test.domain
 
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.spring.r2dbc.coroutines.blog.domain.PostRepository
 import io.bluetape4k.spring.r2dbc.coroutines.blog.test.AbstractR2dbcBlogApplicationTest
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
@@ -29,7 +29,7 @@ class PostRepositoryTest(
     fun `find all posts`() = runTest {
         val posts = postRepository.findAll()
             .onEach { post -> log.debug { "post=$post" } }
-            .toList()
+            .toFastList()
         posts.shouldNotBeEmpty()
     }
 

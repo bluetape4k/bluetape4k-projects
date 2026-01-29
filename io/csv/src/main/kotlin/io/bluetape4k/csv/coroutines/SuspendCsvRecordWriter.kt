@@ -2,6 +2,7 @@ package io.bluetape4k.csv.coroutines
 
 import com.univocity.parsers.csv.CsvWriter
 import com.univocity.parsers.csv.CsvWriterSettings
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.csv.DefaultCsvWriterSettings
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.Flow
@@ -40,11 +41,11 @@ class SuspendCsvRecordWriter private constructor(
     }
 
     override suspend fun writeHeaders(headers: Iterable<String>) {
-        writer.writeHeaders(headers.toList())
+        writer.writeHeaders(headers.toFastList())
     }
 
     override suspend fun writeRow(row: Iterable<*>) {
-        writer.writeRow(row.toList())
+        writer.writeRow(row.toFastList())
     }
 
     override suspend fun writeAll(rows: Sequence<Iterable<*>>) {

@@ -89,7 +89,6 @@ object NounTokenizer: KLogging() {
     ): List<KoreanToken> {
         val tokenized = tokenizeTopN(text, 1, profile)
             .flatMap { it.firstOrNull() ?: emptyList() }
-            .toList()
 
         return KoreanStemmer.stem(tokenized)
     }
@@ -115,7 +114,7 @@ object NounTokenizer: KLogging() {
                             val parsed = parseKoreanChunk(it, profile, topN)
 
                             // Collapse sequence of one-char nouns into one unknown noun: (가Noun 회Noun -> 가회Noun*)
-                            parsed.map(KoreanSubstantive::collapseNouns).toList()
+                            parsed.map(KoreanSubstantive::collapseNouns)
                         }
 
                         else   -> listOf(listOf(it))
@@ -139,7 +138,7 @@ object NounTokenizer: KLogging() {
         profile: TokenizerProfile = TokenizerProfile.DefaultProfile,
         topN: Int = 1,
     ): List<List<KoreanToken>> {
-        return findTopCandidates(chunk, profile).take(topN).toList()
+        return findTopCandidates(chunk, profile).take(topN)
     }
 
     private fun findTopCandidates(chunk: KoreanToken, profile: TokenizerProfile): List<List<KoreanToken>> {
@@ -216,7 +215,6 @@ object NounTokenizer: KLogging() {
                 solutions[end] = (currentSolutions + candidates)
                     .sortedWith(compareBy({ it.parse.score }, { it.parse.posTieBreaker }))
                     .take(TOP_N_PER_STATE)
-                    .toList()
             }
         }
 
@@ -226,7 +224,6 @@ object NounTokenizer: KLogging() {
             solutions[chunk.length]!!
                 .sortedBy { it.parse.score }
                 .map { it.parse.posNodes }
-                .toList()
         }
 
         return (directMatch + topCandidates).distinct()

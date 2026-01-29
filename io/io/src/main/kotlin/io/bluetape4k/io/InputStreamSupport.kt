@@ -1,5 +1,6 @@
 package io.bluetape4k.io
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.support.assertPositiveNumber
 import io.bluetape4k.support.assertZeroOrPositiveNumber
 import io.bluetape4k.support.toUtf8String
@@ -297,7 +298,11 @@ fun InputStream.toUtf8String(blockSize: Int = DEFAULT_BLOCK_SIZE): String = toBy
  * ```
  */
 fun InputStream.toStringList(cs: Charset = UTF_8, blockSize: Int = DEFAULT_BLOCK_SIZE): List<String> =
-    reader(cs).buffered(blockSize).useLines { it.toList() }
+    reader(cs)
+        .buffered(blockSize)
+        .useLines {
+            it.toFastList()
+        }
 
 /**
  * [InputStream]을 라인 단위로 읽어 UTF-8 문자열 컬렉션으로 반환합니다.
@@ -309,7 +314,11 @@ fun InputStream.toStringList(cs: Charset = UTF_8, blockSize: Int = DEFAULT_BLOCK
  * ```
  */
 fun InputStream.toUtf8StringList(blockSize: Int = DEFAULT_BLOCK_SIZE): List<String> =
-    reader(UTF_8).buffered(blockSize).useLines { it.toList() }
+    reader(UTF_8)
+        .buffered(blockSize)
+        .useLines {
+            it.toFastList()
+        }
 
 /**
  * [InputStream]을 라인 단위로 읽어 문자열 시퀀스로 반환합니다.
@@ -321,7 +330,9 @@ fun InputStream.toUtf8StringList(blockSize: Int = DEFAULT_BLOCK_SIZE): List<Stri
  * ```
  */
 fun InputStream.toLineSequence(cs: Charset = UTF_8, blockSize: Int = DEFAULT_BLOCK_SIZE): Sequence<String> =
-    reader(cs).buffered(blockSize).lineSequence()
+    reader(cs)
+        .buffered(blockSize)
+        .lineSequence()
 
 /**
  * [InputStream]을 라인 단위로 읽어 UTF-8 문자열의 시퀀스로 반환합니다.
@@ -333,7 +344,9 @@ fun InputStream.toLineSequence(cs: Charset = UTF_8, blockSize: Int = DEFAULT_BLO
  * ```
  */
 fun InputStream.toUtf8LineSequence(blockSize: Int = DEFAULT_BLOCK_SIZE): Sequence<String> =
-    reader(UTF_8).buffered(blockSize).lineSequence()
+    reader(UTF_8)
+        .buffered(blockSize)
+        .lineSequence()
 
 /**
  * [ByteArray]를 라인 단위로 읽어 문자열 컬렉션으로 변홥합니다.

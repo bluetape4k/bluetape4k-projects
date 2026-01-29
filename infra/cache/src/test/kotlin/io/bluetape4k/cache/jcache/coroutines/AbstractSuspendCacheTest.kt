@@ -4,16 +4,15 @@ import io.bluetape4k.codec.encodeBase62
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.runBlocking
-import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -50,23 +49,22 @@ abstract class AbstractSuspendCacheTest {
     @Test
     fun `entries - get all cache entries by flow`() = runSuspendIO {
         suspendCache.clear()
-        suspendCache.entries().map { it.key }.toList().size shouldBeEqualTo 0
+        suspendCache.entries().map { it.key }.count() shouldBeEqualTo 0
 
         suspendCache.put(getKey(), getValue())
         suspendCache.put(getKey(), getValue())
         suspendCache.put(getKey(), getValue())
 
-        val entries = suspendCache.entries().toList()
-        entries.size shouldBeEqualTo 3
+        suspendCache.entries().count() shouldBeEqualTo 3
     }
 
     @Test
     fun `clear - clear all cache entries`() = runSuspendIO {
         suspendCache.put(getKey(), getValue())
-        suspendCache.entries().map { it.key }.toList().size shouldBeEqualTo 1
+        suspendCache.entries().map { it.key }.count() shouldBeEqualTo 1
 
         suspendCache.clear()
-        suspendCache.entries().map { it.key }.toList().size shouldBeEqualTo 0
+        suspendCache.entries().map { it.key }.count() shouldBeEqualTo 0
     }
 
     @Test
@@ -104,8 +102,7 @@ abstract class AbstractSuspendCacheTest {
         repeat(CACHE_ENTRY_SIZE) {
             suspendCache.put(getKey(), getValue())
         }
-        val entries = suspendCache.getAll().toList()
-        entries.size shouldBeEqualTo CACHE_ENTRY_SIZE
+        suspendCache.getAll().count() shouldBeEqualTo CACHE_ENTRY_SIZE
     }
 
     @Test
@@ -116,7 +113,7 @@ abstract class AbstractSuspendCacheTest {
             }
         }
         val keysToLoad = setOf(entries.first().key, entries[42].key, entries[51].key, entries.last().key)
-        val loaded = suspendCache.getAll(keysToLoad).toList()
+        val loaded = suspendCache.getAll(keysToLoad)
         loaded.map { it.key }.toSet() shouldBeEqualTo keysToLoad
     }
 
@@ -171,9 +168,9 @@ abstract class AbstractSuspendCacheTest {
     fun `putAll - 모든 entry를 추가합니다`() = runSuspendIO {
         val entries = List(CACHE_ENTRY_SIZE) { getKey() to getValue() }.toMap()
 
-        suspendCache.entries().toList().size shouldBeEqualTo 0
+        suspendCache.entries().count() shouldBeEqualTo 0
         suspendCache.putAll(entries)
-        suspendCache.entries().toList().size shouldBeEqualTo CACHE_ENTRY_SIZE
+        suspendCache.entries().count() shouldBeEqualTo CACHE_ENTRY_SIZE
     }
 
     @Test
@@ -183,9 +180,9 @@ abstract class AbstractSuspendCacheTest {
                 emit(getKey() to getValue())
             }
         }
-        suspendCache.entries().toList().size shouldBeEqualTo 0
+        suspendCache.entries().count() shouldBeEqualTo 0
         suspendCache.putAllFlow(entries)
-        suspendCache.entries().toList().size shouldBeEqualTo CACHE_ENTRY_SIZE
+        suspendCache.entries().count() shouldBeEqualTo CACHE_ENTRY_SIZE
     }
 
 
@@ -236,11 +233,11 @@ abstract class AbstractSuspendCacheTest {
                 suspendCache.put(key, value)
             }
         }
-        suspendCache.entries().toList() shouldHaveSize CACHE_ENTRY_SIZE
+        suspendCache.entries().count() shouldBeEqualTo CACHE_ENTRY_SIZE
 
         suspendCache.removeAll()
 
-        suspendCache.entries().toList().shouldBeEmpty()
+        suspendCache.entries().count() shouldBeEqualTo 0
     }
 
     @Test
@@ -250,12 +247,12 @@ abstract class AbstractSuspendCacheTest {
                 suspendCache.put(key, value)
             }
         }
-        suspendCache.entries().toList().size shouldBeEqualTo CACHE_ENTRY_SIZE
+        suspendCache.entries().count() shouldBeEqualTo CACHE_ENTRY_SIZE
 
         val keysToRemove = setOf(entries.first().key, entries[42].key, entries.last().key)
         suspendCache.removeAll(keysToRemove)
 
-        suspendCache.entries().toList().size shouldBeEqualTo CACHE_ENTRY_SIZE - keysToRemove.size
+        suspendCache.entries().count() shouldBeEqualTo CACHE_ENTRY_SIZE - keysToRemove.size
     }
 
     @Test
@@ -265,12 +262,12 @@ abstract class AbstractSuspendCacheTest {
                 suspendCache.put(key, value)
             }
         }
-        suspendCache.entries().toList().size shouldBeEqualTo CACHE_ENTRY_SIZE
+        suspendCache.entries().count() shouldBeEqualTo CACHE_ENTRY_SIZE
 
         val keysToRemove = setOf(entries.first().key, entries[42].key, entries.last().key)
         suspendCache.removeAll(*keysToRemove.toTypedArray())
 
-        suspendCache.entries().toList().size shouldBeEqualTo CACHE_ENTRY_SIZE - keysToRemove.size
+        suspendCache.entries().count() shouldBeEqualTo CACHE_ENTRY_SIZE - keysToRemove.size
     }
 
     @Test

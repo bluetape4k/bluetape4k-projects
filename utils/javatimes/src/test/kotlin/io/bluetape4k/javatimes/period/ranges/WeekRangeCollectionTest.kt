@@ -1,5 +1,6 @@
 package io.bluetape4k.javatimes.period.ranges
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.javatimes.nowZonedDateTime
 import io.bluetape4k.javatimes.period.AbstractPeriodTest
 import io.bluetape4k.javatimes.startOfWeek
@@ -98,7 +99,8 @@ class WeekRangeCollectionTest: AbstractPeriodTest() {
                     val afterWeek = now.startOfWeek().plusWeeks(w.toLong())
                     wr shouldBeEqualTo WeekRange(afterWeek)
                 }
-            }.toList()
+            }.toFastList()
+            
             tasks.awaitAll()
         }
     }
@@ -138,7 +140,7 @@ class WeekRangeCollectionTest: AbstractPeriodTest() {
                             val afterWeek = now.startOfWeek().plusWeeks(w.toLong())
                             wr shouldBeEqualTo WeekRange(afterWeek)
                         }
-                    }.toList()
+                    }.toFastList()
                     tasks.awaitAll()
                 }
             }

@@ -1,5 +1,6 @@
 package io.bluetape4k.tokenizer.korean.phrase
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.tokenizer.korean.tokenizer.KoreanToken
 import io.bluetape4k.tokenizer.korean.utils.Hangul
@@ -309,7 +310,7 @@ object KoreanPhraseExtractor: KLogging() {
 
         fun collapsePhrases(phrases1: KoreanPhraseChunk): List<KoreanPhraseChunk> {
             fun addPhraseToBuffer(phrase: KoreanPhrase, buffer: List<KoreanPhraseChunk>) =
-                buffer.map { it + phrase }.toList()
+                buffer.map { it + phrase }.toFastList()
 
             // NOTE: 현재 이 부분은 변경하면 안됩니다.
             //
@@ -325,9 +326,9 @@ object KoreanPhraseExtractor: KLogging() {
                         if (it.pos == Noun || it.pos == ProperNoun) {
                             output.addAll(bufferWithThisPhrase)
                         }
-                        bufferWithThisPhrase.toList()
+                        bufferWithThisPhrase.toFastList()
                     } else if (isNonNounPhraseCandidate(it)) {
-                        addPhraseToBuffer(it, buffer).toList()
+                        addPhraseToBuffer(it, buffer).toFastList()
                     } else {
                         output.addAll(buffer)
                         newBuffer()
@@ -354,7 +355,6 @@ object KoreanPhraseExtractor: KLogging() {
             return phrases
                 .filter { isSingle(it) }
                 .map { arrayListOf(trimPhrase(it)) }
-                .toList()
         }
 
         val nounPhrases = collapseNounPhrases(phrases)

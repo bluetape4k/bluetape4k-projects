@@ -1,5 +1,6 @@
 package io.bluetape4k.javatimes.period.ranges
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.javatimes.period.ITimeCalendar
 import io.bluetape4k.javatimes.period.TimeCalendar
 import io.bluetape4k.javatimes.startOfWeekOfWeekyear
@@ -23,5 +24,5 @@ open class WeekRangeCollection(
 
     fun weekSequence(): Sequence<WeekRange> = weekRanges(start, weekCount, calendar)
 
-    fun weeks(): List<WeekRange> = weekSequence().toList()
+    fun weeks(): List<WeekRange> = weekSequence().toFastList()
 }

@@ -1,5 +1,6 @@
 package io.bluetape4k.spring.core.io.buffer
 
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.io.getAllBytes
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.spring.AbstractSpringTest
@@ -9,7 +10,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asPublisher
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
@@ -48,7 +48,7 @@ class DataBufferSupportTest: AbstractSpringTest() {
                     }
             }
 
-        result.take(content.size).toList() shouldBeEqualTo content.toList()
+        result.take(content.size).toFastList().toByteArray() shouldBeEqualTo content
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -62,7 +62,7 @@ class DataBufferSupportTest: AbstractSpringTest() {
             .write(outputStream)
             .collect()
 
-        outputStream.toByteArray().toList() shouldBeEqualTo content.toList()
+        outputStream.toByteArray() shouldBeEqualTo content
     }
 
     @Test
@@ -86,14 +86,16 @@ class DataBufferSupportTest: AbstractSpringTest() {
         val publisher = flowOf(dataBuffer).asPublisher()
 
         val result = publisher.takeUntilByteCount(3)
-        val bytes = result.flatMapConcat {
-            it.readableByteBuffers()
-                .asFlow()
-                .flatMapConcat { byteBuffer ->
-                    byteBuffer.getAllBytes().toTypedArray().asFlow()
-                }
-        }
-        bytes.toList() shouldBeEqualTo content.take(3)
+        val bytes = result
+            .flatMapConcat {
+                it.readableByteBuffers()
+                    .asFlow()
+                    .flatMapConcat { byteBuffer ->
+                        byteBuffer.getAllBytes().toTypedArray().asFlow()
+                    }
+            }
+
+        bytes.toFastList() shouldBeEqualTo content.take(3)
     }
 
     @Test
@@ -102,12 +104,13 @@ class DataBufferSupportTest: AbstractSpringTest() {
         val dataBuffer = bufferFactory.wrap(content)
         val publisher = flowOf(dataBuffer).asPublisher()
 
-        val result = publisher.skipUntilByteCount(3).toList()
-        val bytes = result.flatMap {
-            it.readableByteBuffers().asSequence().flatMap { byteBuffer ->
-                byteBuffer.getAllBytes().asSequence()
+        val result = publisher.skipUntilByteCount(3).toFastList()
+        val bytes = result
+            .flatMap {
+                it.readableByteBuffers().asSequence().flatMap { byteBuffer ->
+                    byteBuffer.getAllBytes().asSequence()
+                }
             }
-        }
 
         bytes shouldBeEqualTo content.drop(3)
     }

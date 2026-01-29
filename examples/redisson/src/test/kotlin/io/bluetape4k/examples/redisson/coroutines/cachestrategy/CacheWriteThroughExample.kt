@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.Actor
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
@@ -59,7 +60,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
             try {
 
                 // Write Through 모드로 설정했으므로, 캐시에 데이터를 삽입하면 DB에도 삽입된다.
-                val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toList()
+                val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toFastList()
                 writeIds.forEach { id ->
                     cache[id] = newActorDTO(id)
                 }
@@ -93,7 +94,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
             try {
 
                 // Write Through 모드로 설정했으므로, 캐시에 데이터를 삽입하면 DB에도 삽입된다.
-                val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toList()
+                val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toFastList()
                 writeIds.forEach { id ->
                     // cache[id] = newActorDTO(id)
                     cache.fastPut(id, newActorDTO(id))
@@ -134,7 +135,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
 
             try {
                 // Write Through 모드로 설정했으므로, 캐시에 데이터를 삽입하면 DB에도 삽입된다.
-                val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toList()
+                val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toFastList()
                 writeIds.map { id ->
                     // cache[id] = newActorDTO(id)
                     cache.fastPutAsync(id, newActorDTO(id))
@@ -175,7 +176,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
             try {
 
                 // Write Through 모드로 설정했으므로, 캐시에 데이터를 삽입하면 DB에도 삽입된다.
-                val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toList()
+                val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toFastList()
                 writeIds.map { id ->
                     // cache[id] = newActorDTO(id)
                     cache.fastPutAsync(id, newActorDTO(id))

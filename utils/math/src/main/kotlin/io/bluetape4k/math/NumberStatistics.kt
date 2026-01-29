@@ -1,5 +1,6 @@
 package io.bluetape4k.math
 
+import io.bluetape4k.collections.toDoubleArray
 import org.apache.commons.math3.stat.StatUtils
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 import org.apache.commons.math3.stat.regression.SimpleRegression as ASR
@@ -40,14 +41,14 @@ fun <N: Number> Array<out N>.descriptiveStatistics(): Descriptives =
 
 // Geometric Mean
 fun <N: Number> Sequence<N>.geometricMean(): Double =
-    StatUtils.geometricMean(map { it.toDouble() }.toList().toDoubleArray())
+    StatUtils.geometricMean(map { it.toDouble() }.toDoubleArray())
 
 fun <N: Number> Iterable<N>.geometricMean(): Double = asSequence().geometricMean()
 fun <N: Number> Array<out N>.geometricMean(): Double = asSequence().geometricMean()
 
 // Percentile
 fun <N: Number> Sequence<N>.percentile(percentile: Double): Double =
-    StatUtils.percentile(map { it.toDouble() }.toList().toDoubleArray(), percentile)
+    StatUtils.percentile(map { it.toDouble() }.toDoubleArray(), percentile)
 
 fun <N: Number> Iterable<N>.percentile(percentile: Double): Double = asSequence().percentile(percentile)
 fun <N: Number> Array<out N>.percentile(percentile: Double): Double = asSequence().percentile(percentile)
@@ -60,14 +61,14 @@ fun <N: Number> Array<out N>.median(): Double = asSequence().median()
 
 // Veriance
 fun <N: Number> Sequence<N>.variance(): Double =
-    StatUtils.variance(map { it.toDouble() }.toList().toDoubleArray())
+    StatUtils.variance(map { it.toDouble() }.toDoubleArray())
 
 fun <N: Number> Iterable<N>.variance(): Double = asSequence().variance()
 fun <N: Number> Array<out N>.variance(): Double = asSequence().variance()
 
 // Sum of squares
 fun <N: Number> Sequence<N>.sumOfSquares(): Double =
-    StatUtils.sumSq(map { it.toDouble() }.toList().toDoubleArray())
+    StatUtils.sumSq(map { it.toDouble() }.toDoubleArray())
 
 fun <N: Number> Iterable<N>.sumOfSquares(): Double = asSequence().sumOfSquares()
 fun <N: Number> Array<out N>.sumOfSquares(): Double = asSequence().sumOfSquares()
@@ -80,7 +81,7 @@ fun <N: Number> Array<out N>.stdev(): Double = descriptiveStatistics().standardD
 // Normalize
 
 fun <N: Number> Sequence<N>.normalize(): DoubleArray =
-    StatUtils.normalize(map { it.toDouble() }.toList().toDoubleArray())
+    StatUtils.normalize(map { it.toDouble() }.toDoubleArray())
 
 fun <N: Number> Iterable<N>.normalize(): DoubleArray = asSequence().normalize()
 fun <N: Number> Array<out N>.normalize(): DoubleArray = asSequence().normalize()

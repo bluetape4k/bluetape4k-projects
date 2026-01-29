@@ -1,5 +1,6 @@
 package io.bluetape4k.javatimes.period.ranges
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.javatimes.HoursPerDay
 import io.bluetape4k.javatimes.MonthsPerYear
 import io.bluetape4k.javatimes.days
@@ -35,17 +36,19 @@ class DayRangeTest: AbstractPeriodTest() {
     fun `default constructor`() {
         val startOfYear = nowZonedDateTime().startOfYear()
 
-        (1..MonthsPerYear).toList().parallelStream().forEach { m ->
-            val startOfMonth = startOfMonth(startOfYear.year, m)
-            val endOfMonth = endOfMonth(startOfYear.year, m)
+        (1..MonthsPerYear).toFastList()
+            .parallelStream()
+            .forEach { m ->
+                val startOfMonth = startOfMonth(startOfYear.year, m)
+                val endOfMonth = endOfMonth(startOfYear.year, m)
 
-            (startOfMonth.dayOfMonth until endOfMonth.dayOfMonth).forEach { day ->
-                val dayRange = DayRange(startOfMonth + (day - startOfMonth.dayOfMonth).days())
+                (startOfMonth.dayOfMonth until endOfMonth.dayOfMonth).forEach { day ->
+                    val dayRange = DayRange(startOfMonth + (day - startOfMonth.dayOfMonth).days())
 
-                dayRange.year shouldBeEqualTo startOfYear.year
-                dayRange.monthOfYear shouldBeEqualTo startOfMonth.monthValue
+                    dayRange.year shouldBeEqualTo startOfYear.year
+                    dayRange.monthOfYear shouldBeEqualTo startOfMonth.monthValue
+                }
             }
-        }
     }
 
     @Test

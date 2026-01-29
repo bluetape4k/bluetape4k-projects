@@ -1,5 +1,6 @@
 package io.bluetape4k.io
 
+import io.bluetape4k.collections.eclipse.toFastList
 import kotlinx.coroutines.future.await
 import java.io.File
 import java.nio.charset.Charset
@@ -73,7 +74,7 @@ suspend fun Path.suspendReadAllLines(charset: Charset = Charsets.UTF_8): List<St
     return suspendReadAllBytes()
         .toString(charset)
         .lineSequence()
-        .toList()
+        .toFastList()
 }
 
 suspend fun File.suspendWrite(bytes: ByteArray, append: Boolean = false): Long {

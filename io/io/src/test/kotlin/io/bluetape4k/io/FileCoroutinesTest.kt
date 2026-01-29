@@ -1,6 +1,7 @@
 package io.bluetape4k.io
 
 import io.bluetape4k.codec.encodeBase62
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.junit5.random.RandomValue
@@ -55,7 +56,7 @@ class FileCoroutinesTest: AbstractIOTest() {
         yield()
 
         // 비동기로 파일 읽기
-        val loaded = path.suspendReadAllLines().toList()
+        val loaded = path.suspendReadAllLines().toFastList()
         loaded.size shouldBeEqualTo contents.size
         loaded shouldBeEqualTo contents
     }

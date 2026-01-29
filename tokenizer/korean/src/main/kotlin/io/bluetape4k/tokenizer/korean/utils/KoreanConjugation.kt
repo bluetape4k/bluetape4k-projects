@@ -55,7 +55,7 @@ object KoreanConjugation: KLogging() {
     private val PRE_EOMI_VOWEL: CharArray = PRE_EOMI_COMMON + PRE_EOMI_2 + PRE_EOMI_3 + PRE_EOMI_RESPECT
 
     private fun addPreEomi(lastChar: Char, charsToAdd: CharArray): List<String> {
-        return charsToAdd.map { lastChar + it.toString() }.toList()
+        return charsToAdd.map { lastChar + it.toString() }
     }
 
     /**
@@ -99,7 +99,7 @@ object KoreanConjugation: KLogging() {
      */
     private fun expandChar_쏘다(lastChar: Char, onset: Char): List<String> {
         return addPreEomi(lastChar, PRE_EOMI_쏘다) +
-                CODAS_NO_PAST.map { composeHangul(onset, 'ㅗ', it).toString() }.toList() +
+                CODAS_NO_PAST.map { composeHangul(onset, 'ㅗ', it).toString() } +
                 mutableListOf(
                     composeHangul(onset, 'ㅘ').toString(),
                     composeHangul(onset, 'ㅘ', 'ㅆ').toString(),

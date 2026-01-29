@@ -4,15 +4,13 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8String
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Nested
 import org.springframework.http.HttpStatus
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.test.web.reactive.server.returnResult
+import org.springframework.test.web.reactive.server.expectBody
 import kotlin.test.Test
 
 class WebTestClientExtensionsTest: AbstractSpringTest() {
@@ -28,7 +26,9 @@ class WebTestClientExtensionsTest: AbstractSpringTest() {
     inner class Get {
         @Test
         fun `httGet httpbin`() {
-            val response = client.httpGet("/get")
+            val response = client
+                .httpGet("/get")
+                .expectStatus().is2xxSuccessful
                 .expectBody()
                 .jsonPath("$.url").isEqualTo("$baseUrl/get")
                 .returnResult()
@@ -40,11 +40,12 @@ class WebTestClientExtensionsTest: AbstractSpringTest() {
 
         @Test
         fun `httGet httpbin anything`() = runTest {
-            val response = client.httpGet("/anything")
-                .returnResult<String>().responseBody
-                .asFlow()
-                .toList()
-                .joinToString(separator = "")
+            val response = client
+                .httpGet("/anything")
+                .expectStatus().is2xxSuccessful
+                .expectBody<String>()
+                .returnResult().responseBody
+                .shouldNotBeNull()
 
             log.debug { "response=$response" }
             response shouldContain "$baseUrl/anything"
@@ -60,14 +61,18 @@ class WebTestClientExtensionsTest: AbstractSpringTest() {
     inner class Post {
         @Test
         fun `httpPost httpbin`() {
-            client.httpPost("/post")
+            client
+                .httpPost("/post")
+                .expectStatus().is2xxSuccessful
                 .expectBody()
                 .jsonPath("$.url").isEqualTo("$baseUrl/post")
         }
 
         @Test
         fun `httpPost httpbin with body`() {
-            client.httpPost("/post", "Hello, World!")
+            client
+                .httpPost("/post", "Hello, World!")
+                .expectStatus().is2xxSuccessful
                 .expectBody()
                 .jsonPath("$.url").isEqualTo("$baseUrl/post")
                 .jsonPath("$.data").isEqualTo("Hello, World!")
@@ -75,7 +80,9 @@ class WebTestClientExtensionsTest: AbstractSpringTest() {
 
         @Test
         fun `httpPost httpbin with flow`() {
-            client.httpPost("/post", flowOf("Hello", ", ", "World!"))
+            client
+                .httpPost("/post", flowOf("Hello", ", ", "World!"))
+                .expectStatus().is2xxSuccessful
                 .expectBody()
                 .jsonPath("$.url").isEqualTo("$baseUrl/post")
                 .jsonPath("$.data").isEqualTo("Hello, World!")
@@ -86,14 +93,18 @@ class WebTestClientExtensionsTest: AbstractSpringTest() {
     inner class Patch {
         @Test
         fun `httpPatch httpbin`() {
-            client.httpPatch("/patch")
+            client
+                .httpPatch("/patch")
+                .expectStatus().is2xxSuccessful
                 .expectBody()
                 .jsonPath("$.url").isEqualTo("$baseUrl/patch")
         }
 
         @Test
         fun `httpPatch httpbin with body`() {
-            client.httpPatch("/patch", "Hello, World!")
+            client
+                .httpPatch("/patch", "Hello, World!")
+                .expectStatus().is2xxSuccessful
                 .expectBody()
                 .jsonPath("$.url").isEqualTo("$baseUrl/patch")
                 .jsonPath("$.data").isEqualTo("Hello, World!")
@@ -104,14 +115,18 @@ class WebTestClientExtensionsTest: AbstractSpringTest() {
     inner class Put {
         @Test
         fun `httpPut httpbin`() {
-            client.httpPut("/put")
+            client
+                .httpPut("/put")
+                .expectStatus().is2xxSuccessful
                 .expectBody()
                 .jsonPath("$.url").isEqualTo("$baseUrl/put")
         }
 
         @Test
         fun `httpPut httpbin with body`() {
-            client.httpPut("/put", "Hello, World!")
+            client
+                .httpPut("/put", "Hello, World!")
+                .expectStatus().is2xxSuccessful
                 .expectBody()
                 .jsonPath("$.url").isEqualTo("$baseUrl/put")
                 .jsonPath("$.data").isEqualTo("Hello, World!")
@@ -119,7 +134,9 @@ class WebTestClientExtensionsTest: AbstractSpringTest() {
 
         @Test
         fun `httpPut httpbin with flow`() {
-            client.httpPut("/put", flowOf("Hello", ", ", "World!"))
+            client
+                .httpPut("/put", flowOf("Hello", ", ", "World!"))
+                .expectStatus().is2xxSuccessful
                 .expectBody()
                 .jsonPath("$.url").isEqualTo("$baseUrl/put")
                 .jsonPath("$.data").isEqualTo("Hello, World!")
@@ -130,7 +147,9 @@ class WebTestClientExtensionsTest: AbstractSpringTest() {
     inner class Delete {
         @Test
         fun `httpDelete httpbin`() {
-            client.httpDelete("/delete")
+            client
+                .httpDelete("/delete")
+                .expectStatus().is2xxSuccessful
                 .expectBody()
                 .jsonPath("$.url").isEqualTo("$baseUrl/delete")
         }

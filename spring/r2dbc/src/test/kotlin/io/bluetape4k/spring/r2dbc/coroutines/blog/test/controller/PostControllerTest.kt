@@ -1,5 +1,6 @@
 package io.bluetape4k.spring.r2dbc.coroutines.blog.test.controller
 
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.spring.r2dbc.coroutines.blog.domain.Post
@@ -8,7 +9,6 @@ import io.bluetape4k.spring.tests.httpGet
 import io.bluetape4k.spring.tests.httpPost
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.test.runTest
@@ -34,7 +34,7 @@ class PostControllerTest(
             .returnResult<Post>().responseBody
             .asFlow()
             .onEach { post -> log.debug { "post=$post" } }
-            .toList()
+            .toFastList()
 
         posts.shouldNotBeEmpty()
     }

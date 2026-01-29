@@ -82,7 +82,7 @@ inline fun <T: Any, C: Comparable<C>, G: Any> Iterable<T>.binByComparable(
         }
     }
 
-    return bins.asSequence()
+    return bins
         .map { range ->
             val binWithList = range to mutableListOf<T>()
             groupByC.entries.asSequence()
@@ -95,6 +95,5 @@ inline fun <T: Any, C: Comparable<C>, G: Any> Iterable<T>.binByComparable(
 
             Bin(binWithList.first, groupOp(binWithList.second))
         }
-        .toList()
         .let(::BinModel)
 }

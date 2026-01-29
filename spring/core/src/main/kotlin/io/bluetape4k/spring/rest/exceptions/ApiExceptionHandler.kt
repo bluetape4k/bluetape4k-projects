@@ -23,7 +23,7 @@ class ApiExceptionHandler {
                 statusCode = status.value(),
                 errorCode = errorCode,
                 message = exception.message,
-                stackTraces = exception.stackTrace.toList()
+                stackTraces = exception.stackTrace.asList()
             ).apply {
                 logApiError(exception, this)
             }

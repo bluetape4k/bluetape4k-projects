@@ -3,6 +3,7 @@ package io.bluetape4k.aws.kotlin.dynamodb.model
 import aws.sdk.kotlin.services.dynamodb.model.BatchExecuteStatementRequest
 import aws.sdk.kotlin.services.dynamodb.model.BatchStatementRequest
 import aws.sdk.kotlin.services.dynamodb.model.ReturnConsumedCapacity
+import io.bluetape4k.collections.eclipse.toFastList
 
 @JvmName("batchExecutionStatementRequestOfList")
 inline fun batchExecutionStatementRequestOf(
@@ -25,7 +26,7 @@ inline fun batchExecutionStatementRequestOf(
 ): BatchExecuteStatementRequest =
     BatchExecuteStatementRequest {
         this.returnConsumedCapacity = returnConsumedCapacity
-        this.statements = statements.toList()
+        this.statements = statements.toFastList()
 
         builder()
     }

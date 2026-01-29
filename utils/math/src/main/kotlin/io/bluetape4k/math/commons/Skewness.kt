@@ -1,5 +1,6 @@
 package io.bluetape4k.math.commons
 
+import io.bluetape4k.collections.toDoubleArray
 import io.bluetape4k.math.skewness
 
 /**
@@ -16,4 +17,4 @@ fun <N: Number> Iterable<N>.skewness(): Double =
  * @return 분포의 좌우 기울기
  */
 fun <N: Number> Sequence<N>.skewness(): Double =
-    map { it.toDouble() }.toList().toDoubleArray().skewness
+    map { it.toDouble() }.toDoubleArray().skewness

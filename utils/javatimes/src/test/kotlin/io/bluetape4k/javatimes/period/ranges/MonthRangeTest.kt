@@ -1,5 +1,6 @@
 package io.bluetape4k.javatimes.period.ranges
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.javatimes.MonthsPerYear
 import io.bluetape4k.javatimes.days
 import io.bluetape4k.javatimes.lengthOfMonth
@@ -90,9 +91,11 @@ class MonthRangeTest: AbstractPeriodTest() {
         mr.prevMonth().start shouldBeEqualTo startMonth - 1.monthPeriod()
         mr.nextMonth().start shouldBeEqualTo startMonth + 1.monthPeriod()
 
-        (-60..120).toList().parallelStream().forEach { m ->
-            mr.addMonths(m).start shouldBeEqualTo startMonth + m.monthPeriod()
-        }
+        (-60..120).toFastList()
+            .parallelStream()
+            .forEach { m ->
+                mr.addMonths(m).start shouldBeEqualTo startMonth + m.monthPeriod()
+            }
 
         runBlocking(Dispatchers.Default) {
             val tasks = (-60..120).map { m ->

@@ -43,7 +43,6 @@ fun <T: Any> Sequence<T>.mode(): Sequence<T> =
     countBy()
         .entries
         .sortedByDescending { it.value }
-        .toList()
         .let { list ->
             list.asSequence()
                 .takeWhile { list[0].value == it.value }

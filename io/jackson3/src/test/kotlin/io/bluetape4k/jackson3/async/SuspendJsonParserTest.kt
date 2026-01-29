@@ -82,6 +82,7 @@ class SuspendJsonParserTest {
             .chunked(chunkSize)
             .map { it.toByteArray() }
             .asFlow()
+
         parser.consume(flow)
 
         parsed.get() shouldBeEqualTo 1

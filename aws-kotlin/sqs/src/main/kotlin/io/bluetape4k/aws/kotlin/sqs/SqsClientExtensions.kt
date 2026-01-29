@@ -40,6 +40,7 @@ import aws.smithy.kotlin.runtime.auth.awscredentials.CredentialsProvider
 import aws.smithy.kotlin.runtime.http.engine.HttpClientEngine
 import aws.smithy.kotlin.runtime.net.url.Url
 import io.bluetape4k.aws.kotlin.http.defaultCrtHttpEngineOf
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.support.requireNotBlank
@@ -133,7 +134,7 @@ suspend inline fun SqsClient.ensureQueue(
     crossinline builder: CreateQueueRequest.Builder.() -> Unit = {},
 ): String? {
     queueName.requireNotBlank("queueName")
-    
+
     if (!existsQueue(queueName)) {
         createQueue(queueName, builder)
     }
@@ -289,7 +290,7 @@ suspend inline fun SqsClient.sendBatch(
 
     return sendMessageBatch {
         this.queueUrl = queueUrl
-        this.entries = entries.toList()
+        this.entries = entries.toFastList()
 
         builder()
     }
@@ -321,7 +322,7 @@ suspend inline fun SqsClient.sendBatch(
 
     return sendMessageBatch {
         this.queueUrl = queueUrl
-        this.entries = entries.toList()
+        this.entries = entries.toFastList()
 
         builder()
     }
@@ -424,7 +425,7 @@ suspend inline fun SqsClient.changeVisibilityBatch(
 
     return changeMessageVisibilityBatch {
         this.queueUrl = queueUrl
-        this.entries = entries.toList()
+        this.entries = entries.toFastList()
 
         builder()
     }
@@ -462,7 +463,7 @@ suspend inline fun SqsClient.changeVisibilityBatch(
 
     return changeMessageVisibilityBatch {
         this.queueUrl = queueUrl
-        this.entries = entries.toList()
+        this.entries = entries.toFastList()
 
         builder()
     }
@@ -528,7 +529,7 @@ suspend inline fun SqsClient.deleteMessageBatch(
 
     return deleteMessageBatch {
         this.queueUrl = queueUrl
-        this.entries = entries.toList()
+        this.entries = entries.toFastList()
 
         builder()
     }
@@ -562,7 +563,7 @@ suspend inline fun SqsClient.deleteMessageBatch(
 
     return deleteMessageBatch {
         this.queueUrl = queueUrl
-        this.entries = entries.toList()
+        this.entries = entries.toFastList()
 
         builder()
     }

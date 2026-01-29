@@ -50,10 +50,11 @@ class LettuceCdoSnapshotRepository(
         LettuceClients.commands(client, codec = LettuceBinaryCodecs.lz4Fory())
     }
 
-    override fun getKeys(): List<String> {
-        return commands.hkeys(cacheSetKey).apply {
-            log.trace { "load keys. size=${size}" }
-        }
+    override fun getKeys(): Set<String> {
+        return commands.hkeys(cacheSetKey).sorted().toSet()
+            .apply {
+                log.trace { "load keys. size=${size}" }
+            }
     }
 
     override fun contains(globalIdValue: String): Boolean {

@@ -25,7 +25,8 @@ class RestClientExtensionsTest: AbstractSpringTest() {
     inner class Get {
         @Test
         fun `httGet httpbin`() {
-            val response = client.httpGet("/get")
+            val response = client
+                .httpGet("/get")
                 .toEntity<String>()
                 .body.shouldNotBeNull()
 
@@ -35,7 +36,8 @@ class RestClientExtensionsTest: AbstractSpringTest() {
 
         @Test
         fun `httGet httpbin anything`() {
-            val response = client.httpGet("/anything")
+            val response = client
+                .httpGet("/anything")
                 .toEntity<String>()
                 .body.shouldNotBeNull()
 
@@ -46,7 +48,9 @@ class RestClientExtensionsTest: AbstractSpringTest() {
         @Test
         fun `httGet httpbin not found`() {
             assertFailsWith<HttpClientErrorException.NotFound> {
-                client.httpGet("/not-existing").toEntity<String>()
+                client
+                    .httpGet("/not-existing")
+                    .toEntity<String>()
             }
         }
     }
@@ -55,7 +59,8 @@ class RestClientExtensionsTest: AbstractSpringTest() {
     inner class Post {
         @Test
         fun `httpPost httpbin`() {
-            val response = client.httpPost("/post")
+            val response = client
+                .httpPost("/post")
                 .toEntity<String>()
                 .body.shouldNotBeNull()
 
@@ -65,7 +70,8 @@ class RestClientExtensionsTest: AbstractSpringTest() {
 
         @Test
         fun `httpPost httpbin with body`() {
-            val response = client.httpPost("/post", "Hello, World!")
+            val response = client
+                .httpPost("/post", "Hello, World!")
                 .toEntity<String>()
                 .body.shouldNotBeNull()
 
@@ -76,7 +82,8 @@ class RestClientExtensionsTest: AbstractSpringTest() {
 
         @Test
         fun `httpPost httpbin with flow`() {
-            val response = client.httpPost("/post", flowOf("Hello", ",", "World!"))
+            val response = client
+                .httpPost("/post", flowOf("Hello", ",", "World!"))
                 .toEntity<String>()
                 .body.shouldNotBeNull()
 
@@ -89,7 +96,8 @@ class RestClientExtensionsTest: AbstractSpringTest() {
     inner class Patch {
         @Test
         fun `httpPatch httpbin`() {
-            val response = client.httpPatch("/patch")
+            val response = client
+                .httpPatch("/patch")
                 .toEntity<String>()
                 .body.shouldNotBeNull()
 
@@ -99,7 +107,8 @@ class RestClientExtensionsTest: AbstractSpringTest() {
 
         @Test
         fun `httpPatch httpbin with body`() {
-            val response = client.httpPatch("/patch", "Hello, World!")
+            val response = client
+                .httpPatch("/patch", "Hello, World!")
                 .toEntity<String>()
                 .body.shouldNotBeNull()
 
@@ -114,7 +123,8 @@ class RestClientExtensionsTest: AbstractSpringTest() {
     inner class Put {
         @Test
         fun `httpPut httpbin`() {
-            val response = client.httpPut("/put")
+            val response = client
+                .httpPut("/put")
                 .toEntity<String>()
                 .body.shouldNotBeNull()
 
@@ -124,7 +134,8 @@ class RestClientExtensionsTest: AbstractSpringTest() {
 
         @Test
         fun `httpPut httpbin with body`() {
-            val response = client.httpPut("/put", "Hello, World!")
+            val response = client
+                .httpPut("/put", "Hello, World!")
                 .toEntity<String>()
                 .body.shouldNotBeNull()
 
@@ -135,7 +146,8 @@ class RestClientExtensionsTest: AbstractSpringTest() {
 
         @Test
         fun `httpPut httpbin with flow`() {
-            val response = client.httpPut("/put", flowOf("Hello", ",", "World!"))
+            val response = client
+                .httpPut("/put", flowOf("Hello", ",", "World!"))
                 .toEntity<String>()
                 .body.shouldNotBeNull()
 
@@ -148,7 +160,8 @@ class RestClientExtensionsTest: AbstractSpringTest() {
     inner class Delete {
         @Test
         fun `httpDelete httpbin`() {
-            val response = client.httpDelete("/delete")
+            val response = client
+                .httpDelete("/delete")
                 .toEntity<String>()
                 .body.shouldNotBeNull()
 

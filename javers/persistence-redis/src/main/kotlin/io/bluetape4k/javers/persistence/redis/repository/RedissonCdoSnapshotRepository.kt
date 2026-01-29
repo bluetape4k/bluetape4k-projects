@@ -48,10 +48,11 @@ class RedissonCdoSnapshotRepository(
     private val commitIdSequences: RMap<String, Long> =
         redisson.getMap(sequenceName, LongCodec())
 
-    override fun getKeys(): List<String> {
-        return snapshots.keySet().sorted().apply {
-            log.trace { "load keys. size=$size" }
-        }
+    override fun getKeys(): Set<String> {
+        return snapshots.keySet().sorted().toSet()
+            .apply {
+                log.trace { "load keys. size=$size" }
+            }
     }
 
     override fun contains(globalIdValue: String): Boolean {

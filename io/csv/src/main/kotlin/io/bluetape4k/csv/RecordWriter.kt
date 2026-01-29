@@ -1,5 +1,6 @@
 package io.bluetape4k.csv
 
+import io.bluetape4k.collections.eclipse.toFastList
 import java.io.Closeable
 
 /**
@@ -10,7 +11,7 @@ interface RecordWriter: Closeable {
     fun writeHeaders(headers: Iterable<String>)
 
     fun writeHeaders(vararg headers: String) {
-        writeHeaders(headers.toList())
+        writeHeaders(headers.toFastList())
     }
 
     fun writeRow(rows: Iterable<*>)

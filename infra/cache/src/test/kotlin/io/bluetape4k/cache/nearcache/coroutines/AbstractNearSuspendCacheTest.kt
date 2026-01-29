@@ -3,6 +3,7 @@ package io.bluetape4k.cache.nearcache.coroutines
 import io.bluetape4k.cache.jcache.coroutines.CaffeineSuspendCache
 import io.bluetape4k.cache.jcache.coroutines.SuspendCache
 import io.bluetape4k.cache.jcache.coroutines.SuspendCacheEntry
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.junit5.awaitility.suspendUntil
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -12,9 +13,8 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.toList
-import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
@@ -166,10 +166,10 @@ abstract class AbstractNearSuspendCacheTest
                     nearSuspendCache2.containsKey(key1)
         }
 
-        val actual2 = nearSuspendCache2.getAll(key1, key2).map { it.key to it.value }.toList().toMap()
+        val actual2 = nearSuspendCache2.getAll(key1, key2).toFastList().associate { it.key to it.value }
         actual2 shouldContainSame expected
 
-        val actual1 = nearSuspendCache1.getAll(key1, key2).map { it.key to it.value }.toList().toMap()
+        val actual1 = nearSuspendCache1.getAll(key1, key2).toFastList().associate { it.key to it.value }
         actual1 shouldContainSame expected
     }
 
@@ -181,7 +181,7 @@ abstract class AbstractNearSuspendCacheTest
         nearSuspendCache1.putAll(entries)
         await suspendUntil { keys.all { nearSuspendCache2.containsKey(it) } }
 
-        nearSuspendCache2.getAll().toList() shouldContainSame entries.map { SuspendCacheEntry(it.key, it.value) }
+        nearSuspendCache2.getAll().toFastList() shouldContainSame entries.map { SuspendCacheEntry(it.key, it.value) }
     }
 
     @RepeatedTest(TEST_SIZE)
@@ -192,7 +192,7 @@ abstract class AbstractNearSuspendCacheTest
         nearSuspendCache1.putAllFlow(entries.map { it.key to it.value }.asFlow())
         await suspendUntil { keys.all { nearSuspendCache2.containsKey(it) } }
 
-        nearSuspendCache2.getAll().toList() shouldContainSame entries.map { SuspendCacheEntry(it.key, it.value) }
+        nearSuspendCache2.getAll().toFastList() shouldContainSame entries.map { SuspendCacheEntry(it.key, it.value) }
     }
 
     @RepeatedTest(TEST_SIZE)
@@ -364,15 +364,15 @@ abstract class AbstractNearSuspendCacheTest
         val entries = List(100) { getKey() to getValue() }.toMap()
 
         nearSuspendCache1.putAll(entries)
-        await suspendUntil { nearSuspendCache2.entries().toList().isNotEmpty() }
+        await suspendUntil { nearSuspendCache2.entries().count() > 0 }
 
         nearSuspendCache2.entries().toList().shouldNotBeEmpty()
 
         // 모든 cache entry를 삭제하면 backCache에서 삭제되고, 이것이 전파되어 nearCache1에서도 삭제된다.
         nearSuspendCache2.removeAll()
-        await suspendUntil { nearSuspendCache1.entries().toList().isEmpty() }
+        await suspendUntil { nearSuspendCache1.entries().count() == 0 }
 
-        nearSuspendCache1.entries().toList().shouldBeEmpty()
+        nearSuspendCache1.entries().count() shouldBeEqualTo 0
     }
 
     @RepeatedTest(TEST_SIZE)

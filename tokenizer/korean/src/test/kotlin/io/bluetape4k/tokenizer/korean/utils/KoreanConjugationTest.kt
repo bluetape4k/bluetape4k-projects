@@ -25,12 +25,10 @@ class KoreanConjugationTest: TestBase() {
 
         val input = DictionaryProvider.readWordsAsSequence(filename)
         val loaded = input
-            .map {
+            .associate {
                 val sp = it.split("\t")
                 Pair(sp[0], sp[1])
             }
-            .toList()
-            .toMap()
 
         val result = loaded.all { (predicate, goldensetExpanded) ->
             val conjugated = KoreanConjugation.conjugatePredicatesToCharArraySet(setOf(predicate), isAdjective)
@@ -41,7 +39,7 @@ class KoreanConjugationTest: TestBase() {
     }
 
     private fun matchGoldenset(predicate: String, newExpanded: CharArraySet, examples: String): Boolean {
-        val newExpandedString = newExpanded.map { String(it as CharArray) }.toList().sorted().joinToString()
+        val newExpandedString = newExpanded.map { String(it as CharArray) }.sorted().joinToString()
         val isSameToGoldenset = newExpandedString == examples
 
         if (!isSameToGoldenset) {
@@ -51,8 +49,8 @@ class KoreanConjugationTest: TestBase() {
             log.error {
                 """
                 |predicate=$predicate
-                |${(prevSet - newSet).toList().sorted().joinToString(", ")},
-                |${(newSet - prevSet).toList().sorted().joinToString(", ")}
+                |${(prevSet - newSet).sorted().joinToString(", ")},
+                |${(newSet - prevSet).sorted().joinToString(", ")}
                 """.trimMargin()
             }
         }

@@ -1,5 +1,6 @@
 package io.bluetape4k.aws.s3.model
 
+import io.bluetape4k.collections.eclipse.toFastList
 import software.amazon.awssdk.services.s3.model.Delete
 import software.amazon.awssdk.services.s3.model.ObjectIdentifier
 
@@ -9,7 +10,7 @@ inline fun delete(initializer: Delete.Builder.() -> Unit): Delete {
 
 fun deleteOf(vararg objectIds: ObjectIdentifier, quiet: Boolean = false): Delete {
     return delete {
-        objects(objectIds.toList())
+        objects(objectIds.toFastList())
         quiet(quiet)
     }
 }

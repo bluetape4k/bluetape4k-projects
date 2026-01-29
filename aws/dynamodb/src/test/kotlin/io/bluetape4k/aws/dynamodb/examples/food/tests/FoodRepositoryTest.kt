@@ -4,14 +4,15 @@ import io.bluetape4k.aws.dynamodb.examples.food.AbstractFoodApplicationTest
 import io.bluetape4k.aws.dynamodb.examples.food.model.FoodDocument
 import io.bluetape4k.aws.dynamodb.examples.food.model.FoodState
 import io.bluetape4k.aws.dynamodb.examples.food.repository.FoodRepository
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.all
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
@@ -43,31 +44,33 @@ class FoodRepositoryTest: AbstractFoodApplicationTest() {
 
         yield()
 
-        val foods = repository.findByPartitionKey(
-            food.partitionKey,
-            Instant.now().minusSeconds(90_000L),
-            Instant.now()
-        ).toList()
+        val foods = repository
+            .findByPartitionKey(
+                food.partitionKey,
+                Instant.now().minusSeconds(90_000L),
+                Instant.now()
+            ).toFastList()
 
         foods shouldContain food
     }
-
 
     @Test
     fun `batch write`() = runSuspendIO {
         // DynamoDB Batch Write의 최대 크기가 25 임
         val foods = createFoods(100)
-        val result = repository.saveAll(foods).toList()
+        val result = repository.saveAll(foods)
         result.all { it.unprocessedPutItemsForTable(repository.table).isEmpty() }.shouldBeTrue()
 
         yield()
 
         val food = foods.first()
-        val loadedFoods = repository.findByPartitionKey(
-            food.partitionKey,
-            Instant.now().minusSeconds(100L),
-            Instant.now()
-        ).toList()
+        val loadedFoods = repository
+            .findByPartitionKey(
+                food.partitionKey,
+                Instant.now().minusSeconds(100L),
+                Instant.now()
+            )
+            .toFastList()
 
         loadedFoods.shouldNotBeEmpty()
     }
@@ -84,7 +87,7 @@ class FoodRepositoryTest: AbstractFoodApplicationTest() {
     @Test
     fun `delete all items`() = runSuspendTest(Dispatchers.IO) {
         val foods = createFoods(100)
-        val result = repository.saveAll(foods).toList()
+        val result = repository.saveAll(foods)
         result.all { it.unprocessedPutItemsForTable(repository.table).isEmpty() }.shouldBeTrue()
 
         repository.deleteAll(foods).collect()
@@ -94,7 +97,7 @@ class FoodRepositoryTest: AbstractFoodApplicationTest() {
             food.partitionKey,
             Instant.now().minusSeconds(1000L),
             Instant.now()
-        ).toList()
+        ).toFastList()
 
         loadedFoods shouldNotContainAny foods
     }
@@ -102,18 +105,20 @@ class FoodRepositoryTest: AbstractFoodApplicationTest() {
     @Test
     fun `delete all items by key`() = runSuspendIO {
         val foods = createFoods(100)
-        val result = repository.saveAll(foods).toList()
+        val result = repository.saveAll(foods)
         result.all { it.unprocessedPutItemsForTable(repository.table).isEmpty() }.shouldBeTrue()
 
         val keysToDelete = foods.map { it.key }
         repository.deleteAllByKeys(keysToDelete).collect()
 
         val food = foods.first()
-        val loadedFoods = repository.findByPartitionKey(
-            food.partitionKey,
-            Instant.now().minusSeconds(100L),
-            Instant.now()
-        ).toList()
+        val loadedFoods = repository
+            .findByPartitionKey(
+                food.partitionKey,
+                Instant.now().minusSeconds(100L),
+                Instant.now()
+            )
+            .toFastList()
 
         loadedFoods shouldNotContainAny foods
     }

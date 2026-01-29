@@ -1,5 +1,6 @@
 package io.bluetape4k.naivebayes
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import kotlinx.atomicfu.atomic
 import java.util.concurrent.ConcurrentHashMap
@@ -34,7 +35,7 @@ class NaiveBayesClassifier<F: Any, C: Any>(
     private var probabilities: Map<FeatureProbability.Key<F, C>, FeatureProbability<F, C>> = ConcurrentHashMap()
 
     private val _population: MutableList<BayesInput<F, C>> = CopyOnWriteArrayList()
-    val population: List<BayesInput<F, C>> get() = _population.toList()
+    val population: List<BayesInput<F, C>> get() = _population.toFastList()
 
     private val modelStaler = atomic(false)
     private var modelStaled: Boolean by modelStaler
@@ -121,7 +122,6 @@ class NaiveBayesClassifier<F: Any, C: Any>(
                 )
             }
             .filter { it.probability >= 0.1 }
-            .toList()
             .maxByOrNull { it.probability }
     }
 

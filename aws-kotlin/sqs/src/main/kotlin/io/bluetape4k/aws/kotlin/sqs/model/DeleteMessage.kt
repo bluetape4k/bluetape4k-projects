@@ -3,6 +3,7 @@ package io.bluetape4k.aws.kotlin.sqs.model
 import aws.sdk.kotlin.services.sqs.model.DeleteMessageBatchRequest
 import aws.sdk.kotlin.services.sqs.model.DeleteMessageBatchRequestEntry
 import aws.sdk.kotlin.services.sqs.model.DeleteMessageRequest
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.support.requireNotBlank
 
 /**
@@ -65,7 +66,7 @@ inline fun deleteMessageBatchRequestOf(
 
     return DeleteMessageBatchRequest {
         this.queueUrl = queueUrl
-        this.entries = entries.toList()
+        this.entries = entries.toFastList()
 
         builder()
     }
@@ -87,7 +88,7 @@ inline fun deleteMessageBatchRequestOf(
 
     return DeleteMessageBatchRequest {
         this.queueUrl = queueUrl
-        this.entries = entries.toList()
+        this.entries = entries.toFastList()
 
         builder()
     }

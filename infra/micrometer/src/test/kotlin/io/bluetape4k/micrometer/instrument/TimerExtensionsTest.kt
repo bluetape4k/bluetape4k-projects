@@ -1,5 +1,6 @@
 package io.bluetape4k.micrometer.instrument
 
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -8,7 +9,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import org.amshove.kluent.shouldBeEqualTo
@@ -95,7 +95,7 @@ class TimerExtensionsTest: AbstractMicrometerTest() {
                 .onEach {
                     log.debug { "collect $it" }
                 }
-                .toList()
+                .toFastList()
 
             list shouldHaveSize 10
 

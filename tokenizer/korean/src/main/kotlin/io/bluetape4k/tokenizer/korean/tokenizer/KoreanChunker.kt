@@ -73,7 +73,7 @@ object KoreanChunker: KLogging() {
      * ```
      */
     fun getChunks(input: String, keepSpace: Boolean = true): List<String> {
-        return chunk(input).map { if (keepSpace) it.text else it.text.trim() }.toList()
+        return chunk(input).map { if (keepSpace) it.text else it.text.trim() }
     }
 
     data class ChunkMatch(
@@ -197,14 +197,14 @@ object KoreanChunker: KLogging() {
                     cm.end
                 }
 
-                cm.start > prevEnd  -> {
+                cm.start > prevEnd -> {
                     val cm2 = ChunkMatch(prevEnd, cm.start, text.slice(prevEnd until cm.start), pos)
                     chunksWithForeign.add(0, cm2)
                     chunksWithForeign.add(0, cm)
                     cm.end
                 }
 
-                else                ->
+                else ->
                     error("Non-disjoint chunk matches found. cm=$cm")
             }
         }
@@ -226,7 +226,7 @@ object KoreanChunker: KLogging() {
      * @return sequence of Korean chunk strings
      */
     fun getChunksByPos(input: String, pos: KoreanPos): List<KoreanToken> {
-        return chunk(input).toList().filter { it.pos == pos }
+        return chunk(input).filter { it.pos == pos }
     }
 
     /**

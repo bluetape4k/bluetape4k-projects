@@ -2,6 +2,7 @@ package io.bluetape4k.csv
 
 import com.univocity.parsers.tsv.TsvWriter
 import com.univocity.parsers.tsv.TsvWriterSettings
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import java.io.Writer
 
@@ -38,11 +39,11 @@ class TsvRecordWriter private constructor(
     }
 
     override fun writeHeaders(headers: Iterable<String>) {
-        writer.writeHeaders(headers.toList())
+        writer.writeHeaders(headers.toFastList())
     }
 
     override fun writeRow(rows: Iterable<*>) {
-        writer.writeRow(rows.toList())
+        writer.writeRow(rows.toFastList())
     }
 
     override fun writeAll(rows: Sequence<Iterable<*>>) {
