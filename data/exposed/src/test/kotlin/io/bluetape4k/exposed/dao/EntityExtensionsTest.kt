@@ -4,6 +4,9 @@ import io.bluetape4k.exposed.shared.entities.BlogSchema.Post
 import io.bluetape4k.exposed.shared.entities.BlogSchema.PostDetail
 import io.bluetape4k.exposed.shared.entities.BlogSchema.blogTables
 import io.bluetape4k.exposed.shared.entities.BoardSchema
+import io.bluetape4k.exposed.shared.entities.BoardSchema.Boards
+import io.bluetape4k.exposed.shared.entities.BoardSchema.Categories
+import io.bluetape4k.exposed.shared.entities.BoardSchema.Posts
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
@@ -52,7 +55,7 @@ class EntityExtensionsTest: AbstractExposedTest() {
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `flush 없이 Child 추가`(testDB: TestDB) {
-        withTables(testDB, BoardSchema.Boards, BoardSchema.Posts, BoardSchema.Categories) {
+        withTables(testDB, Boards, Posts, Categories) {
 
             val parent = BoardSchema.Post.new {
                 this.category = BoardSchema.Category.new { title = "title" }

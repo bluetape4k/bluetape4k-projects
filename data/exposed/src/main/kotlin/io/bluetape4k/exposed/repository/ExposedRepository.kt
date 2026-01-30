@@ -220,7 +220,8 @@ interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
             .apply {
                 offset?.run { offset(offset) }
             }
-            .firstOrNull()?.toEntity()
+            .firstOrNull()
+            ?.toEntity()
 
     /**
      * 조건에 맞는 마지막 엔티티를 조회합니다.
@@ -239,7 +240,8 @@ interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
             .apply {
                 offset?.run { offset(offset) }
             }
-            .lastOrNull()?.toEntity()
+            .firstOrNull()
+            ?.toEntity()
 
     /**
      * 특정 컬럼 값으로 엔티티를 조회합니다.
@@ -247,9 +249,10 @@ interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param value 값
      * @return 엔티티 목록
      */
-    fun <V> findByField(field: Column<V>, value: V): List<T> = table.selectAll()
-        .where { field eq value }
-        .map { it.toEntity() }
+    fun <V> findByField(field: Column<V>, value: V): List<T> =
+        table.selectAll()
+            .where { field eq value }
+            .map { it.toEntity() }
 
     /**
      * 엔티티를 삭제합니다.

@@ -3,7 +3,6 @@ package io.bluetape4k.coroutines.flow.extensions
 import kotlinx.coroutines.flow.DEFAULT_CONCURRENCY
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapMerge
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -35,6 +34,6 @@ inline fun <T, R> Flow<T>.mapParallel(
     val concurrency = parallelism.coerceAtLeast(2)
 
     return flatMapMerge(concurrency) { value ->
-        flow { emit(transform(value)) }
+        flowFromSuspend { transform(value) }
     }.flowOn(context)
 }

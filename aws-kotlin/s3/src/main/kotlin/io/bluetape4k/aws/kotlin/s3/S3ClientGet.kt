@@ -21,13 +21,13 @@ import io.bluetape4k.aws.kotlin.s3.model.getObjectRequestOf
 import io.bluetape4k.aws.kotlin.s3.model.getObjectRetentionRequestOf
 import io.bluetape4k.aws.kotlin.s3.model.headObjectRequestOf
 import io.bluetape4k.coroutines.flow.async
+import io.bluetape4k.coroutines.flow.extensions.flowFromSuspend
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotEmpty
 import kotlinx.coroutines.flow.DEFAULT_CONCURRENCY
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flatMapMerge
 import java.io.OutputStream
 import java.nio.file.Path
@@ -298,10 +298,13 @@ fun S3Client.getObjectsAcl(bucketName: String, vararg keys: String): Flow<GetObj
 
     return keys.asFlow()
         .flatMapMerge(DEFAULT_CONCURRENCY) { key ->
-            channelFlow {
-                val response = getObjectAcl(bucketName, key)
-                send(response)
+            flowFromSuspend {
+                getObjectAcl(bucketName, key)
             }
+//            channelFlow {
+//                val response = getObjectAcl(bucketName, key)
+//                send(response)
+//            }
         }
 }
 

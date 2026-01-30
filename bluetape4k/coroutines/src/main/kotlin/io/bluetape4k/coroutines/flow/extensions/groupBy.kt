@@ -51,7 +51,8 @@ fun <K: Any, V> GroupedFlow<K, V>.toGroupItems(): Flow<GroupItem<K, V>> = flowFr
 suspend fun <K: Any, V> Flow<GroupedFlow<K, V>>.toMap(
     destination: MutableMap<K, List<V>> = mutableMapOf(),
 ): MutableMap<K, List<V>> {
-    this.flatMapMerge { it.toGroupItems() }
+    this
+        .flatMapMerge { it.toGroupItems() }
         .collect { groupItem ->
             destination[groupItem.key] = groupItem.values
         }

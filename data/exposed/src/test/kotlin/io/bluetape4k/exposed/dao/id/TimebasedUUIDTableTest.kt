@@ -178,11 +178,11 @@ class TimebasedUUIDTableTest: AbstractCustomIdTableTest() {
             entities.asFlow()
                 .buffer(16)
                 .take(entityCount)
-                .flatMapMerge(16) { item ->
+                .flatMapMerge(16) { (name, age) ->
                     flow {
                         val insertCount = T1.insertIgnore {
-                            it[name] = item.first
-                            it[age] = item.second
+                            it[T1.name] = name
+                            it[T1.age] = age
                         }
                         emit(insertCount)
                     }

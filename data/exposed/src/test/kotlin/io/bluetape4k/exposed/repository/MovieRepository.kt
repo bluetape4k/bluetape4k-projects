@@ -59,9 +59,9 @@ class MovieRepository: ExposedRepository<MovieDTO, Long> {
         log.debug { "Create new movie. movie: $movieDto" }
 
         val id = MovieTable.insertAndGetId {
-            it[name] = movieDto.name
-            it[producerName] = movieDto.producerName
-            it[releaseDate] = LocalDate.parse(movieDto.releaseDate)
+            it[this.name] = movieDto.name
+            it[this.producerName] = movieDto.producerName
+            it[this.releaseDate] = LocalDate.parse(movieDto.releaseDate)
         }
         return movieDto.copy(id = id.value)
     }

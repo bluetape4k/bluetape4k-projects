@@ -3,7 +3,6 @@ package io.bluetape4k.exposed.r2dbc.repository
 import io.bluetape4k.exposed.core.HasIdentifier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.lastOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.singleOrNull
@@ -192,7 +191,7 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
             .apply {
                 offset?.run { offset(offset) }
             }
-            .lastOrNull()
+            .firstOrNull()
             ?.toEntity()
 
     /**
@@ -200,9 +199,10 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param field 컬럼
      * @param value 값
      */
-    fun <V> findByField(field: Column<V>, value: V): Flow<T> = table.selectAll()
-        .where { field eq value }
-        .map { it.toEntity() }
+    fun <V> findByField(field: Column<V>, value: V): Flow<T> =
+        table.selectAll()
+            .where { field eq value }
+            .map { it.toEntity() }
 
     /**
      * 엔티티를 삭제합니다.
@@ -233,13 +233,15 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
      * 엔티티를 무시하고 삭제합니다.
      * @param entity 삭제할 엔티티
      */
-    suspend fun deleteIgnore(entity: T): Int = table.deleteIgnoreWhere { table.id eq entity.id }
+    suspend fun deleteIgnore(entity: T): Int =
+        table.deleteIgnoreWhere { table.id eq entity.id }
 
     /**
      * ID로 엔티티를 무시하고 삭제합니다.
      * @param id 삭제할 엔티티의 ID
      */
-    suspend fun deleteByIdIgnore(id: ID): Int = table.deleteIgnoreWhere { table.id eq id }
+    suspend fun deleteByIdIgnore(id: ID): Int =
+        table.deleteIgnoreWhere { table.id eq id }
 
     /**
      * 조건에 맞는 모든 엔티티를 무시하고 삭제합니다.
@@ -263,7 +265,11 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
         limit: Int? = null,
         updateStatement: IdTable<ID>.(UpdateStatement) -> Unit,
     ): Int =
-        table.update(where = { table.id eq id }, limit = limit, body = updateStatement)
+        table.update(
+            where = { table.id eq id },
+            limit = limit,
+            body = updateStatement
+        )
 
     /**
      * 여러 엔티티를 일괄로 삽입합니다.
@@ -362,7 +368,7 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param shouldReturnGeneratedValues Specifies whether newly generated values (for example, auto-incremented IDs) should be returned.
      * @return Upsert 된 엔티티 목록
      */
-    suspend fun <E: Any> batchUpdate(
+    suspend fun <E: Any> batchUpsert(
         entities: Sequence<E>,
         vararg keys: Column<*>,
         onUpdate: (UpsertBuilder.(UpdateStatement) -> Unit)? = null,
