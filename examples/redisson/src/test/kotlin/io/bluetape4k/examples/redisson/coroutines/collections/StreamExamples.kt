@@ -14,8 +14,8 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
 import org.redisson.api.RStream
-import org.redisson.api.StreamMessageId
 import org.redisson.api.stream.StreamCreateGroupArgs
+import org.redisson.api.stream.StreamMessageId
 import org.redisson.api.stream.StreamReadGroupArgs
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
