@@ -90,12 +90,6 @@ subprojects {
         plugin(Plugins.kosogor)
     }
 
-    java {
-        toolchain {
-            languageVersion.set(JavaLanguageVersion.of(21))
-        }
-    }
-
     kotlin {
         jvmToolchain(21)
         compilerOptions {

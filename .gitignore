@@ -21,7 +21,10 @@ hs_err_pid*
 .project
 .settings
 .checkstyle
+
+.claude
 .kotlin
+.quarkus
 
 .gradle/
 build/
@@ -35,7 +38,6 @@ logs/
 transaction-logs/
 
 # User-specific stuff:
-.idea/*
 .idea
 
 *.iml
