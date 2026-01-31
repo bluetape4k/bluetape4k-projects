@@ -36,14 +36,16 @@ class EclipseCollectionExamples {
         odd shouldBeEqualTo fastListOf(1, 3, 5)
     }
 
-
     @ParameterizedTest
     @ValueSource(ints = [100, 1000])
     fun `execute in parallel mode`(size: Int) {
         var count = 0
         val xs = FastList.newWithNValues(size) { count++ }
 
-        val even = xs.asParallel(executor, size).select { it % 2 == 0 }.toList()
+        val even = xs
+            .asParallel(executor, size)
+            .select { it % 2 == 0 }
+            .toList()
 
         even.size shouldBeEqualTo size / 2
 

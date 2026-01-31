@@ -1,5 +1,6 @@
 package io.bluetape4k.javatimes.period.calendars
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.javatimes.period.ranges.DayOfWeekHourRange
 import io.bluetape4k.javatimes.period.ranges.DayRangeInMonth
 import io.bluetape4k.javatimes.period.ranges.HourRangeInDay
@@ -10,13 +11,13 @@ import io.bluetape4k.javatimes.period.ranges.MonthRangeInYear
  */
 open class CalendarPeriodCollectorFilter: CalendarVisitorFilter(), ICalendarPeriodCollectorFilter {
 
-    override val collectingMonths: MutableList<MonthRangeInYear> = mutableListOf()
+    override val collectingMonths: MutableList<MonthRangeInYear> = fastListOf<MonthRangeInYear>()
 
-    override val collectingDays: MutableList<DayRangeInMonth> = mutableListOf()
+    override val collectingDays: MutableList<DayRangeInMonth> = fastListOf<DayRangeInMonth>()
 
-    override val collectingHours: MutableList<HourRangeInDay> = mutableListOf()
+    override val collectingHours: MutableList<HourRangeInDay> = fastListOf<HourRangeInDay>()
 
-    override val collectingDayOfWeekHours: MutableList<DayOfWeekHourRange> = mutableListOf()
+    override val collectingDayOfWeekHours: MutableList<DayOfWeekHourRange> = fastListOf<DayOfWeekHourRange>()
 
     override fun clear() {
         super.clear()

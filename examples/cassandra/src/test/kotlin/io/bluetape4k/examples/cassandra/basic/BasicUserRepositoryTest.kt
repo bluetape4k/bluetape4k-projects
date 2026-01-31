@@ -2,6 +2,7 @@ package io.bluetape4k.examples.cassandra.basic
 
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder
 import io.bluetape4k.cassandra.cql.executeSuspending
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.coroutines.runSuspendTest
@@ -10,7 +11,6 @@ import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.toList
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
@@ -118,7 +118,10 @@ class BasicUserRepositoryTest(
         }
         repository.saveAll(users.asFlow()).collect()
 
-        val loaded = repository.findAllByLastnameStartsWith(users[2].lastname.substring(0, 2)).toList()
+        val loaded = repository
+            .findAllByLastnameStartsWith(users[2].lastname.substring(0, 2))
+            .toFastList()
+        
         loaded.shouldNotBeEmpty()
         loaded shouldContain users[2]
     }

@@ -1,5 +1,7 @@
 package io.bluetape4k.naivebayes
 
+import io.bluetape4k.collections.eclipse.fastListOf
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
@@ -15,7 +17,7 @@ class NaiveBayesClassifierEnglishTest: AbstractNaiveBayesClassifierTest() {
         private const val REPEAT_SIZE = 5
     }
 
-    private val emails = listOf(
+    private val emails = fastListOf(
         Email("Hey there! I thought you might find this interesting. Click here.", isSpam = true),
         Email("Get viagra for a discount as much as 90%", isSpam = true),
         Email("Viagra prescription for less", isSpam = true),
@@ -40,21 +42,21 @@ class NaiveBayesClassifierEnglishTest: AbstractNaiveBayesClassifierTest() {
         val nbc = naiveBayesClassifierOf(
             emails,
             categorySelector = { it.isSpam },
-            featuresSelector = { it.message.splitWords().toSet() }
+            featuresSelector = { it.message.splitWords().toUnifiedSet() }
         )
 
         // TEST 1 (Spam)
-        val input = "discount viagra wholesale, hurry while this offer lasts".splitWords().toSet()
+        val input = "discount viagra wholesale, hurry while this offer lasts".splitWords().toUnifiedSet()
         val predictedCategory = nbc.predict(input)!!
         predictedCategory.shouldBeTrue()
 
         // TEST 2 (Not Spam)
-        val input2 = "interesting meeting on amazon cloud services discount program".splitWords().toSet()
+        val input2 = "interesting meeting on amazon cloud services discount program".splitWords().toUnifiedSet()
         val predictedCategory2 = nbc.predict(input2)!!
         predictedCategory2.shouldBeFalse()
     }
 
-    private val bankTransactions = listOf(
+    private val bankTransactions = fastListOf(
         BankTransaction(
             date = LocalDate.of(2018, 3, 13),
             amount = 12.69,
@@ -109,7 +111,7 @@ class NaiveBayesClassifierEnglishTest: AbstractNaiveBayesClassifierTest() {
     fun `bank transaction example`() {
         val nbc = naiveBayesClassifierOf(
             bankTransactions,
-            featuresSelector = { it.memo.splitWords().toSet() },
+            featuresSelector = { it.memo.splitWords().toUnifiedSet() },
             categorySelector = { it.category ?: "undefined" }
         )
 
@@ -119,7 +121,7 @@ class NaiveBayesClassifierEnglishTest: AbstractNaiveBayesClassifierTest() {
             amount = 13.99,
             memo = "NETFLIX VIDEO ON DEMAND #21"
         )
-        val result1 = nbc.predictWithProbability(input1.memo.splitWords().toSet()).shouldNotBeNull()
+        val result1 = nbc.predictWithProbability(input1.memo.splitWords().toUnifiedSet()).shouldNotBeNull()
         log.debug { "result1=$result1" }
         result1.category shouldBeEqualTo "ENTERTAINMENT"
 
@@ -129,7 +131,7 @@ class NaiveBayesClassifierEnglishTest: AbstractNaiveBayesClassifierTest() {
             amount = 17.21,
             memo = "FROGG COFFEE BAR AND CREPERIE"
         )
-        val result2 = nbc.predictWithProbability(input2.memo.splitWords().toSet()).shouldNotBeNull()
+        val result2 = nbc.predictWithProbability(input2.memo.splitWords().toUnifiedSet()).shouldNotBeNull()
         log.debug { "result2=$result2" }
         result2.category shouldBeEqualTo "COFFEE"
     }

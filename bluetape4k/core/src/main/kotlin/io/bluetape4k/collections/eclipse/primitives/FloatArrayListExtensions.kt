@@ -5,6 +5,7 @@ import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.support.asFloat
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.eclipse.collections.api.FloatIterable
+import org.eclipse.collections.impl.list.mutable.FastList
 import org.eclipse.collections.impl.list.mutable.primitive.FloatArrayList
 
 fun FloatArray.toFloatArrayList(): FloatArrayList = FloatArrayList.newListWith(*this)
@@ -67,3 +68,5 @@ fun FloatIterable.maxOrNull() = if (isEmpty) null else max()
 fun FloatIterable.minOrNull() = if (isEmpty) null else min()
 
 fun FloatIterable.product(): Double = asIterable().fold(1.0) { acc, i -> acc * i }
+
+fun FloatArray.toFastList(): FastList<Float> = asIterable().toFastList()

@@ -1,5 +1,6 @@
 package io.bluetape4k.concurrent
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.internal.assertFailsWith
@@ -82,7 +83,7 @@ class FutureUtilsTest {
     @Test
     fun `transform success futures`() {
         val futures = (1..10).map { completableFutureOf(it) }
-        FutureUtils.transform(futures) { it + 1 }.get() shouldBeEqualTo (2..11).toList()
+        FutureUtils.transform(futures) { it + 1 }.get() shouldBeEqualTo (2..11).toFastList()
     }
 
     @Test

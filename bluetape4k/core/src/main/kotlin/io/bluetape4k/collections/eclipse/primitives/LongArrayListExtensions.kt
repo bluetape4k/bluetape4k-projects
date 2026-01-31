@@ -5,6 +5,7 @@ import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.support.asLong
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.eclipse.collections.api.LongIterable
+import org.eclipse.collections.impl.list.mutable.FastList
 import org.eclipse.collections.impl.list.mutable.primitive.LongArrayList
 
 fun LongArray.toLongArrayList(): LongArrayList = LongArrayList.newListWith(*this)
@@ -68,3 +69,5 @@ fun LongIterable.maxOrNull() = if (isEmpty) null else max()
 fun LongIterable.minOrNull() = if (isEmpty) null else min()
 
 fun LongIterable.product(): Double = asIterable().fold(1.0) { acc, i -> acc * i }
+
+fun LongArray.toFastList(): FastList<Long> = asIterable().toFastList()

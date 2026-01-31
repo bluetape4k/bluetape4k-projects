@@ -5,9 +5,11 @@ import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.support.asByte
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.eclipse.collections.api.ByteIterable
+import org.eclipse.collections.impl.list.mutable.FastList
 import org.eclipse.collections.impl.list.mutable.primitive.ByteArrayList
 
-fun ByteArray.toByteArrayList(): ByteArrayList = ByteArrayList.newListWith(*this)
+fun ByteArray.toByteArrayList(): ByteArrayList =
+    ByteArrayList.newListWith(*this)
 
 fun Iterable<Byte>.toByteArrayList(): ByteArrayList =
     ByteArrayList().also { array ->
@@ -67,3 +69,5 @@ fun ByteIterable.maxOrNull() = if (isEmpty) null else max()
 fun ByteIterable.minOrNull() = if (isEmpty) null else min()
 
 fun ByteIterable.product(): Double = asIterable().fold(1.0) { acc, i -> acc * i }
+
+fun ByteArray.toFastList(): FastList<Byte> = asIterable().toFastList()

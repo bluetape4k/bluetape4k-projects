@@ -3,6 +3,7 @@ package io.bluetape4k.ahocorasick.interval
 import io.bluetape4k.ValueObject
 import io.bluetape4k.ahocorasick.interval.IntervalableComparators.PositionComparator
 import io.bluetape4k.ahocorasick.interval.IntervalableComparators.ReverseSizeComparator
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
@@ -23,7 +24,7 @@ class IntervalTree private constructor(private val rootNode: IntervalNode): Valu
     }
 
     fun findOverlaps(interval: Intervalable): List<Intervalable> {
-        return rootNode.findOverlaps(interval).toList().sortedWith(PositionComparator)
+        return rootNode.findOverlaps(interval).toFastList().sortedWith(PositionComparator)
     }
 
     fun <T: Intervalable> removeOverlaps(intervals: Collection<T>): MutableList<T> {

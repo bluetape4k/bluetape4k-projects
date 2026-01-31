@@ -3,10 +3,10 @@ package io.bluetape4k.aws.dynamodb.examples.food.tests
 import io.bluetape4k.aws.dynamodb.examples.food.AbstractFoodApplicationTest
 import io.bluetape4k.aws.dynamodb.examples.food.model.UserDocument
 import io.bluetape4k.aws.dynamodb.examples.food.repository.UserRepository
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
@@ -66,10 +66,10 @@ class UserRepositoryTest: AbstractFoodApplicationTest() {
     fun `save many items`() = runTest {
         val users = List(100) { createUser() }
 
-        val saved = repository.saveAll(users).toList()
+        val saved = repository.saveAll(users).toFastList()
         saved.all { it.unprocessedPutItemsForTable(repository.table).isEmpty() }.shouldBeTrue()
 
-        val loaded = repository.findFirstByPartitionKey(users.first().partitionKey).toList()
+        val loaded = repository.findFirstByPartitionKey(users.first().partitionKey).toFastList()
         log.debug { "loaded size=${loaded.size}" }
         loaded.shouldNotBeEmpty()
     }

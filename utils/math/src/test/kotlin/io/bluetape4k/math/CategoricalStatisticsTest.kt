@@ -1,5 +1,6 @@
 package io.bluetape4k.math
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
@@ -18,7 +19,7 @@ class CategoricalStatisticsTest {
         // {2=3, 54=1, 67=1, 3=1, 4=1, 5=1}
         val maxFreqs = ints.mode()
 
-        maxFreqs.toList() shouldBeEqualTo listOf(2)
+        maxFreqs.toFastList() shouldBeEqualTo listOf(2)
     }
 
     @Test
@@ -29,7 +30,7 @@ class CategoricalStatisticsTest {
         // {2=3, 3=3, 4=2}
         val maxFreqs = ints.mode()
 
-        maxFreqs.toList() shouldBeEqualTo listOf(2, 3)
+        maxFreqs.toFastList() shouldBeEqualTo listOf(2, 3)
     }
 
     data class Product(

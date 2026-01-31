@@ -1,5 +1,7 @@
 package io.bluetape4k.coroutines.flow.extensions
 
+import io.bluetape4k.collections.eclipse.fastListOf
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.coroutines.tests.assertResultSet
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CoroutineStart
@@ -51,7 +53,7 @@ class RepeatTest: AbstractFlowTest() {
                 .log("#1")
                 .repeat()
 
-            val buffer = mutableListOf<Int>()
+            val buffer = fastListOf<Int>()
             val job = launch(start = CoroutineStart.UNDISPATCHED) {
                 flow.toList(buffer)
             }
@@ -80,7 +82,7 @@ class RepeatTest: AbstractFlowTest() {
                 .log("#1")
                 .repeat()
                 .take(100)
-                .assertResultSet(listOf(1, 2, 3).cycled().take(100).toList())
+                .assertResultSet(listOf(1, 2, 3).cycled().take(100).toFastList())
         }
 
         @Test
@@ -105,7 +107,7 @@ class RepeatTest: AbstractFlowTest() {
                 .log("#1")
                 .repeat(delay)
                 .take(100)
-                .assertResultSet(listOf(1, 2, 3).cycled().take(100).toList())
+                .assertResultSet(listOf(1, 2, 3).cycled().take(100).toFastList())
         }
 
         @Test
@@ -130,7 +132,7 @@ class RepeatTest: AbstractFlowTest() {
                 .log("#1")
                 .repeat { (it + 1).milliseconds }
                 .take(100)
-                .assertResultSet(listOf(1, 2, 3).cycled().take(100).toList())
+                .assertResultSet(listOf(1, 2, 3).cycled().take(100).toFastList())
         }
 
         @Test
@@ -170,7 +172,7 @@ class RepeatTest: AbstractFlowTest() {
             flowOf(1, 2, 3)
                 .log("#1")
                 .repeat(100)
-                .assertResultSet(listOf(1, 2, 3).cycled().take(300).toList())
+                .assertResultSet(listOf(1, 2, 3).cycled().take(300).toFastList())
         }
 
         @Test
@@ -194,7 +196,7 @@ class RepeatTest: AbstractFlowTest() {
             }
                 .log("#1")
                 .repeat(100, delay)
-                .assertResultSet(listOf(1, 2, 3).cycled().take(300).toList())
+                .assertResultSet(listOf(1, 2, 3).cycled().take(300).toFastList())
         }
 
         @Test
@@ -218,7 +220,7 @@ class RepeatTest: AbstractFlowTest() {
             }
                 .log("#1")
                 .repeat(100) { (it + 1).milliseconds }
-                .assertResultSet(listOf(1, 2, 3).cycled().take(300).toList())
+                .assertResultSet(listOf(1, 2, 3).cycled().take(300).toFastList())
         }
 
         @Test
@@ -233,5 +235,4 @@ class RepeatTest: AbstractFlowTest() {
             }
         }
     }
-
 }

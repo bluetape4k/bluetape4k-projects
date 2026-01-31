@@ -1,6 +1,8 @@
 package io.bluetape4k.examples.mutiny
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.concurrent.NamedThreadFactory
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.mutiny.asUni
@@ -13,7 +15,6 @@ import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
@@ -108,13 +109,13 @@ class ThreadingExamples {
         val iterable = Multi.createFrom().range(0, 10)
             .subscribe().asIterable()
 
-        val list = iterable.toList()
-        list shouldBeEqualTo (0..9).toList()
+        val list = iterable.toFastList()
+        list shouldBeEqualTo (0..9).toFastList()
 
         val sequence = Multi.createFrom().range(0, 10)
             .subscribe().asIterable().asSequence()
 
-        sequence.toList() shouldBeEqualTo (0..9).toList()
+        sequence.toFastList() shouldBeEqualTo (0..9).toFastList()
 
         val someInt = Uni.createFrom().item(42).await().indefinitely()
         someInt shouldBeEqualTo 42
@@ -126,7 +127,7 @@ class ThreadingExamples {
         log.debug { "👀 Coroutines" }
 
         val flow = Multi.createFrom().range(0, 10).asFlow()
-        flow.toList() shouldBeEqualTo (0..9).toList()
+        flow.toFastList() shouldBeEqualTo (0..9).toFastList()
 
         val dispatcher = newFixedThreadPoolContext(2, "user")
         Multi.createFrom().range(0, 10)
@@ -158,7 +159,7 @@ class ThreadingExamples {
                 val iterable = Multi.createFrom().range(0, 10).subscribe().asIterable()
                 // stream() 함수가 내부에서 Infrastructure 를 사용한다. Kotlin toList() 사용 시에는 검출되지 않는다.
                 val list = iterable.stream().collect(Collectors.toList())
-                list shouldBeEqualTo (0..9).toList()
+                list shouldBeEqualTo (0..9).toFastList()
             }
             Thread.sleep(100)
 

@@ -1,6 +1,7 @@
 package io.bluetape4k.math.commons
 
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.math.MathConsts.BLOCK_SIZE
@@ -33,7 +34,7 @@ class MovingSumTest {
         val blockSize = BLOCK_SIZE
         val sameValues = List(10) { 1.0 }
 
-        val sums = sameValues.movingSum(blockSize).toList()
+        val sums = sameValues.movingSum(blockSize).toFastList()
 
         log.trace { "sums=$sums" }
         sums.size shouldBeEqualTo (sameValues.size - blockSize + 1)
@@ -42,7 +43,7 @@ class MovingSumTest {
 
     @Test
     fun `moving sum of double values`() {
-        val sums = doubleValues.movingSum().toList()
+        val sums = doubleValues.movingSum().toFastList()
         log.trace { "sums=$sums" }
         sums.size shouldBeEqualTo (doubleValues.size - BLOCK_SIZE + 1)
         sums.sorted() shouldBeEqualTo sums
@@ -66,7 +67,7 @@ class MovingSumTest {
         val blockSize = BLOCK_SIZE
         val sameValues = List(10) { 1.0 }
 
-        val sums = sameValues.movingSum(blockSize).toList()
+        val sums = sameValues.movingSum(blockSize).toFastList()
 
         log.trace { "sums=$sums" }
         sums.size shouldBeEqualTo (sameValues.size - blockSize + 1)
@@ -75,7 +76,7 @@ class MovingSumTest {
 
     @Test
     fun `moving sum of long values`() {
-        val sums = longValues.movingSum().toList()
+        val sums = longValues.movingSum().toFastList()
         log.trace { "sums=$sums" }
         sums.size shouldBeEqualTo (longValues.size - BLOCK_SIZE + 1)
         sums.sorted() shouldBeEqualTo sums

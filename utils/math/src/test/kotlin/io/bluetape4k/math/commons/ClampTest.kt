@@ -1,5 +1,6 @@
 package io.bluetape4k.math.commons
 
+import io.bluetape4k.collections.eclipse.toFastList
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
@@ -39,6 +40,6 @@ class ClampTest {
         val values = listOf(-1.0, 0.0, 1.0, 2.0)
         val expected = listOf(0.0, 0.0, 1.0, 1.0)
         values.rangeClamp(0.0..1.0) shouldBeEqualTo expected
-        values.asSequence().rangeClamp(0.0..1.0).toList() shouldBeEqualTo expected
+        values.asSequence().rangeClamp(0.0..1.0).toFastList() shouldBeEqualTo expected
     }
 }

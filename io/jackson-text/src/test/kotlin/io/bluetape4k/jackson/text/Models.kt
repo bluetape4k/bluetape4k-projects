@@ -1,6 +1,7 @@
 package io.bluetape4k.jackson.text
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
+import io.bluetape4k.collections.eclipse.toFastList
 import java.io.Serializable
 import java.util.*
 
@@ -13,7 +14,7 @@ data class Container(val boxes: List<Box>): Serializable
 data class Point(val x: Int, val y: Int): Serializable
 
 data class Points(val p: List<Point>): Serializable {
-    constructor(vararg points: Point): this(points.toList())
+    constructor(vararg points: Point): this(points.toFastList())
 }
 
 @JsonPropertyOrder(value = ["topLeft", "bottomRight"])

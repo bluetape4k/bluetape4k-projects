@@ -1,5 +1,6 @@
 package io.bluetape4k.spring.beans
 
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import org.springframework.beans.PropertyAccessorFactory
 import org.springframework.util.ReflectionUtils
 import org.springframework.util.StringValueResolver
@@ -28,7 +29,7 @@ fun Annotation.copyPropertiesToBean(
     valueResolver: StringValueResolver?,
     vararg excludedProperties: String,
 ) {
-    val excluded = excludedProperties.toSet()
+    val excluded = excludedProperties.toUnifiedSet()
     val annotationProperties = this.annotationClass.java.declaredMethods
     val bw = PropertyAccessorFactory.forBeanPropertyAccess(bean)
 

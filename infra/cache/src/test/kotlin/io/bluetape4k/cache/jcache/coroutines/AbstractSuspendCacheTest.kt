@@ -1,13 +1,13 @@
 package io.bluetape4k.cache.jcache.coroutines
 
 import io.bluetape4k.codec.encodeBase62
+import io.bluetape4k.coroutines.flow.extensions.toUnifiedSet
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -114,7 +114,7 @@ abstract class AbstractSuspendCacheTest {
         }
         val keysToLoad = setOf(entries.first().key, entries[42].key, entries[51].key, entries.last().key)
         val loaded = suspendCache.getAll(keysToLoad)
-        loaded.map { it.key }.toSet() shouldBeEqualTo keysToLoad
+        loaded.map { it.key }.toUnifiedSet() shouldBeEqualTo keysToLoad
     }
 
     @Test

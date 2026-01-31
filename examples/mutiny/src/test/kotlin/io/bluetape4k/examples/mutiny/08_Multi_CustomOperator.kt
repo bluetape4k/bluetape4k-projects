@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.mutiny
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.smallrye.mutiny.Multi
@@ -27,7 +28,7 @@ class CustomOperator {
             .asList()
             .awaitSuspending()
 
-        list shouldBeEqualTo (0..19).filter { it % 2 == 0 }.toList()
+        list shouldBeEqualTo (0..19).filter { it % 2 == 0 }.toFastList()
     }
 
     /**

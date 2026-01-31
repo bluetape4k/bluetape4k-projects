@@ -1,7 +1,10 @@
 package io.bluetape4k.examples.mutiny
 
 import io.bluetape4k.codec.encodeBase62
+import io.bluetape4k.collections.eclipse.fastList
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.coroutines.DefaultCoroutineScope
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -17,7 +20,6 @@ import io.smallrye.mutiny.coroutines.awaitSuspending
 import io.smallrye.mutiny.tuples.Tuple2
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
@@ -115,7 +117,7 @@ class CompositionTransformationExamples {
             .asTuple()
             .await().indefinitely()
 
-        tuple.toList() shouldBeEqualTo listOf(1, 2, 3)
+        tuple.toFastList() shouldBeEqualTo listOf(1, 2, 3)
 
         val combined = Uni.combine().all().unis(first, second, third)
             .with { a, b, c -> a + b + c }
@@ -136,7 +138,7 @@ class CompositionTransformationExamples {
             .filter { it % 2 == 0 }
             .select().last(5)
             .onItem().transform { n -> "[$n]" }
-            .asFlow().toList()
+            .asFlow().toFastList()
 
         val expected = (1..99).filter { it % 2 == 0 }.map { "[$it]" }.takeLast(5)
 
@@ -158,7 +160,7 @@ class CompositionTransformationExamples {
             .select().last(5)
             .onItem().transformToUniAndMerge { n -> increase(n) }       // Flow#flatMapMerge 랑 유사
             .onItem().transform { n -> "[$n]" }
-            .asFlow().toList()
+            .asFlow().toFastList()
 
         items.sorted() shouldBeEqualTo listOf("[9000]", "[9200]", "[9400]", "[9600]", "[9800]")
     }
@@ -184,7 +186,7 @@ class CompositionTransformationExamples {
             .onItem().transformToMultiAndMerge { n -> query(n) }   // Flow.flatMapMerge 와 같다
             .onItem().transform { "[$it]" }
             .onItem().invoke { item -> log.debug { "item: $item" } }
-            .asFlow().toList()
+            .asFlow().toFastList()
 
         items shouldHaveSize 6
         items shouldContainSame listOf("[96]", "[98]", "[960]", "[980]", "[9600]", "[9800]")
@@ -211,7 +213,7 @@ class CompositionTransformationExamples {
             .flatMap { n -> query(n) }              // Flow.flatMapMerge 와 같다
             .map { n -> "[$n]" }
             .onItem().invoke { n -> log.debug { n } }
-            .asFlow().toList()
+            .asFlow().toFastList()
 
         items shouldHaveSize 6
         items shouldContainSame listOf("[96]", "[98]", "[960]", "[980]", "[9600]", "[9800]")
@@ -233,7 +235,7 @@ class CompositionTransformationExamples {
             .asList()
             .awaitSuspending()
 
-        merged.sorted() shouldBeEqualTo (0L..9L).toList() + (100L..109L).toList()
+        merged.sorted() shouldBeEqualTo (0L..9L).toFastList() + (100L..109L).toFastList()
     }
 
     // concatenate 는 첫번째 Multi 가 끝나야 다음 Multi 로부터 subscribe 한다
@@ -252,7 +254,7 @@ class CompositionTransformationExamples {
             .asList()
             .awaitSuspending()
 
-        concated.sorted() shouldBeEqualTo (0L..9L).toList() + (100L..109L).toList()
+        concated.sorted() shouldBeEqualTo (0L..9L).toFastList() + (100L..109L).toFastList()
     }
 
     @Test
@@ -270,7 +272,7 @@ class CompositionTransformationExamples {
             .asList()
             .awaitSuspending()
 
-        val expected = List(10) { Tuple2.of(it.toLong(), it + 100L) }
+        val expected = fastList(10) { Tuple2.of(it.toLong(), it + 100L) }
         results shouldBeEqualTo expected
     }
 
@@ -391,7 +393,7 @@ class CompositionTransformationExamples {
             }
             .merge()
             .asFlow()
-            .toList()
+            .toFastList()
 
         log.debug { "Average:\n${agePerCity.joinToString("\n")}" }
 
@@ -422,7 +424,7 @@ class CompositionTransformationExamples {
             .group().intoLists().of(5)
             .select().first(2)
             .asFlow()
-            .toList()
+            .toFastList()
 
         buckets shouldBeEqualTo listOf((0..4).toList(), (5..9).toList())
     }
@@ -437,7 +439,8 @@ class CompositionTransformationExamples {
             .group().intoLists().every(Duration.ofSeconds(1))
             .onItem().invoke { items -> log.debug { "items=$items" } }
             .select().first(2)
-            .asFlow().toList()
+            .asFlow()
+            .toFastList()
 
         buckets shouldHaveSize 2
         buckets[0] shouldContain 5
@@ -455,7 +458,8 @@ class CompositionTransformationExamples {
             .onItem().invoke { items -> log.debug { "grouped: $items" } }
             .onItem().disjoint<Int>()
             .onItem().invoke { it -> log.debug { "disjoint: $it" } }
-            .asFlow().toList()
+            .asFlow()
+            .toFastList()
 
         items shouldHaveSize 50
     }
@@ -469,7 +473,7 @@ class CompositionTransformationExamples {
         log.debug { "uni=$uni" }
         uni shouldBeEqualTo 1
 
-        val multi = uniOf(123).toMulti().asFlow().toList()
+        val multi = uniOf(123).toMulti().asFlow().toFastList()
         log.debug { "multi=$multi" }
         multi shouldBeEqualTo listOf(123)
     }

@@ -1,5 +1,6 @@
 package io.bluetape4k.collections
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
@@ -79,9 +80,9 @@ class SequenceSupportTest {
         val list = listOf(1, 2, 3, 4)
 
         val sliding = list.asSequence().sliding(3, false)
-        sliding.toList() shouldBeEqualTo listOf(listOf(1, 2, 3), listOf(2, 3, 4))
+        sliding.toFastList() shouldBeEqualTo listOf(listOf(1, 2, 3), listOf(2, 3, 4))
 
         val sliding2 = list.asSequence().sliding(3, true)
-        sliding2.toList() shouldBeEqualTo listOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
+        sliding2.toFastList() shouldBeEqualTo listOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
     }
 }

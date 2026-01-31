@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.redisson.repository
 
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.redisson.map.EntityMapLoader
@@ -188,7 +189,7 @@ abstract class AbstractSuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID:
     override suspend fun getAll(ids: Collection<ID>, batchSize: Int): List<T> {
         return ids.chunked(batchSize).flatMap { chunk ->
             log.debug { "캐시에서 ${chunk.size}개의 엔티티를 가져옵니다. chunk=$chunk" }
-            cache.getAllAsync(chunk.toSet()).suspendAwait().values.filterNotNull()
+            cache.getAllAsync(chunk.toUnifiedSet()).suspendAwait().values.filterNotNull()
         }
     }
 }

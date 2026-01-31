@@ -1,6 +1,7 @@
 package io.bluetape4k.cache.nearcache
 
 import io.bluetape4k.cache.jcache.JCache
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
@@ -82,7 +83,7 @@ class NearCache<K: Any, V: Any> private constructor(
                                 if (isClosed || Thread.currentThread().isInterrupted) {
                                     return@chunked
                                 }
-                                val frontKeys = entries.map { it.key }.toSet()
+                                val frontKeys = entries.map { it.key }.toUnifiedSet()
                                 entrySize += frontKeys.size
                                 log.trace { "Front Cache item 유효기간 조사=$entrySize" }
                                 frontKeys.forEach {
@@ -146,7 +147,7 @@ class NearCache<K: Any, V: Any> private constructor(
         return frontCache.get(key)
     }
 
-    fun getAll(vararg keys: K): MutableMap<K, V> = getAll(keys.toSet())
+    fun getAll(vararg keys: K): MutableMap<K, V> = getAll(keys.toUnifiedSet())
 
     override fun getAll(keys: Set<K>): MutableMap<K, V> { // 모든 조회는 Front 에서만 한다
         return frontCache.getAll(keys)
@@ -247,7 +248,7 @@ class NearCache<K: Any, V: Any> private constructor(
     }
 
     fun removeAll(vararg keys: K) {
-        removeAll(keys.toSet())
+        removeAll(keys.toUnifiedSet())
     }
 
     override fun replace(key: K, oldValue: V, newValue: V): Boolean {

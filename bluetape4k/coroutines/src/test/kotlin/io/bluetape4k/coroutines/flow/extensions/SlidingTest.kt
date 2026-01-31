@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -35,7 +34,7 @@ class SlidingTest: AbstractFlowTest() {
                 slide.size shouldBeLessOrEqualTo slidingSize
                 slidingCount.incrementAndGet()
             }
-            .toList()
+            .toFastList()
 
         slidingCount.get() shouldBeEqualTo 20
         sliding shouldHaveSize 20
@@ -55,7 +54,7 @@ class SlidingTest: AbstractFlowTest() {
                 slide.size shouldBeLessOrEqualTo slidingSize
                 slidingCount.incrementAndGet()
             }
-            .toList()
+            .toFastList()
 
         slidingCount.get() shouldBeEqualTo 20
         sliding shouldHaveSize 20

@@ -14,7 +14,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.flow.toList
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
@@ -366,7 +365,7 @@ abstract class AbstractNearSuspendCacheTest
         nearSuspendCache1.putAll(entries)
         await suspendUntil { nearSuspendCache2.entries().count() > 0 }
 
-        nearSuspendCache2.entries().toList().shouldNotBeEmpty()
+        nearSuspendCache2.entries().toFastList().shouldNotBeEmpty()
 
         // 모든 cache entry를 삭제하면 backCache에서 삭제되고, 이것이 전파되어 nearCache1에서도 삭제된다.
         nearSuspendCache2.removeAll()

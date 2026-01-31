@@ -1,6 +1,7 @@
 package io.bluetape4k.spring.cassandra.reactive
 
 import com.datastax.oss.driver.api.core.uuid.Uuids
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
@@ -244,7 +245,7 @@ class ReactiveCassandraTemplateTest(
                 user.id
             }
         }
-        val expectedIds = insertTasks.awaitAll().toSet()
+        val expectedIds = insertTasks.awaitAll().toUnifiedSet()
 
         val query = Query.empty()
         var slice = reactiveOps

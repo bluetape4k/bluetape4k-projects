@@ -3,6 +3,7 @@ package io.bluetape4k.lingua.examples
 import com.github.pemistahl.lingua.api.IsoCode639_1
 import com.github.pemistahl.lingua.api.IsoCode639_3
 import com.github.pemistahl.lingua.api.Language
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.lingua.AbstractLinguaTest
 import io.bluetape4k.lingua.allLanguageDetector
 import io.bluetape4k.lingua.languageDetectorOf
@@ -34,13 +35,13 @@ class LanguageDetectorExamples: AbstractLinguaTest() {
     }
 
     private val detectorIsoCode639_1 = languageDetectorOf(
-        IsoCode639_1.entries.toSet()
+        IsoCode639_1.entries.toUnifiedSet()
     ) {
         withPreloadedLanguageModels()
     }
 
     private val detectorIsoCode639_3 = languageDetectorOf(
-        IsoCode639_3.entries.toSet()
+        IsoCode639_3.entries.toUnifiedSet()
     ) {
         withPreloadedLanguageModels()
     }

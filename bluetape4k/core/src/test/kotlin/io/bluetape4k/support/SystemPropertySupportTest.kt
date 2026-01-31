@@ -1,6 +1,7 @@
 package io.bluetape4k.support
 
 import io.bluetape4k.LibraryName
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
@@ -243,7 +244,7 @@ class SystemPropertySupportTest {
 
         val uniques = duplicated.uniqueChars()
         uniques.length shouldBeLessOrEqualTo str.length
-        uniques.toSet().size shouldBeEqualTo uniques.length
+        uniques.toUnifiedSet().size shouldBeEqualTo uniques.length
     }
 
     @RepeatedTest(REPEAT_SIZE)

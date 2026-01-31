@@ -1,5 +1,6 @@
 package io.bluetape4k.ahocorasick.trie
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
@@ -33,7 +34,7 @@ class KeywordProcessorTest {
 
     @Test
     fun `tokenize keywords`() {
-        val tokens = trie.tokenize(text).toList()
+        val tokens = trie.tokenize(text).toFastList()
         log.debug { "tokens=$tokens" }
 
         tokens shouldHaveSize 8

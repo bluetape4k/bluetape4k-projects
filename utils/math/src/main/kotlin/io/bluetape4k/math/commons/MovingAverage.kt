@@ -1,5 +1,6 @@
 package io.bluetape4k.math.commons
 
+import io.bluetape4k.collections.eclipse.primitives.toFastList
 import io.bluetape4k.collections.toDoubleArray
 import io.bluetape4k.math.MathConsts.BLOCK_SIZE
 import java.util.concurrent.ArrayBlockingQueue
@@ -221,7 +222,7 @@ inline fun Sequence<Double>.weightedMovingAverage(
 
         factors[blockSize - 1] = weightingFunc(blockSize)
         val factorSum = factors.sum()
-        val factorList = factors.toList()
+        val factorList = factors.toFastList()
 
         while (iter.hasNext()) {
             queue.put(iter.next())

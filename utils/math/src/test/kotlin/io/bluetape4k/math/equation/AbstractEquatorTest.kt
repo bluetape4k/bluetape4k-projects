@@ -1,6 +1,7 @@
 package io.bluetape4k.math.equation
 
 import io.bluetape4k.collections.doubleSequenceOf
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.math.commons.approximateEqual
@@ -21,7 +22,7 @@ abstract class AbstractEquatorTest {
     fun `root find for linear`() {
         val values = doubleSequenceOf(-1.0, 1.0, 0.03)
             .map { it to it }
-            .toList()
+            .toFastList()
 
         val root = equator.solve(Equator.MAXEVAL, values)
         log.trace { "root=$root" }
@@ -32,7 +33,7 @@ abstract class AbstractEquatorTest {
     open fun `경계가 같은 + 부호를 가지는 경우`() {
         val values = doubleSequenceOf(-1.0, 1.0, 0.1)
             .map { it to 1.0 }
-            .toList()
+            .toFastList()
 
         assertFailsWith<NoBracketingException> {
             val root = equator.solve(Equator.MAXEVAL, values)
@@ -44,7 +45,7 @@ abstract class AbstractEquatorTest {
     open fun `경계가 같은 - 부호를 가지는 경우`() {
         val values = doubleSequenceOf(-1.0, 1.0, 0.1)
             .map { it to -1.0 }
-            .toList()
+            .toFastList()
 
         assertFailsWith<NoBracketingException> {
             val root = equator.solve(Equator.MAXEVAL, values)

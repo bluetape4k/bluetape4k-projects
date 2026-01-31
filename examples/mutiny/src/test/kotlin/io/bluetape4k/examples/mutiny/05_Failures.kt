@@ -1,5 +1,7 @@
 package io.bluetape4k.examples.mutiny
 
+import io.bluetape4k.collections.eclipse.toFastList
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
@@ -11,7 +13,6 @@ import io.smallrye.mutiny.coroutines.asFlow
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import io.smallrye.mutiny.subscription.MultiEmitter
 import io.smallrye.mutiny.subscription.UniEmitter
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
@@ -119,7 +120,7 @@ class FailuresExample {
             .onCompletion().invoke { log.debug("✅") }
             .select().first(10)
             .asFlow()
-            .toList()
+            .toFastList()
 
         log.debug { "items=$items" }
 
@@ -137,7 +138,7 @@ class FailuresExample {
             .onFailure().recoverWithItem(666)
             .onCompletion().invoke { log.debug { "✅" } }
             .asFlow()
-            .toList()
+            .toFastList()
 
         items shouldContain 666
     }
@@ -152,7 +153,7 @@ class FailuresExample {
             .onCompletion().invoke { log.debug { "✅" } }
             .log()
             .asFlow()
-            .toList()
+            .toFastList()
 
         items shouldContainAll listOf(666, 999)
     }
@@ -167,7 +168,8 @@ class FailuresExample {
             .onFailure().invoke { _ -> log.debug { "💥" } }
             .onFailure().retry().atMost(5)
             .onFailure().recoverWithCompletion()
-            .subscribe().with({ log.debug { it } }, Throwable::printStackTrace) { log.debug("✅") }
+            .subscribe()
+            .with({ log.debug { it } }, Throwable::printStackTrace) { log.debug("✅") }
     }
 
     @Test
@@ -179,7 +181,8 @@ class FailuresExample {
             .onFailure().invoke { _ -> log.debug { "💥" } }
             .onFailure().retry().atMost(3)
             .onFailure().recoverWithCompletion()
-            .subscribe().with({ log.debug { it } }, Throwable::printStackTrace) { log.debug("✅") }
+            .subscribe()
+            .with({ log.debug { it } }, Throwable::printStackTrace) { log.debug("✅") }
     }
 
     private fun generateMulti(emitter: MultiEmitter<in Int>) {
@@ -209,7 +212,7 @@ class FailuresExample {
             .asList()
             .awaitSuspending()
 
-        items shouldBeEqualTo (0..9).toList()
+        items shouldBeEqualTo (0..9).toFastList()
     }
 
     private fun safeGuardedOperation(i: Int): Uni<Int> {

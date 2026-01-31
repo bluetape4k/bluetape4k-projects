@@ -1,5 +1,6 @@
 package io.bluetape4k.javers.persistence.redis.repository
 
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.javers.codecs.JaversCodec
 import io.bluetape4k.javers.codecs.JaversCodecs
 import io.bluetape4k.javers.repository.AbstractCdoSnapshotRepository
@@ -51,7 +52,7 @@ class LettuceCdoSnapshotRepository(
     }
 
     override fun getKeys(): Set<String> {
-        return commands.hkeys(cacheSetKey).sorted().toSet()
+        return commands.hkeys(cacheSetKey).sorted().toUnifiedSet()
             .apply {
                 log.trace { "load keys. size=${size}" }
             }

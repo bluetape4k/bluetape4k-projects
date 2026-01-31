@@ -42,7 +42,7 @@ dependencies {
 
     // Collections
     api(Libs.eclipse_collections)
-    api(Libs.eclipse_collections_forkjoin)
+    implementation(Libs.eclipse_collections_forkjoin)
     testImplementation(Libs.eclipse_collections_testutils)
     compileOnly(Libs.pods4k_core)
     compileOnly(Libs.pods4k_transformations_to_standard_collections)

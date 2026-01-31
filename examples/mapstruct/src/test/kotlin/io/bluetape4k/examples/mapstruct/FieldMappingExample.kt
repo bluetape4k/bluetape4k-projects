@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.mapstruct
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainSame
@@ -34,7 +35,7 @@ class FieldMappingExample: AbstractMapstructTest() {
         customerDto.customerName shouldBeEqualTo customer.name
         customerDto.orders.shouldNotBeNull()
         customerDto.orders!!.size shouldBeEqualTo 2
-        val orders = customerDto.orders!!.toList()
+        val orders = customerDto.orders!!.toFastList()
 
         orders.map { it.name } shouldContainSame customer.orderItems!!.map { it.name }
         orders.map { it.quantity } shouldContainSame customer.orderItems!!.map { it.quantity }
@@ -60,7 +61,7 @@ class FieldMappingExample: AbstractMapstructTest() {
         customer.name shouldBeEqualTo customerDto.customerName
         customer.orderItems.shouldNotBeNull()
         customer.orderItems!!.size shouldBeEqualTo 2
-        val orderItems = customer.orderItems!!.toList()
+        val orderItems = customer.orderItems!!.toFastList()
 
         orderItems.map { it.name } shouldContainSame customerDto.orders!!.map { it.name }
         orderItems.map { it.quantity } shouldContainSame customerDto.orders!!.map { it.quantity }

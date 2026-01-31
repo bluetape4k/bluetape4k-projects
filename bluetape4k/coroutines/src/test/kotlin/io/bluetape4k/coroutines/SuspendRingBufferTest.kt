@@ -1,6 +1,8 @@
 package io.bluetape4k.coroutines
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.coroutines.flow.extensions.bufferedSliding
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -10,7 +12,6 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
@@ -52,7 +53,7 @@ class SuspendRingBufferTest {
             .run()
 
         // CoRingBuffer 의 크기가 16 이므로, 2바퀴 돌아서 17 ~ 32 까지의 숫자를 가진다.
-        buffer.toList().sortedBy { it } shouldBeEqualTo List(bufferSize) { (it + 1).toDouble() }
+        buffer.toFastList().sortedBy { it } shouldBeEqualTo List(bufferSize) { (it + 1).toDouble() }
     }
 
     @Test
@@ -96,7 +97,7 @@ class SuspendRingBufferTest {
                 i++
                 it.average()
             }
-            .toList()
+            .toFastList()
 
         avgs.forEachIndexed { index, avg ->
             log.debug { "avgs[$index]=$avg" }

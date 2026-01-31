@@ -8,7 +8,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
@@ -36,7 +35,7 @@ class MapParallelTest: AbstractFlowTest() {
                 it
             }
             .log("mapParallel")
-            .assertResultSet(ranges.toList())
+            .assertResultSet(ranges.toFastList())
     }
 
     @Test
@@ -52,7 +51,7 @@ class MapParallelTest: AbstractFlowTest() {
                 it
             }
             .log("mapParallel")
-            .assertResultSet(ranges.toList())
+            .assertResultSet(ranges.toFastList())
     }
 
     @Test

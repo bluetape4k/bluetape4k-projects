@@ -1,10 +1,10 @@
 package io.bluetape4k.coroutines.support
 
+import io.bluetape4k.coroutines.channels.toFastList
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.produce
-import kotlinx.coroutines.channels.toList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
@@ -31,7 +31,7 @@ class ChannelSupportTest {
         yield()
 
         val distinct = channel.distinctUntilChanged()
-        distinct.toList() shouldBeEqualTo listOf(1, 2, 3, 1)
+        distinct.toFastList() shouldBeEqualTo listOf(1, 2, 3, 1)
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -50,7 +50,7 @@ class ChannelSupportTest {
             a.toInt() == b.toInt()
         }
 
-        distinct.toList() shouldBeEqualTo listOf(1.1, 2.1, 3.1, 1.2)
+        distinct.toFastList() shouldBeEqualTo listOf(1.1, 2.1, 3.1, 1.2)
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -90,7 +90,7 @@ class ChannelSupportTest {
             send(6)
         }
 
-        concat(channel1, channel2).toList() shouldBeEqualTo listOf(1, 2, 3, 4, 5, 6)
+        concat(channel1, channel2).toFastList() shouldBeEqualTo listOf(1, 2, 3, 4, 5, 6)
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -107,7 +107,7 @@ class ChannelSupportTest {
             send(5)
         }
 
-        val debounced = channel.debounce(100.milliseconds).toList()
+        val debounced = channel.debounce(100.milliseconds).toFastList()
         debounced shouldBeEqualTo listOf(1, 3, 4, 5)
     }
 }

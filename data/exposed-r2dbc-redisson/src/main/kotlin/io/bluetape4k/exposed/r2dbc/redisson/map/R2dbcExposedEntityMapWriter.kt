@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.redisson.map
 
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.core.mapToLanguageType
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -8,7 +9,6 @@ import io.bluetape4k.logging.warn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
 import org.jetbrains.exposed.v1.core.autoIncColumnType
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.core.eq
@@ -74,7 +74,7 @@ open class R2dbcExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
                 entityTable.select(entityTable.id)
                     .where { entityTable.id inList map.keys }
                     .map { it[entityTable.id].value }
-                    .toList()
+                    .toFastList()
 
             val entitiesToUpdate = map.values.filter { it.id in existIds }
             entitiesToUpdate.forEach { entity ->

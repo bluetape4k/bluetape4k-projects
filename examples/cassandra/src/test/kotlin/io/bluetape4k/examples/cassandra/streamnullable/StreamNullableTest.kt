@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.cassandra.streamnullable
 
+import io.bluetape4k.collections.eclipse.stream.toFastList
 import io.bluetape4k.examples.cassandra.AbstractCassandraTest
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
@@ -47,6 +48,6 @@ class StreamNullableTest(
         val bart = repository.save(newPerson("4"))
 
         val stream = repository.findAll()
-        stream.toList().sorted() shouldBeEqualTo listOf(homer, bart)
+        stream.toFastList().sorted() shouldBeEqualTo listOf(homer, bart)
     }
 }

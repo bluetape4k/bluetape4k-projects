@@ -5,6 +5,7 @@ import com.mongodb.ReadPreference
 import com.mongodb.TransactionOptions
 import com.mongodb.WriteConcern
 import com.mongodb.client.MongoClients
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.amshove.kluent.shouldBeEqualTo
@@ -64,7 +65,7 @@ class MongoDBServerTest: AbstractContainerTest() {
             val result = customers.insertOne(document)
             result.insertedId.shouldNotBeNull()
 
-            val loaded = customers.find().toList()
+            val loaded = customers.find().toFastList()
             loaded shouldContain document
         }
     }

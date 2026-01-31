@@ -1,5 +1,7 @@
 package io.bluetape4k.exposed.r2dbc.redisson.repository
 
+import io.bluetape4k.collections.eclipse.toUnifiedSet
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.r2dbc.redisson.map.R2dbcEntityMapLoader
@@ -17,7 +19,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
@@ -177,7 +178,7 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
             .onEach {
                 cache.fastPutAsync(it.id, it).suspendAwait()
             }
-            .toList()
+            .toFastList()
     }
 
     /**
@@ -192,7 +193,7 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
             .chunked(batchSize)
             .flatMap { chunk ->
                 log.debug { "캐시에서 ${chunk.size} 개의 엔티티를 가져옵니다. chunk=${chunk}" }
-                cache.getAllAsync(chunk.toSet()).suspendAwait().values.filterNotNull()
+                cache.getAllAsync(chunk.toUnifiedSet()).suspendAwait().values.filterNotNull()
             }
     }
 }

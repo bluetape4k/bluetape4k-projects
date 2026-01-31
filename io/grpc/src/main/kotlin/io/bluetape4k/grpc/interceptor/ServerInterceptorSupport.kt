@@ -1,5 +1,6 @@
 package io.bluetape4k.grpc.interceptor
 
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.grpc.ForwardingServerCall
 import io.grpc.Metadata
 import io.grpc.ServerCall
@@ -21,7 +22,7 @@ import io.grpc.Status
  * @param keys 헤더의 키 목록
  */
 fun echoRequestHeadersInterceptor(vararg keys: Metadata.Key<*>): ServerInterceptor {
-    val keySet = keys.toSet()
+    val keySet = keys.toUnifiedSet()
 
     return object: ServerInterceptor {
         override fun <ReqT, RespT> interceptCall(
@@ -59,7 +60,7 @@ fun echoRequestHeadersInterceptor(vararg keys: Metadata.Key<*>): ServerIntercept
  * @param keys 요청 헤더에서 응답 헤더로 복사할 header keys
  */
 fun echoRequestMetadataInHeaders(vararg keys: Metadata.Key<*>): ServerInterceptor {
-    val keySet = keys.toSet()
+    val keySet = keys.toUnifiedSet()
     return object: ServerInterceptor {
         override fun <ReqT, RespT> interceptCall(
             call: ServerCall<ReqT, RespT>,
@@ -92,7 +93,7 @@ fun echoRequestMetadataInHeaders(vararg keys: Metadata.Key<*>): ServerIntercepto
  * @param keys 요청 헤더에서 응답 트레일러로 복사할 header keys
  */
 fun echoRequestMetadataInTrailers(vararg keys: Metadata.Key<*>): ServerInterceptor {
-    val keySet = keys.toSet()
+    val keySet = keys.toUnifiedSet()
     return object: ServerInterceptor {
         override fun <ReqT, RespT> interceptCall(
             call: ServerCall<ReqT, RespT>,

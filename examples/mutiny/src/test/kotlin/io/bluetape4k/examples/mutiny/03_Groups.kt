@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.mutiny
 
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
@@ -9,7 +10,6 @@ import io.bluetape4k.mutiny.uniOf
 import io.bluetape4k.mutiny.voidUni
 import io.smallrye.mutiny.Uni
 import io.smallrye.mutiny.coroutines.asFlow
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
@@ -85,7 +85,7 @@ class GroupsExamples {
             .onFailure().invoke { failure -> log.error { "onFailure: ${failure?.message}" } }
             .onCompletion().invoke { log.debug { "onCompletion" } }
             .onTermination().invoke { failure, completed -> log.debug { "onTermination: $failure, $completed" } }
-            .asFlow().toList()
+            .asFlow().toFastList()
 
         log.debug { "multi items: $items" }
         items shouldBeEqualTo listOf(1, 2, 3, 4, 5)

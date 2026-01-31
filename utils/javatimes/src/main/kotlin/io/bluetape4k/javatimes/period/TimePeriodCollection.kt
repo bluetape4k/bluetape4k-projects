@@ -44,17 +44,17 @@ open class TimePeriodCollection: TimePeriodContainer(), ITimePeriodCollection {
         periods.any { it.intersectWith(that) }
 
     override fun insidePeriods(target: ITimePeriod): List<ITimePeriod> =
-        periods.filter { it.hasInsideWith(target) }
+        periods.select { it.hasInsideWith(target) }
 
     override fun overlapPeriods(target: ITimePeriod): List<ITimePeriod> =
-        periods.filter { it.overlapWith(target) }
+        periods.select { it.overlapWith(target) }
 
     override fun intersectionPeriod(moment: ZonedDateTime): List<ITimePeriod> =
-        periods.filter { it.hasInsideWith(moment) }
+        periods.select { it.hasInsideWith(moment) }
 
     override fun intersectionPeriod(target: ITimePeriod): List<ITimePeriod> =
-        periods.filter { it.intersectWith(target) }
+        periods.select { it.intersectWith(target) }
 
     override fun relationPeriods(target: ITimePeriod, vararg relations: PeriodRelation): List<ITimePeriod> =
-        periods.filter { relations.contains(it.relationWith(target)) }
+        periods.select { relations.contains(it.relationWith(target)) }
 }

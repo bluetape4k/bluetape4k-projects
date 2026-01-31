@@ -1,5 +1,6 @@
 package io.bluetape4k.tokenizer.korean.utils
 
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.unsafeLazy
 import io.bluetape4k.tokenizer.korean.utils.Hangul.composeHangul
@@ -407,7 +408,7 @@ object KoreanConjugation: KLogging() {
                 emptyList()
             }
             expandedList.map { init + it } + irregularExpression
-        }.toSet()
+        }.toUnifiedSet()
 
         // Edge cases: these more likely to be a conjugation of an adjective than a verb
         return if (isAdjective) expanded else expanded - EDGE_CASE

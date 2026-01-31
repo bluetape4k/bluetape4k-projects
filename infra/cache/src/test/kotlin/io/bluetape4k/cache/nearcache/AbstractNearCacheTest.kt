@@ -1,6 +1,7 @@
 package io.bluetape4k.cache.nearcache
 
 import io.bluetape4k.cache.jcache.JCache
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.junit5.output.OutputCapture
@@ -190,7 +191,7 @@ abstract class AbstractNearCacheTest {
         map.keys.all { nearCache1[it] != null }.shouldBeTrue()
         map.keys.all { nearCache2[it] != null }.shouldBeTrue()
 
-        nearCache2.getAll(map.keys.toSet()) shouldContainSame map
+        nearCache2.getAll(map.keys.toUnifiedSet()) shouldContainSame map
     }
 
     @RepeatedTest(TEST_SIZE)

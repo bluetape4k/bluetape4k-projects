@@ -1,5 +1,6 @@
 package io.bluetape4k.concurrent.virtualthread
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -59,7 +60,7 @@ class VirtualFutureTest {
         }
 
         val virtualFutures = virtualFutureAll(tasks = tasks)
-        virtualFutures.await() shouldBeEqualTo (0 until taskSize).toList()
+        virtualFutures.await() shouldBeEqualTo (0 until taskSize).toFastList()
     }
 
     @EnabledOnJre(JRE.JAVA_21)

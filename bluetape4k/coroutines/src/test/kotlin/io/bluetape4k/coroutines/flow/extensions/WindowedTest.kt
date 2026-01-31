@@ -30,7 +30,7 @@ class WindowedTest: AbstractFlowTest() {
                     windowed.size shouldBeLessOrEqualTo windowedSize
                     windowedCount.incrementAndGet()
                 }
-                .toList()
+                .toFastList()
 
             windowedCount.get() shouldBeEqualTo 16
             windowed shouldHaveSize 16
@@ -50,7 +50,7 @@ class WindowedTest: AbstractFlowTest() {
                     windowed.size shouldBeLessOrEqualTo windowedSize
                     windowedCounter.incrementAndGet()
                 }
-                .toList()
+                .toFastList()
 
             windowedCounter.get() shouldBeEqualTo 20
             windowed shouldHaveSize 20
@@ -70,7 +70,7 @@ class WindowedTest: AbstractFlowTest() {
                     windowed.size shouldBeEqualTo windowedSize
                     windowedCounter.incrementAndGet()
                 }
-                .toList()
+                .toFastList()
 
             windowedCounter.get() shouldBeEqualTo 4
             windowed shouldHaveSize 4
@@ -94,7 +94,7 @@ class WindowedTest: AbstractFlowTest() {
                     items.size shouldBeLessOrEqualTo windowedSize
                     windowedCount.incrementAndGet()
                 }
-                .toList()
+                .toFastList()
 
             windowedCount.get() shouldBeEqualTo 16
             windowed shouldHaveSize 16
@@ -115,7 +115,7 @@ class WindowedTest: AbstractFlowTest() {
                     items.size shouldBeLessOrEqualTo windowedSize
                     windowedCount.incrementAndGet()
                 }
-                .toList()
+                .toFastList()
 
             windowedCount.get() shouldBeEqualTo 20
             windowed shouldHaveSize 20
@@ -136,7 +136,7 @@ class WindowedTest: AbstractFlowTest() {
                     items.size shouldBeEqualTo windowedSize
                     windowedCount.incrementAndGet()
                 }
-                .toList()
+                .toFastList()
 
             windowedCount.get() shouldBeEqualTo 4
             windowed shouldHaveSize 4

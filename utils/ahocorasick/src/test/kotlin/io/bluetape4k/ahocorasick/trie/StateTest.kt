@@ -1,5 +1,6 @@
 package io.bluetape4k.ahocorasick.trie
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
@@ -35,7 +36,7 @@ class StateTest {
         rootState.addEmit("def")
         rootState.addEmit("abc")
 
-        rootState.emit().toList() shouldBeEqualTo listOf("abc", "def", "ghi")
+        rootState.emit().toFastList() shouldBeEqualTo listOf("abc", "def", "ghi")
     }
 
     @Test
@@ -43,6 +44,6 @@ class StateTest {
         val rootState = State()
         rootState.addEmits("ghi", "def", "abc")
 
-        rootState.emit().toList() shouldBeEqualTo listOf("abc", "def", "ghi")
+        rootState.emit().toFastList() shouldBeEqualTo listOf("abc", "def", "ghi")
     }
 }

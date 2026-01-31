@@ -1,5 +1,6 @@
 package io.bluetape4k.javatimes.period.calendars
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.javatimes.MaxPeriodTime
 import io.bluetape4k.javatimes.MinPeriodTime
 import io.bluetape4k.javatimes.Weekdays
@@ -33,9 +34,9 @@ open class CalendarDateAdd private constructor(): DateAdd() {
     }
 
     val calendar: TimeCalendar = TimeCalendar.EmptyOffset
-    val weekDays: MutableList<DayOfWeek> = mutableListOf()
-    val workingHours: MutableList<HourRangeInDay> = mutableListOf()
-    val workingDayOfWeekHours: MutableList<DayOfWeekHourRange> = mutableListOf()
+    val weekDays = fastListOf<DayOfWeek>()
+    val workingHours = fastListOf<HourRangeInDay>()
+    val workingDayOfWeekHours = fastListOf<DayOfWeekHourRange>()
 
 //    override var includePeriods: TimePeriodCollection = TimePeriodCollection.EMPTY
 //        get() = throw UnsupportedOperationException("Does not support IncludePeriods")

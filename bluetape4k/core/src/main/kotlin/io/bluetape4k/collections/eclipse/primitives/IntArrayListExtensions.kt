@@ -5,6 +5,7 @@ import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.support.asInt
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.eclipse.collections.api.IntIterable
+import org.eclipse.collections.impl.list.mutable.FastList
 import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList
 
 fun IntArray.toIntArrayList(): IntArrayList = IntArrayList.newListWith(*this)
@@ -67,3 +68,7 @@ fun IntIterable.maxOrNull() = if (isEmpty) null else max()
 fun IntIterable.minOrNull() = if (isEmpty) null else min()
 
 fun IntIterable.product(): Double = asIterable().fold(1.0) { acc, i -> acc * i }
+
+fun IntArray.toFastList(): FastList<Int> = asIterable().toFastList()
+
+//

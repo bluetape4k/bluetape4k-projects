@@ -1,5 +1,6 @@
 package io.bluetape4k.collections
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
@@ -14,7 +15,7 @@ class ProgressionSupportTest {
     @Test
     fun `create CharProgression`() {
         val chars = charProgressionOf('a', 'z')
-        chars.toList() shouldHaveSize 26
+        chars.toFastList() shouldHaveSize 26
     }
 
     @Nested
@@ -35,7 +36,7 @@ class ProgressionSupportTest {
         fun `chunked progression`() {
             val ints = intProgressionOf(1, 10, 1)
             ints.size() shouldBeEqualTo 10
-            val chunked = ints.chunked(2).toList()
+            val chunked = ints.chunked(2).toFastList()
             chunked.size shouldBeEqualTo 5
             chunked.forEach {
                 log.debug { "group=$it" }
@@ -45,7 +46,7 @@ class ProgressionSupportTest {
         @Test
         fun `partitioning evenly`() {
             val ints = intProgressionOf(1, 10, 1)
-            val partitioned = ints.partitioning(2).toList()
+            val partitioned = ints.partitioning(2).toFastList()
             partitioned.size shouldBeEqualTo 2
             partitioned.forEach {
                 log.debug { "progression=$it" }
@@ -57,7 +58,7 @@ class ProgressionSupportTest {
         @Test
         fun `partitioning oddly`() {
             val ints = intProgressionOf(1, 10, 1)
-            val partitioned = ints.partitioning(3).toList()
+            val partitioned = ints.partitioning(3).toFastList()
             partitioned.size shouldBeEqualTo 3
             partitioned.forEach {
                 log.debug { "progression=$it" }
@@ -70,7 +71,7 @@ class ProgressionSupportTest {
         @Test
         fun `partitioning reversed`() {
             val ints = intProgressionOf(10, 1, -1)
-            val partitioned = ints.partitioning(3).toList()
+            val partitioned = ints.partitioning(3).toFastList()
             partitioned.size shouldBeEqualTo 3
             partitioned.forEach {
                 log.debug { "progression=$it" }
@@ -99,7 +100,7 @@ class ProgressionSupportTest {
         fun `chunked progression`() {
             val longs = longProgressionOf(1, 10, 1)
             longs.size() shouldBeEqualTo 10
-            val chunked = longs.chunked(2).toList()
+            val chunked = longs.chunked(2).toFastList()
             chunked.size shouldBeEqualTo 5
             chunked.forEach {
                 log.debug { "group=$it" }
@@ -109,7 +110,7 @@ class ProgressionSupportTest {
         @Test
         fun `partitioning evenly`() {
             val longs = longProgressionOf(1, 10, 1)
-            val partitioned = longs.partitioning(2).toList()
+            val partitioned = longs.partitioning(2).toFastList()
             partitioned.size shouldBeEqualTo 2
             partitioned.forEach {
                 log.debug { "progression=$it" }
@@ -121,7 +122,7 @@ class ProgressionSupportTest {
         @Test
         fun `partitioning oddly`() {
             val longs = longProgressionOf(1, 10, 1)
-            val partitioned = longs.partitioning(3).toList()
+            val partitioned = longs.partitioning(3).toFastList()
             partitioned.size shouldBeEqualTo 3
             partitioned.forEach {
                 log.debug { "progression=$it" }
@@ -134,7 +135,7 @@ class ProgressionSupportTest {
         @Test
         fun `partitioning reversed`() {
             val longs = longProgressionOf(10, 1, -1)
-            val partitioned = longs.partitioning(3).toList()
+            val partitioned = longs.partitioning(3).toFastList()
             partitioned.size shouldBeEqualTo 3
             partitioned.forEach {
                 log.debug { "progression=$it" }

@@ -1,5 +1,6 @@
 package io.bluetape4k.r2dbc.core
 
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.r2dbc.AbstractR2dbcTest
@@ -7,7 +8,6 @@ import io.bluetape4k.r2dbc.model.User
 import io.bluetape4k.r2dbc.query.query
 import io.bluetape4k.r2dbc.support.string
 import io.bluetape4k.r2dbc.support.stringOrNull
-import kotlinx.coroutines.flow.toList
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
@@ -45,15 +45,17 @@ class ExecuteTest: AbstractR2dbcTest() {
 
     @Test
     fun `select values with entity class`() = runSuspendIO {
-        val users = client.execute<User>("SELECT * FROM users").fetch().flow().toList()
+        val users = client.execute<User>("SELECT * FROM users")
+            .fetch().flow().toFastList()
         users shouldHaveSize 1
 
-        val nonUsers = client.execute<User>("SELECT * FROM users WHERE false").fetch().flow().toList()
+        val nonUsers = client.execute<User>("SELECT * FROM users WHERE false")
+            .fetch().flow().toFastList()
         nonUsers.shouldBeEmpty()
 
         val smiths = client.execute<User>("SELECT * FROM users WHERE username=:username")
             .bind("username", "jsmith")
-            .fetch().flow().toList()
+            .fetch().flow().toFastList()
         smiths shouldHaveSize 1
 
         val firstSmith = client.execute<User>("SELECT * FROM users WHERE username=:username limit 1")
@@ -69,7 +71,7 @@ class ExecuteTest: AbstractR2dbcTest() {
 
         val smiths2 = client.execute<User>("SELECT * FROM users WHERE username = ?")
             .bind(0, "jsmith")
-            .fetch().flow().toList()
+            .fetch().flow().toFastList()
         smiths2 shouldHaveSize 1
     }
 
@@ -82,17 +84,17 @@ class ExecuteTest: AbstractR2dbcTest() {
     fun `select values with indexed parameters`() = runSuspendIO {
         val smiths = client.execute<User>("SELECT * FROM users WHERE username = :username")
             .bind(0, "jsmith")
-            .fetch().flow().toList()
+            .fetch().flow().toFastList()
         smiths shouldHaveSize 1
 
         val smiths2 = client.execute<User>("SELECT * FROM users WHERE username = $1")
             .bind(0, "jsmith")
-            .fetch().flow().toList()
+            .fetch().flow().toFastList()
         smiths2 shouldHaveSize 1
 
         val smiths3 = client.execute<User>("SELECT * FROM users WHERE username = $1")
             .bind("$1", "jsmith")
-            .fetch().flow().toList()
+            .fetch().flow().toFastList()
         smiths3 shouldHaveSize 1
     }
 
@@ -109,7 +111,7 @@ class ExecuteTest: AbstractR2dbcTest() {
                 parameter("name", "John Smith")
             }
         }
-        val users = client.execute<User>(query).flow().toList()
+        val users = client.execute<User>(query).flow().toFastList()
         users shouldHaveSize 1
 
         val emptyQuery = query {
@@ -123,7 +125,7 @@ class ExecuteTest: AbstractR2dbcTest() {
                 parameter("name", "John Bond")   // wrong value
             }
         }
-        val emptyUsers = client.execute<User>(emptyQuery).flow().toList()
+        val emptyUsers = client.execute<User>(emptyQuery).flow().toFastList()
         emptyUsers.shouldBeEmpty()
     }
 }

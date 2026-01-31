@@ -1,5 +1,6 @@
 package io.bluetape4k.collections.graph
 
+import io.bluetape4k.collections.eclipse.toFastList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.filterNot
@@ -14,7 +15,7 @@ object Graph {
         source: T,
         adjacents: (T) -> Iterable<T>,
     ): List<T> {
-        return traverseGraph(order, source) { adjacents(it).asSequence() }.toList()
+        return traverseGraph(order, source) { adjacents(it).asSequence() }.toFastList()
     }
 
     fun <T: Comparable<T>> searchAsSequence(

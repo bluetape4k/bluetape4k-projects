@@ -1,5 +1,6 @@
 package io.bluetape4k.math
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.javatimes.days
 import io.bluetape4k.javatimes.toEpochDay
 import io.bluetape4k.javatimes.toEpochMillis
@@ -84,6 +85,6 @@ class AggregationTest {
         )
 
         log.debug { "grouping=$grouping" }
-        grouping.values.toList() shouldContainSame listOf(90, 120, 180)
+        grouping.values.toFastList() shouldContainSame listOf(90, 120, 180)
     }
 }

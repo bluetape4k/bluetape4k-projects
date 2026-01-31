@@ -1,6 +1,7 @@
 package io.bluetape4k.coroutines.flow.extensions.subject
 
 import io.bluetape4k.coroutines.flow.extensions.log
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.coroutines.tests.withSingleThread
 import io.bluetape4k.junit5.coroutines.runSuspendTest
@@ -9,7 +10,6 @@ import io.bluetape4k.logging.trace
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeEmpty
@@ -35,7 +35,7 @@ class UnicastSubjectTest {
         }
         us.complete()
 
-        val result = us.log("#1").toList()
+        val result = us.log("#1").toFastList()
 
         result shouldBeEqualTo expectedList
         us.collectorCancelled.shouldBeTrue()
@@ -53,7 +53,7 @@ class UnicastSubjectTest {
         val result = us
             .catch { it shouldBeInstanceOf RuntimeException::class }
             .log("#1")
-            .toList()
+            .toFastList()
 
         result shouldBeEqualTo listOf(0, 1, 2, 3, 4, 6)
         us.collectorCancelled.shouldBeTrue()
@@ -67,7 +67,7 @@ class UnicastSubjectTest {
         }
         us.complete()
 
-        val result = us.log("#1").toList()
+        val result = us.log("#1").toFastList()
         result shouldBeEqualTo expectedList
 
         // Unicast 는 replay 를 할 수 없습니다.
@@ -85,12 +85,12 @@ class UnicastSubjectTest {
         }
         us.complete()
 
-        val result = us.take(3).log("#1").toList()
+        val result = us.take(3).log("#1").toFastList()
         result shouldBeEqualTo listOf(0, 1, 2)
         us.collectorCancelled.shouldBeTrue()
 
         assertFailsWith<IllegalStateException> {
-            us.take(3).log("#2").toList().shouldBeEmpty()
+            us.take(3).log("#2").toFastList().shouldBeEmpty()
         }
     }
 
@@ -110,11 +110,11 @@ class UnicastSubjectTest {
 
             yield()
 
-            val result = us.log("#1").toList()
+            val result = us.log("#1").toFastList()
             result shouldBeEqualTo expectedList
 
             assertFailsWith<IllegalStateException> {
-                us.log("#2").toList().shouldBeEmpty()
+                us.log("#2").toFastList().shouldBeEmpty()
             }
         }
     }

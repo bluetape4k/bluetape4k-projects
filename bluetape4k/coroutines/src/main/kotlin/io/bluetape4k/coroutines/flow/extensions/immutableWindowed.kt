@@ -2,8 +2,8 @@ package io.bluetape4k.coroutines.flow.extensions
 
 import com.danrusu.pods4k.immutableArrays.ImmutableArray
 import com.danrusu.pods4k.immutableArrays.toImmutableArray
-import io.bluetape4k.collections.eclipse.asFastList
 import io.bluetape4k.collections.eclipse.fastListOf
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.support.requireGt
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
@@ -47,14 +47,14 @@ private fun <T> Flow<T>.immutableWindowedInternal(
         elements.add(elem)
         if (counter.incrementAndGet() == size) {
             send(elements.toImmutableArray())
-            elements = elements.drop(step).asFastList()
+            elements = elements.drop(step).toFastList()
             counter.addAndGet(-step)
         }
     }
     if (partialWindows) {
         while (counter.get() > 0) {
             send(elements.toImmutableArray())
-            elements = elements.drop(step).asFastList()
+            elements = elements.drop(step).toFastList()
             counter.addAndGet(-step)
         }
     }

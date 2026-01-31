@@ -1,5 +1,6 @@
 package io.bluetape4k.resilience4j.timelimiter
 
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.resilience4j.SuspendHelloWorldService
@@ -73,7 +74,7 @@ class TimeLimiterFlowTest {
                 helloWorldService.await()
             }
                 .timeLimiter(timelimiter)
-                .toList()
+                .toFastList()
         }
 
         results.size shouldBeEqualTo 0

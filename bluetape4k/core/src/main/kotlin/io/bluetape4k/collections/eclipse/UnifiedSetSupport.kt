@@ -14,7 +14,10 @@ inline fun <T> unifiedSet(size: Int, initializer: (Int) -> T): UnifiedSet<T> =
         }
     }
 
-fun <T> unifiedSetOf(vararg elements: T): UnifiedSet<T> = UnifiedSet.newSetWith<T>(*elements)
+fun <T> unifiedSetOf(vararg elements: T): UnifiedSet<T> =
+    if (elements.isEmpty()) UnifiedSet.newSet()
+    else UnifiedSet.newSetWith<T>(*elements)
+
 fun <T> unifiedSetOf(size: Int): UnifiedSet<T> = UnifiedSet.newSet<T>(size)
 
 fun <T> Iterable<T>.toUnifiedSet(): UnifiedSet<T> = UnifiedSet.newSet(this)

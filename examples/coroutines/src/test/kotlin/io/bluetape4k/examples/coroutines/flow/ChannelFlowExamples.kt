@@ -1,6 +1,7 @@
 package io.bluetape4k.examples.coroutines.flow
 
 import io.bluetape4k.coroutines.flow.extensions.log
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
@@ -12,7 +13,6 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
@@ -47,7 +47,7 @@ class ChannelFlowExamples {
             log.debug { "🦀Fetching page $page" }
             val users = api.takePage(page++)
             emitAll(users)
-        } while (users.toList().isNotEmpty())
+        } while (users.toFastList().isNotEmpty())
     }
 
     /**

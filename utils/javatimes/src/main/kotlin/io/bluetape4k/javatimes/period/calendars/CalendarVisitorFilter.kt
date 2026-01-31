@@ -2,6 +2,9 @@ package io.bluetape4k.javatimes.period.calendars
 
 import io.bluetape4k.AbstractValueObject
 import io.bluetape4k.ToStringBuilder
+import io.bluetape4k.collections.eclipse.fastListOf
+import io.bluetape4k.collections.eclipse.toUnifiedSet
+import io.bluetape4k.collections.eclipse.unifiedSetOf
 import io.bluetape4k.javatimes.Weekdays
 import io.bluetape4k.javatimes.Weekends
 import io.bluetape4k.javatimes.period.ITimePeriodCollection
@@ -17,17 +20,17 @@ open class CalendarVisitorFilter: AbstractValueObject(), ICalendarVisitorFilter,
 
     override val excludePeriods: ITimePeriodCollection = TimePeriodCollection()
 
-    override val years = mutableListOf<Int>()
+    override val years = fastListOf<Int>()
 
-    override val monthOfYears = mutableListOf<Int>()
+    override val monthOfYears = fastListOf<Int>()
 
-    override val dayOfMonths = mutableListOf<Int>()
+    override val dayOfMonths = fastListOf<Int>()
 
-    override val dayOfWeeks: MutableSet<DayOfWeek> = mutableSetOf()
+    override val dayOfWeeks: MutableSet<DayOfWeek> = unifiedSetOf()
 
-    override val hourOfDays = mutableListOf<Int>()
+    override val hourOfDays = fastListOf<Int>()
 
-    override val minuteOfHours = mutableListOf<Int>()
+    override val minuteOfHours = fastListOf<Int>()
 
     fun addYears(vararg years: Int) {
         this.years.addAll(years.asList())
@@ -58,11 +61,11 @@ open class CalendarVisitorFilter: AbstractValueObject(), ICalendarVisitorFilter,
     }
 
     override fun addWorkingWeekdays() {
-        addDayOfWeeks(Weekdays.toSet())
+        addDayOfWeeks(Weekdays.toUnifiedSet())
     }
 
     override fun addWorkingWeekends() {
-        addDayOfWeeks(Weekends.toSet())
+        addDayOfWeeks(Weekends.toUnifiedSet())
     }
 
     override fun addDayOfWeeks(dayOfWeeks: Set<DayOfWeek>) {

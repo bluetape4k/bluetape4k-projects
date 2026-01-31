@@ -1,5 +1,6 @@
 package io.bluetape4k.tokenizer.korean.utils
 
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.tokenizer.korean.tokenizer.KoreanToken
 import io.bluetape4k.tokenizer.korean.utils.Hangul.composeHangul
@@ -63,8 +64,8 @@ object KoreanSubstantive: KLogging() {
         }
     }
 
-    private val NUMBER_CHARS = "일이삼사오육칠팔구천백십해경조억만".map { it.code }.toSet()
-    private val NUMBER_LAST_CHARS = "일이삼사오육칠팔구천백십해경조억만원배분초".map { it.code }.toSet()
+    private val NUMBER_CHARS = "일이삼사오육칠팔구천백십해경조억만".map { it.code }.toUnifiedSet()
+    private val NUMBER_LAST_CHARS = "일이삼사오육칠팔구천백십해경조억만원배분초".map { it.code }.toUnifiedSet()
 
     /**
      * 한글 숫자 텍스트인지 확인합니다.

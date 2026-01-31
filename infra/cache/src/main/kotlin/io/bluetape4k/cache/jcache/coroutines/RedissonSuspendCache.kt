@@ -2,13 +2,13 @@ package io.bluetape4k.cache.jcache.coroutines
 
 import io.bluetape4k.cache.jcache.JCaching
 import io.bluetape4k.cache.jcache.getDefaultJCacheConfiguration
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.requireNotBlank
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.future.asDeferred
 import kotlinx.coroutines.joinAll
 import org.redisson.api.RedissonClient
@@ -122,7 +122,7 @@ class RedissonSuspendCache<K: Any, V: Any>(private val cache: JCache<K, V>): Sus
     override suspend fun putAllFlow(entries: Flow<Pair<K, V>>) {
         entries
             .map { cache.putAsync(it.first, it.second).asDeferred() }
-            .toList()
+            .toFastList()
             .joinAll()
     }
 

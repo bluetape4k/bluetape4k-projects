@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import io.bluetape4k.AbstractValueObject
 import io.bluetape4k.ToStringBuilder
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.support.hashOf
 import net.datafaker.Faker
 import java.io.Serializable
@@ -19,7 +20,7 @@ data class Container(val boxes: List<Box>): Serializable
 data class Point(val x: Int, val y: Int): Serializable
 
 data class Points(val p: List<Point>): Serializable {
-    constructor(vararg points: Point): this(points.toList())
+    constructor(vararg points: Point): this(points.toFastList())
 }
 
 @JsonPropertyOrder(value = ["topLeft", "bottomRight"])

@@ -1,5 +1,6 @@
 package io.bluetape4k.cache.jcache
 
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireNotBlank
@@ -244,7 +245,7 @@ fun <K, V> JCache<K, V>.cacheLoader(): CacheLoader<K, V> {
 
         override fun loadAll(keys: MutableIterable<K>): Map<K, V> {
             log.debug { "Read through loadAll cache entries. keys=${keys.joinToString()}" }
-            return getAll(keys.toSet())
+            return getAll(keys.toUnifiedSet())
         }
     }
 }
@@ -273,7 +274,7 @@ fun <K, V> JCache<K, V>.cacheWriter(): CacheWriter<K, V> {
 
         override fun deleteAll(keys: MutableCollection<*>) {
             log.debug { "Write through deleteAll cache entries. keys=$keys at $this" }
-            removeAll(keys.mapNotNull { it as? K }.toSet())
+            removeAll(keys.mapNotNull { it as? K }.toUnifiedSet())
         }
     }
 }

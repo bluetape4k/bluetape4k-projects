@@ -4,7 +4,6 @@ import app.cash.turbine.test
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
@@ -16,7 +15,7 @@ class CastTest: AbstractFlowTest() {
 
     @Test
     fun `cast success`() = runTest {
-        flowOf<Any?>(1, 2, 3).cast<Int>().toList() shouldBeEqualTo listOf(1, 2, 3)
+        flowOf<Any?>(1, 2, 3).cast<Int>().toFastList() shouldBeEqualTo listOf(1, 2, 3)
 
         flowOf<Any?>(1, 2, 3)
             .cast<Int>()
@@ -38,7 +37,7 @@ class CastTest: AbstractFlowTest() {
     @Test
     fun `castNotNull success`() = runTest {
         val flow = flowOf(1, 2, null, 3)
-        flow.castNotNull<Int>().toList() shouldBeEqualTo listOf(1, 2, 3)
+        flow.castNotNull<Int>().toFastList() shouldBeEqualTo listOf(1, 2, 3)
     }
 
     @Test

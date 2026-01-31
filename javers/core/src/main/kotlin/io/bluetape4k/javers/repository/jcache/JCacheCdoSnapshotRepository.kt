@@ -2,6 +2,7 @@ package io.bluetape4k.javers.repository.jcache
 
 import io.bluetape4k.cache.jcache.getOrCreate
 import io.bluetape4k.cache.jcache.jcacheConfiguration
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.javers.codecs.JaversCodec
 import io.bluetape4k.javers.codecs.JaversCodecs
 import io.bluetape4k.javers.repository.AbstractCdoSnapshotRepository
@@ -51,7 +52,7 @@ class JCacheCdoSnapshotRepository(
     }
 
     override fun getKeys(): Set<String> {
-        return snapshotCache.map { it.key }.toSet()
+        return snapshotCache.map { it.key }.toUnifiedSet()
     }
 
     override fun contains(globalIdValue: String): Boolean {

@@ -1,5 +1,6 @@
 package io.bluetape4k.jdbc.sql
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
@@ -99,7 +100,7 @@ class JdbcTemplateTest: AbstractJdbcSqlTest() {
             .query(
                 SELECT_ID_BY_DESCRIPTION,
                 PreparedStatementSetter { ps -> ps.arguments { string[1] = EXPECTED_DESC } },
-                ResultSetExtractor { rs -> rs.extract { int["id"] }.toList() }
+                ResultSetExtractor { rs -> rs.extract { int["id"] }.toFastList() }
             )
 
         ids?.firstOrNull() shouldBeEqualTo 1

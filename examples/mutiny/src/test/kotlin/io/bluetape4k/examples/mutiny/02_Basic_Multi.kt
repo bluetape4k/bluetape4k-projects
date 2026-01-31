@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.mutiny
 
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.mutiny.deferUni
@@ -130,7 +131,7 @@ class MultiBasicExamples {
         service.shutdown()
 
         captures shouldHaveSize 5
-        captures.toSet() shouldBeEqualTo setOf("tick")
+        captures.toUnifiedSet() shouldBeEqualTo setOf("tick")
     }
 
     @Test

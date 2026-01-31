@@ -1,5 +1,6 @@
 package io.bluetape4k.mutiny
 
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
@@ -24,7 +25,7 @@ class UniSupportTest {
         val uni = uniOf { Random.nextInt() }
         val items = List(5) { uni.await().indefinitely() }
 
-        items.toSet() shouldHaveSize 5
+        items.toUnifiedSet() shouldHaveSize 5
         log.debug { "Items=${items.joinToString()}" }
     }
 

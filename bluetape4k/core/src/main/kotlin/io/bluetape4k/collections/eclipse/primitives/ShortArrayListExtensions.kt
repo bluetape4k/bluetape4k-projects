@@ -5,6 +5,7 @@ import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.support.asShort
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.eclipse.collections.api.ShortIterable
+import org.eclipse.collections.impl.list.mutable.FastList
 import org.eclipse.collections.impl.list.mutable.primitive.ShortArrayList
 
 fun ShortArray.toShortArrayList(): ShortArrayList = ShortArrayList.newListWith(*this)
@@ -67,3 +68,5 @@ fun ShortIterable.maxOrNull() = if (isEmpty) null else max()
 fun ShortIterable.minOrNull() = if (isEmpty) null else min()
 
 fun ShortIterable.product(): Double = asIterable().fold(1.0) { acc, i -> acc * i }
+
+fun ShortArray.toFastList(): FastList<Short> = asIterable().toFastList()

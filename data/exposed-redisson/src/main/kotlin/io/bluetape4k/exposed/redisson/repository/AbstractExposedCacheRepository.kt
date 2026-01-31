@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.redisson.repository
 
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.redisson.map.EntityMapLoader
 import io.bluetape4k.exposed.redisson.map.EntityMapWriter
@@ -177,7 +178,7 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
         return transaction {
             chunkedIds.flatMap { chunk ->
                 log.debug { "캐시에서 ${chunk.size}개의 엔티티를 가져옵니다. chunk=$chunk" }
-                cache.getAll(chunk.toSet()).values.filterNotNull()
+                cache.getAll(chunk.toUnifiedSet()).values.filterNotNull()
             }
         }
     }

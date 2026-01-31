@@ -1,5 +1,6 @@
 package io.bluetape4k.math.commons
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import org.amshove.kluent.shouldBeEqualTo
@@ -26,7 +27,7 @@ class MovingAverageTest {
     @Test
     fun `standard moving average with same value`() {
         val onlyOne = List(10) { 1.0 }
-        val avgs = onlyOne.asSequence().standardMovingAverage().toList()
+        val avgs = onlyOne.asSequence().standardMovingAverage().toFastList()
         log.trace { "mg size=${avgs.size}, $avgs" }
         avgs.distinct() shouldBeEqualTo listOf(1.0)
     }
@@ -37,7 +38,7 @@ class MovingAverageTest {
         val blockSize = 4
 
         val onlyOne = List(total) { it.toDouble() }
-        val avgs = onlyOne.asSequence().standardMovingAverage(blockSize).toList()
+        val avgs = onlyOne.asSequence().standardMovingAverage(blockSize).toFastList()
         log.trace { "mg size=${avgs.size}, $avgs" }
 
         avgs.size shouldBeEqualTo (total - blockSize + 1)
@@ -60,7 +61,7 @@ class MovingAverageTest {
     @Test
     fun `exponential moving average with same value`() {
         val onlyOne = List(10) { 1.0 }
-        val avgs = onlyOne.exponentialMovingAverage().toList()
+        val avgs = onlyOne.exponentialMovingAverage().toFastList()
         log.trace { "avgs=$avgs" }
         avgs.sorted() shouldBeEqualTo avgs
     }
@@ -71,7 +72,7 @@ class MovingAverageTest {
         val blockSize = 4
 
         val onlyOne = List(total) { it.toDouble() }
-        val avgs = onlyOne.exponentialMovingAverage(blockSize).toList()
+        val avgs = onlyOne.exponentialMovingAverage(blockSize).toFastList()
         log.trace { "mg size=${avgs.size}, $avgs" }
 
         avgs.size shouldBeEqualTo (total - blockSize + 1)
@@ -81,7 +82,7 @@ class MovingAverageTest {
     @Test
     fun `cumulative moving average with same value`() {
         val onlyOne = List(10) { 1.0 }
-        val avgs = onlyOne.cumulativeMovingAverage().toList()
+        val avgs = onlyOne.cumulativeMovingAverage().toFastList()
         log.trace { "mg size=${avgs.size}, $avgs" }
         avgs.distinct() shouldBeEqualTo listOf(1.0)
     }
@@ -91,7 +92,7 @@ class MovingAverageTest {
         val total = 100
 
         val onlyOne = List(total) { it.toDouble() }
-        val avgs = onlyOne.cumulativeMovingAverage().toList()
+        val avgs = onlyOne.cumulativeMovingAverage().toFastList()
         log.trace { "mg size=${avgs.size}, $avgs" }
 
         avgs.size shouldBeEqualTo total
@@ -114,7 +115,7 @@ class MovingAverageTest {
     @Test
     fun `weighted moving average with same value`() {
         val onlyOne = List(10) { 1.0 }
-        val avgs = onlyOne.weightedMovingAverage { 1.0 }.toList()
+        val avgs = onlyOne.weightedMovingAverage { 1.0 }.toFastList()
         log.trace { "mg size=${avgs.size}, $avgs" }
         avgs.distinct() shouldBeEqualTo listOf(1.0)
     }
@@ -125,7 +126,7 @@ class MovingAverageTest {
         val blockSize = 4
 
         val onlyOne = List(total) { it.toDouble() }
-        val avgs = onlyOne.weightedMovingAverage(blockSize) { 1.0 }.toList()
+        val avgs = onlyOne.weightedMovingAverage(blockSize) { 1.0 }.toFastList()
         log.trace { "mg size=${avgs.size}, $avgs" }
 
         avgs.size shouldBeEqualTo (total - blockSize + 1)

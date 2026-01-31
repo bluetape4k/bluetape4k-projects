@@ -1,6 +1,7 @@
 package io.bluetape4k.csv
 
 import com.univocity.parsers.common.record.Record
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.csv.model.ProductType
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
@@ -49,7 +50,7 @@ abstract class AbstractRecordReaderTest {
 
             records.forEach { record ->
                 log.trace { "product type record=$record" }
-                val row = record.values.toList()
+                val row = record.values.toFastList()
                 row.shouldNotBeEmpty()
                 row.size shouldBeGreaterThan 1
                 row[0]!!.shouldNotBeBlank()
@@ -79,7 +80,7 @@ abstract class AbstractRecordReaderTest {
 
             records.forEach { record ->
                 log.trace { "extra words record=$record" }
-                val row = record.values.toList()
+                val row = record.values.toFastList()
                 row.shouldNotBeEmpty()
                 row.size shouldBeGreaterThan 1
                 row[0]!!.shouldNotBeBlank()

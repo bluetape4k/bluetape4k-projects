@@ -1,6 +1,7 @@
 package io.bluetape4k.cache.nearcache.coroutines
 
 import io.bluetape4k.cache.jcache.coroutines.SuspendCache
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.trace
@@ -71,7 +72,7 @@ class BackSuspendCacheEntryEventListener<K: Any, V: Any>(
         if (!targetCache.isClosed()) {
             runBlocking(Dispatchers.IO) {
                 runCatching {
-                    targetCache.removeAll(events.map { it.key }.toSet())
+                    targetCache.removeAll(events.map { it.key }.toUnifiedSet())
                 }.onFailure { e ->
                     log.error(e) { "Fail to remove all removed cache entries." }
                 }
@@ -91,7 +92,7 @@ class BackSuspendCacheEntryEventListener<K: Any, V: Any>(
         if (!targetCache.isClosed()) {
             runBlocking(Dispatchers.IO) {
                 runCatching {
-                    targetCache.removeAll(events.map { it.key }.toSet())
+                    targetCache.removeAll(events.map { it.key }.toUnifiedSet())
                 }.onFailure { e ->
                     log.error(e) { "Fail to remove all expired cache entries." }
                 }

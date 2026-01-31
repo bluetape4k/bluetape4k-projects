@@ -5,6 +5,7 @@ import com.danrusu.pods4k.immutableArrays.ImmutableIntArray
 import com.danrusu.pods4k.immutableArrays.flatten
 import com.danrusu.pods4k.immutableArrays.immutableArrayOf
 import com.danrusu.pods4k.immutableArrays.toImmutableArray
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
@@ -34,6 +35,6 @@ class SequencesTest {
         ).flatten()
         strs shouldBeInstanceOf Sequence::class
         strs.toImmutableArray() shouldBeEqualTo immutableArrayOf("a", "bb", "ccc", "dddd")
-        strs.toList() shouldBeEqualTo listOf("a", "bb", "ccc", "dddd")
+        strs.toFastList() shouldBeEqualTo listOf("a", "bb", "ccc", "dddd")
     }
 }

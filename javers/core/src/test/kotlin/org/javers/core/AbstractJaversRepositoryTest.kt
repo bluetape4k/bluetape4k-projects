@@ -1,5 +1,6 @@
 package org.javers.core
 
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.javers.commit.SnowflakeCommitIdGenerator
 import io.bluetape4k.javers.diff.filterByType
 import io.bluetape4k.javers.latestSnapshotOrNull
@@ -16,6 +17,7 @@ import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeLessOrEqualTo
 import org.amshove.kluent.shouldContainSame
+import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeNull
 import org.javers.common.date.DateProvider
 import org.javers.core.commit.CommitMetadata
@@ -494,7 +496,7 @@ abstract class AbstractJaversRepositoryTest {
         val javers = JaversBuilder.javers().registerJaversRepository(javersRepo).build()
         val snapshots = javers.findSnapshots(queryAnyDomainObject())
 
-        snapshots.map { it.commitId }.toSet().size shouldBeEqualTo threads
+        snapshots.map { it.commitId }.toUnifiedSet() shouldHaveSize threads
     }
 
     @Test

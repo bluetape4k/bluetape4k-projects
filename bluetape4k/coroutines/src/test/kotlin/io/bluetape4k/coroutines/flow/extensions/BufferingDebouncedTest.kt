@@ -6,7 +6,6 @@ import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.toList
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
@@ -33,7 +32,7 @@ class BufferingDebouncedTest: AbstractFlowTest() {
 
         val buffered = source.bufferingDebounce(200.milliseconds)  // [1, 2], [3, 4]
 
-        val itemLists = buffered.toList()
+        val itemLists = buffered.toFastList()
         log.debug { "itemLists=$itemLists" }
 
         itemLists shouldHaveSize 2 shouldBeEqualTo listOf(listOf(1, 2), listOf(3, 4))
@@ -56,7 +55,7 @@ class BufferingDebouncedTest: AbstractFlowTest() {
 
         val buffered = source.bufferingDebounce(200.milliseconds)  // [1, 2], [3]
 
-        val itemLists = buffered.toList()
+        val itemLists = buffered.toFastList()
         log.debug { "itemLists=$itemLists" }
 
         itemLists shouldHaveSize 2 shouldBeEqualTo listOf(listOf(1, 2), listOf(3))

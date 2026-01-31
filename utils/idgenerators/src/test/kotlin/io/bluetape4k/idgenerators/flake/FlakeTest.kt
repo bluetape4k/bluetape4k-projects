@@ -1,6 +1,7 @@
 package io.bluetape4k.idgenerators.flake
 
 import io.bluetape4k.codec.encodeHexString
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
@@ -36,7 +37,7 @@ class FlakeTest {
     fun `generate flake id`() {
         val ids = List(3) { flake.nextId() }
 
-        ids.toSet() shouldHaveSize 3
+        ids.toUnifiedSet() shouldHaveSize 3
 
         ids.forEach {
             log.debug { "id=$it, ${Flake.asComponentString(it)}" }

@@ -1,6 +1,7 @@
 package io.bluetape4k.jackson3.async
 
 import com.fasterxml.jackson.core.JsonProcessingException
+import io.bluetape4k.collections.eclipse.primitives.toFastList
 import io.bluetape4k.jackson3.Jackson
 import io.bluetape4k.jackson3.treeToValueOrNull
 import io.bluetape4k.jackson3.writeAsBytes
@@ -73,9 +74,11 @@ class AsyncJsonParserTest {
 
         val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
         val chunkSize = 20
-        bytes.toList().chunked(chunkSize).forEach {
-            parser.consume(it.toByteArray())
-        }
+        bytes.toFastList()
+            .chunked(chunkSize)
+            .forEach {
+                parser.consume(it.toByteArray())
+            }
 
         parsed.get() shouldBeEqualTo 1
     }
@@ -104,10 +107,12 @@ class AsyncJsonParserTest {
         val repeatSize = 3
         val chunkSize = 20
         repeat(repeatSize) {
-            bytes.toList().chunked(chunkSize).forEach {
-                log.debug { it.toByteArray().toUtf8String() }
-                parser.consume(it.toByteArray())
-            }
+            bytes.toFastList()
+                .chunked(chunkSize)
+                .forEach {
+                    log.debug { it.toByteArray().toUtf8String() }
+                    parser.consume(it.toByteArray())
+                }
         }
 
         parsed.get() shouldBeEqualTo repeatSize

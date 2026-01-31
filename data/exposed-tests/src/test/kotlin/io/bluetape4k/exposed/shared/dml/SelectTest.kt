@@ -1,6 +1,7 @@
 package io.bluetape4k.exposed.shared.dml
 
 import io.bluetape4k.collections.eclipse.toFastList
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.exposed.shared.dml.DMLTestData.withCitiesAndUsers
 import io.bluetape4k.exposed.shared.dml.DMLTestData.withSales
 import io.bluetape4k.exposed.shared.dml.DMLTestData.withSalesAndSomeAmounts
@@ -953,7 +954,7 @@ class SelectTest: AbstractExposedTest() {
                 .selectAll()
                 .where(orOp)
                 .map { it[users.name] }
-                .toSet()
+                .toUnifiedSet()
             userNameOr shouldBeEqualTo allUsers
 
             /**

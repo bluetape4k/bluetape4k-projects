@@ -2,6 +2,9 @@ package io.bluetape4k.cache.nearcache.coroutines
 
 import io.bluetape4k.cache.jcache.coroutines.SuspendCache
 import io.bluetape4k.cache.jcache.coroutines.SuspendCacheEntry
+import io.bluetape4k.collections.eclipse.toUnifiedSet
+import io.bluetape4k.coroutines.flow.extensions.toFastList
+import io.bluetape4k.coroutines.flow.extensions.toUnifiedSet
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import io.bluetape4k.logging.trace
@@ -18,8 +21,6 @@ import kotlinx.coroutines.flow.chunked
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -94,10 +95,10 @@ class NearSuspendCache<K: Any, V: Any> private constructor(
                             .onEach { entries ->
                                 runCatching {
                                     if (!isClosed()) {
-                                        val frontKeys = entries.map { it.key }.toSet()
+                                        val frontKeys = entries.map { it.key }.toUnifiedSet()
                                         entrySizer.addAndGet(frontKeys.size)
 
-                                        val backKeys = backCache.getAll(frontKeys).map { it.key }.toSet()
+                                        val backKeys = backCache.getAll(frontKeys).map { it.key }.toUnifiedSet()
                                         val keysToRemove = frontKeys - backKeys
                                         log.trace { "key size to expire in frontCache=${keysToRemove.size}" }
                                         if (keysToRemove.isNotEmpty()) {
@@ -165,7 +166,7 @@ class NearSuspendCache<K: Any, V: Any> private constructor(
     }
 
     override fun getAll(vararg keys: K): Flow<SuspendCacheEntry<K, V>> =
-        getAll(keys.toSet())
+        getAll(keys.toUnifiedSet())
 
     override fun getAll(keys: Set<K>): Flow<SuspendCacheEntry<K, V>> {
         return frontCache.getAll(keys)
@@ -244,12 +245,12 @@ class NearSuspendCache<K: Any, V: Any> private constructor(
                     backCache.remove(it.key)
                 }
             }
-            .toList()
+            .toFastList()
             .joinAll()
     }
 
     override suspend fun removeAll(vararg keys: K) {
-        removeAll(keys.toSet())
+        removeAll(keys.toUnifiedSet())
     }
 
     override suspend fun removeAll(keys: Set<K>) = coroutineScope {

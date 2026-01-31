@@ -1,5 +1,7 @@
 package io.bluetape4k.concurrent
 
+import io.bluetape4k.collections.eclipse.stream.toFastList
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
@@ -22,9 +24,9 @@ class AtomicIntRoundrobinTest {
         val size = 10_000
         val atomic = AtomicIntRoundrobin(size)
 
-        val ids = List(size) { it }.parallelStream().map { atomic.next() }.toList()
+        val ids = List(size) { it }.parallelStream().map { atomic.next() }.toFastList()
         ids.size shouldBeEqualTo size
-        ids.toSet().size shouldBeEqualTo size
+        ids.toUnifiedSet().size shouldBeEqualTo size
     }
 
     @Test

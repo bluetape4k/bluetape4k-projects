@@ -1,5 +1,6 @@
 package io.bluetape4k.idgenerators.hashids
 
+import io.bluetape4k.collections.eclipse.primitives.toFastList
 import io.bluetape4k.collections.toLongArray
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
@@ -159,7 +160,7 @@ class Hashids(
      */
     fun decode(hash: String): LongArray {
         val hashes = hash.split(NUMBER_SEPARATOR)
-        return hashes.flatMap { decodeSingle(it).toList() }.toLongArray()
+        return hashes.flatMap { decodeSingle(it).toFastList() }.toLongArray()
     }
 
     private fun decodeSingle(hash: String): LongArray {

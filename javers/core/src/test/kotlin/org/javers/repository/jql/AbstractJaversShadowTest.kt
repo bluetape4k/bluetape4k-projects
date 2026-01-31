@@ -1,5 +1,6 @@
 package org.javers.repository.jql
 
+import io.bluetape4k.collections.eclipse.stream.toFastList
 import io.bluetape4k.javers.repository.jql.queryByInstance
 import io.bluetape4k.javers.repository.jql.queryByInstanceId
 import io.bluetape4k.logging.KLogging
@@ -32,7 +33,7 @@ abstract class AbstractJaversShadowTest: AbstractJaversRepositoryTest() {
 
         // WHEN
         val query = queryByInstanceId<SnapshotEntity>(1)
-        val shadows = javers.findShadowsAndStream<SnapshotEntity>(query).map { it.get() }.toList()
+        val shadows = javers.findShadowsAndStream<SnapshotEntity>(query).map { it.get() }.toFastList()
 
         // THEN
         shadows.size shouldBeEqualTo 2
@@ -59,7 +60,7 @@ abstract class AbstractJaversShadowTest: AbstractJaversRepositoryTest() {
         val query = queryByInstanceId<SnapshotEntity>(1) { limit(5) }
         val shadows = javers.findShadowsAndStream<SnapshotEntity>(query)
             .limit(12)
-            .toList()
+            .toFastList()
 
         // THEN
         shadows.size shouldBeEqualTo 5
@@ -80,7 +81,7 @@ abstract class AbstractJaversShadowTest: AbstractJaversRepositoryTest() {
     fun `query stream 이 skip 하기`() {
         val query = queryByInstanceId<SnapshotEntity>(1) { skip(5) }
         log.debug { "query=$query" }
-        val shadows = javers.findShadowsAndStream<SnapshotEntity>(query).toList()
+        val shadows = javers.findShadowsAndStream<SnapshotEntity>(query).toFastList()
         shadows.forEach { shadow ->
             log.debug { "shadow=$shadow" }
         }
@@ -104,7 +105,7 @@ abstract class AbstractJaversShadowTest: AbstractJaversRepositoryTest() {
             limit(5)
             withScopeDeepPlus(1)
         }
-        val shadows = javers.findShadowsAndStream<SnapshotEntity>(query).map { it.get() }.toList()
+        val shadows = javers.findShadowsAndStream<SnapshotEntity>(query).map { it.get() }.toFastList()
 
         // THEN
         shadows.size shouldBeEqualTo 5

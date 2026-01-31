@@ -1,6 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions
 
-import io.bluetape4k.collections.eclipse.asFastList
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.support.requireGe
 import io.bluetape4k.support.requireGt
 import kotlinx.coroutines.flow.Flow
@@ -62,7 +62,7 @@ private fun <T> Flow<T>.windowedInternal(
         elements.add(element)
         if (counter.incrementAndGet() == size) {
             send(elements)
-            elements = elements.drop(step).asFastList()
+            elements = elements.drop(step).toFastList()
             counter.addAndGet(-step)
         }
     }
@@ -70,7 +70,7 @@ private fun <T> Flow<T>.windowedInternal(
     if (partialWindow) {
         while (counter.get() > 0) {
             send(elements)
-            elements = elements.drop(step).asFastList()
+            elements = elements.drop(step).toFastList()
             counter.addAndGet(-step)
         }
     }

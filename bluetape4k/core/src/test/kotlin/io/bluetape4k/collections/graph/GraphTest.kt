@@ -1,5 +1,6 @@
 package io.bluetape4k.collections.graph
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.Dispatchers
@@ -74,7 +75,7 @@ class GraphTest {
             val names = nodes
                 .onEach { log.debug { "DFS visit node: $it" } }
                 .map { it.name }
-                .toList()
+                .toFastList()
 
             names shouldBeEqualTo expectedDFS
         }
@@ -89,7 +90,7 @@ class GraphTest {
             val names = nodes
                 .onEach { log.debug { "DFS visit node: $it" } }
                 .map { it.name }
-                .toList()
+                .toFastList()
 
             names shouldBeEqualTo expectedDFS
         }
@@ -119,7 +120,7 @@ class GraphTest {
                 }
                 .onEach { visitCount++ }
                 .take(3)
-                .toList()
+                .toFastList()
 
             visitCount shouldBeEqualTo 3
             first3 shouldHaveSize 3
@@ -139,7 +140,7 @@ class GraphTest {
             val names = nodes
                 .onEach { log.debug { "DFS visit node: $it" } }
                 .map { it.name }
-                .toList()
+                .toFastList()
 
             names shouldBeEqualTo expectedBFS
         }
@@ -153,7 +154,7 @@ class GraphTest {
             val names = nodes
                 .onEach { log.debug { "BFS visit node: $it" } }
                 .map { it.name }
-                .toList()
+                .toFastList()
 
             names shouldBeEqualTo expectedBFS
         }
@@ -183,7 +184,7 @@ class GraphTest {
                 }
                 .onEach { visitCount++ }
                 .take(3)
-                .toList()
+                .toFastList()
 
             visitCount shouldBeEqualTo 3
             first3 shouldHaveSize 3

@@ -4,7 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireInRange
 import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.atomicfu.atomic
-import java.util.concurrent.locks.ReentrantLock
+import kotlinx.atomicfu.locks.reentrantLock
 import kotlin.concurrent.withLock
 
 /**
@@ -33,7 +33,7 @@ class AtomicIntRoundrobin private constructor(val maximum: Int) {
     }
 
     private val currentValue = atomic(0)
-    private val lock = ReentrantLock()
+    private val lock = reentrantLock()
 
     /**
      * 현재 값을 반환합니다.

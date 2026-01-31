@@ -2,6 +2,7 @@ package io.bluetape4k.javers.repository.caffeine
 
 import com.github.benmanes.caffeine.cache.Cache
 import io.bluetape4k.cache.caffeine.caffeine
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.javers.codecs.JaversCodec
 import io.bluetape4k.javers.codecs.JaversCodecs
 import io.bluetape4k.javers.repository.AbstractCdoSnapshotRepository
@@ -43,7 +44,7 @@ class CaffeineCdoSnapshotRepository(
     }
 
     override fun getKeys(): Set<String> {
-        return snapshotCache.asMap().map { it.key }.toSet()
+        return snapshotCache.asMap().map { it.key }.toUnifiedSet()
     }
 
     override fun contains(globalIdValue: String): Boolean {

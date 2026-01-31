@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.core
 
+import io.bluetape4k.collections.eclipse.toFastList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import org.jetbrains.exposed.v1.core.Column
@@ -132,7 +133,7 @@ open class SuspendedQuery(set: FieldSet, where: Op<Boolean>? = null): Query(set,
                         }
                     } ?: whereOp
                 }
-                val results = query.iterator().asSequence().toList()
+                val results = query.iterator().toFastList()
                 if (results.isNotEmpty()) {
                     send(results)
                 }

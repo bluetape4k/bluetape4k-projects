@@ -5,6 +5,7 @@ import com.github.pemistahl.lingua.api.IsoCode639_3
 import com.github.pemistahl.lingua.api.Language
 import com.github.pemistahl.lingua.api.LanguageDetector
 import com.github.pemistahl.lingua.api.LanguageDetectorBuilder
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 
 /**
  * 모든 언어를 검출하는 [LanguageDetector]를 생성합니다.
@@ -134,7 +135,7 @@ inline fun languageDetectorOf(
  *
  */
 fun languageDetectorOf(
-    languages: Set<Language> = Language.all().toSet(),
+    languages: Set<Language> = Language.all().toUnifiedSet(),
     minimulRelativeDistance: Double = 0.0,
     isEveryLangageModelPreloaded: Boolean = true,
     isLowAccuracyModeEnabled: Boolean = false,

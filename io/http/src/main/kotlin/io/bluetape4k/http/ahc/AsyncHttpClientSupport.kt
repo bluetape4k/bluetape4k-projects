@@ -1,5 +1,6 @@
 package io.bluetape4k.http.ahc
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.netty.isPresentNettyTransportNativeEpoll
 import io.bluetape4k.netty.isPresentNettyTransportNativeKQueue
 import io.bluetape4k.support.unsafeLazy
@@ -130,6 +131,6 @@ fun asyncHttpClientOf(
  * @return [AsyncHttpClient] instance
  */
 fun asyncHttpClientOf(vararg requestFilters: RequestFilter): AsyncHttpClient {
-    val config = asyncHttpClientConfigOf(requestFilters.toList())
+    val config = asyncHttpClientConfigOf(requestFilters.toFastList())
     return asyncHttpClientOf(config)
 }

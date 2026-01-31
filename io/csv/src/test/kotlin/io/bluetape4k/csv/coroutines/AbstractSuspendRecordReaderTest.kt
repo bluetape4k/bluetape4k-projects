@@ -1,6 +1,7 @@
 package io.bluetape4k.csv.coroutines
 
 import com.univocity.parsers.common.record.Record
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.csv.model.ProductType
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -51,7 +52,7 @@ abstract class AbstractSuspendRecordReaderTest {
                 .buffer()
                 .collect { record ->
                     log.trace { "product type record=$record" }
-                    val row = record.values.toList()
+                    val row = record.values.toFastList()
                     row.shouldNotBeEmpty()
                     row.size shouldBeGreaterThan 1
                     row[0]!!.shouldNotBeBlank()
