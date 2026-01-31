@@ -1,5 +1,7 @@
 package io.bluetape4k.resilience4j.circuitbreaker
 
+import io.bluetape4k.collections.eclipse.fastListOf
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException
@@ -12,14 +14,12 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
-import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Phaser
 import kotlin.test.assertFailsWith
 
@@ -33,7 +33,7 @@ class FlowCircuitBreakerTest {
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
 
-        val results = CopyOnWriteArrayList<Int>()
+        val results = fastListOf<Int>()
 
         // When
         flow {
@@ -42,7 +42,7 @@ class FlowCircuitBreakerTest {
             }
         }
             .circuitBreaker(circuitBreaker)
-            .toList(results)
+            .toFastList(results)
 
         repeat(3) {
             results[it] shouldBeEqualTo it
@@ -60,7 +60,7 @@ class FlowCircuitBreakerTest {
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
 
-        val results = CopyOnWriteArrayList<Int>()
+        val results = fastListOf<Int>()
 
         assertFailsWith<CallNotPermittedException> {
             flow {
@@ -69,7 +69,7 @@ class FlowCircuitBreakerTest {
                 }
             }
                 .circuitBreaker(circuitBreaker)
-                .toList(results)
+                .toFastList(results)
         }
 
         results.shouldBeEmpty()
@@ -88,7 +88,7 @@ class FlowCircuitBreakerTest {
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
 
-        val results = CopyOnWriteArrayList<Int>()
+        val results = fastListOf<Int>()
 
         assertFailsWith<CallNotPermittedException> {
             flow {
@@ -98,7 +98,7 @@ class FlowCircuitBreakerTest {
                 }
             }
                 .circuitBreaker(circuitBreaker)
-                .toList(results)
+                .toFastList(results)
         }
 
         wasStarted.shouldBeFalse()
@@ -116,7 +116,7 @@ class FlowCircuitBreakerTest {
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
 
-        val results = CopyOnWriteArrayList<Int>()
+        val results = fastListOf<Int>()
 
         assertFailsWith<IllegalStateException> {
             flow {
@@ -126,7 +126,7 @@ class FlowCircuitBreakerTest {
                 }
             }
                 .circuitBreaker(circuitBreaker)
-                .toList(results)
+                .toFastList(results)
         }
 
         results.size shouldBeEqualTo 4

@@ -1,5 +1,6 @@
 package io.bluetape4k.captcha.config
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.KLogging
 import java.awt.Color
 import java.awt.Font
@@ -44,13 +45,13 @@ data class CaptchaConfig(
 
         val DEFAULT_THEME = CaptchaTheme.LIGHT
 
-        val DEFAULT_LIGHT_PALETTE = mutableListOf(
+        val DEFAULT_LIGHT_PALETTE = fastListOf(
             Color.BLACK,
             Color.BLUE,
             Color.RED,
             Color.DARK_GRAY,
         )
-        val DEFAULT_DARK_PALETTE = mutableListOf(
+        val DEFAULT_DARK_PALETTE = fastListOf(
             Color.WHITE,
             Color.LIGHT_GRAY,
             Color.CYAN,
@@ -63,9 +64,9 @@ data class CaptchaConfig(
         val DEFAULT_LIGHT_BG_COLOR: Color = Color.WHITE
         val DEFAULT_DARK_BG_COLOR = Color(30, 30, 30)
 
-        val DEFAULT_FONT_STYLES = mutableListOf(Font.PLAIN, Font.BOLD, Font.ITALIC, Font.BOLD or Font.ITALIC)
-        val DEFAULT_FONTS = mutableListOf<String>()
-        val DEFAULT_FONTS_IN_RESOURCE = mutableListOf(
+        val DEFAULT_FONT_STYLES = fastListOf(Font.PLAIN, Font.BOLD, Font.ITALIC, Font.BOLD or Font.ITALIC)
+        val DEFAULT_FONTS = fastListOf<String>()
+        val DEFAULT_FONTS_IN_RESOURCE = fastListOf(
             "/fonts/ComicMono-Bold.ttf",
             "/fonts/JetBrainsMonoNL-Bold.ttf",
             "/fonts/Monaco.ttf",

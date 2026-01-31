@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -55,7 +54,7 @@ class RepeatTest: AbstractFlowTest() {
 
             val buffer = fastListOf<Int>()
             val job = launch(start = CoroutineStart.UNDISPATCHED) {
-                flow.toList(buffer)
+                flow.toFastList(buffer)
             }
             val internalJob = intervalFlowOf(Duration.ZERO, 100.milliseconds)
                 .log("#2")
@@ -67,7 +66,7 @@ class RepeatTest: AbstractFlowTest() {
             repeat(100) {
                 advanceTimeBy(10)
                 runCurrent()
-                buffer.isEmpty().shouldBeTrue()
+                buffer.isEmpty.shouldBeTrue()
             }
 
             internalJob.cancelAndJoin()

@@ -17,7 +17,7 @@ import kotlin.test.assertFailsWith
  * Flow 에 요소가 없음을 검사합니다.
  */
 suspend inline fun <T> Flow<T>.assertEmpty() {
-    toList().shouldBeEmpty()
+    toFastList().shouldBeEmpty()
 }
 
 /**
@@ -38,14 +38,14 @@ suspend inline fun <T> Flow<T>.assertResult(vararg values: T) {
  * Flow 요소들을 [values] 와 Set 형태로 비교하여 동일한지 검사합니다.
  */
 suspend inline fun <T> Flow<T>.assertResultSet(vararg values: T) {
-    toList().toUnifiedSet() shouldBeEqualTo values.toUnifiedSet()
+    toFastList().toUnifiedSet() shouldBeEqualTo values.toUnifiedSet()
 }
 
 /**
  * Flow 요소들을 [values] 와 Set 형태로 비교하여 동일한지 검사합니다.
  */
 suspend inline fun <T> Flow<T>.assertResultSet(values: Iterable<T>) {
-    toList().toUnifiedSet() shouldBeEqualTo values.toUnifiedSet()
+    toFastList().toUnifiedSet() shouldBeEqualTo values.toUnifiedSet()
 }
 
 /**

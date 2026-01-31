@@ -15,6 +15,7 @@ import io.bluetape4k.aws.kotlin.dynamodb.model.provisionedThroughputOf
 import io.bluetape4k.aws.kotlin.dynamodb.model.sortKeyOf
 import io.bluetape4k.aws.kotlin.dynamodb.model.toAttributeValue
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -88,7 +89,7 @@ class PaginatorTest: AbstractKotlinDynamoDbTest() {
             )
         }
 
-        val results = mutableListOf<Map<String, AttributeValue>>()
+        val results = fastListOf<Map<String, AttributeValue>>()
 
         // StartKey에 해당하는 아이템을 제외하고 나머지 아이템을 조회한다.
         client

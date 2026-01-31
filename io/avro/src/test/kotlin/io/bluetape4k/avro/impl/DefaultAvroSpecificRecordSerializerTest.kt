@@ -3,6 +3,7 @@ package io.bluetape4k.avro.impl
 import io.bluetape4k.avro.AbstractAvroTest
 import io.bluetape4k.avro.TestMessageProvider
 import io.bluetape4k.avro.deserialize
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
@@ -23,7 +24,7 @@ class DefaultAvroSpecificRecordSerializerTest: AbstractAvroTest() {
         private const val REPEAT_SIZE = 5
     }
 
-    private val serializers = listOf(
+    private val serializers = fastListOf(
         DefaultAvroSpecificRecordSerializer(),
         DefaultAvroSpecificRecordSerializer(CodecFactory.deflateCodec(6)),
         DefaultAvroSpecificRecordSerializer(CodecFactory.zstandardCodec(3)),

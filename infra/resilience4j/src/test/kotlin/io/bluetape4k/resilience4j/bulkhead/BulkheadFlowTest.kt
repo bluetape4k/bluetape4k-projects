@@ -1,5 +1,7 @@
 package io.bluetape4k.resilience4j.bulkhead
 
+import io.bluetape4k.collections.eclipse.fastListOf
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.resilience4j.SuspendHelloWorldService
@@ -79,7 +81,7 @@ class BulkheadFlowTest {
                 .maxWaitDuration(Duration.ZERO)
                 .build()
         }.registerEventListener()
-        val results = mutableListOf<Int>()
+        val results = fastListOf<Int>()
 
         val sync = Channel<Int>(Channel.RENDEZVOUS)
         val testFlow = flow {
@@ -88,7 +90,7 @@ class BulkheadFlowTest {
         }.bulkhead(bulkhead)
 
         val firstCall = launch {
-            testFlow.toList(results)
+            testFlow.toFastList(results)
         }
 
         // Wait until our first coroutine is inside the bulkhead

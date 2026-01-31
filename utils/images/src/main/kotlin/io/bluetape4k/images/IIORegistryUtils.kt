@@ -39,13 +39,13 @@ object IIORegistryUtils {
      * Read를 지원하는 Image Format Names
      */
     fun getReadImageFormatNames(): Set<String> {
-        return getImageReaderSpis().flatMap { it.formatNames.toList() }.toUnifiedSet()
+        return getImageReaderSpis().flatMap { it.formatNames.toUnifiedSet() }.toUnifiedSet()
     }
 
     /**
      * Write 를 지원하는 Image Format Names
      */
     fun getWriteImageFormatNames(): Set<String> {
-        return getImageWriterSpis().flatMap { it.formatNames.toList() }.toUnifiedSet()
+        return getImageWriterSpis().flatMap { it.formatNames.toUnifiedSet() }.toUnifiedSet()
     }
 }

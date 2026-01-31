@@ -1,5 +1,7 @@
 package io.bluetape4k.coroutines.support
 
+import io.bluetape4k.collections.eclipse.fastList
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
@@ -27,12 +29,12 @@ class JavaStreamSupportTest {
 
     @Test
     fun `int stream with coForEach`() = runTest {
-        val list = mutableListOf<Int>()
+        val list = fastListOf<Int>()
         IntStream.range(1, 10)
             .suspendForEach {
                 delay(Random.nextLong(10))
                 list.add(it)
             }
-        list shouldBeEqualTo List(9) { it + 1 }
+        list shouldBeEqualTo fastList(9) { it + 1 }
     }
 }

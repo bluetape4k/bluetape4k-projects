@@ -2,6 +2,7 @@ package io.bluetape4k.examples.mutiny
 
 import io.bluetape4k.codec.encodeBase62
 import io.bluetape4k.collections.eclipse.fastList
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.coroutines.DefaultCoroutineScope
 import io.bluetape4k.coroutines.flow.extensions.toFastList
@@ -426,7 +427,7 @@ class CompositionTransformationExamples {
             .asFlow()
             .toFastList()
 
-        buckets shouldBeEqualTo listOf((0..4).toList(), (5..9).toList())
+        buckets shouldBeEqualTo fastListOf((0..4).toFastList(), (5..9).toFastList())
     }
 
     @Test

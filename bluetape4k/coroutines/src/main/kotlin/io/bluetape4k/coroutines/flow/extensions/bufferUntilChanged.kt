@@ -1,6 +1,7 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.collections.eclipse.fastListOf
+import io.bluetape4k.collections.eclipse.toFastList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 
@@ -40,7 +41,7 @@ fun <T, K> Flow<T>.bufferUntilChanged(groupSelector: (T) -> K): Flow<List<T>> = 
         if (prevGroup == currentGroup) {
             elements.add(element)
         } else {
-            send(elements.toList())
+            send(elements.toFastList())
             elements.clear()
             elements.add(element)
             prevGroup = currentGroup
@@ -48,7 +49,7 @@ fun <T, K> Flow<T>.bufferUntilChanged(groupSelector: (T) -> K): Flow<List<T>> = 
     }
 
     if (elements.isNotEmpty()) {
-        send(elements.toList())
+        send(elements.toFastList())
         elements.clear()
     }
 }

@@ -27,7 +27,7 @@ class UnifiedMapSupportTest: AbstractCollectionTest() {
 
     @Test
     fun `capacity 사용하여 UnifiedMap 초기화`() {
-        val map = UnifiedMap(3) { it + 1 to ('a' + it) }
+        val map = unifiedMap(3) { it + 1 to ('a' + it) }
         map.verify()
         unifiedMapOf(1 to 'a', 2 to 'b', 3 to 'c').verify()
     }

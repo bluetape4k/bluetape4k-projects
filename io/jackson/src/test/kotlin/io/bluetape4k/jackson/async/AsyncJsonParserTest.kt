@@ -73,7 +73,7 @@ class AsyncJsonParserTest {
 
         val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
         val chunkSize = 20
-        bytes.toList().chunked(chunkSize)
+        bytes.asList().chunked(chunkSize)
             .forEach {
                 parser.consume(it.toByteArray())
             }
@@ -105,7 +105,7 @@ class AsyncJsonParserTest {
         val repeatSize = 3
         val chunkSize = 20
         repeat(repeatSize) {
-            bytes.toList().chunked(chunkSize)
+            bytes.asList().chunked(chunkSize)
                 .forEach {
                     log.debug { it.toByteArray().toUtf8String() }
                     parser.consume(it.toByteArray())
@@ -146,7 +146,7 @@ class AsyncJsonParserTest {
 
         val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
         parser.consume("[".toByteArray())
-        List(modelSize) {
+        repeat(modelSize) {
             bytes.forEach {
                 parser.consume(byteArrayOf(it))
             }
@@ -155,7 +155,6 @@ class AsyncJsonParserTest {
             }
         }
         parser.consume("]".toByteArray())
-
         parsed.get() shouldBeEqualTo 1
     }
 }

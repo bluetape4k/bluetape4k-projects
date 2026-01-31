@@ -1,6 +1,7 @@
 package io.bluetape4k.coroutines
 
 import io.bluetape4k.collections.eclipse.fastList
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -53,7 +54,7 @@ class SuspendRingBuffer<T: Any>(
     }
 
     suspend fun snapshot(): List<T> = mutex.withLock {
-        val copy = buffer.toList()
+        val copy = buffer.toFastList()
 
         fastList(size) {
             copy[startIndex.forward(it)] as T

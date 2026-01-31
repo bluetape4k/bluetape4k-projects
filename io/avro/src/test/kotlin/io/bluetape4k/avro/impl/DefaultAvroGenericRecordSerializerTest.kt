@@ -5,6 +5,7 @@ import io.bluetape4k.avro.TestMessageProvider
 import io.bluetape4k.avro.message.examples.Employee
 import io.bluetape4k.avro.message.examples.EmployeeList
 import io.bluetape4k.avro.message.examples.ProductRoot
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import org.amshove.kluent.shouldBeEqualTo
@@ -21,7 +22,7 @@ class DefaultAvroGenericRecordSerializerTest: AbstractAvroTest() {
         private const val REPEAT_SIZE = 5
     }
 
-    private val serializers = listOf(
+    private val serializers = fastListOf(
         DefaultAvroGenericRecordSerializer(),
         DefaultAvroGenericRecordSerializer(CodecFactory.deflateCodec(6)),
         DefaultAvroGenericRecordSerializer(CodecFactory.zstandardCodec(3)),

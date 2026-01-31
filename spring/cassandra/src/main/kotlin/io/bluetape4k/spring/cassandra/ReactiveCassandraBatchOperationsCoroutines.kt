@@ -2,7 +2,6 @@ package io.bluetape4k.spring.cassandra
 
 import io.bluetape4k.coroutines.flow.extensions.toFastList
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.springframework.data.cassandra.core.ReactiveCassandraBatchOperations
 import org.springframework.data.cassandra.core.cql.WriteOptions
@@ -23,7 +22,7 @@ fun ReactiveCassandraBatchOperations.updateFlow(
     entities: Flow<*>,
     options: WriteOptions,
 ): ReactiveCassandraBatchOperations =
-    update(mono { entities.toList() }, options)
+    update(mono { entities.toFastList() }, options)
 
 fun ReactiveCassandraBatchOperations.deleteFlow(entities: Flow<*>): ReactiveCassandraBatchOperations =
     delete(mono { entities.toFastList() })

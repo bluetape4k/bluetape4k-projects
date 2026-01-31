@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.toList
+import org.eclipse.collections.impl.map.mutable.UnifiedMap
 import java.io.Serializable
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
@@ -30,7 +30,7 @@ interface GroupedFlow<K: Any, V>: Flow<V> {
 /**
  * [GroupedFlow]의 Value들만 묶어, `List<V>` 형태의 요소를 제공하는 [Flow]로 변환합니다.
  */
-fun <K: Any, V> GroupedFlow<K, V>.toValues(): Flow<List<V>> = flowFromSuspend { toList() }
+fun <K: Any, V> GroupedFlow<K, V>.toValues(): Flow<List<V>> = flowFromSuspend { toFastList() }
 
 data class GroupItem<K, V>(
     val key: K,
@@ -41,7 +41,7 @@ data class GroupItem<K, V>(
  * [GroupedFlow]의 key 와 value들을 묶어, `Pair<K, List<V>>` 형태의 요소를 제공하는 [Flow]로 변환합니다.
  */
 fun <K: Any, V> GroupedFlow<K, V>.toGroupItems(): Flow<GroupItem<K, V>> = flowFromSuspend {
-    val values = toList()
+    val values = toFastList()
     GroupItem(key, values)
 }
 
@@ -49,7 +49,7 @@ fun <K: Any, V> GroupedFlow<K, V>.toGroupItems(): Flow<GroupItem<K, V>> = flowFr
  * [GroupedFlow]의 Flow 를 [destination] Map에 `Map<K, List<V>>` 형태로 변환합니다.
  */
 suspend fun <K: Any, V> Flow<GroupedFlow<K, V>>.toMap(
-    destination: MutableMap<K, List<V>> = mutableMapOf(),
+    destination: MutableMap<K, List<V>> = UnifiedMap<K, List<V>>(),
 ): MutableMap<K, List<V>> {
     this
         .flatMapMerge { it.toGroupItems() }

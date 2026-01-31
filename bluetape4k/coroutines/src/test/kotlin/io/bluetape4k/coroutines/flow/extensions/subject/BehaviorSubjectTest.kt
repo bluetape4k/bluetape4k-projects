@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions.subject
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.coroutines.tests.withSingleThread
@@ -35,14 +36,14 @@ class BehaviorSubjectTest {
             // OR
             // val behaviorSubject = BehaviorSubject<Int>(1)
 
-            val collected1 = mutableListOf<Int>()
+            val collected1 = fastListOf<Int>()
             launch {
                 subject
                     .log("#1")
                     .collect { collected1.add(it) }
             }.log("Job1")
 
-            val collected2 = mutableListOf<Int>()
+            val collected2 = fastListOf<Int>()
             launch {
                 subject
                     .log("#2")
@@ -72,7 +73,7 @@ class BehaviorSubjectTest {
     fun `일반적인 Subject 작동 예`() = runTest {
         withSingleThread { executor ->
             val subject = BehaviorSubject<Int>()
-            val result = mutableListOf<Int>()
+            val result = fastListOf<Int>()
 
             val job = launch(executor) {
                 subject

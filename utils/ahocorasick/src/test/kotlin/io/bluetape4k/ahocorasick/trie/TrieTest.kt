@@ -1,5 +1,6 @@
 package io.bluetape4k.ahocorasick.trie
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
@@ -12,11 +13,11 @@ import kotlin.random.Random
 class TrieTest {
 
     companion object: KLogging() {
-        val ALPHABET = listOf("abc", "bcd", "cde")
-        val PRONOUNS = listOf("hers", "his", "she", "he")
-        val FOOD = listOf("veal", "cauliflower", "broccoli", "tomatoes")
-        val GREEK_LETTERS = listOf("Alpha", "Beta", "Gamma")
-        val UNICODE = listOf("turning", "once", "again", "börkü")
+        val ALPHABET = fastListOf("abc", "bcd", "cde")
+        val PRONOUNS = fastListOf("hers", "his", "she", "he")
+        val FOOD = fastListOf("veal", "cauliflower", "broccoli", "tomatoes")
+        val GREEK_LETTERS = fastListOf("Alpha", "Beta", "Gamma")
+        val UNICODE = fastListOf("turning", "once", "again", "börkü")
     }
 
     @Test
@@ -158,7 +159,7 @@ class TrieTest {
             .addKeywords(PRONOUNS)
             .build()
 
-        val emits = mutableListOf<Emit>()
+        val emits = fastListOf<Emit>()
         val emitHandler = EmitHandler { emit -> emits.add(emit) }
         trie.runParseText("ushers", emitHandler)
 
@@ -460,7 +461,7 @@ class TrieTest {
 
     private fun randomInt(min: Int, max: Int): Int = Random.nextInt(min, max)
 
-    private fun randomNumbers(count: Int): StringBuilder {
+    private fun randomNumbers(count: Int = 1_000_000): StringBuilder {
         if (count <= 0) {
             return StringBuilder()
         }

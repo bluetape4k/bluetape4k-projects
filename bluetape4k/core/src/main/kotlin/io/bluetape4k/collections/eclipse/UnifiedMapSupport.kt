@@ -7,7 +7,7 @@ import org.eclipse.collections.impl.map.mutable.UnifiedMap
 
 fun <K, V> emptyUnifiedMap(): ImmutableMap<K, V> = Maps.immutable.empty()
 
-inline fun <K, V> UnifiedMap(size: Int, initializer: (Int) -> Pair<K, V>): UnifiedMap<K, V> =
+inline fun <K, V> unifiedMap(size: Int, initializer: (Int) -> Pair<K, V>): UnifiedMap<K, V> =
     UnifiedMap.newMap<K, V>(size).apply {
         repeat(size) { index ->
             val pair = initializer(index)

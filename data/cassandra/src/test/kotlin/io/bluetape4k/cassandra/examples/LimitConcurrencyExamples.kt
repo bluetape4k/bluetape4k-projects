@@ -8,6 +8,7 @@ import com.datastax.oss.driver.api.querybuilder.QueryBuilder.insertInto
 import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.cassandra.cql.executeSuspending
 import io.bluetape4k.cassandra.querybuilder.bindMarker
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -110,7 +111,7 @@ class LimitConcurrencyExamples: AbstractCassandraTest() {
         val pst = prepareStatemet(session)
 
         val ranges = createRanges(CONCURRENCY_LEVEL, TOTAL_NUMBER_OF_INSERTS)
-        val pending = mutableListOf<CompletionStage<AsyncResultSet>>()
+        val pending = fastListOf<CompletionStage<AsyncResultSet>>()
 
         // Every range will have dedicated CompletableFuture handling the execution.
         ranges.forEach { range ->
@@ -148,7 +149,7 @@ class LimitConcurrencyExamples: AbstractCassandraTest() {
     }
 
     private fun createRanges(concurrencyLevel: Int, totalNumberOfInserts: Int): List<Range> {
-        val ranges = mutableListOf<Range>()
+        val ranges = fastListOf<Range>()
         val numberOfElementsInRange = totalNumberOfInserts / concurrencyLevel
 
         repeat(concurrencyLevel) {
@@ -178,7 +179,7 @@ class LimitConcurrencyExamples: AbstractCassandraTest() {
         println("throttle=$throttle")
 
         val pst = prepareStatemet(session)
-        val pending = mutableListOf<CompletableFuture<AsyncResultSet>>()
+        val pending = fastListOf<CompletableFuture<AsyncResultSet>>()
 
         repeat(TOTAL_NUMBER_OF_INSERTS) {
             val stmt = pst.bind().setUuid("id", UUID.randomUUID()).setInt("value", it)

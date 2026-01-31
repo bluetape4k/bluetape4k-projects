@@ -1,8 +1,10 @@
 package io.bluetape4k.ahocorasick.trie
 
 import io.bluetape4k.ahocorasick.interval.IntervalTree
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
+import org.eclipse.collections.impl.list.mutable.FastList
 import java.util.*
 
 /**
@@ -100,7 +102,7 @@ class Trie(private val config: TrieConfig = TrieConfig.DEFAULT) {
         var lastCollectionIndex = -1
         val collectedEmits = parseText(text)
 
-        val results = mutableListOf<Token>()
+        val results = fastListOf<Token>()
 
         collectedEmits
             .forEach { emit ->
@@ -195,7 +197,7 @@ class Trie(private val config: TrieConfig = TrieConfig.DEFAULT) {
         text.forEachIndexed { pos, ch ->
             currentState = when {
                 config.ignoreCase -> getState(currentState, ch.lowercaseChar())
-                else              -> getState(currentState, ch)
+                else -> getState(currentState, ch)
             }
             val stored = storeEmits(pos, currentState, emitHandler)
             if (stored && config.stopOnHit) {
@@ -233,7 +235,7 @@ class Trie(private val config: TrieConfig = TrieConfig.DEFAULT) {
         text.forEachIndexed { pos, ch ->
             currentState = when {
                 config.ignoreCase -> getState(currentState, ch.lowercaseChar())
-                else              -> getState(currentState, ch)
+                else -> getState(currentState, ch)
             }
 
             currentState.emit().forEach { emitStr ->
@@ -368,7 +370,7 @@ class Trie(private val config: TrieConfig = TrieConfig.DEFAULT) {
 
     class TrieBuilder {
         private val configBuilder = TrieConfig.builder()
-        private val keywords: MutableList<String> = mutableListOf()
+        private val keywords: FastList<String> = fastListOf()
 
         fun addKeyword(keyword: String) = apply {
             this.keywords.add(keyword)

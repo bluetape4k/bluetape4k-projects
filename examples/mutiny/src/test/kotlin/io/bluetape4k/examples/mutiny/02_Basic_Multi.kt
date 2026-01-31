@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.mutiny
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -55,7 +56,7 @@ class MultiBasicExamples {
         list shouldBeEqualTo listOf(10, 11, 12, 13, 14)
 
         // from Iterable
-        val randomNumbers = generateSequence { Random.nextInt() }.take(5).toList()
+        val randomNumbers = generateSequence { Random.nextInt() }.take(5).toFastList()
         val randoms = Multi.createFrom().iterable(randomNumbers)
             .onItem().invoke { item -> log.debug { "range: $item" } }
             .collect()

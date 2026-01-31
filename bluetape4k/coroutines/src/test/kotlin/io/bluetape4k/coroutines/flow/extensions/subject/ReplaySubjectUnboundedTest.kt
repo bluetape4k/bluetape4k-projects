@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions.subject
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.coroutines.tests.withSingleThread
@@ -28,7 +29,7 @@ class ReplaySubjectUnboundedTest {
     fun `basic online`() = runTest {
         withSingleThread {
             val replay = ReplaySubject<Int>()
-            val result = CopyOnWriteArrayList<Int>()
+            val result = fastListOf<Int>()
 
             val job = launch {
                 replay
@@ -45,7 +46,7 @@ class ReplaySubjectUnboundedTest {
             replay.complete()
             job.join()
 
-            result shouldBeEqualTo listOf(0, 1, 2, 3, 4)
+            result shouldBeEqualTo fastListOf(0, 1, 2, 3, 4)
         }
     }
 
@@ -59,13 +60,13 @@ class ReplaySubjectUnboundedTest {
         replay.complete()
 
 
-        val result = CopyOnWriteArrayList<Int>()
+        val result = fastListOf<Int>()
         replay
             .onEach { delay(10) }
             .log("#1")
             .collect { result.add(it) }
 
-        result shouldBeEqualTo mutableListOf(0, 1, 2, 3, 4)
+        result shouldBeEqualTo fastListOf(0, 1, 2, 3, 4)
     }
 
     @Test
@@ -73,7 +74,7 @@ class ReplaySubjectUnboundedTest {
         withSingleThread {
             val replay = ReplaySubject<Int>()
 
-            val result = CopyOnWriteArrayList<Int>()
+            val result = fastListOf<Int>()
             val exc = AtomicReference<Throwable>(null)
 
             val job = launch {
@@ -95,7 +96,7 @@ class ReplaySubjectUnboundedTest {
 
             job.join()
 
-            result shouldBeEqualTo mutableListOf(0, 1, 2, 3, 4)
+            result shouldBeEqualTo fastListOf(0, 1, 2, 3, 4)
             exc.get() shouldBeInstanceOf RuntimeException::class
         }
     }
@@ -104,7 +105,7 @@ class ReplaySubjectUnboundedTest {
     fun `error offline`() = runTest {
         val replay = ReplaySubject<Int>()
 
-        val result = CopyOnWriteArrayList<Int>()
+        val result = fastListOf<Int>()
         val exc = AtomicReference<Throwable>(null)
 
         repeat(5) {
@@ -120,7 +121,7 @@ class ReplaySubjectUnboundedTest {
             exc.set(e)
         }
 
-        result shouldBeEqualTo mutableListOf(0, 1, 2, 3, 4)
+        result shouldBeEqualTo fastListOf(0, 1, 2, 3, 4)
         exc.get() shouldBeInstanceOf RuntimeException::class
     }
 
@@ -128,7 +129,7 @@ class ReplaySubjectUnboundedTest {
     fun `take online`() = runTest {
         withSingleThread {
             val replay = ReplaySubject<Int>()
-            val result = CopyOnWriteArrayList<Int>()
+            val result = fastListOf<Int>()
 
             val job = launch {
                 replay
@@ -145,7 +146,7 @@ class ReplaySubjectUnboundedTest {
             replay.complete()
             job.join()
 
-            result shouldBeEqualTo mutableListOf(0, 1, 2)
+            result shouldBeEqualTo fastListOf(0, 1, 2)
         }
     }
 
@@ -158,13 +159,13 @@ class ReplaySubjectUnboundedTest {
         }
         replay.complete()
 
-        val result = CopyOnWriteArrayList<Int>()
+        val result = fastListOf<Int>()
         replay
             .take(3)
             .log("#1")
             .collect { result.add(it) }
 
-        result shouldBeEqualTo mutableListOf(0, 1, 2)
+        result shouldBeEqualTo fastListOf(0, 1, 2)
     }
 
     @Test
@@ -172,7 +173,7 @@ class ReplaySubjectUnboundedTest {
         withSingleThread {
             val replay = ReplaySubject<Int>()
 
-            val result1 = CopyOnWriteArrayList<Int>()
+            val result1 = fastListOf<Int>()
             val job1 = launch {
                 replay
                     .onEach { delay(50) }
@@ -198,8 +199,8 @@ class ReplaySubjectUnboundedTest {
             job1.join()
             job2.join()
 
-            result1 shouldBeEqualTo mutableListOf(0, 1, 2, 3, 4)
-            result2 shouldBeEqualTo mutableListOf(0, 1, 2, 3, 4)
+            result1 shouldBeEqualTo fastListOf(0, 1, 2, 3, 4)
+            result2 shouldBeEqualTo fastListOf(0, 1, 2, 3, 4)
         }
     }
 
@@ -208,7 +209,7 @@ class ReplaySubjectUnboundedTest {
         withSingleThread {
             val replay = ReplaySubject<Int>()
 
-            val result1 = CopyOnWriteArrayList<Int>()
+            val result1 = fastListOf<Int>()
             val job1 = launch {
                 replay
                     .onEach { delay(50) }
@@ -216,7 +217,7 @@ class ReplaySubjectUnboundedTest {
                     .collect { result1.add(it) }
             }.log("job1")
 
-            val result2 = CopyOnWriteArrayList<Int>()
+            val result2 = fastListOf<Int>()
             val job2 = launch {
                 replay
                     .onEach { delay(100) }
@@ -235,8 +236,8 @@ class ReplaySubjectUnboundedTest {
             job1.join()
             job2.join()
 
-            result1 shouldBeEqualTo mutableListOf(0, 1, 2, 3, 4)
-            result2 shouldBeEqualTo mutableListOf(0, 1, 2)
+            result1 shouldBeEqualTo fastListOf(0, 1, 2, 3, 4)
+            result2 shouldBeEqualTo fastListOf(0, 1, 2)
         }
     }
 

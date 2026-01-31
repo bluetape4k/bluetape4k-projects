@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.support.unsafeLazy
@@ -7,7 +8,6 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
@@ -34,7 +34,7 @@ private val log: Logger by unsafeLazy { KotlinLogging.logger { } }
  * @return
  */
 fun <T: Any> Iterable<Flow<T>>.concatFlows(): Flow<T> =
-    concatArrayEagerInternal(this.toList())
+    concatArrayEagerInternal(this.toFastList())
 
 /**
  * 모든 flow를 동시에 시작하고, 다른 소스의 항목이 발행되기 전에 첫 번째 소스에서 모든 항목을 발행합니다.
@@ -50,7 +50,7 @@ fun <T: Any> Iterable<Flow<T>>.concatFlows(): Flow<T> =
  * ```
  */
 suspend fun <T: Any> Flow<Flow<T>>.concatFlows(): Flow<T> =
-    concatArrayEagerInternal(this.toList())
+    concatArrayEagerInternal(this.toFastList())
 
 /**
  * 모든 [sources]를 동시에 시작하고, 두 번째 소스의 항목이 발행되기 전에 첫 번째 소스에서 모든 항목을 발행합니다.
@@ -69,7 +69,7 @@ suspend fun <T: Any> Flow<Flow<T>>.concatFlows(): Flow<T> =
  * ```
  */
 fun <T: Any> concatArrayEager(vararg sources: Flow<T>): Flow<T> =
-    concatArrayEagerInternal(sources.toList())
+    concatArrayEagerInternal(sources.toFastList())
 
 /**
  * 모든 [sources]를 동시에 시작하고, 다른 소스의 항목이 발행되기 전에 첫 번째 소스에서 모든 항목을 발행합니다.

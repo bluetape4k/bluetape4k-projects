@@ -3,6 +3,7 @@ package io.bluetape4k.cassandra.cql
 import com.datastax.oss.driver.api.core.cql.AsyncResultSet
 import com.datastax.oss.driver.api.core.cql.Row
 import io.bluetape4k.cassandra.AbstractCassandraTest
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.concurrent.failedCompletableFutureOf
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.mockk.clearAllMocks
@@ -35,7 +36,7 @@ class AsyncResultSetSupportUnitTest: AbstractCassandraTest() {
         every { first.currentPage() } returns listOf(row1)
         every { first.hasMorePages() } returns false
 
-        val rows = mutableListOf<Row>()
+        val rows = fastListOf<Row>()
 
         first.asFlow().collect { rows.add(it) }
         rows shouldBeEqualTo listOf(row1)
@@ -52,7 +53,7 @@ class AsyncResultSetSupportUnitTest: AbstractCassandraTest() {
         every { last.currentPage() } returns listOf(row2)
         every { last.hasMorePages() } returns false
 
-        val rows = mutableListOf<Row>()
+        val rows = fastListOf<Row>()
 
         first.asFlow().collect { rows.add(it) }
 
@@ -68,7 +69,7 @@ class AsyncResultSetSupportUnitTest: AbstractCassandraTest() {
         every { first.hasMorePages() } returns true
         every { first.fetchNextPage() } returns failed
 
-        val rows = mutableListOf<Row>()
+        val rows = fastListOf<Row>()
 
         assertFailsWith<RuntimeException> {
             first.asFlow().collect { rows.add(it) }

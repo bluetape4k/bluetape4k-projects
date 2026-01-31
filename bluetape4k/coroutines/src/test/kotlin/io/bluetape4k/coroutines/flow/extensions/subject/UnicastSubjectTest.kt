@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions.subject
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.coroutines.support.log
@@ -23,7 +24,7 @@ import kotlin.test.assertFailsWith
 class UnicastSubjectTest {
 
     companion object: KLoggingChannel() {
-        val expectedList = mutableListOf(0, 1, 2, 3, 4)
+        val expectedList = fastListOf(0, 1, 2, 3, 4)
         const val BUFFER_SIZE = 50_000
     }
 

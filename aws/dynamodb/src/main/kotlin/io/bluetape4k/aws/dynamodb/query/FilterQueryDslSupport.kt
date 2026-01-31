@@ -2,8 +2,10 @@ package io.bluetape4k.aws.dynamodb.query
 
 import io.bluetape4k.aws.dynamodb.model.Expression
 import io.bluetape4k.aws.dynamodb.model.toAttributeValue
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
+import org.eclipse.collections.impl.list.mutable.FastList
 import software.amazon.awssdk.enhanced.dynamodb.Expression
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 import kotlin.random.Random
@@ -213,7 +215,7 @@ fun ConcreteFilterBuilder.inList(vararg values: Any) {
 class RootFilterBuilder: FilterQueryBuilder {
 
     var currentFilter: FilterQuery? = null
-    var filterQueries: MutableList<FilterConnection> = mutableListOf()
+    var filterQueries: FastList<FilterConnection> = fastListOf()
 
     override fun build(): RootFilter = RootFilter(filterQueries)
 

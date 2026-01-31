@@ -1,5 +1,7 @@
 package io.bluetape4k.ahocorasick.interval
 
+import io.bluetape4k.collections.eclipse.fastList
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
@@ -11,7 +13,7 @@ class IntervalTreeTest {
 
     @Test
     fun `find overlaps`() {
-        val intervals = List(6) { Interval(it, it + 2) }
+        val intervals = fastList(6) { Interval(it, it + 2) }
         val tree = IntervalTree(intervals)
 
         val overlaps = tree.findOverlaps(Interval(1, 3))
@@ -20,7 +22,7 @@ class IntervalTreeTest {
 
     @Test
     fun `find overlaps with various size`() {
-        val intervals = listOf(
+        val intervals = fastListOf(
             Interval(0, 2),
             Interval(4, 5),
             Interval(2, 10),
@@ -30,31 +32,31 @@ class IntervalTreeTest {
         )
         val tree = IntervalTree(intervals)
 
-        tree.findOverlaps(Interval(0, 2)) shouldBeEqualTo listOf(Interval(2, 10))
-        tree.findOverlaps(Interval(4, 5)) shouldBeEqualTo listOf(Interval(2, 10))
+        tree.findOverlaps(Interval(0, 2)) shouldBeEqualTo fastListOf(Interval(2, 10))
+        tree.findOverlaps(Interval(4, 5)) shouldBeEqualTo fastListOf(Interval(2, 10))
 
-        tree.findOverlaps(Interval(2, 10)) shouldBeEqualTo listOf(
+        tree.findOverlaps(Interval(2, 10)) shouldBeEqualTo fastListOf(
             Interval(0, 2),
             Interval(4, 5),
             Interval(6, 13),
             Interval(9, 15),
         )
-        tree.findOverlaps(Interval(6, 13)) shouldBeEqualTo listOf(
+        tree.findOverlaps(Interval(6, 13)) shouldBeEqualTo fastListOf(
             Interval(2, 10),
             Interval(9, 15),
             Interval(12, 16),
         )
-        tree.findOverlaps(Interval(9, 15)) shouldBeEqualTo listOf(
+        tree.findOverlaps(Interval(9, 15)) shouldBeEqualTo fastListOf(
             Interval(2, 10),
             Interval(6, 13),
             Interval(12, 16),
         )
-        tree.findOverlaps(Interval(12, 16)) shouldBeEqualTo listOf(Interval(6, 13), Interval(9, 15))
+        tree.findOverlaps(Interval(12, 16)) shouldBeEqualTo fastListOf(Interval(6, 13), Interval(9, 15))
     }
 
     @Test
     fun `remove overlap`() {
-        val intervals = listOf(
+        val intervals = fastListOf(
             Interval(0, 2),
             Interval(4, 5),
             Interval(2, 10),
@@ -66,7 +68,7 @@ class IntervalTreeTest {
 
         val removed = tree.removeOverlaps(intervals)
         log.debug { "removed overlaps=$removed" }
-        removed shouldBeEqualTo listOf(Interval(2, 10), Interval(12, 16))
+        removed shouldBeEqualTo fastListOf(Interval(2, 10), Interval(12, 16))
     }
 
     private fun assertOverlaps(interval: Intervalable, expectedStart: Int, expectedEnd: Int) {

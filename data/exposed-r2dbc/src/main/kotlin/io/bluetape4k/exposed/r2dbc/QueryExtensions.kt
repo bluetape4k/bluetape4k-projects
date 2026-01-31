@@ -5,7 +5,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.toList
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.r2dbc.Query
 
@@ -36,16 +35,14 @@ suspend fun Query.forEachIndexed(block: (Int, ResultRow) -> Unit) {
  *
  * @return 값이 존재하면 true, 아니면 false
  */
-suspend fun <T> Flow<T>.any(): Boolean {
-    return this.firstOrNull() != null
-}
+suspend fun <T> Flow<T>.any(): Boolean = this.firstOrNull() != null
 
 /**
  * Flow의 모든 요소를 정렬하여 List로 반환합니다.
  *
  * @return 정렬된 List
  */
-suspend fun <T: Comparable<T>> Flow<T>.sorted(): List<T> = toList().sorted()
+suspend fun <T: Comparable<T>> Flow<T>.sorted(): List<T> = toFastList().sortThis()
 
 /**
  * Flow의 중복되지 않은 요소만 List로 반환합니다.
