@@ -1,10 +1,10 @@
 package io.bluetape4k.examples.cassandra.event
 
+import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.withContext
 import org.amshove.kluent.shouldBeEqualTo
@@ -55,7 +55,7 @@ class FlowEventTest(
             insertEntities()
         }
 
-        val userFlow = reactiveOperations.select<User>(Query.empty()).asFlow().toList()
+        val userFlow = reactiveOperations.select<User>(Query.empty()).asFlow().toFastList()
         userFlow.size shouldBeEqualTo 3
     }
 
