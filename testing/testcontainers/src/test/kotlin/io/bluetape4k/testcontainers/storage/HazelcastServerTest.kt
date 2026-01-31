@@ -3,6 +3,7 @@ package io.bluetape4k.testcontainers.storage
 import com.hazelcast.client.HazelcastClient
 import com.hazelcast.client.config.ClientConfig
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.testcontainers.AbstractContainerTest
 import io.bluetape4k.utils.ShutdownQueue
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
@@ -10,14 +11,11 @@ import org.amshove.kluent.shouldHaveSize
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.Execution
-import org.junit.jupiter.api.parallel.ExecutionMode
 import org.testcontainers.containers.Network
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.lifecycle.Startables
 
-@Execution(ExecutionMode.SAME_THREAD)
-class HazelcastServerTest {
+class HazelcastServerTest: AbstractContainerTest() {
 
     companion object: KLogging() {
         private const val TEST_QUEUE_NAME = "test-queue"

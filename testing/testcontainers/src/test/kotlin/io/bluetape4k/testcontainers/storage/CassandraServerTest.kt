@@ -6,17 +6,15 @@ import com.datastax.oss.driver.api.core.cql.SimpleStatementBuilder
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
+import io.bluetape4k.testcontainers.AbstractContainerTest
 import io.bluetape4k.testcontainers.storage.CassandraServer.Companion.LOCAL_DATACENTER1
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.Execution
-import org.junit.jupiter.api.parallel.ExecutionMode
 
-@Execution(ExecutionMode.SAME_THREAD)
-class CassandraServerTest {
+class CassandraServerTest: AbstractContainerTest() {
 
     companion object: KLogging() {
         private const val CQL_GET_VERSION = "SELECT release_version FROM system.local"

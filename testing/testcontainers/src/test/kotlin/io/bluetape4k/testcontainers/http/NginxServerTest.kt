@@ -2,20 +2,18 @@ package io.bluetape4k.testcontainers.http
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldContainSame
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.Execution
-import org.junit.jupiter.api.parallel.ExecutionMode
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStreamReader
 import java.io.PrintStream
 import java.net.URL
 
-@Execution(ExecutionMode.SAME_THREAD)
-class NginxServerTest {
+class NginxServerTest: AbstractContainerTest() {
 
     companion object: KLogging() {
         val tempDir = System.getProperty("user.home") + "/.tmp-test-container"

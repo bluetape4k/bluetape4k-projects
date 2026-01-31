@@ -25,7 +25,6 @@ import software.amazon.awssdk.services.s3.model.HeadBucketRequest
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import java.net.URI
 
-
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class S3Test: AbstractContainerTest() {
 

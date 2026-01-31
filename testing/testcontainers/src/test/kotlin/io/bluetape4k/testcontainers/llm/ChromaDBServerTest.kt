@@ -1,16 +1,14 @@
 package io.bluetape4k.testcontainers.llm
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.testcontainers.AbstractContainerTest
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import io.restassured.module.kotlin.extensions.When
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.Execution
-import org.junit.jupiter.api.parallel.ExecutionMode
 
-@Execution(ExecutionMode.SAME_THREAD)
-class ChromaDBServerTest {
+class ChromaDBServerTest: AbstractContainerTest() {
 
     companion object: KLogging()
 

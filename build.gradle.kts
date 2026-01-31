@@ -297,7 +297,6 @@ subprojects {
             mavenBom(Libs.okhttp3_bom)
             mavenBom(Libs.grpc_bom)
             mavenBom(Libs.protobuf_bom)
-            mavenBom(Libs.metrics_bom)
             mavenBom(Libs.fabric8_kubernetes_client_bom)
             mavenBom(Libs.resilience4j_bom)
             mavenBom(Libs.netty_bom)

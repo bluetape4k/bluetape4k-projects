@@ -2,17 +2,15 @@ package io.bluetape4k.testcontainers.http
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.Execution
-import org.junit.jupiter.api.parallel.ExecutionMode
 import java.net.HttpURLConnection
 import java.net.URI
 
-@Execution(ExecutionMode.SAME_THREAD)
-class HttpbinServerTest {
+class HttpbinServerTest: AbstractContainerTest() {
 
     companion object: KLogging()
 

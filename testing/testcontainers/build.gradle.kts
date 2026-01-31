@@ -40,7 +40,9 @@ dependencies {
     // R2DBC
     compileOnly(Libs.testcontainers_r2dbc)
     compileOnly(Libs.springBootStarter("data-r2dbc"))
-    compileOnly(Libs.r2dbc_mysql)
+    testRuntimeOnly(Libs.r2dbc_mariadb)
+    testRuntimeOnly(Libs.r2dbc_mysql)
+    testRuntimeOnly(Libs.r2dbc_postgresql)
 
     // Redis
     compileOnly(Libs.redisson)
@@ -60,6 +62,8 @@ dependencies {
     // MongoDB
     compileOnly(Libs.testcontainers_mongodb)
     compileOnly(Libs.mongodb_driver_kotlin_sync)
+    compileOnly(Libs.mongodb_driver_kotlin_coroutine)
+    compileOnly(Libs.mongodb_driver_kotlin_extensions)
 
     // Cassandra
     compileOnly(Libs.testcontainers_cassandra)
@@ -69,6 +73,7 @@ dependencies {
     // ElasticSearch
     compileOnly(Libs.testcontainers_elasticsearch)
     compileOnly(Libs.elasticsearch_rest_client)
+    compileOnly(Libs.elasticsearch_rest_client_sniffer)
     compileOnly(Libs.springData("elasticsearch"))
 
     // Opensearch
@@ -128,8 +133,6 @@ dependencies {
     // https://mvnrepository.com/artifact/software.amazon.awssdk.crt/aws-crt
     testImplementation(Libs.aws2_aws_crt)
 
-    testImplementation(Libs.metrics_jmx)
-
     // Minio
     compileOnly(Libs.testcontainers_minio)
     compileOnly(Libs.minio)
@@ -155,7 +158,7 @@ dependencies {
     // ClickHouse
     compileOnly(Libs.testcontainers_clickhouse)
     testRuntimeOnly(Libs.clickhouse_jdbc)
-    testRuntimeOnly(Libs.httpclient5)
+    // testRuntimeOnly(Libs.httpclient5)
 
     // Weaviate
     compileOnly(Libs.testcontainers_weaviate)

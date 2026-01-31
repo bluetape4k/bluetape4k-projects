@@ -6,18 +6,16 @@ import com.rabbitmq.client.DefaultConsumer
 import com.rabbitmq.client.Envelope
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.Execution
-import org.junit.jupiter.api.parallel.ExecutionMode
 import java.util.*
 
-@Execution(ExecutionMode.SAME_THREAD)
-class RabbitMQServerTest {
+class RabbitMQServerTest: AbstractContainerTest() {
 
     companion object: KLogging() {
         private const val RABBITMQ_TEST_EXCHANGE = "TestExchange"

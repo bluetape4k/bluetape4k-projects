@@ -3,18 +3,16 @@ package io.bluetape4k.testcontainers.mq
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
+import io.bluetape4k.testcontainers.AbstractContainerTest
 import io.nats.client.Subscription
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.Execution
-import org.junit.jupiter.api.parallel.ExecutionMode
 import java.time.Duration
 
-@Execution(ExecutionMode.SAME_THREAD)
-class NatsServerTest {
+class NatsServerTest: AbstractContainerTest() {
 
     companion object: KLogging()
 

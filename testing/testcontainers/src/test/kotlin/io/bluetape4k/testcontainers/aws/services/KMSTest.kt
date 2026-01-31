@@ -31,7 +31,6 @@ import software.amazon.awssdk.services.kms.model.KeySpec
 import software.amazon.awssdk.services.kms.model.KeyUsageType
 import java.net.URI
 
-
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class KMSTest: AbstractContainerTest() {
 

@@ -1,6 +1,6 @@
 package io.bluetape4k.testcontainers.storage
 
-import com.hazelcast.config.RestApiConfig
+import com.hazelcast.config.rest.RestConfig
 import com.hazelcast.spi.properties.HazelcastProperty
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -32,7 +32,7 @@ class HazelcastServer private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "hazelcast/hazelcast"
-        const val TAG = "5.3-slim"
+        const val TAG = "5-slim"
         const val NAME = "hazelcast"
         const val PORT = 5701
 
@@ -58,7 +58,7 @@ class HazelcastServer private constructor(
 
     private val enabledFeatures = HashSet<HazelcastProperty>()
     private val customProperties = HashSet<String>()
-    private lateinit var config: RestApiConfig
+    private lateinit var config: RestConfig
 
     override val port: Int get() = getMappedPort(PORT)
 
@@ -83,10 +83,10 @@ class HazelcastServer private constructor(
 
     fun withRESTClient() = apply {
         // TODO: deprecated feature 수정 필요
-        // enabledFeatures.add(GroupProperty.REST_ENABLED)
+        // enabledFeatures.add(GroupProperty.REST_CLIENT_ENABLED)
     }
 
-    fun withRestApi(config: RestApiConfig) {
+    fun withRestApi(config: RestConfig) {
         this.config = config
     }
 
@@ -97,15 +97,10 @@ class HazelcastServer private constructor(
     override fun configure() {
         super.configure()
 
-        var javaOpts = ""
-        if (::config.isInitialized) {
-            javaOpts += config.enabledGroups.joinToString(" ") { "-D${it.name}=true" }
-        }
-
-        javaOpts += " " + enabledFeatures.joinToString(" ") { "-D${it.name}=true" }
+        val javaOpts = enabledFeatures.joinToString(" ") { "-D${it.name}=true" }
         val customProps = customProperties.joinToString(" ") { "-D$it" }
 
-        log.debug { javaOpts }
+        log.debug { "javaOpts=$javaOpts" }
         withEnv("JAVA_OPTS", "$javaOpts $customProps")
     }
 

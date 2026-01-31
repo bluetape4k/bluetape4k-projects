@@ -25,7 +25,7 @@ class MongoDBServerTest: AbstractContainerTest() {
     @Nested
     inner class UseDockerPort {
         @Test
-        fun `launch mongodb 7 server`() {
+        fun `launch mongodb 8 server`() {
             MongoDBServer(databaseName = DATABASE_NAME).use { mongo ->
                 mongo.start()
                 mongo.isRunning.shouldBeTrue()
@@ -40,7 +40,7 @@ class MongoDBServerTest: AbstractContainerTest() {
     @Nested
     inner class UseDefaultPort {
         @Test
-        fun `launch mongodb 7 server with default port`() {
+        fun `launch mongodb 8 server with default port`() {
             MongoDBServer(useDefaultPort = true, databaseName = DATABASE_NAME).use { mongo ->
                 mongo.start()
                 mongo.isRunning.shouldBeTrue()

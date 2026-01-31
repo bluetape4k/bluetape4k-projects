@@ -2,6 +2,7 @@ package io.bluetape4k.testcontainers.storage
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.testcontainers.AbstractContainerTest
 import io.minio.BucketExistsArgs
 import io.minio.MakeBucketArgs
 import io.minio.StatObjectArgs
@@ -11,12 +12,9 @@ import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNullOrBlank
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.Execution
-import org.junit.jupiter.api.parallel.ExecutionMode
 import org.testcontainers.utility.Base58
 
-@Execution(ExecutionMode.SAME_THREAD)
-class MinIOServerTest {
+class MinIOServerTest: AbstractContainerTest() {
 
     companion object: KLogging()
 

@@ -1,18 +1,16 @@
 package io.bluetape4k.testcontainers.storage
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.Execution
-import org.junit.jupiter.api.parallel.ExecutionMode
 import org.springframework.data.elasticsearch.client.ClientConfiguration
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchClients
 
-@Execution(ExecutionMode.SAME_THREAD)
-class OpenSearchServerTest {
+class OpenSearchServerTest: AbstractContainerTest() {
 
     companion object Companion: KLogging()
 

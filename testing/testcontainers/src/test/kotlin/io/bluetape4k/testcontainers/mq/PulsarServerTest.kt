@@ -1,17 +1,15 @@
 package io.bluetape4k.testcontainers.mq
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.apache.pulsar.client.api.PulsarClient
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.Execution
-import org.junit.jupiter.api.parallel.ExecutionMode
 import java.util.concurrent.TimeUnit
 
-@Execution(ExecutionMode.SAME_THREAD)
-class PulsarServerTest {
+class PulsarServerTest: AbstractContainerTest() {
 
     companion object: KLogging() {
         private const val TEST_TOPIC_NAME = "pulsar.test-topic.1"

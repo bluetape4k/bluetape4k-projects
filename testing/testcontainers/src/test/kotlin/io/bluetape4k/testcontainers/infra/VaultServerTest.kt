@@ -3,15 +3,13 @@ package io.bluetape4k.testcontainers.infra
 import com.bettercloud.vault.Vault
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.Execution
-import org.junit.jupiter.api.parallel.ExecutionMode
 
-@Execution(ExecutionMode.SAME_THREAD)
-class VaultServerTest {
+class VaultServerTest: AbstractContainerTest() {
 
     companion object: KLogging() {
         private const val VAULT_TOKEN = "my-root-token"

@@ -2,6 +2,7 @@ package io.bluetape4k.testcontainers.aws.services
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.testcontainers.AbstractContainerTest
 import io.bluetape4k.testcontainers.aws.LocalStackServer
 import io.bluetape4k.utils.ShutdownQueue
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
@@ -11,8 +12,6 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import org.junit.jupiter.api.parallel.Execution
-import org.junit.jupiter.api.parallel.ExecutionMode
 import org.testcontainers.containers.localstack.LocalStackContainer
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient
 import software.amazon.awssdk.enhanced.dynamodb.internal.client.ExtensionResolver
@@ -30,10 +29,8 @@ import software.amazon.awssdk.services.dynamodb.model.ScalarAttributeType
 import software.amazon.awssdk.services.dynamodb.model.ScanRequest
 import java.net.URI
 
-
-@Execution(ExecutionMode.SAME_THREAD)
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class DynamoDBTest {
+class DynamoDBTest: AbstractContainerTest() {
 
     companion object: KLogging() {
         private const val TABLE_NAME = "test-table"

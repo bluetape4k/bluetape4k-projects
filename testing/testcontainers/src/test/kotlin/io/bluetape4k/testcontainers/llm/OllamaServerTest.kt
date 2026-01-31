@@ -3,16 +3,14 @@ package io.bluetape4k.testcontainers.llm
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.testcontainers.AbstractContainerTest
 import io.restassured.RestAssured.given
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.Execution
-import org.junit.jupiter.api.parallel.ExecutionMode
 import org.testcontainers.utility.DockerImageName
 
-@Execution(ExecutionMode.SAME_THREAD)
-class OllamaServerTest {
+class OllamaServerTest: AbstractContainerTest() {
 
     companion object: KLogging()
 

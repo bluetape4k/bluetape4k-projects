@@ -3,16 +3,14 @@ package io.bluetape4k.testcontainers.storage
 import io.bluetape4k.LibraryName
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
+import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.Execution
-import org.junit.jupiter.api.parallel.ExecutionMode
 import org.redisson.api.redisnode.RedisNodes
 
-@Execution(ExecutionMode.SAME_THREAD)
-class RedisClusterServerTest {
+class RedisClusterServerTest: AbstractContainerTest() {
 
     companion object: KLogging()
 
