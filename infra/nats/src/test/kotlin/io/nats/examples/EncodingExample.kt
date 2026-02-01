@@ -137,12 +137,12 @@ class EncodingExample: AbstractNatsTest() {
 
     private fun createPojo(): Pojo {
         return Pojo(
-            s = Fakers.randomString(2048),
+            s = Fakers.faker.lorem().paragraph(12),
             l = faker.random().nextLong(),
             b = faker.random().nextBoolean(),
-            strings = listOf(faker.artist().name(), faker.artist().name(), faker.artist().name())
+            strings = List(6) { faker.artist().name() }
         ).apply {
-            ints = intArrayOf(faker.random().nextInt(), faker.random().nextInt(), faker.random().nextInt())
+            ints = IntArray(10) { faker.random().nextInt() }
         }
     }
 }

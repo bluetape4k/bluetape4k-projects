@@ -11,7 +11,7 @@ inline fun natsOptions(
 
 inline fun natsOptions(
     properties: Properties,
-    builder: Options.Builder.() -> Unit = {},
+    @BuilderInference builder: Options.Builder.() -> Unit = {},
 ): Options {
     return Options.Builder(properties).apply(builder).build()
 }

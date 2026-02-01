@@ -45,7 +45,7 @@ class ServerPoolExample: AbstractNatsTest() {
 
             // WHILE THE THREAD IS SLEEPING, KILL THE SERVER WE ARE CONNECTED TO SO A RECONNECT OCCURS
             natsServer1.stop()
-            Thread.sleep(10_000)
+            Thread.sleep(1_000)
 
             si = nc.serverInfo
             println("CONNECT 2")

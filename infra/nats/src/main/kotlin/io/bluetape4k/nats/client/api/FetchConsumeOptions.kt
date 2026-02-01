@@ -2,8 +2,10 @@ package io.bluetape4k.nats.client.api
 
 import io.nats.client.FetchConsumeOptions
 
-inline fun fetchConsumeOptions(initializer: FetchConsumeOptions.Builder.() -> Unit): FetchConsumeOptions =
-    FetchConsumeOptions.builder().apply(initializer).build()
+inline fun fetchConsumeOptions(
+    @BuilderInference builder: FetchConsumeOptions.Builder.() -> Unit,
+): FetchConsumeOptions =
+    FetchConsumeOptions.builder().apply(builder).build()
 
 fun fetchConsumeOptionsOf(
     maxMessages: Int = 100,

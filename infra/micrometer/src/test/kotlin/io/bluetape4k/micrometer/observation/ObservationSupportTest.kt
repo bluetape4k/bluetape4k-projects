@@ -1,8 +1,8 @@
 package io.bluetape4k.micrometer.observation
 
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
-import io.micrometer.observation.Observation
 import io.micrometer.observation.tck.ObservationContextAssert
 import io.micrometer.observation.tck.ObservationRegistryAssert
 import org.amshove.kluent.shouldBeEqualTo
@@ -20,8 +20,8 @@ class ObservationSupportTest: AbstractObservationTest() {
 
     @Test
     fun `create Observation`() {
-        val observationName = faker.name().name()
-        val observation = Observation.start(observationName, observationRegistry)
+        val observationName = Base58.randomString(6)
+        val observation = observationRegistry.start(observationName)
 
         observation.observe {
             log.info { "observation: ${observation.context.name}" }

@@ -1,5 +1,6 @@
 package io.nats.examples
 
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.nats.AbstractNatsTest
@@ -255,7 +256,7 @@ class CoreReplyRequestPatterns: AbstractNatsTest() {
          */
         inner class OriginatorA(val nc: Connection, workers: Int): Runnable {
 
-            val requesterId = Random.nextLong().toHexString()
+            val requesterId = Base58.randomString(16)
             val latch = CountDownLatch(workers)
 
             init {

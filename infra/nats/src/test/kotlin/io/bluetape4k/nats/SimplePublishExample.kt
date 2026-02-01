@@ -12,9 +12,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.toJavaDuration
 
 class SimplePublishExample: AbstractNatsTest() {
 
@@ -30,7 +28,7 @@ class SimplePublishExample: AbstractNatsTest() {
             conn.publish(TEST_SUBJECT, sendBody)
             conn.flush(5.seconds)
 
-            val message: Message = subscription.nextMessage(500.milliseconds.toJavaDuration())
+            val message: Message = subscription.nextMessage(500)
 
             log.debug { "message=$message" }
             message.subject shouldBeEqualTo TEST_SUBJECT

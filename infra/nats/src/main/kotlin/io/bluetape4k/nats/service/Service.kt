@@ -6,7 +6,7 @@ import io.nats.service.ServiceBuilder
 import io.nats.service.ServiceEndpoint
 
 inline fun natsService(
-    builder: ServiceBuilder.() -> Unit,
+    @BuilderInference builder: ServiceBuilder.() -> Unit,
 ): Service =
     ServiceBuilder().apply(builder).build()
 
@@ -19,6 +19,7 @@ fun natsServiceOf(
     connection(nc)
     name(name)
     version(version)
+
     serviceEndpoints.forEach { serviceEndpoint ->
         addServiceEndpoint(serviceEndpoint)
     }

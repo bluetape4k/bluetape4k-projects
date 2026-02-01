@@ -5,11 +5,11 @@ import io.nats.client.impl.Headers
 import io.nats.client.impl.NatsMessage
 
 inline fun natsMessage(
-    @BuilderInference initializer: NatsMessage.Builder.() -> Unit,
+    @BuilderInference builder: NatsMessage.Builder.() -> Unit,
 ): NatsMessage =
     NatsMessage
         .builder()
-        .apply(initializer)
+        .apply(builder)
         .build()
 
 fun natsMessageOf(message: Message) = NatsMessage(message)

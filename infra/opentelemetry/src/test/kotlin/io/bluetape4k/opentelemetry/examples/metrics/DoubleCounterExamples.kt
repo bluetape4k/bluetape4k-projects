@@ -24,7 +24,7 @@ class DoubleCounterExamples: AbstractOtelTest() {
         private val fileExtensionAttrKey = "file_extension".toAttributeKey()
     }
 
-    @ParameterizedTest(name = "measure file size in coroutines. name={0}")
+    @ParameterizedTest(name = "name={0}")
     @MethodSource(JUNIT_METHOD_SOURCE_NAME)
     fun `measure file size in coroutines`(name: String, otel: OpenTelemetry) = runSuspendIO {
         log.debug { "Use $name OpenTelemetry in Coroutines" }

@@ -212,6 +212,5 @@ class ObjectStoreExample: AbstractNatsTest() {
                 }
             }
         }
-
     }
 }

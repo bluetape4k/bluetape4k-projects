@@ -5,7 +5,7 @@ import io.nats.service.Group
 import io.nats.service.ServiceEndpoint
 
 inline fun serviceEndpoint(
-    builder: ServiceEndpoint.Builder.() -> Unit,
+    @BuilderInference builder: ServiceEndpoint.Builder.() -> Unit,
 ): ServiceEndpoint =
     ServiceEndpoint.builder().apply(builder).build()
 

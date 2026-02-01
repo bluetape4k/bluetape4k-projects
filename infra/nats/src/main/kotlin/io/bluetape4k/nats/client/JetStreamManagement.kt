@@ -18,7 +18,7 @@ fun JetStreamManagement.forcedDeleteConsumer(streamName: String, consumerName: S
 fun JetStreamManagement.forcedPurgeStream(streamName: String): PurgeResponse? =
     runCatching { purgeStream(streamName) }.getOrNull()
 
-fun JetStreamManagement.tryPurgeStream(
+inline fun JetStreamManagement.tryPurgeStream(
     streamName: String,
     streamConfigurationCreator: () -> StreamConfiguration = { StreamConfiguration.builder().name(streamName).build() },
 ): PurgeResponse? {

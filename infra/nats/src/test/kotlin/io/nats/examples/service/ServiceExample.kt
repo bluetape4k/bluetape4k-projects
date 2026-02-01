@@ -1,5 +1,6 @@
 package io.nats.examples.service
 
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.nats.AbstractNatsTest
@@ -238,5 +239,5 @@ class ServiceExample: AbstractNatsTest() {
     }
 
     fun randomText(): String =
-        System.currentTimeMillis().toHexString() + System.nanoTime().toHexString()
+        System.currentTimeMillis().toHexString() + Base58.randomString(8)
 }

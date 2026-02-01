@@ -1,5 +1,6 @@
 package io.nats.examples.chainOfCommand
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.nats.AbstractNatsTest
@@ -14,7 +15,7 @@ class App: AbstractNatsTest() {
 
     @Test
     fun `publish style workers 1 2`() {
-        val endpoints = listOf(
+        val endpoints = fastListOf(
             PublishStyleWorkers.WorkerA(1),
             PublishStyleWorkers.WorkerA(2),
             PublishStyleWorkers.WorkerB(1),
@@ -48,7 +49,7 @@ class App: AbstractNatsTest() {
 
     @Test
     fun `request style workers 1 2`() {
-        val endpoints = listOf(
+        val endpoints = fastListOf(
             RequestStyleWorkers.WorkerA(1),
             RequestStyleWorkers.WorkerA(2),
             RequestStyleWorkers.WorkerB(1),
@@ -77,8 +78,7 @@ class App: AbstractNatsTest() {
             val response = nc.request(message, Duration.ofSeconds(2))
             log.debug { "Request Style starter received a response: $response" }
 
-            Thread.sleep(2000)
-            nc.flush(Duration.ofSeconds(3))
+            nc.flush(Duration.ofSeconds(1))
         }
     }
 }

@@ -25,13 +25,20 @@ class ForyBinarySerializer(
         private val DefaultFory: ThreadSafeFory by lazy {
             Fory.builder()
                 .withLanguage(Language.JAVA)
-                .withAsyncCompilation(true)
                 .withCompatibleMode(CompatibleMode.COMPATIBLE)
+                .withAsyncCompilation(true)
                 .withRefTracking(true)
                 .withRefCopy(true)
                 .withCodegen(true)
+                .withStringCompressed(true)
                 .requireClassRegistration(false)
-                .buildThreadSafeForyPool(4, 4 * Runtime.getRuntime().availableProcessors(), 5L, TimeUnit.MINUTES)
+                .registerGuavaTypes(true)
+                .buildThreadSafeForyPool(
+                    2,
+                    4 * Runtime.getRuntime().availableProcessors(),
+                    5L,
+                    TimeUnit.MINUTES
+                )
         }
     }
 

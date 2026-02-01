@@ -41,7 +41,7 @@ class PubSubExample: AbstractNatsTest() {
             nc.publish("greet.sue", body)
             nc.publish("greet.pam", body)
 
-            latch.await(500, TimeUnit.MILLISECONDS)
+            latch.await(5000, TimeUnit.MILLISECONDS)
         }
     }
 }

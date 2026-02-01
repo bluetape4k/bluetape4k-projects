@@ -1,5 +1,6 @@
 package io.nats.examples.jetstream
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -33,7 +34,7 @@ class NatsJsPubAsync: AbstractNatsTest() {
 
             nc.createStreamOrUpdateSubjects(DEFAULT_STREAM, subjects = arrayOf(DEFAULT_SUBJECT))
 
-            val futures = List(DEFAULT_MSG_COUNT) { index ->
+            val futures = fastList(DEFAULT_MSG_COUNT) { index ->
                 val data = "$DEFAULT_MESSAGE-$index"
                 val msg = natsMessageOf(DEFAULT_SUBJECT, data)
                 log.debug { "Publishing message $data on subject $DEFAULT_SUBJECT" }
@@ -65,7 +66,7 @@ class NatsJsPubAsync: AbstractNatsTest() {
 
             nc.createStreamOrUpdateSubjects(DEFAULT_STREAM, subjects = arrayOf(DEFAULT_SUBJECT))
 
-            val defers = List(DEFAULT_MSG_COUNT) { index ->
+            val defers = fastList(DEFAULT_MSG_COUNT) { index ->
                 async {
                     val data = "$DEFAULT_MESSAGE-$index"
                     val msg = natsMessageOf(DEFAULT_SUBJECT, data)

@@ -8,7 +8,13 @@ import io.nats.client.JetStream
 
 private val log = KotlinLogging.logger { }
 
-fun JetStream.publish(subject: String, prefix: String = "data", times: Int = 1, msgSize: Int, verbose: Boolean) {
+fun JetStream.publish(
+    subject: String,
+    prefix: String = "data",
+    times: Int = 1,
+    msgSize: Int,
+    verbose: Boolean,
+) {
     if (verbose) {
         log.debug { "Publish ->" }
     }
@@ -22,7 +28,12 @@ fun JetStream.publish(subject: String, prefix: String = "data", times: Int = 1, 
     }
 }
 
-fun makeData(prefix: String, msgSize: Int, verbose: Boolean, index: Int): ByteArray? {
+fun makeData(
+    prefix: String,
+    msgSize: Int,
+    verbose: Boolean,
+    index: Int,
+): ByteArray? {
     if (msgSize == 0) {
         return null
     }
