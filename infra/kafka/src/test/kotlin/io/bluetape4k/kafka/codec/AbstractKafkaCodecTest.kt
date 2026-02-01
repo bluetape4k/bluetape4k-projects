@@ -11,7 +11,6 @@ import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.apache.kafka.common.header.internals.RecordHeaders
-import org.eclipse.collections.impl.list.mutable.FastList
 import org.junit.jupiter.api.RepeatedTest
 import java.io.Serializable
 import java.math.BigDecimal
