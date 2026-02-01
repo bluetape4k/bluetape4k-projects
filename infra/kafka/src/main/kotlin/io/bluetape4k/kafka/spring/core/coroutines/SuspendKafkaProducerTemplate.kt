@@ -89,14 +89,14 @@ class SuspendKafkaProducerTemplate<K, V> private constructor(
         return send(ProducerRecord(topic, partition, key, value))
     }
 
+    @Suppress("UNCHECKED_CAST")
     suspend fun send(topic: String, message: Message<*>): SenderResult<Unit> {
-        @Suppress("UNCHECKED_CAST") val producerRecord =
+        val producerRecord =
             messageConverter.fromMessage(message, topic) as ProducerRecord<K, V>
-        if (!producerRecord.headers().iterator().hasNext()) {
-            val correlationId = message.headers[KafkaHeaders.CORRELATION_ID, ByteArray::class.java]
-            if (correlationId != null) {
-                producerRecord.headers().add(KafkaHeaders.CORRELATION_ID, correlationId)
-            }
+
+        val correlationId = message.headers[KafkaHeaders.CORRELATION_ID, ByteArray::class.java]
+        if (correlationId != null) {
+            producerRecord.headers().add(KafkaHeaders.CORRELATION_ID, correlationId)
         }
         return send(producerRecord)
     }

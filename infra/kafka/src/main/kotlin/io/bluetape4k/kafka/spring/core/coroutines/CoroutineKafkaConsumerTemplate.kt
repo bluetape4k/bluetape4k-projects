@@ -56,6 +56,7 @@ import reactor.kafka.sender.TransactionManager
  *
  * @see [org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate]
  */
+@Deprecated("use SuspendKafkaConsumerTemplate", replaceWith = ReplaceWith("SuspendKafkaConsumerTemplate(receiver)"))
 class CoroutineKafkaConsumerTemplate<K, V>(
     private val receiver: KafkaReceiver<K, V>,
 ): CoroutineScope by CoroutineScope(Dispatchers.IO + SupervisorJob()) {

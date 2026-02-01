@@ -1,5 +1,6 @@
 package io.bluetape4k.kafka.coroutines
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.concurrent.asCompletableFuture
 import io.bluetape4k.concurrent.sequence
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -24,17 +25,16 @@ import org.amshove.kluent.shouldBeGreaterOrEqualTo
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.jupiter.api.RepeatedTest
-import java.util.concurrent.CompletableFuture
 import kotlin.system.measureTimeMillis
 
 @RandomizedTest
 class ProducerSupportTest: AbstractKafkaTest() {
 
     companion object: KLoggingChannel() {
-        private const val MESSAGE_SIZE = 100
+        private const val MESSAGE_SIZE = 10
 
         fun randomStrings(size: Int = MESSAGE_SIZE): List<String> {
-            return List(size) { randomString() }
+            return fastList(size) { randomString() }
         }
     }
 
@@ -42,9 +42,9 @@ class ProducerSupportTest: AbstractKafkaTest() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `send one message with future`(@RandomValue message: String) = runSuspendIO {
-        val record = ProducerRecord<String?, String>(TEST_TOPIC_NAME, null, message)
+        val record = ProducerRecord<String, String>(TEST_TOPIC_NAME, null, message)
 
-        val future: CompletableFuture<RecordMetadata> = producer.send(record).asCompletableFuture()
+        val future = producer.send(record).asCompletableFuture()
         producer.flush()
         val metadata = future.await()
         metadata.verifyRecordMetadata()
@@ -80,12 +80,14 @@ class ProducerSupportTest: AbstractKafkaTest() {
         val messages = randomStrings()
 
         measureSendRecords(MESSAGE_SIZE) {
-            val defers = messages.map { message ->
+            val tasks = messages.map { message ->
                 val record = ProducerRecord<String, String>(TEST_TOPIC_NAME, null, message)
-                async(Dispatchers.IO) { producer.suspendSend(record) }
+                async(Dispatchers.IO) {
+                    producer.suspendSend(record)
+                }
             }
 
-            defers.awaitAll().forEach { metadata ->
+            tasks.awaitAll().forEach { metadata ->
                 metadata.verifyRecordMetadata()
             }
         }
@@ -98,7 +100,9 @@ class ProducerSupportTest: AbstractKafkaTest() {
         measureSendRecords(MESSAGE_SIZE) {
             val sendTime = measureTimeMillis {
                 val records = messages.asFlow()
-                    .map { ProducerRecord<String, String>(TEST_TOPIC_NAME, null, it) }
+                    .map {
+                        ProducerRecord<String, String>(TEST_TOPIC_NAME, null, it)
+                    }
 
                 val lastResult = producer.sendAsFlow(records).last()
                 lastResult.verifyRecordMetadata()

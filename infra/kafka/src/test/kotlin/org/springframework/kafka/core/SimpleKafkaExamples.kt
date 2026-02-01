@@ -98,11 +98,11 @@ class SimpleKafkaExamples {
         val key = "simple key"
         val message = "simple message"
 
-        val result = kafkaTemplate.send(SIMPLE_TOPIC_NAME, key, message).await()
-        log.debug { "produceRecord=${result.producerRecord}" }
-        log.debug { "recordMetadata=${result.recordMetadata}" }
-        result.recordMetadata.hasTimestamp().shouldBeTrue()
-        result.recordMetadata.hasOffset().shouldBeTrue()
+        val result1 = kafkaTemplate.send(SIMPLE_TOPIC_NAME, key, message).await()
+        log.debug { "produceRecord=${result1.producerRecord}" }
+        log.debug { "recordMetadata=${result1.recordMetadata}" }
+        result1.recordMetadata.hasTimestamp().shouldBeTrue()
+        result1.recordMetadata.hasOffset().shouldBeTrue()
 
         val result2 = kafkaTemplate.send(SIMPLE_TOPIC_NAME, key, message).await()
         log.debug { "produceRecord=${result2.producerRecord}" }
@@ -110,9 +110,9 @@ class SimpleKafkaExamples {
         result2.recordMetadata.hasTimestamp().shouldBeTrue()
         result2.recordMetadata.hasOffset().shouldBeTrue()
 
-        // 테스트용 Kafka 라서 partition 은 1만 갖도록 한다 
-        result2.recordMetadata.partition() shouldBeEqualTo result.recordMetadata.partition()
-        result2.recordMetadata.offset() shouldBeGreaterThan result.recordMetadata.offset()
+        // 테스트용 Kafka 라서 partition 은 하나만 갖도록 한다
+        result2.recordMetadata.partition() shouldBeEqualTo result1.recordMetadata.partition()
+        result2.recordMetadata.offset() shouldBeGreaterThan result1.recordMetadata.offset()
 
         await until { consumed >= 2 * 3 }
         log.debug { "all consumer has been consumed." }

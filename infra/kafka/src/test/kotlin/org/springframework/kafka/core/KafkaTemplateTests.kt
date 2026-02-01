@@ -1,6 +1,7 @@
 package org.springframework.kafka.core
 
 import io.bluetape4k.collections.eclipse.fastListOf
+import io.bluetape4k.concurrent.onFailure
 import io.bluetape4k.concurrent.onSuccess
 import io.bluetape4k.kafka.spring.test.utils.consumerProps
 import io.bluetape4k.kafka.spring.test.utils.getSingleRecord
@@ -375,6 +376,9 @@ class KafkaTemplateTests {
             theResult.set(result)
             latch.countDown()
         }
+            .onFailure {
+                throw it
+            }
 
         consumer.getSingleRecord(INT_KEY_TOPIC).value() shouldBeEqualTo "foo"
         latch.await(5, TimeUnit.SECONDS).shouldBeTrue()
