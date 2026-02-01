@@ -60,30 +60,29 @@ class PersonConverterTest: AbstractMapstructTest() {
         val actual = converter.convertToDto(person)
         actual shouldBeEqualTo personDto
     }
-}
 
+    data class Person(
+        var firstName: String?,
+        var lastName: String?,
+        var phoneNumber: String?,
+        var birthDate: LocalDate?,
+    ): Serializable
 
-data class Person(
-    var firstName: String?,
-    var lastName: String?,
-    var phoneNumber: String?,
-    var birthDate: LocalDate?,
-): Serializable
+    data class PersonDto(
+        var firstName: String?,
+        var lastName: String?,
+        var phone: String?,
+        var birthDate: LocalDate?,
+    ): Serializable
 
-data class PersonDto(
-    var firstName: String?,
-    var lastName: String?,
-    var phone: String?,
-    var birthDate: LocalDate?,
-): Serializable
+    @Mapper
+    interface PersonConverter {
 
-@Mapper
-interface PersonConverter {
+        @Mapping(source = "phoneNumber", target = "phone")
+        fun convertToDto(person: Person): PersonDto
 
-    @Mapping(source = "phoneNumber", target = "phone")
-    fun convertToDto(person: Person): PersonDto
+        @InheritInverseConfiguration
+        fun convertToModel(personDto: PersonDto): Person
 
-    @InheritInverseConfiguration
-    fun convertToModel(personDto: PersonDto): Person
-
+    }
 }

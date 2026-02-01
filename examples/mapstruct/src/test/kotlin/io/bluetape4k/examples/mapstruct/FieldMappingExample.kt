@@ -4,6 +4,7 @@ import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainSame
+import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.mapstruct.InheritInverseConfiguration
@@ -34,9 +35,9 @@ class FieldMappingExample: AbstractMapstructTest() {
         customerDto.customerId shouldBeEqualTo customer.id
         customerDto.customerName shouldBeEqualTo customer.name
         customerDto.orders.shouldNotBeNull()
-        customerDto.orders!!.size shouldBeEqualTo 2
-        val orders = customerDto.orders!!.toFastList()
+        customerDto.orders shouldHaveSize 2
 
+        val orders = customerDto.orders.toFastList()
         orders.map { it.name } shouldContainSame customer.orderItems!!.map { it.name }
         orders.map { it.quantity } shouldContainSame customer.orderItems!!.map { it.quantity }
 
@@ -60,64 +61,66 @@ class FieldMappingExample: AbstractMapstructTest() {
         customer.id shouldBeEqualTo customerDto.customerId
         customer.name shouldBeEqualTo customerDto.customerName
         customer.orderItems.shouldNotBeNull()
-        customer.orderItems!!.size shouldBeEqualTo 2
-        val orderItems = customer.orderItems!!.toFastList()
+        customer.orderItems shouldHaveSize 2
 
-        orderItems.map { it.name } shouldContainSame customerDto.orders!!.map { it.name }
-        orderItems.map { it.quantity } shouldContainSame customerDto.orders!!.map { it.quantity }
+        val orderItems = customer.orderItems.toFastList()
+
+        orderItems.map { it.name } shouldContainSame customerDto.orders.map { it.name }
+        orderItems.map { it.quantity } shouldContainSame customerDto.orders.map { it.quantity }
 
         val actual: CustomerDto = CustomerMapper.MAPPER.fromCustomer(customer)
         actual shouldBeEqualTo customerDto
     }
-}
 
-data class Customer(
-    var id: Long?,
-    var name: String?,
-    var orderItems: List<OrderItem>?,
-): Serializable
 
-data class OrderItem(
-    var name: String?,
-    var quantity: Long?,
-): Serializable
+    data class Customer(
+        var id: Long?,
+        var name: String?,
+        var orderItems: List<OrderItem> = emptyList(),
+    ): Serializable
 
-data class CustomerDto(
-    var customerId: Long?,
-    var customerName: String?,
-    var orders: Set<OrderItemDto>?,
-): Serializable
+    data class OrderItem(
+        var name: String?,
+        var quantity: Long?,
+    ): Serializable
 
-data class OrderItemDto(
-    var name: String?,
-    var quantity: Long?,
-): Serializable
+    data class CustomerDto(
+        var customerId: Long?,
+        var customerName: String?,
+        var orders: Set<OrderItemDto> = emptySet(),
+    ): Serializable
 
-@Mapper(uses = [OrderItemMapper::class])
-interface CustomerMapper {
-    companion object {
-        val MAPPER: CustomerMapper = mapper<CustomerMapper>()
+    data class OrderItemDto(
+        var name: String?,
+        var quantity: Long?,
+    ): Serializable
+
+    @Mapper(uses = [OrderItemMapper::class])
+    interface CustomerMapper {
+        companion object {
+            val MAPPER: CustomerMapper = mapper<CustomerMapper>()
+        }
+
+        @Mappings(
+            Mapping(source = "orders", target = "orderItems"),
+            Mapping(source = "customerName", target = "name"),
+            Mapping(source = "customerId", target = "id")
+        )
+        fun toCustomer(customerDto: CustomerDto): Customer
+
+        @InheritInverseConfiguration
+        fun fromCustomer(customer: Customer): CustomerDto
     }
 
-    @Mappings(
-        Mapping(source = "orders", target = "orderItems"),
-        Mapping(source = "customerName", target = "name"),
-        Mapping(source = "customerId", target = "id")
-    )
-    fun toCustomer(customerDto: CustomerDto): Customer
+    @Mapper
+    interface OrderItemMapper {
+        companion object {
+            val MAPPER = mapper<OrderItemMapper>()
+        }
 
-    @InheritInverseConfiguration
-    fun fromCustomer(customer: Customer): CustomerDto
-}
+        fun toOrderItem(orderItemDto: OrderItemDto): OrderItem
 
-@Mapper
-interface OrderItemMapper {
-    companion object {
-        val MAPPER = mapper<OrderItemMapper>()
+        @InheritInverseConfiguration
+        fun fromOrderItem(orderItem: OrderItem): OrderItemDto
     }
-
-    fun toOrderItem(orderItemDto: OrderItemDto): OrderItem
-
-    @InheritInverseConfiguration
-    fun fromOrderItem(orderItem: OrderItem): OrderItemDto
 }
