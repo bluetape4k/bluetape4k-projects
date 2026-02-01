@@ -38,8 +38,8 @@ class FieldMappingExample: AbstractMapstructTest() {
         customerDto.orders shouldHaveSize 2
 
         val orders = customerDto.orders.toFastList()
-        orders.map { it.name } shouldContainSame customer.orderItems!!.map { it.name }
-        orders.map { it.quantity } shouldContainSame customer.orderItems!!.map { it.quantity }
+        orders.map { it.name } shouldContainSame customer.orderItems.map { it.name }
+        orders.map { it.quantity } shouldContainSame customer.orderItems.map { it.quantity }
 
         val actual: Customer = CustomerMapper.MAPPER.toCustomer(customerDto)
         actual shouldBeEqualTo customer
