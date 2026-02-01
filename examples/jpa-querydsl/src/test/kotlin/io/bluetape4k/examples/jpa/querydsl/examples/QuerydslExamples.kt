@@ -33,11 +33,13 @@ import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldHaveSize
+import org.amshove.kluent.shouldNotBeEmpty
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 
+@Suppress("DEPRECATION")
 class QuerydslExamples: AbstractQuerydslTest() {
 
     companion object: KLogging() {
@@ -174,10 +176,9 @@ class QuerydslExamples: AbstractQuerydslTest() {
      * [Blaze-Persistence](https://persistence.blazebit.com/documentation/1.5/core/manual/en_US/index.html#querydsl-integration)
      * 를 사용하는 걸 추천하네요
      */
+
     @Test
     fun `페이징 적용 시 - fetchResults 사용`() {
-
-        @Suppress("DEPRECATION")
         val queryResults = queryFactory
             .selectFrom(qmember)
             .offset(1)
@@ -193,7 +194,6 @@ class QuerydslExamples: AbstractQuerydslTest() {
 
         members shouldHaveSize 3
 
-        @Suppress("DEPRECATION")
         val memberCount = queryFactory
             .selectFrom(qmember)
             .fetchCount()
@@ -488,6 +488,8 @@ class QuerydslExamples: AbstractQuerydslTest() {
         results.forEach {
             log.debug { it }
         }
+
+        results shouldHaveSize MEMBER_COUNT
     }
 
     @Test
@@ -506,6 +508,8 @@ class QuerydslExamples: AbstractQuerydslTest() {
         results.forEach {
             log.debug { it }
         }
+
+        results shouldHaveSize MEMBER_COUNT
     }
 
     @Test
@@ -525,6 +529,8 @@ class QuerydslExamples: AbstractQuerydslTest() {
         results.forEach {
             log.debug { it }
         }
+
+        results shouldHaveSize MEMBER_COUNT
     }
 
     @Test
@@ -547,6 +553,8 @@ class QuerydslExamples: AbstractQuerydslTest() {
 
             log.debug { "name=$name, age=$age, rank=$rank" }
         }
+
+        results shouldHaveSize MEMBER_COUNT
     }
 
     @Test
@@ -581,13 +589,15 @@ class QuerydslExamples: AbstractQuerydslTest() {
         val results = queryFactory
             .select(qmember.name + "_" + qmember.age.stringValue())
             .from(qmember)
-            .where(qmember.name.eq("member1"))
+            .where(qmember.name.eq("member-1"))
             .fetch()
             .map { it.toString() }
 
         results.forEach {
             log.debug { it }
         }
+
+        results.shouldNotBeEmpty()
     }
 
     @Test
@@ -600,6 +610,8 @@ class QuerydslExamples: AbstractQuerydslTest() {
         results.forEach {
             log.debug { it }
         }
+
+        results.shouldNotBeEmpty()
     }
 
     @Test
@@ -614,6 +626,8 @@ class QuerydslExamples: AbstractQuerydslTest() {
         memberVos.forEach {
             log.debug { it }
         }
+
+        memberVos.shouldNotBeEmpty()
     }
 
     @Test
@@ -628,6 +642,8 @@ class QuerydslExamples: AbstractQuerydslTest() {
         memberVos.forEach {
             log.debug { it }
         }
+
+        memberVos.shouldNotBeEmpty()
     }
 
     @Test
@@ -668,6 +684,8 @@ class QuerydslExamples: AbstractQuerydslTest() {
         memberDtos.forEach {
             log.debug { it }
         }
+
+        memberDtos shouldHaveSize MEMBER_COUNT
     }
 
     /**
@@ -684,6 +702,8 @@ class QuerydslExamples: AbstractQuerydslTest() {
         memberVos.forEach {
             log.debug { it }
         }
+
+        memberVos shouldHaveSize MEMBER_COUNT
     }
 
     /**
@@ -706,6 +726,8 @@ class QuerydslExamples: AbstractQuerydslTest() {
         memberTeamVos.forEach {
             log.debug { it }
         }
+
+        memberTeamVos shouldHaveSize MEMBER_COUNT
     }
 
     @Test

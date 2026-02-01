@@ -12,4 +12,4 @@ data class TeamDto(
 data class TeamVo @QueryProjection constructor(
     val id: Long?,
     val name: String?,
-): Serializable
+): Serializable  

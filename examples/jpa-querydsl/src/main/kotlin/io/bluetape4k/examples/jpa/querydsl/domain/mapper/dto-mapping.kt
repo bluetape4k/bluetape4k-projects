@@ -7,13 +7,13 @@ import io.bluetape4k.examples.jpa.querydsl.domain.model.Team
 
 fun Member.toDto(): MemberDto =
     MemberDto(
-        id = this.id ?: 0,
+        id = this.id ?: 0L,
         name = this.name,
         age = this.age ?: 0
     )
 
 fun Team.toDto(): TeamDto =
     TeamDto(
-        id = this.id ?: 0,
+        id = this.id ?: 0L,
         name = this.name
     )

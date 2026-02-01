@@ -1,7 +1,6 @@
 package io.bluetape4k.examples.jpa.querydsl.domain.dto
 
 import com.querydsl.core.annotations.QueryProjection
-import io.bluetape4k.ToStringBuilder
 import io.bluetape4k.examples.jpa.querydsl.domain.model.Member
 import java.io.Serializable
 
@@ -18,16 +17,8 @@ data class MemberDto(
     constructor(member: Member): this(member.id!!, member.name, member.age)
 }
 
-class MemberVo @QueryProjection constructor(
+data class MemberVo @QueryProjection constructor(
     var id: Long? = null,
     var name: String? = null,
     var age: Int? = null,
-): Serializable {
-
-    override fun toString(): String =
-        ToStringBuilder(this)
-            .add("id", id)
-            .add("name", name)
-            .add("age", age)
-            .toString()
-}
+): Serializable 
