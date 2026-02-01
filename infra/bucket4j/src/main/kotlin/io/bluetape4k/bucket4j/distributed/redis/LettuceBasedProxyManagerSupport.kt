@@ -30,7 +30,7 @@ import io.lettuce.core.cluster.RedisClusterClient
  */
 inline fun lettuceBasedProxyManagerOf(
     redisClient: RedisClient,
-    builder: Bucket4jLettuce.LettuceBasedProxyManagerBuilder<ByteArray>.() -> Unit,
+    @BuilderInference builder: Bucket4jLettuce.LettuceBasedProxyManagerBuilder<ByteArray>.() -> Unit,
 ): LettuceBasedProxyManager<ByteArray> {
     return Bucket4jLettuce
         .casBasedBuilder(redisClient)
@@ -63,7 +63,7 @@ inline fun lettuceBasedProxyManagerOf(
  */
 inline fun lettuceBasedProxyManagerOf(
     redisClusterClient: RedisClusterClient,
-    builder: Bucket4jLettuce.LettuceBasedProxyManagerBuilder<ByteArray>.() -> Unit,
+    @BuilderInference builder: Bucket4jLettuce.LettuceBasedProxyManagerBuilder<ByteArray>.() -> Unit,
 ): LettuceBasedProxyManager<ByteArray> {
     return Bucket4jLettuce
         .casBasedBuilder(redisClusterClient)

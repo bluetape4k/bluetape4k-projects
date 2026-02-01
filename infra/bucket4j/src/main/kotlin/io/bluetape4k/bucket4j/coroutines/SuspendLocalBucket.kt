@@ -91,7 +91,6 @@ class SuspendLocalBucket private constructor(
         LimitChecker.checkMaxWaitTime(maxWaitTimeNanos)
 
         val nanosToDelay: Long = reserveAndCalculateTimeToSleepImpl(tokensToConsume, maxWaitTimeNanos)
-        log.trace { "nanosToDelay=$nanosToDelay" }
 
         if (nanosToDelay == INFINITY_DURATION) {
             log.debug { "rejected. nanosToDelay is INFINITY_DURATION" }
@@ -101,6 +100,7 @@ class SuspendLocalBucket private constructor(
 
         listener.onConsumed(tokensToConsume)
         if (nanosToDelay > 0L) {
+            log.trace { "nanosToDelay=$nanosToDelay" }
             delay(nanosToDelay.nanoseconds)
             listener.onParked(nanosToDelay)
         }
@@ -117,7 +117,6 @@ class SuspendLocalBucket private constructor(
         LimitChecker.checkTokensToConsume(tokensToConsume)
 
         val nanosToDelay: Long = reserveAndCalculateTimeToSleepImpl(tokensToConsume, INFINITY_DURATION)
-        log.trace { "nanos to delay=$nanosToDelay" }
 
         if (nanosToDelay == INFINITY_DURATION) {
             log.warn { "reservation overflow" }
@@ -126,7 +125,9 @@ class SuspendLocalBucket private constructor(
 
         listener.onConsumed(tokensToConsume)
         if (nanosToDelay > 0L) {
+            log.trace { "nanos to delay=$nanosToDelay" }
             delay(nanosToDelay.nanoseconds)
+            listener.onParked(nanosToDelay)
         }
     }
 }

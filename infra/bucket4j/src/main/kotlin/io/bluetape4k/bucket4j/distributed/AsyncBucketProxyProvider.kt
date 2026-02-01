@@ -1,5 +1,6 @@
 package io.bluetape4k.bucket4j.distributed
 
+import io.bluetape4k.concurrent.completableFutureOf
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8Bytes
@@ -7,7 +8,6 @@ import io.github.bucket4j.Bucket
 import io.github.bucket4j.BucketConfiguration
 import io.github.bucket4j.distributed.AsyncBucketProxy
 import io.github.bucket4j.distributed.proxy.AsyncProxyManager
-import java.util.concurrent.CompletableFuture
 
 /**
  * Bucket4j Bucket을 Redis 서버에 저장하고, 특정 Key 기반의 Rate-limit을 수행하는 Bucket 을 제공합니다.
@@ -39,7 +39,7 @@ open class AsyncBucketProxyProvider(
 ) {
 
     companion object: KLoggingChannel() {
-        const val DEFAULT_KEY_PREFIX = "bluetape4k:rate-limit:key:"
+        const val DEFAULT_KEY_PREFIX = BucketProxyProvider.DEFAULT_KEY_PREFIX
     }
 
     /**
@@ -53,9 +53,9 @@ open class AsyncBucketProxyProvider(
         val bucketKey = getBucketKey("$keyPrefix$key")
 
         return asyncProxyManager.builder()
-            .build(bucketKey) { CompletableFuture.supplyAsync { bucketConfiguration } }
+            .build(bucketKey) { completableFutureOf(bucketConfiguration) }
             .apply {
-                log.debug { "Resolved bucket for key[$key]: $this" }
+                log.debug { "Resolved bucket for key[$key]: avaiableTokens=${this.availableTokens.get()}" }
             }
     }
 

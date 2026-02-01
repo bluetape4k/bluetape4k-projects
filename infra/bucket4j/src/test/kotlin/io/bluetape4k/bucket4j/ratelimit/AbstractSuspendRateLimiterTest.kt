@@ -39,7 +39,7 @@ abstract class AbstractSuspendRateLimiterTest {
         // 5개 소모, 5개 남음
         result shouldBeEqualTo RateLimitResult(token, INITIAL_CAPACITY - token)
 
-        // 10개 소비를 요청 -> 5개만 남았으므로 0개 소비한 것으로 반환
+        // 10개 소비를 요청 -> 5개만 남았으므로 10개 소피를 요청하는 것은 실패하고, 0개 소비한 것으로 반환
         val zeroConsumedResult = RateLimitResult(0, result.availableTokens)
         rateLimiter.consume(key, INITIAL_CAPACITY) shouldBeEqualTo zeroConsumedResult
 

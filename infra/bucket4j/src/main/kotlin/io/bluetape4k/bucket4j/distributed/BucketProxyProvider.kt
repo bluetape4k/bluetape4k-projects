@@ -54,7 +54,7 @@ open class BucketProxyProvider(
         return proxyManager.builder()
             .build(bucketKey) { bucketConfiguration }
             .apply {
-                log.debug { "Resolved bucket for key[$key]: $this" }
+                log.debug { "Resolved bucket for key[$key]: avaiableTokens=${this.availableTokens}" }
             }
     }
 

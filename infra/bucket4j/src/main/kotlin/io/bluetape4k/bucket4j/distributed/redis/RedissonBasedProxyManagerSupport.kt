@@ -32,7 +32,7 @@ import org.redisson.command.CommandAsyncExecutor
  */
 inline fun redissonBasedProxyManagerOf(
     redisson: RedissonClient,
-    builder: Bucket4jRedisson.RedissonBasedProxyManagerBuilder<ByteArray>.() -> Unit,
+    @BuilderInference builder: Bucket4jRedisson.RedissonBasedProxyManagerBuilder<ByteArray>.() -> Unit,
 ): RedissonBasedProxyManager<ByteArray> {
     return redissonBasedProxyManagerOf(
         (redisson as Redisson).commandExecutor,
@@ -66,7 +66,7 @@ inline fun redissonBasedProxyManagerOf(
  */
 inline fun redissonBasedProxyManagerOf(
     commandAsyncExecutor: CommandAsyncExecutor,
-    builder: Bucket4jRedisson.RedissonBasedProxyManagerBuilder<ByteArray>.() -> Unit,
+    @BuilderInference builder: Bucket4jRedisson.RedissonBasedProxyManagerBuilder<ByteArray>.() -> Unit,
 ): RedissonBasedProxyManager<ByteArray> {
     return Bucket4jRedisson
         .RedissonBasedProxyManagerBuilder(Mapper.BYTES, commandAsyncExecutor)
