@@ -1,6 +1,7 @@
 package io.bluetape4k.javers.repository.cache2k
 
 import io.bluetape4k.cache.cache2k.cache2k
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.javers.codecs.JaversCodec
 import io.bluetape4k.javers.codecs.JaversCodecs
 import io.bluetape4k.javers.repository.AbstractCdoSnapshotRepository
@@ -60,7 +61,7 @@ class Cache2KCdoSnapshotRepository(
     override fun saveSnapshot(snapshot: CdoSnapshot) {
         lock.withLock {
             val globalIdValue = snapshot.globalId.value()
-            val snapshots = snapshotCache.computeIfAbsent(globalIdValue) { mutableListOf() }
+            val snapshots = snapshotCache.computeIfAbsent(globalIdValue) { fastListOf() }
             val encoded = encode(snapshot)
             snapshots.add(0, encoded)
         }

@@ -1,6 +1,7 @@
 package io.bluetape4k.tokenizer.japanese.block
 
 import com.atilika.kuromoji.ipadic.Token
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
@@ -104,7 +105,7 @@ object JapaneseBlockwordProcessor: KLogging() {
             val tokens = JapaneseTokenizer.tokenize(request.text)
             var maskedText = request.text
             val maskStr = request.options.mask
-            val blockwords = mutableListOf<String>()
+            val blockwords = fastListOf<String>()
 
             tokens
                 .onEach { token -> log.trace { "token=${token.surface}, ${token.allFeatures}" } }

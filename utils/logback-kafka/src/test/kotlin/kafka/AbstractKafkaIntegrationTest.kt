@@ -6,11 +6,12 @@ import io.bluetape4k.utils.ShutdownQueue
 
 abstract class AbstractKafkaIntegrationTest {
 
-    companion object: KLoggingChannel()
-
-    protected val kafka: KafkaServer = KafkaServer(useDefaultPort = true).apply {
-        start()
-        ShutdownQueue.register(this)
+    companion object: KLoggingChannel() {
+        @JvmStatic
+        protected val kafka: KafkaServer = KafkaServer(useDefaultPort = true).apply {
+            start()
+            ShutdownQueue.register(this)
+        }
     }
 
 }

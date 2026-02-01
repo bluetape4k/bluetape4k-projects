@@ -1,6 +1,7 @@
 package io.bluetape4k.math
 
 import io.bluetape4k.collections.eclipse.toFastList
+import io.bluetape4k.collections.eclipse.toUnifiedMap
 import io.bluetape4k.ranges.ClosedOpenDoubleRange
 import io.bluetape4k.support.coerce
 import java.util.concurrent.ThreadLocalRandom
@@ -119,7 +120,7 @@ class WeightedDice<T: Any> private constructor(probabilities: Map<T, Double>) {
             .sortedBy { it.value }
             .map { it.key to ClosedOpenDoubleRange(binStart, it.value + binStart) }
             .onEach { binStart = it.second.endExclusive }
-            .toMap()
+            .toUnifiedMap()
     }
 
     fun roll(): T = Random.nextDouble(0.0, sum).let { rnd ->

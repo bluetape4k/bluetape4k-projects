@@ -1,6 +1,7 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import app.cash.turbine.test
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.awaitCancellation
@@ -88,7 +89,7 @@ class ResultsTest: AbstractFlowTest() {
         // Does not catch CancellationException
         val receivedFirst = CompletableDeferred<Unit>()
         val job = launch {
-            val receivedResults = mutableListOf<Result<String>>()
+            val receivedResults = fastListOf<Result<String>>()
 
             flowOf(1, 2, 3).mapToResult()
                 .mapResultCatching {

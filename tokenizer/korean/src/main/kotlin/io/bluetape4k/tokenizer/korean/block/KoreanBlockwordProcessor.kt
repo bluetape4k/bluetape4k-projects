@@ -1,5 +1,6 @@
 package io.bluetape4k.tokenizer.korean.block
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.trace
@@ -56,7 +57,7 @@ object KoreanBlockwordProcessor: KLogging() {
         try {
             val punctuationRemoved = punctuationProcessor.removePunctuation(text)
             val tokens = KoreanTokenizer.tokenize(punctuationRemoved)
-            val blockWords = mutableListOf<KoreanToken>()
+            val blockWords = fastListOf<KoreanToken>()
             tokens
                 .onEach { log.trace { "token=$it" } }
                 .filter { it.length > 1 }
@@ -103,7 +104,7 @@ object KoreanBlockwordProcessor: KLogging() {
 
             var result = punctuationRemoved
             val maskStr = request.options.mask
-            val blockWords = mutableListOf<String>()
+            val blockWords = fastListOf<String>()
 
             tokens
                 .filter { !it.unknown && it.length > 1 }

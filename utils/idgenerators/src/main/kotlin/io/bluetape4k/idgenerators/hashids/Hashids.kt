@@ -1,5 +1,6 @@
 package io.bluetape4k.idgenerators.hashids
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.primitives.toFastList
 import io.bluetape4k.collections.toLongArray
 import io.bluetape4k.logging.KLogging
@@ -102,8 +103,8 @@ class Hashids(
     }
 
     private fun numbersToArrayList(numbers: LongArray): List<Pair<Boolean, LongArray>> {
-        val result = mutableListOf<Pair<Boolean, LongArray>>()
-        val current = mutableListOf<Long>()
+        val result = fastListOf<Pair<Boolean, LongArray>>()
+        val current = fastListOf<Long>()
 
         numbers.forEach {
             if (it.isValidNumber()) {
@@ -197,7 +198,7 @@ class Hashids(
         val (lottery, hashBreakdown) = extractLotteryCharAndHashArray(initialSplit)
 
         log.trace { "lottery=$lottery, hashBreakdown=${hashBreakdown.joinToString()}" }
-        val returnValue = unhashSubHashes(hashBreakdown.iterator(), lottery, mutableListOf(), alphabet)
+        val returnValue = unhashSubHashes(hashBreakdown.iterator(), lottery, fastListOf(), alphabet)
         log.trace { "returnValue=${returnValue.joinToString()}" }
 
         val decodedValue =

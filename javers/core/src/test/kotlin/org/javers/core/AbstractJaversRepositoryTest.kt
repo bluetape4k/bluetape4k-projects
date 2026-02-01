@@ -1,5 +1,6 @@
 package org.javers.core
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.javers.commit.SnowflakeCommitIdGenerator
 import io.bluetape4k.javers.diff.filterByType
@@ -201,7 +202,10 @@ abstract class AbstractJaversRepositoryTest {
         val cdo = SnapshotEntity(id = 1).apply {
             entityRef = ref
             arrayOfIntegers = intArrayOf(1, 2)
-            listOfDates = mutableListOf(LocalDate.of(2001, 1, 1), LocalDate.of(2001, 1, 2))
+            listOfDates = fastListOf(
+                LocalDate.of(2001, 1, 1),
+                LocalDate.of(2001, 1, 2)
+            )
             mapOfValues[LocalDate.of(2001, 1, 1)] = BigDecimal(1.1)
             mapOfGenericValues["enumSet"] = EnumSet.of(SnapshotEntity.DummyEnum.VAL1, SnapshotEntity.DummyEnum.VAL2)
         }

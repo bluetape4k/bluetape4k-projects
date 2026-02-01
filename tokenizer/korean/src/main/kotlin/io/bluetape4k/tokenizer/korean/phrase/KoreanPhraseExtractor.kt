@@ -1,6 +1,8 @@
 package io.bluetape4k.tokenizer.korean.phrase
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.toFastList
+import io.bluetape4k.collections.eclipse.unifiedSetOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.tokenizer.korean.tokenizer.KoreanToken
 import io.bluetape4k.tokenizer.korean.utils.Hangul
@@ -196,7 +198,7 @@ object KoreanPhraseExtractor: KLogging() {
             else phraseBuffer.phrases.init()
         }
 
-        val phrases = mutableListOf<KoreanPhrase>()
+        val phrases = fastListOf<KoreanPhrase>()
         var curTrie: List<KoreanPosTrie?> = collapseTrie
 
         tokens
@@ -206,11 +208,11 @@ object KoreanPhraseExtractor: KLogging() {
                         // Extend the current phase
                         val (ct, nt) = getTries(token, curTrie)
 
-                        if (phrases.isEmpty() || curTrie == collapseTrie) {
+                        if (phrases.isEmpty || curTrie == collapseTrie) {
                             phrases.add(KoreanPhrase(arrayListOf(token), ct?.ending ?: Noun))
                         } else {
                             val newPhrase = KoreanPhrase(phrases.last().tokens + token, ct?.ending ?: Noun)
-                            if (phrases.isEmpty()) {
+                            if (phrases.isEmpty) {
                                 phrases.add(newPhrase)
                             } else {
                                 phrases[phrases.lastIndex] = newPhrase
@@ -238,8 +240,8 @@ object KoreanPhraseExtractor: KLogging() {
     }
 
     private fun distinctPhrases(chunks: List<KoreanPhraseChunk>): List<KoreanPhraseChunk> {
-        val phraseChunks = mutableListOf<KoreanPhraseChunk>()
-        val buffer = mutableSetOf<String>()
+        val phraseChunks = fastListOf<KoreanPhraseChunk>()
+        val buffer = unifiedSetOf<String>()
 
         chunks
             .onEach { chunk ->
@@ -286,8 +288,8 @@ object KoreanPhraseExtractor: KLogging() {
 
         fun collapseNounPhrases(phrases1: KoreanPhraseChunk): KoreanPhraseChunk {
 
-            val output = mutableListOf<KoreanPhrase>()
-            val buffer = mutableListOf<KoreanPhrase>()
+            val output = fastListOf<KoreanPhrase>()
+            val buffer = fastListOf<KoreanPhrase>()
 
             phrases1
                 .onEach { phrase ->
@@ -295,8 +297,9 @@ object KoreanPhraseExtractor: KLogging() {
                         buffer.add(phrase)
                     } else {
                         val tempPhrase =
-                            if (buffer.isNotEmpty()) arrayListOf(KoreanPhrase(buffer.flatMap { it.tokens }), phrase)
-                            else arrayListOf(phrase)
+                            if (buffer.isNotEmpty()) fastListOf(KoreanPhrase(buffer.flatMap { it.tokens }), phrase)
+                            else fastListOf(phrase)
+
                         output.addAll(tempPhrase)
                         buffer.clear()
                     }
@@ -314,9 +317,9 @@ object KoreanPhraseExtractor: KLogging() {
 
             // NOTE: 현재 이 부분은 변경하면 안됩니다.
             //
-            fun newBuffer() = listOf(listOf<KoreanPhrase>())
+            fun newBuffer() = fastListOf(listOf<KoreanPhrase>())
 
-            val output = mutableListOf<KoreanPhraseChunk>()
+            val output = fastListOf<KoreanPhraseChunk>()
             var buffer = newBuffer()
 
             phrases1

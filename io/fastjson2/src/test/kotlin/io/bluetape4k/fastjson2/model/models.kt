@@ -1,6 +1,9 @@
 package io.bluetape4k.fastjson2.model
 
+import io.bluetape4k.collections.eclipse.emptyFastList
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.junit5.faker.Fakers
+import org.eclipse.collections.impl.list.mutable.FastList
 import java.io.Serializable
 import java.util.*
 
@@ -40,7 +43,7 @@ enum class Generation {
 data class Address(
     var street: String? = null,
     var phone: String? = null,
-    val props: MutableList<String> = mutableListOf(),
+    val props: FastList<String> = fastListOf(),
 )
 
 interface Person: Serializable {
@@ -71,5 +74,5 @@ data class OptionalCollection(
     override val name: String,
     override val age: Int,
     val spec: Optional<String>,
-    val options: List<Optional<String>> = emptyList(),
+    val options: FastList<Optional<String>> = emptyFastList(),
 ): Person

@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.repository
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.exposed.domain.dto.MovieActorCountDTO
 import io.bluetape4k.exposed.domain.dto.MovieDTO
@@ -98,7 +99,7 @@ class MovieRepository: ExposedRepository<MovieDTO, Long> {
                 ActorTable.birthday
             )
             .groupingBy { it[MovieTable.id] }
-            .fold(mutableListOf<MovieWithActorDTO>()) { acc, row ->
+            .fold(fastListOf<MovieWithActorDTO>()) { acc, row ->
                 val lastMovieId = acc.lastOrNull()?.id
                 if (lastMovieId != row[MovieTable.id].value) {
                     val movie = MovieWithActorDTO(

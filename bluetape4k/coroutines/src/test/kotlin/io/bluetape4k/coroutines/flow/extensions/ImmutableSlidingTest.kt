@@ -5,6 +5,7 @@ import com.danrusu.pods4k.immutableArrays.ImmutableIntArray
 import com.danrusu.pods4k.immutableArrays.immutableArrayOf
 import com.danrusu.pods4k.immutableArrays.toImmutableArray
 import com.danrusu.pods4k.immutableArrays.toImmutableIntArray
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -100,7 +101,7 @@ class ImmutableSlidingTest {
     @Test
     fun `sliding with mutable shared flow`() = runTest {
         val flow = MutableSharedFlow<Int>(extraBufferCapacity = 64)
-        val results = mutableListOf<ImmutableIntArray>()
+        val results = fastListOf<ImmutableIntArray>()
 
         flow.sliding(3).log("job1")
             .onEach {

@@ -1,5 +1,7 @@
 package io.bluetape4k.math
 
+import io.bluetape4k.collections.eclipse.fastListOf
+import io.bluetape4k.collections.eclipse.unifiedMapOf
 import io.bluetape4k.ranges.DefaultClosedClosedRange
 import io.bluetape4k.ranges.DefaultClosedOpenRange
 import io.bluetape4k.ranges.Range
@@ -62,12 +64,14 @@ inline fun <T: Any, C: Comparable<C>, G: Any> Iterable<T>.binByComparable(
 ): BinModel<G, C> {
     assert(count() > 0) { "Collection must not be empty." }
 
-    val groupByC: Map<C, List<T>> = asSequence().groupBy(valueMapper)
+    val groupByC: MutableMap<C, MutableList<T>> = unifiedMapOf()
+    this.groupByTo(groupByC, valueMapper)
+
     val minC: C = rangeStart ?: groupByC.keys.minOrNull()!!
     val maxC: C = groupByC.keys.maxOrNull()!!
 
     // Histogram의 막대의 컬렉션을 구성합니다.
-    val bins = mutableListOf<Range<C>>().apply {
+    val bins = fastListOf<Range<C>>().apply {
         val rangeFactory = { lowerBound: C, upperBound: C ->
             if (endExclusive) DefaultClosedOpenRange(lowerBound, upperBound)
             else DefaultClosedClosedRange(lowerBound, upperBound)
@@ -84,8 +88,8 @@ inline fun <T: Any, C: Comparable<C>, G: Any> Iterable<T>.binByComparable(
 
     return bins
         .map { range ->
-            val binWithList = range to mutableListOf<T>()
-            groupByC.entries.asSequence()
+            val binWithList = range to fastListOf<T>()
+            groupByC.entries
                 .filter {
                     it.key in binWithList.first
                 }

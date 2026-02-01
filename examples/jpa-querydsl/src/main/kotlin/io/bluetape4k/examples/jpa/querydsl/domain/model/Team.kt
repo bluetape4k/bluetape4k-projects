@@ -15,9 +15,8 @@ class Team: LongJpaEntity() {
     companion object {
         operator fun invoke(name: String): Team {
             name.requireNotEmpty("name")
-            return Team().also {
-                it.name = name
-            }
+
+            return Team().also { it.name = name }
         }
     }
 

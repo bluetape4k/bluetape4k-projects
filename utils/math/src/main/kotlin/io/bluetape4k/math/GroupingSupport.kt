@@ -1,5 +1,7 @@
 package io.bluetape4k.math
 
+import io.bluetape4k.collections.eclipse.unifiedMapOf
+
 /**
  * Sequence에 대해 최종 집계를 손쉽게 하기 위해 `groupingBy` 함수를 이용하여 [Grouping] 을 사용하여 집계합니다.
  * @see [aggregateBy] 는 Group을 먼저 만들고, 집계함수를 수행하는데 이는 [Grouping]을 사용하는 것보다 비효율적이다 (Iterable vs Sequence 와 같다)
@@ -12,7 +14,9 @@ inline fun <T: Any, K: Any, R: Any> Sequence<T>.groupingAggregate(
     crossinline keySelector: (T) -> K,
     @BuilderInference aggregator: (key: K, accumulator: R?, eleemnt: T, first: Boolean) -> R,
 ): Map<K, R> {
-    return groupingBy(keySelector).aggregate(aggregator)
+    val map = unifiedMapOf<K, R>()
+    groupingBy(keySelector).aggregateTo(map, aggregator)
+    return map
 }
 
 /**
@@ -63,8 +67,11 @@ inline fun <T: Any, K: Any, R: Any> Sequence<T>.groupingFold(
     crossinline keySelector: (T) -> K,
     initialValue: R,
     operation: (accumulator: R, element: T) -> R,
-): Map<K, R> =
-    groupingBy(keySelector).fold(initialValue, operation)
+): Map<K, R> {
+    val result = unifiedMapOf<K, R>()
+    groupingBy(keySelector).foldTo(result, initialValue, operation)
+    return result
+}
 
 /**
  * Groups elements from the [Grouping] source by key and applies [operation] to the elements of each group sequentially,
@@ -102,8 +109,11 @@ inline fun <T: Any, K: Any, R: Any> Iterable<T>.groupingFold(
 inline fun <T: S, K: Any, S: Any> Sequence<T>.groupingReduce(
     crossinline keySelector: (T) -> K,
     operation: (key: K, accumulator: S, element: T) -> S,
-): Map<K, S> =
-    groupingBy(keySelector).reduce(operation)
+): Map<K, S> {
+    val result = unifiedMapOf<K, S>()
+    groupingBy(keySelector).reduceTo(result, operation)
+    return result
+}
 
 /**
  * Groups elements from the [Grouping] source by key and applies the reducing [operation] to the elements of each group

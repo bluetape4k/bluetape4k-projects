@@ -1,6 +1,7 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import app.cash.turbine.test
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.intRangeOf
 import io.bluetape4k.coroutines.tests.assertError
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -88,7 +89,7 @@ class ChunkedTest: AbstractFlowTest() {
     @Test
     fun `chunked with mutable shared flow`() = runTest {
         val flow = MutableSharedFlow<Int>(extraBufferCapacity = 64)
-        val results = mutableListOf<List<Int>>()
+        val results = fastListOf<List<Int>>()
 
         flow.chunked(3)
             .onEach {
@@ -111,6 +112,6 @@ class ChunkedTest: AbstractFlowTest() {
         advanceUntilIdle()
         this.coroutineContext.cancelChildren()
 
-        results shouldBeEqualTo listOf(listOf(1, 2, 3), listOf(4, 5, 6))
+        results shouldBeEqualTo fastListOf(fastListOf(1, 2, 3), fastListOf(4, 5, 6))
     }
 }

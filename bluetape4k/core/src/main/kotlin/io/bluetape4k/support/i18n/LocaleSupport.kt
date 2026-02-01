@@ -1,5 +1,6 @@
 package io.bluetape4k.support.i18n
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.support.assertNotBlank
@@ -24,8 +25,8 @@ fun Locale?.orDefault(): Locale = this ?: Locale.getDefault()
 val Locale.parent: Locale?
     get() = when {
         variant.isNotEmpty() && (language.isNotEmpty() || country.isNotEmpty()) -> Locale.of(language, country)
-        country.isNotEmpty()                                                    -> Locale.of(language)
-        else                                                                    -> null
+        country.isNotEmpty() -> Locale.of(language)
+        else -> null
     }
 
 /**
@@ -34,7 +35,7 @@ val Locale.parent: Locale?
 @Deprecated("Use getParents() methods", replaceWith = ReplaceWith("getParentList()"))
 val Locale.parents: List<Locale>
     get() {
-        val result = mutableListOf<Locale>()
+        val result = fastListOf<Locale>()
         var current: Locale? = this
         while (current != null) {
             result.add(current)
@@ -55,8 +56,8 @@ val Locale.parents: List<Locale>
  */
 fun Locale.getParentOrNull(): Locale? = when {
     variant.isNotEmpty() && (language.isNotEmpty() || country.isNotEmpty()) -> Locale.of(language, country)
-    country.isNotEmpty()                                                    -> Locale.of(language)
-    else                                                                    -> null
+    country.isNotEmpty() -> Locale.of(language)
+    else -> null
 }
 
 /**
@@ -69,7 +70,7 @@ fun Locale.getParentOrNull(): Locale? = when {
  * ```
  */
 fun Locale.getParentList(): List<Locale> {
-    val result = mutableListOf<Locale>()
+    val result = fastListOf<Locale>()
     var current: Locale? = this
     while (current != null) {
         result.add(current)
@@ -101,7 +102,7 @@ fun Locale.calculateFilenames(basename: String): List<String> {
     basename.assertNotBlank("basename")
     log.trace { "Locale에 해당하는 파일명을 조합합니다. basename=$basename, locale=$this" }
 
-    val results = mutableListOf<String>()
+    val results = fastListOf<String>()
 
     val language = this.language
     val country = this.country

@@ -1,5 +1,8 @@
 package org.javers.core.repository
 
+import io.bluetape4k.collections.eclipse.fastListOf
+import io.bluetape4k.collections.eclipse.unifiedMapOf
+import io.bluetape4k.collections.eclipse.unifiedSetOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
@@ -22,9 +25,9 @@ abstract class AbstractJaversCommitTest {
         val reference = ShallowPhone(1L, "123", CategoryC(1, "some"))
         val entity = SnapshotEntity(id = 1).apply {
             shallowPhone = reference
-            shallowPhones = mutableSetOf(reference)
-            shallowPhonesList = mutableListOf(reference)
-            shallowPhonesMap = mutableMapOf("key" to reference)
+            shallowPhones = unifiedSetOf(reference)
+            shallowPhonesList = fastListOf(reference)
+            shallowPhonesMap = unifiedMapOf("key" to reference)
         }
 
         // WHEN

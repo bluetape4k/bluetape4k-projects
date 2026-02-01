@@ -7,6 +7,7 @@ import io.bluetape4k.logback.kafka.exporter.DefaultKafkaExporter
 import io.bluetape4k.logback.kafka.exporter.KafkaExporter
 import io.bluetape4k.logback.kafka.keyprovider.HostnameKafkaKeyProvider
 import io.bluetape4k.logback.kafka.keyprovider.KafkaKeyProvider
+import java.util.concurrent.CopyOnWriteArrayList
 
 abstract class AbstractKafkaAppender<E: Any>: UnsynchronizedAppenderBase<E>(), AppenderAttachable<E> {
 
@@ -66,7 +67,7 @@ abstract class AbstractKafkaAppender<E: Any>: UnsynchronizedAppenderBase<E>(), A
 
     protected fun checkOptions(): Boolean {
         var validOptions = true
-        val checkErrors = mutableListOf<String>()
+        val checkErrors = CopyOnWriteArrayList<String>()
 
         if (bootstrapServers.isNullOrBlank()) {
             checkErrors.add("bootstrap.servers is not set")

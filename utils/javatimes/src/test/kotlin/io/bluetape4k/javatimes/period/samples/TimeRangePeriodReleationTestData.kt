@@ -1,5 +1,6 @@
 package io.bluetape4k.javatimes.period.samples
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.javatimes.isNotNegative
 import io.bluetape4k.javatimes.period.ITimePeriod
 import io.bluetape4k.javatimes.period.ITimeRange
@@ -13,7 +14,7 @@ class TimeRangePeriodRelationTestData(
     val duration: Duration,
 ) {
 
-    val allPeriods = mutableListOf<ITimePeriod>()
+    val allPeriods = fastListOf<ITimePeriod>()
 
     var reference: ITimeRange
     var before: ITimeRange

@@ -1,5 +1,6 @@
 package io.bluetape4k.kafka.codec
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.kafka.AbstractKafkaTest
@@ -10,6 +11,7 @@ import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.apache.kafka.common.header.internals.RecordHeaders
+import org.eclipse.collections.impl.list.mutable.FastList
 import org.junit.jupiter.api.RepeatedTest
 import java.io.Serializable
 import java.math.BigDecimal
@@ -68,7 +70,7 @@ abstract class AbstractKafkaCodecTest: AbstractKafkaTest() {
         val name: String,
         val createdAt: Instant? = Instant.now(),
         val amount: BigDecimal? = null,
-        val details: MutableList<DetailData> = mutableListOf(),
+        val details: MutableList<DetailData> = fastListOf(),
     ): Serializable
 
     data class DetailData(

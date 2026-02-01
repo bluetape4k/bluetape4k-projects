@@ -1,5 +1,6 @@
 package io.bluetape4k.tokenizer.korean.utils
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.tokenizer.korean.tokenizer.KoreanToken
@@ -150,7 +151,7 @@ object KoreanSubstantive: KLogging() {
      * @return 알 수 없는 명사로 합쳐진 토큰 컬렉션
      */
     fun collapseNouns(posNodes: Iterable<KoreanToken>): List<KoreanToken> {
-        val nodes = mutableListOf<KoreanToken>()
+        val nodes = fastListOf<KoreanToken>()
         var collapsing = false
 
         posNodes.forEach {

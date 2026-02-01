@@ -1,5 +1,7 @@
 package io.nats.examples
 
+import io.bluetape4k.collections.eclipse.fastList
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.nats.AbstractNatsTest
@@ -281,7 +283,7 @@ class FunctionalExamples: AbstractNatsTest() {
             }
             dispatcher.subscribe("updates", "workers")
 
-            List(10) {
+            fastList(10) {
                 nc.publish("updates", "message $it")
             }
 
@@ -293,7 +295,7 @@ class FunctionalExamples: AbstractNatsTest() {
     fun `Subscribe with star`() = runTest {
         getConnection().use { nc ->
             val latch = CountDownLatch(10)
-            val received = mutableListOf<String>()
+            val received = fastListOf<String>()
             val dispatcher = nc.createDispatcher { msg ->
                 val str = msg.data.toUtf8String()
                 received.add(str)
@@ -320,7 +322,7 @@ class FunctionalExamples: AbstractNatsTest() {
         getConnection().use { nc ->
             val subscription = nc.subscribe("updates")
 
-            List(10) {
+            fastList(10) {
                 nc.publish("updates", "message $it.")
             }
             repeat(10) {

@@ -1,5 +1,6 @@
 package io.bluetape4k.tokenizer.korean.tokenizer
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.tokenizer.korean.utils.KoreanPos
 import io.bluetape4k.tokenizer.korean.utils.KoreanPos.Eomi
@@ -57,7 +58,7 @@ object KoreanDetokenizer: KLogging() {
     }
 
     private fun collapseTokens(tokenized: List<KoreanToken>): List<String> {
-        val output = mutableListOf<String>()
+        val output = fastListOf<String>()
         var isPrefix = false
         var prevToken: KoreanToken? = null
 

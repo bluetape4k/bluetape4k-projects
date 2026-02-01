@@ -1,5 +1,6 @@
 package io.bluetape4k.math.commons
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.math.MathConsts.EPSILON
 import io.bluetape4k.math.MathConsts.FLOAT_EPSILON
 import java.math.BigDecimal
@@ -19,21 +20,27 @@ fun Iterable<Double>.filterApproximate(
     that: Double,
     epsilon: Double = EPSILON,
 ): List<Double> {
-    return filter { it.approximateEqual(that, epsilon) }
+    val results = fastListOf<Double>()
+    filterTo(results) { it.approximateEqual(that, epsilon) }
+    return results
 }
 
 fun Iterable<Float>.filterApproximate(
     that: Float,
     epsilon: Float = FLOAT_EPSILON,
 ): List<Float> {
-    return filter { it.approximateEqual(that, epsilon) }
+    val results = fastListOf<Float>()
+    filterTo(results) { it.approximateEqual(that, epsilon) }
+    return results
 }
 
 fun Iterable<BigDecimal>.filterApproximate(
     that: BigDecimal,
     epsilon: BigDecimal = EPSILON.toBigDecimal(),
 ): List<BigDecimal> {
-    return filter { it.approximateEqual(that, epsilon) }
+    val results = fastListOf<BigDecimal>()
+    filterTo(results) { it.approximateEqual(that, epsilon) }
+    return results
 }
 
 fun Sequence<Double>.filterApproximate(

@@ -1,5 +1,8 @@
 package io.bluetape4k.collections
 
+import io.bluetape4k.collections.eclipse.emptyFastList
+import io.bluetape4k.collections.eclipse.fastList
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.padTo
 import org.amshove.kluent.shouldBeEqualTo
@@ -12,8 +15,8 @@ class CollectionSupportTest {
 
     companion object: KLogging()
 
-    private val emptyList = emptyList<Int>()
-    private val tenList = List(10) { it + 1 }
+    private val emptyList = emptyFastList<Int>()
+    private val tenList = fastList(10) { it + 1 }
 
 
     @Test
@@ -24,7 +27,7 @@ class CollectionSupportTest {
 
     @Test
     fun `item prepend to list`() {
-        val list = mutableListOf<Int>()
+        val list = fastListOf<Int>()
         3.prependTo(list)
         list.size shouldBeEqualTo 1
 
@@ -35,7 +38,7 @@ class CollectionSupportTest {
 
     @Test
     fun `prepend item to list`() {
-        val list = MutableList(10) { it + 1 }
+        val list = fastList(10) { it + 1 }
 
         list.prepend(-1)
 
@@ -45,7 +48,7 @@ class CollectionSupportTest {
 
     @Test
     fun `specific value pad to collection`() {
-        val origin = MutableList(10) { it + 1 }
+        val origin = fastList(10) { it + 1 }
 
         origin.padTo(10, 5) shouldBeEqualTo origin
         origin.padTo(0, 5) shouldBeEqualTo origin
@@ -69,7 +72,7 @@ class CollectionSupportTest {
 
     @Test
     fun `each count of list`() {
-        val list = listOf(1, 2, 2, 3)
+        val list = fastListOf(1, 2, 2, 3)
         val map = list.eachCount()
         map shouldBeEqualTo mapOf(1 to 1, 2 to 2, 3 to 1)
     }

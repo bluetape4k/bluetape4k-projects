@@ -1,6 +1,7 @@
 package org.springframework.kafka.annotation
 
 import com.fasterxml.jackson.annotation.JsonCreator
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -313,7 +314,7 @@ class BatchListenerConversionTests {
         internal val latch1 = CountDownLatch(2)
         internal val latch2 = CountDownLatch(1)
 
-        internal val received = mutableListOf<Foo>()
+        internal val received = fastListOf<Foo>()
 
         @Volatile
         internal var dlt: String? = null

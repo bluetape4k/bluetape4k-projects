@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import com.danrusu.pods4k.immutableArrays.ImmutableArray
 import com.danrusu.pods4k.immutableArrays.immutableArrayOf
 import com.danrusu.pods4k.immutableArrays.toImmutableIntArray
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.coroutines.tests.assertError
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.cancelChildren
@@ -83,7 +84,7 @@ class ImmutableChunkedTest {
     @Test
     fun `chunked flow with mutable shared flow`() = runTest {
         val flow = MutableSharedFlow<Int>(extraBufferCapacity = 64)
-        val results = mutableListOf<ImmutableArray<Int>>()
+        val results = fastListOf<ImmutableArray<Int>>()
 
         flow.immutableChunked(3)
             .onEach {
@@ -107,7 +108,7 @@ class ImmutableChunkedTest {
         advanceUntilIdle()
         this.coroutineContext.cancelChildren()
 
-        results.map { it.toImmutableIntArray() } shouldBeEqualTo listOf(
+        results.map { it.toImmutableIntArray() } shouldBeEqualTo fastListOf(
             immutableArrayOf(1, 2, 3),
             immutableArrayOf(4, 5, 6)
         )

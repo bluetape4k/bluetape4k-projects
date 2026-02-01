@@ -1,7 +1,7 @@
 package io.bluetape4k.concurrent
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.collections.eclipse.fastListOf
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -21,7 +21,7 @@ import kotlin.test.assertFailsWith
  */
 class ConcurrentReducerTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `invalid max concurrency`() {
@@ -163,8 +163,8 @@ class ConcurrentReducerTest {
         val maxConcurrency = 5
         val reducer = concurrentReducerOf<String>(maxConcurrency, queueSize)
 
-        val jobs = mutableListOf<CountingJob>()
-        val promises = mutableListOf<CompletableFuture<String>>()
+        val jobs = fastListOf<CountingJob>()
+        val promises = fastListOf<CompletableFuture<String>>()
 
         repeat(queueSize) {
             val job = CountingJob(reducer::activeCount, maxCounter)
@@ -238,9 +238,7 @@ class ConcurrentReducerTest {
         private val maxCount: AtomicInteger,
     ): () -> CompletionStage<String>? {
 
-        companion object {
-            private val log = KotlinLogging.logger { }
-        }
+        companion object: KLoggingChannel()
 
         val future = CompletableFuture<String>()
 

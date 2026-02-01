@@ -1,5 +1,6 @@
 package io.bluetape4k.tokenizer.korean.utils
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.tokenizer.korean.utils.KoreanPos.Adjective
 import io.bluetape4k.tokenizer.korean.utils.KoreanPos.Adverb
@@ -96,7 +97,7 @@ object KoreanPosx: KLogging() {
         val end = if (isFinal(rest)) endingPos else null
 
         return when (rule) {
-            PLUS -> mutableListOf(
+            PLUS -> fastListOf(
                 KoreanPosTrie(
                     pos,
                     mutableListOf<KoreanPosTrie>().apply {
@@ -107,13 +108,13 @@ object KoreanPosx: KLogging() {
                 )
             )
 
-            ANY  -> mutableListOf<KoreanPosTrie>().apply {
+            ANY  -> fastListOf<KoreanPosTrie>().apply {
                 add(KoreanPosTrie(pos, mutableListOf(SelfNode) + buildTrie(rest, endingPos), end))
                 addAll(buildTrie(rest, endingPos))
             }
 
-            ONE  -> mutableListOf(KoreanPosTrie(pos, buildTrie(rest, endingPos), end))
-            ZERO -> mutableListOf<KoreanPosTrie>().apply {
+            ONE  -> fastListOf(KoreanPosTrie(pos, buildTrie(rest, endingPos), end))
+            ZERO -> fastListOf<KoreanPosTrie>().apply {
                 add(KoreanPosTrie(pos, buildTrie(rest, endingPos), end))
                 addAll(buildTrie(rest, endingPos))
             }
@@ -123,7 +124,7 @@ object KoreanPosx: KLogging() {
     }
 
     internal fun getTrie(sequences: Map<String, KoreanPos>): List<KoreanPosTrie> {
-        val results = mutableListOf<KoreanPosTrie>()
+        val results = fastListOf<KoreanPosTrie>()
         sequences.forEach { (key, value) ->
             results.addAll(0, buildTrie(key, value))
         }

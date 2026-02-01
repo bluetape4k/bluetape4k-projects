@@ -3,7 +3,9 @@ package io.bluetape4k.jackson
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import io.bluetape4k.AbstractValueObject
 import io.bluetape4k.ToStringBuilder
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.support.hashOf
+import org.eclipse.collections.impl.list.mutable.FastList
 import java.io.Serializable
 import java.time.Instant
 import java.util.*
@@ -21,7 +23,7 @@ enum class Generation {
 data class Address(
     var street: String? = null,
     var phone: String? = null,
-    val props: MutableList<String> = mutableListOf(),
+    val props: FastList<String> = fastListOf(),
 ): Serializable
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
@@ -52,7 +54,7 @@ data class OptionalCollection(
     override val name: String,
     override val age: Int,
     val spec: Optional<String>,
-    val options: List<Optional<String>> = emptyList(),
+    val options: List<Optional<String>> = fastListOf(),
 ): Person
 
 
@@ -77,7 +79,7 @@ open class User: AbstractValueObject(), Comparable<User> {
 
     var homeAddr = Address()
     var officeAddr = Address()
-    var favoriteMovies: MutableList<String> = mutableListOf()
+    var favoriteMovies: FastList<String> = fastListOf()
 
     override fun compareTo(other: User): Int {
         return firstname.compareTo(other.firstname)

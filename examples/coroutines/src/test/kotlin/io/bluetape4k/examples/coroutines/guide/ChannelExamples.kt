@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.coroutines.guide
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
@@ -34,7 +35,7 @@ class ChannelExamples {
 
         yield()
 
-        val received = mutableListOf<Int>()
+        val received = fastListOf<Int>()
         repeat(5) {
             val receivedItem = channel.receive()
             received.add(receivedItem)
@@ -59,7 +60,7 @@ class ChannelExamples {
             channel.close()
         }
 
-        val received = mutableListOf<Int>()
+        val received = fastListOf<Int>()
         for (items in channel) {
             received.add(items)
             log.trace { "received item=$items" }
@@ -75,7 +76,7 @@ class ChannelExamples {
             for (x in 1..5) send(x * x)
         }
 
-        val received = mutableListOf<Int>()
+        val received = fastListOf<Int>()
         val squares = produceSquare()
         squares.consumeEach {
             received.add(it)

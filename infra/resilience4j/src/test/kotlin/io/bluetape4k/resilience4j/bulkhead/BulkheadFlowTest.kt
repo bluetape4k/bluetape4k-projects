@@ -56,15 +56,14 @@ class BulkheadFlowTest {
     @Test
     fun `성공할 함수를 실행압니다`() = runSuspendTest {
         val bulkhead = Bulkhead.ofDefaults("testName").registerEventListener()
-        val results = mutableListOf<Int>()
 
-        flow {
+        val results = flow {
             repeat(3) {
                 emit(it)
             }
         }
             .bulkhead(bulkhead)
-            .toList(results)
+            .toFastList()
 
         results shouldContainSame listOf(0, 1, 2)
 
@@ -127,7 +126,7 @@ class BulkheadFlowTest {
     @Test
     fun `예외가 발생해도 bulkhead는 됩니다`() = runSuspendTest {
         val bulkhead = Bulkhead.ofDefaults("testName").registerEventListener()
-        val results = mutableListOf<Int>()
+        val results = fastListOf<Int>()
 
         assertFailsWith<IllegalStateException> {
             flow {

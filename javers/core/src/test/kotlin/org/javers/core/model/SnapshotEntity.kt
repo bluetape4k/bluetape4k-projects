@@ -2,6 +2,9 @@ package org.javers.core.model
 
 import com.google.common.collect.Multimap
 import com.google.common.collect.Multiset
+import io.bluetape4k.collections.eclipse.fastListOf
+import io.bluetape4k.collections.eclipse.unifiedMapOf
+import io.bluetape4k.collections.eclipse.unifiedSetOf
 import org.javers.core.metamodel.annotation.Id
 import org.javers.core.metamodel.annotation.ShallowReference
 import java.io.Serializable
@@ -33,16 +36,16 @@ data class SnapshotEntity(
     var arrayOfEntities: Array<SnapshotEntity>? = null
     var arrayOfValueObjects: Array<DummyAddress>? = null
 
-    var listOfIntegers: MutableList<Int> = mutableListOf()
-    var listOfDates: MutableList<LocalDate> = mutableListOf()
-    val listOfEntities: MutableList<SnapshotEntity> = mutableListOf()
-    var listOfValueObjects: MutableList<DummyAddress> = mutableListOf()
-    var polymorficList: MutableList<Any?> = mutableListOf()
+    var listOfIntegers: MutableList<Int> = fastListOf()
+    var listOfDates: MutableList<LocalDate> = fastListOf()
+    val listOfEntities: MutableList<SnapshotEntity> = fastListOf()
+    var listOfValueObjects: MutableList<DummyAddress> = fastListOf()
+    var polymorficList: MutableList<Any?> = fastListOf()
 
-    var setOfIntegers: MutableSet<Int> = mutableSetOf()
-    var setOfDates: MutableSet<LocalDate> = mutableSetOf()
-    var setOfValueObjects: MutableSet<DummyAddress> = mutableSetOf()
-    var polymorficset: MutableSet<Any?> = mutableSetOf()
+    var setOfIntegers: MutableSet<Int> = unifiedSetOf()
+    var setOfDates: MutableSet<LocalDate> = unifiedSetOf()
+    var setOfValueObjects: MutableSet<DummyAddress> = unifiedSetOf()
+    var polymorficset: MutableSet<Any?> = unifiedSetOf()
 
     var optionalInt: Optional<Int> = Optional.empty()
     var optionalDate: Optional<LocalDate> = Optional.empty()
@@ -59,17 +62,17 @@ data class SnapshotEntity(
     var multiMapEntityToEntity: Multimap<SnapshotEntity, SnapshotEntity>? = null
     //    var multiMapValueObjectToValueObject: Multimap<DummyAddress, DummyAddress>? = null // not supported
 
-    val mapOfPrimitives: MutableMap<String, Int> = mutableMapOf()
-    val mapOfValues: MutableMap<LocalDate, BigDecimal> = mutableMapOf()
-    val mapPrimitiveToVO: MutableMap<String, DummyAddress> = mutableMapOf()
-    val mapPrimitiveToEntity: MutableMap<String, SnapshotEntity> = mutableMapOf()
-    val polymorficMap: MutableMap<Any, Any?> = mutableMapOf()
-    val mapOfGenericValues: MutableMap<String, EnumSet<DummyEnum>> = mutableMapOf()
+    val mapOfPrimitives: MutableMap<String, Int> = unifiedMapOf()
+    val mapOfValues: MutableMap<LocalDate, BigDecimal> = unifiedMapOf()
+    val mapPrimitiveToVO: MutableMap<String, DummyAddress> = unifiedMapOf()
+    val mapPrimitiveToEntity: MutableMap<String, SnapshotEntity> = unifiedMapOf()
+    val polymorficMap: MutableMap<Any, Any?> = unifiedMapOf()
+    val mapOfGenericValues: MutableMap<String, EnumSet<DummyEnum>> = unifiedMapOf()
 
     var shallowPhone: ShallowPhone? = null
-    var shallowPhones: MutableSet<ShallowPhone> = mutableSetOf()
-    var shallowPhonesList: MutableList<ShallowPhone> = mutableListOf()
-    var shallowPhonesMap: MutableMap<String, ShallowPhone> = mutableMapOf()
+    var shallowPhones: MutableSet<ShallowPhone> = unifiedSetOf()
+    var shallowPhonesList: MutableList<ShallowPhone> = fastListOf()
+    var shallowPhonesMap: MutableMap<String, ShallowPhone> = unifiedMapOf()
 
     //    val mapVoToPrimitive: MutableMap<DummyAddress, String> = mutableMapOf()  // not supported
     //    var nonParameterizedMap: Map<*, *>? = null                                       // not supported

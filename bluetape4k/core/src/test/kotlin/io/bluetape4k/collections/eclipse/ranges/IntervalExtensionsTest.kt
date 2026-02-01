@@ -1,7 +1,9 @@
 package io.bluetape4k.collections.eclipse.ranges
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.primitives.intArrayListOf
 import io.bluetape4k.collections.eclipse.primitives.longArrayListOf
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList
@@ -41,15 +43,15 @@ class IntervalExtensionsTest {
     @Test
     fun `IntInterval forEach는 모든 요소에 대해 block을 실행한다`() {
         val interval = intIntervalOf(1, 3)
-        val result = mutableListOf<Int>()
+        val result = fastListOf<Int>()
         interval.forEach { result.add(it) }
-        result shouldBeEqualTo listOf(1, 2, 3)
+        result shouldBeEqualTo fastListOf(1, 2, 3)
     }
 
     @Test
     fun `IntInterval windowed는 올바른 윈도우 시퀀스를 반환한다`() {
         val interval = intIntervalOf(1, 5)
-        val windows = interval.windowed(size = 2).toList()
+        val windows = interval.windowed(size = 2).toFastList()
         windows.size shouldBeEqualTo 4
         windows[0] shouldBeEqualTo IntArrayList().apply { add(1); add(2) }
         windows[3] shouldBeEqualTo IntArrayList().apply { add(4); add(5) }
@@ -58,7 +60,7 @@ class IntervalExtensionsTest {
     @Test
     fun `IntInterval chunked는 올바른 청크 시퀀스를 반환한다`() {
         val interval = intIntervalOf(1, 5)
-        val chunks = interval.chunked(chunkSize = 2).toList()
+        val chunks = interval.chunked(chunkSize = 2).toFastList()
         chunks.size shouldBeEqualTo 3
         chunks[0] shouldBeEqualTo IntArrayList().apply { add(1); add(2) }
         chunks[2] shouldBeEqualTo IntArrayList().apply { add(5) }
@@ -67,14 +69,14 @@ class IntervalExtensionsTest {
     @Test
     fun `IntInterval sliding은 올바른 슬라이딩 윈도우 시퀀스를 반환한다`() {
         val interval = intIntervalOf(1, 4)
-        val sliding = interval.sliding(size = 3).toList()
+        val sliding = interval.sliding(size = 3).toFastList()
         sliding.size shouldBeEqualTo 4
         sliding[0] shouldBeEqualTo intArrayListOf(1, 2, 3)
         sliding[1] shouldBeEqualTo intArrayListOf(2, 3, 4)
         sliding[2] shouldBeEqualTo intArrayListOf(3, 4)
         sliding[3] shouldBeEqualTo intArrayListOf(4)
 
-        val slidingNonPartial = interval.sliding(size = 3, partialWindows = false).toList()
+        val slidingNonPartial = interval.sliding(size = 3, partialWindows = false).toFastList()
         slidingNonPartial.size shouldBeEqualTo 2
         slidingNonPartial[0] shouldBeEqualTo intArrayListOf(1, 2, 3)
         slidingNonPartial[1] shouldBeEqualTo intArrayListOf(2, 3, 4)
@@ -100,15 +102,15 @@ class IntervalExtensionsTest {
     @Test
     fun `LongInterval forEach는 모든 요소에 대해 block을 실행한다`() {
         val interval = longIntervalOf(1L, 3L)
-        val result = mutableListOf<Long>()
+        val result = fastListOf<Long>()
         interval.forEach { result.add(it) }
-        result shouldBeEqualTo listOf(1L, 2L, 3L)
+        result shouldBeEqualTo fastListOf(1L, 2L, 3L)
     }
 
     @Test
     fun `LongInterval windowed는 올바른 윈도우 시퀀스를 반환한다`() {
         val interval = longIntervalOf(1L, 4L)
-        val windows = interval.windowed(size = 2).toList()
+        val windows = interval.windowed(size = 2).toFastList()
         windows.size shouldBeEqualTo 3
         windows[0] shouldBeEqualTo LongArrayList().apply { add(1L); add(2L) }
         windows[2] shouldBeEqualTo LongArrayList().apply { add(3L); add(4L) }
@@ -117,7 +119,7 @@ class IntervalExtensionsTest {
     @Test
     fun `LongInterval chunked는 올바른 청크 시퀀스를 반환한다`() {
         val interval = longIntervalOf(1L, 5L)
-        val chunks = interval.chunked(chunkSize = 2).toList()
+        val chunks = interval.chunked(chunkSize = 2).toFastList()
         chunks.size shouldBeEqualTo 3
         chunks[0] shouldBeEqualTo LongArrayList().apply { add(1L); add(2L) }
         chunks[2] shouldBeEqualTo LongArrayList().apply { add(5L) }
@@ -133,7 +135,7 @@ class IntervalExtensionsTest {
         sliding[2] shouldBeEqualTo longArrayListOf(3, 4)
         sliding[3] shouldBeEqualTo longArrayListOf(4)
 
-        val slidingNonPartial = interval.sliding(size = 3, partialWindows = false).toList()
+        val slidingNonPartial = interval.sliding(size = 3, partialWindows = false).toFastList()
         slidingNonPartial.size shouldBeEqualTo 2
         slidingNonPartial[0] shouldBeEqualTo longArrayListOf(1, 2, 3)
         slidingNonPartial[1] shouldBeEqualTo longArrayListOf(2, 3, 4)

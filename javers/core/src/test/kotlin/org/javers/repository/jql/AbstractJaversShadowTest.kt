@@ -1,6 +1,9 @@
 package org.javers.repository.jql
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.stream.toFastList
+import io.bluetape4k.collections.eclipse.unifiedMapOf
+import io.bluetape4k.collections.eclipse.unifiedSetOf
 import io.bluetape4k.javers.repository.jql.queryByInstance
 import io.bluetape4k.javers.repository.jql.queryByInstanceId
 import io.bluetape4k.logging.KLogging
@@ -214,9 +217,9 @@ abstract class AbstractJaversShadowTest: AbstractJaversRepositoryTest() {
         val reference = ShallowPhone(id = 2L, number = "123", category = CategoryC(2, "some"))
         val entity = SnapshotEntity(1).apply {
             shallowPhone = reference
-            shallowPhones = mutableSetOf(reference)
-            shallowPhonesList = mutableListOf(reference)
-            shallowPhonesMap = mutableMapOf("key" to reference)
+            shallowPhones = unifiedSetOf(reference)
+            shallowPhonesList = fastListOf(reference)
+            shallowPhonesMap = unifiedMapOf("key" to reference)
         }
 
         // entity만 commit 하고, reference는 commit하지 않는다
@@ -252,7 +255,7 @@ abstract class AbstractJaversShadowTest: AbstractJaversRepositoryTest() {
 
     private fun assertThinShadowOfPhone(shadow: Any?) {
         shadow.shouldNotBeNull()
-        shadow shouldBeInstanceOf ShallowPhone::class.java
+        shadow shouldBeInstanceOf ShallowPhone::class
 
         if (shadow is ShallowPhone) {
             shadow.id shouldBeEqualTo 2L

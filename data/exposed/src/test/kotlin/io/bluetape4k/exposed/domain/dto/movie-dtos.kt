@@ -1,6 +1,8 @@
 package io.bluetape4k.exposed.domain.dto
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.exposed.core.HasIdentifier
+import org.eclipse.collections.impl.list.mutable.FastList
 import java.io.Serializable
 
 /**
@@ -47,7 +49,7 @@ data class MovieWithActorDTO(
     val name: String,
     val producerName: String,
     val releaseDate: String,
-    val actors: MutableList<ActorDTO> = mutableListOf(),
+    val actors: FastList<ActorDTO> = fastListOf(),
     override val id: Long = 0L,
 ): HasIdentifier<Long>
 

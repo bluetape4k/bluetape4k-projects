@@ -1,5 +1,7 @@
 package io.bluetape4k.math
 
+import io.bluetape4k.collections.eclipse.toUnifiedMap
+
 inline fun <T: Any, K: Any, R> Sequence<T>.aggregateBy(
     keySelector: (T) -> K,
     @BuilderInference aggregator: (elements: Iterable<T>) -> R,
@@ -41,7 +43,8 @@ inline fun <T: Any, K: Any, V: Any, R> Sequence<T>.aggregateBy(
     keySelector: (T) -> K,
     valueTransform: (T) -> V,
     @BuilderInference aggregator: (values: Iterable<V>) -> R,
-): Map<K, R> =
-    groupBy(keySelector, valueTransform)
+): Map<K, R> {
+    return groupBy(keySelector, valueTransform)
         .map { it.key to aggregator(it.value) }
-        .toMap()
+        .toUnifiedMap()
+}

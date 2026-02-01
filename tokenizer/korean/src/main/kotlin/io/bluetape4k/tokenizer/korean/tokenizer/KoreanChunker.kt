@@ -1,5 +1,6 @@
 package io.bluetape4k.tokenizer.korean.tokenizer
 
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.tokenizer.korean.utils.KoreanPos
 import io.bluetape4k.tokenizer.korean.utils.KoreanPos.Alpha
@@ -140,7 +141,7 @@ object KoreanChunker: KLogging() {
     tailrec fun findAllPatterns(
         m: Matcher,
         pos: KoreanPos,
-        matches: MutableList<ChunkMatch> = mutableListOf(),
+        matches: MutableList<ChunkMatch> = fastListOf(),
     ): List<ChunkMatch> {
         return if (m.find()) {
             matches.add(0, ChunkMatch(m.start(), m.end(), m.group(), pos))
@@ -154,7 +155,7 @@ object KoreanChunker: KLogging() {
         return if (text.isNotEmpty() && text[0].isSpaceChar) {
             listOf(ChunkMatch(0, text.length, text, Space))
         } else {
-            val chunksBuf = mutableListOf<ChunkMatch>()
+            val chunksBuf = fastListOf<ChunkMatch>()
             var matchedLen = 0
             CHUNKING_ORDER.forEach { pos ->
                 if (matchedLen < text.length) {
@@ -187,7 +188,7 @@ object KoreanChunker: KLogging() {
         chunks: List<ChunkMatch>,
         pos: KoreanPos,
     ): List<ChunkMatch> {
-        val chunksWithForeign = mutableListOf<ChunkMatch>()
+        val chunksWithForeign = fastListOf<ChunkMatch>()
         var prevEnd = 0
 
         chunks.forEach { cm ->
@@ -249,7 +250,7 @@ object KoreanChunker: KLogging() {
         val s = input.toString()
 
         // fold 대신 forEach 구문을 이용하여, 메모리를 절약하도록 했다
-        val tokens = mutableListOf<KoreanToken>()
+        val tokens = fastListOf<KoreanToken>()
         var i = 0
 
         runBlocking(Dispatchers.Default) {

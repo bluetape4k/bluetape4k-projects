@@ -2,6 +2,7 @@ package io.bluetape4k.javers.repository.caffeine
 
 import com.github.benmanes.caffeine.cache.Cache
 import io.bluetape4k.cache.caffeine.caffeine
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.javers.codecs.JaversCodec
 import io.bluetape4k.javers.codecs.JaversCodecs
@@ -64,7 +65,7 @@ class CaffeineCdoSnapshotRepository(
     override fun saveSnapshot(snapshot: CdoSnapshot) {
         lock.withLock {
             val globalIdValue = snapshot.globalId.value()
-            val snapshots = snapshotCache.get(globalIdValue) { _ -> mutableListOf() }
+            val snapshots = snapshotCache.get(globalIdValue) { _ -> fastListOf() }
             val encoded = encode(snapshot)
             snapshots.add(0, encoded)
         }

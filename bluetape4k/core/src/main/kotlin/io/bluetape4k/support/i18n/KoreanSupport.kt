@@ -1,5 +1,8 @@
 package io.bluetape4k.support.i18n
 
+import io.bluetape4k.collections.eclipse.fastListOf
+import io.bluetape4k.collections.eclipse.primitives.toCharArrayList
+
 // @formatter:off
 private val CHO_SUNG: IntArray by lazy {
     intArrayOf(
@@ -96,7 +99,7 @@ fun String.getChosung(): CharArray {
     if (this.isBlank())
         return charArrayOf()
 
-    val chosungs = mutableListOf<Char>()
+    val chosungs = fastListOf<Char>()
 
     repeat(length) { i ->
         val char = this[i].code

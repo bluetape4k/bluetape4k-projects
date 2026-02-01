@@ -1,5 +1,9 @@
 package io.bluetape4k.javers.examples
 
+import io.bluetape4k.collections.eclipse.fastListOf
+import io.bluetape4k.collections.eclipse.unifiedMapOf
+import io.bluetape4k.collections.eclipse.unifiedSet
+import io.bluetape4k.collections.eclipse.unifiedSetOf
 import org.javers.core.metamodel.annotation.Id
 import org.javers.core.metamodel.annotation.TypeName
 import java.io.Serializable
@@ -38,12 +42,12 @@ data class Employee(
     var age: Int? = null
 
     var boss: Employee? = null
-    val subordinates: MutableList<Employee> = mutableListOf()
+    val subordinates: MutableList<Employee> = fastListOf()
 
     var primaryAddress: Address? = null
     var postalAddress: Address? = null
-    val skills: MutableSet<String> = mutableSetOf()
-    val performance: MutableMap<Int, String> = mutableMapOf()
+    val skills: MutableSet<String> = unifiedSetOf()
+    val performance: MutableMap<Int, String> = unifiedMapOf()
     var lastPromotionDate: ZonedDateTime? = null
 
     fun addSubordinates(vararg emps: Employee) {
@@ -54,5 +58,5 @@ data class Employee(
 
 @TypeName("Boss")
 data class Boss(@Id val name: String): Serializable {
-    val suordinates: MutableCollection<Person> = mutableListOf()
+    val suordinates: MutableCollection<Person> = fastListOf()
 }

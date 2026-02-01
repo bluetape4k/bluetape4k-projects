@@ -10,11 +10,10 @@ import java.math.BigDecimal
 internal object JaversGsonElementConverter {
 
     fun fromJsonObject(jsonObject: JsonObject): Map<String, Any?> {
-        val map = mutableMapOf<String, Any?>()
-        jsonObject.entrySet().forEach { (key, jsonElement) ->
-            map[key] = extractValue(jsonElement)
-        }
-        return map
+        return jsonObject.entrySet()
+            .associate { (key, jsonElement) ->
+                key to extractValue(jsonElement)
+            }
     }
 
     fun toJsonObject(map: Map<String, Any?>): JsonObject {

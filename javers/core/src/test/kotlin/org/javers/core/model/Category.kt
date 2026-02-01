@@ -1,5 +1,8 @@
 package org.javers.core.model
 
+import io.bluetape4k.collections.eclipse.fastListOf
+import io.bluetape4k.collections.eclipse.unifiedMapOf
+import io.bluetape4k.collections.eclipse.unifiedSetOf
 import org.javers.core.metamodel.annotation.Id
 import org.javers.core.metamodel.annotation.ShallowReference
 import java.io.Serializable
@@ -9,7 +12,7 @@ abstract class AbstractCategory(
 ): Serializable {
 
     var parent: AbstractCategory? = null
-    val categories: MutableList<AbstractCategory> = mutableListOf()
+    val categories: MutableList<AbstractCategory> = fastListOf()
 
     fun addChild(child: AbstractCategory) {
         child.parent = this
@@ -25,7 +28,7 @@ class CategoryC(
 data class CategoryVo(var name: String? = null) {
 
     var parent: CategoryVo? = null
-    val children: MutableList<CategoryVo> = mutableListOf()
+    val children: MutableList<CategoryVo> = fastListOf()
 
     fun addChild(child: CategoryVo) {
         child.parent = this
@@ -42,12 +45,12 @@ data class PhoneWithShallowCategory(@Id var id: Long): Serializable {
     var shallowCategory: CategoryC? = null
 
     @ShallowReference
-    var shallowCategories: MutableSet<CategoryC> = mutableSetOf()
+    var shallowCategories: MutableSet<CategoryC> = unifiedSetOf()
 
     @ShallowReference
-    var shallowCategoryList: MutableList<CategoryC> = mutableListOf()
+    var shallowCategoryList: MutableList<CategoryC> = fastListOf()
 
     @ShallowReference
-    var shallowCategoryMap: MutableMap<String, CategoryC> = mutableMapOf()
+    var shallowCategoryMap: MutableMap<String, CategoryC> = unifiedMapOf()
 
 }
