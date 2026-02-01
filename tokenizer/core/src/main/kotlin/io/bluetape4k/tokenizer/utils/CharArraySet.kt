@@ -1,6 +1,7 @@
 package io.bluetape4k.tokenizer.utils
 
 import io.bluetape4k.logging.KLogging
+import org.eclipse.collections.impl.set.mutable.UnifiedSet
 import java.io.Serializable
 
 /**
@@ -8,7 +9,7 @@ import java.io.Serializable
  *
  * 사전 정보를 관리하는 클래스입니다.
  */
-open class CharArraySet(val map: CharArrayMap<Any>): java.util.AbstractSet<Any>(), Serializable {
+open class CharArraySet(val map: CharArrayMap<Any>): UnifiedSet<Any>(), Serializable {
 
     companion object: KLogging() {
         private val EMPTY_SET = CharArraySet(CharArrayMap.emptyMap())
@@ -18,17 +19,17 @@ open class CharArraySet(val map: CharArrayMap<Any>): java.util.AbstractSet<Any>(
         @JvmStatic
         fun unmodifiableSet(set: CharArraySet): CharArraySet {
             return when (set) {
-                EMPTY_SET                                   -> EMPTY_SET
+                EMPTY_SET -> EMPTY_SET
                 // is CharArrayMap.UnmodifiableCharArrayMap<*> -> set
-                else                                        -> CharArraySet(CharArrayMap.unmodifiableMap(set.map))
+                else -> CharArraySet(CharArrayMap.unmodifiableMap(set.map))
             }
         }
 
         @JvmStatic
         fun copy(set: Set<Any>): CharArraySet = when (set) {
-            EMPTY_SET       -> EMPTY_SET
+            EMPTY_SET -> EMPTY_SET
             is CharArraySet -> CharArraySet(CharArrayMap.copy(set.map))
-            else            -> CharArraySet(set)
+            else -> CharArraySet(set)
         }
     }
 
@@ -101,7 +102,7 @@ open class CharArraySet(val map: CharArrayMap<Any>): java.util.AbstractSet<Any>(
             if (this.length > 1) append(", ")
             when (item) {
                 is CharArray -> append(item)
-                else         -> append(item.toString())
+                else -> append(item.toString())
             }
         }
         append("]")

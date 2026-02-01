@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ParameterContext
 import org.junit.jupiter.api.extension.ParameterResolver
 import org.junit.jupiter.api.extension.TestInstancePostProcessor
 import java.util.stream.Stream
+import kotlin.streams.asSequence
 
 /**
  * `@RandomizedTest` annotation이 적용된 테스트 클래스나 메소드에
@@ -33,7 +34,7 @@ class RandomExtension: TestInstancePostProcessor, ParameterResolver {
 
         private fun resolve(targetType: Class<*>, annotation: RandomValue): Any = when {
             targetType.isAssignableFrom(Set::class.java) ->
-                randomizer.objects(annotation.type.java, annotation.size, *annotation.excludes).toList().toSet()
+                randomizer.objects(annotation.type.java, annotation.size, *annotation.excludes).asSequence().toSet()
 
             targetType.isAssignableFrom(List::class.java) || targetType.isAssignableFrom(Collection::class.java) ->
                 randomizer.objects(annotation.type.java, annotation.size, *annotation.excludes).toList()

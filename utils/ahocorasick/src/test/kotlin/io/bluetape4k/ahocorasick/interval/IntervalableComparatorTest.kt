@@ -50,7 +50,7 @@ class IntervalableComparatorTest {
 
         intervals.sortWith(ReverseSizeComparator)
 
-        intervals.map { it.size } shouldBeEqualTo listOf(6, 4, 2)
+        intervals.map { it.size } shouldBeEqualTo fastListOf(6, 4, 2)
     }
 
     @Test

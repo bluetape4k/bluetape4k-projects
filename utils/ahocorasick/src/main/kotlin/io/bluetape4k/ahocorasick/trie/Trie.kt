@@ -95,28 +95,29 @@ class Trie(private val config: TrieConfig = TrieConfig.DEFAULT) {
      * @param text 형태소 분석할 문자열
      * @return 형태소 리스트
      */
-    fun tokenize(text: String): List<Token> {
+    fun tokenize(
+        text: String,
+        destination: MutableList<Token> = fastListOf<Token>(),
+    ): List<Token> {
         if (text.isEmpty()) {
             return emptyList()
         }
         var lastCollectionIndex = -1
         val collectedEmits = parseText(text)
 
-        val results = fastListOf<Token>()
-
         collectedEmits
             .forEach { emit ->
                 if (emit.start - lastCollectionIndex > 1) {
-                    results.add(createFragment(emit, text, lastCollectionIndex))
+                    destination.add(createFragment(emit, text, lastCollectionIndex))
                 }
-                results.add(createMatch(emit, text))
+                destination.add(createMatch(emit, text))
                 lastCollectionIndex = emit.end
             }
 
         if (text.length - lastCollectionIndex > 1) {
-            results.add(createFragment(null, text, lastCollectionIndex))
+            destination.add(createFragment(null, text, lastCollectionIndex))
         }
-        return results
+        return destination
     }
 
     /**

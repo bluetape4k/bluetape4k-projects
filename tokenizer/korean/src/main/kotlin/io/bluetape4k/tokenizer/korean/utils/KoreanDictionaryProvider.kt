@@ -1,5 +1,7 @@
 package io.bluetape4k.tokenizer.korean.utils
 
+import io.bluetape4k.collections.eclipse.toUnifiedMap
+import io.bluetape4k.collections.eclipse.unifiedMapOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.publicLazy
 import io.bluetape4k.tokenizer.korean.utils.KoreanConjugation.conjugatePredicated
@@ -31,11 +33,11 @@ object KoreanDictionaryProvider: KLogging() {
     const val BASE_PATH = "koreantext"
 
     suspend fun readWordsAsSet(vararg filenames: String): MutableSet<String> {
-        return DictionaryProvider.readWordsAsSet(*filenames.map { "$BASE_PATH/$it" }.toTypedArray())
+        return DictionaryProvider.readWordsAsSet(paths = filenames.map { "$BASE_PATH/$it" }.toTypedArray())
     }
 
     suspend fun readWords(vararg filenames: String): CharArraySet {
-        return DictionaryProvider.readWords(*filenames.map { "$BASE_PATH/$it" }.toTypedArray())
+        return DictionaryProvider.readWords(paths = filenames.map { "$BASE_PATH/$it" }.toTypedArray())
     }
 
     val koreanEntityFreq: Map<CharSequence, Float> by lazy {
@@ -59,60 +61,61 @@ object KoreanDictionaryProvider: KLogging() {
      */
     val koreanDictionary: MutableMap<KoreanPos, CharArraySet> by lazy {
         runBlocking(Dispatchers.IO) {
-            mutableMapOf<KoreanPos, CharArraySet>().apply {
-                put(
-                    Noun,
-                    readWords(
-                        "noun/nouns.txt",
-                        "noun/entities.txt",
-                        "noun/spam.txt",
-                        "noun/names.txt",
-                        "noun/twitter.txt",
-                        "noun/lol.txt",
-                        "noun/slangs.txt",
-                        "noun/company_names.txt",
-                        "noun/foreign.txt",
-                        "noun/geolocations.txt",
-                        "noun/profane.txt",
-                        "substantives/given_names.txt",
-                        "noun/kpop.txt",
-                        "noun/bible.txt",
-                        "noun/pokemon.txt",
-                        "noun/congress.txt",
-                        "noun/wikipedia_title_nouns.txt",
-                        "noun/brand.txt",
-                        "noun/fashion.txt",
-                        "noun/commerce.txt",
-                        "noun/neologism.txt",
+            unifiedMapOf<KoreanPos, CharArraySet>()
+                .apply {
+                    put(
+                        Noun,
+                        readWords(
+                            "noun/nouns.txt",
+                            "noun/entities.txt",
+                            "noun/spam.txt",
+                            "noun/names.txt",
+                            "noun/twitter.txt",
+                            "noun/lol.txt",
+                            "noun/slangs.txt",
+                            "noun/company_names.txt",
+                            "noun/foreign.txt",
+                            "noun/geolocations.txt",
+                            "noun/profane.txt",
+                            "substantives/given_names.txt",
+                            "noun/kpop.txt",
+                            "noun/bible.txt",
+                            "noun/pokemon.txt",
+                            "noun/congress.txt",
+                            "noun/wikipedia_title_nouns.txt",
+                            "noun/brand.txt",
+                            "noun/fashion.txt",
+                            "noun/commerce.txt",
+                            "noun/neologism.txt",
+                        )
                     )
-                )
 
-                val verbs = async { readWordsAsSet("verb/verb.txt") }
-                val adjective = async { readWordsAsSet("adjective/adjective.txt") }
-                val adveb = async { readWords("adverb/adverb.txt") }
-                val determiner = async { readWords("auxiliary/determiner.txt") }
-                val exclamation = async { readWords("auxiliary/exclamation.txt") }
-                val josa = async { readWords("josa/josa.txt") }
-                val eomi = async { readWords("verb/eomi.txt") }
-                val preEomi = async { readWords("verb/pre_eomi.txt") }
-                val conjuction = async { readWords("auxiliary/conjunctions.txt") }
-                val modifier = async { readWords("substantives/modifier.txt") }
-                val verbPrefix = async { readWords("verb/verb_prefix.txt") }
-                val suffix = async { readWords("substantives/suffix.txt") }
+                    val verbs = async { readWordsAsSet("verb/verb.txt") }
+                    val adjective = async { readWordsAsSet("adjective/adjective.txt") }
+                    val adveb = async { readWords("adverb/adverb.txt") }
+                    val determiner = async { readWords("auxiliary/determiner.txt") }
+                    val exclamation = async { readWords("auxiliary/exclamation.txt") }
+                    val josa = async { readWords("josa/josa.txt") }
+                    val eomi = async { readWords("verb/eomi.txt") }
+                    val preEomi = async { readWords("verb/pre_eomi.txt") }
+                    val conjuction = async { readWords("auxiliary/conjunctions.txt") }
+                    val modifier = async { readWords("substantives/modifier.txt") }
+                    val verbPrefix = async { readWords("verb/verb_prefix.txt") }
+                    val suffix = async { readWords("substantives/suffix.txt") }
 
-                put(Verb, conjugatePredicatesToCharArraySet(verbs.await()))
-                put(Adjective, conjugatePredicatesToCharArraySet(adjective.await(), true))
-                put(Adverb, adveb.await())
-                put(Determiner, determiner.await())
-                put(Exclamation, exclamation.await())
-                put(Josa, josa.await())
-                put(Eomi, eomi.await())
-                put(PreEomi, preEomi.await())
-                put(Conjunction, conjuction.await())
-                put(Modifier, modifier.await())
-                put(VerbPrefix, verbPrefix.await())
-                put(Suffix, suffix.await())
-            }
+                    put(Verb, conjugatePredicatesToCharArraySet(verbs.await()))
+                    put(Adjective, conjugatePredicatesToCharArraySet(adjective.await(), true))
+                    put(Adverb, adveb.await())
+                    put(Determiner, determiner.await())
+                    put(Exclamation, exclamation.await())
+                    put(Josa, josa.await())
+                    put(Eomi, eomi.await())
+                    put(PreEomi, preEomi.await())
+                    put(Conjunction, conjuction.await())
+                    put(Modifier, modifier.await())
+                    put(VerbPrefix, verbPrefix.await())
+                    put(Suffix, suffix.await())
+                }
         }
     }
 
@@ -180,7 +183,7 @@ object KoreanDictionaryProvider: KLogging() {
             val familyName = async { readWords("substantives/family_names.txt") }
             val givenName = async { readWords("substantives/given_names.txt") }
             val fullName = async { readWords("noun/kpop.txt", "noun/foreign.txt", "noun/names.txt") }
-            mapOf(
+            unifiedMapOf(
                 "family_name" to familyName.await(),
                 "given_name" to givenName.await(),
                 "full_name" to fullName.await()
@@ -196,7 +199,7 @@ object KoreanDictionaryProvider: KLogging() {
             val grouped = DictionaryProvider.readWordMap("$BASE_PATH/typos/typos.txt")
                 .groupBy { it.first.length }
             // val grouped = readWordMap("typos/typos.txt").toList().groupBy { it.first.length }
-            val result = mutableMapOf<Int, Map<String, String>>()
+            val result = unifiedMapOf<Int, Map<String, String>>()
 
             grouped.forEach { (index, pair) ->
                 result[index] = pair.associate { (k, v) -> k to v }
@@ -220,13 +223,13 @@ object KoreanDictionaryProvider: KLogging() {
                         it to word + "다"
                     }
                 }
-                .toMap()
+                .toUnifiedMap()
         }
 
         runBlocking(Dispatchers.IO) {
             val verb = async { readWordsAsSet("verb/verb.txt") }
             val adjective = async { readWordsAsSet("adjective/adjective.txt") }
-            mapOf(
+            unifiedMapOf(
                 Verb to getConjugationMap(verb.await(), false),
                 Adjective to getConjugationMap(adjective.await(), true)
             )

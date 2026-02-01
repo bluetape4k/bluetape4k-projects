@@ -2,6 +2,7 @@ package io.bluetape4k.cassandra.cql
 
 import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.cassandra.toCqlIdentifier
+import io.bluetape4k.collections.eclipse.unifiedMapOf
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeEqualTo
@@ -31,22 +32,22 @@ class RowSupportTest: AbstractCassandraTest() {
     @Test
     fun `row to map`() = runSuspendIO {
         val row = session.executeSuspending("SELECT * FROM row_table WHERE id=?", "1").one()!!
-        row.toMap() shouldBeEqualTo mapOf(0 to "1", 1 to "name-1", 2 to 1)
+        row.toMap() shouldBeEqualTo unifiedMapOf(0 to "1", 1 to "name-1", 2 to 1)
     }
 
     @Test
     fun `row to named map`() = runSuspendIO {
         val row = session.executeSuspending("SELECT * FROM row_table WHERE id=?", "1").one()!!
-        row.toNamedMap() shouldBeEqualTo mapOf("id" to "1", "name" to "name-1", "num" to 1)
+        row.toNamedMap() shouldBeEqualTo unifiedMapOf("id" to "1", "name" to "name-1", "num" to 1)
     }
 
     @Test
     fun `row to CqlItentifier map`() = runSuspendIO {
         val row = session.executeSuspending("SELECT * FROM row_table WHERE id=?", "1").one()!!
-        row.toCqlIdentifierMap() shouldBeEqualTo mapOf(
+        row.toCqlIdentifierMap() shouldBeEqualTo unifiedMapOf(
             "id".toCqlIdentifier() to "1",
             "name".toCqlIdentifier() to "name-1",
-            "num".toCqlIdentifier() to 1
+            "num".toCqlIdentifier() to 1,
         )
     }
 

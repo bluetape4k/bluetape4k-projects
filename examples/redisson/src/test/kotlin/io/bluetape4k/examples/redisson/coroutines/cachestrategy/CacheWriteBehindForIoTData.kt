@@ -1,6 +1,7 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
 import io.bluetape4k.collections.eclipse.toFastList
+import io.bluetape4k.collections.eclipse.toUnifiedMap
 import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.exposed.dao.id.TimebasedUUIDTable
@@ -109,10 +110,10 @@ class CacheWriteBehindForIoTData: AbstractCacheExample() {
             override fun write(map: Map<String, List<SensorData>>) {
                 val sampling = map.map { entry ->
                     entry.key to entry.value.debounceSampling(Duration.ofMillis(10)).toFastList()
-                }.toMap()
+                }.toUnifiedMap()
 
                 transaction {
-                    sampling.forEach { (key, values) ->
+                    sampling.forEach { key, values ->
                         log.debug { "Sample to save: $key -> ${values.size}" }
                         SensorDataTable.batchInsert(values) { data ->
                             this[SensorDataTable.serialNo] = data.serialNo
@@ -194,10 +195,10 @@ class CacheWriteBehindForIoTData: AbstractCacheExample() {
                 return scope.async {
                     val sampling = map.map { entry ->
                         entry.key to entry.value.debounceSampling(Duration.ofMillis(10)).toFastList()
-                    }.toMap()
+                    }.toUnifiedMap()
 
                     newSuspendedTransaction {
-                        sampling.forEach { (key, values) ->
+                        sampling.forEach { key, values ->
                             log.debug { "Sample to save: $key -> ${values.size}" }
                             SensorDataTable.batchInsert(values) { data ->
                                 this[SensorDataTable.serialNo] = data.serialNo
@@ -213,12 +214,14 @@ class CacheWriteBehindForIoTData: AbstractCacheExample() {
 
             override fun delete(keys: Collection<String>): CompletionStage<Void> {
                 val scope = CoroutineScope(Dispatchers.IO)
-                return scope.async {
-                    newSuspendedTransaction {
-                        SensorDataTable.deleteWhere { SensorDataTable.serialNo inList keys }
+                return scope
+                    .async {
+                        newSuspendedTransaction {
+                            SensorDataTable.deleteWhere { SensorDataTable.serialNo inList keys }
+                        }
+                        null
                     }
-                    null
-                }.asCompletableFuture()
+                    .asCompletableFuture()
             }
 
             fun List<SensorData>.debounceSampling(timeout: Duration): Flow<SensorData> {

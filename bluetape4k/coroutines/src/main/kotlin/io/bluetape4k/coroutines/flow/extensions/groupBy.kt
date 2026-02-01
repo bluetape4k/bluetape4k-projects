@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
+import org.eclipse.collections.api.multimap.list.ListMultimap
+import org.eclipse.collections.api.multimap.list.MutableListMultimap
+import org.eclipse.collections.impl.factory.Multimaps
 import org.eclipse.collections.impl.map.mutable.UnifiedMap
 import java.io.Serializable
 import java.util.concurrent.ConcurrentHashMap
@@ -55,6 +58,34 @@ suspend fun <K: Any, V> Flow<GroupedFlow<K, V>>.toMap(
         .flatMapMerge { it.toGroupItems() }
         .collect { groupItem ->
             destination[groupItem.key] = groupItem.values
+        }
+    return destination
+}
+
+/**
+ * [GroupedFlow]의 Flow 를 [destination] Map에 `Map<K, List<V>>` 형태로 변환합니다.
+ */
+suspend fun <K: Any, V> Flow<GroupedFlow<K, V>>.toUnifiedMap(
+    destination: MutableMap<K, List<V>> = UnifiedMap<K, List<V>>(),
+): MutableMap<K, List<V>> {
+    this
+        .flatMapMerge { it.toGroupItems() }
+        .collect { groupItem ->
+            destination[groupItem.key] = groupItem.values
+        }
+    return destination
+}
+
+/**
+ * [GroupedFlow]의 Flow 를 [destination] Map에 `Map<K, List<V>>` 형태로 변환합니다.
+ */
+suspend fun <K: Any, V> Flow<GroupedFlow<K, V>>.toListMultiMap(
+    destination: MutableListMultimap<K, V> = Multimaps.mutable.list.with<K, V>(),
+): ListMultimap<K, V> {
+    this
+        .flatMapMerge { it.toGroupItems() }
+        .collect { groupItem ->
+            destination.putAll(groupItem.key, groupItem.values)
         }
     return destination
 }

@@ -17,7 +17,7 @@ class IntervalTreeTest {
         val tree = IntervalTree(intervals)
 
         val overlaps = tree.findOverlaps(Interval(1, 3))
-        overlaps shouldBeEqualTo listOf(Interval(0, 2), Interval(2, 4), Interval(3, 5))
+        overlaps shouldBeEqualTo fastListOf(Interval(0, 2), Interval(2, 4), Interval(3, 5))
     }
 
     @Test

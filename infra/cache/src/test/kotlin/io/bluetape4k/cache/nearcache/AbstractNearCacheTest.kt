@@ -1,6 +1,8 @@
 package io.bluetape4k.cache.nearcache
 
 import io.bluetape4k.cache.jcache.JCache
+import io.bluetape4k.collections.eclipse.fastList
+import io.bluetape4k.collections.eclipse.toUnifiedMap
 import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.junit5.faker.Fakers
@@ -181,9 +183,9 @@ abstract class AbstractNearCacheTest {
 
     @RepeatedTest(TEST_SIZE)
     fun `putAll - 복수의 캐시를 저장하면 다른 cache에 모두 반영된다`() {
-        val map = List(10) {
+        val map = fastList(10) {
             randomKey() to randomValue()
-        }.toMap()
+        }.toUnifiedMap()
 
         nearCache1.putAll(map)
         await until { nearCache2.getAll(*map.keys.toTypedArray()).size == map.size }

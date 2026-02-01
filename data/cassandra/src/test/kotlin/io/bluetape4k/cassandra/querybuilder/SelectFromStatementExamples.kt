@@ -8,6 +8,7 @@ import com.datastax.oss.driver.api.querybuilder.select.Selector
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldContainSame
 import org.junit.jupiter.api.Test
 
 class SelectFromStatementExamples {
@@ -64,7 +65,7 @@ class SelectFromStatementExamples {
         log.debug { "query=${stmt.query}" }
         stmt.query shouldBeEqualTo "SELECT * FROM persons WHERE foo=:foo AND name=:name"
         log.debug { "positionalValues=${stmt.namedValues}" }
-        stmt.namedValues.map { it.key.asInternal() to it.value }.toMap() shouldBeEqualTo params
+        stmt.namedValues.map { it.key.asInternal() to it.value }.toMap() shouldContainSame params
     }
 
     @Test

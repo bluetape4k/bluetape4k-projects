@@ -1,6 +1,7 @@
 package io.bluetape4k.collections.eclipse.multi
 
 import io.bluetape4k.collections.eclipse.toTuplePair
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import org.eclipse.collections.api.multimap.Multimap
 import org.eclipse.collections.api.multimap.bag.ImmutableBagMultimap
 import org.eclipse.collections.api.multimap.bag.MutableBagMultimap
@@ -32,19 +33,19 @@ fun <K, V> bagMultimapOf(vararg pairs: Pair<K, V>): HashBagMultimap<K, V> =
     HashBagMultimap.newMultimap(pairs.map { it.toTuplePair() })
 
 fun <K, V> Map<K, V>.toImmutableListMultimap(): ImmutableListMultimap<K, V> =
-    emptyImmutableListMultimap<K, V>().also { this.map { Tuples.pair(it.key, it.value) } }
+    Multimaps.immutable.list.with<K, V>().also { this.map { Tuples.pair(it.key, it.value) } }
 
 fun <K, V> Map<K, V>.toListMultimap(): MutableListMultimap<K, V> =
     FastListMultimap.newMultimap(this.map { Tuples.pair(it.key, it.value) })
 
 fun <K, V> Map<K, V>.toImmutableSetMultimap(): ImmutableSetMultimap<K, V> =
-    emptyImmutableSetMultimap<K, V>().also { this.map { Tuples.pair(it.key, it.value) } }
+    Multimaps.immutable.set.with<K, V>().also { this.map { Tuples.pair(it.key, it.value) } }
 
 fun <K, V> Map<K, V>.toSetMultimap(): MutableSetMultimap<K, V> =
     UnifiedSetMultimap.newMultimap(this.map { Tuples.pair(it.key, it.value) })
 
 fun <K, V> Map<K, V>.toImmutableBagMultimap(): ImmutableBagMultimap<K, V> =
-    emptyImmutableBagMultimap<K, V>().also { this.map { Tuples.pair(it.key, it.value) } }
+    Multimaps.immutable.bag.with<K, V>().also { this.map { Tuples.pair(it.key, it.value) } }
 
 fun <K, V> Map<K, V>.toBagMultimap(): MutableBagMultimap<K, V> =
     HashBagMultimap.newMultimap(this.map { Tuples.pair(it.key, it.value) })
@@ -56,31 +57,73 @@ inline fun <K, V, R> Multimap<K, V>.toList(mapper: (K, Iterable<V>) -> R): List<
     keyMultiValuePairsView().map { mapper(it.one, it.two) }
 
 inline fun <K, V, R> Multimap<K, V>.toSet(mapper: (K, Iterable<V>) -> R): Set<R> =
-    keyMultiValuePairsView().map { mapper(it.one, it.two) }.toSet()
+    keyMultiValuePairsView().map { mapper(it.one, it.two) }.toUnifiedSet()
 
-inline fun <T, K, V> Iterable<T>.toListMultimap(mapper: (T) -> Pair<K, V>): MutableListMultimap<K, V> =
-    FastListMultimap.newMultimap(this.map { mapper(it).toTuplePair() })
+inline fun <T, K, V> Iterable<T>.toListMultimap(
+    destination: MutableListMultimap<K, V> = Multimaps.mutable.list.empty(),
+    mapper: (T) -> Pair<K, V>,
+): MutableListMultimap<K, V> {
+    forEach {
+        destination.add(mapper(it).toTuplePair())
+    }
+    return destination
+}
 
-inline fun <T, K, V> Iterable<T>.toSetMultimap(mapper: (T) -> Pair<K, V>): MutableSetMultimap<K, V> =
-    UnifiedSetMultimap.newMultimap(this.map { mapper(it).toTuplePair() })
+inline fun <T, K, V> Iterable<T>.toSetMultimap(
+    destination: MutableSetMultimap<K, V> = Multimaps.mutable.set.empty(),
+    mapper: (T) -> Pair<K, V>,
+): MutableSetMultimap<K, V> {
+    forEach {
+        destination.add(mapper(it).toTuplePair())
+    }
+    return destination
+}
 
-inline fun <T, K, V> Iterable<T>.toBagMultimap(mapper: (T) -> Pair<K, V>): MutableBagMultimap<K, V> =
-    HashBagMultimap.newMultimap(this.map { mapper(it).toTuplePair() })
+inline fun <T, K, V> Iterable<T>.toBagMultimap(
+    destination: MutableBagMultimap<K, V> = Multimaps.mutable.bag.empty(),
+    mapper: (T) -> Pair<K, V>,
+): MutableBagMultimap<K, V> {
+    forEach {
+        destination.add(mapper(it).toTuplePair())
+    }
+    return destination
+}
 
-inline fun <T, K> Iterable<T>.groupByListMultimap(keySelector: (T) -> K): MutableListMultimap<K, T> =
-    toListMultimap { keySelector(it) to it }
+inline fun <T, K> Iterable<T>.groupByListMultimap(
+    destination: MutableListMultimap<K, T> = Multimaps.mutable.list.empty(),
+    keySelector: (T) -> K,
+): MutableListMultimap<K, T> {
+    return toListMultimap(destination) { keySelector(it) to it }
+}
 
-inline fun <T, K> Iterable<T>.groupBySetMultimap(keySelector: (T) -> K): MutableSetMultimap<K, T> =
-    toSetMultimap { keySelector(it) to it }
+inline fun <T, K> Iterable<T>.groupBySetMultimap(
+    destination: MutableSetMultimap<K, T> = Multimaps.mutable.set.empty(),
+    keySelector: (T) -> K,
+): MutableSetMultimap<K, T> {
+    return toSetMultimap(destination) { keySelector(it) to it }
+}
 
-inline fun <T, K> Iterable<T>.groupByBagMultimap(keySelector: (T) -> K): MutableBagMultimap<K, T> =
-    toBagMultimap { keySelector(it) to it }
+inline fun <T, K> Iterable<T>.groupByBagMultimap(
+    destination: MutableBagMultimap<K, T> = Multimaps.mutable.bag.empty(),
+    keySelector: (T) -> K,
+): MutableBagMultimap<K, T> {
+    return toBagMultimap(destination) { keySelector(it) to it }
+}
 
-fun <K, V> Iterable<Pair<K, V>>.toListMultimap(): MutableListMultimap<K, V> =
-    FastListMultimap.newMultimap(this.map { it.toTuplePair() })
+fun <K, V> Iterable<Pair<K, V>>.toListMultimap(
+    destination: MutableListMultimap<K, V> = Multimaps.mutable.list.empty(),
+): MutableListMultimap<K, V> {
+    return toListMultimap(destination) { it }
+}
 
-fun <K, V> Iterable<Pair<K, V>>.toSetMultimap(): MutableSetMultimap<K, V> =
-    UnifiedSetMultimap.newMultimap(this.map { it.toTuplePair() })
+fun <K, V> Iterable<Pair<K, V>>.toSetMultimap(
+    destination: MutableSetMultimap<K, V> = Multimaps.mutable.set.empty(),
+): MutableSetMultimap<K, V> {
+    return toSetMultimap(destination) { it }
+}
 
-fun <K, V> Iterable<Pair<K, V>>.toBagMultimap(): MutableBagMultimap<K, V> =
-    HashBagMultimap.newMultimap(this.map { it.toTuplePair() })
+fun <K, V> Iterable<Pair<K, V>>.toBagMultimap(
+    destination: MutableBagMultimap<K, V> = Multimaps.mutable.bag.empty(),
+): MutableBagMultimap<K, V> {
+    return toBagMultimap(destination) { it }
+}

@@ -13,9 +13,9 @@ import org.testcontainers.containers.GenericContainer
  * @param exposedPorts port numbers to exposed, 아무것도 지정하지 않으면 기본적인 exposedPorts 를 이용합니다.
  */
 fun <T: GenericContainer<T>> GenericContainer<T>.exposeCustomPorts(vararg exposedPorts: Int) {
-    val portsToExpose = exposedPorts + this.exposedPorts
+    val portsToExpose: IntArray = exposedPorts + this.exposedPorts
     if (portsToExpose.isNotEmpty()) {
-        val bindings = portsToExpose.toSet().map { PortBinding(Ports.Binding.bindPort(it), ExposedPort(it)) }
+        val bindings = portsToExpose.distinct().map { PortBinding(Ports.Binding.bindPort(it), ExposedPort(it)) }
         if (bindings.isNotEmpty()) {
             withCreateContainerCmdModifier { cmd ->
                 cmd.hostConfig?.withPortBindings(bindings)
@@ -35,7 +35,7 @@ fun <T: GenericContainer<T>> GenericContainer<T>.exposeCustomPorts(vararg expose
 fun <T: GenericContainer<T>> GenericContainer<T>.exposeCustomPorts(exposedPorts: Array<Int>) {
     val portsToExpose = exposedPorts + this.exposedPorts
     if (portsToExpose.isNotEmpty()) {
-        val bindings = portsToExpose.toSet().map { PortBinding(Ports.Binding.bindPort(it), ExposedPort(it)) }
+        val bindings = portsToExpose.distinct().map { PortBinding(Ports.Binding.bindPort(it), ExposedPort(it)) }
         if (bindings.isNotEmpty()) {
             withCreateContainerCmdModifier { cmd ->
                 cmd.hostConfig?.withPortBindings(bindings)

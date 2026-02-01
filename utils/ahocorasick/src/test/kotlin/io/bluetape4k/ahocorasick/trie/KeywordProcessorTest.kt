@@ -1,6 +1,6 @@
 package io.bluetape4k.ahocorasick.trie
 
-import io.bluetape4k.collections.eclipse.toFastList
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
@@ -24,7 +24,8 @@ class KeywordProcessorTest {
     fun `extract keywords`() {
         val emits = trie.parseText(text)
         log.debug { "emits=$emits" }
-        emits shouldBeEqualTo listOf(
+
+        emits shouldBeEqualTo fastListOf(
             Emit(7, 8, "PM"),
             Emit(16, 22, "java_2e"),
             Emit(46, 49, "APPL"),
@@ -34,7 +35,7 @@ class KeywordProcessorTest {
 
     @Test
     fun `tokenize keywords`() {
-        val tokens = trie.tokenize(text).toFastList()
+        val tokens = trie.tokenize(text)
         log.debug { "tokens=$tokens" }
 
         tokens shouldHaveSize 8

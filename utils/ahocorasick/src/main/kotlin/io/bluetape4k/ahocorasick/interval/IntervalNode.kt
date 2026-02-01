@@ -1,6 +1,7 @@
 package io.bluetape4k.ahocorasick.interval
 
 import io.bluetape4k.AbstractValueObject
+import io.bluetape4k.collections.eclipse.fastListOf
 import java.util.*
 
 class IntervalNode(inputs: Collection<Intervalable>): AbstractValueObject() {
@@ -28,8 +29,8 @@ class IntervalNode(inputs: Collection<Intervalable>): AbstractValueObject() {
             return
         }
 
-        val toLeft = LinkedList<Intervalable>()
-        val toRight = LinkedList<Intervalable>()
+        val toLeft = fastListOf<Intervalable>()
+        val toRight = fastListOf<Intervalable>()
 
         inputs.forEach { input ->
             when {
@@ -46,27 +47,29 @@ class IntervalNode(inputs: Collection<Intervalable>): AbstractValueObject() {
         }
     }
 
-    fun findOverlaps(interval: Intervalable): MutableList<Intervalable> {
-        val overlaps = LinkedList<Intervalable>()
+    fun findOverlaps(
+        interval: Intervalable,
+        destination: MutableList<Intervalable> = fastListOf(),
+    ): MutableList<Intervalable> {
 
         when {
             interval.start > median -> {
-                addToOverlaps(interval, overlaps, findOverlappingRanges(right, interval))
-                addToOverlaps(interval, overlaps, checkForOverlapsToRight(interval))
+                addToOverlaps(interval, destination, findOverlappingRanges(right, interval))
+                addToOverlaps(interval, destination, checkForOverlapsToRight(interval))
             }
 
             interval.end < median -> {
-                addToOverlaps(interval, overlaps, findOverlappingRanges(left, interval))
-                addToOverlaps(interval, overlaps, checkForOverlapsToLeft(interval))
+                addToOverlaps(interval, destination, findOverlappingRanges(left, interval))
+                addToOverlaps(interval, destination, checkForOverlapsToLeft(interval))
             }
 
             else -> {
-                addToOverlaps(interval, overlaps, this.intervals)
-                addToOverlaps(interval, overlaps, findOverlappingRanges(left, interval))
-                addToOverlaps(interval, overlaps, findOverlappingRanges(right, interval))
+                addToOverlaps(interval, destination, this.intervals)
+                addToOverlaps(interval, destination, findOverlappingRanges(left, interval))
+                addToOverlaps(interval, destination, findOverlappingRanges(right, interval))
             }
         }
-        return overlaps
+        return destination
     }
 
     private fun addToOverlaps(

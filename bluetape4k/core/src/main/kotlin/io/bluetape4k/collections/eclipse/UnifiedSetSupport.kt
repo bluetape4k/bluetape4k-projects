@@ -5,7 +5,10 @@ import org.eclipse.collections.impl.set.mutable.UnifiedSet
 
 fun <T> emptyUnifiedSet(): UnifiedSet<T> = UnifiedSet.newSet<T>()
 
-inline fun <T> unifiedSet(size: Int, initializer: (Int) -> T): UnifiedSet<T> =
+inline fun <T> unifiedSet(
+    size: Int,
+    @BuilderInference initializer: (Int) -> T,
+): UnifiedSet<T> =
     UnifiedSet.newSet<T>(size).apply {
         repeat(size) {
             add(initializer(it))
@@ -22,7 +25,7 @@ fun <T> Iterable<T>.toUnifiedSet(): UnifiedSet<T> {
     if (this is Collection) {
         return when (size) {
             0 -> emptyUnifiedSet()
-            1 -> unifiedSet(1) { if (this is List) get(0) else iterator().next() }
+            1 -> unifiedSet(1) { if (this@toUnifiedSet is List) get(0) else iterator().next() }
             else -> UnifiedSet.newSet(this)
         }
     }

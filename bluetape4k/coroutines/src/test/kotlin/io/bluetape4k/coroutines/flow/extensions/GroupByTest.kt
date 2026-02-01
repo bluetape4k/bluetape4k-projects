@@ -15,6 +15,7 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldHaveSize
+import org.eclipse.collections.api.multimap.list.ListMultimap
 import org.junit.jupiter.api.Test
 
 class GroupByTest: AbstractFlowTest() {
@@ -128,13 +129,25 @@ class GroupByTest: AbstractFlowTest() {
     }
 
     @Test
-    fun `convert Group to Multimap`() = runTest {
+    fun `convert Group to UnifiedMap`() = runTest {
         val mmap: MutableMap<Int, List<Int>> = flowRangeOf(1, 10)
             .groupBy { it % 2 }
-            .toMap()
+            .toUnifiedMap()
 
         mmap.size shouldBeEqualTo 2
         mmap.keys shouldHaveSize 2
+        mmap[0] shouldBeEqualTo listOf(2, 4, 6, 8, 10)
+        mmap[1] shouldBeEqualTo listOf(1, 3, 5, 7, 9)
+    }
+
+    @Test
+    fun `convert Group to ListMultimap`() = runTest {
+        val mmap: ListMultimap<Int, Int> = flowRangeOf(1, 10)
+            .groupBy { it % 2 }
+            .toListMultiMap()
+
+        mmap.keysView().size() shouldBeEqualTo 2
+        mmap.keysView() shouldHaveSize 2
         mmap[0] shouldBeEqualTo listOf(2, 4, 6, 8, 10)
         mmap[1] shouldBeEqualTo listOf(1, 3, 5, 7, 9)
     }

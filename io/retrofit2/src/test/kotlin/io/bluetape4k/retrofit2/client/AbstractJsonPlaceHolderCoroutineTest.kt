@@ -1,5 +1,6 @@
 package io.bluetape4k.retrofit2.client
 
+import io.bluetape4k.collections.eclipse.multi.toListMultimap
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
@@ -70,11 +71,11 @@ abstract class AbstractJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderTest
                 userId to api.getUserPosts(userId)
             }
         }
-        val userPosts = deferred.awaitAll().toMap()
+        val userPosts = deferred.awaitAll().toListMultimap()
 
-        userPosts.size shouldBeEqualTo userIds.size
-        userPosts.keys shouldContainSame userIds
-        userPosts.forEach { (userId, posts) ->
+        userPosts.keysView().size() shouldBeEqualTo userIds.size
+        userPosts.keysView() shouldContainSame userIds
+        userPosts.forEachKeyValue { userId, posts ->
             userIds.contains(userId).shouldBeTrue()
             posts.forEach { it.verify() }
         }
@@ -90,11 +91,11 @@ abstract class AbstractJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderTest
             }
         }
 
-        val postComments = deferred.awaitAll().toMap()
+        val postComments = deferred.awaitAll().toListMultimap()
 
-        postComments.size shouldBeEqualTo postIds.size
-        postComments.keys shouldContainSame postIds
-        postComments.forEach { (postId, comments) ->
+        postComments.keysView().size() shouldBeEqualTo postIds.size
+        postComments.keysView() shouldContainSame postIds
+        postComments.forEachKeyValue { postId, comments ->
             postIds.contains(postId).shouldBeTrue()
             comments.forEach { it.verify() }
         }
@@ -116,11 +117,11 @@ abstract class AbstractJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderTest
             }
         }
 
-        val userAlbums = deferred.awaitAll().toMap()
+        val userAlbums = deferred.awaitAll().toListMultimap()
 
-        userAlbums.size shouldBeEqualTo userIds.size
-        userAlbums.keys shouldContainSame userIds
-        userAlbums.forEach { (userId, albums) ->
+        userAlbums.keysView().size() shouldBeEqualTo userIds.size
+        userAlbums.keysView() shouldContainSame userIds
+        userAlbums.forEachKeyValue { userId, albums ->
             userIds.contains(userId).shouldBeTrue()
             albums.forEach { it.verify() }
         }

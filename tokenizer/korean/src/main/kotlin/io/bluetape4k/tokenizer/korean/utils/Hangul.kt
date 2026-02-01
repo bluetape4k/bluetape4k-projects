@@ -1,5 +1,6 @@
 package io.bluetape4k.tokenizer.korean.utils
 
+import io.bluetape4k.collections.eclipse.toUnifiedMap
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.tokenizer.korean.utils.Hangul.DOUBLE_CODAS
 import java.io.Serializable
@@ -48,11 +49,11 @@ object Hangul: KLogging() {
         'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
     )
 
-    private val ONSET_MAP: Map<Char, Int> = ONSET_LIST.mapIndexed { index, c -> c to index }.toMap()
-    private val VOWEL_MAP: Map<Char, Int> = VOWEL_LIST.mapIndexed { index, c -> c to index }.toMap()
+    private val ONSET_MAP: Map<Char, Int> = ONSET_LIST.mapIndexed { index, c -> c to index }.toUnifiedMap()
+    private val VOWEL_MAP: Map<Char, Int> = VOWEL_LIST.mapIndexed { index, c -> c to index }.toUnifiedMap()
 
     @PublishedApi
-    internal val CODA_MAP: Map<Char, Int> = CODA_LIST.mapIndexed { index, c -> c to index }.toMap()
+    internal val CODA_MAP: Map<Char, Int> = CODA_LIST.mapIndexed { index, c -> c to index }.toUnifiedMap()
 
     @PublishedApi
     internal val DOUBLE_CODAS: Map<Char, DoubleCoda> = mapOf(

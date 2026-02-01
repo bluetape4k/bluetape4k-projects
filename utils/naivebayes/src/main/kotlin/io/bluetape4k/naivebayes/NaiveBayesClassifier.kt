@@ -1,11 +1,10 @@
 package io.bluetape4k.naivebayes
 
-import io.bluetape4k.collections.eclipse.toFastList
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.toUnifiedSet
+import io.bluetape4k.collections.eclipse.unifiedMapOf
 import io.bluetape4k.logging.KLogging
 import kotlinx.atomicfu.atomic
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.reflect.KProperty1
@@ -33,10 +32,10 @@ class NaiveBayesClassifier<F: Any, C: Any>(
     }
 
     @Volatile
-    private var probabilities: Map<FeatureProbability.Key<F, C>, FeatureProbability<F, C>> = ConcurrentHashMap()
+    private var probabilities: Map<FeatureProbability.Key<F, C>, FeatureProbability<F, C>> = unifiedMapOf()
 
-    private val _population: MutableList<BayesInput<F, C>> = CopyOnWriteArrayList()
-    val population: List<BayesInput<F, C>> get() = _population.toFastList()
+    private val _population: MutableList<BayesInput<F, C>> = fastListOf()
+    val population: List<BayesInput<F, C>> get() = _population.toList()
 
     private val modelStaler = atomic(false)
     private var modelStaled: Boolean by modelStaler

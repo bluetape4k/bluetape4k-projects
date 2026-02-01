@@ -1,6 +1,7 @@
 package io.bluetape4k.tokenizer.utils
 
 import io.bluetape4k.logging.KLogging
+import org.eclipse.collections.impl.map.mutable.UnifiedMap
 import java.io.Serializable
 import java.util.*
 
@@ -8,7 +9,7 @@ import java.util.*
  * Lucene 에 있는 CharArrayMap 을 porting 한 클래스로, 사전 정보를 관리합니다.
  */
 @Suppress("UNCHECKED_CAST")
-open class CharArrayMap<V>(startSize: Int): HashMap<Any, V>(), Serializable {
+open class CharArrayMap<V>(startSize: Int): UnifiedMap<Any, V>(), Serializable {
     // java.util.AbstractMap<Any, V>(), Serializable {
 
     companion object: KLogging() {
@@ -18,7 +19,7 @@ open class CharArrayMap<V>(startSize: Int): HashMap<Any, V>(), Serializable {
         @JvmStatic
         fun <V> unmodifiableMap(map: CharArrayMap<V>): CharArrayMap<V> {
             return when {
-                map.isEmpty() -> emptyMap()
+                map.isEmpty -> emptyMap()
                 else          -> when (map) {
                     is UnmodifiableCharArrayMap -> map
                     else                        -> UnmodifiableCharArrayMap(map)
@@ -142,7 +143,9 @@ open class CharArrayMap<V>(startSize: Int): HashMap<Any, V>(), Serializable {
     }
 
     private fun rehash() {
-        assert(_keys.size == _values.size) { "keys size [${_keys.size}] must equals to _values size[${_values.size}" }
+        assert(_keys.size == _values.size) {
+            "keys size [${_keys.size}] must equals to _values size[${_values.size}"
+        }
 
         val newSize = 2 * _keys.size
         val oldKeys = _keys

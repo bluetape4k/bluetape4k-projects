@@ -1,6 +1,7 @@
 package io.bluetape4k.math.commons
 
 import io.bluetape4k.collections.eclipse.toFastList
+import io.bluetape4k.collections.eclipse.toUnifiedMap
 import org.apache.commons.math3.stat.ranking.NaNStrategy
 import org.apache.commons.math3.stat.ranking.NaturalRanking
 import org.apache.commons.math3.stat.ranking.TiesStrategy
@@ -21,7 +22,11 @@ fun <T> Sequence<T>.ranking(
         .rank(map { it.toDouble() }.toFastList().toDoubleArray())
         .map { it.toInt() }
 
-    return mapIndexed { index, item -> item to ranks.size - ranks[index] }.toMap()
+    return this
+        .mapIndexed { index, item ->
+            item to ranks.size - ranks[index]
+        }
+        .toUnifiedMap()
 }
 
 /**

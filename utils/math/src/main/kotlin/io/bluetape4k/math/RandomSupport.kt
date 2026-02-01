@@ -102,7 +102,7 @@ class WeightedDice<T: Any> private constructor(probabilities: Map<T, Double>) {
     companion object {
         operator fun <E: Any> invoke(vararg values: Pair<E, Double>): WeightedDice<E> {
             assert(values.isNotEmpty()) { "values is empty." }
-            return WeightedDice(values.toMap())
+            return WeightedDice(values.toUnifiedMap())
         }
 
         operator fun <E: Any> invoke(probabilities: Map<E, Double>): WeightedDice<E> {

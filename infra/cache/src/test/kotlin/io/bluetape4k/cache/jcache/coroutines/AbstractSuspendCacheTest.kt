@@ -1,6 +1,8 @@
 package io.bluetape4k.cache.jcache.coroutines
 
 import io.bluetape4k.codec.encodeBase62
+import io.bluetape4k.collections.eclipse.fastList
+import io.bluetape4k.collections.eclipse.toUnifiedMap
 import io.bluetape4k.coroutines.flow.extensions.toUnifiedSet
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.faker.Fakers
@@ -166,7 +168,7 @@ abstract class AbstractSuspendCacheTest {
 
     @Test
     fun `putAll - 모든 entry를 추가합니다`() = runSuspendIO {
-        val entries = List(CACHE_ENTRY_SIZE) { getKey() to getValue() }.toMap()
+        val entries = fastList(CACHE_ENTRY_SIZE) { getKey() to getValue() }.toUnifiedMap()
 
         suspendCache.entries().count() shouldBeEqualTo 0
         suspendCache.putAll(entries)

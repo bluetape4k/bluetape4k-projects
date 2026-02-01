@@ -1,13 +1,13 @@
 package io.bluetape4k.tokenizer.utils
 
+import io.bluetape4k.collections.eclipse.unifiedMapOf
+import io.bluetape4k.collections.eclipse.unifiedSetOf
 import io.bluetape4k.coroutines.flow.async
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.asFlow
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentSkipListSet
 import java.util.zip.GZIPInputStream
 
 /**
@@ -52,9 +52,12 @@ object DictionaryProvider: KLogging() {
      *
      * 단어의 빈도 정보는 형태소 분석기 시에 확률로 판단할 때 사용합니다.
      */
-    fun readWordFreqs(path: String): Map<CharSequence, Float> {
+    fun readWordFreqs(
+        path: String,
+        destination: MutableMap<CharSequence, Float> = unifiedMapOf<CharSequence, Float>(),
+    ): Map<CharSequence, Float> {
         val freqRange = 0 until 6
-        val map = ConcurrentHashMap<CharSequence, Float>()
+        // val map = ConcurrentHashMap<CharSequence, Float>()
 
         readFileByLineFromResources(path)
             .filter { it.contains(TAB) }
@@ -63,10 +66,10 @@ object DictionaryProvider: KLogging() {
                 elems[0] to elems[1].slice(freqRange).toFloat()
             }
             .forEach {
-                map[it.first] = it.second
+                destination[it.first] = it.second
             }
 
-        return map
+        return destination
     }
 
     fun readWordMap(filename: String): Sequence<Pair<String, String>> {
@@ -82,35 +85,37 @@ object DictionaryProvider: KLogging() {
         return readFileByLineFromResources(filename)
     }
 
-    suspend fun readWordsAsSet(vararg paths: String): MutableSet<String> {
-        val set = ConcurrentSkipListSet<String>()
-
+    suspend fun readWordsAsSet(
+        vararg paths: String,
+        destination: MutableSet<String> = unifiedSetOf<String>(),
+    ): MutableSet<String> {
         paths.asFlow()
             .async { path ->
                 readFileByLineFromResources(path)
             }
             .collect { words ->
-                set.addAll(words)
+                destination.addAll(words)
             }
 
-        return set
+        return destination
     }
 
     /**
      * [paths]에 있는 파일을 읽어 단어를 [CharArraySet]으로 반환합니다.
      */
-    suspend fun readWords(vararg paths: String): CharArraySet {
-        val set = newCharArraySet()
-
+    suspend fun readWords(
+        vararg paths: String,
+        destination: CharArraySet = newCharArraySet(),
+    ): CharArraySet {
         paths.asFlow()
             .async { path ->
                 readFileByLineFromResources(path)
             }
             .collect { words ->
-                set.addAll(words)
+                destination.addAll(words)
             }
 
-        return set
+        return destination
     }
 
     fun newCharArraySet(): CharArraySet {

@@ -3,6 +3,7 @@ package io.bluetape4k.cassandra.cql
 import com.datastax.oss.driver.api.core.CqlIdentifier
 import com.datastax.oss.driver.api.core.cql.Row
 import com.datastax.oss.driver.api.core.type.codec.TypeCodec
+import io.bluetape4k.collections.eclipse.toUnifiedMap
 import io.bluetape4k.support.EMPTY_STRING
 
 /**
@@ -33,7 +34,7 @@ fun Row.toMap(): Map<Int, Any?> =
 
             i to value
         }
-        .toMap()
+        .toUnifiedMap()
 
 /**
  * [Row] 정보를 `Named Map` 으로 변환합니다.
@@ -49,7 +50,7 @@ fun Row.toNamedMap(): Map<String, Any?> =
 
             name to value
         }
-        .toMap()
+        .toUnifiedMap()
 
 /**
  * [Row] 정보를 [transform]을 통해 [Map] 으로 반환합니다.
@@ -64,7 +65,7 @@ inline fun <T> Row.map(transform: (Any?) -> T): Map<Int, T> =
 
             i to transform(value)
         }
-        .toMap()
+        .toUnifiedMap()
 
 /**
  * [Row] 정보를 [transform]을 통해 `Named Map` 으로 변환합니다.
@@ -80,7 +81,7 @@ inline fun <T> Row.mapWithName(transform: (Any?) -> T): Map<String, T> =
 
             name to transform(value)
         }
-        .toMap()
+        .toUnifiedMap()
 
 /**
  * [Row] 정보를 `CqlIdentifier 기준의 Map` 으로 변환합니다.
@@ -96,7 +97,7 @@ fun Row.toCqlIdentifierMap(): Map<CqlIdentifier, Any?> =
 
             name to value
         }
-        .toMap()
+        .toUnifiedMap()
 
 /**
  * [Row] 정보에서 컬럼 정의와 [TypeCodec]의 [Map] 으로 반환합니다.

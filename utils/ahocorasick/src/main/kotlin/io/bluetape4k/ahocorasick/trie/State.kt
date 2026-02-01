@@ -1,6 +1,7 @@
 package io.bluetape4k.ahocorasick.trie
 
 import io.bluetape4k.ValueObject
+import io.bluetape4k.collections.eclipse.unifiedMapOf
 import io.bluetape4k.logging.KLogging
 import java.util.*
 
@@ -14,7 +15,7 @@ class State(val depth: Int = 0): ValueObject {
     companion object: KLogging()
 
     private val rootState: State? get() = if (depth == 0) this else null
-    private val success = LinkedHashMap<Char, State>()
+    private val success = unifiedMapOf<Char, State>()
     private val emits = TreeSet<String>()
 
     var failure: State? = null

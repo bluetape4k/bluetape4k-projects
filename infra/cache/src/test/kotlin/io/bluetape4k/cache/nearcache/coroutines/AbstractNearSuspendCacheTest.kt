@@ -3,6 +3,7 @@ package io.bluetape4k.cache.nearcache.coroutines
 import io.bluetape4k.cache.jcache.coroutines.CaffeineSuspendCache
 import io.bluetape4k.cache.jcache.coroutines.SuspendCache
 import io.bluetape4k.cache.jcache.coroutines.SuspendCacheEntry
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.junit5.awaitility.suspendUntil
@@ -185,7 +186,7 @@ abstract class AbstractNearSuspendCacheTest
 
     @RepeatedTest(TEST_SIZE)
     fun `putAll with flow - 복수의 cache entry를 추가하면 다른 nearCache에도 반영된다`() = runSuspendIO {
-        val entries = List(10) { getKey() to getValue() }.toMap()
+        val entries = fastList(10) { getKey() to getValue() }.toMap()
         val keys = entries.keys
 
         nearSuspendCache1.putAllFlow(entries.map { it.key to it.value }.asFlow())

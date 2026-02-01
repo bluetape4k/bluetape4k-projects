@@ -1,6 +1,8 @@
 package io.bluetape4k.cache.jcache
 
 import io.bluetape4k.codec.encodeBase62
+import io.bluetape4k.collections.eclipse.fastList
+import io.bluetape4k.collections.eclipse.toUnifiedMap
 import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
@@ -96,11 +98,11 @@ class JCacheReadWriteThroughExample {
 
     @Test
     fun `read write through with bulk cache entries`() {
-        val entries = List(100) {
+        val entries = fastList(100) {
             val key = randomKey()
             val value = randomString()
             key to value
-        }.toMap()
+        }.toUnifiedMap()
 
         nearCache.putAll(entries)
 
