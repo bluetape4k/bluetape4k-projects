@@ -3,6 +3,7 @@ package io.bluetape4k.collections.eclipse.examples
 import io.bluetape4k.collections.eclipse.emptyFastList
 import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.parallel.PARALLEL_EXECUTOR_SERVICE
+import io.bluetape4k.collections.eclipse.primitives.asList
 import io.bluetape4k.collections.eclipse.primitives.toIntArrayList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -143,8 +144,8 @@ class EclipseCollectionExamples {
         sortedAges.allSatisfy { it == 0 }.shouldBeFalse()
         sortedAges.allSatisfy { it < 0 }.shouldBeFalse()
 
-        val uniqueAges = sortedAges.toSet()
-        uniqueAges.toArray() shouldBeEqualTo intArrayOf(1, 2, 3, 4)
+        val uniqueAges = sortedAges.asList().toIntArray()
+        uniqueAges shouldBeEqualTo intArrayOf(1, 2, 3, 4)
     }
 
     @Test
@@ -155,7 +156,7 @@ class EclipseCollectionExamples {
         sortedAges.all { it == 0 }.shouldBeFalse()
         sortedAges.all { it < 0 }.shouldBeFalse()
 
-        val uniqueAges = sortedAges.toSet().toIntArray()
+        val uniqueAges = sortedAges.asList().toIntArray()
         uniqueAges shouldBeEqualTo intArrayOf(1, 2, 3, 4)
     }
 

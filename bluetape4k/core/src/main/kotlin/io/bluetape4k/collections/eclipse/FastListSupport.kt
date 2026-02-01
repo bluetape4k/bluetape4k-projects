@@ -3,7 +3,7 @@ package io.bluetape4k.collections.eclipse
 import io.bluetape4k.collections.asIterable
 import org.eclipse.collections.impl.list.mutable.FastList
 
-fun <T> emptyFastList(): FastList<T> = FastList.newList()
+fun <T> emptyFastList(): FastList<T> = FastList.newList<T>()
 
 inline fun <T> fastList(
     size: Int = 10,

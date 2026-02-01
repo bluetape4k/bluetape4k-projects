@@ -1,6 +1,8 @@
 package io.bluetape4k.collections.eclipse.primitives
 
 import io.bluetape4k.collections.AbstractCollectionTest
+import io.bluetape4k.collections.eclipse.fastList
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.collections.toList
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
@@ -8,8 +10,8 @@ import java.util.stream.IntStream
 
 class ByteAraryListExtensionsTest: AbstractCollectionTest() {
 
-    val kotlinList = List(5) { (it + 1).toByte() }
-    val kotlinSet = kotlinList.toSet()
+    val kotlinList = fastList(5) { (it + 1).toByte() }
+    val kotlinSet = kotlinList.toUnifiedSet()
     val expectedArray = byteArrayOf(1, 2, 3, 4, 5)
     val expectedArrayList = byteArrayListOf(1, 2, 3, 4, 5)
 

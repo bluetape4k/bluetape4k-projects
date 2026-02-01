@@ -32,7 +32,7 @@ class BooleanArrayListExtensionsTest: AbstractCollectionTest() {
      */
     @Test
     fun `Iterable을 BooleanArrayList로 변환한다`() {
-        val iterable = listOf(true, false, false)
+        val iterable = fastListOf(true, false, false)
         val list = iterable.toBooleanArrayList()
         list.size() shouldBeEqualTo 3
         list.asList() shouldBeEqualTo listOf(true, false, false)
@@ -56,7 +56,7 @@ class BooleanArrayListExtensionsTest: AbstractCollectionTest() {
     fun `초기화 함수로 BooleanArrayList 생성`() {
         val list = booleanArrayList(5) { it % 2 == 0 }
         list.size() shouldBeEqualTo 5
-        list.asList() shouldBeEqualTo listOf(true, false, true, false, true)
+        list.asList() shouldBeEqualTo fastListOf(true, false, true, false, true)
     }
 
     /**
@@ -66,7 +66,7 @@ class BooleanArrayListExtensionsTest: AbstractCollectionTest() {
     fun `vararg로 BooleanArrayList 생성`() {
         val list = booleanArrayListOf(true, false, true)
         list.size() shouldBeEqualTo 3
-        list.asList() shouldBeEqualTo listOf(true, false, true)
+        list.asList() shouldBeEqualTo fastListOf(true, false, true)
     }
 
     /**

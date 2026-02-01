@@ -11,8 +11,8 @@ import org.junit.jupiter.api.Test
 class MultimapSupportTest: AbstractCollectionTest() {
 
     companion object: KLogging() {
-        private val ones = listOf("1", "one", "하나")
-        private val twos = listOf("2", "둘")
+        private val ones = fastListOf("1", "one", "하나")
+        private val twos = fastListOf("2", "둘")
     }
 
     data class User(val name: String, val age: Int)
@@ -71,7 +71,10 @@ class MultimapSupportTest: AbstractCollectionTest() {
 
     @Test
     fun `Map 을 Set Multimap 으로 변환`() {
-        val map = mapOf(1 to ones, 2 to twos).flatMap { (k, vs) -> vs.map { k to it } }
+        val map = mapOf(1 to ones, 2 to twos)
+            .flatMap { (k, vs) ->
+                vs.map { k to it }
+            }
 
         val smap = map.toSetMultimap()
         smap.verify()
