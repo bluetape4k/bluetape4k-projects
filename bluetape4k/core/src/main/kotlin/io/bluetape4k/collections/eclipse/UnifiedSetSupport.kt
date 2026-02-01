@@ -1,11 +1,9 @@
 package io.bluetape4k.collections.eclipse
 
 import io.bluetape4k.collections.asIterable
-import org.eclipse.collections.api.factory.Sets
-import org.eclipse.collections.api.set.ImmutableSet
 import org.eclipse.collections.impl.set.mutable.UnifiedSet
 
-fun <T> emptyUnifiedSet(): ImmutableSet<T> = Sets.immutable.empty()
+fun <T> emptyUnifiedSet(): UnifiedSet<T> = UnifiedSet.newSet<T>()
 
 inline fun <T> unifiedSet(size: Int, initializer: (Int) -> T): UnifiedSet<T> =
     UnifiedSet.newSet<T>(size).apply {
@@ -20,7 +18,17 @@ fun <T> unifiedSetOf(vararg elements: T): UnifiedSet<T> =
 
 fun <T> unifiedSetOf(size: Int): UnifiedSet<T> = UnifiedSet.newSet<T>(size)
 
-fun <T> Iterable<T>.toUnifiedSet(): UnifiedSet<T> = UnifiedSet.newSet(this)
+fun <T> Iterable<T>.toUnifiedSet(): UnifiedSet<T> {
+    if (this is Collection) {
+        return when (size) {
+            0 -> emptyUnifiedSet()
+            1 -> unifiedSet(1) { if (this is List) get(0) else iterator().next() }
+            else -> UnifiedSet.newSet(this)
+        }
+    }
+    return UnifiedSet.newSet<T>(this@toUnifiedSet)
+}
+
 fun <T> Sequence<T>.toUnifiedSet(): UnifiedSet<T> = this.asIterable().toUnifiedSet()
 fun <T> Iterator<T>.toUnifiedSet(): UnifiedSet<T> = this.asIterable().toUnifiedSet()
 fun <T> Array<T>.toUnifiedSet(): UnifiedSet<T> = this.asIterable().toUnifiedSet()

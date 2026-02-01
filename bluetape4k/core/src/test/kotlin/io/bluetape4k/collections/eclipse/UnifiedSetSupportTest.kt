@@ -16,7 +16,7 @@ class UnifiedSetSupportTest: AbstractCollectionTest() {
         val emptySet = emptyUnifiedSet<String>()
 
         emptySet.isEmpty.shouldBeTrue()
-        emptySet.size() shouldBeEqualTo 0
+        emptySet.size shouldBeEqualTo 0
     }
 
     @Test

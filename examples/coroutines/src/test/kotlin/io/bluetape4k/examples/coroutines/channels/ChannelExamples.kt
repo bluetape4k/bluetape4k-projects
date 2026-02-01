@@ -1,6 +1,8 @@
 package io.bluetape4k.examples.coroutines.channels
 
 import io.bluetape4k.codec.encodeBase62
+import io.bluetape4k.collections.eclipse.fastList
+import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -28,7 +30,7 @@ class ChannelExamples {
 
     @Test
     fun `basic channel example`() = runTest {
-        val received = mutableListOf<Int>()
+        val received = fastListOf<Int>()
         coroutineScope {
             val channel = Channel<Int>()
 
@@ -53,7 +55,7 @@ class ChannelExamples {
 
     @Test
     fun `foreach 구문으로 수신하기`() = runTest {
-        val received = mutableListOf<Int>()
+        val received = fastListOf<Int>()
         coroutineScope {
             val channel = Channel<Int>()
 
@@ -79,7 +81,7 @@ class ChannelExamples {
 
     @Test
     fun `consumeEach 구문으로 수신하기`() = runTest {
-        val received = mutableListOf<Int>()
+        val received = fastListOf<Int>()
         coroutineScope {
             val channel = Channel<Int>()
 
@@ -114,7 +116,7 @@ class ChannelExamples {
             }
         }
 
-        val received = mutableListOf<Int>()
+        val received = fastListOf<Int>()
         for (element in channel) {
             received.add(element)
             log.debug { "[#2] 👋 Receive $element" }
@@ -162,7 +164,7 @@ class ChannelExamples {
         }
         // send한 요소가 모두 버퍼링 된다
         delay(1000)
-        val received = mutableListOf<Int>()
+        val received = fastListOf<Int>()
         for (element in channel) {
             received.add(element)
             log.debug { "[#2] 👋 Receive $element" }
@@ -181,7 +183,7 @@ class ChannelExamples {
         }
         // send한 요소가 모두 버퍼링 된다
         delay(1000)
-        val received = mutableListOf<Int>()
+        val received = fastListOf<Int>()
         for (element in channel) {
             received.add(element)
             log.debug { "[#2] 👋 Receive $element" }
@@ -201,7 +203,7 @@ class ChannelExamples {
 
         // Channel.CONFLATED는 send한 요소 중 가장 최신 것만 남기고 버려버립니다.
         delay(400)
-        val received = mutableListOf<Int>()
+        val received = fastListOf<Int>()
         for (element in channel) {
             received.add(element)
             log.debug { "[#2] 👋 Receive $element" }
@@ -231,7 +233,7 @@ class ChannelExamples {
         }
         // send한 요소가 모두 버퍼링 된다
         delay(1000)
-        val received = mutableListOf<Int>()
+        val received = fastListOf<Int>()
         for (element in channel) {
             received.add(element)
             log.debug { "[#2] 👋 Receive $element" }
@@ -282,21 +284,22 @@ class ChannelExamples {
 
         private suspend fun sendString(
             channel: SendChannel<String>,
-            text: String,
+            text: () -> String,
             timeMillis: Long = 100,
         ) {
             while (true) {
                 delay(timeMillis)
-                log.debug { "[#1] ➡️ Send [$text]" }
-                channel.send(text)
+                val element = text()
+                log.debug { "[#1] ➡️ Send [$element]" }
+                channel.send(element)
             }
         }
 
         @Test
         fun `fan-in with multiple send channel`() = runTest {
             val channel = Channel<String>()
-            launch { sendString(channel, "foo", 200L) }.log("foo")
-            launch { sendString(channel, "BAR!", 500L) }.log("BAR!")
+            launch { sendString(channel, { "foo" }, 200L) }.log("foo")
+            launch { sendString(channel, { "BAR!" }, 500L) }.log("BAR!")
 
             repeat(50) {
                 log.debug { "[#2] 👋 Receive ${channel.receive()}" }
@@ -324,13 +327,13 @@ class ChannelExamples {
 
         @Test
         fun `여러 채널로부터 들어오는 정보를 하나의 채널로 fan-in 한다`() = runTest {
-            val channels = List(3) { Channel<String>() }
+            val channels = fastList(3) { Channel<String>() }
 
             val fanin = fanIn(channels)
 
             channels.forEachIndexed { index, channel ->
                 launch {
-                    sendString(channel, UUID.randomUUID().encodeBase62(), 200L)
+                    sendString(channel, { UUID.randomUUID().encodeBase62() }, 200L)
                 }.log(index)
             }
 

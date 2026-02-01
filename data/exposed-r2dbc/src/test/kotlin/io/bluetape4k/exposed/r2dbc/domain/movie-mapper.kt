@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.domain
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.exposed.r2dbc.domain.MovieSchema.ActorTable
 import io.bluetape4k.exposed.r2dbc.domain.MovieSchema.MovieTable
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -23,7 +24,7 @@ fun ResultRow.toMovieWithActorDTO(actors: List<ActorDTO>) =
         name = this[MovieTable.name],
         producerName = this[MovieTable.producerName],
         releaseDate = this[MovieTable.releaseDate].toString(),
-        actors = actors.toMutableList(),
+        actors = actors.toFastList(),
         id = this[MovieTable.id].value
     )
 
@@ -32,7 +33,7 @@ fun MovieDTO.toMovieWithActorDTO(actors: Collection<ActorDTO>) =
         name = this.name,
         producerName = this.producerName,
         releaseDate = this.releaseDate,
-        actors = actors.toMutableList(),
+        actors = actors.toFastList(),
         id = this.id
     )
 

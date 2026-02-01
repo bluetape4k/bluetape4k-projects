@@ -28,7 +28,7 @@ fun <T> Iterable<T>.toFastList(): FastList<T> {
             else -> FastList.newList(this)
         }
     }
-    return FastList.newList<T>().apply { addAll(this@toFastList) }
+    return FastList.newList<T>(this@toFastList)
 }
 
 fun <T> Sequence<T>.toFastList(): FastList<T> = asIterable().toFastList()
