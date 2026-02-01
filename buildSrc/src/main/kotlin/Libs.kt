@@ -181,7 +181,6 @@ object Versions {
 
     const val timefold_solver = "1.30.0" // https://mvnrepository.com/artifact/ai.timefold.solver/timefold-solver-core
 
-    const val pods4k = "0.7.0"              // https://mvnrepository.com/artifact/com.danrusu.pods4k/bom
     const val eclipse_collections = "13.0.0"  // https://mvnrepository.com/artifact/org.eclipse.collections/eclipse-collections
     const val jctools = "4.0.5"             // https://mvnrepository.com/artifact/org.jctools/jctools-core
 
@@ -370,19 +369,9 @@ object Libs {
     const val findbugs = "com.google.code.findbugs:jsr305:3.0.2"
     const val guava = "com.google.guava:guava:33.4.8-jre"  // https://mvnrepository.com/artifact/com.google.guava/guava
 
-    // Pods4k
-    fun pods4k(module: String, version: String = Versions.pods4k) = "com.danrusu.pods4k:$module:$version"
-    fun pods4kImmutableArrays(module: String, version: String = Versions.pods4k) = "com.danrusu.pods4k.immutable-arrays:$module:$version"
-
-    val pods4k_bom = pods4k("bom")
-    val pods4k_core = pods4kImmutableArrays("core")
-    val pods4k_transformations_to_standard_collections = pods4kImmutableArrays("transformations-to-standard-collections")
-
     const val eclipse_collections = "org.eclipse.collections:eclipse-collections:${Versions.eclipse_collections}"
-    const val eclipse_collections_forkjoin =
-        "org.eclipse.collections:eclipse-collections-forkjoin:${Versions.eclipse_collections}"
-    const val eclipse_collections_testutils =
-        "org.eclipse.collections:eclipse-collections-testutils:${Versions.eclipse_collections}"
+    const val eclipse_collections_forkjoin = "org.eclipse.collections:eclipse-collections-forkjoin:${Versions.eclipse_collections}"
+    const val eclipse_collections_testutils = "org.eclipse.collections:eclipse-collections-testutils:${Versions.eclipse_collections}"
 
     // https://github.com/JCTools/JCTools
     const val jctools_core = "org.jctools:jctools-core:${Versions.jctools}"

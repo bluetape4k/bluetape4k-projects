@@ -3,7 +3,6 @@ package io.bluetape4k.collections.eclipse.examples
 import io.bluetape4k.collections.eclipse.emptyFastList
 import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.parallel.PARALLEL_EXECUTOR_SERVICE
-import io.bluetape4k.collections.eclipse.primitives.asList
 import io.bluetape4k.collections.eclipse.primitives.toIntArrayList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -12,6 +11,7 @@ import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.eclipse.collections.api.bag.MutableBag
+import org.eclipse.collections.api.list.primitive.MutableIntList
 import org.eclipse.collections.impl.bag.mutable.HashBag
 import org.eclipse.collections.impl.list.mutable.FastList
 import org.junit.jupiter.api.Test
@@ -138,31 +138,41 @@ class EclipseCollectionExamples {
 
     @Test
     fun `get ages of pets`() {
-        val sortedAges = people.asLazy().flatCollect { it.pets }.collectInt { it.age }.toSortedList()
+        val sortedAges: MutableIntList = people.asLazy()
+            .flatCollect { it.pets }
+            .collectInt { it.age }
+            .toSortedList()
 
         sortedAges.allSatisfy { it > 0 }.shouldBeTrue()
         sortedAges.allSatisfy { it == 0 }.shouldBeFalse()
         sortedAges.allSatisfy { it < 0 }.shouldBeFalse()
 
-        val uniqueAges = sortedAges.asList().toIntArray()
+        val uniqueAges = sortedAges.toSet().toArray()
         uniqueAges shouldBeEqualTo intArrayOf(1, 2, 3, 4)
     }
 
     @Test
     fun `get ages of pets in kotlin`() {
-        val sortedAges = people.flatMap { it.pets }.map { it.age }.sorted().toIntArray()
+        val sortedAges: IntArray = people.asLazy()
+            .flatMap { it.pets }
+            .map { it.age }
+            .sorted()
+            .toIntArray()
 
         sortedAges.all { it > 0 }.shouldBeTrue()
         sortedAges.all { it == 0 }.shouldBeFalse()
         sortedAges.all { it < 0 }.shouldBeFalse()
 
-        val uniqueAges = sortedAges.asList().toIntArray()
+        val uniqueAges = sortedAges.toSet().toIntArray()
         uniqueAges shouldBeEqualTo intArrayOf(1, 2, 3, 4)
     }
 
     @Test
     fun `grouping by pet type`() {
-        val counts = people.asLazy().flatCollect { it.pets }.collectInt { it.age }.toBag()
+        val counts = people.asLazy()
+            .flatCollect { it.pets }
+            .collectInt { it.age }
+            .toBag()
 
         log.debug { "counts by pet age=$counts" }
 

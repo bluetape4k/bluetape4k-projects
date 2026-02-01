@@ -11,6 +11,8 @@ import org.eclipse.collections.impl.list.mutable.primitive.LongArrayList
 import org.eclipse.collections.impl.map.mutable.UnifiedMap
 import org.eclipse.collections.impl.set.mutable.UnifiedSet
 
+internal const val INITIAL_CAPACITY = 10
+
 suspend fun <T> Flow<T>.toFastList(destination: FastList<T> = FastList.newList<T>()): FastList<T> =
     toCollection(destination)
 
