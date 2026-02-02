@@ -1,6 +1,7 @@
 package io.bluetape4k.vertx.sqlclient.mybatis.joins
 
 import io.bluetape4k.collections.eclipse.toFastList
+import io.bluetape4k.collections.eclipse.unifiedMapOf
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -47,11 +48,14 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
 
     // NOTE: One-To-Many Association은 어쩔 수 없이 수동으로 Merge 해야 한다
     private fun RowSet<Row>.mapToOrderMasters(): List<OrderMaster> {
-        val orderMasters = mutableMapOf<Int, OrderMaster>()
+        val orderMasters = unifiedMapOf<Int, OrderMaster>()
         this.forEach { row ->
             val orderId = row.getInteger("order_id")
-            val orderMaster = orderMasters.computeIfAbsent(orderId) {
-                OrderMaster(orderId, row.getLocalDate("order_date"))
+            val orderMaster = orderMasters.getIfAbsentPut(orderId) {
+                OrderMaster(
+                    orderId,
+                    row.getLocalDate("order_date")
+                )
             }
             orderMaster.details.add(
                 OrderDetail(

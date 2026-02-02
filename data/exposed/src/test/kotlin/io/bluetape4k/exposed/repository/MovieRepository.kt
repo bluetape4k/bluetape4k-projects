@@ -18,7 +18,6 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.count
-import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.dao.load
 import org.jetbrains.exposed.v1.jdbc.andWhere
@@ -87,7 +86,7 @@ class MovieRepository: ExposedRepository<MovieDTO, Long> {
         log.debug { "Get all movies with actors." }
 
         val join = table.innerJoin(ActorInMovieTable).innerJoin(ActorTable)
-        val movies = unifiedMapOf<EntityID<Long>, MovieWithActorDTO>()
+        val movies = unifiedMapOf<Long, MovieWithActorDTO>()
 
         join
             .select(
@@ -101,7 +100,7 @@ class MovieRepository: ExposedRepository<MovieDTO, Long> {
                 ActorTable.birthday
             )
             .forEach {
-                val movieId = it[MovieTable.id]
+                val movieId = it[MovieTable.id].value
                 val movie = movies.getIfAbsentPut(movieId) {
                     MovieWithActorDTO(
                         id = it[MovieTable.id].value,
@@ -110,33 +109,12 @@ class MovieRepository: ExposedRepository<MovieDTO, Long> {
                         releaseDate = it[MovieTable.releaseDate].toString(),
                     )
                 }
-                val actor = it.toActorDTO()
-                movie.actors.add(actor)
+                movie.actors.add(it.toActorDTO())
 
             }
-//            .groupingBy { it[MovieTable.id] }
-//            .fold(fastListOf<MovieWithActorDTO>()) { acc, row ->
-//                val lastMovieId = acc.lastOrNull()?.id
-//                if (lastMovieId != row[MovieTable.id].value) {
-//                    val movie = MovieWithActorDTO(
-//                        id = row[MovieTable.id].value,
-//                        name = row[MovieTable.name],
-//                        producerName = row[MovieTable.producerName],
-//                        releaseDate = row[MovieTable.releaseDate].toString(),
-//                    )
-//                    acc.add(movie)
-//                } else {
-//                    acc.lastOrNull()?.actors?.let {
-//                        val actor = row.toActorDTO()
-//                        it.add(actor)
-//                    }
-//                }
-//                acc
-//            }
 
         return movies.values.toFastList()
     }
-
 
     /**
      * `movieId` 에 대한 영화와 그 영화에 출연한 배우를 조회합니다.
