@@ -1,6 +1,7 @@
 package io.bluetape4k.tokenizer.korean.tokenizer
 
 import io.bluetape4k.collections.eclipse.emptyFastList
+import io.bluetape4k.collections.eclipse.multi.listMultimapOf
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
@@ -21,6 +22,7 @@ import io.bluetape4k.tokenizer.korean.utils.KoreanPosx
 import io.bluetape4k.tokenizer.korean.utils.KoreanSubstantive
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import org.eclipse.collections.api.multimap.MutableMultimap
 
 /**
  * 한글 형태소 분석기입니다.
@@ -187,14 +189,16 @@ object KoreanTokenizer: KLogging() {
         val directMatch = findDirectMatch(chunk)
 
         // Buffer for solution
-        val candidateParse = listOf(
-            CandidateParse(
-                parse = ParsedChunk(listOf(), 1, profile),
-                curTrie = koreanPosTrie,
-                ending = null
-            )
+        val candidateParse = CandidateParse(
+            parse = ParsedChunk(listOf(), 1, profile),
+            curTrie = koreanPosTrie,
+            ending = null
         )
-        val solutions = hashMapOf(0 to candidateParse)
+        val solutions = listMultimapOf<Int, CandidateParse>()
+            .apply {
+                put(0, candidateParse)
+            }
+        // val solutions = hashMapOf(0 to candidateParse)
 
         // Find N best parses per state
         for (end in 1..chunk.length) {
@@ -253,13 +257,12 @@ object KoreanTokenizer: KLogging() {
 
                 val currentSolutions = solutions[end] ?: emptyList()
 
-                solutions[end] = (currentSolutions + candidates)
+                val parses = (currentSolutions + candidates)
                     .sortedWith(compareBy({ it.parse.score }, { it.parse.posTieBreaker }))
                     .take(TOP_N_PER_STATE)
 
-                //                solutions[end]?.forEach {
-                //                    log.trace { "score=${it.parse.score}, posNodes=${it.parse.posNodes}" }
-                //                }
+                solutions.removeAll(end)
+                solutions.putAll(end, parses)
             }
         }
 
@@ -277,12 +280,12 @@ object KoreanTokenizer: KLogging() {
     private fun removeUnusedSolutions(
         start: Int,
         end: Int,
-        solutions: HashMap<Int, List<CandidateParse>>,
-    ): HashMap<Int, List<CandidateParse>> {
+        solutions: MutableMultimap<Int, CandidateParse>,
+    ): MutableMultimap<Int, CandidateParse> {
         // Make sure the solutions hashmap won't have references to unused objects...
         if (end > MAX_TRACE_BACK && start + 1 == end) {
             log.trace { "remove solution. index=${end - MAX_TRACE_BACK - 1}" }
-            solutions.remove(end - MAX_TRACE_BACK - 1)
+            solutions.removeAll(end - MAX_TRACE_BACK - 1)
         }
         return solutions
     }

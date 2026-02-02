@@ -102,7 +102,7 @@ class RedisNearCachingProvider: CachingProvider {
         try {
             val yamlUrl = when (DEFAULT_URI_PATH) {
                 uri.path -> javaClass.getResource(DEFAULT_REDISSON_JCACHE_CONFIG_YAML)
-                else     -> uri.toURL()
+                else -> uri.toURL()
             }
             yamlUrl?.let { config = Config.fromYAML(it) }
                 ?: throw FileNotFoundException("/redisson-jcache.yaml")
@@ -112,7 +112,7 @@ class RedisNearCachingProvider: CachingProvider {
             try {
                 val jsonUrl = when (DEFAULT_URI_PATH) {
                     uri.path -> javaClass.getResource(DEFAULT_REDISSON_JCACHE_CONFIG_JSON)
-                    else     -> uri.toURL()
+                    else -> uri.toURL()
                 }
                 if (jsonUrl != null) {
                     config = Config.fromYAML(jsonUrl)
@@ -259,7 +259,7 @@ class RedisNearCachingProvider: CachingProvider {
                 runCatching { manager.close() }
             }
             if (uri2manager.isEmpty()) {
-                managers.remove(classLoader, mutableMapOf())
+                managers.remove(classLoader)
             }
         }
     }

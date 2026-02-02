@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.dataformat.javaprop.JavaPropsFactory
 import com.fasterxml.jackson.dataformat.javaprop.JavaPropsMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import io.bluetape4k.collections.eclipse.unifiedMapOf
 import io.bluetape4k.jackson.text.AbstractJacksonTextTest
 import io.bluetape4k.jackson.text.Box
 import io.bluetape4k.jackson.text.Container
@@ -33,7 +34,7 @@ class PropertiesExample: AbstractJacksonTextTest() {
     private val jsonMapper: JsonMapper by lazy { JacksonText.Props.defaultJsonMapper }
 
     class MapWrapper {
-        var map: MutableMap<String, String> = mutableMapOf()
+        var map = unifiedMapOf<String, String>()
     }
 
     @Nested

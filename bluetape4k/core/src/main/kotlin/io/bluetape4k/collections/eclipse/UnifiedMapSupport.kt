@@ -2,10 +2,9 @@ package io.bluetape4k.collections.eclipse
 
 import io.bluetape4k.collections.asIterable
 import org.eclipse.collections.api.factory.Maps
-import org.eclipse.collections.api.map.ImmutableMap
 import org.eclipse.collections.impl.map.mutable.UnifiedMap
 
-fun <K, V> emptyUnifiedMap(): ImmutableMap<K, V> = Maps.immutable.empty()
+fun <K, V> emptyUnifiedMap(): MutableMap<K, V> = Maps.mutable.empty()
 
 inline fun <K, V> unifiedMap(
     size: Int,

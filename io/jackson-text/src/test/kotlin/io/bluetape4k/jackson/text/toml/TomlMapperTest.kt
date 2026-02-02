@@ -1,6 +1,7 @@
 package io.bluetape4k.jackson.text.toml
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import io.bluetape4k.collections.eclipse.unifiedMapOf
 import io.bluetape4k.jackson.text.AbstractJacksonTextTest
 import io.bluetape4k.jackson.text.FiveMinuteUser
 import io.bluetape4k.jackson.text.Gender
@@ -24,7 +25,7 @@ class TomlMapperTest: AbstractJacksonTextTest() {
     private val jsonMapper = JacksonText.Toml.defaultJsonMapper
 
     class MapWrapper {
-        var map: MutableMap<String, String> = mutableMapOf()
+        var map = unifiedMapOf<String, String>()
     }
 
     @Nested
@@ -41,7 +42,7 @@ class TomlMapperTest: AbstractJacksonTextTest() {
 
             val wrapper = tomlMapper.readValue<MapWrapper>(toml)
 
-            wrapper.map.forEach { (k, v) ->
+            wrapper.map.forEach { k, v ->
                 log.debug { "key=$k, value=$v" }
             }
 

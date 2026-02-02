@@ -1,5 +1,7 @@
 package io.bluetape4k.http.hc5.cache
 
+import io.bluetape4k.collections.eclipse.emptyUnifiedMap
+import io.bluetape4k.collections.eclipse.unifiedMapOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
@@ -10,6 +12,7 @@ import org.apache.hc.client5.http.impl.cache.AbstractSerializingCacheStorage
 import org.apache.hc.client5.http.impl.cache.CacheConfig
 import org.apache.hc.client5.http.impl.cache.HttpByteArrayCacheEntrySerializer
 import org.apache.hc.client5.http.impl.cache.NoopCacheEntrySerializer
+import org.eclipse.collections.impl.map.mutable.UnifiedMap
 
 /**
  * 메모리에 Http Entity를 캐시하는 [HttpCacheStorage] 구현체입니다.
@@ -36,7 +39,7 @@ class InMemoryHttpCacheStorage<T>(
         }
     }
 
-    private val cache: MutableMap<String, T> = mutableMapOf()
+    private val cache: UnifiedMap<String, T> = unifiedMapOf()
 
     override fun digestToStorageKey(key: String): String = key
 
@@ -55,9 +58,9 @@ class InMemoryHttpCacheStorage<T>(
     override fun bulkRestore(storageKeys: MutableCollection<String>): MutableMap<String, T> {
         log.debug { "bulk store cache. storageKeys=${storageKeys.joinToString(",")}" }
         if (storageKeys.isEmpty()) {
-            return mutableMapOf()
+            return emptyUnifiedMap()
         }
-        val result = mutableMapOf<String, T>()
+        val result = unifiedMapOf<String, T>()
         storageKeys.forEach { key ->
             cache[key]?.let { result[key] = it }
         }

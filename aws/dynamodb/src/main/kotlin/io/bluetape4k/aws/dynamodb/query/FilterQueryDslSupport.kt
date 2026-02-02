@@ -4,16 +4,17 @@ import io.bluetape4k.aws.dynamodb.model.Expression
 import io.bluetape4k.aws.dynamodb.model.toAttributeValue
 import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.toFastList
+import io.bluetape4k.collections.eclipse.unifiedMapOf
 import io.bluetape4k.logging.KLogging
-import org.eclipse.collections.impl.list.mutable.FastList
+import io.bluetape4k.logging.warn
 import software.amazon.awssdk.enhanced.dynamodb.Expression
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 import kotlin.random.Random
 
 data class FilterRequestProperties(
-    val expressionAttributeValues: Map<String, AttributeValue>,
+    val expressionAttributeValues: MutableMap<String, AttributeValue>,
     val filterExpression: String,
-    val expressionAttributeNames: Map<String, String>,
+    val expressionAttributeNames: MutableMap<String, String>,
 )
 
 fun FilterRequestProperties.toExpression(): Expression = Expression {
@@ -29,8 +30,8 @@ interface FilterQuery
 class RootFilter(val filterConnections: List<FilterConnection>): FilterQuery {
 
     fun getFilterRequestProperties(): FilterRequestProperties {
-        val expressionAttributeValues: MutableMap<String, AttributeValue> = mutableMapOf()
-        val expressionAttributeNames: MutableMap<String, String> = mutableMapOf()
+        val expressionAttributeValues = unifiedMapOf<String, AttributeValue>()
+        val expressionAttributeNames = unifiedMapOf<String, String>()
         var filterExpression = ""
 
         fun filter(condition: FilterQuery) {
@@ -94,8 +95,8 @@ class ConcreteFilter(
     }
 
     fun getFilterRequestProperties(): FilterRequestProperties {
-        val expressionAttributeValues: MutableMap<String, AttributeValue> = mutableMapOf()
-        val expressionAttributeNames: MutableMap<String, String> = mutableMapOf()
+        val expressionAttributeValues = unifiedMapOf<String, AttributeValue>()
+        val expressionAttributeNames = unifiedMapOf<String, String>()
         var filterExpression = ""
 
         when (dynamoFunction) {
@@ -143,6 +144,10 @@ class ConcreteFilter(
                 filterExpression += " attribute_exists($exprAttrName)"
                 expressionAttributeNames[exprAttrName] = dynamoFunction.attributeName
             }
+
+            else -> {
+                log.warn { "Not supported DynamoFunction: $dynamoFunction" }
+            }
         }
 
         return FilterRequestProperties(expressionAttributeValues, filterExpression, expressionAttributeNames)
@@ -152,7 +157,7 @@ class ConcreteFilter(
 // Represents a connector and an individual condition 'AND X', 'OR (Y AND Z)', ...
 data class FilterConnection(
     val value: FilterQuery,
-    val connectionToLeft: FilterBooleanConnection?,
+    val connectionToLeft: FilterBooleanConnection? = null,
 )
 
 enum class FilterBooleanConnection {
@@ -215,7 +220,7 @@ fun ConcreteFilterBuilder.inList(vararg values: Any) {
 class RootFilterBuilder: FilterQueryBuilder {
 
     var currentFilter: FilterQuery? = null
-    var filterQueries: FastList<FilterConnection> = fastListOf()
+    var filterQueries = fastListOf<FilterConnection>()
 
     override fun build(): RootFilter = RootFilter(filterQueries)
 
@@ -243,9 +248,9 @@ class RootFilterBuilder: FilterQueryBuilder {
 
 inline fun RootFilterBuilder.attribute(
     value: String,
-    initializer: ConcreteFilterBuilder.() -> Unit,
+    @BuilderInference builder: ConcreteFilterBuilder.() -> Unit = {},
 ): RootFilterBuilder = apply {
-    val concreteFilter = ConcreteFilterBuilder().apply(initializer)
+    val concreteFilter = ConcreteFilterBuilder().apply(builder)
     concreteFilter.dynamoFunction = Attribute(value)
 
     if (filterQueries.isEmpty()) {

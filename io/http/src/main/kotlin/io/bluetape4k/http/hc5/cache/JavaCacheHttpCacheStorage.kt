@@ -1,5 +1,7 @@
 package io.bluetape4k.http.hc5.cache
 
+import io.bluetape4k.collections.eclipse.emptyUnifiedMap
+import io.bluetape4k.collections.eclipse.unifiedMapOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.apache.hc.client5.http.cache.HttpCacheEntrySerializer
@@ -60,9 +62,9 @@ class JavaCacheHttpCacheStorage<T>(
     override fun bulkRestore(storageKeys: MutableCollection<String>): MutableMap<String, T> {
         log.debug { "bulk store cache. storageKeys=${storageKeys.joinToString(",")}" }
         if (storageKeys.isEmpty()) {
-            return mutableMapOf()
+            return emptyUnifiedMap()
         }
-        val resultMap = mutableMapOf<String, T>()
+        val resultMap = unifiedMapOf<String, T>()
         storageKeys.forEach { key ->
             cache[key]?.let { resultMap[key] = it }
         }

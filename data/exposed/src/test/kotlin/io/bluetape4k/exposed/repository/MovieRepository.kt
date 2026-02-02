@@ -1,7 +1,7 @@
 package io.bluetape4k.exposed.repository
 
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.toFastList
+import io.bluetape4k.collections.eclipse.unifiedMapOf
 import io.bluetape4k.exposed.domain.dto.MovieActorCountDTO
 import io.bluetape4k.exposed.domain.dto.MovieDTO
 import io.bluetape4k.exposed.domain.dto.MovieWithActorDTO
@@ -18,6 +18,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.count
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.dao.load
 import org.jetbrains.exposed.v1.jdbc.andWhere
@@ -86,8 +87,9 @@ class MovieRepository: ExposedRepository<MovieDTO, Long> {
         log.debug { "Get all movies with actors." }
 
         val join = table.innerJoin(ActorInMovieTable).innerJoin(ActorTable)
+        val movies = unifiedMapOf<EntityID<Long>, MovieWithActorDTO>()
 
-        val movies = join
+        join
             .select(
                 MovieTable.id,
                 MovieTable.name,
@@ -98,27 +100,41 @@ class MovieRepository: ExposedRepository<MovieDTO, Long> {
                 ActorTable.lastName,
                 ActorTable.birthday
             )
-            .groupingBy { it[MovieTable.id] }
-            .fold(fastListOf<MovieWithActorDTO>()) { acc, row ->
-                val lastMovieId = acc.lastOrNull()?.id
-                if (lastMovieId != row[MovieTable.id].value) {
-                    val movie = MovieWithActorDTO(
-                        id = row[MovieTable.id].value,
-                        name = row[MovieTable.name],
-                        producerName = row[MovieTable.producerName],
-                        releaseDate = row[MovieTable.releaseDate].toString(),
+            .forEach {
+                val movieId = it[MovieTable.id]
+                val movie = movies.getIfAbsentPut(movieId) {
+                    MovieWithActorDTO(
+                        id = it[MovieTable.id].value,
+                        name = it[MovieTable.name],
+                        producerName = it[MovieTable.producerName],
+                        releaseDate = it[MovieTable.releaseDate].toString(),
                     )
-                    acc.add(movie)
-                } else {
-                    acc.lastOrNull()?.actors?.let {
-                        val actor = row.toActorDTO()
-                        it.add(actor)
-                    }
                 }
-                acc
-            }
+                val actor = it.toActorDTO()
+                movie.actors.add(actor)
 
-        return movies.values.flatten()
+            }
+//            .groupingBy { it[MovieTable.id] }
+//            .fold(fastListOf<MovieWithActorDTO>()) { acc, row ->
+//                val lastMovieId = acc.lastOrNull()?.id
+//                if (lastMovieId != row[MovieTable.id].value) {
+//                    val movie = MovieWithActorDTO(
+//                        id = row[MovieTable.id].value,
+//                        name = row[MovieTable.name],
+//                        producerName = row[MovieTable.producerName],
+//                        releaseDate = row[MovieTable.releaseDate].toString(),
+//                    )
+//                    acc.add(movie)
+//                } else {
+//                    acc.lastOrNull()?.actors?.let {
+//                        val actor = row.toActorDTO()
+//                        it.add(actor)
+//                    }
+//                }
+//                acc
+//            }
+
+        return movies.values.toFastList()
     }
 
 

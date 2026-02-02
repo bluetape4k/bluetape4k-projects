@@ -1,5 +1,6 @@
 package io.bluetape4k.tokenizer.korean.tokenizer
 
+import io.bluetape4k.collections.eclipse.multi.listMultimapOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import io.bluetape4k.tokenizer.exceptions.TokenizerException
@@ -145,14 +146,14 @@ object NounTokenizer: KLogging() {
         val directMatch: List<List<KoreanToken>> = findDirectMatch(chunk)
 
         // Buffer for solution
-        val solutions = mutableMapOf<Int, List<CandidateParse>>()
+        val solutions = listMultimapOf<Int, CandidateParse>()
             .apply {
                 val candidateParse = CandidateParse(
                     parse = ParsedChunk(listOf(), 1, profile),
                     curTrie = koreanPosTrie,
                     ending = null
                 )
-                put(0, listOf(candidateParse))
+                put(0, candidateParse)
             }
 
         // Find N best parses per state
@@ -160,7 +161,6 @@ object NounTokenizer: KLogging() {
             for (start in end - 1 downTo (end - MAX_TRACE_BACK).coerceAtLeast(0)) {
                 val word = chunk.text.slice(start until end)
                 val curSolutions = solutions[start]!!
-
                 val candidates: List<CandidateParse> = curSolutions.flatMap { candateParse: CandidateParse ->
 
                     val possiblePoses: List<PossibleTrie> = candateParse.ending?.let {
@@ -173,7 +173,6 @@ object NounTokenizer: KLogging() {
                                     (koreanDictionary[it.curTrie.curPos]?.contains(word.toCharArray()) ?: false)
                         }
                         .map { t: PossibleTrie ->
-
                             val candidateToAdd =
                                 if (t.curTrie.curPos == Noun &&
                                     !koreanDictionary[Noun]!!.contains(word.toCharArray())
@@ -212,9 +211,11 @@ object NounTokenizer: KLogging() {
 
                 val currentSolutions = solutions[end] ?: emptyList()
 
-                solutions[end] = (currentSolutions + candidates)
+                val parses = (currentSolutions + candidates)
                     .sortedWith(compareBy({ it.parse.score }, { it.parse.posTieBreaker }))
                     .take(TOP_N_PER_STATE)
+                solutions.removeAll(end)
+                solutions.putAll(end, parses)
             }
         }
 
