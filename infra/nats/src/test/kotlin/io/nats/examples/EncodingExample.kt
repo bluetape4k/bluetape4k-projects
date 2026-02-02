@@ -135,6 +135,9 @@ class EncodingExample: AbstractNatsTest() {
         var ints: IntArray? = null
     }
 
+    //
+    // NOTE: Fory 는 eclipse-collection 을 직렬화하지 못합니다!!!
+    // 
     private fun createPojo(): Pojo {
         return Pojo(
             s = Fakers.faker.lorem().paragraph(12),

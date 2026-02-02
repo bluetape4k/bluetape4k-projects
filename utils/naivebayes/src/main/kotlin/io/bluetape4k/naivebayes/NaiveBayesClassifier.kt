@@ -35,7 +35,7 @@ class NaiveBayesClassifier<F: Any, C: Any>(
     private var probabilities: Map<FeatureProbability.Key<F, C>, FeatureProbability<F, C>> = unifiedMapOf()
 
     private val _population: MutableList<BayesInput<F, C>> = fastListOf()
-    val population: List<BayesInput<F, C>> get() = _population.toList()
+    val population: List<BayesInput<F, C>> get() = _population
 
     private val modelStaler = atomic(false)
     private var modelStaled: Boolean by modelStaler

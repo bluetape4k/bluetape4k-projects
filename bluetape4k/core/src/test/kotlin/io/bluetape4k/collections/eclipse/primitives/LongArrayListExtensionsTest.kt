@@ -1,7 +1,9 @@
 package io.bluetape4k.collections.eclipse.primitives
 
 import io.bluetape4k.collections.AbstractCollectionTest
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.stream.toLongArrayList
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.collections.toList
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
@@ -12,8 +14,8 @@ class LongArrayListExtensionsTest: AbstractCollectionTest() {
 
     companion object: KLogging()
 
-    val kotlinList = List(5) { it + 1L }
-    val kotlinSet = kotlinList.toSet()
+    val kotlinList = fastList(5) { it + 1L }
+    val kotlinSet = kotlinList.toUnifiedSet()
     val expectedArray = longArrayOf(1, 2, 3, 4, 5)
     val expectedArrayList = longArrayListOf(1, 2, 3, 4, 5)
 

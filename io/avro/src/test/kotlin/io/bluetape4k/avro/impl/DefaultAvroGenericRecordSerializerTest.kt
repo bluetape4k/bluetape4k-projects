@@ -5,6 +5,7 @@ import io.bluetape4k.avro.TestMessageProvider
 import io.bluetape4k.avro.message.examples.Employee
 import io.bluetape4k.avro.message.examples.EmployeeList
 import io.bluetape4k.avro.message.examples.ProductRoot
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
@@ -50,7 +51,7 @@ class DefaultAvroGenericRecordSerializerTest: AbstractAvroTest() {
     @RepeatedTest(REPEAT_SIZE)
     fun `serialize collections`() {
         serializers.forEach { serializer ->
-            val emps = List(20) { TestMessageProvider.createEmployee() }
+            val emps = fastList(20) { TestMessageProvider.createEmployee() }
             val empList = EmployeeList.newBuilder().setEmps(emps).build()
             val schema = EmployeeList.getClassSchema()
 

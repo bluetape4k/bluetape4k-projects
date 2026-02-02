@@ -1,5 +1,6 @@
 package io.bluetape4k.support
 
+import io.bluetape4k.collections.eclipse.fastList
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -32,7 +33,7 @@ class BigDecimalSupportTest {
 
     @Test
     fun `collection operator of BigDecimal`() {
-        val numbers = List(100) { it.toBigDecimal() }
+        val numbers = fastList(100) { it.toBigDecimal() }
         numbers.sum() shouldBeEqualTo (0 until 100).sum().toBigDecimal()
     }
 

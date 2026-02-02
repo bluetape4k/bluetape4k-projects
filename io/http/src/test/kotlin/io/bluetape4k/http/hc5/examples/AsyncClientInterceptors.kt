@@ -1,5 +1,6 @@
 package io.bluetape4k.http.hc5.examples
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.async.httpAsyncClient
 import io.bluetape4k.http.hc5.async.methods.simpleHttpRequestOf
@@ -54,7 +55,7 @@ class AsyncClientInterceptors: AbstractHc5Test() {
 
         client.start()
 
-        List(20) {
+        fastList(20) {
             val request = simpleHttpRequestOf(Method.GET, target, path)
 
             // FIXME: Coroutines 방식으로는 ExecInterceptorAfter 가 먼저 실행되어 버린다???

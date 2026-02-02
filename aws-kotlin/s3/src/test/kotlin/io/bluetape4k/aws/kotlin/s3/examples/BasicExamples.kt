@@ -16,6 +16,7 @@ import io.bluetape4k.aws.kotlin.s3.putFromByteArray
 import io.bluetape4k.aws.kotlin.s3.putFromFile
 import io.bluetape4k.aws.kotlin.s3.putFromString
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
@@ -64,7 +65,7 @@ class BasicExamples: AbstractKotlinS3Test() {
         val bucketName = Base58.randomString(16).lowercase()
         s3Client.ensureBucketExists(bucketName)
 
-        val keys = List(5) { Base58.randomString(16).lowercase() }
+        val keys = fastList(5) { Base58.randomString(16).lowercase() }
         val uploadTasks = keys.map { key ->
             async(Dispatchers.IO) {
                 s3Client.putFromString(bucketName, key, randomString())

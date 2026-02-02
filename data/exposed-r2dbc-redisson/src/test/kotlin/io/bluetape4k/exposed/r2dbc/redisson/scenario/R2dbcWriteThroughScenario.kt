@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.redisson.scenario
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.r2dbc.redisson.scenario.R2dbcCacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
@@ -123,7 +124,7 @@ interface R2dbcWriteThroughScenario<T: HasIdentifier<ID>, ID: Any>: R2dbcCacheTe
 
         withR2dbcEntityTable(testDB) {
             val prevCount = repository.entityTable.selectAll().count()
-            val newEntities = List(5) { createNewEntity() }
+            val newEntities = fastList(5) { createNewEntity() }
             repository.putAll(newEntities)
 
             // @ParameterizedTest 때문에 testDB 들이 꼬인다... 대기 시간을 둬서, 다른 DB와의 영항을 미치지 않게 한다

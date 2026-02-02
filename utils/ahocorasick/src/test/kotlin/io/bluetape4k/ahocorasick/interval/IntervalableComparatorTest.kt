@@ -18,7 +18,7 @@ class IntervalableComparatorTest {
             Interval(3, 8)
         )
 
-        intervals.sortWith(IntervalableComparators.PositionComparator)
+        intervals.sortThis(IntervalableComparators.PositionComparator)
 
         intervals[0] shouldBeEqualTo Interval(1, 4)
         intervals[1] shouldBeEqualTo Interval(3, 8)
@@ -33,7 +33,7 @@ class IntervalableComparatorTest {
             Interval(3, 8)
         )
 
-        intervals.sortWith(IntervalableComparators.SizeComparator)
+        intervals.sortThis(IntervalableComparators.SizeComparator)
 
         intervals[0].size shouldBeEqualTo 2
         intervals[1].size shouldBeEqualTo 4
@@ -48,9 +48,9 @@ class IntervalableComparatorTest {
             Interval(3, 8)
         )
 
-        intervals.sortWith(ReverseSizeComparator)
+        intervals.sortThis(ReverseSizeComparator)
 
-        intervals.map { it.size } shouldBeEqualTo fastListOf(6, 4, 2)
+        intervals.map { it.size } shouldBeEqualTo listOf(6, 4, 2)
     }
 
     @Test
@@ -61,7 +61,7 @@ class IntervalableComparatorTest {
             Interval(3, 6)
         )
 
-        intervals.sortedWith(ReverseSizeComparator) shouldBeEqualTo fastListOf(
+        intervals.sortThis(ReverseSizeComparator) shouldBeEqualTo listOf(
             Interval(2, 5),
             Interval(3, 6),
             Interval(4, 7)

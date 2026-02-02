@@ -1,5 +1,6 @@
 package io.bluetape4k.netty.buffer
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.netty.AbstractNettyTest
 import io.bluetape4k.netty.util.use
@@ -88,7 +89,7 @@ class ByteBufByteArrayTest: AbstractNettyTest() {
     }
 
     private val byteArrayList: List<ByteArray> =
-        List(LIST_SIZE) {
+        fastList(LIST_SIZE) {
             val itemSize = Random.nextInt(
                 ITEM_SIZE,
                 ITEM_SIZE * 2

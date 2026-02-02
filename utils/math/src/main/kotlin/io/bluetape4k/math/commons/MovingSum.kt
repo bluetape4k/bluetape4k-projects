@@ -1,5 +1,6 @@
 package io.bluetape4k.math.commons
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.collections.toDoubleArray
 import io.bluetape4k.collections.toLongArray
 import io.bluetape4k.math.MathConsts.BLOCK_SIZE
@@ -73,8 +74,8 @@ fun Sequence<Double>.movingSum(blockSize: Int = BLOCK_SIZE): Sequence<Double> {
  * @param blockSize sum 을 수행할 최대 요소 수 (기본: [BLOCK_SIZE])
  * @return Moving Sum
  */
-fun Iterable<Double>.movingSum(blockSize: Int = BLOCK_SIZE): Iterable<Double> {
-    return asSequence().movingSum(blockSize).asIterable()
+fun Iterable<Double>.movingSum(blockSize: Int = BLOCK_SIZE): List<Double> {
+    return asSequence().movingSum(blockSize).toFastList()
 }
 
 /**
@@ -123,8 +124,8 @@ fun Sequence<Long>.movingSum(blockSize: Int = BLOCK_SIZE): Sequence<Long> {
 }
 
 @JvmName("movingSumOfLong")
-fun Iterable<Long>.movingSum(blockSize: Int = BLOCK_SIZE): Iterable<Long> {
-    return asSequence().movingSum(blockSize).asIterable()
+fun Iterable<Long>.movingSum(blockSize: Int = BLOCK_SIZE): List<Long> {
+    return asSequence().movingSum(blockSize).toFastList()
 }
 
 /**

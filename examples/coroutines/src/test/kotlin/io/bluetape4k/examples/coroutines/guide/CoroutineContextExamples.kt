@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.coroutines.guide
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.coroutines.support.suspendLogging
 import io.bluetape4k.logging.KLogging
@@ -93,7 +94,7 @@ class CoroutineContextExamples {
 
         @Test
         fun `run many coroutines`() = runTest {
-            val jobs = List(jobSize) {
+            val jobs = fastList(jobSize) {
                 launch(Dispatchers.IO) {
                     delay(1000)
                     print(".")
@@ -105,7 +106,7 @@ class CoroutineContextExamples {
         @Test
         fun `run many coroutines with coroutineScope`() = runTest {
             coroutineScope {
-                val jobs = List(jobSize) {
+                val jobs = fastList(jobSize) {
                     launch(Dispatchers.IO) {
                         delay(1000)
                         print(".")

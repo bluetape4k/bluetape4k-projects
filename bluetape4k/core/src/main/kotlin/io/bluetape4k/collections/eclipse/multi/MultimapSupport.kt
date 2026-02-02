@@ -35,20 +35,38 @@ fun <K, V> bagMultimapOf(vararg pairs: Pair<K, V>): HashBagMultimap<K, V> =
 fun <K, V> Map<K, V>.toImmutableListMultimap(): ImmutableListMultimap<K, V> =
     Multimaps.immutable.list.with<K, V>().also { this.map { Tuples.pair(it.key, it.value) } }
 
-fun <K, V> Map<K, V>.toListMultimap(): MutableListMultimap<K, V> =
-    FastListMultimap.newMultimap(this.map { Tuples.pair(it.key, it.value) })
+fun <K, V> Map<K, V>.toListMultimap(
+    destination: MutableListMultimap<K, V> = Multimaps.mutable.list.empty<K, V>(),
+): MutableListMultimap<K, V> {
+    forEach { (key, value) ->
+        destination.put(key, value)
+    }
+    return destination
+}
 
 fun <K, V> Map<K, V>.toImmutableSetMultimap(): ImmutableSetMultimap<K, V> =
     Multimaps.immutable.set.with<K, V>().also { this.map { Tuples.pair(it.key, it.value) } }
 
-fun <K, V> Map<K, V>.toSetMultimap(): MutableSetMultimap<K, V> =
-    UnifiedSetMultimap.newMultimap(this.map { Tuples.pair(it.key, it.value) })
+fun <K, V> Map<K, V>.toSetMultimap(
+    destination: MutableSetMultimap<K, V> = Multimaps.mutable.set.empty<K, V>(),
+): MutableSetMultimap<K, V> {
+    forEach { (key, value) ->
+        destination.put(key, value)
+    }
+    return destination
+}
 
 fun <K, V> Map<K, V>.toImmutableBagMultimap(): ImmutableBagMultimap<K, V> =
     Multimaps.immutable.bag.with<K, V>().also { this.map { Tuples.pair(it.key, it.value) } }
 
-fun <K, V> Map<K, V>.toBagMultimap(): MutableBagMultimap<K, V> =
-    HashBagMultimap.newMultimap(this.map { Tuples.pair(it.key, it.value) })
+fun <K, V> Map<K, V>.toBagMultimap(
+    destination: MutableBagMultimap<K, V> = Multimaps.mutable.bag.empty<K, V>(),
+): MutableBagMultimap<K, V> {
+    forEach { (key, value) ->
+        destination.put(key, value)
+    }
+    return destination
+}
 
 fun <K, V> Multimap<K, V>.filter(predicate: (K, Iterable<V>) -> Boolean): Multimap<K, V> =
     selectKeysMultiValues { key, values -> predicate(key, values) }

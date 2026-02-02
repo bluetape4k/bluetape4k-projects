@@ -1,6 +1,7 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import app.cash.turbine.test
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.delay
@@ -51,7 +52,7 @@ class SelectorsTest: AbstractFlowTest() {
         operation: suspend (acc: R, value: T) -> R,
     ): Flow<R> = scan(initial, operation).drop(1)
 
-    private val zeroToTen = List(10) { it.toString() }
+    private val zeroToTen = fastList(10) { it.toString() }
 
     private val reducer: (acc: State, value: Int) -> State = { state, action ->
         when (action) {

@@ -1,6 +1,7 @@
 package io.bluetape4k.idgenerators.hashids
 
 import io.bluetape4k.collections.asParallelStream
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.idgenerators.snowflake.GlobalSnowflake
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
@@ -50,7 +51,7 @@ class HashIdsSupportTest {
 
         @Test
         fun `encode time based uuid as parallel`() {
-            val uuids = List(ITEM_SIZE) { uuidGenerator.nextId() }
+            val uuids = fastList(ITEM_SIZE) { uuidGenerator.nextId() }
             uuids.parallelStream()
                 .forEach {
                     verifyUuidEncode(it)
@@ -66,7 +67,7 @@ class HashIdsSupportTest {
 
         @Test
         fun `정렬된 UUID에 대한 hashid는 정렬되지 않습니다`() {
-            val uuids = List(ITEM_SIZE) { uuidGenerator.nextId() }
+            val uuids = fastList(ITEM_SIZE) { uuidGenerator.nextId() }
             val encodeds = uuids
                 .map { hashids.encodeUUID(it) }
                 .onEach { log.trace { it } }

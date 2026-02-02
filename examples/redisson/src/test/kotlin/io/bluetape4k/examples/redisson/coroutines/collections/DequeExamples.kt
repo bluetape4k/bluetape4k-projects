@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
@@ -63,7 +64,7 @@ class DequeExamples: io.bluetape4k.examples.redisson.coroutines.AbstractRedisson
         deque.sizeAsync().suspendAwait() shouldBeEqualTo counter.get()
 
         // 순서는 틀립니다.
-        deque.iterator().toFastList() shouldContainSame List(16 * 4) { it + 1 }
+        deque.iterator().toFastList() shouldContainSame fastList(16 * 4) { it + 1 }
         deque.deleteAsync().suspendAwait().shouldBeTrue()
     }
 }

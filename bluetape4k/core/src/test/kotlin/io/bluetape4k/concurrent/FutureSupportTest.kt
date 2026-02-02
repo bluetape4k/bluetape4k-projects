@@ -1,5 +1,6 @@
 package io.bluetape4k.concurrent
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.concurrent.virtualthread.VirtualFuture
 import io.bluetape4k.concurrent.virtualthread.virtualFuture
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
@@ -50,7 +51,7 @@ class FutureSupportTest {
 
     @Test
     fun `Massive Future as CompletableFuture`() {
-        val futures = List(ITEM_COUNT) {
+        val futures = fastList(ITEM_COUNT) {
             FutureTask {
                 Thread.sleep(Random.nextLong(DELAY_TIME))
                 "value$it"

@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.coroutines.guide
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -24,14 +25,14 @@ class CoroutineExamples {
     fun `run tasks in coroutine scope`() = runTest {
         // coroutineScope 내부의 비동기 함수는 모두 완료되도록 대기한다 
         coroutineScope {
-            List(ITEM_SIZE) {
+            fastList(ITEM_SIZE) {
                 launch(Dispatchers.IO) {
                     delay(DELAY_TIME)
                 }
             }
             yield()
 
-            List(ITEM_SIZE) {
+            fastList(ITEM_SIZE) {
                 launch(Dispatchers.IO) {
                     delay(DELAY_TIME)
                 }
@@ -44,7 +45,7 @@ class CoroutineExamples {
     fun `run tasks in thread pool`() {
         val latch = CountDownLatch(ITEM_SIZE)
         val executor = ForkJoinPool.commonPool()
-        List(ITEM_SIZE) {
+        fastList(ITEM_SIZE) {
             executor.execute {
                 Thread.sleep(DELAY_TIME)
                 latch.countDown()

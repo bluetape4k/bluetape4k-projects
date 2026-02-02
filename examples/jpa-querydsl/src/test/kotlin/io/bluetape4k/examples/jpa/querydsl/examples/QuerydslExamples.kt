@@ -8,6 +8,7 @@ import com.querydsl.core.types.dsl.CaseBuilder
 import com.querydsl.core.types.dsl.Expressions
 import com.querydsl.jpa.JPAExpressions
 import com.querydsl.jpa.impl.JPAQueryFactory
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.examples.jpa.querydsl.AbstractQuerydslTest
 import io.bluetape4k.examples.jpa.querydsl.domain.dto.MemberDto
 import io.bluetape4k.examples.jpa.querydsl.domain.dto.MemberTeamDto
@@ -72,7 +73,7 @@ class QuerydslExamples: AbstractQuerydslTest() {
         tem.persist(teamB)
         tem.flush()
 
-        val members = List(MEMBER_COUNT) {
+        val members = fastList(MEMBER_COUNT) {
             val i = it + 1
             val selectedTeam = if (i <= MEMBER_COUNT / 2) teamA else teamB
             val member = Member("member-$i", i * 10, selectedTeam)

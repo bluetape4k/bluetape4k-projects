@@ -1,6 +1,7 @@
 package io.bluetape4k.micrometer.instrument.retrofit2
 
 import com.jakewharton.retrofit2.adapter.reactor.ReactorCallAdapterFactory
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -87,7 +88,9 @@ class Retrofit2MetricsTest: AbstractMicrometerTest() {
         posts.shouldNotBeNull()
         log.trace { "posts=$posts" }
 
-        List(REPEAT_SIZE) { api.getPosts().suspendExecute() }
+        repeat(REPEAT_SIZE) {
+            api.getPosts().suspendExecute()
+        }
 
         registry.meters.forEach { meter ->
             log.debug { "id=${meter.id}, tags=${meter.measure().joinToString()}" }
@@ -104,7 +107,7 @@ class Retrofit2MetricsTest: AbstractMicrometerTest() {
         val posts = api.getPosts()
         log.trace { "posts=$posts" }
 
-        List(REPEAT_SIZE) {
+        fastList(REPEAT_SIZE) {
             launch(Dispatchers.IO) {
                 api.getPosts()
             }

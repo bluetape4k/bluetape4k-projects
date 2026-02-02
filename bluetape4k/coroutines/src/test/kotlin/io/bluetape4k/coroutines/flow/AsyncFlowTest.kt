@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.concurrent.virtualthread.VT
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -25,7 +26,7 @@ class AsyncFlowTest {
         private const val ITEM_SIZE = 1_000
         private const val MAX_DELAY_TIME = 10L
 
-        private val expectedItems = List(ITEM_SIZE) { it + 1 }
+        private val expectedItems = fastList(ITEM_SIZE) { it + 1 }
     }
 
     @DisplayName("asyncFlow with default dispatcher")

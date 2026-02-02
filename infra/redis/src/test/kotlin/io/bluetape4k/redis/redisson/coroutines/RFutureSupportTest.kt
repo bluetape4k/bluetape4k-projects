@@ -1,5 +1,6 @@
 package io.bluetape4k.redis.redisson.coroutines
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -23,7 +24,7 @@ class RFutureSupportTest: AbstractRedissonCoroutineTest() {
         val map = redisson.getMap<Int, Int>(randomName())
 
         // 당연하게도 아무리 비동기라도 round-trip이 많은 것보다 RBatch 가 낫다. 또는 `putAllAsync` 를 이용하는 게 낫다
-        val futures: List<RFuture<Int>> = List(ITEM_COUNT) {
+        val futures: List<RFuture<Int>> = fastList(ITEM_COUNT) {
             map.putAsync(it, it)
         }
         val lists = futures.sequence().await()
@@ -37,7 +38,7 @@ class RFutureSupportTest: AbstractRedissonCoroutineTest() {
         val map = redisson.getMap<Int, Int>(randomName())
 
         // 당연하게도 아무리 비동기라도 round-trip이 많은 것보다 RBatch 가 낫다. 또는 `putAllAsync` 를 이용하는 게 낫다
-        val defers = List(ITEM_COUNT) {
+        val defers = fastList(ITEM_COUNT) {
             async(Dispatchers.IO) {
                 map.putAsync(it, it).suspendAwait()
             }
@@ -53,7 +54,7 @@ class RFutureSupportTest: AbstractRedissonCoroutineTest() {
         val map = redisson.getMap<Int, Int>(randomName())
 
         // 당연하게도 아무리 비동기라도 round-trip이 많은 것보다 RBatch 가 낫다. 또는 `putAllAsync` 를 이용하는 게 낫다
-        val futures: List<RFuture<Int>> = List(ITEM_COUNT) {
+        val futures: List<RFuture<Int>> = fastList(ITEM_COUNT) {
             map.putAsync(it, it)
         }
         // RFuture 의 Collection인 경우 awaitAll 로 모두 호출할 수 있습니다.

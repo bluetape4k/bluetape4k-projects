@@ -1,5 +1,6 @@
 package io.bluetape4k.bloomfilter
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
@@ -47,7 +48,7 @@ class HasherTest: AbstractBloomFilterTest() {
     @RepeatedTest(REPEAT_SIZE)
     fun `murmur3 hash offset is unique`() {
 
-        val values = List(100) { Fakers.randomString(16, 256) }
+        val values = fastList(100) { Fakers.randomString(16, 256) }
         val offsets = values.map { Hasher.murmurHashOffset(it, 2, Int.MAX_VALUE) }
 
         val distincs = offsets.distinctBy { it.first() }
@@ -61,7 +62,7 @@ class HasherTest: AbstractBloomFilterTest() {
 
         val text = Fakers.fixedString(128)
 
-        val hashes = List(100) { murmur3.hashChars(text) }
+        val hashes = fastList(100) { murmur3.hashChars(text) }
 
         hashes.distinct() shouldHaveSize 1
     }

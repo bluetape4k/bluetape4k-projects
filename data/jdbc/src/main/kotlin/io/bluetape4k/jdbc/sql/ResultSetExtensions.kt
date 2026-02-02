@@ -1,5 +1,6 @@
 package io.bluetape4k.jdbc.sql
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.toFastList
 import java.io.InputStream
 import java.io.Reader
@@ -169,7 +170,7 @@ inline fun <T> ResultSet.mapAsSequence(crossinline mapper: ResultSet.() -> T): S
 val ResultSet.columnNames: List<String>
     get() {
         val meta = this.metaData
-        return List(meta.columnCount) { meta.getColumnName(it + 1) ?: it.toString() }
+        return fastList(meta.columnCount) { meta.getColumnName(it + 1) ?: it.toString() }
     }
 
 /**

@@ -39,6 +39,7 @@ class ClampTest {
     fun `range clamp for list`() {
         val values = listOf(-1.0, 0.0, 1.0, 2.0)
         val expected = listOf(0.0, 0.0, 1.0, 1.0)
+
         values.rangeClamp(0.0..1.0) shouldBeEqualTo expected
         values.asSequence().rangeClamp(0.0..1.0).toFastList() shouldBeEqualTo expected
     }

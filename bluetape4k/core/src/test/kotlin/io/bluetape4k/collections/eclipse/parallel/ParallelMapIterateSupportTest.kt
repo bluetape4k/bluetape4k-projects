@@ -6,6 +6,7 @@ package io.bluetape4k.collections.eclipse.parallel
  * - JUnit 5, MockK, Kluent 사용
  */
 import io.bluetape4k.collections.AbstractCollectionTest
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
@@ -24,7 +25,7 @@ class ParallelMapIterateSupportTest: AbstractCollectionTest() {
         testMap.parForEach { k, v ->
             if (v % 4 == 0) result.add(v)
         }
-        result.sumOf { it } shouldBeEqualTo List(COUNT) { it * 2 }.sumOf { if (it % 4 == 0) it else 0 }
+        result.sumOf { it } shouldBeEqualTo fastList(COUNT) { it * 2 }.sumOf { if (it % 4 == 0) it else 0 }
     }
 
     @Test

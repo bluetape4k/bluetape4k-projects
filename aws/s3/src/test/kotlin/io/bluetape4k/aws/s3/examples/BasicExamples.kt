@@ -9,6 +9,7 @@ import io.bluetape4k.aws.s3.putAsByteArray
 import io.bluetape4k.aws.s3.putAsString
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.codec.encodeBase62
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8Bytes
@@ -42,7 +43,7 @@ class BasicExamples: AbstractS3Test() {
         val bucket = UUID.randomUUID().encodeBase62().lowercase()
         createBucketsIfNotExists(bucket)
 
-        val keys = List(5) { UUID.randomUUID().encodeBase62() }.sorted()
+        val keys = fastList(5) { Base58.randomString(16).lowercase() }.sorted()
         keys.forEach { key ->
             s3Client.putAsString(bucket, key, randomString()) {
                 requestPayer(RequestPayer.REQUESTER)
@@ -62,7 +63,7 @@ class BasicExamples: AbstractS3Test() {
     fun `delete multi objects`() {
         // Batch 로 삭제하기 위해서는 key name 으로 만든 [ObjectIdentifier] 정보가 필요합니다.
         val objectSize = 10
-        val objectIds = List(objectSize) {
+        val objectIds = fastList(objectSize) {
             val key = Base58.randomString(16)
             s3Client.putAsByteArray(BUCKET_NAME, key, randomString().toUtf8Bytes())
             objectIdentifierOf(key)

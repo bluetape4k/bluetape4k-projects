@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.coroutines.guide
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.logging.KLogging
@@ -70,7 +71,7 @@ class ChannelAsFlowExamples {
         val totalProduced = AtomicLong(0L)
         val totalConsumed = AtomicLong(0L)
 
-        jobs += List(jobSize) {
+        jobs += fastList(jobSize) {
             launch(producerDispatcher) {
                 while (isActive) {
                     delay(1)
@@ -80,7 +81,7 @@ class ChannelAsFlowExamples {
                 }
             }.log("producer1-$it")
         }
-        jobs += List(jobSize) {
+        jobs += fastList(jobSize) {
             launch(producerDispatcher) {
                 while (isActive) {
                     delay(1)
@@ -90,7 +91,7 @@ class ChannelAsFlowExamples {
                 }
             }.log("producer2-$it")
         }
-        val consumedJobs = List(jobSize * 2) {
+        val consumedJobs = fastList(jobSize * 2) {
             launch(consumerDispatcher) {
                 yield()
                 eventBus.events

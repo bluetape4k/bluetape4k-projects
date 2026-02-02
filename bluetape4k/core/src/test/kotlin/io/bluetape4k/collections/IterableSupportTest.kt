@@ -1,5 +1,6 @@
 package io.bluetape4k.collections
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
@@ -14,7 +15,7 @@ class IterableSupportTest {
     @Suppress("DIVISION_BY_ZERO")
     @Test
     fun `try mapping`() {
-        val origin = List(10) { it + 1 }
+        val origin = fastList(10) { it + 1 }
 
         val result = origin.tryMap { it / it }
         result.all { it.isSuccess }.shouldBeTrue()
@@ -26,7 +27,7 @@ class IterableSupportTest {
     @Suppress("DIVISION_BY_ZERO")
     @Test
     fun `mapping 시 성공한 것만 반환`() {
-        val origin = List(10) { it + 1 }
+        val origin = fastList(10) { it + 1 }
 
         val result = origin.mapIfSuccess { it / it }
         result shouldContainAll listOf(1)

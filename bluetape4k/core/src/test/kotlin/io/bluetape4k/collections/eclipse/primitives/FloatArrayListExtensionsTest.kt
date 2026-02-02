@@ -1,6 +1,8 @@
 package io.bluetape4k.collections.eclipse.primitives
 
 import io.bluetape4k.collections.AbstractCollectionTest
+import io.bluetape4k.collections.eclipse.fastList
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.collections.toList
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
@@ -11,8 +13,8 @@ class FloatArrayListExtensionsTest: AbstractCollectionTest() {
 
     companion object: KLogging()
 
-    private val kotlinList = List(5) { it + 1.0F }
-    private val kotlinSet = kotlinList.toSet()
+    private val kotlinList = fastList(5) { it + 1.0F }
+    private val kotlinSet = kotlinList.toUnifiedSet()
     private val expectedArray = floatArrayOf(1.0F, 2.0F, 3.0F, 4.0F, 5.0F)
     private val expectedArrayList = floatArrayListOf(1.0F, 2.0F, 3.0F, 4.0F, 5.0F)
 

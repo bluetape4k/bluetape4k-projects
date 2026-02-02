@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.redisson.coroutines.locks
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
@@ -43,7 +44,7 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
         val lockCounter = AtomicInteger(0)
         val size = 10
 
-        val jobs = List(size) {
+        val jobs = fastList(size) {
             scope.launch {
                 // 여러 Thread 가 lock을 요청하면, 요청 순서대로 lock 을 제공하는 것을 보장합니다.
                 // 나머지 요청은 최대 5초간 대기하다가 요청 중단된다
@@ -160,7 +161,7 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
         val executionOrder = CopyOnWriteArrayList<Int>()
 
         // 여러 코루틴에서 동시에 FairLock 획득 시도
-        val jobs = List(5) { index ->
+        val jobs = fastList(5) { index ->
             scope.launch(exceptionHandler) {
                 val fairLock = redisson.getFairLock(lockName)
                 val lockId = redisson.getLockId("fair-$index")

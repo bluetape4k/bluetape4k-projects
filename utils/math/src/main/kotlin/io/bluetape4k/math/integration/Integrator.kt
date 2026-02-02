@@ -28,7 +28,11 @@ interface Integrator {
      */
     fun integrate(lower: Double, upper: Double, evaluator: (Double) -> Double): Double
 
-    fun integrate(xs: DoubleArray, ys: DoubleArray, interpolator: Interpolator = DefaultInterpolator): Double {
+    fun integrate(
+        xs: DoubleArray,
+        ys: DoubleArray,
+        interpolator: Interpolator = DefaultInterpolator,
+    ): Double {
         assert(xs.isNotEmpty()) { "xs must not be empty." }
         assert(ys.isNotEmpty()) { "ys must not be empty." }
         assert(xs.count() == ys.count()) { "xs size must same with ys size" }
@@ -37,7 +41,10 @@ interface Integrator {
         return integrate(xs.first(), xs.last(), evaluator)
     }
 
-    fun integrate(xy: Iterable<Pair<Double, Double>>, interpolator: Interpolator = DefaultInterpolator): Double {
+    fun integrate(
+        xy: Iterable<Pair<Double, Double>>,
+        interpolator: Interpolator = DefaultInterpolator,
+    ): Double {
         val count = xy.count()
         count.assertPositiveNumber("collection must have elements.")
 

@@ -1,5 +1,6 @@
 package io.bluetape4k.concurrent
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -26,7 +27,7 @@ class FutureUtilsTest {
     fun `CompletableFuture Task들 중 첫번째 완료된 작업을 반환하고, 나머지는 캔슬한다`() {
         val completedTasks = CopyOnWriteArrayList<Int>()
 
-        val futures = List(10) {
+        val futures = fastList(10) {
             futureOf {
                 Thread.sleep(100L * it + 100)
                 it.apply {

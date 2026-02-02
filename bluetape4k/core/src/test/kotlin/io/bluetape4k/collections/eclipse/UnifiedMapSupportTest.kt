@@ -15,8 +15,8 @@ class UnifiedMapSupportTest: AbstractCollectionTest() {
     fun `빈 UnifiedMap 생성`() {
         val emptyMap = emptyUnifiedMap<String, Int>()
 
-        emptyMap.isEmpty.shouldBeTrue()
-        emptyMap.size() shouldBeEqualTo 0
+        emptyMap.isEmpty().shouldBeTrue()
+        emptyMap.size shouldBeEqualTo 0
     }
 
     @Test
@@ -46,8 +46,7 @@ class UnifiedMapSupportTest: AbstractCollectionTest() {
 
     @Test
     fun `pair 를 unifiedMap으로 변환`() {
-        val pairs = listOf(1 to 'a', 2 to 'b', 3 to 'c')
-        val map = pairs.toUnifiedMap()
+        val map = listOf(1 to 'a', 2 to 'b', 3 to 'c').toUnifiedMap()
         map.verify()
     }
 

@@ -1,5 +1,6 @@
 package io.bluetape4k.codec
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
@@ -28,7 +29,7 @@ class Base58Test {
     @RepeatedTest(REPEAT_SIZE)
     fun `Base58 랜덤 문자열을 생성하면 고유한 문자열을 생성한다`() {
         val size = 100
-        val strs = List(size) { Base58.randomString(12) }
+        val strs = fastList(size) { Base58.randomString(12) }
         strs.distinct().size shouldBeEqualTo size
     }
 

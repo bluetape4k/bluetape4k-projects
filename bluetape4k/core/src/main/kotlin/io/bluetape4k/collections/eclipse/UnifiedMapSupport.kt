@@ -29,26 +29,41 @@ fun <K, V> Map<K, V>.toUnifiedMap(): UnifiedMap<K, V> = when (this) {
 }
 
 @JvmName("toUnifiedMapFromIterablePair")
-fun <K, V, T: Pair<K, V>> Iterable<T>.toUnifiedMap(): UnifiedMap<K, V> =
-    UnifiedMap.newMapWith(this.map { it.toTuplePair() })
+fun <K, V, T: Pair<K, V>> Iterable<T>.toUnifiedMap(destination: UnifiedMap<K, V> = UnifiedMap.newMap()): UnifiedMap<K, V> {
+    forEach {
+        destination[it.first] = it.second
+    }
+    return destination
+}
 
 @JvmName("toUnifiedMapFromSequencePair")
-fun <K, V, T: Pair<K, V>> Sequence<T>.toUnifiedMap(): UnifiedMap<K, V> = asIterable().toUnifiedMap()
+fun <K, V, T: Pair<K, V>> Sequence<T>.toUnifiedMap(destination: UnifiedMap<K, V> = UnifiedMap.newMap()): UnifiedMap<K, V> =
+    asIterable().toUnifiedMap(destination)
 
 @JvmName("toUnifiedMapFromIteratorPair")
-fun <K, V, T: Pair<K, V>> Iterator<T>.toUnifiedMap(): UnifiedMap<K, V> = asIterable().toUnifiedMap()
+fun <K, V, T: Pair<K, V>> Iterator<T>.toUnifiedMap(destination: UnifiedMap<K, V> = UnifiedMap.newMap()): UnifiedMap<K, V> =
+    asIterable().toUnifiedMap(destination)
 
 @JvmName("toUnifiedMapFromArrayPair")
-fun <K, V, T: Pair<K, V>> Array<T>.toUnifiedMap(): UnifiedMap<K, V> = asIterable().toUnifiedMap()
+fun <K, V, T: Pair<K, V>> Array<T>.toUnifiedMap(destination: UnifiedMap<K, V> = UnifiedMap.newMap()): UnifiedMap<K, V> =
+    asIterable().toUnifiedMap(destination)
 
 @JvmName("toUnifiedMapFromIterableEcPair")
-fun <K, V, T: EcPair<K, V>> Iterable<T>.toUnifiedMap(): UnifiedMap<K, V> = UnifiedMap.newMapWith(this)
+fun <K, V, T: EcPair<K, V>> Iterable<T>.toUnifiedMap(destination: UnifiedMap<K, V> = UnifiedMap.newMap()): UnifiedMap<K, V> {
+    forEach {
+        destination.add(it)
+    }
+    return destination
+}
 
 @JvmName("toUnifiedMapFromSequenceEcPair")
-fun <K, V, T: EcPair<K, V>> Sequence<T>.toUnifiedMap(): UnifiedMap<K, V> = asIterable().toUnifiedMap()
+fun <K, V, T: EcPair<K, V>> Sequence<T>.toUnifiedMap(destination: UnifiedMap<K, V> = UnifiedMap.newMap()): UnifiedMap<K, V> =
+    asIterable().toUnifiedMap(destination)
 
 @JvmName("toUnifiedMapFromIteratorEcPair")
-fun <K, V, T: EcPair<K, V>> Iterator<T>.toUnifiedMap(): UnifiedMap<K, V> = asIterable().toUnifiedMap()
+fun <K, V, T: EcPair<K, V>> Iterator<T>.toUnifiedMap(destination: UnifiedMap<K, V> = UnifiedMap.newMap()): UnifiedMap<K, V> =
+    asIterable().toUnifiedMap(destination)
 
 @JvmName("toUnifiedMapFromArrayEcPair")
-fun <K, V, T: EcPair<K, V>> Array<T>.toUnifiedMap(): UnifiedMap<K, V> = asIterable().toUnifiedMap()
+fun <K, V, T: EcPair<K, V>> Array<T>.toUnifiedMap(destination: UnifiedMap<K, V> = UnifiedMap.newMap()): UnifiedMap<K, V> =
+    asIterable().toUnifiedMap(destination)

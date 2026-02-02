@@ -24,8 +24,8 @@ interface Equator {
         return solve(maxEval, min, max) { evaluator.value(it) }
     }
 
-    fun solve(maxEval: Int = MAXEVAL, values: Collection<Pair<Double, Double>>): Double {
-        val size = values.size
+    fun solve(maxEval: Int = MAXEVAL, values: Iterable<Pair<Double, Double>>): Double {
+        val size = values.count()
         val xs = DoubleArray(size)
         val ys = DoubleArray(size)
 

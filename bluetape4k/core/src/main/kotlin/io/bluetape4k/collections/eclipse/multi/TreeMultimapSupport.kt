@@ -1,46 +1,47 @@
 package io.bluetape4k.collections.eclipse.multi
 
-import io.bluetape4k.collections.eclipse.fastListOf
-import org.eclipse.collections.impl.map.sorted.mutable.TreeSortedMap
+import org.eclipse.collections.impl.multimap.set.sorted.TreeSortedSetMultimap
 
-typealias TreeMultimap<K, V> = TreeSortedMap<K, MutableList<V>>
-
-fun <K, V> TreeMultimap<K, V>.valueSize(): Int = this.valuesView().sumOf { it.size }
-
-inline fun <K: Comparable<K>, V> Iterable<V>.toTreeMultimap(keySelector: (V) -> K): TreeMultimap<K, V> =
-    TreeMultimap<K, V>().also { map ->
-        forEach { element ->
-            map.getIfAbsentPut(keySelector(element), fastListOf()).add(element)
-        }
-    }
+typealias TreeMultimap<K, V> = TreeSortedSetMultimap<K, V>
 
 inline fun <K: Comparable<K>, V> Iterable<V>.toTreeMultimap(
-    comparator: Comparator<K>, keySelector: (V) -> K,
+    destination: TreeMultimap<K, V> = TreeMultimap.newMultimap<K, V>(),
+    keySelector: (V) -> K,
+): TreeMultimap<K, V> {
+    this@toTreeMultimap.forEach { element ->
+        destination.put(keySelector(element), element)
+    }
+    return destination
+}
+
+inline fun <V, K: Comparable<K>> Iterable<V>.toTreeMultimap(
+    comparator: Comparator<V>,
+    keySelector: (V) -> K,
 ): TreeMultimap<K, V> =
-    TreeMultimap<K, V>(comparator).also { map ->
-        forEach { element ->
-            map.getIfAbsentPut(keySelector(element), fastListOf()).add(element)
+    TreeMultimap.newMultimap<K, V>(comparator).also { treeMap ->
+        this@toTreeMultimap.forEach { element ->
+            treeMap.put(keySelector(element), element)
         }
     }
 
 inline fun <E, K: Comparable<K>, V> Iterable<E>.toTreeMultimap(
     keySelector: (E) -> K,
     valueSelector: (E) -> V,
-): TreeMultimap<K, V> =
-    TreeMultimap<K, V>().also { map ->
-        forEach { element ->
-            map.getIfAbsentPut(keySelector(element), fastListOf()).add(valueSelector(element))
-        }
+    destination: TreeMultimap<K, V> = TreeMultimap(),
+): TreeMultimap<K, V> {
+    this@toTreeMultimap.forEach { element ->
+        destination.put(keySelector(element), valueSelector(element))
     }
+    return destination
+}
 
-
-inline fun <E, K: Comparable<K>, V> Iterable<E>.toTreeMultimap(
-    comparator: Comparator<K>,
+inline fun <E, K, V: Comparable<V>> Iterable<E>.toTreeMultimap(
+    comparator: Comparator<V>,
     keySelector: (E) -> K,
     valueSelector: (E) -> V,
 ): TreeMultimap<K, V> =
-    TreeMultimap<K, V>(comparator).also { map ->
-        forEach { element ->
-            map.getIfAbsentPut(keySelector(element), fastListOf()).add(valueSelector(element))
+    TreeMultimap.newMultimap<K, V>(comparator).also { treeMap ->
+        this@toTreeMultimap.forEach { element ->
+            treeMap.put(keySelector(element), valueSelector(element))
         }
     }

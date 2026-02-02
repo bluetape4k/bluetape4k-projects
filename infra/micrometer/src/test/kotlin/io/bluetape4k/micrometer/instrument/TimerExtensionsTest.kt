@@ -1,5 +1,6 @@
 package io.bluetape4k.micrometer.instrument
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -62,7 +63,7 @@ class TimerExtensionsTest: AbstractMicrometerTest() {
 
         repeat(5) {
             timer.recordSuspend {
-                val jobs = List(10) {
+                val jobs = fastList(10) {
                     launch {
                         delay(DELAY_TIME)
                         log.debug { "Complete Job $it" }

@@ -1,7 +1,9 @@
 package io.bluetape4k.collections.eclipse.primitives
 
 import io.bluetape4k.collections.AbstractCollectionTest
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.stream.toDoubleArrayList
+import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.collections.toList
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
@@ -12,8 +14,8 @@ class DoubleArrayListExtensionsTest: AbstractCollectionTest() {
 
     companion object: KLogging()
 
-    private val kotlinList = List(5) { it + 1.0 }
-    private val kotlinSet = kotlinList.toSet()
+    private val kotlinList = fastList(5) { it + 1.0 }
+    private val kotlinSet = kotlinList.toUnifiedSet()
     private val expectedArray = doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0)
     private val expectedArrayList = doubleArrayListOf(1.0, 2.0, 3.0, 4.0, 5.0)
 

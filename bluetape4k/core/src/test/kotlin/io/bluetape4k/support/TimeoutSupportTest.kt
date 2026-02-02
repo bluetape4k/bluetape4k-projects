@@ -1,5 +1,6 @@
 package io.bluetape4k.support
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.concurrent.FutureUtils
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
@@ -37,7 +38,7 @@ class TimeoutSupportTest {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `제한시간이 적용된 복수의 비동기 작업을 수행`() {
-        val futures = List(1000) {
+        val futures = fastList(1000) {
             asyncRunWithTimeout(1000) {
                 Thread.sleep(10)
             }

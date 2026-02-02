@@ -1,7 +1,7 @@
 package io.bluetape4k.math.commons
 
 
-import io.bluetape4k.collections.eclipse.toFastList
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.math.MathConsts.BLOCK_SIZE
@@ -13,8 +13,8 @@ class MovingSumTest {
 
     companion object: KLogging()
 
-    private val doubleValues = List(10) { it.toDouble() }
-    private val longValues = List(10) { it.toLong() }
+    private val doubleValues = fastList(10) { it.toDouble() }
+    private val longValues = fastList(10) { it.toLong() }
 
     @Test
     fun `moving sum of double values with invalid block size`() {
@@ -32,9 +32,9 @@ class MovingSumTest {
     @Test
     fun `moving sum of same double values`() {
         val blockSize = BLOCK_SIZE
-        val sameValues = List(10) { 1.0 }
+        val sameValues = fastList(10) { 1.0 }
 
-        val sums = sameValues.movingSum(blockSize).toFastList()
+        val sums = sameValues.movingSum(blockSize)
 
         log.trace { "sums=$sums" }
         sums.size shouldBeEqualTo (sameValues.size - blockSize + 1)
@@ -43,7 +43,7 @@ class MovingSumTest {
 
     @Test
     fun `moving sum of double values`() {
-        val sums = doubleValues.movingSum().toFastList()
+        val sums = doubleValues.movingSum()
         log.trace { "sums=$sums" }
         sums.size shouldBeEqualTo (doubleValues.size - BLOCK_SIZE + 1)
         sums.sorted() shouldBeEqualTo sums
@@ -65,9 +65,9 @@ class MovingSumTest {
     @Test
     fun `moving sum of same long values`() {
         val blockSize = BLOCK_SIZE
-        val sameValues = List(10) { 1.0 }
+        val sameValues = fastList(10) { 1.0 }
 
-        val sums = sameValues.movingSum(blockSize).toFastList()
+        val sums = sameValues.movingSum(blockSize)
 
         log.trace { "sums=$sums" }
         sums.size shouldBeEqualTo (sameValues.size - blockSize + 1)
@@ -76,7 +76,7 @@ class MovingSumTest {
 
     @Test
     fun `moving sum of long values`() {
-        val sums = longValues.movingSum().toFastList()
+        val sums = longValues.movingSum()
         log.trace { "sums=$sums" }
         sums.size shouldBeEqualTo (longValues.size - BLOCK_SIZE + 1)
         sums.sorted() shouldBeEqualTo sums

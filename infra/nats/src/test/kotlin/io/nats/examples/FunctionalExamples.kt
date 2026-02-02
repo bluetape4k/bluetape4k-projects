@@ -304,11 +304,11 @@ class FunctionalExamples: AbstractNatsTest() {
             }
             dispatcher.subscribe("time.*.east")
 
-            List(10) {
+            repeat(10) {
                 nc.publish("time.us", "us message $it")
             }
 
-            List(10) {
+            repeat(10) {
                 nc.publish("time.us.east", "us.east message $it")
             }
 

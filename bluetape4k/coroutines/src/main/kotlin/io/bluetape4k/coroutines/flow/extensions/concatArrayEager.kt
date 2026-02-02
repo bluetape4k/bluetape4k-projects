@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.trace
@@ -84,7 +85,7 @@ fun <T: Any> concatArrayEager(vararg sources: Flow<T>): Flow<T> =
 internal fun <T: Any> concatArrayEagerInternal(sources: List<Flow<T>>): Flow<T> = channelFlow {
     coroutineScope {
         val size = sources.size
-        val queues = List(size) { ConcurrentLinkedQueue<T>() }
+        val queues = fastList(size) { ConcurrentLinkedQueue<T>() }
         val dones = AtomicIntegerArray(sources.size)
         val reader = Resumable()
 

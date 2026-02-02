@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.core
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.exposed.dao.id.SnowflakeIdTable
 import io.bluetape4k.exposed.tests.AbstractExposedTest
@@ -41,7 +42,7 @@ class SuspendedQueryTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `코루틴 환경에서 AutoInc ID를 가진 테이블에서 Batch 로 읽어온다`(testDB: TestDB) = runSuspendIO {
         withSuspendedTables(testDB, ProductTable) {
-            val products = List(100) {
+            val products = fastList(100) {
                 Product(
                     name = faker.app().name() + " Version:$it",
                     price = faker.number().randomDigitNotZero()
@@ -94,7 +95,7 @@ class SuspendedQueryTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `코루틴 환경에서 ID가 SnowflakeID의 Long 수형의 테이블에서 Batch 로 읽어온다`(testDB: TestDB) = runSuspendIO {
         withSuspendedTables(testDB, ItemTable) {
-            val items = List(100) {
+            val items = fastList(100) {
                 Item(
                     name = faker.app().name() + " Version:$it",
                     price = faker.number().randomDigitNotZero()

@@ -1,7 +1,6 @@
 package io.bluetape4k.math.integration
 
 import io.bluetape4k.collections.doubleSequenceOf
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.math.commons.approximateEqual
@@ -61,7 +60,7 @@ abstract class AbstractIntegratorTest {
     fun `integeration with double array`() {
         val identities = doubleSequenceOf(0.0, 1.0, 1e-4)
             .map { it to 1.0 }
-            .toFastList()
+            .asIterable()
 
         val fx = integrator.integrate(identities)
         log.trace { "result: $fx" }
@@ -72,7 +71,7 @@ abstract class AbstractIntegratorTest {
     fun `integeration with double array with flip values`() {
         val identities = doubleSequenceOf(0.0, 1.0, 1e-4)
             .map { it to (0.5 - it) }
-            .toFastList()
+            .asIterable()
 
         val fx = integrator.integrate(identities)
         log.trace { "result: $fx" }
@@ -83,7 +82,7 @@ abstract class AbstractIntegratorTest {
     fun `integeration with double array with interpolation`() {
         val identities = doubleSequenceOf(0.0, 1.0, 1e-4)
             .map { it to it }
-            .toFastList()
+            .asIterable()
 
         val fx = integrator.integrate(identities)
         log.trace { "result: $fx" }

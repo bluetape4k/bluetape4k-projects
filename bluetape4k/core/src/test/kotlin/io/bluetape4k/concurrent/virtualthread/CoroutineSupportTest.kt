@@ -1,5 +1,6 @@
 package io.bluetape4k.concurrent.virtualthread
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
@@ -32,7 +33,7 @@ class CoroutineSupportTest {
     @Test
     fun `withVirtualContext 를 이용하여 동기 함수를 Coroutines으로 실행하기`() = runTest {
         val elapsedTime = measureTimeMillis {
-            val jobs = List(TASK_SIZE) {
+            val jobs = fastList(TASK_SIZE) {
                 launch {
                     withVirtualContext {
                         Thread.sleep(1000)

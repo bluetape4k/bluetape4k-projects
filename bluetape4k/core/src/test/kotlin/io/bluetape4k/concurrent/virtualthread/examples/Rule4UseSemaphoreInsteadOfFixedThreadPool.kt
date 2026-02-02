@@ -1,5 +1,6 @@
 package io.bluetape4k.concurrent.virtualthread.examples
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.concurrent.FutureUtils
 import io.bluetape4k.concurrent.asCompletableFuture
 import io.bluetape4k.concurrent.virtualthread.AbstractVirtualThreadTest
@@ -56,7 +57,7 @@ class Rule4UseSemaphoreInsteadOfFixedThreadPool: AbstractVirtualThreadTest() {
         fun `추천 - Semaphore를 사용하여 동시성 제어하기`() {
             val results = ConcurrentLinkedQueue<String>()
             Executors.newVirtualThreadPerTaskExecutor().use { executor ->
-                val futures = List(taskSize) { index ->
+                val futures = fastList(taskSize) { index ->
                     executor.submit<String> {
                         log.trace { "Start run task[$index]" }
                         val result = useSemaphoreToLimitConcurrency()

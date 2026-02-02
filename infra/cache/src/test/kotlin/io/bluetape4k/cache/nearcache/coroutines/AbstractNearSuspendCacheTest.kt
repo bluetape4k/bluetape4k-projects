@@ -4,6 +4,7 @@ import io.bluetape4k.cache.jcache.coroutines.CaffeineSuspendCache
 import io.bluetape4k.cache.jcache.coroutines.SuspendCache
 import io.bluetape4k.cache.jcache.coroutines.SuspendCacheEntry
 import io.bluetape4k.collections.eclipse.fastList
+import io.bluetape4k.collections.eclipse.unifiedMap
 import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.junit5.awaitility.suspendUntil
@@ -175,13 +176,18 @@ abstract class AbstractNearSuspendCacheTest
 
     @RepeatedTest(TEST_SIZE)
     fun `putAll with map - 복수의 cache entry를 추가하면 다른 nearCache에도 반영된다`() = runSuspendIO {
-        val entries = List(10) { getKey() to getValue() }.toMap()
-        val keys = entries.keys
+        val map = unifiedMap(10) { getKey() to getValue() }
+        val keys = map.keys
 
-        nearSuspendCache1.putAll(entries)
+        nearSuspendCache1.putAll(map)
         await suspendUntil { keys.all { nearSuspendCache2.containsKey(it) } }
 
-        nearSuspendCache2.getAll().toFastList() shouldContainSame entries.map { SuspendCacheEntry(it.key, it.value) }
+        nearSuspendCache2.getAll().toFastList() shouldContainSame map.entries.map {
+            SuspendCacheEntry(
+                it.key,
+                it.value
+            )
+        }
     }
 
     @RepeatedTest(TEST_SIZE)
@@ -361,9 +367,9 @@ abstract class AbstractNearSuspendCacheTest
 
     @RepeatedTest(TEST_SIZE)
     fun `removeAll - 모든 캐시를 삭제하면 nearCache들에게 반영된다`() = runSuspendIO {
-        val entries = List(100) { getKey() to getValue() }.toMap()
+        val map = unifiedMap(100) { getKey() to getValue() }
 
-        nearSuspendCache1.putAll(entries)
+        nearSuspendCache1.putAll(map)
         await suspendUntil { nearSuspendCache2.entries().count() > 0 }
 
         nearSuspendCache2.entries().toFastList().shouldNotBeEmpty()

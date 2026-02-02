@@ -6,6 +6,7 @@ import com.datastax.oss.driver.api.querybuilder.QueryBuilder
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder.insertInto
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder.selectFrom
 import io.bluetape4k.cassandra.querybuilder.literal
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -81,7 +82,7 @@ class CoroutineCassandraOperationsTest(
 
     @Test
     fun `insert in coroutines`() = runSuspendIO {
-        val users = List(100) {
+        val users = fastList(100) {
             BasicUser(
                 it.toLong(),
                 "uname-$it",

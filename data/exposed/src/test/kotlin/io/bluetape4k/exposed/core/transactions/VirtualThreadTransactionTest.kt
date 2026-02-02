@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.core.transactions
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.collections.intRangeOf
 import io.bluetape4k.concurrent.virtualthread.VirtualFuture
@@ -81,7 +82,7 @@ class VirtualThreadTransactionTest: AbstractExposedTest() {
             val recordCount = 10
 
             newVirtualThreadTransaction {
-                List(recordCount) { index ->
+                fastList(recordCount) { index ->
                     virtualThreadTransactionAsync {
                         log.debug { "Task[$index] inserting ..." }
                         // insert 를 수행하는 트랜잭션을 생성한다
@@ -91,7 +92,7 @@ class VirtualThreadTransactionTest: AbstractExposedTest() {
                 commit()
 
                 // 중첩 트랜잭션에서 virtual threads 를 이용하여 동시에 여러 작업을 수행한다.
-                val futures: List<VirtualFuture<List<ResultRow>>> = List(recordCount) { index ->
+                val futures: List<VirtualFuture<List<ResultRow>>> = fastList(recordCount) { index ->
                     virtualThreadTransactionAsync {
                         log.debug { "Task[$index] selecting ..." }
                         VTester.selectAll().toFastList()
@@ -113,7 +114,7 @@ class VirtualThreadTransactionTest: AbstractExposedTest() {
         withTables(testDB, VTester) {
             val recordCount = 10
 
-            val results: List<Int> = List(recordCount) { index ->
+            val results: List<Int> = fastList(recordCount) { index ->
                 virtualThreadTransactionAsync {
                     maxAttempts = 5
                     log.debug { "Task[$index] inserting ..." }

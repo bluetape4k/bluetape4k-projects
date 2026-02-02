@@ -4,6 +4,7 @@ import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.collections.eclipse.toUnifiedMap
 import io.bluetape4k.ranges.ClosedOpenDoubleRange
 import io.bluetape4k.support.coerce
+import org.eclipse.collections.impl.list.mutable.FastList
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.random.Random
 
@@ -29,6 +30,7 @@ fun <T: Any> List<T>.randomDistinct(sampleSize: Int): List<T> {
     val cappedSampleSize = sampleSize.coerce(1, size)
 
     val random = ThreadLocalRandom.current()
+    val result = FastList.newList<T>(sampleSize)
     return (0..Int.MAX_VALUE).asSequence()
         .map {
             random.nextInt(0, size)
@@ -36,7 +38,7 @@ fun <T: Any> List<T>.randomDistinct(sampleSize: Int): List<T> {
         .distinct()
         .take(cappedSampleSize)
         .map { this[it] }
-        .toFastList()
+        .toFastList(result)
 }
 
 fun <T: Any> Sequence<T>.randomDistinct(sampleSize: Int): List<T> = toList().randomDistinct(sampleSize)

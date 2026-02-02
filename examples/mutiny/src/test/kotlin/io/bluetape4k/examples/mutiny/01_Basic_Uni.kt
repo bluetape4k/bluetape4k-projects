@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.mutiny
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.mutiny.asUni
@@ -71,7 +72,7 @@ class UniBasicExamples {
 
         // Coroutines 환경에서 await 한다 (subscribe 한다)
         // `uni.await().indefinitely()` 는 blocking 이다
-        val items = List(5) { uni.awaitSuspending() }
+        val items = fastList(5) { uni.awaitSuspending() }
 
         items shouldHaveSize 5
         log.debug { items.joinToString() }
@@ -83,7 +84,7 @@ class UniBasicExamples {
             it.addAndGet(10)
         }
 
-        val items = List(5) { uni.awaitSuspending() }
+        val items = fastList(5) { uni.awaitSuspending() }
         items shouldBeEqualTo listOf(10, 20, 30, 40, 50)
     }
 

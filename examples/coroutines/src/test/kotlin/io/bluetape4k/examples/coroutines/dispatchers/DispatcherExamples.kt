@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.coroutines.dispatchers
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.coroutines.support.suspendLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -33,10 +34,10 @@ class DispatcherExamples {
 
     @Test
     fun `default dispatcher 예제`() = runTest {
-        List(REPEAT_SIZE) {
+        fastList(REPEAT_SIZE) {
             // Default dispatcher를 적용
             launch(Dispatchers.Default) {
-                List(REPEAT_SIZE) { Random.nextLong() }.maxOrNull()
+                fastList(REPEAT_SIZE) { Random.nextLong() }.maxOrNull()
 
                 // thread 는 cpu core 수 만큼 사용한다 
                 // thread name 에 @coroutine#number 가 붙는다 
@@ -76,7 +77,7 @@ class DispatcherExamples {
      */
     @Test
     fun `io dispatcher 사용 예`() = runTest {
-        val jobs = List(REPEAT_SIZE) {
+        val jobs = fastList(REPEAT_SIZE) {
             // Dispatchers.IO.limitedParallelism(128)
             launch(Dispatchers.IO) {
                 delay(Random.nextLong(100, 200))
@@ -93,7 +94,7 @@ class DispatcherExamples {
         newFixedThreadPoolContext(4, "custom").use { dispatcher ->
             // 동시 작업을 2개로 제한합니다.
             val parallel = dispatcher.limitedParallelism(2)
-            List(REPEAT_SIZE) {
+            fastList(REPEAT_SIZE) {
                 launch(parallel) {
                     delay(Random.nextLong(100, 200))
                     val threadName = Thread.currentThread().name
@@ -111,7 +112,7 @@ class DispatcherExamples {
         newSingleThreadContext("single").use { dispatcher ->
             val counter = AtomicInteger(0)
 
-            val jobs = List(REPEAT_SIZE) {
+            val jobs = fastList(REPEAT_SIZE) {
                 launch(dispatcher) {
                     counter.incrementAndGet()
                     suspendLogging { "count=${counter.get()}, thread=${Thread.currentThread().name}" }

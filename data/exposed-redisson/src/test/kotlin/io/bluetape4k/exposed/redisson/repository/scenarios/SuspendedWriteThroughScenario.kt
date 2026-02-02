@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.redisson.repository.scenarios
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.redisson.repository.scenarios.SuspendedCacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.tests.TestDB
@@ -122,7 +123,7 @@ interface SuspendedWriteThroughScenario<T: HasIdentifier<ID>, ID: Any>: Suspende
 
         withSuspendedEntityTable(testDB) {
             val prevCount = repository.entityTable.selectAll().count()
-            val newEntities = List(5) { createNewEntity() }
+            val newEntities = fastList(5) { createNewEntity() }
             repository.putAll(newEntities)
 
             // @ParameterizedTest 때문에 testDB 들이 꼬인다... 대기 시간을 둬서, 다른 DB와의 영항을 미치지 않게 한다

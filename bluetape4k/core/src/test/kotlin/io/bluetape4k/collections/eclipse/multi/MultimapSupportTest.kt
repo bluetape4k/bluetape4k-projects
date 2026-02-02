@@ -7,6 +7,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainSame
 import org.eclipse.collections.api.multimap.Multimap
 import org.junit.jupiter.api.Test
+import java.io.Serializable
 
 class MultimapSupportTest: AbstractCollectionTest() {
 
@@ -15,7 +16,7 @@ class MultimapSupportTest: AbstractCollectionTest() {
         private val twos = fastListOf("2", "둘")
     }
 
-    data class User(val name: String, val age: Int)
+    data class User(val name: String, val age: Int): Serializable
 
     private fun Multimap<Int, String>.verify() {
         size() shouldBeEqualTo 5
@@ -26,21 +27,25 @@ class MultimapSupportTest: AbstractCollectionTest() {
 
     @Test
     fun `List Multimap 생성`() {
-        val mmap = listMultimapOf<Int, String>().apply {
-            putAll(1, ones)
-            putAll(2, twos)
-        }
+        val mmap = listMultimapOf<Int, String>()
+            .apply {
+                putAll(1, ones)
+                putAll(2, twos)
+            }
         mmap.verify()
 
         // 새로운 요소 추가
         mmap.put(3, "3")
         mmap.put(3, "셋")
-        mmap[3] shouldBeEqualTo fastListOf("3", "셋")
+        mmap[3] shouldBeEqualTo listOf("3", "셋")
     }
 
     @Test
     fun `List 을 List Multimap 로 변환`() {
-        val map = mapOf(1 to ones, 2 to twos).flatMap { (k, vs) -> vs.map { k to it } }
+        val map = mapOf(1 to ones, 2 to twos)
+            .flatMap { (k, vs) ->
+                vs.map { k to it }
+            }
 
         val mmap = map.toListMultimap()
         mmap.verify()
@@ -51,10 +56,11 @@ class MultimapSupportTest: AbstractCollectionTest() {
 
     @Test
     fun `Set Multimap 생성`() {
-        val smap = setMultimapOf<Int, String>().apply {
-            putAll(1, ones)
-            putAll(2, twos)
-        }
+        val smap = setMultimapOf<Int, String>()
+            .apply {
+                putAll(1, ones)
+                putAll(2, twos)
+            }
         smap.verify()
 
         // 중복되는 요소는 추가되지 않는다.

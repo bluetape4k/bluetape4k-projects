@@ -1,5 +1,6 @@
 package io.bluetape4k.spring.retrofit2.services.httpbin
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -42,7 +43,7 @@ class HttpbinApiTest {
     @Test
     fun `measure retrofit2 call`() = runSuspendIO {
         val runCount = 3
-        val tasks = List(runCount) {
+        val tasks = fastList(runCount) {
             async {
                 httpbinApi.getLocalIpAddress()
             }

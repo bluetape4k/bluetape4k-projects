@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.coroutines.builders
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
@@ -57,7 +58,7 @@ class CoroutineBuilderExamples {
 
         @Test
         fun `await returns`() = runTest {
-            val results = List(10) {
+            val results = fastList(10) {
                 async {
                     delay(Random.nextLong(50, 100))
                     log.trace { "Return $it" }

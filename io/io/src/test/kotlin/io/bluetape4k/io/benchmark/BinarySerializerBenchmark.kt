@@ -3,6 +3,7 @@ package io.bluetape4k.io.benchmark
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.junit5.faker.Fakers
 import kotlinx.benchmark.Benchmark
@@ -66,7 +67,7 @@ class BinarySerializerBenchmark {
 
     @Setup
     fun setup() {
-        targets = List(20) { createSimpleData() }
+        targets = fastList(20) { createSimpleData() }
     }
 
     @Benchmark

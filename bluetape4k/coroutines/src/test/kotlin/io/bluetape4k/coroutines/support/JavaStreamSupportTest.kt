@@ -24,7 +24,7 @@ class JavaStreamSupportTest {
             }
             .toFastList()
 
-        list shouldBeEqualTo List(9) { it + 1 }
+        list shouldBeEqualTo fastList(9) { it + 1 }
     }
 
     @Test

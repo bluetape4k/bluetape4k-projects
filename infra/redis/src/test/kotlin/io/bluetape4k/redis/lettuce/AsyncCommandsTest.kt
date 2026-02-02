@@ -1,5 +1,6 @@
 package io.bluetape4k.redis.lettuce
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.future.await
@@ -18,7 +19,7 @@ class AsyncCommandsTest: AbstractLettuceTest() {
     fun `bulk put asynchroneously`() = runSuspendIO {
         val keyName = randomName()
 
-        val futures = List(ITEM_SIZE) { index ->
+        val futures = fastList(ITEM_SIZE) { index ->
             asyncCommands.hset(keyName, index.toString(), index)
         }
         val list = futures.awaitAll()
@@ -32,7 +33,7 @@ class AsyncCommandsTest: AbstractLettuceTest() {
     fun `sequence for collection of RedisFuture`() {
         val keyName = randomName()
 
-        val futures = List(ITEM_SIZE) { index ->
+        val futures = fastList(ITEM_SIZE) { index ->
             asyncCommands.hset(keyName, index.toString(), index)
         }.sequence()
 

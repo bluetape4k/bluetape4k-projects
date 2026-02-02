@@ -2,6 +2,7 @@ package io.bluetape4k.examples.cassandra.basic
 
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder
 import io.bluetape4k.cassandra.cql.executeSuspending
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -113,7 +114,7 @@ class BasicUserRepositoryTest(
     @Disabled("SASI Index 는 Cassandra Server 환경설정에서 enable 해야 합니다.")
     @Test
     fun `find multiple rows with allow filtering`() = runSuspendIO {
-        val users = List(6) {
+        val users = fastList(6) {
             newBasicUser().copy(id = it + 1L)
         }
         repository.saveAll(users.asFlow()).collect()

@@ -1,5 +1,6 @@
 package io.bluetape4k.concurrent.virtualthread
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
@@ -51,7 +52,7 @@ class VirtualFutureTest {
     fun `run many tasks with virtual threads`() {
         val taskSize = 100
 
-        val tasks: List<() -> Int> = List(taskSize) {
+        val tasks: List<() -> Int> = fastList(taskSize) {
             {
                 log.debug { "Run task[$it]" }
                 Thread.sleep(100)

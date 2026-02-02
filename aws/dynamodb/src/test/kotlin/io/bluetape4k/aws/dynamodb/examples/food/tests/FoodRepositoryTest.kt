@@ -4,6 +4,7 @@ import io.bluetape4k.aws.dynamodb.examples.food.AbstractFoodApplicationTest
 import io.bluetape4k.aws.dynamodb.examples.food.model.FoodDocument
 import io.bluetape4k.aws.dynamodb.examples.food.model.FoodState
 import io.bluetape4k.aws.dynamodb.examples.food.repository.FoodRepository
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -124,7 +125,7 @@ class FoodRepositoryTest: AbstractFoodApplicationTest() {
     }
 
     private fun createFoods(size: Int = 100): List<FoodDocument> {
-        return List(size) {
+        return fastList(size) {
             FoodDocument(
                 id = snowflake.nextId().toString(),
                 restraurantId = Random.nextInt(5).toString(),

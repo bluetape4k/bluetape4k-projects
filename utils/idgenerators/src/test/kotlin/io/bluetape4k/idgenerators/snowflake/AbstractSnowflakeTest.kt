@@ -46,7 +46,7 @@ abstract class AbstractSnowflakeTest {
     fun `generate snowflake id`() {
         snowflake.nextId()
 
-        val ids = List(3) { snowflake.nextId() }
+        val ids = fastList(3) { snowflake.nextId() }
 
         ids[1] shouldBeGreaterThan ids[0]
         ids[2] shouldBeGreaterThan ids[1]

@@ -1,7 +1,6 @@
 package io.bluetape4k.math.equation
 
 import io.bluetape4k.collections.doubleSequenceOf
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.math.commons.approximateEqual
@@ -22,7 +21,7 @@ abstract class AbstractEquatorTest {
     fun `root find for linear`() {
         val values = doubleSequenceOf(-1.0, 1.0, 0.03)
             .map { it to it }
-            .toFastList()
+            .asIterable()
 
         val root = equator.solve(Equator.MAXEVAL, values)
         log.trace { "root=$root" }
@@ -33,7 +32,7 @@ abstract class AbstractEquatorTest {
     open fun `경계가 같은 + 부호를 가지는 경우`() {
         val values = doubleSequenceOf(-1.0, 1.0, 0.1)
             .map { it to 1.0 }
-            .toFastList()
+            .asIterable()
 
         assertFailsWith<NoBracketingException> {
             val root = equator.solve(Equator.MAXEVAL, values)
@@ -45,7 +44,7 @@ abstract class AbstractEquatorTest {
     open fun `경계가 같은 - 부호를 가지는 경우`() {
         val values = doubleSequenceOf(-1.0, 1.0, 0.1)
             .map { it to -1.0 }
-            .toFastList()
+            .asIterable()
 
         assertFailsWith<NoBracketingException> {
             val root = equator.solve(Equator.MAXEVAL, values)
@@ -55,13 +54,13 @@ abstract class AbstractEquatorTest {
 
     @Test
     fun `sin 함수에서 근 구하기`() {
-        val f = { x: Double -> sin(x) }
+        val func: (Double) -> Double = { x: Double -> sin(x) }
 
-        val result = equator.solve(Equator.MAXEVAL, 3.0, 4.0, f)
+        val result = equator.solve(Equator.MAXEVAL, 3.0, 4.0, func)
         log.trace { "result=$result" }
         result.approximateEqual(PI, equator.absoluteAccuracy).shouldBeTrue()
 
-        val result2 = equator.solve(Equator.MAXEVAL, 1.0, 4.0, f)
+        val result2 = equator.solve(Equator.MAXEVAL, 1.0, 4.0, func)
         log.trace { "result2=$result2" }
         result.approximateEqual(PI, equator.absoluteAccuracy).shouldBeTrue()
     }

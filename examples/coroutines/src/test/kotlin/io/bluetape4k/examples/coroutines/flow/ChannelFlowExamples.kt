@@ -1,13 +1,14 @@
 package io.bluetape4k.examples.coroutines.flow
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.coroutines.flow.extensions.log
-import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.firstOrNull
@@ -30,7 +31,7 @@ class ChannelFlowExamples {
     }
 
     private class FakeUserApi: UserApi {
-        private val users = List(20) { User("User$it") }
+        private val users = fastList(20) { User("User$it") }
         private val pageSize = 3
 
         override suspend fun takePage(pageNumber: Int): Flow<User> {
@@ -47,7 +48,7 @@ class ChannelFlowExamples {
             log.debug { "🦀Fetching page $page" }
             val users = api.takePage(page++)
             emitAll(users)
-        } while (users.toFastList().isNotEmpty())
+        } while (users.count() > 0)
     }
 
     /**

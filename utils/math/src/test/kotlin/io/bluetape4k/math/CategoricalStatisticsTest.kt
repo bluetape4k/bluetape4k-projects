@@ -28,9 +28,9 @@ class CategoricalStatisticsTest {
 
         // 요소 중 가장 빈도 수가 높은 놈들을 가져옵니다.
         // {2=3, 3=3, 4=2}
-        val maxFreqs = ints.mode()
+        val maxFreqs = ints.mode().toFastList()
 
-        maxFreqs.toFastList() shouldBeEqualTo listOf(2, 3)
+        maxFreqs shouldBeEqualTo listOf(2, 3)
     }
 
     data class Product(

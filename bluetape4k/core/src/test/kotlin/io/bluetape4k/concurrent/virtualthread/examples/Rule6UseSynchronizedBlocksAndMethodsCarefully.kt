@@ -1,5 +1,6 @@
 package io.bluetape4k.concurrent.virtualthread.examples
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.concurrent.virtualthread.AbstractVirtualThreadTest
 import io.bluetape4k.concurrent.virtualthread.awaitAll
 import io.bluetape4k.concurrent.virtualthread.virtualFuture
@@ -31,7 +32,7 @@ class Rule6UseSynchronizedBlocksAndMethodsCarefully: AbstractVirtualThreadTest()
         @Test
         fun `비추천 - 리소스를 독점적으로 사용할 목적으로 synchronized 사용하기`() {
             var counter = 0
-            val tasks = List(TASK_SIZE) {
+            val tasks = fastList(TASK_SIZE) {
                 virtualThread {
                     synchronized(lockObject) {
                         // critical section
@@ -52,7 +53,7 @@ class Rule6UseSynchronizedBlocksAndMethodsCarefully: AbstractVirtualThreadTest()
         @Test
         fun `추천 - 리소스를 독점적으로 사용할 때 ReentrantLock을 이용`() {
             var counter = 0
-            val tasks = List(TASK_SIZE) {
+            val tasks = fastList(TASK_SIZE) {
                 virtualThread {
                     lock.lock()
                     try {
@@ -72,7 +73,7 @@ class Rule6UseSynchronizedBlocksAndMethodsCarefully: AbstractVirtualThreadTest()
         @Test
         fun `추천 - 리소스를 독점적으로 사용할 때 ReentrantLock을 이용하세요 - Kotlin withLock 함수`() {
             var counter = 0
-            val tasks = List(TASK_SIZE) {
+            val tasks = fastList(TASK_SIZE) {
                 virtualFuture {
                     lock.withLock {
                         // critical section

@@ -1,5 +1,6 @@
 package io.bluetape4k.redis.lettuce
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
@@ -20,7 +21,7 @@ class CoroutineCommandTest: AbstractLettuceTest() {
     fun `bulk put asynchroneously`() = runSuspendIO {
         val keyName = randomName()
 
-        val list = List(ITEM_SIZE) { index ->
+        val list = fastList(ITEM_SIZE) { index ->
             suspendCommands.hset(keyName, index.toString(), index)
         }
         list shouldHaveSize ITEM_SIZE
@@ -33,7 +34,7 @@ class CoroutineCommandTest: AbstractLettuceTest() {
     fun `sequence for collection of RedisFuture`() = runSuspendIO {
         val keyName = randomName()
 
-        val list = List(ITEM_SIZE) { index ->
+        val list = fastList(ITEM_SIZE) { index ->
             suspendCommands.hset(keyName, index.toString(), index)
         }
 

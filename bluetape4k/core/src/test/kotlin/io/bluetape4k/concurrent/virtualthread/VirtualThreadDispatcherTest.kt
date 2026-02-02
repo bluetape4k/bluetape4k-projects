@@ -1,5 +1,6 @@
 package io.bluetape4k.concurrent.virtualthread
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -20,7 +21,7 @@ class VirtualThreadDispatcherTest {
 
     companion object: KLogging() {
         private const val TASK_SIZE = 1000
-        private const val SLEEP_TIME = 500L
+        private const val SLEEP_TIME = 50L
 
         private const val REPEAT_SIZE = 5
     }
@@ -29,7 +30,7 @@ class VirtualThreadDispatcherTest {
     fun `Virtual Thread Dispatcher를 이용하여 비동기 작업하기`() = runSuspendTest {
         val dispather = Dispatchers.VT
         val elapsedTime = measureTimeMillis {
-            val tasks = List(TASK_SIZE) {
+            val tasks = fastList(TASK_SIZE) {
                 launch(dispather) {
                     delay(SLEEP_TIME)
                     log.trace { "Task $it is done" }
@@ -43,7 +44,7 @@ class VirtualThreadDispatcherTest {
     @RepeatedTest(REPEAT_SIZE)
     fun `Virtual Thread Dispatcher를 이용하여 Job 실행하기`() = runSuspendTest(Dispatchers.newVT) {
         val elapsedTime = measureTimeMillis {
-            val jobs = List(TASK_SIZE) {
+            val jobs = fastList(TASK_SIZE) {
                 launch {
                     delay(SLEEP_TIME)
                     log.trace { "Job $it is done" }

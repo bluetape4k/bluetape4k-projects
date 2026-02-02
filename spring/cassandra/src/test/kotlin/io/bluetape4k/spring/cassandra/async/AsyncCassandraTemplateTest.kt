@@ -6,6 +6,7 @@ import com.datastax.oss.driver.api.core.uuid.Uuids
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder
 import io.bluetape4k.cassandra.querybuilder.eq
 import io.bluetape4k.cassandra.querybuilder.literal
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -303,7 +304,7 @@ class AsyncCassandraTemplateTest(
         val entitySize = 100
         val sliceSize = 10
 
-        val insertTasks = List(entitySize) {
+        val insertTasks = fastList(entitySize) {
             async(Dispatchers.IO) {
                 val user = newUser()
                 operations.insert(user).await()

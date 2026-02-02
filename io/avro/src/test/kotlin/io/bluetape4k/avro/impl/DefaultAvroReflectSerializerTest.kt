@@ -3,6 +3,7 @@ package io.bluetape4k.avro.impl
 import io.bluetape4k.avro.AbstractAvroTest
 import io.bluetape4k.avro.TestMessageProvider
 import io.bluetape4k.avro.deserialize
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
@@ -52,9 +53,9 @@ class DefaultAvroReflectSerializerTest: AbstractAvroTest() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `serialize nested avro object`() {
-        val productRoot = TestMessageProvider.createProductRoot()
-        val productProps = List(20) { TestMessageProvider.createProductProperty() }
-        productRoot.productProperties = productProps.toMutableList()
+        val productRoot = TestMessageProvider.createProductRoot().apply {
+            productProperties = fastList(20) { TestMessageProvider.createProductProperty() }
+        }
         verifySerialization(productRoot)
     }
 

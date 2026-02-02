@@ -1,5 +1,6 @@
 package org.javers.core
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.javers.commit.SnowflakeCommitIdGenerator
@@ -485,7 +486,7 @@ abstract class AbstractJaversRepositoryTest {
         val threads = 10
         val javersRepo = prepareJaversRepository()
 
-        List(threads) { it }
+        fastList(threads) { it }
             .parallelStream()
             .map {
                 it to JaversBuilder.javers()

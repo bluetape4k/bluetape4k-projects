@@ -1,7 +1,7 @@
 package io.bluetape4k.math.commons
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.collections.eclipse.toUnifiedMap
+import io.bluetape4k.collections.toDoubleArray
 import org.apache.commons.math3.stat.ranking.NaNStrategy
 import org.apache.commons.math3.stat.ranking.NaturalRanking
 import org.apache.commons.math3.stat.ranking.TiesStrategy
@@ -19,7 +19,7 @@ fun <T> Sequence<T>.ranking(
     tiesStrategy: TiesStrategy = TiesStrategy.MAXIMUM,
 ): Map<T, Int> where T: Number, T: Comparable<T> {
     val ranks = NaturalRanking(nanStrategy, tiesStrategy)
-        .rank(map { it.toDouble() }.toFastList().toDoubleArray())
+        .rank(map { it.toDouble() }.toDoubleArray())
         .map { it.toInt() }
 
     return this

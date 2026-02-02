@@ -109,7 +109,7 @@ abstract class AbstractSuspendCacheTest {
 
     @Test
     fun `getAll - with keys`() = runSuspendIO {
-        val entries = List(CACHE_ENTRY_SIZE) {
+        val entries = fastList(CACHE_ENTRY_SIZE) {
             SuspendCacheEntry(getKey(), getValue()).apply {
                 suspendCache.put(key, value)
             }
@@ -244,7 +244,7 @@ abstract class AbstractSuspendCacheTest {
 
     @Test
     fun `removeAll with keys - 지정한 key 값들에 해당하는 cache entry를 삭제한다`() = runSuspendIO {
-        val entries = List(CACHE_ENTRY_SIZE) {
+        val entries = fastList(CACHE_ENTRY_SIZE) {
             SuspendCacheEntry(getKey(), getValue()).apply {
                 suspendCache.put(key, value)
             }
@@ -259,7 +259,7 @@ abstract class AbstractSuspendCacheTest {
 
     @Test
     fun `removeAll with vararg keys`() = runSuspendIO {
-        val entries = List(CACHE_ENTRY_SIZE) {
+        val entries = fastList(CACHE_ENTRY_SIZE) {
             SuspendCacheEntry(getKey(), getValue()).apply {
                 suspendCache.put(key, value)
             }

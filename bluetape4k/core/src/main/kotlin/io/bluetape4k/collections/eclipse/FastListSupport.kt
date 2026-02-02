@@ -1,12 +1,16 @@
 package io.bluetape4k.collections.eclipse
 
 import io.bluetape4k.collections.asIterable
+import org.eclipse.collections.api.factory.Lists
+import org.eclipse.collections.api.list.FixedSizeList
 import org.eclipse.collections.impl.list.mutable.FastList
+
+fun <T> emptyFixiedList(): FixedSizeList<T> = Lists.fixedSize.empty<T>()
 
 fun <T> emptyFastList(): FastList<T> = FastList.newList<T>()
 
 inline fun <T> fastList(
-    size: Int = 10,
+    size: Int = 16,
     @BuilderInference initializer: (index: Int) -> T,
 ): FastList<T> =
     FastList.newList<T>(size).apply {
@@ -20,42 +24,110 @@ fun <T> fastListOf(vararg elements: T): FastList<T> {
     else FastList.newListWith<T>(*elements)
 }
 
-fun <T> Iterable<T>.toFastList(): FastList<T> {
-    if (this is Collection) {
-        return when (size) {
-            0 -> emptyFastList()
-            1 -> fastList(1) { if (this is List) get(0) else iterator().next() }
-            else -> FastList.newList(this)
+fun <T> Iterable<T>.toFastList(destination: FastList<T> = FastList.newList()): FastList<T> {
+    when (this) {
+        is Collection -> {
+            if (size == 1) {
+                destination.add(if (this is List) get(0) else iterator().next())
+            } else if (size > 1) {
+                destination.addAll(this@toFastList)
+            }
+        }
+        else -> {
+            destination.addAll(this@toFastList)
         }
     }
-    return FastList.newList<T>(this@toFastList)
+    return destination
 }
 
-fun <T> Sequence<T>.toFastList(): FastList<T> = asIterable().toFastList()
-fun <T> Iterator<T>.toFastList(): FastList<T> = asIterable().toFastList()
-fun <T> Array<T>.toFastList(): FastList<T> = asIterable().toFastList()
+fun <T> Sequence<T>.toFastList(destination: FastList<T> = FastList.newList()): FastList<T> =
+    asIterable().toFastList(destination)
 
-fun <T, R> Iterable<T>.fastMap(transform: (T) -> R): FastList<R> = toFastList().collect { transform(it) }
-fun <T, R> Sequence<T>.fastMap(transform: (T) -> R): FastList<R> = asIterable().fastMap(transform)
-fun <T, R> Iterator<T>.fastMap(transform: (T) -> R): FastList<R> = asIterable().fastMap(transform)
-fun <T, R> Array<T>.fastMap(transform: (T) -> R): FastList<R> = asIterable().fastMap(transform)
+fun <T> Iterator<T>.toFastList(destination: FastList<T> = FastList.newList()): FastList<T> =
+    asIterable().toFastList(destination)
+
+fun <T> Array<T>.toFastList(destination: FastList<T> = FastList.newList()): FastList<T> =
+    asIterable().toFastList(destination)
+
+fun <T, R> Iterable<T>.fastMap(
+    destination: FastList<T> = FastList.newList(),
+    transform: (T) -> R,
+): FastList<R> = toFastList(destination).collect { transform(it) }
+
+fun <T, R> Sequence<T>.fastMap(
+    destination: FastList<T> = FastList.newList(),
+    transform: (T) -> R,
+): FastList<R> = asIterable().fastMap(destination, transform)
+
+fun <T, R> Iterator<T>.fastMap(
+    destination: FastList<T> = FastList.newList(),
+    transform: (T) -> R,
+): FastList<R> = asIterable().fastMap(destination, transform)
+
+fun <T, R> Array<T>.fastMap(
+    destination: FastList<T> = FastList.newList(),
+    transform: (T) -> R,
+): FastList<R> = asIterable().fastMap(destination, transform)
 
 
-fun <T, R: Any> Iterable<T>.fastMapNotNull(mapper: (T) -> R?): FastList<R> =
-    toFastList().collectIf<R>({ it != null }) { mapper(it) }
+fun <T, R: Any> Iterable<T>.fastMapNotNull(
+    destination: FastList<T> = FastList.newList(),
+    mapper: (T) -> R?,
+): FastList<R> = toFastList(destination).collectIf<R>({ it != null }) { mapper(it) }
 
-fun <T, R: Any> Sequence<T>.fastMapNotNull(transform: (T) -> R): FastList<R> = asIterable().fastMapNotNull(transform)
-fun <T, R: Any> Iterator<T>.fastMapNotNull(transform: (T) -> R): FastList<R> = asIterable().fastMapNotNull(transform)
-fun <T, R: Any> Array<T>.fastMapNotNull(transform: (T) -> R): FastList<R> = asIterable().fastMapNotNull(transform)
+fun <T, R: Any> Sequence<T>.fastMapNotNull(
+    destination: FastList<T> = FastList.newList(),
+    transform: (T) -> R,
+): FastList<R> = asIterable().fastMapNotNull(destination, transform)
+
+fun <T, R: Any> Iterator<T>.fastMapNotNull(
+    destination: FastList<T> = FastList.newList(),
+    transform: (T) -> R,
+): FastList<R> = asIterable().fastMapNotNull(destination, transform)
+
+fun <T, R: Any> Array<T>.fastMapNotNull(
+    destination: FastList<T> = FastList.newList(),
+    transform: (T) -> R,
+): FastList<R> = asIterable().fastMapNotNull(destination, transform)
 
 
-fun <T> Iterable<T>.fastFilter(predicate: (T) -> Boolean): FastList<T> = toFastList().select { predicate(it) }
-fun <T> Sequence<T>.fastFilter(predicate: (T) -> Boolean): FastList<T> = asIterable().fastFilter(predicate)
-fun <T> Iterator<T>.fastFilter(predicate: (T) -> Boolean): FastList<T> = asIterable().fastFilter(predicate)
-fun <T> Array<T>.fastFilter(predicate: (T) -> Boolean): FastList<T> = asIterable().fastFilter(predicate)
+fun <T> Iterable<T>.fastFilter(
+    destination: FastList<T> = FastList.newList(),
+    predicate: (T) -> Boolean,
+): FastList<T> = toFastList(destination).select { predicate(it) }
+
+fun <T> Sequence<T>.fastFilter(
+    destination: FastList<T> = FastList.newList(),
+    predicate: (T) -> Boolean,
+): FastList<T> = asIterable().fastFilter(destination, predicate)
+
+fun <T> Iterator<T>.fastFilter(
+    destination: FastList<T> = FastList.newList(),
+    predicate: (T) -> Boolean,
+): FastList<T> = asIterable().fastFilter(destination, predicate)
+
+fun <T> Array<T>.fastFilter(
+    destination: FastList<T> = FastList.newList(),
+    predicate: (T) -> Boolean,
+): FastList<T> = asIterable().fastFilter(destination, predicate)
 
 
-fun <T> Iterable<T>.fastFilterNot(predicate: (T) -> Boolean): FastList<T> = toFastList().select { !predicate(it) }
-fun <T> Sequence<T>.fastFilterNot(predicate: (T) -> Boolean): FastList<T> = asIterable().fastFilterNot(predicate)
-fun <T> Iterator<T>.fastFilterNot(predicate: (T) -> Boolean): FastList<T> = asIterable().fastFilterNot(predicate)
-fun <T> Array<T>.fastFilterNot(predicate: (T) -> Boolean): FastList<T> = asIterable().fastFilterNot(predicate)
+fun <T> Iterable<T>.fastFilterNot(
+    destination: FastList<T> = FastList.newList(),
+    predicate: (T) -> Boolean,
+): FastList<T> = toFastList(destination).select { !predicate(it) }
+
+fun <T> Sequence<T>.fastFilterNot(
+    destination: FastList<T> = FastList.newList(),
+    predicate: (T) -> Boolean,
+): FastList<T> = asIterable().fastFilterNot(destination, predicate)
+
+fun <T> Iterator<T>.fastFilterNot(
+    destination: FastList<T> = FastList.newList(),
+    predicate: (T) -> Boolean,
+): FastList<T> = asIterable().fastFilterNot(destination, predicate)
+
+fun <T> Array<T>.fastFilterNot(
+    destination: FastList<T> = FastList.newList(),
+    predicate: (T) -> Boolean,
+): FastList<T> = asIterable().fastFilterNot(destination, predicate)

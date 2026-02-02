@@ -1,5 +1,6 @@
 package io.bluetape4k.collections
 
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.stream.toFastList
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
@@ -70,11 +71,11 @@ class JavaStreamSupportTest {
         val sequence = Stream.generate { count++ }.asSequence()
         val result = sequence.take(5).toFastList()
 
-        result shouldBeEqualTo List(5) { it }
+        result shouldBeEqualTo fastList(5) { it }
 
         val values = IntStream.range(0, 100).mapToObj { "value-$it" }.toFastList()
         values.size shouldBeEqualTo 100
-        values shouldBeEqualTo List(100) { "value-$it" }
+        values shouldBeEqualTo fastList(100) { "value-$it" }
     }
 
     @Test
@@ -84,10 +85,10 @@ class JavaStreamSupportTest {
 
         // Sequence 는 여러번 호출해도 된다.
         sequence.count() shouldBeEqualTo 10
-        sequence.toFastList() shouldBeEqualTo List(10) { it }
+        sequence.toFastList() shouldBeEqualTo fastList(10) { it }
 
         // NOTE: Stream은 한번 사용하면 다시 사용할 수 없다!!!
-        stream.toFastList() shouldBeEqualTo List(10) { it }
+        stream.toFastList() shouldBeEqualTo fastList(10) { it }
 
         assertFailsWith<IllegalStateException> {
             stream.count() shouldBeEqualTo 10

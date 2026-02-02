@@ -1,7 +1,6 @@
 package io.bluetape4k.naivebayes
 
 import io.bluetape4k.collections.eclipse.fastListOf
-import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
@@ -34,17 +33,17 @@ class NaiveBayesClassifierKoreanTest: AbstractNaiveBayesClassifierTest() {
 
         val nbc = naiveBayesClassifierOf(
             emails,
-            featuresSelector = { it.message.tokenize().toUnifiedSet() },
+            featuresSelector = { it.message.tokenize().asIterable() },
             categorySelector = { it.isSpam }
         )
 
         // TEST 1 (스팸)
-        val input = "전투 장비를 창고 대방출 90% 할인가에 쇼핑하세요".tokenize().toUnifiedSet()
+        val input = "전투 장비를 창고 대방출 90% 할인가에 쇼핑하세요".tokenize().asIterable()
         val isSpam = nbc.predict(input)!!
         isSpam.shouldBeTrue()
 
         // TEST 2 (스팸 아님)
-        val input2 = "로켓펀치 이용약관 개정".tokenize().toUnifiedSet()
+        val input2 = "로켓펀치 이용약관 개정".tokenize().asIterable()
         val isSpam2 = nbc.predict(input2)!!
         isSpam2.shouldBeFalse()
     }
@@ -105,7 +104,7 @@ class NaiveBayesClassifierKoreanTest: AbstractNaiveBayesClassifierTest() {
 
         val nbc = naiveBayesClassifierOf(
             bankTransactions,
-            featuresSelector = { it.memo.tokenize().toUnifiedSet() },
+            featuresSelector = { it.memo.tokenize().asIterable() },
             categorySelector = { it.category ?: "undefined" }
         )
 
@@ -115,7 +114,7 @@ class NaiveBayesClassifierKoreanTest: AbstractNaiveBayesClassifierTest() {
             amount = 13.99,
             memo = "넷플릭스 비디오 #123"
         )
-        val result1 = nbc.predictWithProbability(input1.memo.tokenize().toUnifiedSet()).shouldNotBeNull()
+        val result1 = nbc.predictWithProbability(input1.memo.tokenize().asIterable()).shouldNotBeNull()
         log.debug { "result1=$result1" }
         result1.category shouldBeEqualTo "ENTERTAINMENT"
 
@@ -125,7 +124,7 @@ class NaiveBayesClassifierKoreanTest: AbstractNaiveBayesClassifierTest() {
             amount = 17.21,
             memo = "커피 까페모카 2잔"
         )
-        val result2 = nbc.predictWithProbability(input2.memo.tokenize().toUnifiedSet()).shouldNotBeNull()
+        val result2 = nbc.predictWithProbability(input2.memo.tokenize().asIterable()).shouldNotBeNull()
         log.debug { "result2=$result2" }
         result2.category shouldBeEqualTo "COFFEE"
     }
