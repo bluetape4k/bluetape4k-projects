@@ -138,3 +138,12 @@ fun WebClient.httpDelete(
         .uri(uri)
         .apply { accept?.let { accept(it) } }
         .retrieve()
+
+fun WebClient.httpOptions(
+    uri: String,
+    accept: MediaType? = null,
+): WebClient.ResponseSpec =
+    options()
+        .uri(uri)
+        .apply { accept?.let { accept(it) } }
+        .retrieve()

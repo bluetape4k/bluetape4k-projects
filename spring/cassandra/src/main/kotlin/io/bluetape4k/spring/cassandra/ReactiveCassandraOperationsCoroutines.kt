@@ -26,8 +26,6 @@ import org.springframework.data.cassandra.core.selectOneById
 import org.springframework.data.cassandra.core.truncate
 import org.springframework.data.cassandra.core.update
 import org.springframework.data.domain.Slice
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 
 inline fun <reified T: Any> ReactiveCassandraOperations.selectAsFlow(statement: Statement<*>): Flow<T> =
     select<T>(statement).asFlow()
@@ -57,10 +55,10 @@ suspend inline fun <reified T: Any> ReactiveCassandraOperations.suspendSelectOne
     selectOne<T>(query).awaitSingleOrNull()
 
 suspend inline fun <reified T: Any> ReactiveCassandraOperations.suspendSlice(statement: Statement<*>): Slice<T> =
-    slice<T>(statement).awaitSingle()
+    slice(statement, T::class.java).awaitSingle()
 
 suspend inline fun <reified T: Any> ReactiveCassandraOperations.suspendSlice(query: Query): Slice<T> =
-    slice<T>(query).awaitSingle()
+    slice(query, T::class.java).awaitSingle()
 
 suspend fun ReactiveCassandraOperations.suspendExecute(statement: Statement<*>): ReactiveResultSet =
     execute(statement).awaitSingle()
@@ -125,31 +123,3 @@ suspend inline fun <reified T: Any> ReactiveCassandraOperations.suspendDeleteByI
 suspend inline fun <reified T: Any> ReactiveCassandraOperations.suspendTruncate() {
     truncate<T>().awaitSingleOrNull()
 }
-
-
-inline fun <reified T: Any> ReactiveCassandraOperations.count(): Mono<Long> =
-    count<T>()
-
-inline fun <reified T: Any> ReactiveCassandraOperations.select(statement: Statement<*>): Flux<T> =
-    select<T>(statement)
-
-inline fun <reified T: Any> ReactiveCassandraOperations.select(cql: String): Flux<T> =
-    select<T>(cql)
-
-inline fun <reified T: Any> ReactiveCassandraOperations.select(query: Query): Flux<T> =
-    select<T>(query)
-
-inline fun <reified T: Any> ReactiveCassandraOperations.selectOne(statement: Statement<*>): Mono<T> =
-    selectOne<T>(statement)
-
-inline fun <reified T: Any> ReactiveCassandraOperations.selectOne(cql: String): Mono<T> =
-    selectOne<T>(cql)
-
-inline fun <reified T: Any> ReactiveCassandraOperations.selectOne(query: Query): Mono<T> =
-    selectOne<T>(query)
-
-inline fun <reified T: Any> ReactiveCassandraOperations.slice(statement: Statement<*>): Mono<Slice<T>> =
-    slice(statement, T::class.java)
-
-inline fun <reified T: Any> ReactiveCassandraOperations.slice(query: Query): Mono<Slice<T>> =
-    slice(query, T::class.java)

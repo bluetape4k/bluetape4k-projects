@@ -1,6 +1,6 @@
 package io.bluetape4k.spring.tests
 
-import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.flowOf
 import org.amshove.kluent.shouldContain
@@ -14,7 +14,7 @@ import kotlin.test.assertFailsWith
 
 class RestClientExtensionsTest: AbstractSpringTest() {
 
-    companion object: KLoggingChannel()
+    companion object: KLogging()
 
     private val client: RestClient = RestClient
         .builder()

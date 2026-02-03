@@ -136,3 +136,12 @@ fun RestClient.httpDelete(
         .uri(uri)
         .apply { accept?.let { accept(it) } }
         .retrieve()
+
+fun RestClient.httpOptions(
+    uri: String,
+    accept: MediaType? = null,
+): RestClient.ResponseSpec =
+    options()
+        .uri(uri)
+        .apply { accept?.let { accept(it) } }
+        .retrieve()

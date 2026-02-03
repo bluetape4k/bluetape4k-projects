@@ -8,7 +8,6 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.body
 
 fun WebTestClient.httpGet(
-
     uri: String,
     httpStatus: HttpStatus? = null,
     accept: MediaType? = null,
@@ -160,7 +159,7 @@ fun WebTestClient.httpPatch(
         .uri(uri)
         .apply {
             contentType?.let { contentType(it) }
-            value?.run { bodyValue(this) }
+            value?.let { bodyValue(it) }
             accept?.let { accept(it) }
         }
         .exchange()
@@ -168,12 +167,26 @@ fun WebTestClient.httpPatch(
             httpStatus?.let { expectStatus().isEqualTo(it) }
         }
 
+
 fun WebTestClient.httpDelete(
     uri: String,
     httpStatus: HttpStatus? = null,
     accept: MediaType? = null,
 ): WebTestClient.ResponseSpec =
     delete()
+        .uri(uri)
+        .apply { accept?.let { accept(it) } }
+        .exchange()
+        .apply {
+            httpStatus?.let { expectStatus().isEqualTo(it) }
+        }
+
+fun WebTestClient.httpOptions(
+    uri: String,
+    httpStatus: HttpStatus? = null,
+    accept: MediaType? = null,
+): WebTestClient.ResponseSpec =
+    options()
         .uri(uri)
         .apply { accept?.let { accept(it) } }
         .exchange()

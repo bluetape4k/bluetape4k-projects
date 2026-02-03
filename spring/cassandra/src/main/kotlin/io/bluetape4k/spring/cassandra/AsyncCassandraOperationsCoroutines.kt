@@ -48,6 +48,8 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelect(
     suspendSelect(statementOf(cql), consumer)
 }
 
+// Spring 원본의 실수로 select 함수를 deprecate 시켰음
+@Suppress("DEPRECATION")
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelect(
     query: Query,
     crossinline consumer: (T) -> Unit,
@@ -96,13 +98,6 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendExists(query
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelectOneById(id: Any): T? =
     selectOneById<T>(id).await()
 
-suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendDeleteById(id: Any): Boolean? =
-    deleteById<T>(id).await()
-
-suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendTruncate() {
-    truncate<T>().await()
-}
-
 suspend fun <T: Any> AsyncCassandraOperations.suspendInsert(entity: T): T? =
     insert(entity).await()
 
@@ -124,5 +119,12 @@ suspend fun <T: Any> AsyncCassandraOperations.suspendUpdate(
 suspend fun <T: Any> AsyncCassandraOperations.suspendDelete(entity: T): T? =
     delete(entity).await()
 
+suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendDeleteById(id: Any): Boolean =
+    deleteById<T>(id).await()
+
 suspend fun AsyncCassandraOperations.suspendDelete(entity: Any, options: DeleteOptions): WriteResult =
     delete(entity, options).await()
+
+suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendTruncate() {
+    truncate<T>().await()
+}
