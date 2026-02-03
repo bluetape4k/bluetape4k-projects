@@ -31,6 +31,6 @@ class R2dbcConfigurationTest {
             }
             .awaitSingleOrNull()
 
-        result!!.shouldBeTrue()
+        result.shouldNotBeNull().shouldBeTrue()
     }
 }

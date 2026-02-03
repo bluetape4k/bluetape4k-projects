@@ -16,14 +16,15 @@ import org.springframework.r2dbc.connection.init.ConnectionFactoryInitializer
  * ```
  *
  * @param connectionFactory 초기화할 [ConnectionFactory]
- * @param initializer [ConnectionFactoryInitializer]를 초기화하는 람다
+ * @param builder [ConnectionFactoryInitializer]를 초기화하는 람다
  * @return 초기화된 [ConnectionFactoryInitializer]
  */
 inline fun connectionFactoryInitializer(
     connectionFactory: ConnectionFactory,
-    initializer: ConnectionFactoryInitializer.() -> Unit = {},
+    @BuilderInference builder: ConnectionFactoryInitializer.() -> Unit = {},
 ): ConnectionFactoryInitializer =
-    ConnectionFactoryInitializer().apply {
-        setConnectionFactory(connectionFactory)
-        initializer()
-    }
+    ConnectionFactoryInitializer()
+        .apply {
+            setConnectionFactory(connectionFactory)
+            builder()
+        }

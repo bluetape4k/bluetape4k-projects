@@ -2,6 +2,7 @@ package io.bluetape4k.r2dbc.core
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.r2dbc.R2dbcClient
 import io.bluetape4k.r2dbc.query.Query
 import io.bluetape4k.r2dbc.support.bindMap
 import org.springframework.data.r2dbc.core.ReactiveDeleteOperation
@@ -14,7 +15,7 @@ import reactor.core.publisher.Mono
  *
  * @return [DeleteTableSpec] 인스턴스
  */
-fun io.bluetape4k.r2dbc.R2dbcClient.delete(): DeleteTableSpec = DeleteTableSpecImpl(this)
+fun R2dbcClient.delete(): DeleteTableSpec = DeleteTableSpecImpl(this)
 
 /**
  * 데이트를 삭제하기 위한 SQL 구문을 생성합니다
@@ -24,7 +25,8 @@ interface DeleteTableSpec {
     fun <T> from(type: Class<T>): ReactiveDeleteOperation.ReactiveDelete
 }
 
-inline fun <reified T: Any> DeleteTableSpec.from(): ReactiveDeleteOperation.ReactiveDelete = from(T::class.java)
+inline fun <reified T: Any> DeleteTableSpec.from(): ReactiveDeleteOperation.ReactiveDelete =
+    from(T::class.java)
 
 private class DeleteTableSpecImpl(private val client: io.bluetape4k.r2dbc.R2dbcClient): DeleteTableSpec {
 
@@ -90,6 +92,9 @@ private class DeleteValueSpecImpl(
             else -> "$sql WHERE $where"
         }
         log.debug { "Delete SQL=$sqlToDelete" }
-        return client.databaseClient.sql(sqlToDelete).bindMap(whereParameters ?: emptyMap())
+
+        return client.databaseClient
+            .sql(sqlToDelete)
+            .bindMap(whereParameters ?: emptyMap())
     }
 }

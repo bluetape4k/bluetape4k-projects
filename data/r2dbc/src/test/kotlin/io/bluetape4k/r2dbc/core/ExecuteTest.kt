@@ -36,7 +36,8 @@ class ExecuteTest: AbstractR2dbcTest() {
         val map = client
             .execute("SELECT name, description FROM users WHERE username = :username")
             .bind("username", "jsmith")
-            .fetch().awaitOne()
+            .fetch()
+            .awaitOne()
 
         map shouldBeEqualTo mapOf("NAME" to "John Smith", "DESCRIPTION" to "A test user")
         map.string("NAME") shouldBeEqualTo "John Smith"
@@ -50,28 +51,34 @@ class ExecuteTest: AbstractR2dbcTest() {
         users shouldHaveSize 1
 
         val nonUsers = client.execute<User>("SELECT * FROM users WHERE false")
-            .fetch().flow().toFastList()
+            .fetch()
+            .flow().toFastList()
         nonUsers.shouldBeEmpty()
 
         val smiths = client.execute<User>("SELECT * FROM users WHERE username=:username")
             .bind("username", "jsmith")
-            .fetch().flow().toFastList()
+            .fetch()
+            .flow().toFastList()
         smiths shouldHaveSize 1
 
         val firstSmith = client.execute<User>("SELECT * FROM users WHERE username=:username limit 1")
             .bind("username", "jsmith")
-            .fetch().awaitOneOrNull()
+            .fetch()
+            .awaitOneOrNull()
+
         firstSmith.shouldNotBeNull()
         firstSmith.username shouldBeEqualTo "jsmith"
 
         val computedUser = client
             .execute<User>("SELECT 5 as user_id, 'jbond' as username, 'pass' as password, 'James Bond' as name")
-            .fetch().awaitOne()
+            .fetch()
+            .awaitOne()
         computedUser shouldBeEqualTo User("jbond", "pass", "James Bond", userId = 5)
 
         val smiths2 = client.execute<User>("SELECT * FROM users WHERE username = ?")
             .bind(0, "jsmith")
-            .fetch().flow().toFastList()
+            .fetch()
+            .flow().toFastList()
         smiths2 shouldHaveSize 1
     }
 
@@ -84,17 +91,20 @@ class ExecuteTest: AbstractR2dbcTest() {
     fun `select values with indexed parameters`() = runSuspendIO {
         val smiths = client.execute<User>("SELECT * FROM users WHERE username = :username")
             .bind(0, "jsmith")
-            .fetch().flow().toFastList()
+            .fetch()
+            .flow().toFastList()
         smiths shouldHaveSize 1
 
         val smiths2 = client.execute<User>("SELECT * FROM users WHERE username = $1")
             .bind(0, "jsmith")
-            .fetch().flow().toFastList()
+            .fetch()
+            .flow().toFastList()
         smiths2 shouldHaveSize 1
 
         val smiths3 = client.execute<User>("SELECT * FROM users WHERE username = $1")
             .bind("$1", "jsmith")
-            .fetch().flow().toFastList()
+            .fetch()
+            .flow().toFastList()
         smiths3 shouldHaveSize 1
     }
 

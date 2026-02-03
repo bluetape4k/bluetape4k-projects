@@ -15,13 +15,13 @@ import org.springframework.r2dbc.core.DatabaseClient
  * }
  * ```
  *
- * @param initializer [DatabaseClient.Builder]를 이용하여 [DatabaseClient]를 초기화하는 코드
+ * @param builder [DatabaseClient.Builder]를 이용하여 [DatabaseClient]를 초기화하는 코드
  * @return [DatabaseClient] 인스턴스
  */
 inline fun databaseClient(
-    initializer: DatabaseClient.Builder.() -> Unit,
+    @BuilderInference builder: DatabaseClient.Builder.() -> Unit,
 ): DatabaseClient {
-    return DatabaseClient.builder().also(initializer).build()
+    return DatabaseClient.builder().also(builder).build()
 }
 
 /**
@@ -37,13 +37,13 @@ inline fun databaseClient(
  * ```
  *
  * @param factory [ConnectionFactory]
- * @param initializer [DatabaseClient.Builder]를 이용하여 [DatabaseClient]를 초기화하는 코드
+ * @param builder [DatabaseClient.Builder]를 이용하여 [DatabaseClient]를 초기화하는 코드
  * @return [DatabaseClient] 인스턴스
  */
 inline fun databaseClient(
     factory: ConnectionFactory,
-    initializer: DatabaseClient.Builder.() -> Unit = {},
+    @BuilderInference builder: DatabaseClient.Builder.() -> Unit = {},
 ): DatabaseClient = databaseClient {
     connectionFactory(factory)
-    initializer()
+    builder()
 }

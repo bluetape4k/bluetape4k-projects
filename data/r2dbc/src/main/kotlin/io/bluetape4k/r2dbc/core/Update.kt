@@ -165,7 +165,9 @@ internal class UpdateValuesSpecImpl(
         val sqlToExecute = if (where != null) "$sql WHERE $where" else sql
 
         log.debug { "Update SQL=$sqlToExecute" }
-        return client.databaseClient.sql(sqlToExecute)
+
+        return client.databaseClient
+            .sql(sqlToExecute)
             .bindMap(values + (whereParameters ?: emptyMap()))
     }
 }

@@ -1,8 +1,9 @@
 package io.bluetape4k.r2dbc.query
 
 import io.bluetape4k.ToStringBuilder
+import java.io.Serializable
 
-sealed class Filter {
+sealed class Filter: Serializable {
 
     abstract fun countLeaves(): Int
 

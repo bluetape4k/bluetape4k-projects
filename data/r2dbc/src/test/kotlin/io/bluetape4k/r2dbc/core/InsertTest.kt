@@ -33,7 +33,9 @@ class InsertTest: AbstractR2dbcTest() {
             .value("name", "John2 Smith2")
             .value("created_at", OffsetDateTime.now())
             .nullValue("active")
-            .fetch().rowsUpdated().awaitSingle()
+            .fetch()
+            .rowsUpdated()
+            .awaitSingle()
         rowUpdated shouldBeEqualTo 1
 
         val count2 = client.execute<Int>("SELECT COUNT(*) FROM users").fetch().awaitOne()
@@ -73,7 +75,8 @@ class InsertTest: AbstractR2dbcTest() {
     fun `insert records with big serial keys`() = runSuspendIO {
         val count1 = client.execute<Int>("SELECT COUNT(*) FROM logs").fetch().awaitOne()
 
-        val id = client.insert().into("logs", "logs_id")
+        val id = client.insert()
+            .into("logs", "logs_id")
             .value("description", "Test entry")
             .awaitOneLong()
         id shouldBeGreaterThan 0

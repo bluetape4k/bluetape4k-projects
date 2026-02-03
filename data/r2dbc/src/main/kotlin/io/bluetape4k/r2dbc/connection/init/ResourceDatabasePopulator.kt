@@ -24,4 +24,9 @@ fun resourceDatabasePopulatorOf(
     sqlScriptEncoding: String? = null,
     vararg resources: Resource,
 ): ResourceDatabasePopulator =
-    ResourceDatabasePopulator(continueOnError, ignoreFailedDrops, sqlScriptEncoding, *resources)
+    ResourceDatabasePopulator(
+        continueOnError,
+        ignoreFailedDrops,
+        sqlScriptEncoding,
+        *resources
+    )

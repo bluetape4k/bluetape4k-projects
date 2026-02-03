@@ -208,6 +208,8 @@ internal class InsertValuesKeySpecImpl(
         val sql = "INSERT INTO $table ($names) VALUES ($namedArguments)"
         log.debug { "Insert sql=$sql" }
 
-        return client.databaseClient.sql(sql).bindMap(values)
+        return client.databaseClient
+            .sql(sql)
+            .bindMap(values)
     }
 }

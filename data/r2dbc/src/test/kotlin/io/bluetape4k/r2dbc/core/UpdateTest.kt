@@ -54,7 +54,8 @@ class UpdateTest: AbstractR2dbcTest() {
 
     @Test
     fun `update record with entity class`() = runSuspendIO {
-        client.insert().into("users")
+
+    client.insert().into("users")
             .value("username", "nick")
             .value("password", "pass")
             .value("name", "John Smith")
@@ -79,6 +80,5 @@ class UpdateTest: AbstractR2dbcTest() {
             .awaitOne()
 
         changedUser shouldBeEqualTo newUser
-
     }
 }

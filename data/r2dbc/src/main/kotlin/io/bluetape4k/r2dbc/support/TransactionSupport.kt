@@ -15,6 +15,20 @@ import org.springframework.transaction.reactive.executeAndAwait
  * @param block [ReactiveTransaction] 환경에서 실행할 블럭
  * @return 실행 결과
  */
+suspend inline fun <T: Any> DatabaseClient.withTransactionSuspend(
+    transactionDefinition: TransactionDefinition = TransactionDefinition.withDefaults(),
+    crossinline block: suspend (tx: ReactiveTransaction) -> T?,
+): T? {
+    val tm = R2dbcTransactionManager(this.connectionFactory)
+
+    return TransactionalOperator
+        .create(tm, transactionDefinition)
+        .executeAndAwait {
+            block(it)
+        }
+}
+
+@Deprecated("use withTransactionSuspend", replaceWith = ReplaceWith("withTransactionSuspend(block)"))
 suspend inline fun <T: Any> DatabaseClient.withTransactionSuspending(
     transactionDefinition: TransactionDefinition = TransactionDefinition.withDefaults(),
     crossinline block: suspend (tx: ReactiveTransaction) -> T?,

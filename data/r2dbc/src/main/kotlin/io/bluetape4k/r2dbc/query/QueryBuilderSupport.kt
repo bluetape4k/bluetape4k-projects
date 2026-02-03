@@ -12,21 +12,21 @@ inline fun <reified T: Any> QueryBuilder.parameterNullable(property: KProperty<*
 
 inline fun query(
     sb: StringBuilder = StringBuilder(),
-    crossinline block: QueryBuilder.() -> Unit,
+    @BuilderInference crossinline block: QueryBuilder.() -> Unit,
 ): Query {
     return QueryBuilder().build(sb) { block() }
 }
 
 inline fun queryCount(
     sb: StringBuilder = StringBuilder(),
-    crossinline block: QueryBuilder.() -> Unit,
+    @BuilderInference crossinline block: QueryBuilder.() -> Unit,
 ): Query {
     return QueryBuilder().buildCount(sb) { block() }
 }
 
 inline fun queryWithCount(
     sb: StringBuilder = StringBuilder(),
-    crossinline block: QueryBuilder.() -> Unit,
+    @BuilderInference crossinline block: QueryBuilder.() -> Unit,
 ): Pair<Query, Query> {
     val originalSql = sb.toString()
     return query(sb) { block() } to queryCount(StringBuilder(originalSql)) { block() }

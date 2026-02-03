@@ -5,6 +5,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.r2dbc.AbstractR2dbcTest
 import io.bluetape4k.r2dbc.model.User
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeGreaterThan
 import org.junit.jupiter.api.Test
 import org.springframework.data.r2dbc.core.allAndAwait
 import org.springframework.data.relational.core.query.Criteria
@@ -24,10 +25,12 @@ class DeleteTest: AbstractR2dbcTest() {
             .value("name", "John Smith")
             .await()
         val count1 = client.execute<Int>("SELECT COUNT(*) FROM users").fetch().awaitOne()
+        count1 shouldBeGreaterThan 0
 
         val rowsUpdated = client.delete().from("users")
             .matching("username = :username", mapOf("username" to "nick"))
-            .fetch().awaitRowsUpdated()
+            .fetch()
+            .awaitRowsUpdated()
         rowsUpdated shouldBeEqualTo 1
 
         val count2 = client.execute<Int>("SELECT COUNT(*) FROM users").fetch().awaitOne()
@@ -42,6 +45,7 @@ class DeleteTest: AbstractR2dbcTest() {
             .value("name", "John Smith")
             .await()
         val count1 = client.execute<Int>("SELECT COUNT(*) FROM users").fetch().awaitOne()
+        count1 shouldBeGreaterThan 0
 
         val rowsUpdated = client.delete().from<User>()
             .matching(Query.query(Criteria.where("username").`is`("nick")))

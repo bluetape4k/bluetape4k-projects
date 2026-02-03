@@ -3,6 +3,7 @@ package io.bluetape4k.r2dbc.query
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
+import java.io.Serializable
 
 class QueryBuilderTest {
 
@@ -289,5 +290,5 @@ class QueryBuilderTest {
     data class Actor(
         val id: Long,
         val name: String,
-    )
+    ): Serializable
 }
