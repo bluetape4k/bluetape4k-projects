@@ -17,7 +17,7 @@ abstract class AbstractLettuceTest: AbstractRedisTest() {
 
     protected lateinit var commands: RedisCommands<String, Any>
     protected lateinit var asyncCommands: RedisAsyncCommands<String, Any>
-    protected lateinit var suspendCommands: RedisCoroutinesCommands<String, Any>
+    protected lateinit var coroutinesCommands: RedisCoroutinesCommands<String, Any>
 
     @BeforeAll
     open fun beforeAll() {
@@ -25,7 +25,7 @@ abstract class AbstractLettuceTest: AbstractRedisTest() {
 
         commands = LettuceClients.commands(client, LettuceBinaryCodecs.lz4Fory())
         asyncCommands = LettuceClients.asyncCommands(client, LettuceBinaryCodecs.lz4Fory())
-        suspendCommands = LettuceClients.coroutinesCommands(client, LettuceBinaryCodecs.lz4Fory())
+        coroutinesCommands = LettuceClients.coroutinesCommands(client, LettuceBinaryCodecs.lz4Fory())
 
     }
 

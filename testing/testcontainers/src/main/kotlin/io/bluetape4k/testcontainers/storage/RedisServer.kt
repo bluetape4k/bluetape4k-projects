@@ -6,9 +6,12 @@ import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
+import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
 import io.lettuce.core.api.async.RedisAsyncCommands
+import io.lettuce.core.api.coroutines
+import io.lettuce.core.api.coroutines.RedisCoroutinesCommands
 import io.lettuce.core.api.sync.RedisCommands
 import io.lettuce.core.codec.RedisCodec
 import org.redisson.Redisson
@@ -16,6 +19,7 @@ import org.redisson.api.RedissonClient
 import org.redisson.config.Config
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.utility.DockerImageName
+import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
@@ -107,10 +111,14 @@ class RedisServer private constructor(
                 return Config().apply {
                     this.threads = threads
                     this.nettyThreads = nettyThreads
+                    this.codec = this.codec ?: TEST_REDISSON_CODEC
+
                     with(useSingleServer()) {
                         this.address = address
                         this.connectionPoolSize = connectionPoolSize       // default: 64
                         this.connectionMinimumIdleSize = minimumIdleSize  // default: 24
+                        this.retryAttempts = 3
+                        this.setRetryDelay { Duration.ofMillis(it * 10L + 10L) }
                     }
                 }
             }
@@ -164,12 +172,18 @@ class RedisServer private constructor(
             fun getRedisCommands(
                 host: String = redis.host,
                 port: Int = redis.port,
-            ): RedisCommands<String, String?> = getRedisClient(host, port).connect().sync()
+            ): RedisCommands<String, String> = getRedisClient(host, port).connect().sync()
 
             fun getRedisAsyncCommands(
                 host: String = redis.host,
                 port: Int = redis.port,
-            ): RedisAsyncCommands<String, String?> = getRedisClient(host, port).connect().async()
+            ): RedisAsyncCommands<String, String> = getRedisClient(host, port).connect().async()
+
+            @OptIn(ExperimentalLettuceCoroutinesApi::class)
+            fun getRedisCoroutinesCommands(
+                host: String = redis.host,
+                port: Int = redis.port,
+            ): RedisCoroutinesCommands<String, String> = getRedisClient(host, port).connect().coroutines()
 
 
             fun <K: Any, V> getRedisCommands(
@@ -184,6 +198,13 @@ class RedisServer private constructor(
                 port: Int = redis.port,
                 codec: RedisCodec<K, V>,
             ): RedisAsyncCommands<K, V> = getRedisClient(host, port).connect(codec).async()
+
+            @OptIn(ExperimentalLettuceCoroutinesApi::class)
+            fun <K: Any, V: Any> getRedisCoroutinesCommands(
+                host: String = redis.host,
+                port: Int = redis.port,
+                codec: RedisCodec<K, V>,
+            ): RedisCoroutinesCommands<K, V> = getRedisClient(host, port).connect(codec).coroutines()
         }
     }
 }

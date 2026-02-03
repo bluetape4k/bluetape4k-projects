@@ -21,7 +21,6 @@ import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
 import org.redisson.Redisson
 import org.redisson.api.RedissonClient
-import org.redisson.codec.LZ4Codec
 import org.redisson.config.Config
 import org.redisson.config.ReadMode
 import org.redisson.config.SubscriptionMode
@@ -236,9 +235,12 @@ class RedisClusterServer private constructor(
                         }
                         .apply {
                             nodeAddresses = redisCluster.nodeRedisUrl
+
+                            retryAttempts = 3
+                            setRetryDelay { Duration.ofMillis(it * 10L + 10L) }
                         }
 
-                    this.codec = LZ4Codec()
+                    this.codec = this.codec ?: TEST_REDISSON_CODEC
                 }
             }
 

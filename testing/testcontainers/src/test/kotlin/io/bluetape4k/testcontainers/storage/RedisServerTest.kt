@@ -41,16 +41,15 @@ class RedisServerTest: AbstractContainerTest() {
 
         @Test
         fun `create redis server by launcher`() {
-            RedisServer.Launcher.redis.use { redis ->
-                redis.isRunning.shouldBeTrue()
+            val redis = RedisServer.Launcher.redis
+            redis.isRunning.shouldBeTrue()
 
-                verifyRedisServer(redis)
-            }
+            verifyRedisServer(redis)
         }
     }
 
     private fun verifyRedisServer(redisServer: RedisServer) {
-        val redisson = redissonClient(redisServer.url)
+        val redisson = RedisServer.Launcher.RedissonLib.getRedisson(redisServer.url)
 
         try {
             val map = redisson.getMap<String, String>("map")
