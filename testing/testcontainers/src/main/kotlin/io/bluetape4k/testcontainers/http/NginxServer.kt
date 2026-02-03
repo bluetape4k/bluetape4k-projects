@@ -46,7 +46,7 @@ class NginxServer private constructor(
     }
 
     override val port: Int get() = getMappedPort(PORT)
-    override val url: String get() = "http://$host:$port"
+    override val url: String get() = "https://$host:$port"
 
     init {
         withExposedPorts(PORT)

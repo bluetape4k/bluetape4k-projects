@@ -57,7 +57,7 @@ class JaegerServer private constructor(
     }
 
     override val port: Int get() = getMappedPort(FRONTEND_PORT)
-    override val url: String get() = "http://$host:$port"
+    override val url: String get() = "https://$host:$port"
 
     val frontendPort: Int get() = getMappedPort(FRONTEND_PORT)
     val zipkinPort: Int get() = getMappedPort(ZIPKIN_PORT)
