@@ -74,7 +74,7 @@ object Versions {
 
     const val spring_boot = Plugins.Versions.spring_boot
     const val spring_cloud = "2025.0.1"     // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies
-    const val spring_integration = "6.5.5"  // https://mvnrepository.com/artifact/org.springframework.integration/spring-integration-core
+    const val spring_integration = "6.5.6"  // https://mvnrepository.com/artifact/org.springframework.integration/spring-integration-core
     const val reactor_bom = "2024.0.14"      // https://mvnrepository.com/artifact/io.projectreactor/reactor-bom
     const val spring_statemachine = "4.0.1" // https://mvnrepository.com/artifact/org.springframework.statemachine/spring-statemachine-core
 
@@ -87,21 +87,21 @@ object Versions {
     const val mutiny = "3.1.0"                // https://mvnrepository.com/artifact/io.smallrye.reactive/mutiny
     const val camel_quarkus = "3.31.0"       // https://mvnrepository.com/artifact/org.apache.camel.quarkus/camel-quarkus-bom
 
-    const val vertx = "4.5.24"    // https://mvnrepository.com/artifact/io.vertx/vertx-core
+    const val vertx = "4.5.24"               // https://mvnrepository.com/artifact/io.vertx/vertx-core
 
     const val swagger = "2.2.42"              // https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations
     const val springdoc_openapi = "2.8.15"    // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui
     const val springfox_swagger = "3.0.0"
     const val problem = "0.29.1"             // https://mvnrepository.com/artifact/org.zalando/problem-spring-web
 
-    const val bucket4j = "8.16.0"       // https://mvnrepository.com/artifact/com.bucket4j/bucket4j_jdk17-core
-    const val resilience4j = "2.3.0"   // https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-bom
-    const val netty = "4.2.9.Final"  // https://mvnrepository.com/artifact/io.netty/netty-all
+    const val bucket4j = "8.16.1"        // https://mvnrepository.com/artifact/com.bucket4j/bucket4j_jdk17-core
+    const val resilience4j = "2.3.0"     // https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-bom
+    const val netty = "4.2.9.Final"      // https://mvnrepository.com/artifact/io.netty/netty-all
 
-    const val aws = "1.12.797"          // https://mvnrepository.com/artifact/com.amazonaws
-    const val aws2 = "2.41.18"           // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
-    const val aws2_crt = "0.42.2"       // https://mvnrepository.com/artifact/software.amazon.awssdk.crt/aws-crt
-    const val aws_kotlin = "1.6.6"     // https://mvnrepository.com/artifact/aws.sdk.kotlin/aws-http-jvm
+    const val aws = "1.12.797"            // https://mvnrepository.com/artifact/com.amazonaws
+    const val aws2 = "2.41.18"            // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
+    const val aws2_crt = "0.42.2"         // https://mvnrepository.com/artifact/software.amazon.awssdk.crt/aws-crt
+    const val aws_kotlin = "1.6.6"        // https://mvnrepository.com/artifact/aws.sdk.kotlin/aws-http-jvm
     const val aws_smithy_kotlin = "1.6.1" // https://mvnrepository.com/artifact/aws.smithy.kotlin/http-client-engine-crt-jvm
 
     const val aws_spring_cloud = "3.4.2"  // https://mvnrepository.com/artifact/io.awspring.cloud/spring-cloud-aws-starter
@@ -146,11 +146,11 @@ object Versions {
     const val r2dbc = "1.0.0.RELEASE"        // https://mvnrepository.com/artifact/io.r2dbc/r2dbc-spi
     const val agroal = "3.0"          // https://mvnrepository.com/artifact/io.agroal/agroal-api
 
-    const val blaze_persistence = "3.30.8"  // https://mvnrepository.com/artifact/io.quarkus.platform/quarkus-blaze-persistence-bom
+    const val blaze_persistence = "3.31.1"  // https://mvnrepository.com/artifact/io.quarkus.platform/quarkus-blaze-persistence-bom
     const val javers = "7.10.0"             // https://mvnrepository.com/artifact/org.javers/javers-core
 
     const val slf4j = "2.0.17"       // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
-    const val logback = "1.5.26"     // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
+    const val logback = "1.5.27"     // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
     const val log4j = "2.25.3"       // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core
 
     const val prometheus = "0.16.0"     // https://mvnrepository.com/artifact/io.prometheus/simpleclient
@@ -205,7 +205,7 @@ object Versions {
 
     const val logback_slack_appender = "1.6.1"  // https://mvnrepository.com/artifact/com.github.maricn/logback-slack-appender
 
-    const val sentry_logback = "8.28.0"  // https://mvnrepository.com/artifact/io.sentry/sentry-logback
+    const val sentry_logback = "8.31.0"  // https://mvnrepository.com/artifact/io.sentry/sentry-logback
 
     const val scrimage = "4.3.5"  // https://mvnrepository.com/artifact/com.sksamuel.scrimage/scrimage-core
 
@@ -913,7 +913,7 @@ object Libs {
 
     // Hashing
     // https://mvnrepository.com/artifact/net.openhft/zero-allocation-hashing
-    const val zero_allocation_hashing = "net.openhft:zero-allocation-hashing:0.27ea1"
+    const val zero_allocation_hashing = "net.openhft:zero-allocation-hashing:2026.0"
 
     // MVEL
     const val mvel2 = "org.mvel:mvel2:2.5.2.Final"  // https://mvnrepository.com/artifact/org.mvel/mvel2
@@ -1327,7 +1327,7 @@ object Libs {
     // CSV parsers
     const val univocity_parsers = "com.univocity:univocity-parsers:2.9.1" // https://mvnrepository.com/artifact/com.univocity/univocity-parsers
 
-    const val objenesis = "org.objenesis:objenesis:3.4" // https://mvnrepository.com/artifact/org.objenesis/objenesis
+    const val objenesis = "org.objenesis:objenesis:3.5" // https://mvnrepository.com/artifact/org.objenesis/objenesis
 
     const val ow2_asm = "org.ow2.asm:asm:${Versions.ow2_asm}"
     const val ow2_asm_commons = "org.ow2.asm:asm-commons:${Versions.ow2_asm}"
@@ -1433,7 +1433,7 @@ object Libs {
     val testcontainers_minio = testcontainers("minio")
 
     // Milvus
-    const val milvus_sdk_java = "io.milvus:milvus-sdk-java:2.6.7" // https://mvnrepository.com/artifact/io.milvus/milvus-sdk-java
+    const val milvus_sdk_java = "io.milvus:milvus-sdk-java:2.6.13" // https://mvnrepository.com/artifact/io.milvus/milvus-sdk-java
 
     // Immudb
     const val immudb4j = "io.codenotary:immudb4j:1.0.1" // https://mvnrepository.com/artifact/io.codenotary/immudb4j
@@ -1444,7 +1444,7 @@ object Libs {
 
     // Weaviate
     val testcontainers_weaviate = testcontainers("weaviate")
-    const val weaviate_client = "io.weaviate:client:5.5.0"   // https://mvnrepository.com/artifact/io.weaviate/client
+    const val weaviate_client = "io.weaviate:client6:6.0.1"   // https://mvnrepository.com/artifact/io.weaviate/client6
 
     // Apple Silicon에서 testcontainers 를 사용하기 위해 참조해야 합니다.
     const val jna = "net.java.dev.jna:jna:${Versions.jna}"
@@ -1467,12 +1467,9 @@ object Libs {
     // -------------------------------------------------------------------------------------
 
     // Springdoc OpenAPI
-    const val springdoc_openapi_starter_webmvc_api =
-        "org.springdoc:springdoc-openapi-starter-webmvc-api:${Versions.springdoc_openapi}"
-    const val springdoc_openapi_starter_webmvc_ui =
-        "org.springdoc:springdoc-openapi-starter-webmvc-ui:${Versions.springdoc_openapi}"
-    const val springdoc_openapi_starter_webflux_ui =
-        "org.springdoc:springdoc-openapi-starter-webflux-ui:${Versions.springdoc_openapi}"
+    const val springdoc_openapi_starter_webmvc_api = "org.springdoc:springdoc-openapi-starter-webmvc-api:${Versions.springdoc_openapi}"
+    const val springdoc_openapi_starter_webmvc_ui = "org.springdoc:springdoc-openapi-starter-webmvc-ui:${Versions.springdoc_openapi}"
+    const val springdoc_openapi_starter_webflux_ui = "org.springdoc:springdoc-openapi-starter-webflux-ui:${Versions.springdoc_openapi}"
     const val springdoc_openapi_security = "org.springdoc:springdoc-openapi-security:${Versions.springdoc_openapi}"
 
     // Swagger
