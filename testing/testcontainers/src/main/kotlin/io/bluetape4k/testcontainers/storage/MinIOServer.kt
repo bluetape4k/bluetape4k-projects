@@ -28,7 +28,7 @@ class MinIOServer private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "minio/minio"
-        const val TAG = "RELEASE.2024-03-30T09-41-56Z"
+        const val TAG = "RELEASE.2025-07-23T15-54-02Z"
         const val NAME = "minio"
         const val S3_PORT = 9000
         const val UI_PORT = 9001
