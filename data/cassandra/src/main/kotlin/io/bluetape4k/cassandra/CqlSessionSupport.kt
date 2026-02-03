@@ -16,10 +16,12 @@ import java.net.InetSocketAddress
  * }
  * ```
  *
- * @param initializer [CqlSessionBuilder] 초기화 람다
+ * @param builder [CqlSessionBuilder] 초기화 람다
  */
-inline fun cqlSession(initializer: CqlSessionBuilder.() -> Unit): CqlSession {
-    return CqlSessionBuilder().apply(initializer).build()
+inline fun cqlSession(
+    @BuilderInference builder: CqlSessionBuilder.() -> Unit,
+): CqlSession {
+    return CqlSessionBuilder().apply(builder).build()
 }
 
 /**
@@ -37,11 +39,11 @@ inline fun cqlSessionOf(
     contactPoint: InetSocketAddress = CqlSessionProvider.DEFAULT_CONTACT_POINT,
     localDatacenter: String = CqlSessionProvider.DEFAULT_LOCAL_DATACENTER,
     keyspaceName: String = CqlSessionProvider.DEFAULT_KEYSPACE,
-    initializer: CqlSessionBuilder.() -> Unit = {},
+    @BuilderInference builder: CqlSessionBuilder.() -> Unit = {},
 ): CqlSession = cqlSession {
     addContactPoint(contactPoint)
     withLocalDatacenter(localDatacenter)
     withKeyspace(keyspaceName)
 
-    initializer()
+    builder()
 }

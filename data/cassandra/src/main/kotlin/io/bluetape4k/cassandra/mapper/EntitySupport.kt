@@ -52,14 +52,14 @@ fun <T: Any> EntityHelper<T>.prepareInsertIfNotExists(session: CqlSession): Prep
  * ```
  *
  * @param preparedStatement [PreparedStatement] 인스턴스
- * @param initializer [BoundStatementBuilder] 초기화 람다
+ * @param builder [BoundStatementBuilder] 초기화 람다
  */
 inline fun <T: Any> bindEntity(
     preparedStatement: PreparedStatement,
-    @BuilderInference initializer: BoundStatementBuilder.() -> Unit,
+    @BuilderInference builder: BoundStatementBuilder.() -> Unit,
 ): BoundStatement {
     return preparedStatement.boundStatementBuilder()
-        .apply(initializer)
+        .apply(builder)
         .build()
 }
 
@@ -87,8 +87,8 @@ fun <T: Any> EntityHelper<T>.bind(
     lenient: Boolean = true,
 ): BoundStatement {
     return preparedStatement.boundStatementBuilder()
-        .apply {
-            set(entity, this, nullSavingStrategy, lenient)
+        .also { builder ->
+            set(entity, builder, nullSavingStrategy, lenient)
         }
         .build()
 }
@@ -109,12 +109,12 @@ fun <T: Any> EntityHelper<T>.bind(
  * ```
  *
  * @param entityHelper [EntityHelper] 인스턴스
- * @param block [EntityHelper] 를 이용하여 CQL을 생성하는 람다
+ * @param builder [EntityHelper] 를 이용하여 CQL을 생성하는 람다
  * @return [PreparedStatement] 인스턴스
  */
 inline fun <T: Any> CqlSession.prepare(
     entityHelper: EntityHelper<T>,
-    @BuilderInference block: EntityHelper<T>.() -> String,
+    @BuilderInference builder: EntityHelper<T>.() -> String,
 ): PreparedStatement {
-    return prepare(block(entityHelper))
+    return prepare(builder(entityHelper))
 }

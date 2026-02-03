@@ -66,7 +66,8 @@ object CassandraAdmin: KLogging() {
      * @return Cassandra release version or null
      */
     fun getReleaseVersion(session: CqlSession): Version? {
-        val stmt = QueryBuilder.selectFrom("system", "local")
+        val stmt = QueryBuilder
+            .selectFrom("system", "local")
             .column("release_version")
             .build()
 

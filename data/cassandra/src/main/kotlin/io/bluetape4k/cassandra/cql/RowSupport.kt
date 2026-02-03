@@ -105,9 +105,27 @@ fun Row.toCqlIdentifierMap(): Map<CqlIdentifier, Any?> =
 fun Row.columnCodecs(): Map<CqlIdentifier, TypeCodec<Any?>> {
     val codecRegistry = codecRegistry()
     return columnDefinitions
-        .associate { columnDef ->
+        .map { columnDef ->
             val identifier = columnDef.name
             val codec = codecRegistry.codecFor<Any?>(columnDef.type)
             identifier to codec
         }
+        .toUnifiedMap()
+}
+
+/**
+ * [Row] 정보를 [transform]을 통해 `CqlIdentifier 기준의 Map` 으로 변환합니다.
+ */
+inline fun <T> Row.mapWithCqlIdentifier(transform: (Any?) -> T): Map<CqlIdentifier, T> {
+    return columnDefinitions
+        .mapIndexed { i, definition ->
+            val name = definition.name
+            val codec = codecRegistry().codecFor<Any?>(definition.type)
+            val value =
+                if (isNull(name)) null
+                else codec.decode(getBytesUnsafe(i), protocolVersion())
+
+            name to transform(value)
+        }
+        .toUnifiedMap()
 }

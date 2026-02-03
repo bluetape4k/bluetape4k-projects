@@ -20,45 +20,45 @@ class AsyncCqlSessionSupportTest: AbstractCassandraTest() {
     fun setup() {
         runSuspendIO {
             if (initialized.compareAndSet(expect = false, update = true)) {
-                session.executeSuspending("DROP TABLE IF EXISTS user")
-                session.executeSuspending("CREATE TABLE IF NOT EXISTS user (id text PRIMARY KEY, username text);")
+                session.suspendExecute("DROP TABLE IF EXISTS user")
+                session.suspendExecute("CREATE TABLE IF NOT EXISTS user (id text PRIMARY KEY, username text);")
             }
 
-            session.executeSuspending("TRUNCATE user")
-            session.executeSuspending("INSERT INTO user (id, username) VALUES ('WHITE', 'Walter')")
+            session.suspendExecute("TRUNCATE user")
+            session.suspendExecute("INSERT INTO user (id, username) VALUES ('WHITE', 'Walter')")
         }
     }
 
     @Test
     fun `execute by cql in coroutines`() = runSuspendIO {
-        session.executeSuspending("SELECT * FROM user").one().shouldNotBeNull()
+        session.suspendExecute("SELECT * FROM user").one().shouldNotBeNull()
 
-        session.executeSuspending("DELETE FROM user WHERE id = 'WHITE'").wasApplied().shouldBeTrue()
-        session.executeSuspending("SELECT * FROM user").one().shouldBeNull()
+        session.suspendExecute("DELETE FROM user WHERE id = 'WHITE'").wasApplied().shouldBeTrue()
+        session.suspendExecute("SELECT * FROM user").one().shouldBeNull()
     }
 
     @Test
     fun `execute by cql with params in coroutines`() = runSuspendIO {
-        session.executeSuspending("SELECT * FROM user").one().shouldNotBeNull()
+        session.suspendExecute("SELECT * FROM user").one().shouldNotBeNull()
 
-        session.executeSuspending("DELETE FROM user WHERE id = ?", "WHITE").wasApplied().shouldBeTrue()
-        session.executeSuspending("SELECT * FROM user").one().shouldBeNull()
+        session.suspendExecute("DELETE FROM user WHERE id = ?", "WHITE").wasApplied().shouldBeTrue()
+        session.suspendExecute("SELECT * FROM user").one().shouldBeNull()
     }
 
     @Test
     fun `execute by cql with named params in coroutines`() = runSuspendIO {
-        session.executeSuspending("SELECT * FROM user").one().shouldNotBeNull()
+        session.suspendExecute("SELECT * FROM user").one().shouldNotBeNull()
 
-        session.executeSuspending("DELETE FROM user WHERE id = :id", mapOf("id" to "WHITE")).wasApplied().shouldBeTrue()
-        session.executeSuspending("SELECT * FROM user").one().shouldBeNull()
+        session.suspendExecute("DELETE FROM user WHERE id = :id", mapOf("id" to "WHITE")).wasApplied().shouldBeTrue()
+        session.suspendExecute("SELECT * FROM user").one().shouldBeNull()
     }
 
 
     @Test
     fun `execute by statement in coroutines`() = runSuspendIO {
-        session.executeSuspending(statementOf("SELECT * FROM user")).one().shouldNotBeNull()
+        session.suspendExecute(statementOf("SELECT * FROM user")).one().shouldNotBeNull()
 
-        session.executeSuspending(statementOf("DELETE FROM user WHERE id = 'WHITE'")).wasApplied().shouldBeTrue()
-        session.executeSuspending(statementOf("SELECT * FROM user")).one().shouldBeNull()
+        session.suspendExecute(statementOf("DELETE FROM user WHERE id = 'WHITE'")).wasApplied().shouldBeTrue()
+        session.suspendExecute(statementOf("SELECT * FROM user")).one().shouldBeNull()
     }
 }

@@ -16,34 +16,42 @@ class RowSupportTest: AbstractCassandraTest() {
     @BeforeAll
     fun setup() {
         runSuspendIO {
-            session.executeSuspending("DROP TABLE IF EXISTS row_table")
-            session.executeSuspending("CREATE TABLE IF NOT EXISTS row_table (id text PRIMARY KEY, name text, num int);")
-            session.executeSuspending("TRUNCATE row_table")
+            session.suspendExecute("DROP TABLE IF EXISTS row_table")
+            session.suspendExecute("CREATE TABLE IF NOT EXISTS row_table (id text PRIMARY KEY, name text, num int);")
+            session.suspendExecute("TRUNCATE row_table")
 
-            val ps = session.prepareSuspending("INSERT INTO row_table(id, name, num) VALUES(?, ?, ?)")
+            val ps = session.suspendPrepare("INSERT INTO row_table(id, name, num) VALUES(?, ?, ?)")
             repeat(100) { num ->
                 val id = num.toString()
                 val name = "name-$id"
-                session.executeSuspending(ps.bind(id, name, num))
+                session.suspendExecute(ps.bind(id, name, num))
             }
         }
     }
 
     @Test
     fun `row to map`() = runSuspendIO {
-        val row = session.executeSuspending("SELECT * FROM row_table WHERE id=?", "1").one()!!
-        row.toMap() shouldBeEqualTo unifiedMapOf(0 to "1", 1 to "name-1", 2 to 1)
+        val row = session.suspendExecute("SELECT * FROM row_table WHERE id=?", "1").one()!!
+        row.toMap() shouldBeEqualTo unifiedMapOf(
+            0 to "1",
+            1 to "name-1",
+            2 to 1
+        )
     }
 
     @Test
     fun `row to named map`() = runSuspendIO {
-        val row = session.executeSuspending("SELECT * FROM row_table WHERE id=?", "1").one()!!
-        row.toNamedMap() shouldBeEqualTo unifiedMapOf("id" to "1", "name" to "name-1", "num" to 1)
+        val row = session.suspendExecute("SELECT * FROM row_table WHERE id=?", "1").one()!!
+        row.toNamedMap() shouldBeEqualTo unifiedMapOf(
+            "id" to "1",
+            "name" to "name-1",
+            "num" to 1
+        )
     }
 
     @Test
     fun `row to CqlItentifier map`() = runSuspendIO {
-        val row = session.executeSuspending("SELECT * FROM row_table WHERE id=?", "1").one()!!
+        val row = session.suspendExecute("SELECT * FROM row_table WHERE id=?", "1").one()!!
         row.toCqlIdentifierMap() shouldBeEqualTo unifiedMapOf(
             "id".toCqlIdentifier() to "1",
             "name".toCqlIdentifier() to "name-1",
@@ -53,15 +61,15 @@ class RowSupportTest: AbstractCassandraTest() {
 
     @Test
     fun `get columnCodecs`() = runSuspendIO {
-        val row = session.executeSuspending("SELECT * FROM row_table WHERE id=?", "1").one()!!
+        val row = session.suspendExecute("SELECT * FROM row_table WHERE id=?", "1").one()!!
 
         val columnCodecs = row.columnCodecs()
 
         columnCodecs.size shouldBeEqualTo 3
         columnCodecs.values.map { it.javaClass.simpleName } shouldBeEqualTo listOf(
             "StringCodec",
+            "IntCodec",
             "StringCodec",
-            "IntCodec"
         )
     }
 }

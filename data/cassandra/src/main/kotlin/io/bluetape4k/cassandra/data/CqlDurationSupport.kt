@@ -7,6 +7,6 @@ fun Duration.toCqlDuration(): CqlDuration {
     return cqlDurationOf(0, toDays().toInt(), toNanos())
 }
 
-fun cqlDurationOf(month: Int, days: Int, nanos: Long): CqlDuration {
+fun cqlDurationOf(month: Int, days: Int, nanos: Long = 0L): CqlDuration {
     return CqlDuration.newInstance(month, days, nanos)
 }

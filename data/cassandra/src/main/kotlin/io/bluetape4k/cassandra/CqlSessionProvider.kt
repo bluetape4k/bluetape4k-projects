@@ -2,13 +2,13 @@ package io.bluetape4k.cassandra
 
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.CqlSessionBuilder
-import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.utils.ShutdownQueue
 import java.net.InetSocketAddress
 import java.util.concurrent.ConcurrentHashMap
 
-object CqlSessionProvider: KLoggingChannel() {
+object CqlSessionProvider: KLogging() {
 
     private val sessionCache = ConcurrentHashMap<String, CqlSession>()
 
@@ -49,13 +49,13 @@ object CqlSessionProvider: KLoggingChannel() {
      *
      * @param keyspace  keyspace 명, null 이면 cql 에 keyspace 를 지정해주어야 합니다.
      * @param builderSupplier [CqlSessionBuilder]를 제공하는 Supplier
-     * @param initializer [CqlSessionBuilder]를 이용하여 설정하는 함수
+     * @param builder [CqlSessionBuilder]를 이용하여 설정하는 함수
      * @return `keyspace` 전용의 [CqlSession] 인스턴스
      */
     fun getOrCreateSession(
         keyspace: String = DEFAULT_KEYSPACE,
         builderSupplier: () -> CqlSessionBuilder = { newCqlSessionBuilder() },
-        initializer: CqlSessionBuilder.() -> Unit,
+        @BuilderInference builder: CqlSessionBuilder.() -> Unit,
     ): CqlSession {
         val closedSessions = sessionCache.filterValues { it.isClosed }
         closedSessions.forEach {
@@ -72,10 +72,10 @@ object CqlSessionProvider: KLoggingChannel() {
 
             builderSupplier()
                 .withKeyspace(keyspace)
-                .apply(initializer)
+                .apply(builder)
                 .build()
-                .apply {
-                    ShutdownQueue.register(this)
+                .also {
+                    ShutdownQueue.register(it)
                 }
         }
     }
