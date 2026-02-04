@@ -37,29 +37,30 @@ object ActorSchema {
             .toString()
     }
 
-    data class Actor(
+    data class ActorRecord(
         val id: Long,
         val firstname: String,
         val lastname: String,
     ): Serializable {
         var description: String? = null
+        fun withId(id: Long) = copy(id = id)
     }
 
-    fun ResultRow.toActor(): Actor =
-        Actor(
+    fun ResultRow.toActorRecord(): ActorRecord =
+        ActorRecord(
             id = this[ActorTable.id].value,
             firstname = this[ActorTable.firstname],
             lastname = this[ActorTable.lastname],
         ).also {
-            it.description = this@toActor[ActorTable.description]
+            it.description = this@toActorRecord[ActorTable.description]
         }
 
-    fun ActorEntity.toActor(): Actor =
-        Actor(
+    fun ActorEntity.toActorRecord(): ActorRecord =
+        ActorRecord(
             id = this.id.value,
             firstname = this.firstname,
             lastname = this.lastname,
         ).also {
-            it.description = this@toActor.description
+            it.description = this@toActorRecord.description
         }
 }

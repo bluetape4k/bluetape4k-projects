@@ -2,7 +2,7 @@ package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.coroutines.support.suspendAwait
-import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.Actor
+import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorRecord
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
 import io.bluetape4k.junit5.awaitility.suspendUntil
@@ -47,8 +47,8 @@ class CacheWriteThroughExample: AbstractCacheExample() {
         @Test
         fun `write through cache with redisson MapCache`() {
             val name = randomName()
-            val options = MapCacheOptions.name<Long, Actor>(name)
-                .writer(actorWriter)
+            val options = MapCacheOptions.name<Long, ActorRecord>(name)
+                .writer(actorRecordWriter)
                 .writeMode(WriteMode.WRITE_THROUGH)
                 .writeRetryAttempts(3) // 재시도 횟수
                 .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
@@ -62,7 +62,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                 // Write Through 모드로 설정했으므로, 캐시에 데이터를 삽입하면 DB에도 삽입된다.
                 val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toFastList()
                 writeIds.forEach { id ->
-                    cache[id] = newActorDTO(id)
+                    cache[id] = newActorRecord(id)
                 }
 
                 // DB에 삽입된 데이터를 확인한다. (options.loader() 가 없으므로, 캐시에는 저장되지 않는다)
@@ -80,9 +80,9 @@ class CacheWriteThroughExample: AbstractCacheExample() {
         @Test
         fun `read and write through cache with redisson LocalCachedMap`() {
             val name = randomName()
-            val options = LocalCachedMapOptions.name<Long, Actor>(name)
-                .loader(actorLoader)
-                .writer(actorWriter)
+            val options = LocalCachedMapOptions.name<Long, ActorRecord>(name)
+                .loader(actorRecordLoader)
+                .writer(actorRecordWriter)
                 .writeMode(WriteMode.WRITE_THROUGH)
                 .writeRetryAttempts(3) // 재시도 횟수
                 .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
@@ -96,8 +96,8 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                 // Write Through 모드로 설정했으므로, 캐시에 데이터를 삽입하면 DB에도 삽입된다.
                 val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toFastList()
                 writeIds.forEach { id ->
-                    // cache[id] = newActorDTO(id)
-                    cache.fastPut(id, newActorDTO(id))
+                    // cache[id] = newActorRecord(id)
+                    cache.fastPut(id, newActorRecord(id))
                 }
 
                 writeIds.forEach { id ->
@@ -123,8 +123,8 @@ class CacheWriteThroughExample: AbstractCacheExample() {
         @Test
         fun `write through cache with redisson MapCache in Coroutines`() = runSuspendIO {
             val name = randomName()
-            val options = MapCacheOptions.name<Long, Actor>(name)
-                .writerAsync(actorWriterAsync)
+            val options = MapCacheOptions.name<Long, ActorRecord>(name)
+                .writerAsync(actorRecordWriterAsync)
                 .writeMode(WriteMode.WRITE_THROUGH)
                 .writeRetryAttempts(3) // 재시도 횟수
                 .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
@@ -137,8 +137,8 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                 // Write Through 모드로 설정했으므로, 캐시에 데이터를 삽입하면 DB에도 삽입된다.
                 val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toFastList()
                 writeIds.map { id ->
-                    // cache[id] = newActorDTO(id)
-                    cache.fastPutAsync(id, newActorDTO(id))
+                    // cache[id] = newActorRecord(id)
+                    cache.fastPutAsync(id, newActorRecord(id))
                 }.awaitAll()
 
                 await suspendUntil {
@@ -162,9 +162,9 @@ class CacheWriteThroughExample: AbstractCacheExample() {
         @Test
         fun `read and write through cache with redisson LocalCachedMap in Coroutines`() = runSuspendIO {
             val name = randomName()
-            val options = LocalCachedMapOptions.name<Long, Actor>(name)
-                .loaderAsync(actorLoaderAsync)
-                .writerAsync(actorWriterAsync)
+            val options = LocalCachedMapOptions.name<Long, ActorRecord>(name)
+                .loaderAsync(actorRecordLoaderAsync)
+                .writerAsync(actorRecordWriterAsync)
                 .writeMode(WriteMode.WRITE_THROUGH)
                 .writeRetryAttempts(3) // 재시도 횟수
                 .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
@@ -178,8 +178,8 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                 // Write Through 모드로 설정했으므로, 캐시에 데이터를 삽입하면 DB에도 삽입된다.
                 val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toFastList()
                 writeIds.map { id ->
-                    // cache[id] = newActorDTO(id)
-                    cache.fastPutAsync(id, newActorDTO(id))
+                    // cache[id] = newActorRecord(id)
+                    cache.fastPutAsync(id, newActorRecord(id))
                 }.awaitAll()
 
                 writeIds.forEach { id ->

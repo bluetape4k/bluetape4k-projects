@@ -2,7 +2,7 @@ package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.coroutines.support.suspendAwait
-import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.Actor
+import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorRecord
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -65,13 +65,13 @@ class CacheReadThroughExample: AbstractCacheExample() {
         @Test
         fun `read through with redisson MapCache`() {
             val name = randomName()
-            val options = MapCacheOptions.name<Long, Actor>(name)
-                .loader(actorLoader)
+            val options = MapCacheOptions.name<Long, ActorRecord>(name)
+                .loader(actorRecordLoader)
                 .retryAttempts(3)
                 .retryDelay { attempt -> Duration.ofMillis(attempt * 10L) }
                 .codec(defaultCodec)
 
-            val cache: RMapCache<Long, Actor?> = redisson.getMapCache(options)
+            val cache: RMapCache<Long, ActorRecord?> = redisson.getMapCache(options)
             try {
                 checkReadThroughCache(cache)
             } finally {
@@ -82,14 +82,14 @@ class CacheReadThroughExample: AbstractCacheExample() {
         @Test
         fun `read through with redisson RLocalCachedMap`() {
             val name = randomName()
-            val options = LocalCachedMapOptions.name<Long, Actor>(name)
-                .loader(actorLoader)
+            val options = LocalCachedMapOptions.name<Long, ActorRecord>(name)
+                .loader(actorRecordLoader)
                 .retryAttempts(3)
                 .retryDelay { attempt -> Duration.ofMillis(attempt * 10L) }
                 .timeToLive(Duration.ofSeconds(10))   // 로컬 캐시의 TTL
                 .codec(defaultCodec)
 
-            val cache: RLocalCachedMap<Long, Actor?> = redisson.getLocalCachedMap(options)
+            val cache: RLocalCachedMap<Long, ActorRecord?> = redisson.getLocalCachedMap(options)
             try {
                 checkReadThroughCache(cache)
             } finally {
@@ -97,7 +97,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
             }
         }
 
-        private fun checkReadThroughCache(cache: RMap<Long, Actor?>) {
+        private fun checkReadThroughCache(cache: RMap<Long, ActorRecord?>) {
             // 아직 캐시에 로딩된 데이터가 없다.
             cache.keys shouldHaveSize 0
 
@@ -110,7 +110,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
 
             // CacheApplicationListener 에서 5명의 Actor를 추가해 놓았다.
             // 캐시에서 1번 키를 요청하면, DB에서 로딩된다.
-            cache[actorIds.first()] shouldBeEqualTo Actor(actorIds.first(), "Sunghyouk", "Bae")
+            cache[actorIds.first()] shouldBeEqualTo ActorRecord(actorIds.first(), "Sunghyouk", "Bae")
             cache.keys shouldHaveSize 1
 
             // DB에 있는 모든 Actor를 한번에 로드하여 캐시에 저장한다
@@ -145,13 +145,13 @@ class CacheReadThroughExample: AbstractCacheExample() {
         @Test
         fun `read through with redisson MapCache`() = runSuspendIO {
             val name = randomName()
-            val options = MapCacheOptions.name<Long, Actor>(name)
-                .loaderAsync(actorLoaderAsync)
+            val options = MapCacheOptions.name<Long, ActorRecord>(name)
+                .loaderAsync(actorRecordLoaderAsync)
                 .retryAttempts(3)
                 .retryDelay { attempt -> Duration.ofMillis(attempt * 10L) }
                 .codec(defaultCodec)
 
-            val cache: RMapCache<Long, Actor?> = redisson.getMapCache(options)
+            val cache: RMapCache<Long, ActorRecord?> = redisson.getMapCache(options)
             try {
                 checkReadThroughCacheAsync(cache)
             } finally {
@@ -162,14 +162,14 @@ class CacheReadThroughExample: AbstractCacheExample() {
         @Test
         fun `read through with redisson RLocalCachedMap`() = runSuspendIO {
             val name = randomName()
-            val options = LocalCachedMapOptions.name<Long, Actor>(name)
-                .loaderAsync(actorLoaderAsync)
+            val options = LocalCachedMapOptions.name<Long, ActorRecord>(name)
+                .loaderAsync(actorRecordLoaderAsync)
                 .retryAttempts(3)
                 .retryDelay { attempt -> Duration.ofMillis(attempt * 10L) }
                 .timeToLive(Duration.ofSeconds(10))   // 로컬 캐시의 TTL
                 .codec(defaultCodec)
 
-            val cache: RLocalCachedMap<Long, Actor?> = redisson.getLocalCachedMap(options)
+            val cache: RLocalCachedMap<Long, ActorRecord?> = redisson.getLocalCachedMap(options)
             try {
                 checkReadThroughCacheAsync(cache)
             } finally {
@@ -177,7 +177,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
             }
         }
 
-        private suspend fun checkReadThroughCacheAsync(cache: RMap<Long, Actor?>) {
+        private suspend fun checkReadThroughCacheAsync(cache: RMap<Long, ActorRecord?>) {
             // 아직 캐시에 로딩된 데이터가 없다.
             cache.keys shouldHaveSize 0
 
@@ -190,7 +190,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
 
             // 모든 테스트에 500 개 이상의 Actor 가 이미 DB에 존재한다.
             // 캐시에서 1번 키를 요청하면, DB에서 로딩된다.
-            cache[actorIds.first()] shouldBeEqualTo Actor(actorIds.first(), "Sunghyouk", "Bae")
+            cache[actorIds.first()] shouldBeEqualTo ActorRecord(actorIds.first(), "Sunghyouk", "Bae")
             cache.keys shouldHaveSize 1
 
             // 나머지 4명의 Actor는 캐시로 로딩한다

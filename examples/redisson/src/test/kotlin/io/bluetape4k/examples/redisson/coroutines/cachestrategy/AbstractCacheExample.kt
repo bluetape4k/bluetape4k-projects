@@ -1,9 +1,9 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
-import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.Actor
+import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorRecord
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
-import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.toActor
+import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.toActorRecord
 import io.bluetape4k.exposed.core.fetchBatchedResultFlow
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
@@ -53,8 +53,8 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
         val faker = Fakers.faker
     }
 
-    protected fun newActorDTO(id: Long): Actor {
-        return Actor(
+    protected fun newActorRecord(id: Long): ActorRecord {
+        return ActorRecord(
             id = id,
             firstname = faker.name().firstName(),
             lastname = faker.name().lastName(),
@@ -66,15 +66,15 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
     /**
      * MapLoader 를 구현하여 DB에서 데이터를 로딩한다.
      */
-    protected val actorLoader: MapLoader<Long, Actor?> = object: MapLoader<Long, Actor?>, KLogging() {
-        override fun load(key: Long): Actor? {
+    protected val actorRecordLoader: MapLoader<Long, ActorRecord?> = object: MapLoader<Long, ActorRecord?>, KLogging() {
+        override fun load(key: Long): ActorRecord? {
             log.debug { "Loading actor with key $key" }
             return transaction {
                 ActorTable
                     .selectAll()
                     .where { ActorTable.id eq key }
                     .singleOrNull()
-                    ?.toActor()
+                    ?.toActorRecord()
             }
         }
 
@@ -91,17 +91,18 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
     /**
      * [MapLoaderAsync] 를 구현하여 DB에서 데이터를 로딩한다.
      */
-    protected val actorLoaderAsync: MapLoaderAsync<Long, Actor?> = object: MapLoaderAsync<Long, Actor?>, KLogging() {
+    protected val actorRecordLoaderAsync: MapLoaderAsync<Long, ActorRecord?> =
+        object: MapLoaderAsync<Long, ActorRecord?>, KLogging() {
         val scope = CoroutineScope(Dispatchers.IO)
 
-        override fun load(key: Long?): CompletionStage<Actor?> = scope.async {
+            override fun load(key: Long?): CompletionStage<ActorRecord?> = scope.async {
             log.debug { "Loading actor async with id=$key" }
             newSuspendedTransaction {
                 ActorTable
                     .selectAll()
                     .where { ActorTable.id eq key }
                     .singleOrNull()
-                    ?.toActor()
+                    ?.toActorRecord()
             }
         }.asCompletableFuture()
 
@@ -162,8 +163,8 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
     /**
      * [MapWriter]를 구현하여 DB에 데이터를 저장한다.
      */
-    protected val actorWriter: MapWriter<Long, Actor> = object: MapWriter<Long, Actor>, KLogging() {
-        override fun write(map: Map<Long, Actor?>) {
+    protected val actorRecordWriter: MapWriter<Long, ActorRecord> = object: MapWriter<Long, ActorRecord>, KLogging() {
+        override fun write(map: Map<Long, ActorRecord?>) {
             log.debug { "Writing actors ... count=${map.size}, ids=${map.keys}" }
             val entryToInsert = map.values.mapNotNull { it }
             transaction {
@@ -187,10 +188,11 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
     /**
      * [MapWriterAsync]를 구현하여 DB에 데이터를 저장한다.
      */
-    protected val actorWriterAsync: MapWriterAsync<Long, Actor> = object: MapWriterAsync<Long, Actor>, KLogging() {
+    protected val actorRecordWriterAsync: MapWriterAsync<Long, ActorRecord> =
+        object: MapWriterAsync<Long, ActorRecord>, KLogging() {
         val scope = CoroutineScope(Dispatchers.IO)
 
-        override fun write(map: Map<Long, Actor?>): CompletionStage<Void> {
+            override fun write(map: Map<Long, ActorRecord?>): CompletionStage<Void> {
             log.debug { "Writing actors async... count=${map.size}, ids=${map.keys}" }
 
             return scope.async {

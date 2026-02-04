@@ -2,7 +2,7 @@ package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.coroutines.support.suspendAwait
-import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.Actor
+import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorRecord
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
 import io.bluetape4k.junit5.awaitility.suspendUntil
@@ -52,9 +52,9 @@ class CacheWriteBehindExample: AbstractCacheExample() {
         @Test
         fun `write behind cache with redisson MapCache`() {
             val name = randomName()
-            val options = MapCacheOptions.name<Long, Actor>(name)
-                .loader(actorLoader)
-                .writer(actorWriter)
+            val options = MapCacheOptions.name<Long, ActorRecord>(name)
+                .loader(actorRecordLoader)
+                .writer(actorRecordWriter)
                 .writeMode(WriteMode.WRITE_BEHIND)              // delay를 두고, batch로 insert 한다
                 .writeBehindBatchSize(20)  // 기본 batchSize 는 50 입니다.
                 .writeBehindDelay(100)        // 기본 delay 는 1000 ms 입니다.
@@ -70,7 +70,7 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                 // Write Behind 모드로 설정했으므로, 캐시에 데이터를 삽입하면 DB에도 삽입된다.
                 val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toFastList()
                 writeIds.forEach { id ->
-                    cache[id] = newActorDTO(id)
+                    cache[id] = newActorRecord(id)
                 }
 
                 await until { getActorCountFromDB() >= ACTOR_SIZE }
@@ -91,9 +91,9 @@ class CacheWriteBehindExample: AbstractCacheExample() {
         @Test
         fun `read through and write behind cache with redisson LocalCachedMap`() {
             val name = randomName()
-            val options = LocalCachedMapOptions.name<Long, Actor>(name)
-                .loader(actorLoader)
-                .writer(actorWriter)
+            val options = LocalCachedMapOptions.name<Long, ActorRecord>(name)
+                .loader(actorRecordLoader)
+                .writer(actorRecordWriter)
                 .writeMode(WriteMode.WRITE_BEHIND)         // delay를 두고, batch로 insert 한다
                 .writeBehindBatchSize(20)  // 기본 batchSize 는 50 입니다. (INSERT, DELETE 모두 적용됨)
                 .writeBehindDelay(100)        // 기본 delay 는 1000 ms 입니다.
@@ -102,7 +102,7 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                 .codec(defaultCodec)
 
             // 캐시를 생성한다.
-            val cache: RLocalCachedMap<Long, Actor?> = redisson.getLocalCachedMap(options)
+            val cache: RLocalCachedMap<Long, ActorRecord?> = redisson.getLocalCachedMap(options)
 
             try {
 
@@ -110,7 +110,7 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                 val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toFastList()
 
                 writeIds.forEach { id ->
-                    cache[id] = newActorDTO(id)
+                    cache[id] = newActorRecord(id)
                 }
 
                 writeIds.forEach { id ->
@@ -146,9 +146,9 @@ class CacheWriteBehindExample: AbstractCacheExample() {
         @Test
         fun `write behind cache with redisson MapCache in Coroutines`() = runSuspendIO {
             val name = randomName()
-            val options = MapCacheOptions.name<Long, Actor>(name)
-                .loaderAsync(actorLoaderAsync)
-                .writerAsync(actorWriterAsync)
+            val options = MapCacheOptions.name<Long, ActorRecord>(name)
+                .loaderAsync(actorRecordLoaderAsync)
+                .writerAsync(actorRecordWriterAsync)
                 .writeMode(WriteMode.WRITE_BEHIND)              // delay를 두고, batch로 insert 한다
                 .writeBehindBatchSize(20)  // 기본 batchSize 는 50 입니다.
                 .writeBehindDelay(100)        // 기본 delay 는 1000 ms 입니다.
@@ -164,7 +164,7 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                 val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toFastList()
                 writeIds
                     .map { id ->
-                        cache.fastPutAsync(id, newActorDTO(id), 1, TimeUnit.SECONDS)
+                        cache.fastPutAsync(id, newActorRecord(id), 1, TimeUnit.SECONDS)
                     }
                     .awaitAll()
 
@@ -196,9 +196,9 @@ class CacheWriteBehindExample: AbstractCacheExample() {
         @Test
         fun `read through and write behind cache with redisson LocalCachedMap in Coroutines`() = runSuspendIO {
             val name = randomName()
-            val options = LocalCachedMapOptions.name<Long, Actor>(name)
-                .loaderAsync(actorLoaderAsync)
-                .writerAsync(actorWriterAsync)
+            val options = LocalCachedMapOptions.name<Long, ActorRecord>(name)
+                .loaderAsync(actorRecordLoaderAsync)
+                .writerAsync(actorRecordWriterAsync)
                 .writeMode(WriteMode.WRITE_BEHIND)         // delay를 두고, batch로 insert 한다
                 .writeBehindBatchSize(20)  // 기본 batchSize 는 50 입니다. (INSERT, DELETE 모두 적용됨)
                 .writeBehindDelay(100)        // 기본 delay 는 1000 ms 입니다.
@@ -208,7 +208,7 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                 .timeToLive(Duration.ofSeconds(1))   // 로컬 캐시의 TTL
 
             // 캐시를 생성한다.
-            val cache: RLocalCachedMap<Long, Actor?> = redisson.getLocalCachedMap(options)
+            val cache: RLocalCachedMap<Long, ActorRecord?> = redisson.getLocalCachedMap(options)
 
             try {
 
@@ -216,7 +216,7 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                 val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toFastList()
 
                 writeIds.map { id ->
-                    cache.fastPutAsync(id, newActorDTO(id))
+                    cache.fastPutAsync(id, newActorRecord(id))
                 }.awaitAll()
 
                 writeIds.forEach { id ->
