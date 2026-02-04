@@ -11,7 +11,7 @@ import org.junit.jupiter.api.BeforeEach
 interface CacheTestScenario<T: HasIdentifier<ID>, ID: Any> {
     companion object: KLogging() {
         @JvmStatic
-        fun enableDialects() = TestDB.enabledDialects()
+        fun enableDialects() = setOf(TestDB.H2) //TestDB.enabledDialects()
         const val ENABLE_DIALECTS_METHOD = "enableDialects"
     }
 

@@ -49,7 +49,9 @@ object UserSchema: KLoggingChannel() {
         val email: String,
         val createdAt: Instant = Instant.now(),
         val updatedAt: Instant? = null,
-    ): HasIdentifier<Long>
+    ): HasIdentifier<Long> {
+        fun withId(id: Long) = copy(id = id)
+    }
 
     fun ResultRow.toUserRecord(): UserRecord = UserRecord(
         id = this[UserTable.id].value,
@@ -139,7 +141,9 @@ object UserSchema: KLoggingChannel() {
         val lastLoginAt: Instant? = null,
         val createdAt: Instant = Instant.now(),
         val updatedAt: Instant? = null,
-    ): HasIdentifier<UUID>
+    ): HasIdentifier<UUID> {
+        fun withId(id: UUID) = copy(id = id)
+    }
 
     fun ResultRow.toUserCredentialsRecord(): UserCredentialsRecord = UserCredentialsRecord(
         id = this[UserCredentialsTable.id].value,

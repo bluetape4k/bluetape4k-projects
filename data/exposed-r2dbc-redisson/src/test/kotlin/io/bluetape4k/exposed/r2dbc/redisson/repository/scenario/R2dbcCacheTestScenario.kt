@@ -1,4 +1,4 @@
-package io.bluetape4k.exposed.r2dbc.redisson.scenario
+package io.bluetape4k.exposed.r2dbc.redisson.repository.scenario
 
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.r2dbc.redisson.repository.R2dbcCacheRepository

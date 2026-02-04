@@ -8,7 +8,7 @@ import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserRecord
 import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserTable
 import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.withUserCredentialsTable
 import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.withUserTable
-import io.bluetape4k.exposed.r2dbc.redisson.scenario.R2dbcReadThroughScenario
+import io.bluetape4k.exposed.r2dbc.redisson.repository.scenario.R2dbcReadThroughScenario
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig

@@ -1,9 +1,9 @@
-package io.bluetape4k.exposed.r2dbc.redisson.scenario
+package io.bluetape4k.exposed.r2dbc.redisson.repository.scenario
 
 import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.exposed.core.HasIdentifier
-import io.bluetape4k.exposed.r2dbc.redisson.scenario.R2dbcCacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
+import io.bluetape4k.exposed.r2dbc.redisson.repository.scenario.R2dbcCacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.junit5.awaitility.suspendUntil
 import io.bluetape4k.logging.coroutines.KLoggingChannel

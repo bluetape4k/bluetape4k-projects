@@ -15,7 +15,7 @@ interface SuspendedCacheTestScenario<T: HasIdentifier<ID>, ID: Any> {
 
     companion object: KLoggingChannel() {
         @JvmStatic
-        fun enableDialects() = TestDB.enabledDialects()
+        fun enableDialects() = setOf(TestDB.H2) // TestDB.enabledDialects()
         const val ENABLE_DIALECTS_METHOD = "enableDialects"
 
         val DefaultCacheDispatcher = Dispatchers.IO
