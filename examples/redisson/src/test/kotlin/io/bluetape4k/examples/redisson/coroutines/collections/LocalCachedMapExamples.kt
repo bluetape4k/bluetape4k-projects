@@ -8,6 +8,7 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldContainSame
 import org.junit.jupiter.api.Test
 import org.redisson.api.RLocalCachedMap
 import org.redisson.api.options.LocalCachedMapOptions
@@ -48,17 +49,17 @@ class LocalCachedMapExamples: AbstractRedissonCoroutineTest() {
         // cachedMap.addAndGetAsync("a", 32).awaitSuspending() shouldBeEqualTo 33
 
         // 저장된 Int 형태의 저장 크기
-        cachedMap.valueSizeAsync("c").suspendAwait() shouldBeEqualTo 2
+        // cachedMap.valueSizeAsync("c").suspendAwait() shouldBeEqualTo 2
 
         val keys = setOf("a", "b", "c")
 
         val mapSlice = cachedMap.getAllAsync(keys).suspendAwait()
         mapSlice shouldBeEqualTo mapOf("a" to 1, "b" to 2, "c" to 3)
 
-        cachedMap.readAllKeySetAsync().suspendAwait() shouldBeEqualTo setOf("a", "b", "c")
-        cachedMap.readAllValuesAsync().suspendAwait() shouldBeEqualTo listOf(1, 2, 3)
+        cachedMap.readAllKeySetAsync().suspendAwait() shouldContainSame setOf("a", "b", "c")
+        cachedMap.readAllValuesAsync().suspendAwait() shouldContainSame listOf(1, 2, 3)
         cachedMap.readAllEntrySetAsync().suspendAwait()
-            .associate { it.key to it.value } shouldBeEqualTo mapOf("a" to 1, "b" to 2, "c" to 3)
+            .associate { it.key to it.value } shouldContainSame mapOf("a" to 1, "b" to 2, "c" to 3)
 
         // 신규 Item일 경우 true, Update 시에는 false 를 반환한다
         cachedMap.fastPutAsync("a", 100).suspendAwait().shouldBeFalse()

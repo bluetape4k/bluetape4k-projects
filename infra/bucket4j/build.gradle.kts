@@ -23,6 +23,15 @@ dependencies {
     compileOnly(Libs.lettuce_core)
     compileOnly(Libs.redisson)
 
+    // Codecs
+    testImplementation(Libs.fory_kotlin)
+    testImplementation(Libs.kryo5)
+
+    // Compressor
+    testImplementation(Libs.lz4_java)
+    testImplementation(Libs.snappy_java)
+    testImplementation(Libs.zstd_jni)
+
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))
     compileOnly(Libs.kotlinx_coroutines_core)

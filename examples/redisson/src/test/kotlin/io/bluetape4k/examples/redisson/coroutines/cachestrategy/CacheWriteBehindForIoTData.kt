@@ -1,6 +1,5 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.collections.eclipse.toUnifiedMap
 import io.bluetape4k.coroutines.flow.extensions.toFastList
@@ -78,7 +77,7 @@ class CacheWriteBehindForIoTData: AbstractCacheExample() {
     private fun generateSensorData(serialNo: String, count: Int = 1000): List<SensorData> {
         val startTime = Instant.now() - count.millis()
 
-        return fastList(count) {
+        return List(count) {
             val measureTime = startTime + it.millis()
             SensorData(
                 serialNo = serialNo,
