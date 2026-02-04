@@ -1,4 +1,4 @@
-package io.bluetape4k.kafka.spring.core.coroutines
+package io.bluetape4k.kafka.spring.core
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CoroutineScope

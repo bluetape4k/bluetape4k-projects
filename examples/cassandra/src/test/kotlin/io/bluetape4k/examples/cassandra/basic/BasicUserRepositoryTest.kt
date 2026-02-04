@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.cassandra.basic
 
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder
-import io.bluetape4k.cassandra.cql.executeSuspending
+import io.bluetape4k.cassandra.cql.suspendExecute
 import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
@@ -71,7 +71,7 @@ class BasicUserRepositoryTest(
             .build()
         log.debug { "Create Index=${createIndexStmt.query}" }
 
-        session.executeSuspending(createIndexStmt).wasApplied().shouldBeTrue()
+        session.suspendExecute(createIndexStmt).wasApplied().shouldBeTrue()
 
         // session.executeSuspend("CREATE INDEX IF NOT EXISTS basic_users_uname ON basic_users (uname);")
 
@@ -95,7 +95,7 @@ class BasicUserRepositoryTest(
     fun `find by derived query method with SASI`() = runSuspendIO {
         // NOTE: SASI indexes are disabled. Enable in cassandra.yaml to use.
         Assumptions.assumeTrue { false }
-        session.executeSuspending(
+        session.suspendExecute(
             "CREATE CUSTOM INDEX ON basic_users (lname) USING 'org.apache.cassandra.index.sasi.SASIIndex';"
         )
 
@@ -122,7 +122,7 @@ class BasicUserRepositoryTest(
         val loaded = repository
             .findAllByLastnameStartsWith(users[2].lastname.substring(0, 2))
             .toFastList()
-        
+
         loaded.shouldNotBeEmpty()
         loaded shouldContain users[2]
     }

@@ -25,4 +25,13 @@ dependencies {
     testImplementation(Libs.caffeine_jcache)
     testImplementation(Libs.cache2k_jcache)
     testImplementation(Libs.redisson)
+
+    // Serializer
+    testImplementation(Libs.fory_kotlin)
+    testImplementation(Libs.kryo5)
+
+    // Compressor
+    testImplementation(Libs.lz4_java)
+    testImplementation(Libs.snappy_java)
+    testImplementation(Libs.zstd_jni)
 }

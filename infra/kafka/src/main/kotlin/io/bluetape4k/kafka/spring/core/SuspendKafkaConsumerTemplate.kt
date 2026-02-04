@@ -1,4 +1,4 @@
-package io.bluetape4k.kafka.spring.core.coroutines
+package io.bluetape4k.kafka.spring.core
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CoroutineScope
@@ -40,7 +40,7 @@ import reactor.kafka.sender.TransactionManager
  *          "auto.commit.interval.ms" to "1000",
  *      )
  * )
- * val consumer = CoroutineKafkaConsumerTemplate(receiverOptions)
+ * val consumer = SuspendKafkaConsumerTemplate(receiverOptions)
  * consumer.receive().collect { record ->
  *     println("Received: ${record.value()}")
  *     record.receiver.commit(record.receiver.assignment())
@@ -56,8 +56,7 @@ import reactor.kafka.sender.TransactionManager
  *
  * @see [org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate]
  */
-@Deprecated("use SuspendKafkaConsumerTemplate", replaceWith = ReplaceWith("SuspendKafkaConsumerTemplate(receiver)"))
-class CoroutineKafkaConsumerTemplate<K, V>(
+class SuspendKafkaConsumerTemplate<K, V> private constructor(
     private val receiver: KafkaReceiver<K, V>,
 ): CoroutineScope by CoroutineScope(Dispatchers.IO + SupervisorJob()) {
 
@@ -65,8 +64,15 @@ class CoroutineKafkaConsumerTemplate<K, V>(
         @JvmStatic
         operator fun <K, V> invoke(
             receiverOptions: ReceiverOptions<K, V>,
-        ): CoroutineKafkaConsumerTemplate<K, V> {
-            return CoroutineKafkaConsumerTemplate(KafkaReceiver.create(receiverOptions))
+        ): SuspendKafkaConsumerTemplate<K, V> {
+            return SuspendKafkaConsumerTemplate(KafkaReceiver.create(receiverOptions))
+        }
+
+        @JvmStatic
+        operator fun <K, V> invoke(
+            receiver: KafkaReceiver<K, V>,
+        ): SuspendKafkaConsumerTemplate<K, V> {
+            return SuspendKafkaConsumerTemplate(receiver)
         }
     }
 
@@ -112,7 +118,9 @@ class CoroutineKafkaConsumerTemplate<K, V>(
         return receiver.receiveExactlyOnce(transactionManager).map { it.asFlow() }.asFlow()
     }
 
-    private suspend inline fun <T> doOnConsumer(crossinline function: (Consumer<K, V>) -> T): T {
+    private suspend inline fun <T> doOnConsumer(
+        @BuilderInference crossinline function: (Consumer<K, V>) -> T,
+    ): T {
         return receiver.doOnConsumer { function(it) }.awaitSingle()
     }
 
