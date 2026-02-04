@@ -2,11 +2,11 @@ package io.bluetape4k.exposed.r2dbc.redisson.repository
 
 import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.exposed.r2dbc.redisson.R2dbcRedissonTestBase
-import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserCredentialDTO
-import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserCredentialTable
-import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserDTO
+import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserCredentialsRecord
+import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserCredentialsTable
+import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserRecord
 import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserTable
-import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.withUserCredentialTable
+import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.withUserCredentialsTable
 import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.withUserTable
 import io.bluetape4k.exposed.r2dbc.redisson.scenario.R2dbcReadThroughScenario
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
@@ -26,7 +26,7 @@ class R2dbcReadThroughCacheTest {
     companion object: KLoggingChannel()
 
     abstract class R2dbcAutoIncIdReadThrough: R2dbcRedissonTestBase(),
-                                              R2dbcReadThroughScenario<UserDTO, Long> {
+                                              R2dbcReadThroughScenario<UserRecord, Long> {
 
         companion object: KLoggingChannel()
 
@@ -52,7 +52,7 @@ class R2dbcReadThroughCacheTest {
     @Nested
     inner class R2dbcAutoIncIdReadThroughRemteCache: R2dbcAutoIncIdReadThrough() {
         override val cacheConfig: RedisCacheConfig = RedisCacheConfig.READ_ONLY
-        override val repository: R2dbcCacheRepository<UserDTO, Long> by lazy {
+        override val repository: R2dbcCacheRepository<UserRecord, Long> by lazy {
             R2dbcUserCacheRepository(
                 redissonClient,
                 "r2dbc:read-through:remote:users",
@@ -65,7 +65,7 @@ class R2dbcReadThroughCacheTest {
     inner class R2dbcAutoIncIdReadThroughNearCache: R2dbcAutoIncIdReadThrough() {
         override val cacheConfig: RedisCacheConfig = RedisCacheConfig.READ_ONLY_WITH_NEAR_CACHE
 
-        override val repository: R2dbcCacheRepository<UserDTO, Long> by lazy {
+        override val repository: R2dbcCacheRepository<UserRecord, Long> by lazy {
             R2dbcUserCacheRepository(
                 redissonClient,
                 "r2dbc:read-through:near:users",
@@ -75,22 +75,22 @@ class R2dbcReadThroughCacheTest {
     }
 
     abstract class R2dbcClientGeneratedIdReadThrough: R2dbcRedissonTestBase(),
-                                                      R2dbcReadThroughScenario<UserCredentialDTO, UUID> {
+                                                      R2dbcReadThroughScenario<UserCredentialsRecord, UUID> {
 
         override suspend fun withR2dbcEntityTable(
             testDB: TestDB,
             context: CoroutineContext,
             statement: suspend R2dbcTransaction.() -> Unit,
-        ) = withUserCredentialTable(testDB, context, statement)
+        ) = withUserCredentialsTable(testDB, context, statement)
 
         override suspend fun getExistingId() = suspendTransaction {
-            UserCredentialTable.select(UserCredentialTable.id).first()[UserCredentialTable.id].value
+            UserCredentialsTable.select(UserCredentialsTable.id).first()[UserCredentialsTable.id].value
         }
 
         override suspend fun getExistingIds() = suspendTransaction {
-            UserCredentialTable
-                .select(UserCredentialTable.id)
-                .map { it[UserCredentialTable.id].value }
+            UserCredentialsTable
+                .select(UserCredentialsTable.id)
+                .map { it[UserCredentialsTable.id].value }
                 .toFastList()
         }
 

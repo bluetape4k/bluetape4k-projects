@@ -1,8 +1,8 @@
-package io.bluetape4k.exposed.r2dbc.repository
+package io.bluetape4k.exposed.r2dbc.domain.repository
 
 import io.bluetape4k.coroutines.flow.extensions.toFastList
-import io.bluetape4k.exposed.r2dbc.domain.MovieDTO
-import io.bluetape4k.exposed.r2dbc.domain.MovieSchema.withMovieAndActors
+import io.bluetape4k.exposed.r2dbc.domain.model.MovieRecord
+import io.bluetape4k.exposed.r2dbc.domain.model.MovieSchema.withMovieAndActors
 import io.bluetape4k.exposed.r2dbc.tests.AbstractExposedR2dbcTest
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -18,7 +18,7 @@ import org.junit.jupiter.params.provider.MethodSource
 class MovieR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
 
     companion object: KLoggingChannel() {
-        private fun newMovieDTO(): MovieDTO = MovieDTO(
+        private fun newMovieRecord(): MovieRecord = MovieRecord(
             id = 0L,
             name = faker.book().title(),
             producerName = faker.name().fullName(),
@@ -58,7 +58,7 @@ class MovieR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `create movie`(testDB: TestDB) = runTest {
         withMovieAndActors(testDB) {
-            val movie = newMovieDTO()
+            val movie = newMovieRecord()
 
             val currentCount = repository.count()
 
@@ -74,7 +74,7 @@ class MovieR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `delete movie`(testDB: TestDB) = runTest {
         withMovieAndActors(testDB) {
-            val newMovie = newMovieDTO()
+            val newMovie = newMovieRecord()
             val savedMovie = repository.save(newMovie)
 
             val deletedCount = repository.deleteById(savedMovie.id)

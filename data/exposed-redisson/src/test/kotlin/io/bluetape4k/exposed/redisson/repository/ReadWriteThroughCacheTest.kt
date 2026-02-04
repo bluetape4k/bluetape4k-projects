@@ -2,11 +2,11 @@ package io.bluetape4k.exposed.redisson.repository
 
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.exposed.redisson.AbstractRedissonTest
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialDTO
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialTable
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserDTO
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialsRecord
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialsTable
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserRecord
 import io.bluetape4k.exposed.redisson.repository.UserSchema.UserTable
-import io.bluetape4k.exposed.redisson.repository.UserSchema.withUserCredentialTable
+import io.bluetape4k.exposed.redisson.repository.UserSchema.withUserCredentialsTable
 import io.bluetape4k.exposed.redisson.repository.UserSchema.withUserTable
 import io.bluetape4k.exposed.redisson.repository.scenarios.ReadThroughScenario
 import io.bluetape4k.exposed.redisson.repository.scenarios.WriteThroughScenario
@@ -25,8 +25,8 @@ class ReadWriteThroughCacheTest {
     companion object: KLogging()
 
     abstract class AutoIncIdReadWriteThrough: AbstractRedissonTest(),
-                                              ReadThroughScenario<UserDTO, Long>,
-                                              WriteThroughScenario<UserDTO, Long> {
+                                              ReadThroughScenario<UserRecord, Long>,
+                                              WriteThroughScenario<UserRecord, Long> {
         override fun withEntityTable(
             testDB: TestDB,
             statement: JdbcTransaction.() -> Unit,
@@ -47,12 +47,12 @@ class ReadWriteThroughCacheTest {
 
         override fun getNonExistentId() = Long.MIN_VALUE
 
-        override fun createNewEntity() = UserSchema.newUserDTO()
+        override fun createNewEntity() = UserSchema.newUserRecord()
 
-        override fun updateEntityEmail(entity: UserDTO) =
+        override fun updateEntityEmail(entity: UserRecord) =
             entity.copy(email = "updated-${Base58.randomString(8)}@example.com")
 
-        override fun assertSameEntityWithoutUpdatedAt(entity1: UserDTO, entity2: UserDTO) {
+        override fun assertSameEntityWithoutUpdatedAt(entity1: UserRecord, entity2: UserRecord) {
             entity1 shouldBeEqualTo entity2.copy(updatedAt = entity1.updatedAt)
         }
 
@@ -113,35 +113,35 @@ class ReadWriteThroughCacheTest {
 
 
     abstract class ClientGeneratedIdReadWriteThrough: AbstractRedissonTest(),
-                                                      ReadThroughScenario<UserCredentialDTO, UUID>,
-                                                      WriteThroughScenario<UserCredentialDTO, UUID> {
+                                                      ReadThroughScenario<UserCredentialsRecord, UUID>,
+                                                      WriteThroughScenario<UserCredentialsRecord, UUID> {
 
         override fun withEntityTable(
             testDB: TestDB,
             statement: JdbcTransaction.() -> Unit,
-        ) = withUserCredentialTable(testDB, statement)
+        ) = withUserCredentialsTable(testDB, statement)
 
         override fun getExistingId() = transaction {
-            UserCredentialTable
-                .select(UserCredentialTable.id)
+            UserCredentialsTable
+                .select(UserCredentialsTable.id)
                 .limit(1)
-                .first()[UserCredentialTable.id].value
+                .first()[UserCredentialsTable.id].value
         }
 
         override fun getExistingIds() = transaction {
-            UserCredentialTable
-                .select(UserCredentialTable.id)
-                .map { it[UserCredentialTable.id].value }
+            UserCredentialsTable
+                .select(UserCredentialsTable.id)
+                .map { it[UserCredentialsTable.id].value }
         }
 
         override fun getNonExistentId(): UUID = UUID.randomUUID()
 
-        override fun createNewEntity(): UserCredentialDTO = UserSchema.newUserCredentialDTO()
+        override fun createNewEntity(): UserCredentialsRecord = UserSchema.newUserCredentialsRecord()
 
-        override fun updateEntityEmail(entity: UserCredentialDTO): UserCredentialDTO =
+        override fun updateEntityEmail(entity: UserCredentialsRecord): UserCredentialsRecord =
             entity.copy(email = "updated.${Base58.randomString(8)}@example.com")
 
-        override fun assertSameEntityWithoutUpdatedAt(entity1: UserCredentialDTO, entity2: UserCredentialDTO) {
+        override fun assertSameEntityWithoutUpdatedAt(entity1: UserCredentialsRecord, entity2: UserCredentialsRecord) {
             entity1 shouldBeEqualTo entity2.copy(updatedAt = entity1.updatedAt)
         }
     }

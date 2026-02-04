@@ -117,7 +117,7 @@ interface SuspendedWriteThroughScenario<T: HasIdentifier<ID>, ID: Any>: Suspende
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `putAll - 새로운 DTO를 추가하면 AutoInc Id 는 DB 저장을 하지 않고, Client 생성 Id는 DB에 저장된다`(testDB: TestDB) = runSuspendIO {
+    fun `putAll - 새로운 Record를 추가하면 AutoInc Id 는 DB 저장을 하지 않고, Client 생성 Id는 DB에 저장된다`(testDB: TestDB) = runSuspendIO {
         // NOTE: MySQL/MariaDB 에서는 Isolation level을 java.sql.Connection.TRANSACTION_READ_COMMITTED 로 설정해야 제대로 작동합니다.
         Assumptions.assumeTrue { testDB !in TestDB.ALL_MYSQL_MARIADB }
 

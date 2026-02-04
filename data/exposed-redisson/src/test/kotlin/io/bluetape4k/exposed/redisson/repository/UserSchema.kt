@@ -54,7 +54,7 @@ object UserSchema: KLogging() {
     }
 
     class UserEntity(id: EntityID<Long>): LongEntity(id) {
-        // NOTE: EntityClass 는 직렬화/역직렬화가 불가능합니다. --> UserDTO 를 이용하여 캐시해야 합니다.
+        // NOTE: EntityClass 는 직렬화/역직렬화가 불가능합니다. --> UserRecord 를 이용하여 캐시해야 합니다.
         companion object: LongEntityClass<UserEntity>(UserTable)
 
         var firstName by UserTable.firstName
@@ -73,16 +73,18 @@ object UserSchema: KLogging() {
             .toString()
     }
 
-    data class UserDTO(
+    data class UserRecord(
         override val id: Long,
         val firstName: String,
         val lastName: String,
         val email: String,
         val createdAt: Instant = Instant.now(),
         val updatedAt: Instant? = null,
-    ): HasIdentifier<Long>
+    ): HasIdentifier<Long> {
+        fun withId(id: Long) = copy(id = id)
+    }
 
-    fun ResultRow.toUserDTO(): UserDTO = UserDTO(
+    fun ResultRow.toUserRecord(): UserRecord = UserRecord(
         id = this[UserTable.id].value,
         firstName = this[UserTable.firstName],
         lastName = this[UserTable.lastName],
@@ -91,7 +93,7 @@ object UserSchema: KLogging() {
         updatedAt = this[UserTable.updatedAt]
     )
 
-    fun UserEntity.toUserDTO(): UserDTO = UserDTO(
+    fun UserEntity.toUserRecord(): UserRecord = UserRecord(
         id = this.id.value,
         firstName = this.firstName,
         lastName = this.lastName,
@@ -158,24 +160,24 @@ object UserSchema: KLogging() {
 
     private val lastUserId = atomic(1000L)
 
-    fun newUserDTO(): UserDTO = UserDTO(
+    fun newUserRecord(): UserRecord = UserRecord(
         id = lastUserId.getAndIncrement(),
         firstName = faker.name().firstName(),
         lastName = faker.name().lastName(),
         email = Base58.randomString(4) + "." + faker.internet().emailAddress(),
     )
 
-    fun findUserDTOById(id: Long): UserDTO? {
+    fun findUserById(id: Long): UserRecord? {
         return UserTable.selectAll()
             .where { UserTable.id eq id }
             .singleOrNull()
-            ?.toUserDTO()
+            ?.toUserRecord()
     }
 
     /**
      * Client 에서 ID 값을 설정하는 [TimebasedUUIDBase62Table]을 구현한 `IdTable<String>` 테이블입니다.
      */
-    object UserCredentialTable: TimebasedUUIDTable("user_credentials") {
+    object UserCredentialsTable: TimebasedUUIDTable("user_credentials") {
         val loginId = varchar("login_id", 255).uniqueIndex()
         val email = varchar("email", 255)
         val lastLoginAt = timestamp("last_login_at").nullable()
@@ -184,16 +186,16 @@ object UserSchema: KLogging() {
         val updatedAt = timestamp("updated_at").nullable()
     }
 
-    class UserCredentialEntity(id: EntityID<UUID>): TimebasedUUIDEntity(id) {
-        // NOTE: EntityClass 는 직렬화/역직렬화가 불가능합니다. --> UserDTO 를 이용하여 캐시해야 합니다.
-        companion object: TimebasedUUIDEntityClass<UserCredentialEntity>(UserCredentialTable)
+    class UserCredentialsEntity(id: EntityID<UUID>): TimebasedUUIDEntity(id) {
+        // NOTE: EntityClass 는 직렬화/역직렬화가 불가능합니다. --> UserRecord 를 이용하여 캐시해야 합니다.
+        companion object: TimebasedUUIDEntityClass<UserCredentialsEntity>(UserCredentialsTable)
 
-        var loginId by UserCredentialTable.loginId
-        var email by UserCredentialTable.email
-        var lastLoginAt by UserCredentialTable.lastLoginAt
+        var loginId by UserCredentialsTable.loginId
+        var email by UserCredentialsTable.email
+        var lastLoginAt by UserCredentialsTable.lastLoginAt
 
-        var createdAt by UserCredentialTable.createdAt
-        var updatedAt by UserCredentialTable.updatedAt
+        var createdAt by UserCredentialsTable.createdAt
+        var updatedAt by UserCredentialsTable.updatedAt
 
         override fun equals(other: Any?): Boolean = idEquals(other)
         override fun hashCode(): Int = idHashCode()
@@ -203,7 +205,7 @@ object UserSchema: KLogging() {
             .toString()
     }
 
-    data class UserCredentialDTO(
+    data class UserCredentialsRecord(
         override val id: UUID,
         val loginId: String,
         val email: String,
@@ -212,34 +214,34 @@ object UserSchema: KLogging() {
         val updatedAt: Instant? = null,
     ): HasIdentifier<UUID>
 
-    fun ResultRow.toUserCredential(): UserCredentialDTO = UserCredentialDTO(
-        id = this[UserCredentialTable.id].value,
-        loginId = this[UserCredentialTable.loginId],
-        email = this[UserCredentialTable.email],
-        lastLoginAt = this[UserCredentialTable.lastLoginAt],
-        createdAt = this[UserCredentialTable.createdAt],
-        updatedAt = this[UserCredentialTable.updatedAt],
+    fun ResultRow.toUserCredentialsRecord(): UserCredentialsRecord = UserCredentialsRecord(
+        id = this[UserCredentialsTable.id].value,
+        loginId = this[UserCredentialsTable.loginId],
+        email = this[UserCredentialsTable.email],
+        lastLoginAt = this[UserCredentialsTable.lastLoginAt],
+        createdAt = this[UserCredentialsTable.createdAt],
+        updatedAt = this[UserCredentialsTable.updatedAt],
     )
 
-    fun withUserCredentialTable(
+    fun withUserCredentialsTable(
         testDB: TestDB,
         statement: JdbcTransaction.() -> Unit,
     ) {
-        withTables(testDB, UserCredentialTable) {
-            UserCredentialTable.insert {
-                it[UserCredentialTable.loginId] = "debop"
-                it[UserCredentialTable.email] = faker.internet().safeEmailAddress()
-                it[UserCredentialTable.lastLoginAt] = LocalDateTime.now().minusDays(5).toInstant()
+        withTables(testDB, UserCredentialsTable) {
+            UserCredentialsTable.insert {
+                it[UserCredentialsTable.loginId] = "debop"
+                it[UserCredentialsTable.email] = faker.internet().safeEmailAddress()
+                it[UserCredentialsTable.lastLoginAt] = LocalDateTime.now().minusDays(5).toInstant()
             }
-            UserCredentialTable.insert {
-                it[UserCredentialTable.loginId] = "midoogi"
-                it[UserCredentialTable.email] = faker.internet().safeEmailAddress()
-                it[UserCredentialTable.lastLoginAt] = LocalDateTime.now().minusDays(100).toInstant()
+            UserCredentialsTable.insert {
+                it[UserCredentialsTable.loginId] = "midoogi"
+                it[UserCredentialsTable.email] = faker.internet().safeEmailAddress()
+                it[UserCredentialsTable.lastLoginAt] = LocalDateTime.now().minusDays(100).toInstant()
             }
-            UserCredentialTable.insert {
-                it[UserCredentialTable.loginId] = faker.credentials().username()
-                it[UserCredentialTable.email] = faker.internet().safeEmailAddress()
-                it[UserCredentialTable.lastLoginAt] = LocalDateTime.now().minusDays(200).toInstant()
+            UserCredentialsTable.insert {
+                it[UserCredentialsTable.loginId] = faker.credentials().username()
+                it[UserCredentialsTable.email] = faker.internet().safeEmailAddress()
+                it[UserCredentialsTable.lastLoginAt] = LocalDateTime.now().minusDays(200).toInstant()
             }
             flushCache()
             entityCache.clear()
@@ -249,27 +251,27 @@ object UserSchema: KLogging() {
         }
     }
 
-    suspend fun withSuspendedUserCredentialTable(
+    suspend fun withSuspendedUserCredentialsTable(
         testDB: TestDB,
         context: CoroutineContext = Dispatchers.IO,
         statement: suspend JdbcTransaction.() -> Unit,
     ) {
         // NOTE: 코루틴 작업은 작업이 완료 시까지 대기해야 해서, dropTables = false 로 설정합니다.
-        withSuspendedTables(testDB, UserCredentialTable, context = context, dropTables = false) {
-            UserCredentialTable.insert {
-                it[UserCredentialTable.loginId] = "debop"
-                it[UserCredentialTable.email] = faker.internet().safeEmailAddress()
-                it[UserCredentialTable.lastLoginAt] = LocalDateTime.now().minusDays(5).toInstant()
+        withSuspendedTables(testDB, UserCredentialsTable, context = context, dropTables = false) {
+            UserCredentialsTable.insert {
+                it[UserCredentialsTable.loginId] = "debop"
+                it[UserCredentialsTable.email] = faker.internet().safeEmailAddress()
+                it[UserCredentialsTable.lastLoginAt] = LocalDateTime.now().minusDays(5).toInstant()
             }
-            UserCredentialTable.insert {
-                it[UserCredentialTable.loginId] = "midoogi"
-                it[UserCredentialTable.email] = faker.internet().safeEmailAddress()
-                it[UserCredentialTable.lastLoginAt] = LocalDateTime.now().minusDays(100).toInstant()
+            UserCredentialsTable.insert {
+                it[UserCredentialsTable.loginId] = "midoogi"
+                it[UserCredentialsTable.email] = faker.internet().safeEmailAddress()
+                it[UserCredentialsTable.lastLoginAt] = LocalDateTime.now().minusDays(100).toInstant()
             }
-            UserCredentialTable.insert {
-                it[UserCredentialTable.loginId] = faker.credentials().username()
-                it[UserCredentialTable.email] = faker.internet().safeEmailAddress()
-                it[UserCredentialTable.lastLoginAt] = LocalDateTime.now().minusDays(200).toInstant()
+            UserCredentialsTable.insert {
+                it[UserCredentialsTable.loginId] = faker.credentials().username()
+                it[UserCredentialsTable.email] = faker.internet().safeEmailAddress()
+                it[UserCredentialsTable.lastLoginAt] = LocalDateTime.now().minusDays(200).toInstant()
             }
 
             flushCache()
@@ -280,8 +282,8 @@ object UserSchema: KLogging() {
         }
     }
 
-    fun newUserCredentialDTO(loginId: String? = null): UserCredentialDTO {
-        return UserCredentialDTO(
+    fun newUserCredentialsRecord(loginId: String? = null): UserCredentialsRecord {
+        return UserCredentialsRecord(
             id = TimebasedUuid.Reordered.nextId(),
             loginId = loginId ?: (faker.credentials().username() + "_" + Base58.randomString(8)),
             email = Base58.randomString(4) + "." + faker.internet().emailAddress(),
@@ -289,25 +291,25 @@ object UserSchema: KLogging() {
         )
     }
 
-    fun insertUserCredential(loginId: String? = null): UUID {
-        return UserCredentialTable.insertAndGetId {
-            it[UserCredentialTable.loginId] = loginId ?: faker.credentials().username()
-            it[UserCredentialTable.email] = faker.internet().safeEmailAddress()
-            it[UserCredentialTable.lastLoginAt] = LocalDateTime.now().minusDays(200).toInstant()
+    fun insertUserCredentials(loginId: String? = null): UUID {
+        return UserCredentialsTable.insertAndGetId {
+            it[UserCredentialsTable.loginId] = loginId ?: faker.credentials().username()
+            it[UserCredentialsTable.email] = faker.internet().safeEmailAddress()
+            it[UserCredentialsTable.lastLoginAt] = LocalDateTime.now().minusDays(200).toInstant()
         }.value
     }
 
-    fun findUserCredentialDTOById(id: UUID): UserCredentialDTO? {
-        return UserCredentialTable.selectAll()
-            .where { UserCredentialTable.id eq id }
+    fun findUserCredentialsById(id: UUID): UserCredentialsRecord? {
+        return UserCredentialsTable.selectAll()
+            .where { UserCredentialsTable.id eq id }
             .singleOrNull()
-            ?.toUserCredential()
+            ?.toUserCredentialsRecord()
     }
 
-    fun findUserCredentialDTOByLoginid(loginId: String): UserCredentialDTO? {
-        return UserCredentialTable.selectAll()
-            .where { UserCredentialTable.loginId eq loginId }
+    fun findUserCredentialsByLoginid(loginId: String): UserCredentialsRecord? {
+        return UserCredentialsTable.selectAll()
+            .where { UserCredentialsTable.loginId eq loginId }
             .singleOrNull()
-            ?.toUserCredential()
+            ?.toUserCredentialsRecord()
     }
 }

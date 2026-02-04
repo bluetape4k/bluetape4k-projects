@@ -1,8 +1,8 @@
 package io.bluetape4k.exposed.repository
 
-import io.bluetape4k.exposed.domain.dto.MovieDTO
-import io.bluetape4k.exposed.domain.mapper.toMovieDTO
+import io.bluetape4k.exposed.domain.model.MovieRecord
 import io.bluetape4k.exposed.domain.model.MovieSchema.withMovieAndActors
+import io.bluetape4k.exposed.domain.model.toMovieRecord
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
@@ -17,7 +17,7 @@ import org.junit.jupiter.params.provider.MethodSource
 class MovieRepositoryTest: AbstractExposedTest() {
 
     companion object: KLogging() {
-        private fun newMovieDTO(): MovieDTO = MovieDTO(
+        private fun newMovieRecord(): MovieRecord = MovieRecord(
             name = faker.book().title(),
             producerName = faker.name().fullName(),
             releaseDate = faker.timeAndDate().birthday(20, 80).toString()
@@ -44,7 +44,7 @@ class MovieRepositoryTest: AbstractExposedTest() {
         withMovieAndActors(testDB) {
             val params = mapOf("producerName" to "Johnny")
 
-            val movies = repository.searchMovies(params).map { it.toMovieDTO() }
+            val movies = repository.searchMovies(params).map { it.toMovieRecord() }
             movies.forEach {
                 log.debug { "movie: $it" }
             }
@@ -56,7 +56,7 @@ class MovieRepositoryTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `create movie`(testDB: TestDB) {
         withMovieAndActors(testDB) {
-            val movie = newMovieDTO()
+            val movie = newMovieRecord()
 
             val currentCount = repository.count()
 
@@ -72,7 +72,7 @@ class MovieRepositoryTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `delete movie`(testDB: TestDB) {
         withMovieAndActors(testDB) {
-            val newMovie = newMovieDTO()
+            val newMovie = newMovieRecord()
             val savedMovie = repository.save(newMovie)
 
             val deletedCount = repository.deleteById(savedMovie.id)

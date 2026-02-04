@@ -1,8 +1,8 @@
 package io.bluetape4k.exposed.r2dbc.redisson.repository
 
-import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserCredentialDTO
-import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserCredentialTable
-import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.toUserCredentialDTO
+import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserCredentialsRecord
+import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserCredentialsTable
+import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.toUserCredentialsRecord
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -17,16 +17,16 @@ class R2dbcUserCredentialCacheRepository(
     redissonClient: RedissonClient,
     cacheName: String = "exposed:remote:r2dbc:users",
     config: RedisCacheConfig = RedisCacheConfig.READ_WRITE_THROUGH,
-): AbstractR2dbcCacheRepository<UserCredentialDTO, UUID>(redissonClient, cacheName, config) {
+): AbstractR2dbcCacheRepository<UserCredentialsRecord, UUID>(redissonClient, cacheName, config) {
 
     companion object: KLoggingChannel()
 
-    override val entityTable: UserCredentialTable = UserCredentialTable
-    override suspend fun ResultRow.toEntity(): UserCredentialDTO = toUserCredentialDTO()
+    override val entityTable: UserCredentialsTable = UserCredentialsTable
+    override suspend fun ResultRow.toEntity(): UserCredentialsRecord = toUserCredentialsRecord()
 
     override fun doUpdateEntity(
         statement: UpdateStatement,
-        entity: UserCredentialDTO,
+        entity: UserCredentialsRecord,
     ) {
         statement[entityTable.loginId] = entity.loginId
         statement[entityTable.email] = entity.email
@@ -36,7 +36,7 @@ class R2dbcUserCredentialCacheRepository(
 
     override fun doInsertEntity(
         statement: BatchInsertStatement,
-        entity: UserCredentialDTO,
+        entity: UserCredentialsRecord,
     ) {
         // NOTE: MapWriter 가 AutoIncremented ID 를 가진 테이블에 대해 INSERT 를 수행하지 않습니다.
         if (entityTable.id.autoIncColumnType == null) {

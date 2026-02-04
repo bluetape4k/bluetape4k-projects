@@ -1,8 +1,8 @@
 package io.bluetape4k.exposed.redisson.repository
 
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialDTO
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialTable
-import io.bluetape4k.exposed.redisson.repository.UserSchema.toUserCredential
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialsRecord
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialsTable
+import io.bluetape4k.exposed.redisson.repository.UserSchema.toUserCredentialsRecord
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -16,16 +16,16 @@ class UserCredentialCacheRepository(
     redissonClient: RedissonClient,
     cacheName: String = "exposed:user-credentials",
     config: RedisCacheConfig = RedisCacheConfig.READ_WRITE_THROUGH,
-): AbstractExposedCacheRepository<UserCredentialDTO, UUID>(redissonClient, cacheName, config) {
+): AbstractExposedCacheRepository<UserCredentialsRecord, UUID>(redissonClient, cacheName, config) {
 
     companion object: KLogging()
 
-    override val entityTable: UserCredentialTable = UserCredentialTable
-    override fun ResultRow.toEntity(): UserCredentialDTO = toUserCredential()
+    override val entityTable: UserCredentialsTable = UserCredentialsTable
+    override fun ResultRow.toEntity(): UserCredentialsRecord = toUserCredentialsRecord()
 
     override fun doUpdateEntity(
         statement: UpdateStatement,
-        entity: UserCredentialDTO,
+        entity: UserCredentialsRecord,
     ) {
         statement[entityTable.loginId] = entity.loginId
         statement[entityTable.email] = entity.email
@@ -35,7 +35,7 @@ class UserCredentialCacheRepository(
 
     override fun doInsertEntity(
         statement: BatchInsertStatement,
-        entity: UserSchema.UserCredentialDTO,
+        entity: UserSchema.UserCredentialsRecord,
     ) {
         // NOTE: MapWriter 가 AutoIncremented ID 를 가진 테이블에 대해 INSERT 를 수행하지 않습니다.
         statement[entityTable.id] = entity.id

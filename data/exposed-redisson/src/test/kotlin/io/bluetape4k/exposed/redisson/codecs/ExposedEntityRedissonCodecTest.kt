@@ -21,7 +21,7 @@ import org.redisson.codec.CborJacksonCodec
 
 /**
  * NOTE: Exposed Entity 는 Redis 의 Codec 으로는 변환이 불가능하다.
- * NOTE: 그래서 ExposedRedisRepository 는 Entity 가 아닌 DTO를 캐시하도록 한다.
+ * NOTE: 그래서 ExposedRedisRepository 는 Entity 가 아닌 data class를 캐시하도록 한다.
  */
 @Disabled("Exposed Entity 는 직렬화가 불가합니다")
 class ExposedEntityRedissonCodecTest: AbstractExposedTest() {

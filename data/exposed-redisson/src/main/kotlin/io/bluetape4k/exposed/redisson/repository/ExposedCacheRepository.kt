@@ -17,7 +17,7 @@ import org.redisson.api.RMap
 /**
  * Exposed와 Redisson을 활용하여 Redis에 데이터를 캐싱하는 Repository 인터페이스입니다.
  *
- * @param T 엔티티 타입. Exposed 엔티티는 Redis 저장 시 Serializer 문제로 인해 반드시 Serializable DTO를 사용해야 합니다.
+ * @param T 엔티티 타입. Exposed 엔티티는 Redis 저장 시 Serializer 문제로 인해 반드시 Serializable Record를 사용해야 합니다.
  * @param ID 엔티티의 식별자 타입
  */
 interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {

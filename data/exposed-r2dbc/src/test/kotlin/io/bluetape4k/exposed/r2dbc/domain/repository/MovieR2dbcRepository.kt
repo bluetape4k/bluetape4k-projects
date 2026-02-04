@@ -1,17 +1,18 @@
-package io.bluetape4k.exposed.r2dbc.repository
+package io.bluetape4k.exposed.r2dbc.domain.repository
 
 import io.bluetape4k.coroutines.flow.extensions.bufferUntilChanged
-import io.bluetape4k.exposed.r2dbc.domain.MovieActorCountDTO
-import io.bluetape4k.exposed.r2dbc.domain.MovieDTO
-import io.bluetape4k.exposed.r2dbc.domain.MovieSchema.ActorInMovieTable
-import io.bluetape4k.exposed.r2dbc.domain.MovieSchema.ActorTable
-import io.bluetape4k.exposed.r2dbc.domain.MovieSchema.MovieTable
-import io.bluetape4k.exposed.r2dbc.domain.MovieWithActorDTO
-import io.bluetape4k.exposed.r2dbc.domain.MovieWithProducingActorDTO
-import io.bluetape4k.exposed.r2dbc.domain.toActorDTO
-import io.bluetape4k.exposed.r2dbc.domain.toMovieDTO
-import io.bluetape4k.exposed.r2dbc.domain.toMovieWithActorDTO
-import io.bluetape4k.exposed.r2dbc.domain.toMovieWithProducingActorDTO
+import io.bluetape4k.exposed.r2dbc.domain.model.MovieActorCountRecord
+import io.bluetape4k.exposed.r2dbc.domain.model.MovieRecord
+import io.bluetape4k.exposed.r2dbc.domain.model.MovieSchema.ActorInMovieTable
+import io.bluetape4k.exposed.r2dbc.domain.model.MovieSchema.ActorTable
+import io.bluetape4k.exposed.r2dbc.domain.model.MovieSchema.MovieTable
+import io.bluetape4k.exposed.r2dbc.domain.model.MovieWithActorRecord
+import io.bluetape4k.exposed.r2dbc.domain.model.MovieWithProducingActorRecord
+import io.bluetape4k.exposed.r2dbc.domain.model.toActorRecord
+import io.bluetape4k.exposed.r2dbc.domain.model.toMovieRecord
+import io.bluetape4k.exposed.r2dbc.domain.model.toMovieWithActorRecord
+import io.bluetape4k.exposed.r2dbc.domain.model.toMovieWithProducingActorRecord
+import io.bluetape4k.exposed.r2dbc.repository.ExposedR2dbcRepository
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.Flow
@@ -31,7 +32,7 @@ import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import java.time.LocalDate
 
-class MovieR2dbcRepository: ExposedR2dbcRepository<MovieDTO, Long> {
+class MovieR2dbcRepository: ExposedR2dbcRepository<MovieRecord, Long> {
 
     companion object: KLoggingChannel() {
         private val MovieActorJoin: Join by lazy {
@@ -55,20 +56,20 @@ class MovieR2dbcRepository: ExposedR2dbcRepository<MovieDTO, Long> {
 
     override val table = MovieTable
 
-    override suspend fun ResultRow.toEntity(): MovieDTO = toMovieDTO()
+    override suspend fun ResultRow.toEntity(): MovieRecord = toMovieRecord()
 
-    suspend fun save(movieDto: MovieDTO): MovieDTO {
-        log.debug { "Create new movie. movie: $movieDto" }
+    suspend fun save(movieRecord: MovieRecord): MovieRecord {
+        log.debug { "Create new movie. movie: $movieRecord" }
 
         val id = MovieTable.insertAndGetId {
-            it[name] = movieDto.name
-            it[producerName] = movieDto.producerName
-            it[releaseDate] = LocalDate.parse(movieDto.releaseDate)
+            it[name] = movieRecord.name
+            it[producerName] = movieRecord.producerName
+            it[releaseDate] = LocalDate.parse(movieRecord.releaseDate)
         }
-        return movieDto.copy(id = id.value)
+        return movieRecord.copy(id = id.value)
     }
 
-    fun searchMovies(params: Map<String, String?>): Flow<MovieDTO> {
+    fun searchMovies(params: Map<String, String?>): Flow<MovieRecord> {
         log.debug { "Search movies by params. params=$params" }
 
         val query = table.selectAll()
@@ -105,7 +106,7 @@ class MovieR2dbcRepository: ExposedR2dbcRepository<MovieDTO, Long> {
      *          INNER JOIN ACTORS_IN_MOVIES ON MOVIES.ID = ACTORS_IN_MOVIES.MOVIE_ID
      *          INNER JOIN ACTORS ON ACTORS.ID = ACTORS_IN_MOVIES.ACTOR_ID
      */
-    fun getAllMoviesWithActors(): Flow<MovieWithActorDTO> {
+    fun getAllMoviesWithActors(): Flow<MovieWithActorRecord> {
         log.debug { "Get all movies with actors." }
 
         return MovieActorJoin
@@ -120,8 +121,8 @@ class MovieR2dbcRepository: ExposedR2dbcRepository<MovieDTO, Long> {
                 ActorTable.birthday
             )
             .map { row ->
-                val movie = row.toMovieDTO()
-                val actor = row.toActorDTO()
+                val movie = row.toMovieRecord()
+                val actor = row.toActorRecord()
 
                 movie to actor
             }
@@ -129,7 +130,7 @@ class MovieR2dbcRepository: ExposedR2dbcRepository<MovieDTO, Long> {
             .mapNotNull { pairs ->
                 val movie = pairs.first().first
                 val actors = pairs.map { it.second }
-                movie.toMovieWithActorDTO(actors)
+                movie.toMovieWithActorRecord(actors)
             }
     }
 
@@ -152,7 +153,7 @@ class MovieR2dbcRepository: ExposedR2dbcRepository<MovieDTO, Long> {
      *  WHERE ACTORS_IN_MOVIES.MOVIE_ID = 1;
      * ```
      */
-    suspend fun getMovieWithActors(movieId: Long): MovieWithActorDTO? {
+    suspend fun getMovieWithActors(movieId: Long): MovieWithActorRecord? {
         log.debug { "Get movie with actors. movieId: $movieId" }
 
         return MovieActorJoin
@@ -168,8 +169,8 @@ class MovieR2dbcRepository: ExposedR2dbcRepository<MovieDTO, Long> {
             )
             .where { MovieTable.id eq movieId }
             .map { row ->
-                val movie = row.toMovieDTO()
-                val actor = row.toActorDTO()
+                val movie = row.toMovieRecord()
+                val actor = row.toActorRecord()
 
                 movie to actor
             }
@@ -177,7 +178,7 @@ class MovieR2dbcRepository: ExposedR2dbcRepository<MovieDTO, Long> {
             .mapNotNull { pairs ->
                 val movie = pairs.first().first
                 val actors = pairs.map { it.second }
-                movie.toMovieWithActorDTO(actors)
+                movie.toMovieWithActorRecord(actors)
             }
             .firstOrNull()
     }
@@ -195,7 +196,7 @@ class MovieR2dbcRepository: ExposedR2dbcRepository<MovieDTO, Long> {
      *  GROUP BY MOVIES.ID
      * ```
      */
-    fun getMovieActorsCount(): Flow<MovieActorCountDTO> {
+    fun getMovieActorsCount(): Flow<MovieActorCountRecord> {
         log.debug { "Get Movie actors count." }
 
         val actorCountAlias = ActorTable.id.count().alias("actorCount")
@@ -204,7 +205,7 @@ class MovieR2dbcRepository: ExposedR2dbcRepository<MovieDTO, Long> {
             .select(MovieTable.id, MovieTable.name, actorCountAlias)
             .groupBy(MovieTable.id)
             .map {
-                MovieActorCountDTO(
+                MovieActorCountRecord(
                     movieName = it[MovieTable.name],
                     actorCount = it[actorCountAlias].toInt()
                 )
@@ -223,7 +224,7 @@ class MovieR2dbcRepository: ExposedR2dbcRepository<MovieDTO, Long> {
      *  WHERE movies.producer_name = actors.first_name
      * ```
      */
-    fun findMoviesWithActingProducers(): Flow<MovieWithProducingActorDTO> {
+    fun findMoviesWithActingProducers(): Flow<MovieWithProducingActorRecord> {
         log.debug { "Find movies with acting producers." }
 
         return moviesWithActingProducersJoin
@@ -233,7 +234,7 @@ class MovieR2dbcRepository: ExposedR2dbcRepository<MovieDTO, Long> {
                 ActorTable.lastName
             )
             .map {
-                it.toMovieWithProducingActorDTO()
+                it.toMovieWithProducingActorRecord()
             }
     }
 }

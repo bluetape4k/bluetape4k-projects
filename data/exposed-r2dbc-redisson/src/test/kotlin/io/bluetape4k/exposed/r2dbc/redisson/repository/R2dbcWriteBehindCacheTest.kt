@@ -3,11 +3,11 @@ package io.bluetape4k.exposed.r2dbc.redisson.repository
 import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.exposed.r2dbc.redisson.R2dbcRedissonTestBase
 import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema
-import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserCredentialDTO
-import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserCredentialTable
-import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserDTO
+import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserCredentialsRecord
+import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserCredentialsTable
+import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserRecord
 import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserTable
-import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.withUserCredentialTable
+import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.withUserCredentialsTable
 import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.withUserTable
 import io.bluetape4k.exposed.r2dbc.redisson.scenario.R2dbcWriteBehindScenario
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
@@ -28,7 +28,7 @@ class R2dbcWriteBehindCacheTest {
     companion object: KLoggingChannel()
 
     abstract class R2dbcAutoIncIdReadWriteBehind: R2dbcRedissonTestBase(),
-                                                  R2dbcWriteBehindScenario<UserDTO, Long> {
+                                                  R2dbcWriteBehindScenario<UserRecord, Long> {
         override suspend fun withR2dbcEntityTable(
             testDB: TestDB,
             context: CoroutineContext,
@@ -50,7 +50,7 @@ class R2dbcWriteBehindCacheTest {
         }
 
         override suspend fun getNonExistentId(): Long = Long.MIN_VALUE
-        override suspend fun createNewEntity(): UserDTO = UserSchema.newUserDTO()
+        override suspend fun createNewEntity(): UserRecord = UserSchema.newUserRecord()
     }
 
     @Nested
@@ -80,29 +80,29 @@ class R2dbcWriteBehindCacheTest {
     }
 
     abstract class R2dbcClientGeneratedIdReadWriteBehind: R2dbcRedissonTestBase(),
-                                                          R2dbcWriteBehindScenario<UserCredentialDTO, UUID> {
+                                                          R2dbcWriteBehindScenario<UserCredentialsRecord, UUID> {
         override suspend fun withR2dbcEntityTable(
             testDB: TestDB,
             context: CoroutineContext,
             statement: suspend R2dbcTransaction.() -> Unit,
-        ) = withUserCredentialTable(testDB, context, statement)
+        ) = withUserCredentialsTable(testDB, context, statement)
 
         override suspend fun getExistingId() = suspendTransaction {
-            UserCredentialTable
-                .select(UserCredentialTable.id)
-                .first()[UserCredentialTable.id].value
+            UserCredentialsTable
+                .select(UserCredentialsTable.id)
+                .first()[UserCredentialsTable.id].value
         }
 
         override suspend fun getExistingIds() = suspendTransaction {
-            UserCredentialTable
-                .select(UserCredentialTable.id)
-                .map { it[UserCredentialTable.id].value }
+            UserCredentialsTable
+                .select(UserCredentialsTable.id)
+                .map { it[UserCredentialsTable.id].value }
                 .toFastList()
         }
 
         override suspend fun getNonExistentId(): UUID = UUID.randomUUID()
 
-        override suspend fun createNewEntity(): UserCredentialDTO = UserSchema.newUserCredentialDTO()
+        override suspend fun createNewEntity(): UserCredentialsRecord = UserSchema.newUserCredentialsRecord()
     }
 
     @Nested

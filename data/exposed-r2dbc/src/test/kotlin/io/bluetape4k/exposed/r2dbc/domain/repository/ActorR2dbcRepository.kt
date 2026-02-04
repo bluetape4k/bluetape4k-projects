@@ -1,8 +1,9 @@
-package io.bluetape4k.exposed.r2dbc.repository
+package io.bluetape4k.exposed.r2dbc.domain.repository
 
-import io.bluetape4k.exposed.r2dbc.domain.ActorDTO
-import io.bluetape4k.exposed.r2dbc.domain.MovieSchema.ActorTable
-import io.bluetape4k.exposed.r2dbc.domain.toActorDTO
+import io.bluetape4k.exposed.r2dbc.domain.model.ActorRecord
+import io.bluetape4k.exposed.r2dbc.domain.model.MovieSchema.ActorTable
+import io.bluetape4k.exposed.r2dbc.domain.model.toActorRecord
+import io.bluetape4k.exposed.r2dbc.repository.ExposedR2dbcRepository
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.Flow
@@ -14,14 +15,14 @@ import org.jetbrains.exposed.v1.r2dbc.insertAndGetId
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import java.time.LocalDate
 
-class ActorR2dbcRepository: ExposedR2dbcRepository<ActorDTO, Long> {
+class ActorR2dbcRepository: ExposedR2dbcRepository<ActorRecord, Long> {
 
     companion object: KLoggingChannel()
 
     override val table = ActorTable
-    override suspend fun ResultRow.toEntity(): ActorDTO = toActorDTO()
+    override suspend fun ResultRow.toEntity(): ActorRecord = toActorRecord()
 
-    fun searchActors(params: Map<String, String?>): Flow<ActorDTO> {
+    fun searchActors(params: Map<String, String?>): Flow<ActorRecord> {
         val query = ActorTable.selectAll()
 
         params.forEach { (key, value) ->
@@ -36,7 +37,7 @@ class ActorR2dbcRepository: ExposedR2dbcRepository<ActorDTO, Long> {
         return query.map { it.toEntity() }
     }
 
-    suspend fun save(actor: ActorDTO): ActorDTO {
+    suspend fun save(actor: ActorRecord): ActorRecord {
         log.debug { "Create new actor. actor: $actor" }
 
         val id = ActorTable.insertAndGetId {

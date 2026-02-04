@@ -1,9 +1,9 @@
-package io.bluetape4k.exposed.r2dbc.repository
+package io.bluetape4k.exposed.r2dbc.domain.repository
 
 import io.bluetape4k.coroutines.flow.extensions.toFastList
-import io.bluetape4k.exposed.r2dbc.domain.ActorDTO
-import io.bluetape4k.exposed.r2dbc.domain.MovieSchema.ActorTable
-import io.bluetape4k.exposed.r2dbc.domain.MovieSchema.withMovieAndActors
+import io.bluetape4k.exposed.r2dbc.domain.model.ActorRecord
+import io.bluetape4k.exposed.r2dbc.domain.model.MovieSchema.ActorTable
+import io.bluetape4k.exposed.r2dbc.domain.model.MovieSchema.withMovieAndActors
 import io.bluetape4k.exposed.r2dbc.tests.AbstractExposedR2dbcTest
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -27,7 +27,7 @@ import org.junit.jupiter.params.provider.MethodSource
 class ActorR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
 
     companion object: KLoggingChannel() {
-        fun newActorDTO(): ActorDTO = ActorDTO(
+        fun newActorRecord(): ActorRecord = ActorRecord(
             id = 0L,
             firstName = faker.name().firstName(),
             lastName = faker.name().lastName(),
@@ -66,7 +66,7 @@ class ActorR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `create new actor`(testDB: TestDB) = runTest {
         withMovieAndActors(testDB) {
-            val actor = newActorDTO()
+            val actor = newActorRecord()
 
             val currentCount = repository.count()
 
@@ -82,7 +82,7 @@ class ActorR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `delete actor by id`(testDB: TestDB) = runTest {
         withMovieAndActors(testDB) {
-            val actor = newActorDTO()
+            val actor = newActorRecord()
             val savedActor = repository.save(actor)
             savedActor.id.shouldNotBeNull()
 
@@ -99,7 +99,7 @@ class ActorR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
             log.debug { "count: $count" }
             count shouldBeGreaterThan 0L
 
-            repository.save(newActorDTO())
+            repository.save(newActorRecord())
 
             val newCount = repository.count()
             newCount shouldBeEqualTo count + 1L
@@ -172,7 +172,7 @@ class ActorR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `delete entity`(testDB: TestDB) = runTest {
         withMovieAndActors(testDB) {
-            val actor = newActorDTO()
+            val actor = newActorRecord()
             val savedActor = repository.save(actor)
             savedActor.id.shouldNotBeNull()
 
@@ -188,7 +188,7 @@ class ActorR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `delete entity by id`(testDB: TestDB) = runTest {
         withMovieAndActors(testDB) {
-            val actor = newActorDTO()
+            val actor = newActorRecord()
             val savedActor = repository.save(actor)
             savedActor.id.shouldNotBeNull()
 

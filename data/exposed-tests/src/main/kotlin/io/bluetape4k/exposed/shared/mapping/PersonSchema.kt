@@ -130,7 +130,9 @@ object PersonSchema {
         val employeed: Boolean? = null,
         val occupation: String? = null,
         val address: Long? = null,
-    ): java.io.Serializable
+    ): java.io.Serializable {
+        fun withId(id: Long) = copy(id = id)
+    }
 
     data class PersonWithAddress(
         var id: Long? = null,
@@ -140,7 +142,9 @@ object PersonSchema {
         var employeed: Boolean? = null,
         var occupation: String? = null,
         var address: Address? = null,
-    ): java.io.Serializable
+    ): java.io.Serializable {
+        fun withId(id: Long) = copy(id = id)
+    }
 
     fun withPersons(
         testDB: TestDB,

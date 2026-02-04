@@ -1,8 +1,9 @@
-package io.bluetape4k.exposed.r2dbc.repository
+package io.bluetape4k.exposed.r2dbc.domain.repository
 
 import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.dao.id.SoftDeletedIdTable
+import io.bluetape4k.exposed.r2dbc.repository.SoftDeletedR2dbcRepository
 import io.bluetape4k.exposed.r2dbc.tests.AbstractExposedR2dbcTest
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.exposed.r2dbc.tests.withTables
@@ -29,25 +30,21 @@ class SoftDeletedR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
         override val primaryKey = PrimaryKey(id)
     }
 
-    data class ContactDTO(
+    data class ContactRecord(
         val name: String,
         val isDeleted: Boolean,
         override val id: Long = 0L,
     ): HasIdentifier<Long>
 
-    fun ResultRow.toContactDTO(): ContactDTO = ContactDTO(
+    fun ResultRow.toContactRecord(): ContactRecord = ContactRecord(
         id = this[ContactTable.id].value,
         name = this[ContactTable.name],
         isDeleted = this[ContactTable.isDeleted]
     )
 
-    val repository = object: SoftDeletedR2dbcRepository<ContactDTO, Long> {
+    val repository = object: SoftDeletedR2dbcRepository<ContactRecord, Long> {
         override val table = ContactTable
-        override suspend fun ResultRow.toEntity(): ContactDTO = ContactDTO(
-            id = this[ContactTable.id].value,
-            name = this[ContactTable.name],
-            isDeleted = this[ContactTable.isDeleted]
-        )
+        override suspend fun ResultRow.toEntity(): ContactRecord = toContactRecord()
     }
 
     @ParameterizedTest
@@ -64,7 +61,7 @@ class SoftDeletedR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
 
             repository.softDeleteById(contact1Id)
 
-            val activeEntities: List<ContactDTO> = repository.findActive().toFastList()
+            val activeEntities: List<ContactRecord> = repository.findActive().toFastList()
             activeEntities shouldHaveSize 1
             activeEntities.single().id shouldBeEqualTo contact2Id
 

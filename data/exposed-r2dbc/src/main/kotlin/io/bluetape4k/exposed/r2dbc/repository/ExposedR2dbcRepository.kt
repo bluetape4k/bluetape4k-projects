@@ -32,7 +32,7 @@ import org.jetbrains.exposed.v1.r2dbc.update
  * Exposed R2dbc를 사용하는 Repository 의 기본 인터페이스입니다.
  *
  * ```
- * class MyRepository: ExposedR2dbcRepository<ActorDTO, Long> {
+ * class ActorR2dbcRepository: ExposedR2dbcRepository<ActorRecord, Long> {
  *    override val table = ActorTable
  *    ...
  * }

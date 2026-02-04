@@ -1,9 +1,9 @@
 package io.bluetape4k.exposed.repository
 
 import io.bluetape4k.collections.eclipse.fastList
-import io.bluetape4k.exposed.domain.dto.ActorDTO
-import io.bluetape4k.exposed.domain.mapper.toActorDTO
+import io.bluetape4k.exposed.domain.model.ActorRecord
 import io.bluetape4k.exposed.domain.model.MovieSchema.withMovieAndActors
+import io.bluetape4k.exposed.domain.model.toActorRecord
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
@@ -29,7 +29,7 @@ import java.time.LocalDate
 class ActorRepositoryTest: AbstractExposedTest() {
 
     companion object: KLogging() {
-        fun newActorDTO(): ActorDTO = ActorDTO(
+        fun newActorRecord(): ActorRecord = ActorRecord(
             firstName = faker.name().firstName(),
             lastName = faker.name().lastName(),
             birthday = faker.timeAndDate().birthday(20, 80).toString()
@@ -54,7 +54,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
     fun `search actors by lastName`(testDB: TestDB) {
         withMovieAndActors(testDB) {
             val params = mapOf("lastName" to "Depp")
-            val actors = repository.searchActors(params).map { it.toActorDTO() }
+            val actors = repository.searchActors(params).map { it.toActorRecord() }
 
             actors.shouldNotBeEmpty()
             actors.forEach {
@@ -67,7 +67,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `create new actor`(testDB: TestDB) {
         withMovieAndActors(testDB) {
-            val actor = newActorDTO()
+            val actor = newActorRecord()
 
             val currentCount = repository.count()
 
@@ -83,7 +83,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `delete actor by id`(testDB: TestDB) {
         withMovieAndActors(testDB) {
-            val actor = newActorDTO()
+            val actor = newActorRecord()
             val savedActor = repository.save(actor)
             savedActor.id.shouldNotBeNull()
 
@@ -100,7 +100,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
             log.debug { "count: $prevCount" }
             prevCount shouldBeGreaterThan 0L
 
-            repository.save(newActorDTO())
+            repository.save(newActorRecord())
 
             val newCount = repository.count()
             newCount shouldBeEqualTo prevCount + 1L
@@ -185,7 +185,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `delete entity`(testDB: TestDB) {
         withMovieAndActors(testDB) {
-            val actor = newActorDTO()
+            val actor = newActorRecord()
             val savedActor = repository.save(actor)
             savedActor.id.shouldNotBeNull()
 
@@ -200,7 +200,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `delete entity by id`(testDB: TestDB) {
         withMovieAndActors(testDB) {
-            val actor = newActorDTO()
+            val actor = newActorRecord()
             val savedActor = repository.save(actor)
             savedActor.id.shouldNotBeNull()
 
@@ -259,7 +259,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `exists by id`(testDB: TestDB) {
         withMovieAndActors(testDB) {
-            val actor = newActorDTO()
+            val actor = newActorRecord()
             val savedActor = repository.save(actor)
             savedActor.id.shouldNotBeNull()
 
@@ -315,7 +315,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
     fun `batch insert with entities`(testDB: TestDB) {
         withMovieAndActors(testDB) {
             val batchCount = 10
-            val entities = fastList(batchCount) { newActorDTO() }
+            val entities = fastList(batchCount) { newActorRecord() }
 
             val inserted = repository.batchInsert(entities) { actor ->
                 this[repository.table.firstName] = actor.firstName
@@ -333,7 +333,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
     fun `batch insert with entities as sequence`(testDB: TestDB) {
         withMovieAndActors(testDB) {
             val batchCount = 10
-            val entities = fastList(batchCount) { newActorDTO() }.asSequence()
+            val entities = fastList(batchCount) { newActorRecord() }.asSequence()
 
             val inserted = repository.batchInsert(entities) { actor ->
                 this[repository.table.firstName] = actor.firstName
@@ -351,7 +351,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
     fun `batch update with entities`(testDB: TestDB) {
         withMovieAndActors(testDB) {
             val batchCount = 10
-            val entities = fastList(batchCount) { newActorDTO() }
+            val entities = fastList(batchCount) { newActorRecord() }
 
             val inserted = repository.batchInsert(entities) { actor ->
                 this[repository.table.firstName] = actor.firstName
@@ -380,7 +380,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
     fun `batch update with entities as sequence`(testDB: TestDB) {
         withMovieAndActors(testDB) {
             val batchCount = 10
-            val entities = fastList(batchCount) { newActorDTO() }.asSequence()
+            val entities = fastList(batchCount) { newActorRecord() }.asSequence()
 
             val inserted = repository.batchInsert(entities) { actor ->
                 this[repository.table.firstName] = actor.firstName
@@ -421,7 +421,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `update by id`(testDB: TestDB) {
         withMovieAndActors(testDB) {
-            val actor = newActorDTO()
+            val actor = newActorRecord()
             val savedActor = repository.save(actor)
             savedActor.id.shouldNotBeNull()
 

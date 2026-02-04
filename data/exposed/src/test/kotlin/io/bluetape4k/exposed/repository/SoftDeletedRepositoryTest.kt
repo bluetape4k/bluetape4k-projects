@@ -43,21 +43,23 @@ class SoftDeletedRepositoryTest: AbstractExposedTest() {
             .toString()
     }
 
-    data class ContactDTO(
+    data class ContactRecord(
         val name: String,
         val isDeleted: Boolean,
         override val id: Long = 0L,
-    ): HasIdentifier<Long>
+    ): HasIdentifier<Long> {
+        fun withId(id: Long) = copy(id = id)
+    }
 
-    fun ResultRow.toContactDTO(): ContactDTO = ContactDTO(
+    fun ResultRow.toContactRecord(): ContactRecord = ContactRecord(
         id = this[ContactTable.id].value,
         name = this[ContactTable.name],
         isDeleted = this[ContactTable.isDeleted]
     )
 
-    val repository = object: SoftDeletedRepository<ContactDTO, Long> {
+    val repository = object: SoftDeletedRepository<ContactRecord, Long> {
         override val table = ContactTable
-        override fun ResultRow.toEntity(): ContactDTO = ContactDTO(
+        override fun ResultRow.toEntity(): ContactRecord = ContactRecord(
             id = this[ContactTable.id].value,
             name = this[ContactTable.name],
             isDeleted = this[ContactTable.isDeleted]
@@ -78,7 +80,7 @@ class SoftDeletedRepositoryTest: AbstractExposedTest() {
 
             repository.softDeleteById(contact1Id)
 
-            val activeEntities: List<ContactDTO> = repository.findActive()
+            val activeEntities: List<ContactRecord> = repository.findActive()
             activeEntities shouldHaveSize 1
             activeEntities.single().id shouldBeEqualTo contact2Id
 

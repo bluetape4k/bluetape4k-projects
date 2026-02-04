@@ -1,8 +1,8 @@
 package io.bluetape4k.exposed.redisson.repository
 
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialDTO
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialTable
-import io.bluetape4k.exposed.redisson.repository.UserSchema.toUserCredential
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialsRecord
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialsTable
+import io.bluetape4k.exposed.redisson.repository.UserSchema.toUserCredentialsRecord
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -17,16 +17,16 @@ class SuspendedUserCredentialCacheRepository(
     redissonClient: RedissonClient,
     cacheName: String = "exposed:remote:suspended:users",
     config: RedisCacheConfig = RedisCacheConfig.READ_WRITE_THROUGH,
-): AbstractSuspendedExposedCacheRepository<UserCredentialDTO, UUID>(redissonClient, cacheName, config) {
+): AbstractSuspendedExposedCacheRepository<UserCredentialsRecord, UUID>(redissonClient, cacheName, config) {
 
     companion object: KLoggingChannel()
 
-    override val entityTable: UserCredentialTable = UserCredentialTable
-    override fun ResultRow.toEntity(): UserCredentialDTO = toUserCredential()
+    override val entityTable: UserCredentialsTable = UserCredentialsTable
+    override fun ResultRow.toEntity(): UserCredentialsRecord = toUserCredentialsRecord()
 
     override fun doUpdateEntity(
         statement: UpdateStatement,
-        entity: UserCredentialDTO,
+        entity: UserCredentialsRecord,
     ) {
         statement[entityTable.loginId] = entity.loginId
         statement[entityTable.email] = entity.email
@@ -36,7 +36,7 @@ class SuspendedUserCredentialCacheRepository(
 
     override fun doInsertEntity(
         statement: BatchInsertStatement,
-        entity: UserCredentialDTO,
+        entity: UserCredentialsRecord,
     ) {
         // NOTE: MapWriter 가 AutoIncremented ID 를 가진 테이블에 대해 INSERT 를 수행하지 않습니다.
         if (entityTable.id.autoIncColumnType == null) {

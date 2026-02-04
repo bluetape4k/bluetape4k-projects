@@ -2,11 +2,11 @@ package io.bluetape4k.exposed.redisson.repository
 
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.exposed.redisson.AbstractRedissonTest
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialDTO
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialTable
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserDTO
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialsRecord
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialsTable
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserRecord
 import io.bluetape4k.exposed.redisson.repository.UserSchema.UserTable
-import io.bluetape4k.exposed.redisson.repository.UserSchema.withSuspendedUserCredentialTable
+import io.bluetape4k.exposed.redisson.repository.UserSchema.withSuspendedUserCredentialsTable
 import io.bluetape4k.exposed.redisson.repository.UserSchema.withSuspendedUserTable
 import io.bluetape4k.exposed.redisson.repository.scenarios.SuspendedReadThroughScenario
 import io.bluetape4k.exposed.redisson.repository.scenarios.SuspendedWriteThroughScenario
@@ -27,8 +27,8 @@ class SuspendedReadWriteThroughCacheTest {
     companion object: KLoggingChannel()
 
     abstract class SuspendedAutoIncIdReadWriteThrough: AbstractRedissonTest(),
-                                                       SuspendedReadThroughScenario<UserDTO, Long>,
-                                                       SuspendedWriteThroughScenario<UserDTO, Long> {
+                                                       SuspendedReadThroughScenario<UserRecord, Long>,
+                                                       SuspendedWriteThroughScenario<UserRecord, Long> {
         override suspend fun withSuspendedEntityTable(
             testDB: TestDB,
             context: CoroutineContext,
@@ -52,12 +52,12 @@ class SuspendedReadWriteThroughCacheTest {
 
         override suspend fun getNonExistentId(): Long = Long.MIN_VALUE
 
-        override suspend fun createNewEntity(): UserDTO = UserSchema.newUserDTO()
+        override suspend fun createNewEntity(): UserRecord = UserSchema.newUserRecord()
 
-        override suspend fun updateEntityEmail(entity: UserDTO): UserDTO =
+        override suspend fun updateEntityEmail(entity: UserRecord): UserRecord =
             entity.copy(email = "updated-${Base58.randomString(8)}@example.com")
 
-        override suspend fun assertSameEntityWithoutAudit(entity1: UserDTO, entity2: UserDTO) {
+        override suspend fun assertSameEntityWithoutAudit(entity1: UserRecord, entity2: UserRecord) {
             entity1 shouldBeEqualTo entity2.copy(createdAt = entity1.createdAt, updatedAt = entity1.updatedAt)
         }
     }
@@ -66,7 +66,7 @@ class SuspendedReadWriteThroughCacheTest {
     inner class SuspendedAutoIncIdReadWriteThroughRemoteCache: SuspendedAutoIncIdReadWriteThrough() {
         override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH
 
-        override val repository: SuspendedExposedCacheRepository<UserDTO, Long> by lazy {
+        override val repository: SuspendedExposedCacheRepository<UserRecord, Long> by lazy {
             SuspendedUserCacheRepository(
                 redissonClient,
                 "suspended:read-write-through:remote:users",
@@ -79,7 +79,7 @@ class SuspendedReadWriteThroughCacheTest {
     inner class SuspendedAutoIncIdReadWriteThroughRemoteCacheWithDeleteDB: SuspendedAutoIncIdReadWriteThrough() {
         override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH.copy(deleteFromDBOnInvalidate = true)
 
-        override val repository: SuspendedExposedCacheRepository<UserDTO, Long> by lazy {
+        override val repository: SuspendedExposedCacheRepository<UserRecord, Long> by lazy {
             SuspendedUserCacheRepository(
                 redissonClient,
                 "suspended:read-write-through:remote:delete-db:users",
@@ -92,7 +92,7 @@ class SuspendedReadWriteThroughCacheTest {
     inner class SuspendedAutoIncIdReadWriteThroughNearCache: SuspendedAutoIncIdReadWriteThrough() {
         override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE
 
-        override val repository: SuspendedExposedCacheRepository<UserDTO, Long> by lazy {
+        override val repository: SuspendedExposedCacheRepository<UserRecord, Long> by lazy {
             SuspendedUserCacheRepository(
                 redissonClient,
                 "suspended:read-write-through:near:users",
@@ -106,7 +106,7 @@ class SuspendedReadWriteThroughCacheTest {
         override val cacheConfig =
             RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(deleteFromDBOnInvalidate = true)
 
-        override val repository: SuspendedExposedCacheRepository<UserDTO, Long> by lazy {
+        override val repository: SuspendedExposedCacheRepository<UserRecord, Long> by lazy {
             SuspendedUserCacheRepository(
                 redissonClient,
                 "suspended:read-write-through:near:delete-db:users",
@@ -117,36 +117,39 @@ class SuspendedReadWriteThroughCacheTest {
 
 
     abstract class SuspendedClientGeneratedIdReadWriteThrough: AbstractRedissonTest(),
-                                                               SuspendedReadThroughScenario<UserCredentialDTO, UUID>,
-                                                               SuspendedWriteThroughScenario<UserCredentialDTO, UUID> {
+                                                               SuspendedReadThroughScenario<UserCredentialsRecord, UUID>,
+                                                               SuspendedWriteThroughScenario<UserCredentialsRecord, UUID> {
         override suspend fun withSuspendedEntityTable(
             testDB: TestDB,
             context: CoroutineContext,
             statement: suspend JdbcTransaction.() -> Unit,
         ) {
-            withSuspendedUserCredentialTable(testDB, context, statement)
+            withSuspendedUserCredentialsTable(testDB, context, statement)
         }
 
         override suspend fun getExistingId() = newSuspendedTransaction {
-            UserCredentialTable
-                .select(UserCredentialTable.id)
-                .first()[UserCredentialTable.id].value
+            UserCredentialsTable
+                .select(UserCredentialsTable.id)
+                .first()[UserCredentialsTable.id].value
         }
 
         override suspend fun getExistingIds() = newSuspendedTransaction {
-            UserCredentialTable
-                .select(UserCredentialTable.id)
-                .map { it[UserCredentialTable.id].value }
+            UserCredentialsTable
+                .select(UserCredentialsTable.id)
+                .map { it[UserCredentialsTable.id].value }
         }
 
         override suspend fun getNonExistentId(): UUID = UUID.randomUUID()
 
-        override suspend fun createNewEntity(): UserCredentialDTO = UserSchema.newUserCredentialDTO()
+        override suspend fun createNewEntity(): UserCredentialsRecord = UserSchema.newUserCredentialsRecord()
 
-        override suspend fun updateEntityEmail(entity: UserCredentialDTO): UserCredentialDTO =
+        override suspend fun updateEntityEmail(entity: UserCredentialsRecord): UserCredentialsRecord =
             entity.copy(email = "updated.${Base58.randomString(8)}@example.com")
 
-        override suspend fun assertSameEntityWithoutAudit(entity1: UserCredentialDTO, entity2: UserCredentialDTO) {
+        override suspend fun assertSameEntityWithoutAudit(
+            entity1: UserCredentialsRecord,
+            entity2: UserCredentialsRecord,
+        ) {
             entity1 shouldBeEqualTo entity2.copy(createdAt = entity1.createdAt, updatedAt = entity1.updatedAt)
         }
     }

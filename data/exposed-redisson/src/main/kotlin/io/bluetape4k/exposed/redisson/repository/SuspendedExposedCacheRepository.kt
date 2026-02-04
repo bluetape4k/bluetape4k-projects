@@ -19,7 +19,7 @@ import org.redisson.api.RMap
 /**
  * SuspendedExposedCacheRepository 는 Exposed와 Redisson을 사용하여 Redis에 데이터를 캐싱하는 Repository입니다.
  *
- * @param T Entity Type   Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable DTO를 사용해 주세요.
+ * @param T Entity Type   Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable type을 사용해 주세요.
  * @param ID Entity ID Type
  */
 interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {

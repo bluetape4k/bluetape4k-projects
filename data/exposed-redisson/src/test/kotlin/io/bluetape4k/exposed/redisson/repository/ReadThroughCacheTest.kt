@@ -1,9 +1,9 @@
 package io.bluetape4k.exposed.redisson.repository
 
 import io.bluetape4k.exposed.redisson.AbstractRedissonTest
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialTable
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialsTable
 import io.bluetape4k.exposed.redisson.repository.UserSchema.UserTable
-import io.bluetape4k.exposed.redisson.repository.UserSchema.withUserCredentialTable
+import io.bluetape4k.exposed.redisson.repository.UserSchema.withUserCredentialsTable
 import io.bluetape4k.exposed.redisson.repository.UserSchema.withUserTable
 import io.bluetape4k.exposed.redisson.repository.scenarios.ReadThroughScenario
 import io.bluetape4k.exposed.tests.TestDB
@@ -20,7 +20,7 @@ class ReadThroughCacheTest {
     companion object: KLogging()
 
     abstract class AutoIncIdReadThrough: AbstractRedissonTest(),
-                                         ReadThroughScenario<UserSchema.UserDTO, Long> {
+                                         ReadThroughScenario<UserSchema.UserRecord, Long> {
 
         override fun withEntityTable(
             testDB: TestDB,
@@ -69,24 +69,24 @@ class ReadThroughCacheTest {
     }
 
     abstract class ClientGeneratedIdReadThrough: AbstractRedissonTest(),
-                                                 ReadThroughScenario<UserSchema.UserCredentialDTO, UUID> {
+                                                 ReadThroughScenario<UserSchema.UserCredentialsRecord, UUID> {
 
         override fun withEntityTable(
             testDB: TestDB,
             statement: JdbcTransaction.() -> Unit,
-        ) = withUserCredentialTable(testDB, statement)
+        ) = withUserCredentialsTable(testDB, statement)
 
         override fun getExistingId() = transaction {
-            UserCredentialTable
-                .select(UserCredentialTable.id)
+            UserCredentialsTable
+                .select(UserCredentialsTable.id)
                 .limit(1)
-                .first()[UserCredentialTable.id].value
+                .first()[UserCredentialsTable.id].value
         }
 
         override fun getExistingIds() = transaction {
-            UserCredentialTable
-                .select(UserCredentialTable.id)
-                .map { it[UserCredentialTable.id].value }
+            UserCredentialsTable
+                .select(UserCredentialsTable.id)
+                .map { it[UserCredentialsTable.id].value }
         }
 
         override fun getNonExistentId(): UUID = UUID.randomUUID()

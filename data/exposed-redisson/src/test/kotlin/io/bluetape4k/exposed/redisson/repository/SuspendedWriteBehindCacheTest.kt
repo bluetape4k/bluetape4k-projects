@@ -1,11 +1,11 @@
 package io.bluetape4k.exposed.redisson.repository
 
 import io.bluetape4k.exposed.redisson.AbstractRedissonTest
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialDTO
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialTable
-import io.bluetape4k.exposed.redisson.repository.UserSchema.UserDTO
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialsRecord
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialsTable
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserRecord
 import io.bluetape4k.exposed.redisson.repository.UserSchema.UserTable
-import io.bluetape4k.exposed.redisson.repository.UserSchema.withSuspendedUserCredentialTable
+import io.bluetape4k.exposed.redisson.repository.UserSchema.withSuspendedUserCredentialsTable
 import io.bluetape4k.exposed.redisson.repository.UserSchema.withSuspendedUserTable
 import io.bluetape4k.exposed.redisson.repository.scenarios.SuspendedWriteBehindScenario
 import io.bluetape4k.exposed.tests.TestDB
@@ -24,7 +24,7 @@ class SuspendedWriteBehindCacheTest {
     companion object: KLoggingChannel()
 
     abstract class SuspendedAutoIncIdReadWriteBehind: AbstractRedissonTest(),
-                                                      SuspendedWriteBehindScenario<UserDTO, Long> {
+                                                      SuspendedWriteBehindScenario<UserRecord, Long> {
         override suspend fun withSuspendedEntityTable(
             testDB: TestDB,
             context: CoroutineContext,
@@ -45,7 +45,7 @@ class SuspendedWriteBehindCacheTest {
         }
 
         override suspend fun getNonExistentId() = Long.MIN_VALUE
-        override suspend fun createNewEntity() = UserSchema.newUserDTO()
+        override suspend fun createNewEntity() = UserSchema.newUserRecord()
     }
 
     @Nested
@@ -75,28 +75,28 @@ class SuspendedWriteBehindCacheTest {
     }
 
     abstract class SuspendedClientGeneratedIdReadWriteBehind: AbstractRedissonTest(),
-                                                              SuspendedWriteBehindScenario<UserCredentialDTO, UUID> {
+                                                              SuspendedWriteBehindScenario<UserCredentialsRecord, UUID> {
         override suspend fun withSuspendedEntityTable(
             testDB: TestDB,
             context: CoroutineContext,
             statement: suspend JdbcTransaction.() -> Unit,
-        ) = withSuspendedUserCredentialTable(testDB, context, statement)
+        ) = withSuspendedUserCredentialsTable(testDB, context, statement)
 
         override suspend fun getExistingId() = newSuspendedTransaction {
-            UserCredentialTable
-                .select(UserCredentialTable.id)
-                .first()[UserCredentialTable.id].value
+            UserCredentialsTable
+                .select(UserCredentialsTable.id)
+                .first()[UserCredentialsTable.id].value
         }
 
         override suspend fun getExistingIds() = newSuspendedTransaction {
-            UserCredentialTable
-                .select(UserCredentialTable.id)
-                .map { it[UserCredentialTable.id].value }
+            UserCredentialsTable
+                .select(UserCredentialsTable.id)
+                .map { it[UserCredentialsTable.id].value }
         }
 
         override suspend fun getNonExistentId(): UUID = UUID.randomUUID()
 
-        override suspend fun createNewEntity(): UserCredentialDTO = UserSchema.newUserCredentialDTO()
+        override suspend fun createNewEntity(): UserCredentialsRecord = UserSchema.newUserCredentialsRecord()
     }
 
     @Nested
