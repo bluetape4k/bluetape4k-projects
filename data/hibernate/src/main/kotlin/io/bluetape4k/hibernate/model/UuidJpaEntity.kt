@@ -17,6 +17,6 @@ abstract class UuidJpaEntity: AbstractJpaEntity<UUID>() {
      */
     @field:Id
     @field:Column(columnDefinition = "BINARY(16)")
-    override var id: UUID? = TimebasedUuid.Reordered.nextId()
+    override var id: UUID? = TimebasedUuid.Epoch.nextId()
 
 }

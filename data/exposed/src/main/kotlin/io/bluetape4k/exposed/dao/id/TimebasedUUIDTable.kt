@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.dao.id
 
-import io.bluetape4k.idgenerators.uuid.TimebasedUuid
+import io.bluetape4k.exposed.core.timebasedGenerated
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
@@ -14,7 +14,7 @@ import java.util.*
  */
 open class TimebasedUUIDTable(name: String = "", columnName: String = "id"): IdTable<UUID>(name) {
     final override val id: Column<EntityID<UUID>> =
-        javaUUID(columnName).clientDefault { TimebasedUuid.Reordered.nextId() }.entityId()
+        javaUUID(columnName).timebasedGenerated().entityId()
 
     final override val primaryKey = PrimaryKey(id)
 }

@@ -27,7 +27,7 @@ class KeyChain private constructor(
         operator fun invoke(
             algorithm: SignatureAlgorithm = DefaultSignatureAlgorithm,
             keyPair: KeyPair = Keys.keyPairFor(algorithm),
-            id: String = TimebasedUuid.Reordered.nextIdAsString(),
+            id: String = TimebasedUuid.Epoch.nextIdAsString(),
             createdAt: Long = System.currentTimeMillis(),
             expiredTtl: Duration = Duration.ofMillis(DEFAULT_KEY_ROTATION_TTL_MILLIS),
         ): KeyChain {

@@ -25,7 +25,7 @@ abstract class UuidProviderCoroutineContext: CoroutineContext.Element {
 class TimebasedUuidProviderCoroutineContext: UuidProviderCoroutineContext() {
 
     override fun nextUuid(): String {
-        return TimebasedUuid.Reordered.nextId().toString()
+        return TimebasedUuid.Epoch.nextId().toString()
     }
 }
 

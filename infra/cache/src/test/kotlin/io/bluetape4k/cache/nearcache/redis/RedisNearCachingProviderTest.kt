@@ -52,7 +52,7 @@ class RedisNearCachingProviderTest {
                 vType = Any::class.java
             )
         // val cache = manager.createCache(UUID.randomUUID().toString(), redisNearCacheCfg)
-        val cache = manager.getOrCreate(TimebasedUuid.Reordered.nextIdAsString(), redisNearCacheCfg)
+        val cache = manager.getOrCreate(TimebasedUuid.Epoch.nextIdAsString(), redisNearCacheCfg)
         cache.shouldNotBeNull()
         cache shouldBeInstanceOf NearCache::class
 
@@ -81,7 +81,7 @@ class RedisNearCachingProviderTest {
                 kType = Any::class.java,
                 vType = Any::class.java
             )
-        val cache = manager.createCache(TimebasedUuid.Reordered.nextIdAsString(), redisNearCacheCfg)
+        val cache = manager.createCache(TimebasedUuid.Epoch.nextIdAsString(), redisNearCacheCfg)
         // val cache = manager.getOrCreate<Any, Any>(UUID.randomUUID().toString(), redissonCfg)
         cache.shouldNotBeNull()
         cache shouldBeInstanceOf NearCache::class

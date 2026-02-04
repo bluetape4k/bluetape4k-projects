@@ -32,7 +32,7 @@ class StreamExamples: AbstractRedissonCoroutineTest() {
 
     @Test
     fun `stream 기본 사용 예`() {
-        val groupName = "testGroup-" + TimebasedUuid.Reordered.nextIdAsString()
+        val groupName = "testGroup-" + TimebasedUuid.Epoch.nextIdAsString()
 
         val stream = redisson.getStream<String, String>(randomName())
 
@@ -86,9 +86,9 @@ class StreamExamples: AbstractRedissonCoroutineTest() {
 
     @Test
     fun `stream usage`() = runSuspendIO {
-        val groupName = "group-" + TimebasedUuid.Reordered.nextIdAsString()
-        val consumerName1 = "consumer-" + TimebasedUuid.Reordered.nextIdAsString()
-        val consumerName2 = "consumer-" + TimebasedUuid.Reordered.nextIdAsString()
+        val groupName = "group-" + TimebasedUuid.Epoch.nextIdAsString()
+        val consumerName1 = "consumer-" + TimebasedUuid.Epoch.nextIdAsString()
+        val consumerName2 = "consumer-" + TimebasedUuid.Epoch.nextIdAsString()
 
         val stream: RStream<String, Int> = redisson.getStream(randomName())
 

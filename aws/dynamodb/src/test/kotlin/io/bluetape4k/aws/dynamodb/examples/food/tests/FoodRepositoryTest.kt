@@ -35,7 +35,7 @@ class FoodRepositoryTest: AbstractFoodApplicationTest() {
     @Test
     fun `save one food and load`() = runSuspendIO {
         val food = FoodDocument(
-            TimebasedUuid.Reordered.nextIdAsString(),
+            TimebasedUuid.Epoch.nextIdAsString(),
             "42",
             FoodState.COOKING,
             Instant.now().minusSeconds(60_000L)

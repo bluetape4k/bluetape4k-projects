@@ -171,7 +171,7 @@ object UserSchema: KLoggingChannel() {
 
     fun newUserCredentialsRecord(loginId: String? = null): UserCredentialsRecord {
         return UserCredentialsRecord(
-            id = TimebasedUuid.Reordered.nextId(),
+            id = TimebasedUuid.Epoch.nextId(),
             loginId = loginId ?: (faker.credentials().username() + "_" + Base58.randomString(8)),
             email = Base58.randomString(4) + "." + faker.internet().emailAddress(),
             lastLoginAt = LocalDateTime.now().minusDays(200).toInstant()

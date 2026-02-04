@@ -36,7 +36,7 @@ abstract class AbstractNearSuspendCacheTest
     companion object: KLoggingChannel() {
         private const val TEST_SIZE = 3
 
-        fun getKey() = TimebasedUuid.Reordered.nextIdAsString()
+        fun getKey() = TimebasedUuid.Epoch.nextIdAsString()
         fun getValue() = Fakers.randomString(1024, 4096, true)
     }
 

@@ -33,7 +33,7 @@ abstract class AbstractNearCacheTest {
         protected const val TEST_SIZE = 5
 
         @JvmStatic
-        fun randomKey(): String = TimebasedUuid.Reordered.nextIdAsString()
+        fun randomKey(): String = TimebasedUuid.Epoch.nextIdAsString()
 
         @JvmStatic
         protected fun randomValue(): String =

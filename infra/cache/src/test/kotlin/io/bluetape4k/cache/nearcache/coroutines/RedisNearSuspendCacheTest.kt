@@ -30,7 +30,7 @@ class RedisNearSuspendCacheTest: AbstractNearSuspendCacheTest() {
         val configuration = jcacheConfiguration<String, Any> {
             setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration(TimeUnit.MILLISECONDS, 1000L)))
         }
-        RedissonSuspendCache("redis-back-cocache" + TimebasedUuid.Reordered.nextIdAsString(), redisson, configuration)
+        RedissonSuspendCache("redis-back-cocache" + TimebasedUuid.Epoch.nextIdAsString(), redisson, configuration)
     }
 
     @Test
