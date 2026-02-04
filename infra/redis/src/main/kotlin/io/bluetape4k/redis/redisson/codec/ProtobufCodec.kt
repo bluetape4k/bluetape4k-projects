@@ -46,7 +46,7 @@ class ProtobufCodec(
     }
 
     @Suppress("UNCHECKED_CAST")
-    private val decoder: Decoder<Any> = Decoder { buf: ByteBuf, state: State ->
+    private val decoder: Decoder<Any> = Decoder { buf: ByteBuf, state: State? ->
         try {
             val bytes = buf.getBytes(copy = false)
             val any = AnyMessage.parseFrom(bytes)

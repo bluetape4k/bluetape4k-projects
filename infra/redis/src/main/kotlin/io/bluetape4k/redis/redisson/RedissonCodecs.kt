@@ -54,49 +54,41 @@ object RedissonCodecs: KLogging() {
 
     val GzipKryo5: Codec by lazy { GzipCodec(Kryo5) }
     val GzipProtobuf: Codec by lazy { GzipCodec(Protobuf) }
-
     val GzipFory: Codec by lazy { GzipCodec(Fory) }
     val GzipJdk: Codec by lazy { GzipCodec(Jdk) }
 
     val GzipKryo5Composite: Codec by lazy { CompositeCodec(String, GzipKryo5, GzipKryo5) }
     val GzipProtobufComposite: Codec by lazy { CompositeCodec(String, GzipProtobuf, GzipProtobuf) }
-
     val GzipForyComposite: Codec by lazy { CompositeCodec(String, GzipFory, GzipFory) }
     val GzipJdkComposite: Codec by lazy { CompositeCodec(String, GzipJdk, GzipJdk) }
 
     val LZ4Kryo5: Codec by lazy { Lz4Codec(Kryo5) }
     val LZ4Protobuf: Codec by lazy { Lz4Codec(Protobuf) }
-
     val LZ4Fory: Codec by lazy { Lz4Codec(Fory) }
     val LZ4Jdk: Codec by lazy { Lz4Codec(Jdk) }
 
     val LZ4Kryo5Composite: Codec by lazy { CompositeCodec(String, LZ4Kryo5, LZ4Kryo5) }
     val LZ4ProtobufComposite: Codec by lazy { CompositeCodec(String, LZ4Protobuf, LZ4Protobuf) }
-
     val LZ4ForyComposite: Codec by lazy { CompositeCodec(String, LZ4Fory, LZ4Fory) }
     val LZ4JdkComposite: Codec by lazy { CompositeCodec(String, LZ4Jdk, LZ4Jdk) }
 
     val SnappyKryo5: Codec by lazy { SnappyCodecV2(Kryo5) }
     val SnappyProtobuf: Codec by lazy { SnappyCodecV2(Protobuf) }
-
     val SnappyFory: Codec by lazy { SnappyCodecV2(Fory) }
     val SnappyJdk: Codec by lazy { SnappyCodecV2(Jdk) }
 
     val SnappyKryo5Composite: Codec by lazy { CompositeCodec(String, SnappyKryo5, SnappyKryo5) }
     val SnappyProtobufComposite: Codec by lazy { CompositeCodec(String, SnappyProtobuf, SnappyProtobuf) }
-
     val SnappyForyComposite: Codec by lazy { CompositeCodec(String, SnappyFory, SnappyFory) }
     val SnappyJdkComposite: Codec by lazy { CompositeCodec(String, SnappyJdk, SnappyJdk) }
 
     val ZstdKryo5: Codec by lazy { ZstdCodec(Kryo5) }
     val ZstdProtobuf: Codec by lazy { ZstdCodec(Protobuf) }
-
     val ZstdFory: Codec by lazy { ZstdCodec(Fory) }
     val ZstdJdk: Codec by lazy { ZstdCodec(Jdk) }
 
     val ZstdKryo5Composite: Codec by lazy { CompositeCodec(String, ZstdKryo5, ZstdKryo5) }
     val ZstdProtobufComposite: Codec by lazy { CompositeCodec(String, ZstdProtobuf, ZstdProtobuf) }
-
     val ZstdForyComposite: Codec by lazy { CompositeCodec(String, ZstdFory, ZstdFory) }
     val ZstdJdkComposite: Codec by lazy { CompositeCodec(String, ZstdJdk, ZstdJdk) }
 

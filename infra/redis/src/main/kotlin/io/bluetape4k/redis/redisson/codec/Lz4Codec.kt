@@ -32,13 +32,13 @@ class Lz4Codec(
 
     private val encoder: Encoder = Encoder { graph ->
         val encoded = innerCodec.valueEncoder.encode(graph)
-
         val bytes = ByteBufUtil.getBytes(encoded, encoded.readerIndex(), encoded.readableBytes(), true)
         encoded.release()
+
         Unpooled.wrappedBuffer(lz4.compress(bytes))
     }
 
-    private val decoder: Decoder<Any> = Decoder { buf: ByteBuf, state: State ->
+    private val decoder: Decoder<Any> = Decoder { buf: ByteBuf, state: State? ->
         val bytes = ByteBufUtil.getBytes(buf, buf.readerIndex(), buf.readableBytes(), true)
         val decoded = Unpooled.wrappedBuffer(lz4.decompress(bytes))
 

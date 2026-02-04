@@ -46,7 +46,7 @@ class ForyCodec(
         }
     }
 
-    private val decoder: Decoder<Any> = Decoder { buf: ByteBuf, state: State ->
+    private val decoder: Decoder<Any> = Decoder { buf: ByteBuf, state: State? ->
         try {
             val bytes = ByteBufUtil.getBytes(buf, buf.readerIndex(), buf.readableBytes(), true)
             fory.deserialize(bytes)

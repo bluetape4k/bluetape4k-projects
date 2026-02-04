@@ -32,14 +32,13 @@ class GzipCodec(
         val encoded = innerCodec.valueEncoder.encode(graph)
         val bytes = ByteBufUtil.getBytes(encoded, encoded.readerIndex(), encoded.readableBytes(), true)
         encoded.release()
-        val res = gzip.compress(bytes)
-        Unpooled.wrappedBuffer(res)
+
+        Unpooled.wrappedBuffer(gzip.compress(bytes))
     }
 
-    private val decoder: Decoder<Any> = Decoder { byf: ByteBuf, state: State ->
+    private val decoder: Decoder<Any> = Decoder { byf: ByteBuf, state: State? ->
         val bytes = ByteBufUtil.getBytes(byf, byf.readerIndex(), byf.readableBytes(), true)
-        val plainBytes = gzip.decompress(bytes)
-        val decoded = Unpooled.wrappedBuffer(plainBytes)
+        val decoded = Unpooled.wrappedBuffer(gzip.decompress(bytes))
 
         try {
             innerCodec.valueDecoder.decode(decoded, state)
