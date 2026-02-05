@@ -7,7 +7,6 @@ import io.bluetape4k.logging.debug
 import org.amshove.kluent.internal.assertFailsWith
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
-import org.amshove.kluent.shouldBeLessThan
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CopyOnWriteArrayList
@@ -29,20 +28,20 @@ class FutureUtilsTest {
 
         val futures = fastList(10) {
             futureOf {
-                Thread.sleep(100L * it + 100)
+                Thread.sleep(100L * (it + 1))
                 it.apply {
                     log.debug { "result=$it" }
                 }
             }.whenComplete { result, error ->
                 log.debug { "Task[$it] is completed. result=$result, error=$error" }
-                if (error == null) {
+                if (error == null && completedTasks.isEmpty()) {
                     completedTasks.add(result)
                 }
             }
         }
         val result = FutureUtils.firstCompleted(futures)
         result.get() shouldBeEqualTo 0
-        completedTasks.size shouldBeLessThan 3   // 1개만 완료되어야 하지만, 거의 동시에 완료되는 경우가 있기 때문에 
+        completedTasks.size shouldBeEqualTo 1   // 1개만 완료되어야 하지만, 거의 동시에 완료되는 경우가 있기 때문에
     }
 
     @Test

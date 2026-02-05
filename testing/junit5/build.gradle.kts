@@ -29,4 +29,7 @@ dependencies {
     implementation(Libs.kotlinx_coroutines_core)
     implementation(Libs.kotlinx_coroutines_debug)
     implementation(Libs.kotlinx_coroutines_test)
+
+    implementation(Libs.eclipse_collections)
+    testImplementation(Libs.eclipse_collections_testutils)
 }

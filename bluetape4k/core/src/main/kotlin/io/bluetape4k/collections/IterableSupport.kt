@@ -28,21 +28,19 @@ fun <T> Iterator<T>.asIterable(): Iterable<T> = Iterable { this }
 /**
  * [Iterable] 을 [List] 로 변환합니다.
  */
-fun <T> Iterator<T>.toList(): List<T> =
-    mutableListOf<T>().apply { addAll(this@toList.asIterable()) }
+fun <T> Iterator<T>.toList(): List<T> = asIterable().toList()
 
 /**
  * [Iterable] 을 [MutableList] 로 변환합니다.
  */
-fun <T> Iterator<T>.toMutableList(): MutableList<T> =
-    mutableListOf<T>().apply { addAll(this@toMutableList.asIterable()) }
+fun <T> Iterator<T>.toMutableList(): MutableList<T> = asIterable().toMutableList()
 
 /**
  * [Iterable]의 size 를 반환합니다.
  */
 fun <T> Iterable<T>.size(): Int = when (this) {
     is Collection<T> -> this.size
-    else             -> count()
+    else -> count()
 }
 
 /**

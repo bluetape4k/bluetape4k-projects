@@ -43,10 +43,9 @@ class MultithreadingTester {
 
     private var numThreads = DEFAULT_THREAD_SIZE
     private var roundsPerThread = DEFAULT_ROUNDS_PER_THREADS
-    private val runnables = mutableListOf<() -> Unit>()
-
-    private lateinit var executor: ExecutorService
+    private val runnables = CopyOnWriteArrayList<() -> Unit>()
     private val futures = CopyOnWriteArrayList<Future<*>>()
+    private var executor: ExecutorService? = null
 
     /**
      * 테스트 시에 사용할 Thread 수를 지정합니다.
@@ -118,7 +117,7 @@ class MultithreadingTester {
 
         val tasks = List(numThreads * roundsPerThread) {
             val runnable = runnables[it % runnables.size]
-            executor.submit {
+            executor!!.submit {
                 try {
                     runnable.invoke()
                 } catch (t: Throwable) {
@@ -150,6 +149,6 @@ class MultithreadingTester {
     }
 
     private fun shutdownExecutor() {
-        runCatching { executor.shutdownNow() }
+        runCatching { executor!!.shutdownNow() }
     }
 }

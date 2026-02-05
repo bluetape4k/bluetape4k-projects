@@ -1,11 +1,9 @@
 package io.bluetape4k.collections.eclipse
 
 import io.bluetape4k.collections.asIterable
-import org.eclipse.collections.api.factory.Lists
-import org.eclipse.collections.api.list.FixedSizeList
 import org.eclipse.collections.impl.list.mutable.FastList
+import java.util.stream.Stream
 
-fun <T> emptyFixiedList(): FixedSizeList<T> = Lists.fixedSize.empty<T>()
 
 fun <T> emptyFastList(): FastList<T> = FastList.newList<T>()
 
@@ -47,6 +45,9 @@ fun <T> Iterator<T>.toFastList(destination: FastList<T> = FastList.newList()): F
     asIterable().toFastList(destination)
 
 fun <T> Array<T>.toFastList(destination: FastList<T> = FastList.newList()): FastList<T> =
+    asIterable().toFastList(destination)
+
+fun <T> Stream<T>.toFastList(destination: FastList<T> = FastList.newList()): FastList<T> =
     asIterable().toFastList(destination)
 
 fun <T, R> Iterable<T>.fastMap(

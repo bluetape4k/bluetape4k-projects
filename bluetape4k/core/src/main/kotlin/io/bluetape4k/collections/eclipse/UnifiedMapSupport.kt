@@ -3,6 +3,7 @@ package io.bluetape4k.collections.eclipse
 import io.bluetape4k.collections.asIterable
 import org.eclipse.collections.api.factory.Maps
 import org.eclipse.collections.impl.map.mutable.UnifiedMap
+import java.util.stream.Stream
 
 fun <K, V> emptyUnifiedMap(): MutableMap<K, V> = Maps.mutable.empty()
 
@@ -48,6 +49,10 @@ fun <K, V, T: Pair<K, V>> Iterator<T>.toUnifiedMap(destination: UnifiedMap<K, V>
 fun <K, V, T: Pair<K, V>> Array<T>.toUnifiedMap(destination: UnifiedMap<K, V> = UnifiedMap.newMap()): UnifiedMap<K, V> =
     asIterable().toUnifiedMap(destination)
 
+@JvmName("toUnifiedMapFromStreamPair")
+fun <K, V, T: Pair<K, V>> Stream<T>.toUnifiedMap(destination: UnifiedMap<K, V> = UnifiedMap.newMap()): UnifiedMap<K, V> =
+    asIterable().toUnifiedMap(destination)
+
 @JvmName("toUnifiedMapFromIterableEcPair")
 fun <K, V, T: EcPair<K, V>> Iterable<T>.toUnifiedMap(destination: UnifiedMap<K, V> = UnifiedMap.newMap()): UnifiedMap<K, V> {
     forEach {
@@ -66,4 +71,8 @@ fun <K, V, T: EcPair<K, V>> Iterator<T>.toUnifiedMap(destination: UnifiedMap<K, 
 
 @JvmName("toUnifiedMapFromArrayEcPair")
 fun <K, V, T: EcPair<K, V>> Array<T>.toUnifiedMap(destination: UnifiedMap<K, V> = UnifiedMap.newMap()): UnifiedMap<K, V> =
+    asIterable().toUnifiedMap(destination)
+
+@JvmName("toUnifiedMapFromStreamEcPair")
+fun <K, V, T: EcPair<K, V>> Stream<T>.toUnifiedMap(destination: UnifiedMap<K, V> = UnifiedMap.newMap()): UnifiedMap<K, V> =
     asIterable().toUnifiedMap(destination)

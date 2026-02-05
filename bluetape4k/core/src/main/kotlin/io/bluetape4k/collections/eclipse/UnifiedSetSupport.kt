@@ -4,6 +4,7 @@ import io.bluetape4k.collections.asIterable
 import org.eclipse.collections.api.set.FixedSizeSet
 import org.eclipse.collections.impl.factory.Sets
 import org.eclipse.collections.impl.set.mutable.UnifiedSet
+import java.util.stream.Stream
 
 fun <T> emptyFixedSet(): FixedSizeSet<T> = Sets.fixedSize.empty<T>()
 
@@ -48,4 +49,7 @@ fun <T> Iterator<T>.toUnifiedSet(destination: UnifiedSet<T> = UnifiedSet.newSet(
     this.asIterable().toUnifiedSet(destination)
 
 fun <T> Array<T>.toUnifiedSet(destination: UnifiedSet<T> = UnifiedSet.newSet()): UnifiedSet<T> =
+    this.asIterable().toUnifiedSet(destination)
+
+fun <T> Stream<T>.toUnifiedSet(destination: UnifiedSet<T> = UnifiedSet.newSet()): UnifiedSet<T> =
     this.asIterable().toUnifiedSet(destination)

@@ -14,9 +14,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
+import org.eclipse.collections.impl.factory.Lists
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.RepeatedTest
-import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.random.Random
 
 class AsyncFlowTest {
@@ -24,6 +24,7 @@ class AsyncFlowTest {
     companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 3
         private const val ITEM_SIZE = 1_000
+        private const val MIN_DELAY_TIME = 1L
         private const val MAX_DELAY_TIME = 10L
 
         private val expectedItems = fastList(ITEM_SIZE) { it + 1 }
@@ -57,17 +58,17 @@ class AsyncFlowTest {
 
     private suspend fun runAsyncFlow(dispatcher: CoroutineDispatcher) {
         // 중복된 요소가 없어야 합니다
-        val results = CopyOnWriteArrayList<Int>()
+        val results = Lists.multiReader.of<Int>()
 
         expectedItems.asFlow()
             .async(dispatcher) {
-                delay(Random.nextLong(MAX_DELAY_TIME))
+                delay(Random.nextLong(MIN_DELAY_TIME, MAX_DELAY_TIME))
                 log.debug { "Started $it" }
                 it
             }
             .log("#1")
             .map {
-                delay(Random.nextLong(MAX_DELAY_TIME))
+                delay(Random.nextLong(MIN_DELAY_TIME, MAX_DELAY_TIME))
                 it * it / it
             }
             .collect { curr ->
