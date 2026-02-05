@@ -102,6 +102,8 @@ dependencies {
     testImplementation(Libs.caffeine)
     testImplementation(Libs.caffeine_jcache)
 
+    testImplementation(project(":bluetape4k-idgenerators"))
+
     // JDBC 와 같이 사용
     // testImplementation(project(":bluetape4k-jdbc"))
 }

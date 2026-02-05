@@ -1,7 +1,7 @@
 package io.bluetape4k.spring.jpa.stateless
 
-import io.bluetape4k.codec.Base58
 import io.bluetape4k.hibernate.stateless.withStateless
+import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -31,7 +31,7 @@ class StatelessSessionTest: AbstractJpaTest() {
         private val faker = Fakers.faker
 
         fun getStatelessEntity(index: Int): StatelessEntity {
-            return StatelessEntity(Base58.randomString(12) + index).apply {
+            return StatelessEntity(TimebasedUuid.Epoch.nextIdAsString() + "-" + index).apply {
                 firstname = faker.name().firstName()
                 lastname = faker.name().lastName()
                 age = faker.number().numberBetween(10, 99)
