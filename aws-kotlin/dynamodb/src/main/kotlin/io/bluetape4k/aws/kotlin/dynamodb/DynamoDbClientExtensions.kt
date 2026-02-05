@@ -45,12 +45,12 @@ val log by lazy { KotlinLogging.logger { } }
  *
  * @return [DynamoDbClient] 인스턴스
  */
-inline fun dynamoDbClientOf(
+fun dynamoDbClientOf(
     endpointUrl: String? = null,
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
     httpClientEngine: HttpClientEngine = defaultCrtHttpEngineOf(),
-    crossinline builder: DynamoDbClient.Config.Builder.() -> Unit = {},
+    @BuilderInference builder: DynamoDbClient.Config.Builder.() -> Unit = {},
 ): DynamoDbClient {
     endpointUrl.requireNotBlank("endpoint")
 
@@ -67,13 +67,13 @@ inline fun dynamoDbClientOf(
 /**
  * DynamoDB 테이블을 생성합니다.
  */
-suspend inline fun DynamoDbClient.createTable(
+suspend fun DynamoDbClient.createTable(
     tableName: String,
     keySchema: List<KeySchemaElement>? = null,
     attributeDefinitions: List<AttributeDefinition>? = null,
     readCapacityUnits: Long? = null,
     writeCapacityUnits: Long? = null,
-    crossinline builder: CreateTableRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: CreateTableRequest.Builder.() -> Unit = {},
 ): CreateTableResponse {
     tableName.requireNotBlank("tableName")
 
@@ -143,10 +143,10 @@ suspend fun DynamoDbClient.waitForTableReady(name: String, timeout: Duration = 6
 }
 
 
-suspend inline fun DynamoDbClient.putItem(
+suspend fun DynamoDbClient.putItem(
     tableName: String,
     item: Map<String, Any?>,
-    crossinline builder: PutItemRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: PutItemRequest.Builder.() -> Unit = {},
 ): PutItemResponse {
     tableName.requireNotBlank("tableName")
 
@@ -158,11 +158,11 @@ suspend inline fun DynamoDbClient.putItem(
     }
 }
 
-inline fun DynamoDbClient.scanPaginated(
+fun DynamoDbClient.scanPaginated(
     tableName: String,
     exclusiveStartKey: Map<String, Any?>,
     limit: Int = 1,
-    crossinline builder: ScanRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: ScanRequest.Builder.() -> Unit = {},
 ): Flow<ScanResponse> {
     tableName.requireNotBlank("tableName")
 

@@ -2,11 +2,11 @@ package io.bluetape4k.aws.kotlin.dynamodb.model
 
 import aws.sdk.kotlin.services.dynamodb.model.ListGlobalTablesRequest
 
-inline fun listGlobalTableRequestOf(
+fun listGlobalTableRequestOf(
     exclusiveStartGlobalTableName: String? = null,
     regionName: String? = null,
     limit: Int? = null,
-    crossinline builder: ListGlobalTablesRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: ListGlobalTablesRequest.Builder.() -> Unit = {},
 ): ListGlobalTablesRequest =
     ListGlobalTablesRequest {
         this.exclusiveStartGlobalTableName = exclusiveStartGlobalTableName

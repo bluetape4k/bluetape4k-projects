@@ -65,7 +65,7 @@ class BasicExamples: AbstractKotlinS3Test() {
         val bucketName = Base58.randomString(16).lowercase()
         s3Client.ensureBucketExists(bucketName)
 
-        val keys = fastList(5) { Base58.randomString(16).lowercase() }
+        val keys = fastList(5) { randomKey() }
         val uploadTasks = keys.map { key ->
             async(Dispatchers.IO) {
                 s3Client.putFromString(bucketName, key, randomString())
@@ -86,7 +86,7 @@ class BasicExamples: AbstractKotlinS3Test() {
 
     @Test
     fun `put get object as ByteArray`() = runSuspendIO {
-        val key = Base58.randomString(16).lowercase()
+        val key = randomKey()
         val contents = randomString().toUtf8Bytes()
 
         // Put Object
@@ -101,7 +101,7 @@ class BasicExamples: AbstractKotlinS3Test() {
 
     @Test
     fun `put get object as String`() = runSuspendIO {
-        val key = Base58.randomString(16).lowercase()
+        val key = randomKey()
         val contents = randomString()
 
         // Put Object
@@ -115,7 +115,7 @@ class BasicExamples: AbstractKotlinS3Test() {
 
     @Test
     fun `put get object as File`(temp: TempFolder) = runSuspendIO {
-        val key = Base58.randomString(16).lowercase()
+        val key = randomKey()
         val content = randomString()
 
         val file = temp.createFile()
@@ -135,7 +135,7 @@ class BasicExamples: AbstractKotlinS3Test() {
 
     @Test
     fun `get bucket acl`() = runSuspendIO {
-        val key = Base58.randomString(16).lowercase()
+        val key = randomKey()
         s3Client.putFromByteArray(BUCKET_NAME, key, "acl-content".toUtf8Bytes())
 
         val aclResponse = s3Client.getObjectAcl(BUCKET_NAME, key)

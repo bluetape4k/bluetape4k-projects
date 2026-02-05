@@ -4,10 +4,10 @@ import aws.sdk.kotlin.services.ses.model.Body
 import aws.sdk.kotlin.services.ses.model.Content
 import aws.sdk.kotlin.services.ses.model.Message
 
-inline fun contentOf(
+fun contentOf(
     data: String,
     charset: String = Charsets.UTF_8.name(),
-    crossinline builder: Content.Builder.() -> Unit = {},
+    @BuilderInference builder: Content.Builder.() -> Unit = {},
 ): Content =
     Content {
         this.data = data
@@ -16,28 +16,28 @@ inline fun contentOf(
         builder()
     }
 
-inline fun htmlBodyOf(
+fun htmlBodyOf(
     html: Content? = null,
-    crossinline builder: Body.Builder.() -> Unit = {},
+    @BuilderInference builder: Body.Builder.() -> Unit = {},
 ): Body =
     Body {
         html?.let { this.html = it }
         builder()
     }
 
-inline fun textBodyOf(
+fun textBodyOf(
     text: Content? = null,
-    crossinline builder: Body.Builder.() -> Unit = {},
+    @BuilderInference builder: Body.Builder.() -> Unit = {},
 ): Body =
     Body {
         text?.let { this.text = it }
         builder()
     }
 
-inline fun messageOf(
+fun messageOf(
     subject: Content,
     body: Body,
-    crossinline builder: Message.Builder.() -> Unit = {},
+    @BuilderInference builder: Message.Builder.() -> Unit = {},
 ): Message =
     Message {
         this.subject = subject

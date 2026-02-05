@@ -5,13 +5,13 @@ import aws.sdk.kotlin.services.dynamodb.model.ExecuteStatementRequest
 import io.bluetape4k.support.requireNotBlank
 
 @JvmName("executeStatementRequestOfAttributeValue")
-inline fun executeStatementRequestOf(
+fun executeStatementRequestOf(
     statement: String,
     parameters: List<AttributeValue>? = null,
     consistentRead: Boolean? = null,
     limit: Int? = null,
     nextToken: String? = null,
-    crossinline builder: ExecuteStatementRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: ExecuteStatementRequest.Builder.() -> Unit = {},
 ): ExecuteStatementRequest {
     statement.requireNotBlank("statement")
 
@@ -27,13 +27,13 @@ inline fun executeStatementRequestOf(
 }
 
 @JvmName("executeStatementRequestOfAny")
-inline fun executeStatementRequestOf(
+fun executeStatementRequestOf(
     statement: String,
     parameters: List<Any?>? = null,
     consistentRead: Boolean? = null,
     limit: Int? = null,
     nextToken: String? = null,
-    crossinline builder: ExecuteStatementRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: ExecuteStatementRequest.Builder.() -> Unit = {},
 ): ExecuteStatementRequest {
     return executeStatementRequestOf(
         statement,

@@ -10,9 +10,9 @@ import aws.sdk.kotlin.services.dynamodb.model.ReplicaUpdate
 import aws.sdk.kotlin.services.dynamodb.model.TableClass
 import io.bluetape4k.support.requireNotBlank
 
-inline fun replicaOf(
+fun replicaOf(
     regionName: String,
-    crossinline builder: Replica.Builder.() -> Unit = {},
+    @BuilderInference builder: Replica.Builder.() -> Unit = {},
 ): Replica {
     regionName.requireNotBlank("regionName")
 
@@ -23,10 +23,10 @@ inline fun replicaOf(
     }
 }
 
-inline fun replicaUpdateOf(
+fun replicaUpdateOf(
     create: CreateReplicaAction? = null,
     delete: DeleteReplicaAction? = null,
-    crossinline builder: ReplicaUpdate.Builder.() -> Unit = {},
+    @BuilderInference builder: ReplicaUpdate.Builder.() -> Unit = {},
 ): ReplicaUpdate =
     ReplicaUpdate {
         this.create = create
@@ -35,13 +35,13 @@ inline fun replicaUpdateOf(
         builder()
     }
 
-inline fun replicaSettingsUpdateOf(
+fun replicaSettingsUpdateOf(
     regionName: String,
     replicaGlobalSecondaryIndexSettingsUpdate: List<ReplicaGlobalSecondaryIndexSettingsUpdate>? = null,
     replicaProvisionedReadCapacityAutoScalingSettingsUpdate: AutoScalingSettingsUpdate? = null,
     replicaProvisionedReadCapacityUnits: Long? = null,
     replicaTableClass: TableClass? = null,
-    crossinline builder: ReplicaSettingsUpdate.Builder.() -> Unit = {},
+    @BuilderInference builder: ReplicaSettingsUpdate.Builder.() -> Unit = {},
 ): ReplicaSettingsUpdate {
     regionName.requireNotBlank("regionName")
 

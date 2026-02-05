@@ -5,12 +5,12 @@ import aws.sdk.kotlin.services.dynamodb.model.ScanRequest
 import io.bluetape4k.support.requireNotBlank
 
 @JvmName("scanRequestOfAttributeValue")
-inline fun scanRequestOf(
+fun scanRequestOf(
     tableName: String,
     attributesToGet: List<String>? = null,
     exclusiveStartKey: Map<String, AttributeValue>? = null,
     indexName: String? = null,
-    crossinline builder: ScanRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: ScanRequest.Builder.() -> Unit = {},
 ): ScanRequest {
     tableName.requireNotBlank("tableName")
 
@@ -25,12 +25,12 @@ inline fun scanRequestOf(
 }
 
 @JvmName("scanRequestOfAny")
-inline fun scanRequestOf(
+fun scanRequestOf(
     tableName: String,
     attributesToGet: List<String>? = null,
     exclusiveStartKey: Map<String, Any?>? = null,
     indexName: String? = null,
-    crossinline builder: ScanRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: ScanRequest.Builder.() -> Unit = {},
 ): ScanRequest {
     tableName.requireNotBlank("tableName")
 

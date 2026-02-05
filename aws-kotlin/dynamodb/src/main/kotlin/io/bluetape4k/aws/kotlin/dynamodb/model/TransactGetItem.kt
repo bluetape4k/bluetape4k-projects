@@ -11,10 +11,10 @@ fun transactGetItemOf(get: Get): TransactGetItem =
         this.get = get
     }
 
-inline fun transactGetItemsRequestOf(
+fun transactGetItemsRequestOf(
     transactItems: List<TransactGetItem>,
     returnConsumedCapacity: ReturnConsumedCapacity? = null,
-    crossinline builder: TransactGetItemsRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: TransactGetItemsRequest.Builder.() -> Unit = {},
 ): TransactGetItemsRequest {
     transactItems.requireNotEmpty("transactItems")
 

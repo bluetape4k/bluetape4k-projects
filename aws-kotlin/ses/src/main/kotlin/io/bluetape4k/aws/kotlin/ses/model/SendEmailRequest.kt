@@ -4,11 +4,11 @@ import aws.sdk.kotlin.services.ses.model.Destination
 import aws.sdk.kotlin.services.ses.model.Message
 import aws.sdk.kotlin.services.ses.model.SendEmailRequest
 
-inline fun sendMailRequestOf(
+fun sendMailRequestOf(
     source: String,
     destination: Destination,
     message: Message,
-    crossinline builder: SendEmailRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: SendEmailRequest.Builder.() -> Unit = {},
 ): SendEmailRequest =
     SendEmailRequest {
         this.source = source

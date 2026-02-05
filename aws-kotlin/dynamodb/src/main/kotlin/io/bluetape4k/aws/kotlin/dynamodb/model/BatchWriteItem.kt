@@ -5,10 +5,10 @@ import aws.sdk.kotlin.services.dynamodb.model.ReturnConsumedCapacity
 import aws.sdk.kotlin.services.dynamodb.model.WriteRequest
 import io.bluetape4k.support.requireNotEmpty
 
-inline fun batchWriteItemRequestOf(
+fun batchWriteItemRequestOf(
     requestItems: Map<String, List<WriteRequest>>,
     returnConsumedCapacity: ReturnConsumedCapacity? = null,
-    crossinline builder: BatchWriteItemRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: BatchWriteItemRequest.Builder.() -> Unit = {},
 ): BatchWriteItemRequest {
     requestItems.requireNotEmpty("requestItems")
 

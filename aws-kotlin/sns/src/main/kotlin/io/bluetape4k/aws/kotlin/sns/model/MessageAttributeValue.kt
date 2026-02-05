@@ -13,9 +13,9 @@ import aws.sdk.kotlin.services.sns.model.MessageAttributeValue
  * @param builder [MessageAttributeValue.Builder]를 설정하는 람다
  * @return [MessageAttributeValue] 인스턴스
  */
-inline fun messageAttributeValueOf(
+fun messageAttributeValueOf(
     stringValue: String,
-    crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
+    @BuilderInference builder: MessageAttributeValue.Builder.() -> Unit = {},
 ): MessageAttributeValue =
     MessageAttributeValue {
         this.stringValue = stringValue
@@ -34,9 +34,9 @@ inline fun messageAttributeValueOf(
  * @param builder [MessageAttributeValue.Builder]를 설정하는 람다
  * @return [MessageAttributeValue] 인스턴스
  */
-inline fun messageAttributeValueOf(
+fun messageAttributeValueOf(
     binaryValue: ByteArray,
-    crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
+    @BuilderInference builder: MessageAttributeValue.Builder.() -> Unit = {},
 ): MessageAttributeValue =
     MessageAttributeValue {
         this.binaryValue = binaryValue
@@ -55,9 +55,9 @@ inline fun messageAttributeValueOf(
  * @param builder [MessageAttributeValue.Builder]를 설정하는 람다
  * @return [MessageAttributeValue] 인스턴스
  */
-inline fun <T: Number> messageAttributeValueOf(
+fun <T: Number> messageAttributeValueOf(
     numberValue: T,
-    crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
+    @BuilderInference builder: MessageAttributeValue.Builder.() -> Unit = {},
 ): MessageAttributeValue =
     MessageAttributeValue {
         this.stringValue = numberValue.toString()

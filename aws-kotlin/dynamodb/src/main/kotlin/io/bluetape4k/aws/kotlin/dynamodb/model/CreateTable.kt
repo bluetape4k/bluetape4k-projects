@@ -6,12 +6,12 @@ import aws.sdk.kotlin.services.dynamodb.model.TableClass
 import aws.sdk.kotlin.services.dynamodb.model.Tag
 import io.bluetape4k.support.requireNotBlank
 
-inline fun createTableRequestOf(
+fun createTableRequestOf(
     tableName: String,
     tableClass: TableClass = TableClass.Standard,
     tags: List<Tag>? = null,
     streamSpecification: StreamSpecification? = null,
-    crossinline builder: CreateTableRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: CreateTableRequest.Builder.() -> Unit = {},
 ): CreateTableRequest {
     tableName.requireNotBlank("tableName")
 

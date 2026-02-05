@@ -6,10 +6,10 @@ import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.support.requireNotBlank
 
 @JvmName("tagResourceRequestOfTagList")
-inline fun tagResourceRequestOf(
+fun tagResourceRequestOf(
     resourceArn: String,
     tags: List<Tag>? = null,
-    crossinline builder: TagResourceRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: TagResourceRequest.Builder.() -> Unit = {},
 ): TagResourceRequest {
     resourceArn.requireNotBlank("resourceArn")
 
@@ -22,10 +22,10 @@ inline fun tagResourceRequestOf(
 }
 
 @JvmName("tagResourceRequestOfTagArray")
-inline fun tagResourceRequestOf(
+fun tagResourceRequestOf(
     resourceArn: String,
     vararg tags: Tag,
-    crossinline builder: TagResourceRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: TagResourceRequest.Builder.() -> Unit = {},
 ): TagResourceRequest {
     resourceArn.requireNotBlank("resourceArn")
 

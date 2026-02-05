@@ -7,10 +7,10 @@ import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotEmpty
 
 @JvmName("putOfAttributeValue")
-inline fun putOf(
+fun putOf(
     tableName: String,
     item: Map<String, AttributeValue>,
-    crossinline builder: Put.Builder.() -> Unit = {},
+    @BuilderInference builder: Put.Builder.() -> Unit = {},
 ): Put {
     tableName.requireNotBlank("tableName")
     item.requireNotEmpty("item")
@@ -24,17 +24,17 @@ inline fun putOf(
 }
 
 @JvmName("putOfAny")
-inline fun putOf(
+fun putOf(
     tableName: String,
     item: Map<String, Any?>,
-    crossinline builder: Put.Builder.() -> Unit = {},
+    @BuilderInference builder: Put.Builder.() -> Unit = {},
 ): Put =
     putOf(tableName, item.mapValues { it.toAttributeValue() }, builder)
 
 @JvmName("putRequestOfAttributeValue")
-inline fun putRequestOf(
+fun putRequestOf(
     item: Map<String, AttributeValue>,
-    crossinline builder: PutRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: PutRequest.Builder.() -> Unit = {},
 ): PutRequest {
     item.requireNotEmpty("item")
 
@@ -45,8 +45,8 @@ inline fun putRequestOf(
 }
 
 @JvmName("putRequestOfAny")
-inline fun putRequestOf(
+fun putRequestOf(
     item: Map<String, Any?>,
-    crossinline builder: PutRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: PutRequest.Builder.() -> Unit = {},
 ): PutRequest =
     putRequestOf(item.mapValues { it.toAttributeValue() }, builder)

@@ -7,10 +7,10 @@ import aws.sdk.kotlin.services.dynamodb.model.UpdateGlobalTableRequest
 import aws.sdk.kotlin.services.dynamodb.model.UpdateGlobalTableSettingsRequest
 import io.bluetape4k.support.requireNotBlank
 
-inline fun updateGlobalTableRequestOf(
+fun updateGlobalTableRequestOf(
     globalTableName: String,
     replicaUpdates: List<ReplicaUpdate>?,
-    crossinline builder: UpdateGlobalTableRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: UpdateGlobalTableRequest.Builder.() -> Unit = {},
 ): UpdateGlobalTableRequest {
     globalTableName.requireNotBlank("globalTableName")
 
@@ -22,11 +22,11 @@ inline fun updateGlobalTableRequestOf(
     }
 }
 
-inline fun updateGlobalTableSettingsRequestOf(
+fun updateGlobalTableSettingsRequestOf(
     globalTableName: String,
     globalTableProvisionedWriteCapacityAutoScalingSettingsUpdate: AutoScalingSettingsUpdate? = null,
     globalTableGlobalSecondaryIndexSettingsUpdate: List<GlobalTableGlobalSecondaryIndexSettingsUpdate>? = null,
-    crossinline builder: UpdateGlobalTableSettingsRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: UpdateGlobalTableSettingsRequest.Builder.() -> Unit = {},
 ): UpdateGlobalTableSettingsRequest {
     globalTableName.requireNotBlank("globalTableName")
 

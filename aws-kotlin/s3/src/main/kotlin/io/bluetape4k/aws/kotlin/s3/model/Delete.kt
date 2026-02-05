@@ -15,10 +15,10 @@ import io.bluetape4k.support.requireNotEmpty
  * @return [Delete] 인스턴스
  */
 @JvmName("deleteOfArray")
-inline fun deleteOf(
+fun deleteOf(
     vararg keys: String,
     quiet: Boolean? = null,
-    crossinline builder: Delete.Builder.() -> Unit = {},
+    @BuilderInference builder: Delete.Builder.() -> Unit = {},
 ): Delete {
     keys.requireNotEmpty("keys")
     
@@ -42,10 +42,10 @@ inline fun deleteOf(
  * @return [Delete] 인스턴스
  */
 @JvmName("deleteOfCollection")
-inline fun deleteOf(
+fun deleteOf(
     keys: Collection<String>,
     quiet: Boolean? = null,
-    crossinline builder: Delete.Builder.() -> Unit = {},
+    @BuilderInference builder: Delete.Builder.() -> Unit = {},
 ): Delete {
     keys.requireNotEmpty("keys")
 

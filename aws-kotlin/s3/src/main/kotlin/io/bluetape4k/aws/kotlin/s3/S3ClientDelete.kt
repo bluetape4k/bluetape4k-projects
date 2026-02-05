@@ -21,10 +21,10 @@ import io.bluetape4k.support.requireNotEmpty
  * @param keys 삭제할 Object 의 키 목록
  * @return [DeleteObjectsResponse] 인스턴스
  */
-suspend inline fun S3Client.deleteAll(
+suspend fun S3Client.deleteAll(
     bucket: String,
     vararg keys: String,
-    crossinline builder: Delete.Builder.() -> Unit = {},
+    @BuilderInference builder: Delete.Builder.() -> Unit = {},
 ): DeleteObjectsResponse {
     bucket.requireNotBlank("bucketName")
 
@@ -45,10 +45,10 @@ suspend inline fun S3Client.deleteAll(
  * @param keys 삭제할 Object 의 키 목록
  * @return [DeleteObjectsResponse] 인스턴스
  */
-suspend inline fun S3Client.deleteAll(
+suspend fun S3Client.deleteAll(
     bucket: String,
     keys: Collection<String>,
-    crossinline bulider: Delete.Builder.() -> Unit = {},
+    @BuilderInference bulider: Delete.Builder.() -> Unit = {},
 ): DeleteObjectsResponse {
     bucket.requireNotBlank("bucketName")
     keys.requireNotEmpty("keys")
@@ -77,9 +77,9 @@ suspend inline fun S3Client.deleteAll(
  * @param builder [DeleteObjectsRequest.Builder]를 통해 [DeleteObjectsRequest]를 설정합니다.
  * @return [DeleteObjectsResponse] 인스턴스
  */
-suspend inline fun S3Client.deleteAll(
+suspend fun S3Client.deleteAll(
     bucket: String,
-    crossinline builder: DeleteObjectsRequest.Builder.() -> Unit,
+    @BuilderInference builder: DeleteObjectsRequest.Builder.() -> Unit,
 ): DeleteObjectsResponse {
     bucket.requireNotBlank("bucketName")
 

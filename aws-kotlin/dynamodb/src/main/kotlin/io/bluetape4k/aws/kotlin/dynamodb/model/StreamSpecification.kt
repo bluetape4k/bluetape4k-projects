@@ -3,10 +3,10 @@ package io.bluetape4k.aws.kotlin.dynamodb.model
 import aws.sdk.kotlin.services.dynamodb.model.StreamSpecification
 import aws.sdk.kotlin.services.dynamodb.model.StreamViewType
 
-inline fun streamSpecificationOf(
+fun streamSpecificationOf(
     streamEnabled: Boolean? = null,
     streamViewType: StreamViewType? = null,
-    crossinline builder: StreamSpecification.Builder.() -> Unit = {},
+    @BuilderInference builder: StreamSpecification.Builder.() -> Unit = {},
 ): StreamSpecification =
     StreamSpecification {
         this.streamEnabled = streamEnabled

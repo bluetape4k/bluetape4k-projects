@@ -5,12 +5,12 @@ import aws.sdk.kotlin.services.dynamodb.model.Get
 import io.bluetape4k.support.requireNotBlank
 
 @JvmName("getOfAttributeValue")
-inline fun getOf(
+fun getOf(
     tableName: String,
     key: Map<String, AttributeValue>? = null,
     expressionAttributeNames: Map<String, String>? = null,
     projectionExpression: String? = null,
-    crossinline builder: Get.Builder.() -> Unit = {},
+    @BuilderInference builder: Get.Builder.() -> Unit = {},
 ): Get {
     tableName.requireNotBlank("tableName")
 
@@ -25,12 +25,12 @@ inline fun getOf(
 }
 
 @JvmName("getOfAny")
-inline fun getOf(
+fun getOf(
     tableName: String,
     key: Map<String, Any?>? = null,
     expressionAttributeNames: Map<String, String>? = null,
     projectionExpression: String? = null,
-    crossinline builder: Get.Builder.() -> Unit = {},
+    @BuilderInference builder: Get.Builder.() -> Unit = {},
 ): Get {
     return Get {
         this.tableName = tableName

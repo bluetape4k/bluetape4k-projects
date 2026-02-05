@@ -72,12 +72,12 @@ val log by lazy { KotlinLogging.logger { } }
  * @param builder Amazon SQS client 설정 빌더입니다.
  * @return [SqsClient] 인스턴스를 반환합니다.
  */
-inline fun sqsClientOf(
+fun sqsClientOf(
     endpoint: String,
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
     httpClientEngine: HttpClientEngine = defaultCrtHttpEngineOf(),
-    crossinline builder: SqsClient.Config.Builder.() -> Unit = {},
+    @BuilderInference builder: SqsClient.Config.Builder.() -> Unit = {},
 ): SqsClient {
     endpoint.requireNotBlank("endpoint")
 
@@ -104,9 +104,9 @@ inline fun sqsClientOf(
  * @param queueName Amazon SQS 큐의 이름입니다.
  * @return CreateQueueResponse 인스턴스를 반환합니다.
  */
-suspend inline fun SqsClient.createQueue(
+suspend fun SqsClient.createQueue(
     queueName: String,
-    crossinline builder: CreateQueueRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: CreateQueueRequest.Builder.() -> Unit = {},
 ): CreateQueueResponse {
     queueName.requireNotBlank("queueName")
 
@@ -129,9 +129,9 @@ suspend inline fun SqsClient.createQueue(
  * @return 큐의 URL을 반환합니다.
  * @see [existsQueue]
  */
-suspend inline fun SqsClient.ensureQueue(
+suspend fun SqsClient.ensureQueue(
     queueName: String,
-    crossinline builder: CreateQueueRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: CreateQueueRequest.Builder.() -> Unit = {},
 ): String? {
     queueName.requireNotBlank("queueName")
 
@@ -168,11 +168,11 @@ suspend fun SqsClient.existsQueue(queueName: String): Boolean {
  * @param maxResults 반환할 최대 결과 수입니다. 기본값은 null입니다.
  * @return ListQueuesResponse 인스턴스를 반환합니다.
  */
-suspend inline fun SqsClient.listQueues(
+suspend fun SqsClient.listQueues(
     queueNamePrefix: String,
     nextToken: String? = null,
     maxResults: Int? = null,
-    crossinline builder: ListQueuesRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: ListQueuesRequest.Builder.() -> Unit = {},
 ): ListQueuesResponse {
     queueNamePrefix.requireNotBlank("queueNamePrefix")
 
@@ -196,9 +196,9 @@ suspend inline fun SqsClient.listQueues(
  * @param queueName Amazon SQS 큐의 이름입니다.
  * @return 해당 큐의 URL을 반환한다. 해당 큐가 없으면 예외가 발생합니다.
  */
-suspend inline fun SqsClient.getQueueUrl(
+suspend fun SqsClient.getQueueUrl(
     queueName: String,
-    crossinline builder: GetQueueUrlRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: GetQueueUrlRequest.Builder.() -> Unit = {},
 ): String? {
     queueName.requireNotBlank("queueName")
     return getQueueUrl {
@@ -217,9 +217,9 @@ suspend inline fun SqsClient.getQueueUrl(
  * @param queueUrl Amazon SQS 큐의 URL입니다.
  * @return DeleteQueueResponse 인스턴스를 반환합니다.
  */
-suspend inline fun SqsClient.deleteQueue(
+suspend fun SqsClient.deleteQueue(
     queueUrl: String,
-    crossinline builder: DeleteQueueRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: DeleteQueueRequest.Builder.() -> Unit = {},
 ): DeleteQueueResponse {
     queueUrl.requireNotBlank("queueUrl")
 
@@ -248,11 +248,11 @@ suspend inline fun SqsClient.deleteQueue(
  * @param configurer SendMessageRequest.Builder를 초기화하는 람다입니다. 기본값은 빈 람다입니다.
  * @return SendMessageResponse 인스턴스를 반환합니다.
  */
-suspend inline fun SqsClient.send(
+suspend fun SqsClient.send(
     queueUrl: String,
     messageBody: String,
     delaySeconds: Int? = null,
-    crossinline builder: SendMessageRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: SendMessageRequest.Builder.() -> Unit = {},
 ): SendMessageResponse {
     queueUrl.requireNotBlank("queueUrl")
 
@@ -281,10 +281,10 @@ suspend inline fun SqsClient.send(
  * @param entries 전송할 메시지의 목록입니다.
  * @return SendMessageBatchResponse 인스턴스를 반환합니다.
  */
-suspend inline fun SqsClient.sendBatch(
+suspend fun SqsClient.sendBatch(
     queueUrl: String,
     vararg entries: SendMessageBatchRequestEntry,
-    crossinline builder: SendMessageBatchRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: SendMessageBatchRequest.Builder.() -> Unit = {},
 ): SendMessageBatchResponse {
     queueUrl.requireNotBlank("queueUrl")
 
@@ -313,10 +313,10 @@ suspend inline fun SqsClient.sendBatch(
  * @param entries 전송할 메시지의 목록입니다.
  * @return SendMessageBatchResponse 인스턴스를 반환합니다.
  */
-suspend inline fun SqsClient.sendBatch(
+suspend fun SqsClient.sendBatch(
     queueUrl: String,
     entries: Collection<SendMessageBatchRequestEntry>,
-    crossinline builder: SendMessageBatchRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: SendMessageBatchRequest.Builder.() -> Unit = {},
 ): SendMessageBatchResponse {
     queueUrl.requireNotBlank("queueUrl")
 
@@ -340,10 +340,10 @@ suspend inline fun SqsClient.sendBatch(
  * @param maxNumberOfMessages 한 번에 수신할 최대 메시지 수입니다. 기본값은 null입니다.
  * @param builder ReceiveMessageRequest.Builder를 초기화하는 람다입니다. 기본값은 빈 람다입니다.
  */
-suspend inline fun SqsClient.receive(
+suspend fun SqsClient.receive(
     queueUrl: String,
     maxNumberOfMessages: Int? = null,
-    crossinline builder: ReceiveMessageRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: ReceiveMessageRequest.Builder.() -> Unit = {},
 ): ReceiveMessageResponse {
     queueUrl.requireNotBlank("queueUrl")
 
@@ -376,11 +376,11 @@ suspend inline fun SqsClient.receive(
  *
  * @return ChangeMessageVisibilityResponse 인스턴스를 반환합니다.
  */
-suspend inline fun SqsClient.changeMessageVisibility(
+suspend fun SqsClient.changeMessageVisibility(
     queueUrl: String,
     receiptHandle: String? = null,
     visibilityTimeout: Int? = null,
-    crossinline builder: ChangeMessageVisibilityRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: ChangeMessageVisibilityRequest.Builder.() -> Unit = {},
 ): ChangeMessageVisibilityResponse {
     queueUrl.requireNotBlank("queueUrl")
 
@@ -416,10 +416,10 @@ suspend inline fun SqsClient.changeMessageVisibility(
  * @param entries ChangeMessageVisibilityBatchRequestEntry 인스턴스의 컬렉션입니다.
  * @return [ChangeMessageVisibilityBatchResponse] 인스턴스를 반환합니다.
  */
-suspend inline fun SqsClient.changeVisibilityBatch(
+suspend fun SqsClient.changeVisibilityBatch(
     queueUrl: String,
     vararg entries: ChangeMessageVisibilityBatchRequestEntry,
-    crossinline builder: ChangeMessageVisibilityBatchRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: ChangeMessageVisibilityBatchRequest.Builder.() -> Unit = {},
 ): ChangeMessageVisibilityBatchResponse {
     queueUrl.requireNotBlank("queueUrl")
 
@@ -454,10 +454,10 @@ suspend inline fun SqsClient.changeVisibilityBatch(
  * @param entries ChangeMessageVisibilityBatchRequestEntry 인스턴스의 컬렉션입니다.
  * @return [ChangeMessageVisibilityBatchResponse] 인스턴스를 반환합니다.
  */
-suspend inline fun SqsClient.changeVisibilityBatch(
+suspend fun SqsClient.changeVisibilityBatch(
     queueUrl: String,
     entries: Collection<ChangeMessageVisibilityBatchRequestEntry>,
-    crossinline builder: ChangeMessageVisibilityBatchRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: ChangeMessageVisibilityBatchRequest.Builder.() -> Unit = {},
 ): ChangeMessageVisibilityBatchResponse {
     queueUrl.requireNotBlank("queueUrl")
 
@@ -484,10 +484,10 @@ suspend inline fun SqsClient.changeVisibilityBatch(
  * @param receiptHandle 삭제할 메시지와 연관된 영수증 핸들입니다.
  * @return [DeleteMessageResponse] 인스턴스를 반환합니다.
  */
-suspend inline fun SqsClient.deleteMessage(
+suspend fun SqsClient.deleteMessage(
     queueUrl: String,
     receiptHandle: String? = null,
-    crossinline builder: DeleteMessageRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: DeleteMessageRequest.Builder.() -> Unit = {},
 ): DeleteMessageResponse {
     queueUrl.requireNotBlank("queueUrl")
 
@@ -520,10 +520,10 @@ suspend inline fun SqsClient.deleteMessage(
  * @param entries DeleteMessageBatchRequestEntry 인스턴스의 컬렉션입니다.
  * @return [DeleteMessageBatchResponse] 인스턴스를 반환합니다.
  */
-suspend inline fun SqsClient.deleteMessageBatch(
+suspend fun SqsClient.deleteMessageBatch(
     queueUrl: String,
     vararg entries: DeleteMessageBatchRequestEntry,
-    crossinline builder: DeleteMessageBatchRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: DeleteMessageBatchRequest.Builder.() -> Unit = {},
 ): DeleteMessageBatchResponse {
     queueUrl.requireNotBlank("queueUrl")
 
@@ -554,10 +554,10 @@ suspend inline fun SqsClient.deleteMessageBatch(
  * @param entries DeleteMessageBatchRequestEntry 인스턴스의 컬렉션입니다.
  * @return [DeleteMessageBatchResponse] 인스턴스를 반환합니다.
  */
-suspend inline fun SqsClient.deleteMessageBatch(
+suspend fun SqsClient.deleteMessageBatch(
     queueUrl: String,
     entries: Collection<DeleteMessageBatchRequestEntry>,
-    crossinline builder: DeleteMessageBatchRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: DeleteMessageBatchRequest.Builder.() -> Unit = {},
 ): DeleteMessageBatchResponse {
     queueUrl.requireNotBlank("queueUrl")
 

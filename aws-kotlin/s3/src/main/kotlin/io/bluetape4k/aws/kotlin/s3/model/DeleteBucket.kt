@@ -3,10 +3,10 @@ package io.bluetape4k.aws.kotlin.s3.model
 import aws.sdk.kotlin.services.s3.model.DeleteBucketRequest
 import io.bluetape4k.support.requireNotBlank
 
-inline fun deleteBucketRequestOf(
+fun deleteBucketRequestOf(
     bucket: String,
     expectedBucketOwner: String? = null,
-    crossinline builder: DeleteBucketRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: DeleteBucketRequest.Builder.() -> Unit = {},
 ): DeleteBucketRequest {
     bucket.requireNotBlank("bucket")
 

@@ -31,7 +31,7 @@ class PaginatorTest: AbstractKotlinDynamoDbTest() {
 
     companion object: KLoggingChannel()
 
-    private val testTableName = "test-table-${Base58.randomString(6).lowercase()}"
+    private val testTableName = "test-table-${Base58.randomString(8).lowercase()}"
 
     @BeforeAll
     fun beforeAll() = runSuspendIO {

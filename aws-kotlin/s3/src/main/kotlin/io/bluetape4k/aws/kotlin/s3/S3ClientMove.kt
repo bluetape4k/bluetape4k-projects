@@ -20,12 +20,12 @@ import aws.sdk.kotlin.services.s3.model.DeleteObjectRequest
  * @param destKey 이동할 Object 의 키
  * @return [CopyObjectResponse] 인스턴스
  */
-suspend inline fun S3Client.move(
+suspend fun S3Client.move(
     srcBucket: String,
     srcKey: String,
     destBucket: String,
     destKey: String,
-    crossinline builder: CopyObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: CopyObjectRequest.Builder.() -> Unit = {},
 ): CopyObjectResponse {
     val response = copy(srcBucket, srcKey, destBucket, destKey, builder)
 
@@ -58,9 +58,9 @@ suspend inline fun S3Client.move(
  * @param deleteRequestBuilder [DeleteObjectRequest.Builder] 를 통해 [DeleteObjectRequest] 를 설정합니다.
  * @return [CopyObjectResponse] 인스턴스
  */
-suspend inline fun S3Client.move(
-    crossinline copyRequestBuilder: CopyObjectRequest.Builder.() -> Unit,
-    crossinline deleteRequestBuilder: DeleteObjectRequest.Builder.() -> Unit,
+suspend fun S3Client.move(
+    @BuilderInference copyRequestBuilder: CopyObjectRequest.Builder.() -> Unit,
+    @BuilderInference deleteRequestBuilder: DeleteObjectRequest.Builder.() -> Unit,
 ): CopyObjectResponse {
     val response = copyObject(copyRequestBuilder)
 

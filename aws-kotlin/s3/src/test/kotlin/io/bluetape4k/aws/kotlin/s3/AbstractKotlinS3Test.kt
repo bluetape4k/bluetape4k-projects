@@ -6,6 +6,7 @@ import io.bluetape4k.aws.kotlin.http.defaultCrtHttpEngineOf
 import io.bluetape4k.aws.kotlin.tests.endpointUrl
 import io.bluetape4k.aws.kotlin.tests.getCredentialsProvider
 import io.bluetape4k.aws.kotlin.tests.getLocalStackServer
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
@@ -47,6 +48,9 @@ abstract class AbstractKotlinS3Test {
         protected fun randomString(min: Int = 256, max: Int = 2048): String {
             return io.bluetape4k.junit5.faker.Fakers.randomString(min, max)
         }
+
+        @JvmStatic
+        protected fun randomKey(): String = Base58.randomString(16).lowercase()
     }
 
     protected val s3Client: S3Client = S3Client {

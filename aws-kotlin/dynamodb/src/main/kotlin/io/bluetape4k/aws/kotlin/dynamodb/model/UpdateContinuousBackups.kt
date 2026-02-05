@@ -4,10 +4,10 @@ import aws.sdk.kotlin.services.dynamodb.model.PointInTimeRecoverySpecification
 import aws.sdk.kotlin.services.dynamodb.model.UpdateContinuousBackupsRequest
 import io.bluetape4k.support.requireNotBlank
 
-inline fun updateContinuousBackupsRequestOf(
+fun updateContinuousBackupsRequestOf(
     tableName: String,
     pointInTimeRecoverySpecification: PointInTimeRecoverySpecification? = null,
-    crossinline builder: UpdateContinuousBackupsRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: UpdateContinuousBackupsRequest.Builder.() -> Unit = {},
 ): UpdateContinuousBackupsRequest {
     tableName.requireNotBlank("tableName")
 

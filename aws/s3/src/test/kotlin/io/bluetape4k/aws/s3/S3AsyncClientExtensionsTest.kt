@@ -32,7 +32,7 @@ class S3AsyncClientExtensionsTest: AbstractS3Test() {
 
     @Test
     fun `put and get s3 object`() = runSuspendIO {
-        val key = Base58.randomString(16)
+        val key = randomKey()
         val content = randomString()
 
         val response = s3AsyncClient.putAsString(BUCKET_NAME, key, content).await()
@@ -46,7 +46,7 @@ class S3AsyncClientExtensionsTest: AbstractS3Test() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `upload and download as byte array`() = runSuspendIO {
-        val key = Base58.randomString(16)
+        val key = randomKey()
         val filepath = "files/product_type.csv"
         val bytes = Resourcex.getBytes(filepath)
 
@@ -60,7 +60,7 @@ class S3AsyncClientExtensionsTest: AbstractS3Test() {
     @ParameterizedTest(name = "upload/download {0}")
     @MethodSource("getImageNames")
     fun `upload and download binary file`(filename: String) = runSuspendIO {
-        val key = Base58.randomString(16)
+        val key = randomKey()
         val path = "$imageBasePath/$filename"
         val file = File(path)
         file.exists().shouldBeTrue()

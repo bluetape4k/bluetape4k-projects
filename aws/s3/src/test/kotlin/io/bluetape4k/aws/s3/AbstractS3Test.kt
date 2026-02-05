@@ -1,6 +1,7 @@
 package io.bluetape4k.aws.s3
 
 import io.bluetape4k.aws.auth.staticCredentialsProviderOf
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -48,6 +49,10 @@ abstract class AbstractS3Test {
         @JvmStatic
         protected fun randomString(): String =
             Fakers.randomString(256, 2048)
+
+        @JvmStatic
+        protected fun randomKey(): String =
+            Base58.randomString(16).lowercase()
     }
 
     val s3Client: S3Client by lazy {

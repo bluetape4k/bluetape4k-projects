@@ -6,14 +6,14 @@ import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotEmpty
 
 @JvmName("updateOfAttributeValue")
-inline fun updateOf(
+fun updateOf(
     tableName: String,
     key: Map<String, AttributeValue>,
     updateExpression: String,
     expressionAttributeValues: Map<String, AttributeValue>,
     expressionAttributeNames: Map<String, String>? = null,
     conditionExpression: String? = null,
-    crossinline builder: Update.Builder.() -> Unit = {},
+    @BuilderInference builder: Update.Builder.() -> Unit = {},
 ): Update {
     tableName.requireNotBlank("tableName")
     key.requireNotEmpty("key")
@@ -33,14 +33,14 @@ inline fun updateOf(
 }
 
 @JvmName("updateOfAny")
-inline fun updateOf(
+fun updateOf(
     tableName: String,
     key: Map<String, Any?>,
     updateExpression: String,
     expressionAttributeValues: Map<String, AttributeValue>,
     expressionAttributeNames: Map<String, String>? = null,
     conditionExpression: String? = null,
-    crossinline builder: Update.Builder.() -> Unit = {},
+    @BuilderInference builder: Update.Builder.() -> Unit = {},
 ): Update {
     return updateOf(
         tableName,

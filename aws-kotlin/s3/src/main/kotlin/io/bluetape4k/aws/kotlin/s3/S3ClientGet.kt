@@ -41,10 +41,10 @@ import kotlin.time.Duration.Companion.seconds
  * val exists = s3Client.existsObject("bucket-name", "key")
  * ```
  */
-suspend inline fun S3Client.existsObject(
+suspend fun S3Client.existsObject(
     bucket: String,
     key: String,
-    crossinline builder: HeadObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: HeadObjectRequest.Builder.() -> Unit = {},
 ): Boolean {
     val request = headObjectRequestOf(bucket, key, builder = builder)
     return runCatching { headObject(request); true }.isSuccess
@@ -61,10 +61,10 @@ suspend inline fun S3Client.existsObject(
  * @param builder [GetObjectRequest.Builder] 를 통해 [GetObjectRequest] 를 설정합니다.
  * @return [GetObjectResponse] 인스턴스
  */
-suspend inline fun S3Client.get(
+suspend fun S3Client.get(
     bucketName: String,
     key: String,
-    crossinline builder: GetObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
 ): GetObjectResponse {
     val request = getObjectRequestOf(bucketName, key, builder = builder)
     return getObject(request) { it }
@@ -83,11 +83,11 @@ suspend inline fun S3Client.get(
  * @param builder [GetObjectResponse] 를 통해 원하는 수형으로 변환하는 람다
  * @return [builder] 을 통해 변환된 수형
  */
-suspend inline fun <T> S3Client.getAs(
+suspend fun <T> S3Client.getAs(
     bucketName: String,
     key: String,
-    crossinline configurer: GetObjectRequest.Builder.() -> Unit = {},
-    noinline builder: suspend (GetObjectResponse) -> T,
+    @BuilderInference configurer: GetObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: suspend (GetObjectResponse) -> T,
 ): T {
     val request = getObjectRequestOf(bucketName, key, builder = configurer)
     return getObject(request, builder)
@@ -105,10 +105,10 @@ suspend inline fun <T> S3Client.getAs(
  * @param builder [GetObjectRequest.Builder] 를 통해 [GetObjectRequest] 를 설정합니다.
  * @return 바이트 배열
  */
-suspend inline fun S3Client.getAsByteArray(
+suspend fun S3Client.getAsByteArray(
     bucketName: String,
     key: String,
-    crossinline builder: GetObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
 ): ByteArray? {
     return getAs(bucketName, key, builder) {
         it.body?.toByteArray()
@@ -127,10 +127,10 @@ suspend inline fun S3Client.getAsByteArray(
  * @param builder [GetObjectRequest.Builder] 를 통해 [GetObjectRequest] 를 설정합니다.
  * @return 문자열
  */
-suspend inline fun S3Client.getAsString(
+suspend fun S3Client.getAsString(
     bucketName: String,
     key: String,
-    crossinline builder: GetObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
 ): String? {
     return getAs(bucketName, key, builder) {
         it.body?.decodeToString()
@@ -151,11 +151,11 @@ suspend inline fun S3Client.getAsString(
  * @param builder [GetObjectRequest.Builder] 를 통해 [GetObjectRequest] 를 설정합니다.
  * @return 저장된 바이트 수
  */
-suspend inline fun S3Client.getAsFile(
+suspend fun S3Client.getAsFile(
     bucketName: String,
     key: String,
     file: java.io.File,
-    crossinline builder: GetObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
 ): Long {
     return getAs(bucketName, key, builder) {
         it.body?.writeToFile(file) ?: -1L
@@ -176,11 +176,11 @@ suspend inline fun S3Client.getAsFile(
  * @param builder [GetObjectRequest.Builder] 를 통해 [GetObjectRequest] 를 설정합니다.
  * @return 저장된 바이트 수
  */
-suspend inline fun S3Client.getAsFile(
+suspend fun S3Client.getAsFile(
     bucketName: String,
     key: String,
     filePath: Path,
-    crossinline builder: GetObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
 ): Long {
     return getAs(bucketName, key, builder) {
         it.body?.writeToFile(filePath) ?: -1L
@@ -203,11 +203,11 @@ suspend inline fun S3Client.getAsFile(
  * @return [outputStream]에 쓰인 바이트 수
  * @see [writeToOutputStream]
  */
-suspend inline fun S3Client.getAsOutputStream(
+suspend fun S3Client.getAsOutputStream(
     bucketName: String,
     key: String,
     outputStream: OutputStream,
-    crossinline builder: GetObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
 ) {
     getAs(bucketName, key, builder) {
         it.body?.writeToOutputStream(outputStream)
@@ -249,11 +249,11 @@ fun S3Client.getAll(
  * @param duration Presigned URL의 유효 시간
  * @param builder [GetObjectRequest.Builder] 를 통해 [GetObjectRequest] 를 설정합니다.
  */
-suspend inline fun S3Client.presignGetObject(
+suspend fun S3Client.presignGetObject(
     bucketName: String,
     key: String,
     duration: Duration = 5.seconds,
-    crossinline builder: GetObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
 ): HttpRequest {
     val request = getObjectRequestOf(bucketName, key, builder = builder)
     return presignGetObject(request, duration)
@@ -269,11 +269,11 @@ suspend inline fun S3Client.presignGetObject(
  * @param key 객체 키
  * @return [GetObjectAclResponse] 인스턴스
  */
-suspend inline fun S3Client.getObjectAcl(
+suspend fun S3Client.getObjectAcl(
     bucketName: String,
     key: String,
     versionId: String? = null,
-    crossinline builder: GetObjectAclRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: GetObjectAclRequest.Builder.() -> Unit = {},
 ): GetObjectAclResponse {
     bucketName.requireNotBlank("bucketName")
     key.requireNotBlank("key")
@@ -319,11 +319,11 @@ fun S3Client.getObjectsAcl(bucketName: String, vararg keys: String): Flow<GetObj
  * @param builder [GetObjectRetentionRequest.Builder] 를 통해 [GetObjectRetentionRequest] 를 설정합니다.
  * @return [GetObjectRetentionResponse] 인스턴스
  */
-suspend inline fun S3Client.getObjectRetention(
+suspend fun S3Client.getObjectRetention(
     bucketName: String,
     key: String,
     versionId: String? = null,
-    crossinline builder: GetObjectRetentionRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: GetObjectRetentionRequest.Builder.() -> Unit = {},
 ): GetObjectRetentionResponse {
     val request = getObjectRetentionRequestOf(bucketName, key, versionId, builder)
     return getObjectRetention(request)
@@ -339,10 +339,10 @@ suspend inline fun S3Client.getObjectRetention(
  * @param expectedBucketOwner 버킷 소유자
  * @return 버킷 정책 문자열, Policy가 없는 경우 `null` 반환
  */
-suspend inline fun S3Client.tryGetBucketPolicy(
+suspend fun S3Client.tryGetBucketPolicy(
     bucketName: String,
     expectedBucketOwner: String? = null,
-    crossinline builder: GetBucketPolicyRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: GetBucketPolicyRequest.Builder.() -> Unit = {},
 ): String? {
     return runCatching {
         getBucketPolicy {

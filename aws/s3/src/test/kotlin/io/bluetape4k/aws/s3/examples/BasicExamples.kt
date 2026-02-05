@@ -9,7 +9,6 @@ import io.bluetape4k.aws.s3.putAsByteArray
 import io.bluetape4k.aws.s3.putAsString
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.collections.eclipse.fastList
-import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8Bytes
@@ -39,7 +38,7 @@ class BasicExamples: AbstractS3Test() {
 
     @Test
     fun `bucket의 모든 object를 조회합니다`() {
-        val bucket = TimebasedUuid.Epoch.nextIdAsString().lowercase()
+        val bucket = randomKey()
         createBucketsIfNotExists(bucket)
 
         val keys = fastList(5) {

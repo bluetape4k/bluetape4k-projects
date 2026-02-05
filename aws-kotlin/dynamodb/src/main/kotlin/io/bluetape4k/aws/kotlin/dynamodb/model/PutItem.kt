@@ -7,11 +7,11 @@ import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotEmpty
 
 @JvmName("putItemRequestOfAttributeValue")
-inline fun putItemRequestOf(
+fun putItemRequestOf(
     tableName: String,
     item: Map<String, AttributeValue>,
     returnValues: ReturnValue? = null,
-    crossinline builder: PutItemRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: PutItemRequest.Builder.() -> Unit = {},
 ): PutItemRequest {
     tableName.requireNotBlank("tableName")
     item.requireNotEmpty("item")
@@ -26,11 +26,11 @@ inline fun putItemRequestOf(
 }
 
 @JvmName("putItemRequestOfAny")
-inline fun putItemRequestOf(
+fun putItemRequestOf(
     tableName: String,
     item: Map<String, Any?>,
     returnValues: ReturnValue? = null,
-    crossinline builder: PutItemRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: PutItemRequest.Builder.() -> Unit = {},
 ): PutItemRequest =
     putItemRequestOf(
         tableName,

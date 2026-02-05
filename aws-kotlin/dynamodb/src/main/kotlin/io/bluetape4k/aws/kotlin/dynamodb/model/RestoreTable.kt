@@ -3,10 +3,10 @@ package io.bluetape4k.aws.kotlin.dynamodb.model
 import aws.sdk.kotlin.services.dynamodb.model.RestoreTableFromBackupRequest
 import io.bluetape4k.support.requireNotBlank
 
-inline fun restoreTableFromBackupRequestOf(
+fun restoreTableFromBackupRequestOf(
     backupArn: String,
     targetTableName: String,
-    crossinline builder: RestoreTableFromBackupRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: RestoreTableFromBackupRequest.Builder.() -> Unit = {},
 ): RestoreTableFromBackupRequest {
     backupArn.requireNotBlank("backupArn")
     targetTableName.requireNotBlank("targetTableName")
@@ -19,10 +19,10 @@ inline fun restoreTableFromBackupRequestOf(
     }
 }
 
-inline fun restoreTableToPointInTimeRequestOf(
+fun restoreTableToPointInTimeRequestOf(
     backupArn: String,
     targetTableName: String,
-    crossinline builder: RestoreTableFromBackupRequest.Builder.() -> Unit,
+    @BuilderInference builder: RestoreTableFromBackupRequest.Builder.() -> Unit,
 ): RestoreTableFromBackupRequest {
     backupArn.requireNotBlank("backupArn")
     targetTableName.requireNotBlank("targetTableName")

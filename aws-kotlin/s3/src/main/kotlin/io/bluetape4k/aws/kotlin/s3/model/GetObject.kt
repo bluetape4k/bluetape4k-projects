@@ -8,12 +8,12 @@ import io.bluetape4k.support.requireNotBlank
 /**
  * [GetObjectRequest] 를 생성합니다.
  */
-inline fun getObjectRequestOf(
+fun getObjectRequestOf(
     bucket: String,
     key: String,
     versionId: String? = null,
     partNumber: Int? = null,
-    crossinline builder: GetObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
 ): GetObjectRequest {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
@@ -28,11 +28,11 @@ inline fun getObjectRequestOf(
     }
 }
 
-inline fun getObjectAclRequestOf(
+fun getObjectAclRequestOf(
     bucket: String,
     key: String,
     versionId: String? = null,
-    crossinline builder: GetObjectAclRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: GetObjectAclRequest.Builder.() -> Unit = {},
 ): GetObjectAclRequest {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
@@ -46,11 +46,11 @@ inline fun getObjectAclRequestOf(
     }
 }
 
-inline fun getObjectRetentionRequestOf(
+fun getObjectRetentionRequestOf(
     bucket: String,
     key: String,
     versionId: String? = null,
-    crossinline builder: GetObjectRetentionRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: GetObjectRetentionRequest.Builder.() -> Unit = {},
 ): GetObjectRetentionRequest {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")

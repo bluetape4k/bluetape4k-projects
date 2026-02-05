@@ -2,10 +2,10 @@ package io.bluetape4k.aws.kotlin.dynamodb.model
 
 import aws.sdk.kotlin.services.dynamodb.model.ListTablesRequest
 
-inline fun listTablesRequestOf(
+fun listTablesRequestOf(
     exclusiveStartTableName: String? = null,
     limit: Int? = null,
-    crossinline builder: ListTablesRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: ListTablesRequest.Builder.() -> Unit = {},
 ): ListTablesRequest =
     ListTablesRequest {
         this.exclusiveStartTableName = exclusiveStartTableName

@@ -4,10 +4,10 @@ import aws.sdk.kotlin.services.dynamodb.model.TableClass
 import aws.sdk.kotlin.services.dynamodb.model.UpdateTableRequest
 import io.bluetape4k.support.requireNotBlank
 
-inline fun updateTableRequestOf(
+fun updateTableRequestOf(
     tableName: String,
     tableClass: TableClass? = null,
-    crossinline builder: UpdateTableRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: UpdateTableRequest.Builder.() -> Unit = {},
 ): UpdateTableRequest {
     tableName.requireNotBlank("tableName")
 

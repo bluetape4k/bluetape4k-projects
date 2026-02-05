@@ -23,9 +23,9 @@ import io.bluetape4k.support.requireNotBlank
  * @param bucket 버킷 이름
  * @return 버킷이 존재하면 `true`, 존재하지 않으면 `false`
  */
-suspend inline fun S3Client.existsBucket(
+suspend fun S3Client.existsBucket(
     bucket: String,
-    crossinline builder: HeadBucketRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: HeadBucketRequest.Builder.() -> Unit = {},
 ): Boolean {
     val headBucketRequest = headBucketRequestOf(bucket, builder = builder)
     return runCatching { headBucket(headBucketRequest) }.isSuccess
@@ -48,9 +48,9 @@ suspend inline fun S3Client.existsBucket(
  * @param builder [CreateBucketRequest.Builder] 를 통해 [CreateBucketRequest] 를 설정합니다.
  * @return [CreateBucketResponse] 인스턴스
  */
-suspend inline fun S3Client.createBucket(
+suspend fun S3Client.createBucket(
     bucketName: String,
-    crossinline builder: CreateBucketRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: CreateBucketRequest.Builder.() -> Unit = {},
 ): CreateBucketResponse {
     bucketName.requireNotBlank("bucketName")
 
@@ -69,9 +69,9 @@ suspend inline fun S3Client.createBucket(
  *
  * @param bucketName 버킷 이름
  */
-suspend inline fun S3Client.ensureBucketExists(
+suspend fun S3Client.ensureBucketExists(
     bucketName: String,
-    crossinline builder: CreateBucketRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: CreateBucketRequest.Builder.() -> Unit = {},
 ) {
     bucketName.requireNotBlank("bucketName")
 
@@ -87,9 +87,9 @@ suspend inline fun S3Client.ensureBucketExists(
  * @param bucket 삭제할 버킷 이름
  * @return [DeleteBucketResponse] 인스턴스
  */
-suspend inline fun S3Client.forceDeleteBucket(
+suspend fun S3Client.forceDeleteBucket(
     bucket: String,
-    crossinline builder: DeleteBucketRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: DeleteBucketRequest.Builder.() -> Unit = {},
 ): DeleteBucketResponse {
     bucket.requireNotBlank("bucketName")
 

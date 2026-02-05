@@ -24,7 +24,7 @@ class SqsClientExtensionsTest: AbstractKotlinSqsTest() {
 
     companion object: KLoggingChannel() {
         private const val QUEUE_PREFIX = "test-queue"
-        private val QUEUE_NAME = "$QUEUE_PREFIX-${Base58.randomString(8).lowercase()}"
+        private val QUEUE_NAME = "$QUEUE_PREFIX-${Base58.randomString(12).lowercase()}"
     }
 
     private lateinit var testQueueUrl: String

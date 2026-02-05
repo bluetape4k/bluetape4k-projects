@@ -4,17 +4,17 @@ import aws.sdk.kotlin.services.dynamodb.model.AttributeAction
 import aws.sdk.kotlin.services.dynamodb.model.AttributeValue
 import aws.sdk.kotlin.services.dynamodb.model.AttributeValueUpdate
 
-inline fun <T> attributeValueUpdateOf(
+fun <T> attributeValueUpdateOf(
     value: T,
     action: AttributeAction,
-    crossinline builder: AttributeValueUpdate.Builder.() -> Unit = {},
+    @BuilderInference builder: AttributeValueUpdate.Builder.() -> Unit = {},
 ): AttributeValueUpdate =
     attributeValueUpdateOf(value.toAttributeValue(), action, builder)
 
-inline fun attributeValueUpdateOf(
+fun attributeValueUpdateOf(
     value: AttributeValue,
     action: AttributeAction,
-    crossinline builder: AttributeValueUpdate.Builder.() -> Unit = {},
+    @BuilderInference builder: AttributeValueUpdate.Builder.() -> Unit = {},
 ): AttributeValueUpdate {
     return AttributeValueUpdate {
         this.value = value

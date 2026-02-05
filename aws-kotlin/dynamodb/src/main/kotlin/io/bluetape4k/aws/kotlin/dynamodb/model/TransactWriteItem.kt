@@ -11,12 +11,12 @@ fun transactWriteItemOf(put: Put): TransactWriteItem =
         this.put = put
     }
 
-inline fun transactWriteItemOf(
+fun transactWriteItemOf(
     conditionCheck: ConditionCheck? = null,
     delete: Delete? = null,
     put: Put? = null,
     update: Update? = null,
-    crossinline builder: TransactWriteItem.Builder.() -> Unit = {},
+    @BuilderInference builder: TransactWriteItem.Builder.() -> Unit = {},
 ): TransactWriteItem =
     TransactWriteItem {
         this.conditionCheck = conditionCheck

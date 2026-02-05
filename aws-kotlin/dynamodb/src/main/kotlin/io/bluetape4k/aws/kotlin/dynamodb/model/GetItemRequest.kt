@@ -3,12 +3,12 @@ package io.bluetape4k.aws.kotlin.dynamodb.model
 import aws.sdk.kotlin.services.dynamodb.model.AttributeValue
 import aws.sdk.kotlin.services.dynamodb.model.GetItemRequest
 
-inline fun getItemRequestOf(
+fun getItemRequestOf(
     attributesToGet: List<String>,
     consistentRead: Boolean? = null,
     expressionAttributeNames: Map<String, String>? = null,
     key: Map<String, AttributeValue>? = null,
-    crossinline builder: GetItemRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: GetItemRequest.Builder.() -> Unit = {},
 ): GetItemRequest {
 
     return GetItemRequest {

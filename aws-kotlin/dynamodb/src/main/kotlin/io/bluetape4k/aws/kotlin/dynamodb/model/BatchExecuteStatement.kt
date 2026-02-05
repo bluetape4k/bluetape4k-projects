@@ -6,10 +6,10 @@ import aws.sdk.kotlin.services.dynamodb.model.ReturnConsumedCapacity
 import io.bluetape4k.collections.eclipse.toFastList
 
 @JvmName("batchExecutionStatementRequestOfList")
-inline fun batchExecutionStatementRequestOf(
+fun batchExecutionStatementRequestOf(
     returnConsumedCapacity: ReturnConsumedCapacity? = null,
     statements: List<BatchStatementRequest>? = null,
-    crossinline builder: BatchExecuteStatementRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: BatchExecuteStatementRequest.Builder.() -> Unit = {},
 ): BatchExecuteStatementRequest =
     BatchExecuteStatementRequest {
         this.returnConsumedCapacity = returnConsumedCapacity
@@ -19,10 +19,10 @@ inline fun batchExecutionStatementRequestOf(
     }
 
 @JvmName("batchExecutionStatementRequestOfArray")
-inline fun batchExecutionStatementRequestOf(
+fun batchExecutionStatementRequestOf(
     returnConsumedCapacity: ReturnConsumedCapacity? = null,
     vararg statements: BatchStatementRequest,
-    crossinline builder: BatchExecuteStatementRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: BatchExecuteStatementRequest.Builder.() -> Unit = {},
 ): BatchExecuteStatementRequest =
     BatchExecuteStatementRequest {
         this.returnConsumedCapacity = returnConsumedCapacity

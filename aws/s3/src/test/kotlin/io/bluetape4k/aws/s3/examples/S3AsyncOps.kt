@@ -38,7 +38,7 @@ class S3AsyncOps: AbstractS3Test() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `get object asynchronously`() = runTest {
-        val key = Base58.randomString(16)
+        val key = randomKey()
         val value = randomString()
 
         // Put object

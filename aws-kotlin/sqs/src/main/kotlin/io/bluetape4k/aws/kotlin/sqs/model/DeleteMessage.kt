@@ -13,10 +13,10 @@ import io.bluetape4k.support.requireNotBlank
  * @param receiptHandle 삭제할 메시지와 연관된 영수증 핸들입니다.
  * @param builder DeleteMessageRequest.Builder를 사용하여 DeleteMessageRequest를 구성하는 람다입니다.
  */
-inline fun deleteMessageRequestOf(
+fun deleteMessageRequestOf(
     queueUrl: String,
     receiptHandle: String? = null,
-    crossinline builder: DeleteMessageRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: DeleteMessageRequest.Builder.() -> Unit = {},
 ): DeleteMessageRequest {
     queueUrl.requireNotBlank("queueUrl")
 
@@ -35,10 +35,10 @@ inline fun deleteMessageRequestOf(
  * @param receiptHandle 삭제할 메시지와 연관된 영수증 핸들입니다.
  * @return DeleteMessageBatchRequestEntry 인스턴스를 반환합니다.
  */
-inline fun deleteMessageBatchRequestEntryOf(
+fun deleteMessageBatchRequestEntryOf(
     id: String,
     receiptHandle: String? = null,
-    crossinline builder: DeleteMessageBatchRequestEntry.Builder.() -> Unit = {},
+    @BuilderInference builder: DeleteMessageBatchRequestEntry.Builder.() -> Unit = {},
 ): DeleteMessageBatchRequestEntry {
     id.requireNotBlank("id")
 
@@ -57,10 +57,10 @@ inline fun deleteMessageBatchRequestEntryOf(
  * @param entries DeleteMessageBatchRequestEntry 인스턴스의 컬렉션입니다.
  * @return DeleteMessageBatchRequest 인스턴스를 반환합니다.
  */
-inline fun deleteMessageBatchRequestOf(
+fun deleteMessageBatchRequestOf(
     queueUrl: String,
     entries: Collection<DeleteMessageBatchRequestEntry>,
-    crossinline builder: DeleteMessageBatchRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: DeleteMessageBatchRequest.Builder.() -> Unit = {},
 ): DeleteMessageBatchRequest {
     queueUrl.requireNotBlank("queueUrl")
 
@@ -79,10 +79,10 @@ inline fun deleteMessageBatchRequestOf(
  * @param entries DeleteMessageBatchRequestEntry 인스턴스의 컬렉션입니다.
  * @return DeleteMessageBatchRequest 인스턴스를 반환합니다.
  */
-inline fun deleteMessageBatchRequestOf(
+fun deleteMessageBatchRequestOf(
     queueUrl: String,
     vararg entries: DeleteMessageBatchRequestEntry,
-    crossinline builder: DeleteMessageBatchRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: DeleteMessageBatchRequest.Builder.() -> Unit = {},
 ): DeleteMessageBatchRequest {
     queueUrl.requireNotBlank("queueUrl")
 

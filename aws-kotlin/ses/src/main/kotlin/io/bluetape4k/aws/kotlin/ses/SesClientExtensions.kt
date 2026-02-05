@@ -38,12 +38,12 @@ import io.bluetape4k.utils.ShutdownQueue
  * @param configurer SNS client 설정 빌더
  * @return [SesClient] 인스턴스
  */
-inline fun sesClientOf(
+fun sesClientOf(
     endpoint: String? = null,
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
     httpClientEngine: HttpClientEngine = defaultCrtHttpEngineOf(),
-    crossinline builder: SesClient.Config.Builder.() -> Unit = {},
+    @BuilderInference builder: SesClient.Config.Builder.() -> Unit = {},
 ): SesClient = SesClient {
     endpoint?.let { this.endpointUrl = Url.parse(it) }
     region?.let { this.region = it }

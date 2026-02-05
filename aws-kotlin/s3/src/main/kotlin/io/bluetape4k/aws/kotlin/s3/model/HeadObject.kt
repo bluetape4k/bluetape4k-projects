@@ -3,10 +3,10 @@ package io.bluetape4k.aws.kotlin.s3.model
 import aws.sdk.kotlin.services.s3.model.HeadObjectRequest
 import io.bluetape4k.support.requireNotBlank
 
-inline fun headObjectRequestOf(
+fun headObjectRequestOf(
     bucket: String,
     key: String,
-    crossinline builder: HeadObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: HeadObjectRequest.Builder.() -> Unit = {},
 ): HeadObjectRequest {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")

@@ -3,10 +3,10 @@ package io.bluetape4k.aws.kotlin.dynamodb.model
 import aws.sdk.kotlin.services.dynamodb.model.UntagResourceRequest
 import io.bluetape4k.support.requireNotBlank
 
-inline fun untagResourceRequestOf(
+fun untagResourceRequestOf(
     resourceArn: String,
     tagKeys: List<String>,
-    crossinline builder: UntagResourceRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: UntagResourceRequest.Builder.() -> Unit = {},
 ): UntagResourceRequest {
     resourceArn.requireNotBlank("resourceArn")
 
