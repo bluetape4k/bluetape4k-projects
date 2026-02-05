@@ -1,5 +1,7 @@
-package io.bluetape4k.idgenerators.uuid
+package io.bluetape4k.idgenerators.uuid.base62
 
+import io.bluetape4k.codec.decodeBase62AsUuid
+import io.bluetape4k.codec.encodeBase62
 import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.stream.toFastList
 import io.bluetape4k.collections.eclipse.toFastList
@@ -24,21 +26,21 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.test.assertTrue
 
-abstract class AbstractTimebasedUuidTest {
+abstract class AbstractTimebasedUuidBase62Test {
 
     companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 5
-        private val TEST_COUNT = 512 * Runtime.getRuntime().availableProcessors()
+        private val TEST_COUNT = 1024 * Runtime.getRuntime().availableProcessors()
         private val TEST_LIST = fastList(TEST_COUNT) { it }
     }
 
-    protected abstract val uuidGenerator: IdGenerator<UUID>  // = TimebasedUuid.Reordered
+    protected abstract val uuidGenerator: IdGenerator<UUID>
 
     @RepeatedTest(REPEAT_SIZE)
     fun `generate timebased uuid`() {
-        val u1 = uuidGenerator.nextId()
-        val u2 = uuidGenerator.nextId()
-        val u3 = uuidGenerator.nextId()
+        val u1 = uuidGenerator.nextIdAsString()
+        val u2 = uuidGenerator.nextIdAsString()
+        val u3 = uuidGenerator.nextIdAsString()
 
         listOf(u1, u2, u3).forEach {
             log.debug { "uuid=$it" }
@@ -53,7 +55,7 @@ abstract class AbstractTimebasedUuidTest {
     @RepeatedTest(REPEAT_SIZE)
     fun `generate timebased uuid with size`() {
 
-        val uuids = uuidGenerator.nextIds(TEST_COUNT).toFastList()
+        val uuids = uuidGenerator.nextIdsAsString(TEST_COUNT).toFastList()
         val sorted = uuids.sorted()
 
         sorted.forEachIndexed { index, uuid ->
@@ -66,7 +68,7 @@ abstract class AbstractTimebasedUuidTest {
     @RepeatedTest(REPEAT_SIZE)
     fun `generate timebased uuids as parallel`() {
         val uuids = TEST_LIST.parallelStream()
-            .map { uuidGenerator.nextId() }
+            .map { uuidGenerator.nextIdAsString() }
             .toFastList()
             .sorted()
 
@@ -76,13 +78,13 @@ abstract class AbstractTimebasedUuidTest {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `generate timebased uuids in multi threads`() {
-        val idMap = ConcurrentHashMap<UUID, Int>()
+        val idMap = ConcurrentHashMap<String, Int>()
 
         MultithreadingTester()
             .numThreads(2 * Runtimex.availableProcessors)
             .roundsPerThread(TEST_COUNT)
             .add {
-                val id = uuidGenerator.nextId()
+                val id = uuidGenerator.nextIdAsString()
                 idMap.putIfAbsent(id, 1).shouldBeNull()
             }
             .run()
@@ -91,12 +93,12 @@ abstract class AbstractTimebasedUuidTest {
     @EnabledOnJre(JRE.JAVA_21)
     @RepeatedTest(REPEAT_SIZE)
     fun `generate timebased uuids in virtual threads`() {
-        val idMap = ConcurrentHashMap<UUID, Int>()
+        val idMap = ConcurrentHashMap<String, Int>()
 
         StructuredTaskScopeTester()
             .roundsPerTask(TEST_COUNT * 2 * Runtimex.availableProcessors)
             .add {
-                val id = uuidGenerator.nextId()
+                val id = uuidGenerator.nextIdAsString()
                 idMap.putIfAbsent(id, 1).shouldBeNull()
             }
             .run()
@@ -104,13 +106,13 @@ abstract class AbstractTimebasedUuidTest {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `generate timebased uuids in suspend jobs`() = runSuspendDefault {
-        val idMap = ConcurrentHashMap<UUID, Int>()
+        val idMap = ConcurrentHashMap<String, Int>()
 
         SuspendedJobTester()
             .numThreads(2 * Runtimex.availableProcessors)
             .roundsPerJob(TEST_COUNT * 2 * Runtimex.availableProcessors)
             .add {
-                val id = uuidGenerator.nextId()
+                val id = uuidGenerator.nextIdAsString()
                 idMap.putIfAbsent(id, 1).shouldBeNull()
             }
             .run()
@@ -120,10 +122,10 @@ abstract class AbstractTimebasedUuidTest {
     fun `convert timebased uuids to hashids`() {
         val hashids = Hashids()
 
-        val uuids = TEST_LIST.parallelStream().map { uuidGenerator.nextId() }.toFastList()
-        val encodeds = uuids.map { hashids.encode(*it.toLongArray()) }
+        val uuids = TEST_LIST.parallelStream().map { uuidGenerator.nextIdAsString() }.toFastList()
+        val encodeds = uuids.map { hashids.encode(*it.decodeBase62AsUuid().toLongArray()) }
 
-        val decodeds = encodeds.map { hashids.decode(it).toUUID() }
+        val decodeds = encodeds.map { hashids.decode(it).toUUID().encodeBase62() }
         decodeds shouldContainSame uuids
     }
 }

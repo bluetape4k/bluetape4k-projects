@@ -1,6 +1,7 @@
-package io.bluetape4k.idgenerators.uuid
+package io.bluetape4k.idgenerators.uuid.timebased
 
 import io.bluetape4k.idgenerators.IdGenerator
+import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import java.util.*
 
 class ReorderedTimebaseUuidTest: AbstractTimebasedUuidTest() {
