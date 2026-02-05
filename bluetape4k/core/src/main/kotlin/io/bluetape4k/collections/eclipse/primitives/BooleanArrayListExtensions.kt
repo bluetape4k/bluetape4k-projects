@@ -1,6 +1,7 @@
 package io.bluetape4k.collections.eclipse.primitives
 
 import io.bluetape4k.collections.eclipse.toFastList
+import io.bluetape4k.collections.eclipse.toFixedSizeList
 import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.eclipse.collections.api.BooleanIterable
@@ -19,12 +20,12 @@ fun Sequence<Boolean>.toBooleanArrayList(): BooleanArrayList = asIterable().toBo
 
 inline fun booleanArrayList(
     initialCapacity: Int = 10,
-    initializer: (index: Int) -> Boolean,
+    @BuilderInference builder: (index: Int) -> Boolean,
 ): BooleanArrayList {
     initialCapacity.requireZeroOrPositiveNumber("initialCapacity")
     return BooleanArrayList(initialCapacity).apply {
         repeat(initialCapacity) { index ->
-            add(initializer(index))
+            add(builder(index))
         }
     }
 }
@@ -61,5 +62,6 @@ fun BooleanIterable.asMutableSet() = asIterable().toMutableSet()
 
 fun BooleanIterable.asFastList() = asIterable().toFastList()
 fun BooleanIterable.asUnifiedSet() = asIterable().toUnifiedSet()
+fun BooleanIterable.asFixedSizeList() = asIterable().toFixedSizeList()
 
 fun BooleanArray.toFastList(): FastList<Boolean> = asIterable().toFastList()

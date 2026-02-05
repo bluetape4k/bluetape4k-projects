@@ -1,6 +1,7 @@
 package io.bluetape4k.collections.eclipse.primitives
 
 import io.bluetape4k.collections.eclipse.toFastList
+import io.bluetape4k.collections.eclipse.toFixedSizeList
 import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.support.asShort
 import io.bluetape4k.support.requireZeroOrPositiveNumber
@@ -23,12 +24,12 @@ fun Iterable<Number>.asShortArrayList() = ShortArrayList().also { array ->
 
 inline fun shortArrayList(
     initialCapacity: Int = 10,
-    initializer: (index: Int) -> Short,
+    @BuilderInference builder: (index: Int) -> Short,
 ): ShortArrayList {
     initialCapacity.requireZeroOrPositiveNumber("initialCapacity")
     return ShortArrayList(initialCapacity).apply {
         repeat(initialCapacity) { index ->
-            add(initializer(index))
+            add(builder(index))
         }
     }
 }
@@ -63,6 +64,7 @@ fun ShortIterable.asMutableSet() = asIterable().toMutableSet()
 
 fun ShortIterable.asFastList() = asIterable().toFastList()
 fun ShortIterable.asUnifiedSet() = asIterable().toUnifiedSet()
+fun ShortIterable.asFixedSizeList() = asIterable().toFixedSizeList()
 
 fun ShortIterable.maxOrNull() = if (isEmpty) null else max()
 fun ShortIterable.minOrNull() = if (isEmpty) null else min()

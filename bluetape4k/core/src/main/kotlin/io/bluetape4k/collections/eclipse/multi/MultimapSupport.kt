@@ -9,6 +9,8 @@ import org.eclipse.collections.api.multimap.list.ImmutableListMultimap
 import org.eclipse.collections.api.multimap.list.MutableListMultimap
 import org.eclipse.collections.api.multimap.set.ImmutableSetMultimap
 import org.eclipse.collections.api.multimap.set.MutableSetMultimap
+import org.eclipse.collections.api.multimap.sortedbag.ImmutableSortedBagMultimap
+import org.eclipse.collections.api.multimap.sortedset.ImmutableSortedSetMultimap
 import org.eclipse.collections.impl.factory.Multimaps
 import org.eclipse.collections.impl.multimap.bag.HashBagMultimap
 import org.eclipse.collections.impl.multimap.list.FastListMultimap
@@ -19,9 +21,16 @@ fun <K, V> emptyImmutableListMultimap(): ImmutableListMultimap<K, V> = Multimaps
 fun <K, V> emptyImmutableSetMultimap(): ImmutableSetMultimap<K, V> = Multimaps.immutable.set.empty<K, V>()
 fun <K, V> emptyImmutableBagMultimap(): ImmutableBagMultimap<K, V> = Multimaps.immutable.bag.empty<K, V>()
 
+fun <K, V: Comparable<V>> emptyImmutableSortedSetMultimap(): ImmutableSortedSetMultimap<K, V> =
+    Multimaps.immutable.sortedSet.of<K, V>(Comparator<V>.naturalOrder())
+
+fun <K, V: Comparable<V>> emptyImmutableSortedBagMultimap(): ImmutableSortedBagMultimap<K, V> =
+    Multimaps.immutable.sortedBag.of<K, V>(Comparator<V>.naturalOrder())
+
 fun <K, V> emptyMutableListMultimap(): MutableListMultimap<K, V> = Multimaps.mutable.list.empty<K, V>()
 fun <K, V> emptyMutableSetMultimap(): MutableSetMultimap<K, V> = Multimaps.mutable.set.empty<K, V>()
 fun <K, V> emptyMutableBagMultimap(): MutableBagMultimap<K, V> = Multimaps.mutable.bag.empty<K, V>()
+
 
 fun <K, V> listMultimapOf(vararg pairs: Pair<K, V>): MutableListMultimap<K, V> =
     FastListMultimap.newMultimap(pairs.map { it.toTuplePair() })

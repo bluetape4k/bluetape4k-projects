@@ -50,9 +50,9 @@ class EclipseCollectionExamples {
 
         even.size shouldBeEqualTo size / 2
 
-        // detect is same with first
+        // detect is same with firstOrNull
         even.detect { it % 2 == 0 } shouldBeEqualTo 0
-        even.first { it % 2 == 0 } shouldBeEqualTo 0
+        even.firstOrNull { it % 2 == 0 } shouldBeEqualTo 0
 
         even.detectIndex { it % 2 == 0 } shouldBeEqualTo 0
         even.indexOfFirst { it % 2 == 0 } shouldBeEqualTo 0

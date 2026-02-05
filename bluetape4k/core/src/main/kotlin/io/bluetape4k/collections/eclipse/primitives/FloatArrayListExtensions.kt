@@ -1,6 +1,7 @@
 package io.bluetape4k.collections.eclipse.primitives
 
 import io.bluetape4k.collections.eclipse.toFastList
+import io.bluetape4k.collections.eclipse.toFixedSizeList
 import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.support.asFloat
 import io.bluetape4k.support.requireZeroOrPositiveNumber
@@ -23,12 +24,12 @@ fun Iterable<Number>.asFloatArrayList() = FloatArrayList().also { array ->
 
 inline fun floatArrayList(
     initialCapacity: Int = 10,
-    initializer: (index: Int) -> Float,
+    @BuilderInference builder: (index: Int) -> Float,
 ): FloatArrayList {
     initialCapacity.requireZeroOrPositiveNumber("initialCapacity")
     return FloatArrayList(initialCapacity).apply {
         repeat(initialCapacity) { index ->
-            add(initializer(index))
+            add(builder(index))
         }
     }
 }
@@ -63,6 +64,7 @@ fun FloatIterable.asMutableSet() = asIterable().toMutableSet()
 
 fun FloatIterable.asFastList() = asIterable().toFastList()
 fun FloatIterable.asUnifiedSet() = asIterable().toUnifiedSet()
+fun FloatIterable.asFixedSizeList() = asIterable().toFixedSizeList()
 
 fun FloatIterable.maxOrNull() = if (isEmpty) null else max()
 fun FloatIterable.minOrNull() = if (isEmpty) null else min()
