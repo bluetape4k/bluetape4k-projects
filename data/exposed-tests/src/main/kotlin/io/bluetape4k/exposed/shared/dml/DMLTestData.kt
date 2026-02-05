@@ -305,8 +305,9 @@ object DMLTestData {
      */
     object Orgs: IntIdTable() {
         val uid = varchar("uid", 36)
-            .uniqueIndex()
             .clientDefault { TimebasedUuid.Epoch.nextIdAsString() }
+            .uniqueIndex()
+            
         val name = varchar("name", 255)
     }
 

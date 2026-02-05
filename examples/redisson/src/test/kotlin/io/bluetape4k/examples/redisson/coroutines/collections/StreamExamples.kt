@@ -1,8 +1,8 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
-import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -32,7 +32,7 @@ class StreamExamples: AbstractRedissonCoroutineTest() {
 
     @Test
     fun `stream 기본 사용 예`() {
-        val groupName = "testGroup-" + TimebasedUuid.Epoch.nextIdAsString()
+        val groupName = "testGroup-" + Base58.randomString(16)
 
         val stream = redisson.getStream<String, String>(randomName())
 
@@ -86,9 +86,9 @@ class StreamExamples: AbstractRedissonCoroutineTest() {
 
     @Test
     fun `stream usage`() = runSuspendIO {
-        val groupName = "group-" + TimebasedUuid.Epoch.nextIdAsString()
-        val consumerName1 = "consumer-" + TimebasedUuid.Epoch.nextIdAsString()
-        val consumerName2 = "consumer-" + TimebasedUuid.Epoch.nextIdAsString()
+        val groupName = "group-" + Base58.randomString(16)
+        val consumerName1 = "consumer-" + Base58.randomString(16)
+        val consumerName2 = "consumer-" + Base58.randomString(16)
 
         val stream: RStream<String, Int> = redisson.getStream(randomName())
 

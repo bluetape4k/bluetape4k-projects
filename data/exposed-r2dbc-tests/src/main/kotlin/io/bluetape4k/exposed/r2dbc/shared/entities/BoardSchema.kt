@@ -68,7 +68,8 @@ class BoardSchema {
      */
     object Categories: IntIdTable("categories") {
         val uniqueId = varchar("uniqueId", 22)
-            .clientDefault { TimebasedUuid.Epoch.nextIdAsString() }.uniqueIndex()
+            .clientDefault { TimebasedUuid.Epoch.nextIdAsString() }
+            .uniqueIndex()
         val title = varchar("title", 50)
     }
 }

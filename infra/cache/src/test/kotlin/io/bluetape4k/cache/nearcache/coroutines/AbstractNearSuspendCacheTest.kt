@@ -3,10 +3,10 @@ package io.bluetape4k.cache.nearcache.coroutines
 import io.bluetape4k.cache.jcache.coroutines.CaffeineSuspendCache
 import io.bluetape4k.cache.jcache.coroutines.SuspendCache
 import io.bluetape4k.cache.jcache.coroutines.SuspendCacheEntry
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.unifiedMap
 import io.bluetape4k.coroutines.flow.extensions.toFastList
-import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.junit5.awaitility.suspendUntil
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.faker.Fakers
@@ -36,7 +36,7 @@ abstract class AbstractNearSuspendCacheTest
     companion object: KLoggingChannel() {
         private const val TEST_SIZE = 3
 
-        fun getKey() = TimebasedUuid.Epoch.nextIdAsString()
+        fun getKey() = Base58.randomString(16)
         fun getValue() = Fakers.randomString(1024, 4096, true)
     }
 

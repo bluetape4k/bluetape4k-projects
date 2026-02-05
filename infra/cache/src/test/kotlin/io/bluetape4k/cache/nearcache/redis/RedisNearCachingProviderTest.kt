@@ -5,7 +5,7 @@ import io.bluetape4k.cache.jcache.getOrCreate
 import io.bluetape4k.cache.jcache.jcacheConfiguration
 import io.bluetape4k.cache.jcache.jcachingProvider
 import io.bluetape4k.cache.nearcache.NearCache
-import io.bluetape4k.idgenerators.uuid.TimebasedUuid
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.storage.RedisServer
@@ -52,7 +52,7 @@ class RedisNearCachingProviderTest {
                 vType = Any::class.java
             )
         // val cache = manager.createCache(UUID.randomUUID().toString(), redisNearCacheCfg)
-        val cache = manager.getOrCreate(TimebasedUuid.Epoch.nextIdAsString(), redisNearCacheCfg)
+        val cache = manager.getOrCreate(Base58.randomString(16), redisNearCacheCfg)
         cache.shouldNotBeNull()
         cache shouldBeInstanceOf NearCache::class
 
@@ -81,7 +81,7 @@ class RedisNearCachingProviderTest {
                 kType = Any::class.java,
                 vType = Any::class.java
             )
-        val cache = manager.createCache(TimebasedUuid.Epoch.nextIdAsString(), redisNearCacheCfg)
+        val cache = manager.createCache(Base58.randomString(16), redisNearCacheCfg)
         // val cache = manager.getOrCreate<Any, Any>(UUID.randomUUID().toString(), redissonCfg)
         cache.shouldNotBeNull()
         cache shouldBeInstanceOf NearCache::class
