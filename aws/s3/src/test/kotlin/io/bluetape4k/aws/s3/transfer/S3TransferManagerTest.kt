@@ -67,7 +67,7 @@ class S3TransferManagerTest: AbstractS3Test() {
 
         log.debug { "downloadFile=$downloadFile, size=${downloadFile.length()}" }
         downloadFile.exists().shouldBeTrue()
-        // downloadFile.length() shouldBeEqualTo file.length()
+        downloadFile.length() shouldBeEqualTo file.length()
         downloadFile.deleteIfExists()
     }
 }

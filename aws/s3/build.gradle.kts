@@ -4,6 +4,7 @@ configurations {
 
 dependencies {
     api(project(":bluetape4k-aws-core"))
+    testImplementation(project(":bluetape4k-idgenerators"))
     testImplementation(project(":bluetape4k-junit5"))
 
     // AWS SDK V2

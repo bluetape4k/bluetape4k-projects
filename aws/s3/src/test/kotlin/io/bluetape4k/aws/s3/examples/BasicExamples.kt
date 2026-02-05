@@ -8,8 +8,8 @@ import io.bluetape4k.aws.s3.model.objectIdentifierOf
 import io.bluetape4k.aws.s3.putAsByteArray
 import io.bluetape4k.aws.s3.putAsString
 import io.bluetape4k.codec.Base58
-import io.bluetape4k.codec.encodeBase62
 import io.bluetape4k.collections.eclipse.fastList
+import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8Bytes
@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test
 import software.amazon.awssdk.services.s3.model.Permission
 import software.amazon.awssdk.services.s3.model.RequestPayer
 import software.amazon.awssdk.services.s3.model.S3Exception
-import java.util.*
 import kotlin.test.assertFailsWith
 
 class BasicExamples: AbstractS3Test() {
@@ -40,10 +39,13 @@ class BasicExamples: AbstractS3Test() {
 
     @Test
     fun `bucket의 모든 object를 조회합니다`() {
-        val bucket = UUID.randomUUID().encodeBase62().lowercase()
+        val bucket = TimebasedUuid.Epoch.nextIdAsString().lowercase()
         createBucketsIfNotExists(bucket)
 
-        val keys = fastList(5) { Base58.randomString(16).lowercase() }.sorted()
+        val keys = fastList(5) {
+            Base58.randomString(16).lowercase()
+        }.sorted()
+
         keys.forEach { key ->
             s3Client.putAsString(bucket, key, randomString()) {
                 requestPayer(RequestPayer.REQUESTER)

@@ -12,17 +12,23 @@ import kotlinx.coroutines.future.await
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeEmpty
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.RepeatedTest
 
 class S3AsyncOps: AbstractS3Test() {
 
-    companion object: KLoggingChannel()
+    companion object: KLoggingChannel() {
+        private const val REPEAT_SIZE = 5
+    }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `put object asynchronously`() = runTest {
         val key = Base58.randomString(16)
         val response = s3AsyncClient
-            .putAsByteArray(BUCKET_NAME, key, randomString().toUtf8Bytes())
+            .putAsByteArray(
+                BUCKET_NAME,
+                key,
+                randomString().toUtf8Bytes()
+            )
             .await()
 
 
@@ -30,13 +36,20 @@ class S3AsyncOps: AbstractS3Test() {
         response.eTag().shouldNotBeEmpty()
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `get object asynchronously`() = runTest {
         val key = Base58.randomString(16)
         val value = randomString()
 
         // Put object
-        s3AsyncClient.putAsByteArray(BUCKET_NAME, key, value.toUtf8Bytes()).await()
+        val response = s3AsyncClient
+            .putAsByteArray(
+                BUCKET_NAME,
+                key,
+                value.toUtf8Bytes()
+            )
+            .await()
+        log.debug { "Put response=$response" }
 
         // Get object
         val content = s3AsyncClient.getAsByteArray(BUCKET_NAME, key).await()
