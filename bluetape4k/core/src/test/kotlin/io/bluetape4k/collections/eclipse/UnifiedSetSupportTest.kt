@@ -35,6 +35,7 @@ class UnifiedSetSupportTest: AbstractCollectionTest() {
     @Test
     fun `Collection 들을 UnifiedSet로 변환`() {
         val expectedSet = unifiedSetOf('a', 'b', 'c')
+
         listOf('a', 'b', 'c').toUnifiedSet() shouldBeEqualTo expectedSet
         setOf('a', 'b', 'c').toUnifiedSet() shouldBeEqualTo expectedSet
         ('a'..'c').toUnifiedSet() shouldBeEqualTo expectedSet

@@ -41,7 +41,7 @@ fun <T: Job> T.log(tag: Any): T = apply {
  *
  * @param msg 로그에 표시할 메시지
  */
-suspend fun suspendLogging(msg: suspend () -> Any?) = coroutineScope {
+suspend inline fun suspendLogging(crossinline msg: suspend () -> Any?) = coroutineScope {
     val name = coroutineContext[CoroutineName]?.name
     val props = coroutineContext[PropertyCoroutineContext]?.properties
 
