@@ -11,12 +11,14 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
+import io.bluetape4k.support.uninitialized
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.all
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
+import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.amshove.kluent.shouldNotContainAny
@@ -30,14 +32,14 @@ class FoodRepositoryTest: AbstractFoodApplicationTest() {
     companion object: KLoggingChannel()
 
     @Autowired
-    private lateinit var repository: FoodRepository
+    private val repository: FoodRepository = uninitialized()
 
     @Test
     fun `save one food and load`() = runSuspendIO {
         val food = FoodDocument(
             TimebasedUuid.Epoch.nextIdAsString(),
             "42",
-            FoodState.COOKING,
+            FoodState.entries.random(),
             Instant.now().minusSeconds(60_000L)
         )
         log.info { "Save food. $food" }
@@ -64,7 +66,7 @@ class FoodRepositoryTest: AbstractFoodApplicationTest() {
 
         yield()
 
-        val food = foods.first()
+        val food = foods.random()
         val loadedFoods = repository
             .findByPartitionKey(
                 food.partitionKey,
@@ -91,9 +93,9 @@ class FoodRepositoryTest: AbstractFoodApplicationTest() {
         val result = repository.saveAll(foods)
         result.all { it.unprocessedPutItemsForTable(repository.table).isEmpty() }.shouldBeTrue()
 
-        repository.deleteAll(foods).collect()
+        repository.deleteAll(foods).toFastList() shouldHaveSize foods.size
 
-        val food = foods.first()
+        val food = foods.random()
         val loadedFoods = repository.findByPartitionKey(
             food.partitionKey,
             Instant.now().minusSeconds(1000L),
@@ -112,7 +114,7 @@ class FoodRepositoryTest: AbstractFoodApplicationTest() {
         val keysToDelete = foods.map { it.key }
         repository.deleteAllByKeys(keysToDelete).collect()
 
-        val food = foods.first()
+        val food = foods.random()
         val loadedFoods = repository
             .findByPartitionKey(
                 food.partitionKey,
@@ -127,9 +129,9 @@ class FoodRepositoryTest: AbstractFoodApplicationTest() {
     private fun createFoods(size: Int = 100): List<FoodDocument> {
         return fastList(size) {
             FoodDocument(
-                id = snowflake.nextId().toString(),
+                id = TimebasedUuid.Epoch.nextIdAsString(),
                 restraurantId = Random.nextInt(5).toString(),
-                state = FoodState.COOKING,
+                state = FoodState.entries.random(),
                 updatedAt = Instant.now()
             )
         }

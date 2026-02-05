@@ -8,26 +8,30 @@ import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import io.bluetape4k.support.uninitialized
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEmpty
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import kotlin.random.Random
 
 class UserRepositoryTest: AbstractFoodApplicationTest() {
 
-    companion object: KLoggingChannel()
+    companion object: KLoggingChannel() {
+        private fun createUser(): UserDocument {
+            val status = UserDocument.UserStatus.entries.random()
+            return UserDocument(
+                serviceId = "matrix",
+                userId = TimebasedUuid.Epoch.nextIdAsString(),
+                status = status
+            )
+        }
+    }
 
     @Autowired
-    private lateinit var repository: UserRepository
-
-    private fun createUser(): UserDocument {
-        val index = Random.nextInt(UserDocument.UserStatus.entries.size)
-        val status = UserDocument.UserStatus.entries[index]
-        return UserDocument("matrix", TimebasedUuid.Epoch.nextIdAsString(), status)
-    }
+    private val repository: UserRepository = uninitialized()
 
     @Test
     fun `save item and load`() = runTest {
@@ -54,11 +58,11 @@ class UserRepositoryTest: AbstractFoodApplicationTest() {
         val user = createUser()
         repository.save(user)
 
-        val loaded = repository.findByKey(user.key)!!
+        val loaded = repository.findByKey(user.key).shouldNotBeNull()
         loaded shouldBeEqualTo user
 
         loaded.userStatus = UserDocument.UserStatus.INACTIVE
-        val updated = repository.update(loaded)!!
+        val updated = repository.update(loaded).shouldNotBeNull()
 
         updated.userStatus shouldBeEqualTo UserDocument.UserStatus.INACTIVE
     }
@@ -68,7 +72,9 @@ class UserRepositoryTest: AbstractFoodApplicationTest() {
         val users = fastList(100) { createUser() }
 
         val saved = repository.saveAll(users).toFastList()
-        saved.all { it.unprocessedPutItemsForTable(repository.table).isEmpty() }.shouldBeTrue()
+        saved.all {
+            it.unprocessedPutItemsForTable(repository.table).isEmpty()
+        }.shouldBeTrue()
 
         val loaded = repository.findFirstByPartitionKey(users.first().partitionKey).toFastList()
         log.debug { "loaded size=${loaded.size}" }

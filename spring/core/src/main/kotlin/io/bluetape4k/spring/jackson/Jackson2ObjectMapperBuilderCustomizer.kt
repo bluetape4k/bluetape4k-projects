@@ -19,7 +19,7 @@ import java.util.*
  * - 기본적으로 classpath 에 있는 module을 자동으로 등록해줍니다. (kotlin, jdk8, jsr310 등)
  * - `bluetape4k-jackson` 에서 제공하는 [io.bluetape4k.jackson.Jackson.defaultJsonMapper] 와 같은 설정을 제공합니다
  *
- * 추가적으로 [initializer]를 통해 추가 설정을 할 수 있습니다.
+ * 추가적으로 [builder]를 통해 추가 설정을 할 수 있습니다.
  *
  * ```
  * @Configuration
@@ -34,12 +34,12 @@ import java.util.*
  * }
  * ```
  *
- * @param initializer [Jackson2ObjectMapperBuilder] 를 이용하여 [io.bluetape4k.jackson.Jackson.defaultJsonMapper]의 설정을 추가합니다.
+ * @param builder [Jackson2ObjectMapperBuilder] 를 이용하여 [io.bluetape4k.jackson.Jackson.defaultJsonMapper]의 설정을 추가합니다.
  * @receiver
  * @return [Jackson2ObjectMapperBuilderCustomizer] 인스턴스
  */
 inline fun jackson2ObjectMapperBuilderCustomizer(
-    crossinline initializer: Jackson2ObjectMapperBuilder.() -> Unit,
+    @BuilderInference crossinline builder: Jackson2ObjectMapperBuilder.() -> Unit,
 ): Jackson2ObjectMapperBuilderCustomizer = Jackson2ObjectMapperBuilderCustomizer { builder ->
 
     // Classpath에 있는 모든 Jackson용 Module을 찾아서 추가합니다.
@@ -87,5 +87,5 @@ inline fun jackson2ObjectMapperBuilderCustomizer(
         DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
     )
 
-    builder.initializer()
+    builder.builder()
 }
