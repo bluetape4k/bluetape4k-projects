@@ -12,7 +12,12 @@ class MessageSupportTest {
     fun `build email message`() {
         val message = Message {
             subject(contentOf("제목"))
-            body(bodyOf("본문", "<p1>본문</p1>"))
+            body(
+                bodyOf(
+                    text = "본문",
+                    html = "<p1>본문</p1>"
+                )
+            )
         }
         message.subject().data() shouldBeEqualTo "제목"
         message.body().html().data() shouldBeEqualTo "<p1>본문</p1>"

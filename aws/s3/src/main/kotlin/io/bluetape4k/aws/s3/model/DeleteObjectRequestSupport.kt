@@ -10,31 +10,35 @@ import software.amazon.awssdk.services.s3.model.ObjectIdentifier
 inline fun deleteObjectRequest(
     bucket: String,
     key: String,
-    initializer: DeleteObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: DeleteObjectRequest.Builder.() -> Unit = {},
 ): DeleteObjectRequest {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
+
     return DeleteObjectRequest.builder()
         .bucket(bucket)
         .key(key)
-        .apply(initializer)
+        .apply(builder)
         .build()
 }
 
-fun deleteObjectRequestOf(
+inline fun deleteObjectRequestOf(
     bucket: String,
     key: String,
     versionId: String? = null,
+    @BuilderInference builder: DeleteObjectRequest.Builder.() -> Unit,
 ): DeleteObjectRequest {
     return deleteObjectRequest(bucket, key) {
         versionId?.run { versionId(this) }
+
+        builder()
     }
 }
 
 inline fun deleteObjectsRequest(
     bucket: String,
     delete: Delete,
-    initializer: DeleteObjectsRequest.Builder.() -> Unit = {},
+    @BuilderInference initializer: DeleteObjectsRequest.Builder.() -> Unit = {},
 ): DeleteObjectsRequest {
     bucket.requireNotBlank("bucket")
     return DeleteObjectsRequest.builder()
@@ -50,7 +54,7 @@ fun deleteObjectsRequestOf(
     requestPlayer: String? = null,
 ): DeleteObjectsRequest {
     return deleteObjectsRequest(bucket, delete) {
-        requestPayer(requestPlayer)
+        requestPlayer?.let { requestPayer(it) }
     }
 }
 

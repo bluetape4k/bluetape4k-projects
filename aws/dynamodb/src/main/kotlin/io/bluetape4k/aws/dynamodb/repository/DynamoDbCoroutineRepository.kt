@@ -69,11 +69,6 @@ interface DynamoDbCoroutineRepository<T: DynamoDbEntity> {
                 delete(item)
             }
             .mapNotNull { it }
-//        return items.asFlow()
-//            .flatMapMerge { item ->
-//                flow { emit(delete(item)) }   // flowOf 를 사용하면 병렬로 수행하지 안됩니다.
-//            }
-//            .mapNotNull { it }
     }
 
     fun deleteAllByKeys(keys: Iterable<Key>): Flow<T> {
@@ -82,10 +77,5 @@ interface DynamoDbCoroutineRepository<T: DynamoDbEntity> {
                 delete(key)
             }
             .mapNotNull { it }
-//        return keys.asFlow()
-//            .flatMapMerge { key ->
-//                flow { emit(delete(key)) }   // flowOf 를 사용하면 병렬로 수행하지 안됩니다.
-//            }
-//            .mapNotNull { it }
     }
 }

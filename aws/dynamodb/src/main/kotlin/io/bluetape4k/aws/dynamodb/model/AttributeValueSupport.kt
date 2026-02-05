@@ -15,10 +15,12 @@ import java.nio.ByteBuffer
  * val boolValue = attributeValue { bool(true) }
  * ```
  *
- * @param initializer [AttributeValue.Builder]를 초기화하는 람다 함수입니다.
+ * @param builder [AttributeValue.Builder]를 초기화하는 람다 함수입니다.
  */
-inline fun attributeValue(initializer: AttributeValue.Builder.() -> Unit): AttributeValue {
-    return AttributeValue.builder().apply(initializer).build()
+inline fun attributeValue(
+    @BuilderInference builder: AttributeValue.Builder.() -> Unit,
+): AttributeValue {
+    return AttributeValue.builder().apply(builder).build()
 }
 
 /**
@@ -78,14 +80,14 @@ fun InputStream.toAttributeValue(): AttributeValue = attributeValue { b(toSdkByt
  * Binary Serialization을 통해 ByteArray로 변환한 후 `toAttributeValue()`를 호출해야 합니다.
  */
 fun <T> T.toAttributeValue(): AttributeValue = when (this) {
-    null           -> AttributeValues.nullAttributeValue()
-    is ByteArray   -> toAttributeValue()
-    is ByteBuffer  -> toAttributeValue()
-    is String      -> toAttributeValue()
-    is Number      -> toAttributeValue()
-    is Boolean     -> toAttributeValue()
+    null -> AttributeValues.nullAttributeValue()
+    is ByteArray -> toAttributeValue()
+    is ByteBuffer -> toAttributeValue()
+    is String -> toAttributeValue()
+    is Number -> toAttributeValue()
+    is Boolean -> toAttributeValue()
     is Iterable<*> -> toAttributeValue()
-    is Map<*, *>   -> toAttributeValue()
+    is Map<*, *> -> toAttributeValue()
     is InputStream -> toAttributeValue()
-    else           -> attributeValue { s(this@toAttributeValue.toString()) }
+    else -> attributeValue { s(this@toAttributeValue.toString()) }
 }

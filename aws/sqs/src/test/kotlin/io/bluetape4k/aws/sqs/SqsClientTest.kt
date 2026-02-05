@@ -1,6 +1,6 @@
 package io.bluetape4k.aws.sqs
 
-import io.bluetape4k.codec.encodeBase62
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -16,7 +16,6 @@ import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import software.amazon.awssdk.services.sqs.model.DeleteQueueResponse
 import software.amazon.awssdk.services.sqs.model.SendMessageBatchRequestEntry
-import java.util.*
 
 @Execution(ExecutionMode.SAME_THREAD)
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
@@ -24,7 +23,7 @@ class SqsClientTest: AbstractSqsTest() {
 
     companion object: KLogging() {
         private const val QUEUE_PREFIX = "sync-queue"
-        private val QUEUE_NAME = "$QUEUE_PREFIX-${UUID.randomUUID().encodeBase62().lowercase()}"
+        private val QUEUE_NAME = "$QUEUE_PREFIX-${Base58.randomString(12).lowercase()}"
     }
 
     private lateinit var queueUrl: String

@@ -5,7 +5,7 @@ import software.amazon.awssdk.services.s3.model.ObjectIdentifier
 
 inline fun objectIdentifier(
     key: String,
-    initializer: ObjectIdentifier.Builder.() -> Unit = {},
+    @BuilderInference initializer: ObjectIdentifier.Builder.() -> Unit = {},
 ): ObjectIdentifier {
     key.requireNotBlank("key")
     return ObjectIdentifier.builder()
@@ -14,10 +14,10 @@ inline fun objectIdentifier(
         .build()
 }
 
-fun objectIdentifierOf(
+inline fun objectIdentifierOf(
     key: String,
     versionId: String? = null,
-    initializer: ObjectIdentifier.Builder.() -> Unit = {},
+    @BuilderInference initializer: ObjectIdentifier.Builder.() -> Unit = {},
 ): ObjectIdentifier {
     return objectIdentifier(key) {
         versionId(versionId)

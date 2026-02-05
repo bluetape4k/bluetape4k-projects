@@ -50,14 +50,22 @@ class QueryRequestBuilderDSL {
     }
 }
 
-inline fun QueryRequestBuilderDSL.primaryKey(keyName: String, builder: PrimaryKeyBuilder.() -> Unit) {
+inline fun QueryRequestBuilderDSL.primaryKey(
+    keyName: String,
+    @BuilderInference builder: PrimaryKeyBuilder.() -> Unit,
+) {
     primaryKey = PrimaryKeyBuilder(keyName).apply(builder).build()
 }
 
-inline fun QueryRequestBuilderDSL.sortKey(keyName: String, builder: SortKeyBuilder.() -> Unit) {
+inline fun QueryRequestBuilderDSL.sortKey(
+    keyName: String,
+    @BuilderInference builder: SortKeyBuilder.() -> Unit,
+) {
     sortKey = SortKeyBuilder(keyName).apply(builder).build()
 }
 
-inline fun QueryRequestBuilderDSL.filtering(builder: RootFilterBuilder.() -> Unit) {
+inline fun QueryRequestBuilderDSL.filtering(
+    @BuilderInference builder: RootFilterBuilder.() -> Unit,
+) {
     filtering = RootFilterBuilder().apply(builder).build()
 }

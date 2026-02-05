@@ -13,14 +13,14 @@ import kotlin.time.toJavaDuration
  *
  * NOTE: [AwsCrtAsyncHttpClient]를 사용하려면 참조에서 `netty-nio-client` 를 제거해야 합니다. (동시 사용은 불가능)
  *
- * @param initializer [AwsCrtAsyncHttpClient.Builder]를 초기화하는 람다입니다.
+ * @param builder [AwsCrtAsyncHttpClient.Builder]를 초기화하는 람다입니다.
  * @receiver
  * @return [SdkAsyncHttpClient] 인스턴스
  */
 inline fun awsCrtAsyncHttpClient(
-    initializer: AwsCrtAsyncHttpClient.Builder.() -> Unit,
+    @BuilderInference builder: AwsCrtAsyncHttpClient.Builder.() -> Unit,
 ): SdkAsyncHttpClient {
-    return AwsCrtAsyncHttpClient.builder().apply(initializer).build()
+    return AwsCrtAsyncHttpClient.builder().apply(builder).build()
 }
 
 fun awsCrtAsyncHttpClientOf(

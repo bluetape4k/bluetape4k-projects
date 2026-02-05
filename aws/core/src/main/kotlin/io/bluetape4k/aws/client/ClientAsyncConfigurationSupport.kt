@@ -4,9 +4,9 @@ import software.amazon.awssdk.core.client.config.ClientAsyncConfiguration
 import software.amazon.awssdk.core.client.config.SdkAdvancedAsyncClientOption
 
 inline fun clientAsyncConfiguration(
-    initializer: ClientAsyncConfiguration.Builder.() -> Unit,
+    @BuilderInference builder: ClientAsyncConfiguration.Builder.() -> Unit,
 ): ClientAsyncConfiguration {
-    return ClientAsyncConfiguration.builder().apply(initializer).build()
+    return ClientAsyncConfiguration.builder().apply(builder).build()
 }
 
 fun <T> clientAsyncConfigurationOf(

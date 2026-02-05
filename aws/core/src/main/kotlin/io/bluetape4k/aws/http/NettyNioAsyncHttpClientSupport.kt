@@ -7,9 +7,9 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
 inline fun nettyNioAsyncHttpClient(
-    initializer: NettyNioAsyncHttpClient.Builder.() -> Unit,
+    @BuilderInference builder: NettyNioAsyncHttpClient.Builder.() -> Unit,
 ): SdkAsyncHttpClient {
-    return NettyNioAsyncHttpClient.builder().apply(initializer).build()
+    return NettyNioAsyncHttpClient.builder().apply(builder).build()
 }
 
 fun nettyNioAsyncHttpClientOf(

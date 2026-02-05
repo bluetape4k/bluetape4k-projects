@@ -9,7 +9,7 @@ import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest
  * @param builder [ReceiveMessageRequest.Builder]를 이용하여 [ReceiveMessageRequest]를 초기화하는 람다입니다.
  */
 inline fun receiveMessageRequest(
-    builder: ReceiveMessageRequest.Builder.() -> Unit,
+    @BuilderInference builder: ReceiveMessageRequest.Builder.() -> Unit,
 ): ReceiveMessageRequest {
     return ReceiveMessageRequest.builder().apply(builder).build()
 }
@@ -29,7 +29,7 @@ inline fun receiveMessageRequestOf(
     maxNumber: Int = 3,
     waitTimeSeconds: Int = 30,
     attributeNames: Collection<String>? = null,
-    builder: ReceiveMessageRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: ReceiveMessageRequest.Builder.() -> Unit = {},
 ): ReceiveMessageRequest {
     queueUrl.requireNotBlank("queueUrl")
 

@@ -34,17 +34,17 @@ fun S3Client.existsBucket(bucketName: String): Boolean {
  * [bucketName]의 Bucket을 생성합니다.
  *
  * @param bucketName  생성할 Bucket name
- * @param createBucketConfiguration 생성할 Bucket을 위한 Configuration을 설정하는 코드
+ * @param builder 생성할 Bucket을 위한 Configuration을 설정하는 코드
  * @return Bucket 생성 결과. [CreateBucketResponse]
  */
 fun S3Client.createBucket(
     bucketName: String,
-    createBucketConfiguration: CreateBucketConfiguration.Builder.() -> Unit = {},
+    @BuilderInference builder: CreateBucketConfiguration.Builder.() -> Unit = {},
 ): CreateBucketResponse {
     bucketName.requireNotBlank("bucketName")
 
     return createBucket {
-        it.bucket(bucketName).createBucketConfiguration(createBucketConfiguration)
+        it.bucket(bucketName).createBucketConfiguration(builder)
     }
 }
 
@@ -65,46 +65,46 @@ fun <T> S3Client.getObjectAs(
 /**
  * S3 Object 를 download 한 후, ByteArray 로 반환합니다.
  *
- * @param requestInitializer 요청 정보 Builder
+ * @param builder 요청 정보 Builder
  * @return 다운받은 S3 Object의 ByteArray 형태의 정보
  */
-fun S3Client.getAsByteArray(
+inline fun S3Client.getAsByteArray(
     bucket: String,
     key: String,
-    requestInitializer: GetObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
 ): ByteArray {
-    val request = getObjectRequest(bucket, key, requestInitializer)
+    val request = getObjectRequest(bucket, key, builder)
     return getObject(request, ResponseTransformer.toBytes()).asByteArray()
 }
 
 /**
  * S3 Object 를 download 한 후, 문자열로 반환합니다.
  *
- * @param requestInitializer 요청 정보 Builder
+ * @param builder 요청 정보 Builder
  * @return 다운받은 S3 Object의 문자열 형태의 정보
  */
-fun S3Client.getAsString(
+inline fun S3Client.getAsString(
     bucket: String,
     key: String,
     charset: Charset = Charsets.UTF_8,
-    requestInitializer: GetObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
 ): String {
-    return getAsByteArray(bucket, key, requestInitializer).toString(charset)
+    return getAsByteArray(bucket, key, builder).toString(charset)
 }
 
 /**
  * S3 Object 를 download 한 후, [file]로 저장한다
  *
- * @param requestInitializer 요청 정보 Builder
+ * @param builder 요청 정보 Builder
  * @return 다운받은 S3 Object의 정보
  */
-fun S3Client.getAsFile(
+inline fun S3Client.getAsFile(
     bucket: String,
     key: String,
     file: File,
-    requestInitializer: GetObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
 ): GetObjectResponse {
-    val request = getObjectRequest(bucket, key, requestInitializer)
+    val request = getObjectRequest(bucket, key, builder)
     return getObject(request, ResponseTransformer.toFile(file))
 }
 
@@ -112,16 +112,16 @@ fun S3Client.getAsFile(
 /**
  * S3 Object 를 download 한 후, [path]에 저장한다
  *
- * @param requestInitializer 요청 정보 Builder
+ * @param builder 요청 정보 Builder
  * @return 다운받은 S3 Object의 정보
  */
-fun S3Client.getAsFile(
+inline fun S3Client.getAsFile(
     bucket: String,
     key: String,
     path: Path,
-    requestInitializer: GetObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
 ): GetObjectResponse {
-    val request = getObjectRequest(bucket, key, requestInitializer)
+    val request = getObjectRequest(bucket, key, builder)
     return getObject(request, ResponseTransformer.toFile(path))
 }
 
@@ -133,16 +133,16 @@ fun S3Client.getAsFile(
  * S3 서버로 [body]를 Upload 합니다.
  *
  * @param body              Upload 할 [RequestBody]
- * @param requestInitializer  PutObjectRequest builder
+ * @param builder  PutObjectRequest builder
  * @return S3에 저장된 결과
  */
-fun S3Client.put(
+inline fun S3Client.put(
     bucket: String,
     key: String,
     body: RequestBody,
-    requestInitializer: PutObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
-    val request = putObjectRequest(bucket, key, requestInitializer)
+    val request = putObjectRequest(bucket, key, builder)
     return putObject(request, body)
 }
 
@@ -150,50 +150,50 @@ fun S3Client.put(
  * S3 서버로 [bytes]를 Upload 합니다.
  *
  * @param bytes           Upload 할 Byte Array
- * @param requestInitializer  PutObjectRequest builder
+ * @param builder  PutObjectRequest builder
  * @return S3에 저장된 결과
  */
-fun S3Client.putAsByteArray(
+inline fun S3Client.putAsByteArray(
     bucket: String,
     key: String,
     bytes: ByteArray,
-    requestInitializer: PutObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
-    return put(bucket, key, RequestBody.fromBytes(bytes), requestInitializer)
+    return put(bucket, key, RequestBody.fromBytes(bytes), builder)
 }
 
 /**
  * S3 서버로 [contents]를 Upload 합니다.
  *
  * @param contents           Upload 할 문자열
- * @param requestInitializer  PutObjectRequest builder
+ * @param builder  PutObjectRequest builder
  * @return S3에 저장된 결과
  */
-fun S3Client.putAsString(
+inline fun S3Client.putAsString(
     bucket: String,
     key: String,
     contents: String,
-    requestInitializer: PutObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
-    return put(bucket, key, RequestBody.fromString(contents), requestInitializer)
+    return put(bucket, key, RequestBody.fromString(contents), builder)
 }
 
-fun S3Client.putAsFile(
+inline fun S3Client.putAsFile(
     bucket: String,
     key: String,
     file: File,
-    requestInitializer: PutObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
-    return put(bucket, key, RequestBody.fromFile(file), requestInitializer)
+    return put(bucket, key, RequestBody.fromFile(file), builder)
 }
 
-fun S3Client.putAsFile(
+inline fun S3Client.putAsFile(
     bucket: String,
     key: String,
     path: Path,
-    requestInitializer: PutObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
-    return put(bucket, key, RequestBody.fromFile(path), requestInitializer)
+    return put(bucket, key, RequestBody.fromFile(path), builder)
 }
 
 //

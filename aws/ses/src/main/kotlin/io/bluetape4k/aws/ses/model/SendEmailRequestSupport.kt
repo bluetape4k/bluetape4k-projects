@@ -18,7 +18,7 @@ import software.amazon.awssdk.services.ses.model.SendTemplatedEmailRequest
  * @param builder [SendEmailRequest.Builder] 초기화 람다
  * @return [SendEmailRequest] 인스턴스
  */
-inline fun SendEmailRequest(builder: SendEmailRequest.Builder.() -> Unit): SendEmailRequest {
+inline fun SendEmailRequest(@BuilderInference builder: SendEmailRequest.Builder.() -> Unit): SendEmailRequest {
     return SendEmailRequest.builder().apply(builder).build()
 }
 
@@ -42,7 +42,7 @@ inline fun SendEmailRequest(builder: SendEmailRequest.Builder.() -> Unit): SendE
  * @param tags 메시지 태그
  * @return [SendEmailRequest] 인스턴스
  */
-fun sendEmailRequestOf(
+inline fun sendEmailRequestOf(
     source: String,
     destination: Destination,
     sourceArn: String? = null,
@@ -50,6 +50,7 @@ fun sendEmailRequestOf(
     returnPath: String? = null,
     returnPathArn: String? = null,
     tags: Collection<MessageTag>? = null,
+    @BuilderInference builder: SendEmailRequest.Builder.() -> Unit = {},
 ): SendEmailRequest = SendEmailRequest {
     source(source)
     destination(destination)
@@ -58,6 +59,8 @@ fun sendEmailRequestOf(
     returnPath?.run { returnPath(this) }
     returnPathArn?.run { returnPathArn(this) }
     tags?.run { tags(this) }
+
+    builder()
 }
 
 /**
@@ -75,7 +78,7 @@ fun sendEmailRequestOf(
  * @return [SendTemplatedEmailRequest] 인스턴스
  */
 inline fun SendTemplatedEmailRequest(
-    builder: SendTemplatedEmailRequest.Builder.() -> Unit,
+    @BuilderInference builder: SendTemplatedEmailRequest.Builder.() -> Unit,
 ): SendTemplatedEmailRequest {
     return SendTemplatedEmailRequest.builder().apply(builder).build()
 }
@@ -106,7 +109,7 @@ inline fun SendTemplatedEmailRequest(
  *
  * @return [SendTemplatedEmailRequest] 인스턴스
  */
-fun sendTemplatedEmailRequestOf(
+inline fun sendTemplatedEmailRequestOf(
     source: String,
     destination: Destination,
     template: String,
@@ -118,6 +121,7 @@ fun sendTemplatedEmailRequestOf(
     returnPathArn: String? = null,
     tags: Collection<MessageTag>? = null,
     configurationSetName: String? = null,
+    @BuilderInference builder: SendTemplatedEmailRequest.Builder.() -> Unit = {},
 ): SendTemplatedEmailRequest = SendTemplatedEmailRequest {
     source(source)
     destination(destination)
@@ -130,4 +134,6 @@ fun sendTemplatedEmailRequestOf(
     returnPathArn?.run { returnPathArn(this) }
     tags?.run { tags(this) }
     configurationSetName?.run { configurationSetName(this) }
+
+    builder()
 }

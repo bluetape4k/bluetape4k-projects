@@ -4,9 +4,9 @@ import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import software.amazon.awssdk.awscore.AwsRequestOverrideConfiguration
 
 inline fun awsRequestOverrideConfiguration(
-    initializer: AwsRequestOverrideConfiguration.Builder.() -> Unit,
+    @BuilderInference builder: AwsRequestOverrideConfiguration.Builder.() -> Unit,
 ): AwsRequestOverrideConfiguration {
-    return AwsRequestOverrideConfiguration.builder().apply(initializer).build()
+    return AwsRequestOverrideConfiguration.builder().apply(builder).build()
 }
 
 fun awsRequestOverrideConfigurationOf(

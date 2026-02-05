@@ -9,6 +9,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.warn
 import software.amazon.awssdk.enhanced.dynamodb.Expression
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
+import java.io.Serializable
 import kotlin.random.Random
 
 data class FilterRequestProperties(
@@ -158,13 +159,13 @@ class ConcreteFilter(
 data class FilterConnection(
     val value: FilterQuery,
     val connectionToLeft: FilterBooleanConnection? = null,
-)
+): Serializable
 
 enum class FilterBooleanConnection {
     AND, OR
 }
 
-interface DynamoFunction
+interface DynamoFunction: Serializable
 
 data class Attribute(val attributeName: String): DynamoFunction
 data class AttributeExists(val attributeName: String): DynamoFunction

@@ -4,13 +4,13 @@ import software.amazon.awssdk.awscore.AwsRequestOverrideConfiguration
 import software.amazon.awssdk.services.s3.model.ListBucketsRequest
 
 inline fun listBucketsRequest(
-    builder: ListBucketsRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: ListBucketsRequest.Builder.() -> Unit = {},
 ): ListBucketsRequest {
     return ListBucketsRequest.builder().apply(builder).build()
 }
 
 fun listBucketsRequestOf(
-    configrationBuilder: AwsRequestOverrideConfiguration.Builder.() -> Unit = {},
+    @BuilderInference configrationBuilder: AwsRequestOverrideConfiguration.Builder.() -> Unit = {},
 ): ListBucketsRequest {
     return listBucketsRequest {
         overrideConfiguration(configrationBuilder)

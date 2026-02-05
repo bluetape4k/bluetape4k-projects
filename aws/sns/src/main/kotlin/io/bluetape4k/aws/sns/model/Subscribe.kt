@@ -3,15 +3,17 @@ package io.bluetape4k.aws.sns.model
 import software.amazon.awssdk.awscore.AwsRequestOverrideConfiguration
 import software.amazon.awssdk.services.sns.model.SubscribeRequest
 
-inline fun SubscribeRequest(initializer: SubscribeRequest.Builder.() -> Unit): SubscribeRequest =
-    SubscribeRequest.builder().apply(initializer).build()
+inline fun SubscribeRequest(
+    @BuilderInference builder: SubscribeRequest.Builder.() -> Unit,
+): SubscribeRequest =
+    SubscribeRequest.builder().apply(builder).build()
 
-fun subscribeRequestOf(
+inline fun subscribeRequestOf(
     topicArn: String,
     protocol: String,
     endpoint: String,
     overrideConfiguration: AwsRequestOverrideConfiguration? = null,
-    builder: SubscribeRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: SubscribeRequest.Builder.() -> Unit = {},
 ): SubscribeRequest = SubscribeRequest {
     topicArn(topicArn)
     protocol(protocol)

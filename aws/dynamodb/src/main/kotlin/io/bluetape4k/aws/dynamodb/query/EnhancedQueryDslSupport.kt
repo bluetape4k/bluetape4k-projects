@@ -53,7 +53,7 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue
  * @return [QueryEnhancedRequest] 인스턴스
  */
 inline fun <T: DynamoDbEntity> queryEnhancedRequest(
-    builder: EnhancedQueryBuilderKt<T>.() -> Unit,
+    @BuilderInference builder: EnhancedQueryBuilderKt<T>.() -> Unit,
 ): QueryEnhancedRequest {
     return EnhancedQueryBuilderKt<T>().apply(builder).build()
 }
@@ -122,20 +122,20 @@ class EnhancedQueryBuilderKt<T: Any> {
 
 inline fun <T: DynamoDbEntity> EnhancedQueryBuilderKt<T>.primaryKey(
     keyName: String = "primaryKey",
-    builder: PrimaryKeyBuilder.() -> Unit,
+    @BuilderInference builder: PrimaryKeyBuilder.() -> Unit,
 ) {
     primaryKey = PrimaryKeyBuilder(keyName).apply(builder).build()
 }
 
 inline fun <T: DynamoDbEntity> EnhancedQueryBuilderKt<T>.sortKey(
     keyName: String = "sortKey",
-    builder: SortKeyBuilder.() -> Unit,
+    @BuilderInference builder: SortKeyBuilder.() -> Unit,
 ) {
     sortKey = SortKeyBuilder(keyName).apply(builder).build()
 }
 
 inline fun <T: DynamoDbEntity> EnhancedQueryBuilderKt<T>.filtering(
-    builder: RootFilterBuilder.() -> Unit,
+    @BuilderInference builder: RootFilterBuilder.() -> Unit,
 ) {
     filtering = RootFilterBuilder().apply(builder).build()
 }

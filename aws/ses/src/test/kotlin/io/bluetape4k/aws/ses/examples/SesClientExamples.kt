@@ -13,6 +13,7 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
+import software.amazon.awssdk.services.ses.model.ListIdentitiesResponse
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class SesClientExamples: AbstractSesTest() {
@@ -34,8 +35,8 @@ class SesClientExamples: AbstractSesTest() {
     @Test
     @Order(2)
     fun `list identifiers`() {
-        val response = client.listIdentities()
-        val identities = response.identities()
+        val response: ListIdentitiesResponse = client.listIdentities()
+        val identities: List<String> = response.identities()
         identities.forEach {
             log.debug { "Identity=$it" }
         }
@@ -49,7 +50,7 @@ class SesClientExamples: AbstractSesTest() {
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     fun `send email`() {
         val emailRequest = SendEmailRequest {
             source(senderEmail)

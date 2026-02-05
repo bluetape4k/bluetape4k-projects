@@ -11,19 +11,19 @@ import java.nio.file.Path
 
 inline fun <T> downloadRequest(
     responseTransformer: AsyncResponseTransformer<GetObjectResponse, T>,
-    initializer: DownloadRequest.UntypedBuilder.() -> Unit = {},
+    @BuilderInference builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
 ): DownloadRequest<T> {
     return DownloadRequest.builder()
-        .apply(initializer)
+        .apply(builder)
         .responseTransformer(responseTransformer)
         .build()
 }
 
-fun <T> downloadRequestOf(
+inline fun <T> downloadRequestOf(
     bucket: String,
     key: String,
     responseTransformer: AsyncResponseTransformer<GetObjectResponse, T>,
-    getObjectRequestBuilder: GetObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline getObjectRequestBuilder: GetObjectRequest.Builder.() -> Unit = {},
 ): DownloadRequest<T> {
     return downloadRequest(responseTransformer) {
         getObjectRequest {
@@ -34,34 +34,36 @@ fun <T> downloadRequestOf(
     }
 }
 
-fun downloadRequestOf(
+inline fun downloadRequestOf(
     bucket: String,
     key: String,
     downloadPath: Path,
-    initializer: DownloadRequest.UntypedBuilder.() -> Unit = {},
+    @BuilderInference builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
 ): DownloadRequest<GetObjectResponse> {
     return downloadRequest(AsyncResponseTransformer.toFile(downloadPath)) {
         getObjectRequest {
             it.bucket(bucket)
             it.key(key)
         }
-        initializer()
+        builder()
     }
 }
 
 
-inline fun uploadRequest(initializer: UploadRequest.Builder.() -> Unit): UploadRequest {
-    return UploadRequest.builder().apply(initializer).build()
+inline fun uploadRequest(
+    @BuilderInference builder: UploadRequest.Builder.() -> Unit,
+): UploadRequest {
+    return UploadRequest.builder().apply(builder).build()
 }
 
-fun uploadRequestOf(
+inline fun uploadRequestOf(
     putObjectRequest: PutObjectRequest,
     requestBody: AsyncRequestBody,
-    initializer: UploadRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: UploadRequest.Builder.() -> Unit = {},
 ): UploadRequest {
     return uploadRequest {
         putObjectRequest(putObjectRequest)
         requestBody(requestBody)
-        initializer()
+        builder()
     }
 }

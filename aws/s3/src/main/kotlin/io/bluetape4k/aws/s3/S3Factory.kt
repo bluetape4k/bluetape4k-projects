@@ -30,11 +30,13 @@ object S3Factory {
         /**
          * [S3Client] 를 생성합니다.
          *
-         * @param initializer [S3ClientBuilder]를 이용하여 [S3Client]를 설정합니다.
+         * @param builder [S3ClientBuilder]를 이용하여 [S3Client]를 설정합니다.
          * @return [S3Client] 인스턴스
          */
-        inline fun create(initializer: S3ClientBuilder.() -> Unit): S3Client {
-            return S3Client.builder().apply(initializer).build()
+        inline fun create(
+            @BuilderInference builder: S3ClientBuilder.() -> Unit,
+        ): S3Client {
+            return S3Client.builder().apply(builder).build()
                 .apply {
                     ShutdownQueue.register(this)
                 }
@@ -46,14 +48,14 @@ object S3Factory {
          * @param endpointOverride      S3 endpoint
          * @param region                S3 region
          * @param credentialsProvider   AWS [AwsCredentialsProvider] 인스턴스
-         * @param additionalInitializer           [S3ClientBuilder]를 이용하여 [S3Client]를 설정합니다.
+         * @param builder           [S3ClientBuilder]를 이용하여 [S3Client]를 설정합니다.
          * @return [S3Client] 인스턴스
          */
         inline fun create(
             endpointOverride: URI,
             region: Region = Region.AP_NORTHEAST_2,
             credentialsProvider: AwsCredentialsProvider = LocalAwsCredentialsProvider,
-            additionalInitializer: S3ClientBuilder.() -> Unit = {},
+            @BuilderInference builder: S3ClientBuilder.() -> Unit = {},
         ): S3Client {
             return create {
                 endpointOverride(endpointOverride)
@@ -62,7 +64,7 @@ object S3Factory {
                 accelerate(true) // Enables this client to use S3 Transfer Acceleration endpoints.
                 httpClient(SdkHttpClientProvider.Apache.apacheHttpClient)
 
-                additionalInitializer()
+                builder()
             }
         }
     }
@@ -75,12 +77,14 @@ object S3Factory {
         /**
          * [S3AsyncClient] 를 생성합니다.
          *
-         * @param initializer [S3AsyncClientBuilder]를 이용하여 [S3AsyncClient]를 설정합니다.
+         * @param builder [S3AsyncClientBuilder]를 이용하여 [S3AsyncClient]를 설정합니다.
          * @return [S3AsyncClient] 인스턴스
          */
-        inline fun create(initializer: S3AsyncClientBuilder.() -> Unit): S3AsyncClient {
+        inline fun create(
+            @BuilderInference builder: S3AsyncClientBuilder.() -> Unit,
+        ): S3AsyncClient {
             return S3AsyncClient.builder()
-                .apply(initializer)
+                .apply(builder)
                 .build()
                 .apply {
                     ShutdownQueue.register(this)
@@ -93,20 +97,20 @@ object S3Factory {
          * @param endpointOverride      S3 endpoint
          * @param region                S3 region
          * @param credentialsProvider   AWS [AwsCredentialsProvider] 인스턴스
-         * @param additionalInitializer           [S3AsyncClientBuilder]를 이용하여 [S3Client]를 설정합니다.
+         * @param builder           [S3AsyncClientBuilder]를 이용하여 [S3Client]를 설정합니다.
          * @return [S3AsyncClient] 인스턴스
          */
         inline fun create(
             endpointOverride: URI,
             region: Region = Region.AP_NORTHEAST_2,
             credentialsProvider: AwsCredentialsProvider = LocalAwsCredentialsProvider,
-            additionalInitializer: S3AsyncClientBuilder.() -> Unit = {},
+            @BuilderInference builder: S3AsyncClientBuilder.() -> Unit = {},
         ): S3AsyncClient {
             return create {
                 endpointOverride(endpointOverride)
                 region(region)
                 credentialsProvider(credentialsProvider)
-                additionalInitializer()
+                builder()
             }
         }
     }
@@ -122,12 +126,14 @@ object S3Factory {
         /**
          * [S3AsyncClient] 를 생성합니다.
          *
-         * @param initializer [S3AsyncClientBuilder]를 이용하여 [S3AsyncClient]를 설정합니다.
+         * @param builder [S3AsyncClientBuilder]를 이용하여 [S3AsyncClient]를 설정합니다.
          * @return [S3AsyncClient] 인스턴스
          */
-        inline fun create(initializer: S3CrtAsyncClientBuilder.() -> Unit): S3AsyncClient {
+        inline fun create(
+            @BuilderInference builder: S3CrtAsyncClientBuilder.() -> Unit,
+        ): S3AsyncClient {
             return S3AsyncClient.crtBuilder()
-                .apply(initializer)
+                .apply(builder)
                 .build()
                 .apply {
                     ShutdownQueue.register(this)
@@ -140,14 +146,14 @@ object S3Factory {
          * @param endpointOverride      S3 endpoint
          * @param region                S3 region
          * @param credentialsProvider   AWS [AwsCredentialsProvider] 인스턴스
-         * @param additionalInitializer           [S3AsyncClientBuilder]를 이용하여 [S3Client]를 설정합니다.
+         * @param builder           [S3AsyncClientBuilder]를 이용하여 [S3Client]를 설정합니다.
          * @return [S3AsyncClient] 인스턴스
          */
         inline fun create(
             endpointOverride: URI,
             region: Region = Region.AP_NORTHEAST_2,
             credentialsProvider: AwsCredentialsProvider = LocalAwsCredentialsProvider,
-            additionalInitializer: S3CrtAsyncClientBuilder.() -> Unit = {},
+            @BuilderInference builder: S3CrtAsyncClientBuilder.() -> Unit = {},
         ): S3AsyncClient {
             return create {
                 endpointOverride(endpointOverride)
@@ -155,7 +161,7 @@ object S3Factory {
                 credentialsProvider(credentialsProvider)
                 maxConcurrency(Runtime.getRuntime().availableProcessors())
                 minimumPartSizeInBytes(1 * MB)
-                additionalInitializer()
+                builder()
             }
         }
     }
@@ -168,11 +174,13 @@ object S3Factory {
         /**
          * [S3TransferManager]를 생성합니다.
          *
-         * @param  initializer [S3TransferManager] Builder를 이용하여 설정하는 코드 블럭
+         * @param  builder [S3TransferManager] Builder를 이용하여 설정하는 코드 블럭
          * @return [S3TransferManager] 인스턴스
          */
-        inline fun create(initializer: S3TransferManager.Builder.() -> Unit): S3TransferManager {
-            return S3TransferManager.builder().apply(initializer).build()
+        inline fun create(
+            @BuilderInference builder: S3TransferManager.Builder.() -> Unit,
+        ): S3TransferManager {
+            return S3TransferManager.builder().apply(builder).build()
                 .apply {
                     ShutdownQueue.register(this)
                 }
@@ -187,7 +195,7 @@ object S3Factory {
          * @param region                S3 region
          * @param credentialsProvider   AWS [AwsCredentialsProvider] 인스턴스
          * @param executor               [Executor] 인스턴스
-         * @param additionalInitializer  [S3TransferManager] Builder를 이용하여 설정하는 코드 블럭
+         * @param builder  [S3TransferManager] Builder를 이용하여 설정하는 코드 블럭
          * @return [S3TransferManager] 인스턴스
          */
         inline fun create(
@@ -195,7 +203,7 @@ object S3Factory {
             region: Region = Region.AP_NORTHEAST_2,
             credentialsProvider: AwsCredentialsProvider = LocalAwsCredentialsProvider,
             executor: Executor = Dispatchers.IO.asExecutor(),
-            additionalInitializer: S3TransferManager.Builder.() -> Unit = {},
+            @BuilderInference builder: S3TransferManager.Builder.() -> Unit = {},
         ): S3TransferManager {
             return create {
                 // AWS CRT-based S3AsyncClient 를 사용하는 것을 추천한다
@@ -208,7 +216,7 @@ object S3Factory {
                 this.s3Client(asyncClient)
                 this.executor(executor)
                 this.uploadDirectoryMaxDepth(3)
-                additionalInitializer()
+                builder()
             }
         }
 
@@ -217,19 +225,19 @@ object S3Factory {
          *
          * @param  asyncClient            [S3AsyncClient] 인스턴스
          * @param  executor               [Executor] 인스턴스
-         * @param  additionalInitializer  [S3TransferManager] Builder를 이용하여 설정하는 코드 블럭
+         * @param  builder  [S3TransferManager] Builder를 이용하여 설정하는 코드 블럭
          * @return [S3TransferManager] 인스턴스
          */
         inline fun create(
             asyncClient: S3AsyncClient,
             executor: Executor = Dispatchers.IO.asExecutor(),
-            additionalInitializer: S3TransferManager.Builder.() -> Unit = {},
+            @BuilderInference builder: S3TransferManager.Builder.() -> Unit = {},
         ): S3TransferManager {
             return create {
                 this.s3Client(asyncClient)
                 this.executor(executor)
                 this.uploadDirectoryMaxDepth(3)
-                additionalInitializer()
+                builder()
             }
         }
     }

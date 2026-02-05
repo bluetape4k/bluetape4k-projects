@@ -22,13 +22,13 @@ import java.net.URI
  *      httpClient(SdkAsyncHttpClientProvider.Netty.nettyNioAsyncHttpClient)
  * }
  * ```
- * @param initializer [DynamoDbAsyncClientBuilder] 초기화 람다
+ * @param builder [DynamoDbAsyncClientBuilder] 초기화 람다
  * @return [DynamoDbAsyncClient] 인스턴스
  */
 inline fun DynamoDbAsyncClient(
-    initializer: DynamoDbAsyncClientBuilder.() -> Unit,
+    @BuilderInference builder: DynamoDbAsyncClientBuilder.() -> Unit,
 ): DynamoDbAsyncClient {
-    return DynamoDbAsyncClient.builder().apply(initializer).build()
+    return DynamoDbAsyncClient.builder().apply(builder).build()
         .apply {
             ShutdownQueue.register(this)
         }
@@ -49,7 +49,7 @@ inline fun DynamoDbAsyncClient(
  * @param endpoint [URI] DynamoDB 엔드포인트
  * @param region [Region] DynamoDB 리전
  * @param credentialsProvider [AwsCredentialsProvider] 자격 증명 제공자
- * @param initializer [DynamoDbAsyncClientBuilder] 초기화 람다
+ * @param builder [DynamoDbAsyncClientBuilder] 초기화 람다
  *
  * @return [DynamoDbAsyncClient] 인스턴스
  * @see DynamoDbAsyncClient
@@ -58,13 +58,14 @@ inline fun dynamoDbAsyncClientOf(
     endpoint: URI,
     region: Region,
     credentialsProvider: AwsCredentialsProvider,
-    initializer: DynamoDbAsyncClientBuilder.() -> Unit = {},
+    @BuilderInference builder: DynamoDbAsyncClientBuilder.() -> Unit = {},
 ): DynamoDbAsyncClient = DynamoDbAsyncClient {
     endpointOverride(endpoint)
     region(region)
     credentialsProvider(credentialsProvider)
     httpClient(SdkAsyncHttpClientProvider.Netty.nettyNioAsyncHttpClient)
-    initializer()
+
+    builder()
 }
 
 /**
@@ -79,13 +80,13 @@ inline fun dynamoDbAsyncClientOf(
  *     httpClient(SdkAsyncHttpClientProvider.Netty.nettyNioAsyncHttpClient)
  * }
  * ```
- * @param initializer [DynamoDbStreamsAsyncClientBuilder] 초기화 람다
+ * @param builder [DynamoDbStreamsAsyncClientBuilder] 초기화 람다
  * @return [DynamoDbStreamsAsyncClient] 인스턴스
  */
 inline fun DynamoDbStreamsAsyncClient(
-    initializer: DynamoDbStreamsAsyncClientBuilder.() -> Unit,
+    @BuilderInference builder: DynamoDbStreamsAsyncClientBuilder.() -> Unit,
 ): DynamoDbStreamsAsyncClient {
-    return DynamoDbStreamsAsyncClient.builder().apply(initializer).build()
+    return DynamoDbStreamsAsyncClient.builder().apply(builder).build()
         .apply {
             ShutdownQueue.register(this)
         }
@@ -107,7 +108,7 @@ inline fun DynamoDbStreamsAsyncClient(
  * @param endpoint [URI] DynamoDB 엔드포인트
  * @param region [Region] DynamoDB 리전
  * @param credentialsProvider [AwsCredentialsProvider] 자격 증명 제공자
- * @param initializer [DynamoDbStreamsAsyncClientBuilder] 초기화 람다
+ * @param builder [DynamoDbStreamsAsyncClientBuilder] 초기화 람다
  *
  * @return [DynamoDbStreamsAsyncClient] 인스턴스
  *
@@ -117,12 +118,12 @@ inline fun dynamoDbStreamsAsyncClientOf(
     endpoint: URI,
     region: Region,
     credentialsProvider: AwsCredentialsProvider,
-    initializer: DynamoDbStreamsAsyncClientBuilder.() -> Unit = {},
+    @BuilderInference builder: DynamoDbStreamsAsyncClientBuilder.() -> Unit = {},
 ): DynamoDbStreamsAsyncClient = DynamoDbStreamsAsyncClient {
     endpointOverride(endpoint)
     region(region)
     credentialsProvider(credentialsProvider)
     httpClient(SdkAsyncHttpClientProvider.Netty.nettyNioAsyncHttpClient)
 
-    initializer()
+    builder()
 }

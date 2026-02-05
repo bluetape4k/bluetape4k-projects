@@ -13,11 +13,11 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue
  *  sortValue(42)
  * }
  * ```
- * @param initializer [Key.Builder]를 초기화하는 람다 함수입니다.
+ * @param builder [Key.Builder]를 초기화하는 람다 함수입니다.
  * @return [Key] 객체를 반환합니다.
  */
-inline fun Key(initializer: Key.Builder.() -> Unit): Key {
-    return Key.builder().apply(initializer).build()
+inline fun Key(@BuilderInference builder: Key.Builder.() -> Unit): Key {
+    return Key.builder().apply(builder).build()
 }
 
 /**
@@ -53,15 +53,15 @@ fun dynamoDbKeyOf(partitionKey: AttributeValue, sortValue: AttributeValue? = nul
 fun dynamoDbKeyOf(partitionValue: Any, sortValue: Any? = null): Key =
     Key {
         when (partitionValue) {
-            is Number    -> partitionValue(partitionValue)
+            is Number -> partitionValue(partitionValue)
             is ByteArray -> partitionValue(partitionValue.toSdkBytes())
-            else         -> partitionValue(partitionValue.toString())
+            else -> partitionValue(partitionValue.toString())
         }
         sortValue?.let {
             when (sortValue) {
-                is Number    -> sortValue(sortValue)
+                is Number -> sortValue(sortValue)
                 is ByteArray -> sortValue(sortValue.toSdkBytes())
-                else         -> sortValue(sortValue.toString())
+                else -> sortValue(sortValue.toString())
             }
         }
     }

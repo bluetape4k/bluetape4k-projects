@@ -24,14 +24,14 @@ import java.nio.file.Path
  *
  * @param T
  * @param responseTransformer 응답을 변환할 transformer
- * @param initializer [DownloadRequest] 를 구성하는 람다 함수
+ * @param builder [DownloadRequest] 를 구성하는 람다 함수
  * @return [Download] 인스턴스
  */
 inline fun <T> S3TransferManager.download(
     responseTransformer: AsyncResponseTransformer<GetObjectResponse, T>,
-    initializer: DownloadRequest.UntypedBuilder.() -> Unit = {},
+    @BuilderInference builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
 ): Download<T> {
-    return download(downloadRequest(responseTransformer, initializer))
+    return download(downloadRequest(responseTransformer, builder))
 }
 
 /**
@@ -44,11 +44,11 @@ inline fun <T> S3TransferManager.download(
  * @param getObjectRequestBuilder [GetObjectRequest.Builder] 를 구성하는 람다 함수
  * @return 다운로드한 S3 Object
  */
-fun <T> S3TransferManager.download(
+inline fun <T> S3TransferManager.download(
     bucket: String,
     key: String,
     responseTransformer: AsyncResponseTransformer<GetObjectResponse, T>,
-    getObjectRequestBuilder: GetObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline getObjectRequestBuilder: GetObjectRequest.Builder.() -> Unit = {},
 ): Download<T> {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
@@ -57,10 +57,10 @@ fun <T> S3TransferManager.download(
     return download(request)
 }
 
-fun S3TransferManager.downloadAsByteArray(
+inline fun S3TransferManager.downloadAsByteArray(
     bucket: String,
     key: String,
-    getObjectRequestBuilder: (GetObjectRequest.Builder) -> Unit = {},
+    @BuilderInference crossinline getObjectRequestBuilder: (GetObjectRequest.Builder) -> Unit = {},
 ): Download<ResponseBytes<GetObjectResponse>> {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
@@ -73,11 +73,15 @@ fun S3TransferManager.downloadAsByteArray(
     )
 }
 
-fun S3TransferManager.downloadFile(
+inline fun S3TransferManager.downloadFile(
     bucket: String,
     key: String,
     objectPath: Path,
-    additionalDownloadRequest: DownloadFileRequest.Builder.() -> Unit = { addTransferListener(LoggingTransferListener.create()) },
+    @BuilderInference crossinline additionalDownloadRequest: DownloadFileRequest.Builder.() -> Unit = {
+        addTransferListener(
+            LoggingTransferListener.create()
+        )
+    },
 ): FileDownload {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
@@ -106,7 +110,7 @@ inline fun S3TransferManager.upload(
     bucket: String,
     key: String,
     asyncRequestBody: AsyncRequestBody,
-    additionalUploadRequest: UploadRequest.Builder.() -> Unit = {},
+    @BuilderInference additionalUploadRequest: UploadRequest.Builder.() -> Unit = {},
 ): Upload {
     val request = uploadRequest {
         putObjectRequest {
@@ -123,7 +127,7 @@ inline fun S3TransferManager.uploadByteArray(
     bucket: String,
     key: String,
     content: ByteArray,
-    additionalUploadRequest: UploadRequest.Builder.() -> Unit = {},
+    @BuilderInference additionalUploadRequest: UploadRequest.Builder.() -> Unit = {},
 ): Upload {
     val request = uploadRequest {
         putObjectRequest {
@@ -140,7 +144,11 @@ fun S3TransferManager.uploadFile(
     bucket: String,
     key: String,
     source: Path,
-    uploadRequest: UploadFileRequest.Builder.() -> Unit = { addTransferListener(LoggingTransferListener.create()) },
+    @BuilderInference uploadRequest: UploadFileRequest.Builder.() -> Unit = {
+        addTransferListener(
+            LoggingTransferListener.create()
+        )
+    },
 ): FileUpload {
     val request = UploadFileRequest.builder()
         .putObjectRequest {

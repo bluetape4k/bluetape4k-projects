@@ -14,13 +14,13 @@ import software.amazon.awssdk.services.dynamodb.model.Projection
  *   // ...
  * }
  * ```
- * @param initializer EnhancedGlobalSecondaryIndex.Builder 초기화 람다
+ * @param builder EnhancedGlobalSecondaryIndex.Builder 초기화 람다
  * @return [EnhancedGlobalSecondaryIndex] 인스턴스
  */
 inline fun EnhancedGlobalSecondaryIndex(
-    initializer: EnhancedGlobalSecondaryIndex.Builder.() -> Unit,
+    @BuilderInference builder: EnhancedGlobalSecondaryIndex.Builder.() -> Unit,
 ): EnhancedGlobalSecondaryIndex {
-    return EnhancedGlobalSecondaryIndex.builder().apply(initializer).build()
+    return EnhancedGlobalSecondaryIndex.builder().apply(builder).build()
 }
 
 /**
@@ -52,13 +52,13 @@ fun enhancedGlobalSecondaryIndexOf(
  *   // ...
  * }
  * ```
- * @param initializer EnhancedLocalSecondaryIndex.Builder 초기화 람다
+ * @param builder EnhancedLocalSecondaryIndex.Builder 초기화 람다
  * @return [EnhancedLocalSecondaryIndex] 인스턴스
  */
 inline fun EnhancedLocalSecondaryIndex(
-    initializer: EnhancedLocalSecondaryIndex.Builder.() -> Unit,
+    @BuilderInference builder: EnhancedLocalSecondaryIndex.Builder.() -> Unit,
 ): EnhancedLocalSecondaryIndex {
-    return EnhancedLocalSecondaryIndex.builder().apply(initializer).build()
+    return EnhancedLocalSecondaryIndex.builder().apply(builder).build()
 }
 
 /**

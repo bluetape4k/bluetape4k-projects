@@ -23,7 +23,9 @@ import software.amazon.awssdk.services.sqs.model.SendMessageBatchResponse
 import software.amazon.awssdk.services.sqs.model.SendMessageResponse
 import java.net.URI
 
-inline fun sqsClient(builder: SqsClientBuilder.() -> Unit): SqsClient {
+inline fun sqsClient(
+    @BuilderInference builder: SqsClientBuilder.() -> Unit,
+): SqsClient {
     return SqsClient.builder().apply(builder).build()
 }
 
@@ -31,7 +33,7 @@ inline fun sqsClientOf(
     endpoint: URI,
     region: Region,
     credentialsProvider: AwsCredentialsProvider,
-    builder: SqsClientBuilder.() -> Unit = {},
+    @BuilderInference builder: SqsClientBuilder.() -> Unit = {},
 ): SqsClient = sqsClient {
     endpointOverride(endpoint)
     region(region)
@@ -92,13 +94,13 @@ fun SqsClient.sendBatch(
 fun SqsClient.receiveMessages(
     queueUrl: String,
     maxResults: Int? = null,
-    requestInitializer: ReceiveMessageRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: ReceiveMessageRequest.Builder.() -> Unit = {},
 ): ReceiveMessageResponse {
     queueUrl.requireNotBlank("queueUrl")
     return receiveMessage {
         it.queueUrl(queueUrl)
         maxResults?.run { it.maxNumberOfMessages(this) }
-        it.requestInitializer()
+        it.builder()
     }
 }
 
@@ -172,6 +174,7 @@ fun SqsClient.deleteMessageBatch(
 
 fun SqsClient.deleteQueue(queueUrl: String): DeleteQueueResponse {
     queueUrl.requireNotBlank("queueUrl")
+
     return deleteQueue {
         it.queueUrl(queueUrl)
     }

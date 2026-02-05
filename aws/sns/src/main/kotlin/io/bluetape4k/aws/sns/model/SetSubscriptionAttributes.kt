@@ -4,7 +4,7 @@ import software.amazon.awssdk.awscore.AwsRequestOverrideConfiguration
 import software.amazon.awssdk.services.sns.model.SetSubscriptionAttributesRequest
 
 inline fun SetSubscriptionAttributesRequest(
-    builder: SetSubscriptionAttributesRequest.Builder.() -> Unit,
+    @BuilderInference builder: SetSubscriptionAttributesRequest.Builder.() -> Unit,
 ): SetSubscriptionAttributesRequest =
     SetSubscriptionAttributesRequest.builder().apply(builder).build()
 
@@ -13,7 +13,7 @@ inline fun setSubscriptionAttributesRequestOf(
     attributeName: String? = null,
     attributeValue: String? = null,
     overrideConfiguration: AwsRequestOverrideConfiguration? = null,
-    builder: SetSubscriptionAttributesRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: SetSubscriptionAttributesRequest.Builder.() -> Unit = {},
 ): SetSubscriptionAttributesRequest = SetSubscriptionAttributesRequest {
     subscriptionArn?.run { subscriptionArn(this) }
     attributeName?.run { attributeName(this) }

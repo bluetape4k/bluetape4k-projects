@@ -6,7 +6,7 @@ import software.amazon.awssdk.services.s3.model.GetObjectRequest
 inline fun getObjectRequest(
     bucket: String,
     key: String,
-    initializer: GetObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference initializer: GetObjectRequest.Builder.() -> Unit = {},
 ): GetObjectRequest {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
@@ -25,7 +25,7 @@ fun getObjectRequestOf(
     partNumber: Int? = null,
 ): GetObjectRequest {
     return getObjectRequest(bucket, key) {
-        versionId?.run { versionId(this) }
-        partNumber?.run { partNumber(this) }
+        versionId?.let { versionId(it) }
+        partNumber?.let { partNumber(it) }
     }
 }

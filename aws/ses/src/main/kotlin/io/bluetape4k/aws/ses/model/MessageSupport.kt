@@ -30,7 +30,9 @@ import java.nio.charset.Charset
  * @param builder [Message.Builder] 초기화 람다
  * @return [Message] 인스턴스
  */
-inline fun Message(builder: Message.Builder.() -> Unit): Message {
+inline fun Message(
+    @BuilderInference builder: Message.Builder.() -> Unit,
+): Message {
     return Message.builder().apply(builder).build()
 }
 
@@ -69,7 +71,7 @@ fun messageOf(subject: Content, body: Body): Message {
  * @param builder [Body.Builder] 초기화 람다
  * @return [Body] 인스턴스
  */
-inline fun Body(builder: Body.Builder.() -> Unit): Body {
+inline fun Body(@BuilderInference builder: Body.Builder.() -> Unit): Body {
     return Body.builder().apply(builder).build()
 }
 
@@ -133,7 +135,7 @@ fun bodyAsHtml(html: String, charset: Charset = Charsets.UTF_8): Body = Body {
  * @param builder [Content.Builder] 초기화 람다
  * @return [Content] 인스턴스
  */
-inline fun Content(builder: Content.Builder.() -> Unit): Content {
+inline fun Content(@BuilderInference builder: Content.Builder.() -> Unit): Content {
     return Content.builder().apply(builder).build()
 }
 
@@ -166,7 +168,7 @@ fun contentOf(data: String? = null, charset: Charset = Charsets.UTF_8) = Content
  * @param builder [MessageTag.Builder] 초기화 람다
  * @return [MessageTag] 인스턴스
  */
-inline fun MessageTag(builder: MessageTag.Builder.() -> Unit): MessageTag {
+inline fun MessageTag(@BuilderInference builder: MessageTag.Builder.() -> Unit): MessageTag {
     return MessageTag.builder().apply(builder).build()
 }
 

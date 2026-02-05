@@ -8,6 +8,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldNotBeEmpty
 import org.junit.jupiter.api.Test
+import software.amazon.awssdk.services.ses.model.SendEmailResponse
 
 /**
  * Email 전송을 위해서는 AWS SES 에 email을 등록해야 합니다.
@@ -36,7 +37,7 @@ class SesClientTest: AbstractSesTest() {
             }
         }
 
-        val response = client.send(request)
+        val response: SendEmailResponse = client.send(request)
         response.messageId().shouldNotBeEmpty()
         log.debug { "response=$response" }
     }

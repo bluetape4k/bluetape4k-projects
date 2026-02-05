@@ -24,7 +24,7 @@ class SqsExamples: AbstractSqsTest() {
 
     companion object: KLogging() {
         private const val QUEUE_PREFIX = "test-queue"
-        private val QUEUE_NAME = "$QUEUE_PREFIX-${Base58.randomString(8).lowercase()}"
+        private val QUEUE_NAME = "$QUEUE_PREFIX-${Base58.randomString(12).lowercase()}"
     }
 
     private lateinit var queueUrl: String

@@ -30,13 +30,13 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient
  * }
  * ```
  *
- * @param initializer [DynamoDbEnhancedAsyncClient.Builder] 를 초기화하는 람다 함수
+ * @param builder [DynamoDbEnhancedAsyncClient.Builder] 를 초기화하는 람다 함수
  * @return [DynamoDbEnhancedAsyncClient] instance
  */
 inline fun dynamoDbEnhancedAsyncClient(
-    initializer: DynamoDbEnhancedAsyncClient.Builder.() -> Unit,
+    @BuilderInference builder: DynamoDbEnhancedAsyncClient.Builder.() -> Unit,
 ): DynamoDbEnhancedAsyncClient {
-    return DynamoDbEnhancedAsyncClient.builder().apply(initializer).build()
+    return DynamoDbEnhancedAsyncClient.builder().apply(builder).build()
 }
 
 /**
@@ -49,16 +49,17 @@ inline fun dynamoDbEnhancedAsyncClient(
  * ```
  *
  * @param client [DynamoDbAsyncClient] instance
- * @param initializer [DynamoDbEnhancedAsyncClient.Builder] 를 초기화하는 람다 함수
+ * @param builder [DynamoDbEnhancedAsyncClient.Builder] 를 초기화하는 람다 함수
  * @return [DynamoDbEnhancedAsyncClient] instance
  */
-fun dynamoDbEnhancedAsyncClientOf(
+inline fun dynamoDbEnhancedAsyncClientOf(
     client: DynamoDbAsyncClient,
-    initializer: DynamoDbEnhancedAsyncClient.Builder.() -> Unit = { extensions(ExtensionResolver.defaultExtensions()) },
-): DynamoDbEnhancedAsyncClient = dynamoDbEnhancedAsyncClient {
-    dynamoDbClient(client)
-    initializer()
-}
+    @BuilderInference builder: DynamoDbEnhancedAsyncClient.Builder.() -> Unit = { extensions(ExtensionResolver.defaultExtensions()) },
+): DynamoDbEnhancedAsyncClient =
+    dynamoDbEnhancedAsyncClient {
+        dynamoDbClient(client)
+        builder()
+    }
 
 /**
  * [DynamoDbEnhancedAsyncClient] 를 생성합니다.

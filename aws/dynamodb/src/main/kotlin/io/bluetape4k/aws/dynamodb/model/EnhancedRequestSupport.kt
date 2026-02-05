@@ -18,61 +18,61 @@ import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 
 inline fun BatchGetItemEnhancedRequest(
-    initializer: BatchGetItemEnhancedRequest.Builder.() -> Unit,
+    @BuilderInference builder: BatchGetItemEnhancedRequest.Builder.() -> Unit,
 ): BatchGetItemEnhancedRequest {
-    return BatchGetItemEnhancedRequest.builder().apply(initializer).build()
+    return BatchGetItemEnhancedRequest.builder().apply(builder).build()
 }
 
 inline fun BatchWriteItemEnhancedRequest(
-    initializer: BatchWriteItemEnhancedRequest.Builder.() -> Unit,
+    @BuilderInference builder: BatchWriteItemEnhancedRequest.Builder.() -> Unit,
 ): BatchWriteItemEnhancedRequest {
-    return BatchWriteItemEnhancedRequest.builder().apply(initializer).build()
+    return BatchWriteItemEnhancedRequest.builder().apply(builder).build()
 }
 
 inline fun CreateTableEnhancedRequest(
-    initializer: CreateTableEnhancedRequest.Builder.() -> Unit,
+    @BuilderInference builder: CreateTableEnhancedRequest.Builder.() -> Unit,
 ): CreateTableEnhancedRequest {
-    return CreateTableEnhancedRequest.builder().apply(initializer).build()
+    return CreateTableEnhancedRequest.builder().apply(builder).build()
 }
 
 inline fun DeleteItemEnhancedRequest(
-    initializer: DeleteItemEnhancedRequest.Builder.() -> Unit,
+    @BuilderInference builder: DeleteItemEnhancedRequest.Builder.() -> Unit,
 ): DeleteItemEnhancedRequest {
-    return DeleteItemEnhancedRequest.builder().apply(initializer).build()
+    return DeleteItemEnhancedRequest.builder().apply(builder).build()
 }
 
 inline fun Expression(
-    initializer: Expression.Builder.() -> Unit,
+    @BuilderInference builder: Expression.Builder.() -> Unit,
 ): Expression {
-    return Expression.builder().apply(initializer).build()
+    return Expression.builder().apply(builder).build()
 }
 
 inline fun GetItemEnhancedRequest(
-    initializer: GetItemEnhancedRequest.Builder.() -> Unit,
+    @BuilderInference builder: GetItemEnhancedRequest.Builder.() -> Unit,
 ): GetItemEnhancedRequest {
-    return GetItemEnhancedRequest.builder().apply(initializer).build()
+    return GetItemEnhancedRequest.builder().apply(builder).build()
 }
 
 inline fun <reified T: Any> ReadBatch(
     table: MappedTableResource<T>,
-    @BuilderInference initializer: ReadBatch.Builder<T>.() -> Unit,
+    @BuilderInference builder: ReadBatch.Builder<T>.() -> Unit,
 ): ReadBatch {
     return ReadBatch.builder(T::class.java)
         .apply { mappedTableResource(table) }
-        .apply(initializer)
+        .apply(builder)
         .build()
 }
 
 inline fun <reified T: Any> PutItemEnhancedRequest(
-    @BuilderInference initializer: PutItemEnhancedRequest.Builder<T>.() -> Unit,
+    @BuilderInference builder: PutItemEnhancedRequest.Builder<T>.() -> Unit,
 ): PutItemEnhancedRequest<T> {
-    return PutItemEnhancedRequest.builder(T::class.java).apply(initializer).build()
+    return PutItemEnhancedRequest.builder(T::class.java).apply(builder).build()
 }
 
 inline fun QueryEnhancedRequest(
-    initializer: QueryEnhancedRequest.Builder.() -> Unit,
+    @BuilderInference builder: QueryEnhancedRequest.Builder.() -> Unit,
 ): QueryEnhancedRequest {
-    return QueryEnhancedRequest.builder().apply(initializer).build()
+    return QueryEnhancedRequest.builder().apply(builder).build()
 }
 
 /**
@@ -112,25 +112,28 @@ fun QueryEnhancedRequest.describe(): String = buildString {
 }
 
 inline fun ScanEnhancedRequest(
-    initializer: ScanEnhancedRequest.Builder.() -> Unit,
+    @BuilderInference builder: ScanEnhancedRequest.Builder.() -> Unit,
 ): ScanEnhancedRequest {
-    return ScanEnhancedRequest.builder().apply(initializer).build()
+    return ScanEnhancedRequest.builder().apply(builder).build()
 }
 
 inline fun TransactGetItemsEnhancedRequest(
-    initializer: TransactGetItemsEnhancedRequest.Builder.() -> Unit,
+    @BuilderInference builder: TransactGetItemsEnhancedRequest.Builder.() -> Unit,
 ): TransactGetItemsEnhancedRequest {
-    return TransactGetItemsEnhancedRequest.builder().apply(initializer).build()
+    return TransactGetItemsEnhancedRequest.builder().apply(builder).build()
 }
 
 inline fun TransactWriteItemsEnhancedRequest(
-    initializer: TransactWriteItemsEnhancedRequest.Builder.() -> Unit,
+    @BuilderInference builder: TransactWriteItemsEnhancedRequest.Builder.() -> Unit,
 ): TransactWriteItemsEnhancedRequest {
-    return TransactWriteItemsEnhancedRequest.builder().apply(initializer).build()
+    return TransactWriteItemsEnhancedRequest.builder().apply(builder).build()
 }
 
 inline fun <reified T: Any> UpdateItemEnhancedRequest(
-    initializer: UpdateItemEnhancedRequest.Builder<T>.() -> Unit,
+    @BuilderInference builder: UpdateItemEnhancedRequest.Builder<T>.() -> Unit,
 ): UpdateItemEnhancedRequest<T> {
-    return UpdateItemEnhancedRequest.builder(T::class.java).apply(initializer).build()
+    return UpdateItemEnhancedRequest
+        .builder(T::class.java)
+        .apply(builder)
+        .build()
 }

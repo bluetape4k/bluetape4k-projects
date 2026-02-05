@@ -37,17 +37,17 @@ fun S3AsyncClient.existsBucket(bucketName: String): CompletableFuture<Boolean> {
  * [bucketName]의 Bucket을 생성합니다.
  *
  * @param bucketName  생성할 Bucket name
- * @param createBucketConfiguration 생성할 Bucket을 위한 Configuration
+ * @param builder 생성할 Bucket을 위한 Configuration
  * @return Bucket 생성 결과. [CreateBucketResponse]
  */
 fun S3AsyncClient.createBucket(
     bucketName: String,
-    createBucketConfiguration: CreateBucketConfiguration.Builder.() -> Unit = {},
+    @BuilderInference builder: CreateBucketConfiguration.Builder.() -> Unit = {},
 ): CompletableFuture<CreateBucketResponse> {
     bucketName.requireNotBlank("bucketName")
 
     return createBucket {
-        it.bucket(bucketName).createBucketConfiguration(createBucketConfiguration)
+        it.bucket(bucketName).createBucketConfiguration(builder)
     }
 }
 
@@ -58,15 +58,15 @@ fun S3AsyncClient.createBucket(
 /**
  * S3 Object 를 download 한 후, ByteArray 로 반환합니다.
  *
- * @param getObjectRequest 요청 정보 Builder
+ * @param builder 요청 정보 Builder
  * @return 다운받은 S3 Object의 ByteArray 형태의 정보
  */
-fun S3AsyncClient.getAsByteArray(
+inline fun S3AsyncClient.getAsByteArray(
     bucket: String,
     key: String,
-    getObjectRequest: GetObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
 ): CompletableFuture<ByteArray> {
-    val request = getObjectRequest(bucket, key, getObjectRequest)
+    val request = getObjectRequest(bucket, key, builder)
 
     return getObject(request, AsyncResponseTransformer.toBytes())
         .thenApply { it.asByteArray() }
@@ -75,28 +75,28 @@ fun S3AsyncClient.getAsByteArray(
 /**
  * S3 Object 를 download 한 후, 문자열로 반환합니다.
  *
- * @param getObjectRequest 요청 정보 Builder
+ * @param builder 요청 정보 Builder
  * @return 다운받은 S3 Object의 문자열 형태의 정보
  */
-fun S3AsyncClient.getAsString(
+inline fun S3AsyncClient.getAsString(
     bucket: String,
     key: String,
-    getObjectRequest: GetObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
 ): CompletableFuture<String> {
-    val request = getObjectRequest(bucket, key, getObjectRequest)
+    val request = getObjectRequest(bucket, key, builder)
 
     return getObject(request, AsyncResponseTransformer.toBytes())
         .thenApply { it.asString(Charsets.UTF_8) }
 }
 
 
-fun S3AsyncClient.getAsFile(
+inline fun S3AsyncClient.getAsFile(
     bucket: String,
     key: String,
     destinationPath: Path,
-    getObjectRequest: GetObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
 ): CompletableFuture<GetObjectResponse> {
-    val request = getObjectRequest(bucket, key, getObjectRequest)
+    val request = getObjectRequest(bucket, key, builder)
     return getObject(request, destinationPath)
 }
 
@@ -110,18 +110,18 @@ fun S3AsyncClient.getAsFile(
  * @param bucket            Upload 할 Bucket name
  * @param key               Upload 할 Object key
  * @param body              Upload 할 [AsyncRequestBody]
- * @param requestBuilder  PutObjectRequest builder
+ * @param builder  PutObjectRequest builder
  * @return S3에 저장된 결과
  */
-fun S3AsyncClient.put(
+inline fun S3AsyncClient.put(
     bucket: String,
     key: String,
     body: AsyncRequestBody,
-    requestBuilder: PutObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
 ): CompletableFuture<PutObjectResponse> {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
-    val request = putObjectRequest(bucket, key, requestBuilder)
+    val request = putObjectRequest(bucket, key, builder)
     return putObject(request, body)
 }
 
@@ -129,51 +129,51 @@ fun S3AsyncClient.put(
  * S3 서버로 [bytes]를 Upload 합니다.
  *
  * @param bytes             Upload 할 Byte Array
- * @param requestBuilder  PutObjectRequest builder
+ * @param builder  PutObjectRequest builder
  * @return S3에 저장된 결과
  */
-fun S3AsyncClient.putAsByteArray(
+inline fun S3AsyncClient.putAsByteArray(
     bucket: String,
     key: String,
     bytes: ByteArray,
-    requestBuilder: PutObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: PutObjectRequest.Builder.() -> Unit = {},
 ): CompletableFuture<PutObjectResponse> {
-    return put(bucket, key, AsyncRequestBody.fromBytes(bytes), requestBuilder)
+    return put(bucket, key, AsyncRequestBody.fromBytes(bytes), builder)
 }
 
 /**
  * S3 서버로 [contents]를 Upload 합니다.
  *
  * @param contents          Upload 할 문자열
- * @param requestBuilder  PutObjectRequest builder
+ * @param builder  PutObjectRequest builder
  * @return S3에 저장된 결과
  */
-fun S3AsyncClient.putAsString(
+inline fun S3AsyncClient.putAsString(
     bucket: String,
     key: String,
     contents: String,
-    requestBuilder: PutObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
 ): CompletableFuture<PutObjectResponse> {
-    return put(bucket, key, AsyncRequestBody.fromString(contents), requestBuilder)
+    return put(bucket, key, AsyncRequestBody.fromString(contents), builder)
 }
 
-fun S3AsyncClient.putAsFile(
+inline fun S3AsyncClient.putAsFile(
     bucket: String,
     key: String,
     file: File,
-    requestBuilder: PutObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
 ): CompletableFuture<PutObjectResponse> {
-    return put(bucket, key, AsyncRequestBody.fromFile(file), requestBuilder)
+    return put(bucket, key, AsyncRequestBody.fromFile(file), builder)
 }
 
 
-fun S3AsyncClient.putAsFile(
+inline fun S3AsyncClient.putAsFile(
     bucket: String,
     key: String,
     path: Path,
-    requestBuilder: PutObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
 ): CompletableFuture<PutObjectResponse> {
-    return put(bucket, key, AsyncRequestBody.fromFile(path), requestBuilder)
+    return put(bucket, key, AsyncRequestBody.fromFile(path), builder)
 }
 
 //

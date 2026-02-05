@@ -26,9 +26,9 @@ import java.net.URI
  * @return [DynamoDbClient] 인스턴스
  */
 inline fun DynamoDbClient(
-    initializer: DynamoDbClientBuilder.() -> Unit,
+    @BuilderInference builder: DynamoDbClientBuilder.() -> Unit,
 ): DynamoDbClient {
-    return DynamoDbClient.builder().apply(initializer).build()
+    return DynamoDbClient.builder().apply(builder).build()
         .apply {
             ShutdownQueue.register(this)
         }
@@ -50,18 +50,18 @@ inline fun DynamoDbClient(
  * @return [DynamoDbClient] 인스턴스
  * @see [DynamoDbClient]
  */
-fun dynamoDbClientOf(
+inline fun dynamoDbClientOf(
     endpoint: URI,
     region: Region,
     credentialsProvider: AwsCredentialsProvider,
-    initializer: DynamoDbClientBuilder.() -> Unit = {},
+    @BuilderInference builder: DynamoDbClientBuilder.() -> Unit = {},
 ): DynamoDbClient = DynamoDbClient {
     endpointOverride(endpoint)
     region(region)
     credentialsProvider(credentialsProvider)
     httpClient(SdkHttpClientProvider.Apache.apacheHttpClient)
 
-    initializer()
+    builder()
 }
 
 /**
@@ -79,9 +79,9 @@ fun dynamoDbClientOf(
  * @return [DynamoDbStreamsClient] 인스턴스
  */
 inline fun DynamoDbStreamsClient(
-    initializer: DynamoDbStreamsClientBuilder.() -> Unit,
+    @BuilderInference builder: DynamoDbStreamsClientBuilder.() -> Unit,
 ): DynamoDbStreamsClient {
-    return DynamoDbStreamsClient.builder().apply(initializer).build()
+    return DynamoDbStreamsClient.builder().apply(builder).build()
 }
 
 /**
@@ -100,16 +100,16 @@ inline fun DynamoDbStreamsClient(
  * @return [DynamoDbStreamsClient] 인스턴스
  * @see [DynamoDbStreamsClient]
  */
-fun dynamoDbStreamsClientOf(
+inline fun dynamoDbStreamsClientOf(
     endpoint: URI,
     region: Region,
     credentialsProvider: AwsCredentialsProvider,
-    initializer: DynamoDbStreamsClientBuilder.() -> Unit = {},
+    @BuilderInference builder: DynamoDbStreamsClientBuilder.() -> Unit = {},
 ): DynamoDbStreamsClient = DynamoDbStreamsClient {
     endpointOverride(endpoint)
     region(region)
     credentialsProvider(credentialsProvider)
     httpClient(SdkHttpClientProvider.Apache.apacheHttpClient)
 
-    initializer()
+    builder()
 }

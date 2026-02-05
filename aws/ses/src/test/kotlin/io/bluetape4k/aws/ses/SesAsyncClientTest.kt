@@ -10,6 +10,7 @@ import kotlinx.coroutines.future.await
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldNotBeEmpty
 import org.junit.jupiter.api.Test
+import software.amazon.awssdk.services.ses.model.SendEmailResponse
 
 class SesAsyncClientTest: AbstractSesTest() {
 
@@ -29,8 +30,7 @@ class SesAsyncClientTest: AbstractSesTest() {
             }
         }
 
-
-        val response = asyncClient.send(request).await()
+        val response: SendEmailResponse = asyncClient.send(request).await()
         response.messageId().shouldNotBeEmpty()
         log.debug { "response=$response" }
     }

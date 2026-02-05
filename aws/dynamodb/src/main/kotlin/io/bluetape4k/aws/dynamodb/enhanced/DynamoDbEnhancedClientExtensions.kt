@@ -15,16 +15,18 @@ import software.amazon.awssdk.enhanced.dynamodb.internal.client.ExtensionResolve
 import software.amazon.awssdk.enhanced.dynamodb.model.BatchWriteResult
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 
-inline fun dynamoDbEnhancedClient(initializer: DynamoDbEnhancedClient.Builder.() -> Unit): DynamoDbEnhancedClient {
-    return DynamoDbEnhancedClient.builder().apply(initializer).build()
+inline fun dynamoDbEnhancedClient(
+    @BuilderInference builder: DynamoDbEnhancedClient.Builder.() -> Unit,
+): DynamoDbEnhancedClient {
+    return DynamoDbEnhancedClient.builder().apply(builder).build()
 }
 
-fun dynamoDbEnhancedClientOf(
+inline fun dynamoDbEnhancedClientOf(
     client: DynamoDbClient,
-    initializer: DynamoDbEnhancedClient.Builder.() -> Unit = { extensions(ExtensionResolver.defaultExtensions()) },
+    @BuilderInference builder: DynamoDbEnhancedClient.Builder.() -> Unit = { extensions(ExtensionResolver.defaultExtensions()) },
 ): DynamoDbEnhancedClient = dynamoDbEnhancedClient {
     dynamoDbClient(client)
-    initializer()
+    builder()
 }
 
 fun dynamoDbEnhancedClientOf(

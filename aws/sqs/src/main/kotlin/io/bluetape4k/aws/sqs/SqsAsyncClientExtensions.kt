@@ -28,7 +28,9 @@ import java.util.concurrent.CompletableFuture
  * Create [SqsAsyncClient] instance
  * 사용 후에는 꼭 `close()`를 호출하거나 , `use` 를 사용해서 cleanup 해주어야 합니다.
  */
-inline fun sqsAsyncClient(builder: SqsAsyncClientBuilder.() -> Unit): SqsAsyncClient {
+inline fun sqsAsyncClient(
+    @BuilderInference builder: SqsAsyncClientBuilder.() -> Unit,
+): SqsAsyncClient {
     return SqsAsyncClient.builder().apply(builder).build()
 }
 
@@ -36,7 +38,7 @@ inline fun sqsAsyncClientOf(
     endpoint: URI,
     region: Region,
     credentialsProvider: AwsCredentialsProvider,
-    builder: SqsAsyncClientBuilder.() -> Unit = {},
+    @BuilderInference builder: SqsAsyncClientBuilder.() -> Unit = {},
 ): SqsAsyncClient = sqsAsyncClient {
     endpointOverride(endpoint)
     region(region)
@@ -110,13 +112,13 @@ fun SqsAsyncClient.sendBatch(
 fun SqsAsyncClient.receiveMessages(
     queueUrl: String,
     maxResults: Int? = null,
-    requestInitializer: ReceiveMessageRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: ReceiveMessageRequest.Builder.() -> Unit = {},
 ): CompletableFuture<ReceiveMessageResponse> {
     queueUrl.requireNotBlank("queueUrl")
     return receiveMessage {
         it.queueUrl(queueUrl)
         maxResults?.run { it.maxNumberOfMessages(this) }
-        it.requestInitializer()
+        it.builder()
     }
 }
 

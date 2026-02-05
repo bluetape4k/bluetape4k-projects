@@ -16,7 +16,9 @@ import software.amazon.awssdk.services.ses.model.Destination
  * @param builder [Destination.Builder] 초기화 람다
  * @return [Destination] 인스턴스
  */
-inline fun Destination(builder: Destination.Builder.() -> Unit): Destination {
+inline fun Destination(
+    @BuilderInference builder: Destination.Builder.() -> Unit,
+): Destination {
     return Destination.builder().apply(builder).build()
 }
 

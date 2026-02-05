@@ -14,9 +14,9 @@ class SendEamilRequestSupport {
             source("source@example.com")
             destination(destinationOf("target@example.com"))
 
-            message { mb ->
-                mb.subject(contentOf("제목"))
-                mb.body(bodyOf("본문", "<p1>본문</p1>"))
+            message { builder ->
+                builder.subject(contentOf("제목"))
+                builder.body(bodyOf("본문", "<p1>본문</p1>"))
             }
             tags(messageTagOf("name", "value"))
         }
