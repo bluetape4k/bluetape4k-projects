@@ -60,13 +60,15 @@ fun Column<UUID>.timebasedGenerated(): Column<UUID> =
 /**
  * Column 값을 [TimebasedUuid.Reordered] 이 생성한 Timebased UUID의 Base62 인코딩한 문자열로 설정합니다.
  *
- * 참고: [TimebasedUuid.Epoch] 사용 시, Base62 인코딩 결과가 중복되는 경우가 발생할 수 있다. 그래서 [TimebasedUuid.Reordered] 를 사용한다.
+ * 참고: MySQL은 collate 를 지정하지 않으면 대소문자 구분을 못해서 Base62 인코딩 문자열이 중복될 수 있습니다.
+ * 이를 해결하기 위해 varchar 컬럼에 collate 를 `utf8mb4_bin` 등으로 지정하여 대소문자 구분을 할 수 있도록 해야 합니다.
+ *
  *
  * @see TimebasedUuid.Reordered
  */
 @JvmName("timebasedGeneratedString")
 fun Column<String>.timebasedGenerated(): Column<String> =
-    clientDefault { TimebasedUuid.Reordered.nextIdAsString() }
+    clientDefault { TimebasedUuid.Epoch.nextIdAsString() }
 
 /**
  * 컬럼의 기본 값을 Snowflake ID 로 설정합니다.

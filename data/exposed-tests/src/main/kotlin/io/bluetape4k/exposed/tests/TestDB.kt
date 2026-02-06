@@ -79,8 +79,8 @@ enum class TestDB(
             val options = "?useSSL=false" +
                     "&characterEncoding=UTF-8" +
                     "&useLegacyDatetimeCode=false&serverTimezone=UTC" +  // TimeZone 을 UTC 로 설정
-                    "&zeroDateTimeBehavior=convertToNull"  // +
-            // "&rewriteBatchedStatements=true"
+                    "&zeroDateTimeBehavior=convertToNull" +
+                    "&rewriteBatchedStatements=true"
 
             if (useTestcontainers) {
                 Containers.MariaDB.jdbcUrl + options
@@ -97,8 +97,8 @@ enum class TestDB(
                     "&characterEncoding=UTF-8" +
                     "&useLegacyDatetimeCode=false" +
                     "&serverTimezone=UTC" +  // TimeZone 을 UTC 로 설정
-                    "&zeroDateTimeBehavior=convertToNull"  // +
-            // "&rewriteBatchedStatements=true"
+                    "&zeroDateTimeBehavior=convertToNull" +
+                    "&rewriteBatchedStatements=true"
             if (useTestcontainers) {
                 Containers.MySQL5.jdbcUrl + options
             } else {
@@ -115,8 +115,8 @@ enum class TestDB(
                     "&zeroDateTimeBehavior=convertToNull" +
                     "&useLegacyDatetimeCode=false" +
                     "&serverTimezone=UTC" +  // TimeZone 을 UTC 로 설정
-                    "&allowPublicKeyRetrieval=true" // +
-            //  "&rewriteBatchedStatements=true" // Batch 처리를 위한 설정
+                    "&allowPublicKeyRetrieval=true" +
+                    "&rewriteBatchedStatements=true" // Batch 처리를 위한 설정
 
             if (useTestcontainers) {
                 Containers.MySQL8.jdbcUrl + options
