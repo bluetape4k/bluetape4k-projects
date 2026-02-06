@@ -1,7 +1,6 @@
 package io.bluetape4k.aws.kotlin.sqs.model
 
 import aws.sdk.kotlin.services.sqs.model.ReceiveMessageRequest
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requirePositiveNumber
 
@@ -16,13 +15,13 @@ import io.bluetape4k.support.requirePositiveNumber
  * @param builder ReceiveMessageRequest.Builder를 초기화하는 람다입니다. 기본값은 빈 람다입니다.
  * @return ReceiveMessageRequest 인스턴스를 반환합니다.
  */
-fun receiveMessageRequestOf(
+inline fun receiveMessageRequestOf(
     queueUrl: String,
     maxNumberOfMessages: Int = 3,
     waitTimeSeconds: Int = 30,
     visibilityTimeout: Int? = null,
     attributeNames: Collection<String>? = null,
-    @BuilderInference builder: ReceiveMessageRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: ReceiveMessageRequest.Builder.() -> Unit = {},
 ): ReceiveMessageRequest {
     queueUrl.requireNotBlank("queueUrl")
     maxNumberOfMessages.requirePositiveNumber("maxNumberOfMessages")
@@ -33,7 +32,7 @@ fun receiveMessageRequestOf(
         this.maxNumberOfMessages = maxNumberOfMessages
         this.waitTimeSeconds = waitTimeSeconds
         visibilityTimeout?.let { this.visibilityTimeout = it }
-        attributeNames?.let { this.messageAttributeNames = it.toFastList() }
+        attributeNames?.let { this.messageAttributeNames = it.toList() }
 
         builder()
     }

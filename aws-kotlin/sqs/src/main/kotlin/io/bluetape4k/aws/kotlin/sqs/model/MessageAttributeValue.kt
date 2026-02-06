@@ -3,9 +3,9 @@ package io.bluetape4k.aws.kotlin.sqs.model
 import aws.sdk.kotlin.services.sqs.model.MessageAttributeValue
 
 @JvmName("messageAttributeValueOfNullableString")
-fun messageAttributeValueOf(
+inline fun messageAttributeValueOf(
     value: String?,
-    @BuilderInference builder: MessageAttributeValue.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
 ): MessageAttributeValue =
     MessageAttributeValue {
         stringValue = value
@@ -13,9 +13,9 @@ fun messageAttributeValueOf(
     }
 
 @JvmName("messageAttributeValueOfNullableStringList")
-fun messageAttributeValueOf(
+inline fun messageAttributeValueOf(
     values: List<String>?,
-    @BuilderInference builder: MessageAttributeValue.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
 ): MessageAttributeValue =
     MessageAttributeValue {
         stringListValues = values
@@ -24,9 +24,9 @@ fun messageAttributeValueOf(
     }
 
 @JvmName("messageAttributeValueOfNullableByteArray")
-fun messageAttributeValueOf(
+inline fun messageAttributeValueOf(
     value: ByteArray?,
-    @BuilderInference builder: MessageAttributeValue.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
 ): MessageAttributeValue =
     MessageAttributeValue {
         binaryValue = value
@@ -35,9 +35,9 @@ fun messageAttributeValueOf(
     }
 
 @JvmName("messageAttributeValueOfNullableByteArrayList")
-fun messageAttributeValueOf(
+inline fun messageAttributeValueOf(
     values: List<ByteArray>?,
-    @BuilderInference builder: MessageAttributeValue.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
 ): MessageAttributeValue =
     MessageAttributeValue {
         binaryListValues = values

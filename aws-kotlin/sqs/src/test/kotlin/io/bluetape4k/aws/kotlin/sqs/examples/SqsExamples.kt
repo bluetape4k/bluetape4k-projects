@@ -1,17 +1,17 @@
 package io.bluetape4k.aws.kotlin.sqs.examples
 
 import aws.sdk.kotlin.services.sqs.changeMessageVisibility
-import aws.sdk.kotlin.services.sqs.createQueue
-import aws.sdk.kotlin.services.sqs.deleteMessage
-import aws.sdk.kotlin.services.sqs.deleteQueue
 import aws.sdk.kotlin.services.sqs.getQueueUrl
-import aws.sdk.kotlin.services.sqs.listQueues
-import aws.sdk.kotlin.services.sqs.receiveMessage
-import aws.sdk.kotlin.services.sqs.sendMessage
-import aws.sdk.kotlin.services.sqs.sendMessageBatch
 import io.bluetape4k.aws.kotlin.sqs.AbstractKotlinSqsTest
+import io.bluetape4k.aws.kotlin.sqs.createQueue
+import io.bluetape4k.aws.kotlin.sqs.deleteMessage
+import io.bluetape4k.aws.kotlin.sqs.deleteQueue
 import io.bluetape4k.aws.kotlin.sqs.existsQueue
+import io.bluetape4k.aws.kotlin.sqs.listQueues
 import io.bluetape4k.aws.kotlin.sqs.model.sendMessageBatchRequestEntryOf
+import io.bluetape4k.aws.kotlin.sqs.receiveMessage
+import io.bluetape4k.aws.kotlin.sqs.sendMessage
+import io.bluetape4k.aws.kotlin.sqs.sendMessageBatch
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -35,7 +35,7 @@ class SqsExamples: AbstractKotlinSqsTest() {
 
     companion object: KLoggingChannel() {
         private const val QUEUE_PREFIX = "test-queue"
-        private val QUEUE_NAME = "$QUEUE_PREFIX-${Base58.randomString(12).lowercase()}"
+        private val QUEUE_NAME = "$QUEUE_PREFIX-${Base58.randomString(8).lowercase()}"
     }
 
     private lateinit var testQueueUrl: String
@@ -43,7 +43,7 @@ class SqsExamples: AbstractKotlinSqsTest() {
     @Test
     @Order(1)
     fun `create queue`() = runSuspendIO {
-        val response = sqsClient.createQueue { queueName = QUEUE_NAME }
+        val response = sqsClient.createQueue(QUEUE_NAME)
         log.debug { "Create queue response=$response" }
 
         testQueueUrl = sqsClient.getQueueUrl { queueName = QUEUE_NAME }.queueUrl ?: fail("Queue URL not found")
@@ -55,10 +55,8 @@ class SqsExamples: AbstractKotlinSqsTest() {
     @Test
     @Order(2)
     fun `list queues`() = runSuspendIO {
-        val response = sqsClient.listQueues {
-            queueNamePrefix = QUEUE_PREFIX
-        }
-
+        val response = sqsClient.listQueues(QUEUE_PREFIX)
+        
         response.queueUrls!!.forEach {
             log.debug { "Queue URL=$it" }
         }
@@ -71,11 +69,7 @@ class SqsExamples: AbstractKotlinSqsTest() {
     @Order(3)
     fun `send messages`() = runSuspendIO {
         val messageBody = randomString()
-        val response = sqsClient.sendMessage {
-            this.queueUrl = testQueueUrl
-            this.messageBody = messageBody
-            this.delaySeconds = 3
-        }
+        val response = sqsClient.sendMessage(testQueueUrl, messageBody, 3)
 
         response.messageId.shouldNotBeNull().shouldNotBeEmpty()
         log.debug { "Send messages response=$response" }
@@ -95,10 +89,7 @@ class SqsExamples: AbstractKotlinSqsTest() {
             )
         }
 
-        val response = sqsClient.sendMessageBatch {
-            this.queueUrl = testQueueUrl
-            this.entries = entries
-        }
+        val response = sqsClient.sendMessageBatch(testQueueUrl, entries)
         response.successful shouldHaveSize messageCount
         response.successful.forEach {
             log.debug { "result=$it" }
@@ -108,10 +99,7 @@ class SqsExamples: AbstractKotlinSqsTest() {
     @Test
     @Order(5)
     fun `receive messages`() = runSuspendIO {
-        val messages = sqsClient.receiveMessage {
-            this.queueUrl = this@SqsExamples.testQueueUrl
-            this.maxNumberOfMessages = 3
-        }.messages!!
+        val messages = sqsClient.receiveMessage(testQueueUrl, 3).messages!!
 
         messages shouldHaveSize 3
         messages.forEach {
@@ -122,10 +110,7 @@ class SqsExamples: AbstractKotlinSqsTest() {
     @Test
     @Order(6)
     fun `change message visibility`() = runSuspendIO {
-        val messages = sqsClient.receiveMessage {
-            this.queueUrl = testQueueUrl
-            this.maxNumberOfMessages = 3
-        }.messages!!
+        val messages = sqsClient.receiveMessage(testQueueUrl, 3).messages!!
 
         val responses = messages.map { msg ->
             async {
@@ -147,17 +132,11 @@ class SqsExamples: AbstractKotlinSqsTest() {
     @Test
     @Order(7)
     fun `delete messages`() = runSuspendIO {
-        val messages = sqsClient.receiveMessage {
-            this.queueUrl = testQueueUrl
-            this.maxNumberOfMessages = 3
-        }.messages!!
+        val messages = sqsClient.receiveMessage(testQueueUrl, 3).messages!!
 
         val responses = messages.map { msg ->
             async {
-                sqsClient.deleteMessage {
-                    this.queueUrl = testQueueUrl
-                    this.receiptHandle = msg.receiptHandle
-                }
+                sqsClient.deleteMessage(testQueueUrl, msg.receiptHandle)
             }
         }.awaitAll()
 
@@ -170,7 +149,7 @@ class SqsExamples: AbstractKotlinSqsTest() {
     @Test
     @Order(8)
     fun `delete queue`() = runSuspendIO {
-        val response = sqsClient.deleteQueue { queueUrl = testQueueUrl }
+        val response = sqsClient.deleteQueue(testQueueUrl)
         log.debug { "Delete queue response=$response" }
 
         sqsClient.existsQueue(QUEUE_NAME).shouldBeFalse()

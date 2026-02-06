@@ -3,8 +3,8 @@ package io.bluetape4k.aws.kotlin.sqs.model
 import aws.sdk.kotlin.services.sqs.model.DeleteMessageBatchRequest
 import aws.sdk.kotlin.services.sqs.model.DeleteMessageBatchRequestEntry
 import aws.sdk.kotlin.services.sqs.model.DeleteMessageRequest
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.support.requireNotEmpty
 
 /**
  * 제공된 queueUrl과 receiptHandle을 사용하여 DeleteMessageRequest를 생성합니다.
@@ -13,10 +13,10 @@ import io.bluetape4k.support.requireNotBlank
  * @param receiptHandle 삭제할 메시지와 연관된 영수증 핸들입니다.
  * @param builder DeleteMessageRequest.Builder를 사용하여 DeleteMessageRequest를 구성하는 람다입니다.
  */
-fun deleteMessageRequestOf(
+inline fun deleteMessageRequestOf(
     queueUrl: String,
     receiptHandle: String? = null,
-    @BuilderInference builder: DeleteMessageRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: DeleteMessageRequest.Builder.() -> Unit = {},
 ): DeleteMessageRequest {
     queueUrl.requireNotBlank("queueUrl")
 
@@ -35,10 +35,10 @@ fun deleteMessageRequestOf(
  * @param receiptHandle 삭제할 메시지와 연관된 영수증 핸들입니다.
  * @return DeleteMessageBatchRequestEntry 인스턴스를 반환합니다.
  */
-fun deleteMessageBatchRequestEntryOf(
+inline fun deleteMessageBatchRequestEntryOf(
     id: String,
     receiptHandle: String? = null,
-    @BuilderInference builder: DeleteMessageBatchRequestEntry.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: DeleteMessageBatchRequestEntry.Builder.() -> Unit = {},
 ): DeleteMessageBatchRequestEntry {
     id.requireNotBlank("id")
 
@@ -57,16 +57,19 @@ fun deleteMessageBatchRequestEntryOf(
  * @param entries DeleteMessageBatchRequestEntry 인스턴스의 컬렉션입니다.
  * @return DeleteMessageBatchRequest 인스턴스를 반환합니다.
  */
-fun deleteMessageBatchRequestOf(
+inline fun deleteMessageBatchRequestOf(
     queueUrl: String,
     entries: Collection<DeleteMessageBatchRequestEntry>,
-    @BuilderInference builder: DeleteMessageBatchRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: DeleteMessageBatchRequest.Builder.() -> Unit = {},
 ): DeleteMessageBatchRequest {
     queueUrl.requireNotBlank("queueUrl")
+    entries.requireNotEmpty("entries")
 
     return DeleteMessageBatchRequest {
         this.queueUrl = queueUrl
-        this.entries = entries.toFastList()
+        if (entries.isNotEmpty()) {
+            this.entries = entries.toList()
+        }
 
         builder()
     }
@@ -79,16 +82,19 @@ fun deleteMessageBatchRequestOf(
  * @param entries DeleteMessageBatchRequestEntry 인스턴스의 컬렉션입니다.
  * @return DeleteMessageBatchRequest 인스턴스를 반환합니다.
  */
-fun deleteMessageBatchRequestOf(
+inline fun deleteMessageBatchRequestOf(
     queueUrl: String,
     vararg entries: DeleteMessageBatchRequestEntry,
-    @BuilderInference builder: DeleteMessageBatchRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: DeleteMessageBatchRequest.Builder.() -> Unit = {},
 ): DeleteMessageBatchRequest {
     queueUrl.requireNotBlank("queueUrl")
+    entries.requireNotEmpty("entries")
 
     return DeleteMessageBatchRequest {
         this.queueUrl = queueUrl
-        this.entries = entries.toFastList()
+        if (entries.isNotEmpty()) {
+            this.entries = entries.toList()
+        }
 
         builder()
     }

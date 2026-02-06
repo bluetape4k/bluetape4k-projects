@@ -14,11 +14,11 @@ import io.bluetape4k.support.requireNotBlank
  * @param visibilityTimeout 메시지의 새로운 VisibilityTimeout(초)입니다. 기본값은 null입니다.
  * @return [ChangeMessageVisibilityRequest] 인스턴스를 반환합니다.
  */
-fun changeMessageVisibilityRequestOf(
+inline fun changeMessageVisibilityRequestOf(
     queueUrl: String,
     receiptHandle: String,
     visibilityTimeout: Int? = null,
-    @BuilderInference builder: ChangeMessageVisibilityRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: ChangeMessageVisibilityRequest.Builder.() -> Unit = {},
 ): ChangeMessageVisibilityRequest {
     queueUrl.requireNotBlank("queueUrl")
     receiptHandle.requireNotBlank("receiptHandle")
@@ -40,11 +40,11 @@ fun changeMessageVisibilityRequestOf(
  * @param receiptHandle Visibility를 변경할 메시지와 연관된 영수증 핸들입니다.
  * @param visibilityTimeout 메시지의 새로운 VisibilityTimeout(초)입니다. 기본값은 null입니다.
  */
-fun changeMessageVisibilityBatchRequestEntryOf(
+inline fun changeMessageVisibilityBatchRequestEntryOf(
     id: String,
     receiptHandle: String,
     visibilityTimeout: Int? = null,
-    @BuilderInference builder: ChangeMessageVisibilityBatchRequestEntry.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: ChangeMessageVisibilityBatchRequestEntry.Builder.() -> Unit = {},
 ): ChangeMessageVisibilityBatchRequestEntry {
     id.requireNotBlank("id")
     receiptHandle.requireNotBlank("receiptHandle")
@@ -66,10 +66,10 @@ fun changeMessageVisibilityBatchRequestEntryOf(
  * @return [ChangeMessageVisibilityBatchRequest] 인스턴스를 반환합니다.
  */
 @JvmName("changeMessageVisibilityBatchRequestOfCollection")
-fun changeMessageVisibilityBatchRequestOf(
+inline fun changeMessageVisibilityBatchRequestOf(
     queueUrl: String,
     entries: Collection<ChangeMessageVisibilityBatchRequestEntry>,
-    @BuilderInference builder: ChangeMessageVisibilityBatchRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: ChangeMessageVisibilityBatchRequest.Builder.() -> Unit = {},
 ): ChangeMessageVisibilityBatchRequest {
     queueUrl.requireNotBlank("queueUrl")
 
@@ -90,10 +90,10 @@ fun changeMessageVisibilityBatchRequestOf(
  * @return [ChangeMessageVisibilityBatchRequest] 인스턴스를 반환합니다.
  */
 @JvmName("changeMessageVisibilityBatchRequestOfVararg")
-fun changeMessageVisibilityBatchRequestOf(
+inline fun changeMessageVisibilityBatchRequestOf(
     queueUrl: String,
     vararg entries: ChangeMessageVisibilityBatchRequestEntry,
-    @BuilderInference builder: ChangeMessageVisibilityBatchRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: ChangeMessageVisibilityBatchRequest.Builder.() -> Unit = {},
 ): ChangeMessageVisibilityBatchRequest {
     queueUrl.requireNotBlank("queueUrl")
 

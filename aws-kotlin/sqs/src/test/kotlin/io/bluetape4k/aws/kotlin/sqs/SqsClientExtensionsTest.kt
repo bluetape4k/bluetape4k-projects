@@ -58,7 +58,7 @@ class SqsClientExtensionsTest: AbstractKotlinSqsTest() {
     @Order(3)
     fun `send messages`() = runSuspendIO {
         val messageBody = randomString()
-        val response = sqsClient.send(testQueueUrl, messageBody, 3)
+        val response = sqsClient.sendMessage(testQueueUrl, messageBody, 3)
 
         response.messageId.shouldNotBeNull().shouldNotBeEmpty()
         log.debug { "Send messages response=$response" }
@@ -78,7 +78,7 @@ class SqsClientExtensionsTest: AbstractKotlinSqsTest() {
             )
         }
 
-        val response = sqsClient.sendBatch(testQueueUrl, entries)
+        val response = sqsClient.sendMessageBatch(testQueueUrl, entries)
         response.successful shouldHaveSize messageCount
         response.successful.forEach {
             log.debug { "result=$it" }
@@ -88,7 +88,7 @@ class SqsClientExtensionsTest: AbstractKotlinSqsTest() {
     @Test
     @Order(5)
     fun `receive messages`() = runSuspendIO {
-        val messages = sqsClient.receive(testQueueUrl, 3).messages!!
+        val messages = sqsClient.receiveMessage(testQueueUrl, 3).messages!!
 
         messages shouldHaveSize 3
         messages.forEach {
@@ -99,7 +99,7 @@ class SqsClientExtensionsTest: AbstractKotlinSqsTest() {
     @Test
     @Order(6)
     fun `change message visibility`() = runSuspendIO {
-        val messages = sqsClient.receive(testQueueUrl, 3).messages!!
+        val messages = sqsClient.receiveMessage(testQueueUrl, 3).messages!!
 
         val responses = messages.map { msg ->
             async {
@@ -117,7 +117,7 @@ class SqsClientExtensionsTest: AbstractKotlinSqsTest() {
     @Test
     @Order(7)
     fun `delete messages`() = runSuspendIO {
-        val messages = sqsClient.receive(testQueueUrl, 3).messages!!
+        val messages = sqsClient.receiveMessage(testQueueUrl, 3).messages!!
 
         val responses = messages.map { msg ->
             async {
