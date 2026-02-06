@@ -10,7 +10,7 @@ abstract class AbstractCustomIdTableTest: AbstractExposedTest() {
     companion object: KLogging()
 
     fun getTestDBAndEntityCount(): List<Arguments> {
-        val recordCounts = listOf(10, 50, 100, 300)
+        val recordCounts = listOf(50, 500)
 
         return TestDB.enabledDialects().flatMap { testDB ->
             recordCounts.map { entityCount ->
