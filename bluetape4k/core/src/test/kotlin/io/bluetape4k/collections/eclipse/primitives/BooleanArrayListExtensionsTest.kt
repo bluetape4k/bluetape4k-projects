@@ -82,7 +82,7 @@ class BooleanArrayListExtensionsTest: AbstractCollectionTest() {
         list.asMutableList() shouldBeEqualTo listOf(true, false, true)
         list.asMutableSet() shouldBeEqualTo setOf(true, false)
 
-        list.asFastList() shouldBeEqualTo fastListOf(true, false, true)
-        list.asUnifiedSet() shouldBeEqualTo unifiedSetOf(true, false, true)
+        list.toFastList() shouldBeEqualTo fastListOf(true, false, true)
+        list.toUnifiedSet() shouldBeEqualTo unifiedSetOf(true, false, true)
     }
 }

@@ -60,8 +60,8 @@ fun BooleanIterable.asMutableList() = asIterable().toMutableList()
 fun BooleanIterable.asSet() = asIterable().toSet()
 fun BooleanIterable.asMutableSet() = asIterable().toMutableSet()
 
-fun BooleanIterable.asFastList() = asIterable().toFastList()
-fun BooleanIterable.asUnifiedSet() = asIterable().toUnifiedSet()
-fun BooleanIterable.asFixedSizeList() = asIterable().toFixedSizeList()
+fun BooleanIterable.toFastList() = asIterable().toFastList()
+fun BooleanIterable.toUnifiedSet() = asIterable().toUnifiedSet()
+fun BooleanIterable.toFixedSizeList() = asIterable().toFixedSizeList()
 
 fun BooleanArray.toFastList(): FastList<Boolean> = asIterable().toFastList()

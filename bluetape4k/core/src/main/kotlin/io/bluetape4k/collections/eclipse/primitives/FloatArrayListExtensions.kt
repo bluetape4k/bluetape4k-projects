@@ -62,9 +62,9 @@ fun FloatIterable.asMutableList() = asIterable().toMutableList()
 fun FloatIterable.asSet() = asIterable().toSet()
 fun FloatIterable.asMutableSet() = asIterable().toMutableSet()
 
-fun FloatIterable.asFastList() = asIterable().toFastList()
-fun FloatIterable.asUnifiedSet() = asIterable().toUnifiedSet()
-fun FloatIterable.asFixedSizeList() = asIterable().toFixedSizeList()
+fun FloatIterable.toFastList() = asIterable().toFastList()
+fun FloatIterable.toUnifiedSet() = asIterable().toUnifiedSet()
+fun FloatIterable.toFixedSizeList() = asIterable().toFixedSizeList()
 
 fun FloatIterable.maxOrNull() = if (isEmpty) null else max()
 fun FloatIterable.minOrNull() = if (isEmpty) null else min()

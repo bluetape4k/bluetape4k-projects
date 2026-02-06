@@ -63,9 +63,9 @@ fun ByteIterable.asMutableList() = asIterable().toMutableList()
 fun ByteIterable.asSet() = asIterable().toSet()
 fun ByteIterable.asMutableSet() = asIterable().toMutableSet()
 
-fun ByteIterable.asFastList() = asIterable().toFastList()
-fun ByteIterable.asUnifiedSet() = asIterable().toUnifiedSet()
-fun ByteIterable.asFixedSizeList() = asIterable().toFixedSizeList()
+fun ByteIterable.toFastList() = asIterable().toFastList()
+fun ByteIterable.toUnifiedSet() = asIterable().toUnifiedSet()
+fun ByteIterable.toFixedSizeList() = asIterable().toFixedSizeList()
 
 fun ByteIterable.maxOrNull() = if (isEmpty) null else max()
 fun ByteIterable.minOrNull() = if (isEmpty) null else min()

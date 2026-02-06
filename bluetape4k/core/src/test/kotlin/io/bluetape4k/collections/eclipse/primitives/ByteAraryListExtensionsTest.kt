@@ -78,6 +78,9 @@ class ByteAraryListExtensionsTest: AbstractCollectionTest() {
 
         array.asList() shouldBeEqualTo expected
         array.asSet() shouldBeEqualTo expected.toSet()
+
+        array.toFastList() shouldBeEqualTo expected
+        array.toUnifiedSet() shouldBeEqualTo expected.toSet()
     }
 
     @Test

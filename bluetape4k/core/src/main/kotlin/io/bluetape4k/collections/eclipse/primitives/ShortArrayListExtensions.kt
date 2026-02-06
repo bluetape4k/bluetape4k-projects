@@ -62,9 +62,9 @@ fun ShortIterable.asMutableList() = asIterable().toMutableList()
 fun ShortIterable.asSet() = asIterable().toSet()
 fun ShortIterable.asMutableSet() = asIterable().toMutableSet()
 
-fun ShortIterable.asFastList() = asIterable().toFastList()
-fun ShortIterable.asUnifiedSet() = asIterable().toUnifiedSet()
-fun ShortIterable.asFixedSizeList() = asIterable().toFixedSizeList()
+fun ShortIterable.toFastList() = asIterable().toFastList()
+fun ShortIterable.toUnifiedSet() = asIterable().toUnifiedSet()
+fun ShortIterable.toFixedSizeList() = asIterable().toFixedSizeList()
 
 fun ShortIterable.maxOrNull() = if (isEmpty) null else max()
 fun ShortIterable.minOrNull() = if (isEmpty) null else min()

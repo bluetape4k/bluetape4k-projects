@@ -63,9 +63,9 @@ fun DoubleIterable.asMutableList() = asIterable().toMutableList()
 fun DoubleIterable.asSet() = asIterable().toSet()
 fun DoubleIterable.asMutableSet() = asIterable().toMutableSet()
 
-fun DoubleIterable.asFastList() = asIterable().toFastList()
-fun DoubleIterable.asUnifiedSet() = asIterable().toUnifiedSet()
-fun DoubleIterable.asFixedSizeList() = asIterable().toFixedSizeList()
+fun DoubleIterable.toFastList() = asIterable().toFastList()
+fun DoubleIterable.toUnifiedSet() = asIterable().toUnifiedSet()
+fun DoubleIterable.toFixedSizeList() = asIterable().toFixedSizeList()
 
 fun DoubleIterable.maxOrNull() = if (isEmpty) null else max()
 fun DoubleIterable.minOrNull() = if (isEmpty) null else min()

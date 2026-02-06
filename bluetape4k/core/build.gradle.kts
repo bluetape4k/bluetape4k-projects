@@ -46,6 +46,8 @@ dependencies {
     testImplementation(Libs.eclipse_collections_testutils)
     compileOnly(Libs.commons_collections4)
 
+    testImplementation(Libs.java_uuid_generator)
+
     // Benchmark
     testImplementation(Libs.kotlinx_benchmark_runtime)
     testImplementation(Libs.kotlinx_benchmark_runtime_jvm)

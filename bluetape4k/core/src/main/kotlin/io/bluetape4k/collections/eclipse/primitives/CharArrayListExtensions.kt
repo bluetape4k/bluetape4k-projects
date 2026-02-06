@@ -18,7 +18,7 @@ fun Iterable<Char>.toCharArrayList(): CharArrayList =
 
 fun Sequence<Char>.toCharArrayList(): CharArrayList = asIterable().toCharArrayList()
 
-fun Iterable<Any>.asCharArrayList() = CharArrayList().also { array ->
+fun Iterable<Any>.asCharArrayList(): CharArrayList = CharArrayList().also { array ->
     forEach { number -> array.add(number.asChar()) }
 }
 
@@ -57,17 +57,17 @@ fun CharIterable.asSequence(): Sequence<Char> = sequence {
 }
 
 fun CharIterable.asIterable(): Iterable<Char> = Iterable { asIterator() }
+
 fun CharIterable.asList() = asIterable().toList()
 fun CharIterable.asMutableList() = asIterable().toMutableList()
 fun CharIterable.asSet() = asIterable().toSet()
 fun CharIterable.asMutableSet() = asIterable().toMutableSet()
 
-fun CharIterable.asFastList() = asIterable().toFastList()
-fun CharIterable.asUnifiedSet() = asIterable().toUnifiedSet()
-fun CharIterable.asFixedSizeList() = asIterable().toFixedSizeList()
+fun CharIterable.toFastList() = asIterable().toFastList()
+fun CharIterable.toUnifiedSet() = asIterable().toUnifiedSet()
+fun CharIterable.toFixedSizeList() = asIterable().toFixedSizeList()
 
 fun CharIterable.maxOrNull() = if (isEmpty) null else max()
 fun CharIterable.minOrNull() = if (isEmpty) null else min()
-
 
 fun CharArray.toFastList(): FastList<Char> = asIterable().toFastList()

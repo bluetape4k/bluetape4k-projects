@@ -1,5 +1,6 @@
 package io.bluetape4k.codec
 
+import com.fasterxml.uuid.impl.TimeBasedEpochGenerator
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
@@ -10,12 +11,14 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.utils.Runtimex
 import org.amshove.kluent.internal.assertFailsWith
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
 import java.math.BigInteger
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.random.Random
 
 @RandomizedTest
@@ -23,6 +26,8 @@ class Base62Test {
 
     companion object: KLogging() {
         private const val REPEAT_SIZE = 5
+
+        private val uuidGenerator = TimeBasedEpochGenerator(java.util.Random())
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -65,12 +70,18 @@ class Base62Test {
 
     @Test
     fun `멀티 스레드 환경에서 UUID 값을 Base62 인코딩, 디코딩하기`() {
+        val uuids = ConcurrentHashMap<UUID, Int>()
+        val base62s = ConcurrentHashMap<String, Int>()
+
         MultithreadingTester()
             .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerThread(4)
+            .roundsPerThread(64)
             .add {
-                val uuid = UUID.randomUUID()
-                uuid.encodeBase62().decodeBase62AsUuid() shouldBeEqualTo uuid
+                val uuid = uuidGenerator.generate()
+                uuids.put(uuid, 1).shouldBeNull()
+                val encoded = uuid.encodeBase62()
+                base62s.put(encoded, 1).shouldBeNull()
+                encoded.decodeBase62AsUuid() shouldBeEqualTo uuid
             }
             .run()
     }
@@ -78,23 +89,35 @@ class Base62Test {
     @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `Virtual Threads 환경에서 UUID 값을 Base62 인코딩, 디코딩하기`() {
+        val uuids = ConcurrentHashMap<UUID, Int>()
+        val base62s = ConcurrentHashMap<String, Int>()
+
         StructuredTaskScopeTester()
-            .roundsPerTask(8 * Runtimex.availableProcessors)
+            .roundsPerTask(128 * Runtimex.availableProcessors)
             .add {
-                val uuid = UUID.randomUUID()
-                uuid.encodeBase62().decodeBase62AsUuid() shouldBeEqualTo uuid
+                val uuid = uuidGenerator.generate()
+                uuids.put(uuid, 1).shouldBeNull()
+                val encoded = uuid.encodeBase62()
+                base62s.put(encoded, 1).shouldBeNull()
+                encoded.decodeBase62AsUuid() shouldBeEqualTo uuid
             }
             .run()
     }
 
     @Test
     fun `코루틴 환경에서 UUID 값을 Base62 인코딩, 디코딩하기`() = runSuspendDefault {
+        val uuids = ConcurrentHashMap<UUID, Int>()
+        val base62s = ConcurrentHashMap<String, Int>()
+
         SuspendedJobTester()
             .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerJob(8 * Runtimex.availableProcessors)
+            .roundsPerJob(128 * Runtimex.availableProcessors)
             .add {
-                val uuid = UUID.randomUUID()
-                uuid.encodeBase62().decodeBase62AsUuid() shouldBeEqualTo uuid
+                val uuid = uuidGenerator.generate()
+                uuids.put(uuid, 1).shouldBeNull()
+                val encoded = uuid.encodeBase62()
+                base62s.put(encoded, 1).shouldBeNull()
+                encoded.decodeBase62AsUuid() shouldBeEqualTo uuid
             }
             .run()
     }

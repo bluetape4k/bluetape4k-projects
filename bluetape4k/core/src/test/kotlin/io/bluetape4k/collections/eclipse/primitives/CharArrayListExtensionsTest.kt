@@ -88,8 +88,8 @@ class CharArrayListExtensionsTest: AbstractCollectionTest() {
         list.asMutableList() shouldBeEqualTo listOf('a', 'b', 'a')
         list.asMutableSet() shouldBeEqualTo setOf('a', 'b')
 
-        list.asFastList() shouldBeEqualTo fastListOf('a', 'b', 'a')
-        list.asUnifiedSet() shouldBeEqualTo unifiedSetOf('a', 'b', 'a')
+        list.toFastList() shouldBeEqualTo fastListOf('a', 'b', 'a')
+        list.toUnifiedSet() shouldBeEqualTo unifiedSetOf('a', 'b', 'a')
     }
 
     /**

@@ -1,5 +1,6 @@
 package io.bluetape4k.collections.graph
 
+import io.bluetape4k.collections.AbstractCollectionTest
 import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
@@ -18,7 +19,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-class GraphTest {
+class GraphTest: AbstractCollectionTest() {
 
     companion object: KLogging()
 

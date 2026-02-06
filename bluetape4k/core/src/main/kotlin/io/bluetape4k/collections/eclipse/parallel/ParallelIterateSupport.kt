@@ -22,7 +22,7 @@ inline fun <T> Iterable<T>.parFilter(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
     reorder: Boolean = DEFAULT_REORDER,
-    crossinline predicate: (T) -> Boolean,
+    @BuilderInference crossinline predicate: (T) -> Boolean,
 ): Collection<T> =
     ParallelIterate.select(
         this,
@@ -37,7 +37,7 @@ inline fun <T> Iterable<T>.parFilterNot(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
     reorder: Boolean = DEFAULT_REORDER,
-    crossinline predicate: (T) -> Boolean,
+    @BuilderInference crossinline predicate: (T) -> Boolean,
 ): Collection<T> =
     ParallelIterate.reject(
         this,
@@ -51,7 +51,7 @@ inline fun <T> Iterable<T>.parFilterNot(
 inline fun <T> Iterable<T>.parCount(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
-    crossinline predicate: (T) -> Boolean,
+    @BuilderInference crossinline predicate: (T) -> Boolean,
 ): Int =
     ParallelIterate.count(
         this,
@@ -63,7 +63,7 @@ inline fun <T> Iterable<T>.parCount(
 inline fun <T> Iterable<T>.parForEach(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
-    crossinline action: (T) -> Unit,
+    @BuilderInference crossinline action: (T) -> Unit,
 ) {
     ParallelIterate.forEach(
         this,
@@ -75,7 +75,7 @@ inline fun <T> Iterable<T>.parForEach(
 
 inline fun <T> Iterable<T>.parForEachWithIndex(
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
-    crossinline action: (index: Int, element: T) -> Unit,
+    @BuilderInference crossinline action: (index: Int, element: T) -> Unit,
 ) {
     ParallelIterate.forEachWithIndex(
         this,
@@ -87,7 +87,7 @@ inline fun <T> Iterable<T>.parForEachWithIndex(
 inline fun <T> Iterable<T>.parForEachWithIndex(
     minForSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     taskCount: Int = AVAILABLE_PROCESSORS,
-    crossinline action: (index: Int, element: T) -> Unit,
+    @BuilderInference crossinline action: (index: Int, element: T) -> Unit,
 ) {
     ParallelIterate.forEachWithIndex(
         this,
@@ -101,7 +101,7 @@ inline fun <T, R> Iterable<T>.parMap(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
     reorder: Boolean = DEFAULT_REORDER,
-    crossinline mapper: (T) -> R,
+    @BuilderInference crossinline mapper: (T) -> R,
 ): Collection<R> =
     ParallelIterate.collect(
         this,
@@ -116,7 +116,7 @@ inline fun <T, R> Iterable<T>.parFlatMap(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
     reorder: Boolean = DEFAULT_REORDER,
-    crossinline mapper: (element: T) -> Collection<R>,
+    @BuilderInference crossinline mapper: (element: T) -> Collection<R>,
 ): Collection<R> =
     ParallelIterate.flatCollect(
         this,
@@ -132,7 +132,7 @@ inline fun <T, R> Iterable<T>.parFilterMap(
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
     reorder: Boolean = DEFAULT_REORDER,
     crossinline predicate: (T) -> Boolean,
-    crossinline mapper: (T) -> R,
+    @BuilderInference crossinline mapper: (T) -> R,
 ): Collection<R> =
     ParallelIterate.collectIf(
         this,
@@ -148,7 +148,7 @@ inline fun <K, V> Iterable<V>.parGroupBy(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
     concurrentMultimap: MutableMultimap<K, V> = SynchronizedPutFastListMultimap.newMultimap<K, V>(),
-    crossinline keyFunction: (V) -> K,
+    @BuilderInference crossinline keyFunction: (V) -> K,
 ): MutableMultimap<K, V> =
     ParallelIterate.groupBy(
         this,
@@ -163,9 +163,9 @@ inline fun <T, K, V> Iterable<T>.parAggregateBy(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
     concurrentMultimap: MutableMultimap<K, V> = SynchronizedPutFastListMultimap.newMultimap<K, V>(),
-    crossinline groupBy: (T) -> K,
-    crossinline zeroValueFactory: () -> V,
-    crossinline nonMutatingAggregator: (V, T) -> V,
+    @BuilderInference crossinline groupBy: (T) -> K,
+    @BuilderInference crossinline zeroValueFactory: () -> V,
+    @BuilderInference crossinline nonMutatingAggregator: (V, T) -> V,
 ): MutableMap<K, V> =
     ParallelIterate.aggregateBy(
         this,
@@ -180,9 +180,9 @@ inline fun <T, K, V> Iterable<T>.parAggregateInPlaceBy(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
     concurrentMultimap: MutableMultimap<K, V> = SynchronizedPutFastListMultimap.newMultimap<K, V>(),
-    crossinline groupBy: (T) -> K,
-    crossinline zeroValueFactory: () -> V,
-    crossinline mutatingAggregator: (V, T) -> Unit,
+    @BuilderInference crossinline groupBy: (T) -> K,
+    @BuilderInference crossinline zeroValueFactory: () -> V,
+    @BuilderInference crossinline mutatingAggregator: (V, T) -> Unit,
 ): MutableMap<K, V> =
     ParallelIterate.aggregateInPlaceBy(
         this,
@@ -195,28 +195,28 @@ inline fun <T, K, V> Iterable<T>.parAggregateInPlaceBy(
 
 @JvmName("parSumByDouble")
 inline fun <T, V> Iterable<T>.parSumBy(
-    crossinline groupBy: (T) -> V,
-    crossinline func: (T) -> Double,
+    @BuilderInference crossinline groupBy: (T) -> V,
+    @BuilderInference crossinline func: (T) -> Double,
 ): ObjectDoubleMap<V> =
     ParallelIterate.sumByDouble(this, { groupBy(it) }, { func(it) })
 
 @JvmName("parSumByFloat")
 inline fun <T, V> Iterable<T>.parSumBy(
-    crossinline groupBy: (T) -> V,
-    crossinline func: (T) -> Float,
+    @BuilderInference crossinline groupBy: (T) -> V,
+    @BuilderInference crossinline func: (T) -> Float,
 ): ObjectDoubleMap<V> =
     ParallelIterate.sumByFloat(this, { groupBy(it) }, { func(it) })
 
 @JvmName("parSumByLong")
 inline fun <T, V> Iterable<T>.parSumBy(
-    crossinline groupBy: (T) -> V,
-    crossinline func: (T) -> Long,
+    @BuilderInference crossinline groupBy: (T) -> V,
+    @BuilderInference crossinline func: (T) -> Long,
 ): ObjectLongMap<V> =
     ParallelIterate.sumByLong(this, { groupBy(it) }, { func(it) })
 
 @JvmName("parSumByInt")
 inline fun <T, V> Iterable<T>.parSumBy(
-    crossinline groupBy: (T) -> V,
-    crossinline func: (T) -> Int,
+    @BuilderInference crossinline groupBy: (T) -> V,
+    @BuilderInference crossinline func: (T) -> Int,
 ): ObjectLongMap<V> =
     ParallelIterate.sumByInt(this, { groupBy(it) }, { func(it) })
