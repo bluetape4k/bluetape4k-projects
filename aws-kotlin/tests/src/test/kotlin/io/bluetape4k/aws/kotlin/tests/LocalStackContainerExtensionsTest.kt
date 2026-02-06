@@ -17,12 +17,13 @@ class LocalStackContainerExtensionsTest {
         log.debug { "LocalStackServer with S3, SQS Services" }
 
         getLocalStackServer(S3, SQS).use { server ->
-            val s3EndpointUrl = server.endpointUrl
-            log.debug { "S3 Endpoint URL: $s3EndpointUrl" }
-            server.endpoint.shouldNotBeNull()
+            val s3EndpointUri = server.getServiceEndpoint(S3)
+            log.debug { "S3 Endpoint URI: $s3EndpointUri" }
+            s3EndpointUri.shouldNotBeNull()
 
-            val sqsEndpointUrl = server.endpointUrl
-            log.debug { "SQS Endpoint URL: $sqsEndpointUrl" }
+            val sqsEndpointUri = server.getServiceEndpoint(SQS)
+            log.debug { "SQS Endpoint URI: $sqsEndpointUri" }
+            sqsEndpointUri.shouldNotBeNull()
 
             log.debug { "Region: ${server.region}" }
             server.region.shouldNotBeEmpty()

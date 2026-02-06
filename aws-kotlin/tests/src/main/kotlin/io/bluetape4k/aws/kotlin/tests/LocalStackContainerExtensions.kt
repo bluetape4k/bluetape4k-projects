@@ -6,6 +6,7 @@ import aws.smithy.kotlin.runtime.net.url.Url
 import io.bluetape4k.testcontainers.aws.LocalStackServer
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.localstack.LocalStackContainer
+import java.net.URI
 
 /**
  * AWS 특정 서비스([LocalStackContainer.Service])를 제공하는 [LocalStackServer]를 실행하고, 인스턴스를 반환합니다.
@@ -23,6 +24,9 @@ fun getLocalStackServer(vararg services: LocalStackContainer.Service): LocalStac
  */
 val LocalStackContainer.endpointUrl: Url
     get() = Url.parse(this.endpoint.toString())
+
+fun LocalStackContainer.getServiceEndpoint(service: LocalStackContainer.EnabledService): URI =
+    this.getEndpointOverride(service)
 
 /**
  * [LocalStackContainer]를 사용하기 위한 [CredentialsProvider]를 반환합니다.
