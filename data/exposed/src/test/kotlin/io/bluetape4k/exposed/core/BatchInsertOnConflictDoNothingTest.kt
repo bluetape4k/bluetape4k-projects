@@ -7,6 +7,7 @@ import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.statements.BatchInsertBlockingExecutable
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
@@ -29,7 +30,7 @@ class BatchInsertOnConflictDoNothingTest: AbstractExposedTest() {
 
             // 중복된 id 를 가진 row 를 추가하면, 무시합니다.
             val executable = BatchInsertBlockingExecutable(statement = BatchInsertOnConflictDoNothing(tester))
-            val numInserted = executable.run {
+            executable.run {
                 statement.addBatch()
                 statement[tester.id] = "foo"        // 중복되므로 insert 되지 않음
 
@@ -38,7 +39,7 @@ class BatchInsertOnConflictDoNothingTest: AbstractExposedTest() {
 
                 execute(this@withTables)
             }
-            numInserted shouldBeEqualTo 1
+            tester.selectAll().count() shouldBeEqualTo 2
         }
     }
 }
