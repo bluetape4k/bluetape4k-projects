@@ -182,13 +182,13 @@ class CassandraServer private constructor(
 
         fun getOrCreateSession(
             keyspace: String = "",
-            initializer: CqlSessionBuilder.() -> Unit = {},
+            @BuilderInference builder: CqlSessionBuilder.() -> Unit = {},
         ): CqlSession {
             keyspace.requireNotBlank("keyspace")
 
             recreateKeyspace(keyspace)
 
-            return newCqlSessionBuilder().apply { withKeyspace(keyspace) }.apply(initializer).build().apply {
+            return newCqlSessionBuilder().apply { withKeyspace(keyspace) }.apply(builder).build().apply {
                 // 혹시 제대로 닫지 않아도, JVM 종료 시 닫아준다.
                 ShutdownQueue.register(this)
             }

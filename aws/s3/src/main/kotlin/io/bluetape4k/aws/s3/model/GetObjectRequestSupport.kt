@@ -6,7 +6,7 @@ import software.amazon.awssdk.services.s3.model.GetObjectRequest
 inline fun getObjectRequest(
     bucket: String,
     key: String,
-    @BuilderInference initializer: GetObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
 ): GetObjectRequest {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
@@ -14,7 +14,7 @@ inline fun getObjectRequest(
     return GetObjectRequest.builder()
         .bucket(bucket)
         .key(key)
-        .apply(initializer)
+        .apply(builder)
         .build()
 }
 

@@ -9,8 +9,11 @@ import java.util.*
 @DslMarker
 annotation class JwtComposerDslMarker
 
-inline fun composeJwt(keyChain: KeyChain, initializer: JwtComposerDsl.() -> Unit): String {
-    return JwtComposerDsl(keyChain).apply(initializer).compose()
+inline fun composeJwt(
+    keyChain: KeyChain,
+    @BuilderInference builder: JwtComposerDsl.() -> Unit,
+): String {
+    return JwtComposerDsl(keyChain).apply(builder).compose()
 }
 
 @JwtComposerDslMarker

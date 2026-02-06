@@ -17,8 +17,8 @@ interface SingleValueDynamoComparator: DynamoComparator {
 @DynamoDslMarker
 interface ComparableBuilder
 
-inline fun Condition(initializer: Condition.Builder.() -> Unit): Condition {
-    return Condition.builder().apply(initializer).build()
+inline fun Condition(@BuilderInference builder: Condition.Builder.() -> Unit): Condition {
+    return Condition.builder().apply(builder).build()
 }
 
 @DynamoDslMarker

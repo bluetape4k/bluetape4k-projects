@@ -19,14 +19,14 @@ import com.datastax.oss.driver.internal.core.type.UserDefinedTypeBuilder
  *
  * @param keyspaceId 키스페이스 식별자
  * @param typeId 타입 식별자
- * @param initializer 초기화 블럭
+ * @param builder 초기화 블럭
  */
 inline fun userDefinedType(
     keyspaceId: CqlIdentifier,
     typeId: CqlIdentifier,
-    @BuilderInference initializer: UserDefinedTypeBuilder.() -> Unit,
+    @BuilderInference builder: UserDefinedTypeBuilder.() -> Unit,
 ): UserDefinedType {
-    return UserDefinedTypeBuilder(keyspaceId, typeId).apply(initializer).build()
+    return UserDefinedTypeBuilder(keyspaceId, typeId).apply(builder).build()
 }
 
 /**
@@ -44,12 +44,12 @@ inline fun userDefinedType(
  *
  * @param keyspaceName 키스페이스 이름
  * @param typeName 타입 명
- * @param initializer 초기화 블럭
+ * @param builder 초기화 블럭
  */
 inline fun userDefinedType(
     keyspaceName: String,
     typeName: String,
-    @BuilderInference initializer: UserDefinedTypeBuilder.() -> Unit,
+    @BuilderInference builder: UserDefinedTypeBuilder.() -> Unit,
 ): UserDefinedType {
-    return UserDefinedTypeBuilder(keyspaceName, typeName).apply(initializer).build()
+    return UserDefinedTypeBuilder(keyspaceName, typeName).apply(builder).build()
 }

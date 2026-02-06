@@ -28,10 +28,10 @@ private val log by lazy { KotlinLogging.logger { } }
  * }
  * ```
  *
- * @param initializer JsonMapper 빌더 초기화 람다
+ * @param builder JsonMapper 빌더 초기화 람다
  */
-inline fun jsonMapper(initializer: JsonMapper.Builder.() -> Unit): JsonMapper {
-    return JsonMapper.builder().apply(initializer).build()
+inline fun jsonMapper(@BuilderInference builder: JsonMapper.Builder.() -> Unit): JsonMapper {
+    return JsonMapper.builder().apply(builder).build()
 }
 
 inline fun <reified T> jacksonTypeRef(): TypeReference<T> = object: TypeReference<T>() {}

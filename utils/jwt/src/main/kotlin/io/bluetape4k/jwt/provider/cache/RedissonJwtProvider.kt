@@ -91,7 +91,7 @@ class RedissonJwtProvider private constructor(
         return delegate.composer(keyChain)
     }
 
-    override fun compose(keyChain: KeyChain?, initializer: JwtComposerDsl.() -> Unit): String {
-        return delegate.compose(keyChain, initializer)
+    override fun compose(keyChain: KeyChain?, @BuilderInference builder: JwtComposerDsl.() -> Unit): String {
+        return delegate.compose(keyChain, builder)
     }
 }

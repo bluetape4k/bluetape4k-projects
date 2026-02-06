@@ -63,8 +63,8 @@ object Geoip: KLogging() {
 
     private inline fun databaseReader(
         inputStream: InputStream,
-        initializer: DatabaseReader.Builder.() -> Unit,
+        @BuilderInference builder: DatabaseReader.Builder.() -> Unit,
     ): DatabaseReader {
-        return DatabaseReader.Builder(inputStream).apply(initializer).build()
+        return DatabaseReader.Builder(inputStream).apply(builder).build()
     }
 }

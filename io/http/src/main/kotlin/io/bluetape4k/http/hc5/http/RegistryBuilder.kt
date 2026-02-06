@@ -18,13 +18,13 @@ import org.apache.hc.core5.http.config.RegistryBuilder
  * }
  * ```
  *
- * @param initializer [RegistryBuilder] 를 초기화합니다.
+ * @param builder [RegistryBuilder] 를 초기화합니다.
  * @return [Registry]`<T>` 인스턴스
  */
 inline fun <T> registry(
-    initializer: RegistryBuilder<T>.() -> Unit,
+    @BuilderInference builder: RegistryBuilder<T>.() -> Unit,
 ): Registry<T> =
-    RegistryBuilder.create<T>().apply(initializer).build()
+    RegistryBuilder.create<T>().apply(builder).build()
 
 /**
  * [Registry]`<T>` 를 생성합니다.

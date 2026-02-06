@@ -12,13 +12,13 @@ inline fun nettyNioAsyncHttpClient(
     return NettyNioAsyncHttpClient.builder().apply(builder).build()
 }
 
-fun nettyNioAsyncHttpClientOf(
+inline fun nettyNioAsyncHttpClientOf(
     maxConcurrency: Int = 100,
     connectionMaxIdleTime: Duration = 30.seconds,
     connectionTimeout: Duration = 30.seconds,
     readTimeout: Duration = 30.seconds,
     writeTimeout: Duration = 30.seconds,
-    initializer: NettyNioAsyncHttpClient.Builder.() -> Unit = {},
+    @BuilderInference builder: NettyNioAsyncHttpClient.Builder.() -> Unit = {},
 ): SdkAsyncHttpClient = nettyNioAsyncHttpClient {
     this.maxConcurrency(maxConcurrency)
     this.connectionMaxIdleTime(connectionMaxIdleTime.toJavaDuration())
@@ -26,5 +26,5 @@ fun nettyNioAsyncHttpClientOf(
     this.readTimeout(readTimeout.toJavaDuration())
     this.writeTimeout(writeTimeout.toJavaDuration())
 
-    initializer()
+    builder()
 }

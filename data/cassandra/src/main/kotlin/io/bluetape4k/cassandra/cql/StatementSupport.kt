@@ -35,10 +35,10 @@ fun SimpleStatement.toPrepareRequest(): PrepareRequest = DefaultPrepareRequest(t
  */
 inline fun simpleStatement(
     query: String,
-    @BuilderInference initializer: SimpleStatementBuilder.() -> Unit,
+    @BuilderInference builder: SimpleStatementBuilder.() -> Unit,
 ): SimpleStatement {
     query.requireNotBlank("query")
-    return SimpleStatement.builder(query).apply(initializer).build()
+    return SimpleStatement.builder(query).apply(builder).build()
 }
 
 /**
@@ -91,9 +91,9 @@ fun statementOf(cql: String, nameValues: Map<String, Any?>): SimpleStatement {
  */
 inline fun boundStatement(
     boundStatement: BoundStatement,
-    @BuilderInference initializer: BoundStatementBuilder.() -> Unit,
+    @BuilderInference builder: BoundStatementBuilder.() -> Unit,
 ): BoundStatement {
-    return BoundStatementBuilder(boundStatement).apply(initializer).build()
+    return BoundStatementBuilder(boundStatement).apply(builder).build()
 }
 
 /**
@@ -150,9 +150,9 @@ fun batchStatementOf(batchType: BatchType, statements: Iterable<BatchableStateme
  */
 inline fun batchStatement(
     batchType: BatchType,
-    @BuilderInference initializer: BatchStatementBuilder.() -> Unit,
+    @BuilderInference builder: BatchStatementBuilder.() -> Unit,
 ): BatchStatement {
-    return BatchStatementBuilder(batchType).apply(initializer).build()
+    return BatchStatementBuilder(batchType).apply(builder).build()
 }
 
 /**
@@ -169,11 +169,11 @@ inline fun batchStatement(
  * ```
  *
  * @param template [BatchStatement] template
- * @param initializer [BatchStatementBuilder] initializer
+ * @param builder [BatchStatementBuilder] initializer
  */
 inline fun batchStatement(
     template: BatchStatement,
-    @BuilderInference initializer: BatchStatementBuilder.() -> Unit,
+    @BuilderInference builder: BatchStatementBuilder.() -> Unit,
 ): BatchStatement {
-    return BatchStatementBuilder(template).apply(initializer).build()
+    return BatchStatementBuilder(template).apply(builder).build()
 }

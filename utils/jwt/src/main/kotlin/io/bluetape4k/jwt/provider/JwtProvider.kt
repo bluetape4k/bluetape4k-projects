@@ -28,7 +28,7 @@ interface JwtProvider {
 
     fun composer(keyChain: KeyChain? = null): JwtComposer
 
-    fun compose(keyChain: KeyChain? = null, initializer: JwtComposerDsl.() -> Unit): String
+    fun compose(keyChain: KeyChain? = null, @BuilderInference builder: JwtComposerDsl.() -> Unit): String
 
     fun parse(jwtString: String): JwtReader {
         return tryParse(jwtString) ?: throw JwtException("Invalid jwt string: $jwtString")

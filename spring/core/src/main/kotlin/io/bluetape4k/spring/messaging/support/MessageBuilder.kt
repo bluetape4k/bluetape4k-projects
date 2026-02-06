@@ -14,13 +14,13 @@ import org.springframework.messaging.support.MessageBuilder
  * ```
  *
  * @param payload 메시지 페이로드
- * @param initializer 메시지 초기화 블록
+ * @param builder 메시지 초기화 블록
  */
 inline fun <T: Any> message(
     payload: T,
-    @BuilderInference initializer: MessageBuilder<T>.() -> Unit = {},
+    @BuilderInference builder: MessageBuilder<T>.() -> Unit = {},
 ): Message<T> {
-    return MessageBuilder.withPayload(payload).apply(initializer).build()
+    return MessageBuilder.withPayload(payload).apply(builder).build()
 }
 
 /**
@@ -34,13 +34,13 @@ inline fun <T: Any> message(
  * ```
  *
  * @param payload 메시지 페이로드
- * @param initializer 메시지 초기화 블록
+ * @param builder 메시지 초기화 블록
  * @return [Message] 메시지
  */
 inline fun <T: Any> messageOf(
     payload: T,
-    @BuilderInference initializer: MessageBuilder<T>.() -> Unit = {},
-): Message<T> = message(payload, initializer)
+    @BuilderInference builder: MessageBuilder<T>.() -> Unit = {},
+): Message<T> = message(payload, builder)
 
 /**
  * Spring Messaging의 [Message]를 생성합니다.
@@ -54,17 +54,17 @@ inline fun <T: Any> messageOf(
  * ```
  *
  * @param payload 메시지 페이로드
- * @param initializer 메시지 초기화 블록
+ * @param builder 메시지 초기화 블록
  * @return [Message] 메시지
  */
 inline fun <T: Any> messageOf(
     payload: T,
     headers: Map<String, Any?> = emptyMap(),
-    @BuilderInference initializer: MessageBuilder<T>.() -> Unit = {},
+    @BuilderInference builder: MessageBuilder<T>.() -> Unit = {},
 ): Message<T> =
     message(payload) {
         headers.forEach { (name, value) ->
             setHeader(name, value)
         }
-        initializer()
+        builder()
     }

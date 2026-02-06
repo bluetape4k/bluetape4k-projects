@@ -12,12 +12,12 @@ import java.util.concurrent.ThreadFactory
  * }
  * ```
  *
- * @param initializer [Thread.Builder.OfVirtual]의 초기화 블록
+ * @param builder [Thread.Builder.OfVirtual]의 초기화 블록
  */
 inline fun virtualThreadBuilder(
-    initializer: Thread.Builder.OfVirtual.() -> Unit,
+    @BuilderInference builder: Thread.Builder.OfVirtual.() -> Unit,
 ): Thread.Builder.OfVirtual {
-    return Thread.ofVirtual().apply(initializer)
+    return Thread.ofVirtual().apply(builder)
 }
 
 /**
@@ -30,12 +30,12 @@ inline fun virtualThreadBuilder(
  * }
  * ```
  *
- * @param initializer [Thread.Builder.OfVirtual]의 초기화 블록
+ * @param builder [Thread.Builder.OfVirtual]의 초기화 블록
  */
 inline fun virtualThreadFactory(
-    initializer: Thread.Builder.OfVirtual.() -> Unit,
+    @BuilderInference builder: Thread.Builder.OfVirtual.() -> Unit,
 ): ThreadFactory {
-    return virtualThreadBuilder(initializer).factory()
+    return virtualThreadBuilder(builder).factory()
 }
 
 /**
@@ -97,13 +97,13 @@ fun virtualThread(
  * @param block Virtual Thread에서 수행할 작업
  * @return [Thread] 객체
  */
-fun virtualThread(
+inline fun virtualThread(
     start: Boolean = true,
     prefix: String = "virtual-thread-",
     startIndex: Long = 0L,
     inheritThreadLocals: Boolean? = null,
     exceptionHandler: Thread.UncaughtExceptionHandler? = null,
-    block: () -> Unit,
+    crossinline block: () -> Unit,
 ): Thread {
     val builder = virtualThreadBuilder {
         name(prefix, startIndex)

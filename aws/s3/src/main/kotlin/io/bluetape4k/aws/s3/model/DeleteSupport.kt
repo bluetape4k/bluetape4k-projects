@@ -4,8 +4,8 @@ import io.bluetape4k.collections.eclipse.toFastList
 import software.amazon.awssdk.services.s3.model.Delete
 import software.amazon.awssdk.services.s3.model.ObjectIdentifier
 
-inline fun delete(initializer: Delete.Builder.() -> Unit): Delete {
-    return Delete.builder().apply(initializer).build()
+inline fun delete(@BuilderInference builder: Delete.Builder.() -> Unit): Delete {
+    return Delete.builder().apply(builder).build()
 }
 
 fun deleteOf(vararg objectIds: ObjectIdentifier, quiet: Boolean = false): Delete {

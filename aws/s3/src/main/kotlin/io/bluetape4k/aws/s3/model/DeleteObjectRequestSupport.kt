@@ -38,13 +38,13 @@ inline fun deleteObjectRequestOf(
 inline fun deleteObjectsRequest(
     bucket: String,
     delete: Delete,
-    @BuilderInference initializer: DeleteObjectsRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: DeleteObjectsRequest.Builder.() -> Unit = {},
 ): DeleteObjectsRequest {
     bucket.requireNotBlank("bucket")
     return DeleteObjectsRequest.builder()
         .bucket(bucket)
         .delete(delete)
-        .apply(initializer)
+        .apply(builder)
         .build()
 }
 

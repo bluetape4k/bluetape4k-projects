@@ -5,79 +5,79 @@ import org.javers.repository.jql.QueryBuilder
 import kotlin.reflect.KClass
 
 inline fun queryAnyDomainObject(
-    initializer: QueryBuilder.() -> Unit = {},
+    @BuilderInference builder: QueryBuilder.() -> Unit = {},
 ): JqlQuery {
-    return QueryBuilder.anyDomainObject().apply(initializer).build()
+    return QueryBuilder.anyDomainObject().apply(builder).build()
 }
 
 inline fun <reified T: Any> query(
-    initializer: QueryBuilder.() -> Unit,
+    @BuilderInference builder: QueryBuilder.() -> Unit,
 ): JqlQuery {
-    return QueryBuilder.byClass(T::class.java).apply(initializer).build()
+    return QueryBuilder.byClass(T::class.java).apply(builder).build()
 }
 
 inline fun <reified T: Any> queryByInstance(
     instance: T,
-    initializer: QueryBuilder.() -> Unit = {},
+    @BuilderInference builder: QueryBuilder.() -> Unit = {},
 ): JqlQuery {
-    return QueryBuilder.byInstance(instance).apply(initializer).build()
+    return QueryBuilder.byInstance(instance).apply(builder).build()
 }
 
 inline fun <reified T: Any> queryByInstanceId(
     localId: Any,
-    initializer: QueryBuilder.() -> Unit = {},
+    @BuilderInference builder: QueryBuilder.() -> Unit = {},
 ): JqlQuery {
-    return QueryBuilder.byInstanceId(localId, T::class.java).apply(initializer).build()
+    return QueryBuilder.byInstanceId(localId, T::class.java).apply(builder).build()
 }
 
 inline fun <reified T: Any> queryByValueObject(
     path: String,
-    initializer: QueryBuilder.() -> Unit = {},
+    @BuilderInference builder: QueryBuilder.() -> Unit = {},
 ): JqlQuery {
-    return QueryBuilder.byValueObject(T::class.java, path).apply(initializer).build()
+    return QueryBuilder.byValueObject(T::class.java, path).apply(builder).build()
 }
 
 inline fun <reified T: Any> queryByValueObjectId(
     ownerLocalId: Any,
     path: String,
-    initializer: QueryBuilder.() -> Unit = {},
+    @BuilderInference builder: QueryBuilder.() -> Unit = {},
 ): JqlQuery {
-    return QueryBuilder.byValueObjectId(ownerLocalId, T::class.java, path).apply(initializer).build()
+    return QueryBuilder.byValueObjectId(ownerLocalId, T::class.java, path).apply(builder).build()
 }
 
 inline fun <reified T: Any> queryByClass(
-    initializer: QueryBuilder.() -> Unit = {},
+    @BuilderInference builder: QueryBuilder.() -> Unit = {},
 ): JqlQuery {
-    return QueryBuilder.byClass(T::class.java).apply(initializer).build()
+    return QueryBuilder.byClass(T::class.java).apply(builder).build()
 }
 
 @JvmName("queryByClassesCollection")
 inline fun queryByClasses(
     classes: Collection<Class<*>>,
-    initializer: QueryBuilder.() -> Unit = {},
+    @BuilderInference builder: QueryBuilder.() -> Unit = {},
 ): JqlQuery {
-    return QueryBuilder.byClass(*classes.toTypedArray()).apply(initializer).build()
+    return QueryBuilder.byClass(*classes.toTypedArray()).apply(builder).build()
 }
 
 @JvmName("queryByClassesArray")
 inline fun queryByClasses(
     vararg classes: Class<*>,
-    initializer: QueryBuilder.() -> Unit = {},
+    @BuilderInference builder: QueryBuilder.() -> Unit = {},
 ): JqlQuery {
-    return QueryBuilder.byClass(*classes).apply(initializer).build()
+    return QueryBuilder.byClass(*classes).apply(builder).build()
 }
 
 
 inline fun queryByClasses(
     kclasses: Collection<KClass<*>>,
-    initializer: QueryBuilder.() -> Unit = {},
+    @BuilderInference builder: QueryBuilder.() -> Unit = {},
 ): JqlQuery {
-    return QueryBuilder.byClass(*kclasses.map { it.java }.toTypedArray()).apply(initializer).build()
+    return QueryBuilder.byClass(*kclasses.map { it.java }.toTypedArray()).apply(builder).build()
 }
 
 inline fun queryByClasses(
     vararg kclasses: KClass<*>,
-    initializer: QueryBuilder.() -> Unit = {},
+    @BuilderInference builder: QueryBuilder.() -> Unit = {},
 ): JqlQuery {
-    return QueryBuilder.byClass(*kclasses.map { it.java }.toTypedArray()).apply(initializer).build()
+    return QueryBuilder.byClass(*kclasses.map { it.java }.toTypedArray()).apply(builder).build()
 }

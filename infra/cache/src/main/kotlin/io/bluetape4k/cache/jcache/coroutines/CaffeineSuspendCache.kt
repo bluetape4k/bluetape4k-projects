@@ -39,9 +39,9 @@ class CaffeineSuspendCache<K: Any, V: Any>(private val cache: AsyncCache<K, V>):
     companion object: KLoggingChannel() {
         @JvmStatic
         inline operator fun <reified K: Any, reified V: Any> invoke(
-            initializer: Caffeine<Any, Any>.() -> Unit = {},
+            @BuilderInference builder: Caffeine<Any, Any>.() -> Unit = {},
         ): CaffeineSuspendCache<K, V> {
-            val asyncCache = Caffeine.newBuilder().apply(initializer).buildAsync<K, V>()
+            val asyncCache = Caffeine.newBuilder().apply(builder).buildAsync<K, V>()
             return CaffeineSuspendCache(asyncCache)
         }
     }

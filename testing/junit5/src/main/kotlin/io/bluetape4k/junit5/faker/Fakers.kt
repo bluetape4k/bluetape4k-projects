@@ -31,7 +31,9 @@ object Fakers: KLogging() {
         Generators.timeBasedReorderedGenerator()
     }
 
-    private inline fun <reified T> unsafeLazy(noinline initializer: () -> T): Lazy<T> =
+    private inline fun <reified T> unsafeLazy(
+        @BuilderInference noinline initializer: () -> T,
+    ): Lazy<T> =
         lazy(LazyThreadSafetyMode.NONE, initializer)
 
     /**

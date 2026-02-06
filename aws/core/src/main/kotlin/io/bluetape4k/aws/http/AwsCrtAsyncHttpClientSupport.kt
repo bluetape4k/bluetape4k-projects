@@ -23,13 +23,13 @@ inline fun awsCrtAsyncHttpClient(
     return AwsCrtAsyncHttpClient.builder().apply(builder).build()
 }
 
-fun awsCrtAsyncHttpClientOf(
+inline fun awsCrtAsyncHttpClientOf(
     maxConcurrency: Int = 100,
     readBufferSize: Long = 2 * 1024 * 1024,
     connectionMaxIdleTime: Duration = 30.seconds,
     connectionTimeout: Duration = 5.seconds,
     postQuantumTlsEnabled: Boolean = false,
-    initializer: AwsCrtAsyncHttpClient.Builder.() -> Unit = {},
+    @BuilderInference builder: AwsCrtAsyncHttpClient.Builder.() -> Unit = {},
 ): SdkAsyncHttpClient = awsCrtAsyncHttpClient {
     this.maxConcurrency(maxConcurrency)
     this.readBufferSizeInBytes(readBufferSize)
@@ -37,5 +37,5 @@ fun awsCrtAsyncHttpClientOf(
     this.connectionTimeout(connectionTimeout.toJavaDuration())
     this.postQuantumTlsEnabled(postQuantumTlsEnabled)
 
-    initializer()
+    builder()
 }

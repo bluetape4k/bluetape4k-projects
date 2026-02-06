@@ -11,20 +11,20 @@ import org.springframework.data.cassandra.core.UpdateOptions
 import org.springframework.data.cassandra.core.cql.QueryOptions
 import org.springframework.data.cassandra.core.cql.WriteOptions
 
-inline fun queryOptions(initializer: QueryOptions.QueryOptionsBuilder.() -> Unit): QueryOptions =
-    QueryOptions.builder().apply(initializer).build()
+inline fun queryOptions(@BuilderInference builder: QueryOptions.QueryOptionsBuilder.() -> Unit): QueryOptions =
+    QueryOptions.builder().apply(builder).build()
 
-inline fun insertOptions(initializer: InsertOptions.InsertOptionsBuilder.() -> Unit): InsertOptions =
-    InsertOptions.builder().apply(initializer).build()
+inline fun insertOptions(@BuilderInference builder: InsertOptions.InsertOptionsBuilder.() -> Unit): InsertOptions =
+    InsertOptions.builder().apply(builder).build()
 
-inline fun updateOptions(initializer: UpdateOptions.UpdateOptionsBuilder.() -> Unit): UpdateOptions =
-    UpdateOptions.builder().apply(initializer).build()
+inline fun updateOptions(@BuilderInference builder: UpdateOptions.UpdateOptionsBuilder.() -> Unit): UpdateOptions =
+    UpdateOptions.builder().apply(builder).build()
 
-inline fun writeOptions(initializer: WriteOptions.WriteOptionsBuilder.() -> Unit): WriteOptions =
-    WriteOptions.builder().apply(initializer).build()
+inline fun writeOptions(@BuilderInference builder: WriteOptions.WriteOptionsBuilder.() -> Unit): WriteOptions =
+    WriteOptions.builder().apply(builder).build()
 
-inline fun deleteOptions(initializer: DeleteOptions.DeleteOptionsBuilder.() -> Unit): DeleteOptions =
-    DeleteOptions.builder().apply(initializer).build()
+inline fun deleteOptions(@BuilderInference builder: DeleteOptions.DeleteOptionsBuilder.() -> Unit): DeleteOptions =
+    DeleteOptions.builder().apply(builder).build()
 
 
 fun Insert.addWriteOptions(writeOptions: WriteOptions): Insert {

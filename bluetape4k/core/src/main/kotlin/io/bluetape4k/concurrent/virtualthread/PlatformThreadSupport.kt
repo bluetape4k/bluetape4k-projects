@@ -16,13 +16,13 @@ import java.util.concurrent.ThreadFactory
  * }
  * ```
  *
- * @param initializer Platform Thread 빌더 설정
+ * @param builder Platform Thread 빌더 설정
  * @return [Thread.Builder.OfPlatform] 인스턴스
  */
 inline fun platformThreadBuilder(
-    initializer: Thread.Builder.OfPlatform.() -> Unit,
+    @BuilderInference builder: Thread.Builder.OfPlatform.() -> Unit,
 ): Thread.Builder.OfPlatform {
-    return Thread.ofPlatform().apply(initializer)
+    return Thread.ofPlatform().apply(builder)
 }
 
 /**
@@ -36,13 +36,13 @@ inline fun platformThreadBuilder(
  * }
  * ```
  *
- * @param initializer [Thread.Builder.OfPlatform]의 초기화 블록
+ * @param builder [Thread.Builder.OfPlatform]의 초기화 블록
  * @return [ThreadFactory] 인스턴스
  */
 inline fun platformThreadFactory(
-    initializer: Thread.Builder.OfPlatform.() -> Unit,
+    @BuilderInference builder: Thread.Builder.OfPlatform.() -> Unit,
 ): ThreadFactory {
-    return platformThreadBuilder(initializer).factory()
+    return platformThreadBuilder(builder).factory()
 }
 
 
@@ -67,13 +67,13 @@ inline fun platformThreadFactory(
  * @param block Platform Thread에서 수행할 작업
  * @return Platform Thread 인스턴스
  */
-fun platformThread(
+inline fun platformThread(
     start: Boolean = true,
     isDaemon: Boolean = false,
     group: ThreadGroup? = null,
     name: String? = null,
     priority: Int = -1,
-    block: () -> Unit,
+    crossinline block: () -> Unit,
 ): Thread {
     val builder = platformThreadBuilder {
         if (isDaemon) {

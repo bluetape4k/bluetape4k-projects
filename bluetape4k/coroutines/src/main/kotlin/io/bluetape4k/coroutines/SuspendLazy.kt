@@ -74,7 +74,7 @@ inline fun <T> suspendBlockingLazyIO(
 internal class SuspendLazyBlockImpl<out T>(
     private val dispatcher: CoroutineContext = EmptyCoroutineContext,
     mode: LazyThreadSafetyMode = LazyThreadSafetyMode.SYNCHRONIZED,
-    initializer: () -> T,
+    @BuilderInference initializer: () -> T,
 ): SuspendLazy<T> {
 
     private val lazyValue: Lazy<T> = lazy(mode, initializer)

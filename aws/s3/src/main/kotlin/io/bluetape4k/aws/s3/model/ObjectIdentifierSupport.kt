@@ -5,22 +5,22 @@ import software.amazon.awssdk.services.s3.model.ObjectIdentifier
 
 inline fun objectIdentifier(
     key: String,
-    @BuilderInference initializer: ObjectIdentifier.Builder.() -> Unit = {},
+    @BuilderInference builder: ObjectIdentifier.Builder.() -> Unit = {},
 ): ObjectIdentifier {
     key.requireNotBlank("key")
     return ObjectIdentifier.builder()
         .key(key)
-        .apply(initializer)
+        .apply(builder)
         .build()
 }
 
 inline fun objectIdentifierOf(
     key: String,
     versionId: String? = null,
-    @BuilderInference initializer: ObjectIdentifier.Builder.() -> Unit = {},
+    @BuilderInference builder: ObjectIdentifier.Builder.() -> Unit = {},
 ): ObjectIdentifier {
     return objectIdentifier(key) {
         versionId(versionId)
-        initializer()
+        builder()
     }
 }
