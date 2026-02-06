@@ -96,6 +96,23 @@ class JavaStreamSupportTest {
     }
 
     @Test
+    fun `Sequence to LongStream`() {
+        val sequence = generateSequence(0) { it + 1 }.take(10).map { it.toLong() }
+        val stream = sequence.toLongStream()
+
+        // Sequence 는 여러번 호출해도 된다.
+        sequence.count() shouldBeEqualTo 10
+        sequence.toFastList() shouldBeEqualTo fastList(10) { it.toLong() }
+
+        // NOTE: Stream은 한번 사용하면 다시 사용할 수 없다!!!
+        stream.toFastList() shouldBeEqualTo fastList(10) { it.toLong() }
+
+        assertFailsWith<IllegalStateException> {
+            stream.count() shouldBeEqualTo 10
+        }
+    }
+
+    @Test
     fun `FloatArray to DoubleStream`() {
         val floatArray = floatArrayOf(1.0f, 2.0f, 3.0f)
         floatArray.toDoubleStream().toFastList() shouldBeEqualTo listOf(1.0, 2.0, 3.0)

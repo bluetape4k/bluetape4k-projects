@@ -120,7 +120,7 @@ fun IntStream.toList(): List<Int> = asSequence().toList()
 /**
  * [IntStream]를 [IntArray]로 변환합니다.
  */
-fun IntStream.toIntArray(): IntArray = asSequence().asIntArray()
+fun IntStream.toIntArray(): IntArray = toArray() // asSequence().asIntArray()
 
 /**
  * [Sequence]를 [IntStream]로 변환합니다.
@@ -155,7 +155,7 @@ fun LongStream.toList(): List<Long> = asSequence().toList()
 /**
  * [LongStream]를 [LongArray]로 변환합니다.
  */
-fun LongStream.toLongArray(): LongArray = asSequence().asLongArray()
+fun LongStream.toLongArray(): LongArray = toArray() // asSequence().asLongArray()
 
 /**
  * [Sequence]를 [LongStream]로 변환합니다.
@@ -190,7 +190,7 @@ fun DoubleStream.toList(): List<Double> = asSequence().toList()
 /**
  * [DoubleStream]를 [DoubleArray]로 변환합니다.
  */
-fun DoubleStream.toDoubleArray(): DoubleArray = asSequence().asDoubleArray()
+fun DoubleStream.toDoubleArray(): DoubleArray = toArray() // asSequence().asDoubleArray()
 
 /**
  * Double [Sequence]를 [DoubleStream]로 변환합니다.

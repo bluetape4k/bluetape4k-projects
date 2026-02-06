@@ -35,8 +35,8 @@ fun DoubleStream.toDoubleArrayList(): DoubleArrayList = asIterable().toDoubleArr
 
 fun IntArrayList.toIntStream(): IntStream =
     IntStream.builder()
-        .also { builder ->
-            this@toIntStream.forEach { builder.accept(it) }
+        .apply {
+            this@toIntStream.forEach { accept(it) }
         }
         .build()
 
