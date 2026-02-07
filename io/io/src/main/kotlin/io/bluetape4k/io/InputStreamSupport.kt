@@ -330,9 +330,15 @@ fun InputStream.toUtf8StringList(blockSize: Int = DEFAULT_BLOCK_SIZE): List<Stri
  * ```
  */
 fun InputStream.toLineSequence(cs: Charset = UTF_8, blockSize: Int = DEFAULT_BLOCK_SIZE): Sequence<String> =
-    reader(cs)
-        .buffered(blockSize)
-        .lineSequence()
+    sequence {
+        reader(cs)
+            .buffered(blockSize)
+            .useLines { lines ->
+                for (line in lines) {
+                    yield(line)
+                }
+            }
+    }
 
 /**
  * [InputStream]을 라인 단위로 읽어 UTF-8 문자열의 시퀀스로 반환합니다.
@@ -344,9 +350,15 @@ fun InputStream.toLineSequence(cs: Charset = UTF_8, blockSize: Int = DEFAULT_BLO
  * ```
  */
 fun InputStream.toUtf8LineSequence(blockSize: Int = DEFAULT_BLOCK_SIZE): Sequence<String> =
-    reader(UTF_8)
-        .buffered(blockSize)
-        .lineSequence()
+    sequence {
+        reader(UTF_8)
+            .buffered(blockSize)
+            .useLines { lines ->
+                for (line in lines) {
+                    yield(line)
+                }
+            }
+    }
 
 /**
  * [ByteArray]를 라인 단위로 읽어 문자열 컬렉션으로 변홥합니다.

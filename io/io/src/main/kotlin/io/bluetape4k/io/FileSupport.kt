@@ -35,6 +35,13 @@ const val EXTENSION_SEPARATOR = '.'
 const val UNIX_SEPARATOR = '/'
 const val WINDOW_SEPARATOR = '\\'
 
+private val defaultFileExecutor: ExecutorService by lazy {
+    Executors.newVirtualThreadPerTaskExecutor().also { executor ->
+        Runtimex.addShutdownHook {
+            executor.shutdown()
+        }
+    }
+}
 
 @JvmField
 val SYSTEM_SEPARATOR = File.separatorChar
@@ -55,8 +62,7 @@ fun createDirectory(dir: String): File? {
     return try {
         val file = File(dir)
         val created = file.mkdirs()
-
-        if (created) file else null
+        if (created || file.isDirectory) file else null
     } catch (e: Exception) {
         log.error(e) { "Fail to create directory. dir=[$dir]" }
         null
@@ -268,7 +274,7 @@ fun File.readAllBytes(): ByteArray {
  * @return 파일을 내용을 담은[ByteArray]를 반환하는 [CompletableFuture]
  */
 fun Path.readAllBytesAsync(
-    executor: ExecutorService = Executors.newVirtualThreadPerTaskExecutor(),
+    executor: ExecutorService = defaultFileExecutor,
 ): CompletableFuture<ByteArray> {
     val promise = CompletableFuture<ByteArray>()
     val channel = AsynchronousFileChannel.open(
@@ -276,30 +282,42 @@ fun Path.readAllBytesAsync(
         setOf(StandardOpenOption.READ),
         executor
     )
-    val buffer = ByteBuffer.allocateDirect(channel.size().toInt())
+    try {
+        val size = channel.size()
+        require(size <= Int.MAX_VALUE) { "File is too large to read into a single ByteBuffer. size=$size" }
+        val buffer = ByteBuffer.allocateDirect(size.toInt())
 
-    channel.read(buffer, 0).asCompletableFuture()
-        .whenCompleteAsync(
-            { result, error ->
-                if (error != null) {
-                    channel.closeSafe()
-                    promise.completeExceptionally(error)
-                } else {
-                    try {
-                        if (result != null) {
+        fun readNext(position: Long) {
+            channel.read(buffer, position).asCompletableFuture()
+                .whenCompleteAsync({ read, error ->
+                    if (error != null) {
+                        channel.closeSafe()
+                        promise.completeExceptionally(error)
+                        return@whenCompleteAsync
+                    }
+                    if (read == null || read <= 0) {
+                        try {
                             buffer.flip()
                             promise.complete(buffer.getBytes())
-                            log.trace { "Read bytearray from file. path=[${this@readAllBytesAsync}], read size=$result" }
-                        } else {
-                            promise.complete(emptyByteArray)
+                        } finally {
+                            channel.closeSafe()
                         }
-                    } finally {
-                        channel.closeSafe()
+                        return@whenCompleteAsync
                     }
-                }
-            },
-            executor
-        )
+                    readNext(position + read)
+                }, executor)
+        }
+
+        if (buffer.capacity() == 0) {
+            channel.closeSafe()
+            promise.complete(emptyByteArray)
+        } else {
+            readNext(0L)
+        }
+    } catch (e: Throwable) {
+        channel.closeSafe()
+        promise.completeExceptionally(e)
+    }
 
     return promise
 }
@@ -389,7 +407,7 @@ fun File.writeLines(lines: Collection<String>, append: Boolean = false, cs: Char
 fun Path.writeAsync(
     bytes: ByteArray,
     append: Boolean = false,
-    executor: ExecutorService = Executors.newVirtualThreadPerTaskExecutor(),
+    executor: ExecutorService = defaultFileExecutor,
 ): CompletableFuture<Long> {
     val promise = CompletableFuture<Long>()
 
@@ -400,22 +418,32 @@ fun Path.writeAsync(
         executor
     )
 
-    val pos = if (append) channel.size() else 0L
+    val startPos = if (append) channel.size() else 0L
     val content = bytes.toByteBufferDirect()
 
-    channel.write(content, pos).asCompletableFuture()
-        .whenCompleteAsync(
-            { result, error ->
-                channel.closeSafe()
+    fun writeNext(position: Long) {
+        if (!content.hasRemaining()) {
+            channel.closeSafe()
+            promise.complete((position - startPos))
+            return
+        }
+        channel.write(content, position).asCompletableFuture()
+            .whenCompleteAsync({ written, error ->
                 if (error != null) {
+                    channel.closeSafe()
                     promise.completeExceptionally(error)
-                } else {
-                    promise.complete(result.toLong())
-                    log.trace { "Write bytearray to file. path=[${this@writeAsync}], written size=$result" }
+                    return@whenCompleteAsync
                 }
-            },
-            executor
-        )
+                if (written == null || written <= 0) {
+                    channel.closeSafe()
+                    promise.completeExceptionally(IOException("No bytes were written"))
+                    return@whenCompleteAsync
+                }
+                writeNext(position + written)
+            }, executor)
+    }
+
+    writeNext(startPos)
     return promise
 }
 
