@@ -201,17 +201,15 @@ fun S3AsyncClient.moveObject(
             .destinationBucket(destBucketName)
             .destinationKey(destKey)
     }
-        .thenApply {
-            if (it.copyObjectResult().eTag().isNotBlank()) {
+        .thenCompose { copyResponse ->
+            if (copyResponse.copyObjectResult().eTag().isNotBlank()) {
                 deleteObject { builder ->
                     builder.bucket(srcBucketName).key(srcKey)
-                }
+                }.thenApply { copyResponse }
+            } else {
+                CompletableFuture.completedFuture(copyResponse)
             }
-            it
-        }
-        .thenApply {
-            it.copyObjectResult()
-        }
+        }.thenApply { it.copyObjectResult() }
 }
 
 /**

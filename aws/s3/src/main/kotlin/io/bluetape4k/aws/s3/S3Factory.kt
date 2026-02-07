@@ -61,7 +61,8 @@ object S3Factory {
                 endpointOverride(endpointOverride)
                 region(region)
                 credentialsProvider(credentialsProvider)
-                accelerate(true) // Enables this client to use S3 Transfer Acceleration endpoints.
+                // Transfer Acceleration requires bucket-level enablement; leave disabled by default.
+                accelerate(false)
                 httpClient(SdkHttpClientProvider.Apache.apacheHttpClient)
 
                 builder()

@@ -1,6 +1,5 @@
 package io.bluetape4k.aws.s3.model
 
-import software.amazon.awssdk.core.internal.util.Mimetype
 import software.amazon.awssdk.core.sync.RequestBody
 import java.io.File
 import java.io.InputStream
@@ -8,13 +7,15 @@ import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.nio.file.Path
 
+private const val DEFAULT_MIME_TYPE: String = "application/octet-stream"
 fun String.toRequestBody(cs: Charset = Charsets.UTF_8): RequestBody = RequestBody.fromString(this, cs)
 fun ByteArray.toRequestBody(): RequestBody = RequestBody.fromBytes(this)
 fun ByteBuffer.toRequestBody(): RequestBody = RequestBody.fromByteBuffer(this)
 fun File.toRequestBody(): RequestBody = RequestBody.fromFile(this)
 fun Path.toRequestBody(): RequestBody = RequestBody.fromFile(this)
-fun InputStream.toRequestBody(): RequestBody {
-    return RequestBody.fromInputStream(this, this.available().toLong())
+fun InputStream.toRequestBody(contentLength: Long): RequestBody {
+    require(contentLength >= 0L) { "contentLength must be >= 0, but was $contentLength" }
+    return RequestBody.fromInputStream(this, contentLength)
 }
 
 fun requestBodyOf(text: String, cs: Charset = Charsets.UTF_8): RequestBody = RequestBody.fromString(text, cs)
@@ -26,13 +27,14 @@ fun requestBodyOf(path: Path): RequestBody = RequestBody.fromFile(path)
 
 fun requestBodyOf(
     inputStream: InputStream,
-    contentLength: Long = inputStream.available().toLong(),
+    contentLength: Long,
 ): RequestBody {
+    require(contentLength >= 0L) { "contentLength must be >= 0, but was $contentLength" }
     return RequestBody.fromInputStream(inputStream, contentLength)
 }
 
 fun requestBodyOf(
-    mimeType: String = Mimetype.MIMETYPE_OCTET_STREAM,
+    mimeType: String = DEFAULT_MIME_TYPE,
     contentProvider: () -> InputStream,
 ): RequestBody {
     return RequestBody.fromContentProvider(contentProvider, mimeType)

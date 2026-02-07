@@ -16,9 +16,11 @@ fun ByteBuffer.toAsyncRequestBody(): AsyncRequestBody = AsyncRequestBody.fromByt
 fun File.toAsyncRequestBody(): AsyncRequestBody = AsyncRequestBody.fromFile(this)
 fun Path.toAsyncRequestBody(): AsyncRequestBody = AsyncRequestBody.fromFile(this)
 fun InputStream.toAsyncRequestBody(
+    contentLength: Long,
     executor: ExecutorService = ForkJoinPool.commonPool(),
 ): AsyncRequestBody {
-    return AsyncRequestBody.fromInputStream(this, this.available().toLong(), executor)
+    require(contentLength >= 0L) { "contentLength must be >= 0, but was $contentLength" }
+    return AsyncRequestBody.fromInputStream(this, contentLength, executor)
 }
 
 fun asyncRequestBodyOf(text: String, cs: Charset = Charsets.UTF_8): AsyncRequestBody =
@@ -32,9 +34,10 @@ fun asyncRequestBodyOf(path: Path): AsyncRequestBody = AsyncRequestBody.fromFile
 
 fun asyncRequestBodyOf(
     inputStream: InputStream,
-    contentLength: Long = inputStream.available().toLong(),
+    contentLength: Long,
     executor: ExecutorService = ForkJoinPool.commonPool(),
 ): AsyncRequestBody {
+    require(contentLength >= 0L) { "contentLength must be >= 0, but was $contentLength" }
     return AsyncRequestBody.fromInputStream(inputStream, contentLength, executor)
 }
 
