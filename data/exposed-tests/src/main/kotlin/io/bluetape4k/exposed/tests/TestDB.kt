@@ -80,7 +80,7 @@ enum class TestDB(
                     "&characterEncoding=UTF-8" +
                     "&useLegacyDatetimeCode=false&serverTimezone=UTC" +  // TimeZone 을 UTC 로 설정
                     "&zeroDateTimeBehavior=convertToNull" +
-                    "&rewriteBatchedStatements=true"
+                    "&rewriteBatchedStatements=true" // Batch 처리를 위한 설정
 
             if (useTestcontainers) {
                 Containers.MariaDB.jdbcUrl + options
@@ -98,7 +98,8 @@ enum class TestDB(
                     "&useLegacyDatetimeCode=false" +
                     "&serverTimezone=UTC" +  // TimeZone 을 UTC 로 설정
                     "&zeroDateTimeBehavior=convertToNull" +
-                    "&rewriteBatchedStatements=true"
+                    "&rewriteBatchedStatements=true" // Batch 처리를 위한 설정
+
             if (useTestcontainers) {
                 Containers.MySQL5.jdbcUrl + options
             } else {

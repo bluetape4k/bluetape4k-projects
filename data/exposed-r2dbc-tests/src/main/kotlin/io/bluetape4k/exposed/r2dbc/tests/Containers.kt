@@ -1,4 +1,4 @@
-package io.bluetape4k.exposed.tests
+package io.bluetape4k.exposed.r2dbc.tests
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.database.MariaDBServer
@@ -7,6 +7,9 @@ import io.bluetape4k.testcontainers.database.MySQL8Server
 import io.bluetape4k.testcontainers.database.PostgreSQLServer
 import io.bluetape4k.utils.ShutdownQueue
 
+/**
+ * 테스트를 위한 DB 컨테이너를 제공합니다.
+ */
 object Containers: KLogging() {
 
     val MariaDB: MariaDBServer by lazy {
@@ -47,5 +50,5 @@ object Containers: KLogging() {
 
     val Postgres by lazy { PostgreSQLServer.Launcher.postgres }
 
-    // val Cockroach by lazy { CockroachServer.Launcher.cockroach }
+
 }

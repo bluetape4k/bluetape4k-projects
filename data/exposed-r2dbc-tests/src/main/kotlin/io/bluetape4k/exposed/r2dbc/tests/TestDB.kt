@@ -87,8 +87,8 @@ enum class TestDB(
             // "&rewriteBatchedStatements=true"
 
             if (USE_TESTCONTAINERS) {
-                val port = ContainerProvider.mariadb.port
-                val databaseName = ContainerProvider.mariadb.databaseName
+                val port = Containers.MariaDB.port
+                val databaseName = Containers.MariaDB.databaseName
                 "r2dbc:mariadb://${MARIADB.user}:${MARIADB.pass}@127.0.0.1:$port/$databaseName$options"
             } else {
                 "r2dbc:mariadb://localhost:3306/exposed$options"
@@ -106,8 +106,8 @@ enum class TestDB(
                     "&zeroDateTimeBehavior=convertToNull"  // +
             // "&rewriteBatchedStatements=true"
             if (USE_TESTCONTAINERS) {
-                val port = ContainerProvider.mysql5.port
-                val databaseName = ContainerProvider.mariadb.databaseName
+                val port = Containers.MySQL5.port
+                val databaseName = Containers.MySQL5.databaseName
                 "r2dbc:mysql://${MYSQL_V5.user}:${MYSQL_V5.pass}@127.0.0.1:$port/$databaseName$options"
             } else {
                 "r2dbc:mysql://localhost:3306/exposed$options"
@@ -126,8 +126,8 @@ enum class TestDB(
                     "&allowPublicKeyRetrieval=true" //  "&rewriteBatchedStatements=true" // Batch 처리를 위한 설정
 
             if (USE_TESTCONTAINERS) {
-                val port = ContainerProvider.mysql8.port
-                val databaseName = ContainerProvider.mariadb.databaseName
+                val port = Containers.MySQL8.port
+                val databaseName = Containers.MySQL8.databaseName
                 "r2dbc:mysql://${MYSQL_V8.user}:${MYSQL_V8.pass}@127.0.0.1:$port/$databaseName$options"
             } else {
                 "r2dbc:mysql://localhost:3306/exposed$options"
@@ -142,7 +142,7 @@ enum class TestDB(
         connection = {
             val options = "?lc_messages=en_US.UTF-8"
             if (USE_TESTCONTAINERS) {
-                val port = ContainerProvider.postgres.port
+                val port = Containers.Postgres.port
                 "r2dbc:postgresql://${POSTGRESQL.user}:${POSTGRESQL.pass}@127.0.0.1:$port/postgres$options"
             } else {
                 "r2dbc:postgresql://localhost:5432/exposed$options"
