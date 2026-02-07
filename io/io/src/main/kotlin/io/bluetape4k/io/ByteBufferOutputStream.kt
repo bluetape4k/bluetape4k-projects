@@ -16,7 +16,7 @@ import java.nio.ByteBuffer
  * ```
  */
 open class ByteBufferOutputStream private constructor(
-    private val buffer: ByteBuffer,
+    private var buffer: ByteBuffer,
 ): OutputStream() {
 
     companion object: KLogging() {
@@ -48,24 +48,36 @@ open class ByteBufferOutputStream private constructor(
     }
 
     override fun write(b: Int) {
-        if (!buffer.hasRemaining()) {
-            flush()
-        }
+        ensureCapacity(1)
         buffer.put(b.toByte())
     }
 
     override fun write(b: ByteArray, off: Int, len: Int) {
         off.assertZeroOrPositiveNumber("off")
         len.assertZeroOrPositiveNumber("len")
+        require(off + len <= b.size) { "off+len must be <= b.size (off=$off, len=$len, size=${b.size})" }
 
-        if (buffer.remaining() < len) {
-            flush()
-        }
+        ensureCapacity(len)
         buffer.put(b, off, len)
     }
 
     fun toByteArray(): ByteArray {
+        val dup = buffer.duplicate()
+        dup.flip()
+        return dup.getBytes()
+    }
+
+    private fun ensureCapacity(additional: Int) {
+        if (additional <= buffer.remaining()) return
+        val required = buffer.position() + additional
+        val newCapacity = maxOf(buffer.capacity() * 2, required)
+        val newBuffer = if (buffer.isDirect) {
+            ByteBuffer.allocateDirect(newCapacity)
+        } else {
+            ByteBuffer.allocate(newCapacity)
+        }
         buffer.flip()
-        return buffer.getBytes()
+        newBuffer.put(buffer)
+        buffer = newBuffer
     }
 }

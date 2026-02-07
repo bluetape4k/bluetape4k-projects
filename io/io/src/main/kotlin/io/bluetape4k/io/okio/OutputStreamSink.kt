@@ -19,7 +19,7 @@ class OutputStreamSink(
     companion object: KLogging()
 
     override fun write(source: Buffer, byteCount: Long) {
-        source.size.requireInRange(0, byteCount, "source.size")
+        byteCount.requireInRange(0, source.size, "byteCount")
 
         Buffer.UnsafeCursor().use { cursor ->
             var remaining = byteCount

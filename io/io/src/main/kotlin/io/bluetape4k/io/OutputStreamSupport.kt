@@ -20,9 +20,7 @@ import java.nio.charset.Charset
  * @param cs 문자열의 인코딩 방식 (기본값: UTF-8)
  */
 fun OutputStream.write(data: String, cs: Charset = Charsets.UTF_8) {
-    Channels.newChannel(this).use { channel ->
-        channel.write(cs.encode(data))
-    }
+    Channels.newChannel(this).write(cs.encode(data))
 }
 
 /**

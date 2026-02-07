@@ -17,7 +17,7 @@ import kotlin.text.Charsets.UTF_8
 fun ByteBuffer.getBytes(): ByteArray {
     val length = remaining()
     return if (hasArray()) {
-        val offset = arrayOffset() - position()
+        val offset = arrayOffset() + position()
         if (offset == 0 && length == array().size) {
             array()
         } else {
@@ -36,7 +36,10 @@ fun ByteBuffer.getBytes(): ByteArray {
  * val bytes = buffer.extractBytes() // [1, 2, 3, 4, 5]
  * ```
  */
-fun ByteBuffer.extractBytes(): ByteArray = ByteArray(remaining()).apply { this@extractBytes.get(this) }
+fun ByteBuffer.extractBytes(): ByteArray {
+    val dup = duplicate()
+    return ByteArray(dup.remaining()).apply { dup.get(this) }
+}
 
 
 /**

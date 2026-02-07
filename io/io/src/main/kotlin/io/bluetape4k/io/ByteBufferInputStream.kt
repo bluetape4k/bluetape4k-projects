@@ -54,6 +54,7 @@ open class ByteBufferInputStream private constructor(
     override fun read(b: ByteArray, off: Int, len: Int): Int {
         off.assertZeroOrPositiveNumber("off")
         len.assertZeroOrPositiveNumber("len")
+        require(off + len <= b.size) { "off+len must be <= b.size (off=$off, len=$len, size=${b.size})" }
 
         if (len == 0) {
             return 0
@@ -63,7 +64,7 @@ open class ByteBufferInputStream private constructor(
             return -1
         }
 
-        buffer.get(b, off, len)
+        buffer.get(b, off, count)
         return count
     }
 
