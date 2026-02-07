@@ -8,6 +8,7 @@ import io.bluetape4k.support.requireZeroOrPositiveNumber
 import kotlinx.coroutines.coroutineScope
 import okio.Buffer
 import java.net.Socket
+import java.nio.channels.SocketChannel
 import java.nio.ByteBuffer
 import java.nio.channels.SelectionKey
 
@@ -17,11 +18,16 @@ class SuspendedSocketSource(socket: Socket): SuspendedSource {
 
     companion object: KLoggingChannel()
 
-    private val channel = socket.channel
+    private val channel: SocketChannel = requireNotNull(socket.channel) {
+        "Socket.channel is null. Use SocketChannel.open() or SocketChannel.socket()."
+    }.apply {
+        configureBlocking(false)
+    }
     private val byteBuffer = ByteBuffer.allocateDirect(SEGMENT_SIZE.toInt())
 
     override suspend fun read(sink: Buffer, byteCount: Long): Long = coroutineScope {
         byteCount.requireZeroOrPositiveNumber("byteCount")
+        if (byteCount == 0L) return@coroutineScope 0L
 
         channel.await(SelectionKey.OP_READ)
 
@@ -33,6 +39,8 @@ class SuspendedSocketSource(socket: Socket): SuspendedSource {
 
         if (read > 0) {
             sink.write(byteBuffer)
+        } else if (read < 0) {
+            return@coroutineScope -1L
         }
 
         return@coroutineScope read.toLong()

@@ -23,16 +23,16 @@ class SuspendedSocketChannelSource(
     override suspend fun read(sink: Buffer, byteCount: Long): Long {
         require(byteCount >= 0) { "byteCount must be zero or positive, but was $byteCount" }
         if (!channel.isOpen) return -1L
+        if (byteCount == 0L) return 0L
 
         byteBuffer.clear()
         byteBuffer.limit(minOf(SEGMENT_SIZE, byteCount).toInt())
 
         val read = channel.read(byteBuffer).suspendAwait()
+        if (read <= 0) return read.toLong()
+        byteBuffer.flip()
 
-        if (read > 0) {
-            sink.write(byteBuffer)
-        }
-
+        sink.write(byteBuffer)
         return read.toLong()
     }
 

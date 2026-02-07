@@ -1,10 +1,12 @@
 package io.bluetape4k.io.okio.coroutines
 
-import io.bluetape4k.io.okio.readUnsafeAndClose
+import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.io.okio.SEGMENT_SIZE
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.coroutineScope
 import okio.Buffer
+import okio.EOFException
 import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousSocketChannel
 
@@ -17,14 +19,27 @@ class SuspendedSocketChannelSink(
 
     companion object: KLoggingChannel()
 
-    private val cursor = Buffer.UnsafeCursor()
-
     override suspend fun write(source: Buffer, byteCount: Long) {
-        source.readUnsafeAndClose(cursor) { cursor ->
-            val byteBuffer = ByteBuffer.allocate(byteCount.toInt())
-            val offset = if (cursor.start < 0) 0 else cursor.start
-            byteBuffer.put(cursor.data, offset, byteCount.toInt())
-            channel.write(byteBuffer)
+        if (byteCount == 0L) return
+        if (!channel.isOpen) error("Channel is closed")
+        require(byteCount >= 0) { "byteCount must be zero or positive, but was $byteCount" }
+
+        var remaining = byteCount
+        while (remaining > 0L) {
+            val toRead = minOf(remaining, source.size, SEGMENT_SIZE)
+            if (toRead == 0L) throw EOFException()
+
+            val chunk = source.readByteArray(toRead)
+            var offset = 0
+            while (offset < chunk.size) {
+                val written = channel.write(ByteBuffer.wrap(chunk, offset, chunk.size - offset)).suspendAwait()
+                if (written <= 0) {
+                    throw java.io.IOException("channel closed")
+                }
+                offset += written
+            }
+
+            remaining -= toRead
         }
     }
 

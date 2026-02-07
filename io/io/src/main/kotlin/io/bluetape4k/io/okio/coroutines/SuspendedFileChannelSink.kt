@@ -24,13 +24,17 @@ class SuspendedFileChannelSink(
         if (byteCount <= 0L) return
         timeout().throwIfReached()
 
-        val length = minOf(source.size, byteCount)
-        val byteBuffer = ByteBuffer.wrap(source.readByteArray(length))
+        var remaining = minOf(source.size, byteCount)
+        while (remaining > 0L) {
+            val chunkSize = minOf(remaining, DEFAULT_BUFFER_SIZE.toLong())
+            val byteBuffer = ByteBuffer.wrap(source.readByteArray(chunkSize))
+            val byteWritten = channel.write(byteBuffer, position).suspendAwait()
+            log.debug { "채널 $position 위치에 $byteWritten bytes 를 썼습니다. " }
 
-        val byteWritten = channel.write(byteBuffer, position).suspendAwait()
-        log.debug { "채널 $position 위치에 $byteWritten bytes 를 썼습니다. " }
-
-        position += byteWritten
+            if (byteWritten <= 0) break
+            position += byteWritten
+            remaining -= byteWritten
+        }
     }
 
     override suspend fun flush() = coroutineScope {

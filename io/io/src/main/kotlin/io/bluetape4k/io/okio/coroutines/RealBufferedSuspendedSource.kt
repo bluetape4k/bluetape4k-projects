@@ -11,6 +11,7 @@ import okio.ByteString
 import okio.EOFException
 import okio.Options
 import okio.Timeout
+import io.bluetape4k.io.okio.coroutines.internal.ForwardSuspendedSource
 
 /**
  * `source`에서 읽은 내용을 버퍼링하는 새로운 소스를 반환합니다.
@@ -155,27 +156,28 @@ class RealBufferedSuspendedSource(
     }
 
     override suspend fun select(options: Options): Int {
-        TODO("Not yet implemented")
-//    checkNotClosed()
-//
-//    while (true) {
-//      val index = buffer.selectPrefix(options, selectTruncated = true)
-//      when (index) {
-//        -1 -> {
-//          return -1
-//        }
-//        -2 -> {
-//          // We need to grow the buffer. Do that, then try it all again.
-//          if (source.read(buffer, SEGMENT_SIZE) == -1L) return -1
-//        }
-//        else -> {
-//          // We matched a full byte string: consume it and return it.
-//          val selectedSize = options.byteStrings[index].size
-//          buffer.skip(selectedSize.toLong())
-//          return index
-//        }
-//      }
-//    }
+        checkNotClosed()
+
+        while (true) {
+            var needsMoreData = false
+            for (i in 0 until options.size) {
+                val option = options[i]
+                val optionSize = option.size
+                if (buffer.size >= optionSize) {
+                    if (buffer.rangeEquals(0, option)) {
+                        buffer.skip(optionSize.toLong())
+                        return i
+                    }
+                } else {
+                    // Buffer is a prefix of the option; need more data to decide.
+                    if (buffer.rangeEquals(0, option, 0, buffer.size.toInt())) {
+                        needsMoreData = true
+                    }
+                }
+            }
+            if (!needsMoreData) return -1
+            if (source.read(buffer, SEGMENT_SIZE) == -1L) return -1
+        }
     }
 
     override suspend fun readByteArray(): ByteArray {
@@ -195,7 +197,9 @@ class RealBufferedSuspendedSource(
     }
 
     override suspend fun read(sink: ByteArray, offset: Int, byteCount: Int): Int {
-        // TODO checkOffsetAndCount(sink.size.toLong(), offset.toLong(), byteCount.toLong())
+        require(offset >= 0 && byteCount >= 0 && offset + byteCount <= sink.size) {
+            "offset=$offset, byteCount=$byteCount, sink.size=${sink.size}"
+        }
         checkNotClosed()
         if (buffer.size == 0L) {
             val read = source.read(buffer, SEGMENT_SIZE)
@@ -352,7 +356,7 @@ class RealBufferedSuspendedSource(
         var current = fromIndex
         while (true) {
             val result = buffer.indexOf(bytes, current)
-            if (result > 0L) {
+            if (result >= 0L) {
                 return result
             }
 
@@ -393,9 +397,7 @@ class RealBufferedSuspendedSource(
         return true
     }
 
-    override fun peek(): BufferedSuspendedSource = apply {
-        buffer.peek()
-    }
+    override fun peek(): BufferedSuspendedSource = RealBufferedSuspendedSource(ForwardSuspendedSource(buffer.peek()))
 
     override suspend fun close() {
         if (closed.compareAndSet(false, true)) {
