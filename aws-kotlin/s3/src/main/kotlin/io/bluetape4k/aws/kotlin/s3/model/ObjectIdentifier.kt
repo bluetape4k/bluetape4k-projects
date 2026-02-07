@@ -15,10 +15,10 @@ import io.bluetape4k.support.requireNotBlank
  *
  * @return [ObjectIdentifier] 인스턴스
  */
-fun objectIdentifierOf(
+inline fun objectIdentifierOf(
     key: String,
     versionId: String? = null,
-    @BuilderInference builder: ObjectIdentifier.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: ObjectIdentifier.Builder.() -> Unit = {},
 ): ObjectIdentifier {
     key.requireNotBlank("key")
 
@@ -42,9 +42,9 @@ fun objectIdentifierOf(
  *
  * @return [ObjectIdentifier] 인스턴스
  */
-fun String.toObjectIdentifier(
+inline fun String.toObjectIdentifier(
     versionId: String? = null,
-    block: ObjectIdentifier.Builder.() -> Unit = {},
+    @BuilderInference crossinline block: ObjectIdentifier.Builder.() -> Unit = {},
 ): ObjectIdentifier {
     return objectIdentifierOf(this, versionId, block)
 }

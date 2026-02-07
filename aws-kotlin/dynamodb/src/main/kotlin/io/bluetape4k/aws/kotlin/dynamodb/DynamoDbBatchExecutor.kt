@@ -92,7 +92,6 @@ class DynamoDbBatchExecutor<T: Any>(
         persist(writeRequests)
     }
 
-
     private suspend fun persist(items: List<TableItemTuple>) {
         items.chunked(MAX_BATCH_ITEM_SIZE)
             .asFlow()

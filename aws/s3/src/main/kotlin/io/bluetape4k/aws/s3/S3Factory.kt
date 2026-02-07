@@ -132,9 +132,7 @@ object S3Factory {
         inline fun create(
             @BuilderInference builder: S3CrtAsyncClientBuilder.() -> Unit,
         ): S3AsyncClient {
-            return S3AsyncClient.crtBuilder()
-                .apply(builder)
-                .build()
+            return S3AsyncClient.crtBuilder().apply(builder).build()
                 .apply {
                     ShutdownQueue.register(this)
                 }

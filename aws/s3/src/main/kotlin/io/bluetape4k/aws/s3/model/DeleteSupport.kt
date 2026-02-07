@@ -4,18 +4,28 @@ import io.bluetape4k.collections.eclipse.toFastList
 import software.amazon.awssdk.services.s3.model.Delete
 import software.amazon.awssdk.services.s3.model.ObjectIdentifier
 
-inline fun delete(@BuilderInference builder: Delete.Builder.() -> Unit): Delete {
+inline fun delete(
+    @BuilderInference builder: Delete.Builder.() -> Unit,
+): Delete {
     return Delete.builder().apply(builder).build()
 }
 
-fun deleteOf(vararg objectIds: ObjectIdentifier, quiet: Boolean = false): Delete {
+@JvmName("deleteOfObjectsArray")
+fun deleteOf(
+    vararg objectIds: ObjectIdentifier,
+    quiet: Boolean = false,
+): Delete {
     return delete {
         objects(objectIds.toFastList())
         quiet(quiet)
     }
 }
 
-fun deleteOf(objectIds: Collection<ObjectIdentifier>, quiet: Boolean = false): Delete {
+@JvmName("deleteOfObjectsCollection")
+fun deleteOf(
+    objectIds: Collection<ObjectIdentifier>,
+    quiet: Boolean = false,
+): Delete {
     return delete {
         objects(objectIds)
         quiet(quiet)

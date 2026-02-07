@@ -26,7 +26,9 @@ import software.amazon.awssdk.services.ses.waiters.SesWaiter
  * @param builder [SesWaiter.Builder] 초기화 람다
  * @return [SesWaiter] 인스턴스
  */
-inline fun SesWaiter(builder: SesWaiter.Builder.() -> Unit): SesWaiter {
+inline fun SesWaiter(
+    @BuilderInference builder: SesWaiter.Builder.() -> Unit,
+): SesWaiter {
     return SesWaiter.builder().apply(builder).build()
 }
 

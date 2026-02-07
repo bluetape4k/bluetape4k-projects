@@ -5,13 +5,13 @@ import aws.sdk.kotlin.services.s3.model.ObjectCannedAcl
 import io.bluetape4k.support.requireNotBlank
 import java.net.URLEncoder
 
-fun copyObjectRequestOf(
+inline fun copyObjectRequestOf(
     srcBucket: String,
     srcKey: String,
     destBucket: String,
     destKey: String,
     acl: ObjectCannedAcl? = null,
-    @BuilderInference builder: CopyObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: CopyObjectRequest.Builder.() -> Unit = {},
 ): CopyObjectRequest {
     srcBucket.requireNotBlank("srcBucket")
     srcKey.requireNotBlank("srcKey")

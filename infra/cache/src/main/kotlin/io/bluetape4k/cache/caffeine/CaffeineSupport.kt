@@ -96,8 +96,8 @@ fun <K: Any, V: Any> Caffeine<Any, Any>.cache(): Cache<K, V> = build()
  * @param loader    Cache item loader
  * @return [AsyncCache] instance
  */
-fun <K: Any, V: Any> Caffeine<Any, Any>.loadingCache(
-    @BuilderInference loader: (key: K) -> V,
+inline fun <K: Any, V: Any> Caffeine<Any, Any>.loadingCache(
+    @BuilderInference crossinline loader: (key: K) -> V,
 ): LoadingCache<K, V> = build { key: K -> loader(key) }
 
 

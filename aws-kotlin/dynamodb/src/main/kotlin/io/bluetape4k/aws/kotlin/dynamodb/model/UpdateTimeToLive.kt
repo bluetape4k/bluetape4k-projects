@@ -4,10 +4,10 @@ import aws.sdk.kotlin.services.dynamodb.model.TimeToLiveSpecification
 import aws.sdk.kotlin.services.dynamodb.model.UpdateTimeToLiveRequest
 import io.bluetape4k.support.requireNotBlank
 
-fun updateTimeToLiveRequestOf(
+inline fun updateTimeToLiveRequestOf(
     tableName: String,
     timeToLiveSpecification: TimeToLiveSpecification? = null,
-    @BuilderInference builder: UpdateTimeToLiveRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: UpdateTimeToLiveRequest.Builder.() -> Unit = {},
 ): UpdateTimeToLiveRequest {
     tableName.requireNotBlank("tableName")
 

@@ -7,11 +7,11 @@ import aws.sdk.kotlin.services.s3.model.ObjectIdentifier
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotEmpty
 
-fun deleteObjectRequestOf(
+inline fun deleteObjectRequestOf(
     bucket: String,
     key: String,
     versionId: String? = null,
-    @BuilderInference builder: DeleteObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: DeleteObjectRequest.Builder.() -> Unit = {},
 ): DeleteObjectRequest {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
@@ -25,29 +25,21 @@ fun deleteObjectRequestOf(
     }
 }
 
-fun deleteObjectsRequestOf(
+inline fun deleteObjectsRequestOf(
     bucket: String,
     identifiers: List<ObjectIdentifier>,
-    @BuilderInference builder: DeleteObjectsRequest.Builder.() -> Unit,
+    @BuilderInference crossinline builder: DeleteObjectsRequest.Builder.() -> Unit,
 ): DeleteObjectsRequest {
     bucket.requireNotBlank("bucket")
     identifiers.requireNotEmpty("identifiers")
 
-    return DeleteObjectsRequest {
-        this.bucket = bucket
-
-        this.delete {
-            this.objects = identifiers
-        }
-
-        builder()
-    }
+    return deleteObjectsRequestOf(bucket, deleteOf(identifiers), builder)
 }
 
-fun deleteObjectsRequestOf(
+inline fun deleteObjectsRequestOf(
     bucket: String,
     delete: Delete,
-    @BuilderInference builder: DeleteObjectsRequest.Builder.() -> Unit,
+    @BuilderInference crossinline builder: DeleteObjectsRequest.Builder.() -> Unit,
 ): DeleteObjectsRequest {
     bucket.requireNotBlank("bucket")
 

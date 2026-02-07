@@ -52,7 +52,7 @@ inline fun httpAsyncClient(
  * @param builder [HttpAsyncClientBuilder] 설정
  * @return [CloseableHttpAsyncClient] 인스턴스
  */
-fun httpAsyncClientOf(
+inline fun httpAsyncClientOf(
     cm: AsyncClientConnectionManager = defaultAsyncClientConnectionManager,
     @BuilderInference builder: HttpAsyncClientBuilder.() -> Unit = {},
 ): CloseableHttpAsyncClient = httpAsyncClient {
@@ -120,7 +120,7 @@ fun h2AsyncClientOf(): CloseableHttpAsyncClient =
  * @param h2config [H2Config] 설정
  * @param builder [H2AsyncClientBuilder] 설정
  */
-fun h2AsyncClientOf(
+inline fun h2AsyncClientOf(
     h2config: H2Config = H2Config.DEFAULT,
     @BuilderInference builder: H2AsyncClientBuilder.() -> Unit = {},
 ): CloseableHttpAsyncClient {

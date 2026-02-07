@@ -26,16 +26,15 @@ import io.bluetape4k.support.requireNotBlank
  * @param builder [PublishRequest.Builder]를 통해 추가적인 설정을 할 수 있는 람다 함수
  * @return [PublishRequest] 인스턴스
  */
-fun publishRequestOf(
+inline fun publishRequestOf(
     topicArn: String,
     phoneNumber: String,
     message: String,
-
     subject: String? = null,
     messageAttributes: Map<String, MessageAttributeValue>? = null,
     messageDeduplicationId: String? = null,
     messageGroupId: String? = null,
-    @BuilderInference builder: PublishRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: PublishRequest.Builder.() -> Unit = {},
 ): PublishRequest {
     topicArn.requireNotBlank("topicArn")
     phoneNumber.requireNotBlank("phoneNumber")
@@ -54,13 +53,13 @@ fun publishRequestOf(
     }
 }
 
-fun publishBatchRequestEntryOf(
+inline fun publishBatchRequestEntryOf(
     id: String,
     message: String,
     messageAttributes: Map<String, MessageAttributeValue>? = null,
     messageDeduplicationId: String? = null,
     messageGroupId: String? = null,
-    @BuilderInference builder: PublishBatchRequestEntry.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: PublishBatchRequestEntry.Builder.() -> Unit = {},
 ): PublishBatchRequestEntry {
     id.requireNotBlank("id")
     message.requireNotBlank("message")

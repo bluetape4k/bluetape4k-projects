@@ -3,10 +3,10 @@ package io.bluetape4k.aws.kotlin.s3.model
 import aws.sdk.kotlin.services.s3.model.GetBucketPolicyRequest
 import io.bluetape4k.support.requireNotBlank
 
-fun getBucketPolicyRequestOf(
+inline fun getBucketPolicyRequestOf(
     bucket: String,
     expectedBucketOwner: String? = null,
-    @BuilderInference builder: GetBucketPolicyRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: GetBucketPolicyRequest.Builder.() -> Unit = {},
 ): GetBucketPolicyRequest {
     bucket.requireNotBlank("bucket")
 

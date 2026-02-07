@@ -54,7 +54,8 @@ inline fun dynamoDbEnhancedAsyncClient(
  */
 inline fun dynamoDbEnhancedAsyncClientOf(
     client: DynamoDbAsyncClient,
-    @BuilderInference builder: DynamoDbEnhancedAsyncClient.Builder.() -> Unit = { extensions(ExtensionResolver.defaultExtensions()) },
+    @BuilderInference builder: DynamoDbEnhancedAsyncClient.Builder.() -> Unit =
+        { extensions(ExtensionResolver.defaultExtensions()) },
 ): DynamoDbEnhancedAsyncClient =
     dynamoDbEnhancedAsyncClient {
         dynamoDbClient(client)

@@ -29,7 +29,9 @@ import software.amazon.awssdk.services.ses.model.SendTemplatedEmailResponse
  * client.send(request)
  * ```
  */
-inline fun SesClient(builder: SesClientBuilder.() -> Unit): SesClient {
+inline fun SesClient(
+    @BuilderInference builder: SesClientBuilder.() -> Unit,
+): SesClient {
     return SesClient.builder().apply(builder).build()
         .apply {
             ShutdownQueue.register(this)
@@ -51,7 +53,7 @@ inline fun SesClient(builder: SesClientBuilder.() -> Unit): SesClient {
  */
 inline fun sesClientOf(
     region: Region,
-    builder: SesClientBuilder.() -> Unit = {},
+    @BuilderInference builder: SesClientBuilder.() -> Unit = {},
 ): SesClient = SesClient {
     region(region)
     httpClient(SdkHttpClientProvider.Apache.apacheHttpClient)
@@ -74,7 +76,7 @@ inline fun sesClientOf(
  */
 inline fun sesClientOf(
     endpointProvider: SesEndpointProvider,
-    builder: SesClientBuilder.() -> Unit = {},
+    @BuilderInference builder: SesClientBuilder.() -> Unit = {},
 ): SesClient = SesClient {
     endpointProvider(endpointProvider)
     httpClient(SdkHttpClientProvider.Apache.apacheHttpClient)

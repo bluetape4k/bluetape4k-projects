@@ -23,7 +23,8 @@ inline fun dynamoDbEnhancedClient(
 
 inline fun dynamoDbEnhancedClientOf(
     client: DynamoDbClient,
-    @BuilderInference builder: DynamoDbEnhancedClient.Builder.() -> Unit = { extensions(ExtensionResolver.defaultExtensions()) },
+    @BuilderInference builder: DynamoDbEnhancedClient.Builder.() -> Unit =
+        { extensions(ExtensionResolver.defaultExtensions()) },
 ): DynamoDbEnhancedClient = dynamoDbEnhancedClient {
     dynamoDbClient(client)
     builder()
@@ -52,7 +53,7 @@ inline fun <reified T: Any> DynamoDbEnhancedClient.table(tableName: String): Dyn
 /**
  * 대량의 Item 을 저장할 때, [DynamoDb.MAX_BATCH_ITEM_SIZE] 만큼의 크기로 나누어 저장한다.
  *
- * @param T
+ * @param T  entity type
  * @param itemClass entity class
  * @param table [MappedTableResource] instance
  * @param items 저장할 item 컬렉션
@@ -71,6 +72,32 @@ fun <T: Any> DynamoDbEnhancedClient.batchWriteItems(
         .map { chunkedItems ->
             val request = BatchWriteItemEnhancedRequest {
                 val writeBatch = writeBatchOf(table, chunkedItems, itemClass)
+                addWriteBatch(writeBatch)
+            }
+            batchWriteItem(request)
+        }
+}
+
+/**
+ * 대량의 Item 을 저장할 때, [DynamoDb.MAX_BATCH_ITEM_SIZE] 만큼의 크기로 나누어 저장한다.
+ *
+ * @param T entity type
+ * @param table [MappedTableResource] instance
+ * @param items 저장할 item 컬렉션
+ * @param chunkSize [DynamoDb.MAX_BATCH_ITEM_SIZE] 보다 작은 값을 사용해야 한다 (1~25)
+ * @return [BatchWriteResult] 컬렉션
+ */
+inline fun <reified T: Any> DynamoDbEnhancedClient.batchWriteItems(
+    table: MappedTableResource<T>,
+    items: Collection<T>,
+    chunkSize: Int = MAX_BATCH_ITEM_SIZE,
+): List<BatchWriteResult> {
+    val chunk = chunkSize.coerce(1, MAX_BATCH_ITEM_SIZE)
+    return items
+        .chunked(chunk)
+        .map { chunkedItems ->
+            val request = BatchWriteItemEnhancedRequest {
+                val writeBatch = writeBatchOf<T>(table, chunkedItems)
                 addWriteBatch(writeBatch)
             }
             batchWriteItem(request)

@@ -180,7 +180,7 @@ class CassandraServer private constructor(
                 .withConfigLoader(DriverConfigLoader.fromClasspath("application.conf"))
         }
 
-        fun getOrCreateSession(
+        inline fun getOrCreateSession(
             keyspace: String = "",
             @BuilderInference builder: CqlSessionBuilder.() -> Unit = {},
         ): CqlSession {

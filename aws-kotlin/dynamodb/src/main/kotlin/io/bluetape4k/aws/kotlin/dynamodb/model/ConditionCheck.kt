@@ -4,14 +4,13 @@ import aws.sdk.kotlin.services.dynamodb.model.AttributeValue
 import aws.sdk.kotlin.services.dynamodb.model.ConditionCheck
 
 @JvmName("conditionCheckOfAttributeValue")
-fun conditionCheckOf(
+inline fun conditionCheckOf(
     conditionExpression: String? = null,
     expressionAttributeNames: Map<String, String>? = null,
     expressionAttributeValues: Map<String, AttributeValue>? = null,
     key: Map<String, AttributeValue>? = null,
-    @BuilderInference builder: ConditionCheck.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: ConditionCheck.Builder.() -> Unit = {},
 ): ConditionCheck {
-
     return ConditionCheck {
         this.conditionExpression = conditionExpression
         this.expressionAttributeNames = expressionAttributeNames
@@ -23,14 +22,13 @@ fun conditionCheckOf(
 }
 
 @JvmName("conditionCheckOfAny")
-fun conditionCheckOf(
+inline fun conditionCheckOf(
     conditionExpression: String? = null,
     expressionAttributeNames: Map<String, String>? = null,
     expressionAttributeValues: Map<String, Any?>? = null,
     key: Map<String, Any?>? = null,
-    @BuilderInference builder: ConditionCheck.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: ConditionCheck.Builder.() -> Unit = {},
 ): ConditionCheck {
-
     return ConditionCheck {
         this.conditionExpression = conditionExpression
         this.expressionAttributeNames = expressionAttributeNames

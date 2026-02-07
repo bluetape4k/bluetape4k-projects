@@ -26,12 +26,12 @@ import io.bluetape4k.aws.kotlin.http.defaultCrtHttpEngineOf
  * @param builder [S3Client.Config.Builder] 를 통해 [S3Client.Config] 를 설정합니다.
  * @return [S3Client] 인스턴스
  */
-fun s3ClientOf(
+inline fun s3ClientOf(
     endpointUrl: String? = null,
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
     httpClientEngine: HttpClientEngine = defaultCrtHttpEngineOf(),
-    @BuilderInference builder: S3Client.Config.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: S3Client.Config.Builder.() -> Unit = {},
 ): S3Client =
     S3Client {
         endpointUrl?.let { this.endpointUrl = Url.parse(it) }

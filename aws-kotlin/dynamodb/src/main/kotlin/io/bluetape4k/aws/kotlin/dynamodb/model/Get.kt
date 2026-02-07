@@ -5,39 +5,38 @@ import aws.sdk.kotlin.services.dynamodb.model.Get
 import io.bluetape4k.support.requireNotBlank
 
 @JvmName("getOfAttributeValue")
-fun getOf(
+inline fun getOf(
     tableName: String,
     key: Map<String, AttributeValue>? = null,
     expressionAttributeNames: Map<String, String>? = null,
     projectionExpression: String? = null,
-    @BuilderInference builder: Get.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: Get.Builder.() -> Unit = {},
 ): Get {
     tableName.requireNotBlank("tableName")
 
     return Get {
         this.tableName = tableName
-        this.key = key
-        this.expressionAttributeNames = expressionAttributeNames
-        this.projectionExpression = projectionExpression
+        key?.let { this.key = it }
+        expressionAttributeNames?.let { this.expressionAttributeNames = it }
+        projectionExpression?.let { this.projectionExpression = it }
 
         builder()
     }
 }
 
 @JvmName("getOfAny")
-fun getOf(
+inline fun getOf(
     tableName: String,
     key: Map<String, Any?>? = null,
     expressionAttributeNames: Map<String, String>? = null,
     projectionExpression: String? = null,
-    @BuilderInference builder: Get.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: Get.Builder.() -> Unit = {},
 ): Get {
-    return Get {
-        this.tableName = tableName
-        this.key = key?.mapValues { it.toAttributeValue() }
-        this.expressionAttributeNames = expressionAttributeNames
-        this.projectionExpression = projectionExpression
-
-        builder()
-    }
+    return getOf(
+        tableName,
+        key?.mapValues { it.toAttributeValue() },
+        expressionAttributeNames,
+        projectionExpression,
+        builder,
+    )
 }

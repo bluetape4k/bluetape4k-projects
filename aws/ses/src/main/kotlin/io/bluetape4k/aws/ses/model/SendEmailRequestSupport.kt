@@ -18,7 +18,9 @@ import software.amazon.awssdk.services.ses.model.SendTemplatedEmailRequest
  * @param builder [SendEmailRequest.Builder] 초기화 람다
  * @return [SendEmailRequest] 인스턴스
  */
-inline fun SendEmailRequest(@BuilderInference builder: SendEmailRequest.Builder.() -> Unit): SendEmailRequest {
+inline fun SendEmailRequest(
+    @BuilderInference builder: SendEmailRequest.Builder.() -> Unit,
+): SendEmailRequest {
     return SendEmailRequest.builder().apply(builder).build()
 }
 

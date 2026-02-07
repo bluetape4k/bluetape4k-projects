@@ -18,12 +18,12 @@ import io.bluetape4k.aws.kotlin.s3.model.copyObjectRequestOf
  * @param destKey 대상 객체 키
  * @return [CopyObjectResponse] 인스턴스
  */
-suspend fun S3Client.copy(
+suspend inline fun S3Client.copy(
     srcBucket: String,
     srcKey: String,
     destBucket: String,
     destKey: String,
-    @BuilderInference builder: CopyObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: CopyObjectRequest.Builder.() -> Unit = {},
 ): CopyObjectResponse {
     val request = copyObjectRequestOf(srcBucket, srcKey, destBucket, destKey, builder = builder)
     return copyObject(request)

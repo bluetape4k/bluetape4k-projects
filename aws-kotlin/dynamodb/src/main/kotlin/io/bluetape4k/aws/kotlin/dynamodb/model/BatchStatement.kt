@@ -6,12 +6,12 @@ import aws.sdk.kotlin.services.dynamodb.model.ReturnValuesOnConditionCheckFailur
 import io.bluetape4k.support.requireNotBlank
 
 @JvmName("batchStatementRequestOfAttributeValue")
-fun batchStatementRequestOf(
+inline fun batchStatementRequestOf(
     statement: String,
     parameters: List<AttributeValue>? = null,
     consistentRead: Boolean? = null,
     returnValuesOnConditionCheckFailure: ReturnValuesOnConditionCheckFailure? = null,
-    @BuilderInference builder: BatchStatementRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: BatchStatementRequest.Builder.() -> Unit = {},
 ): BatchStatementRequest {
     statement.requireNotBlank("statement")
 
@@ -26,12 +26,12 @@ fun batchStatementRequestOf(
 }
 
 @JvmName("batchStatementRequestOfAny")
-fun batchStatementRequestOf(
+inline fun batchStatementRequestOf(
     statement: String,
     parameters: List<Any?>? = null,
     consistentRead: Boolean? = null,
     returnValuesOnConditionCheckFailure: ReturnValuesOnConditionCheckFailure? = null,
-    @BuilderInference builder: BatchStatementRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: BatchStatementRequest.Builder.() -> Unit = {},
 ): BatchStatementRequest {
     statement.requireNotBlank("statement")
 

@@ -52,12 +52,12 @@ import io.bluetape4k.utils.ShutdownQueue
  * @param configurer SNS client 설정 빌더
  * @return [SnsClient] 인스턴스
  */
-fun snsClientOf(
+inline fun snsClientOf(
     endpoint: String? = null,
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
     httpClientEngine: HttpClientEngine = defaultCrtHttpEngineOf(),
-    @BuilderInference builder: SnsClient.Config.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: SnsClient.Config.Builder.() -> Unit = {},
 ): SnsClient =
     SnsClient {
         endpoint?.let { this.endpointUrl = Url.parse(it) }
@@ -84,10 +84,10 @@ fun snsClientOf(
  * @param builder 플랫폼 엔드포인트 생성 설정 빌더
  * @return [CreatePlatformEndpointResponse] 인스턴스
  */
-suspend fun SnsClient.createPlatformEndpoint(
+suspend inline fun SnsClient.createPlatformEndpoint(
     token: String,
     platformApplicationArn: String,
-    @BuilderInference builder: CreatePlatformEndpointRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: CreatePlatformEndpointRequest.Builder.() -> Unit = {},
 ): CreatePlatformEndpointResponse {
     token.requireNotBlank("token")
     platformApplicationArn.requireNotBlank("platformApplicationArn")
@@ -113,10 +113,10 @@ suspend fun SnsClient.createPlatformEndpoint(
  * @param attributes topic 속성
  * @param builder [CreateTopicRequest]를 빌드하는 람다 함수
  */
-suspend fun SnsClient.createTopic(
+suspend inline fun SnsClient.createTopic(
     topicName: String,
     attributes: Map<String, String>? = null,
-    @BuilderInference builder: CreateTopicRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: CreateTopicRequest.Builder.() -> Unit = {},
 ): CreateTopicResponse {
     topicName.requireNotBlank("topicName")
 
@@ -141,10 +141,10 @@ suspend fun SnsClient.createTopic(
  * @param attributes topic 속성
  * @param builder [CreateTopicRequest]를 빌드하는 람다 함수
  */
-suspend fun SnsClient.createFifoTopic(
+suspend inline fun SnsClient.createFifoTopic(
     topicName: String,
     attributes: MutableMap<String, String> = mutableMapOf(),
-    @BuilderInference builder: CreateTopicRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: CreateTopicRequest.Builder.() -> Unit = {},
 ): CreateTopicResponse {
     topicName.requireNotBlank("topicName")
     require(topicName.endsWithIgnoreCase(".fifo")) { "FIFO topic name must end with .fifo" }
@@ -175,12 +175,12 @@ suspend fun SnsClient.createFifoTopic(
  * @param returnSubscriptionArn 구독 ARN 반환 여부
  * @param builder [SubscribeRequest]를 빌드하는 람다 함수
  */
-suspend fun SnsClient.subscribe(
+suspend inline fun SnsClient.subscribe(
     topicArn: String,
     endpoint: String,
     protocol: String = "sms",
     returnSubscriptionArn: Boolean = true,
-    @BuilderInference builder: SubscribeRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: SubscribeRequest.Builder.() -> Unit = {},
 ): SubscribeResponse {
     topicArn.requireNotBlank("topicArn")
     endpoint.requireNotBlank("endpoint")
@@ -206,9 +206,9 @@ suspend fun SnsClient.subscribe(
  * @param builder [CheckIfPhoneNumberIsOptedOutRequest]를 빌드하는 람다 함수
  * @return [CheckIfPhoneNumberIsOptedOutResponse] 인스턴스
  */
-suspend fun SnsClient.checkIfPhoneNumberIsOptedOut(
+suspend inline fun SnsClient.checkIfPhoneNumberIsOptedOut(
     phoneNumber: String,
-    @BuilderInference builder: CheckIfPhoneNumberIsOptedOutRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: CheckIfPhoneNumberIsOptedOutRequest.Builder.() -> Unit = {},
 ): CheckIfPhoneNumberIsOptedOutResponse {
     phoneNumber.requireNotBlank("phoneNumber")
 
@@ -234,11 +234,11 @@ suspend fun SnsClient.checkIfPhoneNumberIsOptedOut(
  *
  * @return [PublishResponse] 인스턴스
  */
-suspend fun SnsClient.publish(
+suspend inline fun SnsClient.publish(
     topicArn: String,
     message: String,
     subject: String? = null,
-    @BuilderInference builder: PublishRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: PublishRequest.Builder.() -> Unit = {},
 ): PublishResponse {
     topicArn.requireNotBlank("topicArn")
     message.requireNotBlank("message")
@@ -280,10 +280,10 @@ suspend fun SnsClient.publish(
  *
  * @return [PublishBatchResponse] 인스턴스
  */
-suspend fun SnsClient.publishBatch(
+suspend inline fun SnsClient.publishBatch(
     topicArn: String,
     entries: List<PublishBatchRequestEntry>,
-    @BuilderInference builder: PublishBatchRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: PublishBatchRequest.Builder.() -> Unit = {},
 ): PublishBatchResponse {
     topicArn.requireNotBlank("topicArn")
 
@@ -306,9 +306,9 @@ suspend fun SnsClient.publishBatch(
  * @param builder [UnsubscribeRequest]를 빌드하는 람다 함수
  * @return [UnsubscribeResponse] 인스턴스
  */
-suspend fun SnsClient.unsubscribe(
+suspend inline fun SnsClient.unsubscribe(
     subscriptionArn: String,
-    @BuilderInference builder: UnsubscribeRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: UnsubscribeRequest.Builder.() -> Unit = {},
 ): UnsubscribeResponse {
     subscriptionArn.requireNotBlank("subscriptionArn")
 
@@ -329,9 +329,9 @@ suspend fun SnsClient.unsubscribe(
  * @param builder [DeleteTopicRequest]를 빌드하는 람다 함수
  * @return [DeleteTopicResponse] 인스턴스
  */
-suspend fun SnsClient.deleteTopic(
+suspend inline fun SnsClient.deleteTopic(
     topicArn: String,
-    @BuilderInference builder: DeleteTopicRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: DeleteTopicRequest.Builder.() -> Unit = {},
 ): DeleteTopicResponse {
     topicArn.requireNotBlank("topicArn")
 

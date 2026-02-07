@@ -21,7 +21,7 @@ suspend fun SqlClient.suspendQuery(sql: String, params: Tuple): RowSet<Row> {
     return preparedQuery(sql).execute(params).coAwait()
 }
 
-suspend fun <T> SqlClient.suspendQuery(
+suspend inline fun <T> SqlClient.suspendQuery(
     sql: String,
     params: Tuple,
     @BuilderInference mapper: (Row) -> T,

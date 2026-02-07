@@ -5,10 +5,10 @@ import aws.sdk.kotlin.services.dynamodb.model.DeleteRequest
 import aws.sdk.kotlin.services.dynamodb.model.PutRequest
 import aws.sdk.kotlin.services.dynamodb.model.WriteRequest
 
-fun writeRequestOf(
+inline fun writeRequestOf(
     putRequest: PutRequest? = null,
     deleteRequest: DeleteRequest? = null,
-    @BuilderInference builder: WriteRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: WriteRequest.Builder.() -> Unit = {},
 ): WriteRequest {
     require(putRequest != null || deleteRequest != null) {
         "Either putRequest or deleteRequest must be provided"

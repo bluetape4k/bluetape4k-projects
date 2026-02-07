@@ -33,7 +33,7 @@ import java.util.concurrent.CompletableFuture
  * @return [SesAsyncClient] 인스턴스
  */
 inline fun SesAsyncClient(
-    builder: SesAsyncClientBuilder.() -> Unit,
+    @BuilderInference builder: SesAsyncClientBuilder.() -> Unit,
 ): SesAsyncClient {
     return SesAsyncClient.builder().apply(builder).build()
         .apply {
@@ -58,7 +58,7 @@ inline fun SesAsyncClient(
  */
 inline fun sesAsyncClientOf(
     region: Region,
-    builder: SesAsyncClientBuilder.() -> Unit = {},
+    @BuilderInference builder: SesAsyncClientBuilder.() -> Unit = {},
 ): SesAsyncClient = SesAsyncClient {
     region(region)
     httpClient(SdkAsyncHttpClientProvider.Netty.nettyNioAsyncHttpClient)
@@ -83,7 +83,7 @@ inline fun sesAsyncClientOf(
  */
 inline fun sesAsyncClientOf(
     endpointProvider: SesEndpointProvider,
-    builder: SesAsyncClientBuilder.() -> Unit = {},
+    @BuilderInference builder: SesAsyncClientBuilder.() -> Unit = {},
 ): SesAsyncClient = SesAsyncClient {
     endpointProvider(endpointProvider)
     httpClient(nettyNioAsyncHttpClientOf())

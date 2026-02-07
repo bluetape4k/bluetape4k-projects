@@ -4,10 +4,10 @@ import aws.sdk.kotlin.services.dynamodb.model.CreateGlobalTableRequest
 import aws.sdk.kotlin.services.dynamodb.model.Replica
 import io.bluetape4k.support.requireNotBlank
 
-fun createGlobalTableRequestOf(
+inline fun createGlobalTableRequestOf(
     globalTableName: String,
     replicationGroup: List<Replica>? = null,
-    @BuilderInference builder: CreateGlobalTableRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: CreateGlobalTableRequest.Builder.() -> Unit = {},
 ): CreateGlobalTableRequest {
     globalTableName.requireNotBlank("globalTableName")
 

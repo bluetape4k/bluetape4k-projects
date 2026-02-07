@@ -34,14 +34,14 @@ import java.nio.file.Path
  * @param builder [PutObjectRequest.Builder] 를 통해 [PutObjectRequest] 를 설정합니다.
  * @return [PutObjectResponse] 인스턴스
  */
-suspend fun S3Client.put(
+suspend inline fun S3Client.put(
     bucketName: String,
     key: String,
     body: ByteStream? = null,
     metadata: Map<String, String>? = null,
     acl: ObjectCannedAcl? = null,
     contentType: String? = null,
-    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
     val request = putObjectRequestOf(bucketName, key, body, metadata, acl, contentType, builder)
     return putObject(request)
@@ -61,14 +61,14 @@ suspend fun S3Client.put(
  * @param builder [PutObjectRequest.Builder] 를 통해 [PutObjectRequest] 를 설정합니다.
  * @return [PutObjectResponse] 인스턴스
  */
-suspend fun S3Client.putFromByteArray(
+suspend inline fun S3Client.putFromByteArray(
     bucketName: String,
     key: String,
     bytes: ByteArray,
     metadata: Map<String, String>? = null,
     acl: ObjectCannedAcl? = null,
     contentType: String? = null,
-    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse =
     put(bucketName, key, ByteStream.fromBytes(bytes), metadata, acl, contentType, builder)
 
@@ -85,14 +85,14 @@ suspend fun S3Client.putFromByteArray(
  * @param builder [PutObjectRequest.Builder] 를 통해 [PutObjectRequest] 를 설정합니다.
  * @return [PutObjectResponse] 인스턴스
  */
-suspend fun S3Client.putFromString(
+suspend inline fun S3Client.putFromString(
     bucketName: String,
     key: String,
     text: String,
     metadata: Map<String, String>? = null,
     acl: ObjectCannedAcl? = null,
     contentType: String? = null,
-    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse =
     put(bucketName, key, ByteStream.fromString(text), metadata, acl, contentType, builder)
 
@@ -111,14 +111,14 @@ suspend fun S3Client.putFromString(
  * @throws IllegalArgumentException 파일이 존재하지 않을 경우
  * @see putFromPath
  */
-suspend fun S3Client.putFromFile(
+suspend inline fun S3Client.putFromFile(
     bucketName: String,
     key: String,
     file: File,
     metadata: Map<String, String>? = null,
     acl: ObjectCannedAcl? = null,
     contentType: String? = null,
-    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
     require(file.exists()) { "File not found: $file" }
 
@@ -140,14 +140,14 @@ suspend fun S3Client.putFromFile(
  * @throws IllegalArgumentException 파일이 존재하지 않을 경우
  * @see putFromFile
  */
-suspend fun S3Client.putFromPath(
+suspend inline fun S3Client.putFromPath(
     bucketName: String,
     key: String,
     filePath: Path,
     metadata: Map<String, String>? = null,
     acl: ObjectCannedAcl? = null,
     contentType: String? = null,
-    @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse {
     require(filePath.exists()) { "File not found: $filePath" }
 

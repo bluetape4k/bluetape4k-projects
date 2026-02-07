@@ -7,10 +7,10 @@ import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotEmpty
 
 @JvmName("putOfAttributeValue")
-fun putOf(
+inline fun putOf(
     tableName: String,
     item: Map<String, AttributeValue>,
-    @BuilderInference builder: Put.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: Put.Builder.() -> Unit = {},
 ): Put {
     tableName.requireNotBlank("tableName")
     item.requireNotEmpty("item")
@@ -24,29 +24,27 @@ fun putOf(
 }
 
 @JvmName("putOfAny")
-fun putOf(
+inline fun putOf(
     tableName: String,
     item: Map<String, Any?>,
-    @BuilderInference builder: Put.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: Put.Builder.() -> Unit = {},
 ): Put =
     putOf(tableName, item.mapValues { it.toAttributeValue() }, builder)
 
 @JvmName("putRequestOfAttributeValue")
-fun putRequestOf(
+inline fun putRequestOf(
     item: Map<String, AttributeValue>,
-    @BuilderInference builder: PutRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: PutRequest.Builder.() -> Unit = {},
 ): PutRequest {
-    item.requireNotEmpty("item")
-
-    return PutRequest.invoke {
+    return PutRequest {
         this.item = item
         builder()
     }
 }
 
 @JvmName("putRequestOfAny")
-fun putRequestOf(
+inline fun putRequestOf(
     item: Map<String, Any?>,
-    @BuilderInference builder: PutRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: PutRequest.Builder.() -> Unit = {},
 ): PutRequest =
     putRequestOf(item.mapValues { it.toAttributeValue() }, builder)

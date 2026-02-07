@@ -45,12 +45,12 @@ val log by lazy { KotlinLogging.logger { } }
  *
  * @return [DynamoDbClient] 인스턴스
  */
-fun dynamoDbClientOf(
+inline fun dynamoDbClientOf(
     endpointUrl: String? = null,
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
     httpClientEngine: HttpClientEngine = defaultCrtHttpEngineOf(),
-    @BuilderInference builder: DynamoDbClient.Config.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: DynamoDbClient.Config.Builder.() -> Unit = {},
 ): DynamoDbClient {
     endpointUrl.requireNotBlank("endpoint")
 
@@ -67,13 +67,13 @@ fun dynamoDbClientOf(
 /**
  * DynamoDB 테이블을 생성합니다.
  */
-suspend fun DynamoDbClient.createTable(
+suspend inline fun DynamoDbClient.createTable(
     tableName: String,
     keySchema: List<KeySchemaElement>? = null,
     attributeDefinitions: List<AttributeDefinition>? = null,
     readCapacityUnits: Long? = null,
     writeCapacityUnits: Long? = null,
-    @BuilderInference builder: CreateTableRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: CreateTableRequest.Builder.() -> Unit = {},
 ): CreateTableResponse {
     tableName.requireNotBlank("tableName")
 
@@ -143,10 +143,10 @@ suspend fun DynamoDbClient.waitForTableReady(name: String, timeout: Duration = 6
 }
 
 
-suspend fun DynamoDbClient.putItem(
+suspend inline fun DynamoDbClient.putItem(
     tableName: String,
     item: Map<String, Any?>,
-    @BuilderInference builder: PutItemRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: PutItemRequest.Builder.() -> Unit = {},
 ): PutItemResponse {
     tableName.requireNotBlank("tableName")
 
@@ -158,11 +158,11 @@ suspend fun DynamoDbClient.putItem(
     }
 }
 
-fun DynamoDbClient.scanPaginated(
+inline fun DynamoDbClient.scanPaginated(
     tableName: String,
     exclusiveStartKey: Map<String, Any?>,
     limit: Int = 1,
-    @BuilderInference builder: ScanRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: ScanRequest.Builder.() -> Unit = {},
 ): Flow<ScanResponse> {
     tableName.requireNotBlank("tableName")
 

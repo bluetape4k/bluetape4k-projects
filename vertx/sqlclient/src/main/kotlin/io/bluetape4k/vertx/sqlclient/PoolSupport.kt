@@ -22,7 +22,7 @@ import java.sql.SQLException
  * @receiver [Pool] 인스턴스
  * @return DB 작업 결과
  */
-suspend fun <T> Pool.withSuspendTransaction(
+suspend inline fun <T> Pool.withSuspendTransaction(
     @BuilderInference action: suspend (conn: SqlConnection) -> T,
 ): T {
     val conn = connection.coAwait()
@@ -58,7 +58,7 @@ suspend fun <T> Pool.withSuspendTransaction(
  * @param action Transaction 하에서 수행할 작업
  * @return 작업 결과
  */
-suspend fun <T> Pool.withSuspendRollback(
+suspend inline fun <T> Pool.withSuspendRollback(
     @BuilderInference action: suspend (conn: SqlConnection) -> T,
 ): T {
     val conn = connection.coAwait()

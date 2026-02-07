@@ -15,9 +15,9 @@ import io.bluetape4k.support.requireNotBlank
  * @param builder [GetTopicAttributesRequest.Builder]를 통해 추가적인 설정을 할 수 있는 람다 함수
  * @return [GetTopicAttributesRequest] 인스턴스
  */
-fun getTopicAttributesRequestOf(
+inline fun getTopicAttributesRequestOf(
     topicArn: String,
-    @BuilderInference builder: GetTopicAttributesRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: GetTopicAttributesRequest.Builder.() -> Unit = {},
 ): GetTopicAttributesRequest {
     topicArn.requireNotBlank("topicArn")
 

@@ -4,13 +4,13 @@ import aws.sdk.kotlin.services.s3.model.EncodingType
 import aws.sdk.kotlin.services.s3.model.ListObjectsRequest
 import io.bluetape4k.support.requireNotBlank
 
-fun listObjectsRequestOf(
+inline fun listObjectsRequestOf(
     bucket: String,
     prefix: String? = null,
     delimiter: String? = null,
     maxKeys: Int? = null,
     encondingType: EncodingType? = null,
-    @BuilderInference builder: ListObjectsRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: ListObjectsRequest.Builder.() -> Unit = {},
 ): ListObjectsRequest {
     bucket.requireNotBlank("bucket")
 

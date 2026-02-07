@@ -25,7 +25,7 @@ import io.vertx.sqlclient.SqlConnection
  * @param block Transactional 작업
  */
 @Suppress("UnusedReceiverParameter")
-suspend fun Vertx.testWithSuspendTransaction(
+suspend inline fun Vertx.testWithSuspendTransaction(
     testContext: VertxTestContext,
     pool: Pool,
     @BuilderInference block: suspend (conn: SqlConnection) -> Unit,
@@ -57,7 +57,7 @@ suspend fun Vertx.testWithSuspendTransaction(
  * @param block Transactional 작업
  */
 @Suppress("UnusedReceiverParameter")
-suspend fun Vertx.testWithSuspendRollback(
+suspend inline fun Vertx.testWithSuspendRollback(
     testContext: VertxTestContext,
     pool: Pool,
     @BuilderInference block: suspend (conn: SqlConnection) -> Unit,

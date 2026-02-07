@@ -77,11 +77,8 @@ inline fun S3TransferManager.downloadFile(
     bucket: String,
     key: String,
     objectPath: Path,
-    @BuilderInference crossinline additionalDownloadRequest: DownloadFileRequest.Builder.() -> Unit = {
-        addTransferListener(
-            LoggingTransferListener.create()
-        )
-    },
+    @BuilderInference crossinline additionalDownloadRequest: DownloadFileRequest.Builder.() -> Unit =
+        { addTransferListener(LoggingTransferListener.create()) },
 ): FileDownload {
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")

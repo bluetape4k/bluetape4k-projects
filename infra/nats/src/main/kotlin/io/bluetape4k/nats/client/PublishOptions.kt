@@ -10,7 +10,7 @@ inline fun publishOptions(
         .apply(builder)
         .build()
 
-fun publishOptionsOf(
+inline fun publishOptionsOf(
     properties: Properties,
     @BuilderInference builder: PublishOptions.Builder.() -> Unit = {},
 ): PublishOptions =

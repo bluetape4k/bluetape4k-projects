@@ -28,7 +28,9 @@ import java.util.concurrent.ScheduledExecutorService
  * @param builder [SesAsyncWaiter.Builder] 초기화 람다
  * @return [SesAsyncWaiter] 인스턴스
  */
-inline fun SesAsyncWaiter(builder: SesAsyncWaiter.Builder.() -> Unit): SesAsyncWaiter {
+inline fun SesAsyncWaiter(
+    @BuilderInference builder: SesAsyncWaiter.Builder.() -> Unit,
+): SesAsyncWaiter {
     return SesAsyncWaiter.builder().apply(builder).build()
 }
 

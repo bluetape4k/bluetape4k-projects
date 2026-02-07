@@ -65,7 +65,7 @@ inline fun <C: Any> coroutineFeignBuilderOf(
     decoder: Decoder = Decoder.Default(),
     opptions: Request.Options = defaultRequestOptions,
     logLevel: feign.Logger.Level = feign.Logger.Level.BASIC,
-    builder: CoroutineFeign.CoroutineBuilder<C>.() -> Unit = {},
+    @BuilderInference builder: CoroutineFeign.CoroutineBuilder<C>.() -> Unit = {},
 ): CoroutineFeign.CoroutineBuilder<C> {
     return coroutineFeignBuilder {
         client(asyncClient)

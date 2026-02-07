@@ -27,8 +27,8 @@ suspend fun <K, V> withCaache(
  *
  * @param loader 캐시에 저장할 로더
  */
-fun <K, V> SuspendCache<K, V>.decorateSuspendSupplier(
-    @BuilderInference loader: suspend () -> V,
+inline fun <K, V> SuspendCache<K, V>.decorateSuspendSupplier(
+    @BuilderInference crossinline loader: suspend () -> V,
 ): suspend (K) -> V = { cacheKey: K ->
     executeSuspendFunction(cacheKey, loader)
 }

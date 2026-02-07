@@ -50,7 +50,10 @@ inline fun Message(
  * @param body [Body] 본문
  * @return [Message] 인스턴스
  */
-fun messageOf(subject: Content, body: Body): Message {
+fun messageOf(
+    subject: Content,
+    body: Body,
+): Message {
     return Message { subject(subject).body(body) }
 }
 
@@ -71,7 +74,9 @@ fun messageOf(subject: Content, body: Body): Message {
  * @param builder [Body.Builder] 초기화 람다
  * @return [Body] 인스턴스
  */
-inline fun Body(@BuilderInference builder: Body.Builder.() -> Unit): Body {
+inline fun Body(
+    @BuilderInference builder: Body.Builder.() -> Unit,
+): Body {
     return Body.builder().apply(builder).build()
 }
 
@@ -87,7 +92,11 @@ inline fun Body(@BuilderInference builder: Body.Builder.() -> Unit): Body {
  * @param charset [Charset] 문자셋
  * @return [Body] 인스턴스
  */
-fun bodyOf(text: String, html: String, charset: Charset = Charsets.UTF_8): Body = Body {
+fun bodyOf(
+    text: String,
+    html: String,
+    charset: Charset = Charsets.UTF_8,
+): Body = Body {
     text(contentOf(text, charset))
     html(contentOf(html, charset))
 }
@@ -103,7 +112,10 @@ fun bodyOf(text: String, html: String, charset: Charset = Charsets.UTF_8): Body 
  * @param charset [Charset] 문자셋
  * @return [Body] 인스턴스
  */
-fun bodyAsText(text: String, charset: Charset = Charsets.UTF_8): Body = Body {
+fun bodyAsText(
+    text: String,
+    charset: Charset = Charsets.UTF_8,
+): Body = Body {
     text(contentOf(text, charset))
 }
 
@@ -118,7 +130,10 @@ fun bodyAsText(text: String, charset: Charset = Charsets.UTF_8): Body = Body {
  * @param charset [Charset] 문자셋
  * @return [Body] 인스턴스
  */
-fun bodyAsHtml(html: String, charset: Charset = Charsets.UTF_8): Body = Body {
+fun bodyAsHtml(
+    html: String,
+    charset: Charset = Charsets.UTF_8,
+): Body = Body {
     html(contentOf(html, charset))
 }
 
@@ -135,7 +150,9 @@ fun bodyAsHtml(html: String, charset: Charset = Charsets.UTF_8): Body = Body {
  * @param builder [Content.Builder] 초기화 람다
  * @return [Content] 인스턴스
  */
-inline fun Content(@BuilderInference builder: Content.Builder.() -> Unit): Content {
+inline fun Content(
+    @BuilderInference builder: Content.Builder.() -> Unit,
+): Content {
     return Content.builder().apply(builder).build()
 }
 
@@ -168,7 +185,9 @@ fun contentOf(data: String? = null, charset: Charset = Charsets.UTF_8) = Content
  * @param builder [MessageTag.Builder] 초기화 람다
  * @return [MessageTag] 인스턴스
  */
-inline fun MessageTag(@BuilderInference builder: MessageTag.Builder.() -> Unit): MessageTag {
+inline fun MessageTag(
+    @BuilderInference builder: MessageTag.Builder.() -> Unit,
+): MessageTag {
     return MessageTag.builder().apply(builder).build()
 }
 
@@ -183,7 +202,10 @@ inline fun MessageTag(@BuilderInference builder: MessageTag.Builder.() -> Unit):
  * @param value [String] 태그 값
  * @return [MessageTag] 인스턴스
  */
-fun messageTagOf(name: String, value: String) = MessageTag {
+fun messageTagOf(
+    name: String,
+    value: String,
+) = MessageTag {
     name(name)
     value(value)
 }

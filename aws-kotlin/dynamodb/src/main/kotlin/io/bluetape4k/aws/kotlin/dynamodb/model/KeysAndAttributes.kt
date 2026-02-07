@@ -5,9 +5,9 @@ import aws.sdk.kotlin.services.dynamodb.model.KeysAndAttributes
 import io.bluetape4k.support.requireNotEmpty
 
 @JvmName("keysAndAttributesOfAttributeValue")
-fun keysAndAttributesOf(
+inline fun keysAndAttributesOf(
     keys: List<Map<String, AttributeValue>>,
-    @BuilderInference builder: KeysAndAttributes.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: KeysAndAttributes.Builder.() -> Unit = {},
 ): KeysAndAttributes {
     keys.requireNotEmpty("keys")
 
@@ -19,15 +19,14 @@ fun keysAndAttributesOf(
 }
 
 @JvmName("keysAndAttributesOfAny")
-fun keysAndAttributesOf(
+inline fun keysAndAttributesOf(
     keys: List<Map<String, Any?>>,
-    @BuilderInference builder: KeysAndAttributes.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: KeysAndAttributes.Builder.() -> Unit = {},
 ): KeysAndAttributes {
     keys.requireNotEmpty("keys")
 
-    return KeysAndAttributes {
-        this.keys = keys.map { it.mapValues { it.toAttributeValue() } }
-
-        builder()
-    }
+    return keysAndAttributesOf(
+        keys.map { it.mapValues { it.toAttributeValue() } },
+        builder
+    )
 }

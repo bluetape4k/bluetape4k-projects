@@ -61,7 +61,7 @@ inline fun <K: Any, V: Any> redisSerializationContext(
  * @param defaultSerializer default serializer
  * @return [RedisSerializationContext] instance
  */
-fun <K: Any, V: Any> redisSerializationContextOf(
+inline fun <K: Any, V: Any> redisSerializationContextOf(
     keySerializer: RedisSerializer<K>,
     valueSerializer: RedisSerializer<V>,
     defaultSerializer: RedisSerializer<*>? = null,
@@ -95,7 +95,7 @@ fun <K: Any, V: Any> redisSerializationContextOf(
  * @return [RedisSerializationContext] instance
  * @see redisSerializationContextOf
  */
-fun <V: Any> redisSerializationContextOf(
+inline fun <V: Any> redisSerializationContextOf(
     valueSerializer: RedisSerializer<V>,
     defaultSerializer: RedisSerializer<*>? = null,
     @BuilderInference builder: RedisSerializationContext.RedisSerializationContextBuilder<String, V>.() -> Unit = {},

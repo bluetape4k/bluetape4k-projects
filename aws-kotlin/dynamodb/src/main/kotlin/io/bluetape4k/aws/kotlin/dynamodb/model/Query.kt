@@ -5,11 +5,11 @@ import aws.sdk.kotlin.services.dynamodb.model.QueryRequest
 import io.bluetape4k.support.requireNotBlank
 
 @JvmName("queryRequestOfAttributeValue")
-fun queryRequestOf(
+inline fun queryRequestOf(
     tableName: String,
     attributesToGet: List<String>? = null,
     exclusiveStartKey: Map<String, AttributeValue>? = null,
-    @BuilderInference builder: QueryRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: QueryRequest.Builder.() -> Unit = {},
 ): QueryRequest {
     tableName.requireNotBlank("tableName")
 
@@ -23,11 +23,11 @@ fun queryRequestOf(
 }
 
 @JvmName("queryRequestOfAny")
-fun queryRequestOf(
+inline fun queryRequestOf(
     tableName: String,
     attributesToGet: List<String>? = null,
     exclusiveStartKey: Map<String, Any?>? = null,
-    @BuilderInference builder: QueryRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: QueryRequest.Builder.() -> Unit = {},
 ): QueryRequest =
     queryRequestOf(
         tableName,
