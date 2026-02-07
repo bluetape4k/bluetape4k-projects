@@ -1,6 +1,7 @@
 package io.bluetape4k.aws.s3
 
 import io.bluetape4k.aws.auth.LocalAwsCredentialsProvider
+import io.bluetape4k.aws.http.SdkAsyncHttpClientProvider
 import io.bluetape4k.aws.http.SdkHttpClientProvider
 import io.bluetape4k.utils.ShutdownQueue
 import kotlinx.coroutines.Dispatchers
@@ -111,6 +112,9 @@ object S3Factory {
                 endpointOverride(endpointOverride)
                 region(region)
                 credentialsProvider(credentialsProvider)
+                // Transfer Acceleration requires bucket-level enablement; leave disabled by default.
+                accelerate(false)
+                httpClient(SdkAsyncHttpClientProvider.Netty.nettyNioAsyncHttpClient)
                 builder()
             }
         }
@@ -160,6 +164,8 @@ object S3Factory {
                 credentialsProvider(credentialsProvider)
                 maxConcurrency(Runtime.getRuntime().availableProcessors())
                 minimumPartSizeInBytes(1 * MB)
+                // Transfer Acceleration requires bucket-level enablement; leave disabled by default.
+                accelerate(false)
                 builder()
             }
         }
