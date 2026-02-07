@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
+import software.amazon.awssdk.services.dynamodb.model.BatchWriteItemResponse
 import software.amazon.awssdk.services.dynamodb.model.WriteRequest
 
 /**
@@ -87,25 +88,36 @@ class DynamoDbBatchExecutor<T: Any>(
     }
 
     private suspend fun executeBatchPersist(writeList: List<TableItemTuple>) {
-        retry.executeSuspendFunction {
-            batchPersist(writeList)
+        var pending = writeList
+        var attempt = 0
+        val maxAttempts = retry.retryConfig.maxAttempts
+
+        while (pending.isNotEmpty()) {
+            attempt++
+            val result = retry.executeSuspendFunction {
+                batchPersistOnce(pending)
+            }
+
+            val unprocessed = result.unprocessedItems()
+            if (unprocessed.isEmpty()) return
+
+            if (attempt >= maxAttempts) {
+                val remaining = unprocessed.values.sumOf { it.size }
+                error("BatchWriteItem has $remaining unprocessed items after $attempt attempts.")
+            }
+
+            pending = buildWriteLists(unprocessed)
         }
     }
 
-    private suspend fun batchPersist(writeList: List<TableItemTuple>) {
+    private suspend fun batchPersistOnce(writeList: List<TableItemTuple>): BatchWriteItemResponse {
         val requestItems = writeList.groupBy({ it.tableName }, { it.writeRequest })
         val batchRequest = BatchWriteItemRequest { requestItems(requestItems) }
 
         // Non-Blocking 으로 저장 작업을 수행하기 위해서
-        val result = withContext(coroutineContext) {
+        return withContext(coroutineContext) {
             // DynamoDB의 Batch 쓰기 작업
             dynamoDB.batchWriteItem(batchRequest)
-        }
-
-        // Partial failure
-        if (result.unprocessedItems().isNotEmpty()) {
-            val unprocessedWriteList = buildWriteLists(result.unprocessedItems())
-            batchPersist(unprocessedWriteList)
         }
     }
 
