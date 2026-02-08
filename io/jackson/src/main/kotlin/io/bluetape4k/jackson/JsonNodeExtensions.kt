@@ -8,7 +8,7 @@ import jakarta.json.JsonException
 import java.math.BigDecimal
 import java.math.BigInteger
 
-private val nodeFactory = JsonNodeFactory.instance
+internal val nodeFactory = JsonNodeFactory.instance
 
 /**
  * [fieldName]을 키로 하여 [JsonNode]를 추가합니다.

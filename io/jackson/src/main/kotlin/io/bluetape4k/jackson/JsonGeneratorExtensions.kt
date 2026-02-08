@@ -2,33 +2,35 @@ package io.bluetape4k.jackson
 
 import com.fasterxml.jackson.core.JsonGenerator
 import io.bluetape4k.support.requireNotBlank
+import java.math.BigDecimal
+import java.math.BigInteger
 
 /**
- * [writeValueAction]을 통해 객체를 추가합니다.
+ * [valueWriter]을 통해 객체를 추가합니다.
  */
-inline fun JsonGenerator.writeValue(writeValueAction: JsonGenerator.() -> Unit) {
+inline fun JsonGenerator.writeValue(valueWriter: JsonGenerator.() -> Unit) = apply {
     writeStartObject()
-    writeValueAction()
+    valueWriter()
     writeEndObject()
 }
 
 /**
- * [fieldName]을 키로 하여 [writeValueAction]을 통해 객체를 추가합니다.
+ * [fieldName]을 키로 하여 [valueWriter]을 통해 객체를 추가합니다.
  */
-inline fun JsonGenerator.writeValue(fieldName: String, writeValueAction: JsonGenerator.() -> Unit) {
+inline fun JsonGenerator.writeField(fieldName: String, valueWriter: JsonGenerator.() -> Unit) = apply {
     fieldName.requireNotBlank("fieldName")
 
     writeValue {
         writeFieldName(fieldName)
-        writeValueAction()
+        valueWriter()
     }
 }
 
 /**
  * [fieldName]을 키로 하여 [value]를 추가합니다.
  */
-fun JsonGenerator.writeValue(fieldName: String, value: Any?) {
-    writeValue(fieldName) {
+fun JsonGenerator.writeValue(fieldName: String, value: Any?) = apply {
+    writeField(fieldName) {
         value?.let { writeString(it.toString()) } ?: writeNull()
     }
 }
@@ -36,21 +38,17 @@ fun JsonGenerator.writeValue(fieldName: String, value: Any?) {
 /**
  * [fieldName]을 키로 하여 null 값을 추가합니다.
  */
-fun JsonGenerator.writeNull(fieldName: String) {
-    fieldName.requireNotBlank("fieldName")
-
-    writeValue {
-        writeNull(fieldName)
+fun JsonGenerator.writeNull(fieldName: String) = apply {
+    writeField(fieldName) {
+        writeNull()
     }
 }
 
 /**
  * [fieldName]을 키로 하여 문자열 [value]를 추가합니다.
  */
-fun JsonGenerator.writeString(fieldName: String, value: String?) {
-    fieldName.requireNotBlank("fieldName")
-
-    writeValue(fieldName) {
+fun JsonGenerator.writeString(fieldName: String, value: String?) = apply {
+    writeField(fieldName) {
         value?.let { writeString(it) } ?: writeNull()
     }
 }
@@ -58,39 +56,47 @@ fun JsonGenerator.writeString(fieldName: String, value: String?) {
 /**
  * [fieldName]을 키로 하여 숫자 [value]를 추가합니다.
  */
-fun JsonGenerator.writeNumber(fieldName: String, value: Number) {
+fun JsonGenerator.writeNumber(fieldName: String, value: Number) = apply {
     fieldName.requireNotBlank("fieldName")
 
-    writeValue(fieldName) {
-        writeNumber(value.toLong())
+    writeField(fieldName) {
+        when (value) {
+            is Byte -> writeNumber(value.toInt())
+            is Short -> writeNumber(value)
+            is Int -> writeNumber(value)
+            is Long -> writeNumber(value)
+            is Float -> writeNumber(value)
+            is Double -> writeNumber(value)
+            is BigDecimal -> writeNumber(value)
+            is BigInteger -> writeNumber(value)
+            else -> writeObject(value)
+        }
     }
 }
 
 /**
  * [fieldName]을 키로 하여 불리언 [value]를 추가합니다.
  */
-fun JsonGenerator.writeBoolean(fieldName: String, value: Boolean) {
-    fieldName.requireNotBlank("fieldName")
-
-    writeValue(fieldName) {
+fun JsonGenerator.writeBoolean(fieldName: String, value: Boolean) = apply {
+    writeField(fieldName) {
         writeBoolean(value)
     }
 }
 
 /**
- * [writeArrayAction]을 통해 배열을 추가합니다.
+ * [arrayWriter]을 통해 배열을 추가합니다.
  */
-inline fun JsonGenerator.writeArray(writeArrayAction: JsonGenerator.() -> Unit) {
+inline fun JsonGenerator.writeArray(arrayWriter: JsonGenerator.() -> Unit) = apply {
     writeStartArray()
-    writeArrayAction()
+    arrayWriter()
     writeEndArray()
 }
 
 /**
  * [items]를 배열로 추가합니다.
  */
-fun <T> JsonGenerator.writeObjects(items: Iterable<T>) {
+fun <T> JsonGenerator.writeObjects(items: Iterable<T>) = apply {
     writeArray {
-        items.forEach { writeObject(it) }
+        items.forEach(::writeObject)
     }
 }

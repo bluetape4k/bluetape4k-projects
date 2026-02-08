@@ -35,11 +35,13 @@ class JsonGeneratorExtensionsTest {
     fun `generate number value`() {
         StringWriter().use { writer ->
             mapper.createGenerator(writer).use { gen ->
-                gen.writeNumber("number", 42)
+                gen.writeNumber("int", 42)
+                gen.writeNumber("long", 42L)
+                gen.writeNumber("double", 3.141926)
             }
             val json = writer.toString()
             log.debug { "json=$json" }
-            json shouldBeEqualTo """{"number":42}"""
+            json shouldBeEqualTo """{"int":42} {"long":42} {"double":3.141926}"""
         }
     }
 
