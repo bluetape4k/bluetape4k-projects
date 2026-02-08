@@ -2,6 +2,7 @@ package io.bluetape4k.fastjson2.extensions
 
 import com.alibaba.fastjson2.JSONArray
 import com.alibaba.fastjson2.parseArray
+import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.fastjson2.AbstractFastjson2Test
 import io.bluetape4k.fastjson2.model.User
 import io.bluetape4k.fastjson2.model.newUser
@@ -15,7 +16,7 @@ class JSONArrayExtensionsTest: AbstractFastjson2Test() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `read value as list for json array`() {
-        val users = List(2) { newUser() }
+        val users = List(5) { newUser() }
         val jsonArrayString = users.toJsonString()
 
         val parsedArray: JSONArray = jsonArrayString.parseArray()
@@ -26,7 +27,7 @@ class JSONArrayExtensionsTest: AbstractFastjson2Test() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `read value as list`() {
-        val users = List(2) { newUser() }
+        val users = fastList(5) { newUser() }
         val jsonArrayString = users.toJsonString()
 
         val parsedUsers = jsonArrayString.readValueAsList<User>()
@@ -35,7 +36,7 @@ class JSONArrayExtensionsTest: AbstractFastjson2Test() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `convert to json object and read value as list`() {
-        val users = List(2) { newUser() }
+        val users = fastList(5) { newUser() }
         val jsonArrayString = users.toJsonString()
 
         val parsedArray: JSONArray = jsonArrayString.parseArray()

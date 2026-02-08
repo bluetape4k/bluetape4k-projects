@@ -7,6 +7,7 @@ import io.bluetape4k.fastjson2.model.User
 import io.bluetape4k.fastjson2.model.newUser
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 
 class JSONObjectExtensionsTest: AbstractFastjson2Test() {
@@ -17,15 +18,16 @@ class JSONObjectExtensionsTest: AbstractFastjson2Test() {
     fun `parse object`() {
         val user = newUser()
         val json = user.toJsonString()
+        json.shouldNotBeNull()
 
         // parse as JSONObject
         val jsonObject: JSONObject = json.readAsJSONObject()
 
         val parsedUser = jsonObject.readValueOrNull<User>()
-        parsedUser shouldBeEqualTo user
+        parsedUser.shouldNotBeNull() shouldBeEqualTo user
 
-        val parsedUser2 = jsonObject.readValueOrNull<User>()!!
-        parsedUser2 shouldBeEqualTo user
+        val parsedUser2 = jsonObject.readValueOrNull<User>()
+        parsedUser2.shouldNotBeNull() shouldBeEqualTo user
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -34,18 +36,19 @@ class JSONObjectExtensionsTest: AbstractFastjson2Test() {
         val json = """{"key": ${user.toJSONString()}}"""
 
         // parse as JSONObject
-        val jsonObject: JSONObject = json.readAsJSONObject()
+        val jsonObject = json.readAsJSONObject()
 
         val parsedUser = jsonObject.readValueOrNull<User>("key")
-        parsedUser shouldBeEqualTo user
+        parsedUser.shouldNotBeNull() shouldBeEqualTo user
 
-        val parsedUser2 = jsonObject.readValueOrNull<User>("key")!!
-        parsedUser2 shouldBeEqualTo user
+        val parsedUser2 = jsonObject.readValueOrNull<User>("key")
+        parsedUser2.shouldNotBeNull() shouldBeEqualTo user
     }
 
     @RepeatedTest(REPEAT_SIZE)
     fun `parse object 02`() {
         val user = newUser()
+
         // JSONObject
         val jsonObject: JSONObject = JSONObject().apply {
             put(
@@ -57,7 +60,8 @@ class JSONObjectExtensionsTest: AbstractFastjson2Test() {
             )
         }
 
-        val users = jsonObject.readValueOrNull<Map<String, User>>()!!
+        val users = jsonObject.readValueOrNull<Map<String, User>>()
+        users.shouldNotBeNull()
         val parsedUser = users["user"]
         parsedUser shouldBeEqualTo user
     }

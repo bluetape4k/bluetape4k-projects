@@ -4,12 +4,12 @@ import com.alibaba.fastjson2.JSONObject
 import com.alibaba.fastjson2.JSONReader
 import com.alibaba.fastjson2.reference
 
-inline fun <reified T: Any> JSONObject.readValueOrNull(
-    vararg features: JSONReader.Feature,
-): T? = to(reference(), *features)
+inline fun <reified T: Any> JSONObject.readValueOrNull(vararg features: JSONReader.Feature): T? =
+    to(reference<T>(), *features)
 
 
 inline fun <reified T: Any> JSONObject.readValueOrNull(
     key: String,
     vararg features: JSONReader.Feature,
-): T? = getObject(key, reference(), *features)
+): T? =
+    getObject(key, reference<T>(), *features)

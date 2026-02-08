@@ -11,6 +11,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import java.io.Serializable
 
@@ -23,8 +24,8 @@ class JSONExtensionsTest: AbstractFastjson2Test() {
         val user = newUser()
         val jsonString = user.toJSONString()
 
-        val parsedUser = jsonString.readValueOrNull<User>()!!
-        parsedUser shouldBeEqualTo user
+        val parsedUser = jsonString.readValueOrNull<User>()
+        parsedUser.shouldNotBeNull() shouldBeEqualTo user
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -33,7 +34,8 @@ class JSONExtensionsTest: AbstractFastjson2Test() {
         val json = user.toJSONString()
         log.debug { "json: $json" }
 
-        val users = """{"user":$json}""".readValueOrNull<Map<String, User>>()!!
+        val users = """{"user":$json}""".readValueOrNull<Map<String, User>>()
+        users.shouldNotBeNull()
         users.size shouldBeEqualTo 1
 
         val parsedUser = users["user"]!!
@@ -160,7 +162,6 @@ class JSONExtensionsTest: AbstractFastjson2Test() {
         val m3 = """{"id":3,"tag":"json"}""".readValueOrNull<Meta>()
         m3 shouldBeEqualTo Meta(id = 3, tag = "json")
     }
-
 
     data class Meta(
         val id: Int = 1,

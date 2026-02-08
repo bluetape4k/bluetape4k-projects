@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package io.bluetape4k.collections.eclipse
 
 import io.bluetape4k.collections.asIterable
@@ -5,7 +7,7 @@ import org.eclipse.collections.impl.list.mutable.FastList
 import java.util.stream.Stream
 
 
-fun <T> emptyFastList(): FastList<T> = FastList.newList<T>()
+inline fun <T> emptyFastList(): FastList<T> = FastList.newList<T>()
 
 inline fun <T> fastList(
     size: Int = 16,
@@ -132,3 +134,6 @@ fun <T> Array<T>.fastFilterNot(
     destination: FastList<T> = FastList.newList(),
     predicate: (T) -> Boolean,
 ): FastList<T> = asIterable().fastFilterNot(destination, predicate)
+
+inline fun <T> FastList<T>?.orEmpty(): FastList<T> =
+    this ?: emptyFastList()
