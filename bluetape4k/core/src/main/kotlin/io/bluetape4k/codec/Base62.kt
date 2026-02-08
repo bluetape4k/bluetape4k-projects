@@ -71,7 +71,7 @@ object Base62: KLogging() {
 }
 
 /**
- * Base62 알고리즘을 이용하여 UUID 값을 문자열로 인코딩합니다.
+ * Base62 알고리즘을 이용하여 숫자를 문자열로 인코딩합니다.
  *
  * @return Base62로 인코딩된 문자열
  */
