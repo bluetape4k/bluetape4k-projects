@@ -35,7 +35,7 @@ const val EXTENSION_SEPARATOR = '.'
 const val UNIX_SEPARATOR = '/'
 const val WINDOW_SEPARATOR = '\\'
 
-private val defaultFileExecutor: ExecutorService by lazy {
+internal val defaultFileExecutor: ExecutorService by lazy {
     Executors.newVirtualThreadPerTaskExecutor().also { executor ->
         Runtimex.addShutdownHook {
             executor.shutdown()

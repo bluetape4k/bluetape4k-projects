@@ -22,6 +22,8 @@ class TempFolder: Closeable {
 
     val root: File get() = rootFile
 
+    val rootPath: String get() = rootFile.path
+
     init {
         try {
             rootFile = Files.createTempDirectory(PREFIX).toFile()
