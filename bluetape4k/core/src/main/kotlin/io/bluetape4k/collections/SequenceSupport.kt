@@ -1,5 +1,6 @@
 package io.bluetape4k.collections
 
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.support.asByte
 import io.bluetape4k.support.asChar
 import io.bluetape4k.support.asDouble
@@ -24,6 +25,7 @@ import io.bluetape4k.support.requireLe
  */
 fun charSequenceOf(start: Char, endInclusive: Char, step: Int = 1): Sequence<Char> {
     start.requireLe(endInclusive, "start")
+    require(step > 0) { "step must be positive" }
 
     return generateSequence(start) { current ->
         val next = current + step
@@ -45,6 +47,7 @@ fun charSequenceOf(start: Char, endInclusive: Char, step: Int = 1): Sequence<Cha
  */
 fun byteSequenceOf(start: Byte, endInclusive: Byte, step: Byte = 1): Sequence<Byte> {
     start.requireLe(endInclusive, "start")
+    require(step > 0) { "step must be positive" }
 
     return generateSequence(start) { current ->
         val next = (current + step).toByte()
@@ -66,6 +69,7 @@ fun byteSequenceOf(start: Byte, endInclusive: Byte, step: Byte = 1): Sequence<By
  */
 fun intSequenceOf(start: Int, endInclusive: Int, step: Int = 1): Sequence<Int> {
     start.requireLe(endInclusive, "start")
+    require(step > 0) { "step must be positive" }
 
     return generateSequence(start) { current ->
         val next = current + step
@@ -87,6 +91,7 @@ fun intSequenceOf(start: Int, endInclusive: Int, step: Int = 1): Sequence<Int> {
  */
 fun longSequenceOf(start: Long, endInclusive: Long, step: Long = 1L): Sequence<Long> {
     start.requireLe(endInclusive, "start")
+    require(step > 0) { "step must be positive" }
 
     return generateSequence(start) { current ->
         val next = current + step
@@ -108,6 +113,7 @@ fun longSequenceOf(start: Long, endInclusive: Long, step: Long = 1L): Sequence<L
  */
 fun floatSequenceOf(start: Float, endInclusive: Float, step: Float = 1.0F): Sequence<Float> {
     start.requireLe(endInclusive, "start")
+    require(step > 0) { "step must be positive" }
 
     return generateSequence(start) { current ->
         val next = current + step
@@ -129,6 +135,7 @@ fun floatSequenceOf(start: Float, endInclusive: Float, step: Float = 1.0F): Sequ
  */
 fun doubleSequenceOf(start: Double, endInclusive: Double, step: Double = 1.0): Sequence<Double> {
     start.requireLe(endInclusive, "start")
+    require(step > 0) { "step must be positive" }
 
     return generateSequence(start) { current ->
         val next = current + step
@@ -362,9 +369,21 @@ inline fun <T, R> Sequence<T>.sliding(
 ): Sequence<R> = windowed(size, 1, partialWindows) { transform(it) }
 
 fun <T> Sequence<T>.repeat(): Sequence<T> = sequence {
-    val self = this@repeat
+    val iterator = try {
+        this@repeat.iterator()
+    } catch (_: IllegalStateException) {
+        return@sequence
+    }
+    if (!iterator.hasNext()) return@sequence
+
+    val cache = mutableListOf<T>()
+    while (iterator.hasNext()) {
+        val item = iterator.next()
+        cache.add(item)
+        yield(item)
+    }
     while (true) {
-        for (item in self) {
+        for (item in cache) {
             yield(item)
         }
     }

@@ -3,7 +3,7 @@ package io.bluetape4k.collections.graph
 import io.bluetape4k.collections.eclipse.toFastList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.filterNot
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.toList
 
 object Graph {
@@ -54,17 +54,16 @@ object Graph {
                     TraversalOrder.BFS -> addLast(source)
                 }
             }
-            val visited = mutableSetOf<T>()
+            val visited = mutableSetOf(source)
 
             while (toScan.isNotEmpty()) {
                 val currentNode = toScan.removeFirst()
                 yield(currentNode)
-                visited.add(currentNode)
 
-                val nextNodes = adjacents(currentNode).filterNot { visited.contains(it) }
+                val nextNodes = adjacents(currentNode).filter { visited.add(it) }
                 when (order) {
-                    TraversalOrder.DFS -> nextNodes.sortedDescending().forEach { toScan.addFirst(it) }
-                    TraversalOrder.BFS -> toScan.addAll(nextNodes)
+                    TraversalOrder.DFS -> nextNodes.toList().sortedDescending().forEach { toScan.addFirst(it) }
+                    TraversalOrder.BFS -> nextNodes.forEach { toScan.addLast(it) }
                 }
             }
         }
@@ -82,17 +81,16 @@ object Graph {
                 TraversalOrder.BFS -> addLast(source)
             }
         }
-        val visited = mutableSetOf<T>()
+        val visited = mutableSetOf(source)
 
         while (toScan.isNotEmpty()) {
             val current = toScan.removeFirst()
             emit(current)
-            visited.add(current)
 
-            val nextNodes = adjacents(current).filterNot { visited.contains(it) }
+            val nextNodes = adjacents(current).filter { visited.add(it) }.toList()
             when (order) {
-                TraversalOrder.DFS -> nextNodes.toList().sortedDescending().forEach { toScan.addFirst(it) }
-                TraversalOrder.BFS -> toScan.addAll(nextNodes.toList())
+                TraversalOrder.DFS -> nextNodes.sortedDescending().forEach { toScan.addFirst(it) }
+                TraversalOrder.BFS -> nextNodes.forEach { toScan.addLast(it) }
             }
         }
     }

@@ -10,6 +10,7 @@ import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class CollectionSupportTest {
 
@@ -44,6 +45,26 @@ class CollectionSupportTest {
 
         list.size shouldBeEqualTo 11
         list.first() shouldBeEqualTo -1
+    }
+
+    @Test
+    fun `append item to list`() {
+        val list = fastList(3) { it + 1 }
+        list.append(4, 5)
+        list shouldContainSame listOf(1, 2, 3, 4, 5)
+    }
+
+    @Test
+    fun `swap list elements`() {
+        val list = fastListOf(1, 2, 3)
+        list.swap(0, 2)
+        list shouldContainSame listOf(3, 2, 1)
+
+        list.swap(1, 1)
+        list shouldContainSame listOf(3, 2, 1)
+
+        assertThrows<AssertionError> { list.swap(-1, 1) }
+        assertThrows<AssertionError> { list.swap(0, 3) }
     }
 
     @Test

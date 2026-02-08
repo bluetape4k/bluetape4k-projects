@@ -121,6 +121,9 @@ fun IntProgression.partitioning(partitionCount: Int = 1): Sequence<IntProgressio
 
     var start = self.first
     repeat(partitionCount) {
+        if ((step > 0 && start > self.last) || (step < 0 && start < self.last)) {
+            return@sequence
+        }
         var endInclusive = start
         repeat(partitionSize - 1) {
             endInclusive += self.step
@@ -230,6 +233,9 @@ fun LongProgression.partitioning(partitionCount: Int = 1): Sequence<LongProgress
 
     var start = self.first
     repeat(partitionCount) {
+        if ((step > 0 && start > self.last) || (step < 0 && start < self.last)) {
+            return@sequence
+        }
         var endInclusive = start
         repeat(partitionSize - 1) {
             endInclusive += self.step

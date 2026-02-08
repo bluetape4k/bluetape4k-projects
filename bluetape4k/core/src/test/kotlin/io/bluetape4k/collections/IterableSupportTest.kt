@@ -4,6 +4,7 @@ import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContainAll
 import org.junit.jupiter.api.Test
@@ -70,5 +71,68 @@ class IterableSupportTest {
 
         val windowed2 = list.windowed(3, 2, true)
         windowed2 shouldBeEqualTo listOf(listOf(1, 2, 3), listOf(3, 4, 5), listOf(5))
+    }
+
+    @Test
+    fun `iterator and iterable helpers`() {
+        emptyIterator<Int>().hasNext().shouldBeFalse()
+        emptyListIterator<Int>().hasNext().shouldBeFalse()
+
+        val iterator = listOf(1, 2, 3).iterator()
+        iterator.asIterable().toList() shouldBeEqualTo listOf(1, 2, 3)
+
+        val iterator2 = listOf(4, 5).iterator()
+        iterator2.toList() shouldBeEqualTo listOf(4, 5)
+
+        val iterator3 = listOf(6, 7).iterator()
+        iterator3.toMutableList() shouldBeEqualTo mutableListOf(6, 7)
+    }
+
+    @Test
+    fun `size exists and same elements`() {
+        val nonCollection: Iterable<Int> = Iterable { sequenceOf(1, 2, 3).iterator() }
+        nonCollection.size() shouldBeEqualTo 3
+        nonCollection.exists { it == 2 }.shouldBeTrue()
+
+        listOf(1, 2, 3).isSameElements(listOf(1, 2, 3)).shouldBeTrue()
+        listOf(1, 2, 3).isSameElements(listOf(1, 3, 2)).shouldBeFalse()
+
+        val seqA: Iterable<Int> = Iterable { sequenceOf(1, 2).iterator() }
+        val seqB: Iterable<Int> = Iterable { sequenceOf(1, 2).iterator() }
+        seqA.isSameElements(seqB).shouldBeTrue()
+    }
+
+    @Test
+    fun `as array conversions`() {
+        listOf('a', 'b').asCharArray().contentEquals(charArrayOf('a', 'b')).shouldBeTrue()
+        listOf(1, 2).asIntArray().contentEquals(intArrayOf(1, 2)).shouldBeTrue()
+        listOf(1L, 2L).asLongArray().contentEquals(longArrayOf(1L, 2L)).shouldBeTrue()
+        listOf(1.0F, 2.0F).asFloatArray().contentEquals(floatArrayOf(1.0F, 2.0F)).shouldBeTrue()
+        listOf(1.0, 2.0).asDoubleArray().contentEquals(doubleArrayOf(1.0, 2.0)).shouldBeTrue()
+        listOf("a", "b").asStringArray().contentEquals(arrayOf("a", "b")).shouldBeTrue()
+
+        val mixed = listOf(1, "a").asArray<String>()
+        mixed.size shouldBeEqualTo 2
+        mixed[0] shouldBeEqualTo null
+        mixed[1] shouldBeEqualTo "a"
+    }
+
+    @Suppress("DIVISION_BY_ZERO")
+    @Test
+    fun `catching helpers`() {
+        val results = listOf(1, 0).mapCatching { 1 / it }
+        results[0].isSuccess.shouldBeTrue()
+        results[1].isFailure.shouldBeTrue()
+
+        var count = 0
+        listOf(1, 0).tryForEach {
+            count += 1 / it
+        }
+        count shouldBeEqualTo 1
+
+        val forEachResults = listOf(1, 0).forEachCatching { 1 / it }
+        forEachResults.size shouldBeEqualTo 2
+        forEachResults[0].isSuccess.shouldBeTrue()
+        forEachResults[1].isFailure.shouldBeTrue()
     }
 }

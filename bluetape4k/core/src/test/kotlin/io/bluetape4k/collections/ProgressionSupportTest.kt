@@ -80,6 +80,16 @@ class ProgressionSupportTest {
             partitioned[1] shouldBeEqualTo intProgressionOf(6, 3, -1)
             partitioned[2] shouldBeEqualTo intProgressionOf(2, 1, -1)
         }
+
+        @Test
+        fun `partitioning more than size`() {
+            val ints = intProgressionOf(1, 3, 1)
+            val partitioned = ints.partitioning(5).toFastList()
+            partitioned.size shouldBeEqualTo 3
+            partitioned[0] shouldBeEqualTo intProgressionOf(1, 1, 1)
+            partitioned[1] shouldBeEqualTo intProgressionOf(2, 2, 1)
+            partitioned[2] shouldBeEqualTo intProgressionOf(3, 3, 1)
+        }
     }
 
     @Nested
@@ -143,6 +153,16 @@ class ProgressionSupportTest {
             partitioned[0] shouldBeEqualTo longProgressionOf(10, 7, -1)
             partitioned[1] shouldBeEqualTo longProgressionOf(6, 3, -1)
             partitioned[2] shouldBeEqualTo longProgressionOf(2, 1, -1)
+        }
+
+        @Test
+        fun `partitioning more than size`() {
+            val longs = longProgressionOf(1, 3, 1)
+            val partitioned = longs.partitioning(5).toFastList()
+            partitioned.size shouldBeEqualTo 3
+            partitioned[0] shouldBeEqualTo longProgressionOf(1, 1, 1)
+            partitioned[1] shouldBeEqualTo longProgressionOf(2, 2, 1)
+            partitioned[2] shouldBeEqualTo longProgressionOf(3, 3, 1)
         }
     }
 }

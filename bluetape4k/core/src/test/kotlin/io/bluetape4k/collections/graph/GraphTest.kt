@@ -64,6 +64,22 @@ class GraphTest: AbstractCollectionTest() {
         root = buildTree()
     }
 
+    @Test
+    fun `no duplicate visits on converging graph`() {
+        val shared = Node("shared")
+        val localRoot = Node("root").apply {
+            addChild(Node("a").addChild(shared))
+            addChild(Node("b").addChild(shared))
+        }
+
+        val names = Graph
+            .search(Graph.TraversalOrder.BFS, localRoot) { it.children }
+            .map { it.name }
+            .toFastList()
+
+        names shouldBeEqualTo fastListOf("root", "a", "b", "shared")
+    }
+
     @Nested
     inner class DepthFirstSearch {
 

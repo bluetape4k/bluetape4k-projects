@@ -79,6 +79,16 @@ class JavaStreamSupportTest {
     }
 
     @Test
+    fun `Stream to map`() {
+        val map = Stream.of(1, 2, 3).toMap { it to it * 2 }
+        map shouldBeEqualTo mapOf(1 to 2, 2 to 4, 3 to 6)
+
+        val mutable = Stream.of("a", "b").toMutableMap { it to it.uppercase() }
+        mutable["a"] shouldBeEqualTo "A"
+        mutable["b"] shouldBeEqualTo "B"
+    }
+
+    @Test
     fun `Sequence to IntStream`() {
         val sequence = generateSequence(0) { it + 1 }.take(10)
         val stream = sequence.toIntStream()

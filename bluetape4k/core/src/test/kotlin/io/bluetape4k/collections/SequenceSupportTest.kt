@@ -4,6 +4,8 @@ import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import org.amshove.kluent.shouldBeTrue
 
 class SequenceSupportTest {
 
@@ -84,5 +86,41 @@ class SequenceSupportTest {
 
         val sliding2 = list.asSequence().sliding(3, true)
         sliding2.toFastList() shouldBeEqualTo listOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
+    }
+
+    @Test
+    fun `sequenceOf step must be positive`() {
+        assertThrows<IllegalArgumentException> { charSequenceOf('a', 'z', 0) }
+        assertThrows<IllegalArgumentException> { byteSequenceOf(0, 10, 0) }
+        assertThrows<IllegalArgumentException> { intSequenceOf(1, 10, 0) }
+        assertThrows<IllegalArgumentException> { longSequenceOf(1L, 10L, 0L) }
+        assertThrows<IllegalArgumentException> { floatSequenceOf(1.0F, 10.0F, 0.0F) }
+        assertThrows<IllegalArgumentException> { doubleSequenceOf(1.0, 10.0, 0.0) }
+    }
+
+    @Test
+    fun `repeat on single-use sequence repeats with cache`() {
+        val singleUse = listOf(1, 2, 3).iterator().asSequence()
+        singleUse.repeat().take(10).toList() shouldBeEqualTo listOf(1, 2, 3, 1, 2, 3, 1, 2, 3, 1)
+    }
+
+    @Test
+    fun `repeat on reusable sequence repeats`() {
+        sequenceOf(1, 2).repeat().take(5).toList() shouldBeEqualTo listOf(1, 2, 1, 2, 1)
+    }
+
+    @Test
+    fun `sequence array conversions`() {
+        sequenceOf('a', 'b').asCharArray().contentEquals(charArrayOf('a', 'b')).shouldBeTrue()
+        sequenceOf(1, 2).asIntArray().contentEquals(intArrayOf(1, 2)).shouldBeTrue()
+        sequenceOf(1L, 2L).asLongArray().contentEquals(longArrayOf(1L, 2L)).shouldBeTrue()
+        sequenceOf(1.0F, 2.0F).asFloatArray().contentEquals(floatArrayOf(1.0F, 2.0F)).shouldBeTrue()
+        sequenceOf(1.0, 2.0).asDoubleArray().contentEquals(doubleArrayOf(1.0, 2.0)).shouldBeTrue()
+        sequenceOf("a", "b").asStringArray().contentEquals(arrayOf("a", "b")).shouldBeTrue()
+
+        val mixed = sequenceOf(1, "a").asArray<String>()
+        mixed.size shouldBeEqualTo 2
+        mixed[0] shouldBeEqualTo null
+        mixed[1] shouldBeEqualTo "a"
     }
 }
