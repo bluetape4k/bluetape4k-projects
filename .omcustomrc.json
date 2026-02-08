@@ -1,0 +1,31 @@
+{
+  "configVersion": 1,
+  "version": "0.0.0",
+  "language": "en",
+  "installedAt": "2026-02-08T11:04:48.391Z",
+  "lastUpdated": "2026-02-08T11:04:48.391Z",
+  "installedComponents": [
+    "rules",
+    "agents",
+    "skills",
+    "guides",
+    "hooks",
+    "contexts",
+    "claude-md"
+  ],
+  "componentVersions": {},
+  "agents": {},
+  "preferences": {
+    "logLevel": "info",
+    "colors": true,
+    "showProgress": true,
+    "confirmPrompts": true,
+    "autoBackup": true
+  },
+  "sourceRepo": "https://github.com/baekenough/oh-my-customcode",
+  "autoUpdate": {
+    "enabled": false,
+    "checkIntervalHours": 24,
+    "autoApplyMinor": false
+  }
+}

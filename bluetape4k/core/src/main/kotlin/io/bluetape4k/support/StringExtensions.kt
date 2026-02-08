@@ -1,4 +1,5 @@
 @file:OptIn(ExperimentalContracts::class)
+@file:Suppress("NOTHING_TO_INLINE")
 
 package io.bluetape4k.support
 
@@ -287,7 +288,7 @@ fun String?.quoted(): String {
  * @param size 생성할 문자열의 길이
  * @return 랜덤한 Alpha numeric 문자열
  */
-fun randomString(size: Int = 10): String {
+inline fun randomString(size: Int = 10): String {
     size.assertZeroOrPositiveNumber("size")
     return RandomStringUtils.secureStrong().nextAlphanumeric(size)
 }

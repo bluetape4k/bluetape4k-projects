@@ -1,0 +1,251 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1770551056153,
+  "projectRoot": "/Users/debop/work/bluetape4k/bluetape4k-projects",
+  "techStack": {
+    "languages": [
+      {
+        "name": "Kotlin",
+        "version": "2.3.0",
+        "confidence": "high",
+        "markers": [
+          "build.gradle.kts"
+        ]
+      }
+    ],
+    "frameworks": [],
+    "packageManager": "gradle",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "examples"
+    ],
+    "gitBranches": {
+      "defaultBranch": "develop",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "aws": {
+      "path": "aws",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1770551056149,
+      "keyFiles": []
+    },
+    "aws-kotlin": {
+      "path": "aws-kotlin",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1770551056149,
+      "keyFiles": []
+    },
+    "bluetape4k": {
+      "path": "bluetape4k",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1770551056149,
+      "keyFiles": []
+    },
+    "build": {
+      "path": "build",
+      "purpose": "Build output",
+      "fileCount": 0,
+      "lastAccessed": 1770551056149,
+      "keyFiles": []
+    },
+    "buildSrc": {
+      "path": "buildSrc",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1770551056149,
+      "keyFiles": [
+        "build.gradle.kts",
+        "gradle.properties"
+      ]
+    },
+    "data": {
+      "path": "data",
+      "purpose": "Data files",
+      "fileCount": 0,
+      "lastAccessed": 1770551056149,
+      "keyFiles": []
+    },
+    "doc": {
+      "path": "doc",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1770551056149,
+      "keyFiles": [
+        "blue-tape.png",
+        "bluetape4k.jpg",
+        "bluetape4k.png"
+      ]
+    },
+    "examples": {
+      "path": "examples",
+      "purpose": "Example code",
+      "fileCount": 0,
+      "lastAccessed": 1770551056149,
+      "keyFiles": []
+    },
+    "gradle": {
+      "path": "gradle",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1770551056150,
+      "keyFiles": []
+    },
+    "guides": {
+      "path": "guides",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1770551056150,
+      "keyFiles": [
+        "index.yaml"
+      ]
+    },
+    "infra": {
+      "path": "infra",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1770551056150,
+      "keyFiles": []
+    },
+    "io": {
+      "path": "io",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1770551056150,
+      "keyFiles": []
+    },
+    "javers": {
+      "path": "javers",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1770551056150,
+      "keyFiles": [
+        "README.md"
+      ]
+    },
+    "quarkus": {
+      "path": "quarkus",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1770551056150,
+      "keyFiles": []
+    },
+    "spring": {
+      "path": "spring",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1770551056150,
+      "keyFiles": []
+    },
+    "testing": {
+      "path": "testing",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1770551056150,
+      "keyFiles": []
+    },
+    "timefold": {
+      "path": "timefold",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1770551056150,
+      "keyFiles": []
+    },
+    "tokenizer": {
+      "path": "tokenizer",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1770551056150,
+      "keyFiles": []
+    },
+    "utils": {
+      "path": "utils",
+      "purpose": "Utility functions",
+      "fileCount": 0,
+      "lastAccessed": 1770551056150,
+      "keyFiles": []
+    },
+    "vertx": {
+      "path": "vertx",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1770551056150,
+      "keyFiles": []
+    },
+    "workshop": {
+      "path": "workshop",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1770551056151,
+      "keyFiles": []
+    },
+    "aws-kotlin/tests": {
+      "path": "aws-kotlin/tests",
+      "purpose": "Test files",
+      "fileCount": 2,
+      "lastAccessed": 1770551056151,
+      "keyFiles": [
+        "README.md",
+        "build.gradle.kts"
+      ]
+    },
+    "buildSrc/build": {
+      "path": "buildSrc/build",
+      "purpose": "Build output",
+      "fileCount": 0,
+      "lastAccessed": 1770551056151,
+      "keyFiles": []
+    },
+    "buildSrc/src": {
+      "path": "buildSrc/src",
+      "purpose": "Source code",
+      "fileCount": 0,
+      "lastAccessed": 1770551056151,
+      "keyFiles": []
+    },
+    "quarkus/tests": {
+      "path": "quarkus/tests",
+      "purpose": "Test files",
+      "fileCount": 2,
+      "lastAccessed": 1770551056152,
+      "keyFiles": [
+        "README.md",
+        "build.gradle.kts"
+      ]
+    },
+    "spring/tests": {
+      "path": "spring/tests",
+      "purpose": "Test files",
+      "fileCount": 2,
+      "lastAccessed": 1770551056152,
+      "keyFiles": [
+        "README.md",
+        "build.gradle.kts"
+      ]
+    }
+  },
+  "hotPaths": [],
+  "userDirectives": []
+}
