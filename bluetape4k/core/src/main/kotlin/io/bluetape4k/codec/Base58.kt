@@ -1,7 +1,6 @@
 package io.bluetape4k.codec
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
 import io.bluetape4k.support.isNullOrEmpty
 import io.bluetape4k.support.requireGt
 import io.bluetape4k.support.toUtf8Bytes
@@ -68,7 +67,6 @@ object Base58: KLogging() {
         while (zeros < source.size && source[zeros].toInt() == 0) {
             zeros++
         }
-        log.trace { "leading zeros count=$zeros" }
 
         // Convert base-256 digits to base-58 digits (plus conversion to ASCII characters)
         val input = source.copyOf(source.size)
@@ -90,7 +88,6 @@ object Base58: KLogging() {
             encoded[--outputStart] = ENCODED_ZERO
         }
         // 인코딩된 문자열을 반환합니다(선행하는 0을 포함합니다).
-        log.trace { "outputStart=$outputStart, encoded.size=${encoded.size}" }
         return String(encoded, outputStart, encoded.size - outputStart)
     }
 
@@ -129,7 +126,6 @@ object Base58: KLogging() {
         while (zeros < input58.size && input58[zeros].toInt() == 0) {
             zeros++
         }
-        log.trace { "leading zeros count=$zeros" }
 
         // Base-58 숫자를 Base-256 숫자로 변환합니다.
         val decoded = ByteArray(source.length)
@@ -147,7 +143,6 @@ object Base58: KLogging() {
             ++outputStart
         }
         // 디코딩된 바이트 배열을 반환합니다.
-        log.trace { "outputStart=$outputStart, zeros=$zeros, decoded.size=${decoded.size}" }
         return decoded.copyOfRange(outputStart - zeros, decoded.size)
     }
 

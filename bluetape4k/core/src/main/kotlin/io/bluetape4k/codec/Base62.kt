@@ -63,7 +63,7 @@ object Base62: KLogging() {
         text.forEachIndexed { index, _ ->
             sum += DIGITS.indexOf(text[text.length - index - 1]).toBigInteger() * BASE.pow(index)
             if (bitLimit > 0 && sum.bitLength() > bitLimit) {
-                throw IllegalArgumentException("Text [$text] contains more than 128bit information")
+                throw IllegalArgumentException("Text [$text] contains more than ${bitLimit}bit information")
             }
         }
         return sum

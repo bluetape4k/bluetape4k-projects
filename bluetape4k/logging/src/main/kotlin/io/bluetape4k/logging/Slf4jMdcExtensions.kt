@@ -55,7 +55,7 @@ inline fun Logger.infoMdc(mdcSupplier: () -> Map<String, Any?>, cause: Throwable
 inline fun Logger.warnMdc(mdcSupplier: () -> Map<String, Any?>, msg: () -> Any?) {
     if (isWarnEnabled) {
         withLoggingContext(mdcSupplier()) {
-            warn(logMessageSafe(msg))
+            warn("🔥" + logMessageSafe(msg))
         }
     }
 }
@@ -63,7 +63,7 @@ inline fun Logger.warnMdc(mdcSupplier: () -> Map<String, Any?>, msg: () -> Any?)
 inline fun Logger.warnMdc(mdcSupplier: () -> Map<String, Any?>, cause: Throwable?, msg: () -> Any?) {
     if (isWarnEnabled) {
         withLoggingContext(mdcSupplier()) {
-            warn(logMessageSafe(msg), cause)
+            warn("🔥" + logMessageSafe(msg), cause)
         }
     }
 }
@@ -71,7 +71,7 @@ inline fun Logger.warnMdc(mdcSupplier: () -> Map<String, Any?>, cause: Throwable
 inline fun Logger.errorMdc(mdcSupplier: () -> Map<String, Any?>, msg: () -> Any?) {
     if (isErrorEnabled) {
         withLoggingContext(mdcSupplier()) {
-            error(logMessageSafe(msg))
+            error("🔥" + logMessageSafe(msg))
         }
     }
 }
@@ -79,7 +79,7 @@ inline fun Logger.errorMdc(mdcSupplier: () -> Map<String, Any?>, msg: () -> Any?
 inline fun Logger.errorMdc(mdcSupplier: () -> Map<String, Any?>, cause: Throwable?, msg: () -> Any?) {
     if (isErrorEnabled) {
         withLoggingContext(mdcSupplier()) {
-            error(logMessageSafe(msg), cause)
+            error("🔥" + logMessageSafe(msg), cause)
         }
     }
 }

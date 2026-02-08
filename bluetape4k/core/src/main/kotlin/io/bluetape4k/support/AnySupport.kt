@@ -9,6 +9,9 @@ import kotlin.reflect.KClass
  * 선언된 필드 중 non null 수형에 대해 초기화 값을 지정하고자 할 때 사용합니다.
  * 또한 `@Autowired`, `@Inject` val 수형에 사용하기 좋다.
  *
+ * **주의**: 이 함수는 안전하지 않으며 NPE를 발생시킬 수 있습니다.
+ * 가능하면 `lateinit var` 또는 `lazy` 위임을 사용하는 것이 좋습니다.
+ *
  * ```
  * @Inject
  * val x: Repository = uninitialized()
