@@ -107,9 +107,7 @@ object Base58: KLogging() {
      * @return 디코딩된 데이터 바이트
      */
     fun decode(source: String): ByteArray {
-        if (source.isBlank()) {
-            return ByteArray(0)
-        }
+        require(source.isNotBlank()) { "Base58 source must not be blank" }
 
         // Base58 ASCII 문자열을 Base58 바이트 배열로 변환합니다.
         val input58 = ByteArray(source.length) {
@@ -186,16 +184,16 @@ object Base58: KLogging() {
 fun ByteArray.encodeBase58(): String = Base58.encode(this)
 
 /**
- * Base58 알고리즘으로 인코딩된 문자열을 디코딩하여 [ByteArray] 값을 반환합니다.
+ * Base58 알고리즘을 이용하여 [String] 값을 인코딩합니다.
  *
- * @return Base58로 디코딩된 바이트 배열
+ * @return Base58로 인코딩된 문자열
  */
 fun String.encodeBase58(): String = Base58.encode(this.toUtf8Bytes())
 
 /**
- * Base58 알고리즘으로 인코딩된 문자열을 디코딩하여 [String] 값을 반환합니다.
+ * Base58 알고리즘으로 인코딩된 문자열을 디코딩하여 [ByteArray] 값을 반환합니다.
  *
- * @return Base58로 디코딩된 문자열
+ * @return Base58로 디코딩된 바이트 배열
  */
 fun String.decodeBase58(): ByteArray = Base58.decode(this)
 

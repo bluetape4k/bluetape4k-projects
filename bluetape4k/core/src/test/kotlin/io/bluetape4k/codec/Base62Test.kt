@@ -53,6 +53,24 @@ class Base62Test {
         }
     }
 
+    @Test
+    fun `잘못된 문자를 포함한 Base62 문자열은 예외를 던진다`() {
+        assertFailsWith<IllegalArgumentException> {
+            Base62.decode("Foo Bar")
+        }
+    }
+
+    @Test
+    fun `빈 문자열은 Base62 디코딩 시 예외를 던진다`() {
+        assertFailsWith<IllegalArgumentException> {
+            Base62.decode("")
+        }
+
+        assertFailsWith<IllegalArgumentException> {
+            Base62.decode(" \t ")
+        }
+    }
+
     @RepeatedTest(REPEAT_SIZE)
     fun `Long 타입의 값을 Base62 인코딩하기`() {
         val expected = Random.nextLong(0, 1000000000L)

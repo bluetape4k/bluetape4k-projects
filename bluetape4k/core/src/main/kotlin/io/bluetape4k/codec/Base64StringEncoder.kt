@@ -41,7 +41,7 @@ class Base64StringEncoder: StringEncoder {
      * @return 디코딩된 바이트 배열, [encoded] 가 null 이거나 빈 문자열인 경우 빈 바이트 배열을 반환
      */
     override fun decode(encoded: String?): ByteArray {
-        return encoded?.takeIf { it.isNotBlank() }?.run { decoder.decode(this.toUtf8Bytes()) }
+        return encoded?.takeIf { it.isNotBlank() }?.run { decoder.decode(this) }
             ?: emptyByteArray
     }
 }

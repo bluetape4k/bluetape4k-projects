@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
 import java.util.*
+import kotlin.test.assertFailsWith
 
 @RandomizedTest
 class Base58Test {
@@ -69,6 +70,24 @@ class Base58Test {
         val encoded = Base58.encode(uuid.toString())
         val decoded = Base58.decodeAsString(encoded)
         UUID.fromString(decoded) shouldBeEqualTo uuid
+    }
+
+    @Test
+    fun `잘못된 Base58 문자열은 예외를 던진다`() {
+        assertFailsWith<IllegalArgumentException> {
+            Base58.decode("0OIl")
+        }
+    }
+
+    @Test
+    fun `빈 문자열은 Base58 디코딩 시 예외를 던진다`() {
+        assertFailsWith<IllegalArgumentException> {
+            Base58.decode("")
+        }
+
+        assertFailsWith<IllegalArgumentException> {
+            Base58.decode(" \t ")
+        }
     }
 
     @Test

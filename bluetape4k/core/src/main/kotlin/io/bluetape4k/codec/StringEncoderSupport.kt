@@ -29,7 +29,7 @@ fun ByteArray?.encodeBase64String(): String =
     this?.run { base64Encoder.encode(this) } ?: EMPTY_STRING
 
 /**
- * [String]을 Base64 인코딩한 바이트 배열로 변환합니다.
+ * [String]을 Base64 인코딩한 문자열의 UTF-8 바이트 배열로 변환합니다.
  */
 fun String?.encodeBase64ByteArray(): ByteArray =
     this?.run { base64Encoder.encode(this.toUtf8Bytes()).toUtf8Bytes() } ?: emptyByteArray
@@ -78,13 +78,13 @@ fun ByteArray?.encodeHexString(): String =
     this?.run { hexEncoder.encode(this) } ?: EMPTY_STRING
 
 /**
- * 16진법 문자열을 [ByteArray]로 변환합니다.
+ * [String]을 16진법 문자열로 인코딩한 UTF-8 바이트 배열로 변환합니다.
  */
 fun String?.encodeHexByteArray(): ByteArray =
     this?.run { hexEncoder.encode(this.toUtf8Bytes()).toUtf8Bytes() } ?: emptyByteArray
 
 /**
- * 16진법 문자열을 [ByteArray]로 변환합니다.
+ * [String]을 16진법 문자열로 인코딩합니다.
  */
 fun String?.encodeHexString(): String =
     this?.run { hexEncoder.encode(this.toUtf8Bytes()) } ?: EMPTY_STRING
