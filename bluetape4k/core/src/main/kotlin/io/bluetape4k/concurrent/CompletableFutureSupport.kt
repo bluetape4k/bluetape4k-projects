@@ -90,9 +90,13 @@ inline fun <V> futureWithTimeout(
     timeoutMillis: Long = 1000L,
     crossinline block: () -> V,
 ): CompletableFuture<V> {
+    val executor = Executors.newVirtualThreadPerTaskExecutor()
     return CompletableFuture
-        .supplyAsync({ block() }, Executors.newThreadPerTaskExecutor(Thread.ofVirtual().factory()))
+        .supplyAsync({ block() }, executor)
         .orTimeout(timeoutMillis.coerceAtLeast(10L), TimeUnit.MILLISECONDS)
+        .whenComplete { _, _ ->
+            executor.shutdown()
+        }
 }
 
 

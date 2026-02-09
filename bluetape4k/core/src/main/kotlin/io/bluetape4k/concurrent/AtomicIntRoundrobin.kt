@@ -37,7 +37,7 @@ class AtomicIntRoundrobin private constructor(val maximum: Int) {
     /**
      * 현재 값을 반환합니다.
      */
-    fun get(): Int = lock.withLock { currentValue }
+    fun get(): Int = currentValue
 
     /**
      * 현재 값을 설정합니다.

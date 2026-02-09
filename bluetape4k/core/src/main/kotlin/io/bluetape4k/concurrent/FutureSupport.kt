@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit
 @Suppress("UNCHECKED_CAST")
 fun <T> Future<T>.asCompletionStage(): CompletionStage<T> = when (this@asCompletionStage) {
     is CompletionStage<*> -> this@asCompletionStage as CompletionStage<T>
-    else                  -> FutureToCompletableFutureWrapper(this)
+    else -> FutureToCompletableFutureWrapper(this)
 }
 
 /**
@@ -37,7 +37,7 @@ fun <T> Future<T>.asCompletionStage(): CompletionStage<T> = when (this@asComplet
  */
 fun <T> Future<T>.asCompletableFuture(): CompletableFuture<T> = when (this@asCompletableFuture) {
     is CompletableFuture<*> -> this@asCompletableFuture as CompletableFuture<T>
-    else                    -> FutureToCompletableFutureWrapper(this)
+    else -> FutureToCompletableFutureWrapper(this)
 }
 
 private class FutureToCompletableFutureWrapper<T> private constructor(
@@ -78,7 +78,7 @@ private class FutureToCompletableFutureWrapper<T> private constructor(
             }
             schedule { tryToComplete() }
         } catch (e: Throwable) {
-            log.error(e) { "Fail to wait to complete Future instance." }
+            log.error(e) { "Future 인스턴스가 예외를 발생시켰습니다." }
             this.completeExceptionally(e.cause ?: e)
             service.shutdown()
         }

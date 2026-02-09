@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit
  * @param T 작업 결과 타입
  * @param future [Future] 인스턴스
  */
+@Suppress("JavaDefaultMethodsNotOverriddenByDelegation")
 class VirtualFuture<T>(private val future: Future<T>): Future<T> by future {
     /**
      * Virtual thread 가 완료되기를 기다림

@@ -76,6 +76,7 @@ class FutureUtilsTest {
 
         val futures = fastList(10) {
             futureOf {
+                log.debug { "Task[$it] is starting..." }
                 Thread.sleep(100L * (it + 1))
                 it.apply {
                     log.debug { "result=$it" }
