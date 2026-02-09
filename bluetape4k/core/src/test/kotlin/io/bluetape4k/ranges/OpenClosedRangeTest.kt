@@ -17,6 +17,19 @@ class OpenClosedRangeTest {
     }
 
     @Test
+    fun `create by factory function`() {
+        openClosedRangeOf(0, 10) shouldBeEqualTo DefaultOpenClosedRange(0, 10)
+        openClosedRangeOf(1.0, 2.0) shouldBeEqualTo DefaultOpenClosedRange(1.0, 2.0)
+    }
+
+    @Test
+    fun `boundary properties`() {
+        val range = openClosedRangeOf(0, 10)
+        range.isStartInclusive.shouldBeFalse()
+        range.isEndInclusive.shouldBeTrue()
+    }
+
+    @Test
     fun `if last is smaller than or equals to first`() {
         DefaultOpenClosedRange(1, 2).isEmpty().shouldBeFalse()
 

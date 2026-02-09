@@ -2,7 +2,8 @@ package io.bluetape4k.math
 
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.collections.eclipse.toUnifiedMap
-import io.bluetape4k.ranges.ClosedOpenDoubleRange
+import io.bluetape4k.ranges.ClosedOpenRange
+import io.bluetape4k.ranges.DefaultClosedOpenRange
 import io.bluetape4k.support.coerce
 import org.eclipse.collections.impl.list.mutable.FastList
 import java.util.concurrent.ThreadLocalRandom
@@ -115,12 +116,12 @@ class WeightedDice<T: Any> private constructor(probabilities: Map<T, Double>) {
 
     private val sum: Double = probabilities.values.sum()
 
-    private val rangedDistribution: Map<T, ClosedOpenDoubleRange> = probabilities.let { map ->
+    private val rangedDistribution: Map<T, ClosedOpenRange<Double>> = probabilities.let { map ->
         var binStart = 0.0
 
         map.asSequence()
             .sortedBy { it.value }
-            .map { it.key to ClosedOpenDoubleRange(binStart, it.value + binStart) }
+            .map { it.key to DefaultClosedOpenRange(binStart, it.value + binStart) }
             .onEach { binStart = it.second.endExclusive }
             .toUnifiedMap()
     }

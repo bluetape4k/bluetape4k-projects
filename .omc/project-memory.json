@@ -246,6 +246,115 @@
       ]
     }
   },
-  "hotPaths": [],
+  "hotPaths": [
+    {
+      "path": "bluetape4k/core/src/main/kotlin/io/bluetape4k/ranges/Range.kt",
+      "accessCount": 4,
+      "lastAccessed": 1770622293914,
+      "type": "file"
+    },
+    {
+      "path": "bluetape4k/core/src/test/kotlin/io/bluetape4k/ranges/RangeSupportTest.kt",
+      "accessCount": 4,
+      "lastAccessed": 1770622464042,
+      "type": "file"
+    },
+    {
+      "path": "bluetape4k/core/src/main/kotlin/io/bluetape4k/ranges/ClosedClosedRange.kt",
+      "accessCount": 3,
+      "lastAccessed": 1770622302959,
+      "type": "file"
+    },
+    {
+      "path": "bluetape4k/core/src/main/kotlin/io/bluetape4k/ranges/ClosedOpenRange.kt",
+      "accessCount": 3,
+      "lastAccessed": 1770622317420,
+      "type": "file"
+    },
+    {
+      "path": "bluetape4k/core/src/main/kotlin/io/bluetape4k/ranges/OpenClosedRange.kt",
+      "accessCount": 3,
+      "lastAccessed": 1770622324823,
+      "type": "file"
+    },
+    {
+      "path": "bluetape4k/core/src/main/kotlin/io/bluetape4k/ranges/OpenOpenRange.kt",
+      "accessCount": 3,
+      "lastAccessed": 1770622331932,
+      "type": "file"
+    },
+    {
+      "path": "bluetape4k/core/src/main/kotlin/io/bluetape4k/ranges/ClosedRangeSupport.kt",
+      "accessCount": 3,
+      "lastAccessed": 1770622339839,
+      "type": "file"
+    },
+    {
+      "path": "bluetape4k/core/src/test/kotlin/io/bluetape4k/ranges/ClosedClosedRangeTest.kt",
+      "accessCount": 3,
+      "lastAccessed": 1770622361255,
+      "type": "file"
+    },
+    {
+      "path": "bluetape4k/core/src/test/kotlin/io/bluetape4k/ranges/ClosedOpenRangeTest.kt",
+      "accessCount": 3,
+      "lastAccessed": 1770622368019,
+      "type": "file"
+    },
+    {
+      "path": "bluetape4k/core/src/test/kotlin/io/bluetape4k/ranges/OpenClosedRangeTest.kt",
+      "accessCount": 3,
+      "lastAccessed": 1770622375245,
+      "type": "file"
+    },
+    {
+      "path": "bluetape4k/core/src/test/kotlin/io/bluetape4k/ranges/OpenOpenRangeTest.kt",
+      "accessCount": 3,
+      "lastAccessed": 1770622392612,
+      "type": "file"
+    },
+    {
+      "path": "bluetape4k/core/src/main/kotlin/io/bluetape4k/ranges/InvalidRangeException.kt",
+      "accessCount": 2,
+      "lastAccessed": 1770618244071,
+      "type": "file"
+    },
+    {
+      "path": "utils/javatimes/src/main/kotlin/io/bluetape4k/javatimes/period/ranges/RangeSupport.kt",
+      "accessCount": 1,
+      "lastAccessed": 1770618212502,
+      "type": "file"
+    },
+    {
+      "path": "utils/javatimes/src/main/kotlin/io/bluetape4k/javatimes/period/ranges/CalendarTimeRange.kt",
+      "accessCount": 1,
+      "lastAccessed": 1770618212882,
+      "type": "file"
+    },
+    {
+      "path": "utils/javatimes/src/main/kotlin/io/bluetape4k/javatimes/period/ranges/DayRange.kt",
+      "accessCount": 1,
+      "lastAccessed": 1770618215817,
+      "type": "file"
+    },
+    {
+      "path": "utils/javatimes/src/main/kotlin/io/bluetape4k/javatimes/period/ranges/YearRange.kt",
+      "accessCount": 1,
+      "lastAccessed": 1770618216133,
+      "type": "file"
+    },
+    {
+      "path": "bluetape4k/core/src/main/kotlin/io/bluetape4k/collections/eclipse/ranges/IntervalExtensions.kt",
+      "accessCount": 1,
+      "lastAccessed": 1770618216554,
+      "type": "file"
+    },
+    {
+      "path": "bluetape4k/core/src/main/kotlin/io/bluetape4k/collections/eclipse/ranges/ProgressionExtensions.kt",
+      "accessCount": 1,
+      "lastAccessed": 1770618216939,
+      "type": "file"
+    }
+  ],
   "userDirectives": []
 }

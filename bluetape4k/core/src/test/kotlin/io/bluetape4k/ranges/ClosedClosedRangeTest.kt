@@ -17,10 +17,27 @@ class ClosedClosedRangeTest {
     }
 
     @Test
-    fun `if last is smaller than or equals to first`() {
+    fun `create by factory function`() {
+        closedClosedRangeOf(0, 10) shouldBeEqualTo DefaultClosedClosedRange(0, 10)
+        closedClosedRangeOf(1.0, 2.0) shouldBeEqualTo DefaultClosedClosedRange(1.0, 2.0)
+    }
+
+    @Test
+    fun `boundary properties`() {
+        val range = closedClosedRangeOf(0, 10)
+        range.isStartInclusive.shouldBeTrue()
+        range.isEndInclusive.shouldBeTrue()
+    }
+
+    @Test
+    fun `isEmpty checks`() {
         DefaultClosedClosedRange(1, 2).isEmpty().shouldBeFalse()
 
-        DefaultClosedClosedRange(1, 1).isEmpty().shouldBeTrue()
+        // [1,1]은 원소 1을 포함하므로 비어있지 않음
+        DefaultClosedClosedRange(1, 1).isEmpty().shouldBeFalse()
+        DefaultClosedClosedRange(1, 1).contains(1).shouldBeTrue()
+
+        // start > end인 경우만 비어있음
         DefaultClosedClosedRange(2, 1).isEmpty().shouldBeTrue()
     }
 

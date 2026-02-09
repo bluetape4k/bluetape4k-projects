@@ -20,6 +20,9 @@ interface ClosedClosedRange<T: Comparable<T>>: Range<T>, ClosedRange<T> {
     override val first: T get() = startInclusive
     override val last: T get() = endInclusive
 
+    override val isStartInclusive: Boolean get() = true
+    override val isEndInclusive: Boolean get() = true
+
     override fun contains(value: T): Boolean =
         value in startInclusive..endInclusive
 
@@ -42,9 +45,18 @@ data class DefaultClosedClosedRange<T: Comparable<T>>(
     override fun contains(value: T): Boolean =
         value in startInclusive..endInclusive
 
-    override fun isEmpty(): Boolean = startInclusive >= endInclusive
+    override fun isEmpty(): Boolean = startInclusive > endInclusive
     override fun toString(): String = "[$startInclusive..$endInclusive]"
 }
+
+/**
+ * [ClosedClosedRange]를 생성하는 팩토리 함수입니다.
+ *
+ * @param start 하한 (포함)
+ * @param end 상한 (포함)
+ */
+fun <T: Comparable<T>> closedClosedRangeOf(start: T, end: T): ClosedClosedRange<T> =
+    DefaultClosedClosedRange(start, end)
 
 /**
  * [Range]를 [ClosedClosedRange]로 변환합니다.

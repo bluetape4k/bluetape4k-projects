@@ -20,13 +20,11 @@ fun <T: Comparable<T>> Iterable<ClosedRange<T>>.isAscending(): Boolean {
 /**
  * [BigDecimal] 수형의 [ClosedClosedRange]를 생성합니다.
  */
-@SinceKotlin("1.1")
 operator fun BigDecimal.rangeTo(endInclusive: BigDecimal): ClosedClosedRange<BigDecimal> =
     DefaultClosedClosedRange(this, endInclusive)
 
 /**
  * [BigInteger] 수형의 [ClosedClosedRange]를 생성합니다.
  */
-@SinceKotlin("1.1")
 operator fun BigInteger.rangeTo(endInclusive: BigInteger): ClosedClosedRange<BigInteger> =
     DefaultClosedClosedRange(this, endInclusive)
