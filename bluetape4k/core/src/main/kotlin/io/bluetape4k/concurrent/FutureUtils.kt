@@ -67,10 +67,13 @@ object FutureUtils {
         executor: Executor = ForkJoinExecutor,
     ): CompletableFuture<List<V>> {
 
-        return CompletableFuture.supplyAsync<List<V>> {
-            CompletableFuture.allOf(*futures.toList().toTypedArray()).join()
-            futures.map { it.get() }
-        }
+        return CompletableFuture.supplyAsync<List<V>>(
+            {
+                CompletableFuture.allOf(*futures.toList().toTypedArray()).join()
+                futures.map { it.get() }
+            },
+            executor
+        )
     }
 
     /**
@@ -113,18 +116,13 @@ object FutureUtils {
         futures: Iterable<CompletableFuture<V>>,
         executor: Executor = ForkJoinExecutor,
     ): CompletableFuture<List<V>> {
-        return CompletableFuture.supplyAsync<List<V>> {
-            runCatching { CompletableFuture.allOf(*futures.toList().toTypedArray()).join() }
-            futures.filter { it.isSuccess }.map { it.get() }
-        }
-//        return futures.fold(completableFutureOf(mutableListOf<V>())) { futureAcc, future ->
-//            futureAcc.flatMap(executor) { acc ->
-//                future.map(executor) {
-//                    it?.run { acc.add(this) }
-//                    acc
-//                }
-//            }
-//        }.map(executor) { it.toList() }
+        return CompletableFuture.supplyAsync<List<V>>(
+            {
+                runCatching { CompletableFuture.allOf(*futures.toList().toTypedArray()).join() }
+                futures.filter { it.isSuccess }.map { it.get() }
+            },
+            executor
+        )
     }
 
 

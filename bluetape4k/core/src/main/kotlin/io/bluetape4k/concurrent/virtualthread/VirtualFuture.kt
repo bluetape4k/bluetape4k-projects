@@ -60,13 +60,4 @@ class VirtualFuture<T>(private val future: Future<T>): Future<T> by future {
             else -> future.get(timeout.toMillis(), TimeUnit.MILLISECONDS)
         }
     }
-
-    override fun exceptionNow(): Throwable? {
-        return future.exceptionNow()
-    }
-
-    override fun state(): Future.State? {
-        return future.state()
-    }
-
 }

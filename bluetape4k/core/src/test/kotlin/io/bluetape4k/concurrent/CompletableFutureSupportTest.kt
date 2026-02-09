@@ -11,8 +11,10 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
+import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertFails
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * [CompletableFuture] 관련 함수를 테스트합니다.
@@ -290,6 +292,86 @@ class CompletableFutureSupportTest {
             assertFailsWith<ExecutionException> {
                 failed.zip(success) { a, b -> a + b }.get()
             }.cause shouldBeInstanceOf IllegalArgumentException::class
+        }
+    }
+
+    @Nested
+    inner class IsSuccessAndIsFailed {
+        @Test
+        fun `성공한 CompletableFuture는 isSuccess가 true이다`() {
+            success.isSuccess.shouldBeTrue()
+            success.isFailed.shouldBeFalse()
+        }
+
+        @Test
+        fun `실패한 CompletableFuture는 isFailed가 true이다`() {
+            failed.isFailed.shouldBeTrue()
+            failed.isSuccess.shouldBeFalse()
+        }
+
+        @Test
+        fun `아직 완료되지 않은 CompletableFuture는 isSuccess가 false이다`() {
+            val pending = CompletableFuture<Int>()
+            pending.isSuccess.shouldBeFalse()
+            pending.isFailed.shouldBeFalse()
+        }
+
+        @Test
+        fun `취소된 CompletableFuture는 isSuccess가 false이다`() {
+            val cancelled = CompletableFuture<Int>()
+            cancelled.cancel(true)
+
+            cancelled.isSuccess.shouldBeFalse()
+            cancelled.isFailed.shouldBeTrue()  // isCancelled도 isCompletedExceptionally에 포함
+        }
+    }
+
+    @Nested
+    inner class FutureWithTimeoutTest {
+        @Test
+        fun `시간 내에 완료되면 결과를 반환한다`() {
+            val result = futureWithTimeout(500L) {
+                Thread.sleep(50)
+                42
+            }
+            result.get() shouldBeEqualTo 42
+        }
+
+        @Test
+        fun `시간 초과 시 TimeoutException이 발생한다`() {
+            val result = futureWithTimeout(50L) {
+                Thread.sleep(3000)
+                42
+            }
+            assertFailsWith<ExecutionException> {
+                result.get()
+            }.cause shouldBeInstanceOf TimeoutException::class
+        }
+
+        @Test
+        fun `Duration 파라미터로 futureWithTimeout을 사용한다`() {
+            val result = futureWithTimeout(500.milliseconds) {
+                Thread.sleep(50)
+                "hello"
+            }
+            result.get() shouldBeEqualTo "hello"
+        }
+    }
+
+    @Nested
+    inner class Dereference {
+        @Test
+        fun `dereference는 flatten과 동일하게 동작한다`() {
+            val nested = futureOf { completableFutureOf(42) }
+            nested.dereference().get() shouldBeEqualTo 42
+        }
+
+        @Test
+        fun `dereference로 실패한 중첩 future를 처리한다`() {
+            val nested = futureOf { failedCompletableFutureOf<Int>(RuntimeException("boom")) }
+            assertFailsWith<ExecutionException> {
+                nested.dereference().get()
+            }.cause shouldBeInstanceOf RuntimeException::class
         }
     }
 }

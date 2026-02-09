@@ -231,6 +231,36 @@ class ConcurrentReducerTest {
         reducer.remainingQueueCapacity shouldBeEqualTo queueSize
     }
 
+    @Test
+    fun `close 호출 시 큐가 비워지고 더 이상 작업이 실행되지 않는다`() {
+        val reducer = concurrentReducerOf<String>(1, 10)
+        val request = CompletableFuture<String>()
+
+        // 활성 작업 1개, 큐에 대기 작업 2개 추가
+        reducer.add { request }
+        reducer.add { CompletableFuture() }
+        reducer.add { CompletableFuture() }
+
+        reducer.activeCount shouldBeEqualTo 1
+        reducer.queuedCount shouldBeEqualTo 2
+
+        // close 호출
+        reducer.close()
+
+        // 큐가 비워져야 한다
+        reducer.queuedCount shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `close 후 use 패턴으로 안전하게 리소스를 정리할 수 있다`() {
+        val result = concurrentReducerOf<String>(2, 10).use { reducer ->
+            val promise = reducer.add { completableFutureOf("done") }
+            await until { promise.isDone }
+            promise.get()
+        }
+        result shouldBeEqualTo "done"
+    }
+
     private fun job(future: CompletionStage<String>?): () -> CompletionStage<String>? = { future }
 
     private class CountingJob(

@@ -30,6 +30,6 @@ package io.bluetape4k.concurrent.virtualthread
  */
 inline fun <T> ScopedValue<T>.runWith(value: T, crossinline block: (ScopedValue<T>) -> Unit) {
     ScopedValue.where(this, value).run {
-        block(this)
+        block(this@runWith)
     }
 }
