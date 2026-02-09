@@ -6,6 +6,7 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requirePositiveNumber
 import io.bluetape4k.utils.Runtimex
+import java.io.Closeable
 import java.io.Serializable
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.BlockingQueue
@@ -34,7 +35,7 @@ fun <T> concurrentReducerOf(
 class ConcurrentReducer<T> internal constructor(
     private val maxConcurrency: Int,
     private val maxQueueSize: Int,
-) {
+): Closeable {
     companion object: KLogging()
 
     private val queue: BlockingQueue<Job<T>> = ArrayBlockingQueue(maxQueueSize)
@@ -124,6 +125,15 @@ class ConcurrentReducer<T> internal constructor(
             // pump()가 현재 스레드에서 실행되면 deadlock 발생 가능성 있음
             CompletableFuture.runAsync({ pump() }, pumpExecutor)
         }
+    }
+
+    /**
+     * 내부 리소스를 정리합니다.
+     * 큐에 남아있는 작업은 취소되고, pump executor를 종료합니다.
+     */
+    override fun close() {
+        queue.clear()
+        pumpExecutor.shutdown()
     }
 
     private data class Job<T>(

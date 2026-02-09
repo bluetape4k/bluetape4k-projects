@@ -8,7 +8,6 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
-import java.util.function.BiConsumer
 
 /**
  * [Future] 인스턴스를 [CompletionStage] 로 변환합니다.
@@ -69,21 +68,18 @@ private class FutureToCompletableFutureWrapper<T> private constructor(
                 } catch (e: ExecutionException) {
                     this.completeExceptionally(e.cause ?: e)
                 }
+                service.shutdown()
                 return
             }
             if (future.isCancelled) {
                 this.cancel(true)
+                service.shutdown()
                 return
             }
             schedule { tryToComplete() }
         } catch (e: Throwable) {
             log.error(e) { "Fail to wait to complete Future instance." }
             this.completeExceptionally(e.cause ?: e)
-        }
-    }
-
-    override fun whenComplete(action: BiConsumer<in T, in Throwable>): CompletableFuture<T> {
-        return super.whenComplete(action).apply {
             service.shutdown()
         }
     }

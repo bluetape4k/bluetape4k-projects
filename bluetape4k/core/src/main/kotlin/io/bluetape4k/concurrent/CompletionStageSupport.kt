@@ -9,7 +9,8 @@ import java.util.function.BiFunction
 
 /**
  * [CompletionStage]의 예외정보를 가져온다.
- * 성공적으로 완료된 CompletionStage라면 null을 반환한다.
+ * 예외로 완료되지 않은 CompletionStage라면 [IllegalStateException]을 발생시킨다.
+ * 예외 없이 null을 반환받으려면 [getExceptionOrNull]을 사용하세요.
  *
  * ```
  * val future = CompletableFuture.failedFuture(RuntimeException("Something went wrong"))
@@ -18,6 +19,8 @@ import java.util.function.BiFunction
  * ex shouldBeInstanceOf RuntimeException::class
  * ex.message shouldBeEqualTo "Something went wrong"
  * ```
+ *
+ * @throws IllegalStateException 예외로 완료되지 않은 경우
  */
 fun <T> CompletionStage<T>.getException(): Throwable? {
     val future = this.toCompletableFuture()
@@ -266,7 +269,7 @@ fun <V> CompletionStage<out CompletionStage<V>>.flatten(executor: Executor = For
  * @return CompletionStage<V>
  */
 fun <V> CompletionStage<out CompletionStage<V>>.dereference(executor: Executor = ForkJoinExecutor): CompletionStage<V> =
-    flatMap(executor) { it }
+    flatten(executor)
 
 /**
  * `CompletionStage<V>`를 `CompletionStage<CompletionStage<V>>`로 변환합니다.
@@ -390,7 +393,7 @@ fun <R, A, B, C, D> combineOf(
  * val c: CompletableFuture<Boolean> = CompletableFuture.completedFuture(true)
  * val d: CompletableFuture<Double> = CompletableFuture.completedFuture(3.14)
  * val e: CompletableFuture<Long> = CompletableFuture.completedFuture(1000L)
- * val result: CompletableFuture<String> = combineOf(a, b, c, d, e) { a, b, c, d -> "$a $b $c $d $e" }
+ * val result: CompletableFuture<String> = combineOf(a, b, c, d, e) { a, b, c, d, e -> "$a $b $c $d $e" }
  * ```
  *
  * @param R 결과 수형
@@ -433,7 +436,7 @@ fun <R, A, B, C, D, E> combineOf(
  * val d: CompletableFuture<Double> = CompletableFuture.completedFuture(3.14)
  * val e: CompletableFuture<Long> = CompletableFuture.completedFuture(1000L)
  * val f: CompletableFuture<Char> = CompletableFuture.completedFuture('A')
- * val result: CompletableFuture<String> = combineOf(a, b, c, d, e, f) { a, b, c, d -> "$a $b $c $d $e $f" }
+ * val result: CompletableFuture<String> = combineOf(a, b, c, d, e, f) { a, b, c, d, e, f -> "$a $b $c $d $e $f" }
  * ```
  *
  * @param R 결과 수형
@@ -450,7 +453,7 @@ fun <R, A, B, C, D, E> combineOf(
  * @param e 다섯 번째 [CompletionStage]
  * @param f 여섯 번째 [CompletionStage]
  * @param executor Executor (default: ForkJoinExecutor)
- * @param combiner (A, B, C, D, E, F) -> R 다섯 개의 결과를 결합하는 함수
+ * @param combiner (A, B, C, D, E, F) -> R 여섯 개의 결과를 결합하는 함수
  * @return CompletionStage<R>
  */
 @Suppress("UNCHECKED_CAST")

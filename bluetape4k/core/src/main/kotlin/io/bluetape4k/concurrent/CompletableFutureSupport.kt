@@ -90,17 +90,9 @@ inline fun <V> futureWithTimeout(
     timeoutMillis: Long = 1000L,
     crossinline block: () -> V,
 ): CompletableFuture<V> {
-    // TODO: 이 방식 말고, ScheduledThreadPoolExecutor 를 이용하여, ThreadPoolExecutor.DiscardPolicy 를 사용하는 방식으로 변경하는 것이 좋겠다.
-    // TODO: 이런 방식은 jetcache 의 JetCacheExecutor 를 참고하면 된다.
-    // HINT: 또한 ThreadFactory 를 Virtual Thread Factory 를 사용하면 더 좋을 것이다.
-    val executor = Executors.newSingleThreadExecutor()
     return CompletableFuture
-        .supplyAsync({ block() }, executor)
+        .supplyAsync({ block() }, Executors.newThreadPerTaskExecutor(Thread.ofVirtual().factory()))
         .orTimeout(timeoutMillis.coerceAtLeast(10L), TimeUnit.MILLISECONDS)
-        .whenCompleteAsync { _, _ ->
-            // Timeout이 걸렸건, 완료되었건 executor를 정리한다 (계속 진행 중인 작업이 있다면 취소한다)
-            executor.shutdownNow()
-        }
 }
 
 
@@ -181,7 +173,7 @@ fun <V> CompletableFuture<out CompletableFuture<V>>.flatten(
 fun <V> CompletableFuture<out CompletableFuture<V>>.dereference(
     executor: Executor = ForkJoinExecutor,
 ): CompletableFuture<V> =
-    flatMap(executor) { it }
+    flatten(executor)
 
 /**
  * `CompletableFuture<V>`를 `CompletableFuture<CompletableFuture<V>>`로 감싸서 반환합니다.
@@ -480,8 +472,10 @@ val <V> CompletableFuture<V>.isFailed: Boolean get() = this.isCompletedException
 
 /**
  * [CompletableFuture] 가 성공한 것인지 확인합니다.
+ * 완료되었으며, 예외 없이 정상적으로 완료되고, 취소되지 않은 경우에만 `true`를 반환합니다.
  */
-val <V> CompletableFuture<V>.isSuccess: Boolean get() = this.isDone
+val <V> CompletableFuture<V>.isSuccess: Boolean
+    get() = this.isDone && !this.isCompletedExceptionally && !this.isCancelled
 
 /**
  * 제한된 사간([duration]) ]안에 [CompletableFuture]의 결과값을 반환합니다.

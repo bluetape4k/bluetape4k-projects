@@ -20,7 +20,55 @@ class FutureUtilsTest {
     private val failed: CompletableFuture<Int> = failedCompletableFutureOf(IllegalArgumentException())
     private val emptyFutures: List<CompletableFuture<Int>> = emptyList()
 
-    // TODO : firstCompleted, allAsList, successfulAsList 에 대한 Test case 추가
+    @Test
+    fun `allAsList - 모든 성공 future를 리스트로 반환한다`() {
+        val futures = (1..5).map { completableFutureOf(it) }
+        val result = FutureUtils.allAsList(futures).get()
+        result shouldBeEqualTo listOf(1, 2, 3, 4, 5)
+    }
+
+    @Test
+    fun `allAsList - 하나라도 실패하면 예외가 발생한다`() {
+        val futures = listOf(
+            completableFutureOf(1),
+            completableFutureOf(2),
+            failedCompletableFutureOf<Int>(IllegalStateException("Boom!"))
+        )
+        assertFailsWith<ExecutionException> {
+            FutureUtils.allAsList(futures).get()
+        }
+    }
+
+    @Test
+    fun `allAsList - 빈 리스트는 빈 결과를 반환한다`() {
+        val result = FutureUtils.allAsList(emptyFutures).get()
+        result shouldBeEqualTo emptyList()
+    }
+
+    @Test
+    fun `successfulAsList - 성공한 future만 반환한다`() {
+        val futures = listOf(
+            completableFutureOf(1),
+            failedCompletableFutureOf(IllegalStateException("Boom!")),
+            completableFutureOf(3),
+        )
+        val result = FutureUtils.successfulAsList(futures).get()
+        result shouldBeEqualTo listOf(1, 3)
+    }
+
+    @Test
+    fun `successfulAsList - 모두 성공하면 전부 반환한다`() {
+        val futures = (1..5).map { completableFutureOf(it) }
+        val result = FutureUtils.successfulAsList(futures).get()
+        result shouldBeEqualTo listOf(1, 2, 3, 4, 5)
+    }
+
+    @Test
+    fun `successfulAsList - 모두 실패하면 빈 리스트를 반환한다`() {
+        val futures = (1..3).map { failedCompletableFutureOf<Int>(RuntimeException("error $it")) }
+        val result = FutureUtils.successfulAsList(futures).get()
+        result shouldBeEqualTo emptyList()
+    }
 
     @Test
     fun `CompletableFuture Task들 중 첫번째 완료된 작업을 반환하고, 나머지는 캔슬한다`() {
