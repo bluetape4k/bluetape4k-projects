@@ -28,12 +28,16 @@ class NumberSupportTest {
 
     @Test
     fun `string is hex number`() {
-        "0x74".isHexNumber().shouldBeTrue()
-        "0XHH".isHexNumber().shouldBeTrue()
-        "#3A".isHexNumber().shouldBeTrue()
-        "-0xAD".isHexNumber().shouldBeTrue()
+        "0x74".isHexFormat().shouldBeTrue()
+        "0XFF".isHexFormat().shouldBeTrue()
+        "#3A".isHexFormat().shouldBeTrue()
+        "-0xAD".isHexFormat().shouldBeTrue()
+        "0X1234".isHexFormat().shouldBeTrue()
+        "0x1234".isHexFormat().shouldBeTrue()
 
-        "X0FF".isHexNumber().shouldBeFalse()
+        "0X123h".isHexFormat().shouldBeFalse()
+        "X0FF".isHexFormat().shouldBeFalse()
+        "0xZZ".isHexFormat().shouldBeFalse()
     }
 
     @Test

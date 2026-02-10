@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package io.bluetape4k.support
 
 import io.bluetape4k.exceptions.NotSupportedException
@@ -38,9 +40,10 @@ val DefaultDecimalFormat: DecimalFormat = DecimalFormat("#,##0.#")
  * val humanReadable = number.toHuman()  // 1,234,567,890
  * ```
  *
- * @param df DecimalFormat (default: #,##0.#)
+ * @param decimalFormat DecimalFormat (default: #,##0.#)
  */
-fun Number.toHuman(df: DecimalFormat = DefaultDecimalFormat): String = df.format(this)
+inline fun Number.toHuman(decimalFormat: DecimalFormat = DefaultDecimalFormat): String =
+    decimalFormat.format(this)
 
 /**
  * 숫자의 범위를 [minValue]와 [maxValue] 사이로 제한한다.
@@ -55,7 +58,6 @@ fun Number.toHuman(df: DecimalFormat = DefaultDecimalFormat): String = df.format
 fun <T> T.coerce(minValue: T, maxValue: T): T where T: Number, T: Comparable<T> =
     minOf(maxOf(this, minValue), maxValue)
 
-
 /**
  * 문자열이 16진수 숫자를 나타내는 문자열인지 확인한다.
  *
@@ -66,11 +68,8 @@ fun <T> T.coerce(minValue: T, maxValue: T): T where T: Number, T: Comparable<T> 
  * "1234".isHexNumber()  // false
  * ```
  */
-fun String.isHexNumber(): Boolean {
-    val trimmed = this.trim()
-    val index = if (trimmed.startsWith("-")) 1 else 0
-
-    return trimmed.startsWith("0x", index, true) || trimmed.startsWith("#", index)
+fun String.isHexFormat(): Boolean {
+    return runCatching { java.lang.Long.decode(trim()) }.isSuccess
 }
 
 /**
@@ -145,14 +144,14 @@ inline fun <reified T: Number> String.parseNumber(): T {
     val trimmed: String = this.trim()
 
     return when (T::class) {
-        Byte::class       -> (if (trimmed.isHexNumber()) java.lang.Byte.decode(trimmed) else trimmed.toByte()) as T
-        Short::class      -> (if (trimmed.isHexNumber()) java.lang.Short.decode(trimmed) else trimmed.toShort()) as T
-        Int::class        -> (if (trimmed.isHexNumber()) java.lang.Integer.decode(trimmed) else trimmed.toInt()) as T
-        Long::class       -> (if (trimmed.isHexNumber()) java.lang.Long.decode(trimmed) else trimmed.toLong()) as T
-        BigInteger::class -> (if (trimmed.isHexNumber()) trimmed.decodeBigInt() else BigInteger(trimmed)) as T
+        Byte::class       -> (if (trimmed.isHexFormat()) java.lang.Byte.decode(trimmed) else trimmed.toByte()) as T
+        Short::class      -> (if (trimmed.isHexFormat()) java.lang.Short.decode(trimmed) else trimmed.toShort()) as T
+        Int::class        -> (if (trimmed.isHexFormat()) java.lang.Integer.decode(trimmed) else trimmed.toInt()) as T
+        Long::class       -> (if (trimmed.isHexFormat()) java.lang.Long.decode(trimmed) else trimmed.toLong()) as T
         Float::class      -> trimmed.toFloat() as T
         Double::class     -> trimmed.toDouble() as T
-        BigDecimal::class -> (if (trimmed.isHexNumber()) trimmed.decodeBigDecimal() else BigDecimal(trimmed)) as T
+        BigDecimal::class -> (if (trimmed.isHexFormat()) trimmed.decodeBigDecimal() else BigDecimal(trimmed)) as T
+        BigInteger::class -> (if (trimmed.isHexFormat()) trimmed.decodeBigInt() else BigInteger(trimmed)) as T
         Number::class     -> trimmed.toDouble() as T // trimmed as T
         else              -> throw NotSupportedException("Cannot convert CharSequence[$this] to target class [${T::class.simpleName}")
     }
