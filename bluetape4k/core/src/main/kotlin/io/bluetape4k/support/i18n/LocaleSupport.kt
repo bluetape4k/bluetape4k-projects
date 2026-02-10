@@ -1,49 +1,24 @@
 package io.bluetape4k.support.i18n
 
-import io.bluetape4k.collections.eclipse.fastListOf
-import io.bluetape4k.logging.KotlinLogging
-import io.bluetape4k.logging.trace
 import io.bluetape4k.support.assertNotBlank
+import io.bluetape4k.support.requireNotBlank
 import java.util.*
 
-private val log = KotlinLogging.logger { }
+fun localeOf(language: String): Locale = Locale.of(language)
+
+fun localeOf(language: String, country: String): Locale = Locale.of(language, country)
+
+fun localeOf(language: String, country: String, variant: String): Locale = Locale.of(language, country, variant)
 
 /**
  * [Locale] 이 시스템 기본 Locale 인지 확인합니다.
  */
-fun Locale.isDefault(): Boolean = Locale.getDefault() == this
+fun Locale.isDefault(): Boolean = this == Locale.getDefault()
 
 /**
  * [Locale]을 반환하던가, null 이면 시스템 기본 Locale을 반환합니다.
  */
 fun Locale?.orDefault(): Locale = this ?: Locale.getDefault()
-
-/**
- * [Locale] 의 부모 Locale을 구합니다.
- */
-@Deprecated("use getParent()", replaceWith = ReplaceWith("getParentOrNull()"))
-val Locale.parent: Locale?
-    get() = when {
-        variant.isNotEmpty() && (language.isNotEmpty() || country.isNotEmpty()) -> Locale.of(language, country)
-        country.isNotEmpty() -> Locale.of(language)
-        else -> null
-    }
-
-/**
- * [Locale] 의 모든 부모 Locale 들을 구합니다.
- */
-@Deprecated("Use getParents() methods", replaceWith = ReplaceWith("getParentList()"))
-val Locale.parents: List<Locale>
-    get() {
-        val result = fastListOf<Locale>()
-        var current: Locale? = this
-        while (current != null) {
-            result.add(current)
-            @Suppress("DEPRECATION")
-            current = current.parent
-        }
-        return result
-    }
 
 /**
  * [Locale] 의 부모 Locale을 구합니다.
@@ -57,7 +32,7 @@ val Locale.parents: List<Locale>
 fun Locale.getParentOrNull(): Locale? = when {
     variant.isNotEmpty() && (language.isNotEmpty() || country.isNotEmpty()) -> Locale.of(language, country)
     country.isNotEmpty() -> Locale.of(language)
-    else -> null
+    else                 -> null
 }
 
 /**
@@ -69,46 +44,35 @@ fun Locale.getParentOrNull(): Locale? = when {
  * Locale("en").getParentList()              // [en]
  * ```
  */
-fun Locale.getParentList(): List<Locale> {
-    val result = fastListOf<Locale>()
-    var current: Locale? = this
+fun Locale.getParentList(): List<Locale> = buildList {
+    var current: Locale? = this@getParentList
     while (current != null) {
-        result.add(current)
+        add(current)
         current = current.getParentOrNull()
     }
-    return result
 }
 
-
 /**
- * Calculate the filenames for the given bundle basename and Locale,
- * appending language code, country code, and variant code.
- * E.g.: basename "messages", Locale "de_AT_oo" -> "messages_de_AT_OO",
- * "messages_de_AT", "messages_de".
- *
- * Follows the rules defined by [Locale.toString]
+ * Locale에 따른 리소스 번들 파일명 목록을 생성합니다.
+ * language, country, variant를 조합하여 가장 구체적인 파일명부터 basename까지 반환합니다.
  *
  * ```
- * Locale("en", "US", "WIN").calculateFilenames("messages") // [messages_en_US_WIN, messages_en_US, messages_en]
- * Locale("en", "US").calculateFilenames("messages")        // [messages_en_US, messages_en]
- * Locale("en").calculateFilenames("messages")              // [messages_en]
+ * Locale("en", "US", "WIN").calculateFilenames("messages") // [messages_en_US_WIN, messages_en_US, messages_en, messages]
+ * Locale("en", "US").calculateFilenames("messages")        // [messages_en_US, messages_en, messages]
+ * Locale("en").calculateFilenames("messages")              // [messages_en, messages]
  * ```
  *
- * @param basename the basename of the bundle
- * @return the List of filenames to check
+ * @param basename 번들의 기본 이름
+ * @return 확인할 파일명 목록 (가장 구체적인 것이 먼저, basename이 마지막)
  */
 fun Locale.calculateFilenames(basename: String): List<String> {
+    basename.requireNotBlank("basename")
 
-    basename.assertNotBlank("basename")
-    log.trace { "Locale에 해당하는 파일명을 조합합니다. basename=$basename, locale=$this" }
-
-    val results = fastListOf<String>()
+    val results = mutableListOf<String>()
 
     val language = this.language
     val country = this.country
     val variant = this.variant
-
-    log.trace { "language=$language, country=$country, variant=$variant" }
 
     val temp = StringBuilder(basename)
     temp.append("_")
@@ -129,8 +93,6 @@ fun Locale.calculateFilenames(basename: String): List<String> {
         results.add(0, temp.toString())
     }
     results.add(basename)
-
-    log.trace { "Locale에 해당하는 파일명을 조합했습니다. basename=$basename, locale=$this, results=$results" }
 
     return results
 }

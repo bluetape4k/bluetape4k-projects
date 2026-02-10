@@ -61,6 +61,6 @@ fun Locale.localeLookupList(defaultLocale: Locale = this): List<Locale> =
     LocaleUtils.localeLookupList(this, defaultLocale)
 
 /**
- * Locale을 나타내는 문자열 [str]을 [Locale]로 변환합니다.
+ * Locale을 나타내는 문자열을 [Locale]로 변환합니다.
  */
-fun localeOf(str: String): Locale = LocaleUtils.toLocale(str)
+fun String.toLocale(): Locale = LocaleUtils.toLocale(this)
