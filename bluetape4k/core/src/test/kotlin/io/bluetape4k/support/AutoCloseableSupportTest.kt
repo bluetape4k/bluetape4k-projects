@@ -42,7 +42,7 @@ class AutoCloseableSupportTest {
         every { closeable.close() } answers { Thread.sleep(5000) }
 
         Thread.sleep(10)
-        closeable.closeTimeout(10) { e -> captured = e }
+        closeable.closeTimeout(100) { e -> captured = e }
         Thread.sleep(10)
 
         captured.shouldNotBeNull()
@@ -53,8 +53,8 @@ class AutoCloseableSupportTest {
     }
 
     @Test
-    fun `use in AutoCloseable`() {
-        closeable.use {
+    fun `useSafe for AutoCloseable`() {
+        closeable.useSafe {
             // do something
             log.debug { "closable executed..." }
         }
@@ -62,5 +62,4 @@ class AutoCloseableSupportTest {
         verify(exactly = 1) { closeable.close() }
         confirmVerified(closeable)
     }
-
 }

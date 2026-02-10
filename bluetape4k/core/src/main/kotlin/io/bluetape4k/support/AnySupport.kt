@@ -57,7 +57,9 @@ fun hashOf(vararg values: Any?): Int = Objects.hash(*values)
 
 /**
  * 두 객체가 같은지 판단합니다. (둘 다 null이면 true를 반환합니다)
+ * Kotlin에서는 `==` 연산자가 null 안전하게 객체의 동등성을 비교하므로, 이 함수는 사용하지 않는 것이 좋습니다.
  */
+@Deprecated("use `a == b` instead", ReplaceWith("a == b"))
 fun areEquals(a: Any?, b: Any?): Boolean =
     (a == null && b == null) || (a != null && a == b)
 
@@ -90,36 +92,24 @@ fun areEqualsSafe(a: Any?, b: Any?): Boolean {
  * arrayEquals(a, b) // true
  * ```
  */
+@OptIn(ExperimentalUnsignedTypes::class)
 fun arrayEquals(a: Any, b: Any): Boolean {
-    if (a is Array<*> && b is Array<*>) {
-        return a.contentEquals(b)
+    return when (a) {
+        is Array<*> if b is Array<*>         -> a.contentDeepEquals(b)
+        is BooleanArray if b is BooleanArray -> a.contentEquals(b)
+        is ByteArray if b is ByteArray       -> a.contentEquals(b)
+        is CharArray if b is CharArray       -> a.contentEquals(b)
+        is DoubleArray if b is DoubleArray   -> a.contentEquals(b)
+        is FloatArray if b is FloatArray     -> a.contentEquals(b)
+        is IntArray if b is IntArray         -> a.contentEquals(b)
+        is LongArray if b is LongArray       -> a.contentEquals(b)
+        is ShortArray if b is ShortArray     -> a.contentEquals(b)
+        is UByteArray if b is UByteArray     -> a.contentEquals(b)
+        is UShortArray if b is UShortArray   -> a.contentEquals(b)
+        is UIntArray if b is UIntArray       -> a.contentEquals(b)
+        is ULongArray if b is ULongArray     -> a.contentEquals(b)
+        else                                 -> false
     }
-    if (a is BooleanArray && b is BooleanArray) {
-        return a.contentEquals(b)
-    }
-    if (a is ByteArray && b is ByteArray) {
-        return a.contentEquals(b)
-    }
-    if (a is CharArray && b is CharArray) {
-        return a.contentEquals(b)
-    }
-    if (a is DoubleArray && b is DoubleArray) {
-        return a.contentEquals(b)
-    }
-    if (a is FloatArray && b is FloatArray) {
-        return a.contentEquals(b)
-    }
-    if (a is IntArray && b is IntArray) {
-        return a.contentEquals(b)
-    }
-    if (a is LongArray && b is LongArray) {
-        return a.contentEquals(b)
-    }
-    if (a is ShortArray && b is ShortArray) {
-        return a.contentEquals(b)
-    }
-
-    return false
 }
 
 /**
@@ -143,25 +133,31 @@ infix fun <T: Any, R: Any> Collection<T?>.whenAnyNotNull(block: (Collection<T>) 
 /**
  * 변수의 hash 값을 계산합니다. null인 경우 0을 반환합니다.
  */
-fun <T: Any> T?.hashCodeSafe(): Int {
+@OptIn(ExperimentalUnsignedTypes::class)
+fun Any?.hashCodeSafe(): Int {
     if (this == null) {
         return 0
     }
-    if (this.isArray) {
+    return if (this.isArray) {
         when (this) {
-            is Array<*>     -> this.contentHashCode()
+            is Array<*>    -> this.contentDeepHashCode()
             is BooleanArray -> this.contentHashCode()
+            is CharArray   -> this.contentHashCode()
             is ByteArray    -> this.contentHashCode()
-            is CharArray    -> this.contentHashCode()
+            is ShortArray  -> this.contentHashCode()
+            is IntArray    -> this.contentHashCode()
+            is LongArray   -> this.contentHashCode()
             is DoubleArray  -> this.contentHashCode()
             is FloatArray   -> this.contentHashCode()
-            is IntArray     -> this.contentHashCode()
-            is LongArray    -> this.contentHashCode()
-            is ShortArray   -> this.contentHashCode()
+            is UByteArray  -> this.contentHashCode()
+            is UShortArray -> this.contentHashCode()
+            is UIntArray   -> this.contentHashCode()
+            is ULongArray  -> this.contentHashCode()
             else            -> Objects.hash(this)
         }
+    } else {
+        this.hashCode()
     }
-    return this.hashCode()
 }
 
 /**
@@ -196,29 +192,47 @@ fun Any.identityHexString(): String = Integer.toHexString(System.identityHashCod
 /**
  * 객체를 문자열로 변환합니다. 배열인 경우는 `contentToString()`을 사용합니다.
  */
-fun Any?.toStr(): String = try {
-    when (this) {
-        null                                             -> "null"
-        is BooleanArray                                  -> this.contentToString()
-        is ByteArray                                     -> this.contentToString()
-        is CharArray                                     -> this.contentToString()
-        is ShortArray                                    -> this.contentToString()
-        is IntArray                                      -> this.contentToString()
-        is LongArray                                     -> this.contentToString()
-        is FloatArray                                    -> this.contentToString()
-        is DoubleArray                                   -> this.contentToString()
-        is Array<*>                                      -> this.contentDeepToString()
-        Void.TYPE.kotlin                                 -> "void"
-        kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED -> "SUSPEND_MARKER"
-        is Continuation<*>                               -> "continuation {}"
-        is KClass<*>                                     -> this.simpleName ?: "<null name class>"
-        is Method                                        -> name + "(" + parameterTypes.joinToString { it.simpleName } + ")"
-        is Function<*>                                   -> "lambda {}"
-        else                                             -> toString()
+fun Any?.toStr(): String =
+    try {
+        when (this) {
+            null                                             -> "null"
+            is BooleanArray                                  -> this.contentToString()
+            is ByteArray                                     -> this.contentToString()
+            is CharArray                                     -> this.contentToString()
+            is ShortArray                                    -> this.contentToString()
+            is IntArray                                      -> this.contentToString()
+            is LongArray                                     -> this.contentToString()
+            is FloatArray                                    -> this.contentToString()
+            is DoubleArray                                   -> this.contentToString()
+            is Array<*>                                      -> this.contentDeepToString()
+            is Map<*, *>                                     -> this.entries.joinToString(
+                ", ",
+                "{",
+                "}"
+            ) { "${it.key.toStr()}=${it.value.toStr()}" }
+            is Iterable<*>                                   -> this.joinToString(", ", "[", "]") { it.toStr() }
+            is Sequence<*>                                   -> this.joinToString(", ", "[", "]") { it.toStr() }
+            is Pair<*, *>                                    -> "(${first.toStr()}, ${second.toStr()})"
+            is Triple<*, *, *>                               -> "(${first.toStr()}, ${second.toStr()}, ${third.toStr()})"
+            is Enum<*>                                       -> name
+            is Throwable                                     -> buildString {
+                append(this@toStr::class.qualifiedName)
+                message?.let { append(": ").append(it) }
+            }
+            Void.TYPE.kotlin                                 -> "void"
+            kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED -> "SUSPEND_MARKER"
+            is Continuation<*>                               -> "continuation {}"
+            is KClass<*>                                     -> this.simpleName ?: "<null name class>"
+            is Method                                        -> name + "(" + parameterTypes.joinToString { it.simpleName } + ")"
+            is Function<*>                                   -> "lambda {}"
+            is Optional<*>                                   ->
+                if (this.isPresent) "Optional[${this.get().toStr()}]"
+                else "Optional.empty"
+            else                                             -> toString()
+        }
+    } catch (thr: Throwable) {
+        "<error \"$thr\">"
     }
-} catch (thr: Throwable) {
-    "<error \"$thr\">"
-}
 
 /**
  * Java Object의 `notify()`을 호출합니다.
@@ -226,4 +240,24 @@ fun Any?.toStr(): String = try {
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 fun Any.notify() {
     (this as java.lang.Object).notify()
+}
+
+@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+fun Any.notifyAll() {
+    (this as java.lang.Object).notifyAll()
+}
+
+@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+fun Any.wait() {
+    (this as java.lang.Object).wait()
+}
+
+@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+fun Any.wait(timeoutMillis: Long) {
+    (this as java.lang.Object).wait(timeoutMillis)
+}
+
+@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+fun Any.wait(timeoutMillis: Long, nanos: Int) {
+    (this as java.lang.Object).wait(timeoutMillis, nanos)
 }

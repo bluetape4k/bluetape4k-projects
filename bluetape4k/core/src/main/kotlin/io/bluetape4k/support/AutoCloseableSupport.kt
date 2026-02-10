@@ -3,15 +3,12 @@ package io.bluetape4k.support
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-@JvmField
-val EMPTY_CLOSE_ERROR_HANDLER: (error: Throwable) -> Unit = { }
-
 /**
  * [AutoCloseable]을 안전하게 close 를 수행합니다.
  *
  * @param errorHandler close 시 예외 발생 시 수행할 handler, 기본은 아무 일도 하지 않는다
  */
-inline fun AutoCloseable.closeSafe(errorHandler: (error: Throwable) -> Unit = { }) {
+inline fun AutoCloseable.closeSafe(errorHandler: (error: Throwable) -> Unit = {}) {
     try {
         close()
     } catch (ignored: Throwable) {
@@ -26,11 +23,11 @@ inline fun AutoCloseable.closeSafe(errorHandler: (error: Throwable) -> Unit = { 
  * @param errorHandler close 에서 예외 발생 시 수행할 함수
  */
 inline fun AutoCloseable.closeTimeout(
-    timeoutMillis: Long = 2_000L,
+    timeoutMillis: Long = 3_000L,
     crossinline errorHandler: (error: Throwable) -> Unit = {},
 ) {
     try {
-        asyncRunWithTimeout(timeoutMillis) { closeSafe(errorHandler) }.get()
+        asyncRunWithTimeout(timeoutMillis) { closeSafe(errorHandler) }.join()
     } catch (e: Throwable) {
         errorHandler(e.cause ?: e)
     }
@@ -55,7 +52,7 @@ inline fun AutoCloseable.closeTimeout(
  * @param action 수행할 함수
  * @return 수행 결과
  */
-inline infix fun <T> AutoCloseable.using(action: (AutoCloseable) -> T): T {
+inline infix fun <T: AutoCloseable, R> T.useSafe(action: (T) -> R): R {
     return try {
         action(this)
     } finally {
@@ -69,7 +66,8 @@ inline infix fun <T> AutoCloseable.using(action: (AutoCloseable) -> T): T {
  * @param action 수행할 함수
  * @return 수행 결과
  */
-inline infix fun <T> AutoCloseable.useSafe(action: (AutoCloseable) -> T): T {
+@Deprecated("use useSafe instead", ReplaceWith("this.useSafe(action)"))
+inline infix fun <T: AutoCloseable, R> T.using(action: (T) -> R): R {
     return try {
         action(this)
     } finally {
