@@ -1,16 +1,14 @@
 package io.bluetape4k.support
 
-import io.bluetape4k.junit5.random.RandomValue
-import io.bluetape4k.junit5.random.RandomizedTest
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.fail
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldNotBeNull
-import org.junit.jupiter.api.RepeatedTest
+import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldContainSame
 import org.junit.jupiter.api.Test
 
-@RandomizedTest
 class StandardFuncSupportTest {
 
 
@@ -35,32 +33,92 @@ class StandardFuncSupportTest {
         }
     }
 
-    @RepeatedTest(REPEAT_SIZE)
-    fun `run safeLet`(@RandomValue p1: String?, @RandomValue p2: String?) {
-        safeLet(p1, p2) { a, b ->
-            a.shouldNotBeNull()
-            b.shouldNotBeNull()
-        }
+    @Test
+    fun `run safeLet with not nulls`() {
+        safeLet("a", "b") { a, b ->
+            a + b
+        } shouldBeEqualTo "ab"
+
+        safeLet("a", "b", "c") { a, b, c ->
+            a + b + c
+        } shouldBeEqualTo "abc"
+
+        val chars = List(10) { ('a' + it).toString() }
+        safeLet(*chars.toTypedArray()) { list ->
+            list.size
+        } shouldBeEqualTo 10
     }
 
-    @RepeatedTest(REPEAT_SIZE)
-    fun `when all not null, should execute`(@RandomValue(type = String::class) strs: List<String?>) {
+    @Test
+    fun `when all not null`() {
+        listOf(4, null, 3).whenAllNotNull {
+            fail("호출되면 안됩니다.")
+        }
+
+        listOf(4, 5, 7).whenAllNotNull {
+            it shouldContainSame listOf(4, 5, 7)
+        }
+
+        whenAllNotNull(null, 1, null) {
+            fail("실행되면 안됩니다.")
+        }
+
+        listOf(null, 1, null).whenAllNotNull {
+            fail("실행되면 안됩니다.")
+        }
+
+        var called = false
+        whenAllNotNull(1, 2, 3) {
+            called = true
+        }
+        called.shouldBeTrue()
+
+        val strs = List(10) { Base58.randomString(8) }
+        called = false
         strs.whenAllNotNull {
-            it.size shouldBeEqualTo strs.filterNotNull().size
+            called = true
         }
+        called.shouldBeTrue()
     }
 
-    @RepeatedTest(REPEAT_SIZE)
-    fun `coalesce - find first not null element`(@RandomValue p1: String?, @RandomValue p2: String?) {
-        coalesce(p1, p2) shouldBeEqualTo when {
-            p1 != null -> p1
-            p2 != null -> p2
-            else       -> null
+    @Test
+    fun `when any not null`() {
+        listOf(null, null).whenAnyNotNull {
+            fail("둘 다 null 이므로 실행되면 안됩니다.")
         }
 
-        coalesce("a", null) shouldBeEqualTo "a"
-        coalesce(null, "b") shouldBeEqualTo "b"
-        coalesce("a", "b") shouldBeEqualTo "a"
+        var called = false
+        listOf(null, 1, null).whenAnyNotNull {
+            called = true
+            it shouldBeEqualTo listOf(null, 1, null)
+        }
+        called.shouldBeTrue()
+    }
+
+    @Test
+    fun `coalesce - find first not null element`() {
+        val pairs = listOf(null to null, null to 1, 1 to null, 1 to 1)
+
+        pairs.forEach { (p1, p2) ->
+            coalesce(p1, p2) shouldBeEqualTo when {
+                p1 != null -> p1
+                p2 != null -> p2
+                else       -> null
+            }
+        }
+
+        coalesce("a", null, "c") shouldBeEqualTo "a"
+        coalesce(null, "b", null) shouldBeEqualTo "b"
+        coalesce("a", "b", null) shouldBeEqualTo "a"
         coalesce<Any>(null, null).shouldBeNull()
+    }
+
+    @Test
+    fun `coalesce of iterable - find first not null element`() {
+        listOf(null, 4, null, 3).coalesce() shouldBeEqualTo 4
+        listOf(null, 1, null, 3).coalesce() shouldBeEqualTo 1
+
+        listOf(1, 2, 3, 4).coalesce() shouldBeEqualTo 1
+        listOf(1, 2, null).coalesce() shouldBeEqualTo 1
     }
 }

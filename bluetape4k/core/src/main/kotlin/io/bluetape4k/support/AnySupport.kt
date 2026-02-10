@@ -111,24 +111,24 @@ fun arrayEquals(a: Any, b: Any): Boolean {
         else                                 -> false
     }
 }
-
-/**
- * 컬렉션의 모든 요소가 not null 인 경우에만 [block]을 수행합니다.
- */
-infix fun <T: Any, R: Any> Collection<T?>.whenAllNotNull(block: (Collection<T>) -> R) {
-    if (this.all { it != null }) {
-        block(this.filterNotNull())
-    }
-}
-
-/**
- * 컬렉션의 요소중 하나라도 null이 아니라면 null 이 아닌 요소들로만 [block]을 수행합니다.
- */
-infix fun <T: Any, R: Any> Collection<T?>.whenAnyNotNull(block: (Collection<T>) -> R) {
-    if (this.any { it != null }) {
-        block(this.filterNotNull())
-    }
-}
+//
+///**
+// * 컬렉션의 모든 요소가 not null 인 경우에만 [block]을 수행합니다.
+// */
+//infix fun <T: Any, R: Any> Collection<T?>.whenAllNotNull(block: (Collection<T>) -> R) {
+//    if (this.all { it != null }) {
+//        block(this.filterNotNull())
+//    }
+//}
+//
+///**
+// * 컬렉션의 요소중 하나라도 null이 아니라면 null 이 아닌 요소들로만 [block]을 수행합니다.
+// */
+//infix fun <T: Any, R: Any> Collection<T?>.whenAnyNotNull(block: (Collection<T>) -> R) {
+//    if (this.any { it != null }) {
+//        block(this.filterNotNull())
+//    }
+//}
 
 /**
  * 변수의 hash 값을 계산합니다. null인 경우 0을 반환합니다.

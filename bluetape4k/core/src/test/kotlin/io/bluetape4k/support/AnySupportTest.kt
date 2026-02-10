@@ -4,16 +4,13 @@ import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldContainSame
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.fail
 import java.util.*
 
 @Suppress(
     "DEPRECATION",
     "SENSELESS_COMPARISON",
     "SimplifyBooleanWithConstants",
-    "ReplaceArrayEqualityOpWithArraysEquals",
     "ARRAY_EQUALITY_OPERATOR_CAN_BE_REPLACED_WITH_CONTENT_EQUALS"
 )
 class AnySupportTest {
@@ -65,11 +62,6 @@ class AnySupportTest {
         arrayEquals(arrayOf("1", "2"), arrayOf("1", "2")).shouldBeTrue()
     }
 
-    @Test
-    fun `when not null`() {
-        listOf(4, null, 3) whenAllNotNull { fail("호출되면 안됩니다.") }
-        listOf(4, 5, 7) whenAllNotNull { it shouldContainSame listOf(4, 5, 7) }
-    }
 
     @Test
     fun `hashCodeSafe 함수`() {
@@ -165,21 +157,5 @@ class AnySupportTest {
         val a = "a"
         val b = 1
         hashOf(a, b) shouldBeEqualTo Objects.hash(a, b)
-    }
-
-    @Test
-    fun `whenAnyNotNull 동작 테스트`() {
-        var called = false
-
-        listOf(null, null) whenAnyNotNull {
-            called = true
-        }
-        called.shouldBeFalse()
-
-        listOf(null, 1, null) whenAnyNotNull {
-            called = true
-            it shouldContainSame listOf(1)
-        }
-        called.shouldBeTrue()
     }
 }
