@@ -22,6 +22,7 @@ hs_err_pid*
 .settings
 .checkstyle
 
+.ai
 .claude
 .omc
 .kotlin
