@@ -2,34 +2,53 @@ package io.bluetape4k.support
 
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
+import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class BooleanSupportTest {
 
+    // region ifTrue / ifFalse
+
     @Test
     fun `boolean ifTrue`() {
-        fun condition() = true
+        val result = true.ifTrue { "yes" }
+        result shouldBeEqualTo "yes"
 
-        val result = condition().ifTrue { true } ?: false
-        result.shouldBeTrue()
+        val result2 = false.ifTrue { "yes" }
+        result2.shouldBeNull()
+    }
 
-        fun condition2() = false
-        val result2 = condition2().ifTrue { true } ?: false
-        result2.shouldBeFalse()
+    @Test
+    fun `boolean supplier ifTrue`() {
+        val result = { true }.ifTrue { "yes" }
+        result shouldBeEqualTo "yes"
+
+        val result2 = { false }.ifTrue { "yes" }
+        result2.shouldBeNull()
     }
 
     @Test
     fun `boolean ifFalse`() {
-        fun condition() = true
+        val result = false.ifFalse { "no" }
+        result shouldBeEqualTo "no"
 
-        val result = condition().ifFalse { true } ?: false
-        result.shouldBeFalse()
-
-        fun condition2() = false
-        val result2 = condition2().ifFalse { true } ?: false
-        result2.shouldBeTrue()
+        val result2 = true.ifFalse { "no" }
+        result2.shouldBeNull()
     }
+
+    @Test
+    fun `boolean supplier ifFalse`() {
+        val result = { false }.ifFalse { "no" }
+        result shouldBeEqualTo "no"
+
+        val result2 = { true }.ifFalse { "no" }
+        result2.shouldBeNull()
+    }
+
+    // endregion
+
+    // region compareBoolean
 
     @Test
     fun `compare booleans`() {
@@ -39,26 +58,76 @@ class BooleanSupportTest {
         compareBoolean(left = false, right = false) shouldBeEqualTo 0
     }
 
+    // endregion
+
+    // region then
+
     @Test
-    fun `boolean supplier then infix function`() {
-        fun condition() = true
+    fun `boolean then with lazy block`() {
+        val result = true.then { "value" }
+        result shouldBeEqualTo "value"
 
-        val result = condition().then { true } ?: false
-        result.shouldBeTrue()
-
-        fun condition2() = false
-        val result2 = condition2().then(true) ?: false
-        result2.shouldBeFalse()
+        val result2 = false.then { "value" }
+        result2.shouldBeNull()
     }
 
     @Test
-    fun `boolean infix function`() {
-        fun condition() = true
-        val result = condition().then { true } ?: false
-        result.shouldBeTrue()
+    fun `boolean then with eager value`() {
+        val result = true.then("value")
+        result shouldBeEqualTo "value"
 
-        fun condition2() = false
-        val result2 = condition2().then(true) ?: false
-        result2.shouldBeFalse()
+        val result2 = false.then("value")
+        result2.shouldBeNull()
     }
+
+    @Test
+    fun `boolean supplier then with lazy block`() {
+        val result = { true }.then { "value" }
+        result shouldBeEqualTo "value"
+
+        val result2 = { false }.then { "value" }
+        result2.shouldBeNull()
+    }
+
+    @Test
+    fun `boolean supplier then with eager value`() {
+        val result = { true }.then("value")
+        result shouldBeEqualTo "value"
+
+        val result2 = { false }.then("value")
+        result2.shouldBeNull()
+    }
+
+    @Test
+    fun `then with elvis operator`() {
+        val result = true.then { "yes" } ?: "no"
+        result shouldBeEqualTo "yes"
+
+        val result2 = false.then { "yes" } ?: "no"
+        result2 shouldBeEqualTo "no"
+    }
+
+    // endregion
+
+    // region falseIfNull / trueIfNull
+
+    @Test
+    fun `falseIfNull returns false when null`() {
+        val x: Boolean? = null
+        x.falseIfNull().shouldBeFalse()
+
+        true.falseIfNull().shouldBeTrue()
+        false.falseIfNull().shouldBeFalse()
+    }
+
+    @Test
+    fun `trueIfNull returns true when null`() {
+        val x: Boolean? = null
+        x.trueIfNull().shouldBeTrue()
+
+        true.trueIfNull().shouldBeTrue()
+        false.trueIfNull().shouldBeFalse()
+    }
+
+    // endregion
 }

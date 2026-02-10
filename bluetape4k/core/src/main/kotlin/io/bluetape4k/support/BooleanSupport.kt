@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package io.bluetape4k.support
 
 /**
@@ -24,11 +26,12 @@ inline fun <T: Any> Boolean.ifTrue(block: () -> T): T? = when (this) {
 inline fun <T: Any> (() -> Boolean).ifTrue(block: () -> T): T? = this().ifTrue(block)
 
 /**
- * 값이 true 라면 [block]을 실행합니다. false라면 null을 반환합니다.
+ * 값이 false 라면 [block]을 실행합니다. true라면 null을 반환합니다.
  *
  * ```
  * val result = true.ifFalse { "false" } ?: "true"  // "true"
  * val result = false.ifFalse { "false" } ?: "true" // "false"
+ * ```
  */
 inline fun <T: Any> Boolean.ifFalse(block: () -> T): T? = when (this) {
     false -> block()
@@ -36,7 +39,7 @@ inline fun <T: Any> Boolean.ifFalse(block: () -> T): T? = when (this) {
 }
 
 /**
- * 함수가 false를 반환하면 [block]을 실행합니다. 아니면 null을 반환합니다.
+ * 함수가 false를 반환하면 [block]을 실행합니다. true라면 null을 반환합니다.
  *
  * ```
  * val result = { true }.ifFalse { "false" } // null
@@ -74,10 +77,10 @@ inline fun <T> Boolean.then(other: () -> T): T? = if (this) other() else null
  * 값이 true 라면 [result]를 반환하고, 아니면 null 을 반환합니다.
  *
  * ```
- * val result = (condition == 1) then { true } ?: false
+ * val result = ((condition == 1) then true) ?: false
  * ```
  */
-fun <T> Boolean.then(result: T): T? = if (this) result else null
+inline fun <T> Boolean.then(result: T): T? = if (this) result else null
 
 /**
  * 값이 true 라면 [other]를 실행하여 반환하고, 아니면 null 을 반환합니다.
@@ -92,10 +95,10 @@ inline fun <T> (() -> Boolean).then(other: () -> T): T? = if (this()) other() el
  * 값이 true 라면 [result]를 반환하고, 아니면 null 을 반환합니다.
  *
  * ```
- * val result = (condition == 1) then { true } ?: false
+ * val result = ({ condition == 1 } then true) ?: false
  * ```
  */
-fun <T> (() -> Boolean).then(result: T): T? = if (this()) result else null
+inline fun <T> (() -> Boolean).then(result: T): T? = if (this()) result else null
 
 /**
  * False if null
@@ -107,7 +110,7 @@ fun <T> (() -> Boolean).then(result: T): T? = if (this()) result else null
  * x.trueIfNull() // true
  * ```
  */
-fun Boolean?.falseIfNull(): Boolean = this ?: false
+inline fun Boolean?.falseIfNull(): Boolean = this ?: false
 
 /**
  * True if null
@@ -119,4 +122,4 @@ fun Boolean?.falseIfNull(): Boolean = this ?: false
  * x.trueIfNull() // true
  * ```
  */
-fun Boolean?.trueIfNull(): Boolean = this ?: true
+inline fun Boolean?.trueIfNull(): Boolean = this ?: true

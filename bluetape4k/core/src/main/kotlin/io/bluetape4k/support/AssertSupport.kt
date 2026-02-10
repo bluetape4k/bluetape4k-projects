@@ -72,17 +72,17 @@ inline fun <T: CharSequence> T?.assertStartsWith(
     ignoreCase: Boolean = false,
 ): T {
     this.assertNotNull(parameterName)
-    assert(this.startsWith(prefix, ignoreCase)) { "$parameterName[$this] must be starts with $prefix" }
+    assert(this.startsWith(prefix, ignoreCase)) { "$parameterName[$this] must start with $prefix" }
     return this
 }
 
 inline fun <T: CharSequence> T?.assertEndsWith(
-    prefix: CharSequence,
+    suffix: CharSequence,
     parameterName: String,
     ignoreCase: Boolean = false,
 ): T {
     this.assertNotNull(parameterName)
-    assert(this.endsWith(prefix, ignoreCase)) { "$parameterName[$this] must be ends with $prefix" }
+    assert(this.endsWith(suffix, ignoreCase)) { "$parameterName[$this] must end with $suffix" }
     return this
 }
 
@@ -139,20 +139,20 @@ inline fun <K, V> Map<K, V>?.assertNotEmpty(parameterName: String) = apply {
     assert(!this.isNullOrEmpty()) { "$parameterName must not be null or empty." }
 }
 
-fun <K, V> Map<K, V>?.assertHasKey(key: K, parameterName: String): Map<K, V> {
+inline fun <K, V> Map<K, V>?.assertHasKey(key: K, parameterName: String): Map<K, V> {
     assertNotEmpty(parameterName)
-    assert(this!!.containsKey(key)) { "$parameterName require contains key $key" }
+    assert(this!!.containsKey(key)) { "$parameterName must contain key $key" }
     return this
 }
 
-fun <K, V> Map<K, V>?.assertHasValue(value: V, parameterName: String): Map<K, V> {
+inline fun <K, V> Map<K, V>?.assertHasValue(value: V, parameterName: String): Map<K, V> {
     assertNotEmpty(parameterName)
-    assert(this!!.containsValue(value)) { "$parameterName require contains value $value" }
+    assert(this!!.containsValue(value)) { "$parameterName must contain value $value" }
     return this
 }
 
-fun <K, V> Map<K, V>?.assertContains(key: K, value: V, parameterName: String): Map<K, V> {
+inline fun <K, V> Map<K, V>?.assertContains(key: K, value: V, parameterName: String): Map<K, V> {
     assertNotEmpty(parameterName)
-    assert(this!![key] == value) { "$parameterName require contains ($key, $value)" }
+    assert(this!![key] == value) { "$parameterName must contain ($key, $value)" }
     return this
 }

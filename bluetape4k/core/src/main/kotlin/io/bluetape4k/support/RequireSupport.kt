@@ -69,17 +69,17 @@ inline fun <T: CharSequence> T?.requireStartsWith(
     ignoreCase: Boolean = false,
 ): T {
     this.requireNotNull(parameterName)
-    require(this.startsWith(prefix, ignoreCase)) { "$parameterName[$this] must be starts with $prefix" }
+    require(this.startsWith(prefix, ignoreCase)) { "$parameterName[$this] must start with $prefix" }
     return this
 }
 
 inline fun <T: CharSequence> T?.requireEndsWith(
-    prefix: CharSequence,
+    suffix: CharSequence,
     parameterName: String,
     ignoreCase: Boolean = false,
 ): T {
     this.requireNotNull(parameterName)
-    require(this.endsWith(prefix, ignoreCase)) { "$parameterName[$this] must be ends with $prefix" }
+    require(this.endsWith(suffix, ignoreCase)) { "$parameterName[$this] must end with $suffix" }
     return this
 }
 
@@ -139,20 +139,20 @@ inline fun <K, V> Map<K, V>?.requireNotEmpty(parameterName: String) = apply {
     require(!this.isNullOrEmpty()) { "$parameterName must not be null or empty." }
 }
 
-fun <K, V> Map<K, V>?.requireHasKey(key: K, parameterName: String): Map<K, V> {
+inline fun <K, V> Map<K, V>?.requireHasKey(key: K, parameterName: String): Map<K, V> {
     requireNotEmpty(parameterName)
-    require(this!!.containsKey(key)) { "$parameterName require contains key $key" }
+    require(this!!.containsKey(key)) { "$parameterName must contain key $key" }
     return this
 }
 
-fun <K, V> Map<K, V>?.requireHasValue(value: V, parameterName: String): Map<K, V> {
+inline fun <K, V> Map<K, V>?.requireHasValue(value: V, parameterName: String): Map<K, V> {
     requireNotEmpty(parameterName)
-    require(this!!.containsValue(value)) { "$parameterName require contains value $value" }
+    require(this!!.containsValue(value)) { "$parameterName must contain value $value" }
     return this
 }
 
-fun <K, V> Map<K, V>?.requireContains(key: K, value: V, parameterName: String): Map<K, V> {
+inline fun <K, V> Map<K, V>?.requireContains(key: K, value: V, parameterName: String): Map<K, V> {
     requireNotEmpty(parameterName)
-    require(this!![key] == value) { "$parameterName require contains ($key, $value)" }
+    require(this!![key] == value) { "$parameterName must contain ($key, $value)" }
     return this
 }
