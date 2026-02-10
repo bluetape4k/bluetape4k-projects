@@ -7,6 +7,8 @@ import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContainSame
 import org.junit.jupiter.api.Test
+import kotlin.byteArrayOf
+import kotlin.longArrayOf
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
@@ -91,15 +93,6 @@ class ArraySupportTest {
         result.size shouldBeEqualTo 0
     }
 
-    /**
-     * Maps each element of this array using [transform], capturing exceptions
-     * as [Result.failure] instead of throwing.
-     *
-     * The transformation is applied sequentially and preserves the original order.
-     * If an exception occurs for an element, processing continues for remaining elements.
-     *
-     * @return a list of [Result], one for each element in this array
-     */
     @Test
     fun `mapCatching all success`() {
         val source = intArrayOf(1, 2, 3)

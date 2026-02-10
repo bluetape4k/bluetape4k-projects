@@ -1,45 +1,12 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package io.bluetape4k.support
 
 import java.nio.ByteBuffer
 import java.util.*
 
-
-/**
- * [ByteArray]의 [count] 수만큼 앞에서부터 가져옵니다.
- *
- * ```
- * val array = byteArrayOf(1, 2, 3, 4, 5)
- * array.takeItems(3) // [1, 2, 3]
- * array.takeItems(0) // []
- * array.takeItems(5) // [1, 2, 3, 4, 5]
- * array.takeItems(10) // [1, 2, 3, 4, 5]
- * ```
- *
- * @param count 가져올 갯수 (0 < count <= size)
- */
-fun ByteArray.takeItems(count: Int): ByteArray = when {
-    count <= 0 -> emptyByteArray
-    else -> this.copyOfRange(0, count.coerceAtMost(size))
-}
-
-/**
- * [ByteArray]의 [count] 수만큼 뒤에서부터 가져옵니다.
- *
- * ```
- * val array = byteArrayOf(1, 2, 3, 4, 5)
- * val result = array.dropItems(3) // [4, 5]
- * array.dropItems(0) // [1, 2, 3, 4, 5]
- * array.dropItems(5) // []
- * array.dropItems(10) // []
- * ```
- *
- * @param count drop 할 갯수 (0 < count <= size)
- */
-fun ByteArray.dropItems(count: Int): ByteArray = when {
-    count <= 0 -> this.copyOf()
-    count >= size -> emptyByteArray
-    else -> this.copyOfRange(count, size)
-}
+inline fun <T: Number> byteArrayOf(vararg elements: T): ByteArray =
+    ByteArray(elements.size) { elements[it].toByte() }
 
 /**
  * Int 값을 ByteArray로 변환합니다.
@@ -116,11 +83,14 @@ fun ByteArray.toUuid(offset: Int = 0): UUID {
  * @param start  시작 위치
  * @param end    끝 위치
  */
-fun ByteArray.indexOf(target: Byte, start: Int = 0, end: Int = this.size): Int {
-    start.requireZeroOrPositiveNumber("start")
-    end.requireInRange(start, size, "end")
+fun ByteArray.indexOf(target: Byte, start: Int = 0, end: Int = size - 1): Int {
+    if (isEmpty()) {
+        return -1
+    }
+    start.requireInRange(0, end, "start")
+    end.requireInOpenRange(start, size, "end")
 
-    for (i in start until end) {
+    for (i in start..end) {
         if (this[i] == target) {
             return i
         }
@@ -140,15 +110,15 @@ fun ByteArray.indexOf(target: Byte, start: Int = 0, end: Int = this.size): Int {
  * @param start  시작 위치
  * @param end    끝 위치
  */
-fun ByteArray.indexOf(target: ByteArray, start: Int = 0, end: Int = this.size): Int {
-    start.requireZeroOrPositiveNumber("start")
-    end.requireInRange(start, size, "end")
-
-    if (target.isEmpty()) {
-        return 0
+fun ByteArray.indexOf(target: ByteArray, start: Int = 0, end: Int = size - 1): Int {
+    if (isEmpty() || target.isEmpty()) {
+        return -1
     }
 
-    outer@ for (i in start..<(end - target.size + 1)) {
+    start.requireInRange(0, end, "start")
+    end.requireInOpenRange(start, size, "end")
+
+    outer@ for (i in start..(end - target.size)) {
         for (j in target.indices) {
             if (get(i + j) != target[j]) {
                 continue@outer
@@ -171,14 +141,50 @@ fun ByteArray.indexOf(target: ByteArray, start: Int = 0, end: Int = this.size): 
  * @param start  시작 위치
  * @param end    끝 위치
  */
-fun ByteArray.lastIndexOf(target: Byte, start: Int, end: Int): Int {
-    start.requireZeroOrPositiveNumber("start")
-    end.requireInRange(start, size, "end")
+fun ByteArray.lastIndexOf(target: Byte, start: Int = 0, end: Int = size - 1): Int {
+    if (isEmpty()) {
+        return -1
+    }
 
-    for (i in end - 1 downTo start) {
+    start.requireInRange(0, end, "start")
+    end.requireInOpenRange(start, size, "end")
+
+    for (i in end downTo start) {
         if (this[i] == target) {
             return i
         }
+    }
+    return -1
+}
+
+/**
+ * ByteArray에 [target]값과 같은 마지막 위치를 찾아 반환합니다.
+ *
+ * ```
+ * val array = byteArrayOf(1, 2, 3, 4, 3)
+ *
+ * array.lastIndexOf(byteArrayOf(3)) // 4
+ * ```
+ *
+ * @param target 찾을 Byte 값
+ * @param start  시작 위치
+ * @param end    끝 위치
+ */
+fun ByteArray.lastIndexOf(target: ByteArray, start: Int = 0, end: Int = size - 1): Int {
+    if (isEmpty() || target.isEmpty()) {
+        return -1
+    }
+
+    start.requireInRange(0, end, "start")
+    end.requireInOpenRange(start, size, "end")
+
+    outer@ for (i in (end - target.size) downTo start) {
+        for (j in target.indices) {
+            if (get(i + j) != target[j]) {
+                continue@outer
+            }
+        }
+        return i
     }
     return -1
 }
@@ -226,7 +232,6 @@ fun concat(vararg arrays: ByteArray): ByteArray {
     val result = ByteArray(totalSize)
     var offset = 0
     for (array in arrays) {
-        // System.arraycopy(array, 0, result, offset, array.size)
         array.copyInto(result, offset)
         offset += array.size
     }
@@ -238,19 +243,24 @@ fun concat(vararg arrays: ByteArray): ByteArray {
  *
  * ```
  * val array = byteArrayOf(1, 2, 3, 4, 5)
- * val result = array.reverse() // [5, 4, 3, 2, 1]
+ *
+ * array.reverseTo() // [5, 4, 3, 2, 1]
+ * array.reverseTo(1, 4) // [1, 5, 4, 3, 2]
  * ```
  *
  * @param fromIndex 시작 위치 (기본값: 0)
  * @param toIndex   끝 위치 (기본값: size-1)
  */
 fun ByteArray.reverseTo(fromIndex: Int = 0, toIndex: Int = size - 1): ByteArray {
-    fromIndex.requireInRange(0, toIndex, "fromIndex")
-    toIndex.requireInRange(fromIndex, size, "toIndex")
+    if (isEmpty()) {
+        return emptyByteArray
+    }
 
-    val array = this@reverseTo
-    return array.copyOf().apply {
-        reverse(fromIndex, toIndex)
+    fromIndex.requireInRange(0, toIndex, "fromIndex")
+    toIndex.requireInOpenRange(fromIndex, size, "toIndex")
+
+    return this@reverseTo.copyOf().apply {
+        reverseThis(fromIndex, toIndex)
     }
 }
 
@@ -259,17 +269,21 @@ fun ByteArray.reverseTo(fromIndex: Int = 0, toIndex: Int = size - 1): ByteArray 
  *
  * ```
  * val array = byteArrayOf(1, 2, 3, 4, 5)
- * array.reverse() // [5, 4, 3, 2, 1]
+ * array.reverseThis() // [5, 4, 3, 2, 1]
  * ```
  *
  * @param fromIndex 시작 위치 (기본값: 0)
  * @param toIndex   끝 위치 (기본값: size-1)
  */
-fun ByteArray.reverse(fromIndex: Int = 0, toIndex: Int = size - 1) {
+fun ByteArray.reverseThis(fromIndex: Int = 0, toIndex: Int = size - 1) {
+    if (isEmpty()) {
+        return
+    }
+
     fromIndex.requireInRange(0, toIndex, "fromIndex")
     toIndex.requireInOpenRange(fromIndex, size, "toIndex")
 
-    val array = this@reverse
+    val array = this@reverseThis
     var i = fromIndex
     var j = toIndex
     while (i < j) {
@@ -296,12 +310,15 @@ fun ByteArray.reverse(fromIndex: Int = 0, toIndex: Int = size - 1) {
  * @return 회전된 ByteArray
  */
 fun ByteArray.rotateTo(distance: Int, fromIndex: Int = 0, toIndex: Int = size - 1): ByteArray {
+    if (isEmpty()) {
+        return emptyByteArray
+    }
+
     fromIndex.requireInRange(0, toIndex, "fromIndex")
     toIndex.requireInOpenRange(fromIndex, size, "toIndex")
 
-    val array = this@rotateTo
-    return array.copyOf().apply {
-        rotate(distance, fromIndex, toIndex)
+    return copyOf().apply {
+        rotateThis(distance, fromIndex, toIndex)
     }
 }
 
@@ -310,18 +327,22 @@ fun ByteArray.rotateTo(distance: Int, fromIndex: Int = 0, toIndex: Int = size - 
  *
  * ```
  * val array = byteArrayOf(1, 2, 3, 4, 5)
- * array.rotate(2) // [3, 4, 5, 1, 2]
+ * array.rotateThis(2) // [3, 4, 5, 1, 2]
  * ```
  *
  * @param distance 회전할 거리
  * @param fromIndex 시작 위치 (기본값: 0)
  * @param toIndex 끝 위치 (기본값: size -1 )
  */
-fun ByteArray.rotate(distance: Int, fromIndex: Int = 0, toIndex: Int = size - 1) {
+fun ByteArray.rotateThis(distance: Int, fromIndex: Int = 0, toIndex: Int = size - 1) {
+    if (isEmpty()) {
+        return
+    }
+
     fromIndex.requireInRange(0, toIndex, "fromIndex")
     toIndex.requireInOpenRange(fromIndex, size, "toIndex")
 
-    val array = this@rotate
+    val array = this@rotateThis
 
     if (array.size <= 1) {
         return
@@ -339,7 +360,9 @@ fun ByteArray.rotate(distance: Int, fromIndex: Int = 0, toIndex: Int = size - 1)
         return
     }
 
-    array.reverse(fromIndex, newFirstIndex - 1)
-    array.reverse(newFirstIndex, toIndex)
-    array.reverse(fromIndex, toIndex)
+    with(array) {
+        reverseThis(fromIndex, newFirstIndex - 1)
+        reverseThis(newFirstIndex, toIndex)
+        reverseThis(fromIndex, toIndex)
+    }
 }

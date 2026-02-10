@@ -4,7 +4,6 @@ import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.internal.assertFailsWith
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import kotlin.collections.reverse
 
 class DoubleArraySupportTest {
 
@@ -14,98 +13,166 @@ class DoubleArraySupportTest {
 
     @Test
     fun `index of double`() {
-        val doubles = doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0)
+        val array = doubleArrayOf(1, 2, 3, 4, 5)
         val target = 3.0
 
-        doubles.indexOf(target, 0, doubles.size - 1) shouldBeEqualTo 2
+        array.indexOf(target, 0, array.size - 1) shouldBeEqualTo 2
+
+        emptyDoubleArray.indexOf(target) shouldBeEqualTo -1
 
         assertFailsWith<IllegalArgumentException> {
-            doubles.indexOf(target, -1, 1)
+            array.indexOf(target, -1, 1)
         }
 
         assertFailsWith<IllegalArgumentException> {
-            doubles.indexOf(target, 1, doubles.size + 1)
+            array.indexOf(target, 1, array.size)
         }
     }
 
     @Test
     fun `index of double array`() {
-        val doubles = doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0)
-        val target = doubleArrayOf(3.0, 4.0)
+        val array = doubleArrayOf(1, 2, 3, 4, 5)
+        val target = doubleArrayOf(3, 4)
 
-        doubles.indexOf(target, 0, doubles.size - 1) shouldBeEqualTo 2
+        array.indexOf(target, 0, array.size - 1) shouldBeEqualTo 2
+
+        emptyDoubleArray.indexOf(target) shouldBeEqualTo -1
 
         assertFailsWith<IllegalArgumentException> {
-            doubles.indexOf(target, -1, 1)
+            array.indexOf(target, -1, 1)
         }
 
         assertFailsWith<IllegalArgumentException> {
-            doubles.indexOf(target, 1, doubles.size + 1)
+            array.indexOf(target, 1, array.size)
+        }
+    }
+
+    @Test
+    fun `lastIndex of double`() {
+        val array = doubleArrayOf(1, 2, 3, 4, 3)
+        val target = 3.0
+
+        array.lastIndexOf(target, 0, array.size - 1) shouldBeEqualTo 4
+
+        emptyDoubleArray.lastIndexOf(target) shouldBeEqualTo -1
+
+        assertFailsWith<IllegalArgumentException> {
+            array.lastIndexOf(target, -1, 1)
+        }
+
+        assertFailsWith<IllegalArgumentException> {
+            array.lastIndexOf(target, 1, array.size)
+        }
+    }
+
+    @Test
+    fun `lastIndex of double array`() {
+        val array = doubleArrayOf(1, 2, 3, 4, 3, 4, 2)
+        val target = doubleArrayOf(3, 4)
+
+        array.lastIndexOf(target, 0, array.size - 1) shouldBeEqualTo 4
+
+        emptyDoubleArray.lastIndexOf(target) shouldBeEqualTo -1
+
+        assertFailsWith<IllegalArgumentException> {
+            array.lastIndexOf(target, -1, 1)
+        }
+
+        assertFailsWith<IllegalArgumentException> {
+            array.lastIndexOf(target, 1, array.size)
         }
     }
 
     @Test
     fun `ensure capacity`() {
-        val doubles = doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0)
+        val array = doubleArrayOf(1, 2, 3, 4, 5)
 
-        doubles.ensureCapacity(doubles.size, 5) shouldBeEqualTo doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0)
-        doubles.ensureCapacity(10, 0) shouldBeEqualTo doubleArrayOf(
-            1.0, 2.0, 3.0, 4.0, 5.0,
-            0.0, 0.0, 0.0, 0.0, 0.0
+        array.ensureCapacity(array.size, 5) shouldBeEqualTo doubleArrayOf(1, 2, 3, 4, 5)
+        array.ensureCapacity(10, 0) shouldBeEqualTo doubleArrayOf(
+            1, 2, 3, 4, 5,
+            0, 0, 0, 0, 0
         )
 
         assertFailsWith<IllegalArgumentException> {
-            doubles.ensureCapacity(-1, 0)
+            array.ensureCapacity(-1, 0)
         }
 
         assertFailsWith<IllegalArgumentException> {
-            doubles.ensureCapacity(0, -1)
+            array.ensureCapacity(0, -1)
         }
     }
 
     @Test
     fun `concat double arrays`() {
-        val doubles1 = doubleArrayOf(1.0, 2.0, 3.0)
-        val doubles2 = doubleArrayOf(4.0, 5.0)
+        val array1 = doubleArrayOf(1, 2, 3)
+        val array2 = doubleArrayOf(4, 5)
 
-        concat(doubles1, doubles2) shouldBeEqualTo doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0)
-        concat(doubles2, doubles1) shouldBeEqualTo doubleArrayOf(4.0, 5.0, 1.0, 2.0, 3.0)
+        concat(array1, array2) shouldBeEqualTo doubleArrayOf(1, 2, 3, 4, 5)
+        concat(array2, array1) shouldBeEqualTo doubleArrayOf(4, 5, 1, 2, 3)
+    }
+
+    @Test
+    fun `reverse empty double array`() {
+        val array = emptyDoubleArray
+
+        array.reverseTo() shouldBeEqualTo emptyDoubleArray
+        array.reverseTo(0, 0) shouldBeEqualTo emptyDoubleArray
+
+        array.reverseThis()
+        array shouldBeEqualTo emptyDoubleArray
+
+        array.reverseThis(0, 0)
+        array shouldBeEqualTo emptyDoubleArray
     }
 
     @Test
     fun `reverse double array`() {
-        val doubles = doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0)
+        val array = doubleArrayOf(1, 2, 3, 4, 5)
 
-        doubles.reverseTo(0, doubles.size - 1) shouldBeEqualTo doubleArrayOf(5.0, 4.0, 3.0, 2.0, 1.0)
-        doubles.reverseTo(1, 4) shouldBeEqualTo doubleArrayOf(1.0, 5.0, 4.0, 3.0, 2.0)
+        array.reverseTo(0, array.size - 1) shouldBeEqualTo doubleArrayOf(5, 4, 3, 2, 1)
+        array.reverseTo(1, 3) shouldBeEqualTo doubleArrayOf(1, 4, 3, 2, 5)
     }
 
     @Test
     fun `reverse current double array`() {
-        val doubles = doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0)
-        doubles.reverse()
-        doubles shouldBeEqualTo doubleArrayOf(5.0, 4.0, 3.0, 2.0, 1.0)
+        val array1 = doubleArrayOf(1, 2, 3, 4, 5)
+        array1.reverseThis()
+        array1 shouldBeEqualTo doubleArrayOf(5, 4, 3, 2, 1)
 
-        val doubles2 = doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0)
-        doubles2.reverse(1, 4)
-        doubles2 shouldBeEqualTo doubleArrayOf(1.0, 4.0, 3.0, 2.0, 5.0)
+        val array2 = doubleArrayOf(1, 2, 3, 4, 5)
+        array2.reverseThis(1, 3)
+        array2 shouldBeEqualTo doubleArrayOf(1, 4, 3, 2, 5)
+    }
+
+    @Test
+    fun `rotate empty double array`() {
+        val array = emptyDoubleArray
+
+        array.rotateTo(2) shouldBeEqualTo emptyDoubleArray
+        array.rotateTo(-2) shouldBeEqualTo emptyDoubleArray
+
+        array.rotateThis(2)
+        array shouldBeEqualTo emptyDoubleArray
+
+        array.rotateThis(-2)
+        array shouldBeEqualTo emptyDoubleArray
     }
 
     @Test
     fun `rotate double array elements`() {
-        val doubles = doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0)
-        doubles.rotateTo(2) shouldBeEqualTo doubleArrayOf(4.0, 5.0, 1.0, 2.0, 3.0)
-        doubles.rotateTo(-2) shouldBeEqualTo doubleArrayOf(3.0, 4.0, 5.0, 1.0, 2.0)
+        val array = doubleArrayOf(1, 2, 3, 4, 5)
+        array.rotateTo(2) shouldBeEqualTo doubleArrayOf(4, 5, 1, 2, 3)
+        array.rotateTo(-2) shouldBeEqualTo doubleArrayOf(3, 4, 5, 1, 2)
     }
 
     @Test
     fun `rotate itself double array elements`() {
-        val doubles = doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0)
-        doubles.rotate(2)
-        doubles shouldBeEqualTo doubleArrayOf(4.0, 5.0, 1.0, 2.0, 3.0)
+        val array1 = doubleArrayOf(1, 2, 3, 4, 5)
+        array1.rotateThis(2)
+        array1 shouldBeEqualTo doubleArrayOf(4, 5, 1, 2, 3)
 
-        val doubles2 = doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0)
-        doubles2.rotate(-2)
-        doubles2 shouldBeEqualTo doubleArrayOf(3.0, 4.0, 5.0, 1.0, 2.0)
+        val array2 = doubleArrayOf(1, 2, 3, 4, 5)
+        array2.rotateThis(-2)
+        array2 shouldBeEqualTo doubleArrayOf(3, 4, 5, 1, 2)
     }
 }

@@ -14,10 +14,13 @@ package io.bluetape4k.support
  * @return 찾은 값의 인덱스, 찾지 못한 경우 -1
  */
 fun IntArray.indexOf(target: Int, start: Int = 0, end: Int = size - 1): Int {
-    start.requireInOpenRange(0, end, "start")
+    if (this.isEmpty()) {
+        return -1
+    }
+    start.requireInRange(0, end, "start")
     end.requireInOpenRange(start, size, "end")
 
-    for (i in start until end) {
+    for (i in start..end) {
         if (this[i] == target) {
             return i
         }
@@ -29,8 +32,8 @@ fun IntArray.indexOf(target: Int, start: Int = 0, end: Int = size - 1): Int {
  * [IntArray]에서 [target]의 첫 번째 인덱스를 반환합니다.
  *
  * ```
- * val array = intArrayOf(1, 2, 3)
- * val index = array.indexOf(2)  // 1
+ * val array = intArrayOf(1, 2, 3, 4, 5)
+ * val index = array.indexOf(intArrayOf(3, 4))  // 2
  * ```
  *
  * @param target 찾을 값
@@ -39,15 +42,15 @@ fun IntArray.indexOf(target: Int, start: Int = 0, end: Int = size - 1): Int {
  * @return 찾은 값의 인덱스, 찾지 못한 경우 -1
  *
  */
-fun IntArray.indexOf(target: IntArray, start: Int = 0, end: Int = this.size - 1): Int {
-    start.requireZeroOrPositiveNumber("start")
-    end.requireInRange(start, size, "end")
-
-    if (target.isEmpty()) {
-        return 0
+fun IntArray.indexOf(target: IntArray, start: Int = 0, end: Int = size - 1): Int {
+    if (isEmpty() || target.isEmpty()) {
+        return -1
     }
 
-    outer@ for (i in start..<(end - target.size + 1)) {
+    start.requireInRange(0, end, "start")
+    end.requireInOpenRange(start, size, "end")
+
+    outer@ for (i in start..(end - target.size)) {
         for (j in target.indices) {
             if (get(i + j) != target[j]) {
                 continue@outer
@@ -63,23 +66,59 @@ fun IntArray.indexOf(target: IntArray, start: Int = 0, end: Int = this.size - 1)
  *
  * ```
  * val array = intArrayOf(1, 2, 3, 2)
- * val index = array.lastIndexOf(2)
+ * array.lastIndexOf(2)  // 3
  * ```
  *
  * @param target 찾을 값
  * @return 찾은 값의 인덱스, 찾지 못한 경우 -1
  */
-fun IntArray.lastIndexOf(target: Int, start: Int = 0, end: Int = this@lastIndexOf.size): Int {
-    start.requireZeroOrPositiveNumber("start")
-    end.requireInRange(start, size, "end")
+fun IntArray.lastIndexOf(target: Int, start: Int = 0, end: Int = size - 1): Int {
+    if (this.isEmpty()) {
+        return -1
+    }
+    start.requireInRange(0, end, "start")
+    end.requireInOpenRange(start, size, "end")
 
-    for (i in end - 1 downTo start) {
+    for (i in end downTo start) {
         if (this[i] == target) {
             return i
         }
     }
     return -1
+}
 
+
+/**
+ * [IntArray]에서 [target]의 첫 번째 인덱스를 반환합니다.
+ *
+ * ```
+ * val array = intArrayOf(1, 2, 3, 4, 3, 4, 2)
+ * val index = array.lastIndexOf(intArrayOf(3, 4))  // 4
+ * ```
+ *
+ * @param target 찾을 값
+ * @param start 시작 인덱스 (0부터 시작)
+ * @param end 종료 인덱스 (size-1)
+ * @return 찾은 값의 인덱스, 찾지 못한 경우 -1
+ *
+ */
+fun IntArray.lastIndexOf(target: IntArray, start: Int = 0, end: Int = size - 1): Int {
+    if (this.isEmpty() || target.isEmpty()) {
+        return -1
+    }
+
+    start.requireInRange(0, end, "start")
+    end.requireInOpenRange(start, size, "end")
+
+    outer@ for (i in (end - target.size) downTo start) {
+        for (j in target.indices) {
+            if (get(i + j) != target[j]) {
+                continue@outer
+            }
+        }
+        return i
+    }
+    return -1
 }
 
 /**
@@ -87,8 +126,7 @@ fun IntArray.lastIndexOf(target: Int, start: Int = 0, end: Int = this@lastIndexO
  *
  * ```
  * val array = intArrayOf(1, 2, 3)
- * val newArray = array.ensureCapacity(5, 2)
- * println(newArray.contentToString()) // [1, 2, 3, 0, 0]
+ * val newArray = array.ensureCapacity(5, 2) // [1, 2, 3, 0, 0]
  * ```
  *
  * @param minCapacity 최소 크기
@@ -147,11 +185,14 @@ fun concat(vararg arrays: IntArray): IntArray {
  * @return 역순으로 변경된 [IntArray]
  */
 fun IntArray.reverseTo(fromIndex: Int = 0, toIndex: Int = size - 1): IntArray {
+    if (this.isEmpty()) {
+        return emptyIntArray
+    }
     fromIndex.requireInRange(0, toIndex, "fromIndex")
-    toIndex.requireInRange(fromIndex, size, "toIndex")
+    toIndex.requireInOpenRange(fromIndex, size, "toIndex")
 
-    return this@reverseTo.copyOf().apply {
-        reverse(fromIndex, toIndex)
+    return copyOf().apply {
+        reverseThis(fromIndex, toIndex)
     }
 }
 
@@ -167,9 +208,12 @@ fun IntArray.reverseTo(fromIndex: Int = 0, toIndex: Int = size - 1): IntArray {
  * @param toIndex 종료 인덱스 (size-1)
  * @return 변경된 [IntArray]
  */
-fun IntArray.reverse(fromIndex: Int = 0, toIndex: Int = size - 1) {
+fun IntArray.reverseThis(fromIndex: Int = 0, toIndex: Int = size - 1) {
+    if (this.isEmpty()) {
+        return
+    }
     fromIndex.requireInRange(0, toIndex, "fromIndex")
-    toIndex.requireInRange(fromIndex, size, "toIndex")
+    toIndex.requireInOpenRange(fromIndex, size, "toIndex")
 
     var i = fromIndex
     var j = toIndex
@@ -197,11 +241,14 @@ fun IntArray.reverse(fromIndex: Int = 0, toIndex: Int = size - 1) {
  * @return 회전된 [IntArray]
  */
 fun IntArray.rotateTo(distance: Int, fromIndex: Int = 0, toIndex: Int = size - 1): IntArray {
+    if (isEmpty()) {
+        return emptyIntArray
+    }
     fromIndex.requireInRange(0, toIndex, "fromIndex")
-    toIndex.requireInRange(fromIndex, size, "toIndex")
+    toIndex.requireInOpenRange(fromIndex, size, "toIndex")
 
-    return this@rotateTo.copyOf().apply {
-        rotate(distance, fromIndex, toIndex)
+    return copyOf().apply {
+        rotateThis(distance, fromIndex, toIndex)
     }
 }
 
@@ -219,11 +266,14 @@ fun IntArray.rotateTo(distance: Int, fromIndex: Int = 0, toIndex: Int = size - 1
  * @param toIndex 종료 인덱스 (size-1)
  * @return 회전된 [IntArray]
  */
-fun IntArray.rotate(distance: Int, fromIndex: Int = 0, toIndex: Int = size - 1) {
+fun IntArray.rotateThis(distance: Int, fromIndex: Int = 0, toIndex: Int = size - 1) {
+    if (this.isEmpty()) {
+        return
+    }
     fromIndex.requireInRange(0, toIndex, "fromIndex")
     toIndex.requireInOpenRange(fromIndex, size, "toIndex")
 
-    val array = this@rotate
+    val array = this@rotateThis
 
     if (array.size <= 1) {
         return
@@ -241,7 +291,9 @@ fun IntArray.rotate(distance: Int, fromIndex: Int = 0, toIndex: Int = size - 1) 
         return
     }
 
-    array.reverse(fromIndex, newFirstIndex - 1)
-    array.reverse(newFirstIndex, toIndex)
-    array.reverse(fromIndex, toIndex)
+    with(array) {
+        reverseThis(fromIndex, newFirstIndex - 1)
+        reverseThis(newFirstIndex, toIndex)
+        reverseThis(fromIndex, toIndex)
+    }
 }

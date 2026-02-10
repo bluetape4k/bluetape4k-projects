@@ -16,14 +16,16 @@ class IntArraySupportTest {
         val array = intArrayOf(1, 2, 3, 4, 5)
         val target = 3
 
-        array.indexOf(target, 0) shouldBeEqualTo 2
+        array.indexOf(target, 0, array.size - 1) shouldBeEqualTo 2
+
+        emptyIntArray.indexOf(target) shouldBeEqualTo -1
 
         assertFailsWith<IllegalArgumentException> {
             array.indexOf(target, -1, 1)
         }
 
         assertFailsWith<IllegalArgumentException> {
-            array.indexOf(target, 1, array.size + 1)
+            array.indexOf(target, 1, array.size)
         }
     }
 
@@ -34,12 +36,50 @@ class IntArraySupportTest {
 
         array.indexOf(target, 0, array.size - 1) shouldBeEqualTo 2
 
+        emptyIntArray.indexOf(target) shouldBeEqualTo -1
+
         assertFailsWith<IllegalArgumentException> {
             array.indexOf(target, -1, 1)
         }
 
         assertFailsWith<IllegalArgumentException> {
-            array.indexOf(target, 1, array.size + 1)
+            array.indexOf(target, 1, array.size)
+        }
+    }
+
+    @Test
+    fun `lastIndex of int`() {
+        val array = intArrayOf(1, 2, 3, 4, 3)
+        val target = 3
+
+        array.lastIndexOf(target, 0, array.size - 1) shouldBeEqualTo 4
+
+        emptyIntArray.lastIndexOf(target) shouldBeEqualTo -1
+
+        assertFailsWith<IllegalArgumentException> {
+            array.lastIndexOf(target, -1, 1)
+        }
+
+        assertFailsWith<IllegalArgumentException> {
+            array.lastIndexOf(target, 1, array.size)
+        }
+    }
+
+    @Test
+    fun `lastIndex of int array`() {
+        val array = intArrayOf(1, 2, 3, 4, 3, 4, 2)
+        val target = intArrayOf(3, 4)
+
+        array.lastIndexOf(target, 0, array.size - 1) shouldBeEqualTo 4
+
+        emptyIntArray.lastIndexOf(target) shouldBeEqualTo -1
+
+        assertFailsWith<IllegalArgumentException> {
+            array.lastIndexOf(target, -1, 1)
+        }
+
+        assertFailsWith<IllegalArgumentException> {
+            array.lastIndexOf(target, 1, array.size)
         }
     }
 
@@ -72,22 +112,50 @@ class IntArraySupportTest {
     }
 
     @Test
+    fun `reverse empty int array`() {
+        val array = emptyIntArray
+
+        array.reverseTo() shouldBeEqualTo emptyIntArray
+        array.reverseTo(0, 0) shouldBeEqualTo emptyIntArray
+
+        array.reverseThis()
+        array shouldBeEqualTo emptyIntArray
+
+        array.reverseThis(0, 0)
+        array shouldBeEqualTo emptyIntArray
+    }
+
+    @Test
     fun `reverse int array`() {
         val array = intArrayOf(1, 2, 3, 4, 5)
 
         array.reverseTo(0, array.size - 1) shouldBeEqualTo intArrayOf(5, 4, 3, 2, 1)
-        array.reverseTo(1, 4) shouldBeEqualTo intArrayOf(1, 5, 4, 3, 2)
+        array.reverseTo(1, 3) shouldBeEqualTo intArrayOf(1, 4, 3, 2, 5)
     }
 
     @Test
     fun `reverse current int array`() {
         val array = intArrayOf(1, 2, 3, 4, 5)
-        array.reverse()
+        array.reverseThis()
         array shouldBeEqualTo intArrayOf(5, 4, 3, 2, 1)
 
         val array2 = intArrayOf(1, 2, 3, 4, 5)
-        array2.reverse(1, 4)
-        array2 shouldBeEqualTo intArrayOf(1, 5, 4, 3, 2)
+        array2.reverseThis(1, 3)
+        array2 shouldBeEqualTo intArrayOf(1, 4, 3, 2, 5)
+    }
+
+    @Test
+    fun `rotate empty int array`() {
+        val array = emptyIntArray
+
+        array.rotateTo(2) shouldBeEqualTo emptyIntArray
+        array.rotateTo(-2) shouldBeEqualTo emptyIntArray
+
+        array.rotateThis(2)
+        array shouldBeEqualTo emptyIntArray
+
+        array.rotateThis(-2)
+        array shouldBeEqualTo emptyIntArray
     }
 
     @Test
@@ -100,11 +168,11 @@ class IntArraySupportTest {
     @Test
     fun `rotate itself int array elements`() {
         val array = intArrayOf(1, 2, 3, 4, 5)
-        array.rotate(2)
+        array.rotateThis(2)
         array shouldBeEqualTo intArrayOf(4, 5, 1, 2, 3)
 
         val array2 = intArrayOf(1, 2, 3, 4, 5)
-        array2.rotate(-2)
+        array2.rotateThis(-2)
         array2 shouldBeEqualTo intArrayOf(3, 4, 5, 1, 2)
     }
 }

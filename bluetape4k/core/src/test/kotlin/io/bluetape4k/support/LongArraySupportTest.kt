@@ -18,12 +18,14 @@ class LongArraySupportTest {
 
         array.indexOf(target, 0) shouldBeEqualTo 2
 
+        emptyLongArray.indexOf(target) shouldBeEqualTo -1
+
         assertFailsWith<IllegalArgumentException> {
             array.indexOf(target, -1, 1)
         }
 
         assertFailsWith<IllegalArgumentException> {
-            array.indexOf(target, 1, array.size + 1)
+            array.indexOf(target, 1, array.size)
         }
     }
 
@@ -34,12 +36,50 @@ class LongArraySupportTest {
 
         array.indexOf(target, 0, array.size - 1) shouldBeEqualTo 2
 
+        emptyLongArray.indexOf(target) shouldBeEqualTo -1
+
         assertFailsWith<IllegalArgumentException> {
             array.indexOf(target, -1, 1)
         }
 
         assertFailsWith<IllegalArgumentException> {
-            array.indexOf(target, 1, array.size + 1)
+            array.indexOf(target, 1, array.size)
+        }
+    }
+
+    @Test
+    fun `lastIndex of long`() {
+        val array = longArrayOf(1, 2, 3, 4, 3)
+        val target = 3L
+
+        array.lastIndexOf(target, 0, array.size - 1) shouldBeEqualTo 4
+
+        emptyLongArray.lastIndexOf(target) shouldBeEqualTo -1
+
+        assertFailsWith<IllegalArgumentException> {
+            array.lastIndexOf(target, -1, 1)
+        }
+
+        assertFailsWith<IllegalArgumentException> {
+            array.lastIndexOf(target, 1, array.size)
+        }
+    }
+
+    @Test
+    fun `lastIndex of long array`() {
+        val array = longArrayOf(1, 2, 3, 4, 3, 4, 2)
+        val target = longArrayOf(3, 4)
+
+        array.lastIndexOf(target, 0, array.size - 1) shouldBeEqualTo 4
+
+        emptyLongArray.lastIndexOf(target) shouldBeEqualTo -1
+
+        assertFailsWith<IllegalArgumentException> {
+            array.lastIndexOf(target, -1, 1)
+        }
+
+        assertFailsWith<IllegalArgumentException> {
+            array.lastIndexOf(target, 1, array.size)
         }
     }
 
@@ -72,22 +112,50 @@ class LongArraySupportTest {
     }
 
     @Test
+    fun `reverse empty long array`() {
+        val array = emptyLongArray
+
+        array.reverseTo() shouldBeEqualTo emptyLongArray
+        array.reverseTo(0, 0) shouldBeEqualTo emptyLongArray
+
+        array.reverseThis()
+        array shouldBeEqualTo emptyLongArray
+
+        array.reverseThis(0, 0)
+        array shouldBeEqualTo emptyLongArray
+    }
+
+    @Test
     fun `reverse long array`() {
         val array = longArrayOf(1, 2, 3, 4, 5)
 
         array.reverseTo(0, array.size - 1) shouldBeEqualTo longArrayOf(5, 4, 3, 2, 1)
-        array.reverseTo(1, 4) shouldBeEqualTo longArrayOf(1, 5, 4, 3, 2)
+        array.reverseTo(1, 3) shouldBeEqualTo longArrayOf(1, 4, 3, 2, 5)
     }
 
     @Test
     fun `reverse current long array`() {
-        val array = longArrayOf(1, 2, 3, 4, 5)
-        array.reverse()
-        array shouldBeEqualTo longArrayOf(5, 4, 3, 2, 1)
+        val array1 = longArrayOf(1, 2, 3, 4, 5)
+        array1.reverseThis()
+        array1 shouldBeEqualTo longArrayOf(5, 4, 3, 2, 1)
 
         val array2 = longArrayOf(1, 2, 3, 4, 5)
-        array2.reverse(1, 4)
-        array2 shouldBeEqualTo longArrayOf(1, 5, 4, 3, 2)
+        array2.reverseThis(1, 3)
+        array2 shouldBeEqualTo longArrayOf(1, 4, 3, 2, 5)
+    }
+
+    @Test
+    fun `rotate empty long array`() {
+        val array = emptyLongArray
+
+        array.rotateTo(2) shouldBeEqualTo emptyLongArray
+        array.rotateTo(-2) shouldBeEqualTo emptyLongArray
+
+        array.rotateThis(2)
+        array shouldBeEqualTo emptyLongArray
+
+        array.rotateThis(-2)
+        array shouldBeEqualTo emptyLongArray
     }
 
     @Test
@@ -100,11 +168,11 @@ class LongArraySupportTest {
     @Test
     fun `rotate itself long array elements`() {
         val array = longArrayOf(1, 2, 3, 4, 5)
-        array.rotate(2)
+        array.rotateThis(2)
         array shouldBeEqualTo longArrayOf(4, 5, 1, 2, 3)
 
         val array2 = longArrayOf(1, 2, 3, 4, 5)
-        array2.rotate(-2)
+        array2.rotateThis(-2)
         array2 shouldBeEqualTo longArrayOf(3, 4, 5, 1, 2)
     }
 }

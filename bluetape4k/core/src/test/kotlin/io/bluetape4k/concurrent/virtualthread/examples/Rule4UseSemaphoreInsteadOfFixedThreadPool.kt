@@ -66,7 +66,7 @@ class Rule4UseSemaphoreInsteadOfFixedThreadPool: AbstractVirtualThreadTest() {
                         result
                     }.asCompletableFuture()
                 }
-                FutureUtils.allAsList(futures).get()
+                FutureUtils.allAsList(futures, executor).get()
                 results.size shouldBeEqualTo taskSize
             }
         }
