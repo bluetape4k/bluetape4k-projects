@@ -15,7 +15,7 @@ import kotlin.reflect.jvm.kotlinFunction
 object KotlinDetector: KLogging() {
 
     /**
-     * Kotlin 언어로 정의된 수형에 대한 Kotlin Medata Annotation 을 반환합니다.
+     * Kotlin 언어로 정의된 수형에 대한 Kotlin Metadata Annotation 을 반환합니다.
      */
     val kotlinMetadata: Class<out Annotation>? by lazy {
         runCatching {
@@ -63,8 +63,8 @@ val Class<*>.isKotlinType: Boolean get() = KotlinDetector.isKotlinType(this)
  * @return suspend 함수인지 여부
  */
 fun KClass<*>.isSuspendableFunction(methodName: String): Boolean {
-    return memberFunctions.firstOrNull { it.name == methodName } != null ||
-            memberExtensionFunctions.firstOrNull { it.name == methodName } != null
+    return memberFunctions.any { it.name == methodName && it.isSuspend } ||
+            memberExtensionFunctions.any { it.name == methodName && it.isSuspend }
 }
 
 /**

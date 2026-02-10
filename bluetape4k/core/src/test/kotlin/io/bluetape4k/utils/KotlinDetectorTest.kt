@@ -1,6 +1,7 @@
 package io.bluetape4k.utils
 
 import io.bluetape4k.logging.KLogging
+import kotlinx.coroutines.delay
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContainSame
@@ -32,10 +33,14 @@ class KotlinDetectorTest {
         klazz.getSuspendableFunctions().map { it.name } shouldContainSame listOf("suspendableFunc")
 
         klazz.isSuspendableFunction("suspendableFunc").shouldBeTrue()
+        klazz.isSuspendableFunction("normalFunc").shouldBeFalse()
     }
 
     class Sample {
         fun normalFunc(): String = "normal"
-        suspend fun suspendableFunc(): String = "suspendable"
+        suspend fun suspendableFunc(): String {
+            delay(1L)
+            return "suspendable"
+        }
     }
 }
