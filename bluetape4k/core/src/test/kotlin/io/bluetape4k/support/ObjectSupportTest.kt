@@ -33,24 +33,26 @@ class ObjectSupportTest {
 
     @Test
     fun `컬렉션의 중간 값을 찾습니다`() {
-        listOf(1, 2, 3, 4, 5).median() shouldBeEqualTo 3
-        listOf(1, 1, 1).median() shouldBeEqualTo 1
+        val ordinal = Comparator.naturalOrder<Int>()
+
+        listOf(1, 2, 3, 4, 5).median(ordinal) shouldBeEqualTo 3
+        listOf(1, 1, 1).median(ordinal) shouldBeEqualTo 1
 
         // 중간 값이 2개일 때는 작은 값을 반환합니다.
-        listOf(1, 2, 3, 4).median() shouldBeEqualTo 2
-        listOf(1, 2, 3, 4, 5, 6).median() shouldBeEqualTo 3
+        listOf(1, 2, 3, 4).median(ordinal) shouldBeEqualTo 2
+        listOf(1, 2, 3, 4, 5, 6).median(ordinal) shouldBeEqualTo 3
     }
 
     @Test
     fun `컬렉션의 중간값을 Custom Comparator로 찾습니다`() {
         // reverse order
-        val comparator = Comparator<Int> { o1, o2 -> o2 - o1 }
+        val reverse = Comparator.reverseOrder<Int>() // Comparator<Int> { o1, o2 -> o2 - o1 }
 
-        listOf(1, 2, 3, 4, 5).median(comparator) shouldBeEqualTo 3
-        listOf(1, 1, 1).median(comparator) shouldBeEqualTo 1
+        listOf(1, 2, 3, 4, 5).median(reverse) shouldBeEqualTo 3
+        listOf(1, 1, 1).median(reverse) shouldBeEqualTo 1
 
         // 중간 값이 2개일 때는 작은 값을 반환합니다.
-        listOf(1, 2, 3, 4).median(comparator) shouldBeEqualTo 3
-        listOf(1, 2, 3, 4, 5, 6).median(comparator) shouldBeEqualTo 4
+        listOf(1, 2, 3, 4).median(reverse) shouldBeEqualTo 3
+        listOf(1, 2, 3, 4, 5, 6).median(reverse) shouldBeEqualTo 4
     }
 }
