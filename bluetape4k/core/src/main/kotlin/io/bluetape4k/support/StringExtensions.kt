@@ -750,7 +750,7 @@ fun String.toDashedString(delimiter: String = "-"): String = buildString {
         when {
             index == 0 -> append(char.lowercaseChar())
             char.isUpperCase() -> append(delimiter).append(char.lowercaseChar())
-            else -> append(char)
+            else       -> append(char)
         }
     }
 }
@@ -859,3 +859,9 @@ internal fun CharSequence.validSurrogatePairAt(index: Int): Boolean {
             Character.isHighSurrogate(this[index]) &&
             Character.isLowSurrogate(this[index + 1])
 }
+
+
+/**
+ * 문자열들을 대소문자 구분없이 비교합니다.
+ */
+inline fun String?.equalsIgnoreCase(other: String?): Boolean = equals(other, ignoreCase = true)
