@@ -8,7 +8,11 @@ import kotlin.reflect.jvm.javaMethod
 
 val KClass<*>.packageName: String get() = this.java.packageName
 
-val KFunction<*>.qualifiedName: String get() = this.javaMethod?.declaringClass?.name + name
+val KFunction<*>.qualifiedName: String
+    get() {
+        val className = this.javaMethod?.declaringClass?.name ?: return name
+        return "$className.$name"
+    }
 
 /**
  * 객체를 지정한 수형으로 casting 합니다.
@@ -20,7 +24,7 @@ val KFunction<*>.qualifiedName: String get() = this.javaMethod?.declaringClass?.
  */
 @Suppress("UNCHECKED_CAST")
 fun <T: Any> Any.cast(kclass: KClass<T>): T =
-    if (kclass.java.isInstance(this)) this as T
+    if (kclass.isInstance(this)) this as T
     else throw ClassCastException("${this::class} couldn't be cast to $kclass")
 
 /**
@@ -60,7 +64,10 @@ fun <T: Any> KClass<T>.newInstanceOrNull(): T? = java.newInstanceOrNull()
  * ```
  */
 @Suppress("UNCHECKED_CAST")
-fun <T: Any> newInstanceOrNull(qualifiedName: String, classLoader: ClassLoader? = getContextClassLoader()): T? {
+fun <T: Any> newInstanceOrNull(
+    qualifiedName: String,
+    classLoader: ClassLoader? = getContextClassLoader(),
+): T? {
     qualifiedName.assertNotBlank("qualifiedName")
 
     return runCatching {
@@ -80,7 +87,7 @@ fun <T: Any> newInstanceOrNull(qualifiedName: String, classLoader: ClassLoader? 
  */
 fun classIsPresent(
     qualifiedName: String,
-    classLoader: ClassLoader? = Thread.currentThread().contextClassLoader,
+    classLoader: ClassLoader? = getContextClassLoader(),
 ): Boolean {
     return try {
         (classLoader?.loadClass(qualifiedName) ?: Class.forName(qualifiedName)) != null
@@ -90,10 +97,12 @@ fun classIsPresent(
 }
 
 /**
- * 지정한 수형의 모든 상위 수형을 찾습니다.
+ * 지정한 수형의 모든 상위 수형(superclass + interface)을 찾습니다.
+ * 자기 자신도 결과에 포함됩니다.
  *
  * ```
- * val superTypes = String::class.findAllSuperTypes() // [String, Comparable, Serializable, Object]
+ * val superTypes = String::class.java.findAllSuperTypes()
+ * // [Comparable, Serializable, CharSequence, Constable, ConstantDesc, Object, String]
  * ```
  */
 fun Class<*>.findAllSuperTypes(): List<Class<*>> {
@@ -129,21 +138,18 @@ private tailrec fun findAllSuperTypes(
 }
 
 /**
- * 지정한 수형의 모든 상위 수형을 찾습니다.
- *
- * ```
- * val superTypes = String::class.java.supertypes() // [String, Comparable, Serializable, Object]
- * ```
+ * 지정한 수형의 직접 상위 수형(superclass + interface)을 반환합니다.
  */
 @Suppress("UNNECESSARY_SAFE_CALL")
 private fun Class<*>.supertypes(): MutableList<Class<*>> =
     when {
         superclass == null         -> interfaces?.toMutableList() ?: mutableListOf()
         interfaces.isNullOrEmpty() -> mutableListOf(superclass)
-        else                       -> ArrayList<Class<*>>(interfaces.size + 1).also {
-            interfaces.toCollection(it)
-            it.add(superclass)
-        }
+        else -> ArrayList<Class<*>>(interfaces.size + 1)
+            .also {
+                interfaces.toCollection(it)
+                it.add(superclass)
+            }
     }
 
 /**

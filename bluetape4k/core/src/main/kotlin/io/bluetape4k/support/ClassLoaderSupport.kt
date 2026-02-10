@@ -1,42 +1,40 @@
 package io.bluetape4k.support
 
-import java.net.URL
 import kotlin.reflect.KClass
 
-private val EMPTY_URL_ARRAY = arrayOf<URL>()
+/**
+ * [clazz]의 ClassLoader를 반환합니다.
+ * bootstrap ClassLoader로 로드된 클래스의 경우 context ClassLoader → system ClassLoader 순으로 fallback합니다.
+ */
+fun getClassLoader(clazz: Class<*>): ClassLoader =
+    clazz.classLoader ?: Thread.currentThread().contextClassLoader ?: ClassLoader.getSystemClassLoader()
 
-fun getSystemURLs(): Array<URL> = ClassLoader.getSystemClassLoader().urls
-
-fun getThreadURLs(): Array<URL> = Thread.currentThread().contextClassLoader.urls
-
-val ClassLoader.urls: Array<URL>
-    get() = when (this) {
-        is java.net.URLClassLoader -> this@urls.urLs
-        else                       -> EMPTY_URL_ARRAY
-    }
-
-fun ClassLoader.toStr(): String = when (this) {
-    is java.net.URLClassLoader -> this@toStr.urls.contentToString()
-    else                       -> this.toString()
-}
-
-fun getClassLoader(clazz: Class<*>): ClassLoader {
-    //    return System.getSecurityManager()?.run {
-    //        AccessController.doPrivileged(PrivilegedAction { clazz.classLoader })
-    //    } ?: clazz.classLoader
-    return clazz.classLoader
-}
-
+/**
+ * [kclass]의 ClassLoader를 반환합니다.
+ */
 fun getClassLoader(kclass: KClass<*>): ClassLoader = getClassLoader(kclass.java)
 
+/**
+ * [T] 타입의 ClassLoader를 반환합니다.
+ */
 inline fun <reified T> getClassLoader(): ClassLoader = getClassLoader(T::class.java)
 
+/**
+ * 기본 ClassLoader를 반환합니다. context ClassLoader → system ClassLoader 순으로 fallback합니다.
+ */
 fun getDefaultClassLoader(): ClassLoader = getContextClassLoader()
 
-fun getContextClassLoader(): ClassLoader = getClassLoader { Thread.currentThread().contextClassLoader }
+/**
+ * 현재 스레드의 context ClassLoader를 반환합니다.
+ * 실패 시 system ClassLoader로 fallback합니다.
+ */
+fun getContextClassLoader(): ClassLoader = resolveClassLoader { Thread.currentThread().contextClassLoader }
 
-fun getSystemClassLoader(): ClassLoader = getClassLoader { ClassLoader.getSystemClassLoader() }
+/**
+ * system ClassLoader를 반환합니다.
+ */
+fun getSystemClassLoader(): ClassLoader = resolveClassLoader { ClassLoader.getSystemClassLoader() }
 
-private inline fun getClassLoader(crossinline loader: () -> ClassLoader): ClassLoader {
-    return runCatching { loader() }.getOrElse { Thread.currentThread().contextClassLoader }
+private inline fun resolveClassLoader(crossinline loader: () -> ClassLoader?): ClassLoader {
+    return runCatching { loader() }.getOrNull() ?: ClassLoader.getSystemClassLoader()
 }
