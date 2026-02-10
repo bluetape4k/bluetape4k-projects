@@ -482,7 +482,7 @@ fun CharSequence?.between(start: String, end: String): String {
     if (this.isNullOrBlank())
         return this?.toString() ?: EMPTY_STRING
 
-    if (areEquals(start, end))
+    if (start == end)
         return EMPTY_STRING
 
     var startIndex = 0

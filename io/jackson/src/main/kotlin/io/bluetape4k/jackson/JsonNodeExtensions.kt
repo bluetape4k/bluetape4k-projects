@@ -46,7 +46,7 @@ fun <T> JsonNode.addValue(value: T, fieldName: String?) = apply {
         is BigInteger -> nodeFactory.numberNode(value)
         is String -> nodeFactory.textNode(value)
         is ByteArray -> nodeFactory.binaryNode(value)
-        else -> throw IllegalArgumentException("Unsupported value type: ${value?.let { it::class }}")
+        else -> throw IllegalArgumentException("Unsupported value type: ${value::class}")
     }
     when (this) {
         is ObjectNode -> replace(fieldName, node)

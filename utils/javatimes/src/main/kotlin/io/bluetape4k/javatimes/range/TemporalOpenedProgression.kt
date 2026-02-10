@@ -4,7 +4,6 @@ import io.bluetape4k.javatimes.isNegative
 import io.bluetape4k.javatimes.isPositive
 import io.bluetape4k.javatimes.isZero
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.support.areEquals
 import io.bluetape4k.support.hashOf
 import java.time.temporal.Temporal
 import java.time.temporal.TemporalAmount
@@ -73,9 +72,7 @@ open class TemporalOpenedProgression<T> protected constructor(
     override fun equals(other: Any?): Boolean = when (other) {
         is TemporalOpenedProgression<*> ->
             (isEmpty() && other.isEmpty()) ||
-                    (areEquals(first, other.first) &&
-                            areEquals(last, other.last) &&
-                            areEquals(step, other.step))
+                    (first == other.first && last == other.last && step == other.step)
 
         else                            -> false
     }

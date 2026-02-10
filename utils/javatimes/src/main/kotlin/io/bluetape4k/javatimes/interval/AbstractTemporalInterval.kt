@@ -4,7 +4,6 @@ import io.bluetape4k.javatimes.SystemZoneId
 import io.bluetape4k.javatimes.interval.ReadableTemporalInterval.Companion.SEPARATOR
 import io.bluetape4k.javatimes.toEpochMillis
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.support.areEquals
 import io.bluetape4k.support.hashOf
 import java.time.ZoneId
 import java.time.temporal.Temporal
@@ -24,7 +23,7 @@ abstract class AbstractTemporalInterval<T>: ReadableTemporalInterval<T> where T:
      * @param other
      */
     override fun abuts(other: ReadableTemporalInterval<T>): Boolean =
-        areEquals(startInclusive, other.endExclusive) || areEquals(endExclusive, other.startInclusive)
+        startInclusive == other.endExclusive || endExclusive == other.startInclusive
 
     override fun gap(interval: ReadableTemporalInterval<T>): ReadableTemporalInterval<T>? {
         return when {
@@ -100,9 +99,9 @@ abstract class AbstractTemporalInterval<T>: ReadableTemporalInterval<T> where T:
 
     override fun equals(other: Any?): Boolean =
         other is ReadableTemporalInterval<*> &&
-                areEquals(startInclusive, other.startInclusive) &&
-                areEquals(endExclusive, other.endExclusive) &&
-                areEquals(zoneId, other.zoneId)
+                startInclusive == other.startInclusive &&
+                endExclusive == other.endExclusive &&
+                zoneId == other.zoneId
 
     override fun hashCode(): Int = hashOf(startInclusive, endExclusive, zoneId)
 
