@@ -9,12 +9,14 @@ import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeLessOrEqualTo
+import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldContainAll
 import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldEndWith
 import org.amshove.kluent.shouldNotBeEmpty
+import org.amshove.kluent.shouldNotBeNull
 import org.amshove.kluent.shouldStartWith
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
@@ -32,6 +34,7 @@ class StringSupportTest {
     val emptyValue: String = ""
     val blankValue: String = " \t "
     val someValue: String = "debop"
+    val fallback: String = "fallback"
 
     @Test
     fun `is empty `() {
@@ -63,6 +66,15 @@ class StringSupportTest {
     }
 
     @Test
+    fun `has length`() {
+        nullValue.hasLength().shouldBeFalse()
+        emptyValue.hasText().shouldBeFalse()
+
+        blankValue.hasLength().shouldBeTrue()
+        someValue.hasLength().shouldBeTrue()
+    }
+
+    @Test
     fun `has text`() {
         nullValue.hasText().shouldBeFalse()
         nullValue.noText().shouldBeTrue()
@@ -77,15 +89,68 @@ class StringSupportTest {
         someValue.noText().shouldBeFalse()
     }
 
-    @RepeatedTest(REPEAT_SIZE)
-    fun `convert to utf8`() {
-        val origin = Fakers.randomString(1024)
+    @Test
+    fun `as null if empty string`() {
+        nullValue.asNullIfEmpty().shouldBeNull()
+        emptyValue.asNullIfEmpty().shouldBeNull()
+        blankValue.asNullIfEmpty().shouldNotBeNull()
+        someValue.asNullIfEmpty().shouldNotBeNull()
+    }
 
-        val bytes = origin.toUtf8Bytes()
-        bytes.shouldNotBeEmpty()
+    @Test
+    fun `as null if blank string`() {
+        nullValue.asNullIfBlank().shouldBeNull()
+        emptyValue.asNullIfBlank().shouldBeNull()
+        blankValue.asNullIfBlank().shouldBeNull()
+        someValue.asNullIfBlank().shouldNotBeNull()
+    }
 
-        val actual = bytes.toUtf8String()
-        actual shouldBeEqualTo origin
+    @Test
+    fun `convert string to utf8 byte array and back`() {
+        emptyValue.toUtf8Bytes().toUtf8String() shouldBeEqualTo emptyValue
+        blankValue.toUtf8Bytes().toUtf8String() shouldBeEqualTo blankValue
+
+        repeat(REPEAT_SIZE) {
+            val origin = Fakers.randomString(0, 1024)
+
+            val bytes = origin.toUtf8Bytes().shouldNotBeEmpty()
+            val actual = bytes.toUtf8String()
+
+            actual shouldBeEqualTo origin
+        }
+    }
+
+    @Test
+    fun `convert string to utf8 byte buffer and back`() {
+        emptyValue.toUtf8ByteBuffer().toUtf8String() shouldBeEqualTo emptyValue
+        blankValue.toUtf8ByteBuffer().toUtf8String() shouldBeEqualTo blankValue
+
+        repeat(REPEAT_SIZE) {
+            val origin = Fakers.randomString(0, 1024)
+
+            val byteBuffer = origin.toUtf8ByteBuffer()
+            val actual = byteBuffer.toUtf8String()
+
+            actual shouldBeEqualTo origin
+        }
+    }
+
+    @Test
+    fun `if string is empty return fallback`() {
+        nullValue.ifNullOrEmpty { fallback } shouldBeEqualTo fallback
+        emptyValue.ifNullOrEmpty { fallback } shouldBeEqualTo fallback
+
+        blankValue.ifNullOrEmpty { fallback } shouldBeEqualTo blankValue
+        someValue.ifNullOrEmpty { fallback } shouldBeEqualTo someValue
+    }
+
+    @Test
+    fun `if string is blank return fallback`() {
+        nullValue.ifNullOrBlank { fallback } shouldBeEqualTo fallback
+        emptyValue.ifNullOrBlank { fallback } shouldBeEqualTo fallback
+
+        blankValue.ifNullOrBlank { fallback } shouldBeEqualTo fallback
+        someValue.ifNullOrBlank { fallback } shouldBeEqualTo someValue
     }
 
     @Test
@@ -97,7 +162,7 @@ class StringSupportTest {
     }
 
     @Test
-    fun `trimStart whitespace`() {
+    fun `trim start whitespace`() {
         blankValue.trimStartWhitespace().shouldBeEmpty()
         someValue.trimStartWhitespace() shouldBeEqualTo someValue
 
@@ -105,7 +170,7 @@ class StringSupportTest {
     }
 
     @Test
-    fun `trimEnd whitespace`() {
+    fun `trim end whitespace`() {
         blankValue.trimEndWhitespace().shouldBeEmpty()
         someValue.trimEndWhitespace() shouldBeEqualTo someValue
 
@@ -113,7 +178,7 @@ class StringSupportTest {
     }
 
     @Test
-    fun `remove all whitespace`() {
+    fun `trim all whitespace`() {
         blankValue.trimAllWhitespace().shouldBeEmpty()
         someValue.trimAllWhitespace() shouldBeEqualTo someValue
 

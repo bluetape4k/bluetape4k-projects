@@ -18,14 +18,17 @@ import java.security.SecureRandom
  */
 object Base58: KLogging() {
 
-    private val ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray()
-    private val ENCODED_ZERO = ALPHABET[0]
-    private val INDEXES = IntArray(128) { -1 }.apply {
-        ALPHABET.indices.forEach {
-            this[ALPHABET[it].code] = it
+    private val ALPHABET: CharArray = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray()
+    private val ENCODED_ZERO: Char = ALPHABET[0]
+    private val INDEXES: IntArray = IntArray(128) { -1 }.apply {
+//        ALPHABET.indices.forEach {i ->
+//            this[ALPHABET[i].code] = i
+//        }
+        ALPHABET.forEachIndexed { i, ch ->
+            this[ch.code] = i
         }
     }
-    private val RANDOM = SecureRandom()
+    private val RANDOM: SecureRandom by lazy { SecureRandom.getInstanceStrong() }
 
     /**
      * [length] 크기를 가진 랜덤 문자열을 만듭니다.

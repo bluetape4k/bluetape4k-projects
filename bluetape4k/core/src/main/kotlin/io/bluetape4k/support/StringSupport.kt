@@ -3,14 +3,13 @@
 
 package io.bluetape4k.support
 
-import org.apache.commons.lang3.RandomStringUtils
+import io.bluetape4k.codec.Base58
 import org.apache.commons.lang3.StringUtils
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.util.*
 import java.util.regex.Pattern
 import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
 
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
@@ -19,6 +18,7 @@ private typealias JChar = java.lang.Character
 const val EMPTY_STRING = ""
 const val TRIMMING = "..."
 const val NULL_STRING = "<null>"
+const val NULL_STRING_SQL = "null"
 const val COMMA = ","
 const val TAB = "\t"
 private const val ELLIPSIS_LENGTH = 80
@@ -33,39 +33,46 @@ val WHITESPACE_BLOCK: Pattern = Pattern.compile("\\s+")
 val UTF_8: Charset = Charsets.UTF_8
 
 /**
- * 문자열이 null이거나 blank (`\t`, `\b` 등의 ASCII 제어문자 포함) 인지 확인합니다. (empty 와 다르다)
+ * 문자열이 null이거나 blank (`\t`, `\b` 등의 ASCII 제어문자 포함) 이라면 true 를 반환, 아니면 false 를 반환 
  */
-fun CharSequence?.isWhitespace(): Boolean = isNullOrBlank()
+inline fun CharSequence?.isWhitespace(): Boolean = isNullOrBlank()
 
 /**
- * 문자열이 null이거나 blank가 아닌지 확인합니다. (empty 와 다르다)
+ * 문자열이 null이거나 blank가 라면 false 를 반환, 아니면 true를 반환한다
  */
-fun CharSequence?.isNotWhitespace(): Boolean = !isWhitespace()
+inline fun CharSequence?.isNotWhitespace(): Boolean = !isWhitespace()
 
 /**
- * 문자열이 null이거나 empty 인지 확인합니다.
+ * 문자열이 null이거나 empty 이 아니라면 true 를 반환합니다.
  */
-fun CharSequence?.hasLength(): Boolean {
-    contract {
-        returns(true) implies (this@hasLength != null)
-    }
-    return !isNullOrEmpty()
-}
+inline fun CharSequence?.hasLength(): Boolean = !isNullOrEmpty()
+
+/**
+ * 문자열이 null이거나 empty 이 이라면 true 를 반환합니다.
+ */
+inline fun CharSequence?.noLength(): Boolean = isNullOrEmpty()
 
 /**
  * 문자열이 null이거나 blank가 아니고, 길이가 0보다 큰지 확인합니다. (사람이 읽을 수 있는 문자열이 있다면 true, 없다면 false)
  */
-fun CharSequence?.hasText(): Boolean = hasLength() && !this.indices.any { this[it].isWhitespace() }
+inline fun CharSequence?.hasText(): Boolean =
+    hasLength() && this.isNotWhitespace()
 
 /**
  * 문자열이 null이거나 blank가 아니고, 길이가 0보다 큰지 확인합니다. (사람이 읽을 수 있는 문자열이 없다면 true, 있다면 false)
  */
-fun CharSequence?.noText(): Boolean = isNullOrEmpty() || this.indices.all { this[it].isWhitespace() }
+inline fun CharSequence?.noText(): Boolean =
+    noLength() || isWhitespace()
 
 /**
  * 문자열이 null 이거나 empty 라면 null 을 반환한다
  */
-fun String?.asNullIfEmpty(): String? = if (isNullOrEmpty()) null else this
+inline fun String?.asNullIfEmpty(): String? = if (isNullOrEmpty()) null else this
+
+/**
+ * 문자열이 null 이거나 blank 라면 null 을 반환한다
+ */
+inline fun String?.asNullIfBlank(): String? = if (isNullOrBlank()) null else this
 
 /**
  * 문자열을 UTF-8 인코딩의 [ByteArray]로 변환합니다.
@@ -127,10 +134,9 @@ fun ByteBuffer.toUtf8String(): String = UTF_8.decode(this).toString()
  * @param fallback 문자열이 null이거나 empty인 경우 수행할 람다
  * @return String 문자열
  */
-inline fun String?.ifEmpty(fallback: () -> String): String = when {
-    isNullOrEmpty() -> fallback()
-    else -> this
-}
+@Deprecated("use ifNullOrEmpty instead", replaceWith = ReplaceWith("ifNullOrEmpty"))
+inline fun String?.ifEmpty(fallback: () -> String): String =
+    if (isNullOrEmpty()) fallback() else this
 
 /**
  * 문자열이 null이거나 empty라면 [fallback]을 수행합니다.
@@ -144,10 +150,8 @@ inline fun String?.ifEmpty(fallback: () -> String): String = when {
  * @param fallback 문자열이 null이거나 empty인 경우 수행할 람다
  * @return String 문자열
  */
-inline fun String?.ifNullOrEmpty(fallback: () -> String): String = when {
-    isNullOrEmpty() -> fallback()
-    else -> this
-}
+inline fun String?.ifNullOrEmpty(fallback: () -> String): String =
+    if (isNullOrEmpty()) fallback() else this
 
 /**
  * 문자열이 null이거나 blank라면 [fallback]을 수행합니다.
@@ -161,10 +165,8 @@ inline fun String?.ifNullOrEmpty(fallback: () -> String): String = when {
  * @param fallback 문자열이 null이거나 blank인 경우 수행할 람다
  * @return String 문자열
  */
-inline fun String?.ifNullOrBlank(fallback: () -> String): String = when {
-    isNullOrBlank() -> fallback()
-    else -> this
-}
+inline fun String?.ifNullOrBlank(fallback: () -> String): String =
+    if (isNullOrBlank()) fallback() else this
 
 
 /**
@@ -180,7 +182,7 @@ inline fun String?.ifNullOrBlank(fallback: () -> String): String = when {
  */
 fun String.trimWhitespace(): String {
     if (isEmpty())
-        return this.trim()
+        return this
 
     val sb = StringBuilder(this.trim())
     while (sb.isNotEmpty() && JChar.isWhitespace(sb[0])) {
@@ -205,7 +207,7 @@ fun String.trimWhitespace(): String {
  */
 fun String.trimStartWhitespace(): String {
     if (isEmpty())
-        return this.trimStart()
+        return this
 
     val sb = StringBuilder(this.trimStart())
     while (sb.isNotEmpty() && JChar.isWhitespace(sb[0])) {
@@ -270,9 +272,9 @@ fun String.trimAllWhitespace(): String {
  * @return null 인 경우 "null" 문자열을 반환하고, 문자열인 경우 single quotation을 추가합니다.
  *
  */
-fun String?.quoted(): String {
+inline fun String?.quoted(): String {
     if (this == null)
-        return "null"
+        return NULL_STRING_SQL
 
     return if (isEmpty()) "''"
     else "'" + replace("\'", "\'\'") + "'"
@@ -290,7 +292,7 @@ fun String?.quoted(): String {
  */
 inline fun randomString(size: Int = 10): String {
     size.assertZeroOrPositiveNumber("size")
-    return RandomStringUtils.secureStrong().nextAlphanumeric(size)
+    return Base58.randomString(size)
 }
 
 /**

@@ -1,6 +1,5 @@
 package io.bluetape4k.codec
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
@@ -8,6 +7,7 @@ import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Runtimex
 import net.datafaker.Faker
 import org.amshove.kluent.shouldBeEqualTo
@@ -29,18 +29,19 @@ class Base58Test {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `Base58 랜덤 문자열을 생성하면 고유한 문자열을 생성한다`() {
-        val size = 100
-        val strs = fastList(size) { Base58.randomString(12) }
+        val size = 1000
+        val strs = List(size) { Base58.randomString(12) }
         strs.distinct().size shouldBeEqualTo size
     }
 
     @RepeatedTest(REPEAT_SIZE)
     fun `짧은 문자열을 Base58로 인코딩 후 디코딩하면 원래 값과 같아야 한다`() {
-        val expected: String = faker.lorem().characters()
+        val expected: String = faker.lorem().sentence()
 
         val encoded: String = Base58.encode(expected)
         val decoded: String = Base58.decodeAsString(encoded)
 
+        log.debug { "encoded:$encoded, decoded:$decoded" }
         decoded shouldBeEqualTo expected
     }
 
@@ -51,16 +52,30 @@ class Base58Test {
         val encoded = Base58.encode(expected)
         val decoded = Base58.decodeAsString(encoded)
 
+        log.debug { "encoded:$encoded, decoded:$decoded" }
+        decoded shouldBeEqualTo expected
+    }
+
+
+    @RepeatedTest(REPEAT_SIZE)
+    fun `한국어 짧은 문장을 Base58로 인코딩, 디코딩하면 원본과 같다`() {
+        val expected = fakerKr.lorem().sentence()
+
+        val encoded = Base58.encode(expected)
+        val decoded = Base58.decodeAsString(encoded)
+
+        log.debug { "encoded:$encoded, decoded:$decoded" }
         decoded shouldBeEqualTo expected
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `한국어를 Base58로 인코딩, 디코딩하면 원본과 같다`() {
+    fun `한국어를 긴 문장을 Base58로 인코딩, 디코딩하면 원본과 같다`() {
         val expected = fakerKr.lorem().paragraph()
 
         val encoded = Base58.encode(expected)
         val decoded = Base58.decodeAsString(encoded)
 
+        log.debug { "encoded:$encoded, decoded:$decoded" }
         decoded shouldBeEqualTo expected
     }
 
@@ -96,7 +111,7 @@ class Base58Test {
             .numThreads(Runtimex.availableProcessors * 2)
             .roundsPerThread(4)
             .add {
-                val expected = faker.lorem().characters()
+                val expected = fakerKr.lorem().paragraph()
                 val encoded = Base58.encode(expected)
                 val decoded = Base58.decodeAsString(encoded)
                 decoded shouldBeEqualTo expected
@@ -110,7 +125,7 @@ class Base58Test {
         StructuredTaskScopeTester()
             .roundsPerTask(8 * Runtimex.availableProcessors)
             .add {
-                val expected = faker.lorem().characters()
+                val expected = fakerKr.lorem().paragraph()
                 val encoded = Base58.encode(expected)
                 val decoded = Base58.decodeAsString(encoded)
                 decoded shouldBeEqualTo expected
@@ -124,7 +139,7 @@ class Base58Test {
             .numThreads(Runtimex.availableProcessors * 2)
             .roundsPerJob(8 * Runtimex.availableProcessors)
             .add {
-                val expected = faker.lorem().characters()
+                val expected = fakerKr.lorem().paragraph()
                 val encoded = Base58.encode(expected)
                 val decoded = Base58.decodeAsString(encoded)
                 decoded shouldBeEqualTo expected

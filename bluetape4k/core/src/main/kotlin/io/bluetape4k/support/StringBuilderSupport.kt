@@ -17,7 +17,14 @@ package io.bluetape4k.support
  * @see joinToString
  */
 fun <T> StringBuilder.appendItems(iterable: Iterable<T>, separator: String = ", ") {
-    appendItems(iterable.asSequence(), separator)
+    val iter = iterable.iterator()
+    if (iter.hasNext()) {
+        append(iter.next())
+    }
+    while (iter.hasNext()) {
+        append(separator)
+        append(iter.next())
+    }
 }
 
 /**
@@ -37,12 +44,20 @@ fun <T> StringBuilder.appendItems(iterable: Iterable<T>, separator: String = ", 
  * @see joinToString
  */
 fun <T> StringBuilder.appendItems(sequence: Sequence<T>, separator: String = ", ") {
-    val iter = sequence.iterator()
+    return appendItems(sequence.asIterable(), separator)
+}
+
+fun <T> Iterable<T>.appendItems(builder: StringBuilder, separator: String = ", ") {
+    val iter = iterator()
     if (iter.hasNext()) {
-        append(iter.next())
+        builder.append(iter.next())
     }
     while (iter.hasNext()) {
-        append(separator)
-        append(iter.next())
+        builder.append(separator)
+        builder.append(iter.next())
     }
+}
+
+fun <T> Sequence<T>.appendItems(builder: StringBuilder, separator: String = ", ") {
+    return asIterable().appendItems(builder, separator)
 }
