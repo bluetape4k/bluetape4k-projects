@@ -4,7 +4,6 @@ import io.bluetape4k.aws.dynamodb.DynamoDb
 import io.bluetape4k.aws.dynamodb.DynamoDb.MAX_BATCH_ITEM_SIZE
 import io.bluetape4k.aws.dynamodb.model.BatchWriteItemEnhancedRequest
 import io.bluetape4k.aws.dynamodb.model.writeBatchOf
-import io.bluetape4k.support.coerce
 import io.bluetape4k.support.requireNotBlank
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClientExtension
@@ -66,7 +65,7 @@ fun <T: Any> DynamoDbEnhancedClient.batchWriteItems(
     items: Collection<T>,
     chunkSize: Int = MAX_BATCH_ITEM_SIZE,
 ): List<BatchWriteResult> {
-    val chunk = chunkSize.coerce(1, MAX_BATCH_ITEM_SIZE)
+    val chunk = chunkSize.coerceIn(1, MAX_BATCH_ITEM_SIZE)
     return items
         .chunked(chunk)
         .map { chunkedItems ->
@@ -92,7 +91,7 @@ inline fun <reified T: Any> DynamoDbEnhancedClient.batchWriteItems(
     items: Collection<T>,
     chunkSize: Int = MAX_BATCH_ITEM_SIZE,
 ): List<BatchWriteResult> {
-    val chunk = chunkSize.coerce(1, MAX_BATCH_ITEM_SIZE)
+    val chunk = chunkSize.coerceIn(1, MAX_BATCH_ITEM_SIZE)
     return items
         .chunked(chunk)
         .map { chunkedItems ->

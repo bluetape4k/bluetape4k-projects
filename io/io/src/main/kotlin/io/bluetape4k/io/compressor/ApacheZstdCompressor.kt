@@ -4,7 +4,6 @@ import com.github.luben.zstd.Zstd
 import io.bluetape4k.io.compressor.ApacheZstdCompressor.Companion.DEFAULT_LEVEL
 import io.bluetape4k.io.okio.bufferOf
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.support.coerce
 import okio.Buffer
 import org.apache.commons.compress.compressors.zstandard.ZstdCompressorInputStream
 import org.apache.commons.compress.compressors.zstandard.ZstdCompressorOutputStream
@@ -35,7 +34,7 @@ class ApacheZstdCompressor private constructor(val level: Int): AbstractCompress
         @JvmStatic
         operator fun invoke(level: Int = DEFAULT_LEVEL): ApacheZstdCompressor {
             ZstdUtils.setCacheZstdAvailablity(true)
-            val cLevel = level.coerce(Zstd.minCompressionLevel(), Zstd.maxCompressionLevel())
+            val cLevel = level.coerceIn(Zstd.minCompressionLevel(), Zstd.maxCompressionLevel())
             return ApacheZstdCompressor(cLevel)
         }
     }

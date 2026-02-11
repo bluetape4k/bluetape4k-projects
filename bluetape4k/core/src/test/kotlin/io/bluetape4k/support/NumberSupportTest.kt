@@ -16,13 +16,13 @@ class NumberSupportTest {
 
     @Test
     fun `coerceIn operator`() {
-        32.coerce(38, 42) shouldBeEqualTo 38
+        32.coerceIn(38, 42) shouldBeEqualTo 38
         32.coerceIn(38..42) shouldBeEqualTo 38
 
-        44.coerce(38, 42) shouldBeEqualTo 42
+        44.coerceIn(38, 42) shouldBeEqualTo 42
         44.coerceIn(38..42) shouldBeEqualTo 42
 
-        40.coerce(38, 42) shouldBeEqualTo 40
+        40.coerceIn(38, 42) shouldBeEqualTo 40
         40.coerceIn(38..42) shouldBeEqualTo 40
     }
 
@@ -52,12 +52,13 @@ class NumberSupportTest {
     fun `decode string to BigDecimal`() {
         "".decodeBigDecimal() shouldBeEqualTo BigDecimal.ZERO
         "-1".decodeBigDecimal() shouldBeEqualTo BigDecimal.ONE.negate()
+        "1.0".decodeBigDecimal() shouldBeEqualTo BigDecimal.ONE
 
         assertFailsWith<NumberFormatException> {
-            "#42".decodeBigDecimal() shouldBeEqualTo BigDecimal.valueOf(0x42L)
+            "#42".decodeBigDecimal()
         }
         assertFailsWith<NumberFormatException> {
-            "0x42".decodeBigDecimal() shouldBeEqualTo BigDecimal.valueOf(0x42L)
+            "0x42".decodeBigDecimal()
         }
     }
 
@@ -66,14 +67,33 @@ class NumberSupportTest {
         "0x42".parseNumber<Int>() shouldBeEqualTo 0x42
         "-0x42".parseNumber<Int>() shouldBeEqualTo -0x42
 
+        " 42 ".parseNumber<Byte>() shouldBeEqualTo 42.toByte()
         " 42 ".parseNumber<Int>() shouldBeEqualTo 42
         " 42 ".parseNumber<Long>() shouldBeEqualTo 42L
-
-        "42".parseNumber<BigInteger>() shouldBeEqualTo 42.toBigInt()
 
         "42.4".parseNumber<Float>() shouldBeEqualTo 42.4F
         "42.4".parseNumber<Double>() shouldBeEqualTo 42.4
 
+        "42".parseNumber<BigInteger>() shouldBeEqualTo 42.toBigInt()
         "42.4".parseNumber<BigDecimal>() shouldBeEqualTo 42.4.toBigDecimal()
+    }
+
+    @Test
+    fun `parse invalid number format string`() {
+        assertFailsWith<NumberFormatException> {
+            "42.4".parseNumber<Byte>()
+        }
+        assertFailsWith<NumberFormatException> {
+            "42.4".parseNumber<Int>()
+        }
+        assertFailsWith<NumberFormatException> {
+            "42.4".parseNumber<Long>()
+        }
+        assertFailsWith<NumberFormatException> {
+            "42L".parseNumber<Long>()
+        }
+        assertFailsWith<NumberFormatException> {
+            "42.4".parseNumber<BigInteger>()
+        }
     }
 }

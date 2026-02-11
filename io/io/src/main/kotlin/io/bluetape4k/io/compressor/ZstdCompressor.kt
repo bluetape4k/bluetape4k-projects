@@ -3,7 +3,6 @@ package io.bluetape4k.io.compressor
 import com.github.luben.zstd.Zstd
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
-import io.bluetape4k.support.coerce
 import io.bluetape4k.support.toByteArray
 import io.bluetape4k.support.toInt
 import org.apache.commons.compress.compressors.zstandard.ZstdUtils
@@ -29,7 +28,7 @@ class ZstdCompressor private constructor(val level: Int): AbstractCompressor() {
 
         @JvmStatic
         operator fun invoke(level: Int = DEFAULT_LEVEL): ZstdCompressor {
-            val cLevel = level.coerce(Zstd.minCompressionLevel(), Zstd.maxCompressionLevel())
+            val cLevel = level.coerceIn(Zstd.minCompressionLevel(), Zstd.maxCompressionLevel())
             ZstdUtils.setCacheZstdAvailablity(true)
             return ZstdCompressor(cLevel)
         }

@@ -5,7 +5,6 @@ import io.bluetape4k.aws.dynamodb.DynamoDb.MAX_BATCH_ITEM_SIZE
 import io.bluetape4k.aws.dynamodb.model.BatchWriteItemEnhancedRequest
 import io.bluetape4k.aws.dynamodb.model.writeBatchOf
 import io.bluetape4k.coroutines.flow.extensions.chunked
-import io.bluetape4k.support.coerce
 import io.bluetape4k.support.requireNotBlank
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
@@ -114,7 +113,7 @@ fun <T: Any> DynamoDbEnhancedAsyncClient.batchWriteItems(
     items: Collection<T>,
     chunkSize: Int = MAX_BATCH_ITEM_SIZE,
 ): Flow<BatchWriteResult> {
-    val chunk = chunkSize.coerce(1, MAX_BATCH_ITEM_SIZE)
+    val chunk = chunkSize.coerceIn(1, MAX_BATCH_ITEM_SIZE)
     return items.asFlow()
         .buffer(chunk)
         .chunked(chunk)

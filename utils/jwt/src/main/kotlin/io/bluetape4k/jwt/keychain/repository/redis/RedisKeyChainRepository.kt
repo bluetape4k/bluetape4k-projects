@@ -12,7 +12,6 @@ import io.bluetape4k.jwt.keychain.toKeyChain
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
-import io.bluetape4k.support.coerce
 import io.bluetape4k.support.requireNotBlank
 import org.redisson.api.RDeque
 import org.redisson.api.RedissonClient
@@ -39,7 +38,7 @@ class RedisKeyChainRepository private constructor(
             capacity: Int = KeyChainRepository.DEFAULT_CAPACITY,
         ): RedisKeyChainRepository {
             val queue = redisson.getDeque<KeyChainDto>(queueName)
-            return RedisKeyChainRepository(queue, capacity.coerce(MIN_CAPACITY, MAX_CAPACITY))
+            return RedisKeyChainRepository(queue, capacity.coerceIn(MIN_CAPACITY, MAX_CAPACITY))
         }
     }
 

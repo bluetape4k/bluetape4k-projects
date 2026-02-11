@@ -29,8 +29,10 @@ val StandardNumberTypes: HashSet<KClass<out Number>> = hashSetOf(
     BigInteger::class,
 )
 
-@JvmField
-val DefaultDecimalFormat: DecimalFormat = DecimalFormat("#,##0.#")
+/**
+ * 소수점 자리를 표현하는 기본 포맷
+ */
+val DefaultDecimalFormat: DecimalFormat get() = DecimalFormat("#,##0.#")
 
 /**
  * 숫자를 인간이 읽기 편한 문자열로 만든다
@@ -55,22 +57,35 @@ inline fun Number.toHuman(decimalFormat: DecimalFormat = DefaultDecimalFormat): 
  * number.coerce(0, 200)  // 123
  * ```
  */
+@Deprecated(
+    message = "stdlib의 coerceIn을 사용하세요.",
+    replaceWith = ReplaceWith("this.coerceIn(minValue, maxValue)"),
+)
 fun <T> T.coerce(minValue: T, maxValue: T): T where T: Number, T: Comparable<T> =
-    minOf(maxOf(this, minValue), maxValue)
+    this.coerceIn(minValue, maxValue)
 
 /**
  * 문자열이 16진수 숫자를 나타내는 문자열인지 확인한다.
  *
  * ```
- * "0x1234".isHexNumber()  // true
- * "0X1234".isHexNumber()  // true
- * "#1234".isHexNumber()  // true
- * "1234".isHexNumber()  // false
+ * "0x1234".isHexFormat()  // true
+ * "0X1234".isHexFormat()  // true
+ * "#1234".isHexFormat()  // true
+ * "1234".isHexFormat()  // false
  * ```
  */
 fun String.isHexFormat(): Boolean {
-    return runCatching { java.lang.Long.decode(trim()) }.isSuccess
+    val s = trim().removePrefix("-")
+    val digits = when {
+        s.startsWith("0x", ignoreCase = true) -> s.substring(2)
+        s.startsWith("#")                     -> s.substring(1)
+        else                                  -> return false
+    }
+    return digits.isNotEmpty() && digits.all { it.isHexDigit() }
 }
+
+inline fun Char.isHexDigit(): Boolean =
+    this in '0'..'9' || this in 'a'..'f' || this in 'A'..'F'
 
 /**
  * 문자열을 BigInteger로 디코딩한다.
@@ -123,7 +138,7 @@ fun String.decodeBigInt(): BigInteger {
  * "-1234.5678".decodeBigDecimal()  // -1234.5678
  * ```
  */
-fun String.decodeBigDecimal(): BigDecimal {
+inline fun String.decodeBigDecimal(): BigDecimal {
     return if (this.isBlank()) BigDecimal.ZERO
     else BigDecimal(this)
 }
@@ -150,7 +165,8 @@ inline fun <reified T: Number> String.parseNumber(): T {
         Long::class       -> (if (trimmed.isHexFormat()) java.lang.Long.decode(trimmed) else trimmed.toLong()) as T
         Float::class      -> trimmed.toFloat() as T
         Double::class     -> trimmed.toDouble() as T
-        BigDecimal::class -> (if (trimmed.isHexFormat()) trimmed.decodeBigDecimal() else BigDecimal(trimmed)) as T
+        BigDecimal::class -> (if (trimmed.isHexFormat()) trimmed.decodeBigInt()
+            .toBigDecimal() else BigDecimal(trimmed)) as T
         BigInteger::class -> (if (trimmed.isHexFormat()) trimmed.decodeBigInt() else BigInteger(trimmed)) as T
         Number::class     -> trimmed.toDouble() as T // trimmed as T
         else              -> throw NotSupportedException("Cannot convert CharSequence[$this] to target class [${T::class.simpleName}")
@@ -170,25 +186,18 @@ inline fun <reified T: Number> String.parseNumber(numberFormat: NumberFormat): T
     parseNumber(T::class, numberFormat)
 
 fun <T: Number> String.parseNumber(targetClass: KClass<T>, numberFormat: NumberFormat): T {
-    var decimalFormat: DecimalFormat? = null
-    var resetBitDecimal = false
-
-    if (numberFormat is DecimalFormat) {
-        decimalFormat = numberFormat
-        if (BigDecimal::class == targetClass && !decimalFormat.isParseBigDecimal) {
-            decimalFormat.isParseBigDecimal = true
-            resetBitDecimal = true
+    val format =
+        if (numberFormat is DecimalFormat && BigDecimal::class == targetClass && !numberFormat.isParseBigDecimal) {
+            (numberFormat.clone() as DecimalFormat).apply { isParseBigDecimal = true }
+        } else {
+            numberFormat
         }
-    }
+
     try {
-        val number = numberFormat.parse(this.trim())
+        val number = format.parse(this.trim())
         return number.toTargetClass(targetClass)
     } catch (e: ParseException) {
         throw IllegalArgumentException("Could not parse number: " + e.message)
-    } finally {
-        if (resetBitDecimal) {
-            decimalFormat?.isParseBigDecimal = false
-        }
     }
 }
 
@@ -250,7 +259,14 @@ fun <T: Number> Number.toTargetClass(targetClass: KClass<T>): T {
         }
 
         Long::class       -> checkedLongValue(targetClass) as T
-        BigInteger::class -> ((this as? BigDecimal)?.toBigInteger() ?: toLong().toBigInt()) as T
+        BigInteger::class -> {
+            when (this) {
+                is BigDecimal -> this.toBigInteger()
+                is Double     -> this.toBigDecimal().toBigInteger()
+                is Float      -> this.toBigDecimal().toBigInteger()
+                else          -> toLong().toBigInt()
+            } as T
+        }
         Float::class      -> this.toFloat() as T
         Double::class     -> this.toDouble() as T
         BigDecimal::class -> this.toBigDecimal() as T

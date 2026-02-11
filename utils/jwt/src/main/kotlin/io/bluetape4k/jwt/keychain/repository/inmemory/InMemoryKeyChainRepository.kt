@@ -8,7 +8,6 @@ import io.bluetape4k.jwt.keychain.repository.KeyChainRepository.Companion.MIN_CA
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
-import io.bluetape4k.support.coerce
 import java.util.concurrent.ConcurrentLinkedDeque
 
 /**
@@ -24,7 +23,7 @@ class InMemoryKeyChainRepository private constructor(
     companion object: KLogging() {
         @JvmStatic
         operator fun invoke(capacity: Int = DEFAULT_CAPACITY): InMemoryKeyChainRepository {
-            return InMemoryKeyChainRepository(capacity.coerce(MIN_CAPACITY, MAX_CAPACITY))
+            return InMemoryKeyChainRepository(capacity.coerceIn(MIN_CAPACITY, MAX_CAPACITY))
         }
     }
 

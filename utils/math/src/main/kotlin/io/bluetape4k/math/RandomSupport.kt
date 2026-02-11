@@ -4,7 +4,6 @@ import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.collections.eclipse.toUnifiedMap
 import io.bluetape4k.ranges.ClosedOpenRange
 import io.bluetape4k.ranges.DefaultClosedOpenRange
-import io.bluetape4k.support.coerce
 import org.eclipse.collections.impl.list.mutable.FastList
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.random.Random
@@ -28,7 +27,7 @@ fun <T: Any> Iterable<T>.randomFirstOrNull(): T? = toList().randomFirstOrNull()
  */
 fun <T: Any> List<T>.randomDistinct(sampleSize: Int): List<T> {
     if (isEmpty()) return emptyList()
-    val cappedSampleSize = sampleSize.coerce(1, size)
+    val cappedSampleSize = sampleSize.coerceIn(1, size)
 
     val random = ThreadLocalRandom.current()
     val result = FastList.newList<T>(sampleSize)
@@ -50,7 +49,7 @@ fun <T: Any> Iterable<T>.randomDistinct(sampleSize: Int): List<T> = toList().ran
  */
 fun <T: Any> List<T>.random(sampleSize: Int): List<T> {
     if (isEmpty()) return emptyList()
-    val cappedSampleSize = sampleSize.coerce(1, size)
+    val cappedSampleSize = sampleSize.coerceIn(1, size)
 
     val random = ThreadLocalRandom.current()
     return (0..Int.MAX_VALUE).asSequence()
