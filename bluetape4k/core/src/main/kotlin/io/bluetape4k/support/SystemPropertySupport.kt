@@ -16,7 +16,7 @@ import io.bluetape4k.GetterSetterOperator
  */
 val sysProperty: GetterSetterOperator<String, String> by lazy {
     GetterSetterOperator(
-        getter = { key -> System.getProperty(key) ?: "" },
+        getter = { key -> System.getProperty(key) ?: EMPTY_STRING },
         setter = { key, value -> System.setProperty(key, value) }
     )
 }

@@ -4,7 +4,6 @@
 package io.bluetape4k.support
 
 import io.bluetape4k.codec.Base58
-import org.apache.commons.lang3.StringUtils
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.util.*
@@ -21,7 +20,7 @@ const val NULL_STRING = "<null>"
 const val NULL_STRING_SQL = "null"
 const val COMMA = ","
 const val TAB = "\t"
-private const val ELLIPSIS_LENGTH = 80
+const val ELLIPSIS_LENGTH = 80
 
 @JvmField
 val LINE_SEPARATOR: String = System.lineSeparator()
@@ -307,8 +306,9 @@ inline fun randomString(size: Int = 10): String {
  * @param maxLength 최대 길이
  * @return 문자열의 길이가 [maxLength]보다 크다면 true, 아니면 false
  */
-fun String?.needEllipsis(maxLength: Int = ELLIPSIS_LENGTH): Boolean {
-    return !isNullOrBlank() && length > maxLength
+inline fun String?.needEllipsis(maxLength: Int = ELLIPSIS_LENGTH): Boolean {
+    maxLength.requireGt(3, "maxLength")
+    return !isNullOrEmpty() && length > maxLength
 }
 
 /**
@@ -324,11 +324,10 @@ fun String?.needEllipsis(maxLength: Int = ELLIPSIS_LENGTH): Boolean {
  * @return 축약된 문자열
  */
 fun String?.ellipsisEnd(maxLength: Int = ELLIPSIS_LENGTH): String {
-    return this?.let { self ->
-        when {
-            self.needEllipsis(maxLength) -> self.substring(0, maxLength - TRIMMING.length) + TRIMMING
-            else -> self
-        }
+    return this?.let { str ->
+        if (str.needEllipsis(maxLength))
+            str.substring(0, maxLength - TRIMMING.length) + TRIMMING
+        else str
     } ?: EMPTY_STRING
 }
 
@@ -354,10 +353,11 @@ fun String?.ellipsisMid(maxLength: Int = ELLIPSIS_LENGTH): String {
     val sb = StringBuilder()
     sb.append(this.substring(0, length)).append(TRIMMING)
 
-    val len = if (maxLength % 2 == 0) this.length - length
-    else this.length - length - 1
+    val len = if (maxLength % 2 == 0) this.length - length else this.length - length - 1
+    if (len >= 0) {
+        sb.append(this.substring(len))
+    }
 
-    sb.append(this.substring(len))
     return sb.toString()
 }
 
@@ -374,11 +374,11 @@ fun String?.ellipsisMid(maxLength: Int = ELLIPSIS_LENGTH): String {
  * @return 축약된 문자열
  */
 fun String?.ellipsisStart(maxLength: Int = ELLIPSIS_LENGTH): String {
-    return this?.let { self ->
-        when {
-            self.needEllipsis(maxLength) -> TRIMMING + self.substring(self.length - maxLength + TRIMMING.length)
-            else -> self
-        }
+    return this?.let { str ->
+        if (str.needEllipsis(maxLength))
+            TRIMMING + str.substring(str.length - maxLength + TRIMMING.length)
+        else
+            str
     } ?: EMPTY_STRING
 }
 
@@ -394,14 +394,10 @@ fun String?.ellipsisStart(maxLength: Int = ELLIPSIS_LENGTH): String {
  * @param chars 제거할 문자들
  * @return 제거된 문자열
  */
-fun CharSequence?.deleteChars(vararg chars: Char): String {
-    if (isNullOrEmpty()) {
-        return EMPTY_STRING
-    }
-    if (chars.isEmpty()) {
-        return this.toString()
-    }
-    return this.filterNot { chars.contains(it) }.toString()
+fun CharSequence?.deleteChars(vararg chars: Char): String = when {
+    isNullOrEmpty() -> EMPTY_STRING
+    chars.isEmpty() -> this.toString()
+    else            -> this.filterNot { chars.contains(it) }.toString()
 }
 
 /**
@@ -414,7 +410,35 @@ fun CharSequence?.deleteChars(vararg chars: Char): String {
  * @receiver Iterable<T> 문자열로 변환할 요소들
  * @param defaultValue 요소가 null이거나 empty인 경우 사용할 기본 문자열 (기본값: "")
  */
+@Deprecated("use mapAsString", replaceWith = ReplaceWith("mapAsString(defaultValue)"))
 fun <T: Any> Iterable<T>.asStringList(defaultValue: String = EMPTY_STRING): List<String> =
+    map { it.asString(defaultValue) }
+
+/**
+ * 컬렉션의 요소를 문자열로 변환하여, 문자열 컬렉션으로 반환합니다.
+ *
+ * ```
+ * listOf(1, 2, 3).asStringList() // return listOf("1", "2", "3")
+ * ```
+ *
+ * @receiver Iterable<T> 문자열로 변환할 요소들
+ * @param defaultValue 요소가 null이거나 empty인 경우 사용할 기본 문자열 (기본값: "")
+ */
+fun <T: Any> Iterable<T>.mapAsString(defaultValue: String = EMPTY_STRING): List<String> =
+    map { it.asString(defaultValue) }
+
+
+/**
+ * 컬렉션의 요소를 문자열로 변환하여, 문자열 컬렉션으로 반환합니다.
+ *
+ * ```
+ * listOf(1, 2, 3).asStringList() // return listOf("1", "2", "3")
+ * ```
+ *
+ * @receiver Iterable<T> 문자열로 변환할 요소들
+ * @param defaultValue 요소가 null이거나 empty인 경우 사용할 기본 문자열 (기본값: "")
+ */
+fun <T: Any> Sequence<T>.mapAsString(defaultValue: String = EMPTY_STRING): Sequence<String> =
     map { it.asString(defaultValue) }
 
 
@@ -428,7 +452,7 @@ fun <T: Any> Iterable<T>.asStringList(defaultValue: String = EMPTY_STRING): List
  * @receiver String? 문자열
  * @param n 반복 횟수
  */
-fun CharSequence?.replicate(n: Int): String =
+inline fun CharSequence?.replicate(n: Int): String =
     this?.repeat(n) ?: EMPTY_STRING
 
 /**
@@ -442,8 +466,23 @@ fun CharSequence?.replicate(n: Int): String =
  * @param word 단어
  * @return 단어의 포함된 횟수
  */
-fun CharSequence?.wordCount(word: String): Int =
-    StringUtils.countMatches(this, word)
+fun CharSequence?.wordCount(word: String): Int {
+    if (isNullOrEmpty() || word.isEmpty()) return 0
+
+    var matched = 0
+    var startIndex = 0
+
+    while (true) {
+        val index = indexOf(word, startIndex)
+        if (index < 0) {
+            break
+        }
+        matched++
+        startIndex = index + word.length
+    }
+
+    return matched
+}
 
 /**
  * 문자열에서 첫번째 라인 (첫번째 개행문자 전까지)을 반환합니다.
@@ -457,8 +496,8 @@ fun CharSequence?.wordCount(word: String): Int =
  * @return 첫번째 라인
  */
 fun CharSequence?.firstLine(lineSeparator: String = LINE_SEPARATOR): String {
-    if (this.isNullOrBlank())
-        return EMPTY_STRING
+    if (this.isNullOrBlank()) return EMPTY_STRING
+    if (lineSeparator.isEmpty()) return this.toString()
 
     val index = this.indexOf(lineSeparator)
     return if (index > 0) substring(0, index) else this.toString()
@@ -481,8 +520,11 @@ fun CharSequence?.firstLine(lineSeparator: String = LINE_SEPARATOR): String {
  * @return 시작문자열과 끝 문자열 사이의 문자열
  */
 fun CharSequence?.between(start: String, end: String): String {
-    if (this.isNullOrBlank())
-        return this?.toString() ?: EMPTY_STRING
+    if (this.isNullOrEmpty())
+        return EMPTY_STRING
+
+    if (start.isEmpty() || end.isEmpty())
+        return EMPTY_STRING
 
     if (start == end)
         return EMPTY_STRING
@@ -514,12 +556,14 @@ fun CharSequence?.between(start: String, end: String): String {
  * ```
  *
  * @receiver String 문자열
- * @param count 제거할 문자열의 길이
+ * @param count 제거할 문자의 갯수
  * @return 제거된 문자열
  */
-fun String.dropFirst(count: Int = 1): String =
-    if (count < length) this.substring(count)
-    else EMPTY_STRING
+inline fun String.dropFirst(count: Int = 1): String {
+    count.requireZeroOrPositiveNumber("count")
+
+    return if (count < length) this.substring(count) else EMPTY_STRING
+}
 
 
 /**
@@ -534,9 +578,11 @@ fun String.dropFirst(count: Int = 1): String =
  * @receiver String 문자열
  * @param count 제거할 문자열의 길이
  */
-fun String.dropLast(count: Int = 1): String =
-    if (count < length) this.substring(0, this.length - count)
-    else EMPTY_STRING
+inline fun String.dropLast(count: Int = 1): String {
+    count.requireZeroOrPositiveNumber("count")
+
+    return if (count < length) this.substring(0, this.length - count) else EMPTY_STRING
+}
 
 /**
  * 문자열에서 [count] 숫자만큼 앞에서부터 문자열을 가져옵니다.
@@ -551,9 +597,11 @@ fun String.dropLast(count: Int = 1): String =
  * @param count 가져올 문자열의 길이
  * @return 가져온 문자열
  */
-fun String.takeFirst(count: Int = 1): String =
-    if (count < length) this.substring(0, count)
-    else this
+fun String.takeFirst(count: Int = 1): String {
+    count.requireZeroOrPositiveNumber("count")
+
+    return if (count < length) this.substring(0, count) else this
+}
 
 /**
  * 문자열에서 [count] 숫자만큼 뒤에서부터 문자열을 가져옵니다.
@@ -568,9 +616,11 @@ fun String.takeFirst(count: Int = 1): String =
  * @param count 가져올 문자열의 길이
  * @return 가져온 문자열
  */
-fun String.takeLast(count: Int = 1): String =
-    if (count < length) this.substring(this.length - count)
-    else this
+fun String.takeLast(count: Int = 1): String {
+    count.requireZeroOrPositiveNumber("count")
+
+    return if (count < length) this.substring(this.length - count) else this
+}
 
 /**
  * 지정한 접두사로 시작하지 않는다면 접두사를 추가합니다.
@@ -677,24 +727,27 @@ fun String.sliding(size: Int): Sequence<String> {
 }
 
 /**
- * 비밀번호 등 지정한 문자를 외부에 공개 안되도록 [mask] 문자로 변경합니다.
+ * 비밀번호 등 지정한 문자를 외부에 공개 안되도록 [maskText] 문자로 변경합니다.
  *
  * ```
  * val password = "debop"
  * log.debug { "password=${password.redact()}" }    // "debop" --> "*****"
  * ```
  */
-fun String.redact(mask: String = "*"): String = mask.repeat(length)
+@Deprecated("use mask instead", replaceWith = ReplaceWith("mask(maskChar)"))
+fun String.redact(maskChar: Char = '*'): String = mask(maskChar)
 
 /**
- * 비밀번호 등 지정한 문자를 외부에 공개 안되도록 [mask] 문자로 변경합니다.
+ * 비밀번호 등 지정한 문자를 외부에 공개 안되도록 [maskChar] 문자로 변경합니다.
  *
  * ```
  * val password = "debop"
  * log.debug { "password=${password.redact()}" }    // "debop" --> "*****"
  * ```
  */
-fun String.mask(mask: String = "*"): String = mask.repeat(length)
+fun String.mask(maskChar: Char = '*'): String =
+    if (isEmpty()) EMPTY_STRING
+    else maskChar.toString().repeat(this@mask.length)
 
 
 /**
@@ -774,12 +827,12 @@ fun String.toDashedString(delimiter: String = "-"): String = buildString {
 fun String.padStart(minLength: Int, padChar: Char): String {
     if (length >= minLength) return this
 
-    val sb = StringBuilder(minLength)
-    for (i in length until minLength) {
-        sb.append(padChar)
+    return buildString(minLength) {
+        repeat(minLength - this@padStart.length) {
+            append(padChar)
+        }
+        append(this@padStart)
     }
-    sb.append(this)
-    return sb.toString()
 }
 
 /**
@@ -799,12 +852,13 @@ fun String.padStart(minLength: Int, padChar: Char): String {
 fun String.padEnd(minLength: Int, padChar: Char): String {
     if (length >= minLength) return this
 
-    val sb = StringBuilder(minLength)
-    sb.append(this)
-    for (i in length until minLength) {
-        sb.append(padChar)
+    return buildString {
+        append(this@padEnd)
+
+        repeat(minLength - this@padEnd.length) {
+            append(padChar)
+        }
     }
-    return sb.toString()
 }
 
 /**
@@ -818,7 +872,11 @@ fun String.padEnd(minLength: Int, padChar: Char): String {
  *
  * @return 공통된 prefix 문자열
  */
+@JvmName("commonPrefixString")
 fun commonPrefix(a: CharSequence, b: CharSequence): String {
+    if (a.isEmpty() || b.isEmpty()) return EMPTY_STRING
+    if (a == b) return a.toString()
+    
     val maxPrefixLength = minOf(a.length, b.length)
     var p = 0
     while (p < maxPrefixLength && a[p] == b[p]) {
@@ -829,6 +887,9 @@ fun commonPrefix(a: CharSequence, b: CharSequence): String {
     }
     return a.substring(0, p)
 }
+
+@JvmName("commonPrefixStringExtension")
+inline fun CharSequence.commonPrefix(other: CharSequence): String = commonPrefix(this, other)
 
 /**
  * 두 문자열의 공통된 suffix를 찾아서 반환합니다.
@@ -841,7 +902,11 @@ fun commonPrefix(a: CharSequence, b: CharSequence): String {
  *
  * @return 공통된 suffix 문자열
  */
+@JvmName("commonSuffixString")
 fun commonSuffix(a: CharSequence, b: CharSequence): String {
+    if (a.isEmpty() || b.isEmpty()) return EMPTY_STRING
+    if (a == b) return a.toString()
+
     val maxSuffixLength = minOf(a.length, b.length)
     var s = 0
     while (s < maxSuffixLength && a[a.length - s - 1] == b[b.length - s - 1]) {
@@ -852,6 +917,9 @@ fun commonSuffix(a: CharSequence, b: CharSequence): String {
     }
     return a.substring(a.length - s, a.length)
 }
+
+@JvmName("commonSuffixStringExtension")
+inline fun CharSequence.commonSuffix(other: CharSequence): String = commonSuffix(this, other)
 
 /**
  * 유효한 surrogate pair가 주어진 `index`에서 시작할 때 true를 반환합니다.
