@@ -2,12 +2,10 @@ package io.bluetape4k.utils
 
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.delay
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldContainSame
 import org.junit.jupiter.api.Test
-import java.time.Instant
-import java.util.*
 
 class KotlinDetectorTest {
 
@@ -20,27 +18,56 @@ class KotlinDetectorTest {
 
     @Test
     fun `detect kotlin class`() {
-        Date::class.java.isKotlinType.shouldBeFalse()
-        Instant::class.java.isKotlinType.shouldBeFalse()
+        // Java Class 들은 Kotlin type 이 아니다.
+        java.util.Date::class.java.isKotlinType.shouldBeFalse()
+        java.time.Instant::class.java.isKotlinType.shouldBeFalse()
 
-        Sequence::class.java.isKotlinType.shouldBeTrue()
-        // LazyValue::class.java.isKotlinType.shouldBeTrue()
+        // Kotlin 타입은 true 이다.
+        kotlin.Int::class.java.isKotlinType.shouldBeTrue()
+        kotlin.collections.List::class.java.isKotlinType.shouldBeTrue()
+        kotlin.IntArray::class.java.isKotlinType.shouldBeTrue()
+        kotlin.sequences.Sequence::class.java.isKotlinType.shouldBeTrue()
+        kotlin.ranges.IntProgression::class.java.isKotlinType.shouldBeTrue()
+
+
+        KotlinDetector::class.java.isKotlinType.shouldBeTrue()
     }
 
     @Test
-    fun `check method is suspendable`() {
-        val klazz = Sample::class
-        klazz.getSuspendableFunctions().map { it.name } shouldContainSame listOf("suspendableFunc")
+    fun `class method is suspendable`() {
+        val klazz = SampleClass::class
+        klazz.getSuspendFunctions().map { it.name } shouldBeEqualTo listOf("suspendFunc")
 
-        klazz.isSuspendableFunction("suspendableFunc").shouldBeTrue()
-        klazz.isSuspendableFunction("normalFunc").shouldBeFalse()
+        klazz.isSuspendFunction("suspendFunc").shouldBeTrue()
+
+        // normal function 은 suspend function이 아니다.
+        klazz.isSuspendFunction("normalFunc").shouldBeFalse()
     }
 
-    class Sample {
+    @Test
+    fun `object method is suspendable`() {
+        val klazz = SampleObject::class
+        klazz.getSuspendFunctions().map { it.name } shouldBeEqualTo listOf("suspendFunc")
+
+        klazz.isSuspendFunction("suspendFunc").shouldBeTrue()
+
+        // normal function 은 suspend function이 아니다.
+        klazz.isSuspendFunction("normalFunc").shouldBeFalse()
+    }
+
+    private class SampleClass {
         fun normalFunc(): String = "normal"
-        suspend fun suspendableFunc(): String {
+        suspend fun suspendFunc(): String {
             delay(1L)
-            return "suspendable"
+            return "suspendFunc"
+        }
+    }
+
+    private object SampleObject {
+        fun normalFunc(): String = "normal"
+        suspend fun suspendFunc(): String {
+            delay(1L)
+            return "suspendFunc"
         }
     }
 }

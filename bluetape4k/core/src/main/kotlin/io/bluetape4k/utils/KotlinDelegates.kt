@@ -68,9 +68,7 @@ object KotlinDelegates: KLogging() {
     fun <T: Any> instantiateClass(constructor: Constructor<T>, vararg args: Any?): T? {
         return try {
             val kotlinCtor = constructor.kotlinFunction ?: return constructor.newInstance(*args)
-
             val parameters = kotlinCtor.parameters
-
             check(args.size <= parameters.size) {
                 "Number of provided arguments should be less than or equal to number of constructor parameters."
             }
