@@ -14,7 +14,7 @@ class UuidSupportTest {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `convert UUID to BigInt`() {
+    fun `convert UUID vs BigInt`() {
         val expected = UUID.randomUUID()
         val bigInt = expected.toBigInt()
         val actual = bigInt.toUuid()
@@ -23,7 +23,7 @@ class UuidSupportTest {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `convert UUID to LongArray`() {
+    fun `convert UUID vs LongArray`() {
         val expected = UUID.randomUUID()
         val array = expected.toLongArray()
         val actual = array.toUUID()
@@ -32,7 +32,7 @@ class UuidSupportTest {
     }
 
     @Test
-    fun `string is uuid`() {
+    fun `isUuid - check string is uuid`() {
         val str = UUID.randomUUID().toString()
         str.isUuid().shouldBeTrue()
 

@@ -31,7 +31,7 @@ fun <T: Number> T.toBigDecimal(): BigDecimal = when (this) {
     is BigDecimal             -> this
     is Int, is Short, is Byte -> BigDecimal(this.toLong())
     is Long                   -> BigDecimal(this)
-    else                      -> BigDecimal(this.asDouble().toString())
+    else -> BigDecimal(this.toString())
 }
 
 /**

@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package io.bluetape4k.support
 
 import java.math.BigDecimal
@@ -10,238 +12,14 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.OffsetDateTime
-import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.time.temporal.TemporalAccessor
 import java.util.*
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.pow
 import kotlin.math.roundToLong
-
-/**
- * 객체를 Double 수형으로 변환합니다. 변환 실패 시 [defaultValue]로 대체합니다.
- *
- * ```
- * "1.0".asDouble() shouldBeEqualTo 1.0
- * "1".asDouble() shouldBeEqualTo 1.0
- * "".asDouble() shouldBeEqualTo 0.0
- * ```
- * @param defaultValue 변환 실패 시 대체 값
- */
-fun Any?.asDouble(defaultValue: Double = 0.0): Double = asDoubleOrNull() ?: defaultValue
-
-/**
- * 객체를 Double 수형으로 변환합니다. 변환 실패 시 null을 반환합니다.
- *
- * ```
- * "1.0".asDoubleOrNull() shouldBeEqualTo 1.0
- * "1".asDoubleOrNull() shouldBeEqualTo 1.0
- * "".asDoubleOrNull() shouldBeEqualTo null
- * ```
- */
-fun Any?.asDoubleOrNull(): Double? = runCatching {
-    when (this) {
-        null -> null
-        is Double -> this
-        is Number -> this.toDouble()
-        is CharSequence -> this.toString().toDouble()
-        else -> this.toString().parseNumber()
-    }
-}.getOrNull()
-
-/**
- * 객체를 Float 수형으로 변환합니다. 변환 실패 시 [defaultValue]로 대체합니다.
- *
- * ```
- * "1.0".asFloat() shouldBeEqualTo 1.0F
- * "1".asFloat() shouldBeEqualTo 1.0F
- * "".asFloat() shouldBeEqualTo 0.0F
- * ```
- *
- * @param defaultValue 변환 실패 시 대체 값
- */
-fun Any?.asFloat(defaultValue: Float = 0.0F): Float = asFloatOrNull() ?: defaultValue
-
-/**
- * 객체를 Float 수형으로 변환합니다. 변환 실패 시 null을 반환합니다.
- *
- * ```
- * "1.0".asFloatOrNull() shouldBeEqualTo 1.0F
- * "1".asFloatOrNull() shouldBeEqualTo 1.0F
- * "".asFloatOrNull() shouldBeEqualTo null
- * ```
- */
-fun Any?.asFloatOrNull(): Float? = runCatching {
-    when (this) {
-        null -> null
-        is Float -> this
-        is Number -> this.toFloat()
-        is CharSequence -> this.toString().parseNumber()
-        else -> this.asDoubleOrNull()?.toFloat()
-    }
-}.getOrNull()
-
-/**
- * 객체를 Long 수형으로 변환합니다. 변환 실패 시 [defaultValue]로 대체합니다.
- *
- * ```
- * "1".asLong() shouldBeEqualTo 1L
- * "1.0".asLong() shouldBeEqualTo 1L
- * "".asLong() shouldBeEqualTo 0L
- * ```
- *
- * @param defaultValue 변환 실패 시 대체 값
- */
-fun Any?.asLong(defaultValue: Long = 0L): Long = asLongOrNull() ?: defaultValue
-
-/**
- * 객체를 Long 수형으로 변환합니다. 변환 실패 시 null을 반환합니다.
- *
- * ```
- * "1".asLongOrNull() shouldBeEqualTo 1L
- * "1.0".asLongOrNull() shouldBeEqualTo 1L
- * "".asLongOrNull() shouldBeEqualTo null
- * ```
- */
-fun Any?.asLongOrNull(): Long? = runCatching {
-    when (this) {
-        null -> null
-        is Long -> this
-        is Number -> this.toLong()
-        is CharSequence -> this.toString().toLong()
-        else -> this.asBigDecimalOrNull()?.toLong()
-    }
-}.getOrNull()
-
-/**
- * 객체를 Int 수형으로 변환합니다. 변환 실패 시 [defaultValue]로 대체합니다.
- *
- * ```
- * "1".asInt() shouldBeEqualTo 1
- * "1.0".asInt() shouldBeEqualTo 1
- * "".asInt() shouldBeEqualTo 0
- * ```
- *
- * @param defaultValue 변환 실패 시 대체 값
- * @return Int 변환 결과
- */
-fun Any?.asInt(defaultValue: Int = 0): Int = asIntOrNull() ?: defaultValue
-
-/**
- * 객체를 Int 수형으로 변환합니다. 변환 실패 시 null을 반환합니다.
- *
- * ```
- * "1".asIntOrNull() shouldBeEqualTo 1
- * "1.0".asIntOrNull() shouldBeEqualTo 1
- * "".asIntOrNull() shouldBeEqualTo null
- * ```
- */
-fun Any?.asIntOrNull(): Int? = runCatching {
-    when (this) {
-        null -> null
-        is Int -> this
-        is Number -> this.toInt()
-        else -> this.asLongOrNull()?.toInt()
-    }
-}.getOrNull()
-
-/**
- * 객체를 Short 수형으로 변환합니다. 변환 실패 시 [defaultValue]로 대체합니다.
- *
- * ```
- * "1".asShort() shouldBeEqualTo 1.toShort()
- * "1.0".asShort() shouldBeEqualTo 1.toShort()
- * "".asShort() shouldBeEqualTo 0.toShort()
- * ```
- *
- * @param defaultValue 변환 실패 시 대체 값
- * @return Short 변환 결과
- */
-fun Any?.asShort(defaultValue: Short = 0): Short = asShortOrNull() ?: defaultValue
-
-/**
- * 객체를 Short 수형으로 변환합니다. 변환 실패 시 null을 반환합니다.
- *
- * ```
- * "1".asShortOrNull() shouldBeEqualTo 1.toShort()
- * "1.0".asShortOrNull() shouldBeEqualTo 1.toShort()
- * "".asShortOrNull() shouldBeEqualTo null
- * ```
- */
-fun Any?.asShortOrNull(): Short? = runCatching {
-    when (this) {
-        null -> null
-        is Short -> this
-        is Number -> this.toShort()
-        else -> this.asLongOrNull()?.toShort()
-    }
-}.getOrNull()
-
-/**
- * 객체를 Byte 수형으로 변환합니다. 변환 실패 시 [defaultValue]로 대체합니다.
- *
- * ```
- * "1".asByte() shouldBeEqualTo 1.toByte()
- * "1.0".asByte() shouldBeEqualTo 1.toByte()
- * "".asByte() shouldBeEqualTo 0.toByte()
- * ```
- *
- * @param defaultValue 변환 실패 시 대체 값
- * @return Byte 변환 결과
- */
-fun Any?.asByte(defaultValue: Byte = 0.toByte()): Byte = asByteOrNull() ?: defaultValue
-
-/**
- * 객체를 Byte 수형으로 변환합니다. 변환 실패 시 null을 반환합니다.
- *
- * ```
- * "1".asByteOrNull() shouldBeEqualTo 1.toByte()
- * "1.0".asByteOrNull() shouldBeEqualTo 1.toByte()
- * "".asByteOrNull() shouldBeEqualTo null
- * ```
- */
-fun Any?.asByteOrNull(): Byte? = runCatching {
-    when (this) {
-        null -> null
-        is Char -> this.code.toByte()
-        is Byte -> this
-        is Number -> this.toByte()
-        else -> this.asLongOrNull()?.toByte()
-    }
-}.getOrNull()
-
-/**
- * 객체를 Char 수형으로 변환합니다. 변환 실패 시 [defaultValue]로 대체합니다.
- *
- * ```
- * "a".asChar() shouldBeEqualTo 'a'
- * "1".asChar() shouldBeEqualTo '1'
- * "".asChar() shouldBeEqualTo 0.toChar()
- * ```
- *
- * @param defaultValue 변환 실패 시 대체 값
- * @return Char 변환 결과
- */
-fun Any?.asChar(defaultValue: Char = 0.toChar()): Char = asCharOrNull() ?: defaultValue
-
-/**
- * 객체를 Char 수형으로 변환합니다. 변환 실패 시 null을 반환합니다.
- *
- * ```
- * "a".asCharOrNull() shouldBeEqualTo 'a'
- * "1".asCharOrNull() shouldBeEqualTo '1'
- * "".asCharOrNull() shouldBeEqualTo null
- * ```
- */
-fun Any?.asCharOrNull(): Char? = runCatching {
-    when (this) {
-        null -> null
-        is Char -> this
-        is Byte -> this.toInt().toChar()
-        is CharSequence -> if (this.length == 1) first() else asIntOrNull()?.toChar()
-        else -> asIntOrNull()?.toChar()
-    }
-}.getOrNull()
 
 /**
  * 객체를 Boolean 수형으로 변환합니다. 변환 실패 시 [defaultValue]로 대체합니다.
@@ -278,45 +56,250 @@ fun Any?.asBoolean(defaultValue: Boolean = false): Boolean = asBooleanOrNull() ?
  */
 fun Any?.asBooleanOrNull(): Boolean? = runCatching {
     when (this) {
-        null -> null
+        null       -> null
         is Boolean -> this
-        is Number -> this.toInt() != 0
-        is Char -> this == 'y' || this == 'Y'
-        else -> this.toString().toBoolean()
+        is Number  -> toInt() != 0
+        is Char    -> this == 'y' || this == 'Y'
+        else       -> toString().toBoolean()
+    }
+}.getOrNull()
+
+const val ZERO_CHAR = '\u0000'
+
+/**
+ * 객체를 Char 수형으로 변환합니다. 변환 실패 시 [defaultValue]로 대체합니다.
+ *
+ * ```
+ * "a".asChar() shouldBeEqualTo 'a'
+ * "1".asChar() shouldBeEqualTo '1'
+ * "".asChar() shouldBeEqualTo 0.toChar()
+ * ```
+ *
+ * @param defaultValue 변환 실패 시 대체 값
+ * @return Char 변환 결과
+ */
+fun Any?.asChar(defaultValue: Char = ZERO_CHAR): Char = asCharOrNull() ?: defaultValue
+
+/**
+ * 객체를 Char 수형으로 변환합니다. 변환 실패 시 null을 반환합니다.
+ *
+ * ```
+ * "a".asCharOrNull() shouldBeEqualTo 'a'
+ * "1".asCharOrNull() shouldBeEqualTo '1'
+ * "".asCharOrNull() shouldBeEqualTo null
+ *
+ * 5000.asChar() shouldBeEqualTo 5000.toChar()  // ᎈ
+ * ```
+ */
+fun Any?.asCharOrNull(): Char? = runCatching {
+    when (this) {
+        null            -> null
+        is Char         -> this
+        is CharSequence -> if (length == 1) first() else asIntOrNull()?.toChar()
+        else            -> asIntOrNull()?.toChar()
+    }
+}.getOrNull()
+
+const val ZERO_BYTE: Byte = 0x00
+
+/**
+ * 객체를 Byte 수형으로 변환합니다. 변환 실패 시 [defaultValue]로 대체합니다.
+ *
+ * ```
+ * "1".asByte() shouldBeEqualTo 1.toByte()
+ * "1.0".asByte() shouldBeEqualTo 1.toByte()
+ * "".asByte() shouldBeEqualTo 0.toByte()
+ * ```
+ *
+ * @param defaultValue 변환 실패 시 대체 값
+ * @return Byte 변환 결과
+ */
+fun Any?.asByte(defaultValue: Byte = ZERO_BYTE): Byte = asByteOrNull() ?: defaultValue
+
+/**
+ * 객체를 Byte 수형으로 변환합니다. 변환 실패 시 null을 반환합니다.
+ *
+ * ```
+ * "1".asByteOrNull() shouldBeEqualTo 1.toByte()
+ * "1.0".asByteOrNull() shouldBeEqualTo 1.toByte()
+ * "".asByteOrNull() shouldBeEqualTo null
+ * ```
+ */
+fun Any?.asByteOrNull(): Byte? = runCatching {
+    when (this) {
+        null            -> null
+        is Byte         -> this
+        is Char         -> code.toByte()
+        is CharSequence -> toString().toByte()
+        is Number       -> toByte()
+        else            -> asLongOrNull()?.toByte()
     }
 }.getOrNull()
 
 /**
- * 객체를 [BigDecimal] 수형으로 변환합니다. 변환 실패 시 [defaultValue]로 대체합니다.
+ * 객체를 Short 수형으로 변환합니다. 변환 실패 시 [defaultValue]로 대체합니다.
  *
  * ```
- * "1.0".asBigDecimal() shouldBeEqualTo BigDecimal("1.0")
- * "1".asBigDecimal() shouldBeEqualTo BigDecimal("1")
- * "".asBigDecimal() shouldBeEqualTo BigDecimal.ZERO
+ * "1".asShort() shouldBeEqualTo 1.toShort()
+ * "1.0".asShort() shouldBeEqualTo 1.toShort()
+ * "".asShort() shouldBeEqualTo 0.toShort()
  * ```
  *
  * @param defaultValue 변환 실패 시 대체 값
- * @return BigDecimal 변환 결과
+ * @return Short 변환 결과
  */
-fun Any?.asBigDecimal(defaultValue: BigDecimal = BigDecimal.ZERO): BigDecimal = asBigDecimalOrNull() ?: defaultValue
+fun Any?.asShort(defaultValue: Short = 0): Short = asShortOrNull() ?: defaultValue
 
 /**
- * 객체를 [BigDecimal] 수형으로 변환합니다. 변환 실패 시 null을 반환합니다.
+ * 객체를 Short 수형으로 변환합니다. 변환 실패 시 null을 반환합니다.
  *
  * ```
- * "1.0".asBigDecimalOrNull() shouldBeEqualTo BigDecimal("1.0")
- * "1".asBigDecimalOrNull() shouldBeEqualTo BigDecimal("1")
- * "".asBigDecimalOrNull() shouldBeEqualTo null
+ * "1".asShortOrNull() shouldBeEqualTo 1.toShort()
+ * "1.0".asShortOrNull() shouldBeEqualTo 1.toShort()
+ * "".asShortOrNull() shouldBeEqualTo null
  * ```
- *
- * @return BigDecimal 변환 결과
  */
-fun Any?.asBigDecimalOrNull(): BigDecimal? = runCatching {
+fun Any?.asShortOrNull(): Short? = runCatching {
     when (this) {
-        null -> null
-        is BigDecimal -> this
-        is Number -> BigDecimal.valueOf(this.toDouble())
-        else -> BigDecimal(toString())
+        null            -> null
+        is Short        -> this
+        is Char         -> code.toShort()
+        is CharSequence -> toString().toShort()
+        is Number       -> toShort()
+        else            -> asLongOrNull()?.toShort()
+    }
+}.getOrNull()
+
+/**
+ * 객체를 Int 수형으로 변환합니다. 변환 실패 시 [defaultValue]로 대체합니다.
+ *
+ * ```
+ * "1".asInt() shouldBeEqualTo 1
+ * "1.0".asInt() shouldBeEqualTo 1
+ * "".asInt() shouldBeEqualTo 0
+ * ```
+ *
+ * @param defaultValue 변환 실패 시 대체 값
+ * @return Int 변환 결과
+ */
+fun Any?.asInt(defaultValue: Int = 0): Int = asIntOrNull() ?: defaultValue
+
+/**
+ * 객체를 Int 수형으로 변환합니다. 변환 실패 시 null을 반환합니다.
+ *
+ * ```
+ * "1".asIntOrNull() shouldBeEqualTo 1
+ * "1.0".asIntOrNull() shouldBeEqualTo 1
+ * "".asIntOrNull() shouldBeEqualTo null
+ * ```
+ */
+fun Any?.asIntOrNull(): Int? = runCatching {
+    when (this) {
+        null            -> null
+        is Int          -> this
+        is Char         -> code
+        is CharSequence -> toString().toInt()
+        is Number       -> toInt()
+        else            -> asDoubleOrNull()?.toInt()
+    }
+}.getOrNull()
+
+/**
+ * 객체를 Long 수형으로 변환합니다. 변환 실패 시 [defaultValue]로 대체합니다.
+ *
+ * ```
+ * "1".asLong() shouldBeEqualTo 1L
+ * "1.0".asLong() shouldBeEqualTo 1L
+ * "".asLong() shouldBeEqualTo 0L
+ * ```
+ *
+ * @param defaultValue 변환 실패 시 대체 값
+ */
+fun Any?.asLong(defaultValue: Long = 0L): Long = asLongOrNull() ?: defaultValue
+
+/**
+ * 객체를 Long 수형으로 변환합니다. 변환 실패 시 null을 반환합니다.
+ *
+ * ```
+ * "1".asLongOrNull() shouldBeEqualTo 1L
+ * "1.0".asLongOrNull() shouldBeEqualTo 1L
+ * "".asLongOrNull() shouldBeEqualTo null
+ * ```
+ */
+fun Any?.asLongOrNull(): Long? = runCatching {
+    when (this) {
+        null            -> null
+        is Long         -> this
+        is Char         -> code.toLong()
+        is CharSequence -> toString().toLong()
+        is Number       -> toLong()
+        else            -> asDoubleOrNull()?.toLong()
+    }
+}.getOrNull()
+
+/**
+ * 객체를 Float 수형으로 변환합니다. 변환 실패 시 [defaultValue]로 대체합니다.
+ *
+ * ```
+ * "1.0".asFloat() shouldBeEqualTo 1.0F
+ * "1".asFloat() shouldBeEqualTo 1.0F
+ * "".asFloat() shouldBeEqualTo 0.0F
+ * ```
+ *
+ * @param defaultValue 변환 실패 시 대체 값
+ */
+fun Any?.asFloat(defaultValue: Float = 0.0F): Float = asFloatOrNull() ?: defaultValue
+
+/**
+ * 객체를 Float 수형으로 변환합니다. 변환 실패 시 null을 반환합니다.
+ *
+ * ```
+ * "1.0".asFloatOrNull() shouldBeEqualTo 1.0F
+ * "1".asFloatOrNull() shouldBeEqualTo 1.0F
+ * "".asFloatOrNull() shouldBeEqualTo null
+ * ```
+ */
+fun Any?.asFloatOrNull(): Float? = runCatching {
+    when (this) {
+        null            -> null
+        is Float        -> this
+        is Char         -> code.toFloat()
+        is CharSequence -> toString().toFloat()
+        is Number       -> toFloat()
+        else            -> asDoubleOrNull()?.toFloat()
+    }
+}.getOrNull()
+
+
+/**
+ * 객체를 Double 수형으로 변환합니다. 변환 실패 시 [defaultValue]로 대체합니다.
+ *
+ * ```
+ * "1.0".asDouble() shouldBeEqualTo 1.0
+ * "1".asDouble() shouldBeEqualTo 1.0
+ * "".asDouble() shouldBeEqualTo 0.0
+ * ```
+ * @param defaultValue 변환 실패 시 대체 값
+ */
+inline fun Any?.asDouble(defaultValue: Double = 0.0): Double = asDoubleOrNull() ?: defaultValue
+
+/**
+ * 객체를 Double 수형으로 변환합니다. 변환 실패 시 null을 반환합니다.
+ *
+ * ```
+ * "1.0".asDoubleOrNull() shouldBeEqualTo 1.0
+ * "1".asDoubleOrNull() shouldBeEqualTo 1.0
+ * "".asDoubleOrNull() shouldBeEqualTo null
+ * ```
+ */
+fun Any?.asDoubleOrNull(): Double? = runCatching {
+    when (this) {
+        null            -> null
+        is Double       -> this
+        is Char         -> code.toDouble()
+        is CharSequence -> toString().toDouble()
+        is Number       -> toDouble()
+        else            -> asBigDecimalOrNull()?.toDouble()
     }
 }.getOrNull()
 
@@ -347,12 +330,51 @@ fun Any?.asBigInt(defaultValue: BigInteger = BigInteger.ZERO): BigInteger = asBi
  */
 fun Any?.asBigIntOrNull(): BigInteger? = runCatching {
     when (this) {
-        null -> null
-        is BigInteger -> this
-        is Number -> BigInteger.valueOf(this.toLong())
-        else -> BigInteger(toString())
+        null            -> null
+        is BigInteger   -> this
+        is Char         -> code.toBigInteger()
+        is CharSequence -> toString().toBigInteger()
+        is Number       -> toLong().toBigInteger()
+        else            -> toString().toBigInteger()
     }
 }.getOrNull()
+
+/**
+ * 객체를 [BigDecimal] 수형으로 변환합니다. 변환 실패 시 [defaultValue]로 대체합니다.
+ *
+ * ```
+ * "1.0".asBigDecimal() shouldBeEqualTo BigDecimal("1.0")
+ * "1".asBigDecimal() shouldBeEqualTo BigDecimal("1")
+ * "".asBigDecimal() shouldBeEqualTo BigDecimal.ZERO
+ * ```
+ *
+ * @param defaultValue 변환 실패 시 대체 값
+ * @return BigDecimal 변환 결과
+ */
+fun Any?.asBigDecimal(defaultValue: BigDecimal = BigDecimal.ZERO): BigDecimal = asBigDecimalOrNull() ?: defaultValue
+
+/**
+ * 객체를 [BigDecimal] 수형으로 변환합니다. 변환 실패 시 null을 반환합니다.
+ *
+ * ```
+ * "1.0".asBigDecimalOrNull() shouldBeEqualTo BigDecimal("1.0")
+ * "1".asBigDecimalOrNull() shouldBeEqualTo BigDecimal("1")
+ * "".asBigDecimalOrNull() shouldBeEqualTo null
+ * ```
+ *
+ * @return BigDecimal 변환 결과
+ */
+fun Any?.asBigDecimalOrNull(): BigDecimal? = runCatching {
+    when (this) {
+        null            -> null
+        is BigDecimal   -> this
+        is Char         -> code.toBigDecimal()
+        is CharSequence -> toString().toBigDecimal()
+        is Number       -> toString().toBigDecimal()
+        else            -> toString().toBigDecimal()
+    }
+}.getOrNull()
+
 
 /**
  * 객체를 [String] 수형으로 변환합니다. 변환 실패 시 [defaultValue]로 대체합니다.
@@ -366,7 +388,7 @@ fun Any?.asBigIntOrNull(): BigInteger? = runCatching {
  * @param defaultValue 변환 실패 시 대체 값
  * @return String 변환 결과
  */
-fun Any?.asString(defaultValue: String = ""): String = asStringOrNull() ?: defaultValue
+inline fun Any?.asString(defaultValue: String = EMPTY_STRING): String = asStringOrNull() ?: defaultValue
 
 /**
  * 객체를 [String] 수형으로 변환합니다. 변환 실패 시 null을 반환합니다.
@@ -379,9 +401,7 @@ fun Any?.asString(defaultValue: String = ""): String = asStringOrNull() ?: defau
  *
  * @return String 변환 결과
  */
-fun Any?.asStringOrNull(): String? = this?.toString()
-
-internal val SIMPLE_DATE_FORMAT = SimpleDateFormat()
+inline fun Any?.asStringOrNull(): String? = this?.toString()
 
 /**
  * 객체를 [Date] 수형으로 변환합니다. 변환 실패 시 [defaultValue]로 대체합니다.
@@ -410,12 +430,12 @@ fun Any?.asDate(defaultValue: Date = Date(0L)): Date = asDateOrNull() ?: default
  */
 fun Any?.asDateOrNull(): Date? = runCatching {
     when (this) {
-        null -> null
-        is Number -> Date(this.toLong())
-        is Date -> this
+        null       -> null
+        is Date    -> this
         is Instant -> Date.from(this)
+        is Number  -> Date(this.toLong())
         is TemporalAccessor -> Date.from(Instant.from(this))
-        else -> SIMPLE_DATE_FORMAT.parse(asString())
+        else       -> SimpleDateFormat().parse(asString())
     }
 }.getOrNull()
 
@@ -431,9 +451,8 @@ fun Any?.asDateOrNull(): Date? = runCatching {
  * @param defaultValue 변환 실패 시 대체 값
  * @return Timestamp 변환 결과
  */
-fun Any?.asTimestamp(
-    defaultValue: Timestamp = Timestamp(0L),
-): Timestamp = asTimestampOrNull() ?: defaultValue
+fun Any?.asTimestamp(defaultValue: Timestamp = Timestamp(0L)): Timestamp =
+    asTimestampOrNull() ?: defaultValue
 
 /**
  * 객체를 [Timestamp] 수형으로 변환합니다. 변환 실패 시 null을 반환합니다.
@@ -448,12 +467,13 @@ fun Any?.asTimestamp(
  */
 fun Any?.asTimestampOrNull(): Timestamp? = runCatching {
     when (this) {
-        null -> null
-        is Number -> Timestamp(this.toLong())
+        null         -> null
         is Timestamp -> this
-        is Instant -> Timestamp.from(this)
+        is Date      -> Timestamp(time)
+        is Instant   -> Timestamp.from(this)
         is TemporalAccessor -> Timestamp.from(Instant.from(this))
-        else -> Timestamp.valueOf(this.asString())
+        is Number    -> Timestamp(this.toLong())
+        else         -> Timestamp.valueOf(this.asString())
     }
 }.getOrNull()
 
@@ -463,14 +483,14 @@ fun Any?.asTimestampOrNull(): Timestamp? = runCatching {
  * ```
  * "2021-01-01".asInstant() shouldBeEqualTo Instant.parse("2021-01-01T00:00:00Z")
  * 1609459200000.asInstant() shouldBeEqualTo Instant.ofEpochMilli(1609459200000)
- * null.asInstant() shouldBeEqualTo Instant.ofEpochMilli(0)
+ * null.asInstant() shouldBeEqualTo Instant.EPOCH
  * ```
  *
  * @param defaultValue 변환 실패 시 대체 값
  * @return Instant 변환 결과
  */
 fun Any?.asInstant(
-    defaultValue: Instant = Instant.ofEpochMilli(0L),
+    defaultValue: Instant = Instant.EPOCH,
 ): Instant = asInstantOrNull() ?: defaultValue
 
 /**
@@ -486,11 +506,13 @@ fun Any?.asInstant(
  */
 fun Any?.asInstantOrNull(): Instant? = runCatching {
     when (this) {
-        null -> null
-        is Number -> Instant.ofEpochMilli(this.toLong())
-        is Instant -> this
+        null             -> null
+        is Instant       -> this
+        is Date          -> Instant.ofEpochMilli(time)
+        is LocalDateTime -> this.toInstant(ZoneOffset.UTC)
         is TemporalAccessor -> Instant.from(this)
-        else -> Instant.parse(this.asString())
+        is Number        -> Instant.ofEpochMilli(this.toLong())
+        else             -> Instant.parse(this.asString())
     }
 }.getOrNull()
 
@@ -523,11 +545,12 @@ fun Any?.asLocalDate(
  */
 fun Any?.asLocalDateOrNull(): LocalDate? = runCatching {
     when (this) {
-        null -> null
-        is LocalDate -> this
-        is Instant -> LocalDate.ofInstant(this, ZoneId.systemDefault())
-        is TemporalAccessor -> LocalDate.from(this)
-        else -> LocalDate.parse(this.toString())
+        null                -> null
+        is LocalDate        -> this
+        is TemporalAccessor -> LocalDate.ofInstant(this.asInstant(), ZoneOffset.UTC)
+        is Date             -> LocalDate.ofInstant(Instant.ofEpochMilli(time), ZoneOffset.UTC)
+        is Number           -> LocalDate.ofInstant(Instant.ofEpochMilli(this.toLong()), ZoneOffset.UTC)
+        else                -> LocalDate.parse(this.toString())
     }
 }.getOrNull()
 
@@ -558,11 +581,12 @@ fun Any?.asLocalTime(defaultValue: LocalTime = LocalTime.MIN): LocalTime = asLoc
  */
 fun Any?.asLocalTimeOrNull(): LocalTime? = runCatching {
     when (this) {
-        null -> null
-        is LocalTime -> this
-        is Instant -> LocalTime.ofInstant(this, ZoneId.systemDefault())
-        is TemporalAccessor -> LocalTime.from(this)
-        else -> LocalTime.parse(this.toString())
+        null                -> null
+        is LocalTime        -> this
+        is TemporalAccessor -> LocalTime.ofInstant(this.asInstant(), ZoneOffset.UTC)
+        is Date             -> LocalTime.ofInstant(Instant.ofEpochMilli(time), ZoneOffset.UTC)
+        is Number           -> LocalTime.ofInstant(Instant.ofEpochMilli(this.toLong()), ZoneOffset.UTC)
+        else                -> LocalTime.parse(this.toString())
     }
 }.getOrNull()
 
@@ -594,11 +618,12 @@ fun Any?.asLocalDateTime(defaultValue: LocalDateTime = LocalDateTime.MIN): Local
  */
 fun Any?.asLocalDateTimeOrNull(): LocalDateTime? = runCatching {
     when (this) {
-        null -> null
-        is LocalDateTime -> this
-        is Instant -> LocalDateTime.ofInstant(this, ZoneId.systemDefault())
-        is TemporalAccessor -> LocalDateTime.from(this)
-        else -> LocalDateTime.parse(this.toString())
+        null                -> null
+        is LocalDateTime    -> this
+        is TemporalAccessor -> LocalDateTime.ofInstant(this.asInstant(), ZoneOffset.UTC)
+        is Date             -> LocalDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneOffset.UTC)
+        is Number           -> LocalDateTime.ofInstant(Instant.ofEpochMilli(this.toLong()), ZoneOffset.UTC)
+        else                -> LocalDateTime.parse(this.toString())
     }
 }.getOrNull()
 
@@ -607,7 +632,7 @@ fun Any?.asLocalDateTimeOrNull(): LocalDateTime? = runCatching {
  *
  * ```
  * "2021-01-01T12:00:00Z".asOffsetDateTime() shouldBeEqualTo OffsetDateTime.parse("2021-01-01T12:00:00Z")
- * 1609459200000.asOffsetDateTime() shouldBeEqualTo OffsetDateTime.ofInstant(Instant.ofEpochMilli(1609459200000), ZoneId.systemDefault())
+ * 1609459200000.asOffsetDateTime() shouldBeEqualTo OffsetDateTime.ofInstant(Instant.ofEpochMilli(1609459200000), ZoneOffset.UTC)
  * null.asOffsetDateTime() shouldBeEqualTo OffsetDateTime.MIN
  * ```
  *
@@ -622,7 +647,7 @@ fun Any?.asOffsetDateTime(defaultValue: OffsetDateTime = OffsetDateTime.MIN): Of
  *
  * ```
  * "2021-01-01T12:00:00Z".asOffsetDateTimeOrNull() shouldBeEqualTo OffsetDateTime.parse("2021-01-01T12:00:00Z")
- * 1609459200000.asOffsetDateTimeOrNull() shouldBeEqualTo OffsetDateTime.ofInstant(Instant.ofEpochMilli(1609459200000), ZoneId.systemDefault())
+ * 1609459200000.asOffsetDateTimeOrNull() shouldBeEqualTo OffsetDateTime.ofInstant(Instant.ofEpochMilli(1609459200000),  ZoneOffset.UTC)
  * null.asOffsetDateTimeOrNull() shouldBeEqualTo null
  * ```
  *
@@ -630,10 +655,52 @@ fun Any?.asOffsetDateTime(defaultValue: OffsetDateTime = OffsetDateTime.MIN): Of
  */
 fun Any?.asOffsetDateTimeOrNull(): OffsetDateTime? = runCatching {
     when (this) {
-        null -> null
-        is OffsetDateTime -> this
-        is TemporalAccessor -> OffsetDateTime.from(this)
-        else -> OffsetDateTime.parse(this.toString())
+        null                -> null
+        is OffsetDateTime   -> this
+        is TemporalAccessor -> OffsetDateTime.ofInstant(this.asInstant(), ZoneOffset.UTC)
+        is Date             -> OffsetDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneOffset.UTC)
+        is Number           -> OffsetDateTime.ofInstant(Instant.ofEpochMilli(this.toLong()), ZoneOffset.UTC)
+        else                -> OffsetDateTime.parse(this.toString())
+    }
+}.getOrNull()
+
+
+/**
+ * 객체를 [ZonedDateTime] 수형으로 변환합니다. 변환 실패 시 [defaultValue]로 대체합니다.
+ *
+ * ```
+ * "2021-01-01T12:00:00Z".asZonedDateTimeOrNull() shouldBeEqualTo ZonedDateTime.parse("2021-01-01T12:00:00Z")
+ * 1609459200000.asZonedDateTimeOrNull() shouldBeEqualTo ZonedDateTime.ofInstant(Instant.ofEpochMilli(1609459200000), ZoneOffset.UTC)
+ * null.asZonedDateTimeOrNull() shouldBeEqualTo OffsetDateTime.MIN
+ * ```
+ *
+ * @param defaultValue 변환 실패 시 대체 값 [OffsetDateTime.MIN]
+ * @return OffsetDateTime 변환 결과
+ */
+fun Any?.asZonedDateTime(
+    defaultValue: ZonedDateTime = ZonedDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC),
+): ZonedDateTime =
+    asZonedDateTimeOrNull() ?: defaultValue
+
+/**
+ * 객체를 [ZonedDateTime] 수형으로 변환합니다. 변환 실패 시 null을 반환합니다.
+ *
+ * ```
+ * "2021-01-01T12:00:00Z".asZonedDateTimeOrNull() shouldBeEqualTo ZonedDateTime.parse("2021-01-01T12:00:00Z")
+ * 1609459200000.asZonedDateTimeOrNull() shouldBeEqualTo ZonedDateTime.ofInstant(Instant.ofEpochMilli(1609459200000), ZoneOffset.UTC)
+ * null.asZonedDateTimeOrNull() shouldBeEqualTo null
+ * ```
+ *
+ * @return OffsetDateTime 변환 결과
+ */
+fun Any?.asZonedDateTimeOrNull(): ZonedDateTime? = runCatching {
+    when (this) {
+        null                -> null
+        is ZonedDateTime    -> this
+        is TemporalAccessor -> ZonedDateTime.ofInstant(this.asInstant(), ZoneOffset.UTC)
+        is Date             -> ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneOffset.UTC)
+        is Number           -> ZonedDateTime.ofInstant(Instant.ofEpochMilli(this.toLong()), ZoneOffset.UTC)
+        else                -> ZonedDateTime.parse(this.toString())
     }
 }.getOrNull()
 
@@ -648,7 +715,7 @@ fun Any?.asOffsetDateTimeOrNull(): OffsetDateTime? = runCatching {
  * @param defaultValue 변환 실패 시 대체 값 (기본값: [UUID.randomUUID])
  * @return UUID 변환 결과
  */
-fun Any?.asUUID(defaultValue: UUID = UUID.randomUUID()): UUID = asUUIDOrNull() ?: defaultValue
+fun Any?.asUUID(defaultValue: UUID = ZERO_UUID): UUID = asUUIDOrNull() ?: defaultValue
 
 /**
  * 객체를 [UUID] 수형으로 변환합니다. 변환 실패 시 null을 반환합니다.
@@ -662,9 +729,10 @@ fun Any?.asUUID(defaultValue: UUID = UUID.randomUUID()): UUID = asUUIDOrNull() ?
  */
 fun Any?.asUUIDOrNull(): UUID? = runCatching {
     when (this) {
-        null -> null
-        is UUID -> this
-        else -> UUID.fromString(this.toString())
+        null      -> null
+        is UUID   -> this
+        is Number -> asBigIntOrNull()?.toUuid()
+        else      -> UUID.fromString(this.toString())
     }
 }.getOrNull()
 
@@ -696,23 +764,18 @@ fun Any?.asByteArray(charset: Charset = Charsets.UTF_8, defaultValue: ByteArray 
  */
 fun Any?.asByteArrayOrNull(charset: Charset = Charsets.UTF_8): ByteArray? = runCatching {
     when (this) {
-        null -> null
+        null    -> null
         is ByteArray -> this
-        else -> toString().toByteArray(charset)
+        is Int  -> toByteArray()
+        is Long -> toByteArray()
+        is UUID -> toByteArray()
+        else    -> toString().toByteArray(charset)
     }
 }.getOrNull()
 
 //
 // 특정 소숫점을 위한 Floor, Round 함수
 //
-
-//private val decimalFormats = ConcurrentHashMap<Int, DecimalFormat>()
-//
-//private fun getDecimalFormat(decimalCount: Int): DecimalFormat =
-//    decimalFormats.computeIfAbsent(decimalCount) { dc ->
-//        if (dc > 0) DecimalFormat("." + "#".repeat(dc))
-//        else DecimalFormat("#")
-//    }
 
 /**
  * 객체를 [Float]로 변환하면서 [decimalCount] 자릿수에서 내림을 수행합니다.
@@ -746,10 +809,13 @@ fun Any?.asFloatFloor(decimalCount: Int = 0, defaultValue: Float = 0.0F): Float 
 fun Any?.asFloatFloorOrNull(decimalCount: Int = 0): Float? = this?.run {
     runCatching {
         if (decimalCount == 0) {
-            return this.asLong().toFloat()
+            return@runCatching this.asLong().toFloat()
         }
+
+        val value = asFloatOrNull() ?: return@runCatching null
+
         val decimal = 10.0.pow(decimalCount).toFloat()
-        floor(asFloat() * decimal) / decimal
+        floor(value * decimal) / decimal
     }.getOrNull()
 }
 
@@ -786,10 +852,12 @@ fun Any?.asFloatRound(decimalCount: Int = 0, defaultValue: Float = 0.0F): Float 
 fun Any?.asFloatRoundOrNull(decimalCount: Int = 0): Float? = this?.run {
     runCatching {
         if (decimalCount == 0) {
-            return this.asLong().toFloat()
+            return@runCatching this.asLong().toFloat()
         }
+        val value = asFloatOrNull() ?: return@runCatching null
+
         val decimal = 10.0.pow(decimalCount).toFloat()
-        (this.asFloat() * decimal).roundToLong() / decimal
+        (value * decimal).roundToLong() / decimal
     }.getOrNull()
 }
 
@@ -826,11 +894,12 @@ fun Any?.asFloatCeil(decimalCount: Int = 0, defaultValue: Float = 0.0F): Float =
 fun Any?.asFloatCeilOrNull(decimalCount: Int = 0): Float? = this?.run {
     runCatching {
         if (decimalCount == 0) {
-            return this.asLong().toFloat()
+            return@runCatching this.asLong().toFloat()
         }
+        val value = asFloatOrNull() ?: return@runCatching null
 
         val decimal = 10.0.pow(decimalCount).toFloat()
-        ceil(asFloat() * decimal) / decimal
+        ceil(value * decimal) / decimal
     }.getOrNull()
 }
 
@@ -866,11 +935,13 @@ fun Any?.asDoubleFloor(decimalCount: Int = 0, defaultValue: Double = 0.0): Doubl
 fun Any?.asDoubleFloorOrNull(decimalCount: Int = 0): Double? = this?.run {
     runCatching {
         if (decimalCount == 0) {
-            return this.asLong().toDouble()
+            return@runCatching this.asLong().toDouble()
         }
 
+        val value = asDoubleOrNull() ?: return@runCatching null
+
         val decimal = 10.0.pow(decimalCount)
-        floor(asDouble() * decimal) / decimal
+        floor(value * decimal) / decimal
     }.getOrNull()
 }
 
@@ -908,8 +979,10 @@ fun Any?.asDoubleRoundOrNull(decimalCount: Int = 0): Double? = this?.run {
         if (decimalCount == 0) {
             return this.asLong().toDouble()
         }
+        val value = asDoubleOrNull() ?: return@runCatching null
+
         val decimal = 10.0.pow(decimalCount)
-        (asDouble() * decimal).roundToLong() / decimal
+        (value * decimal).roundToLong() / decimal
     }.getOrNull()
 }
 
@@ -948,7 +1021,9 @@ fun Any?.asDoubleCeilOrNull(decimalCount: Int = 0): Double? = this?.run {
         if (decimalCount == 0) {
             return this.asLong().toDouble()
         }
+        val value = asDoubleOrNull() ?: return@runCatching null
+
         val decimal = 10.0.pow(decimalCount)
-        ceil(asDouble() * decimal) / decimal
+        ceil(value * decimal) / decimal
     }.getOrNull()
 }

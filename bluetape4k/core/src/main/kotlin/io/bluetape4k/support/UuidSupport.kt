@@ -1,8 +1,13 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package io.bluetape4k.support
 
 import io.bluetape4k.utils.BigIntegerPair
 import java.math.BigInteger
 import java.util.*
+
+@JvmField
+val ZERO_UUID: UUID = 0L.toBigInteger().toUuid()
 
 /**
  * [BigInteger]를 [UUID]로 변환합니다.
@@ -11,7 +16,7 @@ import java.util.*
  * 123456789.toBigInteger().toUuid() // UUID(0, 123456789)
  * ```
  */
-fun BigInteger.toUuid(): UUID {
+inline fun BigInteger.toUuid(): UUID {
     val (most, least) = BigIntegerPair.unpair(this)
     return UUID(most.longValueExact(), least.longValueExact())
 }
@@ -23,7 +28,7 @@ fun BigInteger.toUuid(): UUID {
  * UUID(0, 123456789).toBigInt() // 123456789.toBigInteger()
  * ```
  */
-fun UUID.toBigInt(): BigInteger = BigIntegerPair.pair(
+inline fun UUID.toBigInt(): BigInteger = BigIntegerPair.pair(
     this.mostSignificantBits.toBigInteger(),
     this.leastSignificantBits.toBigInteger()
 )
@@ -35,8 +40,7 @@ fun UUID.toBigInt(): BigInteger = BigIntegerPair.pair(
  * UUID(0, 123456789).toLongArray() // longArrayOf(0, 123456789)
  * ```
  */
-fun UUID.toLongArray(): LongArray =
-    longArrayOf(mostSignificantBits, leastSignificantBits)
+inline fun UUID.toLongArray(): LongArray = longArrayOf(mostSignificantBits, leastSignificantBits)
 
 /**
  * [LongArray]로 [UUID]를 빌드한다
@@ -46,7 +50,7 @@ fun UUID.toLongArray(): LongArray =
  * longArrayOf(0, 123456789).toUUID() // UUID(0, 123456789)
  * ```
  */
-fun LongArray.toUUID(): UUID {
+inline fun LongArray.toUUID(): UUID {
     require(this.size >= 2) { "UUID need 2 long value" }
     return UUID(this[0], this[1])
 }
@@ -54,8 +58,8 @@ fun LongArray.toUUID(): UUID {
 /**
  * UUID 형식의 문자열 포맷을 나타내는 정규식입니다.
  */
-private val UUID_REGEX =
-    "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$".toRegex()
+@JvmField
+val UUID_REGEX = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$".toRegex()
 
 /**
  * 문자열이 UUID 형식인지 판단합니다.
@@ -65,4 +69,4 @@ private val UUID_REGEX =
  * "24738134-9d88-6645-4ec8-d63aa2031015-43-ap".isUuid() // false
  * ```
  */
-fun String.isUuid(): Boolean = UUID_REGEX.matches(this)
+inline fun String.isUuid(): Boolean = UUID_REGEX.matches(this)

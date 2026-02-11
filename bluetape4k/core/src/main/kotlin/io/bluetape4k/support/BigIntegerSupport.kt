@@ -28,9 +28,9 @@ inline fun <T: Number> bigIntList(size: Int, init: (Int) -> T): List<BigInteger>
  */
 fun <T: Number> T.toBigInt(): BigInteger = when (this) {
     is BigInteger             -> this
-    is Int, is Short, is Byte -> BigInteger.valueOf(this.toLong())
-    is Long                   -> BigInteger.valueOf(this)
-    else                      -> BigInteger(this.asLong().toString())
+    is Int, is Short, is Byte -> toLong().toBigInteger()
+    is Long                   -> toBigInteger()
+    else                      -> toLong().toBigInteger() 
 }
 
 fun String.toBigInt(): BigInteger = BigInteger(this)
