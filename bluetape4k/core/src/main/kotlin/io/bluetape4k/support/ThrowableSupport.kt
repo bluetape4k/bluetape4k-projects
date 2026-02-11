@@ -17,8 +17,8 @@ fun Throwable?.buildMessage(message: String?): String? {
         return message
     }
     return buildString {
-        message?.run { append(this).append("; ") }
-        append("nested exception is ").append(cause)
+        message?.let { append(it).append("; ") }
+        append("nested exception is ").append(cause ?: "not exists")
     }
 }
 
