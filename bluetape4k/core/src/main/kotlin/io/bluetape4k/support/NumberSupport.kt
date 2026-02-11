@@ -29,10 +29,11 @@ val StandardNumberTypes: HashSet<KClass<out Number>> = hashSetOf(
     BigInteger::class,
 )
 
+const val defaultNumberFormatPattern = "#,##0.#"
 /**
  * 소수점 자리를 표현하는 기본 포맷
  */
-val DefaultDecimalFormat: DecimalFormat get() = DecimalFormat("#,##0.#")
+val DefaultDecimalFormat: DecimalFormat get() = DecimalFormat(defaultNumberFormatPattern)
 
 /**
  * 숫자를 인간이 읽기 편한 문자열로 만든다
@@ -44,8 +45,8 @@ val DefaultDecimalFormat: DecimalFormat get() = DecimalFormat("#,##0.#")
  *
  * @param decimalFormat DecimalFormat (default: #,##0.#)
  */
-inline fun Number.toHuman(decimalFormat: DecimalFormat = DefaultDecimalFormat): String =
-    decimalFormat.format(this)
+inline fun Number.toHuman(pattern: String = defaultNumberFormatPattern): String =
+    DecimalFormat(pattern).format(this)
 
 /**
  * 숫자의 범위를 [minValue]와 [maxValue] 사이로 제한한다.
