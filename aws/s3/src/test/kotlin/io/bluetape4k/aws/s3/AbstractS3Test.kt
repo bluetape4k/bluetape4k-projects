@@ -18,7 +18,6 @@ import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.transfer.s3.S3TransferManager
 
 abstract class AbstractS3Test {
-
     companion object: KLoggingChannel() {
         const val IMAGE_PATH: String = "./src/test/resources/images"
         const val BUCKET_NAME: String = "test-bucket"
@@ -47,12 +46,10 @@ abstract class AbstractS3Test {
         protected val faker = Fakers.faker
 
         @JvmStatic
-        protected fun randomString(): String =
-            Fakers.randomString(256, 2048)
+        protected fun randomString(): String = Fakers.randomString(256, 2048)
 
         @JvmStatic
-        protected fun randomKey(): String =
-            Base58.randomString(16).lowercase()
+        protected fun randomKey(): String = Base58.randomString(16).lowercase()
     }
 
     val s3Client: S3Client by lazy {
@@ -75,7 +72,7 @@ abstract class AbstractS3Test {
         S3Factory.TransferManager.create(
             endpoint,
             region,
-            credentialsProvider
+            credentialsProvider,
         ) {
             this.executor(Dispatchers.IO.asExecutor())
         }
@@ -106,7 +103,7 @@ abstract class AbstractS3Test {
 
     protected fun createBucketsIfNotExists(vararg bucketNames: String) {
         bucketNames.forEach { bucket ->
-            if (!s3Client.existsBucket(bucket)) {
+            if (s3Client.existsBucket(bucket).getOrDefault(false).not()) {
                 log.debug { "Create bucket... name=$bucket" }
                 runCatching {
                     val response = s3Client.createBucket { it.bucket(bucket) }
@@ -122,8 +119,8 @@ abstract class AbstractS3Test {
 
     protected val imageBasePath: String = "src/test/resources/images"
 
-    protected fun getImageNames(): List<String> {
-        return listOf(
+    protected fun getImageNames(): List<String> =
+        listOf(
             "cafe.jpg",
             "flower.jpg",
             "garden.jpg",
@@ -132,5 +129,4 @@ abstract class AbstractS3Test {
             "coroutines.pdf",
             "kotlin.key",
         )
-    }
 }

@@ -30,7 +30,6 @@ import java.io.Serializable
  */
 @DataObject
 @RowMapped(formatter = SnakeCase::class)
-
 // FIXME: ParametersMapped 는 제대로 kapt 로 생성되지 않습니다. JSON constructor 문제로 봐서는 Kotlin 이어서 생긴 문제
 // 차라리 USER_TUPLE_MAPPER 처럼 사용하는 게 나을 듯 하다
 // @ParametersMapped(formatter = LowerCamelCase::class)

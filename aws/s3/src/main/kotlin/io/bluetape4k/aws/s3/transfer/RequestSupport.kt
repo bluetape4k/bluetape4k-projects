@@ -1,11 +1,13 @@
 package io.bluetape4k.aws.s3.transfer
 
+import io.bluetape4k.aws.s3.model.getObjectRequestOf
 import software.amazon.awssdk.core.async.AsyncRequestBody
 import software.amazon.awssdk.core.async.AsyncResponseTransformer
-import software.amazon.awssdk.services.s3.model.GetObjectRequest
 import software.amazon.awssdk.services.s3.model.GetObjectResponse
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
+import software.amazon.awssdk.transfer.s3.model.DownloadFileRequest
 import software.amazon.awssdk.transfer.s3.model.DownloadRequest
+import software.amazon.awssdk.transfer.s3.model.UploadFileRequest
 import software.amazon.awssdk.transfer.s3.model.UploadRequest
 import java.nio.file.Path
 
@@ -23,14 +25,12 @@ inline fun <T> downloadRequestOf(
     bucket: String,
     key: String,
     responseTransformer: AsyncResponseTransformer<GetObjectResponse, T>,
-    @BuilderInference crossinline getObjectRequestBuilder: GetObjectRequest.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
 ): DownloadRequest<T> {
+    val request = getObjectRequestOf(bucket, key)
     return downloadRequest(responseTransformer) {
-        getObjectRequest {
-            it.bucket(bucket)
-            it.key(key)
-            getObjectRequestBuilder(it)
-        }
+        getObjectRequest(request)
+        builder()
     }
 }
 
@@ -38,23 +38,30 @@ inline fun downloadRequestOf(
     bucket: String,
     key: String,
     downloadPath: Path,
-    @BuilderInference builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
+    @BuilderInference crossinline builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
 ): DownloadRequest<GetObjectResponse> {
-    return downloadRequest(AsyncResponseTransformer.toFile(downloadPath)) {
-        getObjectRequest {
-            it.bucket(bucket)
-            it.key(key)
-        }
+    return downloadRequestOf(bucket, key, AsyncResponseTransformer.toFile(downloadPath)) {
         builder()
     }
 }
 
+inline fun downloadFileRequestOf(
+    bucket: String,
+    key: String,
+    destination: Path,
+    @BuilderInference builder: DownloadFileRequest.Builder.() -> Unit = {},
+): DownloadFileRequest =
+    DownloadFileRequest.builder()
+        .getObjectRequest(getObjectRequestOf(bucket, key))
+        .destination(destination)
+        .apply(builder)
+        .build()
+
 
 inline fun uploadRequest(
     @BuilderInference builder: UploadRequest.Builder.() -> Unit,
-): UploadRequest {
-    return UploadRequest.builder().apply(builder).build()
-}
+): UploadRequest =
+    UploadRequest.builder().apply(builder).build()
 
 inline fun uploadRequestOf(
     putObjectRequest: PutObjectRequest,
@@ -67,3 +74,8 @@ inline fun uploadRequestOf(
         builder()
     }
 }
+
+inline fun uploadFileRequest(
+    @BuilderInference builder: UploadFileRequest.Builder.() -> Unit,
+): UploadFileRequest =
+    UploadFileRequest.builder().apply(builder).build()
