@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test
 
 class StandardFuncSupportTest {
 
-
     companion object: KLogging() {
         private const val REPEAT_SIZE = 3
     }
@@ -28,6 +27,7 @@ class StandardFuncSupportTest {
         safeLet(null, "b") { _, _ ->
             fail("p1 이 null 이므로 실행되어서는 안됩니다")
         }
+
         safeLet("a", null) { _, _ ->
             fail("p2 이 null 이므로 실행되어서는 안됩니다")
         }
@@ -44,9 +44,7 @@ class StandardFuncSupportTest {
         } shouldBeEqualTo "abc"
 
         val chars = List(10) { ('a' + it).toString() }
-        safeLet(*chars.toTypedArray()) { list ->
-            list.size
-        } shouldBeEqualTo 10
+        safeLet(*chars.toTypedArray()) { it.size } shouldBeEqualTo 10
     }
 
     @Test

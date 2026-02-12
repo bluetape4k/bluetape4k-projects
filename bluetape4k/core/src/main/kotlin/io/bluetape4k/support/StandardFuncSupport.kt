@@ -1,4 +1,4 @@
-@file:Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
+@file:Suppress("NOTHING_TO_INLINE")
 
 package io.bluetape4k.support
 
@@ -20,13 +20,13 @@ package io.bluetape4k.support
  * }
  * ```
  */
-inline fun <T1: Any, T2: Any, R> safeLet(
+inline fun <T1: Any, T2: Any, R: Any> safeLet(
     p1: T1?,
     p2: T2?,
     block: (T1, T2) -> R,
-): R {
+): R? {
     return if (p1 != null && p2 != null) block(p1, p2)
-    else null as R
+    else null
 }
 
 /**
@@ -48,15 +48,15 @@ inline fun <T1: Any, T2: Any, R> safeLet(
  * }
  * ```
  */
-inline fun <T1: Any, T2: Any, T3: Any, R> safeLet(
+inline fun <T1: Any, T2: Any, T3: Any, R: Any> safeLet(
     p1: T1?,
     p2: T2?,
     p3: T3?,
     block: (T1, T2, T3) -> R,
-): R {
+): R? {
     return if (p1 != null && p2 != null && p3 != null)
         block(p1, p2, p3)
-    else null as R
+    else null
 }
 
 /**
@@ -79,16 +79,16 @@ inline fun <T1: Any, T2: Any, T3: Any, R> safeLet(
  * }
  * ```
  */
-inline fun <T1: Any, T2: Any, T3: Any, T4: Any, R> safeLet(
+inline fun <T1: Any, T2: Any, T3: Any, T4: Any, R: Any> safeLet(
     p1: T1?,
     p2: T2?,
     p3: T3?,
     p4: T4?,
     block: (T1, T2, T3, T4) -> R,
-): R {
+): R? {
     return if (p1 != null && p2 != null && p3 != null && p4 != null)
         block(p1, p2, p3, p4)
-    else null as R
+    else null
 }
 
 /**
@@ -112,24 +112,21 @@ inline fun <T1: Any, T2: Any, T3: Any, T4: Any, R> safeLet(
  * }
  * ```
  */
-inline fun <T1: Any, T2: Any, T3: Any, T4: Any, T5: Any, R> safeLet(
+inline fun <T1: Any, T2: Any, T3: Any, T4: Any, T5: Any, R: Any> safeLet(
     p1: T1?,
     p2: T2?,
     p3: T3?,
     p4: T4?,
     p5: T5?,
     block: (T1, T2, T3, T4, T5) -> R,
-): R {
+): R? {
     return if (p1 != null && p2 != null && p3 != null && p4 != null && p5 != null)
         block(p1, p2, p3, p4, p5)
-    else null as R
+    else null
 }
 
-inline fun <T: Any, R> safeLet(vararg elements: T?, block: (elements: List<T>) -> R): R {
-    return if (elements.all { it != null }) {
-        block(elements.filterNotNull())
-    } else null as R
-}
+inline fun <T: Any, R: Any> safeLet(vararg elements: T?, block: (elements: List<T>) -> R): R? =
+    elements.all { it != null }.ifTrue { block(elements.filterNotNull()) }
 
 /**
  * [options] 의 모든 요소가 not null 일 때 [block] 을 수행합니다.
@@ -148,7 +145,7 @@ inline fun <T: Any, R> safeLet(vararg elements: T?, block: (elements: List<T>) -
  * ```
  */
 inline fun <T: Any> whenAllNotNull(vararg options: T?, block: (List<T>) -> Unit) {
-    if (options.all { it != null }) {
+    options.all { it != null }.ifTrue {
         block(options.filterNotNull())
     }
 }
@@ -164,7 +161,7 @@ inline fun <T: Any> whenAllNotNull(vararg options: T?, block: (List<T>) -> Unit)
  * ```
  */
 inline fun <T: Any> whenAnyNotNull(vararg options: T?, block: (List<T?>) -> Unit) {
-    if (options.any { it != null }) {
+    options.any { it != null }.ifTrue {
         block(options.toList())
     }
 }
@@ -186,9 +183,9 @@ inline fun <T: Any> whenAnyNotNull(vararg options: T?, block: (List<T?>) -> Unit
  * }
  * ```
  */
-fun <T: Any> Iterable<T?>.whenAllNotNull(block: (List<T?>) -> Unit) {
-    if (all { it != null }) {
-        block(this@whenAllNotNull.toList())
+fun <T: Any> Iterable<T?>.whenAllNotNull(block: (List<T>) -> Unit) {
+    all { it != null }.ifTrue {
+        block(this@whenAllNotNull.filterNotNull())
     }
 }
 
