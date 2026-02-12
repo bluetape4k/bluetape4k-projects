@@ -1,6 +1,5 @@
 package io.bluetape4k.http.ahc
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.concurrent.allAsList
 import io.bluetape4k.concurrent.onFailure
 import io.bluetape4k.concurrent.onSuccess
@@ -72,7 +71,7 @@ class AsyncHttpClientTest: AbstractHttpTest() {
     }
 
     private fun executeGetAsync(ahc: AsyncHttpClient, count: Int = TEST_SIZE) {
-        val futures = fastList(count) {
+        val futures = List(count) {
             ahc
                 .prepareGet(JSON_PLACEHOLDER_TODOS_URL)
                 .execute()
@@ -91,11 +90,11 @@ class AsyncHttpClientTest: AbstractHttpTest() {
     }
 
     private suspend fun suspendExecuteGet(ahc: AsyncHttpClient, count: Int = TEST_SIZE) = coroutineScope {
-        val jobs = fastList(count) {
+        val jobs = List(count) {
             launch(Dispatchers.IO) {
                 val response = ahc
                     .prepareGet(JSON_PLACEHOLDER_TODOS_URL)
-                    .executeSuspending()
+                    .suspendExecute()
 
                 response.statusCode shouldBeEqualTo 200
                 response.hasResponseBody().shouldBeTrue()

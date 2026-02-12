@@ -34,10 +34,7 @@ suspend fun Path.suspendReadAllBytes(): ByteArray =
  *
  * @return ByteArray 파일의 모든 바이트
  */
-@Deprecated(
-    "Use suspendReadAllBytes() instead",
-    ReplaceWith("suspendReadAllBytes()")
-)
+@Deprecated("Use suspendReadAllBytes() instead", ReplaceWith("suspendReadAllBytes()"))
 suspend fun Path.readAllBytesSuspending(): ByteArray =
     readAllBytesAsync().await()
 

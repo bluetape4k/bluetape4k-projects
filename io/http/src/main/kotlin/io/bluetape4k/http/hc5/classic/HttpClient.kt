@@ -22,9 +22,8 @@ import org.apache.hc.client5.http.io.HttpClientConnectionManager
  */
 inline fun httpClient(
     @BuilderInference builder: HttpClientBuilder.() -> Unit,
-): CloseableHttpClient {
-    return HttpClientBuilder.create().apply(builder).build()
-}
+): CloseableHttpClient =
+    HttpClientBuilder.create().apply(builder).build()
 
 /**
  * 기본 [CloseableHttpClient] 를 생성합니다.

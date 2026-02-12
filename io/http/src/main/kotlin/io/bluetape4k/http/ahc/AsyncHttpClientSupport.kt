@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package io.bluetape4k.http.ahc
 
 import io.bluetape4k.collections.eclipse.toFastList
@@ -13,25 +15,26 @@ import org.asynchttpclient.filter.RequestFilter
 import org.asynchttpclient.filter.ResponseFilter
 
 /**
+ * Netty native transport를 사용할 수 있으면 사용하도록 한다
+ */
+fun DefaultAsyncHttpClientConfig.Builder.applyNativeTransport() = apply {
+    if (Systemx.isUnix && isPresentNettyTransportNativeEpoll()) {
+        // setEventLoopGroup(EpollEventLoopGroup())
+        setUseNativeTransport(true)
+
+    } else if (Systemx.isMac && isPresentNettyTransportNativeKQueue()) {
+        // setEventLoopGroup(KQueueEventLoopGroup())
+        setUseNativeTransport(true)
+    }
+}
+
+/**
  * // NOTE: 비동기 방식에서는 OS 차원에서 open file 제한을 늘려야 합니다.
  * 참고: https://gist.github.com/tombigel/d503800a282fcadbee14b537735d202c
  */
-val defaultAsyncHttpClientConfig: DefaultAsyncHttpClientConfig by unsafeLazy {
+val defaultAsyncHttpClientConfig: DefaultAsyncHttpClientConfig by lazy {
     DefaultAsyncHttpClientConfig.Builder()
-        .apply {
-            runCatching {
-                if (Systemx.isUnix && isPresentNettyTransportNativeEpoll()) {
-                    // setEventLoopGroup(EpollEventLoopGroup())
-                    setUseNativeTransport(true)
-
-                } else if (Systemx.isMac && isPresentNettyTransportNativeKQueue()) {
-                    // setEventLoopGroup(KQueueEventLoopGroup())
-                    setUseNativeTransport(true)
-                } else {
-                    // Nothing to do
-                }
-            }
-        }
+        .applyNativeTransport()   // Netty native transport를 사용할 수 있으면 사용하도록 한다
         .build()
 }
 
@@ -58,24 +61,8 @@ inline fun asyncHttpClientConfig(
             setPooledConnectionIdleTimeout(120_000)  // 120 seconds (2 minutes)
             setTcpNoDelay(true)
             setSoReuseAddress(true)
-
-            // Netty native transport를 사용할 수 있으면 사용하도록 한다
-            when {
-                Systemx.isUnix -> {
-                    if (isPresentNettyTransportNativeEpoll()) {
-                        // setEventLoopGroup(EpollEventLoopGroup())
-                        setUseNativeTransport(true)
-                    }
-                }
-
-                Systemx.isMac -> {
-                    if (isPresentNettyTransportNativeKQueue()) {
-                        // setEventLoopGroup(KQueueEventLoopGroup())
-                        setUseNativeTransport(true)
-                    }
-                }
-            }
         }
+        .applyNativeTransport()  // Netty native transport를 사용할 수 있으면 사용하도록 한다
         .apply(builder)
         .build()
 }
@@ -118,7 +105,7 @@ inline fun asyncHttpClient(
  * @param config [AsyncHttpClientConfig] instance
  * @return [AsyncHttpClient] instance
  */
-fun asyncHttpClientOf(
+inline fun asyncHttpClientOf(
     config: AsyncHttpClientConfig = defaultAsyncHttpClientConfig,
 ): AsyncHttpClient {
     return Dsl.asyncHttpClient(config)
@@ -130,7 +117,7 @@ fun asyncHttpClientOf(
  * @param requestFilters request filters
  * @return [AsyncHttpClient] instance
  */
-fun asyncHttpClientOf(vararg requestFilters: RequestFilter): AsyncHttpClient {
+inline fun asyncHttpClientOf(vararg requestFilters: RequestFilter): AsyncHttpClient {
     val config = asyncHttpClientConfigOf(requestFilters.toFastList())
     return asyncHttpClientOf(config)
 }

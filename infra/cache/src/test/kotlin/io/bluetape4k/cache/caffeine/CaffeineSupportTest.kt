@@ -129,7 +129,7 @@ class CaffeineSupportTest {
         val asyncCache = caffeine.asyncCache<String, String>()
         val counter = AtomicInteger(0)
 
-        val suspendValue = asyncCache.getSuspending("key") { key ->
+        val suspendValue = asyncCache.suspendGet("key") { key ->
             log.debug { "run suspend function to evaluate value of $key" }
             delay(100)
             counter.incrementAndGet()

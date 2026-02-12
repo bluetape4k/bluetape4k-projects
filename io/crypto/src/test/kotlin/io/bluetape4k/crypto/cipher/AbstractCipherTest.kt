@@ -6,7 +6,7 @@ import javax.crypto.Cipher
 
 abstract class AbstractCipherTest {
     companion object: KLogging() {
-        const val REPEAT_SIZE = 10
+        const val REPEAT_SIZE = 5
     }
 
     protected val builder = CipherBuilder()

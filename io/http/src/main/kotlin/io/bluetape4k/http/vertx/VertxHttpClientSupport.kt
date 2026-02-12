@@ -20,7 +20,7 @@ val defaultVertxHttpClientOptions: HttpClientOptions = httpClientOptionsOf(
 /**
  * Default Vert.x [HttpClient]
  */
-val defaultVertxHttpClient: HttpClient by lazy(mode = LazyThreadSafetyMode.PUBLICATION) {
+val defaultVertxHttpClient: HttpClient by lazy {
     vertxHttpClientOf(defaultVertxHttpClientOptions)
 }
 

@@ -9,10 +9,16 @@ import org.asynchttpclient.Response
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
+@Deprecated("use suspendExecute instead", ReplaceWith("this.suspendExecute()"))
+suspend fun BoundRequestBuilder.executeSuspending(): Response =
+    suspendCancellableCoroutine { cont ->
+        execute(DefaultCoroutineCompletionHandler(cont))
+    }
+
 /**
  * AsyncHttpClient 실행을 Coroutine 환경에서 수행하도록 합니다.
  */
-suspend fun BoundRequestBuilder.executeSuspending(): Response =
+suspend fun BoundRequestBuilder.suspendExecute(): Response =
     suspendCancellableCoroutine { cont ->
         execute(DefaultCoroutineCompletionHandler(cont))
     }

@@ -1,10 +1,9 @@
 package io.bluetape4k.avro.impl
 
 import io.bluetape4k.avro.AbstractAvroTest
+import io.bluetape4k.avro.AvroSpecificRecordSerializer
 import io.bluetape4k.avro.TestMessageProvider
 import io.bluetape4k.avro.deserialize
-import io.bluetape4k.collections.eclipse.fastList
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
@@ -13,86 +12,104 @@ import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.apache.avro.file.CodecFactory
+import org.apache.avro.file.XZCodec.DEFAULT_COMPRESSION
 import org.apache.avro.specific.SpecificRecord
-import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
 import io.bluetape4k.avro.message.examples.v1.VersionedItem as ItemV1
 import io.bluetape4k.avro.message.examples.v2.VersionedItem as ItemV2
 
 @RandomizedTest
 class DefaultAvroSpecificRecordSerializerTest: AbstractAvroTest() {
 
-    companion object: KLogging() {
-        private const val REPEAT_SIZE = 5
+    companion object: KLogging()
+
+    private fun serializers(): List<Arguments> = listOf(
+        "default" to DefaultAvroSpecificRecordSerializer(),
+        "deflate" to DefaultAvroSpecificRecordSerializer(CodecFactory.deflateCodec(6)),
+        "zstd-3" to DefaultAvroSpecificRecordSerializer(CodecFactory.zstandardCodec(3)),
+        "zstd-3-true" to DefaultAvroSpecificRecordSerializer(CodecFactory.zstandardCodec(3, true)),
+        "zstd-3-true-true" to DefaultAvroSpecificRecordSerializer(CodecFactory.zstandardCodec(3, true, true)),
+        "snappy" to DefaultAvroSpecificRecordSerializer(CodecFactory.snappyCodec()),
+        "xz" to DefaultAvroSpecificRecordSerializer(CodecFactory.xzCodec(DEFAULT_COMPRESSION)),
+        "bzip" to DefaultAvroSpecificRecordSerializer(CodecFactory.bzip2Codec()),
+    ).map {
+        Arguments.of(it.first, it.second)
     }
 
-    private val serializers = fastListOf(
-        DefaultAvroSpecificRecordSerializer(),
-        DefaultAvroSpecificRecordSerializer(CodecFactory.deflateCodec(6)),
-        DefaultAvroSpecificRecordSerializer(CodecFactory.zstandardCodec(3)),
-        DefaultAvroSpecificRecordSerializer(CodecFactory.zstandardCodec(3, true)),
-        DefaultAvroSpecificRecordSerializer(CodecFactory.zstandardCodec(3, true, true)),
-        DefaultAvroSpecificRecordSerializer(CodecFactory.snappyCodec()),
-        DefaultAvroSpecificRecordSerializer(CodecFactory.bzip2Codec()),
-    )
+    private inline fun <reified T: SpecificRecord> AvroSpecificRecordSerializer.verifySerialization(
+        avroObject: T,
+    ) {
+        val bytes = serialize(avroObject)!!
+        bytes.shouldNotBeEmpty()
 
-    private inline fun <reified T: SpecificRecord> verifySerialization(avroObject: T) {
-        serializers.forEach { serializer ->
-            val bytes = serializer.serialize(avroObject)!!
-            bytes.shouldNotBeEmpty()
-
-            val converted = serializer.deserialize<T>(bytes)
-            converted.shouldNotBeNull()
-            converted shouldBeEqualTo avroObject
-        }
+        val converted = deserialize<T>(bytes)
+        converted.shouldNotBeNull()
+        converted shouldBeEqualTo avroObject
     }
 
-    @RepeatedTest(REPEAT_SIZE)
-    fun `serialize single avro object`() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("serializers")
+    fun `serialize single avro object`(name: String, serializer: AvroSpecificRecordSerializer) {
         val employee = TestMessageProvider.createEmployee()
-        verifySerialization(employee)
+        serializer.verifySerialization(employee)
     }
 
-    @RepeatedTest(REPEAT_SIZE)
-    fun `serialize nested avro object`() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("serializers")
+    fun `serialize nested avro object`(name: String, serializer: AvroSpecificRecordSerializer) {
         val productRoot = TestMessageProvider.createProductRoot().apply {
-            productProperties = fastList(20) { TestMessageProvider.createProductProperty() }
+            productProperties = List(20) { TestMessageProvider.createProductProperty() }
         }
-        verifySerialization(productRoot)
+        serializer.verifySerialization(productRoot)
     }
 
-    @RepeatedTest(REPEAT_SIZE)
-    fun `serialize versioned item v1`(@RandomValue item: ItemV1) {
-        verifySerialization(item)
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("serializers")
+    fun `serialize versioned item v1`(
+        name: String, serializer: AvroSpecificRecordSerializer,
+        @RandomValue item: ItemV1,
+    ) {
+        serializer.verifySerialization(item)
     }
 
-    @RepeatedTest(REPEAT_SIZE)
-    fun `serialize versioned item v2`(@RandomValue item: ItemV2) {
-        verifySerialization(item)
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("serializers")
+    fun `serialize versioned item v2`(
+        name: String, serializer: AvroSpecificRecordSerializer,
+        @RandomValue item: ItemV2,
+    ) {
+        serializer.verifySerialization(item)
     }
 
-    @RepeatedTest(REPEAT_SIZE)
-    fun `serialize v1 and deserialize as v2`(@RandomValue item: ItemV1) {
-        serializers.forEach { serializer ->
-            val bytes = serializer.serialize(item)!!
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("serializers")
+    fun `serialize v1 and deserialize as v2`(
+        name: String, serializer: AvroSpecificRecordSerializer,
+        @RandomValue item: ItemV1,
+    ) {
+        val bytes = serializer.serialize(item)!!
 
-            val convertedAsV2 = serializer.deserialize<ItemV2>(bytes)
-            convertedAsV2.shouldNotBeNull()
-            convertedAsV2.id shouldBeEqualTo item.id
-            convertedAsV2.key shouldBeEqualTo item.key
-            convertedAsV2.description.shouldBeNull()
-            convertedAsV2.action shouldBeEqualTo "action"  // default value
-        }
+        val convertedAsV2 = serializer.deserialize<ItemV2>(bytes)
+        convertedAsV2.shouldNotBeNull()
+        convertedAsV2.id shouldBeEqualTo item.id
+        convertedAsV2.key shouldBeEqualTo item.key
+        convertedAsV2.description.shouldBeNull()
+        convertedAsV2.action shouldBeEqualTo "action"  // default value
     }
 
-    @RepeatedTest(REPEAT_SIZE)
-    fun `serialize V2 and deserialize as V1`(@RandomValue item: ItemV2) {
-        serializers.forEach { serializer ->
-            val bytes = serializer.serialize(item)
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("serializers")
+    fun `serialize V2 and deserialize as V1`(
+        name: String, serializer: AvroSpecificRecordSerializer,
+        @RandomValue item: ItemV2,
+    ) {
+        val bytes = serializer.serialize(item)
 
-            val convertedAsV1 = serializer.deserialize<ItemV1>(bytes)
-            convertedAsV1.shouldNotBeNull()
-            convertedAsV1.id shouldBeEqualTo item.id
-            convertedAsV1.key shouldBeEqualTo item.key
-        }
+        val convertedAsV1 = serializer.deserialize<ItemV1>(bytes)
+        convertedAsV1.shouldNotBeNull()
+        convertedAsV1.id shouldBeEqualTo item.id
+        convertedAsV1.key shouldBeEqualTo item.key
     }
 }

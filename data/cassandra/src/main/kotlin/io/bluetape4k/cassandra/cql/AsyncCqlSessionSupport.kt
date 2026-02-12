@@ -21,7 +21,7 @@ import kotlinx.coroutines.future.await
  * @param values parameter 값
  * @return [AsyncResultSet] 인스턴스
  */
-suspend fun AsyncCqlSession.suspendExecute(cql: String, vararg values: Any?): AsyncResultSet {
+suspend inline fun AsyncCqlSession.suspendExecute(cql: String, vararg values: Any?): AsyncResultSet {
     return executeAsync(statementOf(cql, *values)).await()
 }
 
@@ -42,7 +42,7 @@ suspend fun AsyncCqlSession.executeSuspending(cql: String, vararg values: Any?):
  * @param values parameter name-value map
  * @return [AsyncResultSet] 인스턴스
  */
-suspend fun AsyncCqlSession.suspendExecute(cql: String, values: Map<String, Any?>): AsyncResultSet {
+suspend inline fun AsyncCqlSession.suspendExecute(cql: String, values: Map<String, Any?>): AsyncResultSet {
     return executeAsync(statementOf(cql, values)).await()
 }
 
@@ -63,7 +63,7 @@ suspend fun AsyncCqlSession.executeSuspending(cql: String, values: Map<String, A
  * @param statement 실행할 statement
  * @return [AsyncResultSet] 인스턴스
  */
-suspend fun AsyncCqlSession.suspendExecute(statement: Statement<*>): AsyncResultSet {
+suspend inline fun AsyncCqlSession.suspendExecute(statement: Statement<*>): AsyncResultSet {
     return executeAsync(statement).await()
 }
 
@@ -84,7 +84,7 @@ suspend fun AsyncCqlSession.executeSuspending(statement: Statement<*>): AsyncRes
  * @param cql 실행할 cassandra query
  * @return [AsyncResultSet] 인스턴스
  */
-suspend fun AsyncCqlSession.suspendPrepare(cql: String): PreparedStatement {
+suspend inline fun AsyncCqlSession.suspendPrepare(cql: String): PreparedStatement {
     return prepareAsync(DefaultPrepareRequest(cql)).await()
 }
 
@@ -105,7 +105,7 @@ suspend fun AsyncCqlSession.prepareSuspending(cql: String): PreparedStatement {
  * @param statement 실행할 statement
  * @return [AsyncResultSet] 인스턴스
  */
-suspend fun AsyncCqlSession.suspendPrepare(statement: SimpleStatement): PreparedStatement {
+suspend inline fun AsyncCqlSession.suspendPrepare(statement: SimpleStatement): PreparedStatement {
     return prepareAsync(DefaultPrepareRequest(statement)).await()
 }
 

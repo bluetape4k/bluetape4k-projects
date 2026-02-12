@@ -8,7 +8,9 @@ import io.bluetape4k.junit5.params.provider.FieldSource
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.utils.Runtimex
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
@@ -18,6 +20,7 @@ import org.junit.jupiter.params.provider.Arguments
 class DigesterTest {
 
     companion object: KLogging() {
+
         private fun getRandomString() =
             Fakers.randomString(256, 1024)
 
@@ -100,9 +103,11 @@ class DigesterTest {
             .numThreads(2 * Runtimex.availableProcessors)
             .roundsPerJob(16 * 2 * Runtimex.availableProcessors)
             .add {
-                val message = getRandomString()
-                val digested = digester.digest(message)
-                digester.matches(message, digested).shouldBeTrue()
+                withContext(Dispatchers.Default) {
+                    val message = getRandomString()
+                    val digested = digester.digest(message)
+                    digester.matches(message, digested).shouldBeTrue()
+                }
             }
             .run()
     }

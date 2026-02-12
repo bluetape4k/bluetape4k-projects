@@ -28,7 +28,9 @@ inline fun requestFilter(
  * @return [RequestFilter] instance
  */
 @JvmName("requestFilter")
-inline fun requestFilter(crossinline handler: (FilterContext<*>) -> Unit): RequestFilter {
+inline fun requestFilter(
+    @BuilderInference crossinline handler: (FilterContext<*>) -> Unit,
+): RequestFilter {
     return object: RequestFilter {
         override fun <T> filter(ctx: FilterContext<T>): FilterContext<T> {
             handler(ctx)
@@ -59,8 +61,8 @@ fun attachHeaderRequestFilterOf(headers: Map<String, Any?>): RequestFilter {
  * @return [RequestFilter] instance
  */
 inline fun attachHeaderRequestFilterOf(
-    crossinline namesSupplier: () -> Iterable<String>,
-    crossinline valueSupplier: (String) -> Any?,
+    @BuilderInference crossinline namesSupplier: () -> Iterable<String>,
+    @BuilderInference crossinline valueSupplier: (String) -> Any?,
 ): RequestFilter {
     return requestFilter { ctx ->
         namesSupplier().forEach { name ->

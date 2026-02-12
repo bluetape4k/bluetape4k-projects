@@ -96,10 +96,27 @@ fun minimalH2AsyncClientOf(
  * @param callback [FutureCallback] 콜백
  * @return [AsyncClientEndpoint] 인스턴스
  */
+@Deprecated("use suspendLease instead", replaceWith = ReplaceWith("suspendLease(host,context,callback)"))
 suspend inline fun MinimalHttpAsyncClient.leaseSuspending(
     host: HttpHost,
     context: HttpContext = HttpClientContext.create(),
-    callback: FutureCallback<AsyncClientEndpoint>? = null,
+    @BuilderInference callback: FutureCallback<AsyncClientEndpoint>? = null,
+): AsyncClientEndpoint {
+    return lease(host, context, callback).suspendAwait()
+}
+
+/**
+ * Coroutines 환경에서 [MinimalHttpAsyncClient.lease]를 수행합니다.
+ *
+ * @param host [HttpHost] 호스트 정보
+ * @param context [HttpContext] 설정
+ * @param callback [FutureCallback] 콜백
+ * @return [AsyncClientEndpoint] 인스턴스
+ */
+suspend inline fun MinimalHttpAsyncClient.suspendLease(
+    host: HttpHost,
+    context: HttpContext = HttpClientContext.create(),
+    @BuilderInference callback: FutureCallback<AsyncClientEndpoint>? = null,
 ): AsyncClientEndpoint {
     return lease(host, context, callback).suspendAwait()
 }

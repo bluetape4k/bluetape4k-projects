@@ -4,7 +4,7 @@ import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.emptyByteArray
 import io.bluetape4k.support.toUtf8Bytes
@@ -20,7 +20,7 @@ import javax.crypto.Cipher
 
 class CipherBuilderTest: AbstractCipherTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @RepeatedTest(REPEAT_SIZE)
     fun `create AES cipher for encryption`() {
@@ -32,8 +32,7 @@ class CipherBuilderTest: AbstractCipherTest() {
                     runCatching { decryptCipher.doFinal() }.getOrDefault(emptyByteArray)
             val decryptedContent = decryptedBytes.toUtf8String()
 
-            log.debug { "content  :$content" }
-            log.debug { "decrypted:$decryptedContent" }
+            log.debug { "content: $content, decrypted content=${decryptedContent}" }
             decryptedContent shouldBeEqualTo content
         }
     }
@@ -54,8 +53,7 @@ class CipherBuilderTest: AbstractCipherTest() {
                         runCatching { decryptCipher.doFinal() }.getOrDefault(emptyByteArray)
                 val decryptedContent = decryptedBytes.toUtf8String()
 
-                log.debug { "content  :$content" }
-                log.debug { "decrypted:$decryptedContent" }
+                log.debug { "content: $content, decrypted content=${decryptedContent}" }
                 decryptedContent shouldBeEqualTo content
             }
             .run()
@@ -77,8 +75,7 @@ class CipherBuilderTest: AbstractCipherTest() {
                         runCatching { decryptCipher.doFinal() }.getOrDefault(emptyByteArray)
                 val decryptedContent = decryptedBytes.toUtf8String()
 
-                log.debug { "content  :$content" }
-                log.debug { "decrypted:$decryptedContent" }
+                log.debug { "content: $content, decrypted content=${decryptedContent}" }
                 decryptedContent shouldBeEqualTo content
             }
             .run()
