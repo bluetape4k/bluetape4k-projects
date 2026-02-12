@@ -3,6 +3,8 @@ package io.bluetape4k.aws.s3
 import io.bluetape4k.aws.s3.model.MoveObjectResult
 import io.bluetape4k.aws.s3.model.getObjectRequest
 import io.bluetape4k.aws.s3.model.putObjectRequest
+import io.bluetape4k.aws.s3.model.toAsyncRequestBody
+import io.bluetape4k.concurrent.completableFutureOf
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.warn
@@ -21,6 +23,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import software.amazon.awssdk.services.s3.model.PutObjectResponse
 import software.amazon.awssdk.services.s3.model.S3Object
 import java.io.File
+import java.nio.charset.Charset
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 
@@ -70,8 +73,10 @@ fun S3AsyncClient.createBucket(
 /**
  * S3 Object 를 download 한 후, ByteArray 로 반환합니다.
  *
- * @param builder 요청 정보 Builder
- * @return 다운받은 S3 Object의 ByteArray 형태의 정보
+ * @param bucket Bucket name
+ * @param key Object key
+ * @param builder 요청 설정을 위한 빌더
+ * @return 다욱받은 S3 Object의 ByteArray 형태의 정보를 담은 [CompletableFuture]
  */
 inline fun S3AsyncClient.getAsByteArray(
     bucket: String,
@@ -87,8 +92,10 @@ inline fun S3AsyncClient.getAsByteArray(
 /**
  * S3 Object 를 download 한 후, 문자열로 반환합니다.
  *
- * @param builder 요청 정보 Builder
- * @return 다운받은 S3 Object의 문자열 형태의 정보
+ * @param bucket Bucket name
+ * @param key Object key
+ * @param builder 요청 설정을 위한 빌더
+ * @return 다욱받은 S3 Object의 문자열 형태의 정보를 담은 [CompletableFuture]
  */
 inline fun S3AsyncClient.getAsString(
     bucket: String,
@@ -101,6 +108,15 @@ inline fun S3AsyncClient.getAsString(
         .thenApply { it.asString(Charsets.UTF_8) }
 }
 
+/**
+ * S3 Object 를 download 한 후, [destinationPath]에 저장합니다.
+ *
+ * @param bucket Bucket name
+ * @param key Object key
+ * @param destinationPath 저장할 경로
+ * @param builder 요청 설정을 위한 빌더
+ * @return 다욱받은 S3 Object의 정보를 담은 [CompletableFuture]
+ */
 inline fun S3AsyncClient.getAsFile(
     bucket: String,
     key: String,
@@ -118,11 +134,11 @@ inline fun S3AsyncClient.getAsFile(
 /**
  * S3 서버로 [body]를 Upload 합니다.
  *
- * @param bucket            Upload 할 Bucket name
- * @param key               Upload 할 Object key
- * @param body              Upload 할 [AsyncRequestBody]
- * @param builder  PutObjectRequest builder
- * @return S3에 저장된 결과
+ * @param bucket Upload 할 Bucket name
+ * @param key Upload 할 Object key
+ * @param body Upload 할 [AsyncRequestBody]
+ * @param builder 요청 설정을 위한 빌더
+ * @return S3에 저장된 결과를 담은 [CompletableFuture]
  */
 inline fun S3AsyncClient.put(
     bucket: String,
@@ -140,9 +156,11 @@ inline fun S3AsyncClient.put(
 /**
  * S3 서버로 [bytes]를 Upload 합니다.
  *
- * @param bytes             Upload 할 Byte Array
- * @param builder  PutObjectRequest builder
- * @return S3에 저장된 결과
+ * @param bucket Upload 할 Bucket name
+ * @param key Upload 할 Object key
+ * @param bytes Upload 할 Byte Array
+ * @param builder 요청 설정을 위한 빌더
+ * @return S3에 저장된 결과를 담은 [CompletableFuture]
  */
 inline fun S3AsyncClient.putAsByteArray(
     bucket: String,
@@ -150,38 +168,59 @@ inline fun S3AsyncClient.putAsByteArray(
     bytes: ByteArray,
     @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
 ): CompletableFuture<PutObjectResponse> =
-    put(bucket, key, AsyncRequestBody.fromBytes(bytes), builder)
+    put(bucket, key, bytes.toAsyncRequestBody(), builder)
 
 /**
  * S3 서버로 [contents]를 Upload 합니다.
  *
- * @param contents          Upload 할 문자열
- * @param builder  PutObjectRequest builder
- * @return S3에 저장된 결과
+ * @param bucket Upload 할 Bucket name
+ * @param key Upload 할 Object key
+ * @param contents Upload 할 문자열
+ * @param builder 요청 설정을 위한 빌더
+ * @return S3에 저장된 결과를 담은 [CompletableFuture]
  */
 inline fun S3AsyncClient.putAsString(
     bucket: String,
     key: String,
     contents: String,
+    charset: Charset = Charsets.UTF_8,
     @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
 ): CompletableFuture<PutObjectResponse> =
-    put(bucket, key, AsyncRequestBody.fromString(contents), builder)
+    put(bucket, key, contents.toAsyncRequestBody(charset), builder)
 
+/**
+ * S3 서버로 [file]을 Upload 합니다.
+ *
+ * @param bucket Upload 할 Bucket name
+ * @param key Upload 할 Object key
+ * @param file Upload 할 파일
+ * @param builder 요청 설정을 위한 빌더
+ * @return S3에 저장된 결과를 담은 [CompletableFuture]
+ */
 inline fun S3AsyncClient.putAsFile(
     bucket: String,
     key: String,
     file: File,
     @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
 ): CompletableFuture<PutObjectResponse> =
-    put(bucket, key, AsyncRequestBody.fromFile(file), builder)
+    put(bucket, key, file.toAsyncRequestBody(), builder)
 
+/**
+ * S3 서버로 [path]의 파일을 Upload 합니다.
+ *
+ * @param bucket Upload 할 Bucket name
+ * @param key Upload 할 Object key
+ * @param path Upload 할 파일 경로
+ * @param builder 요청 설정을 위한 빌더
+ * @return S3에 저장된 결과를 담은 [CompletableFuture]
+ */
 inline fun S3AsyncClient.putAsFile(
     bucket: String,
     key: String,
     path: Path,
     @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
 ): CompletableFuture<PutObjectResponse> =
-    put(bucket, key, AsyncRequestBody.fromFile(path), builder)
+    put(bucket, key, path.toAsyncRequestBody(), builder)
 
 //
 // Move Object
@@ -221,8 +260,8 @@ fun S3AsyncClient.moveObject(
             deleteObject { builder ->
                 builder.bucket(srcBucketName).key(srcKey)
             }.handle { deleteResponse, error ->
-                if (error != null) {
-                    log.warn(error) {
+                error?.let {
+                    log.warn(it) {
                         "Failed to delete source object after copy. " +
                                 "Source: $srcBucketName/$srcKey, Dest: $destBucketName/$destKey"
                     }
@@ -230,7 +269,7 @@ fun S3AsyncClient.moveObject(
                 MoveObjectResult(copyResponse.copyObjectResult(), deleteResponse)
             }
         } else {
-            CompletableFuture.completedFuture(MoveObjectResult(copyResponse.copyObjectResult()))
+            completableFutureOf(MoveObjectResult(copyResponse.copyObjectResult()))
         }
     }
 }
@@ -240,26 +279,25 @@ fun S3AsyncClient.moveObject(
  *
  * 참고: 이 연산은 원자적이지 않습니다. 복사는 성공했지만 삭제가 실패할 수 있습니다.
  *
- * @param copyObjectRequest   복사 Request
- * @param deleteObjectRequest 원본 복제품 삭제 request
+ * @param copyRequestBuilder   복사 Request
+ * @param deleteRequestBuilder 원본 복제품 삭제 request
  * @return 이동 작업 결과
  */
 fun S3AsyncClient.moveObject(
-    copyObjectRequest: CopyObjectRequest.Builder.() -> Unit,
-    deleteObjectRequest: DeleteObjectRequest.Builder.() -> Unit,
+    @BuilderInference copyRequestBuilder: CopyObjectRequest.Builder.() -> Unit,
+    @BuilderInference deleteRequestBuilder: DeleteObjectRequest.Builder.() -> Unit,
 ): CompletableFuture<MoveObjectResult> =
-    copyObject(copyObjectRequest).thenCompose { copyResponse ->
-        if (copyResponse.copyObjectResult().eTag()?.isNotBlank() == true) {
-            deleteObject(deleteObjectRequest).handle { deleteResponse, error ->
-                if (error != null) {
-                    log.warn(error) { "Failed to delete source object after copy" }
+    copyObject(copyRequestBuilder)
+        .thenCompose { copyResponse ->
+            if (copyResponse.copyObjectResult().eTag()?.isNotBlank() == true) {
+                deleteObject(deleteRequestBuilder).handle { deleteResponse, error ->
+                    error?.let { log.warn(it) { "Failed to delete source object after copy" } }
+                    MoveObjectResult(copyResponse.copyObjectResult(), deleteResponse)
                 }
-                MoveObjectResult(copyResponse.copyObjectResult(), deleteResponse)
+            } else {
+                completableFutureOf(MoveObjectResult(copyResponse.copyObjectResult()))
             }
-        } else {
-            CompletableFuture.completedFuture(MoveObjectResult(copyResponse.copyObjectResult()))
         }
-    }
 
 /**
  * [S3Object]를 원자적으로 Move 합니다.
@@ -287,18 +325,18 @@ fun S3AsyncClient.moveObjectAtomic(
             }
             deleteObject { it.bucket(destBucketName).key(destKey) }
                 .handle { _, rollbackError ->
-                    if (rollbackError != null) {
-                        log.error(rollbackError) {
+                    rollbackError?.let {
+                        log.error(it) {
                             "Rollback failed! Copied object may remain at destination. Dest: $destBucketName/$destKey"
                         }
                         throw IllegalStateException(
                             "Move failed and rollback also failed. Copied object remains at $destBucketName/$destKey",
-                            rollbackError,
+                            it,
                         )
                     }
-                    throw IllegalStateException("Move failed: copy succeeded but delete failed. Rollback completed.")
+                    error("Move failed: copy succeeded but delete failed. Rollback completed.")
                 }
         } else {
-            CompletableFuture.completedFuture(result)
+            completableFutureOf(result)
         }
     }

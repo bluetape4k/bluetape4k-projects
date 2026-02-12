@@ -25,7 +25,7 @@ inline fun <T> downloadRequestOf(
     bucket: String,
     key: String,
     responseTransformer: AsyncResponseTransformer<GetObjectResponse, T>,
-    @BuilderInference crossinline builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
+    @BuilderInference builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
 ): DownloadRequest<T> {
     val request = getObjectRequestOf(bucket, key)
     return downloadRequest(responseTransformer) {
@@ -38,7 +38,7 @@ inline fun downloadRequestOf(
     bucket: String,
     key: String,
     downloadPath: Path,
-    @BuilderInference crossinline builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
+    @BuilderInference builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
 ): DownloadRequest<GetObjectResponse> {
     return downloadRequestOf(bucket, key, AsyncResponseTransformer.toFile(downloadPath)) {
         builder()

@@ -33,8 +33,8 @@ suspend inline fun <T: Any> S3TransferManager.downloadSuspending(
 /**
  * [S3TransferManager]를 이용하여 S3 Object 를 다운로드 받습니다.
  *
- * @param bucket bucket name
- * @param key object key
+ * @param bucket Bucket name
+ * @param key Object key
  * @param responseTransformer 응답을 변환할 비동기 transformer
  * @param builder [DownloadRequest.UntypedBuilder] 를 구성하는 람다 함수
  * @return 다운로드 완료 결과
@@ -50,8 +50,8 @@ suspend fun <T: Any> S3TransferManager.downloadSuspending(
 /**
  * [S3TransferManager]를 이용하여 S3 Object 를 ByteArray 로 다운로드 받습니다.
  *
- * @param bucket bucket name
- * @param key object key
+ * @param bucket Bucket name
+ * @param key Object key
  * @param builder [DownloadRequest.UntypedBuilder] 를 구성하는 람다 함수
  * @return 다운로드 완료 결과
  */
@@ -65,66 +65,67 @@ suspend inline fun S3TransferManager.downloadAsByteArraySuspending(
 /**
  * [S3TransferManager]를 이용하여 S3 Object 를 파일로 다운로드 받습니다.
  *
- * @param bucket bucket name
- * @param key object key
+ * @param bucket Bucket name
+ * @param key Object key
  * @param destination 저장할 파일 경로
- * @param downloadRequestBuilder 추가 설정 람다 함수
+ * @param builder [DownloadFileRequest.Builder] 를 구성하는 람다 함수
  * @return 다운로드 완료 결과
  */
 suspend inline fun S3TransferManager.downloadFileSuspending(
     bucket: String,
     key: String,
     destination: Path,
-    downloadRequestBuilder: DownloadFileRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: DownloadFileRequest.Builder.() -> Unit = {},
 ): CompletedFileDownload =
-    downloadFile(bucket, key, destination, downloadRequestBuilder).completionFuture().await()
+    downloadFile(bucket, key, destination, builder).completionFuture().await()
 
 /**
  * [S3TransferManager]를 이용하여 객체를 S3에 업로드 합니다.
  *
- * @param bucket bucket name
- * @param key object key
+ * @param bucket Bucket name
+ * @param key Object key
  * @param asyncRequestBody 업로드할 객체
- * @param builder 추가 설정 람다 함수
+ * @param builder [UploadRequest.Builder] 를 구성하는 람다 함수
  * @return 업로드 완료 결과
  */
 suspend inline fun S3TransferManager.uploadSuspending(
     bucket: String,
     key: String,
     asyncRequestBody: AsyncRequestBody,
-    builder: UploadRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: UploadRequest.Builder.() -> Unit = {},
 ): CompletedUpload =
     upload(bucket, key, asyncRequestBody, builder).completionFuture().await()
 
 /**
  * [S3TransferManager]를 이용하여 ByteArray 를 S3에 업로드 합니다.
  *
- * @param bucket bucket name
- * @param key object key
+ * @param bucket Bucket name
+ * @param key Object key
  * @param content 업로드할 ByteArray
- * @param builder 추가 설정 람다 함수
+ * @param builder [UploadRequest.Builder] 를 구성하는 람다 함수
  * @return 업로드 완료 결과
  */
 suspend inline fun S3TransferManager.uploadByteArraySuspending(
     bucket: String,
     key: String,
     content: ByteArray,
-    builder: UploadRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: UploadRequest.Builder.() -> Unit = {},
 ): CompletedUpload =
     uploadByteArray(bucket, key, content, builder).completionFuture().await()
 
 /**
  * [S3TransferManager]를 이용하여 파일을 S3에 업로드 합니다.
  *
- * @param bucket bucket name
- * @param key object key
+ * @param bucket Bucket name
+ * @param key Object key
  * @param source 업로드할 파일 경로
- * @param builder 추가 설정 람다 함수
+ * @param builder [UploadFileRequest.Builder] 를 구성하는 람다 함수
  * @return 업로드 완료 결과
  */
 suspend inline fun S3TransferManager.uploadFileSuspending(
     bucket: String,
     key: String,
     source: Path,
-    builder: UploadFileRequest.Builder.() -> Unit = {},
-): CompletedFileUpload = uploadFile(bucket, key, source, builder).completionFuture().await()
+    @BuilderInference builder: UploadFileRequest.Builder.() -> Unit = {},
+): CompletedFileUpload =
+    uploadFile(bucket, key, source, builder).completionFuture().await()

@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package io.bluetape4k.concurrent
 
 import java.util.concurrent.CompletableFuture
@@ -45,12 +47,14 @@ inline fun <V> immediateFutureOf(crossinline block: () -> V): CompletableFuture<
  * val result = future.get()  // 42
  * ```
  */
-fun <V> completableFutureOf(value: V): CompletableFuture<V> = CompletableFuture.completedFuture(value)
+inline fun <V> completableFutureOf(value: V): CompletableFuture<V> =
+    CompletableFuture.completedFuture(value)
 
 /**
  * [cause] 예외를 가진 [CompletableFuture]를 생성합니다.
  */
-fun <V> failedCompletableFutureOf(cause: Throwable): CompletableFuture<V> = CompletableFuture.failedFuture(cause)
+inline fun <V> failedCompletableFutureOf(cause: Throwable): CompletableFuture<V> =
+    CompletableFuture.failedFuture(cause)
 
 /**
  * 비동기 작업 수행에 timeout 을 적용합니다.
@@ -67,9 +71,8 @@ fun <V> failedCompletableFutureOf(cause: Throwable): CompletableFuture<V> = Comp
  * @param block 수행할 코드 블럭
  * @return [block]의 실행 결과, [timeout] 시간 내에 종료되지 않으면 null 을 반환하는 [CompletableFuture] 인스턴스
  */
-inline fun <V> futureWithTimeout(timeout: Duration, crossinline block: () -> V): CompletableFuture<V> {
-    return futureWithTimeout(timeout.inWholeMilliseconds, block)
-}
+inline fun <V> futureWithTimeout(timeout: Duration, crossinline block: () -> V): CompletableFuture<V> =
+    futureWithTimeout(timeout.inWholeMilliseconds, block)
 
 /**
  * 비동기 작업 수행에 timeout 을 적용합니다.
@@ -91,6 +94,7 @@ inline fun <V> futureWithTimeout(
     crossinline block: () -> V,
 ): CompletableFuture<V> {
     val executor = Executors.newVirtualThreadPerTaskExecutor()
+
     return CompletableFuture
         .supplyAsync({ block() }, executor)
         .orTimeout(timeoutMillis.coerceAtLeast(10L), TimeUnit.MILLISECONDS)
@@ -109,7 +113,7 @@ inline fun <V> futureWithTimeout(
  */
 inline fun <V, R> CompletableFuture<V>.map(
     executor: Executor = ForkJoinExecutor,
-    crossinline mapper: (value: V) -> R,
+    @BuilderInference crossinline mapper: (value: V) -> R,
 ): CompletableFuture<R> =
     thenApplyAsync({ mapper(it) }, executor)
 

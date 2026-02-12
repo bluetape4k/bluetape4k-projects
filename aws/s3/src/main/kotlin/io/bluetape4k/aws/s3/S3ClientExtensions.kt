@@ -3,8 +3,11 @@ package io.bluetape4k.aws.s3
 import io.bluetape4k.aws.s3.model.MoveObjectResult
 import io.bluetape4k.aws.s3.model.getObjectRequest
 import io.bluetape4k.aws.s3.model.putObjectRequest
+import io.bluetape4k.aws.s3.model.toRequestBody
 import io.bluetape4k.io.exists
 import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.error
+import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.core.sync.ResponseTransformer
@@ -67,21 +70,32 @@ fun S3Client.createBucket(
 // Get Object
 //
 
+/**
+ * S3 Object 를 다운로드 받아 [ResponseTransformer]를 통해 변환된 결과를 반환합니다.
+ *
+ * @param bucket Bucket name
+ * @param key Object key
+ * @param builder 요청 설정을 위한 빌더
+ * @param responseTransformer 응답 변환기
+ * @return 변환된 결과
+ */
 inline fun <T> S3Client.getObjectAs(
     bucket: String,
     key: String,
-    requestInitializer: GetObjectRequest.Builder.() -> Unit = {},
+    builder: GetObjectRequest.Builder.() -> Unit = {},
     responseTransformer: ResponseTransformer<GetObjectResponse, T>,
 ): T {
-    val request = getObjectRequest(bucket, key, requestInitializer)
+    val request = getObjectRequest(bucket, key, builder)
     return getObject(request, responseTransformer)
 }
 
 /**
  * S3 Object 를 download 한 후, ByteArray 로 반환합니다.
  *
- * @param builder 요청 정보 Builder
- * @return 다운받은 S3 Object의 ByteArray 형태의 정보
+ * @param bucket Bucket name
+ * @param key Object key
+ * @param builder 요청 설정을 위한 빌더
+ * @return 다욱받은 S3 Object의 ByteArray 형태의 정보
  */
 inline fun S3Client.getAsByteArray(
     bucket: String,
@@ -95,21 +109,28 @@ inline fun S3Client.getAsByteArray(
 /**
  * S3 Object 를 download 한 후, 문자열로 반환합니다.
  *
- * @param builder 요청 정보 Builder
- * @return 다운받은 S3 Object의 문자열 형태의 정보
+ * @param bucket Bucket name
+ * @param key Object key
+ * @param charset 문자 인코딩 (기본값: UTF-8)
+ * @param builder 요청 설정을 위한 빌더
+ * @return 다욱받은 S3 Object의 문자열 형태의 정보
  */
 inline fun S3Client.getAsString(
     bucket: String,
     key: String,
     charset: Charset = Charsets.UTF_8,
     @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
-): String = getAsByteArray(bucket, key, builder).toString(charset)
+): String =
+    getAsByteArray(bucket, key, builder).toString(charset)
 
 /**
- * S3 Object 를 download 한 후, [file]로 저장한다
+ * S3 Object 를 download 한 후, [file]로 저장합니다.
  *
- * @param builder 요청 정보 Builder
- * @return 다운받은 S3 Object의 정보
+ * @param bucket Bucket name
+ * @param key Object key
+ * @param file 저장할 파일
+ * @param builder 요청 설정을 위한 빌더
+ * @return 다욱받은 S3 Object의 정보
  */
 inline fun S3Client.getAsFile(
     bucket: String,
@@ -122,10 +143,13 @@ inline fun S3Client.getAsFile(
 }
 
 /**
- * S3 Object 를 download 한 후, [path]에 저장한다
+ * S3 Object 를 download 한 후, [path]에 저장합니다.
  *
- * @param builder 요청 정보 Builder
- * @return 다운받은 S3 Object의 정보
+ * @param bucket Bucket name
+ * @param key Object key
+ * @param path 저장할 경로
+ * @param builder 요청 설정을 위한 빌더
+ * @return 다욱받은 S3 Object의 정보
  */
 inline fun S3Client.getAsFile(
     bucket: String,
@@ -144,8 +168,10 @@ inline fun S3Client.getAsFile(
 /**
  * S3 서버로 [body]를 Upload 합니다.
  *
- * @param body              Upload 할 [RequestBody]
- * @param builder  PutObjectRequest builder
+ * @param bucket Upload 할 Bucket name
+ * @param key Upload 할 Object key
+ * @param body Upload 할 [RequestBody]
+ * @param builder 요청 설정을 위한 빌더
  * @return S3에 저장된 결과
  */
 inline fun S3Client.put(
@@ -161,8 +187,10 @@ inline fun S3Client.put(
 /**
  * S3 서버로 [bytes]를 Upload 합니다.
  *
- * @param bytes           Upload 할 Byte Array
- * @param builder  PutObjectRequest builder
+ * @param bucket Upload 할 Bucket name
+ * @param key Upload 할 Object key
+ * @param bytes Upload 할 Byte Array
+ * @param builder 요청 설정을 위한 빌더
  * @return S3에 저장된 결과
  */
 inline fun S3Client.putAsByteArray(
@@ -170,22 +198,37 @@ inline fun S3Client.putAsByteArray(
     key: String,
     bytes: ByteArray,
     @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
-): PutObjectResponse = put(bucket, key, RequestBody.fromBytes(bytes), builder)
+): PutObjectResponse =
+    put(bucket, key, bytes.toRequestBody(), builder)
 
 /**
  * S3 서버로 [contents]를 Upload 합니다.
  *
- * @param contents           Upload 할 문자열
- * @param builder  PutObjectRequest builder
+ * @param bucket Upload 할 Bucket name
+ * @param key Upload 할 Object key
+ * @param contents Upload 할 문자열
+ * @param builder 요청 설정을 위한 빌더
  * @return S3에 저장된 결과
  */
 inline fun S3Client.putAsString(
     bucket: String,
     key: String,
     contents: String,
+    charset: Charset = Charsets.UTF_8,
     @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
-): PutObjectResponse = put(bucket, key, RequestBody.fromString(contents), builder)
+): PutObjectResponse =
+    put(bucket, key, contents.toRequestBody(charset), builder)
 
+/**
+ * S3 서버로 [file]을 Upload 합니다.
+ *
+ * @param bucket Upload 할 Bucket name
+ * @param key Upload 할 Object key
+ * @param file Upload 할 파일
+ * @param builder 요청 설정을 위한 빌더
+ * @return S3에 저장된 결과
+ * @throws IllegalArgumentException 파일이 존재하지 않을 경우
+ */
 inline fun S3Client.putAsFile(
     bucket: String,
     key: String,
@@ -194,9 +237,19 @@ inline fun S3Client.putAsFile(
 ): PutObjectResponse {
     require(file.exists()) { "File does not exist. file=$file" }
 
-    return put(bucket, key, RequestBody.fromFile(file), builder)
+    return put(bucket, key, file.toRequestBody(), builder)
 }
 
+/**
+ * S3 서버로 [path]의 파일을 Upload 합니다.
+ *
+ * @param bucket Upload 할 Bucket name
+ * @param key Upload 할 Object key
+ * @param path Upload 할 파일 경로
+ * @param builder 요청 설정을 위한 빌더
+ * @return S3에 저장된 결과
+ * @throws IllegalArgumentException 파일이 존재하지 않을 경우
+ */
 inline fun S3Client.putAsFile(
     bucket: String,
     key: String,
@@ -205,7 +258,7 @@ inline fun S3Client.putAsFile(
 ): PutObjectResponse {
     require(path.exists()) { "file does not exist. path=$path" }
 
-    return put(bucket, key, RequestBody.fromFile(path), builder)
+    return put(bucket, key, path.toRequestBody(), builder)
 }
 
 //
@@ -244,7 +297,7 @@ fun S3Client.moveObject(
                 .destinationKey(destKey)
         }
 
-    val deleteResult =
+    val deleteResponse =
         if (copyResponse.copyObjectResult().eTag()?.isNotBlank() == true) {
             runCatching {
                 deleteObject { it.bucket(srcBucketName).key(srcKey) }
@@ -262,7 +315,7 @@ fun S3Client.moveObject(
             null
         }
 
-    return MoveObjectResult(copyResponse.copyObjectResult(), deleteResult)
+    return MoveObjectResult(copyResponse.copyObjectResult(), deleteResponse)
 }
 
 /**
@@ -270,28 +323,28 @@ fun S3Client.moveObject(
  *
  * 참고: 이 연산은 원자적이지 않습니다. 복사는 성공했지만 삭제가 실패할 수 있습니다.
  *
- * @param copyObjectRequest   복사 Request
- * @param deleteObjectRequest 원본 복제품 삭제 request
+ * @param copyRequest   복사 Request
+ * @param deleteRequest 원본 복제품 삭제 request
  * @return 이동 작업 결과
  */
 fun S3Client.moveObject(
-    copyObjectRequest: CopyObjectRequest.Builder.() -> Unit,
-    deleteObjectRequest: DeleteObjectRequest.Builder.() -> Unit,
+    copyRequest: CopyObjectRequest.Builder.() -> Unit,
+    deleteRequest: DeleteObjectRequest.Builder.() -> Unit,
 ): MoveObjectResult {
-    val copyResponse = copyObject(copyObjectRequest)
+    val copyResponse = copyObject(copyRequest)
 
-    val deleteResult =
+    val deleteResponse =
         if (copyResponse.copyObjectResult().eTag()?.isNotBlank() == true) {
             runCatching {
-                deleteObject(deleteObjectRequest)
+                deleteObject(deleteRequest)
             }.onFailure { error ->
-                log.warn("Failed to delete source object after copy", error)
+                log.warn(error) { "Failed to delete source object after copy." }
             }.getOrNull()
         } else {
             null
         }
 
-    return MoveObjectResult(copyResponse.copyObjectResult(), deleteResult)
+    return MoveObjectResult(copyResponse.copyObjectResult(), deleteResponse)
 }
 
 /**
@@ -316,31 +369,19 @@ fun S3Client.moveObjectAtomic(
 
     if (result.isPartialSuccess) {
         // 복사는 성공했지만 삭제가 실패한 경우, 롤백 시도
-        log.warn(
-            "Move partially succeeded. Attempting rollback by deleting copied object. Dest: {}/{}",
-            destBucketName,
-            destKey,
-        )
+        log.warn { "Move partially succeeded. Attempting rollback by deleting copied object. Dest: $destBucketName/$destKey" }
 
         runCatching {
             deleteObject { it.bucket(destBucketName).key(destKey) }
         }.onFailure { error ->
-            log.error(
-                "Rollback failed! Copied object may remain at destination. Dest: {}/{}",
-                destBucketName,
-                destKey,
-                error,
-            )
+            log.error(error) { "Rollback failed! Copied object may remain at destination. Dest: $destBucketName/$destKey" }
             throw IllegalStateException(
-                "Move failed and rollback also failed. " +
-                        "Copied object remains at $destBucketName/$destKey",
-                error,
+                "Move failed and rollback also failed. Copied object remains at $destBucketName/$destKey",
+                error
             )
         }
 
-        throw IllegalStateException(
-            "Move failed: copy succeeded but delete failed. Rollback completed.",
-        )
+        error("Move failed: copy succeeded but delete failed. Rollback completed.")
     }
 
     return result

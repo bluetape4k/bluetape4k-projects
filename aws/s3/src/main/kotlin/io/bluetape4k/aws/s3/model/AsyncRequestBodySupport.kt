@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package io.bluetape4k.aws.s3.model
 
 import org.reactivestreams.Publisher
@@ -10,12 +12,14 @@ import java.nio.file.Path
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.ForkJoinPool
 
-fun String.toAsyncRequestBody(cs: Charset = Charsets.UTF_8): AsyncRequestBody = AsyncRequestBody.fromString(this, cs)
-fun ByteArray.toAsyncRequestBody(): AsyncRequestBody = AsyncRequestBody.fromBytes(this)
-fun ByteBuffer.toAsyncRequestBody(): AsyncRequestBody = AsyncRequestBody.fromByteBuffer(this)
-fun File.toAsyncRequestBody(): AsyncRequestBody = AsyncRequestBody.fromFile(this)
-fun Path.toAsyncRequestBody(): AsyncRequestBody = AsyncRequestBody.fromFile(this)
-fun InputStream.toAsyncRequestBody(
+inline fun String.toAsyncRequestBody(charset: Charset = Charsets.UTF_8): AsyncRequestBody =
+    AsyncRequestBody.fromString(this, charset)
+
+inline fun ByteArray.toAsyncRequestBody(): AsyncRequestBody = AsyncRequestBody.fromBytes(this)
+inline fun ByteBuffer.toAsyncRequestBody(): AsyncRequestBody = AsyncRequestBody.fromByteBuffer(this)
+inline fun File.toAsyncRequestBody(): AsyncRequestBody = AsyncRequestBody.fromFile(this)
+inline fun Path.toAsyncRequestBody(): AsyncRequestBody = AsyncRequestBody.fromFile(this)
+inline fun InputStream.toAsyncRequestBody(
     contentLength: Long,
     executor: ExecutorService = ForkJoinPool.commonPool(),
 ): AsyncRequestBody {
@@ -23,16 +27,16 @@ fun InputStream.toAsyncRequestBody(
     return AsyncRequestBody.fromInputStream(this, contentLength, executor)
 }
 
-fun asyncRequestBodyOf(text: String, cs: Charset = Charsets.UTF_8): AsyncRequestBody =
+inline fun asyncRequestBodyOf(text: String, cs: Charset = Charsets.UTF_8): AsyncRequestBody =
     AsyncRequestBody.fromString(text, cs)
 
-fun asyncRequestBodyOf(bytes: ByteArray): AsyncRequestBody = AsyncRequestBody.fromBytes(bytes)
-fun asyncRequestBodyOf(byteBuffer: ByteBuffer): AsyncRequestBody = AsyncRequestBody.fromByteBuffer(byteBuffer)
+inline fun asyncRequestBodyOf(bytes: ByteArray): AsyncRequestBody = AsyncRequestBody.fromBytes(bytes)
+inline fun asyncRequestBodyOf(byteBuffer: ByteBuffer): AsyncRequestBody = AsyncRequestBody.fromByteBuffer(byteBuffer)
 
-fun asyncRequestBodyOf(file: File): AsyncRequestBody = AsyncRequestBody.fromFile(file)
-fun asyncRequestBodyOf(path: Path): AsyncRequestBody = AsyncRequestBody.fromFile(path)
+inline fun asyncRequestBodyOf(file: File): AsyncRequestBody = AsyncRequestBody.fromFile(file)
+inline fun asyncRequestBodyOf(path: Path): AsyncRequestBody = AsyncRequestBody.fromFile(path)
 
-fun asyncRequestBodyOf(
+inline fun asyncRequestBodyOf(
     inputStream: InputStream,
     contentLength: Long,
     executor: ExecutorService = ForkJoinPool.commonPool(),
@@ -41,7 +45,7 @@ fun asyncRequestBodyOf(
     return AsyncRequestBody.fromInputStream(inputStream, contentLength, executor)
 }
 
-fun asyncRequestBodyOf(
+inline fun asyncRequestBodyOf(
     contentPublisher: Publisher<ByteBuffer>,
 ): AsyncRequestBody {
     return AsyncRequestBody.fromPublisher(contentPublisher)

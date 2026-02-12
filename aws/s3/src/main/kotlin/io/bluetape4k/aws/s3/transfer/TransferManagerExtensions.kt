@@ -93,7 +93,7 @@ inline fun S3TransferManager.downloadFile(
  * @param bucket bucket name
  * @param key key
  * @param asyncRequestBody 업로드할 객체
- * @param additionalUploadRequest  추가로 구성할 [UploadRequest.Builder]를 구성하는 람다 함수
+ * @param builder  추가로 구성할 [UploadRequest.Builder]를 구성하는 람다 함수
  * @receiver
  * @return
  */
@@ -101,12 +101,15 @@ inline fun S3TransferManager.upload(
     bucket: String,
     key: String,
     asyncRequestBody: AsyncRequestBody,
-    @BuilderInference additionalUploadRequest: UploadRequest.Builder.() -> Unit = {},
+    @BuilderInference builder: UploadRequest.Builder.() -> Unit = {},
 ): Upload {
+    bucket.requireNotBlank("bucket")
+    key.requireNotBlank("key")
+
     val request = uploadRequest {
         putObjectRequest(putObjectRequestOf(bucket, key))
         requestBody(asyncRequestBody)
-        additionalUploadRequest(this)
+        builder()
     }
     return upload(request)
 }
@@ -121,10 +124,9 @@ inline fun S3TransferManager.uploadByteArray(
     key.requireNotBlank("key")
 
     val request = uploadRequest {
-        this.putObjectRequest(putObjectRequestOf(bucket, key))
-        this.requestBody(content.toAsyncRequestBody())
-
-        builder(this)
+        putObjectRequest(putObjectRequestOf(bucket, key))
+        requestBody(content.toAsyncRequestBody())
+        builder()
     }
 
     return upload(request)
@@ -141,9 +143,8 @@ inline fun S3TransferManager.uploadFile(
     require(source.exists()) { "File not found. source=$source" }
 
     val request = uploadFileRequest {
-        this.putObjectRequest(putObjectRequestOf(bucket, key))
-        this.source(source)
-
+        putObjectRequest(putObjectRequestOf(bucket, key))
+        source(source)
         builder()
     }
 

@@ -23,9 +23,8 @@ fun getObjectRequestOf(
     key: String,
     versionId: String? = null,
     partNumber: Int? = null,
-): GetObjectRequest {
-    return getObjectRequest(bucket, key) {
+): GetObjectRequest =
+    getObjectRequest(bucket, key) {
         versionId?.let { versionId(it) }
         partNumber?.let { partNumber(it) }
     }
-}
