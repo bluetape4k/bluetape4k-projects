@@ -8,9 +8,9 @@ configurations {
 
 dependencies {
     api(project(":bluetape4k-aws-core"))
-    api(project(":bluetape4k-idgenerators"))
-    api(project(":bluetape4k-jackson"))
-    api(project(":bluetape4k-resilience4j"))
+    implementation(project(":bluetape4k-idgenerators"))
+    implementation(project(":bluetape4k-jackson"))
+    implementation(project(":bluetape4k-resilience4j"))
     testImplementation(project(":bluetape4k-junit5"))
 
     // AWS SDK V2
@@ -19,9 +19,10 @@ dependencies {
     testImplementation(Libs.aws2_test_utils)
 
     // Coroutines
-    compileOnly(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
-    compileOnly(Libs.kotlinx_coroutines_reactor)
+    implementation(project(":bluetape4k-coroutines"))
+    implementation(Libs.kotlinx_coroutines_core)
+    implementation(Libs.kotlinx_coroutines_reactive)
+    implementation(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_test)
 
     // Localstack
@@ -29,11 +30,12 @@ dependencies {
     testImplementation(Libs.testcontainers_localstack)
 
     // Spring Boot
-    testImplementation(Libs.springBootStarter("aop"))
+    // testImplementation(Libs.springBootStarter("aop"))
     testImplementation(Libs.springBootStarter("webflux"))
     testImplementation(Libs.springBootStarter("test")) {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(group = "junit", module = "junit")
+        exclude(module = "mockito-core")
     }
 
     testImplementation(Libs.jakarta_el_api)

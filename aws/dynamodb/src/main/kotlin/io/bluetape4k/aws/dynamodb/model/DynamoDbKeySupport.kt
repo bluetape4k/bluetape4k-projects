@@ -5,7 +5,7 @@ import software.amazon.awssdk.enhanced.dynamodb.Key
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 
 /**
- * DynamoDB의 [Key]를 생성합니다.
+ * DynamoDB의 [key]를 생성합니다.
  *
  * ```
  * val key = Key {
@@ -14,9 +14,9 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue
  * }
  * ```
  * @param builder [Key.Builder]를 초기화하는 람다 함수입니다.
- * @return [Key] 객체를 반환합니다.
+ * @return [key] 객체를 반환합니다.
  */
-inline fun Key(@BuilderInference builder: Key.Builder.() -> Unit): Key {
+inline fun key(@BuilderInference builder: Key.Builder.() -> Unit): Key {
     return Key.builder().apply(builder).build()
 }
 
@@ -32,8 +32,8 @@ inline fun Key(@BuilderInference builder: Key.Builder.() -> Unit): Key {
  *
  * @return [Key] 객체를 반환합니다.
  */
-fun dynamoDbKeyOf(partitionKey: AttributeValue, sortValue: AttributeValue? = null): Key =
-    Key {
+fun keyOf(partitionKey: AttributeValue, sortValue: AttributeValue? = null): Key =
+    key {
         partitionValue(partitionKey)
         sortValue(sortValue)
     }
@@ -50,18 +50,18 @@ fun dynamoDbKeyOf(partitionKey: AttributeValue, sortValue: AttributeValue? = nul
  *
  * @return [Key] 객체를 반환합니다.
  */
-fun dynamoDbKeyOf(partitionValue: Any, sortValue: Any? = null): Key =
-    Key {
+fun keyOf(partitionValue: Any, sortValue: Any? = null): Key =
+    key {
         when (partitionValue) {
-            is Number -> partitionValue(partitionValue)
+            is Number    -> partitionValue(partitionValue)
             is ByteArray -> partitionValue(partitionValue.toSdkBytes())
-            else -> partitionValue(partitionValue.toString())
+            else         -> partitionValue(partitionValue.toString())
         }
         sortValue?.let {
             when (sortValue) {
-                is Number -> sortValue(sortValue)
+                is Number    -> sortValue(sortValue)
                 is ByteArray -> sortValue(sortValue.toSdkBytes())
-                else -> sortValue(sortValue.toString())
+                else         -> sortValue(sortValue.toString())
             }
         }
     }

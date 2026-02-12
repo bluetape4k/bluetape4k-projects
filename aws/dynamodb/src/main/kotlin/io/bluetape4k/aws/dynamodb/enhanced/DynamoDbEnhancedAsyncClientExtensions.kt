@@ -13,76 +13,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.future.await
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbAsyncTable
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClientExtension
 import software.amazon.awssdk.enhanced.dynamodb.MappedTableResource
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema
-import software.amazon.awssdk.enhanced.dynamodb.internal.client.ExtensionResolver
 import software.amazon.awssdk.enhanced.dynamodb.model.BatchWriteResult
-import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient
-
-/**
- * [DynamoDbEnhancedAsyncClient] 를 생성합니다.
- *
- * ```
- * val client = dynamoDbEnhancedAsyncClient {
- *    dynamoDbClient(DynamoDbAsyncClient.create())
- * }
- * ```
- *
- * @param builder [DynamoDbEnhancedAsyncClient.Builder] 를 초기화하는 람다 함수
- * @return [DynamoDbEnhancedAsyncClient] instance
- */
-inline fun dynamoDbEnhancedAsyncClient(
-    @BuilderInference builder: DynamoDbEnhancedAsyncClient.Builder.() -> Unit,
-): DynamoDbEnhancedAsyncClient {
-    return DynamoDbEnhancedAsyncClient.builder().apply(builder).build()
-}
-
-/**
- * [DynamoDbEnhancedAsyncClient] 를 생성합니다.
- *
- * ```
- * val client = dynamoDbEnhancedAsyncClientOf(DynamoDbAsyncClient.create()) {
- *   extensions(ExtensionResolver.defaultExtensions())
- * }
- * ```
- *
- * @param client [DynamoDbAsyncClient] instance
- * @param builder [DynamoDbEnhancedAsyncClient.Builder] 를 초기화하는 람다 함수
- * @return [DynamoDbEnhancedAsyncClient] instance
- */
-inline fun dynamoDbEnhancedAsyncClientOf(
-    client: DynamoDbAsyncClient,
-    @BuilderInference builder: DynamoDbEnhancedAsyncClient.Builder.() -> Unit =
-        { extensions(ExtensionResolver.defaultExtensions()) },
-): DynamoDbEnhancedAsyncClient =
-    dynamoDbEnhancedAsyncClient {
-        dynamoDbClient(client)
-        builder()
-    }
-
-/**
- * [DynamoDbEnhancedAsyncClient] 를 생성합니다.
- *
- * ```
- * val client = dynamoDbEnhancedAsyncClientOf(
- *      DynamoDbAsyncClient.create(),
- *      *ExtensionResolver.defaultExtensions().toTypedArray()
- * )
- * ```
- *
- * @param client [DynamoDbAsyncClient] instance
- * @param extensions [DynamoDbEnhancedClientExtension] extensions
- * @return [DynamoDbEnhancedAsyncClient] instance
- */
-fun dynamoDbEnhancedAsyncClientOf(
-    client: DynamoDbAsyncClient,
-    vararg extensions: DynamoDbEnhancedClientExtension = ExtensionResolver.defaultExtensions().toTypedArray(),
-): DynamoDbEnhancedAsyncClient = dynamoDbEnhancedAsyncClient {
-    dynamoDbClient(client)
-    extensions(*extensions)
-}
-
 
 /**
  * ([tableName]) 이름의 DynamoDb Table 을 생성합니다.
@@ -95,7 +28,6 @@ inline fun <reified T: Any> DynamoDbEnhancedAsyncClient.table(tableName: String)
     tableName.requireNotBlank("tableName")
     return table(tableName, TableSchema.fromBean(T::class.java))
 }
-
 
 /**
  * 대량의 Item 을 저장할 때, [DynamoDb.MAX_BATCH_ITEM_SIZE] 만큼의 크기로 나누어 저장한다.
@@ -114,14 +46,32 @@ fun <T: Any> DynamoDbEnhancedAsyncClient.batchWriteItems(
     chunkSize: Int = MAX_BATCH_ITEM_SIZE,
 ): Flow<BatchWriteResult> {
     val chunk = chunkSize.coerceIn(1, MAX_BATCH_ITEM_SIZE)
-    return items.asFlow()
+
+    return items
+        .asFlow()
         .buffer(chunk)
         .chunked(chunk)
         .map { chunkedItems ->
-            val request = BatchWriteItemEnhancedRequest {
-                val writeBatch = writeBatchOf(table, chunkedItems, itemClass)
-                addWriteBatch(writeBatch)
-            }
+            val request =
+                BatchWriteItemEnhancedRequest {
+                    addWriteBatch(writeBatchOf(table, chunkedItems, itemClass))
+                }
             batchWriteItem(request).await()
         }
 }
+
+/**
+ * 대량의 Item 을 저장할 때, [DynamoDb.MAX_BATCH_ITEM_SIZE] 만큼의 크기로 나누어 저장한다.
+ *
+ * @param T
+ * @param table [DynamoDbAsyncTable] instance
+ * @param items 저장할 item 컬렉션
+ * @param chunkSize [DynamoDb.MAX_BATCH_ITEM_SIZE] 보다 작은 값을 사용해야 한다 (1~25)
+ * @return [BatchWriteResult] 컬렉션
+ */
+inline fun <reified T: Any> DynamoDbEnhancedAsyncClient.batchWriteItems(
+    table: MappedTableResource<T>,
+    items: Collection<T>,
+    chunkSize: Int = MAX_BATCH_ITEM_SIZE,
+): Flow<BatchWriteResult> =
+    batchWriteItems(T::class.java, table, items, chunkSize)

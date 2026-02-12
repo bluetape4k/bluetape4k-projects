@@ -2,7 +2,7 @@ package io.bluetape4k.aws.dynamodb.repository
 
 import io.bluetape4k.aws.dynamodb.enhanced.batchWriteItems
 import io.bluetape4k.aws.dynamodb.model.DynamoDbEntity
-import io.bluetape4k.aws.dynamodb.model.dynamoDbKeyOf
+import io.bluetape4k.aws.dynamodb.model.keyOf
 import io.bluetape4k.coroutines.flow.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
@@ -28,13 +28,13 @@ interface DynamoDbCoroutineRepository<T: DynamoDbEntity> {
         return table.getItem(key).await()
     }
 
-    suspend fun findFirst(request: QueryEnhancedRequest): Flow<T> {
+    suspend fun findFirst(request: QueryEnhancedRequest): List<T> {
         return table.query(request).findFirst()
     }
 
-    suspend fun findFirstByPartitionKey(partitionKey: String): Flow<T> {
+    suspend fun findFirstByPartitionKey(partitionKey: String): List<T> {
         val request = QueryEnhancedRequest.builder()
-            .queryConditional(QueryConditional.keyEqualTo(dynamoDbKeyOf(partitionKey)))
+            .queryConditional(QueryConditional.keyEqualTo(keyOf(partitionKey)))
             .build()
         return findFirst(request)
     }

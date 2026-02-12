@@ -6,36 +6,10 @@ import io.bluetape4k.aws.dynamodb.model.BatchWriteItemEnhancedRequest
 import io.bluetape4k.aws.dynamodb.model.writeBatchOf
 import io.bluetape4k.support.requireNotBlank
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClientExtension
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable
 import software.amazon.awssdk.enhanced.dynamodb.MappedTableResource
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema
-import software.amazon.awssdk.enhanced.dynamodb.internal.client.ExtensionResolver
 import software.amazon.awssdk.enhanced.dynamodb.model.BatchWriteResult
-import software.amazon.awssdk.services.dynamodb.DynamoDbClient
-
-inline fun dynamoDbEnhancedClient(
-    @BuilderInference builder: DynamoDbEnhancedClient.Builder.() -> Unit,
-): DynamoDbEnhancedClient {
-    return DynamoDbEnhancedClient.builder().apply(builder).build()
-}
-
-inline fun dynamoDbEnhancedClientOf(
-    client: DynamoDbClient,
-    @BuilderInference builder: DynamoDbEnhancedClient.Builder.() -> Unit =
-        { extensions(ExtensionResolver.defaultExtensions()) },
-): DynamoDbEnhancedClient = dynamoDbEnhancedClient {
-    dynamoDbClient(client)
-    builder()
-}
-
-fun dynamoDbEnhancedClientOf(
-    client: DynamoDbClient,
-    vararg extensions: DynamoDbEnhancedClientExtension = ExtensionResolver.defaultExtensions().toTypedArray(),
-): DynamoDbEnhancedClient = dynamoDbEnhancedClient {
-    dynamoDbClient(client)
-    extensions(*extensions)
-}
 
 /**
  * Create DynamoDb Table with specific name ([tableName])
@@ -69,10 +43,10 @@ fun <T: Any> DynamoDbEnhancedClient.batchWriteItems(
     return items
         .chunked(chunk)
         .map { chunkedItems ->
-            val request = BatchWriteItemEnhancedRequest {
-                val writeBatch = writeBatchOf(table, chunkedItems, itemClass)
-                addWriteBatch(writeBatch)
-            }
+            val request =
+                BatchWriteItemEnhancedRequest {
+                    addWriteBatch(writeBatchOf(table, chunkedItems, itemClass))
+                }
             batchWriteItem(request)
         }
 }
@@ -90,15 +64,16 @@ inline fun <reified T: Any> DynamoDbEnhancedClient.batchWriteItems(
     table: MappedTableResource<T>,
     items: Collection<T>,
     chunkSize: Int = MAX_BATCH_ITEM_SIZE,
-): List<BatchWriteResult> {
-    val chunk = chunkSize.coerceIn(1, MAX_BATCH_ITEM_SIZE)
-    return items
-        .chunked(chunk)
-        .map { chunkedItems ->
-            val request = BatchWriteItemEnhancedRequest {
-                val writeBatch = writeBatchOf<T>(table, chunkedItems)
-                addWriteBatch(writeBatch)
-            }
-            batchWriteItem(request)
-        }
-}
+): List<BatchWriteResult> = batchWriteItems(T::class.java, table, items, chunkSize)
+
+/**
+ * 테이블이 존재하는지 확인합니다.
+ *
+ * @param tableName 확인할 테이블 이름
+ * @return 존재 여부
+ */
+fun DynamoDbEnhancedClient.existsTable(tableName: String): Boolean =
+    runCatching {
+        table<Any>(tableName).describeTable()
+        true
+    }.getOrDefault(false)

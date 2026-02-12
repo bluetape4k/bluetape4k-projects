@@ -6,12 +6,10 @@ import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import software.amazon.awssdk.services.dynamodb.DynamoDbClientBuilder
-import software.amazon.awssdk.services.dynamodb.streams.DynamoDbStreamsClient
-import software.amazon.awssdk.services.dynamodb.streams.DynamoDbStreamsClientBuilder
 import java.net.URI
 
 /**
- * [DynamoDbClient]를 빌드해주는 함수입니다.
+ * [dynamoDbClient]를 빌드해주는 함수입니다.
  * JVM 종료 시 자동으로 자원을 해제합니다
  *
  * ```
@@ -23,9 +21,9 @@ import java.net.URI
  * }
  * ```
  *
- * @return [DynamoDbClient] 인스턴스
+ * @return [dynamoDbClient] 인스턴스
  */
-inline fun DynamoDbClient(
+inline fun dynamoDbClient(
     @BuilderInference builder: DynamoDbClientBuilder.() -> Unit,
 ): DynamoDbClient {
     return DynamoDbClient.builder().apply(builder).build()
@@ -55,57 +53,7 @@ inline fun dynamoDbClientOf(
     region: Region,
     credentialsProvider: AwsCredentialsProvider,
     @BuilderInference builder: DynamoDbClientBuilder.() -> Unit = {},
-): DynamoDbClient = DynamoDbClient {
-    endpointOverride(endpoint)
-    region(region)
-    credentialsProvider(credentialsProvider)
-    httpClient(SdkHttpClientProvider.Apache.apacheHttpClient)
-
-    builder()
-}
-
-/**
- * [DynamoDbStreamsClient]를 빌드해주는 함수입니다.
- *
- * ```
- * val dynamoDbStreamsClient = DynamoDbStreamsClient {
- *     credentialsProvider(credentialsProvider)
- *     endpointOverride(endpoint)
- *     region(region)
- *     httpClient(SdkHttpClientProvider.Apache.apacheHttpClient)
- * }
- * ```
- *
- * @return [DynamoDbStreamsClient] 인스턴스
- */
-inline fun DynamoDbStreamsClient(
-    @BuilderInference builder: DynamoDbStreamsClientBuilder.() -> Unit,
-): DynamoDbStreamsClient {
-    return DynamoDbStreamsClient.builder().apply(builder).build()
-}
-
-/**
- * [DynamoDbStreamsClient]를 빌드해주는 함수입니다.
- *
- * ```
- * val dynamoDbStreamsClient = dynamoDbStreamsClientOf(
- *    endpoint = endpoint,
- *    region = region,
- *    credentialsProvider = credentialsProvider,
- * ) {
- *    httpClient(SdkHttpClientProvider.Apache.apacheHttpClient)
- * }
- * ```
- *
- * @return [DynamoDbStreamsClient] 인스턴스
- * @see [DynamoDbStreamsClient]
- */
-inline fun dynamoDbStreamsClientOf(
-    endpoint: URI,
-    region: Region,
-    credentialsProvider: AwsCredentialsProvider,
-    @BuilderInference builder: DynamoDbStreamsClientBuilder.() -> Unit = {},
-): DynamoDbStreamsClient = DynamoDbStreamsClient {
+): DynamoDbClient = dynamoDbClient {
     endpointOverride(endpoint)
     region(region)
     credentialsProvider(credentialsProvider)

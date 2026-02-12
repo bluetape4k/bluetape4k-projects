@@ -5,6 +5,7 @@ import io.bluetape4k.aws.dynamodb.examples.food.model.FoodDocument
 import io.bluetape4k.aws.dynamodb.examples.food.model.FoodState
 import io.bluetape4k.aws.dynamodb.examples.food.repository.FoodRepository
 import io.bluetape4k.collections.eclipse.fastList
+import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -47,12 +48,11 @@ class FoodRepositoryTest: AbstractFoodApplicationTest() {
 
         yield()
 
-        val foods = repository
-            .findByPartitionKey(
-                food.partitionKey,
-                Instant.now().minusSeconds(90_000L),
-                Instant.now()
-            ).toFastList()
+        val foods = repository.findByPartitionKey(
+            food.partitionKey,
+            Instant.now().minusSeconds(90_000L),
+            Instant.now()
+        )
 
         foods shouldContain food
     }
@@ -73,7 +73,6 @@ class FoodRepositoryTest: AbstractFoodApplicationTest() {
                 Instant.now().minusSeconds(100L),
                 Instant.now()
             )
-            .toFastList()
 
         loadedFoods.shouldNotBeEmpty()
     }
@@ -100,7 +99,7 @@ class FoodRepositoryTest: AbstractFoodApplicationTest() {
             food.partitionKey,
             Instant.now().minusSeconds(1000L),
             Instant.now()
-        ).toFastList()
+        ).toList()
 
         loadedFoods shouldNotContainAny foods
     }

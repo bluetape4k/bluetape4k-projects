@@ -4,12 +4,11 @@ import io.bluetape4k.aws.dynamodb.enhanced.table
 import io.bluetape4k.aws.dynamodb.examples.food.model.FoodDocument
 import io.bluetape4k.aws.dynamodb.examples.food.model.Schema
 import io.bluetape4k.aws.dynamodb.model.QueryEnhancedRequest
-import io.bluetape4k.aws.dynamodb.model.dynamoDbKeyOf
+import io.bluetape4k.aws.dynamodb.model.keyOf
 import io.bluetape4k.aws.dynamodb.repository.DynamoDbCoroutineRepository
 import io.bluetape4k.aws.dynamodb.repository.findFirst
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
-import kotlinx.coroutines.flow.Flow
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Repository
@@ -35,14 +34,18 @@ class FoodRepository(
         partitionKey: String,
         updatedAtFrom: Instant,
         updatedAtTo: Instant,
-    ): Flow<FoodDocument> {
-        val fromKey = dynamoDbKeyOf(partitionKey, updatedAtFrom.toString())
-        val toKey = dynamoDbKeyOf(partitionKey, updatedAtTo.toString())
+    ): List<FoodDocument> {
+        val fromKey = keyOf(partitionKey, updatedAtFrom.toString())
+        val toKey = keyOf(partitionKey, updatedAtTo.toString())
 
         val queryRequest = QueryEnhancedRequest {
             queryConditional(QueryConditional.sortBetween(fromKey, toKey))
         }
         log.info { "queryRequest=$queryRequest" }
-        return table.index(Schema.IDX_PK_UPDATED_AT).query(queryRequest).findFirst()
+
+        return table
+            .index(Schema.IDX_PK_UPDATED_AT)
+            .query(queryRequest)
+            .findFirst()
     }
 }

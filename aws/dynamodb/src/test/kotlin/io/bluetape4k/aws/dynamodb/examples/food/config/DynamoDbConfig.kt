@@ -1,6 +1,6 @@
 package io.bluetape4k.aws.dynamodb.examples.food.config
 
-import io.bluetape4k.aws.dynamodb.DynamoDbAsyncClient
+import io.bluetape4k.aws.dynamodb.dynamoDbAsyncClient
 import io.bluetape4k.aws.dynamodb.enhanced.dynamoDbEnhancedAsyncClientOf
 import io.bluetape4k.aws.dynamodb.schema.DynamoDbAsyncTableCreator
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -24,7 +24,7 @@ class DynamoDbConfig(
 
     @Bean(name = ["amazonDynamoDb"])
     fun dynamoDbAsyncClient(): DynamoDbAsyncClient {
-        return DynamoDbAsyncClient {
+        return dynamoDbAsyncClient {
             endpointOverride(URI.create(endpoint))
             region(Region.of(awsRegion))
             credentialsProvider(awsCredentialsProvider)

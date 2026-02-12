@@ -2,7 +2,7 @@ package io.bluetape4k.aws.dynamodb.query
 
 import io.bluetape4k.aws.dynamodb.model.DynamoDbEntity
 import io.bluetape4k.aws.dynamodb.model.QueryEnhancedRequest
-import io.bluetape4k.aws.dynamodb.model.dynamoDbKeyOf
+import io.bluetape4k.aws.dynamodb.model.keyOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireNotNull
@@ -78,34 +78,34 @@ class EnhancedQueryBuilderKt<T: Any> {
 
                 when (sk.comparisonOperator) {
                     is BeginsWith          -> QueryConditional.sortBeginsWith(
-                        dynamoDbKeyOf(primaryKey!!.equals.right, sk.comparisonOperator.right)
+                        keyOf(primaryKey!!.equals.right, sk.comparisonOperator.right)
                     )
 
                     is GreaterThan         -> QueryConditional.sortGreaterThan(
-                        dynamoDbKeyOf(primaryKey!!.equals.right, sk.comparisonOperator.right)
+                        keyOf(primaryKey!!.equals.right, sk.comparisonOperator.right)
                     )
 
                     is GreaterThanOrEquals -> QueryConditional.sortGreaterThanOrEqualTo(
-                        dynamoDbKeyOf(primaryKey!!.equals.right, sk.comparisonOperator.right)
+                        keyOf(primaryKey!!.equals.right, sk.comparisonOperator.right)
                     )
 
                     is LessThan            -> QueryConditional.sortLessThan(
-                        dynamoDbKeyOf(primaryKey!!.equals.right, sk.comparisonOperator.right)
+                        keyOf(primaryKey!!.equals.right, sk.comparisonOperator.right)
                     )
 
                     is LessThanOrEquals    -> QueryConditional.sortLessThanOrEqualTo(
-                        dynamoDbKeyOf(primaryKey!!.equals.right, sk.comparisonOperator.right)
+                        keyOf(primaryKey!!.equals.right, sk.comparisonOperator.right)
                     )
 
                     is Between             -> QueryConditional.sortBetween(
-                        dynamoDbKeyOf(sk.sortKeyName, sk.comparisonOperator.left.toString()),
-                        dynamoDbKeyOf(sk.sortKeyName, sk.comparisonOperator.right.toString())
+                        keyOf(sk.sortKeyName, sk.comparisonOperator.left.toString()),
+                        keyOf(sk.sortKeyName, sk.comparisonOperator.right.toString())
                     )
 
                     else                   ->
                         throw UnsupportedOperationException("Unknown comparison operator: ${sk.comparisonOperator}")
                 }
-            } ?: QueryConditional.keyEqualTo(dynamoDbKeyOf(primaryKey!!.equals.right))
+            } ?: QueryConditional.keyEqualTo(keyOf(primaryKey!!.equals.right))
 
             queryConditional(conditional)
 

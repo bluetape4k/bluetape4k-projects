@@ -4,10 +4,9 @@ import io.bluetape4k.aws.dynamodb.enhanced.table
 import io.bluetape4k.aws.dynamodb.examples.food.model.CustomerDocument
 import io.bluetape4k.aws.dynamodb.examples.food.model.Schema
 import io.bluetape4k.aws.dynamodb.model.QueryEnhancedRequest
-import io.bluetape4k.aws.dynamodb.model.dynamoDbKeyOf
+import io.bluetape4k.aws.dynamodb.model.keyOf
 import io.bluetape4k.aws.dynamodb.repository.DynamoDbCoroutineRepository
 import io.bluetape4k.aws.dynamodb.repository.findFirst
-import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -31,8 +30,8 @@ class CustomerRepository(
 
     suspend fun findByPartitionKey(partitionKey: String): List<CustomerDocument> {
         val queryRequest = QueryEnhancedRequest {
-            queryConditional(QueryConditional.keyEqualTo(dynamoDbKeyOf(partitionKey)))
+            queryConditional(QueryConditional.keyEqualTo(keyOf(partitionKey)))
         }
-        return table.query(queryRequest).findFirst().toFastList()
+        return table.query(queryRequest).findFirst().toList()
     }
 }
