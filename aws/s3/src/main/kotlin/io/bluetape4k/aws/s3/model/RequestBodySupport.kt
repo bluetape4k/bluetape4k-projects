@@ -12,7 +12,9 @@ import java.nio.file.Path
 
 const val DEFAULT_MIME_TYPE: String = "application/octet-stream"
 
-inline fun String.toRequestBody(charset: Charset = Charsets.UTF_8): RequestBody = RequestBody.fromString(this, charset)
+inline fun String.toRequestBody(charset: Charset = Charsets.UTF_8): RequestBody =
+    RequestBody.fromString(this, charset)
+
 inline fun ByteArray.toRequestBody(): RequestBody = RequestBody.fromBytes(this)
 inline fun ByteBuffer.toRequestBody(): RequestBody = RequestBody.fromByteBuffer(this)
 inline fun File.toRequestBody(): RequestBody = RequestBody.fromFile(this)
@@ -22,7 +24,9 @@ inline fun InputStream.toRequestBody(contentLength: Long): RequestBody {
     return RequestBody.fromInputStream(this, contentLength)
 }
 
-inline fun requestBodyOf(text: String, cs: Charset = Charsets.UTF_8): RequestBody = RequestBody.fromString(text, cs)
+inline fun requestBodyOf(text: String, charset: Charset = Charsets.UTF_8): RequestBody =
+    RequestBody.fromString(text, charset)
+
 inline fun requestBodyOf(bytes: ByteArray): RequestBody = RequestBody.fromBytes(bytes)
 inline fun requestBodyOf(byteBuffer: ByteBuffer): RequestBody = RequestBody.fromByteBuffer(byteBuffer)
 
@@ -40,6 +44,5 @@ inline fun requestBodyOf(
 fun requestBodyOf(
     mimeType: String = DEFAULT_MIME_TYPE,
     contentProvider: () -> InputStream,
-): RequestBody {
-    return RequestBody.fromContentProvider(contentProvider, mimeType)
-}
+): RequestBody =
+    RequestBody.fromContentProvider(contentProvider, mimeType)

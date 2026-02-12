@@ -22,8 +22,8 @@ import java.nio.file.Path
  * @param bucketName 존재를 파악할 Bucket name
  * @return 존재 여부
  */
-suspend inline fun S3AsyncClient.existsBucketSuspending(bucketName: String): Boolean =
-    existsBucket(bucketName).await()
+suspend inline fun S3AsyncClient.existsBucket(bucketName: String): Boolean =
+    existsBucketAsync(bucketName).await()
 
 /**
  * [bucketName]의 Bucket을 생성합니다.
@@ -32,11 +32,11 @@ suspend inline fun S3AsyncClient.existsBucketSuspending(bucketName: String): Boo
  * @param builder 요청 설정을 위한 빌더
  * @return Bucket 생성 결과
  */
-suspend fun S3AsyncClient.createBucketSuspending(
+suspend fun S3AsyncClient.createBucket(
     bucketName: String,
     @BuilderInference builder: CreateBucketConfiguration.Builder.() -> Unit = {},
 ): CreateBucketResponse =
-    createBucket(bucketName, builder).await()
+    createBucketAsync(bucketName, builder).await()
 
 /**
  * S3 Object 를 download 한 후, ByteArray 로 반환합니다.
@@ -46,12 +46,12 @@ suspend fun S3AsyncClient.createBucketSuspending(
  * @param builder 요청 설정을 위한 빌더
  * @return 다욱받은 S3 Object의 ByteArray 형태의 정보
  */
-suspend inline fun S3AsyncClient.getAsByteArraySuspending(
+suspend inline fun S3AsyncClient.getAsByteArray(
     bucket: String,
     key: String,
     @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
 ): ByteArray =
-    getAsByteArray(bucket, key, builder).await()
+    getAsByteArrayAsync(bucket, key, builder).await()
 
 /**
  * S3 Object 를 download 한 후, 문자열로 반환합니다.
@@ -61,12 +61,12 @@ suspend inline fun S3AsyncClient.getAsByteArraySuspending(
  * @param builder 요청 설정을 위한 빌더
  * @return 다욱받은 S3 Object의 문자열 형태의 정보
  */
-suspend inline fun S3AsyncClient.getAsStringSuspending(
+suspend inline fun S3AsyncClient.getAsString(
     bucket: String,
     key: String,
     @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
 ): String =
-    getAsString(bucket, key, builder).await()
+    getAsStringAsync(bucket, key, builder).await()
 
 /**
  * S3 Object 를 download 한 후, [destinationPath]에 저장합니다.
@@ -77,13 +77,13 @@ suspend inline fun S3AsyncClient.getAsStringSuspending(
  * @param builder 요청 설정을 위한 빌더
  * @return 다욱받은 S3 Object의 정보
  */
-suspend inline fun S3AsyncClient.getAsFileSuspending(
+suspend inline fun S3AsyncClient.getAsFile(
     bucket: String,
     key: String,
     destinationPath: Path,
     @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
 ): GetObjectResponse =
-    getAsFile(bucket, key, destinationPath, builder).await()
+    getAsFileAsync(bucket, key, destinationPath, builder).await()
 
 /**
  * S3 서버로 [body]를 Upload 합니다.
@@ -94,13 +94,13 @@ suspend inline fun S3AsyncClient.getAsFileSuspending(
  * @param builder 요청 설정을 위한 빌더
  * @return S3에 저장된 결과
  */
-suspend inline fun S3AsyncClient.putSuspending(
+suspend inline fun S3AsyncClient.put(
     bucket: String,
     key: String,
     body: AsyncRequestBody,
     @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse =
-    put(bucket, key, body, builder).await()
+    putAsync(bucket, key, body, builder).await()
 
 /**
  * S3 서버로 [bytes]를 Upload 합니다.
@@ -111,13 +111,13 @@ suspend inline fun S3AsyncClient.putSuspending(
  * @param builder 요청 설정을 위한 빌더
  * @return S3에 저장된 결과
  */
-suspend inline fun S3AsyncClient.putAsByteArraySuspending(
+suspend inline fun S3AsyncClient.putAsByteArray(
     bucket: String,
     key: String,
     bytes: ByteArray,
     @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse =
-    putAsByteArray(bucket, key, bytes, builder).await()
+    putAsByteArrayAsync(bucket, key, bytes, builder).await()
 
 /**
  * S3 서버로 [contents]를 Upload 합니다.
@@ -128,14 +128,14 @@ suspend inline fun S3AsyncClient.putAsByteArraySuspending(
  * @param builder 요청 설정을 위한 빌더
  * @return S3에 저장된 결과
  */
-suspend inline fun S3AsyncClient.putAsStringSuspending(
+suspend inline fun S3AsyncClient.putAsString(
     bucket: String,
     key: String,
     contents: String,
     charset: Charset = Charsets.UTF_8,
     @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse =
-    putAsString(bucket, key, contents, charset, builder).await()
+    putAsStringAsync(bucket, key, contents, charset, builder).await()
 
 /**
  * S3 서버로 [file]을 Upload 합니다.
@@ -146,13 +146,13 @@ suspend inline fun S3AsyncClient.putAsStringSuspending(
  * @param builder 요청 설정을 위한 빌더
  * @return S3에 저장된 결과
  */
-suspend inline fun S3AsyncClient.putAsFileSuspending(
+suspend inline fun S3AsyncClient.putAsFile(
     bucket: String,
     key: String,
     file: File,
     @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse =
-    putAsFile(bucket, key, file, builder).await()
+    putAsFileAsync(bucket, key, file, builder).await()
 
 /**
  * S3 서버로 [path]의 파일을 Upload 합니다.
@@ -163,13 +163,13 @@ suspend inline fun S3AsyncClient.putAsFileSuspending(
  * @param builder 요청 설정을 위한 빌더
  * @return S3에 저장된 결과
  */
-suspend inline fun S3AsyncClient.putAsFileSuspending(
+suspend inline fun S3AsyncClient.putAsFile(
     bucket: String,
     key: String,
     path: Path,
     @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
 ): PutObjectResponse =
-    putAsFile(bucket, key, path, builder).await()
+    putAsFileAsync(bucket, key, path, builder).await()
 
 /**
  * [software.amazon.awssdk.services.s3.model.S3Object]를 Move 합니다.
@@ -182,13 +182,13 @@ suspend inline fun S3AsyncClient.putAsFileSuspending(
  * @param destKey 대상 object key
  * @return 이동 작업 결과
  */
-suspend fun S3AsyncClient.moveObjectSuspending(
+suspend fun S3AsyncClient.moveObject(
     srcBucketName: String,
     srcKey: String,
     destBucketName: String,
     destKey: String,
 ): MoveObjectResult =
-    moveObject(srcBucketName, srcKey, destBucketName, destKey).await()
+    moveObjectAsync(srcBucketName, srcKey, destBucketName, destKey).await()
 
 /**
  * [software.amazon.awssdk.services.s3.model.S3Object]를 Move 합니다.
@@ -199,11 +199,11 @@ suspend fun S3AsyncClient.moveObjectSuspending(
  * @param deleteObjectRequest 원본 삭제 request
  * @return 이동 작업 결과
  */
-suspend fun S3AsyncClient.moveObjectSuspending(
+suspend fun S3AsyncClient.moveObject(
     @BuilderInference copyObjectRequest: CopyObjectRequest.Builder.() -> Unit,
     @BuilderInference deleteObjectRequest: DeleteObjectRequest.Builder.() -> Unit,
 ): MoveObjectResult =
-    moveObject(copyObjectRequest, deleteObjectRequest).await()
+    moveObjectAsync(copyObjectRequest, deleteObjectRequest).await()
 
 /**
  * [software.amazon.awssdk.services.s3.model.S3Object]를 원자적으로 Move 합니다.
@@ -217,10 +217,10 @@ suspend fun S3AsyncClient.moveObjectSuspending(
  * @return 이동 작업 결과
  * @throws IllegalStateException 삭제 실패 시 복구도 실패한 경우
  */
-suspend fun S3AsyncClient.moveObjectAtomicSuspending(
+suspend fun S3AsyncClient.moveObjectAtomic(
     srcBucketName: String,
     srcKey: String,
     destBucketName: String,
     destKey: String,
 ): MoveObjectResult =
-    moveObjectAtomic(srcBucketName, srcKey, destBucketName, destKey).await()
+    moveObjectAtomicAsync(srcBucketName, srcKey, destBucketName, destKey).await()

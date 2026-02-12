@@ -26,28 +26,27 @@ private val log = KotlinLogging.logger { }
 /**
  * [S3TransferManager]를 이용하여 S3 Object 를 다운로드 받습니다.
  *
- * @param T
+ * @param T 반환 타입
  * @param responseTransformer 응답을 변환할 transformer
  * @param builder [DownloadRequest] 를 구성하는 람다 함수
  * @return [Download] 인스턴스
  */
-inline fun <T: Any> S3TransferManager.download(
+inline fun <T: Any> S3TransferManager.downloadAsync(
     responseTransformer: AsyncResponseTransformer<GetObjectResponse, T>,
     @BuilderInference builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
-): Download<T> =
-    download(downloadRequest(responseTransformer, builder))
+): Download<T> = download(downloadRequest(responseTransformer, builder))
 
 /**
  * [S3TransferManager]를 이용하여 S3 Object 를 다운로드 받습니다.
  *
- * @param T
+ * @param T 반환 타입
  * @param bucket bucket name
  * @param key key
  * @param responseTransformer 응답을 변환할 비동기 transformer
- * @param getObjectRequestBuilder [GetObjectRequest.Builder] 를 구성하는 람다 함수
+ * @param builder [GetObjectRequest.Builder] 를 구성하는 람다 함수
  * @return 다운로드한 S3 Object
  */
-inline fun <T: Any> S3TransferManager.download(
+inline fun <T: Any> S3TransferManager.downloadAsync(
     bucket: String,
     key: String,
     responseTransformer: AsyncResponseTransformer<GetObjectResponse, T>,
@@ -60,7 +59,15 @@ inline fun <T: Any> S3TransferManager.download(
     return download(request)
 }
 
-inline fun S3TransferManager.downloadAsByteArray(
+/**
+ * S3 Object 를 ByteArray 로 다운로드 받습니다.
+ *
+ * @param bucket bucket name
+ * @param key key
+ * @param builder [DownloadRequest.UntypedBuilder] 를 구성하는 람다 함수
+ * @return 다운로드한 S3 Object
+ */
+inline fun S3TransferManager.downloadAsByteArrayAsync(
     bucket: String,
     key: String,
     @BuilderInference crossinline builder: DownloadRequest.UntypedBuilder.() -> Unit = {},
@@ -74,7 +81,16 @@ inline fun S3TransferManager.downloadAsByteArray(
     return download(request)
 }
 
-inline fun S3TransferManager.downloadFile(
+/**
+ * S3 Object 를 파일로 다운로드 받습니다.
+ *
+ * @param bucket bucket name
+ * @param key key
+ * @param destination 저장할 파일 경로
+ * @param builder [DownloadFileRequest.Builder] 를 구성하는 람다 함수
+ * @return 다운로드한 S3 Object
+ */
+inline fun S3TransferManager.downloadFileAsync(
     bucket: String,
     key: String,
     destination: Path,
@@ -94,10 +110,9 @@ inline fun S3TransferManager.downloadFile(
  * @param key key
  * @param asyncRequestBody 업로드할 객체
  * @param builder  추가로 구성할 [UploadRequest.Builder]를 구성하는 람다 함수
- * @receiver
- * @return
+ * @return [Upload] 인스턴스
  */
-inline fun S3TransferManager.upload(
+inline fun S3TransferManager.uploadAsync(
     bucket: String,
     key: String,
     asyncRequestBody: AsyncRequestBody,
@@ -106,15 +121,25 @@ inline fun S3TransferManager.upload(
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
 
-    val request = uploadRequest {
-        putObjectRequest(putObjectRequestOf(bucket, key))
-        requestBody(asyncRequestBody)
-        builder()
-    }
+    val request =
+        uploadRequest {
+            putObjectRequest(putObjectRequestOf(bucket, key))
+            requestBody(asyncRequestBody)
+            builder()
+        }
     return upload(request)
 }
 
-inline fun S3TransferManager.uploadByteArray(
+/**
+ * ByteArray 를 S3에 업로드 합니다.
+ *
+ * @param bucket bucket name
+ * @param key key
+ * @param content 업로드할 ByteArray
+ * @param builder [UploadRequest.Builder] 를 구성하는 람다 함수
+ * @return [Upload] 인스턴스
+ */
+inline fun S3TransferManager.uploadByteArrayAsync(
     bucket: String,
     key: String,
     content: ByteArray,
@@ -123,16 +148,27 @@ inline fun S3TransferManager.uploadByteArray(
     bucket.requireNotBlank("bucket")
     key.requireNotBlank("key")
 
-    val request = uploadRequest {
-        putObjectRequest(putObjectRequestOf(bucket, key))
-        requestBody(content.toAsyncRequestBody())
-        builder()
-    }
+    val request =
+        uploadRequest {
+            putObjectRequest(putObjectRequestOf(bucket, key))
+            requestBody(content.toAsyncRequestBody())
+            builder()
+        }
 
     return upload(request)
 }
 
-inline fun S3TransferManager.uploadFile(
+/**
+ * 파일을 S3에 업로드 합니다.
+ *
+ * @param bucket bucket name
+ * @param key key
+ * @param source 업로드할 파일 경로
+ * @param builder [UploadFileRequest.Builder] 를 구성하는 람다 함수
+ * @return [FileUpload] 인스턴스
+ * @throws IllegalArgumentException 파일이 존재하지 않을 경우
+ */
+inline fun S3TransferManager.uploadFileAsync(
     bucket: String,
     key: String,
     source: Path,
@@ -142,11 +178,12 @@ inline fun S3TransferManager.uploadFile(
     key.requireNotBlank("key")
     require(source.exists()) { "File not found. source=$source" }
 
-    val request = uploadFileRequest {
-        putObjectRequest(putObjectRequestOf(bucket, key))
-        source(source)
-        builder()
-    }
+    val request =
+        uploadFileRequest {
+            putObjectRequest(putObjectRequestOf(bucket, key))
+            source(source)
+            builder()
+        }
 
     return uploadFile(request)
 }

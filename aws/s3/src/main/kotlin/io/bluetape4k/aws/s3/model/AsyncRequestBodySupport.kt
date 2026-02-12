@@ -47,6 +47,5 @@ inline fun asyncRequestBodyOf(
 
 inline fun asyncRequestBodyOf(
     contentPublisher: Publisher<ByteBuffer>,
-): AsyncRequestBody {
-    return AsyncRequestBody.fromPublisher(contentPublisher)
-}
+): AsyncRequestBody =
+    AsyncRequestBody.fromPublisher(contentPublisher)

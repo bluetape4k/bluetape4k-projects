@@ -1,8 +1,8 @@
 package io.bluetape4k.aws.s3.examples
 
 import io.bluetape4k.aws.s3.AbstractS3Test
-import io.bluetape4k.aws.s3.getAsByteArray
-import io.bluetape4k.aws.s3.putAsByteArray
+import io.bluetape4k.aws.s3.getAsByteArrayAsync
+import io.bluetape4k.aws.s3.putAsByteArrayAsync
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -24,13 +24,12 @@ class S3AsyncOps: AbstractS3Test() {
     fun `put object asynchronously`() = runTest {
         val key = Base58.randomString(16)
         val response = s3AsyncClient
-            .putAsByteArray(
+            .putAsByteArrayAsync(
                 BUCKET_NAME,
                 key,
                 randomString().toUtf8Bytes()
             )
             .await()
-
 
         log.debug { "Put response=$response" }
         response.eTag().shouldNotBeEmpty()
@@ -43,16 +42,17 @@ class S3AsyncOps: AbstractS3Test() {
 
         // Put object
         val response = s3AsyncClient
-            .putAsByteArray(
+            .putAsByteArrayAsync(
                 BUCKET_NAME,
                 key,
                 value.toUtf8Bytes()
             )
             .await()
+
         log.debug { "Put response=$response" }
 
         // Get object
-        val content = s3AsyncClient.getAsByteArray(BUCKET_NAME, key).await()
+        val content = s3AsyncClient.getAsByteArrayAsync(BUCKET_NAME, key).await()
         content.toUtf8String() shouldBeEqualTo value
     }
 }

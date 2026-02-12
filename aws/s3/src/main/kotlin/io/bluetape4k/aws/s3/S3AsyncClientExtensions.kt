@@ -35,7 +35,7 @@ private val log = KotlinLogging.logger { }
  * @param bucketName 존재를 파악할 Bucket name
  * @return 존재 여부
  */
-fun S3AsyncClient.existsBucket(bucketName: String): CompletableFuture<Boolean> {
+fun S3AsyncClient.existsBucketAsync(bucketName: String): CompletableFuture<Boolean> {
     bucketName.requireNotBlank("bucketName")
 
     return headBucket { it.bucket(bucketName) }
@@ -55,7 +55,7 @@ fun S3AsyncClient.existsBucket(bucketName: String): CompletableFuture<Boolean> {
  * @param builder 생성할 Bucket을 위한 Configuration
  * @return Bucket 생성 결과. [CreateBucketResponse]
  */
-fun S3AsyncClient.createBucket(
+fun S3AsyncClient.createBucketAsync(
     bucketName: String,
     @BuilderInference builder: CreateBucketConfiguration.Builder.() -> Unit = {},
 ): CompletableFuture<CreateBucketResponse> {
@@ -78,7 +78,7 @@ fun S3AsyncClient.createBucket(
  * @param builder 요청 설정을 위한 빌더
  * @return 다욱받은 S3 Object의 ByteArray 형태의 정보를 담은 [CompletableFuture]
  */
-inline fun S3AsyncClient.getAsByteArray(
+inline fun S3AsyncClient.getAsByteArrayAsync(
     bucket: String,
     key: String,
     @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
@@ -97,7 +97,7 @@ inline fun S3AsyncClient.getAsByteArray(
  * @param builder 요청 설정을 위한 빌더
  * @return 다욱받은 S3 Object의 문자열 형태의 정보를 담은 [CompletableFuture]
  */
-inline fun S3AsyncClient.getAsString(
+inline fun S3AsyncClient.getAsStringAsync(
     bucket: String,
     key: String,
     @BuilderInference builder: GetObjectRequest.Builder.() -> Unit = {},
@@ -117,7 +117,7 @@ inline fun S3AsyncClient.getAsString(
  * @param builder 요청 설정을 위한 빌더
  * @return 다욱받은 S3 Object의 정보를 담은 [CompletableFuture]
  */
-inline fun S3AsyncClient.getAsFile(
+inline fun S3AsyncClient.getAsFileAsync(
     bucket: String,
     key: String,
     destinationPath: Path,
@@ -126,6 +126,7 @@ inline fun S3AsyncClient.getAsFile(
     val request = getObjectRequest(bucket, key, builder)
     return getObject(request, destinationPath)
 }
+
 
 //
 // Put Object
@@ -140,7 +141,7 @@ inline fun S3AsyncClient.getAsFile(
  * @param builder 요청 설정을 위한 빌더
  * @return S3에 저장된 결과를 담은 [CompletableFuture]
  */
-inline fun S3AsyncClient.put(
+inline fun S3AsyncClient.putAsync(
     bucket: String,
     key: String,
     body: AsyncRequestBody,
@@ -162,13 +163,13 @@ inline fun S3AsyncClient.put(
  * @param builder 요청 설정을 위한 빌더
  * @return S3에 저장된 결과를 담은 [CompletableFuture]
  */
-inline fun S3AsyncClient.putAsByteArray(
+inline fun S3AsyncClient.putAsByteArrayAsync(
     bucket: String,
     key: String,
     bytes: ByteArray,
     @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
 ): CompletableFuture<PutObjectResponse> =
-    put(bucket, key, bytes.toAsyncRequestBody(), builder)
+    putAsync(bucket, key, bytes.toAsyncRequestBody(), builder)
 
 /**
  * S3 서버로 [contents]를 Upload 합니다.
@@ -179,14 +180,14 @@ inline fun S3AsyncClient.putAsByteArray(
  * @param builder 요청 설정을 위한 빌더
  * @return S3에 저장된 결과를 담은 [CompletableFuture]
  */
-inline fun S3AsyncClient.putAsString(
+inline fun S3AsyncClient.putAsStringAsync(
     bucket: String,
     key: String,
     contents: String,
     charset: Charset = Charsets.UTF_8,
     @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
 ): CompletableFuture<PutObjectResponse> =
-    put(bucket, key, contents.toAsyncRequestBody(charset), builder)
+    putAsync(bucket, key, contents.toAsyncRequestBody(charset), builder)
 
 /**
  * S3 서버로 [file]을 Upload 합니다.
@@ -197,13 +198,13 @@ inline fun S3AsyncClient.putAsString(
  * @param builder 요청 설정을 위한 빌더
  * @return S3에 저장된 결과를 담은 [CompletableFuture]
  */
-inline fun S3AsyncClient.putAsFile(
+inline fun S3AsyncClient.putAsFileAsync(
     bucket: String,
     key: String,
     file: File,
     @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
 ): CompletableFuture<PutObjectResponse> =
-    put(bucket, key, file.toAsyncRequestBody(), builder)
+    putAsync(bucket, key, file.toAsyncRequestBody(), builder)
 
 /**
  * S3 서버로 [path]의 파일을 Upload 합니다.
@@ -214,13 +215,13 @@ inline fun S3AsyncClient.putAsFile(
  * @param builder 요청 설정을 위한 빌더
  * @return S3에 저장된 결과를 담은 [CompletableFuture]
  */
-inline fun S3AsyncClient.putAsFile(
+inline fun S3AsyncClient.putAsFileAsync(
     bucket: String,
     key: String,
     path: Path,
     @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
 ): CompletableFuture<PutObjectResponse> =
-    put(bucket, key, path.toAsyncRequestBody(), builder)
+    putAsync(bucket, key, path.toAsyncRequestBody(), builder)
 
 //
 // Move Object
@@ -230,7 +231,7 @@ inline fun S3AsyncClient.putAsFile(
  * [S3Object]를 Move 합니다.
  *
  * 참고: 이 연산은 원자적이지 않습니다. 복사는 성공했지만 삭제가 실패할 수 있습니다.
- * 원자성이 필요한 경우 [moveObjectAtomic]을 사용하세요.
+ * 원자성이 필요한 경우 [moveObjectAtomicAsync]을 사용하세요.
  *
  * @param srcBucketName 원본 bucket name
  * @param srcKey        원본 object key
@@ -238,7 +239,7 @@ inline fun S3AsyncClient.putAsFile(
  * @param destKey        대상 object key
  * @return 이동 작업 결과
  */
-fun S3AsyncClient.moveObject(
+fun S3AsyncClient.moveObjectAsync(
     srcBucketName: String,
     srcKey: String,
     destBucketName: String,
@@ -283,7 +284,7 @@ fun S3AsyncClient.moveObject(
  * @param deleteRequestBuilder 원본 복제품 삭제 request
  * @return 이동 작업 결과
  */
-fun S3AsyncClient.moveObject(
+fun S3AsyncClient.moveObjectAsync(
     @BuilderInference copyRequestBuilder: CopyObjectRequest.Builder.() -> Unit,
     @BuilderInference deleteRequestBuilder: DeleteObjectRequest.Builder.() -> Unit,
 ): CompletableFuture<MoveObjectResult> =
@@ -311,13 +312,13 @@ fun S3AsyncClient.moveObject(
  * @return 이동 작업 결과
  * @throws IllegalStateException 삭제 실패 시 복구도 실패한 경우
  */
-fun S3AsyncClient.moveObjectAtomic(
+fun S3AsyncClient.moveObjectAtomicAsync(
     srcBucketName: String,
     srcKey: String,
     destBucketName: String,
     destKey: String,
 ): CompletableFuture<MoveObjectResult> =
-    moveObject(srcBucketName, srcKey, destBucketName, destKey).thenCompose { result ->
+    moveObjectAsync(srcBucketName, srcKey, destBucketName, destKey).thenCompose { result ->
         if (result.isPartialSuccess) {
             // 복사는 성공했지만 삭제가 실패한 경우, 롤백 시도
             log.warn {

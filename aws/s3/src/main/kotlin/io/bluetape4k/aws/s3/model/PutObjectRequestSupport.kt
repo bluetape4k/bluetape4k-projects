@@ -24,11 +24,9 @@ inline fun putObjectRequestOf(
     acl: String? = null,
     contentType: String? = null,
     @BuilderInference builder: PutObjectRequest.Builder.() -> Unit = {},
-): PutObjectRequest {
-    return putObjectRequest(bucket, key) {
+): PutObjectRequest =
+    putObjectRequest(bucket, key) {
         acl?.let { acl(it) }
         contentType?.let { contentType(it) }
-
         builder()
     }
-}

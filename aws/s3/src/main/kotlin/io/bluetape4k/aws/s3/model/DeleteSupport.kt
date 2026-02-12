@@ -6,28 +6,25 @@ import software.amazon.awssdk.services.s3.model.ObjectIdentifier
 
 inline fun delete(
     @BuilderInference builder: Delete.Builder.() -> Unit,
-): Delete {
-    return Delete.builder().apply(builder).build()
-}
+): Delete =
+    Delete.builder().apply(builder).build()
 
 @JvmName("deleteOfObjectsArray")
 fun deleteOf(
     vararg objectIds: ObjectIdentifier,
     quiet: Boolean = false,
-): Delete {
-    return delete {
+): Delete =
+    delete {
         objects(objectIds.toFastList())
         quiet(quiet)
     }
-}
 
 @JvmName("deleteOfObjectsCollection")
 fun deleteOf(
     objectIds: Collection<ObjectIdentifier>,
     quiet: Boolean = false,
-): Delete {
-    return delete {
+): Delete =
+    delete {
         objects(objectIds)
         quiet(quiet)
     }
-}

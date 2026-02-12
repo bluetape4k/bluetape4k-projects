@@ -6,7 +6,6 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8String
 import io.bluetape4k.utils.Resourcex
-import kotlinx.coroutines.future.await
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
@@ -20,7 +19,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
 
 @Execution(ExecutionMode.CONCURRENT)
-class S3AsyncClientExtensionsTest: AbstractS3Test() {
+class S3AsyncClientCoroutinesExtensionsTest: AbstractS3Test() {
 
     companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 3
@@ -34,11 +33,12 @@ class S3AsyncClientExtensionsTest: AbstractS3Test() {
         val key = randomKey()
         val content = randomString()
 
-        val response = s3AsyncClient.putAsStringAsync(BUCKET_NAME, key, content).await()
+        val response = s3AsyncClient.putAsString(BUCKET_NAME, key, content)
         response.eTag().shouldNotBeNull()
         log.debug { "put response=$response" }
 
-        val downContent = s3AsyncClient.getAsStringAsync(BUCKET_NAME, key).await()
+        val downContent = s3AsyncClient.getAsString(BUCKET_NAME, key)
+
         downContent shouldBeEqualTo content
     }
 
@@ -48,10 +48,10 @@ class S3AsyncClientExtensionsTest: AbstractS3Test() {
         val filepath = "files/product_type.csv"
         val bytes = Resourcex.getBytes(filepath)
 
-        val response = s3AsyncClient.putAsByteArrayAsync(BUCKET_NAME, key, bytes).await()
+        val response = s3AsyncClient.putAsByteArray(BUCKET_NAME, key, bytes)
         response.eTag().shouldNotBeNull()
 
-        val download = s3AsyncClient.getAsByteArrayAsync(BUCKET_NAME, key).await()
+        val download = s3AsyncClient.getAsByteArray(BUCKET_NAME, key)
         download.toUtf8String() shouldBeEqualTo bytes.toUtf8String()
     }
 
@@ -63,11 +63,11 @@ class S3AsyncClientExtensionsTest: AbstractS3Test() {
         val file = File(path)
         file.exists().shouldBeTrue()
 
-        val response = s3AsyncClient.putAsFileAsync(BUCKET_NAME, key, file).await()
+        val response = s3AsyncClient.putAsFile(BUCKET_NAME, key, file)
         response.eTag().shouldNotBeNull()
 
         val downloadFile = tempDir.resolve(filename)
-        val response2 = s3AsyncClient.getAsFileAsync(BUCKET_NAME, key, downloadFile.toPath()).await()
+        val response2 = s3AsyncClient.getAsFile(BUCKET_NAME, key, downloadFile.toPath())
         response2.eTag().shouldNotBeNull()
 
         log.debug { "downloadFile=$downloadFile, size=${downloadFile.length()}" }

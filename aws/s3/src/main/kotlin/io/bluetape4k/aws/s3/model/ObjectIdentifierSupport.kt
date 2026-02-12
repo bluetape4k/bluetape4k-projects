@@ -18,9 +18,8 @@ inline fun objectIdentifierOf(
     key: String,
     versionId: String? = null,
     @BuilderInference builder: ObjectIdentifier.Builder.() -> Unit = {},
-): ObjectIdentifier {
-    return objectIdentifier(key) {
+): ObjectIdentifier =
+    objectIdentifier(key) {
         versionId(versionId)
         builder()
     }
-}

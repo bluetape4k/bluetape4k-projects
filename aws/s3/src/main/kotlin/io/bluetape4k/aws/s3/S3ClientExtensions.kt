@@ -269,7 +269,7 @@ inline fun S3Client.putAsFile(
  * [S3Object]를 Move 합니다.
  *
  * 참고: 이 연산은 원자적이지 않습니다. 복사는 성공했지만 삭제가 실패할 수 있습니다.
- * 원자성이 필요한 경우 [moveObjectAtomic]을 사용하세요.
+ * 원자성이 필요한 경우 [moveObjectAtomicAsync]을 사용하세요.
  *
  * @param srcBucketName 원본 bucket name
  * @param srcKey        원본 object key

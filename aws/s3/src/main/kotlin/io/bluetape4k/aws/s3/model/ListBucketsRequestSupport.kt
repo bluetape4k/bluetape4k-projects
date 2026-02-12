@@ -5,14 +5,12 @@ import software.amazon.awssdk.services.s3.model.ListBucketsRequest
 
 inline fun listBucketsRequest(
     @BuilderInference builder: ListBucketsRequest.Builder.() -> Unit = {},
-): ListBucketsRequest {
-    return ListBucketsRequest.builder().apply(builder).build()
-}
+): ListBucketsRequest =
+    ListBucketsRequest.builder().apply(builder).build()
 
 fun listBucketsRequestOf(
     @BuilderInference configrationBuilder: AwsRequestOverrideConfiguration.Builder.() -> Unit = {},
-): ListBucketsRequest {
-    return listBucketsRequest {
+): ListBucketsRequest =
+    listBucketsRequest {
         overrideConfiguration(configrationBuilder)
     }
-}

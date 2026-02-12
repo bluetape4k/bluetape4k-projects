@@ -17,6 +17,5 @@ inline fun listObjectsRequest(
 inline fun listObjectsRequestOf(
     bucket: String,
     @BuilderInference builder: ListObjectsRequest.Builder.() -> Unit = {},
-): ListObjectsRequest {
-    return listObjectsRequest(bucket, builder)
-}
+): ListObjectsRequest =
+    listObjectsRequest(bucket, builder)

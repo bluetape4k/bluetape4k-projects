@@ -27,13 +27,11 @@ inline fun deleteObjectRequestOf(
     key: String,
     versionId: String? = null,
     @BuilderInference builder: DeleteObjectRequest.Builder.() -> Unit,
-): DeleteObjectRequest {
-    return deleteObjectRequest(bucket, key) {
+): DeleteObjectRequest =
+    deleteObjectRequest(bucket, key) {
         versionId?.run { versionId(this) }
-
         builder()
     }
-}
 
 inline fun deleteObjectsRequest(
     bucket: String,
@@ -41,6 +39,7 @@ inline fun deleteObjectsRequest(
     @BuilderInference builder: DeleteObjectsRequest.Builder.() -> Unit = {},
 ): DeleteObjectsRequest {
     bucket.requireNotBlank("bucket")
+
     return DeleteObjectsRequest.builder()
         .bucket(bucket)
         .delete(delete)
@@ -52,18 +51,16 @@ fun deleteObjectsRequestOf(
     bucket: String,
     delete: Delete,
     requestPlayer: String? = null,
-): DeleteObjectsRequest {
-    return deleteObjectsRequest(bucket, delete) {
+): DeleteObjectsRequest =
+    deleteObjectsRequest(bucket, delete) {
         requestPlayer?.let { requestPayer(it) }
     }
-}
 
 fun deleteObjectsRequestOf(
     bucket: String,
     identifiers: Collection<ObjectIdentifier>,
     requestPlayer: String? = null,
-): DeleteObjectsRequest {
-    return deleteObjectsRequest(bucket, deleteOf(identifiers)) {
+): DeleteObjectsRequest =
+    deleteObjectsRequest(bucket, deleteOf(identifiers)) {
         requestPayer(requestPlayer)
     }
-}
