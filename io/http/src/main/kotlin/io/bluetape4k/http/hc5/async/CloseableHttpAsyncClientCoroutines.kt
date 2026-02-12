@@ -27,7 +27,7 @@ import org.apache.hc.core5.http.protocol.HttpContext
  * @param callback [FutureCallback] 인스턴스
  * @return [SimpleHttpResponse] 인스턴스
  */
-suspend fun CloseableHttpAsyncClient.suspendExecute(
+suspend fun CloseableHttpAsyncClient.execute(
     request: SimpleHttpRequest,
     responseConsumer: SimpleResponseConsumer = SimpleResponseConsumer.create(),
     context: HttpContext = HttpClientContext.create(),

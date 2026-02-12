@@ -2,9 +2,9 @@ package io.bluetape4k.http.hc5.examples
 
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.async.asyncClientConnectionManager
+import io.bluetape4k.http.hc5.async.execute
 import io.bluetape4k.http.hc5.async.httpAsyncClientOf
 import io.bluetape4k.http.hc5.async.methods.simpleHttpRequestOf
-import io.bluetape4k.http.hc5.async.suspendExecute
 import io.bluetape4k.http.hc5.http.connectionConfigOf
 import io.bluetape4k.http.hc5.http.tlsConfigOf
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -69,7 +69,7 @@ class AsyncClientConnectionConfig: AbstractHc5Test() {
                 )
                 log.debug { "Executing request $request" }
 
-                val response = client.suspendExecute(request)
+                val response = client.execute(request)
 
                 log.debug { "$request -> ${StatusLine(response)}" }
                 log.debug { response.body }

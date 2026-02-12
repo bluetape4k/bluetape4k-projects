@@ -2,9 +2,9 @@ package io.bluetape4k.http.hc5.examples
 
 import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.http.hc5.AbstractHc5Test
+import io.bluetape4k.http.hc5.async.execute
 import io.bluetape4k.http.hc5.async.httpAsyncClient
 import io.bluetape4k.http.hc5.async.methods.simpleHttpRequest
-import io.bluetape4k.http.hc5.async.suspendExecute
 import io.bluetape4k.http.hc5.reactor.ioReactorConfig
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -58,7 +58,7 @@ class AsyncClientConnectionEviction: AbstractHc5Test() {
 
             log.debug { "Executing request2 $request" }
 
-            val response2 = client.suspendExecute(request)
+            val response2 = client.execute(request)
 
             log.debug { "$request -> ${StatusLine(response2)}" }
             log.debug { response2.body }
