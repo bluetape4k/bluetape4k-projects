@@ -1,15 +1,16 @@
 package io.bluetape4k.support
 
 import java.time.Instant
+import kotlin.math.abs
 import kotlin.time.Duration
 import kotlin.time.toJavaDuration
 import kotlin.time.toKotlinDuration
 
 /**
- * [kotlin.time.Duration]의 Milliseconds 까지를 제외한 nono seconds 값만 반환합니다.
+ * [kotlin.time.Duration]에서 milliseconds를 제외한 나노초 값(0..999_999)을 반환합니다.
  */
 val Duration.nanosOfMillis: Int
-    get() = (inWholeNanoseconds % 1_000_000).toInt()
+    get() = abs((inWholeNanoseconds % 1_000_000).toInt())
 
 
 /**
@@ -20,6 +21,9 @@ val Duration.nanosOfMillis: Int
  * ```
  */
 fun Duration.sleep() {
+    require(!this.isNegative()) { "Duration must not be negative. duration=$this" }
+    if (this == Duration.ZERO) return
+
     val finishInstant = Instant.now().plus(this.toJavaDuration())
     var remainingDuration = this
     do {

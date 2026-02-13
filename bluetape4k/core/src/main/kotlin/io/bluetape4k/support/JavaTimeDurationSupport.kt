@@ -20,17 +20,17 @@ val Duration.isNotPositive: Boolean get() = this <= Duration.ZERO
 val Duration.isNotNegative: Boolean get() = this >= Duration.ZERO
 
 /**
- * Duration을 millseconds 로 환산
+ * Duration을 milliseconds로 환산합니다.
  */
 fun Duration.inMillis(): Long = toMillis()
 
 /**
- * Duration을 nano seconds로 환산
+ * Duration을 nanoseconds로 환산합니다.
  */
 fun Duration.inNanos(): Long = toNanos() // seconds * NANO_PER_SECOND + nano
 
 /**
- * Duration의 milliseconds 까지를 제외한 nonoseconds 부분만의 값
+ * Duration의 milliseconds를 제외한 nanoseconds 부분 값입니다.
  */
 fun Duration.nanosOfMillis(): Int = (toNanos() % 1_000_000).toInt()
 

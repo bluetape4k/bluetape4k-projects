@@ -1,10 +1,12 @@
 package io.bluetape4k.support
 
 /**
- * [initializer]가 동시에 실행되어도, 마지막으로 실행된 값을 제공한다.
+ * 스레드 안전성 보장 없이 lazy 값을 생성합니다.
+ *
+ * 멀티스레드 환경에서는 여러 번 초기화될 수 있습니다.
  *
  * ```
- * val lazyValue: String by unSafeLazy {
+ * val lazyValue: String by unsafeLazy {
  *    println("computed!")
  *    Thread.sleep(1000)
  *    "Hello"
@@ -18,7 +20,7 @@ fun <T> unsafeLazy(@BuilderInference initializer: () -> T): Lazy<T> =
     lazy(LazyThreadSafetyMode.NONE, initializer)
 
 /**
- * [initializer]가 동시에 실행되어도, 첫번째 실행된 값을 제공한다.
+ * 다중 스레드에서 초기화가 중복될 수 있지만, 최초로 publish된 값을 공유하는 lazy 값을 생성합니다.
  *
  * ```
  * val lazyValue: String by publicLazy {
