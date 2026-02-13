@@ -1,7 +1,6 @@
-package io.bluetape4k.concurrent.virtualthread.examples
+package io.bluetape4k.examples.virtualthreads
 
 import io.bluetape4k.collections.eclipse.fastList
-import io.bluetape4k.concurrent.virtualthread.AbstractVirtualThreadTest
 import io.bluetape4k.concurrent.virtualthread.awaitAll
 import io.bluetape4k.concurrent.virtualthread.virtualFuture
 import io.bluetape4k.concurrent.virtualthread.virtualThread

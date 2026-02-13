@@ -1,6 +1,5 @@
-package io.bluetape4k.concurrent.virtualthread.examples
+package io.bluetape4k.examples.virtualthreads
 
-import io.bluetape4k.concurrent.virtualthread.AbstractVirtualThreadTest
 import io.bluetape4k.concurrent.virtualthread.runWith
 import io.bluetape4k.concurrent.virtualthread.structuredTaskScopeAll
 import io.bluetape4k.logging.KLogging

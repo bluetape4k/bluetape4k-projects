@@ -1,9 +1,8 @@
-package io.bluetape4k.concurrent.virtualthread.examples
+package io.bluetape4k.examples.virtualthreads
 
 import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.concurrent.FutureUtils
 import io.bluetape4k.concurrent.asCompletableFuture
-import io.bluetape4k.concurrent.virtualthread.AbstractVirtualThreadTest
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.trace
 import org.amshove.kluent.shouldBeEqualTo
