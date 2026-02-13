@@ -1,6 +1,5 @@
 package io.bluetape4k.coroutines.flow.extensions
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.flow.Flow
@@ -37,8 +36,8 @@ class BufferUntilChangedTest: AbstractFlowTest() {
     private fun getOrderRows(orderCount: Int = 4, itemCount: Int = 5): Flow<OrderRow> {
         log.trace { "order=$orderCount, item=$itemCount" }
 
-        return fastList(orderCount) { oid ->
-            fastList(itemCount) { itemId ->
+        return List(orderCount) { oid ->
+            List(itemCount) { itemId ->
                 OrderRow(
                     oid + 1,
                     (oid + 1) * 10 + itemId + 1,

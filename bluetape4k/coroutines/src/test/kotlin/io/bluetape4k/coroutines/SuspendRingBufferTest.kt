@@ -1,6 +1,5 @@
 package io.bluetape4k.coroutines
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.coroutines.flow.extensions.bufferedSliding
 import io.bluetape4k.coroutines.flow.extensions.toFastList
@@ -54,7 +53,7 @@ class SuspendRingBufferTest {
             .run()
 
         // CoRingBuffer 의 크기가 16 이므로, 2바퀴 돌아서 17 ~ 32 까지의 숫자를 가진다.
-        buffer.toFastList().sortedBy { it } shouldBeEqualTo fastList(bufferSize) { (it + 1).toDouble() }
+        buffer.toFastList().sortedBy { it } shouldBeEqualTo List(bufferSize) { (it + 1).toDouble() }
     }
 
     @Test

@@ -1,10 +1,8 @@
 package io.bluetape4k.coroutines.support
 
-import io.bluetape4k.collections.eclipse.fastList
-import io.bluetape4k.collections.eclipse.fastListOf
-import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
@@ -22,19 +20,21 @@ class JavaStreamSupportTest {
                 delay(Random.nextLong(10))
                 it
             }
-            .toFastList()
+            .toList()
 
-        list shouldBeEqualTo fastList(9) { it + 1 }
+        list shouldBeEqualTo List(9) { it + 1 }
     }
 
     @Test
     fun `int stream with coForEach`() = runTest {
-        val list = fastListOf<Int>()
+        val list = mutableListOf<Int>()
+
         IntStream.range(1, 10)
             .suspendForEach {
                 delay(Random.nextLong(10))
                 list.add(it)
             }
-        list shouldBeEqualTo fastList(9) { it + 1 }
+
+        list shouldBeEqualTo List(9) { it + 1 }
     }
 }

@@ -1,11 +1,11 @@
 package io.bluetape4k.coroutines.flow.extensions
 
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -32,10 +32,10 @@ class NeverFlowTest: AbstractFlowTest() {
     @Test
     fun `neverFlow example`() = runTest(timeout = 2.seconds) {
         val itemSize = 1_000
-        val list = fastListOf<Any?>()
+        val list = mutableListOf<Any?>()
 
         val job = launch(start = CoroutineStart.UNDISPATCHED) {
-            neverFlow().toFastList(list)
+            neverFlow().toList(list)
         }
 
         val intervalJob = intervalFlowOf(Duration.ZERO, 100.milliseconds)

@@ -1,6 +1,5 @@
 package io.bluetape4k.coroutines.flow
 
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.fixedSizeList
 import io.bluetape4k.concurrent.virtualthread.VT
 import io.bluetape4k.coroutines.flow.extensions.log
@@ -57,7 +56,7 @@ class AsyncFlowTest {
 
     private suspend fun runAsyncFlow(dispatcher: CoroutineDispatcher) {
         // 중복된 요소가 없어야 합니다
-        val results = fastListOf<Int>()
+        val results = mutableListOf<Int>()
 
         expectedItems
             .asFlow()

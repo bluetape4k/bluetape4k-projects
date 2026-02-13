@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package io.bluetape4k.aws.dynamodb.enhanced
 
 import io.bluetape4k.aws.dynamodb.model.keyOf

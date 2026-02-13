@@ -1,6 +1,5 @@
 package io.bluetape4k.coroutines.flow.extensions.subject
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.coroutines.tests.withSingleThread
@@ -40,7 +39,7 @@ class MulticastSubjectTest {
             subject.complete()
             job.join()
         }
-        result shouldBeEqualTo fastList(10) { it }
+        result shouldBeEqualTo List(10) { it }
     }
 
     @Test

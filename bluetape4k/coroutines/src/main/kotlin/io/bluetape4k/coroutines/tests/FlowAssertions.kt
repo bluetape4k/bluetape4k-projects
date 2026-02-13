@@ -1,6 +1,5 @@
 package io.bluetape4k.coroutines.tests
 
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.coroutines.flow.extensions.toFastList
@@ -52,7 +51,7 @@ suspend inline fun <T> Flow<T>.assertResultSet(values: Iterable<T>) {
  * Flow 요소에 [E] 타입의 에러가 발생하고, 다른 요소들은 [values] 와 동일한지 검사합니다.
  */
 suspend inline fun <T, reified E: Throwable> Flow<T>.assertFailure(vararg values: T) {
-    val list = fastListOf<T>()
+    val list = mutableListOf<T>()
     assertFailsWith<E> {
         this@assertFailure.toList(list)
     }

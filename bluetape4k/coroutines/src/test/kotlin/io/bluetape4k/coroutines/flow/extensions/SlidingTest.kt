@@ -1,7 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import app.cash.turbine.test
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -96,7 +95,7 @@ class SlidingTest: AbstractFlowTest() {
     @Test
     fun `sliding with mutable shared flow`() = runTest {
         val flow = MutableSharedFlow<Int>(extraBufferCapacity = 64)
-        val results = fastListOf<List<Int>>()
+        val results = mutableListOf<List<Int>>()
 
         flow.sliding(3).log("job1")
             .onEach {
@@ -118,9 +117,6 @@ class SlidingTest: AbstractFlowTest() {
 
         this.coroutineContext.cancelChildren()
 
-        results shouldBeEqualTo fastListOf(
-            fastListOf(1, 2, 3),
-            fastListOf(2, 3, 4)
-        )
+        results shouldBeEqualTo listOf(listOf(1, 2, 3), listOf(2, 3, 4))
     }
 }

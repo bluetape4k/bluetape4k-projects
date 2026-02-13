@@ -1,6 +1,5 @@
 package io.bluetape4k.coroutines.support
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -20,7 +19,7 @@ class JobSupportTest {
     @Test
     fun `print job hierarchy`() = runSuspendIO {
         val job = launch {
-            val childJobs = fastList(10) {
+            val childJobs = List(10) {
                 launch {
                     delay(100)
                     log.debug { "Child job $it" }

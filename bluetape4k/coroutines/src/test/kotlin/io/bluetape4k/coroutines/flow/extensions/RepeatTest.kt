@@ -1,6 +1,5 @@
 package io.bluetape4k.coroutines.flow.extensions
 
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.coroutines.tests.assertResultSet
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -14,6 +13,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -52,9 +52,9 @@ class RepeatTest: AbstractFlowTest() {
                 .log("#1")
                 .repeat()
 
-            val buffer = fastListOf<Int>()
+            val destination = mutableListOf<Int>()
             val job = launch(start = CoroutineStart.UNDISPATCHED) {
-                flow.toFastList(buffer)
+                flow.toList(destination)
             }
             val internalJob = intervalFlowOf(Duration.ZERO, 100.milliseconds)
                 .log("#2")
@@ -66,13 +66,13 @@ class RepeatTest: AbstractFlowTest() {
             repeat(100) {
                 advanceTimeBy(10)
                 runCurrent()
-                buffer.isEmpty.shouldBeTrue()
+                destination.isEmpty().shouldBeTrue()
             }
 
             internalJob.cancelAndJoin()
             job.cancelAndJoin()
 
-            buffer.isEmpty().shouldBeTrue()
+            destination.isEmpty().shouldBeTrue()
         }
 
         @Test
