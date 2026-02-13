@@ -1,7 +1,6 @@
 package io.bluetape4k.aws.sqs
 
 import io.bluetape4k.codec.Base58
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
@@ -63,7 +62,7 @@ class SqsClientTest: AbstractSqsTest() {
         // NOTE: The total size of all messages that you send in a single SendMessageBatch call can't exceed 262,144 bytes (256 KB).
         // https://stackoverflow.com/questions/40489815/checking-size-of-sqs-message-batches
         // 이 것 계산하려면 Jdk Serializer를 통해서 bytes 를 계산해야 한다
-        val entries = fastList(10) {
+        val entries = List(10) {
             SendMessageBatchRequestEntry.builder()
                 .id("id-$it")
                 .messageBody("Hello, world $it")

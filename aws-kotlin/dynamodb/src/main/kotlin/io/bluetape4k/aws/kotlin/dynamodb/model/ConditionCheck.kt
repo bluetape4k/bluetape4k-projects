@@ -10,15 +10,13 @@ inline fun conditionCheckOf(
     expressionAttributeValues: Map<String, AttributeValue>? = null,
     key: Map<String, AttributeValue>? = null,
     @BuilderInference crossinline builder: ConditionCheck.Builder.() -> Unit = {},
-): ConditionCheck {
-    return ConditionCheck {
-        this.conditionExpression = conditionExpression
-        this.expressionAttributeNames = expressionAttributeNames
-        this.expressionAttributeValues = expressionAttributeValues
-        this.key = key
+): ConditionCheck = ConditionCheck {
+    this.conditionExpression = conditionExpression
+    this.expressionAttributeNames = expressionAttributeNames
+    this.expressionAttributeValues = expressionAttributeValues
+    this.key = key
 
-        builder()
-    }
+    builder()
 }
 
 @JvmName("conditionCheckOfAny")
@@ -28,13 +26,11 @@ inline fun conditionCheckOf(
     expressionAttributeValues: Map<String, Any?>? = null,
     key: Map<String, Any?>? = null,
     @BuilderInference crossinline builder: ConditionCheck.Builder.() -> Unit = {},
-): ConditionCheck {
-    return ConditionCheck {
-        this.conditionExpression = conditionExpression
-        this.expressionAttributeNames = expressionAttributeNames
-        this.expressionAttributeValues = expressionAttributeValues?.mapValues { it.value.toAttributeValue() }
-        this.key = key?.mapValues { it.value.toAttributeValue() }
+): ConditionCheck = ConditionCheck {
+    this.conditionExpression = conditionExpression
+    this.expressionAttributeNames = expressionAttributeNames
+    this.expressionAttributeValues = expressionAttributeValues?.toAttributeValueMap()
+    this.key = key?.toAttributeValueMap()
 
-        builder()
-    }
+    builder()
 }

@@ -30,7 +30,7 @@ import aws.smithy.kotlin.runtime.auth.awscredentials.CredentialsProvider
 import aws.smithy.kotlin.runtime.http.engine.HttpClientEngine
 import aws.smithy.kotlin.runtime.net.url.Url
 import io.bluetape4k.apache.endsWithIgnoreCase
-import io.bluetape4k.aws.kotlin.http.defaultCrtHttpEngineOf
+import io.bluetape4k.aws.kotlin.http.crtHttpEngineOf
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.utils.ShutdownQueue
 
@@ -53,17 +53,17 @@ import io.bluetape4k.utils.ShutdownQueue
  * @return [SnsClient] 인스턴스
  */
 inline fun snsClientOf(
-    endpoint: String? = null,
+    endpointUrl: Url? = null,
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
-    httpClientEngine: HttpClientEngine = defaultCrtHttpEngineOf(),
+    httpClient: HttpClientEngine = crtHttpEngineOf(),
     @BuilderInference crossinline builder: SnsClient.Config.Builder.() -> Unit = {},
 ): SnsClient =
     SnsClient {
-        endpoint?.let { this.endpointUrl = Url.parse(it) }
-        region?.let { this.region = it }
-        credentialsProvider?.let { this.credentialsProvider = it }
-        httpClient = httpClientEngine
+        this.endpointUrl = endpointUrl
+        this.region = region
+        this.credentialsProvider = credentialsProvider
+        this.httpClient = httpClient
 
         builder()
     }.apply {

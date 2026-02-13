@@ -44,7 +44,7 @@ inline fun objectIdentifierOf(
  */
 inline fun String.toObjectIdentifier(
     versionId: String? = null,
-    @BuilderInference crossinline block: ObjectIdentifier.Builder.() -> Unit = {},
+    @BuilderInference crossinline builder: ObjectIdentifier.Builder.() -> Unit = {},
 ): ObjectIdentifier {
-    return objectIdentifierOf(this, versionId, block)
+    return objectIdentifierOf(this, versionId, builder)
 }

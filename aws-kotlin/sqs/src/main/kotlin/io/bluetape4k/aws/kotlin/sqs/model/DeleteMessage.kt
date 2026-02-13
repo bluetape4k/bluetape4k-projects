@@ -22,7 +22,7 @@ inline fun deleteMessageRequestOf(
 
     return DeleteMessageRequest {
         this.queueUrl = queueUrl
-        receiptHandle?.let { this.receiptHandle = it }
+        this.receiptHandle = receiptHandle
 
         builder()
     }
@@ -44,7 +44,7 @@ inline fun deleteMessageBatchRequestEntryOf(
 
     return DeleteMessageBatchRequestEntry {
         this.id = id
-        receiptHandle?.let { this.receiptHandle = it }
+        this.receiptHandle = receiptHandle
 
         builder()
     }
@@ -67,9 +67,7 @@ inline fun deleteMessageBatchRequestOf(
 
     return DeleteMessageBatchRequest {
         this.queueUrl = queueUrl
-        if (entries.isNotEmpty()) {
-            this.entries = entries.toList()
-        }
+        this.entries = entries.toList()
 
         builder()
     }
@@ -92,9 +90,7 @@ inline fun deleteMessageBatchRequestOf(
 
     return DeleteMessageBatchRequest {
         this.queueUrl = queueUrl
-        if (entries.isNotEmpty()) {
-            this.entries = entries.toList()
-        }
+        this.entries = entries.toList()
 
         builder()
     }

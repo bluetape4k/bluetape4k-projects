@@ -2,15 +2,16 @@ package io.bluetape4k.aws.kotlin.ses.model
 
 import aws.sdk.kotlin.services.ses.model.Destination
 import io.bluetape4k.collections.eclipse.toFastList
+import io.bluetape4k.support.requireNotEmpty
 
 inline fun destinationOf(
-    vararg toAddress: String,
+    vararg toAddresses: String,
     @BuilderInference crossinline builder: Destination.Builder.() -> Unit = {},
 ): Destination {
-    require(toAddress.isNotEmpty()) { "toAddress must not be empty." }
+    toAddresses.requireNotEmpty("toAddresses")
 
     return Destination {
-        this.toAddresses = toAddress.toFastList()
+        this.toAddresses = toAddresses.toFastList()
 
         builder()
     }

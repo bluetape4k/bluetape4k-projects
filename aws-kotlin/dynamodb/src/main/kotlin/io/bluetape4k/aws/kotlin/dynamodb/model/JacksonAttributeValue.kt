@@ -15,12 +15,12 @@ fun JsonNode.toAttributeValue(): AttributeValue =
         JsonNodeType.STRING -> this.textValue().toAttributeValue()
         JsonNodeType.ARRAY -> AttributeValue.L(this.map { it.toAttributeValue() })
         JsonNodeType.OBJECT -> AttributeValue.M(
-            this.properties().asSequence().associate { (key, value) ->
+            this.properties().associate { (key, value) ->
                 key to value.toAttributeValue()
             }
         )
         JsonNodeType.POJO -> AttributeValue.M(
-            this.properties().asSequence().associate { (key, value) ->
+            this.properties().associate { (key, value) ->
                 key to value.toAttributeValue()
             }
         )

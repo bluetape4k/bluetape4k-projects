@@ -5,21 +5,22 @@ import aws.sdk.kotlin.services.dynamodb.model.DeleteRequest
 import aws.sdk.kotlin.services.dynamodb.model.PutRequest
 import aws.sdk.kotlin.services.dynamodb.model.WriteRequest
 
+@JvmName("writeRequestOfPut")
 inline fun writeRequestOf(
-    putRequest: PutRequest? = null,
-    deleteRequest: DeleteRequest? = null,
+    putRequest: PutRequest,
     @BuilderInference crossinline builder: WriteRequest.Builder.() -> Unit = {},
-): WriteRequest {
-    require(putRequest != null || deleteRequest != null) {
-        "Either putRequest or deleteRequest must be provided"
-    }
+): WriteRequest = WriteRequest {
+    this.putRequest = putRequest
+    builder()
+}
 
-    return WriteRequest {
-        this.putRequest = putRequest
-        this.deleteRequest = deleteRequest
-
-        builder()
-    }
+@JvmName("writeRequestOfDelete")
+inline fun writeRequestOf(
+    deleteRequest: DeleteRequest,
+    @BuilderInference crossinline builder: WriteRequest.Builder.() -> Unit = {},
+): WriteRequest = WriteRequest {
+    this.deleteRequest = deleteRequest
+    builder()
 }
 
 @JvmName("putRequestOfMap")

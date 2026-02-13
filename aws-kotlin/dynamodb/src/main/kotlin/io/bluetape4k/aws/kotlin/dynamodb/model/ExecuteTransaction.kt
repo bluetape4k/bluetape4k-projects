@@ -15,8 +15,8 @@ inline fun executeTransactionRequestOf(
 
     return ExecuteTransactionRequest {
         this.transactStatements = transactionStatements
-        clientRequestToken?.let { this.clientRequestToken = it }
-        returnConsumedCapacity?.let { this.returnConsumedCapacity = it }
+        this.clientRequestToken = clientRequestToken
+        this.returnConsumedCapacity = returnConsumedCapacity
 
         builder()
     }

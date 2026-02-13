@@ -16,9 +16,9 @@ inline fun getOf(
 
     return Get {
         this.tableName = tableName
-        key?.let { this.key = it }
-        expressionAttributeNames?.let { this.expressionAttributeNames = it }
-        projectionExpression?.let { this.projectionExpression = it }
+        this.key = key
+        this.expressionAttributeNames = expressionAttributeNames
+        this.projectionExpression = projectionExpression
 
         builder()
     }
@@ -31,12 +31,10 @@ inline fun getOf(
     expressionAttributeNames: Map<String, String>? = null,
     projectionExpression: String? = null,
     @BuilderInference crossinline builder: Get.Builder.() -> Unit = {},
-): Get {
-    return getOf(
-        tableName,
-        key?.mapValues { it.value.toAttributeValue() },
-        expressionAttributeNames,
-        projectionExpression,
-        builder,
-    )
-}
+): Get = getOf(
+    tableName,
+    key?.toAttributeValueMap(),
+    expressionAttributeNames,
+    projectionExpression,
+    builder,
+)

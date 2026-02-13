@@ -5,7 +5,6 @@ import aws.sdk.kotlin.services.sns.listSubscriptions
 import io.bluetape4k.aws.kotlin.sns.model.publishBatchRequestEntryOf
 import io.bluetape4k.aws.kotlin.sns.model.publishRequestOf
 import io.bluetape4k.codec.Base58
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -109,7 +108,7 @@ class SnsClientExtensionsTest: AbstractKotlinSnsTest() {
     @Order(7)
     fun `publish messages in batch`() = runSuspendIO {
         val messageSize = 10
-        val entries = fastList(messageSize) {
+        val entries = List(messageSize) {
             publishBatchRequestEntryOf(
                 id = Base58.randomString(6).lowercase(),
                 message = "Hello, AWS SNS! ${Base58.randomString(6).lowercase()}",

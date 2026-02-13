@@ -26,12 +26,11 @@ fun transactWriteItemOf(
     put: Put? = null,
     update: Update? = null,
     @BuilderInference builder: TransactWriteItem.Builder.() -> Unit = {},
-): TransactWriteItem =
-    TransactWriteItem {
-        this.conditionCheck = conditionCheck
-        this.put = put
-        this.update = update
-        this.delete = delete
+): TransactWriteItem = TransactWriteItem {
+    this.conditionCheck = conditionCheck
+    this.put = put
+    this.update = update
+    this.delete = delete
 
-        builder()
-    }
+    builder()
+}

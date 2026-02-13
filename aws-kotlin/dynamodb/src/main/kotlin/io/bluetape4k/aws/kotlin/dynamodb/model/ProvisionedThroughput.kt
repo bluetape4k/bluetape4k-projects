@@ -7,8 +7,8 @@ fun provisionedThroughputOf(
     readCapacityUnits: Long? = null,
     writeCapacityUnits: Long? = null,
 ): ProvisionedThroughput {
-    readCapacityUnits?.requirePositiveNumber("readCapacity")
-    writeCapacityUnits?.requirePositiveNumber("writeCapacity")
+    readCapacityUnits?.requirePositiveNumber("readCapacityUnits")
+    writeCapacityUnits?.requirePositiveNumber("writeCapacityUnits")
 
     return ProvisionedThroughput {
         this.readCapacityUnits = readCapacityUnits

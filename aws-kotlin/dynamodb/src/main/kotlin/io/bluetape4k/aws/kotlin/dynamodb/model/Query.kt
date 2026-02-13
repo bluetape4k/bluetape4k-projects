@@ -32,6 +32,6 @@ inline fun queryRequestOf(
     queryRequestOf(
         tableName,
         attributesToGet,
-        exclusiveStartKey?.mapValues { it.value.toAttributeValue() },
+        exclusiveStartKey?.toAttributeValueMap(),
         builder,
     )

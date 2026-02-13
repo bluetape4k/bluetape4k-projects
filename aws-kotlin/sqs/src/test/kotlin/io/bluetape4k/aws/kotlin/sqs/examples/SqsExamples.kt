@@ -13,7 +13,6 @@ import io.bluetape4k.aws.kotlin.sqs.receiveMessage
 import io.bluetape4k.aws.kotlin.sqs.sendMessage
 import io.bluetape4k.aws.kotlin.sqs.sendMessageBatch
 import io.bluetape4k.codec.Base58
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -56,7 +55,7 @@ class SqsExamples: AbstractKotlinSqsTest() {
     @Order(2)
     fun `list queues`() = runSuspendIO {
         val response = sqsClient.listQueues(QUEUE_PREFIX)
-        
+
         response.queueUrls!!.forEach {
             log.debug { "Queue URL=$it" }
         }
@@ -82,7 +81,7 @@ class SqsExamples: AbstractKotlinSqsTest() {
         // NOTE: 배치로 한번에 전송할 메시지의 총 크기가 262,144 바이트(256 KB)를 초과할 수 없습니다.
         // https://stackoverflow.com/questions/40489815/checking-size-of-sqs-message-batches
         // 이 것 계산하려면 Jdk Serializer를 통해서 bytes 를 계산해야 한다
-        val entries = fastList(messageCount) {
+        val entries = List(messageCount) {
             sendMessageBatchRequestEntryOf(
                 id = "id-$it",
                 messageBody = "Hello, World! $it"

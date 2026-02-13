@@ -33,7 +33,7 @@ import aws.sdk.kotlin.services.sqs.sendMessageBatch
 import aws.smithy.kotlin.runtime.auth.awscredentials.CredentialsProvider
 import aws.smithy.kotlin.runtime.http.engine.HttpClientEngine
 import aws.smithy.kotlin.runtime.net.url.Url
-import io.bluetape4k.aws.kotlin.http.defaultCrtHttpEngineOf
+import io.bluetape4k.aws.kotlin.http.crtHttpEngineOf
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.support.requireNotBlank
@@ -59,27 +59,27 @@ val log by lazy { KotlinLogging.logger { } }
  * }
  * ```
  *
- * @param endpoint Amazon SQS endpoint URL입니다.
+ * @param endpointUrl Amazon SQS endpoint URL입니다.
  * @param region AWS region입니다.
  * @param credentialsProvider AWS credentials provider입니다.
- * @param httpClientEngine [HttpClientEngine] 엔진 (기본적으로 [aws.smithy.kotlin.runtime.http.engine.crt.CrtHttpEngine] 를 사용합니다.)
+ * @param httpClient [HttpClientEngine] 엔진 (기본적으로 [aws.smithy.kotlin.runtime.http.engine.crt.CrtHttpEngine] 를 사용합니다.)
  * @param builder Amazon SQS client 설정 빌더입니다.
  * @return [SqsClient] 인스턴스를 반환합니다.
  */
 inline fun sqsClientOf(
-    endpoint: String,
+    endpointUrl: Url,
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
-    httpClientEngine: HttpClientEngine = defaultCrtHttpEngineOf(),
+    httpClient: HttpClientEngine = crtHttpEngineOf(),
     @BuilderInference crossinline builder: SqsClient.Config.Builder.() -> Unit = {},
 ): SqsClient {
-    endpoint.requireNotBlank("endpoint")
+    endpointUrl.hostAndPort.requireNotBlank("endpointUrl")
 
     return SqsClient {
-        this.endpointUrl = Url.parse(endpoint)
-        region?.let { this.region = it }
-        credentialsProvider?.let { this.credentialsProvider = it }
-        httpClient = httpClientEngine
+        this.endpointUrl = endpointUrl
+        this.region = region
+        this.credentialsProvider = credentialsProvider
+        this.httpClient = httpClient
 
         builder()
     }.apply {

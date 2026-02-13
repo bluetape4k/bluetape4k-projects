@@ -3,7 +3,6 @@ package io.bluetape4k.aws.kotlin.sqs.model
 import aws.sdk.kotlin.services.sqs.model.SendMessageBatchRequest
 import aws.sdk.kotlin.services.sqs.model.SendMessageBatchRequestEntry
 import aws.sdk.kotlin.services.sqs.model.SendMessageRequest
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotEmpty
 
@@ -27,7 +26,7 @@ inline fun sendMessageRequestOf(
     return SendMessageRequest {
         this.queueUrl = queueUrl
         this.messageBody = messageBody
-        delaySeconds?.let { this.delaySeconds = it }
+        this.delaySeconds = delaySeconds
 
         builder()
     }
@@ -57,8 +56,8 @@ inline fun sendMessageBatchRequestEntryOf(
     return SendMessageBatchRequestEntry {
         this.id = id
         this.messageBody = messageBody
-        messageGroupId?.let { this.messageGroupId = it }
-        delaySeconds?.let { this.delaySeconds = it }
+        this.messageGroupId = messageGroupId
+        this.delaySeconds = delaySeconds
 
         builder()
     }
@@ -82,7 +81,7 @@ inline fun sendMessageBatchRequestOf(
 
     return SendMessageBatchRequest {
         this.queueUrl = queueUrl
-        this.entries = entries.toFastList()
+        this.entries = entries.toList()
 
         builder()
     }
@@ -106,7 +105,7 @@ inline fun sendMessageBatchRequestOf(
 
     return SendMessageBatchRequest {
         this.queueUrl = queueUrl
-        this.entries = entries.toFastList()
+        this.entries = entries.toList()
 
         builder()
     }

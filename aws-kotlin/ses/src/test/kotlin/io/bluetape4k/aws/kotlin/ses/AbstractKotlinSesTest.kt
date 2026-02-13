@@ -1,14 +1,12 @@
 package io.bluetape4k.aws.kotlin.ses
 
 import aws.sdk.kotlin.services.ses.SesClient
-import io.bluetape4k.aws.kotlin.http.defaultCrtHttpEngineOf
+import io.bluetape4k.aws.kotlin.http.crtHttpEngineOf
 import io.bluetape4k.aws.kotlin.tests.endpointUrl
 import io.bluetape4k.aws.kotlin.tests.getCredentialsProvider
 import io.bluetape4k.aws.kotlin.tests.getLocalStackServer
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.info
-import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.localstack.LocalStackContainer
 
 abstract class AbstractKotlinSesTest {
@@ -32,15 +30,12 @@ abstract class AbstractKotlinSesTest {
         const val receiverEmail = "to-use@example.com"
     }
 
-    protected val sesClient: SesClient = SesClient {
-        credentialsProvider = snsServer.getCredentialsProvider()
-        endpointUrl = snsServer.endpointUrl
-        region = snsServer.region
-        httpClient = defaultCrtHttpEngineOf()
-    }.apply {
-        log.info { "SesClient created with endpoint: ${snsServer.endpoint}" }
-
-        // JVM 종료 시 SnsClient를 닫습니다.
-        ShutdownQueue.register(this)
+    protected val sesClient: SesClient by lazy {
+        sesClientOf(
+            endpointUrl = snsServer.endpointUrl,
+            region = snsServer.region,
+            credentialsProvider = snsServer.getCredentialsProvider(),
+            httpClient = crtHttpEngineOf()
+        )
     }
 }

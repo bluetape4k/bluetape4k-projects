@@ -15,11 +15,9 @@ inline fun attributeValueUpdateOf(
     value: AttributeValue,
     action: AttributeAction,
     @BuilderInference crossinline builder: AttributeValueUpdate.Builder.() -> Unit = {},
-): AttributeValueUpdate {
-    return AttributeValueUpdate {
-        this.value = value
-        this.action = action
+): AttributeValueUpdate = AttributeValueUpdate {
+    this.value = value
+    this.action = action
 
-        builder()
-    }
+    builder()
 }

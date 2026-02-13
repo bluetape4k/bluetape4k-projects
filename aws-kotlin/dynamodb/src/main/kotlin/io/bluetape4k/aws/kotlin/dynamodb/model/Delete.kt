@@ -32,7 +32,7 @@ inline fun deleteOf(
 
     return Delete {
         this.tableName = tableName
-        this.key = key?.mapValues { it.value.toAttributeValue() }
+        this.key = key?.toAttributeValueMap()
 
         builder()
     }
@@ -60,7 +60,7 @@ inline fun deleteRequestOf(
     key.requireNotEmpty("key")
 
     return DeleteRequest {
-        this.key = key.mapValues { it.value.toAttributeValue() }
+        this.key = key.toAttributeValueMap()
 
         builder()
     }

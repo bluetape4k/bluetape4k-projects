@@ -7,11 +7,10 @@ inline fun listGlobalTableRequestOf(
     regionName: String? = null,
     limit: Int? = null,
     @BuilderInference crossinline builder: ListGlobalTablesRequest.Builder.() -> Unit = {},
-): ListGlobalTablesRequest =
-    ListGlobalTablesRequest {
-        this.exclusiveStartGlobalTableName = exclusiveStartGlobalTableName
-        this.regionName = regionName
-        this.limit = limit
+): ListGlobalTablesRequest = ListGlobalTablesRequest {
+    this.exclusiveStartGlobalTableName = exclusiveStartGlobalTableName
+    this.regionName = regionName
+    this.limit = limit
 
-        builder()
-    }
+    builder()
+}

@@ -3,6 +3,7 @@ package io.bluetape4k.aws.kotlin.ses.model
 import aws.sdk.kotlin.services.ses.model.Destination
 import aws.sdk.kotlin.services.ses.model.Message
 import aws.sdk.kotlin.services.ses.model.SendEmailRequest
+import io.bluetape4k.support.requireNotBlank
 
 inline fun sendEmailRequestOf(
     source: String,
@@ -10,7 +11,7 @@ inline fun sendEmailRequestOf(
     message: Message,
     @BuilderInference crossinline builder: SendEmailRequest.Builder.() -> Unit = {},
 ): SendEmailRequest {
-    require(source.isNotBlank()) { "source must not be blank." }
+    source.requireNotBlank("source")
 
     return SendEmailRequest {
         this.source = source

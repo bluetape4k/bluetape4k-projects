@@ -99,10 +99,10 @@ object Versions {
     const val netty = "4.2.9.Final"      // https://mvnrepository.com/artifact/io.netty/netty-all
 
     const val aws = "1.12.797"            // https://mvnrepository.com/artifact/com.amazonaws
-    const val aws2 = "2.41.18"            // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
-    const val aws2_crt = "0.42.2"         // https://mvnrepository.com/artifact/software.amazon.awssdk.crt/aws-crt
-    const val aws_kotlin = "1.6.6"        // https://mvnrepository.com/artifact/aws.sdk.kotlin/aws-http-jvm
-    const val aws_smithy_kotlin = "1.6.1" // https://mvnrepository.com/artifact/aws.smithy.kotlin/http-client-engine-crt-jvm
+    const val aws2 = "2.41.27"            // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
+    const val aws2_crt = "0.43.1"         // https://mvnrepository.com/artifact/software.amazon.awssdk.crt/aws-crt
+    const val aws_kotlin = "1.6.15"        // https://mvnrepository.com/artifact/aws.sdk.kotlin/aws-http-jvm
+    const val aws_smithy_kotlin = "1.6.2" // https://mvnrepository.com/artifact/aws.smithy.kotlin/http-client-engine-crt-jvm
 
     const val aws_spring_cloud = "3.4.2"  // https://mvnrepository.com/artifact/io.awspring.cloud/spring-cloud-aws-starter
 
@@ -699,10 +699,13 @@ object Libs {
     // val aws_kotlin_testing = awsKotlin("testing")
 
     // Aws Smithy Kotlin
+    // https://mvnrepository.com/artifact/aws.smithy.kotlin
     fun awsSmithyKotlin(module:String, version:String = Versions.aws_smithy_kotlin) = "aws.smithy.kotlin:$module:$version"
 
     val aws_smithy_kotlin_http = awsSmithyKotlin("http-jvm")
-    val aws_smithy_kotlin_http_client_engine_crt = awsSmithyKotlin("http-client-engine-crt-jvm")
+    val aws_smithy_kotlin_http_client_engine_crt = awsSmithyKotlin("http-client-engine-crt")
+    val aws_smithy_kotlin_http_client_engine_default = awsSmithyKotlin("http-client-engine-default")
+    val aws_smithy_kotlin_http_client_engine_okhttp = awsSmithyKotlin("http-client-engine-okhttp")
     val aws_smithy_kotlin_serde = awsSmithyKotlin("serde-jvm")
     val aws_smithy_kotlin_serde_json = awsSmithyKotlin("serde-json-jvm")
 

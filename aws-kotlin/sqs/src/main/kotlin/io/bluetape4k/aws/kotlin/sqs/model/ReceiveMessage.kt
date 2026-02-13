@@ -30,8 +30,8 @@ inline fun receiveMessageRequestOf(
         this.queueUrl = queueUrl
         this.maxNumberOfMessages = maxNumberOfMessages
         this.waitTimeSeconds = waitTimeSeconds
-        visibilityTimeout?.let { this.visibilityTimeout = it }
-        attributeNames?.let { this.messageAttributeNames = it.toList() }
+        this.visibilityTimeout = visibilityTimeout
+        this.messageAttributeNames = attributeNames?.toList()
 
         builder()
     }

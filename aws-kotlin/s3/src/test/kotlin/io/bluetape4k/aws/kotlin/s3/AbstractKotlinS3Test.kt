@@ -2,7 +2,7 @@ package io.bluetape4k.aws.kotlin.s3
 
 import aws.sdk.kotlin.services.s3.S3Client
 import aws.sdk.kotlin.services.s3.listBuckets
-import io.bluetape4k.aws.kotlin.http.defaultCrtHttpEngineOf
+import io.bluetape4k.aws.kotlin.http.crtHttpEngineOf
 import io.bluetape4k.aws.kotlin.tests.endpointUrl
 import io.bluetape4k.aws.kotlin.tests.getCredentialsProvider
 import io.bluetape4k.aws.kotlin.tests.getLocalStackServer
@@ -11,7 +11,6 @@ import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import io.bluetape4k.logging.warn
-import io.bluetape4k.utils.ShutdownQueue
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeAll
 import org.testcontainers.containers.localstack.LocalStackContainer
@@ -53,16 +52,13 @@ abstract class AbstractKotlinS3Test {
         protected fun randomKey(): String = Base58.randomString(16).lowercase()
     }
 
-    protected val s3Client: S3Client = S3Client {
-        credentialsProvider = s3Server.getCredentialsProvider()
-        endpointUrl = s3Server.endpointUrl
-        region = s3Server.region
-        httpClient = defaultCrtHttpEngineOf()
-    }.apply {
-        log.info { "S3Client created with endpoint: ${s3Server.endpoint}" }
-
-        // JVM 종료 시 S3Client를 닫습니다.
-        ShutdownQueue.register(this)
+    protected val s3Client: S3Client by lazy {
+        s3ClientOf(
+            endpointUrl = s3Server.endpointUrl,
+            region = s3Server.region,
+            credentialsProvider = s3Server.getCredentialsProvider(),
+            httpClient = crtHttpEngineOf()
+        )
     }
 
     @BeforeAll

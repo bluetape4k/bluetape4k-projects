@@ -7,11 +7,11 @@ import aws.sdk.kotlin.services.dynamodb.model.QueryResponse
 import aws.sdk.kotlin.services.dynamodb.putItem
 import aws.sdk.kotlin.services.dynamodb.query
 import io.bluetape4k.aws.kotlin.dynamodb.existsTable
-import io.bluetape4k.aws.kotlin.dynamodb.model.numberAttrDefinitionOf
-import io.bluetape4k.aws.kotlin.dynamodb.model.partitionKeyOf
+import io.bluetape4k.aws.kotlin.dynamodb.model.numberAttributeDefinition
+import io.bluetape4k.aws.kotlin.dynamodb.model.partitionKey
 import io.bluetape4k.aws.kotlin.dynamodb.model.provisionedThroughputOf
-import io.bluetape4k.aws.kotlin.dynamodb.model.sortKeyOf
-import io.bluetape4k.aws.kotlin.dynamodb.model.stringAttrDefinitionOf
+import io.bluetape4k.aws.kotlin.dynamodb.model.sortKey
+import io.bluetape4k.aws.kotlin.dynamodb.model.stringAttributeDefinition
 import io.bluetape4k.aws.kotlin.dynamodb.model.toAttributeValue
 import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -31,12 +31,12 @@ class MovieService(private val client: DynamoDbClient) {
         val request = CreateTableRequest {
             this.tableName = tableName
             keySchema = listOf(
-                partitionKeyOf("year"),
-                sortKeyOf("title")
+                "year".partitionKey(),
+                "title".sortKey(),
             )
             attributeDefinitions = listOf(
-                numberAttrDefinitionOf("year"),
-                stringAttrDefinitionOf("title")
+                "year".numberAttributeDefinition(),
+                "title".stringAttributeDefinition()
             )
             provisionedThroughput = provisionedThroughputOf(10, 10)
         }
@@ -59,7 +59,7 @@ class MovieService(private val client: DynamoDbClient) {
 
             client.putItem {
                 this.tableName = tableName
-                item = attrValue.value
+                this.item = attrValue.value
             }
         }
     }

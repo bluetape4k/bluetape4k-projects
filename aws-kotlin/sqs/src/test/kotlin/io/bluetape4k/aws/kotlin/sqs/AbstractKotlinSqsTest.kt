@@ -1,14 +1,12 @@
 package io.bluetape4k.aws.kotlin.sqs
 
 import aws.sdk.kotlin.services.sqs.SqsClient
-import io.bluetape4k.aws.kotlin.http.defaultCrtHttpEngineOf
+import io.bluetape4k.aws.kotlin.http.crtHttpEngineOf
 import io.bluetape4k.aws.kotlin.tests.endpointUrl
 import io.bluetape4k.aws.kotlin.tests.getCredentialsProvider
 import io.bluetape4k.aws.kotlin.tests.getLocalStackServer
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.info
-import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.localstack.LocalStackContainer
 
 abstract class AbstractKotlinSqsTest {
@@ -28,15 +26,12 @@ abstract class AbstractKotlinSqsTest {
         }
     }
 
-    protected val sqsClient: SqsClient = SqsClient {
-        credentialsProvider = sqsServer.getCredentialsProvider()
-        endpointUrl = sqsServer.endpointUrl
-        region = sqsServer.region
-        httpClient = defaultCrtHttpEngineOf()
-    }.apply {
-        log.info { "SqsClient created with endpoint: ${sqsServer.endpoint}" }
-
-        // JVM 종료 시 SqsClient를 닫습니다.
-        ShutdownQueue.register(this)
+    protected val sqsClient: SqsClient by lazy {
+        sqsClientOf(
+            endpointUrl = sqsServer.endpointUrl,
+            region = sqsServer.region,
+            credentialsProvider = sqsServer.getCredentialsProvider(),
+            httpClient = crtHttpEngineOf()
+        )
     }
 }

@@ -24,17 +24,16 @@ inline fun updateGlobalTableRequestOf(
 
 inline fun updateGlobalTableSettingsRequestOf(
     globalTableName: String,
-    globalTableProvisionedWriteCapacityAutoScalingSettingsUpdate: AutoScalingSettingsUpdate? = null,
-    globalTableGlobalSecondaryIndexSettingsUpdate: List<GlobalTableGlobalSecondaryIndexSettingsUpdate>? = null,
+    autoScalingSettingsUpdate: AutoScalingSettingsUpdate? = null,
+    gsIndexSettingsUpdates: List<GlobalTableGlobalSecondaryIndexSettingsUpdate>? = null,
     @BuilderInference crossinline builder: UpdateGlobalTableSettingsRequest.Builder.() -> Unit = {},
 ): UpdateGlobalTableSettingsRequest {
     globalTableName.requireNotBlank("globalTableName")
 
     return UpdateGlobalTableSettingsRequest {
         this.globalTableName = globalTableName
-        this.globalTableProvisionedWriteCapacityAutoScalingSettingsUpdate =
-            globalTableProvisionedWriteCapacityAutoScalingSettingsUpdate
-        this.globalTableGlobalSecondaryIndexSettingsUpdate = globalTableGlobalSecondaryIndexSettingsUpdate
+        this.globalTableProvisionedWriteCapacityAutoScalingSettingsUpdate = autoScalingSettingsUpdate
+        this.globalTableGlobalSecondaryIndexSettingsUpdate = gsIndexSettingsUpdates
 
         builder()
     }

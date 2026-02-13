@@ -31,6 +31,7 @@ class MovieServiceTest: AbstractKotlinDynamoDbTest() {
 
         val titles = films2013.items!!.mapNotNull { it["title"]?.asS() }
         log.debug { "2013 film titles: " }
+
         titles.forEach {
             log.debug { "\ttitle=$it" }
         }

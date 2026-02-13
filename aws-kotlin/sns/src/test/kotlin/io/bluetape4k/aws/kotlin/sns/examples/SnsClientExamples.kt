@@ -12,7 +12,6 @@ import aws.sdk.kotlin.services.sns.subscribe
 import aws.sdk.kotlin.services.sns.unsubscribe
 import io.bluetape4k.aws.kotlin.sns.AbstractKotlinSnsTest
 import io.bluetape4k.codec.Base58
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -125,7 +124,7 @@ class SnsClientExamples: AbstractKotlinSnsTest() {
         val messageSize = 10
         val response = snsClient.publishBatch {
             topicArn = testTopicArn
-            publishBatchRequestEntries = fastList(messageSize) {
+            publishBatchRequestEntries = List(messageSize) {
                 PublishBatchRequestEntry {
                     id = Base58.randomString(6).lowercase()
                     this.message = "Hello, AWS SNS! ${Base58.randomString(6).lowercase()}"

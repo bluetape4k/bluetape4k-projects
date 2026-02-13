@@ -5,14 +5,14 @@ import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
-class CrtHttpEngineSupportTest {
+class OkHttpEngineSupportTest {
 
     companion object: KLogging()
 
     @Test
-    fun `crtHttpEngineOf는 CrtHttpEngine 인스턴스를 생성한다`() {
-        crtHttpEngineOf().use { engine ->
-            log.debug { "CrtHttpEngine: $engine" }
+    fun `okHttpEngineOf는 OkHttpEngine 인스턴스를 생성한다`() {
+        okHttpEngineOf().use { engine ->
+            log.debug { "OkHttpEngine: $engine" }
             engine.shouldNotBeNull()
         }
     }

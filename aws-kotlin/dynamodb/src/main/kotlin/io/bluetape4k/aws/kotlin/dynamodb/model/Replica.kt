@@ -27,13 +27,12 @@ inline fun replicaUpdateOf(
     create: CreateReplicaAction? = null,
     delete: DeleteReplicaAction? = null,
     @BuilderInference crossinline builder: ReplicaUpdate.Builder.() -> Unit = {},
-): ReplicaUpdate =
-    ReplicaUpdate {
-        this.create = create
-        this.delete = delete
+): ReplicaUpdate = ReplicaUpdate {
+    this.create = create
+    this.delete = delete
 
-        builder()
-    }
+    builder()
+}
 
 inline fun replicaSettingsUpdateOf(
     regionName: String,

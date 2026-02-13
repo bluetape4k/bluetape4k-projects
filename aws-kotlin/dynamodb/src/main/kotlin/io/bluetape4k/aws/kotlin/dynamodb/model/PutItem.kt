@@ -34,7 +34,7 @@ inline fun putItemRequestOf(
 ): PutItemRequest =
     putItemRequestOf(
         tableName,
-        item.mapValues { it.value.toAttributeValue() },
+        item.toAttributeValueMap(),
         returnValues,
         builder,
     )

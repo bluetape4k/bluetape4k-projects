@@ -2,7 +2,6 @@ package io.bluetape4k.aws.dynamodb.query
 
 import io.bluetape4k.aws.dynamodb.model.Expression
 import io.bluetape4k.aws.dynamodb.model.toAttributeValue
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.collections.eclipse.unifiedMapOf
 import io.bluetape4k.logging.KLogging
@@ -113,13 +112,13 @@ class ConcreteFilter(
                 }
 
                 when (comparator) {
-                    is Equals -> singleValueComparator("=", comparator)
-                    is NotEquals -> singleValueComparator("<>", comparator)
-                    is GreaterThan -> singleValueComparator(">", comparator)
+                    is Equals           -> singleValueComparator("=", comparator)
+                    is NotEquals        -> singleValueComparator("<>", comparator)
+                    is GreaterThan      -> singleValueComparator(">", comparator)
                     is GreaterThanOrEquals -> singleValueComparator(">=", comparator)
-                    is LessThan -> singleValueComparator("<", comparator)
+                    is LessThan         -> singleValueComparator("<", comparator)
                     is LessThanOrEquals -> singleValueComparator("<=", comparator)
-                    is Between -> {
+                    is Between          -> {
                         val leftExprAttrValue = toExprAttrValue(dynamoFunction.attributeName + "left")
                         val rightExprAttrValue = toExprAttrValue(dynamoFunction.attributeName + "right")
 
@@ -128,7 +127,7 @@ class ConcreteFilter(
                         expressionAttributeValues[rightExprAttrValue] = comparator.right.toAttributeValue()
                     }
 
-                    is InList -> {
+                    is InList           -> {
                         val attrValues = comparator.right.joinToString {
                             toExprAttrValue(dynamoFunction.attributeName).apply {
                                 expressionAttributeValues[this] = it.toAttributeValue()
@@ -146,7 +145,7 @@ class ConcreteFilter(
                 expressionAttributeNames[exprAttrName] = dynamoFunction.attributeName
             }
 
-            else -> {
+            else         -> {
                 log.warn { "Not supported DynamoFunction: $dynamoFunction" }
             }
         }
@@ -221,7 +220,7 @@ fun ConcreteFilterBuilder.inList(vararg values: Any) {
 class RootFilterBuilder: FilterQueryBuilder {
 
     var currentFilter: FilterQuery? = null
-    var filterQueries = fastListOf<FilterConnection>()
+    var filterQueries = mutableListOf<FilterConnection>()
 
     override fun build(): RootFilter = RootFilter(filterQueries)
 

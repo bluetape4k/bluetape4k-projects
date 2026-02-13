@@ -3,7 +3,6 @@ package io.bluetape4k.aws.dynamodb.examples.food.tests
 import io.bluetape4k.aws.dynamodb.examples.food.AbstractFoodApplicationTest
 import io.bluetape4k.aws.dynamodb.examples.food.model.UserDocument
 import io.bluetape4k.aws.dynamodb.examples.food.repository.UserRepository
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -69,7 +68,7 @@ class UserRepositoryTest: AbstractFoodApplicationTest() {
 
     @Test
     fun `save many items`() = runTest {
-        val users = fastList(100) { createUser() }
+        val users = List(100) { createUser() }
 
         val saved = repository.saveAll(users).toList()
         saved.all {

@@ -19,10 +19,10 @@ fun interface DynamoItemMapper<T: Any> {
  * ```
  */
 fun <T: Any> Iterable<T>.buildWritePutRequests(mapper: DynamoItemMapper<T>): List<WriteRequest> {
-    return this.map {
+    return map {
         WriteRequest {
             putRequest {
-                this.item = mapper.mapToDynamoItem(it)
+                item = mapper.mapToDynamoItem(it)
             }
         }
     }
@@ -39,7 +39,7 @@ fun <T: Any> Iterable<T>.buildWriteDeleteRequests(keySelector: DynamoItemMapper<
     return this.map {
         WriteRequest {
             deleteRequest {
-                this.key = keySelector.mapToDynamoItem(it)
+                key = keySelector.mapToDynamoItem(it)
             }
         }
     }

@@ -2,6 +2,7 @@ package io.bluetape4k.aws.kotlin.dynamodb.model
 
 import aws.sdk.kotlin.services.dynamodb.model.KeySchemaElement
 import aws.sdk.kotlin.services.dynamodb.model.KeyType
+import io.bluetape4k.support.requireNotBlank
 
 /**
  * [KeySchemaElement]를 생성합니다.
@@ -10,15 +11,30 @@ import aws.sdk.kotlin.services.dynamodb.model.KeyType
  * @param keyType 키 스키마의 타입 (Partition Key=[KeyType.Hash], Sort Key=[KeyType.Range])
  */
 fun keySchemaElementOf(
-    attributeName: String? = null,
-    keyType: KeyType = KeyType.Hash,
+    attributeName: String?,
+    keyType: KeyType? = KeyType.Hash,
 ): KeySchemaElement {
+    attributeName.requireNotBlank("attributeName")
 
     return KeySchemaElement {
         this.attributeName = attributeName
         this.keyType = keyType
     }
 }
+
+/**
+ * Partition Key를 생성합니다.
+ *
+ * @receiver Partition Key의 이름
+ */
+fun String.partitionKey(): KeySchemaElement =
+    keySchemaElementOf(this, KeyType.Hash)
+
+/**
+ * Sort Key를 생성합니다.
+ */
+fun String.sortKey(): KeySchemaElement =
+    keySchemaElementOf(this, KeyType.Range)
 
 /**
  * Partition Key를 생성합니다.

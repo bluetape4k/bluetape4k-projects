@@ -16,39 +16,40 @@ import aws.sdk.kotlin.services.ses.model.Template
 import aws.smithy.kotlin.runtime.auth.awscredentials.CredentialsProvider
 import aws.smithy.kotlin.runtime.http.engine.HttpClientEngine
 import aws.smithy.kotlin.runtime.net.url.Url
-import io.bluetape4k.aws.kotlin.http.defaultCrtHttpEngineOf
+import io.bluetape4k.aws.kotlin.http.crtHttpEngineOf
 import io.bluetape4k.utils.ShutdownQueue
-
 
 /**
  * [SesClient] 인스턴스를 생성합니다.
  *
- * ```
+ * ```kotlin
  * val sesClient = sesClientOf(
  *  endpoint = "http://localhost:4566",
  *  region = "us-east-1",
  *  credentialsProvider = credentialsProvider
  * )
- * ````
+ * ```
  *
  * @param endpoint SES endpoint URL
  * @param region AWS region
  * @param credentialsProvider AWS credentials provider
- * @param httpClientEngine [HttpClientEngine] 엔진 (기본적으로 [aws.smithy.kotlin.runtime.http.engine.crt.CrtHttpEngine] 를 사용합니다.)
+ * @param httpClient [HttpClientEngine] 엔진 (기본적으로 [aws.smithy.kotlin.runtime.http.engine.crt.CrtHttpEngine] 를 사용합니다.)
  * @param builder SES client 설정 빌더
+ *
  * @return [SesClient] 인스턴스
+ *
  */
 inline fun sesClientOf(
-    endpoint: String? = null,
+    endpointUrl: Url? = null,
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
-    httpClientEngine: HttpClientEngine = defaultCrtHttpEngineOf(),
+    httpClient: HttpClientEngine = crtHttpEngineOf(),
     @BuilderInference crossinline builder: SesClient.Config.Builder.() -> Unit = {},
 ): SesClient = SesClient {
-    endpoint?.let { this.endpointUrl = Url.parse(it) }
-    region?.let { this.region = it }
-    credentialsProvider?.let { this.credentialsProvider = it }
-    httpClient = httpClientEngine
+    this.endpointUrl = endpointUrl
+    this.region = region
+    this.credentialsProvider = credentialsProvider
+    this.httpClient = httpClient
 
     builder()
 }.apply {
@@ -84,7 +85,7 @@ inline fun sesClientOf(
  * @param emailRequest [SendEmailRequest] email 전송 요청 정보
  * @return [SendEmailResponse] email 전송 결과
  */
-suspend fun SesClient.send(emailRequest: SendEmailRequest): SendEmailResponse =
+suspend inline fun SesClient.send(emailRequest: SendEmailRequest): SendEmailResponse =
     sendEmail(emailRequest)
 
 
@@ -103,7 +104,7 @@ suspend fun SesClient.send(emailRequest: SendEmailRequest): SendEmailResponse =
  * @param rawEmailRequest [SendRawEmailRequest] raw email 전송 요청 정보
  * @return [SendRawEmailResponse] raw email 전송 결과
  */
-suspend fun SesClient.sendRaw(rawEmailRequest: SendRawEmailRequest): SendRawEmailResponse =
+suspend inline fun SesClient.sendRaw(rawEmailRequest: SendRawEmailRequest): SendRawEmailResponse =
     sendRawEmail(rawEmailRequest)
 
 /**
@@ -131,7 +132,7 @@ suspend fun SesClient.sendRaw(rawEmailRequest: SendRawEmailRequest): SendRawEmai
  * @param emailRequest [SendTemplatedEmailRequest] email 전송 요청 정보
  * @return [SendTemplatedEmailResponse] email 전송 결과
  */
-suspend fun SesClient.sendTemplated(emailRequest: SendTemplatedEmailRequest): SendTemplatedEmailResponse =
+suspend inline fun SesClient.sendTemplated(emailRequest: SendTemplatedEmailRequest): SendTemplatedEmailResponse =
     sendTemplatedEmail(emailRequest)
 
 /**
@@ -156,7 +157,7 @@ suspend fun SesClient.sendTemplated(emailRequest: SendTemplatedEmailRequest): Se
  * @param emailRequest [SendBulkTemplatedEmailRequest] email 전송 요청 정보
  * @return [SendBulkTemplatedEmailResponse] email 전송 결과
  */
-suspend fun SesClient.sendBulkTemplated(emailRequest: SendBulkTemplatedEmailRequest): SendBulkTemplatedEmailResponse =
+suspend inline fun SesClient.sendBulkTemplated(emailRequest: SendBulkTemplatedEmailRequest): SendBulkTemplatedEmailResponse =
     sendBulkTemplatedEmail(emailRequest)
 
 
@@ -176,7 +177,7 @@ suspend fun SesClient.sendBulkTemplated(emailRequest: SendBulkTemplatedEmailRequ
  *
  * @param template [Template] 템플릿 정보
  */
-suspend fun SesClient.createTemplate(template: Template): CreateTemplateResponse =
+suspend inline fun SesClient.createTemplate(template: Template): CreateTemplateResponse =
     createTemplate { this.template = template }
 
 /**
@@ -189,7 +190,7 @@ suspend fun SesClient.createTemplate(template: Template): CreateTemplateResponse
  * @param templateName 템플릿 이름
  * @return [Template] 템플릿 정보, 없으면 null
  */
-suspend fun SesClient.getTemplateOrNull(templateName: String): Template? =
+suspend inline fun SesClient.getTemplateOrNull(templateName: String): Template? =
     runCatching {
         getTemplate { this.templateName = templateName }.template
     }.getOrNull()

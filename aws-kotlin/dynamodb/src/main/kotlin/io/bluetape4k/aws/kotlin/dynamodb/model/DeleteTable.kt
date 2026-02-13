@@ -3,7 +3,7 @@ package io.bluetape4k.aws.kotlin.dynamodb.model
 import aws.sdk.kotlin.services.dynamodb.model.DeleteTableRequest
 import io.bluetape4k.support.requireNotBlank
 
-inline fun deleteTableRequest(
+inline fun deleteTableRequestOf(
     tableName: String,
     @BuilderInference crossinline builder: DeleteTableRequest.Builder.() -> Unit = {},
 ): DeleteTableRequest {

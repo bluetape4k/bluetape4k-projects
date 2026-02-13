@@ -6,8 +6,7 @@ import aws.sdk.kotlin.services.ses.model.SendRawEmailRequest
 inline fun sendRawEmailRequestOf(
     rawMessage: RawMessage,
     @BuilderInference crossinline builder: SendRawEmailRequest.Builder.() -> Unit = {},
-): SendRawEmailRequest =
-    SendRawEmailRequest {
-        this.rawMessage = rawMessage
-        builder()
-    }
+): SendRawEmailRequest = SendRawEmailRequest {
+    this.rawMessage = rawMessage
+    builder()
+}

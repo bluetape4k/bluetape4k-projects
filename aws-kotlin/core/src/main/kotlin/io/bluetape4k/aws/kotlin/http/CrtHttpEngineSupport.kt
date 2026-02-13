@@ -4,9 +4,10 @@ import aws.smithy.kotlin.runtime.http.engine.crt.CrtHttpEngine
 import aws.smithy.kotlin.runtime.http.engine.crt.CrtHttpEngineConfig
 import io.bluetape4k.utils.ShutdownQueue
 
-fun defaultCrtHttpEngineOf(
+fun crtHttpEngineOf(
     config: CrtHttpEngineConfig = CrtHttpEngineConfig.Default,
 ): CrtHttpEngine =
-    CrtHttpEngine(config).apply {
-        ShutdownQueue.register(this)
-    }
+    CrtHttpEngine(config)
+        .apply {
+            ShutdownQueue.register(this)
+        }

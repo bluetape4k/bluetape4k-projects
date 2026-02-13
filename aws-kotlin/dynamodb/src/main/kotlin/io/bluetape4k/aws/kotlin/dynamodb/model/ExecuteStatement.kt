@@ -17,10 +17,10 @@ inline fun executeStatementRequestOf(
 
     return ExecuteStatementRequest {
         this.statement = statement
-        parameters?.let { this.parameters = it }
-        consistentRead?.let { this.consistentRead = it }
-        limit?.let { this.limit = it }
-        nextToken?.let { this.nextToken = it }
+        this.parameters = parameters
+        this.consistentRead = consistentRead
+        this.limit = limit
+        this.nextToken = nextToken
 
         builder()
     }
@@ -34,13 +34,11 @@ inline fun executeStatementRequestOf(
     limit: Int? = null,
     nextToken: String? = null,
     @BuilderInference crossinline builder: ExecuteStatementRequest.Builder.() -> Unit = {},
-): ExecuteStatementRequest {
-    return executeStatementRequestOf(
-        statement,
-        parameters?.map { it.toAttributeValue() },
-        consistentRead,
-        limit,
-        nextToken,
-        builder,
-    )
-}
+): ExecuteStatementRequest = executeStatementRequestOf(
+    statement,
+    parameters?.toAttributeValueList(),
+    consistentRead,
+    limit,
+    nextToken,
+    builder,
+)

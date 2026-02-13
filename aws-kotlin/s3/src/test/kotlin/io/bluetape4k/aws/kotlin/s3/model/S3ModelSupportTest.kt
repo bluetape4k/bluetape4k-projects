@@ -1,6 +1,7 @@
 package io.bluetape4k.aws.kotlin.s3.model
 
 import aws.sdk.kotlin.services.s3.model.EncodingType
+import aws.sdk.kotlin.services.s3.model.ObjectCannedAcl
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
@@ -93,6 +94,47 @@ class S3ModelSupportTest {
     }
 
     @Test
+    fun `copyObjectRequestOf copySource 오버로드는 필드를 설정한다`() {
+        val request = copyObjectRequestOf(
+            copySource = "src-bucket/src-key",
+            destBucket = "dest-bucket",
+            destKey = "dest-key",
+            acl = ObjectCannedAcl.Private,
+        )
+
+        request.copySource shouldBeEqualTo "src-bucket/src-key"
+        request.bucket shouldBeEqualTo "dest-bucket"
+        request.key shouldBeEqualTo "dest-key"
+        request.acl shouldBeEqualTo ObjectCannedAcl.Private
+    }
+
+    @Test
+    fun `getObjectAclRequestOf는 필드를 설정한다`() {
+        val request = getObjectAclRequestOf(
+            bucket = "bucket",
+            key = "key",
+            versionId = "v1",
+        )
+
+        request.bucket shouldBeEqualTo "bucket"
+        request.key shouldBeEqualTo "key"
+        request.versionId shouldBeEqualTo "v1"
+    }
+
+    @Test
+    fun `getObjectRetentionRequestOf는 필드를 설정한다`() {
+        val request = getObjectRetentionRequestOf(
+            bucket = "bucket",
+            key = "key",
+            versionId = "v1",
+        )
+
+        request.bucket shouldBeEqualTo "bucket"
+        request.key shouldBeEqualTo "key"
+        request.versionId shouldBeEqualTo "v1"
+    }
+
+    @Test
     fun `deleteOf는 빈 목록을 허용하지 않는다`() {
         assertFailsWith<IllegalArgumentException> {
             deleteOf(emptyList<String>())
@@ -103,6 +145,19 @@ class S3ModelSupportTest {
     fun `deleteObjectsRequestOf는 빈 식별자 목록을 허용하지 않는다`() {
         assertFailsWith<IllegalArgumentException> {
             deleteObjectsRequestOf(bucket = "bucket", identifiers = emptyList())
+        }
+    }
+
+    @Test
+    fun `새로운 S3 요청 빌더는 blank 입력을 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> {
+            copyObjectRequestOf(copySource = " ", destBucket = "dest-bucket", destKey = "dest-key")
+        }
+        assertFailsWith<IllegalArgumentException> {
+            getObjectAclRequestOf(bucket = " ", key = "key")
+        }
+        assertFailsWith<IllegalArgumentException> {
+            getObjectRetentionRequestOf(bucket = "bucket", key = " ")
         }
     }
 }

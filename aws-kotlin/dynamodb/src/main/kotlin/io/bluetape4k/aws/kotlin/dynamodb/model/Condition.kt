@@ -9,14 +9,11 @@ inline fun conditionOf(
     comparisonOperator: ComparisonOperator,
     attributeValueList: List<AttributeValue>,
     @BuilderInference crossinline builder: Condition.Builder.() -> Unit = {},
-): Condition {
+): Condition = Condition {
+    this.comparisonOperator = comparisonOperator
+    this.attributeValueList = attributeValueList
 
-    return Condition {
-        this.comparisonOperator = comparisonOperator
-        this.attributeValueList = attributeValueList
-
-        builder()
-    }
+    builder()
 }
 
 @JvmName("conditionOfAny")
@@ -24,12 +21,9 @@ inline fun conditionOf(
     comparisonOperator: ComparisonOperator,
     attributeValueList: List<Any?>,
     @BuilderInference crossinline builder: Condition.Builder.() -> Unit = {},
-): Condition {
+): Condition = Condition {
+    this.comparisonOperator = comparisonOperator
+    this.attributeValueList = attributeValueList.map { it.toAttributeValue() }
 
-    return Condition {
-        this.comparisonOperator = comparisonOperator
-        this.attributeValueList = attributeValueList.map { it.toAttributeValue() }
-
-        builder()
-    }
+    builder()
 }
