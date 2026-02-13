@@ -13,6 +13,9 @@ import java.io.Closeable
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 
+/**
+ * Virtual Thread dispatcher 기반 [CoroutineScope] 구현입니다.
+ */
 open class VirtualThreadCoroutineScope: CoroutineScope, Closeable {
     companion object: KLogging() {
         val Instance: VirtualThreadCoroutineScope by lazy { VirtualThreadCoroutineScope() }
@@ -22,10 +25,13 @@ open class VirtualThreadCoroutineScope: CoroutineScope, Closeable {
 
     override val coroutineContext: CoroutineContext = Dispatchers.VT + job
 
+    /**
+     * 자식 Job들을 취소하고 현재 scope도 취소합니다.
+     */
     fun clearJobs(cause: CancellationException? = null) {
         log.debug { "clearJobs: cause=$cause" }
         coroutineContext.cancelChildren(cause)
-        coroutineContext.cancel()
+        coroutineContext.cancel(cause)
     }
 
     override fun close() {

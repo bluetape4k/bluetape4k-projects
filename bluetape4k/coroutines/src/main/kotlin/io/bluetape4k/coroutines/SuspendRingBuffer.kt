@@ -1,6 +1,8 @@
 package io.bluetape4k.coroutines
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.requireInOpenRange
+import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -19,13 +21,18 @@ class SuspendRingBuffer<T: Any>(
     companion object: KLogging() {
         @JvmStatic
         operator fun <T: Any> invoke(size: Int, empty: T): SuspendRingBuffer<T> {
+            size.requirePositiveNumber("size")
             val list = MutableList(size) { empty } as MutableList<T?>
             val buffer = CopyOnWriteArrayList(list)
 
             return SuspendRingBuffer(buffer)
         }
 
+        /**
+         * nullable 값을 저장할 수 있는 boxing ring buffer를 생성합니다.
+         */
         fun <T: Any> boxing(size: Int): SuspendRingBuffer<T> {
+            size.requirePositiveNumber("size")
             val list: MutableList<T?> = MutableList(size) { null }
             val buffer = CopyOnWriteArrayList(list)
 
@@ -41,9 +48,7 @@ class SuspendRingBuffer<T: Any>(
     val isFull: Boolean get() = size == buffer.size
 
     suspend fun get(index: Int): T = mutex.withLock {
-        require(index >= 0) { "Index must be positive" }
-        require(index < size) { "Index $index is out of circular buffer size $size" }
-
+        index.requireInOpenRange(0, size, "index")
         buffer[startIndex.forward(index)] as T
     }
 

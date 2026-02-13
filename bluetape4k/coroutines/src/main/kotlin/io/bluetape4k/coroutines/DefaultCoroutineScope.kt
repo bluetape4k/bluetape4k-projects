@@ -24,7 +24,7 @@ open class DefaultCoroutineScope: CoroutineScope, Closeable {
     override val coroutineContext: CoroutineContext = Dispatchers.Default + job
 
     /**
-     * 자식의 모든 Job을 취소합니다.
+     * 자식 Job들을 취소하고 현재 scope도 취소합니다.
      *
      * @param cause 취소 사유에 해당하는 예외정보. default is null
      */

@@ -17,6 +17,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
+import kotlin.test.assertFailsWith
 
 class SuspendRingBufferTest {
 
@@ -34,6 +35,16 @@ class SuspendRingBufferTest {
 
         buffer.forEach {
             log.debug { it }
+        }
+    }
+
+    @Test
+    fun `ring buffer size는 0보다 커야 한다`() {
+        assertFailsWith<IllegalArgumentException> {
+            SuspendRingBuffer(0, 0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            SuspendRingBuffer.boxing<Int>(0)
         }
     }
 

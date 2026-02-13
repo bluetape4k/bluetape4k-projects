@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines
 
+import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
@@ -33,6 +34,10 @@ class ThreadPoolCoroutineScope(
     poolSize: Int = Runtime.getRuntime().availableProcessors(),
     name: String = "ThreadPoolCoroutineScope",
 ): CoroutineScope, Closeable {
+
+    init {
+        poolSize.requirePositiveNumber("poolSize")
+    }
 
     private val job: CompletableJob = SupervisorJob()
     private val dispatcher: ExecutorCoroutineDispatcher = newFixedThreadPoolContext(poolSize, name)
