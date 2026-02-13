@@ -26,7 +26,7 @@ inline fun keysAndAttributesOf(
     keys.requireNotEmpty("keys")
 
     return keysAndAttributesOf(
-        keys.map { it.mapValues { it.toAttributeValue() } },
+        keys.map { it.mapValues { it.value.toAttributeValue() } },
         builder
     )
 }

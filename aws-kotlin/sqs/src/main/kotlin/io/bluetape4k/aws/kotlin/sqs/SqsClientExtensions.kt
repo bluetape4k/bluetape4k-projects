@@ -83,7 +83,7 @@ inline fun sqsClientOf(
 
         builder()
     }.apply {
-        log.info { "Create SqlClient instance." }
+        log.info { "Create SqsClient instance." }
         ShutdownQueue.register(this)
     }
 }
@@ -240,7 +240,7 @@ suspend inline fun SqsClient.deleteQueue(
  * @param queueUrl 메시지를 보낼 Amazon SQS 큐의 URL입니다.
  * @param messageBody 전송할 메시지의 본문입니다.
  * @param delaySeconds 메시지를 보내기 전 대기할 시간(초)입니다. 기본값은 null입니다.
- * @param configurer SendMessageRequest.Builder를 초기화하는 람다입니다. 기본값은 빈 람다입니다.
+ * @param builder SendMessageRequest.Builder를 초기화하는 람다입니다. 기본값은 빈 람다입니다.
  * @return SendMessageResponse 인스턴스를 반환합니다.
  */
 suspend inline fun SqsClient.sendMessage(
@@ -329,7 +329,6 @@ suspend inline fun SqsClient.sendMessageBatch(
  *
  * @param queueUrl 메시지를 수신할 Amazon SQS 큐의 URL입니다.
  * @param maxNumberOfMessages 한 번에 수신할 최대 메시지 수입니다. 기본값은 null입니다.
- * @param builder ReceiveMessageRequest.Builder를 초기화하는 람다입니다. 기본값은 빈 람다입니다.
  */
 suspend inline fun SqsClient.receiveMessage(
     queueUrl: String,
@@ -353,14 +352,11 @@ suspend inline fun SqsClient.receiveMessage(
  *     receiptHandle = "receiptHandle",
  *     visibilityTimeout = 10
  * ) {
- *      // configurer
- * }
  * ```
  *
  * @param queueUrl 메시지의 Visibility를 변경할 Amazon SQS 큐의 URL입니다.
  * @param receiptHandle Visibility를 변경할 메시지와 연관된 영수증 핸들입니다.
  * @param visibilityTimeout 메시지의 새로운 VisibilityTimeout(초)입니다. 기본값은 null입니다.
- * @param builder ChangeMessageVisibilityRequest.Builder를 초기화하는 람다입니다. 기본값은 빈 람다입니다.
  *
  * @return ChangeMessageVisibilityResponse 인스턴스를 반환합니다.
  */

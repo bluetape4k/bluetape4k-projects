@@ -37,7 +37,7 @@ abstract class AbstractSesTest {
 
         @JvmStatic
         protected val client: SesClient by lazy {
-            SesClient {
+            sesClient {
                 credentialsProvider(credentialsProvider)
                 endpointOverride(endpoint)
                 region(region)
@@ -48,7 +48,7 @@ abstract class AbstractSesTest {
 
         @JvmStatic
         protected val asyncClient: SesAsyncClient by lazy {
-            SesAsyncClient {
+            sesAsyncClient {
                 credentialsProvider(credentialsProvider)
                 endpointOverride(endpoint)
                 region(region)

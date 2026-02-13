@@ -17,7 +17,7 @@ import io.bluetape4k.support.requireNotBlank
  * ```
  *
  * @param topicArn 발행할 Topic의 ARN
- * @parem phoneNumber 발행할 전화번호
+ * @param phoneNumber 발행할 전화번호
  * @param message 발행할 메시지
  * @param subject 메시지 제목
  * @param messageAttributes 메시지 속성

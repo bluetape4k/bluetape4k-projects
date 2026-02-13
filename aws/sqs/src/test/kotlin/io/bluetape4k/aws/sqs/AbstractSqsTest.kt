@@ -20,17 +20,17 @@ abstract class AbstractSqsTest {
         }
 
         @JvmStatic
-        private val endpoint by lazy {
+        protected val endpoint by lazy {
             AwsSQS.getEndpointOverride(LocalStackContainer.Service.SQS)
         }
 
         @JvmStatic
-        private val credentialsProvider: StaticCredentialsProvider by lazy {
+        protected val credentialsProvider: StaticCredentialsProvider by lazy {
             staticCredentialsProviderOf(AwsSQS.accessKey, AwsSQS.secretKey)
         }
 
         @JvmStatic
-        private val region: Region
+        protected val region: Region
             get() = Region.of(AwsSQS.region)
 
         @JvmStatic

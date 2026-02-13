@@ -1,6 +1,6 @@
 package io.bluetape4k.aws.sns
 
-import io.bluetape4k.aws.sns.model.SubscribeRequest
+import io.bluetape4k.aws.sns.model.subscribeRequest
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -43,7 +43,7 @@ class SnsClientTest: AbstractSnsTest() {
     @Test
     @Order(2)
     fun `subscribe topic`() {
-        val request = SubscribeRequest {
+        val request = subscribeRequest {
             protocol("sms")
             endpoint(phoneNumber)
             returnSubscriptionArn(true)

@@ -15,27 +15,27 @@ abstract class AbstractSnsTest {
 
     companion object: KLogging() {
         @JvmStatic
-        private val AwsSQS: LocalStackServer by lazy {
+        private val AwsSNS: LocalStackServer by lazy {
             LocalStackServer.Launcher.localStack.withServices(LocalStackContainer.Service.SNS)
         }
 
         @JvmStatic
-        private val endpoint by lazy {
-            AwsSQS.getEndpointOverride(LocalStackContainer.Service.SQS)
+        protected val endpoint by lazy {
+            AwsSNS.getEndpointOverride(LocalStackContainer.Service.SNS)
         }
 
         @JvmStatic
-        private val credentialsProvider: StaticCredentialsProvider by lazy {
-            staticCredentialsProviderOf(AwsSQS.accessKey, AwsSQS.secretKey)
+        protected val credentialsProvider: StaticCredentialsProvider by lazy {
+            staticCredentialsProviderOf(AwsSNS.accessKey, AwsSNS.secretKey)
         }
 
         @JvmStatic
-        private val region: Region
-            get() = Region.of(AwsSQS.region)
+        protected val region: Region
+            get() = Region.of(AwsSNS.region)
 
         @JvmStatic
         protected val client: SnsClient by lazy {
-            SnsClient {
+            snsClient {
                 credentialsProvider(credentialsProvider)
                 endpointOverride(endpoint)
                 region(region)
@@ -46,7 +46,7 @@ abstract class AbstractSnsTest {
 
         @JvmStatic
         protected val asyncClient: SnsAsyncClient by lazy {
-            SnsAsyncClient {
+            snsAsyncClient {
                 credentialsProvider(credentialsProvider)
                 endpointOverride(endpoint)
                 region(region)

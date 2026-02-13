@@ -10,7 +10,7 @@ class SendEamilRequestSupport {
 
     @Test
     fun `build SendEmailRequest`() {
-        val request = SendEmailRequest {
+        val request = sendEmailRequest {
             source("source@example.com")
             destination(destinationOf("target@example.com"))
 
@@ -32,7 +32,7 @@ class SendEamilRequestSupport {
 
     @Test
     fun `build SendTemplatedEmailRequest`() {
-        val request = SendTemplatedEmailRequest {
+        val request = sendTemplatedEmailRequest {
             source("source@example.com")
             destination(destinationOf("target@example.com"))
 

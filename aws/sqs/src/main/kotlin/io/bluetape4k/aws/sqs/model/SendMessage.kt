@@ -1,5 +1,6 @@
 package io.bluetape4k.aws.sqs.model
 
+import io.bluetape4k.support.requireNotBlank
 import software.amazon.awssdk.services.sqs.model.SendMessageBatchRequestEntry
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest
 
@@ -19,11 +20,16 @@ inline fun sendMessageRequestOf(
     messageBody: String,
     delaySeconds: Int? = null,
     @BuilderInference builder: SendMessageRequest.Builder.() -> Unit = {},
-): SendMessageRequest = sendMessageRequest {
-    queueUrl(queueUrl)
-    messageBody(messageBody)
-    delaySeconds?.run { delaySeconds(delaySeconds) }
-    builder()
+): SendMessageRequest {
+    queueUrl.requireNotBlank("queueUrl")
+    messageBody.requireNotBlank("messageBody")
+
+    return sendMessageRequest {
+        queueUrl(queueUrl)
+        messageBody(messageBody)
+        delaySeconds?.let { delaySeconds(it) }
+        builder()
+    }
 }
 
 /**
@@ -54,10 +60,17 @@ inline fun sendMessageBatchRequestEntryOf(
     messageBody: String,
     delaySeconds: Int? = null,
     @BuilderInference builder: SendMessageBatchRequestEntry.Builder.() -> Unit = {},
-): SendMessageBatchRequestEntry = sendMessageBatchRequestEntry {
-    id(id)
-    messageGroupId(messageGroupId)
-    messageBody(messageBody)
-    delaySeconds?.run { delaySeconds(this) }
-    builder()
+): SendMessageBatchRequestEntry {
+    id.requireNotBlank("id")
+    messageGroupId.requireNotBlank("messageGroupId")
+    messageBody.requireNotBlank("messageBody")
+
+    return sendMessageBatchRequestEntry {
+        id(id)
+        messageGroupId(messageGroupId)
+        messageBody(messageBody)
+        delaySeconds?.let { delaySeconds(it) }
+
+        builder()
+    }
 }

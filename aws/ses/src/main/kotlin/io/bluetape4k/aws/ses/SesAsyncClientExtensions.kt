@@ -1,12 +1,6 @@
 package io.bluetape4k.aws.ses
 
-import io.bluetape4k.aws.http.SdkAsyncHttpClientProvider
-import io.bluetape4k.aws.http.nettyNioAsyncHttpClientOf
-import io.bluetape4k.utils.ShutdownQueue
-import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.ses.SesAsyncClient
-import software.amazon.awssdk.services.ses.SesAsyncClientBuilder
-import software.amazon.awssdk.services.ses.endpoints.SesEndpointProvider
 import software.amazon.awssdk.services.ses.model.SendBulkTemplatedEmailRequest
 import software.amazon.awssdk.services.ses.model.SendBulkTemplatedEmailResponse
 import software.amazon.awssdk.services.ses.model.SendEmailRequest
@@ -16,80 +10,6 @@ import software.amazon.awssdk.services.ses.model.SendRawEmailResponse
 import software.amazon.awssdk.services.ses.model.SendTemplatedEmailRequest
 import software.amazon.awssdk.services.ses.model.SendTemplatedEmailResponse
 import java.util.concurrent.CompletableFuture
-
-/**
- * [SesAsyncClient]를 빌드합니다.
- *
- * ```
- * val client = SesAsyncClient {
- *     credentialsProvider(credentialsProvider)
- *     endpointOverride(endpoint)
- *     region(region)
- * }
- * val response = client.send(request).await()
- * ```
- *
- * @param builder [SesAsyncClientBuilder]를 이용한 초기화 람다
- * @return [SesAsyncClient] 인스턴스
- */
-inline fun SesAsyncClient(
-    @BuilderInference builder: SesAsyncClientBuilder.() -> Unit,
-): SesAsyncClient {
-    return SesAsyncClient.builder().apply(builder).build()
-        .apply {
-            ShutdownQueue.register(this)
-        }
-}
-
-/**
- * [SesAsyncClient]를 생성합니다.
- *
- * ```
- * val client = sesAsyncClientOf(region) {
- *     credentialsProvider(credentialsProvider)
- *     endpointOverride(endpoint)
- * }
- * val response = client.send(request).await()
- * ```
- *
- * @param region [Region] 지역
- * @param builder [SesAsyncClientBuilder]를 이용한 초기화 람다
- * @return [SesAsyncClient] 인스턴스
- */
-inline fun sesAsyncClientOf(
-    region: Region,
-    @BuilderInference builder: SesAsyncClientBuilder.() -> Unit = {},
-): SesAsyncClient = SesAsyncClient {
-    region(region)
-    httpClient(SdkAsyncHttpClientProvider.Netty.nettyNioAsyncHttpClient)
-
-    builder()
-}
-
-/**
- * [SesAsyncClient]를 생성합니다.
- *
- * ```
- * val client = sesAsyncClientOf(endpointProvider) {
- *     credentialsProvider(credentialsProvider)
- *     endpointOverride(endpoint)
- * }
- * val response = client.send(request).await()
- * ```
- *
- * @param endpointProvider [SesEndpointProvider] 엔드포인트 제공자
- * @param builder [SesAsyncClientBuilder]를 이용한 초기화 람다
- * @return [SesAsyncClient] 인스턴스
- */
-inline fun sesAsyncClientOf(
-    endpointProvider: SesEndpointProvider,
-    @BuilderInference builder: SesAsyncClientBuilder.() -> Unit = {},
-): SesAsyncClient = SesAsyncClient {
-    endpointProvider(endpointProvider)
-    httpClient(nettyNioAsyncHttpClientOf())
-
-    builder()
-}
 
 /**
  * [SendEmailRequest] 정보를 바탕으로 email을 비동기로 전송합니다.
@@ -103,11 +23,10 @@ inline fun sesAsyncClientOf(
  * @param emailRequest [SendEmailRequest] email 전송 요청 정보
  * @return [CompletableFuture]<[SendEmailResponse]> email 전송 응답 정보
  */
-fun SesAsyncClient.send(
+fun SesAsyncClient.sendAsync(
     emailRequest: SendEmailRequest,
-): CompletableFuture<SendEmailResponse> {
-    return sendEmail(emailRequest)
-}
+): CompletableFuture<SendEmailResponse> =
+    sendEmail(emailRequest)
 
 /**
  * [SendRawEmailRequest] 정보를 바탕으로 email을 비동기로 전송합니다.
@@ -121,11 +40,10 @@ fun SesAsyncClient.send(
  * @param rawEmailRequest [SendRawEmailRequest] email 전송 요청 정보
  * @return [CompletableFuture]<[SendRawEmailResponse]> email 전송 응답 정보
  */
-fun SesAsyncClient.sendRaw(
+fun SesAsyncClient.sendRawAsync(
     rawEmailRequest: SendRawEmailRequest,
-): CompletableFuture<SendRawEmailResponse> {
-    return sendRawEmail(rawEmailRequest)
-}
+): CompletableFuture<SendRawEmailResponse> =
+    sendRawEmail(rawEmailRequest)
 
 /**
  * [SendTemplatedEmailRequest] 정보를 바탕으로 email을 비동기로 전송합니다.
@@ -139,11 +57,10 @@ fun SesAsyncClient.sendRaw(
  * @param templatedEmailRequest [SendTemplatedEmailRequest] email 전송 요청 정보
  * @return [CompletableFuture]<[SendTemplatedEmailResponse]> email 전송 응답 정보
  */
-fun SesAsyncClient.sendTemplated(
+fun SesAsyncClient.sendTemplatedAsync(
     templatedEmailRequest: SendTemplatedEmailRequest,
-): CompletableFuture<SendTemplatedEmailResponse> {
-    return sendTemplatedEmail(templatedEmailRequest)
-}
+): CompletableFuture<SendTemplatedEmailResponse> =
+    sendTemplatedEmail(templatedEmailRequest)
 
 /**
  * [SendBulkTemplatedEmailRequest] 정보를 바탕으로 email을 비동기로 전송합니다.
@@ -157,8 +74,7 @@ fun SesAsyncClient.sendTemplated(
  * @param bulkTemplatedEmailRequest [SendBulkTemplatedEmailRequest] email 전송 요청 정보
  * @return [CompletableFuture]<[SendBulkTemplatedEmailResponse]> email 전송 응답 정보
  */
-fun SesAsyncClient.sendBulkTemplated(
+fun SesAsyncClient.sendBulkTemplatedAsync(
     bulkTemplatedEmailRequest: SendBulkTemplatedEmailRequest,
-): CompletableFuture<SendBulkTemplatedEmailResponse> {
-    return sendBulkTemplatedEmail(bulkTemplatedEmailRequest)
-}
+): CompletableFuture<SendBulkTemplatedEmailResponse> =
+    sendBulkTemplatedEmail(bulkTemplatedEmailRequest)

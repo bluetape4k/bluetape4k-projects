@@ -1,6 +1,7 @@
 package io.bluetape4k.io.okio.coroutines.internal
 
 import io.bluetape4k.io.okio.coroutines.SuspendedSource
+import io.bluetape4k.io.okio.coroutines.withTimeoutOrNull
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking

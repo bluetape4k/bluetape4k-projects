@@ -3,7 +3,7 @@ package io.bluetape4k.aws.sns.model
 import software.amazon.awssdk.awscore.AwsRequestOverrideConfiguration
 import software.amazon.awssdk.services.sns.model.SetSubscriptionAttributesRequest
 
-inline fun SetSubscriptionAttributesRequest(
+inline fun setSubscriptionAttributesRequest(
     @BuilderInference builder: SetSubscriptionAttributesRequest.Builder.() -> Unit,
 ): SetSubscriptionAttributesRequest =
     SetSubscriptionAttributesRequest.builder().apply(builder).build()
@@ -14,11 +14,11 @@ inline fun setSubscriptionAttributesRequestOf(
     attributeValue: String? = null,
     overrideConfiguration: AwsRequestOverrideConfiguration? = null,
     @BuilderInference builder: SetSubscriptionAttributesRequest.Builder.() -> Unit = {},
-): SetSubscriptionAttributesRequest = SetSubscriptionAttributesRequest {
-    subscriptionArn?.run { subscriptionArn(this) }
-    attributeName?.run { attributeName(this) }
-    attributeValue?.run { attributeValue(this) }
-    overrideConfiguration?.run { overrideConfiguration(this) }
+): SetSubscriptionAttributesRequest = setSubscriptionAttributesRequest {
+    subscriptionArn?.let { subscriptionArn(it) }
+    attributeName?.let { attributeName(it) }
+    attributeValue?.let { attributeValue(it) }
+    overrideConfiguration?.let { overrideConfiguration(it) }
 
     builder()
 }

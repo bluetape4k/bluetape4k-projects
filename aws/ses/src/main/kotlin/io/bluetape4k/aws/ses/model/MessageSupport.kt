@@ -1,5 +1,6 @@
 package io.bluetape4k.aws.ses.model
 
+import io.bluetape4k.support.requireNotBlank
 import software.amazon.awssdk.services.ses.model.Body
 import software.amazon.awssdk.services.ses.model.Content
 import software.amazon.awssdk.services.ses.model.Message
@@ -7,7 +8,7 @@ import software.amazon.awssdk.services.ses.model.MessageTag
 import java.nio.charset.Charset
 
 /**
- * [Message.Builder]를 사용하여 [Message] 인스턴스를 생성합니다.
+ * [Message.Builder]를 사용하여 [message] 인스턴스를 생성합니다.
  *
  * ```
  * val message = Message {
@@ -28,9 +29,9 @@ import java.nio.charset.Charset
  * ```
  *
  * @param builder [Message.Builder] 초기화 람다
- * @return [Message] 인스턴스
+ * @return [message] 인스턴스
  */
-inline fun Message(
+inline fun message(
     @BuilderInference builder: Message.Builder.() -> Unit,
 ): Message {
     return Message.builder().apply(builder).build()
@@ -53,12 +54,13 @@ inline fun Message(
 fun messageOf(
     subject: Content,
     body: Body,
-): Message {
-    return Message { subject(subject).body(body) }
+): Message = message {
+    subject(subject)
+    body(body)
 }
 
 /**
- * [Body.Builder]를 이용하여 [Body] 인스턴스를 생성합니다.
+ * [Body.Builder]를 이용하여 [body] 인스턴스를 생성합니다.
  *
  * ```
  * val body = Body {
@@ -72,13 +74,12 @@ fun messageOf(
  * ```
  *
  * @param builder [Body.Builder] 초기화 람다
- * @return [Body] 인스턴스
+ * @return [body] 인스턴스
  */
-inline fun Body(
+inline fun body(
     @BuilderInference builder: Body.Builder.() -> Unit,
-): Body {
-    return Body.builder().apply(builder).build()
-}
+): Body =
+    Body.builder().apply(builder).build()
 
 /**
  * [Body] 인스턴스를 생성합니다.
@@ -96,7 +97,7 @@ fun bodyOf(
     text: String,
     html: String,
     charset: Charset = Charsets.UTF_8,
-): Body = Body {
+): Body = body {
     text(contentOf(text, charset))
     html(contentOf(html, charset))
 }
@@ -115,7 +116,7 @@ fun bodyOf(
 fun bodyAsText(
     text: String,
     charset: Charset = Charsets.UTF_8,
-): Body = Body {
+): Body = body {
     text(contentOf(text, charset))
 }
 
@@ -133,12 +134,12 @@ fun bodyAsText(
 fun bodyAsHtml(
     html: String,
     charset: Charset = Charsets.UTF_8,
-): Body = Body {
+): Body = body {
     html(contentOf(html, charset))
 }
 
 /**
- * [Content.Builder]를 이용하여 [Content] 인스턴스를 생성합니다.
+ * [Content.Builder]를 이용하여 [content] 인스턴스를 생성합니다.
  *
  * ```
  * val content = Content {
@@ -148,9 +149,9 @@ fun bodyAsHtml(
  * ```
  *
  * @param builder [Content.Builder] 초기화 람다
- * @return [Content] 인스턴스
+ * @return [content] 인스턴스
  */
-inline fun Content(
+inline fun content(
     @BuilderInference builder: Content.Builder.() -> Unit,
 ): Content {
     return Content.builder().apply(builder).build()
@@ -167,25 +168,25 @@ inline fun Content(
  * @param charset [Charset] 문자셋
  * @return [Content] 인스턴스
  */
-fun contentOf(data: String? = null, charset: Charset = Charsets.UTF_8) = Content {
-    data(data)
+fun contentOf(data: String? = null, charset: Charset = Charsets.UTF_8) = content {
+    data?.let { data(it) }
     charset(charset.name())
 }
 
 /**
- * [MessageTag.Builder]를 이용하여 [MessageTag] 인스턴스를 생성합니다.
+ * [MessageTag.Builder]를 이용하여 [messageTag] 인스턴스를 생성합니다.
  *
  * ```
- * val messageTag = MessageTag {
+ * val messageTag = messageTag {
  *    name("key")
  *    value("value")
  * }
  * ```
  *
  * @param builder [MessageTag.Builder] 초기화 람다
- * @return [MessageTag] 인스턴스
+ * @return [messageTag] 인스턴스
  */
-inline fun MessageTag(
+inline fun messageTag(
     @BuilderInference builder: MessageTag.Builder.() -> Unit,
 ): MessageTag {
     return MessageTag.builder().apply(builder).build()
@@ -205,7 +206,12 @@ inline fun MessageTag(
 fun messageTagOf(
     name: String,
     value: String,
-) = MessageTag {
-    name(name)
-    value(value)
+): MessageTag {
+    name.requireNotBlank("name")
+    value.requireNotBlank("value")
+
+    return messageTag {
+        name(name)
+        value(value)
+    }
 }

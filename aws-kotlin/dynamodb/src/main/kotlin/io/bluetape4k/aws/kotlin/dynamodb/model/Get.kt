@@ -34,7 +34,7 @@ inline fun getOf(
 ): Get {
     return getOf(
         tableName,
-        key?.mapValues { it.toAttributeValue() },
+        key?.mapValues { it.value.toAttributeValue() },
         expressionAttributeNames,
         projectionExpression,
         builder,

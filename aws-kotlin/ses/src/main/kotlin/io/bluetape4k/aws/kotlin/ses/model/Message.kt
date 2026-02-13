@@ -8,13 +8,16 @@ inline fun contentOf(
     data: String,
     charset: String = Charsets.UTF_8.name(),
     @BuilderInference crossinline builder: Content.Builder.() -> Unit = {},
-): Content =
-    Content {
+): Content {
+    require(data.isNotBlank()) { "data must not be blank." }
+
+    return Content {
         this.data = data
         this.charset = charset
 
         builder()
     }
+}
 
 inline fun htmlBodyOf(
     html: Content? = null,

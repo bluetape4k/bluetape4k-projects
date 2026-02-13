@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.buffer
 class DynamoDbBatchExecutor<T: Any>(
     private val client: DynamoDbClient,
     private val retry: Retry = Retry.ofDefaults("dynamo-batch"),
+    private val maxUnprocessedRetry: Int = 10,
 ): CoroutineScope by CoroutineScope(Dispatchers.IO + SupervisorJob()) {
 
     companion object: KLoggingChannel()
@@ -101,20 +102,22 @@ class DynamoDbBatchExecutor<T: Any>(
             }
     }
 
-    private tailrec suspend fun persistAll(items: List<TableItemTuple>) {
+    private tailrec suspend fun persistAll(items: List<TableItemTuple>, attempt: Int = 1) {
         val requestItems = items.groupBy({ it.tableName }, { it.writeRequest })
 
         val result = client.batchWriteItem {
             this.requestItems = requestItems
         }
 
-        // 부분적으로 Write 작업이 실패한 경우, 다시 시도합니다.
-        // TODO: 무한 반복이 될 수도 있습니다 - 시도를 제한하거나, 타임아웃을 넣거나 해야 할 것 같습니다.
         if (result.unprocessedItems?.isNotEmpty() == true) {
+            check(attempt < maxUnprocessedRetry) {
+                "Failed to process batch write after $attempt attempts; unprocessed items remained."
+            }
+
             val unprocessedItems = result.unprocessedItems!!.entries.flatMap { entry ->
                 entry.value.map { TableItemTuple(entry.key, it) }
             }
-            persistAll(unprocessedItems)
+            persistAll(unprocessedItems, attempt + 1)
         }
     }
 }

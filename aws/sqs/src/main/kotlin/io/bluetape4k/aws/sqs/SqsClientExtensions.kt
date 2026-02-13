@@ -3,7 +3,9 @@ package io.bluetape4k.aws.sqs
 import io.bluetape4k.aws.http.SdkHttpClientProvider
 import io.bluetape4k.aws.sqs.model.sendMessageRequestOf
 import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.utils.ShutdownQueue
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
+import software.amazon.awssdk.http.SdkHttpClient
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.sqs.SqsClient
 import software.amazon.awssdk.services.sqs.SqsClientBuilder
@@ -25,19 +27,34 @@ import java.net.URI
 
 inline fun sqsClient(
     @BuilderInference builder: SqsClientBuilder.() -> Unit,
-): SqsClient {
-    return SqsClient.builder().apply(builder).build()
+): SqsClient =
+    SqsClient.builder().apply(builder).build()
+        .apply {
+            ShutdownQueue.register(this)
+        }
+
+inline fun sqsClientOf(
+    region: Region,
+    httpClient: SdkHttpClient = SdkHttpClientProvider.Apache.apacheHttpClient,
+    @BuilderInference builder: SqsClientBuilder.() -> Unit = {},
+): SqsClient = sqsClient {
+    region(region)
+    httpClient(httpClient)
+
+    builder()
 }
 
 inline fun sqsClientOf(
     endpoint: URI,
     region: Region,
     credentialsProvider: AwsCredentialsProvider,
+    httpClient: SdkHttpClient = SdkHttpClientProvider.Apache.apacheHttpClient,
     @BuilderInference builder: SqsClientBuilder.() -> Unit = {},
 ): SqsClient = sqsClient {
     endpointOverride(endpoint)
     region(region)
     credentialsProvider(credentialsProvider)
+    httpClient(httpClient)
 
     httpClient(SdkHttpClientProvider.Apache.apacheHttpClient)
     builder()

@@ -51,7 +51,7 @@ class SesClientExtensionsTest: AbstractKotlinSesTest() {
                 }
             }
         }
-        val response = sesClient.sendEmail(request)
+        val response = sesClient.send(request)
         log.debug { "response=$response" }
         response.messageId.shouldNotBeEmpty()
     }
@@ -65,7 +65,7 @@ class SesClientExtensionsTest: AbstractKotlinSesTest() {
                 data = "Hello, world!".toUtf8Bytes()
             }
         }
-        val response = sesClient.sendRawEmail(request)
+        val response = sesClient.sendRaw(request)
         log.debug { "response=$response" }
         response.messageId.shouldNotBeEmpty()
     }
@@ -99,8 +99,14 @@ class SesClientExtensionsTest: AbstractKotlinSesTest() {
             templateData = """{"name": "world"}"""
         }
 
-        val response = sesClient.sendTemplatedEmail(request)
+        val response = sesClient.sendTemplated(request)
         log.debug { "response=$response" }
         response.messageId.shouldNotBeEmpty()
+    }
+
+    @Test
+    fun `unknown template은 null을 반환한다`() = runSuspendIO {
+        val unknown = sesClient.getTemplateOrNull("not-exists-template")
+        unknown shouldBeEqualTo null
     }
 }

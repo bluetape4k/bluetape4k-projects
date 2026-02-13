@@ -1,6 +1,7 @@
 package io.bluetape4k.aws.kotlin.sns.model
 
 import aws.sdk.kotlin.services.sns.model.MessageAttributeValue
+import io.bluetape4k.support.requireNotBlank
 
 /**
  * [stringValue] 문자열을 가지는 [MessageAttributeValue]를 생성합니다.
@@ -16,12 +17,15 @@ import aws.sdk.kotlin.services.sns.model.MessageAttributeValue
 inline fun messageAttributeValueOf(
     stringValue: String,
     @BuilderInference crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
-): MessageAttributeValue =
-    MessageAttributeValue {
+): MessageAttributeValue {
+    stringValue.requireNotBlank("stringValue")
+
+    return MessageAttributeValue {
         this.stringValue = stringValue
         this.dataType = "String"
         builder()
     }
+}
 
 /**
  * [binaryValue] 바이너리 값을 가지는 [MessageAttributeValue]를 생성합니다.
@@ -37,12 +41,15 @@ inline fun messageAttributeValueOf(
 inline fun messageAttributeValueOf(
     binaryValue: ByteArray,
     @BuilderInference crossinline builder: MessageAttributeValue.Builder.() -> Unit = {},
-): MessageAttributeValue =
-    MessageAttributeValue {
+): MessageAttributeValue {
+    require(binaryValue.isNotEmpty()) { "binaryValue must not be empty." }
+
+    return MessageAttributeValue {
         this.binaryValue = binaryValue
         this.dataType = "Binary"
         builder()
     }
+}
 
 /**
  * [numberValue] 숫자 값을 가지는 [MessageAttributeValue]를 생성합니다.

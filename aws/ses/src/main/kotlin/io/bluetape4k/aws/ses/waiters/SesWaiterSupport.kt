@@ -1,14 +1,15 @@
 package io.bluetape4k.aws.ses.waiters
 
+import io.bluetape4k.utils.ShutdownQueue
 import software.amazon.awssdk.core.waiters.WaiterOverrideConfiguration
 import software.amazon.awssdk.services.ses.SesClient
 import software.amazon.awssdk.services.ses.waiters.SesWaiter
 
 /**
- * [SesWaiter.Builder]를 이용하여 [SesWaiter] 인스턴스를 생성합니다.
+ * [SesWaiter.Builder]를 이용하여 [sesWaiter] 인스턴스를 생성합니다.
  *
  * ```
- * val waiter = SesWaiter {
+ * val waiter = sesWaiter {
  *    client(sesClient)
  *    overrideConfiguration(waiterOverrideConfiguration)
  *    maxAttempts(10)
@@ -24,12 +25,15 @@ import software.amazon.awssdk.services.ses.waiters.SesWaiter
  * ```
  *
  * @param builder [SesWaiter.Builder] 초기화 람다
- * @return [SesWaiter] 인스턴스
+ * @return [sesWaiter] 인스턴스
  */
-inline fun SesWaiter(
+fun sesWaiter(
     @BuilderInference builder: SesWaiter.Builder.() -> Unit,
 ): SesWaiter {
     return SesWaiter.builder().apply(builder).build()
+        .apply {
+            ShutdownQueue.register(this)
+        }
 }
 
 /**
@@ -47,7 +51,9 @@ inline fun SesWaiter(
 fun sesWaiterOf(
     client: SesClient,
     configuration: WaiterOverrideConfiguration = waiterOverrideConfigurationOf(),
-): SesWaiter = io.bluetape4k.aws.ses.waiters.SesWaiter {
+    @BuilderInference builder: SesWaiter.Builder.() -> Unit = {},
+): SesWaiter = sesWaiter {
     client(client)
     overrideConfiguration(configuration)
+    builder()
 }

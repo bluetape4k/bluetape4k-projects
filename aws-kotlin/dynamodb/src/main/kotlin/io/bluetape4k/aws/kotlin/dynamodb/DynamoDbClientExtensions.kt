@@ -37,7 +37,7 @@ val log by lazy { KotlinLogging.logger { } }
 /**
  * [DynamoDbClient]를 생성합니다.
  *
- * @param endpointUrl S3 엔드포인트 URL
+ * @param endpointUrl DynamoDB 엔드포인트 URL
  * @param region AWS 리전
  * @param credentialsProvider AWS 자격 증명 제공자
  * @param httpClientEngine [HttpClientEngine] 엔진 (기본적으로 [aws.smithy.kotlin.runtime.http.engine.crt.CrtHttpEngine] 를 사용합니다.)
@@ -93,7 +93,7 @@ suspend inline fun DynamoDbClient.createTable(
 }
 
 /**
- * 테이븖 명[name]을 가진 DynamoDB 테이블이 존재하는지 확인합니다.
+ * 테이블 명[name]을 가진 DynamoDB 테이블이 존재하는지 확인합니다.
  */
 suspend fun DynamoDbClient.existsTable(name: String): Boolean {
     name.requireNotBlank("name")

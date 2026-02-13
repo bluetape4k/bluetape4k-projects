@@ -7,7 +7,6 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
-import kotlinx.coroutines.future.await
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeEmpty
@@ -33,8 +32,8 @@ class SqsAsyncClientTest: AbstractSqsTest() {
     @Test
     @Order(1)
     fun `create queue`() = runSuspendIO {
-        val url = asyncClient.createQueue(QUEUE_NAME).await()
-        queueUrl = asyncClient.getQueueUrl(QUEUE_NAME).await().queueUrl()
+        val url = asyncClient.createQueue(QUEUE_NAME)
+        queueUrl = asyncClient.getQueueUrl(QUEUE_NAME).queueUrl()
 
         queueUrl shouldBeEqualTo url
         log.debug { "queue url=$queueUrl" }
@@ -43,7 +42,7 @@ class SqsAsyncClientTest: AbstractSqsTest() {
     @Test
     @Order(2)
     fun `list queues`() = runSuspendIO {
-        val response = asyncClient.listQueues(QUEUE_PREFIX).await()
+        val response = asyncClient.listQueuesSuspend(QUEUE_PREFIX)
 
         response.queueUrls() shouldHaveSize 1
         response.queueUrls().forEach {
@@ -54,7 +53,7 @@ class SqsAsyncClientTest: AbstractSqsTest() {
     @Test
     @Order(3)
     fun `send message`() = runSuspendIO {
-        val response = asyncClient.send(queueUrl, "Hello, World!").await()
+        val response = asyncClient.send(queueUrl, "Hello, World!")
         response.messageId().shouldNotBeEmpty()
         log.debug { "response=$response" }
     }
@@ -71,7 +70,7 @@ class SqsAsyncClientTest: AbstractSqsTest() {
                 messageBody("Hello, world $index")
             }
         }
-        val response = asyncClient.sendBatch(queueUrl, entries).await()
+        val response = asyncClient.sendBatch(queueUrl, entries)
         response.successful() shouldHaveSize entries.size
         response.successful().forEach {
             log.debug { "result entry=$it" }
@@ -81,7 +80,7 @@ class SqsAsyncClientTest: AbstractSqsTest() {
     @Test
     @Order(5)
     fun `receive messages`() = runSuspendIO {
-        val messages = asyncClient.receiveMessages(queueUrl, 3).await().messages()
+        val messages = asyncClient.receiveMessages(queueUrl, 3).messages()
 
         messages shouldHaveSize 3
         messages.forEach {
@@ -92,10 +91,10 @@ class SqsAsyncClientTest: AbstractSqsTest() {
     @Test
     @Order(6)
     fun `chnage messages`() = runSuspendIO {
-        val messages = asyncClient.receiveMessages(queueUrl, 3).await().messages()
+        val messages = asyncClient.receiveMessages(queueUrl, 3).messages()
 
         val responses = messages.map { message ->
-            asyncClient.changeMessageVisibility(queueUrl, message.receiptHandle(), 10).await()
+            asyncClient.changeMessageVisibility(queueUrl, message.receiptHandle(), 10)
             client.changeMessageVisibility {
                 it.queueUrl(queueUrl).receiptHandle(message.receiptHandle()).visibilityTimeout(10)
             }
@@ -109,10 +108,10 @@ class SqsAsyncClientTest: AbstractSqsTest() {
     @Test
     @Order(7)
     fun `delete messages`() = runSuspendIO {
-        val messages = asyncClient.receiveMessages(queueUrl, 3).await().messages()
+        val messages = asyncClient.receiveMessages(queueUrl, 3).messages()
 
         val responses = messages.map { message ->
-            asyncClient.deleteMessage(queueUrl, message.receiptHandle()).await()
+            asyncClient.deleteMessage(queueUrl, message.receiptHandle())
         }
         responses shouldHaveSize messages.size
         responses.forEach {
@@ -123,7 +122,7 @@ class SqsAsyncClientTest: AbstractSqsTest() {
     @Test
     @Order(8)
     fun `delete queue`() = runSuspendIO {
-        val response: DeleteQueueResponse = asyncClient.deleteQueue(queueUrl).await()
+        val response: DeleteQueueResponse = asyncClient.deleteQueue(queueUrl)
         response.responseMetadata().requestId().shouldNotBeEmpty()
     }
 }

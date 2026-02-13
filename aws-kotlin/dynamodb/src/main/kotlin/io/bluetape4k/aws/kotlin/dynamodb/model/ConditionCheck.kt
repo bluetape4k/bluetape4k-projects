@@ -32,8 +32,8 @@ inline fun conditionCheckOf(
     return ConditionCheck {
         this.conditionExpression = conditionExpression
         this.expressionAttributeNames = expressionAttributeNames
-        this.expressionAttributeValues = expressionAttributeValues?.mapValues { it.toAttributeValue() }
-        this.key = key?.mapValues { it.toAttributeValue() }
+        this.expressionAttributeValues = expressionAttributeValues?.mapValues { it.value.toAttributeValue() }
+        this.key = key?.mapValues { it.value.toAttributeValue() }
 
         builder()
     }

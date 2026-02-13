@@ -31,11 +31,11 @@ import io.bluetape4k.utils.ShutdownQueue
  * )
  * ````
  *
- * @param endpoint SNS endpoint URL
+ * @param endpoint SES endpoint URL
  * @param region AWS region
  * @param credentialsProvider AWS credentials provider
  * @param httpClientEngine [HttpClientEngine] 엔진 (기본적으로 [aws.smithy.kotlin.runtime.http.engine.crt.CrtHttpEngine] 를 사용합니다.)
- * @param configurer SNS client 설정 빌더
+ * @param builder SES client 설정 빌더
  * @return [SesClient] 인스턴스
  */
 inline fun sesClientOf(
@@ -190,4 +190,6 @@ suspend fun SesClient.createTemplate(template: Template): CreateTemplateResponse
  * @return [Template] 템플릿 정보, 없으면 null
  */
 suspend fun SesClient.getTemplateOrNull(templateName: String): Template? =
-    getTemplate { this.templateName = templateName }.template
+    runCatching {
+        getTemplate { this.templateName = templateName }.template
+    }.getOrNull()

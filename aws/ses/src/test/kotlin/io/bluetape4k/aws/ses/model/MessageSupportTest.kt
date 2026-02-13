@@ -10,7 +10,7 @@ class MessageSupportTest {
 
     @Test
     fun `build email message`() {
-        val message = Message {
+        val message = message {
             subject(contentOf("제목"))
             body(
                 bodyOf(

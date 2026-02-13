@@ -1,9 +1,9 @@
 package io.bluetape4k.aws.ses
 
-import io.bluetape4k.aws.ses.model.SendEmailRequest
 import io.bluetape4k.aws.ses.model.bodyOf
 import io.bluetape4k.aws.ses.model.contentOf
 import io.bluetape4k.aws.ses.model.destinationOf
+import io.bluetape4k.aws.ses.model.sendEmailRequest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldNotBeEmpty
@@ -28,7 +28,7 @@ class SesClientTest: AbstractSesTest() {
         client.verifyEmailAddress { it.emailAddress(senderEmail) }
         client.verifyEmailAddress { it.emailAddress(receiverEamil) }
 
-        val request = SendEmailRequest {
+        val request = sendEmailRequest {
             source(senderEmail)
             destination(destinationOf(receiverEamil))
             message { mb ->

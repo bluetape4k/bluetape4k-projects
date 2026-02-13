@@ -2,7 +2,6 @@ package io.bluetape4k.aws.kotlin.sqs.model
 
 import aws.sdk.kotlin.services.sqs.model.ReceiveMessageRequest
 import io.bluetape4k.support.requireNotBlank
-import io.bluetape4k.support.requirePositiveNumber
 
 /**
  * queueUrl, maxNumber, waitTimeSeconds, attributeNames를 사용하여 ReceiveMessageRequest를 생성합니다.
@@ -24,8 +23,8 @@ inline fun receiveMessageRequestOf(
     @BuilderInference crossinline builder: ReceiveMessageRequest.Builder.() -> Unit = {},
 ): ReceiveMessageRequest {
     queueUrl.requireNotBlank("queueUrl")
-    maxNumberOfMessages.requirePositiveNumber("maxNumberOfMessages")
-    waitTimeSeconds.requirePositiveNumber("waitTimeSeconds")
+    require(maxNumberOfMessages in 1..10) { "maxNumberOfMessages must be in the range 1..10." }
+    require(waitTimeSeconds in 0..20) { "waitTimeSeconds must be in the range 0..20." }
 
     return ReceiveMessageRequest {
         this.queueUrl = queueUrl

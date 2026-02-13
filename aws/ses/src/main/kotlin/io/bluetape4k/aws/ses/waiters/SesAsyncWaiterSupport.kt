@@ -1,15 +1,16 @@
 package io.bluetape4k.aws.ses.waiters
 
+import io.bluetape4k.utils.ShutdownQueue
 import software.amazon.awssdk.core.waiters.WaiterOverrideConfiguration
 import software.amazon.awssdk.services.ses.SesAsyncClient
 import software.amazon.awssdk.services.ses.waiters.SesAsyncWaiter
 import java.util.concurrent.ScheduledExecutorService
 
 /**
- * [SesAsyncWaiter.Builder]를 이용하여 [SesAsyncWaiter] 인스턴스를 생성합니다.
+ * [SesAsyncWaiter.Builder]를 이용하여 [sesAsyncWaiter] 인스턴스를 생성합니다.
  *
  * ```
- * val waiter = SesAsyncWaiter {
+ * val waiter = sesAsyncWaiter {
  *    client(sesAsyncClient)
  *    scheduledExecutorService(scheduledExecutorService)
  *    overrideConfiguration(waiterOverrideConfiguration)
@@ -26,12 +27,15 @@ import java.util.concurrent.ScheduledExecutorService
  * ```
  *
  * @param builder [SesAsyncWaiter.Builder] 초기화 람다
- * @return [SesAsyncWaiter] 인스턴스
+ * @return [sesAsyncWaiter] 인스턴스
  */
-inline fun SesAsyncWaiter(
+fun sesAsyncWaiter(
     @BuilderInference builder: SesAsyncWaiter.Builder.() -> Unit,
 ): SesAsyncWaiter {
     return SesAsyncWaiter.builder().apply(builder).build()
+        .apply {
+            ShutdownQueue.register(this)
+        }
 }
 
 /**
@@ -51,8 +55,11 @@ fun sesAsyncWaiterOf(
     client: SesAsyncClient,
     scheduledExecutorService: ScheduledExecutorService,
     configuration: WaiterOverrideConfiguration = waiterOverrideConfigurationOf(),
-): SesAsyncWaiter = io.bluetape4k.aws.ses.waiters.SesAsyncWaiter {
+    @BuilderInference builder: SesAsyncWaiter.Builder.() -> Unit = {},
+): SesAsyncWaiter = sesAsyncWaiter {
     client(client)
     scheduledExecutorService(scheduledExecutorService)
     overrideConfiguration(configuration)
+
+    builder()
 }

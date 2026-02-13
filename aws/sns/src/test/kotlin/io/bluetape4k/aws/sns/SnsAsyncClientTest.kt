@@ -1,6 +1,6 @@
 package io.bluetape4k.aws.sns
 
-import io.bluetape4k.aws.sns.model.SubscribeRequest
+import io.bluetape4k.aws.sns.model.subscribeRequest
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -35,7 +35,7 @@ class SnsAsyncClientTest: AbstractSnsTest() {
     @Test
     @Order(1)
     fun `create topic`() = runSuspendIO {
-        val response = asyncClient.createFIFOTopic(TOPIC_NAME).await()
+        val response = asyncClient.createFIFOTopic(TOPIC_NAME)
 
         topicArn = response.topicArn()
         topicArn.shouldNotBeEmpty()
@@ -45,7 +45,7 @@ class SnsAsyncClientTest: AbstractSnsTest() {
     @Test
     @Order(2)
     fun `subscribe topic`() = runSuspendIO {
-        val request = SubscribeRequest {
+        val request = subscribeRequest {
             protocol("sms")
             endpoint(phoneNumber)
             returnSubscriptionArn(true)

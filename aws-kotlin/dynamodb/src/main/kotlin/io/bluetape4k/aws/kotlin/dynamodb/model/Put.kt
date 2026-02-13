@@ -29,7 +29,7 @@ inline fun putOf(
     item: Map<String, Any?>,
     @BuilderInference crossinline builder: Put.Builder.() -> Unit = {},
 ): Put =
-    putOf(tableName, item.mapValues { it.toAttributeValue() }, builder)
+    putOf(tableName, item.mapValues { it.value.toAttributeValue() }, builder)
 
 @JvmName("putRequestOfAttributeValue")
 inline fun putRequestOf(
@@ -47,4 +47,4 @@ inline fun putRequestOf(
     item: Map<String, Any?>,
     @BuilderInference crossinline builder: PutRequest.Builder.() -> Unit = {},
 ): PutRequest =
-    putRequestOf(item.mapValues { it.toAttributeValue() }, builder)
+    putRequestOf(item.mapValues { it.value.toAttributeValue() }, builder)

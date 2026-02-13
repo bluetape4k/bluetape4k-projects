@@ -5,6 +5,7 @@ import aws.sdk.kotlin.services.sqs.model.SendMessageBatchRequestEntry
 import aws.sdk.kotlin.services.sqs.model.SendMessageRequest
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.support.requireNotEmpty
 
 /**
  * 제공된 queueUrl과 messageBody를 사용하여 SendMessageRequest를 생성합니다.
@@ -77,6 +78,7 @@ inline fun sendMessageBatchRequestOf(
     @BuilderInference crossinline builder: SendMessageBatchRequest.Builder.() -> Unit = {},
 ): SendMessageBatchRequest {
     queueUrl.requireNotBlank("queueUrl")
+    entries.requireNotEmpty("entries")
 
     return SendMessageBatchRequest {
         this.queueUrl = queueUrl
@@ -100,6 +102,7 @@ inline fun sendMessageBatchRequestOf(
     @BuilderInference crossinline builder: SendMessageBatchRequest.Builder.() -> Unit = {},
 ): SendMessageBatchRequest {
     queueUrl.requireNotBlank("queueUrl")
+    entries.requireNotEmpty("entries")
 
     return SendMessageBatchRequest {
         this.queueUrl = queueUrl

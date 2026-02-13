@@ -1,16 +1,21 @@
 package io.bluetape4k.aws.sns.model
 
+import io.bluetape4k.support.requireNotBlank
 import software.amazon.awssdk.services.sns.model.UnsubscribeRequest
 
-inline fun UnsubscribeRequest(
+inline fun unsubscribeRequest(
     @BuilderInference builder: UnsubscribeRequest.Builder.() -> Unit,
 ): UnsubscribeRequest = UnsubscribeRequest.builder().apply(builder).build()
 
 inline fun unsubscribeRequestOf(
     subscriptionArn: String,
     @BuilderInference builder: UnsubscribeRequest.Builder.() -> Unit = {},
-): UnsubscribeRequest = UnsubscribeRequest {
-    this.subscriptionArn(subscriptionArn)
+): UnsubscribeRequest {
+    subscriptionArn.requireNotBlank("subscriptionArn")
 
-    builder()
+    return unsubscribeRequest {
+        this.subscriptionArn(subscriptionArn)
+
+        builder()
+    }
 }

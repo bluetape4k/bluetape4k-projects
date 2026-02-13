@@ -37,7 +37,7 @@ inline fun scanRequestOf(
     return scanRequestOf(
         tableName,
         attributesToGet,
-        exclusiveStartKey?.mapValues { it.toAttributeValue() },
+        exclusiveStartKey?.mapValues { it.value.toAttributeValue() },
         indexName,
         builder
     )

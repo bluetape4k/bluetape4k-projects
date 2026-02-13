@@ -37,7 +37,8 @@ inline fun receiveMessageRequestOf(
         queueUrl(queueUrl)
         maxNumberOfMessages(maxNumber)
         waitTimeSeconds(waitTimeSeconds)
-        attributeNames?.run { messageAttributeNames(this) }
+        attributeNames?.let { messageAttributeNames(it) }
+        
         builder()
     }
 }

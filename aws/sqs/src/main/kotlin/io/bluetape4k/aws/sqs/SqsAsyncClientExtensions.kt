@@ -3,7 +3,9 @@ package io.bluetape4k.aws.sqs
 import io.bluetape4k.aws.http.SdkAsyncHttpClientProvider
 import io.bluetape4k.aws.sqs.model.sendMessageRequestOf
 import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.utils.ShutdownQueue
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
+import software.amazon.awssdk.http.async.SdkAsyncHttpClient
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.sqs.SqsAsyncClient
 import software.amazon.awssdk.services.sqs.SqsAsyncClientBuilder
@@ -32,30 +34,44 @@ inline fun sqsAsyncClient(
     @BuilderInference builder: SqsAsyncClientBuilder.() -> Unit,
 ): SqsAsyncClient {
     return SqsAsyncClient.builder().apply(builder).build()
+        .apply {
+            ShutdownQueue.register(this)
+        }
+}
+
+inline fun sqsAsyncClientOf(
+    region: Region,
+    httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.Netty.nettyNioAsyncHttpClient,
+    @BuilderInference builder: SqsAsyncClientBuilder.() -> Unit = {},
+): SqsAsyncClient = sqsAsyncClient {
+    region(region)
+    httpClient(httpClient)
+
+    builder()
 }
 
 inline fun sqsAsyncClientOf(
     endpoint: URI,
     region: Region,
     credentialsProvider: AwsCredentialsProvider,
+    httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.Netty.nettyNioAsyncHttpClient,
     @BuilderInference builder: SqsAsyncClientBuilder.() -> Unit = {},
 ): SqsAsyncClient = sqsAsyncClient {
     endpointOverride(endpoint)
     region(region)
     credentialsProvider(credentialsProvider)
-
-    httpClient(SdkAsyncHttpClientProvider.Netty.nettyNioAsyncHttpClient)
+    httpClient(httpClient)
 
     builder()
 }
 
-fun SqsAsyncClient.createQueue(queueName: String): CompletableFuture<String> {
+fun SqsAsyncClient.createQueueAsync(queueName: String): CompletableFuture<String> {
     queueName.requireNotBlank("queueName")
     return createQueue { it.queueName(queueName) }
         .thenApply { it.queueUrl() }
 }
 
-fun SqsAsyncClient.listQueues(
+fun SqsAsyncClient.listQueuesAsync(
     prefix: String? = null,
     nextToken: String? = null,
     maxResults: Int? = null,
@@ -67,7 +83,7 @@ fun SqsAsyncClient.listQueues(
     }
 }
 
-fun SqsAsyncClient.getQueueUrl(
+fun SqsAsyncClient.getQueueUrlAsync(
     queueName: String,
     queueOwnerAWSAccountId: String? = null,
 ): CompletableFuture<GetQueueUrlResponse> {
@@ -78,7 +94,7 @@ fun SqsAsyncClient.getQueueUrl(
     }
 }
 
-fun SqsAsyncClient.send(
+fun SqsAsyncClient.sendAsync(
     queueUrl: String,
     messageBody: String,
     delaySeconds: Int? = null,
@@ -87,7 +103,7 @@ fun SqsAsyncClient.send(
     return sendMessage(sendMessageRequestOf(queueUrl, messageBody, delaySeconds))
 }
 
-fun SqsAsyncClient.sendBatch(
+fun SqsAsyncClient.sendBatchAsync(
     queueUrl: String,
     vararg entries: SendMessageBatchRequestEntry,
 ): CompletableFuture<SendMessageBatchResponse> {
@@ -98,7 +114,7 @@ fun SqsAsyncClient.sendBatch(
     }
 }
 
-fun SqsAsyncClient.sendBatch(
+fun SqsAsyncClient.sendBatchAsync(
     queueUrl: String,
     entries: Collection<SendMessageBatchRequestEntry>,
 ): CompletableFuture<SendMessageBatchResponse> {
@@ -109,7 +125,7 @@ fun SqsAsyncClient.sendBatch(
     }
 }
 
-fun SqsAsyncClient.receiveMessages(
+fun SqsAsyncClient.receiveMessagesAsync(
     queueUrl: String,
     maxResults: Int? = null,
     @BuilderInference builder: ReceiveMessageRequest.Builder.() -> Unit = {},
@@ -122,7 +138,7 @@ fun SqsAsyncClient.receiveMessages(
     }
 }
 
-fun SqsAsyncClient.changeMessageVisibility(
+fun SqsAsyncClient.changeMessageVisibilityAsync(
     queueUrl: String,
     receiptHandle: String? = null,
     visibilityTimeout: Int? = null,
@@ -135,7 +151,7 @@ fun SqsAsyncClient.changeMessageVisibility(
     }
 }
 
-fun SqsAsyncClient.changeMessageVisibilityBatch(
+fun SqsAsyncClient.changeMessageVisibilityBatchAsync(
     queueUrl: String,
     vararg entries: ChangeMessageVisibilityBatchRequestEntry,
 ): CompletableFuture<ChangeMessageVisibilityBatchResponse> {
@@ -146,7 +162,7 @@ fun SqsAsyncClient.changeMessageVisibilityBatch(
     }
 }
 
-fun SqsAsyncClient.changeMessageVisibilityBatch(
+fun SqsAsyncClient.changeMessageVisibilityBatchAsync(
     queueUrl: String,
     entries: Collection<ChangeMessageVisibilityBatchRequestEntry>,
 ): CompletableFuture<ChangeMessageVisibilityBatchResponse> {
@@ -157,7 +173,7 @@ fun SqsAsyncClient.changeMessageVisibilityBatch(
     }
 }
 
-fun SqsAsyncClient.deleteMessage(
+fun SqsAsyncClient.deleteMessageAsync(
     queueUrl: String,
     receiptHandle: String? = null,
 ): CompletableFuture<DeleteMessageResponse> {
@@ -168,7 +184,7 @@ fun SqsAsyncClient.deleteMessage(
     }
 }
 
-fun SqsAsyncClient.deleteMessageBatch(
+fun SqsAsyncClient.deleteMessageBatchAsync(
     queueUrl: String,
     vararg entries: DeleteMessageBatchRequestEntry,
 ): CompletableFuture<DeleteMessageBatchResponse> {
@@ -179,7 +195,7 @@ fun SqsAsyncClient.deleteMessageBatch(
     }
 }
 
-fun SqsAsyncClient.deleteMessageBatch(
+fun SqsAsyncClient.deleteMessageBatchAsync(
     queueUrl: String,
     entries: Collection<DeleteMessageBatchRequestEntry>,
 ): CompletableFuture<DeleteMessageBatchResponse> {
@@ -190,7 +206,7 @@ fun SqsAsyncClient.deleteMessageBatch(
     }
 }
 
-fun SqsAsyncClient.deleteQueue(queueUrl: String): CompletableFuture<DeleteQueueResponse> {
+fun SqsAsyncClient.deleteQueueAsync(queueUrl: String): CompletableFuture<DeleteQueueResponse> {
     queueUrl.requireNotBlank("queueUrl")
     return deleteQueue {
         it.queueUrl(queueUrl)

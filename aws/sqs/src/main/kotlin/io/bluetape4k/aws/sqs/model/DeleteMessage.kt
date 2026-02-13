@@ -29,6 +29,8 @@ fun deleteMessageRequestOf(
     receiptHandle: String,
 ): DeleteMessageRequest {
     queueUrl.requireNotBlank("queueUrl")
+    receiptHandle.requireNotBlank("receiptHandle")
+
     return deleteMessageRequest {
         queueUrl(queueUrl)
         receiptHandle(receiptHandle)
@@ -59,6 +61,7 @@ fun deleteMessageBatchRequestOf(
     entries: Collection<DeleteMessageBatchRequestEntry>,
 ): DeleteMessageBatchRequest {
     queueUrl.requireNotBlank("queueUrl")
+
     return deleteMessageBatchRequest {
         queueUrl(queueUrl)
         entries(entries)
@@ -89,6 +92,8 @@ fun deleteMessageBatchRequestEntryOf(
     receiptHandle: String,
 ): DeleteMessageBatchRequestEntry {
     id.requireNotBlank("id")
+    receiptHandle.requireNotBlank("receiptHandle")
+    
     return deleteMessageBatchRequestEntry {
         id(id)
         receiptHandle(receiptHandle)

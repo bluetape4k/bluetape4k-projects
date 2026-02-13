@@ -25,11 +25,11 @@ import io.bluetape4k.utils.ShutdownQueue
  * )
  * ````
  *
- * @param endpoint SNS endpoint URL
+ * @param endpoint SES V2 endpoint URL
  * @param region AWS region
  * @param credentialsProvider AWS credentials provider
  * @param httpClientEngine [HttpClientEngine] 엔진 (기본적으로 [aws.smithy.kotlin.runtime.http.engine.crt.CrtHttpEngine] 를 사용합니다.)
- * @param configurer SNS client 설정 빌더
+ * @param builder SES V2 client 설정 빌더
  * @return [SesV2Client] 인스턴스
  */
 fun sesV2ClientOf(
@@ -118,12 +118,13 @@ suspend fun SesV2Client.sendBulk(emailRequest: SendBulkEmailRequest): SendBulkEm
  * @return [Template] 템플릿 정보, 없으면 null
  */
 suspend fun SesV2Client.getTemplateOrNull(templateName: String): Template? {
-    val response = getEmailTemplate(GetEmailTemplateRequest { this.templateName = templateName })
-
-    return response.templateContent?.let {
-        Template {
-            this.templateName = response.templateName
-            this.templateContent = response.templateContent
+    return runCatching {
+        val response = getEmailTemplate(GetEmailTemplateRequest { this.templateName = templateName })
+        response.templateContent?.let {
+            Template {
+                this.templateName = response.templateName
+                this.templateContent = response.templateContent
+            }
         }
-    }
+    }.getOrNull()
 }

@@ -5,6 +5,7 @@ import aws.sdk.kotlin.services.sqs.model.ChangeMessageVisibilityBatchRequestEntr
 import aws.sdk.kotlin.services.sqs.model.ChangeMessageVisibilityRequest
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.support.requireNotEmpty
 
 /**
  * 제공된 queueUrl과 receiptHandle을 사용하여 [ChangeMessageVisibilityRequest] 를 생성합니다.
@@ -72,6 +73,7 @@ inline fun changeMessageVisibilityBatchRequestOf(
     @BuilderInference crossinline builder: ChangeMessageVisibilityBatchRequest.Builder.() -> Unit = {},
 ): ChangeMessageVisibilityBatchRequest {
     queueUrl.requireNotBlank("queueUrl")
+    entries.requireNotEmpty("entries")
 
     return ChangeMessageVisibilityBatchRequest {
         this.queueUrl = queueUrl
@@ -96,6 +98,7 @@ inline fun changeMessageVisibilityBatchRequestOf(
     @BuilderInference crossinline builder: ChangeMessageVisibilityBatchRequest.Builder.() -> Unit = {},
 ): ChangeMessageVisibilityBatchRequest {
     queueUrl.requireNotBlank("queueUrl")
+    entries.requireNotEmpty("entries")
 
     return ChangeMessageVisibilityBatchRequest {
         this.queueUrl = queueUrl

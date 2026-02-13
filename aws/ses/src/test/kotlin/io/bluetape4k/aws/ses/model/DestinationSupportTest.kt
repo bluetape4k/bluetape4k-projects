@@ -12,9 +12,9 @@ class DestinationSupportTest {
     @Test
     fun `build destination`() {
         val destination: Destination = destinationOf(
-            toAddresses = listOf("user1@example.com", "user2@example.com"),
-            ccAddresses = listOf("cc1@example.com", "cc2@example.com"),
-            bccAddresses = listOf("bcc1@example.com", "bcc2@example.com")
+            toAddrs = listOf("user1@example.com", "user2@example.com"),
+            ccAddrs = listOf("cc1@example.com", "cc2@example.com"),
+            bccAddrs = listOf("bcc1@example.com", "bcc2@example.com")
         )
         destination.toAddresses() shouldBeEqualTo listOf("user1@example.com", "user2@example.com")
         destination.ccAddresses() shouldBeEqualTo listOf("cc1@example.com", "cc2@example.com")

@@ -1,10 +1,10 @@
 package io.bluetape4k.aws.ses.examples
 
 import io.bluetape4k.aws.ses.AbstractSesTest
-import io.bluetape4k.aws.ses.model.SendEmailRequest
 import io.bluetape4k.aws.ses.model.bodyOf
 import io.bluetape4k.aws.ses.model.contentOf
 import io.bluetape4k.aws.ses.model.destinationOf
+import io.bluetape4k.aws.ses.model.sendEmailRequest
 import io.bluetape4k.aws.ses.send
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -52,7 +52,7 @@ class SesClientExamples: AbstractSesTest() {
     @Test
     @Order(4)
     fun `send email`() {
-        val emailRequest = SendEmailRequest {
+        val emailRequest = sendEmailRequest {
             source(senderEmail)
             destination(destinationOf(receiverEamil))
             message { mb ->

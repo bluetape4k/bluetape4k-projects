@@ -3,10 +3,10 @@ package io.bluetape4k.aws.ses.model
 import software.amazon.awssdk.services.ses.model.Destination
 
 /**
- * [Destination.Builder]를 이용하여 [Destination] 인스턴스를 생성합니다.
+ * [Destination.Builder]를 이용하여 [destination] 인스턴스를 생성합니다.
  *
  * ```
- * val destination = Destination {
+ * val destination = destination {
  *    toAddresses("user1@example.com")
  *    ccAddresses("user2@example.com")
  *    bccAddresses("all@example.com")
@@ -14,13 +14,12 @@ import software.amazon.awssdk.services.ses.model.Destination
  * ```
  *
  * @param builder [Destination.Builder] 초기화 람다
- * @return [Destination] 인스턴스
+ * @return [destination] 인스턴스
  */
-inline fun Destination(
+inline fun destination(
     @BuilderInference builder: Destination.Builder.() -> Unit,
-): Destination {
-    return Destination.builder().apply(builder).build()
-}
+): Destination =
+    Destination.builder().apply(builder).build()
 
 /**
  * [Destination] 인스턴스를 생성합니다.
@@ -29,19 +28,19 @@ inline fun Destination(
  * val destination = destinationOf(listOf("debop@example.com", "user1@example.com"))
  * ```
  *
- * @param toAddresses 수신자 주소 목록
- * @param ccAddresses 참조 주소 목록
- * @param bccAddresses 숨은 참조 주소 목록
+ * @param toAddrs 수신자 주소 목록
+ * @param ccAddrs 참조 주소 목록
+ * @param bccAddrs 숨은 참조 주소 목록
  * @return [Destination] 인스턴스
  */
 fun destinationOf(
-    toAddresses: Collection<String>,
-    ccAddresses: Collection<String>? = null,
-    bccAddresses: Collection<String>? = null,
-) = Destination {
-    toAddresses(toAddresses)
-    ccAddresses(ccAddresses)
-    bccAddresses(bccAddresses)
+    toAddrs: Collection<String>,
+    ccAddrs: Collection<String>? = null,
+    bccAddrs: Collection<String>? = null,
+) = destination {
+    toAddresses(toAddrs)
+    ccAddrs?.let { ccAddresses(it) }
+    bccAddrs?.let { bccAddresses(it) }
 }
 
 /**
@@ -51,9 +50,9 @@ fun destinationOf(
  * val destination = destinationOf("debop@example.com", "user1@example.com")
  * ```
  *
- * @param address 수신자 주소 목록
+ * @param toAddrs 수신자 주소 목록
  * @return [Destination] 인스턴스
  */
-fun destinationOf(vararg address: String): Destination = Destination {
-    toAddresses(*address)
+fun destinationOf(vararg toAddrs: String): Destination = destination {
+    toAddresses(*toAddrs)
 }

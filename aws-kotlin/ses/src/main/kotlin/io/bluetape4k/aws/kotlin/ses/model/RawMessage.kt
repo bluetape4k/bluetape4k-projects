@@ -4,6 +4,10 @@ import aws.sdk.kotlin.services.ses.model.RawMessage
 
 fun rawMessageOf(
     data: ByteArray,
-): RawMessage = RawMessage {
-    this.data = data
+): RawMessage {
+    require(data.isNotEmpty()) { "data must not be empty." }
+
+    return RawMessage {
+        this.data = data
+    }
 }

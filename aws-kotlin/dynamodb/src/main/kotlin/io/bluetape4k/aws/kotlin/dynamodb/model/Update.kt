@@ -44,7 +44,7 @@ inline fun updateOf(
 ): Update {
     return updateOf(
         tableName,
-        key.mapValues { it.toAttributeValue() },
+        key.mapValues { it.value.toAttributeValue() },
         updateExpression,
         expressionAttributeValues,
         expressionAttributeNames,

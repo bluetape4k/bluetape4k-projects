@@ -1,5 +1,6 @@
 package io.bluetape4k.aws.ses.model
 
+import io.bluetape4k.support.requireNotBlank
 import software.amazon.awssdk.services.ses.model.Destination
 import software.amazon.awssdk.services.ses.model.MessageTag
 import software.amazon.awssdk.services.ses.model.SendEmailRequest
@@ -9,7 +10,7 @@ import software.amazon.awssdk.services.ses.model.SendTemplatedEmailRequest
  * [SendEmailRequest.Builder]를 사용하여 [SendEmailRequest] 인스턴스를 생성합니다.
  *
  * ```
- * val request = SendEmailRequest {
+ * val request = sendEmailRequest {
  *    source("xxx")
  *    destination(destinationOf("yyy"))
  *    ...
@@ -18,11 +19,10 @@ import software.amazon.awssdk.services.ses.model.SendTemplatedEmailRequest
  * @param builder [SendEmailRequest.Builder] 초기화 람다
  * @return [SendEmailRequest] 인스턴스
  */
-inline fun SendEmailRequest(
+inline fun sendEmailRequest(
     @BuilderInference builder: SendEmailRequest.Builder.() -> Unit,
-): SendEmailRequest {
-    return SendEmailRequest.builder().apply(builder).build()
-}
+): SendEmailRequest =
+    SendEmailRequest.builder().apply(builder).build()
 
 /**
  * [SendEmailRequest] 인스턴스를 생성합니다.
@@ -53,7 +53,7 @@ inline fun sendEmailRequestOf(
     returnPathArn: String? = null,
     tags: Collection<MessageTag>? = null,
     @BuilderInference builder: SendEmailRequest.Builder.() -> Unit = {},
-): SendEmailRequest = SendEmailRequest {
+): SendEmailRequest = sendEmailRequest {
     source(source)
     destination(destination)
     sourceArn?.run { sourceArn(this) }
@@ -69,7 +69,7 @@ inline fun sendEmailRequestOf(
  * [SendTemplatedEmailRequest.Builder]를 사용하여 [SendTemplatedEmailRequest] 인스턴스를 생성합니다.
  *
  * ```
- * val request = SendTemplatedEmailRequest {
+ * val request = sendTemplatedEmailRequest {
  *    source("xxx")
  *    destination(destinationOf("yyy"))
  *    template("template-1")
@@ -79,11 +79,10 @@ inline fun sendEmailRequestOf(
  * @param builder [SendTemplatedEmailRequest.Builder] 초기화 람다
  * @return [SendTemplatedEmailRequest] 인스턴스
  */
-inline fun SendTemplatedEmailRequest(
+inline fun sendTemplatedEmailRequest(
     @BuilderInference builder: SendTemplatedEmailRequest.Builder.() -> Unit,
-): SendTemplatedEmailRequest {
-    return SendTemplatedEmailRequest.builder().apply(builder).build()
-}
+): SendTemplatedEmailRequest =
+    SendTemplatedEmailRequest.builder().apply(builder).build()
 
 /**
  * [SendTemplatedEmailRequest] 인스턴스를 생성합니다.
@@ -124,18 +123,23 @@ inline fun sendTemplatedEmailRequestOf(
     tags: Collection<MessageTag>? = null,
     configurationSetName: String? = null,
     @BuilderInference builder: SendTemplatedEmailRequest.Builder.() -> Unit = {},
-): SendTemplatedEmailRequest = SendTemplatedEmailRequest {
-    source(source)
-    destination(destination)
-    template(template)
-    templateArn?.run { templateArn(this) }
-    templateData?.run { templateData(this) }
-    sourceArn?.run { sourceArn(this) }
-    replyToAddresses?.run { replyToAddresses(this) }
-    returnPath?.run { returnPath(this) }
-    returnPathArn?.run { returnPathArn(this) }
-    tags?.run { tags(this) }
-    configurationSetName?.run { configurationSetName(this) }
+): SendTemplatedEmailRequest {
+    source.requireNotBlank("source")
+    template.requireNotBlank("destination")
 
-    builder()
+    return sendTemplatedEmailRequest {
+        source(source)
+        destination(destination)
+        template(template)
+        templateArn?.run { templateArn(this) }
+        templateData?.run { templateData(this) }
+        sourceArn?.run { sourceArn(this) }
+        replyToAddresses?.run { replyToAddresses(this) }
+        returnPath?.run { returnPath(this) }
+        returnPathArn?.run { returnPathArn(this) }
+        tags?.run { tags(this) }
+        configurationSetName?.run { configurationSetName(this) }
+
+        builder()
+    }
 }
