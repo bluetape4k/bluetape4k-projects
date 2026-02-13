@@ -109,14 +109,14 @@ object Runtimex: KLogging() {
     }
 
     /** Process 실행 결과를 담은 Value Object */
-    data class ProcessResult(val existCode: Int, val out: String): Serializable
+    data class ProcessResult(val exitCode: Int, val out: String): Serializable
 
     /**
      * Process 실행 시 결과를 [ProcessResult] 정보에 담아 반환합니다.
      */
     fun run(process: Process): ProcessResult = ByteArrayOutputStream().use { bos ->
         val outputCapture = StreamGobbler(process.inputStream, bos, "out>")
-        val errorCapture = StreamGobbler(process.errorStream, bos, "out>")
+        val errorCapture = StreamGobbler(process.errorStream, bos, "err>")
 
         outputCapture.start()
         errorCapture.start()

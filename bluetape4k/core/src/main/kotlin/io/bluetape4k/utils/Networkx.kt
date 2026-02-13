@@ -1,6 +1,7 @@
 package io.bluetape4k.utils
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.requireInRange
 import java.net.Inet4Address
 import java.net.InetAddress
 import java.net.UnknownHostException
@@ -135,6 +136,9 @@ object Networkx: KLogging() {
         return if (num in 0..255) num else -1
     }
 
+    /**
+     * [InetAddress]가 IPv4인 경우 정수 표현으로 변환합니다.
+     */
     @JvmStatic
     fun inetAddressToInt(inetAddress: InetAddress): Int {
         when (inetAddress) {
@@ -166,25 +170,26 @@ object Networkx: KLogging() {
     }
 
     /**
-     * Converts either a full or partial ip, (e.g.127.0.0.1, 127.0)
-     * to its integer equivalent with mask specified by prefixlen.
-     * Assume missing bits are 0s for a partial ip. Result returned as
-     * (ip, netMask)
+     * 전체/부분 IPv4 문자열을 `(networkIp, netmask)` 블록으로 변환합니다.
+     *
+     * `prefixLen`이 null이고 부분 IP를 전달하면 `arr.size * 8`을 prefix 길이로 간주합니다.
      */
     @JvmStatic
     fun ipToIpBlock(ip: String, prefixLen: Int?): Pair<Int, Int> {
         val arr: List<String> = ip.split('.')
 
-        val pLen =
-            if (arr.size != 4 && prefixLen == null) arr.size * 8
-            else prefixLen!!
+        val pLen = if (arr.size != 4 && prefixLen == null) arr.size * 8 else prefixLen!!
+        pLen.requireInRange(0, 32, "prefixLen")
 
         val netIp = ipToInt(arr.padTo(4, "0").joinToString(separator = "."))
-        val mask = (1 shl 31) shr (pLen - 1)
+        val mask = if (pLen == 0) 0 else (-1 shl (32 - pLen))
 
         return Pair(netIp, mask)
     }
 
+    /**
+     * CIDR 표기(`x.x.x.x/n`)를 `(networkIp, netmask)` 블록으로 변환합니다.
+     */
     fun cidrToIpBlock(cidr: String): Pair<Int, Int> {
         val arr = cidr.split('/')
 
@@ -196,16 +201,28 @@ object Networkx: KLogging() {
         }
     }
 
+    /**
+     * 정수 IP가 지정한 IP 블록에 포함되는지 확인합니다.
+     */
     fun isIpInBlock(ip: Int, ipBlock: Pair<Int, Int>): Boolean {
         return (ipBlock.second and ip) == ipBlock.first
     }
 
+    /**
+     * 정수 IP가 여러 IP 블록 중 하나에 포함되는지 확인합니다.
+     */
     fun isIpInBlocks(ip: Int, ipBlocks: Iterable<Pair<Int, Int>>): Boolean =
         ipBlocks.any { isIpInBlock(ip, it) }
 
+    /**
+     * 문자열 IPv4가 여러 IP 블록 중 하나에 포함되는지 확인합니다.
+     */
     fun isIpInBlocks(ip: String, ipBlocks: Iterable<Pair<Int, Int>>): Boolean =
         isIpInBlocks(ipToInt(ip), ipBlocks)
 
+    /**
+     * [InetAddress]가 여러 IP 블록 중 하나에 포함되는지 확인합니다.
+     */
     fun isInetAddressInBlocks(inetAddress: InetAddress, ipBlocks: Iterable<Pair<Int, Int>>): Boolean =
         isIpInBlocks(inetAddressToInt(inetAddress), ipBlocks)
 }

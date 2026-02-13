@@ -3,9 +3,11 @@ package io.bluetape4k.utils
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.logging.trace
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldContain
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class RuntimexTest {
@@ -57,5 +59,21 @@ class RuntimexTest {
 
         log.trace { "process result=$result" }
         result.out shouldContain "build.gradle.kts"
+    }
+
+    @Test
+    fun `run process captures stderr and non-zero exit code`() {
+        val process = ProcessBuilder("bash", "-c", "echo 'failure message' 1>&2; exit 7").start()
+        val result = Runtimex.run(process)
+
+        result.exitCode shouldBeEqualTo 7
+        result.out shouldContain "failure message"
+        result.out shouldContain "err>failure message"
+    }
+
+    @Test
+    fun `class location returns code source`() {
+        val location = Runtimex.classLocation(Runtimex::class.java)
+        location.shouldNotBeNull()
     }
 }

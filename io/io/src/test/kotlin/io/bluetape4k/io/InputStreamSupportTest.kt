@@ -190,7 +190,7 @@ class InputStreamSupportTest: AbstractIOTest() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `input stream to line sequence`() {
-        val expected = randomString() + Systemx.LineSeparator + randomString()
+        val expected = randomString() + Systemx.lineSeparator + randomString()
 
         expected.toInputStream().use { bis ->
             bis.toUtf8LineSequence().toFastList() shouldBeEqualTo expected.lineSequence().toFastList()

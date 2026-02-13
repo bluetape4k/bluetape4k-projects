@@ -105,7 +105,7 @@ class QueryBuilder {
     fun build(sb: StringBuilder = StringBuilder(), block: QueryBuilder.() -> Unit): Query {
         block(this)
 
-        selects.joinTo(sb, Systemx.LineSeparator)
+        selects.joinTo(sb, Systemx.lineSeparator)
         if (filters.countLeaves() != 0) {
             if (selects.isNotEmpty()) sb.appendLine()
             sb.append("where ")

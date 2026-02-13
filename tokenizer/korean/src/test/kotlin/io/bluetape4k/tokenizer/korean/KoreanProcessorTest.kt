@@ -207,7 +207,7 @@ class KoreanTextProcessorTest: TestBase() {
             |[[대선(Noun: 0, 2)], [대(Modifier: 0, 1), 선(Noun: 1, 1)], [대(Verb: 0, 1), 선(Noun: 1, 1)]], 
             |[[ (Space: 2, 1)]], 
             |[[후보(Noun: 3, 2)], [후보*(Noun: 3, 2)], [후(Noun: 3, 1), 보(Verb: 4, 1)]]
-            |]""".trimMargin().replace(Systemx.LineSeparator, "")
+            |]""".trimMargin().replace(Systemx.lineSeparator, "")
 
         actual shouldBeEqualTo expected
     }
