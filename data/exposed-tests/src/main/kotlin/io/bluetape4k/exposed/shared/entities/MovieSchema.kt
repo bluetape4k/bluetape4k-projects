@@ -4,8 +4,8 @@ import io.bluetape4k.ToStringBuilder
 import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
-import io.bluetape4k.exposed.tests.withSuspendedTables
 import io.bluetape4k.exposed.tests.withTables
+import io.bluetape4k.exposed.tests.withTablesSuspending
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import org.jetbrains.exposed.v1.core.Column
@@ -100,7 +100,7 @@ object MovieSchema: KLogging() {
         testDB: TestDB,
         statement: suspend JdbcTransaction.() -> Unit,
     ) {
-        withSuspendedTables(testDB, MovieTable, ActorTable, ActorInMovieTable) {
+        withTablesSuspending(testDB, MovieTable, ActorTable, ActorInMovieTable) {
             populateSampleData()
             statement()
         }

@@ -23,6 +23,9 @@ fun <T: Any> Table.binarySerializedBlob(
 class BinarySerializedBlobColumnType<T: Any>(serializer: BinarySerializer):
     ColumnWithTransform<ExposedBlob, T>(BlobColumnType(), BinarySerializedBlobTransformer(serializer))
 
+/**
+ * 엔티티 속성 객체를 [ExposedBlob]로 직렬화/역직렬화합니다.
+ */
 class BinarySerializedBlobTransformer<T>(
     private val serializer: BinarySerializer,
 ): ColumnTransformer<ExposedBlob, T> {

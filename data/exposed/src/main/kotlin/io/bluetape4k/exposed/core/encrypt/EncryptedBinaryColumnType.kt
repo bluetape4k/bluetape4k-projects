@@ -18,11 +18,17 @@ fun Table.encryptedBinary(
 ): Column<ByteArray> =
     registerColumn(name, EncryptedBinaryColumnType(encryptor, length))
 
+/**
+ * [ByteArray] 값을 암호화해 `VARBINARY` 컬럼에 저장하는 컬럼 타입입니다.
+ */
 class EncryptedBinaryColumnType(
     encryptor: Encryptor,
     length: Int,
 ): ColumnWithTransform<ByteArray, ByteArray>(BinaryColumnType(length), ByteArrayEncryptionTransformer(encryptor))
 
+/**
+ * 암호화 대상 [ByteArray]를 DB 저장 형식으로 변환하고, 조회 시 복호화합니다.
+ */
 class ByteArrayEncryptionTransformer(
     private val encryptor: Encryptor,
 ): ColumnTransformer<ByteArray, ByteArray> {

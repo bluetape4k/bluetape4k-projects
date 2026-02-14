@@ -17,9 +17,15 @@ fun <T: Any> Table.binarySerializedBinary(
     serializer: BinarySerializer = BinarySerializers.LZ4Fory,
 ): Column<T> = registerColumn(name, BinarySerializedBinaryColumnType(serializer, length))
 
+/**
+ * 객체를 바이너리로 직렬화하여 `VARBINARY` 컬럼에 저장하는 컬럼 타입입니다.
+ */
 class BinarySerializedBinaryColumnType<T: Any>(serializer: BinarySerializer, length: Int):
     ColumnWithTransform<ByteArray, T>(BinaryColumnType(length), BinarySerializedBinaryTransformer(serializer))
 
+/**
+ * 엔티티 속성 객체를 직렬화/역직렬화합니다.
+ */
 class BinarySerializedBinaryTransformer<T>(
     private val serializer: BinarySerializer,
 ): ColumnTransformer<ByteArray, T> {

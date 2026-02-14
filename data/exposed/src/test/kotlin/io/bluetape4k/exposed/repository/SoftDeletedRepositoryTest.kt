@@ -13,6 +13,7 @@ import org.amshove.kluent.shouldHaveSize
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.dao.LongEntity
 import org.jetbrains.exposed.v1.dao.LongEntityClass
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
@@ -88,6 +89,28 @@ class SoftDeletedRepositoryTest: AbstractExposedTest() {
             val restoredEntities = repository.findActive()
             restoredEntities shouldHaveSize 2
             restoredEntities.map { it.id } shouldBeEqualTo listOf(contact1Id, contact2Id)
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `findActive 는 soft delete 필터와 추가 predicate 를 함께 적용한다`(testDB: TestDB) {
+        withTables(testDB, ContactTable) {
+            val keepId = ContactTable.insertAndGetId {
+                it[name] = "Alice"
+            }.value
+            val deletedId = ContactTable.insertAndGetId {
+                it[name] = "Alice"
+            }.value
+            ContactTable.insertAndGetId {
+                it[name] = "Bob"
+            }.value
+
+            repository.softDeleteById(deletedId)
+
+            val activeAlices = repository.findActive { ContactTable.name eq "Alice" }
+            activeAlices shouldHaveSize 1
+            activeAlices.single().id shouldBeEqualTo keepId
         }
     }
 }

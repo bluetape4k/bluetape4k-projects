@@ -5,8 +5,8 @@ import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.idHashCode
 import io.bluetape4k.exposed.dao.toStringBuilder
 import io.bluetape4k.exposed.tests.TestDB
-import io.bluetape4k.exposed.tests.withSuspendedTables
 import io.bluetape4k.exposed.tests.withTables
+import io.bluetape4k.exposed.tests.withTablesSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.Dispatchers
@@ -109,7 +109,7 @@ class TimebasedUUIDBase62TableTest: AbstractCustomIdTableTest() {
     @ParameterizedTest(name = "{0} - {1}개 레코드")
     @MethodSource("getTestDBAndEntityCount")
     fun `Coroutine 환경에서 복수의 Unique한 엔티티를 생성한다`(testDB: TestDB, entityCount: Int) = runSuspendIO {
-        withSuspendedTables(testDB, T1) {
+        withTablesSuspending(testDB, T1) {
             val tasks = fastList(entityCount) {
                 suspendedTransactionAsync(Dispatchers.IO) {
                     E1.new {
@@ -128,7 +128,7 @@ class TimebasedUUIDBase62TableTest: AbstractCustomIdTableTest() {
     @ParameterizedTest(name = "{0} - {1}개 레코드")
     @MethodSource("getTestDBAndEntityCount")
     fun `batch insert in coroutines`(testDB: TestDB, entityCount: Int) = runSuspendIO {
-        withSuspendedTables(testDB, T1) {
+        withTablesSuspending(testDB, T1) {
             val entities: Sequence<Pair<String, Int>> = generateSequence {
                 val name = faker.name().fullName()
                 val age = faker.number().numberBetween(8, 80)
@@ -159,7 +159,7 @@ class TimebasedUUIDBase62TableTest: AbstractCustomIdTableTest() {
     fun `insertIgnore as flow`(testDB: TestDB, entityCount: Int) = runSuspendIO {
         Assumptions.assumeTrue { testDB in TestDB.ALL_MYSQL_MARIADB + TestDB.POSTGRESQL }
 
-        withSuspendedTables(testDB, T1) {
+        withTablesSuspending(testDB, T1) {
             val entities: Sequence<Pair<String, Int>> = generateSequence {
                 val name = faker.name().fullName()
                 val age = faker.number().numberBetween(8, 80)

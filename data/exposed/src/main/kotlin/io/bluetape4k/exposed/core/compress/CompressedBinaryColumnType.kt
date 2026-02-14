@@ -18,11 +18,17 @@ fun Table.compressedBinary(
 ): Column<ByteArray> =
     registerColumn(name, CompressedBinaryColumnType(compressor, length))
 
+/**
+ * [ByteArray] 값을 압축해 `VARBINARY` 컬럼에 저장하는 컬럼 타입입니다.
+ */
 class CompressedBinaryColumnType(
     compressor: Compressor,
     length: Int,
 ): ColumnWithTransform<ByteArray, ByteArray>(BinaryColumnType(length), CompressedBinaryTransformer(compressor))
 
+/**
+ * DB 저장 시 압축하고, 조회 시 복원합니다.
+ */
 class CompressedBinaryTransformer(
     private val compressor: Compressor,
 ): ColumnTransformer<ByteArray, ByteArray> {

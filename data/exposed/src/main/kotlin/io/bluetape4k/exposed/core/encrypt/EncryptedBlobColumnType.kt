@@ -26,7 +26,7 @@ class EncryptedBlobColumnType(
 ): ColumnWithTransform<ExposedBlob, ByteArray>(BlobColumnType(), EncryptedBlobTransformer(encryptor))
 
 /**
- * [ExposedBlob] 컬럼 타입을 암호화된 BLOB 타입으로 변환합니다.
+ * [ByteArray]를 암호화해 [ExposedBlob]로 저장하고, 조회 시 복호화합니다.
  */
 class EncryptedBlobTransformer(private val encryptor: Encryptor): ColumnTransformer<ExposedBlob, ByteArray> {
     /**

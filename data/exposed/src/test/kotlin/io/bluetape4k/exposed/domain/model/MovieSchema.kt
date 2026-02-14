@@ -6,8 +6,8 @@ import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.idHashCode
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
-import io.bluetape4k.exposed.tests.withSuspendedTables
 import io.bluetape4k.exposed.tests.withTables
+import io.bluetape4k.exposed.tests.withTablesSuspending
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import kotlinx.coroutines.Dispatchers
@@ -104,7 +104,7 @@ object MovieSchema: KLogging() {
         context: CoroutineContext? = Dispatchers.IO,
         statement: suspend JdbcTransaction.() -> Unit,
     ) {
-        withSuspendedTables(testDB, MovieTable, ActorTable, ActorInMovieTable, context = context) {
+        withTablesSuspending(testDB, MovieTable, ActorTable, ActorInMovieTable, context = context) {
             populateSampleData(testDB)
             statement()
         }

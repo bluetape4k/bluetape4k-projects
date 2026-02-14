@@ -10,8 +10,8 @@ import io.bluetape4k.exposed.dao.id.TimebasedUUIDTable
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.idHashCode
 import io.bluetape4k.exposed.tests.TestDB
-import io.bluetape4k.exposed.tests.withSuspendedTables
 import io.bluetape4k.exposed.tests.withTables
+import io.bluetape4k.exposed.tests.withTablesSuspending
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.javatimes.toInstant
 import io.bluetape4k.junit5.faker.Fakers
@@ -134,7 +134,7 @@ object UserSchema: KLogging() {
         statement: suspend JdbcTransaction.() -> Unit,
     ) {
         // NOTE: 코루틴 작업은 작업이 완료 시까지 대기해야 해서, dropTables = false 로 설정합니다.
-        withSuspendedTables(testDB, UserTable, context = context, dropTables = false) {
+        withTablesSuspending(testDB, UserTable, context = context, dropTables = false) {
             UserEntity.new {
                 firstName = "Sunghyouk"
                 lastName = "Bae"
@@ -257,7 +257,7 @@ object UserSchema: KLogging() {
         statement: suspend JdbcTransaction.() -> Unit,
     ) {
         // NOTE: 코루틴 작업은 작업이 완료 시까지 대기해야 해서, dropTables = false 로 설정합니다.
-        withSuspendedTables(testDB, UserCredentialsTable, context = context, dropTables = false) {
+        withTablesSuspending(testDB, UserCredentialsTable, context = context, dropTables = false) {
             UserCredentialsTable.insert {
                 it[UserCredentialsTable.loginId] = "debop"
                 it[UserCredentialsTable.email] = faker.internet().safeEmailAddress()

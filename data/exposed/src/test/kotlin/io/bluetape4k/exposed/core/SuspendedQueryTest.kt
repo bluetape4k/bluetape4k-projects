@@ -5,7 +5,7 @@ import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.exposed.dao.id.SnowflakeIdTable
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
-import io.bluetape4k.exposed.tests.withSuspendedTables
+import io.bluetape4k.exposed.tests.withTablesSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.asFlow
@@ -41,7 +41,7 @@ class SuspendedQueryTest: AbstractExposedTest() {
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `코루틴 환경에서 AutoInc ID를 가진 테이블에서 Batch 로 읽어온다`(testDB: TestDB) = runSuspendIO {
-        withSuspendedTables(testDB, ProductTable) {
+        withTablesSuspending(testDB, ProductTable) {
             val products = fastList(100) {
                 Product(
                     name = faker.app().name() + " Version:$it",
@@ -94,7 +94,7 @@ class SuspendedQueryTest: AbstractExposedTest() {
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `코루틴 환경에서 ID가 SnowflakeID의 Long 수형의 테이블에서 Batch 로 읽어온다`(testDB: TestDB) = runSuspendIO {
-        withSuspendedTables(testDB, ItemTable) {
+        withTablesSuspending(testDB, ItemTable) {
             val items = fastList(100) {
                 Item(
                     name = faker.app().name() + " Version:$it",

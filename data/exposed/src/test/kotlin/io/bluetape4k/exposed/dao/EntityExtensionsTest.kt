@@ -12,6 +12,7 @@ import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldContain
 import org.jetbrains.exposed.v1.dao.entityCache
 import org.jetbrains.exposed.v1.dao.flushCache
 import org.junit.jupiter.params.ParameterizedTest
@@ -80,6 +81,23 @@ class EntityExtensionsTest: AbstractExposedTest() {
              * ```
              */
             parent.children.count() shouldBeEqualTo 1L
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `id 관련 확장 함수는 일관된 값을 제공한다`(testDB: TestDB) {
+        withTables(testDB, *blogTables) {
+            val post = Post.new {
+                title = "Post with extensions"
+            }
+
+            post.idValue shouldBeEqualTo post.id._value
+            post.idHashCode() shouldBeEqualTo post.idValue.hashCode()
+
+            post.entityToStringBuilder().toString() shouldContain "id="
+            post.toStringBuilder().toString() shouldContain "id="
         }
     }
 }

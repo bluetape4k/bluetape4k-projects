@@ -18,11 +18,17 @@ fun Table.encryptedVarChar(
 ): Column<String> =
     registerColumn(name, EncryptedVarCharColumnType(encryptor, colLength))
 
+/**
+ * [String] 값을 암호화해 `VARCHAR` 컬럼에 저장하는 컬럼 타입입니다.
+ */
 class EncryptedVarCharColumnType(
     encryptor: Encryptor,
     colLength: Int,
 ): ColumnWithTransform<String, String>(VarCharColumnType(colLength), StringEncryptionTransformer(encryptor))
 
+/**
+ * 문자열 값을 DB 저장 시 암호화하고, 조회 시 복호화합니다.
+ */
 class StringEncryptionTransformer(private val encryptor: Encryptor): ColumnTransformer<String, String> {
     /**
      * Entity Property 를 DB Column 수형으로 변환합니다.

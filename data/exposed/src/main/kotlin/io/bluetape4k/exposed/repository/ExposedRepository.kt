@@ -28,8 +28,9 @@ import org.jetbrains.exposed.v1.jdbc.update
  * Exposed 를 사용하는 Repository 의 기본 인터페이스입니다.
  *
  * ```
- * class MyRepository: ExposedRepository<MyEntity, Long> {
+ * class MyRepository: ExposedRepository<MyRecord, Long> {
  *    override val table = MyTable
+ *    override fun ResultRow.toEntity() = this.toMyRecord()
  *    ...
  * }
  * ```
@@ -75,7 +76,7 @@ interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
      */
     @Deprecated("Use countBy() instead", replaceWith = ReplaceWith("countBy(predicate)"))
     fun count(predicate: () -> Op<Boolean> = { Op.TRUE }): Long =
-        table.selectAll().where(predicate).count()
+        countBy(predicate)
 
     /**
      * @deprecated countBy()를 사용하세요.
@@ -83,7 +84,7 @@ interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
      */
     @Deprecated("Use countBy() instead", replaceWith = ReplaceWith("countBy(op)"))
     fun count(op: Op<Boolean>): Long =
-        table.selectAll().where(op).count()
+        countBy(op)
 
     /**
      * 조건에 맞는 엔티티 개수를 반환합니다.
@@ -198,12 +199,12 @@ interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
         limit: Int? = null,
         offset: Long? = null,
         sortOrder: SortOrder = SortOrder.ASC,
-    ): List<T> {
-        val condition: Op<Boolean> = filters.fold(Op.TRUE as Op<Boolean>) { acc, filter ->
-            acc.and(filter.invoke())
-        }
-        return findAll(limit, offset, sortOrder) { condition }
-    }
+    ): List<T> = findWithFilters(
+        *filters,
+        limit = limit,
+        offset = offset,
+        sortOrder = sortOrder,
+    )
 
     /**
      * 조건에 맞는 첫 번째 엔티티를 조회합니다.

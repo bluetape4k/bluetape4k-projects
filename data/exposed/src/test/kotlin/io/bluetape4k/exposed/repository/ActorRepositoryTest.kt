@@ -51,6 +51,15 @@ class ActorRepositoryTest: AbstractExposedTest() {
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `find actor by id or null`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
+            repository.findByIdOrNull(1L).shouldNotBeNull()
+            repository.findByIdOrNull(Long.MAX_VALUE).shouldBeNull()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `search actors by lastName`(testDB: TestDB) {
         withMovieAndActors(testDB) {
             val params = mapOf("lastName" to "Depp")
@@ -119,6 +128,18 @@ class ActorRepositoryTest: AbstractExposedTest() {
             val count2 = repository.countBy(op)
             log.debug { "count2: $count2" }
             count2 shouldBeEqualTo 1L
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `deprecated count 는 countBy 와 동일하게 동작한다`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
+            val op = repository.table.lastName eq "Depp"
+
+            repository.count { op } shouldBeEqualTo repository.countBy { op }
+            repository.count(op) shouldBeEqualTo repository.countBy(op)
         }
     }
 
@@ -283,6 +304,19 @@ class ActorRepositoryTest: AbstractExposedTest() {
             actors.forEach {
                 log.debug { "actor: $it" }
             }
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `findBy 는 findWithFilters 와 동일하게 동작한다`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
+            val actors = repository.findBy(
+                { repository.table.firstName eq "Johnny" },
+                { repository.table.lastName eq "Depp" },
+            )
+            actors shouldHaveSize 1
+            actors.single().lastName shouldBeEqualTo "Depp"
         }
     }
 

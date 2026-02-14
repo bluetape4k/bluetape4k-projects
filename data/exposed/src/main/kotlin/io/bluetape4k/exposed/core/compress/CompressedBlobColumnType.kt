@@ -23,6 +23,9 @@ class CompressedBlobColumnType(
     compressor: Compressor,
 ): ColumnWithTransform<ExposedBlob, ByteArray>(BlobColumnType(), CompressedBlobTransformer(compressor))
 
+/**
+ * [ByteArray]를 압축된 [ExposedBlob]로 저장하고, 조회 시 복원합니다.
+ */
 class CompressedBlobTransformer(private val compressor: Compressor): ColumnTransformer<ExposedBlob, ByteArray> {
     /**
      * Entity Property 를 DB Column 수형으로 변환합니다.

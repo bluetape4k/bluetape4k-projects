@@ -12,13 +12,13 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transactionManager
 import kotlin.coroutines.CoroutineContext
 
 @Suppress("DEPRECATION")
-suspend fun withSuspendedDb(
+suspend fun withDbSuspending(
     testDB: TestDB,
     context: CoroutineContext? = Dispatchers.IO,
     configure: (DatabaseConfig.Builder.() -> Unit)? = null,
     statement: suspend JdbcTransaction.(TestDB) -> Unit,
 ) {
-    logger.info { "Running withSuspendedDb for $testDB" }
+    logger.info { "Running withDbSuspending for $testDB" }
 
     val unregistered = testDB !in registeredOnShutdown
     val newConfiguration = configure != null && !unregistered
@@ -59,4 +59,20 @@ suspend fun withSuspendedDb(
             }
         }
     }
+}
+
+@Deprecated(
+    message = "Use withDbSuspending() instead.",
+    replaceWith = ReplaceWith(
+        "withDbSuspending(testDB, context, configure, statement)",
+        "io.bluetape4k.exposed.tests.withDbSuspending"
+    )
+)
+suspend fun withSuspendedDb(
+    testDB: TestDB,
+    context: CoroutineContext? = Dispatchers.IO,
+    configure: (DatabaseConfig.Builder.() -> Unit)? = null,
+    statement: suspend JdbcTransaction.(TestDB) -> Unit,
+) {
+    withDbSuspending(testDB, context, configure, statement)
 }

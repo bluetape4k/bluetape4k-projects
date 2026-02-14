@@ -34,6 +34,22 @@ open class TimebasedUUIDBase62EntityClass<out E: TimebasedUUIDBase62Entity>(
  * MySQL은 collate 를 지정하지 않으면 대소문자 구분을 못해서 Base62 인코딩 문자열이 중복될 수 있습니다.
  * 이를 해결하기 위해 varchar 컬럼에 collate 를 `utf8mb4_bin` 등으로 지정하여 대소문자 구분을 할 수 있도록 해야 합니다.
  *
+ * 아니면 테스트용 DB 서버의 기본 collate 를 `utf8mb4_bin` 으로 설정하면 됩니다.
+ *
+ * ```
+ * val MySQL8: MySQL8Server by lazy {
+ *     MySQL8Server()
+ *         .withCommand(
+ *             "--character-set-server=utf8mb4",
+ *             "--collation-server=utf8mb4_bin"
+ *         )
+ *         .apply {
+ *             start()
+ *             ShutdownQueue.register(this)
+ *         }
+ * }
+ * ```
+ *
  */
 open class TimebasedUUIDBase62TableMySql(name: String = "", columnName: String = "id"): IdTable<String>(name) {
 

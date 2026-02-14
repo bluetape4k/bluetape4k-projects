@@ -30,6 +30,10 @@ class BinarySerializedBinaryColumnTypeTest: AbstractExposedTest() {
     private object T1: IntIdTable() {
         val zstdFory = binarySerializedBinary<Embeddable>("zstd_fury", 4000, BinarySerializers.ZstdFory).nullable()
         val zstdKryo = binarySerializedBinary<Embeddable>("zstd_kryo", 4000, BinarySerializers.ZstdKryo).nullable()
+        val snappyFory =
+            binarySerializedBinary<Embeddable>("snappy_fory", 4000, BinarySerializers.SnappyFory).nullable()
+        val snappyKryo =
+            binarySerializedBinary<Embeddable>("snappy_kryo", 4000, BinarySerializers.SnappyKryo).nullable()
         val lz4Fory = binarySerializedBinary<Embeddable2>("lz4_fury", 4000, BinarySerializers.LZ4Fory).nullable()
         val lz4Kryo = binarySerializedBinary<Embeddable2>("lz4_kryo", 4000, BinarySerializers.LZ4Kryo).nullable()
     }
@@ -39,6 +43,8 @@ class BinarySerializedBinaryColumnTypeTest: AbstractExposedTest() {
 
         var zstdFory by T1.zstdFory
         var zstdKryo by T1.zstdKryo
+        var snappyFory by T1.snappyFory
+        var snappyKryo by T1.snappyKryo
 
         var lz4Fory by T1.lz4Fory
         var lz4Kryo by T1.lz4Kryo
@@ -76,6 +82,8 @@ class BinarySerializedBinaryColumnTypeTest: AbstractExposedTest() {
             val id1 = T1.insertAndGetId {
                 it[zstdFory] = embedded
                 it[zstdKryo] = embedded
+                it[snappyFory] = embedded
+                it[snappyKryo] = embedded
 
                 it[lz4Fory] = embedded2
                 it[lz4Kryo] = embedded2
@@ -88,6 +96,8 @@ class BinarySerializedBinaryColumnTypeTest: AbstractExposedTest() {
 
             row[T1.zstdKryo] shouldBeEqualTo embedded
             row[T1.zstdFory] shouldBeEqualTo embedded
+            row[T1.snappyKryo] shouldBeEqualTo embedded
+            row[T1.snappyFory] shouldBeEqualTo embedded
 
             row[T1.lz4Kryo] shouldBeEqualTo embedded2
             row[T1.lz4Fory] shouldBeEqualTo embedded2
@@ -103,6 +113,8 @@ class BinarySerializedBinaryColumnTypeTest: AbstractExposedTest() {
             val e1 = E1.new {
                 zstdFory = embedded
                 zstdKryo = embedded
+                snappyFory = embedded
+                snappyKryo = embedded
 
                 lz4Fory = embedded2
                 lz4Kryo = embedded2
@@ -115,6 +127,8 @@ class BinarySerializedBinaryColumnTypeTest: AbstractExposedTest() {
 
             loaded.zstdKryo shouldBeEqualTo embedded
             loaded.zstdFory shouldBeEqualTo embedded
+            loaded.snappyKryo shouldBeEqualTo embedded
+            loaded.snappyFory shouldBeEqualTo embedded
 
             loaded.lz4Kryo shouldBeEqualTo embedded2
             loaded.lz4Fory shouldBeEqualTo embedded2

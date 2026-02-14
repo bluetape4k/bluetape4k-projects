@@ -30,6 +30,8 @@ class BinarySerializedBlobColumTypeTest: AbstractExposedTest() {
     private object T1: IntIdTable() {
         val zstdFory = binarySerializedBlob<Embeddable>("zstd_fury", BinarySerializers.ZstdFory).nullable()
         val zstdKryo = binarySerializedBlob<Embeddable>("zstd_kryo", BinarySerializers.ZstdKryo).nullable()
+        val snappyFory = binarySerializedBlob<Embeddable>("snappy_fory", BinarySerializers.SnappyFory).nullable()
+        val snappyKryo = binarySerializedBlob<Embeddable>("snappy_kryo", BinarySerializers.SnappyKryo).nullable()
         val lz4Fory = binarySerializedBlob<Embeddable2>("lz4_fury", BinarySerializers.LZ4Fory).nullable()
         val lz4Kryo = binarySerializedBlob<Embeddable2>("lz4_kryo", BinarySerializers.LZ4Kryo).nullable()
     }
@@ -39,6 +41,8 @@ class BinarySerializedBlobColumTypeTest: AbstractExposedTest() {
 
         var zstdFory by T1.zstdFory
         var zstdKryo by T1.zstdKryo
+        var snappyFory by T1.snappyFory
+        var snappyKryo by T1.snappyKryo
 
         var lz4Fory by T1.lz4Fory
         var lz4Kryo by T1.lz4Kryo
@@ -76,6 +80,8 @@ class BinarySerializedBlobColumTypeTest: AbstractExposedTest() {
             val id1 = T1.insertAndGetId {
                 it[zstdFory] = embedded
                 it[zstdKryo] = embedded
+                it[snappyFory] = embedded
+                it[snappyKryo] = embedded
 
                 it[lz4Fory] = embedded2
                 it[lz4Kryo] = embedded2
@@ -88,6 +94,8 @@ class BinarySerializedBlobColumTypeTest: AbstractExposedTest() {
 
             row[T1.zstdKryo] shouldBeEqualTo embedded
             row[T1.zstdFory] shouldBeEqualTo embedded
+            row[T1.snappyKryo] shouldBeEqualTo embedded
+            row[T1.snappyFory] shouldBeEqualTo embedded
 
             row[T1.lz4Kryo] shouldBeEqualTo embedded2
             row[T1.lz4Fory] shouldBeEqualTo embedded2
@@ -103,6 +111,8 @@ class BinarySerializedBlobColumTypeTest: AbstractExposedTest() {
             val e1 = E1.new {
                 zstdFory = embedded
                 zstdKryo = embedded
+                snappyFory = embedded
+                snappyKryo = embedded
 
                 lz4Fory = embedded2
                 lz4Kryo = embedded2
@@ -115,6 +125,8 @@ class BinarySerializedBlobColumTypeTest: AbstractExposedTest() {
 
             loaded.zstdKryo shouldBeEqualTo embedded
             loaded.zstdFory shouldBeEqualTo embedded
+            loaded.snappyKryo shouldBeEqualTo embedded
+            loaded.snappyFory shouldBeEqualTo embedded
 
             loaded.lz4Kryo shouldBeEqualTo embedded2
             loaded.lz4Fory shouldBeEqualTo embedded2

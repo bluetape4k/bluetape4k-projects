@@ -10,7 +10,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.inTopLevelTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transactionManager
 import kotlin.coroutines.CoroutineContext
 
-suspend fun withSuspendedTables(
+suspend fun withTablesSuspending(
     testDB: TestDB,
     vararg tables: Table,
     context: CoroutineContext? = Dispatchers.IO,
@@ -18,7 +18,7 @@ suspend fun withSuspendedTables(
     dropTables: Boolean = true,
     statement: suspend JdbcTransaction.(TestDB) -> Unit,
 ) {
-    withSuspendedDb(testDB, context, configure) {
+    withDbSuspending(testDB, context, configure) {
         try {
             SchemaUtils.drop(*tables)
         } catch (_: Throwable) {
@@ -47,4 +47,29 @@ suspend fun withSuspendedTables(
             }
         }
     }
+}
+
+@Deprecated(
+    message = "Use withTablesSuspending() instead.",
+    replaceWith = ReplaceWith(
+        "withTablesSuspending(testDB, *tables, context = context, configure = configure, dropTables = dropTables, statement = statement)",
+        "io.bluetape4k.exposed.tests.withTablesSuspending"
+    )
+)
+suspend fun withSuspendedTables(
+    testDB: TestDB,
+    vararg tables: Table,
+    context: CoroutineContext? = Dispatchers.IO,
+    configure: (DatabaseConfig.Builder.() -> Unit)? = {},
+    dropTables: Boolean = true,
+    statement: suspend JdbcTransaction.(TestDB) -> Unit,
+) {
+    withTablesSuspending(
+        testDB = testDB,
+        tables = tables,
+        context = context,
+        configure = configure,
+        dropTables = dropTables,
+        statement = statement,
+    )
 }
