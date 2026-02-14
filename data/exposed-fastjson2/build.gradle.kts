@@ -15,6 +15,7 @@ dependencies {
     api(project(":bluetape4k-fastjson2"))
     api(Libs.fastjson2_kotlin)
     api(Libs.fastjson2_extension)
+    compileOnly(Libs.r2dbc_spi)
 
     // Database Drivers
     testImplementation(Libs.hikaricp)

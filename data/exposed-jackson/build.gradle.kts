@@ -15,6 +15,7 @@ dependencies {
     api(project(":bluetape4k-jackson"))
     api(Libs.jackson_module_kotlin)
     implementation(Libs.jackson_module_blackbird)
+    compileOnly(Libs.r2dbc_spi)
 
     // Database Drivers
     testRuntimeOnly(Libs.hikaricp)
