@@ -1,5 +1,24 @@
 # Module bluetape4k-aws-kotlin-dynamodb
 
-AWS Kotlin SDK 를 이용하여 DynamoDb 를 사용할 때 필요한 기능을 제공합니다.
+AWS SDK for Kotlin DynamoDB 사용을 단순화하는 확장 라이브러리입니다.
 
-기본적으로 AWS Kotlin SDK는 Coroutines 사용하여 Async/Non-Blocking 방식으로 동작합니다. 
+## 주요 기능
+
+- **DynamoDbClient 확장 함수**: DynamoDB 호출 편의 API
+- **요청/모델 빌더 지원**: 주요 DynamoDB 요청 객체 생성 유틸
+- **AttributeValue 변환 지원**: 값 매핑 보조
+- **Reserved Words 지원**: DynamoDB 예약어 상수 제공
+
+## 의존성 추가
+
+```kotlin
+dependencies {
+    implementation("io.bluetape4k:bluetape4k-aws-kotlin-dynamodb:${version}")
+}
+```
+
+## 주요 기능 상세
+
+- `DynamoDbClientExtensions.kt`
+- `model/*.kt` (CreateTable, PutItem, Query, TransactWriteItem 등)
+- `ReservedWords.kt`

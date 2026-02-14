@@ -1,5 +1,23 @@
 # Module bluetape4k-aws-kotlin-sns
 
-AWS Kotlin SDK 를 이용하여 SNS 를 사용할 때 필요한 기능을 제공합니다.
+AWS SDK for Kotlin SNS 사용을 위한 확장 라이브러리입니다.
 
-기본적으로 AWS Kotlin SDK는 Coroutines 사용하여 Async/Non-Blocking 방식으로 동작합니다. 
+## 주요 기능
+
+- **SNS Client 확장 함수**: 토픽 발행/구독 보조 API
+- **요청 모델 빌더 지원**: Publish/Subscribe/Topic 관련 유틸
+- **메시지 속성 지원**: MessageAttributeValue 보조
+
+## 의존성 추가
+
+```kotlin
+dependencies {
+    implementation("io.bluetape4k:bluetape4k-aws-kotlin-sns:${version}")
+}
+```
+
+## 주요 기능 상세
+
+- `SnsClientExtensions.kt`
+- `model/Publish.kt`, `model/Subscribe.kt`
+- `model/ListTopics.kt`, `model/ListSubscriptions.kt`, `model/Topic.kt`

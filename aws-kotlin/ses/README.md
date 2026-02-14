@@ -1,5 +1,23 @@
 # Module bluetape4k-aws-kotlin-ses
 
-AWS Kotlin SDK 를 이용하여 SES 를 사용할 때 필요한 기능을 제공합니다.
+AWS SDK for Kotlin SES 사용을 위한 확장 라이브러리입니다.
 
-기본적으로 AWS Kotlin SDK는 Coroutines 사용하여 Async/Non-Blocking 방식으로 동작합니다. 
+## 주요 기능
+
+- **SES Client 확장 함수**: 메일 전송 호출 편의 API
+- **요청 모델 빌더 지원**: Destination/Message/SendEmailRequest 유틸
+- **Raw Email 지원**: RawMessage 기반 전송 유틸
+
+## 의존성 추가
+
+```kotlin
+dependencies {
+    implementation("io.bluetape4k:bluetape4k-aws-kotlin-ses:${version}")
+}
+```
+
+## 주요 기능 상세
+
+- `SesClientExtensions.kt`
+- `model/Destination.kt`, `model/Message.kt`
+- `model/SendEmailRequest.kt`, `model/SendRawEmailRequest.kt`
