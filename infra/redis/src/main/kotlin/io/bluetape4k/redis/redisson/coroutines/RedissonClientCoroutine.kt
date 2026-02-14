@@ -10,7 +10,6 @@ import org.redisson.api.RTransaction
 import org.redisson.api.RedissonClient
 import org.redisson.api.TransactionOptions
 import org.redisson.transaction.TransactionException
-import java.time.LocalDate
 
 /**
  * Redisson 작업을 Coroutines 환경에서 Batch 모드에서 실행하도록 합니다.
@@ -62,8 +61,7 @@ private const val LOCK_ID_NAME_PREFIX = "$LibraryName:lock-id"
 fun RedissonClient.getLockId(lockName: String): Long {
     lockName.requireNotBlank("lockName")
 
-    val epochDay = LocalDate.now().toEpochDay()
-    val sequenceName = "$LOCK_ID_NAME_PREFIX:$lockName:$epochDay"
+    val sequenceName = "$LOCK_ID_NAME_PREFIX:$lockName"
 
     val atomicLong = getAtomicLong(sequenceName)
     atomicLong.compareAndSet(0, System.currentTimeMillis())
