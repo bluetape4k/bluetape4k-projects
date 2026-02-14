@@ -806,7 +806,7 @@ class R2dbcSelectTest: AbstractExposedR2dbcTest() {
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `select distinct`(testDB: TestDB) = runTest {
-        Assumptions.assumeTrue { testDB !in TestDB.ALL_MYSQL_LIKE }
+        Assumptions.assumeTrue { testDB !in TestDB.ALL_MYSQL_MARIADB_LIKE }
 
         val cities = DMLTestData.Cities
         withTables(testDB, cities) {
