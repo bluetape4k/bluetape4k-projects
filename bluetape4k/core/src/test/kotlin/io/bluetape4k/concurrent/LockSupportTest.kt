@@ -158,8 +158,8 @@ class LockSupportTest {
         var counter = 0
 
         SuspendedJobTester()
-            .numThreads(16)
-            .roundsPerJob(16)
+            .workers(16)
+            .rounds(16)
             .add {
                 lock.read {
                     Thread.sleep(10)

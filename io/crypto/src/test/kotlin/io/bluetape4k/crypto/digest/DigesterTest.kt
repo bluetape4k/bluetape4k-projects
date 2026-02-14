@@ -100,8 +100,8 @@ class DigesterTest {
     @FieldSource("digesters")
     fun `digest message as string in suspend jobs`(digester: Digester) = runTest {
         SuspendedJobTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerJob(16 * 2 * Runtimex.availableProcessors)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(16 * 2 * Runtimex.availableProcessors)
             .add {
                 withContext(Dispatchers.Default) {
                     val message = getRandomString()

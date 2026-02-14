@@ -109,8 +109,8 @@ abstract class AbstractTimebasedUuidBase62Test {
         val idMap = ConcurrentHashMap<String, Int>()
 
         SuspendedJobTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerJob(TEST_COUNT * 2 * Runtimex.availableProcessors)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(TEST_COUNT * 2 * Runtimex.availableProcessors)
             .add {
                 val id = uuidGenerator.nextIdAsString()
                 idMap.putIfAbsent(id, 1).shouldBeNull()

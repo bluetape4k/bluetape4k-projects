@@ -20,7 +20,7 @@ class AwaitilityCoroutinesTest {
         val start = System.currentTimeMillis()
         val end = start + 100
 
-        await suspendAwait {
+        await awaitSuspending {
             log.debug { "awaiting in suspend function." }
             delay(100)
             log.debug { "finish suspend function." }
@@ -35,7 +35,7 @@ class AwaitilityCoroutinesTest {
         val start = System.currentTimeMillis()
         val end = start + 100
 
-        await suspendUntil {
+        await untilSuspending {
             log.debug { "await suspendUntil ..." }
             delay(10)
             System.currentTimeMillis() > end
@@ -50,11 +50,13 @@ class AwaitilityCoroutinesTest {
         val start = System.currentTimeMillis()
         val end = start + 100
 
-        await.suspendAwait(Duration.ofMillis(10)) {
-            log.debug { "awaiting in suspend function." }
-            delay(100)
-            log.debug { "finish suspend function." }
-        }
+        await
+            .pollDelay(Duration.ofMillis(100))
+            .awaitSuspending {
+                log.debug { "awaiting in suspend function." }
+                delay(100)
+                log.debug { "finish suspend function." }
+            }
         yield()
 
         System.currentTimeMillis() shouldBeGreaterThan end
@@ -65,29 +67,27 @@ class AwaitilityCoroutinesTest {
         val start = System.currentTimeMillis()
         val end = start + 100
 
-        await.suspendUntil(Duration.ofMillis(50)) {
-            log.debug { "await suspendUntil ..." }
-            delay(10)
-            System.currentTimeMillis() > end
-        }
+        await
+            .pollDelay(Duration.ofMillis(50))
+            .untilSuspending {
+                log.debug { "await suspendUntil ..." }
+                delay(10)
+                System.currentTimeMillis() > end
+            }
+
         yield()
 
         System.currentTimeMillis() shouldBeGreaterThan end
     }
 
     @Test
-    fun `suspendUntil - poll interval 은 양수여야 한다`() = runSuspendTest {
-        assertFailsWith<IllegalArgumentException> {
-            await.suspendUntil(Duration.ZERO) { true }
-        }
-    }
-
-    @Test
     fun `suspendUntil - block 예외는 전파된다`() = runSuspendTest {
         assertFailsWith<IllegalStateException> {
-            await.suspendUntil(Duration.ofMillis(10)) {
-                throw IllegalStateException("boom")
-            }
+            await
+                .pollDelay(Duration.ofMillis(10))
+                .untilSuspending {
+                    throw IllegalStateException("boom")
+                }
         }
     }
 }

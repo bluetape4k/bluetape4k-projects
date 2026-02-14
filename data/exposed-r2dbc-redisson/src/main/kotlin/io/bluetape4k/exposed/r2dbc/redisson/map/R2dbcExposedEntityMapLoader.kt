@@ -4,17 +4,13 @@ import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
-import io.bluetape4k.logging.trace
+import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.onFailure
-import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.cancellable
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.singleOrNull
+import kotlinx.coroutines.flow.toList
 import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.r2dbc.select
@@ -43,41 +39,45 @@ open class R2dbcExposedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
             ?.toEntity()
     },
     loadAllIdsFromDB = { channel ->
-        var rowCount = 0
+        // 성능 문제를 피하기 위해 배치 단위로 모든 ID를 로드합니다.
 
-        entityTable
-            .select(entityTable.id)
-            .fetchBatchedResults(batchSize)
-            .buffer(3)
-            .cancellable()
-            .catch { cause ->
-                log.error(cause) { "R2dbc를 이용하여 DB에서 모든 ID 로딩 중 오류 발생" }
-                throw cause
-            }
-            .onEach { rows ->
-                rowCount += rows.count()
-                log.trace { "DB에서 모든 ID 로딩 중... 로딩된 id 수=$rowCount" }
-            }
-            .onCompletion { cause ->
-                if (cause != null) {
-                    log.error(cause) { "R2dbc를 이용하여 DB에서 모든 ID 로딩 중 오류 발생" }
-                } else {
-                    log.debug { "DB에서 모든 ID 로딩 완료. 로딩된 id 수=$rowCount" }
+        var loadedIds = 0
+        var offset = 0L
+
+        try {
+            while (true) {
+                val chunk = entityTable
+                    .select(entityTable.id)
+                    .orderBy(entityTable.id, SortOrder.ASC)
+                    .limit(batchSize)
+                    .offset(offset)
+                    .mapNotNull { it[entityTable.id]?.value }
+                    .toList()
+
+                if (chunk.isEmpty()) {
+                    break
                 }
-            }
-            .collect { rows ->
-                rows.collect { row ->
-                    val id = row[entityTable.id].value
-                    channel.trySend(id)
-                        .onFailure { cause ->
-                            throw IllegalStateException("채널 전송 실패. id=$id", cause)
-                        }
+
+                chunk.forEach { id ->
+                    loadedIds++
+                    channel.send(id)
                 }
+                offset += batchSize.toLong()
+                log.debug { "DB에서 모든 ID 로딩 중... 로딩된 id 수=$loadedIds, offset=$offset" }
             }
+            log.debug { "DB에서 모든 ID 로딩 완료. 로딩된 id 수=$loadedIds" }
+        } catch (cause: Throwable) {
+            log.error(cause) { "R2dbc를 이용하여 DB에서 모든 ID 로딩 중 오류 발생" }
+            throw cause
+        }
     },
     scope = scope,
 ) {
     companion object: KLoggingChannel() {
         private const val DEFAULT_BATCH_SIZE = 1000
+    }
+
+    init {
+        batchSize.requirePositiveNumber("batchSize")
     }
 }

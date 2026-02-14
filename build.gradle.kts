@@ -649,3 +649,19 @@ subprojects {
         }
     }
 }
+
+tasks.register("testDataExposedModules") {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Run tests for exposed* modules under the data directory in a single Gradle invocation."
+
+    val exposedTestTasks = provider {
+        val dataRoot = rootDir.toPath().resolve("data")
+        val exposedProjects = subprojects.filter { project ->
+            project.projectDir.toPath().startsWith(dataRoot) &&
+                    project.name.startsWith("bluetape4k-exposed")
+        }
+
+        exposedProjects.map { it.path + ":test" }
+    }
+    dependsOn(exposedTestTasks)
+}

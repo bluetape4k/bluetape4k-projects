@@ -92,8 +92,8 @@ class JsonEncryptTest {
     @Test
     fun `encrypt json property in suspend jobs`() = runTest {
         SuspendedJobTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerJob(16 * 2 * Runtimex.availableProcessors)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(16 * 2 * Runtimex.availableProcessors)
             .add {
                 verifyEncryptProperty(createUser())
             }

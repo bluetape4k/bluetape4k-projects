@@ -53,8 +53,8 @@ class DequeExamples: io.bluetape4k.examples.redisson.coroutines.AbstractRedisson
         deque.clear()
 
         SuspendedJobTester()
-            .numThreads(16)
-            .roundsPerJob(16 * 4)
+            .workers(16)
+            .rounds(16 * 4)
             .add {
                 deque.addLastAsync(counter.incrementAndGet()).suspendAwait()
             }

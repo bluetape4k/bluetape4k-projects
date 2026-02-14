@@ -49,8 +49,8 @@ class FutureSupportTest {
         val counter = AtomicInteger(0)
 
         SuspendedJobTester()
-            .numThreads(16)
-            .roundsPerJob(16 * ITEM_COUNT / 4)
+            .workers(16)
+            .rounds(16 * ITEM_COUNT / 4)
             .add {
                 val task = future(Dispatchers.Default, start = CoroutineStart.DEFAULT) {
                     delay(Random.nextLong(10))

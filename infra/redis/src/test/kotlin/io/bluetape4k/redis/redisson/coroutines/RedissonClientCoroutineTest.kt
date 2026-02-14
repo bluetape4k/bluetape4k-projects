@@ -71,8 +71,8 @@ class RedissonClientCoroutineTest: AbstractRedissonCoroutineTest() {
 
         try {
             SuspendedJobTester()
-                .numThreads(4)
-                .roundsPerJob(32)
+                .workers(4)
+                .rounds(32)
                 .add {
                     // redisson.runIfLeaderSuspending(lockName) {
                     leaderElection.runIfLeader(lockName) {

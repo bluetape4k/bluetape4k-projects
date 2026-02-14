@@ -132,7 +132,7 @@ class HashIdsSupportTest {
             val map = ConcurrentHashMap<Long, Int>()
 
             SuspendedJobTester()
-                .roundsPerJob(2 * Runtimex.availableProcessors * ITEM_SIZE)
+                .rounds(2 * Runtimex.availableProcessors * ITEM_SIZE)
                 .add {
                     val id = snowflake.nextId()
                     verifySnowflakeId(id)

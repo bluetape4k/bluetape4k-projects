@@ -58,8 +58,8 @@ abstract class AbstractSuspendImageWriterTest: AbstractImageTest() {
         val image = suspendImmutableImageOf(Path.of("$BASE_PATH/$filename.jpg"))
 
         SuspendedJobTester()
-            .numThreads(4)
-            .roundsPerJob(8)
+            .workers(4)
+            .rounds(8)
             .add {
                 val file = tempFolder.createFile().toPath()
                 image.forSuspendWriter(writer).write(file)

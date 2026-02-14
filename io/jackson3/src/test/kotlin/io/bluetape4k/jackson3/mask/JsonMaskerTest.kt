@@ -60,8 +60,8 @@ class JsonMaskerTest {
     @Test
     fun `masking field with @JsonMasker in suspended jobs`() = runTest {
         SuspendedJobTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerJob(16 * 2 * Runtimex.availableProcessors)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(16 * 2 * Runtimex.availableProcessors)
             .add {
                 verifyJsonMasker(newUser())
             }

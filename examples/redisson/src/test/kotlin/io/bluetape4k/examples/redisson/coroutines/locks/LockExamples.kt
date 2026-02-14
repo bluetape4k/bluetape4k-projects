@@ -133,8 +133,8 @@ class LockExamples: AbstractRedissonCoroutineTest() {
         val lockIndex = AtomicInteger(0)
 
         SuspendedJobTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerJob(2 * 2 * Runtimex.availableProcessors)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(2 * 2 * Runtimex.availableProcessors)
             .add {
                 val index = lockIndex.incrementAndGet()
                 val lockId = redisson.getLockId(lock.name)

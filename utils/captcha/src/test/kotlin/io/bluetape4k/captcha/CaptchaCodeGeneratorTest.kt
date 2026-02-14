@@ -106,8 +106,8 @@ class CaptchaCodeGeneratorTest: AbstractCaptchaTest() {
         val codeGenerator = CaptchaCodeGenerator.DEFAULT
 
         SuspendedJobTester()
-            .numThreads(Runtimex.availableProcessors * 4)
-            .roundsPerJob(Runtimex.availableProcessors * 4 * 4)
+            .workers(Runtimex.availableProcessors * 4)
+            .rounds(Runtimex.availableProcessors * 4 * 4)
             .add {
                 withContext(Dispatchers.Default) {
                     val codeLength = Random.nextInt(4, 10)

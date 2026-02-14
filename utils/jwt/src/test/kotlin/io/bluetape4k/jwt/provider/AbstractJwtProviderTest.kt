@@ -177,8 +177,8 @@ abstract class AbstractJwtProviderTest: AbstractJwtTest() {
         val jwts = CopyOnWriteArrayList<String>()
 
         SuspendedJobTester()
-            .numThreads(16)
-            .roundsPerJob(16 * 32)
+            .workers(16)
+            .rounds(16 * 32)
             .add {
                 withContext(Dispatchers.Default) {
                     val jwt = provider.compose {

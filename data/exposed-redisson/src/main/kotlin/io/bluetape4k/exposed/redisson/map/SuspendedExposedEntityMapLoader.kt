@@ -1,19 +1,15 @@
 package io.bluetape4k.exposed.redisson.map
 
 import io.bluetape4k.exposed.core.HasIdentifier
-import io.bluetape4k.exposed.core.fetchBatchedResultFlow
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.trace
+import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.onFailure
-import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.cancellable
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onEach
 import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.select
@@ -44,36 +40,43 @@ open class SuspendedExposedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
     },
     loadAllIdsFromDB = { channel ->
         var rowCount = 0
+        var offset = 0L
 
-        entityTable.select(entityTable.id)
-            .fetchBatchedResultFlow()
-            .buffer(3)
-            // .flowOn(scope.coroutineContext)
-            .cancellable()
-            .catch { cause ->
-                log.error(cause) { "DB에서 모든 ID 로딩 중 오류 발생" }
-                throw cause
-            }
-            .onEach { rows ->
-                rowCount += rows.size
-                log.trace { "DB에서 모든 ID 로딩 중... 로딩된 id 수=$rowCount" }
-            }
-            .onCompletion {
-                log.debug { "DB에서 모든 ID 로딩 완료. 로딩된 id 수=$rowCount" }
-            }
-            .collect { rows ->
+        try {
+            while (true) {
+                val rows = entityTable.select(entityTable.id)
+                    .orderBy(entityTable.id, SortOrder.ASC)
+                    .limit(batchSize)
+                    .offset(offset)
+                    .toList()
+
+                if (rows.isEmpty()) {
+                    break
+                }
+
                 rows.forEach { row ->
                     val id = row[entityTable.id].value
-                    channel.trySend(id)
-                        .onFailure { cause ->
-                            throw IllegalStateException("채널 전송 실패. id=$id", cause)
-                        }
+                    channel.trySend(id).onFailure { cause ->
+                        throw IllegalStateException("채널 전송 실패. id=$id", cause)
+                    }
+                    rowCount += 1
                 }
+                log.trace { "DB에서 모든 ID 로딩 중... 로딩된 id 수=$rowCount, offset=$offset" }
+                offset += batchSize.toLong()
             }
+            log.debug { "DB에서 모든 ID 로딩 완료. 로딩된 id 수=$rowCount" }
+        } catch (cause: Throwable) {
+            log.error(cause) { "DB에서 모든 ID 로딩 중 오류 발생" }
+            throw cause
+        }
     },
     scope = scope,
 ) {
     companion object: KLoggingChannel() {
         private const val DEFAULT_BATCH_SIZE = 1000
+    }
+
+    init {
+        batchSize.requirePositiveNumber("batchSize")
     }
 }

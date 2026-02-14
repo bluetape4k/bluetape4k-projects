@@ -87,8 +87,8 @@ class Url62Test {
     @Test
     fun `코루틴 환경에서 인코딩, 디코딩을 한다`() = runSuspendDefault {
         SuspendedJobTester()
-            .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerJob(8 * Runtimex.availableProcessors)
+            .workers(Runtimex.availableProcessors * 2)
+            .rounds(8 * Runtimex.availableProcessors)
             .add {
                 val url = UUID.randomUUID()
                 val converted = url.encodeUrl62().decodeUrl62()

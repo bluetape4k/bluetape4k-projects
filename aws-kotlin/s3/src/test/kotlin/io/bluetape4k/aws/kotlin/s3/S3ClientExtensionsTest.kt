@@ -80,8 +80,8 @@ class S3ClientExtensionsTest: AbstractKotlinS3Test() {
         tempFolder: TempFolder,
     ) = runSuspendIO {
         SuspendedJobTester()
-            .numThreads(Runtimex.availableProcessors)
-            .roundsPerJob(Runtimex.availableProcessors)
+            .workers(Runtimex.availableProcessors)
+            .rounds(Runtimex.availableProcessors)
             .add {
                 val key = randomKey()
                 val filepath = "$IMAGE_PATH/$filename"

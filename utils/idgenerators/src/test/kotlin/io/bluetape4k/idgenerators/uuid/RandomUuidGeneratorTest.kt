@@ -79,8 +79,8 @@ class RandomUuidGeneratorTest {
         val idMap = ConcurrentHashMap<UUID, Int>()
 
         SuspendedJobTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerJob(TEST_COUNT * 2 * Runtimex.availableProcessors)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(TEST_COUNT * 2 * Runtimex.availableProcessors)
             .add {
                 val id = uuidGenerator.nextId()
                 idMap.putIfAbsent(id, 1).shouldBeNull()

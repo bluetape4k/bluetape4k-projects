@@ -3,7 +3,7 @@ package io.bluetape4k.coroutines.flow.extensions.subject
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.coroutines.tests.withSingleThread
-import io.bluetape4k.junit5.awaitility.suspendUntil
+import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -324,7 +324,7 @@ class ReplaySubjectSizeBoundTest {
                 replay.emit(it)
             }
 
-            await suspendUntil { job1.isCancelled && replay.collectorCount == 0 }
+            await untilSuspending { job1.isCancelled && replay.collectorCount == 0 }
 
             job1.isCancelled.shouldBeTrue()
             counter1.get() shouldBeEqualTo expected
@@ -368,7 +368,7 @@ class ReplaySubjectSizeBoundTest {
             }
 
             replay.complete()
-            await suspendUntil { job1.isCancelled && job2.isCompleted && replay.collectorCount == 0 }
+            await untilSuspending { job1.isCancelled && job2.isCompleted && replay.collectorCount == 0 }
 
             job1.isCancelled.shouldBeTrue()
             job2.isCompleted.shouldBeTrue()

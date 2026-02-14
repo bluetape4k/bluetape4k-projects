@@ -61,8 +61,8 @@ class VirtualThreadDispatcherTest {
 
         // 1초씩 delay 하는 TASK_SIZE개의 작업을 수행 시 거의 1초에 완료된다 (Virtual Thread)
         SuspendedJobTester()
-            .numThreads(TASK_SIZE)
-            .roundsPerJob(TASK_SIZE)
+            .workers(TASK_SIZE)
+            .rounds(TASK_SIZE)
             .add {
                 delay(SLEEP_TIME)
                 log.trace { "Job[${jobNumber.incrementAndGet()}] is done" }
@@ -76,8 +76,8 @@ class VirtualThreadDispatcherTest {
 
         // 1초씩 delay 하는 TASK_SIZE개의 작업을 수행 시 거의 1초에 완료된다 (Default Dispatcher)
         SuspendedJobTester()
-            .numThreads(TASK_SIZE)
-            .roundsPerJob(TASK_SIZE)
+            .workers(TASK_SIZE)
+            .rounds(TASK_SIZE)
             .add {
                 delay(SLEEP_TIME)
                 log.trace { "Job[${jobNumber.incrementAndGet()}] is done" }
@@ -91,8 +91,8 @@ class VirtualThreadDispatcherTest {
 
         // 1초씩 delay 하는 TASK_SIZE개의 작업을 수행 시 거의 1초에 완료된다 (Default Dispatcher)
         SuspendedJobTester()
-            .numThreads(TASK_SIZE)
-            .roundsPerJob(TASK_SIZE)
+            .workers(TASK_SIZE)
+            .rounds(TASK_SIZE)
             .add {
                 delay(SLEEP_TIME)
                 log.trace { "Job[${jobNumber.incrementAndGet()}] is done" }

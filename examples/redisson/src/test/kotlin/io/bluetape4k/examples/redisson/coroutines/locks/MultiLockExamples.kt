@@ -173,8 +173,8 @@ class MultiLockExamples: AbstractRedissonCoroutineTest() {
         assertIsLocked(lock1, lock2, lock3)
 
         SuspendedJobTester()
-            .numThreads(16)
-            .roundsPerJob(2)
+            .workers(16)
+            .rounds(2)
             .add {
                 val mlock2 = RedissonMultiLock(lock1, lock2, lock4)
                 val lockId2 = redisson.getLockId("mlock2")

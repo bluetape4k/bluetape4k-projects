@@ -52,8 +52,8 @@ class SuspendLazyTest {
         callCounter.get() shouldBeEqualTo 0
 
         SuspendedJobTester()
-            .numThreads(Runtimex.availableProcessors)
-            .roundsPerJob(16)
+            .workers(Runtimex.availableProcessors)
+            .rounds(16)
             .add {
                 lazyValue() shouldBeEqualTo TEST_NUMBER
             }
@@ -124,8 +124,8 @@ class SuspendLazyTest {
 
         runTest {
             SuspendedJobTester()
-                .numThreads(Runtimex.availableProcessors)
-                .roundsPerJob(16)
+                .workers(Runtimex.availableProcessors)
+                .rounds(16)
                 .add {
                     lazyValue() shouldBeEqualTo TEST_NUMBER
                 }

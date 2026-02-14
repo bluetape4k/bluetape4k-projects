@@ -113,7 +113,7 @@ abstract class AbstractSequencerTest {
         val idMap = ConcurrentHashMap<Long, Int>()
 
         SuspendedJobTester()
-            .roundsPerJob(MAX_SEQUENCE * 2 * Runtimex.availableProcessors)
+            .rounds(MAX_SEQUENCE * 2 * Runtimex.availableProcessors)
             .add {
                 val id = sequencer.nextSequence()
                 idMap.putIfAbsent(id.value, 1).shouldBeNull()

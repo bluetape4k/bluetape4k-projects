@@ -108,8 +108,8 @@ class AtomicIntRoundrobinTest {
         val atomic = AtomicIntRoundrobin(Runtimex.availableProcessors)
 
         SuspendedJobTester()
-            .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerJob(Runtimex.availableProcessors * 2 * 4)
+            .workers(Runtimex.availableProcessors * 2)
+            .rounds(Runtimex.availableProcessors * 2 * 4)
             .add {
                 atomic.next().apply {
                     log.trace { "atomic=$this" }

@@ -5,7 +5,7 @@ import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorRecord
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
-import io.bluetape4k.junit5.awaitility.suspendUntil
+import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.RedissonCodecs
@@ -168,7 +168,7 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                     }
                     .awaitAll()
 
-                await suspendUntil { getActorCountFromDBSuspended() >= ACTOR_SIZE }
+                await untilSuspending { getActorCountFromDBSuspended() >= ACTOR_SIZE }
 
                 // DB에 삽입된 데이터를 확인한다. (options.loader() 가 없으므로, 캐시에는 저장되지 않는다)
                 val dbActorCount = newSuspendedTransaction {
@@ -177,7 +177,7 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                 dbActorCount shouldBeEqualTo ACTOR_SIZE.toLong()
 
                 // 캐시만 Expired 되기를 기다렸다가 다시 로드한다.
-                await suspendUntil {
+                await untilSuspending {
                     delay(100)
                     cache.size < ACTOR_SIZE
                 }
@@ -223,7 +223,7 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                     cache[id].shouldNotBeNull()
                 }
 
-                await suspendUntil { getActorCountFromDBSuspended() >= ACTOR_SIZE }
+                await untilSuspending { getActorCountFromDBSuspended() >= ACTOR_SIZE }
 
                 // DB에 삽입된 데이터를 확인한다. (options.loader() 가 있으므로, 캐시에서 삭제되지 않는다)
                 val dbActorCount = transaction {
@@ -234,7 +234,7 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                 // 캐시의 데이터를 모두 삭제한다 -> DB의 데이터도 삭제된다 !!!
                 cache.fastRemoveAsync(*writeIds.toTypedArray()).suspendAwait()
 
-                await suspendUntil {
+                await untilSuspending {
                     delay(100)
                     newSuspendedTransaction {
                         ActorTable.selectAll().where { ActorTable.id inList writeIds }.count()

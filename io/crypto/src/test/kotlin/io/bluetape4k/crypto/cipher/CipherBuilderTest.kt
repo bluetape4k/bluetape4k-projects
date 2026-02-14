@@ -84,8 +84,8 @@ class CipherBuilderTest: AbstractCipherTest() {
     @Test
     fun `create AES cipher for encryption in suspended jobs`() = runTest {
         SuspendedJobTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerJob(4 * 2 * Runtimex.availableProcessors)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(4 * 2 * Runtimex.availableProcessors)
             .add {
                 val encryptCipher = builder.build(Cipher.ENCRYPT_MODE)
                 val decryptCipher = builder.build(Cipher.DECRYPT_MODE)

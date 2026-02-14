@@ -108,8 +108,8 @@ class FutureSupportTest {
         val counter = AtomicInteger(0)
 
         SuspendedJobTester()
-            .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerJob(Runtimex.availableProcessors * 2 * ITEM_COUNT / 4)
+            .workers(Runtimex.availableProcessors * 2)
+            .rounds(Runtimex.availableProcessors * 2 * ITEM_COUNT / 4)
             .add {
                 val task = async(Dispatchers.Default) {
                     delay(Random.nextLong(DELAY_TIME))

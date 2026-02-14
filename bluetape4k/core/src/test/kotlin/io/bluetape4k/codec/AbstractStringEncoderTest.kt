@@ -93,8 +93,8 @@ abstract class AbstractStringEncoderTest {
         val bytes = Random.nextBytes(4096)
 
         SuspendedJobTester()
-            .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerJob(8 * Runtimex.availableProcessors)
+            .workers(Runtimex.availableProcessors * 2)
+            .rounds(8 * Runtimex.availableProcessors)
             .add {
                 val converted = encoder.decode(encoder.encode(bytes))
                 converted shouldContainSame bytes

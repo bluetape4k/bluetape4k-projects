@@ -5,7 +5,7 @@ import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorRecord
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
-import io.bluetape4k.junit5.awaitility.suspendUntil
+import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.RedissonCodecs
@@ -141,7 +141,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                     cache.fastPutAsync(id, newActorRecord(id))
                 }.awaitAll()
 
-                await suspendUntil {
+                await untilSuspending {
                     newSuspendedTransaction {
                         // DB에 삽입된 데이터를 확인한다. (options.loader() 가 없으므로, 캐시에는 저장되지 않는다)
                         ActorTable.selectAll().where { ActorTable.id inList writeIds }.count()
@@ -186,7 +186,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                     cache[id].shouldNotBeNull()
                 }
 
-                await suspendUntil {
+                await untilSuspending {
                     newSuspendedTransaction {
                         // DB에 삽입된 데이터를 확인한다. (options.loader() 가 없으므로, 캐시에는 저장되지 않는다)
                         ActorTable.selectAll().where { ActorTable.id inList writeIds }.count()

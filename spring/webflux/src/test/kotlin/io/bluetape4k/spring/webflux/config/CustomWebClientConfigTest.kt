@@ -62,8 +62,8 @@ class CustomWebClientConfigTest {
     @Test
     fun `async get by custom webclient in multiple suspended jobs`() = runSuspendIO {
         SuspendedJobTester()
-            .numThreads(Runtimex.availableProcessors)
-            .roundsPerJob(Runtimex.availableProcessors)
+            .workers(Runtimex.availableProcessors)
+            .rounds(Runtimex.availableProcessors)
             .add {
                 val body = webClient
                     .httpGet("https://www.google.com")

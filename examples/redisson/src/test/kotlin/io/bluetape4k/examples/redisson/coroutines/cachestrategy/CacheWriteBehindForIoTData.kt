@@ -6,7 +6,7 @@ import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.exposed.dao.id.TimebasedUUIDTable
 import io.bluetape4k.javatimes.millis
-import io.bluetape4k.junit5.awaitility.suspendUntil
+import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -262,15 +262,15 @@ class CacheWriteBehindForIoTData: AbstractCacheExample() {
                 Thread.sleep(100)
 
                 // 1ms 마다 생성되는 데이터를 10ms 단위로 sampling 해서 저장합니다. 따라서, DB에는 dataSize / 10 개만 저장된다.
-                await withPollDelay Duration.ofMillis(100) suspendUntil { getSensorDataCountFromDBAsync("sensor-1") >= dataSize / 10 }
+                await withPollDelay Duration.ofMillis(100) untilSuspending { getSensorDataCountFromDBAsync("sensor-1") >= dataSize / 10 }
 
                 listOf(
                     cache.fastPutAsync("sensor-2", generateSensorData("sensor-2", dataSize)),
                     cache.fastPutAsync("sensor-3", generateSensorData("sensor-3", dataSize))
                 ).awaitAll()
 
-                await withPollDelay Duration.ofMillis(100) suspendUntil { getSensorDataCountFromDBAsync("sensor-2") >= dataSize / 10 }
-                await withPollDelay Duration.ofMillis(100) suspendUntil { getSensorDataCountFromDBAsync("sensor-3") >= dataSize / 10 }
+                await withPollDelay Duration.ofMillis(100) untilSuspending { getSensorDataCountFromDBAsync("sensor-2") >= dataSize / 10 }
+                await withPollDelay Duration.ofMillis(100) untilSuspending { getSensorDataCountFromDBAsync("sensor-3") >= dataSize / 10 }
 
             } finally {
                 // 캐시를 삭제한다.

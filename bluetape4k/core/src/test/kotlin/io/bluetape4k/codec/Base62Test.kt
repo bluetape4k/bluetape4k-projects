@@ -128,8 +128,8 @@ class Base62Test {
         val base62s = ConcurrentHashMap<String, Int>()
 
         SuspendedJobTester()
-            .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerJob(128 * Runtimex.availableProcessors)
+            .workers(Runtimex.availableProcessors * 2)
+            .rounds(128 * Runtimex.availableProcessors)
             .add {
                 val uuid = uuidGenerator.generate()
                 uuids.put(uuid, 1).shouldBeNull()

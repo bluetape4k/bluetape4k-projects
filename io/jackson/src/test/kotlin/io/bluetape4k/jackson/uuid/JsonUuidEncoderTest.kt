@@ -84,8 +84,8 @@ class JsonUuidEncodeTest {
     @Test
     fun `convert uuid to base62 string in suspended jobs`() = runTest {
         SuspendedJobTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerJob(16 * 2 * Runtimex.availableProcessors)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(16 * 2 * Runtimex.availableProcessors)
             .add {
                 verifyJsonUuidEncoder(newUser())
             }

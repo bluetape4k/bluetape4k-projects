@@ -136,8 +136,8 @@ class Base58Test {
     @Test
     fun `코루틴 환경에서 Base58 인코딩, 디코딩하기`() = runSuspendDefault {
         SuspendedJobTester()
-            .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerJob(8 * Runtimex.availableProcessors)
+            .workers(Runtimex.availableProcessors * 2)
+            .rounds(8 * Runtimex.availableProcessors)
             .add {
                 val expected = fakerKr.lorem().paragraph()
                 val encoded = Base58.encode(expected)

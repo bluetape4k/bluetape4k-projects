@@ -116,8 +116,8 @@ class EncryptorTest {
     @FieldSource("encryptors")
     fun `encrypt and decrypt string in suspended jobs`(encryptor: Encryptor) = runTest {
         SuspendedJobTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerJob(16 * 2 * Runtimex.availableProcessors)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(16 * 2 * Runtimex.availableProcessors)
             .add {
                 val message = getRandomString()
 

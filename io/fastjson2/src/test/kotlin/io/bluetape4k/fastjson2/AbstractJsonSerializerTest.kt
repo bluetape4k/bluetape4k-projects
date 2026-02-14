@@ -162,8 +162,8 @@ abstract class AbstractJsonSerializerTest: AbstractFastjson2Test() {
     @Test
     fun `json serialize for User in suspended jobs`() = runTest {
         SuspendedJobTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerJob(16 * 2 * Runtimex.availableProcessors)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(16 * 2 * Runtimex.availableProcessors)
             .add {
                 val user = User(
                     id = faker.random().nextInt(),

@@ -55,8 +55,8 @@ class SuspendRingBufferTest {
         val counter = AtomicInteger(0)
 
         SuspendedJobTester()
-            .numThreads(8)
-            .roundsPerJob(bufferSize)
+            .workers(8)
+            .rounds(bufferSize)
             .add {
                 delay(Random.nextLong(10))
                 buffer.push(counter.incrementAndGet().toDouble())

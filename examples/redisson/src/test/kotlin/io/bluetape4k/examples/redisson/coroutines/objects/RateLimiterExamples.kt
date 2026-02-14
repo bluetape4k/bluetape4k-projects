@@ -123,8 +123,8 @@ class RateLimiterExamples: AbstractRedissonCoroutineTest() {
         limiter1.tryAcquireAsync(1).suspendAwait().shouldBeFalse()
 
         SuspendedJobTester()
-            .numThreads(2)
-            .roundsPerJob(4)
+            .workers(2)
+            .rounds(4)
             .add {
                 // RateType 이 PER_CLIENT 인 경우, RedissonClient 인스턴스 별로 rate limit 를 따로 허용한다
                 val redisson1 = newRedisson()

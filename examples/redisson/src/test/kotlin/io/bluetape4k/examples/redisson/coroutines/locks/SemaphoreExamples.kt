@@ -196,8 +196,8 @@ class SemaphoreExamples: AbstractRedissonCoroutineTest() {
 
         try {
             SuspendedJobTester()
-                .numThreads(Runtimex.availableProcessors)
-                .roundsPerJob(16)
+                .workers(Runtimex.availableProcessors)
+                .rounds(16)
                 .add {
                     val s2 = redisson2.getSemaphore(semaphoreName)
                     Thread.sleep(1)

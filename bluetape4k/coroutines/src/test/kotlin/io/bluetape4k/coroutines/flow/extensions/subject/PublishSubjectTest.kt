@@ -4,7 +4,7 @@ import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.coroutines.tests.withSingleThread
-import io.bluetape4k.junit5.awaitility.suspendUntil
+import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.coroutineScope
@@ -323,7 +323,7 @@ class PublishSubjectTest {
             }
             subject.complete()
 
-            await suspendUntil { job.isCancelled }
+            await untilSuspending { job.isCancelled }
 
             job.isCancelled.shouldBeTrue()
             subject.collectorCount shouldBeEqualTo 0

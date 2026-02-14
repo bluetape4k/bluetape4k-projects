@@ -110,8 +110,8 @@ class GeoipCityFinderTest: AbstractGeoipTest() {
         val resultMap = ConcurrentHashMap<String, String>()
 
         SuspendedJobTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerJob(10 * 2 * Runtimex.availableProcessors)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(10 * 2 * Runtimex.availableProcessors)
             .add {
                 withContext(Dispatchers.IO) {
                     val ip = ipAddresses[index.next()]

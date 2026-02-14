@@ -57,8 +57,8 @@ class LettuceClientsTest: AbstractLettuceTest() {
     @Test
     fun `connect to redis server in coroutines`() = runSuspendIO {
         SuspendedJobTester()
-            .numThreads(16)
-            .roundsPerJob(32)
+            .workers(16)
+            .rounds(32)
             .add {
                 val coroutinesCommand = LettuceClients.coroutinesCommands(client, LettuceBinaryCodecs.Default)
                 coroutinesCommand.ping() shouldBeEqualTo "PONG"

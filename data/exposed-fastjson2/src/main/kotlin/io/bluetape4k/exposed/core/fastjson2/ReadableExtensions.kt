@@ -5,6 +5,7 @@ import com.alibaba.fastjson2.JSONArray
 import com.alibaba.fastjson2.JSONObject
 import io.bluetape4k.fastjson2.FastjsonSerializer
 import io.bluetape4k.fastjson2.deserialize
+import io.r2dbc.spi.Readable
 
 @PublishedApi
 internal fun requiredFastjsonReadableError(column: Any, typeName: String): Nothing =

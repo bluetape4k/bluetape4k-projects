@@ -123,8 +123,8 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
         val lockIndex = AtomicInteger(0)
 
         SuspendedJobTester()
-            .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerJob(Runtimex.availableProcessors * 4)
+            .workers(Runtimex.availableProcessors * 2)
+            .rounds(Runtimex.availableProcessors * 4)
             .add {
                 val lockId = redisson.getLockId(lock.name)
                 val index = lockIndex.incrementAndGet()

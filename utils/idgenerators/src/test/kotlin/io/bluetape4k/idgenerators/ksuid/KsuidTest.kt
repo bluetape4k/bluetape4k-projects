@@ -71,7 +71,7 @@ class KsuidTest {
         val idMap = ConcurrentHashMap<String, Int>()
 
         SuspendedJobTester()
-            .roundsPerJob(TEST_COUNT)
+            .rounds(TEST_COUNT)
             .add {
                 val ksuid = Ksuid.generate()
                 idMap.putIfAbsent(ksuid, 1).shouldBeNull()

@@ -174,8 +174,8 @@ class ImageCaptchaGeneratorTest: AbstractCaptchaTest() {
         val captchaGen = ImageCaptchaGenerator(newConfig, codeGen)
 
         SuspendedJobTester()
-            .numThreads(Runtime.getRuntime().availableProcessors() * 4)
-            .roundsPerJob(Runtime.getRuntime().availableProcessors() * 4 * 4)
+            .workers(Runtime.getRuntime().availableProcessors() * 4)
+            .rounds(Runtime.getRuntime().availableProcessors() * 4 * 4)
             .add {
                 val captcha = captchaGen.generate()
                 captcha.content.shouldNotBeNull()
