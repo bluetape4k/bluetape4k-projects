@@ -2,6 +2,7 @@ package io.bluetape4k.bucket4j.distributed
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.toUtf8Bytes
 import io.github.bucket4j.Bucket
 import io.github.bucket4j.BucketConfiguration
@@ -48,8 +49,10 @@ open class BucketProxyProvider(
      * @return [Bucket] 인스턴스
      */
     fun resolveBucket(key: String): BucketProxy {
+        key.requireNotBlank("key")
         log.debug { "Resolving bucket for key: $key" }
-        val bucketKey = getBucketKey("$keyPrefix$key")
+        // Prefix는 getBucketKey 에서 단일 책임으로 처리한다.
+        val bucketKey = getBucketKey(key)
 
         return proxyManager.builder()
             .build(bucketKey) { bucketConfiguration }

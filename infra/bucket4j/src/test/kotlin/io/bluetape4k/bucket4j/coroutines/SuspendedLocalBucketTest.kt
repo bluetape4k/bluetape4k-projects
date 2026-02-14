@@ -5,14 +5,13 @@ import io.bluetape4k.bucket4j.addBandwidth
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.github.bucket4j.BandwidthBuilder
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
-import org.awaitility.kotlin.atMost
-import org.awaitility.kotlin.await
-import org.awaitility.kotlin.until
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -72,8 +71,8 @@ class SuspendedLocalBucketTest: AbstractBucket4jTest() {
             done.get().shouldBeFalse()
 
             advanceTimeBy(1.seconds)            // 토탈 4초가 지났으므로 4개의 토큰이 모두 보충되었다
+            runCurrent()
 
-            await atMost Duration.ofSeconds(2) until { done.get() }
             done.get().shouldBeTrue()
 
             job.cancel()
@@ -106,6 +105,13 @@ class SuspendedLocalBucketTest: AbstractBucket4jTest() {
         }
 
         @Test
+        fun `최대 대기 시간이 너무 크면 예외를 던져야 한다`() = runTest {
+            assertFailsWith<IllegalArgumentException> {
+                bucket.tryConsume(1L, Duration.ofSeconds(Long.MAX_VALUE))
+            }
+        }
+
+        @Test
         fun `보유 토큰(5) 보다 많은 토큰을 소비하려고 시도하면서 대기시간이 짧으면 즉시 false를 반환한다`() = runTest {
             // 5개를 보유하고 있다 
             bucket.tryConsume(5L + 1L, Duration.ofMillis(10)).shouldBeFalse()
@@ -128,11 +134,21 @@ class SuspendedLocalBucketTest: AbstractBucket4jTest() {
             done.get().shouldBeFalse()
 
             advanceTimeBy(1.seconds)            // 토탈 4초가 지났으므로 4개의 토큰이 모두 보충되었다
-
-            await atMost Duration.ofSeconds(1) until { done.get() }
+            runCurrent()
 
             done.get().shouldBeTrue()
             task.await().shouldBeTrue()
+        }
+
+        @Test
+        fun `대기 중 취소되면 작업은 취소 상태가 된다`() = runTest {
+            val job = launch {
+                bucket.consume(9L) // 최소 4초 대기
+            }
+
+            runCurrent() // delay 지점까지 진입
+            job.cancelAndJoin()
+            job.isCancelled.shouldBeTrue()
         }
     }
 }

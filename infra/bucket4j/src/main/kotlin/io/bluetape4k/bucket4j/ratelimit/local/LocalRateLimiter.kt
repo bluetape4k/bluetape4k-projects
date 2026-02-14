@@ -3,10 +3,11 @@ package io.bluetape4k.bucket4j.ratelimit.local
 import io.bluetape4k.bucket4j.local.LocalBucketProvider
 import io.bluetape4k.bucket4j.ratelimit.RateLimitResult
 import io.bluetape4k.bucket4j.ratelimit.RateLimiter
+import io.bluetape4k.bucket4j.ratelimit.toRateLimitResult
+import io.bluetape4k.bucket4j.ratelimit.validateRateLimitRequest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
-import io.bluetape4k.support.requireNotBlank
 
 /**
  * 로컬 환경에서 Rate Limiter 를 적용하는 Rate Limiter 구현체
@@ -52,20 +53,15 @@ open class LocalRateLimiter(
      * @return [RateLimitResult] 토큰 소비 결과
      */
     override fun consume(key: String, numToken: Long): RateLimitResult {
-        key.requireNotBlank("key")
+        validateRateLimitRequest(key, numToken)
         log.debug { "rate limit for key=$key, numToken=$numToken" }
 
         return try {
             val bucketProxy = bucketProvider.resolveBucket(key)
-
-            if (bucketProxy.tryConsume(numToken)) {
-                RateLimitResult(numToken, bucketProxy.availableTokens)
-            } else {
-                RateLimitResult(0, bucketProxy.availableTokens)
-            }
-        } catch (e: Throwable) {
+            toRateLimitResult(bucketProxy.tryConsume(numToken), numToken, bucketProxy.availableTokens)
+        } catch (e: Exception) {
             log.warn(e) { "Rate Limiter 적용에 실패했습니다. key=$key" }
-            RateLimitResult.ERROR
+            RateLimitResult.error(e)
         }
     }
 }

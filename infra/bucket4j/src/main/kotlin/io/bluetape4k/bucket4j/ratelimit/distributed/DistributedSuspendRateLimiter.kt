@@ -3,11 +3,12 @@ package io.bluetape4k.bucket4j.ratelimit.distributed
 import io.bluetape4k.bucket4j.distributed.AsyncBucketProxyProvider
 import io.bluetape4k.bucket4j.ratelimit.RateLimitResult
 import io.bluetape4k.bucket4j.ratelimit.SuspendRateLimiter
+import io.bluetape4k.bucket4j.ratelimit.toRateLimitResult
+import io.bluetape4k.bucket4j.ratelimit.validateRateLimitRequest
 import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
-import io.bluetape4k.support.requireNotBlank
 import kotlinx.coroutines.future.await
 
 /**
@@ -38,20 +39,19 @@ class DistributedSuspendRateLimiter(
      * @return [RateLimitResult] 토큰 소비 결과
      */
     override suspend fun consume(key: String, numToken: Long): RateLimitResult {
-        key.requireNotBlank("key")
+        validateRateLimitRequest(key, numToken)
         log.debug { "rate limit for key=$key, numToken=$numToken" }
 
         return try {
             val bucketProxy = asyncBucketProxyProvider.resolveBucket(key)
-
-            if (bucketProxy.tryConsume(numToken).suspendAwait()) {
-                RateLimitResult(numToken, bucketProxy.availableTokens.await())
-            } else {
-                RateLimitResult(0, bucketProxy.availableTokens.await())
-            }
-        } catch (e: Throwable) {
+            toRateLimitResult(
+                consumed = bucketProxy.tryConsume(numToken).suspendAwait(),
+                requestedTokens = numToken,
+                availableTokens = bucketProxy.availableTokens.await()
+            )
+        } catch (e: Exception) {
             log.warn(e) { "Rate Limiter 적용에 실패했습니다. key=$key" }
-            RateLimitResult.ERROR
+            RateLimitResult.error(e)
         }
     }
 }

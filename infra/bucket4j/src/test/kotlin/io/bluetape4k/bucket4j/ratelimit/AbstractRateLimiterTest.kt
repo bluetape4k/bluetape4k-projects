@@ -6,6 +6,7 @@ import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import kotlin.test.assertFailsWith
 
 abstract class AbstractRateLimiterTest {
 
@@ -45,5 +46,32 @@ abstract class AbstractRateLimiterTest {
         // 나머지 토큰 모두를 소비하면, 유효한 토큰이 0개임
         val result3 = rateLimiter.consume(key, result.availableTokens)
         result3 shouldBeEqualTo RateLimitResult(result.availableTokens, 0)
+    }
+
+    @Test
+    fun `빈 key 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> {
+            rateLimiter.consume(" ", 1)
+        }
+    }
+
+    @Test
+    fun `0 이하 token 소비 요청은 허용하지 않는다`() {
+        val key = randomKey()
+
+        assertFailsWith<IllegalArgumentException> {
+            rateLimiter.consume(key, 0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            rateLimiter.consume(key, -1)
+        }
+    }
+
+    @Test
+    fun `허용 상한을 초과한 token 소비 요청은 허용하지 않는다`() {
+        val key = randomKey()
+        assertFailsWith<IllegalArgumentException> {
+            rateLimiter.consume(key, MAX_TOKENS_PER_REQUEST + 1)
+        }
     }
 }

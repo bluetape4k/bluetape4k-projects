@@ -10,6 +10,7 @@ import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
@@ -63,5 +64,12 @@ abstract class AbstractAsyncBucketProxyProviderTest {
         // 같은 키의 BucketProxy를 가져오면, 소비된 token 수가 적용된다.
         val bucketProxy2 = bucketProvider.resolveBucket(key)
         bucketProxy2.availableTokens.await() shouldBeEqualTo 5
+    }
+
+    @Test
+    fun `빈 key 는 허용하지 않는다`() = runTest {
+        assertFailsWith<IllegalArgumentException> {
+            bucketProvider.resolveBucket(" ")
+        }
     }
 }

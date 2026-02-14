@@ -8,11 +8,13 @@ import io.bluetape4k.logging.trace
 import io.bluetape4k.logging.warn
 import io.github.bucket4j.BucketConfiguration
 import io.github.bucket4j.BucketExceptions
+import io.github.bucket4j.BucketListener
 import io.github.bucket4j.ConfigurationBuilder
 import io.github.bucket4j.LimitChecker
 import io.github.bucket4j.MathType
 import io.github.bucket4j.TimeMeter
 import io.github.bucket4j.local.LockFreeBucket
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import java.time.Duration
 import kotlin.time.Duration.Companion.nanoseconds
@@ -47,7 +49,8 @@ class SuspendLocalBucket private constructor(
     bucketConfiguration: BucketConfiguration,
     mathType: MathType,
     timeMeter: TimeMeter,
-): LockFreeBucket(bucketConfiguration, mathType, timeMeter, Slf4jBucketListener(log)) {
+    listener: BucketListener,
+): LockFreeBucket(bucketConfiguration, mathType, timeMeter, listener) {
 
     companion object: KLoggingChannel() {
         @JvmStatic
@@ -64,17 +67,19 @@ class SuspendLocalBucket private constructor(
             config: BucketConfiguration,
             mathType: MathType = DEFAULT_MATH_TYPE,
             timeMeter: TimeMeter = DEFAULT_TIME_METER,
+            listener: BucketListener = Slf4jBucketListener(log),
         ): SuspendLocalBucket {
-            return SuspendLocalBucket(config, mathType, timeMeter)
+            return SuspendLocalBucket(config, mathType, timeMeter, listener)
         }
 
         @JvmStatic
         operator fun invoke(
             mathType: MathType = DEFAULT_MATH_TYPE,
             timeMeter: TimeMeter = DEFAULT_TIME_METER,
+            listener: BucketListener = Slf4jBucketListener(log),
             configurer: ConfigurationBuilder.() -> Unit,
         ): SuspendLocalBucket {
-            return invoke(bucketConfiguration(configurer), mathType, timeMeter)
+            return invoke(bucketConfiguration(configurer), mathType, timeMeter, listener)
         }
     }
 
@@ -87,7 +92,7 @@ class SuspendLocalBucket private constructor(
      */
     suspend fun tryConsume(tokensToConsume: Long = 1L, maxWaitTime: Duration = DEFAULT_MAX_WAIT_TIME): Boolean {
         LimitChecker.checkTokensToConsume(tokensToConsume)
-        val maxWaitTimeNanos: Long = maxWaitTime.toNanos() // .inWholeNanoseconds
+        val maxWaitTimeNanos = maxWaitTime.toNanosChecked("maxWaitTime")
         LimitChecker.checkMaxWaitTime(maxWaitTimeNanos)
 
         val nanosToDelay: Long = reserveAndCalculateTimeToSleepImpl(tokensToConsume, maxWaitTimeNanos)
@@ -99,11 +104,7 @@ class SuspendLocalBucket private constructor(
         }
 
         listener.onConsumed(tokensToConsume)
-        if (nanosToDelay > 0L) {
-            log.trace { "nanosToDelay=$nanosToDelay" }
-            delay(nanosToDelay.nanoseconds)
-            listener.onParked(nanosToDelay)
-        }
+        suspendIfNeeded(nanosToDelay)
 
         return true
     }
@@ -124,10 +125,31 @@ class SuspendLocalBucket private constructor(
         }
 
         listener.onConsumed(tokensToConsume)
-        if (nanosToDelay > 0L) {
-            log.trace { "nanos to delay=$nanosToDelay" }
+        suspendIfNeeded(nanosToDelay)
+    }
+
+    /**
+     * 예약된 대기 시간이 있다면 코루틴을 일시 중단한다.
+     * BucketListener 이벤트를 일관되게 기록하기 위해 delayed/parked/interrupted를 함께 처리한다.
+     */
+    private suspend fun suspendIfNeeded(nanosToDelay: Long) {
+        if (nanosToDelay <= 0L) return
+
+        listener.onDelayed(nanosToDelay)
+        log.trace { "nanos to delay=$nanosToDelay" }
+        try {
             delay(nanosToDelay.nanoseconds)
             listener.onParked(nanosToDelay)
+        } catch (e: CancellationException) {
+            listener.onInterrupted(InterruptedException("Coroutine cancelled while waiting tokens.").apply { initCause(e) })
+            throw e
         }
+    }
+
+    private fun Duration.toNanosChecked(name: String): Long {
+        return runCatching { toNanos() }
+            .getOrElse {
+                throw IllegalArgumentException("$name is too large to convert to nanos. value=$this", it)
+            }
     }
 }

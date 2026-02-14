@@ -3,6 +3,7 @@ package io.bluetape4k.bucket4j.distributed
 import io.bluetape4k.concurrent.completableFutureOf
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.toUtf8Bytes
 import io.github.bucket4j.Bucket
 import io.github.bucket4j.BucketConfiguration
@@ -49,8 +50,10 @@ open class AsyncBucketProxyProvider(
      * @return [Bucket] 인스턴스
      */
     fun resolveBucket(key: String): AsyncBucketProxy {
+        key.requireNotBlank("key")
         log.debug { "Resolving AsyncBucketProxy for key: $key" }
-        val bucketKey = getBucketKey("$keyPrefix$key")
+        // Prefix는 getBucketKey 에서 단일 책임으로 처리한다.
+        val bucketKey = getBucketKey(key)
 
         return asyncProxyManager.builder()
             .build(bucketKey) { completableFutureOf(bucketConfiguration) }
