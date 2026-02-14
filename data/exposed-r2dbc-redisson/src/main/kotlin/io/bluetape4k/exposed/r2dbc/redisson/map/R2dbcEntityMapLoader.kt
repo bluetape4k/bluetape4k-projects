@@ -32,14 +32,14 @@ import java.util.concurrent.CompletionStage
 open class R2dbcEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
     private val loadByIdFromDB: suspend (ID) -> E?,
     private val loadAllIdsFromDB: suspend (channel: Channel<ID>) -> Unit,
-    private val scope: CoroutineScope = DefaultMapLoaderCoroutineScope,
+    private val scope: CoroutineScope = defaultMapLoaderCoroutineScope,
 ): MapLoaderAsync<ID, E> {
 
     companion object: KLoggingChannel() {
         private const val DEFAULT_QUERY_TIMEOUT = 30_000  // 30 seconds
         private const val DEFAULT_LOAD_ALL_IDS_TIMEOUT = 60_000L  // 60 seconds
 
-        protected val DefaultMapLoaderCoroutineScope =
+        protected val defaultMapLoaderCoroutineScope =
             CoroutineScope(Dispatchers.IO + CoroutineName("R2dbc-Loader"))
     }
 

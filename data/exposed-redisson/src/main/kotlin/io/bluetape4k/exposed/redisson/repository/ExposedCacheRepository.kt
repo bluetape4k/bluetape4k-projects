@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.redisson.repository
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.collections.toVarargArray
 import io.bluetape4k.exposed.core.HasIdentifier
 import org.jetbrains.exposed.v1.core.Expression
@@ -21,6 +20,16 @@ import org.redisson.api.RMap
  * @param ID 엔티티의 식별자 타입
  */
 interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
+    companion object {
+        const val DEFAULT_BATCH_SIZE = 100
+
+        @Deprecated(
+            message = "Use DEFAULT_BATCH_SIZE",
+            replaceWith = ReplaceWith("DEFAULT_BATCH_SIZE"),
+            level = DeprecationLevel.WARNING,
+        )
+        const val DefaultBatchSize = DEFAULT_BATCH_SIZE
+    }
 
     /**
      * 캐시 이름
@@ -56,7 +65,7 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param id 엔티티 식별자
      * @return 엔티티 또는 null
      */
-    @Deprecated(message = "use findFreshById", replaceWith = ReplaceWith("findByIdFromDb(id)"))
+    @Deprecated(message = "use findByIdFromDb", replaceWith = ReplaceWith("findByIdFromDb(id)"))
     fun findFreshById(id: ID): T? = transaction {
         entityTable
             .selectAll()
@@ -89,7 +98,7 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
     fun findFreshAll(vararg ids: ID): List<T> = transaction {
         entityTable
             .selectAll()
-            .where { entityTable.id inList ids.toFastList() }
+            .where { entityTable.id inList ids.toList() }
             .map { it.toEntity() }
     }
 
@@ -102,7 +111,7 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
     fun findAllFromDb(vararg ids: ID): List<T> = transaction {
         entityTable
             .selectAll()
-            .where { entityTable.id inList ids.toFastList() }
+            .where { entityTable.id inList ids.toList() }
             .map { it.toEntity() }
     }
 
@@ -166,7 +175,7 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param batchSize 배치 크기
      * @return 엔티티 리스트
      */
-    fun getAll(ids: Collection<ID>, batchSize: Int = 100): List<T>
+    fun getAll(ids: Collection<ID>, batchSize: Int = DEFAULT_BATCH_SIZE): List<T>
 
     /**
      * 엔티티를 캐시에 저장합니다.
@@ -181,7 +190,8 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param entities 저장할 엔티티 컬렉션
      * @param batchSize 배치 크기
      */
-    fun putAll(entities: Collection<T>, batchSize: Int = 100) {
+    fun putAll(entities: Collection<T>, batchSize: Int = DEFAULT_BATCH_SIZE) {
+        require(batchSize > 0) { "batchSize must be greater than 0. batchSize=$batchSize" }
         cache.putAll(entities.associateBy { it.id }, batchSize)
     }
 
@@ -205,7 +215,8 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param count 최대 제거 개수
      * @return 제거된 엔티티 수
      */
-    fun invalidateByPattern(patterns: String, count: Int = 100): Long {
+    fun invalidateByPattern(patterns: String, count: Int = DEFAULT_BATCH_SIZE): Long {
+        require(count > 0) { "count must be greater than 0. count=$count" }
         val keys = cache.keySet(patterns, count)
         return cache.fastRemove(*keys.toVarargArray())
     }

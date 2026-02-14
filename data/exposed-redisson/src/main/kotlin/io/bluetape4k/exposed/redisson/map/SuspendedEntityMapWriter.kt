@@ -28,8 +28,6 @@ open class SuspendedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
 ): MapWriterAsync<ID, E> {
 
     companion object: KLoggingChannel() {
-        private const val DEFAULT_QUERY_TIMEOUT = 30_000  // 30 seconds
-
         protected val defaultMapWriterCoroutineScope = CoroutineScope(Dispatchers.IO) + CoroutineName("DB-Writer")
     }
 

@@ -1,7 +1,5 @@
 package io.bluetape4k.exposed.redisson.repository
 
-import io.bluetape4k.collections.eclipse.toUnifiedSet
-import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.redisson.map.EntityMapLoader
 import io.bluetape4k.exposed.redisson.map.EntityMapWriter
@@ -19,6 +17,7 @@ import io.bluetape4k.redis.redisson.cache.mapCache
 import io.bluetape4k.support.requireNotNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.future.await
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
@@ -107,7 +106,7 @@ abstract class AbstractSuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID:
 
     protected fun createLocalCacheMap(): RLocalCachedMap<ID, T?> =
         localCachedMap(cacheName, redissonClient) {
-            log.info { "RLocalCAcheMap 를 생성합니다. config=$config" }
+            log.info { "RLocalCacheMap 를 생성합니다. config=$config" }
 
             if (config.isReadOnly) {
                 loaderAsync(suspendedMapLoader)
@@ -175,7 +174,7 @@ abstract class AbstractSuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID:
                 }
                 .map { it.toEntity() }
         }.await().apply {
-            cache.putAllAsync(associateBy { it.id }).suspendAwait()
+            cache.putAllAsync(associateBy { it.id }).await()
         }
     }
 
@@ -187,9 +186,10 @@ abstract class AbstractSuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID:
      * @return 조회된 엔티티 목록
      */
     override suspend fun getAll(ids: Collection<ID>, batchSize: Int): List<T> {
+        require(batchSize > 0) { "batchSize must be greater than 0. batchSize=$batchSize" }
         return ids.chunked(batchSize).flatMap { chunk ->
             log.debug { "캐시에서 ${chunk.size}개의 엔티티를 가져옵니다. chunk=$chunk" }
-            cache.getAllAsync(chunk.toUnifiedSet()).suspendAwait().values.filterNotNull()
+            cache.getAllAsync(chunk.toSet()).await().values.filterNotNull()
         }
     }
 }

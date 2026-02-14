@@ -80,7 +80,7 @@ open class ExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
             if (canBatchInsert) {
                 val entitiesToInsert = map.values.filterNot { it.id in existIds }
                 log.debug { "ID가 자동증가 타입이 아니므로, batchInsert 를 수행합니다...entities size=${entitiesToInsert.size}" }
-                entitiesToInsert.chunked(100).forEach { chunk ->
+                entitiesToInsert.chunked(DEFAULT_BATCH_SIZE).forEach { chunk ->
                     entityTable.batchInsert(chunk, shouldReturnGeneratedValues = false) {
                         batchInsertBody(this, it)
                     }

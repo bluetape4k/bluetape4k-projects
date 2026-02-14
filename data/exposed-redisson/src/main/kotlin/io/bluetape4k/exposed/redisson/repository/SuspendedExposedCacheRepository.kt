@@ -1,10 +1,9 @@
 package io.bluetape4k.exposed.redisson.repository
 
-import io.bluetape4k.collections.eclipse.toFastList
-import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.future.await
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -25,7 +24,14 @@ import org.redisson.api.RMap
 interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
 
     companion object: KLoggingChannel() {
-        const val DefaultBatchSize = 100
+        const val DEFAULT_BATCH_SIZE = 100
+
+        @Deprecated(
+            message = "Use DEFAULT_BATCH_SIZE",
+            replaceWith = ReplaceWith("DEFAULT_BATCH_SIZE"),
+            level = DeprecationLevel.WARNING,
+        )
+        const val DefaultBatchSize = DEFAULT_BATCH_SIZE
     }
 
     /**
@@ -54,7 +60,7 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param id 엔티티의 식별자
      * @return 존재 여부
      */
-    suspend fun exists(id: ID): Boolean = cache.containsKeyAsync(id).suspendAwait()
+    suspend fun exists(id: ID): Boolean = cache.containsKeyAsync(id).await()
 
     /**
      * 주어진 ID로 DB에서 최신 엔티티를 조회합니다.
@@ -99,7 +105,7 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
     suspend fun findFreshAll(vararg ids: ID): List<T> = suspendedTransactionAsync(Dispatchers.IO) {
         entityTable
             .selectAll()
-            .where { entityTable.id inList ids.toFastList() }
+            .where { entityTable.id inList ids.toList() }
             .map { it.toEntity() }
     }.await()
 
@@ -113,7 +119,7 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
     suspend fun findAllFromDb(vararg ids: ID): List<T> = suspendedTransactionAsync(Dispatchers.IO) {
         entityTable
             .selectAll()
-            .where { entityTable.id inList ids.toFastList() }
+            .where { entityTable.id inList ids.toList() }
             .map { it.toEntity() }
     }.await()
 
@@ -153,7 +159,7 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param id 엔티티의 식별자
      * @return 조회된 엔티티 또는 null
      */
-    suspend fun get(id: ID): T? = cache.getAsync(id).suspendAwait()
+    suspend fun get(id: ID): T? = cache.getAsync(id).await()
 
     /**
      * 조건에 맞는 모든 엔티티를 조회합니다.
@@ -180,14 +186,14 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param batchSize 일괄 처리 크기
      * @return 조회된 엔티티 목록
      */
-    suspend fun getAll(ids: Collection<ID>, batchSize: Int = DefaultBatchSize): List<T>
+    suspend fun getAll(ids: Collection<ID>, batchSize: Int = DEFAULT_BATCH_SIZE): List<T>
 
     /**
      * 엔티티를 캐시에 저장합니다.
      *
      * @param entity 저장할 엔티티
      */
-    suspend fun put(entity: T): Boolean = cache.fastPutAsync(entity.id, entity).suspendAwait()
+    suspend fun put(entity: T): Boolean = cache.fastPutAsync(entity.id, entity).await()
 
     /**
      * 여러 엔티티를 캐시에 일괄 저장합니다.
@@ -195,8 +201,9 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param entities 저장할 엔티티 목록
      * @param batchSize 일괄 처리 크기
      */
-    suspend fun putAll(entities: Collection<T>, batchSize: Int = DefaultBatchSize) {
-        cache.putAllAsync(entities.associateBy { it.id }, batchSize).suspendAwait()
+    suspend fun putAll(entities: Collection<T>, batchSize: Int = DEFAULT_BATCH_SIZE) {
+        require(batchSize > 0) { "batchSize must be greater than 0. batchSize=$batchSize" }
+        cache.putAllAsync(entities.associateBy { it.id }, batchSize).await()
     }
 
     /**
@@ -205,14 +212,14 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param ids 삭제할 엔티티 식별자 목록
      * @return 삭제된 엔티티 수
      */
-    suspend fun invalidate(vararg ids: ID): Long = cache.fastRemoveAsync(*ids).suspendAwait()
+    suspend fun invalidate(vararg ids: ID): Long = cache.fastRemoveAsync(*ids).await()
 
     /**
      * 캐시의 모든 엔티티를 삭제합니다.
      *
      * @return 성공 여부
      */
-    suspend fun invalidateAll(): Boolean = cache.clearAsync().suspendAwait()
+    suspend fun invalidateAll(): Boolean = cache.clearAsync().await()
 
     /**
      * 패턴에 해당하는 키를 가진 엔티티를 캐시에서 삭제합니다.
@@ -221,8 +228,9 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param count 일괄 처리 크기
      * @return 삭제된 엔티티 수
      */
-    suspend fun invalidateByPattern(patterns: String, count: Int = DefaultBatchSize): Long {
+    suspend fun invalidateByPattern(patterns: String, count: Int = DEFAULT_BATCH_SIZE): Long {
+        require(count > 0) { "count must be greater than 0. count=$count" }
         val keys = cache.keySet(patterns, count)
-        return cache.fastRemoveAsync(*keys.toTypedArray()).suspendAwait()
+        return cache.fastRemoveAsync(*keys.toTypedArray()).await()
     }
 }

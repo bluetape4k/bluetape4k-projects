@@ -18,6 +18,7 @@ import org.amshove.kluent.shouldNotBeNull
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import kotlin.test.assertFailsWith
 
 interface R2dbcReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: R2dbcCacheTestScenario<T, ID> {
 
@@ -121,6 +122,16 @@ interface R2dbcReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: R2dbcCacheTes
         }
     }
 
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `getAll - batchSize 는 0보다 커야 한다`(testDB: TestDB) = runTest {
+        withR2dbcEntityTable(testDB) {
+            assertFailsWith<IllegalArgumentException> {
+                repository.getAll(getExistingIds(), batchSize = 0)
+            }
+        }
+    }
+
     /**
      * 단 설정한 코덱이 Map Key 에 대해서는 StringCodec 을 사용해야 합니다.
      */
@@ -139,6 +150,16 @@ interface R2dbcReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: R2dbcCacheTes
                     ('A'..'Z').sumOf { repository.invalidateByPattern("*$it*") }
 
             invalidated shouldBeGreaterThan 0
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `invalidateByPattern - count 는 0보다 커야 한다`(testDB: TestDB) = runTest {
+        withR2dbcEntityTable(testDB) {
+            assertFailsWith<IllegalArgumentException> {
+                repository.invalidateByPattern("*", count = 0)
+            }
         }
     }
 }

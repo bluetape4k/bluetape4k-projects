@@ -15,6 +15,7 @@ import org.amshove.kluent.shouldNotBeNull
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import kotlin.test.assertFailsWith
 
 interface ReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: CacheTestScenario<T, ID> {
 
@@ -112,6 +113,16 @@ interface ReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: CacheTestScenario<
         }
     }
 
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `getAllBatch - batchSize 는 0보다 커야 한다`(testDB: TestDB) {
+        withEntityTable(testDB) {
+            assertFailsWith<IllegalArgumentException> {
+                repository.getAll(getExistingIds(), batchSize = 0)
+            }
+        }
+    }
+
     /**
      * 단 설정한 코덱이 Map Key 에 대해서는 StringCodec 을 사용해야 합니다.
      */
@@ -125,6 +136,16 @@ interface ReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: CacheTestScenario<
                     ('A'..'Z').sumOf { repository.invalidateByPattern("*$it*") }
 
             invalidated shouldBeGreaterThan 0
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `invalidateByPattern - count 는 0보다 커야 한다`(testDB: TestDB) {
+        withEntityTable(testDB) {
+            assertFailsWith<IllegalArgumentException> {
+                repository.invalidateByPattern("*", count = 0)
+            }
         }
     }
 }

@@ -1,12 +1,11 @@
 package io.bluetape4k.exposed.r2dbc.redisson.repository
 
-import io.bluetape4k.collections.eclipse.toFastList
-import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
+import kotlinx.coroutines.flow.toList
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -27,7 +26,14 @@ import org.redisson.api.RMap
 interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
 
     companion object: KLoggingChannel() {
-        const val DefaultBatchSize = 100
+        const val DEFAULT_BATCH_SIZE = 100
+
+        @Deprecated(
+            message = "Use DEFAULT_BATCH_SIZE",
+            replaceWith = ReplaceWith("DEFAULT_BATCH_SIZE"),
+            level = DeprecationLevel.WARNING,
+        )
+        const val DefaultBatchSize = DEFAULT_BATCH_SIZE
     }
 
     /**
@@ -97,9 +103,9 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
     suspend fun findFreshAll(vararg ids: ID): List<T> = suspendTransaction {
         entityTable
             .selectAll()
-            .where { entityTable.id inList ids.toFastList() }
+            .where { entityTable.id inList ids.toList() }
             .map { it.toEntity() }
-            .toFastList()
+            .toList()
 
     }
 
@@ -112,9 +118,9 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
     suspend fun findAllFromDb(vararg ids: ID): List<T> = suspendTransaction {
         entityTable
             .selectAll()
-            .where { entityTable.id inList ids.toFastList() }
+            .where { entityTable.id inList ids.toList() }
             .map { it.toEntity() }
-            .toFastList()
+            .toList()
     }
 
     /**
@@ -129,7 +135,7 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
             .selectAll()
             .where { entityTable.id inList ids }
             .map { it.toEntity() }
-            .toFastList()
+            .toList()
     }
 
     /**
@@ -143,7 +149,7 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
             .selectAll()
             .where { entityTable.id inList ids }
             .map { it.toEntity() }
-            .toFastList()
+            .toList()
     }
 
     /**
@@ -179,7 +185,7 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param batchSize 배치 크기
      * @return 조회된 엔티티 리스트
      */
-    suspend fun getAll(ids: Collection<ID>, batchSize: Int = DefaultBatchSize): List<T>
+    suspend fun getAll(ids: Collection<ID>, batchSize: Int = DEFAULT_BATCH_SIZE): List<T>
 
     /**
      * 엔티티를 캐시에 저장합니다.
@@ -195,7 +201,8 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param entities 저장할 엔티티 컬렉션
      * @param batchSize 배치 크기
      */
-    suspend fun putAll(entities: Collection<T>, batchSize: Int = DefaultBatchSize) {
+    suspend fun putAll(entities: Collection<T>, batchSize: Int = DEFAULT_BATCH_SIZE) {
+        require(batchSize > 0) { "batchSize must be greater than 0. batchSize=$batchSize" }
         cache.putAllAsync(entities.associateBy { it.id }, batchSize).suspendAwait()
     }
 
@@ -221,7 +228,8 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param count 최대 삭제 개수
      * @return 삭제된 엔티티 개수
      */
-    suspend fun invalidateByPattern(patterns: String, count: Int = DefaultBatchSize): Long {
+    suspend fun invalidateByPattern(patterns: String, count: Int = DEFAULT_BATCH_SIZE): Long {
+        require(count > 0) { "count must be greater than 0. count=$count" }
         val keys = cache.keySet(patterns, count)
         return cache.fastRemoveAsync(*keys.toTypedArray()).suspendAwait()
     }

@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.r2dbc.redisson.map
 
-import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.core.mapToLanguageType
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -9,6 +8,7 @@ import io.bluetape4k.logging.warn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import org.jetbrains.exposed.v1.core.autoIncColumnType
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.core.eq
@@ -74,7 +74,7 @@ open class R2dbcExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
                 entityTable.select(entityTable.id)
                     .where { entityTable.id inList map.keys }
                     .map { it[entityTable.id].value }
-                    .toFastList()
+                    .toList()
 
             val entitiesToUpdate = map.values.filter { it.id in existIds }
             entitiesToUpdate.forEach { entity ->
@@ -89,8 +89,10 @@ open class R2dbcExposedEntityMapWriter<ID: Any, E: HasIdentifier<ID>>(
             if (canBatchInsert) {
                 val entitiesToInsert = map.values.filterNot { it.id in existIds }
                 log.debug { "ID가 자동증가 타입이 아니므로, batchInsert 를 수행합니다...entities size=${entitiesToInsert.size}" }
-                entityTable.batchInsert(entitiesToInsert) {
-                    batchInsertBody(this, it)
+                entitiesToInsert.chunked(DEFAULT_BATCH_SIZE).forEach { chunk ->
+                    entityTable.batchInsert(chunk, shouldReturnGeneratedValues = false) {
+                        batchInsertBody(this, it)
+                    }
                 }
             }
         }

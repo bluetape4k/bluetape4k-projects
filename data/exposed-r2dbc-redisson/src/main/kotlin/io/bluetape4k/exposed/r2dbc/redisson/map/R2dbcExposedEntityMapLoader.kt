@@ -32,7 +32,7 @@ import org.jetbrains.exposed.v1.r2dbc.selectAll
  */
 open class R2dbcExposedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
     private val entityTable: IdTable<ID>,
-    scope: CoroutineScope = DefaultMapLoaderCoroutineScope,
+    scope: CoroutineScope = defaultMapLoaderCoroutineScope,
     private val batchSize: Int = DEFAULT_BATCH_SIZE,
     private val toEntity: suspend ResultRow.() -> E,
 ): R2dbcEntityMapLoader<ID, E>(
@@ -49,7 +49,6 @@ open class R2dbcExposedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
             .select(entityTable.id)
             .fetchBatchedResults(batchSize)
             .buffer(3)
-            // .flowOn(scope.coroutineContext)
             .cancellable()
             .catch { cause ->
                 log.error(cause) { "R2dbc를 이용하여 DB에서 모든 ID 로딩 중 오류 발생" }
@@ -59,8 +58,12 @@ open class R2dbcExposedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
                 rowCount += rows.count()
                 log.trace { "DB에서 모든 ID 로딩 중... 로딩된 id 수=$rowCount" }
             }
-            .onCompletion {
-                log.debug { "DB에서 모든 ID 로딩 완료. 로딩된 id 수=$rowCount" }
+            .onCompletion { cause ->
+                if (cause != null) {
+                    log.error(cause) { "R2dbc를 이용하여 DB에서 모든 ID 로딩 중 오류 발생" }
+                } else {
+                    log.debug { "DB에서 모든 ID 로딩 완료. 로딩된 id 수=$rowCount" }
+                }
             }
             .collect { rows ->
                 rows.collect { row ->
