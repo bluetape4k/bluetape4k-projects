@@ -1,13 +1,16 @@
 package io.bluetape4k.io.okio.jasypt
 
 import io.bluetape4k.crypto.encrypt.Encryptor
+import io.bluetape4k.crypto.encrypt.Encryptors
 import io.bluetape4k.io.okio.bufferOf
 import io.bluetape4k.io.okio.compress.asCompressSink
 import io.bluetape4k.io.okio.compress.asDecompressSource
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.toUtf8Bytes
 import okio.Buffer
+import okio.Source
 import org.amshove.kluent.shouldBeEqualTo
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
@@ -24,7 +27,7 @@ class DecryptSourceTest: AbstractEncryptTest() {
         val decryptedSource = encryptedSource.asDecryptSource(encryptor)
 
         val decryptedBuffer = Buffer()
-        decryptedSource.read(decryptedBuffer, Long.MAX_VALUE)
+        decryptedSource.readAllTo(decryptedBuffer)
 
         decryptedBuffer.readUtf8() shouldBeEqualTo expected
     }
@@ -42,7 +45,7 @@ class DecryptSourceTest: AbstractEncryptTest() {
 
         val source = Buffer()
         val decryptedSource = sink.asDecryptSource(encryptor)
-        decryptedSource.read(source, Long.MAX_VALUE)
+        decryptedSource.readAllTo(source)
 
         source.readUtf8() shouldBeEqualTo expectedText
     }
@@ -64,9 +67,48 @@ class DecryptSourceTest: AbstractEncryptTest() {
 
             val source = Buffer()
             val decryptAndDecompressSource = sink.asDecryptSource(encryptor).asDecompressSource(compressor)
-            decryptAndDecompressSource.read(source, sink.size)
+            decryptAndDecompressSource.readAllTo(source)
 
             source.readUtf8() shouldBeEqualTo expectedText
         }
+    }
+
+    @ParameterizedTest
+    @MethodSource("encryptors")
+    fun `decrypt source should support incremental reads and eof`(encryptor: Encryptor) {
+        val expected = faker.lorem().paragraph().repeat(5)
+        val encryptedSource = bufferOf(encryptor.encrypt(expected.toUtf8Bytes()))
+        val decryptedSource = encryptedSource.asDecryptSource(encryptor)
+
+        val sink = Buffer()
+        val firstRead = decryptedSource.read(sink, 17L)
+        firstRead shouldBeEqualTo 17L
+
+        decryptedSource.readAllTo(sink, 31L)
+        decryptedSource.read(Buffer(), 32L) shouldBeEqualTo -1L
+        sink.readUtf8() shouldBeEqualTo expected
+    }
+
+    @Test
+    fun `decrypt source should throw for negative byteCount`() {
+        val expected = faker.lorem().paragraph()
+        val encryptedSource = bufferOf(Encryptors.AES.encrypt(expected.toUtf8Bytes()))
+        val decryptedSource = encryptedSource.asDecryptSource(Encryptors.AES)
+
+        kotlin.test.assertFailsWith<IllegalArgumentException> {
+            decryptedSource.read(Buffer(), -1L)
+        }
+    }
+
+    private fun Source.readAllTo(sink: Buffer, chunkSize: Long = DEFAULT_BUFFER_SIZE.toLong()): Long {
+        var total = 0L
+        while (true) {
+            val bytesRead = read(sink, chunkSize)
+            if (bytesRead < 0L) {
+                break
+            }
+            total += bytesRead
+        }
+        return total
     }
 }

@@ -17,12 +17,18 @@ class ApacheBase64Sink(delegate: Sink): AbstractBase64Sink(delegate) {
 
     companion object: KLogging()
 
+    /**
+     * Okio Base64에서 `getEncodedBuffer` 함수를 제공합니다.
+     */
     override fun getEncodedBuffer(plainByteString: ByteString): Buffer {
         val encodedBytes = Base64.getUrlEncoder().encode(plainByteString.toByteArray())
         return bufferOf(encodedBytes)
     }
 }
 
+/**
+ * Okio Base64 타입 변환을 위한 `asApacheBase64Sink` 함수를 제공합니다.
+ */
 fun Sink.asApacheBase64Sink(): ApacheBase64Sink = when (this) {
     is ApacheBase64Sink -> this
     else -> ApacheBase64Sink(this)

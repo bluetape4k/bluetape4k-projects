@@ -6,6 +6,9 @@ import io.bluetape4k.support.unsafeLazy
 /**
  * 다양한 [BinarySerializer]를 제공합니다.
  */
+/**
+ * `BinarySerializers` 싱글톤/유틸리티입니다.
+ */
 object BinarySerializers {
 
     /** Default BinarySerializer */

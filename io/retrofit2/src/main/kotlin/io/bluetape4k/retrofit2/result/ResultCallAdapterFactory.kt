@@ -37,6 +37,9 @@ class ResultCallAdapterFactory: CallAdapter.Factory() {
 
     companion object: KLogging()
 
+    /**
+     * Retrofit2 연동에서 `get` 함수를 제공합니다.
+     */
     override fun get(
         returnType: Type,
         annotations: Array<out Annotation>,
@@ -55,10 +58,16 @@ class ResultCallAdapterFactory: CallAdapter.Factory() {
             log.debug { "returnType is Result, create CallAdapter for Call ..." }
 
             return object: CallAdapter<Any, Call<Result<*>>> {
+                /**
+                 * Retrofit2 연동에서 `responseType` 함수를 제공합니다.
+                 */
                 override fun responseType(): Type {
                     return getParameterUpperBound(0, upperBound)
                 }
 
+                /**
+                 * Retrofit2 연동에서 `adapt` 함수를 제공합니다.
+                 */
                 @Suppress("UNCHECKED_CAST")
                 override fun adapt(call: Call<Any>): Call<Result<*>> {
                     return ResultCall(call) as Call<Result<*>>

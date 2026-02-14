@@ -13,6 +13,9 @@ import java.nio.ByteBuffer
 /**
  * 데이터를 압축/복원하는 압축기의 최상위 인터페이스
  */
+/**
+ * `Compressor` 계약을 정의합니다.
+ */
 interface Compressor {
 
     /**

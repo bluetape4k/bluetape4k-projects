@@ -39,7 +39,6 @@ fun Response.isTextBody(): Boolean {
     return contentType?.any { it.contains("text/plain", true) } ?: false
 }
 
-
 /**
  * Response body 를 읽기위해 Reader 변환합니다.
  */

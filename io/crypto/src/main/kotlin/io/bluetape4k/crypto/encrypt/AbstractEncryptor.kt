@@ -74,6 +74,9 @@ abstract class AbstractEncryptor protected constructor(
         return encrypted?.run { encryptor.decrypt(this) } ?: emptyByteArray
     }
 
+    /**
+     * 암호화 처리 타입 변환을 위한 `toString` 함수를 제공합니다.
+     */
     override fun toString(): String = ToStringBuilder(this)
         .add("algorithm", algorithm)
         .toString()

@@ -73,4 +73,17 @@ class CipherSourceTest: AbstractCipherTest() {
 
         output.readUtf8() shouldBeEqualTo expected
     }
+
+    @RepeatedTest(REPEAT_SIZE)
+    fun `read with Long_MAX_VALUE returns available bytes`() {
+        val expected = faker.lorem().paragraph()
+        val cipheredSource = bufferOf(encryptCipher.doFinal(expected.toUtf8Bytes()))
+        val decoded = CipherSource(cipheredSource, decryptCipher)
+        val output = Buffer()
+
+        val read = decoded.read(output, Long.MAX_VALUE)
+
+        read shouldBeEqualTo expected.toUtf8Bytes().size.toLong()
+        output.readUtf8() shouldBeEqualTo expected
+    }
 }

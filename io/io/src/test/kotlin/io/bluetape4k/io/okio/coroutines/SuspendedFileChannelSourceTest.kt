@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test
 import java.nio.channels.AsynchronousFileChannel
 import java.nio.file.Files
 import java.nio.file.StandardOpenOption
+import kotlin.test.assertFailsWith
 
 @TempFolderTest
 class SuspendedFileChannelSourceTest: AbstractOkioTest() {
@@ -48,6 +49,24 @@ class SuspendedFileChannelSourceTest: AbstractOkioTest() {
         // Try to read again, should return -1
         val eof = source.read(buffer, 1)
         eof shouldBeEqualTo -1L
+    }
+
+    @Test
+    fun `read with zero byteCount returns zero even at eof`() = runSuspendIO {
+        val buffer = Buffer()
+        val source = createSuspendedSource()
+
+        source.read(buffer, Int.MAX_VALUE.toLong())
+        source.read(buffer, 0L) shouldBeEqualTo 0L
+    }
+
+    @Test
+    fun `read with negative byteCount throws`() = runSuspendIO {
+        val source = createSuspendedSource()
+
+        assertFailsWith<IllegalArgumentException> {
+            source.read(Buffer(), -1L)
+        }
     }
 
     private fun createSuspendedSource(): SuspendedFileChannelSource {

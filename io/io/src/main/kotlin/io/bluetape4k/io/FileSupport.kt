@@ -28,7 +28,6 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.text.Charsets.UTF_8
 
-
 private val log by lazy { KotlinLogging.logger {} }
 
 const val EXTENSION_SEPARATOR = '.'
@@ -287,6 +286,9 @@ fun Path.readAllBytesAsync(
         require(size <= Int.MAX_VALUE) { "File is too large to read into a single ByteBuffer. size=$size" }
         val buffer = ByteBuffer.allocateDirect(size.toInt())
 
+        /**
+         * I/O 처리에서 데이터를 읽어오는 `readNext` 함수를 제공합니다.
+         */
         fun readNext(position: Long) {
             channel.read(buffer, position).asCompletableFuture()
                 .whenCompleteAsync({ read, error ->
@@ -421,6 +423,9 @@ fun Path.writeAsync(
     val startPos = if (append) channel.size() else 0L
     val content = bytes.toByteBufferDirect()
 
+    /**
+     * I/O 처리에서 데이터를 기록하는 `writeNext` 함수를 제공합니다.
+     */
     fun writeNext(position: Long) {
         if (!content.hasRemaining()) {
             channel.closeSafe()

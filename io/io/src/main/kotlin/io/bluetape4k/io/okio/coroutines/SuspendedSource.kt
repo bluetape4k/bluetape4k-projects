@@ -3,11 +3,18 @@ package io.bluetape4k.io.okio.coroutines
 import io.bluetape4k.io.okio.SEGMENT_SIZE
 import okio.Buffer
 import okio.Timeout
+import java.io.IOException
 
 /**
  * Coroutines 방식으로 [okio.Source] 기능을 제공하는 인터페이스
  */
+/**
+ * `SuspendedSource` 계약을 정의합니다.
+ */
 interface SuspendedSource {
+    companion object {
+        const val MAX_NO_PROGRESS_READS = 8
+    }
 
     /**
      * 이 소스에서 최소 1바이트 이상, 최대 `byteCount` 바이트를 제거하고 `sink`에 추가합니다.
@@ -29,12 +36,23 @@ interface SuspendedSource {
      */
     fun timeout(): Timeout = Timeout.NONE
 
-
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `readAll` 함수를 제공합니다.
+     */
     suspend fun readAll(sink: Buffer): Long {
         var totalBytesRead = 0L
+        var noProgressCount = 0
         while (true) {
             val bytesToRead = read(sink, SEGMENT_SIZE)
-            if (bytesToRead <= 0L) break
+            if (bytesToRead == -1L) break
+            if (bytesToRead == 0L) {
+                noProgressCount++
+                if (noProgressCount >= MAX_NO_PROGRESS_READS) {
+                    throw IOException("Unable to read all bytes from suspended source: no progress.")
+                }
+                continue
+            }
+            noProgressCount = 0
             totalBytesRead += bytesToRead
         }
         return totalBytesRead

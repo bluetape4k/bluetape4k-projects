@@ -24,11 +24,17 @@ class TsvRecordWriter private constructor(
 ): RecordWriter {
 
     companion object: KLogging() {
+        /**
+         * CSV/TSV 처리용 인스턴스 생성을 위한 진입점을 제공합니다.
+         */
         @JvmStatic
         operator fun invoke(tsvWriter: TsvWriter): TsvRecordWriter {
             return TsvRecordWriter(tsvWriter)
         }
 
+        /**
+         * CSV/TSV 처리용 인스턴스 생성을 위한 진입점을 제공합니다.
+         */
         @JvmStatic
         operator fun invoke(
             writer: Writer,
@@ -38,18 +44,30 @@ class TsvRecordWriter private constructor(
         }
     }
 
+    /**
+     * CSV/TSV 처리에서 데이터를 기록하는 `writeHeaders` 함수를 제공합니다.
+     */
     override fun writeHeaders(headers: Iterable<String>) {
         writer.writeHeaders(headers.toFastList())
     }
 
+    /**
+     * CSV/TSV 처리에서 데이터를 기록하는 `writeRow` 함수를 제공합니다.
+     */
     override fun writeRow(rows: Iterable<*>) {
         writer.writeRow(rows.toFastList())
     }
 
+    /**
+     * CSV/TSV 처리에서 데이터를 기록하는 `writeAll` 함수를 제공합니다.
+     */
     override fun writeAll(rows: Sequence<Iterable<*>>) {
         rows.forEach { writeRow(it) }
     }
 
+    /**
+     * CSV/TSV 처리 리소스를 정리하고 닫습니다.
+     */
     override fun close() {
         runCatching { writer.close() }
     }

@@ -61,6 +61,9 @@ fun authScopeOf(
     schemeName: String? = null,
 ): AuthScope = AuthScope(httpHostOf(url), realm, schemeName)
 
+/**
+ * HTTP 처리에서 `authScopeOf` 함수를 제공합니다.
+ */
 fun authScopeOf(
     host: String,
     port: Int,

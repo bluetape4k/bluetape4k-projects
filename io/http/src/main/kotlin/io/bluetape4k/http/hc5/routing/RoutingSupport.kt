@@ -6,6 +6,9 @@ import org.apache.hc.client5.http.routing.RoutingSupport
 import org.apache.hc.core5.http.HttpHost
 import org.apache.hc.core5.http.HttpRequest
 
+/**
+ * HTTP 처리에서 `determineHost` 함수를 제공합니다.
+ */
 fun HttpRequest.determineHost(): HttpHost = RoutingSupport.determineHost(this)
 
 /**

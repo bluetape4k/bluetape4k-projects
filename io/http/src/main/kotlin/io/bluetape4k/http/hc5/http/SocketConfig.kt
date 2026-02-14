@@ -17,6 +17,9 @@ inline fun socketConfig(
 ): SocketConfig =
     SocketConfig.custom().apply(builder).build()
 
+/**
+ * HTTP 처리에서 `socketConfigOf` 함수를 제공합니다.
+ */
 inline fun socketConfigOf(
     soTimeout: Timeout = Timeout.ofMinutes(3),
     soReuseStrategy: Boolean = true,

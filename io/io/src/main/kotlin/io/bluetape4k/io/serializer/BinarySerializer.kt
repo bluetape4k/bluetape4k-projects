@@ -3,6 +3,9 @@ package io.bluetape4k.io.serializer
 /**
  * 객체를 Binary 방식으로 직렬화/역직렬화하는 Serializer 의 최상위 인터페이스
  */
+/**
+ * `BinarySerializer` 계약을 정의합니다.
+ */
 interface BinarySerializer {
 
     /**
@@ -21,6 +24,5 @@ interface BinarySerializer {
      * @return 역직렬화한 객체
      */
     fun <T: Any> deserialize(bytes: ByteArray?): T?
-
 
 }

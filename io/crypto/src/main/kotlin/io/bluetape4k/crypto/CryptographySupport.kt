@@ -46,6 +46,9 @@ fun randomBytes(size: Int): ByteArray {
 
 private val lock = ReentrantLock()
 
+/**
+ * 암호화 처리에서 `registBouncCastleProvider` 함수를 제공합니다.
+ */
 internal fun registBouncCastleProvider() {
     lock.withLock {
         if (Security.getProvider("BC") == null) {

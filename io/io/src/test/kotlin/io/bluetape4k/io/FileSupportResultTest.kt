@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.nio.file.Paths
+import kotlin.random.Random
 
 @TempFolderTest
 class FileSupportResultTest {
@@ -232,6 +233,16 @@ class FileSupportResultTest {
     }
 
     @Test
+    fun `tryReadAllBytesAsync - 디렉토리 경로는 실패`() = runTest {
+        val dirPath = Paths.get(tempFolder.rootPath, "read-dir")
+        dirPath.toFile().mkdirs()
+
+        val result = dirPath.tryReadAllBytesAsync().await()
+
+        result.isFailure.shouldBeTrue()
+    }
+
+    @Test
     fun `tryWriteAsync - 성공`() = runTest {
         val path = Paths.get(tempFolder.rootPath, "async-write.txt")
         val content = "Async write".toByteArray()
@@ -241,6 +252,20 @@ class FileSupportResultTest {
 
         result.isSuccess.shouldBeTrue()
         path.toFile().readBytes() shouldBeEqualTo content
+    }
+
+    @Test
+    fun `tryWriteAsync - 대용량 쓰기 후 전체 내용이 보존된다`() = runTest {
+        val path = Paths.get(tempFolder.rootPath, "async-write-large.bin")
+        val content = Random.Default.nextBytes(512 * 1024)
+
+        val writeResult = path.tryWriteAsync(content).await()
+        val readResult = path.tryReadAllBytesAsync().await()
+
+        writeResult.isSuccess.shouldBeTrue()
+        writeResult.getOrThrow() shouldBeEqualTo content.size.toLong()
+        readResult.isSuccess.shouldBeTrue()
+        readResult.getOrThrow() shouldBeEqualTo content
     }
 
     @Test

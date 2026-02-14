@@ -31,6 +31,9 @@ class LoggingInterceptor private constructor(
         }
     }
 
+    /**
+     * HTTP 처리에서 `intercept` 함수를 제공합니다.
+     */
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
         logger.debug {

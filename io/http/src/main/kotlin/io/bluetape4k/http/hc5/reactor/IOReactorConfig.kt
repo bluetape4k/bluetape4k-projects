@@ -22,7 +22,6 @@ inline fun ioReactorConfig(
 ): IOReactorConfig =
     IOReactorConfig.custom().apply(builder).build()
 
-
 /**
  * [ioReactorConfig] 를 생성합니다.
  *

@@ -35,6 +35,9 @@ class SuspendCsvRecordReader(
 
     companion object: KLoggingChannel()
 
+    /**
+     * CSV/TSV 처리에서 데이터를 읽어오는 `read` 함수를 제공합니다.
+     */
     override fun <T: Any> read(
         input: InputStream,
         encoding: Charset,
@@ -48,6 +51,9 @@ class SuspendCsvRecordReader(
             .map { transform(it) }
     }
 
+    /**
+     * CSV/TSV 처리 리소스를 정리하고 닫습니다.
+     */
     override fun close() {
         // Nothing to do.
     }

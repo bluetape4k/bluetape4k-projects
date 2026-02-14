@@ -35,6 +35,9 @@ class DefaultAvroGenericRecordSerializer private constructor(
 ): AvroGenericRecordSerializer {
 
     companion object: KLogging() {
+        /**
+         * Avro 직렬화용 인스턴스 생성을 위한 진입점을 제공합니다.
+         */
         @JvmStatic
         operator fun invoke(
             codecFactory: CodecFactory = DEFAULT_CODEC_FACTORY,

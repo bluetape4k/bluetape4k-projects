@@ -3,6 +3,8 @@ package io.bluetape4k.io.compressor
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
 class CompressorsTest {
 
@@ -78,5 +80,15 @@ class CompressorsTest {
     @DisplayName("ApacheZstd")
     inner class ApacheZstdCompressorTest: AbstractCompressorTest() {
         override val compressor: Compressor = ApacheZstdCompressor()
+    }
+
+    @Test
+    fun `GZipCompressor 는 0 이하 bufferSize 를 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> {
+            GZipCompressor(0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            GZipCompressor(-1)
+        }
     }
 }

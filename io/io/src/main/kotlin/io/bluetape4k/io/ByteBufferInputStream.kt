@@ -21,36 +21,57 @@ open class ByteBufferInputStream private constructor(
 
     companion object: KLogging() {
 
+        /**
+         * I/O 처리용 인스턴스 생성을 위한 진입점을 제공합니다.
+         */
         @JvmStatic
         operator fun invoke(bufferSize: Int = kotlin.io.DEFAULT_BUFFER_SIZE): ByteBufferInputStream {
             return ByteBufferInputStream(ByteBuffer.allocate(bufferSize))
         }
 
+        /**
+         * I/O 처리용 인스턴스 생성을 위한 진입점을 제공합니다.
+         */
         @JvmStatic
         operator fun invoke(bytes: ByteArray): ByteBufferInputStream {
             return ByteBufferInputStream(bytes.toByteBuffer())
         }
 
+        /**
+         * I/O 처리용 인스턴스 생성을 위한 진입점을 제공합니다.
+         */
         @JvmStatic
         operator fun invoke(buffer: ByteBuffer): ByteBufferInputStream {
             return ByteBufferInputStream(buffer)
         }
 
+        /**
+         * I/O 처리에서 `direct` 함수를 제공합니다.
+         */
         @JvmStatic
         fun direct(bufferSize: Int = kotlin.io.DEFAULT_BUFFER_SIZE): ByteBufferInputStream {
             return ByteBufferInputStream(ByteBuffer.allocateDirect(bufferSize))
         }
 
+        /**
+         * I/O 처리에서 `direct` 함수를 제공합니다.
+         */
         @JvmStatic
         fun direct(bytes: ByteArray): ByteBufferInputStream {
             return ByteBufferInputStream(bytes.toByteBufferDirect())
         }
     }
 
+    /**
+     * I/O 처리에서 데이터를 읽어오는 `read` 함수를 제공합니다.
+     */
     override fun read(): Int {
         return if (buffer.hasRemaining()) (buffer.get().toInt() and 0xFF) else -1
     }
 
+    /**
+     * I/O 처리에서 데이터를 읽어오는 `read` 함수를 제공합니다.
+     */
     override fun read(b: ByteArray, off: Int, len: Int): Int {
         off.assertZeroOrPositiveNumber("off")
         len.assertZeroOrPositiveNumber("len")
@@ -68,5 +89,8 @@ open class ByteBufferInputStream private constructor(
         return count
     }
 
+    /**
+     * I/O 처리에서 `available` 함수를 제공합니다.
+     */
     override fun available(): Int = buffer.remaining()
 }

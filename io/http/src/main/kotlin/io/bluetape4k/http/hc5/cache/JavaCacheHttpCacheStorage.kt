@@ -23,6 +23,9 @@ class JavaCacheHttpCacheStorage<T>(
 ): AbstractSerializingCacheStorage<T, T>(config.maxUpdateRetries, serializer) {
 
     companion object: KLogging() {
+        /**
+         * HTTP 처리에서 `createObjectCache` 함수를 제공합니다.
+         */
         @JvmStatic
         fun createObjectCache(
             cache: Cache<String, HttpCacheStorageEntry>,
@@ -31,6 +34,9 @@ class JavaCacheHttpCacheStorage<T>(
             return JavaCacheHttpCacheStorage(cache, config, NoopCacheEntrySerializer.INSTANCE)
         }
 
+        /**
+         * HTTP 처리에서 `createSerializedCache` 함수를 제공합니다.
+         */
         @JvmStatic
         fun createSerializedCache(
             cache: Cache<String, ByteArray>,
@@ -41,24 +47,38 @@ class JavaCacheHttpCacheStorage<T>(
         }
     }
 
-
+    /**
+     * HTTP 처리에서 `digestToStorageKey` 함수를 제공합니다.
+     */
     override fun digestToStorageKey(key: String): String = key
 
+    /**
+     * HTTP 처리에서 `restore` 함수를 제공합니다.
+     */
     override fun restore(storageKey: String): T? {
         log.debug { "retrieve cache. storageKey=$storageKey" }
         return cache[storageKey]
     }
 
+    /**
+     * HTTP 처리에서 `getForUpdateCAS` 함수를 제공합니다.
+     */
     override fun getForUpdateCAS(storageKey: String): T? {
         log.debug { "get for update cas. storageKey=$storageKey" }
         return cache[storageKey]
     }
 
+    /**
+     * HTTP 처리에서 `delete` 함수를 제공합니다.
+     */
     override fun delete(storageKey: String) {
         log.debug { "delete cache. storageKey=$storageKey" }
         cache.remove(storageKey)
     }
 
+    /**
+     * HTTP 처리에서 `bulkRestore` 함수를 제공합니다.
+     */
     override fun bulkRestore(storageKeys: MutableCollection<String>): MutableMap<String, T> {
         log.debug { "bulk store cache. storageKeys=${storageKeys.joinToString(",")}" }
         if (storageKeys.isEmpty()) {
@@ -71,13 +91,22 @@ class JavaCacheHttpCacheStorage<T>(
         return resultMap
     }
 
+    /**
+     * HTTP 처리에서 `updateCAS` 함수를 제공합니다.
+     */
     override fun updateCAS(storageKey: String, cas: T, storageObject: T): Boolean {
         log.debug { "update cas. storageKey=$storageKey, cas=$cas, storageObject=$storageObject" }
         return cache.replace(storageKey, cas, storageObject)
     }
 
+    /**
+     * HTTP 처리에서 `getStorageObject` 함수를 제공합니다.
+     */
     override fun getStorageObject(cas: T): T = cas
 
+    /**
+     * HTTP 처리에서 `store` 함수를 제공합니다.
+     */
     override fun store(storageKey: String, storageObject: T) {
         log.debug { "store cache. storageKey=$storageKey, storageObject=$storageObject" }
         cache.put(storageKey, storageObject)

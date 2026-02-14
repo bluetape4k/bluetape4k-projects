@@ -14,6 +14,9 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper
 import io.bluetape4k.jackson.Jackson
 
+/**
+ * Jackson JSON 처리에서 사용하는 `JacksonText` 타입입니다.
+ */
 object JacksonText {
 
     private val enabledJsonGeneratorFeatures = arrayOf(
@@ -47,6 +50,9 @@ object JacksonText {
         DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES
     )
 
+    /**
+     * Jackson JSON 처리에서 사용하는 `Csv` 타입입니다.
+     */
     object Csv {
         val defaultMapper: CsvMapper by lazy {
             CsvMapper.builder()
@@ -112,6 +118,9 @@ object JacksonText {
         }
     }
 
+    /**
+     * Jackson JSON 처리에서 사용하는 `Toml` 타입입니다.
+     */
     object Toml {
         val defaultMapper: TomlMapper by lazy {
             TomlMapper.builder()

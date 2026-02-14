@@ -19,12 +19,18 @@ class JacksonEncoder2 private constructor(
     companion object: KLogging() {
         val INSTANCE: JacksonEncoder2 by lazy { invoke() }
 
+        /**
+         * Feign 연동용 인스턴스 생성을 위한 진입점을 제공합니다.
+         */
         @JvmStatic
         operator fun invoke(mapper: JsonMapper = Jackson.defaultJsonMapper): JacksonEncoder2 {
             return JacksonEncoder2(mapper)
         }
     }
 
+    /**
+     * Feign 연동에서 `encode` 함수를 제공합니다.
+     */
     override fun encode(obj: Any?, bodyType: Type, template: RequestTemplate) {
         try {
             val javaType = mapper.typeFactory.constructType(bodyType)

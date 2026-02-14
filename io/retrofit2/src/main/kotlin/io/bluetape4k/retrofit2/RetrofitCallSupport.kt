@@ -19,6 +19,9 @@ inline fun <T> retrofit2.Call<T>.executeAsync(
     val promise = CompletableFuture<retrofit2.Response<T>>()
 
     val callback = object: retrofit2.Callback<T> {
+        /**
+         * Retrofit2 연동에서 `onResponse` 함수를 제공합니다.
+         */
         override fun onResponse(call: retrofit2.Call<T>, response: retrofit2.Response<T>) {
             if (call.isCanceled) {
                 val ex = retrofit2.HttpException(response)
@@ -31,6 +34,9 @@ inline fun <T> retrofit2.Call<T>.executeAsync(
             }
         }
 
+        /**
+         * Retrofit2 연동에서 `onFailure` 함수를 제공합니다.
+         */
         override fun onFailure(call: retrofit2.Call<T>, t: Throwable) {
             if (call.isCanceled) {
                 cancelHandler(t)

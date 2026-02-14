@@ -20,6 +20,9 @@ import java.io.ByteArrayInputStream
  */
 class FramedSnappyCompressor: AbstractCompressor() {
 
+    /**
+     * I/O 압축에서 `doCompress` 함수를 제공합니다.
+     */
     override fun doCompress(plain: ByteArray): ByteArray {
         val output = Buffer()
         FramedSnappyCompressorOutputStream(output.outputStream()).use { snappy ->
@@ -29,6 +32,9 @@ class FramedSnappyCompressor: AbstractCompressor() {
         return output.readByteArray()
     }
 
+    /**
+     * I/O 압축에서 `doDecompress` 함수를 제공합니다.
+     */
     override fun doDecompress(compressed: ByteArray): ByteArray {
         return ByteArrayInputStream(compressed).use { input ->
             FramedSnappyCompressorInputStream(input).use { snappy ->

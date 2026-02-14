@@ -1,9 +1,8 @@
 package io.bluetape4k.io.okio.base64
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.support.toUtf8String
 import okio.ByteString
-import okio.ByteString.Companion.encodeUtf8
+import okio.ByteString.Companion.toByteString
 import okio.Source
 import java.util.*
 
@@ -19,11 +18,17 @@ class ApacheBase64Source(delegate: Source): AbstractBase64Source(delegate) {
         private val urlDecoder = Base64.getUrlDecoder()
     }
 
+    /**
+     * Okio Base64에서 `decodeBase64Bytes` 함수를 제공합니다.
+     */
     override fun decodeBase64Bytes(encodedString: String): ByteString {
-        return urlDecoder.decode(encodedString).toUtf8String().encodeUtf8()
+        return urlDecoder.decode(encodedString).toByteString()
     }
 }
 
+/**
+ * Okio Base64 타입 변환을 위한 `asApacheBase64Source` 함수를 제공합니다.
+ */
 fun Source.asApacheBase64Source(): ApacheBase64Source = when (this) {
     is ApacheBase64Source -> this
     else -> ApacheBase64Source(this)

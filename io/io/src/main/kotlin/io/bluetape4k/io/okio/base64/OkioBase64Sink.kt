@@ -16,11 +16,17 @@ class OkioBase64Sink(delegate: Sink): AbstractBase64Sink(delegate) {
 
     companion object: KLogging()
 
+    /**
+     * Okio Base64에서 `getEncodedBuffer` 함수를 제공합니다.
+     */
     override fun getEncodedBuffer(plainByteString: ByteString): Buffer {
         return bufferOf(plainByteString.base64())
     }
 }
 
+/**
+ * Okio Base64 타입 변환을 위한 `asBase64Sink` 함수를 제공합니다.
+ */
 fun Sink.asBase64Sink(): OkioBase64Sink = when (this) {
     is OkioBase64Sink -> this
     else -> OkioBase64Sink(this)

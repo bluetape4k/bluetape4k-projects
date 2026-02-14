@@ -15,43 +15,81 @@ import org.objenesis.strategy.StdInstantiatorStrategy
 /**
  * Kryo는 Thread Safe 하지 않습니다. 그래서 Kryo 인스턴스를 Pool 에서 관리합니다.
  */
+/**
+ * `KryoProvider` 싱글톤/유틸리티입니다.
+ */
 object KryoProvider: KLogging() {
 
     private const val MAX_POOL_SIZE = 1024
 
     private val kryoPool: Pool<Kryo> by lazy {
+        /**
+         * `object` 싱글톤/유틸리티입니다.
+         */
         object: Pool<Kryo>(true, false, MAX_POOL_SIZE) {
+            /**
+             * I/O 직렬화에서 `create` 함수를 제공합니다.
+             */
             override fun create(): Kryo = createKryo()
         }
     }
 
     private val inputPool by lazy {
+        /**
+         * `object` 싱글톤/유틸리티입니다.
+         */
         object: Pool<Input>(true, false, MAX_POOL_SIZE) {
+            /**
+             * I/O 직렬화에서 `create` 함수를 제공합니다.
+             */
             override fun create(): Input = Input(DEFAULT_BUFFER_SIZE)
         }
     }
 
     private val outputPool: Pool<Output> by lazy {
+        /**
+         * `object` 싱글톤/유틸리티입니다.
+         */
         object: Pool<Output>(true, false, MAX_POOL_SIZE) {
+            /**
+             * I/O 직렬화에서 `create` 함수를 제공합니다.
+             */
             override fun create(): Output = Output(DEFAULT_BUFFER_SIZE, -1)
         }
     }
 
+    /**
+     * I/O 직렬화에서 `obtainKryo` 함수를 제공합니다.
+     */
     fun obtainKryo(): Kryo = kryoPool.obtain()
 
+    /**
+     * I/O 직렬화에서 `obtainInput` 함수를 제공합니다.
+     */
     fun obtainInput(): Input = inputPool.obtain()
 
+    /**
+     * I/O 직렬화에서 `obtainOutput` 함수를 제공합니다.
+     */
     fun obtainOutput(): Output = outputPool.obtain()
 
-
+    /**
+     * I/O 직렬화에서 `releaseKryo` 함수를 제공합니다.
+     */
     fun releaseKryo(kryo: Kryo) {
         kryoPool.free(kryo)
     }
 
+    /**
+     * I/O 직렬화에서 `releaseInput` 함수를 제공합니다.
+     */
     fun releaseInput(input: Input) {
         inputPool.free(input)
     }
 
+    /**
+     * I/O 직렬화에서 `releaseOutput` 함수를 제공합니다.
+     */
     fun releaseOutput(output: Output) {
         outputPool.free(output)
     }

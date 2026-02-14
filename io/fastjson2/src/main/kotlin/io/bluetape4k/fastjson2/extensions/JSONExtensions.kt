@@ -28,11 +28,17 @@ inline fun <reified T: Any> String?.readValueAsList(vararg features: JSONReader.
 inline fun <reified T: Any> InputStream?.readValueOrNull(vararg features: JSONReader.Feature): T? =
     this?.let { JSON.parseObject(it, reference<T>().type, *features) }
 
+/**
+ * Fastjson2 처리에서 데이터를 읽어오는 `readValueAsList` 함수를 제공합니다.
+ */
 inline fun <reified T: Any> InputStream.readValueAsList(
     vararg features: JSONReader.Feature,
 ): List<T> =
     JSON.parseArray(this, *features).readList<T>(*features)
 
+/**
+ * Fastjson2 처리에서 데이터를 읽어오는 `readValueAsArray` 함수를 제공합니다.
+ */
 inline fun <reified T: Any> InputStream.readValueAsArray(
     vararg features: JSONReader.Feature,
 ): Array<T> =

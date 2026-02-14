@@ -4,6 +4,7 @@ import io.bluetape4k.io.compressor.Compressor
 import io.bluetape4k.io.okio.bufferOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.support.requireInRange
 import okio.Buffer
 import okio.ForwardingSink
 import okio.Sink
@@ -20,11 +21,15 @@ open class CompressableSink(
 
     companion object: KLogging()
 
+    /**
+     * Okio 압축/해제에서 데이터를 기록하는 `write` 함수를 제공합니다.
+     */
     override fun write(source: Buffer, byteCount: Long) {
-        // byteCount.requirePositiveNumber("byteCount")
+        if (byteCount <= 0L) return
+        byteCount.requireInRange(0, source.size, "byteCount")
 
-        // 압축은 `source`의 모든 데이터를 압축해야 함
-        val bytesToRead = source.size
+        // 요청된 길이만큼만 압축한다.
+        val bytesToRead = byteCount
         val plainBytes = source.readByteArray(bytesToRead)
 
         // 압축
@@ -34,6 +39,9 @@ open class CompressableSink(
     }
 }
 
+/**
+ * Okio 압축/해제 타입 변환을 위한 `asCompressSink` 함수를 제공합니다.
+ */
 fun okio.Sink.asCompressSink(compressor: Compressor): CompressableSink {
     return CompressableSink(this, compressor)
 }

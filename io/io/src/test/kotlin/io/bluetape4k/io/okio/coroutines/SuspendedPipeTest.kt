@@ -50,6 +50,28 @@ class SuspendedPipeTest: AbstractOkioTest() {
     }
 
     @Test
+    fun `read with zero byteCount returns immediately`() = runSuspendIO {
+        val pipe = SuspendedPipe(MAX_BUFFER_SIZE)
+        pipe.source.read(Buffer(), 0L) shouldBeEqualTo 0L
+    }
+
+    @Test
+    fun `pipe ignores non-positive byteCount and validates write upper range`() = runSuspendIO {
+        val pipe = SuspendedPipe(MAX_BUFFER_SIZE)
+        val source = bufferOf("hello")
+
+        pipe.sink.write(source.copy(), -1L)
+        pipe.sink.write(source.copy(), 0L)
+        assertFailsWith<IllegalArgumentException> {
+            pipe.source.read(Buffer(), -1L)
+        }
+
+        assertFailsWith<IllegalArgumentException> {
+            pipe.sink.write(source.copy(), source.size + 1L)
+        }
+    }
+
+    @Test
     fun `fold transfers buffer and closes source`() = runSuspendIO {
         val pipe = SuspendedPipe(1024)
         val writeBuffer = bufferOf("folded")

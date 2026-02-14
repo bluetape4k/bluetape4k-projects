@@ -21,37 +21,58 @@ open class ByteBufferOutputStream private constructor(
 
     companion object: KLogging() {
 
+        /**
+         * I/O 처리용 인스턴스 생성을 위한 진입점을 제공합니다.
+         */
         @JvmStatic
         operator fun invoke(capacity: Int = DEFAULT_BUFFER_SIZE): ByteBufferOutputStream {
             return ByteBufferOutputStream(ByteBuffer.allocateDirect(capacity))
         }
 
+        /**
+         * I/O 처리용 인스턴스 생성을 위한 진입점을 제공합니다.
+         */
         @JvmStatic
         operator fun invoke(bytes: ByteArray): ByteBufferOutputStream {
             return ByteBufferOutputStream(bytes.toByteBuffer())
         }
 
+        /**
+         * I/O 처리용 인스턴스 생성을 위한 진입점을 제공합니다.
+         */
         @JvmStatic
         operator fun invoke(buffer: ByteBuffer): ByteBufferOutputStream {
             return ByteBufferOutputStream(buffer)
         }
 
+        /**
+         * I/O 처리에서 `direct` 함수를 제공합니다.
+         */
         @JvmStatic
         fun direct(capacity: Int = DEFAULT_BUFFER_SIZE): ByteBufferOutputStream {
             return ByteBufferOutputStream(ByteBuffer.allocateDirect(capacity))
         }
 
+        /**
+         * I/O 처리에서 `direct` 함수를 제공합니다.
+         */
         @JvmStatic
         fun direct(bytes: ByteArray): ByteBufferOutputStream {
             return ByteBufferOutputStream(bytes.toByteBufferDirect())
         }
     }
 
+    /**
+     * I/O 처리에서 데이터를 기록하는 `write` 함수를 제공합니다.
+     */
     override fun write(b: Int) {
         ensureCapacity(1)
         buffer.put(b.toByte())
     }
 
+    /**
+     * I/O 처리에서 데이터를 기록하는 `write` 함수를 제공합니다.
+     */
     override fun write(b: ByteArray, off: Int, len: Int) {
         off.assertZeroOrPositiveNumber("off")
         len.assertZeroOrPositiveNumber("len")
@@ -61,6 +82,9 @@ open class ByteBufferOutputStream private constructor(
         buffer.put(b, off, len)
     }
 
+    /**
+     * I/O 처리 타입 변환을 위한 `toByteArray` 함수를 제공합니다.
+     */
     fun toByteArray(): ByteArray {
         val dup = buffer.duplicate()
         dup.flip()

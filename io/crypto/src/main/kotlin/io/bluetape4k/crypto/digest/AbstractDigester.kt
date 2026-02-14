@@ -32,12 +32,21 @@ abstract class AbstractDigester protected constructor(
         }
     }
 
+    /**
+     * 암호화 처리에서 `digest` 함수를 제공합니다.
+     */
     override fun digest(message: ByteArray): ByteArray =
         delegate.digest(message)
 
+    /**
+     * 암호화 처리에서 `matches` 함수를 제공합니다.
+     */
     override fun matches(message: ByteArray, digest: ByteArray): Boolean =
         delegate.matches(message, digest)
 
+    /**
+     * 암호화 처리 타입 변환을 위한 `toString` 함수를 제공합니다.
+     */
     override fun toString(): String {
         return "${javaClass.simpleName}(algorithm=$algorithm)"
     }

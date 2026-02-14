@@ -15,6 +15,9 @@ class JsonMaskerModule: SimpleModule() {
 
     companion object: KLogging()
 
+    /**
+     * Jackson JSON 처리에서 `setupModule` 함수를 제공합니다.
+     */
     override fun setupModule(context: SetupContext) {
         log.info { "Setup JsonMaskerModule ..." }
         context.insertAnnotationIntrospector(JsonMaskerAnnotationInterospector())

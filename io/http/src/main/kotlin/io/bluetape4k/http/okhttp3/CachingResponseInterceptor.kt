@@ -21,6 +21,9 @@ class CachingResponseInterceptor private constructor(
 ): Interceptor {
 
     companion object: KLogging() {
+        /**
+         * HTTP 처리용 인스턴스 생성을 위한 진입점을 제공합니다.
+         */
         @JvmStatic
         operator fun invoke(
             cacheControl: CacheControl = okhttp3CacheControlOf(),
@@ -28,6 +31,9 @@ class CachingResponseInterceptor private constructor(
             return CachingResponseInterceptor(cacheControl)
         }
 
+        /**
+         * HTTP 처리용 인스턴스 생성을 위한 진입점을 제공합니다.
+         */
         @JvmStatic
         operator fun invoke(
             maxAgeInSeconds: Int = 0,
@@ -53,6 +59,9 @@ class CachingResponseInterceptor private constructor(
         }
     }
 
+    /**
+     * HTTP 처리에서 `intercept` 함수를 제공합니다.
+     */
     override fun intercept(chain: Interceptor.Chain): Response {
         val response = chain.proceed(chain.request())
 

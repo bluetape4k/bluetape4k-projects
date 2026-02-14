@@ -17,6 +17,7 @@ import java.nio.channels.ReadableByteChannel
 import java.nio.file.Files
 import java.nio.file.StandardOpenOption
 import java.util.*
+import kotlin.test.assertFailsWith
 
 @TempFolderTest
 class OkioChannelsTest: AbstractOkioTest() {
@@ -58,6 +59,28 @@ class OkioChannelsTest: AbstractOkioTest() {
     }
 
     @Test
+    fun `read channel with zero byteCount returns zero`() {
+        val channel: ReadableByteChannel = Buffer().writeUtf8(QUOTE)
+        val source = ByteChannelSource(channel, Timeout.NONE)
+        val sink = Buffer()
+
+        source.read(sink, 0L) shouldBeEqualTo 0L
+        sink.size shouldBeEqualTo 0L
+    }
+
+    @Test
+    fun `read channel with negative byteCount throws`() {
+        val channel: ReadableByteChannel = Buffer().writeUtf8(QUOTE)
+        val source = ByteChannelSource(channel, Timeout.NONE)
+        val sink = Buffer()
+
+        assertFailsWith<IllegalArgumentException> {
+            source.read(sink, -1L)
+        }
+        sink.size shouldBeEqualTo 0L
+    }
+
+    @Test
     fun `read channel fully`() {
         val channel = Buffer().writeUtf8(QUOTE)
 
@@ -81,6 +104,22 @@ class OkioChannelsTest: AbstractOkioTest() {
     }
 
     @Test
+    fun `write channel with invalid byteCount behavior`() {
+        val channel = Buffer()
+        val source = Buffer().writeUtf8(QUOTE)
+        val sink = ByteChannelSink(channel, Timeout.NONE)
+        val initialSize = source.size
+
+        sink.write(source, -1L)
+        source.size shouldBeEqualTo initialSize
+        channel.size shouldBeEqualTo 0L
+
+        assertFailsWith<IllegalArgumentException> {
+            sink.write(source, source.size + 1L)
+        }
+    }
+
+    @Test
     fun `read and write file`() {
         val path = tempFolder.createFile().toPath()
 
@@ -98,6 +137,34 @@ class OkioChannelsTest: AbstractOkioTest() {
 
             source.read(buffer, 31)
             buffer.readUtf8() shouldBeEqualTo QUOTE.substring(44, 75)
+        }
+    }
+
+    @Test
+    fun `file source with invalid byteCount behavior`() {
+        val path = tempFolder.createFile().toPath()
+        Files.writeString(path, QUOTE)
+
+        FileChannel.open(path, r).asSource().use { source ->
+            source.read(Buffer(), 0L) shouldBeEqualTo 0L
+            assertFailsWith<IllegalArgumentException> {
+                source.read(Buffer(), -1L)
+            }
+        }
+    }
+
+    @Test
+    fun `file sink with invalid byteCount behavior`() {
+        val path = tempFolder.createFile().toPath()
+        FileChannel.open(path, w).asSink().use { sink ->
+            val source = Buffer().writeUtf8(QUOTE)
+            val initialSize = source.size
+            sink.write(source, -1L)
+            source.size shouldBeEqualTo initialSize
+
+            assertFailsWith<IllegalArgumentException> {
+                sink.write(source, source.size + 1L)
+            }
         }
     }
 

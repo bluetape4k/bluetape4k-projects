@@ -33,7 +33,6 @@ interface AvroReflectSerializer {
      */
     fun <T> deserialize(avroBytes: ByteArray?, clazz: Class<T>): T?
 
-
     /**
      * Avro 인스턴스를 직렬화하여 Base64 문자열로 반환합니다.
      *

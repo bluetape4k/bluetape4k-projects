@@ -30,6 +30,9 @@ class DefaultAvroReflectSerializer private constructor(
 ): AvroReflectSerializer {
 
     companion object: KLogging() {
+        /**
+         * Avro 직렬화용 인스턴스 생성을 위한 진입점을 제공합니다.
+         */
         @JvmStatic
         operator fun invoke(
             codecFactory: CodecFactory = DEFAULT_CODEC_FACTORY,
@@ -37,6 +40,9 @@ class DefaultAvroReflectSerializer private constructor(
             DefaultAvroReflectSerializer(codecFactory)
     }
 
+    /**
+     * Avro 직렬화에서 데이터를 직렬화하는 `serialize` 함수를 제공합니다.
+     */
     override fun <T> serialize(graph: T?): ByteArray? {
         if (graph == null) {
             return null
@@ -59,6 +65,9 @@ class DefaultAvroReflectSerializer private constructor(
         }
     }
 
+    /**
+     * Avro 직렬화에서 데이터를 역직렬화하는 `deserialize` 함수를 제공합니다.
+     */
     override fun <T> deserialize(avroBytes: ByteArray?, clazz: Class<T>): T? {
         if (avroBytes == null) {
             return null

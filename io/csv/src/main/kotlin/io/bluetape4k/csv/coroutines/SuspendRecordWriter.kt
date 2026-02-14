@@ -18,26 +18,50 @@ import java.io.Closeable
  */
 interface SuspendRecordWriter: Closeable {
 
+    /**
+     * CSV/TSV 처리에서 데이터를 기록하는 `writeHeaders` 함수를 제공합니다.
+     */
     suspend fun writeHeaders(headers: Iterable<String>)
 
+    /**
+     * CSV/TSV 처리에서 데이터를 기록하는 `writeHeaders` 함수를 제공합니다.
+     */
     suspend fun writeHeaders(vararg headers: String) {
         writeHeaders(headers.toFastList())
     }
 
+    /**
+     * CSV/TSV 처리에서 데이터를 기록하는 `writeRow` 함수를 제공합니다.
+     */
     suspend fun writeRow(row: Iterable<*>)
 
+    /**
+     * CSV/TSV 처리에서 데이터를 기록하는 `writeRow` 함수를 제공합니다.
+     */
     suspend fun <T> writeRow(entity: T, mapper: (T) -> Iterable<*>) {
         writeRow(mapper(entity))
     }
 
+    /**
+     * CSV/TSV 처리에서 데이터를 기록하는 `writeAll` 함수를 제공합니다.
+     */
     suspend fun writeAll(rows: Sequence<Iterable<*>>)
 
+    /**
+     * CSV/TSV 처리에서 데이터를 기록하는 `writeAll` 함수를 제공합니다.
+     */
     suspend fun <T> writeAll(entities: Sequence<T>, transform: (T) -> Iterable<*>) {
         writeAll(entities.map(transform))
     }
 
+    /**
+     * CSV/TSV 처리에서 데이터를 기록하는 `writeAll` 함수를 제공합니다.
+     */
     suspend fun writeAll(rows: Flow<Iterable<*>>)
 
+    /**
+     * CSV/TSV 처리에서 데이터를 기록하는 `writeAll` 함수를 제공합니다.
+     */
     suspend fun <T> writeAll(entities: Flow<T>, transform: (T) -> Iterable<*>) {
         writeAll(entities.map(transform))
     }

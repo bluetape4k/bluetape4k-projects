@@ -28,6 +28,9 @@ fun JsonNode.createArray(fieldName: String?): JsonNode = when (this) {
     else -> nodeFactory.arrayNode()
 }
 
+/**
+ * Jackson JSON 처리에서 `addValue` 함수를 제공합니다.
+ */
 fun <T> JsonNode.addValue(value: T, fieldName: String?) = apply {
     if (this is ObjectNode && fieldName.isNullOrBlank()) {
         throw IllegalArgumentException("Field name must not be null for ObjectNode")
@@ -114,8 +117,6 @@ fun JsonNode.addBigInteger(value: BigInteger, fieldName: String?) = addValue(val
  * [fieldName]을 키로 하여 ByteArray 수형의 [value]를 추가합니다.
  */
 fun JsonNode.addBigInteger(value: ByteArray, fieldName: String?) = addValue(value, fieldName)
-
-
 
 /**
  * [fieldName]을 키로 하여 `Null` 값을 가지는 JsonNode를 추가합니다.

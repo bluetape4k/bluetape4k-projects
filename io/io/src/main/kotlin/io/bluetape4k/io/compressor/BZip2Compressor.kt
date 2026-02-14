@@ -25,6 +25,9 @@ class BZip2Compressor(
 
     companion object: KLogging()
 
+    /**
+     * I/O 압축에서 `doCompress` 함수를 제공합니다.
+     */
     override fun doCompress(plain: ByteArray): ByteArray {
         val output = Buffer()
         BZip2CompressorOutputStream(output.outputStream()).use { bzip2 ->
@@ -34,6 +37,9 @@ class BZip2Compressor(
         return output.readByteArray()
     }
 
+    /**
+     * I/O 압축에서 `doDecompress` 함수를 제공합니다.
+     */
     override fun doDecompress(compressed: ByteArray): ByteArray {
         return ByteArrayInputStream(compressed).use { input ->
             BZip2CompressorInputStream(input).use { bzip2 ->

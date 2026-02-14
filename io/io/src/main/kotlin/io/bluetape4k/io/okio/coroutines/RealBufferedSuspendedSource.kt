@@ -1,6 +1,7 @@
 package io.bluetape4k.io.okio.coroutines
 
 import io.bluetape4k.io.okio.SEGMENT_SIZE
+import io.bluetape4k.io.okio.coroutines.internal.ForwardSuspendedSource
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import io.bluetape4k.support.requireInRange
@@ -11,7 +12,6 @@ import okio.ByteString
 import okio.EOFException
 import okio.Options
 import okio.Timeout
-import io.bluetape4k.io.okio.coroutines.internal.ForwardSuspendedSource
 
 /**
  * `source`에서 읽은 내용을 버퍼링하는 새로운 소스를 반환합니다.
@@ -20,7 +20,9 @@ import io.bluetape4k.io.okio.coroutines.internal.ForwardSuspendedSource
  */
 fun SuspendedSource.buffered(): BufferedSuspendedSource = RealBufferedSuspendedSource(this)
 
-
+/**
+ * Okio 코루틴에서 사용하는 `RealBufferedSuspendedSource` 타입입니다.
+ */
 class RealBufferedSuspendedSource(
     private val source: SuspendedSource,
 ): BufferedSuspendedSource {
@@ -31,17 +33,26 @@ class RealBufferedSuspendedSource(
 
     private val closed = atomic(false)
 
+    /**
+     * Okio 코루틴에서 `exhausted` 함수를 제공합니다.
+     */
     override suspend fun exhausted(): Boolean {
         checkNotClosed()
         return buffer.exhausted() && source.read(buffer, SEGMENT_SIZE) == -1L
     }
 
+    /**
+     * Okio 코루틴에서 `require` 함수를 제공합니다.
+     */
     override suspend fun require(byteCount: Long) {
         if (!request(byteCount)) {
             throw EOFException("source exhausted. Require $byteCount bytes but source is exhausted.")
         }
     }
 
+    /**
+     * Okio 코루틴에서 `request` 함수를 제공합니다.
+     */
     override suspend fun request(byteCount: Long): Boolean {
         byteCount.requireZeroOrPositiveNumber("byteCount")
         checkNotClosed()
@@ -54,41 +65,65 @@ class RealBufferedSuspendedSource(
         return true
     }
 
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `readByte` 함수를 제공합니다.
+     */
     override suspend fun readByte(): Byte {
         require(1L)
         return buffer.readByte()
     }
 
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `readShort` 함수를 제공합니다.
+     */
     override suspend fun readShort(): Short {
         require(2L)
         return buffer.readShort()
     }
 
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `readShortLe` 함수를 제공합니다.
+     */
     override suspend fun readShortLe(): Short {
         require(2L)
         return buffer.readShortLe()
     }
 
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `readInt` 함수를 제공합니다.
+     */
     override suspend fun readInt(): Int {
         require(4L)
         return buffer.readInt()
     }
 
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `readIntLe` 함수를 제공합니다.
+     */
     override suspend fun readIntLe(): Int {
         require(4L)
         return buffer.readIntLe()
     }
 
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `readLong` 함수를 제공합니다.
+     */
     override suspend fun readLong(): Long {
         require(8L)
         return buffer.readLong()
     }
 
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `readLongLe` 함수를 제공합니다.
+     */
     override suspend fun readLongLe(): Long {
         require(8L)
         return buffer.readLongLe()
     }
 
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `readDecimalLong` 함수를 제공합니다.
+     */
     override suspend fun readDecimalLong(): Long {
         require(1L)
 
@@ -109,6 +144,9 @@ class RealBufferedSuspendedSource(
         return buffer.readDecimalLong()
     }
 
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `readHexadecimalUnsignedLong` 함수를 제공합니다.
+     */
     override suspend fun readHexadecimalUnsignedLong(): Long {
         require(1L)
 
@@ -130,6 +168,9 @@ class RealBufferedSuspendedSource(
         return buffer.readHexadecimalUnsignedLong()
     }
 
+    /**
+     * Okio 코루틴에서 `skip` 함수를 제공합니다.
+     */
     override suspend fun skip(byteCount: Long) {
         checkNotClosed()
         var remaining = byteCount
@@ -143,18 +184,27 @@ class RealBufferedSuspendedSource(
         }
     }
 
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `readByteString` 함수를 제공합니다.
+     */
     override suspend fun readByteString(): ByteString {
         checkNotClosed()
         buffer.suspendWriteAll(source)
         return buffer.readByteString()
     }
 
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `readByteString` 함수를 제공합니다.
+     */
     override suspend fun readByteString(byteCount: Long): ByteString {
         byteCount.requireZeroOrPositiveNumber("byteCount")
         require(byteCount)
         return buffer.readByteString(byteCount)
     }
 
+    /**
+     * Okio 코루틴에서 `select` 함수를 제공합니다.
+     */
     override suspend fun select(options: Options): Int {
         checkNotClosed()
 
@@ -180,22 +230,34 @@ class RealBufferedSuspendedSource(
         }
     }
 
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `readByteArray` 함수를 제공합니다.
+     */
     override suspend fun readByteArray(): ByteArray {
         checkNotClosed()
         buffer.suspendWriteAll(source)
         return buffer.readByteArray()
     }
 
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `readByteArray` 함수를 제공합니다.
+     */
     override suspend fun readByteArray(byteCount: Long): ByteArray {
         byteCount.requireZeroOrPositiveNumber("byteCount")
         require(byteCount)
         return buffer.readByteArray(byteCount)
     }
 
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `read` 함수를 제공합니다.
+     */
     override suspend fun read(sink: ByteArray): Int {
         return read(sink, 0, sink.size)
     }
 
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `read` 함수를 제공합니다.
+     */
     override suspend fun read(sink: ByteArray, offset: Int, byteCount: Int): Int {
         require(offset >= 0 && byteCount >= 0 && offset + byteCount <= sink.size) {
             "offset=$offset, byteCount=$byteCount, sink.size=${sink.size}"
@@ -211,8 +273,12 @@ class RealBufferedSuspendedSource(
         return buffer.read(sink, offset, toRead)
     }
 
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `read` 함수를 제공합니다.
+     */
     override suspend fun read(sink: Buffer, byteCount: Long): Long {
         byteCount.requireZeroOrPositiveNumber("byteCount")
+        if (byteCount == 0L) return 0L
         checkNotClosed()
 
         if (buffer.size == 0L) {
@@ -225,6 +291,9 @@ class RealBufferedSuspendedSource(
         return buffer.read(sink, toRead)
     }
 
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `readFully` 함수를 제공합니다.
+     */
     override suspend fun readFully(sink: ByteArray) {
         try {
             require(sink.size.toLong())
@@ -242,6 +311,9 @@ class RealBufferedSuspendedSource(
         buffer.readFully(sink)
     }
 
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `readFully` 함수를 제공합니다.
+     */
     override suspend fun readFully(sink: Buffer, byteCount: Long) {
         try {
             require(byteCount)
@@ -253,7 +325,9 @@ class RealBufferedSuspendedSource(
         buffer.readFully(sink, byteCount)
     }
 
-
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `readAll` 함수를 제공합니다.
+     */
     override suspend fun readAll(sink: SuspendedSink): Long {
         checkNotClosed()
         var totalBytesWritten = 0L
@@ -271,21 +345,30 @@ class RealBufferedSuspendedSource(
         return totalBytesWritten
     }
 
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `readUtf8` 함수를 제공합니다.
+     */
     override suspend fun readUtf8(): String {
         checkNotClosed()
         buffer.suspendWriteAll(source)
         return buffer.readUtf8()
     }
 
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `readUtf8` 함수를 제공합니다.
+     */
     override suspend fun readUtf8(byteCount: Long): String {
         require(byteCount)
         return buffer.readUtf8(byteCount)
     }
 
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `readUtf8Line` 함수를 제공합니다.
+     */
     override suspend fun readUtf8Line(): String? =
         when (val newline = indexOf('\n'.code.toByte())) {
             -1L ->
-                if (buffer.size != 0L) {
+                if (buffer.size > 0L) {
                     readUtf8(buffer.size)
                 } else {
                     null
@@ -294,10 +377,16 @@ class RealBufferedSuspendedSource(
             else -> buffer.readUtf8Line(newline)
         }
 
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `readUtf8LineStrict` 함수를 제공합니다.
+     */
     override suspend fun readUtf8LineStrict(): String {
         return readUtf8LineStrict(Long.MAX_VALUE)
     }
 
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `readUtf8LineStrict` 함수를 제공합니다.
+     */
     override suspend fun readUtf8LineStrict(limit: Long): String {
         limit.requireZeroOrPositiveNumber("limit")
         val scanLength = if (limit == Long.MAX_VALUE) Long.MAX_VALUE else limit + 1L
@@ -316,6 +405,9 @@ class RealBufferedSuspendedSource(
         throw EOFException("\\n not found: limit=${minOf(buffer.size, limit)}, count=${data.readByteString().hex()}...")
     }
 
+    /**
+     * Okio 코루틴에서 데이터를 읽어오는 `readUtf8CodePoint` 함수를 제공합니다.
+     */
     override suspend fun readUtf8CodePoint(): Int {
         require(1L)
 
@@ -328,6 +420,9 @@ class RealBufferedSuspendedSource(
         return buffer.readUtf8CodePoint()
     }
 
+    /**
+     * Okio 코루틴에서 `indexOf` 함수를 제공합니다.
+     */
     override suspend fun indexOf(b: Byte, fromIndex: Long, toIndex: Long): Long {
         checkNotClosed()
         fromIndex.requireInRange(0, toIndex, "fromIndex")
@@ -351,6 +446,9 @@ class RealBufferedSuspendedSource(
         return -1L
     }
 
+    /**
+     * Okio 코루틴에서 `indexOf` 함수를 제공합니다.
+     */
     override suspend fun indexOf(bytes: ByteString, fromIndex: Long): Long {
         checkNotClosed()
         var current = fromIndex
@@ -370,6 +468,9 @@ class RealBufferedSuspendedSource(
         }
     }
 
+    /**
+     * Okio 코루틴에서 `indexOfElement` 함수를 제공합니다.
+     */
     override suspend fun indexOfElement(
         targetBytes: ByteString,
         fromIndex: Long,
@@ -379,6 +480,9 @@ class RealBufferedSuspendedSource(
         return if (index in 0 until toIndex) index else -1L
     }
 
+    /**
+     * Okio 코루틴에서 `rangeEquals` 함수를 제공합니다.
+     */
     override suspend fun rangeEquals(
         offset: Long,
         bytes: ByteString,
@@ -397,8 +501,15 @@ class RealBufferedSuspendedSource(
         return true
     }
 
-    override fun peek(): BufferedSuspendedSource = RealBufferedSuspendedSource(ForwardSuspendedSource(buffer.peek()))
+    /**
+     * Okio 코루틴에서 `peek` 함수를 제공합니다.
+     */
+    override fun peek(): BufferedSuspendedSource =
+        RealBufferedSuspendedSource(ForwardSuspendedSource(buffer.peek()))
 
+    /**
+     * Okio 코루틴 리소스를 정리하고 닫습니다.
+     */
     override suspend fun close() {
         if (closed.compareAndSet(false, true)) {
             try {
@@ -409,6 +520,9 @@ class RealBufferedSuspendedSource(
         }
     }
 
+    /**
+     * Okio 코루틴에서 `timeout` 함수를 제공합니다.
+     */
     override fun timeout(): Timeout = source.timeout()
 
     private fun checkNotClosed() {

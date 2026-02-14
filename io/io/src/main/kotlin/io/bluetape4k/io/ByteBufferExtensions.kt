@@ -41,7 +41,6 @@ fun ByteBuffer.extractBytes(): ByteArray {
     return ByteArray(dup.remaining()).apply { dup.get(this) }
 }
 
-
 /**
  * [java.nio.ByteBuffer]의 모든 내용을 읽어 [ByteArray]로 반환합니다.
  *
@@ -76,7 +75,6 @@ fun ByteBuffer.encodeHexString(): String = Hex.encodeHexString(this)
  * ```
  */
 fun String.decodeHexByteBuffer(): ByteBuffer = Hex.decodeHex(this).toByteBuffer()
-
 
 /**
  * [java.nio.ByteBuffer]의 내용을 [value] 값으로 설정합니다.

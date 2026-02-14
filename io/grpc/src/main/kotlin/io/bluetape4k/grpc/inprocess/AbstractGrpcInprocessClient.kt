@@ -41,6 +41,9 @@ abstract class AbstractGrpcInprocessClient(
         }
     }
 
+    /**
+     * gRPC/Protobuf 처리 리소스를 정리하고 닫습니다.
+     */
     override fun close() {
         if (!channel.isShutdown) {
             log.debug { "Close client's grpc channel... channel=$channel" }

@@ -10,6 +10,7 @@ import okio.Buffer
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousFileChannel
 import java.nio.file.StandardOpenOption
@@ -113,5 +114,31 @@ class SuspendedFileChannelSinkTest: AbstractOkioTest() {
         result.toUtf8String() shouldBeEqualTo message
 
         readChannel.close()
+    }
+
+    @Test
+    fun `write ignores non-positive byteCount and validates upper range`() = runSuspendIO {
+        val tempFile = tempFolder.createFile().toPath()
+        val channel = AsynchronousFileChannel.open(
+            tempFile,
+            StandardOpenOption.WRITE,
+            StandardOpenOption.CREATE,
+            StandardOpenOption.TRUNCATE_EXISTING
+        )
+        val sink: SuspendedSink = channel.asSuspendedSink()
+        val negativeSource = Buffer().writeUtf8("hello")
+        val zeroSource = Buffer().writeUtf8("world")
+        val overflowSource = Buffer().writeUtf8("ok")
+
+        sink.write(negativeSource, -1L)
+        sink.write(zeroSource, 0L)
+        negativeSource.readUtf8() shouldBeEqualTo "hello"
+        zeroSource.readUtf8() shouldBeEqualTo "world"
+
+        assertFailsWith<IllegalArgumentException> {
+            sink.write(overflowSource, overflowSource.size + 1L)
+        }
+
+        sink.close()
     }
 }

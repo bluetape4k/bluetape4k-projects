@@ -14,7 +14,6 @@ typealias ProtoDateTime = com.google.type.DateTime
 typealias ProtoDuration = com.google.protobuf.Duration
 typealias ProtoTimestamp = com.google.protobuf.Timestamp
 
-
 @JvmField
 val PROTO_EMPTY: ProtoEmpty = ProtoEmpty.getDefaultInstance()
 

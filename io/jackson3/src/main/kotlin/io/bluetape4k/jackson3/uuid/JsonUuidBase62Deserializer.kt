@@ -23,6 +23,9 @@ class JsonUuidBase62Deserializer: UUIDDeserializer() {
             "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}".toRegex()
     }
 
+    /**
+     * Jackson JSON 처리에서 데이터를 역직렬화하는 `deserialize` 함수를 제공합니다.
+     */
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext): UUID {
         val token = p.currentToken()
         log.debug { "deserialize token=$token" }

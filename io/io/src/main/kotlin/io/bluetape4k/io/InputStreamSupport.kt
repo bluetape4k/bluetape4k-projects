@@ -53,7 +53,6 @@ const val MINIMAL_BLOCK_SIZE = 512
 fun InputStream.copyTo(out: Writer, cs: Charset = UTF_8, bufferSize: Int = DEFAULT_BUFFER_SIZE): Long =
     this.reader(cs).buffered().copyTo(out, bufferSize)
 
-
 /**
  * [InputStream]을 읽어 [OutputStream]에 씁니다.
  *
@@ -407,7 +406,6 @@ fun ByteArray.toLineSequence(cs: Charset = UTF_8, blockSize: Int = DEFAULT_BLOCK
  */
 fun ByteArray.toUtf8LineSequence(blockSize: Int = DEFAULT_BLOCK_SIZE): Sequence<String> =
     toInputStream().toUtf8LineSequence(blockSize)
-
 
 /**
  * [InputStream]을 읽어 [dst]에 씁니다.

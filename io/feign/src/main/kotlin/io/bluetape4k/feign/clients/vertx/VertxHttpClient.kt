@@ -13,12 +13,18 @@ class VertxHttpClient private constructor(
 ): feign.Client {
 
     companion object: KLoggingChannel() {
+        /**
+         * Feign 연동용 인스턴스 생성을 위한 진입점을 제공합니다.
+         */
         @JvmStatic
         operator fun invoke(vertxClient: HttpClient = vertxHttpClientOf()): VertxHttpClient {
             return VertxHttpClient(vertxClient)
         }
     }
 
+    /**
+     * Feign 연동에서 `execute` 함수를 제공합니다.
+     */
     override fun execute(
         feignRequest: feign.Request,
         feignOptions: feign.Request.Options,

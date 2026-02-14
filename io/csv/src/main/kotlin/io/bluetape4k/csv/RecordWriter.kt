@@ -8,12 +8,21 @@ import java.io.Closeable
  */
 interface RecordWriter: Closeable {
 
+    /**
+     * CSV/TSV 처리에서 데이터를 기록하는 `writeHeaders` 함수를 제공합니다.
+     */
     fun writeHeaders(headers: Iterable<String>)
 
+    /**
+     * CSV/TSV 처리에서 데이터를 기록하는 `writeHeaders` 함수를 제공합니다.
+     */
     fun writeHeaders(vararg headers: String) {
         writeHeaders(headers.toFastList())
     }
 
+    /**
+     * CSV/TSV 처리에서 데이터를 기록하는 `writeRow` 함수를 제공합니다.
+     */
     fun writeRow(rows: Iterable<*>)
 
     /**

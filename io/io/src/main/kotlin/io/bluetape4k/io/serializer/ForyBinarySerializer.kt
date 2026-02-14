@@ -42,10 +42,16 @@ class ForyBinarySerializer(
         }
     }
 
+    /**
+     * I/O 직렬화에서 `doSerialize` 함수를 제공합니다.
+     */
     override fun doSerialize(graph: Any): ByteArray {
         return fory.serialize(graph)
     }
 
+    /**
+     * I/O 직렬화에서 `doDeserialize` 함수를 제공합니다.
+     */
     @Suppress("UNCHECKED_CAST")
     override fun <T: Any> doDeserialize(bytes: ByteArray): T? {
         return fory.deserialize(bytes) as? T

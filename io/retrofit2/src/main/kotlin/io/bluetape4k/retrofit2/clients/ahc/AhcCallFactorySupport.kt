@@ -61,15 +61,24 @@ suspend fun BoundRequestBuilder.coExecute(): Response =
         execute(DefaultCoroutineCompletionHandler(cont))
     }
 
+/**
+ * Retrofit2 연동에서 사용하는 `DefaultCoroutineCompletionHandler` 타입입니다.
+ */
 internal class DefaultCoroutineCompletionHandler(
     private val cont: CancellableContinuation<Response>,
 ): AsyncCompletionHandler<Response>() {
 
+    /**
+     * Retrofit2 연동에서 `onCompleted` 함수를 제공합니다.
+     */
     override fun onCompleted(response: Response): Response {
         cont.resume(response)
         return response
     }
 
+    /**
+     * Retrofit2 연동에서 `onThrowable` 함수를 제공합니다.
+     */
     override fun onThrowable(t: Throwable) {
         cont.resumeWithException(t)
     }

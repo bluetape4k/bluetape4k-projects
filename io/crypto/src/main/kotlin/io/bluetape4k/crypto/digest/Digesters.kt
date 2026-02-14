@@ -14,6 +14,9 @@ object Digesters: KLogging() {
         registBouncCastleProvider()
     }
 
+    /**
+     * 암호화 처리에서 `getAllDigestAlgorithms` 함수를 제공합니다.
+     */
     @Suppress("UNCHECKED_CAST")
     fun getAllDigestAlgorithms(): Set<String> {
         return AlgorithmRegistry.getAllDigestAlgorithms() as Set<String>

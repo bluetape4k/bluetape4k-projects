@@ -2,11 +2,11 @@ package io.bluetape4k.io
 
 import java.io.File
 import java.io.IOException
-import java.nio.channels.AsynchronousFileChannel
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.StandardOpenOption
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionException
+import java.util.concurrent.ExecutionException
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 
@@ -286,32 +286,16 @@ fun File.tryMoveAsync(target: File, overwrite: Boolean = false): CompletableFutu
  * @return 파일 내용의 Result를 담은 CompletableFuture
  */
 fun Path.tryReadAllBytesAsync(): CompletableFuture<Result<ByteArray>> {
-    return CompletableFuture.supplyAsync({
-        runCatching {
-            if (!exists()) {
-                throw IOException("File not found: $this")
-            }
+    if (!exists()) {
+        return CompletableFuture.completedFuture(Result.failure(IOException("File not found: $this")))
+    }
+    if (isDirectory()) {
+        return CompletableFuture.completedFuture(Result.failure(IOException("Path is a directory: $this")))
+    }
 
-            if (isDirectory()) {
-                throw IOException("Path is a directory: $this")
-            }
-
-            val channel = AsynchronousFileChannel.open(this, StandardOpenOption.READ)
-            try {
-                val size = Files.size(this)
-                val buffer = java.nio.ByteBuffer.allocate(size.toInt())
-
-                val bytesRead = channel.read(buffer, 0).get()
-                if (bytesRead != size.toInt()) {
-                    throw IOException("Failed to read entire file. Expected: $size, Read: $bytesRead")
-                }
-
-                buffer.array()
-            } finally {
-                channel.close()
-            }
-        }
-    }, defaultFileExecutor)
+    return readAllBytesAsync()
+        .thenApply { Result.success(it) }
+        .exceptionally { Result.failure(unwrapAsyncException(it)) }
 }
 
 /**
@@ -322,31 +306,9 @@ fun Path.tryReadAllBytesAsync(): CompletableFuture<Result<ByteArray>> {
  * @return 쓰여진 바이트 수의 Result를 담은 CompletableFuture
  */
 fun Path.tryWriteAsync(bytes: ByteArray): CompletableFuture<Result<Long>> {
-    return CompletableFuture.supplyAsync({
-        runCatching {
-            // 부모 디렉토리 생성
-            parent?.let { parentDir ->
-                if (!parentDir.exists()) {
-                    Files.createDirectories(parentDir)
-                }
-            }
-
-            val channel = AsynchronousFileChannel.open(
-                this,
-                StandardOpenOption.CREATE,
-                StandardOpenOption.WRITE,
-                StandardOpenOption.TRUNCATE_EXISTING
-            )
-
-            try {
-                val buffer = java.nio.ByteBuffer.wrap(bytes)
-                val bytesWritten = channel.write(buffer, 0).get()
-                bytesWritten.toLong()
-            } finally {
-                channel.close()
-            }
-        }
-    }, defaultFileExecutor)
+    return writeAsync(bytes)
+        .thenApply { Result.success(it) }
+        .exceptionally { Result.failure(unwrapAsyncException(it)) }
 }
 
 /**
@@ -361,31 +323,14 @@ fun Path.tryWriteLinesAsync(
     lines: Iterable<String>,
     charset: java.nio.charset.Charset = Charsets.UTF_8,
 ): CompletableFuture<Result<Long>> {
-    return CompletableFuture.supplyAsync({
-        runCatching {
-            // 부모 디렉토리 생성
-            parent?.let { parentDir ->
-                if (!parentDir.exists()) {
-                    Files.createDirectories(parentDir)
-                }
-            }
-
-            val text = lines.joinToString(System.lineSeparator())
-            val bytes = text.toByteArray(charset)
-
-            val channel = AsynchronousFileChannel.open(
-                this,
-                StandardOpenOption.CREATE,
-                StandardOpenOption.WRITE,
-                StandardOpenOption.TRUNCATE_EXISTING
-            )
-
-            try {
-                val buffer = java.nio.ByteBuffer.wrap(bytes)
-                channel.write(buffer, 0).get().toLong()
-            } finally {
-                channel.close()
-            }
-        }
-    }, defaultFileExecutor)
+    return writeLinesAsync(lines, append = false, cs = charset)
+        .thenApply { Result.success(it) }
+        .exceptionally { Result.failure(unwrapAsyncException(it)) }
 }
+
+private fun unwrapAsyncException(error: Throwable): Throwable =
+    when (error) {
+        is CompletionException -> error.cause ?: error
+        is ExecutionException  -> error.cause ?: error
+        else                   -> error
+    }

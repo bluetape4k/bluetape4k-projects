@@ -11,7 +11,6 @@ import io.bluetape4k.logging.trace
 import java.io.IOException
 import java.lang.reflect.Type
 
-
 /**
  * `Content-Type` 에 따라 `application/json` 이 아닌 경우에는 `text/plain` 방식으로 decode 해주는 Feign Decoder 입니다.
  */
@@ -23,10 +22,16 @@ class FeignFastjsonDecoder: feign.codec.Decoder {
         val INSTANCE: FeignFastjsonDecoder by lazy { FeignFastjsonDecoder() }
     }
 
+    /**
+     * Feign 연동에서 `decode` 함수를 제공합니다.
+     */
     inline fun <reified T: Any> decode(response: feign.Response): T? {
         return decode(response, T::class.java) as? T
     }
 
+    /**
+     * Feign 연동에서 `decode` 함수를 제공합니다.
+     */
     override fun decode(response: feign.Response, type: Type): Any? = when {
         response.isJsonBody() -> runCatching { jsonDecode(response, type) }.getOrElse { fallback(response, type) }
         else -> fallback(response, type)

@@ -5,7 +5,6 @@ import com.univocity.parsers.csv.CsvWriterSettings
 import com.univocity.parsers.tsv.TsvParserSettings
 import com.univocity.parsers.tsv.TsvWriterSettings
 
-
 const val MAX_CHARS_PER_COLUMN: Int = 100_000
 
 /**

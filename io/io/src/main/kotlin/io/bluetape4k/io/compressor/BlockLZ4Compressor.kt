@@ -23,6 +23,9 @@ class BlockLZ4Compressor: AbstractCompressor() {
 
     companion object: KLogging()
 
+    /**
+     * I/O 압축에서 `doCompress` 함수를 제공합니다.
+     */
     override fun doCompress(plain: ByteArray): ByteArray {
         val output = Buffer()
         BlockLZ4CompressorOutputStream(output.outputStream()).use { lz4 ->
@@ -32,6 +35,9 @@ class BlockLZ4Compressor: AbstractCompressor() {
         return output.readByteArray()
     }
 
+    /**
+     * I/O 압축에서 `doDecompress` 함수를 제공합니다.
+     */
     override fun doDecompress(compressed: ByteArray): ByteArray {
         return ByteArrayInputStream(compressed).use { input ->
             BlockLZ4CompressorInputStream(input).use { lz4 ->

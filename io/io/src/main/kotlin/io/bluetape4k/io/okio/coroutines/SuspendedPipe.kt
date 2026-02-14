@@ -1,12 +1,12 @@
 package io.bluetape4k.io.okio.coroutines
 
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import okio.Buffer
 import okio.IOException
 import okio.Timeout
 import java.util.concurrent.locks.Condition
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
-
 
 /**
  * 취소가 가능한 코루틴 방식의 파이프를 구현한다.
@@ -33,14 +33,20 @@ class SuspendedPipe(internal val maxBufferSize: Long) {
     val sink = object: SuspendedSink {
         private val timeout = Timeout()
 
+        /**
+         * Okio 코루틴에서 데이터를 기록하는 `write` 함수를 제공합니다.
+         */
         override suspend fun write(source: Buffer, byteCount: Long) {
-            var byteCount = byteCount
+            if (byteCount <= 0L) return
+            require(byteCount <= source.size) { "byteCount[$byteCount] > source.size[${source.size}]" }
+
+            var remaining = byteCount
             var delegate: SuspendedSink? = null
             lock.withLock {
                 check(!sinkClosed) { "closed" }
                 if (canceled) throw IOException("canceled")
 
-                while (byteCount > 0) {
+                while (remaining > 0) {
                     foldedSink?.let {
                         delegate = it
                         return@withLock
@@ -55,16 +61,19 @@ class SuspendedPipe(internal val maxBufferSize: Long) {
                         continue
                     }
 
-                    val bytesToWrite = minOf(bufferSpaceAvailable, byteCount)
+                    val bytesToWrite = minOf(bufferSpaceAvailable, remaining)
                     buffer.write(source, bytesToWrite)
-                    byteCount -= bytesToWrite
+                    remaining -= bytesToWrite
                     condition.signalAll() // Notify the source that it can resume reading.
                 }
             }
 
-            delegate?.forward { write(source, byteCount) }
+            delegate?.forward { write(source, remaining) }
         }
 
+        /**
+         * Okio 코루틴 버퍼의 데이터를 실제 출력 대상으로 반영합니다.
+         */
         override suspend fun flush() {
             var delegate: SuspendedSink? = null
             lock.withLock {
@@ -84,6 +93,9 @@ class SuspendedPipe(internal val maxBufferSize: Long) {
             delegate?.forward { flush() }
         }
 
+        /**
+         * Okio 코루틴 리소스를 정리하고 닫습니다.
+         */
         override suspend fun close() {
             var delegate: SuspendedSink? = null
             lock.withLock {
@@ -102,6 +114,9 @@ class SuspendedPipe(internal val maxBufferSize: Long) {
             delegate?.forward { close() }
         }
 
+        /**
+         * Okio 코루틴에서 `timeout` 함수를 제공합니다.
+         */
         override fun timeout(): Timeout = timeout
     }
 
@@ -109,7 +124,13 @@ class SuspendedPipe(internal val maxBufferSize: Long) {
     val source = object: SuspendedSource {
         private val timeout = Timeout()
 
+        /**
+         * Okio 코루틴에서 데이터를 읽어오는 `read` 함수를 제공합니다.
+         */
         override suspend fun read(sink: Buffer, byteCount: Long): Long {
+            byteCount.requireZeroOrPositiveNumber("byteCount")
+            if (byteCount == 0L) return 0L
+
             lock.withLock {
                 check(!sourceClosed) { "closed" }
                 if (canceled) throw IOException("canceled")
@@ -126,6 +147,9 @@ class SuspendedPipe(internal val maxBufferSize: Long) {
             }
         }
 
+        /**
+         * Okio 코루틴 리소스를 정리하고 닫습니다.
+         */
         override suspend fun close() {
             lock.withLock {
                 sourceClosed = true
@@ -133,6 +157,9 @@ class SuspendedPipe(internal val maxBufferSize: Long) {
             }
         }
 
+        /**
+         * Okio 코루틴에서 `timeout` 함수를 제공합니다.
+         */
         override fun timeout(): Timeout = timeout
     }
 

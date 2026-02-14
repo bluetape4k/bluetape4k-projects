@@ -1,6 +1,7 @@
 package io.bluetape4k.io.okio.base64
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.requireInRange
 import okio.Buffer
 import okio.ByteString
 import okio.ForwardingSink
@@ -34,8 +35,14 @@ abstract class AbstractBase64Sink(delegate: Sink): ForwardingSink(delegate) {
 
     protected abstract fun getEncodedBuffer(plainByteString: ByteString): Buffer
 
+    /**
+     * Okio Base64에서 데이터를 기록하는 `write` 함수를 제공합니다.
+     */
     override fun write(source: Buffer, byteCount: Long) {
-        val bytesToRead = byteCount.coerceAtMost(source.size)
+        byteCount.requireInRange(0, source.size, "byteCount")
+        if (byteCount == 0L) return
+
+        val bytesToRead = byteCount
         val readByteString = source.readByteString(bytesToRead)
 
         // Base64 encode

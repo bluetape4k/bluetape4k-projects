@@ -25,18 +25,30 @@ fun echoRequestHeadersInterceptor(vararg keys: Metadata.Key<*>): ServerIntercept
     val keySet = keys.toUnifiedSet()
 
     return object: ServerInterceptor {
+        /**
+         * gRPC/Protobuf 처리에서 `interceptCall` 함수를 제공합니다.
+         */
         override fun <ReqT, RespT> interceptCall(
             call: ServerCall<ReqT, RespT>,
             requestHeaders: Metadata,
             next: ServerCallHandler<ReqT, RespT>,
         ): ServerCall.Listener<ReqT> =
             next.startCall(
+                /**
+                 * gRPC/Protobuf 처리 관련 정적 팩토리/유틸리티를 제공하는 동반 객체입니다.
+                 */
                 object: ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(call) {
+                    /**
+                     * gRPC/Protobuf 처리에서 `sendHeaders` 함수를 제공합니다.
+                     */
                     override fun sendHeaders(responseHeaders: Metadata) {
                         responseHeaders.merge(requestHeaders, keySet)
                         super.sendHeaders(responseHeaders)
                     }
 
+                    /**
+                     * gRPC/Protobuf 처리 리소스를 정리하고 닫습니다.
+                     */
                     override fun close(status: Status?, trailers: Metadata) {
                         trailers.merge(requestHeaders, keySet)
                         super.close(status, trailers)
@@ -62,13 +74,22 @@ fun echoRequestHeadersInterceptor(vararg keys: Metadata.Key<*>): ServerIntercept
 fun echoRequestMetadataInHeaders(vararg keys: Metadata.Key<*>): ServerInterceptor {
     val keySet = keys.toUnifiedSet()
     return object: ServerInterceptor {
+        /**
+         * gRPC/Protobuf 처리에서 `interceptCall` 함수를 제공합니다.
+         */
         override fun <ReqT, RespT> interceptCall(
             call: ServerCall<ReqT, RespT>,
             requestHeaders: Metadata,
             next: ServerCallHandler<ReqT, RespT>,
         ): ServerCall.Listener<ReqT> =
             next.startCall(
+                /**
+                 * gRPC/Protobuf 처리 관련 정적 팩토리/유틸리티를 제공하는 동반 객체입니다.
+                 */
                 object: ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(call) {
+                    /**
+                     * gRPC/Protobuf 처리에서 `sendHeaders` 함수를 제공합니다.
+                     */
                     override fun sendHeaders(responseHeaders: Metadata?) {
                         responseHeaders?.merge(requestHeaders, keySet)
                         super.sendHeaders(responseHeaders)
@@ -95,13 +116,22 @@ fun echoRequestMetadataInHeaders(vararg keys: Metadata.Key<*>): ServerIntercepto
 fun echoRequestMetadataInTrailers(vararg keys: Metadata.Key<*>): ServerInterceptor {
     val keySet = keys.toUnifiedSet()
     return object: ServerInterceptor {
+        /**
+         * gRPC/Protobuf 처리에서 `interceptCall` 함수를 제공합니다.
+         */
         override fun <ReqT, RespT> interceptCall(
             call: ServerCall<ReqT, RespT>,
             requestHeaders: Metadata,
             next: ServerCallHandler<ReqT, RespT>,
         ): ServerCall.Listener<ReqT> =
             next.startCall(
+                /**
+                 * gRPC/Protobuf 처리 관련 정적 팩토리/유틸리티를 제공하는 동반 객체입니다.
+                 */
                 object: ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(call) {
+                    /**
+                     * gRPC/Protobuf 처리 리소스를 정리하고 닫습니다.
+                     */
                     override fun close(status: Status, trailers: Metadata) {
                         trailers.merge(requestHeaders, keySet)
                         super.close(status, trailers)

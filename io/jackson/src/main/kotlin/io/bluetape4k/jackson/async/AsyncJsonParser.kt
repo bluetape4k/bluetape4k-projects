@@ -43,9 +43,24 @@ class AsyncJsonParser(
     private class Stack {
         private val nodes = LinkedList<StackFrame>()
 
+        /**
+         * Jackson JSON 처리에서 `push` 함수를 제공합니다.
+         */
         fun push(node: JsonNode, fieldName: String? = null) = nodes.add(StackFrame(node, fieldName))
+
+        /**
+         * Jackson JSON 처리에서 `pop` 함수를 제공합니다.
+         */
         fun pop(): StackFrame = nodes.removeLast()
+
+        /**
+         * Jackson JSON 처리에서 `top` 함수를 제공합니다.
+         */
         fun top(): StackFrame = nodes.last()
+
+        /**
+         * Jackson JSON 처리에서 `topOrNull` 함수를 제공합니다.
+         */
         fun topOrNull(): StackFrame? = nodes.lastOrNull()
         val isEmpty: Boolean get() = nodes.isEmpty()
         val isNotEmpty: Boolean get() = !nodes.isEmpty()
@@ -73,6 +88,9 @@ class AsyncJsonParser(
         return result
     }
 
+    /**
+     * Jackson JSON 처리에서 `consume` 함수를 제공합니다.
+     */
     fun consume(bytes: ByteArray, length: Int = bytes.size) {
         val feeder = parser.nonBlockingInputFeeder
 

@@ -3,6 +3,7 @@ package io.bluetape4k.io.okio.jasypt
 import io.bluetape4k.crypto.encrypt.Encryptor
 import io.bluetape4k.io.okio.bufferOf
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.requireInRange
 import okio.Buffer
 import okio.ForwardingSink
 import okio.Sink
@@ -19,10 +20,15 @@ open class EncryptSink(
 
     companion object: KLogging()
 
+    /**
+     * Okio I/O에서 데이터를 기록하는 `write` 함수를 제공합니다.
+     */
     override fun write(source: Buffer, byteCount: Long) {
-        // Jasypt 는 Cipher랑 달리 한번에 모두 써야 한다.
-        // 요청한 바이트 수(또는 가능한 모든 바이트) 반환
-        val plainBytes = source.readByteArray()
+        if (byteCount <= 0L) return
+        byteCount.requireInRange(0, source.size, "byteCount")
+
+        // Jasypt 는 Cipher와 달리 스트림 update를 제공하지 않으므로 요청한 구간만 암호화한다.
+        val plainBytes = source.readByteArray(byteCount)
 
         // 암호화
         val encryptedBytes = encryptor.encrypt(plainBytes)
@@ -31,5 +37,8 @@ open class EncryptSink(
     }
 }
 
+/**
+ * Okio I/O 타입 변환을 위한 `asEncryptSink` 함수를 제공합니다.
+ */
 fun Sink.asEncryptSink(encryptor: Encryptor): EncryptSink =
     EncryptSink(this, encryptor)

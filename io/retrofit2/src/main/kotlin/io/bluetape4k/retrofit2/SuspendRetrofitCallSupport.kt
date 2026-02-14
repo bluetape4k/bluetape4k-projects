@@ -24,6 +24,9 @@ suspend inline fun <T> Call<T>.suspendExecute(
     }
 
     val callback = object: Callback<T> {
+        /**
+         * Retrofit2 연동에서 `onResponse` 함수를 제공합니다.
+         */
         override fun onResponse(call: Call<T>, response: Response<T>) {
             if (call.isCanceled) {
                 val ex = HttpException(response)
@@ -34,6 +37,9 @@ suspend inline fun <T> Call<T>.suspendExecute(
             }
         }
 
+        /**
+         * Retrofit2 연동에서 `onFailure` 함수를 제공합니다.
+         */
         override fun onFailure(call: Call<T>, t: Throwable) {
             if (call.isCanceled) {
                 cancelHandler(t)

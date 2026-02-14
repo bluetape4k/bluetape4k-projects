@@ -5,6 +5,9 @@ import io.bluetape4k.support.unsafeLazy
 /**
  * 다양한 [Compressor]를 제공합니다.
  */
+/**
+ * `Compressors` 싱글톤/유틸리티입니다.
+ */
 object Compressors {
 
     val ApacheDeflate: ApacheDeflateCompressor by unsafeLazy { ApacheDeflateCompressor() }

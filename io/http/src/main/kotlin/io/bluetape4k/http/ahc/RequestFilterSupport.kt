@@ -15,6 +15,9 @@ inline fun requestFilter(
     @BuilderInference crossinline builder: FilterContextBuilder<*>.() -> Unit,
 ): RequestFilter {
     return object: RequestFilter {
+        /**
+         * HTTP 처리에서 `filter` 함수를 제공합니다.
+         */
         override fun <T> filter(ctx: FilterContext<T>): FilterContext<T> {
             return FilterContextBuilder(ctx).apply(builder).build()
         }
@@ -32,6 +35,9 @@ inline fun requestFilter(
     @BuilderInference crossinline handler: (FilterContext<*>) -> Unit,
 ): RequestFilter {
     return object: RequestFilter {
+        /**
+         * HTTP 처리에서 `filter` 함수를 제공합니다.
+         */
         override fun <T> filter(ctx: FilterContext<T>): FilterContext<T> {
             handler(ctx)
             return ctx

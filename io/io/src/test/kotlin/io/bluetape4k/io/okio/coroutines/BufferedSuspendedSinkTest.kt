@@ -9,6 +9,7 @@ import okio.Buffer
 import okio.Timeout
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
+import java.io.IOException
 import kotlin.test.assertFailsWith
 
 class BufferedSuspendedSinkTest: AbstractOkioTest() {
@@ -95,6 +96,36 @@ class BufferedSuspendedSinkTest: AbstractOkioTest() {
 
         assertFailsWith<IllegalStateException> {
             bufferedSink.writeUtf8("fail", 0, 4)
+        }
+    }
+
+    @Test
+    fun `write from suspended source throws when no progress repeats`() = runTest {
+        val fakeSink = FakeSuspendedSink()
+        val bufferedSink = RealBufferedSuspendedSink(fakeSink)
+        val noProgressSource = object: SuspendedSource {
+            override suspend fun read(sink: Buffer, byteCount: Long): Long = 0L
+            override suspend fun close() {}
+            override fun timeout() = Timeout.NONE
+        }
+
+        assertFailsWith<IOException> {
+            bufferedSink.write(noProgressSource, 1L)
+        }
+    }
+
+    @Test
+    fun `writeAll from suspended source throws when no progress repeats`() = runTest {
+        val fakeSink = FakeSuspendedSink()
+        val bufferedSink = RealBufferedSuspendedSink(fakeSink)
+        val noProgressSource = object: SuspendedSource {
+            override suspend fun read(sink: Buffer, byteCount: Long): Long = 0L
+            override suspend fun close() {}
+            override fun timeout() = Timeout.NONE
+        }
+
+        assertFailsWith<IOException> {
+            bufferedSink.writeAll(noProgressSource)
         }
     }
 }

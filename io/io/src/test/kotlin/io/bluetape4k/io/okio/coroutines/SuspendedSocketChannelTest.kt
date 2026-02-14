@@ -12,6 +12,7 @@ import org.junit.jupiter.api.fail
 import java.net.InetSocketAddress
 import java.nio.channels.AsynchronousServerSocketChannel
 import java.nio.channels.AsynchronousSocketChannel
+import kotlin.test.assertFailsWith
 
 class SuspendedSocketChannelTest: AbstractOkioTest() {
 
@@ -48,6 +49,14 @@ class SuspendedSocketChannelTest: AbstractOkioTest() {
         serverSink.close()
 
         clientSource.readUtf8() shouldBeEqualTo message
+    }
+
+    @Test
+    fun `suspended source read with negative byteCount throws`() = runAsyncSocketTest { _, server ->
+        val source = server.asSuspendedSource()
+        assertFailsWith<IllegalArgumentException> {
+            source.read(okio.Buffer(), -1L)
+        }
     }
 
     private fun runAsyncSocketTest(

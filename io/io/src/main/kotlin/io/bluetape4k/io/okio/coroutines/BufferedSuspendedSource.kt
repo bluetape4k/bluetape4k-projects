@@ -9,6 +9,9 @@ import okio.Options
  * penalty. It also allows clients to read ahead, buffering as much as necessary before consuming
  * input.
  */
+/**
+ * `BufferedSuspendedSource` 계약을 정의합니다.
+ */
 interface BufferedSuspendedSource: SuspendedSource {
 
     /**

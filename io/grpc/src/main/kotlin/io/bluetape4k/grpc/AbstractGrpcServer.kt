@@ -47,6 +47,9 @@ abstract class AbstractGrpcServer(
         return builder.apply { services.forEach { addService(it) } }.build()
     }
 
+    /**
+     * gRPC/Protobuf 처리에서 `start` 함수를 제공합니다.
+     */
     override fun start() {
         lock.withLock {
             log.debug { "Starting gRPC Server..." }
@@ -64,6 +67,9 @@ abstract class AbstractGrpcServer(
         }
     }
 
+    /**
+     * gRPC/Protobuf 처리에서 `stop` 함수를 제공합니다.
+     */
     override fun stop() {
         lock.withLock {
             if (!isShutdown) {

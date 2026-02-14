@@ -29,14 +29,19 @@ open class JacksonSerializer(
 
     companion object: KLogging()
 
+    /**
+     * Jackson JSON 처리에서 데이터를 직렬화하는 `serialize` 함수를 제공합니다.
+     */
     override fun serialize(graph: Any?): ByteArray {
         return graph?.run { mapper.writeAsBytes(this) } ?: emptyByteArray
     }
 
+    /**
+     * Jackson JSON 처리에서 데이터를 역직렬화하는 `deserialize` 함수를 제공합니다.
+     */
     override fun <T: Any> deserialize(bytes: ByteArray?, clazz: Class<T>): T? {
         return bytes?.run { mapper.readValue(this, clazz) }
     }
-
 
     /**
      * [JsonSerializer]를 이용하여 [bytes]를 역직렬화하여 객체를 빌드합니다. 실패시 null 반환

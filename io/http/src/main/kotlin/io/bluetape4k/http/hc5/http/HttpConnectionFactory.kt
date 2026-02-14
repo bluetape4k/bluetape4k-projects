@@ -32,7 +32,6 @@ inline fun managedHttpConnectionFactory(
 ): HttpConnectionFactory<ManagedHttpClientConnection> =
     ManagedHttpClientConnectionFactory.builder().apply(builder).build()
 
-
 /**
  * [ManagedHttpClientConnectionFactory] 를 생성합니다.
  *

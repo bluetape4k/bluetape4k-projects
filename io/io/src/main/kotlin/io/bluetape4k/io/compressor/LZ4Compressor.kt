@@ -26,6 +26,9 @@ class LZ4Compressor: AbstractCompressor() {
         private val decompressor by lazy { factory.fastDecompressor() }
     }
 
+    /**
+     * I/O 압축에서 `doCompress` 함수를 제공합니다.
+     */
     override fun doCompress(plain: ByteArray): ByteArray {
         val sourceSize = plain.size
         val maxOutputSize = compressor.maxCompressedLength(sourceSize)
@@ -37,6 +40,9 @@ class LZ4Compressor: AbstractCompressor() {
         return output.copyOf(MAGIC_NUMBER_SIZE + compressedSize)
     }
 
+    /**
+     * I/O 압축에서 `doDecompress` 함수를 제공합니다.
+     */
     override fun doDecompress(compressed: ByteArray): ByteArray {
         val sourceSize = compressed.toInt()
         val output = ByteArray(sourceSize)

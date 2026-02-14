@@ -32,16 +32,25 @@ class JacksonDecoder2 private constructor(
 
         val INSTANCE: JacksonDecoder2 by lazy { invoke() }
 
+        /**
+         * Feign 연동용 인스턴스 생성을 위한 진입점을 제공합니다.
+         */
         @JvmStatic
         operator fun invoke(mapper: JsonMapper = Jackson.defaultJsonMapper): JacksonDecoder2 {
             return JacksonDecoder2(mapper)
         }
     }
 
+    /**
+     * Feign 연동에서 `decode` 함수를 제공합니다.
+     */
     inline fun <reified T> decode(response: Response): T? {
         return decode(response, jacksonTypeRef<T>().type) as? T
     }
 
+    /**
+     * Feign 연동에서 `decode` 함수를 제공합니다.
+     */
     override fun decode(response: Response, type: Type): Any? = when {
         response.isJsonBody() -> runCatching { jsonDecode(response, type) }.getOrElse { fallback(response, type) }
         else                  -> fallback(response, type)

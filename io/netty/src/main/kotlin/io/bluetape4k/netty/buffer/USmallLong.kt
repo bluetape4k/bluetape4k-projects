@@ -1,5 +1,8 @@
 package io.bluetape4k.netty.buffer
 
+/**
+ * Netty 처리에서 사용하는 `USmallLong` 타입입니다.
+ */
 object USmallLong {
     const val SIZE_BYTES: Int = SmallLong.SIZE_BYTES
     const val SIZE_BITS: Int = SmallLong.SIZE_BITS

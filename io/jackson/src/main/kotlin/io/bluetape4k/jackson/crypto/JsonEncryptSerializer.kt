@@ -29,6 +29,9 @@ class JsonEncryptSerializer(
         private val serializers = ConcurrentHashMap<KClass<out Encryptor>, JsonEncryptSerializer>()
     }
 
+    /**
+     * Jackson JSON 처리에서 `createContextual` 함수를 제공합니다.
+     */
     override fun createContextual(prov: SerializerProvider?, property: BeanProperty?): JsonSerializer<*> {
         val annotation = property?.getAnnotation(JsonEncrypt::class.java)
 
@@ -42,6 +45,9 @@ class JsonEncryptSerializer(
         }
     }
 
+    /**
+     * Jackson JSON 처리에서 데이터를 직렬화하는 `serialize` 함수를 제공합니다.
+     */
     override fun serialize(value: String?, gen: JsonGenerator, provider: SerializerProvider?) {
         safeLet(annotation, value) { ann, v ->
             val encryptor = JsonEncryptors.getEncryptor(ann.encryptor)

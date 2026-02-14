@@ -19,7 +19,6 @@ fun LocalDate.toProtoDate(): ProtoDate =
         .setDay(dayOfMonth)
         .build()
 
-
 /**
  * [com.google.type.DateTime] 수형을 [java.time.LocalDateTime] 수형으로 변환합니다.
  */
@@ -39,7 +38,6 @@ fun LocalDateTime.toProtoDateTime(): ProtoDateTime =
         .setSeconds(second)
         .setNanos(nano)
         .build()
-
 
 /**
  * [com.google.type.TimeOfDay] 수형을 [java.time.LocalTime] 수형으로 변환합니다.

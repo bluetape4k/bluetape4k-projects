@@ -169,12 +169,21 @@ fun retrofitOf(
     }
 }
 
+/**
+ * Retrofit2 연동에서 `isPresentRetrofitAdapterRxJava2` 함수를 제공합니다.
+ */
 internal fun isPresentRetrofitAdapterRxJava2(): Boolean =
     classIsPresent("retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory")
 
+/**
+ * Retrofit2 연동에서 `isPresentRetrofitAdapterRxJava3` 함수를 제공합니다.
+ */
 internal fun isPresentRetrofitAdapterRxJava3(): Boolean =
     classIsPresent("retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory")
 
+/**
+ * Retrofit2 연동에서 `isPresentRetrofitAdapterReactor` 함수를 제공합니다.
+ */
 internal fun isPresentRetrofitAdapterReactor(): Boolean =
     classIsPresent("com.jakewharton.retrofit2.adapter.reactor.ReactorCallAdapterFactory")
 

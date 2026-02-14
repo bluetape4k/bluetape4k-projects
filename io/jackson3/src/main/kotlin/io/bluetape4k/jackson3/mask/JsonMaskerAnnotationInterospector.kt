@@ -19,6 +19,9 @@ class JsonMaskerAnnotationInterospector: JacksonAnnotationIntrospector() {
         private val serializers = ConcurrentHashMap<String, JsonMaskerSerializer>()
     }
 
+    /**
+     * Jackson JSON 처리에서 `findSerializer` 함수를 제공합니다.
+     */
     override fun findSerializer(config: MapperConfig<*>?, a: Annotated?): Any? {
         val jsonMasker = _findAnnotation(a, ANNOTATION_TYPE)
         return jsonMasker?.let {

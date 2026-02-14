@@ -9,6 +9,8 @@ import okio.Buffer
 import okio.Sink
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
 abstract class AbstractBaseNSinkTest: AbstractOkioTest() {
 
@@ -50,5 +52,19 @@ abstract class AbstractBaseNSinkTest: AbstractOkioTest() {
         val encoded = output.readUtf8()
         log.debug { "Encoded data: $encoded" }
         encoded shouldBeEqualTo getEncodedString(expected.toUtf8Bytes().copyOfRange(0, 5))
+    }
+
+    @Test
+    fun `write with invalid byteCount throws`() {
+        val output = Buffer()
+        val sink = createSink(output)
+
+        val source = bufferOf("hello")
+        assertFailsWith<IllegalArgumentException> {
+            sink.write(source, -1L)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            sink.write(source, source.size + 1L)
+        }
     }
 }

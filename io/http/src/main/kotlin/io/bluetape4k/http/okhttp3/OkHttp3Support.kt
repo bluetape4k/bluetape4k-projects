@@ -74,6 +74,9 @@ inline fun okhttp3ClientBuilderOf(
             builder()
         }
 
+/**
+ * HTTP 처리에서 `okhttp3DispatcherWithVirtualThread` 함수를 제공합니다.
+ */
 fun okhttp3DispatcherWithVirtualThread(
     threadName: String = "okhttp3-virtual-thread-",
 ): okhttp3.Dispatcher {
@@ -85,6 +88,9 @@ fun okhttp3DispatcherWithVirtualThread(
     return okhttp3DispatcherOf(executor)
 }
 
+/**
+ * HTTP 처리에서 `okhttp3DispatcherOf` 함수를 제공합니다.
+ */
 fun okhttp3DispatcherOf(
     executorService: java.util.concurrent.ExecutorService = Executors.newVirtualThreadPerTaskExecutor(),
 ): okhttp3.Dispatcher {
@@ -362,6 +368,9 @@ inline fun OkHttpClient.executeAsync(
     val promise = CompletableFuture<okhttp3.Response>()
 
     val callback = object: Callback {
+        /**
+         * HTTP 처리에서 `onResponse` 함수를 제공합니다.
+         */
         override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
             when {
                 response.isSuccessful -> promise.complete(response)
@@ -370,6 +379,9 @@ inline fun OkHttpClient.executeAsync(
             }
         }
 
+        /**
+         * HTTP 처리에서 `onFailure` 함수를 제공합니다.
+         */
         override fun onFailure(call: okhttp3.Call, e: IOException) {
             if (call.isCanceled()) {
                 handleCanceled(e)
@@ -420,10 +432,16 @@ suspend inline fun Call.suspendExecute(): Response = suspendCancellableCoroutine
     }
 
     val responseCallback = object: Callback {
+        /**
+         * HTTP 처리에서 `onResponse` 함수를 제공합니다.
+         */
         override fun onResponse(call: Call, response: Response) {
             cont.resume(response) { cause, _, _ -> call.cancel() }
         }
 
+        /**
+         * HTTP 처리에서 `onFailure` 함수를 제공합니다.
+         */
         override fun onFailure(call: Call, e: IOException) {
             if (call.isCanceled()) {
                 cont.cancel(e)
@@ -434,7 +452,6 @@ suspend inline fun Call.suspendExecute(): Response = suspendCancellableCoroutine
     }
     enqueue(responseCallback)
 }
-
 
 /**
  * [okhttp3.Response]를 출력합니다.

@@ -67,6 +67,9 @@ inline fun asyncHttpClientConfig(
         .build()
 }
 
+/**
+ * HTTP 처리에서 `asyncHttpClientConfigOf` 함수를 제공합니다.
+ */
 fun asyncHttpClientConfigOf(
     requestFilters: Collection<RequestFilter> = emptyList(),
     responseFilters: Collection<ResponseFilter> = emptyList(),
@@ -97,7 +100,6 @@ inline fun asyncHttpClient(
     val configBuilder = DefaultAsyncHttpClientConfig.Builder().apply(builder)
     return Dsl.asyncHttpClient(configBuilder)
 }
-
 
 /**
  * RequestFilter들을 등록한 [AsyncHttpClient] 를 제공합니다.

@@ -4,7 +4,9 @@ import io.bluetape4k.io.compressor.Compressor
 import io.bluetape4k.io.okio.bufferOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import okio.Buffer
+import java.io.IOException
 
 /**
  * 데이터를 압축 해제하여 [okio.Source]로 읽는 [okio.ForwardingSource] 구현체.
@@ -16,28 +18,63 @@ open class DecompressableSource(
     val compressor: Compressor,
 ): okio.ForwardingSource(delegate) {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        const val MAX_NO_PROGRESS_READS = 8
+    }
 
+    private val decodedBuffer = Buffer()
+    private var decodedReady: Boolean = false
+
+    /**
+     * Okio 압축/해제에서 데이터를 읽어오는 `read` 함수를 제공합니다.
+     */
     override fun read(sink: Buffer, byteCount: Long): Long {
-        val sourceBuffer = okio.Buffer()
+        byteCount.requireZeroOrPositiveNumber("byteCount")
+        if (byteCount == 0L) return 0L
 
-        // 압축 복원은 한 번에 모든 데이터를 복원해야 함
-        val bytesRead = super.read(sourceBuffer, Long.MAX_VALUE)
-
-        if (bytesRead < 0L) {
+        ensureDecoded()
+        if (decodedBuffer.size == 0L) {
             return -1 // End of stream
+        }
+
+        val bytesToReturn = byteCount.coerceAtMost(decodedBuffer.size)
+        sink.write(decodedBuffer, bytesToReturn)
+        return bytesToReturn
+    }
+
+    private fun ensureDecoded() {
+        if (decodedReady) {
+            return
+        }
+        decodedReady = true
+
+        val sourceBuffer = Buffer()
+        var noProgressCount = 0
+        while (true) {
+            val bytesRead = super.read(sourceBuffer, Long.MAX_VALUE)
+            if (bytesRead < 0L) {
+                break
+            }
+            if (bytesRead == 0L) {
+                noProgressCount++
+                if (noProgressCount >= MAX_NO_PROGRESS_READS) {
+                    throw IOException("Unable to read compressed bytes from source: no progress.")
+                }
+                continue
+            }
+            noProgressCount = 0
         }
 
         val sourceSize = sourceBuffer.size
         val decompressed = compressor.decompress(sourceBuffer.readByteArray())
-        val decompressedBuffer = bufferOf(decompressed)
-        log.debug { "압축 복원: compressed=$sourceSize bytes, decompressed=${decompressedBuffer.size} bytes" }
-        sink.write(decompressedBuffer, decompressedBuffer.size)
-
-        return decompressedBuffer.size
+        decodedBuffer.write(bufferOf(decompressed), decompressed.size.toLong())
+        log.debug { "압축 복원: compressed=$sourceSize bytes, decompressed=${decodedBuffer.size} bytes" }
     }
 }
 
+/**
+ * Okio 압축/해제 타입 변환을 위한 `asDecompressSource` 함수를 제공합니다.
+ */
 fun okio.Source.asDecompressSource(compressor: Compressor): DecompressableSource {
     return DecompressableSource(this, compressor)
 }

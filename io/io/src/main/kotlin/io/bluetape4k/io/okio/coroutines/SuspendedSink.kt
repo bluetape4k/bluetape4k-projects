@@ -6,6 +6,9 @@ import okio.Timeout
 /**
  * Coroutines 방식으로 비동기로 [okio.Sink] 기능을 제공하는 인터페이스
  */
+/**
+ * `SuspendedSink` 계약을 정의합니다.
+ */
 interface SuspendedSink {
 
     /**

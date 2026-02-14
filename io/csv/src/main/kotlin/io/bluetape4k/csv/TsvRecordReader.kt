@@ -30,6 +30,9 @@ class TsvRecordReader(
 
     companion object: KLogging()
 
+    /**
+     * CSV/TSV 처리에서 데이터를 읽어오는 `read` 함수를 제공합니다.
+     */
     override fun <T> read(
         input: InputStream,
         encoding: Charset,

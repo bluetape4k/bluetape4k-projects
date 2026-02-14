@@ -6,7 +6,6 @@ import com.google.protobuf.util.Timestamps
 import java.time.Instant
 import java.util.*
 
-
 @JvmField
 val PROTO_TIMESTAMP_MIN: ProtoTimestamp = Timestamps.MIN_VALUE
 
@@ -16,6 +15,9 @@ val PROTO_TIMESTAMP_MAX: ProtoTimestamp = Timestamps.MAX_VALUE
 @JvmField
 val PROTO_TIMESTAMP_EPOCH: ProtoTimestamp = Timestamps.EPOCH
 
+/**
+ * gRPC/Protobuf 처리에서 `compareTo` 함수를 제공합니다.
+ */
 operator fun ProtoTimestamp.compareTo(other: ProtoTimestamp): Int = Timestamps.compare(this, other)
 
 val ProtoTimestamp.isValid: Boolean get() = Timestamps.isValid(this)
@@ -33,7 +35,14 @@ val ProtoTimestamp.isValid: Boolean get() = Timestamps.isValid(this)
  */
 fun ProtoTimestamp.asString(): String = Timestamps.toString(this)
 
+/**
+ * gRPC/Protobuf 처리에서 `protoTimestampOf` 함수를 제공합니다.
+ */
 fun protoTimestampOf(value: String): ProtoTimestamp = Timestamps.parse(value)
+
+/**
+ * gRPC/Protobuf 처리에서 `protoTimestampOfUnchecked` 함수를 제공합니다.
+ */
 fun protoTimestampOfUnchecked(value: String): ProtoTimestamp = Timestamps.parseUnchecked(value)
 
 /**
@@ -44,6 +53,9 @@ fun protoTimestampOfUnchecked(value: String): ProtoTimestamp = Timestamps.parseU
  */
 fun protoTimestampOf(date: Date): ProtoTimestamp = Timestamps.fromDate(date)
 
+/**
+ * gRPC/Protobuf 처리에서 `protoTimestampOf` 함수를 제공합니다.
+ */
 fun protoTimestampOf(instant: Instant): ProtoTimestamp =
     timestamp {
         seconds = instant.epochSecond
@@ -62,6 +74,9 @@ fun protoTimestampOfMicros(micros: Long): ProtoTimestamp = Timestamps.fromMicros
 /** Create a Timestamp from the number of nanoseconds elapsed from the epoch. */
 fun protoTimestampOfNanos(nanos: Long): ProtoTimestamp = Timestamps.fromNanos(nanos)
 
+/**
+ * gRPC/Protobuf 처리 타입 변환을 위한 `toInstant` 함수를 제공합니다.
+ */
 fun ProtoTimestamp.toInstant(): Instant = Instant.ofEpochSecond(seconds, nanos.toLong())
 
 /**
@@ -73,11 +88,33 @@ fun ProtoTimestamp.toInstant(): Instant = Instant.ofEpochSecond(seconds, nanos.t
  * ```
  */
 fun ProtoTimestamp.toSeconds(): Long = Timestamps.toSeconds(this)
+
+/**
+ * gRPC/Protobuf 처리 타입 변환을 위한 `toMillis` 함수를 제공합니다.
+ */
 fun ProtoTimestamp.toMillis(): Long = Timestamps.toMillis(this)
+
+/**
+ * gRPC/Protobuf 처리 타입 변환을 위한 `toMicros` 함수를 제공합니다.
+ */
 fun ProtoTimestamp.toMicros(): Long = Timestamps.toMicros(this)
+
+/**
+ * gRPC/Protobuf 처리 타입 변환을 위한 `toNanos` 함수를 제공합니다.
+ */
 fun ProtoTimestamp.toNanos(): Long = Timestamps.toNanos(this)
 
+/**
+ * gRPC/Protobuf 처리에서 `protoDurationOf` 함수를 제공합니다.
+ */
 fun protoDurationOf(from: Timestamp, to: Timestamp): ProtoDuration = Timestamps.between(from, to)
 
+/**
+ * gRPC/Protobuf 처리에서 `plus` 함수를 제공합니다.
+ */
 operator fun ProtoTimestamp.plus(length: ProtoDuration): ProtoTimestamp = Timestamps.add(this, length)
+
+/**
+ * gRPC/Protobuf 처리에서 `minus` 함수를 제공합니다.
+ */
 operator fun ProtoTimestamp.minus(length: ProtoDuration): ProtoTimestamp = Timestamps.subtract(this, length)

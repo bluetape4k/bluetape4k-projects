@@ -3,7 +3,7 @@ package io.bluetape4k.io.okio.cipher
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
-import io.bluetape4k.support.requireGe
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import okio.Buffer
 import okio.ForwardingSource
 import javax.crypto.Cipher
@@ -24,11 +24,24 @@ open class CipherSource(
     private val sourceBuffer = Buffer()
     private val decipheredBuffer = Buffer()
 
+    /**
+     * Okio 암복호화에서 데이터를 읽어오는 `read` 함수를 제공합니다.
+     */
     override fun read(sink: Buffer, byteCount: Long): Long {
+        byteCount.requireZeroOrPositiveNumber("byteCount")
+        if (byteCount == 0L) return 0L
+
         // 복원할 전체 블록과 끝을 확인하기 위한 추가 블록에 대한 계산
-        val bytesToRead =
-            cipher.blockSize * (1 + (byteCount / cipher.blockSize) + if (byteCount % cipher.blockSize > 0) 1 else 0)
-        bytesToRead.requireGe(0L, "bytesToRead")
+        val blockSize = cipher.blockSize.toLong().coerceAtLeast(1L)
+        val maxBlocksByBytes = Long.MAX_VALUE / blockSize
+        val requestedBlocks = byteCount / blockSize + if (byteCount % blockSize != 0L) 1L else 0L
+        val targetBlocks = if (requestedBlocks >= maxBlocksByBytes) {
+            maxBlocksByBytes
+        } else {
+            requestedBlocks + 1L
+        }
+        val bytesToRead = targetBlocks * blockSize
+
         log.debug { "암호화된 데이터를 읽어서 sink 에 씁니다. bytes to read=$bytesToRead" }
 
         // 요청한 바이트 수(또는 가능한 모든 바이트) 반환
@@ -63,6 +76,9 @@ open class CipherSource(
         return if (bytesToReturn > 0) bytesToReturn else -1L
     }
 
+    /**
+     * Okio 암복호화에서 데이터를 읽어오는 `readAll` 함수를 제공합니다.
+     */
     fun readAll(sink: Buffer): Long {
         var totalBytesRead = 0L
         while (true) {
@@ -73,6 +89,9 @@ open class CipherSource(
         return totalBytesRead
     }
 
+    /**
+     * Okio 암복호화 리소스를 정리하고 닫습니다.
+     */
     override fun close() {
         super.close()
         sourceBuffer.close()

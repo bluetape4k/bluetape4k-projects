@@ -33,7 +33,6 @@ interface AvroSpecificRecordSerializer {
      */
     fun <T: SpecificRecord> deserialize(avroBytes: ByteArray?, clazz: Class<T>): T?
 
-
     /**
      * Avro [SpecificRecord]를 직렬화하여 Base64 문자열로 반환합니다.
      *

@@ -26,6 +26,9 @@ class JsonUuidEncoderAnnotationInterospector: JacksonAnnotationIntrospector() {
         private val uuidDeserializer = UUIDDeserializer()
     }
 
+    /**
+     * Jackson JSON 처리에서 `findSerializer` 함수를 제공합니다.
+     */
     override fun findSerializer(config: MapperConfig<*>, a: Annotated): Any? {
         val annotation = _findAnnotation(a, ANNOTATION_TYPE)
 
@@ -40,7 +43,9 @@ class JsonUuidEncoderAnnotationInterospector: JacksonAnnotationIntrospector() {
         return null
     }
 
-
+    /**
+     * Jackson JSON 처리에서 `findDeserializer` 함수를 제공합니다.
+     */
     override fun findDeserializer(config: MapperConfig<*>, a: Annotated): Any? {
         val annotation = _findAnnotation(a, ANNOTATION_TYPE)
 

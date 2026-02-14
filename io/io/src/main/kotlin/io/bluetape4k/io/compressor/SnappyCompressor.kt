@@ -17,10 +17,16 @@ import org.xerial.snappy.Snappy
  */
 class SnappyCompressor: AbstractCompressor() {
 
+    /**
+     * I/O 압축에서 `doCompress` 함수를 제공합니다.
+     */
     override fun doCompress(plain: ByteArray): ByteArray {
         return Snappy.compress(plain)
     }
 
+    /**
+     * I/O 압축에서 `doDecompress` 함수를 제공합니다.
+     */
     override fun doDecompress(compressed: ByteArray): ByteArray {
         return Snappy.uncompress(compressed)
     }

@@ -14,6 +14,9 @@ class AttachHeaderRequestFilter(val headers: Map<String, Any?>): RequestFilter {
 
     companion object: KLogging()
 
+    /**
+     * HTTP 처리에서 `filter` 함수를 제공합니다.
+     */
     override fun <T> filter(ctx: FilterContext<T>): FilterContext<T> {
         this.headers.forEach { (name, value) ->
             log.trace { "Add header name=$name, value=$value" }

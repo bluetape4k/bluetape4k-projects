@@ -19,6 +19,9 @@ class JsonUuidEncoderAnnotationInterospector: JacksonAnnotationIntrospector() {
         private val ANNOTATION_TYPE: Class<JsonUuidEncoder> = JsonUuidEncoder::class.java
     }
 
+    /**
+     * Jackson JSON 처리에서 `findSerializer` 함수를 제공합니다.
+     */
     override fun findSerializer(annotatedMethod: Annotated): Any? {
         val annotation = _findAnnotation(annotatedMethod, ANNOTATION_TYPE)
         if (annotatedMethod.rawType == UUID::class.java) {
@@ -32,6 +35,9 @@ class JsonUuidEncoderAnnotationInterospector: JacksonAnnotationIntrospector() {
         return null
     }
 
+    /**
+     * Jackson JSON 처리에서 `findDeserializer` 함수를 제공합니다.
+     */
     override fun findDeserializer(annotatedMethod: Annotated): Any? {
         val annotation = _findAnnotation(annotatedMethod, ANNOTATION_TYPE)
 

@@ -21,7 +21,6 @@ import java.nio.file.Path
 suspend fun Path.suspendReadAllBytes(): ByteArray =
     readAllBytesAsync().await()
 
-
 /**
  * Coroutine 방식으로 [Path]의 모든 바이트를 읽어옵니다.
  *
@@ -52,7 +51,6 @@ suspend fun Path.readAllBytesSuspending(): ByteArray =
  */
 suspend fun File.suspendReadAllBytes(): ByteArray = toPath().suspendReadAllBytes()
 
-
 /**
  * Corutine 방식으로 [Path]의 모든 라인을 읽어옵니다.
  *
@@ -74,6 +72,9 @@ suspend fun Path.suspendReadAllLines(charset: Charset = Charsets.UTF_8): List<St
         .toFastList()
 }
 
+/**
+ * I/O 처리에서 `suspendWrite` 함수를 제공합니다.
+ */
 suspend fun File.suspendWrite(bytes: ByteArray, append: Boolean = false): Long {
     return toPath().writeAsync(bytes, append).await()
 }
@@ -97,6 +98,9 @@ suspend fun Path.suspendWrite(bytes: ByteArray, append: Boolean = false): Long {
     return writeAsync(bytes, append).await()
 }
 
+/**
+ * I/O 처리에서 `suspendWriteLines` 함수를 제공합니다.
+ */
 suspend fun File.suspendWriteLines(
     lines: Iterable<String>,
     append: Boolean = false,

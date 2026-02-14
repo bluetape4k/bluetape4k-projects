@@ -15,11 +15,17 @@ class OkioBase64Source(delegate: Source): AbstractBase64Source(delegate) {
 
     companion object: KLogging()
 
+    /**
+     * Okio Base64에서 `decodeBase64Bytes` 함수를 제공합니다.
+     */
     override fun decodeBase64Bytes(encodedString: String): ByteString? {
         return encodedString.decodeBase64()
     }
 }
 
+/**
+ * Okio Base64 타입 변환을 위한 `asBase64Source` 함수를 제공합니다.
+ */
 fun Source.asBase64Source(): OkioBase64Source = when (this) {
     is OkioBase64Source -> this
     else -> OkioBase64Source(this)

@@ -49,29 +49,47 @@ class CipherBuilder {
     private var secretKey: ByteArray = ByteArray(DEFAULT_KEY_SIZE)
     private var ivBytes: ByteArray = ByteArray(DEFAULT_KEY_SIZE)
 
+    /**
+     * 암호화 처리에서 `secretKeySize` 함수를 제공합니다.
+     */
     fun secretKeySize(size: Int = DEFAULT_KEY_SIZE) = apply {
         size.requirePositiveNumber("size")
         secretKey = ByteArray(size).also { random.nextBytes(it) }
     }
 
+    /**
+     * 암호화 처리에서 `secretKey` 함수를 제공합니다.
+     */
     fun secretKey(key: ByteArray) = apply {
         secretKey = key
     }
 
+    /**
+     * 암호화 처리에서 `ivBytesSize` 함수를 제공합니다.
+     */
     fun ivBytesSize(size: Int = DEFAULT_KEY_SIZE) = apply {
         size.requirePositiveNumber("size")
         ivBytes = ByteArray(size).also { random.nextBytes(it) }
     }
 
+    /**
+     * 암호화 처리에서 `ivBytes` 함수를 제공합니다.
+     */
     fun ivBytes(ivBytes: ByteArray) = apply {
         this.ivBytes = ivBytes
     }
 
+    /**
+     * 암호화 처리에서 `algorithm` 함수를 제공합니다.
+     */
     fun algorithm(algorithm: String = DEFAULT_ALGORITHM) = apply {
         algorithm.requireNotEmpty("algorithm")
         this.algorithm = algorithm
     }
 
+    /**
+     * 암호화 처리에서 `transformation` 함수를 제공합니다.
+     */
     fun transformation(transformation: String = DEFAULT_TRANSFORMATION) = apply {
         transformation.requireNotEmpty("transformation")
         this.transformation = transformation

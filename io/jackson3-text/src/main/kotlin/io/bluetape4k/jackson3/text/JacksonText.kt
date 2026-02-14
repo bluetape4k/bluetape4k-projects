@@ -13,6 +13,9 @@ import tools.jackson.dataformat.toml.TomlMapper
 import tools.jackson.dataformat.yaml.YAMLFactory
 import tools.jackson.dataformat.yaml.YAMLMapper
 
+/**
+ * Jackson JSON 처리에서 사용하는 `JacksonText` 타입입니다.
+ */
 object JacksonText {
 
     private val enabledSerializationFeatures = arrayOf(
@@ -35,6 +38,9 @@ object JacksonText {
         DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES
     )
 
+    /**
+     * Jackson JSON 처리에서 사용하는 `Csv` 타입입니다.
+     */
     object Csv {
         val defaultMapper: CsvMapper by lazy {
             CsvMapper.builder()
@@ -98,6 +104,9 @@ object JacksonText {
         }
     }
 
+    /**
+     * Jackson JSON 처리에서 사용하는 `Toml` 타입입니다.
+     */
     object Toml {
         val defaultMapper: TomlMapper by lazy {
             TomlMapper.builder()

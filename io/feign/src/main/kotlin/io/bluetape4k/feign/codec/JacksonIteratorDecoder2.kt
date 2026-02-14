@@ -49,12 +49,18 @@ class JacksonIteratorDecoder2 private constructor(
         private val fallbackDecoder: Decoder by lazy { Decoder.Default() }
         val INSTANCE: JacksonIteratorDecoder2 by lazy { invoke() }
 
+        /**
+         * Feign 연동용 인스턴스 생성을 위한 진입점을 제공합니다.
+         */
         @JvmStatic
         operator fun invoke(mapper: JsonMapper = Jackson.defaultJsonMapper): JacksonIteratorDecoder2 {
             return JacksonIteratorDecoder2(mapper)
         }
     }
 
+    /**
+     * Feign 연동에서 `decode` 함수를 제공합니다.
+     */
     override fun decode(response: Response, type: Type): Any? = when {
         response.isJsonBody() -> runCatching { jsonDecode(response, type) }.getOrElse { fallback(response, type) }
         else                  -> fallback(response, type)
@@ -100,6 +106,9 @@ class JacksonIteratorDecoder2 private constructor(
         return fallbackDecoder.decode(response, type)
     }
 
+    /**
+     * Feign 연동에서 사용하는 `JacksonIterator` 타입입니다.
+     */
     class JacksonIterator<T>(
         type: Type,
         mapper: JsonMapper,
@@ -112,6 +121,9 @@ class JacksonIteratorDecoder2 private constructor(
 
         private var current: T = uninitialized()
 
+        /**
+         * Feign 연동에서 `hasNext` 함수를 제공합니다.
+         */
         override fun hasNext(): Boolean {
             if (current == null) {
                 current = readNext()
@@ -119,6 +131,9 @@ class JacksonIteratorDecoder2 private constructor(
             return current != null
         }
 
+        /**
+         * Feign 연동에서 `next` 함수를 제공합니다.
+         */
         override fun next(): T {
             if (current != null) {
                 val result = current
@@ -144,6 +159,9 @@ class JacksonIteratorDecoder2 private constructor(
             }
         }
 
+        /**
+         * Feign 연동 리소스를 정리하고 닫습니다.
+         */
         override fun close() {
             parser.close()
         }

@@ -45,4 +45,15 @@ class WithTimeoutOrNullTest: AbstractOkioTest() {
 
         result.shouldBeNull()
     }
+
+    @Test
+    fun `서브 밀리초 timeout 에서도 즉시 완료 블록은 성공한다`() = runTest {
+        val timeout = Timeout().timeout(1, TimeUnit.NANOSECONDS)
+
+        val result = withTimeoutOrNull(timeout) {
+            "ok"
+        }
+
+        result shouldBeEqualTo "ok"
+    }
 }

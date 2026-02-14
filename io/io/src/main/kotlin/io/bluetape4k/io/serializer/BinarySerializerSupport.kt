@@ -33,7 +33,6 @@ fun BinarySerializer.serializeAsByteBuffer(graph: Any?): ByteBuffer =
 fun <T: Any> BinarySerializer.deserialize(buffer: ByteBuffer): T? =
     deserialize(buffer.getBytes())
 
-
 /**
  * 객체를 Binary 방식으로 직렬화를 하여 [okio.Buffer]로 반환합니다.
  *

@@ -1,5 +1,8 @@
 package io.bluetape4k.netty.buffer
 
+/**
+ * Netty 처리에서 사용하는 `Smart` 타입입니다.
+ */
 object Smart {
     const val MAX_BYTE_VALUE: Int = 63
     const val MIN_BYTE_VALUE: Int = -64

@@ -23,6 +23,9 @@ class ResultCall<T> private constructor(
 ): Call<Result<T>> {
 
     companion object: KLogging() {
+        /**
+         * Retrofit2 연동용 인스턴스 생성을 위한 진입점을 제공합니다.
+         */
         @JvmStatic
         operator fun <T> invoke(delegate: Call<T>): ResultCall<T> {
             if (delegate.isCanceled) {
@@ -32,6 +35,9 @@ class ResultCall<T> private constructor(
         }
     }
 
+    /**
+     * Retrofit2 연동에서 `execute` 함수를 제공합니다.
+     */
     override fun execute(): Response<Result<T>> {
         val response: Response<T>
         return try {
@@ -53,6 +59,9 @@ class ResultCall<T> private constructor(
         }
     }
 
+    /**
+     * Retrofit2 연동에서 `enqueue` 함수를 제공합니다.
+     */
     override fun enqueue(callback: Callback<Result<T>>) {
         delegate.enqueue(toResultCallback(callback))
     }
@@ -66,6 +75,9 @@ class ResultCall<T> private constructor(
          * 실제 성공 여부는 [Response.isSuccessful] 로 판단해야 합니다.
          */
         return object: Callback<T> {
+            /**
+             * Retrofit2 연동에서 `onResponse` 함수를 제공합니다.
+             */
             override fun onResponse(call: Call<T>, response: Response<T>) {
                 when {
                     response.isSuccessful -> {
@@ -82,6 +94,9 @@ class ResultCall<T> private constructor(
                 }
             }
 
+            /**
+             * Retrofit2 연동에서 `onFailure` 함수를 제공합니다.
+             */
             override fun onFailure(call: Call<T>, t: Throwable) {
                 log.warn(t) { "Failed to execute call. call=$call" }
 
@@ -96,10 +111,33 @@ class ResultCall<T> private constructor(
         }
     }
 
+    /**
+     * Retrofit2 연동에서 `isExecuted` 함수를 제공합니다.
+     */
     override fun isExecuted(): Boolean = delegate.isExecuted
+
+    /**
+     * Retrofit2 연동에서 `cancel` 함수를 제공합니다.
+     */
     override fun cancel() = delegate.cancel()
+
+    /**
+     * Retrofit2 연동에서 `isCanceled` 함수를 제공합니다.
+     */
     override fun isCanceled(): Boolean = delegate.isCanceled
+
+    /**
+     * Retrofit2 연동에서 `request` 함수를 제공합니다.
+     */
     override fun request(): Request = delegate.request()
+
+    /**
+     * Retrofit2 연동에서 `timeout` 함수를 제공합니다.
+     */
     override fun timeout(): Timeout = delegate.timeout()
+
+    /**
+     * Retrofit2 연동에서 `clone` 함수를 제공합니다.
+     */
     override fun clone(): Call<Result<T>> = ResultCall(delegate.clone())
 }

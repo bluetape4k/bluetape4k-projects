@@ -25,6 +25,9 @@ class JsonEncryptAnnotationInterospector: JacksonAnnotationIntrospector() {
         private val deserializers = ConcurrentHashMap<KClass<out Encryptor>, JsonEncryptDeserializer>()
     }
 
+    /**
+     * Jackson JSON 처리에서 `findSerializer` 함수를 제공합니다.
+     */
     override fun findSerializer(config: MapperConfig<*>, a: Annotated): Any? {
         val jsonEncrypt = _findAnnotation(a, ANNOTATION_TYPE)
         log.debug { "find serializer. annotated=$a, jsonEncrypt=$jsonEncrypt" }
@@ -36,6 +39,9 @@ class JsonEncryptAnnotationInterospector: JacksonAnnotationIntrospector() {
         }
     }
 
+    /**
+     * Jackson JSON 처리에서 `findDeserializer` 함수를 제공합니다.
+     */
     override fun findDeserializer(config: MapperConfig<*>, a: Annotated): Any? {
         val jsonEncrypt = _findAnnotation(a, ANNOTATION_TYPE)
         log.debug { "find deserializer. annotated=$a, jsonEncrypt=$jsonEncrypt" }

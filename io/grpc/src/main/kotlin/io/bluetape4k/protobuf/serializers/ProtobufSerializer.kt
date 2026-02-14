@@ -28,11 +28,17 @@ class ProtobufSerializer(
         private val messageTypes = ConcurrentHashMap<String, Class<out ProtoMessage>>()
     }
 
+    /**
+     * gRPC/Protobuf 처리에서 `doSerialize` 함수를 제공합니다.
+     */
     override fun doSerialize(graph: Any): ByteArray {
         return if (graph is ProtoMessage) ProtoAny.pack(graph).toByteArray()
         else fallback.serialize(graph)
     }
 
+    /**
+     * gRPC/Protobuf 처리에서 `doDeserialize` 함수를 제공합니다.
+     */
     @Suppress("UNCHECKED_CAST")
     override fun <T: Any> doDeserialize(bytes: ByteArray): T? {
         if (bytes.isNullOrEmpty()) {

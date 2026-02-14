@@ -53,6 +53,9 @@ interface RecordReader: Closeable {
         return read(input, encoding, skipHeaders) { it }
     }
 
+    /**
+     * CSV/TSV 처리 리소스를 정리하고 닫습니다.
+     */
     override fun close() {
         // NOOP
     }

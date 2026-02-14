@@ -5,6 +5,9 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.publicLazy
 import org.jasypt.registry.AlgorithmRegistry
 
+/**
+ * 암호화 처리에서 사용하는 `Encryptors` 타입입니다.
+ */
 object Encryptors: KLogging() {
 
     init {
@@ -36,7 +39,9 @@ object Encryptors: KLogging() {
      */
     val TripleDES by publicLazy { TripleDES() }
 
-
+    /**
+     * 암호화 처리에서 `getAlgorithmes` 함수를 제공합니다.
+     */
     @Suppress("UNCHECKED_CAST")
     fun getAlgorithmes(): Set<String> {
         /*

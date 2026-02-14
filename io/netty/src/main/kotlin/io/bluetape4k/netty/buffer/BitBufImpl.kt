@@ -22,7 +22,6 @@ class BitBufImpl internal constructor(override val byteBuf: ByteBuf): BitBuf {
     override val maxCapacity: Long
         get() = byteBuf.maxCapacity().toLong() * BITS_SIZE
 
-
     override var readerIndex: Long =
         byteBuf.readerIndex().toLong() * BITS_SIZE
         get() {
@@ -50,8 +49,14 @@ class BitBufImpl internal constructor(override val byteBuf: ByteBuf): BitBuf {
             byteBuf.writerIndex(ceil(field / BITS_SIZE_DOUBLE).toInt())
         }
 
+    /**
+     * Netty 처리에서 `getBoolean` 함수를 제공합니다.
+     */
     override fun getBoolean(index: Long): Boolean = getUnsignedBits(index, 1) == 1u
 
+    /**
+     * Netty 처리에서 `getUnsignedBits` 함수를 제공합니다.
+     */
     override fun getUnsignedBits(index: Long, amount: Int): UInt {
         amount.requireInRange(1, Int.SIZE_BITS, "amount")
         if (index < 0 || (index + amount) > capacity) {
@@ -76,6 +81,9 @@ class BitBufImpl internal constructor(override val byteBuf: ByteBuf): BitBuf {
         return value
     }
 
+    /**
+     * Netty 처리에서 `setBits` 함수를 제공합니다.
+     */
     override fun setBits(index: Long, amount: Int, value: Int): BitBuf = apply {
         amount.requireInRange(1, Int.SIZE_BITS, "amount")
         if (index < 0 || (index + amount) > capacity) {
@@ -99,8 +107,14 @@ class BitBufImpl internal constructor(override val byteBuf: ByteBuf): BitBuf {
         }
     }
 
+    /**
+     * Netty 처리에서 데이터를 읽어오는 `readBoolean` 함수를 제공합니다.
+     */
     override fun readBoolean(): Boolean = readUnsignedBits(1) == 1u
 
+    /**
+     * Netty 처리에서 데이터를 읽어오는 `readUnsignedBits` 함수를 제공합니다.
+     */
     override fun readUnsignedBits(amount: Int): UInt {
         if (readableBits() < amount) {
             throw IndexOutOfBoundsException(
@@ -112,9 +126,15 @@ class BitBufImpl internal constructor(override val byteBuf: ByteBuf): BitBuf {
         return value
     }
 
+    /**
+     * Netty 처리에서 데이터를 기록하는 `writeBoolean` 함수를 제공합니다.
+     */
     override fun writeBoolean(value: Boolean): BitBuf =
         writeBits(if (value) 1 else 0, 1)
 
+    /**
+     * Netty 처리에서 데이터를 기록하는 `writeBits` 함수를 제공합니다.
+     */
     override fun writeBits(value: Int, amount: Int): BitBuf = apply {
         if (writableBits() < amount) {
             throw IndexOutOfBoundsException(
@@ -125,17 +145,38 @@ class BitBufImpl internal constructor(override val byteBuf: ByteBuf): BitBuf {
         writerIndex += amount
     }
 
+    /**
+     * Netty 처리에서 `refCnt` 함수를 제공합니다.
+     */
     override fun refCnt(): Int = byteBuf.refCnt()
 
+    /**
+     * Netty 처리에서 `retain` 함수를 제공합니다.
+     */
     override fun retain(): ReferenceCounted = byteBuf.retain()
 
+    /**
+     * Netty 처리에서 `retain` 함수를 제공합니다.
+     */
     override fun retain(increment: Int): ReferenceCounted = byteBuf.retain(increment)
 
+    /**
+     * Netty 처리에서 `touch` 함수를 제공합니다.
+     */
     override fun touch(): ReferenceCounted = byteBuf.touch()
 
+    /**
+     * Netty 처리에서 `touch` 함수를 제공합니다.
+     */
     override fun touch(hint: Any?): ReferenceCounted = byteBuf.touch(hint)
 
+    /**
+     * Netty 처리에서 `release` 함수를 제공합니다.
+     */
     override fun release(): Boolean = byteBuf.release()
 
+    /**
+     * Netty 처리에서 `release` 함수를 제공합니다.
+     */
     override fun release(decrement: Int): Boolean = byteBuf.release(decrement)
 }

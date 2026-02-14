@@ -15,6 +15,9 @@ class FeignFastjsonEncoder: feign.codec.Encoder {
         val INSTANCE: FeignFastjsonEncoder by lazy { FeignFastjsonEncoder() }
     }
 
+    /**
+     * Feign 연동에서 `encode` 함수를 제공합니다.
+     */
     override fun encode(obj: Any?, bodyType: Type?, template: RequestTemplate) {
         try {
             val bytes = obj.toJSONString()

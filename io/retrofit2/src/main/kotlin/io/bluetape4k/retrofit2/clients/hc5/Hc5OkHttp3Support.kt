@@ -64,6 +64,9 @@ internal fun okhttp3.Request.toSimpleHttpRequest(): SimpleHttpRequest {
     return simpleRequest
 }
 
+/**
+ * Retrofit2 연동 타입 변환을 위한 `toOkHttp3Response` 함수를 제공합니다.
+ */
 internal fun SimpleHttpResponse.toOkHttp3Response(
     okRequest: okhttp3.Request,
 ): okhttp3.Response {
@@ -95,6 +98,9 @@ internal fun SimpleHttpResponse.toOkHttp3Response(
     }
 }
 
+/**
+ * Retrofit2 연동에서 `bodyPlainBytes` 함수를 제공합니다.
+ */
 internal fun SimpleHttpResponse.bodyPlainBytes(): ByteArray {
     val self: SimpleHttpResponse = this@bodyPlainBytes
 
@@ -112,6 +118,9 @@ internal fun SimpleHttpResponse.bodyPlainBytes(): ByteArray {
     } ?: emptyByteArray
 }
 
+/**
+ * Retrofit2 연동에서 `getOkhttp3MediaType` 함수를 제공합니다.
+ */
 internal fun SimpleHttpResponse.getOkhttp3MediaType(): MediaType? {
     val self: SimpleHttpResponse = this@getOkhttp3MediaType
 

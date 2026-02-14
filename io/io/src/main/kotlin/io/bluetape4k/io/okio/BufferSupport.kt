@@ -77,6 +77,9 @@ fun bufferOf(bytes: ByteArray): Buffer = Buffer().write(bytes)
 @JvmName("bufferOfBytes")
 fun bufferOf(vararg bytes: Byte): Buffer = Buffer().write(bytes)
 
+/**
+ * Okio I/O에서 `bufferOf` 함수를 제공합니다.
+ */
 fun bufferOf(input: InputStream): Buffer =
     Buffer().readFrom(input)
 

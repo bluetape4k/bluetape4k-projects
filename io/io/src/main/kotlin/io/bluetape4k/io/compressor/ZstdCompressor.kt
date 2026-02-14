@@ -26,6 +26,9 @@ class ZstdCompressor private constructor(val level: Int): AbstractCompressor() {
         private const val MAGIC_NUMBER_SIZE = Int.SIZE_BYTES
         const val DEFAULT_LEVEL: Int = 3
 
+        /**
+         * I/O 압축용 인스턴스 생성을 위한 진입점을 제공합니다.
+         */
         @JvmStatic
         operator fun invoke(level: Int = DEFAULT_LEVEL): ZstdCompressor {
             val cLevel = level.coerceIn(Zstd.minCompressionLevel(), Zstd.maxCompressionLevel())
@@ -34,6 +37,9 @@ class ZstdCompressor private constructor(val level: Int): AbstractCompressor() {
         }
     }
 
+    /**
+     * I/O 압축에서 `doCompress` 함수를 제공합니다.
+     */
     override fun doCompress(plain: ByteArray): ByteArray {
         val sourceSize = plain.size
         val maxOutputSize = Zstd.compressBound(sourceSize.toLong()).toInt()
@@ -54,6 +60,9 @@ class ZstdCompressor private constructor(val level: Int): AbstractCompressor() {
         return output.copyOf(MAGIC_NUMBER_SIZE + compressedSize.toInt())
     }
 
+    /**
+     * I/O 압축에서 `doDecompress` 함수를 제공합니다.
+     */
     override fun doDecompress(compressed: ByteArray): ByteArray {
         val sourceSize = compressed.toInt()
         val output = ByteArray(sourceSize)

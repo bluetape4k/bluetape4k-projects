@@ -40,7 +40,6 @@ object Jackson: KLogging() {
 
     val prettyTypedJsonWriter: ObjectWriter by lazy { typedJsonMapper.writerWithDefaultPrettyPrinter() }
 
-
     /**
      * 기본 Jackson JsonMapper를 생성합니다.
      *

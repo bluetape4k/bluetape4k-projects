@@ -9,11 +9,12 @@ import java.nio.channels.SelectableChannel
 import java.nio.channels.SelectionKey
 import java.nio.channels.Selector
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
+/**
+ * Okio 코루틴에서 `await` 함수를 제공합니다.
+ */
 internal suspend inline fun SelectableChannel.await(ops: Int) {
     selector.waitForSelection(this, ops)
 }
@@ -24,6 +25,9 @@ internal val selector: SelectorThread by lazy {
     }
 }
 
+/**
+ * Okio 코루틴에서 사용하는 `SelectorThread` 타입입니다.
+ */
 internal class SelectorThread: Thread("okio selector") {
 
     companion object: KLogging()
@@ -34,8 +38,10 @@ internal class SelectorThread: Thread("okio selector") {
 
     private val selector = Selector.open()
     private val keys = ConcurrentLinkedQueue<SelectionKey>()
-    private val lock = ReentrantLock()
 
+    /**
+     * Okio 코루틴에서 `waitForSelection` 함수를 제공합니다.
+     */
     suspend fun waitForSelection(channel: SelectableChannel, ops: Int) {
         suspendCancellableCoroutine<Unit> { cont ->
             val key = channel.register(selector, ops, cont)
@@ -51,35 +57,41 @@ internal class SelectorThread: Thread("okio selector") {
         }
     }
 
+    /**
+     * Okio 코루틴에서 `run` 함수를 제공합니다.
+     */
     @Suppress("UNCHECKED_CAST")
     override fun run() {
         while (true) {
             try {
-                lock.withLock {
-                    val selectedKeys = selector.selectedKeys()
-                    val keyLock = ReentrantLock()
-                    keyLock.withLock {
-                        selector.select()
-                        selectedKeys.clear()
+                selector.select()
+                selector.selectedKeys().clear()
 
-                        val iter = keys.iterator()
-                        while (iter.hasNext()) {
-                            val key = iter.next()
+                val pendingKeys = ArrayList<SelectionKey>(keys.size)
+                while (true) {
+                    val key = keys.poll() ?: break
+                    pendingKeys.add(key)
+                }
 
-                            if (!key.isValid) {
-                                val cont = key.attach(null) as CancellableContinuation<Unit>
-                                if (!cont.isCompleted) cont.resumeWithException(IOException("closed"))
-                                iter.remove()
-                            } else if (key.readyOps() > 0) {
-                                val cont = key.attach(null) as CancellableContinuation<Unit>
-                                cont.resume(Unit)
-                                iter.remove()
-                            }
+                for (key in pendingKeys) {
+                    val cont = key.attachment() as? CancellableContinuation<Unit> ?: continue
+
+                    try {
+                        if (!key.isValid) {
+                            key.attach(null)
+                            if (!cont.isCompleted) cont.resumeWithException(IOException("closed"))
+                        } else if ((key.readyOps() and key.interestOps()) != 0) {
+                            key.attach(null)
+                            if (!cont.isCompleted) cont.resume(Unit)
+                        } else {
+                            keys.add(key)
                         }
+                    } catch (e: Throwable) {
+                        key.attach(null)
+                        if (!cont.isCompleted) cont.resumeWithException(IOException("closed", e))
                     }
                 }
             } catch (e: Throwable) {
-                // log error 
                 log.error(e) { "Error in SelectorThread" }
             }
         }

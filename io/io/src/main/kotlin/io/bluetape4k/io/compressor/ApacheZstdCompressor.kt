@@ -31,6 +31,9 @@ class ApacheZstdCompressor private constructor(val level: Int): AbstractCompress
     companion object: KLogging() {
         const val DEFAULT_LEVEL: Int = 3
 
+        /**
+         * I/O 압축용 인스턴스 생성을 위한 진입점을 제공합니다.
+         */
         @JvmStatic
         operator fun invoke(level: Int = DEFAULT_LEVEL): ApacheZstdCompressor {
             ZstdUtils.setCacheZstdAvailablity(true)
@@ -39,6 +42,9 @@ class ApacheZstdCompressor private constructor(val level: Int): AbstractCompress
         }
     }
 
+    /**
+     * I/O 압축에서 `doCompress` 함수를 제공합니다.
+     */
     override fun doCompress(plain: ByteArray): ByteArray {
         val output = Buffer()
         ZstdCompressorOutputStream(
@@ -53,6 +59,9 @@ class ApacheZstdCompressor private constructor(val level: Int): AbstractCompress
         return output.readByteArray()
     }
 
+    /**
+     * I/O 압축에서 `doDecompress` 함수를 제공합니다.
+     */
     override fun doDecompress(compressed: ByteArray): ByteArray {
         return ByteArrayInputStream(compressed).use { input ->
             ZstdCompressorInputStream(input).use { zstd ->

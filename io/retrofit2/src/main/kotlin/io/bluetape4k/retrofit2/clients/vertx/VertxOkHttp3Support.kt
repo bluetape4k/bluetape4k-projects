@@ -18,6 +18,9 @@ import java.util.concurrent.CompletableFuture
 
 private val log by lazy { KotlinLogging.logger {} }
 
+/**
+ * Retrofit2 연동 타입 변환을 위한 `toVertxHttpClientRequest` 함수를 제공합니다.
+ */
 internal fun okhttp3.Request.toVertxHttpClientRequest(request: HttpClientRequest): HttpClientRequest {
     val self = this@toVertxHttpClientRequest
 
@@ -49,6 +52,9 @@ internal fun okhttp3.Request.toVertxHttpClientRequest(request: HttpClientRequest
     return request
 }
 
+/**
+ * Retrofit2 연동 타입 변환을 위한 `toOkResponse` 함수를 제공합니다.
+ */
 internal fun io.vertx.core.http.HttpClientResponse.toOkResponse(
     okRequest: okhttp3.Request,
     promise: CompletableFuture<okhttp3.Response>,

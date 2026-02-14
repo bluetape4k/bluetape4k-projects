@@ -41,6 +41,9 @@ abstract class AbstractGrpcInprocessServer(
     override val isRunning: Boolean by running
     override val isShutdown: Boolean get() = server.isShutdown
 
+    /**
+     * gRPC/Protobuf 처리에서 `start` 함수를 제공합니다.
+     */
     override fun start() {
         lock.withLock {
             log.debug { "Starting InProcess gRPC Server..." }
@@ -58,6 +61,9 @@ abstract class AbstractGrpcInprocessServer(
         }
     }
 
+    /**
+     * gRPC/Protobuf 처리에서 `stop` 함수를 제공합니다.
+     */
     override fun stop() {
         lock.withLock {
             if (!isShutdown) {

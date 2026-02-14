@@ -18,10 +18,16 @@ import java.util.concurrent.CompletableFuture
 
 private val log by lazy { KotlinLogging.logger { } }
 
+/**
+ * Feign 연동에서 `requestOptions` 함수를 제공합니다.
+ */
 internal inline fun requestOptions(intializer: RequestOptions.() -> Unit): RequestOptions {
     return RequestOptions().apply(intializer)
 }
 
+/**
+ * Feign 연동 타입 변환을 위한 `toVertxRequestOptions` 함수를 제공합니다.
+ */
 internal fun Options.toVertxRequestOptions(feignRequest: feign.Request): RequestOptions {
     val self = this
     return requestOptions {
@@ -32,6 +38,9 @@ internal fun Options.toVertxRequestOptions(feignRequest: feign.Request): Request
     }
 }
 
+/**
+ * Feign 연동에서 `parseFromFeignRequest` 함수를 제공합니다.
+ */
 internal fun HttpClientRequest.parseFromFeignRequest(feignRequest: feign.Request) {
     headers().add("accept", "*/*")
     headers().add("user-agent", "VertxHttpClient/4.4")
@@ -48,6 +57,9 @@ internal fun HttpClientRequest.parseFromFeignRequest(feignRequest: feign.Request
     }
 }
 
+/**
+ * Feign 연동에서 `convertToFeignResponse` 함수를 제공합니다.
+ */
 internal fun HttpClientResponse.convertToFeignResponse(
     feignRequest: feign.Request,
     responsePromise: CompletableFuture<feign.Response>,

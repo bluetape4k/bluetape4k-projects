@@ -9,6 +9,9 @@ import org.asynchttpclient.Response
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
+/**
+ * HTTP 처리에서 `executeSuspending` 함수를 제공합니다.
+ */
 @Deprecated("use suspendExecute instead", ReplaceWith("this.suspendExecute()"))
 suspend fun BoundRequestBuilder.executeSuspending(): Response =
     suspendCancellableCoroutine { cont ->
@@ -23,12 +26,18 @@ suspend fun BoundRequestBuilder.suspendExecute(): Response =
         execute(DefaultCoroutineCompletionHandler(cont))
     }
 
+/**
+ * HTTP 처리에서 사용하는 `DefaultCoroutineCompletionHandler` 타입입니다.
+ */
 internal class DefaultCoroutineCompletionHandler(
     private val cont: CancellableContinuation<Response>,
 ): AsyncCompletionHandler<Response>() {
 
     companion object: KLoggingChannel()
 
+    /**
+     * HTTP 처리에서 `onCompleted` 함수를 제공합니다.
+     */
     override fun onCompleted(response: Response?): Response? {
         response?.let {
             cont.resume(it)
@@ -36,6 +45,9 @@ internal class DefaultCoroutineCompletionHandler(
         return response
     }
 
+    /**
+     * HTTP 처리에서 `onThrowable` 함수를 제공합니다.
+     */
     override fun onThrowable(t: Throwable) {
         cont.resumeWithException(t)
     }
