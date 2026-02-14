@@ -86,9 +86,13 @@ inline fun <T> ResultSet.emptyResultToNull(body: (ResultSet) -> T): T? =
  */
 operator fun ResultSet.iterator(): Iterator<ResultSet> {
     val rs = this
+    val cursor = ResultSetCursorState(rs)
     return object: Iterator<ResultSet> {
-        override operator fun hasNext(): Boolean = rs.next()
-        override operator fun next(): ResultSet = rs
+        override operator fun hasNext(): Boolean = cursor.hasNext()
+        override operator fun next(): ResultSet {
+            cursor.consumeNext()
+            return rs
+        }
     }
 }
 
@@ -108,9 +112,38 @@ operator fun ResultSet.iterator(): Iterator<ResultSet> {
  */
 inline fun <T> ResultSet.iterator(crossinline mapper: (ResultSet) -> T): Iterator<T> {
     val rs = this
+    val cursor = ResultSetCursorState(rs)
     return object: Iterator<T> {
-        override fun hasNext(): Boolean = rs.next()
-        override fun next(): T = mapper(rs)
+        override fun hasNext(): Boolean = cursor.hasNext()
+        override fun next(): T {
+            cursor.consumeNext()
+            return mapper(rs)
+        }
+    }
+}
+
+/**
+ * JDBC cursor 는 `next()` 호출마다 한 행씩 전진하므로, `hasNext()` 중복 호출 시 row skip 이 발생할 수 있다.
+ * 이를 방지하려고 다음 row 존재 여부를 1회만 계산해 캐시한다.
+ */
+@PublishedApi
+internal class ResultSetCursorState(private val rs: ResultSet) {
+    private var isReady = false
+    private var hasNext = false
+
+    fun hasNext(): Boolean {
+        if (!isReady) {
+            hasNext = rs.next()
+            isReady = true
+        }
+        return hasNext
+    }
+
+    fun consumeNext() {
+        if (!hasNext()) {
+            throw NoSuchElementException("No more rows in ResultSet.")
+        }
+        isReady = false
     }
 }
 

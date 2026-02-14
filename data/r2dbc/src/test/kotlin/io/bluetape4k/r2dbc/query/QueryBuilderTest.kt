@@ -1,9 +1,11 @@
 package io.bluetape4k.r2dbc.query
 
 import io.bluetape4k.logging.KLogging
+import io.r2dbc.spi.Parameter
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.io.Serializable
+import kotlin.test.assertFailsWith
 
 class QueryBuilderTest {
 
@@ -285,6 +287,45 @@ class QueryBuilderTest {
             """.trimIndent()
 
         query.parameters.keys shouldBeEqualTo setOf("first_name", "last_name")
+    }
+
+    @Test
+    fun `nullable parameter helper는 typed null parameter를 생성한다`() {
+        val query = query {
+            select("select * from actor")
+            whereGroup {
+                where("name = :name")
+                parameterNullable<String>("name", null)
+            }
+        }
+
+        val param = query.parameters["name"] as Parameter
+        (param.value == null) shouldBeEqualTo true
+    }
+
+    @Test
+    fun `blank where clause는 예외를 발생시킨다`() {
+        assertFailsWith<IllegalArgumentException> {
+            query {
+                select("select * from actor")
+                whereGroup {
+                    where("   ")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `blank operator는 예외를 발생시킨다`() {
+        assertFailsWith<IllegalArgumentException> {
+            query {
+                select("select * from actor")
+                whereGroup("   ") {
+                    where("id = :id")
+                    parameter("id", 1)
+                }
+            }
+        }
     }
 
     data class Actor(

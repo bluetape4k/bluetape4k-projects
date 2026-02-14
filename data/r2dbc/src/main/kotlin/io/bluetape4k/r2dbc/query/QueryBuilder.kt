@@ -3,6 +3,7 @@ package io.bluetape4k.r2dbc.query
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.r2dbc.support.toParameter
+import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.utils.Systemx
 import io.r2dbc.spi.Parameters
 import kotlin.reflect.KProperty
@@ -85,18 +86,24 @@ class QueryBuilder {
     }
 
     fun whereGroup(operator: String = "and", block: FilterBuilder.() -> Unit) {
+        operator.requireNotBlank("operator")
         require(filters.countLeaves() == 0) { "There must be only one root filters group" }
-        filters = Filter.Group(operator)
+
+        filters = Filter.Group(operator.trim())
         block(FilterBuilder(filters))
     }
 
     inner class FilterBuilder(private val group: Filter.Group) {
         fun where(where: String) {
+            // blank condition은 결국 `where` 절의 잘못된 SQL을 만들기 때문에 조기에 차단한다.
+            require(where.isNotBlank()) { "where clause must not be blank." }
             group.filters.add(Filter.Where(where))
         }
 
         fun whereGroup(operator: String = "and", block: FilterBuilder.() -> Unit) {
-            val inner = Filter.Group(operator)
+            operator.requireNotBlank("operator")
+
+            val inner = Filter.Group(operator.trim())
             group.filters.add(inner)
             block(FilterBuilder(inner))
         }
