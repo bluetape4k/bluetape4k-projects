@@ -10,7 +10,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertFails
 
-class TestUtilityExtensionsTest: AbstractExposedTest() {
+class TestSupportsTest: AbstractExposedTest() {
 
     private object UtilityTable: Table("utility_extension_test") {
         val id = integer("id")

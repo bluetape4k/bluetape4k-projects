@@ -42,7 +42,7 @@ inline fun Table.insertAndWait(
 /**
  * 기본 값으로 정보를 레코드를 생성하고, [duration]만큼 대기합니다.
  */
-suspend inline fun Table.insertAndCoawait(
+suspend inline fun Table.insertAndSuspending(
     duration: Long,
     crossinline body: Table.(InsertStatement<Number>) -> Unit = {},
 ) {
