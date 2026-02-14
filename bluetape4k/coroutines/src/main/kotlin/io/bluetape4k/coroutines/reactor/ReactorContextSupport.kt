@@ -29,6 +29,9 @@ import kotlin.coroutines.CoroutineContext
 suspend inline fun currentReactiveContext(): Context? =
     currentCoroutineContext()[ReactorContext]?.context
 
+/**
+ * [CoroutineContext]에서 Reactor용 [Context]를 조회합니다.
+ */
 fun CoroutineContext.getReactiveContext(): Context? =
     this[ReactorContext]?.context
 

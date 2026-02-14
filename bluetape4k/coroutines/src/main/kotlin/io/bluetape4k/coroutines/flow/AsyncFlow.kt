@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow
 
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -81,6 +82,14 @@ class AsyncFlow<T> @PublishedApi internal constructor(
     }
 }
 
+@PublishedApi
+internal fun requireFlowBufferCapacity(capacity: Int) {
+    when (capacity) {
+        Channel.BUFFERED, Channel.CONFLATED -> Unit
+        else                                -> capacity.requireZeroOrPositiveNumber("capacity")
+    }
+}
+
 /**
  * [Flow] 를 [AsyncFlow] 로 변환하여, 각 요소처리를 병렬로 비동기 방식으로 수행하게 합니다.
  * 단 `flatMapMerge` 처럼 실행 완료된 순서로 반환하는 것이 아니라, Flow 의 처음 요소의 순서대로 반환합니다. (Deferred 형식으로)
@@ -153,6 +162,7 @@ inline fun <T, R> AsyncFlow<T>.map(
 
 /**
  * [AsyncFlow] 의 요소들을 병렬로 비동기로 실행하지만, 원본 Flow의 순서를 유지합니다.
+ * 결과를 직접 소비할 필요가 없을 때는 기본 [NoopCollector]를 사용할 수 있습니다.
  *
  * ```
  * expectedItems.asFlow()
@@ -172,11 +182,15 @@ inline fun <T, R> AsyncFlow<T>.map(
  *     }
  * }
  * ```
+ *
+ * @param capacity 내부 버퍼 크기. `>= 0`, [Channel.BUFFERED], [Channel.CONFLATED]만 허용합니다.
  */
 suspend fun <T> AsyncFlow<T>.collect(
     capacity: Int = Channel.BUFFERED,
     collector: FlowCollector<T> = NoopCollector,
 ) {
+    requireFlowBufferCapacity(capacity)
+
     channelFlow {
         deferredFlow
             .buffer(capacity)
@@ -210,10 +224,13 @@ suspend fun <T> AsyncFlow<T>.collect(
  *     }
  * }
  * ```
+ *
+ * @param capacity 내부 버퍼 크기. `>= 0`, [Channel.BUFFERED], [Channel.CONFLATED]만 허용합니다.
  */
 suspend inline fun <T> AsyncFlow<T>.collect(
     capacity: Int = Channel.BUFFERED,
     @BuilderInference crossinline collector: suspend (value: T) -> Unit,
 ) {
+    requireFlowBufferCapacity(capacity)
     collect(capacity, FlowCollector { value -> collector(value) })
 }

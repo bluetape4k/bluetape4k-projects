@@ -1,6 +1,7 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.support.requireLe
+import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -17,10 +18,14 @@ import kotlinx.coroutines.flow.flow
  */
 fun charFlowOf(start: Char, endInclusive: Char, step: Int = 1): Flow<Char> = flow {
     start.requireLe(endInclusive, "start")
+    step.requirePositiveNumber("step")
     var current = start
     while (current <= endInclusive) {
         emit(current)
-        current += step
+        // Overflow로 값이 되감기면 무한 루프가 될 수 있으므로 종료합니다.
+        val next = current + step
+        if (next <= current) break
+        current = next
     }
 }
 
@@ -38,11 +43,15 @@ fun charFlowOf(start: Char, endInclusive: Char, step: Int = 1): Flow<Char> = flo
  */
 fun byteFlowOf(start: Byte, endInclusive: Byte, step: Byte = 1): Flow<Byte> = flow {
     start.requireLe(endInclusive, "start")
+    step.requirePositiveNumber("step")
 
     var current = start
     while (current <= endInclusive) {
         emit(current)
-        current = (current + step).toByte()
+        // Byte overflow 방지
+        val next = (current + step).toByte()
+        if (next <= current) break
+        current = next
     }
 }
 
@@ -60,10 +69,14 @@ fun byteFlowOf(start: Byte, endInclusive: Byte, step: Byte = 1): Flow<Byte> = fl
  */
 fun intFlowOf(start: Int, endInclusive: Int, step: Int = 1): Flow<Int> = flow {
     start.requireLe(endInclusive, "start")
+    step.requirePositiveNumber("step")
     var current = start
     while (current <= endInclusive) {
         emit(current)
-        current += step
+        // Int overflow 방지
+        val next = current + step
+        if (next <= current) break
+        current = next
     }
 }
 
@@ -81,10 +94,14 @@ fun intFlowOf(start: Int, endInclusive: Int, step: Int = 1): Flow<Int> = flow {
  */
 fun longFlowOf(start: Long, endInclusive: Long, step: Long = 1L): Flow<Long> = flow {
     start.requireLe(endInclusive, "start")
+    step.requirePositiveNumber("step")
     var current = start
     while (current <= endInclusive) {
         emit(current)
-        current += step
+        // Long overflow 방지
+        val next = current + step
+        if (next <= current) break
+        current = next
     }
 }
 
@@ -102,11 +119,15 @@ fun longFlowOf(start: Long, endInclusive: Long, step: Long = 1L): Flow<Long> = f
  */
 fun floatFlowOf(start: Float, endInclusive: Float, step: Float = 1.0F): Flow<Float> = flow {
     start.requireLe(endInclusive, "start")
+    step.requirePositiveNumber("step")
 
     var current = start
     while (current <= endInclusive) {
         emit(current)
-        current += step
+        // 부동소수 정밀도 한계로 next == current 가 되면 종료합니다.
+        val next = current + step
+        if (next <= current) break
+        current = next
     }
 }
 
@@ -124,9 +145,13 @@ fun floatFlowOf(start: Float, endInclusive: Float, step: Float = 1.0F): Flow<Flo
  */
 fun doubleFlowOf(start: Double, endInclusive: Double, step: Double = 1.0): Flow<Double> = flow {
     start.requireLe(endInclusive, "start")
+    step.requirePositiveNumber("step")
     var current = start
     while (current <= endInclusive) {
         emit(current)
-        current += step
+        // 부동소수 정밀도 한계로 next == current 가 되면 종료합니다.
+        val next = current + step
+        if (next <= current) break
+        current = next
     }
 }

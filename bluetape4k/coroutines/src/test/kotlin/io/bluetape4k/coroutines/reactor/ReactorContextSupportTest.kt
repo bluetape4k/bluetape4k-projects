@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
 import reactor.core.publisher.Flux
 import reactor.util.context.Context
 
-class ReactorContextExamples {
+class ReactorContextSupportTest {
 
     companion object: KLoggingChannel()
 
@@ -51,15 +51,23 @@ class ReactorContextExamples {
 
         // ReactorContext에 아무 값도 전달되지 않았으므로, captured는 null입니다.
         flow.asFlux()
-            .subscribe()
+            .awaitFirst()
 
         captured.shouldBeNull()
 
         // contextWrite 에서 Reactor Context로 key-value를 저장하면, flow에서 사용할 수 있습니다.
         flow.asFlux()
             .contextWrite { context -> context.put(key, value) }
-            .subscribe()
+            .awaitFirst()
 
         captured shouldBeEqualTo value
+    }
+
+    @Test
+    fun `CoroutineContext 확장으로 ReactorContext 값을 조회할 수 있다`() = runTest {
+        withContext(Context.of(key, value).asCoroutineContext()) {
+            coroutineContext.getReactiveContext()?.getOrNull<String>(key) shouldBeEqualTo value
+            coroutineContext.getReactorContextValueOrNull<String>(key) shouldBeEqualTo value
+        }
     }
 }

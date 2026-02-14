@@ -8,6 +8,7 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.newFixedThreadPoolContext
@@ -15,7 +16,10 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.Test
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
+import kotlin.test.assertFailsWith
 
 class AsyncFlowTest {
 
@@ -75,5 +79,51 @@ class AsyncFlowTest {
 
         // 정렬된 값 그대로 Collect 되어야 합니다.
         results shouldBeEqualTo expectedItems
+    }
+
+    @Test
+    fun `collect with default noop collector still evaluates all items`() = runTest {
+        val count = AtomicInteger(0)
+
+        expectedItems
+            .asFlow()
+            .async(Dispatchers.Default) {
+                count.incrementAndGet()
+                it
+            }
+            .collect()
+
+        count.get() shouldBeEqualTo ITEM_SIZE
+    }
+
+    @Test
+    fun `collect rejects invalid buffer capacity`() = runTest {
+        assertFailsWith<IllegalArgumentException> {
+            expectedItems
+                .asFlow()
+                .async {
+                    it
+                }
+                .collect(capacity = -3) { }
+        }
+    }
+
+    @Test
+    fun `collect accepts special channel capacity constants`() = runTest {
+        expectedItems
+            .take(32)
+            .asFlow()
+            .async {
+                it
+            }
+            .collect(capacity = Channel.CONFLATED) { }
+
+        expectedItems
+            .take(32)
+            .asFlow()
+            .async {
+                it
+            }
+            .collect(capacity = Channel.BUFFERED) { }
     }
 }

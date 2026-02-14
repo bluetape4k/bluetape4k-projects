@@ -29,18 +29,26 @@ class PropertyCoroutineContext(
 
     private val _props: MutableMap<String, Any?> = props.toMutableMap()
 
-    val properties: Map<String, Any?> get() = _props
+    /**
+     * 현재 속성 스냅샷을 반환합니다.
+     * 내부 mutable map을 직접 노출하지 않기 위해 복사본을 제공합니다.
+     */
+    val properties: Map<String, Any?> get() = _props.toMap()
 
+    /** [name]에 해당하는 속성 값을 조회합니다. */
     operator fun get(name: String): Any? = _props[name]
 
+    /** [name]에 해당하는 속성 값을 설정합니다. */
     operator fun set(name: String, value: Any?) {
         _props[name] = value
     }
 
+    /** 전달받은 key/value 쌍을 모두 설정합니다. */
     fun putAll(vararg props: Pair<String, Any?>) {
         _props.putAll(props)
     }
 
+    /** 전달받은 map의 항목을 모두 설정합니다. */
     fun putAll(props: Map<String, Any?>) {
         _props.putAll(props)
     }

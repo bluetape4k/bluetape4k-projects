@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.support
 
+import io.bluetape4k.support.requireNotEmpty
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
@@ -45,6 +46,9 @@ suspend inline fun <T, R> Deferred<T>.map(
     }
 }
 
+/**
+ * [Deferred] 안의 컬렉션 요소를 1:N으로 확장(flatMap)합니다.
+ */
 suspend inline fun <K, T: Collection<K>, R> Deferred<T>.mapAll(
     coroutineStart: CoroutineStart = CoroutineStart.DEFAULT,
     crossinline transform: (K) -> Iterable<R>,
@@ -56,6 +60,9 @@ suspend inline fun <K, T: Collection<K>, R> Deferred<T>.mapAll(
     }
 }
 
+/**
+ * [Deferred] 안의 컬렉션 요소를 1:1로 변환합니다.
+ */
 suspend inline fun <K, T: Collection<K>, R> Deferred<T>.concatMap(
     coroutineStart: CoroutineStart = CoroutineStart.DEFAULT,
     crossinline transform: (K) -> R,
@@ -67,18 +74,33 @@ suspend inline fun <K, T: Collection<K>, R> Deferred<T>.concatMap(
     }
 }
 
+/**
+ * 여러 [Deferred] 중 가장 먼저 완료된 값을 반환합니다.
+ *
+ * @throws IllegalArgumentException 인자가 비어있는 경우
+ */
 suspend fun <T> awaitAny(vararg args: Deferred<T>): T {
-    require(args.isNotEmpty())
+    args.requireNotEmpty("args")
     return select { args.forEach { arg -> arg.onAwait { it } } }
 }
 
+/**
+ * 컬렉션의 [Deferred] 중 가장 먼저 완료된 값을 반환합니다.
+ *
+ * @throws IllegalArgumentException 컬렉션이 비어있는 경우
+ */
 suspend fun <T> Collection<Deferred<T>>.awaitAny(): T {
-    require(this.isNotEmpty())
+    requireNotEmpty("deferreds")
     return select { forEach { item -> item.onAwait { it } } }
 }
 
+/**
+ * 컬렉션의 [Deferred] 중 첫 완료 값을 반환하고, 나머지는 취소합니다.
+ *
+ * @throws IllegalArgumentException 컬렉션이 비어있는 경우
+ */
 suspend fun <T> Collection<Deferred<T>>.awaitAnyAndCancelOthers(): T {
-    require(this.isNotEmpty())
+    requireNotEmpty("deferreds")
     val firstAwaited = select {
         forEachIndexed { index, deferred ->
             deferred.onAwait { IndexedValue(index, it) }

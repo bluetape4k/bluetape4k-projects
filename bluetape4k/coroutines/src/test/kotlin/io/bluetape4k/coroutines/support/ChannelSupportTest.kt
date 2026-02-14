@@ -10,6 +10,8 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.milliseconds
 
 class ChannelSupportTest {
@@ -51,6 +53,13 @@ class ChannelSupportTest {
         }
 
         distinct.toFastList() shouldBeEqualTo listOf(1.1, 2.1, 3.1, 1.2)
+    }
+
+    @Test
+    fun `distinct until changed by equal operator with empty channel`() = runTest {
+        val channel = produce<Int> { }
+        val distinct = channel.distinctUntilChanged { a, b -> a == b }
+        distinct.toFastList() shouldBeEqualTo emptyList()
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -109,5 +118,19 @@ class ChannelSupportTest {
 
         val debounced = channel.debounce(100.milliseconds).toFastList()
         debounced shouldBeEqualTo listOf(1, 3, 4, 5)
+    }
+
+    @Test
+    fun `debounce는 음수 지연시간을 허용하지 않는다`() = runTest {
+        val channel = produce {
+            send(1)
+        }
+        try {
+            assertFailsWith<IllegalArgumentException> {
+                channel.debounce((-1).milliseconds)
+            }
+        } finally {
+            channel.cancel()
+        }
     }
 }

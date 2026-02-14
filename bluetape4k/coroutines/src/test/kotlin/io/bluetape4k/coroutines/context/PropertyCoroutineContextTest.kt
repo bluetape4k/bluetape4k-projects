@@ -9,6 +9,8 @@ import kotlinx.coroutines.plus
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class PropertyCoroutineContextTest {
@@ -26,6 +28,11 @@ class PropertyCoroutineContextTest {
 
         propCtx["key3"] = 42L
         propCtx["key3"] shouldBeEqualTo 42L
+
+        val snapshot = propCtx.properties
+        snapshot.containsKey("key3").shouldBeTrue()
+        propCtx["key4"] = 99
+        snapshot.containsKey("key4").shouldBeFalse()
     }
 
     @Test
@@ -53,5 +60,16 @@ class PropertyCoroutineContextTest {
 
         job1.join()
         job2.join()
+    }
+
+    @Test
+    fun `putAll로 속성을 한번에 추가할 수 있다`() = runTest {
+        val ctx = PropertyCoroutineContext()
+        ctx.putAll("a" to 1, "b" to "two")
+        ctx.putAll(mapOf("c" to 3L))
+
+        ctx["a"] shouldBeEqualTo 1
+        ctx["b"] shouldBeEqualTo "two"
+        ctx["c"] shouldBeEqualTo 3L
     }
 }

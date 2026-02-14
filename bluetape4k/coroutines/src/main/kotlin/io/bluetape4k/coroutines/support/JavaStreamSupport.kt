@@ -57,12 +57,7 @@ suspend fun <T> Stream<T>.suspendForEach(
 suspend fun <T> Stream<T>.coForEach(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     consumer: suspend (T) -> Unit,
-) {
-    consumeAsFlow()
-        .buffer()
-        .flowOn(coroutineContext)
-        .collect { consumer(it) }
-}
+) = suspendForEach(coroutineContext, consumer)
 
 /**
  * Java Stream 을 [Flow] 처럼 Coroutines 환경에서 `map` 처럼 실행합니다.
@@ -96,12 +91,7 @@ inline fun <T, R> Stream<T>.suspendMap(
 inline fun <T, R> Stream<T>.coMap(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     crossinline transform: suspend (T) -> R,
-): Flow<R> = channelFlow {
-    consumeAsFlow()
-        .buffer()
-        .flowOn(coroutineContext)
-        .collect { send(transform(it)) }
-}
+): Flow<R> = suspendMap(coroutineContext) { transform(it) }
 
 /**
  * [IntStream]을 [Flow] 처럼 사용합니다.
@@ -142,13 +132,7 @@ suspend inline fun IntStream.suspendForEach(
 suspend inline fun IntStream.coForEach(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     crossinline consumer: suspend (Int) -> Unit,
-) {
-    consumeAsFlow()
-        .buffer()
-        .flowOn(coroutineContext)
-        .onEach { consumer(it) }
-        .collect()
-}
+) = suspendForEach(coroutineContext) { consumer(it) }
 
 /**
  * [IntStream]을 [Flow] 처럼 Coroutines 환경에서 `map` 처럼 사용합니다.
@@ -181,13 +165,7 @@ inline fun <R> IntStream.suspendMap(
 inline fun <R> IntStream.coMap(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     crossinline transform: suspend (Int) -> R,
-): Flow<R> = channelFlow {
-    consumeAsFlow()
-        .buffer()
-        .flowOn(coroutineContext)
-        .onEach { send(transform(it)) }
-        .collect()
-}
+): Flow<R> = suspendMap(coroutineContext) { transform(it) }
 
 internal class IntStreamFlow(private val stream: IntStream): Flow<Int> {
     private val consumed = atomic(false)
@@ -243,13 +221,7 @@ suspend inline fun LongStream.suspendForEach(
 suspend inline fun LongStream.coForEach(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     crossinline consumer: suspend (Long) -> Unit,
-) {
-    consumeAsFlow()
-        .buffer()
-        .flowOn(coroutineContext)
-        .onEach { consumer(it) }
-        .collect()
-}
+) = suspendForEach(coroutineContext) { consumer(it) }
 
 /**
  * [LongStream]을 [Flow] 처럼 Coroutines 환경에서 `map` 처럼 사용합니다.
@@ -282,13 +254,7 @@ inline fun <R> LongStream.suspendMap(
 inline fun <R> LongStream.coMap(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     crossinline transform: suspend (Long) -> R,
-): Flow<R> = channelFlow {
-    consumeAsFlow()
-        .buffer()
-        .flowOn(coroutineContext)
-        .onEach { send(transform(it)) }
-        .collect()
-}
+): Flow<R> = suspendMap(coroutineContext) { transform(it) }
 
 internal class LongStreamFlow(private val stream: LongStream): Flow<Long> {
     private val consumed = atomic(false)
@@ -345,13 +311,7 @@ suspend inline fun DoubleStream.suspendForEach(
 suspend inline fun DoubleStream.coForEach(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     crossinline consumer: suspend (Double) -> Unit,
-) {
-    consumeAsFlow()
-        .buffer()
-        .flowOn(coroutineContext)
-        .onEach { consumer(it) }
-        .collect()
-}
+) = suspendForEach(coroutineContext) { consumer(it) }
 
 /**
  * [DoubleStream]을 [Flow] 처럼 Coroutines 환경에서 `map` 처럼 사용합니다.
@@ -387,20 +347,14 @@ inline fun <R> DoubleStream.suspendMap(
 inline fun <R> DoubleStream.coMap(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     crossinline mapper: suspend (Double) -> R,
-): Flow<R> = channelFlow {
-    consumeAsFlow()
-        .buffer()
-        .flowOn(coroutineContext)
-        .onEach { send(mapper(it)) }
-        .collect()
-}
+): Flow<R> = suspendMap(coroutineContext) { mapper(it) }
 
 internal class DoubleStreamFlow(private val stream: DoubleStream): Flow<Double> {
     private val consumed = atomic(false)
 
     override suspend fun collect(collector: FlowCollector<Double>) {
         if (!consumed.compareAndSet(expect = false, update = true))
-            error("LongStream.consumeAsFlow can be collected only once")
+            error("DoubleStream.consumeAsFlow can be collected only once")
 
         stream.use { stream ->
             for (value in stream.iterator()) {
