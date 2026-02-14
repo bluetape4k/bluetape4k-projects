@@ -10,11 +10,10 @@ import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transactionManager
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
+import java.util.concurrent.Semaphore
 
 internal val registeredOnShutdown = ConcurrentHashMap.newKeySet<TestDB>()
-internal val testDbLocks = ConcurrentHashMap<TestDB, ReentrantLock>()
+internal val testDbSemaphores = ConcurrentHashMap<TestDB, Semaphore>()
 
 var currentTestDB by nullableTransactionScope<TestDB>()
 
@@ -30,8 +29,9 @@ fun withDb(
     statement: JdbcTransaction.(TestDB) -> Unit,
 ) {
     logger.info { "Running `withDb` for $testDB" }
-    val lock = testDbLocks.computeIfAbsent(testDB) { ReentrantLock() }
-    lock.withLock {
+    val semaphore = testDbSemaphores.computeIfAbsent(testDB) { Semaphore(1, true) }
+    semaphore.acquire()
+    try {
         val unregistered = testDB !in registeredOnShutdown
         val newConfiguration = configure != null && !unregistered
 
@@ -66,5 +66,7 @@ fun withDb(
                 testDB.db = registeredDb
             }
         }
+    } finally {
+        semaphore.release()
     }
 }

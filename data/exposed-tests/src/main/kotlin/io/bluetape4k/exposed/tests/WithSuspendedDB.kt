@@ -3,16 +3,17 @@ package io.bluetape4k.exposed.tests
 import io.bluetape4k.logging.info
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.v1.core.DatabaseConfig
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transactionManager
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
-internal val suspendedDbMutexes = ConcurrentHashMap<TestDB, Mutex>()
+private suspend fun acquireSemaphoreSuspending(testDB: TestDB) =
+    withContext(Dispatchers.IO) {
+        testDbSemaphores.computeIfAbsent(testDB) { java.util.concurrent.Semaphore(1, true) }.acquire()
+    }
 
 @Suppress("DEPRECATION")
 suspend fun withDbSuspending(
@@ -22,8 +23,8 @@ suspend fun withDbSuspending(
     statement: suspend JdbcTransaction.(TestDB) -> Unit,
 ) {
     logger.info { "Running withDbSuspending for $testDB" }
-    val mutex = suspendedDbMutexes.computeIfAbsent(testDB) { Mutex() }
-    mutex.withLock {
+    acquireSemaphoreSuspending(testDB)
+    try {
         val unregistered = testDB !in registeredOnShutdown
         val newConfiguration = configure != null && !unregistered
 
@@ -60,6 +61,8 @@ suspend fun withDbSuspending(
                 testDB.db = registeredDb
             }
         }
+    } finally {
+        testDbSemaphores.getValue(testDB).release()
     }
 }
 
