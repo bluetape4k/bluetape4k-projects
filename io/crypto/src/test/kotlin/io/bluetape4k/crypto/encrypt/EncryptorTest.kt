@@ -82,8 +82,8 @@ class EncryptorTest {
     @FieldSource("encryptors")
     fun `encrypt and decrypt string in multi threadings`(encryptor: Encryptor) {
         MultithreadingTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerThread(16)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(16)
             .add {
                 val message = getRandomString()
 
@@ -100,7 +100,7 @@ class EncryptorTest {
     @FieldSource("encryptors")
     fun `encrypt and decrypt string in virtual threads`(encryptor: Encryptor) {
         StructuredTaskScopeTester()
-            .roundsPerTask(16 * 2 * Runtimex.availableProcessors)
+            .rounds(16 * 2 * Runtimex.availableProcessors)
             .add {
                 val message = getRandomString()
 

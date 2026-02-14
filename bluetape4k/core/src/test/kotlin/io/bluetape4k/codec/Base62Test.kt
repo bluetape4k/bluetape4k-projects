@@ -92,8 +92,8 @@ class Base62Test {
         val base62s = ConcurrentHashMap<String, Int>()
 
         MultithreadingTester()
-            .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerThread(64)
+            .workers(Runtimex.availableProcessors * 2)
+            .rounds(64)
             .add {
                 val uuid = uuidGenerator.generate()
                 uuids.put(uuid, 1).shouldBeNull()
@@ -111,7 +111,7 @@ class Base62Test {
         val base62s = ConcurrentHashMap<String, Int>()
 
         StructuredTaskScopeTester()
-            .roundsPerTask(128 * Runtimex.availableProcessors)
+            .rounds(128 * Runtimex.availableProcessors)
             .add {
                 val uuid = uuidGenerator.generate()
                 uuids.put(uuid, 1).shouldBeNull()

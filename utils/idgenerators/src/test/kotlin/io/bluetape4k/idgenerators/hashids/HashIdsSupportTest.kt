@@ -102,8 +102,8 @@ class HashIdsSupportTest {
         fun `encode flake id in multi threading`() {
             val map = ConcurrentHashMap<Long, Int>()
             MultithreadingTester()
-                .numThreads(2 * Runtimex.availableProcessors)
-                .roundsPerThread(ITEM_SIZE)
+                .workers(2 * Runtimex.availableProcessors)
+                .rounds(ITEM_SIZE)
                 .add {
                     val id = snowflake.nextId()
                     verifySnowflakeId(id)
@@ -118,7 +118,7 @@ class HashIdsSupportTest {
             val map = ConcurrentHashMap<Long, Int>()
 
             StructuredTaskScopeTester()
-                .roundsPerTask(2 * Runtimex.availableProcessors * ITEM_SIZE)
+                .rounds(2 * Runtimex.availableProcessors * ITEM_SIZE)
                 .add {
                     val id = snowflake.nextId()
                     verifySnowflakeId(id)

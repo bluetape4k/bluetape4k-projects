@@ -43,8 +43,8 @@ class KsuidTest {
         val idMaps = ConcurrentHashMap<String, Int>()
 
         MultithreadingTester()
-            .numThreads(Runtimex.availableProcessors)
-            .roundsPerThread(TEST_COUNT / Runtimex.availableProcessors)
+            .workers(Runtimex.availableProcessors)
+            .rounds(TEST_COUNT / Runtimex.availableProcessors)
             .add {
                 val ksuid = Ksuid.generate()
                 idMaps.putIfAbsent(ksuid, 1).shouldBeNull()
@@ -58,7 +58,7 @@ class KsuidTest {
         val idMap = ConcurrentHashMap<String, Int>()
 
         StructuredTaskScopeTester()
-            .roundsPerTask(TEST_COUNT)
+            .rounds(TEST_COUNT)
             .add {
                 val ksuid = Ksuid.generate()
                 idMap.putIfAbsent(ksuid, 1).shouldBeNull()

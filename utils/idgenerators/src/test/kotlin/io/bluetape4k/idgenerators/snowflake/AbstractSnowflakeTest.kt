@@ -110,8 +110,8 @@ abstract class AbstractSnowflakeTest {
         val idMap = ConcurrentHashMap<Long, Int>()
 
         MultithreadingTester()
-            .numThreads(Runtimex.availableProcessors)
-            .roundsPerThread(TEST_COUNT / Runtimex.availableProcessors)
+            .workers(Runtimex.availableProcessors)
+            .rounds(TEST_COUNT / Runtimex.availableProcessors)
             .add {
                 val id = snowflake.nextId()
                 idMap.putIfAbsent(id, 1).shouldBeNull()
@@ -125,7 +125,7 @@ abstract class AbstractSnowflakeTest {
         val idMap = ConcurrentHashMap<Long, Int>()
 
         StructuredTaskScopeTester()
-            .roundsPerTask(TEST_COUNT)
+            .rounds(TEST_COUNT)
             .add {
                 val id = snowflake.nextId()
                 idMap.putIfAbsent(id, 1).shouldBeNull()
@@ -261,7 +261,7 @@ abstract class AbstractSnowflakeTest {
         val idMap = ConcurrentHashMap<Long, Int>()
 
         StructuredTaskScopeTester()
-            .roundsPerTask(16 * 2 * Runtimex.availableProcessors)
+            .rounds(16 * 2 * Runtimex.availableProcessors)
             .add {
                 val id = snowflake.nextId()
                 idMap.putIfAbsent(id, 1).shouldBeNull()
@@ -300,8 +300,8 @@ abstract class AbstractSnowflakeTest {
         val idMap = ConcurrentHashMap<Long, Int>()
 
         MultithreadingTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerThread(16)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(16)
             .add {
                 val id = snowflake.nextId()
                 idMap.putIfAbsent(id, 1).shouldBeNull()
@@ -319,7 +319,7 @@ abstract class AbstractSnowflakeTest {
         val idMap = ConcurrentHashMap<Long, Int>()
 
         StructuredTaskScopeTester()
-            .roundsPerTask(16 * 2 * Runtimex.availableProcessors)
+            .rounds(16 * 2 * Runtimex.availableProcessors)
             .add {
                 val id = snowflake.nextId()
                 idMap.putIfAbsent(id, 1).shouldBeNull()
@@ -354,8 +354,8 @@ abstract class AbstractSnowflakeTest {
         val idMap = ConcurrentHashMap<String, Int>()
 
         MultithreadingTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerThread(16)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(16)
             .add {
                 val id = snowflake.nextId().encodeBase62()
                 log.trace { "base62=$id" }
@@ -375,7 +375,7 @@ abstract class AbstractSnowflakeTest {
         val idMap = ConcurrentHashMap<String, Int>()
 
         StructuredTaskScopeTester()
-            .roundsPerTask(16 * 2 * Runtimex.availableProcessors)
+            .rounds(16 * 2 * Runtimex.availableProcessors)
             .add {
                 val id = snowflake.nextId().encodeBase62()
                 log.trace { "base62=$id" }
@@ -415,8 +415,8 @@ abstract class AbstractSnowflakeTest {
         val idMap = ConcurrentHashMap<Long, Int>()
 
         MultithreadingTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerThread(16)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(16)
             .add {
                 val ids = snowflake.nextIds(10)
                 ids.forEach { id ->
@@ -438,7 +438,7 @@ abstract class AbstractSnowflakeTest {
         val idMap = ConcurrentHashMap<Long, Int>()
 
         StructuredTaskScopeTester()
-            .roundsPerTask(16 * 2 * Runtimex.availableProcessors)
+            .rounds(16 * 2 * Runtimex.availableProcessors)
             .add {
                 val ids = snowflake.nextIds(10)
                 ids.forEach { id ->

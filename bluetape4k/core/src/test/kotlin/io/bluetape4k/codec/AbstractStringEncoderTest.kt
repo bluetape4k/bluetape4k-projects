@@ -65,8 +65,8 @@ abstract class AbstractStringEncoderTest {
         val bytes = Random.nextBytes(4096)
 
         MultithreadingTester()
-            .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerThread(4)
+            .workers(Runtimex.availableProcessors * 2)
+            .rounds(4)
             .add {
                 val converted = encoder.decode(encoder.encode(bytes))
                 converted shouldContainSame bytes
@@ -80,7 +80,7 @@ abstract class AbstractStringEncoderTest {
         val bytes = Random.nextBytes(4096)
 
         StructuredTaskScopeTester()
-            .roundsPerTask(8 * Runtimex.availableProcessors)
+            .rounds(8 * Runtimex.availableProcessors)
             .add {
                 val converted = encoder.decode(encoder.encode(bytes))
                 converted shouldContainSame bytes

@@ -67,8 +67,8 @@ class FutureSupportTest {
         val counter = AtomicInteger(0)
 
         MultithreadingTester()
-            .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerThread(ITEM_COUNT / 4)
+            .workers(Runtimex.availableProcessors * 2)
+            .rounds(ITEM_COUNT / 4)
             .add {
                 val task = CompletableFuture.supplyAsync {
                     Thread.sleep(Random.nextLong(DELAY_TIME))
@@ -89,7 +89,7 @@ class FutureSupportTest {
         val counter = AtomicInteger(0)
 
         StructuredTaskScopeTester()
-            .roundsPerTask(Runtimex.availableProcessors * 2 * ITEM_COUNT / 4)
+            .rounds(Runtimex.availableProcessors * 2 * ITEM_COUNT / 4)
             .add {
                 val task: VirtualFuture<Int> = virtualFuture {
                     Thread.sleep(Random.nextLong(DELAY_TIME))

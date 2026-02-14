@@ -85,8 +85,8 @@ abstract class AbstractSequencerTest {
         val idMap = ConcurrentHashMap<Long, Int>()
 
         MultithreadingTester()
-            .numThreads(4 * Runtimex.availableProcessors)
-            .roundsPerThread(MAX_SEQUENCE * 2)
+            .workers(4 * Runtimex.availableProcessors)
+            .rounds(MAX_SEQUENCE * 2)
             .add {
                 val id = sequencer.nextSequence()
                 idMap.putIfAbsent(id.value, 1).shouldBeNull()
@@ -100,7 +100,7 @@ abstract class AbstractSequencerTest {
         val idMap = ConcurrentHashMap<Long, Int>()
 
         StructuredTaskScopeTester()
-            .roundsPerTask(MAX_SEQUENCE * 2 * 4 * Runtimex.availableProcessors)
+            .rounds(MAX_SEQUENCE * 2 * 4 * Runtimex.availableProcessors)
             .add {
                 val id = sequencer.nextSequence()
                 idMap.putIfAbsent(id.value, 1).shouldBeNull()

@@ -76,8 +76,8 @@ class CaptchaCodeGeneratorTest: AbstractCaptchaTest() {
         val codeGenerator = CaptchaCodeGenerator.DEFAULT
 
         MultithreadingTester()
-            .numThreads(Runtimex.availableProcessors * 4)
-            .roundsPerThread(4)
+            .workers(Runtimex.availableProcessors * 4)
+            .rounds(4)
             .add {
                 val codeLength = Random.nextInt(4, 10)
                 val code = codeGenerator.next(codeLength)
@@ -92,7 +92,7 @@ class CaptchaCodeGeneratorTest: AbstractCaptchaTest() {
         val codeGenerator = CaptchaCodeGenerator.DEFAULT
 
         StructuredTaskScopeTester()
-            .roundsPerTask(Runtimex.availableProcessors * 4 * 4)
+            .rounds(Runtimex.availableProcessors * 4 * 4)
             .add {
                 val codeLength = Random.nextInt(4, 10)
                 val code = codeGenerator.next(codeLength)

@@ -74,8 +74,8 @@ abstract class AbstractSuspendImageWriterTest: AbstractImageTest() {
         val image = immutableImageOf(Path.of("$BASE_PATH/$filename.jpg"))
 
         MultithreadingTester()
-            .numThreads(4)
-            .roundsPerThread(2)
+            .workers(4)
+            .rounds(2)
             .add {
                 val file = tempFolder.createFile()
                 image.forWriter(writer).write(file)
@@ -91,7 +91,7 @@ abstract class AbstractSuspendImageWriterTest: AbstractImageTest() {
         val image = immutableImageOf(Path.of("$BASE_PATH/$filename.jpg"))
 
         StructuredTaskScopeTester()
-            .roundsPerTask(8)
+            .rounds(8)
             .add {
                 val file = tempFolder.createFile()
                 image.forWriter(writer).write(file)

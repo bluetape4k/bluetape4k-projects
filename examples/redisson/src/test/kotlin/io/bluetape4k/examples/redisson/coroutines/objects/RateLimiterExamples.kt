@@ -74,8 +74,8 @@ class RateLimiterExamples: AbstractRedissonCoroutineTest() {
         limiter1.tryAcquire(1).shouldBeFalse()
 
         MultithreadingTester()
-            .numThreads(2)
-            .roundsPerThread(2)
+            .workers(2)
+            .rounds(2)
             .add {
                 val redisson = newRedisson()
                 // RRateLimiter Exception----RateLimiter is not initialized

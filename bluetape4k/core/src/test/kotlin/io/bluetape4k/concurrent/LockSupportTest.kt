@@ -106,8 +106,8 @@ class LockSupportTest {
         var counter = 0
 
         MultithreadingTester()
-            .numThreads(16)
-            .roundsPerThread(2)
+            .workers(16)
+            .rounds(2)
             .add {
                 lock.read {
                     Thread.sleep(10)
@@ -133,7 +133,7 @@ class LockSupportTest {
         var counter = 0
 
         StructuredTaskScopeTester()
-            .roundsPerTask(16)
+            .rounds(16)
             .add {
                 lock.read {
                     Thread.sleep(10)

@@ -40,8 +40,8 @@ class CipherBuilderTest: AbstractCipherTest() {
     @Test
     fun `create AES cipher for encryption in multi threading`() {
         MultithreadingTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerThread(4)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(4)
             .add {
                 val encryptCipher = builder.build(Cipher.ENCRYPT_MODE)
                 val decryptCipher = builder.build(Cipher.DECRYPT_MODE)
@@ -63,7 +63,7 @@ class CipherBuilderTest: AbstractCipherTest() {
     @Test
     fun `create AES cipher for encryption in virtual threads`() {
         StructuredTaskScopeTester()
-            .roundsPerTask(4 * 2 * Runtimex.availableProcessors)
+            .rounds(4 * 2 * Runtimex.availableProcessors)
             .add {
                 val encryptCipher = builder.build(Cipher.ENCRYPT_MODE)
                 val decryptCipher = builder.build(Cipher.DECRYPT_MODE)

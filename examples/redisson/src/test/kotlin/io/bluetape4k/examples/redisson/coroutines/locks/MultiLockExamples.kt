@@ -138,8 +138,8 @@ class MultiLockExamples: AbstractRedissonCoroutineTest() {
         assertIsLocked(lock1, lock2, lock3)
 
         MultithreadingTester()
-            .numThreads(16)
-            .roundsPerThread(2)
+            .workers(16)
+            .rounds(2)
             .add {
                 val mlock2 = RedissonMultiLock(lock1, lock2, lock4)
                 log.debug { "다른 Thread 에서 새로운 MultiRock에 대해서 lock을 잡으려고 하면 실패한다." }

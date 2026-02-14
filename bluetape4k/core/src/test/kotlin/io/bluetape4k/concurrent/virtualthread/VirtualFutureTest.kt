@@ -71,7 +71,7 @@ class VirtualFutureTest {
 
         // 1초씩 대기하는 1000 개의 작업을 Virtual Thread를 이용하면, 2초내에 모든 작업이 완료됩니다.
         StructuredTaskScopeTester()
-            .roundsPerTask(1)
+            .rounds(1)
             .add {
                 Thread.sleep(100)
                 taskCount.incrementAndGet()

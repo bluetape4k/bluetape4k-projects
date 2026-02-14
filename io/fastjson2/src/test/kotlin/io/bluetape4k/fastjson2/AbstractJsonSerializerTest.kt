@@ -84,8 +84,8 @@ abstract class AbstractJsonSerializerTest: AbstractFastjson2Test() {
     @Test
     fun `json serialize for User in multi threadings`() {
         MultithreadingTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerThread(16)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(16)
             .add {
                 val user = User(
                     id = faker.random().nextInt(),
@@ -124,7 +124,7 @@ abstract class AbstractJsonSerializerTest: AbstractFastjson2Test() {
     @Test
     fun `json serialize for User in virtual threads`() {
         StructuredTaskScopeTester()
-            .roundsPerTask(16 * 2 * Runtimex.availableProcessors)
+            .rounds(16 * 2 * Runtimex.availableProcessors)
             .add {
                 val user = User(
                     id = faker.random().nextInt(),

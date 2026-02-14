@@ -49,8 +49,8 @@ class JsonMaskerTest {
     @Test
     fun `masking filed with @JsonMasker in multi threadings`() {
         MultithreadingTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerThread(16)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(16)
             .add {
                 verifyJsonMasker(newUser())
             }
@@ -72,7 +72,7 @@ class JsonMaskerTest {
     @Test
     fun `masking field with @JsonMasker in virtual threads`() {
         StructuredTaskScopeTester()
-            .roundsPerTask(16 * 2 * Runtimex.availableProcessors)
+            .rounds(16 * 2 * Runtimex.availableProcessors)
             .add {
                 verifyJsonMasker(newUser())
             }

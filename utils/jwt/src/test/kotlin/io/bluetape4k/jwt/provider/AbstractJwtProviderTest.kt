@@ -111,8 +111,8 @@ abstract class AbstractJwtProviderTest: AbstractJwtTest() {
         val jwts = CopyOnWriteArrayList<String>()
 
         MultithreadingTester()
-            .numThreads(16)
-            .roundsPerThread(32)
+            .workers(16)
+            .rounds(32)
             .add {
                 val jwt = provider.compose {
                     claim("author", "debop")
@@ -145,7 +145,7 @@ abstract class AbstractJwtProviderTest: AbstractJwtTest() {
         val jwts = CopyOnWriteArrayList<String>()
 
         StructuredTaskScopeTester()
-            .roundsPerTask(16 * 32)
+            .rounds(16 * 32)
             .add {
                 val jwt = provider.compose {
                     claim("author", "debop")

@@ -41,8 +41,8 @@ class ClientResponseProcessing: AbstractHc5Test() {
         httpclient.use {
 
             MultithreadingTester()
-                .numThreads(16)
-                .roundsPerThread(2)
+                .workers(16)
+                .rounds(2)
                 .add {
                     val httpget = HttpGet("$httpbinBaseUrl/get")
                     log.debug { "Executing request ${httpget.method} ${httpget.uri}" }

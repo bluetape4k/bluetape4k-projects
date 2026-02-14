@@ -81,8 +81,8 @@ abstract class AbstractTimebasedUuidBase62Test {
         val idMap = ConcurrentHashMap<String, Int>()
 
         MultithreadingTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerThread(TEST_COUNT)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(TEST_COUNT)
             .add {
                 val id = uuidGenerator.nextIdAsString()
                 idMap.putIfAbsent(id, 1).shouldBeNull()
@@ -96,7 +96,7 @@ abstract class AbstractTimebasedUuidBase62Test {
         val idMap = ConcurrentHashMap<String, Int>()
 
         StructuredTaskScopeTester()
-            .roundsPerTask(TEST_COUNT * 2 * Runtimex.availableProcessors)
+            .rounds(TEST_COUNT * 2 * Runtimex.availableProcessors)
             .add {
                 val id = uuidGenerator.nextIdAsString()
                 idMap.putIfAbsent(id, 1).shouldBeNull()

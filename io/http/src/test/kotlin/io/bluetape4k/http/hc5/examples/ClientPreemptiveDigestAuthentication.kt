@@ -83,8 +83,8 @@ class ClientPreemptiveDigestAuthentication: AbstractHc5Test() {
 
         httpclient.use {
             MultithreadingTester()
-                .numThreads(2)
-                .roundsPerThread(2)
+                .workers(2)
+                .rounds(2)
                 .add {
                     val localContext = localContextStorage.get()
 

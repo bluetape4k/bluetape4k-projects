@@ -69,8 +69,8 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
         val lockIndex = AtomicInteger(0)
 
         MultithreadingTester()
-            .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerThread(2)
+            .workers(Runtimex.availableProcessors * 2)
+            .rounds(2)
             .add {
                 val index = lockIndex.incrementAndGet()
                 log.debug { "FairLock[$index] 획득 시도 ..." }
@@ -97,7 +97,7 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
         val lockIndex = AtomicInteger(0)
 
         StructuredTaskScopeTester()
-            .roundsPerTask(Runtimex.availableProcessors * 4)
+            .rounds(Runtimex.availableProcessors * 4)
             .add {
                 val index = lockIndex.incrementAndGet()
                 log.debug { "FairLock[$index] 획득 시도 ..." }

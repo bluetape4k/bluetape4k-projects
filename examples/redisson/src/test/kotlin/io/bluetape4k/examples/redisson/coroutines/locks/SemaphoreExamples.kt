@@ -94,8 +94,8 @@ class SemaphoreExamples: AbstractRedissonCoroutineTest() {
         val redisson3 = newRedisson()
         try {
             MultithreadingTester()
-                .numThreads(8)
-                .roundsPerThread(4)
+                .workers(8)
+                .rounds(4)
                 .add {
                     val s2 = redisson2.getSemaphore(semaphoreName)
                     Thread.sleep(1)
@@ -146,7 +146,7 @@ class SemaphoreExamples: AbstractRedissonCoroutineTest() {
 
         try {
             StructuredTaskScopeTester()
-                .roundsPerTask(16)
+                .rounds(16)
                 .add {
                     val s2 = redisson2.getSemaphore(semaphoreName)
                     Thread.sleep(1)

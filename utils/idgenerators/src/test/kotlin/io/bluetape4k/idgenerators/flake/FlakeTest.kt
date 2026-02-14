@@ -92,8 +92,8 @@ class FlakeTest {
         val idMaps = ConcurrentHashMap<String, Int>()
 
         MultithreadingTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerThread(100)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(100)
             .add {
                 val id = flake.nextIdAsString()
                 idMaps.putIfAbsent(id, 1).shouldBeNull()
@@ -108,7 +108,7 @@ class FlakeTest {
         val idMaps = ConcurrentHashMap<String, Int>()
 
         StructuredTaskScopeTester()
-            .roundsPerTask(100 * 2 * Runtimex.availableProcessors)
+            .rounds(100 * 2 * Runtimex.availableProcessors)
             .add {
                 val id = flake.nextIdAsString()
                 idMaps.putIfAbsent(id, 1).shouldBeNull()

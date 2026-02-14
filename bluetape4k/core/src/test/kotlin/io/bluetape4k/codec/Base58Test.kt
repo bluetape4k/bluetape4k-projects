@@ -108,8 +108,8 @@ class Base58Test {
     @Test
     fun `멀티 스레드 환경에서 Base58 인코딩, 디코딩하기`() {
         MultithreadingTester()
-            .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerThread(4)
+            .workers(Runtimex.availableProcessors * 2)
+            .rounds(4)
             .add {
                 val expected = fakerKr.lorem().paragraph()
                 val encoded = Base58.encode(expected)
@@ -123,7 +123,7 @@ class Base58Test {
     @Test
     fun `Virtual Threads 환경에서 Base58 인코딩, 디코딩하기`() {
         StructuredTaskScopeTester()
-            .roundsPerTask(8 * Runtimex.availableProcessors)
+            .rounds(8 * Runtimex.availableProcessors)
             .add {
                 val expected = fakerKr.lorem().paragraph()
                 val encoded = Base58.encode(expected)

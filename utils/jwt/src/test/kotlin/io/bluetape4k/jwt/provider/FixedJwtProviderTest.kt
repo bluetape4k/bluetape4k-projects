@@ -55,8 +55,8 @@ class FixedJwtProviderTest: AbstractJwtTest() {
         val jwts = CopyOnWriteArrayList<String>()
 
         MultithreadingTester()
-            .numThreads(16)
-            .roundsPerThread(32)
+            .workers(16)
+            .rounds(32)
             .add {
                 val jwt = provider.compose {
                     claim("author", "debop")

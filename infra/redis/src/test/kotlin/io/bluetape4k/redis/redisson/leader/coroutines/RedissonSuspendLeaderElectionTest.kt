@@ -53,8 +53,8 @@ class RedissonSuspendLeaderElectionTest: AbstractRedissonTest() {
         val roundsPerJob = 4
 
         SuspendedJobTester()
-            .numThreads(numThreads)
-            .roundsPerJob(numThreads * roundsPerJob)
+            .workers(numThreads)
+            .rounds(numThreads * roundsPerJob)
             .add {
                 leaderElection.runIfLeader(lockName) {
                     log.debug { "작업 1 을 시작합니다." }

@@ -27,8 +27,8 @@ class FutureSupportTest {
         val counter = AtomicInteger(0)
 
         MultithreadingTester()
-            .numThreads(16)
-            .roundsPerThread(ITEM_COUNT / 4)
+            .workers(16)
+            .rounds(ITEM_COUNT / 4)
             .add {
                 val task: FutureTask<Int> = FutureTask {
                     Thread.sleep(Random.nextLong(10))

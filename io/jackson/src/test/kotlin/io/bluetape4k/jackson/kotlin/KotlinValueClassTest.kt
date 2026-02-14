@@ -54,8 +54,8 @@ class KotlinValueClassTest {
     @Test
     fun `json serdes value class in multi threadins`() {
         MultithreadingTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerThread(16)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(16)
             .add {
                 verifySerializeValueClass(newSomeValue())
             }
@@ -77,7 +77,7 @@ class KotlinValueClassTest {
     @Test
     fun `json serdes value class in virtual threads`() {
         StructuredTaskScopeTester()
-            .roundsPerTask(16 * 2 * Runtimex.availableProcessors)
+            .rounds(16 * 2 * Runtimex.availableProcessors)
             .add {
                 verifySerializeValueClass(newSomeValue())
             }

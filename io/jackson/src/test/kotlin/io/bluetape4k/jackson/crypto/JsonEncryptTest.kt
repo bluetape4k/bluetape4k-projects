@@ -79,8 +79,8 @@ class JsonEncryptTest {
     @Test
     fun `encrypt json property in multi threadings`() {
         MultithreadingTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerThread(16)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(16)
             .add {
                 verifyEncryptProperty(createUser())
             }
@@ -108,7 +108,7 @@ class JsonEncryptTest {
     @Test
     fun `encrypt json property in virtual threads`() {
         StructuredTaskScopeTester()
-            .roundsPerTask(16 * 2 * Runtimex.availableProcessors)
+            .rounds(16 * 2 * Runtimex.availableProcessors)
             .add {
                 verifyEncryptProperty(createUser())
             }

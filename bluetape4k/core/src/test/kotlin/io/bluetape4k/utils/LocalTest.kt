@@ -48,8 +48,8 @@ class LocalTest {
     @Test
     fun `thread local value in multi-threading`() {
         MultithreadingTester()
-            .numThreads(64)
-            .roundsPerThread(4)
+            .workers(64)
+            .rounds(4)
             .add {
                 Local["a"] = "에이"
                 Thread.sleep(1)

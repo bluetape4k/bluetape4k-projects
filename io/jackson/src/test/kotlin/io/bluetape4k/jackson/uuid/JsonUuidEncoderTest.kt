@@ -70,8 +70,8 @@ class JsonUuidEncodeTest {
     @Test
     fun `convert uuid to base62 string in multi threadings`() {
         MultithreadingTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerThread(16)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(16)
             .add {
                 verifyJsonUuidEncoder(newUser())
             }
@@ -99,7 +99,7 @@ class JsonUuidEncodeTest {
     @Test
     fun `convert uuid to base62 string in virtual threads`() {
         StructuredTaskScopeTester()
-            .roundsPerTask(16 * 2 * Runtimex.availableProcessors)
+            .rounds(16 * 2 * Runtimex.availableProcessors)
             .add {
                 verifyJsonUuidEncoder(newUser())
             }

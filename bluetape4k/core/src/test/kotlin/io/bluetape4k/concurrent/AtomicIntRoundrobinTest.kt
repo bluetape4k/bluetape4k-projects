@@ -72,8 +72,8 @@ class AtomicIntRoundrobinTest {
         val atomic = AtomicIntRoundrobin(Runtimex.availableProcessors)
 
         MultithreadingTester()
-            .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerThread(4)
+            .workers(Runtimex.availableProcessors * 2)
+            .rounds(4)
             .add {
                 atomic.next().apply {
                     log.trace { "atomic=$this" }
@@ -91,7 +91,7 @@ class AtomicIntRoundrobinTest {
         val atomic = AtomicIntRoundrobin(Runtimex.availableProcessors)
 
         StructuredTaskScopeTester()
-            .roundsPerTask(4 * Runtimex.availableProcessors * 2)
+            .rounds(4 * Runtimex.availableProcessors * 2)
             .add {
                 atomic.next().apply {
                     log.trace { "atomic=$this" }

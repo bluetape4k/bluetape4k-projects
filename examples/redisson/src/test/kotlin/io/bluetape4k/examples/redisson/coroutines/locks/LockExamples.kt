@@ -104,8 +104,8 @@ class LockExamples: AbstractRedissonCoroutineTest() {
         val lockIndex = AtomicInteger(0)
 
         MultithreadingTester()
-            .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerThread(2)
+            .workers(Runtimex.availableProcessors * 2)
+            .rounds(2)
             .add {
                 val index = lockIndex.incrementAndGet()
 

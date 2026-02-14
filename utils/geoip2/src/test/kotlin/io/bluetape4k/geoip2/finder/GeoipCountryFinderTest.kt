@@ -58,8 +58,8 @@ class GeoipCountryFinderTest: AbstractGeoipTest() {
         val resultMap = ConcurrentHashMap<String, String>()
 
         MultithreadingTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerThread(10)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(10)
             .add {
                 val ip = ipAddresses[index.next()]
                 val address = countryFinder.findAddress(InetAddress.getByName(ip))
@@ -85,7 +85,7 @@ class GeoipCountryFinderTest: AbstractGeoipTest() {
         val resultMap = ConcurrentHashMap<String, String>()
 
         StructuredTaskScopeTester()
-            .roundsPerTask(10 * 2 * Runtimex.availableProcessors)
+            .rounds(10 * 2 * Runtimex.availableProcessors)
             .add {
                 val ip = ipAddresses[index.next()]
                 val address = countryFinder.findAddress(InetAddress.getByName(ip))

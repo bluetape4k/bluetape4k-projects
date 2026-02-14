@@ -124,8 +124,8 @@ class ImageCaptchaGeneratorTest: AbstractCaptchaTest() {
         val captchaGen = ImageCaptchaGenerator(newConfig, codeGen)
 
         MultithreadingTester()
-            .numThreads(Runtime.getRuntime().availableProcessors() * 4)
-            .roundsPerThread(4)
+            .workers(Runtime.getRuntime().availableProcessors() * 4)
+            .rounds(4)
             .add {
                 val captcha = captchaGen.generate()
                 captcha.content.shouldNotBeNull()
@@ -150,7 +150,7 @@ class ImageCaptchaGeneratorTest: AbstractCaptchaTest() {
         val captchaGen = ImageCaptchaGenerator(newConfig, codeGen)
 
         StructuredTaskScopeTester()
-            .roundsPerTask(Runtime.getRuntime().availableProcessors() * 4 * 4)
+            .rounds(Runtime.getRuntime().availableProcessors() * 4 * 4)
             .add {
                 val captcha = captchaGen.generate()
                 captcha.content.shouldNotBeNull()

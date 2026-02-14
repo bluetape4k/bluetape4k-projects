@@ -32,8 +32,8 @@ class LettuceClientsTest: AbstractLettuceTest() {
     @Test
     fun `connect to redis server in multi-threading`() {
         MultithreadingTester()
-            .numThreads(16)
-            .roundsPerThread(2)
+            .workers(16)
+            .rounds(2)
             .add {
                 val commands = LettuceClients.commands(client, LettuceBinaryCodecs.Default)
                 commands.ping() shouldBeEqualTo "PONG"
@@ -45,7 +45,7 @@ class LettuceClientsTest: AbstractLettuceTest() {
     @Test
     fun `connect to redis server in virtual threads`() {
         StructuredTaskScopeTester()
-            .roundsPerTask(32)
+            .rounds(32)
             .add {
                 val asyncCommands = LettuceClients.asyncCommands(client, LettuceBinaryCodecs.Default)
                 asyncCommands.ping().get() shouldBeEqualTo "PONG"

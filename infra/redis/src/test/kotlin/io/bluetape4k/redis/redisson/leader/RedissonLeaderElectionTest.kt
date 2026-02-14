@@ -100,8 +100,8 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
         val roundsPerThread = 4
 
         MultithreadingTester()
-            .numThreads(numThreads)
-            .roundsPerThread(roundsPerThread)
+            .workers(numThreads)
+            .rounds(roundsPerThread)
             .add {
                 leaderElection.runIfLeader(lockName) {
                     log.debug { "작업 1 을 시작합니다. task1=${task1.get()}" }
@@ -136,7 +136,7 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
         val roundsPerThread = 4
 
         StructuredTaskScopeTester()
-            .roundsPerTask(numThreads * roundsPerThread / 2)
+            .rounds(numThreads * roundsPerThread / 2)
             .add {
                 leaderElection.runIfLeader(lockName) {
                     log.debug { "작업 1 을 시작합니다. task1=${task1.get()}" }
@@ -170,8 +170,8 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
         val roundsPerThread = 4
 
         MultithreadingTester()
-            .numThreads(numThreads)
-            .roundsPerThread(roundsPerThread)
+            .workers(numThreads)
+            .rounds(roundsPerThread)
             .add {
                 leaderElection.runAsyncIfLeader(lockName) {
                     futureOf {
@@ -212,7 +212,7 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
         val roundsPerThread = 4
 
         StructuredTaskScopeTester()
-            .roundsPerTask(numThreads * roundsPerThread / 2)
+            .rounds(numThreads * roundsPerThread / 2)
             .add {
                 leaderElection.runAsyncIfLeader(lockName, VirtualThreadExecutor) {
                     futureOf {

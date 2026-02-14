@@ -61,8 +61,8 @@ class Url62Test {
     @Test
     fun `멀티 스레드 환경에서 인코딩, 디코딩을 한다`() {
         MultithreadingTester()
-            .numThreads(Runtimex.availableProcessors * 2)
-            .roundsPerThread(4)
+            .workers(Runtimex.availableProcessors * 2)
+            .rounds(4)
             .add {
                 val url = UUID.randomUUID()
                 val converted = url.encodeUrl62().decodeUrl62()
@@ -75,7 +75,7 @@ class Url62Test {
     @Test
     fun `Virtual Threads 환경에서 인코딩, 디코딩을 한다`() {
         StructuredTaskScopeTester()
-            .roundsPerTask(8 * Runtimex.availableProcessors)
+            .rounds(8 * Runtimex.availableProcessors)
             .add {
                 val url = UUID.randomUUID()
                 val converted = url.encodeUrl62().decodeUrl62()

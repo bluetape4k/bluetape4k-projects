@@ -72,8 +72,8 @@ class DigesterTest {
     @FieldSource("digesters")
     fun `digest message as string in multi threadings`(digester: Digester) {
         MultithreadingTester()
-            .numThreads(2 * Runtimex.availableProcessors)
-            .roundsPerThread(16)
+            .workers(2 * Runtimex.availableProcessors)
+            .rounds(16)
             .add {
                 val message = getRandomString()
                 val digested = digester.digest(message)
@@ -87,7 +87,7 @@ class DigesterTest {
     @FieldSource("digesters")
     fun `digest message as string in virtual threads`(digester: Digester) {
         StructuredTaskScopeTester()
-            .roundsPerTask(16 * 2 * Runtimex.availableProcessors)
+            .rounds(16 * 2 * Runtimex.availableProcessors)
             .add {
                 val message = getRandomString()
                 val digested = digester.digest(message)

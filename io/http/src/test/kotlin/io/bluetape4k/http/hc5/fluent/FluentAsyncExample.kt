@@ -89,8 +89,8 @@ class FluentAsyncExample: AbstractHc5Test() {
 
         try {
             MultithreadingTester()
-                .numThreads(requests.size / 2)
-                .roundsPerThread(2)
+                .workers(requests.size / 2)
+                .rounds(2)
                 .add {
                     val index = counter.getAndIncrement() % requests.size
                     val request = requests[index]
@@ -112,7 +112,7 @@ class FluentAsyncExample: AbstractHc5Test() {
         val counter = AtomicInteger(0)
 
         StructuredTaskScopeTester()
-            .roundsPerTask(requests.size)
+            .rounds(requests.size)
             .add {
                 val index = counter.getAndIncrement() % requests.size
                 val request = requests[index]

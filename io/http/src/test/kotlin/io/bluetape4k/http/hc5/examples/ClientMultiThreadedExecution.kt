@@ -28,8 +28,8 @@ class ClientMultiThreadedExecution: AbstractHc5Test() {
         val httpclient = httpClientOf(cm)
         httpclient.use {
             MultithreadingTester()
-                .numThreads(6)
-                .roundsPerThread(2)
+                .workers(6)
+                .rounds(2)
                 .add {
                     executeHttpGet(httpclient, urisToGet[0], 0)
                 }

@@ -80,8 +80,8 @@ class AtomicLongExamples: AbstractRedissonCoroutineTest() {
         val counter = redisson.getAtomicLong(randomName())
 
         MultithreadingTester()
-            .numThreads(32)
-            .roundsPerThread(8)
+            .workers(32)
+            .rounds(8)
             .add {
                 counter.incrementAndGet()
             }
@@ -97,7 +97,7 @@ class AtomicLongExamples: AbstractRedissonCoroutineTest() {
         val counter = redisson.getAtomicLong(randomName())
 
         StructuredTaskScopeTester()
-            .roundsPerTask(32 * 8)
+            .rounds(32 * 8)
             .add {
                 counter.incrementAndGet()
             }
