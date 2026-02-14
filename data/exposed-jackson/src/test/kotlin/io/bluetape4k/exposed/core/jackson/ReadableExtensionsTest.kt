@@ -6,7 +6,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 
-class ReadableJacksonExtensionsTest {
+class ReadableExtensionsTest {
 
     private data class Payload(val name: String, val age: Int)
 

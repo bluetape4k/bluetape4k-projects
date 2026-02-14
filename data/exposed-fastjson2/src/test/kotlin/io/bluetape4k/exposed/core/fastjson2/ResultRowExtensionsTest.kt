@@ -12,7 +12,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertFailsWith
 
-class ResultRowFastjsonExtensionsTest: AbstractExposedTest() {
+class ResultRowExtensionsTest: AbstractExposedTest() {
 
     private data class Payload(val user: FastjsonSchema.User, val active: Boolean)
 

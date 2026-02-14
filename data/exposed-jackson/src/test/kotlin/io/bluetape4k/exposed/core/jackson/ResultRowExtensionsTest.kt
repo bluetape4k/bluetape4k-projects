@@ -1,4 +1,4 @@
-package io.bluetape4k.exposed.core.jackson3
+package io.bluetape4k.exposed.core.jackson
 
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
@@ -11,18 +11,18 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertFailsWith
 
-class ResultRowJacksonExtensionsTest: AbstractExposedTest() {
+class ResultRowExtensionsTest: AbstractExposedTest() {
 
     private data class Payload(val user: JacksonSchema.User, val active: Boolean)
 
-    private object JsonTextTable: Table("jackson3_result_row_test") {
+    private object JsonTextTable: Table("jackson_result_row_test") {
         val jsonText = text("json_text")
         val nullableText = text("nullable_text").nullable()
     }
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `ResultRow Jackson3 전용 getter를 지원한다`(testDB: TestDB) {
+    fun `ResultRow Jackson 전용 getter를 지원한다`(testDB: TestDB) {
         val payload = Payload(JacksonSchema.User("tester", "A"), true)
         val jsonText = DefaultJacksonSerializer.serializeAsString(payload)
 
@@ -42,7 +42,7 @@ class ResultRowJacksonExtensionsTest: AbstractExposedTest() {
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
-    fun `ResultRow Jackson3 non-null getter는 null일 때 예외를 던진다`(testDB: TestDB) {
+    fun `ResultRow Jackson non-null getter는 null일 때 예외를 던진다`(testDB: TestDB) {
         withTables(testDB, JsonTextTable) {
             JsonTextTable.insert {
                 it[jsonText] = """{"a":1}"""
