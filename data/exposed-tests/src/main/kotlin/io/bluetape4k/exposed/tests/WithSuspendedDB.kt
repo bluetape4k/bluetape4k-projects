@@ -9,7 +9,10 @@ import org.jetbrains.exposed.v1.core.DatabaseConfig
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transactionManager
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
+
+internal val suspendedDbMutexes = ConcurrentHashMap<TestDB, Mutex>()
 
 @Suppress("DEPRECATION")
 suspend fun withDbSuspending(
@@ -19,22 +22,21 @@ suspend fun withDbSuspending(
     statement: suspend JdbcTransaction.(TestDB) -> Unit,
 ) {
     logger.info { "Running withDbSuspending for $testDB" }
-
-    val unregistered = testDB !in registeredOnShutdown
-    val newConfiguration = configure != null && !unregistered
-
-    if (unregistered) {
-        testDB.beforeConnection()
-        Runtimex.addShutdownHook {
-            testDB.afterTestFinished()
-            registeredOnShutdown.remove(testDB)
-        }
-        registeredOnShutdown += testDB
-        testDB.db = testDB.connect(configure ?: {})
-    }
-    val mutex = Mutex()
-
+    val mutex = suspendedDbMutexes.computeIfAbsent(testDB) { Mutex() }
     mutex.withLock {
+        val unregistered = testDB !in registeredOnShutdown
+        val newConfiguration = configure != null && !unregistered
+
+        if (unregistered) {
+            testDB.beforeConnection()
+            Runtimex.addShutdownHook {
+                testDB.afterTestFinished()
+                registeredOnShutdown.remove(testDB)
+            }
+            registeredOnShutdown += testDB
+            testDB.db = testDB.connect(configure ?: {})
+        }
+
         val registeredDb = testDB.db!!
         try {
             // NOTE: 코루틴과 @ParameterizedTest 를 동시에 사용할 때, TestDB가 꼬일 때가 있다. 그래서 매번 connect 를 수행하도록 수정

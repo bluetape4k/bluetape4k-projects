@@ -13,6 +13,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
@@ -120,6 +121,42 @@ class JasyptColumnTypeTest: AbstractExposedTest() {
             updatedRow[stringTable.name] shouldBeEqualTo updatedName
             updatedRow[stringTable.city] shouldBeEqualTo updatedCity
             updatedRow[stringTable.address]!!.toUtf8String() shouldBeEqualTo updatedAddress
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `nullable 암호화 컬럼은 null 값을 저장하고 조회할 수 있다`(testDB: TestDB) {
+        val stringTable = object: IntIdTable("nullable_string_table") {
+            val name = jasyptVarChar("name", 255, Encryptors.AES).nullable()
+            val address = jasyptBinary("address", 255, Encryptors.TripleDES).nullable()
+        }
+
+        withTables(testDB, stringTable) {
+            val id = stringTable.insertAndGetId {
+                it[name] = null
+                it[address] = null
+            }
+
+            val row = stringTable.selectAll().where { stringTable.id eq id }.single()
+            row[stringTable.name] shouldBeEqualTo null
+            row[stringTable.address] shouldBeEqualTo null
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `컬럼 길이는 0보다 커야 한다`(testDB: TestDB) {
+        assertThrows<IllegalArgumentException> {
+            object: IntIdTable("invalid_table_$testDB") {
+                val invalid = jasyptVarChar("invalid", 0, Encryptors.AES)
+            }
+        }
+
+        assertThrows<IllegalArgumentException> {
+            object: IntIdTable("invalid_binary_table_$testDB") {
+                val invalid = jasyptBinary("invalid", 0, Encryptors.AES)
+            }
         }
     }
 }

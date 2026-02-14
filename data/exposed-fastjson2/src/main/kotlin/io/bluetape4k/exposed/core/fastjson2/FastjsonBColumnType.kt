@@ -8,6 +8,12 @@ import org.jetbrains.exposed.v1.core.vendors.H2Dialect
 import org.jetbrains.exposed.v1.core.vendors.SQLiteDialect
 import org.jetbrains.exposed.v1.core.vendors.currentDialect
 
+/**
+ * Fastjson2 기반 JSONB 컬럼 타입입니다.
+ *
+ * DB 벤더가 JSONB를 지원하면 바이너리 JSON 포맷을 사용하고,
+ * SQLite 에서는 `JSONB(...)` 래퍼를 사용해 값을 전달합니다.
+ */
 class FastjsonBColumnType<T: Any>(
     serialize: (T) -> String,
     deserialize: (String) -> T,
@@ -38,7 +44,9 @@ class FastjsonBColumnType<T: Any>(
     }
 }
 
-
+/**
+ * Fastjson2 직렬화 함수를 이용한 JSONB 컬럼을 생성합니다.
+ */
 fun <T: Any> Table.fastjsonb(
     name: String,
     serialize: (T) -> String,
@@ -46,6 +54,9 @@ fun <T: Any> Table.fastjsonb(
 ): Column<T> =
     registerColumn(name, FastjsonBColumnType(serialize, deserialize))
 
+/**
+ * [FastjsonSerializer]를 이용해 JSONB 컬럼을 생성합니다.
+ */
 inline fun <reified T: Any> Table.fastjsonb(
     name: String,
     serializer: FastjsonSerializer = FastjsonSerializer.Default,

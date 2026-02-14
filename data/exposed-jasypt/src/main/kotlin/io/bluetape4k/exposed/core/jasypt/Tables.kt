@@ -1,6 +1,8 @@
 package io.bluetape4k.exposed.core.jasypt
 
 import io.bluetape4k.crypto.encrypt.Encryptors
+import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.support.requirePositiveNumber
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.Table
 
@@ -12,13 +14,23 @@ import org.jetbrains.exposed.v1.core.Table
  *
  * 대신 `jasyptVarChar` 는 Jasypt 라이브러리를 이용하여, 암호화 결과가 항상 같습니다.
  * 그래서 Indexing 할 수 있고, 암호화된 컬럼을 조건절에 이용할 수 있습니다.
+ *
+ * @param name 컬럼명 (blank 불가)
+ * @param cipherTextLength 암호문을 저장할 컬럼 길이 (0보다 커야 함)
+ * @param encryptor 사용할 암/복호화기
  */
 fun Table.jasyptVarChar(
     name: String,
     cipherTextLength: Int,
     encryptor: io.bluetape4k.crypto.encrypt.Encryptor = Encryptors.AES,
 ): Column<String> =
-    registerColumn(name, JasyptVarCharColumnType(encryptor, cipherTextLength))
+    registerColumn(
+        name.requireNotBlank("name"),
+        JasyptVarCharColumnType(
+            encryptor = encryptor,
+            colLength = cipherTextLength.requirePositiveNumber("cipherTextLength")
+        )
+    )
 
 
 /**
@@ -29,10 +41,20 @@ fun Table.jasyptVarChar(
  *
  * 대신 `jasyptBinary` 는 Jasypt 라이브러리를 이용하여, 암호화 결과가 항상 같습니다.
  * 그래서 Indexing 할 수 있고, 암호화된 컬럼을 조건절에 이용할 수 있습니다.
+ *
+ * @param name 컬럼명 (blank 불가)
+ * @param cipherByteLength 암호문 바이트를 저장할 컬럼 길이 (0보다 커야 함)
+ * @param encryptor 사용할 암/복호화기
  */
 fun Table.jasyptBinary(
     name: String,
     cipherByteLength: Int,
     encryptor: io.bluetape4k.crypto.encrypt.Encryptor = Encryptors.AES,
 ): Column<ByteArray> =
-    registerColumn(name, JasyptBinaryColumnType(encryptor, cipherByteLength))
+    registerColumn(
+        name.requireNotBlank("name"),
+        JasyptBinaryColumnType(
+            encryptor = encryptor,
+            length = cipherByteLength.requirePositiveNumber("cipherByteLength")
+        )
+    )

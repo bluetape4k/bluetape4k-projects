@@ -9,10 +9,12 @@ import org.jetbrains.exposed.v1.core.transactions.nullableTransactionScope
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transactionManager
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
-internal val registeredOnShutdown = mutableSetOf<TestDB>()
+internal val registeredOnShutdown = ConcurrentHashMap.newKeySet<TestDB>()
+internal val testDbLocks = ConcurrentHashMap<TestDB, ReentrantLock>()
 
 var currentTestDB by nullableTransactionScope<TestDB>()
 
@@ -28,22 +30,21 @@ fun withDb(
     statement: JdbcTransaction.(TestDB) -> Unit,
 ) {
     logger.info { "Running `withDb` for $testDB" }
-
-    val unregistered = testDB !in registeredOnShutdown
-    val newConfiguration = configure != null && !unregistered
-
-    if (unregistered) {
-        testDB.beforeConnection()
-        Runtimex.addShutdownHook {
-            testDB.afterTestFinished()
-            registeredOnShutdown.remove(testDB)
-        }
-        registeredOnShutdown += testDB
-        testDB.db = testDB.connect(configure ?: {})
-    }
-    val lock = ReentrantLock()
-
+    val lock = testDbLocks.computeIfAbsent(testDB) { ReentrantLock() }
     lock.withLock {
+        val unregistered = testDB !in registeredOnShutdown
+        val newConfiguration = configure != null && !unregistered
+
+        if (unregistered) {
+            testDB.beforeConnection()
+            Runtimex.addShutdownHook {
+                testDB.afterTestFinished()
+                registeredOnShutdown.remove(testDB)
+            }
+            registeredOnShutdown += testDB
+            testDB.db = testDB.connect(configure ?: {})
+        }
+
         val registeredDb = testDB.db
         try {
             if (newConfiguration) {
