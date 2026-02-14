@@ -9,4 +9,5 @@ import com.querydsl.core.types.dsl.SimpleExpression
  *
  * @see [SimpleExpression. in]
  */
-fun <T> SimpleExpression<T>.inValues(vararg rights: T): BooleanExpression = `in`(*rights)
+fun <T> SimpleExpression<T>.inValues(vararg rights: T): BooleanExpression =
+    `in`(*rights)

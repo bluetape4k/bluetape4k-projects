@@ -18,7 +18,7 @@ inline fun <reified T: Any> AbstractQuery<T>.from(): Root<T> = this.from(T::clas
 /**
  * [attribute] 이름으로 조회하는 [Path] 를 생성합니다.
  */
-fun <T, V> Root<T>.attribute(attribute: KProperty1<T, V>): Path<T> = this.get(attribute.name)
+fun <T, V> Root<T>.attribute(attribute: KProperty1<T, V>): Path<V> = this.get(attribute.name)
 
 /**
  * [clazz]를 위한 [CriteriaQuery]를 생성합니다.

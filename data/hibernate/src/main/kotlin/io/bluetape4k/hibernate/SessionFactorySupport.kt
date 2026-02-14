@@ -9,14 +9,14 @@ import org.hibernate.internal.SessionFactoryImpl
  * Hibernate [SessionFactory]에 Event listener를 등록합니다.
  *
  * ```
- * sessionFactory.registEventListener(MyListener(), EventType.PRE_INSERT, EventType.POST_INSERT)
+ * sessionFactory.registerEventListener(MyListener(), EventType.PRE_INSERT, EventType.POST_INSERT)
  * ```
  *
  * @param listener Event listener
  * @param eventTypes Event types (e.g. [EventType.PRE_INSERT], [EventType.POST_INSERT])
  */
 @Suppress("UNCHECKED_CAST")
-fun <T> SessionFactory.registEventListener(
+fun <T> SessionFactory.registerEventListener(
     listener: T,
     eventTypes: Collection<EventType<*>>,
 ) {
@@ -26,6 +26,20 @@ fun <T> SessionFactory.registEventListener(
         }
     }
 }
+
+/**
+ * 오타가 포함된 이전 API 이름.
+ *
+ * 유지보수 호환성을 위해 남겨두며, 새 코드에서는 [registerEventListener]를 사용하세요.
+ */
+@Deprecated(
+    message = "Use registerEventListener instead.",
+    replaceWith = ReplaceWith("registerEventListener(listener, eventTypes)")
+)
+fun <T> SessionFactory.registEventListener(
+    listener: T,
+    eventTypes: Collection<EventType<*>>,
+) = registerEventListener(listener, eventTypes)
 
 /**
  * Hibernate [SessionFactory]의 [EventListenerRegistry]를 가져옵니다.

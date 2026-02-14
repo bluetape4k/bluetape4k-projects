@@ -54,6 +54,7 @@ import com.querydsl.core.types.dsl.TimeExpression
 import com.querydsl.core.types.dsl.TimeOperation
 import com.querydsl.core.types.dsl.TimePath
 import com.querydsl.core.types.dsl.TimeTemplate
+import io.bluetape4k.support.requireNotBlank
 import java.sql.Time
 import java.util.*
 
@@ -82,12 +83,14 @@ fun <D> Expression<D>.alias(alias: Path<D>): SimpleExpression<D> =
 /**
  * [BooleanExpression] 리스트의 모든 항목이 참인지 확인하는 [BooleanExpression]을 반환합니다.
  */
-fun Collection<BooleanExpression>.all(): BooleanExpression = Expressions.allOf(*this.toTypedArray())
+fun Collection<BooleanExpression>.all(): BooleanExpression =
+    if (isEmpty()) Expressions.TRUE else Expressions.allOf(*toTypedArray())
 
 /**
  * [BooleanExpression] 리스트의 모든 항목 중 하나라도 참인지 확인하는 [BooleanExpression]을 반환합니다.
  */
-fun Collection<BooleanExpression>.any(): BooleanExpression = Expressions.anyOf(*this.toTypedArray())
+fun Collection<BooleanExpression>.any(): BooleanExpression =
+    if (isEmpty()) Expressions.FALSE else Expressions.anyOf(*toTypedArray())
 
 /**
  * 해당 값을 `constant`로 표현하는 [Expression]을 반환합니다.
@@ -109,7 +112,7 @@ fun <T> T.toExpression(alias: Path<T>): SimpleExpression<T> = Expressions.consta
  * @return [SimpleTemplate] 인스턴스
  */
 inline fun <reified T: Any> simpleTemplateOf(template: String, vararg args: Any?): SimpleTemplate<T> =
-    Expressions.template(T::class.java, template, *args)
+    Expressions.template(T::class.java, template.requireNotBlank("template"), *args)
 
 /**
  * [SimpleTemplate]을 생성합니다.
@@ -117,7 +120,7 @@ inline fun <reified T: Any> simpleTemplateOf(template: String, vararg args: Any?
  * @param args 템플릿 인자
  */
 inline fun <reified T: Any> simpleTemplateOf(template: String, args: List<*>): SimpleTemplate<T> =
-    Expressions.template(T::class.java, template, args)
+    Expressions.template(T::class.java, template.requireNotBlank("template"), args)
 
 /**
  * [Template]을 [SimpleTemplate]로 변환합니다.
@@ -149,7 +152,7 @@ inline fun <reified T: Any> Template.simpleTemplate(args: List<*>): SimpleTempla
  * @return [DslTemplate] 인스턴스
  */
 inline fun <reified T: Any> dslTemplateOf(template: String, vararg args: Any?): DslTemplate<T> =
-    Expressions.dslTemplate(T::class.java, template, *args)
+    Expressions.dslTemplate(T::class.java, template.requireNotBlank("template"), *args)
 
 /**
  * [DslTemplate]을 생성합니다.
@@ -159,7 +162,7 @@ inline fun <reified T: Any> dslTemplateOf(template: String, vararg args: Any?): 
  * @return [DslTemplate] 인스턴스
  */
 inline fun <reified T: Any> dslTemplateOf(template: String, args: List<*>): DslTemplate<T> =
-    Expressions.dslTemplate(T::class.java, template, args)
+    Expressions.dslTemplate(T::class.java, template.requireNotBlank("template"), args)
 
 /**
  * [Template]을 [DslTemplate]로 변환합니다.
@@ -191,7 +194,7 @@ inline fun <reified T: Any> Template.dslTemplate(args: List<*>): DslTemplate<T> 
  * @return [ComparableTemplate] 인스턴스
  */
 inline fun <reified T: Comparable<*>> comparableTemplateOf(template: String, vararg args: Any?): ComparableTemplate<T> =
-    Expressions.comparableTemplate(T::class.java, template, *args)
+    Expressions.comparableTemplate(T::class.java, template.requireNotBlank("template"), *args)
 
 /**
  * [ComparableTemplate]을 생성합니다.
@@ -201,7 +204,7 @@ inline fun <reified T: Comparable<*>> comparableTemplateOf(template: String, var
  * @return [ComparableTemplate] 인스턴스
  */
 inline fun <reified T: Comparable<*>> comparableTemplateOf(template: String, args: List<*>): ComparableTemplate<T> =
-    Expressions.comparableTemplate(T::class.java, template, args)
+    Expressions.comparableTemplate(T::class.java, template.requireNotBlank("template"), args)
 
 /**
  * [Template]으로 [ComparableTemplate]를 생성합니다.
@@ -229,13 +232,13 @@ inline fun <reified T: Comparable<*>> Template.comparableTemplate(args: List<*>)
  * [DateTemplate]을 생성합니다.
  */
 inline fun <reified T: Comparable<*>> dateTemplateOf(template: String, vararg args: Any?): DateTemplate<T> =
-    Expressions.dateTemplate(T::class.java, template, *args)
+    Expressions.dateTemplate(T::class.java, template.requireNotBlank("template"), *args)
 
 /**
  * [DateTemplate]을 생성합니다.
  */
 inline fun <reified T: Comparable<*>> dateTemplateOf(template: String, args: List<*>): DateTemplate<T> =
-    Expressions.dateTemplate(T::class.java, template, args)
+    Expressions.dateTemplate(T::class.java, template.requireNotBlank("template"), args)
 
 /**
  * [Template]으로 [DateTemplate]를 생성합니다.
@@ -255,13 +258,13 @@ inline fun <reified T: Comparable<*>> Template.dateTemplate(args: List<*>): Date
  * [DateTimeTemplate]을 생성합니다.
  */
 inline fun <reified T: Comparable<*>> dateTimeTemplateOf(template: String, vararg args: Any?): DateTimeTemplate<T> =
-    Expressions.dateTimeTemplate(T::class.java, template, *args)
+    Expressions.dateTimeTemplate(T::class.java, template.requireNotBlank("template"), *args)
 
 /**
  * [DateTimeTemplate]을 생성합니다.
  */
 inline fun <reified T: Comparable<*>> dateTimeTemplateOf(template: String, args: List<*>): DateTimeTemplate<T> =
-    Expressions.dateTimeTemplate(T::class.java, template, args)
+    Expressions.dateTimeTemplate(T::class.java, template.requireNotBlank("template"), args)
 
 /**
  * [Template]으로 [DateTimeTemplate]를 생성합니다.
@@ -281,13 +284,13 @@ inline fun <reified T: Comparable<*>> Template.dateTimeTemplate(args: List<*>): 
  * [TimeTemplate]을 생성합니다.
  */
 inline fun <reified T: Comparable<*>> timeTemplateOf(template: String, vararg args: Any?): TimeTemplate<T> =
-    Expressions.timeTemplate(T::class.java, template, *args)
+    Expressions.timeTemplate(T::class.java, template.requireNotBlank("template"), *args)
 
 /**
  * [TimeTemplate]을 생성합니다.
  */
 inline fun <reified T: Comparable<*>> timeTemplateOf(template: String, args: List<*>): TimeTemplate<T> =
-    Expressions.timeTemplate(T::class.java, template, args)
+    Expressions.timeTemplate(T::class.java, template.requireNotBlank("template"), args)
 
 /**
  * [Template]으로 [TimeTemplate]를 생성합니다.
@@ -307,13 +310,13 @@ inline fun <reified T: Comparable<*>> Template.timeTemplate(args: List<*>): Time
  * [EnumTemplate]을 생성합니다.
  */
 inline fun <reified T: Enum<T>> enumTemplateOf(template: String, vararg args: Any?): EnumTemplate<T> =
-    Expressions.enumTemplate(T::class.java, template, *args)
+    Expressions.enumTemplate(T::class.java, template.requireNotBlank("template"), *args)
 
 /**
  * [EnumTemplate]을 생성합니다.
  */
 inline fun <reified T: Enum<T>> enumTemplateOf(template: String, args: List<*>): EnumTemplate<T> =
-    Expressions.enumTemplate(T::class.java, template, args)
+    Expressions.enumTemplate(T::class.java, template.requireNotBlank("template"), args)
 
 /**
  * [Template]으로 [EnumTemplate]를 생성합니다.
@@ -336,7 +339,7 @@ inline fun <reified T> numberTemplateOf(
     template: String,
     vararg args: Any?,
 ): NumberTemplate<T> where T: Number, T: Comparable<*> =
-    Expressions.numberTemplate(T::class.java, template, *args)
+    Expressions.numberTemplate(T::class.java, template.requireNotBlank("template"), *args)
 
 /**
  * [NumberTemplate]을 생성합니다.
@@ -345,7 +348,7 @@ inline fun <reified T> numberTemplateOf(
     template: String,
     args: List<*>,
 ): NumberTemplate<T> where T: Number, T: Comparable<*> =
-    Expressions.numberTemplate(T::class.java, template, args)
+    Expressions.numberTemplate(T::class.java, template.requireNotBlank("template"), args)
 
 /**
  * [Template]으로 [NumberTemplate]를 생성합니다.
@@ -365,13 +368,13 @@ inline fun <reified T> Template.numberTemplate(args: List<*>): NumberTemplate<T>
  * [StringTemplate]을 생성합니다.
  */
 fun stringTemplateOf(template: String, vararg args: Any?): StringTemplate =
-    Expressions.stringTemplate(template, *args)
+    Expressions.stringTemplate(template.requireNotBlank("template"), *args)
 
 /**
  * [StringTemplate]을 생성합니다.
  */
 fun simpleTemplateOf(template: String, args: List<*>): StringExpression =
-    Expressions.stringTemplate(template, args)
+    Expressions.stringTemplate(template.requireNotBlank("template"), args)
 
 /**
  * [Template]으로 [StringTemplate]를 생성합니다.
@@ -391,13 +394,13 @@ fun Template.stringTemplate(args: List<*>): StringExpression =
  * [BooleanTemplate]을 생성합니다.
  */
 fun booleanTemplateOf(template: String, vararg args: Any?): BooleanTemplate =
-    Expressions.booleanTemplate(template, *args)
+    Expressions.booleanTemplate(template.requireNotBlank("template"), *args)
 
 /**
  * [BooleanTemplate]을 생성합니다.
  */
 fun booleanTemplateOf(template: String, args: List<*>): BooleanTemplate =
-    Expressions.booleanTemplate(template, args)
+    Expressions.booleanTemplate(template.requireNotBlank("template"), args)
 
 /**
  * [Template]으로 [BooleanTemplate]를 생성합니다.
@@ -475,7 +478,7 @@ fun Operator.stringOperation(vararg args: Expression<*>): StringOperation =
  * @param variable 변수명
  */
 inline fun <reified T: Any> simplePathOf(variable: String): SimplePath<T> =
-    Expressions.simplePath(T::class.java, variable)
+    Expressions.simplePath(T::class.java, variable.requireNotBlank("variable"))
 
 /**
  * [SimplePath]를 생성합니다.
@@ -484,7 +487,7 @@ inline fun <reified T: Any> simplePathOf(variable: String): SimplePath<T> =
  * @param variable 변수명
  */
 inline fun <reified T: Any> simplePathOf(parent: Path<*>, variable: String): SimplePath<T> =
-    Expressions.simplePath(T::class.java, parent, variable)
+    Expressions.simplePath(T::class.java, parent, variable.requireNotBlank("variable"))
 
 /**
  * [SimplePath]를 생성합니다.
@@ -502,7 +505,7 @@ inline fun <reified T: Any> simplePathOf(metadata: PathMetadata): SimplePath<T> 
  * @param variable 변수명
  */
 inline fun <reified T: Any> dslPathOf(variable: String): DslPath<T> =
-    Expressions.dslPath(T::class.java, variable)
+    Expressions.dslPath(T::class.java, variable.requireNotBlank("variable"))
 
 /**
  * [DslPath]를 생성합니다.
@@ -511,7 +514,7 @@ inline fun <reified T: Any> dslPathOf(variable: String): DslPath<T> =
  * @param property 변수명
  */
 inline fun <reified T: Any> dslPathOf(parent: Path<*>, property: String): DslPath<T> =
-    Expressions.dslPath(T::class.java, parent, property)
+    Expressions.dslPath(T::class.java, parent, property.requireNotBlank("property"))
 
 /**
  * [DslPath]를 생성합니다.
@@ -529,7 +532,7 @@ inline fun <reified T: Any> dslPathOf(metadata: PathMetadata): DslPath<T> =
  * @param variable 변수명
  */
 inline fun <reified T: Comparable<*>> comparablePathOf(variable: String): ComparablePath<T> =
-    Expressions.comparablePath(T::class.java, variable)
+    Expressions.comparablePath(T::class.java, variable.requireNotBlank("variable"))
 
 /**
  * [ComparablePath]를 생성합니다.
@@ -538,7 +541,7 @@ inline fun <reified T: Comparable<*>> comparablePathOf(variable: String): Compar
  * @param property 변수명
  */
 inline fun <reified T: Comparable<*>> comparablePathOf(parent: Path<*>, property: String): ComparablePath<T> =
-    Expressions.comparablePath(T::class.java, parent, property)
+    Expressions.comparablePath(T::class.java, parent, property.requireNotBlank("property"))
 
 /**
  * [ComparablePath]를 생성합니다.
@@ -556,7 +559,7 @@ inline fun <reified T: Comparable<*>> comparablePathOf(metadata: PathMetadata): 
  * @param variable 변수명
  */
 inline fun <reified T: Comparable<*>> comparableEntityPathOf(variable: String): ComparableEntityPath<T> =
-    Expressions.comparableEntityPath(T::class.java, variable)
+    Expressions.comparableEntityPath(T::class.java, variable.requireNotBlank("variable"))
 
 /**
  * [ComparableEntityPath]를 생성합니다.
@@ -568,7 +571,7 @@ inline fun <reified T: Comparable<*>> comparableEntityPathOf(
     parent: Path<*>,
     property: String,
 ): ComparableEntityPath<T> =
-    Expressions.comparableEntityPath(T::class.java, parent, property)
+    Expressions.comparableEntityPath(T::class.java, parent, property.requireNotBlank("property"))
 
 /**
  * [ComparableEntityPath]를 생성합니다.
@@ -586,7 +589,7 @@ inline fun <reified T: Comparable<*>> comparableEntityPathOf(metadata: PathMetad
  * @param variable 변수명
  */
 inline fun <reified T: Comparable<*>> datePathOf(variable: String): DatePath<T> =
-    Expressions.datePath(T::class.java, variable)
+    Expressions.datePath(T::class.java, variable.requireNotBlank("property"))
 
 /**
  * [DatePath]를 생성합니다.
@@ -595,7 +598,7 @@ inline fun <reified T: Comparable<*>> datePathOf(variable: String): DatePath<T> 
  * @param property 변수명
  */
 inline fun <reified T: Comparable<*>> datePathOf(parent: Path<*>, property: String): DatePath<T> =
-    Expressions.datePath(T::class.java, parent, property)
+    Expressions.datePath(T::class.java, parent, property.requireNotBlank("property"))
 
 /**
  * [DatePath]를 생성합니다.
@@ -613,7 +616,7 @@ inline fun <reified T: Comparable<*>> datePathOf(metadata: PathMetadata): DatePa
  * @param variable 변수명
  */
 inline fun <reified T: Comparable<*>> dateTimePathOf(variable: String): DateTimePath<T> =
-    Expressions.dateTimePath(T::class.java, variable)
+    Expressions.dateTimePath(T::class.java, variable.requireNotBlank("variable"))
 
 /**
  * [DateTimePath]를 생성합니다.
@@ -622,7 +625,7 @@ inline fun <reified T: Comparable<*>> dateTimePathOf(variable: String): DateTime
  * @param property 변수명
  */
 inline fun <reified T: Comparable<*>> dateTimePathOf(parent: Path<*>, property: String): DateTimePath<T> =
-    Expressions.dateTimePath(T::class.java, parent, property)
+    Expressions.dateTimePath(T::class.java, parent, property.requireNotBlank("property"))
 
 /**
  * [DateTimePath]를 생성합니다.
@@ -640,7 +643,7 @@ inline fun <reified T: Comparable<*>> dateTimePathOf(metadata: PathMetadata): Da
  * @param variable 변수명
  */
 inline fun <reified T: Comparable<*>> timePathOf(variable: String): TimePath<T> =
-    Expressions.timePath(T::class.java, variable)
+    Expressions.timePath(T::class.java, variable.requireNotBlank("variable"))
 
 /**
  * [TimePath]를 생성합니다.
@@ -649,7 +652,7 @@ inline fun <reified T: Comparable<*>> timePathOf(variable: String): TimePath<T> 
  * @param property 변수명
  */
 inline fun <reified T: Comparable<*>> timePathOf(parent: Path<*>, property: String): TimePath<T> =
-    Expressions.timePath(T::class.java, parent, property)
+    Expressions.timePath(T::class.java, parent, property.requireNotBlank("property"))
 
 /**
  * [TimePath]를 생성합니다.
@@ -667,7 +670,7 @@ inline fun <reified T: Comparable<*>> timePathOf(metadata: PathMetadata): TimePa
  * @param variable 변수명
  */
 inline fun <reified T> numberPathOf(variable: String): NumberPath<T> where T: Number, T: Comparable<*> =
-    Expressions.numberPath(T::class.java, variable)
+    Expressions.numberPath(T::class.java, variable.requireNotBlank("variable"))
 
 /**
  * [NumberPath]를 생성합니다.
@@ -679,7 +682,7 @@ inline fun <reified T> numberPathOf(
     parent: Path<*>,
     property: String,
 ): NumberPath<T> where T: Number, T: Comparable<*> =
-    Expressions.numberPath(T::class.java, parent, property)
+    Expressions.numberPath(T::class.java, parent, property.requireNotBlank("property"))
 
 /**
  * [NumberPath]를 생성합니다.
@@ -697,7 +700,7 @@ inline fun <reified T> numberPathOf(metadata: PathMetadata): NumberPath<T> where
  * @param variable 변수명
  */
 fun stringPathOf(variable: String): StringPath =
-    Expressions.stringPath(variable)
+    Expressions.stringPath(variable.requireNotBlank("variable"))
 
 /**
  * [StringPath]를 생성합니다.
@@ -706,7 +709,7 @@ fun stringPathOf(variable: String): StringPath =
  * @param variable 변수명
  */
 fun simplePathOf(parent: Path<*>, variable: String): StringPath =
-    Expressions.stringPath(parent, variable)
+    Expressions.stringPath(parent, variable.requireNotBlank("variable"))
 
 /**
  * [StringPath]를 생성합니다.
@@ -729,7 +732,7 @@ fun StringPath.eqOrNull(name: String?): BooleanExpression? = name?.let { this.eq
  * @param variable 변수명
  */
 fun booleanPathOf(variable: String): BooleanPath =
-    Expressions.booleanPath(variable)
+    Expressions.booleanPath(variable.requireNotBlank("variable"))
 
 /**
  * [BooleanPath]를 생성합니다.
@@ -738,7 +741,7 @@ fun booleanPathOf(variable: String): BooleanPath =
  * @param variable 변수명
  */
 fun booleanPathOf(parent: Path<*>, variable: String): BooleanPath =
-    Expressions.booleanPath(parent, variable)
+    Expressions.booleanPath(parent, variable.requireNotBlank("variable"))
 
 /**
  * [BooleanPath]를 생성합니다.
@@ -849,7 +852,7 @@ inline fun <reified T: Enum<T>> Operator.enumOperation(vararg args: Expression<*
  * @param variable 변수명
  */
 inline fun <reified T: Enum<T>> enumPathOf(variable: String): EnumPath<T> =
-    Expressions.enumPath(T::class.java, variable)
+    Expressions.enumPath(T::class.java, variable.requireNotBlank("variable"))
 
 /**
  * [EnumPath]를 생성합니다.
@@ -858,7 +861,7 @@ inline fun <reified T: Enum<T>> enumPathOf(variable: String): EnumPath<T> =
  * @param property 변수명
  */
 inline fun <reified T: Enum<T>> enumPathOf(parent: Path<*>, property: String): EnumPath<T> =
-    Expressions.enumPath(T::class.java, parent, property)
+    Expressions.enumPath(T::class.java, parent, property.requireNotBlank("property"))
 
 /**
  * [EnumPath]를 생성합니다.
@@ -918,7 +921,7 @@ inline fun <reified K: Any, reified V: Any, reified E: SimpleExpression<in V>> m
  * @param variable 변수명
  */
 inline fun <reified A, E> arrayPathOf(variable: String): ArrayPath<A, E> =
-    Expressions.arrayPath(A::class.java, variable)
+    Expressions.arrayPath(A::class.java, variable.requireNotBlank("variable"))
 
 /**
  * [ArrayPath]를 생성합니다.
@@ -927,7 +930,7 @@ inline fun <reified A, E> arrayPathOf(variable: String): ArrayPath<A, E> =
  * @param property 변수명
  */
 inline fun <reified A, E> arrayPathOf(parent: Path<*>, property: String): ArrayPath<A, E> =
-    Expressions.arrayPath(A::class.java, parent, property)
+    Expressions.arrayPath(A::class.java, parent, property.requireNotBlank("property"))
 
 /**
  * [ArrayPath]를 생성합니다.

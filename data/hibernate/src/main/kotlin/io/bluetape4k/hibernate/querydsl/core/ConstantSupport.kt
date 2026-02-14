@@ -36,4 +36,5 @@ fun constantOf(value: Short): Constant<Short> = ConstantImpl.create(value)
 /**
  * QueryDSL의 [Constant]를 생성합니다.
  */
-inline fun <reified T> constantOf(constant: T): Constant<T> = ConstantImpl.create(T::class.java, constant)
+inline fun <reified T> constantOf(constant: T): Constant<T> =
+    ConstantImpl.create(T::class.java, constant)

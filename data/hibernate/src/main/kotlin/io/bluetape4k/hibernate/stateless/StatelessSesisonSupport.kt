@@ -26,24 +26,35 @@ import org.hibernate.StatelessSession
  * @param block Stateless Session 하에서 실행할 코드 블럭
  * @return 결과 값
  */
-inline fun <T: Any> SessionFactory.withStatelss(block: (StatelessSession) -> T?): T? {
-    return this.openStatelessSession().use { stateless ->
+inline fun <T: Any> SessionFactory.withStateless(block: (StatelessSession) -> T?): T? =
+    this.openStatelessSession().use { stateless ->
         val tx = stateless.beginTransaction()
 
         try {
             val result = block(stateless)
             tx.commit()
             result
-        } catch (e: Exception) {
-            try {
-                tx.rollback()
-            } catch (re: Throwable) {
-                re.printStackTrace()
+        } catch (e: Throwable) {
+            runCatching {
+                if (tx.isActive) {
+                    tx.rollback()
+                }
             }
-            null
+            throw e
         }
     }
-}
+
+/**
+ * 오타가 포함된 이전 API 이름.
+ *
+ * 유지보수 호환성을 위해 남겨두며, 새 코드에서는 [withStateless]를 사용하세요.
+ */
+@Deprecated(
+    message = "Use withStateless instead.",
+    replaceWith = ReplaceWith("withStateless(block)")
+)
+inline fun <T: Any> SessionFactory.withStatelss(block: (StatelessSession) -> T?): T? =
+    withStateless(block)
 
 /**
  * [block]을 [StatelessSession] 환경하에서 작업을 수행합니다.
@@ -67,4 +78,4 @@ inline fun <T: Any> SessionFactory.withStatelss(block: (StatelessSession) -> T?)
  * @return 결과 값
  */
 inline fun <T: Any> EntityManager.withStateless(block: (StatelessSession) -> T?): T? =
-    this.sessionFactory().withStatelss(block)
+    this.sessionFactory().withStateless(block)

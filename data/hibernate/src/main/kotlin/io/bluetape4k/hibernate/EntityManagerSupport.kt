@@ -8,6 +8,7 @@ import org.hibernate.SessionFactory
 import org.hibernate.internal.SessionImpl
 import java.io.Serializable
 import java.sql.Connection
+import kotlin.reflect.KClass
 
 /**
  * 현 [EntityManager] 가 사용하는 Hibernate [Session] 을 가져옵니다.
@@ -22,12 +23,12 @@ fun EntityManager.asSession(): Session = unwrap(Session::class.java)
 /**
  * 현 [EntityManager] 가 사용하는 Hibernate [SessionImpl] 을 가져옵니다.
  */
-fun EntityManager.currentSessionImpl(): SessionImpl = unwrap(Session::class.java) as SessionImpl
+fun EntityManager.currentSessionImpl(): SessionImpl = unwrap(SessionImpl::class.java)
 
 /**
  * 현 [EntityManager] 가 사용하는 Hibernate [SessionImpl] 을 가져옵니다.
  */
-fun EntityManager.asSessionImpl(): SessionImpl = unwrap(Session::class.java) as SessionImpl
+fun EntityManager.asSessionImpl(): SessionImpl = unwrap(SessionImpl::class.java)
 
 /**
  * 현 [EntityManager] 가 사용하는 Hibernate [SessionFactory] 를 가져옵니다.
@@ -36,11 +37,12 @@ fun EntityManager.sessionFactory(): SessionFactory = currentSession().sessionFac
 
 
 const val QUERY_DELETE_ALL = "delete from %s x"
-const val QUERY_COUNT = "select n(*) from %s x"
+const val QUERY_COUNT = "select count(*) from %s x"
 const val QUERY_COUNT_HOLDER = "*"
 
 
-private fun queryString(template: String, entityName: String): String = template.format(entityName)
+@PublishedApi
+internal fun queryString(template: String, entityName: String): String = template.format(entityName)
 
 /**
  * 새로운 [TypedQuery]`<T>` 를 생성합니다.
@@ -55,6 +57,18 @@ fun <T> EntityManager.newQuery(resultClass: Class<T>): TypedQuery<T> {
 
     return createQuery(query)
 }
+
+/**
+ * JPQL 문자열과 결과 수형을 받아 [TypedQuery]를 생성합니다.
+ */
+fun <T: Any> EntityManager.createQueryAs(queryString: String, resultClass: KClass<T>): TypedQuery<T> =
+    createQuery(queryString, resultClass.java)
+
+/**
+ * JPQL 문자열과 reified 타입으로 [TypedQuery]를 생성합니다.
+ */
+inline fun <reified T: Any> EntityManager.createQueryAs(queryString: String): TypedQuery<T> =
+    createQueryAs(queryString, T::class)
 
 /**
  * 새로운 [TypedQuery]`<T>` 를 생성합니다.
@@ -122,7 +136,7 @@ fun <T: JpaEntity<*>> EntityManager.delete(entity: T) {
  * id에 해당하는 엔티티를 삭제합니다.
  */
 inline fun <reified T> EntityManager.deleteById(id: Serializable) {
-    val entity = this.getReference(T::class.java, id)
+    val entity = this.find(T::class.java, id)
     entity?.let { remove(it) }
 }
 
@@ -149,9 +163,27 @@ fun <T> EntityManager.findAll(clazz: Class<T>): List<T> {
 }
 
 /**
+ * [T] 수형의 엔티티 전체 개수를 반환합니다.
+ */
+inline fun <reified T: Any> EntityManager.countAll(): Long {
+    val entityName = sessionFactory().getEntityName<T>() ?: T::class.java.simpleName
+    val query = queryString(QUERY_COUNT, entityName)
+    return (createQuery(query).singleResult as Number).toLong()
+}
+
+/**
+ * [T] 수형의 엔티티를 모두 삭제하고, 삭제한 행 수를 반환합니다.
+ */
+inline fun <reified T: Any> EntityManager.deleteAll(): Int {
+    val entityName = sessionFactory().getEntityName<T>() ?: T::class.java.simpleName
+    val query = queryString(QUERY_DELETE_ALL, entityName)
+    return createQuery(query).executeUpdate()
+}
+
+/**
  * 현 [EntityManager] 가 사용하는 [Connection] 을 가져옵니다.
  */
-fun <T> EntityManager.currentConnection(): Connection {
+fun EntityManager.currentConnection(): Connection {
     return currentSessionImpl()
         .jdbcCoordinator
         .logicalConnection

@@ -23,11 +23,17 @@ import java.util.*
 class LocaleAsStringConverter: AttributeConverter<Locale?, String?> {
 
     override fun convertToDatabaseColumn(attribute: Locale?): String? {
-        return attribute?.toString()
+        return attribute?.toLanguageTag()
     }
 
     override fun convertToEntityAttribute(dbData: String?): Locale? {
-        return dbData?.run { Locale.forLanguageTag(this) }
+        val normalized = dbData
+            ?.trim()
+            ?.takeIf { it.isNotEmpty() }
+            ?.replace('_', '-')
+            ?: return null
+
+        return Locale.forLanguageTag(normalized)
     }
 
 }

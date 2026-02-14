@@ -24,9 +24,13 @@ inline fun <T> EntityManagerFactory.withNewEntityManager(block: (EntityManager) 
             val result = block(em)
             em.transaction.commit()
             return result
-        } catch (e: Exception) {
-            em.transaction.rollback()
-            throw RuntimeException(e)
+        } catch (e: Throwable) {
+            runCatching {
+                if (em.transaction.isActive) {
+                    em.transaction.rollback()
+                }
+            }
+            throw e
         }
     }
 }
