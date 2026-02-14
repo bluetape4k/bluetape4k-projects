@@ -1,19 +1,25 @@
 package io.bluetape4k.hibernate.reactive.examples.mutiny
 
+import io.bluetape4k.hibernate.criteria.createQueryAs
+import io.bluetape4k.hibernate.criteria.from
 import io.bluetape4k.hibernate.reactive.examples.model.Author
 import io.bluetape4k.hibernate.reactive.examples.model.Author_
 import io.bluetape4k.hibernate.reactive.examples.model.Book
 import io.bluetape4k.hibernate.reactive.examples.model.Book_
+import io.bluetape4k.hibernate.reactive.mutiny.createEntityGraphAs
+import io.bluetape4k.hibernate.reactive.mutiny.createSelectionQueryAs
 import io.bluetape4k.hibernate.reactive.mutiny.findAs
 import io.bluetape4k.hibernate.reactive.mutiny.withSessionSuspending
 import io.bluetape4k.hibernate.reactive.mutiny.withTransactionSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.smallrye.mutiny.coroutines.awaitSuspending
+import jakarta.persistence.LockModeType
 import jakarta.persistence.criteria.CriteriaQuery
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeNull
+import org.hibernate.LazyInitializationException
 import org.hibernate.graph.RootGraph
 import org.hibernate.reactive.mutiny.Mutiny
 import org.junit.jupiter.api.BeforeAll
@@ -22,6 +28,7 @@ import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import java.time.LocalDate
 import java.time.Month
+import kotlin.test.assertFailsWith
 
 @Execution(ExecutionMode.SAME_THREAD)
 class MutinySessionFactoryExamples: AbstractMutinyTest() {
@@ -73,10 +80,38 @@ class MutinySessionFactoryExamples: AbstractMutinyTest() {
     }
 
     @Test
+    fun `withTransactionSuspending 은 transaction 인자를 전달한다`() = runSuspendIO {
+        val count = sf.withTransactionSuspending { session, transaction ->
+            transaction.shouldNotBeNull()
+            session.createSelectionQueryAs<Long>("select count(a) from Author a")
+                .singleResult
+                .awaitSuspending()
+                .toLong()
+        }
+
+        count shouldBeEqualTo 2L
+    }
+
+    @Test
+    fun `findAs 는 LockModeType 과 EntityGraph 오버로드를 지원한다`() = runSuspendIO {
+        sf.withSessionSuspending { session ->
+            val byLockMode = session.findAs<Book>(book1.id, LockModeType.NONE).awaitSuspending()
+            byLockMode.shouldNotBeNull()
+
+            val graph = session.createEntityGraphAs<Book>().apply {
+                addAttributeNodes(Book_.author)
+            }
+            val byGraph = session.findAs(graph, book2.id).awaitSuspending()
+            byGraph.shouldNotBeNull()
+            byGraph.author.shouldNotBeNull()
+        }
+    }
+
+    @Test
     fun `find all book with fetch join`() = runSuspendIO {
         val sql = "SELECT b FROM Book b LEFT JOIN FETCH b.author a"
         val books = sf.withSessionSuspending { session ->
-            session.createSelectionQuery(sql, Book::class.java).resultList.awaitSuspending()
+            session.createSelectionQueryAs<Book>(sql).resultList.awaitSuspending()
         }
         books.forEach {
             println("book=$it, author=${it.author}")
@@ -86,12 +121,12 @@ class MutinySessionFactoryExamples: AbstractMutinyTest() {
 
     @Test
     fun `find all by entity graph`() = runSuspendIO {
-        val criteria = sf.criteriaBuilder.createQuery(Book::class.java)
-        val root = criteria.from(Book::class.java)
+        val criteria = sf.criteriaBuilder.createQueryAs<Book>()
+        val root = criteria.from<Book>()
         criteria.select(root)
 
         val books = sf.withSessionSuspending { session ->
-            val graph = session.createEntityGraph(Book::class.java)
+            val graph = session.createEntityGraphAs<Book>()
             graph.addAttributeNodes(Book::author.name)
 
             val query: Mutiny.SelectionQuery<Book> = session.createQuery(criteria)
@@ -108,14 +143,14 @@ class MutinySessionFactoryExamples: AbstractMutinyTest() {
     @Test
     fun `find book by author name`() = runSuspendIO {
         val cb = sf.criteriaBuilder
-        val criteria = cb.createQuery(Book::class.java)
-        val book = criteria.from(Book::class.java)
+        val criteria = cb.createQueryAs<Book>()
+        val book = criteria.from()
         val author = book.join(Book_.author)
 
         criteria.select(book).where(cb.equal(author.get(Author_.name), author1.name))
 
         val books = sf.withSessionSuspending { session ->
-            val graph = session.createEntityGraph(Book::class.java)
+            val graph = session.createEntityGraphAs<Book>()
             graph.addAttributeNodes(Book_.author)
 
             val query = session.createQuery(criteria)
@@ -131,18 +166,22 @@ class MutinySessionFactoryExamples: AbstractMutinyTest() {
     @Test
     fun `find all authors by book isbn`() = runSuspendIO {
         val cb = sf.criteriaBuilder
-        val criteria = cb.createQuery(Author::class.java)
-        val author = criteria.from(Author::class.java)
+        val criteria = cb.createQueryAs<Author>()
+        val author = criteria.from()
         val book = author.join(Author_.books)
         criteria.select(author).where(cb.equal(book.get(Book_.isbn), book1.isbn))
 
         val authors = sf.withSessionSuspending { session ->
             session.createQuery(criteria).resultList.awaitSuspending()
-        } // NOTE: author 만 로딩했으므로, books 에 접근하면 lazy initialization 예외가 발생합니다.
-        authors.forEach {
-            println(it) //            it.books.forEach { book ->
-            //                println("book=$book")
-            //            }
+        }
+
+        // NOTE: author 만 로딩했으므로, books 에 접근하면 lazy initialization 예외가 발생합니다.
+        assertFailsWith<LazyInitializationException> {
+            authors.forEach {
+                it.books.forEach { book ->
+                    println("book=$book")
+                }
+            }
         }
     }
 
@@ -150,15 +189,15 @@ class MutinySessionFactoryExamples: AbstractMutinyTest() {
     @Test
     fun `find author and book by book isbn`() = runSuspendIO {
         val cb = sf.criteriaBuilder
-        val criteria: CriteriaQuery<Author> = cb.createQuery(Author::class.java)
-        val author = criteria.from(Author::class.java)
+        val criteria: CriteriaQuery<Author> = cb.createQueryAs<Author>()
+        val author = criteria.from()
         val book = author.join(Author_.books)
 
         // where 조건
         criteria.select(author).where(cb.equal(book.get(Book_.isbn), book2.isbn))
 
         val authors = sf.withSessionSuspending { session -> // inner join fetch
-            val graph = session.createEntityGraph(Author::class.java).apply {
+            val graph = session.createEntityGraphAs<Author>().apply {
                 addAttributeNodes(Author_.books)
             } as RootGraph<Author>
 
@@ -180,8 +219,8 @@ class MutinySessionFactoryExamples: AbstractMutinyTest() {
     @Test
     fun `find author by book isbn and fetch book`() = runSuspendIO {
         val cb = sf.criteriaBuilder
-        val criteria: CriteriaQuery<Author> = cb.createQuery(Author::class.java)
-        val author = criteria.from(Author::class.java)
+        val criteria: CriteriaQuery<Author> = cb.createQueryAs<Author>()
+        val author = criteria.from()
         val book = author.join(Author_.books)
 
         // where 조건
