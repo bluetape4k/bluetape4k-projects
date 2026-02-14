@@ -30,13 +30,13 @@ inline fun <T: SettableById<T>, reified K, reified V> SettableById<T>.setMap(id:
 inline fun <T: SettableByIndex<T>, reified V> SettableByIndex<T>.setValue(index: Int, value: V): T =
     set(index, value, V::class.java)
 
-inline fun <T: SettableById<T>, reified V> SettableByIndex<T>.setList(index: Int, values: List<V>): T =
+inline fun <T: SettableByIndex<T>, reified V> SettableByIndex<T>.setList(index: Int, values: List<V>): T =
     setList(index, values, V::class.java)
 
-inline fun <T: SettableById<T>, reified V> SettableByIndex<T>.setSet(index: Int, values: Set<V>): T =
+inline fun <T: SettableByIndex<T>, reified V> SettableByIndex<T>.setSet(index: Int, values: Set<V>): T =
     setSet(index, values, V::class.java)
 
-inline fun <T: SettableById<T>, reified K, reified V> SettableByIndex<T>.setMap(index: Int, values: Map<K, V>): T =
+inline fun <T: SettableByIndex<T>, reified K, reified V> SettableByIndex<T>.setMap(index: Int, values: Map<K, V>): T =
     setMap(index, values, K::class.java, V::class.java)
 
 

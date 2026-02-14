@@ -10,3 +10,6 @@ fun Duration.toCqlDuration(): CqlDuration {
 fun cqlDurationOf(month: Int, days: Int, nanos: Long = 0L): CqlDuration {
     return CqlDuration.newInstance(month, days, nanos)
 }
+
+fun kotlin.time.Duration.toCqlDuration(): CqlDuration =
+    cqlDurationOf(0, inWholeDays.toInt(), inWholeNanoseconds)

@@ -26,11 +26,11 @@ class AsyncResultSetSupportTest: AbstractCassandraTest() {
     @BeforeAll
     fun setup() {
         runSuspendIO {
-            session.suspendExecute("DROP TABLE IF EXISTS bulks")
-            session.suspendExecute("CREATE TABLE IF NOT EXISTS bulks (id text PRIMARY KEY, name text);")
-            session.suspendExecute("TRUNCATE bulks")
+            session.executeSuspending("DROP TABLE IF EXISTS bulks")
+            session.executeSuspending("CREATE TABLE IF NOT EXISTS bulks (id text PRIMARY KEY, name text);")
+            session.executeSuspending("TRUNCATE bulks")
 
-            val ps = session.suspendPrepare("INSERT INTO bulks(id, name) VALUES(?, ?)")
+            val ps = session.prepareSuspending("INSERT INTO bulks(id, name) VALUES(?, ?)")
             val futures = fastList(SIZE) {
                 val id = it.toString()
                 val name = faker.credentials().username()
@@ -46,7 +46,7 @@ class AsyncResultSetSupportTest: AbstractCassandraTest() {
         log.debug { "Load all bulks" }
         val counter = AtomicInteger(0)
 
-        val flow = session.suspendExecute("SELECT * FROM bulks").asFlow()
+        val flow = session.executeSuspending("SELECT * FROM bulks").asFlow()
         flow
             .buffer()
             .onEach { row ->
@@ -71,7 +71,7 @@ class AsyncResultSetSupportTest: AbstractCassandraTest() {
         val counter = AtomicInteger(0)
 
         val flow = session
-            .suspendExecute("SELECT * FROM bulks")
+            .executeSuspending("SELECT * FROM bulks")
             .asFlow { row -> Bulk(row.getStringOrEmpty(0), row.getStringOrEmpty(1)) }
 
         flow.buffer()

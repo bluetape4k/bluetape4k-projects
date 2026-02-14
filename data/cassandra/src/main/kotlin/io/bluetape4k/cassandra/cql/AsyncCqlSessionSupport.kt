@@ -3,6 +3,7 @@ package io.bluetape4k.cassandra.cql
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.cql.AsyncCqlSession
 import com.datastax.oss.driver.api.core.cql.AsyncResultSet
+import com.datastax.oss.driver.api.core.cql.PrepareRequest
 import com.datastax.oss.driver.api.core.cql.PreparedStatement
 import com.datastax.oss.driver.api.core.cql.SimpleStatement
 import com.datastax.oss.driver.api.core.cql.Statement
@@ -10,106 +11,105 @@ import com.datastax.oss.driver.internal.core.cql.DefaultPrepareRequest
 import kotlinx.coroutines.future.await
 
 /**
- * [CqlSession]을 이용하여 `query`를 실행할 때, suspend 함수로 실행하도록 합니다.
+ * [CqlSession] query 를 suspend 환경에서 실행합니다.
  *
  * ```
  * val session = CqlSession.builder().build()
  * val result = session.executeSuspending("SELECT * FROM table")
  * ```
- *
- * @param cql  실행할 Query statement
- * @param values parameter 값
- * @return [AsyncResultSet] 인스턴스
  */
-suspend inline fun AsyncCqlSession.suspendExecute(cql: String, vararg values: Any?): AsyncResultSet {
-    return executeAsync(statementOf(cql, *values)).await()
-}
-
-@Deprecated("use suspendExecute", replaceWith = ReplaceWith("suspendExecute(cql, *values)"))
-suspend fun AsyncCqlSession.executeSuspending(cql: String, vararg values: Any?): AsyncResultSet {
-    return executeAsync(statementOf(cql, *values)).await()
-}
+suspend inline fun AsyncCqlSession.executeSuspending(cql: String, vararg values: Any?): AsyncResultSet =
+    executeSuspending(statementOf(cql, *values))
 
 /**
- * [CqlSession]을 이용하여 `query`를 실행할 때, suspend 함수로 실행하도록 합니다.
+ * [CqlSession] named parameter query 를 suspend 환경에서 실행합니다.
  *
  * ```
  * val session = CqlSession.builder().build()
  * val result = session.executeSuspending("SELECT * FROM table where key=:key", mapOf("key" to "value"))
  * ```
- *
- * @param cql  실행할 Query statement
- * @param values parameter name-value map
- * @return [AsyncResultSet] 인스턴스
  */
-suspend inline fun AsyncCqlSession.suspendExecute(cql: String, values: Map<String, Any?>): AsyncResultSet {
-    return executeAsync(statementOf(cql, values)).await()
-}
+suspend inline fun AsyncCqlSession.executeSuspending(cql: String, values: Map<String, Any?>): AsyncResultSet =
+    executeSuspending(statementOf(cql, values))
 
-@Deprecated("use suspendExecute", replaceWith = ReplaceWith("suspendExecute(cql, values)"))
-suspend fun AsyncCqlSession.executeSuspending(cql: String, values: Map<String, Any?>): AsyncResultSet {
-    return executeAsync(statementOf(cql, values)).await()
-}
+suspend inline fun AsyncCqlSession.executeSuspending(cql: String): AsyncResultSet =
+    executeSuspending(statementOf(cql))
 
 /**
- * [CqlSession]을 이용하여 `query`를 실행할 때, suspend 함수로 실행하도록 합니다.
+ * [Statement] 를 suspend 환경에서 실행합니다.
  *
  * ```
  * val session = CqlSession.builder().build()
- * val statement = SimpleStatement.newInstance("SELECT * FROM table where key=:key", mapOf("key" to "value"))
+ * val statement = SimpleStatement.newInstance("SELECT * FROM table")
  * val result = session.executeSuspending(statement)
  * ```
- *
- * @param statement 실행할 statement
- * @return [AsyncResultSet] 인스턴스
  */
-suspend inline fun AsyncCqlSession.suspendExecute(statement: Statement<*>): AsyncResultSet {
-    return executeAsync(statement).await()
-}
+suspend inline fun AsyncCqlSession.executeSuspending(statement: Statement<*>): AsyncResultSet =
+    executeAsync(statement).await()
 
-@Deprecated("use suspendExecute", replaceWith = ReplaceWith("suspendExecute(statement)"))
-suspend fun AsyncCqlSession.executeSuspending(statement: Statement<*>): AsyncResultSet {
-    return executeAsync(statement).await()
-}
 
 /**
- * [PreparedStatement]를 준비합니다.
+ * [PreparedStatement] 를 suspend 환경에서 준비합니다.
  *
  * ```
  * val session = CqlSession.builder().build()
  * val statement = session.prepareSuspending("SELECT * FROM table where key=:key")
- * val result = session.executeAsync(statement, mapOf("key" to "value"))
  * ```
- *
- * @param cql 실행할 cassandra query
- * @return [AsyncResultSet] 인스턴스
  */
-suspend inline fun AsyncCqlSession.suspendPrepare(cql: String): PreparedStatement {
-    return prepareAsync(DefaultPrepareRequest(cql)).await()
-}
-
-@Deprecated("use suspendPrepare", replaceWith = ReplaceWith("suspendPrepare(cql)"))
-suspend fun AsyncCqlSession.prepareSuspending(cql: String): PreparedStatement {
-    return prepareAsync(DefaultPrepareRequest(cql)).await()
-}
+suspend inline fun AsyncCqlSession.prepareSuspending(cql: String): PreparedStatement =
+    prepareSuspending(DefaultPrepareRequest(cql))
 
 /**
- * [PreparedStatement]를 준비합니다.
+ * [SimpleStatement] 기반 [PreparedStatement] 를 suspend 환경에서 준비합니다.
  *
  * ```
  * val session = CqlSession.builder().build()
- * val statement = SimpleStatement.newInstance("SELECT * FROM table where key=:key", mapOf("key" to "value"))
- * val result = session.prepareSuspending(statement)
+ * val statement = SimpleStatement.newInstance("SELECT * FROM table where key=:key")
+ * val prepared = session.prepareSuspending(statement)
  * ```
- *
- * @param statement 실행할 statement
- * @return [AsyncResultSet] 인스턴스
  */
-suspend inline fun AsyncCqlSession.suspendPrepare(statement: SimpleStatement): PreparedStatement {
-    return prepareAsync(DefaultPrepareRequest(statement)).await()
-}
+suspend inline fun AsyncCqlSession.prepareSuspending(statement: SimpleStatement): PreparedStatement =
+    prepareSuspending(DefaultPrepareRequest(statement))
 
-@Deprecated("use suspendPrepare", replaceWith = ReplaceWith("suspendPrepare(statement)"))
-suspend fun AsyncCqlSession.prepareSuspending(statement: SimpleStatement): PreparedStatement {
-    return prepareAsync(DefaultPrepareRequest(statement)).await()
-}
+suspend inline fun AsyncCqlSession.prepareSuspending(request: PrepareRequest): PreparedStatement =
+    prepareAsync(request).await()
+
+@Deprecated("Use executeSuspending", replaceWith = ReplaceWith("executeSuspending(cql, *values)"))
+suspend inline fun AsyncCqlSession.suspendExecute(cql: String, vararg values: Any?): AsyncResultSet =
+    executeSuspending(cql, *values)
+
+@Deprecated("Use executeSuspending", replaceWith = ReplaceWith("executeSuspending(cql, values)"))
+suspend inline fun AsyncCqlSession.suspendExecute(cql: String, values: Map<String, Any?>): AsyncResultSet =
+    executeSuspending(cql, values)
+
+@Deprecated("Use executeSuspending", replaceWith = ReplaceWith("executeSuspending(statement)"))
+suspend inline fun AsyncCqlSession.suspendExecute(statement: Statement<*>): AsyncResultSet =
+    executeSuspending(statement)
+
+@Deprecated("Use prepareSuspending", replaceWith = ReplaceWith("prepareSuspending(cql)"))
+suspend inline fun AsyncCqlSession.suspendPrepare(cql: String): PreparedStatement =
+    prepareSuspending(cql)
+
+@Deprecated("Use prepareSuspending", replaceWith = ReplaceWith("prepareSuspending(statement)"))
+suspend inline fun AsyncCqlSession.suspendPrepare(statement: SimpleStatement): PreparedStatement =
+    prepareSuspending(statement)
+
+@Deprecated("Use executeSuspending", replaceWith = ReplaceWith("executeSuspending(cql, *values)"))
+suspend inline fun AsyncCqlSession.execute(cql: String, vararg values: Any?): AsyncResultSet =
+    executeSuspending(cql, *values)
+
+@Deprecated("Use executeSuspending", replaceWith = ReplaceWith("executeSuspending(cql, values)"))
+suspend inline fun AsyncCqlSession.execute(cql: String, values: Map<String, Any?>): AsyncResultSet =
+    executeSuspending(cql, values)
+
+@Deprecated("Use executeSuspending", replaceWith = ReplaceWith("executeSuspending(statement)"))
+suspend inline fun AsyncCqlSession.execute(statement: Statement<*>): AsyncResultSet =
+    executeSuspending(statement)
+
+@Deprecated("Use prepareSuspending", replaceWith = ReplaceWith("prepareSuspending(cql)"))
+suspend inline fun AsyncCqlSession.prepare(cql: String): PreparedStatement =
+    prepareSuspending(cql)
+
+@Deprecated("Use prepareSuspending", replaceWith = ReplaceWith("prepareSuspending(statement)"))
+suspend inline fun AsyncCqlSession.prepare(statement: SimpleStatement): PreparedStatement =
+    prepareSuspending(statement)

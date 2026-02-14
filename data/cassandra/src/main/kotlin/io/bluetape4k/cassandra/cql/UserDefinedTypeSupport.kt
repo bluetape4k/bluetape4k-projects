@@ -3,12 +3,13 @@ package io.bluetape4k.cassandra.cql
 import com.datastax.oss.driver.api.core.CqlIdentifier
 import com.datastax.oss.driver.api.core.type.UserDefinedType
 import com.datastax.oss.driver.internal.core.type.UserDefinedTypeBuilder
+import io.bluetape4k.cassandra.toCqlIdentifier
 
 /**
  * [UserDefinedTypeBuilder]를 사용하여, [UserDefinedType] 을 생성합니다.
  *
  * ```
- * val userType = userDefinedType("keyspace", "type".asCqlIdentifier()) {
+ * val userType = userDefinedTypeOf("keyspace", "type".asCqlIdentifier()) {
  *    withField("field1", DataTypes.TEXT)
  *    withField("field2", DataTypes.INT)
  *    withField("field3", DataTypes.BOOLEAN)
@@ -21,7 +22,7 @@ import com.datastax.oss.driver.internal.core.type.UserDefinedTypeBuilder
  * @param typeId 타입 식별자
  * @param builder 초기화 블럭
  */
-inline fun userDefinedType(
+inline fun userDefinedTypeOf(
     keyspaceId: CqlIdentifier,
     typeId: CqlIdentifier,
     @BuilderInference builder: UserDefinedTypeBuilder.() -> Unit,
@@ -33,7 +34,7 @@ inline fun userDefinedType(
  * [UserDefinedTypeBuilder]를 사용하여, [UserDefinedType] 을 생성합니다.
  *
  * ```
- * val userType = userDefinedType("keyspace", "type") {
+ * val userType = userDefinedTypeOf("keyspace", "type") {
  *     withField("field1", DataTypes.TEXT)
  *     withField("field2", DataTypes.INT)
  *     withField("field3", DataTypes.BOOLEAN)
@@ -46,10 +47,12 @@ inline fun userDefinedType(
  * @param typeName 타입 명
  * @param builder 초기화 블럭
  */
-inline fun userDefinedType(
+inline fun userDefinedTypeOf(
     keyspaceName: String,
     typeName: String,
     @BuilderInference builder: UserDefinedTypeBuilder.() -> Unit,
-): UserDefinedType {
-    return UserDefinedTypeBuilder(keyspaceName, typeName).apply(builder).build()
-}
+): UserDefinedType = userDefinedTypeOf(
+    keyspaceName.toCqlIdentifier(),
+    typeName.toCqlIdentifier(),
+    builder
+)

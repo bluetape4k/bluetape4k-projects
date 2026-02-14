@@ -3,7 +3,7 @@ package io.bluetape4k.cassandra.cql
 import com.datastax.oss.driver.api.core.cql.AsyncResultSet
 import com.datastax.oss.driver.api.core.cql.Row
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.future.await
 
 /**
@@ -30,17 +30,13 @@ fun AsyncResultSet.asFlow(): Flow<Row> = asFlow { it }
  * @param mapper [Row]를 변환할 함수
  * @return [Flow] 인스턴스
  */
-inline fun <T> AsyncResultSet.asFlow(crossinline mapper: suspend (row: Row) -> T): Flow<T> = channelFlow {
-    var current = this@asFlow
-    while (current.remaining() > 0) {
-        current.currentPage()
-            .forEach { row ->
-                send(mapper(row))
-            }
-        if (current.hasMorePages()) {
-            current = current.fetchNextPage().await()
-        } else {
-            break
+inline fun <T> AsyncResultSet.asFlow(crossinline mapper: suspend (row: Row) -> T): Flow<T> = flow {
+    var page = this@asFlow
+    while (true) {
+        for (row in page.currentPage()) {
+            emit(mapper(row))
         }
+        if (!page.hasMorePages()) break
+        page = page.fetchNextPage().await()
     }
 }

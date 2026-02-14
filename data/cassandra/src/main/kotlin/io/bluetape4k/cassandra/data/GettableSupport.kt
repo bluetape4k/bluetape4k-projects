@@ -1,6 +1,7 @@
 package io.bluetape4k.cassandra.data
 
 import com.datastax.oss.driver.api.core.CqlIdentifier
+import com.datastax.oss.driver.api.core.data.CqlDuration
 import com.datastax.oss.driver.api.core.data.GettableById
 import com.datastax.oss.driver.api.core.data.GettableByIndex
 import com.datastax.oss.driver.api.core.data.GettableByName
@@ -8,8 +9,10 @@ import com.datastax.oss.driver.api.core.data.TupleValue
 import com.datastax.oss.driver.api.core.data.UdtValue
 import com.datastax.oss.driver.api.core.metadata.token.Token
 import io.bluetape4k.io.getBytes
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.net.InetAddress
 import java.nio.ByteBuffer
 import java.sql.Timestamp
 import java.time.Instant
@@ -31,13 +34,14 @@ fun GettableById.getObject(id: CqlIdentifier, requireType: KClass<*>): Any? =
 
 
 fun <V: Any> GettableByIndex.getValue(index: Int, kclass: KClass<V>): V? = get(index, kclass.java)
-inline fun <reified V: Any> GettableById.getValue(index: Int): V? = get(index, V::class.java)
+inline fun <reified V: Any> GettableByIndex.getValue(index: Int): V? = get(index, V::class.java)
 inline fun <reified V: Any> GettableByIndex.getList(index: Int): MutableList<V>? = getList(index, V::class.java)
 inline fun <reified V: Any> GettableByIndex.getSet(index: Int): MutableSet<V>? = getSet(index, V::class.java)
 inline fun <reified K, reified V> GettableByIndex.getMap(index: Int): MutableMap<K, V>? =
     getMap(index, K::class.java, V::class.java)
 
 fun GettableByIndex.getObject(index: Int, requireType: KClass<*>): Any? {
+    index.requireZeroOrPositiveNumber("index")
     if (isNull(index)) {
         return null
     }
@@ -59,6 +63,8 @@ fun GettableByIndex.getObject(index: Int, requireType: KClass<*>): Any? {
         Instant::class    -> getInstant(index)
         ByteBuffer::class -> getByteBuffer(index)
         ByteArray::class  -> getByteBuffer(index)?.getBytes()
+        InetAddress::class -> getInetAddress(index)
+        CqlDuration::class -> getCqlDuration(index)
         Token::class      -> getToken(index)
         TupleValue::class -> getTupleValue(index)
         UdtValue::class   -> getUdtValue(index)

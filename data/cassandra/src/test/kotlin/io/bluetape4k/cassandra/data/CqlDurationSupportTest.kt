@@ -8,13 +8,14 @@ import java.time.Duration
 import java.time.temporal.ChronoUnit
 import java.time.temporal.UnsupportedTemporalTypeException
 import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.days
 
 class CqlDurationSupportTest {
 
     companion object: KLoggingChannel()
 
     @Test
-    fun `should convert Duration to CqlDuration`() {
+    fun `should convert java Duration to CqlDuration`() {
         val duration = Duration.ofDays(42)
         val cqlDuration = duration.toCqlDuration()
 
@@ -30,7 +31,7 @@ class CqlDurationSupportTest {
     }
 
     @Test
-    fun `should negative duration convert to CqlDuration`() {
+    fun `should java negative duration convert to CqlDuration`() {
         val duration = Duration.ofDays(3).negated()
         val cqlDuration = duration.toCqlDuration()
 
@@ -39,6 +40,35 @@ class CqlDurationSupportTest {
         cqlDuration.months shouldBeEqualTo 0
         cqlDuration.days shouldBeEqualTo duration.toDays().toInt()
         cqlDuration.nanoseconds shouldBeEqualTo duration.toNanos()
+    }
+
+
+    @Test
+    fun `should convert kotlin Duration to CqlDuration`() {
+        val duration = 42.days
+        val cqlDuration = duration.toCqlDuration()
+
+        log.debug { "42 Days = $cqlDuration" }
+
+        cqlDuration.months shouldBeEqualTo 0
+        cqlDuration.days shouldBeEqualTo duration.inWholeDays.toInt()
+        cqlDuration.nanoseconds shouldBeEqualTo duration.inWholeNanoseconds
+
+        assertFailsWith<UnsupportedTemporalTypeException> {
+            cqlDuration[ChronoUnit.SECONDS] shouldBeEqualTo 0L
+        }
+    }
+
+    @Test
+    fun `should kotlin negative duration convert to CqlDuration`() {
+        val duration = (-3).days
+        val cqlDuration = duration.toCqlDuration()
+
+        log.debug { "negated duration = $cqlDuration" }
+
+        cqlDuration.months shouldBeEqualTo 0
+        cqlDuration.days shouldBeEqualTo duration.inWholeDays.toInt()
+        cqlDuration.nanoseconds shouldBeEqualTo duration.inWholeNanoseconds
     }
 
     @Test

@@ -3,7 +3,6 @@ package io.bluetape4k.cassandra.cql
 import com.datastax.oss.driver.api.core.CqlIdentifier
 import com.datastax.oss.driver.api.core.cql.Row
 import com.datastax.oss.driver.api.core.type.codec.TypeCodec
-import io.bluetape4k.collections.eclipse.toUnifiedMap
 import io.bluetape4k.support.EMPTY_STRING
 
 /**
@@ -26,7 +25,8 @@ fun Row.getStringOrEmpty(id: CqlIdentifier): String = getString(id) ?: EMPTY_STR
  */
 fun Row.toMap(): Map<Int, Any?> =
     columnDefinitions
-        .mapIndexed { i, definition ->
+        .withIndex()
+        .associate { (i, definition) ->
             val codec = codecRegistry().codecFor<Any?>(definition.type)
             val value =
                 if (isNull(definition.name)) null
@@ -34,14 +34,14 @@ fun Row.toMap(): Map<Int, Any?> =
 
             i to value
         }
-        .toUnifiedMap()
 
 /**
  * [Row] 정보를 `Named Map` 으로 변환합니다.
  */
 fun Row.toNamedMap(): Map<String, Any?> =
     columnDefinitions
-        .mapIndexed { i, definition ->
+        .withIndex()
+        .map { (i, definition) ->
             val name = definition.name.asCql(true)
             val codec = codecRegistry().codecFor<Any?>(definition.type)
             val value =
@@ -50,14 +50,16 @@ fun Row.toNamedMap(): Map<String, Any?> =
 
             name to value
         }
-        .toUnifiedMap()
+        .sortedBy { it.first }
+        .toMap()
 
 /**
  * [Row] 정보를 [transform]을 통해 [Map] 으로 반환합니다.
  */
 inline fun <T> Row.map(transform: (Any?) -> T): Map<Int, T> =
     columnDefinitions
-        .mapIndexed { i, definition ->
+        .withIndex()
+        .associate { (i, definition) ->
             val codec = codecRegistry().codecFor<Any?>(definition.type)
             val value =
                 if (isNull(definition.name)) null
@@ -65,14 +67,14 @@ inline fun <T> Row.map(transform: (Any?) -> T): Map<Int, T> =
 
             i to transform(value)
         }
-        .toUnifiedMap()
 
 /**
  * [Row] 정보를 [transform]을 통해 `Named Map` 으로 변환합니다.
  */
 inline fun <T> Row.mapWithName(transform: (Any?) -> T): Map<String, T> =
     columnDefinitions
-        .mapIndexed { i, definition ->
+        .withIndex()
+        .map { (i, definition) ->
             val name = definition.name.asCql(true)
             val codec = codecRegistry().codecFor<Any?>(definition.type)
             val value =
@@ -81,14 +83,16 @@ inline fun <T> Row.mapWithName(transform: (Any?) -> T): Map<String, T> =
 
             name to transform(value)
         }
-        .toUnifiedMap()
+        .sortedBy { it.first }
+        .toMap()
 
 /**
  * [Row] 정보를 `CqlIdentifier 기준의 Map` 으로 변환합니다.
  */
 fun Row.toCqlIdentifierMap(): Map<CqlIdentifier, Any?> =
     columnDefinitions
-        .mapIndexed { i, definition ->
+        .withIndex()
+        .map { (i, definition) ->
             val name = definition.name
             val codec = codecRegistry().codecFor<Any?>(definition.type)
             val value =
@@ -97,7 +101,8 @@ fun Row.toCqlIdentifierMap(): Map<CqlIdentifier, Any?> =
 
             name to value
         }
-        .toUnifiedMap()
+        .sortedBy { it.first.asInternal() }
+        .toMap()
 
 /**
  * [Row] 정보에서 컬럼 정의와 [TypeCodec]의 [Map] 으로 반환합니다.
@@ -110,7 +115,8 @@ fun Row.columnCodecs(): Map<CqlIdentifier, TypeCodec<Any?>> {
             val codec = codecRegistry.codecFor<Any?>(columnDef.type)
             identifier to codec
         }
-        .toUnifiedMap()
+        .sortedBy { it.first.asInternal() }
+        .toMap()
 }
 
 /**
@@ -118,7 +124,8 @@ fun Row.columnCodecs(): Map<CqlIdentifier, TypeCodec<Any?>> {
  */
 inline fun <T> Row.mapWithCqlIdentifier(transform: (Any?) -> T): Map<CqlIdentifier, T> {
     return columnDefinitions
-        .mapIndexed { i, definition ->
+        .withIndex()
+        .map { (i, definition) ->
             val name = definition.name
             val codec = codecRegistry().codecFor<Any?>(definition.type)
             val value =
@@ -127,5 +134,6 @@ inline fun <T> Row.mapWithCqlIdentifier(transform: (Any?) -> T): Map<CqlIdentifi
 
             name to transform(value)
         }
-        .toUnifiedMap()
+        .sortedBy { it.first.asInternal() }
+        .toMap()
 }

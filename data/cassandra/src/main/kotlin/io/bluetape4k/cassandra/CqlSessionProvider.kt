@@ -4,6 +4,7 @@ import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.CqlSessionBuilder
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
+import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.utils.ShutdownQueue
 import java.net.InetSocketAddress
 import java.util.concurrent.ConcurrentHashMap
@@ -31,6 +32,7 @@ object CqlSessionProvider: KLogging() {
         contactPoint: InetSocketAddress = DEFAULT_CONTACT_POINT,
         localDatacenter: String = DEFAULT_LOCAL_DATACENTER,
     ): CqlSessionBuilder {
+        localDatacenter.requireNotBlank("localDatacenter")
         return CqlSessionBuilder()
             .addContactPoint(contactPoint)
             .withLocalDatacenter(localDatacenter)
@@ -57,6 +59,10 @@ object CqlSessionProvider: KLogging() {
         builderSupplier: () -> CqlSessionBuilder = { newCqlSessionBuilder() },
         @BuilderInference builder: CqlSessionBuilder.() -> Unit,
     ): CqlSession {
+        keyspace.requireNotBlank("keyspace")
+
+        // Cache may still contain closed sessions from previous runs.
+        // Drop them before resolving the requested keyspace session.
         val closedSessions = sessionCache.filterValues { it.isClosed }
         closedSessions.forEach {
             sessionCache.remove(it.key)

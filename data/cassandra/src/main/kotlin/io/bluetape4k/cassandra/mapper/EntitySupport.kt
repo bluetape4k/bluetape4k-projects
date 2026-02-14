@@ -116,5 +116,5 @@ inline fun <T: Any> CqlSession.prepare(
     entityHelper: EntityHelper<T>,
     @BuilderInference builder: EntityHelper<T>.() -> String,
 ): PreparedStatement {
-    return prepare(builder(entityHelper))
+    return this@prepare.prepare(builder(entityHelper))
 }

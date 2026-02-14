@@ -26,20 +26,29 @@ fun SimpleStatement.toPrepareRequest(): PrepareRequest = DefaultPrepareRequest(t
  * [SimpleStatement]를 생성합니다.
  *
  * ```
- * val statement = simpleStatement("SELECT * FROM table") {
+ * val statement = simpleStatementOf("SELECT * FROM table") {
  *    setKeyspace("keyspace")
  *    setPageSize(100)
  *    setRoutingKey("routing")
  * }
  * ```
  */
-inline fun simpleStatement(
+inline fun simpleStatementOf(
     query: String,
     @BuilderInference builder: SimpleStatementBuilder.() -> Unit,
 ): SimpleStatement {
     query.requireNotBlank("query")
     return SimpleStatement.builder(query).apply(builder).build()
 }
+
+@Deprecated(
+    message = "Use simpleStatementOf(query, builder) for consistent naming.",
+    replaceWith = ReplaceWith("simpleStatementOf(query, builder)")
+)
+inline fun simpleStatement(
+    query: String,
+    @BuilderInference builder: SimpleStatementBuilder.() -> Unit,
+): SimpleStatement = simpleStatementOf(query, builder)
 
 /**
  * [SimpleStatement]를 생성합니다.
@@ -89,12 +98,21 @@ fun statementOf(cql: String, nameValues: Map<String, Any?>): SimpleStatement {
  * }
  * ```
  */
-inline fun boundStatement(
+inline fun boundStatementOf(
     boundStatement: BoundStatement,
     @BuilderInference builder: BoundStatementBuilder.() -> Unit,
 ): BoundStatement {
     return BoundStatementBuilder(boundStatement).apply(builder).build()
 }
+
+@Deprecated(
+    message = "Use boundStatementOf(boundStatement, builder) for consistent naming.",
+    replaceWith = ReplaceWith("boundStatementOf(boundStatement, builder)")
+)
+inline fun boundStatement(
+    boundStatement: BoundStatement,
+    @BuilderInference builder: BoundStatementBuilder.() -> Unit,
+): BoundStatement = boundStatementOf(boundStatement, builder)
 
 /**
  * [BatchStatement] 를 생성합니다.
@@ -148,7 +166,7 @@ fun batchStatementOf(batchType: BatchType, statements: Iterable<BatchableStateme
  * }
  * ```
  */
-inline fun batchStatement(
+inline fun batchStatementOf(
     batchType: BatchType,
     @BuilderInference builder: BatchStatementBuilder.() -> Unit,
 ): BatchStatement {
@@ -171,9 +189,27 @@ inline fun batchStatement(
  * @param template [BatchStatement] template
  * @param builder [BatchStatementBuilder] initializer
  */
-inline fun batchStatement(
+inline fun batchStatementOf(
     template: BatchStatement,
     @BuilderInference builder: BatchStatementBuilder.() -> Unit,
 ): BatchStatement {
     return BatchStatementBuilder(template).apply(builder).build()
 }
+
+@Deprecated(
+    message = "Use batchStatementOf(batchType, builder) for consistent naming.",
+    replaceWith = ReplaceWith("batchStatementOf(batchType, builder)")
+)
+inline fun batchStatement(
+    batchType: BatchType,
+    @BuilderInference builder: BatchStatementBuilder.() -> Unit,
+): BatchStatement = batchStatementOf(batchType, builder)
+
+@Deprecated(
+    message = "Use batchStatementOf(template, builder) for consistent naming.",
+    replaceWith = ReplaceWith("batchStatementOf(template, builder)")
+)
+inline fun batchStatement(
+    template: BatchStatement,
+    @BuilderInference builder: BatchStatementBuilder.() -> Unit,
+): BatchStatement = batchStatementOf(template, builder)

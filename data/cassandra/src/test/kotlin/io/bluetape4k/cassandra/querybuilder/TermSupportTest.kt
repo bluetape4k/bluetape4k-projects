@@ -1,8 +1,7 @@
 package io.bluetape4k.cassandra.querybuilder
 
 import com.datastax.oss.driver.api.core.type.DataTypes
-import io.bluetape4k.cassandra.cql.userDefinedType
-import io.bluetape4k.cassandra.toCqlIdentifier
+import io.bluetape4k.cassandra.cql.userDefinedTypeOf
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
@@ -66,7 +65,7 @@ class TermSupportTest {
         val tupleValue = tupleType.newValue(1, "foo")
         tupleValue.literal().asCql() shouldBeEqualTo "(1,'foo')"
 
-        val udtType = userDefinedType("ks".toCqlIdentifier(), "user".toCqlIdentifier()) {
+        val udtType = userDefinedTypeOf("ks", "user") {
             withField("first_name", DataTypes.TEXT)
             withField("last_name", DataTypes.TEXT)
         }

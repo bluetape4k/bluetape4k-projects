@@ -7,6 +7,7 @@ import org.amshove.kluent.shouldNotBeEqualTo
 import org.junit.jupiter.api.Test
 import java.net.InetSocketAddress
 import java.util.*
+import kotlin.test.assertFailsWith
 
 class CqlSessionProviderTest: AbstractCassandraTest() {
 
@@ -45,5 +46,21 @@ class CqlSessionProviderTest: AbstractCassandraTest() {
         session1.closeSafe()
         session2.closeSafe()
         session3.closeSafe()
+    }
+
+    @Test
+    fun `blank keyspace 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> {
+            CqlSessionProvider.getOrCreateSession(" ") {
+                withApplicationName("provider-test-invalid-keyspace")
+            }
+        }
+    }
+
+    @Test
+    fun `blank localDatacenter 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> {
+            CqlSessionProvider.newCqlSessionBuilder(localDatacenter = " ")
+        }
     }
 }
