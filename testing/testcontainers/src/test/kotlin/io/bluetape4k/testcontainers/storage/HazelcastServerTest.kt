@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test
 import org.testcontainers.containers.Network
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.lifecycle.Startables
+import kotlin.test.assertFailsWith
 
 class HazelcastServerTest: AbstractContainerTest() {
 
@@ -121,5 +122,11 @@ class HazelcastServerTest: AbstractContainerTest() {
         } finally {
             client.shutdown()
         }
+    }
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { HazelcastServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { HazelcastServer(tag = " ") }
     }
 }

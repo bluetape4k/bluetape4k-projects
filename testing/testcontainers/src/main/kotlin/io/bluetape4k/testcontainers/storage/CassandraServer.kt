@@ -56,10 +56,14 @@ class CassandraServer private constructor(
 
         @JvmStatic
         operator fun invoke(
+            image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
             reuse: Boolean = true,
         ): CassandraServer {
+            image.requireNotBlank("image")
+            tag.requireNotBlank("tag")
+            
             val imageName = DockerImageName.parse(IMAGE).withTag(tag)
             return invoke(imageName, useDefaultPort, reuse)
         }

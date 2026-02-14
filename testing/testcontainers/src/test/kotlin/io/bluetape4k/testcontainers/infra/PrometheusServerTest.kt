@@ -5,6 +5,7 @@ import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
 class PrometheusServerTest: AbstractContainerTest() {
 
@@ -29,5 +30,11 @@ class PrometheusServerTest: AbstractContainerTest() {
             server.pushgatewayPort shouldBeEqualTo PrometheusServer.PUSHGATEWAY_PORT
             server.graphiteExporterPort shouldBeEqualTo PrometheusServer.GRAPHITE_EXPORTER_PORT
         }
+    }
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { PrometheusServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { PrometheusServer(tag = " ") }
     }
 }

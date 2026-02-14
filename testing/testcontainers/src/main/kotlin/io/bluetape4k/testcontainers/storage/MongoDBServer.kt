@@ -3,6 +3,7 @@ package io.bluetape4k.testcontainers.storage
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoClients
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
@@ -41,11 +42,15 @@ class MongoDBServer private constructor(
 
         @JvmStatic
         operator fun invoke(
+            image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
             reuse: Boolean = true,
             databaseName: String = DATABASE_NAME,
         ): MongoDBServer {
+            image.requireNotBlank("image")
+            tag.requireNotBlank("tag")
+
             val imageName = DockerImageName.parse(IMAGE).withTag(tag)
             return MongoDBServer(imageName, useDefaultPort, reuse, databaseName)
         }

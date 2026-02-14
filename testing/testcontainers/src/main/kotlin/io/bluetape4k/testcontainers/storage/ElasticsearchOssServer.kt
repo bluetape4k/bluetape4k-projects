@@ -1,6 +1,7 @@
 package io.bluetape4k.testcontainers.storage
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
@@ -44,6 +45,9 @@ class ElasticsearchOssServer private constructor(
             useDefaultPort: Boolean = false,
             reuse: Boolean = true,
         ): ElasticsearchOssServer {
+            image.requireNotBlank("image")
+            tag.requireNotBlank("tag")
+
             val imageName = DockerImageName.parse(image).withTag(tag)
             return invoke(imageName, useDefaultPort, reuse)
         }

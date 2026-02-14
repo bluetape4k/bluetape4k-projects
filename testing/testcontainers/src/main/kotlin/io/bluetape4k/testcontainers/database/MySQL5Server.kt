@@ -1,6 +1,7 @@
 package io.bluetape4k.testcontainers.database
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
@@ -62,6 +63,9 @@ class MySQL5Server private constructor(
             password: String = PASSWORD,
             configuration: String = "",
         ): MySQL5Server {
+            image.requireNotBlank("image")
+            tag.requireNotBlank("tag")
+
             val imageName = DockerImageName.parse(image)
                 .withTag(tag)
                 .asCompatibleSubstituteFor("mysql")

@@ -1,6 +1,7 @@
 package io.bluetape4k.testcontainers.infra
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
@@ -47,10 +48,14 @@ class JaegerServer private constructor(
 
         @JvmStatic
         operator fun invoke(
+            image: String = IMAGE,
             tag: String = TAG,
             useDefaultPort: Boolean = false,
             reuse: Boolean = true,
         ): JaegerServer {
+            image.requireNotBlank("image")
+            tag.requireNotBlank("tag")
+            
             val imageName = DockerImageName.parse(IMAGE).withTag(tag)
             return JaegerServer(imageName, useDefaultPort, reuse)
         }

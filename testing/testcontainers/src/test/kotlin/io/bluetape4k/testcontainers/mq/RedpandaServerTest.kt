@@ -8,6 +8,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEmpty
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
 class RedpandaServerTest: AbstractContainerTest() {
 
@@ -43,5 +44,11 @@ class RedpandaServerTest: AbstractContainerTest() {
                 redpanda.port shouldBeEqualTo RedpandaServer.PORT
             }
         }
+    }
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { RedpandaServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { RedpandaServer(tag = " ") }
     }
 }

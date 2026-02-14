@@ -10,10 +10,16 @@ import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
+import org.awaitility.kotlin.atMost
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.until
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import java.time.Duration
 import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.test.assertFailsWith
 
 class RabbitMQServerTest: AbstractContainerTest() {
 
@@ -42,42 +48,39 @@ class RabbitMQServerTest: AbstractContainerTest() {
                 port = rabbitMQ.port
             }
 
-            val connection = factory.newConnection()
-            connection.shouldNotBeNull()
+            factory.newConnection().use { connection ->
+                connection.shouldNotBeNull()
 
-            val channel = connection.createChannel()
-            channel.shouldNotBeNull()
-            channel.exchangeDeclare(RABBITMQ_TEST_EXCHANGE, "direct", true)
+                connection.createChannel().use { channel ->
+                    channel.shouldNotBeNull()
+                    channel.exchangeDeclare(RABBITMQ_TEST_EXCHANGE, "direct", true)
 
-            val queueName = channel.queueDeclare().queue
-            channel.queueBind(queueName, RABBITMQ_TEST_EXCHANGE, RABBITMQ_TEST_ROUTING_KEY)
+                    val queueName = channel.queueDeclare().queue
+                    channel.queueBind(queueName, RABBITMQ_TEST_EXCHANGE, RABBITMQ_TEST_ROUTING_KEY)
 
-            // Set up a consumer on the queue
-            var messageWasReceived = false
-            channel.basicConsume(queueName, false, object: DefaultConsumer(channel) {
-                override fun handleDelivery(
-                    consumerTag: String?,
-                    envelope: Envelope?,
-                    properties: AMQP.BasicProperties?,
-                    body: ByteArray?,
-                ) {
-                    messageWasReceived = Arrays.equals(body, RABBITMQ_TEST_MESSAGE.toByteArray())
+                    val messageWasReceived = AtomicBoolean(false)
+                    channel.basicConsume(queueName, true, object: DefaultConsumer(channel) {
+                        override fun handleDelivery(
+                            consumerTag: String?,
+                            envelope: Envelope?,
+                            properties: AMQP.BasicProperties?,
+                            body: ByteArray?,
+                        ) {
+                            messageWasReceived.set(Arrays.equals(body, RABBITMQ_TEST_MESSAGE.toByteArray()))
+                        }
+                    })
+
+                    channel.basicPublish(
+                        RABBITMQ_TEST_EXCHANGE,
+                        RABBITMQ_TEST_ROUTING_KEY,
+                        null,
+                        RABBITMQ_TEST_MESSAGE.toByteArray()
+                    )
+
+                    await atMost Duration.ofSeconds(5) until { messageWasReceived.get() }
+                    messageWasReceived.get().shouldBeTrue()
                 }
-            })
-
-            // post a message
-            channel.basicPublish(
-                RABBITMQ_TEST_EXCHANGE,
-                RABBITMQ_TEST_ROUTING_KEY,
-                null,
-                RABBITMQ_TEST_MESSAGE.toByteArray()
-            )
-
-            // check the message was received
-            Thread.sleep(1000)
-            messageWasReceived.shouldBeTrue()
-
-            connection.close()
+            }
         }
     }
 
@@ -93,5 +96,11 @@ class RabbitMQServerTest: AbstractContainerTest() {
                 rabbitmq.port shouldBeEqualTo RabbitMQServer.AMQP_PORT
             }
         }
+    }
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { RabbitMQServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { RabbitMQServer(tag = " ") }
     }
 }

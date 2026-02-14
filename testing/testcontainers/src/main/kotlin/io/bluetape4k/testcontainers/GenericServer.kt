@@ -33,6 +33,7 @@ internal const val SERVER_PREFIX = "testcontainers"
  * ```
  */
 fun <T: GenericServer> T.writeToSystemProperties(name: String, extraProps: Map<String, Any?> = emptyMap()) {
+    require(name.isNotBlank()) { "Server name must not be blank." }
     log.info { "Setup Server properties ..." }
 
     System.setProperty("$SERVER_PREFIX.$name.host", this.host)

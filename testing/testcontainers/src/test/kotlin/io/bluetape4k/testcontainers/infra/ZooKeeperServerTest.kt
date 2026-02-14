@@ -8,6 +8,8 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class ZooKeeperServerTest: AbstractContainerTest() {
 
@@ -48,5 +50,17 @@ class ZooKeeperServerTest: AbstractContainerTest() {
             val retrieved = data.forPath(path).toUtf8String()
             retrieved shouldBeEqualTo content
         }
+    }
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { ZooKeeperServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { ZooKeeperServer(tag = " ") }
+    }
+
+    @Test
+    fun `전달받은 image 를 사용한다`() {
+        val server = ZooKeeperServer(image = "zookeeper", tag = "3.9")
+        assertEquals("zookeeper:3.9", server.dockerImageName)
     }
 }

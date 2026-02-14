@@ -9,6 +9,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.redisson.api.redisnode.RedisNodes
+import kotlin.test.assertFailsWith
 
 class RedisClusterServerTest: AbstractContainerTest() {
 
@@ -66,5 +67,12 @@ class RedisClusterServerTest: AbstractContainerTest() {
         } finally {
             redisson.shutdown()
         }
+    }
+
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { RedisClusterServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { RedisClusterServer(tag = " ") }
     }
 }

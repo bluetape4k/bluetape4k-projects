@@ -9,6 +9,7 @@ import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
 import java.net.HttpURLConnection
 import java.net.URI
+import kotlin.test.assertFailsWith
 
 class HttpbinServerTest: AbstractContainerTest() {
 
@@ -52,5 +53,11 @@ class HttpbinServerTest: AbstractContainerTest() {
         } finally {
             conn.disconnect()
         }
+    }
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { HttpbinServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { HttpbinServer(tag = " ") }
     }
 }

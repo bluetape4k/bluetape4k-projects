@@ -13,6 +13,7 @@ import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
 class CassandraServerTest: AbstractContainerTest() {
 
@@ -129,5 +130,11 @@ class CassandraServerTest: AbstractContainerTest() {
             log.info { "Release version=$version" }
             session.close()
         }
+    }
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { CassandraServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { CassandraServer(tag = " ") }
     }
 }

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.data.elasticsearch.client.ClientConfiguration
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchClients
+import kotlin.test.assertFailsWith
 
 class ElasticsearchOssServerTest: AbstractContainerTest() {
 
@@ -48,5 +49,11 @@ class ElasticsearchOssServerTest: AbstractContainerTest() {
         client.shouldNotBeNull()
         client.isRunning.shouldBeTrue()
         client.close()
+    }
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { ElasticsearchOssServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { ElasticsearchOssServer(tag = " ") }
     }
 }

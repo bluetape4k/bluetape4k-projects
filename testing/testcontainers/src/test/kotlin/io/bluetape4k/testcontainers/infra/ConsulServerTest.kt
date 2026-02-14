@@ -5,6 +5,7 @@ import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
 class ConsulServerTest: AbstractContainerTest() {
 
@@ -29,5 +30,11 @@ class ConsulServerTest: AbstractContainerTest() {
             consul.httpPort shouldBeEqualTo ConsulServer.HTTP_PORT
             consul.rpcPort shouldBeEqualTo ConsulServer.RPC_PORT
         }
+    }
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { ConsulServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { ConsulServer(tag = " ") }
     }
 }

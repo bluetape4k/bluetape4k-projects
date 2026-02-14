@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainSame
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
 class TiDBServerTest: AbstractJdbcServerTest() {
 
@@ -53,5 +54,12 @@ class TiDBServerTest: AbstractJdbcServerTest() {
                 rs.getString(1) shouldBeEqualTo "hello world"
             }
         }
+    }
+
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { TiDBServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { TiDBServer(tag = " ") }
     }
 }

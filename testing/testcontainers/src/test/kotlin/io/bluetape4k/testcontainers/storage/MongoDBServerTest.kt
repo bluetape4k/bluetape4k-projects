@@ -16,6 +16,7 @@ import org.amshove.kluent.shouldNotBeNullOrBlank
 import org.bson.Document
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
 class MongoDBServerTest: AbstractContainerTest() {
 
@@ -108,5 +109,11 @@ class MongoDBServerTest: AbstractContainerTest() {
                 }
             }
         }
+    }
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { MongoDBServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { MongoDBServer(tag = " ") }
     }
 }

@@ -49,36 +49,30 @@ fun <T: JdbcServer> T.buildJdbcProperties(): Map<String, Any?> {
     )
 }
 
-/**
- * Database 접속을 위한 [HikariDataSource]를 제공합니다.
- */
-inline fun <T: JdbcServer> T.getDataSource(
-    @BuilderInference builder: HikariConfig.() -> Unit = {},
-): HikariDataSource {
-    val config = HikariConfig().also {
+private fun JdbcServer.newHikariConfig(builder: HikariConfig.() -> Unit): HikariConfig =
+    HikariConfig().also {
         it.driverClassName = getDriverClassName()
         it.jdbcUrl = getJdbcUrl()
         it.username = getUsername()
         it.password = getPassword()
-
         it.apply(builder)
     }
-    return HikariDataSource(config)
+
+/**
+ * Database 접속을 위한 [HikariDataSource]를 제공합니다.
+ */
+fun <T: JdbcServer> T.getDataSource(
+    @BuilderInference builder: HikariConfig.() -> Unit = {},
+): HikariDataSource {
+    return HikariDataSource(newHikariConfig(builder))
 }
 
 /**
  * Database 접속을 위한 [HikariDataSource]를 제공합니다.
+ * [getDataSource]의 별칭입니다.
  */
-inline fun <T: JdbcServer> T.getHikariDataSource(
+fun <T: JdbcServer> T.getHikariDataSource(
     @BuilderInference builder: HikariConfig.() -> Unit = {},
 ): HikariDataSource {
-    val config = HikariConfig().also {
-        it.driverClassName = getDriverClassName()
-        it.jdbcUrl = getJdbcUrl()
-        it.username = getUsername()
-        it.password = getPassword()
-
-        it.apply(builder)
-    }
-    return HikariDataSource(config)
+    return getDataSource(builder)
 }

@@ -5,6 +5,9 @@ import io.bluetape4k.testcontainers.AbstractContainerTest
 import io.bluetape4k.utils.ShutdownQueue
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
+import org.awaitility.kotlin.atMost
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Test
 import org.testcontainers.containers.Network
 import org.testcontainers.containers.localstack.LocalStackContainer
@@ -14,6 +17,8 @@ import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest
 import software.amazon.awssdk.services.s3.model.GetObjectRequest
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
+import java.time.Duration
+import kotlin.test.assertFailsWith
 
 /**
  * LocalStaciServer 실행 시 다음과 같은 예외가 발생하다면,
@@ -22,6 +27,12 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest
 class LocalStackServerTest: AbstractContainerTest() {
 
     companion object: KLogging()
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { LocalStackServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { LocalStackServer(tag = " ") }
+    }
 
     @Test
     fun `run S3 Service`() {
@@ -41,20 +52,26 @@ class LocalStackServerTest: AbstractContainerTest() {
                 }
 
             s3Client.createBucket(CreateBucketRequest.builder().bucket("foo").build())
-            Thread.sleep(100)
 
             val putRequest = PutObjectRequest.builder()
                 .bucket("foo")
                 .key("bar")
                 .build()
             s3Client.putObject(putRequest, RequestBody.fromString("baz"))
-            Thread.sleep(100)
 
             val getRequest = GetObjectRequest.builder()
                 .bucket("foo")
                 .key("bar")
                 .build()
-            val content = s3Client.getObjectAsBytes(getRequest).asUtf8String()
+
+            var content: String? = null
+            await atMost Duration.ofSeconds(5) until {
+                runCatching {
+                    content = s3Client.getObjectAsBytes(getRequest).asUtf8String()
+                    content == "baz"
+                }.getOrDefault(false)
+            }
+
             content shouldBeEqualTo "baz"
         }
     }

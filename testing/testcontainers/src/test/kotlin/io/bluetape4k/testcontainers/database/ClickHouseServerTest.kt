@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
 class ClickHouseServerTest: AbstractJdbcServerTest() {
 
@@ -30,5 +31,11 @@ class ClickHouseServerTest: AbstractJdbcServerTest() {
                 assertConnection(clickhouse)
             }
         }
+    }
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { ClickHouseServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { ClickHouseServer(tag = " ") }
     }
 }

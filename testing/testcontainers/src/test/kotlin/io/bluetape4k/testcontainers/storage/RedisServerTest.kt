@@ -4,8 +4,13 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
+import org.awaitility.kotlin.atMost
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import java.time.Duration
+import kotlin.test.assertFailsWith
 
 class RedisServerTest: AbstractContainerTest() {
 
@@ -20,9 +25,12 @@ class RedisServerTest: AbstractContainerTest() {
                 redis.isRunning.shouldBeTrue()
                 redis.port shouldBeEqualTo RedisServer.PORT
 
-                Thread.sleep(100)
-
-                verifyRedisServer(redis)
+                await atMost Duration.ofSeconds(5) until {
+                    runCatching {
+                        verifyRedisServer(redis)
+                        true
+                    }.getOrDefault(false)
+                }
             }
         }
     }
@@ -60,5 +68,11 @@ class RedisServerTest: AbstractContainerTest() {
         } finally {
             redisson.shutdown()
         }
+    }
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { RedisServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { RedisServer(tag = " ") }
     }
 }

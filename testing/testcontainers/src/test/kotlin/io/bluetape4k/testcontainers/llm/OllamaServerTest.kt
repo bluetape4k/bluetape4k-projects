@@ -9,6 +9,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.DockerImageName
+import kotlin.test.assertFailsWith
 
 class OllamaServerTest: AbstractContainerTest() {
 
@@ -70,5 +71,11 @@ class OllamaServerTest: AbstractContainerTest() {
             .also { models ->
                 log.debug { "Ollama models: ${models.joinToString()}" }
             }
+    }
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { OllamaServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { OllamaServer(tag = " ") }
     }
 }

@@ -13,6 +13,7 @@ import org.amshove.kluent.shouldNotBeNullOrBlank
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58
+import kotlin.test.assertFailsWith
 
 class MinIOServerTest: AbstractContainerTest() {
 
@@ -93,5 +94,11 @@ class MinIOServerTest: AbstractContainerTest() {
 
         val objectStat = client.statObject(statObjectArgs)
         objectStat.`object`() shouldBeEqualTo objectName
+    }
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { MinIOServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { MinIOServer(tag = " ") }
     }
 }

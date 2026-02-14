@@ -5,6 +5,7 @@ import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
 class ZipkinServerTest: AbstractContainerTest() {
 
@@ -26,5 +27,11 @@ class ZipkinServerTest: AbstractContainerTest() {
 
             server.port shouldBeEqualTo ZipkinServer.PORT
         }
+    }
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { ZipkinServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { ZipkinServer(tag = " ") }
     }
 }

@@ -12,6 +12,7 @@ import java.io.FileOutputStream
 import java.io.InputStreamReader
 import java.io.PrintStream
 import java.net.URL
+import kotlin.test.assertFailsWith
 
 class NginxServerTest: AbstractContainerTest() {
 
@@ -62,5 +63,11 @@ class NginxServerTest: AbstractContainerTest() {
     private fun assertNginxDefaultPort(nginx: NginxServer) {
         nginx.exposedPorts shouldContainSame listOf(NginxServer.PORT)
         nginx.livenessCheckPortNumbers shouldContainSame listOf(NginxServer.PORT)
+    }
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { NginxServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { NginxServer(tag = " ") }
     }
 }

@@ -8,6 +8,8 @@ import org.apache.pulsar.client.api.PulsarClient
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class PulsarServerTest: AbstractContainerTest() {
 
@@ -77,5 +79,17 @@ class PulsarServerTest: AbstractContainerTest() {
             producer.close()
             client.close()
         }
+    }
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { PulsarServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { PulsarServer(tag = " ") }
+    }
+
+    @Test
+    fun `전달받은 image 를 사용한다`() {
+        val server = PulsarServer(image = "apachepulsar/pulsar", tag = "3.3.5")
+        assertEquals("apachepulsar/pulsar:3.3.5", server.dockerImageName)
     }
 }

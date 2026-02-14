@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
 class MySQL5ServerTest: AbstractJdbcServerTest() {
 
@@ -30,5 +31,11 @@ class MySQL5ServerTest: AbstractJdbcServerTest() {
                 assertConnection(mysql)
             }
         }
+    }
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { MySQL5Server(image = " ") }
+        assertFailsWith<IllegalArgumentException> { MySQL5Server(tag = " ") }
     }
 }

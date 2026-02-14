@@ -1,6 +1,7 @@
 package io.bluetape4k.testcontainers.database
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
@@ -48,12 +49,15 @@ class MariaDBServer private constructor(
             password: String = PASSWORD,
             configuration: String = "",
         ): MariaDBServer {
+            image.requireNotBlank("image")
+            tag.requireNotBlank("tag")
+
             val imageName = DockerImageName.parse(image).withTag(tag)
             return invoke(imageName, useDefaultPort, reuse, username, password, configuration)
         }
 
         /**
-         * [MySQL5Server]를 생성합니다.
+         * [MariaDBServer]를 생성합니다.
          *
          * @param imageName         docker image name
          * @param useDefaultPort    기본 포트를 사용할지 여부 (기본: `true`)

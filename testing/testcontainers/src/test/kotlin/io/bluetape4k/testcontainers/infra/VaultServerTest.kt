@@ -8,6 +8,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
 class VaultServerTest: AbstractContainerTest() {
 
@@ -48,5 +49,11 @@ class VaultServerTest: AbstractContainerTest() {
             kv["top_secret"] shouldBeEqualTo "top_password123"
             kv["db_password"] shouldBeEqualTo "db_password123"
         }
+    }
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { VaultServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { VaultServer(tag = " ") }
     }
 }

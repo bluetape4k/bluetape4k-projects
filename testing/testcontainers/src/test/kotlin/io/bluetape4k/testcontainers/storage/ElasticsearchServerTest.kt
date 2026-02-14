@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchClients
+import kotlin.test.assertFailsWith
 
 @Disabled("Use OpensearchServer or ElasticsearchOssServer instead")
 @Suppress("DEPRECATION")
@@ -49,5 +50,11 @@ class ElasticsearchServerTest: AbstractContainerTest() {
                 es.port shouldBeEqualTo ElasticsearchServer.PORT
             }
         }
+    }
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { ElasticsearchServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { ElasticsearchServer(tag = " ") }
     }
 }

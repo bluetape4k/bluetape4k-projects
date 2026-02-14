@@ -5,6 +5,12 @@ import com.github.dockerjava.api.model.PortBinding
 import com.github.dockerjava.api.model.Ports
 import org.testcontainers.containers.GenericContainer
 
+internal fun resolvePortBindings(ports: Iterable<Int>): List<PortBinding> {
+    val uniquePorts = ports.distinct()
+    require(uniquePorts.all { it > 0 }) { "All ports must be positive numbers." }
+    return uniquePorts.map { PortBinding(Ports.Binding.bindPort(it), ExposedPort(it)) }
+}
+
 /**
  * Docker Container의 exposed port를 지정한 port로 expose 하도록 합니다.
  * 이렇게 하지 않으면 Docker가 임의의 port number로 expose 합니다.
@@ -13,13 +19,10 @@ import org.testcontainers.containers.GenericContainer
  * @param exposedPorts port numbers to exposed, 아무것도 지정하지 않으면 기본적인 exposedPorts 를 이용합니다.
  */
 fun <T: GenericContainer<T>> GenericContainer<T>.exposeCustomPorts(vararg exposedPorts: Int) {
-    val portsToExpose: IntArray = exposedPorts + this.exposedPorts
-    if (portsToExpose.isNotEmpty()) {
-        val bindings = portsToExpose.distinct().map { PortBinding(Ports.Binding.bindPort(it), ExposedPort(it)) }
-        if (bindings.isNotEmpty()) {
-            withCreateContainerCmdModifier { cmd ->
-                cmd.hostConfig?.withPortBindings(bindings)
-            }
+    val bindings = resolvePortBindings(exposedPorts.asIterable() + this.exposedPorts)
+    if (bindings.isNotEmpty()) {
+        withCreateContainerCmdModifier { cmd ->
+            cmd.hostConfig?.withPortBindings(bindings)
         }
     }
 }
@@ -33,13 +36,10 @@ fun <T: GenericContainer<T>> GenericContainer<T>.exposeCustomPorts(vararg expose
  */
 @JvmName("exposeCustomPortsIntArray")
 fun <T: GenericContainer<T>> GenericContainer<T>.exposeCustomPorts(exposedPorts: Array<Int>) {
-    val portsToExpose = exposedPorts + this.exposedPorts
-    if (portsToExpose.isNotEmpty()) {
-        val bindings = portsToExpose.distinct().map { PortBinding(Ports.Binding.bindPort(it), ExposedPort(it)) }
-        if (bindings.isNotEmpty()) {
-            withCreateContainerCmdModifier { cmd ->
-                cmd.hostConfig?.withPortBindings(bindings)
-            }
+    val bindings = resolvePortBindings(exposedPorts.asIterable() + this.exposedPorts)
+    if (bindings.isNotEmpty()) {
+        withCreateContainerCmdModifier { cmd ->
+            cmd.hostConfig?.withPortBindings(bindings)
         }
     }
 }

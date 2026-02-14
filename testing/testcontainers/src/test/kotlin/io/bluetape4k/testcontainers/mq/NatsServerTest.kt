@@ -11,6 +11,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import kotlin.test.assertFailsWith
 
 class NatsServerTest: AbstractContainerTest() {
 
@@ -57,5 +58,11 @@ class NatsServerTest: AbstractContainerTest() {
             message.replyTo.shouldBeNull()
             message.data.toUtf8String() shouldBeEqualTo "Hello world"
         }
+    }
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { NatsServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { NatsServer(tag = " ") }
     }
 }

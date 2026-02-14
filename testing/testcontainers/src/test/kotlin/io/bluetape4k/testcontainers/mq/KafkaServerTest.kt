@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+import kotlin.test.assertFailsWith
 
 class KafkaServerTest: AbstractContainerTest() {
 
@@ -171,6 +172,12 @@ class KafkaServerTest: AbstractContainerTest() {
                 kafka.isRunning.shouldBeTrue()
             }
         }
+    }
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { KafkaServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { KafkaServer(tag = " ") }
     }
 
 }

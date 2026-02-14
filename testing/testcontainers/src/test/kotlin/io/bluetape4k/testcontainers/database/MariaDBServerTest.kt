@@ -5,6 +5,7 @@ import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
 class MariaDBServerTest: AbstractJdbcServerTest() {
 
@@ -35,5 +36,11 @@ class MariaDBServerTest: AbstractJdbcServerTest() {
                 assertConnection(mariadb)
             }
         }
+    }
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { MariaDBServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { MariaDBServer(tag = " ") }
     }
 }

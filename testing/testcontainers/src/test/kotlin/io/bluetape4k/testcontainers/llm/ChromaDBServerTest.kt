@@ -7,6 +7,7 @@ import io.restassured.http.ContentType
 import io.restassured.module.kotlin.extensions.When
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
 class ChromaDBServerTest: AbstractContainerTest() {
 
@@ -55,5 +56,11 @@ class ChromaDBServerTest: AbstractContainerTest() {
             }
             .then()
             .statusCode(200)
+    }
+
+    @Test
+    fun `blank image tag 는 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> { ChromaDBServer(image = " ") }
+        assertFailsWith<IllegalArgumentException> { ChromaDBServer(tag = " ") }
     }
 }
