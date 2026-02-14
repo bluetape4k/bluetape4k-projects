@@ -1,5 +1,6 @@
 package io.bluetape4k.io.serializer
 
+import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
@@ -44,29 +45,46 @@ class CompressableBinarySerializerTest {
 
     private fun getSerializers(): Stream<out BinarySerializer> = compressableSerializers.stream()
 
-    @ParameterizedTest(name = "serialize and compress object - {0}")
+    @ParameterizedTest
+    @MethodSource("getSerializers")
+    fun `serialize and compress string`(serializer: BinarySerializer) {
+        val origin = Fakers.faker.lorem().paragraph(100).repeat(4)
+        val compressed = serializer.serialize(origin)
+        log.debug { "origin=${BinarySerializers.Jdk.serialize(origin).size}, compressed=${compressed.size}" }
+
+        val actual = serializer.deserialize<String>(compressed)
+        actual shouldBeEqualTo origin
+    }
+
+    @ParameterizedTest
     @MethodSource("getSerializers")
     fun `serialize and compress object`(serializer: BinarySerializer, @RandomValue origin: SimpleData) {
-        log.debug { "origin=$origin" }
         val compressed = serializer.serialize(origin)
-        val actual = serializer.deserialize<SimpleData>(compressed)
+        log.debug { "origin=${origin.memorySize()}, compressed=${compressed.size}" }
 
-        log.debug { "compressed size=${compressed.size}" }
+        val actual = serializer.deserialize<SimpleData>(compressed)
         actual.shouldNotBeNull() shouldBeEqualTo origin
     }
 
-    @ParameterizedTest(name = "serialize and compress collection - {0}")
+    @ParameterizedTest
     @MethodSource("getSerializers")
     fun `serialize and compress collection`(
         serializer: BinarySerializer,
         @RandomValue(type = SimpleData::class, size = 500) origins: List<SimpleData>,
     ) {
         val compressed = serializer.serialize(origins)
-        val actual = serializer.deserialize<List<SimpleData>>(compressed)
+        log.debug { "origins=${origins.memorySize()}, compressed=${compressed.size}" }
 
-        log.debug { "Compressed size=${compressed.size}" }
+        val actual = serializer.deserialize<List<SimpleData>>(compressed)
         actual.shouldNotBeNull() shouldBeEqualTo origins
     }
+
+    private fun SimpleData.memorySize(): Int =
+        BinarySerializers.Jdk.serialize(this).size
+
+    private fun List<SimpleData>.memorySize(): Int =
+        BinarySerializers.Jdk.serialize(this).size
+
 
     data class SimpleData(
         val id: Long,
