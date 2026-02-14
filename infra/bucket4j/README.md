@@ -79,9 +79,17 @@ val rateLimiter: SuspendRateLimiter<String> = LocalSuspendRateLimiter(bucketProv
 
 val result = rateLimiter.consume("user:1001", 1)
 
-if (result.isError) {
-    // Redis 장애/통신 오류 등
-    // result.errorMessage 확인 가능
+when (result.status) {
+    RateLimitStatus.CONSUMED -> {
+        // 허용됨
+    }
+    RateLimitStatus.REJECTED -> {
+        // 토큰 부족으로 거절됨
+    }
+    RateLimitStatus.ERROR -> {
+        // Redis 장애/통신 오류 등
+        // result.errorMessage 확인 가능
+    }
 }
 ```
 

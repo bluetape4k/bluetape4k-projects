@@ -23,6 +23,10 @@ data class RateLimitResult(
     val errorMessage: String? = null,
 ): Serializable {
 
+    @Deprecated(
+        message = "Use status-based factory methods or the primary constructor with explicit status.",
+        replaceWith = ReplaceWith("RateLimitResult.consumed(consumedTokens, availableTokens)")
+    )
     constructor(consumedTokens: Long, availableTokens: Long): this(
         status = if (consumedTokens > 0) RateLimitStatus.CONSUMED else RateLimitStatus.REJECTED,
         consumedTokens = consumedTokens,

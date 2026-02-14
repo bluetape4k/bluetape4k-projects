@@ -18,8 +18,16 @@ import kotlinx.coroutines.future.await
  * val rateLimiter = DistributedSuspendRateLimiter(asyncBucketProxyProvider)
  * val result: RateLimitResult = rateLimiter.consume("key", 1)
  *
- * if(result.consumedTokens > 0) {
- *      // Rate Limit 적용 성공
+ * when (result.status) {
+ *     RateLimitStatus.CONSUMED -> {
+ *         // Rate Limit 적용 성공
+ *     }
+ *     RateLimitStatus.REJECTED -> {
+ *         // 토큰 부족으로 거절
+ *     }
+ *     RateLimitStatus.ERROR -> {
+ *         // 오류 발생 시 result.errorMessage 확인
+ *     }
  * }
  * ```
  *

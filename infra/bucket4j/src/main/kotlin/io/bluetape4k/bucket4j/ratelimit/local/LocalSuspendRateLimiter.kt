@@ -18,9 +18,17 @@ import io.bluetape4k.logging.warn
  * val rateLimiter = LocalSuspendRateLimiter(bucketProvider)
  * val result: RateLimitResult = rateLimiter.consume("key", 1)
  *
- * if(result.consumedTokens > 0) {
- *     // Rate Limit 적용 성공
- *     // result.availableTokens: 남아 있는 유효한 토큰 수
+ * when (result.status) {
+ *     RateLimitStatus.CONSUMED -> {
+ *         // Rate Limit 적용 성공
+ *         // result.availableTokens: 남아 있는 유효한 토큰 수
+ *     }
+ *     RateLimitStatus.REJECTED -> {
+ *         // 토큰 부족으로 거절
+ *     }
+ *     RateLimitStatus.ERROR -> {
+ *         // 오류 발생 시 result.errorMessage 확인
+ *     }
  * }
  * ```
  *

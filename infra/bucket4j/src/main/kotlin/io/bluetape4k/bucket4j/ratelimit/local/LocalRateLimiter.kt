@@ -26,15 +26,21 @@ import io.bluetape4k.logging.warn
  *
  * val result = rateLimiter.consume(key, token)
  * // 5개 소모, 5개 남음
- * result shouldBeEqualTo RateLimitResult(token, AbstractCoRateLimiterTest.INITIAL_CAPACITY - token)
+ * result.status shouldBeEqualTo RateLimitStatus.CONSUMED
+ * result.consumedTokens shouldBeEqualTo token
+ * result.availableTokens shouldBeEqualTo (AbstractCoRateLimiterTest.INITIAL_CAPACITY - token)
  *
  * // 10개 소비를 요청 -> 5개만 남았으므로 0개 소비한 것으로 반환
  * val result2 = rateLimiter.consume(key, AbstractCoRateLimiterTest.INITIAL_CAPACITY)
- * result2 shouldBeEqualTo RateLimitResult(0, result.availableTokens)
+ * result2.status shouldBeEqualTo RateLimitStatus.REJECTED
+ * result2.consumedTokens shouldBeEqualTo 0
+ * result2.availableTokens shouldBeEqualTo result.availableTokens
  *
  * // 나머지 토큰 모두를 소비하면, 유효한 토큰이 0개임
  * val result3 = rateLimiter.consume(key, result.availableTokens)
- * result3 shouldBeEqualTo RateLimitResult(result.availableTokens, 0)
+ * result3.status shouldBeEqualTo RateLimitStatus.CONSUMED
+ * result3.consumedTokens shouldBeEqualTo result.availableTokens
+ * result3.availableTokens shouldBeEqualTo 0
  * ```
  *
  * @property bucketProvider [LocalBucketProvider] 인스턴스
