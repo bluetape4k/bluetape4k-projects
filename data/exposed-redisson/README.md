@@ -1,5 +1,24 @@
-# Module Bluetape4k Exposed Redisson
+# Module bluetape4k-exposed-redisson
 
-다양한 캐시 전략을 Redisson, Exposed 로 구현합니다.
+Exposed(JDBC)와 Redisson 캐시를 결합해 캐시 연동 패턴을 구성하는 모듈입니다.
 
-지원하는 캐시 전략은 Read Through, Write Through, Write Behind 전략을 지원하고, 동기 (Synchronous), 코루틴을 사용한 비동기 방식(Asynchronous) 으로 지원합니다.
+## 주요 기능
+
+- **MapLoader/MapWriter 지원**: Redisson 캐시 적재/저장 연동
+- **Repository 추상화**: 캐시 + DB 접근 공통 패턴
+- **동기/코루틴 구현 제공**: 운영 환경에 맞는 방식 선택
+
+## 의존성 추가
+
+```kotlin
+dependencies {
+    implementation("io.bluetape4k:bluetape4k-exposed-redisson:${version}")
+}
+```
+
+## 주요 기능 상세
+
+- `map/ExposedEntityMapLoader.kt`
+- `map/ExposedEntityMapWriter.kt`
+- `repository/ExposedCacheRepository.kt`
+- `repository/SuspendedExposedCacheRepository.kt`

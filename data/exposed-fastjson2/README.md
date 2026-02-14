@@ -1,7 +1,25 @@
-# Module Bluetape4k Exposed Fastjson2
+# Module bluetape4k-exposed-fastjson2
 
-DB의 JSON 컬럼을 [Fastjson2](https://github.com/alibaba/fastjson2) 라이브러리로 직렬화/역직렬화하는 방법을 알아봅니다.
+Exposed JSON/JSONB 컬럼을 Fastjson2로 직렬화/역직렬화하기 위한 모듈입니다.
 
-## 문서
+## 주요 기능
 
-[Exposed Fastjson2](https://debop.notion.site/Exposed-Fastjson2-1c32744526b08050a9d4de947c3b3f0d)
+- **Fastjson 컬럼 타입**: JSON/JSONB 컬럼 매핑
+- **ResultRow 확장**: JSON 컬럼 값 읽기 유틸
+- **JSON 함수/조건식**: DB별 JSON 조회 조건 작성 보조
+
+## 의존성 추가
+
+```kotlin
+dependencies {
+    implementation("io.bluetape4k:bluetape4k-exposed-fastjson2:${version}")
+}
+```
+
+## 주요 기능 상세
+
+- `FastjsonColumnType.kt`
+- `FastjsonBColumnType.kt`
+- `JsonFunctions.kt`
+- `JsonConditions.kt`
+- `ResultRowExtensions.kt`

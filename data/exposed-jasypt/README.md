@@ -1,13 +1,27 @@
-# Module Bluetape4k Exposed Jasypt
+# Module bluetape4k-exposed-jasypt
 
-Exposed Crypt 모듈은 **비결정적 암호화 방식** 을 사용하여, 암호화 방식이 암호화 할 때마다 매번 값이 변경됩니다. 이 때문에 암호화된 컬럼으로 조회할 수 없고, 인덱스도 사용할 수 없습니다.
+Exposed 컬럼 암복호화를 Jasypt로 처리하기 위한 모듈입니다.
 
-[Jasypt](https://www.jasypt.org)는 Java에서 암호화된 값을 복호화할 수 있는 라이브러리인데,
-**결정적 암호화 방식**을 지원하므로, 특정 값을 암호화/복호화 시 여러번 수행해도 같은 값으로 암호화가 됩니다.
+## 주요 기능
 
-물론 이 방식은 보안상 좋지 않지만, 인덱스를 사용할 수 있고, 조건절에 사용하여 검색을 수행할 수도 있습니다.
+- **결정적 암호화 컬럼 타입**: 동일 입력에 동일 암호문
+- **문자열/바이너리 암호화**: `VARCHAR`, `BINARY` 컬럼 지원
+- **검색/인덱스 활용 가능성**: 조건절 사용 시나리오 대응
 
-## 문서
+## 의존성 추가
 
-* [Exposed Jasypt](https://debop.notion.site/Exposed-Jasypt-1c32744526b080f08ab2f3e21149e9d7)
-* [Exposed Crypt](https://debop.notion.site/Exposed-Crypt-1c32744526b0802da419d5ce74d2c5f3)
+```kotlin
+dependencies {
+    implementation("io.bluetape4k:bluetape4k-exposed-jasypt:${version}")
+}
+```
+
+## 주요 기능 상세
+
+- `JasyptVarCharColumnType.kt`
+- `JasyptBinaryColumnType.kt`
+- `Tables.kt`
+
+## 주의사항
+
+결정적 암호화는 인덱스/검색에 유리하지만 보안 요구사항에 따라 적합성 검토가 필요합니다.
