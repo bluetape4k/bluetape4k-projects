@@ -22,8 +22,8 @@ class MultithreadingTesterTest {
 
         assertFails {
             MultithreadingTester()
-                .numThreads(2)
-                .roundsPerThread(1)
+                .workers(2)
+                .rounds(1)
                 .add(block)
                 .run()
         }
@@ -33,8 +33,8 @@ class MultithreadingTesterTest {
     fun `thread 수가 복수이면 실행시간은 테스트 코드의 실행 시간의 총합보다 작아야 한다`() {
         val time = measureTimeMillis {
             MultithreadingTester()
-                .numThreads(2)
-                .roundsPerThread(1)
+                .workers(2)
+                .rounds(1)
                 .add {
                     Thread.sleep(100)
                 }
@@ -51,12 +51,25 @@ class MultithreadingTesterTest {
         val block = CountingTask()
 
         MultithreadingTester()
-            .numThreads(11)
-            .roundsPerThread(13)
+            .workers(11)
+            .rounds(13)
             .add(block)
             .run()
 
         block.count shouldBeEqualTo 11 * 13
+    }
+
+    @Test
+    fun `공통 설정명 workers rounds를 사용할 수 있다`() {
+        val block = CountingTask()
+
+        MultithreadingTester()
+            .workers(4)
+            .rounds(3)
+            .add(block)
+            .run()
+
+        block.count shouldBeEqualTo 12
     }
 
     @Test
@@ -65,8 +78,8 @@ class MultithreadingTesterTest {
         val block2 = CountingTask()
 
         MultithreadingTester()
-            .numThreads(3)
-            .roundsPerThread(1)
+            .workers(3)
+            .rounds(1)
             .addAll(block1, block2)
             .run()
 
@@ -83,8 +96,8 @@ class MultithreadingTesterTest {
 
         assertFailsWith<IllegalStateException> {
             MultithreadingTester()
-                .numThreads(2)
-                .roundsPerThread(1)
+                .workers(2)
+                .rounds(1)
                 .run()
         }
     }
@@ -93,8 +106,8 @@ class MultithreadingTesterTest {
     fun `numThreads 보다 많은 코드블럭을 등록하면 예외가 발생한다`() {
         assertFailsWith<IllegalStateException> {
             MultithreadingTester()
-                .numThreads(2)
-                .roundsPerThread(1)
+                .workers(2)
+                .rounds(1)
                 .add(CountingTask())
                 .add(CountingTask())
                 .add(CountingTask())

@@ -23,7 +23,7 @@ class StructuredTaskScopeTesterTest {
 
         assertFailsWith<RuntimeException> {
             StructuredTaskScopeTester()
-                .roundsPerTask(Runtime.getRuntime().availableProcessors())
+                .rounds(Runtime.getRuntime().availableProcessors())
                 .add(block)
                 .run()
         }
@@ -34,7 +34,7 @@ class StructuredTaskScopeTesterTest {
     fun `thread 수가 복수이면 실행시간은 테스트 코드의 실행 시간의 총합보다 작아야 한다`() {
         val time = measureTimeMillis {
             StructuredTaskScopeTester()
-                .roundsPerTask(4)
+                .rounds(4)
                 .add { Thread.sleep(100) }
                 .add { Thread.sleep(100) }
                 .run()
@@ -48,11 +48,24 @@ class StructuredTaskScopeTesterTest {
         val block = CountingTask()
 
         StructuredTaskScopeTester()
-            .roundsPerTask(10)
+            .rounds(10)
             .add(block)
             .run()
 
         block.count shouldBeEqualTo 10
+    }
+
+    @EnabledOnJre(JRE.JAVA_21)
+    @Test
+    fun `공통 설정명 rounds를 사용할 수 있다`() {
+        val block = CountingTask()
+
+        StructuredTaskScopeTester()
+            .rounds(7)
+            .add(block)
+            .run()
+
+        block.count shouldBeEqualTo 7
     }
 
     @EnabledOnJre(JRE.JAVA_21)
@@ -62,7 +75,7 @@ class StructuredTaskScopeTesterTest {
         val block2 = CountingTask()
 
         StructuredTaskScopeTester()
-            .roundsPerTask(4)
+            .rounds(4)
             .addAll(block1, block2)
             .run()
 

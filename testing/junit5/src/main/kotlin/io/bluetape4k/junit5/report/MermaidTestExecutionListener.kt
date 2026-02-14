@@ -2,17 +2,22 @@ package io.bluetape4k.junit5.report
 
 import io.bluetape4k.logging.KLogging
 import org.junit.platform.engine.TestExecutionResult
+import org.junit.platform.engine.support.descriptor.ClassSource
 import org.junit.platform.engine.support.descriptor.MethodSource
 import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestIdentifier
 import org.junit.platform.launcher.TestPlan
 import java.io.Serializable
+import java.time.Clock
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.jvm.optionals.getOrNull
 
-class MermaidTestExecutionListener: TestExecutionListener {
+class MermaidTestExecutionListener(
+    private val clock: Clock = Clock.systemUTC(),
+    private val printer: (String) -> Unit = ::println,
+): TestExecutionListener {
 
     companion object: KLogging()
 
@@ -28,7 +33,11 @@ class MermaidTestExecutionListener: TestExecutionListener {
     private val tasks = CopyOnWriteArrayList<Task>()
 
     private val TestIdentifier.className: String?
-        get() = (this.source.getOrNull() as? MethodSource)?.className
+        get() = when (val source = this.source.getOrNull()) {
+            is MethodSource -> source.className
+            is ClassSource  -> source.className
+            else            -> null
+        }
 
     override fun executionStarted(testIdentifier: TestIdentifier) {
         if (testIdentifier.isTest) {
@@ -36,7 +45,7 @@ class MermaidTestExecutionListener: TestExecutionListener {
                 uniqueId = testIdentifier.uniqueId,
                 className = testIdentifier.className,
                 displayName = testIdentifier.displayName,
-                startTime = Instant.now()
+                startTime = Instant.now(clock)
             )
             tasks.add(task)
         }
@@ -51,17 +60,18 @@ class MermaidTestExecutionListener: TestExecutionListener {
                 it.uniqueId == testIdentifier.uniqueId
             }
             task?.let {
-                tasks[tasks.indexOf(it)] = it.copy(endTime = Instant.now(), resultStatus = testExecutionResult.status)
+                tasks[tasks.indexOf(it)] =
+                    it.copy(endTime = Instant.now(clock), resultStatus = testExecutionResult.status)
             }
-            // log.info { "Test execution finished: ${tasks.find { it.uniqueId == testIdentifier.uniqueId }}" }
         }
     }
 
     override fun testPlanExecutionFinished(testPlan: TestPlan) {
-        println("Test execution completed.")
-        val mermaid = toMermaidGanttChart(tasks)
-        println(mermaid)
+        printer("Test execution completed.")
+        printer(toMermaidGanttChart(tasks))
     }
+
+    internal fun mermaidGanttChart(): String = toMermaidGanttChart(tasks)
 
     private fun toMermaidGanttChart(tasks: List<Task>): String = buildString {
         appendLine("gantt")
@@ -72,13 +82,14 @@ class MermaidTestExecutionListener: TestExecutionListener {
         tasks
             .groupBy { it.className ?: "Test" }
             .forEach { (className, tasks) ->
-                appendLine("    section $className")
-                tasks.forEachIndexed { index, task ->
+                appendLine("    section ${className.sanitizeMermaidLabel()}")
+                tasks.forEach { task ->
                     val start = task.startTime.toString()
-                    val duration = task.endTime?.let { Duration.between(task.startTime, it).toMillis() } ?: 0
+                    val duration =
+                        task.endTime?.let { Duration.between(task.startTime, it).toMillis().coerceAtLeast(0L) } ?: 0L
                     val result = task.resultStatus.toResult()
                     val status = task.resultStatus.toMermaidStatus()
-                    appendLine("        ${task.displayName}($result) : $status, ${start}, ${duration}ms")
+                    appendLine("        ${task.displayName.sanitizeMermaidLabel()}($result) : $status, ${start}, ${duration}ms")
                 }
             }
     }
@@ -96,4 +107,6 @@ class MermaidTestExecutionListener: TestExecutionListener {
         TestExecutionResult.Status.ABORTED -> "\uD83D\uDEAB"
         else -> ""
     }
+
+    private fun String.sanitizeMermaidLabel(): String = replace(":", "-")
 }

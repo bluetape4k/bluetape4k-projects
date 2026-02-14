@@ -32,8 +32,8 @@ class SuspendedJobTesterTest {
         val job = CountingJob()
 
         SuspendedJobTester()
-            .numThreads(3)
-            .roundsPerJob(4)
+            .workers(3)
+            .rounds(4)
             .add(job)
             .run()
 
@@ -45,12 +45,25 @@ class SuspendedJobTesterTest {
         val block = CountingJob()
 
         SuspendedJobTester()
-            .numThreads(11)
-            .roundsPerJob(13)
+            .workers(11)
+            .rounds(13)
             .add(block)
             .run()
 
         block.count shouldBeEqualTo 13
+    }
+
+    @Test
+    fun `공통 설정명 workers rounds를 사용할 수 있다`() = runTest {
+        val block = CountingJob()
+
+        SuspendedJobTester()
+            .workers(4)
+            .rounds(5)
+            .add(block)
+            .run()
+
+        block.count shouldBeEqualTo 5
     }
 
     @Test
@@ -59,8 +72,8 @@ class SuspendedJobTesterTest {
         val block2 = CountingJob()
 
         SuspendedJobTester()
-            .numThreads(3)
-            .roundsPerJob(4)
+            .workers(3)
+            .rounds(4)
             .addAll(block1, block2)
             .run()
 
@@ -77,8 +90,8 @@ class SuspendedJobTesterTest {
 
         assertFailsWith<IllegalStateException> {
             SuspendedJobTester()
-                .numThreads(2)
-                .roundsPerJob(1)
+                .workers(2)
+                .rounds(1)
                 .run()
         }
     }

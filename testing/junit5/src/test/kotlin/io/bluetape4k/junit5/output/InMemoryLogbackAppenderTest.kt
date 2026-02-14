@@ -10,6 +10,8 @@ import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.Test
+import kotlin.test.assertTrue
 
 class InMemoryLogbackAppenderTest {
 
@@ -59,5 +61,17 @@ class InMemoryLogbackAppenderTest {
 
         appender.messages shouldHaveSize 1
         appender.lastMessage shouldBeEqualTo message
+    }
+
+    @Test
+    fun `local class로도 appender를 생성할 수 있다`() {
+        class LocalClass
+
+        val localAppender = InMemoryLogbackAppender(LocalClass::class)
+        try {
+            assertTrue(localAppender.isStarted)
+        } finally {
+            localAppender.stop()
+        }
     }
 }

@@ -9,6 +9,7 @@ import org.amshove.kluent.shouldBeGreaterThan
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import kotlin.test.assertFailsWith
 
 class AwaitilityCoroutinesTest {
 
@@ -72,5 +73,21 @@ class AwaitilityCoroutinesTest {
         yield()
 
         System.currentTimeMillis() shouldBeGreaterThan end
+    }
+
+    @Test
+    fun `suspendUntil - poll interval 은 양수여야 한다`() = runSuspendTest {
+        assertFailsWith<IllegalArgumentException> {
+            await.suspendUntil(Duration.ZERO) { true }
+        }
+    }
+
+    @Test
+    fun `suspendUntil - block 예외는 전파된다`() = runSuspendTest {
+        assertFailsWith<IllegalStateException> {
+            await.suspendUntil(Duration.ofMillis(10)) {
+                throw IllegalStateException("boom")
+            }
+        }
     }
 }

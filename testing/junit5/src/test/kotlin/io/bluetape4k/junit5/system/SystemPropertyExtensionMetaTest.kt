@@ -77,4 +77,15 @@ class SystemPropertyExtensionMetaTest {
         // 복원된 속성
         System.getProperty("keyC").shouldBeNull()
     }
+
+    @Test
+    fun `오버로드된 테스트 메소드의 시스템 속성도 각각 원복된다`() {
+        System.clearProperty("overloadA")
+        System.clearProperty("overloadB")
+
+        ExtensionTester.execute(selectClass(SystemPropertyExtensionOverloadTest::class.java))
+
+        System.getProperty("overloadA").shouldBeNull()
+        System.getProperty("overloadB").shouldBeNull()
+    }
 }

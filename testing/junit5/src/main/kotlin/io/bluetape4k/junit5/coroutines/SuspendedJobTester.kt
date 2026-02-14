@@ -1,5 +1,12 @@
 package io.bluetape4k.junit5.coroutines
 
+import io.bluetape4k.junit5.tester.StressTester.Companion.DEFAULT_ROUNDS_PER_WORKER
+import io.bluetape4k.junit5.tester.StressTester.Companion.MAX_ROUNDS_PER_WORKER
+import io.bluetape4k.junit5.tester.StressTester.Companion.MIN_ROUNDS_PER_WORKER
+import io.bluetape4k.junit5.tester.WorkerStressTester
+import io.bluetape4k.junit5.tester.WorkerStressTester.Companion.DEFAULT_WORKER_SIZE
+import io.bluetape4k.junit5.tester.WorkerStressTester.Companion.MAX_WORKER_SIZE
+import io.bluetape4k.junit5.tester.WorkerStressTester.Companion.MIN_WORKER_SIZE
 import io.bluetape4k.junit5.utils.MultiException
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
@@ -17,8 +24,8 @@ import kotlinx.coroutines.yield
  *
  * ```
  * SuspendedJobTester()
- *    .numThreads(Runtimex.availableProcessors())                    // 테스트 코드들이 실행될 Thread 수
- *    .roundsPerJob(4 * Runtime.getRuntime().availableProcessors())  // 테스트 코드마다 4 * CPU core 번씩 실행
+ *    .workers(Runtimex.availableProcessors())                    // 테스트 코드들이 실행될 Thread 수
+ *    .rounds(4 * Runtime.getRuntime().availableProcessors())  // 테스트 코드마다 4 * CPU core 번씩 실행
  *    .add {
  *          // 테스트 코드 1
  *    }
@@ -31,34 +38,56 @@ import kotlinx.coroutines.yield
  * @see [io.bluetape4k.junit5.concurrency.MultithreadingTester]
  * @see [io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester]
  */
-class SuspendedJobTester {
+class SuspendedJobTester: WorkerStressTester<SuspendedJobTester> {
 
-    companion object: KLoggingChannel() {
-        const val DEFAULT_NUM_THREADS: Int = 16
-        const val MIN_NUM_THREADS: Int = 2
-        const val MAX_NUM_THREADS: Int = 2000
+    companion object: KLoggingChannel()
 
-        const val DEFAULT_ROUNDS_PER_JOB: Int = 100
-        const val MIN_ROUNDS_PER_JOB: Int = 1
-        const val MAX_ROUNDS_PER_JOB: Int = 1_000_000
-    }
-
-    private var numThreads = DEFAULT_NUM_THREADS
-    private var roundsPerJob = DEFAULT_ROUNDS_PER_JOB
+    private var numWorkers = DEFAULT_WORKER_SIZE
+    private var roundPerWorker = DEFAULT_ROUNDS_PER_WORKER
     private val suspendBlocks = mutableListOf<suspend () -> Unit>()
 
+    @Deprecated(
+        message = "Use workers(value) for consistent naming across testers.",
+        replaceWith = ReplaceWith("workers(value)")
+    )
     fun numThreads(value: Int) = apply {
-        require(value in MIN_NUM_THREADS..MAX_NUM_THREADS) {
-            "Invalid numJobs: [$value] -- must be range in $MIN_NUM_THREADS..$MAX_NUM_THREADS"
-        }
-        numThreads = value
+        applyNumWorks(value)
     }
 
-    fun roundsPerJob(value: Int) = apply {
-        require(value in MIN_ROUNDS_PER_JOB..MAX_ROUNDS_PER_JOB) {
-            "Invalid roundsPerJob: [$value] -- must be range in $MIN_ROUNDS_PER_JOB..$MAX_ROUNDS_PER_JOB"
+    private fun applyNumWorks(value: Int) {
+        require(value in MIN_WORKER_SIZE..MAX_WORKER_SIZE) {
+            "Invalid numJobs: [$value] -- must be range in $MIN_WORKER_SIZE..$MAX_WORKER_SIZE"
         }
-        roundsPerJob = value
+        numWorkers = value
+    }
+
+    /**
+     * 공통 설정명: 실행 worker(thread) 수를 지정합니다.
+     */
+    override fun workers(value: Int) = apply {
+        applyNumWorks(value)
+    }
+
+    @Deprecated(
+        message = "Use rounds(value) for consistent naming across testers.",
+        replaceWith = ReplaceWith("rounds(value)")
+    )
+    fun roundsPerJob(value: Int) = apply {
+        applyRoundsPerJob(value)
+    }
+
+    private fun applyRoundsPerJob(value: Int) {
+        require(value in MIN_ROUNDS_PER_WORKER..MAX_ROUNDS_PER_WORKER) {
+            "Invalid roundsPerJob: [$value] -- must be range in $MIN_ROUNDS_PER_WORKER..$MAX_ROUNDS_PER_WORKER"
+        }
+        roundPerWorker = value
+    }
+
+    /**
+     * 공통 설정명: worker당 실행 라운드 수를 지정합니다.
+     */
+    override fun rounds(value: Int) = apply {
+        applyRoundsPerJob(value)
     }
 
     fun add(testBlock: suspend () -> Unit) = apply {
@@ -77,7 +106,7 @@ class SuspendedJobTester {
         check(suspendBlocks.isNotEmpty()) { "실행할 코드가 없습니다. add 로 추가해주세요." }
 
         val me = MultiException()
-        newFixedThreadPoolContext(numThreads, "multi-job").use { dispatcher ->
+        newFixedThreadPoolContext(numWorkers, "multi-job").use { dispatcher ->
             val jobs = launchJobs(dispatcher, me)
             yield()
             jobs.joinAll()
@@ -91,7 +120,7 @@ class SuspendedJobTester {
     ): List<Job> = coroutineScope {
         log.trace { "Start multi job testing ..." }
 
-        List(roundsPerJob) {
+        List(roundPerWorker) {
             suspendBlocks.map { block ->
                 launch(dispatcher) {
                     try {

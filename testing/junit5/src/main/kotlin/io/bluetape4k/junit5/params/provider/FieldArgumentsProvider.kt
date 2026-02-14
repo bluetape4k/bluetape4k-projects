@@ -6,7 +6,9 @@ import org.junit.jupiter.params.provider.ArgumentsProvider
 import org.junit.jupiter.params.support.AnnotationConsumer
 import org.junit.jupiter.params.support.ParameterDeclarations
 import java.lang.reflect.Field
+import java.lang.reflect.Modifier
 import java.util.stream.Stream
+import kotlin.streams.asStream
 
 /**
  * Field variable로 Arguments 를 제공하는 Provider 입니다.
@@ -31,26 +33,56 @@ class FieldArgumentsProvider: ArgumentsProvider, AnnotationConsumer<FieldSource>
     private lateinit var variableName: String
 
     override fun provideArguments(paramDefs: ParameterDeclarations, context: ExtensionContext): Stream<out Arguments> {
-        return context.testClass
-            .map { getField(it) }
-            .map { getValue(it, context.testInstance.get()) }
-            .orElseThrow { IllegalArgumentException("Fail to load test arguments") }!!
+        check(::variableName.isInitialized) { "FieldSource.value must be provided." }
+
+        val testClass = context.testClass.orElseThrow {
+            IllegalArgumentException("Fail to load test class from ExtensionContext.")
+        }
+        val field = findField(testClass, variableName) ?: throw IllegalArgumentException(
+            "Cannot find field '$variableName' in ${testClass.name}."
+        )
+        val fieldValue = getFieldValue(field, context)
+
+        return toArgumentsStream(fieldValue)
     }
 
     override fun accept(fieldSource: FieldSource) {
         variableName = fieldSource.value
     }
 
-    private fun getField(clazz: Class<*>): Field? {
-        return runCatching { clazz.getDeclaredField(variableName) }.getOrNull()
+    private fun findField(clazz: Class<*>, name: String): Field? {
+        var current: Class<*>? = clazz
+        while (current != null) {
+            runCatching { current.getDeclaredField(name) }.getOrNull()?.let { return it }
+            current = current.superclass
+        }
+        return null
     }
 
-    @Suppress("UNCHECKED_CAST")
-    private fun getValue(field: Field?, instance: Any): Stream<Arguments>? {
-        return runCatching {
-            field?.isAccessible = true
-            val arguments = field?.get(instance) as? List<Arguments>
-            arguments?.stream()
-        }.getOrNull()
+    private fun getFieldValue(field: Field, context: ExtensionContext): Any {
+        field.isAccessible = true
+        val receiver = when {
+            Modifier.isStatic(field.modifiers) -> null
+            else                               -> context.testInstance.orElseThrow {
+                IllegalArgumentException("Field '$variableName' requires a test instance.")
+            }
+        }
+        return field.get(receiver)
+            ?: throw IllegalArgumentException("Field '$variableName' resolved to null.")
+    }
+
+    private fun toArgumentsStream(value: Any): Stream<out Arguments> = when (value) {
+        is Stream<*>   -> value.map { it.toArguments() }
+        is Iterable<*> -> value.asSequence().map { it.toArguments() }.asStream()
+        is Array<*>    -> value.asSequence().map { it.toArguments() }.asStream()
+        else           -> throw IllegalArgumentException(
+            "Field '$variableName' must be Stream/Iterable/Array, but was ${value::class.java.name}."
+        )
+    }
+
+    private fun Any?.toArguments(): Arguments = when (this) {
+        is Arguments -> this
+        is Array<*>  -> Arguments.of(*this)
+        else         -> Arguments.of(this)
     }
 }

@@ -1,7 +1,6 @@
 package io.bluetape4k.junit5.utils
 
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.internal.platformClassName
 import org.junit.jupiter.engine.JupiterTestEngine
 import org.junit.platform.engine.CancellationToken
 import org.junit.platform.engine.DiscoverySelector
@@ -13,7 +12,7 @@ import org.junit.platform.engine.support.store.NamespacedHierarchicalStore
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.name
+import kotlin.io.path.createDirectories
 
 
 object ExtensionTester {
@@ -64,8 +63,11 @@ object ExtensionTester {
 
         override fun getRootDirectory(): Path = root
 
+        /**
+         * 테스트별 출력 경로를 root 하위의 절대 경로로 생성한다.
+         */
         override fun createOutputDirectory(testDescriptor: TestDescriptor): Path {
-            return Path.of(root.name, testDescriptor.platformClassName())
+            return root.resolve(testDescriptor.javaClass.canonicalName).createDirectories()
         }
     }
 }

@@ -1,11 +1,11 @@
 package io.bluetape4k.junit5.awaitility
 
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.time.delay
+import org.awaitility.Durations
 import org.awaitility.core.ConditionFactory
 import java.time.Duration
+
+private val DEFAULT_POLL_INTERVAL: Duration = Durations.ONE_HUNDRED_MILLISECONDS
 
 /**
  * [block]이 true 를 반환할 때까지 대기한다
@@ -16,8 +16,10 @@ import java.time.Duration
  *
  * @param block 판단을 위한 코드 블럭
  */
-suspend inline infix fun ConditionFactory.suspendAwait(crossinline block: suspend () -> Unit) {
-    suspendUntil { block(); true }
+suspend infix fun ConditionFactory.suspendAwait(
+    block: suspend () -> Unit,
+) {
+    suspendUntil(DEFAULT_POLL_INTERVAL) { block(); true }
 }
 
 /**
@@ -29,18 +31,9 @@ suspend inline infix fun ConditionFactory.suspendAwait(crossinline block: suspen
  *
  * @param block 판단을 위한 코드 블럭
  */
-suspend inline infix fun ConditionFactory.suspendUntil(
-    crossinline block: suspend () -> Boolean,
-) = coroutineScope {
-    while (isActive) {
-        // print("coUntil ...")
-        if (block()) {
-            break
-        } else {
-            delay(10L)    // 10ms 동안 대기
-        }
-    }
-}
+suspend infix fun ConditionFactory.suspendUntil(
+    block: suspend () -> Boolean,
+) = suspendUntil(DEFAULT_POLL_INTERVAL, block)
 
 /**
  * [block]이 true 를 반환할 때까지 대기한다
@@ -51,9 +44,9 @@ suspend inline infix fun ConditionFactory.suspendUntil(
  *
  * @param block 판단을 위한 코드 블럭
  */
-suspend inline fun ConditionFactory.suspendAwait(
-    pollInterval: Duration = Duration.ofMillis(10),
-    crossinline block: suspend () -> Unit,
+suspend fun ConditionFactory.suspendAwait(
+    pollInterval: Duration = DEFAULT_POLL_INTERVAL,
+    block: suspend () -> Unit,
 ) {
     suspendUntil(pollInterval) { block(); true }
 }
@@ -68,16 +61,22 @@ suspend inline fun ConditionFactory.suspendAwait(
  * @param block 판단을 위한 코드 블럭
  */
 @Suppress("UnusedReceiverParameter")
-suspend inline fun ConditionFactory.suspendUntil(
-    pollInterval: Duration = Duration.ofMillis(10),
-    crossinline block: suspend () -> Boolean,
-) = coroutineScope {
-    while (isActive) {
-        // print("coUntil ...")
+suspend fun ConditionFactory.suspendUntil(
+    pollInterval: Duration = DEFAULT_POLL_INTERVAL,
+    block: suspend () -> Boolean,
+) = awaitUntilLoop(pollInterval, block)
+
+private suspend fun awaitUntilLoop(
+    pollInterval: Duration,
+    block: suspend () -> Boolean,
+) {
+    require(!pollInterval.isNegative && !pollInterval.isZero) { "pollInterval must be positive." }
+    val pollMillis = pollInterval.toMillis()
+
+    while (true) {
         if (block()) {
-            break
-        } else {
-            delay(pollInterval)    // 10ms 동안 대기
+            return
         }
+        delay(pollMillis)
     }
 }

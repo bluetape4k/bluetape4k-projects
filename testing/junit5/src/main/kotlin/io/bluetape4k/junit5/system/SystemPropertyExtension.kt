@@ -41,11 +41,17 @@ class SystemPropertyExtension: BeforeAllCallback, BeforeEachCallback, AfterEachC
     }
 
     override fun afterEach(context: ExtensionContext) {
-        readRestoreContextInMethod(context)?.restore()
+        val key = methodKey(context)
+        context.store(this.javaClass)
+            .remove(key, SystemPropertyRestoreContext::class.java)
+            ?.restore()
     }
 
     override fun afterAll(context: ExtensionContext) {
-        readRestoreContextInClass(context)?.restore()
+        val key = classKey(context)
+        context.store(this.javaClass)
+            .remove(key, SystemPropertyRestoreContext::class.java)
+            ?.restore()
     }
 
     private fun buildRestoreContext(systemProperties: List<SystemProperty>): SystemPropertyRestoreContext {
@@ -80,22 +86,28 @@ class SystemPropertyExtension: BeforeAllCallback, BeforeEachCallback, AfterEachC
     }
 
     private fun readRestoreContextInClass(context: ExtensionContext): SystemPropertyRestoreContext? {
-        val key = makeKey(context.requiredTestClass.name)
+        val key = classKey(context)
         return context.store(this.javaClass).get(key, SystemPropertyRestoreContext::class.java)
     }
 
     private fun writeRestoreContextInClass(context: ExtensionContext, restoreContext: SystemPropertyRestoreContext) {
-        val key = makeKey(context.requiredTestClass.name)
+        val key = classKey(context)
         context.store(this.javaClass).computeIfAbsent(key) { restoreContext }
     }
 
     private fun readRestoreContextInMethod(context: ExtensionContext): SystemPropertyRestoreContext? {
-        val key = makeKey(context.requiredTestMethod.name)
+        val key = methodKey(context)
         return context.store(this.javaClass).get(key, SystemPropertyRestoreContext::class.java)
     }
 
     private fun writeRestoreContextInMethod(context: ExtensionContext, restoreContext: SystemPropertyRestoreContext) {
-        val key = makeKey(context.requiredTestMethod.name)
+        val key = methodKey(context)
         context.store(this.javaClass).computeIfAbsent(key) { restoreContext }
     }
+
+    private fun classKey(context: ExtensionContext): String =
+        makeKey(context.requiredTestClass.name)
+
+    private fun methodKey(context: ExtensionContext): String =
+        makeKey(context.requiredTestMethod.toGenericString())
 }

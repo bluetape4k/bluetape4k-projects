@@ -47,10 +47,11 @@ class InMemoryLogbackAppender private constructor(name: String): AppenderBase<IL
         operator fun invoke(name: String = "root"): InMemoryLogbackAppender = InMemoryLogbackAppender(name)
 
         @JvmStatic
-        operator fun invoke(clazz: Class<*>): InMemoryLogbackAppender = invoke(clazz.canonicalName)
+        operator fun invoke(clazz: Class<*>): InMemoryLogbackAppender = invoke(clazz.canonicalName ?: clazz.name)
 
         @JvmStatic
-        operator fun invoke(kclazz: KClass<*>): InMemoryLogbackAppender = invoke(kclazz.qualifiedName!!)
+        operator fun invoke(kclazz: KClass<*>): InMemoryLogbackAppender =
+            invoke(kclazz.qualifiedName ?: kclazz.java.name)
     }
 
     private val logger: ch.qos.logback.classic.Logger by lazy(LazyThreadSafetyMode.PUBLICATION) {

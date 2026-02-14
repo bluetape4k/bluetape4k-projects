@@ -43,7 +43,7 @@ class MultiException: RuntimeException("Multiple exceptions") {
     /**
      * 추가된 예외가 없으면, 아무런 동작을 하지 않습니다.
      * 추가된 예외가 하나라면 [Throwable]을 던집니다.
-     * 추가된 예외가 볷수개라면 [MultiException]을 던집니다.
+     * 추가된 예외가 복수개라면 [MultiException]을 던집니다.
      */
     fun throwIfNotEmpty() {
         lock.withLock {
