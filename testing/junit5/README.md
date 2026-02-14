@@ -1,227 +1,93 @@
 # Module bluetape4k-junit5
 
-## 개요
+JUnit 5 테스트 작성 시 반복 코드를 줄여주는 확장 라이브러리입니다.
 
-JUnit 5 를 위한 다양한 Extensions를 제공합니다.
+## 주요 기능
 
-## Extensions
+- **Stopwatch Extension**: 테스트 실행 시간 측정
+- **TempFolder Extension**: 테스트용 임시 디렉토리/파일 제공
+- **Output Capture**: System.out/err 및 로그 출력 캡처
+- **Random/Faker 확장**: 랜덤/가짜 데이터 주입
+- **System Property 확장**: 테스트 중 시스템 속성 설정/복원
+- **Awaitility + Coroutines**: suspend 조건 대기 유틸
+- **Stress Tester**: JUnit5 테스트에서 멀티스레드/가상스레드/코루틴 기반 스트레스 테스트 수행
+- **Parameter Source 확장**: FieldSource 기반 인자 제공
+- **Mermaid 리포트**: 테스트 실행 결과를 Mermaid Gantt 타임라인으로 출력
 
-### StopWatchExtension
-
-`StopWatchExtension` 은 테스트 메소드의 수행 시각을 측정할 수 있도록 합니다.
+## 의존성 추가
 
 ```kotlin
-@StopWatchTest
-class FooTest {
-
-    @Test
-    fun `some test case`() {
-        Thread.sleep(10)
-    }
+dependencies {
+    testImplementation("io.bluetape4k:bluetape4k-junit5:${version}")
 }
 ```
 
-### TempFolderExtension
+## 주요 기능 상세
 
-`TempFolderExtension` 은 테스트 시에만 사용하는 임시 폴더를 제공합니다.
+### 1. 테스트 실행 보조
 
-```kotlin
-@TempFolderTest
-@TestInstance(Lifecycle.PER_CLASS)
-class TempFolderExtensionBeforeAllTest {
+- `stopwatch/StopwatchExtension.kt`
+- `tempfolder/TempFolderExtension.kt`
+- `output/OutputCaptureExtension.kt`
 
-    lateinit var tempFolder: TempFolder
+### 2. 데이터 주입/랜덤화
 
-    @BeforeAll
-    fun beforeAll(tempFolder: TempFolder) {
-        this.tempFolder = tempFolder
-    }
+- `faker/FakeValueExtension.kt`
+- `random/RandomExtension.kt`
+- `params/provider/FieldArgumentsProvider.kt`
 
-    @AfterAll
-    fun afterAll() {
-        val createdFiles = Files.list(tempFolder.root.toPath()).map { it.toFile().name }.toList()
-        createdFiles.size shouldBeEqualTo 2
-        createdFiles shouldContainAll listOf("foo.txt", "bar")
-    }
+### 3. 환경/설정 보조
 
-    @Test
-    fun `임시 파일 생성`() {
-        val file = tempFolder.createFile("foo.txt")
-        file.exists().shouldBeTrue()
-    }
+- `system/SystemPropertyExtension.kt`
+- `awaitility/AwaitilityCoroutines.kt`
+- `awaitility/AwaitilityConfigurationExtension.kt`
 
-    @Test
-    fun `임시 디렉토리 생성`() {
-        val dir = tempFolder.createDirectory("bar")
-        dir.exists().shouldBeTrue()
-    }
-}
-```
+### 4. 동시성/코루틴 테스트 보조
 
-### CaptureSystemOutputExtension
+- `concurrency/MultithreadingTester.kt`
+- `concurrency/StructuredTaskScopeTester.kt`
+- `coroutines/SuspendedJobTester.kt`
 
-테스트 시, 검증할 값을 받아 올 수 없고, console에 출력만 된다면, 이렇게 출력된 값을 capture하여 검증할 수 있도록 합니다.
+### 5. 테스트 실행 리포트
+
+- `report/MermaidTestExecutionListener.kt`
+
+## JUnit5 Stress Test 강조
+
+`bluetape4k-junit5`는 확장(Extension)만 제공하는 모듈이 아니라, JUnit5 테스트 본문에서 바로 사용할 수 있는 Stress Tester 유틸도 제공합니다.
+
+- `MultithreadingTester`: 플랫폼 스레드 기반
+- `StructuredTaskScopeTester`: Java 21 Virtual Thread 기반
+- `SuspendedJobTester`: 코루틴 Job 기반
 
 ```kotlin
-@CaptureSystemOutput
-@TestMethodOrder(OrderAnnotation::class)
-class CaptureSystemOutputExtensionTest {
-
-    companion object: KLogging()
-
-    @BeforeEach
-    fun beforeEach(output: OutputCapture) {
-        verifyOutput(output, "@BeforeEach")
-    }
-
-    @AfterEach
-    fun afterEach(output: OutputCapture) {
-        verifyOutput(output, "@AfterEach")
-    }
-
-    @Test
-    @Order(1)
-    fun `capture system output`(output: OutputCapture) {
-        verifyOutput(output, "SYS OUT #1")
-    }
-
-    @Test
-    @Order(2)
-    fun `capture system error`(output: OutputCapture) {
-        verifyError(output, "SYS ERR #2")
-    }
-
-    @Test
-    @Order(3)
-    fun `capture system out and err`(output: OutputCapture) {
-        verifyOutput(output, "SYS OUT #2")
-        verifyError(output, "SYS ERR #4")
-    }
-
-    private fun verifyOutput(output: OutputCapture, expected: String) {
-        output.toString() shouldNotContain expected
-        println(expected)
-        output.expect { it shouldContain expected }
-        output.expect { it shouldNotContain expected.toLowerCase() }
-    }
-
-    private fun verifyError(output: OutputCapture, expected: String) {
-        output.toString() shouldNotContain expected
-        println(expected)
-        output.expect { it shouldContain expected }
-        output.expect { it shouldNotContain expected.toLowerCase() }
-    }
-}
-```
-
-### InMemoryAppender
-
-log 로 출력된 값을 가지고, 테스트를 검증하기 위해 일시적으로 메모리에 log를 쌓는 appender를 제공합니다.
-
-```kotlin
-class InMemoryAppenderTest {
-
-    companion object: KLogging()
-
-    private lateinit var appender: InMemoryAppender
-
-    @BeforeEach
-    fun beforeEach() {
-        appender = InMemoryAppender(InMemoryAppenderTest::class)
-    }
-
-    @AfterEach
-    fun afterEach() {
-        appender.stop()
-    }
-
-    @RepeatedTest(5)
-    fun `capture logback log message`() {
-        log.debug { "First message" }
-        appender.lastMessage shouldBeEqualTo "First message"
-        appender.size shouldBeEqualTo 1
-
-        log.debug { "Second message" }
-        appender.lastMessage shouldBeEqualTo "Second message"
-        appender.size shouldBeEqualTo 2
-
-        appender.clear()
-        appender.size shouldBeEqualTo 0
-        appender.lastMessage.shouldBeNull()
-        appender.messages.shouldBeEmpty()
-    }
-}
-```
-
-### RandomExtension
-
-Property based testing 을 위해, 테스트용 객체에 random 값을 주입시켜 임의의 값에 대해서 테스트를 수행할 수 있도록 합니다.
-
-```kotlin
-@RandomizedTest
-class RandomExtensionTest {
-    @Test
-    // random string을 가진 리스트를 주입합니다.
-    fun `can inject a random list of default size`(@RandomValue(type = String::class) anyList: List<String>) {
-        anyList.shouldNotBeNull()
-        anyList.shouldNotBeEmpty()
-        anyList.size shouldBeEqualTo getDefaultSizeOfRandom()
-    }
-
-    @Test
-    // `DomainObject` 속성 중 `wotsits`, `id`, `nestedDomainObject` 속성을 제외한 나머지 속성에 random 값을 주입한 2개의 `DomainObject` 를 인자로 제공합니다
-    fun `can inject random partially populated domain objects`(
-        @RandomValue(size = 2, type = DomainObject::class, excludes = ["wotsits", "id", "nestedDomainObject.address"])
-        anyPartiallyPopulatedDomainObjects: List<DomainObject>
-    ) {
-
-        anyPartiallyPopulatedDomainObjects.shouldNotBeNull()
-        anyPartiallyPopulatedDomainObjects.shouldNotBeEmpty()
-        anyPartiallyPopulatedDomainObjects.size shouldBeEqualTo 2
-        anyPartiallyPopulatedDomainObjects.forEach {
-            it.shouldPartiallyPopulated()
+@Test
+fun `멀티스레드 스트레스 테스트`() {
+    MultithreadingTester()
+        .workers(Runtime.getRuntime().availableProcessors())
+        .rounds(100)
+        .add {
+            // 동시성 검증 코드
         }
-    }
+        .run()
 }
 ```
 
-### SystemPropertyExtension
+## `gantt.mermaid` 생성/활용
 
-테스트 시에만 적용되는 System property 을 설정할 수 있도록 합니다. 테스트 후에는 원래 값으로 복원시킵니다.
+`MermaidTestExecutionListener`가 JUnit Platform `TestExecutionListener`로 자동 등록되어, 테스트 종료 시 Mermaid Gantt 문자열을 출력합니다.
 
-```kotlin
-// 클래스 레벨로 System Property 값을 지정합니다.
-@SystemProperties(
-    [
-        SystemProperty("classPropertyA", "classPropertyValueA"),
-        SystemProperty("classPropertyB", "classPropertyValueB"),
-        SystemProperty("classPropertyC", "classPropertyValueC")
-    ]
-)
-class SystemPropertyExtensionClassTest {
+- 출력 포맷: `gantt` 문법
+- 섹션 구분: 테스트 클래스 단위
+- 상태 표기: 성공(`active`), 실패(`crit`), 중단(`done`)
 
-    @Test
-    fun `클래스 단위로 테스트를 위한 시스템 속성을 설정`() {
-        System.getProperty("classPropertyA") shouldBeEqualTo "classPropertyValueA"
-        System.getProperty("classPropertyB") shouldBeEqualTo "classPropertyValueB"
-        System.getProperty("classPropertyC") shouldBeEqualTo "classPropertyValueC"
-    }
+생성된 문자열을 `gantt.mermaid` 파일로 저장하면 Mermaid 뷰어/문서에서 바로 시각화할 수 있습니다.
 
-    @Test
-    // 메소드 레벨로 System Property 값을 지정합니다.
-    @SystemProperties(
-        [
-            SystemProperty("keyA", "valueA"),
-            SystemProperty("keyB", "valueB")
-        ]
-    )
-    fun `메소드 단위로 테스트를 위한 시스템 속성을 설정`() {
-        System.getProperty("classPropertyA") shouldBeEqualTo "classPropertyValueA"
-        System.getProperty("classPropertyB") shouldBeEqualTo "classPropertyValueB"
-        System.getProperty("classPropertyC") shouldBeEqualTo "classPropertyValueC"
-
-        System.getProperty("keyA") shouldBeEqualTo "valueA"
-        System.getProperty("keyB") shouldBeEqualTo "valueB"
-    }
-}
+```bash
+./gradlew :testing:junit5:test | awk 'f||/^gantt$/{f=1; print}' > testing/junit5/gantt.mermaid
 ```
+
+## 참고
+
+- [JUnit 5 User Guide](https://junit.org/junit5/docs/current/user-guide/)
+- [Awaitility](https://github.com/awaitility/awaitility)
