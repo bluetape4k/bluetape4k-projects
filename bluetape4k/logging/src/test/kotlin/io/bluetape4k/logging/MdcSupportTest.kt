@@ -2,8 +2,10 @@ package io.bluetape4k.logging
 
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNullOrEmpty
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.slf4j.MDC
+import kotlin.test.assertFailsWith
 
 /**
  * logback log pattern 을 다음과 같이 `traceId=%X{traceId}` 를 추가해야 MDC `traceId` 가 로그애 출력됩니다.
@@ -15,6 +17,12 @@ import org.slf4j.MDC
 class MdcSupportTest {
 
     companion object: KLogging()
+
+    @AfterEach
+    fun cleanupMdc() {
+        MDC.remove("traceId")
+        MDC.remove("spanId")
+    }
 
     @Test
     fun `withMDCConterxt in traceId`() {
@@ -56,5 +64,30 @@ class MdcSupportTest {
             MDC.get("spanId") shouldBeEqualTo "123"
         }
         log.debug { "After operation - no traceId" }
+    }
+
+    @Test
+    fun `exception이 발생해도 이전 MDC 값은 복원된다`() {
+        MDC.put("traceId", "origin")
+
+        assertFailsWith<IllegalStateException> {
+            withLoggingContext("traceId" to "inner") {
+                MDC.get("traceId") shouldBeEqualTo "inner"
+                error("boom")
+            }
+        }
+
+        MDC.get("traceId") shouldBeEqualTo "origin"
+    }
+
+    @Test
+    fun `restorePrevious가 false면 key를 제거한다`() {
+        MDC.put("traceId", "origin")
+
+        withLoggingContext("traceId" to "inner", restorePrevious = false) {
+            MDC.get("traceId") shouldBeEqualTo "inner"
+        }
+
+        MDC.get("traceId").shouldBeNullOrEmpty()
     }
 }

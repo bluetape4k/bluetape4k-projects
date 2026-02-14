@@ -42,7 +42,7 @@ object KotlinLogging {
      * @param action [action]이 속한 package name이 Logger name이 됩니다.
      * @return Logger instance
      */
-    fun logger(action: () -> Unit): Logger =
+    fun logger(action: () -> Unit = {}): Logger =
         KLoggerFactory.logger(action)
 
     /**
@@ -51,5 +51,8 @@ object KotlinLogging {
      * @param kclass Logger가 될 수형
      * @return Logger instance
      */
-    fun logger(kclass: KClass<*>) = logger(kclass.qualifiedName!!)
+    fun logger(kclass: KClass<*>): Logger {
+        val loggerName = kclass.qualifiedName ?: kclass.java.name
+        return logger(loggerName)
+    }
 }
