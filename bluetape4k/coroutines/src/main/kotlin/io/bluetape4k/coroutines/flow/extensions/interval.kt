@@ -2,13 +2,8 @@ package io.bluetape4k.coroutines.flow.extensions
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.onStart
-import java.util.concurrent.atomic.AtomicLong
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Flow를 주어진 [initialDelay] 이후에 주어진 [delay] 간격으로 발행하는 Flow를 생성합니다.
@@ -22,13 +17,24 @@ import kotlin.time.Duration.Companion.milliseconds
 fun <T> Flow<T>.interval(
     initialDelay: Duration,
     delay: Duration = Duration.ZERO,
-): Flow<T> = channelFlow {
-    this@interval
-        .onStart { delay(initialDelay.coerceAtLeast(Duration.ZERO)) }
-        .onEach { delay(delay.coerceAtLeast(Duration.ZERO)) }
-        .collect {
-            send(it)
+): Flow<T> = flow {
+    val initialDelayValue = initialDelay.coerceAtLeast(Duration.ZERO)
+    val delayValue = delay.coerceAtLeast(Duration.ZERO)
+
+    if (initialDelayValue.isPositive()) {
+        delay(initialDelayValue)
+    }
+
+    if (delayValue.isPositive()) {
+        this@interval.collect { value ->
+            delay(delayValue)
+            emit(value)
         }
+    } else {
+        this@interval.collect { value ->
+            emit(value)
+        }
+    }
 }
 
 /**
@@ -43,13 +49,24 @@ fun <T> Flow<T>.interval(
 fun <T> Flow<T>.interval(
     initialDelayMillis: Long = 0L,
     delayMillis: Long = 0L,
-): Flow<T> = channelFlow {
-    this@interval
-        .onStart { delay(initialDelayMillis.coerceAtLeast(0).milliseconds) }
-        .onEach { delay(delayMillis.coerceAtLeast(0).milliseconds) }
-        .collect {
-            send(it)
+): Flow<T> = flow {
+    val initialDelayValue = initialDelayMillis.coerceAtLeast(0L)
+    val delayValue = delayMillis.coerceAtLeast(0L)
+
+    if (initialDelayValue > 0L) {
+        delay(initialDelayValue)
+    }
+
+    if (delayValue > 0L) {
+        this@interval.collect { value ->
+            delay(delayValue)
+            emit(value)
         }
+    } else {
+        this@interval.collect { value ->
+            emit(value)
+        }
+    }
 }
 
 /**
@@ -62,11 +79,14 @@ fun <T> Flow<T>.interval(
  * ```
  */
 fun intervalFlowOf(initialDelay: Duration, delay: Duration): Flow<Long> = flow {
-    delay(initialDelay)
-    val sequencer = AtomicLong(0L)
+    val initialDelayValue = initialDelay.coerceAtLeast(Duration.ZERO)
+    val delayValue = delay.coerceAtLeast(Duration.ZERO)
+
+    delay(initialDelayValue)
+    var sequencer = 0L
     while (true) {
-        emit(sequencer.getAndIncrement())
-        delay(delay)
+        emit(sequencer++)
+        delay(delayValue)
     }
 }
 
@@ -80,10 +100,13 @@ fun intervalFlowOf(initialDelay: Duration, delay: Duration): Flow<Long> = flow {
  * ```
  */
 fun intervalFlowOf(initialDelayMillis: Long, delayMillis: Long): Flow<Long> = flow {
-    delay(initialDelayMillis.coerceAtLeast(0))
-    val sequencer = AtomicLong(0L)
+    val initialDelayValue = initialDelayMillis.coerceAtLeast(0L)
+    val delayValue = delayMillis.coerceAtLeast(0L)
+
+    delay(initialDelayValue)
+    var sequencer = 0L
     while (true) {
-        emit(sequencer.getAndIncrement())
-        delay(delayMillis.coerceAtLeast(0).milliseconds)
+        emit(sequencer++)
+        delay(delayValue)
     }
 }

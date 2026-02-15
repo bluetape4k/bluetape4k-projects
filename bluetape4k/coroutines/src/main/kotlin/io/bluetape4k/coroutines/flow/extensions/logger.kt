@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.toList
 
 @PublishedApi
 internal val logger by lazy { KotlinLogging.logger {} }
@@ -34,7 +35,7 @@ fun <T> Flow<T>.log(tag: Any, log: org.slf4j.Logger = logger) =
         }
         .onEach {
             val item = when (it) {
-                is Flow<*> -> it.toFastList()
+                is Flow<*> -> it.toList()
                 else -> it
             }
             log.debug { "[$tag] ➡️emit $item" } // Flow의 각 아이템을 emit할 때 로깅

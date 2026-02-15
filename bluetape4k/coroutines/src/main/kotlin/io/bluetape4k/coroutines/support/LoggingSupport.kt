@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.support
 
+import io.bluetape4k.LibraryName
 import io.bluetape4k.coroutines.context.PropertyCoroutineContext
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.debug
@@ -9,7 +10,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlin.coroutines.cancellation.CancellationException
 
 @PublishedApi
-internal val log by lazy { KotlinLogging.logger {} }
+internal val log by lazy { KotlinLogging.logger(LibraryName) }
 
 /**
  * Job이 완료되거나 취소되면 로그를 남깁니다.

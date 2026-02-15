@@ -78,12 +78,14 @@ class RaceTest: AbstractFlowTest() {
         val flow2 = flow { delay(200); emit(1) }.log(2)
 
         race(flow1, flow2).test {
+            awaitItem() shouldBeEqualTo 1
             awaitComplete()
         }
 
         val flow3 = flow { delay(200); emit(1) }.log(1)
         val flow4 = flow<Int> { delay(100) }.log(2)
         race(flow3, flow4).test {
+            awaitItem() shouldBeEqualTo 1
             awaitComplete()
         }
     }

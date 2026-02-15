@@ -1,13 +1,12 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.support.uninitialized
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicReference
 
 /**
  * Backpressure 발생 시, item을 버린다. conflate 와 같은 동작을 수행한다.
@@ -30,41 +29,51 @@ import java.util.concurrent.atomic.AtomicReference
  */
 fun <T> Flow<T>.onBackpressureDrop(): Flow<T> = onBackpressureDropInternal(this)
 
+/**
+ * 소비자가 준비되지 않았을 때 들어온 최신 값만 유지하고 나머지는 버립니다.
+ */
 internal fun <T> onBackpressureDropInternal(source: Flow<T>): Flow<T> = flow {
     coroutineScope {
         val producerReady = Resumable()
-        val consumerReady = AtomicBoolean(false)
-        val value = AtomicReference<T>(uninitialized())
-        val done = AtomicBoolean(false)
-        val error = AtomicReference<Throwable>(null)
+        val state = OnBackpressureDropState<T>()
 
         launch(start = CoroutineStart.UNDISPATCHED) {
             try {
                 source.collect { item ->
-                    if (consumerReady.get()) {
-                        value.lazySet(item)
-                        consumerReady.set(false)
+                    if (state.consumerReady.value) {
+                        state.value.lazySet(item)
+                        state.consumerReady.value = false
                         producerReady.resume()
                     }
                 }
-                done.set(true)
+                state.done.value = true
             } catch (e: Throwable) {
-                error.set(e)
+                state.error.value = e
             }
             producerReady.resume()
         }
 
         while (true) {
-            consumerReady.set(true)
+            state.consumerReady.value = true
             producerReady.await()
 
-            error.get()?.let { throw it }
+            state.error.value?.let { throw it }
 
-            if (done.get()) {
+            if (state.done.value) {
                 break
             }
 
-            emit(value.getAndSet(uninitialized()))
+            emit(state.value.getAndSet(uninitialized()))
         }
     }
+}
+
+/**
+ * [onBackpressureDropInternal]에서 producer/consumer 동기화 상태를 보관합니다.
+ */
+private class OnBackpressureDropState<T> {
+    val consumerReady = atomic(false)
+    val value = atomic(uninitialized<T>())
+    val done = atomic(false)
+    val error = atomic<Throwable?>(null)
 }

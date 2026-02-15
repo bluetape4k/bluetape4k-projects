@@ -117,4 +117,23 @@ class SuspendRingBufferTest {
         avgs[9] shouldBeEqualTo 4.5
         avgs[14] shouldBeEqualTo 9.5
     }
+
+    @Test
+    fun `startIndex는 버퍼 크기 범위로 순환한다`() = runTest {
+        val bufferSize = 32
+        val pushCount = 10_000
+        val ring = SuspendRingBuffer(bufferSize, 0)
+
+        repeat(pushCount) {
+            ring.push(it)
+        }
+
+        val startIndexField = SuspendRingBuffer::class.java.getDeclaredField("startIndex").apply {
+            isAccessible = true
+        }
+        val startIndex = startIndexField.getInt(ring)
+        val expected = (pushCount - bufferSize) % bufferSize
+
+        startIndex shouldBeEqualTo expected
+    }
 }

@@ -6,14 +6,13 @@ import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * Coroutines 환경에서 사용하는 RingBuffer 입니다.
  */
 @Suppress("UNCHECKED_CAST")
 class SuspendRingBuffer<T: Any>(
-    private val buffer: CopyOnWriteArrayList<T?>,
+    private val buffer: MutableList<T?>,
     private var startIndex: Int = 0,
     _size: Int = 0,
 ): Iterable<T?> by buffer {
@@ -23,9 +22,7 @@ class SuspendRingBuffer<T: Any>(
         operator fun <T: Any> invoke(size: Int, empty: T): SuspendRingBuffer<T> {
             size.requirePositiveNumber("size")
             val list = MutableList(size) { empty } as MutableList<T?>
-            val buffer = CopyOnWriteArrayList(list)
-
-            return SuspendRingBuffer(buffer)
+            return SuspendRingBuffer(list)
         }
 
         /**
@@ -34,17 +31,21 @@ class SuspendRingBuffer<T: Any>(
         fun <T: Any> boxing(size: Int): SuspendRingBuffer<T> {
             size.requirePositiveNumber("size")
             val list: MutableList<T?> = MutableList(size) { null }
-            val buffer = CopyOnWriteArrayList(list)
-
-            return SuspendRingBuffer(buffer)
+            return SuspendRingBuffer(list)
         }
     }
 
     private val mutex: Mutex = Mutex()
 
+    /**
+     * RingBuffer 에 담은 갯수 (덮어쓴 것은 무시된다)
+     */
     var size: Int = _size
         private set
 
+    /**
+     * 버퍼에 모든 요소가 채워졌는지 여부
+     */
     val isFull: Boolean get() = size == buffer.size
 
     suspend fun get(index: Int): T = mutex.withLock {
@@ -57,18 +58,22 @@ class SuspendRingBuffer<T: Any>(
     }
 
     suspend fun snapshot(): List<T> = mutex.withLock {
-        val copy = buffer.toList()
-
-        List(size) {
-            copy[startIndex.forward(it)] as T
+        if (size == 0) {
+            return@withLock emptyList()
         }
+
+        val result = ArrayList<T>(size)
+        repeat(size) { offset ->
+            result += buffer[startIndex.forward(offset)] as T
+        }
+        result
     }
 
     suspend fun push(element: T) {
         mutex.withLock {
             buffer[startIndex.forward(size)] = element
 
-            if (isFull) startIndex++
+            if (isFull) startIndex = startIndex.forward(1)
             else size++
         }
     }

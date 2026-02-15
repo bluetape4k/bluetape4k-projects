@@ -32,14 +32,17 @@ suspend fun <E> ReceiveChannel<E>.distinctUntilChanged(
     val self = this@distinctUntilChanged
     produce(context, Channel.BUFFERED) {
         val producer = this
+        var hasPrev = false
         var prev: E? = null
 
         self.consumeEach { received ->
             log.trace { "Received: $received" }
-            if (received != prev) {
+            // 첫 값이 null 일때 누락되던 문제 수정
+            if (!hasPrev || received != prev) {
                 log.trace { "Send: $received" }
                 producer.send(received)
                 prev = received
+                hasPrev = true
             }
         }
         producer.close()
@@ -225,8 +228,9 @@ suspend fun <E> ReceiveChannel<E>.debounce(
                 delay(minOf(nextTime - currentTime, waitMillis))
                 var mostRecent = received
                 // channel에 요소가 있다면 가장 최신의 요소를 얻기 위해 계속 수신합니다. (중간 요소들은 모두 무시됩니다)
-                while (!self.isEmpty) {
-                    self.receiveCatching().getOrNull()?.run { mostRecent = this } ?: break
+                while (true) {
+                    val next = self.tryReceive().getOrNull() ?: break
+                    mostRecent = next
                 }
                 nextTime += waitMillis
                 producer.send(mostRecent)

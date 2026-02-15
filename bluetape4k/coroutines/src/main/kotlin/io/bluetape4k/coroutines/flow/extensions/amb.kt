@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.channels.onSuccess
 import kotlinx.coroutines.channels.produce
@@ -79,28 +80,43 @@ internal fun <T> ambInternal(sources: Iterable<Flow<T>>): Flow<T> = flow {
             .singleOrNull()
             ?.let { return@coroutineScope emitAll(it) }
 
-        // 첫번째 요소를 발행하는 Flow를 찾기 위해 select를 사용합니다.
-        val (winnerIndex, winnerResult) = select {
-            channels.forEachIndexed { index, channel ->
-                channel.onReceiveCatching {
-                    index to it
+        // "첫 신호(완료 포함)"가 아니라 "첫 값 emit"을 우승 기준으로 삼는다.
+        val alive = channels.indices.toMutableSet()
+
+        while (alive.isNotEmpty()) {
+            val (winnerIndex, winnerResult) = select {
+                alive.forEach { index ->
+                    channels[index].onReceiveCatching {
+                        index to it
+                    }
                 }
             }
-        }
 
-        channels.forEachIndexed { index, channel ->
-            if (index != winnerIndex) {
-                channel.cancel()
-            }
-        }
+            winnerResult
+                .onSuccess {
+                    channels.forEachIndexed { index, channel ->
+                        if (index != winnerIndex) {
+                            channel.cancel()
+                        }
+                    }
 
-        winnerResult
-            .onSuccess {
-                emit(it)
-                emitAll(channels[winnerIndex])
-            }
-            .onFailure {
-                it?.let { throw it }
-            }
+                    emit(it)
+                    emitAll(channels[winnerIndex])
+                    return@coroutineScope
+                }
+                .onFailure { cause ->
+                    // 값 없이 종료된 source는 후보에서 제거하고 계속 경합한다.
+                    if (cause == null) {
+                        alive.remove(winnerIndex)
+                    } else {
+                        channels.forEachIndexed { index, channel ->
+                            if (index != winnerIndex) {
+                                channel.cancel(CancellationException("amb winner failed", cause))
+                            }
+                        }
+                        throw cause
+                    }
+                }
+        }
     }
 }

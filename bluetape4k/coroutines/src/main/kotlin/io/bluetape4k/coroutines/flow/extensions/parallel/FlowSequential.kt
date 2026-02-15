@@ -4,12 +4,11 @@ import io.bluetape4k.coroutines.flow.exceptions.FlowOperationException
 import io.bluetape4k.coroutines.flow.extensions.Resumable
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.uninitialized
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicReference
 
 /**
  * 병렬 flow인 [source]를 소비하고 값을 순차적인 Flow 로 변환합니다.
@@ -23,24 +22,22 @@ internal class FlowSequential<T>(private val source: ParallelFlow<T>): AbstractF
             val n = source.parallelism
             val resumeCollector = Resumable()
             val collectors = Array(n) { RailCollector<T>(resumeCollector) }
-
-            val done = AtomicBoolean(false)
-            val error = AtomicReference<Throwable?>(null)
+            val state = FlowSequentialState()
 
             launch {
                 try {
                     source.collect(*collectors)
-                    done.set(true)
+                    state.done.value = true
                     resumeCollector.resume()
                 } catch (ex: Throwable) {
-                    error.set(ex)
-                    done.set(true)
+                    state.error.value = ex
+                    state.done.value = true
                     resumeCollector.resume()
                 }
             }
 
             while (true) {
-                val d = done.get()
+                val d = state.done.value
                 var empty = true
 
                 collectors.forEach { rail ->
@@ -67,7 +64,7 @@ internal class FlowSequential<T>(private val source: ParallelFlow<T>): AbstractF
                 }
 
                 if (d && empty) {
-                    val ex = error.get()
+                    val ex = state.error.value
                     ex?.let { throw it }
                     return@coroutineScope
                 }
@@ -76,6 +73,14 @@ internal class FlowSequential<T>(private val source: ParallelFlow<T>): AbstractF
                 }
             }
         }
+    }
+
+    /**
+     * 병렬 source 종료 여부와 종료 예외를 보관합니다.
+     */
+    private class FlowSequentialState {
+        val done = atomic(false)
+        val error = atomic<Throwable?>(null)
     }
 
     private class RailCollector<T>(private val resumeCollector: Resumable): Resumable(), FlowCollector<T> {

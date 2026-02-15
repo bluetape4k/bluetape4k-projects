@@ -1,12 +1,11 @@
 package io.bluetape4k.coroutines.flow.extensions
 
-import io.bluetape4k.collections.eclipse.toFastList
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * 여러 Flow 소스를 무제한으로 병합합니다.
@@ -20,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger
  *     .assertResultSet(6, 7, 8, 9, 10, 1, 2, 3, 4, 5)
  * ```
  */
-fun <T: Any> Iterable<Flow<T>>.merge(): Flow<T> = mergeInternal(this.toFastList())
+fun <T: Any> Iterable<Flow<T>>.merge(): Flow<T> = mergeInternal(this.toList())
 
 /**
  * 여러 Flow 소스를 무제한으로 병합합니다.
@@ -33,14 +32,14 @@ fun <T: Any> Iterable<Flow<T>>.merge(): Flow<T> = mergeInternal(this.toFastList(
  *     .assertResultSet(6, 7, 8, 9, 10, 1, 2, 3, 4, 5)
  * ```
  */
-fun <T: Any> merge(vararg sources: Flow<T>): Flow<T> = mergeInternal(sources.toFastList())
+fun <T: Any> merge(vararg sources: Flow<T>): Flow<T> = mergeInternal(sources.asList())
 
 /**
  * 여러 Flow 소스를 무제한으로 병합합니다.
  */
-internal fun <T: Any> mergeInternal(sources: List<Flow<T>>): Flow<T> = channelFlow {
+internal fun <T: Any> mergeInternal(sources: List<Flow<T>>): Flow<T> = flow {
     val queue = ConcurrentLinkedQueue<T>()
-    val done = AtomicInteger(sources.size)
+    val state = MergeState(sources.size)
     val ready = Resumable()
 
     coroutineScope {
@@ -53,21 +52,28 @@ internal fun <T: Any> mergeInternal(sources: List<Flow<T>>): Flow<T> = channelFl
                         ready.resume()
                     }
                 } finally {
-                    done.decrementAndGet()
+                    state.done.decrementAndGet()
                     ready.resume()
                 }
             }
         }
 
         while (true) {
-            val isDone = done.get() == 0
+            val isDone = state.done.value == 0
             val value = queue.poll()
 
             when {
                 isDone && value == null -> break
-                value != null -> send(value)
+                value != null -> emit(value)
                 else -> ready.await()
             }
         }
     }
+}
+
+/**
+ * [mergeInternal]에서 남은 source 수를 추적합니다.
+ */
+private class MergeState(size: Int) {
+    val done = atomic(size)
 }

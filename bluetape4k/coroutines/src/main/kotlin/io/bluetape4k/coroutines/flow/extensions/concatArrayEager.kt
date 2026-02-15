@@ -1,19 +1,18 @@
 package io.bluetape4k.coroutines.flow.extensions
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.support.unsafeLazy
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.atomic.AtomicIntegerArray
 
 private val log: Logger by unsafeLazy { KotlinLogging.logger { } }
 
@@ -34,7 +33,7 @@ private val log: Logger by unsafeLazy { KotlinLogging.logger { } }
  * @return
  */
 fun <T: Any> Iterable<Flow<T>>.concatFlows(): Flow<T> =
-    concatArrayEagerInternal(this.toFastList())
+    concatArrayEagerInternal(this.toList())
 
 /**
  * 모든 flow를 동시에 시작하고, 다른 소스의 항목이 발행되기 전에 첫 번째 소스에서 모든 항목을 발행합니다.
@@ -50,7 +49,7 @@ fun <T: Any> Iterable<Flow<T>>.concatFlows(): Flow<T> =
  * ```
  */
 suspend fun <T: Any> Flow<Flow<T>>.concatFlows(): Flow<T> =
-    concatArrayEagerInternal(this.toFastList())
+    concatArrayEagerInternal(this.toList())
 
 /**
  * 모든 [sources]를 동시에 시작하고, 두 번째 소스의 항목이 발행되기 전에 첫 번째 소스에서 모든 항목을 발행합니다.
@@ -69,7 +68,7 @@ suspend fun <T: Any> Flow<Flow<T>>.concatFlows(): Flow<T> =
  * ```
  */
 fun <T: Any> concatArrayEager(vararg sources: Flow<T>): Flow<T> =
-    concatArrayEagerInternal(sources.toFastList())
+    concatArrayEagerInternal(sources.asList())
 
 /**
  * 모든 [sources]를 동시에 시작하고, 다른 소스의 항목이 발행되기 전에 첫 번째 소스에서 모든 항목을 발행합니다.
@@ -84,37 +83,36 @@ fun <T: Any> concatArrayEager(vararg sources: Flow<T>): Flow<T> =
 internal fun <T: Any> concatArrayEagerInternal(sources: List<Flow<T>>): Flow<T> = channelFlow {
     coroutineScope {
         val size = sources.size
-        val queues = List(size) { ConcurrentLinkedQueue<T>() }
-        val dones = AtomicIntegerArray(sources.size)
+        val rails = List(size) { ConcatArrayEagerRail<T>() }
         val reader = Resumable()
 
         repeat(size) {
             val f = sources[it]
-            val q = queues[it]
+            val rail = rails[it]
             launch(start = CoroutineStart.UNDISPATCHED) {
                 try {
                     f.collect { item ->
                         log.trace { "collect from source[$it] item=$item" }
-                        q.offer(item)
+                        rail.queue.offer(item)
                         reader.resume()
                     }
                 } finally {
-                    dones[it] = 1
+                    rail.done.value = true
                     reader.resume()
                 }
             }
         }
 
-        val index = AtomicInteger(0)
-        while (isActive && index.get() < size) {
-            val queue = queues[index.get()]
-            val done = dones[index.get()] != 0
+        var index = 0
+        while (isActive && index < size) {
+            val rail = rails[index]
+            val done = rail.done.value
 
-            if (done && queue.isEmpty()) {
-                index.incrementAndGet()
+            if (done && rail.queue.isEmpty()) {
+                index++
                 continue
             }
-            val value = queue.poll()
+            val value = rail.queue.poll()
             if (value != null) {
                 send(value)
                 continue
@@ -122,4 +120,12 @@ internal fun <T: Any> concatArrayEagerInternal(sources: List<Flow<T>>): Flow<T> 
             reader.await()
         }
     }
+}
+
+/**
+ * [concatArrayEagerInternal]의 각 source별 큐와 완료 상태를 보관합니다.
+ */
+private class ConcatArrayEagerRail<T: Any> {
+    val queue = ConcurrentLinkedQueue<T>()
+    val done = atomic(false)
 }

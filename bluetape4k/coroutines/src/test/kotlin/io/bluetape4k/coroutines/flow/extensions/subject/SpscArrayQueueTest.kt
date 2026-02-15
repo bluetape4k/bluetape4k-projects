@@ -76,4 +76,15 @@ class SpscArrayQueueTest {
         q.poll(a).shouldBeFalse()
         q.isEmpty.shouldBeTrue()
     }
+
+    @Test
+    fun `nullable value`() {
+        val q = SpscArrayQueue<Int?>(2)
+        val a = Array<Any?>(1) { 1 }
+
+        q.offer(null).shouldBeTrue()
+        q.poll(a).shouldBeTrue()
+        q.isEmpty.shouldBeTrue()
+        a[0] shouldBeEqualTo null
+    }
 }

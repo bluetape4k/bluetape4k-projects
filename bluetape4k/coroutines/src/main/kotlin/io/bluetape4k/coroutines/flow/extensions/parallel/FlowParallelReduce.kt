@@ -1,6 +1,7 @@
 package io.bluetape4k.coroutines.flow.extensions.parallel
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.support.requireEquals
 import kotlinx.coroutines.flow.FlowCollector
 
 /**
@@ -19,6 +20,7 @@ internal class FlowParallelReduce<T, R>(
 
     override suspend fun collect(vararg collectors: FlowCollector<R>) {
         val n = parallelism
+        collectors.size.requireEquals(n, "collectors.size")
         val rails = Array(n) { ReducerCollector(combine) }
 
         // Array constructor doesn't support suspendable initializer?

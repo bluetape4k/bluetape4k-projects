@@ -2,7 +2,6 @@ package io.bluetape4k.coroutines.flow.extensions.subject
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
-import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.atomic.AtomicReferenceArray
 
 /**
@@ -40,12 +39,13 @@ internal class SpscArrayQueue<T> private constructor(capacity: Int) {
     }
 
     private val referenceArray =
-        AtomicReferenceArray<AtomicReference<Any>>(nextPowerOf2(capacity))
+        AtomicReferenceArray<Any?>(nextPowerOf2(capacity))
             .apply {
                 repeat(length()) {
-                    lazySet(it, AtomicReference<Any>(EMPTY))
+                    lazySet(it, EMPTY)
                 }
             }
+    private val mask = referenceArray.length() - 1
 
     private val consumerIndex = atomic(0)
     private val producerIndex = atomic(0)
@@ -53,43 +53,41 @@ internal class SpscArrayQueue<T> private constructor(capacity: Int) {
     val isEmpty: Boolean get() = consumerIndex.value == producerIndex.value
 
     fun offer(value: T): Boolean {
-        val mask = referenceArray.length() - 1
         val pi = producerIndex.value
 
         val offset = pi and mask
 
-        if (referenceArray[offset].get() == EMPTY) {
-            referenceArray[offset].lazySet(value)
-            producerIndex.value = pi + 1
-            return true
+        if (referenceArray.get(offset) != EMPTY) {
+            return false
         }
-        return false
+        referenceArray.lazySet(offset, value)
+        producerIndex.value = pi + 1
+        return true
     }
 
     fun poll(out: Array<Any?>): Boolean {
-        val mask = referenceArray.length() - 1
         val ci = consumerIndex.value
         val offset = ci and mask
 
-        if (referenceArray[offset].get() == EMPTY) {
+        val value = referenceArray.get(offset)
+        if (value == EMPTY) {
             return false
         }
-        out[0] = referenceArray[offset].get()
-        referenceArray[offset].lazySet(EMPTY)
+        out[0] = value
+        referenceArray.lazySet(offset, EMPTY)
         consumerIndex.value = ci + 1
         return true
     }
 
     fun clear() {
-        val mask = referenceArray.length() - 1
         var ci = consumerIndex.value
 
         while (true) {
             val offset = ci and mask
-            if (referenceArray[offset].get() == EMPTY) {
+            if (referenceArray.get(offset) == EMPTY) {
                 break
             }
-            referenceArray[offset].lazySet(EMPTY)
+            referenceArray.lazySet(offset, EMPTY)
             ci++
         }
         consumerIndex.value = ci

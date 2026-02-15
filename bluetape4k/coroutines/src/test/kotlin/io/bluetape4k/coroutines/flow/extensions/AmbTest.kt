@@ -1,8 +1,10 @@
 package io.bluetape4k.coroutines.flow.extensions
 
+import io.bluetape4k.coroutines.tests.assertEmpty
 import io.bluetape4k.coroutines.tests.assertResult
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.take
@@ -49,5 +51,21 @@ class AmbTest: AbstractFlowTest() {
             .assertResult(1, 2, 3)
 
         counter shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `amb ignores empty flow and waits for first emitted value`() = runTest {
+        val empty = emptyFlow<Int>().onStart { delay(10) }
+        val delayed = flowRangeOf(1, 3).onStart { delay(50) }
+
+        amb(empty, delayed).assertResult(1, 2, 3)
+    }
+
+    @Test
+    fun `amb returns empty when every source is empty`() = runTest {
+        val empty1 = emptyFlow<Int>()
+        val empty2 = emptyFlow<Int>().onStart { delay(10) }
+
+        amb(empty1, empty2).assertEmpty()
     }
 }

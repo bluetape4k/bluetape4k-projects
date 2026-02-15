@@ -3,6 +3,7 @@ package io.bluetape4k.coroutines.flow.extensions.subject
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.coroutines.tests.withSingleThread
+import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -14,6 +15,7 @@ import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
+import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
@@ -287,5 +289,24 @@ class BehaviorSubjectTest {
 
         counter1.get() shouldBeEqualTo expected
         counter2.get() shouldBeEqualTo n
+    }
+
+    @Test
+    fun `collector 가 취소되면 collectorCount 에서 제거된다`() = runTest {
+        withSingleThread { executor ->
+            val subject = BehaviorSubject<Int>()
+
+            val job = launch(executor) {
+                subject.collect { /* no-op */ }
+            }
+
+            subject.awaitCollector()
+            subject.collectorCount shouldBeEqualTo 1
+
+            job.cancel()
+
+            await untilSuspending { job.isCancelled && subject.collectorCount == 0 }
+            subject.collectorCount shouldBeEqualTo 0
+        }
     }
 }

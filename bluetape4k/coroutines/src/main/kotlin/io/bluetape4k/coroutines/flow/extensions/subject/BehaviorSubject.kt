@@ -9,7 +9,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.isActive
-import java.util.concurrent.atomic.AtomicReference
 
 /**
  * 컬렉터가 없을 때에도 최근의 Item 한 개를 캐시했다가 새로운 collectors 에게 replay 합니다.
@@ -132,33 +131,36 @@ class BehaviorSubject<T> private constructor(
                     throw CancellationException()
                 }
             } catch (e: Throwable) {
-                remove(inner)
                 inner.consumeReady.resume()
                 throw e
             }
         }
 
         if (add(inner)) {
-            var curr = current
-            if (curr.value != NONE) {
-                tryEmit(coroutineContext.isActive, curr.value)
-            }
-
-            while (true) {
-                inner.consumeReady.resume()
-                inner.await()
-
-                val next = curr.get()
-
-                if (next == DONE) {
-                    val ex = error
-                    ex?.let { throw it }
-                    return@coroutineScope
+            try {
+                var curr = current
+                if (curr.value != NONE) {
+                    tryEmit(coroutineContext.isActive, curr.value)
                 }
 
-                tryEmit(coroutineContext.isActive, next.value)
+                while (true) {
+                    inner.consumeReady.resume()
+                    inner.await()
 
-                curr = next
+                    val next = curr.get() ?: continue
+
+                    if (next == DONE) {
+                        val ex = error
+                        ex?.let { throw it }
+                        return@coroutineScope
+                    }
+
+                    tryEmit(coroutineContext.isActive, next.value)
+
+                    curr = next
+                }
+            } finally {
+                remove(inner)
             }
         }
 
@@ -212,5 +214,13 @@ class BehaviorSubject<T> private constructor(
         val consumeReady = Resumable()
     }
 
-    private class Node<T>(val value: T): AtomicReference<Node<T>>()
+    private class Node<T>(val value: T) {
+        private val next = atomic<Node<T>?>(null)
+
+        fun get(): Node<T>? = next.value
+
+        fun set(node: Node<T>) {
+            next.value = node
+        }
+    }
 }

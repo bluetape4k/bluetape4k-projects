@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.isActive
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicReference
 
 
 /**
@@ -62,7 +61,12 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
         maxSize, maxTime, unit, { it.convert(System.currentTimeMillis(), TimeUnit.MILLISECONDS) })
 
     constructor(maxSize: Int, maxTime: Long, unit: TimeUnit, timeSource: (TimeUnit) -> Long) {
-        buffer = TimeAndSizeBoundReplayBuffer(maxSize, maxTime, unit, timeSource)
+        buffer = TimeAndSizeBoundReplayBuffer(
+            maxSize.coerceAtLeast(1),
+            maxTime.coerceAtLeast(0L),
+            unit,
+            timeSource
+        )
     }
 
     override val hasCollectors: Boolean
@@ -74,8 +78,14 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
 
     override suspend fun collectSafely(collector: FlowCollector<T>) {
         val inner = InnerCollector(collector, this)
-        add(inner)
-        buffer.replay(inner)
+        val added = add(inner)
+        try {
+            buffer.replay(inner)
+        } finally {
+            if (added) {
+                remove(inner)
+            }
+        }
     }
 
     override suspend fun emit(value: T) {
@@ -211,7 +221,6 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
                             throw CancellationException()
                         }
                     } catch (e: Throwable) {
-                        consumer.parent.remove(consumer)
                         throw e
                     }
                     continue
@@ -246,7 +255,7 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
             tail = next
 
             if (size == maxSize) {
-                head = head.get()
+                head = requireNotNull(head.get())
             } else {
                 size++
             }
@@ -286,7 +295,6 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
                             throw CancellationException()
                         }
                     } catch (e: Throwable) {
-                        consumer.parent.remove(consumer)
                         throw e
                     }
                     continue
@@ -295,7 +303,15 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
             }
         }
 
-        private class Node<T>(val value: T?): AtomicReference<Node<T>>()
+        private class Node<T>(val value: T?) {
+            private val next = atomic<Node<T>?>(null)
+
+            fun get(): Node<T>? = next.value
+
+            fun set(node: Node<T>) {
+                next.value = node
+            }
+        }
     }
 
     private class TimeAndSizeBoundReplayBuffer<T>(
@@ -328,7 +344,7 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
             tail = next
 
             if (size == maxSize) {
-                head = head.get()
+                head = requireNotNull(head.get())
             } else {
                 size++
             }
@@ -400,7 +416,6 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
                             throw CancellationException()
                         }
                     } catch (e: Throwable) {
-                        consumer.parent.remove(consumer)
                         throw e
                     }
                     continue
@@ -412,6 +427,14 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
         private class Node<T>(
             val value: T?,
             val timestamp: Long,
-        ): AtomicReference<Node<T>>()
+        ) {
+            private val next = atomic<Node<T>?>(null)
+
+            fun get(): Node<T>? = next.value
+
+            fun set(node: Node<T>) {
+                next.value = node
+            }
+        }
     }
 }

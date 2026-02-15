@@ -227,6 +227,21 @@ class ReplaySubjectSizeBoundTest {
     }
 
     @Test
+    fun `maxSize 가 0 이하이면 최소 1개를 버퍼링한다`() = runTest {
+        val replay = ReplaySubject<Int>(0)
+
+        repeat(5) {
+            replay.emit(it)
+        }
+        replay.complete()
+
+        val result = CopyOnWriteArrayList<Int>()
+        replay.collect { result.add(it) }
+
+        result shouldBeEqualTo listOf(4)
+    }
+
+    @Test
     fun `multiple online`() = runTest {
         withSingleThread {
             val replay = ReplaySubject<Int>(10)

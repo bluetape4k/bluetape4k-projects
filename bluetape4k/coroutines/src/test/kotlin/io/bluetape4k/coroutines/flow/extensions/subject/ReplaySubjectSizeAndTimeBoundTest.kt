@@ -264,6 +264,21 @@ class ReplaySubjectSizeAndTimeBoundTest {
     }
 
     @Test
+    fun `maxSize 가 0 이하인 timed replay 는 최소 1개를 버퍼링한다`() = runSuspendTest {
+        val replay = ReplaySubject<Int>(0, 1L, TimeUnit.MINUTES)
+
+        repeat(5) {
+            replay.emit(it)
+        }
+        replay.complete()
+
+        val result = CopyOnWriteArrayList<Int>()
+        replay.collect { result.add(it) }
+
+        result shouldBeEqualTo listOf(4)
+    }
+
+    @Test
     fun `timed offline 1`() = runSuspendTest {
         // timeout 이 지난 후에는 남기지 않는다.
         val replay = ReplaySubject<Int>(10, 100, TimeUnit.MILLISECONDS)

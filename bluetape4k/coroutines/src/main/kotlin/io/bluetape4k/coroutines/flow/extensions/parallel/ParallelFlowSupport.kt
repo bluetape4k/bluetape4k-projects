@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions.parallel
 
+import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -29,7 +30,7 @@ import kotlinx.coroutines.flow.emitAll
  * ```
  */
 fun <T> Flow<T>.parallel(parallelism: Int, runOn: (Int) -> CoroutineDispatcher): ParallelFlow<T> =
-    FlowParallel(this, parallelism, runOn)
+    FlowParallel(this, parallelism.requirePositiveNumber("parallelism"), runOn)
 
 /**
  * 병렬 upstream을 소비하고 다시 순차적인 flow로 변환합니다.

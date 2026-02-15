@@ -1,14 +1,11 @@
 package io.bluetape4k.coroutines.flow.extensions
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.support.requireGe
 import io.bluetape4k.support.requireGt
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import org.eclipse.collections.impl.list.mutable.FastList
-import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Flow 요소들을 windowing 을 수행하여 `Flow<List<T>>` 로 변환합니다.
@@ -50,28 +47,29 @@ private fun <T> Flow<T>.windowedInternal(
     size: Int,
     step: Int = 1,
     partialWindow: Boolean = false,
-): Flow<List<T>> = channelFlow {
+): Flow<List<T>> = flow {
     size.requireGt(0, "size")
     step.requireGt(0, "step")
     size.requireGe(step, "step")
 
-    var elements = FastList<T>(size)
-    val counter = AtomicInteger(0)
+    var elements: MutableList<T> = ArrayList(size)
+    var counter = 0
 
     this@windowedInternal.collect { element ->
         elements.add(element)
-        if (counter.incrementAndGet() == size) {
-            send(elements)
-            elements = elements.drop(step).toFastList()
-            counter.addAndGet(-step)
+        counter++
+        if (counter == size) {
+            emit(elements)
+            elements = elements.drop(step).toMutableList()
+            counter -= step
         }
     }
 
     if (partialWindow) {
-        while (counter.get() > 0) {
-            send(elements)
-            elements = elements.drop(step).toFastList()
-            counter.addAndGet(-step)
+        while (counter > 0) {
+            emit(elements)
+            elements = elements.drop(step).toMutableList()
+            counter -= step
         }
     }
 }

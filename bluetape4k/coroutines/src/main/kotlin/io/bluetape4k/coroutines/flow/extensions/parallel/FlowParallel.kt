@@ -3,13 +3,13 @@ package io.bluetape4k.coroutines.flow.extensions.parallel
 import io.bluetape4k.coroutines.flow.exceptions.FlowOperationException
 import io.bluetape4k.coroutines.flow.extensions.Resumable
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.support.requireEquals
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
-import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * [source]의 요소를 주어진 수의 병렬 collector 에 라운드 로빈 방식으로 전달합니다.
@@ -25,9 +25,7 @@ internal class FlowParallel<T>(
     override suspend fun collect(vararg collectors: FlowCollector<T>) {
         coroutineScope {
             val n = collectors.size
-            if (n != parallelism) {
-                throw IllegalArgumentException("Wrong number of collectors. Expected: $parallelism, Actual: ${collectors.size}")
-            }
+            n.requireEquals(parallelism, "collectors.size")
 
             val generator = Resumable()
             val rails = Array<RailCollector<T>>(parallelism) { RailCollector(generator) }
@@ -38,11 +36,11 @@ internal class FlowParallel<T>(
                 }
             }
 
-            val index = AtomicInteger(0)
+            var index = 0
 
             try {
                 source.collect {
-                    var idx = index.get()
+                    var idx = index
 
                     outer@ while (true) {
                         for (i in 0 until n) {
@@ -53,11 +51,11 @@ internal class FlowParallel<T>(
                                 idx = 0
                             }
                             if (rail.next(it)) {
-                                index.lazySet(idx)
+                                index = idx
                                 break@outer
                             }
                         }
-                        index.lazySet(idx)
+                        index = idx
                         generator.await()
                     }
                 }

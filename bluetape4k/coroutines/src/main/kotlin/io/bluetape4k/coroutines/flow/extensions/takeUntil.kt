@@ -2,12 +2,12 @@ package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.coroutines.flow.exceptions.STOP
 import io.bluetape4k.coroutines.flow.exceptions.StopFlowException
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration
 
 /**
@@ -56,10 +56,13 @@ fun <T> Flow<T>.takeUntil(delay: Duration): Flow<T> =
 fun <T> Flow<T>.takeUntil(delayMillis: Long): Flow<T> =
     takeUntilInternal(this, delayedFlow(delayMillis))
 
-
+/**
+ * notifier에서 첫 신호(값 또는 완료)를 받기 전까지 [source]를 전달하고,
+ * 신호 이후에는 수집을 중단합니다.
+ */
 internal fun <T> takeUntilInternal(source: Flow<T>, notifier: Flow<Any?>): Flow<T> = flow {
     coroutineScope {
-        val gate = AtomicBoolean(false)
+        val state = TakeUntilState()
 
         val job = launch(start = CoroutineStart.UNDISPATCHED) {
             try {
@@ -69,13 +72,13 @@ internal fun <T> takeUntilInternal(source: Flow<T>, notifier: Flow<Any?>): Flow<
             } catch (e: StopFlowException) {
                 // Nothing to do
             } finally {
-                gate.set(true)
+                state.gate.value = true
             }
         }
 
         try {
             source.collect {
-                if (gate.get()) {
+                if (state.gate.value) {
                     throw STOP
                 }
                 emit(it)
@@ -86,4 +89,11 @@ internal fun <T> takeUntilInternal(source: Flow<T>, notifier: Flow<Any?>): Flow<
             job.cancel(STOP)
         }
     }
+}
+
+/**
+ * [takeUntilInternal]의 게이트 상태를 보관합니다.
+ */
+private class TakeUntilState {
+    val gate = atomic(false)
 }

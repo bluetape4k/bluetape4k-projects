@@ -16,7 +16,7 @@ import kotlinx.coroutines.runBlocking
  *
  * @property valueSupplier 값을 생성하는 suspend 함수
  */
-class DeferredValue<T>(
+class DeferredValue<T: Any>(
     internal val valueSupplier: suspend () -> T,
 ): DefaultCoroutineScope(), ValueObject {
 
@@ -32,15 +32,35 @@ class DeferredValue<T>(
     val isActive: Boolean get() = _value.isActive
     val isCancelled: Boolean get() = _value.isCancelled
 
+    private fun completedValueOrNull(): T? =
+        if (isCompleted && !isCancelled) {
+            runCatching { runBlocking { _value.await() } }.getOrNull()
+        } else {
+            null
+        }
+
     override fun equals(other: Any?): Boolean {
-        return other is DeferredValue<*> && value == other.value
+        if (this === other) return true
+        if (other !is DeferredValue<*>) return false
+
+        val thisValue = completedValueOrNull()
+        val otherValue = other.completedValueOrNull()
+        if (thisValue != null || otherValue != null) {
+            return thisValue == otherValue
+        }
+        return _value === other._value
     }
 
-    override fun hashCode(): Int = value.hashCode()
+    override fun hashCode(): Int =
+        completedValueOrNull()?.hashCode() ?: System.identityHashCode(_value)
 
     override fun toString(): String {
+        val completedValue = completedValueOrNull()
         return ToStringBuilder(this)
-            .add("value", value)
+            .add("isCompleted", isCompleted)
+            .add("isActive", isActive)
+            .add("isCancelled", isCancelled)
+            .add("value", completedValue)
             .toString()
     }
 }
@@ -55,7 +75,7 @@ class DeferredValue<T>(
  *
  * @param valueSupplier 값을 생성하는 suspend 함수
  */
-fun <T> deferredValueOf(valueSupplier: suspend () -> T): DeferredValue<T> = DeferredValue(valueSupplier)
+fun <T: Any> deferredValueOf(valueSupplier: suspend () -> T): DeferredValue<T> = DeferredValue(valueSupplier)
 
 /**
  * [DeferredValue] 의 지연된 계산 값이 완료되면 [transform]으로 변환한 값을 반환합니다.
@@ -68,7 +88,7 @@ fun <T> deferredValueOf(valueSupplier: suspend () -> T): DeferredValue<T> = Defe
  * @param transform 변환 함수
  * @return 변환된 DeferredValue
  */
-inline fun <T, S> DeferredValue<T>.map(crossinline transform: suspend (T) -> S): DeferredValue<S> =
+inline fun <T: Any, S: Any> DeferredValue<T>.map(crossinline transform: suspend (T) -> S): DeferredValue<S> =
     DeferredValue { transform(await()) }
 
 /**
@@ -82,5 +102,5 @@ inline fun <T, S> DeferredValue<T>.map(crossinline transform: suspend (T) -> S):
  * @param flatter 변환 함수
  * @return 변환된 DeferredValue
  */
-inline fun <T, S> DeferredValue<T>.flatMap(crossinline flatter: (T) -> DeferredValue<S>): DeferredValue<S> =
+inline fun <T: Any, S: Any> DeferredValue<T>.flatMap(crossinline flatter: (T) -> DeferredValue<S>): DeferredValue<S> =
     DeferredValue { flatter(await()).await() }

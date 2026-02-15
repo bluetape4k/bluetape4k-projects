@@ -3,15 +3,19 @@ package io.bluetape4k.coroutines
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeGreaterThan
+import org.amshove.kluent.shouldBeLessThan
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.Test
 import kotlin.random.Random
+import kotlin.system.measureTimeMillis
 
 @RandomizedTest
 class DeferredValueTest {
@@ -86,5 +90,35 @@ class DeferredValueTest {
         dv2.isCompleted.shouldBeFalse()
         dv2.await() shouldBeEqualTo 42 * 2
         dv2.isCompleted.shouldBeTrue()
+    }
+
+    @Test
+    fun `equals hashCode toString은 완료 전 계산을 블로킹하지 않는다`() = runTest {
+        val gate = CompletableDeferred<Unit>()
+        Thread {
+            Thread.sleep(1_500)
+            gate.complete(Unit)
+        }.start()
+
+        val dv1 = deferredValueOf {
+            gate.await()
+            1
+        }
+        val dv2 = deferredValueOf {
+            gate.await()
+            1
+        }
+
+        val elapsed = measureTimeMillis {
+            (dv1 == dv2).shouldBeFalse()
+            dv1.hashCode()
+            dv1.toString()
+        }
+
+        elapsed shouldBeLessThan 1_000L
+        dv1.isCompleted.shouldBeFalse()
+        dv2.isCompleted.shouldBeFalse()
+
+        gate.complete(Unit)
     }
 }

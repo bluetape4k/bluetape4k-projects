@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions
 
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -7,7 +8,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration
 
 /**
@@ -103,21 +103,31 @@ fun <T> Flow<T>.dropUntil(delay: Duration): Flow<T> = skipUntil(delayedFlow(dela
  */
 fun <T> Flow<T>.dropUntil(delayMillis: Long): Flow<T> = skipUntil(delayedFlow(delayMillis))
 
+/**
+ * notifier에서 첫 요소를 수신한 뒤부터 [source] 요소를 전달합니다.
+ */
 internal fun <T> skipUntilInternal(source: Flow<T>, notifier: Flow<Any?>): Flow<T> = flow {
     coroutineScope {
-        val gate = AtomicBoolean(false)
+        val state = SkipUntilState()
 
         val job = launch(start = CoroutineStart.UNDISPATCHED) {
             notifier.take(1).collect()
-            gate.set(true)
+            state.gate.value = true
         }
 
         source.collect {
-            if (gate.get()) {
+            if (state.gate.value) {
                 emit(it)
             }
         }
 
         job.cancel()
     }
+}
+
+/**
+ * [skipUntilInternal]의 게이트 상태를 보관합니다.
+ */
+private class SkipUntilState {
+    val gate = atomic(false)
 }

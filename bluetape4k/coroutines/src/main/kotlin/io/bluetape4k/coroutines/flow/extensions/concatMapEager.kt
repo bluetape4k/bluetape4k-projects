@@ -12,7 +12,6 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.experimental.ExperimentalTypeInference
 
 private val log: Logger by unsafeLazy { KotlinLogging.logger { } }
@@ -57,7 +56,7 @@ internal fun <T: Any, R: Any> Flow<T>.concatMapEagerInternal(
     coroutineScope {
         val resumeOutput = Resumable()
         val innerQueues = ConcurrentLinkedQueue<ConcatMapEagerInnerQueue<R>>()
-        val innerDone = AtomicBoolean(false)
+        val state = ConcatMapEagerState()
 
         launch(start = CoroutineStart.UNDISPATCHED) {
             try {
@@ -81,7 +80,7 @@ internal fun <T: Any, R: Any> Flow<T>.concatMapEagerInternal(
                     }
                 }
             } finally {
-                innerDone.set(true)
+                state.innerDone.value = true
                 resumeOutput.resume()
             }
         }
@@ -89,7 +88,7 @@ internal fun <T: Any, R: Any> Flow<T>.concatMapEagerInternal(
         var innerQueue: ConcatMapEagerInnerQueue<R>? = null
         while (isActive) {
             if (innerQueue == null) {
-                val done = innerDone.get()
+                val done = state.innerDone.value
                 innerQueue = innerQueues.poll()
 
                 if (done && innerQueue == null) {
@@ -118,4 +117,11 @@ internal fun <T: Any, R: Any> Flow<T>.concatMapEagerInternal(
 private class ConcatMapEagerInnerQueue<R: Any> {
     val queue = ConcurrentLinkedQueue<R>()
     val done = atomic(false)
+}
+
+/**
+ * [concatMapEagerInternal]의 상위 source 완료 상태를 보관합니다.
+ */
+private class ConcatMapEagerState {
+    val innerDone = atomic(false)
 }

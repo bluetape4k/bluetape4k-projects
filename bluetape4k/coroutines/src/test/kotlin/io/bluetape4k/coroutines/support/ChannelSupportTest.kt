@@ -36,6 +36,20 @@ class ChannelSupportTest {
         distinct.toFastList() shouldBeEqualTo listOf(1, 2, 3, 1)
     }
 
+    @Test
+    fun `distinct until changed keeps first null value`() = runTest {
+        val channel = produce<String?> {
+            send(null)
+            send(null)
+            send("a")
+            send(null)
+            send(null)
+        }
+
+        val distinct = channel.distinctUntilChanged()
+        distinct.toFastList() shouldBeEqualTo listOf<String?>(null, "a", null)
+    }
+
     @RepeatedTest(REPEAT_SIZE)
     fun `distinct until changed by equal operator`() = runTest {
         val channel = produce {

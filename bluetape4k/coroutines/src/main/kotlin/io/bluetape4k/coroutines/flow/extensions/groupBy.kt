@@ -16,7 +16,6 @@ import org.eclipse.collections.impl.map.mutable.UnifiedMap
 import java.io.Serializable
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
@@ -133,7 +132,7 @@ internal fun <T, K: Any, V> groupByInternal(
     valueSelector: (T) -> V,
 ): Flow<GroupedFlow<K, V>> = flow {
     val map = ConcurrentHashMap<K, FlowGroup<K, V>>()
-    val mainStopped = AtomicBoolean(false)
+    val state = GroupByState()
 
     try {
         source.collect {
@@ -142,14 +141,14 @@ internal fun <T, K: Any, V> groupByInternal(
             if (group != null) {
                 group.next(valueSelector(it))
             } else {
-                if (!mainStopped.get()) {
+                if (!state.mainStopped.value) {
                     group = FlowGroup(k, map)
                     map[k] = group
 
                     try {
                         emit(group)
                     } catch (e: CancellationException) {
-                        mainStopped.set(true)
+                        state.mainStopped.value = true
                         if (map.isEmpty()) {
                             throw CancellationException()
                         }
@@ -171,6 +170,10 @@ internal fun <T, K: Any, V> groupByInternal(
             throw FlowOperationException("Fail to grouping", e)
         }
     }
+}
+
+private class GroupByState {
+    val mainStopped = atomic(false)
 }
 
 private class FlowGroup<K: Any, V>(

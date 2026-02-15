@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions
 
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
@@ -8,7 +9,6 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.launch
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
@@ -68,19 +68,26 @@ fun <T> Flow<Flow<T>>.exhaustAll(): Flow<T> = flattenFirst()
  * ```
  */
 fun <T> Flow<Flow<T>>.flattenFirst(): Flow<T> = channelFlow {
-    val busy = AtomicBoolean(false)
+    val state = FlatMapFirstState()
 
     collect { inner ->
-        if (busy.compareAndSet(false, true)) {
+        if (state.busy.compareAndSet(false, true)) {
             // Do not pay for dispatch here, it's never necessary
             launch(start = CoroutineStart.UNDISPATCHED) {
                 try {
                     inner.collect { send(it) }
-                    busy.set(false)
+                    state.busy.value = false
                 } catch (e: CancellationException) {
-                    busy.set(false)
+                    state.busy.value = false
                 }
             }
         }
     }
+}
+
+/**
+ * [flattenFirst]의 내부 점유 상태를 보관합니다.
+ */
+private class FlatMapFirstState {
+    val busy = atomic(false)
 }
