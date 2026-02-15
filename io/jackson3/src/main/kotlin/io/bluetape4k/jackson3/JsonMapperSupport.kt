@@ -35,60 +35,60 @@ inline fun jsonMapper(@BuilderInference builder: JsonMapper.Builder.() -> Unit):
 }
 
 /**
- * Jackson JSON 처리에서 `jacksonTypeRef` 함수를 제공합니다.
+ * Jackson 3.x의 [TypeReference]를 reified 타입으로 생성합니다.
  */
 inline fun <reified T> jacksonTypeRef(): TypeReference<T> = object: TypeReference<T>() {}
 
 /**
- * Jackson JSON 처리에서 데이터를 읽어오는 `readValueOrNull` 함수를 제공합니다.
+ * JSON 문자열을 reified 타입 [T]의 객체로 역직렬화합니다. 실패 시 null 반환
  */
 inline fun <reified T> ObjectMapper.readValueOrNull(content: String): T? =
     runCatching { readValue(content, jacksonTypeRef<T>()) }.getOrNull()
 
 /**
- * Jackson JSON 처리에서 데이터를 읽어오는 `readValueOrNull` 함수를 제공합니다.
+ * [Reader]에서 JSON 데이터를 읽어 reified 타입 [T]의 객체로 역직렬화합니다. 실패 시 null 반환
  */
 inline fun <reified T> ObjectMapper.readValueOrNull(input: Reader): T? =
     runCatching { readValue(input, jacksonTypeRef<T>()) }.getOrNull()
 
 /**
- * Jackson JSON 처리에서 데이터를 읽어오는 `readValueOrNull` 함수를 제공합니다.
+ * [InputStream]에서 JSON 데이터를 읽어 reified 타입 [T]의 객체로 역직렬화합니다. 실패 시 null 반환
  */
 inline fun <reified T> ObjectMapper.readValueOrNull(input: InputStream): T? =
     runCatching { readValue(input, jacksonTypeRef<T>()) }.getOrNull()
 
 /**
- * Jackson JSON 처리에서 데이터를 읽어오는 `readValueOrNull` 함수를 제공합니다.
+ * JSON [ByteArray]를 reified 타입 [T]의 객체로 역직렬화합니다. 실패 시 null 반환
  */
 inline fun <reified T> ObjectMapper.readValueOrNull(input: ByteArray, offset: Int = 0, length: Int = input.size): T? =
     runCatching { readValue(input, offset, length, jacksonTypeRef<T>()) }.getOrNull()
 
 /**
- * Jackson JSON 처리에서 데이터를 읽어오는 `readValueOrNull` 함수를 제공합니다.
+ * [File]에서 JSON 데이터를 읽어 reified 타입 [T]의 객체로 역직렬화합니다. 실패 시 null 반환
  */
 inline fun <reified T> ObjectMapper.readValueOrNull(input: File): T? =
     runCatching { readValue(input, jacksonTypeRef<T>()) }.getOrNull()
 
 /**
- * Jackson JSON 처리에서 데이터를 읽어오는 `readValueOrNull` 함수를 제공합니다.
+ * [Path]에서 JSON 데이터를 읽어 reified 타입 [T]의 객체로 역직렬화합니다. 실패 시 null 반환
  */
 inline fun <reified T> ObjectMapper.readValueOrNull(input: Path): T? =
     runCatching { readValue(input, jacksonTypeRef<T>()) }.getOrNull()
 
 /**
- * Jackson JSON 처리에서 데이터를 읽어오는 `readValueOrNull` 함수를 제공합니다.
+ * [JsonParser]에서 JSON 데이터를 읽어 reified 타입 [T]의 객체로 역직렬화합니다. 실패 시 null 반환
  */
 inline fun <reified T> ObjectMapper.readValueOrNull(parser: JsonParser): T? =
     runCatching { readValue(parser, jacksonTypeRef<T>()) }.getOrNull()
 
 /**
- * Jackson JSON 처리에서 `convertValueOrNull` 함수를 제공합니다.
+ * 객체를 reified 타입 [T]로 변환합니다. 실패 시 null 반환
  */
 inline fun <reified T> ObjectMapper.convertValueOrNull(from: Any): T? =
     runCatching { convertValue(from, jacksonTypeRef<T>()) }.getOrNull()
 
 /**
- * Jackson JSON 처리에서 `treeToValueOrNull` 함수를 제공합니다.
+ * [TreeNode]를 reified 타입 [T]의 객체로 변환합니다. 실패 시 null 반환
  */
 inline fun <reified T> ObjectMapper.treeToValueOrNull(node: TreeNode): T? =
     runCatching { treeToValue(node, T::class.java) }.getOrNull()
@@ -142,13 +142,13 @@ fun ObjectMapper.writeTree(jsonNode: JsonNode): String {
 }
 
 /**
- * Jackson JSON 처리에서 `registeredModuleNames` 함수를 제공합니다.
+ * 등록된 Jackson 모듈의 이름 목록을 반환합니다.
  */
 fun ObjectMapper.registeredModuleNames(): List<String> =
     registeredModules().map { it.moduleName }
 
 /**
- * Jackson JSON 처리에서 `registeredModuleIds` 함수를 제공합니다.
+ * 등록된 Jackson 모듈의 ID 목록을 반환합니다.
  */
 fun ObjectMapper.registeredModuleIds(): List<Any> =
     registeredModules().map { it.registrationId }

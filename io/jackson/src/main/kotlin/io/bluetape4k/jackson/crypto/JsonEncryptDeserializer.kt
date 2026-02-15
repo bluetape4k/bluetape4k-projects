@@ -29,9 +29,7 @@ class JsonEncryptDeserializer(
         private val deserializers = ConcurrentHashMap<KClass<out Encryptor>, JsonEncryptDeserializer>()
     }
 
-    /**
-     * Jackson JSON 처리에서 `createContextual` 함수를 제공합니다.
-     */
+    /** [JsonEncrypt] 어노테이션에 따라 적절한 역직렬화기 인스턴스를 반환합니다. */
     override fun createContextual(ctxt: DeserializationContext?, property: BeanProperty?): JsonDeserializer<*> {
         val annotation = property?.getAnnotation(JsonEncrypt::class.java)
 
@@ -45,9 +43,7 @@ class JsonEncryptDeserializer(
         }
     }
 
-    /**
-     * Jackson JSON 처리에서 데이터를 역직렬화하는 `deserialize` 함수를 제공합니다.
-     */
+    /** JSON에서 암호화된 문자열을 읽어 복호화하여 반환합니다. */
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext?): String? {
         return safeLet(annotation, p) { ann, parser ->
             val codec = parser.codec

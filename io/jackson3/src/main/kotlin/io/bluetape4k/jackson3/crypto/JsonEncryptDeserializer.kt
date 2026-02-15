@@ -20,7 +20,7 @@ class JsonEncryptDeserializer(
     companion object: KLogging()
 
     /**
-     * Jackson JSON 처리에서 데이터를 역직렬화하는 `deserialize` 함수를 제공합니다.
+     * JSON에서 암호화된 문자열을 읽어 복호화하여 반환합니다.
      */
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext?): String? {
         return safeLet(annotation, p) { ann, parser ->

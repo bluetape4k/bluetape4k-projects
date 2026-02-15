@@ -22,6 +22,7 @@ Bluetape4k은 Kotlin 언어로 JVM 환경에서 Backend 개발 시 사용하는 
 - Spring Boot 3.4.0+
 - Kotlin Exposed 1.0.0+
 - 데이터베이스: H2, PostgreSQL, MySQL 주로 사용
+- 최대한 내부 소스를 사용한다. (예: bluetape4k-core 의 RequireSupport.kt 등)
 
 ### Testing Standards
 
@@ -29,6 +30,11 @@ Bluetape4k은 Kotlin 언어로 JVM 환경에서 Backend 개발 시 사용하는 
 - MockK를 Mock 라이브러리로 사용
 - Kluent를 Assertions 라이브러리로 사용
 - 예제는 간결하되 프로덕션 수준으로 작성하며, 실제 동작 가능해야 함
+
+### Documentation
+
+- Public Class, Interface, Extensions methods 에 대해서 핈수적으로 KDoc 을 작성한다
+- KDoc 은 항상 한국어로 작성한다
 
 ## Build Commands
 

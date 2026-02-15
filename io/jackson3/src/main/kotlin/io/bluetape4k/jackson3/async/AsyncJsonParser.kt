@@ -20,19 +20,14 @@ import java.io.Serializable
 import java.util.*
 
 /**
- * 비동기 방식으로 Json을 파싱하는 클래스입니다.
+ * Jackson 3.x의 [NonBlockingByteArrayJsonParser]를 사용하여 비동기 방식으로 JSON을 파싱하는 클래스입니다.
  *
- * ```
- * val parser = AsyncJsonParser { root ->
- *     // root node 가 빌드되면 호출됩니다.
- *     println(root)
- * }
+ * 바이트 배열을 청크 단위로 공급(feed)하면, JSON 노드가 완성될 때마다
+ * [onNodeDone] 콜백이 호출됩니다.
  *
- * parser.consume(bytes)
- * ```
- *
- * @param jsonFactory JsonFactory 인스턴스
- * @param onNodeDone Json Node가 빌드되면 호출되는 콜백
+ * @param jsonFactory JSON 파서 팩토리
+ * @param onNodeDone JSON 노드가 완성될 때 호출되는 콜백
+ * @see SuspendJsonParser
  */
 class AsyncJsonParser(
     private val jsonFactory: JsonFactory = JsonFactory(),
@@ -44,24 +39,9 @@ class AsyncJsonParser(
     private class Stack: Serializable {
         private val nodes = LinkedList<StackFrame>()
 
-        /**
-         * Jackson JSON 처리에서 `push` 함수를 제공합니다.
-         */
         fun push(node: JsonNode, fieldName: String? = null) = nodes.add(StackFrame(node, fieldName))
-
-        /**
-         * Jackson JSON 처리에서 `pop` 함수를 제공합니다.
-         */
         fun pop(): StackFrame = nodes.removeLast()
-
-        /**
-         * Jackson JSON 처리에서 `top` 함수를 제공합니다.
-         */
         fun top(): StackFrame = nodes.last()
-
-        /**
-         * Jackson JSON 처리에서 `topOrNull` 함수를 제공합니다.
-         */
         fun topOrNull(): StackFrame? = nodes.lastOrNull()
         val isEmpty: Boolean get() = nodes.isEmpty()
         val isNotEmpty: Boolean get() = !nodes.isEmpty()
@@ -90,7 +70,7 @@ class AsyncJsonParser(
     }
 
     /**
-     * Jackson JSON 처리에서 `consume` 함수를 제공합니다.
+     * 바이트 배열을 비동기 JSON 파서에 공급합니다. 최상위 노드가 완성되면 [onNodeDone] 콜백을 호출합니다.
      */
     fun consume(bytes: ByteArray, length: Int = bytes.size) {
         val feeder = parser.nonBlockingInputFeeder()

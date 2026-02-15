@@ -26,7 +26,7 @@ class JsonEncryptAnnotationInterospector: JacksonAnnotationIntrospector() {
     }
 
     /**
-     * Jackson JSON 처리에서 `findSerializer` 함수를 제공합니다.
+     * [JsonEncrypt] 어노테이션이 적용된 필드에 대해 암호화 직렬화기를 반환합니다.
      */
     override fun findSerializer(config: MapperConfig<*>, a: Annotated): Any? {
         val jsonEncrypt = _findAnnotation(a, ANNOTATION_TYPE)
@@ -40,7 +40,7 @@ class JsonEncryptAnnotationInterospector: JacksonAnnotationIntrospector() {
     }
 
     /**
-     * Jackson JSON 처리에서 `findDeserializer` 함수를 제공합니다.
+     * [JsonEncrypt] 어노테이션이 적용된 필드에 대해 복호화 역직렬화기를 반환합니다.
      */
     override fun findDeserializer(config: MapperConfig<*>, a: Annotated): Any? {
         val jsonEncrypt = _findAnnotation(a, ANNOTATION_TYPE)

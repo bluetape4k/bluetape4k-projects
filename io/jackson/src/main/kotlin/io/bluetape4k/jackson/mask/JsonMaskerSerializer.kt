@@ -26,9 +26,7 @@ class JsonMaskerSerializer(
         private val serializers: MutableMap<String, JsonMaskerSerializer> = ConcurrentHashMap()
     }
 
-    /**
-     * Jackson JSON 처리에서 `createContextual` 함수를 제공합니다.
-     */
+    /** [JsonMasker] 어노테이션에 따라 적절한 마스킹 직렬화기 인스턴스를 반환합니다. */
     override fun createContextual(
         prov: SerializerProvider?, property: BeanProperty?,
     ): JsonSerializer<*> {
@@ -45,9 +43,7 @@ class JsonMaskerSerializer(
         }
     }
 
-    /**
-     * Jackson JSON 처리에서 데이터를 직렬화하는 `serialize` 함수를 제공합니다.
-     */
+    /** [JsonMasker] 어노테이션이 적용된 값을 마스킹 문자열로 대체하여 JSON에 씁니다. */
     override fun serialize(value: Any?, gen: JsonGenerator, provider: SerializerProvider?) {
         when {
             annotation != null -> gen.writeString(annotation.value)

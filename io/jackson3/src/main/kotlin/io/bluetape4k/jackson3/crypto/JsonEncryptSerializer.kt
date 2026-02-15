@@ -20,7 +20,7 @@ class JsonEncryptSerializer(
     companion object: KLogging()
 
     /**
-     * Jackson JSON 처리에서 데이터를 직렬화하는 `serialize` 함수를 제공합니다.
+     * [JsonEncrypt] 어노테이션이 적용된 문자열 값을 암호화하여 JSON에 씁니다.
      */
     override fun serialize(value: String?, gen: JsonGenerator, context: SerializationContext) {
         safeLet(annotation, value) { ann, v ->

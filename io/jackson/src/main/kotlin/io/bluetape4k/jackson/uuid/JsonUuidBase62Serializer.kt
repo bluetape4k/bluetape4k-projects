@@ -15,9 +15,7 @@ import java.util.*
  */
 class JsonUuidBase62Serializer: UUIDSerializer() {
 
-    /**
-     * Jackson JSON 처리에서 데이터를 직렬화하는 `serialize` 함수를 제공합니다.
-     */
+    /** UUID 값을 Base62로 인코딩하여 JSON 문자열로 씁니다. */
     override fun serialize(value: UUID?, gen: JsonGenerator, provider: SerializerProvider?) {
         value?.run { gen.writeString(Url62.encode(this)) }
     }

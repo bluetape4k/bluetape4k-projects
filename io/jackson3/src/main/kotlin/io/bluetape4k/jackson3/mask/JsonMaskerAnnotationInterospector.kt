@@ -20,7 +20,7 @@ class JsonMaskerAnnotationInterospector: JacksonAnnotationIntrospector() {
     }
 
     /**
-     * Jackson JSON 처리에서 `findSerializer` 함수를 제공합니다.
+     * [JsonMasker] 어노테이션이 적용된 필드에 대해 마스킹 직렬화기를 반환합니다.
      */
     override fun findSerializer(config: MapperConfig<*>?, a: Annotated?): Any? {
         val jsonMasker = _findAnnotation(a, ANNOTATION_TYPE)

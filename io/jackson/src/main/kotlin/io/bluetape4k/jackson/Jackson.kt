@@ -17,9 +17,24 @@ import io.bluetape4k.logging.info
 import java.io.IOException
 
 /**
- * Jackson Json Library 가 제공하는 [JsonMapper] 를 제공합니다.
+ * Jackson JSON 라이브러리의 기본 [JsonMapper] 인스턴스와 설정을 제공하는 싱글턴 객체입니다.
  *
- * @constructor Create empty Jackson
+ * Kotlin 모듈, 타입 정보 포함 등 일반적으로 사용되는 설정이 미리 구성된
+ * [JsonMapper] 인스턴스를 지연 생성(lazy) 방식으로 제공합니다.
+ *
+ * ### 사용 예시
+ *
+ * ```kotlin
+ * // 기본 JsonMapper 사용
+ * val mapper = Jackson.defaultJsonMapper
+ * val json = mapper.writeValueAsString(data)
+ *
+ * // 타입 정보가 포함된 JsonMapper
+ * val typedMapper = Jackson.typedJsonMapper
+ *
+ * // Pretty-print 출력
+ * val prettyJson = Jackson.prettyJsonWriter.writeValueAsString(data)
+ * ```
  */
 object Jackson: KLogging() {
 
@@ -38,6 +53,7 @@ object Jackson: KLogging() {
      */
     val typedJsonMapper: JsonMapper by lazy { createDefaultJsonMapper(needTypeInfo = true) }
 
+    /** 타입 정보를 포함하며 포맷된 JSON을 출력하는 [ObjectWriter] */
     val prettyTypedJsonWriter: ObjectWriter by lazy { typedJsonMapper.writerWithDefaultPrettyPrinter() }
 
     /**

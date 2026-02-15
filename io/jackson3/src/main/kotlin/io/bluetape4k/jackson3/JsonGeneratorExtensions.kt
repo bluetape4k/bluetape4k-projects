@@ -98,7 +98,7 @@ fun <T: Any> JsonGenerator.writeObjects(items: Iterable<T>) {
 }
 
 /**
- * Jackson JSON 처리에서 데이터를 기록하는 `writePOJOs` 함수를 제공합니다.
+ * [items]를 POJO 배열로 직렬화합니다.
  */
 fun <T: Any> JsonGenerator.writePOJOs(items: Iterable<T>) {
     writeArray {

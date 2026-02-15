@@ -17,7 +17,7 @@ class JsonMaskerSerializer(private val jsonMasker: JsonMasker? = null): StdSeria
     companion object: KLogging()
 
     /**
-     * Jackson JSON 처리에서 데이터를 직렬화하는 `serialize` 함수를 제공합니다.
+     * [JsonMasker] 어노테이션이 적용된 값을 마스킹 문자열로 대체하여 JSON에 씁니다.
      */
     override fun serialize(value: Any?, gen: JsonGenerator, context: SerializationContext) {
         when (jsonMasker) {
