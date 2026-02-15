@@ -2,7 +2,7 @@ package io.bluetape4k.io.okio.base64
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.support.requireGe
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import okio.Buffer
 import okio.ByteString
 import okio.ForwardingSource
@@ -40,7 +40,7 @@ abstract class AbstractBase64Source(delegate: Source): ForwardingSource(delegate
      * Okio Base64에서 데이터를 읽어오는 `read` 함수를 제공합니다.
      */
     override fun read(sink: Buffer, byteCount: Long): Long {
-        byteCount.requireGe(0L, "byteCount")
+        byteCount.requireZeroOrPositiveNumber("byteCount")
         if (byteCount == 0L) return 0L
 
         // 요청한 바이트가 이미 버퍼에 있으면 바로 반환

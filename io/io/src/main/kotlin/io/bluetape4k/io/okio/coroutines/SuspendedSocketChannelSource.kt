@@ -40,15 +40,19 @@ class SuspendedSocketChannelSource(
         if (byteCount == 0L) return 0L
         if (!channel.isOpen) return -1L
 
-        byteBuffer.clear()
-        byteBuffer.limit(minOf(SEGMENT_SIZE, byteCount).toInt())
+        while (channel.isOpen) {
+            byteBuffer.clear()
+            byteBuffer.limit(minOf(SEGMENT_SIZE, byteCount).toInt())
 
-        val read = channel.read(byteBuffer).suspendAwait()
-        if (read <= 0) return read.toLong()
-        byteBuffer.flip()
+            val read = channel.read(byteBuffer).suspendAwait()
+            if (read < 0) return -1L
+            if (read == 0) continue
 
-        sink.write(byteBuffer)
-        return read.toLong()
+            byteBuffer.flip()
+            sink.write(byteBuffer)
+            return read.toLong()
+        }
+        return -1L
     }
 
     /**

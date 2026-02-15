@@ -44,23 +44,24 @@ class SuspendedSocketSource(socket: Socket): SuspendedSource {
         byteCount.requireZeroOrPositiveNumber("byteCount")
         if (byteCount == 0L) return 0L
 
-        channel.await(SelectionKey.OP_READ)
+        while (true) {
+            channel.await(SelectionKey.OP_READ)
 
-        byteBuffer.clear()
-        byteBuffer.limit(minOf(SEGMENT_SIZE, byteCount).toInt())
+            byteBuffer.clear()
+            byteBuffer.limit(minOf(SEGMENT_SIZE, byteCount).toInt())
 
-        val read = channel.read(byteBuffer)
-        if (read < 0) {
-            return -1L
+            val read = channel.read(byteBuffer)
+            if (read < 0) {
+                return -1L
+            }
+            if (read == 0) {
+                continue
+            }
+
+            byteBuffer.flip()
+            sink.write(byteBuffer)
+            return read.toLong()
         }
-        if (read == 0) {
-            return 0L
-        }
-
-        byteBuffer.flip()
-        sink.write(byteBuffer)
-
-        return read.toLong()
     }
 
     /**
