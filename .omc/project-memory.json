@@ -1,0 +1,552 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1771117066220,
+  "projectRoot": "/Users/debop/work/bluetape4k/bluetape4k-projects",
+  "techStack": {
+    "languages": [
+      {
+        "name": "Kotlin",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "build.gradle.kts"
+        ]
+      }
+    ],
+    "frameworks": [],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "examples"
+    ],
+    "gitBranches": {
+      "defaultBranch": "develop",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "aws": {
+      "path": "aws",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1771117066212,
+      "keyFiles": []
+    },
+    "aws-kotlin": {
+      "path": "aws-kotlin",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1771117066212,
+      "keyFiles": []
+    },
+    "bluetape4k": {
+      "path": "bluetape4k",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1771117066212,
+      "keyFiles": []
+    },
+    "build": {
+      "path": "build",
+      "purpose": "Build output",
+      "fileCount": 0,
+      "lastAccessed": 1771117066212,
+      "keyFiles": []
+    },
+    "buildSrc": {
+      "path": "buildSrc",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1771117066212,
+      "keyFiles": [
+        "build.gradle.kts",
+        "gradle.properties"
+      ]
+    },
+    "data": {
+      "path": "data",
+      "purpose": "Data files",
+      "fileCount": 0,
+      "lastAccessed": 1771117066212,
+      "keyFiles": []
+    },
+    "doc": {
+      "path": "doc",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1771117066212,
+      "keyFiles": [
+        "blue-tape.png",
+        "bluetape4k.jpg",
+        "bluetape4k.png"
+      ]
+    },
+    "examples": {
+      "path": "examples",
+      "purpose": "Example code",
+      "fileCount": 0,
+      "lastAccessed": 1771117066213,
+      "keyFiles": []
+    },
+    "gradle": {
+      "path": "gradle",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1771117066213,
+      "keyFiles": []
+    },
+    "guides": {
+      "path": "guides",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1771117066213,
+      "keyFiles": [
+        "index.yaml"
+      ]
+    },
+    "infra": {
+      "path": "infra",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1771117066213,
+      "keyFiles": []
+    },
+    "io": {
+      "path": "io",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1771117066213,
+      "keyFiles": []
+    },
+    "javers": {
+      "path": "javers",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1771117066213,
+      "keyFiles": [
+        "README.md"
+      ]
+    },
+    "quarkus": {
+      "path": "quarkus",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1771117066213,
+      "keyFiles": []
+    },
+    "spring": {
+      "path": "spring",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1771117066213,
+      "keyFiles": []
+    },
+    "testing": {
+      "path": "testing",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1771117066213,
+      "keyFiles": []
+    },
+    "timefold": {
+      "path": "timefold",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1771117066213,
+      "keyFiles": []
+    },
+    "tokenizer": {
+      "path": "tokenizer",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1771117066213,
+      "keyFiles": []
+    },
+    "utils": {
+      "path": "utils",
+      "purpose": "Utility functions",
+      "fileCount": 0,
+      "lastAccessed": 1771117066213,
+      "keyFiles": []
+    },
+    "vertx": {
+      "path": "vertx",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1771117066213,
+      "keyFiles": []
+    },
+    "workshop": {
+      "path": "workshop",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1771117066213,
+      "keyFiles": []
+    },
+    "aws-kotlin/tests": {
+      "path": "aws-kotlin/tests",
+      "purpose": "Test files",
+      "fileCount": 2,
+      "lastAccessed": 1771117066214,
+      "keyFiles": [
+        "README.md",
+        "build.gradle.kts"
+      ]
+    },
+    "buildSrc/build": {
+      "path": "buildSrc/build",
+      "purpose": "Build output",
+      "fileCount": 0,
+      "lastAccessed": 1771117066214,
+      "keyFiles": []
+    },
+    "buildSrc/src": {
+      "path": "buildSrc/src",
+      "purpose": "Source code",
+      "fileCount": 0,
+      "lastAccessed": 1771117066214,
+      "keyFiles": []
+    },
+    "quarkus/tests": {
+      "path": "quarkus/tests",
+      "purpose": "Test files",
+      "fileCount": 2,
+      "lastAccessed": 1771117066215,
+      "keyFiles": [
+        "README.md",
+        "build.gradle.kts"
+      ]
+    },
+    "spring/tests": {
+      "path": "spring/tests",
+      "purpose": "Test files",
+      "fileCount": 2,
+      "lastAccessed": 1771117066215,
+      "keyFiles": [
+        "README.md",
+        "build.gradle.kts"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "io/jackson/src/main/kotlin/io/bluetape4k/jackson/JsonMapperSupport.kt",
+      "accessCount": 12,
+      "lastAccessed": 1771172184292,
+      "type": "file"
+    },
+    {
+      "path": "io/jackson/src/main/kotlin/io/bluetape4k/jackson/JacksonSerializer.kt",
+      "accessCount": 7,
+      "lastAccessed": 1771172123209,
+      "type": "file"
+    },
+    {
+      "path": "io/jackson/src/main/kotlin/io/bluetape4k/jackson/async/AsyncJsonParser.kt",
+      "accessCount": 5,
+      "lastAccessed": 1771172216132,
+      "type": "file"
+    },
+    {
+      "path": "io/avro/src/main/kotlin/io/bluetape4k/avro/impl/DefaultAvroSpecificRecordSerializer.kt",
+      "accessCount": 4,
+      "lastAccessed": 1771168338911,
+      "type": "file"
+    },
+    {
+      "path": "io/jackson/src/main/kotlin/io/bluetape4k/jackson/Jackson.kt",
+      "accessCount": 4,
+      "lastAccessed": 1771172086440,
+      "type": "file"
+    },
+    {
+      "path": "io/json/src/main/kotlin/io/bluetape4k/json/JsonSerializer.kt",
+      "accessCount": 4,
+      "lastAccessed": 1771172863594,
+      "type": "file"
+    },
+    {
+      "path": "io/avro/README.md",
+      "accessCount": 4,
+      "lastAccessed": 1771173009545,
+      "type": "file"
+    },
+    {
+      "path": "io/avro",
+      "accessCount": 3,
+      "lastAccessed": 1771167596119,
+      "type": "directory"
+    },
+    {
+      "path": "io/avro/src/main/kotlin/io/bluetape4k/avro/CodecFactorySupport.kt",
+      "accessCount": 3,
+      "lastAccessed": 1771167650700,
+      "type": "file"
+    },
+    {
+      "path": "io/avro/src/main/kotlin/io/bluetape4k/avro/AvroGenericRecordSerializer.kt",
+      "accessCount": 3,
+      "lastAccessed": 1771167678239,
+      "type": "file"
+    },
+    {
+      "path": "io/avro/src/main/kotlin/io/bluetape4k/avro/AvroSpecificRecordSerializer.kt",
+      "accessCount": 3,
+      "lastAccessed": 1771167700849,
+      "type": "file"
+    },
+    {
+      "path": "io/avro/src/main/kotlin/io/bluetape4k/avro/AvroReflectSerializer.kt",
+      "accessCount": 3,
+      "lastAccessed": 1771167711196,
+      "type": "file"
+    },
+    {
+      "path": "io/avro/src/main/kotlin/io/bluetape4k/avro/impl/DefaultAvroGenericRecordSerializer.kt",
+      "accessCount": 3,
+      "lastAccessed": 1771167742763,
+      "type": "file"
+    },
+    {
+      "path": "io/avro/src/main/kotlin/io/bluetape4k/avro/impl/DefaultAvroReflectSerializer.kt",
+      "accessCount": 3,
+      "lastAccessed": 1771167783877,
+      "type": "file"
+    },
+    {
+      "path": "io/avro/src/test/kotlin/io/bluetape4k/avro/AbstractAvroTest.kt",
+      "accessCount": 3,
+      "lastAccessed": 1771167800952,
+      "type": "file"
+    },
+    {
+      "path": "io/avro/src/test/kotlin/io/bluetape4k/avro/TestMessageProvider.kt",
+      "accessCount": 3,
+      "lastAccessed": 1771167815888,
+      "type": "file"
+    },
+    {
+      "path": "io/avro/src/test/kotlin/io/bluetape4k/avro/impl/DefaultAvroGenericRecordSerializerTest.kt",
+      "accessCount": 3,
+      "lastAccessed": 1771167860364,
+      "type": "file"
+    },
+    {
+      "path": "io/avro/src/test/kotlin/io/bluetape4k/avro/impl/DefaultAvroSpecificRecordSerializerTest.kt",
+      "accessCount": 3,
+      "lastAccessed": 1771167882332,
+      "type": "file"
+    },
+    {
+      "path": "io/avro/src/test/kotlin/io/bluetape4k/avro/impl/DefaultAvroReflectSerializerTest.kt",
+      "accessCount": 3,
+      "lastAccessed": 1771167898386,
+      "type": "file"
+    },
+    {
+      "path": "io/http/README.md",
+      "accessCount": 2,
+      "lastAccessed": 1771168707250,
+      "type": "file"
+    },
+    {
+      "path": "io/feign/README.md",
+      "accessCount": 2,
+      "lastAccessed": 1771168734464,
+      "type": "file"
+    },
+    {
+      "path": "io/retrofit2/README.md",
+      "accessCount": 2,
+      "lastAccessed": 1771168762852,
+      "type": "file"
+    },
+    {
+      "path": "io/fastjson2/src/main/kotlin/io/bluetape4k/fastjson2/FastjsonSerializer.kt",
+      "accessCount": 2,
+      "lastAccessed": 1771171825768,
+      "type": "file"
+    },
+    {
+      "path": "io/fastjson2/src/main/kotlin/io/bluetape4k/fastjson2/extensions/JSONExtensions.kt",
+      "accessCount": 2,
+      "lastAccessed": 1771171849541,
+      "type": "file"
+    },
+    {
+      "path": "io/fastjson2/src/main/kotlin/io/bluetape4k/fastjson2/extensions/JSONBExtensions.kt",
+      "accessCount": 2,
+      "lastAccessed": 1771171868065,
+      "type": "file"
+    },
+    {
+      "path": "io/fastjson2/src/main/kotlin/io/bluetape4k/fastjson2/extensions/JSONArrayExtensions.kt",
+      "accessCount": 2,
+      "lastAccessed": 1771171874534,
+      "type": "file"
+    },
+    {
+      "path": "io/fastjson2/src/main/kotlin/io/bluetape4k/fastjson2/extensions/JSONObjectExtensions.kt",
+      "accessCount": 2,
+      "lastAccessed": 1771171879732,
+      "type": "file"
+    },
+    {
+      "path": "io/fastjson2/src/test/kotlin/io/bluetape4k/fastjson2/AbstractFastjson2Test.kt",
+      "accessCount": 2,
+      "lastAccessed": 1771171893005,
+      "type": "file"
+    },
+    {
+      "path": "io/fastjson2/src/test/kotlin/io/bluetape4k/fastjson2/FastjsonSerializerTest.kt",
+      "accessCount": 2,
+      "lastAccessed": 1771171911969,
+      "type": "file"
+    },
+    {
+      "path": "io/avro/src/test/avro/Employee.avdl",
+      "accessCount": 1,
+      "lastAccessed": 1771167520184,
+      "type": "file"
+    },
+    {
+      "path": "io/avro/src/test/avro/Product.avdl",
+      "accessCount": 1,
+      "lastAccessed": 1771167520436,
+      "type": "file"
+    },
+    {
+      "path": "io/avro/src/test/avro/SampleEvent.avdl",
+      "accessCount": 1,
+      "lastAccessed": 1771167520703,
+      "type": "file"
+    },
+    {
+      "path": "io/avro/src/test/avro/schemaevolution/VersionedItemV1.avdl",
+      "accessCount": 1,
+      "lastAccessed": 1771167520999,
+      "type": "file"
+    },
+    {
+      "path": "io/avro/src/test/avro/schemaevolution/VersionedItemV2.avdl",
+      "accessCount": 1,
+      "lastAccessed": 1771167521306,
+      "type": "file"
+    },
+    {
+      "path": "io/avro/src/test/kotlin/io/bluetape4k/avro/CodecFactorySupportTest.kt",
+      "accessCount": 1,
+      "lastAccessed": 1771167831153,
+      "type": "file"
+    },
+    {
+      "path": "io/io/README.md",
+      "accessCount": 1,
+      "lastAccessed": 1771168590391,
+      "type": "file"
+    },
+    {
+      "path": "io/http/src/main/kotlin/io/bluetape4k/http/hc5/async/HttpAsyncClientCoroutines.kt",
+      "accessCount": 1,
+      "lastAccessed": 1771168603172,
+      "type": "file"
+    },
+    {
+      "path": "io/http/src/main/kotlin/io/bluetape4k/http/okhttp3/OkHttp3Support.kt",
+      "accessCount": 1,
+      "lastAccessed": 1771168604089,
+      "type": "file"
+    },
+    {
+      "path": "io/feign/src/main/kotlin/io/bluetape4k/feign/FeignBuilderSupport.kt",
+      "accessCount": 1,
+      "lastAccessed": 1771168604777,
+      "type": "file"
+    },
+    {
+      "path": "io/feign/src/main/kotlin/io/bluetape4k/feign/coroutines/FeignCoroutineBuilderSupport.kt",
+      "accessCount": 1,
+      "lastAccessed": 1771168605406,
+      "type": "file"
+    },
+    {
+      "path": "io/retrofit2/src/main/kotlin/io/bluetape4k/retrofit2/RetrofitSupport.kt",
+      "accessCount": 1,
+      "lastAccessed": 1771168606129,
+      "type": "file"
+    },
+    {
+      "path": "io/retrofit2/src/main/kotlin/io/bluetape4k/retrofit2/result/ResultCallAdapterFactory.kt",
+      "accessCount": 1,
+      "lastAccessed": 1771168606845,
+      "type": "file"
+    },
+    {
+      "path": "io/fastjson2/src/test/kotlin/io/bluetape4k/fastjson2/AbstractJsonSerializerTest.kt",
+      "accessCount": 1,
+      "lastAccessed": 1771171791936,
+      "type": "file"
+    },
+    {
+      "path": "io/fastjson2/src/test/kotlin/io/bluetape4k/fastjson2/model/models.kt",
+      "accessCount": 1,
+      "lastAccessed": 1771171793234,
+      "type": "file"
+    },
+    {
+      "path": "io/fastjson2/src/test/kotlin/io/bluetape4k/fastjson2/extensions/JSONExtensionsTest.kt",
+      "accessCount": 1,
+      "lastAccessed": 1771171793930,
+      "type": "file"
+    },
+    {
+      "path": "io/fastjson2/src/test/kotlin/io/bluetape4k/fastjson2/extensions/JSONBExtensionsTest.kt",
+      "accessCount": 1,
+      "lastAccessed": 1771171794650,
+      "type": "file"
+    },
+    {
+      "path": "io/fastjson2/src/test/kotlin/io/bluetape4k/fastjson2/extensions/JSONArrayExtensionsTest.kt",
+      "accessCount": 1,
+      "lastAccessed": 1771171795172,
+      "type": "file"
+    },
+    {
+      "path": "io/fastjson2/src/test/kotlin/io/bluetape4k/fastjson2/extensions/JSONObjectExtensionsTest.kt",
+      "accessCount": 1,
+      "lastAccessed": 1771171795844,
+      "type": "file"
+    },
+    {
+      "path": "io/jackson/src/main/kotlin/io/bluetape4k/jackson/JsonNodeExtensions.kt",
+      "accessCount": 1,
+      "lastAccessed": 1771171953782,
+      "type": "file"
+    },
+    {
+      "path": "io/jackson/src/main/kotlin/io/bluetape4k/jackson/JsonGeneratorExtensions.kt",
+      "accessCount": 1,
+      "lastAccessed": 1771171954277,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

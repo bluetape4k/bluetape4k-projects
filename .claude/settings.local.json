@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew :bluetape4k-core:test:*)",
+      "Bash(omc update:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(curl:*)",
+      "Bash(./gradlew :bluetape4k-avro:test:*)",
+      "Bash(ls:*)",
+      "Bash(./gradlew :bluetape4k-fastjson2:test:*)",
+      "Bash(./gradlew :io:jackson:test:*)",
+      "Bash(./gradlew projects:*)",
+      "Bash(./gradlew :bluetape4k-jackson:test:*)",
+      "Bash(./gradlew :bluetape4k-jackson:build:*)",
+      "Bash(./gradlew :bluetape4k-jackson3:test:*)",
+      "Bash(./gradlew :bluetape4k-json:test:*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/post-tool-call.py"
+          }
+        ]
+      }
+    ]
+  },
+  "prefersReducedMotion": true
+}
