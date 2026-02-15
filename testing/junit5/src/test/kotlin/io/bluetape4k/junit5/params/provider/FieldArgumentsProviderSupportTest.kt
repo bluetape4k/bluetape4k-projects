@@ -45,7 +45,7 @@ class FieldArgumentsProviderSupportTest {
         val ex = assertFailsWith<IllegalArgumentException> {
             provider.provideArguments(mockk<ParameterDeclarations>(relaxed = true), context)
         }
-        val message = ex.message ?: ""
+        val message = ex.message.orEmpty()
         message.contains("Cannot find field 'missingArguments'").shouldBeTrue()
     }
 

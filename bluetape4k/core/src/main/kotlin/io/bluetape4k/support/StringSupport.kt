@@ -328,7 +328,7 @@ fun String?.ellipsisEnd(maxLength: Int = ELLIPSIS_LENGTH): String {
         if (str.needEllipsis(maxLength))
             str.substring(0, maxLength - TRIMMING.length) + TRIMMING
         else str
-    } ?: EMPTY_STRING
+    }.orEmpty()
 }
 
 /**
@@ -379,7 +379,7 @@ fun String?.ellipsisStart(maxLength: Int = ELLIPSIS_LENGTH): String {
             TRIMMING + str.substring(str.length - maxLength + TRIMMING.length)
         else
             str
-    } ?: EMPTY_STRING
+    }.orEmpty()
 }
 
 /**
@@ -453,7 +453,7 @@ fun <T: Any> Sequence<T>.mapAsString(defaultValue: String = EMPTY_STRING): Seque
  * @param n 반복 횟수
  */
 inline fun CharSequence?.replicate(n: Int): String =
-    this?.repeat(n) ?: EMPTY_STRING
+    this?.repeat(n).orEmpty()
 
 /**
  * 문자열에서 [word] 단어가 포함된 횟수를 반환합니다.

@@ -77,7 +77,7 @@ internal fun io.vertx.core.http.HttpClientResponse.toOkResponse(
                     addHeader(key, value)
                 }
 
-                val contentEncoding = self.getHeader(HttpHeaders.CONTENT_ENCODING)?.lowercase() ?: ""
+                val contentEncoding = self.getHeader(HttpHeaders.CONTENT_ENCODING)?.lowercase().orEmpty()
 
                 val bytes = when (contentEncoding) {
                     "gzip"    -> Compressors.GZip.decompress(buffer.bytes)

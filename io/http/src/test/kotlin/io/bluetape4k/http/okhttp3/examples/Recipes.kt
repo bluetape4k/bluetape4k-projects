@@ -21,7 +21,6 @@ import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderExtension
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.support.EMPTY_STRING
 import okhttp3.Cache
 import okhttp3.CacheControl
 import okhttp3.Call
@@ -103,7 +102,7 @@ class Recipes: AbstractHttpTest() {
     @Test
     fun `동기방식 HTTP POST with String with Jackson`(@RandomValue post: Post) {
         val mapper = Jackson.defaultJsonMapper
-        val json = mapper.writeAsString(post) ?: EMPTY_STRING
+        val json = mapper.writeAsString(post).orEmpty()
 
         val request = Request.Builder()
             .url("$JSON_PLACEHOLDER_URL/posts")

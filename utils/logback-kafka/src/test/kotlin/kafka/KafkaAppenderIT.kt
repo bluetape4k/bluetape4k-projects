@@ -136,7 +136,7 @@ class KafkaAppenderIT: AbstractKafkaIntegrationTest() {
         var records = consumer.poll(Duration.ofSeconds(1))
         while (!records.isEmpty) {
             records.forEach { record ->
-                val message = record.value()?.toUtf8String() ?: ""
+                val message = record.value()?.toUtf8String().orEmpty()
                 val index = message.substringBefore(';').toInt()
                 println("received: index=$index, message=$message")
                 readMessagess++

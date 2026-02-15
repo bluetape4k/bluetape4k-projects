@@ -41,7 +41,7 @@ class OutputCapturer {
 
     fun capture(): String {
         flush()
-        return copy?.toString(Charsets.UTF_8) ?: ""
+        return copy?.toString(Charsets.UTF_8).orEmpty()
     }
 
     inline fun expect(body: (String) -> Unit) {

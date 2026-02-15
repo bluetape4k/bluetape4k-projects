@@ -2,7 +2,6 @@ package io.bluetape4k.crypto.encrypt
 
 import io.bluetape4k.crypto.urlBase64Decoder
 import io.bluetape4k.crypto.urlBase64Encoder
-import io.bluetape4k.support.EMPTY_STRING
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
 import org.jasypt.salt.SaltGenerator
@@ -47,7 +46,7 @@ interface Encryptor {
     fun encrypt(message: String?): String {
         return message?.run {
             urlBase64Encoder.encodeToString(encrypt(message.toUtf8Bytes()))
-        } ?: EMPTY_STRING
+        }.orEmpty()
     }
 
     /**
@@ -65,7 +64,7 @@ interface Encryptor {
     fun decrypt(encrypted: String?): String {
         return encrypted?.run {
             decrypt(urlBase64Decoder.decode(encrypted.toUtf8Bytes())).toUtf8String()
-        } ?: EMPTY_STRING
+        }.orEmpty()
     }
 
     /**

@@ -100,7 +100,7 @@ data class User(
 ): Comparable<User>, Serializable {
     override fun compareTo(other: User): Int {
         return userId?.compareTo(other.userId ?: 0)
-            ?: userName?.compareTo(other.userName ?: "")
+            ?: userName?.compareTo(other.userName.orEmpty())
             ?: 0
     }
 }

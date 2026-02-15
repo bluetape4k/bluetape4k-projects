@@ -73,7 +73,7 @@ fun <State, Result> Flow<State>.select(selector: Selector<State, Result>): Flow<
  *         projector = { searchTerm, items ->
  *             log.trace { "projector. searchTerm=$searchTerm, items=$items" }
  *             projectorCount++
- *             items.filter { it.contains(searchTerm ?: "") }
+ *             items.filter { it.contains(searchTerm.orEmpty()) }
  *         }
  *     )
  *     .log("selected")
@@ -135,7 +135,7 @@ fun <State, SubState1, SubState2, Result> Flow<State>.select(
  *             log.trace { "projector. searchTerm=$searchTerm, items=$items, title=$title" }
  *             projectorCount++
  *             items
- *                 .filter { it.contains(searchTerm ?: "") }
+ *                 .filter { it.contains(searchTerm.orEmpty()) }
  *                 .map { "$it # $title" }
  *         }
  *     )
@@ -213,7 +213,7 @@ fun <State, SubState1, SubState2, SubState3, Result> Flow<State>.select(
  *             log.trace { "projector. searchTerm=$searchTerm, items=$items, title=$title, subtitle=$subtitle," }
  *             projectorCount++
  *             items
- *                 .filter { it.contains(searchTerm ?: "") }
+ *                 .filter { it.contains(searchTerm.orEmpty()) }
  *                 .map { "$it # $title ~ $subtitle" }
  *         }
  *     )
@@ -306,7 +306,7 @@ fun <State, SubState1, SubState2, SubState3, SubState4, Result> Flow<State>.sele
  *             log.trace { "projector. searchTerm=$searchTerm, items=$items, title=$title, subtitle=$subtitle, unreadCount=$unreadCount" }
  *             projectorCount++
  *             items
- *                 .filter { it.contains(searchTerm ?: "") }
+ *                 .filter { it.contains(searchTerm.orEmpty()) }
  *                 .map { "$it # $title ~ $subtitle # $unreadCount" }
  *         }
  *     )

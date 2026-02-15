@@ -84,7 +84,7 @@ class RedissonClientSupportTest: AbstractRedissonTest() {
             val value = map["3"]
 
             val set = transaction.getSet<String>(randomName(), RedissonCodecs.String)
-            set.add(value ?: "")
+            set.add(value.orEmpty())
 
             transaction.commit()
         } catch (e: TransactionException) {

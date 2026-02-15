@@ -59,7 +59,7 @@ data class Location(
     }
 
     val url: String
-        get() = "$S3_PROTOCOL_SCHEME$bucket$PATH_DELIMITER$key${version?.let { "$VERSION_DELIMITER$it" } ?: ""}"
+        get() = "$S3_PROTOCOL_SCHEME$bucket$PATH_DELIMITER$key${version?.let { "$VERSION_DELIMITER$it" }.orEmpty()}"
 
     override fun compareTo(other: Location): Int {
         return compareValuesBy(this, other, Location::bucket, Location::key, Location::version)

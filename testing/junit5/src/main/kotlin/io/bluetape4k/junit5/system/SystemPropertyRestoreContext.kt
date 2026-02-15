@@ -17,7 +17,7 @@ class SystemPropertyRestoreContext(
     fun restore() {
         propertyNames.forEach { name ->
             if (restoreProperties.containsKey(name)) {
-                System.setProperty(name, restoreProperties[name] ?: "")
+                System.setProperty(name, restoreProperties[name].orEmpty())
             } else {
                 System.clearProperty(name)
             }

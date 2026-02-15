@@ -78,7 +78,7 @@ class SystemxTest {
 
     @Test
     fun `OS 플래그는 소문자 정규화 판별과 일관된다`() {
-        val os = (Systemx.osName ?: "").lowercase()
+        val os = (Systemx.osName.orEmpty()).lowercase()
 
         (Systemx.isWindows == os.contains("win")).shouldBeTrue()
         (Systemx.isMac == os.contains("mac")).shouldBeTrue()

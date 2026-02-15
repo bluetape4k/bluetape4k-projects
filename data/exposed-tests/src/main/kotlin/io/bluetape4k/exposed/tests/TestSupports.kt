@@ -24,7 +24,7 @@ inline fun <reified E: Enum<E>> enumSetOf(vararg elements: E): EnumSet<E> =
 
 fun <T> Column<T>.constraintNamePart() = (currentDialectTest as? SQLServerDialect)?.let {
     " CONSTRAINT DF_${table.tableName}_$name"
-} ?: ""
+}.orEmpty()
 
 /**
  * 기본 값으로 정보를 레코드를 생성하고, [duration]만큼 대기합니다.

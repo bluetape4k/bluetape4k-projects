@@ -80,7 +80,7 @@ internal fun HttpClientResponse.convertToFeignResponse(
                 reason(self.statusMessage())
                 headers(headers)
 
-                val contentEncoding = headers["content-encoding"]?.firstOrNull() ?: ""
+                val contentEncoding = headers["content-encoding"]?.firstOrNull().orEmpty()
                 val bytes = when (contentEncoding) {
                     "gzip"    -> Compressors.GZip.decompress(buffer.bytes)
                     "deflate" -> Compressors.Deflate.decompress(buffer.bytes)

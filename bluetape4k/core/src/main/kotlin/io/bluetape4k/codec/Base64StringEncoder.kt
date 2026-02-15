@@ -1,8 +1,6 @@
 package io.bluetape4k.codec
 
-import io.bluetape4k.support.EMPTY_STRING
 import io.bluetape4k.support.emptyByteArray
-import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.unsafeLazy
 import java.util.*
 
@@ -27,7 +25,7 @@ class Base64StringEncoder: StringEncoder {
      * @return Base64로 인코딩된 문자열, [bytes] 가 null 인 경우 빈 문자열을 반환
      */
     override fun encode(bytes: ByteArray?): String {
-        return bytes?.run { encoder.encodeToString(this) } ?: EMPTY_STRING
+        return bytes?.run { encoder.encodeToString(this) }.orEmpty()
     }
 
     /**

@@ -15,8 +15,8 @@ internal const val USER_TABLE_NAME = "user-test"
 
 
 fun Map<String, AttributeValue>.toUser(): User = User(
-    userId = this["userId"]?.asSOrNull() ?: "",
-    name = this["name"]?.asSOrNull() ?: "",
-    email = this["email"]?.asSOrNull() ?: "",
+    userId = this["userId"]?.asSOrNull().orEmpty(),
+    name = this["name"]?.asSOrNull().orEmpty(),
+    email = this["email"]?.asSOrNull().orEmpty(),
     age = this["age"]?.asNOrNull()?.toInt() ?: 0
 )

@@ -27,7 +27,7 @@ inline fun <reified E: Enum<E>> enumSetOf(vararg elements: E): EnumSet<E> =
 
 fun <T> Column<T>.constraintNamePart() = (currentDialectTest as? SQLServerDialect)?.let {
     " CONSTRAINT DF_${this.table.tableName}_${this.name}"
-} ?: ""
+}.orEmpty()
 
 suspend fun Table.insertAndSuspending(duration: Long) {
     this.insert { }

@@ -7,7 +7,6 @@ import io.bluetape4k.fastjson2.extensions.readValueOrNull
 import io.bluetape4k.fastjson2.extensions.toJsonBytes
 import io.bluetape4k.json.JsonSerializer
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.support.EMPTY_STRING
 import io.bluetape4k.support.emptyByteArray
 
 /**
@@ -37,7 +36,7 @@ class FastjsonSerializer: JsonSerializer {
      * Fastjson2 처리에서 데이터를 직렬화하는 `serializeAsString` 함수를 제공합니다.
      */
     override fun serializeAsString(graph: Any?): String {
-        return graph?.toJSONString() ?: EMPTY_STRING
+        return graph?.toJSONString().orEmpty()
     }
 
     /**

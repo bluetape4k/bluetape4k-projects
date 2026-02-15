@@ -70,7 +70,7 @@ object KoreanDetokenizer: KLogging() {
                     isPrefix = false
                     prevToken = token
                 } else if (prevToken?.pos == Noun && token.pos == Verb) {
-                    val attached = (output.lastOrNull() ?: "") + token.text
+                    val attached = (output.lastOrNull().orEmpty()) + token.text
                     output[output.lastIndex] = attached
                     isPrefix = false
                     prevToken = token

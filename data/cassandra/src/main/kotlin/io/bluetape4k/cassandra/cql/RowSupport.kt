@@ -3,22 +3,21 @@ package io.bluetape4k.cassandra.cql
 import com.datastax.oss.driver.api.core.CqlIdentifier
 import com.datastax.oss.driver.api.core.cql.Row
 import com.datastax.oss.driver.api.core.type.codec.TypeCodec
-import io.bluetape4k.support.EMPTY_STRING
 
 /**
  * [Row]에서 인덱스[i]에 해당하는 컬럼의 값을 문자열 수형으로 가져옵니다. 값이 없다면 빈 문자열을 반환합니다.
  */
-fun Row.getStringOrEmpty(i: Int): String = getString(i) ?: EMPTY_STRING
+fun Row.getStringOrEmpty(i: Int): String = getString(i).orEmpty()
 
 /**
  * [Row]에서 [name]에 해당하는 컬럼의 값을 문자열 수형으로 가져옵니다. 값이 없다면 빈 문자열을 반환합니다.
  */
-fun Row.getStringOrEmpty(name: String): String = getString(name) ?: EMPTY_STRING
+fun Row.getStringOrEmpty(name: String): String = getString(name).orEmpty()
 
 /**
  * [Row]에서 [id]에 해당하는 컬럼의 값을 문자열 수형으로 가져옵니다. 값이 없다면 빈 문자열을 반환합니다.
  */
-fun Row.getStringOrEmpty(id: CqlIdentifier): String = getString(id) ?: EMPTY_STRING
+fun Row.getStringOrEmpty(id: CqlIdentifier): String = getString(id).orEmpty()
 
 /**
  * [Row] 정보를 [Map] 으로 변환합니다.

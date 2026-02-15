@@ -70,7 +70,7 @@ abstract class AbstractCoroutineClientTest {
     fun `응답이 클래스라면 JSON 방식으로 Jackson 디코딩 되어야 합니다`() = runSuspendTest {
         val expected = IceCreamOrder("HELLO WORLD", 999)
         server.enqueueBodyWithDelay(
-            mapper.writeAsString(expected),
+            mapper.writeAsString(expected).orEmpty(),
             delay,
             "Content-Type: application/json; charset=UTF-8"
         )
@@ -89,7 +89,7 @@ abstract class AbstractCoroutineClientTest {
     fun `응답이 클래스라면 JSON 방식으로 Fastjson2 디코딩 되어야 합니다`() = runSuspendTest {
         val expected = IceCreamOrder("HELLO WORLD", 999)
         server.enqueueBodyWithDelay(
-            mapper.writeAsString(expected),
+            mapper.writeAsString(expected).orEmpty(),
             delay,
             "Content-Type: application/json; charset=UTF-8"
         )
@@ -112,7 +112,7 @@ abstract class AbstractCoroutineClientTest {
             IceCreamOrder("베스킨 라빈스", 31)
         )
         server.enqueueBodyWithDelay(
-            mapper.writeAsString(expected),
+            mapper.writeAsString(expected).orEmpty(),
             delay,
             "Content-Type: application/json; charset=UTF-8"
         )
@@ -134,7 +134,7 @@ abstract class AbstractCoroutineClientTest {
             IceCreamOrder("베스킨 라빈스", 31)
         )
         server.enqueueBodyWithDelay(
-            mapper.writeAsString(expected),
+            mapper.writeAsString(expected).orEmpty(),
             delay,
             "Content-Type: application/json; charset=UTF-8"
         )
@@ -175,7 +175,7 @@ abstract class AbstractCoroutineClientTest {
     fun `RequestBody 가 JSON 일 경우, 서버에서 받아야 합니다 with Jackson`() = runSuspendTest {
         val expected = IceCreamOrder("HELLO WORLD", 999)
         server.enqueueBodyWithDelay(
-            mapper.writeAsString(expected),
+            mapper.writeAsString(expected).orEmpty(),
             delay,
             "Content-Type: application/json; charset=UTF-8"
         )
@@ -195,7 +195,7 @@ abstract class AbstractCoroutineClientTest {
     fun `RequestBody 가 JSON 일 경우, 서버에서 받아야 합니다 with Fastjson2`() = runSuspendTest {
         val expected = IceCreamOrder("HELLO WORLD", 999)
         server.enqueueBodyWithDelay(
-            mapper.writeAsString(expected),
+            mapper.writeAsString(expected).orEmpty(),
             delay,
             "Content-Type: application/json; charset=UTF-8"
         )

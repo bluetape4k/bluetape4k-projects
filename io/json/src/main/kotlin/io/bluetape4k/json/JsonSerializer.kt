@@ -1,6 +1,5 @@
 package io.bluetape4k.json
 
-import io.bluetape4k.support.EMPTY_STRING
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
 
@@ -47,7 +46,7 @@ interface JsonSerializer {
      * @return JSON 직렬화된 문자열, 싶패 시에는 빈 문자열 반환
      */
     fun serializeAsString(graph: Any?): String =
-        graph?.let { serialize(it).toUtf8String() } ?: EMPTY_STRING
+        graph?.let { serialize(it).toUtf8String() }.orEmpty()
 
     /**
      * JSON 직렬화된 문자열을 읽어, 객체로 변환합니다.

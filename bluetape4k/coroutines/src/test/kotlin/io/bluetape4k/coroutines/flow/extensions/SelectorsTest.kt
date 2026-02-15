@@ -135,7 +135,7 @@ class SelectorsTest: AbstractFlowTest() {
                 projector = { searchTerm, items ->
                     log.trace { "projector. searchTerm=$searchTerm, items=$items" }
                     projectorCount++
-                    items.filter { it.contains(searchTerm ?: "") }
+                    items.filter { it.contains(searchTerm.orEmpty()) }
                 }
             )
             .log("selected")
@@ -184,7 +184,7 @@ class SelectorsTest: AbstractFlowTest() {
                     log.trace { "projector. searchTerm=$searchTerm, items=$items, title=$title" }
                     projectorCount++
                     items
-                        .filter { it.contains(searchTerm ?: "") }
+                        .filter { it.contains(searchTerm.orEmpty()) }
                         .map { "$it # $title" }
                 }
             )
@@ -242,7 +242,7 @@ class SelectorsTest: AbstractFlowTest() {
                     log.trace { "projector. searchTerm=$searchTerm, items=$items, title=$title, subtitle=$subtitle," }
                     projectorCount++
                     items
-                        .filter { it.contains(searchTerm ?: "") }
+                        .filter { it.contains(searchTerm.orEmpty()) }
                         .map { "$it # $title ~ $subtitle" }
                 }
             )
@@ -309,7 +309,7 @@ class SelectorsTest: AbstractFlowTest() {
                     log.trace { "projector. searchTerm=$searchTerm, items=$items, title=$title, subtitle=$subtitle, unreadCount=$unreadCount" }
                     projectorCount++
                     items
-                        .filter { it.contains(searchTerm ?: "") }
+                        .filter { it.contains(searchTerm.orEmpty()) }
                         .map { "$it # $title ~ $subtitle # $unreadCount" }
                 }
             )

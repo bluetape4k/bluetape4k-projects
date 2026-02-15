@@ -3,7 +3,6 @@ package io.bluetape4k.utils
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
-import io.bluetape4k.support.EMPTY_STRING
 import io.bluetape4k.support.assertNotBlank
 import io.bluetape4k.support.emptyByteArray
 import java.io.InputStream
@@ -61,7 +60,7 @@ object Resourcex: KLogging() {
     ): String {
         return getInputStream(path, classLoader)?.use {
             it.readAllBytes().toString(charset)
-        } ?: EMPTY_STRING
+        }.orEmpty()
     }
 
     /**

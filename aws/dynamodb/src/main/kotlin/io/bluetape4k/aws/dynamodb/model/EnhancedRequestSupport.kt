@@ -108,7 +108,7 @@ fun QueryEnhancedRequest.describe(): String = buildString {
     append("limit: ").appendLine(limit() ?: -1)
     append("scanIndexForward: ").appendLine(scanIndexForward())
     append("attributesToProject: ").appendLine(attributesToProject())
-    append("consistentRead: ").appendLine(consistentRead() ?: "")
+    append("consistentRead: ").appendLine(consistentRead())
 }
 
 inline fun ScanEnhancedRequest(
