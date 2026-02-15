@@ -2,7 +2,6 @@ package io.bluetape4k.retrofit2.result
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.logging.warn
 import retrofit2.Call
 import retrofit2.CallAdapter
 import retrofit2.Retrofit
@@ -14,21 +13,21 @@ import java.lang.reflect.Type
  * [ResultCall]을 생성하는 OkHttp3 [CallAdapter.Factory] 구현체입니다.
  *
  * ```
- * interface JsonPlaceHolderCoroutineResultApi {
- *     @GET("/posts")
- *     suspend fun posts(): Result<List<Post>>
- *     @GET("/posts/{id}")
- *     suspend fun getPost(@Path("id") postId: Int): Result<Post>
+ * interface HttpbinCoroutineResultApi {
+ *     @GET("/anything/posts")
+ *     suspend fun posts(): Result<HttpbinAnythingResponse>
+ *     @GET("/anything/posts/{id}")
+ *     suspend fun getPost(@Path("id") postId: Int): Result<HttpbinAnythingResponse>
  * }
  *
- * val retrofit2 = retroift2Of("https://api.example.com", callFactory) {
+ * val retrofit2 = retrofitOf("https://api.example.com", callFactory) {
  *  addConverterFactory(defaultJsonConverterFactory)
  *  addCallAdapterFactory(ResultCallAdapterFactory())
  *  // ...
  * }
  *
- * val api = retrofit2.service<JsonPlaceHolderCoroutineResultApi>()
- * val result: Result<Post> = api.getPost(postId=1)
+ * val api = retrofit2.service<HttpbinCoroutineResultApi>()
+ * val result: Result<HttpbinAnythingResponse> = api.getPost(postId = 1)
  * ```
  *
  * @see ResultCall
@@ -46,7 +45,6 @@ class ResultCallAdapterFactory: CallAdapter.Factory() {
         retrofit: Retrofit,
     ): CallAdapter<*, *>? {
         if (getRawType(returnType) != Call::class.java || returnType !is ParameterizedType) {
-            log.warn { "returnType is not Call or ParameterizedType. returnType=$returnType" }
             return null
         }
 

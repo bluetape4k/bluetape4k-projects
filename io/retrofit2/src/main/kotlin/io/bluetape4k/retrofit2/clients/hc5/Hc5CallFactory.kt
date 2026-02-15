@@ -48,6 +48,7 @@ class Hc5CallFactory private constructor(
 ): okhttp3.Call.Factory {
 
     companion object: KLogging() {
+        /** 기본 호출 타임아웃입니다. */
         @JvmStatic
         val CallTimeout: Duration = Duration.ofSeconds(30)
 
@@ -106,8 +107,13 @@ class Hc5CallFactory private constructor(
             log.debug { "Enqueue Hc5Call. request=$okRequest" }
 
             executeAsync()
-                .thenApply { response -> responseCallback.onResponse(this, response) }
-                .exceptionally { ex -> responseCallback.onFailure(this, ex.toIOException()) }
+                .whenComplete { response, error ->
+                    if (error != null) {
+                        responseCallback.onFailure(this, error.toIOException())
+                    } else {
+                        responseCallback.onResponse(this, response)
+                    }
+                }
         }
 
         private fun executeAsync(): CompletableFuture<okhttp3.Response> {

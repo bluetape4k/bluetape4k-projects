@@ -1,7 +1,7 @@
 package io.bluetape4k.http
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.testcontainers.http.HttpbinServer
+import io.bluetape4k.testcontainers.http.HttpbinHttp2Server
 import org.junit.jupiter.api.fail
 
 abstract class AbstractHttpTest {
@@ -11,7 +11,7 @@ abstract class AbstractHttpTest {
          * http://httpbin.org 에 접속하는 테스트를 로컬에서 실행할 수 있도록 합니다.
          */
         @JvmStatic
-        protected val httpbinServer by lazy { HttpbinServer.Launcher.httpbin }
+        protected val httpbinServer by lazy { HttpbinHttp2Server.Launcher.httpbinHttp2 }
 
         @JvmStatic
         protected val httpbinBaseUrl by lazy { httpbinServer.url }

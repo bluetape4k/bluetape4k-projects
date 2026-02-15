@@ -8,7 +8,7 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.retrofit2.clients.hc5.hc5CallFactoryOf
-import io.bluetape4k.retrofit2.services.JsonPlaceHolder
+import io.bluetape4k.retrofit2.services.Httpbin
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -26,8 +26,8 @@ class RetrofitSupportTest: AbstractRetrofitTest() {
         private const val CALL_SIZE = 10
     }
 
-    private val jsonApi: JsonPlaceHolder.JsonPlaceHolderApi by lazy {
-        retrofitOf(JsonPlaceHolder.BASE_URL, hc5CallFactoryOf()).service()
+    private val jsonApi: Httpbin.HttpbinApi by lazy {
+        retrofitOf(testBaseUrl, hc5CallFactoryOf()).service()
     }
 
     @Test

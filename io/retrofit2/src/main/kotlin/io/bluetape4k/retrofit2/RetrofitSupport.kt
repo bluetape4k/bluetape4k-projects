@@ -20,15 +20,24 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 import kotlin.reflect.KClass
 
 private val log by lazy { KotlinLogging.logger { } }
+private val retrofitAdapterRxJava2Present by lazy {
+    classIsPresent("retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory")
+}
+private val retrofitAdapterRxJava3Present by lazy {
+    classIsPresent("retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory")
+}
+private val retrofitAdapterReactorPresent by lazy {
+    classIsPresent("com.jakewharton.retrofit2.adapter.reactor.ReactorCallAdapterFactory")
+}
 
 /**
- * [ScalarsConverterFactory]의 가본 값
+ * 기본 [ScalarsConverterFactory] 인스턴스입니다.
  */
 @JvmField
 val defaultScalarsConverterFactory: ScalarsConverterFactory = ScalarsConverterFactory.create()
 
 /**
- * [JacksonConverterFactory]의 가본 값
+ * 기본 JSON 컨버터 팩토리([JacksonConverterFactory])입니다.
  */
 @JvmField
 val defaultJsonConverterFactory: Converter.Factory = jacksonConverterFactoryOf()
@@ -141,51 +150,55 @@ inline fun retrofit(
  * @param baseUrl 기본 URL
  * @param callFactory [Call.Factory] (기본값: [okhttp3.OkHttpClient()])
  * @param converterFactory [Converter.Factory] (기본값: [defaultScalarsConverterFactory])
- * @param callAdapterFactories [CallAdapter.Factory] (기본값: [ResultCallAdapterFactory()])
+ * @param callAdapterFactories 추가 [CallAdapter.Factory] 목록
  * @return [Retrofit] 인스턴스
  */
 fun retrofitOf(
     baseUrl: String = "",
     callFactory: Call.Factory = OkHttpClient(),
     converterFactory: Converter.Factory = defaultScalarsConverterFactory,
-    vararg callAdapterFactories: CallAdapter.Factory = arrayOf(ResultCallAdapterFactory()),
+    vararg callAdapterFactories: CallAdapter.Factory,
 ): Retrofit {
     log.debug { "Create Retrofit. baseUrl=$baseUrl, callFactory=${callFactory.javaClass.simpleName}" }
     return retrofit(baseUrl, converterFactory) {
         callFactory(callFactory)
 
-        addCallAdapterFactory(ResultCallAdapterFactory())
-        callAdapterFactories.forEach { addCallAdapterFactory(it) }
+        val adapterFactories = linkedMapOf<String, CallAdapter.Factory>()
+        val defaultResultAdapter = ResultCallAdapterFactory()
+        adapterFactories[defaultResultAdapter.javaClass.name] = defaultResultAdapter
+        callAdapterFactories.forEach { adapterFactories[it.javaClass.name] = it }
 
-        if (isPresentRetrofitAdapterRxJava2()) {
-            addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+        if (isPresentRetrofitAdapterRxJava2() && !adapterFactories.containsKey(RxJava2CallAdapterFactory::class.java.name)) {
+            adapterFactories[RxJava2CallAdapterFactory::class.java.name] = RxJava2CallAdapterFactory.create()
         }
-        if (isPresentRetrofitAdapterRxJava3()) {
-            addCallAdapterFactory(RxJava3CallAdapterFactory.create())
+        if (isPresentRetrofitAdapterRxJava3() && !adapterFactories.containsKey(RxJava3CallAdapterFactory::class.java.name)) {
+            adapterFactories[RxJava3CallAdapterFactory::class.java.name] = RxJava3CallAdapterFactory.create()
         }
-        if (isPresentRetrofitAdapterReactor()) {
-            addCallAdapterFactory(ReactorCallAdapterFactory.create())
+        if (isPresentRetrofitAdapterReactor() && !adapterFactories.containsKey(ReactorCallAdapterFactory::class.java.name)) {
+            adapterFactories[ReactorCallAdapterFactory::class.java.name] = ReactorCallAdapterFactory.create()
         }
+
+        adapterFactories.values.forEach { addCallAdapterFactory(it) }
     }
 }
 
 /**
- * Retrofit2 연동에서 `isPresentRetrofitAdapterRxJava2` 함수를 제공합니다.
+ * RxJava2 Retrofit 어댑터가 클래스패스에 존재하는지 확인합니다.
  */
 internal fun isPresentRetrofitAdapterRxJava2(): Boolean =
-    classIsPresent("retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory")
+    retrofitAdapterRxJava2Present
 
 /**
- * Retrofit2 연동에서 `isPresentRetrofitAdapterRxJava3` 함수를 제공합니다.
+ * RxJava3 Retrofit 어댑터가 클래스패스에 존재하는지 확인합니다.
  */
 internal fun isPresentRetrofitAdapterRxJava3(): Boolean =
-    classIsPresent("retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory")
+    retrofitAdapterRxJava3Present
 
 /**
- * Retrofit2 연동에서 `isPresentRetrofitAdapterReactor` 함수를 제공합니다.
+ * Reactor Retrofit 어댑터가 클래스패스에 존재하는지 확인합니다.
  */
 internal fun isPresentRetrofitAdapterReactor(): Boolean =
-    classIsPresent("com.jakewharton.retrofit2.adapter.reactor.ReactorCallAdapterFactory")
+    retrofitAdapterReactorPresent
 
 /**
  * [Retrofit] 서비스를 생성합니다.

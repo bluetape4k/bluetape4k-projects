@@ -6,6 +6,7 @@ import io.bluetape4k.http.okhttp3.toTypeString
 import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.warn
 import io.bluetape4k.support.emptyByteArray
 import io.bluetape4k.support.toUtf8String
 import okhttp3.MediaType
@@ -32,8 +33,9 @@ internal fun okhttp3.Request.toSimpleHttpRequest(): SimpleHttpRequest {
 
     val simpleRequest = simpleHttpRequest(method) {
         setHttpHost(HttpHost(self.url.scheme, self.url.host, self.url.port))
-        if (self.url.query != null) {
-            setPath(self.url.encodedPath + "?" + self.url.query)
+        val encodedQuery = self.url.encodedQuery
+        if (encodedQuery != null) {
+            setPath(self.url.encodedPath + "?" + encodedQuery)
         } else {
             setPath(self.url.encodedPath)
         }
@@ -105,17 +107,32 @@ internal fun SimpleHttpResponse.bodyPlainBytes(): ByteArray {
     val self: SimpleHttpResponse = this@bodyPlainBytes
 
     // Content가 압축되어 있을 경우 압축을 해제합니다. (다른 놈들은 기본 제공하는 기능인데 ...)
-    val contentEncoding = self.getHeader(HttpHeaders.CONTENT_ENCODING)?.value
+    val encodings = self.getHeader(HttpHeaders.CONTENT_ENCODING)
+        ?.value
+        .orEmpty()
+        .split(',')
+        .map { it.trim().lowercase() }
+        .filter { it.isNotBlank() }
+        .toSet()
 
-    return if ("gzip".equals(contentEncoding, ignoreCase = true)) {
-        log.trace { "Decompress gzip bytes." }
-        Compressors.GZip.decompress(self.bodyBytes)
-    } else if ("deflate".equals(contentEncoding, ignoreCase = true)) {
-        log.trace { "Decompress deflate bytes." }
-        Compressors.Deflate.decompress(self.bodyBytes)
-    } else {
-        self.bodyBytes?.copyOf()
-    } ?: emptyByteArray
+    val rawBytes = self.bodyBytes ?: return emptyByteArray
+    return when {
+        "gzip" in encodings || "x-gzip" in encodings -> runCatching {
+            log.trace { "Decompress gzip bytes." }
+            Compressors.GZip.decompress(rawBytes)
+        }.getOrElse {
+            log.warn(it) { "Fail to decompress gzip response. fallback to raw bytes." }
+            rawBytes.copyOf()
+        }
+        "deflate" in encodings                       -> runCatching {
+            log.trace { "Decompress deflate bytes." }
+            Compressors.Deflate.decompress(rawBytes)
+        }.getOrElse {
+            log.warn(it) { "Fail to decompress deflate response. fallback to raw bytes." }
+            rawBytes.copyOf()
+        }
+        else                                         -> rawBytes.copyOf()
+    }
 }
 
 /**

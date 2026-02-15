@@ -10,16 +10,14 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.retrofit2.defaultJsonConverterFactory
 import io.bluetape4k.retrofit2.retrofitOf
 import io.bluetape4k.retrofit2.service
-import io.bluetape4k.retrofit2.services.JsonPlaceHolder
+import io.bluetape4k.retrofit2.services.Httpbin
 import io.bluetape4k.retrofit2.services.Post
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContainSame
-import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import kotlin.math.absoluteValue
@@ -32,8 +30,8 @@ abstract class AbstractJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderTest
         private const val ITEM_SIZE = 5
     }
 
-    private val api: JsonPlaceHolder.JsonPlaceHolderCoroutineApi by lazy {
-        retrofitOf(JsonPlaceHolder.BASE_URL, callFactory, defaultJsonConverterFactory).service()
+    private val api: Httpbin.HttpbinCoroutineApi by lazy {
+        retrofitOf(testBaseUrl, callFactory, defaultJsonConverterFactory).service()
     }
 
     @Test
@@ -43,10 +41,7 @@ abstract class AbstractJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderTest
 
     @Test
     fun `get posts`() = runSuspendIO {
-        val posts = api.posts()
-
-        posts.shouldNotBeEmpty()
-        posts.forEach { it.verify() }
+        api.posts().verify("GET", "/anything/posts")
     }
 
     @Test
@@ -54,13 +49,14 @@ abstract class AbstractJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderTest
         val postIds = fastList(ITEM_SIZE) { Random.nextInt(1, 10) }.distinct()
 
         val deferred = postIds.map { postId ->
-            async(Dispatchers.IO) { api.getPost(postId) }
+            async(Dispatchers.IO) { postId to api.getPost(postId) }
         }
 
-        val posts = deferred.awaitAll()
-        posts.shouldNotBeEmpty()
-        posts.forEach { it.verify() }
-        posts.map { it.id } shouldContainSame postIds
+        val responses = deferred.awaitAll()
+        responses.forEach { (postId, response) ->
+            response.verify("GET", "/anything/posts/$postId")
+        }
+        responses.map { it.first } shouldContainSame postIds
     }
 
     @Test
@@ -76,9 +72,10 @@ abstract class AbstractJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderTest
 
         userPosts.keysView().size() shouldBeEqualTo userIds.size
         userPosts.keysView() shouldContainSame userIds
-        userPosts.forEachKeyValue { userId, posts ->
+        userPosts.forEachKeyValue { userId, response ->
             userIds.contains(userId).shouldBeTrue()
-            posts.forEach { it.verify() }
+            response.verify("GET", "/anything/posts")
+            response.verifyQuery("userId", userId)
         }
     }
 
@@ -96,16 +93,15 @@ abstract class AbstractJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderTest
 
         postComments.keysView().size() shouldBeEqualTo postIds.size
         postComments.keysView() shouldContainSame postIds
-        postComments.forEachKeyValue { postId, comments ->
+        postComments.forEachKeyValue { postId, response ->
             postIds.contains(postId).shouldBeTrue()
-            comments.forEach { it.verify() }
+            response.verify("GET", "/anything/post/$postId/comments")
         }
     }
 
     @Test
     fun `get all users`() = runSuspendIO {
-        val users = api.getUsers()
-        users.shouldNotBeEmpty()
+        api.getUsers().verify("GET", "/anything/users")
     }
 
     @Test
@@ -122,9 +118,10 @@ abstract class AbstractJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderTest
 
         userAlbums.keysView().size() shouldBeEqualTo userIds.size
         userAlbums.keysView() shouldContainSame userIds
-        userAlbums.forEachKeyValue { userId, albums ->
+        userAlbums.forEachKeyValue { userId, response ->
             userIds.contains(userId).shouldBeTrue()
-            albums.forEach { it.verify() }
+            response.verify("GET", "/anything/albums")
+            response.verifyQuery("userId", userId)
         }
     }
 
@@ -137,7 +134,10 @@ abstract class AbstractJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderTest
         }
 
         val newPosts = deferred.awaitAll()
-        newPosts.forEach { newPost -> newPost.verify() }
+        newPosts.forEachIndexed { idx, newPost ->
+            newPost.verify("POST", "/anything/posts")
+            newPost.verifyJsonPost(posts[idx].copy(userId = posts[idx].userId.absoluteValue))
+        }
     }
 
     @Test
@@ -146,31 +146,24 @@ abstract class AbstractJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderTest
 
         val deferred = postIds.map { postId ->
             async(Dispatchers.IO) {
-                val post = api.getPost(postId)
-                api.updatePost(postId, post.copy(title = "Updated " + post.title))
+                api.updatePost(postId, Post(userId = 1, id = postId, title = "Updated", body = "body-$postId"))
             }
         }
 
         val updated = deferred.awaitAll()
         updated.size shouldBeEqualTo postIds.size
-        updated.forEach { it.verify() }
+        updated.forEachIndexed { idx, response ->
+            val postId = postIds[idx]
+            response.verify("PUT", "/anything/posts/$postId")
+            response.verifyJsonPost(Post(userId = 1, id = postId, title = "Updated", body = "body-$postId"))
+        }
     }
 
     @Test
     fun `delete post`(@RandomValue post: Post) = runSuspendIO {
-        val newPost = post.copy(userId = post.userId.absoluteValue, id = 0)
-        val saved = api.newPost(newPost)
-        val savedPostId = saved.id
-        log.debug { "saved=$saved" }
-        saved.userId shouldBeEqualTo newPost.userId
-        saved.title shouldBeEqualTo newPost.title
-        saved.body shouldBeEqualTo newPost.body
-
-        val deleted = api.deletePost(savedPostId)
+        val postId = post.id.absoluteValue + 1
+        val deleted = api.deletePost(postId)
         log.debug { "deleted=$deleted" }
-        deleted.id shouldBeEqualTo 0
-        deleted.userId shouldBeEqualTo 0
-        deleted.title.shouldBeNull()
-        deleted.body.shouldBeNull()
+        deleted.verify("DELETE", "/anything/posts/$postId")
     }
 }

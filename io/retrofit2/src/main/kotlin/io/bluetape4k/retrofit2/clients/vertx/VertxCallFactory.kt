@@ -60,6 +60,7 @@ class VertxCallFactory private constructor(
 ): okhttp3.Call.Factory {
 
     companion object: KLogging() {
+        /** 기본 호출 타임아웃입니다. */
         val callTimeout: Duration = Duration.ofSeconds(30L)
 
         /**
@@ -113,8 +114,13 @@ class VertxCallFactory private constructor(
             log.debug { "Enqueue VertxCall. request=$okRequest" }
 
             executeAsync()
-                .thenApply { response -> responseCallback.onResponse(this, response) }
-                .exceptionally { ex -> responseCallback.onFailure(this, ex.toIOException()) }
+                .whenComplete { response, error ->
+                    if (error != null) {
+                        responseCallback.onFailure(this, error.toIOException())
+                    } else {
+                        responseCallback.onResponse(this, response)
+                    }
+                }
         }
 
         private fun executeAsync(): CompletableFuture<okhttp3.Response> {

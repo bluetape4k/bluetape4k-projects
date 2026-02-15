@@ -5,6 +5,10 @@ import io.github.resilience4j.retry.Retry
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 
+private val retryScheduler by lazy {
+    Executors.newSingleThreadScheduledExecutor()
+}
+
 /**
  * [retrofit2.Call]을 비동기로 실행하고, [CompletableFuture]를 반환합니다.
  *
@@ -25,10 +29,8 @@ inline fun <T> retrofit2.Call<T>.executeAsync(
         override fun onResponse(call: retrofit2.Call<T>, response: retrofit2.Response<T>) {
             if (call.isCanceled) {
                 val ex = retrofit2.HttpException(response)
-                if (call.isCanceled) {
-                    cancelHandler(ex)
-                    promise.cancel(true)
-                }
+                cancelHandler(ex)
+                promise.cancel(true)
             } else {
                 promise.complete(response)
             }
@@ -56,23 +58,17 @@ inline fun <T> retrofit2.Call<T>.executeAsync(
  *
  * @param T
  * @param retry Resilience4j [Retry] 인스턴스
- * @param scheduler [Retry] 재시도 스케줄러
  * @param cancelHandler 취소 핸들러
  * @receiver
  * @return 비동기 호출 결과
  */
-inline fun <T> retrofit2.Call<T>.executeAsync(
+fun <T> retrofit2.Call<T>.executeAsync(
     retry: Retry,
-    crossinline cancelHandler: (Throwable?) -> Unit = {},
+    cancelHandler: (Throwable?) -> Unit = {},
 ): CompletableFuture<retrofit2.Response<T>> {
-    val scheduler = Executors.newSingleThreadScheduledExecutor()
-
     return Decorators
         .ofCompletionStage { executeAsync(cancelHandler) }
-        .withRetry(retry, scheduler)
+        .withRetry(retry, retryScheduler)
         .get()
         .toCompletableFuture()
-        .whenComplete { _, _ ->
-            scheduler.shutdown()
-        }
 }

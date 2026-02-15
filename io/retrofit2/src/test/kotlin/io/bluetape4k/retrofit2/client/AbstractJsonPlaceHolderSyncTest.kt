@@ -7,13 +7,9 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.retrofit2.defaultJsonConverterFactory
 import io.bluetape4k.retrofit2.retrofitOf
 import io.bluetape4k.retrofit2.service
-import io.bluetape4k.retrofit2.services.JsonPlaceHolder
+import io.bluetape4k.retrofit2.services.Httpbin
 import io.bluetape4k.retrofit2.services.Post
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
-import org.amshove.kluent.shouldNotBeNullOrBlank
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import kotlin.math.absoluteValue
@@ -23,8 +19,8 @@ abstract class AbstractJsonPlaceHolderSyncTest: AbstractJsonPlaceHolderTest() {
 
     companion object: KLogging()
 
-    private val api: JsonPlaceHolder.JsonPlaceHolderApi by lazy {
-        retrofitOf(JsonPlaceHolder.BASE_URL, callFactory, defaultJsonConverterFactory).service()
+    private val api: Httpbin.HttpbinApi by lazy {
+        retrofitOf(testBaseUrl, callFactory, defaultJsonConverterFactory).service()
     }
 
     @Test
@@ -34,22 +30,13 @@ abstract class AbstractJsonPlaceHolderSyncTest: AbstractJsonPlaceHolderTest() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `get posts`() {
-        val posts = api.posts().execute().body()!!
-
-        posts.shouldNotBeEmpty()
-        posts.forEach { it.verify() }
+        api.posts().execute().body()!!.verify("GET", "/anything/posts")
     }
 
     @RepeatedTest(REPEAT_SIZE)
     fun `get post by post id`() {
-        val post1 = api.getPost(1).execute().body()!!
-        post1.verify()
-
-        val post2 = api.getPost(2).execute().body()!!
-        post2.verify()
-
-        // 없는 post id를 조회하면 null이 반환된다.
-        api.getPost(0).execute().body().shouldBeNull()
+        api.getPost(1).execute().body()!!.verify("GET", "/anything/posts/1")
+        api.getPost(2).execute().body()!!.verify("GET", "/anything/posts/2")
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -57,30 +44,31 @@ abstract class AbstractJsonPlaceHolderSyncTest: AbstractJsonPlaceHolderTest() {
         val user1Posts = api.getUserPosts(1).execute().body()!!
         val user2Posts = api.getUserPosts(2).execute().body()!!
 
-        user1Posts.forEach { it.verify() }
-        user2Posts.forEach { it.verify() }
+        user1Posts.verify("GET", "/anything/posts")
+        user1Posts.verifyQuery("userId", 1)
+        user2Posts.verify("GET", "/anything/posts")
+        user2Posts.verifyQuery("userId", 2)
     }
 
     @Test
-    fun `get post's commnets`() {
+    fun `get post's comments`() {
         val post1Comments = api.getPostComments(1).execute().body()!!
         val post2Comments = api.getPostComments(2).execute().body()!!
 
-        post1Comments.forEach { it.verify() }
-        post2Comments.forEach { it.verify() }
+        post1Comments.verify("GET", "/anything/post/1/comments")
+        post2Comments.verify("GET", "/anything/post/2/comments")
     }
 
     @Test
     fun `get all users`() {
-        val users = api.getUsers().execute().body()!!
-        users.shouldNotBeEmpty()
+        api.getUsers().execute().body()!!.verify("GET", "/anything/users")
     }
 
     @Test
     fun `get albums by userId`() {
         val albums = api.getAlbumsByUserId(1).execute().body()!!
-        albums.shouldNotBeEmpty()
-        albums.forEach { it.verify() }
+        albums.verify("GET", "/anything/albums")
+        albums.verifyQuery("userId", 1)
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -88,37 +76,27 @@ abstract class AbstractJsonPlaceHolderSyncTest: AbstractJsonPlaceHolderTest() {
         val newPost = api.newPost(post).execute().body()!!
         log.debug { "newPost=$newPost" }
 
-        newPost.title.shouldNotBeNullOrBlank()
-        newPost.body.shouldNotBeNullOrBlank()
+        newPost.verify("POST", "/anything/posts")
+        newPost.verifyJsonPost(post)
     }
 
     @RepeatedTest(REPEAT_SIZE)
     fun `update exist post`() {
-        val post = api.getPost(10).execute().body()!!
+        val post = Post(userId = 1, id = 10, title = "title", body = "body")
         post.title = "updated " + post.title
 
         val updated = api.updatePost(post.id, post).execute().body()!!
         log.debug { "Updated post=$updated" }
 
-        updated.id shouldBeEqualTo post.id
-        updated.title shouldBeEqualTo post.title
+        updated.verify("PUT", "/anything/posts/10")
+        updated.verifyJsonPost(post)
     }
 
     @Test
     fun `delete post`(@RandomValue post: Post) {
-        val newPost = post.copy(userId = post.userId.absoluteValue, id = 0)
-        val saved = api.newPost(newPost).execute().body()!!
-        val savedPostId = saved.id
-        log.debug { "saved=$saved" }
-        saved.userId shouldBeEqualTo newPost.userId
-        saved.title shouldBeEqualTo newPost.title
-        saved.body shouldBeEqualTo newPost.body
-
-        val deleted = api.deletePost(savedPostId).execute().body()!!
+        val postId = post.id.absoluteValue + 1
+        val deleted = api.deletePost(postId).execute().body()!!
         log.debug { "deleted=$deleted" }
-        deleted.id shouldBeEqualTo 0
-        deleted.userId shouldBeEqualTo 0
-        deleted.title.shouldBeNull()
-        deleted.body.shouldBeNull()
+        deleted.verify("DELETE", "/anything/posts/$postId")
     }
 }

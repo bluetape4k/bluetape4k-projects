@@ -2,14 +2,15 @@ package io.bluetape4k.retrofit2.client
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
-import io.bluetape4k.retrofit2.services.Album
-import io.bluetape4k.retrofit2.services.Comment
+import io.bluetape4k.retrofit2.AbstractRetrofitTest
+import io.bluetape4k.retrofit2.services.HttpbinAnythingResponse
 import io.bluetape4k.retrofit2.services.Post
-import org.amshove.kluent.shouldBeGreaterThan
-import org.amshove.kluent.shouldNotBeEmpty
+import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldContain
+import org.amshove.kluent.shouldNotBeNull
 import org.amshove.kluent.shouldNotBeNullOrBlank
 
-abstract class AbstractJsonPlaceHolderTest {
+abstract class AbstractJsonPlaceHolderTest: AbstractRetrofitTest() {
 
     companion object: KLogging() {
 
@@ -19,28 +20,28 @@ abstract class AbstractJsonPlaceHolderTest {
         protected fun Post.verify() {
             log.trace { "Post=$this" }
 
-            id shouldBeGreaterThan 0
-            userId shouldBeGreaterThan 0
             title.shouldNotBeNullOrBlank()
             body.shouldNotBeNullOrBlank()
         }
 
         @JvmStatic
-        protected fun Comment.verify() {
-            log.trace { "Comment=$this" }
-
-            id shouldBeGreaterThan 0
-            postId shouldBeGreaterThan 0
-            name.shouldNotBeNullOrBlank()
-            email.shouldNotBeNullOrBlank()
-            body.shouldNotBeNullOrBlank()
+        protected fun HttpbinAnythingResponse.verify(method: String, path: String) {
+            log.trace { "Httpbin response=$this" }
+            this.method.shouldNotBeNull() shouldBeEqualTo method
+            this.url.shouldNotBeNull().shouldContain(path)
         }
 
         @JvmStatic
-        protected fun Album.verify() {
-            log.trace { "Album=$this" }
-            id shouldBeGreaterThan 0
-            title.shouldNotBeEmpty()
+        protected fun HttpbinAnythingResponse.verifyQuery(name: String, value: Int) {
+            args[name].shouldNotBeNull() shouldBeEqualTo value.toString()
+        }
+
+        @JvmStatic
+        protected fun HttpbinAnythingResponse.verifyJsonPost(post: Post) {
+            val bodyJson = json.shouldNotBeNull()
+            bodyJson["userId"].toString().toInt() shouldBeEqualTo post.userId
+            bodyJson["title"].toString() shouldBeEqualTo post.title
+            bodyJson["body"].toString() shouldBeEqualTo post.body
         }
     }
 

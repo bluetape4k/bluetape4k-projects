@@ -1,10 +1,8 @@
 package io.bluetape4k.http.hc5.examples
 
 import io.bluetape4k.http.hc5.AbstractHc5Test
-import io.bluetape4k.http.hc5.async.asyncClientConnectionManager
 import io.bluetape4k.http.hc5.async.minimalHttpAsyncClientOf
 import io.bluetape4k.http.hc5.http.basicHttpRequest
-import io.bluetape4k.http.hc5.http.tlsConfigOf
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
@@ -25,41 +23,28 @@ import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer
 import org.apache.hc.core5.http.protocol.HttpContext
-import org.apache.hc.core5.http2.HttpVersionPolicy
 import org.apache.hc.core5.io.CloseMode
-import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty
+import java.net.URI
 import java.nio.ByteBuffer
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-/**
- * 외부 HTTP/2 풀듀플렉스 테스트 엔드포인트(`nghttp2.org`)가 필요합니다.
- * 기본값에서는 비활성화되며, `-Dbluetape4k.test.external-network=true`로 활성화할 수 있습니다.
- */
-@Tag("external-network")
-@EnabledIfSystemProperty(named = "bluetape4k.test.external-network", matches = "true")
 class AsyncClientH2FullDuplexExchange: AbstractHc5Test() {
 
     companion object: KLoggingChannel()
 
     @Test
     fun `full-duplex streaming HTTP 2 message exchange`() {
+        val baseUri = URI(NGHTTP2_HTTPBIN_URL)
+        val httpHost = HttpHost(baseUri.scheme, baseUri.host, baseUri.port)
 
-        // HTTP/2 검증은 https://nghttp2.org/httpbin/post 등 nghttp2.org 엔드포인트를 사용합니다.
-        val httpHost = HttpHost("https", "nghttp2.org")
-
-        val client = minimalHttpAsyncClientOf(
-            connMgr = asyncClientConnectionManager {
-                setDefaultTlsConfig(tlsConfigOf(versionPolicy = HttpVersionPolicy.FORCE_HTTP_2))
-            }
-        )
+        val client = minimalHttpAsyncClientOf()
         client.start()
 
         val request = basicHttpRequest(Method.POST) {
             setHttpHost(httpHost)
-            setPath("/httpbin/post")
+            setPath("/post")
         }
         val requestProducer = BasicRequestProducer(request, BasicAsyncEntityProducer("stuff", ContentType.TEXT_PLAIN))
         val responseConsumer = BasicResponseConsumer(StringAsyncEntityConsumer())

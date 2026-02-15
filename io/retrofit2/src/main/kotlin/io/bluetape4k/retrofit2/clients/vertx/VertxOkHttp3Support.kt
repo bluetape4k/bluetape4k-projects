@@ -4,6 +4,7 @@ import io.bluetape4k.http.okhttp3.okhttp3Response
 import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.warn
 import io.bluetape4k.retrofit2.toIOException
 import io.vertx.core.http.HttpClientRequest
 import io.vertx.core.http.HttpClientResponse
@@ -24,7 +25,9 @@ private val log by lazy { KotlinLogging.logger {} }
 internal fun okhttp3.Request.toVertxHttpClientRequest(request: HttpClientRequest): HttpClientRequest {
     val self = this@toVertxHttpClientRequest
 
-    request.putHeader(HttpHeaders.ACCEPT, "*/*")
+    if (!request.headers().contains(HttpHeaders.ACCEPT)) {
+        request.putHeader(HttpHeaders.ACCEPT, "*/*")
+    }
 
     self.headers.forEach { (name, value) ->
         request.headers().add(name, value)
@@ -77,12 +80,27 @@ internal fun io.vertx.core.http.HttpClientResponse.toOkResponse(
                     addHeader(key, value)
                 }
 
-                val contentEncoding = self.getHeader(HttpHeaders.CONTENT_ENCODING)?.lowercase().orEmpty()
+                val contentEncodings = self.getHeader(HttpHeaders.CONTENT_ENCODING)
+                    .orEmpty()
+                    .split(',')
+                    .map { it.trim().lowercase() }
+                    .filter { it.isNotBlank() }
+                    .toSet()
 
-                val bytes = when (contentEncoding) {
-                    "gzip"    -> Compressors.GZip.decompress(buffer.bytes)
-                    "deflate" -> Compressors.Deflate.decompress(buffer.bytes)
-                    else      -> buffer.bytes
+                val bytes = when {
+                    "gzip" in contentEncodings || "x-gzip" in contentEncodings ->
+                        runCatching { Compressors.GZip.decompress(buffer.bytes) }
+                            .getOrElse {
+                                log.warn(it) { "Fail to decompress gzip response. fallback to raw bytes." }
+                                buffer.bytes
+                            }
+                    "deflate" in contentEncodings                              ->
+                        runCatching { Compressors.Deflate.decompress(buffer.bytes) }
+                            .getOrElse {
+                                log.warn(it) { "Fail to decompress deflate response. fallback to raw bytes." }
+                                buffer.bytes
+                            }
+                    else                                                       -> buffer.bytes
                 }
 
                 val contentTypeHeader = self.getHeader(HttpHeaders.CONTENT_TYPE)

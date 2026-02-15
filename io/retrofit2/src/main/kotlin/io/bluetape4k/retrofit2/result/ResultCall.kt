@@ -5,12 +5,12 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import io.bluetape4k.logging.warn
 import okhttp3.Request
-import okio.IOException
 import okio.Timeout
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.HttpException
 import retrofit2.Response
+import java.io.IOException
 
 /**
  * T 수형의 반환하는 API 를 [Result] 수형으로 감싸서 예외 처리를 유연하게 할 수 있도록 하는 [Call] 입니다.
@@ -44,7 +44,12 @@ class ResultCall<T> private constructor(
             response = delegate.execute()
             return when {
                 response.isSuccessful -> {
-                    val result = Result.success(response.body()!!)
+                    val body = response.body()
+                    val result = if (body != null) {
+                        Result.success(body)
+                    } else {
+                        Result.failure(IOException("Response body is null. code=${response.code()}"))
+                    }
                     Response.success(response.code(), result)
                 }
 
@@ -82,7 +87,12 @@ class ResultCall<T> private constructor(
                 when {
                     response.isSuccessful -> {
                         log.trace { "Success! response=$response" }
-                        val result = Result.success(response.body()!!)
+                        val body = response.body()
+                        val result = if (body != null) {
+                            Result.success(body)
+                        } else {
+                            Result.failure(IOException("Response body is null. code=${response.code()}"))
+                        }
                         callback.onResponse(this@ResultCall, Response.success(response.code(), result))
                     }
 

@@ -12,7 +12,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 /**
- * Retrofit2 에서 OkHttp3를 대신 AsyncHttpClient를 사용할 수 있도록 해주는 Call.Factroy 입니다.
+ * Retrofit2 에서 OkHttp3 대신 AsyncHttpClient를 사용할 수 있게 해주는 `Call.Factory`를 생성합니다.
  *
  * ```
  * val factory = asyncHttpClientCallFactory {
@@ -20,7 +20,7 @@ import kotlin.coroutines.resumeWithException
  * }
  * ```
  * @param builder [AsyncHttpClient] 제공 함수
- * @return okhttp3.Call.Factory
+ * @return [okhttp3.Call.Factory]
  */
 inline fun asyncHttpClientCallFactory(
     @BuilderInference builder: AsyncHttpClientCallFactory.AsyncHttpClientCallFactoryBuilder.() -> Unit,
@@ -28,14 +28,14 @@ inline fun asyncHttpClientCallFactory(
     AsyncHttpClientCallFactory.builder().apply(builder).build()
 
 /**
- * Retrofit2에서 OkHttp3를 대신 AsyncHttpClient를 사용할 수 있도록 해주는 Call.Factroy 입니다.
+ * Retrofit2에서 OkHttp3 대신 AsyncHttpClient를 사용할 수 있게 해주는 `Call.Factory`를 생성합니다.
  *
  * ```
  * val factory = asyncHttpClientCallFactoryOf(defaultAsyncHttpClient)
  * ```
  *
  * @param client [AsyncHttpClient] 제공 함수
- * @return okhttp3.Call.Factory
+ * @return [okhttp3.Call.Factory]
  */
 inline fun asyncHttpClientCallFactoryOf(
     client: AsyncHttpClient = defaultAsyncHttpClient,
@@ -58,7 +58,8 @@ inline fun asyncHttpClientCallFactoryOf(
  */
 suspend fun BoundRequestBuilder.coExecute(): Response =
     suspendCancellableCoroutine { cont ->
-        execute(DefaultCoroutineCompletionHandler(cont))
+        val future = execute(DefaultCoroutineCompletionHandler(cont))
+        cont.invokeOnCancellation { future.cancel(true) }
     }
 
 /**
