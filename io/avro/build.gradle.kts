@@ -31,8 +31,8 @@ dependencies {
     api(Libs.avro_kotlin)
 
     // Compressor
-    testImplementation(Libs.snappy_java)
-    testImplementation(Libs.lz4_java)
-    testImplementation(Libs.zstd_jni)
-    testImplementation(Libs.xz)
+    runtimeOnly(Libs.snappy_java)
+    runtimeOnly(Libs.lz4_java)
+    runtimeOnly(Libs.zstd_jni)
+    runtimeOnly(Libs.xz)
 }

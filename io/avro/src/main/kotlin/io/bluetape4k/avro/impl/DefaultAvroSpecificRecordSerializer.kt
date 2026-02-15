@@ -132,7 +132,7 @@ class DefaultAvroSpecificRecordSerializer private constructor(
                 }
             }
         } catch (e: Throwable) {
-            log.error(e) { "SpecificRecord 리스트 직렬화에 실패했습니다. size=${collection?.size}" }
+            log.error(e) { "SpecificRecord 리스트 직렬화에 실패했습니다. size=${collection.size}" }
             null
         }
     }
