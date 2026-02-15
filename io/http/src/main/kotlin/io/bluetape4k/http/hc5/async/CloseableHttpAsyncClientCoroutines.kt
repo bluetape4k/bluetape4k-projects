@@ -27,7 +27,7 @@ import org.apache.hc.core5.http.protocol.HttpContext
  * @param callback [FutureCallback] 인스턴스
  * @return [SimpleHttpResponse] 인스턴스
  */
-suspend fun CloseableHttpAsyncClient.execute(
+suspend fun CloseableHttpAsyncClient.executeSuspending(
     request: SimpleHttpRequest,
     responseConsumer: SimpleResponseConsumer = SimpleResponseConsumer.create(),
     context: HttpContext = HttpClientContext.create(),
@@ -35,3 +35,17 @@ suspend fun CloseableHttpAsyncClient.execute(
 ): SimpleHttpResponse {
     return execute(request.toProducer(), responseConsumer, context, callback).suspendAwait()
 }
+
+/**
+ * [executeSuspending]으로 대체되었습니다.
+ */
+@Deprecated(
+    "executeSuspending(request, responseConsumer, context, callback)을 사용하세요.",
+    ReplaceWith("this.executeSuspending(request, responseConsumer, context, callback)")
+)
+suspend fun CloseableHttpAsyncClient.execute(
+    request: SimpleHttpRequest,
+    responseConsumer: SimpleResponseConsumer = SimpleResponseConsumer.create(),
+    context: HttpContext = HttpClientContext.create(),
+    callback: FutureCallback<SimpleHttpResponse>? = null,
+): SimpleHttpResponse = executeSuspending(request, responseConsumer, context, callback)

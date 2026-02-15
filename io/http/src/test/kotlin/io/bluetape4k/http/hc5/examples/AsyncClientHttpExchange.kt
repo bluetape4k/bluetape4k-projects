@@ -1,7 +1,7 @@
 package io.bluetape4k.http.hc5.examples
 
 import io.bluetape4k.http.hc5.AbstractHc5Test
-import io.bluetape4k.http.hc5.async.execute
+import io.bluetape4k.http.hc5.async.executeSuspending
 import io.bluetape4k.http.hc5.async.methods.simpleHttpRequestOf
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -36,13 +36,13 @@ class AsyncClientHttpExchange: AbstractHc5Test() {
             .setIOReactorConfig(ioReactorConfig)
             .build()
 
-        // NOTE: 먼저 start() 를 호출해주어야 합니다.
+        // NOTE: call start() before executing requests.
         client.start()
 
         val responses = requestUris.map { path ->
             val request = simpleHttpRequestOf(Method.GET, target, path)
             async(Dispatchers.IO) {
-                client.execute(request)
+                client.executeSuspending(request)
                     .apply {
                         log.debug { "Response: $request -> ${StatusLine(this)}" }
                         log.debug { "Body: ${this.body}" }

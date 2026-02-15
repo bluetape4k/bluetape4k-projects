@@ -95,7 +95,7 @@ class OkHttp3SupportTest: AbstractHttpTest() {
                 url(JSON_PLACEHOLDER_TODOS_URL)
                 get()
             }
-            client.suspendExecute(request).verifyResponse()
+            client.executeSuspending(request).verifyResponse()
         }
 
         @RepeatedTest(REPEAT_SIZE)
@@ -109,7 +109,7 @@ class OkHttp3SupportTest: AbstractHttpTest() {
                 async(Dispatchers.IO) {
                     val sw = StopWatch.createStarted()
 
-                    client.suspendExecute(request)
+                    client.executeSuspending(request)
                         .apply {
                             sw.stop()
                             log.trace { "Run $index elapsed time=${sw.formatTime()}" }

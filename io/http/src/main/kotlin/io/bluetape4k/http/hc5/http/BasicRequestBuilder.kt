@@ -16,7 +16,7 @@ import org.apache.hc.core5.http.support.BasicRequestBuilder
  * }
  * ```
  *
- * @param method HTTP Method
+ * @param method HTTP 메서드 이름
  * @param builder [BasicRequestBuilder] 초기화 람다
  * @return [BasicHttpRequest]
  */
@@ -36,7 +36,7 @@ inline fun basicHttpRequest(
  * }
  * ```
  *
- * @param method [Method]
+ * @param method [Method] HTTP 메서드
  * @param builder [BasicRequestBuilder] 초기화 람다
  * @return [BasicHttpRequest]
  */
@@ -57,8 +57,8 @@ inline fun basicHttpRequest(
  * }
  * ```
  *
- * @param method HTTP Method
- * @param host [HttpHost]
+ * @param method HTTP 메서드 이름
+ * @param host [HttpHost] 호스트 정보
  * @param path 요청 경로
  * @param headers [Header] 리스트
  * @param builder [BasicRequestBuilder] 초기화 람다
@@ -90,8 +90,8 @@ inline fun basicHttpRequestOf(
  * }
  * ```
  *
- * @param method [Method]
- * @param host [HttpHost]
+ * @param method [Method] HTTP 메서드
+ * @param host [HttpHost] 호스트 정보
  * @param path 요청 경로
  * @param headers [Header] 리스트
  * @param builder [BasicRequestBuilder] 초기화 람다

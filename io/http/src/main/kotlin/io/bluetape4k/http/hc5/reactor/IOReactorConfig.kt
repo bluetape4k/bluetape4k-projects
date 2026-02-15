@@ -14,7 +14,7 @@ import org.apache.hc.core5.util.Timeout
  * }
  * ```
  *
- * @param builder [IOReactorConfig.Builder] DSL
+ * @param builder [IOReactorConfig.Builder] 설정 블록
  * @return [IOReactorConfig]
  */
 inline fun ioReactorConfig(
@@ -34,11 +34,11 @@ inline fun ioReactorConfig(
  * }
  * ```
  *
- * @param ioThreadCount IO Thread Count
- * @param soTimeout Socket Timeout
- * @param soLinger Socket Linger
- * @param soKeepAlive Socket Keep Alive
- * @param builder [IOReactorConfig.Builder] DSL
+ * @param ioThreadCount IO 스레드 수
+ * @param soTimeout 소켓 타임아웃
+ * @param soLinger 소켓 linger 시간
+ * @param soKeepAlive 소켓 Keep-Alive 여부
+ * @param builder [IOReactorConfig.Builder] 설정 블록
  * @return [IOReactorConfig]
  */
 inline fun ioReactorConfigOf(

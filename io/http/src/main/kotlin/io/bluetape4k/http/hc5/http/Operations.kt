@@ -5,13 +5,13 @@ import org.apache.hc.core5.concurrent.Cancellable
 import java.util.concurrent.Future
 
 /**
- * [Future] 를 [Cancellable] 로 변환합니다.
+ * [Future]를 [Cancellable]로 변환합니다.
  *
  * ```
  * val cancellable = future.toCancellable()
  * ```
  *
  * @receiver [Future]
- * @return [Cancellable]
+ * @return 변환된 [Cancellable]
  */
 fun Future<*>.toCancellable(): Cancellable = Operations.cancellable(this)

@@ -6,7 +6,7 @@ import org.apache.hc.client5.http.impl.classic.FutureRequestExecutionService
 import java.util.concurrent.ExecutorService
 
 /**
- * [HttpClient] 와 [ExecutorService] 를 이용하여 [FutureRequestExecutionService] 를 생성합니다.
+ * [HttpClient]와 [ExecutorService]를 이용해 [FutureRequestExecutionService]를 생성합니다.
  *
  * ```
  * val executor = Executors.newFixedThreadPool(10)
@@ -14,8 +14,8 @@ import java.util.concurrent.ExecutorService
  * ```
  *
  * @param httpclient [HttpClient] 인스턴스
- * @param executor [ExecutorService] 인스턴스 (default: [VirtualThreadExecutor])
- * @return [FutureRequestExecutionService]
+ * @param executor [ExecutorService] 인스턴스 (기본값: [VirtualThreadExecutor])
+ * @return 생성된 [FutureRequestExecutionService]
  */
 fun futureRequestExecutionServiceOf(
     httpclient: HttpClient,

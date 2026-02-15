@@ -116,7 +116,7 @@ fun <T> Collection<CompletionStage<out T>>.sequence(executor: Executor = ForkJoi
  * @return CompletableFuture<List<*>>
  * @see sequence
  */
-fun Iterable<CompletionStage<out Any>>.allAsList(executor: Executor = ForkJoinExecutor): CompletableFuture<List<*>> =
+inline fun Iterable<CompletionStage<out Any>>.allAsList(executor: Executor = ForkJoinExecutor): CompletableFuture<List<*>> =
     sequence(executor)
 
 
@@ -132,7 +132,7 @@ fun Iterable<CompletionStage<out Any>>.allAsList(executor: Executor = ForkJoinEx
  * @return `CompletableFuture<List<T>>`
  * @see sequence
  */
-fun <T> List<CompletionStage<out T>>.allAsList(executor: Executor = ForkJoinExecutor): CompletableFuture<List<T>> =
+inline fun <T> List<CompletionStage<out T>>.allAsList(executor: Executor = ForkJoinExecutor): CompletableFuture<List<T>> =
     sequence(executor)
 
 /**
@@ -170,6 +170,7 @@ fun <T> List<CompletionStage<T>>.successfulAsList(
 fun <T> Iterable<CompletionStage<T>>.firstCompleted(): CompletableFuture<T> {
     val promise = CompletableFuture<T>()
 
+    // TODO: JDK 21의 StructuredTaskScope 를 사용하는데, 이를 JDK 버전에 상관없이 사용할 수 있도록 한다.
     return StructuredTaskScope.ShutdownOnSuccess<T>("first-completed", Thread.ofVirtual().factory()).use { scope ->
         this@firstCompleted.forEach { item ->
             scope.fork {

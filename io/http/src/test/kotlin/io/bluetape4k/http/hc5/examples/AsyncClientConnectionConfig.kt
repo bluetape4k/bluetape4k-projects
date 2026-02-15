@@ -2,7 +2,7 @@ package io.bluetape4k.http.hc5.examples
 
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.async.asyncClientConnectionManager
-import io.bluetape4k.http.hc5.async.execute
+import io.bluetape4k.http.hc5.async.executeSuspending
 import io.bluetape4k.http.hc5.async.httpAsyncClientOf
 import io.bluetape4k.http.hc5.async.methods.simpleHttpRequestOf
 import io.bluetape4k.http.hc5.http.connectionConfigOf
@@ -61,15 +61,15 @@ class AsyncClientConnectionConfig: AbstractHc5Test() {
         httpAsyncClientOf(cm).use { client ->
             client.start()
 
-            URIScheme.entries.forEach { uriSchme: URIScheme ->
+            listOf(URIScheme.HTTP).forEach { uriSchme: URIScheme ->
                 val request = simpleHttpRequestOf(
                     method = Method.GET,
-                    host = HttpHost(uriSchme.id, "nghttp2.org"),
-                    path = "/httpbin/headers"
+                    host = HttpHost(uriSchme.id, httpbinServer.host, httpbinServer.port),
+                    path = "/headers"
                 )
                 log.debug { "Executing request $request" }
 
-                val response = client.execute(request)
+                val response = client.executeSuspending(request)
 
                 log.debug { "$request -> ${StatusLine(response)}" }
                 log.debug { response.body }

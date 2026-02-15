@@ -3,7 +3,7 @@ package io.bluetape4k.http.hc5.examples
 import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.http.hc5.AbstractHc5Test
-import io.bluetape4k.http.hc5.async.execute
+import io.bluetape4k.http.hc5.async.executeSuspending
 import io.bluetape4k.http.hc5.async.httpAsyncClient
 import io.bluetape4k.http.hc5.async.methods.simpleHttpRequestOf
 import io.bluetape4k.http.hc5.http.httpClientContext
@@ -56,7 +56,7 @@ class AsyncPreemptiveBasicClientAuthentication: AbstractHc5Test() {
         repeat(3) {
             val request = simpleHttpRequestOf(Method.GET, httpHost, path)
             log.debug { "Executing request $request" }
-            val response = client.execute(request, localContext)
+            val response = client.executeSuspending(request, localContext)
 
             log.debug { "Response: $request -> ${StatusLine(response)}" }
             log.debug { "Body: ${response.body}" }

@@ -18,10 +18,7 @@ import org.apache.hc.core5.http.HttpStatus
 import org.junit.jupiter.api.Test
 import javax.xml.parsers.ParserConfigurationException
 
-/**
- * This example demonstrates how the HttpClient fluent API can be used to handle HTTP responses
- * without buffering content body in memory.
- */
+/** 메모리에 본문을 버퍼링하지 않고 HTTP 응답을 처리하는 Fluent API 예제입니다. */
 class FluentResponseHandling: AbstractHc5Test() {
 
     companion object: KLogging()

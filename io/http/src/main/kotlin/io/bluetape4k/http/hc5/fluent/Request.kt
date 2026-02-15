@@ -11,7 +11,7 @@ import java.net.URI
  * val request = requestOf(Method.GET, URI.create("https://example.com"))
  * ```
  *
- * @param method 요청 메소드
+ * @param method 요청 메서드
  * @param uri 요청 주소 [URI]
  * @return 요청 정보 [Request]
  */
@@ -24,7 +24,7 @@ fun requestOf(method: Method, uri: URI): Request = Request.create(method, uri)
  * val request = requestOf(Method.GET, "https://example.com")
  * ```
  *
- * @param methodName 요청 메소드
+ * @param methodName 요청 메서드
  * @param uri 요청 주소 [String]
  * @return 요청 정보 [Request]
  */
@@ -37,7 +37,7 @@ fun requestOf(methodName: String, uri: URI): Request = Request.create(methodName
  * val request = requestOf("GET", "https://example.com")
  * ```
  *
- * @param methodName 요청 메소드 [String]
+ * @param methodName 요청 메서드 [String]
  * @param uri 요청 주소 [String]
  * @return 요청 정보 [Request]
  */

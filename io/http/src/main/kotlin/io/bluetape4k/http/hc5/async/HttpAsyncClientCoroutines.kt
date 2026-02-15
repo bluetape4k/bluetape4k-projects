@@ -35,13 +35,13 @@ import org.apache.hc.core5.reactor.IOReactorStatus
  * ```
  *
  * @param T 반환 수형
- * @param requestProducer  비동기 Request 를 생성하는 Producer ([AsyncRequestProducer])
- * @param responseConsumer 응답을 처리하는 Consumer ([AsyncResponseConsumer])
- * @param pushHandlerFactory 비동기 Push consumer 를 생성하는 Factory
+ * @param requestProducer 비동기 요청을 생성하는 생산자([AsyncRequestProducer])
+ * @param responseConsumer 응답을 처리하는 소비자([AsyncResponseConsumer])
+ * @param pushHandlerFactory 비동기 푸시 소비자를 생성하는 팩토리
  * @param context  [HttpContext] 인스턴스
- * @return `requestConsumer` 에서 처리한 결과
+ * @return `responseConsumer`에서 처리한 결과
  */
-suspend inline fun <T: Any> CloseableHttpAsyncClient.execute(
+suspend inline fun <T: Any> CloseableHttpAsyncClient.executeSuspending(
     requestProducer: AsyncRequestProducer,
     responseConsumer: AsyncResponseConsumer<T>,
     pushHandlerFactory: HandlerFactory<AsyncPushConsumer>? = null,
@@ -60,6 +60,20 @@ suspend inline fun <T: Any> CloseableHttpAsyncClient.execute(
 }
 
 /**
+ * [executeSuspending]으로 대체되었습니다.
+ */
+@Deprecated(
+    "executeSuspending(requestProducer, responseConsumer, pushHandlerFactory, context)을 사용하세요.",
+    ReplaceWith("this.executeSuspending(requestProducer, responseConsumer, pushHandlerFactory, context)")
+)
+suspend inline fun <T: Any> CloseableHttpAsyncClient.execute(
+    requestProducer: AsyncRequestProducer,
+    responseConsumer: AsyncResponseConsumer<T>,
+    pushHandlerFactory: HandlerFactory<AsyncPushConsumer>? = null,
+    context: HttpContext? = null,
+): T = executeSuspending(requestProducer, responseConsumer, pushHandlerFactory, context)
+
+/**
  * Coroutines 환경에서 [CloseableHttpAsyncClient.execute]를 실행합니다.
  *
  * ```
@@ -76,7 +90,7 @@ suspend inline fun <T: Any> CloseableHttpAsyncClient.execute(
  * @param context [HttpClientContext] 인스턴스
  * @return [SimpleHttpResponse] 인스턴스
  */
-suspend inline fun CloseableHttpAsyncClient.execute(
+suspend inline fun CloseableHttpAsyncClient.executeSuspending(
     request: SimpleHttpRequest,
     context: HttpClientContext = HttpClientContext.create(),
     callback: FutureCallback<SimpleHttpResponse>? = null,
@@ -86,6 +100,19 @@ suspend inline fun CloseableHttpAsyncClient.execute(
     }
     return execute(request, context, callback).suspendAwait()
 }
+
+/**
+ * [executeSuspending]으로 대체되었습니다.
+ */
+@Deprecated(
+    "executeSuspending(request, context, callback)을 사용하세요.",
+    ReplaceWith("this.executeSuspending(request, context, callback)")
+)
+suspend inline fun CloseableHttpAsyncClient.execute(
+    request: SimpleHttpRequest,
+    context: HttpClientContext = HttpClientContext.create(),
+    callback: FutureCallback<SimpleHttpResponse>? = null,
+): SimpleHttpResponse = executeSuspending(request, context, callback)
 
 /**
  * Coroutines 환경에서 [CloseableHttpAsyncClient.execute]를 실행합니다.
@@ -103,12 +130,12 @@ suspend inline fun CloseableHttpAsyncClient.execute(
  * ```
  *
  * @param T 반환 수형
- * @param requestProducer 비동기 Request 를 생성하는 Producer ([AsyncRequestProducer])
- * @param responseConsumer 응답을 처리하는 Consumer ([AsyncResponseConsumer])
+ * @param requestProducer 비동기 요청을 생성하는 생산자([AsyncRequestProducer])
+ * @param responseConsumer 응답을 처리하는 소비자([AsyncResponseConsumer])
  * @param callback [FutureCallback] 인스턴스
- * @return `requestConsumer` 에서 처리한 결과
+ * @return `responseConsumer`에서 처리한 결과
  */
-suspend inline fun <T: Any> CloseableHttpAsyncClient.execute(
+suspend inline fun <T: Any> CloseableHttpAsyncClient.executeSuspending(
     requestProducer: AsyncRequestProducer,
     responseConsumer: AsyncResponseConsumer<T>,
     callback: FutureCallback<T>? = null,
@@ -122,6 +149,19 @@ suspend inline fun <T: Any> CloseableHttpAsyncClient.execute(
         callback,
     ).suspendAwait()
 }
+
+/**
+ * [executeSuspending]으로 대체되었습니다.
+ */
+@Deprecated(
+    "executeSuspending(requestProducer, responseConsumer, callback)을 사용하세요.",
+    ReplaceWith("this.executeSuspending(requestProducer, responseConsumer, callback)")
+)
+suspend inline fun <T: Any> CloseableHttpAsyncClient.execute(
+    requestProducer: AsyncRequestProducer,
+    responseConsumer: AsyncResponseConsumer<T>,
+    callback: FutureCallback<T>? = null,
+): T = executeSuspending(requestProducer, responseConsumer, callback)
 
 /**
  * Coroutines 환경에서 [CloseableHttpAsyncClient.execute]를 실행합니다.
@@ -141,14 +181,14 @@ suspend inline fun <T: Any> CloseableHttpAsyncClient.execute(
  *
  * @param T 반환 수형
  * @param target [HttpHost] 인스턴스
- * @param requestProducer 비동기 Request 를 생성하는 Producer ([AsyncRequestProducer])
- * @param responseConsumer 응답을 처리하는 Consumer ([AsyncResponseConsumer])
- * @param pushHandlerFactory 비동기 Push consumer 를 생성하는 Factory
+ * @param requestProducer 비동기 요청을 생성하는 생산자([AsyncRequestProducer])
+ * @param responseConsumer 응답을 처리하는 소비자([AsyncResponseConsumer])
+ * @param pushHandlerFactory 비동기 푸시 소비자를 생성하는 팩토리
  * @param context [HttpContext] 인스턴스
  * @param callback [FutureCallback] 인스턴스
- * @return `requestConsumer` 에서 처리한 결과
+ * @return `responseConsumer`에서 처리한 결과
  */
-suspend inline fun <T: Any> CloseableHttpAsyncClient.execute(
+suspend inline fun <T: Any> CloseableHttpAsyncClient.executeSuspending(
     target: HttpHost,
     requestProducer: AsyncRequestProducer,
     responseConsumer: AsyncResponseConsumer<T>,
@@ -168,3 +208,19 @@ suspend inline fun <T: Any> CloseableHttpAsyncClient.execute(
         callback,
     ).suspendAwait()
 }
+
+/**
+ * [executeSuspending]으로 대체되었습니다.
+ */
+@Deprecated(
+    "executeSuspending(target, requestProducer, responseConsumer, pushHandlerFactory, context, callback)을 사용하세요.",
+    ReplaceWith("this.executeSuspending(target, requestProducer, responseConsumer, pushHandlerFactory, context, callback)")
+)
+suspend inline fun <T: Any> CloseableHttpAsyncClient.execute(
+    target: HttpHost,
+    requestProducer: AsyncRequestProducer,
+    responseConsumer: AsyncResponseConsumer<T>,
+    pushHandlerFactory: HandlerFactory<AsyncPushConsumer>? = null,
+    context: HttpContext? = null,
+    callback: FutureCallback<T>? = null,
+): T = executeSuspending(target, requestProducer, responseConsumer, pushHandlerFactory, context, callback)

@@ -1,7 +1,7 @@
 package io.bluetape4k.http.hc5.examples
 
 import io.bluetape4k.http.hc5.AbstractHc5Test
-import io.bluetape4k.http.hc5.async.execute
+import io.bluetape4k.http.hc5.async.executeSuspending
 import io.bluetape4k.http.hc5.async.httpAsyncClient
 import io.bluetape4k.http.hc5.async.methods.simpleHttpRequestOf
 import io.bluetape4k.http.hc5.reactor.ioReactorConfig
@@ -35,8 +35,7 @@ class AsyncClientMessageTrailers: AbstractHc5Test() {
         val client: CloseableHttpAsyncClient = httpAsyncClient {
             setIOReactorConfig(ioReactorConfig)
 
-            // 요청 전송 시 AsyncExecChainHandler를 이용하여 MD5 hash 로 변환하도록 한다  
-            // Send MD5 hash in a trailer by decorating the original entity producer
+            // 요청 전송 시 AsyncExecChainHandler를 이용해 MD5 해시를 트레일러로 보냅니다.
             addExecInterceptorAfter(ChainElement.PROTOCOL.name, "custom", asyncExecChainHandler())
         }
 
@@ -45,7 +44,7 @@ class AsyncClientMessageTrailers: AbstractHc5Test() {
         val request = simpleHttpRequestOf(Method.POST, target, path)
 
         log.debug { "Executing request $request" }
-        val response = client.execute(request)
+        val response = client.executeSuspending(request)
         log.debug { "Response: $request -> ${StatusLine(response)}" }
         log.debug { "Body: ${response.body}" }
 
@@ -53,8 +52,7 @@ class AsyncClientMessageTrailers: AbstractHc5Test() {
         client.close(CloseMode.GRACEFUL)
     }
 
-    // 요청 전송 시 AsyncExecChainHandler를 이용하여 MD5 hash 로 변환하도록 한다  
-    // Send MD5 hash in a trailer by decorating the original entity producer
+    // 요청 전송 시 AsyncExecChainHandler를 이용해 MD5 해시를 트레일러로 보냅니다.
 
 
     private fun asyncExecChainHandler(): AsyncExecChainHandler {

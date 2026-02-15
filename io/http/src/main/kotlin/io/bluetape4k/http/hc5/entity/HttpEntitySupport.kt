@@ -20,7 +20,7 @@ fun HttpEntity?.consumeQuietly() {
 }
 
 /**
- * 엔티티 컨텐츠가 모두 소비되고 컨텐츠 스트림이 존재하는 경우 닫습니다.
+ * 엔티티 콘텐츠가 모두 소비되고 콘텐츠 스트림이 존재하는 경우 닫습니다.
  *
  * ```
  * val response = httpClient.execute(httpGet)
@@ -47,7 +47,7 @@ fun HttpEntity.toByteArrayOrNull(maxResultLength: Int = Int.MAX_VALUE): ByteArra
 }
 
 /**
- * 엔티티 컨텐츠를 문자열로 반환합니다. 문자셋이 없는 경우 제공된 기본 문자셋 ("UTF-8") 을 사용합니다.
+ * 엔티티 콘텐츠를 문자열로 반환합니다. 문자셋이 없는 경우 제공된 기본 문자셋("UTF-8")을 사용합니다.
  *
  * ```
  * val response = httpClient.execute(httpGet)
@@ -66,7 +66,7 @@ fun HttpEntity.toStringOrNull(
 }
 
 /**
- * [HttpEntity]의 컨텐츠를 읽어 [NameValuePair]의 리스트로 반환합니다.
+ * [HttpEntity]의 콘텐츠를 읽어 [NameValuePair] 목록으로 반환합니다.
  *
  * 인코딩은 엔티티의 `Content-Encoding` 헤더에서 가져옵니다.
  *

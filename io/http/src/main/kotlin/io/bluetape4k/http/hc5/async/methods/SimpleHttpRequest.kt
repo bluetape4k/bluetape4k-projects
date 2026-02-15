@@ -18,7 +18,7 @@ import org.apache.hc.core5.http.Method
  * }
  * ```
  *
- * @param method HTTP Method
+ * @param method HTTP 메서드 이름
  * @param builder [SimpleRequestBuilder] 초기화 람다
  * @return [SimpleHttpRequest] 인스턴스
  */
@@ -39,7 +39,7 @@ inline fun simpleHttpRequest(
  * }
  * ```
  *
- * @param method [Method] HTTP Method
+ * @param method [Method] HTTP 메서드
  * @param builder [SimpleRequestBuilder] 초기화 람다
  * @return [SimpleHttpRequest] 인스턴스
  */
@@ -57,7 +57,7 @@ inline fun simpleHttpRequest(
  * val request = simpleHttpRequestOf("GET", HttpHost("localhost", 8080), "/api/v1")
  * ```
  *
- * @param method HTTP Method
+ * @param method HTTP 메서드 이름
  * @param host [HttpHost] 정보
  * @param path 요청 경로
  * @param body [SimpleBody] 정보
@@ -88,7 +88,7 @@ inline fun simpleHttpRequestOf(
  * val request = simpleHttpRequestOf(Method.GET, HttpHost("localhost", 8080), "/api/v1")
  * ```
  *
- * @param method [Method] HTTP Method
+ * @param method [Method] HTTP 메서드
  * @param host [HttpHost] 정보
  * @param path 요청 경로
  * @param body [SimpleBody] 정보

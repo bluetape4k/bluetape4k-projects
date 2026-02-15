@@ -10,24 +10,26 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 /**
- * HTTP 처리에서 `executeSuspending` 함수를 제공합니다.
+ * 현재 요청을 코루틴에서 실행하고 응답 완료 시점까지 대기합니다.
  */
-@Deprecated("use suspendExecute instead", ReplaceWith("this.suspendExecute()"))
 suspend fun BoundRequestBuilder.executeSuspending(): Response =
     suspendCancellableCoroutine { cont ->
-        execute(DefaultCoroutineCompletionHandler(cont))
+        val future = execute(DefaultCoroutineCompletionHandler(cont))
+        cont.invokeOnCancellation {
+            future.cancel(true)
+        }
     }
 
 /**
- * AsyncHttpClient 실행을 Coroutine 환경에서 수행하도록 합니다.
+ * 현재 요청을 코루틴에서 실행하고 응답 완료 시점까지 대기합니다.
+ *
+ * 코루틴이 취소되면 내부 AHC Future 도 함께 취소합니다.
  */
-suspend fun BoundRequestBuilder.suspendExecute(): Response =
-    suspendCancellableCoroutine { cont ->
-        execute(DefaultCoroutineCompletionHandler(cont))
-    }
+@Deprecated("executeSuspending()을 사용하세요.", ReplaceWith("this.executeSuspending()"))
+suspend fun BoundRequestBuilder.suspendExecute(): Response = executeSuspending()
 
 /**
- * HTTP 처리에서 사용하는 `DefaultCoroutineCompletionHandler` 타입입니다.
+ * AHC 비동기 콜백을 코루틴 continuation 으로 연결합니다.
  */
 internal class DefaultCoroutineCompletionHandler(
     private val cont: CancellableContinuation<Response>,
@@ -35,20 +37,23 @@ internal class DefaultCoroutineCompletionHandler(
 
     companion object: KLoggingChannel()
 
-    /**
-     * HTTP 처리에서 `onCompleted` 함수를 제공합니다.
-     */
+    /** continuation 이 활성 상태일 때 완료 응답으로 재개합니다. */
     override fun onCompleted(response: Response?): Response? {
-        response?.let {
-            cont.resume(it)
-        } ?: cont.resumeWithException(IllegalStateException("Response is null"))
+        if (!cont.isActive) {
+            return response
+        }
+        if (response != null) {
+            cont.resume(response)
+        } else {
+            cont.resumeWithException(IllegalStateException("Response is null"))
+        }
         return response
     }
 
-    /**
-     * HTTP 처리에서 `onThrowable` 함수를 제공합니다.
-     */
+    /** continuation 이 활성 상태일 때 예외로 재개합니다. */
     override fun onThrowable(t: Throwable) {
-        cont.resumeWithException(t)
+        if (cont.isActive) {
+            cont.resumeWithException(t)
+        }
     }
 }

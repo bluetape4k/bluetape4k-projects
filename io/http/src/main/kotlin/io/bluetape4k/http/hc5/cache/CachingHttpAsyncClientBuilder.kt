@@ -7,7 +7,7 @@ import org.apache.hc.client5.http.impl.cache.CachingHttpAsyncClients
 import java.io.File
 
 /**
- * Cache를 지원하는 [CloseableHttpAsyncClient]를 생성합니다.
+ * 캐시를 지원하는 [CloseableHttpAsyncClient]를 생성합니다.
  *
  * ```
  * val client = cachingHttpAsyncClient {
@@ -23,7 +23,7 @@ inline fun cachingHttpAsyncClient(
 }
 
 /**
- * Cache를 지원하는 [CloseableHttpAsyncClient]를 생성합니다.
+ * 캐시를 지원하는 [CloseableHttpAsyncClient]를 생성합니다.
  *
  * ```
  * val client = cachingHttpAsyncClient(cacheStorage) {

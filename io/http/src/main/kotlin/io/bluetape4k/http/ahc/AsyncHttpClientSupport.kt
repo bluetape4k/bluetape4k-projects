@@ -14,9 +14,7 @@ import org.asynchttpclient.Dsl
 import org.asynchttpclient.filter.RequestFilter
 import org.asynchttpclient.filter.ResponseFilter
 
-/**
- * Netty native transport를 사용할 수 있으면 사용하도록 한다
- */
+/** 런타임/OS가 지원하면 Netty native transport 사용을 활성화합니다. */
 fun DefaultAsyncHttpClientConfig.Builder.applyNativeTransport() = apply {
     if (Systemx.isUnix && isPresentNettyTransportNativeEpoll()) {
         // setEventLoopGroup(EpollEventLoopGroup())
@@ -29,8 +27,9 @@ fun DefaultAsyncHttpClientConfig.Builder.applyNativeTransport() = apply {
 }
 
 /**
- * // NOTE: 비동기 방식에서는 OS 차원에서 open file 제한을 늘려야 합니다.
- * 참고: https://gist.github.com/tombigel/d503800a282fcadbee14b537735d202c
+ * [defaultAsyncHttpClient]에서 사용하는 기본 설정입니다.
+ *
+ * 참고: 고동시성 환경에서는 OS의 open-file 제한 상향이 필요할 수 있습니다.
  */
 val defaultAsyncHttpClientConfig: DefaultAsyncHttpClientConfig by lazy {
     DefaultAsyncHttpClientConfig.Builder()
@@ -38,15 +37,17 @@ val defaultAsyncHttpClientConfig: DefaultAsyncHttpClientConfig by lazy {
         .build()
 }
 
-/**
- * Default [AsyncHttpClient] instance
- */
+/** 공용 기본 [AsyncHttpClient] 인스턴스입니다. */
 val defaultAsyncHttpClient: AsyncHttpClient by unsafeLazy {
     Dsl.asyncHttpClient(defaultAsyncHttpClientConfig)
 }
 
 /**
- * [DefaultAsyncHttpClientConfig]를 생성합니다.
+ * 기본 권장값과 native transport 감지를 적용해 [DefaultAsyncHttpClientConfig]를 생성합니다.
+ *
+ * 기본값에는 compression, redirect, keep-alive, retry, socket 옵션이 포함됩니다.
+ *
+ * @param builder 기본값 적용 후 추가 커스터마이징 블록
  */
 inline fun asyncHttpClientConfig(
     @BuilderInference builder: DefaultAsyncHttpClientConfig.Builder.() -> Unit,
@@ -67,9 +68,7 @@ inline fun asyncHttpClientConfig(
         .build()
 }
 
-/**
- * HTTP 처리에서 `asyncHttpClientConfigOf` 함수를 제공합니다.
- */
+/** request/response filter를 등록한 설정을 생성합니다. */
 fun asyncHttpClientConfigOf(
     requestFilters: Collection<RequestFilter> = emptyList(),
     responseFilters: Collection<ResponseFilter> = emptyList(),
@@ -80,45 +79,25 @@ fun asyncHttpClientConfigOf(
     }
 
 /**
- * 새로운 [AsyncHttpClient]를 생성합니다.
+ * [asyncHttpClientConfig]의 기본값을 적용하고 [builder]로 덮어쓴 뒤 [AsyncHttpClient]를 생성합니다.
  *
- * ```
- * val ahc = asyncHttpClient {
- *      setCompressionEnforced(true)
- *      setKeeyAlive(true)
- *      setMaxRedirects(5)
- *      setMaxRequestRetry(3)
- * }
- * ```
- *
- * @param builder methods of [DefaultAsyncHttpClientConfig.Builder] that customize resulting AsyncHttpClient
- * @return [AsyncHttpClient] 인스턴스
+ * @param builder [DefaultAsyncHttpClientConfig.Builder] 커스터마이징 블록
+ * @return 새 [AsyncHttpClient] 인스턴스
  */
 inline fun asyncHttpClient(
     @BuilderInference builder: DefaultAsyncHttpClientConfig.Builder.() -> Unit,
 ): AsyncHttpClient {
-    val configBuilder = DefaultAsyncHttpClientConfig.Builder().apply(builder)
-    return Dsl.asyncHttpClient(configBuilder)
+    return Dsl.asyncHttpClient(asyncHttpClientConfig(builder))
 }
 
-/**
- * RequestFilter들을 등록한 [AsyncHttpClient] 를 제공합니다.
- *
- * @param config [AsyncHttpClientConfig] instance
- * @return [AsyncHttpClient] instance
- */
+/** [config]를 사용해 [AsyncHttpClient]를 생성합니다. */
 inline fun asyncHttpClientOf(
     config: AsyncHttpClientConfig = defaultAsyncHttpClientConfig,
 ): AsyncHttpClient {
     return Dsl.asyncHttpClient(config)
 }
 
-/**
- * RequestFilter들을 등록한 [AsyncHttpClient] 를 제공합니다.
- *
- * @param requestFilters request filters
- * @return [AsyncHttpClient] instance
- */
+/** 지정한 request filter를 등록한 [AsyncHttpClient]를 생성합니다. */
 inline fun asyncHttpClientOf(vararg requestFilters: RequestFilter): AsyncHttpClient {
     val config = asyncHttpClientConfigOf(requestFilters.toFastList())
     return asyncHttpClientOf(config)

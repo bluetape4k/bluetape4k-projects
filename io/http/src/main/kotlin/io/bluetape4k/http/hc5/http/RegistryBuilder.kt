@@ -8,7 +8,7 @@ import org.apache.hc.core5.http.config.Registry
 import org.apache.hc.core5.http.config.RegistryBuilder
 
 /**
- * 새로운 [Registry]`<T>` 를 생성합니다.
+ * 새로운 [Registry]`<T>`를 생성합니다.
  *
  * ```
  * val registry = registry<ConnectionSocketFactory> {
@@ -18,7 +18,7 @@ import org.apache.hc.core5.http.config.RegistryBuilder
  * }
  * ```
  *
- * @param builder [RegistryBuilder] 를 초기화합니다.
+ * @param builder [RegistryBuilder] 설정 블록
  * @return [Registry]`<T>` 인스턴스
  */
 inline fun <T> registry(
@@ -27,7 +27,7 @@ inline fun <T> registry(
     RegistryBuilder.create<T>().apply(builder).build()
 
 /**
- * [Registry]`<T>` 를 생성합니다.
+ * 맵 데이터를 이용해 [Registry]`<T>`를 생성합니다.
  *
  * ```
  * val registry = registryOf(mapOf(
@@ -36,7 +36,7 @@ inline fun <T> registry(
  * ))
  * ```
  *
- * @param items [Registry]`<T>` 에 등록할 아이템들
+ * @param items [Registry]`<T>`에 등록할 항목
  * @return [Registry]`<T>` 인스턴스
  */
 fun <T> registryOf(items: Map<String, T>): Registry<T> = registry {
@@ -45,9 +45,7 @@ fun <T> registryOf(items: Map<String, T>): Registry<T> = registry {
     }
 }
 
-/**
- * 기본 [Registry]`<ConnectionSocketFactory>` 를 생성합니다.
- */
+/** 기본 [Registry]`<ConnectionSocketFactory>` 인스턴스입니다. */
 @Deprecated(message = "Deprecated ConnectionSocketFactory")
 val defaultSocketFactoryRegistry: Registry<ConnectionSocketFactory> by lazy {
     RegistryBuilder.create<ConnectionSocketFactory>()
@@ -57,14 +55,14 @@ val defaultSocketFactoryRegistry: Registry<ConnectionSocketFactory> by lazy {
 }
 
 /**
- * [ConnectionSocketFactory] 를 등록한 [Registry]`<ConnectionSocketFactory>` 를 생성합니다.
+ * [ConnectionSocketFactory]를 등록한 [Registry]`<ConnectionSocketFactory>`를 생성합니다.
  *
  * ```
  * val registry = registryOfConnectionSocketFactory()
  * ```
  *
- * @param plain [PlainConnectionSocketFactory] 를 등록합니다.
- * @param ssl [SSLConnectionSocketFactory] 를 등록합니다.
+ * @param plain HTTP 스킴용 소켓 팩토리
+ * @param ssl HTTPS 스킴용 소켓 팩토리
  * @return [Registry]`<ConnectionSocketFactory>` 인스턴스
  */
 @Deprecated(message = "Deprecated ConnectionSocketFactory")

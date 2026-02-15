@@ -45,7 +45,7 @@ class ClientConfiguration: AbstractHc5Test() {
     @Test
     fun `using client configuration`() {
 
-        // Create HTTP/1.1 protocol configuration
+        // HTTP/1.1 프로토콜 설정을 생성합니다.
         val h1Config = http1Config {
             setMaxHeaderCount(200)
             setMaxLineLength(2000)
@@ -74,10 +74,8 @@ class ClientConfiguration: AbstractHc5Test() {
             setCharset(Charsets.UTF_8)
         }
 
-        // Use a custom connection factory to customize the process of
-        // initialization of outgoing HTTP connections. Beside standard connection
-        // configuration parameters HTTP connection factory can define message
-        // parser / writer routines to be employed by individual connections.
+        // 사용자 정의 connection factory로 아웃바운드 HTTP 연결 초기화 과정을 커스터마이즈합니다.
+        // 표준 연결 설정 외에도 메시지 parser/writer 루틴을 연결별로 지정할 수 있습니다.
         val connFactory = managedHttpConnectionFactory {
             http1Config(h1Config)
             charCodingConfig(charCodingConfig)
@@ -85,17 +83,13 @@ class ClientConfiguration: AbstractHc5Test() {
             responseParserFactory(responseParserFactory)
         }
 
-        // Client HTTP connection objects when fully initialized can be bound to
-        // an arbitrary network socket. The process of network socket initialization,
-        // its connection to a remote address and binding to a local one is controlled
-        // by a connection socket factory.
+        // 초기화가 끝난 클라이언트 HTTP 연결 객체는 임의의 네트워크 소켓에 바인딩될 수 있습니다.
+        // 소켓 초기화/원격 연결/로컬 바인딩 과정은 connection socket factory가 제어합니다.
 
-        // SSL context for secure connections can be created either based on
-        // system or application specific properties.
+        // 보안 연결용 SSL context는 시스템 또는 애플리케이션 설정 기반으로 생성할 수 있습니다.
 //        val sslContext = sslContextOfSystem()
 
-        // Create a registry of custom connection socket factories for supported
-        // protocol schemes.
+        // 지원 프로토콜 스킴별 사용자 정의 connection socket factory registry 예시입니다.
 //        val socketFactoryRegistry = registry {
 //            register("http", PlainConnectionSocketFactory.INSTANCE)
 //            register("https", SSLConnectionSocketFactory(sslContext))
@@ -107,7 +101,7 @@ class ClientConfiguration: AbstractHc5Test() {
 //            )
 //        )
 
-        // Use custom DNS resolver to override the system DNS resolution.
+        // 시스템 DNS 해석을 대체할 사용자 정의 DNS resolver를 사용합니다.
         val dnsResolver = object: SystemDefaultDnsResolver() {
             override fun resolve(host: String): Array<InetAddress> {
                 return if (host.equals("myhost", ignoreCase = true)) {
@@ -118,7 +112,7 @@ class ClientConfiguration: AbstractHc5Test() {
             }
         }
 
-        // Create a connection manager with custom configuration.
+        // 사용자 정의 설정으로 connection manager를 생성합니다.
         val connManager = PoolingHttpClientConnectionManagerBuilder.create()
             .setConnectionFactory(connFactory)
             .setDnsResolver(dnsResolver)
@@ -144,11 +138,10 @@ class ClientConfiguration: AbstractHc5Test() {
 //            connFactory
 //        )
 
-        // Configure the connection manager to use socket configuration either
-        // by default or for a specific host.
+        // connection manager에 기본 또는 특정 호스트별 소켓 설정을 적용할 수 있습니다.
         // connManager.defaultSocketConfig = socketConfig { setTcpNoDelay(true) }
 
-        // Validate connection after 10 sec of inactivity
+        // 10초 유휴 후 연결 유효성 검사 예시
 //        connManager.setDefaultConnectionConfig(
 //            connectionConfig {
 //                setConnectTimeout(Timeout.ofSeconds(30))
@@ -158,7 +151,7 @@ class ClientConfiguration: AbstractHc5Test() {
 //            }
 //        )
 
-        // Use TLS v1.3 only
+        // TLS 버전 설정
         connManager.setDefaultTlsConfig(
             tlsConfig {
                 setHandshakeTimeout(Timeout.ofSeconds(30))
@@ -166,17 +159,16 @@ class ClientConfiguration: AbstractHc5Test() {
             }
         )
 
-        // Configure total max or per route limits for persistent connections
-        // that can be kept in the pool or leased by the connection manager.
+        // 풀에 유지되거나 lease될 지속 연결의 전체/라우트별 최대값을 설정합니다.
         connManager.maxTotal = 100
         connManager.defaultMaxPerRoute = 10
         connManager.setMaxPerRoute(HttpRoute(HttpHost("somehost", 80)), 20)
 
-        // Use custom cookie store if necessary.
+        // 필요 시 사용자 정의 cookie store를 사용합니다.
         val cookieStore = BasicCookieStore()
-        // Use custom credentials provider if neccessary
+        // 필요 시 사용자 정의 credentials provider를 사용합니다.
         val credentialsProvider = emptyCredentialsProvider()  //CredentialsProviderBuilder.create().build()
-        // Create global request configuration
+        // 전역 요청 설정을 생성합니다.
         val defaultRequestConfig = requestConfig {
             setCookieSpec(StandardCookieSpec.STRICT)
             setExpectContinueEnabled(true)
@@ -184,7 +176,7 @@ class ClientConfiguration: AbstractHc5Test() {
             setProxyPreferredAuthSchemes(listOf(StandardAuthScheme.BASIC))
         }
 
-        // Create an HttpClient with the given custom dependencies and configuration.
+        // 위에서 구성한 의존성과 설정으로 HttpClient를 생성합니다.
 
         val httpclient = httpClient { // HttpClients.custom()
             setConnectionManager(connManager)
@@ -197,16 +189,14 @@ class ClientConfiguration: AbstractHc5Test() {
         httpclient.use {
             val httpget = HttpGet("$httpbinBaseUrl/get")
 
-            // Request configuration can be overridden at the request level.
-            // They will take precedence over the one set at the client level.
+            // 요청 단위 설정은 클라이언트 단위 설정보다 우선합니다.
             val requestConfig = RequestConfig.copy(defaultRequestConfig)
                 .setConnectionRequestTimeout(Timeout.ofSeconds(5))
                 .build()
             httpget.config = requestConfig
 
-            // Execution context can be customized locally.
-            // Contextual attributes set the local context level will take
-            // precedence over those set at the client level.
+            // 실행 컨텍스트는 로컬에서 커스터마이즈할 수 있으며,
+            // 로컬 컨텍스트 속성이 클라이언트 컨텍스트보다 우선합니다.
             val context = ContextBuilder.create()
                 .useCookieStore(cookieStore)
                 .useCredentialsProvider(credentialsProvider)
@@ -217,22 +207,22 @@ class ClientConfiguration: AbstractHc5Test() {
             val response = httpclient.execute(httpget, context) { it }
             response.entity.consume()
 
-            // Last executed request
+            // 마지막 실행 요청
             log.debug { "request = ${context.request}" }
 
-            // Execution route
+            // 실행 라우트
             log.debug { "http route = ${context.httpRoute}" }
 
-            // Auth exchanges
+            // 인증 교환 정보
             log.debug { "auth exchanges = ${context.authExchanges}" }
 
-            // Cookie origin
+            // 쿠키 원본
             log.debug { "cookie origin = ${context.cookieOrigin}" }
 
-            // Cookie spec used
+            // 사용된 쿠키 스펙
             log.debug { "cookie spec = ${context.cookieSpec}" }
 
-            // User security token
+            // 사용자 보안 토큰
             log.debug { "user token = ${context.userToken}" }
 
             log.debug { "context=$context" }

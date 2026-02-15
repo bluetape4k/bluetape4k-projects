@@ -1,8 +1,8 @@
 package io.bluetape4k.http.ahc
 
-import io.bluetape4k.concurrent.allAsList
 import io.bluetape4k.concurrent.onFailure
 import io.bluetape4k.concurrent.onSuccess
+import io.bluetape4k.concurrent.sequence
 import io.bluetape4k.http.AbstractHttpTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
@@ -86,7 +86,7 @@ class AsyncHttpClientTest: AbstractHttpTest() {
                 }
         }
 
-        futures.allAsList().join()
+        futures.sequence().join()
     }
 
     private suspend fun suspendExecuteGet(ahc: AsyncHttpClient, count: Int = TEST_SIZE) = coroutineScope {
@@ -94,7 +94,7 @@ class AsyncHttpClientTest: AbstractHttpTest() {
             launch(Dispatchers.IO) {
                 val response = ahc
                     .prepareGet(JSON_PLACEHOLDER_TODOS_URL)
-                    .suspendExecute()
+                    .executeSuspending()
 
                 response.statusCode shouldBeEqualTo 200
                 response.hasResponseBody().shouldBeTrue()

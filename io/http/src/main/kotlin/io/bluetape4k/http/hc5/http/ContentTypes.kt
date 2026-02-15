@@ -2,9 +2,7 @@ package io.bluetape4k.http.hc5.http
 
 import org.apache.hc.core5.http.ContentType
 
-/**
- * 추가 [ContentType]을 제공합니다.
- */
+/** 자주 사용하는 추가 [ContentType] 모음을 제공합니다. */
 object ContentTypes {
 
     /**

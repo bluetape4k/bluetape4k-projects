@@ -1,8 +1,7 @@
 package io.bluetape4k.http.hc5.examples
 
-import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.http.hc5.AbstractHc5Test
-import io.bluetape4k.http.hc5.async.execute
+import io.bluetape4k.http.hc5.async.executeSuspending
 import io.bluetape4k.http.hc5.async.httpAsyncClient
 import io.bluetape4k.http.hc5.async.methods.simpleHttpRequest
 import io.bluetape4k.http.hc5.reactor.ioReactorConfig
@@ -47,18 +46,18 @@ class AsyncClientConnectionEviction: AbstractHc5Test() {
 
             log.debug { "Executing request $request" }
 
-            val response = client.execute(request, null).suspendAwait()
+            val response = client.executeSuspending(request)
 
             log.debug { "$request -> ${StatusLine(response)}" }
             log.debug { response.body }
 
             delay(5.seconds)
 
-            // Previous connection should get evicted from the pool by now
+            // 이 시점에는 이전 연결이 풀에서 제거되어야 합니다.
 
             log.debug { "Executing request2 $request" }
 
-            val response2 = client.execute(request)
+            val response2 = client.executeSuspending(request)
 
             log.debug { "$request -> ${StatusLine(response2)}" }
             log.debug { response2.body }

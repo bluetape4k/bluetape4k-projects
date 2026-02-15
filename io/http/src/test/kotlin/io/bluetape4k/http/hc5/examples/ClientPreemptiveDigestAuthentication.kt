@@ -17,15 +17,12 @@ import org.apache.hc.client5.http.impl.auth.DigestScheme
 import org.apache.hc.core5.http.message.StatusLine
 import org.junit.jupiter.api.Test
 
-/**
- * nghttp2.org/httpbin 에서 제공하는 HTTP Basic Authentication 예제입니다.
- */
+/** 로컬 httpbin 서버를 사용한 선인증(Preemptive Authentication) 예제입니다. */
 class ClientPreemptiveDigestAuthentication: AbstractHc5Test() {
 
     companion object: KLogging()
 
-    private val httpbinHost = "https://nghttp2.org"
-    private val httpbinBaseUrl = "$httpbinHost/httpbin"
+    private val localHttpbinBaseUrl get() = httpbinBaseUrl
     private val username = "debop"
     private val password = "bluetape4k"
 
@@ -33,7 +30,7 @@ class ClientPreemptiveDigestAuthentication: AbstractHc5Test() {
     fun `use preemptive basic authentication`() {
 
         val httpclient = httpClientOf()
-        val httpHost = httpHostOf(httpbinHost)
+        val httpHost = httpHostOf(localHttpbinBaseUrl)
 
         httpclient.use {
             val localContext = httpClientContext {
@@ -43,7 +40,7 @@ class ClientPreemptiveDigestAuthentication: AbstractHc5Test() {
                     }
                 )
             }
-            val request = HttpGet("$httpbinBaseUrl/basic-auth/$username/$password")
+            val request = HttpGet("$localHttpbinBaseUrl/basic-auth/$username/$password")
             log.debug { "Execute request ${request.method} ${request.uri}" }
 
             repeat(1) {
@@ -69,7 +66,7 @@ class ClientPreemptiveDigestAuthentication: AbstractHc5Test() {
     fun `use preemptive basic authentication in multi threading`() {
 
         val httpclient = httpClientOf()
-        val httpHost = httpHostOf(httpbinHost)
+        val httpHost = httpHostOf(localHttpbinBaseUrl)
 
         val localContextStorage = ThreadLocal.withInitial {
             httpClientContext {
@@ -88,7 +85,7 @@ class ClientPreemptiveDigestAuthentication: AbstractHc5Test() {
                 .add {
                     val localContext = localContextStorage.get()
 
-                    val request = HttpGet("$httpbinBaseUrl/basic-auth/$username/$password")
+                    val request = HttpGet("$localHttpbinBaseUrl/basic-auth/$username/$password")
                     log.debug { "Execute request ${request.method} ${request.uri}" }
 
                     httpclient.execute(request, localContext) { response ->

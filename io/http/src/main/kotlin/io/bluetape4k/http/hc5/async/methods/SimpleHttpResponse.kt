@@ -15,7 +15,7 @@ import org.apache.hc.core5.http.ContentType
  * }
  * ```
  *
- * @param status HTTP Status Code
+ * @param status HTTP 상태 코드
  * @param builder [SimpleResponseBuilder] 초기화 람다
  * @return [SimpleHttpResponse] 인스턴스
  */
@@ -33,9 +33,9 @@ inline fun simpleHttpResponse(
  * val response = simpleHttpResponseOf(200, "Hello, World!")
  * ```
  *
- * @param status HTTP Status Code
+ * @param status HTTP 상태 코드
  * @param content 응답 본문
- * @param contentType 응답 Content-Type
+ * @param contentType 응답 콘텐츠 타입
  * @param builder [SimpleResponseBuilder] 초기화 람다
  * @return [SimpleHttpResponse] 인스턴스
  */
@@ -57,9 +57,9 @@ inline fun simpleHttpResponseOf(
  * val response = simpleHttpResponseOf(200, "Hello, World!".toUtf8Bytes())
  * ```
  *
- * @param status HTTP Status Code
+ * @param status HTTP 상태 코드
  * @param content 응답 본문 (ByteArray)
- * @param contentType 응답 Content-Type
+ * @param contentType 응답 콘텐츠 타입
  * @param builder [SimpleResponseBuilder] 초기화 람다
  * @return [SimpleHttpResponse] 인스턴스
  */

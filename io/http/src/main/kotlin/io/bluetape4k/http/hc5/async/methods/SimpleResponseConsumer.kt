@@ -3,7 +3,7 @@ package io.bluetape4k.http.hc5.async.methods
 import org.apache.hc.client5.http.async.methods.SimpleResponseConsumer
 
 /**
- * Apache HttpClient5의 SimpleResponseConsumer를 생성합니다.
+ * Apache HttpClient5의 [SimpleResponseConsumer]를 생성합니다.
  *
  * ```
  * val client = HttpAsyncClients.custom()
@@ -19,7 +19,7 @@ import org.apache.hc.client5.http.async.methods.SimpleResponseConsumer
  * client.execute(request, consumer, null)
  * ```
  *
- * @return SimpleResponseConsumer
+ * @return 생성된 [SimpleResponseConsumer]
  */
 fun simpleResponseConsumerOf(): SimpleResponseConsumer {
     return SimpleResponseConsumer.create()

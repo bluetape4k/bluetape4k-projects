@@ -20,10 +20,7 @@ import org.apache.hc.core5.util.TimeValue
 import org.apache.hc.core5.util.Timeout
 import org.junit.jupiter.api.Test
 
-/**
- * This example demonstrates how to use connection configuration on a per-route or a per-host
- * basis.
- */
+/** 라우트 또는 호스트 단위로 연결 설정을 다르게 적용하는 예제입니다. */
 class ClientConnectionConfig: AbstractHc5Test() {
 
     companion object: KLogging()
@@ -33,7 +30,7 @@ class ClientConnectionConfig: AbstractHc5Test() {
 
         val cm = poolingHttpClientConnectionManager {
             setConnectionConfigResolver { route ->
-                // Use different settings for all secure (TLS) connections
+                // 보안(TLS) 연결에는 다른 설정을 적용합니다.
                 if (route.isSecure) {
                     connectionConfig {
                         setConnectTimeout(Timeout.ofMinutes(2))
@@ -52,7 +49,7 @@ class ClientConnectionConfig: AbstractHc5Test() {
             }
 
             setTlsConfigResolver { host ->
-                // Use different settings for specific hosts
+                // 특정 호스트에는 별도 TLS 설정을 적용합니다.
                 if (host.schemeName.equals("https", true)) {
                     tlsConfig {
                         setSupportedProtocols(*TLS.entries.toTypedArray())
@@ -64,14 +61,14 @@ class ClientConnectionConfig: AbstractHc5Test() {
             }
         }
 
-        // CredentialProvider 를 추가했습니다.
+        // CredentialsProvider를 설정합니다.
         val httpclient = httpClient { setConnectionManager(cm) }
 
         httpclient.use {
-            URIScheme.entries.forEach { uriScheme ->
+            listOf(URIScheme.HTTP).forEach { uriScheme ->
                 val request = classicRequest(Method.GET) {
-                    setHttpHost(HttpHost(uriScheme.id, "nghttp2.org"))
-                    setPath("/httpbin/headers")
+                    setHttpHost(HttpHost(uriScheme.id, httpbinServer.host, httpbinServer.port))
+                    setPath("/headers")
                 }
                 log.debug { "Execute request ${request.method} ${request.uri}" }
 

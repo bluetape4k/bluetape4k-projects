@@ -8,7 +8,7 @@ import org.apache.hc.core5.http.message.BasicNameValuePair
 import java.nio.charset.Charset
 
 /**
- * Multi-part 포맷의 [HttpEntity]를 빌드합니다.
+ * 멀티파트 포맷의 [HttpEntity]를 빌드합니다.
  *
  * ```
  * val multipartEntity = multipartEntity {
@@ -27,7 +27,7 @@ inline fun multipartEntity(
     MultipartEntityBuilder.create().apply(builder).build()
 
 /**
- * Multi-part 포맷의 [HttpEntity]를 빌드합니다.
+ * 멀티파트 포맷의 [HttpEntity]를 빌드합니다.
  *
  * ```
  * val multipartEntity = multipartEntity(

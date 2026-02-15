@@ -13,9 +13,7 @@ import org.apache.hc.client5.http.impl.cache.HttpByteArrayCacheEntrySerializer
 import org.apache.hc.client5.http.impl.cache.NoopCacheEntrySerializer
 import javax.cache.Cache
 
-/**
- * Java Cache를 이용한 Http Entity를 캐시하는 [HttpCacheStorage] 구현체입니다.
- */
+/** Java 캐시를 이용해 HTTP 엔터티를 저장하는 [HttpCacheStorage] 구현체입니다. */
 class JavaCacheHttpCacheStorage<T>(
     private val cache: Cache<String, T>,
     config: CacheConfig = CacheConfig.DEFAULT,

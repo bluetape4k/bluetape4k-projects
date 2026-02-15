@@ -24,7 +24,7 @@ class ClientWithRequestFuture: AbstractHc5Test() {
 
     @Test
     fun `client with request future`() {
-        // the simplest way to create a HttpAsyncClientWithFuture
+        // HttpAsyncClientWithFuture를 구성하는 가장 단순한 방법
         val cm = httpClientConnectionManager {
             setMaxConnPerRoute(5)
             setMaxConnTotal(5)
@@ -34,19 +34,19 @@ class ClientWithRequestFuture: AbstractHc5Test() {
         val executor = Executors.newFixedThreadPool(5)
 
         futureRequestExecutionServiceOf(httpclient, executor).use { requestExecService ->
-            // Because things are asynchronous, you must provide a HttpClientResponseHandler
+            // 비동기 실행이므로 HttpClientResponseHandler를 제공해야 합니다.
             val handler = HttpClientResponseHandler { response ->
-                // simply return true if the status was OK
+                // 상태 코드가 OK면 true 반환
                 response.code == HttpStatus.SC_OK
             }
 
-            // Simple request ..
+            // 기본 요청
             val request1 = HttpGet("$httpbinBaseUrl/get")
             val futureTask1 = requestExecService.execute(request1, httpClientContextOf(), handler)
             val wasItOk1 = futureTask1.get()
             log.debug { "It was ok? $wasItOk1" }
 
-            // Cancel a request
+            // 요청 취소
             try {
                 val request2 = HttpGet("$httpbinBaseUrl/get")
                 val futureTask2 = requestExecService.execute(request2, httpClientContextOf(), handler)
@@ -56,10 +56,10 @@ class ClientWithRequestFuture: AbstractHc5Test() {
                 log.debug { "It was ok? $wasItOk2" }
                 fail("여기까지 실행되면 안됩니다. 작업이 취소되어야 합니다.")
             } catch (e: CancellationException) {
-                log.debug { "We cancelled it, so this is expected" }
+                log.debug { "취소 후 예외가 발생하는 것이 정상 동작입니다." }
             }
 
-            // Request with a timeout
+            // 타임아웃이 있는 요청
             val request3 = HttpGet("$httpbinBaseUrl/get")
             val futureTask3 = requestExecService.execute(request3, httpClientContextOf(), handler)
             val wasItOk3 = futureTask3.get(10, TimeUnit.SECONDS)
@@ -79,11 +79,11 @@ class ClientWithRequestFuture: AbstractHc5Test() {
                 }
             }
 
-            // Simple request with callback
+            // 콜백 기반 요청
             val request4 = HttpGet("$httpbinBaseUrl/get")
 
-            // using a null HttpContext here since it is optional
-            // the callback will be called when the task completes, fails, or is cancelled
+            // HttpContext는 선택 사항이므로 null 대신 기본 컨텍스트를 사용합니다.
+            // 콜백은 완료/실패/취소 시 호출됩니다.
             val futureTask4 = requestExecService.execute(request4, httpClientContextOf(), handler, callback)
             val wasItOk4 = futureTask4.get(10, TimeUnit.SECONDS)
             log.debug { "It was ok? $wasItOk4" }

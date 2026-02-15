@@ -7,7 +7,7 @@ import org.apache.hc.core5.http.nio.support.BasicRequestProducer
 import java.net.URI
 
 /**
- * [BasicHttpRequest] 를 [BasicRequestProducer] 로 변환합니다.
+ * [BasicHttpRequest]를 [BasicRequestProducer]로 변환합니다.
  */
 fun BasicHttpRequest.toProducer(): BasicRequestProducer = basicRequestProducerOf(this)
 
@@ -20,7 +20,7 @@ fun BasicHttpRequest.toProducer(): BasicRequestProducer = basicRequestProducerOf
  * ```
  *
  * @param request [BasicHttpRequest] 기본 요청 정보
- * @param dataProducer [AsyncEntityProducer] 인스턴스
+ * @param dataProducer 요청 본문 생성기
  * @return [BasicRequestProducer] 인스턴스
  */
 fun basicRequestProducerOf(
@@ -36,9 +36,9 @@ fun basicRequestProducerOf(
  * val producer = basicRequestProducerOf(Method.GET, URI.create("http://localhost:8080"))
  * ```
  *
- * @param method [Method] HTTP Method
- * @param uri [URI] 요청 URI
- * @param dataProducer [AsyncEntityProducer] 인스턴스
+ * @param method [Method] HTTP 메서드
+ * @param uri 요청 URI
+ * @param dataProducer 요청 본문 생성기
  * @return [BasicRequestProducer] 인스턴스
  */
 fun basicRequestProducerOf(
@@ -56,9 +56,9 @@ fun basicRequestProducerOf(
  * val producer = basicRequestProducerOf("GET", URI.create("http://localhost:8080"), entityProducer)
  * ```
  *
- * @param methodName [String] HTTP Method 이름
- * @param uri [URI] 요청 URI
- * @param dataProducer [AsyncEntityProducer] 인스턴스
+ * @param methodName HTTP 메서드 이름
+ * @param uri 요청 URI
+ * @param dataProducer 요청 본문 생성기
  * @return [BasicRequestProducer] 인스턴스
  */
 fun basicRequestProducerOf(

@@ -4,9 +4,7 @@ import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder
 import org.apache.hc.client5.http.io.HttpClientConnectionManager
 
-/**
- * 기본 [HttpClientConnectionManager] instance
- */
+/** 기본 [HttpClientConnectionManager] 인스턴스입니다. */
 @JvmField
 val defaultHttpClientConnectionManager: PoolingHttpClientConnectionManager =
     PoolingHttpClientConnectionManagerBuilder.create().build()
@@ -22,8 +20,8 @@ val defaultHttpClientConnectionManager: PoolingHttpClientConnectionManager =
  * val httpClient = httpClient { setConnectionManager(cm) }
  * ```
  *
- * @param builder [PoolingHttpClientConnectionManagerBuilder] 를 초기화하는 람다 함수
- * @return [HttpClientConnectionManager] instance
+ * @param builder [PoolingHttpClientConnectionManagerBuilder] 초기화 람다
+ * @return [HttpClientConnectionManager] 인스턴스
  */
 inline fun httpClientConnectionManager(
     @BuilderInference builder: PoolingHttpClientConnectionManagerBuilder.() -> Unit,

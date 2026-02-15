@@ -2,7 +2,7 @@ package io.bluetape4k.http.hc5.examples
 
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.async.asyncClientConnectionManager
-import io.bluetape4k.http.hc5.async.execute
+import io.bluetape4k.http.hc5.async.executeSuspending
 import io.bluetape4k.http.hc5.async.httpAsyncClientOf
 import io.bluetape4k.http.hc5.async.methods.simpleHttpRequest
 import io.bluetape4k.http.hc5.ssl.sslContext
@@ -15,9 +15,17 @@ import org.apache.hc.client5.http.protocol.HttpClientContext
 import org.apache.hc.core5.http.HttpHost
 import org.apache.hc.core5.http.Method
 import org.apache.hc.core5.http.message.StatusLine
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import java.security.cert.X509Certificate
 
+/**
+ * 외부 TLS 인증서 검증 테스트를 위해 `nghttp2.org`가 필요합니다.
+ * 기본값에서는 비활성화되며, `-Dbluetape4k.test.external-network=true`로 활성화할 수 있습니다.
+ */
+@Tag("external-network")
+@EnabledIfSystemProperty(named = "bluetape4k.test.external-network", matches = "true")
 class AsyncClientCustomSSL: AbstractHc5Test() {
 
     companion object: KLoggingChannel()
@@ -49,7 +57,7 @@ class AsyncClientCustomSSL: AbstractHc5Test() {
 
             log.debug { "Executing request $request" }
 
-            val response = client.execute(request, context = clientContext)
+            val response = client.executeSuspending(request, context = clientContext)
 
             log.debug { "$request -> ${StatusLine(response)}" }
             log.debug { response.body }

@@ -5,13 +5,13 @@ import org.apache.hc.core5.http.HttpHost
 import org.apache.hc.core5.net.URIAuthority
 
 /**
- * ConfigurableHttpRequest를 생성합니다.
+ * [ConfigurableHttpRequest]를 생성합니다.
  *
  * ```
  * val request = configurableHttpRequestOf("GET", "http://localhost:8080/api/v1")
  * ```
  *
- * @param method HTTP Method
+ * @param method HTTP 메서드 이름
  * @param host [HttpHost] 정보
  * @param path 요청 경로
  * @return [ConfigurableHttpRequest] 인스턴스
@@ -25,13 +25,13 @@ fun configurableHttpRequestOf(
 }
 
 /**
- * ConfigurableHttpRequest를 생성합니다.
+ * [ConfigurableHttpRequest]를 생성합니다.
  *
  * ```
  * val request = configurableHttpRequestOf("GET", "http://localhost:8080/api/v1")
  * ```
  *
- * @param method HTTP Method
+ * @param method HTTP 메서드 이름
  * @param scheme 스키마 정보
  * @param authority [URIAuthority] 정보
  * @param path 요청 경로

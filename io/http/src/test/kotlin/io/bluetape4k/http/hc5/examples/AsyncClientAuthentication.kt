@@ -1,7 +1,7 @@
 package io.bluetape4k.http.hc5.examples
 
 import io.bluetape4k.http.hc5.AbstractHc5Test
-import io.bluetape4k.http.hc5.async.execute
+import io.bluetape4k.http.hc5.async.executeSuspending
 import io.bluetape4k.http.hc5.async.httpAsyncClient
 import io.bluetape4k.http.hc5.async.methods.simpleHttpRequest
 import io.bluetape4k.http.hc5.auth.credentialsProviderOf
@@ -40,7 +40,7 @@ class AsyncClientAuthentication: AbstractHc5Test() {
 
         log.debug { "Executing request $request" }
 
-        val response = httpclient.execute(request)
+        val response = httpclient.executeSuspending(request)
 
         log.debug { "$request -> ${StatusLine(response)}" }
         log.debug { response.body }

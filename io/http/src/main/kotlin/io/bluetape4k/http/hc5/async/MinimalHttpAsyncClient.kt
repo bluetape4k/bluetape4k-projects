@@ -31,7 +31,7 @@ val defaultMinimalHttpAsyncClient: MinimalHttpAsyncClient = HttpAsyncClients.cre
 val defaultMinimalH2AsyncClient: MinimalH2AsyncClient = HttpAsyncClients.createHttp2Minimal()
 
 /**
- * 고급 HTTP protocol 기능 없이 간단한 HTTP/1.1과 HTTP/2 메시진 전송용 [MinimalHttpAsyncClient] 인스턴스를 생성합니다.
+ * 고급 HTTP 프로토콜 기능 없이 HTTP/1.1 및 HTTP/2 메시지를 전송하는 [MinimalHttpAsyncClient] 인스턴스를 생성합니다.
  *
  * ```
  * val client = minimalHttpAsyncClient(
@@ -62,7 +62,7 @@ fun minimalHttpAsyncClientOf(
 }
 
 /**
- * 고급 HTTP protocol 기능 없이 간단한 HTTP/1.1과 HTTP/2 메시진 전송용 [MinimalH2AsyncClient] 인스턴스를 생성합니다.
+ * 고급 HTTP 프로토콜 기능 없이 HTTP/1.1 및 HTTP/2 메시지를 전송하는 [MinimalH2AsyncClient] 인스턴스를 생성합니다.
  *
  * ```
  * val client = minimalH2AsyncClientOf(
@@ -96,13 +96,16 @@ fun minimalH2AsyncClientOf(
  * @param callback [FutureCallback] 콜백
  * @return [AsyncClientEndpoint] 인스턴스
  */
-@Deprecated("use suspendLease instead", replaceWith = ReplaceWith("suspendLease(host,context,callback)"))
-suspend inline fun MinimalHttpAsyncClient.leaseSuspending(
+@Deprecated(
+    "leaseSuspending(host, context, callback)을 사용하세요.",
+    ReplaceWith("this.leaseSuspending(host, context, callback)")
+)
+suspend inline fun MinimalHttpAsyncClient.suspendLease(
     host: HttpHost,
     context: HttpContext = HttpClientContext.create(),
     @BuilderInference callback: FutureCallback<AsyncClientEndpoint>? = null,
 ): AsyncClientEndpoint {
-    return lease(host, context, callback).suspendAwait()
+    return leaseSuspending(host, context, callback)
 }
 
 /**
@@ -113,7 +116,7 @@ suspend inline fun MinimalHttpAsyncClient.leaseSuspending(
  * @param callback [FutureCallback] 콜백
  * @return [AsyncClientEndpoint] 인스턴스
  */
-suspend inline fun MinimalHttpAsyncClient.suspendLease(
+suspend inline fun MinimalHttpAsyncClient.leaseSuspending(
     host: HttpHost,
     context: HttpContext = HttpClientContext.create(),
     @BuilderInference callback: FutureCallback<AsyncClientEndpoint>? = null,

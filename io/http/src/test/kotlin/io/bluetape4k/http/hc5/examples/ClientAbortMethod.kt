@@ -31,7 +31,7 @@ class ClientAbortMethod: AbstractHc5Test() {
                 log.debug { "Execute request ${httpget.method} ${httpget.uri}" }
                 executed.set(true)
 
-                // abort 되면 RequestFailedException 예외가 발생합니다.
+                // abort 시 RequestFailedException 예외가 발생합니다.
                 assertFails {
                     httpclient.execute(httpget) { response ->
                         log.debug { "-------------------" }

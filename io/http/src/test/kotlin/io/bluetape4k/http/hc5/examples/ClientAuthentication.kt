@@ -12,10 +12,7 @@ import org.apache.hc.core5.http.HttpHost
 import org.apache.hc.core5.http.message.StatusLine
 import org.junit.jupiter.api.Test
 
-/**
- * A simple example that uses HttpClient to execute an HTTP request against
- * a target site that requires user authentication.
- */
+/** 사용자 인증이 필요한 대상 서버에 요청하는 HttpClient 예제입니다. */
 class ClientAuthentication: AbstractHc5Test() {
 
     companion object: KLogging()
@@ -25,7 +22,7 @@ class ClientAuthentication: AbstractHc5Test() {
 
         val httpHost = HttpHost(httpbinServer.host, httpbinServer.port)
 
-        // CredentialProvider 를 추가했습니다.
+        // CredentialsProvider를 설정합니다.
         val httpclient = httpClient {
             setDefaultCredentialsProvider(
                 credentialsProviderOf(httpHost, "user", "passwd".toCharArray())

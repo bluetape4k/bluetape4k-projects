@@ -14,7 +14,7 @@ import org.apache.hc.core5.http.support.BasicResponseBuilder
  * }
  * ```
  *
- * @param status [Int] HTTP Status Code
+ * @param status [Int] HTTP 상태 코드
  * @param builder [BasicResponseBuilder] 초기화 람다
  * @return [BasicHttpResponse] 인스턴스
  */

@@ -15,10 +15,8 @@ import org.apache.hc.core5.util.Timeout
 import org.junit.jupiter.api.Test
 
 /**
- * This example demonstrates how the he HttpClient fluent API can be used to execute multiple
- * requests within the same security context. The Executor class maintains a common context shared
- * by all requests executed with it. The Executor is thread-safe and can be used to execute
- * requests concurrently from multiple threads of execution.
+ * HttpClient Fluent API에서 동일한 보안 컨텍스트를 공유하며
+ * 여러 요청을 실행하는 예제입니다.
  */
 @TempFolderTest
 class FluentExecutorExamples: AbstractHc5Test() {
@@ -27,12 +25,11 @@ class FluentExecutorExamples: AbstractHc5Test() {
 
     private val executor: Executor = Executor.newInstance()
         .auth(httpHostOf(httpbinBaseUrl), "user", "passwd".toCharArray())
-        .auth(httpHostOf("https://nghttp2.org"), "user", "passwd".toCharArray())
         .authPreemptive(httpHostOf(httpbinBaseUrl))
 
     @Test
     fun `get with timeout settings`() {
-        // Execute a GET with timeout settings and return response content as String.
+        // 타임아웃 설정이 있는 GET 요청을 실행하고 문자열 응답을 받습니다.
         val content = executor
             .execute(
                 requestGet("$httpbinBaseUrl/basic-auth/user/passwd")
@@ -46,8 +43,7 @@ class FluentExecutorExamples: AbstractHc5Test() {
 
     @Test
     fun `post with HTTP 1_1`() {
-        // Execute a POST with the 'expect-continue' handshake, using HTTP/1.1,
-        // containing a request body as String and return response content as byte array.
+        // HTTP/1.1 + expect-continue 핸드셰이크로 POST 요청을 보내고 바이트 배열 응답을 받습니다.
         val contentBytes = executor
             .execute(
                 requestPost("$httpbinBaseUrl/post")
@@ -63,8 +59,7 @@ class FluentExecutorExamples: AbstractHc5Test() {
 
     @Test
     fun `post multi-part form data`(tempFolder: TempFolder) {
-        // Execute a POST with a custom header through the proxy containing a request body
-        // as an HTML form and save the result to the file
+        // 커스텀 헤더와 HTML 폼 본문을 포함한 POST 요청 결과를 파일에 저장합니다.
         // @see hc5/examples/ClientMultipartFormPost
         val path = tempFolder.createFile()
         executor

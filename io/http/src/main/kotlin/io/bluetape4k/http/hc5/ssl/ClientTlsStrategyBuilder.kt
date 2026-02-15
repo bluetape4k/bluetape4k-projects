@@ -41,10 +41,10 @@ inline fun tlsStrategy(
  * ```
  *
  * @param sslContext [SSLContext]
- * @param tlsVersions TLS Versions
- * @param ciphers Ciphers
- * @param sslBufferMode SSL Buffer Mode
- * @param hostnameVerifier Hostname Verifier
+ * @param tlsVersions TLS 버전 목록
+ * @param ciphers 암호화 스위트 목록
+ * @param sslBufferMode SSL 버퍼 모드
+ * @param hostnameVerifier 호스트명 검증기
  * @param builder [ClientTlsStrategyBuilder] 초기화 람다
  * @return [TlsStrategy]
  */

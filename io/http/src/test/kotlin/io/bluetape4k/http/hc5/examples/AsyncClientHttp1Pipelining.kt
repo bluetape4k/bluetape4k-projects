@@ -5,7 +5,7 @@ import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.async.asyncClientConnectionManager
 import io.bluetape4k.http.hc5.async.methods.simpleHttpRequestOf
 import io.bluetape4k.http.hc5.async.minimalHttpAsyncClientOf
-import io.bluetape4k.http.hc5.http.suspendExecute
+import io.bluetape4k.http.hc5.http.executeSuspending
 import io.bluetape4k.http.hc5.http.tlsConfig
 import io.bluetape4k.http.hc5.http.toProducer
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -40,7 +40,7 @@ class AsyncClientHttp1Pipelining: AbstractHc5Test() {
             val request = simpleHttpRequestOf(Method.GET, target, path)
             log.debug { "Executing request $request" }
 
-            endpoint.suspendExecute(
+            endpoint.executeSuspending(
                 request.toProducer(),
                 SimpleResponseConsumer.create()
             ).apply {

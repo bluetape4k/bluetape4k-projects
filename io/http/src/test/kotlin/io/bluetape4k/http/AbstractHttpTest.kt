@@ -7,9 +7,6 @@ import org.junit.jupiter.api.fail
 abstract class AbstractHttpTest {
 
     companion object: KLogging() {
-        const val HELLOWORLD_URL = "https://publicobject.com/helloworld.txt"
-        const val HTTPBIN_URL = "https://httpbin.org"
-        const val NGHTTP2_HTTPBIN_URL = "https://nghttp2.org/httpbin"
         const val JSON_PLACEHOLDER_URL = "https://jsonplaceholder.typicode.com"
         const val JSON_PLACEHOLDER_TODOS_URL = "$JSON_PLACEHOLDER_URL/todos"
 
@@ -21,6 +18,24 @@ abstract class AbstractHttpTest {
 
         @JvmStatic
         protected val httpbinBaseUrl by lazy { httpbinServer.url }
+
+        /**
+         * 외부 `publicobject.com` 대신 로컬 httpbin의 `/html` 응답을 사용합니다.
+         */
+        @JvmStatic
+        protected val HELLOWORLD_URL: String get() = "$httpbinBaseUrl/html"
+
+        /**
+         * 외부 `httpbin.org` 대신 로컬 Testcontainers httpbin URL을 사용합니다.
+         */
+        @JvmStatic
+        protected val HTTPBIN_URL: String get() = httpbinBaseUrl
+
+        /**
+         * 테스트 안정성을 위해 HTTP/2 전용 외부 URL도 로컬 httpbin URL로 매핑합니다.
+         */
+        @JvmStatic
+        protected val NGHTTP2_HTTPBIN_URL: String get() = httpbinBaseUrl
     }
 
     fun assertResponse(okResponse: okhttp3.Response?) {

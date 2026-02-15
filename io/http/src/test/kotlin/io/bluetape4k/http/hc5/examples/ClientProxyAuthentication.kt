@@ -16,8 +16,8 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 /**
- * A simple example that uses HttpClient to execute an HTTP request
- * over a secure connection tunneled through an authenticating proxy.
+ * 인증 프록시를 거치는 보안 터널 연결에서
+ * HttpClient로 HTTP 요청을 수행하는 예제입니다.
  */
 @Disabled("Proxy Server 가 실행되어야 합니다.")
 class ClientProxyAuthentication: AbstractHc5Test() {

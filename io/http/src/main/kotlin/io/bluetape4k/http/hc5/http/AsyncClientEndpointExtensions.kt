@@ -24,12 +24,19 @@ import org.apache.hc.core5.http.nio.AsyncResponseConsumer
  * @param request 요청 정보 [SimpleHttpRequest]
  * @return 응답 정보 [SimpleHttpResponse]
  */
-suspend inline fun AsyncClientEndpoint.suspendExecute(request: SimpleHttpRequest): SimpleHttpResponse =
+suspend inline fun AsyncClientEndpoint.executeSuspending(request: SimpleHttpRequest): SimpleHttpResponse =
     execute(
         request.toProducer(),
         SimpleResponseConsumer.create(),
         null
     ).suspendAwait()
+
+/**
+ * [executeSuspending]으로 대체되었습니다.
+ */
+@Deprecated("executeSuspending(request)를 사용하세요.", ReplaceWith("this.executeSuspending(request)"))
+suspend inline fun AsyncClientEndpoint.suspendExecute(request: SimpleHttpRequest): SimpleHttpResponse =
+    executeSuspending(request)
 
 /**
  * Coroutines 환경에서 [AsyncClientEndpoint]를 이용하여
@@ -49,9 +56,22 @@ suspend inline fun AsyncClientEndpoint.suspendExecute(request: SimpleHttpRequest
  * @param callback 응답 콜백 [FutureCallback]
  * @return 응답 정보 [T]
  */
-suspend inline fun <T: Any> AsyncClientEndpoint.suspendExecute(
+suspend inline fun <T: Any> AsyncClientEndpoint.executeSuspending(
     requestProducer: AsyncRequestProducer,
     responseConsumer: AsyncResponseConsumer<T>,
     callback: FutureCallback<T>? = null,
 ): T =
     execute(requestProducer, responseConsumer, callback).suspendAwait()
+
+/**
+ * [executeSuspending]으로 대체되었습니다.
+ */
+@Deprecated(
+    "executeSuspending(requestProducer, responseConsumer, callback)을 사용하세요.",
+    ReplaceWith("this.executeSuspending(requestProducer, responseConsumer, callback)")
+)
+suspend inline fun <T: Any> AsyncClientEndpoint.suspendExecute(
+    requestProducer: AsyncRequestProducer,
+    responseConsumer: AsyncResponseConsumer<T>,
+    callback: FutureCallback<T>? = null,
+): T = executeSuspending(requestProducer, responseConsumer, callback)

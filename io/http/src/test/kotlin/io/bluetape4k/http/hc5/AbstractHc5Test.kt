@@ -5,12 +5,12 @@ import io.bluetape4k.logging.KLogging
 
 abstract class AbstractHc5Test: AbstractHttpTest() {
 
-    companion object: KLogging() {
-        @JvmStatic
-        val urisToGet = listOf(
-            "http://hc.apache.org",
-            "http://hc.apache.org/httpcomponents-core-ga/",
-            "http://hc.apache.org/httpcomponents-client-ga/"
+    companion object: KLogging()
+
+    protected val urisToGet: List<String>
+        get() = listOf(
+            "$httpbinBaseUrl/get",
+            "$httpbinBaseUrl/ip",
+            "$httpbinBaseUrl/headers"
         )
-    }
 }

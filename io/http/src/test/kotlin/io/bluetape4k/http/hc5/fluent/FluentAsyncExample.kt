@@ -25,23 +25,22 @@ import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.atomic.AtomicInteger
 
-/**
- * This example demonstrates how the he HttpClient fluent API can be used to execute multiple
- * requests asynchronously using background threads.
- */
+/** HttpClient Fluent API로 여러 요청을 비동기로 실행하는 예제입니다. */
 class FluentAsyncExample: AbstractHc5Test() {
 
     companion object: KLoggingChannel()
 
-    val requests = listOf(
-        requestGet("https://www.naver.com/"),
-        requestGet("https://www.daum.net/"),
-        requestGet("https://www.chosun.com/"),
-        requestGet("https://news.kbs.co.kr/news/pc/main/main.html"),
-        requestGet("https://www.ytn.co.kr/"),
-        requestGet("https://www.mbc.co.kr/"),
-        requestGet("https://www.sbs.co.kr/"),
-    )
+    val requests by lazy {
+        listOf(
+            requestGet("$httpbinBaseUrl/get?site=1"),
+            requestGet("$httpbinBaseUrl/get?site=2"),
+            requestGet("$httpbinBaseUrl/ip"),
+            requestGet("$httpbinBaseUrl/headers"),
+            requestGet("$httpbinBaseUrl/user-agent"),
+            requestGet("$httpbinBaseUrl/uuid"),
+            requestGet("$httpbinBaseUrl/get?site=7"),
+        )
+    }
 
     @Test
     fun `execute multiple request asynchronously`() {
@@ -61,7 +60,7 @@ class FluentAsyncExample: AbstractHc5Test() {
                     }
 
                     override fun cancelled() {
-                        log.debug { "Cancelled." }
+                        log.debug { "요청이 취소되었습니다." }
                     }
                 })
                 queue.add(future)
@@ -72,7 +71,7 @@ class FluentAsyncExample: AbstractHc5Test() {
                 try {
                     future.get()
                 } catch (ex: ExecutionException) {
-                    // Nothing to do
+                    // 무시
                 }
             }
             log.debug { "Done" }
@@ -94,7 +93,7 @@ class FluentAsyncExample: AbstractHc5Test() {
                 .add {
                     val index = counter.getAndIncrement() % requests.size
                     val request = requests[index]
-                    log.trace { "Reqeust $request" }
+                    log.trace { "Request $request" }
 
                     val content = async.execute(request).get()
                     log.trace { "Content type=${content.type} from $request" }
@@ -116,7 +115,7 @@ class FluentAsyncExample: AbstractHc5Test() {
             .add {
                 val index = counter.getAndIncrement() % requests.size
                 val request = requests[index]
-                log.trace { "Reqeust $request" }
+                log.trace { "Request $request" }
 
                 val content = async.execute(request).get()
                 log.trace { "Content type=${content.type} from $request" }

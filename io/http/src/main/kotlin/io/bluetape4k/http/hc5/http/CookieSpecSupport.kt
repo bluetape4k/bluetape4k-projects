@@ -9,8 +9,8 @@ import org.apache.hc.core5.http.config.Lookup
 /**
  * 제공된 PublicSuffixMatcher로 기본 레지스트리를 생성합니다.
  *
- * @param publicSuffixMatcher [PublicSuffixMatcher] (default: [PublicSuffixMatcherLoader.getDefault])
- * @return [Lookup] of [CookieSpecFactory]
+ * @param publicSuffixMatcher 사용할 [PublicSuffixMatcher] (기본값: [PublicSuffixMatcherLoader.getDefault])
+ * @return [CookieSpecFactory] 조회용 [Lookup]
  */
 fun defaultRegistryOf(
     publicSuffixMatcher: PublicSuffixMatcher = PublicSuffixMatcherLoader.getDefault(),

@@ -14,10 +14,10 @@ import org.apache.hc.core5.http.message.StatusLine
 import org.junit.jupiter.api.Test
 
 /**
- * An example of how HttpClient can be customized to authenticate preemptively using Basic scheme.
+ * Basic 스킴 선인증(preemptive authentication)을 사용하도록
+ * HttpClient를 구성하는 예제입니다.
  *
- * Generally, preemptive authentication can be considered less
- * secure than a response to an authentication challenge and therefore discouraged.
+ * 일반적으로 선인증은 인증 챌린지에 대한 응답 방식보다 보안상 불리할 수 있습니다.
  */
 class ClientPreemptiveBasicAuthentication: AbstractHc5Test() {
 

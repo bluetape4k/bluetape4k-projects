@@ -39,7 +39,7 @@ class InterceptorExamples: AbstractHttpTest() {
         val response = client.newCall(request).execute()
 
         response.body.shouldNotBeNull()
-        appender.lastMessage!! shouldStartWith "Receive response. url=https://publicobject.com/helloworld.txt"
+        appender.lastMessage!! shouldStartWith "Receive response. url=$HELLOWORLD_URL"
     }
 
     @Test
@@ -53,6 +53,6 @@ class InterceptorExamples: AbstractHttpTest() {
         val response = client.newCall(request).execute()
 
         response.body.shouldNotBeNull()
-        appender.lastMessage!! shouldStartWith "Receive response. url=https://publicobject.com/helloworld.txt"
+        appender.lastMessage!! shouldStartWith "Receive response. url=$HELLOWORLD_URL"
     }
 }

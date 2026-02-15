@@ -42,7 +42,7 @@ class Hc5Examples: AbstractHc5Test() {
                     EntityUtils.consume(response.entity)
                 }
             } catch (e: Throwable) {
-                // ignore exception
+                // 예외는 무시합니다.
                 log.warn(e) { "Fail to request with 1 second timeout" }
             } finally {
                 executor.shutdown()

@@ -13,7 +13,7 @@ import org.apache.hc.core5.http.io.HttpMessageParserFactory
 import org.apache.hc.core5.http.io.HttpMessageWriterFactory
 
 /**
- * [ManagedHttpClientConnectionFactory] 를 생성합니다.
+ * [ManagedHttpClientConnectionFactory]를 생성합니다.
  *
  * ```
  * val factory = managedHttpConnectionFactory {
@@ -24,7 +24,7 @@ import org.apache.hc.core5.http.io.HttpMessageWriterFactory
  * }
  * ```
  *
- * @param builder [ManagedHttpClientConnectionFactory.Builder] 초기화 람다
+ * @param builder [ManagedHttpClientConnectionFactory.Builder] 설정 블록
  * @return [HttpConnectionFactory]`<ManagedHttpClientConnection>` 인스턴스
  */
 inline fun managedHttpConnectionFactory(
@@ -33,7 +33,7 @@ inline fun managedHttpConnectionFactory(
     ManagedHttpClientConnectionFactory.builder().apply(builder).build()
 
 /**
- * [ManagedHttpClientConnectionFactory] 를 생성합니다.
+ * 기본값과 사용자 설정을 조합해 [ManagedHttpClientConnectionFactory]를 생성합니다.
  *
  * ```
  * val http1Config = Http1Config.custom()
@@ -50,9 +50,9 @@ inline fun managedHttpConnectionFactory(
  *
  * @param http1Config [Http1Config] 설정
  * @param charCodingConfig [CharCodingConfig] 설정
- * @param requestWriterFactory [HttpMessageWriterFactory] 인스턴스 (기본: [DefaultHttpRequestWriterFactory.INSTANCE])
- * @param responseParserFactory [HttpMessageParserFactory] 인스턴스 (기본: [DefaultHttpResponseParserFactory.INSTANCE])
- * @param builder [ManagedHttpClientConnectionFactory.Builder] 초기화 람다
+ * @param requestWriterFactory 요청 Writer 팩토리 (기본값: [DefaultHttpRequestWriterFactory.INSTANCE])
+ * @param responseParserFactory 응답 Parser 팩토리 (기본값: [DefaultHttpResponseParserFactory.INSTANCE])
+ * @param builder [ManagedHttpClientConnectionFactory.Builder] 설정 블록
  * @return [HttpConnectionFactory]`<ManagedHttpClientConnection>` 인스턴스
  */
 inline fun managedHttpConnectionFactoryOf(

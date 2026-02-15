@@ -13,7 +13,7 @@ import org.apache.hc.core5.http.io.support.ClassicRequestBuilder
  * }
  * ```
  *
- * @param methodName HTTP Method Name
+ * @param methodName HTTP 메서드 이름
  * @param builder [ClassicRequestBuilder] 초기화 람다
  * @return [ClassicHttpRequest] 인스턴스
  */
@@ -32,7 +32,7 @@ inline fun classicRequest(
  * }
  * ```
  *
- * @param method [Method] HTTP Method
+ * @param method [Method] HTTP 메서드
  * @param builder [ClassicRequestBuilder] 초기화 람다
  * @return [ClassicHttpRequest] 인스턴스
  */

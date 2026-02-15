@@ -2,7 +2,7 @@ package io.bluetape4k.http.hc5.examples
 
 import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.http.hc5.AbstractHc5Test
-import io.bluetape4k.http.hc5.async.execute
+import io.bluetape4k.http.hc5.async.executeSuspending
 import io.bluetape4k.http.hc5.async.httpAsyncClient
 import io.bluetape4k.http.hc5.async.methods.simpleHttpRequestOf
 import io.bluetape4k.http.hc5.http.ContentTypes
@@ -45,10 +45,10 @@ class AsyncClientInterceptors: AbstractHc5Test() {
         val client: CloseableHttpAsyncClient = httpAsyncClient {
             setIOReactorConfig(ioReactorConfig)
 
-            // Add a simple request ID to each outgoing request
+            // 각 요청에 간단한 request-id 헤더를 추가합니다.
             addRequestInterceptorFirst(requestInterceptor())
 
-            // Simulate a 404 response for some requests without passing the message down to the backend
+            // 일부 요청은 백엔드로 전달하지 않고 404 응답을 시뮬레이션합니다.
 
             addExecInterceptorAfter(ChainElement.PROTOCOL.name, "custom", asyncExecChainHandler())
         }
@@ -58,8 +58,8 @@ class AsyncClientInterceptors: AbstractHc5Test() {
         fastList(20) {
             val request = simpleHttpRequestOf(Method.GET, target, path)
 
-            // FIXME: Coroutines 방식으로는 ExecInterceptorAfter 가 먼저 실행되어 버린다???
-            val response = client.execute(request)
+            // FIXME: in coroutine mode, ExecInterceptorAfter runs before request interceptor.
+            val response = client.executeSuspending(request)
             log.debug { "Response: $request -> ${StatusLine(response)}" }
             log.debug { "Body: ${response.body}" }
         }
@@ -75,8 +75,8 @@ class AsyncClientInterceptors: AbstractHc5Test() {
         }
     }
 
-    // Simulate a 404 response for some requests without passing the message down to the backend
-    // FIXME: 왜 이 놈이 request interceptor 보다 먼저 실행되지 ???
+    // 일부 요청은 백엔드로 전달하지 않고 404 응답을 시뮬레이션합니다.
+    // FIXME: why does this run before request interceptor?
 
     private fun asyncExecChainHandler(): AsyncExecChainHandler {
         return AsyncExecChainHandler { request, entityProducer, scope, chain, asyncExecCallback ->

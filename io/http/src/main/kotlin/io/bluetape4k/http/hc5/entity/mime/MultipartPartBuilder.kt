@@ -6,7 +6,7 @@ import org.apache.hc.client5.http.entity.mime.MultipartPart
 import org.apache.hc.client5.http.entity.mime.MultipartPartBuilder
 
 /**
- * MultipartPart 를 생성합니다.
+ * [MultipartPart]를 생성합니다.
  *
  * ```
  * val part = multipartPart {
@@ -24,7 +24,7 @@ inline fun multipartPart(
     MultipartPartBuilder.create().apply(builder).build()
 
 /**
- * MultipartPart 를 생성합니다.
+ * [MultipartPart]를 생성합니다.
  *
  * ```
  * val part = multipartPart(
@@ -48,7 +48,7 @@ inline fun multipartPart(
     }
 
 /**
- * MultipartPart 를 생성합니다.
+ * [MultipartPart]를 생성합니다.
  *
  * ```
  * val part = multipartPartOf(
@@ -76,7 +76,7 @@ inline fun multipartPartOf(
     }
 
 /**
- * MultipartPart 를 생성합니다.
+ * [MultipartPart]를 생성합니다.
  *
  * ```
  * val part = multipartPartOf(

@@ -40,7 +40,7 @@ class AsyncClientHttpExchangeStreaming: AbstractHc5Test() {
             setIOReactorConfig(ioReactorConfig)
         }
 
-        // NOTE: 먼저 start() 를 호출해주어야 합니다.
+        // NOTE: call start() before executing requests.
         client.start()
 
         requestUris.forEach { path ->
@@ -67,7 +67,7 @@ class AsyncClientHttpExchangeStreaming: AbstractHc5Test() {
             override fun capacityIncrement(): Int = Int.MAX_VALUE
 
             override fun data(src: CharBuffer, endOfStream: Boolean) {
-                // Response 를 Streaming 으로 받습니다.
+                // 응답을 스트리밍으로 처리합니다.
                 while (src.hasRemaining()) {
                     print("${src.get()}")
                 }

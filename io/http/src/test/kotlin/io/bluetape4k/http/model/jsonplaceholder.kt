@@ -1,4 +1,4 @@
-package io.bluetape4k.http.jsonplaceholder
+package io.bluetape4k.http.model
 
 import java.io.Serializable
 

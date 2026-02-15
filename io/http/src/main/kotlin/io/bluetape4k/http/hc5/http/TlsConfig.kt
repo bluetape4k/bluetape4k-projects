@@ -12,9 +12,9 @@ import org.apache.hc.core5.util.Timeout
 val defaultTlsConfig: TlsConfig = TlsConfig.DEFAULT
 
 /**
- * [TlsConfig] 를 생성합니다.
+ * [TlsConfig]를 생성합니다.
  *
- * @param builder [TlsConfig.Builder] 초기화 람다
+ * @param builder [TlsConfig.Builder] 설정 블록
  * @return [TlsConfig] 인스턴스
  */
 inline fun tlsConfig(
@@ -23,13 +23,13 @@ inline fun tlsConfig(
     TlsConfig.custom().apply(builder).build()
 
 /**
- * [TlsConfig] 를 생성합니다.
+ * 기본값을 바탕으로 [TlsConfig]를 생성합니다.
  *
- * @param supportedProtocols [TLS] 지원 프로토콜
- * @param handshakeTimeout [Timeout] 핸드쉐이크 타임아웃
- * @param supportedCipherSuites [Array]<String>? 지원 암호화 스위트
- * @param versionPolicy [HttpVersionPolicy]? HTTP 버전 정책
- * @param builder [TlsConfig.Builder] 초기화 람다
+ * @param supportedProtocols 지원 [TLS] 프로토콜 목록
+ * @param handshakeTimeout TLS 핸드셰이크 타임아웃
+ * @param supportedCipherSuites 지원 암호화 스위트 목록
+ * @param versionPolicy HTTP 버전 정책
+ * @param builder [TlsConfig.Builder] 설정 블록
  * @return [TlsConfig] 인스턴스
  */
 inline fun tlsConfigOf(

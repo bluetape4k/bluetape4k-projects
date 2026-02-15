@@ -11,10 +11,9 @@ import java.io.InputStream
 import java.io.Serializable
 
 /**
- * Builder for [HttpEntity] instances.
+ * [HttpEntity]를 생성합니다.
  *
- * Several setter methods of this builder are mutually exclusive. In case of multiple invocations
- * of the following methods only the last one will have effect:
+ * 아래 setter 메서드는 상호 배타적이며, 여러 개를 호출하면 마지막 호출만 적용됩니다.
  *
  * - [setText(String)]
  * - [setBinary(ByteArray)]
@@ -51,8 +50,8 @@ inline fun httpEntity(
  * ```
  *
  * @param text 텍스트
- * @param contentType 컨텐츠 타입
- * @param contentEncoding 컨텐츠 인코딩
+ * @param contentType 콘텐츠 타입
+ * @param contentEncoding 콘텐츠 인코딩
  * @param gzipCompressed GZIP 압축 여부
  * @param builder [EntityBuilder]를 이용한 초기화 코드
  * @return [HttpEntity] 인스턴스
@@ -83,8 +82,8 @@ inline fun httpEntityOf(
  * ```
  *
  * @param binary 바이너리
- * @param contentType 컨텐츠 타입
- * @param contentEncoding 컨텐츠 인코딩
+ * @param contentType 콘텐츠 타입
+ * @param contentEncoding 콘텐츠 인코딩
  * @param gzipCompressed GZIP 압축 여부
  * @param builder [EntityBuilder]를 이용한 초기화 코드
  * @return [HttpEntity] 인스턴스
@@ -115,8 +114,8 @@ inline fun httpEntityOf(
  * ```
  *
  * @param inputStream 스트림
- * @param contentType 컨텐츠 타입
- * @param contentEncoding 컨텐츠 인코딩
+ * @param contentType 콘텐츠 타입
+ * @param contentEncoding 콘텐츠 인코딩
  * @param gzipCompressed GZIP 압축 여부
  * @param builder [EntityBuilder]를 이용한 초기화 코드
  * @return [HttpEntity] 인스턴스
@@ -147,8 +146,8 @@ inline fun httpEntityOf(
  * ```
  *
  * @param file 파일
- * @param contentType 컨텐츠 타입
- * @param contentEncoding 컨텐츠 인코딩
+ * @param contentType 콘텐츠 타입
+ * @param contentEncoding 콘텐츠 인코딩
  * @param gzipCompressed GZIP 압축 여부
  * @param builder [EntityBuilder]를 이용한 초기화 코드
  * @return [HttpEntity] 인스턴스
@@ -179,8 +178,8 @@ inline fun httpEntityOf(
  * }
  * ```
  * @param serializable 직렬화 가능한 객체
- * @param contentType 컨텐츠 타입
- * @param contentEncoding 컨텐츠 인코딩
+ * @param contentType 콘텐츠 타입
+ * @param contentEncoding 콘텐츠 인코딩
  * @param gzipCompressed GZIP 압축 여부
  * @param builder [EntityBuilder]를 이용한 초기화 코드
  * @return [HttpEntity] 인스턴스
@@ -211,8 +210,8 @@ inline fun httpEntityOf(
  * ```
  *
  * @param parameters 파라미터
- * @param contentType 컨텐츠 타입
- * @param contentEncoding 컨텐츠 인코딩
+ * @param contentType 콘텐츠 타입
+ * @param contentEncoding 콘텐츠 인코딩
  * @param gzipCompressed GZIP 압축 여부
  * @param builder [EntityBuilder]를 이용한 초기화 코드
  * @return [HttpEntity] 인스턴스

@@ -12,15 +12,13 @@ import org.apache.hc.core5.http.HttpVersion
 import org.apache.hc.core5.util.Timeout
 import org.junit.jupiter.api.Test
 
-/**
- * This example demonstrates basics of request execution with the HttpClient fluent API.
- */
+/** HttpClient Fluent API의 기본 요청 실행 예제입니다. */
 @TempFolderTest
 class FluentRequestsExamples: AbstractHc5Test() {
 
     companion object: KLogging()
 
-    // Execute a GET with timeout settings and return response content as String.
+    // 타임아웃 설정이 있는 GET 요청을 실행하고 문자열 응답을 반환합니다.
     @Test
     fun `get with timeout settings and return content as string`() {
         val content = requestGet("$httpbinBaseUrl/get")
@@ -33,8 +31,7 @@ class FluentRequestsExamples: AbstractHc5Test() {
         log.debug { "content=$content" }
     }
 
-    // Execute a POST with the 'expect-continue' handshake, using HTTP/1.1,
-    // containing a request body as String and return response content as byte array.
+    // HTTP/1.1 + expect-continue 핸드셰이크로 POST 요청을 실행하고 바이트 배열 응답을 반환합니다.
     @Test
     fun `post with expect-continue hadshake using HTTP 1_1`() {
         val content = requestPost("$httpbinBaseUrl/post")
@@ -48,8 +45,7 @@ class FluentRequestsExamples: AbstractHc5Test() {
         log.debug { "content=${content.toUtf8String()}" }
     }
 
-    // Execute a POST with a custom header through the proxy containing a request body
-    // as an HTML form and save the result to the file
+    // 커스텀 헤더와 HTML 폼 본문을 포함한 POST 요청 결과를 파일에 저장합니다.
     @Test
     fun `post with a custom header and form data and save response to file`(tempFolder: TempFolder) {
         requestPost("$httpbinBaseUrl/post")

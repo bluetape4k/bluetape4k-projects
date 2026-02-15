@@ -5,7 +5,7 @@ import com.alibaba.fastjson2.toJSONString
 import io.bluetape4k.concurrent.onFailure
 import io.bluetape4k.concurrent.onSuccess
 import io.bluetape4k.http.AbstractHttpTest
-import io.bluetape4k.http.jsonplaceholder.Post
+import io.bluetape4k.http.model.Post
 import io.bluetape4k.http.okhttp3.CachingRequestInterceptor
 import io.bluetape4k.http.okhttp3.CachingResponseInterceptor
 import io.bluetape4k.http.okhttp3.bodyAsString
@@ -14,12 +14,14 @@ import io.bluetape4k.http.okhttp3.okhttp3Client
 import io.bluetape4k.http.okhttp3.okhttp3RequestOf
 import io.bluetape4k.http.okhttp3.print
 import io.bluetape4k.jackson.Jackson
+import io.bluetape4k.jackson.writeAsString
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderExtension
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.support.EMPTY_STRING
 import okhttp3.Cache
 import okhttp3.CacheControl
 import okhttp3.Call
@@ -101,7 +103,7 @@ class Recipes: AbstractHttpTest() {
     @Test
     fun `동기방식 HTTP POST with String with Jackson`(@RandomValue post: Post) {
         val mapper = Jackson.defaultJsonMapper
-        val json = mapper.writeValueAsString(post)
+        val json = mapper.writeAsString(post) ?: EMPTY_STRING
 
         val request = Request.Builder()
             .url("$JSON_PLACEHOLDER_URL/posts")
@@ -215,7 +217,7 @@ class Recipes: AbstractHttpTest() {
         }
 
         // 2 초간 지연을 시킵니다.
-        val request = okhttp3RequestOf("https://nghttp2.org/httpbin/delay/2")
+        val request = okhttp3RequestOf("$HTTPBIN_URL/delay/2")
 
         // 동기 방식에서의 Timeout 발생
         assertFailsWith<SocketTimeoutException> {
@@ -232,7 +234,7 @@ class Recipes: AbstractHttpTest() {
         }
 
         // 2 초간 지연을 시킵니다.
-        val request = okhttp3RequestOf("https://nghttp2.org/httpbin/delay/2")
+        val request = okhttp3RequestOf("$HTTPBIN_URL/delay/2")
 
         assertFailsWith<CompletionException> {
             client.executeAsync(request)

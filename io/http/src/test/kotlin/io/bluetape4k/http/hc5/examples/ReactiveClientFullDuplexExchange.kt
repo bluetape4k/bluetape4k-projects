@@ -22,9 +22,7 @@ import org.junit.jupiter.api.Test
 import reactor.core.publisher.Flux
 import java.net.URI
 
-/**
- * This example demonstrates a reactive, full-duplex HTTP/1.1 message exchange using Reactor.
- */
+/** Reactor를 이용한 반응형 풀듀플렉스 HTTP/1.1 메시지 교환 예제입니다. */
 class ReactiveClientFullDuplexExchange: AbstractHc5Test() {
 
     companion object: KLogging()
@@ -56,7 +54,7 @@ class ReactiveClientFullDuplexExchange: AbstractHc5Test() {
 //        streamingResponse.body.asFlow()
 //            .map { byteBuffer -> byteBuffer.toUtf8String() }
 //            .collect {
-//                log.debug { "response content=$it" }
+//                log.debug { "응답 본문=$it" }
 //            }
         Flux.from(streamingResponse.body)
             .map { byteBuffer -> byteBuffer.toUtf8String() }

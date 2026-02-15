@@ -4,14 +4,12 @@ import org.apache.hc.client5.http.config.ConnectionConfig
 import org.apache.hc.core5.util.TimeValue
 import org.apache.hc.core5.util.Timeout
 
-/**
- * Default ConnectionConfig
- */
+/** 기본 [ConnectionConfig] 값입니다. */
 @JvmField
 val defaultConnectionConfig: ConnectionConfig = ConnectionConfig.DEFAULT
 
 /**
- * [builder]를 이용해 [ConnectionConfig] 를 생성합니다.
+ * [builder]를 이용해 [ConnectionConfig]를 생성합니다.
  *
  * ```
  * val connectionConfig = connectionConfig {
@@ -21,7 +19,7 @@ val defaultConnectionConfig: ConnectionConfig = ConnectionConfig.DEFAULT
  * }
  * ```
  *
- * @param builder 환경 설정을 수행할 람다 함수
+ * @param builder [ConnectionConfig.Builder] 설정 블록
  * @return [ConnectionConfig] 인스턴스
  */
 inline fun connectionConfig(
@@ -30,7 +28,7 @@ inline fun connectionConfig(
     ConnectionConfig.custom().apply(builder).build()
 
 /**
- * [ConnectionConfig] 를 생성합니다.
+ * 기본값을 바탕으로 [ConnectionConfig]를 생성합니다.
  *
  * ```
  * val connectionConfig = connectionConfigOf(TimeValue.ofSeconds(10)) {
@@ -38,11 +36,11 @@ inline fun connectionConfig(
  * }
  * ```
  *
- * @param connectTimeout connect timeout
- * @param socketTimeout socket timeout
- * @param valiateAfterInactivity validate after inactivity
- * @param timeToLive time to live
- * @param builder 환경 설정을 수행할 람다 함수
+ * @param connectTimeout 연결 타임아웃
+ * @param socketTimeout 소켓 타임아웃
+ * @param valiateAfterInactivity 유휴 후 유효성 검사 간격
+ * @param timeToLive 연결 생존 시간
+ * @param builder [ConnectionConfig.Builder] 설정 블록
  * @return [ConnectionConfig] 인스턴스
  */
 inline fun connectionConfigOf(

@@ -14,9 +14,7 @@ import org.apache.hc.client5.http.impl.cache.HttpByteArrayCacheEntrySerializer
 import org.apache.hc.client5.http.impl.cache.NoopCacheEntrySerializer
 import org.eclipse.collections.impl.map.mutable.UnifiedMap
 
-/**
- * 메모리에 Http Entity를 캐시하는 [HttpCacheStorage] 구현체입니다.
- */
+/** 메모리에 HTTP 엔터티를 저장하는 [HttpCacheStorage] 구현체입니다. */
 class InMemoryHttpCacheStorage<T>(
     config: CacheConfig = CacheConfig.DEFAULT,
     serializer: HttpCacheEntrySerializer<T>,

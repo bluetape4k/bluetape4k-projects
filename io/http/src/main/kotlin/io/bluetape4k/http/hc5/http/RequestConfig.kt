@@ -3,7 +3,7 @@ package io.bluetape4k.http.hc5.http
 import org.apache.hc.client5.http.config.RequestConfig
 
 /**
- * 새로운 [RequestConfig] 를 생성합니다.
+ * 새로운 [RequestConfig]를 생성합니다.
  *
  * ```
  * val requestConfig = requestConfig {
@@ -13,7 +13,7 @@ import org.apache.hc.client5.http.config.RequestConfig
  * }
  * ```
  *
- * @param builder [RequestConfig.Builder] 를 초기화합니다.
+ * @param builder [RequestConfig.Builder] 설정 블록
  * @return [RequestConfig] 인스턴스
  */
 inline fun requestConfig(
@@ -22,7 +22,5 @@ inline fun requestConfig(
     return RequestConfig.custom().apply(builder).build()
 }
 
-/**
- * 기본 [RequestConfig] 를 생성합니다.
- */
+/** 기본 [RequestConfig]를 생성합니다. */
 fun requestConfigOf(): RequestConfig = requestConfig {}

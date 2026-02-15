@@ -15,7 +15,7 @@ import org.apache.hc.client5.http.io.HttpClientConnectionManager
  * val httpClient = minimalHttpClientOf(cm)
  * ```
  *
- * @param connManager [HttpClientConnectionManager]
+ * @param connManager [HttpClientConnectionManager] 인스턴스
  * @return [MinimalHttpClient]
  */
 fun minimalHttpClientOf(

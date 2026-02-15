@@ -14,9 +14,7 @@ import org.apache.hc.core5.http.io.entity.InputStreamEntity
 import org.apache.hc.core5.http.message.StatusLine
 import org.junit.jupiter.api.Test
 
-/**
- * Example how to use unbuffered chunk-encoded POST request.
- */
+/** 버퍼링하지 않는 청크 인코딩 POST 요청 예제입니다. */
 class ClientChunkEncodedPost: AbstractHc5Test() {
 
     companion object: KLogging()
@@ -33,11 +31,8 @@ class ClientChunkEncodedPost: AbstractHc5Test() {
                 entity = inputStreamEntity
             }
 
-            // It may be more appropriate to use FileEntity class in this particular
-            // instance but we are using a more generic InputStreamEntity to demonstrate
-            // the capability to stream out data from any arbitrary source
-            //
-            // FileEntity entity = new FileEntity(file, "binary/octet-stream");
+            // 이 예제에서는 FileEntity 대신 InputStreamEntity를 사용해
+            // 임의의 입력 소스를 스트리밍 전송할 수 있음을 보여줍니다.
             log.debug { "Execute request ${httppost.method} ${httppost.uri}" }
 
             httpclient.execute(httppost) { response ->

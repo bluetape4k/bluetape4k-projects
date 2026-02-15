@@ -17,9 +17,7 @@ import org.apache.hc.core5.http.message.StatusLine
 import org.junit.jupiter.api.Test
 import java.io.File
 
-/**
- * Example how to use multipart/form encoded POST request.
- */
+/** `multipart/form-data` 인코딩 POST 요청 예제입니다. */
 @TempFolderTest
 class ClientMultipartFormPost: AbstractHc5Test() {
 
@@ -31,7 +29,7 @@ class ClientMultipartFormPost: AbstractHc5Test() {
 
         httpclient.use {
 
-            // Multipart Form Data 를 Posting 합니다.
+            // 멀티파트 폼 데이터를 전송합니다.
             val bin = FileBody(File("src/test/resources/files/cafe.jpg"))
             val comment = StringBody("A binary file of some kind", ContentTypes.TEXT_PLAIN_UTF8)
             val reqEntity = multipartEntity {

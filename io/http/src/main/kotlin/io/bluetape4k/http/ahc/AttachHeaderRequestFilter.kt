@@ -6,17 +6,16 @@ import org.asynchttpclient.filter.FilterContext
 import org.asynchttpclient.filter.RequestFilter
 
 /**
- * AsyncHttpClient [Request] 에 Header를 추가하기 위해 사용합니다.
+ * 모든 요청에 고정 헤더를 추가하는 [RequestFilter]입니다.
  *
+ * @param headers 추가할 헤더 이름/값 쌍
  * @see attachHeaderRequestFilterOf
  */
 class AttachHeaderRequestFilter(val headers: Map<String, Any?>): RequestFilter {
 
     companion object: KLogging()
 
-    /**
-     * HTTP 처리에서 `filter` 함수를 제공합니다.
-     */
+    /** 설정한 헤더를 현재 요청에 추가합니다. */
     override fun <T> filter(ctx: FilterContext<T>): FilterContext<T> {
         this.headers.forEach { (name, value) ->
             log.trace { "Add header name=$name, value=$value" }

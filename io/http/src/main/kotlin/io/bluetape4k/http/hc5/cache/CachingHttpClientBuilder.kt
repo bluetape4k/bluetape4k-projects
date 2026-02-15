@@ -7,7 +7,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient
 import java.io.File
 
 /**
- * Cache를 지원하는 [CloseableHttpClient]를 생성합니다.
+ * 캐시를 지원하는 [CloseableHttpClient]를 생성합니다.
  *
  * ```
  * val client = cachingHttpClient {
@@ -24,7 +24,7 @@ inline fun cachingHttpClient(
         .build()
 
 /**
- * Cache를 지원하는 [CloseableHttpClient]를 생성합니다.
+ * 캐시를 지원하는 [CloseableHttpClient]를 생성합니다.
  *
  * ```
  * val client = cachingHttpClient(cacheStorage) {

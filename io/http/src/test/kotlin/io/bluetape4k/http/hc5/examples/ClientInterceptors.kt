@@ -30,11 +30,11 @@ class ClientInterceptors: AbstractHc5Test() {
     fun `client interceptors`() {
         val httpclient = httpClient {
 
-            // Add a simple request ID to each outgoing request
+            // 각 요청에 간단한 request-id 헤더를 추가합니다.
             addRequestInterceptorFirst(requestInterceptor())
 
-            // FIXME: 왜 이게 먼저 실행되는지? 
-            // Simulate a 404 response for some requests without passing the message down to the backend
+            // FIXME: why does this run first?
+            // 일부 요청은 백엔드로 전달하지 않고 404 응답을 시뮬레이션합니다.
             addExecInterceptorAfter(ChainElement.PROTOCOL.name, "custom", execChainHandler())
         }
 
@@ -59,7 +59,7 @@ class ClientInterceptors: AbstractHc5Test() {
         }
     }
 
-    // Simulate a 404 response for some requests without passing the message down to the backend
+    // 일부 요청은 백엔드로 전달하지 않고 404 응답을 시뮬레이션합니다.
 
     private fun execChainHandler(): ExecChainHandler {
         return ExecChainHandler { request: ClassicHttpRequest, scope: ExecChain.Scope, chain: ExecChain ->
