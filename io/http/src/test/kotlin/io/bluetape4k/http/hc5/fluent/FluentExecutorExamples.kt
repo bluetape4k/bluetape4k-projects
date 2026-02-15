@@ -7,6 +7,7 @@ import io.bluetape4k.junit5.tempfolder.TempFolderTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8String
+import org.amshove.kluent.shouldBeGreaterThan
 import org.apache.hc.client5.http.fluent.Executor
 import org.apache.hc.client5.http.fluent.Form
 import org.apache.hc.core5.http.ContentType
@@ -61,7 +62,8 @@ class FluentExecutorExamples: AbstractHc5Test() {
     fun `post multi-part form data`(tempFolder: TempFolder) {
         // 커스텀 헤더와 HTML 폼 본문을 포함한 POST 요청 결과를 파일에 저장합니다.
         // @see hc5/examples/ClientMultipartFormPost
-        val path = tempFolder.createFile()
+        val file = tempFolder.createFile()
+
         executor
             .execute(
                 requestPost("$httpbinBaseUrl/post")
@@ -73,6 +75,9 @@ class FluentExecutorExamples: AbstractHc5Test() {
                             .build()
                     )
             )
-            .saveContent(path)
+            .saveContent(file)
+
+        file.length() shouldBeGreaterThan 0
+        log.debug { "body=${file.readText()}" }
     }
 }

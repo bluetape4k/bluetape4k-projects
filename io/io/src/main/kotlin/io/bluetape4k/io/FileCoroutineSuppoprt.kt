@@ -1,25 +1,9 @@
 package io.bluetape4k.io
 
-import io.bluetape4k.collections.eclipse.toFastList
 import kotlinx.coroutines.future.await
 import java.io.File
 import java.nio.charset.Charset
 import java.nio.file.Path
-
-/**
- * Coroutine 방식으로 [Path]의 모든 바이트를 읽어옵니다.
- *
- * ```
- * runBlocking {
- *      val path = Paths.get("path/to/file")
- *      val bytes = path.suspendReadAllBytes()
- * }
- * ```
- *
- * @return ByteArray 파일의 모든 바이트
- */
-suspend fun Path.suspendReadAllBytes(): ByteArray =
-    readAllBytesAsync().await()
 
 /**
  * Coroutine 방식으로 [Path]의 모든 바이트를 읽어옵니다.
@@ -33,8 +17,7 @@ suspend fun Path.suspendReadAllBytes(): ByteArray =
  *
  * @return ByteArray 파일의 모든 바이트
  */
-@Deprecated("Use suspendReadAllBytes() instead", ReplaceWith("suspendReadAllBytes()"))
-suspend fun Path.readAllBytesSuspending(): ByteArray =
+suspend inline fun Path.readAllBytesSuspending(): ByteArray =
     readAllBytesAsync().await()
 
 /**
@@ -49,7 +32,13 @@ suspend fun Path.readAllBytesSuspending(): ByteArray =
  *
  * @return ByteArray 파일의 모든 바이트
  */
-suspend fun File.suspendReadAllBytes(): ByteArray = toPath().suspendReadAllBytes()
+suspend inline fun File.readAllBytesSuspending(): ByteArray = toPath().readAllBytesSuspending()
+
+@Deprecated("Use readAllBytesSuspending() instead", ReplaceWith("readAllBytesSuspending()"))
+suspend fun Path.suspendReadAllBytes(): ByteArray = readAllBytesSuspending()
+
+@Deprecated("Use readAllBytesSuspending() instead", ReplaceWith("readAllBytesSuspending()"))
+suspend fun File.suspendReadAllBytes(): ByteArray = readAllBytesSuspending()
 
 /**
  * Corutine 방식으로 [Path]의 모든 라인을 읽어옵니다.
@@ -65,16 +54,25 @@ suspend fun File.suspendReadAllBytes(): ByteArray = toPath().suspendReadAllBytes
  * @param charset Charset 파일의 인코딩 (기본값: UTF-8)
  * @return 파일의 모든 라인
  */
-suspend fun Path.suspendReadAllLines(charset: Charset = Charsets.UTF_8): List<String> {
-    return suspendReadAllBytes()
+suspend fun Path.readAllLinesSuspending(charset: Charset = Charsets.UTF_8): List<String> {
+    return readAllBytesSuspending()
         .toString(charset)
         .lineSequence()
-        .toFastList()
+        .toList()
 }
+
+@Deprecated("Use readAllLinesSuspending() instead", ReplaceWith("readAllLinesSuspending()"))
+suspend fun Path.suspendReadAllLines(charset: Charset = Charsets.UTF_8): List<String> =
+    readAllLinesSuspending(charset)
 
 /**
  * I/O 처리에서 `suspendWrite` 함수를 제공합니다.
  */
+suspend inline fun File.writeSuspending(bytes: ByteArray, append: Boolean = false): Long =
+    toPath().writeAsync(bytes, append).await()
+
+
+@Deprecated("Use writeSuspending() instead", ReplaceWith("writeSuspending(bytes, append)"))
 suspend fun File.suspendWrite(bytes: ByteArray, append: Boolean = false): Long {
     return toPath().writeAsync(bytes, append).await()
 }
@@ -94,13 +92,24 @@ suspend fun File.suspendWrite(bytes: ByteArray, append: Boolean = false): Long {
  * @param append Boolean  추가 여부
  * @return Long 파일에 쓴 바이트 수
  */
-suspend fun Path.suspendWrite(bytes: ByteArray, append: Boolean = false): Long {
-    return writeAsync(bytes, append).await()
-}
+suspend fun Path.writeSuspending(bytes: ByteArray, append: Boolean = false): Long =
+    writeAsync(bytes, append).await()
+
+@Deprecated("Use writeSuspending() instead", ReplaceWith("writeSuspending(bytes, append)"))
+suspend fun Path.suspendWrite(bytes: ByteArray, append: Boolean = false): Long =
+    writeSuspending(bytes, append)
 
 /**
  * I/O 처리에서 `suspendWriteLines` 함수를 제공합니다.
  */
+suspend inline fun File.writeLinesSuspending(
+    lines: Iterable<String>,
+    append: Boolean = false,
+    charset: Charset = Charsets.UTF_8,
+): Long =
+    toPath().writeLinesAsync(lines, append, charset).await()
+
+@Deprecated("Use writeLinesSuspending() instead", ReplaceWith("writeLinesSuspending(lines, append, charset)"))
 suspend fun File.suspendWriteLines(
     lines: Iterable<String>,
     append: Boolean = false,
@@ -124,6 +133,14 @@ suspend fun File.suspendWriteLines(
  * @param append Boolean 추가 여부
  * @param charset 파일의 인코딩 (기본값: UTF-8)
  */
+suspend inline fun Path.writeLinesSuspending(
+    lines: Iterable<String>,
+    append: Boolean = false,
+    charset: Charset = Charsets.UTF_8,
+): Long =
+    writeLinesAsync(lines, append, charset).await()
+
+@Deprecated("Use writeLinesSuspending() instead", ReplaceWith("writeLinesSuspending(lines, append, charset)"))
 suspend fun Path.suspendWriteLines(
     lines: Iterable<String>,
     append: Boolean = false,

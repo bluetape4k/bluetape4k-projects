@@ -32,6 +32,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.amshove.kluent.shouldBeInstanceOf
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeEqualTo
 import org.junit.jupiter.api.Assertions.fail
@@ -42,6 +43,8 @@ import java.net.SocketTimeoutException
 import java.time.Duration
 import java.util.concurrent.CompletionException
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.test.assertFailsWith
 
 @RandomizedTest
@@ -69,7 +72,7 @@ class Recipes: AbstractHttpTest() {
 
     @Test
     fun `동기 방식 HTTP GET`() {
-        val request = okhttp3RequestOf(HELLOWORLD_URL)
+        val request = okhttp3RequestOf(HTTPBIN_HTML_URL)
         val response = client.newCall(request).execute()
 
         assertResponse(response)
@@ -81,7 +84,7 @@ class Recipes: AbstractHttpTest() {
     fun `비동기 방식 HTTP GET`() {
         val lock = CountDownLatch(1)
 
-        val request = okhttp3RequestOf(HELLOWORLD_URL)
+        val request = okhttp3RequestOf(HTTPBIN_HTML_URL)
         val callback = object: Callback {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
@@ -105,7 +108,7 @@ class Recipes: AbstractHttpTest() {
         val json = mapper.writeAsString(post).orEmpty()
 
         val request = Request.Builder()
-            .url("$JSON_PLACEHOLDER_URL/posts")
+            .url("$HTTPBIN_URL/post")
             .post(json.toRequestBody("application/json".toMediaTypeOrNull()))
             .build()
 
@@ -121,7 +124,7 @@ class Recipes: AbstractHttpTest() {
         val json = mapper.writeValueAsBytes(post)
 
         val request = Request.Builder()
-            .url("$JSON_PLACEHOLDER_URL/posts")
+            .url("$HTTPBIN_URL/post")
             .post(json.toRequestBody("application/json".toMediaTypeOrNull(), 0, json.size))
             .build()
 
@@ -136,7 +139,7 @@ class Recipes: AbstractHttpTest() {
         val json = post.toJSONString()
 
         val request = Request.Builder()
-            .url("$JSON_PLACEHOLDER_URL/posts")
+            .url("$HTTPBIN_URL/post")
             .post(json.toRequestBody("application/json".toMediaTypeOrNull()))
             .build()
 
@@ -151,7 +154,7 @@ class Recipes: AbstractHttpTest() {
         val json = post.toJSONByteArray()
 
         val request = Request.Builder()
-            .url("$JSON_PLACEHOLDER_URL/posts")
+            .url("$HTTPBIN_URL/post")
             .post(json.toRequestBody("application/json".toMediaTypeOrNull(), 0, json.size))
             .build()
 
@@ -174,7 +177,7 @@ class Recipes: AbstractHttpTest() {
             addNetworkInterceptor(CachingResponseInterceptor())  // 네트웍 응답 후 Interceptor
         }
 
-        val request = Request.Builder().url(HELLOWORLD_URL).build()
+        val request = Request.Builder().url(HTTPBIN_HTML_URL).build()
 
         val response1 = cachedClient.newCall(request).execute()
         assertResponse(response1)
@@ -184,7 +187,7 @@ class Recipes: AbstractHttpTest() {
         // 캐시에서만 읽어오도록 한다
         val request2 = Request.Builder()
             .cacheControl(CacheControl.FORCE_CACHE)
-            .url(HELLOWORLD_URL)
+            .url(HTTPBIN_HTML_URL)
             .build()
 
         val response2 = cachedClient.newCall(request2).execute()
@@ -204,7 +207,30 @@ class Recipes: AbstractHttpTest() {
 
     @Test
     fun `요청 취소`() {
-        // TODO : 구현해야 한다.
+        val lock = CountDownLatch(1)
+        val failure = AtomicReference<IOException?>()
+
+        // 서버 응답을 충분히 지연시킨 뒤 요청을 취소해 onFailure 경로를 검증합니다.
+        val request = okhttp3RequestOf("$HTTPBIN_URL/delay/5")
+        val call = client.newCall(request)
+
+        call.enqueue(object: Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                failure.set(e)
+                lock.countDown()
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                response.close()
+                error("취소된 요청은 정상 응답을 반환하면 안됩니다.")
+            }
+        })
+
+        call.cancel()
+
+        lock.await(3, TimeUnit.SECONDS).shouldBeTrue()
+        call.isCanceled().shouldBeTrue()
+        failure.get().shouldBeInstanceOf<IOException>()
     }
 
     @Test

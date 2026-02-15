@@ -7,9 +7,6 @@ import org.junit.jupiter.api.fail
 abstract class AbstractHttpTest {
 
     companion object: KLogging() {
-        const val JSON_PLACEHOLDER_URL = "https://jsonplaceholder.typicode.com"
-        const val JSON_PLACEHOLDER_TODOS_URL = "$JSON_PLACEHOLDER_URL/todos"
-
         /**
          * http://httpbin.org 에 접속하는 테스트를 로컬에서 실행할 수 있도록 합니다.
          */
@@ -23,7 +20,7 @@ abstract class AbstractHttpTest {
          * 외부 `publicobject.com` 대신 로컬 httpbin의 `/html` 응답을 사용합니다.
          */
         @JvmStatic
-        protected val HELLOWORLD_URL: String get() = "$httpbinBaseUrl/html"
+        protected val HTTPBIN_HTML_URL: String get() = "$httpbinBaseUrl/html"
 
         /**
          * 외부 `httpbin.org` 대신 로컬 Testcontainers httpbin URL을 사용합니다.

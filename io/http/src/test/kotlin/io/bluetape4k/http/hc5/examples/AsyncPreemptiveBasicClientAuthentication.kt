@@ -1,6 +1,5 @@
 package io.bluetape4k.http.hc5.examples
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.async.executeSuspending
@@ -49,20 +48,16 @@ class AsyncPreemptiveBasicClientAuthentication: AbstractHc5Test() {
         val httpHost = HttpHost("http", httpbinServer.host, httpbinServer.port)
         val path = "/basic-auth/user/passwd"
 
-        val localContext = httpClientContext {
-            preemptiveBasicAuth(httpHost, UsernamePasswordCredentials("user", "passwd".toCharArray()))
-        }
-
-        repeat(3) {
+        repeat(10) {
             val request = simpleHttpRequestOf(Method.GET, httpHost, path)
             log.debug { "Executing request $request" }
-            val response = client.executeSuspending(request, localContext)
+            val response = client.executeSuspending(request, httpHost.newLocalContext())
 
             log.debug { "Response: $request -> ${StatusLine(response)}" }
             log.debug { "Body: ${response.body}" }
         }
 
-        val jobs = fastList(5) {
+        val jobs = List(10) {
             val request = simpleHttpRequestOf(Method.GET, httpHost, path)
             log.debug { "Executing request concurrently $request" }
 
@@ -71,7 +66,7 @@ class AsyncPreemptiveBasicClientAuthentication: AbstractHc5Test() {
                     .execute(
                         request.toProducer(),
                         SimpleResponseConsumer.create(),
-                        localContext,
+                        httpHost.newLocalContext(),
                         null
                     )
                     .suspendAwait()
@@ -84,5 +79,12 @@ class AsyncPreemptiveBasicClientAuthentication: AbstractHc5Test() {
         jobs.joinAll()
 
         log.debug { "Shutting down" }
+    }
+
+    private fun HttpHost.newLocalContext() = httpClientContext {
+        preemptiveBasicAuth(
+            this@newLocalContext,
+            UsernamePasswordCredentials("user", "passwd".toCharArray())
+        )
     }
 }

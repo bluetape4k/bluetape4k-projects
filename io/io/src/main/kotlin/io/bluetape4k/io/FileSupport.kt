@@ -272,6 +272,20 @@ fun File.readAllBytes(): ByteArray {
  *
  * @return 파일을 내용을 담은[ByteArray]를 반환하는 [CompletableFuture]
  */
+fun File.readAllBytesAsync(executor: ExecutorService = defaultFileExecutor): CompletableFuture<ByteArray> =
+    toPath().readAllBytesAsync(executor)
+
+
+/**
+ * 파일을 비동기 방식으로 읽어 [ByteArray]로 반환합니다.
+ *
+ * ```
+ * val file = File("temp.txt")
+ * val bytes = file.readAllBytesAsync().get()
+ * ```
+ *
+ * @return 파일을 내용을 담은[ByteArray]를 반환하는 [CompletableFuture]
+ */
 fun Path.readAllBytesAsync(
     executor: ExecutorService = defaultFileExecutor,
 ): CompletableFuture<ByteArray> {
@@ -415,7 +429,7 @@ fun Path.writeAsync(
 
     val options = arrayOf(StandardOpenOption.CREATE, StandardOpenOption.WRITE)
     val channel = AsynchronousFileChannel.open(
-        this,
+        this@writeAsync,
         options.toSet(),
         executor
     )

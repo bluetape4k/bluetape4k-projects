@@ -35,11 +35,11 @@ class InterceptorExamples: AbstractHttpTest() {
             .addInterceptor(LoggingInterceptor(log))
             .build()
 
-        val request = okhttp3RequestOf(HELLOWORLD_URL)
+        val request = okhttp3RequestOf(HTTPBIN_HTML_URL)
         val response = client.newCall(request).execute()
 
         response.body.shouldNotBeNull()
-        appender.lastMessage!! shouldStartWith "Receive response. url=$HELLOWORLD_URL"
+        appender.lastMessage!! shouldStartWith "Receive response. url=$HTTPBIN_HTML_URL"
     }
 
     @Test
@@ -49,10 +49,10 @@ class InterceptorExamples: AbstractHttpTest() {
             addNetworkInterceptor(LoggingInterceptor(log))
         }
 
-        val request = okhttp3RequestOf(HELLOWORLD_URL)
+        val request = okhttp3RequestOf(HTTPBIN_HTML_URL)
         val response = client.newCall(request).execute()
 
         response.body.shouldNotBeNull()
-        appender.lastMessage!! shouldStartWith "Receive response. url=$HELLOWORLD_URL"
+        appender.lastMessage!! shouldStartWith "Receive response. url=$HTTPBIN_HTML_URL"
     }
 }

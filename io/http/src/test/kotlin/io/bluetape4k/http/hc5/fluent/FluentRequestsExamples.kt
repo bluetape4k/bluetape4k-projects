@@ -6,6 +6,7 @@ import io.bluetape4k.junit5.tempfolder.TempFolderTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8String
+import org.amshove.kluent.shouldBeGreaterThan
 import org.apache.hc.client5.http.fluent.Form
 import org.apache.hc.core5.http.ContentType
 import org.apache.hc.core5.http.HttpVersion
@@ -48,6 +49,7 @@ class FluentRequestsExamples: AbstractHc5Test() {
     // 커스텀 헤더와 HTML 폼 본문을 포함한 POST 요청 결과를 파일에 저장합니다.
     @Test
     fun `post with a custom header and form data and save response to file`(tempFolder: TempFolder) {
+        val file = tempFolder.createFile()
         requestPost("$httpbinBaseUrl/post")
             .addHeader("X-Custom-Header", "stuff")
             .bodyForm(
@@ -57,6 +59,9 @@ class FluentRequestsExamples: AbstractHc5Test() {
                     .build()
             )
             .execute()
-            .saveContent(tempFolder.createFile())
+            .saveContent(file)
+
+        file.length() shouldBeGreaterThan 0
+        log.debug { "body=${file.readText()}" }
     }
 }

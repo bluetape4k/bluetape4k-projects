@@ -73,7 +73,7 @@ class AsyncHttpClientTest: AbstractHttpTest() {
     private fun executeGetAsync(ahc: AsyncHttpClient, count: Int = TEST_SIZE) {
         val futures = List(count) {
             ahc
-                .prepareGet(JSON_PLACEHOLDER_TODOS_URL)
+                .prepareGet("$HTTPBIN_URL/get")
                 .execute()
                 .toCompletableFuture()
                 .onSuccess { response ->
@@ -93,7 +93,7 @@ class AsyncHttpClientTest: AbstractHttpTest() {
         val jobs = List(count) {
             launch(Dispatchers.IO) {
                 val response = ahc
-                    .prepareGet(JSON_PLACEHOLDER_TODOS_URL)
+                    .prepareGet("$HTTPBIN_URL/get")
                     .executeSuspending()
 
                 response.statusCode shouldBeEqualTo 200

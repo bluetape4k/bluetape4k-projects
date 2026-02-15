@@ -23,6 +23,7 @@ import java.util.*
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 /** HttpClient Fluent API로 여러 요청을 비동기로 실행하는 예제입니다. */
@@ -50,31 +51,34 @@ class FluentAsyncExample: AbstractHc5Test() {
             val queue = LinkedList<Future<Content>>()
 
             requests.forEach { request ->
-                val future = async.execute(request, object: FutureCallback<Content> {
-                    override fun completed(result: Content?) {
-                        log.debug { "Request completed: $result" }
-                    }
+                val future = async.execute(
+                    request,
+                    object: FutureCallback<Content> {
+                        override fun completed(result: Content?) {
+                            log.debug { "요청 전송 완료: $result" }
+                        }
 
-                    override fun failed(ex: Exception?) {
-                        log.error(ex) { "failed. request=$request" }
-                    }
+                        override fun failed(ex: Exception?) {
+                            log.error(ex) { "실패. 요청 정보=$request" }
+                        }
 
-                    override fun cancelled() {
-                        log.debug { "요청이 취소되었습니다." }
+                        override fun cancelled() {
+                            log.debug { "요청이 취소되었습니다." }
+                        }
                     }
-                })
+                )
                 queue.add(future)
             }
 
             while (queue.isNotEmpty()) {
                 val future = queue.remove()
                 try {
-                    future.get()
+                    future.get(1, TimeUnit.SECONDS)
                 } catch (ex: ExecutionException) {
                     // 무시
                 }
             }
-            log.debug { "Done" }
+            log.debug { "Done !!!" }
         } finally {
             executor.shutdown()
         }
@@ -89,11 +93,11 @@ class FluentAsyncExample: AbstractHc5Test() {
         try {
             MultithreadingTester()
                 .workers(requests.size / 2)
-                .rounds(2)
+                .rounds(requests.size)
                 .add {
                     val index = counter.getAndIncrement() % requests.size
                     val request = requests[index]
-                    log.trace { "Request $request" }
+                    log.trace { "요청: $request" }
 
                     val content = async.execute(request).get()
                     log.trace { "Content type=${content.type} from $request" }
@@ -111,7 +115,7 @@ class FluentAsyncExample: AbstractHc5Test() {
         val counter = AtomicInteger(0)
 
         StructuredTaskScopeTester()
-            .rounds(requests.size)
+            .rounds(requests.size * requests.size / 2)
             .add {
                 val index = counter.getAndIncrement() % requests.size
                 val request = requests[index]

@@ -16,6 +16,7 @@ import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeBlank
+import org.amshove.kluent.shouldNotBeNull
 import org.apache.commons.lang3.time.StopWatch
 import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Nested
@@ -43,7 +44,7 @@ class OkHttp3SupportTest: AbstractHttpTest() {
         @Test
         fun `OkHttpClient 비동기 GET`() {
             val request = okhttp3Request {
-                url(JSON_PLACEHOLDER_TODOS_URL)
+                url("$HTTPBIN_URL/get")
                 get()
             }
             client.executeAsync(request).verifyResponse()
@@ -52,7 +53,7 @@ class OkHttp3SupportTest: AbstractHttpTest() {
         @RepeatedTest(REPEAT_SIZE)
         fun `OkHttpClient 비동기 GET 통신 성능 테스트`() {
             val request = okhttp3Request {
-                url(JSON_PLACEHOLDER_TODOS_URL)
+                url("$HTTPBIN_URL/get")
                 get()
             }
 
@@ -92,7 +93,7 @@ class OkHttp3SupportTest: AbstractHttpTest() {
         @Test
         fun `OkHttpClient Suspend GET`() = runSuspendIO {
             val request = okhttp3Request {
-                url(JSON_PLACEHOLDER_TODOS_URL)
+                url("$HTTPBIN_URL/get")
                 get()
             }
             client.executeSuspending(request).verifyResponse()
@@ -101,7 +102,7 @@ class OkHttp3SupportTest: AbstractHttpTest() {
         @RepeatedTest(REPEAT_SIZE)
         fun `OkHttpClient Suspend GET 통신 성능 테스트`() = runSuspendIO {
             val request = okhttp3Request {
-                url(JSON_PLACEHOLDER_TODOS_URL)
+                url("$HTTPBIN_URL/get")
                 get()
             }
 
@@ -123,9 +124,8 @@ class OkHttp3SupportTest: AbstractHttpTest() {
         }
 
         private fun okhttp3.Response.verifyResponse() {
-            val bodyStr = bodyAsString()
+            val bodyStr = bodyAsString().shouldNotBeNull().shouldNotBeBlank()
             log.trace { "Response body=$bodyStr" }
-            bodyStr!!.shouldNotBeBlank()
         }
     }
 }
