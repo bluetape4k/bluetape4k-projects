@@ -10,16 +10,24 @@ import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.apache.avro.file.CodecFactory
 import org.apache.avro.file.XZCodec.DEFAULT_COMPRESSION
 import org.apache.avro.generic.GenericData
 import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 
+/**
+ * [DefaultAvroGenericRecordSerializer]의 직렬화/역직렬화 기능을 검증하는 테스트입니다.
+ *
+ * 다양한 [CodecFactory]를 사용한 파라미터화 테스트를 통해
+ * 모든 코덱에서 정상 동작하는지 확인합니다.
+ */
 class DefaultAvroGenericRecordSerializerTest: AbstractAvroTest() {
 
     companion object: KLogging()
@@ -83,5 +91,39 @@ class DefaultAvroGenericRecordSerializerTest: AbstractAvroTest() {
         val record: GenericData.Record = serializer.deserialize(schema, bytes)!!
         record.shouldNotBeNull()
         log.trace { "record=$record" }
+    }
+
+    @Test
+    fun `null 입력에 대해 null을 반환한다`() {
+        val serializer = DefaultAvroGenericRecordSerializer()
+        val schema = Employee.getClassSchema()
+
+        serializer.serialize(schema, null).shouldBeNull()
+        serializer.deserialize(schema, null).shouldBeNull()
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("serializers")
+    fun `Base64 문자열로 직렬화 및 역직렬화`(name: String, serializer: AvroGenericRecordSerializer) {
+        val emp = TestMessageProvider.createEmployee()
+        val schema = Employee.getClassSchema()
+
+        val text = serializer.serializeAsString(schema, emp)
+        text.shouldNotBeNull()
+        text.shouldNotBeEmpty()
+        log.trace { "Base64 text length=${text.length}" }
+
+        val record = serializer.deserializeFromString(schema, text)
+        record.shouldNotBeNull()
+        record.toString() shouldBeEqualTo emp.toString()
+    }
+
+    @Test
+    fun `Base64 문자열 직렬화에서 null 입력 시 null 반환`() {
+        val serializer = DefaultAvroGenericRecordSerializer()
+        val schema = Employee.getClassSchema()
+
+        serializer.serializeAsString(schema, null).shouldBeNull()
+        serializer.deserializeFromString(schema, null).shouldBeNull()
     }
 }

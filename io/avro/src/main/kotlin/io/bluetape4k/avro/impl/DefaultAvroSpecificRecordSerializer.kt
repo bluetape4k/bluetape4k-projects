@@ -17,19 +17,34 @@ import org.apache.avro.specific.SpecificRecord
 import java.io.ByteArrayOutputStream
 
 /**
- * Avro Protocol을 이용하여, Data 전송, RCP Call 을 수행할 수 있습니다.
- * 데이터 전송 시, DefaultSpecificRecordSerializer 가 avro instance 를
- * byte array 나 문자열로 변환하고, 수신하는 쪽에서 byte array 나 문자열를 Avro Instance 로 빌드할 수 있습니다
+ * [AvroSpecificRecordSerializer]의 기본 구현체입니다.
+ *
+ * Avro [SpecificRecord] 인스턴스를 [ByteArray]로 직렬화하고 역직렬화합니다.
+ * [SpecificDatumWriter]와 [SpecificDatumReader]를 사용하여 타입 안전한 직렬화를 수행합니다.
+ * 단일 객체 및 리스트의 직렬화/역직렬화를 모두 지원합니다.
+ *
+ * Avro Protocol을 이용하여 데이터 전송이나 RPC 호출에 활용할 수 있습니다.
+ * 데이터 전송 시, Avro 인스턴스를 byte array나 문자열로 변환하고,
+ * 수신 측에서 byte array나 문자열로부터 Avro 인스턴스를 복원합니다.
  *
  * ```
  * val serializer = DefaultAvroSpecificRecordSerializer()
  * val emp = TestMessageProvider.createEmployee()
  *
+ * // 단일 객체 직렬화/역직렬화
  * val serialized = serializer.serialize(emp)
  * val deserialized = serializer.deserialize(serialized, Employee::class.java)
+ *
+ * // 리스트 직렬화/역직렬화
+ * val employees = listOf(emp1, emp2, emp3)
+ * val listBytes = serializer.serializeList(employees)
+ * val deserializedList = serializer.deserializeList(listBytes, Employee::class.java)
  * ```
  *
- * @property codecFactory Avro의 [CodecFactory] 인스턴스 (기본값: [DEFAULT_CODEC_FACTORY])
+ * @property codecFactory Avro 직렬화 시 사용할 [CodecFactory] 인스턴스 (기본값: [DEFAULT_CODEC_FACTORY])
+ * @see AvroSpecificRecordSerializer
+ * @see DefaultAvroGenericRecordSerializer
+ * @see DefaultAvroReflectSerializer
  */
 class DefaultAvroSpecificRecordSerializer private constructor(
     private val codecFactory: CodecFactory,
@@ -37,7 +52,18 @@ class DefaultAvroSpecificRecordSerializer private constructor(
 
     companion object: KLogging() {
         /**
-         * Avro 직렬화용 인스턴스 생성을 위한 진입점을 제공합니다.
+         * [DefaultAvroSpecificRecordSerializer] 인스턴스를 생성합니다.
+         *
+         * ```
+         * // 기본 코덱(Zstandard 레벨 3) 사용
+         * val serializer = DefaultAvroSpecificRecordSerializer()
+         *
+         * // 커스텀 코덱 사용
+         * val snappySerializer = DefaultAvroSpecificRecordSerializer(CodecFactory.snappyCodec())
+         * ```
+         *
+         * @param codecFactory 사용할 [CodecFactory] (기본값: [DEFAULT_CODEC_FACTORY])
+         * @return [DefaultAvroSpecificRecordSerializer] 인스턴스
          */
         @JvmStatic
         operator fun invoke(
@@ -48,10 +74,14 @@ class DefaultAvroSpecificRecordSerializer private constructor(
     }
 
     /**
-     * Avro [SpecificRecord] 인스턴스를 직렬화하여 [ByteArray]로 반환합니다.
+     * Avro [SpecificRecord] 인스턴스를 바이너리 형식으로 직렬화합니다.
      *
+     * [SpecificDatumWriter]를 사용하여 [graph]의 스키마 정보에 따라 직렬화하고,
+     * 설정된 [codecFactory]로 압축하여 [ByteArray]로 반환합니다.
+     *
+     * @param T [SpecificRecord]를 구현한 Avro 타입
      * @param graph 직렬화할 Avro [SpecificRecord] 객체
-     * @return 직렬화된 데이터, 실패 시에는 null을 반환
+     * @return 직렬화된 [ByteArray], [graph]가 null이거나 실패 시 null 반환
      */
     override fun <T: SpecificRecord> serialize(graph: T?): ByteArray? {
         if (graph == null) {
@@ -70,17 +100,20 @@ class DefaultAvroSpecificRecordSerializer private constructor(
                 }
             }
         } catch (e: Throwable) {
-            log.error(e) { "Fail to serialize avro instance. graph=$graph" }
+            log.error(e) { "SpecificRecord 직렬화에 실패했습니다. graph=$graph" }
             null
         }
     }
 
     /**
-     * Avro [SpecificRecord] 인스턴스의 컬렉션을 직렬화하여 [ByteArray]로 반환합니다.
+     * Avro [SpecificRecord] 인스턴스의 리스트를 바이너리 형식으로 직렬화합니다.
      *
-     * @param T 컬렉션 요소의 수형
-     * @param collection Avro로 인코딩할 컬렉션
-     * @return  [ByteArray] 인스턴스
+     * 리스트의 첫 번째 요소에서 스키마 정보를 추출하여, 모든 요소를 하나의 DataFile로 직렬화합니다.
+     * 배치 전송이나 대량 데이터 저장에 효율적입니다.
+     *
+     * @param T [SpecificRecord]를 구현한 Avro 타입
+     * @param collection 직렬화할 [SpecificRecord] 리스트
+     * @return 직렬화된 [ByteArray], [collection]이 null이거나 비어있으면 null 반환
      */
     override fun <T: SpecificRecord> serializeList(collection: List<T>?): ByteArray? {
         if (collection.isNullOrEmpty()) {
@@ -99,17 +132,22 @@ class DefaultAvroSpecificRecordSerializer private constructor(
                 }
             }
         } catch (e: Throwable) {
-            log.error(e) { "Fail to serialize avro. collection=$collection" }
+            log.error(e) { "SpecificRecord 리스트 직렬화에 실패했습니다. size=${collection?.size}" }
             null
         }
     }
 
     /**
-     * Avro [SpecificRecord]의 직렬화된 정보를 역직렬화하여 [clazz] 형식의 인스턴스를 빌드합니다.
+     * Avro 바이너리 데이터를 [SpecificRecord] 인스턴스로 역직렬화합니다.
      *
-     * @param avroBytes [SpecificRecord]의 직렬화된 정보
-     * @param clazz 대상 수형 정보
-     * @return 역직렬화된 인스턴스, 실패 시에는 null 반환
+     * [SpecificDatumReader]를 사용하여 [clazz] 타입으로 역직렬화합니다.
+     * 스키마 진화(Schema Evolution)를 지원하여, writer 스키마와 reader 스키마가 다르더라도
+     * 호환 가능한 경우 정상적으로 역직렬화합니다.
+     *
+     * @param T [SpecificRecord]를 구현한 Avro 타입
+     * @param avroBytes 직렬화된 데이터
+     * @param clazz 대상 타입의 [Class] 정보
+     * @return 역직렬화된 인스턴스, [avroBytes]가 null이거나 실패 시 null 반환
      */
     override fun <T: SpecificRecord> deserialize(avroBytes: ByteArray?, clazz: Class<T>): T? {
         if (avroBytes == null) {
@@ -125,18 +163,21 @@ class DefaultAvroSpecificRecordSerializer private constructor(
                 }
             }
         } catch (e: Throwable) {
-            log.error(e) { "Fail to deserialize avro instance. clazz=$clazz," }
+            log.error(e) { "SpecificRecord 역직렬화에 실패했습니다. clazz=${clazz.name}" }
             null
         }
     }
 
     /**
-     * Avro [SpecificRecord] 컬렉션의 직렬화된 정보를 역직렬화하여 [clazz] 컬렉션 형식의 인스턴스를 빌드합니다.
+     * Avro 바이너리 데이터를 [SpecificRecord] 인스턴스의 리스트로 역직렬화합니다.
      *
-     * @param T 컬렉션 요소의 수형
-     * @param avroBytes Avro 직렬화된 정보
-     * @param clazz  컬렉션 요소의 수형
-     * @return [List<T>] 인스턴스
+     * DataFile에 포함된 모든 레코드를 순차적으로 읽어 리스트로 반환합니다.
+     * Eclipse Collections의 FastList를 사용하여 고성능 리스트 생성을 수행합니다.
+     *
+     * @param T [SpecificRecord]를 구현한 Avro 타입
+     * @param avroBytes 직렬화된 데이터
+     * @param clazz 컬렉션 요소의 [Class] 정보
+     * @return 역직렬화된 리스트, [avroBytes]가 null이거나 비어있으면 빈 리스트 반환
      */
     override fun <T: SpecificRecord> deserializeList(avroBytes: ByteArray?, clazz: Class<T>): List<T> {
         if (avroBytes.isNullOrEmpty()) {
@@ -154,7 +195,7 @@ class DefaultAvroSpecificRecordSerializer private constructor(
             }
             result
         } catch (e: Throwable) {
-            log.error(e) { "Fail to deserialize avro collection. clazz=$clazz" }
+            log.error(e) { "SpecificRecord 리스트 역직렬화에 실패했습니다. clazz=${clazz.name}" }
             emptyFastList()
         }
     }
