@@ -1,29 +1,28 @@
 package io.bluetape4k.feign.spring
 
-import io.bluetape4k.feign.services.Comment
-import io.bluetape4k.feign.services.Post
+import io.bluetape4k.feign.services.HttpbinAnythingResponse
 import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 
 @FeignClient(
-    name = "jsonplace",
-    url = "https://jsonplaceholder.typicode.com",
-    configuration = [JsonPlaceClientConfiguration::class]
+    name = "httpbin",
+    url = "\${test.feign.httpbin-url}",
+    configuration = [HttpbinClientConfiguration::class]
 )
-interface JsonPlaceClient {
+interface HttpbinClient {
 
     @RequestMapping(
         method = [RequestMethod.GET],
-        value = ["/posts"]
+        value = ["/anything/posts"]
     )
-    fun posts(): List<Post>
+    fun posts(): HttpbinAnythingResponse
 
     @RequestMapping(
         method = [RequestMethod.GET],
-        value = ["/post/{id}/comments"]
+        value = ["/anything/post/{id}/comments"]
     )
-    fun getPostComments(@PathVariable("id") postId: Int): List<Comment>
+    fun getPostComments(@PathVariable("id") postId: Int): HttpbinAnythingResponse
 
 }

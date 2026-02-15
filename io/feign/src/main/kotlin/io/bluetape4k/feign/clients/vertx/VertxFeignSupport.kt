@@ -3,12 +3,14 @@ package io.bluetape4k.feign.clients.vertx
 import feign.Request
 import feign.Request.Options
 import io.bluetape4k.feign.feignResponseBuilder
+import io.bluetape4k.io.compressor.Compressor
 import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.trace
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.isNullOrEmpty
+import io.vertx.core.buffer.Buffer
 import io.vertx.core.http.HttpClient
 import io.vertx.core.http.HttpClientRequest
 import io.vertx.core.http.HttpClientResponse
@@ -19,14 +21,14 @@ import java.util.concurrent.CompletableFuture
 private val log by lazy { KotlinLogging.logger { } }
 
 /**
- * Feign 연동에서 `requestOptions` 함수를 제공합니다.
+ * [RequestOptions]를 생성하고 초기화 블록을 적용합니다.
  */
-internal inline fun requestOptions(intializer: RequestOptions.() -> Unit): RequestOptions {
-    return RequestOptions().apply(intializer)
+internal inline fun requestOptions(initializer: RequestOptions.() -> Unit): RequestOptions {
+    return RequestOptions().apply(initializer)
 }
 
 /**
- * Feign 연동 타입 변환을 위한 `toVertxRequestOptions` 함수를 제공합니다.
+ * Feign [Options]를 Vert.x [RequestOptions]로 변환합니다.
  */
 internal fun Options.toVertxRequestOptions(feignRequest: feign.Request): RequestOptions {
     val self = this
@@ -39,26 +41,30 @@ internal fun Options.toVertxRequestOptions(feignRequest: feign.Request): Request
 }
 
 /**
- * Feign 연동에서 `parseFromFeignRequest` 함수를 제공합니다.
+ * Feign 요청 정보를 Vert.x 요청 객체에 반영합니다.
  */
 internal fun HttpClientRequest.parseFromFeignRequest(feignRequest: feign.Request) {
-    headers().add("accept", "*/*")
-    headers().add("user-agent", "VertxHttpClient/4.4")
-    headers().add("accept-encoding", "gzip,deflate")
+    if (!headers().contains("accept")) {
+        headers().set("accept", "*/*")
+    }
+    if (!headers().contains("user-agent")) {
+        headers().set("user-agent", "VertxHttpClient/4.4")
+    }
+    if (!headers().contains("accept-encoding")) {
+        headers().set("accept-encoding", "gzip,deflate")
+    }
 
     feignRequest.headers().forEach { (name, values) ->
         headers().add(name, values)
     }
 
-    if (feignRequest.body().isNullOrEmpty()) {
-        headers().add("content-length", "0")
-    } else {
-        write(io.vertx.core.buffer.Buffer.buffer(feignRequest.body()))
+    if (feignRequest.body().isNullOrEmpty() && !headers().contains("content-length")) {
+        headers().set("content-length", "0")
     }
 }
 
 /**
- * Feign 연동에서 `convertToFeignResponse` 함수를 제공합니다.
+ * Vert.x 응답을 Feign 응답으로 변환합니다.
  */
 internal fun HttpClientResponse.convertToFeignResponse(
     feignRequest: feign.Request,
@@ -69,9 +75,12 @@ internal fun HttpClientResponse.convertToFeignResponse(
         .onSuccess { buffer ->
             log.trace { "Convert Vertx HttpClientResponse to Feign Response." }
 
-            val headers = with(self.headers()) {
-                names().map { it.lowercase() }.associateWith { getAll(it) }
-            }.toMap()
+            val responseHeaders = self.headers()
+            val headers = responseHeaders
+                .names()
+                .associate { headerName ->
+                    headerName.lowercase() to responseHeaders.getAll(headerName)
+                }
 
             val builder = feignResponseBuilder {
                 protocolVersion(Request.ProtocolVersion.valueOf(self.version().name))
@@ -80,11 +89,21 @@ internal fun HttpClientResponse.convertToFeignResponse(
                 reason(self.statusMessage())
                 headers(headers)
 
-                val contentEncoding = headers["content-encoding"]?.firstOrNull().orEmpty()
-                val bytes = when (contentEncoding) {
-                    "gzip"    -> Compressors.GZip.decompress(buffer.bytes)
-                    "deflate" -> Compressors.Deflate.decompress(buffer.bytes)
-                    else      -> buffer.bytes
+                val contentEncodings = headers["content-encoding"]
+                    .orEmpty()
+                    .asSequence()
+                    .flatMap { it.split(',').asSequence() }
+                    .map { it.trim().lowercase() }
+                    .filter { it.isNotBlank() }
+                    .toSet()
+
+                val bytes = when {
+                    "gzip" in contentEncodings || "x-gzip" in contentEncodings ->
+                        decompress(Compressors.GZip, buffer)
+                    "deflate" in contentEncodings                              ->
+                        decompress(Compressors.Deflate, buffer)
+                    else                                                       ->
+                        buffer.bytes
                 }
                 body(bytes)
             }
@@ -96,12 +115,20 @@ internal fun HttpClientResponse.convertToFeignResponse(
         }
 }
 
+internal fun decompress(compressor: Compressor, buffer: Buffer) =
+    runCatching {
+        compressor.decompress(buffer.bytes)
+    }.getOrElse { error ->
+        log.warn(error) { "Fail to decompress response. fallback to raw bytes." }
+        buffer.bytes
+    }
+
 /**
- * Vertx [HttpClient]를 이용하여 Feign 의 [Request] 를 Async/Non-Blocking 방식으로 요청하고 응답을 받습니다.
+ * Vert.x [HttpClient]로 Feign [Request]를 비동기 전송하고 [feign.Response]를 반환합니다.
  *
- * @param feignRequest [feign.Request] 인스턴스
- * @param feignOptions [feign.Request.Options] 인스턴스
- * @return [feign.Response]를 담은 [CompletableFuture] 인스턴스
+ * @param feignRequest Feign 요청 객체
+ * @param feignOptions Feign 요청 옵션
+ * @return Feign 응답을 담은 [CompletableFuture]
  */
 internal fun HttpClient.sendAsync(
     feignRequest: feign.Request,
@@ -114,9 +141,16 @@ internal fun HttpClient.sendAsync(
     this.request(options)
         .onSuccess { request ->
             val vertxRequest = request.apply { parseFromFeignRequest(feignRequest) }
+            val requestBody = feignRequest.body()
 
             log.trace { "Send vertx httpclient request ..." }
-            vertxRequest.send()
+
+            val sendAction = if (requestBody.isNullOrEmpty()) {
+                vertxRequest.send()
+            } else {
+                vertxRequest.send(Buffer.buffer(requestBody))
+            }
+            sendAction
                 .onSuccess { response ->
                     log.trace { "Build feign response ... " }
                     response.convertToFeignResponse(feignRequest, promise)

@@ -10,7 +10,7 @@ import java.nio.charset.Charset
 val defaultRequestOptions = Options()
 
 /**
- * [feign.Request.Options] 를 생성하는 함수
+ * [Options]를 생성하고 설정 블록을 적용합니다.
  *
  * ```
  * val requestOptions = requestOptions {
@@ -27,27 +27,27 @@ inline fun requestOptions(builder: Options.() -> Unit): Options {
 }
 
 /**
- * Feign [Request] 를 생성합니다.
+ * Feign [Request]를 생성합니다.
  *
  * ```
  * val request = feignRequestOf("https://nghttp2.org/httpbin/get", HttpMethod.GET)
  * ```
  *
  * @param url URL
- * @param httpMetho HTTP Method
- * @param headers Header 정보
- * @param body Body 정보
- * @param charset Charset 정보
- * @param requestTemplate Request Template 정보
+ * @param httpMethod HTTP 메서드
+ * @param headers 요청 헤더
+ * @param body 요청 본문
+ * @param charset 본문 문자셋
+ * @param requestTemplate 요청 템플릿
  * @return [Request] 인스턴스
  */
 fun feignRequestOf(
     url: String,
-    httpMetho: HttpMethod = HttpMethod.GET,
+    httpMethod: HttpMethod = HttpMethod.GET,
     headers: Map<String, Collection<String>> = emptyMap(),
     body: ByteArray? = null,
     charset: Charset = Charsets.UTF_8,
     requestTemplate: RequestTemplate? = null,
 ): Request {
-    return Request.create(httpMetho, url, headers, body, charset, requestTemplate)
+    return Request.create(httpMethod, url, headers, body, charset, requestTemplate)
 }

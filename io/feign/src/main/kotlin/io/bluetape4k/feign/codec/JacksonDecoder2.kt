@@ -52,12 +52,12 @@ class JacksonDecoder2 private constructor(
      * Feign 연동에서 `decode` 함수를 제공합니다.
      */
     override fun decode(response: Response, type: Type): Any? = when {
-        response.isJsonBody() -> runCatching { jsonDecode(response, type) }.getOrElse { fallback(response, type) }
+        response.isJsonBody() -> jsonDecode(response, type)
         else                  -> fallback(response, type)
     }
 
     private fun jsonDecode(response: Response, type: Type): Any? {
-        if (response.status() in listOf(204, 404)) {
+        if (response.status() == 204 || response.status() == 404) {
             return Util.emptyValueOf(type)
         }
         if (response.body() == null) {

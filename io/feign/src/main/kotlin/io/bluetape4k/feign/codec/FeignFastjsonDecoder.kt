@@ -12,7 +12,7 @@ import java.io.IOException
 import java.lang.reflect.Type
 
 /**
- * `Content-Type` 에 따라 `application/json` 이 아닌 경우에는 `text/plain` 방식으로 decode 해주는 Feign Decoder 입니다.
+ * `Content-Type`이 JSON이면 fastjson2로 디코딩하고, 아니면 기본 Decoder로 위임하는 Feign Decoder입니다.
  */
 class FeignFastjsonDecoder: feign.codec.Decoder {
 
@@ -33,18 +33,18 @@ class FeignFastjsonDecoder: feign.codec.Decoder {
      * Feign 연동에서 `decode` 함수를 제공합니다.
      */
     override fun decode(response: feign.Response, type: Type): Any? = when {
-        response.isJsonBody() -> runCatching { jsonDecode(response, type) }.getOrElse { fallback(response, type) }
+        response.isJsonBody() -> jsonDecode(response, type)
         else -> fallback(response, type)
     }
 
     private fun jsonDecode(response: feign.Response, type: Type): Any? {
-        if (response.status() in listOf(204, 404)) {
+        if (response.status() == 204 || response.status() == 404) {
             return feign.Util.emptyValueOf(type)
         }
-        if (response.body() == null) {
+        val responseBody = response.body() ?: run {
             return null
         }
-        response.body().asInputStream().use { inputStream ->
+        responseBody.asInputStream().use { inputStream ->
             try {
                 log.trace { "Read json format response body. target type=$type" }
                 return JSON.parseObject(inputStream, type)
@@ -56,7 +56,7 @@ class FeignFastjsonDecoder: feign.codec.Decoder {
                 }
                 throw DecodeException(
                     response.status(),
-                    "$type is not a type supported by JacksonDecoder2 decoder.",
+                    "$type is not a type supported by FeignFastjsonDecoder decoder.",
                     response.request(),
                     e
                 )
@@ -64,7 +64,7 @@ class FeignFastjsonDecoder: feign.codec.Decoder {
                 log.error(e) { "Fail to decode response body. type=$type" }
                 throw DecodeException(
                     response.status(),
-                    "$type is not a type supported by JacksonDecoder2 decoder.",
+                    "$type is not a type supported by FeignFastjsonDecoder decoder.",
                     response.request(),
                     e
                 )

@@ -23,10 +23,10 @@ import java.io.Reader
 import java.lang.reflect.Type
 
 /**
- * Jackson decoder which return a closeable iterator. Returned iterator auto-close the
- * `Response` when it reached json array end or failed to parse stream. If this iterator is
- * not fetched till the end, it has to be casted to `Closeable` and explicity
- * `Closeable.close()` by the consumer.
+ * JSON 배열 응답을 스트리밍 방식의 [Iterator]로 디코딩하는 Jackson Decoder입니다.
+ *
+ * 반환되는 Iterator는 배열 끝까지 읽거나 파싱에 실패하면 내부 리소스를 정리합니다.
+ * 중간에 순회를 중단할 경우, `Closeable`로 캐스팅해 명시적으로 `close()`를 호출해야 합니다.
  *
  * Example:
  *```
@@ -62,12 +62,12 @@ class JacksonIteratorDecoder2 private constructor(
      * Feign 연동에서 `decode` 함수를 제공합니다.
      */
     override fun decode(response: Response, type: Type): Any? = when {
-        response.isJsonBody() -> runCatching { jsonDecode(response, type) }.getOrElse { fallback(response, type) }
+        response.isJsonBody() -> jsonDecode(response, type)
         else                  -> fallback(response, type)
     }
 
     private fun jsonDecode(response: Response, type: Type): Any? {
-        if (response.status() in listOf(204, 404)) {
+        if (response.status() == 204 || response.status() == 404) {
             return Util.emptyValueOf(type)
         }
         if (response.body() == null) {
@@ -89,6 +89,7 @@ class JacksonIteratorDecoder2 private constructor(
             reader.reset()
             return JacksonIterator<Any?>(type.actualIteratorTypeArgument(), mapper, response, reader)
         } catch (e: RuntimeJsonMappingException) {
+            reader.closeSafe()
             if (e.cause is IOException) {
                 throw e.cause as IOException
             }
@@ -97,8 +98,9 @@ class JacksonIteratorDecoder2 private constructor(
                 "$type is not a type supported by JacksonIteratorDecoder2",
                 response.request()
             )
-        } finally {
+        } catch (e: Throwable) {
             reader.closeSafe()
+            throw e
         }
     }
 
@@ -160,10 +162,11 @@ class JacksonIteratorDecoder2 private constructor(
         }
 
         /**
-         * Feign 연동 리소스를 정리하고 닫습니다.
+         * 파서와 응답 본문 리소스를 정리합니다.
          */
         override fun close() {
-            parser.close()
+            runCatching { parser.close() }
+            runCatching { response.body()?.close() }
         }
     }
 }

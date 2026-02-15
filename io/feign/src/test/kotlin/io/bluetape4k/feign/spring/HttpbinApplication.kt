@@ -9,14 +9,14 @@ import org.springframework.cloud.openfeign.EnableFeignClients
 
 @SpringBootApplication
 @EnableFeignClients
-class JsonPlaceApplication {
+class HttpbinApplication {
 
     companion object: KLogging()
 
     @Autowired
-    private val jsonPlaceClient: JsonPlaceClient = uninitialized()
+    private val jsonPlaceClient: HttpbinClient = uninitialized()
 }
 
 fun main(args: Array<String>) {
-    runApplication<JsonPlaceApplication>(*args)
+    runApplication<HttpbinApplication>(*args)
 }

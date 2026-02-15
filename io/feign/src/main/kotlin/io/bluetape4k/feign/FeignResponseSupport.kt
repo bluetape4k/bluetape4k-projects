@@ -4,44 +4,53 @@ import feign.Response
 import java.io.Reader
 
 /**
- * [feign.Response.Builder]를 빌드합니다.
+ * [Response.Builder]를 생성하고 설정 블록을 적용합니다.
  *
- * @param builder [feign.Response.Builder]를 초기화하는 함수
- * @return [feign.Response] 인스턴스
+ * @param builder [Response.Builder] 초기화 블록
+ * @return 초기화된 [Response.Builder]
  */
 inline fun feignResponseBuilder(builder: Response.Builder.() -> Unit): Response.Builder {
     return Response.builder().apply(builder)
 }
 
 /**
- * [feign.Response]를 빌드합니다.
+ * [Response]를 생성합니다.
  *
- * @param builder [feign.Response.Builder]를 초기화하는 함수
- * @return [feign.Response] 인스턴스
+ * @param builder [Response.Builder] 초기화 블록
+ * @return 생성된 [Response]
  */
 inline fun feignResponse(builder: Response.Builder.() -> Unit): Response {
     return feignResponseBuilder(builder).build()
 }
 
 /**
- * [Response]가 JSON 형식인지 검사합니다.
+ * [Response]의 `Content-Type`이 JSON인지 검사합니다.
  */
 fun Response.isJsonBody(): Boolean {
-    val contentType = headers()["Content-Type"] ?: headers()["content-type"]
-    return contentType?.any { it.contains("application/json", true) } ?: false
+    val contentTypes = contentTypeValues() ?: return false
+    return contentTypes.any { value ->
+        val normalized = value.lowercase()
+        normalized.contains("application/json") || normalized.contains("+json")
+    }
 }
 
 /**
- * [Response]가 TEXT 형식인지 검사합니다.
+ * [Response]의 `Content-Type`이 텍스트인지 검사합니다.
  */
 fun Response.isTextBody(): Boolean {
-    val contentType = headers()["Content-Type"] ?: headers()["content-type"]
-    return contentType?.any { it.contains("text/plain", true) } ?: false
+    return contentTypeValues()?.any { it.contains("text/plain", true) } ?: false
 }
 
 /**
- * Response body 를 읽기위해 Reader 변환합니다.
+ * 응답 본문을 [Reader]로 변환합니다.
+ *
+ * 본문이 없는 응답에서 호출되면 [IllegalStateException]을 발생시킵니다.
  */
 fun Response.bodyAsReader(): Reader {
-    return body().asReader(charset())
+    val responseBody = body() ?: error("Response body is null.")
+    return responseBody.asReader(charset())
+}
+
+private fun Response.contentTypeValues(): Collection<String>? {
+    return headers().entries.firstOrNull { it.key.equals("content-type", ignoreCase = true) }?.value
 }

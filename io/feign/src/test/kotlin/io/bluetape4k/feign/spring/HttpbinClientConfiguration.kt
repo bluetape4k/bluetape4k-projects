@@ -7,7 +7,7 @@ import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.logging.KLogging
 import org.springframework.context.annotation.Bean
 
-class JsonPlaceClientConfiguration {
+class HttpbinClientConfiguration {
 
     companion object: KLogging()
 

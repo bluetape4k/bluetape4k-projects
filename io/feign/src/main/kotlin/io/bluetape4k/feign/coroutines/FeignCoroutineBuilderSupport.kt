@@ -11,7 +11,7 @@ import io.bluetape4k.feign.defaultRequestOptions
 import java.util.concurrent.Executors
 
 /**
- * Coroutine 용 Feign Builder 를 생성합니다.
+ * 코루틴용 Feign Builder를 생성합니다.
  *
  * ```
  * val coroutineFeignBuilder = coroutineFeignBuilder<HttpbinApi> {
@@ -25,10 +25,10 @@ import java.util.concurrent.Executors
  * val api = coroutineFeignBuilder.target<HttpbinApi>()
  * ```
  *
- * @param C Context Type
- * @param builder CoroutineFeign.CoroutineBuilder 초기화 블럭
+ * @param C 컨텍스트 타입
+ * @param builder [CoroutineFeign.CoroutineBuilder] 초기화 블록
  * @receiver CoroutineFeign.CoroutineBuilder
- * @return [CoroutineFeign.CoroutineBuilder] instance
+ * @return 초기화된 [CoroutineFeign.CoroutineBuilder]
  */
 inline fun <C: Any> coroutineFeignBuilder(
     @BuilderInference builder: CoroutineFeign.CoroutineBuilder<C>.() -> Unit,
@@ -37,7 +37,7 @@ inline fun <C: Any> coroutineFeignBuilder(
 }
 
 /**
- * Coroutine 용 Feign Builder 를 생성합니다.
+ * 공통 옵션이 적용된 코루틴용 Feign Builder를 생성합니다.
  *
  * ```
  * val coroutineFeignBuilder = coroutineFeignBuilder {
@@ -48,13 +48,13 @@ inline fun <C: Any> coroutineFeignBuilder(
  * val api = coroutineFeignBuilder.target<HttpbinApi>("https://nghttp2.org/httpbin")
  * ```
  *
- * @param C Context Type
- * @param asyncClient AsyncClient instance
- * @param encoder Encoder instance (default: Encoder.Default())
- * @param decoder Decoder instance (default: Decoder.Default())
- * @param opptions Request.Options instance (default: [defaultRequestOptions])
- * @param logLevel feign.Logger.Level instance (default: feign.Logger.Level.BASIC)
- * @param builder CoroutineFeign.CoroutineBuilder 초기화 블럭
+ * @param C 컨텍스트 타입
+ * @param asyncClient 비동기 Feign 클라이언트
+ * @param encoder 요청 인코더
+ * @param decoder 응답 디코더
+ * @param options 요청 옵션
+ * @param logLevel Feign 로깅 레벨
+ * @param builder 추가 초기화 블록
  *
  * @see [AsyncClient.Default]
  * @see [io.bluetape4k.http.hc5.async.httpAsyncClientOf]
@@ -63,7 +63,7 @@ inline fun <C: Any> coroutineFeignBuilderOf(
     asyncClient: AsyncClient<C> = AsyncClient.Default(ApacheHttp5Client(), Executors.newVirtualThreadPerTaskExecutor()),
     encoder: Encoder = Encoder.Default(),
     decoder: Decoder = Decoder.Default(),
-    opptions: Request.Options = defaultRequestOptions,
+    options: Request.Options = defaultRequestOptions,
     logLevel: feign.Logger.Level = feign.Logger.Level.BASIC,
     @BuilderInference builder: CoroutineFeign.CoroutineBuilder<C>.() -> Unit = {},
 ): CoroutineFeign.CoroutineBuilder<C> {
@@ -71,7 +71,7 @@ inline fun <C: Any> coroutineFeignBuilderOf(
         client(asyncClient)
         encoder(encoder)
         decoder(decoder)
-        options(opptions)
+        options(options)
         logLevel(logLevel)
 
         builder()
@@ -79,7 +79,7 @@ inline fun <C: Any> coroutineFeignBuilderOf(
 }
 
 /**
- * Feign 용 Client 를 생성합니다.
+ * 코루틴용 Feign 클라이언트를 생성합니다.
  *
  * ```
  * val api = coroutineFeignBuilder<HttpbinApi> {
@@ -87,9 +87,8 @@ inline fun <C: Any> coroutineFeignBuilderOf(
  * }
  * ```
  *
- * @param T Client type
- * @param baseUrl Base URL
- * @return Feign Client instance
+ * @param baseUrl 서비스 기본 URL
+ * @return 타입 [T]의 클라이언트
  */
 inline fun <reified T: Any> CoroutineFeign.CoroutineBuilder<*>.client(baseUrl: String? = null): T = when {
     baseUrl.isNullOrBlank() -> target(Target.EmptyTarget.create(T::class.java))

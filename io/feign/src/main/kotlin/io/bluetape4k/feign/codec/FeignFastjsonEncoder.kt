@@ -7,7 +7,7 @@ import io.bluetape4k.logging.KLogging
 import java.lang.reflect.Type
 
 /**
- * `fastjson2` 을 사용하여, Kotlin 수형에 대해서도 처리가 가능한 Feign Encoder 입니다.
+ * `fastjson2`를 사용해 Kotlin 타입을 JSON 요청 본문으로 인코딩하는 Feign Encoder입니다.
  */
 class FeignFastjsonEncoder: feign.codec.Encoder {
 
@@ -16,12 +16,12 @@ class FeignFastjsonEncoder: feign.codec.Encoder {
     }
 
     /**
-     * Feign 연동에서 `encode` 함수를 제공합니다.
+     * 객체를 JSON 문자열로 직렬화해 [RequestTemplate] 본문으로 설정합니다.
      */
     override fun encode(obj: Any?, bodyType: Type?, template: RequestTemplate) {
         try {
-            val bytes = obj.toJSONString()
-            template.body(bytes)
+            val json = obj.toJSONString()
+            template.body(json.toByteArray(Charsets.UTF_8), Charsets.UTF_8)
         } catch (e: Exception) {
             throw EncodeException(e.message, e)
         }
