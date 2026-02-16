@@ -1,6 +1,5 @@
 package io.bluetape4k.geohash.utils
 
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.geohash.BoundingBox
 import io.bluetape4k.geohash.GeoHash
 import io.bluetape4k.logging.KLogging
@@ -22,7 +21,7 @@ class BoundingBoxSamplerTest {
         val bboxSampler = sampler.boundingBox.boundingBox
         var gh = sampler.next()
 
-        val hashes = fastListOf<String>()
+        val hashes = mutableListOf<String>()
         var sumOfComp = 0
         var crossingZero = 0
 

@@ -1,7 +1,7 @@
 package io.bluetape4k.geohash.utils
 
-import io.bluetape4k.collections.eclipse.toFastList
-import io.bluetape4k.collections.eclipse.toUnifiedSet
+import io.bluetape4k.collections.asIterable
+import io.bluetape4k.collections.toList
 import io.bluetape4k.geohash.BoundingBox
 import io.bluetape4k.geohash.GeoHash
 import io.bluetape4k.logging.KLogging
@@ -61,7 +61,7 @@ class BoundingBoxGeoHashIteratorTest {
         val twoGeoHashBoundingBox = twoGeoHashWithCharacters(box, 2)
         val iterator = BoundingBoxGeoHashIterator(twoGeoHashBoundingBox)
 
-        val hashes = iterator.toUnifiedSet()
+        val hashes = iterator.asIterable().toSet()
         hashes shouldHaveSize 1024
     }
 
@@ -82,7 +82,7 @@ class BoundingBoxGeoHashIteratorTest {
 
     private fun verifyIterator(iter: BoundingBoxGeoHashIterator): List<GeoHash> {
         val newBox = iter.boundingBox.boundingBox
-        val hashes = iter.toFastList()
+        val hashes = iter.toList()
 
         var prev: GeoHash? = null
         hashes.forEach { gh ->

@@ -1,6 +1,5 @@
 package io.bluetape4k.geohash.queries
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.collections.exists
 import io.bluetape4k.geohash.BoundingBox
 import io.bluetape4k.geohash.GeoHash
@@ -194,7 +193,7 @@ class GeoHashBoundingBoxQuery(
      * @return 검색 해시 목록
      */
     override fun getSearchHashes(): List<GeoHash> {
-        return searchHashes.toFastList()
+        return searchHashes.toList()
     }
 
     override fun toString(): String = buildString {

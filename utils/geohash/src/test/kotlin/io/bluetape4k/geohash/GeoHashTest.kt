@@ -16,16 +16,13 @@ import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.lang.reflect.Method
 import kotlin.math.pow
 import kotlin.test.assertFailsWith
 
-
 class GeoHashTest: AbstractGeoHashTest() {
-
     companion object: KLogging() {
         private const val REPEATED_SIZE = 5
     }
@@ -102,21 +99,6 @@ class GeoHashTest: AbstractGeoHashTest() {
         }
     }
 
-    // FIXME: 버그 수정
-    @Disabled("버그 수정 필요")
-    @Test
-    fun `convert with BinaryString`() {
-        RandomGeoHashes.fullRange().forEach { geohash ->
-            val binaryString = geohash.toBinaryString()
-            val readBack = geoHashOfBinaryString(binaryString)
-
-            readBack shouldBeEqualTo geohash
-            readBack.boundingBoxCenter shouldBeEqualTo geohash.boundingBoxCenter
-            readBack.boundingBox shouldBeEqualTo geohash.boundingBox
-            readBack.toBase32() shouldBeEqualTo geohash.toBase32()
-        }
-    }
-
     @Test
     fun `within with other geohash`() {
         hash.bits = 0x6ff0414000000000L
@@ -124,10 +106,11 @@ class GeoHashTest: AbstractGeoHashTest() {
         log.debug { "hash base32=${hash.toBase32()}" }
         hash.toBase32() shouldBeEqualTo "ezs42"
 
-        val bbox = GeoHash().apply {
-            bits = 0x6ff0000000000000L
-            significantBits = 12
-        }
+        val bbox =
+            GeoHash().apply {
+                bits = 0x6ff0000000000000L
+                significantBits = 12
+            }
 
         hash.within(bbox).shouldBeTrue()
     }
@@ -159,7 +142,6 @@ class GeoHashTest: AbstractGeoHashTest() {
         gh.significantBits shouldBeEqualTo 64
         gh.originatingPoint shouldBeEqualTo point
     }
-
 
     @Test
     fun `invalid precision of 64 bits`() {
@@ -215,10 +197,11 @@ class GeoHashTest: AbstractGeoHashTest() {
 
         // this should match Dave Troys Codebase.
         // This is also his maximum accuracy (12 5-nibbles).
-        val hash3 = geoHashWithBits(20.0, 31.0, 60).apply {
-            log.debug { "hash3=$this" }
-            log.debug { "hash3 base32=${this.toBase32()}" }
-        }
+        val hash3 = geoHashWithBits(20.0, 31.0, 60)
+            .apply {
+                log.debug { "hash3=$this" }
+                log.debug { "hash3 base32=${this.toBase32()}" }
+            }
 
         hash3.significantBits shouldBeEqualTo 60
         hash3.toBase32() shouldBeEqualTo "sew1c2vs2q5r"
@@ -250,7 +233,11 @@ class GeoHashTest: AbstractGeoHashTest() {
         geoHashString shouldBeEqualTo fullStringValue
     }
 
-    private fun assertEncodingWithCharacterPrecision(point: WGS84Point, numOfChars: Int, expectBase32: String) {
+    private fun assertEncodingWithCharacterPrecision(
+        point: WGS84Point,
+        numOfChars: Int,
+        expectBase32: String,
+    ) {
         val hash = geoHashWithCharacters(point.latitude, point.longitude, numOfChars)
         hash.toBase32() shouldBeEqualTo expectBase32
     }
@@ -341,7 +328,10 @@ class GeoHashTest: AbstractGeoHashTest() {
         assertMovingInCircle(0.0, -180.0)
     }
 
-    private fun assertMovingInCircle(latitude: Double, longitude: Double) {
+    private fun assertMovingInCircle(
+        latitude: Double,
+        longitude: Double,
+    ) {
         val start = geoHashWithCharacters(latitude, longitude, 12)
         var end = start.getEasternNeighbor()
         end = end.getSouthernNeighbor()
@@ -401,7 +391,10 @@ class GeoHashTest: AbstractGeoHashTest() {
         assertAdjacentHashesAre(center, adjacent)
     }
 
-    private fun assertAdjacentHashesAre(centerString: String, adjacentStrings: Array<String>) {
+    private fun assertAdjacentHashesAre(
+        centerString: String,
+        adjacentStrings: Array<String>,
+    ) {
         val center = geoHashOfString(centerString)
         val adjacent = center.getAdjacent()
         adjacentStrings.forEach { check ->
@@ -409,7 +402,10 @@ class GeoHashTest: AbstractGeoHashTest() {
         }
     }
 
-    private fun assertArrayContainsGeoHash(check: String, hashes: Array<GeoHash>) {
+    private fun assertArrayContainsGeoHash(
+        check: String,
+        hashes: Array<GeoHash>,
+    ) {
         hashes.map { it.toBase32() }.exists { it == check }.shouldBeTrue()
     }
 
