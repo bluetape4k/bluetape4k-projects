@@ -5,7 +5,9 @@ import io.bluetape4k.jackson.JacksonSerializer
 import io.bluetape4k.logging.KLogging
 
 /**
- * Binary JSON 직렬화를 위한 Ion Serializer
+ * Amazon Ion 바이너리 포맷을 사용하는 Jackson Serializer 구현체입니다.
+ *
+ * Ion은 리치 타입 시스템과 네이티브 타입 ID를 지원하며, 바이너리와 텍스트 형식을 모두 제공합니다.
  *
  * ```
  * val serializer = IonJacksonSerializer()

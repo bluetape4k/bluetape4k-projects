@@ -5,7 +5,9 @@ import io.bluetape4k.jackson.JacksonSerializer
 import io.bluetape4k.logging.KLogging
 
 /**
- * Binary JSON 직렬화를 위한 CBOR Serializer
+ * CBOR(Concise Binary Object Representation) 바이너리 포맷을 사용하는 Jackson Serializer 구현체입니다.
+ *
+ * CBOR는 JSON과 호환되는 바이너리 포맷으로, JSON 대비 작은 크기와 빠른 파싱 속도를 제공합니다.
  *
  * ```
  * val serializer = CborJacksonSerializer()

@@ -14,7 +14,7 @@ import tools.jackson.dataformat.yaml.YAMLFactory
 import tools.jackson.dataformat.yaml.YAMLMapper
 
 /**
- * Jackson JSON 처리에서 사용하는 `JacksonText` 타입입니다.
+ * Jackson 3.x 텍스트 데이터 포맷(CSV, Properties, TOML, YAML)을 위한 Mapper와 Serializer를 제공하는 싱글턴 오브젝트입니다.
  */
 object JacksonText {
 
@@ -39,9 +39,12 @@ object JacksonText {
     )
 
     /**
-     * Jackson JSON 처리에서 사용하는 `Csv` 타입입니다.
+     * CSV(Comma-Separated Values) 형식의 데이터 직렬화/역직렬화를 위한 기본 [CsvMapper], [CsvFactory], [CsvJacksonSerializer]를 제공합니다.
      */
     object Csv {
+        /**
+         * CSV 데이터 처리를 위한 기본 [CsvMapper] 인스턴스입니다.
+         */
         val defaultMapper: CsvMapper by lazy {
             CsvMapper.builder()
                 .findAndAddModules()
@@ -52,17 +55,26 @@ object JacksonText {
                 .build()
         }
 
+        /**
+         * CSV 데이터 처리를 위한 기본 [CsvFactory] 인스턴스입니다.
+         */
         val defaultFactory: CsvFactory by lazy { CsvFactory() }
 
+        /**
+         * JSON 데이터 처리를 위한 기본 [JsonMapper] 인스턴스입니다.
+         */
         val defaultJsonMapper: JsonMapper by lazy { Jackson.defaultJsonMapper }
 
+        /**
+         * CSV 데이터 직렬화/역직렬화를 위한 기본 [CsvJacksonSerializer] 인스턴스입니다.
+         */
         val defaultSerializer: CsvJacksonSerializer by lazy {
             CsvJacksonSerializer(defaultMapper)
         }
     }
 
     /**
-     * Jackson의 [JavaPropsMapper], [JavaPropsFactory]의 기본 객체를 제공하는 object 입니다.
+     * Java Properties 형식의 데이터 직렬화/역직렬화를 위한 기본 [JavaPropsMapper], [JavaPropsFactory], [PropsJacksonSerializer]를 제공합니다.
      *
      * ```
      * val propMapper = JacksonText.Props.defaultMapper
@@ -85,6 +97,9 @@ object JacksonText {
      * ```
      */
     object Props {
+        /**
+         * Java Properties 데이터 처리를 위한 기본 [JavaPropsMapper] 인스턴스입니다.
+         */
         val defaultMapper: JavaPropsMapper by lazy {
             JavaPropsMapper.builder()
                 .findAndAddModules()
@@ -95,19 +110,31 @@ object JacksonText {
                 .build()
         }
 
+        /**
+         * Java Properties 데이터 처리를 위한 기본 [JavaPropsFactory] 인스턴스입니다.
+         */
         val defaultFactory: JavaPropsFactory by lazy { JavaPropsFactory() }
 
+        /**
+         * JSON 데이터 처리를 위한 기본 [JsonMapper] 인스턴스입니다.
+         */
         val defaultJsonMapper: JsonMapper by lazy { Jackson.defaultJsonMapper }
 
+        /**
+         * Java Properties 데이터 직렬화/역직렬화를 위한 기본 [PropsJacksonSerializer] 인스턴스입니다.
+         */
         val defaultSerializer: PropsJacksonSerializer by lazy {
             PropsJacksonSerializer(defaultMapper)
         }
     }
 
     /**
-     * Jackson JSON 처리에서 사용하는 `Toml` 타입입니다.
+     * TOML(Tom's Obvious, Minimal Language) 형식의 데이터 직렬화/역직렬화를 위한 기본 [TomlMapper], [TomlFactory], [TomlJacksonSerializer]를 제공합니다.
      */
     object Toml {
+        /**
+         * TOML 데이터 처리를 위한 기본 [TomlMapper] 인스턴스입니다.
+         */
         val defaultMapper: TomlMapper by lazy {
             TomlMapper.builder()
                 .findAndAddModules()
@@ -118,17 +145,26 @@ object JacksonText {
                 .build()
         }
 
+        /**
+         * TOML 데이터 처리를 위한 기본 [TomlFactory] 인스턴스입니다.
+         */
         val defaultFactory: TomlFactory by lazy { TomlFactory() }
 
+        /**
+         * JSON 데이터 처리를 위한 기본 [JsonMapper] 인스턴스입니다.
+         */
         val defaultJsonMapper: JsonMapper by lazy { Jackson.defaultJsonMapper }
 
+        /**
+         * TOML 데이터 직렬화/역직렬화를 위한 기본 [TomlJacksonSerializer] 인스턴스입니다.
+         */
         val defaultSerializer: TomlJacksonSerializer by lazy {
             TomlJacksonSerializer(defaultMapper)
         }
     }
 
     /**
-     * Jackson의 [YAMLMapper], [YAMLFactory]의 기본 객체를 제공하는 object 입니다.
+     * YAML(YAML Ain't Markup Language) 형식의 데이터 직렬화/역직렬화를 위한 기본 [YAMLMapper], [YAMLFactory], [YamlJacksonSerializer]를 제공합니다.
      *
      * ```
      * val yamlMapper = JacksonText.Yaml.defaultMapper
@@ -143,6 +179,9 @@ object JacksonText {
      * ```
      */
     object Yaml {
+        /**
+         * YAML 데이터 처리를 위한 기본 [YAMLMapper] 인스턴스입니다.
+         */
         val defaultMapper: YAMLMapper by lazy {
             YAMLMapper.builder()
                 .findAndAddModules()
@@ -153,10 +192,19 @@ object JacksonText {
                 .build()
         }
 
+        /**
+         * YAML 데이터 처리를 위한 기본 [YAMLFactory] 인스턴스입니다.
+         */
         val defaultFactory: YAMLFactory by lazy { YAMLFactory() }
 
+        /**
+         * JSON 데이터 처리를 위한 기본 [JsonMapper] 인스턴스입니다.
+         */
         val defaultJsonMapper: JsonMapper by lazy { Jackson.defaultJsonMapper }
 
+        /**
+         * YAML 데이터 직렬화/역직렬화를 위한 기본 [YamlJacksonSerializer] 인스턴스입니다.
+         */
         val defaultSerializer: YamlJacksonSerializer by lazy {
             YamlJacksonSerializer(defaultMapper)
         }

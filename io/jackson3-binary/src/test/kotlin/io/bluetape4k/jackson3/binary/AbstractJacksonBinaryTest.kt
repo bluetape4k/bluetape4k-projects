@@ -10,6 +10,11 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 
+/**
+ * Jackson 바이너리 포맷(CBOR, ION, Smile) Serializer의 공통 직렬화/역직렬화 테스트를 정의하는 추상 클래스입니다.
+ *
+ * 각 바이너리 포맷별 구현체는 이 클래스를 상속받아 [binaryJacksonSerializer]를 구현하면 됩니다.
+ */
 @RandomizedTest
 abstract class AbstractJacksonBinaryTest {
 
