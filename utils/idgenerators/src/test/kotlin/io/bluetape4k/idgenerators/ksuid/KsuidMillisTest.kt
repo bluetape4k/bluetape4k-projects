@@ -1,6 +1,5 @@
 package io.bluetape4k.idgenerators.ksuid
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.idgenerators.snowflake.MAX_SEQUENCE
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
@@ -34,7 +33,7 @@ class KsuidMillisTest {
     @RepeatedTest(REPEAT_SIZE)
     fun `generate multiple ksuids`() {
         val count = 100
-        val ids = fastList(count) { KsuidMillis.generate() }
+        val ids = List(count) { KsuidMillis.generate() }
 
         ids.distinct().size shouldBeEqualTo count
     }

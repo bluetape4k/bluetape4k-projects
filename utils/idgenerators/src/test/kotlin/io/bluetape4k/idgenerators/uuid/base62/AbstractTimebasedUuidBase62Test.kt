@@ -2,7 +2,6 @@ package io.bluetape4k.idgenerators.uuid.base62
 
 import io.bluetape4k.codec.decodeBase62AsUuid
 import io.bluetape4k.codec.encodeBase62
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.stream.toFastList
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.idgenerators.IdGenerator
@@ -31,7 +30,7 @@ abstract class AbstractTimebasedUuidBase62Test {
     companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 5
         private val TEST_COUNT = 1024 * Runtime.getRuntime().availableProcessors()
-        private val TEST_LIST = fastList(TEST_COUNT) { it }
+        private val TEST_LIST = List(TEST_COUNT) { it }
     }
 
     protected abstract val uuidGenerator: IdGenerator<UUID>

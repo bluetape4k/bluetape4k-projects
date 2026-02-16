@@ -1,6 +1,5 @@
 package io.bluetape4k.math.commons
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.collections.toDoubleArray
 import io.bluetape4k.collections.toLongArray
 import io.bluetape4k.math.MathConsts.BLOCK_SIZE
@@ -75,7 +74,7 @@ fun Sequence<Double>.movingSum(blockSize: Int = BLOCK_SIZE): Sequence<Double> {
  * @return Moving Sum
  */
 fun Iterable<Double>.movingSum(blockSize: Int = BLOCK_SIZE): List<Double> {
-    return asSequence().movingSum(blockSize).toFastList()
+    return asSequence().movingSum(blockSize).toList()
 }
 
 /**
@@ -125,7 +124,7 @@ fun Sequence<Long>.movingSum(blockSize: Int = BLOCK_SIZE): Sequence<Long> {
 
 @JvmName("movingSumOfLong")
 fun Iterable<Long>.movingSum(blockSize: Int = BLOCK_SIZE): List<Long> {
-    return asSequence().movingSum(blockSize).toFastList()
+    return asSequence().movingSum(blockSize).toList()
 }
 
 /**

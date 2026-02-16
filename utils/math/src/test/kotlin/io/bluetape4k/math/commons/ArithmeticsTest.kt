@@ -1,6 +1,5 @@
 package io.bluetape4k.math.commons
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
@@ -16,7 +15,7 @@ class ArithmeticsTest {
 
     @Test
     fun `different size`() {
-        val larges = fastList(values1.size * 2) { Random.nextDouble(-100.0, 100.0) }
+        val larges = List(values1.size * 2) { Random.nextDouble(-100.0, 100.0) }
         val added = values1 + larges
         added.count() shouldBeEqualTo values1.size
     }

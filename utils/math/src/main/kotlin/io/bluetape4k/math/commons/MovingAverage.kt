@@ -1,7 +1,5 @@
 package io.bluetape4k.math.commons
 
-import io.bluetape4k.collections.eclipse.primitives.toFastList
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.collections.toDoubleArray
 import io.bluetape4k.math.MathConsts.BLOCK_SIZE
 import java.util.concurrent.ArrayBlockingQueue
@@ -157,7 +155,7 @@ fun Sequence<Double>.exponentialMovingAverage(blockSize: Int = BLOCK_SIZE): Sequ
 }
 
 fun Iterable<Double>.exponentialMovingAverage(blockSize: Int = BLOCK_SIZE): List<Double> {
-    return asSequence().exponentialMovingAverage(blockSize).toFastList()
+    return asSequence().exponentialMovingAverage(blockSize).toList()
 }
 
 fun DoubleArray.expontentialMovingAverage(blockSize: Int = BLOCK_SIZE): DoubleArray {
@@ -184,7 +182,7 @@ fun Sequence<Double>.cumulativeMovingAverage(): Sequence<Double> {
  * @return 누적 이동평균
  */
 fun Iterable<Double>.cumulativeMovingAverage(): List<Double> {
-    return asSequence().cumulativeMovingAverage().toFastList()
+    return asSequence().cumulativeMovingAverage().toList()
 }
 
 /**
@@ -223,7 +221,7 @@ inline fun Sequence<Double>.weightedMovingAverage(
 
         factors[blockSize - 1] = weightingFunc(blockSize)
         val factorSum = factors.sum()
-        val factorList = factors.toFastList()
+        val factorList = factors.toList()
 
         while (iter.hasNext()) {
             queue.put(iter.next())
@@ -237,7 +235,7 @@ inline fun Iterable<Double>.weightedMovingAverage(
     blockSize: Int = BLOCK_SIZE,
     crossinline weightingFunc: (Int) -> Double,
 ): List<Double> {
-    return asSequence().weightedMovingAverage(blockSize, weightingFunc).toFastList()
+    return asSequence().weightedMovingAverage(blockSize, weightingFunc).toList()
 }
 
 inline fun DoubleArray.weightedMovingAverage(

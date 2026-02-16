@@ -1,10 +1,7 @@
 package io.bluetape4k.math
 
-import io.bluetape4k.collections.eclipse.toFastList
-import io.bluetape4k.collections.eclipse.toUnifiedMap
 import io.bluetape4k.ranges.ClosedOpenRange
 import io.bluetape4k.ranges.DefaultClosedOpenRange
-import org.eclipse.collections.impl.list.mutable.FastList
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.random.Random
 
@@ -30,7 +27,6 @@ fun <T: Any> List<T>.randomDistinct(sampleSize: Int): List<T> {
     val cappedSampleSize = sampleSize.coerceIn(1, size)
 
     val random = ThreadLocalRandom.current()
-    val result = FastList.newList<T>(sampleSize)
     return (0..Int.MAX_VALUE).asSequence()
         .map {
             random.nextInt(0, size)
@@ -38,7 +34,7 @@ fun <T: Any> List<T>.randomDistinct(sampleSize: Int): List<T> {
         .distinct()
         .take(cappedSampleSize)
         .map { this[it] }
-        .toFastList(result)
+        .toList()
 }
 
 fun <T: Any> Sequence<T>.randomDistinct(sampleSize: Int): List<T> = toList().randomDistinct(sampleSize)
@@ -58,7 +54,7 @@ fun <T: Any> List<T>.random(sampleSize: Int): List<T> {
         }
         .take(cappedSampleSize)
         .map { this[it] }
-        .toFastList()
+        .toList()
 }
 
 /**
@@ -104,7 +100,7 @@ class WeightedDice<T: Any> private constructor(probabilities: Map<T, Double>) {
     companion object {
         operator fun <E: Any> invoke(vararg values: Pair<E, Double>): WeightedDice<E> {
             assert(values.isNotEmpty()) { "values is empty." }
-            return WeightedDice(values.toUnifiedMap())
+            return WeightedDice(values.toMap())
         }
 
         operator fun <E: Any> invoke(probabilities: Map<E, Double>): WeightedDice<E> {
@@ -122,7 +118,7 @@ class WeightedDice<T: Any> private constructor(probabilities: Map<T, Double>) {
             .sortedBy { it.value }
             .map { it.key to DefaultClosedOpenRange(binStart, it.value + binStart) }
             .onEach { binStart = it.second.endExclusive }
-            .toUnifiedMap()
+            .toMap()
     }
 
     fun roll(): T = Random.nextDouble(0.0, sum).let { rnd ->

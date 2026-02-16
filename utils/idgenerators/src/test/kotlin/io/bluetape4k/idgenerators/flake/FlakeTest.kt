@@ -1,8 +1,6 @@
 package io.bluetape4k.idgenerators.flake
 
 import io.bluetape4k.codec.encodeHexString
-import io.bluetape4k.collections.eclipse.fastList
-import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
@@ -36,9 +34,9 @@ class FlakeTest {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `generate flake id`() {
-        val ids = fastList(3) { flake.nextId() }
+        val ids = List(3) { flake.nextId() }
 
-        ids.toUnifiedSet() shouldHaveSize 3
+        ids.toSet() shouldHaveSize 3
 
         ids.forEach {
             log.debug { "id=$it, ${Flake.asComponentString(it)}" }
@@ -57,7 +55,7 @@ class FlakeTest {
         val clock = Clock.tick(Clock.systemUTC(), Duration.ofMinutes(1))
         val customFlake = Flake(nodeIdentifier, clock)
 
-        val ids = fastList(ID_SIZE) {
+        val ids = List(ID_SIZE) {
             customFlake.nextIdAsString()
         }
         ids.forEachIndexed { index, id ->
@@ -118,7 +116,7 @@ class FlakeTest {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `generate flake id in coroutines`() = runSuspendDefault {
-        val tasks = fastList(ID_SIZE) {
+        val tasks = List(ID_SIZE) {
             async {
                 flake.nextId()
             }

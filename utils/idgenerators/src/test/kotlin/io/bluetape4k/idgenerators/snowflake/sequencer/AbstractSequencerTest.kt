@@ -1,6 +1,5 @@
 package io.bluetape4k.idgenerators.snowflake.sequencer
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.stream.toFastList
 import io.bluetape4k.idgenerators.snowflake.MAX_MACHINE_ID
 import io.bluetape4k.idgenerators.snowflake.MAX_SEQUENCE
@@ -53,7 +52,7 @@ abstract class AbstractSequencerTest {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `generate sequence`() {
-        val ids = fastList(TEST_SIZE) { sequencer.nextSequence() }
+        val ids = List(TEST_SIZE) { sequencer.nextSequence() }
 
         ids shouldHaveSize TEST_SIZE
         ids.distinct() shouldBeEqualTo ids

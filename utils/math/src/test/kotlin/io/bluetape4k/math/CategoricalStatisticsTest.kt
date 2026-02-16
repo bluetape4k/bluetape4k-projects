@@ -1,6 +1,5 @@
 package io.bluetape4k.math
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
@@ -19,7 +18,7 @@ class CategoricalStatisticsTest {
         // {2=3, 54=1, 67=1, 3=1, 4=1, 5=1}
         val maxFreqs = ints.mode()
 
-        maxFreqs.toFastList() shouldBeEqualTo listOf(2)
+        maxFreqs.toList() shouldBeEqualTo listOf(2)
     }
 
     @Test
@@ -28,7 +27,7 @@ class CategoricalStatisticsTest {
 
         // 요소 중 가장 빈도 수가 높은 놈들을 가져옵니다.
         // {2=3, 3=3, 4=2}
-        val maxFreqs = ints.mode().toFastList()
+        val maxFreqs = ints.mode().toList()
 
         maxFreqs shouldBeEqualTo listOf(2, 3)
     }

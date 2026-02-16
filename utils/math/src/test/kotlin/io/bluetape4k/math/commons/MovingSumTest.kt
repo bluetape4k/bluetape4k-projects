@@ -1,7 +1,6 @@
 package io.bluetape4k.math.commons
 
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.math.MathConsts.BLOCK_SIZE
@@ -13,8 +12,8 @@ class MovingSumTest {
 
     companion object: KLogging()
 
-    private val doubleValues = fastList(10) { it.toDouble() }
-    private val longValues = fastList(10) { it.toLong() }
+    private val doubleValues = List(10) { it.toDouble() }
+    private val longValues = List(10) { it.toLong() }
 
     @Test
     fun `moving sum of double values with invalid block size`() {
@@ -32,7 +31,7 @@ class MovingSumTest {
     @Test
     fun `moving sum of same double values`() {
         val blockSize = BLOCK_SIZE
-        val sameValues = fastList(10) { 1.0 }
+        val sameValues = List(10) { 1.0 }
 
         val sums = sameValues.movingSum(blockSize)
 
@@ -65,7 +64,7 @@ class MovingSumTest {
     @Test
     fun `moving sum of same long values`() {
         val blockSize = BLOCK_SIZE
-        val sameValues = fastList(10) { 1.0 }
+        val sameValues = List(10) { 1.0 }
 
         val sums = sameValues.movingSum(blockSize)
 

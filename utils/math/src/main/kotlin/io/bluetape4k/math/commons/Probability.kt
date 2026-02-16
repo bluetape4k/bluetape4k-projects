@@ -1,7 +1,6 @@
 package io.bluetape4k.math.commons
 
 import io.bluetape4k.collections.eclipse.fastListOf
-import io.bluetape4k.collections.eclipse.unifiedMapOf
 import io.bluetape4k.math.MathConsts.Pi
 import kotlin.math.exp
 import kotlin.math.pow
@@ -44,7 +43,7 @@ fun <T> Iterable<T>.frequency(): Map<T, Int> {
  */
 fun <T, V> Sequence<T>.frequency(selector: (T) -> V): Map<T, Int> {
     val frequency: Map<V, Int> = map { selector(it) }.frequency()
-    val inverse: MutableMap<V, MutableList<T>> = unifiedMapOf()
+    val inverse: MutableMap<V, MutableList<T>> = mutableMapOf()
 
     this
         .distinct()
@@ -53,7 +52,7 @@ fun <T, V> Sequence<T>.frequency(selector: (T) -> V): Map<T, Int> {
             inverse.computeIfAbsent(v) { fastListOf() }.add(t)
         }
 
-    val result: MutableMap<T, Int> = unifiedMapOf()
+    val result: MutableMap<T, Int> = mutableMapOf()
     frequency.forEach { (v: V, count: Int) ->
         inverse
             .computeIfAbsent(v) { fastListOf() }

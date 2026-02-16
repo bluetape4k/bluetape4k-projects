@@ -1,6 +1,5 @@
 package io.bluetape4k.math.special
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.support.assertPositiveNumber
 import org.apache.commons.math3.special.Gamma.logGamma
@@ -35,7 +34,7 @@ fun betaLn(xs: DoubleArray, ys: DoubleArray): DoubleArray {
 
 fun betaLn(xs: List<Double>, ys: List<Double>): List<Double> {
     val minSize = minOf(xs.size, ys.size)
-    return fastList(minSize) {
+    return List(minSize) {
         betaLn(xs[it], ys[it])
     }
 }
@@ -59,5 +58,5 @@ fun beta(xs: DoubleArray, ys: DoubleArray): DoubleArray {
 
 fun beta(xs: List<Double>, ys: List<Double>): List<Double> {
     val minSize = minOf(xs.size, ys.size)
-    return fastList(minSize) { beta(xs[it], ys[it]) }
+    return List(minSize) { beta(xs[it], ys[it]) }
 }

@@ -1,7 +1,5 @@
 package io.bluetape4k.images
 
-import io.bluetape4k.collections.eclipse.toFastList
-import io.bluetape4k.collections.eclipse.toUnifiedSet
 import javax.imageio.spi.IIORegistry
 import javax.imageio.spi.ImageReaderSpi
 import javax.imageio.spi.ImageWriterSpi
@@ -28,24 +26,24 @@ object IIORegistryUtils {
     }
 
     fun getImageReaderSpis(): List<ImageReaderSpi> {
-        return getServiceProviders<ImageReaderSpi>().toFastList()
+        return getServiceProviders<ImageReaderSpi>().toList()
     }
 
     fun getImageWriterSpis(): List<ImageWriterSpi> {
-        return getServiceProviders<ImageWriterSpi>().toFastList()
+        return getServiceProviders<ImageWriterSpi>().toList()
     }
 
     /**
      * Read를 지원하는 Image Format Names
      */
     fun getReadImageFormatNames(): Set<String> {
-        return getImageReaderSpis().flatMap { it.formatNames.toUnifiedSet() }.toUnifiedSet()
+        return getImageReaderSpis().flatMap { it.formatNames.toSet() }.toSet()
     }
 
     /**
      * Write 를 지원하는 Image Format Names
      */
     fun getWriteImageFormatNames(): Set<String> {
-        return getImageWriterSpis().flatMap { it.formatNames.toUnifiedSet() }.toUnifiedSet()
+        return getImageWriterSpis().flatMap { it.formatNames.toSet() }.toSet()
     }
 }

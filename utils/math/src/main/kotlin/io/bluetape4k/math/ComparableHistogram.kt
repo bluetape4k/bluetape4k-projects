@@ -1,7 +1,6 @@
 package io.bluetape4k.math
 
 import io.bluetape4k.collections.eclipse.fastListOf
-import io.bluetape4k.collections.eclipse.unifiedMapOf
 import io.bluetape4k.ranges.DefaultClosedClosedRange
 import io.bluetape4k.ranges.DefaultClosedOpenRange
 import io.bluetape4k.ranges.Range
@@ -64,7 +63,7 @@ inline fun <T: Any, C: Comparable<C>, G: Any> Iterable<T>.binByComparable(
 ): BinModel<G, C> {
     assert(count() > 0) { "Collection must not be empty." }
 
-    val groupByC: MutableMap<C, MutableList<T>> = unifiedMapOf()
+    val groupByC: MutableMap<C, MutableList<T>> = mutableMapOf()
     this.groupByTo(groupByC, valueMapper)
 
     val minC: C = rangeStart ?: groupByC.keys.minOrNull()!!

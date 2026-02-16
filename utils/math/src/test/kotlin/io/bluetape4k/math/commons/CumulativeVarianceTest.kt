@@ -1,6 +1,5 @@
 package io.bluetape4k.math.commons
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import org.amshove.kluent.shouldBeEqualTo
@@ -24,7 +23,7 @@ class CumulativeVarianceTest {
 
     @Test
     fun `cumulative variance for zero sequence`() {
-        val zeros = fastList(SAMPLE_SIZE) { 0.0 }
+        val zeros = List(SAMPLE_SIZE) { 0.0 }
 
         val cv = zeros.cumulativeVariance()
         cv.all { it == 0.0 }.shouldBeTrue()
@@ -32,7 +31,7 @@ class CumulativeVarianceTest {
 
     @Test
     fun `cumulative variance for same values`() {
-        val ones = fastList(SAMPLE_SIZE) { 42.0 }
+        val ones = List(SAMPLE_SIZE) { 42.0 }
 
         val cv = ones.cumulativeVariance()
         cv.all { it == 0.0 }.shouldBeTrue()
@@ -40,7 +39,7 @@ class CumulativeVarianceTest {
 
     @Test
     fun `cumulative variance for incremental values`() {
-        val incs = fastList(SAMPLE_SIZE) { it.toDouble() }
+        val incs = List(SAMPLE_SIZE) { it.toDouble() }
 
         val cv = incs.cumulativeVariance()
         log.trace { "cv=$cv" }
@@ -51,7 +50,7 @@ class CumulativeVarianceTest {
 
     @Test
     fun `cumulative variance for decremental values`() {
-        val decs = fastList(SAMPLE_SIZE) { SAMPLE_SIZE - it.toDouble() }
+        val decs = List(SAMPLE_SIZE) { SAMPLE_SIZE - it.toDouble() }
 
         val cv = decs.cumulativeVariance()
         log.trace { "cv=$cv" }
@@ -62,7 +61,7 @@ class CumulativeVarianceTest {
 
     @Test
     fun `cumulative variance for random values`() {
-        val values = fastList(SAMPLE_SIZE) { Random.nextDouble(-10.0, 10.0) }
+        val values = List(SAMPLE_SIZE) { Random.nextDouble(-10.0, 10.0) }
         val cv = values.cumulativeVariance()
         log.trace { "cv=$cv" }
         cv.all { it >= 0 }.shouldBeTrue()

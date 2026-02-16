@@ -1,7 +1,6 @@
 package io.bluetape4k.idgenerators.snowflake
 
 import io.bluetape4k.codec.encodeBase62
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.parallel.parMap
 import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.idgenerators.getMachineId
@@ -31,7 +30,7 @@ abstract class AbstractSnowflakeTest {
     companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 5
         private const val TEST_COUNT = MAX_SEQUENCE * 4
-        private val TEST_LIST = fastList(TEST_COUNT) { it }
+        private val TEST_LIST = List(TEST_COUNT) { it }
     }
 
     abstract val snowflake: Snowflake
@@ -46,7 +45,7 @@ abstract class AbstractSnowflakeTest {
     fun `generate snowflake id`() {
         snowflake.nextId()
 
-        val ids = fastList(3) { snowflake.nextId() }
+        val ids = List(3) { snowflake.nextId() }
 
         ids[1] shouldBeGreaterThan ids[0]
         ids[2] shouldBeGreaterThan ids[1]

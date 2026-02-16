@@ -1,6 +1,5 @@
 package io.bluetape4k.math.commons
 
-import io.bluetape4k.collections.eclipse.toUnifiedMap
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import org.amshove.kluent.shouldBeEqualTo
@@ -19,7 +18,7 @@ class RankingTest {
             .mapIndexed { index, value ->
                 value to (ranks.size - ranks[index]).toInt()
             }
-            .toUnifiedMap()
+            .toMap()
     }
 
     @Test

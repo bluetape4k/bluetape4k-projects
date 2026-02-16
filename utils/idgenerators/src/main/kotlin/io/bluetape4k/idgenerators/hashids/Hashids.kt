@@ -1,7 +1,5 @@
 package io.bluetape4k.idgenerators.hashids
 
-import io.bluetape4k.collections.eclipse.fastListOf
-import io.bluetape4k.collections.eclipse.primitives.toFastList
 import io.bluetape4k.collections.toLongArray
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
@@ -84,7 +82,7 @@ class Hashids(
         return when {
             numbers.size == 1 -> encodeSingle(numbers[0])
             numbers.all { it.isValidNumber() } -> encodeArray(*numbers)
-            else -> numbersToArrayList(numbers).joinToString(NUMBER_SEPARATOR) {
+            else              -> numbersToArrayList(numbers).joinToString(NUMBER_SEPARATOR) {
                 if (it.first) {  // valid number 인 경우
                     encodeArray(*it.second)
                 } else {
@@ -103,8 +101,8 @@ class Hashids(
     }
 
     private fun numbersToArrayList(numbers: LongArray): List<Pair<Boolean, LongArray>> {
-        val result = fastListOf<Pair<Boolean, LongArray>>()
-        val current = fastListOf<Long>()
+        val result = mutableListOf<Pair<Boolean, LongArray>>()
+        val current = mutableListOf<Long>()
 
         numbers.forEach {
             if (it.isValidNumber()) {
@@ -161,7 +159,7 @@ class Hashids(
      */
     fun decode(hash: String): LongArray {
         val hashes = hash.split(NUMBER_SEPARATOR)
-        return hashes.flatMap { decodeSingle(it).toFastList() }.toLongArray()
+        return hashes.flatMap { decodeSingle(it).toList() }.toLongArray()
     }
 
     private fun decodeSingle(hash: String): LongArray {
@@ -198,7 +196,7 @@ class Hashids(
         val (lottery, hashBreakdown) = extractLotteryCharAndHashArray(initialSplit)
 
         log.trace { "lottery=$lottery, hashBreakdown=${hashBreakdown.joinToString()}" }
-        val returnValue = unhashSubHashes(hashBreakdown.iterator(), lottery, fastListOf(), alphabet)
+        val returnValue = unhashSubHashes(hashBreakdown.iterator(), lottery, mutableListOf(), alphabet)
         log.trace { "returnValue=${returnValue.joinToString()}" }
 
         val decodedValue =

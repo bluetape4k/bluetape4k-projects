@@ -1,6 +1,5 @@
 package io.bluetape4k.idgenerators.uuid
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
@@ -21,7 +20,7 @@ class RandomUuidGeneratorTest {
     companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 5
         private val TEST_COUNT = 512 * Runtime.getRuntime().availableProcessors()
-        private val TEST_LIST = fastList(TEST_COUNT) { it }
+        private val TEST_LIST = List(TEST_COUNT) { it }
     }
 
     private val uuidGenerator = RandomUuidGenerator()

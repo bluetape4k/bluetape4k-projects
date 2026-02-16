@@ -1,8 +1,6 @@
 package io.bluetape4k.math.commons
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.collections.toDoubleArray
-import org.eclipse.collections.impl.list.mutable.FastList
 
 /**
  * 시퀀스의 누적 분산을 계산합니다.
@@ -27,9 +25,10 @@ fun <N: Number> Sequence<N>.cumulativeVariance(): Sequence<Double> {
  * Collection의 누적 분산을 계산합니다.
  */
 fun <N: Number> Iterable<N>.cumulativeVariance(
-    destination: FastList<Double> = FastList.newList(),
+    destination: MutableList<Double> = mutableListOf(),
 ): List<Double> {
-    return asSequence().cumulativeVariance().toFastList(destination)
+    destination.addAll(asSequence().cumulativeVariance().toList())
+    return destination
 }
 
 fun DoubleArray.cumulativeVariance(): DoubleArray {
