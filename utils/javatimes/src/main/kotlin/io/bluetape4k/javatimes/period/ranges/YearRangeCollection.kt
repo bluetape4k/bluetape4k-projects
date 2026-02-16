@@ -1,6 +1,5 @@
 package io.bluetape4k.javatimes.period.ranges
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.javatimes.period.ITimeCalendar
 import io.bluetape4k.javatimes.period.TimeCalendar
 import java.time.ZonedDateTime
@@ -36,5 +35,5 @@ open class YearRangeCollection protected constructor(
 
     fun yearSequence(): Sequence<YearRange> = yearRanges(year, yearCount, calendar)
 
-    fun years(): List<YearRange> = yearSequence().toFastList()
+    fun years(): List<YearRange> = yearSequence().toList()
 }

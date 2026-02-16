@@ -1,6 +1,5 @@
 package io.bluetape4k.javatimes.period.ranges
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.javatimes.period.ITimeCalendar
 import io.bluetape4k.javatimes.period.TimeCalendar
 import io.bluetape4k.javatimes.todayZonedDateTime
@@ -21,5 +20,5 @@ open class MonthRangeCollection(
 
     fun monthSequence(): Sequence<MonthRange> = monthRanges(startDayOfStart, monthCount, calendar)
 
-    fun months(): List<MonthRange> = monthSequence().toFastList()
+    fun months(): List<MonthRange> = monthSequence().toList()
 }

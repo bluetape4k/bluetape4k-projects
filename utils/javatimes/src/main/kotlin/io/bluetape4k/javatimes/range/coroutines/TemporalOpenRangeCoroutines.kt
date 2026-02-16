@@ -1,6 +1,5 @@
 package io.bluetape4k.javatimes.range.coroutines
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.javatimes.range.SupportChronoUnits
 import io.bluetape4k.javatimes.range.TemporalOpenedProgression
 import io.bluetape4k.javatimes.range.TemporalOpenedRange
@@ -26,8 +25,8 @@ fun <T> TemporalOpenedRange<T>.windowedFlow(
     size: Int,
     step: Int = 1,
     unit: ChronoUnit = ChronoUnit.YEARS,
-): Flow<List<T>>
-        where T: Temporal, T: Comparable<T> {
+): Flow<List<T>> where T: Temporal, T: Comparable<T> {
+
     size.assertPositiveNumber("size")
     step.assertPositiveNumber("step")
     assert(unit in SupportChronoUnits) { "Not supported ChronoUnit. unit=$unit" }
@@ -42,7 +41,7 @@ fun <T> TemporalOpenedRange<T>.windowedFlow(
                 (current + (index++).temporalAmount(unit)) as T
             }
                 .takeWhile { it < endExclusive }
-                .toFastList()
+                .toList()
 
             emit(item)
             current = (current + increment) as T

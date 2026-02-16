@@ -1,6 +1,5 @@
 package io.bluetape4k.javatimes.period.ranges
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.javatimes.period.AbstractPeriodTest
 import io.bluetape4k.javatimes.period.TimeCalendar
 import io.bluetape4k.javatimes.startOfDay
@@ -77,7 +76,7 @@ class YearRangeCollectionTest: AbstractPeriodTest() {
                         yr shouldBeEqualTo YearRange(yrs.start.plusYears(year.toLong()))
                     }
                 }
-                    .toFastList()
+                    .toList()
                     .awaitAll()
             }
         }.joinAll()

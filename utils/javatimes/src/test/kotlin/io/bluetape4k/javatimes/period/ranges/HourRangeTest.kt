@@ -1,6 +1,5 @@
 package io.bluetape4k.javatimes.period.ranges
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.javatimes.HoursPerDay
 import io.bluetape4k.javatimes.MinNegativeDuration
 import io.bluetape4k.javatimes.MinutesPerHour
@@ -62,7 +61,7 @@ class HourRangeTest: AbstractPeriodTest() {
         nextHr.start shouldBeEqualTo emptyHr.start + 1.hours()
         nextHr.end shouldBeEqualTo emptyHr.end + 1.hours()
 
-        (-100..100).toFastList()
+        (-100..100).toList()
             .parallelStream()
             .forEach { h ->
                 val hr1 = emptyHr.addHours(h)

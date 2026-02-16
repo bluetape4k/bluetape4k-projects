@@ -1,6 +1,5 @@
 package io.bluetape4k.javatimes.period.ranges
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.javatimes.MonthsPerQuarter
 import io.bluetape4k.javatimes.Quarter
 import io.bluetape4k.javatimes.period.ITimeCalendar
@@ -28,9 +27,9 @@ open class QuarterTimeRange(
     fun monthSequence(): Sequence<MonthRange> =
         monthRanges(startMonthOfStart, quarterCount * MonthsPerQuarter, calendar)
 
-    fun months(): List<MonthRange> = monthSequence().toFastList()
+    fun months(): List<MonthRange> = monthSequence().toList()
 
     fun daySequence(): Sequence<DayRange> = monthSequence().flatMap { it.daySequence() }
 
-    fun days(): List<DayRange> = daySequence().toFastList()
+    fun days(): List<DayRange> = daySequence().toList()
 }

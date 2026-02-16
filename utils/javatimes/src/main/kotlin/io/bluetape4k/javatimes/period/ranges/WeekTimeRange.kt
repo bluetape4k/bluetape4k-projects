@@ -1,6 +1,5 @@
 package io.bluetape4k.javatimes.period.ranges
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.javatimes.DaysPerWeek
 import io.bluetape4k.javatimes.period.ITimeCalendar
 import io.bluetape4k.javatimes.period.TimeCalendar
@@ -30,5 +29,5 @@ open class WeekTimeRange(
     fun daySequence(): Sequence<DayRange> =
         dayRanges(startDayOfStart, weekCount * DaysPerWeek, calendar)
 
-    fun days(): List<DayRange> = daySequence().toFastList()
+    fun days(): List<DayRange> = daySequence().toList()
 }

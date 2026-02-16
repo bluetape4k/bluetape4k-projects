@@ -1,9 +1,7 @@
 package io.bluetape4k.javatimes.period.timelines
 
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.javatimes.period.ITimePeriod
 import io.bluetape4k.logging.KLogging
-import org.eclipse.collections.impl.list.mutable.FastList
 import java.time.ZonedDateTime
 
 /**
@@ -11,12 +9,12 @@ import java.time.ZonedDateTime
  */
 @Suppress("JavaDefaultMethodsNotOverriddenByDelegation")
 open class TimeLineMomentCollection protected constructor(
-    private val moments: FastList<ITimeLineMoment>,
+    private val moments: MutableList<ITimeLineMoment>,
 ): ITimeLineMomentCollection, MutableList<ITimeLineMoment> by moments {
 
     companion object: KLogging() {
         @JvmStatic
-        operator fun invoke(moments: FastList<ITimeLineMoment> = fastListOf()): TimeLineMomentCollection {
+        operator fun invoke(moments: MutableList<ITimeLineMoment> = mutableListOf()): TimeLineMomentCollection {
             return TimeLineMomentCollection(moments)
         }
     }
@@ -40,11 +38,11 @@ open class TimeLineMomentCollection protected constructor(
     }
 
     override fun find(moment: ZonedDateTime): ITimeLineMoment? {
-        return moments.detect { it.moment == moment }
+        return moments.find { it.moment == moment }
     }
 
     override fun contains(moment: ZonedDateTime): Boolean {
-        return moments.anySatisfy { it.moment == moment }
+        return moments.any { it.moment == moment }
     }
 
     protected fun addPeriod(moment: ZonedDateTime, period: ITimePeriod) {
@@ -52,7 +50,7 @@ open class TimeLineMomentCollection protected constructor(
         if (item == null) {
             item = TimeLineMoment(moment)
             moments.add(item)
-            moments.sortThis()
+            moments.sort()
         }
         item.periods.add(period)
     }

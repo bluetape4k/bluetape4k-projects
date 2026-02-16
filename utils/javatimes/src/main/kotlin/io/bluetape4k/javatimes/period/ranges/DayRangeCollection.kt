@@ -1,6 +1,5 @@
 package io.bluetape4k.javatimes.period.ranges
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.javatimes.period.ITimeCalendar
 import io.bluetape4k.javatimes.period.TimeCalendar
 import io.bluetape4k.javatimes.todayZonedDateTime
@@ -17,5 +16,5 @@ open class DayRangeCollection(
 
     fun daySequence(): Sequence<DayRange> = dayRanges(startDayOfStart, dayCount, calendar)
 
-    fun days(): List<DayRange> = daySequence().toFastList()
+    fun days(): List<DayRange> = daySequence().toList()
 }

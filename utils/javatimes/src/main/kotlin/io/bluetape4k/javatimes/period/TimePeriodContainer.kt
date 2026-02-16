@@ -1,12 +1,10 @@
 package io.bluetape4k.javatimes.period
 
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.javatimes.MaxDuration
 import io.bluetape4k.javatimes.MaxPeriodTime
 import io.bluetape4k.javatimes.MinPeriodTime
 import io.bluetape4k.javatimes.durationOf
 import io.bluetape4k.logging.KLogging
-import org.eclipse.collections.impl.list.mutable.FastList
 import java.time.Duration
 import java.time.ZonedDateTime
 
@@ -15,7 +13,7 @@ import java.time.ZonedDateTime
  */
 @Suppress("JavaDefaultMethodsNotOverriddenByDelegation")
 open class TimePeriodContainer(
-    override val periods: FastList<ITimePeriod> = fastListOf(),
+    override val periods: MutableList<ITimePeriod> = mutableListOf(),
 ): TimePeriod(), ITimePeriodContainer, MutableList<ITimePeriod> by periods {
 
     companion object: KLogging() {

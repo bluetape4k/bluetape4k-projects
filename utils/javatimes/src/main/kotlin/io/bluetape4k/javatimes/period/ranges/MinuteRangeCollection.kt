@@ -1,6 +1,5 @@
 package io.bluetape4k.javatimes.period.ranges
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.javatimes.period.ITimeCalendar
 import io.bluetape4k.javatimes.period.TimeCalendar
 import java.time.ZonedDateTime
@@ -17,5 +16,5 @@ open class MinuteRangeCollection(
     fun minuteSequence(): Sequence<MinuteRange> =
         minuteRanges(startMinuteOfStart, minuteCount, calendar)
 
-    fun minutes(): List<MinuteRange> = minuteSequence().toFastList()
+    fun minutes(): List<MinuteRange> = minuteSequence().toList()
 }

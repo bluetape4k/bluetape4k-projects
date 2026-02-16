@@ -1,6 +1,5 @@
 package io.bluetape4k.javatimes.interval
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.javatimes.nowZonedDateTime
 import io.bluetape4k.javatimes.startOf
 import io.bluetape4k.javatimes.temporalAmount
@@ -31,7 +30,7 @@ class TemporalIntervalWindowedTest {
             val start = nowZonedDateTime().startOf(chronoUnit)
             val interval = temporalIntervalOf(start, 5.temporalAmount(chronoUnit))
 
-            val chunks = interval.chunked(4, chronoUnit).toFastList()
+            val chunks = interval.chunked(4, chronoUnit).toList()
 
             chunks.forEachIndexed { index, chunk ->
                 log.trace { "chunks[$index] = $chunk" }
@@ -67,7 +66,7 @@ class TemporalIntervalWindowedTest {
                 .map { years ->
                     temporalIntervalOf(years.first(), years.last())
                 }
-                .toFastList()
+                .toList()
 
             chunks.size shouldBeEqualTo 2
             chunks.forEach {

@@ -1,6 +1,5 @@
 package io.bluetape4k.javatimes.period.ranges
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.javatimes.MonthsPerYear
 import io.bluetape4k.javatimes.QuartersPerYear
 import io.bluetape4k.javatimes.period.ITimeCalendar
@@ -28,22 +27,22 @@ open class YearTimeRange(
     fun quarterSequence(): Sequence<QuarterRange> =
         quarterRanges(start, yearCount * QuartersPerYear, calendar)
 
-    fun quarters(): List<QuarterRange> = quarterSequence().toFastList()
+    fun quarters(): List<QuarterRange> = quarterSequence().toList()
 
     fun monthSequence(): Sequence<MonthRange> =
         monthRanges(start, yearCount * MonthsPerYear, calendar)
 
-    fun months(): List<MonthRange> = monthSequence().toFastList()
+    fun months(): List<MonthRange> = monthSequence().toList()
 
     fun daySequence(): Sequence<DayRange> = monthSequence().flatMap { it.daySequence() }
 
-    fun days(): List<DayRange> = daySequence().toFastList()
+    fun days(): List<DayRange> = daySequence().toList()
 
     fun hourSequence(): Sequence<HourRange> = daySequence().flatMap { it.hourSequence() }
 
-    fun hours(): List<HourRange> = hourSequence().toFastList()
+    fun hours(): List<HourRange> = hourSequence().toList()
 
     fun minuteSequence(): Sequence<MinuteRange> = hourSequence().flatMap { it.minuteSequence() }
 
-    fun minutes(): List<MinuteRange> = minuteSequence().toFastList()
+    fun minutes(): List<MinuteRange> = minuteSequence().toList()
 }

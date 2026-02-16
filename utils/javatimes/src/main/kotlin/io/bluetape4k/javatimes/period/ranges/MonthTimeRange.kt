@@ -1,6 +1,5 @@
 package io.bluetape4k.javatimes.period.ranges
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.javatimes.period.ITimeCalendar
 import io.bluetape4k.javatimes.period.TimeCalendar
 import io.bluetape4k.javatimes.period.relativeMonthPeriod
@@ -18,10 +17,10 @@ open class MonthTimeRange(
 
     fun daySequence(): Sequence<DayRange> = dayRanges(start, end, calendar)
 
-    fun days(): List<DayRange> = daySequence().toFastList()
+    fun days(): List<DayRange> = daySequence().toList()
 
     fun hourSequence(): Sequence<HourRange> =
         daySequence().flatMap { it.hourSequence() }
 
-    fun hours(): List<HourRange> = hourSequence().toFastList()
+    fun hours(): List<HourRange> = hourSequence().toList()
 }
