@@ -1,6 +1,5 @@
 package io.bluetape4k.naivebayes
 
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
@@ -16,7 +15,7 @@ class NaiveBayesClassifierEnglishTest: AbstractNaiveBayesClassifierTest() {
         private const val REPEAT_SIZE = 5
     }
 
-    private val emails = fastListOf(
+    private val emails = listOf(
         Email("Hey there! I thought you might find this interesting. Click here.", isSpam = true),
         Email("Get viagra for a discount as much as 90%", isSpam = true),
         Email("Viagra prescription for less", isSpam = true),
@@ -55,7 +54,7 @@ class NaiveBayesClassifierEnglishTest: AbstractNaiveBayesClassifierTest() {
         predictedCategory2.shouldBeFalse()
     }
 
-    private val bankTransactions = fastListOf(
+    private val bankTransactions = listOf(
         BankTransaction(
             date = LocalDate.of(2018, 3, 13),
             amount = 12.69,

@@ -1,6 +1,5 @@
 package io.bluetape4k.units
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.internal.assertFailsWith
@@ -30,7 +29,7 @@ class PressureTest {
 
     @Test
     fun `convert pressure unit by random`() {
-        val pressures = fastList(100) { Random.nextDouble(-100.0, 100.0) }
+        val pressures = List(100) { Random.nextDouble(-100.0, 100.0) }
 
         pressures.forEach { pressure ->
             pressure.pascal().inPascal().shouldBeNear(pressure, EPSILON)

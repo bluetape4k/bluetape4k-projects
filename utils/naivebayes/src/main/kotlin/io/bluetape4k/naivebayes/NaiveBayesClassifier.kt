@@ -1,8 +1,5 @@
 package io.bluetape4k.naivebayes
 
-import io.bluetape4k.collections.eclipse.fastListOf
-import io.bluetape4k.collections.eclipse.toUnifiedSet
-import io.bluetape4k.collections.eclipse.unifiedMapOf
 import io.bluetape4k.logging.KLogging
 import kotlinx.atomicfu.atomic
 import kotlin.math.exp
@@ -32,9 +29,9 @@ class NaiveBayesClassifier<F: Any, C: Any>(
     }
 
     @Volatile
-    private var probabilities: Map<FeatureProbability.Key<F, C>, FeatureProbability<F, C>> = unifiedMapOf()
+    private var probabilities: Map<FeatureProbability.Key<F, C>, FeatureProbability<F, C>> = mutableMapOf()
 
-    private val _population: MutableList<BayesInput<F, C>> = fastListOf()
+    private val _population: MutableList<BayesInput<F, C>> = mutableListOf()
     val population: List<BayesInput<F, C>> get() = _population
 
     private val modelStaler = atomic(false)
@@ -47,7 +44,7 @@ class NaiveBayesClassifier<F: Any, C: Any>(
         if (_population.size == observationLimit) {
             _population.removeAt(0)
         }
-        _population += BayesInput(category, features.toUnifiedSet())
+        _population += BayesInput(category, features.toSet())
         modelStaled = true
     }
 
@@ -55,7 +52,7 @@ class NaiveBayesClassifier<F: Any, C: Any>(
      * Adds an observation of features to a category
      */
     fun addObservation(category: C, vararg features: F) {
-        addObservation(category, features.toUnifiedSet())
+        addObservation(category, features.toSet())
     }
 
     private fun rebuildModel() {
@@ -73,12 +70,12 @@ class NaiveBayesClassifier<F: Any, C: Any>(
      * Returns the categories that have been captured by the model so far.
      */
     val categories: Set<C>
-        get() = probabilities.keys.map { it.category }.toUnifiedSet()
+        get() = probabilities.keys.map { it.category }.toSet()
 
     /**
      *  Predicts a category `C` for a given set of `F` features
      */
-    fun predict(vararg features: F): C? = predictWithProbability(features.toUnifiedSet())?.category
+    fun predict(vararg features: F): C? = predictWithProbability(features.toSet())?.category
 
     /**
      * Predicts a category `C` for a given set of `F` features
@@ -94,7 +91,7 @@ class NaiveBayesClassifier<F: Any, C: Any>(
             rebuildModel()
         }
 
-        val f = features.toUnifiedSet()
+        val f = features.toSet()
 
         return categories
             .asSequence()

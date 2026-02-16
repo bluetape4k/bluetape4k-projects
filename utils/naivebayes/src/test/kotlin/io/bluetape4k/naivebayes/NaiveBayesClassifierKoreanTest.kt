@@ -1,6 +1,5 @@
 package io.bluetape4k.naivebayes
 
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
@@ -19,7 +18,7 @@ class NaiveBayesClassifierKoreanTest: AbstractNaiveBayesClassifierTest() {
     @RepeatedTest(REPEAT_SIZE)
     fun `메일 제목으로 spam 분류하기`() {
 
-        val emails = fastListOf(
+        val emails = listOf(
             Email("로켓펀치 누적 프로필 20만 돌파 기념 인포그래픽 공개! ", isSpam = false),
             Email("(광고)마이크로소프트 IoT와 함께 하는 에너지 절약 기술의 미래 웨비나에 지금 등록하세요", isSpam = false),
             Email("[쿠팡] 배*혁님 주문하신 내역을 확인해주세요.", isSpam = false),
@@ -51,7 +50,7 @@ class NaiveBayesClassifierKoreanTest: AbstractNaiveBayesClassifierTest() {
     @RepeatedTest(REPEAT_SIZE)
     fun `한글 명세서로 분류하기`() {
 
-        val bankTransactions = fastListOf(
+        val bankTransactions = listOf(
             BankTransaction(
                 date = LocalDate.of(2018, 3, 13),
                 amount = 12.69,
