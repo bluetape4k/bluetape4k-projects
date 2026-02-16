@@ -3,7 +3,7 @@ package io.bluetape4k.cache.jcache.coroutines
 import io.bluetape4k.cache.jcache.JCaching
 import io.bluetape4k.cache.jcache.getDefaultJCacheConfiguration
 import io.bluetape4k.coroutines.flow.extensions.toFastList
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.requireNotBlank
 import kotlinx.coroutines.flow.Flow
@@ -72,7 +72,7 @@ class RedissonSuspendCache<K: Any, V: Any>(private val cache: JCache<K, V>): Sus
     }
 
     override suspend fun clear() {
-        cache.clearAsync().suspendAwait()
+        cache.clearAsync().awaitSuspending()
     }
 
     override suspend fun close() {
@@ -82,11 +82,11 @@ class RedissonSuspendCache<K: Any, V: Any>(private val cache: JCache<K, V>): Sus
     override fun isClosed(): Boolean = cache.isClosed
 
     override suspend fun containsKey(key: K): Boolean {
-        return cache.containsKeyAsync(key).suspendAwait()
+        return cache.containsKeyAsync(key).awaitSuspending()
     }
 
     override suspend fun get(key: K): V? {
-        return cache.getAsync(key).suspendAwait()
+        return cache.getAsync(key).awaitSuspending()
     }
 
     override fun getAll(): Flow<SuspendCacheEntry<K, V>> {
@@ -94,7 +94,7 @@ class RedissonSuspendCache<K: Any, V: Any>(private val cache: JCache<K, V>): Sus
     }
 
     override fun getAll(keys: Set<K>): Flow<SuspendCacheEntry<K, V>> = flow {
-        cache.getAllAsync(keys).suspendAwait().forEach { (key, value) ->
+        cache.getAllAsync(keys).awaitSuspending().forEach { (key, value) ->
             emit(SuspendCacheEntry(key, value))
         }
     }
@@ -104,19 +104,19 @@ class RedissonSuspendCache<K: Any, V: Any>(private val cache: JCache<K, V>): Sus
     }
 
     override suspend fun getAndRemove(key: K): V? {
-        return cache.getAndRemoveAsync(key).suspendAwait()
+        return cache.getAndRemoveAsync(key).awaitSuspending()
     }
 
     override suspend fun getAndReplace(key: K, value: V): V? {
-        return cache.getAndReplaceAsync(key, value).suspendAwait()
+        return cache.getAndReplaceAsync(key, value).awaitSuspending()
     }
 
     override suspend fun put(key: K, value: V) {
-        cache.putAsync(key, value).suspendAwait()
+        cache.putAsync(key, value).awaitSuspending()
     }
 
     override suspend fun putAll(map: Map<K, V>) {
-        cache.putAllAsync(map).suspendAwait()
+        cache.putAllAsync(map).awaitSuspending()
     }
 
     override suspend fun putAllFlow(entries: Flow<Pair<K, V>>) {
@@ -127,15 +127,15 @@ class RedissonSuspendCache<K: Any, V: Any>(private val cache: JCache<K, V>): Sus
     }
 
     override suspend fun putIfAbsent(key: K, value: V): Boolean {
-        return cache.putIfAbsentAsync(key, value).suspendAwait()
+        return cache.putIfAbsentAsync(key, value).awaitSuspending()
     }
 
     override suspend fun remove(key: K): Boolean {
-        return cache.removeAsync(key).suspendAwait()
+        return cache.removeAsync(key).awaitSuspending()
     }
 
     override suspend fun remove(key: K, oldValue: V): Boolean {
-        return cache.removeAsync(key, oldValue).suspendAwait()
+        return cache.removeAsync(key, oldValue).awaitSuspending()
     }
 
     override suspend fun removeAll() {
@@ -143,15 +143,15 @@ class RedissonSuspendCache<K: Any, V: Any>(private val cache: JCache<K, V>): Sus
     }
 
     override suspend fun removeAll(keys: Set<K>) {
-        cache.removeAllAsync(keys).suspendAwait()
+        cache.removeAllAsync(keys).awaitSuspending()
     }
 
     override suspend fun replace(key: K, oldValue: V, newValue: V): Boolean {
-        return cache.replaceAsync(key, oldValue, newValue).suspendAwait()
+        return cache.replaceAsync(key, oldValue, newValue).awaitSuspending()
     }
 
     override suspend fun replace(key: K, value: V): Boolean {
-        return cache.replaceAsync(key, value).suspendAwait()
+        return cache.replaceAsync(key, value).awaitSuspending()
     }
 
     override fun registerCacheEntryListener(configuration: CacheEntryListenerConfiguration<K, V>) {

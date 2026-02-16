@@ -1,6 +1,5 @@
 package io.bluetape4k.examples.redisson.coroutines.locks
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -55,7 +54,7 @@ class ReadWriteLockExamples: AbstractRedissonCoroutineTest() {
         writeLock.unlockAsync(writeLockId).awaitSuspending()
 
         // read lock 을 여러 개를 동시에 획득, 작업을 수행
-        val jobs = fastList(3) {
+        val jobs = List(3) {
             scope.launch(exceptionHandler) {
                 // 기본적으로 current thread id 기준으로 lock을 잡는데, suspend 후에는 변경될 수 있습니다.
                 // currentCoroutineId 는 같은 CoroutineScope에서는 같기 때문에 CorouineScope 안에서는 currentCoroutineId 를 사용해야 합니다.

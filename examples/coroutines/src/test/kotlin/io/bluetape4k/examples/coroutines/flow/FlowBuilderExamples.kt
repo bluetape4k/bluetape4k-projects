@@ -1,7 +1,6 @@
 package io.bluetape4k.examples.coroutines.flow
 
 import app.cash.turbine.test
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.tests.assertResult
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -47,7 +46,7 @@ class FlowBuilderExamples {
     @Test
     fun `convert list to flow - asFlow`() = runTest {
         var count = 0
-        fastListOf(1, 2, 3, 4, 5).asFlow().log("array")
+        listOf(1, 2, 3, 4, 5).asFlow().log("array")
             .collect {
                 count++
                 log.debug { "element=$it" }

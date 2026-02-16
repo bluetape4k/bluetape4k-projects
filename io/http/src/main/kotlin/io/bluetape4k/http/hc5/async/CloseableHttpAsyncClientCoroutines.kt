@@ -1,6 +1,6 @@
 package io.bluetape4k.http.hc5.async
 
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.http.hc5.async.methods.toProducer
 import org.apache.hc.client5.http.async.methods.SimpleHttpRequest
 import org.apache.hc.client5.http.async.methods.SimpleHttpResponse
@@ -33,7 +33,7 @@ suspend fun CloseableHttpAsyncClient.executeSuspending(
     context: HttpContext = HttpClientContext.create(),
     callback: FutureCallback<SimpleHttpResponse>? = null,
 ): SimpleHttpResponse {
-    return execute(request.toProducer(), responseConsumer, context, callback).suspendAwait()
+    return execute(request.toProducer(), responseConsumer, context, callback).awaitSuspending()
 }
 
 /**

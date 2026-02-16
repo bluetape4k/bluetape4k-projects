@@ -1,6 +1,6 @@
 package io.bluetape4k.io.okio.coroutines
 
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireZeroOrPositiveNumber
@@ -48,7 +48,7 @@ class SuspendedFileChannelSource(
             readBuffer.clear()
             readBuffer.limit(minOf(remaining, readBuffer.capacity().toLong()).toInt())
 
-            val bytesRead = channel.read(readBuffer, position).suspendAwait()
+            val bytesRead = channel.read(readBuffer, position).awaitSuspending()
 
             // Trust read result for EOF/partial read instead of calling channel.size() every time.
             if (bytesRead < 0) {

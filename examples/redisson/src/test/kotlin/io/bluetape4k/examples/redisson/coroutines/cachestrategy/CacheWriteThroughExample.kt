@@ -1,7 +1,6 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
-import io.bluetape4k.collections.eclipse.toFastList
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorRecord
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
@@ -63,7 +62,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
             try {
 
                 // Write Through 모드로 설정했으므로, 캐시에 데이터를 삽입하면 DB에도 삽입된다.
-                val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toFastList()
+                val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toList()
                 writeIds.forEach { id ->
                     cache[id] = newActorRecord(id)
                 }
@@ -102,7 +101,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
             try {
 
                 // Write Through 모드로 설정했으므로, 캐시에 데이터를 삽입하면 DB에도 삽입된다.
-                val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toFastList()
+                val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toList()
                 writeIds.forEach { id ->
                     // cache[id] = newActorRecord(id)
                     cache.fastPut(id, newActorRecord(id))
@@ -147,7 +146,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
 
             try {
                 // Write Through 모드로 설정했으므로, 캐시에 데이터를 삽입하면 DB에도 삽입된다.
-                val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toFastList()
+                val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toList()
                 writeIds.map { id ->
                     // cache[id] = newActorRecord(id)
                     cache.fastPutAsync(id, newActorRecord(id))
@@ -167,7 +166,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
 
             } finally {
                 // 캐시를 삭제한다.
-                cache.deleteAsync().suspendAwait()
+                cache.deleteAsync().awaitSuspending()
             }
         }
 
@@ -193,7 +192,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
             try {
 
                 // Write Through 모드로 설정했으므로, 캐시에 데이터를 삽입하면 DB에도 삽입된다.
-                val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toFastList()
+                val writeIds = Snowflakers.Default.nextIds(ACTOR_SIZE).toList()
                 writeIds.map { id ->
                     // cache[id] = newActorRecord(id)
                     cache.fastPutAsync(id, newActorRecord(id))
@@ -218,7 +217,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
 
             } finally {
                 // 캐시를 삭제한다.
-                cache.deleteAsync().suspendAwait()
+                cache.deleteAsync().awaitSuspending()
             }
         }
     }

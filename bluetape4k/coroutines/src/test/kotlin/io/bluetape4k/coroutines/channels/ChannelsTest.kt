@@ -1,7 +1,5 @@
 package io.bluetape4k.coroutines.channels
 
-import io.bluetape4k.collections.eclipse.fastListOf
-import io.bluetape4k.collections.eclipse.unifiedSetOf
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBe
@@ -20,7 +18,7 @@ class ChannelsTest {
             send(3)
         }
 
-        channel.toFastList() shouldBeEqualTo fastListOf(1, 2, 3)
+        channel.toFastList() shouldBeEqualTo mutableListOf(1, 2, 3)
     }
 
     @Test
@@ -34,7 +32,7 @@ class ChannelsTest {
         val result = channel.toFastList(destination)
 
         result shouldBe destination
-        result shouldBeEqualTo fastListOf("a", "b")
+        result shouldBeEqualTo mutableListOf("a", "b")
     }
 
     @Test
@@ -45,7 +43,7 @@ class ChannelsTest {
             send(2)
         }
 
-        channel.toUnifiedSet() shouldBeEqualTo unifiedSetOf(1, 2)
+        channel.toUnifiedSet() shouldBeEqualTo mutableSetOf(1, 2)
     }
 
     @Test
@@ -60,6 +58,6 @@ class ChannelsTest {
         val result = channel.toUnifiedSet(destination)
 
         result shouldBe destination
-        result shouldBeEqualTo unifiedSetOf("a", "b")
+        result shouldBeEqualTo mutableSetOf("a", "b")
     }
 }

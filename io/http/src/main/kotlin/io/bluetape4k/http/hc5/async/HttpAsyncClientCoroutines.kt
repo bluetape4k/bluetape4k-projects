@@ -1,6 +1,6 @@
 package io.bluetape4k.http.hc5.async
 
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import org.apache.hc.client5.http.async.HttpAsyncClient
 import org.apache.hc.client5.http.async.methods.SimpleHttpRequest
 import org.apache.hc.client5.http.async.methods.SimpleHttpResponse
@@ -56,7 +56,7 @@ suspend inline fun <T: Any> CloseableHttpAsyncClient.executeSuspending(
         pushHandlerFactory,
         context ?: HttpClientContext.create(),
         null
-    ).suspendAwait()
+    ).awaitSuspending()
 }
 
 /**
@@ -98,7 +98,7 @@ suspend inline fun CloseableHttpAsyncClient.executeSuspending(
     if (status == IOReactorStatus.INACTIVE) {
         start()
     }
-    return execute(request, context, callback).suspendAwait()
+    return execute(request, context, callback).awaitSuspending()
 }
 
 /**
@@ -147,7 +147,7 @@ suspend inline fun <T: Any> CloseableHttpAsyncClient.executeSuspending(
         requestProducer,
         responseConsumer,
         callback,
-    ).suspendAwait()
+    ).awaitSuspending()
 }
 
 /**
@@ -206,7 +206,7 @@ suspend inline fun <T: Any> CloseableHttpAsyncClient.executeSuspending(
         pushHandlerFactory,
         context ?: HttpClientContext.create(),
         callback,
-    ).suspendAwait()
+    ).awaitSuspending()
 }
 
 /**

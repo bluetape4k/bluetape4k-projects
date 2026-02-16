@@ -1,6 +1,5 @@
 package io.bluetape4k.coroutines.flow.extensions.subject
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.coroutines.tests.withSingleThread
@@ -61,7 +60,7 @@ class PublishSubjectTest {
             subject.complete()
         }
 
-        val expected = (1..10).toFastList()
+        val expected = (1..10).toList()
         result1 shouldBeEqualTo expected
         result2 shouldBeEqualTo expected
     }

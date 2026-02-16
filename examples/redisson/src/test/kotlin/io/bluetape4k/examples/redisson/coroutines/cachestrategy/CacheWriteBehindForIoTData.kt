@@ -1,9 +1,6 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
-import io.bluetape4k.collections.eclipse.toFastList
-import io.bluetape4k.collections.eclipse.toUnifiedMap
-import io.bluetape4k.coroutines.flow.extensions.toFastList
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.exposed.dao.id.TimebasedUUIDTable
 import io.bluetape4k.javatimes.millis
 import io.bluetape4k.junit5.awaitility.untilSuspending
@@ -18,6 +15,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.future.asCompletableFuture
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
@@ -51,7 +49,7 @@ import kotlin.random.Random
 @Suppress("DEPRECATION")
 class CacheWriteBehindForIoTData: AbstractCacheExample() {
 
-    companion object: KLoggingChannel() 
+    companion object: KLoggingChannel()
 
     object SensorDataTable: TimebasedUUIDTable("sensor_data") {
         val serialNo = varchar("sensor_serial_no", 255)
@@ -106,8 +104,8 @@ class CacheWriteBehindForIoTData: AbstractCacheExample() {
         private val sensorDataWriter = object: MapWriter<String, List<SensorData>> {
             override fun write(map: Map<String, List<SensorData>>) {
                 val sampling = map.map { entry ->
-                    entry.key to entry.value.debounceSampling(Duration.ofMillis(10)).toFastList()
-                }.toUnifiedMap()
+                    entry.key to entry.value.debounceSampling(Duration.ofMillis(10)).toList()
+                }.toMap()
 
                 transaction {
                     sampling.forEach { key, values ->
@@ -195,11 +193,11 @@ class CacheWriteBehindForIoTData: AbstractCacheExample() {
                 val scope = CoroutineScope(Dispatchers.IO)
                 return scope.async {
                     val sampling = map.map { entry ->
-                        entry.key to entry.value.debounceSampling(Duration.ofMillis(10)).toFastList()
-                    }.toUnifiedMap()
+                        entry.key to entry.value.debounceSampling(Duration.ofMillis(10)).toList()
+                    }.toMap()
 
                     newSuspendedTransaction {
-                        sampling.forEach { key, values ->
+                        sampling.forEach { (key, values) ->
                             log.debug { "Sample to save: $key -> ${values.size}" }
                             SensorDataTable.batchInsert(values) { data ->
                                 this[SensorDataTable.serialNo] = data.serialNo
@@ -262,7 +260,7 @@ class CacheWriteBehindForIoTData: AbstractCacheExample() {
             val cache = redisson.getMapCache(options)
             try {
                 val dataSize = 1000
-                cache.fastPutAsync("sensor-1", generateSensorData("sensor-1", dataSize)).suspendAwait()
+                cache.fastPutAsync("sensor-1", generateSensorData("sensor-1", dataSize)).awaitSuspending()
 
                 Thread.sleep(100)
 
@@ -279,7 +277,7 @@ class CacheWriteBehindForIoTData: AbstractCacheExample() {
 
             } finally {
                 // 캐시를 삭제한다.
-                cache.deleteAsync().suspendAwait()
+                cache.deleteAsync().awaitSuspending()
             }
         }
     }

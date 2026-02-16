@@ -1,6 +1,6 @@
 package io.bluetape4k.http.hc5.async
 
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import org.apache.hc.client5.http.DnsResolver
 import org.apache.hc.client5.http.SystemDefaultDnsResolver
 import org.apache.hc.client5.http.impl.async.HttpAsyncClients
@@ -121,5 +121,5 @@ suspend inline fun MinimalHttpAsyncClient.leaseSuspending(
     context: HttpContext = HttpClientContext.create(),
     @BuilderInference callback: FutureCallback<AsyncClientEndpoint>? = null,
 ): AsyncClientEndpoint {
-    return lease(host, context, callback).suspendAwait()
+    return lease(host, context, callback).awaitSuspending()
 }

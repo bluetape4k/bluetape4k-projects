@@ -1,7 +1,5 @@
 package io.bluetape4k.examples.cassandra.domain.model
 
-import io.bluetape4k.collections.eclipse.fastListOf
-import org.eclipse.collections.impl.list.mutable.FastList
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
@@ -26,5 +24,5 @@ data class Person(
     var zoneId: ZoneId = ZoneId.systemDefault()
 
     var mainAddress: AddressType = AddressType()
-    val alternativeAddresses: FastList<AddressType> = fastListOf()
+    val alternativeAddresses: MutableList<AddressType> = mutableListOf()
 }

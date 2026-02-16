@@ -3,8 +3,6 @@ package io.bluetape4k.examples.cassandra.convert
 import com.datastax.oss.driver.api.core.cql.Row
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder.selectFrom
 import io.bluetape4k.cassandra.data.getList
-import io.bluetape4k.collections.eclipse.fastListOf
-import io.bluetape4k.collections.eclipse.unifiedMapOf
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.coroutines.runSuspendTest
@@ -37,7 +35,7 @@ class ConversionTest(
         Addressbook(
             id = "private",
             me = Contact(faker.name().firstName(), faker.name().lastName()),
-            friends = fastListOf(newContact(), newContact())
+            friends = mutableListOf(newContact(), newContact())
         )
 
     @BeforeEach
@@ -55,7 +53,7 @@ class ConversionTest(
         val addressbook = Addressbook(
             id = "private",
             me = Contact("Debop", "Bae"),
-            friends = fastListOf(newContact(), newContact())
+            friends = mutableListOf(newContact(), newContact())
         )
         operations.suspendInsert(addressbook)
 
@@ -71,7 +69,7 @@ class ConversionTest(
         val addressbook = Addressbook(
             id = "private",
             me = Contact("Debop", "Bae"),
-            friends = fastListOf(newContact(), newContact())
+            friends = mutableListOf(newContact(), newContact())
         )
         operations.insert(addressbook).awaitSingle()
 
@@ -86,9 +84,9 @@ class ConversionTest(
         val addressbook = Addressbook(
             id = "private",
             me = Contact("Debop", "Bae"),
-            friends = fastListOf(newContact(), newContact()),
+            friends = mutableListOf(newContact(), newContact()),
             address = Address("165 Misa", "Hanam", "12914"),
-            preferredCurrencies = unifiedMapOf(
+            preferredCurrencies = mutableMapOf(
                 1 to Currency.getInstance("USD"),
                 2 to Currency.getInstance("KRW")
             )

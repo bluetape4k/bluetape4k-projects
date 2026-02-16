@@ -389,10 +389,10 @@ class ReplaySubjectSizeAndTimeBoundTest {
 
             val job1 = launch {
                 replay.log("#1").collect {
-                        if (counter1.incrementAndGet() == expected) {
-                            this.cancel()
-                        }
+                    if (counter1.incrementAndGet() == expected) {
+                        this.cancel()
                     }
+                }
             }.log("job1")
 
             replay.awaitCollector()
@@ -425,10 +425,10 @@ class ReplaySubjectSizeAndTimeBoundTest {
 
             val job1 = launch {
                 replay.log("#1").collect {
-                        if (counter1.incrementAndGet() == expected) {
-                            this.cancel()
-                        }
+                    if (counter1.incrementAndGet() == expected) {
+                        this.cancel()
                     }
+                }
             }.log("job1")
 
             val job2 = launch {

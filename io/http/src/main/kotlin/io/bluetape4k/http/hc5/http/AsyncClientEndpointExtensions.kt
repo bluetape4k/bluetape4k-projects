@@ -1,6 +1,6 @@
 package io.bluetape4k.http.hc5.http
 
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import org.apache.hc.client5.http.async.methods.SimpleHttpRequest
 import org.apache.hc.client5.http.async.methods.SimpleHttpResponse
 import org.apache.hc.client5.http.async.methods.SimpleResponseConsumer
@@ -29,7 +29,7 @@ suspend inline fun AsyncClientEndpoint.executeSuspending(request: SimpleHttpRequ
         request.toProducer(),
         SimpleResponseConsumer.create(),
         null
-    ).suspendAwait()
+    ).awaitSuspending()
 
 /**
  * [executeSuspending]으로 대체되었습니다.
@@ -61,7 +61,7 @@ suspend inline fun <T: Any> AsyncClientEndpoint.executeSuspending(
     responseConsumer: AsyncResponseConsumer<T>,
     callback: FutureCallback<T>? = null,
 ): T =
-    execute(requestProducer, responseConsumer, callback).suspendAwait()
+    execute(requestProducer, responseConsumer, callback).awaitSuspending()
 
 /**
  * [executeSuspending]으로 대체되었습니다.

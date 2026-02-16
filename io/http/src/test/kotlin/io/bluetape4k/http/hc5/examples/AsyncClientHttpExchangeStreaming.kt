@@ -1,6 +1,6 @@
 package io.bluetape4k.http.hc5.examples
 
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.async.httpAsyncClient
 import io.bluetape4k.http.hc5.http.basicHttpRequestOf
@@ -50,7 +50,7 @@ class AsyncClientHttpExchangeStreaming: AbstractHc5Test() {
                 request.toProducer(),
                 charStreamResponseConsumer(request),
                 null
-            ).suspendAwait()
+            ).awaitSuspending()
         }
 
         log.debug { "Shutting down" }

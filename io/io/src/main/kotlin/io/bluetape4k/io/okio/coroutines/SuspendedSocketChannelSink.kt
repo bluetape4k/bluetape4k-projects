@@ -1,6 +1,6 @@
 package io.bluetape4k.io.okio.coroutines
 
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.io.okio.SEGMENT_SIZE
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -52,7 +52,7 @@ class SuspendedSocketChannelSink(
 
             writeBuffer.flip()
             while (writeBuffer.hasRemaining()) {
-                val written = channel.write(writeBuffer).suspendAwait()
+                val written = channel.write(writeBuffer).awaitSuspending()
                 if (written <= 0) {
                     throw IOException("channel closed")
                 }

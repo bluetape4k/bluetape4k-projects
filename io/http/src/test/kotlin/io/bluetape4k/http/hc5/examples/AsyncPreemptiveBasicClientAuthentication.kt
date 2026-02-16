@@ -1,6 +1,6 @@
 package io.bluetape4k.http.hc5.examples
 
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.async.executeSuspending
 import io.bluetape4k.http.hc5.async.httpAsyncClient
@@ -69,7 +69,7 @@ class AsyncPreemptiveBasicClientAuthentication: AbstractHc5Test() {
                         httpHost.newLocalContext(),
                         null
                     )
-                    .suspendAwait()
+                    .awaitSuspending()
                     .also { response ->
                         log.debug { "Response: $request -> ${StatusLine(response)}" }
                         log.debug { "Body: ${response.body.bodyText}" }

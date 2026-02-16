@@ -1,6 +1,6 @@
 package io.bluetape4k.io.okio.coroutines
 
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.Dispatchers
@@ -56,7 +56,7 @@ class SuspendedFileChannelSink(
             writeBuffer.flip()
             var chunkOffset = 0L
             while (writeBuffer.hasRemaining()) {
-                val byteWritten = channel.write(writeBuffer, position + chunkOffset).suspendAwait()
+                val byteWritten = channel.write(writeBuffer, position + chunkOffset).awaitSuspending()
                 if (byteWritten <= 0) {
                     throw IOException("Unable to write to AsynchronousFileChannel: no progress.")
                 }

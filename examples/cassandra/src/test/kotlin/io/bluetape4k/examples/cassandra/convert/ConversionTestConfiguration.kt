@@ -1,7 +1,6 @@
 package io.bluetape4k.examples.cassandra.convert
 
 import com.datastax.oss.driver.api.core.cql.Row
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.examples.cassandra.AbstractReactiveCassandraTestConfiguration
 import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.jackson.readValueOrNull
@@ -17,7 +16,7 @@ class ConversionTestConfiguration: AbstractReactiveCassandraTestConfiguration() 
 
     @Bean
     override fun customConversions(): CassandraCustomConversions {
-        val converters: MutableList<Converter<*, *>> = fastListOf(
+        val converters: MutableList<Converter<*, *>> = mutableListOf(
             ContactWriteConverter(),
             ContactReadConverter(),
             CustomAddressbookReadConverter(),

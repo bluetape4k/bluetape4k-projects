@@ -1,7 +1,7 @@
 package io.bluetape4k.spring.cassandra.reactive
 
 import com.datastax.oss.driver.api.core.uuid.Uuids
-import io.bluetape4k.cassandra.cql.simpleStatement
+import io.bluetape4k.cassandra.cql.simpleStatementOf
 import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -89,7 +89,7 @@ class ReactiveSelectOperationsTest(
                 println("profile options : ${profile.entrySet().joinToString()}")
             }
 
-        val stmt = simpleStatement("SELECT * FROM $PERSON_TABLE_NAME") {
+        val stmt = simpleStatementOf("SELECT * FROM $PERSON_TABLE_NAME") {
             setExecutionProfileName("olap")
         }
         // ExecutionProfileResolver.from("olap").apply(stmt)

@@ -1,6 +1,5 @@
 package io.bluetape4k.examples.coroutines.flow
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -31,7 +30,7 @@ class ChannelFlowExamples {
     }
 
     private class FakeUserApi: UserApi {
-        private val users = fastList(20) { User("User$it") }
+        private val users = List(20) { User("User$it") }
         private val pageSize = 3
 
         override suspend fun takePage(pageNumber: Int): Flow<User> {

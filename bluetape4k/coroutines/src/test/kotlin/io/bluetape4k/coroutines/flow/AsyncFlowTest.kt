@@ -1,6 +1,5 @@
 package io.bluetape4k.coroutines.flow
 
-import io.bluetape4k.collections.eclipse.fixedSizeList
 import io.bluetape4k.concurrent.virtualthread.VT
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -29,7 +28,7 @@ class AsyncFlowTest {
         private const val MIN_DELAY_TIME = 1L
         private const val MAX_DELAY_TIME = 10L
 
-        private val expectedItems = fixedSizeList(ITEM_SIZE) { it + 1 }
+        private val expectedItems = List(ITEM_SIZE) { it + 1 }
     }
 
     @DisplayName("asyncFlow with default dispatcher")

@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package io.bluetape4k.concurrent
 
 import java.util.concurrent.CompletableFuture

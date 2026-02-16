@@ -1,6 +1,5 @@
 package io.bluetape4k.examples.virtualthreads
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
@@ -37,7 +36,7 @@ class Rule3DoNotPooledVirtualThreads: AbstractVirtualThreadTest() {
             Executors.newCachedThreadPool(Thread.ofVirtual().factory()).use { executor ->
                 executor.javaClass.name shouldBeEqualTo "java.util.concurrent.ThreadPoolExecutor"
 
-                val tasks = fastList(TASK_SIZE) {
+                val tasks = List(TASK_SIZE) {
                     executor.submit {
                         sleep(1000)
                         log.debug { "$it run ${Thread.currentThread()}" }
@@ -62,7 +61,7 @@ class Rule3DoNotPooledVirtualThreads: AbstractVirtualThreadTest() {
             Executors.newVirtualThreadPerTaskExecutor().use { executor ->
                 executor.javaClass.name shouldBeEqualTo "java.util.concurrent.ThreadPerTaskExecutor"
 
-                val tasks = fastList(TASK_SIZE) {
+                val tasks = List(TASK_SIZE) {
                     executor.submit {
                         sleep(1000)
                         log.debug { "$it run ${Thread.currentThread()}" }
