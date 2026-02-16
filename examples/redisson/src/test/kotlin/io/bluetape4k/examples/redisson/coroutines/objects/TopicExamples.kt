@@ -1,6 +1,6 @@
 package io.bluetape4k.examples.redisson.coroutines.objects
 
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -26,22 +26,22 @@ class TopicExamples: AbstractRedissonCoroutineTest() {
         val listenerId1 = topic.addListenerAsync(String::class.java) { channel, msg ->
             println("Listener1: channel[$channel] received: $msg")
             receivedCounter.incrementAndGet()
-        }.suspendAwait()
+        }.awaitSuspending()
 
         val listenerId2 = topic.addListenerAsync(String::class.java) { channel, msg ->
             println("Listener2: channel[$channel] received: $msg")
             receivedCounter.incrementAndGet()
-        }.suspendAwait()
+        }.awaitSuspending()
 
         log.debug { "Listener listener1 Id=$listenerId1, listener2 Id=$listenerId2" }
 
         // topic 에 메시지 전송
-        topic.publishAsync("message-1").suspendAwait()
-        topic.publishAsync("message-2").suspendAwait()
+        topic.publishAsync("message-1").awaitSuspending()
+        topic.publishAsync("message-2").awaitSuspending()
 
         // topic 에 listener가 2개, 메시지 2개 전송
         await untilSuspending { receivedCounter.get() == 2 * 2 }
 
-        topic.removeAllListenersAsync().suspendAwait()
+        topic.removeAllListenersAsync().awaitSuspending()
     }
 }

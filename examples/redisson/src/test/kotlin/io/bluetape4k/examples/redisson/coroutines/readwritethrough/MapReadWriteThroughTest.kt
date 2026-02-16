@@ -1,6 +1,6 @@
 package io.bluetape4k.examples.redisson.coroutines.readwritethrough
 
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.jdbc.sql.extract
 import io.bluetape4k.jdbc.sql.runQuery
@@ -277,7 +277,7 @@ class MapReadWriteThroughTest: AbstractRedissonCoroutineTest() {
             launch {
                 val id = 300_000 + it
                 val actor = newActor(id)
-                map.fastPutAsync(id, actor).suspendAwait().shouldBeTrue()
+                map.fastPutAsync(id, actor).awaitSuspending().shouldBeTrue()
             }
         }
         insertJobs.joinAll()
@@ -288,12 +288,12 @@ class MapReadWriteThroughTest: AbstractRedissonCoroutineTest() {
         val checkJob = List(ACTOR_SIZE) {
             launch {
                 val id = 300_000 + it
-                map.getAsync(id).suspendAwait().shouldNotBeNull()
+                map.getAsync(id).awaitSuspending().shouldNotBeNull()
             }
         }
         checkJob.joinAll()
 
-        map.deleteAsync().suspendAwait()
+        map.deleteAsync().awaitSuspending()
     }
 
     @Test
@@ -317,7 +317,7 @@ class MapReadWriteThroughTest: AbstractRedissonCoroutineTest() {
             launch {
                 val id = 400_000 + it
                 val actor = newActor(id)
-                map.fastPutAsync(id, actor).suspendAwait().shouldBeTrue()
+                map.fastPutAsync(id, actor).awaitSuspending().shouldBeTrue()
             }
         }
         insertJobs.joinAll()
@@ -331,11 +331,11 @@ class MapReadWriteThroughTest: AbstractRedissonCoroutineTest() {
         val checkJob = List(ACTOR_SIZE) {
             launch {
                 val id = 400_000 + it
-                map.getAsync(id).suspendAwait().shouldNotBeNull()
+                map.getAsync(id).awaitSuspending().shouldNotBeNull()
             }
         }
         checkJob.joinAll()
 
-        map.deleteAsync().suspendAwait()
+        map.deleteAsync().awaitSuspending()
     }
 }

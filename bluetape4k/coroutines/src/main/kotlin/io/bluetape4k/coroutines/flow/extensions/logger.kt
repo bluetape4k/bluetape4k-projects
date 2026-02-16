@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions
 
+import io.bluetape4k.LibraryName
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CancellationException
@@ -11,7 +12,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.toList
 
 @PublishedApi
-internal val logger by lazy { KotlinLogging.logger {} }
+internal val logger by lazy { KotlinLogging.logger(LibraryName) }
 
 /**
  * [Flow]의 `onStart`, `onEmpty`, `onEach`, `onCompletion` 이벤트를 로깅합니다.

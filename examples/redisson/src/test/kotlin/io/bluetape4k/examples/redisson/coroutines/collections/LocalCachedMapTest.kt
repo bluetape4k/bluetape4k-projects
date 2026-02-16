@@ -1,6 +1,6 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -73,11 +73,11 @@ class LocalCachedMapTest: AbstractRedissonCoroutineTest() {
         val keyToAdd = randomName()
 
         log.debug { "front cache1: put key=$keyToAdd" }
-        frontCache1.fastPutAsync(keyToAdd, 42).suspendAwait()
+        frontCache1.fastPutAsync(keyToAdd, 42).awaitSuspending()
         await.until { backCache.containsKey(keyToAdd) }
 
         log.debug { "front cache2: get key=$keyToAdd" }
-        frontCache2.getAsync(keyToAdd).suspendAwait() shouldBeEqualTo 42
+        frontCache2.getAsync(keyToAdd).awaitSuspending() shouldBeEqualTo 42
     }
 
     @Test
@@ -85,14 +85,14 @@ class LocalCachedMapTest: AbstractRedissonCoroutineTest() {
         val keyToRemove = randomName()
 
         log.debug { "front cache1: put $keyToRemove" }
-        frontCache1.fastPutAsync(keyToRemove, 42).suspendAwait()
+        frontCache1.fastPutAsync(keyToRemove, 42).awaitSuspending()
         await.until { backCache.containsKey(keyToRemove) }
-        frontCache2.getAsync(keyToRemove).suspendAwait() shouldBeEqualTo 42
+        frontCache2.getAsync(keyToRemove).awaitSuspending() shouldBeEqualTo 42
 
         log.debug { "front cache1: remove $keyToRemove" }
-        frontCache1.fastRemoveAsync(keyToRemove).suspendAwait()
+        frontCache1.fastRemoveAsync(keyToRemove).awaitSuspending()
         await.until { !backCache.containsKey(keyToRemove) }
-        frontCache2.getAsync(keyToRemove).suspendAwait().shouldBeNull()
+        frontCache2.getAsync(keyToRemove).awaitSuspending().shouldBeNull()
     }
 
     @Test
@@ -100,25 +100,25 @@ class LocalCachedMapTest: AbstractRedissonCoroutineTest() {
         val key = randomName()
 
         // 초기에 frontCache에 존재하지 않는다.
-        frontCache1.containsKeyAsync(key).suspendAwait().shouldBeFalse()
-        frontCache2.containsKeyAsync(key).suspendAwait().shouldBeFalse()
+        frontCache1.containsKeyAsync(key).awaitSuspending().shouldBeFalse()
+        frontCache2.containsKeyAsync(key).awaitSuspending().shouldBeFalse()
 
         // bachCache에 cache 등록
-        backCache.fastPutAsync(key, 42).suspendAwait()
+        backCache.fastPutAsync(key, 42).awaitSuspending()
 
         await.atMost(Duration.ofSeconds(1)).until { frontCache1.containsKey(key) }
 
         // frontCache에 등록 반영
-        frontCache1.containsKeyAsync(key).suspendAwait().shouldBeTrue()
-        frontCache2.containsKeyAsync(key).suspendAwait().shouldBeTrue()
+        frontCache1.containsKeyAsync(key).awaitSuspending().shouldBeTrue()
+        frontCache2.containsKeyAsync(key).awaitSuspending().shouldBeTrue()
 
         // backCache에서 cache 삭제
-        backCache.fastRemoveAsync(key).suspendAwait() shouldBeEqualTo 1L
+        backCache.fastRemoveAsync(key).awaitSuspending() shouldBeEqualTo 1L
 
         await.atMost(Duration.ofSeconds(1)).until { !frontCache1.containsKey(key) }
 
         // frontCache에 삭제 반영
-        frontCache1.containsKeyAsync(key).suspendAwait().shouldBeFalse()
-        frontCache2.containsKeyAsync(key).suspendAwait().shouldBeFalse()
+        frontCache1.containsKeyAsync(key).awaitSuspending().shouldBeFalse()
+        frontCache2.containsKeyAsync(key).awaitSuspending().shouldBeFalse()
     }
 }

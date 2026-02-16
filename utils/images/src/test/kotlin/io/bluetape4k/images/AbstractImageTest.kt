@@ -1,6 +1,6 @@
 package io.bluetape4k.images
 
-import io.bluetape4k.io.suspendWrite
+import io.bluetape4k.io.writeSuspending
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.utils.Resourcex
@@ -65,7 +65,7 @@ abstract class AbstractImageTest {
                         Files.delete(path)
                     }
                 }
-                path.suspendWrite(bytes)
+                path.writeSuspending(bytes)
                 // Files.write(path, bytes, StandardOpenOption.CREATE, StandardOpenOption.WRITE)
             }
     }

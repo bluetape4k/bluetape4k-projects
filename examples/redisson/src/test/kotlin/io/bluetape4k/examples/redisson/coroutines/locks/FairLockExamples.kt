@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.redisson.coroutines.locks
 
 import io.bluetape4k.collections.eclipse.fastList
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
@@ -50,12 +50,12 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
                 // 나머지 요청은 최대 5초간 대기하다가 요청 중단된다
                 val lockId = redisson.getLockId(lock.name)
                 log.trace { "lockId=$lockId" }
-                val locked = lock.tryLockAsync(5, 10, TimeUnit.SECONDS, lockId).suspendAwait()
+                val locked = lock.tryLockAsync(5, 10, TimeUnit.SECONDS, lockId).awaitSuspending()
                 if (locked) {
                     lockCounter.incrementAndGet()
                 }
                 delay(10)
-                lock.unlockAsync(lockId).suspendAwait()
+                lock.unlockAsync(lockId).awaitSuspending()
             }
         }
         jobs.joinAll()
@@ -130,7 +130,7 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
                 val index = lockIndex.incrementAndGet()
 
                 log.debug { "FairLock[$index] 획득 시도 ..." }
-                val locked = lock.tryLockAsync(5, 10, TimeUnit.SECONDS, lockId).suspendAwait()
+                val locked = lock.tryLockAsync(5, 10, TimeUnit.SECONDS, lockId).awaitSuspending()
                 if (locked) {
                     log.debug { "FairLock[$index] 획득 성공 ..." }
                     lockCounter.incrementAndGet()
@@ -138,7 +138,7 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
                 }
                 // Thread.sleep(10)
                 log.debug { "FairLock[$index] 해제 ..." }
-                lock.unlockAsync(lockId).suspendAwait()
+                lock.unlockAsync(lockId).awaitSuspending()
             }
             .run()
 
@@ -168,7 +168,7 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
 
                 delay(10 * index.toLong()) // 코루틴 시작 시점 차이 주기
                 log.debug { "코루틴 $index 에서 FairLock 획득 시도 시작" }
-                fairLock.tryLockAsync(10, 60, TimeUnit.SECONDS, lockId).suspendAwait().shouldBeTrue()
+                fairLock.tryLockAsync(10, 60, TimeUnit.SECONDS, lockId).awaitSuspending().shouldBeTrue()
 
                 try {
                     // 락 획득한 순서 기록
@@ -180,7 +180,7 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
                     delay(100)
                 } finally {
                     log.debug { "코루틴 $index 에서 FairLock 해제" }
-                    fairLock.unlockAsync(lockId).suspendAwait()
+                    fairLock.unlockAsync(lockId).awaitSuspending()
                 }
             }
         }

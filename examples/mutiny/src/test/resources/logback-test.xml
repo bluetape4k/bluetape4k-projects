@@ -13,6 +13,7 @@
     </appender>
 
     <logger name="io.bluetape4k.examples.mutiny" level="DEBUG"/>
+    <logger name="bluetape4k" level="DEBUG"/>
 
     <root level="INFO">
         <appender-ref ref="Console"/>

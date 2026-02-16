@@ -1,6 +1,6 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -22,19 +22,19 @@ class RingBufferExamples: AbstractRedissonCoroutineTest() {
         val buffer = redisson.getRingBuffer<Int>(randomName())
         // 버퍼 용량을 미리 설정해주어야 합니다.
         buffer.trySetCapacity(4)
-        buffer.capacityAsync().suspendAwait() shouldBeEqualTo 4
+        buffer.capacityAsync().awaitSuspending() shouldBeEqualTo 4
 
-        buffer.addAllAsync(listOf(1, 2, 3, 4)).suspendAwait().shouldBeTrue()
+        buffer.addAllAsync(listOf(1, 2, 3, 4)).awaitSuspending().shouldBeTrue()
 
-        buffer.remainingCapacityAsync().suspendAwait() shouldBeEqualTo 0
+        buffer.remainingCapacityAsync().awaitSuspending() shouldBeEqualTo 0
 
         // buffer contains 1,2,3,4
-        buffer.addAllAsync(listOf(5, 6)).suspendAwait().shouldBeTrue()
+        buffer.addAllAsync(listOf(5, 6)).awaitSuspending().shouldBeTrue()
 
         // buffer contains 3,4,5,6
-        buffer.pollAsync(2).suspendAwait() shouldBeEqualTo listOf(3, 4)
+        buffer.pollAsync(2).awaitSuspending() shouldBeEqualTo listOf(3, 4)
 
         // buffer contains 5, 6
-        buffer.deleteAsync().suspendAwait()
+        buffer.deleteAsync().awaitSuspending()
     }
 }

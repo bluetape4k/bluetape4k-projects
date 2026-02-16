@@ -1,7 +1,7 @@
 package io.bluetape4k.images.coroutines.animated
 
 import com.sksamuel.scrimage.nio.AnimatedGif
-import io.bluetape4k.io.suspendWrite
+import io.bluetape4k.io.writeSuspending
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -38,7 +38,7 @@ class SuspendAnimatedWriteContext(
     }
 
     suspend fun write(path: Path): Path {
-        path.suspendWrite(bytes())
+        path.writeSuspending(bytes())
         return path
     }
 

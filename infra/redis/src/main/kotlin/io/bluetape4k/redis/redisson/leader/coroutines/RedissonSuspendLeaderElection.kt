@@ -1,6 +1,6 @@
 package io.bluetape4k.redis.redisson.leader.coroutines
 
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.leader.coroutines.SuspendLeaderElection
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -67,12 +67,14 @@ class RedissonSuspendLeaderElection private constructor(
             // Redis IO 를 줄이기 위해 Default Snowflake 를 사용합니다.
             // val lockId = Snowflakers.Default.nextId()
 
-            val acquired = lock.tryLockAsync(
-                waitTimeMills,
-                leaseTimeMills,
-                TimeUnit.MILLISECONDS,
-                lockId
-            ).suspendAwait()
+            val acquired = lock
+                .tryLockAsync(
+                    waitTimeMills,
+                    leaseTimeMills,
+                    TimeUnit.MILLISECONDS,
+                    lockId
+                )
+                .awaitSuspending()
 
             if (acquired) {
                 log.debug { "Leader로 승격되어 작업을 수행합니다. lock=$lockName, lockId=$lockId" }
@@ -80,7 +82,7 @@ class RedissonSuspendLeaderElection private constructor(
                     result = action()
                 } finally {
                     if (lock.isHeldByThread(lockId)) {
-                        lock.unlockAsync(lockId).suspendAwait()
+                        lock.unlockAsync(lockId).awaitSuspending()
                         log.debug { "작업이 완료되어 Leader 권한을 반납했습니다. lock=$lockName, lockId=$lockId" }
                     }
                 }

@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.redisson.repository
 
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.map
@@ -62,7 +62,7 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param id 엔티티의 식별자
      * @return 존재 여부
      */
-    suspend fun exists(id: ID): Boolean = cache.containsKeyAsync(id).suspendAwait()
+    suspend fun exists(id: ID): Boolean = cache.containsKeyAsync(id).awaitSuspending()
 
     /**
      * 주어진 ID로 DB에서 최신 엔티티를 조회합니다.
@@ -176,7 +176,7 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param id 엔티티의 식별자
      * @return 조회된 엔티티 또는 null
      */
-    suspend fun get(id: ID): T? = cache.getAsync(id).suspendAwait()
+    suspend fun get(id: ID): T? = cache.getAsync(id).awaitSuspending()
 
     /**
      * 여러 ID로 캐시에서 엔티티 목록을 조회합니다.
@@ -193,7 +193,7 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param entity 저장할 엔티티
      * @return 저장 성공 여부
      */
-    suspend fun put(entity: T): Boolean? = cache.fastPutAsync(entity.id, entity).suspendAwait()
+    suspend fun put(entity: T): Boolean? = cache.fastPutAsync(entity.id, entity).awaitSuspending()
 
     /**
      * 여러 엔티티를 캐시에 저장합니다.
@@ -203,7 +203,7 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      */
     suspend fun putAll(entities: Collection<T>, batchSize: Int = DEFAULT_BATCH_SIZE) {
         require(batchSize > 0) { "batchSize must be greater than 0. batchSize=$batchSize" }
-        cache.putAllAsync(entities.associateBy { it.id }, batchSize).suspendAwait()
+        cache.putAllAsync(entities.associateBy { it.id }, batchSize).awaitSuspending()
     }
 
     /**
@@ -212,14 +212,14 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param ids 삭제할 엔티티 식별자 목록
      * @return 삭제된 엔티티 개수
      */
-    suspend fun invalidate(vararg ids: ID): Long = cache.fastRemoveAsync(*ids).suspendAwait()
+    suspend fun invalidate(vararg ids: ID): Long = cache.fastRemoveAsync(*ids).awaitSuspending()
 
     /**
      * 캐시의 모든 엔티티를 제거합니다.
      *
      * @return 성공 여부
      */
-    suspend fun invalidateAll(): Boolean = cache.clearAsync().suspendAwait()
+    suspend fun invalidateAll(): Boolean = cache.clearAsync().awaitSuspending()
 
     /**
      * 패턴에 맞는 키의 엔티티를 캐시에서 제거합니다.
@@ -231,6 +231,6 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
     suspend fun invalidateByPattern(patterns: String, count: Int = DEFAULT_BATCH_SIZE): Long {
         require(count > 0) { "count must be greater than 0. count=$count" }
         val keys = cache.keySet(patterns, count)
-        return cache.fastRemoveAsync(*keys.toTypedArray()).suspendAwait()
+        return cache.fastRemoveAsync(*keys.toTypedArray()).awaitSuspending()
     }
 }

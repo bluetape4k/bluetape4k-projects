@@ -2,7 +2,7 @@ package io.bluetape4k.examples.redisson.coroutines.collections
 
 import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.toFastList
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.test.runTest
@@ -23,27 +23,27 @@ class DequeExamples: io.bluetape4k.examples.redisson.coroutines.AbstractRedisson
 
         // push 는 addFirst 와 같다
         // add 는 addLast 와 같다
-        deque.addLastAsync("1").suspendAwait()
-        deque.addLastAsync("2").suspendAwait()
-        deque.addLastAsync("3").suspendAwait()
-        deque.addLastAsync("4").suspendAwait()
+        deque.addLastAsync("1").awaitSuspending()
+        deque.addLastAsync("2").awaitSuspending()
+        deque.addLastAsync("3").awaitSuspending()
+        deque.addLastAsync("4").awaitSuspending()
 
-        deque.containsAsync("1").suspendAwait().shouldBeTrue()
+        deque.containsAsync("1").awaitSuspending().shouldBeTrue()
 
         // 첫번째 요소를 조회한다. (제거하지 않는다)
-        deque.peekAsync().suspendAwait() shouldBeEqualTo "1"
+        deque.peekAsync().awaitSuspending() shouldBeEqualTo "1"
 
         // 첫번째 요소를 가져오고, queue에서는 제거한다 (첫번째 요소가 없으면 들어올 때까지 대기힌다.)
-        deque.popAsync().suspendAwait() shouldBeEqualTo "1"
+        deque.popAsync().awaitSuspending() shouldBeEqualTo "1"
 
         // 첫 번째 요소를 조회한다 (제거하지 않는다) 단 queue에 요소가 없으면 예외를 일으킨다
         deque.element() shouldBeEqualTo "2"
 
-        deque.removeAllAsync(listOf("2", "3")).suspendAwait().shouldBeTrue()
+        deque.removeAllAsync(listOf("2", "3")).awaitSuspending().shouldBeTrue()
 
-        deque.addAllAsync(listOf("10", "11", "12")).suspendAwait().shouldBeTrue()
+        deque.addAllAsync(listOf("10", "11", "12")).awaitSuspending().shouldBeTrue()
 
-        deque.deleteAsync().suspendAwait()
+        deque.deleteAsync().awaitSuspending()
     }
 
     @Test
@@ -56,15 +56,15 @@ class DequeExamples: io.bluetape4k.examples.redisson.coroutines.AbstractRedisson
             .workers(16)
             .rounds(16 * 4)
             .add {
-                deque.addLastAsync(counter.incrementAndGet()).suspendAwait()
+                deque.addLastAsync(counter.incrementAndGet()).awaitSuspending()
             }
             .run()
 
         counter.get() shouldBeEqualTo 16 * 4
-        deque.sizeAsync().suspendAwait() shouldBeEqualTo counter.get()
+        deque.sizeAsync().awaitSuspending() shouldBeEqualTo counter.get()
 
         // 순서는 틀립니다.
         deque.iterator().toFastList() shouldContainSame fastList(16 * 4) { it + 1 }
-        deque.deleteAsync().suspendAwait().shouldBeTrue()
+        deque.deleteAsync().awaitSuspending().shouldBeTrue()
     }
 }

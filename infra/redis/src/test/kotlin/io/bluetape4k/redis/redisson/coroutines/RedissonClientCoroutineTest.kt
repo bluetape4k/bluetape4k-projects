@@ -1,6 +1,6 @@
 package io.bluetape4k.redis.redisson.coroutines
 
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -47,13 +47,13 @@ class RedissonClientCoroutineTest: AbstractRedissonCoroutineTest() {
         try {
             val value: String = randomString(32)
             redisson.withSuspendedTransaction {
-                map.putAsync("1", value).suspendAwait()
-                map.getAsync("3").suspendAwait()
+                map.putAsync("1", value).awaitSuspending()
+                map.getAsync("3").awaitSuspending()
 
-                set.addAsync(value).suspendAwait()
+                set.addAsync(value).awaitSuspending()
             }
-            map.getAsync("1").suspendAwait() shouldBeEqualTo value
-            set.containsAsync(value).suspendAwait().shouldBeTrue()
+            map.getAsync("1").awaitSuspending() shouldBeEqualTo value
+            set.containsAsync(value).awaitSuspending().shouldBeTrue()
 
         } finally {
             map.delete()
@@ -78,15 +78,15 @@ class RedissonClientCoroutineTest: AbstractRedissonCoroutineTest() {
                     leaderElection.runIfLeader(lockName) {
                         val value = randomString(64)
                         redisson.withSuspendedTransaction {
-                            map.putAsync("1", value).suspendAwait()
-                            map.putAsync("2", value).suspendAwait()
-                            map.putAsync("3", value).suspendAwait()
+                            map.putAsync("1", value).awaitSuspending()
+                            map.putAsync("2", value).awaitSuspending()
+                            map.putAsync("3", value).awaitSuspending()
                             counter.incrementAndGet()
                         }
                         delay(10L)
-                        map.getAsync("1").suspendAwait() shouldBeEqualTo value
-                        map.getAsync("2").suspendAwait() shouldBeEqualTo value
-                        map.getAsync("3").suspendAwait() shouldBeEqualTo value
+                        map.getAsync("1").awaitSuspending() shouldBeEqualTo value
+                        map.getAsync("2").awaitSuspending() shouldBeEqualTo value
+                        map.getAsync("3").awaitSuspending() shouldBeEqualTo value
                     }
                 }
                 .run()

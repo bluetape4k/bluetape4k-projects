@@ -5,8 +5,7 @@ import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.debug
-import io.bluetape4k.support.emptyByteArray
+import io.bluetape4k.logging.trace
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
 import io.bluetape4k.utils.Runtimex
@@ -27,12 +26,12 @@ class CipherBuilderTest: AbstractCipherTest() {
         repeat(100) {
             val content = Fakers.faker.lorem().paragraph(16) // Fakers.randomString(128, 1024)
 
-            val encryptedBytes = encryptCipher.doFinal(content.toUtf8Bytes())
-            val decryptedBytes = decryptCipher.update(encryptedBytes) +
-                    runCatching { decryptCipher.doFinal() }.getOrDefault(emptyByteArray)
+            val encryptedBytes = encryptCipher.encrypt(content.toUtf8Bytes())
+            val decryptedBytes = decryptCipher.decrypt(encryptedBytes)
+
             val decryptedContent = decryptedBytes.toUtf8String()
 
-            log.debug { "content: $content, decrypted content=${decryptedContent}" }
+            log.trace { "content: $content, decrypted content=${decryptedContent}" }
             decryptedContent shouldBeEqualTo content
         }
     }
@@ -46,14 +45,13 @@ class CipherBuilderTest: AbstractCipherTest() {
                 val encryptCipher = builder.build(Cipher.ENCRYPT_MODE)
                 val decryptCipher = builder.build(Cipher.DECRYPT_MODE)
 
-                val content = Fakers.randomString(128, 1024)
+                val content = randomString()
 
-                val encryptedBytes = encryptCipher.doFinal(content.toUtf8Bytes())
-                val decryptedBytes = decryptCipher.update(encryptedBytes) +
-                        runCatching { decryptCipher.doFinal() }.getOrDefault(emptyByteArray)
+                val encryptedBytes = encryptCipher.encrypt(content.toUtf8Bytes())
+                val decryptedBytes = decryptCipher.decrypt(encryptedBytes)
                 val decryptedContent = decryptedBytes.toUtf8String()
 
-                log.debug { "content: $content, decrypted content=${decryptedContent}" }
+                log.trace { "content: $content, decrypted content=${decryptedContent}" }
                 decryptedContent shouldBeEqualTo content
             }
             .run()
@@ -68,14 +66,13 @@ class CipherBuilderTest: AbstractCipherTest() {
                 val encryptCipher = builder.build(Cipher.ENCRYPT_MODE)
                 val decryptCipher = builder.build(Cipher.DECRYPT_MODE)
 
-                val content = Fakers.randomString(128, 1024)
+                val content = randomString()
 
-                val encryptedBytes = encryptCipher.doFinal(content.toUtf8Bytes())
-                val decryptedBytes = decryptCipher.update(encryptedBytes) +
-                        runCatching { decryptCipher.doFinal() }.getOrDefault(emptyByteArray)
+                val encryptedBytes = encryptCipher.encrypt(content.toUtf8Bytes())
+                val decryptedBytes = decryptCipher.decrypt(encryptedBytes)
                 val decryptedContent = decryptedBytes.toUtf8String()
 
-                log.debug { "content: $content, decrypted content=${decryptedContent}" }
+                log.trace { "content: $content, decrypted content=${decryptedContent}" }
                 decryptedContent shouldBeEqualTo content
             }
             .run()
@@ -83,21 +80,21 @@ class CipherBuilderTest: AbstractCipherTest() {
 
     @Test
     fun `create AES cipher for encryption in suspended jobs`() = runTest {
+
         SuspendedJobTester()
             .workers(2 * Runtimex.availableProcessors)
             .rounds(4 * 2 * Runtimex.availableProcessors)
             .add {
+                val content = randomString()
+
                 val encryptCipher = builder.build(Cipher.ENCRYPT_MODE)
                 val decryptCipher = builder.build(Cipher.DECRYPT_MODE)
 
-                val content = Fakers.randomString(128, 1024)
-
-                val encryptedBytes = encryptCipher.doFinal(content.toUtf8Bytes())
-                val decryptedBytes = decryptCipher.update(encryptedBytes) +
-                        runCatching { decryptCipher.doFinal() }.getOrDefault(emptyByteArray)
+                val encryptedBytes = encryptCipher.encrypt(content.toUtf8Bytes())
+                val decryptedBytes = decryptCipher.decrypt(encryptedBytes)
                 val decryptedContent = decryptedBytes.toUtf8String()
 
-                log.debug { "content: $content, decrypted content=${decryptedContent}" }
+                log.trace { "content: $content, decrypted content=${decryptedContent}" }
                 decryptedContent shouldBeEqualTo content
             }
             .run()
