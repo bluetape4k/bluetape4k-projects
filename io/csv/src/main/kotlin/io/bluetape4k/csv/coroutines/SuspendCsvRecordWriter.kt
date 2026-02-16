@@ -27,7 +27,10 @@ class SuspendCsvRecordWriter private constructor(
 
     companion object: KLoggingChannel() {
         /**
-         * CSV/TSV 처리용 인스턴스 생성을 위한 진입점을 제공합니다.
+         * [CsvWriter]를 사용하여 [SuspendCsvRecordWriter] 인스턴스를 생성합니다.
+         *
+         * @param writer CSV writer
+         * @return SuspendCsvRecordWriter 인스턴스
          */
         @JvmStatic
         operator fun invoke(writer: CsvWriter): SuspendCsvRecordWriter {
@@ -35,7 +38,11 @@ class SuspendCsvRecordWriter private constructor(
         }
 
         /**
-         * CSV/TSV 처리용 인스턴스 생성을 위한 진입점을 제공합니다.
+         * [Writer]와 설정을 사용하여 [SuspendCsvRecordWriter] 인스턴스를 생성합니다.
+         *
+         * @param writer 출력 스트림
+         * @param settings CSV writer 설정
+         * @return SuspendCsvRecordWriter 인스턴스
          */
         @JvmStatic
         operator fun invoke(
@@ -47,28 +54,36 @@ class SuspendCsvRecordWriter private constructor(
     }
 
     /**
-     * CSV/TSV 처리에서 데이터를 기록하는 `writeHeaders` 함수를 제공합니다.
+     * CSV 파일의 헤더 행을 비동기로 기록합니다.
+     *
+     * @param headers 헤더 이름들
      */
     override suspend fun writeHeaders(headers: Iterable<String>) {
         writer.writeHeaders(headers.toFastList())
     }
 
     /**
-     * CSV/TSV 처리에서 데이터를 기록하는 `writeRow` 함수를 제공합니다.
+     * 하나의 CSV 데이터 행을 비동기로 기록합니다.
+     *
+     * @param row 기록할 데이터 행
      */
     override suspend fun writeRow(row: Iterable<*>) {
         writer.writeRow(row.toFastList())
     }
 
     /**
-     * CSV/TSV 처리에서 데이터를 기록하는 `writeAll` 함수를 제공합니다.
+     * 여러 CSV 데이터 행을 비동기로 순차 기록합니다.
+     *
+     * @param rows 기록할 데이터 행들
      */
     override suspend fun writeAll(rows: Sequence<Iterable<*>>) {
         rows.forEach { writeRow(it) }
     }
 
     /**
-     * CSV/TSV 처리에서 데이터를 기록하는 `writeAll` 함수를 제공합니다.
+     * [Flow]로 전달되는 CSV 데이터 행을 비동기로 수집하여 기록합니다.
+     *
+     * @param rows 기록할 데이터 행들의 Flow
      */
     override suspend fun writeAll(rows: Flow<Iterable<*>>) {
         rows.collect { writeRow(it) }

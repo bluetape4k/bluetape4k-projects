@@ -13,7 +13,7 @@ import java.io.InputStream
 import java.nio.charset.Charset
 
 /**
- * Coroutines 환경 하에서 TSV 포맷의 Record 를 읽어드립니다.
+ * Coroutines 환경에서 TSV 파일을 읽어 [Flow]로 변환하는 [SuspendRecordReader] 구현체입니다.
  *
  * ```
  * val reader = SuspendTsvRecordReader()
@@ -36,7 +36,13 @@ class SuspendTsvRecordReader(
     companion object: KLoggingChannel()
 
     /**
-     * CSV/TSV 처리에서 데이터를 읽어오는 `read` 함수를 제공합니다.
+     * TSV 입력 스트림에서 레코드를 읽어 [Flow]로 방출합니다.
+     *
+     * @param input TSV 파일의 입력 스트림
+     * @param encoding TSV 파일의 인코딩
+     * @param skipHeaders TSV 파일의 헤더를 건너뛸지 여부
+     * @param transform Record 를 원하는 타입으로 변환하는 함수
+     * @return 변환된 데이터의 Flow
      */
     override fun <T: Any> read(
         input: InputStream,

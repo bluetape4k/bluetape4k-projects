@@ -4,47 +4,63 @@ import io.bluetape4k.collections.eclipse.toFastList
 import java.io.Closeable
 
 /**
- * CSV 포맷 형태의 파일 정보를 [Record] 로 읽어드리는 Reader 입니다.
+ * CSV/TSV 포맷의 데이터를 기록하는 Writer 인터페이스입니다.
+ *
+ * ```
+ * val writer = CsvRecordWriter(output)
+ * writer.writeHeaders(listOf("name", "age"))
+ * writer.writeRow(listOf("Alice", 20))
+ * writer.writeRow(listOf("Bob", 30))
+ * writer.close()
+ * ```
  */
 interface RecordWriter: Closeable {
 
     /**
-     * CSV/TSV 처리에서 데이터를 기록하는 `writeHeaders` 함수를 제공합니다.
+     * CSV/TSV 파일의 헤더 행을 기록합니다.
+     *
+     * @param headers 헤더 이름들
      */
     fun writeHeaders(headers: Iterable<String>)
 
     /**
-     * CSV/TSV 처리에서 데이터를 기록하는 `writeHeaders` 함수를 제공합니다.
+     * CSV/TSV 파일의 헤더 행을 기록합니다.
+     *
+     * @param headers 헤더 이름들
      */
     fun writeHeaders(vararg headers: String) {
         writeHeaders(headers.toFastList())
     }
 
     /**
-     * CSV/TSV 처리에서 데이터를 기록하는 `writeRow` 함수를 제공합니다.
+     * 하나의 데이터 행을 기록합니다.
+     *
+     * @param rows 기록할 데이터 행
      */
     fun writeRow(rows: Iterable<*>)
 
     /**
-     * 하나의 엔티티를 여러 컬럼의 정보로 매핑하여 하나의 Record로 저장합니다.
-     * @param entity T
-     * @param transform Function1<T, Iterable<*>>
+     * 엔티티를 변환 함수를 통해 데이터 행으로 변환하여 기록합니다.
+     *
+     * @param entity 기록할 엔티티
+     * @param transform 엔티티를 데이터 행으로 변환하는 함수
      */
     fun <T> writeRow(entity: T, transform: (T) -> Iterable<*>) {
         writeRow(transform(entity))
     }
 
     /**
-     * 복수개의 정보를 저장소에 씁니다.
-     * @param rows 저장할 레코드들
+     * 여러 데이터 행을 순차적으로 기록합니다.
+     *
+     * @param rows 기록할 데이터 행들
      */
     fun writeAll(rows: Sequence<Iterable<*>>)
 
     /**
-     * 복수개의 정보를 저장소에 씁니다.
+     * 여러 엔티티를 변환 함수를 통해 데이터 행으로 변환하여 순차적으로 기록합니다.
      *
-     * @param entities 저장할 엔티티들
-     * @param transform 엔티티를 레코드로 변환하는 함수
+     * @param entities 기록할 엔티티들
+     * @param transform 엔티티를 데이터 행으로 변환하는 함수
      */
     fun <T> writeAll(entities: Sequence<T>, transform: (T) -> Iterable<*>) {
         writeAll(entities.map(transform))

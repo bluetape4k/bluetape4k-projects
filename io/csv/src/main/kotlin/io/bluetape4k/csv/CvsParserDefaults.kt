@@ -5,6 +5,9 @@ import com.univocity.parsers.csv.CsvWriterSettings
 import com.univocity.parsers.tsv.TsvParserSettings
 import com.univocity.parsers.tsv.TsvWriterSettings
 
+/**
+ * 컬럼당 최대 허용 문자 수입니다.
+ */
 const val MAX_CHARS_PER_COLUMN: Int = 100_000
 
 /**

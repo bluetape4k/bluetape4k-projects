@@ -25,12 +25,13 @@ import java.nio.charset.Charset
 interface SuspendRecordReader: Closeable {
 
     /**
-     * CSV 나 TSV 등의 파일을 읽어드립니다.
+     * CSV 나 TSV 등의 파일을 읽어들입니다.
      *
-     * @param input InputStream 읽어드릴 Stream
-     * @param encoding Charset 인코등 정보
-     * @param skipHeaders Boolean 파일에 헤더가 있다면 skip 할지 여부
-     * @return Flow<Record> 읽어드린 Record를 제공하는 [Flow]
+     * @param input 읽어들일 입력 스트림
+     * @param encoding 인코딩 정보
+     * @param skipHeaders 파일에 헤더가 있다면 skip 할지 여부
+     * @param transform Record 를 원하는 타입으로 변환하는 함수
+     * @return 읽어들인 Record를 제공하는 [Flow]
      */
     fun <T: Any> read(
         input: InputStream,
@@ -40,12 +41,12 @@ interface SuspendRecordReader: Closeable {
     ): Flow<T>
 
     /**
-     * CSV 나 TSV 등의 파일을 읽어드립니다.
+     * CSV 나 TSV 등의 파일을 읽어들입니다.
      *
-     * @param input InputStream 읽어드릴 Stream
-     * @param encoding Charset 인코등 정보
-     * @param skipHeaders Boolean 파일에 헤더가 있다면 skip 할지 여부
-     * @return Flow<Record> 읽어드린 Record를 제공하는 [Flow]
+     * @param input 읽어들일 입력 스트림
+     * @param encoding 인코딩 정보
+     * @param skipHeaders 파일에 헤더가 있다면 skip 할지 여부
+     * @return 읽어들인 Record를 제공하는 [Flow]
      */
     fun read(
         input: InputStream,

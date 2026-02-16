@@ -25,7 +25,10 @@ class CsvRecordWriter private constructor(
 
     companion object: KLogging() {
         /**
-         * CSV/TSV 처리용 인스턴스 생성을 위한 진입점을 제공합니다.
+         * [CsvWriter]를 사용하여 [CsvRecordWriter] 인스턴스를 생성합니다.
+         *
+         * @param csvWriter CSV writer
+         * @return CsvRecordWriter 인스턴스
          */
         @JvmStatic
         operator fun invoke(csvWriter: CsvWriter): CsvRecordWriter {
@@ -33,7 +36,11 @@ class CsvRecordWriter private constructor(
         }
 
         /**
-         * CSV/TSV 처리용 인스턴스 생성을 위한 진입점을 제공합니다.
+         * [Writer]와 설정을 사용하여 [CsvRecordWriter] 인스턴스를 생성합니다.
+         *
+         * @param writer 출력 스트림
+         * @param settings CSV writer 설정
+         * @return CsvRecordWriter 인스턴스
          */
         @JvmStatic
         operator fun invoke(
@@ -45,21 +52,27 @@ class CsvRecordWriter private constructor(
     }
 
     /**
-     * CSV/TSV 처리에서 데이터를 기록하는 `writeHeaders` 함수를 제공합니다.
+     * CSV 파일의 헤더 행을 기록합니다.
+     *
+     * @param headers 헤더 이름들
      */
     override fun writeHeaders(headers: Iterable<String>) {
         writer.writeHeaders(headers.toFastList())
     }
 
     /**
-     * CSV/TSV 처리에서 데이터를 기록하는 `writeRow` 함수를 제공합니다.
+     * 하나의 CSV 데이터 행을 기록합니다.
+     *
+     * @param rows 기록할 데이터 행
      */
     override fun writeRow(rows: Iterable<*>) {
         writer.writeRow(rows.toFastList())
     }
 
     /**
-     * CSV/TSV 처리에서 데이터를 기록하는 `writeAll` 함수를 제공합니다.
+     * 여러 CSV 데이터 행을 순차적으로 기록합니다.
+     *
+     * @param rows 기록할 데이터 행들
      */
     override fun writeAll(rows: Sequence<Iterable<*>>) {
         rows.forEach { writeRow(it) }

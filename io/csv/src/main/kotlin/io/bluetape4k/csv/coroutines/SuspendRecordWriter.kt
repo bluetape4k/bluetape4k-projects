@@ -19,48 +19,67 @@ import java.io.Closeable
 interface SuspendRecordWriter: Closeable {
 
     /**
-     * CSV/TSV 처리에서 데이터를 기록하는 `writeHeaders` 함수를 제공합니다.
+     * CSV/TSV 파일의 헤더 행을 비동기로 기록합니다.
+     *
+     * @param headers 헤더 이름들
      */
     suspend fun writeHeaders(headers: Iterable<String>)
 
     /**
-     * CSV/TSV 처리에서 데이터를 기록하는 `writeHeaders` 함수를 제공합니다.
+     * CSV/TSV 파일의 헤더 행을 비동기로 기록합니다.
+     *
+     * @param headers 헤더 이름들
      */
     suspend fun writeHeaders(vararg headers: String) {
         writeHeaders(headers.toFastList())
     }
 
     /**
-     * CSV/TSV 처리에서 데이터를 기록하는 `writeRow` 함수를 제공합니다.
+     * 하나의 데이터 행을 비동기로 기록합니다.
+     *
+     * @param row 기록할 데이터 행
      */
     suspend fun writeRow(row: Iterable<*>)
 
     /**
-     * CSV/TSV 처리에서 데이터를 기록하는 `writeRow` 함수를 제공합니다.
+     * 엔티티를 변환 함수를 통해 데이터 행으로 변환하여 비동기로 기록합니다.
+     *
+     * @param entity 기록할 엔티티
+     * @param mapper 엔티티를 데이터 행으로 변환하는 함수
      */
     suspend fun <T> writeRow(entity: T, mapper: (T) -> Iterable<*>) {
         writeRow(mapper(entity))
     }
 
     /**
-     * CSV/TSV 처리에서 데이터를 기록하는 `writeAll` 함수를 제공합니다.
+     * 여러 데이터 행을 비동기로 순차 기록합니다.
+     *
+     * @param rows 기록할 데이터 행들
      */
     suspend fun writeAll(rows: Sequence<Iterable<*>>)
 
     /**
-     * CSV/TSV 처리에서 데이터를 기록하는 `writeAll` 함수를 제공합니다.
+     * 여러 엔티티를 변환 함수를 통해 데이터 행으로 변환하여 비동기로 순차 기록합니다.
+     *
+     * @param entities 기록할 엔티티들
+     * @param transform 엔티티를 데이터 행으로 변환하는 함수
      */
     suspend fun <T> writeAll(entities: Sequence<T>, transform: (T) -> Iterable<*>) {
         writeAll(entities.map(transform))
     }
 
     /**
-     * CSV/TSV 처리에서 데이터를 기록하는 `writeAll` 함수를 제공합니다.
+     * [Flow]로 전달되는 데이터 행을 비동기로 수집하여 기록합니다.
+     *
+     * @param rows 기록할 데이터 행들의 Flow
      */
     suspend fun writeAll(rows: Flow<Iterable<*>>)
 
     /**
-     * CSV/TSV 처리에서 데이터를 기록하는 `writeAll` 함수를 제공합니다.
+     * [Flow]로 전달되는 엔티티를 변환 함수를 통해 데이터 행으로 변환하여 비동기로 수집하여 기록합니다.
+     *
+     * @param entities 기록할 엔티티들의 Flow
+     * @param transform 엔티티를 데이터 행으로 변환하는 함수
      */
     suspend fun <T> writeAll(entities: Flow<T>, transform: (T) -> Iterable<*>) {
         writeAll(entities.map(transform))

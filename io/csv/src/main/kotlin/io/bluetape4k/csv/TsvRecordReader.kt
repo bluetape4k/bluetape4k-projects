@@ -8,7 +8,7 @@ import java.io.InputStream
 import java.nio.charset.Charset
 
 /**
- * TSV 포맷의 파일을 읽어드리는 [RecordReader] 입니다.
+ * TSV(Tab-Separated Values) 포맷 파일을 읽어 [Record]로 변환하는 [RecordReader] 구현체입니다.
  *
  * ```
  * val reader = TsvRecordReader()
@@ -31,7 +31,13 @@ class TsvRecordReader(
     companion object: KLogging()
 
     /**
-     * CSV/TSV 처리에서 데이터를 읽어오는 `read` 함수를 제공합니다.
+     * TSV 입력 스트림에서 레코드를 순차적으로 읽어 [Sequence]로 반환합니다.
+     *
+     * @param input TSV 파일의 입력 스트림
+     * @param encoding TSV 파일의 인코딩
+     * @param skipHeaders TSV 파일의 헤더를 건너뛸지 여부
+     * @param transform Record 를 원하는 타입으로 변환하는 함수
+     * @return 변환된 데이터의 시퀀스
      */
     override fun <T> read(
         input: InputStream,

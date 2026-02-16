@@ -6,7 +6,7 @@ import java.io.InputStream
 import java.nio.charset.Charset
 
 /**
- * CSV 포맷 형태의 파일 정보를 [Record] 로 읽어드리는 Reader 입니다.
+ * CSV 포맷 형태의 파일 정보를 [Record] 로 읽어들이는 Reader 입니다.
  *
  * ```
  * val reader = CsvRecordReader()
