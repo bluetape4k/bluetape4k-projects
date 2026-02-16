@@ -57,7 +57,7 @@ class FutureSupportTest {
                     log.trace { "counter=${counter.get()}" }
                     counter.incrementAndGet()
                 }
-                val result = task.suspendAwait()
+                val result = task.awaitSuspending()
                 log.trace { "result=$result" }
             }
             .run()

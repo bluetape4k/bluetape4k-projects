@@ -3,7 +3,7 @@ package io.bluetape4k.images.coroutines.animated
 import com.sksamuel.scrimage.nio.AnimatedGifReader
 import com.sksamuel.scrimage.nio.ImageSource
 import io.bluetape4k.images.AbstractImageTest
-import io.bluetape4k.io.suspendReadAllBytes
+import io.bluetape4k.io.readAllBytesSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -21,7 +21,7 @@ class SuspendGif2WebpWriterTest: AbstractImageTest() {
 
     @Test
     fun `convert animated gif to webp`(tempFolder: TempFolder) = runSuspendIO {
-        val originBytes = Path.of("$BASE_PATH/animated.gif").suspendReadAllBytes()
+        val originBytes = Path.of("$BASE_PATH/animated.gif").readAllBytesSuspending()
         val gif2 = AnimatedGifReader.read(ImageSource.of(originBytes))
 
         val saved = if (useTempFolder) {

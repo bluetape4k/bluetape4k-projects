@@ -1,6 +1,6 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.RedissonCodecs
@@ -38,10 +38,10 @@ class PriorityQueueExamples: AbstractRedissonCoroutineTest() {
         queue.count() shouldBeEqualTo 6
 
         // 첫번째 요소 조회
-        queue.peekAsync().suspendAwait() shouldBeEqualTo Item("a", 3)
+        queue.peekAsync().awaitSuspending() shouldBeEqualTo Item("a", 3)
         // 첫번째 요소 가져오기
-        queue.pollAsync().suspendAwait() shouldBeEqualTo Item("a", 3)
+        queue.pollAsync().awaitSuspending() shouldBeEqualTo Item("a", 3)
 
-        queue.deleteAsync().suspendAwait()
+        queue.deleteAsync().awaitSuspending()
     }
 }

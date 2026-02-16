@@ -1,6 +1,6 @@
 package io.bluetape4k.examples.redisson.coroutines.objects
 
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -21,36 +21,36 @@ class HyperLogLogExamples: AbstractRedissonCoroutineTest() {
 
         val hyperLog1 = redisson.getHyperLogLog<Int>(randomName())
 
-        hyperLog1.addAsync(1).suspendAwait()
-        hyperLog1.addAsync(1).suspendAwait()
-        hyperLog1.addAsync(2).suspendAwait()
-        hyperLog1.addAsync(3).suspendAwait()
+        hyperLog1.addAsync(1).awaitSuspending()
+        hyperLog1.addAsync(1).awaitSuspending()
+        hyperLog1.addAsync(2).awaitSuspending()
+        hyperLog1.addAsync(3).awaitSuspending()
 
         // 중복된 것은 제외하고 [1,2,3] 이다.
-        hyperLog1.countAsync().suspendAwait() shouldBeEqualTo 3
+        hyperLog1.countAsync().awaitSuspending() shouldBeEqualTo 3
 
-        hyperLog1.addAllAsync(listOf(10, 20, 10, 30)).suspendAwait()
-        hyperLog1.countAsync().suspendAwait() shouldBeEqualTo 6
+        hyperLog1.addAllAsync(listOf(10, 20, 10, 30)).awaitSuspending()
+        hyperLog1.countAsync().awaitSuspending() shouldBeEqualTo 6
 
         val hyperLog2 = redisson.getHyperLogLog<Int>(randomName())
-        hyperLog2.addAsync(3).suspendAwait()
-        hyperLog2.addAsync(4).suspendAwait()
-        hyperLog2.addAsync(5).suspendAwait()
+        hyperLog2.addAsync(3).awaitSuspending()
+        hyperLog2.addAsync(4).awaitSuspending()
+        hyperLog2.addAsync(5).awaitSuspending()
 
         val hyperLog3 = redisson.getHyperLogLog<Int>(randomName())
-        hyperLog3.addAsync(3).suspendAwait()
-        hyperLog3.addAsync(4).suspendAwait()
-        hyperLog3.addAsync(5).suspendAwait()
+        hyperLog3.addAsync(3).awaitSuspending()
+        hyperLog3.addAsync(4).awaitSuspending()
+        hyperLog3.addAsync(5).awaitSuspending()
 
         // 두 Log의 요소들을 merge 한다
-        hyperLog2.mergeWithAsync(hyperLog3.name).suspendAwait()
-        hyperLog2.countAsync().suspendAwait() shouldBeEqualTo 3
+        hyperLog2.mergeWithAsync(hyperLog3.name).awaitSuspending()
+        hyperLog2.countAsync().awaitSuspending() shouldBeEqualTo 3
 
         // [1,2,3,10,20,30] + [3,4,5]
-        hyperLog1.countWithAsync(hyperLog2.name).suspendAwait() shouldBeEqualTo 8
+        hyperLog1.countWithAsync(hyperLog2.name).awaitSuspending() shouldBeEqualTo 8
 
-        hyperLog3.deleteAsync().suspendAwait()
-        hyperLog2.deleteAsync().suspendAwait()
-        hyperLog1.deleteAsync().suspendAwait()
+        hyperLog3.deleteAsync().awaitSuspending()
+        hyperLog2.deleteAsync().awaitSuspending()
+        hyperLog1.deleteAsync().awaitSuspending()
     }
 }

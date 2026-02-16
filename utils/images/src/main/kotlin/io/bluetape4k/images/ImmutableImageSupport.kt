@@ -3,8 +3,8 @@ package io.bluetape4k.images
 import com.sksamuel.scrimage.ImmutableImage
 import io.bluetape4k.images.coroutines.SuspendImageWriter
 import io.bluetape4k.images.coroutines.SuspendWriteContext
-import io.bluetape4k.io.suspendReadAllBytes
-import io.bluetape4k.io.suspendWrite
+import io.bluetape4k.io.readAllBytesSuspending
+import io.bluetape4k.io.writeSuspending
 import java.awt.Graphics2D
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -87,7 +87,7 @@ suspend fun suspendImmutableImageOf(file: File): ImmutableImage =
  * @return 이미지 정보를 담은 [ImmutableImage]
  */
 suspend fun suspendImmutableImageOf(path: Path): ImmutableImage =
-    immutableImageOf(path.suspendReadAllBytes())
+    immutableImageOf(path.readAllBytesSuspending())
 
 
 /**
@@ -114,7 +114,7 @@ suspend fun suspendLoadImage(file: File): ImmutableImage =
  * @return 이미지 정보를 담은 [ImmutableImage]
  */
 suspend fun suspendLoadImage(path: Path): ImmutableImage =
-    immutableImageOf(path.suspendReadAllBytes())
+    immutableImageOf(path.readAllBytesSuspending())
 
 /**
  * Coroutines 환경에서 [ImmutableImage] 정보를 [writer]를 통해 [ByteArray]로 변환합니다.
@@ -147,7 +147,7 @@ suspend inline fun ImmutableImage.suspendBytes(writer: SuspendImageWriter): Byte
  */
 suspend fun ImmutableImage.suspendWrite(writer: SuspendImageWriter, destPath: Path): Long {
     val bytes = suspendBytes(writer)
-    return destPath.suspendWrite(bytes)
+    return destPath.writeSuspending(bytes)
 }
 
 /**

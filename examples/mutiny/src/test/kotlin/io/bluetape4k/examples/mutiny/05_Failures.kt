@@ -1,7 +1,5 @@
 package io.bluetape4k.examples.mutiny
 
-import io.bluetape4k.collections.eclipse.toFastList
-import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
@@ -13,6 +11,7 @@ import io.smallrye.mutiny.coroutines.asFlow
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import io.smallrye.mutiny.subscription.MultiEmitter
 import io.smallrye.mutiny.subscription.UniEmitter
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
@@ -120,7 +119,7 @@ class FailuresExample {
             .onCompletion().invoke { log.debug("✅") }
             .select().first(10)
             .asFlow()
-            .toFastList()
+            .toList()
 
         log.debug { "items=$items" }
 
@@ -138,7 +137,7 @@ class FailuresExample {
             .onFailure().recoverWithItem(666)
             .onCompletion().invoke { log.debug { "✅" } }
             .asFlow()
-            .toFastList()
+            .toList()
 
         items shouldContain 666
     }
@@ -153,7 +152,7 @@ class FailuresExample {
             .onCompletion().invoke { log.debug { "✅" } }
             .log()
             .asFlow()
-            .toFastList()
+            .toList()
 
         items shouldContainAll listOf(666, 999)
     }
@@ -212,7 +211,7 @@ class FailuresExample {
             .asList()
             .awaitSuspending()
 
-        items shouldBeEqualTo (0..9).toFastList()
+        items shouldBeEqualTo (0..9).toList()
     }
 
     private fun safeGuardedOperation(i: Int): Uni<Int> {

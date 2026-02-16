@@ -28,7 +28,7 @@ class CompletableFutureExamples {
             42
         }
 
-        future.suspendAwait() shouldBeEqualTo 42
+        future.awaitSuspending() shouldBeEqualTo 42
     }
 
     @Test
@@ -44,7 +44,7 @@ class CompletableFutureExamples {
                 }
 
                 log.debug { "예외가 발생했는지 확인합니다." }
-                future.suspendAwait()
+                future.awaitSuspending()
             }
         }
     }
@@ -55,7 +55,7 @@ class CompletableFutureExamples {
             delay(100)
             42
         }
-        val deferred = async { future.suspendAwait() }
+        val deferred = async { future.awaitSuspending() }
 
         future.cancel(false).shouldBeTrue()
         future.isCancelled.shouldBeTrue()

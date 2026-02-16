@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.redisson.repository
 
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.r2dbc.redisson.map.R2dbcEntityMapLoader
 import io.bluetape4k.exposed.r2dbc.redisson.map.R2dbcEntityMapWriter
@@ -175,7 +175,7 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
             }
             .map { it.toEntity() }
             .onEach {
-                cache.fastPutAsync(it.id, it).suspendAwait()
+                cache.fastPutAsync(it.id, it).awaitSuspending()
             }
             .toList()
     }
@@ -193,7 +193,7 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
             .chunked(batchSize)
             .flatMap { chunk ->
                 log.debug { "캐시에서 ${chunk.size} 개의 엔티티를 가져옵니다. chunk=${chunk}" }
-                cache.getAllAsync(chunk.toSet()).suspendAwait().values.filterNotNull()
+                cache.getAllAsync(chunk.toSet()).awaitSuspending().values.filterNotNull()
             }
     }
 }

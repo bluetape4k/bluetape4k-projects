@@ -1,6 +1,6 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -32,8 +32,8 @@ class SortedSetExamples: AbstractRedissonCoroutineTest() {
         sset.first() shouldBeEqualTo 1
         sset.last() shouldBeEqualTo 3
 
-        sset.removeAsync(1).suspendAwait().shouldBeTrue()
+        sset.removeAsync(1).awaitSuspending().shouldBeTrue()
 
-        sset.deleteAsync().suspendAwait()
+        sset.deleteAsync().awaitSuspending()
     }
 }

@@ -5,8 +5,8 @@ import io.bluetape4k.images.AbstractImageTest
 import io.bluetape4k.images.forSuspendWriter
 import io.bluetape4k.images.immutableImageOf
 import io.bluetape4k.images.suspendImmutableImageOf
-import io.bluetape4k.io.suspendWrite
 import io.bluetape4k.io.writeAsync
+import io.bluetape4k.io.writeSuspending
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
@@ -43,7 +43,7 @@ abstract class AbstractSuspendImageWriterTest: AbstractImageTest() {
             val bytes = image.forSuspendWriter(writer).bytes()
             if (useTempFolder) {
                 val dest = tempFolder.createFile("${filename}_compressed.$imageFormat")
-                dest.toPath().suspendWrite(bytes)
+                dest.toPath().writeSuspending(bytes)
             } else {
                 Path.of("$BASE_PATH/${filename}_compressed.$imageFormat").writeAsync(bytes).await()
             }

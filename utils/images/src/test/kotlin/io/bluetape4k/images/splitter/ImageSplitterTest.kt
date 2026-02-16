@@ -4,8 +4,8 @@ import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.images.AbstractImageTest
 import io.bluetape4k.images.ImageFormat
 import io.bluetape4k.images.coroutines.SuspendJpegWriter
-import io.bluetape4k.io.suspendWrite
 import io.bluetape4k.io.toInputStream
+import io.bluetape4k.io.writeSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
@@ -69,7 +69,7 @@ class ImageSplitterTest: AbstractImageTest() {
                 image.height shouldBeLessOrEqualTo splitter.defaultMaxHeight
             }
             items.forEach { bytes ->
-                tempFolder.createFile().suspendWrite(bytes)
+                tempFolder.createFile().writeSuspending(bytes)
             }
         }
     }
@@ -86,7 +86,7 @@ class ImageSplitterTest: AbstractImageTest() {
                 )
 
             items.buffer().collect { bytes ->
-                tempFolder.createFile().suspendWrite(bytes)
+                tempFolder.createFile().writeSuspending(bytes)
             }
         }
     }

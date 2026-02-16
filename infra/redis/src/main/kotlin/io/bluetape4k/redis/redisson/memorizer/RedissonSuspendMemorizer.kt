@@ -1,7 +1,7 @@
 package io.bluetape4k.redis.redisson.memorizer
 
 import io.bluetape4k.cache.memorizer.SuspendMemorizer
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.redisson.api.RMap
@@ -70,6 +70,6 @@ class RedissonSuspendMemorizer<T: Any, R: Any>(
 
     override suspend fun clear() {
         log.debug { "Clear all memorized values. map=${map.name}" }
-        map.clearAsync().suspendAwait()
+        map.clearAsync().awaitSuspending()
     }
 }

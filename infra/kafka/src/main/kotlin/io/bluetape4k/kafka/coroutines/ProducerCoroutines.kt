@@ -1,7 +1,7 @@
 package io.bluetape4k.kafka.coroutines
 
 import io.bluetape4k.coroutines.flow.async
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collectLatest
@@ -33,7 +33,7 @@ import org.apache.kafka.clients.producer.RecordMetadata
  * @return 발행 결과를 표현하는 [RecordMetadata] instance
  */
 suspend fun <K, V> Producer<K, V>.suspendSend(record: ProducerRecord<K, V>): RecordMetadata {
-    return send(record).suspendAwait()
+    return send(record).awaitSuspending()
 }
 
 /**
@@ -109,7 +109,7 @@ suspend fun <K, V> Producer<K, V>.sendAndForget(
     records
         .buffer()
         .async {
-            send(it).suspendAwait()
+            send(it).awaitSuspending()
         }
         .collectLatest {
             if (needFlush) {

@@ -36,7 +36,8 @@ class DigesterTest {
         Digesters.SHA256,
         Digesters.SHA384,
         Digesters.SHA512
-    ).map { Arguments.of(it) }
+    )
+        .map { Arguments.of(it) }
 
     @ParameterizedTest(name = "digest byte array by {0}")
     @FieldSource("digesters")
