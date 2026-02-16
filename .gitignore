@@ -23,8 +23,7 @@ hs_err_pid*
 .checkstyle
 
 .ai
-.omc/sessions
-.omc/state
+.omc
 .kotlin
 .quarkus
 
