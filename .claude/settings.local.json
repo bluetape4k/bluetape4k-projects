@@ -13,7 +13,12 @@
       "Bash(./gradlew :bluetape4k-jackson:test:*)",
       "Bash(./gradlew :bluetape4k-jackson:build:*)",
       "Bash(./gradlew :bluetape4k-jackson3:test:*)",
-      "Bash(./gradlew :bluetape4k-json:test:*)"
+      "Bash(./gradlew :bluetape4k-json:test:*)",
+      "Bash(./gradlew :io:jackson-binary:test:*)",
+      "Bash(./gradlew:*)",
+      "Bash(cat:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   },
   "hooks": {

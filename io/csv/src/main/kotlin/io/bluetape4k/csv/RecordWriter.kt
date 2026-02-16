@@ -65,4 +65,23 @@ interface RecordWriter: Closeable {
     fun <T> writeAll(entities: Sequence<T>, transform: (T) -> Iterable<*>) {
         writeAll(entities.map(transform))
     }
+
+    /**
+     * [Iterable]로 전달되는 여러 데이터 행을 순차적으로 기록합니다.
+     *
+     * @param rows 기록할 데이터 행들
+     */
+    fun writeAll(rows: Iterable<Iterable<*>>) {
+        writeAll(rows.asSequence())
+    }
+
+    /**
+     * [Iterable]로 전달되는 여러 엔티티를 변환 함수를 통해 데이터 행으로 변환하여 순차적으로 기록합니다.
+     *
+     * @param entities 기록할 엔티티들
+     * @param transform 엔티티를 데이터 행으로 변환하는 함수
+     */
+    fun <T> writeAll(entities: Iterable<T>, transform: (T) -> Iterable<*>) {
+        writeAll(entities.asSequence().map(transform))
+    }
 }

@@ -55,13 +55,37 @@ writer.close()
 ```kotlin
 import io.bluetape4k.csv.readAsCsvRecords
 import io.bluetape4k.csv.readAsTsvRecords
+import io.bluetape4k.csv.writeCsvRecords
+import io.bluetape4k.csv.writeTsvRecords
 
 // File에서 직접 읽기
 val csvRecords = File("data.csv").readAsCsvRecords()
 val tsvRecords = File("data.tsv").readAsTsvRecords()
 
+// File에서 transform으로 읽기
+val items = File("data.csv").readAsCsvRecords(skipHeader = true) { record ->
+    Item(record.getString("name"), record.getInt("age"))
+}
+
 // InputStream에서 읽기
 val records = inputStream.readAsCsvRecords(Charsets.UTF_8, skipHeader = true)
+
+// InputStream에서 transform으로 읽기
+val items2 = inputStream.readAsCsvRecords(Charsets.UTF_8, skipHeader = true) { record ->
+    Item(record.getString("name"), record.getInt("age"))
+}
+
+// File에 직접 쓰기
+File("output.csv").writeCsvRecords(
+    headers = listOf("name", "age"),
+    rows = listOf(listOf("Alice", 20), listOf("Bob", 30))
+)
+
+// File에 엔티티를 변환하여 쓰기
+File("output.csv").writeCsvRecords(
+    headers = listOf("name", "age"),
+    entities = people,
+) { person -> listOf(person.name, person.age) }
 ```
 
 ### 5. Coroutines 비동기 읽기
@@ -146,7 +170,8 @@ io.bluetape4k.csv
 ├── CsvRecordWriter.kt                # CSV 쓰기 구현체
 ├── TsvRecordReader.kt                # TSV 읽기 구현체
 ├── TsvRecordWriter.kt                # TSV 쓰기 구현체
-├── RecordReaderSupport.kt            # File/InputStream 확장 함수
+├── RecordReaderSupport.kt            # File/InputStream 읽기 확장 함수
+├── RecordWriterSupport.kt            # File 쓰기 확장 함수
 └── coroutines/                       # Coroutines 비동기 지원
     ├── SuspendRecordReader.kt        # 비동기 읽기 인터페이스 (Flow 기반)
     ├── SuspendRecordWriter.kt        # 비동기 쓰기 인터페이스

@@ -33,11 +33,11 @@ interface SuspendRecordReader: Closeable {
      * @param transform Record 를 원하는 타입으로 변환하는 함수
      * @return 읽어들인 Record를 제공하는 [Flow]
      */
-    fun <T: Any> read(
+    fun <T> read(
         input: InputStream,
         encoding: Charset = Charsets.UTF_8,
         skipHeaders: Boolean = true,
-        transform: (Record) -> T,
+        transform: suspend (Record) -> T,
     ): Flow<T>
 
     /**

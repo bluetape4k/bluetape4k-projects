@@ -44,18 +44,17 @@ class SuspendTsvRecordReader(
      * @param transform Record 를 원하는 타입으로 변환하는 함수
      * @return 변환된 데이터의 Flow
      */
-    override fun <T: Any> read(
+    override fun <T> read(
         input: InputStream,
         encoding: Charset,
         skipHeaders: Boolean,
-        transform: (Record) -> T,
-    ): Flow<T> {
-        return TsvParser(settings)
+        transform: suspend (Record) -> T,
+    ): Flow<T> =
+        TsvParser(settings)
             .iterateRecords(input, encoding)
             .asFlow()
             .drop(if (skipHeaders) 1 else 0)
             .map { transform(it) }
-    }
 
     /**
      * CSV/TSV 처리 리소스를 정리하고 닫습니다.

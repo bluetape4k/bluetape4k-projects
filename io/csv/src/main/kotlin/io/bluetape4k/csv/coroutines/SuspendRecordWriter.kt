@@ -1,7 +1,7 @@
 package io.bluetape4k.csv.coroutines
 
-import io.bluetape4k.collections.eclipse.toFastList
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map
 import java.io.Closeable
 
@@ -31,7 +31,7 @@ interface SuspendRecordWriter: Closeable {
      * @param headers 헤더 이름들
      */
     suspend fun writeHeaders(vararg headers: String) {
-        writeHeaders(headers.toFastList())
+        writeHeaders(headers.toList())
     }
 
     /**
@@ -47,7 +47,7 @@ interface SuspendRecordWriter: Closeable {
      * @param entity 기록할 엔티티
      * @param mapper 엔티티를 데이터 행으로 변환하는 함수
      */
-    suspend fun <T> writeRow(entity: T, mapper: (T) -> Iterable<*>) {
+    suspend fun <T> writeRow(entity: T, mapper: suspend (T) -> Iterable<*>) {
         writeRow(mapper(entity))
     }
 
@@ -64,8 +64,27 @@ interface SuspendRecordWriter: Closeable {
      * @param entities 기록할 엔티티들
      * @param transform 엔티티를 데이터 행으로 변환하는 함수
      */
-    suspend fun <T> writeAll(entities: Sequence<T>, transform: (T) -> Iterable<*>) {
-        writeAll(entities.map(transform))
+    suspend fun <T> writeAll(entities: Sequence<T>, transform: suspend (T) -> Iterable<*>) {
+        writeAll(entities.asFlow().map(transform))
+    }
+
+    /**
+     * [Iterable]로 전달되는 여러 데이터 행을 비동기로 순차 기록합니다.
+     *
+     * @param rows 기록할 데이터 행들
+     */
+    suspend fun writeAll(rows: Iterable<Iterable<*>>) {
+        writeAll(rows.asFlow())
+    }
+
+    /**
+     * [Iterable]로 전달되는 여러 엔티티를 변환 함수를 통해 데이터 행으로 변환하여 비동기로 순차 기록합니다.
+     *
+     * @param entities 기록할 엔티티들
+     * @param transform 엔티티를 데이터 행으로 변환하는 함수
+     */
+    suspend fun <T> writeAll(entities: Iterable<T>, transform: suspend (T) -> Iterable<*>) {
+        writeAll(entities.asFlow().map(transform))
     }
 
     /**
@@ -81,7 +100,7 @@ interface SuspendRecordWriter: Closeable {
      * @param entities 기록할 엔티티들의 Flow
      * @param transform 엔티티를 데이터 행으로 변환하는 함수
      */
-    suspend fun <T> writeAll(entities: Flow<T>, transform: (T) -> Iterable<*>) {
+    suspend fun <T> writeAll(entities: Flow<T>, transform: suspend (T) -> Iterable<*>) {
         writeAll(entities.map(transform))
     }
 }
