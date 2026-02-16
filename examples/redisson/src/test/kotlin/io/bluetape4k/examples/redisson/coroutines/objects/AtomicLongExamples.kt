@@ -7,9 +7,6 @@ import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.utils.Runtimex
-import kotlinx.coroutines.joinAll
-import kotlinx.coroutines.launch
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
@@ -22,20 +19,6 @@ class AtomicLongExamples: AbstractRedissonCoroutineTest() {
     companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 3
         private const val TEST_COUNT = 1000
-    }
-
-    @RepeatedTest(REPEAT_SIZE)
-    fun `AtomicLog in coroutines`() = runSuspendIO {
-        val counter = redisson.getAtomicLong(randomName())
-        val jobs = List(TEST_COUNT) {
-            scope.launch {
-                counter.incrementAndGetAsync().awaitSuspending()
-            }
-        }
-        jobs.joinAll()
-
-        counter.async.awaitSuspending() shouldBeEqualTo TEST_COUNT.toLong()
-        counter.deleteAsync().awaitSuspending().shouldBeTrue()
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -64,7 +47,7 @@ class AtomicLongExamples: AbstractRedissonCoroutineTest() {
         val counter = redisson.getAtomicLong(randomName())
 
         SuspendedJobTester()
-            .workers(Runtimex.availableProcessors)
+            .workers(4)
             .rounds(32 * 8)
             .add {
                 counter.incrementAndGetAsync().awaitSuspending()

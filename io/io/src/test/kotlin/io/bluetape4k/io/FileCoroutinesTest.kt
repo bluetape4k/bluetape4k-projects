@@ -35,11 +35,11 @@ class FileCoroutinesTest: AbstractIOTest() {
         val path = tempFolder.createFile(filename).toPath()
         log.debug { "Write and Read contents. path=$path" }
 
-        val written = path.suspendWrite(bytes)
+        val written = path.writeSuspending(bytes)
         written shouldBeEqualTo bytes.size.toLong()
         yield()
 
-        val loaded = path.suspendReadAllBytes()
+        val loaded = path.readAllBytesSuspending()
         loaded shouldBeEqualTo bytes
     }
 
@@ -51,12 +51,12 @@ class FileCoroutinesTest: AbstractIOTest() {
         log.debug { "Write and Read contents. path=$path" }
 
         // 비동기로 쓰기
-        val written = path.suspendWriteLines(contents)
+        val written = path.writeLinesSuspending(contents)
         written shouldBeGreaterThan 0
         yield()
 
         // 비동기로 파일 읽기
-        val loaded = path.suspendReadAllLines().toFastList()
+        val loaded = path.readAllLinesSuspending().toFastList()
         loaded.size shouldBeEqualTo contents.size
         loaded shouldBeEqualTo contents
     }

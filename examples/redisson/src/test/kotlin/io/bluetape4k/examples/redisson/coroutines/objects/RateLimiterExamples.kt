@@ -69,7 +69,7 @@ class RateLimiterExamples: AbstractRedissonCoroutineTest() {
         limiter1.acquire()
         limiter1.acquire()
         limiter1.acquire()
-        Thread.sleep(10)
+        Thread.sleep(1)
         limiter1.availablePermits() shouldBeEqualTo 0L
         limiter1.tryAcquire(1).shouldBeFalse()
 
@@ -77,15 +77,17 @@ class RateLimiterExamples: AbstractRedissonCoroutineTest() {
             .workers(2)
             .rounds(2)
             .add {
-                val redisson = newRedisson()
-                // RRateLimiter Exception----RateLimiter is not initialized
-                // https://github.com/redisson/redisson/issues/2451
-                val limiter2 = redisson.getRateLimiter(limiterName)
-                limiter2.trySetRate(RateType.PER_CLIENT, 3, defaultDuration)
-                    .shouldBeFalse()               // 이미 limiter1 에서 initialize 했으므로, false 를 반환한다
-                Thread.sleep(1)
-
+                val newRedisson = newRedisson()
                 try {
+                    // RRateLimiter Exception----RateLimiter is not initialized
+                    // https://github.com/redisson/redisson/issues/2451
+                    val limiter2 = newRedisson.getRateLimiter(limiterName)
+                    limiter2
+                        .trySetRate(RateType.PER_CLIENT, 3, defaultDuration)
+                        .shouldBeFalse()               // 이미 limiter1 에서 initialize 했으므로, false 를 반환한다
+                    Thread.sleep(1)
+
+
                     // limiter2는 3개 모두 소진
                     repeat(3) {
                         limiter2.tryAcquire(1).shouldBeTrue()
@@ -95,7 +97,7 @@ class RateLimiterExamples: AbstractRedissonCoroutineTest() {
                     limiter2.availablePermits() shouldBeEqualTo 0L
                     limiter2.tryAcquire(1).shouldBeFalse()
                 } finally {
-                    redisson.shutdown()
+                    newRedisson.shutdown()
                 }
                 Thread.sleep(1)
             }
@@ -127,11 +129,11 @@ class RateLimiterExamples: AbstractRedissonCoroutineTest() {
             .rounds(4)
             .add {
                 // RateType 이 PER_CLIENT 인 경우, RedissonClient 인스턴스 별로 rate limit 를 따로 허용한다
-                val redisson1 = newRedisson()
+                val newRedisson = newRedisson()
                 try {
                     // RRateLimiter Exception----RateLimiter is not initialized
                     // https://github.com/redisson/redisson/issues/2451
-                    val limiter2 = redisson1.getRateLimiter(limiterName)
+                    val limiter2 = newRedisson.getRateLimiter(limiterName)
                     limiter2.trySetRateAsync(RateType.PER_CLIENT, 3, defaultDuration)
                         .awaitSuspending().shouldBeFalse()  // 이미 limiter1 에서 initialize 했으므로, false 를 반환한다
                     delay(1)
@@ -145,7 +147,7 @@ class RateLimiterExamples: AbstractRedissonCoroutineTest() {
                     limiter2.availablePermitsAsync().awaitSuspending() shouldBeEqualTo 0L
                     limiter2.tryAcquireAsync(1).awaitSuspending().shouldBeFalse()
                 } finally {
-                    redisson1.shutdown()
+                    newRedisson.shutdown()
                 }
                 delay(1)
             }

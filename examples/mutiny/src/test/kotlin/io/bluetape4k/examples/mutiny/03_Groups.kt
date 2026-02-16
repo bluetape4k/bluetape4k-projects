@@ -1,5 +1,6 @@
 package io.bluetape4k.examples.mutiny
 
+import io.bluetape4k.concurrent.withLatch
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
@@ -15,7 +16,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CountDownLatch
+import kotlin.time.Duration.Companion.seconds
 
 
 class GroupsExamples {
@@ -45,16 +46,15 @@ class GroupsExamples {
     fun `02 Uni call()`() {
         log.debug { "️⚡️ Uni call()" }
 
-        val latch = CountDownLatch(1)
-        Uni.createFrom().item(123)
-            .onItem().call { x -> asyncLog(">>> ", x) }
-            .onTermination().call { asyncLog("--- ", "") }
-            .subscribe().with { x ->
-                log.debug { x }
-                latch.countDown()
-            }
-
-        latch.await()
+        withLatch(1, 5.seconds) {
+            Uni.createFrom().item(123)
+                .onItem().call { x -> asyncLog(">>> ", x) }
+                .onTermination().call { asyncLog("--- ", "") }
+                .subscribe().with { x ->
+                    log.debug { x }
+                    countDown()
+                }
+        }
     }
 
     private fun asyncLog(prefix: String, value: Any): Uni<Void> {

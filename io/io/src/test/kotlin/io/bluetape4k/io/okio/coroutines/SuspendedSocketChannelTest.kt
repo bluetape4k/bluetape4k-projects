@@ -1,6 +1,6 @@
 package io.bluetape4k.io.okio.coroutines
 
-import io.bluetape4k.coroutines.support.suspendAwait
+import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.io.okio.AbstractOkioTest
 import io.bluetape4k.io.okio.SEGMENT_SIZE
 import io.bluetape4k.junit5.coroutines.runSuspendTest
@@ -68,8 +68,8 @@ class SuspendedSocketChannelTest: AbstractOkioTest() {
                 val address = serverSocketChannel.localAddress as InetSocketAddress
 
                 AsynchronousSocketChannel.open().use { client ->
-                    client.connect(address).suspendAwait()
-                    val server = serverSocketChannel.accept().suspendAwait()
+                    client.connect(address).awaitSuspending()
+                    val server = serverSocketChannel.accept().awaitSuspending()
                     server.use {
                         block(client, server)
                     }

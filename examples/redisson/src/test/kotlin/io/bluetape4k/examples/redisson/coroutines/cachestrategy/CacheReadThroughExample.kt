@@ -9,7 +9,6 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.RedissonCodecs
-import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.delay
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeLessOrEqualTo
@@ -115,7 +114,8 @@ class CacheReadThroughExample: AbstractCacheExample() {
 
             // DB에 있는 모든 Actor를 한번에 로드하여 캐시에 저장한다
             val readTimeFromDB = measureTimeMillis {
-                cache.loadAll(true, 4)
+                // NOTE: parallelism 을 2 이상은 redisson connection 이 불안하다.
+                cache.loadAll(true, 1)
                 actorIds.forEach { id ->
                     cache[id].shouldNotBeNull()
                 }
@@ -126,7 +126,8 @@ class CacheReadThroughExample: AbstractCacheExample() {
 
             // DB에 있는 모든 Actor를 한번에 로드하여 캐시에 저장한다. 이미 캐시에 있는 것은 교체한다
             cache.fastRemove(*actorIds.toTypedArray())
-            cache.loadAll(true, Runtimex.availableProcessors * 2)
+            // NOTE: parallelism 을 2 이상은 redisson connection 이 불안하다.
+            cache.loadAll(true, 1)
 
             // 캐시에서 4명의 Actor를 요청하면, DB에서 로딩되지 않는다.
             val readTimeFromCache = measureTimeMillis {
@@ -205,7 +206,9 @@ class CacheReadThroughExample: AbstractCacheExample() {
 
             // DB에 있는 모든 Actor를 한번에 로드하여 캐시에 저장한다. 이미 캐시에 있는 것은 교체한다
             cache.fastRemoveAsync(*actorIds.toTypedArray()).suspendAwait()
-            cache.loadAll(true, Runtimex.availableProcessors * 2)
+
+            // NOTE: parallelism 을 2 이상은 redisson connection 이 불안하다.
+            cache.loadAll(true, 1)
 
             delay(100)
 

@@ -1,11 +1,10 @@
 package io.bluetape4k.examples.mutiny
 
 import io.bluetape4k.codec.encodeBase62
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.fastListOf
+import io.bluetape4k.concurrent.withLatch
 import io.bluetape4k.coroutines.DefaultCoroutineScope
 import io.bluetape4k.coroutines.flow.extensions.log
-import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
@@ -18,12 +17,14 @@ import io.smallrye.mutiny.Uni
 import io.smallrye.mutiny.coroutines.asFlow
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import io.smallrye.mutiny.tuples.Tuple2
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeIn
 import org.amshove.kluent.shouldContainSame
@@ -34,17 +35,19 @@ import java.io.Serializable
 import java.time.Duration
 import java.util.*
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import java.util.stream.Collectors
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.seconds
 
 class CompositionTransformationExamples {
 
-    companion object: KLoggingChannel()
+    companion object: KLoggingChannel() {
+        private val TEST_TIMEOUT = 5.seconds
+    }
 
     @Test
     fun `01 Uni transform`() {
@@ -146,7 +149,7 @@ class CompositionTransformationExamples {
     }
 
     @Test
-    fun `07 Multi transformToUni`() = runTest {
+    fun `07 Multi transformToUni`() = runTest(timeout = TEST_TIMEOUT) {
         fun increase(n: Int): Uni<Int> {
             val cs = CompletableFuture.supplyAsync(
                 { n * 100 },
@@ -166,7 +169,7 @@ class CompositionTransformationExamples {
     }
 
     @Test
-    fun `08 Multi transformToMulti`() = runTest {
+    fun `08 Multi transformToMulti`() = runTest(timeout = TEST_TIMEOUT) {
         fun query(n: Int): Multi<Int> = Multi.createFrom()
             .emitter { emitter ->
                 CompletableFuture.runAsync(
@@ -193,7 +196,7 @@ class CompositionTransformationExamples {
     }
 
     @Test
-    fun `09 Multi flatMap`() = runTest {
+    fun `09 Multi flatMap`() = runTest(timeout = TEST_TIMEOUT) {
         fun query(n: Int): Multi<Int> = Multi.createFrom()
             .emitter { emitter ->
                 CompletableFuture.runAsync(
@@ -221,7 +224,7 @@ class CompositionTransformationExamples {
 
     // merge 는 복수의 Multi로 부터 먼저 오는 것부터 subscribe 한다
     @Test
-    fun `10 Multi merge multiple multi instance`() = runTest {
+    fun `10 Multi merge multiple multi instance`() = runTest(timeout = TEST_TIMEOUT) {
         val generator1 = Generator(0)
         val generator2 = Generator(100)
 
@@ -240,7 +243,7 @@ class CompositionTransformationExamples {
 
     // concatenate 는 첫번째 Multi 가 끝나야 다음 Multi 로부터 subscribe 한다
     @Test
-    fun `11 Multi concatenate`() = runTest {
+    fun `11 Multi concatenate`() = runTest(timeout = TEST_TIMEOUT) {
         val generator1 = Generator(0)
         val generator2 = Generator(100)
 
@@ -258,7 +261,7 @@ class CompositionTransformationExamples {
     }
 
     @Test
-    fun `12 Multi combine`() = runTest {
+    fun `12 Multi combine`() = runTest(timeout = TEST_TIMEOUT) {
         val generator1 = Generator(0)
         val generator2 = Generator(100)
 
@@ -272,17 +275,19 @@ class CompositionTransformationExamples {
             .asList()
             .awaitSuspending()
 
-        val expected = fastList(10) { Tuple2.of(it.toLong(), it + 100L) }
+        val expected = List(10) { Tuple2.of(it.toLong(), it + 100L) }
         results shouldBeEqualTo expected
     }
 
     class Generator(start: Long) {
         private val counter = AtomicLong(start)
 
+        private val executor = CompletableFuture.delayedExecutor(Random.nextLong(10, 100), TimeUnit.MILLISECONDS)
+
         fun next(): Uni<Long> = Uni.createFrom().completionStage(
             CompletableFuture.supplyAsync(
                 counter::getAndIncrement,
-                CompletableFuture.delayedExecutor(Random.nextLong(10, 100), TimeUnit.MILLISECONDS)
+                executor
             )
         )
     }
@@ -292,73 +297,72 @@ class CompositionTransformationExamples {
         val counter = AtomicInteger(0)
         val executor = Executors.newCachedThreadPool()
 
-        val multi = Multi.createBy()
-            .repeating().supplier(counter::getAndIncrement)
-            .atMost(10)
-            .broadcast()
-            .toAllSubscribers()
+        withLatch(3, 5.seconds) {
+            val multi = Multi.createBy()
+                .repeating().supplier(counter::getAndIncrement)
+                .atMost(10)
+                .broadcast()
+                .toAllSubscribers()
 
-        val latch = CountDownLatch(3)
-
-        executor.submit {
-            multi.onItem().transform { n -> "🚀 $n" }.subscribe().with(::println)
-            latch.countDown()
+            executor.submit {
+                multi.onItem().transform { n -> "🚀 $n" }.subscribe().with(::println)
+                countDown()
+            }
+            executor.submit {
+                multi.onItem().transform { n -> "🧪 $n" }.subscribe().with(::println)
+                countDown()
+            }
+            executor.submit {
+                multi.onItem().transform { n -> "💡 $n" }.subscribe().with(::println)
+                countDown()
+            }
         }
-        executor.submit {
-            multi.onItem().transform { n -> "🧪 $n" }.subscribe().with(::println)
-            latch.countDown()
-        }
-        executor.submit {
-            multi.onItem().transform { n -> "💡 $n" }.subscribe().with(::println)
-            latch.countDown()
-        }
-
-        latch.await()
         executor.shutdown()
     }
 
     @Test
-    fun `13-1 Multi Broadcast in coroutines`() = runSuspendDefault {
+    fun `13-1 Multi Broadcast in coroutines`() = runTest(timeout = TEST_TIMEOUT) {
         val counter = AtomicInteger(0)
+
         DefaultCoroutineScope().use { scope ->
+
             val multi: Multi<Int> = Multi.createBy()
                 .repeating().supplier(counter::getAndIncrement)
                 .atMost(10)
                 .broadcast()
                 .toAllSubscribers()
 
-            val jobs = listOf(
-                launch {
-                    multi.onItem()
-                        .transform { n -> "🚀 $n" }
-                        .asFlow()
-                        .log("#1")
-                        .collect()
-                },
-                launch {
-                    multi.onItem()
-                        .transform { n -> "🧪 $n" }
-                        .asFlow()
-                        .log("#2")
-                        .collect()
-                },
-                launch {
-                    multi.onItem()
-                        .transform { n -> "💡 $n" }
-                        .asFlow()
-                        .log("#3")
-                        .collect()
-                }
-            )
-            yield()
-
-            jobs.joinAll()
+            val job1 = scope.launch {
+                multi.onItem()
+                    .transform { n -> "🚀 $n" }
+                    .asFlow(bufferOverflowStrategy = BufferOverflow.DROP_OLDEST)
+                    .onEach { delay(Random.nextLong(100)) }
+                    .log("#1")
+                    .collect()
+            }
+            val job2 = scope.launch {
+                multi.onItem()
+                    .transform { n -> "🧪 $n" }
+                    .asFlow(bufferOverflowStrategy = BufferOverflow.DROP_OLDEST)
+                    .onEach { delay(Random.nextLong(100)) }
+                    .log("#2")
+                    .collect()
+            }
+            val job3 = scope.launch {
+                multi.onItem()
+                    .transform { n -> "💡 $n" }
+                    .asFlow(bufferOverflowStrategy = BufferOverflow.DROP_OLDEST)
+                    .onEach { delay(Random.nextLong(100)) }
+                    .log("#3")
+                    .collect()
+            }
+            listOf(job1, job2, job3).joinAll()
             counter.get() shouldBeEqualTo 10
         }
     }
 
     @Test
-    fun `14 Multi aggregates`() = runTest {
+    fun `14 Multi aggregates`() = runTest(timeout = TEST_TIMEOUT) {
         log.debug { "👀 Multi aggregates" }
 
         val persons = Multi.createBy()
@@ -416,7 +420,7 @@ class CompositionTransformationExamples {
     ): Serializable
 
     @Test
-    fun `15 Multi Buckets`() = runTest {
+    fun `15 Multi Buckets`() = runTest(timeout = TEST_TIMEOUT) {
         log.debug { "👀 Multi buckets" }
 
         val buckets = Multi.createFrom()
@@ -431,7 +435,7 @@ class CompositionTransformationExamples {
     }
 
     @Test
-    fun `16 Multi Temporal Buckets`() = runTest {
+    fun `16 Multi Temporal Buckets`() = runTest(timeout = TEST_TIMEOUT) {
         log.debug { "👀 Multi temporal buckets" }
 
         // NOTE: 시간 기준의 debouncing 이다
@@ -450,7 +454,7 @@ class CompositionTransformationExamples {
 
     // Collection.flatMap 과 같은 기능
     @Test
-    fun `17 Multi Disjoint`() = runTest {
+    fun `17 Multi Disjoint`() = runTest(timeout = TEST_TIMEOUT) {
         log.debug { "👀 Multi disjoint" }
 
         val items = Multi.createFrom().range(0, 10)
@@ -466,7 +470,7 @@ class CompositionTransformationExamples {
     }
 
     @Test
-    fun `18 Multo to Uni and back`() = runTest {
+    fun `18 Multo to Uni and back`() = runTest(timeout = TEST_TIMEOUT) {
         log.debug { "👀 Multi <--> Uni" }
 
         // toUni() 는 첫번째 요소를 취한다

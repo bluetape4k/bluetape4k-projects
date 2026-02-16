@@ -1,6 +1,7 @@
 package io.bluetape4k.examples.mutiny
 
 import io.bluetape4k.collections.eclipse.toUnifiedSet
+import io.bluetape4k.concurrent.withLatch
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.mutiny.deferUni
@@ -17,7 +18,6 @@ import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.Flow
 import java.util.concurrent.ScheduledFuture
@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.seconds
 
 class MultiBasicExamples {
 
@@ -98,36 +99,36 @@ class MultiBasicExamples {
         val service = Executors.newScheduledThreadPool(1)
         val ref = AtomicReference<ScheduledFuture<*>>(null)
         val counter = AtomicInteger(0)
-        val latch = CountDownLatch(1)
 
         val captures = CopyOnWriteArrayList<String>()
 
-        Multi.createFrom()
-            .emitter { emitter ->
-                val scheduledFuture = service.scheduleAtFixedRate(
-                    {
-                        emitter.emit("tick")
-                        log.debug { "Emit: tick" }
-                        if (counter.incrementAndGet() == 5) {
-                            ref.get()?.cancel(true)
-                            emitter.complete()
-                            latch.countDown()
-                        }
-                    },
-                    0,
-                    500,
-                    TimeUnit.MILLISECONDS
+        withLatch(1, 5.seconds) {
+            Multi.createFrom()
+                .emitter { emitter ->
+                    val scheduledFuture = service.scheduleAtFixedRate(
+                        {
+                            emitter.emit("tick")
+                            log.debug { "Emit: tick" }
+                            if (counter.incrementAndGet() == 5) {
+                                ref.get()?.cancel(true)
+                                emitter.complete()
+                                countDown()
+                            }
+                        },
+                        0,
+                        500,
+                        TimeUnit.MILLISECONDS
+                    )
+                    ref.set(scheduledFuture)
+                }
+                .subscribe()
+                .with(
+                    { item -> captures.add(item); println(item) },
+                    Throwable::printStackTrace,
+                    { println("Done!") }
                 )
-                ref.set(scheduledFuture)
-            }
-            .subscribe()
-            .with(
-                { item -> captures.add(item); println(item) },
-                Throwable::printStackTrace,
-                { println("Done!") }
-            )
 
-        latch.await()
+        }
         service.shutdown()
 
         captures shouldHaveSize 5
@@ -186,16 +187,13 @@ class MultiBasicExamples {
 
         println("\n----------\n")
 
-        val latch = CountDownLatch(1)
-
-        // repeat from Uni
-        Multi.createBy()
-            .repeating().deferUni { Service.asyncFetchValue() }.atMost(10)
-            .subscribe()
-            .with({ log.debug { it } }, Throwable::printStackTrace, latch::countDown)
-
-        latch.await()
-
+        withLatch(1, 5.seconds) {
+            // repeat from Uni
+            Multi.createBy()
+                .repeating().deferUni { Service.asyncFetchValue() }.atMost(10)
+                .subscribe()
+                .with({ log.debug { it } }, Throwable::printStackTrace, { this.countDown() })
+        }
         println("\n----------\n")
 
         // supplier from completionStage
