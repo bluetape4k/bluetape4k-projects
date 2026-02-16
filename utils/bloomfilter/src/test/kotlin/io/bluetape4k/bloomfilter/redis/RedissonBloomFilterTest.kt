@@ -2,7 +2,6 @@ package io.bluetape4k.bloomfilter.redis
 
 import io.bluetape4k.LibraryName
 import io.bluetape4k.codec.Base58
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
@@ -38,7 +37,7 @@ class RedissonBloomFilterTest: AbstractRedissonTest() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `verify exists random string`() {
-        val values = fastList(ITEM_COUNT) { Base58.randomString(256) }
+        val values = List(ITEM_COUNT) { Base58.randomString(256) }
             .onEach { bloomFilter.add(it) }
 
         values.all { bloomFilter.contains(it) }.shouldBeTrue()
@@ -48,8 +47,8 @@ class RedissonBloomFilterTest: AbstractRedissonTest() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `verify not exists random string`() {
-        val values = fastList(10 * ITEM_COUNT) { Base58.randomString(256) }
-        val testValues = fastList(ITEM_COUNT) { Base58.randomString(256) }
+        val values = List(10 * ITEM_COUNT) { Base58.randomString(256) }
+        val testValues = List(ITEM_COUNT) { Base58.randomString(256) }
 
         values.forEach { bloomFilter.add(it) }
         values.all { bloomFilter.contains(it) }.shouldBeTrue()
