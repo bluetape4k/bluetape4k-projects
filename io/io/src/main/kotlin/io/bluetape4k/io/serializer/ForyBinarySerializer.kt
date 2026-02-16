@@ -32,11 +32,11 @@ class ForyBinarySerializer(
                 .withCodegen(true)
                 .withStringCompressed(true)
                 .requireClassRegistration(false)
-                .registerGuavaTypes(true)
+                // .registerGuavaTypes(true)
                 .buildThreadSafeForyPool(
                     2,
-                    4 * Runtime.getRuntime().availableProcessors(),
-                    5L,
+                    2 * Runtime.getRuntime().availableProcessors(),
+                    30L,
                     TimeUnit.MINUTES
                 )
         }

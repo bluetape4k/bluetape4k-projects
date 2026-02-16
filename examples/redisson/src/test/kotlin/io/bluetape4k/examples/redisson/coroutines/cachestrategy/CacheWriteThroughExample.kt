@@ -8,7 +8,7 @@ import io.bluetape4k.idgenerators.snowflake.Snowflakers
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.redis.redisson.RedissonCodecs
+import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.coroutines.awaitAll
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
@@ -31,7 +31,6 @@ class CacheWriteThroughExample: AbstractCacheExample() {
 
     companion object: KLoggingChannel() {
         const val ACTOR_SIZE = 50
-        private val defaultCodec = RedissonCodecs.LZ4Fory
     }
 
     @BeforeEach
@@ -51,7 +50,11 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                 .writer(actorRecordWriter)
                 .writeMode(WriteMode.WRITE_THROUGH)
                 .writeRetryAttempts(3) // 재시도 횟수
-                .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
+                .retryDelay { attempt ->
+                    log.debug { "Retry attempt: $attempt" }
+                    Duration.ofMillis(attempt * 10L + 10L)
+                }  // 재시도 간격
+                .timeout(Duration.ofSeconds(10))
                 .codec(defaultCodec)
 
             // 캐시를 생성한다.
@@ -85,7 +88,12 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                 .writer(actorRecordWriter)
                 .writeMode(WriteMode.WRITE_THROUGH)
                 .writeRetryAttempts(3) // 재시도 횟수
-                .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
+                .retryDelay { attempt ->
+                    log.debug { "Retry attempt: $attempt" }
+                    Duration.ofMillis(attempt * 10L + 10L)
+                }  // 재시도 간격
+                .timeout(Duration.ofSeconds(10))
+                .timeToLive(Duration.ofSeconds(10))
                 .codec(defaultCodec)
 
             // 캐시를 생성한다.
@@ -127,7 +135,11 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                 .writerAsync(actorRecordWriterAsync)
                 .writeMode(WriteMode.WRITE_THROUGH)
                 .writeRetryAttempts(3) // 재시도 횟수
-                .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
+                .retryDelay { attempt ->
+                    log.debug { "Retry attempt: $attempt" }
+                    Duration.ofMillis(attempt * 10L + 10)
+                }  // 재시도 간격
+                .timeout(Duration.ofSeconds(10))
                 .codec(defaultCodec)
 
             // 캐시를 생성한다.
@@ -167,7 +179,12 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                 .writerAsync(actorRecordWriterAsync)
                 .writeMode(WriteMode.WRITE_THROUGH)
                 .writeRetryAttempts(3) // 재시도 횟수
-                .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
+                .retryDelay { attempt ->
+                    log.debug { "Retry attempt=$attempt" }
+                    Duration.ofMillis(attempt * 10L + 10L)
+                }
+                .timeout(Duration.ofSeconds(10))
+                .timeToLive(Duration.ofSeconds(10))
                 .codec(defaultCodec)
 
             // 캐시를 생성한다.

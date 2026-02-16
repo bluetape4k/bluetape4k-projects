@@ -10,7 +10,6 @@ import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import io.bluetape4k.redis.redisson.RedissonCodecs
 import io.bluetape4k.redis.redisson.coroutines.awaitAll
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -52,9 +51,7 @@ import kotlin.random.Random
 @Suppress("DEPRECATION")
 class CacheWriteBehindForIoTData: AbstractCacheExample() {
 
-    companion object: KLoggingChannel() {
-        private val defaultCodec = RedissonCodecs.LZ4Fory
-    }
+    companion object: KLoggingChannel() 
 
     object SensorDataTable: TimebasedUUIDTable("sensor_data") {
         val serialNo = varchar("sensor_serial_no", 255)
@@ -157,7 +154,11 @@ class CacheWriteBehindForIoTData: AbstractCacheExample() {
                 .writeBehindBatchSize(20)  // 기본 batchSize 는 50 입니다.
                 .writeBehindDelay(100)        // 기본 delay 는 1000 ms 입니다.
                 .writeRetryAttempts(3) // 재시도 횟수
-                .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
+                .retryDelay { attempt ->
+                    log.debug { "Retry attempt=$attempt" }
+                    Duration.ofMillis(attempt * 10L + 10L)
+                }
+                .timeout(Duration.ofSeconds(10))
                 .codec(defaultCodec)
 
             // 대량 데이터를 Write Behind 방식으로 저장하는 MapCache를 생성한다.
@@ -250,7 +251,11 @@ class CacheWriteBehindForIoTData: AbstractCacheExample() {
                 .writeBehindBatchSize(20)  // 기본 batchSize 는 50 입니다.
                 .writeBehindDelay(100)        // 기본 delay 는 1000 ms 입니다.
                 .writeRetryAttempts(3) // 재시도 횟수
-                .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
+                .retryDelay { attempt ->
+                    log.debug { "Retry attempt=$attempt" }
+                    Duration.ofMillis(attempt * 10L + 10L)
+                }
+                .timeout(Duration.ofSeconds(10))
                 .codec(defaultCodec)
 
             // 대량 데이터를 Write Behind 방식으로 저장하는 MapCache를 생성한다.

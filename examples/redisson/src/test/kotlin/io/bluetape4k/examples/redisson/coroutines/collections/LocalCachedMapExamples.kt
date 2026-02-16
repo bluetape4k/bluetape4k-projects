@@ -4,6 +4,7 @@ import io.bluetape4k.codec.Base58
 import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -12,6 +13,7 @@ import org.amshove.kluent.shouldContainSame
 import org.junit.jupiter.api.Test
 import org.redisson.api.RLocalCachedMap
 import org.redisson.api.options.LocalCachedMapOptions
+import java.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
@@ -33,6 +35,12 @@ class LocalCachedMapExamples: AbstractRedissonCoroutineTest() {
             .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LRU)
             .maxIdle(10.seconds.toJavaDuration())
             .timeToLive(60.seconds.toJavaDuration())
+            .retryAttempts(3)
+            .retryDelay { attempt ->
+                log.debug { "Retry attempt: $attempt" }
+                Duration.ofMillis(attempt * 10L + 10)
+            }  // 재시도 간격
+            .timeout(Duration.ofSeconds(10))
 
 
         val cachedMap: RLocalCachedMap<String, Int> = redisson.getLocalCachedMap(options)

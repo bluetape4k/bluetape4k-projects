@@ -1,6 +1,5 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.coroutines.support.suspendAwait
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorRecord
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
@@ -8,7 +7,7 @@ import io.bluetape4k.idgenerators.snowflake.Snowflakers
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.redis.redisson.RedissonCodecs
+import io.bluetape4k.logging.warn
 import kotlinx.coroutines.delay
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeLessOrEqualTo
@@ -36,8 +35,6 @@ class CacheReadThroughExample: AbstractCacheExample() {
 
     companion object: KLogging() {
         const val ACTOR_SIZE = 500
-
-        private val defaultCodec = RedissonCodecs.LZ4Fory
     }
 
     @BeforeEach
@@ -49,7 +46,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
             Thread.sleep(1)
 
             // 데이터 전체 로딩 시간을 측정하기 위해, 샘플 데이터를 ACTOR_SIZE 만큼 추가합니다.
-            val writeIds = Snowflakers.Global.nextIds(ACTOR_SIZE).toFastList()
+            val writeIds = Snowflakers.Global.nextIds(ACTOR_SIZE).toList()
             ActorTable.batchInsert(writeIds, shouldReturnGeneratedValues = false) { id ->
                 this[ActorTable.id] = id
                 this[ActorTable.firstname] = faker.name().firstName()
@@ -67,10 +64,15 @@ class CacheReadThroughExample: AbstractCacheExample() {
             val options = MapCacheOptions.name<Long, ActorRecord>(name)
                 .loader(actorRecordLoader)
                 .retryAttempts(3)
-                .retryDelay { attempt -> Duration.ofMillis(attempt * 10L) }
+                .retryDelay { attempt ->
+                    log.debug { "Retry attempt=$attempt" }
+                    Duration.ofMillis(attempt * 10L + 10L)
+                }
+                .timeout(Duration.ofSeconds(10))
                 .codec(defaultCodec)
 
             val cache: RMapCache<Long, ActorRecord?> = redisson.getMapCache(options)
+
             try {
                 checkReadThroughCache(cache)
             } finally {
@@ -84,8 +86,12 @@ class CacheReadThroughExample: AbstractCacheExample() {
             val options = LocalCachedMapOptions.name<Long, ActorRecord>(name)
                 .loader(actorRecordLoader)
                 .retryAttempts(3)
-                .retryDelay { attempt -> Duration.ofMillis(attempt * 10L) }
+                .retryDelay { attempt ->
+                    log.debug { "Retry attempt=$attempt" }
+                    Duration.ofMillis(attempt * 10L + 10L)
+                }
                 .timeToLive(Duration.ofSeconds(10))   // 로컬 캐시의 TTL
+                .timeout(Duration.ofSeconds(10))
                 .codec(defaultCodec)
 
             val cache: RLocalCachedMap<Long, ActorRecord?> = redisson.getLocalCachedMap(options)
@@ -149,7 +155,11 @@ class CacheReadThroughExample: AbstractCacheExample() {
             val options = MapCacheOptions.name<Long, ActorRecord>(name)
                 .loaderAsync(actorRecordLoaderAsync)
                 .retryAttempts(3)
-                .retryDelay { attempt -> Duration.ofMillis(attempt * 10L) }
+                .retryDelay { attempt ->
+                    log.warn { "Retry attempt=$attempt" }
+                    Duration.ofMillis(attempt * 10L + 10L)
+                }
+                .timeout(Duration.ofSeconds(10))
                 .codec(defaultCodec)
 
             val cache: RMapCache<Long, ActorRecord?> = redisson.getMapCache(options)
@@ -166,8 +176,12 @@ class CacheReadThroughExample: AbstractCacheExample() {
             val options = LocalCachedMapOptions.name<Long, ActorRecord>(name)
                 .loaderAsync(actorRecordLoaderAsync)
                 .retryAttempts(3)
-                .retryDelay { attempt -> Duration.ofMillis(attempt * 10L) }
+                .retryDelay { attempt ->
+                    log.warn { "Retry attempt=$attempt" }
+                    Duration.ofMillis(attempt * 10L + 10L)
+                }
                 .timeToLive(Duration.ofSeconds(10))   // 로컬 캐시의 TTL
+                .timeout(Duration.ofSeconds(10))
                 .codec(defaultCodec)
 
             val cache: RLocalCachedMap<Long, ActorRecord?> = redisson.getLocalCachedMap(options)

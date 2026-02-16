@@ -5,9 +5,9 @@ import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
+import io.bluetape4k.redis.redisson.RedissonCodecs
 import io.bluetape4k.redis.redisson.redissonClientOf
 import io.bluetape4k.testcontainers.storage.RedisServer
-import io.bluetape4k.utils.ShutdownQueue
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -25,6 +25,9 @@ abstract class AbstractRedissonCoroutineTest {
         val redissonClient by lazy { newRedisson() }
 
         @JvmStatic
+        val defaultCodec = RedissonCodecs.ZstdFory
+
+        @JvmStatic
         protected val faker = Fakers.faker
 
         @JvmStatic
@@ -38,14 +41,16 @@ abstract class AbstractRedissonCoroutineTest {
         @JvmStatic
         protected fun newRedisson(): RedissonClient {
             val config = RedisServer.Launcher.RedissonLib.getRedissonConfig(
-                connectionPoolSize = 256,
-                minimumIdleSize = 12,
-                threads = 512,
-                nettyThreads = 512,
+                connectionPoolSize = 128,
+                minimumIdleSize = 4,
+                threads = 16,
+                nettyThreads = 64,
             )
-            return redissonClientOf(config).apply {
-                ShutdownQueue.register { shutdown() }
-            }
+            config.setTcpUserTimeout(5_000)
+            return redissonClientOf(config)
+//                .apply {
+//                    ShutdownQueue.register { shutdown() }
+//                }
         }
     }
 

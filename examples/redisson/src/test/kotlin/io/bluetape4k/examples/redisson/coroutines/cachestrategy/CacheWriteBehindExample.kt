@@ -8,7 +8,7 @@ import io.bluetape4k.idgenerators.snowflake.Snowflakers
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.redis.redisson.RedissonCodecs
+import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import org.amshove.kluent.shouldBeEqualTo
@@ -36,7 +36,6 @@ class CacheWriteBehindExample: AbstractCacheExample() {
 
     companion object: KLoggingChannel() {
         const val ACTOR_SIZE = 50
-        private val defaultCodec = RedissonCodecs.LZ4Fory
     }
 
     @BeforeEach
@@ -59,7 +58,11 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                 .writeBehindBatchSize(20)  // 기본 batchSize 는 50 입니다.
                 .writeBehindDelay(100)        // 기본 delay 는 1000 ms 입니다.
                 .writeRetryAttempts(3) // 재시도 횟수
-                .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
+                .retryDelay { attempt ->
+                    log.debug { "Retry attempt=$attempt" }
+                    Duration.ofMillis(attempt * 10L + 10L)
+                }
+                .timeout(Duration.ofSeconds(10))
                 .codec(defaultCodec)
 
             // 캐시를 생성한다.
@@ -98,7 +101,8 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                 .writeBehindBatchSize(20)  // 기본 batchSize 는 50 입니다. (INSERT, DELETE 모두 적용됨)
                 .writeBehindDelay(100)        // 기본 delay 는 1000 ms 입니다.
                 .writeRetryAttempts(3) // 재시도 횟수
-                .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
+                .retryDelay { attempt -> Duration.ofMillis(attempt * 10L) }  // 재시도 간격
+                .timeout(Duration.ofSeconds(10))
                 .codec(defaultCodec)
 
             // 캐시를 생성한다.
@@ -153,7 +157,11 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                 .writeBehindBatchSize(20)  // 기본 batchSize 는 50 입니다.
                 .writeBehindDelay(100)        // 기본 delay 는 1000 ms 입니다.
                 .writeRetryAttempts(3) // 재시도 횟수
-                .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
+                .retryDelay { attempt ->
+                    log.debug { "Retry attempt=$attempt" }
+                    Duration.ofMillis(attempt * 10L + 10L)
+                }
+                .timeout(Duration.ofSeconds(10))
                 .codec(defaultCodec)
 
             // 캐시를 생성한다.
@@ -203,9 +211,11 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                 .writeBehindBatchSize(20)  // 기본 batchSize 는 50 입니다. (INSERT, DELETE 모두 적용됨)
                 .writeBehindDelay(100)        // 기본 delay 는 1000 ms 입니다.
                 .writeRetryAttempts(3) // 재시도 횟수
-                .writeRetryInterval(Duration.ofMillis(100)) // 재시도 간격
-                .codec(defaultCodec)
+                .retryDelay { attempt -> Duration.ofMillis(attempt * 10L) }  // 재시도 간격
+                .timeout(Duration.ofSeconds(10))
                 .timeToLive(Duration.ofSeconds(1))   // 로컬 캐시의 TTL
+                .codec(defaultCodec)
+
 
             // 캐시를 생성한다.
             val cache: RLocalCachedMap<Long, ActorRecord?> = redisson.getLocalCachedMap(options)

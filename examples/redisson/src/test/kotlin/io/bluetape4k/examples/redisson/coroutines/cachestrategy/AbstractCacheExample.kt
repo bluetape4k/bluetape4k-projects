@@ -5,7 +5,6 @@ import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.Acto
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.toActorRecord
 import io.bluetape4k.exposed.core.fetchBatchedResultFlow
-import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -48,10 +47,7 @@ import java.util.concurrent.CompletionStage
 )
 abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
 
-    companion object: KLoggingChannel() {
-        @JvmStatic
-        val faker = Fakers.faker
-    }
+    companion object: KLoggingChannel()
 
     protected fun newActorRecord(id: Long): ActorRecord {
         return ActorRecord(
@@ -93,72 +89,72 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
      */
     protected val actorRecordLoaderAsync: MapLoaderAsync<Long, ActorRecord?> =
         object: MapLoaderAsync<Long, ActorRecord?>, KLogging() {
-        val scope = CoroutineScope(Dispatchers.IO)
+            val scope = CoroutineScope(Dispatchers.IO)
 
             override fun load(key: Long?): CompletionStage<ActorRecord?> = scope.async {
-            log.debug { "Loading actor async with id=$key" }
-            newSuspendedTransaction {
-                ActorTable
-                    .selectAll()
-                    .where { ActorTable.id eq key }
-                    .singleOrNull()
-                    ?.toActorRecord()
-            }
-        }.asCompletableFuture()
-
-        override fun loadAllKeys(): AsyncIterator<Long> {
-            log.debug { "Loading all actor keys async ..." }
-
-            val batchSize = 50
-            val actorIdChannel = Channel<Long>(Channel.RENDEZVOUS).also { channel ->
-                channel.invokeOnClose { cause ->
-                    log.debug { "actorIdChannel closed. cause=$cause" }
+                log.debug { "Loading actor async with id=$key" }
+                newSuspendedTransaction {
+                    ActorTable
+                        .selectAll()
+                        .where { ActorTable.id eq key }
+                        .singleOrNull()
+                        ?.toActorRecord()
                 }
-            }
+            }.asCompletableFuture()
 
-            val producerJob = scope.launch {
-                try {
-                    newSuspendedTransaction {
-                        ActorTable.select(ActorTable.id)
-                            .fetchBatchedResultFlow(batchSize)
-                            .collect { rows ->
-                                rows.forEach { row ->
-                                    actorIdChannel.send(row[ActorTable.id].value)
+            override fun loadAllKeys(): AsyncIterator<Long> {
+                log.debug { "Loading all actor keys async ..." }
+
+                val batchSize = 50
+                val actorIdChannel = Channel<Long>(Channel.RENDEZVOUS).also { channel ->
+                    channel.invokeOnClose { cause ->
+                        log.debug { "actorIdChannel closed. cause=$cause" }
+                    }
+                }
+
+                val producerJob = scope.launch {
+                    try {
+                        newSuspendedTransaction {
+                            ActorTable.select(ActorTable.id)
+                                .fetchBatchedResultFlow(batchSize)
+                                .collect { rows ->
+                                    rows.forEach { row ->
+                                        actorIdChannel.send(row[ActorTable.id].value)
+                                    }
                                 }
-                            }
-                    }
-                } catch (e: Throwable) {
-                    log.error(e) { "Error while loading actor ids" }
-                } finally {
-                    actorIdChannel.close()
-                }
-            }
-
-            // Optimized AsyncIterator implementation with peek and mutex for race safety.
-            return object: AsyncIterator<Long> {
-                private var pendingReceive: CompletableFuture<ChannelResult<Long>>? = null
-
-                private fun ensurePending(): CompletableFuture<ChannelResult<Long>> {
-                    return pendingReceive ?: scope.async {
-                        actorIdChannel.receiveCatching().also {
-                            log.debug { "Received id=$it" }
                         }
+                    } catch (e: Throwable) {
+                        log.error(e) { "Error while loading actor ids" }
+                    } finally {
+                        actorIdChannel.close()
                     }
-                        .asCompletableFuture()
-                        .also { pendingReceive = it }
                 }
 
-                override fun hasNext(): CompletionStage<Boolean> = ensurePending().thenApply { result ->
-                    result.isSuccess
-                }
+                // Optimized AsyncIterator implementation with peek and mutex for race safety.
+                return object: AsyncIterator<Long> {
+                    private var pendingReceive: CompletableFuture<ChannelResult<Long>>? = null
 
-                override fun next(): CompletionStage<Long> = ensurePending().thenApply { result ->
-                    pendingReceive = null
-                    result.getOrNull() ?: throw NoSuchElementException("Channel is closed or empty")
+                    private fun ensurePending(): CompletableFuture<ChannelResult<Long>> {
+                        return pendingReceive ?: scope.async {
+                            actorIdChannel.receiveCatching().also {
+                                log.debug { "Received id=$it" }
+                            }
+                        }
+                            .asCompletableFuture()
+                            .also { pendingReceive = it }
+                    }
+
+                    override fun hasNext(): CompletionStage<Boolean> = ensurePending().thenApply { result ->
+                        result.isSuccess
+                    }
+
+                    override fun next(): CompletionStage<Long> = ensurePending().thenApply { result ->
+                        pendingReceive = null
+                        result.getOrNull() ?: throw NoSuchElementException("Channel is closed or empty")
+                    }
                 }
             }
         }
-    }
 
     /**
      * [MapWriter]를 구현하여 DB에 데이터를 저장한다.
@@ -190,37 +186,37 @@ abstract class AbstractCacheExample: AbstractRedissonCoroutineTest() {
      */
     protected val actorRecordWriterAsync: MapWriterAsync<Long, ActorRecord> =
         object: MapWriterAsync<Long, ActorRecord>, KLogging() {
-        val scope = CoroutineScope(Dispatchers.IO)
+            val scope = CoroutineScope(Dispatchers.IO)
 
             override fun write(map: Map<Long, ActorRecord?>): CompletionStage<Void> {
-            log.debug { "Writing actors async... count=${map.size}, ids=${map.keys}" }
+                log.debug { "Writing actors async... count=${map.size}, ids=${map.keys}" }
 
-            return scope.async {
-                val entryToInsert = map.values.mapNotNull { it }
-                newSuspendedTransaction {
-                    ActorTable.batchInsert(entryToInsert, shouldReturnGeneratedValues = false) { actor ->
-                        this[ActorTable.id] = actor.id
-                        this[ActorTable.firstname] = actor.firstname
-                        this[ActorTable.lastname] = actor.lastname
-                        this[ActorTable.description] = actor.description
+                return scope.async {
+                    val entryToInsert = map.values.mapNotNull { it }
+                    newSuspendedTransaction {
+                        ActorTable.batchInsert(entryToInsert, shouldReturnGeneratedValues = false) { actor ->
+                            this[ActorTable.id] = actor.id
+                            this[ActorTable.firstname] = actor.firstname
+                            this[ActorTable.lastname] = actor.lastname
+                            this[ActorTable.description] = actor.description
+                        }
                     }
-                }
-                log.debug { "Inserted actor count=${entryToInsert.size}" }
-                null
-            }.asCompletableFuture()
-        }
+                    log.debug { "Inserted actor count=${entryToInsert.size}" }
+                    null
+                }.asCompletableFuture()
+            }
 
-        override fun delete(keys: Collection<Long>): CompletionStage<Void> {
-            log.debug { "Deleteing actors async... id count=${keys.size}, ids=$keys" }
-            return scope.async {
-                val deletedRows = newSuspendedTransaction {
-                    ActorTable.deleteWhere { ActorTable.id inList keys }
-                }
-                log.debug { "Deleted actor count=$deletedRows" }
-                null
-            }.asCompletableFuture()
+            override fun delete(keys: Collection<Long>): CompletionStage<Void> {
+                log.debug { "Deleteing actors async... id count=${keys.size}, ids=$keys" }
+                return scope.async {
+                    val deletedRows = newSuspendedTransaction {
+                        ActorTable.deleteWhere { ActorTable.id inList keys }
+                    }
+                    log.debug { "Deleted actor count=$deletedRows" }
+                    null
+                }.asCompletableFuture()
+            }
         }
-    }
 
     protected fun getActorCountFromDB(): Long = transaction {
         ActorTable.selectAll().count()

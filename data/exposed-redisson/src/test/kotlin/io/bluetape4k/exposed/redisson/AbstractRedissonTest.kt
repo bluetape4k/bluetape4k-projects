@@ -40,8 +40,8 @@ abstract class AbstractRedissonTest: AbstractExposedTest() {
             val config = RedisServer.Launcher.RedissonLib.getRedissonConfig(
                 connectionPoolSize = 256,
                 minimumIdleSize = 12,
-                threads = 128,
-                nettyThreads = 512,
+                threads = 24,
+                nettyThreads = 64,
             )
             return redissonClientOf(config).apply {
                 ShutdownQueue.register { shutdown() }
