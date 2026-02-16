@@ -1,6 +1,5 @@
 package io.bluetape4k.ahocorasick.trie
 
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
@@ -25,7 +24,7 @@ class KeywordProcessorTest {
         val emits = trie.parseText(text)
         log.debug { "emits=$emits" }
 
-        emits shouldBeEqualTo fastListOf(
+        emits shouldBeEqualTo listOf(
             Emit(7, 8, "PM"),
             Emit(16, 22, "java_2e"),
             Emit(46, 49, "APPL"),

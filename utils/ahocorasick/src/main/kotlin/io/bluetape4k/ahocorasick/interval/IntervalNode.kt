@@ -1,7 +1,6 @@
 package io.bluetape4k.ahocorasick.interval
 
 import io.bluetape4k.AbstractValueObject
-import io.bluetape4k.collections.eclipse.fastListOf
 import java.util.*
 
 /**
@@ -18,7 +17,10 @@ class IntervalNode(
     /**
      * 트리 탐색 방향 열거형.
      */
-    enum class Direction { LEFT, RIGHT }
+    enum class Direction {
+        LEFT,
+        RIGHT
+    }
 
     /**
      * 왼쪽 자식 노드.
@@ -67,14 +69,14 @@ class IntervalNode(
             return
         }
 
-        val toLeft = fastListOf<Intervalable>()
-        val toRight = fastListOf<Intervalable>()
+        val toLeft = mutableListOf<Intervalable>()
+        val toRight = mutableListOf<Intervalable>()
 
         inputs.forEach { input ->
             when {
                 input.end < median -> toLeft.add(input)
                 input.start > median -> toRight.add(input)
-                else -> intervals.add(input)
+                else               -> intervals.add(input)
             }
         }
         if (toLeft.isNotEmpty()) {
@@ -94,7 +96,7 @@ class IntervalNode(
      */
     fun findOverlaps(
         interval: Intervalable,
-        destination: MutableList<Intervalable> = fastListOf(),
+        destination: MutableList<Intervalable> = mutableListOf(),
     ): MutableList<Intervalable> {
         when {
             interval.start > median -> {
@@ -107,7 +109,7 @@ class IntervalNode(
                 addToOverlaps(interval, destination, checkForOverlapsToLeft(interval))
             }
 
-            else -> {
+            else                  -> {
                 addToOverlaps(interval, destination, this.intervals)
                 addToOverlaps(interval, destination, findOverlappingRanges(left, interval))
                 addToOverlaps(interval, destination, findOverlappingRanges(right, interval))

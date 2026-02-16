@@ -1,10 +1,8 @@
 package io.bluetape4k.ahocorasick.trie
 
 import io.bluetape4k.ahocorasick.interval.IntervalTree
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
-import org.eclipse.collections.impl.list.mutable.FastList
 import java.util.*
 
 /**
@@ -97,7 +95,7 @@ class Trie(private val config: TrieConfig = TrieConfig.DEFAULT) {
      */
     fun tokenize(
         text: String,
-        destination: MutableList<Token> = fastListOf<Token>(),
+        destination: MutableList<Token> = mutableListOf(),
     ): List<Token> {
         if (text.isEmpty()) {
             return emptyList()
@@ -371,7 +369,7 @@ class Trie(private val config: TrieConfig = TrieConfig.DEFAULT) {
 
     class TrieBuilder {
         private val configBuilder = TrieConfig.builder()
-        private val keywords: FastList<String> = fastListOf()
+        private val keywords: MutableList<String> = mutableListOf()
 
         fun addKeyword(keyword: String) = apply {
             this.keywords.add(keyword)

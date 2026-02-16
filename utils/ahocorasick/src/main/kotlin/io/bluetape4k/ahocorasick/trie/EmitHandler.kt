@@ -1,7 +1,5 @@
 package io.bluetape4k.ahocorasick.trie
 
-import io.bluetape4k.collections.eclipse.fastListOf
-
 /**
  * Aho-Corasick 알고리즘에서 키워드 매칭이 발생했을 때 호출되는 핸들러 인터페이스.
  *
@@ -65,7 +63,7 @@ abstract class AbstractStatefulEmitHandler: StatefulEmitHandler {
     /**
      * 수집된 Emit 리스트.
      */
-    override val emits: MutableList<Emit> = fastListOf()
+    override val emits: MutableList<Emit> = mutableListOf()
 
     /**
      * Emit을 리스트에 추가합니다.

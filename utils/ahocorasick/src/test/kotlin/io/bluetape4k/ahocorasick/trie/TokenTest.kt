@@ -1,6 +1,5 @@
 package io.bluetape4k.ahocorasick.trie
 
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -46,7 +45,7 @@ class TokenTest {
         val emit2 = Emit(4, 6, "def")
 
         val tokens =
-            fastListOf<Token>(
+            listOf<Token>(
                 FragmentToken("start "),
                 MatchToken("abc", emit1),
                 FragmentToken(" middle "),

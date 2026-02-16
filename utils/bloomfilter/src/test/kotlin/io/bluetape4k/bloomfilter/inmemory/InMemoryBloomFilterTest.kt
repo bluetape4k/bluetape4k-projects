@@ -1,7 +1,6 @@
 package io.bluetape4k.bloomfilter.inmemory
 
 import io.bluetape4k.codec.Base58
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -33,7 +32,7 @@ class InMemoryBloomFilterTest {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `verify not exists`() {
-        val values = fastList(ITEM_COUNT) { Base58.randomString(256) }
+        val values = List(ITEM_COUNT) { Base58.randomString(256) }
             .onEach { bloomFilter.add(it) }
 
         values.all { bloomFilter.contains(it) }.shouldBeTrue()

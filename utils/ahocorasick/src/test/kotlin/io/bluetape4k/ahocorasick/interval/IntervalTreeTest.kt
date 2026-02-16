@@ -1,6 +1,5 @@
 package io.bluetape4k.ahocorasick.interval
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
@@ -12,7 +11,7 @@ class IntervalTreeTest {
 
     @Test
     fun `find overlaps`() {
-        val intervals = fastList(6) { Interval(it, it + 2) }
+        val intervals = List(6) { Interval(it, it + 2) }
         val tree = IntervalTree(intervals)
 
         val overlaps = tree.findOverlaps(Interval(1, 3))
