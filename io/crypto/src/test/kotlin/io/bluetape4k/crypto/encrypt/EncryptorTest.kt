@@ -10,6 +10,7 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.test.runTest
+import io.bluetape4k.support.emptyByteArray
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
@@ -76,6 +77,27 @@ class EncryptorTest {
 
             decrypted shouldBeEqualTo message
         }
+    }
+
+    @ParameterizedTest(name = "encrypt null byte array by {0}")
+    @FieldSource("encryptors")
+    fun `encrypt and decrypt null byte array`(encryptor: Encryptor) {
+        encryptor.encrypt(null as ByteArray?) shouldBeEqualTo emptyByteArray
+        encryptor.decrypt(null as ByteArray?) shouldBeEqualTo emptyByteArray
+    }
+
+    @ParameterizedTest(name = "encrypt empty string by {0}")
+    @FieldSource("encryptors")
+    fun `encrypt and decrypt empty string`(encryptor: Encryptor) {
+        val encrypted = encryptor.encrypt("")
+        encrypted shouldBeEqualTo ""
+    }
+
+    @ParameterizedTest(name = "encrypt null string by {0}")
+    @FieldSource("encryptors")
+    fun `encrypt and decrypt null string`(encryptor: Encryptor) {
+        encryptor.encrypt(null as String?) shouldBeEqualTo ""
+        encryptor.decrypt(null as String?) shouldBeEqualTo ""
     }
 
     @ParameterizedTest(name = "encrypt string by {0}")

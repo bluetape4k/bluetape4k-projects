@@ -47,14 +47,29 @@ fun randomBytes(size: Int): ByteArray {
 private val lock = ReentrantLock()
 
 /**
- * 암호화 처리에서 `registBouncCastleProvider` 함수를 제공합니다.
+ * BouncyCastle 보안 프로바이더를 JVM에 등록합니다.
+ *
+ * 이미 등록되어 있으면 중복 등록하지 않으며, 스레드 안전하게 동작합니다.
+ * Jasypt 및 JCA 기반 암호화 연산 수행 전에 호출해야 합니다.
  */
-internal fun registBouncCastleProvider() {
+internal fun registerBouncyCastleProvider() {
     lock.withLock {
         if (Security.getProvider("BC") == null) {
             runCatching { Security.addProvider(BouncyCastleProvider()) }
         }
     }
+}
+
+/**
+ * [registerBouncyCastleProvider]의 이전 이름입니다.
+ * @see registerBouncyCastleProvider
+ */
+@Deprecated(
+    message = "오타 수정. registerBouncyCastleProvider()를 사용하세요.",
+    replaceWith = ReplaceWith("registerBouncyCastleProvider()"),
+)
+internal fun registBouncCastleProvider() {
+    registerBouncyCastleProvider()
 }
 
 @JvmField

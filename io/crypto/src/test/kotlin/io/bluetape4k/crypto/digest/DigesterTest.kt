@@ -8,10 +8,13 @@ import io.bluetape4k.junit5.params.provider.FieldSource
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.utils.Runtimex
+import kotlinx.atomicfu.locks.reentrantLock
+import kotlinx.atomicfu.locks.withLock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldNotBeEmpty
 import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
 import org.junit.jupiter.params.ParameterizedTest
@@ -25,6 +28,9 @@ class DigesterTest {
             Fakers.randomString(256, 1024)
 
         private const val REPEAT_SIZE = 10
+
+        private val EMPTY_STRING = ""
+        private val EMPTY_BYTES = ByteArray(0)
     }
 
     private val digesters: List<Arguments> = listOf(
@@ -69,16 +75,31 @@ class DigesterTest {
         }
     }
 
+    @ParameterizedTest(name = "digest same message produces consistent result by {0}")
+    @FieldSource("digesters")
+    fun `digest same message produces consistent result`(digester: Digester) {
+        val message = "consistent-test-message"
+        val digest1 = digester.digest(message)
+        val digest2 = digester.digest(message)
+
+        digest1.shouldNotBeEmpty()
+        digester.matches(message, digest1).shouldBeTrue()
+        digester.matches(message, digest2).shouldBeTrue()
+    }
+
     @ParameterizedTest(name = "digest string by {0}")
     @FieldSource("digesters")
     fun `digest message as string in multi threadings`(digester: Digester) {
+        val lock = reentrantLock()
         MultithreadingTester()
             .workers(2 * Runtimex.availableProcessors)
             .rounds(16)
             .add {
-                val message = getRandomString()
-                val digested = digester.digest(message)
-                digester.matches(message, digested).shouldBeTrue()
+                lock.withLock {
+                    val message = getRandomString()
+                    val digested = digester.digest(message)
+                    digester.matches(message, digested).shouldBeTrue()
+                }
             }
             .run()
     }
@@ -87,12 +108,15 @@ class DigesterTest {
     @ParameterizedTest(name = "digest string by {0}")
     @FieldSource("digesters")
     fun `digest message as string in virtual threads`(digester: Digester) {
+        val lock = reentrantLock()
         StructuredTaskScopeTester()
             .rounds(16 * 2 * Runtimex.availableProcessors)
             .add {
-                val message = getRandomString()
-                val digested = digester.digest(message)
-                digester.matches(message, digested).shouldBeTrue()
+                lock.withLock {
+                    val message = getRandomString()
+                    val digested = digester.digest(message)
+                    digester.matches(message, digested).shouldBeTrue()
+                }
             }
             .run()
     }
@@ -100,14 +124,17 @@ class DigesterTest {
     @ParameterizedTest(name = "digest string by {0}")
     @FieldSource("digesters")
     fun `digest message as string in suspend jobs`(digester: Digester) = runTest {
+        val lock = reentrantLock()
         SuspendedJobTester()
             .workers(2 * Runtimex.availableProcessors)
             .rounds(16 * 2 * Runtimex.availableProcessors)
             .add {
                 withContext(Dispatchers.Default) {
-                    val message = getRandomString()
-                    val digested = digester.digest(message)
-                    digester.matches(message, digested).shouldBeTrue()
+                    lock.withLock {
+                        val message = getRandomString()
+                        val digested = digester.digest(message)
+                        digester.matches(message, digested).shouldBeTrue()
+                    }
                 }
             }
             .run()
