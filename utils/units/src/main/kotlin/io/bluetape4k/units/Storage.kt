@@ -5,18 +5,29 @@ import kotlin.math.absoluteValue
 import kotlin.math.pow
 import kotlin.math.sign
 
-fun storageOf(value: Number = 0.0, unit: StorageUnit = StorageUnit.BYTE) = Storage(value, unit)
+fun storageOf(
+    value: Number = 0.0,
+    unit: StorageUnit = StorageUnit.BYTE,
+) = Storage(value, unit)
 
 fun <T: Number> T.storageBy(unit: StorageUnit): Storage = storageOf(this.toDouble(), unit)
 
 fun <T: Number> T.bytes(): Storage = storageBy(StorageUnit.BYTE)
+
 fun <T: Number> T.kbytes(): Storage = storageBy(StorageUnit.KBYTE)
+
 fun <T: Number> T.mbytes(): Storage = storageBy(StorageUnit.MBYTE)
+
 fun <T: Number> T.gbytes(): Storage = storageBy(StorageUnit.GBYTE)
+
 fun <T: Number> T.tbytes(): Storage = storageBy(StorageUnit.TBYTE)
+
 fun <T: Number> T.pbytes(): Storage = storageBy(StorageUnit.PBYTE)
+
 fun <T: Number> T.xbytes(): Storage = storageBy(StorageUnit.XBYTE)
+
 fun <T: Number> T.zbytes(): Storage = storageBy(StorageUnit.ZBYTE)
+
 fun <T: Number> T.ybytes(): Storage = storageBy(StorageUnit.YBYTE)
 
 operator fun <T: Number> T.times(storage: Storage): Storage = storage.times(this)
@@ -27,8 +38,10 @@ operator fun <T: Number> T.times(storage: Storage): Storage = storage.times(this
  * @property unitName 단위 약어
  * @property factor 단위 factor
  */
-enum class StorageUnit(override val unitName: String, override val factor: Double): MeasurableUnit {
-
+enum class StorageUnit(
+    override val unitName: String,
+    override val factor: Double,
+): MeasurableUnit {
     BYTE("B", 1.0),
     KBYTE("KB", Storage.KBYTES),
     MBYTE("MB", Storage.KBYTES.pow(2)),
@@ -37,7 +50,8 @@ enum class StorageUnit(override val unitName: String, override val factor: Doubl
     PBYTE("PB", Storage.KBYTES.pow(5)),
     XBYTE("XB", Storage.KBYTES.pow(6)),
     ZBYTE("ZB", Storage.KBYTES.pow(7)),
-    YBYTE("YB", Storage.KBYTES.pow(8));
+    YBYTE("YB", Storage.KBYTES.pow(8)),
+    ;
 
     companion object {
         @JvmStatic
@@ -69,40 +83,57 @@ enum class StorageUnit(override val unitName: String, override val factor: Doubl
  * @property value 저장장치의 크기의 byte 단위의 값
  */
 @JvmInline
-value class Storage(override val value: Double = 0.0): Measurable<StorageUnit> {
-
+value class Storage(
+    override val value: Double = 0.0,
+): Measurable<StorageUnit> {
     operator fun plus(that: Storage): Storage = Storage(value + that.value)
+
     operator fun plus(scalar: Number): Storage = Storage(value + scalar.toDouble())
+
     operator fun minus(that: Storage): Storage = Storage(value - that.value)
+
     operator fun minus(scalar: Number): Storage = Storage(value - scalar.toDouble())
+
     operator fun times(scalar: Number): Storage = Storage(value * scalar.toDouble())
+
     operator fun div(scalar: Number): Storage = Storage(value / scalar.toDouble())
+
     operator fun unaryMinus(): Storage = Storage(-value)
 
     fun inBytes() = valueBy(StorageUnit.BYTE)
+
     fun inKBytes() = valueBy(StorageUnit.KBYTE)
+
     fun inMBytes() = valueBy(StorageUnit.MBYTE)
+
     fun inGBytes() = valueBy(StorageUnit.GBYTE)
+
     fun inTBytes() = valueBy(StorageUnit.TBYTE)
+
     fun inPBytes() = valueBy(StorageUnit.PBYTE)
+
     fun inXBytes() = valueBy(StorageUnit.XBYTE)
+
     fun inZBytes() = valueBy(StorageUnit.ZBYTE)
+
     fun inYBytes() = valueBy(StorageUnit.YBYTE)
 
-    override fun convertTo(newUnit: StorageUnit): Storage =
-        Storage(valueBy(newUnit), newUnit)
+    override fun convertTo(newUnit: StorageUnit): Storage = Storage(valueBy(newUnit), newUnit)
 
     override fun toHuman(): String {
-        var dispalay = value.absoluteValue
+        var display = value.absoluteValue
         var order = 0
 
-        while (dispalay >= KBYTES) {
+        while (display >= KBYTES) {
             order++
-            dispalay /= KBYTES
+            display /= KBYTES
         }
 
-        return if (order == 0) formatUnit(value.toLong(), StorageUnit.BYTE.unitName)
-        else formatUnit(dispalay * value.sign, StorageUnit.entries[order].unitName)
+        return if (order == 0) {
+            formatUnit(value.toLong(), StorageUnit.BYTE.unitName)
+        } else {
+            formatUnit(display * value.sign, StorageUnit.entries[order].unitName)
+        }
     }
 
     companion object {
@@ -115,8 +146,10 @@ value class Storage(override val value: Double = 0.0): Measurable<StorageUnit> {
         @JvmStatic
         val NaN: Storage by unsafeLazy { Storage(Double.NaN) }
 
-        operator fun invoke(value: Number = 0.0, unit: StorageUnit = StorageUnit.BYTE): Storage =
-            Storage(value.toDouble() * unit.factor)
+        operator fun invoke(
+            value: Number = 0.0,
+            unit: StorageUnit = StorageUnit.BYTE,
+        ): Storage = Storage(value.toDouble() * unit.factor)
 
         fun parse(expr: String?): Storage {
             if (expr.isNullOrBlank()) {

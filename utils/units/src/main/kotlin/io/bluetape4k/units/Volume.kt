@@ -4,15 +4,23 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.unsafeLazy
 import kotlin.math.absoluteValue
 
-fun volumeOf(volumn: Number = 0.0, unit: VolumeUnit = VolumeUnit.LITER): Volume = Volume(volumn, unit)
+fun volumeOf(
+    volume: Number = 0.0,
+    unit: VolumeUnit = VolumeUnit.LITER,
+): Volume = Volume(volume, unit)
 
 fun <T: Number> T.volumeBy(unit: VolumeUnit): Volume = Volume(this, unit)
 
 fun <T: Number> T.cc(): Volume = volumeBy(VolumeUnit.CC)
-fun <T: Number> T.milliliter(): Volume = volumeBy(VolumeUnit.MILLILETER)
+
+fun <T: Number> T.milliliter(): Volume = volumeBy(VolumeUnit.MILLILITER)
+
 fun <T: Number> T.deciliter(): Volume = volumeBy(VolumeUnit.DECILITER)
+
 fun <T: Number> T.liter(): Volume = volumeBy(VolumeUnit.LITER)
+
 fun <T: Number> T.centimeter3(): Volume = volumeBy(VolumeUnit.CENTIMETER_3)
+
 fun <T: Number> T.meter3(): Volume = volumeBy(VolumeUnit.METER_3)
 
 operator fun <T: Number> T.times(volume: Volume): Volume = volume * this
@@ -20,14 +28,17 @@ operator fun <T: Number> T.times(volume: Volume): Volume = volume * this
 /**
  * 체적 (Volume) 종류 및 단위
  */
-enum class VolumeUnit(override val unitName: String, override val factor: Double): MeasurableUnit {
-
+enum class VolumeUnit(
+    override val unitName: String,
+    override val factor: Double,
+): MeasurableUnit {
     CC("cc", 1.0e-9),
     CENTIMETER_3("cm^3", 1.0e-3),
-    MILLILETER("ml", 1.0e-3),
+    MILLILITER("ml", 1.0e-3),
     DECILITER("dl", 1.0e-2),
     LITER("l", 1.0),
-    METER_3("m^3", 1.0e3);
+    METER_3("m^3", 1.0e3),
+    ;
 
     // 영국 부피 단위는 따로 클래스를 만들 예정입니다.
     //    GALLON("gl", 1.0 / 0.264172),
@@ -61,27 +72,36 @@ enum class VolumeUnit(override val unitName: String, override val factor: Double
  * @property value CC 단위의 값
  */
 @JvmInline
-value class Volume(override val value: Double = 0.0): Measurable<VolumeUnit> {
-
+value class Volume(
+    override val value: Double = 0.0,
+): Measurable<VolumeUnit> {
     operator fun plus(other: Volume): Volume = Volume(value + other.value)
+
     operator fun minus(other: Volume): Volume = Volume(value - other.value)
 
     operator fun times(scalar: Number): Volume = Volume(value * scalar.toDouble())
+
     operator fun div(scalar: Number): Volume = Volume(value / scalar.toDouble())
 
     operator fun div(area: Area): Length = Length(inCC() / area.value)
+
     operator fun div(length: Length): Area = Area(inCC() / length.value)
+
     operator fun unaryMinus(): Volume = Volume(-value)
 
     fun inCC() = valueBy(VolumeUnit.CC)
-    fun inMilliLiter() = valueBy(VolumeUnit.MILLILETER)
+
+    fun inMilliLiter() = valueBy(VolumeUnit.MILLILITER)
+
     fun inDeciLiter() = valueBy(VolumeUnit.DECILITER)
+
     fun inLiter() = valueBy(VolumeUnit.LITER)
+
     fun inCentiMeter3() = valueBy(VolumeUnit.CENTIMETER_3)
+
     fun inMeter3() = valueBy(VolumeUnit.METER_3)
 
-    override fun convertTo(newUnit: VolumeUnit): Volume =
-        Volume(valueBy(newUnit), newUnit)
+    override fun convertTo(newUnit: VolumeUnit): Volume = Volume(valueBy(newUnit), newUnit)
 
     override fun toHuman(): String {
         val absValue = value.absoluteValue
@@ -92,7 +112,7 @@ value class Volume(override val value: Double = 0.0): Measurable<VolumeUnit> {
 
     companion object: KLogging() {
         @JvmStatic
-        val Zero: Volume by unsafeLazy { Volume(0.0) }
+        val ZERO: Volume by unsafeLazy { Volume(0.0) }
 
         @JvmStatic
         val MaxValue: Volume by unsafeLazy { Volume(Double.MAX_VALUE) }
@@ -109,8 +129,10 @@ value class Volume(override val value: Double = 0.0): Measurable<VolumeUnit> {
         @JvmStatic
         val NaN: Volume by unsafeLazy { Volume(Double.NaN) }
 
-        operator fun invoke(volumn: Number, unit: VolumeUnit = VolumeUnit.LITER): Volume =
-            Volume(volumn.toDouble() * unit.factor)
+        operator fun invoke(
+            volume: Number,
+            unit: VolumeUnit = VolumeUnit.LITER,
+        ): Volume = Volume(volume.toDouble() * unit.factor)
 
         fun parse(expr: String?): Volume {
             if (expr.isNullOrBlank()) return NaN

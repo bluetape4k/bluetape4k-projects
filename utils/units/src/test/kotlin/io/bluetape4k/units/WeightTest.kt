@@ -11,7 +11,6 @@ import kotlin.test.assertFailsWith
 
 @RandomizedTest
 class WeightTest {
-
     companion object: KLogging()
 
     @Test
@@ -22,15 +21,19 @@ class WeightTest {
     }
 
     @Test
-    fun `convert weight unit by random`(@RandomValue(type = Double::class) weights: List<Double>) {
+    fun `convert weight unit by random`(
+        @RandomValue(type = Double::class) weights: List<Double>,
+    ) {
         weights.forEach { weight ->
             weight.gram().inGram() shouldBeEqualTo weight
-            weight.gram().inKillogram() shouldBeEqualTo weight / 1e3
+            weight.gram().inKilogram() shouldBeEqualTo weight / 1e3
         }
     }
 
     @Test
-    fun `make weight list`(@RandomValue(type = Double::class) weights: List<Double>) {
+    fun `make weight list`(
+        @RandomValue(type = Double::class) weights: List<Double>,
+    ) {
         val list = weights.map { Weight(it) }
         list.size shouldBeEqualTo weights.size
         list[0].value shouldBeEqualTo weights[0]
@@ -99,5 +102,39 @@ class WeightTest {
         1.78.kilogram() shouldBeGreaterThan 1.7.kilogram()
         1.78.gram() shouldBeGreaterThan 1.2.gram()
         123.kilogram() shouldBeLessThan 0.9.ton()
+    }
+
+    @Test
+    fun `weight constants`() {
+        Weight.ZERO.value shouldBeEqualTo 0.0
+        Weight.NaN.value.isNaN() shouldBeEqualTo true
+    }
+
+    @Test
+    fun `weight convertTo`() {
+        1000.0.gram().convertTo(WeightUnit.KILOGRAM).inKilogram() shouldBeEqualTo 1.0
+        1.0.ton().convertTo(WeightUnit.GRAM).inGram() shouldBeEqualTo 1e6
+        500.0.milligram().convertTo(WeightUnit.GRAM).inGram() shouldBeEqualTo 0.5
+    }
+
+    @Test
+    fun `weight toHuman with different scales`() {
+        // 매우 작은 무게
+        0.5.milligram().toHuman() shouldBeEqualTo "0.5 mg"
+
+        // 매우 큰 무게
+        1000.0.ton().toHuman() shouldBeEqualTo "1000.0 ton"
+
+        // 음수 무게
+        (-5.0).kilogram().toHuman() shouldBeEqualTo "-5.0 kg"
+    }
+
+    @Test
+    fun `weight all unit conversions`() {
+        val weight = 1.0.kilogram()
+        weight.inMilligram() shouldBeEqualTo 1e6
+        weight.inGram() shouldBeEqualTo 1e3
+        weight.inKilogram() shouldBeEqualTo 1.0
+        weight.inTon() shouldBeEqualTo 1e-3
     }
 }

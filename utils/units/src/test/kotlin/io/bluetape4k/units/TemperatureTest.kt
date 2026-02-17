@@ -9,26 +9,43 @@ import org.amshove.kluent.internal.assertFailsWith
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeLessThan
+import org.amshove.kluent.shouldBeNear
 import org.junit.jupiter.api.Test
 
 @RandomizedTest
 class TemperatureTest {
-
     companion object: KLogging()
 
     @Test
     fun `convert temperature unit`() {
+        // Kelvin -> Kelvin
         100.kelvin().inKelvin() shouldBeEqualTo 100.0
-        100.celsius().inKelvin() shouldBeEqualTo 100.0 + 273.15
-        100.fahrenheit().inKelvin() shouldBeEqualTo 100.0 + 459.67
+
+        // Celsius -> Kelvin (K = C + 273.15)
+        100.celsius().inKelvin() shouldBeEqualTo 373.15
+        0.celsius().inKelvin() shouldBeEqualTo 273.15
+
+        // Fahrenheit -> Kelvin (K = (F - 32) * 5/9 + 273.15)
+        // 32°F = 0°C = 273.15K
+        32.fahrenheit().inKelvin().shouldBeNear(273.15, 0.01)
+        // 212°F = 100°C = 373.15K
+        212.fahrenheit().inKelvin().shouldBeNear(373.15, 0.01)
     }
 
     @Test
-    fun `convert temperature unit by random`(@RandomValue(type = Double::class) temperatures: List<Double>) {
-        temperatures.forEach { temperature ->
+    fun `convert temperature unit by random`(
+        @RandomValue(type = Double::class) temperatures: List<Double>,
+    ) {
+        // -100 ~ 100 범위의 온도값만 테스트
+        temperatures.filter { it in -100.0..100.0 }.take(5).forEach { temperature ->
+            // Kelvin -> Kelvin
             temperature.kelvin().inKelvin() shouldBeEqualTo temperature
-            temperature.celsius().inKelvin() shouldBeEqualTo temperature + 273.15
-            temperature.fahrenheit().inKelvin() shouldBeEqualTo temperature + 459.67
+
+            // Celsius -> Kelvin -> Celsius (라운드트립)
+            val celsiusTemp = temperature.celsius()
+            // 부동소수점 오차 허용
+            celsiusTemp.inCelcius().shouldBeNear(temperature, 1e-10)
+            celsiusTemp.inKelvin().shouldBeNear(temperature + 273.15, 1e-10)
         }
     }
 

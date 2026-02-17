@@ -4,11 +4,11 @@ import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeLessThan
+import org.amshove.kluent.shouldBeNear
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
 class VolumeTest {
-
     companion object: KLogging()
 
     @Test
@@ -81,5 +81,43 @@ class VolumeTest {
         1.6.liter() shouldBeLessThan 169.deciliter()
         1.2.deciliter() shouldBeGreaterThan 11.milliliter()
         1.2.deciliter() shouldBeLessThan 12.1.milliliter()
+    }
+
+    @Test
+    fun `volume constants`() {
+        Volume.ZERO.value shouldBeEqualTo 0.0
+        Volume.NaN.value.isNaN() shouldBeEqualTo true
+        Volume.MaxValue.value shouldBeEqualTo Double.MAX_VALUE
+        Volume.MinValue.value shouldBeEqualTo Double.MIN_VALUE
+        Volume.PositiveInf.value shouldBeEqualTo Double.POSITIVE_INFINITY
+        Volume.NegativeInf.value shouldBeEqualTo Double.NEGATIVE_INFINITY
+    }
+
+    @Test
+    fun `volume basic operations`() {
+        // 기본 부피 연산
+        val volume = 6.0.meter3()
+        (volume / 2).inMeter3() shouldBeEqualTo 3.0
+        (volume * 2).inMeter3() shouldBeEqualTo 12.0
+    }
+
+    @Test
+    fun `volume convertTo`() {
+        1000.0.liter().convertTo(VolumeUnit.METER_3).inMeter3() shouldBeEqualTo 1.0
+        1.0.meter3().convertTo(VolumeUnit.LITER).inLiter() shouldBeEqualTo 1000.0
+    }
+
+    @Test
+    fun `volume edge cases`() {
+        // 매우 작은 값
+        val tinyVolume = 0.001.milliliter()
+        tinyVolume.inCC().shouldBeNear(0.001 * 1e6, EPSILON)
+
+        // 매우 큰 값
+        val hugeVolume = 1000000.0.meter3()
+        hugeVolume.inLiter().shouldBeNear(1000000.0 * 1e3, EPSILON)
+
+        // 음수 값
+        (-5.0).liter().inLiter().shouldBeNear(-5.0, EPSILON)
     }
 }

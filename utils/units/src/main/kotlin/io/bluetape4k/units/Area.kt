@@ -7,12 +7,17 @@ import io.bluetape4k.units.AreaUnit.METER_2
 import io.bluetape4k.units.AreaUnit.MILLI_METER_2
 import kotlin.math.absoluteValue
 
-fun areaOf(value: Number = 0.0, unit: AreaUnit = MILLI_METER_2) = Area(value, unit)
+fun areaOf(
+    value: Number = 0.0,
+    unit: AreaUnit = MILLI_METER_2,
+) = Area(value, unit)
 
 fun <T: Number> T.areaBy(unit: AreaUnit): Area = Area(this, unit)
 
 fun <T: Number> T.millimeter2(): Area = areaOf(this, MILLI_METER_2)
+
 fun <T: Number> T.centimeter2(): Area = areaOf(this, CENTI_METER_2)
+
 fun <T: Number> T.meter2(): Area = areaOf(this, METER_2)
 
 operator fun <T: Number> T.times(area: Area): Area = area * this
@@ -20,11 +25,15 @@ operator fun <T: Number> T.times(area: Area): Area = area * this
 /**
  * 면적을 나타내는 단위를 표현합니다
  */
-enum class AreaUnit(override val unitName: String, override val factor: Double): MeasurableUnit {
-
+enum class AreaUnit(
+    override val unitName: String,
+    override val factor: Double,
+): MeasurableUnit {
     MILLI_METER_2("mm^2", 1.0e-6),
     CENTI_METER_2("cm^2", 1.0e-4),
-    METER_2("m^2", 1.0);
+    METER_2("m^2", 1.0),
+    ;
+
     /** 아르 (Ares, a) (1 a = 100 value) (deprecated) */
     //    ARES("ares", 100.0),
     /** 헥타르(Hectare, ha) (1 ha = 100 ares = 10,000 value) */
@@ -32,6 +41,7 @@ enum class AreaUnit(override val unitName: String, override val factor: Double):
     //    INCH_2("in^2", INCH_IN_METER * INCH_IN_METER),
     //    FEET_2("ft^2", FEET_IN_METER * FEET_IN_METER),
     //    YARD_2("yd^2", YARD_IN_METER * YARD_IN_METER),
+
     /** 에이커 (1 ac = 4,046.8564224 value = 0.40468564224 Hx ) */
     // ACRE("ac", 4046.8564224);
 
@@ -39,8 +49,9 @@ enum class AreaUnit(override val unitName: String, override val factor: Double):
         @JvmStatic
         fun parse(unitName: String): AreaUnit {
             var lower = unitName.lowercase()
-            if (lower.endsWith("s"))
+            if (lower.endsWith("s")) {
                 lower = lower.dropLast(1)
+            }
 
             return entries.find { it.unitName == lower }
                 ?: throw IllegalArgumentException("Unknown Area unit. unitName=$unitName")
@@ -63,21 +74,27 @@ enum class AreaUnit(override val unitName: String, override val factor: Double):
  * @property value millimeter^2 단위의 면적 값
  */
 @JvmInline
-value class Area(override val value: Double = 0.0): Measurable<AreaUnit> {
-
+value class Area(
+    override val value: Double = 0.0,
+): Measurable<AreaUnit> {
     operator fun plus(other: Area): Area = Area(value + other.value)
+
     operator fun minus(other: Area): Area = Area(value - other.value)
 
     operator fun times(length: Length): Volume = Volume(value * length.inMeter(), VolumeUnit.METER_3)
+
     operator fun times(scalar: Number): Area = Area(value * scalar.toDouble())
 
     operator fun div(length: Length): Length = Length(value / length.inMeter(), LengthUnit.METER)
+
     operator fun div(scalar: Number): Area = Area(value / scalar.toDouble())
 
     operator fun unaryMinus(): Area = Area(-value)
 
     fun inMillimeter2(): Double = valueBy(MILLI_METER_2)
+
     fun inCentimeter2(): Double = valueBy(CENTI_METER_2)
+
     fun inMeter2(): Double = valueBy(METER_2)
 
     override fun convertTo(newUnit: AreaUnit): Area = Area(valueBy(newUnit), newUnit)
@@ -92,7 +109,7 @@ value class Area(override val value: Double = 0.0): Measurable<AreaUnit> {
 
     companion object: KLogging() {
         @JvmStatic
-        val Zero: Area by unsafeLazy { Area(0.0) }
+        val ZERO: Area by unsafeLazy { Area(0.0) }
 
         @JvmStatic
         val MaxValue: Area by unsafeLazy { Area(Double.MAX_VALUE) }
@@ -110,18 +127,20 @@ value class Area(override val value: Double = 0.0): Measurable<AreaUnit> {
         val NaN: Area by unsafeLazy { Area(Double.NaN) }
 
         @JvmStatic
-        operator fun invoke(area: Number = 0.0, unit: AreaUnit = MILLI_METER_2): Area =
-            Area(area.toDouble() * unit.factor)
+        operator fun invoke(
+            area: Number = 0.0,
+            unit: AreaUnit = MILLI_METER_2,
+        ): Area = Area(area.toDouble() * unit.factor)
 
         @JvmStatic
         fun parse(expr: String?): Area {
-            if (expr.isNullOrBlank())
+            if (expr.isNullOrBlank()) {
                 return NaN
+            }
 
             try {
                 val (v, u) = expr.trim().split(" ", limit = 2)
                 return Area(v.toDouble(), AreaUnit.parse(u))
-
             } catch (e: Exception) {
                 throw IllegalArgumentException("Invalid Area string. expr=$expr")
             }

@@ -3,23 +3,33 @@ package io.bluetape4k.units
 import io.bluetape4k.support.unsafeLazy
 import kotlin.math.absoluteValue
 
-fun pressureOf(value: Number = 0.0, unit: PressureUnit = PressureUnit.PASCAL): Pressure =
-    Pressure(value, unit)
+fun pressureOf(
+    value: Number = 0.0,
+    unit: PressureUnit = PressureUnit.PASCAL,
+): Pressure = Pressure(value, unit)
 
 fun <T: Number> T.pressureBy(unit: PressureUnit): Pressure = pressureOf(this.toDouble(), unit)
 
 fun <T: Number> T.atm(): Pressure = pressureOf(this, PressureUnit.ATM)
+
 fun <T: Number> T.pascal(): Pressure = pressureOf(this, PressureUnit.PASCAL)
+
 fun <T: Number> T.hectoPascal(): Pressure = pressureOf(this, PressureUnit.HECTO_PASCAL)
+
 fun <T: Number> T.kiloPascal(): Pressure = pressureOf(this, PressureUnit.KILO_PASCAL)
+
 fun <T: Number> T.megaPascal(): Pressure = pressureOf(this, PressureUnit.MEGA_PASCAL)
 
 fun <T: Number> T.bar(): Pressure = pressureOf(this, PressureUnit.BAR)
+
 fun <T: Number> T.deciBar(): Pressure = pressureOf(this, PressureUnit.DECI_BAR)
+
 fun <T: Number> T.milliBar(): Pressure = pressureOf(this, PressureUnit.MILLI_BAR)
 
 fun <T: Number> T.psi(): Pressure = pressureOf(this, PressureUnit.PSI)
+
 fun <T: Number> T.torr(): Pressure = pressureOf(this, PressureUnit.TORR)
+
 fun <T: Number> T.mmHg(): Pressure = pressureOf(this, PressureUnit.MMHG)
 
 operator fun <T: Number> T.times(pressure: Pressure): Pressure = pressure.times(this)
@@ -31,7 +41,6 @@ enum class PressureUnit(
     override val unitName: String,
     override val factor: Double,
 ): MeasurableUnit {
-
     /**
      * 기압 :  지구 해수면 근처에서 잰 대기압을 기준으로 한다. 1기압은 101325 Pa, 760 mmHg이다.
      */
@@ -105,7 +114,8 @@ enum class PressureUnit(
     /**
      * 수은주 밀리미터(mmHg)는 압력의 단위로 1mmHg는 수은주의 높이가 1mm일 때의 압력이다. 1기압은 약 760mmHg에 해당한다.
      */
-    MMHG("mmHg", 1.0 / 122.322);
+    MMHG("mmHg", 1.0 / 122.322),
+    ;
 
     companion object {
         @JvmStatic
@@ -133,11 +143,16 @@ enum class PressureUnit(
  * 이러한 압력 단위들은 서로 변환이 가능하며, 각 분야에서 적절한 단위를 선택하여 사용합니다.
  */
 @JvmInline
-value class Pressure(override val value: Double = 0.0): Measurable<PressureUnit> {
+value class Pressure(
+    override val value: Double = 0.0,
+): Measurable<PressureUnit> {
 
     operator fun plus(other: Pressure): Pressure = Pressure(value + other.value)
+
     operator fun minus(other: Pressure): Pressure = Pressure(value - other.value)
+
     operator fun times(scalar: Number): Pressure = Pressure(value * scalar.toDouble())
+
     operator fun div(scalar: Number): Pressure = Pressure(value / scalar.toDouble())
 
     operator fun unaryMinus(): Pressure = Pressure(-value)
@@ -145,25 +160,32 @@ value class Pressure(override val value: Double = 0.0): Measurable<PressureUnit>
     fun inAtm(): Double = valueBy(PressureUnit.ATM)
 
     fun inPascal(): Double = valueBy(PressureUnit.PASCAL)
+
     fun inHectoPascal(): Double = valueBy(PressureUnit.HECTO_PASCAL)
+
     fun inKiloPascal(): Double = valueBy(PressureUnit.KILO_PASCAL)
+
     fun inMegaPascal(): Double = valueBy(PressureUnit.MEGA_PASCAL)
+
     fun inGigaPascal(): Double = valueBy(PressureUnit.GIGA_PASCAL)
 
     fun inBar(): Double = valueBy(PressureUnit.BAR)
+
     fun inDeciBar(): Double = valueBy(PressureUnit.DECI_BAR)
+
     fun inMilliBar(): Double = valueBy(PressureUnit.MILLI_BAR)
 
     fun inPsi(): Double = valueBy(PressureUnit.PSI)
+
     fun inTorr(): Double = valueBy(PressureUnit.TORR)
+
     fun inMmHg(): Double = valueBy(PressureUnit.MMHG)
 
-    override fun convertTo(newUnit: PressureUnit): Pressure =
-        Pressure(valueBy(newUnit), newUnit)
+    override fun convertTo(newUnit: PressureUnit): Pressure = Pressure(valueBy(newUnit), newUnit)
 
     override fun toHuman(): String {
-        val dislay = value.absoluteValue
-        val displayUnit = PressureUnit.entries.lastOrNull { dislay / it.factor > 1.0 } ?: PressureUnit.PASCAL
+        val display = value.absoluteValue
+        val displayUnit = PressureUnit.entries.lastOrNull { display / it.factor > 1.0 } ?: PressureUnit.PASCAL
         return formatUnit(valueBy(displayUnit), displayUnit.unitName)
     }
 
@@ -174,8 +196,10 @@ value class Pressure(override val value: Double = 0.0): Measurable<PressureUnit>
         @JvmStatic
         val NaN by unsafeLazy { Pressure(Double.NaN) }
 
-        operator fun invoke(value: Number = 0.0, unit: PressureUnit = PressureUnit.PASCAL): Pressure =
-            Pressure(value.toDouble() * unit.factor)
+        operator fun invoke(
+            value: Number = 0.0,
+            unit: PressureUnit = PressureUnit.PASCAL,
+        ): Pressure = Pressure(value.toDouble() * unit.factor)
 
         fun parse(expr: String?): Pressure {
             if (expr.isNullOrBlank()) {
@@ -183,7 +207,6 @@ value class Pressure(override val value: Double = 0.0): Measurable<PressureUnit>
             }
             try {
                 val (valueStr, unitStr) = expr.split(" ", limit = 2)
-                println("valueStr=$valueStr, unitStr=$unitStr")
                 return invoke(valueStr.toDouble(), PressureUnit.parse(unitStr))
             } catch (e: Throwable) {
                 throw IllegalArgumentException("Invalid Pressure expression. expr=$expr")

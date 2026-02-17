@@ -22,7 +22,6 @@ Bluetape4k은 Kotlin 언어로 JVM 환경에서 Backend 개발 시 사용하는 
 - Spring Boot 3.4.0+
 - Kotlin Exposed 1.0.0+
 - 데이터베이스: H2, PostgreSQL, MySQL 주로 사용
-- 최대한 내부 소스를 사용한다. (예: bluetape4k-core 의 RequireSupport.kt 등)
 
 ### Testing Standards
 
@@ -261,6 +260,7 @@ systemProperty("java.util.logging.manager", "org.jboss.logmanager.LogManager")
 - 모든 비동기 작업은 Coroutines 기반으로 설계
 - Reactor, RxJava 등 다른 reactive 라이브러리는 Coroutines와 통합하여 사용
 - AWS SDK, HTTP 클라이언트 등 blocking API를 Coroutines로 래핑
+- 최대한 내부 소스를 사용한다. (예: bluetape4k-core 의 RequireSupport.kt 등)
 
 ### High-Performance Optimization
 

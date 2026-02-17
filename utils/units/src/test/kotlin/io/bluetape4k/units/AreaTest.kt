@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
 class AreaTest {
-
     companion object: KLogging()
 
     @Test
@@ -75,5 +74,34 @@ class AreaTest {
         1.78.meter2() shouldBeGreaterThan 1.7.meter2()
         1.0.meter2() shouldBeGreaterThan 99.0.centimeter2()
         1.0.meter2() shouldBeLessThan 10001.0.centimeter2()
+    }
+
+    @Test
+    fun `area constants`() {
+        Area.ZERO.value shouldBeEqualTo 0.0
+        Area.NaN.value.isNaN() shouldBeEqualTo true
+        Area.MaxValue.value shouldBeEqualTo Double.MAX_VALUE
+        Area.MinValue.value shouldBeEqualTo Double.MIN_VALUE
+        Area.PositiveInf.value shouldBeEqualTo Double.POSITIVE_INFINITY
+        Area.NegateInf.value shouldBeEqualTo Double.NEGATIVE_INFINITY
+    }
+
+    @Test
+    fun `area with length operations`() {
+        // 면적 * 길이 = 부피
+        val area = 2.0.meter2()
+        val length = 3.0.meter()
+        val volume = area * length
+        volume.inMeter3() shouldBeEqualTo 6.0
+
+        // 면적 / 길이 = 길이
+        val resultLength = area / length
+        resultLength.inMeter() shouldBeEqualTo 2.0 / 3.0
+    }
+
+    @Test
+    fun `area convertTo`() {
+        100.0.meter2().convertTo(AreaUnit.CENTI_METER_2).inCentimeter2() shouldBeEqualTo 100.0 * 1e4
+        10000.0.centimeter2().convertTo(AreaUnit.METER_2).inMeter2() shouldBeEqualTo 1.0
     }
 }

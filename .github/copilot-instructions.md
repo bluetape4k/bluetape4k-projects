@@ -1,8 +1,9 @@
 # Kotlin 백엔드 개발을 위한 레포지토리입니다.
 
 - 주석, 설명은 KDoc 형식으로 한국어로 작성한다.
-- Kotlin 2.1.20 이상으로 작성한다
+- Kotlin 2.3.0 이상으로 작성한다
 - 최대한 Kotlin extensions 을 활용한다.
+- 최대한 내부코드를 재활용한다. (예: Any?.requireNotNull() 등)
 - Spring Boot 3.4.0 이상을 사용한다
 - Kotlin Exposed 0.60.0 이상을 사용한다
 - Kotlin DSL 을 적극적으로 활용한다
