@@ -13,7 +13,6 @@ dependencies {
     implementation(Libs.exposed_java_time)
 
     implementation(project(":bluetape4k-idgenerators"))
-    implementation(project(":bluetape4k-javatimes"))
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))

@@ -7,7 +7,7 @@ import io.bluetape4k.idgenerators.snowflake.Snowflakers
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.trace
 import io.bluetape4k.redis.redisson.coroutines.awaitAll
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
@@ -50,7 +50,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                 .writeMode(WriteMode.WRITE_THROUGH)
                 .writeRetryAttempts(3) // 재시도 횟수
                 .retryDelay { attempt ->
-                    log.debug { "Retry attempt: $attempt" }
+                    log.trace { "Retry attempt: $attempt" }
                     Duration.ofMillis(attempt * 10L + 10L)
                 }  // 재시도 간격
                 .timeout(Duration.ofSeconds(10))
@@ -88,7 +88,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                 .writeMode(WriteMode.WRITE_THROUGH)
                 .writeRetryAttempts(3) // 재시도 횟수
                 .retryDelay { attempt ->
-                    log.debug { "Retry attempt: $attempt" }
+                    log.trace { "Retry attempt: $attempt" }
                     Duration.ofMillis(attempt * 10L + 10L)
                 }  // 재시도 간격
                 .timeout(Duration.ofSeconds(10))
@@ -135,7 +135,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                 .writeMode(WriteMode.WRITE_THROUGH)
                 .writeRetryAttempts(3) // 재시도 횟수
                 .retryDelay { attempt ->
-                    log.debug { "Retry attempt: $attempt" }
+                    log.trace { "Retry attempt: $attempt" }
                     Duration.ofMillis(attempt * 10L + 10)
                 }  // 재시도 간격
                 .timeout(Duration.ofSeconds(10))
@@ -179,7 +179,7 @@ class CacheWriteThroughExample: AbstractCacheExample() {
                 .writeMode(WriteMode.WRITE_THROUGH)
                 .writeRetryAttempts(3) // 재시도 횟수
                 .retryDelay { attempt ->
-                    log.debug { "Retry attempt=$attempt" }
+                    log.trace { "Retry attempt=$attempt" }
                     Duration.ofMillis(attempt * 10L + 10L)
                 }
                 .timeout(Duration.ofSeconds(10))

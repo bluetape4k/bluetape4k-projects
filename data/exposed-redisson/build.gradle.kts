@@ -46,7 +46,6 @@ dependencies {
     testImplementation(Libs.testcontainers_postgresql)
 
     testImplementation(project(":bluetape4k-idgenerators"))
-    testImplementation(project(":bluetape4k-javatimes"))
 
     // Database Drivers
     testImplementation(Libs.hikaricp)

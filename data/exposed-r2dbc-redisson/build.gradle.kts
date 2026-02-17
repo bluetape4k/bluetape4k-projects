@@ -38,7 +38,6 @@ dependencies {
     testImplementation(Libs.kotlinx_coroutines_test)
 
     testImplementation(project(":bluetape4k-idgenerators"))
-    testImplementation(project(":bluetape4k-javatimes"))
 
     // R2DBC
     api(Libs.r2dbc_spi)

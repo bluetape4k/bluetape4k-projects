@@ -21,7 +21,7 @@ object Plugins {
         const val spring_boot = "3.5.10"   // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies
         const val quarkus = "3.31.1"      // https://mvnrepository.com/artifact/io.quarkus/quarkus-bom
         
-        const val docker_compose = "0.17.20"  // https://plugins.gradle.org/plugin/com.avast.gradle.docker-compose
+        const val docker_compose = "0.17.21"  // https://plugins.gradle.org/plugin/com.avast.gradle.docker-compose
 
         // 참고: https://docs.gatling.io/reference/integrations/build-tools/gradle-plugin/
         const val gatling = "3.14.9.8"  // https://plugins.gradle.org/plugin/io.gatling.gradle
@@ -96,7 +96,7 @@ object Versions {
 
     const val bucket4j = "8.16.1"        // https://mvnrepository.com/artifact/com.bucket4j/bucket4j_jdk17-core
     const val resilience4j = "2.3.0"     // https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-bom
-    const val netty = "4.2.9.Final"      // https://mvnrepository.com/artifact/io.netty/netty-all
+    const val netty = "4.2.10.Final"      // https://mvnrepository.com/artifact/io.netty/netty-all
 
     const val aws = "1.12.797"            // https://mvnrepository.com/artifact/com.amazonaws
     const val aws2 = "2.41.27"            // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
@@ -186,8 +186,8 @@ object Versions {
 
     const val ow2_asm = "9.9.1"             // https://mvnrepository.com/artifact/org.ow2.asm/asm
 
-    const val junit_jupiter = "6.0.2"       // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
-    const val junit_platform = "6.0.2"      // https://mvnrepository.com/artifact/org.junit.platform/junit-platform-launcher
+    const val junit_jupiter = "6.0.3"       // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
+    const val junit_platform = "6.0.3"      // https://mvnrepository.com/artifact/org.junit.platform/junit-platform-launcher
     const val assertj_core = "3.27.6"       // https://mvnrepository.com/artifact/org.assertj/assertj-core
     const val kluent = "1.73"               // https://mvnrepository.com/artifact/org.amshove.kluent/kluent
     const val mockk = "1.14.9"              // https://mvnrepository.com/artifact/io.mockk/mockk
@@ -199,15 +199,15 @@ object Versions {
     const val archunit = "1.4.1"            // https://mvnrepository.com/artifact/com.tngtech.archunit/archunit-junit5
     const val rest_assured = "5.5.7"        // https://mvnrepository.com/artifact/io.rest-assured/rest-assured
 
-    const val datafaker = "2.5.3"          // https://mvnrepository.com/artifact/net.datafaker/datafaker
+    const val datafaker = "2.5.4"          // https://mvnrepository.com/artifact/net.datafaker/datafaker
     const val snakeyaml = "2.5"            // https://mvnrepository.com/artifact/org.yaml/snakeyaml
     const val random_beans = "3.9.0"
 
     const val logback_slack_appender = "1.6.1"  // https://mvnrepository.com/artifact/com.github.maricn/logback-slack-appender
 
-    const val sentry_logback = "8.31.0"  // https://mvnrepository.com/artifact/io.sentry/sentry-logback
+    const val sentry_logback = "8.32.0"  // https://mvnrepository.com/artifact/io.sentry/sentry-logback
 
-    const val scrimage = "4.3.5"  // https://mvnrepository.com/artifact/com.sksamuel.scrimage/scrimage-core
+    const val scrimage = "4.3.6"  // https://mvnrepository.com/artifact/com.sksamuel.scrimage/scrimage-core
 
     // Gatling
     const val gatling = "3.14.9" // https://mvnrepository.com/artifact/io.gatling/gatling-core
@@ -330,7 +330,7 @@ object Libs {
     // Apache Commons
     const val commons_beanutils = "commons-beanutils:commons-beanutils:1.11.0"     // https://mvnrepository.com/artifact/commons-beanutils/commons-beanutils
     const val commons_compress = "org.apache.commons:commons-compress:1.28.0"     // https://mvnrepository.com/artifact/org.apache.commons/commons-compress
-    const val commons_codec = "commons-codec:commons-codec:1.20.0"                // https://mvnrepository.com/artifact/commons-codec/commons-codec
+    const val commons_codec = "commons-codec:commons-codec:1.21.0"                // https://mvnrepository.com/artifact/commons-codec/commons-codec
     const val commons_collections4 = "org.apache.commons:commons-collections4:4.5.0"  // https://mvnrepository.com/artifact/org.apache.commons/commons-collections4
     const val commons_cryto = "org.apache.commons:commons-crypto:1.2.0"             // https://mvnrepository.com/artifact/org.apache.commons/commons-crypto
     const val commons_csv = "org.apache.commons:commons-csv:1.14.1"                 // https://mvnrepository.com/artifact/org.apache.commons/commons-csv
@@ -378,7 +378,7 @@ object Libs {
 
     const val kryo = "com.esotericsoftware:kryo:5.6.2" // https://mvnrepository.com/artifact/com.esotericsoftware/kryo
     const val kryo5 = "com.esotericsoftware:kryo:5.6.2" // https://mvnrepository.com/artifact/com.esotericsoftware/kryo
-    const val fory_kotlin = "org.apache.fory:fory-kotlin:0.14.1" // https://mvnrepository.com/artifact/org.apache.fory/fory-kotlin
+    const val fory_kotlin = "org.apache.fory:fory-kotlin:0.15.0" // https://mvnrepository.com/artifact/org.apache.fory/fory-kotlin
 
     // Spring Boot
     const val spring_boot_dependencies = "org.springframework.boot:spring-boot-dependencies:${Versions.spring_boot}"
@@ -1260,7 +1260,7 @@ object Libs {
 
     const val mysql_connector_j = "com.mysql:mysql-connector-j:9.6.0"  // https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
     const val mariadb_java_client = "org.mariadb.jdbc:mariadb-java-client:3.5.7"  // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
-    const val postgresql_driver = "org.postgresql:postgresql:42.7.9"  // https://mvnrepository.com/artifact/org.postgresql/postgresql
+    const val postgresql_driver = "org.postgresql:postgresql:42.7.10"  // https://mvnrepository.com/artifact/org.postgresql/postgresql
     const val pgjdbc_ng = "com.impossibl.pgjdbc-ng:pgjdbc-ng:0.8.9"  // https://mvnrepository.com/artifact/com.impossibl.pgjdbc-ng/pgjdbc-ng
     const val oracle_ojdbc8 = "com.oracle.ojdbc:ojdbc8:19.3.0.0"
 

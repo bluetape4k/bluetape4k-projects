@@ -5,7 +5,6 @@ configurations {
 dependencies {
     api(project(":bluetape4k-core"))
     compileOnly(project(":bluetape4k-cache"))
-    testImplementation(project(":bluetape4k-javatimes"))
     testImplementation(project(":bluetape4k-junit5"))
 
     api(Libs.commons_math3)

@@ -29,7 +29,6 @@ dependencies {
 
     compileOnly(project(":bluetape4k-io"))
     compileOnly(project(":bluetape4k-idgenerators"))
-    compileOnly(project(":bluetape4k-javatimes"))
 
     // Bluetape4k Modules for Testing
     testImplementation(project(":bluetape4k-junit5"))

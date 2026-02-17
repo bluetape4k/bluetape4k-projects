@@ -7,7 +7,7 @@ import io.bluetape4k.idgenerators.snowflake.Snowflakers
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.logging.warn
+import io.bluetape4k.logging.trace
 import kotlinx.coroutines.delay
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeLessOrEqualTo
@@ -65,7 +65,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
                 .loader(actorRecordLoader)
                 .retryAttempts(3)
                 .retryDelay { attempt ->
-                    log.debug { "Retry attempt=$attempt" }
+                    log.trace { "Retry attempt=$attempt" }
                     Duration.ofMillis(attempt * 10L + 10L)
                 }
                 .timeout(Duration.ofSeconds(10))
@@ -87,7 +87,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
                 .loader(actorRecordLoader)
                 .retryAttempts(3)
                 .retryDelay { attempt ->
-                    log.debug { "Retry attempt=$attempt" }
+                    log.trace { "Retry attempt=$attempt" }
                     Duration.ofMillis(attempt * 10L + 10L)
                 }
                 .timeToLive(Duration.ofSeconds(10))   // 로컬 캐시의 TTL
@@ -156,7 +156,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
                 .loaderAsync(actorRecordLoaderAsync)
                 .retryAttempts(3)
                 .retryDelay { attempt ->
-                    log.warn { "Retry attempt=$attempt" }
+                    log.trace { "Retry attempt=$attempt" }
                     Duration.ofMillis(attempt * 10L + 10L)
                 }
                 .timeout(Duration.ofSeconds(10))
@@ -177,7 +177,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
                 .loaderAsync(actorRecordLoaderAsync)
                 .retryAttempts(3)
                 .retryDelay { attempt ->
-                    log.warn { "Retry attempt=$attempt" }
+                    log.trace { "Retry attempt=$attempt" }
                     Duration.ofMillis(attempt * 10L + 10L)
                 }
                 .timeToLive(Duration.ofSeconds(10))   // 로컬 캐시의 TTL

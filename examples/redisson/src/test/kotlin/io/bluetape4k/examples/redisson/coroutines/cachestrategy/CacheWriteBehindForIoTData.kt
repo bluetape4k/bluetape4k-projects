@@ -7,6 +7,7 @@ import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.trace
 import io.bluetape4k.redis.redisson.coroutines.awaitAll
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -153,7 +154,7 @@ class CacheWriteBehindForIoTData: AbstractCacheExample() {
                 .writeBehindDelay(100)        // 기본 delay 는 1000 ms 입니다.
                 .writeRetryAttempts(3) // 재시도 횟수
                 .retryDelay { attempt ->
-                    log.debug { "Retry attempt=$attempt" }
+                    log.trace { "Retry attempt=$attempt" }
                     Duration.ofMillis(attempt * 10L + 10L)
                 }
                 .timeout(Duration.ofSeconds(10))
@@ -250,7 +251,7 @@ class CacheWriteBehindForIoTData: AbstractCacheExample() {
                 .writeBehindDelay(100)        // 기본 delay 는 1000 ms 입니다.
                 .writeRetryAttempts(3) // 재시도 횟수
                 .retryDelay { attempt ->
-                    log.debug { "Retry attempt=$attempt" }
+                    log.trace { "Retry attempt=$attempt" }
                     Duration.ofMillis(attempt * 10L + 10L)
                 }
                 .timeout(Duration.ofSeconds(10))
