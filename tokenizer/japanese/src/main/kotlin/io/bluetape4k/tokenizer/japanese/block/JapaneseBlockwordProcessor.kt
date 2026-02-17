@@ -1,7 +1,6 @@
 package io.bluetape4k.tokenizer.japanese.block
 
 import com.atilika.kuromoji.ipadic.Token
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
@@ -74,13 +73,11 @@ object JapaneseBlockwordProcessor: KLogging() {
             if (t1.isNoun() && t2.isNounOrVerb()) {
                 val composite = t1.surface + t2.surface
                 log.debug { "check blockword for composite=$composite" }
-                if (isBlockword(composite)) {
-                    return listOf(t1)
-                }
+                if (isBlockword(composite)) t1 else null
+            } else {
+                null
             }
-            null
-        }
-            .mapNotNull { it }
+        }.filterNotNull()
     }
 
     /**
@@ -105,7 +102,7 @@ object JapaneseBlockwordProcessor: KLogging() {
             val tokens = JapaneseTokenizer.tokenize(request.text)
             var maskedText = request.text
             val maskStr = request.options.mask
-            val blockwords = fastListOf<String>()
+            val blockwords = mutableListOf<String>()
 
             tokens
                 .onEach { token -> log.trace { "token=${token.surface}, ${token.allFeatures}" } }
@@ -129,7 +126,7 @@ object JapaneseBlockwordProcessor: KLogging() {
     }
 
     private fun canMask(token: Token): Boolean {
-        return token.isNounOrVerb() && isBlockword(token.surface)
+        return isBlockword(token.surface)
     }
 
     private fun isBlockword(text: String): Boolean {

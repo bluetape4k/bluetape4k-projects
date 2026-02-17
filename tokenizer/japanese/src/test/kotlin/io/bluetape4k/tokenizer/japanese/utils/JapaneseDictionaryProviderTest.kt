@@ -35,10 +35,10 @@ class JapaneseDictionaryProviderTest: AbstractTokenizerTest() {
         blockwords.contains(newWord).shouldBeFalse()
         blockwords.contains(newWord2).shouldBeFalse()
         JapaneseDictionaryProvider.addBlockwords(listOf(newWord, newWord2))
-
-        // Remove blockword from dictionary
         blockwords.contains(newWord).shouldBeTrue()
         blockwords.contains(newWord2).shouldBeTrue()
+
+        // Remove blockword from dictionary
         JapaneseDictionaryProvider.removeBlockwords(listOf(newWord, newWord2))
 
         blockwords.contains(newWord).shouldBeFalse()

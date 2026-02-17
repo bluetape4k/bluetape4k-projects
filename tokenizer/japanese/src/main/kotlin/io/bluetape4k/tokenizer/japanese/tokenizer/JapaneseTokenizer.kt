@@ -5,7 +5,9 @@ import com.atilika.kuromoji.ipadic.Tokenizer
 import io.bluetape4k.logging.KLogging
 
 /**
- * Kuromoji Japanese tokenizer
+ * Kuromoji IPAdic 기반 일본어 형태소 분석기
+ *
+ * 일본어 텍스트를 형태소 단위로 분리하고, 품사별 필터링 기능을 제공합니다.
  */
 object JapaneseTokenizer: KLogging() {
 

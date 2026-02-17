@@ -6,6 +6,7 @@ import io.bluetape4k.tokenizer.japanese.AbstractTokenizerTest
 import io.bluetape4k.tokenizer.model.BlockwordResponse
 import io.bluetape4k.tokenizer.model.blockwordOptionsOf
 import io.bluetape4k.tokenizer.model.blockwordRequestOf
+import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEmpty
@@ -19,6 +20,30 @@ class JapaneseBlockwordProcessorTest: AbstractTokenizerTest() {
     companion object: KLogging()
 
     private val options = blockwordOptionsOf(locale = Locale.JAPANESE)
+
+    @Test
+    fun `빈 문자열 입력 시 빈 결과 반환`() {
+        JapaneseBlockwordProcessor.findBlockwords("").shouldBeEmpty()
+        JapaneseBlockwordProcessor.findBlockwords("   ").shouldBeEmpty()
+    }
+
+    @Test
+    fun `빈 문자열 마스킹 요청 시 예외 발생`() {
+        org.junit.jupiter.api.assertThrows<IllegalArgumentException> {
+            blockwordRequestOf("", options)
+        }
+        org.junit.jupiter.api.assertThrows<IllegalArgumentException> {
+            blockwordRequestOf("   ", options)
+        }
+    }
+
+    @Test
+    fun `복합 금칙어 마스킹`() {
+        // 覚せい剤 = 覚せい(각성) + 剤(제) 복합명사
+        val text = "覚せい剤を注文できるサイトはありますか？"
+        val blockwords = extractBlockword(text)
+        blockwords.shouldNotBeEmpty()
+    }
 
     @Test
     fun `금칙어가 없는 경우`() {

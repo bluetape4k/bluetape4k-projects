@@ -14,10 +14,22 @@ object JapaneseDictionaryProvider: KLoggingChannel() {
 
     const val BASE_PATH = "japanesetext"
 
+    /**
+     * 지정된 경로의 사전 파일들을 읽어 [MutableSet]으로 반환합니다.
+     *
+     * @param paths 사전 파일 경로 (BASE_PATH 기준 상대 경로)
+     * @return 사전 단어들의 [MutableSet]
+     */
     suspend fun readWordsAsSet(vararg paths: String): MutableSet<String> {
         return DictionaryProvider.readWordsAsSet(*paths.map { "$BASE_PATH/$it" }.toTypedArray())
     }
 
+    /**
+     * 지정된 경로의 사전 파일들을 읽어 [CharArraySet]으로 반환합니다.
+     *
+     * @param paths 사전 파일 경로 (BASE_PATH 기준 상대 경로)
+     * @return 사전 단어들의 [CharArraySet]
+     */
     suspend fun readWords(vararg paths: String): CharArraySet {
         return DictionaryProvider.readWords(*paths.map { "$BASE_PATH/$it" }.toTypedArray())
     }
