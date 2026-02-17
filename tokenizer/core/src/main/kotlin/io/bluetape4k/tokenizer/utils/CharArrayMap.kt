@@ -1,16 +1,13 @@
 package io.bluetape4k.tokenizer.utils
 
 import io.bluetape4k.logging.KLogging
-import org.eclipse.collections.impl.map.mutable.UnifiedMap
 import java.io.Serializable
-import java.util.*
 
 /**
  * Lucene 에 있는 CharArrayMap 을 porting 한 클래스로, 사전 정보를 관리합니다.
  */
 @Suppress("UNCHECKED_CAST")
-open class CharArrayMap<V>(startSize: Int): UnifiedMap<Any, V>(), Serializable {
-    // java.util.AbstractMap<Any, V>(), Serializable {
+open class CharArrayMap<V>(startSize: Int): AbstractMutableMap<Any, V>(), Serializable {
 
     companion object: KLogging() {
         private const val INIT_SIZE = 8
@@ -19,7 +16,7 @@ open class CharArrayMap<V>(startSize: Int): UnifiedMap<Any, V>(), Serializable {
         @JvmStatic
         fun <V> unmodifiableMap(map: CharArrayMap<V>): CharArrayMap<V> {
             return when {
-                map.isEmpty -> emptyMap()
+                map.isEmpty() -> emptyMap()
                 else          -> when (map) {
                     is UnmodifiableCharArrayMap -> map
                     else                        -> UnmodifiableCharArrayMap(map)
@@ -186,10 +183,6 @@ open class CharArrayMap<V>(startSize: Int): UnifiedMap<Any, V>(), Serializable {
             if (text1[it] != text2[it])
                 return false
         }
-        //        (0 until len).forEach { i ->
-        //            if (text1[i] != text2[i])
-        //                return false
-        //        }
         return true
     }
 
@@ -234,7 +227,7 @@ open class CharArrayMap<V>(startSize: Int): UnifiedMap<Any, V>(), Serializable {
     private val _entrySet: EntrySet by lazy { createEntrySet() }
 
     protected open fun createEntrySet(): EntrySet = EntrySet(true)
-    override val entries: EntrySet get() = _entrySet
+    override val entries: MutableSet<MutableMap.MutableEntry<Any, V>> get() = _entrySet
 
     private val _keySet: CharArraySet by lazy {
         object: CharArraySet(this@CharArrayMap as CharArrayMap<Any>) {
@@ -246,7 +239,7 @@ open class CharArrayMap<V>(startSize: Int): UnifiedMap<Any, V>(), Serializable {
     }
 
     val originalKeySet: MutableSet<Any> by lazy {
-        object: AbstractSet<Any>() {
+        object: AbstractMutableSet<Any>() {
             override fun iterator(): MutableIterator<Any> = object: MutableIterator<Any> {
 
                 private var pos = -1
@@ -271,16 +264,16 @@ open class CharArrayMap<V>(startSize: Int): UnifiedMap<Any, V>(), Serializable {
                 override fun remove() = throw UnsupportedOperationException()
             }
 
+            override fun add(element: Any): Boolean = throw UnsupportedOperationException()
+
             override val size: Int
                 get() = this@CharArrayMap.size
 
-            override fun isEmpty(): Boolean = this@CharArrayMap.isEmpty()
-            override fun clear() = this@CharArrayMap.clear()
-            override fun contains(element: Any?): Boolean = this@CharArrayMap.containsKey(element)
+            override fun contains(element: Any): Boolean = this@CharArrayMap.containsKey(element)
         }
     }
 
-    override val keys: CharArraySet get() = _keySet
+    override val keys: MutableSet<Any> get() = _keySet
 
     inner class EntryIterator(private val allowModify: Boolean):
         MutableIterator<MutableMap.MutableEntry<Any, V>> {
@@ -373,24 +366,24 @@ open class CharArrayMap<V>(startSize: Int): UnifiedMap<Any, V>(), Serializable {
         }
     }
 
-    inner class EntrySet(private val allowModify: Boolean): java.util.AbstractSet<MutableMap.MutableEntry<Any, V>>() {
+    inner class EntrySet(private val allowModify: Boolean): AbstractMutableSet<MutableMap.MutableEntry<Any, V>>() {
 
         override fun iterator(): MutableIterator<MutableMap.MutableEntry<Any, V>> {
             return EntryIterator(allowModify)
         }
 
-        override fun contains(element: MutableMap.MutableEntry<Any, V>?): Boolean {
-            val key = element?.key
-            val value = element?.value
-
-            key?.let {
-                val v = get(it)
-                return if (v == null) value == null else v == value
-            }
-            return false
+        override fun contains(element: MutableMap.MutableEntry<Any, V>): Boolean {
+            val key = element.key
+            val value = element.value
+            val v = get(key)
+            return if (v == null) value == null else v == value
         }
 
-        override fun remove(element: MutableMap.MutableEntry<Any, V>?): Boolean {
+        override fun add(element: MutableMap.MutableEntry<Any, V>): Boolean {
+            throw UnsupportedOperationException()
+        }
+
+        override fun remove(element: MutableMap.MutableEntry<Any, V>): Boolean {
             throw UnsupportedOperationException()
         }
 

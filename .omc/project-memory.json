@@ -248,9 +248,21 @@
   },
   "hotPaths": [
     {
+      "path": "tokenizer/core/src/main/kotlin/io/bluetape4k/tokenizer/utils/CharArrayMap.kt",
+      "accessCount": 16,
+      "lastAccessed": 1771338082909,
+      "type": "file"
+    },
+    {
       "path": "utils/javatimes/README.md",
       "accessCount": 10,
       "lastAccessed": 1771325836868,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/core/src/main/kotlin/io/bluetape4k/tokenizer/utils/CharArraySet.kt",
+      "accessCount": 5,
+      "lastAccessed": 1771337933918,
       "type": "file"
     },
     {
@@ -258,6 +270,18 @@
       "accessCount": 3,
       "lastAccessed": 1771325724999,
       "type": "file"
+    },
+    {
+      "path": "tokenizer/core",
+      "accessCount": 1,
+      "lastAccessed": 1771338099386,
+      "type": "directory"
+    },
+    {
+      "path": "tokenizer",
+      "accessCount": 1,
+      "lastAccessed": 1771338105023,
+      "type": "directory"
     }
   ],
   "userDirectives": []

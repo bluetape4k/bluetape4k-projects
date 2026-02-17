@@ -1,7 +1,6 @@
 package io.bluetape4k.tokenizer.utils
 
 import io.bluetape4k.logging.KLogging
-import org.eclipse.collections.impl.set.mutable.UnifiedSet
 import java.io.Serializable
 
 /**
@@ -9,7 +8,7 @@ import java.io.Serializable
  *
  * 사전 정보를 관리하는 클래스입니다.
  */
-open class CharArraySet(val map: CharArrayMap<Any>): UnifiedSet<Any>(), Serializable {
+open class CharArraySet(val map: CharArrayMap<Any>): AbstractMutableSet<Any>(), Serializable {
 
     companion object: KLogging() {
         private val EMPTY_SET = CharArraySet(CharArrayMap.emptyMap())
@@ -44,7 +43,7 @@ open class CharArraySet(val map: CharArrayMap<Any>): UnifiedSet<Any>(), Serializ
         map.clear()
     }
 
-    override fun contains(element: Any?): Boolean = map.containsKey(element)
+    override fun contains(element: Any): Boolean = map.containsKey(element)
     fun contains(text: CharArray, off: Int, len: Int = text.size) = map.containsKey(text, off, len)
     fun contains(cs: CharSequence) = map.containsKey(cs)
 
@@ -61,11 +60,9 @@ open class CharArraySet(val map: CharArrayMap<Any>): UnifiedSet<Any>(), Serializ
         return modified
     }
 
-    override fun remove(element: Any?): Boolean {
-        return element?.let {
-            map.remove(it)
-            map.containsKey(it)
-        } ?: false
+    override fun remove(element: Any): Boolean {
+        map.remove(element)
+        return !map.containsKey(element)
     }
 
     fun remove(text: String): Boolean {
