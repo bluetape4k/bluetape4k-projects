@@ -1,7 +1,5 @@
 package io.bluetape4k.tokenizer.utils
 
-import io.bluetape4k.collections.eclipse.unifiedMapOf
-import io.bluetape4k.collections.eclipse.unifiedSetOf
 import io.bluetape4k.coroutines.flow.async
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -54,7 +52,7 @@ object DictionaryProvider: KLogging() {
      */
     fun readWordFreqs(
         path: String,
-        destination: MutableMap<CharSequence, Float> = unifiedMapOf<CharSequence, Float>(),
+        destination: MutableMap<CharSequence, Float> = mutableMapOf(),
     ): Map<CharSequence, Float> {
         val freqRange = 0 until 6
         // val map = ConcurrentHashMap<CharSequence, Float>()
@@ -87,7 +85,7 @@ object DictionaryProvider: KLogging() {
 
     suspend fun readWordsAsSet(
         vararg paths: String,
-        destination: MutableSet<String> = unifiedSetOf<String>(),
+        destination: MutableSet<String> = mutableSetOf(),
     ): MutableSet<String> {
         paths.asFlow()
             .async { path ->

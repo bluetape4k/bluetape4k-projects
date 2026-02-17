@@ -11,9 +11,9 @@ import java.util.*
  * @property severity  금칙어에 해당하는 수준 (심각도) (기본값: [Severity.DEFAULT] = [Severity.LOW])
  */
 data class BlockwordOptions(
-    var mask: String = "*",
-    var locale: Locale = Locale.KOREAN,
-    var severity: Severity = Severity.DEFAULT,
+    val mask: String = "*",
+    val locale: Locale = Locale.KOREAN,
+    val severity: Severity = Severity.DEFAULT,
 ): Serializable {
     companion object {
         val DEFAULT = BlockwordOptions()
@@ -23,12 +23,12 @@ data class BlockwordOptions(
 /**
  * 금칙어 처리 옵션 정보를 생성한다.
  *
- * @param mask    금칙어를 mask 처리할 때 사용할 문자열 (기본값: `*`)
- * @param locale  [Locale] 정보 (기본값: [Locale.KOREAN])
+ * @param mask      금칙어를 mask 처리할 때 사용할 문자열 (기본값: `*`)
+ * @param locale    [Locale] 정보 (기본값: [Locale.KOREAN])
+ * @param severity  금칙어에 해당하는 수준 (심각도) (기본값: [Severity.DEFAULT])
  */
 fun blockwordOptionsOf(
     mask: String = "*",
     locale: Locale = Locale.KOREAN,
-): BlockwordOptions {
-    return BlockwordOptions(mask, locale)
-}
+    severity: Severity = Severity.DEFAULT,
+): BlockwordOptions = BlockwordOptions(mask, locale, severity)
