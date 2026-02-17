@@ -11,6 +11,7 @@ Kotlin Backend 개발을 위한 핵심 유틸리티 라이브러리입니다. Bl
 - **Collections**: 컬렉션 유틸리티
 - **Concurrent**: 동시성 처리 유틸리티
 - **Functional**: 함수형 프로그래밍 지원
+- **Java Time DSL**: `java.time` 기초 확장 함수 (Duration/Period DSL, Temporal 유틸리티, Quarter 등)
 
 ## 의존성 추가
 
@@ -498,8 +499,70 @@ val valid = data.validate {
 - **Hex**: 빠름
 - **Base58/Base62**: 중간 (BigInteger 연산)
 
+### 9. Java Time DSL (javatimes)
+
+`java.time` API를 Kotlin 스타일로 사용하기 위한 기초 확장 함수들을 제공합니다. 고급 기능(Interval, Period Framework, Temporal Range)은
+`bluetape4k-javatimes` 모듈을 참조하세요.
+
+#### Duration/Period DSL
+
+```kotlin
+import io.bluetape4k.javatimes.*
+
+// Duration 생성
+val duration = 5.days() + 3.hours() + 30.minutes() + 45.seconds()
+val shortDuration = 100.millis() + 500.nanos()
+
+// Period 생성
+val period = 2.yearPeriod() + 6.monthPeriod() + 15.dayPeriod()
+```
+
+#### Duration 유틸리티
+
+```kotlin
+// Duration 생성
+val d1 = durationOfDay(1, 2, 3, 4, 5)  // 1일 2시간 3분 4초 5나노초
+val d2 = durationOfHour(2, 30, 15)     // 2시간 30분 15초
+
+// 포맷팅
+duration.formatHMS()   // "26:03:04.000"
+duration.formatISO()   // "P0Y0M1DT2H3M4.000S"
+```
+
+#### Temporal 확장
+
+```kotlin
+val now = nowZonedDateTime()
+
+// 시작 시각
+now.startOfYear()     // 연초
+now.startOfMonth()    // 월초
+now.startOfDay()      // 당일 시작
+
+// 현재 시각 생성
+val instant = nowInstant()
+val localDateTime = nowLocalDateTime()
+val zonedDateTime = nowZonedDateTime()
+
+// 특정 시각 생성
+val date = localDateOf(2024, 10, 14)
+val dateTime = localDateTimeOf(2024, 10, 14, 15, 30, 45)
+```
+
+#### Quarter (분기) 지원
+
+```kotlin
+val q1 = Quarter.Q1
+val q2 = Quarter.of(2)
+val q3 = Quarter.ofMonth(7)  // 7월 -> Q3
+
+val yq = YearQuarter(2024, Quarter.Q1)
+yq.addQuarters(2)  // 2024-Q3
+```
+
 ## 참고 자료
 
 - [Kotlin Contracts](https://kotlinlang.org/docs/whatsnew13.html#contracts)
 - [Kotlin Ranges](https://kotlinlang.org/docs/ranges.html)
 - [Apache Commons Codec](https://commons.apache.org/proper/commons-codec/)
+- [Java Time API](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/package-summary.html)

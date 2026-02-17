@@ -66,15 +66,15 @@ fun Int.temporalAmount(chronoUnit: ChronoUnit): TemporalAmount =
  * ```
  */
 fun Long.temporalAmount(chronoUnit: ChronoUnit): TemporalAmount = when (chronoUnit) {
-    ChronoUnit.YEARS -> Period.ofYears(this.toInt())
-    ChronoUnit.MONTHS -> Period.ofMonths(this.toInt())
-    ChronoUnit.WEEKS -> Period.ofWeeks(this.toInt())
-    ChronoUnit.DAYS -> Duration.ofDays(this)
-    ChronoUnit.HOURS -> Duration.ofHours(this)
+    ChronoUnit.YEARS   -> Period.ofYears(this.toInt())
+    ChronoUnit.MONTHS  -> Period.ofMonths(this.toInt())
+    ChronoUnit.WEEKS   -> Period.ofWeeks(this.toInt())
+    ChronoUnit.DAYS    -> Duration.ofDays(this)
+    ChronoUnit.HOURS   -> Duration.ofHours(this)
     ChronoUnit.MINUTES -> Duration.ofMinutes(this)
     ChronoUnit.SECONDS -> Duration.ofSeconds(this)
-    ChronoUnit.MILLIS -> Duration.ofMillis(this)
-    ChronoUnit.MICROS -> Duration.ofNanos(this * 1000L)
-    ChronoUnit.NANOS -> Duration.ofNanos(this)
-    else -> throw IllegalArgumentException("Not supported ChronoUnit. chronounit=$chronoUnit")
+    ChronoUnit.MILLIS  -> Duration.ofMillis(this)
+    ChronoUnit.MICROS  -> Duration.ofNanos(this * 1000L)
+    ChronoUnit.NANOS   -> Duration.ofNanos(this)
+    else               -> throw IllegalArgumentException("Not supported ChronoUnit. chronounit=$chronoUnit")
 }

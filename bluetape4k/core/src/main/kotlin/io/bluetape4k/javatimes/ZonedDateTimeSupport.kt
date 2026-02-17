@@ -57,7 +57,7 @@ val ZonedDateTime.weekOfMonth: Int get() = this[WeekFields.ISO.weekOfMonth()]
 /**
  * [ZonedDateTime]의 Day 이후의 값을 초 단위로 반환합니다. (Hour, Minute, Second)
  */
-val ZonedDateTime.seondsOfDay: Int get() = this[ChronoField.SECOND_OF_DAY]
+val ZonedDateTime.secondsOfDay: Int get() = this[ChronoField.SECOND_OF_DAY]
 
 /**
  * [ZonedDateTime]의 Day 이후의 값을 밀리초 단위로 반환합니다. (Hour, Minute, Second, Millis)
@@ -262,8 +262,8 @@ fun ZonedDateTime.prevDayOfWeek(): ZonedDateTime = this.minusWeeks(1)
 infix fun ZonedDateTime?.min(that: ZonedDateTime?): ZonedDateTime? = when {
     this == null -> that
     that == null -> this
-    this < that -> this
-    else -> that
+    this < that  -> this
+    else         -> that
 }
 
 /**
@@ -272,8 +272,8 @@ infix fun ZonedDateTime?.min(that: ZonedDateTime?): ZonedDateTime? = when {
 infix fun ZonedDateTime?.max(that: ZonedDateTime?): ZonedDateTime? = when {
     this == null -> that
     that == null -> this
-    this > that -> this
-    else -> that
+    this > that  -> this
+    else         -> that
 }
 
 /**
@@ -287,7 +287,7 @@ fun ZonedDateTime.equalTo(that: OffsetDateTime): Boolean =
  */
 fun ZonedDateTime?.equalToSeconds(that: ZonedDateTime?): Boolean = when {
     (this == null || that == null) -> false
-    else -> this.truncatedTo(ChronoUnit.SECONDS).isEqual(that.truncatedTo(ChronoUnit.SECONDS))
+    else                           -> this.truncatedTo(ChronoUnit.SECONDS).isEqual(that.truncatedTo(ChronoUnit.SECONDS))
 }
 
 /**
@@ -295,5 +295,5 @@ fun ZonedDateTime?.equalToSeconds(that: ZonedDateTime?): Boolean = when {
  */
 fun ZonedDateTime?.equalToMillis(that: ZonedDateTime?): Boolean = when {
     (this == null || that == null) -> false
-    else -> this.truncatedTo(ChronoUnit.MILLIS).isEqual(that.truncatedTo(ChronoUnit.MILLIS))
+    else                           -> this.truncatedTo(ChronoUnit.MILLIS).isEqual(that.truncatedTo(ChronoUnit.MILLIS))
 }

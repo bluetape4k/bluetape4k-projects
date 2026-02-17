@@ -44,7 +44,7 @@ fun durationOf(startInclusive: Temporal, endExclusive: Temporal): Duration =
  * [year]의 1년 단위의 기간
  *
  * ```kotlin
- * val duration = durationOfYear(2020)  // 2020.01.01 ~ 20202.12.31
+ * val duration = durationOfYear(2020)  // 2020.01.01 ~ 2020.12.31
  * ```
  * @param year Int
  * @return Duration
@@ -356,7 +356,7 @@ fun Duration.formatHMS(): String = DurationFormatUtils.formatDurationHMS(inMilli
  * [Duration]을 ISO Format의 문자열로 표현한 정규식
  */
 private val durationIsoFormat: Regex =
-    """P(?<year>\d)Y(?<month>\d)M(?<day>\d)DT(?<hour>\d)H(?<minute>\d)M(?<second>\d)\.(?<mills>\d{3})S""".toRegex()
+    """P(?<year>\d+)Y(?<month>\d+)M(?<day>\d+)DT(?<hour>\d+)H(?<minute>\d+)M(?<second>\d+)\.(?<mills>\d{3})S""".toRegex()
 
 /**
  * ISO Format으로 표현된 Duration 정보를 파싱해서 일, 시, 분, 초, 밀리초 만을 이용하여 Duration으로 변경한다.

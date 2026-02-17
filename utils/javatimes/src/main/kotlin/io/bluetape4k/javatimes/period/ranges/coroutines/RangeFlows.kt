@@ -13,6 +13,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.time.ZonedDateTime
 
+/**
+ * 지정한 시작 시각부터 [yearCount]만큼의 [YearRange]를 [Flow]로 반환합니다.
+ *
+ * @param startTime 시작 시각
+ * @param yearCount 생성할 연도 범위 개수
+ * @param calendar 사용할 달력 (기본값: TimeCalendar.Default)
+ * @return [YearRange]의 [Flow]
+ */
 fun flowOfYearRange(
     startTime: ZonedDateTime,
     yearCount: Int,
@@ -28,6 +36,14 @@ fun flowOfYearRange(
     }
 }
 
+/**
+ * 지정한 시작 시각부터 [monthCount]만큼의 [MonthRange]를 [Flow]로 반환합니다.
+ *
+ * @param startTime 시작 시각
+ * @param monthCount 생성할 월 범위 개수
+ * @param calendar 사용할 달력 (기본값: TimeCalendar.Default)
+ * @return [MonthRange]의 [Flow]
+ */
 fun flowOfMonthRange(
     startTime: ZonedDateTime,
     monthCount: Int,
@@ -43,6 +59,14 @@ fun flowOfMonthRange(
     }
 }
 
+/**
+ * 지정한 시작 시각부터 [weekCount]만큼의 [WeekRange]를 [Flow]로 반환합니다.
+ *
+ * @param startTime 시작 시각
+ * @param weekCount 생성할 주 범위 개수
+ * @param calendar 사용할 달력 (기본값: TimeCalendar.Default)
+ * @return [WeekRange]의 [Flow]
+ */
 fun flowOfWeekRange(
     startTime: ZonedDateTime,
     weekCount: Int,
@@ -58,6 +82,14 @@ fun flowOfWeekRange(
     }
 }
 
+/**
+ * 지정한 시작 시각부터 [dayCount]만큼의 [DayRange]를 [Flow]로 반환합니다.
+ *
+ * @param startTime 시작 시각
+ * @param dayCount 생성할 일 범위 개수
+ * @param calendar 사용할 달력 (기본값: TimeCalendar.Default)
+ * @return [DayRange]의 [Flow]
+ */
 fun flowOfDayRange(
     startTime: ZonedDateTime,
     dayCount: Int,
@@ -73,6 +105,14 @@ fun flowOfDayRange(
     }
 }
 
+/**
+ * 지정한 시작 시각부터 [hourCount]만큼의 [HourRange]를 [Flow]로 반환합니다.
+ *
+ * @param startTime 시작 시각
+ * @param hourCount 생성할 시간 범위 개수
+ * @param calendar 사용할 달력 (기본값: TimeCalendar.Default)
+ * @return [HourRange]의 [Flow]
+ */
 fun flowOfHourRange(
     startTime: ZonedDateTime,
     hourCount: Int,
@@ -87,6 +127,14 @@ fun flowOfHourRange(
     }
 }
 
+/**
+ * 지정한 시작 시각부터 [minuteCount]만큼의 [MinuteRange]를 [Flow]로 반환합니다.
+ *
+ * @param startTime 시작 시각
+ * @param minuteCount 생성할 분 범위 개수
+ * @param calendar 사용할 달력 (기본값: TimeCalendar.Default)
+ * @return [MinuteRange]의 [Flow]
+ */
 fun flowOfMinuteRange(
     startTime: ZonedDateTime,
     minuteCount: Int,
