@@ -207,9 +207,32 @@ open class CharArrayMap<V>(startSize: Int): AbstractMutableMap<Any, V>(), Serial
     }
 
     override fun remove(key: Any): V? {
-        val slot = getSlot(key.toString().toCharArray(), 0)
-        _keys[slot] = null
-        return null
+        val keyChars = when (key) {
+            is CharArray -> key
+            else         -> key.toString().toCharArray()
+        }
+        val slot = getSlot(keyChars, 0, keyChars.size)
+        if (_keys[slot] == null) return null  // 키가 존재하지 않음
+
+        val oldValue = _values[slot]
+
+        // 삭제 대상을 제외한 모든 엔트리를 수집
+        @Suppress("UNCHECKED_CAST")
+        val entries = mutableListOf<Pair<CharArray, V>>()
+        for (i in _keys.indices) {
+            if (i != slot && _keys[i] != null) {
+                @Suppress("UNCHECKED_CAST")
+                entries.add(_keys[i]!! to (_values[i] as V))
+            }
+        }
+
+        // Open addressing에서 삭제 시 probe chain이 끊어지므로 전체 재구성
+        clear()
+        for ((k, v) in entries) {
+            put(k, v)
+        }
+
+        return oldValue
     }
 
     @Suppress("PROPERTY_HIDES_JAVA_FIELD")

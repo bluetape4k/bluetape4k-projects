@@ -28,7 +28,7 @@ open class CharArraySet(val map: CharArrayMap<Any>): AbstractMutableSet<Any>(), 
         fun copy(set: Set<Any>): CharArraySet = when (set) {
             EMPTY_SET -> EMPTY_SET
             is CharArraySet -> CharArraySet(CharArrayMap.copy(set.map))
-            else -> CharArraySet(set)
+            else      -> CharArraySet(set)
         }
     }
 
@@ -55,7 +55,7 @@ open class CharArraySet(val map: CharArrayMap<Any>): AbstractMutableSet<Any>(), 
     override fun addAll(elements: Collection<Any>): Boolean {
         var modified = false
         elements.forEach {
-            modified = add(it)
+            if (add(it)) modified = true
         }
         return modified
     }
@@ -71,19 +71,11 @@ open class CharArraySet(val map: CharArrayMap<Any>): AbstractMutableSet<Any>(), 
     }
 
     override fun removeAll(elements: Collection<Any>): Boolean {
-        var removed = false
-        elements.forEach {
-            removed = removed || remove(it)
-        }
-        return removed
+        return elements.all { remove(it) }
     }
 
     fun removeAll(words: List<String>): Boolean {
-        var removed = false
-        words.forEach {
-            removed = removed || remove(it)
-        }
-        return removed
+        return words.all { remove(it) }
     }
 
     override val size: Int

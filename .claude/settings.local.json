@@ -20,7 +20,8 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(find:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(jar tf:*)"
     ]
   },
   "hooks": {

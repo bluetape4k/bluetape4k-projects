@@ -249,8 +249,8 @@
   "hotPaths": [
     {
       "path": "tokenizer/core/src/main/kotlin/io/bluetape4k/tokenizer/utils/CharArrayMap.kt",
-      "accessCount": 16,
-      "lastAccessed": 1771338082909,
+      "accessCount": 23,
+      "lastAccessed": 1771344053337,
       "type": "file"
     },
     {
@@ -260,9 +260,75 @@
       "type": "file"
     },
     {
+      "path": "tokenizer/japanese/src/test/kotlin/io/bluetape4k/tokenizer/japanese/block/JapaneseBlockwordProcessorTest.kt",
+      "accessCount": 10,
+      "lastAccessed": 1771343324657,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/japanese/src/main/kotlin/io/bluetape4k/tokenizer/japanese/block/JapaneseBlockwordProcessor.kt",
+      "accessCount": 8,
+      "lastAccessed": 1771342706286,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/japanese/src/test/kotlin/io/bluetape4k/tokenizer/japanese/utils/JapaneseDictionaryProviderTest.kt",
+      "accessCount": 8,
+      "lastAccessed": 1771343886611,
+      "type": "file"
+    },
+    {
       "path": "tokenizer/core/src/main/kotlin/io/bluetape4k/tokenizer/utils/CharArraySet.kt",
+      "accessCount": 8,
+      "lastAccessed": 1771344233034,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer",
+      "accessCount": 6,
+      "lastAccessed": 1771343201269,
+      "type": "directory"
+    },
+    {
+      "path": "tokenizer/japanese/src/main/kotlin/io/bluetape4k/tokenizer/japanese/utils/JapaneseDictionaryProvider.kt",
       "accessCount": 5,
-      "lastAccessed": 1771337933918,
+      "lastAccessed": 1771342745132,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/japanese/src/main/kotlin/io/bluetape4k/tokenizer/japanese/tokenizer/TokenBaseSupport.kt",
+      "accessCount": 4,
+      "lastAccessed": 1771342721536,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/japanese/src/main/kotlin/io/bluetape4k/tokenizer/japanese/tokenizer/JapaneseTokenizer.kt",
+      "accessCount": 4,
+      "lastAccessed": 1771342750277,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/japanese/src/test/kotlin/io/bluetape4k/tokenizer/japanese/AbstractTokenizerTest.kt",
+      "accessCount": 4,
+      "lastAccessed": 1771342765735,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/japanese/src/test/kotlin/io/bluetape4k/tokenizer/japanese/tokenizer/JapaneseTokenizerTest.kt",
+      "accessCount": 4,
+      "lastAccessed": 1771342795832,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/japanese/src/test/kotlin/io/bluetape4k/tokenizer/japanese/examples/KuromojiTokenizerExample.kt",
+      "accessCount": 4,
+      "lastAccessed": 1771342855856,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/japanese/src/test/kotlin/io/bluetape4k/tokenizer/japanese/JapaneseProcessorTest.kt",
+      "accessCount": 4,
+      "lastAccessed": 1771343625917,
       "type": "file"
     },
     {
@@ -272,16 +338,58 @@
       "type": "file"
     },
     {
-      "path": "tokenizer/core",
-      "accessCount": 1,
-      "lastAccessed": 1771338099386,
+      "path": "tokenizer/japanese",
+      "accessCount": 3,
+      "lastAccessed": 1771338539748,
       "type": "directory"
     },
     {
-      "path": "tokenizer",
-      "accessCount": 1,
-      "lastAccessed": 1771338105023,
+      "path": "tokenizer/japanese/src/main/kotlin/io/bluetape4k/tokenizer/japanese/JapaneseProcessor.kt",
+      "accessCount": 3,
+      "lastAccessed": 1771342482354,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/japanese/README.md",
+      "accessCount": 3,
+      "lastAccessed": 1771344275270,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/core",
+      "accessCount": 2,
+      "lastAccessed": 1771338535332,
       "type": "directory"
+    },
+    {
+      "path": "tokenizer/core/src/main/kotlin/io/bluetape4k/tokenizer/model/BlockwordRequest.kt",
+      "accessCount": 2,
+      "lastAccessed": 1771343310751,
+      "type": "directory"
+    },
+    {
+      "path": "tokenizer/core/src/test/kotlin/io/bluetape4k/tokenizer/utils/CharArraySetTest.kt",
+      "accessCount": 2,
+      "lastAccessed": 1771344185383,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/korean/src",
+      "accessCount": 1,
+      "lastAccessed": 1771338540297,
+      "type": "directory"
+    },
+    {
+      "path": "tokenizer/japanese/src/test/resources/junit-platform.properties",
+      "accessCount": 1,
+      "lastAccessed": 1771338540605,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/japanese/src/test/kotlin/io/bluetape4k/tokenizer/japanese/tokenizer/TokenBaseSupportTest.kt",
+      "accessCount": 1,
+      "lastAccessed": 1771342780067,
+      "type": "file"
     }
   ],
   "userDirectives": []

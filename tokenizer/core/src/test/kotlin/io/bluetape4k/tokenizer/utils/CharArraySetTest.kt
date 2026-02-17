@@ -202,6 +202,48 @@ class CharArraySetTest {
     }
 
     @Test
+    fun `remove multiple elements from large set`() {
+        val set = CharArraySet(8)
+        // 대용량 셋 구성
+        repeat(200) { i ->
+            set.add("word$i")
+        }
+        set.size shouldBeEqualTo 200
+
+        // 2개 추가
+        set.add("19禁")
+        set.add("29禁")
+        set.size shouldBeEqualTo 202
+        set.contains("19禁").shouldBeTrue()
+        set.contains("29禁").shouldBeTrue()
+
+        // 개별 삭제
+        set.remove("19禁").shouldBeTrue()
+        set.contains("19禁").shouldBeFalse()
+        set.size shouldBeEqualTo 201
+
+        set.remove("29禁").shouldBeTrue()
+        set.contains("29禁").shouldBeFalse()
+        set.size shouldBeEqualTo 200
+    }
+
+    @Test
+    fun `removeAll multiple elements from large set`() {
+        val set = CharArraySet(8)
+        repeat(200) { i ->
+            set.add("word$i")
+        }
+        set.add("19禁")
+        set.add("29禁")
+
+        // removeAll로 한번에 삭제
+        set.removeAll(listOf("19禁", "29禁"))
+        set.contains("19禁").shouldBeFalse()
+        set.contains("29禁").shouldBeFalse()
+        set.size shouldBeEqualTo 200
+    }
+
+    @Test
     fun `addAll collection`() {
         val set = CharArraySet(16)
         val items = listOf("a", "b", "c")
