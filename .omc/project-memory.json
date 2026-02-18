@@ -285,9 +285,15 @@
     },
     {
       "path": "tokenizer",
-      "accessCount": 6,
-      "lastAccessed": 1771343201269,
+      "accessCount": 7,
+      "lastAccessed": 1771405886377,
       "type": "directory"
+    },
+    {
+      "path": ".claude/settings.json",
+      "accessCount": 7,
+      "lastAccessed": 1771406190591,
+      "type": "file"
     },
     {
       "path": "tokenizer/japanese/src/main/kotlin/io/bluetape4k/tokenizer/japanese/utils/JapaneseDictionaryProvider.kt",
@@ -332,6 +338,18 @@
       "type": "file"
     },
     {
+      "path": "tokenizer/japanese/README.md",
+      "accessCount": 4,
+      "lastAccessed": 1771406004841,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/korean/src/main/kotlin/io/bluetape4k/tokenizer/korean/block/KoreanBlockwordProcessor.kt",
+      "accessCount": 4,
+      "lastAccessed": 1771406037994,
+      "type": "file"
+    },
+    {
       "path": "bluetape4k/core/README.md",
       "accessCount": 3,
       "lastAccessed": 1771325724999,
@@ -350,9 +368,33 @@
       "type": "file"
     },
     {
-      "path": "tokenizer/japanese/README.md",
+      "path": "tokenizer/korean/src/main/kotlin/io/bluetape4k/tokenizer/korean/normalizer/KoreanNomalizer.kt",
       "accessCount": 3,
-      "lastAccessed": 1771344275270,
+      "lastAccessed": 1771405991705,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/korean/src/main/kotlin/io/bluetape4k/tokenizer/korean/tokenizer/KoreanToken.kt",
+      "accessCount": 3,
+      "lastAccessed": 1771405995071,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/korean/src/main/kotlin/io/bluetape4k/tokenizer/korean/tokenizer/TokenizerProfile.kt",
+      "accessCount": 3,
+      "lastAccessed": 1771405995711,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/korean/src/main/kotlin/io/bluetape4k/tokenizer/korean/utils/KoreanPos.kt",
+      "accessCount": 3,
+      "lastAccessed": 1771405996322,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/korean/src/main/kotlin/io/bluetape4k/tokenizer/korean/block/PunchuationProcessor.kt",
+      "accessCount": 3,
+      "lastAccessed": 1771406038698,
       "type": "file"
     },
     {
@@ -374,6 +416,102 @@
       "type": "file"
     },
     {
+      "path": "tokenizer/korean/src/main/kotlin/io/bluetape4k/tokenizer/korean/phrase/KoreanPhrase.kt",
+      "accessCount": 2,
+      "lastAccessed": 1771405911302,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/korean/src/main/kotlin/io/bluetape4k/tokenizer/korean/phrase/KoreanPhraseExtractor.kt",
+      "accessCount": 2,
+      "lastAccessed": 1771405911603,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/korean/src/main/kotlin/io/bluetape4k/tokenizer/korean/phrase/NounPhraseExtractor.kt",
+      "accessCount": 2,
+      "lastAccessed": 1771405912145,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/korean/src/main/kotlin/io/bluetape4k/tokenizer/korean/phrase/PhraseBuffer.kt",
+      "accessCount": 2,
+      "lastAccessed": 1771405912803,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/korean/src/main/kotlin/io/bluetape4k/tokenizer/korean/utils/Hangul.kt",
+      "accessCount": 2,
+      "lastAccessed": 1771405930228,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/korean/src/main/kotlin/io/bluetape4k/tokenizer/korean/utils/KoreanConjugation.kt",
+      "accessCount": 2,
+      "lastAccessed": 1771405931184,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/korean/src/main/kotlin/io/bluetape4k/tokenizer/korean/utils/KoreanSubstantive.kt",
+      "accessCount": 2,
+      "lastAccessed": 1771405936262,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/korean/src/main/kotlin/io/bluetape4k/tokenizer/korean/utils/TextSupport.kt",
+      "accessCount": 2,
+      "lastAccessed": 1771405936866,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/korean/src/main/kotlin/io/bluetape4k/tokenizer/korean/utils/KoreanDictionaryProvider.kt",
+      "accessCount": 2,
+      "lastAccessed": 1771405937589,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/korean/src/main/kotlin/io/bluetape4k/tokenizer/korean/tokenizer/ParsedChunk.kt",
+      "accessCount": 2,
+      "lastAccessed": 1771405954591,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/korean/src/main/kotlin/io/bluetape4k/tokenizer/korean/tokenizer/KoreanChunker.kt",
+      "accessCount": 2,
+      "lastAccessed": 1771405958063,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/korean/src/main/kotlin/io/bluetape4k/tokenizer/korean/tokenizer/KoreanSentenceSplitter.kt",
+      "accessCount": 2,
+      "lastAccessed": 1771405958678,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/korean/src/main/kotlin/io/bluetape4k/tokenizer/korean/tokenizer/KoreanDetokenizer.kt",
+      "accessCount": 2,
+      "lastAccessed": 1771405959343,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/korean/src/test/kotlin/io/bluetape4k/tokenizer/korean/tokenizer/KoreanTokenizerTest.kt",
+      "accessCount": 2,
+      "lastAccessed": 1771405968137,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/korean/src/main/kotlin/io/bluetape4k/tokenizer/korean/tokenizer/NounTokenizer.kt",
+      "accessCount": 2,
+      "lastAccessed": 1771405976421,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/korean/src/main/kotlin/io/bluetape4k/tokenizer/korean/KoreanProcessor.kt",
+      "accessCount": 2,
+      "lastAccessed": 1771405990457,
+      "type": "file"
+    },
+    {
       "path": "tokenizer/korean/src",
       "accessCount": 1,
       "lastAccessed": 1771338540297,
@@ -389,6 +527,24 @@
       "path": "tokenizer/japanese/src/test/kotlin/io/bluetape4k/tokenizer/japanese/tokenizer/TokenBaseSupportTest.kt",
       "accessCount": 1,
       "lastAccessed": 1771342780067,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/korean/src/main/kotlin/io/bluetape4k/tokenizer/korean/stemmer/KoreanStemmer.kt",
+      "accessCount": 1,
+      "lastAccessed": 1771405777258,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/korean/src/main/kotlin/io/bluetape4k/tokenizer/korean/tokenizer/KoreanTokenizer.kt",
+      "accessCount": 1,
+      "lastAccessed": 1771405782076,
+      "type": "file"
+    },
+    {
+      "path": "tokenizer/korean/src/test/kotlin/io/bluetape4k/tokenizer/korean/KoreanProcessorTest.kt",
+      "accessCount": 1,
+      "lastAccessed": 1771405797067,
       "type": "file"
     }
   ],

@@ -19,18 +19,22 @@ import io.bluetape4k.tokenizer.korean.utils.KoreanPos.VerbPrefix
 import java.io.Serializable
 
 /**
- * 형태소 분석된 어절(Chunk)을 나타내는 클래스
+ * 형태소 분석된 어절(Chunk)을 나타내는 클래스입니다.
  *
- * @property posNodes 형태소 분석된 형태소들
- * @property words 형태소 분석된 단어 수
- * @property profile 형태소 분석기 프로파일
+ * ParsedChunk는 형태소 분석의 후보 중 하나로, 여러 개의 [KoreanToken]을 포함하며
+ * 각 후보의 품질을 평가하는 점수 계산 기능을 제공합니다.
+ *
+ * @property posNodes 형태소 분석된 토큰 목록
+ * @property words 형태소 분석된 단어 수 (트라이 노드 이동 횟수)
+ * @property profile 형태소 분석기 프로필
+ *
+ * @see KoreanTokenizer
  */
 data class ParsedChunk(
     val posNodes: List<KoreanToken>,
     val words: Int,
     val profile: TokenizerProfile = TokenizerProfile.DefaultProfile,
 ): Serializable {
-
     companion object: KLogging() {
         val suffixes = setOf(Suffix, Eomi, Josa, PreEomi)
         val preferredBeforeHaVerb = setOf(Noun, ProperNoun, VerbPrefix)
@@ -67,14 +71,14 @@ data class ParsedChunk(
     val isExactMatch: Int get() = if (posNodes.size == 1) 0 else 1
 
     val hasSpaceOutOfGuide: Int
-        get() = if (profile.spaceGuide.isEmpty()) {
-            0
-        } else {
-            posNodes
-                .filter { it.pos !in suffixes }
-                .count { it.offset !in profile.spaceGuide }
-
-        }
+        get() =
+            if (profile.spaceGuide.isEmpty()) {
+                0
+            } else {
+                posNodes
+                    .filter { it.pos !in suffixes }
+                    .count { it.offset !in profile.spaceGuide }
+            }
 
     val isAllNouns: Int
         get() = if (posNodes.any { it.pos != Noun && it.pos != ProperNoun }) 1 else 0
@@ -84,7 +88,8 @@ data class ParsedChunk(
 
     val isNounHa: Int
         get() {
-            val notNoun = posNodes.size >= 2 &&
+            val notNoun =
+                posNodes.size >= 2 &&
                     preferredBeforeHaVerb.contains(posNodes.first().pos) &&
                     posNodes[1].pos == Verb &&
                     (posNodes[1].text.startsWith('하') || posNodes[1].text.startsWith('해'))
@@ -94,21 +99,21 @@ data class ParsedChunk(
 
     val posTieBreaker: Int get() = posNodes.sumOf { it.pos.ordinal }
 
-    fun getUnknownCoverage(): Int {
-        return posNodes.fold(0) { sum, p ->
+    fun getUnknownCoverage(): Int =
+        posNodes.fold(0) { sum, p ->
             if (p.unknown) sum + p.text.length else sum
         }
-    }
 
     fun getFreqScore(): Float {
-        val freqScoreSum = posNodes.sumOf { p ->
-            if (p.pos == Noun || p.pos == ProperNoun) {
-                val freq = KoreanDictionaryProvider.koreanEntityFreq.getOrDefault(p.text, 0.0f)
-                1.0 - freq
-            } else {
-                1.0
+        val freqScoreSum =
+            posNodes.sumOf { p ->
+                if (p.pos == Noun || p.pos == ProperNoun) {
+                    val freq = KoreanDictionaryProvider.koreanEntityFreq.getOrDefault(p.text, 0.0f)
+                    1.0 - freq
+                } else {
+                    1.0
+                }
             }
-        }
         return (freqScoreSum / posNodes.size).toFloat()
     }
 
@@ -116,7 +121,7 @@ data class ParsedChunk(
         return copy(
             posNodes = posNodes + that.posNodes,
             words = words + that.words,
-            profile = profile
+            profile = profile,
         )
         // ParsedChunk(posNodes + that.posNodes, words + that.words, profile)
     }
@@ -125,19 +130,20 @@ data class ParsedChunk(
 
     val josaMismatched: Int
         get() {
-            val mismatched: Boolean = posNodes.sliding(2).any { tokens ->
-                if (tokens.first().pos == Noun && tokens.last().pos == Josa) {
-                    if (Hangul.hasCoda(tokens.first().text.last())) {
-                        val nounEnding = Hangul.decomposeHangul(tokens.first().text.last())
-                        (nounEnding.coda != 'ㄹ' && tokens.last().text.first() == '로') ||
+            val mismatched: Boolean =
+                posNodes.sliding(2).any { tokens ->
+                    if (tokens.first().pos == Noun && tokens.last().pos == Josa) {
+                        if (Hangul.hasCoda(tokens.first().text.last())) {
+                            val nounEnding = Hangul.decomposeHangul(tokens.first().text.last())
+                            (nounEnding.coda != 'ㄹ' && tokens.last().text.first() == '로') ||
                                 tokens.last().text in josaMatchedSet
+                        } else {
+                            tokens.last().text.first() == '으' || tokens.last().text in josaMatchedSet2
+                        }
                     } else {
-                        tokens.last().text.first() == '으' || tokens.last().text in josaMatchedSet2
+                        false
                     }
-                } else {
-                    false
                 }
-            }
             return if (mismatched) 1 else 0
         }
 }
