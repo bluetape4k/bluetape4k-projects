@@ -3,7 +3,7 @@ package io.bluetape4k.csv
 import com.univocity.parsers.common.record.Record
 import io.bluetape4k.csv.model.ProductType
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Resourcex
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldNotBeBlank
@@ -36,7 +36,7 @@ class RecordReaderSupportTest {
         val csvFile = createTempCsvFile()
         val records = csvFile.readAsCsvRecords(skipHeader = true).toList()
 
-        log.trace { "records=$records" }
+        log.debug { "records=$records" }
         records.shouldNotBeEmpty()
         records.size shouldBeGreaterThan 0
     }
@@ -48,7 +48,7 @@ class RecordReaderSupportTest {
             record.getValue(0, "").trim()
         }.toList()
 
-        log.trace { "names=$names" }
+        log.debug { "names=$names" }
         names.shouldNotBeEmpty()
         names.forEach { it.shouldNotBeBlank() }
     }
@@ -58,7 +58,7 @@ class RecordReaderSupportTest {
         val tsvFile = createTempTsvFile()
         val records = tsvFile.readAsTsvRecords(skipHeader = true).toList()
 
-        log.trace { "records=$records" }
+        log.debug { "records=$records" }
         records.shouldNotBeEmpty()
         records.size shouldBeGreaterThan 0
     }
@@ -70,7 +70,7 @@ class RecordReaderSupportTest {
             record.getValue(0, "").trim()
         }.toList()
 
-        log.trace { "names=$names" }
+        log.debug { "names=$names" }
         names.shouldNotBeEmpty()
         names.forEach { it.shouldNotBeBlank() }
     }
@@ -80,7 +80,7 @@ class RecordReaderSupportTest {
         Resourcex.getInputStream("csv/product_type.csv")!!.buffered().use { bis ->
             val productTypes = bis.readAsCsvRecords(skipHeader = true, transform = productTypeMapper).toList()
 
-            log.trace { "productTypes=$productTypes" }
+            log.debug { "productTypes=$productTypes" }
             productTypes.shouldNotBeEmpty()
             productTypes.forEach {
                 it.tagFamily.shouldNotBeBlank()
@@ -94,7 +94,7 @@ class RecordReaderSupportTest {
         Resourcex.getInputStream("csv/product_type.tsv")!!.buffered().use { bis ->
             val productTypes = bis.readAsTsvRecords(skipHeader = true, transform = productTypeMapper).toList()
 
-            log.trace { "productTypes=$productTypes" }
+            log.debug { "productTypes=$productTypes" }
             productTypes.shouldNotBeEmpty()
             productTypes.forEach {
                 it.tagFamily.shouldNotBeBlank()

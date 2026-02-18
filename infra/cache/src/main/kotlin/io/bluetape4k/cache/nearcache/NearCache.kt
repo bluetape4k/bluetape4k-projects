@@ -83,7 +83,7 @@ class NearCache<K: Any, V: Any> private constructor(
                                 if (isClosed || Thread.currentThread().isInterrupted) {
                                     return@chunked
                                 }
-                                val frontKeys = entries.map { it.key }.toUnifiedSet()
+                                val frontKeys = entries.map { it.key }.toSet()
                                 entrySize += frontKeys.size
                                 log.trace { "Front Cache item 유효기간 조사=$entrySize" }
                                 frontKeys.forEach {
@@ -147,7 +147,7 @@ class NearCache<K: Any, V: Any> private constructor(
         return frontCache.get(key)
     }
 
-    fun getAll(vararg keys: K): MutableMap<K, V> = getAll(keys.toUnifiedSet())
+    fun getAll(vararg keys: K): MutableMap<K, V> = getAll(keys.toSet())
 
     override fun getAll(keys: Set<K>): MutableMap<K, V> { // 모든 조회는 Front 에서만 한다
         return frontCache.getAll(keys)

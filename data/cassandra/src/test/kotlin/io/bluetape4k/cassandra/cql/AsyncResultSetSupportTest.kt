@@ -1,7 +1,6 @@
 package io.bluetape4k.cassandra.cql
 
 import io.bluetape4k.cassandra.AbstractCassandraTest
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.concurrent.sequence
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -31,7 +30,7 @@ class AsyncResultSetSupportTest: AbstractCassandraTest() {
             session.executeSuspending("TRUNCATE bulks")
 
             val ps = session.prepareSuspending("INSERT INTO bulks(id, name) VALUES(?, ?)")
-            val futures = fastList(SIZE) {
+            val futures = List(SIZE) {
                 val id = it.toString()
                 val name = faker.credentials().username()
 

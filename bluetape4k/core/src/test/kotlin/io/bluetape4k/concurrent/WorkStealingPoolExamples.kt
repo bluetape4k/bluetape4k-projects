@@ -1,6 +1,5 @@
 package io.bluetape4k.concurrent
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
@@ -35,7 +34,7 @@ class WorkStealingPoolExamples {
 
     @Test
     fun `executeAll multiple actions with work stealing pool`() {
-        val tasks = fastList(20) { index ->
+        val tasks = List(20) { index ->
             {
                 Thread.sleep(Random.nextLong(100, 200))
                 log.trace { "Current ${Thread.currentThread().name} thread is executing >>> $index" }

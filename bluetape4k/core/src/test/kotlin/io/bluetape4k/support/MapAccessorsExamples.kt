@@ -1,6 +1,5 @@
 package io.bluetape4k.support
 
-import io.bluetape4k.collections.eclipse.unifiedMapOf
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
@@ -46,7 +45,7 @@ class MapAccessorsExamples {
         }
     }
 
-    private val mutableMap = unifiedMapOf<String, Any>(
+    private val mutableMap = mutableMapOf<String, Any>(
         "name" to "Debop",
         "age" to 54,
         "isAdult" to true
@@ -68,7 +67,7 @@ class MapAccessorsExamples {
 
     @Test
     fun `map property delegation example`() {
-        val map = unifiedMapOf<String, String>(
+        val map = mutableMapOf<String, String>(
             "id" to faker.idNumber().ssnValid(),
             "name" to faker.credentials().username(),
         )

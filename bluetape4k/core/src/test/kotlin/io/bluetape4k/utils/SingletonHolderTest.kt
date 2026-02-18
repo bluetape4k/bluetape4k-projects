@@ -1,7 +1,5 @@
 package io.bluetape4k.utils
 
-import io.bluetape4k.collections.eclipse.fastList
-import io.bluetape4k.collections.eclipse.stream.toFastList
 import io.bluetape4k.junit5.output.InMemoryLogbackAppender
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.debug
@@ -35,11 +33,11 @@ class SingletonHolderTest {
 
     @Test
     fun `get singleton manager with parallel mode`() {
-        val managers = fastList(100) { it }
+        val managers = List(100) { it }
             .parallelStream()
             .map { Manager.getInstance() }
             .distinct()
-            .toFastList()
+            .toList()
 
         managers.size shouldBeEqualTo 1
     }

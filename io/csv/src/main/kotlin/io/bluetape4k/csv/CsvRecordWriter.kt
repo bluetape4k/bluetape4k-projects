@@ -2,7 +2,6 @@ package io.bluetape4k.csv
 
 import com.univocity.parsers.csv.CsvWriter
 import com.univocity.parsers.csv.CsvWriterSettings
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import java.io.Writer
 
@@ -57,7 +56,7 @@ class CsvRecordWriter private constructor(
      * @param headers 헤더 이름들
      */
     override fun writeHeaders(headers: Iterable<String>) {
-        writer.writeHeaders(headers.toFastList())
+        writer.writeHeaders(headers.toList())
     }
 
     /**
@@ -66,7 +65,7 @@ class CsvRecordWriter private constructor(
      * @param rows 기록할 데이터 행
      */
     override fun writeRow(rows: Iterable<*>) {
-        writer.writeRow(rows.toFastList())
+        writer.writeRow(rows.toList())
     }
 
     /**

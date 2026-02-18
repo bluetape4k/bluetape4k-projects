@@ -1,7 +1,6 @@
 package io.bluetape4k.support
 
 import io.bluetape4k.AbstractCoreTest
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.concurrent.FutureUtils
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -48,7 +47,7 @@ class TimeoutSupportTest: AbstractCoreTest() {
         val taskSize = 1000
         val done = CopyOnWriteArrayList<Int>()
 
-        val futures = fastList(taskSize) {
+        val futures = List(taskSize) {
             asyncRunWithTimeout(1000) {
                 Thread.sleep(10)
                 done.add(it)

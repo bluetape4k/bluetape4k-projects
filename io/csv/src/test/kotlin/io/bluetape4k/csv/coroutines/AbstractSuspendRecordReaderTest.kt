@@ -1,11 +1,10 @@
 package io.bluetape4k.csv.coroutines
 
 import com.univocity.parsers.common.record.Record
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.csv.model.ProductType
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Resourcex
 import kotlinx.coroutines.flow.buffer
 import org.amshove.kluent.shouldBeGreaterThan
@@ -51,8 +50,8 @@ abstract class AbstractSuspendRecordReaderTest {
                 .read(bis, UTF_8, true)
                 .buffer()
                 .collect { record ->
-                    log.trace { "product type record=$record" }
-                    val row = record.values.toFastList()
+                    log.debug { "product type record=$record" }
+                    val row = record.values.toList()
                     row.shouldNotBeEmpty()
                     row.size shouldBeGreaterThan 1
                     row[0]!!.shouldNotBeBlank()
@@ -68,7 +67,7 @@ abstract class AbstractSuspendRecordReaderTest {
                 .read(bis, UTF_8, true, transform)
                 .buffer()
                 .collect { productType ->
-                    log.trace { "ProductType=$productType" }
+                    log.debug { "ProductType=$productType" }
                     productType.shouldNotBeNull()
                     productType.tagFamily.shouldNotBeBlank()
                     productType.representative.shouldNotBeBlank()
@@ -83,7 +82,7 @@ abstract class AbstractSuspendRecordReaderTest {
                 .read(bis, UTF_8, true)
                 .buffer()
                 .collect { record ->
-                    log.trace { "extra words record=$record" }
+                    log.debug { "extra words record=$record" }
                     val row = record.values
                     row.shouldNotBeEmpty()
                     row.size shouldBeGreaterThan 1

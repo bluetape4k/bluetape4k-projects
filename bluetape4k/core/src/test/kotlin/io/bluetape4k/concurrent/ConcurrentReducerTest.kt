@@ -1,6 +1,5 @@
 package io.bluetape4k.concurrent
 
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import org.amshove.kluent.shouldBeEqualTo
@@ -163,8 +162,8 @@ class ConcurrentReducerTest {
         val maxConcurrency = 5
         val reducer = concurrentReducerOf<String>(maxConcurrency, queueSize)
 
-        val jobs = fastListOf<CountingJob>()
-        val promises = fastListOf<CompletableFuture<String>>()
+        val jobs = mutableListOf<CountingJob>()
+        val promises = mutableListOf<CompletableFuture<String>>()
 
         repeat(queueSize) {
             val job = CountingJob(reducer::activeCount, maxCounter)

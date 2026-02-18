@@ -1,9 +1,6 @@
 package io.bluetape4k.cache.jcache
 
 import io.bluetape4k.codec.encodeBase62
-import io.bluetape4k.collections.eclipse.fastList
-import io.bluetape4k.collections.eclipse.toUnifiedMap
-import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
@@ -37,7 +34,7 @@ class JCacheReadWriteThroughExample {
     private fun <K, V> cacheLoader(source: Cache<K, V>): CacheLoader<K, V> =
         object: CacheLoader<K, V> {
             override fun load(key: K): V = source.get(key)
-            override fun loadAll(keys: Iterable<K>): MutableMap<K, V> = source.getAll(keys.toUnifiedSet())
+            override fun loadAll(keys: Iterable<K>): MutableMap<K, V> = source.getAll(keys.toSet())
         }
 
     private fun <K, V> cacheWriter(dest: Cache<K, V>): CacheWriter<K, V> =
@@ -59,7 +56,7 @@ class JCacheReadWriteThroughExample {
             @Suppress("UNCHECKED_CAST")
             override fun deleteAll(keys: MutableCollection<*>) {
                 val ks = keys.mapNotNull { it as? K }
-                dest.removeAll(ks.toUnifiedSet())
+                dest.removeAll(ks.toSet())
             }
         }
 
@@ -98,11 +95,11 @@ class JCacheReadWriteThroughExample {
 
     @Test
     fun `read write through with bulk cache entries`() {
-        val entries = fastList(100) {
+        val entries = List(100) {
             val key = randomKey()
             val value = randomString()
             key to value
-        }.toUnifiedMap()
+        }.toMap()
 
         nearCache.putAll(entries)
 

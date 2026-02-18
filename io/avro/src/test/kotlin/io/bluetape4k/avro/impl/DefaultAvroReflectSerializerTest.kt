@@ -6,7 +6,6 @@ import io.bluetape4k.avro.TestMessageProvider
 import io.bluetape4k.avro.deserialize
 import io.bluetape4k.avro.deserializeFromString
 import io.bluetape4k.avro.message.examples.Employee
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
@@ -68,7 +67,7 @@ class DefaultAvroReflectSerializerTest: AbstractAvroTest() {
     @MethodSource("serializers")
     fun `serialize nested avro object`(name: String, serializer: AvroReflectSerializer) {
         val productRoot = TestMessageProvider.createProductRoot().apply {
-            productProperties = fastList(20) { TestMessageProvider.createProductProperty() }
+            productProperties = List(20) { TestMessageProvider.createProductProperty() }
         }
         serializer.verifySerialization(productRoot)
     }

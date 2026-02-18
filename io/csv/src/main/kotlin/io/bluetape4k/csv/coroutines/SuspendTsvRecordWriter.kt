@@ -2,7 +2,6 @@ package io.bluetape4k.csv.coroutines
 
 import com.univocity.parsers.tsv.TsvWriter
 import com.univocity.parsers.tsv.TsvWriterSettings
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.csv.DefaultTsvWriterSettings
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.Flow
@@ -59,7 +58,7 @@ class SuspendTsvRecordWriter private constructor(
      * @param headers 헤더 이름들
      */
     override suspend fun writeHeaders(headers: Iterable<String>) {
-        writer.writeHeaders(headers.toFastList())
+        writer.writeHeaders(headers.toList())
     }
 
     /**
@@ -68,7 +67,7 @@ class SuspendTsvRecordWriter private constructor(
      * @param row 기록할 데이터 행
      */
     override suspend fun writeRow(row: Iterable<*>) {
-        writer.writeRow(row.toFastList())
+        writer.writeRow(row.toList())
     }
 
     /**

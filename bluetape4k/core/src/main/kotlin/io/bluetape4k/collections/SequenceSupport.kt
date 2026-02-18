@@ -1,6 +1,5 @@
 package io.bluetape4k.collections
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.support.asByte
 import io.bluetape4k.support.asChar
 import io.bluetape4k.support.asDouble

@@ -1,15 +1,13 @@
 package io.bluetape4k.cache.jcache.coroutines
 
 import io.bluetape4k.codec.encodeBase62
-import io.bluetape4k.collections.eclipse.fastList
-import io.bluetape4k.collections.eclipse.toUnifiedMap
-import io.bluetape4k.coroutines.flow.extensions.toUnifiedSet
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -109,14 +107,14 @@ abstract class AbstractSuspendCacheTest {
 
     @Test
     fun `getAll - with keys`() = runSuspendIO {
-        val entries = fastList(CACHE_ENTRY_SIZE) {
+        val entries = List(CACHE_ENTRY_SIZE) {
             SuspendCacheEntry(getKey(), getValue()).apply {
                 suspendCache.put(key, value)
             }
         }
         val keysToLoad = setOf(entries.first().key, entries[42].key, entries[51].key, entries.last().key)
         val loaded = suspendCache.getAll(keysToLoad)
-        loaded.map { it.key }.toUnifiedSet() shouldBeEqualTo keysToLoad
+        loaded.map { it.key }.toSet() shouldBeEqualTo keysToLoad
     }
 
     @Test
@@ -168,7 +166,7 @@ abstract class AbstractSuspendCacheTest {
 
     @Test
     fun `putAll - 모든 entry를 추가합니다`() = runSuspendIO {
-        val entries = fastList(CACHE_ENTRY_SIZE) { getKey() to getValue() }.toUnifiedMap()
+        val entries = List(CACHE_ENTRY_SIZE) { getKey() to getValue() }.toMap()
 
         suspendCache.entries().count() shouldBeEqualTo 0
         suspendCache.putAll(entries)
@@ -244,7 +242,7 @@ abstract class AbstractSuspendCacheTest {
 
     @Test
     fun `removeAll with keys - 지정한 key 값들에 해당하는 cache entry를 삭제한다`() = runSuspendIO {
-        val entries = fastList(CACHE_ENTRY_SIZE) {
+        val entries = List(CACHE_ENTRY_SIZE) {
             SuspendCacheEntry(getKey(), getValue()).apply {
                 suspendCache.put(key, value)
             }
@@ -259,7 +257,7 @@ abstract class AbstractSuspendCacheTest {
 
     @Test
     fun `removeAll with vararg keys`() = runSuspendIO {
-        val entries = fastList(CACHE_ENTRY_SIZE) {
+        val entries = List(CACHE_ENTRY_SIZE) {
             SuspendCacheEntry(getKey(), getValue()).apply {
                 suspendCache.put(key, value)
             }

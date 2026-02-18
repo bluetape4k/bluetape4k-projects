@@ -1,6 +1,5 @@
 package io.bluetape4k.csv
 
-import io.bluetape4k.collections.eclipse.toFastList
 import java.io.Closeable
 
 /**
@@ -29,7 +28,7 @@ interface RecordWriter: Closeable {
      * @param headers 헤더 이름들
      */
     fun writeHeaders(vararg headers: String) {
-        writeHeaders(headers.toFastList())
+        writeHeaders(headers.toList())
     }
 
     /**

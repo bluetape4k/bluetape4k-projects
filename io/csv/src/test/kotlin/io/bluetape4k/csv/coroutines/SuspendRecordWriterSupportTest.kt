@@ -2,6 +2,7 @@ package io.bluetape4k.csv.coroutines
 
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
@@ -44,7 +45,7 @@ class SuspendRecordWriterSupportTest {
             )
 
             val content = csvFile.readText()
-            log.trace { "content=\n$content" }
+            log.debug { "content=\n$content" }
             content shouldContain "name,age,city"
             content shouldContain "Alice,20,Seoul"
             content shouldContain "Bob,30,Busan"
@@ -62,7 +63,7 @@ class SuspendRecordWriterSupportTest {
             )
 
             val content = csvFile.readText()
-            log.trace { "content=\n$content" }
+            log.debug { "content=\n$content" }
             content shouldContain "Alice,20,Seoul"
             content shouldContain "Bob,30,Busan"
         }

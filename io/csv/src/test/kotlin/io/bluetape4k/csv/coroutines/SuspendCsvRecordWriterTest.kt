@@ -2,7 +2,7 @@ package io.bluetape4k.csv.coroutines
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.flow
 import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Nested
@@ -29,7 +29,7 @@ class SuspendCsvRecordWriterTest {
 
                 val captured = sw.buffer.toString()
 
-                log.trace { "captured=\n$captured" }
+                log.debug { "captured=\n$captured" }
                 captured shouldContain """row1,1,2,"3, 3""""
                 captured shouldContain """row2,4,,"6,6""""
             }
@@ -49,7 +49,7 @@ class SuspendCsvRecordWriterTest {
 
                 val captured = sw.buffer.toString()
 
-                log.trace { "captured=\n$captured" }
+                log.debug { "captured=\n$captured" }
                 captured shouldContain "name,age,city"
                 captured shouldContain "Alice,20,Seoul"
                 captured shouldContain "Bob,30,Busan"
@@ -75,7 +75,7 @@ class SuspendCsvRecordWriterTest {
 
                 val captured = sw.buffer.toString()
 
-                log.trace { "captured=\n$captured" }
+                log.debug { "captured=\n$captured" }
                 captured shouldContain "Alice,20,Seoul"
                 captured shouldContain "Bob,30,Busan"
             }
@@ -96,7 +96,7 @@ class SuspendCsvRecordWriterTest {
 
                 val captured = sw.buffer.toString()
 
-                log.trace { "captured=\n$captured" }
+                log.debug { "captured=\n$captured" }
                 captured shouldContain """col1,col2,col3,col4"""
                 captured shouldContain """row1,1,2,3"""
                 captured shouldContain """row2,2,3,4"""
@@ -119,7 +119,7 @@ class SuspendCsvRecordWriterTest {
 
                 val captured = sw.buffer.toString()
 
-                log.trace { "captured=\n$captured" }
+                log.debug { "captured=\n$captured" }
                 captured shouldContain "row1\t1\t2\t3\t3"
                 captured shouldContain "row2\t4\t\t6\t6"
             }
@@ -139,7 +139,7 @@ class SuspendCsvRecordWriterTest {
 
                 val captured = sw.buffer.toString()
 
-                log.trace { "captured=\n$captured" }
+                log.debug { "captured=\n$captured" }
                 captured shouldContain "name\tage\tcity"
                 captured shouldContain "Alice\t20\tSeoul"
                 captured shouldContain "Bob\t30\tBusan"
@@ -165,7 +165,7 @@ class SuspendCsvRecordWriterTest {
 
                 val captured = sw.buffer.toString()
 
-                log.trace { "captured=\n$captured" }
+                log.debug { "captured=\n$captured" }
                 captured shouldContain "Alice\t20\tSeoul"
                 captured shouldContain "Bob\t30\tBusan"
             }
@@ -186,7 +186,7 @@ class SuspendCsvRecordWriterTest {
 
                 val captured = sw.buffer.toString()
 
-                log.trace { "captured=\n$captured" }
+                log.debug { "captured=\n$captured" }
                 captured shouldContain "col1\tcol2\tcol3\tcol4"
                 captured shouldContain "row1\t1\t2\t3"
                 captured shouldContain "row2\t2\t3\t4"

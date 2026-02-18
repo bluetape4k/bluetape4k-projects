@@ -4,8 +4,6 @@ import io.bluetape4k.aws.dynamodb.examples.food.AbstractFoodApplicationTest
 import io.bluetape4k.aws.dynamodb.examples.food.model.FoodDocument
 import io.bluetape4k.aws.dynamodb.examples.food.model.FoodState
 import io.bluetape4k.aws.dynamodb.examples.food.repository.FoodRepository
-import io.bluetape4k.collections.eclipse.toFastList
-import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.coroutines.runSuspendTest
@@ -15,6 +13,7 @@ import io.bluetape4k.support.uninitialized
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.all
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
@@ -91,7 +90,7 @@ class FoodRepositoryTest: AbstractFoodApplicationTest() {
         val result = repository.saveAll(foods)
         result.all { it.unprocessedPutItemsForTable(repository.table).isEmpty() }.shouldBeTrue()
 
-        repository.deleteAll(foods).toFastList() shouldHaveSize foods.size
+        repository.deleteAll(foods).toList() shouldHaveSize foods.size
 
         val food = foods.random()
         val loadedFoods = repository.findByPartitionKey(
@@ -119,7 +118,7 @@ class FoodRepositoryTest: AbstractFoodApplicationTest() {
                 Instant.now().minusSeconds(100L),
                 Instant.now()
             )
-            .toFastList()
+            .toList()
 
         loadedFoods shouldNotContainAny foods
     }

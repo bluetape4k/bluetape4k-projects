@@ -1,7 +1,6 @@
 package io.bluetape4k.aws.kotlin.sesv2.model
 
 import aws.sdk.kotlin.services.sesv2.model.Destination
-import io.bluetape4k.collections.eclipse.toFastList
 
 fun destinationOf(
     vararg toAddress: String,
@@ -10,7 +9,7 @@ fun destinationOf(
     require(toAddress.isNotEmpty()) { "toAddress must not be empty." }
 
     return Destination {
-        this.toAddresses = toAddress.toFastList()
+        this.toAddresses = toAddress.toList()
 
         configurer()
     }

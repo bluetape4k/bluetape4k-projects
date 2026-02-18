@@ -2,8 +2,6 @@ package io.bluetape4k.aws.dynamodb.query
 
 import io.bluetape4k.aws.dynamodb.model.Expression
 import io.bluetape4k.aws.dynamodb.model.toAttributeValue
-import io.bluetape4k.collections.eclipse.toFastList
-import io.bluetape4k.collections.eclipse.unifiedMapOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.warn
 import software.amazon.awssdk.enhanced.dynamodb.Expression
@@ -30,8 +28,8 @@ interface FilterQuery
 class RootFilter(val filterConnections: List<FilterConnection>): FilterQuery {
 
     fun getFilterRequestProperties(): FilterRequestProperties {
-        val expressionAttributeValues = unifiedMapOf<String, AttributeValue>()
-        val expressionAttributeNames = unifiedMapOf<String, String>()
+        val expressionAttributeValues = mutableMapOf<String, AttributeValue>()
+        val expressionAttributeNames = mutableMapOf<String, String>()
         var filterExpression = ""
 
         fun filter(condition: FilterQuery) {
@@ -95,8 +93,8 @@ class ConcreteFilter(
     }
 
     fun getFilterRequestProperties(): FilterRequestProperties {
-        val expressionAttributeValues = unifiedMapOf<String, AttributeValue>()
-        val expressionAttributeNames = unifiedMapOf<String, String>()
+        val expressionAttributeValues = mutableMapOf<String, AttributeValue>()
+        val expressionAttributeNames = mutableMapOf<String, String>()
         var filterExpression = ""
 
         when (dynamoFunction) {
@@ -161,7 +159,8 @@ data class FilterConnection(
 ): Serializable
 
 enum class FilterBooleanConnection {
-    AND, OR
+    AND,
+    OR
 }
 
 interface DynamoFunction: Serializable
@@ -213,7 +212,7 @@ infix fun ConcreteFilterBuilder.inList(values: List<Any>) {
 }
 
 fun ConcreteFilterBuilder.inList(vararg values: Any) {
-    comparator = InList(values.toFastList())
+    comparator = InList(values.toList())
 }
 
 @DynamoDslMarker

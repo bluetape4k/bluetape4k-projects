@@ -6,6 +6,7 @@ import io.bluetape4k.csv.readAsTsvRecords
 import io.bluetape4k.csv.writeCsvRecords
 import io.bluetape4k.csv.writeTsvRecords
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import io.bluetape4k.utils.Resourcex
 import kotlinx.coroutines.flow.toList
@@ -53,7 +54,7 @@ class SuspendRecordReaderSupportTest {
             record.getValue(0, "").trim()
         }.toList()
 
-        log.trace { "names=$names" }
+        log.debug { "names=$names" }
         names.shouldNotBeEmpty()
         names.forEach { it.shouldNotBeBlank() }
     }
@@ -63,7 +64,7 @@ class SuspendRecordReaderSupportTest {
         val tsvFile = createTempTsvFile()
         val records = tsvFile.readAsTsvRecords(skipHeader = true).toList()
 
-        log.trace { "records=$records" }
+        log.debug { "records=$records" }
         records.shouldNotBeEmpty()
         records.size shouldBeGreaterThan 0
     }
@@ -75,7 +76,7 @@ class SuspendRecordReaderSupportTest {
             record.getValue(0, "").trim()
         }.toList()
 
-        log.trace { "names=$names" }
+        log.debug { "names=$names" }
         names.shouldNotBeEmpty()
         names.forEach { it.shouldNotBeBlank() }
     }
@@ -87,7 +88,7 @@ class SuspendRecordReaderSupportTest {
                 .readAsCsvRecordsSuspending(skipHeader = true, transform = productTypeMapper)
                 .toList()
 
-            log.trace { "productTypes=$productTypes" }
+            log.debug { "productTypes=$productTypes" }
             productTypes.shouldNotBeEmpty()
             productTypes.forEach {
                 it.tagFamily.shouldNotBeBlank()
@@ -103,7 +104,7 @@ class SuspendRecordReaderSupportTest {
                 .readAsTsvRecordsSuspending(skipHeader = true, transform = productTypeMapper)
                 .toList()
 
-            log.trace { "productTypes=$productTypes" }
+            log.debug { "productTypes=$productTypes" }
             productTypes.shouldNotBeEmpty()
             productTypes.forEach {
                 it.tagFamily.shouldNotBeBlank()

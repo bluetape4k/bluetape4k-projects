@@ -3,7 +3,6 @@
 package io.bluetape4k.aws.kotlin.dynamodb.model
 
 import aws.sdk.kotlin.services.dynamodb.model.AttributeValue
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.io.getAllBytes
 import io.bluetape4k.io.toByteArray
 import java.io.InputStream
@@ -34,7 +33,7 @@ inline fun Number.toAttributeValue(): AttributeValue = AttributeValue.N(this.toS
 inline fun Boolean.toAttributeValue(): AttributeValue = AttributeValue.Bool(this)
 
 @JvmName("toAttributeValueByteArrayList")
-inline fun Iterable<ByteArray>.toAttributeValue(): AttributeValue = AttributeValue.Bs(this.toFastList())
+inline fun Iterable<ByteArray>.toAttributeValue(): AttributeValue = AttributeValue.Bs(this.toList())
 
 @JvmName("toAttributeValueStringList")
 inline fun <T: CharSequence> Iterable<T>.toAttributeValue(): AttributeValue =

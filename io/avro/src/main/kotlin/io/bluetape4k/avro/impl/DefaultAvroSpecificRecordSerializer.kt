@@ -2,8 +2,6 @@ package io.bluetape4k.avro.impl
 
 import io.bluetape4k.avro.AvroSpecificRecordSerializer
 import io.bluetape4k.avro.DEFAULT_CODEC_FACTORY
-import io.bluetape4k.collections.eclipse.emptyFastList
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import io.bluetape4k.support.isNullOrEmpty
@@ -181,10 +179,10 @@ class DefaultAvroSpecificRecordSerializer private constructor(
      */
     override fun <T: SpecificRecord> deserializeList(avroBytes: ByteArray?, clazz: Class<T>): List<T> {
         if (avroBytes.isNullOrEmpty()) {
-            return emptyFastList()
+            return emptyList()
         }
         return try {
-            val result = fastListOf<T>()
+            val result = mutableListOf<T>()
             SeekableByteArrayInput(avroBytes).use { sin ->
                 val sdr = SpecificDatumReader(clazz)
                 DataFileReader(sin, sdr).use { dfr ->
@@ -196,7 +194,7 @@ class DefaultAvroSpecificRecordSerializer private constructor(
             result
         } catch (e: Throwable) {
             log.error(e) { "SpecificRecord 리스트 역직렬화에 실패했습니다. clazz=${clazz.name}" }
-            emptyFastList()
+            emptyList()
         }
     }
 }

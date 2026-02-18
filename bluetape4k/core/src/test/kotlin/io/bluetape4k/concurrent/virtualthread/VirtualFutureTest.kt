@@ -1,7 +1,5 @@
 package io.bluetape4k.concurrent.virtualthread
 
-import io.bluetape4k.collections.eclipse.fastList
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -52,7 +50,7 @@ class VirtualFutureTest {
     fun `run many tasks with virtual threads`() {
         val taskSize = 100
 
-        val tasks: List<() -> Int> = fastList(taskSize) {
+        val tasks: List<() -> Int> = List(taskSize) {
             {
                 log.debug { "Run task[$it]" }
                 Thread.sleep(100)
@@ -61,7 +59,7 @@ class VirtualFutureTest {
         }
 
         val virtualFutures = virtualFutureAll(tasks = tasks)
-        virtualFutures.await() shouldBeEqualTo (0 until taskSize).toFastList()
+        virtualFutures.await() shouldBeEqualTo (0 until taskSize).toList()
     }
 
     @EnabledOnJre(JRE.JAVA_21)

@@ -2,7 +2,7 @@ package io.bluetape4k.csv.coroutines
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.flow
 import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
@@ -25,7 +25,7 @@ class SuspendTsvRecordWriterTest {
 
             val captured = sw.buffer.toString()
 
-            log.trace { "captured=\n$captured" }
+            log.debug { "captured=\n$captured" }
             captured shouldContain "row1\t1\t2\t3, 3"
             captured shouldContain "row2\t4\t\t6,6"
         }
@@ -46,7 +46,7 @@ class SuspendTsvRecordWriterTest {
 
             val captured = sw.buffer.toString()
 
-            log.trace { "captured=\n$captured" }
+            log.debug { "captured=\n$captured" }
             captured shouldContain "col1\tcol2\tcol3\tcol4"
             captured shouldContain "row1\t1\t2\t3"
             captured shouldContain "row2\t2\t3\t4"

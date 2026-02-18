@@ -1,8 +1,6 @@
 package io.bluetape4k.collections.graph
 
 import io.bluetape4k.collections.AbstractCollectionTest
-import io.bluetape4k.collections.eclipse.fastListOf
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +22,7 @@ class GraphTest: AbstractCollectionTest() {
     companion object: KLogging()
 
     data class Node(val name: String): Comparable<Node> {
-        val children = fastListOf<Node>()
+        val children = mutableListOf<Node>()
 
         fun addChild(child: Node): Node = apply {
             children.add(child)
@@ -53,9 +51,9 @@ class GraphTest: AbstractCollectionTest() {
     }
 
     private val expectedDFS =
-        fastListOf("root", "child1", "grandChild11", "grandChild12", "child2", "grandChild21", "grandChild22")
+        listOf("root", "child1", "grandChild11", "grandChild12", "child2", "grandChild21", "grandChild22")
     private val expectedBFS =
-        fastListOf("root", "child1", "child2", "grandChild11", "grandChild12", "grandChild21", "grandChild22")
+        listOf("root", "child1", "child2", "grandChild11", "grandChild12", "grandChild21", "grandChild22")
 
     private lateinit var root: Node
 
@@ -75,9 +73,9 @@ class GraphTest: AbstractCollectionTest() {
         val names = Graph
             .search(Graph.TraversalOrder.BFS, localRoot) { it.children }
             .map { it.name }
-            .toFastList()
+            .toList()
 
-        names shouldBeEqualTo fastListOf("root", "a", "b", "shared")
+        names shouldBeEqualTo listOf("root", "a", "b", "shared")
     }
 
     @Nested
@@ -93,7 +91,7 @@ class GraphTest: AbstractCollectionTest() {
             val names = nodes
                 .onEach { log.debug { "DFS visit node: $it" } }
                 .map { it.name }
-                .toFastList()
+                .toList()
 
             names shouldBeEqualTo expectedDFS
         }
@@ -108,7 +106,7 @@ class GraphTest: AbstractCollectionTest() {
             val names = nodes
                 .onEach { log.debug { "DFS visit node: $it" } }
                 .map { it.name }
-                .toFastList()
+                .toList()
 
             names shouldBeEqualTo expectedDFS
         }
@@ -138,7 +136,7 @@ class GraphTest: AbstractCollectionTest() {
                 }
                 .onEach { visitCount++ }
                 .take(3)
-                .toFastList()
+                .toList()
 
             visitCount shouldBeEqualTo 3
             first3 shouldHaveSize 3
@@ -158,7 +156,7 @@ class GraphTest: AbstractCollectionTest() {
             val names = nodes
                 .onEach { log.debug { "DFS visit node: $it" } }
                 .map { it.name }
-                .toFastList()
+                .toList()
 
             names shouldBeEqualTo expectedBFS
         }
@@ -172,7 +170,7 @@ class GraphTest: AbstractCollectionTest() {
             val names = nodes
                 .onEach { log.debug { "BFS visit node: $it" } }
                 .map { it.name }
-                .toFastList()
+                .toList()
 
             names shouldBeEqualTo expectedBFS
         }
@@ -202,7 +200,7 @@ class GraphTest: AbstractCollectionTest() {
                 }
                 .onEach { visitCount++ }
                 .take(3)
-                .toFastList()
+                .toList()
 
             visitCount shouldBeEqualTo 3
             first3 shouldHaveSize 3

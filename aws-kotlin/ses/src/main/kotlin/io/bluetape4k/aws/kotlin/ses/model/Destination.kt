@@ -1,7 +1,6 @@
 package io.bluetape4k.aws.kotlin.ses.model
 
 import aws.sdk.kotlin.services.ses.model.Destination
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.support.requireNotEmpty
 
 inline fun destinationOf(
@@ -11,7 +10,7 @@ inline fun destinationOf(
     toAddresses.requireNotEmpty("toAddresses")
 
     return Destination {
-        this.toAddresses = toAddresses.toFastList()
+        this.toAddresses = toAddresses.toList()
 
         builder()
     }

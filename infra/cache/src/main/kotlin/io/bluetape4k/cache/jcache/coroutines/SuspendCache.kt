@@ -1,6 +1,5 @@
 package io.bluetape4k.cache.jcache.coroutines
 
-import io.bluetape4k.collections.eclipse.toUnifiedSet
 import kotlinx.coroutines.flow.Flow
 import javax.cache.configuration.CacheEntryListenerConfiguration
 
@@ -25,7 +24,7 @@ interface SuspendCache<K: Any, V: Any> {
     suspend fun get(key: K): V?
 
     fun getAll(): Flow<SuspendCacheEntry<K, V>>
-    fun getAll(vararg keys: K): Flow<SuspendCacheEntry<K, V>> = getAll(keys.toUnifiedSet())
+    fun getAll(vararg keys: K): Flow<SuspendCacheEntry<K, V>> = getAll(keys.toSet())
     fun getAll(keys: Set<K>): Flow<SuspendCacheEntry<K, V>>
 
     suspend fun getAndPut(key: K, value: V): V?
@@ -42,7 +41,7 @@ interface SuspendCache<K: Any, V: Any> {
     suspend fun remove(key: K, oldValue: V): Boolean
 
     suspend fun removeAll()
-    suspend fun removeAll(vararg keys: K) = removeAll(keys.toUnifiedSet())
+    suspend fun removeAll(vararg keys: K) = removeAll(keys.toSet())
     suspend fun removeAll(keys: Set<K>)
 
     suspend fun replace(key: K, oldValue: V, newValue: V): Boolean

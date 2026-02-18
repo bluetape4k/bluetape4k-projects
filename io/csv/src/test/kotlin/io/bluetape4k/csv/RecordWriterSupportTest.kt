@@ -1,6 +1,7 @@
 package io.bluetape4k.csv
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeEmpty
@@ -39,7 +40,7 @@ class RecordWriterSupportTest {
         )
 
         val content = csvFile.readText()
-        log.trace { "content=\n$content" }
+        log.debug { "content=\n$content" }
         content shouldContain "name,age,city"
         content shouldContain "Alice,20,Seoul"
         content shouldContain "Bob,30,Busan"
@@ -57,7 +58,7 @@ class RecordWriterSupportTest {
         )
 
         val content = csvFile.readText()
-        log.trace { "content=\n$content" }
+        log.debug { "content=\n$content" }
         content shouldContain "Alice,20,Seoul"
         content shouldContain "Bob,30,Busan"
     }
@@ -72,7 +73,7 @@ class RecordWriterSupportTest {
         ) { person -> listOf(person.name, person.age, person.city) }
 
         val content = csvFile.readText()
-        log.trace { "content=\n$content" }
+        log.debug { "content=\n$content" }
         content shouldContain "name,age,city"
         content shouldContain "Alice,20,Seoul"
         content shouldContain "Charlie,25,Daegu"
@@ -91,7 +92,7 @@ class RecordWriterSupportTest {
         )
 
         val content = tsvFile.readText()
-        log.trace { "content=\n$content" }
+        log.debug { "content=\n$content" }
         content shouldContain "name\tage\tcity"
         content shouldContain "Alice\t20\tSeoul"
         content shouldContain "Bob\t30\tBusan"
@@ -107,7 +108,7 @@ class RecordWriterSupportTest {
         ) { person -> listOf(person.name, person.age, person.city) }
 
         val content = tsvFile.readText()
-        log.trace { "content=\n$content" }
+        log.debug { "content=\n$content" }
         content shouldContain "name\tage\tcity"
         content shouldContain "Alice\t20\tSeoul"
         content shouldContain "Charlie\t25\tDaegu"
@@ -147,7 +148,7 @@ class RecordWriterSupportTest {
         records.shouldNotBeEmpty()
 
         records.forEach { record ->
-            log.trace { "record=${record.values.toList()}" }
+            log.debug { "record=${record.values.toList()}" }
         }
     }
 
@@ -167,7 +168,7 @@ class RecordWriterSupportTest {
             }
 
             val captured = sw.buffer.toString()
-            log.trace { "captured=\n$captured" }
+            log.debug { "captured=\n$captured" }
             captured shouldContain "row1,1,2"
             captured shouldContain "row2,3,4"
         }
@@ -184,7 +185,7 @@ class RecordWriterSupportTest {
             }
 
             val captured = sw.buffer.toString()
-            log.trace { "captured=\n$captured" }
+            log.debug { "captured=\n$captured" }
             captured shouldContain "name,age,city"
             captured shouldContain "Alice,20,Seoul"
             captured shouldContain "Bob,30,Busan"
@@ -203,7 +204,7 @@ class RecordWriterSupportTest {
             }
 
             val captured = sw.buffer.toString()
-            log.trace { "captured=\n$captured" }
+            log.debug { "captured=\n$captured" }
             captured shouldContain "Alice,20,Seoul"
             captured shouldContain "Charlie,25,Daegu"
         }

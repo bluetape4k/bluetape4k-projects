@@ -3,7 +3,6 @@ package io.bluetape4k.cache.nearcache
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.JCaching
 import io.bluetape4k.cache.jcache.jcacheConfiguration
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -101,7 +100,7 @@ class RedisNearCacheTest: AbstractNearCacheTest() {
     @Test
     fun `remote cache entry가 expire 되면 near cache도 expire 되어야 한다`() {
         val keyCount = 100
-        val keys = fastList(keyCount) { it }
+        val keys = List(keyCount) { it }
             .chunked(10) {
                 val entries = it.associate { randomKey() to CacheItem() }
                 nearCache1.putAll(entries)

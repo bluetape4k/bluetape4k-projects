@@ -1,7 +1,7 @@
 package io.bluetape4k.csv
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
 import java.io.StringWriter
@@ -23,7 +23,7 @@ class TsvRecordWriterTest {
 
             val captured = sw.buffer.toString()
 
-            log.trace { "captured=$captured" }
+            log.debug { "captured=$captured" }
             captured shouldContain "row1\t1\t2\t3, 3"
             captured shouldContain "row2\t4\t\t6,6"
         }
@@ -42,7 +42,7 @@ class TsvRecordWriterTest {
 
             val captured = sw.buffer.toString()
 
-            log.trace { "captured=$captured" }
+            log.debug { "captured=$captured" }
             captured shouldContain "col1\tcol2\tcol3\tcol4"
             captured shouldContain "row1\t1\t2\t3"
             captured shouldContain "row2\t2\t3\t4"

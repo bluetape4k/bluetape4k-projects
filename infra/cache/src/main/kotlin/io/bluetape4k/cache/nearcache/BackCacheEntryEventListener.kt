@@ -1,7 +1,6 @@
 package io.bluetape4k.cache.nearcache
 
 import io.bluetape4k.cache.jcache.JCache
-import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.trace
@@ -58,7 +57,7 @@ class BackCacheEntryEventListener<K, V>(
         }
         if (!targetCache.isClosed) {
             runCatching {
-                targetCache.removeAll(events.map { it.key }.toUnifiedSet())
+                targetCache.removeAll(events.map { it.key }.toSet())
             }.onFailure { e ->
                 log.error(e) { "Fail to remove all removed cache entries." }
             }
@@ -71,7 +70,7 @@ class BackCacheEntryEventListener<K, V>(
         }
         if (!targetCache.isClosed) {
             runCatching {
-                targetCache.removeAll(events.map { it.key }.toUnifiedSet())
+                targetCache.removeAll(events.map { it.key }.toSet())
             }.onFailure { e ->
                 log.error(e) { "Fail to remove all expired cache entries." }
             }
