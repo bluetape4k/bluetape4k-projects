@@ -8,24 +8,67 @@ import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.VarCharColumnType
 
 /**
- * Timefold 의 [HardSoftLongScore] 를 저장할 수 있는 Column 을 생성합니다.
+ * Timefold Solver의 [HardSoftLongScore]를 저장할 수 있는 Column을 생성합니다.
+ *
+ * [HardSoftLongScore]는 Long 타입의 Hard 제약 조건과 Soft 제약 조건을 각각 점수로 가지는 Score 유형입니다.
+ * 데이터베이스에는 "999hard/999soft" 형태의 문자열로 저장됩니다.
+ *
+ * ```kotlin
+ * object PlanningTables : IntIdTable("planning_solution") {
+ *     val name = varchar("name", 255)
+ *     val score = hardSoftLongScore("score")
+ * }
+ *
+ * // 사용 예시
+ * val hardSoftLongScore = HardSoftLongScore.of(100L, -50L)
+ * PlanningTables.insert {
+ *     it[name] = "Test Solution"
+ *     it[score] = hardSoftLongScore
+ * }
+ * ```
+ *
+ * @param name 컬럼 이름
+ * @param length 문자열 최대 길이 (기본값: 255)
+ * @return [HardSoftLongScore] 타입의 컬럼
+ *
+ * @see HardSoftLongScore
  */
 fun Table.hardSoftLongScore(
     name: String,
     length: Int = 255,
 ): Column<HardSoftLongScore> = registerColumn(name, HardSoftLongScoreColumnType(length))
 
-class HardSoftLongScoreColumnType(length: Int):
-    ColumnWithTransform<String, HardSoftLongScore>(VarCharColumnType(length), HardSoftLongScoreTransformer())
+/**
+ * [HardSoftLongScore]를 위한 Exposed ColumnType 구현체입니다.
+ *
+ * 날춤 Kotlin String 타입과 [HardSoftLongScore] 간의 변환을 처리합니다.
+ *
+ * @property length 문자열 최대 길이
+ */
+class HardSoftLongScoreColumnType(
+    length: Int,
+): ColumnWithTransform<String, HardSoftLongScore>(VarCharColumnType(length), HardSoftLongScoreTransformer())
 
+/**
+ * [HardSoftLongScore]와 데이터베이스 String 값 간의 변환을 수행하는 Transformer 클래스입니다.
+ *
+ * [unwrap] 메서드는 [HardSoftLongScore]를 문자열로 변환하고,
+ * [wrap] 메서드는 문자열을 파싱하여 [HardSoftLongScore]로 변환합니다.
+ */
 class HardSoftLongScoreTransformer: ColumnTransformer<String, HardSoftLongScore> {
     /**
-     * Entity Property 를 DB Column 수형으로 변환합니다.
+     * [HardSoftLongScore]를 데이터베이스 String 값으로 변환합니다.
+     *
+     * @param value 변환할 [HardSoftLongScore] 인스턴스
+     * @return "hard/soft" 형태의 문자열 (예: "100/-50")
      */
     override fun unwrap(value: HardSoftLongScore): String = value.toString()
 
     /**
-     * DB Column 값을 Entity Property 수형으로 변환합니다.
+     * 데이터베이스 String 값을 [HardSoftLongScore]로 변환합니다.
+     *
+     * @param value 데이터베이스에서 읽은 문자열 (예: "100/-50")
+     * @return 생성된 [HardSoftLongScore] 인스턴스
      */
     override fun wrap(value: String): HardSoftLongScore = HardSoftLongScore.parseScore(value)
 }
