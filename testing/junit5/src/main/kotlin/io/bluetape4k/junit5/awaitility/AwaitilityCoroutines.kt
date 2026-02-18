@@ -59,44 +59,51 @@ suspend infix fun ConditionFactory.untilSuspending(
     val exceptionIgnorer = exceptionIgnorerOrNull()
 
     val startNanos = System.nanoTime()
+    val timeoutNanos = timeout.toNanosSafely()
+
     if (!initialPollDelay.isZero && !initialPollDelay.isNegative) {
         delay(initialPollDelay.toMillisCeil())
     }
 
     var pollCount = 1
-    var previousInterval = initialPollDelay
+    var lastInterval: Duration = initialPollDelay
+    var lastThrowable: Throwable? = null
 
     while (true) {
         val satisfied = try {
-            block()
+            val result = block()
+            lastThrowable = null
+            result
         } catch (e: Throwable) {
             if (exceptionIgnorer?.shouldIgnoreException(e) == true) {
+                lastThrowable = e
                 false
             } else {
                 throw e
             }
         }
 
-        if (satisfied) {
-            return
-        }
+        if (satisfied) return
 
         val elapsedNanos = System.nanoTime() - startNanos
-        val timeoutNanos = timeout.toNanosSafely()
         if (elapsedNanos >= timeoutNanos) {
-            throw ConditionTimeoutException("Condition was not fulfilled within $timeout.")
+            val message = "Condition was not fulfilled within $timeout."
+            throw if (lastThrowable != null) {
+                ConditionTimeoutException(message, lastThrowable)
+            } else {
+                ConditionTimeoutException(message)
+            }
         }
 
-        val interval = pollInterval.next(pollCount, previousInterval)
-        val remainingNanos = timeoutNanos - elapsedNanos
-        val sleepNanos = minOf(interval.toNanos(), remainingNanos)
+        val nextInterval = pollInterval.next(pollCount++, lastInterval)
+        lastInterval = nextInterval
+
+        val remainingNanos = timeoutNanos - (System.nanoTime() - startNanos)
+        val sleepNanos = minOf(nextInterval.toNanosSafely(), remainingNanos)
 
         if (sleepNanos > 0) {
-            delay(Duration.ofNanos(sleepNanos).toMillisCeil())
+            delay(sleepNanos / 1_000_000L)
         }
-
-        previousInterval = interval
-        pollCount++
     }
 }
 
@@ -113,15 +120,12 @@ private fun ConditionFactory.timeoutConstraintOrDefault(): WaitConstraint =
     }
 
 private fun ConditionFactory.pollIntervalOrDefault(): PollInterval =
-    readPrivateField<PollInterval>("pollInterval") ?: FixedPollInterval(DEFAULT_POLL_INTERVAL)
+    readPrivateField<PollInterval>("pollInterval")
+        ?: FixedPollInterval(Duration.ofMillis(DEFAULT_POLL_INTERVAL.toMillis()))
 
 private fun ConditionFactory.pollDelayOrDefault(pollInterval: PollInterval): Duration {
-    val configuredPollDelay = readPrivateField<Duration>("pollDelay")
-    return when {
-        configuredPollDelay != null       -> configuredPollDelay
-        pollInterval is FixedPollInterval -> pollInterval.next(1, Duration.ZERO)
-        else                              -> Duration.ZERO
-    }
+    return readPrivateField<Duration>("pollDelay")
+        ?: if (pollInterval is FixedPollInterval) Duration.ZERO else Duration.ZERO
 }
 
 private fun ConditionFactory.exceptionIgnorerOrNull(): ExceptionIgnorer? =
