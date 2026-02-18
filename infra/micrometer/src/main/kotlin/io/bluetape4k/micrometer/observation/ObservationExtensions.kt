@@ -43,7 +43,6 @@ inline fun <T> Observation.tryObserve(
  * @param block 측정할 코드 블록
  * @return block의 실행 결과
  */
-@Suppress("UNCHECKED_CAST")
 inline fun <T> withObservation(
     name: String,
     registry: ObservationRegistry,

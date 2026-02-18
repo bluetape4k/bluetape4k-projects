@@ -32,6 +32,40 @@ import reactor.util.context.Context
 suspend fun currentObservationInContext(): Observation? =
     currentReactiveContext()?.getOrNull(ObservationThreadLocalAccessor.KEY)
 
+suspend inline fun <T: Any> Observation.observeSuspending(
+    @BuilderInference crossinline block: suspend (Observation.Context) -> T?,
+): T? =
+    withObservationContextSuspending { ctx: Observation.Context ->
+        block(ctx)
+    }
+
+suspend inline fun <T: Any> Observation.tryObserveSuspending(
+    @BuilderInference crossinline block: suspend (Observation.Context) -> T?,
+): Result<T> =
+    runCatching {
+        withObservationContextSuspending { ctx: Observation.Context ->
+            block(ctx)
+        } ?: throw NoSuchElementException()
+    }
+
+suspend inline fun <T: Any> withObservationSuspending(
+    name: String,
+    registry: ObservationRegistry,
+    @BuilderInference crossinline block: suspend () -> T?,
+): T? =
+    withObservationContextSuspending(name, registry) {
+        block()
+    }
+
+suspend inline fun <T: Any> tryWithObservationSuspending(
+    name: String,
+    registry: ObservationRegistry,
+    @BuilderInference crossinline block: suspend () -> T,
+): Result<T> =
+    runCatching {
+        withObservationSuspending(name, registry, block) ?: throw NoSuchElementException()
+    }
+
 /**
  * Suspend 함수 실행 시 Micrometer Observation을 이용하여 관찰(Observe)할 수 있도록 합니다.
  * Coroutine 컨텍스트와 Observation 컨텍스트 간의 전파를 자동으로 처리합니다.
@@ -51,10 +85,10 @@ suspend fun currentObservationInContext(): Observation? =
  * @param block Observation으로 관찰할 suspend 코드 블록
  * @return block의 실행 결과 또는 null
  */
-suspend inline fun <T: Any> withObservationContext(
+suspend fun <T: Any> withObservationContextSuspending(
     name: String,
     observationRegistry: ObservationRegistry,
-    crossinline block: suspend CoroutineScope.() -> T?,
+    block: suspend CoroutineScope.() -> T?,
 ): T? =
     Mono
         .deferContextual { contextView ->
@@ -73,6 +107,54 @@ suspend inline fun <T: Any> withObservationContext(
                         mono(Context.of(ObservationThreadLocalAccessor.KEY, observation).asCoroutineContext()) {
                             observation.openScope().use {
                                 block()
+                            }
+                        }
+                    }.doOnError {
+                        observation.error(it)
+                    }.doFinally {
+                        observation.stop()
+                    }
+            }
+        }.awaitSingleOrNull()
+
+
+/**
+ * Suspend 함수 실행 시 Micrometer Observation을 이용하여 관찰(Observe)할 수 있도록 합니다.
+ * Coroutine 컨텍스트와 Observation 컨텍스트 간의 전파를 자동으로 처리합니다.
+ *
+ *
+ * ```kotlin
+ * observation.withObservationContextSuspending { context ->
+ *     // some suspend code to observe
+ *     delay(100.milliseconds)
+ *
+ *     context.put("user.id", userId)
+ *     processUser(userId)
+ * }
+ *
+ * @param T 반환 타입
+ * @param block Observation으로 관찰할 suspend 코드 블록
+ * @return block의 실행 결과 또는 null
+ */
+suspend fun <T: Any> Observation.withObservationContextSuspending(
+    block: suspend (Observation.Context) -> T?,
+): T? =
+    Mono
+        .deferContextual { contextView ->
+            val snapshotFactory = ContextSnapshotFactory.builder().build()
+            snapshotFactory.setThreadLocalsFrom<T>(contextView, ObservationThreadLocalAccessor.KEY).use { _ ->
+                val observation = this@withObservationContextSuspending
+                Mono
+                    .defer {
+                        // Tracing 정보를 보려면, 아래와 같이 TracingObservationHandler.TracingContext 에서 가져오면 된다.
+                        //                val tracingContext = observation.context.get<TracingObservationHandler.TracingContext>(TracingObservationHandler.TracingContext::class.java)
+                        //                log.info(
+                        //                    "tracingContext traceId=${tracingContext?.span?.context()?.traceId()}, " +
+                        //                        "spanId=${tracingContext?.span?.context()?.spanId()}"
+                        //                )
+                        mono(Context.of(ObservationThreadLocalAccessor.KEY, observation).asCoroutineContext()) {
+                            observation.openScope().use {
+                                block(observation.context)
                             }
                         }
                     }.doOnError {
