@@ -6,11 +6,21 @@ import retrofit2.Call
 import retrofit2.CallAdapter
 import java.lang.reflect.Type
 
+/**
+ * 메트릭 수집이 가능한 Retrofit CallAdapter 구현체입니다.
+ *
+ * 원본 CallAdapter를 감싸서 반환되는 Call을 [MeasuredCall]로 변환합니다.
+ * 이를 통해 모든 HTTP 호출의 메트릭 수집이 자동으로 이루어집니다.
+ *
+ * @param R 응답 타입
+ * @param T 반환 타입
+ * @param nextCallAdapter 다음 CallAdapter
+ * @param metricsCollector 메트릭 수집기
+ */
 class MeasuredCallAdapter<R: Any, T: Any> internal constructor(
     private val nextCallAdapter: CallAdapter<R, T>,
     private val metricsCollector: RetrofitCallMetricsCollector,
 ): CallAdapter<R, T> {
-
     companion object: KLogging()
 
     /**

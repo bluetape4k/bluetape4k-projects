@@ -16,64 +16,69 @@ import reactor.core.publisher.Mono
 import reactor.util.context.Context
 
 /**
- * Current Coroutine Scope에서 Observation을 가져옵니다. 없다면 null 반환
+ * 현재 Coroutine Scope에서 Observation을 가져옵니다.
+ * Observation이 없는 경우 null을 반환합니다.
  *
- * ```
- * observationRegistry.withObserver("observer.delay") {
- *   val observation = currentObservation()!!
- *   // some code to observe
- *   delay(100.milliseconds)
+ * ```kotlin
+ * withObservationContext("observer.delay", registry) {
+ *     val observation = currentObservationInContext()!!
+ *     // some code to observe
+ *     delay(100.milliseconds)
  * }
  * ```
  *
- * @return
+ * @return 현재 컨텍스트의 [Observation] 또는 null
  */
 suspend fun currentObservationInContext(): Observation? =
     currentReactiveContext()?.getOrNull(ObservationThreadLocalAccessor.KEY)
 
 /**
- * Suspend 함수를 실행 시에 Micrometer Observation을 이용하여 Observe 할 수 있도록 합니다.
+ * Suspend 함수 실행 시 Micrometer Observation을 이용하여 관찰(Observe)할 수 있도록 합니다.
+ * Coroutine 컨텍스트와 Observation 컨텍스트 간의 전파를 자동으로 처리합니다.
  *
- * ```
- * observationRegistry.withObservationContext("observer.delay") {
- *      val observation = currentObservation()!!
+ * ```kotlin
+ * withObservationContext("observer.delay", registry) {
+ *     val observation = currentObservationInContext()!!
  *
- *      // some suspend code to observe
- *      delay(100.milliseconds)
+ *     // some suspend code to observe
+ *     delay(100.milliseconds)
  * }
  * ```
  *
- * @param T
+ * @param T 반환 타입
  * @param name Micrometer Observation 이름
- * @param block Micrometer Observation으로 실행을 관측할 코드블럭
- * @receiver [ObservationRegistry] 인스턴스
- * @return 반환 값
+ * @param observationRegistry Observation을 등록할 [ObservationRegistry] 인스턴스
+ * @param block Observation으로 관찰할 suspend 코드 블록
+ * @return block의 실행 결과 또는 null
  */
 suspend inline fun <T: Any> withObservationContext(
     name: String,
     observationRegistry: ObservationRegistry,
     crossinline block: suspend CoroutineScope.() -> T?,
-): T? = Mono.deferContextual { contextView ->
-    name.requireNotBlank("name")
-    val snapshotFactory = ContextSnapshotFactory.builder().build()
-    snapshotFactory.setThreadLocalsFrom<T>(contextView, ObservationThreadLocalAccessor.KEY).use { _ ->
-        val observation = observationRegistry.start(name)
-        Mono.defer {
-            // Tracing 정보를 보려면, 아래와 같이 TracingObservationHandler.TracingContext 에서 가져오면 된다.
-            //                val tracingContext = observation.context.get<TracingObservationHandler.TracingContext>(TracingObservationHandler.TracingContext::class.java)
-            //                log.info(
-            //                    "tracingContext traceId=${tracingContext?.span?.context()?.traceId()}, " +
-            //                        "spanId=${tracingContext?.span?.context()?.spanId()}"
-            //                )
-            mono(Context.of(ObservationThreadLocalAccessor.KEY, observation).asCoroutineContext()) {
-                observation.openScope().use {
-                    block()
-                }
+): T? =
+    Mono
+        .deferContextual { contextView ->
+            name.requireNotBlank("name")
+            val snapshotFactory = ContextSnapshotFactory.builder().build()
+            snapshotFactory.setThreadLocalsFrom<T>(contextView, ObservationThreadLocalAccessor.KEY).use { _ ->
+                val observation = observationRegistry.start(name)
+                Mono
+                    .defer {
+                        // Tracing 정보를 보려면, 아래와 같이 TracingObservationHandler.TracingContext 에서 가져오면 된다.
+                        //                val tracingContext = observation.context.get<TracingObservationHandler.TracingContext>(TracingObservationHandler.TracingContext::class.java)
+                        //                log.info(
+                        //                    "tracingContext traceId=${tracingContext?.span?.context()?.traceId()}, " +
+                        //                        "spanId=${tracingContext?.span?.context()?.spanId()}"
+                        //                )
+                        mono(Context.of(ObservationThreadLocalAccessor.KEY, observation).asCoroutineContext()) {
+                            observation.openScope().use {
+                                block()
+                            }
+                        }
+                    }.doOnError {
+                        observation.error(it)
+                    }.doFinally {
+                        observation.stop()
+                    }
             }
-        }.doOnError {
-            observation.error(it)
-        }.doFinally {
-            observation.stop()
-        }
-    }
-}.awaitSingleOrNull()
+        }.awaitSingleOrNull()
