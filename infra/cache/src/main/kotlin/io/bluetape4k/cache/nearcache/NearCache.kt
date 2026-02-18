@@ -5,7 +5,6 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.logging.trace
-import io.bluetape4k.logging.warn
 import io.bluetape4k.support.asyncRunWithTimeout
 import java.time.Duration
 import java.util.concurrent.locks.ReentrantLock
@@ -132,8 +131,8 @@ class NearCache<K: Any, V: Any> private constructor(
                 }
                 log.debug { "backCache epiration 검사를 종료합니다" }
             } catch (e: InterruptedException) {
-                log.warn(e) { "backCache expiration 검사가 중단되었습니다" }
                 // ignote InterruptedException
+                log.debug { "backCache expiration 검사가 중단되었습니다." }
             }
         }
     }
