@@ -1,10 +1,29 @@
 package io.bluetape4k.kafka.codec
 
 /**
- * [KafkaCodec]을 제공하는 Object
+ * 다양한 Kafka Codec 인스턴스를 제공하는 Object입니다.
+ *
+ * 문자열, 바이트 배열, JSON 직렬화 및 다양한 바이너리 직렬화(JDK, Kryo, FST)와
+n * 압축 알고리즘(LZ4, Snappy, Zstd)을 조합한 Codec을 제공합니다.
+ *
+ * 사용 예시:
+ * ```kotlin
+ * // 문자열 Codec 사용
+ * val stringCodec = KafkaCodecs.String
+ *
+ * // JSON Codec 사용
+ * val jacksonCodec = KafkaCodecs.Jackson
+ *
+ * // LZ4 압축 + Kryo 직렬화 Codec 사용
+ * val lz4KryoCodec = KafkaCodecs.Lz4Kryo
+ * ```
+ *
+ * @see KafkaCodec
+ * @see StringKafkaCodec
+ * @see JacksonKafkaCodec
+ * @see BinaryKafkaCodec
  */
 object KafkaCodecs {
-
     val String by lazy { StringKafkaCodec() }
     val ByteArray by lazy { ByteArrayKafkaCodec() }
 
