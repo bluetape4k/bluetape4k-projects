@@ -13,6 +13,16 @@ import java.time.Duration
 private val DEFAULT_POLL_INTERVAL: Duration = Durations.ONE_HUNDRED_MILLISECONDS
 private val DEFAULT_TIMEOUT: Duration = Durations.TEN_SECONDS
 
+@Deprecated("use awaitSuspending", ReplaceWith("awaitSuspending"))
+suspend infix fun ConditionFactory.suspendAwait(block: suspend () -> Unit) =
+    awaitSuspending(block)
+
+
+@Deprecated("use untilSuspending", ReplaceWith("untilSuspending"))
+suspend infix fun ConditionFactory.suspendUntil(block: suspend () -> Boolean) =
+    untilSuspending(block)
+
+
 /**
  * [block]이 true 를 반환할 때까지 대기한다
  *
@@ -89,6 +99,7 @@ suspend infix fun ConditionFactory.untilSuspending(
         pollCount++
     }
 }
+
 
 private fun ConditionFactory.timeoutConstraintOrDefault(): WaitConstraint =
     readPrivateField("timeoutConstraint") ?: object: WaitConstraint {
