@@ -14,27 +14,55 @@ import javax.cache.configuration.MutableCacheEntryListenerConfiguration
 import kotlin.concurrent.withLock
 import kotlin.system.measureTimeMillis
 
-
 /**
- * 분산환경의 원격 캐시만 사용하는 게 아니라, 로컬 캐시를 두어, 빠르게 access 할 수 있도록 합니다.
+ * 분산 환경에서 로컬 캐시(Front Cache)와 원격 캐시(Back Cache)를 함께 사용하는 2-Tier 캐시 구현체입니다.
  *
- * @property frontCache  로컬 캐시
- * @property backCache   분산 환경에서 사용할 원격 캐시
+ * NearCache는 다음과 같은 특징을 가집니다:
+ * - **빠른 읽기**: 로컬 캐시(Front)에서 먼저 조회하여 네트워크 비용을 절감
+ * - **데이터 일관성**: Back Cache의 변경 이벤트를 수신하여 Front Cache를 동기화
+ * - **유연한 동기화**: 동기/비동기 모드 지원
+ * - **자동 만료 감지**: 백그라운드 스레드로 Back Cache 만료 감지 및 Front Cache 갱신
+ *
+ * ```kotlin
+ * // Redis를 Back Cache로 사용하는 NearCache 생성
+ * val nearCache = NearCache(
+ *     nearCacheCfg = NearCacheConfig(
+ *         frontCacheName = "my-local-cache",
+ *         isSynchronous = false  // 비동기 모드
+ *     ),
+ *     backCache = redisCache
+ * )
+ *
+ * // 사용
+ * nearCache.put("key", value)      // Front와 Back에 동시 저장
+ * val value = nearCache.get("key") // Front에서 먼저 조회
+ * ```
+ *
+ * @param K 캐시 키 타입
+ * @param V 캐시 값 타입
+ * @property frontCache 로컬 캐시 (예: Caffeine, Ehcache)
+ * @property backCache 원격 캐시 (예: Redis, Hazelcast)
+ * @property config NearCache 설정
+ *
+ * @see NearCacheConfig
+ * @see BackCacheEntryEventListener
  */
 class NearCache<K: Any, V: Any> private constructor(
     val frontCache: JCache<K, V>,
     val backCache: JCache<K, V>,
     private val config: NearCacheConfig<K, V>,
 ): JCache<K, V> by backCache {
-
     companion object: KLogging() {
+        /** 기본 원격 캐시 동기화 타임아웃 (500ms) */
         val DEFAULT_SYNC_REMOTE_TIMEOUT: Duration = Duration.ofMillis(500)
 
         /**
-         * 분산환경의 원격 캐시만 사용하는 게 아니라, 로컬 캐시를 두어, 빠르게 access 할 수 있도록 합니다.
+         * NearCache 인스턴스를 생성합니다.
          *
-         * @param nearCacheCfg front cache 생성을 위한 configuration
-         * @param backCache 분산환경에서의 원격 cache instance
+         * @param K 캐시 키 타입
+         * @param V 캐시 값 타입
+         * @param nearCacheCfg Front Cache 생성을 위한 설정
+         * @param backCache 분산 환경에서 사용할 원격 캐시 인스턴스
          * @return [NearCache] 인스턴스
          */
         operator fun <K: Any, V: Any> invoke(
@@ -49,9 +77,13 @@ class NearCache<K: Any, V: Any> private constructor(
                 frontCacheManager.createCache(nearCacheCfg.frontCacheName, nearCacheCfg.frontCacheConfiguration)
 
             // back cache의 event를 받아 front cache에 반영합니다.
-            val cacheEntryEventListenerCfg = MutableCacheEntryListenerConfiguration(
-                { BackCacheEntryEventListener(frontCache) }, null, false, nearCacheCfg.isSynchronous
-            )
+            val cacheEntryEventListenerCfg =
+                MutableCacheEntryListenerConfiguration(
+                    { BackCacheEntryEventListener(frontCache) },
+                    null,
+                    false,
+                    nearCacheCfg.isSynchronous,
+                )
             log.info { "back cache의 이벤트를 수신할 수 있도록 listener 등록. listenerCfg=$cacheEntryEventListenerCfg" }
             backCache.registerCacheEntryListener(cacheEntryEventListenerCfg)
 
@@ -76,24 +108,25 @@ class NearCache<K: Any, V: Any> private constructor(
                 while (!isClosed && !Thread.currentThread().isInterrupted) {
                     log.trace { "backCache의 cache entry가 expire 되었는지 검사합니다... check expiration period=${config.checkExpiryPeriod}" }
                     var entrySize = 0
-                    val elapsed = measureTimeMillis {
-                        runCatching {
-                            this.chunked(100) { entries ->
-                                if (isClosed || Thread.currentThread().isInterrupted) {
-                                    return@chunked
-                                }
-                                val frontKeys = entries.map { it.key }.toSet()
-                                entrySize += frontKeys.size
-                                log.trace { "Front Cache item 유효기간 조사=$entrySize" }
-                                frontKeys.forEach {
-                                    if (!backCache.containsKey(it)) {
-                                        frontCache.remove(it)
+                    val elapsed =
+                        measureTimeMillis {
+                            runCatching {
+                                this.chunked(100) { entries ->
+                                    if (isClosed || Thread.currentThread().isInterrupted) {
+                                        return@chunked
                                     }
+                                    val frontKeys = entries.map { it.key }.toSet()
+                                    entrySize += frontKeys.size
+                                    log.trace { "Front Cache item 유효기간 조사=$entrySize" }
+                                    frontKeys.forEach {
+                                        if (!backCache.containsKey(it)) {
+                                            frontCache.remove(it)
+                                        }
+                                    }
+                                    Thread.sleep(1)
                                 }
-                                Thread.sleep(1)
                             }
                         }
-                    }
                     log.trace { "backCache cache entry expire 검사 완료. front cache item size=$entrySize, elapsed=$elapsed msec" }
                     Thread.sleep(config.checkExpiryPeriod)
                 }
@@ -105,9 +138,7 @@ class NearCache<K: Any, V: Any> private constructor(
         }
     }
 
-    override fun iterator(): MutableIterator<Cache.Entry<K, V>> {
-        return frontCache.iterator()
-    }
+    override fun iterator(): MutableIterator<Cache.Entry<K, V>> = frontCache.iterator()
 
     override fun clear() {
         log.debug { "Near Cache의 Front cache를 Clear합니다." }
@@ -138,9 +169,7 @@ class NearCache<K: Any, V: Any> private constructor(
 
     override fun isClosed(): Boolean = frontCache.isClosed
 
-    override fun containsKey(key: K): Boolean {
-        return frontCache.containsKey(key)
-    }
+    override fun containsKey(key: K): Boolean = frontCache.containsKey(key)
 
     override operator fun get(key: K): V? { // 모든 조회는 Front 에서만 한다
         return frontCache.get(key)
@@ -161,7 +190,10 @@ class NearCache<K: Any, V: Any> private constructor(
         return null
     }
 
-    override fun getAndReplace(key: K, value: V): V? {
+    override fun getAndReplace(
+        key: K,
+        value: V,
+    ): V? {
         log.trace { "get and replace. key=$key" }
         if (containsKey(key)) {
             log.trace { "get entry, and put new value. key=$key, new value=$value" }
@@ -172,11 +204,17 @@ class NearCache<K: Any, V: Any> private constructor(
         return null
     }
 
-    operator fun set(key: K, value: V) {
+    operator fun set(
+        key: K,
+        value: V,
+    ) {
         put(key, value)
     }
 
-    override fun put(key: K, value: V) {
+    override fun put(
+        key: K,
+        value: V,
+    ) {
         frontCache.put(key, value).apply {
             syncBackCache {
                 backCache.put(key, value)
@@ -192,8 +230,11 @@ class NearCache<K: Any, V: Any> private constructor(
         }
     }
 
-    override fun putIfAbsent(key: K, value: V): Boolean {
-        return frontCache.putIfAbsent(key, value).also {
+    override fun putIfAbsent(
+        key: K,
+        value: V,
+    ): Boolean =
+        frontCache.putIfAbsent(key, value).also {
             if (it) {
                 syncBackCache {
                     if (!backCache.containsKey(key)) {
@@ -202,22 +243,24 @@ class NearCache<K: Any, V: Any> private constructor(
                 }
             }
         }
-    }
 
-    override fun remove(key: K): Boolean {
-        return frontCache.remove(key).also {
+    override fun remove(key: K): Boolean =
+        frontCache.remove(key).also {
             if (it) {
                 syncBackCache {
                     backCache.remove(key)
                 }
             }
         }
-    }
 
-    override fun remove(key: K, oldValue: V): Boolean {
-        return frontCache.remove(key, oldValue).also {
+    override fun remove(
+        key: K,
+        oldValue: V,
+    ): Boolean =
+        frontCache.remove(key, oldValue).also {
             if (it) {
-                syncBackCache { // TODO: 왜  backCache.remove(key, oldValue) 를 직접 사용하지 않았는지 이유를 기록해야 한다
+                syncBackCache {
+                    // TODO: 왜  backCache.remove(key, oldValue) 를 직접 사용하지 않았는지 이유를 기록해야 한다
                     // NOTE: 아마 remove(key, oldValue) 는 event 를 발생시키지 않아서 직접 remove를 수행하도록 하는 걸로 추측한다
                     if (backCache.containsKey(key) && backCache.get(key) == oldValue) {
                         backCache.remove(key)
@@ -225,11 +268,11 @@ class NearCache<K: Any, V: Any> private constructor(
                 }
             }
         }
-    }
 
     override fun removeAll() {
         frontCache.removeAll().apply {
-            syncBackCache { // Redisson 에서는 bulk operation 의 경우 event 가 발생하지 않습니다!!!
+            syncBackCache {
+                // Redisson 에서는 bulk operation 의 경우 event 가 발생하지 않습니다!!!
                 backCache.chunked(100) { chunk ->
                     chunk.forEach { runCatching { backCache.remove(it.key) } }
                     Thread.sleep(1)
@@ -240,7 +283,8 @@ class NearCache<K: Any, V: Any> private constructor(
 
     override fun removeAll(keys: Set<K>) {
         frontCache.removeAll(keys).apply {
-            syncBackCache { // Redisson 에서는 bulk operation 의 경우 event 가 발생하지 않습니다!!!
+            syncBackCache {
+                // Redisson 에서는 bulk operation 의 경우 event 가 발생하지 않습니다!!!
                 keys.forEach { runCatching { backCache.remove(it) } }
             }
         }
@@ -250,8 +294,12 @@ class NearCache<K: Any, V: Any> private constructor(
         removeAll(keys.toSet())
     }
 
-    override fun replace(key: K, oldValue: V, newValue: V): Boolean {
-        return frontCache.replace(key, oldValue, newValue).also {
+    override fun replace(
+        key: K,
+        oldValue: V,
+        newValue: V,
+    ): Boolean =
+        frontCache.replace(key, oldValue, newValue).also {
             if (it) {
                 syncBackCache {
                     if (backCache.containsKey(key) && backCache.get(key) == oldValue) {
@@ -260,19 +308,21 @@ class NearCache<K: Any, V: Any> private constructor(
                 }
             }
         }
-    }
 
-    override fun replace(key: K, value: V): Boolean {
-        return frontCache.replace(key, value).also {
+    override fun replace(
+        key: K,
+        value: V,
+    ): Boolean =
+        frontCache.replace(key, value).also {
             if (it) {
-                syncBackCache { // Redisson 에서는 replace 가 event 를 발생시키지 않습니다.
+                syncBackCache {
+                    // Redisson 에서는 replace 가 event 를 발생시키지 않습니다.
                     if (backCache.containsKey(key)) {
                         backCache.put(key, value)
                     }
                 }
             }
         }
-    }
 
     override fun <T: Any> unwrap(clazz: Class<T>): T? {
         if (clazz.isAssignableFrom(javaClass)) {

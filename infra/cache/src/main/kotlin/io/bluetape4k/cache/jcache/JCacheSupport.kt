@@ -21,24 +21,33 @@ import kotlin.concurrent.withLock
 
 private val log: Logger by lazy { KotlinLogging.logger {} }
 
+/**
+ * JCache 작업 시 사용되는 동기화 Lock입니다.
+ */
 @PublishedApi
 internal val jcacheLock = ReentrantLock()
 
 /**
- * JCache Configuration을 빌드합니다.
+ * JCache 설정을 빌드하는 DSL 스타일 함수입니다.
  *
- * @param K     key type
- * @param V     value type
- * @param builder Jcache configuration setup block
- * @return [CompleteConfiguration] instance
+ * ```kotlin
+ * val config = jcacheConfiguration<String, User> {
+ *     setExpiryPolicyFactory(TouchedExpiryPolicy.factoryOf(Duration.ONE_HOUR))
+ *     isStatisticsEnabled = true
+ * }
+ * ```
+ *
+ * @param K 캐시 키 타입
+ * @param V 캐시 값 타입
+ * @param builder 설정 구성 블록
+ * @return [MutableConfiguration] 인스턴스
  */
 inline fun <reified K, reified V> jcacheConfiguration(
     @BuilderInference builder: MutableConfiguration<K, V>.() -> Unit,
-): MutableConfiguration<K, V> {
-    return MutableConfiguration<K, V>()
+): MutableConfiguration<K, V> =
+    MutableConfiguration<K, V>()
         .apply { setTypes(K::class.java, V::class.java) }
         .apply(builder)
-}
 
 /**
  * JCache Configuration 을 빌드합니다.
@@ -64,17 +73,18 @@ inline fun <reified K, reified V> jcacheConfigurationOf(
     isStatisticsEnabled: Boolean = false,
     isManagementEnabled: Boolean = false,
     noinline expiryPolicyFactory: (() -> Factory<out ExpiryPolicy>)? = { EternalExpiryPolicy.factoryOf() },
-): CompleteConfiguration<K, V> = jcacheConfiguration {
-    setTypes(K::class.java, V::class.java)
-    cacheLoaderFactory?.let { this.setCacheLoaderFactory(it) }
-    cacheWriterFactory?.let { this.setCacheWriterFactory(it) }
-    this.isReadThrough = isReadThrough
-    this.isWriteThrough = isWriteThrough
-    this.isStoreByValue = isStoreByValue
-    this.isStatisticsEnabled = isStatisticsEnabled
-    this.isManagementEnabled = isManagementEnabled
-    expiryPolicyFactory?.let { setExpiryPolicyFactory(it.invoke()) }
-}
+): CompleteConfiguration<K, V> =
+    jcacheConfiguration {
+        setTypes(K::class.java, V::class.java)
+        cacheLoaderFactory?.let { this.setCacheLoaderFactory(it) }
+        cacheWriterFactory?.let { this.setCacheWriterFactory(it) }
+        this.isReadThrough = isReadThrough
+        this.isWriteThrough = isWriteThrough
+        this.isStoreByValue = isStoreByValue
+        this.isStatisticsEnabled = isStatisticsEnabled
+        this.isManagementEnabled = isManagementEnabled
+        expiryPolicyFactory?.let { setExpiryPolicyFactory(it.invoke()) }
+    }
 
 /**
  * JCache에 대한 기본 설정
@@ -121,11 +131,10 @@ fun jcachingProviderOf(qualifiedName: String): CachingProvider {
  *
  * @return [CacheManager] instance
  */
-inline fun <reified P: CachingProvider> jcacheManager(): CacheManager {
-    return jcacheLock.withLock {
+inline fun <reified P: CachingProvider> jcacheManager(): CacheManager =
+    jcacheLock.withLock {
         jcachingProvider<P>().cacheManager
     }
-}
 
 /**
  * 지정한 [qualifiedName]에 해당하는 [CachingProvider]의 [CacheManager]를 가져옵니다.
@@ -140,11 +149,10 @@ inline fun <reified P: CachingProvider> jcacheManager(): CacheManager {
  * @param qualifiedName CachingProvider qualified name
  * @return [CacheManager] instance
  */
-fun jcacheManagerOf(qualifiedName: String): CacheManager {
-    return jcacheLock.withLock {
+fun jcacheManagerOf(qualifiedName: String): CacheManager =
+    jcacheLock.withLock {
         jcachingProviderOf(qualifiedName).cacheManager
     }
-}
 
 /**
  * [cacheName]에 해당하는 cache를 가져옵니다.
@@ -213,13 +221,15 @@ inline fun <reified K, reified V> CacheManager.getOrCreate(
  * @param valueSupplier 값 제공자
  * @return 캐시된 값
  */
-inline fun <K, V> JCache<K, V>.getOrPut(key: K, valueSupplier: () -> V): V {
+inline fun <K, V> JCache<K, V>.getOrPut(
+    key: K,
+    valueSupplier: () -> V,
+): V {
     if (!containsKey(key)) {
         put(key, valueSupplier())
     }
     return get(key)
 }
-
 
 /**
  * Cache 조회 시, `front cache` <- `back cache` 순서로 조회되도록 read through를 수행합니다.
@@ -253,8 +263,8 @@ fun <K, V> JCache<K, V>.cacheLoader(): CacheLoader<K, V> {
  * Cache 저장 시, `front cache` -> `back cache` 순서로 적용되도록 write through를 수행합니다.
  */
 @Suppress("UNCHECKED_CAST")
-fun <K, V> JCache<K, V>.cacheWriter(): CacheWriter<K, V> {
-    return object: CacheWriter<K, V> {
+fun <K, V> JCache<K, V>.cacheWriter(): CacheWriter<K, V> =
+    object: CacheWriter<K, V> {
         override fun write(entry: Cache.Entry<out K, out V>) {
             log.debug { "Write through write cache entry. entry=$entry at $this" }
             put(entry.key, entry.value)
@@ -276,7 +286,6 @@ fun <K, V> JCache<K, V>.cacheWriter(): CacheWriter<K, V> {
             removeAll(keys.mapNotNull { it as? K }.toSet())
         }
     }
-}
 
 /**
  * Cache의 Configuration 정보를 가져온다
@@ -291,6 +300,5 @@ fun <K, V> JCache<K, V>.cacheWriter(): CacheWriter<K, V> {
  * ```
  */
 @Suppress("UNCHECKED_CAST")
-fun <K, V, C: Configuration<K, V>> JCache<K, V>.getConfiguration(): C {
-    return getConfiguration(Configuration::class.java as Class<C>)
-}
+fun <K, V, C: Configuration<K, V>> JCache<K, V>.getConfiguration(): C =
+    getConfiguration(Configuration::class.java as Class<C>)
