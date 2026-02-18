@@ -1,6 +1,5 @@
 package io.bluetape4k.hibernate.mapping.associations.onetomany.list
 
-import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.hibernate.AbstractHibernateTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
@@ -209,7 +208,7 @@ class OneToManyListTest @Autowired constructor(
         val orders = orderRepo.findAll(PageRequest.of(0, 10)).content
         log.info { "Load oders." }
 
-        val items = orderItemRepo.findByOrderIn(orders.toUnifiedSet())
+        val items = orderItemRepo.findByOrderIn(orders.toSet())
 
         items shouldBeEqualTo orders.flatMap { it.items }
     }

@@ -1,9 +1,9 @@
 package io.bluetape4k.spring.r2dbc.coroutines.blog.test.domain
 
-import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.r2dbc.coroutines.blog.domain.CommentRepository
 import io.bluetape4k.spring.r2dbc.coroutines.blog.test.AbstractR2dbcBlogApplicationTest
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
@@ -21,14 +21,14 @@ class CommentRepositoryTest(
 
     @Test
     fun `find comments by post id`() = runTest {
-        val comments = commentRepository.findAllByPostId(1L).toFastList()
+        val comments = commentRepository.findAllByPostId(1L).toList()
         comments.shouldNotBeEmpty()
         comments.size shouldBeGreaterOrEqualTo 2
     }
 
     @Test
     fun `find comments by non-existing post id`() = runTest {
-        val comments = commentRepository.findAllByPostId(-1L).toFastList()
+        val comments = commentRepository.findAllByPostId(-1L).toList()
         comments.shouldBeEmpty()
     }
 

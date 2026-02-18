@@ -9,13 +9,13 @@ import com.datastax.oss.driver.api.querybuilder.SchemaBuilder
 import io.bluetape4k.cassandra.querybuilder.bindMarker
 import io.bluetape4k.cassandra.querybuilder.eq
 import io.bluetape4k.cassandra.querybuilder.literal
-import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.spring.cassandra.suspendExecute
 import io.bluetape4k.spring.cassandra.suspendPrepare
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
@@ -92,7 +92,7 @@ class ReactiveSessionCoroutinesExamples(
             .asCql()
 
         val rrset: ReactiveResultSet = reactiveSession.suspendExecute(cql, 1212L)
-        val rows = rrset.rows().asFlow().toFastList()
+        val rows = rrset.rows().asFlow().toList()
 
         rows.size shouldBeEqualTo 1
         val row = rows.first()
@@ -108,7 +108,7 @@ class ReactiveSessionCoroutinesExamples(
             .asCql()
 
         val rrset: ReactiveResultSet = reactiveSession.suspendExecute(cql, mapOf("id" to 1212L))
-        val rows = rrset.rows().asFlow().toFastList()
+        val rows = rrset.rows().asFlow().toList()
 
         rows.size shouldBeEqualTo 1
         val row = rows.first()
@@ -128,7 +128,7 @@ class ReactiveSessionCoroutinesExamples(
         val bs = ps.bind().setLong("id", 1212L)
 
         val rrset: ReactiveResultSet = reactiveSession.suspendExecute(bs)
-        val rows = rrset.rows().asFlow().toFastList()
+        val rows = rrset.rows().asFlow().toList()
 
         rows.size shouldBeEqualTo 1
         val row = rows.first()

@@ -1,9 +1,5 @@
 package org.javers.repository.jql
 
-import io.bluetape4k.collections.eclipse.fastListOf
-import io.bluetape4k.collections.eclipse.stream.toFastList
-import io.bluetape4k.collections.eclipse.unifiedMapOf
-import io.bluetape4k.collections.eclipse.unifiedSetOf
 import io.bluetape4k.javers.repository.jql.queryByInstance
 import io.bluetape4k.javers.repository.jql.queryByInstanceId
 import io.bluetape4k.logging.KLogging
@@ -36,7 +32,7 @@ abstract class AbstractJaversShadowTest: AbstractJaversRepositoryTest() {
 
         // WHEN
         val query = queryByInstanceId<SnapshotEntity>(1)
-        val shadows = javers.findShadowsAndStream<SnapshotEntity>(query).map { it.get() }.toFastList()
+        val shadows = javers.findShadowsAndStream<SnapshotEntity>(query).map { it.get() }.toList()
 
         // THEN
         shadows.size shouldBeEqualTo 2
@@ -63,7 +59,7 @@ abstract class AbstractJaversShadowTest: AbstractJaversRepositoryTest() {
         val query = queryByInstanceId<SnapshotEntity>(1) { limit(5) }
         val shadows = javers.findShadowsAndStream<SnapshotEntity>(query)
             .limit(12)
-            .toFastList()
+            .toList()
 
         // THEN
         shadows.size shouldBeEqualTo 5
@@ -84,7 +80,7 @@ abstract class AbstractJaversShadowTest: AbstractJaversRepositoryTest() {
     fun `query stream 이 skip 하기`() {
         val query = queryByInstanceId<SnapshotEntity>(1) { skip(5) }
         log.debug { "query=$query" }
-        val shadows = javers.findShadowsAndStream<SnapshotEntity>(query).toFastList()
+        val shadows = javers.findShadowsAndStream<SnapshotEntity>(query).toList()
         shadows.forEach { shadow ->
             log.debug { "shadow=$shadow" }
         }
@@ -108,7 +104,7 @@ abstract class AbstractJaversShadowTest: AbstractJaversRepositoryTest() {
             limit(5)
             withScopeDeepPlus(1)
         }
-        val shadows = javers.findShadowsAndStream<SnapshotEntity>(query).map { it.get() }.toFastList()
+        val shadows = javers.findShadowsAndStream<SnapshotEntity>(query).map { it.get() }.toList()
 
         // THEN
         shadows.size shouldBeEqualTo 5
@@ -217,9 +213,9 @@ abstract class AbstractJaversShadowTest: AbstractJaversRepositoryTest() {
         val reference = ShallowPhone(id = 2L, number = "123", category = CategoryC(2, "some"))
         val entity = SnapshotEntity(1).apply {
             shallowPhone = reference
-            shallowPhones = unifiedSetOf(reference)
-            shallowPhonesList = fastListOf(reference)
-            shallowPhonesMap = unifiedMapOf("key" to reference)
+            shallowPhones = mutableSetOf(reference)
+            shallowPhonesList = mutableListOf(reference)
+            shallowPhonesMap = mutableMapOf("key" to reference)
         }
 
         // entity만 commit 하고, reference는 commit하지 않는다

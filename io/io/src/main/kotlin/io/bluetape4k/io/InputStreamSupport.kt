@@ -1,6 +1,5 @@
 package io.bluetape4k.io
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.support.assertPositiveNumber
 import io.bluetape4k.support.assertZeroOrPositiveNumber
 import io.bluetape4k.support.toUtf8String
@@ -300,7 +299,7 @@ fun InputStream.toStringList(cs: Charset = UTF_8, blockSize: Int = DEFAULT_BLOCK
     reader(cs)
         .buffered(blockSize)
         .useLines {
-            it.toFastList()
+            it.toList()
         }
 
 /**
@@ -316,7 +315,7 @@ fun InputStream.toUtf8StringList(blockSize: Int = DEFAULT_BLOCK_SIZE): List<Stri
     reader(UTF_8)
         .buffered(blockSize)
         .useLines {
-            it.toFastList()
+            it.toList()
         }
 
 /**

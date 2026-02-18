@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.shared.entities
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.exposed.shared.entities.MovieSchema.ActorEntity
 import io.bluetape4k.exposed.shared.entities.MovieSchema.ActorTable
 import io.bluetape4k.exposed.shared.entities.MovieSchema.MovieEntity
@@ -28,21 +27,23 @@ fun ResultRow.toMovieRecord() = MovieRecord(
     id = this[MovieSchema.MovieTable.id].value
 )
 
-fun ResultRow.toMovieWithActorRecord(actors: List<ActorRecord>) = MovieWithActorRecord(
-    name = this[MovieTable.name],
-    producerName = this[MovieTable.producerName],
-    releaseDate = this[MovieTable.releaseDate].toString(),
-    actors = actors.toFastList(),
-    id = this[MovieTable.id].value
-)
+fun ResultRow.toMovieWithActorRecord(actors: List<ActorRecord>) =
+    MovieWithActorRecord(
+        name = this[MovieTable.name],
+        producerName = this[MovieTable.producerName],
+        releaseDate = this[MovieTable.releaseDate].toString(),
+        actors = actors.toList(),
+        id = this[MovieTable.id].value
+    )
 
-fun MovieRecord.toMovieWithActorRecord(actors: List<ActorRecord>) = MovieWithActorRecord(
-    name = this.name,
-    producerName = this.producerName,
-    releaseDate = this.releaseDate,
-    actors = actors.toFastList(),
-    id = this.id
-)
+fun MovieRecord.toMovieWithActorRecord(actors: List<ActorRecord>) =
+    MovieWithActorRecord(
+        name = this.name,
+        producerName = this.producerName,
+        releaseDate = this.releaseDate,
+        actors = actors.toList(),
+        id = this.id
+    )
 
 fun MovieEntity.toMovieRecord() = MovieRecord(
     name = this.name,
@@ -55,7 +56,7 @@ fun MovieEntity.toMovieWithActorRecord() = MovieWithActorRecord(
     name = this.name,
     producerName = this.producerName,
     releaseDate = this.releaseDate.toString(),
-    actors = this.actors.map { it.toActorRecord() }.toFastList(),
+    actors = this.actors.map { it.toActorRecord() }.toList(),
     id = this.id.value
 )
 

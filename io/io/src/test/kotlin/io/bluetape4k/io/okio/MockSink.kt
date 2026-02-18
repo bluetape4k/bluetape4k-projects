@@ -1,8 +1,5 @@
 package io.bluetape4k.io.okio
 
-import io.bluetape4k.collections.eclipse.fastListOf
-import io.bluetape4k.collections.eclipse.toFastList
-import io.bluetape4k.collections.eclipse.unifiedMapOf
 import io.bluetape4k.logging.KLogging
 import okio.Buffer
 import okio.Sink
@@ -17,11 +14,11 @@ class MockSink: Sink {
 
     companion object: KLogging()
 
-    private val logs = fastListOf<String>()
-    private val callThrows = unifiedMapOf<Int, Throwable>()
+    private val logs = mutableListOf<String>()
+    private val callThrows = mutableMapOf<Int, Throwable>()
 
     fun assertLog(vararg messages: String) {
-        messages.toFastList() shouldBeEqualTo logs
+        messages.toList() shouldBeEqualTo logs
     }
 
     fun assertLogContains(message: String) {

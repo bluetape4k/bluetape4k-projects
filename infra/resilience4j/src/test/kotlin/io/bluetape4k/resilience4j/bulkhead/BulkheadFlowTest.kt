@@ -1,7 +1,5 @@
 package io.bluetape4k.resilience4j.bulkhead
 
-import io.bluetape4k.collections.eclipse.fastListOf
-import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.resilience4j.SuspendHelloWorldService
@@ -63,7 +61,7 @@ class BulkheadFlowTest {
             }
         }
             .bulkhead(bulkhead)
-            .toFastList()
+            .toList()
 
         results shouldContainSame listOf(0, 1, 2)
 
@@ -80,7 +78,7 @@ class BulkheadFlowTest {
                 .maxWaitDuration(Duration.ZERO)
                 .build()
         }.registerEventListener()
-        val results = fastListOf<Int>()
+        val results = mutableListOf<Int>()
 
         val sync = Channel<Int>(Channel.RENDEZVOUS)
         val testFlow = flow {
@@ -89,7 +87,7 @@ class BulkheadFlowTest {
         }.bulkhead(bulkhead)
 
         val firstCall = launch {
-            testFlow.toFastList(results)
+            testFlow.toList(results)
         }
 
         // Wait until our first coroutine is inside the bulkhead
@@ -126,7 +124,7 @@ class BulkheadFlowTest {
     @Test
     fun `예외가 발생해도 bulkhead는 됩니다`() = runSuspendTest {
         val bulkhead = Bulkhead.ofDefaults("testName").registerEventListener()
-        val results = fastListOf<Int>()
+        val results = mutableListOf<Int>()
 
         assertFailsWith<IllegalStateException> {
             flow {

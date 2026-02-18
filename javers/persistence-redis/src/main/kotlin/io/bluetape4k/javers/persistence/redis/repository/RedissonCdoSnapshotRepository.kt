@@ -1,6 +1,5 @@
 package io.bluetape4k.javers.persistence.redis.repository
 
-import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.javers.codecs.JaversCodec
 import io.bluetape4k.javers.codecs.JaversCodecs
 import io.bluetape4k.javers.repository.AbstractCdoSnapshotRepository
@@ -50,7 +49,7 @@ class RedissonCdoSnapshotRepository(
         redisson.getMap(sequenceName, LongCodec())
 
     override fun getKeys(): Set<String> {
-        return snapshots.keySet().sorted().toUnifiedSet()
+        return snapshots.keySet().sorted().toSet()
             .apply {
                 log.trace { "load keys. size=$size" }
             }

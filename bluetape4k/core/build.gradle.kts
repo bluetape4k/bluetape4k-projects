@@ -41,10 +41,10 @@ dependencies {
     testImplementation(Libs.reactor_test)
 
     // Collections
-    api(Libs.eclipse_collections)
+    implementation(Libs.commons_collections4)
+    implementation(Libs.eclipse_collections)
     implementation(Libs.eclipse_collections_forkjoin)
     testImplementation(Libs.eclipse_collections_testutils)
-    compileOnly(Libs.commons_collections4)
 
     testImplementation(Libs.java_uuid_generator)
 

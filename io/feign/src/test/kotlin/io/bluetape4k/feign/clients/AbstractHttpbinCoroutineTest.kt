@@ -1,7 +1,6 @@
 package io.bluetape4k.feign.clients
 
 import feign.kotlin.CoroutineFeign
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.feign.coroutines.client
 import io.bluetape4k.feign.services.HttpbinService
 import io.bluetape4k.feign.services.Post
@@ -62,7 +61,7 @@ abstract class AbstractHttpbinCoroutineTest: AbstractHttpbinTest() {
 
     @Test
     fun `get user's posts`() = runSuspendIO {
-        val userIds = fastList(ITEM_SIZE) { Random.nextInt(1, 100) }.distinct()
+        val userIds = List(ITEM_SIZE) { Random.nextInt(1, 100) }.distinct()
 
         val deferred = userIds.map { userId ->
             async {
@@ -80,7 +79,7 @@ abstract class AbstractHttpbinCoroutineTest: AbstractHttpbinTest() {
 
     @Test
     open fun `get post's comments`() = runSuspendIO {
-        val postIds = fastList(ITEM_SIZE) { Random.nextInt(1, 20) }.distinct()
+        val postIds = List(ITEM_SIZE) { Random.nextInt(1, 20) }.distinct()
 
         val deferred = postIds.map { postId ->
             async {
@@ -103,7 +102,7 @@ abstract class AbstractHttpbinCoroutineTest: AbstractHttpbinTest() {
 
     @Test
     fun `get albums by userId`() = runSuspendIO {
-        val userIds = fastList(ITEM_SIZE) { Random.nextInt(1, 100) }.distinct()
+        val userIds = List(ITEM_SIZE) { Random.nextInt(1, 100) }.distinct()
 
         val deferred = userIds.map { userId ->
             async {
@@ -140,7 +139,7 @@ abstract class AbstractHttpbinCoroutineTest: AbstractHttpbinTest() {
 
     @Test
     fun `update exists post`() = runSuspendIO {
-        val postIds = fastList(ITEM_SIZE) { Random.nextInt(1, 100) }.distinct()
+        val postIds = List(ITEM_SIZE) { Random.nextInt(1, 100) }.distinct()
 
         val deferred = postIds.map { postId ->
             async {

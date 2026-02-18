@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.redisson.repository.scenarios
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.redisson.repository.scenarios.CacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.tests.TestDB
@@ -99,7 +98,7 @@ interface WriteThroughScenario<T: HasIdentifier<ID>, ID: Any>: CacheTestScenario
 
         withEntityTable(testDB) {
             val prevCount = repository.entityTable.selectAll().count()
-            val newEntities = fastList(5) { createNewEntity() }
+            val newEntities = List(5) { createNewEntity() }
             repository.putAll(newEntities)
 
             val newCount = repository.entityTable.selectAll().count()

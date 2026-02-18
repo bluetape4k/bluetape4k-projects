@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.redisson.repository.scenarios
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
@@ -20,7 +19,7 @@ interface WriteBehindScenario<T: HasIdentifier<ID>, ID: Any>: CacheTestScenario<
     fun createNewEntity(): T
 
     fun createNewEntities(count: Int): List<T> {
-        return fastList(count) { createNewEntity() }
+        return List(count) { createNewEntity() }
     }
 
     fun getAllCountFromDB() = transaction {

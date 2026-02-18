@@ -1,6 +1,5 @@
 package io.bluetape4k.http.okhttp3
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.concurrent.allAsList
 import io.bluetape4k.concurrent.onFailure
 import io.bluetape4k.concurrent.onSuccess
@@ -57,7 +56,7 @@ class OkHttp3SupportTest: AbstractHttpTest() {
                 get()
             }
 
-            val futures = fastList(TEST_SIZE) { index ->
+            val futures = List(TEST_SIZE) { index ->
                 val sw = StopWatch.createStarted()
 
                 client.executeAsync(request)
@@ -106,7 +105,7 @@ class OkHttp3SupportTest: AbstractHttpTest() {
                 get()
             }
 
-            val tasks = fastList(TEST_SIZE) { index ->
+            val tasks = List(TEST_SIZE) { index ->
                 async(Dispatchers.IO) {
                     val sw = StopWatch.createStarted()
 

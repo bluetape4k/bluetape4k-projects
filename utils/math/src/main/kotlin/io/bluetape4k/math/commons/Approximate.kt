@@ -1,6 +1,5 @@
 package io.bluetape4k.math.commons
 
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.math.MathConsts.EPSILON
 import io.bluetape4k.math.MathConsts.FLOAT_EPSILON
 import java.math.BigDecimal
@@ -19,28 +18,28 @@ fun BigDecimal.approximateEqual(that: BigDecimal, epsilon: BigDecimal = EPSILON.
 fun Iterable<Double>.filterApproximate(
     that: Double,
     epsilon: Double = EPSILON,
+    destination: MutableList<Double> = mutableListOf(),
 ): List<Double> {
-    val results = fastListOf<Double>()
-    filterTo(results) { it.approximateEqual(that, epsilon) }
-    return results
+    filterTo(destination) { it.approximateEqual(that, epsilon) }
+    return destination
 }
 
 fun Iterable<Float>.filterApproximate(
     that: Float,
     epsilon: Float = FLOAT_EPSILON,
+    destination: MutableList<Float> = mutableListOf(),
 ): List<Float> {
-    val results = fastListOf<Float>()
-    filterTo(results) { it.approximateEqual(that, epsilon) }
-    return results
+    filterTo(destination) { it.approximateEqual(that, epsilon) }
+    return destination
 }
 
 fun Iterable<BigDecimal>.filterApproximate(
     that: BigDecimal,
     epsilon: BigDecimal = EPSILON.toBigDecimal(),
+    destination: MutableList<BigDecimal> = mutableListOf(),
 ): List<BigDecimal> {
-    val results = fastListOf<BigDecimal>()
-    filterTo(results) { it.approximateEqual(that, epsilon) }
-    return results
+    filterTo(destination) { it.approximateEqual(that, epsilon) }
+    return destination
 }
 
 fun Sequence<Double>.filterApproximate(

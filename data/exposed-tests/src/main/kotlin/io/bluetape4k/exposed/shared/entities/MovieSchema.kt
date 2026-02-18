@@ -1,7 +1,6 @@
 package io.bluetape4k.exposed.shared.entities
 
 import io.bluetape4k.ToStringBuilder
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
@@ -136,25 +135,25 @@ object MovieSchema: KLogging() {
                 "Gladiator",
                 johnnyDepp.firstName,
                 "2000-05-01",
-                fastListOf(russellCrowe, ellenPaige, craigDaniel)
+                listOf(russellCrowe, ellenPaige, craigDaniel)
             ),
             MovieWithActorRecord(
                 "Guardians of the galaxy",
                 johnnyDepp.firstName,
                 "2014-07-21",
-                fastListOf(angelinaGrace, bradPitt, ellenPaige, angelinaJolie, johnnyDepp)
+                listOf(angelinaGrace, bradPitt, ellenPaige, angelinaJolie, johnnyDepp)
             ),
             MovieWithActorRecord(
                 "Fight club",
                 craigDaniel.firstName,
                 "1999-09-13",
-                fastListOf(bradPitt, jenniferAniston, edwardNorton)
+                listOf(bradPitt, jenniferAniston, edwardNorton)
             ),
             MovieWithActorRecord(
                 "13 Reasons Why",
                 "Suzuki",
                 "2016-01-01",
-                fastListOf(angelinaJolie, jenniferAniston)
+                listOf(angelinaJolie, jenniferAniston)
             )
         )
 

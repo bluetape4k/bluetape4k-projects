@@ -1,7 +1,6 @@
 package io.bluetape4k.exposed.repository
 
-import io.bluetape4k.collections.eclipse.toFastList
-import io.bluetape4k.collections.eclipse.unifiedMapOf
+import io.bluetape4k.exposed.domain.model.ActorRecord
 import io.bluetape4k.exposed.domain.model.MovieActorCountRecord
 import io.bluetape4k.exposed.domain.model.MovieRecord
 import io.bluetape4k.exposed.domain.model.MovieSchema.ActorInMovieTable
@@ -41,9 +40,9 @@ class MovieRepository: ExposedRepository<MovieRecord, Long> {
 
         params.forEach { (key, value) ->
             when (key) {
-                MovieTable::id.name -> value?.run { query.andWhere { MovieTable.id eq value.toLong() } }
+                MovieTable::id.name          -> value?.run { query.andWhere { MovieTable.id eq value.toLong() } }
 
-                MovieTable::name.name -> value?.run { query.andWhere { MovieTable.name eq value } }
+                MovieTable::name.name        -> value?.run { query.andWhere { MovieTable.name eq value } }
                 MovieTable::producerName.name -> value?.run {
                     query.andWhere { MovieTable.producerName eq value }
                 }
@@ -53,7 +52,7 @@ class MovieRepository: ExposedRepository<MovieRecord, Long> {
             }
         }
 
-        return MovieEntity.wrapRows(query).toFastList()
+        return MovieEntity.wrapRows(query).toList()
     }
 
     fun save(movieRecord: MovieRecord): MovieRecord {
@@ -86,7 +85,8 @@ class MovieRepository: ExposedRepository<MovieRecord, Long> {
         log.debug { "Get all movies with actors." }
 
         val join = table.innerJoin(ActorInMovieTable).innerJoin(ActorTable)
-        val movies = unifiedMapOf<Long, MovieWithActorRecord>()
+        val movies = mutableMapOf<Long, MovieWithActorRecord>()
+        val actors = mutableListOf<ActorRecord>()
 
         join
             .select(
@@ -99,21 +99,20 @@ class MovieRepository: ExposedRepository<MovieRecord, Long> {
                 ActorTable.lastName,
                 ActorTable.birthday
             )
-            .forEach {
-                val movieId = it[MovieTable.id].value
-                val movie = movies.getIfAbsentPut(movieId) {
+            .forEach { row ->
+                val movieId = row[MovieTable.id].value
+                val movie = movies.computeIfAbsent(movieId) {
                     MovieWithActorRecord(
-                        id = it[MovieTable.id].value,
-                        name = it[MovieTable.name],
-                        producerName = it[MovieTable.producerName],
-                        releaseDate = it[MovieTable.releaseDate].toString(),
+                        id = row[MovieTable.id].value,
+                        name = row[MovieTable.name],
+                        producerName = row[MovieTable.producerName],
+                        releaseDate = row[MovieTable.releaseDate].toString(),
                     )
                 }
-                movie.actors.add(it.toActorRecord())
-
+                movie.actors.add(row.toActorRecord())
             }
 
-        return movies.values.toFastList()
+        return movies.values.toList()
     }
 
     /**

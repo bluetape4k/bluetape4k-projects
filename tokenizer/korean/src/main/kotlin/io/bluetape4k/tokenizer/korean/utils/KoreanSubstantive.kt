@@ -1,7 +1,5 @@
 package io.bluetape4k.tokenizer.korean.utils
 
-import io.bluetape4k.collections.eclipse.fastListOf
-import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.tokenizer.korean.tokenizer.KoreanToken
 import io.bluetape4k.tokenizer.korean.utils.Hangul.composeHangul
@@ -65,8 +63,8 @@ object KoreanSubstantive: KLogging() {
         }
     }
 
-    private val NUMBER_CHARS = "일이삼사오육칠팔구천백십해경조억만".map { it.code }.toUnifiedSet()
-    private val NUMBER_LAST_CHARS = "일이삼사오육칠팔구천백십해경조억만원배분초".map { it.code }.toUnifiedSet()
+    private val NUMBER_CHARS = "일이삼사오육칠팔구천백십해경조억만".map { it.code }.toSet()
+    private val NUMBER_LAST_CHARS = "일이삼사오육칠팔구천백십해경조억만원배분초".map { it.code }.toSet()
 
     /**
      * 한글 숫자 텍스트인지 확인합니다.
@@ -133,7 +131,7 @@ object KoreanSubstantive: KLogging() {
             when (i) {
                 s.lastIndex -> '이'
                 s.lastIndex - 1 -> composeHangul(hc.copy(coda = decomposed.last().onset))
-                else -> composeHangul(hc)
+                else        -> composeHangul(hc)
             }
         }.joinToString("")
 
@@ -151,7 +149,7 @@ object KoreanSubstantive: KLogging() {
      * @return 알 수 없는 명사로 합쳐진 토큰 컬렉션
      */
     fun collapseNouns(posNodes: Iterable<KoreanToken>): List<KoreanToken> {
-        val nodes = fastListOf<KoreanToken>()
+        val nodes = mutableListOf<KoreanToken>()
         var collapsing = false
 
         posNodes.forEach {

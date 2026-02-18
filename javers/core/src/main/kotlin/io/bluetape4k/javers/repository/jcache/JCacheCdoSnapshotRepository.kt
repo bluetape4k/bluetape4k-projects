@@ -2,8 +2,6 @@ package io.bluetape4k.javers.repository.jcache
 
 import io.bluetape4k.cache.jcache.getOrCreate
 import io.bluetape4k.cache.jcache.jcacheConfiguration
-import io.bluetape4k.collections.eclipse.fastListOf
-import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.javers.codecs.JaversCodec
 import io.bluetape4k.javers.codecs.JaversCodecs
 import io.bluetape4k.javers.repository.AbstractCdoSnapshotRepository
@@ -53,7 +51,7 @@ class JCacheCdoSnapshotRepository(
     }
 
     override fun getKeys(): Set<String> {
-        return snapshotCache.map { it.key }.toUnifiedSet()
+        return snapshotCache.map { it.key }.toSet()
     }
 
     override fun contains(globalIdValue: String): Boolean {
@@ -75,7 +73,7 @@ class JCacheCdoSnapshotRepository(
             val globalIdValue = snapshot.globalId.value()
 
             // NOTE: JCache 는 기본적으로 Reference를 저장하지만, 여기서는 Value로 저장해야 합니다.
-            val snapshots = snapshotCache.get(globalIdValue) ?: fastListOf()
+            val snapshots = snapshotCache.get(globalIdValue) ?: mutableListOf()
             val encoded = encode(snapshot)
             snapshots.add(0, encoded)
             snapshotCache.put(globalIdValue, snapshots)

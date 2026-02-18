@@ -1,6 +1,5 @@
 package io.bluetape4k.spring.core.io.buffer
 
-import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.io.getAllBytes
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.spring.AbstractSpringTest
@@ -10,6 +9,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asPublisher
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
@@ -48,7 +48,7 @@ class DataBufferSupportTest: AbstractSpringTest() {
                     }
             }
 
-        result.take(content.size).toFastList().toByteArray() shouldBeEqualTo content
+        result.take(content.size).toList().toByteArray() shouldBeEqualTo content
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -95,7 +95,7 @@ class DataBufferSupportTest: AbstractSpringTest() {
                     }
             }
 
-        bytes.toFastList() shouldBeEqualTo content.take(3)
+        bytes.toList() shouldBeEqualTo content.take(3)
     }
 
     @Test
@@ -104,7 +104,7 @@ class DataBufferSupportTest: AbstractSpringTest() {
         val dataBuffer = bufferFactory.wrap(content)
         val publisher = flowOf(dataBuffer).asPublisher()
 
-        val result = publisher.skipUntilByteCount(3).toFastList()
+        val result = publisher.skipUntilByteCount(3).toList()
         val bytes = result
             .flatMap {
                 it.readableByteBuffers().asSequence().flatMap { byteBuffer ->

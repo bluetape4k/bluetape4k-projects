@@ -1,6 +1,5 @@
 package io.bluetape4k.http.hc5.examples
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.async.executeSuspending
 import io.bluetape4k.http.hc5.async.httpAsyncClient
@@ -55,7 +54,7 @@ class AsyncClientInterceptors: AbstractHc5Test() {
 
         client.start()
 
-        fastList(20) {
+        List(20) {
             val request = simpleHttpRequestOf(Method.GET, target, path)
 
             // FIXME: in coroutine mode, ExecInterceptorAfter runs before request interceptor.

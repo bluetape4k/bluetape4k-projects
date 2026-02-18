@@ -1,6 +1,5 @@
 package io.bluetape4k.spring.ui
 
-import io.bluetape4k.collections.eclipse.toUnifiedMap
 import org.springframework.ui.Model
 
 /**
@@ -14,7 +13,7 @@ import org.springframework.ui.Model
  * @return [Model] 인스턴스
  */
 fun Model.addAttributes(vararg pairs: Pair<String, Any?>): Model =
-    addAllAttributes(pairs.toUnifiedMap())
+    addAllAttributes(pairs.toMap())
 
 /**
  * [Model]에 속성을 합칩니다.
@@ -27,4 +26,4 @@ fun Model.addAttributes(vararg pairs: Pair<String, Any?>): Model =
  * @return [Model] 인스턴스
  */
 fun Model.mergeAttributes(vararg pairs: Pair<String, Any?>): Model =
-    mergeAttributes(pairs.toUnifiedMap())
+    mergeAttributes(pairs.toMap())

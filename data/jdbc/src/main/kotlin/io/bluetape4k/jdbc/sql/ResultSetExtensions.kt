@@ -1,7 +1,6 @@
 package io.bluetape4k.jdbc.sql
 
-import io.bluetape4k.collections.eclipse.fastList
-import io.bluetape4k.collections.eclipse.toFastList
+import io.bluetape4k.collections.toList
 import java.io.InputStream
 import java.io.Reader
 import java.math.BigDecimal
@@ -177,7 +176,7 @@ inline fun <T> ResultSet.sequence(crossinline mapper: (ResultSet) -> T): Sequenc
  * @param mapper ResultSet를 이용하여 객체를 생성하는 코드
  */
 inline fun <T> ResultSet.map(crossinline mapper: ResultSet.() -> T): List<T> {
-    return this@map.iterator(mapper).toFastList()
+    return this@map.iterator(mapper).toList()
 }
 
 /**
@@ -203,7 +202,7 @@ inline fun <T> ResultSet.mapAsSequence(crossinline mapper: ResultSet.() -> T): S
 val ResultSet.columnNames: List<String>
     get() {
         val meta = this.metaData
-        return fastList(meta.columnCount) { meta.getColumnName(it + 1) ?: it.toString() }
+        return List(meta.columnCount) { meta.getColumnName(it + 1) ?: it.toString() }
     }
 
 /**

@@ -1,7 +1,5 @@
 package io.bluetape4k.resilience4j.retry
 
-import io.bluetape4k.collections.eclipse.fastListOf
-import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.resilience4j.SuspendHelloWorldService
@@ -9,6 +7,7 @@ import io.github.resilience4j.kotlin.retry.retry
 import io.github.resilience4j.retry.Retry
 import io.github.resilience4j.retry.RetryConfig
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.toList
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
@@ -31,7 +30,7 @@ class FlowRetryTest {
             }
         }
             .retry(retry)
-            .toFastList()
+            .toList()
 
         repeat(3) {
             results[it] shouldBeEqualTo "Hello world$it"
@@ -66,7 +65,7 @@ class FlowRetryTest {
             }
         }
             .retry(retry)
-            .toFastList()
+            .toList()
 
         repeat(3) {
             results[it] shouldBeEqualTo "Hello world$it"
@@ -97,7 +96,7 @@ class FlowRetryTest {
             emit(helloWorldService.returnHelloWorld())
         }
             .retry(retry)
-            .toFastList()
+            .toList()
 
         results.size shouldBeEqualTo 1
         results[0] shouldBeEqualTo "Hello world"
@@ -119,12 +118,12 @@ class FlowRetryTest {
                 .build()
         }
         val metrics = retry.metrics
-        val results = fastListOf<String>()
+        val results = mutableListOf<String>()
 
         assertFailsWith<IllegalStateException> {
             flow<String> { helloWorldService.throwException() }
                 .retry(retry)
-                .toFastList(results)
+                .toList(results)
         }
 
         results.shouldBeEmpty()

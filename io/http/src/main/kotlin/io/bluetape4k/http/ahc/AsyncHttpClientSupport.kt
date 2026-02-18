@@ -2,7 +2,6 @@
 
 package io.bluetape4k.http.ahc
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.netty.isPresentNettyTransportNativeEpoll
 import io.bluetape4k.netty.isPresentNettyTransportNativeKQueue
 import io.bluetape4k.support.unsafeLazy
@@ -99,6 +98,6 @@ inline fun asyncHttpClientOf(
 
 /** 지정한 request filter를 등록한 [AsyncHttpClient]를 생성합니다. */
 inline fun asyncHttpClientOf(vararg requestFilters: RequestFilter): AsyncHttpClient {
-    val config = asyncHttpClientConfigOf(requestFilters.toFastList())
+    val config = asyncHttpClientConfigOf(requestFilters.toList())
     return asyncHttpClientOf(config)
 }

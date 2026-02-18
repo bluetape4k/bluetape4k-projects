@@ -59,9 +59,11 @@ dependencies {
     compileOnly(Libs.fastjson2)
     compileOnly(Libs.fastjson2_kotlin)
 
-    // Gson
-    compileOnly(Libs.gson)
-    compileOnly(Libs.gson_javatime_serializers)
+    // Collections
+    implementation(Libs.commons_collections4)
+    implementation(Libs.eclipse_collections)
+    implementation(Libs.eclipse_collections_forkjoin)
+    testImplementation(Libs.eclipse_collections_testutils)
 
     // Resilience4j
     compileOnly(project(":bluetape4k-resilience4j"))

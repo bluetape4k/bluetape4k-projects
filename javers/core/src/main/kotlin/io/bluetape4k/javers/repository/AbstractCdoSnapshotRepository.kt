@@ -1,8 +1,6 @@
 package io.bluetape4k.javers.repository
 
 import com.google.gson.JsonObject
-import io.bluetape4k.collections.eclipse.fastListOf
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.idgenerators.snowflake.Snowflake
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
 import io.bluetape4k.javers.codecs.JaversCodec
@@ -104,11 +102,11 @@ abstract class AbstractCdoSnapshotRepository<T: Any>(
     }
 
     override fun getLatest(globalIds: MutableCollection<GlobalId>): MutableList<CdoSnapshot> {
-        return globalIds.mapNotNull { getLatest(it).getOrNull() }.toFastList()
+        return globalIds.mapNotNull { getLatest(it).getOrNull() }.toMutableList()
     }
 
     override fun getStateHistory(globalId: GlobalId, queryParams: QueryParams): MutableList<CdoSnapshot> {
-        val filtered = fastListOf<CdoSnapshot>()
+        val filtered = mutableListOf<CdoSnapshot>()
         getAll().forEach snapshot@{ snapshot ->
             if (snapshot.globalId == globalId) {
                 filtered.add(snapshot)
@@ -126,7 +124,7 @@ abstract class AbstractCdoSnapshotRepository<T: Any>(
         givenClasses: MutableSet<ManagedType>,
         queryParams: QueryParams,
     ): MutableList<CdoSnapshot> {
-        val filtered = fastListOf<CdoSnapshot>()
+        val filtered = mutableListOf<CdoSnapshot>()
 
         getAll().forEach snapshot@{ snapshot ->
             givenClasses.forEach classes@{ givenClass ->
@@ -186,7 +184,10 @@ abstract class AbstractCdoSnapshotRepository<T: Any>(
 
     override fun getHeadId(): CommitId? = head
 
-    private fun applyQueryParams(snapshots: Sequence<CdoSnapshot>, queryParams: QueryParams): MutableList<CdoSnapshot> {
+    private fun applyQueryParams(
+        snapshots: Sequence<CdoSnapshot>,
+        queryParams: QueryParams,
+    ): MutableList<CdoSnapshot> {
         var results = snapshots
         if (queryParams.commitIds().isNotEmpty()) {
             results = results.filterByCommitIds(queryParams.commitIds())
@@ -211,10 +212,15 @@ abstract class AbstractCdoSnapshotRepository<T: Any>(
         }
         results = results.filterByCommitProperties(queryParams.commitProperties())
 
-        return results.drop(queryParams.skip()).take(queryParams.limit()).toFastList()
+        return results
+            .drop(queryParams.skip())
+            .take(queryParams.limit())
+            .toMutableList()
     }
 
-    private fun getPersistedIdentifiers(snapshotIdentifiers: Collection<SnapshotIdentifier>): List<SnapshotIdentifier> {
+    private fun getPersistedIdentifiers(
+        snapshotIdentifiers: Collection<SnapshotIdentifier>,
+    ): List<SnapshotIdentifier> {
         return snapshotIdentifiers
             .filter {
                 contains(it.globalId) && it.version <= getSnapshotSize(it.globalId)

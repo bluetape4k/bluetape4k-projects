@@ -1,7 +1,5 @@
 package io.bluetape4k.tokenizer.korean.utils
 
-import io.bluetape4k.collections.eclipse.toUnifiedMap
-import io.bluetape4k.collections.eclipse.unifiedMapOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.publicLazy
 import io.bluetape4k.tokenizer.korean.utils.KoreanConjugation.conjugatePredicated
@@ -61,7 +59,7 @@ object KoreanDictionaryProvider: KLogging() {
      */
     val koreanDictionary: MutableMap<KoreanPos, CharArraySet> by lazy {
         runBlocking(Dispatchers.IO) {
-            unifiedMapOf<KoreanPos, CharArraySet>()
+            mutableMapOf<KoreanPos, CharArraySet>()
                 .apply {
                     put(
                         Noun,
@@ -183,7 +181,7 @@ object KoreanDictionaryProvider: KLogging() {
             val familyName = async { readWords("substantives/family_names.txt") }
             val givenName = async { readWords("substantives/given_names.txt") }
             val fullName = async { readWords("noun/kpop.txt", "noun/foreign.txt", "noun/names.txt") }
-            unifiedMapOf(
+            mapOf(
                 "family_name" to familyName.await(),
                 "given_name" to givenName.await(),
                 "full_name" to fullName.await()
@@ -199,7 +197,7 @@ object KoreanDictionaryProvider: KLogging() {
             val grouped = DictionaryProvider.readWordMap("$BASE_PATH/typos/typos.txt")
                 .groupBy { it.first.length }
             // val grouped = readWordMap("typos/typos.txt").toList().groupBy { it.first.length }
-            val result = unifiedMapOf<Int, Map<String, String>>()
+            val result = mutableMapOf<Int, Map<String, String>>()
 
             grouped.forEach { (index, pair) ->
                 result[index] = pair.associate { (k, v) -> k to v }
@@ -223,13 +221,13 @@ object KoreanDictionaryProvider: KLogging() {
                         it to word + "다"
                     }
                 }
-                .toUnifiedMap()
+                .toMap()
         }
 
         runBlocking(Dispatchers.IO) {
             val verb = async { readWordsAsSet("verb/verb.txt") }
             val adjective = async { readWordsAsSet("adjective/adjective.txt") }
-            unifiedMapOf(
+            mapOf(
                 Verb to getConjugationMap(verb.await(), false),
                 Adjective to getConjugationMap(adjective.await(), true)
             )

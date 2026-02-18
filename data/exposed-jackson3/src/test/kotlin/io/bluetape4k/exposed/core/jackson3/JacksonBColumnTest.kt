@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.core.jackson3
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.exposed.core.jackson3.JacksonSchema.DataHolder
 import io.bluetape4k.exposed.core.jackson3.JacksonSchema.User
 import io.bluetape4k.exposed.core.jackson3.JacksonSchema.withJacksonBArrays
@@ -624,7 +623,7 @@ class JacksonBColumnTest: AbstractExposedTest() {
             val nestedKeyResult = tester
                 .selectAll()
                 .where { tester.jacksonBColumn keyExists "name" }
-                .toFastList()
+                .toList()
             nestedKeyResult.shouldBeEmpty()
         }
     }

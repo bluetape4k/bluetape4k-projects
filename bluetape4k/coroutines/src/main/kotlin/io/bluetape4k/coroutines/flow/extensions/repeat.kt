@@ -101,7 +101,7 @@ private fun <T> repeatInternal(
 ): Flow<T> = when {
     infinite -> repeatIndefinitely(flow, durationFunc)
     count <= 0 -> emptyFlow()
-    else -> repeatAtMostCount(flow, count, durationFunc)
+    else     -> repeatAtMostCount(flow, count, durationFunc)
 }
 
 private fun <T> repeatIndefinitely(

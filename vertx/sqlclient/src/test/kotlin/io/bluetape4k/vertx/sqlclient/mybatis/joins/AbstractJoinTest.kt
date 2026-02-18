@@ -1,7 +1,5 @@
 package io.bluetape4k.vertx.sqlclient.mybatis.joins
 
-import io.bluetape4k.collections.eclipse.toFastList
-import io.bluetape4k.collections.eclipse.unifiedMapOf
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -48,10 +46,10 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
 
     // NOTE: One-To-Many Association은 어쩔 수 없이 수동으로 Merge 해야 한다
     private fun RowSet<Row>.mapToOrderMasters(): List<OrderMaster> {
-        val orderMasters = unifiedMapOf<Int, OrderMaster>()
+        val orderMasters = mutableMapOf<Int, OrderMaster>()
         this.forEach { row ->
             val orderId = row.getInteger("order_id")
-            val orderMaster = orderMasters.getIfAbsentPut(orderId) {
+            val orderMaster = orderMasters.computeIfAbsent(orderId) {
                 OrderMaster(
                     orderId,
                     row.getLocalDate("order_date")
@@ -66,7 +64,7 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                 )
             )
         }
-        return orderMasters.values.toFastList()
+        return orderMasters.values.toList()
     }
 
     @Nested
@@ -146,7 +144,7 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
 
                 // {"order_id":2,"order_date":"2017-01-18","line_number":1,"item_id":22,"quantity":1,"description":"Helmet"},
                 // {"order_id":2,"order_date":"2017-01-18","line_number":2,"item_id":44,"quantity":1,"description":"Outfield Glove"}
-                val rows = rowSet.toFastList()
+                val rows = rowSet.toList()
                 rows shouldHaveSize 2
                 with(rows[0]) {
                     getInteger("order_id") shouldBeEqualTo 2
@@ -228,7 +226,7 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                 }
 
                 orderRecords shouldHaveSize 6
-                orderRecords.toFastList() shouldBeEqualTo expected
+                orderRecords.toList() shouldBeEqualTo expected
             }
         }
 
@@ -322,7 +320,7 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                 }
 
                 orderRecords shouldHaveSize 6
-                orderRecords.toFastList() shouldBeEqualTo expected
+                orderRecords.toList() shouldBeEqualTo expected
             }
         }
 
@@ -379,7 +377,7 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                 }
 
                 orderRecords shouldHaveSize 6
-                orderRecords.toFastList() shouldBeEqualTo expected
+                orderRecords.toList() shouldBeEqualTo expected
             }
         }
     }
@@ -408,7 +406,7 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                     orderBy(orderLine.orderId, itemMaster.itemId)
                 }
                 // orderRecords shouldHaveSize 5
-                orderRecords.toFastList() shouldBeEqualTo expected
+                orderRecords.toList() shouldBeEqualTo expected
             }
         }
 
@@ -451,7 +449,7 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
 
 
                 orderRecords shouldHaveSize 5
-                orderRecords.toFastList() shouldBeEqualTo expected
+                orderRecords.toList() shouldBeEqualTo expected
             }
         }
 
@@ -473,7 +471,7 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                 }
 
                 orderRecords shouldHaveSize 5
-                orderRecords.toFastList() shouldBeEqualTo expected
+                orderRecords.toList() shouldBeEqualTo expected
             }
         }
     }
@@ -502,7 +500,7 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                     orderBy(orderLine.orderId, itemMaster.itemId)
                 }
                 orderRecords shouldHaveSize 5
-                orderRecords.toFastList() shouldBeEqualTo expected
+                orderRecords.toList() shouldBeEqualTo expected
             }
         }
 
@@ -545,7 +543,7 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
 
 
                 orderRecords shouldHaveSize 5
-                orderRecords.toFastList() shouldBeEqualTo expected
+                orderRecords.toList() shouldBeEqualTo expected
             }
         }
 
@@ -567,7 +565,7 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                 }
 
                 orderRecords shouldHaveSize 5
-                orderRecords.toFastList() shouldBeEqualTo expected
+                orderRecords.toList() shouldBeEqualTo expected
             }
         }
     }
@@ -601,7 +599,7 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                 }
 
                 users shouldHaveSize 1
-                users.toFastList() shouldBeEqualTo expectedUsers
+                users.toList() shouldBeEqualTo expectedUsers
             }
         }
 
@@ -626,7 +624,7 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                 }
 
                 users shouldHaveSize 1
-                users.toFastList() shouldBeEqualTo expectedUsers
+                users.toList() shouldBeEqualTo expectedUsers
             }
         }
 
@@ -652,7 +650,7 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                 }
 
                 users shouldHaveSize 1
-                users.toFastList() shouldBeEqualTo expectedUsers
+                users.toList() shouldBeEqualTo expectedUsers
             }
         }
     }

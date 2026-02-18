@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.repository
 
-import io.bluetape4k.collections.eclipse.fastMap
 import io.bluetape4k.exposed.core.HasIdentifier
 import org.jetbrains.exposed.v1.core.AbstractQuery
 import org.jetbrains.exposed.v1.core.Column
@@ -164,7 +163,7 @@ interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
                 offset?.run { offset(offset) }
             }
             .orderBy(table.id, sortOrder)
-            .fastMap { it.toEntity() }
+            .map { it.toEntity() }
 
     /**
      * 여러 조건을 and로 결합하여 엔티티를 조회합니다.
@@ -254,7 +253,7 @@ interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
     fun <V> findByField(field: Column<V>, value: V): List<T> =
         table.selectAll()
             .where { field eq value }
-            .fastMap { it.toEntity() }
+            .map { it.toEntity() }
 
     /**
      * 엔티티를 삭제합니다.
@@ -339,7 +338,7 @@ interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
             shouldReturnGeneratedValues = shouldReturnGeneratedValues,
             body = insertStatement
         )
-        .fastMap { it.toEntity() }
+        .map { it.toEntity() }
 
     /**
      * 여러 엔티티를 일괄 삽입합니다.
@@ -361,7 +360,7 @@ interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
             shouldReturnGeneratedValues = shouldReturnGeneratedValues,
             body = insertStatement
         )
-        .fastMap { it.toEntity() }
+        .map { it.toEntity() }
 
     /**
      * 여러 엔티티를 일괄 Upsert 합니다.
@@ -397,7 +396,7 @@ interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
             shouldReturnGeneratedValues = shouldReturnGeneratedValues,
             body = body
         )
-        .fastMap { it.toEntity() }
+        .map { it.toEntity() }
 
     /**
      * 여러 엔티티를 일괄 Upsert 합니다.
@@ -433,5 +432,5 @@ interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
             shouldReturnGeneratedValues = shouldReturnGeneratedValues,
             body = body
         )
-        .fastMap { it.toEntity() }
+        .map { it.toEntity() }
 }

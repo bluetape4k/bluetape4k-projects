@@ -83,5 +83,8 @@ dependencies {
     implementation(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)
 
+    // Eclipse Collections
+    implementation(Libs.eclipse_collections)
+
     testImplementation(Libs.assertj_core)
 }

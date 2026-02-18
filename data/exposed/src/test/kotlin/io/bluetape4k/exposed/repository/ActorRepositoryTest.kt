@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.repository
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.exposed.domain.model.ActorRecord
 import io.bluetape4k.exposed.domain.model.MovieSchema.withMovieAndActors
 import io.bluetape4k.exposed.domain.model.toActorRecord
@@ -349,7 +348,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
     fun `batch insert with entities`(testDB: TestDB) {
         withMovieAndActors(testDB) {
             val batchCount = 10
-            val entities = fastList(batchCount) { newActorRecord() }
+            val entities = List(batchCount) { newActorRecord() }
 
             val inserted = repository.batchInsert(entities) { actor ->
                 this[repository.table.firstName] = actor.firstName
@@ -367,7 +366,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
     fun `batch insert with entities as sequence`(testDB: TestDB) {
         withMovieAndActors(testDB) {
             val batchCount = 10
-            val entities = fastList(batchCount) { newActorRecord() }.asSequence()
+            val entities = List(batchCount) { newActorRecord() }.asSequence()
 
             val inserted = repository.batchInsert(entities) { actor ->
                 this[repository.table.firstName] = actor.firstName
@@ -385,7 +384,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
     fun `batch update with entities`(testDB: TestDB) {
         withMovieAndActors(testDB) {
             val batchCount = 10
-            val entities = fastList(batchCount) { newActorRecord() }
+            val entities = List(batchCount) { newActorRecord() }
 
             val inserted = repository.batchInsert(entities) { actor ->
                 this[repository.table.firstName] = actor.firstName
@@ -414,7 +413,7 @@ class ActorRepositoryTest: AbstractExposedTest() {
     fun `batch update with entities as sequence`(testDB: TestDB) {
         withMovieAndActors(testDB) {
             val batchCount = 10
-            val entities = fastList(batchCount) { newActorRecord() }.asSequence()
+            val entities = List(batchCount) { newActorRecord() }.asSequence()
 
             val inserted = repository.batchInsert(entities) { actor ->
                 this[repository.table.firstName] = actor.firstName

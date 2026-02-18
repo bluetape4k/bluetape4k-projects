@@ -1,7 +1,5 @@
 package io.bluetape4k.resilience4j.circuitbreaker
 
-import io.bluetape4k.collections.eclipse.fastListOf
-import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException
@@ -14,6 +12,7 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
@@ -33,7 +32,7 @@ class FlowCircuitBreakerTest {
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
 
-        val results = fastListOf<Int>()
+        val results = mutableListOf<Int>()
 
         // When
         flow {
@@ -42,7 +41,7 @@ class FlowCircuitBreakerTest {
             }
         }
             .circuitBreaker(circuitBreaker)
-            .toFastList(results)
+            .toList(results)
 
         repeat(3) {
             results[it] shouldBeEqualTo it
@@ -60,7 +59,7 @@ class FlowCircuitBreakerTest {
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
 
-        val results = fastListOf<Int>()
+        val results = mutableListOf<Int>()
 
         assertFailsWith<CallNotPermittedException> {
             flow {
@@ -69,7 +68,7 @@ class FlowCircuitBreakerTest {
                 }
             }
                 .circuitBreaker(circuitBreaker)
-                .toFastList(results)
+                .toList(results)
         }
 
         results.shouldBeEmpty()
@@ -88,7 +87,7 @@ class FlowCircuitBreakerTest {
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
 
-        val results = fastListOf<Int>()
+        val results = mutableListOf<Int>()
 
         assertFailsWith<CallNotPermittedException> {
             flow {
@@ -98,7 +97,7 @@ class FlowCircuitBreakerTest {
                 }
             }
                 .circuitBreaker(circuitBreaker)
-                .toFastList(results)
+                .toList(results)
         }
 
         wasStarted.shouldBeFalse()
@@ -116,7 +115,7 @@ class FlowCircuitBreakerTest {
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
 
-        val results = fastListOf<Int>()
+        val results = mutableListOf<Int>()
 
         assertFailsWith<IllegalStateException> {
             flow {
@@ -126,7 +125,7 @@ class FlowCircuitBreakerTest {
                 }
             }
                 .circuitBreaker(circuitBreaker)
-                .toFastList(results)
+                .toList(results)
         }
 
         results.size shouldBeEqualTo 4

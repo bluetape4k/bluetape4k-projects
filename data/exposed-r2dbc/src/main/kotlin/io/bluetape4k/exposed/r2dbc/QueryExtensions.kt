@@ -4,6 +4,7 @@ import io.bluetape4k.coroutines.flow.extensions.toFastList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.toList
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.r2dbc.Query
 
@@ -41,7 +42,7 @@ suspend fun <T> Flow<T>.any(): Boolean = this.firstOrNull() != null
  *
  * @return 정렬된 List
  */
-suspend fun <T: Comparable<T>> Flow<T>.sorted(): List<T> = toFastList().sortThis()
+suspend fun <T: Comparable<T>> Flow<T>.sorted(): List<T> = toList().sorted()
 
 /**
  * Flow의 중복되지 않은 요소만 List로 반환합니다.
@@ -49,4 +50,4 @@ suspend fun <T: Comparable<T>> Flow<T>.sorted(): List<T> = toFastList().sortThis
  * @return 중복이 제거된 List
  */
 suspend fun <T> Flow<T>.distinct(): List<T> =
-    toFastList().distinct()
+    toList().distinct()

@@ -7,7 +7,6 @@ import com.datastax.oss.driver.api.core.cql.PreparedStatement
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder.insertInto
 import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.cassandra.querybuilder.bindMarker
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -206,7 +205,7 @@ class LimitConcurrencyExamples: AbstractCassandraTest() {
 
         val pst = prepareStatemet(session)
         runSuspendIO {
-            val tasks = fastList(TOTAL_NUMBER_OF_INSERTS) {
+            val tasks = List(TOTAL_NUMBER_OF_INSERTS) {
                 async(Dispatchers.IO) {
                     val stmt = pst.bind().setUuid("id", UUID.randomUUID()).setInt("value", it)
                     session.execute(stmt)

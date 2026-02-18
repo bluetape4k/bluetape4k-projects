@@ -1,7 +1,5 @@
 package io.bluetape4k.exposed.shared.dml
 
-import io.bluetape4k.collections.eclipse.toFastList
-import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.exposed.shared.dml.DMLTestData.withCitiesAndUsers
 import io.bluetape4k.exposed.shared.dml.DMLTestData.withSales
 import io.bluetape4k.exposed.shared.dml.DMLTestData.withSalesAndSomeAmounts
@@ -162,7 +160,7 @@ class SelectTest: AbstractExposedTest() {
             val rows = users
                 .selectAll()
                 .where { users.id neq "andrey" }
-                .toFastList()
+                .toList()
 
             rows.map { it[users.id] } shouldNotContain "andrey"
         }
@@ -216,7 +214,7 @@ class SelectTest: AbstractExposedTest() {
                 .selectAll()
                 .where { users.id inList listOf("andrey", "alex") }
                 .orderBy(users.name)
-                .toFastList()
+                .toList()
 
             r1.size shouldBeEqualTo 2
             r1[0][users.name] shouldBeEqualTo "Alex"
@@ -233,7 +231,7 @@ class SelectTest: AbstractExposedTest() {
             val r2 = users
                 .selectAll()
                 .where { users.id notInList listOf("ABC", "DEF") }
-                .toFastList()
+                .toList()
 
             users.selectAll().count() shouldBeEqualTo r2.size.toLong()
         }
@@ -258,7 +256,7 @@ class SelectTest: AbstractExposedTest() {
                 .where {
                     (users.id to users.name) inList listOf("andrey" to "Andrey", "sergey" to "Sergey")
                 }
-                .toFastList()
+                .toList()
 
             rows shouldHaveSize 2
             rows[0][users.name] shouldBeEqualTo "Andrey"
@@ -524,7 +522,7 @@ class SelectTest: AbstractExposedTest() {
                 .selectAll()
                 .where { users.id eq anyFrom(arrayOf("andrey", "alex")) }
                 .orderBy(users.name)
-                .toFastList()
+                .toList()
 
             rows shouldHaveSize 2
             rows[0][users.name] shouldBeEqualTo "Alex"
@@ -555,7 +553,7 @@ class SelectTest: AbstractExposedTest() {
                 .selectAll()
                 .where { users.id eq anyFrom(listOf("andrey", "alex")) }
                 .orderBy(users.name)
-                .toFastList()
+                .toList()
 
             rows shouldHaveSize 2
             rows[0][users.name] shouldBeEqualTo "Alex"
@@ -795,7 +793,7 @@ class SelectTest: AbstractExposedTest() {
                 .where {
                     sales.amount greaterEq allFrom(amounts)
                 }
-                .toFastList()
+                .toList()
 
             rows shouldHaveSize 3
             rows.all { it[sales.product] == "coffee" }.shouldBeTrue()
@@ -827,7 +825,7 @@ class SelectTest: AbstractExposedTest() {
                 .where {
                     sales.amount greaterEq allFrom(amounts)
                 }
-                .toFastList()
+                .toList()
 
             rows shouldHaveSize 3
             rows.all { it[sales.product] == "coffee" }.shouldBeTrue()
@@ -856,7 +854,7 @@ class SelectTest: AbstractExposedTest() {
                 .where {
                     sales.amount greaterEq allFrom(someAmounts)
                 }
-                .toFastList()
+                .toList()
 
             rows shouldHaveSize 3
             rows.all { it[sales.product] == "coffee" }.shouldBeTrue()
@@ -954,7 +952,7 @@ class SelectTest: AbstractExposedTest() {
                 .selectAll()
                 .where(orOp)
                 .map { it[users.name] }
-                .toUnifiedSet()
+                .toSet()
             userNameOr shouldBeEqualTo allUsers
 
             /**
@@ -1040,7 +1038,7 @@ class SelectTest: AbstractExposedTest() {
 
             // 이미 query에는 comment가 존재하므로 IllegalStateException 발생
             expectException<IllegalStateException> {
-                query.comment("Testing").toFastList()
+                query.comment("Testing").toList()
             }
 
             val commentedBackSql =
@@ -1068,7 +1066,7 @@ class SelectTest: AbstractExposedTest() {
         }
 
         withTables(testDB, alphabet) {
-            val allLetters = ('A'..'Z').toFastList()
+            val allLetters = ('A'..'Z').toList()
             val amount = 10
             val start = 8L
 

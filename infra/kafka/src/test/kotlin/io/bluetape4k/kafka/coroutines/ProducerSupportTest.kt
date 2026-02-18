@@ -1,6 +1,5 @@
 package io.bluetape4k.kafka.coroutines
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.concurrent.asCompletableFuture
 import io.bluetape4k.concurrent.sequence
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -34,7 +33,7 @@ class ProducerSupportTest: AbstractKafkaTest() {
         private const val MESSAGE_SIZE = 10
 
         fun randomStrings(size: Int = MESSAGE_SIZE): List<String> {
-            return fastList(size) { randomString() }
+            return List(size) { randomString() }
         }
     }
 

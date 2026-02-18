@@ -1,6 +1,5 @@
 package io.bluetape4k.retrofit2.client
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.collections.eclipse.multi.toListMultimap
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.random.RandomValue
@@ -46,7 +45,7 @@ abstract class AbstractJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderTest
 
     @Test
     fun `get post by postId`() = runSuspendIO {
-        val postIds = fastList(ITEM_SIZE) { Random.nextInt(1, 10) }.distinct()
+        val postIds = List(ITEM_SIZE) { Random.nextInt(1, 10) }.distinct()
 
         val deferred = postIds.map { postId ->
             async(Dispatchers.IO) { postId to api.getPost(postId) }
@@ -61,7 +60,7 @@ abstract class AbstractJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderTest
 
     @Test
     fun `get user's posts`() = runSuspendIO {
-        val userIds = fastList(ITEM_SIZE) { Random.nextInt(1, 10) }.distinct()
+        val userIds = List(ITEM_SIZE) { Random.nextInt(1, 10) }.distinct()
 
         val deferred = userIds.map { userId ->
             async(Dispatchers.IO) {
@@ -81,7 +80,7 @@ abstract class AbstractJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderTest
 
     @Test
     fun `get post's comments`() = runSuspendIO {
-        val postIds = fastList(ITEM_SIZE) { Random.nextInt(1, 10) }.distinct()
+        val postIds = List(ITEM_SIZE) { Random.nextInt(1, 10) }.distinct()
 
         val deferred = postIds.map { postId ->
             async(Dispatchers.IO) {
@@ -106,7 +105,7 @@ abstract class AbstractJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderTest
 
     @Test
     fun `get albums by userId`() = runSuspendIO {
-        val userIds = fastList(ITEM_SIZE) { Random.nextInt(1, 10) }.distinct()
+        val userIds = List(ITEM_SIZE) { Random.nextInt(1, 10) }.distinct()
 
         val deferred = userIds.map { userId ->
             async(Dispatchers.IO) {
@@ -142,7 +141,7 @@ abstract class AbstractJsonPlaceHolderCoroutineTest: AbstractJsonPlaceHolderTest
 
     @Test
     fun `update exists post`() = runSuspendIO {
-        val postIds = fastList(ITEM_SIZE) { Random.nextInt(1, 10) }.distinct()
+        val postIds = List(ITEM_SIZE) { Random.nextInt(1, 10) }.distinct()
 
         val deferred = postIds.map { postId ->
             async(Dispatchers.IO) {

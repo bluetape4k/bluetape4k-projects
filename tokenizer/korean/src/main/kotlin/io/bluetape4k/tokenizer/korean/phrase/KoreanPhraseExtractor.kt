@@ -1,7 +1,5 @@
 package io.bluetape4k.tokenizer.korean.phrase
 
-import io.bluetape4k.collections.eclipse.fastListOf
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.collections.eclipse.unifiedSetOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.tokenizer.korean.tokenizer.KoreanToken
@@ -134,7 +132,7 @@ object KoreanPhraseExtractor: KLogging() {
                     )
                 }
 
-                i == 0 ->
+                i == 0                  ->
                     KoreanPhrase(phrase.tokens.dropWhile { it.pos == Space }, phrase.pos)
 
                 i == phrasesToTrim.size - 1 -> {
@@ -142,7 +140,7 @@ object KoreanPhraseExtractor: KLogging() {
                     KoreanPhrase(tokens, phrase.pos)
                 }
 
-                else -> phrase
+                else                    -> phrase
             }
         }
     }
@@ -198,7 +196,7 @@ object KoreanPhraseExtractor: KLogging() {
             else phraseBuffer.phrases.init()
         }
 
-        val phrases = fastListOf<KoreanPhrase>()
+        val phrases = mutableListOf<KoreanPhrase>()
         var curTrie: List<KoreanPosTrie?> = collapseTrie
 
         tokens
@@ -208,11 +206,11 @@ object KoreanPhraseExtractor: KLogging() {
                         // Extend the current phase
                         val (ct, nt) = getTries(token, curTrie)
 
-                        if (phrases.isEmpty || curTrie == collapseTrie) {
+                        if (phrases.isEmpty() || curTrie == collapseTrie) {
                             phrases.add(KoreanPhrase(arrayListOf(token), ct?.ending ?: Noun))
                         } else {
                             val newPhrase = KoreanPhrase(phrases.last().tokens + token, ct?.ending ?: Noun)
-                            if (phrases.isEmpty) {
+                            if (phrases.isEmpty()) {
                                 phrases.add(newPhrase)
                             } else {
                                 phrases[phrases.lastIndex] = newPhrase
@@ -228,7 +226,7 @@ object KoreanPhraseExtractor: KLogging() {
                         curTrie = nt
                     }
 
-                    else -> {
+                    else                                    -> {
                         // Add a single word
                         phrases.add(KoreanPhrase(listOf(token), token.pos))
                         curTrie = collapseTrie
@@ -240,7 +238,7 @@ object KoreanPhraseExtractor: KLogging() {
     }
 
     private fun distinctPhrases(chunks: List<KoreanPhraseChunk>): List<KoreanPhraseChunk> {
-        val phraseChunks = fastListOf<KoreanPhraseChunk>()
+        val phraseChunks = mutableListOf<KoreanPhraseChunk>()
         val buffer = unifiedSetOf<String>()
 
         chunks
@@ -288,8 +286,8 @@ object KoreanPhraseExtractor: KLogging() {
 
         fun collapseNounPhrases(phrases1: KoreanPhraseChunk): KoreanPhraseChunk {
 
-            val output = fastListOf<KoreanPhrase>()
-            val buffer = fastListOf<KoreanPhrase>()
+            val output = mutableListOf<KoreanPhrase>()
+            val buffer = mutableListOf<KoreanPhrase>()
 
             phrases1
                 .onEach { phrase ->
@@ -297,8 +295,8 @@ object KoreanPhraseExtractor: KLogging() {
                         buffer.add(phrase)
                     } else {
                         val tempPhrase =
-                            if (buffer.isNotEmpty()) fastListOf(KoreanPhrase(buffer.flatMap { it.tokens }), phrase)
-                            else fastListOf(phrase)
+                            if (buffer.isNotEmpty()) listOf(KoreanPhrase(buffer.flatMap { it.tokens }), phrase)
+                            else listOf(phrase)
 
                         output.addAll(tempPhrase)
                         buffer.clear()
@@ -313,13 +311,13 @@ object KoreanPhraseExtractor: KLogging() {
 
         fun collapsePhrases(phrases1: KoreanPhraseChunk): List<KoreanPhraseChunk> {
             fun addPhraseToBuffer(phrase: KoreanPhrase, buffer: List<KoreanPhraseChunk>) =
-                buffer.map { it + phrase }.toFastList()
+                buffer.map { it + phrase }.toList()
 
             // NOTE: 현재 이 부분은 변경하면 안됩니다.
             //
-            fun newBuffer() = fastListOf(listOf<KoreanPhrase>())
+            fun newBuffer() = listOf(listOf<KoreanPhrase>())
 
-            val output = fastListOf<KoreanPhraseChunk>()
+            val output = mutableListOf<KoreanPhraseChunk>()
             var buffer = newBuffer()
 
             phrases1
@@ -329,9 +327,9 @@ object KoreanPhraseExtractor: KLogging() {
                         if (it.pos == Noun || it.pos == ProperNoun) {
                             output.addAll(bufferWithThisPhrase)
                         }
-                        bufferWithThisPhrase.toFastList()
+                        bufferWithThisPhrase.toList()
                     } else if (isNonNounPhraseCandidate(it)) {
-                        addPhraseToBuffer(it, buffer).toFastList()
+                        addPhraseToBuffer(it, buffer).toList()
                     } else {
                         output.addAll(buffer)
                         newBuffer()

@@ -1,8 +1,6 @@
 package io.bluetape4k.tokenizer.korean.tokenizer
 
-import io.bluetape4k.collections.eclipse.emptyFastList
 import io.bluetape4k.collections.eclipse.multi.listMultimapOf
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.trace
@@ -248,8 +246,8 @@ object KoreanTokenizer: KLogging() {
 
                             val nextTrie = t.curTrie.nextTrie
                                 ?.map { if (it == KoreanPosx.SelfNode) t.curTrie else it }
-                                ?.toFastList()
-                                ?: emptyFastList()
+                                ?.toList()
+                                ?: emptyList()
 
                             CandidateParse(solution.parse + candidateToAdd, nextTrie, t.curTrie.ending)
                         }

@@ -1,6 +1,5 @@
 package io.bluetape4k.io
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.io.apache.ApacheByteArrayOutputStream
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
@@ -193,7 +192,7 @@ class InputStreamSupportTest: AbstractIOTest() {
         val expected = randomString() + Systemx.lineSeparator + randomString()
 
         expected.toInputStream().use { bis ->
-            bis.toUtf8LineSequence().toFastList() shouldBeEqualTo expected.lineSequence().toFastList()
+            bis.toUtf8LineSequence().toList() shouldBeEqualTo expected.lineSequence().toList()
         }
     }
 

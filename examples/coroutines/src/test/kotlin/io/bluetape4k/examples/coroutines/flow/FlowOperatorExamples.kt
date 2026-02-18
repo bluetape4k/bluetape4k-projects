@@ -1,7 +1,6 @@
 package io.bluetape4k.examples.coroutines.flow
 
 import io.bluetape4k.coroutines.flow.extensions.log
-import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.examples.coroutines.isEven
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -18,6 +17,7 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.reduce
 import kotlinx.coroutines.flow.scan
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
@@ -42,7 +42,7 @@ class FlowOperatorExamples {
         val evens = flowOf(1, 2, 3, 4).log("source")
             .filter { it.isEven() }     // [2, 4]
             .log("even")
-            .toFastList()
+            .toList()
 
         evens shouldBeEqualTo listOf(2, 4)
     }
@@ -54,7 +54,7 @@ class FlowOperatorExamples {
 
         // merge는 복수 개의 flow의 요소들을 합쳐서 하나의 flow로 만든다
         val togather = merge(ints, doubles)
-        togather.toFastList() shouldBeEqualTo listOf(1, 2, 3, 0.1, 0.2, 0.3)
+        togather.toList() shouldBeEqualTo listOf(1, 2, 3, 0.1, 0.2, 0.3)
     }
 
     @Test
@@ -64,7 +64,7 @@ class FlowOperatorExamples {
 
         // merge는 복수 개의 flow의 요소들을 합쳐서 하나의 flow로 만든다
         val togather = merge(ints, doubles)
-        togather.toFastList() shouldBeEqualTo listOf(0.1, 0.2, 0.3, 1, 2, 3)
+        togather.toList() shouldBeEqualTo listOf(0.1, 0.2, 0.3, 1, 2, 3)
     }
 
     /**
@@ -84,7 +84,7 @@ class FlowOperatorExamples {
         val ziped = flow1
             .zip(flow2) { f1, f2 -> "${f1}_${f2}" }
             .log("zip")
-            .toFastList()
+            .toList()
 
         ziped shouldBeEqualTo listOf("A_1", "B_2", "C_3")
     }
@@ -107,7 +107,7 @@ class FlowOperatorExamples {
         val combined = flow1
             .combine(flow2) { f1, f2 -> "${f1}_${f2}" }
             .log("combine")
-            .toFastList()
+            .toList()
 
         combined shouldBeEqualTo listOf("B_1", "C_1", "C_2", "C_3", "C_4")
     }
@@ -135,7 +135,7 @@ class FlowOperatorExamples {
                     log.debug { "acc=$it" }
                 }
             }
-            .toFastList()
+            .toList()
         res shouldBeEqualTo listOf(0, 1, 3, 6, 10)
     }
 
@@ -150,7 +150,7 @@ class FlowOperatorExamples {
         val result = flowOf("A", "B", "C").log("chars")
             .flatMapConcat { flowFrom(it) }
             .log("flatMapConcat")
-            .toFastList()
+            .toList()
 
         result shouldBeEqualTo listOf("1_A", "2_A", "3_A", "1_B", "2_B", "3_B", "1_C", "2_C", "3_C")
     }
@@ -165,7 +165,7 @@ class FlowOperatorExamples {
         val result = flowOf("A", "B", "C")
             .flatMapMerge(concurrency = 3) { flowFrom(it) }
             .log("flatMapMerge")
-            .toFastList()
+            .toList()
 
         result shouldBeEqualTo listOf("1_A", "1_B", "1_C", "2_A", "2_B", "2_C", "3_A", "3_B", "3_C")
     }
@@ -182,7 +182,7 @@ class FlowOperatorExamples {
         val result = flowOf("A", "B", "C")
             .flatMapMerge(concurrency = 2) { flowFrom(it) }
             .onEach { print("$it, ") }
-            .toFastList()
+            .toList()
 
         result shouldBeEqualTo listOf("1_A", "1_B", "2_A", "2_B", "3_A", "3_B", "1_C", "2_C", "3_C")
     }
@@ -202,7 +202,7 @@ class FlowOperatorExamples {
         val result = flowOf("A", "B", "C").log("chars")
             .flatMapLatest { flowFrom(it) }         // 각 flow의 마지막 요소들만 선택
             .onEach { println(it) }
-            .toFastList()
+            .toList()
 
         result shouldBeEqualTo listOf("1_C", "2_C", "3_C")
     }
@@ -225,7 +225,7 @@ class FlowOperatorExamples {
             .onEach { delay(1200) }.log("chars")
             .flatMapLatest { flowFrom(it) }         // 각 flow의 마지막 요소들만 선택
             .log("flatMapLatest")
-            .toFastList()
+            .toList()
 
         result shouldBeEqualTo listOf("1_A", "1_B", "1_C", "2_C", "3_C")
     }

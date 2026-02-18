@@ -1,7 +1,6 @@
 package io.bluetape4k.cache.nearcache
 
 import io.bluetape4k.cache.jcache.JCache
-import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
@@ -248,7 +247,7 @@ class NearCache<K: Any, V: Any> private constructor(
     }
 
     fun removeAll(vararg keys: K) {
-        removeAll(keys.toUnifiedSet())
+        removeAll(keys.toSet())
     }
 
     override fun replace(key: K, oldValue: V, newValue: V): Boolean {

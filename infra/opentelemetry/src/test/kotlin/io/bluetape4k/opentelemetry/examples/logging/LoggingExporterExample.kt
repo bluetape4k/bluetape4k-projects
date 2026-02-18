@@ -1,6 +1,5 @@
 package io.bluetape4k.opentelemetry.examples.logging
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -57,7 +56,7 @@ class LoggingExporterExample: AbstractOtelTest() {
     @Test
     fun `export to logger with coroutines operation`() = runSuspendIO {
         // Generate a few sample spans
-        val jobs = fastList(5) {
+        val jobs = List(5) {
             launch { myWonderfulUseCaseAsync() }
         }
         jobs.joinAll()

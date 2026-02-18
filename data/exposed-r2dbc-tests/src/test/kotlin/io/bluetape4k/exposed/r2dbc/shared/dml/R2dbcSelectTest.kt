@@ -1,8 +1,5 @@
 package io.bluetape4k.exposed.r2dbc.shared.dml
 
-import io.bluetape4k.collections.eclipse.fastListOf
-import io.bluetape4k.collections.eclipse.toFastList
-import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.coroutines.flow.extensions.toUnifiedSet
 import io.bluetape4k.exposed.r2dbc.shared.dml.DMLTestData.withCitiesAndUsers
 import io.bluetape4k.exposed.r2dbc.shared.dml.DMLTestData.withSales
@@ -15,6 +12,8 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toBigDecimal
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
@@ -166,7 +165,7 @@ class R2dbcSelectTest: AbstractExposedR2dbcTest() {
         withCitiesAndUsers(testDB) { _, users, _ ->
             val rows = users.selectAll()
                 .where { users.id neq "andrey" }
-                .toFastList()
+                .toList()
 
             rows.map { it[users.id] } shouldNotContain "andrey"
         }
@@ -182,10 +181,10 @@ class R2dbcSelectTest: AbstractExposedR2dbcTest() {
         withCitiesAndUsers(testDB) { cities, users, _ ->
 
             // SELECT cities.city_id, cities."name" FROM cities
-            cities.selectAll().toFastList().shouldNotBeEmpty()
+            cities.selectAll().toList().shouldNotBeEmpty()
 
             // SELECT cities.city_id, cities."name" FROM cities WHERE cities."name" = 'Qwertt'
-            cities.selectAll().where { cities.name eq "Qwertt" }.toFastList().shouldBeEmpty()
+            cities.selectAll().where { cities.name eq "Qwertt" }.toList().shouldBeEmpty()
 
             // SELECT COUNT(*) FROM cities WHERE cities."name" = 'Qwertt'
             cities.selectAll().where { cities.name eq "Qwertt" }.count() shouldBeEqualTo 0L
@@ -219,7 +218,7 @@ class R2dbcSelectTest: AbstractExposedR2dbcTest() {
             val r1 = users.selectAll()
                 .where { users.id inList listOf("andrey", "alex") }
                 .orderBy(users.name)
-                .toFastList()
+                .toList()
 
             r1.size shouldBeEqualTo 2
             r1[0][users.name] shouldBeEqualTo "Alex"
@@ -235,7 +234,7 @@ class R2dbcSelectTest: AbstractExposedR2dbcTest() {
              */
             val r2 = users.selectAll()
                 .where { users.id notInList listOf("ABC", "DEF") }
-                .toFastList()
+                .toList()
 
             users.selectAll().count() shouldBeEqualTo r2.size.toLong()
         }
@@ -259,7 +258,7 @@ class R2dbcSelectTest: AbstractExposedR2dbcTest() {
                 .where {
                     (users.id to users.name) inList listOf("andrey" to "Andrey", "sergey" to "Sergey")
                 }
-                .toFastList()
+                .toList()
 
             rows shouldHaveSize 2
             rows[0][users.name] shouldBeEqualTo "Andrey"
@@ -453,7 +452,7 @@ class R2dbcSelectTest: AbstractExposedR2dbcTest() {
                     users.id eq anyFrom(arrayOf("andrey", "alex"))
                 }
                 .orderBy(users.name)
-                .toFastList()
+                .toList()
 
             rows shouldHaveSize 2
             rows[0][users.name] shouldBeEqualTo "Alex"
@@ -486,7 +485,7 @@ class R2dbcSelectTest: AbstractExposedR2dbcTest() {
                     users.id eq anyFrom(listOf("andrey", "alex"))
                 }
                 .orderBy(users.name)
-                .toFastList()
+                .toList()
 
             rows shouldHaveSize 2
             rows[0][users.name] shouldBeEqualTo "Alex"
@@ -577,7 +576,7 @@ class R2dbcSelectTest: AbstractExposedR2dbcTest() {
                 }
                 .orderBy(sales.amount)
                 .map { it[sales.product] }
-                .toFastList()
+                .toList()
 
             rows.subList(0, 3).forEach { it shouldBeEqualTo "tea" }
             rows.subList(3, 6).forEach { it shouldBeEqualTo "coffee" }
@@ -601,7 +600,7 @@ class R2dbcSelectTest: AbstractExposedR2dbcTest() {
         Assumptions.assumeTrue { testDB in supportingAnyAndAllFromArrays }
 
         withSales(testDB) { _, sales ->
-            val amounts = fastListOf(100.0, 1000.0).map { it.toBigDecimal() }
+            val amounts = listOf(100.0, 1000.0).map { it.toBigDecimal() }
 
             val rows = sales
                 .selectAll()
@@ -610,7 +609,7 @@ class R2dbcSelectTest: AbstractExposedR2dbcTest() {
                 }
                 .orderBy(sales.amount)
                 .map { it[sales.product] }
-                .toFastList()
+                .toList()
 
             rows.subList(0, 3).forEach { it shouldBeEqualTo "tea" }
             rows.subList(3, 6).forEach { it shouldBeEqualTo "coffee" }
@@ -703,7 +702,7 @@ class R2dbcSelectTest: AbstractExposedR2dbcTest() {
                 }
                 .orderBy(sales.amount)
                 .map { it[sales.product] }
-                .toFastList()
+                .toList()
 
             rows shouldHaveSize 4
             rows.first() shouldBeEqualTo "tea"
@@ -736,7 +735,7 @@ class R2dbcSelectTest: AbstractExposedR2dbcTest() {
                 .where {
                     sales.amount greaterEq allFrom(amounts)
                 }
-                .toFastList()
+                .toList()
 
             rows shouldHaveSize 3
             rows.all { it[sales.product] == "coffee" }.shouldBeTrue()
@@ -766,7 +765,7 @@ class R2dbcSelectTest: AbstractExposedR2dbcTest() {
             val rows = sales
                 .selectAll()
                 .where { sales.amount greaterEq allFrom(amounts) }
-                .toFastList()
+                .toList()
 
             rows shouldHaveSize 3
             rows.all { it[sales.product] == "coffee" }.shouldBeTrue()
@@ -793,7 +792,7 @@ class R2dbcSelectTest: AbstractExposedR2dbcTest() {
             val rows = sales
                 .selectAll()
                 .where { sales.amount greaterEq allFrom(someAmounts) }
-                .toFastList()
+                .toList()
 
             rows shouldHaveSize 3
             rows.all { it[sales.product] == "coffee" }.shouldBeTrue()
@@ -893,7 +892,7 @@ class R2dbcSelectTest: AbstractExposedR2dbcTest() {
             val userNameOr = users
                 .selectAll()
                 .where(orOp).map { it[users.name] }
-                .toUnifiedSet()
+                .toSet()
             userNameOr shouldBeEqualTo allUsers
 
             /**
@@ -977,7 +976,7 @@ class R2dbcSelectTest: AbstractExposedR2dbcTest() {
 
             // 이미 query에는 comment가 존재하므로 IllegalStateException 발생
             assertFailsWith<IllegalStateException> {
-                query.comment("Testing").toFastList()
+                query.comment("Testing").toList()
             }
 
             val commentedBackSql =
@@ -1005,7 +1004,7 @@ class R2dbcSelectTest: AbstractExposedR2dbcTest() {
         }
 
         withTables(testDB, alphabet) {
-            val allLetters = ('A'..'Z').toFastList()
+            val allLetters = ('A'..'Z').toList()
             val amount = 10
             val start = 8L
 
@@ -1018,7 +1017,7 @@ class R2dbcSelectTest: AbstractExposedR2dbcTest() {
                 .selectAll()
                 .limit(amount)
                 .map { it[alphabet.letter] }
-                .toFastList()
+                .toList()
             limitResult shouldBeEqualTo allLetters.take(amount)
 
             // SELECT alphabet.letter FROM alphabet LIMIT 10 OFFSET 8
@@ -1027,7 +1026,7 @@ class R2dbcSelectTest: AbstractExposedR2dbcTest() {
                 .limit(amount)
                 .offset(start)
                 .map { it[alphabet.letter] }
-                .toFastList()
+                .toList()
             limitOffsetResult shouldBeEqualTo allLetters.drop(start.toInt()).take(amount)
 
             if (testDB !in TestDB.ALL_MYSQL_MARIADB_LIKE) {
@@ -1036,7 +1035,7 @@ class R2dbcSelectTest: AbstractExposedR2dbcTest() {
                     .selectAll()
                     .offset(start)
                     .map { it[alphabet.letter] }
-                    .toFastList()
+                    .toList()
 
                 offsetResult shouldBeEqualTo allLetters.drop(start.toInt())
             }

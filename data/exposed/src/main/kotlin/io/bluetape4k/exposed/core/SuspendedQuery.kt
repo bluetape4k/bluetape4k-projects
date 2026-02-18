@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.core
 
-import io.bluetape4k.collections.eclipse.toFastList
+import io.bluetape4k.collections.toList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import org.jetbrains.exposed.v1.core.Column
@@ -33,8 +33,7 @@ fun FieldSet.fetchBatchedResultFlow(
     batch: Int = 1000,
     sortOrder: SortOrder = SortOrder.ASC,
     where: Op<Boolean>? = null,
-): Flow<List<ResultRow>> =
-    Query(this.source, where = where).fetchBatchedResultFlow(batch, sortOrder)
+): Flow<List<ResultRow>> = Query(this.source, where = where).fetchBatchedResultFlow(batch, sortOrder)
 
 /**
  * [SuspendedQuery.fetchBatchedResultFlow] 메소드를 코루틴 환경에서 사용할 수 있도록 확장한 함수입니다.
@@ -100,7 +99,7 @@ open class SuspendedQuery(set: FieldSet, where: Op<Boolean>? = null): Query(set,
         fun toLong(autoIncVal: Any): Long = when (autoIncVal) {
             is EntityID<*> -> toLong(autoIncVal.value)
             is Int -> autoIncVal.toLong()
-            else -> autoIncVal as Long
+            else   -> autoIncVal as Long
         }
 
         return channelFlow {
@@ -133,7 +132,7 @@ open class SuspendedQuery(set: FieldSet, where: Op<Boolean>? = null): Query(set,
                         }
                     } ?: whereOp
                 }
-                val results = query.iterator().toFastList()
+                val results = query.iterator().toList()
                 if (results.isNotEmpty()) {
                     send(results)
                 }

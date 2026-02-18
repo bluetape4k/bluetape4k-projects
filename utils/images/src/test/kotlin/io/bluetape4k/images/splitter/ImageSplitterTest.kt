@@ -1,6 +1,5 @@
 package io.bluetape4k.images.splitter
 
-import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.images.AbstractImageTest
 import io.bluetape4k.images.ImageFormat
 import io.bluetape4k.images.coroutines.SuspendJpegWriter
@@ -13,6 +12,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeLessOrEqualTo
@@ -46,7 +46,7 @@ class ImageSplitterTest: AbstractImageTest() {
     @Test
     fun `split very small image but use min split height`() = runTest {
         getImage(AQUA_JPG).use { input ->
-            val items = splitter.split(input, ImageFormat.JPG, 5).toFastList()
+            val items = splitter.split(input, ImageFormat.JPG, 5).toList()
             log.debug { "items size=${items.size}" }
             items.shouldNotBeEmpty()
             items.all { it.isNotEmpty() }.shouldBeTrue()
@@ -61,7 +61,7 @@ class ImageSplitterTest: AbstractImageTest() {
     @ValueSource(strings = [AQUA_JPG, EVERLAND_JPG])
     fun `split jpg image with default height`(path: String, tempFolder: TempFolder) = runTest {
         getImage(path).use { input ->
-            val items: List<ByteArray> = splitter.split(input, ImageFormat.JPG).toFastList()
+            val items: List<ByteArray> = splitter.split(input, ImageFormat.JPG).toList()
             log.debug { "items size=${items.size}" }
 
             items.forEach {

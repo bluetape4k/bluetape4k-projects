@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.redisson.repository.scenarios
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.junit5.awaitility.untilSuspending
@@ -23,7 +22,7 @@ interface SuspendedWriteBehindScenario<T: HasIdentifier<ID>, ID: Any>: Suspended
     suspend fun createNewEntity(): T
 
     suspend fun createNewEntities(count: Int): List<T> {
-        return fastList(count) { createNewEntity() }
+        return List(count) { createNewEntity() }
     }
 
     suspend fun getAllCountFromDB() = newSuspendedTransaction {

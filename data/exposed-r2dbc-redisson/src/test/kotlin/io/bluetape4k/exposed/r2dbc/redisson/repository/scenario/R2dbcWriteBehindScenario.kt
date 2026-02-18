@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.r2dbc.redisson.repository.scenario
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.r2dbc.redisson.repository.scenario.R2dbcCacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
@@ -23,7 +22,7 @@ interface R2dbcWriteBehindScenario<T: HasIdentifier<ID>, ID: Any>: R2dbcCacheTes
     suspend fun createNewEntity(): T
 
     suspend fun createNewEntities(count: Int): List<T> {
-        return fastList(count) { createNewEntity() }
+        return List(count) { createNewEntity() }
     }
 
     suspend fun getAllCountFromDB(): Long = suspendTransaction {

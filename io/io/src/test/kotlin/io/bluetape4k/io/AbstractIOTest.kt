@@ -1,6 +1,5 @@
 package io.bluetape4k.io
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 
@@ -16,7 +15,7 @@ abstract class AbstractIOTest {
         protected fun randomString(length: Int = 256): String = Fakers.fixedString(length)
 
         @JvmStatic
-        protected fun randomStrings(size: Int = 20): List<String> = fastList(size) { randomString() }
+        protected fun randomStrings(size: Int = 20): List<String> = List(size) { randomString() }
 
         @JvmStatic
         val randomBytes: ByteArray by lazy { faker.random().nextRandomBytes(1024 * 16) }

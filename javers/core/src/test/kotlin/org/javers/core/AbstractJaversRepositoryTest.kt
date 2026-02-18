@@ -1,8 +1,5 @@
 package org.javers.core
 
-import io.bluetape4k.collections.eclipse.fastList
-import io.bluetape4k.collections.eclipse.fastListOf
-import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.javers.commit.SnowflakeCommitIdGenerator
 import io.bluetape4k.javers.diff.filterByType
 import io.bluetape4k.javers.latestSnapshotOrNull
@@ -203,7 +200,7 @@ abstract class AbstractJaversRepositoryTest {
         val cdo = SnapshotEntity(id = 1).apply {
             entityRef = ref
             arrayOfIntegers = intArrayOf(1, 2)
-            listOfDates = fastListOf(
+            listOfDates = mutableListOf(
                 LocalDate.of(2001, 1, 1),
                 LocalDate.of(2001, 1, 2)
             )
@@ -486,7 +483,7 @@ abstract class AbstractJaversRepositoryTest {
         val threads = 10
         val javersRepo = prepareJaversRepository()
 
-        fastList(threads) { it }
+        List(threads) { it }
             .parallelStream()
             .map {
                 it to JaversBuilder.javers()
@@ -501,7 +498,7 @@ abstract class AbstractJaversRepositoryTest {
         val javers = JaversBuilder.javers().registerJaversRepository(javersRepo).build()
         val snapshots = javers.findSnapshots(queryAnyDomainObject())
 
-        snapshots.map { it.commitId }.toUnifiedSet() shouldHaveSize threads
+        snapshots.map { it.commitId }.toSet() shouldHaveSize threads
     }
 
     @Test

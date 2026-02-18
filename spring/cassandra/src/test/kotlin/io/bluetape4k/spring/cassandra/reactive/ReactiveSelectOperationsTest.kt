@@ -13,6 +13,7 @@ import io.bluetape4k.spring.cassandra.suspendCount
 import io.bluetape4k.spring.cassandra.suspendExists
 import io.bluetape4k.spring.cassandra.suspendInsert
 import io.bluetape4k.spring.cassandra.suspendTruncate
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -101,7 +102,7 @@ class ReactiveSelectOperationsTest(
         val result = reactiveOps.query<Person>()
             .all()
             .asFlow()
-            .toFastList()
+            .toList()
 
         result shouldHaveSize 2
         result shouldContainSame listOf(han, luke)
@@ -113,7 +114,7 @@ class ReactiveSelectOperationsTest(
             .inTable(PERSON_TABLE_NAME)
             .all()
             .asFlow()
-            .toFastList()
+            .toList()
 
         result shouldHaveSize 2
         result shouldContainSame listOf(Human(han.id!!), Human(luke.id!!))
@@ -125,7 +126,7 @@ class ReactiveSelectOperationsTest(
             .cast<Jedi>()
             .all()
             .asFlow()
-            .toFastList()
+            .toList()
 
         result.all { it is Jedi }.shouldBeTrue()
         result shouldHaveSize 2
@@ -139,7 +140,7 @@ class ReactiveSelectOperationsTest(
             .cast<PersonProjection>()
             .all()
             .asFlow()
-            .toFastList()
+            .toList()
 
         result.all { it is PersonProjection }.shouldBeTrue()
         result shouldHaveSize 2
@@ -152,7 +153,7 @@ class ReactiveSelectOperationsTest(
             .matching(queryLuke())
             .all()
             .asFlow()
-            .toFastList()
+            .toList()
 
         result shouldBeEqualTo listOf(luke)
     }
@@ -163,7 +164,7 @@ class ReactiveSelectOperationsTest(
             .matching(querySpock())
             .all()
             .asFlow()
-            .toFastList()
+            .toList()
 
         result.shouldBeEmpty()
     }
@@ -291,7 +292,7 @@ class ReactiveSelectOperationsTest(
             .cast<Contact>()
             .all()
             .asFlow()
-            .toFastList()
+            .toList()
 
         result.all { it is Person }.shouldBeTrue()
     }

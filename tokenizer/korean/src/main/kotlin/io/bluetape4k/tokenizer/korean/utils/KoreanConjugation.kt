@@ -1,7 +1,5 @@
 package io.bluetape4k.tokenizer.korean.utils
 
-import io.bluetape4k.collections.eclipse.fastListOf
-import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.unsafeLazy
 import io.bluetape4k.tokenizer.korean.utils.Hangul.composeHangul
@@ -102,7 +100,7 @@ object KoreanConjugation: KLogging() {
     private fun expandChar_쏘다(lastChar: Char, onset: Char): List<String> {
         return addPreEomi(lastChar, PRE_EOMI_쏘다) +
                 CODAS_NO_PAST.map { composeHangul(onset, 'ㅗ', it).toString() } +
-                fastListOf(
+                mutableListOf(
                     composeHangul(onset, 'ㅘ').toString(),
                     composeHangul(onset, 'ㅘ', 'ㅆ').toString(),
                     lastChar.toString()
@@ -115,7 +113,7 @@ object KoreanConjugation: KLogging() {
      * 맞추다, 겨누다, 재우다
      */
     private fun expandChar_겨누다(lastChar: Char, onset: Char): List<String> {
-        return fastListOf<String>().apply {
+        return mutableListOf<String>().apply {
             addAll(addPreEomi(lastChar, PRE_EOMI_겨누다))
             addAll(CODAS_NO_PAST.map { composeHangul(onset, 'ㅜ', it).toString() })
 
@@ -128,7 +126,7 @@ object KoreanConjugation: KLogging() {
     private val PRE_EOMI_UNION_2_6 by lazy { PRE_EOMI_2 + PRE_EOMI_6 }
 
     private fun expandChar_치르다(lastChar: Char, onset: Char): List<String> {
-        return fastListOf<String>().apply {
+        return mutableListOf<String>().apply {
             addAll(addPreEomi(lastChar, PRE_EOMI_2 + PRE_EOMI_6))
             addAll(CODAS_NO_PAST.map { composeHangul(onset, 'ㅡ', it).toString() })
             addAll(
@@ -146,7 +144,7 @@ object KoreanConjugation: KLogging() {
     }
 
     private fun expandChar_사귀다(lastChar: Char): List<String> {
-        return fastListOf<String>().apply {
+        return mutableListOf<String>().apply {
             addAll(addPreEomi(lastChar, PRE_EOMI_UNION_2_6))
             addAll(CODAS_NO_PAST.map { composeHangul('ㄱ', 'ㅟ', it).toString() })
             add(composeHangul('ㄱ', 'ㅕ', ' ').toString())
@@ -156,7 +154,7 @@ object KoreanConjugation: KLogging() {
     }
 
     private fun expandChar_쥐다(lastChar: Char, onset: Char): List<String> {
-        return fastListOf<String>().apply {
+        return mutableListOf<String>().apply {
             addAll(CODAS_NO_PAST.map { composeHangul(onset, 'ㅟ', it).toString() })
             addAll(addPreEomi(lastChar, PRE_EOMI_UNION_2_6))
             add(lastChar.toString())
@@ -168,7 +166,7 @@ object KoreanConjugation: KLogging() {
      * 마시다, 엎드리다, 치다, 이다, 아니다
      */
     private fun expandChar_마시다(lastChar: Char, onset: Char): List<String> {
-        return fastListOf<String>().apply {
+        return mutableListOf<String>().apply {
             addAll(CODAS_NO_PAST.map { composeHangul(onset, 'ㅣ', it).toString() })
             addAll(addPreEomi(lastChar, PRE_EOMI_1_2 + PRE_EOMI_UNION_2_6))
             add(composeHangul(onset, 'ㅣ', 'ㅂ') + "니")
@@ -182,7 +180,7 @@ object KoreanConjugation: KLogging() {
      * 꿰다, 꾀다
      */
     private fun expandChar_꿰다(lastChar: Char, onset: Char, vowel: Char): List<String> {
-        return fastListOf<String>().apply {
+        return mutableListOf<String>().apply {
             addAll(addPreEomi(lastChar, PRE_EOMI_UNION_2_6))
             addAll(CODAS_COMMON.map { composeHangul(onset, vowel, it).toString() })
             add(lastChar.toString())
@@ -195,7 +193,7 @@ object KoreanConjugation: KLogging() {
      * 나머지 받침없는 서술어 (둘러서다, 켜다, 세다, 캐다, 차다)
      */
     private fun expandChar_물러서다(lastChar: Char, onset: Char, vowel: Char): List<String> {
-        return fastListOf<String>().apply {
+        return mutableListOf<String>().apply {
             addAll(CODAS_COMMON.map { composeHangul(onset, vowel, it).toString() })
             addAll(addPreEomi(lastChar, PRE_EOMI_물러서다))
             add(lastChar.toString())
@@ -209,7 +207,7 @@ object KoreanConjugation: KLogging() {
      * Cases with codas : 만들다, 알다, 풀다
      */
     private fun expandChar_만들다(lastChar: Char, onset: Char, vowel: Char): List<String> {
-        return fastListOf<String>().apply {
+        return mutableListOf<String>().apply {
             addAll(addPreEomi(lastChar, PRE_EOMI_만들다))
             addAll(addPreEomi(composeHangul(onset, vowel), PRE_EOMI_만들다_2))
             addAll(
@@ -225,7 +223,7 @@ object KoreanConjugation: KLogging() {
     private val PRE_EOMI_UNION_4_5 by lazy { PRE_EOMI_4 + PRE_EOMI_5 }
 
     private fun expandChar_낫다(lastChar: Char, onset: Char): List<String> {
-        return fastListOf<String>().apply {
+        return mutableListOf<String>().apply {
             addAll(addPreEomi(lastChar, PRE_EOMI_UNION_2_6))
             addAll(addPreEomi(composeHangul(onset, 'ㅏ'), PRE_EOMI_UNION_4_5))
             add(lastChar.toString())
@@ -235,7 +233,7 @@ object KoreanConjugation: KLogging() {
     private val PRE_EOMI_붇다 by lazy { PRE_EOMI_1_2 + PRE_EOMI_1_4 + PRE_EOMI_4 + PRE_EOMI_5 }
 
     private fun expandChar_붇다(lastChar: Char, onset: Char): List<String> {
-        return fastListOf<String>().apply {
+        return mutableListOf<String>().apply {
             addAll(addPreEomi(lastChar, PRE_EOMI_UNION_2_6))
             addAll(addPreEomi(composeHangul(onset, 'ㅜ'), PRE_EOMI_붇다))
             add(composeHangul(onset, 'ㅜ', 'ㄹ').toString())
@@ -246,7 +244,7 @@ object KoreanConjugation: KLogging() {
     private val PRE_EOMI_눕다 by lazy { PRE_EOMI_1_4 + PRE_EOMI_4 + PRE_EOMI_5 }
 
     private fun expandChar_눕다(lastChar: Char, onset: Char): List<String> {
-        return fastListOf<String>().apply {
+        return mutableListOf<String>().apply {
             addAll(addPreEomi(lastChar, PRE_EOMI_UNION_2_6))
             addAll(addPreEomi(composeHangul(onset, 'ㅜ'), PRE_EOMI_눕다))
             add(lastChar.toString())
@@ -259,7 +257,7 @@ object KoreanConjugation: KLogging() {
      *  간지럽다, 갑작스럽다 -> 갑작스런
      */
     private fun expandChar_간지럽다(lastChar: Char, onset: Char): List<String> {
-        return fastListOf<String>().apply {
+        return mutableListOf<String>().apply {
             addAll(addPreEomi(composeHangul(onset, 'ㅓ'), PRE_EOMI_UNION_1_4_7))
             add(composeHangul(onset, 'ㅓ').toString())
             add(composeHangul(onset, 'ㅓ', 'ㄴ').toString())
@@ -268,7 +266,7 @@ object KoreanConjugation: KLogging() {
     }
 
     private fun expandChar_아름답다(lastChar: Char, onset: Char, vowel: Char): List<String> {
-        return fastListOf<String>().apply {
+        return mutableListOf<String>().apply {
             addAll(addPreEomi(composeHangul(onset, vowel), PRE_EOMI_UNION_1_4_7))
             add(composeHangul(onset, vowel).toString())
             add(lastChar.toString())
@@ -276,7 +274,7 @@ object KoreanConjugation: KLogging() {
     }
 
     private fun expandChar_놓다(lastChar: Char, onset: Char): List<String> {
-        return fastListOf<String>().apply {
+        return mutableListOf<String>().apply {
             addAll(addPreEomi(lastChar, PRE_EOMI_UNION_2_6))
             addAll(CODAS_COMMON.map { composeHangul(onset, 'ㅗ', it).toString() })
             addAll(
@@ -293,7 +291,7 @@ object KoreanConjugation: KLogging() {
      * 파랗다, 퍼렇다, 어떻다
      */
     private fun expandChar_파랗다(lastChar: Char, onset: Char, vowel: Char): List<String> {
-        return fastListOf<String>().apply {
+        return mutableListOf<String>().apply {
             addAll(CODAS_COMMON.map { composeHangul(onset, vowel, it).toString() })
             addAll(CODAS_FOR_CONTRACTION.map { composeHangul(onset, 'ㅐ', it).toString() })
             addAll(
@@ -356,7 +354,7 @@ object KoreanConjugation: KLogging() {
                 } else if (onset == 'ㅁ' && vowel == 'ㅜ' && coda == 'ㄷ') {
                     // 묻다
                     addPreEomi(lastChar, PRE_EOMI_UNION_2_6) +
-                            fastListOf(composeHangul('ㅁ', 'ㅜ', 'ㄹ').toString(), lastCharString)
+                            mutableListOf(composeHangul('ㅁ', 'ㅜ', 'ㄹ').toString(), lastCharString)
                 } else if (vowel == 'ㅜ' && coda == 'ㄷ') {
                     expandChar_붇다(lastChar, onset)
                 } else if (vowel == 'ㅜ' && coda == 'ㅂ') {
@@ -389,7 +387,7 @@ object KoreanConjugation: KLogging() {
                     'ㄹ'
                 )
                 val o = onset
-                val conjugation = fastListOf<String>().apply {
+                val conjugation = mutableListOf<String>().apply {
                     addAll(addPreEomi(lastChar, PRE_EOMI_UNION_2_6))
                     addAll(CODAS_NO_PAST.map { composeHangul(o, 'ㅡ', it).toString() })
                     addAll(
@@ -406,10 +404,10 @@ object KoreanConjugation: KLogging() {
                 }
                 conjugation.map { newInit + it }
             } else {
-                fastListOf()
+                mutableListOf()
             }
             expandedList.map { init + it } + irregularExpression
-        }.toUnifiedSet()
+        }.toSet()
 
         // Edge cases: these more likely to be a conjugation of an adjective than a verb
         return if (isAdjective) expanded else expanded - EDGE_CASE

@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.core
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.exposed.dao.entityToStringBuilder
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.tests.AbstractExposedTest
@@ -58,7 +57,7 @@ class ColumnExtensionsTest: AbstractExposedTest() {
     fun `DSL 방식으로 클라이언트에서 컬럼 값을 생헝합니다`(testDB: TestDB) {
         val entityCount = 100
         withTables(testDB, ClientGenerated) {
-            val ids = fastList(entityCount) { it + 1 }
+            val ids = List(entityCount) { it + 1 }
             val rows = ClientGenerated.batchInsert(ids) { }
 
             rows.map { it[ClientGenerated.timebasedUuid] }.distinct() shouldHaveSize entityCount
@@ -74,7 +73,7 @@ class ColumnExtensionsTest: AbstractExposedTest() {
     fun `DAO 방식으로 클라이언트에서 컬럼 값을 생헝합니다`(testDB: TestDB) {
         val entityCount = 100
         withTables(testDB, ClientGenerated) {
-            val entities = fastList(entityCount) {
+            val entities = List(entityCount) {
                 ClientGeneratedEntity.new {}
             }
 

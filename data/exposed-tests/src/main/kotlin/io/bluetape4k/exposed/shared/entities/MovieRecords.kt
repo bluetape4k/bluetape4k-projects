@@ -1,7 +1,5 @@
 package io.bluetape4k.exposed.shared.entities
 
-import io.bluetape4k.collections.eclipse.fastListOf
-import org.eclipse.collections.impl.list.mutable.FastList
 import java.io.Serializable
 
 internal interface HasIdentifier<ID>: java.io.Serializable {
@@ -56,7 +54,7 @@ data class MovieWithActorRecord(
     val name: String,
     val producerName: String,
     val releaseDate: String,
-    val actors: FastList<ActorRecord> = fastListOf<ActorRecord>(),
+    val actors: List<ActorRecord> = emptyList<ActorRecord>(),
     override val id: Long = 0L,
 ): HasIdentifier<Long>
 

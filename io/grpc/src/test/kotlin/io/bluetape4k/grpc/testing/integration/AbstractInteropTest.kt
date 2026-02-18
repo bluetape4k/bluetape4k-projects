@@ -6,7 +6,6 @@ import com.google.auth.oauth2.OAuth2Credentials
 import com.google.auth.oauth2.ServiceAccountCredentials
 import com.google.protobuf.ByteString
 import com.google.protobuf.MessageLite
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
@@ -106,7 +105,7 @@ abstract class AbstractInteropTest {
 
         val executor = Executors.newScheduledThreadPool(2)
         testServiceExecutor = executor
-        val allInterceptors = fastListOf<ServerInterceptor>(
+        val allInterceptors = mutableListOf<ServerInterceptor>(
             recordServerCallInterceptor(serverCallCapture),
             TestUtils.recordRequestHeadersInterceptor(requestHeadersCapture),
             recordContextInterceptor(contextCapture)

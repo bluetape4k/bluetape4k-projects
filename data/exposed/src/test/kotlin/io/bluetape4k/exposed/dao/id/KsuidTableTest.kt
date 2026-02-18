@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.dao.id
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.idHashCode
 import io.bluetape4k.exposed.dao.toStringBuilder
@@ -114,7 +113,7 @@ class KsuidTableTest: AbstractCustomIdTableTest() {
     @MethodSource("getTestDBAndEntityCount")
     fun `Coroutine 환경에서 복수의 Unique한 엔티티를 생성한다`(testDB: TestDB, entityCount: Int) = runSuspendIO {
         withTablesSuspending(testDB, T1) {
-            val tasks: List<Deferred<E1>> = fastList(entityCount) {
+            val tasks: List<Deferred<E1>> = List(entityCount) {
                 suspendedTransactionAsync(Dispatchers.IO) {
                     E1.new {
                         name = faker.name().fullName()

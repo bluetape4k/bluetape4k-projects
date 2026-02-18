@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.r2dbc.redisson.repository
 
-import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.exposed.r2dbc.redisson.R2dbcRedissonTestBase
 import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema
 import io.bluetape4k.exposed.r2dbc.redisson.domain.UserSchema.UserCredentialsRecord
@@ -15,6 +14,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import org.jetbrains.exposed.v1.r2dbc.R2dbcTransaction
 import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
@@ -46,7 +46,7 @@ class R2dbcWriteBehindCacheTest {
             UserTable
                 .selectAll()
                 .map { it[UserTable.id].value }
-                .toFastList()
+                .toList()
         }
 
         override suspend fun getNonExistentId(): Long = Long.MIN_VALUE
@@ -97,7 +97,7 @@ class R2dbcWriteBehindCacheTest {
             UserCredentialsTable
                 .select(UserCredentialsTable.id)
                 .map { it[UserCredentialsTable.id].value }
-                .toFastList()
+                .toList()
         }
 
         override suspend fun getNonExistentId(): UUID = UUID.randomUUID()

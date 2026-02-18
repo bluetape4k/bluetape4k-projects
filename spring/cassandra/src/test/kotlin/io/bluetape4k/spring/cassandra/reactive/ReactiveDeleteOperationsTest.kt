@@ -1,7 +1,6 @@
 package io.bluetape4k.spring.cassandra.reactive
 
 import com.datastax.oss.driver.api.core.uuid.Uuids
-import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
@@ -10,6 +9,7 @@ import io.bluetape4k.spring.cassandra.selectAsFlow
 import io.bluetape4k.spring.cassandra.suspendCount
 import io.bluetape4k.spring.cassandra.suspendInsert
 import io.bluetape4k.spring.cassandra.suspendTruncate
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEmpty
@@ -101,6 +101,6 @@ class ReactiveDeleteOperationsTest(
         writeResult.wasApplied().shouldBeTrue()
 
         reactiveOps.suspendCount<Person>() shouldBeEqualTo 0L
-        reactiveOps.selectAsFlow<Person>(Query.empty()).toFastList().shouldBeEmpty()
+        reactiveOps.selectAsFlow<Person>(Query.empty()).toList().shouldBeEmpty()
     }
 }

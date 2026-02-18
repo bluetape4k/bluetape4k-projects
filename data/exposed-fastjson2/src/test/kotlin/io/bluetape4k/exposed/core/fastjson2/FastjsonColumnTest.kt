@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.core.fastjson2
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.exposed.core.fastjson2.FastjsonSchema.DataHolder
 import io.bluetape4k.exposed.core.fastjson2.FastjsonSchema.User
 import io.bluetape4k.exposed.core.fastjson2.FastjsonSchema.withFastjsonArrays
@@ -274,7 +273,7 @@ class FastjsonColumnTest: AbstractExposedTest() {
             }
 
             val userIsInactive = tester.fastjsonColumn.contains("""{"active":false}""")
-            val rows = tester.selectAll().where { userIsInactive }.toFastList()
+            val rows = tester.selectAll().where { userIsInactive }.toList()
             rows.shouldBeEmpty()
 
             val alphaTeamUserAsJson = """{"user":${FastjsonSerializer.Default.serializeAsString(alphaTeamUser)}}"""

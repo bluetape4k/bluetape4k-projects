@@ -1,6 +1,5 @@
 package io.bluetape4k.retrofit2
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.concurrent.sequence
 import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import io.bluetape4k.coroutines.support.awaitSuspending
@@ -78,7 +77,7 @@ class RetrofitSupportTest: AbstractRetrofitTest() {
 
         @RepeatedTest(REPEAT_SIZE)
         fun `Retrofit용 API를 활용한 비동기방식 Bulk 호출`() {
-            val futures = fastList(CALL_SIZE) {
+            val futures = List(CALL_SIZE) {
                 jsonApi.getPost(Random.nextInt(1, 100)).executeAsync()
             }
             val responses = futures.sequence(VirtualThreadExecutor).get()
@@ -89,7 +88,7 @@ class RetrofitSupportTest: AbstractRetrofitTest() {
 
         @RepeatedTest(REPEAT_SIZE)
         fun `Retrofit용 API를 활용한 Coroutines Bulk 호출`() = runSuspendIO {
-            val deferres = fastList(CALL_SIZE) {
+            val deferres = List(CALL_SIZE) {
                 async(Dispatchers.IO) {
                     jsonApi.getPost(Random.nextInt(1, 100)).executeAsync().awaitSuspending()
                 }

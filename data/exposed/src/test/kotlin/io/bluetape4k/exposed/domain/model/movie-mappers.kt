@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.domain.model
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.exposed.domain.model.MovieSchema.ActorEntity
 import io.bluetape4k.exposed.domain.model.MovieSchema.ActorTable
 import io.bluetape4k.exposed.domain.model.MovieSchema.MovieEntity
@@ -32,7 +31,7 @@ fun ResultRow.toMovieWithActorRecord(actors: List<ActorRecord>) = MovieWithActor
     name = this[MovieTable.name],
     producerName = this[MovieTable.producerName],
     releaseDate = this[MovieTable.releaseDate].toString(),
-    actors = actors.toFastList(),
+    actors = actors.toMutableList(),
     id = this[MovieTable.id].value
 )
 
@@ -40,7 +39,7 @@ fun MovieRecord.toMovieWithActorRecord(actors: List<ActorRecord>) = MovieWithAct
     name = this.name,
     producerName = this.producerName,
     releaseDate = this.releaseDate,
-    actors = actors.toFastList(),
+    actors = actors.toMutableList(),
     id = this.id
 )
 
@@ -55,7 +54,7 @@ fun MovieEntity.toMovieWithActorRecord() = MovieWithActorRecord(
     name = this.name,
     producerName = this.producerName,
     releaseDate = this.releaseDate.toString(),
-    actors = this.actors.map { it.toActorRecord() }.toFastList(),
+    actors = this.actors.map { it.toActorRecord() }.toMutableList(),
     id = this.id.value
 )
 

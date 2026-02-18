@@ -1,8 +1,6 @@
 package io.bluetape4k.exposed.domain.model
 
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.exposed.core.HasIdentifier
-import org.eclipse.collections.impl.list.mutable.FastList
 import java.io.Serializable
 
 /**
@@ -53,7 +51,7 @@ data class MovieWithActorRecord(
     val name: String,
     val producerName: String,
     val releaseDate: String,
-    val actors: FastList<ActorRecord> = fastListOf(),
+    var actors: MutableList<ActorRecord> = mutableListOf(),
     override val id: Long = 0L,
 ): HasIdentifier<Long>
 

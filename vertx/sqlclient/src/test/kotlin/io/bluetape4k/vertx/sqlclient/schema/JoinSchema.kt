@@ -1,6 +1,5 @@
 package io.bluetape4k.vertx.sqlclient.schema
 
-import io.bluetape4k.collections.eclipse.fastListOf
 import org.mybatis.dynamic.sql.AliasableSqlTable
 import java.io.Serializable
 import java.time.LocalDate
@@ -49,9 +48,8 @@ object JoinSchema {
 data class OrderMaster(
     val orderId: Int? = null,
     var orderDate: LocalDate? = null,
+    val details: MutableList<OrderDetail> = mutableListOf(),
 ): Comparable<OrderMaster>, Serializable {
-    val details: MutableList<OrderDetail> = fastListOf()
-
     override fun compareTo(other: OrderMaster): Int {
         return orderId?.compareTo(other.orderId ?: 0) ?: 0
     }

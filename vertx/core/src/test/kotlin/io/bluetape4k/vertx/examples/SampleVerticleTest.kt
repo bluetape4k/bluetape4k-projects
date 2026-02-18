@@ -1,6 +1,5 @@
 package io.bluetape4k.vertx.examples
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -88,7 +87,7 @@ class SampleVerticleTest: AbstractVertxTest() {
             vertx.deployVerticle(SampleVerticle()).coAwait()
             deploymentCheckpoint.flag()  //testContext 에게 현 단계까지 완료되었음을 알린다.
 
-            val jobs = fastList(REPEAT_SIZE) { requestIndex ->
+            val jobs = List(REPEAT_SIZE) { requestIndex ->
                 launch {
                     log.debug { "Request $requestIndex" }
                     val resp =

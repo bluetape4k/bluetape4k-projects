@@ -1,6 +1,5 @@
 package io.bluetape4k.redis.lettuce
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
@@ -23,7 +22,7 @@ class CoroutinesCommandTest: AbstractLettuceTest() {
     fun `hset in coroutines`() = runSuspendIO {
         val keyName = randomName()
 
-        val list = fastList(ITEM_SIZE) { index ->
+        val list = List(ITEM_SIZE) { index ->
             coroutinesCommands.hset(keyName, index.toString(), index)
         }
         list shouldHaveSize ITEM_SIZE
@@ -36,7 +35,7 @@ class CoroutinesCommandTest: AbstractLettuceTest() {
     fun `hset in coroutines async`() = runSuspendIO {
         val keyName = randomName()
 
-        val list = fastList(ITEM_SIZE) { index ->
+        val list = List(ITEM_SIZE) { index ->
             async(Dispatchers.IO) {
                 coroutinesCommands.hset(keyName, index.toString(), index)
             }

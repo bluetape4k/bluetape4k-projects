@@ -8,7 +8,6 @@ import ch.qos.logback.classic.spi.LoggingEvent
 import ch.qos.logback.core.Appender
 import ch.qos.logback.core.AppenderBase
 import ch.qos.logback.core.status.Status
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logback.kafka.exporter.DefaultKafkaExporter
@@ -36,7 +35,7 @@ class KafkaAppenderIT: AbstractKafkaIntegrationTest() {
         private const val TEST_PARTITION = 0
     }
 
-    private val errorCollector = fastListOf<Throwable>()
+    private val errorCollector = mutableListOf<Throwable>()
 
     private lateinit var kafkaAppender: KafkaAppender<ILoggingEvent>
     private lateinit var loggerContext: LoggerContext
@@ -49,7 +48,7 @@ class KafkaAppenderIT: AbstractKafkaIntegrationTest() {
         }
     }
 
-    private val fallbackLoggingEvents = fastListOf<ILoggingEvent>()
+    private val fallbackLoggingEvents = mutableListOf<ILoggingEvent>()
 
     @BeforeEach
     fun setup() {

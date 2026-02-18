@@ -4,11 +4,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import io.bluetape4k.AbstractValueObject
 import io.bluetape4k.ToStringBuilder
-import io.bluetape4k.collections.eclipse.fastListOf
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.support.hashOf
 import net.datafaker.Faker
-import org.eclipse.collections.impl.list.mutable.FastList
 import java.io.Serializable
 import java.time.Instant
 import java.util.*
@@ -22,7 +19,7 @@ data class Container(val boxes: List<Box>): Serializable
 data class Point(val x: Int, val y: Int): Serializable
 
 data class Points(val p: List<Point>): Serializable {
-    constructor(vararg points: Point): this(points.toFastList())
+    constructor(vararg points: Point): this(points.toList())
 }
 
 @JsonPropertyOrder(value = ["topLeft", "bottomRight"])
@@ -32,7 +29,8 @@ data class Rectangle(
 ): Serializable
 
 enum class Gender {
-    MALE, FEMALE;
+    MALE,
+    FEMALE;
 }
 
 data class FiveMinuteUser(
@@ -93,7 +91,7 @@ enum class Generation {
 data class Address(
     var street: String? = null,
     var phone: String? = null,
-    val props: FastList<String> = fastListOf(),
+    val props: List<String> = emptyList(),
 ): Serializable
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
@@ -125,7 +123,7 @@ data class OptionalCollection(
     override val name: String,
     override val age: Int,
     val spec: Optional<String>,
-    val options: List<Optional<String>> = fastListOf(),
+    val options: List<Optional<String>> = listOf(),
 ): Person
 
 
@@ -150,7 +148,7 @@ open class User: AbstractValueObject(), Comparable<User> {
 
     var homeAddr = Address()
     var officeAddr = Address()
-    var favoriteMovies: FastList<String> = fastListOf()
+    var favoriteMovies: MutableList<String> = mutableListOf()
 
     override fun compareTo(other: User): Int {
         var result = firstname.compareTo(other.firstname)
@@ -191,12 +189,12 @@ fun createSampleUser(favoriteMovieSize: Int = 100): User {
         homeAddr = Address(
             faker.address().fullAddress(),
             faker.phoneNumber().phoneNumber(),
-            fastListOf("home")
+            listOf("home")
         )
         officeAddr = Address(
             faker.address().fullAddress(),
             faker.phoneNumber().phoneNumber(),
-            fastListOf("office")
+            listOf("office")
         )
         repeat(favoriteMovieSize) {
             favoriteMovies.add("Favorite Movie number-$it")

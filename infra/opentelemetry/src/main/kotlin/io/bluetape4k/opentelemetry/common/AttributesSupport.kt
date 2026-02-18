@@ -1,6 +1,5 @@
 package io.bluetape4k.opentelemetry.common
 
-import io.bluetape4k.collections.eclipse.primitives.toFastList
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.common.AttributesBuilder
@@ -62,20 +61,20 @@ fun Map<*, *>.toAttributes(): Attributes = attributes {
     forEach { (key, value) ->
         val keyStr = key.toString()
         when (value) {
-            is Int -> put(AttributeKey.longArrayKey(keyStr), value.toLong())
-            is Long -> put(keyStr, value)
-            is Float -> put(keyStr, value.toDouble())
-            is Double -> put(keyStr, value)
-            is Boolean -> put(keyStr, value)
-            is LongArray -> put(AttributeKey.longArrayKey(keyStr), value.toFastList())
-            is DoubleArray -> put(AttributeKey.doubleArrayKey(keyStr), value.toFastList())
-            is BooleanArray -> put(AttributeKey.booleanArrayKey(keyStr), value.toFastList())
-            is Array<*> -> put(
+            is Int          -> put(AttributeKey.longArrayKey(keyStr), value.toLong())
+            is Long         -> put(keyStr, value)
+            is Float        -> put(keyStr, value.toDouble())
+            is Double       -> put(keyStr, value)
+            is Boolean      -> put(keyStr, value)
+            is LongArray    -> put(AttributeKey.longArrayKey(keyStr), value.toList())
+            is DoubleArray  -> put(AttributeKey.doubleArrayKey(keyStr), value.toList())
+            is BooleanArray -> put(AttributeKey.booleanArrayKey(keyStr), value.toList())
+            is Array<*>     -> put(
                 AttributeKey.stringArrayKey(keyStr),
                 *value.map { it.toString() }.toTypedArray()
             )
 
-            else -> put(keyStr, value.toString())
+            else            -> put(keyStr, value.toString())
         }
     }
 }

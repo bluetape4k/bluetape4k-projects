@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
@@ -57,7 +58,7 @@ class CoroutinePersonRepositoryTest(
 
     @Test
     fun `find by lastname`() = runSuspendIO {
-        val simpsons = repository.findByLastname("Simpson").toFastList()
+        val simpsons = repository.findByLastname("Simpson").toList()
         simpsons.size shouldBeEqualTo 3
     }
 
@@ -65,7 +66,7 @@ class CoroutinePersonRepositoryTest(
     fun `find by mono lastname`() = runSuspendIO {
         val simpsons = repository
             .findByLastname(mono { delay(10); "Simpson" })
-            .toFastList()
+            .toList()
         simpsons.size shouldBeEqualTo 3
     }
 

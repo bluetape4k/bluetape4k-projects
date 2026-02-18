@@ -1,7 +1,5 @@
 package io.bluetape4k.exposed.core
 
-import io.bluetape4k.collections.eclipse.fastList
-import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.exposed.dao.id.SnowflakeIdTable
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
@@ -14,6 +12,7 @@ import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.toList
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
@@ -42,7 +41,7 @@ class SuspendedQueryTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `코루틴 환경에서 AutoInc ID를 가진 테이블에서 Batch 로 읽어온다`(testDB: TestDB) = runSuspendIO {
         withTablesSuspending(testDB, ProductTable) {
-            val products = fastList(100) {
+            val products = List(100) {
                 Product(
                     name = faker.app().name() + " Version:$it",
                     price = faker.number().randomDigitNotZero()
@@ -62,7 +61,7 @@ class SuspendedQueryTest: AbstractExposedTest() {
                 .flatMapConcat { rows ->
                     rows.asFlow().map { it[ProductTable.id].value }
                 }
-                .toFastList()
+                .toList()
 
             batchedIds.size shouldBeEqualTo products.size
 
@@ -75,7 +74,7 @@ class SuspendedQueryTest: AbstractExposedTest() {
                 .flatMapMerge { rows ->
                     rows.asFlow().map { it[ProductTable.id].value }
                 }
-                .toFastList()
+                .toList()
 
             reversedIds.size shouldBeEqualTo products.size
         }
@@ -95,7 +94,7 @@ class SuspendedQueryTest: AbstractExposedTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `코루틴 환경에서 ID가 SnowflakeID의 Long 수형의 테이블에서 Batch 로 읽어온다`(testDB: TestDB) = runSuspendIO {
         withTablesSuspending(testDB, ItemTable) {
-            val items = fastList(100) {
+            val items = List(100) {
                 Item(
                     name = faker.app().name() + " Version:$it",
                     price = faker.number().randomDigitNotZero()
@@ -117,7 +116,7 @@ class SuspendedQueryTest: AbstractExposedTest() {
                 .flatMapConcat { rows ->
                     rows.asFlow().map { it[ItemTable.id].value }
                 }
-                .toFastList()
+                .toList()
                 .sorted()
 
             batchedIds.size shouldBeEqualTo items.size
@@ -131,7 +130,7 @@ class SuspendedQueryTest: AbstractExposedTest() {
                 .flatMapConcat { rows ->
                     rows.asFlow().map { it[ItemTable.id].value }
                 }
-                .toFastList()
+                .toList()
                 .sorted()
 
             reversedIds.size shouldBeEqualTo items.size

@@ -1,6 +1,5 @@
 package io.bluetape4k.fastjson2.extensions
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.fastjson2.AbstractFastjson2Test
 import io.bluetape4k.fastjson2.model.User
 import io.bluetape4k.fastjson2.model.newUser
@@ -26,7 +25,7 @@ class JSONBExtensionsTest: AbstractFastjson2Test() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `list convert with JSONB`() {
-        val users = fastList(5) { newUser() }
+        val users = List(5) { newUser() }
 
         val bytes = users.toJsonBytes()
         val parsed = bytes.readBytesOrNull<List<User>>()
@@ -36,7 +35,7 @@ class JSONBExtensionsTest: AbstractFastjson2Test() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `list convert as input stream with JSONB`() {
-        val users = fastList(2) { newUser() }
+        val users = List(2) { newUser() }
 
         users.toJsonBytes()!!.toInputStream().use { inputStream ->
             val parsed = inputStream.readBytesOrNull<List<User>>()

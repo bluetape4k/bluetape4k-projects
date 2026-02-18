@@ -1,6 +1,5 @@
 package io.bluetape4k.grpc.testing.integration
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.logging.KLogging
 import io.grpc.ManagedChannel
 import io.grpc.ServerBuilder
@@ -43,7 +42,7 @@ class Http2OkHttpTest: AbstractInteropTest() {
 
             GrpcSslContexts.configure(contextBuilder, sslProvider)
             contextBuilder.ciphers(
-                SSLContext.getDefault().defaultSSLParameters.cipherSuites.toFastList(),
+                SSLContext.getDefault().defaultSSLParameters.cipherSuites.toList(),
                 SupportedCipherSuiteFilter.INSTANCE
             )
 

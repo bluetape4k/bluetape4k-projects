@@ -1,6 +1,5 @@
 package io.bluetape4k.netty.buffer
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.netty.AbstractNettyTest
@@ -18,7 +17,7 @@ class ByteBufStringTest: AbstractNettyTest() {
         private const val STRING_SIZE = 1024
     }
 
-    private val testData: List<String> = fastList(LIST_SIZE) {
+    private val testData: List<String> = List(LIST_SIZE) {
         Fakers.randomString(STRING_SIZE, STRING_SIZE * 2)
     }
 

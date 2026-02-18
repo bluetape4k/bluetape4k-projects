@@ -3,7 +3,6 @@ package io.bluetape4k.jackson.async
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.module.kotlin.treeToValue
-import io.bluetape4k.collections.eclipse.primitives.toFastList
 import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.jackson.treeToValueOrNull
 import io.bluetape4k.jackson.writeAsBytes
@@ -80,7 +79,7 @@ class SuspendJsonParserTest {
         val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
         val chunkSize = 20
 
-        val flow: Flow<ByteArray> = bytes.toFastList()
+        val flow: Flow<ByteArray> = bytes.toList()
             .chunked(chunkSize)
             .map { it.toByteArray() }
             .asFlow()
@@ -112,7 +111,7 @@ class SuspendJsonParserTest {
         val repeatSize = 3
         val chunkSize = 20
         repeat(repeatSize) {
-            val flow = bytes.toFastList()
+            val flow = bytes.toList()
                 .chunked(chunkSize)
                 .map { it.toByteArray() }
                 .asFlow()

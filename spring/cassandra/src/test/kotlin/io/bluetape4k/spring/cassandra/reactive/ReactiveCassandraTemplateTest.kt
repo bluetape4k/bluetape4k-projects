@@ -1,8 +1,6 @@
 package io.bluetape4k.spring.cassandra.reactive
 
 import com.datastax.oss.driver.api.core.uuid.Uuids
-import io.bluetape4k.collections.eclipse.fastList
-import io.bluetape4k.collections.eclipse.toUnifiedSet
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
@@ -239,14 +237,14 @@ class ReactiveCassandraTemplateTest(
         val entitySize = 100
         val sliceSize = 10
 
-        val insertTasks = fastList(entitySize) {
+        val insertTasks = List(entitySize) {
             async(Dispatchers.IO) {
                 val user = newUser()
                 reactiveOps.suspendInsert(user)
                 user.id
             }
         }
-        val expectedIds = insertTasks.awaitAll().toUnifiedSet()
+        val expectedIds = insertTasks.awaitAll().toSet()
 
         val query = Query.empty()
         var slice = reactiveOps

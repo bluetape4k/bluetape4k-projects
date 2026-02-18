@@ -4,7 +4,6 @@ import io.bluetape4k.cache.jcache.coroutines.CaffeineSuspendCache
 import io.bluetape4k.cache.jcache.coroutines.SuspendCache
 import io.bluetape4k.cache.jcache.coroutines.SuspendCacheEntry
 import io.bluetape4k.codec.Base58
-import io.bluetape4k.collections.eclipse.unifiedMap
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.faker.Fakers
@@ -366,7 +365,7 @@ abstract class AbstractNearSuspendCacheTest
 
     @RepeatedTest(TEST_SIZE)
     fun `removeAll - 모든 캐시를 삭제하면 nearCache들에게 반영된다`() = runSuspendIO {
-        val map = unifiedMap(100) { getKey() to getValue() }
+        val map = List(100) { getKey() to getValue() }.toMap()
 
         nearSuspendCache1.putAll(map)
         await untilSuspending { nearSuspendCache2.entries().count() > 0 }

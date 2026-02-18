@@ -1,6 +1,5 @@
 package io.bluetape4k.math.special
 
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.support.assertPositiveNumber
 import org.apache.commons.math3.special.Gamma.logGamma
 import kotlin.math.exp
@@ -16,7 +15,7 @@ fun betaLn(xs: Sequence<Double>, ys: Sequence<Double>): Sequence<Double> =
     xs.zip(ys).map { (x, y) -> betaLn(x, y) }
 
 fun betaLn(xs: Iterable<Double>, ys: Iterable<Double>): DoubleArray {
-    val results = fastListOf<Double>()
+    val results = mutableListOf<Double>()
     val xe = xs.iterator()
     val ye = ys.iterator()
     while (xe.hasNext() && ye.hasNext()) {

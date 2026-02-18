@@ -2,8 +2,6 @@ package io.bluetape4k.idgenerators.uuid.base62
 
 import io.bluetape4k.codec.decodeBase62AsUuid
 import io.bluetape4k.codec.encodeBase62
-import io.bluetape4k.collections.eclipse.stream.toFastList
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.idgenerators.IdGenerator
 import io.bluetape4k.idgenerators.hashids.Hashids
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
@@ -54,7 +52,7 @@ abstract class AbstractTimebasedUuidBase62Test {
     @RepeatedTest(REPEAT_SIZE)
     fun `generate timebased uuid with size`() {
 
-        val uuids = uuidGenerator.nextIdsAsString(TEST_COUNT).toFastList()
+        val uuids = uuidGenerator.nextIdsAsString(TEST_COUNT).toList()
         val sorted = uuids.sorted()
 
         sorted.forEachIndexed { index, uuid ->
@@ -68,7 +66,7 @@ abstract class AbstractTimebasedUuidBase62Test {
     fun `generate timebased uuids as parallel`() {
         val uuids = TEST_LIST.parallelStream()
             .map { uuidGenerator.nextIdAsString() }
-            .toFastList()
+            .toList()
             .sorted()
 
         // 중복 발행은 없어야 한다
@@ -121,7 +119,7 @@ abstract class AbstractTimebasedUuidBase62Test {
     fun `convert timebased uuids to hashids`() {
         val hashids = Hashids()
 
-        val uuids = TEST_LIST.parallelStream().map { uuidGenerator.nextIdAsString() }.toFastList()
+        val uuids = TEST_LIST.parallelStream().map { uuidGenerator.nextIdAsString() }.toList()
         val encodeds = uuids.map { hashids.encode(*it.decodeBase62AsUuid().toLongArray()) }
 
         val decodeds = encodeds.map { hashids.decode(it).toUUID().encodeBase62() }

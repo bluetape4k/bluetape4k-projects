@@ -1,6 +1,5 @@
 package io.bluetape4k.spring.webflux.config
 
-import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -49,7 +48,7 @@ class CustomWebClientConfigTest {
 
     @Test
     fun `async get by custom webclient`() = runSuspendIO {
-        val task = fastList(2 * Runtimex.availableProcessors) {
+        val task = List(2 * Runtimex.availableProcessors) {
             async {
                 webClient
                     .httpGet("https://www.google.com")

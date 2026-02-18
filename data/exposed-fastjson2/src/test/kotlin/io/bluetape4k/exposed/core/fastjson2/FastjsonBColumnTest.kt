@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.core.fastjson2
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.exposed.core.fastjson2.FastjsonSchema.DataHolder
 import io.bluetape4k.exposed.core.fastjson2.FastjsonSchema.User
 import io.bluetape4k.exposed.core.fastjson2.FastjsonSchema.withFastjsonBArrays
@@ -628,7 +627,7 @@ class FastjsonBColumnTest: AbstractExposedTest() {
             val nestedKeyResult = tester
                 .selectAll()
                 .where { tester.fastjsonBColumn keyExists "name" }
-                .toFastList()
+                .toList()
             nestedKeyResult.shouldBeEmpty()
         }
     }

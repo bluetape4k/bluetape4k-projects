@@ -17,4 +17,10 @@ dependencies {
     // Coroutines
     api(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)
+
+    // Collections
+    implementation(Libs.commons_collections4)
+    api(Libs.eclipse_collections)
+    implementation(Libs.eclipse_collections_forkjoin)
+    testImplementation(Libs.eclipse_collections_testutils)
 }

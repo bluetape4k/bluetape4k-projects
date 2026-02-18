@@ -1,7 +1,5 @@
 package io.bluetape4k.exposed.core.transactions
 
-import io.bluetape4k.collections.eclipse.fastList
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.collections.intRangeOf
 import io.bluetape4k.concurrent.virtualthread.VirtualFuture
 import io.bluetape4k.concurrent.virtualthread.awaitAll
@@ -82,7 +80,7 @@ class VirtualThreadTransactionTest: AbstractExposedTest() {
             val recordCount = 10
 
             newVirtualThreadTransaction {
-                fastList(recordCount) { index ->
+                List(recordCount) { index ->
                     virtualThreadTransactionAsync {
                         log.debug { "Task[$index] inserting ..." }
                         // insert 를 수행하는 트랜잭션을 생성한다
@@ -92,10 +90,10 @@ class VirtualThreadTransactionTest: AbstractExposedTest() {
                 commit()
 
                 // 중첩 트랜잭션에서 virtual threads 를 이용하여 동시에 여러 작업을 수행한다.
-                val futures: List<VirtualFuture<List<ResultRow>>> = fastList(recordCount) { index ->
+                val futures: List<VirtualFuture<List<ResultRow>>> = List(recordCount) { index ->
                     virtualThreadTransactionAsync {
                         log.debug { "Task[$index] selecting ..." }
-                        VTester.selectAll().toFastList()
+                        VTester.selectAll().toList()
                     }
                 }
                 // recordCount 개의 행을 가지는 `ResultRow` 를 recordCount 수만큼 가지는 List
@@ -114,7 +112,7 @@ class VirtualThreadTransactionTest: AbstractExposedTest() {
         withTables(testDB, VTester) {
             val recordCount = 10
 
-            val results: List<Int> = fastList(recordCount) { index ->
+            val results: List<Int> = List(recordCount) { index ->
                 virtualThreadTransactionAsync {
                     maxAttempts = 5
                     log.debug { "Task[$index] inserting ..." }
@@ -140,7 +138,7 @@ class VirtualThreadTransactionTest: AbstractExposedTest() {
 
             newVirtualThreadTransaction {
                 try {
-                    VTester.selectAll().toFastList()
+                    VTester.selectAll().toList()
                 } catch (e: Throwable) {
                     virtualThreadOk = false
                     null
@@ -149,7 +147,7 @@ class VirtualThreadTransactionTest: AbstractExposedTest() {
 
             transaction {
                 try {
-                    VTester.selectAll().toFastList()
+                    VTester.selectAll().toList()
                 } catch (e: Throwable) {
                     platformThreadOk = false
                     null

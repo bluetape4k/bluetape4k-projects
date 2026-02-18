@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.repository
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.exposed.domain.model.ActorRecord
 import io.bluetape4k.exposed.domain.model.MovieSchema.ActorEntity
 import io.bluetape4k.exposed.domain.model.MovieSchema.ActorTable
@@ -27,14 +26,14 @@ class ActorRepository: ExposedRepository<ActorRecord, Long> {
 
         params.forEach { (key, value) ->
             when (key) {
-                ActorTable::id.name -> value?.run { query.andWhere { ActorTable.id eq value.toLong() } }
+                ActorTable::id.name       -> value?.run { query.andWhere { ActorTable.id eq value.toLong() } }
                 ActorTable::firstName.name -> value?.run { query.andWhere { ActorTable.firstName eq value } }
                 ActorTable::lastName.name -> value?.run { query.andWhere { ActorTable.lastName eq value } }
                 ActorTable::birthday.name -> value?.run { query.andWhere { ActorTable.birthday eq LocalDate.parse(value) } }
             }
         }
 
-        return ActorEntity.wrapRows(query).toFastList()
+        return ActorEntity.wrapRows(query).toList()
     }
 
     fun save(actor: ActorRecord): ActorRecord {

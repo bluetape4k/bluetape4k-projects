@@ -1,9 +1,5 @@
 package org.javers.core.model
 
-import io.bluetape4k.collections.eclipse.fastList
-import io.bluetape4k.collections.eclipse.fastListOf
-import io.bluetape4k.collections.eclipse.unifiedMapOf
-import io.bluetape4k.collections.eclipse.unifiedSetOf
 import org.javers.core.metamodel.annotation.DiffIgnore
 import org.javers.core.metamodel.annotation.Id
 import org.javers.core.metamodel.annotation.PropertyName
@@ -16,7 +12,11 @@ abstract class AbstractDummyUser: Serializable {
 
 class DummyUser(@Id val name: String, var surname: String? = null): AbstractDummyUser() {
 
-    enum class SEX { FEMALE, MALE, OCCASIONALLY }
+    enum class SEX {
+        FEMALE,
+        MALE,
+        OCCASIONALLY
+    }
 
     companion object {
         fun dummyUser(name: String = "name") = DummyUser(name)
@@ -44,13 +44,13 @@ class DummyUser(@Id val name: String, var surname: String? = null): AbstractDumm
     var largeInt: Int? = null
 
     // collections
-    var stringSet: MutableSet<String> = unifiedSetOf()
-    var stringList: MutableList<String> = fastListOf()
-    var integerList: MutableList<Int> = fastListOf()
-    var primitiveMap: MutableMap<String, LocalDateTime> = unifiedMapOf()
-    var valueMap: MutableMap<String, LocalDateTime> = unifiedMapOf()
+    var stringSet: MutableSet<String> = mutableSetOf()
+    var stringList: MutableList<String> = mutableListOf()
+    var integerList: MutableList<Int> = mutableListOf()
+    var primitiveMap: MutableMap<String, LocalDateTime> = mutableMapOf()
+    var valueMap: MutableMap<String, LocalDateTime> = mutableMapOf()
 
-    var objectMap: MutableMap<String, DummyUserDetails> = unifiedMapOf()   // not supported
+    var objectMap: MutableMap<String, DummyUserDetails> = mutableMapOf()   // not supported
 
     // array
     var intArray: IntArray? = null
@@ -59,8 +59,8 @@ class DummyUser(@Id val name: String, var surname: String? = null): AbstractDumm
     // reference
     var supervisor: DummyUser? = null
     var dummyUserDetails: DummyUserDetails? = null
-    var dummyUserDetailsList: MutableList<DummyUserDetails> = fastListOf()
-    var employeesList: MutableList<DummyUser> = fastListOf()
+    var dummyUserDetailsList: MutableList<DummyUserDetails> = mutableListOf()
+    var employeesList: MutableList<DummyUser> = mutableListOf()
 
     fun addEmployee(employee: DummyUser) {
         employeesList.add(employee)
@@ -130,7 +130,7 @@ class DummyUser(@Id val name: String, var surname: String? = null): AbstractDumm
     }
 
     fun withDetailsList(numberOfDetailsList: Int) = apply {
-        this.dummyUserDetailsList = fastList(numberOfDetailsList) { DummyUserDetails(id = it) }
+        this.dummyUserDetailsList = List(numberOfDetailsList) { DummyUserDetails(id = it) }.toMutableList()
     }
 
     fun withIntArray(ints: List<Int>) = apply {

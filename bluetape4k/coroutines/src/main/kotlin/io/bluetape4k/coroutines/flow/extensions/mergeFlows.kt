@@ -65,7 +65,7 @@ internal fun <T: Any> mergeInternal(sources: List<Flow<T>>): Flow<T> = flow {
             when {
                 isDone && value == null -> break
                 value != null -> emit(value)
-                else -> ready.await()
+                else          -> ready.await()
             }
         }
     }

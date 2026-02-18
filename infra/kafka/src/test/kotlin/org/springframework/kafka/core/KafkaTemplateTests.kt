@@ -1,6 +1,5 @@
 package org.springframework.kafka.core
 
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.concurrent.onFailure
 import io.bluetape4k.concurrent.onSuccess
 import io.bluetape4k.kafka.spring.test.utils.consumerProps
@@ -294,8 +293,8 @@ class KafkaTemplateTests {
         val pf = DefaultKafkaProducerFactory<Int, String>(senderProps)
         val template = KafkaTemplate(pf).apply { defaultTopic = INT_KEY_TOPIC }
         val latch = CountDownLatch(2)
-        val records = fastListOf<ProducerRecord<Int, String>>()
-        val meta = fastListOf<RecordMetadata>()
+        val records = mutableListOf<ProducerRecord<Int, String>>()
+        val meta = mutableListOf<RecordMetadata>()
         val onErrorDelegateCalls = AtomicInteger(0)
 
         class PL: ProducerListener<Int, String> {

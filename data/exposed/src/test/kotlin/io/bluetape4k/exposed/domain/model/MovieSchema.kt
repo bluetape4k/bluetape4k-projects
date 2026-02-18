@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.domain.model
 
-import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.exposed.dao.entityToStringBuilder
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.idHashCode
@@ -140,25 +139,25 @@ object MovieSchema: KLogging() {
                 "Gladiator",
                 johnnyDepp.firstName,
                 "2000-05-01",
-                fastListOf(russellCrowe, ellenPaige, craigDaniel)
+                mutableListOf(russellCrowe, ellenPaige, craigDaniel)
             ),
             MovieWithActorRecord(
                 "Guardians of the galaxy",
                 johnnyDepp.firstName,
                 "2014-07-21",
-                fastListOf(angelinaGrace, bradPitt, ellenPaige, angelinaJolie, johnnyDepp)
+                mutableListOf(angelinaGrace, bradPitt, ellenPaige, angelinaJolie, johnnyDepp)
             ),
             MovieWithActorRecord(
                 "Fight club",
                 craigDaniel.firstName,
                 "1999-09-13",
-                fastListOf(bradPitt, jenniferAniston, edwardNorton)
+                mutableListOf(bradPitt, jenniferAniston, edwardNorton)
             ),
             MovieWithActorRecord(
                 "13 Reasons Why",
                 "Suzuki",
                 "2016-01-01",
-                fastListOf(angelinaJolie, jenniferAniston)
+                mutableListOf(angelinaJolie, jenniferAniston)
             )
         )
 

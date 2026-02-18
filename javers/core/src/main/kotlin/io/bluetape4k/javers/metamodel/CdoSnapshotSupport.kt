@@ -1,6 +1,5 @@
 package io.bluetape4k.javers.metamodel
 
-import io.bluetape4k.collections.eclipse.toFastList
 import io.bluetape4k.javers.isDateInRange
 import org.javers.core.commit.CommitId
 import org.javers.core.metamodel.`object`.CdoSnapshot
@@ -52,4 +51,4 @@ fun Sequence<CdoSnapshot>.filterByCommitProperties(
     }
 
 fun Sequence<CdoSnapshot>.trimToRequestedSlice(skip: Int, limit: Int): List<CdoSnapshot> =
-    drop(skip).take(limit).toFastList()
+    drop(skip).take(limit).toList()

@@ -1,6 +1,5 @@
 package io.bluetape4k.examples.cassandra.multitenancy.row
 
-import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.coroutines.runSuspendTest
@@ -8,6 +7,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asContextElement
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
@@ -35,7 +35,7 @@ class RowMultitenantTest(
     fun beforeEach() = runSuspendTest {
         repository.deleteAll()
 
-        val saved = repository.saveAll(employees.asFlow()).toFastList()
+        val saved = repository.saveAll(employees.asFlow()).toList()
         saved.size shouldBeEqualTo employees.size
     }
 
@@ -47,7 +47,7 @@ class RowMultitenantTest(
 
         val job1 = launch(Dispatchers.IO + TenantIdProvider.tenantId.asContextElement()) {
             repeat(REPEAT_TIMES) {
-                val loaded = repository.findAllByName("Steve").toFastList()
+                val loaded = repository.findAllByName("Steve").toList()
 
                 loaded.size shouldBeEqualTo 1
                 loaded.first() shouldBeEqualTo Employee("apple", "Steve")
@@ -58,7 +58,7 @@ class RowMultitenantTest(
         TenantIdProvider.tenantId.set("amazon")
         val job2 = launch(Dispatchers.IO + TenantIdProvider.tenantId.asContextElement()) {
             repeat(REPEAT_TIMES) {
-                val loaded = repository.findAllByName("Steve").toFastList()
+                val loaded = repository.findAllByName("Steve").toList()
                 loaded.shouldBeEmpty()
             }
         }
