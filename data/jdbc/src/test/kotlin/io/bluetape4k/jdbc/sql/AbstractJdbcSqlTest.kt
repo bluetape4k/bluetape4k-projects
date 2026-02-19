@@ -21,9 +21,8 @@ import javax.sql.DataSource
 
 @ExtendWith(SpringExtension::class)
 @ContextConfiguration(classes = [JdbcConfiguration::class])
-abstract class AbstractJdbcSqlTest: AbstractJdbcTest() {
-
-    companion object: KLogging() {
+open abstract class AbstractJdbcSqlTest : AbstractJdbcTest() {
+    companion object : KLogging() {
         const val SELECT_ACTORS = "SELECT * FROM Actors"
 
         const val SELECT = "SELECT * FROM test_bean"
@@ -59,9 +58,10 @@ abstract class AbstractJdbcSqlTest: AbstractJdbcTest() {
     }
 
     protected fun count(): Int {
-        val count = jdbcTemplate.queryForObject("SELECT count(*) FROM test_bean") { rs, _ ->
-            rs.getIntOrNull(1)
-        }
+        val count =
+            jdbcTemplate.queryForObject("SELECT count(*) FROM test_bean") { rs, _ ->
+                rs.getIntOrNull(1)
+            }
         return count ?: 0
     }
 
