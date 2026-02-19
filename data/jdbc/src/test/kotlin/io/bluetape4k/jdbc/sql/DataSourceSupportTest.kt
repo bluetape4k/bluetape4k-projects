@@ -2,6 +2,7 @@ package io.bluetape4k.jdbc.sql
 
 import io.bluetape4k.jdbc.model.Actor
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeTrue
@@ -42,16 +43,18 @@ class DataSourceSupportTest: AbstractJdbcSqlTest() {
     @Test
     fun `executeQuery and instancing Actors`() {
         val actors = dataSource.runQuery(SELECT_ACTORS) { rs ->
-            rs.map {
-                val id = getInt("id")
-                val firstname = getString("firstname")
-                val lastname = getString("lastname")
-                Actor(id, firstname, lastname)
+            rs.extract {
+                Actor(
+                    id = int["id"],
+                    firstname = string["firstname"],
+                    lastname = string["lastname"]
+                ).apply {
+                    log.debug { "Actor:$this" }
+                }
             }
         }
 
         actors.size shouldBeGreaterThan 0
-
         actors.map { it.lastname } shouldContainAll listOf("Bae", "Kwon")
     }
 
