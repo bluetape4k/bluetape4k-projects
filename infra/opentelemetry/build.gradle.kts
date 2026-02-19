@@ -8,9 +8,8 @@ plugins {
 // OpenTelemetry Java Agent 를 사용할 경우 아래의 Task 를 실행하여 자동으로 다운로드 하도록 합니다.
 tasks {
     test {
-        jvmArgs = listOf("-javaagent:${project.layout.projectDirectory.asFile}/opentelemetry-javaagent.jar")
         // dependsOn("downloadAgent")
-        // jvmArgs = listOf("-javaagent:${project.layout.buildDirectory.asFile.get()}/opentelemetry-javaagent.jar")
+        // jvmArgs = listOf("-javaagent:${project.layout.projectDirectory.asFile}/opentelemetry-javaagent.jar")
     }
 
     // update-otel-agent.sh 를 수동으로 실행하여 OpenTelemetry Java Agent 를 다운로드 받을 수 있습니다.

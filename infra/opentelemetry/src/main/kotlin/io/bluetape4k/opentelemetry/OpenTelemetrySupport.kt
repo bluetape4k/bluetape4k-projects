@@ -15,18 +15,17 @@ import io.opentelemetry.sdk.metrics.SdkMeterProvider
 import io.opentelemetry.sdk.trace.SdkTracerProvider
 
 /**
- * The entrypoint to telemetry functionality for tracing, metrics and baggage.
+ * ট্রেসিং, মেট্রিক্স, এবং ব্যাগেজের জন্য টেলিমেট্রি কার্যকারিতার প্রবেশদ্বার।
  *
- * If using the OpenTelemetry SDK, you may want to instantiate the [OpenTelemetry] to
- * provide configuration, for example of `Resource` or `Sampler`.
- * See [OpenTelemetrySdk] and [OpenTelemetrySdk.builder] for information on how to construct the
- * SDK [OpenTelemetry].
+ * ওপেনটেলিমেট্রি SDK ব্যবহার করলে, আপনি কনফিগারেশন প্রদানের জন্য [OpenTelemetry] 인스턴স তৈরি করতে চাইতে পারেন,
+ * উদাহরণস্বরূপ `Resource` বা `Sampler`। SDK [OpenTelemetry] কীভাবে তৈরি করবেন সে সম্পর্কে তথ্যের জন্য
+ * [OpenTelemetrySdk] এবং [OpenTelemetrySdk.builder] দেখুন।
  */
 @JvmField
 val NoopOpenTelemetry: OpenTelemetry = OpenTelemetry.noop()
 
 /**
- * Return the registered global [OpenTelemetry].
+ * 등록된 글로벌 [OpenTelemetry]를 반환합니다.
  */
 var globalOpenTelemetry: OpenTelemetry
     get() = GlobalOpenTelemetry.get()
@@ -35,9 +34,8 @@ var globalOpenTelemetry: OpenTelemetry
     }
 
 /**
- * Returns an [OpenTelemetry] which will do remote propagation of
- * [io.opentelemetry.context.Context] using the provided [ContextPropagators] and is no-op
- * otherwise.
+ * 제공된 [ContextPropagators]를 사용하여 [io.opentelemetry.context.Context]의 원격 전파를 수행하고
+ * 그 외에는 no-op인 [OpenTelemetry]를 반환합니다.
  */
 fun openTelemetryOf(propagators: ContextPropagators): OpenTelemetry =
     OpenTelemetry.propagating(propagators)
@@ -65,7 +63,7 @@ inline fun openTelemetrySdkGlobal(
  * @param meterProvider [SdkMeterProvider]
  * @param loggerProvider [SdkLoggerProvider]
  * @param propagators [ContextPropagators]
- * @return
+ * @return [OpenTelemetry] 인스턴스
  */
 fun openTelemetrySdkOf(
     tracerProvider: SdkTracerProvider? = null,
@@ -84,9 +82,9 @@ fun openTelemetrySdkOf(
 /**
  * [TracerBuilder]를 이용하여 [Tracer] 인스턴스를 빌드합니다.
  *
- * @param tracerName tracer name
- * @param builder tracer building block
- * @return [Tracer] instance
+ * @param tracerName tracer 이름
+ * @param builder tracer 빌딩 블록
+ * @return [Tracer] 인스턴스
  */
 inline fun OpenTelemetry.tracer(
     tracerName: String,
@@ -99,9 +97,9 @@ inline fun OpenTelemetry.tracer(
 /**
  * [MeterBuilder]를 이용하여 [Meter] 인스턴스를 빌드합니다.
  *
- * @param meterName meter name
- * @param builder meter building block
- * @return [Meter] instance
+ * @param meterName meter 이름
+ * @param builder meter 빌딩 블록
+ * @return [Meter] 인스턴스
  */
 inline fun OpenTelemetry.meter(
     meterName: String,

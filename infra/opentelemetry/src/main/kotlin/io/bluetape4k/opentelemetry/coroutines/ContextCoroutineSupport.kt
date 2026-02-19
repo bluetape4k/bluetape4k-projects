@@ -5,7 +5,6 @@ import io.bluetape4k.opentelemetry.currentOtelContext
 import io.opentelemetry.context.Context
 import io.opentelemetry.extension.kotlin.asContextElement
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -34,8 +33,6 @@ suspend inline fun <T> withOtelContext(
  */
 suspend inline fun <T> Context.withOtelContext(
     @BuilderInference crossinline block: suspend CoroutineScope.() -> T,
-): T = coroutineScope {
-    withContext(this@withOtelContext.asContextElement()) {
-        block()
-    }
+): T = withContext(this@withOtelContext.asContextElement()) {
+    block()
 }
