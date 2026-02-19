@@ -18,10 +18,48 @@ dependencies {
 }
 ```
 
+## 사용 예시
+
+### 인증 정보 구성
+
+```kotlin
+import io.bluetape4k.aws.auth.staticCredentialsProviderOf
+import io.bluetape4k.aws.auth.LocalAwsCredentialsProvider
+
+// 기본 인증 정보로 CredentialsProvider 생성
+val credentialsProvider = staticCredentialsProviderOf("accessKey", "secretKey")
+
+// 로컬 테스트용 기본 Provider 사용
+val localProvider = LocalAwsCredentialsProvider
+```
+
+### Coroutine 연동
+
+```kotlin
+import io.bluetape4k.aws.coroutines.suspendCommand
+
+// 동기 AWS 호출을 suspend 함수로 래핑
+suspend fun fetchData(): Result = suspendCommand {
+    someAwsClient.someOperation()
+}
+
+// 요청과 함께 사용
+suspend fun fetchData(request: Request): Result = suspendCommand(request) { req ->
+    someAwsClient.someOperation(req)
+}
+```
+
 ## 주요 기능 상세
 
-- `auth/AuthSupport.kt`
-- `http/SdkHttpClientProvider.kt`, `http/SdkAsyncHttpClientProvider.kt`
-- `http/AwsCrtAsyncHttpClientSupport.kt`, `http/NettyNioAsyncHttpClientSupport.kt`
-- `client/ClientOverrideConfigurationSupport.kt`, `client/ClientAsyncConfigurationSupport.kt`
-- `coroutines/AwsCoroutineSupport.kt`
+| 파일                                               | 설명                      |
+|--------------------------------------------------|-------------------------|
+| `auth/AuthSupport.kt`                            | AWS 인증 정보 생성 유틸리티       |
+| `http/SdkHttpClientProvider.kt`                  | 동기 HTTP 클라이언트 Provider  |
+| `http/SdkAsyncHttpClientProvider.kt`             | 비동기 HTTP 클라이언트 Provider |
+| `http/AwsCrtAsyncHttpClientSupport.kt`           | AWS CRT 기반 비동기 클라이언트    |
+| `http/NettyNioAsyncHttpClientSupport.kt`         | Netty NIO 기반 비동기 클라이언트  |
+| `client/ClientOverrideConfigurationSupport.kt`   | 클라이언트 Override 설정       |
+| `client/ClientAsyncConfigurationSupport.kt`      | 비동기 클라이언트 설정            |
+| `coroutines/AwsCoroutineSupport.kt`              | AWS 호출 코루틴 브릿지          |
+| `core/SdkBytesSupport.kt`                        | SdkBytes 유틸리티           |
+| `core/AwsRequestOverrideConfigurationSupport.kt` | 요청 Override 설정          |
