@@ -59,11 +59,11 @@ inline fun <reified T: Any> ReactiveUpdateOperation.UpdateWithQuery.using(
     val dataAccessStrategy = client.entityTemplate.dataAccessStrategy
     val idColumns = dataAccessStrategy.getIdentifierColumns(T::class.java)
     if (idColumns.isEmpty()) {
-        error("Identifier columns not declared")
+        error("Identifier 컬럼이 정의되어 있지 않습니다.")
     }
     val columns = dataAccessStrategy.getAllColumns(T::class.java) - idColumns
     if (columns.isEmpty()) {
-        error("There are no not-identifier columns to update")
+        error("identifier 컬럼을 제외한 Update할 컬럼이 없습니다.")
     }
 
     val firstIdColumn: SqlIdentifier = idColumns.first()
