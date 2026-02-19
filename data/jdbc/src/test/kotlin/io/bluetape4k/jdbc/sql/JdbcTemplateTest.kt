@@ -47,7 +47,7 @@ class JdbcTemplateTest: AbstractJdbcSqlTest() {
             }
             ps.executeQuery().use { rs ->
                 rs.extract {
-                    int["id"]!! shouldBeEqualTo 1
+                    int["id"] shouldBeEqualTo 1
                 }
             }
         }

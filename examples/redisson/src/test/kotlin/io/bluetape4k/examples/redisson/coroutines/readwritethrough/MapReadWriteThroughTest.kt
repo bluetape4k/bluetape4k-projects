@@ -122,9 +122,9 @@ class MapReadWriteThroughTest: AbstractRedissonCoroutineTest() {
                     resultSet
                         .extract {
                             Actor(
-                                int[Actor::id.name]!!,
-                                string[Actor::firstname.name]!!,
-                                string[Actor::lastname.name]!!
+                                int[Actor::id.name],
+                                string[Actor::firstname.name],
+                                string[Actor::lastname.name]
                             )
                         }
                 }
@@ -135,7 +135,7 @@ class MapReadWriteThroughTest: AbstractRedissonCoroutineTest() {
             return dataSource.runQuery(SELECT_ACTOR_IDS) { rs ->
                 log.debug { "Load all actor ids." }
                 rs.extract {
-                    int[Actor::id.name]!!
+                    int[Actor::id.name]
                 }
             }
         }

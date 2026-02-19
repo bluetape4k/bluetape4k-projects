@@ -96,7 +96,7 @@ suspend inline fun <T> SpanBuilder.useSuspendSpan(
     waitDuration: Duration,
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     crossinline block: suspend (Span) -> T,
-): T = useSuspendSpan(
+): T = useSpanSuspending(
     waitDuration.toMillis().coerceAtLeast(0L),
     coroutineContext,
     block,

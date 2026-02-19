@@ -5,8 +5,8 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.r2dbc.AbstractR2dbcTest
 import io.bluetape4k.r2dbc.model.User
 import io.bluetape4k.r2dbc.query.query
-import io.bluetape4k.r2dbc.support.string
-import io.bluetape4k.r2dbc.support.stringOrNull
+import io.bluetape4k.support.string
+import io.bluetape4k.support.stringOrNull
 import kotlinx.coroutines.flow.toList
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo

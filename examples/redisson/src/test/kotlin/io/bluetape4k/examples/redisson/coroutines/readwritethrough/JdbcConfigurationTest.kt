@@ -36,9 +36,9 @@ class JdbcConfigurationTest {
         val actors = datasource.runQuery(SELECT_ACTORS) { rs ->
             rs.extract {
                 Actor(
-                    int[Actor::id.name]!!,
-                    string[Actor::firstname.name]!!,
-                    string[Actor::lastname.name]!!
+                    int[Actor::id.name],
+                    string[Actor::firstname.name],
+                    string[Actor::lastname.name]
                 )
             }
         }

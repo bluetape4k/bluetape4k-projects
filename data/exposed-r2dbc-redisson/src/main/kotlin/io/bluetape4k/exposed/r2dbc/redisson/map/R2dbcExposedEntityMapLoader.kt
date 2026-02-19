@@ -51,7 +51,7 @@ open class R2dbcExposedEntityMapLoader<ID: Any, E: HasIdentifier<ID>>(
                     .orderBy(entityTable.id, SortOrder.ASC)
                     .limit(batchSize)
                     .offset(offset)
-                    .mapNotNull { it[entityTable.id]?.value }
+                    .mapNotNull { it[entityTable.id].value }
                     .toList()
 
                 if (chunk.isEmpty()) {

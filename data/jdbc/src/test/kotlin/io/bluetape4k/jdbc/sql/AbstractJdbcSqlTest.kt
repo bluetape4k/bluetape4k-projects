@@ -21,7 +21,7 @@ import javax.sql.DataSource
 
 @ExtendWith(SpringExtension::class)
 @ContextConfiguration(classes = [JdbcConfiguration::class])
-open abstract class AbstractJdbcSqlTest : AbstractJdbcTest() {
+abstract class AbstractJdbcSqlTest: AbstractJdbcTest() {
     companion object : KLogging() {
         const val SELECT_ACTORS = "SELECT * FROM Actors"
 
@@ -31,12 +31,12 @@ open abstract class AbstractJdbcSqlTest : AbstractJdbcTest() {
 
         val mapperFunction: (ResultSet, Int) -> TestBean = { rs, _ ->
             ResultSetGetColumnTokens(rs).run {
-                TestBean(int["id"]!!, string["description"], timestamp["createdAt"])
+                TestBean(int["id"], string["description"], timestamp["createdAt"])
             }
         }
 
         val rsFunction: (ResultSet) -> List<Int> = { rs ->
-            rs.extract { int["id"]!! }
+            rs.extract { int["id"] }
         }
 
         val action: (PreparedStatement) -> List<Int> = { ps ->

@@ -4,7 +4,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.opentelemetry.common.attributesOf
 import io.bluetape4k.opentelemetry.common.toAttributeKey
-import io.bluetape4k.opentelemetry.coroutines.useSuspendSpan
+import io.bluetape4k.opentelemetry.coroutines.useSpanSuspending
 import io.opentelemetry.api.OpenTelemetry
 import kotlinx.coroutines.delay
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,7 +36,7 @@ class IndexController(@param:Autowired private val openTelemetry: OpenTelemetry)
 
     private suspend fun doWork(sleepTime: Int) {
         log.debug { "Start doWork() in doWork span ..." }
-        tracer.spanBuilder("doWork").useSuspendSpan { span ->
+        tracer.spanBuilder("doWork").useSpanSuspending { span ->
             delay(sleepTime.toLong())
             log.debug { "A sample log message! span=$span" }
         }
