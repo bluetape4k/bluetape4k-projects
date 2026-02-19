@@ -70,7 +70,7 @@ class ObservationCoroutinesSupportTest: AbstractObservationTest() {
 
     @Test
     fun `복수의 suspend 메소드를 Observation 을 적용하여 실행한다`() = runSuspendIO {
-        val name1 = "observer.delay." + Base58.randomString(6)
+        val name1 = "observer.delay." + Base58.randomString(8)
         withObservationContextSuspending(name1, observationRegistry) {
             ObservationRegistryAssert.assertThat(observationRegistry)
                 .hasRemainingCurrentObservation()
@@ -80,55 +80,59 @@ class ObservationCoroutinesSupportTest: AbstractObservationTest() {
             delay(100.milliseconds)
             log.debug { "observation=$observation" }
         }
+        yield()
 
         ObservationRegistryAssert.assertThat(observationRegistry)
             .doesNotHaveAnyRemainingCurrentObservation()
 
-        val name2 = "observer.delay." + Base58.randomString(6)
+        val name2 = "observer.delay." + Base58.randomString(8)
         withObservationContextSuspending(name2, observationRegistry) {
             ObservationRegistryAssert.assertThat(observationRegistry)
                 .hasRemainingCurrentObservation()
 
-            val observation = observationRegistry.currentObservation
+            val observation = currentObservationInContext() // observationRegistry.currentObservation
             observation?.highCardinalityKeyValue("delay.time", "150ms")
             delay(150.milliseconds)
             log.debug { "observation=$observation" }
         }
+        yield()
 
         ObservationRegistryAssert.assertThat(observationRegistry)
             .doesNotHaveAnyRemainingCurrentObservation()
     }
 
     @Test
-    fun `복수의 suspend 메소드를 Observation 의 Context 를 적용하여 실행한다`() = runSuspendIO {
-        val name1 = "observer.delay." + Base58.randomString(6)
+    fun `복수의 suspend 메소드를 Observation Context 를 적용하여 실행한다`() = runSuspendIO {
+        val name1 = "observer.delay." + Base58.randomString(8)
         val observation1 = observationRegistry.start(name1)
 
         observation1.withObservationContextSuspending {
             ObservationRegistryAssert.assertThat(observationRegistry)
                 .hasRemainingCurrentObservation()
 
-            val observation = currentObservationInContext()
-            observation?.highCardinalityKeyValue("delay.time", "100ms")
+            observation1.highCardinalityKeyValue("delay.time", "100ms")
             delay(100.milliseconds)
-            log.debug { "observation=$observation" }
+            log.debug { "observation1=$observation1" }
         }
+        observation1.stop()
+        yield()
 
         ObservationRegistryAssert.assertThat(observationRegistry)
             .doesNotHaveAnyRemainingCurrentObservation()
 
-        val name2 = "observer.delay." + Base58.randomString(6)
+        val name2 = "observer.delay." + Base58.randomString(8)
         val observation2 = observationRegistry.start(name2)
 
         observation2.withObservationContextSuspending {
             ObservationRegistryAssert.assertThat(observationRegistry)
                 .hasRemainingCurrentObservation()
 
-            val observation = observationRegistry.currentObservation
-            observation?.highCardinalityKeyValue("delay.time", "150ms")
+            observation2.highCardinalityKeyValue("delay.time", "150ms")
             delay(150.milliseconds)
-            log.debug { "observation=$observation" }
+            log.debug { "observation2=$observation2" }
         }
+        observation2.stop()
+        yield()
 
         ObservationRegistryAssert.assertThat(observationRegistry)
             .doesNotHaveAnyRemainingCurrentObservation()

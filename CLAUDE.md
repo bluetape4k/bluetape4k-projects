@@ -32,7 +32,7 @@ Bluetape4k은 Kotlin 언어로 JVM 환경에서 Backend 개발 시 사용하는 
 
 ### Documentation
 
-- Public Class, Interface, Extensions methods 에 대해서 핈수적으로 KDoc 을 작성한다
+- Public Class, Interface, Extensions methods 에 대해서 필수적으로 KDoc 을 작성한다
 - KDoc 은 항상 한국어로 작성한다
 
 ## Build Commands

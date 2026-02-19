@@ -27,9 +27,6 @@ dependencies {
     api(Libs.httpclient5)
     api(Libs.httpclient5_cache)
     api(Libs.httpclient5_fluent)
-    api(Libs.httpcore5)
-    api(Libs.httpcore5_h2)
-    api(Libs.httpcore5_reactive)
     testImplementation(Libs.httpclient5_testing)
 
     compileOnly(project(":bluetape4k-cache"))

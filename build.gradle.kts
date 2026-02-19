@@ -311,7 +311,6 @@ subprojects {
             mavenBom(Libs.log4j_bom)
             mavenBom(Libs.testcontainers_bom)
             mavenBom(Libs.junit_bom)
-            mavenBom(Libs.aws_bom)
             mavenBom(Libs.aws2_bom)
             mavenBom(Libs.okhttp3_bom)
             mavenBom(Libs.grpc_bom)
@@ -421,9 +420,6 @@ subprojects {
             dependency(Libs.async_http_client_extras_rxjava2)
 
             dependency(Libs.httpclient5)
-            dependency(Libs.httpcore5)
-            dependency(Libs.httpcore5_h2)
-            dependency(Libs.httpcore5_reactive)
 
             dependency(Libs.grpc_kotlin_stub)
 

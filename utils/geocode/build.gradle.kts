@@ -22,7 +22,6 @@ dependencies {
 
     api(Libs.httpclient5)
     api(Libs.httpclient5_cache)
-    api(Libs.httpcore5)
 
     // Coroutines
     api(project(":bluetape4k-coroutines"))

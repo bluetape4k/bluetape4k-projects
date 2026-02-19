@@ -33,9 +33,8 @@ dependencies {
     testImplementation(Libs.okhttp3_mockwebserver)
 
     // Apache HttpCompoents HttpClient 5
-    compileOnly(Libs.httpclient5)
-    compileOnly(Libs.httpcore5_h2)
-    compileOnly(Libs.httpcore5_reactive)
+    implementation(Libs.httpclient5)
+    implementation(Libs.httpclient5_cache)
 
     // Vertx
     compileOnly(project(":bluetape4k-vertx-core"))

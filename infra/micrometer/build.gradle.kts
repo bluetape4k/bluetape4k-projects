@@ -48,7 +48,6 @@ dependencies {
 
     implementation(Libs.async_http_client_extras_retrofit2)
 
-    implementation(Libs.httpcore5)
     implementation(Libs.vertx_core)
     testImplementation(project(":bluetape4k-vertx-core"))
 
