@@ -225,7 +225,3 @@ val nonOverlapping = tree.removeOverlaps(intervals)
 
 - [Aho-Corasick Algorithm (Wikipedia)](https://en.wikipedia.org/wiki/Aho%E2%80%93Corasick_algorithm)
 - [Bell Technologies White Paper](http://cr.yp.to/bib/1975/aho.pdf)
-
-## 라이선스
-
-Apache License 2.0

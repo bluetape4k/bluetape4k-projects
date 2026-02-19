@@ -177,7 +177,3 @@ val bitsPerElement = bloomFilter.getBitsPerElement(n = 1000)
 - [Bloom Filter (Wikipedia)](https://ko.wikipedia.org/wiki/%EB%B8%94%EB%A3%B8_%ED%95%84%ED%84%B0)
 - [Bloom Filter (English Wikipedia)](https://en.wikipedia.org/wiki/Bloom_filter)
 - [Redisson](https://github.com/redisson/redisson)
-
-## 라이선스
-
-Apache License 2.0
