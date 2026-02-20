@@ -1,14 +1,14 @@
 package io.bluetape4k.spring.r2dbc.coroutines.blog.domain
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.spring.r2dbc.coroutines.suspendCountAll
-import io.bluetape4k.spring.r2dbc.coroutines.suspendDeleteAll
-import io.bluetape4k.spring.r2dbc.coroutines.suspendFindFirstById
-import io.bluetape4k.spring.r2dbc.coroutines.suspendFindFirstByIdOrNull
-import io.bluetape4k.spring.r2dbc.coroutines.suspendFindOneById
-import io.bluetape4k.spring.r2dbc.coroutines.suspendFindOneByIdOrNull
-import io.bluetape4k.spring.r2dbc.coroutines.suspendInsert
-import io.bluetape4k.spring.r2dbc.coroutines.suspendSelectAll
+import io.bluetape4k.spring.r2dbc.coroutines.countAllSuspending
+import io.bluetape4k.spring.r2dbc.coroutines.deleteAllSuspending
+import io.bluetape4k.spring.r2dbc.coroutines.findFirstByIdSuspending
+import io.bluetape4k.spring.r2dbc.coroutines.findFirstByIdOrNullSuspending
+import io.bluetape4k.spring.r2dbc.coroutines.findOneByIdSuspending
+import io.bluetape4k.spring.r2dbc.coroutines.findOneByIdOrNullSuspending
+import io.bluetape4k.spring.r2dbc.coroutines.insertSuspending
+import io.bluetape4k.spring.r2dbc.coroutines.selectAllSuspending
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.r2dbc.core.R2dbcEntityOperations
 import org.springframework.stereotype.Repository
@@ -22,35 +22,35 @@ class PostRepository(
     companion object: KLoggingChannel()
 
     suspend fun count(): Long {
-        return operations.suspendCountAll<Post>()
+        return operations.countAllSuspending<Post>()
     }
 
     fun findAll(): Flow<Post> {
-        return operations.suspendSelectAll()
+        return operations.selectAllSuspending()
     }
 
     suspend fun findOneById(postId: Long): Post {
-        return operations.suspendFindOneById(postId)
+        return operations.findOneByIdSuspending(postId)
     }
 
     suspend fun findOneByIdOrNull(postId: Long): Post? {
-        return operations.suspendFindOneByIdOrNull(postId)
+        return operations.findOneByIdOrNullSuspending(postId)
     }
 
     suspend fun findFirstById(postId: Long): Post {
-        return operations.suspendFindFirstById(postId, Post::id.name)
+        return operations.findFirstByIdSuspending(postId, Post::id.name)
     }
 
     suspend fun findFirstByIdOrNull(postId: Long): Post? {
-        return operations.suspendFindFirstByIdOrNull(postId, Post::id.name)
+        return operations.findFirstByIdOrNullSuspending(postId, Post::id.name)
     }
 
     suspend fun deleteAll(): Long {
-        return operations.suspendDeleteAll<Post>()
+        return operations.deleteAllSuspending<Post>()
     }
 
     suspend fun save(post: Post): Post {
-        return operations.suspendInsert(post)
+        return operations.insertSuspending(post)
     }
 
     suspend fun init() {
