@@ -8,7 +8,10 @@ enum class ImageFormat {
 
     companion object {
         @JvmStatic
-        fun parse(formatName: String): ImageFormat? =
-            entries.find { it.name.equals(formatName, ignoreCase = true) }
+        fun parse(formatName: String): ImageFormat? {
+            val normalized = formatName.trim()
+            if (normalized.isEmpty()) return null
+            return entries.find { it.name.equals(normalized, ignoreCase = true) }
+        }
     }
 }

@@ -154,6 +154,10 @@ fun bufferedImageOf(w: Int, h: Int): BufferedImage {
     w.requirePositiveNumber("w")
     h.requirePositiveNumber("h")
 
+    if (GraphicsEnvironment.isHeadless()) {
+        return BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB)
+    }
+
     val ge = GraphicsEnvironment.getLocalGraphicsEnvironment()
     val gd = ge.defaultScreenDevice
     val gc = gd.defaultConfiguration
