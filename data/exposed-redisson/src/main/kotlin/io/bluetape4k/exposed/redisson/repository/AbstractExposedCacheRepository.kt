@@ -148,7 +148,7 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
         sortOrder: SortOrder,
         where: () -> Op<Boolean>,
     ): List<T> {
-        return transaction {
+        val entities = transaction {
             entityTable
                 .selectAll()
                 .where(where)
@@ -157,11 +157,13 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
                     limit?.run { limit(limit) }
                     offset?.run { offset(offset) }
                 }.map { it.toEntity() }
-                .apply {
-                    log.debug { "DB에서 엔티티를 조회했습니다. entities=$this" }
-                    cache.putAll(associateBy { it.id })
-                }
         }
+
+        if (entities.isNotEmpty()) {
+            log.debug { "DB에서 엔티티를 조회했습니다. entities=$entities" }
+            cache.putAll(entities.associateBy { it.id })
+        }
+        return entities
     }
 
     /**
@@ -173,13 +175,12 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
      */
     override fun getAll(ids: Collection<ID>, batchSize: Int): List<T> {
         require(batchSize > 0) { "batchSize must be greater than 0. batchSize=$batchSize" }
+        if (ids.isEmpty()) return emptyList()
         val chunkedIds = ids.chunked(batchSize)
 
-        return transaction {
-            chunkedIds.flatMap { chunk ->
-                log.debug { "캐시에서 ${chunk.size}개의 엔티티를 가져옵니다. chunk=$chunk" }
-                cache.getAll(chunk.toSet()).values.filterNotNull()
-            }
+        return chunkedIds.flatMap { chunk ->
+            log.debug { "캐시에서 ${chunk.size}개의 엔티티를 가져옵니다. chunk=$chunk" }
+            cache.getAll(chunk.toSet()).values.filterNotNull()
         }
     }
 }

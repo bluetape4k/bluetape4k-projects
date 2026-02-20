@@ -5,6 +5,7 @@ import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.redisson.repository.scenarios.CacheTestScenario.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
+import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeGreaterThan
@@ -115,6 +116,14 @@ interface ReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: CacheTestScenario<
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `getAllBatch - 빈 목록은 빈 결과를 반환한다`(testDB: TestDB) {
+        withEntityTable(testDB) {
+            repository.getAll(emptyList()).shouldBeEmpty()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `getAllBatch - batchSize 는 0보다 커야 한다`(testDB: TestDB) {
         withEntityTable(testDB) {
             assertFailsWith<IllegalArgumentException> {
@@ -146,6 +155,14 @@ interface ReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: CacheTestScenario<
             assertFailsWith<IllegalArgumentException> {
                 repository.invalidateByPattern("*", count = 0)
             }
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `invalidateByPattern - 매칭되는 키가 없으면 0을 반환한다`(testDB: TestDB) {
+        withEntityTable(testDB) {
+            repository.invalidateByPattern("not-exists-*") shouldBeEqualTo 0L
         }
     }
 }

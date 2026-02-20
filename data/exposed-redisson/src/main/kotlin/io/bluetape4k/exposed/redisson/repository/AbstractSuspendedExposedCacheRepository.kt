@@ -173,8 +173,10 @@ abstract class AbstractSuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID:
                     offset?.run { offset(offset) }
                 }
                 .map { it.toEntity() }
-        }.await().apply {
-            cache.putAllAsync(associateBy { it.id }).await()
+        }.await().also { entities ->
+            if (entities.isNotEmpty()) {
+                cache.putAllAsync(entities.associateBy { it.id }).await()
+            }
         }
     }
 
@@ -187,6 +189,7 @@ abstract class AbstractSuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID:
      */
     override suspend fun getAll(ids: Collection<ID>, batchSize: Int): List<T> {
         require(batchSize > 0) { "batchSize must be greater than 0. batchSize=$batchSize" }
+        if (ids.isEmpty()) return emptyList()
         return ids.chunked(batchSize).flatMap { chunk ->
             log.debug { "캐시에서 ${chunk.size}개의 엔티티를 가져옵니다. chunk=$chunk" }
             cache.getAllAsync(chunk.toSet()).await().values.filterNotNull()
