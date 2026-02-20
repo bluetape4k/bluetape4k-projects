@@ -6,6 +6,8 @@ import kotlinx.coroutines.flow.channelFlow
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.EntityIDColumnType
 import org.jetbrains.exposed.v1.core.FieldSet
+import org.jetbrains.exposed.v1.core.IntegerColumnType
+import org.jetbrains.exposed.v1.core.LongColumnType
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
@@ -90,6 +92,17 @@ open class SuspendedQuery(set: FieldSet, where: Op<Boolean>? = null): Query(set,
         } catch (_: NoSuchElementException) {
             throw UnsupportedOperationException("Batched select only works on tables with an auto-incrementing column")
         }
+        val columnType = comparatedColumn.columnType
+        require(
+            columnType is IntegerColumnType ||
+                    columnType is LongColumnType ||
+                    columnType is EntityIDColumnType<*>
+        ) {
+            "Batched select only supports Int/Long id columns. (column=${comparatedColumn.name})"
+        }
+
+        val originalLimit = limit
+        val originalOrderBy = orderByExpressions.toList()
         limit = batchSize
         (orderByExpressions as MutableList).add(comparatedColumn to sortOrder)
         val whereOp = where ?: Op.TRUE
@@ -99,46 +112,57 @@ open class SuspendedQuery(set: FieldSet, where: Op<Boolean>? = null): Query(set,
         fun toLong(autoIncVal: Any): Long = when (autoIncVal) {
             is EntityID<*> -> toLong(autoIncVal.value)
             is Int -> autoIncVal.toLong()
-            else   -> autoIncVal as Long
+            is Long -> autoIncVal
+            else    -> throw IllegalArgumentException(
+                "Batched select only supports Int/Long id but was ${autoIncVal::class.qualifiedName}"
+            )
         }
 
         return channelFlow {
-            var lastOffset = if (fetchInAscendingOrder) 0L else null
-            while (true) {
-                val query = this@SuspendedQuery.copy().adjustWhere {
-                    lastOffset?.let { lastOffset ->
-                        whereOp and if (fetchInAscendingOrder) {
-                            when (comparatedColumn.columnType) {
-                                is EntityIDColumnType<*> -> {
-                                    (comparatedColumn as? Column<EntityID<Long>>)?.let {
-                                        (it greater lastOffset)
-                                    } ?: (comparatedColumn as? Column<EntityID<Int>>)?.let {
-                                        (it greater lastOffset.toInt())
-                                    } ?: (comparatedColumn greater lastOffset)
+            try {
+                var lastOffset = if (fetchInAscendingOrder) 0L else null
+                while (true) {
+                    val query = this@SuspendedQuery.copy().adjustWhere {
+                        lastOffset?.let { lastOffset ->
+                            whereOp and if (fetchInAscendingOrder) {
+                                when (comparatedColumn.columnType) {
+                                    is EntityIDColumnType<*> -> {
+                                        (comparatedColumn as? Column<EntityID<Long>>)?.let {
+                                            (it greater lastOffset)
+                                        } ?: (comparatedColumn as? Column<EntityID<Int>>)?.let {
+                                            (it greater lastOffset.toInt())
+                                        } ?: (comparatedColumn greater lastOffset)
+                                    }
+                                    else                     -> (comparatedColumn greater lastOffset)
                                 }
-                                else -> (comparatedColumn greater lastOffset)
-                            }
-                        } else {
-                            when (comparatedColumn.columnType) {
-                                is EntityIDColumnType<*> -> {
-                                    (comparatedColumn as? Column<EntityID<Long>>)?.let {
-                                        (it less lastOffset)
-                                    } ?: (comparatedColumn as? Column<EntityID<Int>>)?.let {
-                                        (it less lastOffset.toInt())
-                                    } ?: (comparatedColumn less lastOffset)
+                            } else {
+                                when (comparatedColumn.columnType) {
+                                    is EntityIDColumnType<*> -> {
+                                        (comparatedColumn as? Column<EntityID<Long>>)?.let {
+                                            (it less lastOffset)
+                                        } ?: (comparatedColumn as? Column<EntityID<Int>>)?.let {
+                                            (it less lastOffset.toInt())
+                                        } ?: (comparatedColumn less lastOffset)
+                                    }
+                                    else                     -> (comparatedColumn less lastOffset)
                                 }
-                                else -> (comparatedColumn less lastOffset)
                             }
-                        }
-                    } ?: whereOp
-                }
-                val results = query.iterator().toList()
-                if (results.isNotEmpty()) {
-                    send(results)
-                }
-                if (results.size < batchSize) break
+                        } ?: whereOp
+                    }
+                    val results = query.iterator().toList()
+                    if (results.isNotEmpty()) {
+                        send(results)
+                    }
+                    if (results.size < batchSize) break
 
-                lastOffset = toLong(results.last()[comparatedColumn]!!)
+                    lastOffset = toLong(results.last()[comparatedColumn]!!)
+                }
+            } finally {
+                limit = originalLimit
+                (orderByExpressions as MutableList).apply {
+                    clear()
+                    addAll(originalOrderBy)
+                }
             }
         }
     }

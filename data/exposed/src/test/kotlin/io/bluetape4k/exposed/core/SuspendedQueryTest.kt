@@ -15,11 +15,14 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import org.amshove.kluent.shouldBeEqualTo
 import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.jdbc.batchInsert
+import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import kotlin.test.assertFailsWith
 
 /**
  * 코루틴 환경에서 다양한 쿼리를 수행합니다.
@@ -77,6 +80,11 @@ class SuspendedQueryTest: AbstractExposedTest() {
                 .toList()
 
             reversedIds.size shouldBeEqualTo products.size
+
+            val query = ProductTable.select(ProductTable.id)
+            query.fetchBatchedResultFlow(10).toList()
+            query.limit shouldBeEqualTo null
+            query.orderByExpressions shouldBeEqualTo emptyList()
         }
     }
 
@@ -134,6 +142,28 @@ class SuspendedQueryTest: AbstractExposedTest() {
                 .sorted()
 
             reversedIds.size shouldBeEqualTo items.size
+        }
+    }
+
+    private object StringIdTable: Table("string_id_items") {
+        val id = varchar("id", 64)
+        val name = varchar("name", 255)
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `Batch 로 읽기에서 Int-Long 이 아닌 id 컬럼은 예외를 던진다`(testDB: TestDB) = runSuspendIO {
+        withTablesSuspending(testDB, StringIdTable) {
+            StringIdTable.insert {
+                it[id] = "id-1"
+                it[name] = "sample"
+            }
+
+            assertFailsWith<IllegalArgumentException> {
+                StringIdTable.select(StringIdTable.id)
+                    .fetchBatchedResultFlow(10)
+                    .toList()
+            }
         }
     }
 }
