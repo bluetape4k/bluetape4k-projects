@@ -92,5 +92,14 @@ inline fun <reified T> List<T>.padTo(newSize: Int, item: T): List<T> {
  * @param T
  * @return
  */
-fun <T> List<T>.eachCount(): Map<T, Int> =
-    groupBy { it }.mapValues { it.value.size }
+fun <T> List<T>.eachCount(): Map<T, Int> {
+    if (isEmpty()) {
+        return emptyMap()
+    }
+
+    val counts = LinkedHashMap<T, Int>(this.size)
+    for (value in this) {
+        counts[value] = (counts[value] ?: 0) + 1
+    }
+    return counts
+}

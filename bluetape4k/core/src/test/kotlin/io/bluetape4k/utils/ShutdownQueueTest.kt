@@ -26,6 +26,13 @@ class ShutdownQueueTest {
     }
 
     @Test
+    fun `중복 등록은 한 번만 처리된다`() {
+        val closeable = CleanUp("Dup")
+        ShutdownQueue.register(closeable)
+        ShutdownQueue.register(closeable)
+    }
+
+    @Test
     fun `regist custom statement`() {
         ShutdownQueue.register { println("Close Anonymous Closeable instance.") }
     }

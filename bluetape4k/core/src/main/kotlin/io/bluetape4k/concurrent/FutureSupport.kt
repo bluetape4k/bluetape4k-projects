@@ -45,6 +45,10 @@ private class FutureToCompletableFutureWrapper<T> private constructor(
 ): CompletableFuture<T>() {
 
     companion object: KLogging() {
+        private val scheduler = Executors.newSingleThreadScheduledExecutor(
+            NamedThreadFactory("future-wrapper", true),
+        )
+
         @JvmStatic
         operator fun <T> invoke(future: Future<T>): FutureToCompletableFutureWrapper<T> =
             FutureToCompletableFutureWrapper(future).apply {
@@ -52,10 +56,8 @@ private class FutureToCompletableFutureWrapper<T> private constructor(
             }
     }
 
-    private val service = Executors.newSingleThreadScheduledExecutor()
-
     private inline fun schedule(crossinline action: () -> Unit) {
-        service.schedule({ action() }, 100, TimeUnit.NANOSECONDS)
+        scheduler.schedule({ action() }, 100, TimeUnit.NANOSECONDS)
     }
 
     private fun tryToComplete() {
@@ -68,19 +70,16 @@ private class FutureToCompletableFutureWrapper<T> private constructor(
                 } catch (e: ExecutionException) {
                     this.completeExceptionally(e.cause ?: e)
                 }
-                service.shutdown()
                 return
             }
             if (future.isCancelled) {
                 this.cancel(true)
-                service.shutdown()
                 return
             }
             schedule { tryToComplete() }
         } catch (e: Throwable) {
             log.error(e) { "Future 인스턴스가 예외를 발생시켰습니다." }
             this.completeExceptionally(e.cause ?: e)
-            service.shutdown()
         }
     }
 }

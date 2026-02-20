@@ -13,8 +13,17 @@ import java.time.temporal.TemporalAmount
  * [TemporalAmount]의 모든 [ChronoUnit] 단위의 값들을 nanoseconds로 변환하여 합산합니다.
  */
 val TemporalAmount.nanos: Double
-    get() = units.fold(0.0) { acc, it ->
-        acc + Duration.of(get(it), it).toNanos().toDouble()
+    get() = when (this) {
+        is Duration -> toNanos().toDouble()
+        is Period   -> {
+            require(months == 0 && years == 0) {
+                "Period with years or months cannot be converted to nanos accurately."
+            }
+            Duration.ofDays(days.toLong()).toNanos().toDouble()
+        }
+        else        -> units.fold(0.0) { acc, it ->
+            acc + Duration.of(get(it), it).toNanos().toDouble()
+        }
     }
 
 // NOTE: ChronoUnit.DAYS 아래만 가능합니다. (Period 는 정확한 계산할 수 없습니다)
@@ -24,8 +33,17 @@ val TemporalAmount.nanos: Double
  * [TemporalAmount]의 모든 [ChronoUnit] 단위의 값들을 milliseconds로 변환하여 합산합니다.
  */
 val TemporalAmount.millis: Long
-    get() = units.fold(0L) { acc, unit ->
-        acc + Duration.of(get(unit), unit).toMillis()
+    get() = when (this) {
+        is Duration -> toMillis()
+        is Period   -> {
+            require(months == 0 && years == 0) {
+                "Period with years or months cannot be converted to millis accurately."
+            }
+            Duration.ofDays(days.toLong()).toMillis()
+        }
+        else        -> units.fold(0L) { acc, unit ->
+            acc + Duration.of(get(unit), unit).toMillis()
+        }
     }
 
 /**

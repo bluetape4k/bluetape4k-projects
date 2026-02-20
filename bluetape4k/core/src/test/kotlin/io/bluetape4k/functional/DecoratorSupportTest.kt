@@ -42,4 +42,18 @@ class DecoratorSupportTest {
         decorated(1, 1) shouldBeEqualTo 2
         decorated(1, 2) shouldBeEqualTo 0
     }
+
+    @Test
+    fun `decorate 는 action 을 한번만 실행한다`() {
+        var called = 0
+        fun wrap(f: () -> String) = "[${f()}]"
+
+        val result = decorateWith(::wrap, ::wrap) {
+            called++
+            "hello"
+        }
+
+        result shouldBeEqualTo "[[hello]]"
+        called shouldBeEqualTo 1
+    }
 }

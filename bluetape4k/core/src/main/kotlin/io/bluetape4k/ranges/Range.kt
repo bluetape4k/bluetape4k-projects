@@ -83,11 +83,18 @@ fun <T: Comparable<T>> Range<T>.overlaps(other: Range<T>): Boolean {
  * [Range]의 컬렉션이 [first] 값 기준으로 오름차순 정렬되어 있는지 확인합니다.
  */
 fun <T: Comparable<T>> Iterable<Range<T>>.isAscending(): Boolean {
-    val first = firstOrNull() ?: return true
-    var max = first.first
-    return drop(1).fold(true) { isAscending, range ->
-        val newAscending = isAscending && (max <= range.first)
-        max = maxOf(max, range.first)
-        newAscending
+    val iterator = iterator()
+    if (!iterator.hasNext()) return true
+
+    var max = iterator.next().first
+    while (iterator.hasNext()) {
+        val range = iterator.next()
+        if (max > range.first) {
+            return false
+        }
+        if (range.first > max) {
+            max = range.first
+        }
     }
+    return true
 }

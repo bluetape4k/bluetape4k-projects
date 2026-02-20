@@ -26,7 +26,11 @@ object Base62: KLogging() {
 
     private const val DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
     private val BASE = BigInteger.valueOf(62)
-    private val PATTERN = "^[0-9A-Za-z]+$".toRegex()
+    private val DIGIT_INDEX = IntArray(128) { -1 }.also { index ->
+        DIGITS.forEachIndexed { position, char ->
+            index[char.code] = position
+        }
+    }
     const val DEFAULT_BIT_LIMIT = 128
 
     /**
@@ -55,13 +59,14 @@ object Base62: KLogging() {
     fun decode(text: String, bitLimit: Int = DEFAULT_BIT_LIMIT): BigInteger {
         text.requireNotBlank("text")
 
-        require(PATTERN.matches(text)) {
-            "Text `$text` contains illegal characters, only [$DIGITS] are allowed."
-        }
-
         var sum = BigInteger.ZERO
-        text.forEachIndexed { index, _ ->
-            sum += DIGITS.indexOf(text[text.length - index - 1]).toBigInteger() * BASE.pow(index)
+        text.forEach { char ->
+            val code = char.code
+            val digit = if (code < DIGIT_INDEX.size) DIGIT_INDEX[code] else -1
+            require(digit >= 0) {
+                "Text `$text` contains illegal characters, only [$DIGITS] are allowed."
+            }
+            sum = sum.multiply(BASE).add(BigInteger.valueOf(digit.toLong()))
             if (bitLimit > 0 && sum.bitLength() > bitLimit) {
                 throw IllegalArgumentException("Text [$text] contains more than ${bitLimit}bit information")
             }

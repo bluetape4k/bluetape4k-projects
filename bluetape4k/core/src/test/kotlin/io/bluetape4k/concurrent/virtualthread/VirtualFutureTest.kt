@@ -62,6 +62,18 @@ class VirtualFutureTest {
         virtualFutures.await() shouldBeEqualTo (0 until taskSize).toList()
     }
 
+    @Test
+    fun `virtualFutureAll with empty tasks should return empty list`() {
+        val result = virtualFutureAll(tasks = emptyList<() -> Int>()).await()
+        result shouldBeEqualTo emptyList()
+    }
+
+    @Test
+    fun `awaitAll with empty virtual futures should return empty list`() {
+        val result = emptyList<VirtualFuture<Int>>().awaitAll()
+        result shouldBeEqualTo emptyList()
+    }
+
     @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `run many tasks with virtual thread tester`() {

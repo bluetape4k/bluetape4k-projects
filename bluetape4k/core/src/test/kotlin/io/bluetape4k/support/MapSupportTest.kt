@@ -4,6 +4,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.math.BigDecimal
 import java.sql.Timestamp
 import java.time.Instant
@@ -176,5 +177,16 @@ class MapSupportTest {
         map.timestamp("ts") shouldBeEqualTo timestamp
         map.timestampOrNull("ts") shouldBeEqualTo timestamp
         map.timestampOrNull("nullable").shouldBeNull()
+    }
+
+    @Test
+    fun `존재하지 않는 key는 예외를 던진다`() {
+        val map = mapOf("id" to 1)
+
+        val exception = assertThrows<IllegalArgumentException> {
+            map.int("missing")
+        }
+
+        exception.message shouldBeEqualTo "Map[missing] is missing or null."
     }
 }

@@ -18,7 +18,8 @@ typealias Decorator<T> = (() -> T) -> T // (T) -> T
  * @see Decorator
  */
 fun <T> decorateWith(vararg decorators: Decorator<T>, action: () -> T): T {
-    return decorators.fold(initial = action()) { acc, decorator ->
-        decorator { acc }
+    val decorated = decorators.fold(action) { acc, decorator ->
+        { decorator(acc) }
     }
+    return decorated()
 }

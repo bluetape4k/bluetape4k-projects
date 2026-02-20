@@ -41,4 +41,27 @@ class ToStringBuilderTest {
         }
         builder.toString() shouldBeEqualTo "object(a=1,b=two,c=<null>)"
     }
+
+    @Test
+    fun `toString with limit does not pollute cached value`() {
+        val builder = ToStringBuilder("object").apply {
+            add("a", 1)
+            add("b", "two")
+            add("c", "three")
+        }
+
+        builder.toString(limit = 2) shouldBeEqualTo "object(a=1,b=two,...)"
+        builder.toString() shouldBeEqualTo "object(a=1,b=two,c=three)"
+    }
+
+    @Test
+    fun `add invalidates cached string`() {
+        val builder = ToStringBuilder("object").apply {
+            add("a", 1)
+        }
+        builder.toString() shouldBeEqualTo "object(a=1)"
+
+        builder.add("b", "two")
+        builder.toString() shouldBeEqualTo "object(a=1,b=two)"
+    }
 }

@@ -96,5 +96,6 @@ class CollectionSupportTest {
         val list = fastListOf(1, 2, 2, 3)
         val map = list.eachCount()
         map shouldBeEqualTo mapOf(1 to 1, 2 to 2, 3 to 1)
+        map.keys.toList() shouldBeEqualTo listOf(1, 2, 3)
     }
 }

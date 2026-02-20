@@ -66,6 +66,9 @@ fun <T> virtualFutureAll(
     tasks: Collection<() -> T>,
     executor: ExecutorService = VirtualThreadExecutor,
 ): VirtualFuture<List<T>> {
+    if (tasks.isEmpty()) {
+        return VirtualFuture(java.util.concurrent.CompletableFuture.completedFuture(emptyList()))
+    }
     val future = executor
         .invokeAll(tasks.map { Callable { it.invoke() } })
         .map { it.asCompletableFuture() }
@@ -97,6 +100,9 @@ fun <T> virtualFutureAll(
     executor: ExecutorService = VirtualThreadExecutor,
     timeout: Duration,
 ): VirtualFuture<List<T>> {
+    if (tasks.isEmpty()) {
+        return VirtualFuture(java.util.concurrent.CompletableFuture.completedFuture(emptyList()))
+    }
     val future = executor
         .invokeAll(
             tasks.map { Callable { it.invoke() } },
@@ -113,6 +119,9 @@ fun <T> virtualFutureAll(
  * 모든 [VirtualFuture]의 작업이 완료될 때가지 대기한다.
  */
 fun <T> Iterable<VirtualFuture<T>>.awaitAll(): List<T> {
+    if (this is Collection && isEmpty()) {
+        return emptyList()
+    }
     return map { it.asCompletableFuture() }.sequence(VirtualThreadExecutor).get()
 }
 
@@ -120,6 +129,9 @@ fun <T> Iterable<VirtualFuture<T>>.awaitAll(): List<T> {
  * 모든 [VirtualFuture]의 작업이 제한시간[timeout] 동안 완료될 때까지 대기한다.
  */
 fun <T> Iterable<VirtualFuture<T>>.awaitAll(timeout: Duration): List<T> {
+    if (this is Collection && isEmpty()) {
+        return emptyList()
+    }
     return map { it.asCompletableFuture() }.sequence(VirtualThreadExecutor)
         .get(timeout.toMillis(), TimeUnit.MILLISECONDS)
 }

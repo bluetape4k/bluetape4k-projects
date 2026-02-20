@@ -68,6 +68,16 @@ class TemporalAmountSupportTest {
     }
 
     @Test
+    fun `Period에 years 또는 months가 있으면 millis 변환은 실패한다`() {
+        assertThrows<IllegalArgumentException> {
+            Period.ofYears(1).millis
+        }
+        assertThrows<IllegalArgumentException> {
+            Period.ofMonths(3).nanos
+        }
+    }
+
+    @Test
     fun `Int temporalAmount - YEARS`() {
         val amount = 3.temporalAmount(ChronoUnit.YEARS)
         amount shouldBeEqualTo Period.ofYears(3)

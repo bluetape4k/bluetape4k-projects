@@ -78,6 +78,21 @@ class GraphTest: AbstractCollectionTest() {
         names shouldBeEqualTo listOf("root", "a", "b", "shared")
     }
 
+    @Test
+    fun `cycle graph should not loop forever`() {
+        val nodeA = Node("A")
+        val nodeB = Node("B")
+        nodeA.addChild(nodeB)
+        nodeB.addChild(nodeA)
+
+        val names = Graph
+            .search(Graph.TraversalOrder.BFS, nodeA) { it.children }
+            .map { it.name }
+            .toList()
+
+        names shouldBeEqualTo listOf("A", "B")
+    }
+
     @Nested
     inner class DepthFirstSearch {
 

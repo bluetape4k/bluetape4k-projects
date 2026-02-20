@@ -19,8 +19,15 @@ inline fun <K, V> unifiedMap(
             }
         }
 
-fun <K, V> unifiedMapOf(vararg pairs: Pair<K, V>): UnifiedMap<K, V> =
-    UnifiedMap.newMapWith(pairs.map { it.toTuplePair() })
+fun <K, V> unifiedMapOf(vararg pairs: Pair<K, V>): UnifiedMap<K, V> {
+    if (pairs.isEmpty()) {
+        return UnifiedMap.newMap()
+    }
+
+    val map = UnifiedMap.newMap<K, V>(pairs.size)
+    pairs.forEach { map[it.first] = it.second }
+    return map
+}
 
 fun <K, V> unifiedMapOf(size: Int): UnifiedMap<K, V> = UnifiedMap.newMap(size)
 

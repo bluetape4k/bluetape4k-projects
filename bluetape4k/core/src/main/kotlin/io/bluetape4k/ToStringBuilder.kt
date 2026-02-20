@@ -30,22 +30,24 @@ class ToStringBuilder private constructor(private val className: String): Serial
     }
 
     private val props = LinkedHashMap<String, String>()
-    private lateinit var cachedToString: String
+    private var cachedToString: String? = null
 
     private fun toStringValue(limit: Int): String {
-        if (!this::cachedToString.isInitialized) {
-            val text = props.entries.joinToString(",", limit = limit) {
-                "${it.key}=${it.value}"
+        if (limit < 0) {
+            return cachedToString ?: run {
+                val text = props.entries.joinToString(",") { "${it.key}=${it.value}" }
+                "$className($text)".also { cachedToString = it }
             }
-            cachedToString = "$className($text)"
         }
-        return cachedToString
+        val text = props.entries.joinToString(",", limit = limit) { "${it.key}=${it.value}" }
+        return "$className($text)"
     }
 
     private fun Any?.asString(): String = this?.toString() ?: "<null>"
 
     fun add(name: String, value: Any?) = apply {
         props[name] = value.asString()
+        cachedToString = null
     }
 
     fun toString(limit: Int): String = toStringValue(limit)

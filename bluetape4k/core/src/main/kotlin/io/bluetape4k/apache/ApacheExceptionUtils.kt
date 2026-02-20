@@ -16,8 +16,10 @@ fun Throwable.forEach(consumer: (Throwable) -> Unit) = ExceptionUtils.forEach(th
 
 /**
  * [Throwable]의 root cause를 반환합니다.
+ *
+ * root cause가 없으면 자신을 반환합니다.
  */
-fun Throwable.getRootCause(): Throwable = ExceptionUtils.getRootCause(this)
+fun Throwable.getRootCause(): Throwable = ExceptionUtils.getRootCause(this) ?: this
 
 /**
  * [Throwable]의 root cause message를 반환합니다.

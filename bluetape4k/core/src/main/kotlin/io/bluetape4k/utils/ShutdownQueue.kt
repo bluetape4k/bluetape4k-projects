@@ -4,7 +4,8 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.support.closeSafe
-import java.util.*
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedDeque
 
 /**
  * JVM 종료 시 자동으로 정리할 객체를 관리하는 object 입니다.
@@ -26,16 +27,16 @@ import java.util.*
  */
 object ShutdownQueue: KLogging() {
 
-    private val closeables = Stack<AutoCloseable>()
+    private val closeables = ConcurrentLinkedDeque<AutoCloseable>()
+    private val registered = ConcurrentHashMap.newKeySet<AutoCloseable>()
 
     init {
         Runtimex.addShutdownHook {
-            while (closeables.isNotEmpty()) {
-                closeables.pop()?.let { closeable ->
-                    log.debug { "Closing AutoCloseable instance ... $closeable" }
-                    closeable.closeSafe()
-                    log.info { "Success to close AutoCloseable instance ... $closeable" }
-                }
+            while (true) {
+                val closeable = closeables.pollLast() ?: break
+                log.debug { "Closing AutoCloseable instance ... $closeable" }
+                closeable.closeSafe()
+                log.info { "Success to close AutoCloseable instance ... $closeable" }
             }
         }
     }
@@ -44,9 +45,9 @@ object ShutdownQueue: KLogging() {
      * JVM 종료 시 자동으로 정리할 객체를 등록합니다.
      */
     fun register(closeable: AutoCloseable) {
-        if (!closeables.contains(closeable)) {
+        if (registered.add(closeable)) {
             log.debug { "JVM Shutdown 시 자동 정리할 객체를 등록합니다. $closeable" }
-            closeables.push(closeable)
+            closeables.addLast(closeable)
         }
     }
 }
