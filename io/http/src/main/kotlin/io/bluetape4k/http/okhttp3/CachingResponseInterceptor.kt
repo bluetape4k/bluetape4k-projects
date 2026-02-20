@@ -19,6 +19,7 @@ import okhttp3.Response
 class CachingResponseInterceptor private constructor(
     private val cacheControl: CacheControl,
 ): Interceptor {
+    private val cacheControlHeader: String = cacheControl.toString()
 
     companion object: KLogging() {
         /**
@@ -70,7 +71,7 @@ class CachingResponseInterceptor private constructor(
         }
 
         return response.newBuilder()
-            .header("Cache-Control", cacheControl.toString())
+            .header("Cache-Control", cacheControlHeader)
             .build()
     }
 }

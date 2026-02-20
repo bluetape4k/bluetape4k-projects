@@ -35,6 +35,7 @@ import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeEqualTo
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -179,10 +180,13 @@ class Recipes: AbstractHttpTest() {
 
         val request = Request.Builder().url(HTTPBIN_HTML_URL).build()
 
-        val response1 = cachedClient.newCall(request).execute()
-        assertResponse(response1)
-        response1.print(1)
-        printHeaders(response1.headers)
+        cachedClient.newCall(request).execute().use { response1 ->
+            assertResponse(response1)
+            response1.print(1)
+            printHeaders(response1.headers)
+            // 캐시에 저장되도록 응답 바디를 소비합니다.
+            response1.bodyAsString().shouldNotBeNull().shouldNotBeEmpty()
+        }
 
         // 캐시에서만 읽어오도록 한다
         val request2 = Request.Builder()
@@ -190,19 +194,21 @@ class Recipes: AbstractHttpTest() {
             .url(HTTPBIN_HTML_URL)
             .build()
 
-        val response2 = cachedClient.newCall(request2).execute()
-        // 캐시 읽기 실패하면 status=504 가 된다.
-        response2.code shouldNotBeEqualTo 504
-        response2.print(2)
-        printHeaders(response2.headers)
-        response2.bodyAsString()!!.shouldNotBeEmpty()
+        cachedClient.newCall(request2).execute().use { response2 ->
+            // 캐시 읽기 실패하면 status=504 가 된다.
+            response2.code shouldNotBeEqualTo 504
+            response2.print(2)
+            printHeaders(response2.headers)
+            response2.bodyAsString().shouldNotBeNull().shouldNotBeEmpty()
+        }
 
-        val response3 = cachedClient.newCall(request2).execute()
-        // 캐시 읽기 실패하면 status=504 가 된다.
-        response3.code shouldNotBeEqualTo 504
-        response3.print(3)
-        printHeaders(response3.headers)
-        response3.bodyAsString()!!.shouldNotBeEmpty()
+        cachedClient.newCall(request2).execute().use { response3 ->
+            // 캐시 읽기 실패하면 status=504 가 된다.
+            response3.code shouldNotBeEqualTo 504
+            response3.print(3)
+            printHeaders(response3.headers)
+            response3.bodyAsString().shouldNotBeNull().shouldNotBeEmpty()
+        }
     }
 
     @Test

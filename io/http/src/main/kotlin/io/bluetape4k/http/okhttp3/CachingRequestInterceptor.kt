@@ -65,6 +65,9 @@ class CachingRequestInterceptor private constructor(
      */
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
+        if (!request.header("Cache-Control").isNullOrBlank()) {
+            return chain.proceed(request)
+        }
         val requestWithCaching = request.newBuilder().cacheControl(cacheControl).build()
 
         return chain.proceed(requestWithCaching)
