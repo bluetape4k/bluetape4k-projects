@@ -34,9 +34,10 @@ object Ksuid: IdGenerator<String>, KLogging() {
 
     private const val EPOCH_SECONDS = 1_400_000_000L
 
-    private const val TIMESTAMP_LEN = 4
-    private const val PAYLOAD_LEN = 16
-    private const val MAX_ENCODED_LEN = 27
+    const val TIMESTAMP_LEN = 4
+    const val PAYLOAD_LEN = 16
+    const val MAX_ENCODED_LEN = 27
+    const val TOTAL_BYTES = TIMESTAMP_LEN + PAYLOAD_LEN
 
     private val random: SecureRandom = SecureRandom()
 
@@ -66,13 +67,9 @@ object Ksuid: IdGenerator<String>, KLogging() {
      * @param timestamp KSUID의 타임스탬프
      */
     private fun generate(timestamp: ByteArray): String {
-        val buffer = ByteBuffer.allocate(MAX_ENCODED_LEN)
+        val buffer = ByteBuffer.allocate(TOTAL_BYTES)
         buffer.put(timestamp)
         buffer.put(generatePayload())
-
-//        val array = ByteArray(MAX_ENCODED_LEN)
-//        timestamp.copyInto(array)
-//        generatePayload().copyInto(array, timestamp.size)
 
         val uid = BytesBase62.encode(buffer.array())
         log.trace { "generated uid=$uid" }
@@ -103,7 +100,8 @@ object Ksuid: IdGenerator<String>, KLogging() {
      * @param ksuid 파싱할 KSUID 문자열
      */
     fun prettyString(ksuid: String): String {
-        val bytes = BytesBase62.decode(ksuid)
+        val bytes = BytesBase62.decode(ksuid, expectedBytes = TOTAL_BYTES)
+        require(bytes.size >= TOTAL_BYTES) { "Invalid ksuid length. size=${bytes.size}" }
         val timestamp = extractTimestamp(bytes)
         val utcTimeString = Instant.ofEpochSecond(timestamp).atZone(ZoneOffset.UTC)
 
@@ -120,7 +118,7 @@ object Ksuid: IdGenerator<String>, KLogging() {
     }
 
     private fun extractPayload(decodedKsuid: ByteArray): String {
-        val payload = decodedKsuid.copyOfRange(TIMESTAMP_LEN, decodedKsuid.size - TIMESTAMP_LEN)
+        val payload = decodedKsuid.copyOfRange(TIMESTAMP_LEN, TIMESTAMP_LEN + PAYLOAD_LEN)
         return payload.encodeHexString()
     }
 }

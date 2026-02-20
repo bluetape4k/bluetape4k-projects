@@ -14,7 +14,7 @@ internal class BitOutputStream private constructor(val capacity: Int) {
         }
     }
 
-    private val bytes: ByteArray = ByteArray(capacity / Byte.SIZE_BITS)
+    private val bytes: ByteArray = ByteArray((capacity + Byte.SIZE_BITS - 1) / Byte.SIZE_BITS)
     private var offset: Int = 0
 
     private fun currentBit(): Int = offset % Byte.SIZE_BITS
@@ -25,9 +25,15 @@ internal class BitOutputStream private constructor(val capacity: Int) {
         else -> Byte.SIZE_BITS - currBit
     }
 
-    fun toArray(): ByteArray = when (val currLen = currentLength()) {
-        bytes.size -> bytes.copyOf()
-        else       -> bytes.copyOf(currLen)
+    fun toArray(): ByteArray {
+        val currLen = currentLength()
+        val includePartialByte = currentBit() != 0
+        val size = if (includePartialByte) currLen + 1 else currLen
+
+        return when (size) {
+            bytes.size -> bytes.copyOf()
+            else       -> bytes.copyOf(size)
+        }
     }
 
     fun writeBits(bitsCount: Int, bits: Int) {

@@ -2,6 +2,7 @@ package io.bluetape4k.idgenerators.ksuid
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 
 /**
  * [ByteArray] 정보를 Base62로 인코딩/디코딩합니다.
@@ -55,19 +56,22 @@ internal object BytesBase62: KLogging() {
      * ```
      * val encoded = "abc123"
      * val decoded = BytesBase62.decode(encoded)
+     * val decodedWithSize = BytesBase62.decode(encoded, expectedBytes = 20)
      * ```
      *
      * @param base62String 디코딩할 Base62로 인코딩된 문자열
+     * @param expectedBytes 디코딩 결과의 기대 바이트 길이 (선택)
      * @return 디코딩된 [ByteArray]
      */
-    fun decode(base62String: String): ByteArray {
+    fun decode(base62String: String, expectedBytes: Int? = null): ByteArray {
         if (base62String.isEmpty()) {
             return emptyByteArray
         }
+        expectedBytes?.requireZeroOrPositiveNumber("expectedBytes")
+
         val length = base62String.length
         val output = BitOutputStream(length * 6)
 
-        val lastCharPos = length - 1
         repeat(length) {
             // 다음 문자를 위해 디코딩 테이블에서 데이터 비트를 얻습니다.
             val bits = decodedBitsForCharacter(base62String[it])
@@ -75,12 +79,18 @@ internal object BytesBase62: KLogging() {
             // 스트림에 쓰기 위해 필요한 비트 수를 결정합니다.
             val bitsCount: Int = when {
                 (bits and COMPACK_MASK) == COMPACK_MASK -> 5
-                it >= lastCharPos                       -> output.bitsCountUpToByte()
+                it == length - 1 -> output.bitsCountUpToByte()
                 else                                    -> 6
             }
             output.writeBits(bitsCount, bits)
         }
-        return output.toArray()
+        val decoded = output.toArray()
+        return expectedBytes?.let { expected ->
+            when {
+                decoded.size == expected -> decoded
+                else                     -> decoded.copyOf(expected)
+            }
+        } ?: decoded
     }
 
     /**

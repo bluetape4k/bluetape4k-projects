@@ -33,9 +33,9 @@ internal class BitInputStream(private val bytes: ByteArray) {
         if (secondRead > 0 && bytes.size > byteNum + 1) {
             result = result or (bytes[byteNum + 1].toInt() and ((1 shl secondRead) - 1) shl firstRead)
         }
-        offset += bitsCount
-        log.trace { "Read $bitsCount bits from offset ${offset - bitsCount} to $offset: $result" }
+        log.trace { "Read $bitsCount bits from offset $offset to $result: $result" }
 
+        offset += bitsCount
         return result
     }
 }

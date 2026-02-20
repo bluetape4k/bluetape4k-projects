@@ -34,9 +34,10 @@ object KsuidMillis: IdGenerator<String>, KLogging() {
 
     private const val EPOCH_MILLIS = 1_400_000_000_000L
 
-    private const val TIMESTAMP_LEN = 8
-    private const val PAYLOAD_LEN = 12
-    private const val MAX_ENCODED_LEN = 27
+    const val TIMESTAMP_LEN = 8
+    const val PAYLOAD_LEN = 12
+    const val MAX_ENCODED_LEN = 27
+    const val TOTAL_BYTES = TIMESTAMP_LEN + PAYLOAD_LEN
 
     private val random: SecureRandom = SecureRandom()
 
@@ -66,16 +67,11 @@ object KsuidMillis: IdGenerator<String>, KLogging() {
      * @param timestamp KSUID의 타임스탬프
      */
     private fun generate(timestamp: ByteArray): String {
-//        val uid = ByteArrayOutputStream().use { bos ->
-//            bos.write(timestamp)
-//            bos.write(generatePayload())
-//            BytesBase62.encode(bos.toByteArray())
-//        }
-        val buffer = ByteBuffer.allocate(MAX_ENCODED_LEN)
+        val buffer = ByteBuffer.allocate(TOTAL_BYTES)
             .put(timestamp)
             .put(generatePayload())
-        val uid = BytesBase62.encode(buffer.array())
 
+        val uid = BytesBase62.encode(buffer.array())
         log.trace { "generated uid=$uid" }
 
         return uid.substring(0, MAX_ENCODED_LEN)
@@ -105,7 +101,7 @@ object KsuidMillis: IdGenerator<String>, KLogging() {
      * @param ksuid 파싱할 KSUID 문자열
      */
     fun prettyString(ksuid: String): String {
-        val bytes = BytesBase62.decode(ksuid)
+        val bytes = BytesBase62.decode(ksuid, expectedBytes = TOTAL_BYTES)
         val timestamp = extractTimestamp(bytes)
         val utcTimeString = Instant.ofEpochMilli(timestamp).atZone(ZoneOffset.UTC)
 
