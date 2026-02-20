@@ -1,6 +1,7 @@
 package io.bluetape4k
 
 import java.nio.charset.Charset
+import java.time.Instant
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.*
@@ -58,7 +59,7 @@ val UtcZoneId: ZoneId = ZoneId.of("UTC")
  * @see DefaultZoneId
  */
 @JvmField
-val DefaultZoneOffset: ZoneOffset = ZoneOffset.of(DefaultZoneId.id)
+val DefaultZoneOffset: ZoneOffset = DefaultZoneId.rules.getOffset(Instant.now())
 
 /**
  * UTC [ZoneOffset]
