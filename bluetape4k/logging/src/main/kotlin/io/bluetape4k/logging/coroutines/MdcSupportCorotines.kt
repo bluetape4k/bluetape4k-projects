@@ -4,6 +4,7 @@ import io.bluetape4k.logging.withLoggingContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.slf4j.MDCContext
 import kotlinx.coroutines.withContext
+import org.slf4j.MDC
 
 /**
  * Coroutine 환경 하에서 MDC를 사용하여 로깅 컨텍스트를 설정합니다.
@@ -33,11 +34,8 @@ suspend inline fun <T> withCoroutineLoggingContext(
     pair: Pair<String, Any?>,
     restorePrevious: Boolean = true,
     crossinline block: suspend CoroutineScope.() -> T,
-): T = withContext(MDCContext()) {
-    withLoggingContext(pair, restorePrevious) {
-        block(this)
-    }
-}
+): T =
+    withCoroutineLoggingContext(mapOf(pair), restorePrevious) { block(this) }
 
 /**
  * Coroutine 환경 하에서 MDC를 사용하여 로깅 컨텍스트를 설정합니다.
@@ -58,8 +56,8 @@ suspend inline fun <T> withCoroutineLoggingContext(
  * %d{HH:mm:ss.SSS} %highlight(%-5level)[traceId=%X{traceId}][%.24thread] %logger{36}:%line: %msg%n%throwable
  * ```
  *
- * @param restorePrevious 이전에 설정된 로깅 컨텍스트를 유지할지 여부
  * @param pairs 로깅 컨텍스트에 추가할 키-값 쌍
+ * @param restorePrevious 이전에 설정된 로깅 컨텍스트를 유지할지 여부
  * @param block 로깅 컨텍스트가 설정된 블록
  * @return 블록의 실행 결과
  */
@@ -67,7 +65,8 @@ suspend inline fun <T> withCoroutineLoggingContext(
     vararg pairs: Pair<String, Any?>,
     restorePrevious: Boolean = true,
     crossinline block: suspend CoroutineScope.() -> T,
-): T = withCoroutineLoggingContext(pairs.toMap(), restorePrevious, block)
+): T =
+    withCoroutineLoggingContext(pairs.toMap(), restorePrevious, block)
 
 /**
  * Coroutine 환경 하에서 MDC를 사용하여 로깅 컨텍스트를 설정합니다.
@@ -97,8 +96,23 @@ suspend inline fun <T> withCoroutineLoggingContext(
     map: Map<String, Any?>,
     restorePrevious: Boolean = true,
     crossinline block: suspend CoroutineScope.() -> T,
-): T = withContext(MDCContext()) {
-    withLoggingContext(map, restorePrevious) {
-        block(this)
+): T {
+    return if (restorePrevious) {
+        withContext(MDCContext()) {
+            withLoggingContext(map, restorePrevious) {
+                block(this)
+            }
+        }
+    } else {
+        val keysToRemove = map.filterValues { it != null }.keys
+        try {
+            withContext(MDCContext()) {
+                withLoggingContext(map, false) {
+                    block(this)
+                }
+            }
+        } finally {
+            keysToRemove.forEach { MDC.remove(it) }
+        }
     }
 }

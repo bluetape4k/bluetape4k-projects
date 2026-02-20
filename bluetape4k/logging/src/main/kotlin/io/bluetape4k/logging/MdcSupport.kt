@@ -32,7 +32,7 @@ inline fun <T> withLoggingContext(
         try {
             MDC.putCloseable(pair.first, pair.second.toString()).use { block() }
         } finally {
-            prevValue?.run { MDC.put(pair.first, this) }
+            prevValue?.let { MDC.put(pair.first, it) }
         }
     }
 }

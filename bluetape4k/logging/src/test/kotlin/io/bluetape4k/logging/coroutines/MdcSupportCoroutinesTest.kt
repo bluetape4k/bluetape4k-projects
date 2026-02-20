@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeNullOrEmpty
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -30,9 +31,9 @@ class MdcSupportCoroutinesTest {
     @Test
     fun `withMDCConterxt in traceId`() = runTest {
         log.debug { "Before operation - no traceId" }
-        withCoroutineLoggingContext("traceId" to 100, "spanId" to 200) {
+        withCoroutineLoggingContext("traceId" to "100", "spanId" to "200") {
             log.debug { "Inside with MDCContext" }
-            withCoroutineLoggingContext("traceId" to "200", "spanId" to 300) {
+            withCoroutineLoggingContext("traceId" to "200", "spanId" to "300") {
                 // MDC.put("traceId", "200")
                 log.debug { "Nested with MDCContext" }
                 MDC.get("traceId") shouldBeEqualTo "200"
@@ -50,9 +51,9 @@ class MdcSupportCoroutinesTest {
     @Test
     fun `nested MDCConterxt restore previous value`() = runTest {
         log.debug { "Before operation - no traceId" }
-        withCoroutineLoggingContext("traceId" to "outer", "spanId" to 123) {
+        withCoroutineLoggingContext("traceId" to "outer", "spanId" to "123") {
             log.debug { "Inside with MDCContext" }
-            withCoroutineLoggingContext("traceId" to "nested", "spanId" to 456) {
+            withCoroutineLoggingContext("traceId" to "nested", "spanId" to "456") {
                 MDC.put("traceId", "nested")
                 log.debug { "Nested with MDCContext" }
                 MDC.get("traceId") shouldBeEqualTo "nested"
@@ -76,15 +77,30 @@ class MdcSupportCoroutinesTest {
     }
 
     @Test
-    fun `restorePrevious가 false일 때 withContext 이전 값은 유지된다`() = runTest {
+    fun `withCoroutineLoggingContext는 MDC 값을 설정하고 복원한다`() = runTest {
         MDC.put("traceId", "origin")
+        MDC.put("spanId", "span")
+
+        withCoroutineLoggingContext("traceId" to "inner") {
+            MDC.get("traceId") shouldBeEqualTo "inner"
+        }
+
+        MDC.get("traceId") shouldBeEqualTo "origin"
+        MDC.get("spanId") shouldBeEqualTo "span"
+    }
+
+    @Test
+    fun `restorePrevious가 false일 때 withContext 이전 값은 유지되지 않는다`() = runTest {
+        MDC.put("traceId", "origin")
+        MDC.put("spanId", "spanId")
 
         withCoroutineLoggingContext("traceId" to "inner", restorePrevious = false) {
             MDC.get("traceId") shouldBeEqualTo "inner"
         }
 
         // MDCContext가 코루틴 진입 전 상태를 복원하므로 origin이 유지됩니다.
-        MDC.get("traceId") shouldBeEqualTo "origin"
+        MDC.get("traceId").shouldBeNull()
+        MDC.get("spanId") shouldBeEqualTo "spanId"
     }
 
     @Test
