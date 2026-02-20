@@ -166,7 +166,9 @@ enum class TestDB(
 
             setUrl(connection())
         }
-        return R2dbcDatabase.connect(databaseConfig = config)
+        val database = R2dbcDatabase.connect(databaseConfig = config)
+        db = database
+        return database
     }
 
     companion object: KLogging() {

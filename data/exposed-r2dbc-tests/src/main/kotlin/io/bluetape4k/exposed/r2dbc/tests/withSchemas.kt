@@ -13,7 +13,7 @@ import org.jetbrains.exposed.v1.r2dbc.SchemaUtils
 suspend fun withSchemas(
     dialect: TestDB,
     vararg schemas: Schema,
-    configure: (DatabaseConfig.Builder.() -> Unit)? = {},
+    configure: (DatabaseConfig.Builder.() -> Unit)? = null,
     statement: suspend R2dbcTransaction.() -> Unit,
 ) {
     withDb(dialect, configure = configure) {

@@ -37,7 +37,7 @@ private suspend fun acquireSemaphoreSuspending(testDB: TestDB) =
  */
 suspend fun withDb(
     testDB: TestDB,
-    configure: (DatabaseConfig.Builder.() -> Unit)? = {},
+    configure: (DatabaseConfig.Builder.() -> Unit)? = null,
     statement: suspend R2dbcTransaction.(TestDB) -> Unit,
 ) {
     acquireSemaphoreSuspending(testDB)

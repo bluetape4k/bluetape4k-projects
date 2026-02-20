@@ -3,6 +3,7 @@ package io.bluetape4k.exposed.r2dbc.tests
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
+import org.amshove.kluent.shouldNotBeNull
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.r2dbc.exists
 import org.junit.jupiter.params.ParameterizedTest
@@ -44,5 +45,12 @@ class TestSupportsTest: AbstractExposedR2dbcTest() {
         withDb(testDB) {
             UtilityTable.exists().shouldBeFalse()
         }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `connect 는 db 필드를 설정한다`(testDB: TestDB) = runTest {
+        val database = testDB.connect()
+        testDB.db.shouldNotBeNull() shouldBeEqualTo database
     }
 }
