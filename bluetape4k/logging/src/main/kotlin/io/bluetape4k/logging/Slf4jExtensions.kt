@@ -5,102 +5,102 @@ import org.slf4j.Marker
 
 const val LOG_FALLBACK_MSG = "Fail to generate log message."
 
-inline fun logMessageSafe(msg: () -> Any?, fallbackMessage: String = LOG_FALLBACK_MSG): String {
+inline fun logMessageSafe(fallbackMessage: String = LOG_FALLBACK_MSG, msg: () -> Any?): String {
     return try {
         msg().toString()
-    } catch (e: Exception) {
+    } catch (e: Throwable) {
         "$fallbackMessage: $e"
     }
 }
 
 inline fun Logger.trace(msg: () -> Any?) {
     if (isTraceEnabled) {
-        trace(logMessageSafe(msg))
+        trace(logMessageSafe(msg = msg))
     }
 }
 
 inline fun Logger.trace(cause: Throwable?, msg: () -> Any?) {
     if (isTraceEnabled) {
-        trace(logMessageSafe(msg), cause)
+        trace(logMessageSafe(msg = msg), cause)
     }
 }
 
 
 inline fun Logger.trace(marker: Marker?, cause: Throwable?, msg: () -> Any?) {
     if (isTraceEnabled) {
-        trace(marker, logMessageSafe(msg), cause)
+        trace(marker, logMessageSafe(msg = msg), cause)
     }
 }
 
 
 inline fun Logger.debug(msg: () -> Any?) {
     if (isDebugEnabled) {
-        debug(logMessageSafe(msg))
+        debug(logMessageSafe(msg = msg))
     }
 }
 
 inline fun Logger.debug(cause: Throwable?, msg: () -> Any?) {
     if (isDebugEnabled) {
-        debug(logMessageSafe(msg), cause)
+        debug(logMessageSafe(msg = msg), cause)
     }
 }
 
 inline fun Logger.debug(marker: Marker?, cause: Throwable?, msg: () -> Any?) {
     if (isDebugEnabled) {
-        debug(marker, logMessageSafe(msg), cause)
+        debug(marker, logMessageSafe(msg = msg), cause)
     }
 }
 
 inline fun Logger.info(msg: () -> Any?) {
     if (isInfoEnabled) {
-        info(logMessageSafe(msg))
+        info(logMessageSafe(msg = msg))
     }
 }
 
 inline fun Logger.info(cause: Throwable?, msg: () -> Any?) {
     if (isInfoEnabled) {
-        info(logMessageSafe(msg), cause)
+        info(logMessageSafe(msg = msg), cause)
     }
 }
 
 inline fun Logger.info(marker: Marker?, cause: Throwable?, msg: () -> Any?) {
     if (isInfoEnabled) {
-        info(marker, logMessageSafe(msg), cause)
+        info(marker, logMessageSafe(msg = msg), cause)
     }
 }
 
 inline fun Logger.warn(msg: () -> Any?) {
     if (isWarnEnabled) {
-        warn("🔥" + logMessageSafe(msg))
+        warn("🔥" + logMessageSafe(msg = msg))
     }
 }
 
 inline fun Logger.warn(cause: Throwable?, msg: () -> Any?) {
     if (isWarnEnabled) {
-        warn("🔥" + logMessageSafe(msg), cause)
+        warn("🔥" + logMessageSafe(msg = msg), cause)
     }
 }
 
 inline fun Logger.warn(marker: Marker?, cause: Throwable?, msg: () -> Any?) {
     if (isWarnEnabled) {
-        warn(marker, "🔥" + logMessageSafe(msg), cause)
+        warn(marker, "🔥" + logMessageSafe(msg = msg), cause)
     }
 }
 
 inline fun Logger.error(msg: () -> Any?) {
     if (isErrorEnabled) {
-        error("🔥" + logMessageSafe(msg))
+        error("🔥" + logMessageSafe(msg = msg))
     }
 }
 
 inline fun Logger.error(cause: Throwable?, msg: () -> Any?) {
     if (isErrorEnabled) {
-        error("🔥" + logMessageSafe(msg), cause)
+        error("🔥" + logMessageSafe(msg = msg), cause)
     }
 }
 
 inline fun Logger.error(marker: Marker?, cause: Throwable?, msg: () -> Any?) {
     if (isErrorEnabled) {
-        error(marker, "🔥" + logMessageSafe(msg), cause)
+        error(marker, "🔥" + logMessageSafe(msg = msg), cause)
     }
 }

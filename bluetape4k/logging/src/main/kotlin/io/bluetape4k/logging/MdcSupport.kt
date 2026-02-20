@@ -78,6 +78,9 @@ inline fun <T> withLoggingContext(
     block: () -> T,
 ): T {
     val mdcMap = map.filter { it.value != null }
+    if (mdcMap.isEmpty()) {
+        return block()
+    }
     val cleanupCallbacks: List<() -> Unit> = mdcMap.keys.map { key ->
         val prevValue = MDC.get(key)
         if (prevValue != null && restorePrevious) {

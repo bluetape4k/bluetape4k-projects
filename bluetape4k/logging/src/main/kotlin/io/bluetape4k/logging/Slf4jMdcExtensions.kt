@@ -7,7 +7,7 @@ import org.slf4j.Logger
 inline fun Logger.traceMdc(mdcSupplier: () -> Map<String, Any?>, msg: () -> Any?) {
     if (isTraceEnabled) {
         withLoggingContext(mdcSupplier()) {
-            trace(logMessageSafe(msg))
+            trace(logMessageSafe(msg = msg))
         }
     }
 }
@@ -15,7 +15,7 @@ inline fun Logger.traceMdc(mdcSupplier: () -> Map<String, Any?>, msg: () -> Any?
 inline fun Logger.traceMdc(mdcSupplier: () -> Map<String, Any?>, cause: Throwable?, msg: () -> Any?) {
     if (isTraceEnabled) {
         withLoggingContext(mdcSupplier()) {
-            trace(logMessageSafe(msg), cause)
+            trace(logMessageSafe(msg = msg), cause)
         }
     }
 }
@@ -23,7 +23,7 @@ inline fun Logger.traceMdc(mdcSupplier: () -> Map<String, Any?>, cause: Throwabl
 inline fun Logger.debugMdc(mdcSupplier: () -> Map<String, Any?>, msg: () -> Any?) {
     if (isDebugEnabled) {
         withLoggingContext(mdcSupplier()) {
-            debug(logMessageSafe(msg))
+            debug(logMessageSafe(msg = msg))
         }
     }
 }
@@ -31,7 +31,7 @@ inline fun Logger.debugMdc(mdcSupplier: () -> Map<String, Any?>, msg: () -> Any?
 inline fun Logger.debugMdc(mdcSupplier: () -> Map<String, Any?>, cause: Throwable?, msg: () -> Any?) {
     if (isDebugEnabled) {
         withLoggingContext(mdcSupplier()) {
-            debug(logMessageSafe(msg), cause)
+            debug(logMessageSafe(msg = msg), cause)
         }
     }
 }
@@ -39,7 +39,7 @@ inline fun Logger.debugMdc(mdcSupplier: () -> Map<String, Any?>, cause: Throwabl
 inline fun Logger.infoMdc(mdcSupplier: () -> Map<String, Any?>, msg: () -> Any?) {
     if (isInfoEnabled) {
         withLoggingContext(mdcSupplier()) {
-            info(logMessageSafe(msg))
+            info(logMessageSafe(msg = msg))
         }
     }
 }
@@ -47,7 +47,7 @@ inline fun Logger.infoMdc(mdcSupplier: () -> Map<String, Any?>, msg: () -> Any?)
 inline fun Logger.infoMdc(mdcSupplier: () -> Map<String, Any?>, cause: Throwable?, msg: () -> Any?) {
     if (isInfoEnabled) {
         withLoggingContext(mdcSupplier()) {
-            info(logMessageSafe(msg), cause)
+            info(logMessageSafe(msg = msg), cause)
         }
     }
 }
@@ -55,7 +55,7 @@ inline fun Logger.infoMdc(mdcSupplier: () -> Map<String, Any?>, cause: Throwable
 inline fun Logger.warnMdc(mdcSupplier: () -> Map<String, Any?>, msg: () -> Any?) {
     if (isWarnEnabled) {
         withLoggingContext(mdcSupplier()) {
-            warn("🔥" + logMessageSafe(msg))
+            warn("🔥" + logMessageSafe(msg = msg))
         }
     }
 }
@@ -63,7 +63,7 @@ inline fun Logger.warnMdc(mdcSupplier: () -> Map<String, Any?>, msg: () -> Any?)
 inline fun Logger.warnMdc(mdcSupplier: () -> Map<String, Any?>, cause: Throwable?, msg: () -> Any?) {
     if (isWarnEnabled) {
         withLoggingContext(mdcSupplier()) {
-            warn("🔥" + logMessageSafe(msg), cause)
+            warn("🔥" + logMessageSafe(msg = msg), cause)
         }
     }
 }
@@ -71,7 +71,7 @@ inline fun Logger.warnMdc(mdcSupplier: () -> Map<String, Any?>, cause: Throwable
 inline fun Logger.errorMdc(mdcSupplier: () -> Map<String, Any?>, msg: () -> Any?) {
     if (isErrorEnabled) {
         withLoggingContext(mdcSupplier()) {
-            error("🔥" + logMessageSafe(msg))
+            error("🔥" + logMessageSafe(msg = msg))
         }
     }
 }
@@ -79,7 +79,7 @@ inline fun Logger.errorMdc(mdcSupplier: () -> Map<String, Any?>, msg: () -> Any?
 inline fun Logger.errorMdc(mdcSupplier: () -> Map<String, Any?>, cause: Throwable?, msg: () -> Any?) {
     if (isErrorEnabled) {
         withLoggingContext(mdcSupplier()) {
-            error("🔥" + logMessageSafe(msg), cause)
+            error("🔥" + logMessageSafe(msg = msg), cause)
         }
     }
 }

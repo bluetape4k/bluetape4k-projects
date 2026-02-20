@@ -83,31 +83,31 @@ open class KLoggingChannel: KLogging() {
 
     suspend inline fun trace(error: Throwable? = null, msg: () -> Any?) {
         if (log.isTraceEnabled) {
-            send(LogEvent(Level.TRACE, logMessageSafe(msg), error))
+            send(LogEvent(Level.TRACE, logMessageSafe(msg = msg), error))
         }
     }
 
     suspend inline fun debug(error: Throwable? = null, msg: () -> Any?) {
         if (log.isDebugEnabled) {
-            send(LogEvent(Level.DEBUG, logMessageSafe(msg), error))
+            send(LogEvent(Level.DEBUG, logMessageSafe(msg = msg), error))
         }
     }
 
     suspend inline fun info(error: Throwable? = null, msg: () -> Any?) {
         if (log.isInfoEnabled) {
-            send(LogEvent(Level.INFO, logMessageSafe(msg), error))
+            send(LogEvent(Level.INFO, logMessageSafe(msg = msg), error))
         }
     }
 
     suspend inline fun warn(error: Throwable? = null, msg: () -> Any?) {
         if (log.isWarnEnabled) {
-            send(LogEvent(Level.WARN, logMessageSafe(msg), error))
+            send(LogEvent(Level.WARN, logMessageSafe(msg = msg), error))
         }
     }
 
     suspend inline fun error(error: Throwable? = null, msg: () -> Any?) {
         if (log.isErrorEnabled) {
-            send(LogEvent(Level.ERROR, logMessageSafe(msg), error))
+            send(LogEvent(Level.ERROR, logMessageSafe(msg = msg), error))
         }
     }
 
