@@ -154,4 +154,24 @@ class WebTestClientExtensionsTest: AbstractSpringTest() {
                 .jsonPath("$.url").isEqualTo("$baseUrl/delete")
         }
     }
+
+    @Nested
+    inner class Head {
+        @Test
+        fun `httpHead httpbin`() {
+            client
+                .httpHead("/get")
+                .expectStatus().is2xxSuccessful
+        }
+    }
+
+    @Nested
+    inner class Options {
+        @Test
+        fun `httpOptions httpbin`() {
+            client
+                .httpOptions("/anything")
+                .expectStatus().is2xxSuccessful
+        }
+    }
 }

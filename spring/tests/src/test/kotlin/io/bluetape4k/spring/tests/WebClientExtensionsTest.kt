@@ -4,11 +4,14 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.flowOf
+import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Nested
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.web.reactive.function.client.awaitBodilessEntity
 import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.reactive.function.client.awaitBodyOrNull
 import kotlin.test.Test
@@ -162,6 +165,29 @@ class WebClientExtensionsTest: AbstractSpringTest() {
 
             log.debug { "response=$response" }
             response.shouldNotBeNull() shouldContain "$baseUrl/delete"
+        }
+    }
+
+    @Nested
+    inner class Head {
+        @Test
+        fun `httpHead httpbin`() = runSuspendIO {
+            val response = client
+                .httpHead("/get")
+                .awaitBodilessEntity()
+
+            log.debug { "response=$response" }
+            response.statusCode.is2xxSuccessful.shouldBeTrue()
+        }
+    }
+
+    @Nested
+    inner class Options {
+        @Test
+        fun `httpOptions httpbin`() = runSuspendIO {
+            client
+                .httpOptions("/anything")
+                .awaitBodyOrNull<String>().shouldBeNull()
         }
     }
 }

@@ -3,11 +3,14 @@ package io.bluetape4k.spring.tests
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.flowOf
+import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Nested
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestClient
+import org.springframework.web.client.body
 import org.springframework.web.client.toEntity
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -167,6 +170,30 @@ class RestClientExtensionsTest: AbstractSpringTest() {
 
             log.debug { "response=$response" }
             response shouldContain "$baseUrl/delete"
+        }
+    }
+
+    @Nested
+    inner class Head {
+        @Test
+        fun `httpHead httpbin`() {
+            val response = client
+                .httpHead("/get")
+                .toBodilessEntity()
+
+            log.debug { "response=$response" }
+            response.statusCode.is2xxSuccessful.shouldBeTrue()
+        }
+    }
+
+    @Nested
+    inner class Options {
+        @Test
+        fun `httpOptions httpbin`() {
+            client
+                .httpOptions("/anything")
+                .body<String>().shouldBeNull()
+
         }
     }
 }
