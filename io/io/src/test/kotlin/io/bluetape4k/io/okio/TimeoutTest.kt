@@ -31,7 +31,10 @@ class TimeoutTest: AbstractOkioTest() {
 
     @AfterEach
     fun afterEach() {
-        executor.shutdown()
+        runCatching {
+            executor.shutdown()
+            executor.awaitTermination(1, TimeUnit.SECONDS)
+        }
     }
 
     @Test

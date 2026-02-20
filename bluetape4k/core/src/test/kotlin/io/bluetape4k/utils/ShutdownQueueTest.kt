@@ -42,7 +42,9 @@ class ShutdownQueueTest {
         val shutdownable = Shutdownable {
             log.debug { "Shutdown instance." }
         }
-        ShutdownQueue.register { shutdownable.shutdown() }
+        ShutdownQueue.register {
+            shutdownable.shutdown()
+        }
     }
 
     /**

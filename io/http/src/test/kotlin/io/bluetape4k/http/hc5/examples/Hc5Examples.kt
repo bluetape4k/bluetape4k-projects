@@ -45,7 +45,10 @@ class Hc5Examples: AbstractHc5Test() {
                 // 예외는 무시합니다.
                 log.warn(e) { "Fail to request with 1 second timeout" }
             } finally {
-                executor.shutdown()
+                runCatching {
+                    executor.shutdown()
+                    executor.awaitTermination(1, TimeUnit.SECONDS)
+                }
             }
         }
     }

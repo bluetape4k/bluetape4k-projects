@@ -95,41 +95,45 @@ class MultiBasicExamples {
 
     @Test
     fun `03 Multi from emitter`() {
-        val service = Executors.newScheduledThreadPool(1)
+        val executor = Executors.newScheduledThreadPool(1)
         val ref = AtomicReference<ScheduledFuture<*>>(null)
         val counter = AtomicInteger(0)
 
         val captures = CopyOnWriteArrayList<String>()
 
-        withLatch(1, 5.seconds) {
-            Multi.createFrom()
-                .emitter { emitter ->
-                    val scheduledFuture = service.scheduleAtFixedRate(
-                        {
-                            emitter.emit("tick")
-                            log.debug { "Emit: tick" }
-                            if (counter.incrementAndGet() == 5) {
-                                ref.get()?.cancel(true)
-                                emitter.complete()
-                                countDown()
-                            }
-                        },
-                        0,
-                        500,
-                        TimeUnit.MILLISECONDS
+        try {
+
+            withLatch(1, 5.seconds) {
+                Multi.createFrom()
+                    .emitter { emitter ->
+                        val scheduledFuture = executor.scheduleAtFixedRate(
+                            {
+                                emitter.emit("tick")
+                                log.debug { "Emit: tick" }
+                                if (counter.incrementAndGet() == 5) {
+                                    ref.get()?.cancel(true)
+                                    emitter.complete()
+                                    countDown()
+                                }
+                            },
+                            0,
+                            500,
+                            TimeUnit.MILLISECONDS
+                        )
+                        ref.set(scheduledFuture)
+                    }
+                    .subscribe()
+                    .with(
+                        { item -> captures.add(item); println(item) },
+                        Throwable::printStackTrace,
+                        { println("Done!") }
                     )
-                    ref.set(scheduledFuture)
-                }
-                .subscribe()
-                .with(
-                    { item -> captures.add(item); println(item) },
-                    Throwable::printStackTrace,
-                    { println("Done!") }
-                )
 
+            }
+        } finally {
+            executor.shutdown()
+            executor.awaitTermination(1, TimeUnit.SECONDS)
         }
-        service.shutdown()
-
         captures shouldHaveSize 5
         captures.toSet() shouldBeEqualTo setOf("tick")
     }

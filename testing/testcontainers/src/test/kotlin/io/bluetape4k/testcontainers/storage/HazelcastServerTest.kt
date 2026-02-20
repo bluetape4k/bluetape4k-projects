@@ -66,7 +66,7 @@ class HazelcastServerTest: AbstractContainerTest() {
             queue.take() shouldBeEqualTo TEST_VALUE
 
         } finally {
-            client.shutdown()
+            runCatching { client.shutdown() }
         }
     }
 
@@ -120,7 +120,7 @@ class HazelcastServerTest: AbstractContainerTest() {
 
             queue.take() shouldBeEqualTo TEST_VALUE
         } finally {
-            client.shutdown()
+            runCatching { client.shutdown() }
         }
     }
 

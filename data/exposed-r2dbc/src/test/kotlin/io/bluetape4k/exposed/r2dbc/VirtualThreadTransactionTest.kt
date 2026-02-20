@@ -9,6 +9,7 @@ import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class VirtualThreadTransactionTest: AbstractExposedR2dbcTest() {
 
@@ -34,7 +35,10 @@ class VirtualThreadTransactionTest: AbstractExposedR2dbcTest() {
 
                 threadName.shouldContain("vt-custom-executor")
             } finally {
-                executor.shutdown()
+                runCatching {
+                    executor.shutdown()
+                    executor.awaitTermination(1, TimeUnit.SECONDS)
+                }
             }
         }
     }

@@ -31,6 +31,8 @@ abstract class AbstractLettuceTest: AbstractRedisTest() {
 
     @AfterAll
     open fun afterAll() {
-        client.shutdown()
+        runCatching {
+            client.shutdown()
+        }
     }
 }

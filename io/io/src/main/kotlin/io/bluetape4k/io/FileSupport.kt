@@ -26,6 +26,7 @@ import java.nio.file.StandardOpenOption
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlin.text.Charsets.UTF_8
 
 private val log by lazy { KotlinLogging.logger {} }
@@ -37,7 +38,10 @@ const val WINDOW_SEPARATOR = '\\'
 internal val defaultFileExecutor: ExecutorService by lazy {
     Executors.newVirtualThreadPerTaskExecutor().also { executor ->
         Runtimex.addShutdownHook {
-            executor.shutdown()
+            runCatching {
+                executor.shutdown()
+                executor.awaitTermination(1, TimeUnit.SECONDS)
+            }
         }
     }
 }

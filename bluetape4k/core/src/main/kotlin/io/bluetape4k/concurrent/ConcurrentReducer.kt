@@ -132,8 +132,10 @@ class ConcurrentReducer<T> internal constructor(
      * 큐에 남아있는 작업은 취소되고, pump executor를 종료합니다.
      */
     override fun close() {
-        queue.clear()
-        pumpExecutor.shutdown()
+        runCatching {
+            queue.clear()
+            pumpExecutor.shutdown()
+        }
     }
 
     private data class Job<T>(

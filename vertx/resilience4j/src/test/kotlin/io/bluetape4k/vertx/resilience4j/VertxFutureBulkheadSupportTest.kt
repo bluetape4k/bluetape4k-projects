@@ -84,21 +84,24 @@ class VertxFutureBulkheadSupportTest: AbstractVertxFutureTest() {
 
             val executor = Executors.newFixedThreadPool(2)
 
-            executor.submit {
-                bulkhead.executeVertxFuture {
-                    Thread.sleep(100)
-                    service.returnHelloWorld()
-                }
-            }
-            executor.submit {
-                bulkhead.executeVertxFuture {
-                    Thread.sleep(100)
-                    service.returnHelloWorld()
-                }
-            }
+            try {
 
-            executor.shutdown()
-            executor.awaitTermination(1, TimeUnit.SECONDS)
+                executor.submit {
+                    bulkhead.executeVertxFuture {
+                        Thread.sleep(100)
+                        service.returnHelloWorld()
+                    }
+                }
+                executor.submit {
+                    bulkhead.executeVertxFuture {
+                        Thread.sleep(100)
+                        service.returnHelloWorld()
+                    }
+                }
+            } finally {
+                executor.shutdown()
+                executor.awaitTermination(1, TimeUnit.SECONDS)
+            }
 
             permittedEvents shouldBeEqualTo 1
             rejectedEvents shouldBeEqualTo 1
@@ -106,6 +109,7 @@ class VertxFutureBulkheadSupportTest: AbstractVertxFutureTest() {
 
             service.invocationCount shouldBeEqualTo 1
         }
+
 
     @Test
     fun `bulkhead가 허용하면 예외 함수도 실행된다`(vertx: Vertx, testContext: VertxTestContext) =

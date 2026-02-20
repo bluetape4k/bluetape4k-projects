@@ -32,16 +32,19 @@ class PipeTest: AbstractOkioTest() {
 
     companion object: KLogging()
 
-    private lateinit var executorService: ScheduledExecutorService
+    private lateinit var executor: ScheduledExecutorService
 
     @BeforeEach
     fun beforeEach() {
-        executorService = TestingExecutors.newScheduledExecutorService(2)
+        executor = TestingExecutors.newScheduledExecutorService(2)
     }
 
     @AfterEach
     fun afterEach() {
-        executorService.shutdown()
+        runCatching {
+            executor.shutdown()
+            executor.awaitTermination(1, TimeUnit.SECONDS)
+        }
     }
 
     @Test
@@ -77,7 +80,7 @@ class PipeTest: AbstractOkioTest() {
         log.debug { "expected hash=${expectedHash.hex()}" }
 
         // Write data to the sink
-        val sinkHash = executorService.submit<ByteString> {
+        val sinkHash = executor.submit<ByteString> {
             val hashingSink = HashingSink.sha1(pipe.sink)
             val random = Random(0)
             val data = ByteArray(8192)
@@ -95,7 +98,7 @@ class PipeTest: AbstractOkioTest() {
         }
 
         // Read data from source
-        val sourceHash = executorService.submit<ByteString> {
+        val sourceHash = executor.submit<ByteString> {
             val blackhole = Buffer()
             val hashingSink = HashingSink.sha1(blackhole)
             val buffer = Buffer()
@@ -183,7 +186,7 @@ class PipeTest: AbstractOkioTest() {
     @Test
     fun `sink blocks on slow reader`() {
         val pipe = Pipe(3L)
-        executorService.execute {
+        executor.execute {
             val buffer = Buffer()
             Thread.sleep(1000L)
             pipe.source.read(buffer, Long.MAX_VALUE) shouldBeEqualTo 3L
@@ -210,7 +213,7 @@ class PipeTest: AbstractOkioTest() {
     @Test
     fun `reader 가 close 되면 sink 에 쓰기는 실패한다`() {
         val pipe = Pipe(3L)
-        executorService.schedule(
+        executor.schedule(
             {
                 pipe.source.close()
             },
@@ -291,7 +294,7 @@ class PipeTest: AbstractOkioTest() {
     @Test
     fun `source read 작업은 sink close 에 방해받지 않는다`() {
         val pipe = Pipe(3L)
-        executorService.schedule(
+        executor.schedule(
             {
                 pipe.sink.close()
             },
@@ -327,7 +330,7 @@ class PipeTest: AbstractOkioTest() {
     fun `source blocks on slow writer`() {
         val pipe = Pipe(100L)
 
-        executorService.execute {
+        executor.execute {
             Thread.sleep(1000L)
             log.debug { "Write abc" }
             pipe.sink.write(bufferOf("abc"), 3L)

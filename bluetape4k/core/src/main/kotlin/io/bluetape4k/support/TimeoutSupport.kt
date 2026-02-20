@@ -38,7 +38,7 @@ inline fun <T> asyncRunWithTimeout(timeoutMillis: Long, crossinline action: () -
         .orTimeout(timeoutMillis.coerceAtLeast(10L), TimeUnit.MILLISECONDS)
         .whenCompleteAsync { _, _ ->
             // timeout 시에는 action을 즉시 종료시킨다.
-            executor.shutdown()
+            runCatching { executor.shutdown() }
         }
 }
 

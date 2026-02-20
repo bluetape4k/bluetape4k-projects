@@ -125,8 +125,11 @@ abstract class AbstractInteropTest {
     }
 
     private fun stopServer() {
-        server?.shutdownNow()
-        testServiceExecutor?.shutdown()
+        runCatching {
+            server?.shutdownNow()
+            testServiceExecutor?.shutdown()
+            testServiceExecutor?.awaitTermination(3, TimeUnit.SECONDS)
+        }
     }
 
     @get:VisibleForTesting

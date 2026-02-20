@@ -61,7 +61,7 @@ fun <T> withWorkStealingPool(
         .asCompletableFuture()
         .whenComplete { result, error ->
             log.debug { "WorkStealingPool is shutdown ... result=$result, error=$error" }
-            executor.shutdown()
+            runCatching { executor.shutdown() }
         }
 }
 
@@ -91,6 +91,6 @@ fun <T> withWorkStealingPool(
         .sequence(executor)
         .whenComplete { result, error ->
             log.debug { "WorkStealingPool is shutdown ... result=$result, error=$error" }
-            executor.shutdown()
+            runCatching { executor.shutdown() }
         }
 }

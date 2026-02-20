@@ -66,7 +66,7 @@ class RedisServerTest: AbstractContainerTest() {
             val map2 = redisson.getMap<String, String>("map")
             map2["key1"] shouldBeEqualTo "value1"
         } finally {
-            redisson.shutdown()
+            runCatching { redisson.shutdown() }
         }
     }
 

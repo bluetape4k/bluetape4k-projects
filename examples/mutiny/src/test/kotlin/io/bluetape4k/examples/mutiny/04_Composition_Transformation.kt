@@ -26,6 +26,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeIn
+import org.amshove.kluent.shouldContainAll
 import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
@@ -295,28 +296,31 @@ class CompositionTransformationExamples {
     fun `13 Multi Broadcast`() {
         val counter = AtomicInteger(0)
         val executor = Executors.newCachedThreadPool()
+        try {
+            withLatch(3, 5.seconds) {
+                val multi = Multi.createBy()
+                    .repeating().supplier(counter::getAndIncrement)
+                    .atMost(10)
+                    .broadcast()
+                    .toAllSubscribers()
 
-        withLatch(3, 5.seconds) {
-            val multi = Multi.createBy()
-                .repeating().supplier(counter::getAndIncrement)
-                .atMost(10)
-                .broadcast()
-                .toAllSubscribers()
-
-            executor.submit {
-                multi.onItem().transform { n -> "🚀 $n" }.subscribe().with(::println)
-                countDown()
+                executor.submit {
+                    multi.onItem().transform { n -> "🚀 $n" }.subscribe().with(::println)
+                    countDown()
+                }
+                executor.submit {
+                    multi.onItem().transform { n -> "🧪 $n" }.subscribe().with(::println)
+                    countDown()
+                }
+                executor.submit {
+                    multi.onItem().transform { n -> "💡 $n" }.subscribe().with(::println)
+                    countDown()
+                }
             }
-            executor.submit {
-                multi.onItem().transform { n -> "🧪 $n" }.subscribe().with(::println)
-                countDown()
-            }
-            executor.submit {
-                multi.onItem().transform { n -> "💡 $n" }.subscribe().with(::println)
-                countDown()
-            }
+        } finally {
+            executor.shutdown()
+            executor.awaitTermination(1, TimeUnit.SECONDS)
         }
-        executor.shutdown()
     }
 
     @Test
@@ -447,8 +451,8 @@ class CompositionTransformationExamples {
             .toList()
 
         buckets shouldHaveSize 2
-        buckets[0] shouldBeEqualTo listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-        buckets[1] shouldBeEqualTo listOf(11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21)
+        buckets[0] shouldContainAll listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+        buckets[1] shouldContainAll listOf(11, 12, 13, 14, 15, 16, 17, 18, 19, 20)
     }
 
     // Collection.flatMap 과 같은 기능

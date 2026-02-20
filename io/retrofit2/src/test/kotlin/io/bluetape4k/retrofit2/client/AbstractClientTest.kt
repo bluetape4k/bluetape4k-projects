@@ -47,7 +47,7 @@ abstract class AbstractClientTest: AbstractRetrofitTest() {
 
     @AfterEach
     fun afterEach() {
-        server.shutdown()
+        runCatching { server.shutdown() }
     }
 
     @Test

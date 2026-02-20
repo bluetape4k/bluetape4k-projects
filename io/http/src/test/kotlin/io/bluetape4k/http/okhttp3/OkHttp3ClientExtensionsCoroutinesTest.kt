@@ -24,9 +24,11 @@ class OkHttp3ClientExtensionsCoroutinesTest {
 
     @AfterEach
     fun afterEach() {
-        client.dispatcher.executorService.shutdown()
-        client.connectionPool.evictAll()
-        server.shutdown()
+        runCatching {
+            client.dispatcher.executorService.shutdown()
+            client.connectionPool.evictAll()
+            server.shutdown()
+        }
     }
 
     @Test

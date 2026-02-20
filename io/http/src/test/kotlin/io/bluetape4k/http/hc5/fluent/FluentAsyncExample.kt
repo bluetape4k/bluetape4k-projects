@@ -80,7 +80,10 @@ class FluentAsyncExample: AbstractHc5Test() {
             }
             log.debug { "Done !!!" }
         } finally {
-            executor.shutdown()
+            runCatching {
+                executor.shutdown()
+                executor.awaitTermination(1, TimeUnit.SECONDS)
+            }
         }
     }
 
@@ -104,7 +107,10 @@ class FluentAsyncExample: AbstractHc5Test() {
                 }
                 .run()
         } finally {
-            executor.shutdown()
+            runCatching {
+                executor.shutdown()
+                executor.awaitTermination(1, TimeUnit.SECONDS)
+            }
         }
     }
 

@@ -6,6 +6,7 @@ import java.util.concurrent.CompletionStage
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 
 /**
  * [futureSupplier] 를 실행할 때 [TimeLimiter] 를 적용하여 실행합니다.
@@ -51,7 +52,12 @@ inline fun <T, F: CompletionStage<T>> TimeLimiter.completionStage(
     TimeLimiter
         .decorateCompletionStage(this, scheduler) { futureSupplier.invoke() }
         .get()
-        .whenComplete { _, _ -> scheduler.shutdown() }
+        .whenComplete { _, _ ->
+            runCatching {
+                scheduler.shutdown()
+                scheduler.awaitTermination(1, TimeUnit.SECONDS)
+            }
+        }
         .toCompletableFuture()
         .get()
 }
@@ -102,6 +108,10 @@ inline fun <T, R: CompletableFuture<T>> TimeLimiter.decorateCompletableFuture(
 ): (T) -> R = { input: T ->
     this.executeCompletionStage<T, R>(scheduler) { func(input) }
         .toCompletableFuture()
-        .whenComplete { _, _ -> scheduler.shutdown() }
-            as R
+        .whenComplete { _, _ ->
+            runCatching {
+                scheduler.shutdown()
+                scheduler.awaitTermination(1, TimeUnit.SECONDS)
+            }
+        } as R
 }

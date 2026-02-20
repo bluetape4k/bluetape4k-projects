@@ -22,7 +22,7 @@ class CachingInterceptorTest {
 
     @AfterEach
     fun cleanup() {
-        server.shutdown()
+        runCatching { server.shutdown() }
     }
 
     @Test

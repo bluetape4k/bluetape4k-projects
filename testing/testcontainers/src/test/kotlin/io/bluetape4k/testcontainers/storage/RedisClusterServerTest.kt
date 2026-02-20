@@ -65,7 +65,7 @@ class RedisClusterServerTest: AbstractContainerTest() {
             map["key"] = "value"
             map["key"] shouldBeEqualTo "value"
         } finally {
-            redisson.shutdown()
+            runCatching { redisson.shutdown() }
         }
     }
 

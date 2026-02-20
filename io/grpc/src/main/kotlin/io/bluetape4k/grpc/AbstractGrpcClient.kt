@@ -37,7 +37,8 @@ abstract class AbstractGrpcClient(
         if (!channel.isShutdown) {
             log.debug { "Shutdown GrpcClient channel. channel=$channel" }
             runCatching {
-                channel.shutdown().awaitTermination(5, TimeUnit.SECONDS)
+                channel.shutdown()
+                channel.awaitTermination(5, TimeUnit.SECONDS)
             }
         }
     }

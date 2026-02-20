@@ -6,6 +6,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 
 /**
  * [runnable] 실행 시, [Retry] 를 적용합니다.
@@ -188,7 +189,12 @@ inline fun <T, R> withRetry(
     Retry.decorateCompletionStage(retry, scheduler) { supplier.invoke(input) }
         .get()
         .toCompletableFuture()
-        .whenComplete { _, _ -> scheduler.shutdown() }
+        .whenComplete { _, _ ->
+            runCatching {
+                scheduler.shutdown()
+                scheduler.awaitTermination(3, TimeUnit.SECONDS)
+            }
+        }
 }
 
 
@@ -213,8 +219,12 @@ inline fun <T> Retry.completionStage(
 ): () -> CompletionStage<T> = {
     Retry.decorateCompletionStage(this, scheduler) { supplier() }
         .get()
-        .whenComplete { _, _ -> scheduler.shutdown() }
-
+        .whenComplete { _, _ ->
+            runCatching {
+                scheduler.shutdown()
+                scheduler.awaitTermination(1, TimeUnit.SECONDS)
+            }
+        }
 }
 
 
@@ -257,5 +267,10 @@ inline fun <T, R> Retry.completableFuture(
 ): (T) -> CompletableFuture<R> = { input: T ->
     this.executeCompletionStage<R>(scheduler) { func.invoke(input) }
         .toCompletableFuture()
-        .whenComplete { _, _ -> scheduler.shutdown() }
+        .whenComplete { _, _ ->
+            runCatching {
+                scheduler.shutdown()
+                scheduler.awaitTermination(1, TimeUnit.SECONDS)
+            }
+        }
 }

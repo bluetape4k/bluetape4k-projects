@@ -74,27 +74,31 @@ class LimitConcurrencyExamples: AbstractCassandraTest() {
         val insertsCounter = AtomicInteger(0)
         val executor = Executors.newFixedThreadPool(CONCURRENCY_LEVEL)
 
-        repeat(TOTAL_NUMBER_OF_INSERTS) { counter ->
-            semaphore.acquire()
+        try {
 
-            executor.submit {
-                try {
-                    session.execute(pst.bind().setUuid("id", UUID.randomUUID()).setInt("value", counter))
-                    insertsCounter.incrementAndGet()
-                } catch (e: Throwable) {
-                    e.printStackTrace()
-                } finally {
-                    requestLatch.countDown()
-                    semaphore.release()
+            repeat(TOTAL_NUMBER_OF_INSERTS) { counter ->
+                semaphore.acquire()
+
+                executor.submit {
+                    try {
+                        session.execute(pst.bind().setUuid("id", UUID.randomUUID()).setInt("value", counter))
+                        insertsCounter.incrementAndGet()
+                    } catch (e: Throwable) {
+                        e.printStackTrace()
+                    } finally {
+                        requestLatch.countDown()
+                        semaphore.release()
+                    }
                 }
             }
+
+            requestLatch.await(10, TimeUnit.SECONDS)
+
+            println("Finish executing ${insertsCounter.get()} queries with a concurrency level of $CONCURRENCY_LEVEL")
+        } finally {
+            executor.shutdown()
+            executor.awaitTermination(3, TimeUnit.SECONDS)
         }
-
-        requestLatch.await(10, TimeUnit.SECONDS)
-
-        println("Finish executing ${insertsCounter.get()} queries with a concurrency level of $CONCURRENCY_LEVEL")
-        executor.shutdown()
-        executor.awaitTermination(10, TimeUnit.SECONDS)
     }
 
     @RepeatedTest(REPEAT_SIZE)

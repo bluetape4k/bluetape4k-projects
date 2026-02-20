@@ -39,7 +39,7 @@ class MockWebServerExamples {
 
     @AfterEach
     fun afterEach() {
-        mockServer.shutdown()
+        runCatching { mockServer.shutdown() }
     }
 
     data class Message(val payload: String)

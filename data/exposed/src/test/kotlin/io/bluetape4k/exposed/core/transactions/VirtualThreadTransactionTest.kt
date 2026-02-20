@@ -36,6 +36,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlin.test.assertFailsWith
 
 class VirtualThreadTransactionTest: AbstractExposedTest() {
@@ -213,7 +214,10 @@ class VirtualThreadTransactionTest: AbstractExposedTest() {
                 }
                 threadName.shouldContain("vt-custom-executor")
             } finally {
-                executor.shutdown()
+                runCatching {
+                    executor.shutdown()
+                    executor.awaitTermination(1, TimeUnit.SECONDS)
+                }
             }
         }
     }
