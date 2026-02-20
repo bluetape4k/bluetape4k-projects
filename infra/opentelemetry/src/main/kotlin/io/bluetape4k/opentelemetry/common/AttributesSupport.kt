@@ -92,27 +92,58 @@ fun <T: Any, U: Any, V: Any, W: Any, X: Any, Y: Any> attributesOf(
 
 /**
  * [Map]을 [Attributes]로 변환합니다.
- *
- * @return [Attributes] 인스턴스
+ * 숫자, 부울, 문자열 외에도 primitive array, iterable, sequence 등을 안정적으로 처리합니다.
  */
 fun Map<*, *>.toAttributes(): Attributes = attributes {
     forEach { (key, value) ->
-        val keyStr = key.toString()
-        when (value) {
-            is Int         -> put(keyStr, value.toLong())
-            is Long        -> put(keyStr, value)
-            is Float       -> put(keyStr, value.toDouble())
-            is Double      -> put(keyStr, value)
-            is Boolean     -> put(keyStr, value)
-            is LongArray   -> put(AttributeKey.longArrayKey(keyStr), value.toList())
-            is DoubleArray -> put(AttributeKey.doubleArrayKey(keyStr), value.toList())
-            is BooleanArray -> put(AttributeKey.booleanArrayKey(keyStr), value.toList())
-            is Array<*>    -> put(
-                AttributeKey.stringArrayKey(keyStr),
-                *value.map { it.toString() }.toTypedArray()
-            )
-
-            else           -> put(keyStr, value.toString())
-        }
+        val attributeKey = key?.toString() ?: "null"
+        putAttribute(attributeKey, value)
     }
 }
+
+private fun AttributesBuilder.putAttribute(attributeKey: String, value: Any?) {
+    when (value) {
+        null            -> put(attributeKey, "null")
+        is String       -> put(attributeKey, value)
+        is CharSequence -> put(attributeKey, value.toString())
+        is Char         -> put(attributeKey, value.toString())
+        is Boolean      -> put(attributeKey, value)
+        is Byte         -> put(attributeKey, value.toLong())
+        is Short        -> put(attributeKey, value.toLong())
+        is Int          -> put(attributeKey, value.toLong())
+        is Long         -> put(attributeKey, value)
+        is Float        -> put(attributeKey, value.toDouble())
+        is Double       -> put(attributeKey, value)
+        is BooleanArray -> putBooleanList(attributeKey, value.toList())
+        is IntArray     -> putLongList(attributeKey, value.map { it.toLong() })
+        is LongArray    -> putLongList(attributeKey, value.toList())
+        is ShortArray   -> putLongList(attributeKey, value.map { it.toLong() })
+        is ByteArray    -> putLongList(attributeKey, value.map { it.toLong() })
+        is FloatArray   -> putDoubleList(attributeKey, value.map { it.toDouble() })
+        is DoubleArray  -> putDoubleList(attributeKey, value.toList())
+        is CharArray    -> putStringList(attributeKey, value.map { it.toString() })
+        is Array<*>     -> putStringList(attributeKey, value.map { it?.toString() ?: "null" })
+        is Sequence<*>  -> putStringList(attributeKey, value.toSafeStringList())
+        is Iterable<*>  -> putStringList(attributeKey, value.toSafeStringList())
+        else            -> put(attributeKey, value.toString())
+    }
+}
+
+private fun AttributesBuilder.putBooleanList(attributeKey: String, values: List<Boolean>) {
+    put(AttributeKey.booleanArrayKey(attributeKey), values)
+}
+
+private fun AttributesBuilder.putLongList(attributeKey: String, values: List<Long>) {
+    put(AttributeKey.longArrayKey(attributeKey), values)
+}
+
+private fun AttributesBuilder.putDoubleList(attributeKey: String, values: List<Double>) {
+    put(AttributeKey.doubleArrayKey(attributeKey), values)
+}
+
+private fun AttributesBuilder.putStringList(attributeKey: String, values: List<String>) {
+    put(AttributeKey.stringArrayKey(attributeKey), values)
+}
+
+private fun Sequence<*>.toSafeStringList(): List<String> = map { it?.toString() ?: "null" }.toList()
+private fun Iterable<*>.toSafeStringList(): List<String> = map { it?.toString() ?: "null" }

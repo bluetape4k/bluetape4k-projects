@@ -24,7 +24,7 @@ class SampleVerticle: AbstractVerticle() {
             }
             .listen(PORT)
             .onSuccess { server ->
-                log.info { "Server is now listening! server=$server" }
+                log.info { "Server is now listening! server actual port=${server.actualPort()}" }
                 startPromise.complete()
             }
             .onFailure { error ->
