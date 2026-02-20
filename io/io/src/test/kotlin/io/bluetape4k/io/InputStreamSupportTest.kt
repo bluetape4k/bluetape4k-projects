@@ -8,7 +8,9 @@ import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
 import io.bluetape4k.utils.Systemx
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeLessOrEqualTo
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.StringReader
 import java.io.StringWriter
@@ -219,5 +221,33 @@ class InputStreamSupportTest: AbstractIOTest() {
             buffer.flip()
             buffer.getAllBytes().toUtf8String() shouldBeEqualTo expected
         }
+    }
+
+    @Test
+    fun `input stream put to byte buffer respects limit and remaining`() {
+        val expected = "HelloWorld"
+        val buffer = ByteBuffer.allocate(5)
+
+        expected.toInputStream().use { bis ->
+            val readCount = bis.putTo(buffer, limit = 100)
+            readCount shouldBeEqualTo buffer.capacity()
+        }
+
+        buffer.flip()
+        buffer.getAllBytes().toUtf8String() shouldBeEqualTo expected.take(5)
+    }
+
+    @Test
+    fun `input stream put to direct byte buffer respects limit`() {
+        val expected = "HelloWorld"
+        val buffer = ByteBuffer.allocateDirect(10)
+
+        expected.toInputStream().use { bis ->
+            val readCount = bis.putTo(buffer, limit = 4)
+            readCount.shouldBeLessOrEqualTo(4)
+        }
+
+        buffer.flip()
+        buffer.getAllBytes().toUtf8String() shouldBeEqualTo expected.take(4)
     }
 }

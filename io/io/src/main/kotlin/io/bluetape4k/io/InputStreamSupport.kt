@@ -424,18 +424,22 @@ fun ByteArray.toUtf8LineSequence(blockSize: Int = DEFAULT_BLOCK_SIZE): Sequence<
 fun InputStream.putTo(dst: ByteBuffer, limit: Int = dst.remaining()): Int {
     limit.assertZeroOrPositiveNumber("limit")
 
+    val size = minOf(limit, dst.remaining())
+    if (size == 0) {
+        return 0
+    }
+
     return if (dst.hasArray()) {
-        val readCount = read(dst.array(), dst.arrayOffset() + dst.position(), limit)
+        val readCount = read(dst.array(), dst.arrayOffset() + dst.position(), size)
         if (readCount > 0) {
             dst.position(dst.position() + readCount)
         }
         readCount
     } else {
-        val array = ByteArray(minOf(available(), limit))
-        val readCount = read(array)
-
+        val array = ByteArray(size)
+        val readCount = read(array, 0, size)
         if (readCount > 0) {
-            dst.put(array)
+            dst.put(array, 0, readCount)
         }
         readCount
     }
