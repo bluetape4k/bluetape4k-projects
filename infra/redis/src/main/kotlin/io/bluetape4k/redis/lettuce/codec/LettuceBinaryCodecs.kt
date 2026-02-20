@@ -14,8 +14,8 @@ object LettuceBinaryCodecs {
     fun <V: Any> codec(serializer: BinarySerializer): LettuceBinaryCodec<V> =
         LettuceBinaryCodec(serializer)
 
-    fun <V: Any> compressedCodec(comressor: Compressor, serializer: BinarySerializer): LettuceBinaryCodec<V> =
-        LettuceBinaryCodec(CompressableBinarySerializer(serializer, comressor))
+    fun <V: Any> compressedCodec(compressor: Compressor, serializer: BinarySerializer): LettuceBinaryCodec<V> =
+        LettuceBinaryCodec(CompressableBinarySerializer(serializer, compressor))
 
     private val protobufSerializer by lazy { ProtobufSerializer() }
 
@@ -32,7 +32,7 @@ object LettuceBinaryCodecs {
     /**
      * Protobuf Serializer를 사용하는 [LettuceBinaryCodec]를 생성합니다.
      */
-    fun <V: Any> protobuf(): LettuceBinaryCodec<V> = codec(ProtobufSerializer())
+    fun <V: Any> protobuf(): LettuceBinaryCodec<V> = codec(protobufSerializer)
 
     /**
      * Fory Serializer를 사용하는 [LettuceBinaryCodec]를 생성합니다.

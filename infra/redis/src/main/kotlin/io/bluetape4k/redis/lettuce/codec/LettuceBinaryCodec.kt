@@ -56,12 +56,12 @@ class LettuceBinaryCodec<V: Any>(
      * - V 타입: serializer를 통해 직렬화된 바이트 크기를 반환합니다
      * - 그 외: 기본값 0을 반환합니다
      */
-    override fun estimateSize(keyOrValue: Any?): Int {
-        return when (keyOrValue) {
-            is String -> keyOrValue.toUtf8Bytes().size
-            is ByteArray -> keyOrValue.size
-            else -> 0
-        }
+    override fun estimateSize(keyOrValue: Any?): Int = when (keyOrValue) {
+        null          -> 0
+        is String     -> keyOrValue.toUtf8Bytes().size
+        is ByteArray  -> keyOrValue.size
+        is ByteBuffer -> keyOrValue.remaining()
+        else          -> runCatching { serializer.serialize(keyOrValue).size }.getOrDefault(0)
     }
 
     override fun toString(): String {
