@@ -54,32 +54,4 @@ object TimebasedUuid {
             return nextId().encodeBase62()
         }
     }
-
-    @Deprecated("use TimebasedUuid.Epoch", replaceWith = ReplaceWith("TimebasedUuid.Epoch"))
-    private val generator: TimebasedUuidGenerator by lazy { TimebasedUuidGenerator() }
-
-    @Deprecated(
-        "use TimebasedUuid.Epoch.nextId()",
-        replaceWith = ReplaceWith("TimebasedUuid.Epoch.nextId()")
-    )
-    fun nextUUID(): UUID = generator.nextUUID()
-
-    @Deprecated(
-        "use TimebasedUuid.Epoch.nextIds(size)",
-        replaceWith = ReplaceWith("TimebasedUuid.Epoch.nextIds(size)")
-    )
-    fun nextUUIDs(size: Int): Sequence<UUID> = generator.nextUUIDs(size)
-
-    @Deprecated(
-        "use TimebasedUuid.Epoch.nextIdAsString()",
-        replaceWith = ReplaceWith("TimebasedUuid.Epoch.nextIdAsString()")
-    )
-    fun nextBase62String(): String = generator.nextBase62String()
-
-    @Deprecated(
-        "use TimebasedUuid.Epoch.nextIdAsStrings(size)",
-        replaceWith = ReplaceWith("TimebasedUuid.Epoch.nextIdAsStrings(size)")
-    )
-    fun nextBase62Strings(size: Int): Sequence<String> = generator.nextBase62Strings(size)
-
 }

@@ -44,7 +44,7 @@ suspend inline fun <reified T: Any> ReactiveCassandraOperations.selectOneSuspend
 
 @Deprecated(
     message = "selectOneSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("selectOneSuspending(statement)")
+    replaceWith = ReplaceWith("selectOneSuspending<T>(statement)")
 )
 suspend inline fun <reified T: Any> ReactiveCassandraOperations.suspendSelectOne(statement: Statement<*>): T =
     selectOneSuspending(statement)

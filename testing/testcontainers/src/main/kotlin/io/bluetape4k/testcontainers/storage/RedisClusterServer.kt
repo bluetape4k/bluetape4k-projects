@@ -294,7 +294,7 @@ class RedisClusterServer private constructor(
                 return RedisClusterClient.create(resources, uris).apply {
                     val topologyRefreshOptions = ClusterTopologyRefreshOptions.builder()
                         .enablePeriodicRefresh(Duration.ofSeconds(30))
-                        .enableAllAdaptiveRefreshTriggers()
+                        .adaptiveRefreshTriggersTimeout(Duration.ofSeconds(3))
                         .build()
                     val clusterClientOptions = ClusterClientOptions.builder()
                         .topologyRefreshOptions(topologyRefreshOptions)

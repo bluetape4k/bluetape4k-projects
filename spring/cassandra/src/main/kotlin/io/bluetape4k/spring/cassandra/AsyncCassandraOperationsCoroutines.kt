@@ -46,7 +46,7 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.selectSuspending(st
 
 @Deprecated(
     message = "selectSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("selectSuspending(statement)")
+    replaceWith = ReplaceWith("selectSuspending<T>(statement)")
 )
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelect(statement: Statement<*>): List<T> =
     selectSuspending(statement)
@@ -150,7 +150,7 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.selectOneOrNullSusp
 
 @Deprecated(
     message = "selectOneOrNullSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("selectOneOrNullSuspending(cql)")
+    replaceWith = ReplaceWith("selectOneOrNullSuspending<T>(cql)")
 )
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelectOneOrNull(cql: String): T? =
     selectOneOrNullSuspending(cql)
@@ -163,7 +163,7 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.selectSuspending(qu
 
 @Deprecated(
     message = "selectSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("selectSuspending(query)")
+    replaceWith = ReplaceWith("selectSuspending<T>(query)")
 )
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelect(query: Query): List<T> =
     selectSuspending(query)
@@ -176,7 +176,7 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.selectOneOrNullSusp
 
 @Deprecated(
     message = "selectOneOrNullSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("selectOneOrNullSuspending(query)")
+    replaceWith = ReplaceWith("selectOneOrNullSuspending<T>(query)")
 )
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelectOneOrNull(query: Query): T? =
     selectOneOrNullSuspending(query)
@@ -189,7 +189,7 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.sliceSuspending(sta
 
 @Deprecated(
     message = "sliceSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("sliceSuspending(statement)")
+    replaceWith = ReplaceWith("sliceSuspending<T>(statement)")
 )
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSlice(statement: Statement<*>): Slice<T> =
     sliceSuspending(statement)
@@ -202,7 +202,7 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.sliceSuspending(que
 
 @Deprecated(
     message = "sliceSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("sliceSuspending(query)")
+    replaceWith = ReplaceWith("sliceSuspending<T>(query)")
 )
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSlice(query: Query): Slice<T> =
     sliceSuspending(query)
@@ -218,7 +218,7 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.updateSuspending(
 
 @Deprecated(
     message = "updateSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("updateSuspending(query, update)")
+    replaceWith = ReplaceWith("updateSuspending<T>(query, update)")
 )
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendUpdate(query: Query, update: Update): Boolean? =
     updateSuspending<T>(query, update)
@@ -231,7 +231,7 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.deleteSuspending(qu
 
 @Deprecated(
     message = "deleteSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("deleteSuspending(query)")
+    replaceWith = ReplaceWith("deleteSuspending<T>(query)")
 )
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendDelete(query: Query): Boolean? =
     deleteSuspending<T>(query)
@@ -244,7 +244,7 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.countSuspending(): 
 
 @Deprecated(
     message = "countSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("countSuspending()")
+    replaceWith = ReplaceWith("countSuspending<T>()")
 )
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendCount(): Long? =
     countSuspending<T>()
@@ -257,7 +257,7 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.countSuspending(que
 
 @Deprecated(
     message = "countSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("countSuspending(query)")
+    replaceWith = ReplaceWith("countSuspending<T>(query)")
 )
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendCount(query: Query): Long? =
     countSuspending<T>(query)
@@ -270,7 +270,7 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.existsSuspending(id
 
 @Deprecated(
     message = "existsSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("existsSuspending(id)")
+    replaceWith = ReplaceWith("existsSuspending<T>(id)")
 )
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendExists(id: Any): Boolean? =
     existsSuspending<T>(id)
@@ -283,7 +283,7 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.existsSuspending(qu
 
 @Deprecated(
     message = "existsSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("existsSuspending(query)")
+    replaceWith = ReplaceWith("existsSuspending<T>(query)")
 )
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendExists(query: Query): Boolean? =
     existsSuspending<T>(query)
@@ -296,7 +296,7 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.selectOneByIdSuspen
 
 @Deprecated(
     message = "selectOneByIdSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("selectOneByIdSuspending(id)")
+    replaceWith = ReplaceWith("selectOneByIdSuspending<T>(id)")
 )
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelectOneById(id: Any): T? =
     selectOneByIdSuspending(id)
@@ -309,7 +309,7 @@ suspend fun <T: Any> AsyncCassandraOperations.insertSuspending(entity: T): T? =
 
 @Deprecated(
     message = "insertSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("insertSuspending(entity)")
+    replaceWith = ReplaceWith("insertSuspending<T>(entity)")
 )
 suspend fun <T: Any> AsyncCassandraOperations.suspendInsert(entity: T): T? =
     insertSuspending(entity)
@@ -325,7 +325,7 @@ suspend fun <T: Any> AsyncCassandraOperations.insertSuspending(
 
 @Deprecated(
     message = "insertSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("insertSuspending(entity, options)")
+    replaceWith = ReplaceWith("insertSuspending<T>(entity, options)")
 )
 suspend fun <T: Any> AsyncCassandraOperations.suspendInsert(
     entity: T,
@@ -341,7 +341,7 @@ suspend fun <T: Any> AsyncCassandraOperations.updateSuspending(entity: T): T? =
 
 @Deprecated(
     message = "updateSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("updateSuspending(entity)")
+    replaceWith = ReplaceWith("updateSuspending<T>(entity)")
 )
 suspend fun <T: Any> AsyncCassandraOperations.suspendUpdate(entity: T): T? =
     updateSuspending(entity)
@@ -357,7 +357,7 @@ suspend fun <T: Any> AsyncCassandraOperations.updateSuspending(
 
 @Deprecated(
     message = "updateSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("updateSuspending(entity, options)")
+    replaceWith = ReplaceWith("updateSuspending<T>(entity, options)")
 )
 suspend fun <T: Any> AsyncCassandraOperations.suspendUpdate(
     entity: T,
@@ -373,7 +373,7 @@ suspend fun <T: Any> AsyncCassandraOperations.deleteSuspending(entity: T): T? =
 
 @Deprecated(
     message = "deleteSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("deleteSuspending(entity)")
+    replaceWith = ReplaceWith("deleteSuspending<T>(entity)")
 )
 suspend fun <T: Any> AsyncCassandraOperations.suspendDelete(entity: T): T? =
     deleteSuspending(entity)
@@ -386,7 +386,7 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.deleteByIdSuspendin
 
 @Deprecated(
     message = "deleteByIdSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("deleteByIdSuspending(id)")
+    replaceWith = ReplaceWith("deleteByIdSuspending<T>(id)")
 )
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendDeleteById(id: Any): Boolean =
     deleteByIdSuspending<T>(id)
@@ -399,7 +399,7 @@ suspend fun AsyncCassandraOperations.deleteSuspending(entity: Any, options: Dele
 
 @Deprecated(
     message = "deleteSuspending으로 대체되었습니다.",
-    replaceWith = ReplaceWith("deleteSuspending(entity, options)")
+    replaceWith = ReplaceWith("deleteSuspending<T>(entity, options)")
 )
 suspend fun AsyncCassandraOperations.suspendDelete(entity: Any, options: DeleteOptions): WriteResult =
     deleteSuspending(entity, options)

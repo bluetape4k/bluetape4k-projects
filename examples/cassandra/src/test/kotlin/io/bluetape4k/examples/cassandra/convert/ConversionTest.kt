@@ -7,9 +7,9 @@ import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.spring.cassandra.suspendInsert
-import io.bluetape4k.spring.cassandra.suspendSelectOne
-import io.bluetape4k.spring.cassandra.suspendTruncate
+import io.bluetape4k.spring.cassandra.insertSuspending
+import io.bluetape4k.spring.cassandra.selectOneSuspending
+import io.bluetape4k.spring.cassandra.truncateSuspending
 import kotlinx.coroutines.reactor.awaitSingle
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
@@ -40,7 +40,7 @@ class ConversionTest(
 
     @BeforeEach
     fun setup() = runSuspendTest {
-        operations.suspendTruncate<Addressbook>()
+        operations.truncateSuspending<Addressbook>()
     }
 
     @Test
@@ -55,9 +55,9 @@ class ConversionTest(
             me = Contact("Debop", "Bae"),
             friends = mutableListOf(newContact(), newContact())
         )
-        operations.suspendInsert(addressbook)
+        operations.insertSuspending(addressbook)
 
-        val row = operations.suspendSelectOne<Row>(selectFrom("addressbook").all().build())
+        val row = operations.selectOneSuspending<Row>(selectFrom("addressbook").all().build())
 
         row.getString("id") shouldBeEqualTo "private"
         row.getString("me")!! shouldContain """"firstname":"Debop""""
@@ -73,7 +73,7 @@ class ConversionTest(
         )
         operations.insert(addressbook).awaitSingle()
 
-        val loaded = operations.suspendSelectOne<Addressbook>(selectFrom("addressbook").all().build())
+        val loaded = operations.selectOneSuspending<Addressbook>(selectFrom("addressbook").all().build())
 
         loaded.me shouldBeEqualTo addressbook.me
         loaded.friends shouldBeEqualTo addressbook.friends
@@ -94,7 +94,7 @@ class ConversionTest(
 
         operations.insert(addressbook).awaitSingle()
 
-        val loaded = operations.suspendSelectOne<Addressbook>(selectFrom("addressbook").all().build())
+        val loaded = operations.selectOneSuspending<Addressbook>(selectFrom("addressbook").all().build())
 
         loaded.me shouldBeEqualTo addressbook.me
         loaded.friends shouldBeEqualTo addressbook.friends
