@@ -9,10 +9,10 @@ import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.spring.cassandra.AbstractReactiveCassandraTestConfiguration
 import io.bluetape4k.spring.cassandra.cast
 import io.bluetape4k.spring.cassandra.query.eq
-import io.bluetape4k.spring.cassandra.suspendCount
-import io.bluetape4k.spring.cassandra.suspendExists
-import io.bluetape4k.spring.cassandra.suspendInsert
-import io.bluetape4k.spring.cassandra.suspendTruncate
+import io.bluetape4k.spring.cassandra.countSuspending
+import io.bluetape4k.spring.cassandra.existsSuspending
+import io.bluetape4k.spring.cassandra.insertSuspending
+import io.bluetape4k.spring.cassandra.truncateSuspending
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
@@ -64,13 +64,13 @@ class ReactiveSelectOperationsTest(
     @BeforeEach
     fun beforeEach() {
         runBlocking {
-            reactiveOps.suspendTruncate<Person>()
+            reactiveOps.truncateSuspending<Person>()
 
             han = newPerson()
             luke = newPerson()
 
-            reactiveOps.suspendInsert(han)
-            reactiveOps.suspendInsert(luke)
+            reactiveOps.insertSuspending(han)
+            reactiveOps.insertSuspending(luke)
         }
     }
 
@@ -222,7 +222,7 @@ class ReactiveSelectOperationsTest(
 
     @Test
     fun `조건절 없이 모든 레코드 Count 얻기`() = runSuspendIO {
-        val count = reactiveOps.suspendCount<Person>()
+        val count = reactiveOps.countSuspending<Person>()
         count shouldBeEqualTo 2L
 
         val count2 = reactiveOps.query<Person>()
@@ -270,8 +270,8 @@ class ReactiveSelectOperationsTest(
 
     @Test
     fun `레코드가 없는 테이블의 exists`() = runSuspendIO {
-        reactiveOps.suspendTruncate<Person>()
-        reactiveOps.suspendExists<Person>().shouldBeFalse()
+        reactiveOps.truncateSuspending<Person>()
+        reactiveOps.existsSuspending<Person>().shouldBeFalse()
         reactiveOps.query<Person>().exists().awaitSingle().shouldBeFalse()
     }
 
@@ -283,7 +283,7 @@ class ReactiveSelectOperationsTest(
             .awaitSingle()
             .shouldBeFalse()
 
-        reactiveOps.suspendExists<Person>(querySpock()).shouldBeFalse()
+        reactiveOps.existsSuspending<Person>(querySpock()).shouldBeFalse()
     }
 
     @Test

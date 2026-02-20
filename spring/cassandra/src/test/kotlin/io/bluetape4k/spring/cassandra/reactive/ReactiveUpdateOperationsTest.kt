@@ -6,10 +6,10 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.spring.cassandra.AbstractReactiveCassandraTestConfiguration
 import io.bluetape4k.spring.cassandra.query.eq
-import io.bluetape4k.spring.cassandra.suspendInsert
-import io.bluetape4k.spring.cassandra.suspendSelectOne
-import io.bluetape4k.spring.cassandra.suspendTruncate
-import io.bluetape4k.spring.cassandra.suspendUpdate
+import io.bluetape4k.spring.cassandra.insertSuspending
+import io.bluetape4k.spring.cassandra.selectOneSuspending
+import io.bluetape4k.spring.cassandra.truncateSuspending
+import io.bluetape4k.spring.cassandra.updateSuspending
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
@@ -70,10 +70,10 @@ class ReactiveUpdateOperationsTest(
     @BeforeEach
     fun beforeEach() {
         runBlocking {
-            reactiveOps.suspendTruncate<Person>()
+            reactiveOps.truncateSuspending<Person>()
 
-            reactiveOps.suspendInsert(han)
-            reactiveOps.suspendInsert(luke)
+            reactiveOps.insertSuspending(han)
+            reactiveOps.insertSuspending(luke)
         }
     }
 
@@ -87,7 +87,7 @@ class ReactiveUpdateOperationsTest(
 
         writeResult.wasApplied().shouldBeTrue()
 
-        val writeResult2 = reactiveOps.suspendUpdate<Person>(
+        val writeResult2 = reactiveOps.updateSuspending<Person>(
             query = queryHan(),
             update = Update.update("firstname", "Han")
         )
@@ -104,7 +104,7 @@ class ReactiveUpdateOperationsTest(
 
         writeResult.wasApplied().shouldBeTrue()
 
-        val loaded = reactiveOps.suspendSelectOne<Person>(queryHan())
+        val loaded = reactiveOps.selectOneSuspending<Person>(queryHan())
         loaded shouldNotBeEqualTo han
         loaded.firstName shouldBeEqualTo "Han"
     }

@@ -25,106 +25,396 @@ import org.springframework.data.cassandra.core.update
 import org.springframework.data.domain.Slice
 import org.springframework.data.domain.SliceImpl
 
-suspend fun AsyncCassandraOperations.suspendExecute(stmt: Statement<*>): AsyncResultSet =
+/**
+ * [Statement]를 실행하고 [AsyncResultSet]을 반환합니다.
+ */
+suspend fun AsyncCassandraOperations.executeSuspending(stmt: Statement<*>): AsyncResultSet =
     execute(stmt).await()
 
-suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelect(statement: Statement<*>): List<T> =
+@Deprecated(
+    message = "executeSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("executeSuspending(stmt)")
+)
+suspend fun AsyncCassandraOperations.suspendExecute(stmt: Statement<*>): AsyncResultSet =
+    executeSuspending(stmt)
+
+/**
+ * [Statement]로 조회하고 결과를 리스트로 반환합니다.
+ */
+suspend inline fun <reified T: Any> AsyncCassandraOperations.selectSuspending(statement: Statement<*>): List<T> =
     select<T>(statement).await() ?: emptyList()
 
-suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelect(
+@Deprecated(
+    message = "selectSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("selectSuspending(statement)")
+)
+suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelect(statement: Statement<*>): List<T> =
+    selectSuspending(statement)
+
+/**
+ * [Statement]로 조회하고 각 원소에 대해 [consumer]를 수행합니다.
+ */
+suspend inline fun <reified T: Any> AsyncCassandraOperations.selectSuspending(
     statement: Statement<*>,
     crossinline consumer: (T) -> Unit,
 ) {
     select<T>(statement) { consumer(it) }.await()
 }
 
-suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelect(cql: String): List<T> =
-    suspendSelect(statementOf(cql))
-
+@Deprecated(
+    message = "selectSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("selectSuspending(statement, consumer)")
+)
 suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelect(
+    statement: Statement<*>,
+    crossinline consumer: (T) -> Unit,
+) {
+    selectSuspending(statement, consumer)
+}
+
+/**
+ * CQL 문자열로 조회하고 결과를 리스트로 반환합니다.
+ */
+suspend inline fun <reified T: Any> AsyncCassandraOperations.selectSuspending(cql: String): List<T> =
+    selectSuspending(statementOf(cql))
+
+@Deprecated(
+    message = "selectSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("selectSuspending(cql)")
+)
+suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelect(cql: String): List<T> =
+    selectSuspending(cql)
+
+/**
+ * CQL 문자열로 조회하고 각 원소에 대해 [consumer]를 수행합니다.
+ */
+suspend inline fun <reified T: Any> AsyncCassandraOperations.selectSuspending(
     cql: String,
     crossinline consumer: (T) -> Unit,
 ) {
-    suspendSelect(statementOf(cql), consumer)
+    selectSuspending(statementOf(cql), consumer)
 }
 
 // Spring 원본의 실수로 select 함수를 deprecate 시켰음
 @Suppress("DEPRECATION")
-suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelect(
+/**
+ * [Query]로 조회하고 각 원소에 대해 [consumer]를 수행합니다.
+ */
+suspend inline fun <reified T: Any> AsyncCassandraOperations.selectSuspending(
     query: Query,
     crossinline consumer: (T) -> Unit,
 ) {
     select<T>(query, consumer).await()
 }
 
-suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelectOneOrNull(statement: Statement<*>): T? {
-    return selectOne<T>(statement).await()
+@Deprecated(
+    message = "selectSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("selectSuspending(cql, consumer)")
+)
+suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelect(
+    cql: String,
+    crossinline consumer: (T) -> Unit,
+) {
+    selectSuspending(cql, consumer)
 }
 
-suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelectOneOrNull(cql: String): T? {
-    return suspendSelectOneOrNull(statementOf(cql))
+@Deprecated(
+    message = "selectSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("selectSuspending(query, consumer)")
+)
+suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelect(
+    query: Query,
+    crossinline consumer: (T) -> Unit,
+) {
+    selectSuspending(query, consumer)
 }
 
-suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelect(query: Query): List<T> =
+/**
+ * [Statement]로 단건을 조회하고 없으면 null을 반환합니다.
+ */
+suspend inline fun <reified T: Any> AsyncCassandraOperations.selectOneOrNullSuspending(statement: Statement<*>): T? =
+    selectOne<T>(statement).await()
+
+@Deprecated(
+    message = "selectOneOrNullSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("selectOneOrNullSuspending(statement)")
+)
+suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelectOneOrNull(statement: Statement<*>): T? =
+    selectOneOrNullSuspending(statement)
+
+/**
+ * CQL 문자열로 단건을 조회하고 없으면 null을 반환합니다.
+ */
+suspend inline fun <reified T: Any> AsyncCassandraOperations.selectOneOrNullSuspending(cql: String): T? =
+    selectOneOrNullSuspending(statementOf(cql))
+
+@Deprecated(
+    message = "selectOneOrNullSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("selectOneOrNullSuspending(cql)")
+)
+suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelectOneOrNull(cql: String): T? =
+    selectOneOrNullSuspending(cql)
+
+/**
+ * [Query]로 조회하고 결과를 리스트로 반환합니다.
+ */
+suspend inline fun <reified T: Any> AsyncCassandraOperations.selectSuspending(query: Query): List<T> =
     select<T>(query).await() ?: emptyList()
 
-suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelectOneOrNull(query: Query): T? =
+@Deprecated(
+    message = "selectSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("selectSuspending(query)")
+)
+suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelect(query: Query): List<T> =
+    selectSuspending(query)
+
+/**
+ * [Query]로 단건을 조회하고 없으면 null을 반환합니다.
+ */
+suspend inline fun <reified T: Any> AsyncCassandraOperations.selectOneOrNullSuspending(query: Query): T? =
     selectOne<T>(query).await()
 
-suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSlice(statement: Statement<*>): Slice<T> =
+@Deprecated(
+    message = "selectOneOrNullSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("selectOneOrNullSuspending(query)")
+)
+suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelectOneOrNull(query: Query): T? =
+    selectOneOrNullSuspending(query)
+
+/**
+ * [Statement]로 [Slice]를 조회합니다.
+ */
+suspend inline fun <reified T: Any> AsyncCassandraOperations.sliceSuspending(statement: Statement<*>): Slice<T> =
     slice<T>(statement).await() ?: SliceImpl(emptyList())
 
-suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSlice(query: Query): Slice<T> =
+@Deprecated(
+    message = "sliceSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("sliceSuspending(statement)")
+)
+suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSlice(statement: Statement<*>): Slice<T> =
+    sliceSuspending(statement)
+
+/**
+ * [Query]로 [Slice]를 조회합니다.
+ */
+suspend inline fun <reified T: Any> AsyncCassandraOperations.sliceSuspending(query: Query): Slice<T> =
     slice<T>(query).await() ?: SliceImpl(emptyList())
 
-suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendUpdate(query: Query, update: Update): Boolean? =
+@Deprecated(
+    message = "sliceSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("sliceSuspending(query)")
+)
+suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSlice(query: Query): Slice<T> =
+    sliceSuspending(query)
+
+/**
+ * [Query]와 [Update]로 갱신하고 성공 여부를 반환합니다.
+ */
+suspend inline fun <reified T: Any> AsyncCassandraOperations.updateSuspending(
+    query: Query,
+    update: Update,
+): Boolean? =
     update<T>(query, update).await()
 
-suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendDelete(query: Query): Boolean? =
+@Deprecated(
+    message = "updateSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("updateSuspending(query, update)")
+)
+suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendUpdate(query: Query, update: Update): Boolean? =
+    updateSuspending<T>(query, update)
+
+/**
+ * [Query]로 삭제하고 성공 여부를 반환합니다.
+ */
+suspend inline fun <reified T: Any> AsyncCassandraOperations.deleteSuspending(query: Query): Boolean? =
     delete<T>(query).await()
 
-suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendCount(): Long? =
+@Deprecated(
+    message = "deleteSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("deleteSuspending(query)")
+)
+suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendDelete(query: Query): Boolean? =
+    deleteSuspending<T>(query)
+
+/**
+ * 전체 건수를 반환합니다.
+ */
+suspend inline fun <reified T: Any> AsyncCassandraOperations.countSuspending(): Long? =
     count<T>().await()
 
-suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendCount(query: Query): Long? =
+@Deprecated(
+    message = "countSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("countSuspending()")
+)
+suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendCount(): Long? =
+    countSuspending<T>()
+
+/**
+ * [Query] 조건의 건수를 반환합니다.
+ */
+suspend inline fun <reified T: Any> AsyncCassandraOperations.countSuspending(query: Query): Long? =
     count<T>(query).await()
 
-suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendExists(id: Any): Boolean? =
+@Deprecated(
+    message = "countSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("countSuspending(query)")
+)
+suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendCount(query: Query): Long? =
+    countSuspending<T>(query)
+
+/**
+ * id 기준으로 존재 여부를 반환합니다.
+ */
+suspend inline fun <reified T: Any> AsyncCassandraOperations.existsSuspending(id: Any): Boolean? =
     exists<T>(id).await()
 
-suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendExists(query: Query): Boolean? =
+@Deprecated(
+    message = "existsSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("existsSuspending(id)")
+)
+suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendExists(id: Any): Boolean? =
+    existsSuspending<T>(id)
+
+/**
+ * [Query] 조건으로 존재 여부를 반환합니다.
+ */
+suspend inline fun <reified T: Any> AsyncCassandraOperations.existsSuspending(query: Query): Boolean? =
     exists<T>(query).await()
 
-suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelectOneById(id: Any): T? =
+@Deprecated(
+    message = "existsSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("existsSuspending(query)")
+)
+suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendExists(query: Query): Boolean? =
+    existsSuspending<T>(query)
+
+/**
+ * id 기준으로 단건을 조회합니다.
+ */
+suspend inline fun <reified T: Any> AsyncCassandraOperations.selectOneByIdSuspending(id: Any): T? =
     selectOneById<T>(id).await()
 
-suspend fun <T: Any> AsyncCassandraOperations.suspendInsert(entity: T): T? =
+@Deprecated(
+    message = "selectOneByIdSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("selectOneByIdSuspending(id)")
+)
+suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendSelectOneById(id: Any): T? =
+    selectOneByIdSuspending(id)
+
+/**
+ * 엔티티를 저장하고 저장된 엔티티를 반환합니다.
+ */
+suspend fun <T: Any> AsyncCassandraOperations.insertSuspending(entity: T): T? =
     insert(entity).await()
 
-suspend fun <T: Any> AsyncCassandraOperations.suspendInsert(
+@Deprecated(
+    message = "insertSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("insertSuspending(entity)")
+)
+suspend fun <T: Any> AsyncCassandraOperations.suspendInsert(entity: T): T? =
+    insertSuspending(entity)
+
+/**
+ * 엔티티를 저장하고 [InsertOptions]를 적용합니다.
+ */
+suspend fun <T: Any> AsyncCassandraOperations.insertSuspending(
     entity: T,
     options: InsertOptions,
 ): EntityWriteResult<T> =
     insert(entity, options).await()
 
-suspend fun <T: Any> AsyncCassandraOperations.suspendUpdate(entity: T): T? =
+@Deprecated(
+    message = "insertSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("insertSuspending(entity, options)")
+)
+suspend fun <T: Any> AsyncCassandraOperations.suspendInsert(
+    entity: T,
+    options: InsertOptions,
+): EntityWriteResult<T> =
+    insertSuspending(entity, options)
+
+/**
+ * 엔티티를 갱신하고 갱신된 엔티티를 반환합니다.
+ */
+suspend fun <T: Any> AsyncCassandraOperations.updateSuspending(entity: T): T? =
     update(entity).await()
 
-suspend fun <T: Any> AsyncCassandraOperations.suspendUpdate(
+@Deprecated(
+    message = "updateSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("updateSuspending(entity)")
+)
+suspend fun <T: Any> AsyncCassandraOperations.suspendUpdate(entity: T): T? =
+    updateSuspending(entity)
+
+/**
+ * 엔티티를 갱신하고 [UpdateOptions]를 적용합니다.
+ */
+suspend fun <T: Any> AsyncCassandraOperations.updateSuspending(
     entity: T,
     options: UpdateOptions,
 ): EntityWriteResult<T> =
     update(entity, options).await()
 
-suspend fun <T: Any> AsyncCassandraOperations.suspendDelete(entity: T): T? =
+@Deprecated(
+    message = "updateSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("updateSuspending(entity, options)")
+)
+suspend fun <T: Any> AsyncCassandraOperations.suspendUpdate(
+    entity: T,
+    options: UpdateOptions,
+): EntityWriteResult<T> =
+    updateSuspending(entity, options)
+
+/**
+ * 엔티티를 삭제하고 삭제된 엔티티를 반환합니다.
+ */
+suspend fun <T: Any> AsyncCassandraOperations.deleteSuspending(entity: T): T? =
     delete(entity).await()
 
-suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendDeleteById(id: Any): Boolean =
+@Deprecated(
+    message = "deleteSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("deleteSuspending(entity)")
+)
+suspend fun <T: Any> AsyncCassandraOperations.suspendDelete(entity: T): T? =
+    deleteSuspending(entity)
+
+/**
+ * id 기준으로 삭제합니다.
+ */
+suspend inline fun <reified T: Any> AsyncCassandraOperations.deleteByIdSuspending(id: Any): Boolean =
     deleteById<T>(id).await()
 
-suspend fun AsyncCassandraOperations.suspendDelete(entity: Any, options: DeleteOptions): WriteResult =
+@Deprecated(
+    message = "deleteByIdSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("deleteByIdSuspending(id)")
+)
+suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendDeleteById(id: Any): Boolean =
+    deleteByIdSuspending<T>(id)
+
+/**
+ * 엔티티를 삭제하고 [DeleteOptions]를 적용합니다.
+ */
+suspend fun AsyncCassandraOperations.deleteSuspending(entity: Any, options: DeleteOptions): WriteResult =
     delete(entity, options).await()
 
-suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendTruncate() {
+@Deprecated(
+    message = "deleteSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("deleteSuspending(entity, options)")
+)
+suspend fun AsyncCassandraOperations.suspendDelete(entity: Any, options: DeleteOptions): WriteResult =
+    deleteSuspending(entity, options)
+
+/**
+ * 테이블을 truncate 합니다.
+ */
+suspend inline fun <reified T: Any> AsyncCassandraOperations.truncateSuspending() {
     truncate<T>().await()
+}
+
+@Deprecated(
+    message = "truncateSuspending으로 대체되었습니다.",
+    replaceWith = ReplaceWith("truncateSuspending<T>()")
+)
+suspend inline fun <reified T: Any> AsyncCassandraOperations.suspendTruncate() {
+    truncateSuspending<T>()
 }

@@ -6,9 +6,9 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.spring.cassandra.query.eq
 import io.bluetape4k.spring.cassandra.selectAsFlow
-import io.bluetape4k.spring.cassandra.suspendCount
-import io.bluetape4k.spring.cassandra.suspendInsert
-import io.bluetape4k.spring.cassandra.suspendTruncate
+import io.bluetape4k.spring.cassandra.countSuspending
+import io.bluetape4k.spring.cassandra.insertSuspending
+import io.bluetape4k.spring.cassandra.truncateSuspending
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
@@ -72,10 +72,10 @@ class ReactiveDeleteOperationsTest(
     @BeforeEach
     fun beforeEach() {
         runBlocking {
-            reactiveOps.suspendTruncate<Person>()
+            reactiveOps.truncateSuspending<Person>()
 
-            reactiveOps.suspendInsert(han)
-            reactiveOps.suspendInsert(luke)
+            reactiveOps.insertSuspending(han)
+            reactiveOps.insertSuspending(luke)
         }
     }
 
@@ -100,7 +100,7 @@ class ReactiveDeleteOperationsTest(
 
         writeResult.wasApplied().shouldBeTrue()
 
-        reactiveOps.suspendCount<Person>() shouldBeEqualTo 0L
+        reactiveOps.countSuspending<Person>() shouldBeEqualTo 0L
         reactiveOps.selectAsFlow<Person>(Query.empty()).toList().shouldBeEmpty()
     }
 }

@@ -4,16 +4,16 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.spring.cassandra.cql.insertOptions
-import io.bluetape4k.spring.cassandra.cql.suspendQueryForResultSet
+import io.bluetape4k.spring.cassandra.cql.queryForResultSetSuspending
 import io.bluetape4k.spring.cassandra.cql.writeOptions
 import io.bluetape4k.spring.cassandra.domain.ReactiveDomainTestConfiguration
 import io.bluetape4k.spring.cassandra.domain.model.FlatGroup
 import io.bluetape4k.spring.cassandra.domain.model.Group
 import io.bluetape4k.spring.cassandra.domain.model.GroupKey
 import io.bluetape4k.spring.cassandra.insertFlow
-import io.bluetape4k.spring.cassandra.suspendInsert
-import io.bluetape4k.spring.cassandra.suspendSelectOneById
-import io.bluetape4k.spring.cassandra.suspendTruncate
+import io.bluetape4k.spring.cassandra.insertSuspending
+import io.bluetape4k.spring.cassandra.selectOneByIdSuspending
+import io.bluetape4k.spring.cassandra.truncateSuspending
 import io.bluetape4k.spring.cassandra.updateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
@@ -79,11 +79,11 @@ class ReactiveCassandraBatchTemplateTest(
     @BeforeEach
     fun beforeEach() {
         runBlocking {
-            reactiveOps.suspendTruncate<Group>()
-            reactiveOps.suspendTruncate<FlatGroup>()
+            reactiveOps.truncateSuspending<Group>()
+            reactiveOps.truncateSuspending<FlatGroup>()
 
-            reactiveOps.suspendInsert(group1)
-            reactiveOps.suspendInsert(group2)
+            reactiveOps.insertSuspending(group1)
+            reactiveOps.insertSuspending(group2)
         }
     }
 
@@ -98,7 +98,7 @@ class ReactiveCassandraBatchTemplateTest(
             .execute()
             .awaitSingle()
 
-        val loaded = reactiveOps.suspendSelectOneById<Group>(g1.id)
+        val loaded = reactiveOps.selectOneByIdSuspending<Group>(g1.id)
         loaded shouldBeEqualTo g1
     }
 
@@ -148,7 +148,7 @@ class ReactiveCassandraBatchTemplateTest(
 
         val resultSet: ReactiveResultSet = reactiveOps
             .reactiveCqlOperations
-            .suspendQueryForResultSet("SELECT TTL(email) FROM groups")
+            .queryForResultSetSuspending("SELECT TTL(email) FROM groups")
 
         resultSet.rows().asFlow()
             .collect { row ->
