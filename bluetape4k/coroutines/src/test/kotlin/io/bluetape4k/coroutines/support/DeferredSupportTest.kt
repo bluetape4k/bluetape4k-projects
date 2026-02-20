@@ -41,6 +41,14 @@ class DeferredSupportTest {
     }
 
     @Test
+    fun `awaitAny는 단일 deferred인 경우 바로 await 한다`() = runTest {
+        val only = async { 7 }
+
+        listOf(only).awaitAny() shouldBeEqualTo 7
+        listOf(only).awaitAnyAndCancelOthers() shouldBeEqualTo 7
+    }
+
+    @Test
     fun `awaitAny 계열은 빈 입력을 허용하지 않는다`() = runTest {
         assertFailsWith<IllegalArgumentException> { awaitAny<Int>() }
         assertFailsWith<IllegalArgumentException> { emptyList<CompletableDeferred<Int>>().awaitAny() }

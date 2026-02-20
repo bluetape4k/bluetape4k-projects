@@ -8,7 +8,6 @@ dependencies {
 
     // Coroutines
     api(Libs.kotlinx_coroutines_core)
-    api(Libs.kotlinx_coroutines_slf4j)
     compileOnly(Libs.kotlinx_coroutines_reactive)
     compileOnly(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_debug)

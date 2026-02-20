@@ -80,6 +80,9 @@ internal class SpscArrayQueue<T> private constructor(capacity: Int) {
     }
 
     fun clear() {
+        if (consumerIndex.value == producerIndex.value) {
+            return
+        }
         var ci = consumerIndex.value
 
         while (true) {

@@ -23,7 +23,11 @@ class DeferredValue<T: Any>(
     private val _value: Deferred<T> = async { valueSupplier() }
 
     val value: T by lazy {
-        runBlocking { _value.await() }
+        if (_value.isCompleted && !_value.isCancelled) {
+            _value.getCompleted()
+        } else {
+            runBlocking { _value.await() }
+        }
     }
 
     suspend fun await(): T = _value.await()
@@ -34,7 +38,7 @@ class DeferredValue<T: Any>(
 
     private fun completedValueOrNull(): T? =
         if (isCompleted && !isCancelled) {
-            runCatching { runBlocking { _value.await() } }.getOrNull()
+            runCatching { _value.getCompleted() }.getOrNull()
         } else {
             null
         }

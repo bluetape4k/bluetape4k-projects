@@ -60,7 +60,11 @@ private fun <T> Flow<T>.windowedInternal(
         counter++
         if (counter == size) {
             emit(elements)
-            elements = elements.drop(step).toMutableList()
+            val next = ArrayList<T>(size)
+            for (i in step until elements.size) {
+                next.add(elements[i])
+            }
+            elements = next
             counter -= step
         }
     }
@@ -68,7 +72,11 @@ private fun <T> Flow<T>.windowedInternal(
     if (partialWindow) {
         while (counter > 0) {
             emit(elements)
-            elements = elements.drop(step).toMutableList()
+            val next = ArrayList<T>(size)
+            for (i in step until elements.size) {
+                next.add(elements[i])
+            }
+            elements = next
             counter -= step
         }
     }

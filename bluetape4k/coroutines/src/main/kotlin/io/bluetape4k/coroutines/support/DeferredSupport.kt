@@ -91,6 +91,9 @@ suspend fun <T> awaitAny(vararg args: Deferred<T>): T {
  */
 suspend fun <T> Collection<Deferred<T>>.awaitAny(): T {
     requireNotEmpty("deferreds")
+    if (size == 1) {
+        return first().await()
+    }
     return select { forEach { item -> item.onAwait { it } } }
 }
 
@@ -101,6 +104,9 @@ suspend fun <T> Collection<Deferred<T>>.awaitAny(): T {
  */
 suspend fun <T> Collection<Deferred<T>>.awaitAnyAndCancelOthers(): T {
     requireNotEmpty("deferreds")
+    if (size == 1) {
+        return first().await()
+    }
     val firstAwaited = select {
         forEachIndexed { index, deferred ->
             deferred.onAwait { IndexedValue(index, it) }

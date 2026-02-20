@@ -5,6 +5,7 @@ import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 /**
  * Coroutines 작업을 이해하기 쉽고, 테스트하기 쉽게 Single Thread에서 실행되도록 합니다.
@@ -39,7 +40,10 @@ suspend inline fun withSingleThread(crossinline block: suspend (executor: Corout
     try {
         block(executor.asCoroutineDispatcher())
     } finally {
-        runCatching { executor.shutdown() }
+        runCatching {
+            executor.shutdown()
+            executor.awaitTermination(1, TimeUnit.SECONDS)
+        }
     }
 }
 
@@ -70,6 +74,9 @@ suspend inline fun withParallels(
     try {
         block(executors.map { it.asCoroutineDispatcher() })
     } finally {
-        executors.forEachCatching { it.shutdown() }
+        executors.forEachCatching {
+            it.shutdown()
+            it.awaitTermination(1, TimeUnit.SECONDS)
+        }
     }
 }

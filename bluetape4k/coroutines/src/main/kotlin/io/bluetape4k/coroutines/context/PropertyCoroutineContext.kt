@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.context
 
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 
@@ -27,7 +28,7 @@ class PropertyCoroutineContext(
 
     companion object Key: CoroutineContext.Key<PropertyCoroutineContext>
 
-    private val _props: MutableMap<String, Any?> = props.toMutableMap()
+    private val _props: MutableMap<String, Any?> = ConcurrentHashMap(props)
 
     /**
      * 현재 속성 스냅샷을 반환합니다.
