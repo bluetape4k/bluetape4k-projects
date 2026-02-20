@@ -2,15 +2,10 @@ package io.bluetape4k.coroutines
 
 import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.CompletableJob
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.newFixedThreadPoolContext
-import java.io.Closeable
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * Custom ThreadPool을 사용하는 CoroutineScope를 생성합니다.
@@ -33,7 +28,7 @@ import kotlin.coroutines.cancellation.CancellationException
 class ThreadPoolCoroutineScope(
     poolSize: Int = Runtime.getRuntime().availableProcessors(),
     name: String = "ThreadPoolCoroutineScope",
-): CoroutineScope, Closeable {
+): CloseableCoroutineScope() {
 
     init {
         poolSize.requirePositiveNumber("poolSize")
@@ -43,16 +38,6 @@ class ThreadPoolCoroutineScope(
     private val dispatcher: ExecutorCoroutineDispatcher = newFixedThreadPoolContext(poolSize, name)
 
     override val coroutineContext: CoroutineContext = dispatcher + job
-
-    /**
-     * 자식의 모든 Job을 취소합니다.
-     *
-     * @param cause 취소 사유에 해당하는 예외정보. default is null
-     */
-    fun clearJobs(cause: CancellationException? = null) {
-        coroutineContext.cancelChildren(cause)
-        coroutineContext.cancel(cause)
-    }
 
     /**
      * ThreadPoolCoroutineScope를 종료합니다.
