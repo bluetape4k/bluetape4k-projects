@@ -59,6 +59,12 @@ fun <T> EntityManager.newQuery(resultClass: Class<T>): TypedQuery<T> {
 }
 
 /**
+ * 새로운 [TypedQuery]`<T>` 를 생성합니다.
+ */
+inline fun <reified T> EntityManager.newQuery(): TypedQuery<T> =
+    newQuery(T::class.java)
+
+/**
  * JPQL 문자열과 결과 수형을 받아 [TypedQuery]를 생성합니다.
  */
 fun <T: Any> EntityManager.createQueryAs(queryString: String, resultClass: KClass<T>): TypedQuery<T> =
@@ -67,14 +73,9 @@ fun <T: Any> EntityManager.createQueryAs(queryString: String, resultClass: KClas
 /**
  * JPQL 문자열과 reified 타입으로 [TypedQuery]를 생성합니다.
  */
-inline fun <reified T: Any> EntityManager.createQueryAs(queryString: String): TypedQuery<T> =
-    createQueryAs(queryString, T::class)
+inline fun <reified T> EntityManager.createQueryAs(queryString: String): TypedQuery<T> =
+    createQuery(queryString, T::class.java)
 
-/**
- * 새로운 [TypedQuery]`<T>` 를 생성합니다.
- */
-inline fun <reified T> EntityManager.newQuery(): TypedQuery<T> =
-    newQuery(T::class.java)
 
 /**
  * [TypedQuery] 에 Paging 정보를 설정합니다.
@@ -136,14 +137,19 @@ fun <T: JpaEntity<*>> EntityManager.delete(entity: T) {
  * id에 해당하는 엔티티를 삭제합니다.
  */
 inline fun <reified T> EntityManager.deleteById(id: Serializable) {
-    val entity = this.find(T::class.java, id)
-    entity?.let { remove(it) }
+    tryGetReference<T>(id).getOrNull()?.let { remove(it) }
 }
+
+inline fun <reified T> EntityManager.getReference(id: Serializable): T =
+    getReference(T::class.java, id)
+
+inline fun <reified T> EntityManager.tryGetReference(id: Serializable): Result<T> =
+    runCatching { getReference(T::class.java, id) }
 
 /**
  * id에 해당하는 엔티티를 조회합니다. 없으면 null을 반환합니다.
  */
-inline fun <reified T: Any> EntityManager.findAs(id: Serializable): T? = find(T::class.java, id)
+inline fun <reified T> EntityManager.findAs(id: Serializable): T? = find(T::class.java, id)
 
 /**
  * id에 해당하는 엔티티를 조회합니다. 없으면 null을 반환합니다.
@@ -153,7 +159,8 @@ inline fun <reified T> EntityManager.findOne(id: Serializable): T? = find(T::cla
 /**
  * id에 해당하는 엔티티가 존재하는지 확인합니다.
  */
-inline fun <reified T> EntityManager.exists(id: Serializable): Boolean = find(T::class.java, id) != null
+inline fun <reified T> EntityManager.exists(id: Serializable): Boolean =
+    findOne<T>(id) != null
 
 /**
  * [clazz] 수형의 모든 엔티티를 조회합니다.
@@ -165,7 +172,7 @@ fun <T> EntityManager.findAll(clazz: Class<T>): List<T> {
 /**
  * [T] 수형의 엔티티 전체 개수를 반환합니다.
  */
-inline fun <reified T: Any> EntityManager.countAll(): Long {
+inline fun <reified T> EntityManager.countAll(): Long {
     val entityName = sessionFactory().getEntityName<T>() ?: T::class.java.simpleName
     val query = queryString(QUERY_COUNT, entityName)
     return (createQuery(query).singleResult as Number).toLong()
@@ -174,7 +181,7 @@ inline fun <reified T: Any> EntityManager.countAll(): Long {
 /**
  * [T] 수형의 엔티티를 모두 삭제하고, 삭제한 행 수를 반환합니다.
  */
-inline fun <reified T: Any> EntityManager.deleteAll(): Int {
+inline fun <reified T> EntityManager.deleteAll(): Int {
     val entityName = sessionFactory().getEntityName<T>() ?: T::class.java.simpleName
     val query = queryString(QUERY_DELETE_ALL, entityName)
     return createQuery(query).executeUpdate()

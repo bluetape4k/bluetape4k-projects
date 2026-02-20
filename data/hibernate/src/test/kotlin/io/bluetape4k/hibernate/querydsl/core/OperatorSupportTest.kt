@@ -19,6 +19,17 @@ class OperatorSupportTest {
     }
 
     @Test
+    fun `SimpleExpression inValues 는 가변 인자를 묶어준다`() {
+        val name = Expressions.stringPath("name")
+
+        val expr = assertDoesNotThrow {
+            name.inValues("a", "b", "c")
+        }
+
+        expr.toString().contains("in").shouldBeTrue()
+    }
+
+    @Test
     fun `StringExpression plus 는 blank 문자열도 concat 한다`() {
         val name = Expressions.stringPath("name")
 
@@ -36,6 +47,17 @@ class OperatorSupportTest {
 
         val expr = assertDoesNotThrow {
             left + right
+        }
+
+        expr.toString().isNotBlank().shouldBeTrue()
+    }
+
+    @Test
+    fun `StringExpression plus 는 문자열 누적을 지원한다`() {
+        val left = Expressions.stringPath("left")
+
+        val expr = assertDoesNotThrow {
+            left + "foo" + "bar"
         }
 
         expr.toString().isNotBlank().shouldBeTrue()

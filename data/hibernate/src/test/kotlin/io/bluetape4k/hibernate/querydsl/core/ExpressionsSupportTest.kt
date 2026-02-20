@@ -30,4 +30,20 @@ class ExpressionsSupportTest {
         allExpr.toString() shouldBeEqualTo "flag = true && flag = false"
         anyExpr.toString() shouldBeEqualTo "flag = true || flag = false"
     }
+
+    @Test
+    fun `all은 단일 요소 컬렉션을 그대로 반환한다`() {
+        val flag = Expressions.booleanPath("flag")
+        val expr = listOf(flag.isTrue).all()
+
+        expr.toString() shouldBeEqualTo "flag = true"
+    }
+
+    @Test
+    fun `any는 단일 요소 컬렉션을 그대로 반환한다`() {
+        val flag = Expressions.booleanPath("flag")
+        val expr = listOf(flag.isFalse).any()
+
+        expr.toString() shouldBeEqualTo "flag = false"
+    }
 }

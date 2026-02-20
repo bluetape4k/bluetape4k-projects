@@ -29,14 +29,14 @@ private val log: Logger by lazy { KotlinLogging.logger { } }
 fun <T> Session.withBatchSize(batchSize: Int, block: Session.() -> T): T {
     batchSize.requirePositiveNumber("batchSize")
 
-    val prevBatchSize = this.jdbcBatchSize
+    val prevBatchSize = runCatching { this.jdbcBatchSize }.getOrNull() ?: 0
 
     return try {
         log.debug { "Batch size[$batchSize]를 적용하여 작업을 수행합니다 ..." }
         this.jdbcBatchSize = batchSize
         block(this)
     } finally {
-        this.jdbcBatchSize = prevBatchSize
+        runCatching { this.jdbcBatchSize = prevBatchSize }
     }
 }
 
@@ -59,8 +59,8 @@ fun <T: Any> Session.createQueryAs(queryString: String, resultClass: KClass<T>):
 /**
  * HQL/JPQL 문자열과 reified 타입으로 [Query]를 생성합니다.
  */
-inline fun <reified T: Any> Session.createQueryAs(queryString: String): Query<T> =
-    createQueryAs(queryString, T::class)
+inline fun <reified T> Session.createQueryAs(queryString: String): Query<T> =
+    createQuery(queryString, T::class.java)
 
 /**
  * Native SQL 문자열과 결과 수형을 받아 [Query]를 생성합니다.
@@ -71,5 +71,5 @@ fun <T: Any> Session.createNativeQueryAs(queryString: String, resultClass: KClas
 /**
  * Native SQL 문자열과 reified 타입으로 [Query]를 생성합니다.
  */
-inline fun <reified T: Any> Session.createNativeQueryAs(queryString: String): Query<T> =
-    createNativeQueryAs(queryString, T::class)
+inline fun <reified T> Session.createNativeQueryAs(queryString: String): Query<T> =
+    createNativeQuery(queryString, T::class.java)

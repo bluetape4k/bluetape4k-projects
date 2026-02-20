@@ -3,6 +3,7 @@ package io.bluetape4k.hibernate.stateless
 import io.bluetape4k.hibernate.AbstractHibernateTest
 import io.bluetape4k.hibernate.createQueryAs
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.hibernate.LockMode
 import org.hibernate.graph.GraphSemantic
@@ -74,6 +75,26 @@ class StatelessSessionSupportTest: AbstractHibernateTest() {
             val loadedWithLock = stateless.getAs(graph, GraphSemantic.LOAD, entityId, LockMode.NONE)
             loadedWithLock.shouldNotBeNull()
             loadedWithLock.name shouldBeEqualTo entityName
+        }
+    }
+
+    @Test
+    fun `createNativeQueryAs 는 타입 정보를 유지해 결과를 반환한다`() {
+        val entityName = "support-native"
+        em.withStateless { stateless ->
+            stateless.insert(StatelessEntity(entityName))
+        }
+        clear()
+
+        em.withStateless { stateless ->
+            val names = stateless.createNativeQueryAs<String>(
+                "select name from stateless_entity where name = :name"
+            )
+                .setParameter("name", entityName)
+                .list()
+
+            names.shouldNotBeEmpty()
+            names.first() shouldBeEqualTo entityName
         }
     }
 }

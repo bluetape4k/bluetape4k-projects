@@ -58,6 +58,6 @@ fun SessionFactory.getEntityName(entityClass: Class<*>): String? {
 /**
  * [T] 수형에 대한 `Entity Name`을 가져옵니다. 없으면 null을 반환합니다.
  */
-inline fun <reified T: Any> SessionFactory.getEntityName(): String? {
+inline fun <reified T> SessionFactory.getEntityName(): String? {
     return getEntityName(T::class.java)
 }

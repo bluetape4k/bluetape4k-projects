@@ -62,6 +62,17 @@ class TypedQuerySupportTest: AbstractHibernateTest() {
     }
 
     @Test
+    fun `longResult 는 결과가 없으면 null 을 반환한다`() {
+        val emptyLongQuery: TypedQuery<java.lang.Long> = em
+            .createQueryAs<java.lang.Long>(
+                "select e.id from simple_entity e where e.name = :name"
+            )
+            .setParameter("name", "none-long")
+
+        emptyLongQuery.longResult().shouldBeNull()
+    }
+
+    @Test
     fun `intList, intArray, intStream 은 Integer query 결과를 변환한다`() {
         val entities = listOf(
             SimpleEntity("typed-int-1"),

@@ -10,7 +10,9 @@ import io.bluetape4k.hibernate.querydsl.core.stringExpressionOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
+import org.amshove.kluent.shouldNotBeEmpty
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -20,13 +22,12 @@ class SimpleQuerydslExamples: AbstractHibernateTest() {
 
     @BeforeEach
     fun setup() {
-        val examples = listOf(
-            ExampleEntity(faker.name().name()),
-            ExampleEntity(faker.name().name())
-        )
-        examples.forEach {
-            tem.persist(it)
-        }
+        val parent1 = ExampleEntity("example-1")
+        val child1 = ExampleEntity("child-1").apply { parent = parent1 }
+        parent1.children.add(child1)
+        val parent2 = ExampleEntity("example-2")
+
+        listOf(parent1, parent2).forEach { tem.persist(it) }
         flushAndClear()
     }
 
@@ -44,9 +45,11 @@ class SimpleQuerydslExamples: AbstractHibernateTest() {
         log.debug { "query=$query" }
 
         val results = query.fetch()
-        results.forEach {
-            log.trace { it }
-        }
+        results.shouldNotBeEmpty()
+        results shouldHaveSize 1
+        val tuple = results.first()
+        tuple.get(0, String::class.java) shouldBeEqualTo "example-1"
+        tuple.get(1, String::class.java) shouldBeEqualTo "child-1"
     }
 
     @Test
@@ -58,14 +61,16 @@ class SimpleQuerydslExamples: AbstractHibernateTest() {
         val query = queryFactory.selectFrom(self)
             .innerJoin(self.children, child)
             .select(self.name, child.name)
-            .where(self.name.eq(stringExpressionOf(":name")))
+            .where(self.name.eq(stringExpressionOf("example-1")))
 
         log.debug { "query=$query" }
 
         val results = query.fetch()
-        results.forEach {
-            log.trace { it }
-        }
+        results.shouldNotBeEmpty()
+        results shouldHaveSize 1
+        val tuple = results.first()
+        tuple.get(0, String::class.java) shouldBeEqualTo "example-1"
+        tuple.get(1, String::class.java) shouldBeEqualTo "child-1"
     }
 
     @Test
@@ -78,7 +83,7 @@ class SimpleQuerydslExamples: AbstractHibernateTest() {
         val subQuery = queryFactory
             .select(sub.id)
             .from(sub)
-            .where(sub.name.like("%abc%"))
+            .where(sub.name.like("example%"))
 
         val query = queryFactory
             .select(self.name)
@@ -88,9 +93,8 @@ class SimpleQuerydslExamples: AbstractHibernateTest() {
         log.debug { "query=$query" }
 
         val results = query.fetch()
-        results.forEach {
-            log.trace { it }
-        }
+        results shouldHaveSize 2
+        results.toSet() shouldBeEqualTo setOf("example-1", "example-2")
     }
 
     @Test
@@ -106,7 +110,7 @@ class SimpleQuerydslExamples: AbstractHibernateTest() {
         dtos.forEach {
             log.trace { it }
         }
-        dtos shouldHaveSize 2
+        dtos shouldHaveSize 3
     }
 
     @Test
@@ -122,6 +126,6 @@ class SimpleQuerydslExamples: AbstractHibernateTest() {
         dtos.forEach {
             log.trace { it }
         }
-        dtos shouldHaveSize 2
+        dtos shouldHaveSize 3
     }
 }

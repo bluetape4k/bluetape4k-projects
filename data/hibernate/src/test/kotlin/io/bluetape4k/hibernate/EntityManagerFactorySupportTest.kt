@@ -2,6 +2,7 @@ package io.bluetape4k.hibernate
 
 import io.bluetape4k.hibernate.mapping.simple.SimpleEntity
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
@@ -25,6 +26,21 @@ class EntityManagerFactorySupportTest: AbstractHibernateTest() {
             .singleResult
 
         count.toLong() shouldBeEqualTo 1L
+        cleanup(name)
+    }
+
+    @Test
+    fun `withNewEntityManager 는 결과 값을 그대로 반환한다`() {
+        val name = "emf-return"
+        cleanup(name)
+
+        val returned = emf.withNewEntityManager { em ->
+            em.persist(SimpleEntity(name))
+            "result-$name"
+        }
+
+        returned.shouldNotBeNull()
+        returned shouldBeEqualTo "result-$name"
         cleanup(name)
     }
 

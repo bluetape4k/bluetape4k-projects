@@ -2,6 +2,7 @@ package io.bluetape4k.hibernate.criteria
 
 import io.bluetape4k.hibernate.AbstractHibernateTest
 import io.bluetape4k.hibernate.mapping.simple.SimpleEntity
+import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
@@ -51,5 +52,47 @@ class CriteriaSupportTest: AbstractHibernateTest() {
 
         val loaded = em.createQuery(cq).resultList
         loaded shouldHaveSize 2
+    }
+
+    @Test
+    fun `eq 와 ne 를 Expression 간 비교로 조합할 수 있다`() {
+        listOf("delta", "epsilon").forEach { tem.persist(SimpleEntity(it)) }
+        flushAndClear()
+
+        val cb = em.criteriaBuilder
+        val cq = cb.createQueryAs<SimpleEntity>()
+        val root = cq.from<SimpleEntity>()
+
+        val namePath = root.attribute(SimpleEntity::name)
+        val keepLiteral = cb.literal("delta")
+
+        cq.select(root)
+            .where(
+                cb.eq(namePath, keepLiteral),
+                cb.ne(namePath, cb.literal("epsilon"))
+            )
+
+        val loaded = em.createQuery(cq).resultList
+        loaded shouldHaveSize 1
+        loaded.first().name shouldBeEqualTo "delta"
+    }
+
+    @Test
+    fun `inValues 는 일치하지 않으면 빈 결과를 반환한다`() {
+        listOf("zeta", "eta").forEach { tem.persist(SimpleEntity(it)) }
+        flushAndClear()
+
+        val cb = em.criteriaBuilder
+        val cq = cb.createQueryAs<SimpleEntity>()
+        val root = cq.from<SimpleEntity>()
+
+        val names = cb.inValues(root.attribute(SimpleEntity::name))
+            .value("theta")
+            .value("iota")
+
+        cq.select(root).where(names)
+
+        val loaded = em.createQuery(cq).resultList
+        loaded.shouldBeEmpty()
     }
 }
