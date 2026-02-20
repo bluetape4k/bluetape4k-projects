@@ -11,6 +11,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.future
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import java.util.concurrent.CancellationException
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.FutureTask
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
@@ -63,5 +66,15 @@ class FutureSupportTest {
             .run()
 
         counter.get() shouldBeEqualTo 16 * ITEM_COUNT / 4
+    }
+
+    @Test
+    fun `취소된 Future는 awaitSuspending 시 CancellationException을 던진다`() = runSuspendDefault {
+        val cancelled = CompletableFuture<Int>()
+        cancelled.cancel(true)
+
+        assertThrows<CancellationException> {
+            cancelled.awaitSuspending()
+        }
     }
 }

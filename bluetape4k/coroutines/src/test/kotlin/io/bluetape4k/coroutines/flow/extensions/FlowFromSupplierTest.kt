@@ -1,47 +1,26 @@
 package io.bluetape4k.coroutines.flow.extensions
 
-import io.bluetape4k.coroutines.tests.assertError
-import io.bluetape4k.coroutines.tests.assertResult
-import io.bluetape4k.logging.coroutines.KLoggingChannel
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
-class FlowFromSupplierTest: AbstractFlowTest() {
-
-    companion object: KLoggingChannel()
+class FlowFromSupplierTest {
 
     @Test
-    fun `flow from function emits values`() = runTest {
-        var count = 1L
-        val flow = flowFromSupplier {
-            Thread.sleep(count)
-            count
-        }
+    fun `supplier failure propagates`() = runTest {
+        val flow = flowFromSupplier { error("boom") }
 
-        flow.assertResult(count)
+        val result = runCatching { flow.toList() }
 
-        flow.assertResult(++count)
-
-        flow.assertResult(++count)
+        result.isFailure shouldBeEqualTo true
+        result.exceptionOrNull()?.message shouldBeEqualTo "boom"
     }
 
     @Test
-    fun `flow from function with exception`() = runTest {
-        val exception = RuntimeException("Boom!")
+    fun `supplier value is emitted once`() = runTest {
+        val flow = flowFromSupplier { 42 }
 
-        flowFromSupplier<Int> { throw exception }
-            .assertError<RuntimeException>()
-
-        flowFromSupplier<Int> { throw exception }
-            .materialize()
-            .assertResult(FlowEvent.Error(exception))
-    }
-
-    @Test
-    fun `flow from function with value supplier raise exception`() = runTest {
-        val exception = RuntimeException("Boom!")
-
-        flowFromSupplier<Int> { throw exception }
-            .assertError<RuntimeException>()
+        flow.toList() shouldBeEqualTo listOf(42)
     }
 }

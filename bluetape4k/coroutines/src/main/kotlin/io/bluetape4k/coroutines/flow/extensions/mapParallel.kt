@@ -31,7 +31,7 @@ inline fun <T, R> Flow<T>.mapParallel(
     context: CoroutineContext = EmptyCoroutineContext,
     crossinline transform: suspend (value: T) -> R,
 ): Flow<R> {
-    val concurrency = parallelism.coerceAtLeast(2)
+    val concurrency = parallelism.coerceAtLeast(1)
 
     return flatMapMerge(concurrency) { value ->
         flowFromSuspend { transform(value) }

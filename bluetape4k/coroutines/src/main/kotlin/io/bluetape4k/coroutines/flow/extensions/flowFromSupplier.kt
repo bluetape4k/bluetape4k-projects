@@ -18,6 +18,7 @@ fun <T> flowFromSupplier(function: () -> T): Flow<T> = FlowFromSupplier(function
 
 private class FlowFromSupplier<T>(private val supplier: () -> T): Flow<T> {
     override suspend fun collect(collector: FlowCollector<T>) {
-        collector.emit(supplier())
+        val value = supplier()
+        collector.emit(value)
     }
 }
