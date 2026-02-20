@@ -18,6 +18,11 @@ object HttpRequestHolder: KLoggingChannel() {
 
     private val REQUEST_KEY = ServerHttpRequest::class.java
 
+    /**
+     * ReactorContext에 저장된 [ServerHttpRequest]를 조회합니다.
+     *
+     * @return [ServerHttpRequest]가 존재하면 Mono로 반환
+     */
     fun getHttpRequest(): Mono<ServerHttpRequest> {
         return Mono.deferContextual { cv ->
             Mono.justOrEmpty(cv.getOrEmpty(REQUEST_KEY))

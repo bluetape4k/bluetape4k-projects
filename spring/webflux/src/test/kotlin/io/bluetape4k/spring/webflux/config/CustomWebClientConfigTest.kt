@@ -17,6 +17,9 @@ import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
 
+/**
+ * 커스텀 WebClient 설정 테스트.
+ */
 @SpringBootTest(classes = [CustomWebClientConfig::class])
 class CustomWebClientConfigTest {
 
