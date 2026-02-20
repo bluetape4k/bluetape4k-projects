@@ -16,7 +16,6 @@ import io.bluetape4k.support.requireNotNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
@@ -164,20 +163,24 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
         sortBy: Expression<*>,
         sortOrder: SortOrder,
         where: () -> Op<Boolean>,
-    ): List<T> = suspendTransaction {
-        entityTable
-            .selectAll()
-            .where(where)
-            .apply {
-                orderBy(sortBy, sortOrder)
-                limit?.run { limit(limit) }
-                offset?.run { offset(offset) }
-            }
-            .map { it.toEntity() }
-            .onEach {
-                cache.fastPutAsync(it.id, it).awaitSuspending()
-            }
-            .toList()
+    ): List<T> {
+        val entities = suspendTransaction {
+            entityTable
+                .selectAll()
+                .where(where)
+                .apply {
+                    orderBy(sortBy, sortOrder)
+                    limit?.run { limit(limit) }
+                    offset?.run { offset(offset) }
+                }
+                .map { it.toEntity() }
+                .toList()
+        }
+
+        if (entities.isNotEmpty()) {
+            cache.putAllAsync(entities.associateBy { it.id }).awaitSuspending()
+        }
+        return entities
     }
 
     /**
@@ -189,6 +192,7 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
      */
     override suspend fun getAll(ids: Collection<ID>, batchSize: Int): List<T> {
         require(batchSize > 0) { "batchSize must be greater than 0. batchSize=$batchSize" }
+        if (ids.isEmpty()) return emptyList()
         return ids
             .chunked(batchSize)
             .flatMap { chunk ->

@@ -8,6 +8,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeGreaterThan
@@ -132,6 +133,14 @@ interface R2dbcReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: R2dbcCacheTes
         }
     }
 
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `getAll - 빈 목록은 빈 결과를 반환한다`(testDB: TestDB) = runTest {
+        withR2dbcEntityTable(testDB) {
+            repository.getAll(emptyList()).shouldBeEmpty()
+        }
+    }
+
     /**
      * 단 설정한 코덱이 Map Key 에 대해서는 StringCodec 을 사용해야 합니다.
      */
@@ -160,6 +169,14 @@ interface R2dbcReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: R2dbcCacheTes
             assertFailsWith<IllegalArgumentException> {
                 repository.invalidateByPattern("*", count = 0)
             }
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `invalidateByPattern - 매칭되는 키가 없으면 0을 반환한다`(testDB: TestDB) = runTest {
+        withR2dbcEntityTable(testDB) {
+            repository.invalidateByPattern("not-exists-*") shouldBeEqualTo 0L
         }
     }
 }

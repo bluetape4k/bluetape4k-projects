@@ -231,6 +231,9 @@ interface R2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
     suspend fun invalidateByPattern(patterns: String, count: Int = DEFAULT_BATCH_SIZE): Long {
         require(count > 0) { "count must be greater than 0. count=$count" }
         val keys = cache.keySet(patterns, count)
+        if (keys.isEmpty()) {
+            return 0
+        }
         return cache.fastRemoveAsync(*keys.toTypedArray()).awaitSuspending()
     }
 }
