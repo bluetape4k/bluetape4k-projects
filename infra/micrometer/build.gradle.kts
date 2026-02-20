@@ -21,7 +21,7 @@ dependencies {
     implementation(Libs.micrometer_registry_datadog)
     testImplementation(Libs.micrometer_test)
 
-    implementation(Libs.micrometer_observation)
+    api(Libs.micrometer_observation)
     implementation(Libs.micrometer_observation_test)
 
     // Micrometer Tracing
@@ -29,7 +29,7 @@ dependencies {
     testImplementation(Libs.micrometer_tracing_test)
     testImplementation(Libs.micrometer_tracing_integeration_test)
 
-    implementation(Libs.micrometer_context_propagation)  // thread local <-> reactor 등 상이한 환경에서 context 전파를 위해 사용
+    api(Libs.micrometer_context_propagation)  // thread local <-> reactor 등 상이한 환경에서 context 전파를 위해 사용
 
     // Instrumentations
     implementation(Libs.cache2k_core)

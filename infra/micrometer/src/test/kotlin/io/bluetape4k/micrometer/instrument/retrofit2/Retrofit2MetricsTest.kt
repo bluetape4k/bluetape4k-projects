@@ -12,6 +12,7 @@ import io.bluetape4k.retrofit2.retrofit
 import io.bluetape4k.retrofit2.service
 import io.bluetape4k.retrofit2.suspendExecute
 import io.bluetape4k.support.classIsPresent
+import io.bluetape4k.testcontainers.http.HttpbinHttp2Server
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.joinAll
@@ -27,6 +28,7 @@ import retrofit2.CallAdapter
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.http.GET
+import retrofit2.http.Path
 import java.io.Serializable
 
 class Retrofit2MetricsTest: AbstractMicrometerTest() {
@@ -39,7 +41,7 @@ class Retrofit2MetricsTest: AbstractMicrometerTest() {
         classIsPresent("retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory")
 
     private fun createRetrofit(factory: CallAdapter.Factory): Retrofit {
-        return retrofit(TestService.JsonPlaceHolderUrl) {
+        return retrofit(TestService.httpbinBaseUrl) {
             callFactory(vertxCallFactoryOf())
             addConverterFactory(defaultJsonConverterFactory)
             addCallAdapterFactory(factory)
@@ -57,7 +59,7 @@ class Retrofit2MetricsTest: AbstractMicrometerTest() {
     fun `measure metrics for sync method`() {
         val registry = SimpleMeterRegistry()
         val factory = MicrometerRetrofitMetricsFactory(registry)
-        val httpbinApi = createRetrofit(factory).service<TestService.JsonPlaceholderApi>()
+        val httpbinApi = createRetrofit(factory).service<TestService.HttpbinApi>()
 
         val call = httpbinApi.getPosts()
         call.shouldNotBeNull()
@@ -79,7 +81,7 @@ class Retrofit2MetricsTest: AbstractMicrometerTest() {
     fun `measure metrics for async method`() = runSuspendIO {
         val registry = SimpleMeterRegistry()
         val factory = MicrometerRetrofitMetricsFactory(registry)
-        val api = createRetrofit(factory).service<TestService.JsonPlaceholderApi>()
+        val api = createRetrofit(factory).service<TestService.HttpbinApi>()
 
         val call = api.getPosts()
         call.shouldNotBeNull()
@@ -101,7 +103,7 @@ class Retrofit2MetricsTest: AbstractMicrometerTest() {
     fun `measure metrics for coroutine method`() = runSuspendIO {
         val registry = SimpleMeterRegistry()
         val factory = MicrometerRetrofitMetricsFactory(registry)
-        val api = createRetrofit(factory).service<TestService.CoroutineJsonPlaceholderApi>()
+        val api = createRetrofit(factory).service<TestService.HttpbinCoroutineApi>()
 
         val posts = api.getPosts()
         log.trace { "posts=$posts" }
@@ -118,12 +120,12 @@ class Retrofit2MetricsTest: AbstractMicrometerTest() {
         registry[MicrometerRetrofitMetricsRecorder.METRICS_KEY].timer().shouldNotBeNull()
     }
 
-    @Disabled("Reactive CallAdapter 와 같이 사용할 수 없습니다")
+    @Disabled("MicrometerRetrofitMetricsFactory는 아직 Reactive CallAdapter 와 같이 사용할 수 없습니다")
     @Test
     fun `measure metrics for reactive method`() = runBlocking<Unit> {
         val registry = SimpleMeterRegistry()
         val factory = MicrometerRetrofitMetricsFactory(registry)
-        val api = createRetrofit(factory).service<TestService.ReactorJsonPlaceholderApi>()
+        val api = createRetrofit(factory).service<TestService.HttpbinReactiveApi>()
 
         val posts = api.getPosts().awaitSingle()
         log.debug { "posts=$posts" }
@@ -138,28 +140,46 @@ class Retrofit2MetricsTest: AbstractMicrometerTest() {
 
 object TestService {
 
+    val httpServer by lazy { HttpbinHttp2Server.Launcher.httpbinHttp2 }
+
     const val TEST_COUNT = 30
-    const val JsonPlaceHolderUrl = "https://jsonplaceholder.typicode.com"
+    val httpbinBaseUrl by lazy { httpServer.url }
 
-    interface JsonPlaceholderApi {
-        @GET("/posts")
-        fun getPosts(): Call<List<Post>>
+    interface HttpbinApi {
+        @GET("/anything/posts")
+        fun getPosts(): Call<HttpbinAnythingResponse>
+
+        @GET("/anything/posts/{id}")
+        fun getPost(@Path("id") postId: Int): Call<HttpbinAnythingResponse>
     }
 
-    interface CoroutineJsonPlaceholderApi {
-        @GET("/posts")
-        suspend fun getPosts(): List<Post>
+    interface HttpbinCoroutineApi {
+        @GET("/anything/posts")
+        suspend fun getPosts(): HttpbinAnythingResponse
+
+        @GET("/anything/posts/{id}")
+        suspend fun getPost(@Path("id") postId: Int): HttpbinAnythingResponse
     }
 
-    interface ReactorJsonPlaceholderApi {
-        @GET("/posts")
-        fun getPosts(): Mono<List<Post>>
+    interface HttpbinReactiveApi {
+        @GET("/anything/posts")
+        fun getPosts(): Mono<HttpbinAnythingResponse>
+
+        @GET("/anything/posts/{id}")
+        fun getPost(@Path("id") postId: Int): Mono<HttpbinAnythingResponse>
+
     }
 
-    data class Post(
-        val userId: Int,
-        val id: Int,
-        var title: String?,
-        var body: String?,
+    /** `/anything`, `/put`, `/patch` 처럼 메소드와 본문 정보를 포함하는 범용 응답입니다. */
+    data class HttpbinAnythingResponse(
+        val args: Map<String, String>,
+        val data: String,
+        val files: Map<String, String>,
+        val form: Map<String, String>,
+        val headers: Map<String, String>,
+        val json: Map<String, Any>?,
+        val method: String,
+        val origin: String,
+        val url: String,
     ): Serializable
 }

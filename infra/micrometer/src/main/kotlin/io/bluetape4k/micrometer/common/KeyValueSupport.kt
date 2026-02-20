@@ -57,7 +57,13 @@ fun <T: Any> keyValueOf(
  * @param keyValues 키-값 쌍의 가변 인자 (짝수 개수여야 함)
  * @return 생성된 [KeyValues] 인스턴스
  */
-fun keyValuesOf(vararg keyValues: String): KeyValues = KeyValues.of(*keyValues)
+fun keyValuesOf(vararg keyValues: String): KeyValues {
+    require(keyValues.size % 2 == 0) { "keyValues는 키와 값을 한 쌍으로 전달해야 합니다. size=${keyValues.size}" }
+    for (index in keyValues.indices step 2) {
+        keyValues[index].requireNotBlank("keyValues[$index]")
+    }
+    return KeyValues.of(*keyValues)
+}
 
 /**
  * [KeyValue] 컬렉션으로 [KeyValues]를 생성합니다.
@@ -98,4 +104,7 @@ fun keyValuesOf(vararg keyValues: Pair<String, String>): KeyValues =
  * @param keyValues 키-값 쌍의 Map
  * @return 생성된 [KeyValues] 인스턴스
  */
-fun keyValueOf(keyValues: Map<String, String>): KeyValues = keyValueOf(keyValues.map { (k, v) -> KeyValue.of(k, v) })
+fun keyValueOf(keyValues: Map<String, String>): KeyValues =
+    KeyValues.of(keyValues.map { (key, value) ->
+        KeyValue.of(key.requireNotBlank("key"), value)
+    })

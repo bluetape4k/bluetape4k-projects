@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit
  * @param block 측정할 suspend 함수
  * @return block의 실행 결과
  */
-suspend inline fun <T> Timer.recordSuspend(block: suspend () -> T): T =
+suspend fun <T> Timer.recordSuspend(block: suspend () -> T): T =
     when (val timer = this) {
         is AbstractTimer -> timer.recordSuspendInternal(block)
         else             -> block()
@@ -34,7 +34,7 @@ suspend inline fun <T> Timer.recordSuspend(block: suspend () -> T): T =
  * @param block 측정할 suspend 함수
  * @return block의 실행 결과
  */
-suspend inline fun <T> AbstractTimer.recordSuspendInternal(block: suspend () -> T): T {
+internal suspend inline fun <T> AbstractTimer.recordSuspendInternal(block: suspend () -> T): T {
     val start = System.nanoTime()
     return try {
         block()

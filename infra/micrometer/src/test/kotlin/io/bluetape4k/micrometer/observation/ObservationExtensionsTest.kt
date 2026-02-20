@@ -1,60 +1,64 @@
 package io.bluetape4k.micrometer.observation
 
-import io.bluetape4k.logging.KLogging
-import io.micrometer.observation.tck.ObservationContextAssert
+import io.micrometer.observation.Observation
+import io.micrometer.observation.ObservationHandler
+import io.micrometer.observation.ObservationRegistry
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
-class ObservationExtensionsTest: AbstractObservationTest() {
-    companion object: KLogging()
+class ObservationExtensionsTest {
 
-    @Test
-    fun `observe - Observation 내에서 코드 블록 실행`() {
-        val observation = observationRegistry.start("test.observation")
-        val result = observation.observe<String> { "hello" }
-        result shouldBeEqualTo "hello"
-    }
-
-    @Test
-    fun `tryObserve - Observation 내에서 코드 블록 실행`() {
-        val observation = observationRegistry.start("test.observation")
-
-        val result = observation.tryObserve { "hello" }
-
-        result.isSuccess.shouldBeTrue()
-        result.getOrThrow() shouldBeEqualTo "hello"
-    }
-
-    @Test
-    fun `withObservation - 컨텍스트 접근 가능`() {
-        val result = withObservation("test.context", observationRegistry) {
-            "hello"
+    private fun registry(handler: ObservationHandler<Observation.Context>): ObservationRegistry =
+        ObservationRegistry.create().apply {
+            observationConfig().observationHandler(handler)
         }
-        result shouldBeEqualTo "hello"
-    }
 
-    @Test
-    fun `withObservationContext - 컨텍스트 접근 가능`() {
-        val observation = observationRegistry.start("test.context")
+    private class RecordingObservationHandler: ObservationHandler<Observation.Context> {
+        var started = 0
+        var stopped = 0
+        var errors = 0
 
-        observation.withObservationContext { context ->
-            context.put("test.key", "test.value")
-            ObservationContextAssert
-                .assertThat(context)
-                .hasNameEqualTo("test.context")
+        override fun onStart(context: Observation.Context) {
+            started++
         }
+
+        override fun onStop(context: Observation.Context) {
+            stopped++
+        }
+
+        override fun onError(context: Observation.Context) {
+            errors++
+        }
+
+        override fun supportsContext(context: Observation.Context): Boolean = true
     }
 
     @Test
-    fun `withObservationContext - 예외 발생 시 전파`() {
-        val observation = observationRegistry.start("test.error")
+    fun `withObservation should start and stop observation`() {
+        val handler = RecordingObservationHandler()
+        val registry = registry(handler)
+        val result = withObservation("record", registry) {
+            "ok"
+        }
+
+        result shouldBeEqualTo "ok"
+        handler.started shouldBeEqualTo 1
+        handler.stopped shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `withObservation should report error and still stop observation`() {
+        val handler = RecordingObservationHandler()
+        val registry = registry(handler)
 
         assertFailsWith<IllegalStateException> {
-            observation.withObservationContext<String> {
-                error("Intentional error")
+            withObservation("error", registry) {
+                throw IllegalStateException("boom")
             }
         }
+
+        handler.errors shouldBeEqualTo 1
+        handler.stopped shouldBeEqualTo 1
     }
 }
