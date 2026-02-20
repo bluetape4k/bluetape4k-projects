@@ -177,11 +177,12 @@ enum class TestDB(
     var db: Database? = null
 
     fun connect(configure: DatabaseConfig.Builder.() -> Unit = {}): Database {
+        beforeConnection()
         val config = DatabaseConfig {
             dbConfig()
             configure()
         }
-        return Database.connect(
+        val database = Database.connect(
             url = connection(),
             databaseConfig = config,
             user = user,
@@ -189,11 +190,13 @@ enum class TestDB(
             driver = driver,
             setupConnection = { afterConnection(it) },
         )
+        db = database
+        return database
     }
 
     fun getDatabaseForBatch(): Database? {
         if (this !in TestDB.ALL_MYSQL_MARIADB) {
-            return this.db
+            return this.db ?: connect()
         }
 
         val extra = if (this in TestDB.ALL_MARIADB) "?" else ""

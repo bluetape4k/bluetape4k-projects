@@ -36,7 +36,6 @@ fun withDb(
         val newConfiguration = configure != null && !unregistered
 
         if (unregistered) {
-            testDB.beforeConnection()
             Runtimex.addShutdownHook {
                 testDB.afterTestFinished()
                 registeredOnShutdown.remove(testDB)

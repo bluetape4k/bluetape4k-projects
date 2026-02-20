@@ -3,6 +3,7 @@ package io.bluetape4k.exposed.tests
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldNotBeNull
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.exists
@@ -71,6 +72,17 @@ class TestSupportsTest: AbstractExposedTest() {
         withDb(testDB) {
             UtilityTable.exists().shouldBeTrue()
             SchemaUtils.drop(UtilityTable)
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `connect 는 db 필드를 설정하고 batch 용 db 는 기본 db 를 반환한다`(testDB: TestDB) {
+        val database = testDB.connect()
+        testDB.db.shouldNotBeNull() shouldBeEqualTo database
+
+        if (testDB !in TestDB.ALL_MYSQL_MARIADB) {
+            testDB.getDatabaseForBatch().shouldNotBeNull() shouldBeEqualTo database
         }
     }
 }
