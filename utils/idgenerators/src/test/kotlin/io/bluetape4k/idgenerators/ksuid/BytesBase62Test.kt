@@ -18,4 +18,19 @@ class BytesBase62Test {
             decoded.size shouldBeEqualTo size
         }
     }
+
+    @Test
+    fun `decode trims or pads to expected length`() {
+        val data = Random.nextBytes(10)
+        val encoded = BytesBase62.encode(data)
+
+        // smaller expectedBytes should truncate
+        val trimmed = BytesBase62.decode(encoded, expectedBytes = 5)
+        trimmed.size shouldBeEqualTo 5
+
+        // larger expectedBytes should pad with zeros
+        val padded = BytesBase62.decode(encoded, expectedBytes = 12)
+        padded.size shouldBeEqualTo 12
+        padded.copyOfRange(0, data.size) shouldBeEqualTo data
+    }
 }
