@@ -1,5 +1,6 @@
 package io.bluetape4k.javatimes.period
 
+import io.bluetape4k.javatimes.EmptyDuration
 import io.bluetape4k.javatimes.MaxDuration
 import io.bluetape4k.javatimes.MaxPeriodTime
 import io.bluetape4k.javatimes.MinPeriodTime
@@ -46,6 +47,20 @@ open class TimeBlock(
 
     private var _duration = super.duration
 
+    override var start: ZonedDateTime
+        get() = super.start
+        set(value) {
+            super.start = value
+            refreshDuration()
+        }
+
+    override var end: ZonedDateTime
+        get() = super.end
+        set(value) {
+            super.end = value
+            refreshDuration()
+        }
+
     override var duration: Duration
         get() = _duration
         set(value) {
@@ -89,6 +104,14 @@ open class TimeBlock(
         start = when (_duration) {
             MaxDuration -> MinPeriodTime
             else        -> end - _duration
+        }
+    }
+
+    private fun refreshDuration() {
+        _duration = when {
+            hasPeriod               -> Duration.between(start, end)
+            _duration == MaxDuration -> MaxDuration
+            else                    -> EmptyDuration
         }
     }
 

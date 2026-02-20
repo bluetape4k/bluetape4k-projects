@@ -2,8 +2,10 @@ package io.bluetape4k.javatimes.period.calendars
 
 import io.bluetape4k.javatimes.Weekdays
 import io.bluetape4k.javatimes.period.AbstractPeriodTest
+import io.bluetape4k.javatimes.period.TimeRange
 import io.bluetape4k.javatimes.period.ranges.CalendarTimeRange
 import io.bluetape4k.javatimes.period.ranges.DayRange
+import io.bluetape4k.javatimes.period.ranges.DayOfWeekHourRange
 import io.bluetape4k.javatimes.period.ranges.HourRangeCollection
 import io.bluetape4k.javatimes.period.ranges.HourRangeInDay
 import io.bluetape4k.javatimes.period.ranges.MonthRange
@@ -229,5 +231,26 @@ class CalendarPeriodCollectorTest: AbstractPeriodTest() {
         collector3.collectDays()
 
         collector3.periods shouldHaveSize workingDays2011 - workingDaysMarch2011 - 2 * Weekdays.size
+    }
+
+    @Test
+    fun `collect day of week hours`() = runTest {
+        val limits = TimeRange(
+            zonedDateTimeOf(2011, 1, 3, 0, 0),
+            zonedDateTimeOf(2011, 1, 9, 23, 59),
+        )
+
+        val filter = CalendarPeriodCollectorFilter().apply {
+            collectingDayOfWeekHours.add(DayOfWeekHourRange(DayOfWeek.MONDAY, 8, 10))
+        }
+
+        val collector = CalendarPeriodCollector(filter, limits)
+        collector.collectHours()
+
+        collector.periods shouldHaveSize 1
+        collector.periods.first() shouldBeEqualTo CalendarTimeRange(
+            zonedDateTimeOf(2011, 1, 3, 8, 0),
+            zonedDateTimeOf(2011, 1, 3, 10, 0),
+        )
     }
 }

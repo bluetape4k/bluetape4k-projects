@@ -160,10 +160,30 @@ class CalendarPeriodCollector private constructor(
     override fun onVisitDay(day: DayRange, context: CalendarPeriodCollectorContext): Boolean {
         log.trace { "visit day... day=$day, context=$context" }
 
-        if (filter.collectingHours.isEmpty()) {
+        val collectingHoursEmpty = filter.collectingHours.isEmpty()
+        val collectingDayOfWeekHoursEmpty = filter.collectingDayOfWeekHours.isEmpty()
+
+        if (collectingHoursEmpty && collectingDayOfWeekHoursEmpty) {
             day.hourSequence().filter { isLimits(it) && isMatchingHour(it, context) }.forEach { periods.add(it) }
-        } else if (isMatchingDay(day, context)) {
-            filter.collectingHours.forEach { h ->
+            return false
+        }
+
+        if (!isMatchingDay(day, context)) {
+            return false
+        }
+
+        filter.collectingHours.forEach { h ->
+            val start = zonedDateTimeOf(day.start.toLocalDate(), h.start)
+            val end = zonedDateTimeOf(day.start.toLocalDate(), h.end)
+            val hc = CalendarTimeRange(start, end, day.calendar)
+            if (isExcludePeriod(hc) && isLimits(hc)) {
+                periods.add(hc)
+            }
+        }
+
+        filter.collectingDayOfWeekHours
+            .filter { it.dayOfWeek == day.dayOfWeek }
+            .forEach { h ->
                 val start = zonedDateTimeOf(day.start.toLocalDate(), h.start)
                 val end = zonedDateTimeOf(day.start.toLocalDate(), h.end)
                 val hc = CalendarTimeRange(start, end, day.calendar)
@@ -171,7 +191,6 @@ class CalendarPeriodCollector private constructor(
                     periods.add(hc)
                 }
             }
-        }
 
         return false
     }

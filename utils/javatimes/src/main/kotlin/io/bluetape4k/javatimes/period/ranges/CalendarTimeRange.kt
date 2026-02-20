@@ -70,8 +70,8 @@ open class CalendarTimeRange protected constructor(
     val endMinuteOfHour: Int get() = end.minute
     val endSecondOfMinute: Int get() = end.second
 
-    val mappedStart: ZonedDateTime get() = calendar.mapStart(start)
-    val mappedEnd: ZonedDateTime get() = calendar.mapEnd(end)
+    val mappedStart: ZonedDateTime get() = start
+    val mappedEnd: ZonedDateTime get() = end
     val unmappedStart: ZonedDateTime get() = calendar.unmapStart(start)
     val unmappedEnd: ZonedDateTime get() = calendar.unmapEnd(end)
 

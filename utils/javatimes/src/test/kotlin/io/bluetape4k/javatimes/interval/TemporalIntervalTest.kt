@@ -134,6 +134,27 @@ class TemporalIntervalTest {
     }
 
     @Test
+    fun `overlaps should be true when one interval covers another`() {
+        val inner = TemporalInterval(20.toInstant(), 80.toInstant())
+        val outer = TemporalInterval(0.toInstant(), 100.toInstant())
+
+        inner.overlaps(outer).shouldBeTrue()
+        outer.overlaps(inner).shouldBeTrue()
+
+        inner.overlap(outer) shouldBeEqualTo inner
+        outer.overlap(inner) shouldBeEqualTo inner
+    }
+
+    @Test
+    fun `contains should allow endExclusive at boundary`() {
+        val outer = TemporalInterval(0.toInstant(), 100.toInstant())
+        val inner = TemporalInterval(20.toInstant(), 100.toInstant())
+
+        outer.contains(inner).shouldBeTrue()
+        inner.contains(outer).shouldBeFalse()
+    }
+
+    @Test
     fun `gap with intervals`() {
         val interval1 = TemporalInterval(0.toInstant(), 100.toInstant())
         val interval2 = TemporalInterval(50.toInstant(), 150.toInstant())

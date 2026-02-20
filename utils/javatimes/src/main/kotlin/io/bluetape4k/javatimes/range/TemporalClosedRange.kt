@@ -40,9 +40,9 @@ class TemporalClosedRange<T>(
 
     override val endInclusive: T get() = last
 
-    override fun contains(value: T): Boolean = value in first..last
+    override fun contains(value: T): Boolean = first <= value && value <= last
 
-    override fun isEmpty(): Boolean = first >= last
+    override fun isEmpty(): Boolean = first > last
 
     override fun toString(): String = "$first..$last step $step"
 }

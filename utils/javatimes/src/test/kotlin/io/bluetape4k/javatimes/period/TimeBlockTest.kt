@@ -179,8 +179,7 @@ class TimeBlockTest: AbstractPeriodTest() {
 
         block.start shouldBeEqualTo changedStart
         block.end shouldBeEqualTo block.start
-        // FIXME : duration 이 update 되어야 합니다.
-        block.duration shouldBeEqualTo 1.hours()
+        block.duration shouldBeEqualTo EmptyDuration
     }
 
     @Test
@@ -202,8 +201,7 @@ class TimeBlockTest: AbstractPeriodTest() {
         block.end shouldBeEqualTo changedEnd
         block.start shouldBeEqualTo end - 1.hours()
 
-        // FIXME : duration 이 update 되어야 합니다.
-        // assertEquals(block.duration).isEqualTo(2.hours())
+        block.duration shouldBeEqualTo 2.hours()
     }
 
     @Test

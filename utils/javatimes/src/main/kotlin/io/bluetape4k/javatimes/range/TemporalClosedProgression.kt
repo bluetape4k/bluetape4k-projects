@@ -64,7 +64,7 @@ open class TemporalClosedProgression<T> protected constructor(
 
     open val last: T = getProgressionLastElement(start, endInclusive, step.millis)
 
-    open fun isEmpty(): Boolean = if (step.isPositive) first >= last else first <= last
+    open fun isEmpty(): Boolean = if (step.isPositive) first > last else first < last
 
     @Suppress("UNCHECKED_CAST")
     open fun sequence(): Sequence<T> = sequence seq@{

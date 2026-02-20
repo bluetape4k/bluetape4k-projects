@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -57,10 +58,10 @@ abstract class TemporalClosedRangeTest<T> where T: Temporal, T: Comparable<T> {
     }
 
     @Test
-    fun `emtpy range`() {
-        val empty = temporalClosedRangeOf(start, start)
-        empty.isEmpty().shouldBeTrue()
-        empty shouldBeEqualTo TemporalClosedRange.EMPTY
+    fun `single element range`() {
+        val single = temporalClosedRangeOf(start, start)
+        single.isEmpty().shouldBeFalse()
+        single.contains(start).shouldBeTrue()
     }
 
     @Test

@@ -49,7 +49,7 @@ abstract class AbstractTemporalInterval<T>: ReadableTemporalInterval<T> where T:
     }
 
     override fun overlaps(other: ReadableTemporalInterval<T>): Boolean =
-        overlaps(other.startInclusive) || overlaps(other.endExclusive)
+        startInclusive < other.endExclusive && endExclusive > other.startInclusive
 
     /**
      * the specific moment in <code>[start, end]</code>
@@ -62,7 +62,7 @@ abstract class AbstractTemporalInterval<T>: ReadableTemporalInterval<T> where T:
      * @param other
      */
     override operator fun contains(other: ReadableTemporalInterval<T>): Boolean =
-        contains(other.startInclusive) && contains(other.endExclusive)
+        startInclusive <= other.startInclusive && endExclusive >= other.endExclusive
 
     override fun contains(epochMillis: Long): Boolean =
         epochMillis >= startInclusive.toEpochMillis() && epochMillis < endExclusive.toEpochMillis()

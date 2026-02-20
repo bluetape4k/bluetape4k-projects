@@ -58,12 +58,11 @@ class TimeLine<T: ITimePeriod> private constructor(
         log.trace { "calculate gaps ... periods=$periods, limits=$limits" }
 
         val tpc = TimePeriodCollection()
-
         periods.periods
             .filter { tp -> limits.intersectWith(tp) }
             .forEach { tp -> tpc.add(TimeRange(tp)) }
 
-        val moments = timeLineMoments(periods)
+        val moments = timeLineMoments(tpc.periods)
 
         return if (moments.isEmpty()) {
             log.trace { "moment is empty. moments=$moments, limits=$limits, periods=$periods" }

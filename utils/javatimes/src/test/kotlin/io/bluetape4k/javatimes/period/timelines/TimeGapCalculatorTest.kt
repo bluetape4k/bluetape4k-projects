@@ -123,6 +123,32 @@ class TimeGapCalculatorTest: AbstractPeriodTest() {
     }
 
     @Test
+    fun `overlapped exclude periods should be merged`() = runTest {
+        val limits = TimeRange(
+            zonedDateTimeOf(2018, 3, 1),
+            zonedDateTimeOf(2018, 3, 10)
+        )
+
+        val excludePeriods = TimePeriodCollection(
+            TimeRange(
+                zonedDateTimeOf(2018, 3, 2),
+                zonedDateTimeOf(2018, 3, 5)
+            ),
+            TimeRange(
+                zonedDateTimeOf(2018, 3, 4),
+                zonedDateTimeOf(2018, 3, 7)
+            )
+        )
+
+        val gaps = calculator.gaps(excludePeriods, limits)
+
+        gaps.toList() shouldBeEqualTo listOf(
+            TimeRange(limits.start, zonedDateTimeOf(2018, 3, 2)),
+            TimeRange(zonedDateTimeOf(2018, 3, 7), limits.end)
+        )
+    }
+
+    @Test
     fun `when exclude periods touching start of limits`() = runTest {
         val limits = TimeRange(
             zonedDateTimeOf(2018, 3, 1),
