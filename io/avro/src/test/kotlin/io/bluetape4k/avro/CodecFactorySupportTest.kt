@@ -2,7 +2,7 @@ package io.bluetape4k.avro
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
-import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -30,7 +30,7 @@ class CodecFactorySupportTest: AbstractAvroTest() {
     fun `코덱 팩토리는 lazy 로 동일 인스턴스를 반환한다`() {
         val first = DEFAULT_CODEC_FACTORY
         val second = DEFAULT_CODEC_FACTORY
-        (first === second) shouldBeEqualTo true
+        (first === second).shouldBeTrue()
     }
 
     @ParameterizedTest(name = "codecFactoryOf({0})")

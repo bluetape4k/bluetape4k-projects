@@ -3,8 +3,10 @@ package io.bluetape4k.units
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeLessThan
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import kotlin.math.absoluteValue
 import kotlin.math.pow
@@ -190,12 +192,12 @@ class UnitsIntegrationTest {
         val nanLength = Length.NaN
         val normalLength = 100.0.meter()
 
-        (nanLength + normalLength).value.isNaN() shouldBeEqualTo true
-        (nanLength - normalLength).value.isNaN() shouldBeEqualTo true
+        (nanLength + normalLength).value.isNaN().shouldBeTrue()
+        (nanLength - normalLength).value.isNaN().shouldBeTrue()
 
         // NaN 파싱
-        Length.parse(null).value.isNaN() shouldBeEqualTo true
-        Length.parse("").value.isNaN() shouldBeEqualTo true
+        Length.parse(null).value.isNaN().shouldBeTrue()
+        Length.parse("").value.isNaN().shouldBeTrue()
     }
 
     @Test
@@ -289,14 +291,14 @@ class UnitsIntegrationTest {
         val length1 = 100.0.meter()
         val length2 = 200.0.meter()
 
-        (length1 < length2) shouldBeEqualTo true
-        (length1 > length2) shouldBeEqualTo false
-        (length1 == length1) shouldBeEqualTo true
+        (length1 < length2).shouldBeTrue()
+        (length1 > length2).shouldBeFalse()
+        (length1 == length1).shouldBeTrue()
 
         val weight1 = 50.0.kilogram()
         val weight2 = 100.0.kilogram()
 
-        (weight1 < weight2) shouldBeEqualTo true
-        (weight1 > weight2) shouldBeEqualTo false
+        (weight1 < weight2).shouldBeTrue()
+        (weight1 > weight2).shouldBeFalse()
     }
 }

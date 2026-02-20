@@ -5,6 +5,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeLessThan
 import org.amshove.kluent.shouldBeNear
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
@@ -86,7 +87,7 @@ class VolumeTest {
     @Test
     fun `volume constants`() {
         Volume.ZERO.value shouldBeEqualTo 0.0
-        Volume.NaN.value.isNaN() shouldBeEqualTo true
+        Volume.NaN.value.isNaN().shouldBeTrue()
         Volume.MaxValue.value shouldBeEqualTo Double.MAX_VALUE
         Volume.MinValue.value shouldBeEqualTo Double.MIN_VALUE
         Volume.PositiveInf.value shouldBeEqualTo Double.POSITIVE_INFINITY

@@ -1,9 +1,8 @@
 package io.bluetape4k.spring.cassandra.cql
 
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder
-import com.datastax.oss.driver.api.querybuilder.update.UpdateStart
-import io.bluetape4k.spring.cassandra.cql.OptionsSupportTest.Companion.TIMESTAMP
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.time.Duration
 
@@ -17,8 +16,8 @@ class OptionsSupportTest {
 
     @Test
     fun `writeOptions should detect positive ttl`() {
-        writeOptions { ttl(Duration.ofSeconds(10)) }.isPositiveTtl shouldBeEqualTo true
-        writeOptions { ttl(Duration.ZERO) }.isPositiveTtl shouldBeEqualTo true
+        writeOptions { ttl(Duration.ofSeconds(10)) }.isPositiveTtl.shouldBeTrue()
+        writeOptions { ttl(Duration.ZERO) }.isPositiveTtl.shouldBeTrue()
     }
 
     @Test

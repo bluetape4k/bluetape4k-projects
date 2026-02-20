@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.micrometer.observation.tck.ObservationRegistryAssert
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
@@ -32,7 +33,7 @@ class ObservationRegistrySupportTest: AbstractObservationTest() {
         val observation = registry.start("test")
         observation.observe { }
 
-        handlerCalled shouldBeEqualTo true
+        handlerCalled.shouldBeTrue()
     }
 
     @Test
@@ -48,7 +49,7 @@ class ObservationRegistrySupportTest: AbstractObservationTest() {
         val observation = registry.start("test")
         observation.observe { }
 
-        handlerCalled shouldBeEqualTo true
+        handlerCalled.shouldBeTrue()
     }
 
     @Test

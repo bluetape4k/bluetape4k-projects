@@ -17,7 +17,7 @@ class CharArrayMapTest {
     fun `create empty CharArrayMap`() {
         val map = CharArrayMap<String>(16)
         map.size shouldBeEqualTo 0
-        map.isEmpty() shouldBeEqualTo true
+        map.isEmpty().shouldBeTrue()
     }
 
     @Test
@@ -125,7 +125,7 @@ class CharArrayMapTest {
         map.clear()
 
         map.size shouldBeEqualTo 0
-        map.isEmpty() shouldBeEqualTo true
+        map.isEmpty().shouldBeTrue()
         map.containsKey("key1").shouldBeFalse()
     }
 
@@ -185,7 +185,7 @@ class CharArrayMapTest {
     fun `empty map singleton`() {
         val empty1 = CharArrayMap.emptyMap<String>()
 
-        empty1.isEmpty() shouldBeEqualTo true
+        empty1.isEmpty().shouldBeTrue()
         empty1.size shouldBeEqualTo 0
     }
 

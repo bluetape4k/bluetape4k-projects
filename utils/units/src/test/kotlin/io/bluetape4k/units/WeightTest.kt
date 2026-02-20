@@ -6,6 +6,7 @@ import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeLessThan
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
@@ -107,7 +108,7 @@ class WeightTest {
     @Test
     fun `weight constants`() {
         Weight.ZERO.value shouldBeEqualTo 0.0
-        Weight.NaN.value.isNaN() shouldBeEqualTo true
+        Weight.NaN.value.isNaN().shouldBeTrue()
     }
 
     @Test

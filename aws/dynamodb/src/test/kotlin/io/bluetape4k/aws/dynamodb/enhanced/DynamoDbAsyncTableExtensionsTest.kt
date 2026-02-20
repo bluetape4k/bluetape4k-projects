@@ -6,7 +6,9 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean
@@ -216,7 +218,7 @@ class DynamoDbAsyncTableExtensionsTest: AbstractDynamodbTest() {
         delay(100)
 
         val exists = table.exists(entity.id)
-        exists shouldBeEqualTo true
+        exists.shouldBeTrue()
 
         // cleanup
         asyncClient.deleteTable { it.tableName(tableName) }.await()
@@ -257,7 +259,7 @@ class DynamoDbAsyncTableExtensionsTest: AbstractDynamodbTest() {
         delay(500)
 
         val exists = table.exists("non-existent")
-        exists shouldBeEqualTo false
+        exists.shouldBeFalse()
 
         // cleanup
         asyncClient.deleteTable { it.tableName(tableName) }.await()

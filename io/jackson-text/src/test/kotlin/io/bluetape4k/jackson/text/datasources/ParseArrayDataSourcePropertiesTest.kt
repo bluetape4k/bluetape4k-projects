@@ -9,6 +9,7 @@ import io.bluetape4k.jackson.text.JacksonText
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContainAll
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
@@ -110,7 +111,7 @@ class ParseArrayDataSourcePropertiesTest: AbstractJacksonTextTest() {
         dbcp2.maxIdle!! shouldBeEqualTo 8
         dbcp2.minIdle!! shouldBeEqualTo 0
         dbcp2.maxWaitMillis!! shouldBeEqualTo 100000
-        dbcp2.lifo!! shouldBeEqualTo true
+        dbcp2.lifo!!.shouldBeTrue()
     }
 
     data class RootProperty(val bluetape4k: Bluetape4kProperty)

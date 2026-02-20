@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeNull
@@ -70,7 +71,7 @@ class TestServiceTest {
             .build()
 
         val response = client.unaryCall(request)
-        response.payload.body.isEmpty shouldBeEqualTo false
+        response.payload.body.isEmpty.shouldBeFalse()
     }
 
     @Test

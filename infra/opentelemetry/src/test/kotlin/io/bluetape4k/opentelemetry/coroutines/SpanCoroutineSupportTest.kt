@@ -163,7 +163,7 @@ class SpanCoroutineSupportTest: AbstractOtelTest() {
 
         // SpanExporter.export(vararg SpanData) extension coverage
         val result = composite.export(*finished.toTypedArray())
-        result.isSuccess shouldBeEqualTo true
+        result.isSuccess.shouldBeTrue()
 
         exporter1.calledCount() shouldBeEqualTo 1
         exporter2.calledCount() shouldBeEqualTo 1

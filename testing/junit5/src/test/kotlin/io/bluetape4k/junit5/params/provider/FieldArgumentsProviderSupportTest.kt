@@ -77,8 +77,8 @@ class FieldArgumentsProviderSupportTest {
         @ParameterizedTest
         @FieldSource("staticArguments")
         fun staticField(value: String, ok: Boolean) {
-            value.isNotBlank() shouldBeEqualTo true
-            ok shouldBeEqualTo true
+            value.isNotBlank().shouldBeTrue()
+            ok.shouldBeTrue()
         }
     }
 

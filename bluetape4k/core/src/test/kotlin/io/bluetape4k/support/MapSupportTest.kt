@@ -1,7 +1,9 @@
 package io.bluetape4k.support
 
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -20,9 +22,9 @@ class MapSupportTest {
     fun `boolean 값을 조회한다`() {
         val map = mapOf("active" to true, "inactive" to false, "nullable" to null)
 
-        map.boolean("active") shouldBeEqualTo true
-        map.boolean("inactive") shouldBeEqualTo false
-        map.booleanOrNull("active") shouldBeEqualTo true
+        map.boolean("active").shouldBeTrue()
+        map.boolean("inactive").shouldBeFalse()
+        map.booleanOrNull("active")?.shouldBeTrue()
         map.booleanOrNull("nullable").shouldBeNull()
     }
 

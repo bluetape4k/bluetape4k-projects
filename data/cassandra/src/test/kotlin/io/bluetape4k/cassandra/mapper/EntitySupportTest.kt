@@ -11,6 +11,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -63,7 +64,7 @@ class EntitySupportTest {
         }
 
         result shouldBeEqualTo bound
-        applied shouldBeEqualTo true
+        applied.shouldBeTrue()
         verify(exactly = 1) { prepared.boundStatementBuilder() }
         verify(exactly = 1) { boundBuilder.build() }
     }

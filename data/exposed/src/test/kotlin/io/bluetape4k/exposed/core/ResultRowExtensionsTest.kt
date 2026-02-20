@@ -4,6 +4,7 @@ import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -45,7 +46,7 @@ class ResultRowExtensionsTest: AbstractExposedTest() {
             row.getInt(ResultRowExtTable.numberText) shouldBeEqualTo 123
             row.getLong(ResultRowExtTable.numberText) shouldBeEqualTo 123L
             row.getBigDecimal(ResultRowExtTable.numberText) shouldBeEqualTo BigDecimal("123")
-            row.getBoolean(ResultRowExtTable.boolText) shouldBeEqualTo true
+            row.getBoolean(ResultRowExtTable.boolText).shouldBeTrue()
             row.getUuid(ResultRowExtTable.uuidText) shouldBeEqualTo uuid
             row.getByteArray(ResultRowExtTable.text).shouldNotBeNull()
         }

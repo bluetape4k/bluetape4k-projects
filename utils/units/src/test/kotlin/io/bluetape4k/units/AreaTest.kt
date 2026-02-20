@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeLessThan
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
@@ -79,7 +80,7 @@ class AreaTest {
     @Test
     fun `area constants`() {
         Area.ZERO.value shouldBeEqualTo 0.0
-        Area.NaN.value.isNaN() shouldBeEqualTo true
+        Area.NaN.value.isNaN().shouldBeTrue()
         Area.MaxValue.value shouldBeEqualTo Double.MAX_VALUE
         Area.MinValue.value shouldBeEqualTo Double.MIN_VALUE
         Area.PositiveInf.value shouldBeEqualTo Double.POSITIVE_INFINITY

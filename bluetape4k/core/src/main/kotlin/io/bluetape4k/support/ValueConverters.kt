@@ -25,13 +25,13 @@ import kotlin.math.roundToLong
  * 객체를 Boolean 수형으로 변환합니다. 변환 실패 시 [defaultValue]로 대체합니다.
  *
  * ```
- * "true".asBoolean() shouldBeEqualTo true
- * "false".asBoolean() shouldBeEqualTo false
- * "1".asBoolean() shouldBeEqualTo true
- * "0".asBoolean() shouldBeEqualTo false
- * "y".asBoolean() shouldBeEqualTo true
- * "n".asBoolean() shouldBeEqualTo false
- * "".asBoolean() shouldBeEqualTo false
+ * "true".asBoolean().shouldBeTrue()
+ * "false".asBoolean().shouldBeFalse()
+ * "1".asBoolean().shouldBeTrue()
+ * "0".asBoolean().shouldBeFalse()
+ * "y".asBoolean().shouldBeTrue()
+ * "n".asBoolean().shouldBeFalse()
+ * "".asBoolean().shouldBeFalse()
  * ```
  *
  * @param defaultValue 변환 실패 시 대체 값
@@ -43,12 +43,12 @@ fun Any?.asBoolean(defaultValue: Boolean = false): Boolean = asBooleanOrNull() ?
  * 객체를 Boolean 수형으로 변환합니다. 변환 실패 시 null을 반환합니다.
  *
  * ```
- * "true".asBoolean() shouldBeEqualTo true
- * "false".asBoolean() shouldBeEqualTo false
- * "1".asBoolean() shouldBeEqualTo true
- * "0".asBoolean() shouldBeEqualTo false
- * "y".asBoolean() shouldBeEqualTo true
- * "n".asBoolean() shouldBeEqualTo false
+ * "true".asBoolean().shouldBeTrue()
+ * "false".asBoolean().shouldBeFalse()
+ * "1".asBoolean().shouldBeTrue()
+ * "0".asBoolean().shouldBeFalse()
+ * "y".asBoolean().shouldBeTrue()
+ * "n".asBoolean().shouldBeFalse()
  * "".asBoolean() shouldBeEqualTo null
  * ```
  *

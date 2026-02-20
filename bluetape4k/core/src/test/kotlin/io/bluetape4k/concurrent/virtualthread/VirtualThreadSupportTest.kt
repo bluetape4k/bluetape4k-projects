@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEqualTo
 import org.awaitility.kotlin.await
@@ -39,7 +40,7 @@ class VirtualThreadSupportTest: AbstractVirtualThreadTest() {
 
         thread.javaClass.name shouldBeEqualTo "java.lang.Thread"
         thread.name shouldBeEqualTo "platform-thread"
-        thread.isDaemon shouldBeEqualTo false
+        thread.isDaemon.shouldBeFalse()
         thread.priority shouldBeEqualTo 10
 
         thread.start()
@@ -90,7 +91,7 @@ class VirtualThreadSupportTest: AbstractVirtualThreadTest() {
 
         thread.javaClass.name shouldBeEqualTo "java.lang.VirtualThread"
         thread.name shouldBeEqualTo "virtual-thread-0"
-        thread.isDaemon shouldBeEqualTo true
+        thread.isDaemon.shouldBeTrue()
         thread.priority shouldBeEqualTo 5
 
         // Thread가 시작되지 않았으므로 NEW 상태

@@ -1,6 +1,7 @@
 package io.bluetape4k.jdbc.sql
 
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
@@ -11,8 +12,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
         val ids = dataSource.runQuery("SELECT id FROM Actors ORDER BY id") { rs ->
             val iterator = rs.iterator { it.getInt("id") }
 
-            iterator.hasNext() shouldBeEqualTo true
-            iterator.hasNext() shouldBeEqualTo true
+            iterator.hasNext().shouldBeTrue()
+            iterator.hasNext().shouldBeTrue()
 
             listOf(iterator.next(), iterator.next())
         }

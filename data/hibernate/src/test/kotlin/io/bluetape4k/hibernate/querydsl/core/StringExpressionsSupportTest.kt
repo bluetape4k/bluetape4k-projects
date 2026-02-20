@@ -6,6 +6,7 @@ import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
+@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 class StringExpressionsSupportTest {
 
     private val str = Expressions.stringPath("str")

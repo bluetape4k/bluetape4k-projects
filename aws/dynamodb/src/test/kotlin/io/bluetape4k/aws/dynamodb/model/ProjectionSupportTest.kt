@@ -1,6 +1,7 @@
 package io.bluetape4k.aws.dynamodb.model
 
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
@@ -33,6 +34,6 @@ class ProjectionSupportTest {
 
         projection.shouldNotBeNull()
         projection.projectionType() shouldBeEqualTo ProjectionType.ALL
-        projection.nonKeyAttributes().isEmpty() shouldBeEqualTo true
+        projection.nonKeyAttributes().isEmpty().shouldBeTrue()
     }
 }

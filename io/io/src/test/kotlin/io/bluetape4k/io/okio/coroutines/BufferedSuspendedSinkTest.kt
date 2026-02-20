@@ -8,6 +8,7 @@ import kotlinx.coroutines.test.runTest
 import okio.Buffer
 import okio.Timeout
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.io.IOException
 import kotlin.test.assertFailsWith
@@ -66,7 +67,7 @@ class BufferedSuspendedSinkTest: AbstractOkioTest() {
 
         bufferedSink.writeUtf8("bye", 0, 3)
         bufferedSink.close()
-        fakeSink.closed shouldBeEqualTo true
+        fakeSink.closed.shouldBeTrue()
         fakeSink.buffer.readUtf8() shouldBeEqualTo "bye"
     }
 

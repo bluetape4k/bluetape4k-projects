@@ -2,6 +2,8 @@ package io.bluetape4k.hibernate
 
 import io.bluetape4k.hibernate.mapping.simple.SimpleEntity
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBe
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
@@ -45,8 +47,8 @@ class EntityManagerSupportTest: AbstractHibernateTest() {
         em.persist(entity)
         flushAndClear()
 
-        em.exists<SimpleEntity>(entity.id!!) shouldBeEqualTo true
-        em.exists<SimpleEntity>(Long.MAX_VALUE) shouldBeEqualTo false
+        em.exists<SimpleEntity>(entity.id!!).shouldBeTrue()
+        em.exists<SimpleEntity>(Long.MAX_VALUE).shouldBeFalse()
     }
 
     @Test
@@ -129,13 +131,13 @@ class EntityManagerSupportTest: AbstractHibernateTest() {
         flushAndClear()
 
         val proxy = em.getReference<SimpleEntity>(entity.id!!)
-        em.isLoaded(proxy) shouldBeEqualTo false
-        em.isLoaded(proxy, "name") shouldBeEqualTo false
+        em.isLoaded(proxy).shouldBeFalse()
+        em.isLoaded(proxy, "name").shouldBeFalse()
 
         // 프록시 초기화
         proxy.name shouldNotBe null
 
-        em.isLoaded(proxy) shouldBeEqualTo true
-        em.isLoaded(proxy, "name") shouldBeEqualTo true
+        em.isLoaded(proxy).shouldBeTrue()
+        em.isLoaded(proxy, "name").shouldBeTrue()
     }
 }

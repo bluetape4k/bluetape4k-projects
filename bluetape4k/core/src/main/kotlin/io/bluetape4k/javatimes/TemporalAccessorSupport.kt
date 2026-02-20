@@ -152,7 +152,7 @@ val TemporalAccessor.zonedDateTime: ZonedDateTime? get() = query { ZonedDateTime
  *
  * ```
  * val now = nowInstant()
- * now.supports(ChronoField.INSTANT_SECONDS) shouldBeEqualTo true
+ * now.supports(ChronoField.INSTANT_SECONDS).shouldBeTrue()
  * ```
  */
 infix fun TemporalAccessor.supports(temporalField: TemporalField) = isSupported(temporalField)

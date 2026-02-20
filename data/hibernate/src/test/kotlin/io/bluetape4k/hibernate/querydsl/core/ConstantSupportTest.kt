@@ -1,6 +1,7 @@
 package io.bluetape4k.hibernate.querydsl.core
 
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
@@ -8,7 +9,7 @@ class ConstantSupportTest {
 
     @Test
     fun `primitive constantOf helpers return correct values`() {
-        constantOf(true).shouldNotBeNull().constant shouldBeEqualTo true
+        constantOf(true).shouldNotBeNull().constant.shouldBeTrue()
         constantOf('a').shouldNotBeNull().constant shouldBeEqualTo 'a'
         constantOf(1.toByte()).shouldNotBeNull().constant shouldBeEqualTo 1.toByte()
         constantOf(2).shouldNotBeNull().constant shouldBeEqualTo 2

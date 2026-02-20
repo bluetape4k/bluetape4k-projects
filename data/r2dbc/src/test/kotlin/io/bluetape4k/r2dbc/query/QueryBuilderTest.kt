@@ -3,6 +3,7 @@ package io.bluetape4k.r2dbc.query
 import io.bluetape4k.logging.KLogging
 import io.r2dbc.spi.Parameter
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.io.Serializable
 import kotlin.test.assertFailsWith
@@ -300,7 +301,7 @@ class QueryBuilderTest {
         }
 
         val param = query.parameters["name"] as Parameter
-        (param.value == null) shouldBeEqualTo true
+        (param.value == null).shouldBeTrue()
     }
 
     @Test

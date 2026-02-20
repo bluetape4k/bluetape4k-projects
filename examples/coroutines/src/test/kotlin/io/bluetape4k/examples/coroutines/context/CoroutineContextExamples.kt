@@ -15,6 +15,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
 import kotlin.coroutines.CoroutineContext
@@ -42,7 +43,7 @@ class CoroutineContextExamples {
         val ctx3 = ctx1 + ctx2
 
         ctx3[CoroutineName]?.name shouldBeEqualTo ctx1[CoroutineName]?.name shouldBeEqualTo "name1"
-        ctx3[Job]?.isActive shouldBeEqualTo ctx2[Job]?.isActive shouldBeEqualTo true
+        ctx3[Job]?.isActive shouldBeEqualTo ctx2[Job]?.isActive?.shouldBeTrue()
         ctx1[Job].shouldBeNull()
     }
 
@@ -53,7 +54,7 @@ class CoroutineContextExamples {
         val ctx2 = ctx1.minusKey(CoroutineName)
 
         ctx2[CoroutineName].shouldBeNull()
-        ctx2[Job]?.isActive shouldBeEqualTo true
+        ctx2[Job]?.isActive?.shouldBeTrue()
     }
 
     @Test

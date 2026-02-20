@@ -10,7 +10,7 @@ import io.github.bucket4j.distributed.proxy.ClientSideConfig
 import io.github.bucket4j.distributed.proxy.ExecutionStrategy
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotContain
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Executors
@@ -56,10 +56,10 @@ class LettuceAsyncBucketProxyProviderTest: AbstractAsyncBucketProxyProviderTest(
             }
             val provider = AsyncBucketProxyProvider(proxyManager.asAsync(), defaultBucketConfiguration, prefix)
 
-            provider.resolveBucket(key).tryConsume(1).await() shouldBeEqualTo true
+            provider.resolveBucket(key).tryConsume(1).await().shouldBeTrue()
 
             val storedKeys = sync.keys("$prefix*")
-            storedKeys.any { it == "$prefix$key" } shouldBeEqualTo true
+            storedKeys.any { it == "$prefix$key" }.shouldBeTrue()
             storedKeys.forEach { it.shouldNotContain(prefix + prefix) }
         } finally {
             connection.close()

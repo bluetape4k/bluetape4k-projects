@@ -1,7 +1,9 @@
 package io.bluetape4k.jdbc.sql
 
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeGreaterThan
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -81,9 +83,9 @@ class TransactionExtensionsTest : AbstractJdbcSqlTest() {
     fun `Connection withAutoCommit - auto-commit 상태 임시 변경`() {
         dataSource.withConnect { conn ->
             conn.withAutoCommit(false) { connection ->
-                connection.autoCommit shouldBeEqualTo false
+                connection.autoCommit.shouldBeFalse()
             }
-            conn.autoCommit shouldBeEqualTo true // 원래 상태로 복원
+            conn.autoCommit.shouldBeTrue() // 원래 상태로 복원
         }
     }
 

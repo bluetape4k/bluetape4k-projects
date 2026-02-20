@@ -1,6 +1,6 @@
 package io.bluetape4k.apache
 
-import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldNotBeEmpty
@@ -13,7 +13,7 @@ class ApacheLocaleUtilsTest {
     fun `availableLocaleList 필터링`() {
         val locales = availableLocaleList { it.language == "en" }
         locales.shouldNotBeEmpty()
-        locales.all { it.language == "en" } shouldBeEqualTo true
+        locales.all { it.language == "en" }.shouldBeTrue()
     }
 
     @Test
@@ -22,13 +22,13 @@ class ApacheLocaleUtilsTest {
         countries.shouldNotBeEmpty()
 
         val languages = languageByCountry("US")
-        languages.shouldContain(Locale("en", "US"))
+        languages.shouldContain(Locale.of("en", "US"))
     }
 
     @Test
     fun `localeLookupList 는 계층적으로 반환한다`() {
-        val base = Locale("fr", "CA", "xxx")
+        val base = Locale.of("fr", "CA", "xxx")
         val list = base.localeLookupList()
-        list.shouldContainSame(listOf(base, Locale("fr", "CA"), Locale("fr")))
+        list.shouldContainSame(listOf(base, Locale.of("fr", "CA"), Locale.of("fr")))
     }
 }

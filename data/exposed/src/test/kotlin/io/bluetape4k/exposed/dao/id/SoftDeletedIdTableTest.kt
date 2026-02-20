@@ -3,7 +3,8 @@ package io.bluetape4k.exposed.dao.id
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTables
-import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
+import org.amshove.kluent.shouldBeTrue
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.eq
@@ -30,7 +31,7 @@ class SoftDeletedIdTableTest: AbstractExposedTest() {
             }
 
             val row = SoftDeleteTable.selectAll().where { SoftDeleteTable.id eq id }.single()
-            row[SoftDeleteTable.isDeleted] shouldBeEqualTo false
+            row[SoftDeleteTable.isDeleted].shouldBeFalse()
         }
     }
 
@@ -47,7 +48,7 @@ class SoftDeletedIdTableTest: AbstractExposedTest() {
             }
 
             val row = SoftDeleteTable.selectAll().where { SoftDeleteTable.id eq id }.single()
-            row[SoftDeleteTable.isDeleted] shouldBeEqualTo true
+            row[SoftDeleteTable.isDeleted].shouldBeTrue()
         }
     }
 }

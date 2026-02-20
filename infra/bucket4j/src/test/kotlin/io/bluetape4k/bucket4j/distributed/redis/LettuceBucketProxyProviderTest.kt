@@ -8,7 +8,7 @@ import io.bluetape4k.logging.KLogging
 import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy
 import io.github.bucket4j.distributed.proxy.ClientSideConfig
 import io.github.bucket4j.distributed.proxy.ExecutionStrategy
-import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotContain
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Executors
@@ -53,10 +53,10 @@ class LettuceBucketProxyProviderTest: AbstractBucketProxyProviderTest() {
             }
             val provider = BucketProxyProvider(proxyManager, defaultBucketConfiguration, prefix)
 
-            provider.resolveBucket(key).tryConsume(1) shouldBeEqualTo true
+            provider.resolveBucket(key).tryConsume(1).shouldBeTrue()
 
             val storedKeys = sync.keys("$prefix*")
-            storedKeys.any { it == "$prefix$key" } shouldBeEqualTo true
+            storedKeys.any { it == "$prefix$key" }.shouldBeTrue()
             storedKeys.forEach { it.shouldNotContain(prefix + prefix) }
         } finally {
             connection.close()

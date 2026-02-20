@@ -2,6 +2,8 @@ package io.bluetape4k.opentelemetry.common
 
 import io.opentelemetry.api.common.AttributeKey
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class AttributesSupportTest {
@@ -38,7 +40,7 @@ class AttributesSupportTest {
         attributes[longAttributeKeyOf("long")] shouldBeEqualTo 2L
         attributes[AttributeKey.doubleKey("float")] shouldBeEqualTo 3.5
         attributes[AttributeKey.doubleKey("double")] shouldBeEqualTo 4.5
-        attributes[AttributeKey.booleanKey("boolean")] shouldBeEqualTo true
+        attributes[AttributeKey.booleanKey("boolean")].shouldNotBeNull().shouldBeTrue()
         attributes[stringAttributeKeyOf("null")] shouldBeEqualTo "null"
 
         attributes[AttributeKey.longArrayKey("byteArray")] shouldBeEqualTo listOf(1L, 2L)

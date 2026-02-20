@@ -5,6 +5,8 @@ import io.bluetape4k.spring.AbstractSpringTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.core.env.MutablePropertySources
@@ -44,7 +46,7 @@ class PropertyResolverExtensionsTest: AbstractSpringTest() {
 
         propertyResolver["foo"] shouldBeEqualTo "bar"
         propertyResolver["num", Int::class] shouldBeEqualTo 5
-        propertyResolver["enabled", Boolean::class] shouldBeEqualTo true
+        propertyResolver["enabled", Boolean::class].shouldNotBeNull().shouldBeTrue()
     }
 
     @Test
@@ -55,7 +57,7 @@ class PropertyResolverExtensionsTest: AbstractSpringTest() {
 
         propertyResolver["foo", "myDefault"] shouldBeEqualTo "myDefault"
         propertyResolver["num", Int::class, 1] shouldBeEqualTo 1
-        propertyResolver["enabled", Boolean::class, false] shouldBeEqualTo false
+        propertyResolver["enabled", Boolean::class, false].shouldBeFalse()
 
 
         testProperties["foo"] = "bar"
@@ -64,7 +66,7 @@ class PropertyResolverExtensionsTest: AbstractSpringTest() {
 
         propertyResolver["foo", "myDefault"] shouldBeEqualTo "bar"
         propertyResolver["num", Int::class, 1] shouldBeEqualTo 5
-        propertyResolver["enabled", Boolean::class, false] shouldBeEqualTo true
+        propertyResolver["enabled", Boolean::class, false].shouldBeTrue()
     }
 
     @Test
@@ -91,8 +93,8 @@ class PropertyResolverExtensionsTest: AbstractSpringTest() {
 
         propertyResolver.getAs<String>("foo") shouldBeEqualTo "bar"
         propertyResolver.getAs<Int>("num") shouldBeEqualTo 5
-        propertyResolver.getAs<Boolean>("enabled") shouldBeEqualTo true
-        propertyResolver.getAs<Boolean>("enabled", false) shouldBeEqualTo true
+        propertyResolver.getAs<Boolean>("enabled").shouldNotBeNull().shouldBeTrue()
+        propertyResolver.getAs<Boolean>("enabled", false).shouldBeTrue()
     }
 
     @Test

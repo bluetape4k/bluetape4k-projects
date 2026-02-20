@@ -3,6 +3,8 @@ package io.bluetape4k.tokenizer.model
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.tokenizer.AbstractCoreTest
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class BlockwordMessageIntegrationTest: AbstractCoreTest() {
@@ -42,7 +44,7 @@ class BlockwordMessageIntegrationTest: AbstractCoreTest() {
         response.request shouldBeEqualTo request
         response.maskedText shouldBeEqualTo "This is a **** message"
         response.blockWords shouldBeEqualTo listOf("test")
-        response.blockwordExists shouldBeEqualTo true
+        response.blockwordExists.shouldBeTrue()
     }
 
     @Test
@@ -63,6 +65,6 @@ class BlockwordMessageIntegrationTest: AbstractCoreTest() {
                 blockWords = emptyList(),
             )
 
-        response.blockwordExists shouldBeEqualTo false
+        response.blockwordExists.shouldBeFalse()
     }
 }

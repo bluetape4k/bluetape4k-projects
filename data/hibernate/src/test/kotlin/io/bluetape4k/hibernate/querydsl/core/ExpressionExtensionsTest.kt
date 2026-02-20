@@ -7,6 +7,7 @@ import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
+@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 class ExpressionExtensionsTest {
 
     private val flag = Expressions.booleanPath("flag")

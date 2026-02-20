@@ -3,6 +3,7 @@ package io.bluetape4k.io
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.utils.Resourcex
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.io.RandomAccessFile
@@ -45,7 +46,7 @@ class RandomAccessFileSupportTest: AbstractIOTest() {
         val raf1 = RandomAccessFile(file, "r")
         val raf2 = RandomAccessFile(file, "rw")
 
-        raf1.contentEquals(raf2) shouldBeEqualTo true
+        raf1.contentEquals(raf2).shouldBeTrue()
 
         raf1.close()
         raf2.close()

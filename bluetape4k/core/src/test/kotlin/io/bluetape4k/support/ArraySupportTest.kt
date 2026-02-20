@@ -111,7 +111,7 @@ class ArraySupportTest {
         val result = source.mapCatching { 10 / it }
 
         result[0].getOrNull() shouldBeEqualTo 10
-        result[1].isFailure shouldBeEqualTo true
+        result[1].isFailure.shouldBeTrue()
         result[2].getOrNull() shouldBeEqualTo 5
     }
 

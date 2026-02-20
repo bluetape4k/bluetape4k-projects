@@ -6,6 +6,8 @@ import aws.sdk.kotlin.services.dynamodb.model.ReturnValue
 import aws.sdk.kotlin.services.dynamodb.model.ScalarAttributeType
 import aws.sdk.kotlin.services.dynamodb.model.WriteRequest
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
@@ -115,7 +117,7 @@ class DynamoDbModelSupportTest {
         )
 
         request.attributesToGet shouldBeEqualTo listOf("id")
-        request.consistentRead shouldBeEqualTo true
+        request.consistentRead.shouldNotBeNull().shouldBeTrue()
         request.key?.get("id") shouldBeEqualTo AttributeValue.S("a-1")
     }
 

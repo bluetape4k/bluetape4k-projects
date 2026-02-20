@@ -2,6 +2,7 @@ package io.bluetape4k.jdbc.sql
 
 import io.bluetape4k.jdbc.model.Actor
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
@@ -41,7 +42,7 @@ class ResultSetMappingExtensionsTest: AbstractJdbcSqlTest() {
                 }
             }
 
-        actors.isNotEmpty() shouldBeEqualTo true
+        actors.isNotEmpty().shouldBeTrue()
         actors.first().firstname shouldBeEqualTo "Sunghyouk"
     }
 
@@ -58,7 +59,7 @@ class ResultSetMappingExtensionsTest: AbstractJdbcSqlTest() {
                 }
             }
 
-        actors.isNotEmpty() shouldBeEqualTo true
+        actors.isNotEmpty().shouldBeTrue()
         actors.first().firstname shouldBeEqualTo "Sunghyouk"
     }
 }

@@ -1,7 +1,7 @@
 package io.bluetape4k.cassandra.cql
 
 import com.datastax.oss.driver.api.core.type.DataTypes
-import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
@@ -13,7 +13,7 @@ class DataTypeSupportTest {
         DataTypes.listOf(DataTypes.INT).isCollectionType.shouldBeTrue()
         DataTypes.setOf(DataTypes.TEXT).isCollectionType.shouldBeTrue()
         DataTypes.mapOf(DataTypes.TEXT, DataTypes.INT).isCollectionType.shouldBeTrue()
-        DataTypes.INT.isCollectionType shouldBeEqualTo false
+        DataTypes.INT.isCollectionType.shouldBeFalse()
     }
 
     @Test

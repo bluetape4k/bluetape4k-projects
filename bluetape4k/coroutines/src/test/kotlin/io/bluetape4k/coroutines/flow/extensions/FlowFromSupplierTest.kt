@@ -3,6 +3,7 @@ package io.bluetape4k.coroutines.flow.extensions
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class FlowFromSupplierTest {
@@ -13,7 +14,7 @@ class FlowFromSupplierTest {
 
         val result = runCatching { flow.toList() }
 
-        result.isFailure shouldBeEqualTo true
+        result.isFailure.shouldBeTrue()
         result.exceptionOrNull()?.message shouldBeEqualTo "boom"
     }
 

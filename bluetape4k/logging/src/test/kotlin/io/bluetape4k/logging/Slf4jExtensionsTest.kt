@@ -1,6 +1,7 @@
 package io.bluetape4k.logging
 
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class Slf4jExtensionsTest {
@@ -18,6 +19,6 @@ class Slf4jExtensionsTest {
             msg = { error("boom") }
         )
 
-        message.startsWith("fallback:") shouldBeEqualTo true
+        message.startsWith("fallback:").shouldBeTrue()
     }
 }
