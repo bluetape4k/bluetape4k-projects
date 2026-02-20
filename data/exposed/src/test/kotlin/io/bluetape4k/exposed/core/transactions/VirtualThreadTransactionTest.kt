@@ -14,6 +14,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
@@ -34,6 +35,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executors
 import kotlin.test.assertFailsWith
 
 class VirtualThreadTransactionTest: AbstractExposedTest() {
@@ -195,6 +197,24 @@ class VirtualThreadTransactionTest: AbstractExposedTest() {
 
             // 외부 트랜잭션은 예외가 발생하지 않고, 기존 데이터에 영향이 없다.
             TesterEntity.count() shouldBeEqualTo 1L
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `custom executor 를 사용하면 해당 스레드에서 실행된다`(testDB: TestDB) {
+        withTables(testDB, VTester) {
+            val executor = Executors.newSingleThreadExecutor { runnable ->
+                Thread(runnable, "vt-custom-executor")
+            }
+            try {
+                val threadName = newVirtualThreadTransaction(executor = executor) {
+                    Thread.currentThread().name
+                }
+                threadName.shouldContain("vt-custom-executor")
+            } finally {
+                executor.shutdown()
+            }
         }
     }
 }

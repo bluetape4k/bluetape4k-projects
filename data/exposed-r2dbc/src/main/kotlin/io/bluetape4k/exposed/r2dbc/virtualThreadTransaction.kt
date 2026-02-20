@@ -3,6 +3,7 @@ package io.bluetape4k.exposed.r2dbc
 import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import io.r2dbc.spi.IsolationLevel
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -70,19 +71,36 @@ suspend fun <T> R2dbcTransaction.withVirtualThreadTransaction(
 suspend fun <T> virtualThreadTransactionAsync(
     executor: ExecutorService? = VirtualThreadExecutor,
     db: R2dbcDatabase? = null,
-    transactionIsolation: IsolationLevel?,
-    readOnly: Boolean? = false,
+    transactionIsolation: IsolationLevel? = null,
+    readOnly: Boolean = false,
     statement: suspend R2dbcTransaction.() -> T,
 ): Deferred<T> = coroutineScope {
-    val dispatcher = (executor ?: VirtualThreadExecutor).asCoroutineDispatcher()
+    val (dispatcher, shouldClose) = createDispatcher(executor)
 
     async(dispatcher) {
-        suspendTransaction(
-            db = db,
-            transactionIsolation = transactionIsolation ?: db?.transactionManager?.defaultIsolationLevel,
-            readOnly = readOnly ?: db?.transactionManager?.defaultReadOnly,
-        ) {
-            statement()
+        try {
+            suspendTransaction(
+                db = db,
+                transactionIsolation = transactionIsolation ?: db?.transactionManager?.defaultIsolationLevel,
+                readOnly = readOnly,
+            ) {
+                statement()
+            }
+        } finally {
+            if (shouldClose) {
+                dispatcher.close()
+            }
         }
     }
+}
+
+private val virtualThreadDispatcher: ExecutorCoroutineDispatcher by lazy {
+    VirtualThreadExecutor.asCoroutineDispatcher()
+}
+
+private fun createDispatcher(executor: ExecutorService?): Pair<ExecutorCoroutineDispatcher, Boolean> {
+    if (executor == null || executor === VirtualThreadExecutor) {
+        return virtualThreadDispatcher to false
+    }
+    return executor.asCoroutineDispatcher() to true
 }

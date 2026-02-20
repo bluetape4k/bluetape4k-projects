@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.r2dbc
 
-import io.bluetape4k.coroutines.flow.extensions.toFastList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.firstOrNull

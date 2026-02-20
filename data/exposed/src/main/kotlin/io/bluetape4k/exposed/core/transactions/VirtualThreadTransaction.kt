@@ -66,9 +66,16 @@ fun <T> virtualThreadTransactionAsync(
     transactionIsolation: Int? = null,
     readOnly: Boolean = false,
     statement: JdbcTransaction.() -> T,
-): VirtualFuture<T> = virtualFuture(executor = executor ?: VirtualThreadExecutor) {
-    val isolationLevel = transactionIsolation ?: db?.transactionManager?.defaultIsolationLevel
-    transaction(db = db, transactionIsolation = isolationLevel, readOnly = readOnly) {
-        statement(this)
+): VirtualFuture<T> {
+    val effectiveExecutor = executor ?: VirtualThreadExecutor
+    require(!effectiveExecutor.isShutdown && !effectiveExecutor.isTerminated) {
+        "ExecutorService is already shutdown."
+    }
+
+    return virtualFuture(executor = effectiveExecutor) {
+        val isolationLevel = transactionIsolation ?: db?.transactionManager?.defaultIsolationLevel
+        transaction(db = db, transactionIsolation = isolationLevel, readOnly = readOnly) {
+            statement(this)
+        }
     }
 }

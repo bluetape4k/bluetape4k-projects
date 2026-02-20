@@ -183,7 +183,7 @@ private suspend fun Any?.toExposedBlobOrNull(): ExposedBlob? =
             bytes.toExposedBlob()
         }
         is InputStream -> toExposedBlob()
-        is Blob        -> {
+        is Blob ->
             ByteArrayOutputStream().use { out ->
                 stream().asFlow()
                     .collect { buf ->
@@ -193,8 +193,8 @@ private suspend fun Any?.toExposedBlobOrNull(): ExposedBlob? =
                             out.write(bytes)
                         }
                     }
+
                 out.toByteArray().toExposedBlob()
             }
-        }
         else           -> null
     }
