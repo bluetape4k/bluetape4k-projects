@@ -11,15 +11,25 @@ import org.eclipse.collections.impl.list.mutable.primitive.DoubleArrayList
 
 fun DoubleArray.toDoubleArrayList(): DoubleArrayList = DoubleArrayList.newListWith(*this)
 
-fun Iterable<Double>.toDoubleArrayList() =
-    DoubleArrayList().also { array ->
-        forEach { array.add(it) }
+fun Iterable<Double>.toDoubleArrayList(): DoubleArrayList =
+    when (this) {
+        is Collection<Double> -> DoubleArrayList(this.size).also { array ->
+            forEach { array.add(it) }
+        }
+        else                  -> DoubleArrayList().also { array ->
+            forEach { array.add(it) }
+        }
     }
 
 fun Sequence<Double>.toDoubleArrayList() = asIterable().toDoubleArrayList()
 
-fun Iterable<Number>.asDoubleArrayList() = DoubleArrayList().also { array ->
-    forEach { number -> array.add(number.asDouble()) }
+fun Iterable<Number>.asDoubleArrayList() = when (this) {
+    is Collection<Number> -> DoubleArrayList(this.size).also { array ->
+        forEach { number -> array.add(number.asDouble()) }
+    }
+    else                  -> DoubleArrayList().also { array ->
+        forEach { number -> array.add(number.asDouble()) }
+    }
 }
 
 
@@ -43,11 +53,10 @@ fun DoubleIterable.toDoubleArrayList(): DoubleArrayList = when (this) {
     else -> DoubleArrayList.newList(this)
 }
 
-fun DoubleIterable.asIterator(): Iterator<Double> = iterator {
-    val iter = doubleIterator()
-    while (iter.hasNext()) {
-        yield(iter.next())
-    }
+fun DoubleIterable.asIterator(): Iterator<Double> = object: Iterator<Double> {
+    private val iter = doubleIterator()
+    override fun hasNext(): Boolean = iter.hasNext()
+    override fun next(): Double = iter.next()
 }
 
 fun DoubleIterable.asSequence(): Sequence<Double> = sequence {

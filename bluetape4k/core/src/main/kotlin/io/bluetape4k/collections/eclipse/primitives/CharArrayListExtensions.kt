@@ -12,14 +12,24 @@ import org.eclipse.collections.impl.list.mutable.primitive.CharArrayList
 fun CharArray.toCharArrayList(): CharArrayList = CharArrayList.newListWith(*this)
 
 fun Iterable<Char>.toCharArrayList(): CharArrayList =
-    CharArrayList().also { array ->
-        forEach { array.add(it) }
+    when (this) {
+        is Collection<Char> -> CharArrayList(this.size).also { array ->
+            forEach { array.add(it) }
+        }
+        else                -> CharArrayList().also { array ->
+            forEach { array.add(it) }
+        }
     }
 
 fun Sequence<Char>.toCharArrayList(): CharArrayList = asIterable().toCharArrayList()
 
-fun Iterable<Any>.asCharArrayList(): CharArrayList = CharArrayList().also { array ->
-    forEach { number -> array.add(number.asChar()) }
+fun Iterable<Any>.asCharArrayList(): CharArrayList = when (this) {
+    is Collection<Any> -> CharArrayList(this.size).also { array ->
+        forEach { number -> array.add(number.asChar()) }
+    }
+    else               -> CharArrayList().also { array ->
+        forEach { number -> array.add(number.asChar()) }
+    }
 }
 
 inline fun charArrayList(
@@ -42,11 +52,10 @@ fun CharIterable.toCharArrayList(): CharArrayList = when (this) {
     else -> CharArrayList.newList(this)
 }
 
-fun CharIterable.asIterator(): Iterator<Char> = iterator {
-    val iter = charIterator()
-    while (iter.hasNext()) {
-        yield(iter.next())
-    }
+fun CharIterable.asIterator(): Iterator<Char> = object: Iterator<Char> {
+    private val iter = charIterator()
+    override fun hasNext(): Boolean = iter.hasNext()
+    override fun next(): Char = iter.next()
 }
 
 fun CharIterable.asSequence(): Sequence<Char> = sequence {

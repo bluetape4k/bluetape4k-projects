@@ -12,8 +12,13 @@ fun BooleanArray.toBooleanArrayList(): BooleanArrayList =
     BooleanArrayList.newListWith(*this)
 
 fun Iterable<Boolean>.toBooleanArrayList(): BooleanArrayList =
-    BooleanArrayList().also { array ->
-        forEach { array.add(it) }
+    when (this) {
+        is Collection<Boolean> -> BooleanArrayList(this.size).also { array ->
+            forEach { array.add(it) }
+        }
+        else                   -> BooleanArrayList().also { array ->
+            forEach { array.add(it) }
+        }
     }
 
 fun Sequence<Boolean>.toBooleanArrayList(): BooleanArrayList = asIterable().toBooleanArrayList()
@@ -39,11 +44,10 @@ fun BooleanIterable.toBooleanArrayList(): BooleanArrayList = when (this) {
     else -> BooleanArrayList.newList(this)
 }
 
-fun BooleanIterable.asIterator(): Iterator<Boolean> = iterator {
-    val iter = booleanIterator()
-    while (iter.hasNext()) {
-        yield(iter.next())
-    }
+fun BooleanIterable.asIterator(): Iterator<Boolean> = object: Iterator<Boolean> {
+    private val iter = booleanIterator()
+    override fun hasNext(): Boolean = iter.hasNext()
+    override fun next(): Boolean = iter.next()
 }
 
 fun BooleanIterable.asSequence(): Sequence<Boolean> = sequence {

@@ -5,12 +5,16 @@ import io.bluetape4k.support.emptyCharArray
 /**
  * 한글 자모 범위 (ㄱ~ㅎ, ㅏ~ㅣ)
  */
-private val JAMO_RANGE = 0x3131..0x3163
+private const val JAMO_START = 0x3131
+private const val JAMO_END = 0x3163
+private val JAMO_RANGE = JAMO_START..JAMO_END
 
 /**
  * 한글 완성형 범위 (가~힣)
  */
-val KOREAN_RANGE = 0xAC00..0xD7AF
+private const val KOREAN_START = 0xAC00
+private const val KOREAN_END = 0xD7AF
+val KOREAN_RANGE = KOREAN_START..KOREAN_END
 
 // @formatter:off
 private val CHO_SUNG = intArrayOf(

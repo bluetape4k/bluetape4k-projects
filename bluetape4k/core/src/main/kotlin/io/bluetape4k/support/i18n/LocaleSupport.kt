@@ -1,6 +1,5 @@
 package io.bluetape4k.support.i18n
 
-import io.bluetape4k.support.assertNotBlank
 import io.bluetape4k.support.requireNotBlank
 import java.util.*
 
@@ -67,31 +66,30 @@ fun Locale.getParentList(): List<Locale> = buildList {
  */
 fun Locale.calculateFilenames(basename: String): List<String> {
     basename.requireNotBlank("basename")
-
-    val results = mutableListOf<String>()
+    val results = ArrayList<String>(4)
 
     val language = this.language
     val country = this.country
     val variant = this.variant
 
-    val temp = StringBuilder(basename)
-    temp.append("_")
+    val temp = StringBuilder(basename).append("_")
 
     if (language.isNotEmpty()) {
         temp.append(language)
-        results.add(0, temp.toString())
+        results.add(temp.toString())
     }
     temp.append("_")
 
     if (country.isNotEmpty()) {
         temp.append(country)
-        results.add(0, temp.toString())
+        results.add(temp.toString())
     }
 
-    if (variant.isNotEmpty() && (language.isNotEmpty() || country.isNotEmpty())) {
+    if (variant.isNotEmpty() && language.isNotEmpty() && country.isNotEmpty()) {
         temp.append("_").append(variant)
-        results.add(0, temp.toString())
+        results.add(temp.toString())
     }
+    results.reverse()
     results.add(basename)
 
     return results

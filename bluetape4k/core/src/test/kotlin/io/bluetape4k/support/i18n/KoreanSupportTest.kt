@@ -43,6 +43,14 @@ class KoreanSupportTest {
     }
 
     @Test
+    fun `한글 자모와 완성형 경계값 검사`() {
+        "\u3131".containKorean().shouldBeTrue()
+        "\u3163".containKorean().shouldBeTrue()
+        "\uAC00".containKorean().shouldBeTrue()
+        "\uD7A3".containKorean().shouldBeTrue()
+    }
+
+    @Test
     fun `한글 자소 분해`() {
         val result = "한국".getJasoLetter()
         log.debug { "한국 -> $result" }

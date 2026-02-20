@@ -15,7 +15,6 @@ import org.eclipse.collections.impl.factory.Multimaps
 import org.eclipse.collections.impl.multimap.bag.HashBagMultimap
 import org.eclipse.collections.impl.multimap.list.FastListMultimap
 import org.eclipse.collections.impl.multimap.set.UnifiedSetMultimap
-import org.eclipse.collections.impl.tuple.Tuples
 
 fun <K, V> emptyImmutableListMultimap(): ImmutableListMultimap<K, V> = Multimaps.immutable.list.empty<K, V>()
 fun <K, V> emptyImmutableSetMultimap(): ImmutableSetMultimap<K, V> = Multimaps.immutable.set.empty<K, V>()
@@ -33,16 +32,22 @@ fun <K, V> emptyMutableBagMultimap(): MutableBagMultimap<K, V> = Multimaps.mutab
 
 
 fun <K, V> listMultimapOf(vararg pairs: Pair<K, V>): MutableListMultimap<K, V> =
-    FastListMultimap.newMultimap(pairs.map { it.toTuplePair() })
+    FastListMultimap.newMultimap<K, V>().also { multimap ->
+        pairs.forEach { (key, value) -> multimap.put(key, value) }
+    }
 
 fun <K, V> setMultimapOf(vararg pairs: Pair<K, V>): MutableSetMultimap<K, V> =
-    UnifiedSetMultimap.newMultimap(pairs.map { it.toTuplePair() })
+    UnifiedSetMultimap.newMultimap<K, V>().also { multimap ->
+        pairs.forEach { (key, value) -> multimap.put(key, value) }
+    }
 
 fun <K, V> bagMultimapOf(vararg pairs: Pair<K, V>): HashBagMultimap<K, V> =
-    HashBagMultimap.newMultimap(pairs.map { it.toTuplePair() })
+    HashBagMultimap.newMultimap<K, V>().also { multimap ->
+        pairs.forEach { (key, value) -> multimap.put(key, value) }
+    }
 
 fun <K, V> Map<K, V>.toImmutableListMultimap(): ImmutableListMultimap<K, V> =
-    Multimaps.immutable.list.with<K, V>().also { this.map { Tuples.pair(it.key, it.value) } }
+    toListMultimap().toImmutable()
 
 fun <K, V> Map<K, V>.toListMultimap(
     destination: MutableListMultimap<K, V> = Multimaps.mutable.list.empty<K, V>(),
@@ -54,7 +59,7 @@ fun <K, V> Map<K, V>.toListMultimap(
 }
 
 fun <K, V> Map<K, V>.toImmutableSetMultimap(): ImmutableSetMultimap<K, V> =
-    Multimaps.immutable.set.with<K, V>().also { this.map { Tuples.pair(it.key, it.value) } }
+    toSetMultimap().toImmutable()
 
 fun <K, V> Map<K, V>.toSetMultimap(
     destination: MutableSetMultimap<K, V> = Multimaps.mutable.set.empty<K, V>(),
@@ -66,7 +71,7 @@ fun <K, V> Map<K, V>.toSetMultimap(
 }
 
 fun <K, V> Map<K, V>.toImmutableBagMultimap(): ImmutableBagMultimap<K, V> =
-    Multimaps.immutable.bag.with<K, V>().also { this.map { Tuples.pair(it.key, it.value) } }
+    toBagMultimap().toImmutable()
 
 fun <K, V> Map<K, V>.toBagMultimap(
     destination: MutableBagMultimap<K, V> = Multimaps.mutable.bag.empty<K, V>(),

@@ -12,14 +12,24 @@ import org.eclipse.collections.impl.list.mutable.primitive.FloatArrayList
 fun FloatArray.toFloatArrayList(): FloatArrayList = FloatArrayList.newListWith(*this)
 
 fun Iterable<Float>.toFloatArrayList(): FloatArrayList =
-    FloatArrayList().also { array ->
-        forEach { array.add(it) }
+    when (this) {
+        is Collection<Float> -> FloatArrayList(this.size).also { array ->
+            forEach { array.add(it) }
+        }
+        else                 -> FloatArrayList().also { array ->
+            forEach { array.add(it) }
+        }
     }
 
 fun Sequence<Float>.toFloatArrayList(): FloatArrayList = asIterable().toFloatArrayList()
 
-fun Iterable<Number>.asFloatArrayList() = FloatArrayList().also { array ->
-    forEach { number -> array.add(number.asFloat()) }
+fun Iterable<Number>.asFloatArrayList() = when (this) {
+    is Collection<Number> -> FloatArrayList(this.size).also { array ->
+        forEach { number -> array.add(number.asFloat()) }
+    }
+    else                  -> FloatArrayList().also { array ->
+        forEach { number -> array.add(number.asFloat()) }
+    }
 }
 
 inline fun floatArrayList(
@@ -42,11 +52,10 @@ fun FloatIterable.toFloatArrayList(): FloatArrayList = when (this) {
     else -> FloatArrayList.newList(this)
 }
 
-fun FloatIterable.asIterator(): Iterator<Float> = iterator {
-    val iter = floatIterator()
-    while (iter.hasNext()) {
-        yield(iter.next())
-    }
+fun FloatIterable.asIterator(): Iterator<Float> = object: Iterator<Float> {
+    private val iter = floatIterator()
+    override fun hasNext(): Boolean = iter.hasNext()
+    override fun next(): Float = iter.next()
 }
 
 fun FloatIterable.asSequence(): Sequence<Float> = sequence {

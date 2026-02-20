@@ -39,7 +39,8 @@ inline fun IntInterval.windowed(
     var pos = 0
     val intervalSize = this@windowed.size()
     while (pos < intervalSize) {
-        val window = IntArrayList()
+        val remaining = intervalSize - pos
+        val window = IntArrayList(minOf(size, remaining))
         repeat(size) {
             if (pos + it < intervalSize) {
                 window.add(this@windowed[pos + it])
@@ -71,7 +72,7 @@ fun longIntervalOf(start: Long, endInclusive: Long, step: Long = 1): LongInterva
     LongInterval.fromToBy(start, endInclusive, step)
 
 fun LongInterval.toLongArrayList(): LongArrayList =
-    LongArrayList().also { array ->
+    LongArrayList(size()).also { array ->
         forEach {
             array.add(it)
         }
@@ -93,7 +94,8 @@ inline fun LongInterval.windowed(
     var pos = 0
     val intervalSize = this@windowed.size()
     while (pos < intervalSize) {
-        val window = LongArrayList()
+        val remaining = intervalSize - pos
+        val window = LongArrayList(minOf(size, remaining))
         repeat(size) {
             if (pos + it < intervalSize) {
                 window.add(this@windowed[pos + it])

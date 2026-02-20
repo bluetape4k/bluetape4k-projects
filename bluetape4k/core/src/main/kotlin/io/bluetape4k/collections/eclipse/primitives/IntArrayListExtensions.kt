@@ -12,14 +12,24 @@ import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList
 fun IntArray.toIntArrayList(): IntArrayList = IntArrayList.newListWith(*this)
 
 fun Iterable<Int>.toIntArrayList(): IntArrayList =
-    IntArrayList().also { array ->
-        forEach { array.add(it) }
+    when (this) {
+        is Collection<Int> -> IntArrayList(this.size).also { array ->
+            forEach { array.add(it) }
+        }
+        else               -> IntArrayList().also { array ->
+            forEach { array.add(it) }
+        }
     }
 
 fun Sequence<Int>.toIntArrayList(): IntArrayList = asIterable().toIntArrayList()
 
-fun Iterable<Number>.asIntArrayList() = IntArrayList().also { array ->
-    forEach { number -> array.add(number.asInt()) }
+fun Iterable<Number>.asIntArrayList() = when (this) {
+    is Collection<Number> -> IntArrayList(this.size).also { array ->
+        forEach { number -> array.add(number.asInt()) }
+    }
+    else                  -> IntArrayList().also { array ->
+        forEach { number -> array.add(number.asInt()) }
+    }
 }
 
 inline fun intArrayList(
@@ -42,11 +52,10 @@ fun IntIterable.toIntArrayList(): IntArrayList = when (this) {
     else -> IntArrayList.newList(this)
 }
 
-fun IntIterable.asIterator(): Iterator<Int> = iterator {
-    val iter = intIterator()
-    while (iter.hasNext()) {
-        yield(iter.next())
-    }
+fun IntIterable.asIterator(): Iterator<Int> = object: Iterator<Int> {
+    private val iter = intIterator()
+    override fun hasNext(): Boolean = iter.hasNext()
+    override fun next(): Int = iter.next()
 }
 
 fun IntIterable.asSequence(): Sequence<Int> = sequence {

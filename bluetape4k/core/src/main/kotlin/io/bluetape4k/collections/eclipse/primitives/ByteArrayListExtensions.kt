@@ -13,14 +13,24 @@ fun ByteArray.toByteArrayList(): ByteArrayList =
     ByteArrayList.newListWith(*this)
 
 fun Iterable<Byte>.toByteArrayList(): ByteArrayList =
-    ByteArrayList().also { array ->
-        forEach { array.add(it) }
+    when (this) {
+        is Collection<Byte> -> ByteArrayList(this.size).also { array ->
+            forEach { array.add(it) }
+        }
+        else                -> ByteArrayList().also { array ->
+            forEach { array.add(it) }
+        }
     }
 
 fun Sequence<Byte>.toByteArrayList(): ByteArrayList = asIterable().toByteArrayList()
 
-fun Iterable<Number>.asByteArrayList() = ByteArrayList().also { array ->
-    forEach { number -> array.add(number.asByte()) }
+fun Iterable<Number>.asByteArrayList() = when (this) {
+    is Collection<Number> -> ByteArrayList(this.size).also { array ->
+        forEach { number -> array.add(number.asByte()) }
+    }
+    else                  -> ByteArrayList().also { array ->
+        forEach { number -> array.add(number.asByte()) }
+    }
 }
 
 inline fun byteArrayList(
@@ -43,11 +53,10 @@ fun ByteIterable.toByteArrayList(): ByteArrayList = when (this) {
     else -> ByteArrayList.newList(this)
 }
 
-fun ByteIterable.asIterator(): Iterator<Byte> = iterator {
-    val iter = byteIterator()
-    while (iter.hasNext()) {
-        yield(iter.next())
-    }
+fun ByteIterable.asIterator(): Iterator<Byte> = object: Iterator<Byte> {
+    private val iter = byteIterator()
+    override fun hasNext(): Boolean = iter.hasNext()
+    override fun next(): Byte = iter.next()
 }
 
 fun ByteIterable.asSequence(): Sequence<Byte> = sequence {

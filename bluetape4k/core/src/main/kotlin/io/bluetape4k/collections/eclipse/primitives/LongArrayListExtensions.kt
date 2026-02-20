@@ -13,14 +13,24 @@ fun LongArray.toLongArrayList(): LongArrayList = LongArrayList.newListWith(*this
 
 
 fun Iterable<Long>.toLongArrayList(): LongArrayList =
-    LongArrayList().also { array ->
-        forEach { array.add(it) }
+    when (this) {
+        is Collection<Long> -> LongArrayList(this.size).also { array ->
+            forEach { array.add(it) }
+        }
+        else                -> LongArrayList().also { array ->
+            forEach { array.add(it) }
+        }
     }
 
 fun Sequence<Long>.toLongArrayList(): LongArrayList = asIterable().toLongArrayList()
 
-fun Iterable<Number>.asLongArrayList() = LongArrayList().also { array ->
-    forEach { number -> array.add(number.asLong()) }
+fun Iterable<Number>.asLongArrayList() = when (this) {
+    is Collection<Number> -> LongArrayList(this.size).also { array ->
+        forEach { number -> array.add(number.asLong()) }
+    }
+    else                  -> LongArrayList().also { array ->
+        forEach { number -> array.add(number.asLong()) }
+    }
 }
 
 inline fun longArrayList(
@@ -43,11 +53,10 @@ fun LongIterable.toLongArrayList(): LongArrayList = when (this) {
     else -> LongArrayList.newList(this)
 }
 
-fun LongIterable.asIterator(): Iterator<Long> = iterator {
-    val iter = longIterator()
-    while (iter.hasNext()) {
-        yield(iter.next())
-    }
+fun LongIterable.asIterator(): Iterator<Long> = object: Iterator<Long> {
+    private val iter = longIterator()
+    override fun hasNext(): Boolean = iter.hasNext()
+    override fun next(): Long = iter.next()
 }
 
 fun LongIterable.asSequence(): Sequence<Long> = sequence {

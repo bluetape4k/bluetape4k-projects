@@ -101,4 +101,12 @@ class LocaleSupportTest {
 
         filenames shouldBeEqualTo listOf("messages_en_US_WIN", "messages_en_US", "messages_en", "messages")
     }
+
+    @Test
+    fun `calculateFilenames - language만 있고 country 비어있으면 variant는 무시`() {
+        val filenames = Locale.Builder().setLanguage("en").setVariant("POSIX").build()
+            .calculateFilenames("messages")
+
+        filenames shouldBeEqualTo listOf("messages_en", "messages")
+    }
 }

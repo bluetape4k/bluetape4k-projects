@@ -90,4 +90,13 @@ class MultimapSupportTest: AbstractCollectionTest() {
         val smap2 = map.toSetMultimap { it }
         smap2.verify()
     }
+
+    @Test
+    fun `Map 을 Immutable Multimap 으로 변환`() {
+        val map = mapOf(1 to "one", 2 to "two")
+
+        map.toImmutableListMultimap()[1] shouldContainSame listOf("one")
+        map.toImmutableSetMultimap()[2] shouldContainSame setOf("two")
+        map.toImmutableBagMultimap()[1].size() shouldBeEqualTo 1
+    }
 }

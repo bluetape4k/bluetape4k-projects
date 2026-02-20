@@ -12,14 +12,24 @@ import org.eclipse.collections.impl.list.mutable.primitive.ShortArrayList
 fun ShortArray.toShortArrayList(): ShortArrayList = ShortArrayList.newListWith(*this)
 
 fun Iterable<Short>.toShortArrayList(): ShortArrayList =
-    ShortArrayList().also { array ->
-        forEach { array.add(it) }
+    when (this) {
+        is Collection<Short> -> ShortArrayList(this.size).also { array ->
+            forEach { array.add(it) }
+        }
+        else                 -> ShortArrayList().also { array ->
+            forEach { array.add(it) }
+        }
     }
 
 fun Sequence<Short>.toShortArrayList(): ShortArrayList = asIterable().toShortArrayList()
 
-fun Iterable<Number>.asShortArrayList() = ShortArrayList().also { array ->
-    forEach { number -> array.add(number.asShort()) }
+fun Iterable<Number>.asShortArrayList() = when (this) {
+    is Collection<Number> -> ShortArrayList(this.size).also { array ->
+        forEach { number -> array.add(number.asShort()) }
+    }
+    else                  -> ShortArrayList().also { array ->
+        forEach { number -> array.add(number.asShort()) }
+    }
 }
 
 inline fun shortArrayList(
@@ -42,11 +52,10 @@ fun ShortIterable.toShortArrayList(): ShortArrayList = when (this) {
     else -> ShortArrayList.newList(this)
 }
 
-fun ShortIterable.asIterator(): Iterator<Short> = iterator {
-    val iter = shortIterator()
-    while (iter.hasNext()) {
-        yield(iter.next())
-    }
+fun ShortIterable.asIterator(): Iterator<Short> = object: Iterator<Short> {
+    private val iter = shortIterator()
+    override fun hasNext(): Boolean = iter.hasNext()
+    override fun next(): Short = iter.next()
 }
 
 fun ShortIterable.asSequence(): Sequence<Short> = sequence {
