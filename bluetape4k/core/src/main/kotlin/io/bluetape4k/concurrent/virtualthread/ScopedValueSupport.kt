@@ -29,7 +29,7 @@ package io.bluetape4k.concurrent.virtualthread
  * @param block Scoped value 를 사용하여 수행할 작업
  */
 inline fun <T> ScopedValue<T>.runWith(value: T, crossinline block: (ScopedValue<T>) -> Unit) {
-    ScopedValue.where(this, value).run {
+    ScopedValue.where(this@runWith, value).run {
         block(this@runWith)
     }
 }

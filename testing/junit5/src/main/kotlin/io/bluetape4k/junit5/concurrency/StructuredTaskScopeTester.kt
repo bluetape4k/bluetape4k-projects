@@ -1,12 +1,12 @@
 package io.bluetape4k.junit5.concurrency
 
+import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopes
 import io.bluetape4k.junit5.tester.StressTester
 import io.bluetape4k.junit5.tester.StressTester.Companion.DEFAULT_ROUNDS_PER_WORKER
 import io.bluetape4k.junit5.tester.StressTester.Companion.MAX_ROUNDS_PER_WORKER
 import io.bluetape4k.junit5.tester.StressTester.Companion.MIN_ROUNDS_PER_WORKER
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
-import java.util.concurrent.StructuredTaskScope
 import java.util.concurrent.ThreadFactory
 
 /**
@@ -72,18 +72,15 @@ class StructuredTaskScopeTester: StressTester<StructuredTaskScopeTester> {
         }
 
         val factory = this.factory ?: Thread.ofVirtual().factory()
-        StructuredTaskScope.ShutdownOnFailure("a", factory).use { scope ->
+        StructuredTaskScopes.all("stressTester", factory) { scope ->
             repeat(roundsPerWorker) {
-                testBlocks.forEach { testBlocks ->
-                    scope.fork {
-                        testBlocks.invoke()
-                    }
+                testBlocks.forEach { block ->
+                    scope.fork { block() }
+
                 }
             }
-
             scope.join().throwIfFailed {
                 log.error(it) { "Test blocks failed with exception." }
-                throw it
             }
         }
     }

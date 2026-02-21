@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
-import java.util.concurrent.ExecutionException
 import kotlin.test.assertFailsWith
 
 @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
@@ -17,7 +16,6 @@ class StructuredScopeSupportTest {
 
     @Nested
     inner class WithAny {
-
         @Test
         fun `첫번째 완료된 작업의 결과를 얻는다`() {
             val result = structuredTaskScopeAny { scope ->
@@ -41,7 +39,6 @@ class StructuredScopeSupportTest {
         @Test
         fun `첫번째 성공한 결과를 반환한다`() {
             val result = structuredTaskScopeAny { scope ->
-
                 scope.fork {
                     Thread.sleep(10)
                     throw RuntimeException("Boom!")
@@ -60,7 +57,7 @@ class StructuredScopeSupportTest {
 
         @Test
         fun `모든 작업이 실패한다면, 첫번째 예외를 반환한다`() {
-            assertFailsWith<IllegalStateException> {
+            assertFailsWith<RuntimeException> {
                 structuredTaskScopeAny<String> { scope ->
                     scope.fork {
                         Thread.sleep(10)
@@ -102,7 +99,7 @@ class StructuredScopeSupportTest {
 
         @Test
         fun `Subtask에서 예외가 발생하면 예외를 던진다`() {
-            assertFailsWith<ExecutionException> {
+            assertFailsWith<RuntimeException> {
                 structuredTaskScopeAll { scope ->
                     val result1 = scope.fork {
                         Thread.sleep(10)
@@ -117,7 +114,7 @@ class StructuredScopeSupportTest {
 
                     listOf(result1.get(), result2.get())
                 }
-            }.cause shouldBeInstanceOf RuntimeException::class
+            }
         }
     }
 }

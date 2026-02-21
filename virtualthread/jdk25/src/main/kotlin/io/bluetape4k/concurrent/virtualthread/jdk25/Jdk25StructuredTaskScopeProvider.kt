@@ -5,7 +5,6 @@ import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeAll
 import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeAny
 import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeProvider
 import java.util.concurrent.Callable
-import java.util.concurrent.ExecutionException
 import java.util.concurrent.StructuredTaskScope
 import java.util.concurrent.ThreadFactory
 import java.util.function.Function
@@ -86,13 +85,14 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
             return this
         }
 
-        override fun throwIfFailed(): StructuredTaskScopeAll {
+        override fun throwIfFailed(handler: (e: Throwable) -> Unit): StructuredTaskScopeAll {
             val firstFailure = subtasks.asSequence()
                 .mapNotNull { it.exceptionOrNull() }
                 .firstOrNull()
 
             if (firstFailure != null) {
-                throw ExecutionException(firstFailure)
+                handler(firstFailure)
+                throw firstFailure
             }
             return this
         }

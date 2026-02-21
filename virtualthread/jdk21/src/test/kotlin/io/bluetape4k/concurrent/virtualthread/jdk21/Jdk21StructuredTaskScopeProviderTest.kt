@@ -6,7 +6,6 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
-import java.util.concurrent.ExecutionException
 import kotlin.test.assertFailsWith
 
 @EnabledOnJre(JRE.JAVA_21)
@@ -36,7 +35,7 @@ class Jdk21StructuredTaskScopeProviderTest {
 
     @Test
     fun `withAll failure should throw`() {
-        assertFailsWith<ExecutionException> {
+        assertFailsWith<IllegalStateException> {
             provider.withAll { scope ->
                 scope.fork { 1 }
                 scope.fork<Int> { throw IllegalStateException("boom") }

@@ -6,6 +6,8 @@ dependencies {
     implementation(platform(Libs.junit_bom))
     
     api(project(":bluetape4k-logging"))
+    api(project(":bluetape4k-virtualthread-api"))
+    runtimeOnly(project(":bluetape4k-virtualthread-jdk21"))
 
     api(Libs.kotlin_test_junit5)
 

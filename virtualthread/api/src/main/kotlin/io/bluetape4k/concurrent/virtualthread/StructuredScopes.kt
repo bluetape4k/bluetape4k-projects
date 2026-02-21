@@ -16,7 +16,7 @@ interface StructuredSubtask<T> {
 interface StructuredTaskScopeAll: AutoCloseable {
     fun <T> fork(task: () -> T): StructuredSubtask<T>
     fun join(): StructuredTaskScopeAll
-    fun throwIfFailed(): StructuredTaskScopeAll
+    fun throwIfFailed(handler: (e: Throwable) -> Unit = {}): StructuredTaskScopeAll
     override fun close()
 }
 

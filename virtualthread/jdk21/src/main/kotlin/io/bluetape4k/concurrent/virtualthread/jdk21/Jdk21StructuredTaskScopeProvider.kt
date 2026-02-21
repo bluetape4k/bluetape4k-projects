@@ -55,8 +55,11 @@ class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
             return this
         }
 
-        override fun throwIfFailed(): StructuredTaskScopeAll {
-            delegate.throwIfFailed()
+        override fun throwIfFailed(handler: (e: Throwable) -> Unit): StructuredTaskScopeAll {
+            delegate.throwIfFailed {
+                handler(it)
+                throw it
+            }
             return this
         }
 
