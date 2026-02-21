@@ -3,6 +3,6 @@ configurations {
 }
 
 dependencies {
+    implementation(project(":bluetape4k-logging"))
     testImplementation(project(":bluetape4k-junit5"))
 }
-

@@ -4,6 +4,8 @@ import io.bluetape4k.concurrent.virtualthread.StructuredSubtask
 import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeAll
 import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeAny
 import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeProvider
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import java.util.concurrent.Callable
 import java.util.concurrent.StructuredTaskScope
 import java.util.concurrent.ThreadFactory
@@ -13,16 +15,24 @@ import java.util.concurrent.ThreadFactory
  */
 class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
 
-    override val providerName: String = "jdk21-structured-scope"
-    override val priority: Int = 21
+    companion object: KLoggingChannel() {
+        const val PROVIDER_NAME = "jdk21-structured-task-scope"
+        const val JAVA_VERSION = 21
+        const val PRIORITY = JAVA_VERSION
+    }
 
-    override fun isSupported(): Boolean = Runtime.version().feature() >= 21
+    override val providerName: String = PROVIDER_NAME
+    override val priority: Int = PRIORITY
+
+    override fun isSupported(): Boolean = Runtime.version().feature() >= JAVA_VERSION
 
     override fun <T> withAll(
         name: String?,
         factory: ThreadFactory,
         block: (scope: StructuredTaskScopeAll) -> T,
     ): T {
+        log.debug { "모든 subtask 가 완료될 때까지 기다립니다..." }
+        
         return StructuredTaskScope.ShutdownOnFailure(name, factory).use { scope ->
             block(Jdk21AllScope(scope))
         }
@@ -33,6 +43,8 @@ class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         factory: ThreadFactory,
         block: (scope: StructuredTaskScopeAny<T>) -> T,
     ): T {
+        log.debug { "첫번째로 완료된 subtask의 결과를 반환합낟." }
+
         return StructuredTaskScope.ShutdownOnSuccess<T>(name, factory).use { scope ->
             block(Jdk21AnyScope(scope))
         }
@@ -47,8 +59,10 @@ class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
     private class Jdk21AllScope(
         private val delegate: StructuredTaskScope.ShutdownOnFailure,
     ): StructuredTaskScopeAll {
-        override fun <T> fork(task: () -> T): StructuredSubtask<T> =
-            Jdk21Subtask(delegate.fork(Callable { task() }))
+        override fun <T> fork(task: () -> T): StructuredSubtask<T> {
+            log.debug { "Add sub task..." }
+            return Jdk21Subtask(delegate.fork(Callable { task() }))
+        }
 
         override fun join(): StructuredTaskScopeAll {
             delegate.join()
@@ -72,8 +86,10 @@ class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         private val delegate: StructuredTaskScope.ShutdownOnSuccess<T>,
     ): StructuredTaskScopeAny<T> {
         @Suppress("UNCHECKED_CAST")
-        override fun <V: T> fork(task: () -> V): StructuredSubtask<V> =
-            Jdk21Subtask(delegate.fork(Callable<T> { task() }) as StructuredTaskScope.Subtask<V>)
+        override fun <V: T> fork(task: () -> V): StructuredSubtask<V> {
+            log.debug { "Add sub task..." }
+            return Jdk21Subtask(delegate.fork(Callable<T> { task() }) as StructuredTaskScope.Subtask<V>)
+        }
 
         override fun join(): StructuredTaskScopeAny<T> {
             delegate.join()
