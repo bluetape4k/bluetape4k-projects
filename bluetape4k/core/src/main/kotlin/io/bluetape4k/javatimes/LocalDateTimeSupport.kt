@@ -6,6 +6,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.Period
+import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.*
@@ -66,9 +67,9 @@ fun LocalDateTime.toInstant(): Instant = toZonedDateTime(ZoneOffset.UTC).toInsta
  * val offsetDateTime = localDateTime.toOffsetDateTime() // 2021-03-01T00:00:00+00:00
  * ```
  *
- * @param offset 변환할 zone offset (기본 값: [SystemOffset])
+ * @param offset 변환할 zone offset (기본 값: [ZoneOffset.UTC])
  */
-fun LocalDateTime.toOffsetDateTime(offset: ZoneOffset = SystemOffset): OffsetDateTime =
+fun LocalDateTime.toOffsetDateTime(offset: ZoneOffset = ZoneOffset.UTC): OffsetDateTime =
     OffsetDateTime.of(this, offset)
 
 /**
@@ -79,10 +80,10 @@ fun LocalDateTime.toOffsetDateTime(offset: ZoneOffset = SystemOffset): OffsetDat
  * val zonedDateTime = localDateTime.toZonedDateTime() // 2021-03-01T00:00:00+00:00
  * ```
  *
- * @param offset 변환할 zone offset (기본 값: [SystemOffset])
+ * @param zoneId 변환할 [ZoneId] (기본 값: [ZoneOffset.UTC])
  */
-fun LocalDateTime.toZonedDateTime(offset: ZoneOffset = SystemOffset): ZonedDateTime =
-    ZonedDateTime.of(this, offset)
+fun LocalDateTime.toZonedDateTime(zoneId: ZoneId = ZoneOffset.UTC): ZonedDateTime =
+    atZone(zoneId)
 
 //fun LocalDateTime.startOfYear(): LocalDateTime = this.withDayOfYear(1).truncatedTo(ChronoUnit.DAYS)
 //fun LocalDateTime.startOfMonth(): LocalDateTime = this.withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS)
@@ -127,7 +128,7 @@ fun LocalDate.toDate(): Date = Date.from(toInstant())
  * val instant = localDate.toInstant() // 2021-03-01
  * ```
  */
-fun LocalDate.toInstant(): Instant = Instant.ofEpochMilli(toEpochMillis())
+fun LocalDate.toInstant(): Instant = atStartOfDay(ZoneOffset.UTC).toInstant()
 
 //fun LocalDate.startOfMonth(): LocalDate = withDayOfMonth(1)
 // fun LocalDate.startOfWeek(): LocalDate = this - (dayOfWeek.value - DayOfWeek.MONDAY.value).days()
@@ -170,7 +171,10 @@ fun localTimeOf(
  *
  * ```
  * val localTime = localTimeOf(0, 0) // 00:00:00
- * val instant = localTime.toInstant() // 00:00:00
+ * val instant = localTime.toInstant() // 1970-01-01T00:00:00Z
  * ```
  */
-fun LocalTime.toInstant(): Instant = Instant.from(this)
+fun LocalTime.toInstant(
+    baseDate: LocalDate = LocalDate.ofEpochDay(0),
+    offset: ZoneOffset = ZoneOffset.UTC,
+): Instant = atDate(baseDate).toInstant(offset)

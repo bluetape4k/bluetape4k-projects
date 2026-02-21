@@ -151,7 +151,12 @@ open class DateDiff private constructor(
         if (isEmpty) return 0L
 
         val compareDay = minOf(end.dayOfMonth, calendar.daysInMonth(startYear, endMonthOfYear))
-        var compareDate = zonedDateTimeOf(startYear, endMonthOfYear, compareDay) + end.nanoOfDay.nanos()
+        var compareDate = zonedDateTimeOf(
+            startYear,
+            endMonthOfYear,
+            compareDay,
+            zoneId = start.zone,
+        ) + end.nanoOfDay.nanos()
 
         if (end > start) {
             if (!start.year.isLeapYear()) {
@@ -195,7 +200,12 @@ open class DateDiff private constructor(
         if (isEmpty) return 0L
 
         val compareDay = minOf(end.dayOfMonth, calendar.daysInMonth(startYear, startMonthOfYear))
-        var compareDate = zonedDateTimeOf(startYear, startMonthOfYear, compareDay).plusNanos(end.nanoOfDay)
+        var compareDate = zonedDateTimeOf(
+            startYear,
+            startMonthOfYear,
+            compareDay,
+            zoneId = start.zone,
+        ).plusNanos(end.nanoOfDay)
 
         if (end > start) {
             if (!start.year.isLeapYear()) {

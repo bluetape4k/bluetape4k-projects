@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.sql.Timestamp
 import java.time.Duration
 import java.time.Period
@@ -58,6 +59,13 @@ class DateSupportTest {
 
         val result = date + period
         result.time shouldBeEqualTo 2 * MILLIS_IN_DAY
+    }
+
+    @Test
+    fun `Date plus Period 연산은 years 또는 months를 허용하지 않는다`() {
+        val date = dateOf(0L)
+        assertThrows<IllegalArgumentException> { date + Period.ofMonths(1) }
+        assertThrows<IllegalArgumentException> { date + Period.ofYears(1) }
     }
 
     @Test
@@ -128,6 +136,13 @@ class DateSupportTest {
 
         val result = ts + period
         result.time shouldBeEqualTo 2 * MILLIS_IN_DAY
+    }
+
+    @Test
+    fun `Timestamp plus Period 연산은 years 또는 months를 허용하지 않는다`() {
+        val ts = Timestamp(0L)
+        assertThrows<IllegalArgumentException> { ts + Period.ofMonths(1) }
+        assertThrows<IllegalArgumentException> { ts + Period.ofYears(1) }
     }
 
     @Test

@@ -5,6 +5,7 @@ import io.bluetape4k.javatimes.period.TimeCalendar
 import io.bluetape4k.javatimes.todayZonedDateTime
 import io.bluetape4k.javatimes.zonedDateTimeOf
 import java.time.YearMonth
+import java.time.ZoneId
 import java.time.ZonedDateTime
 
 /**
@@ -19,11 +20,20 @@ open class MonthRange(
     calendar: ITimeCalendar = TimeCalendar.Default,
 ): MonthTimeRange(startTime, 1, calendar) {
 
+    /**
+     * [year], [monthOfYear] 기준의 [MonthRange]를 생성합니다. 기본 zone은 UTC입니다.
+     */
     constructor(year: Int, monthOfYear: Int, calendar: ITimeCalendar = TimeCalendar.Default)
             : this(zonedDateTimeOf(year, monthOfYear), calendar)
 
+    constructor(year: Int, monthOfYear: Int, zoneId: ZoneId, calendar: ITimeCalendar = TimeCalendar.Default)
+            : this(zonedDateTimeOf(year, monthOfYear, zoneId = zoneId), calendar)
+
     constructor(yearMonth: YearMonth, calendar: ITimeCalendar = TimeCalendar.Default)
             : this(zonedDateTimeOf(yearMonth.year, yearMonth.monthValue), calendar)
+
+    constructor(yearMonth: YearMonth, zoneId: ZoneId, calendar: ITimeCalendar = TimeCalendar.Default)
+            : this(zonedDateTimeOf(yearMonth.year, yearMonth.monthValue, zoneId = zoneId), calendar)
 
     val year: Int get() = startYear
     val monthOfYear: Int get() = startMonthOfYear

@@ -15,6 +15,7 @@ import java.time.Period
 import java.time.Year
 import java.time.YearMonth
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
@@ -30,6 +31,11 @@ import java.time.temporal.ChronoUnit
 fun nowInstant(zoneId: ZoneId = SystemZoneId): Instant = Instant.now(Clock.system(zoneId))
 
 /**
+ * 현 시각을 UTC 기준의 [Instant]로 반환합니다.
+ */
+fun nowInstantUtc(): Instant = nowInstant(ZoneOffset.UTC)
+
+/**
  * 현 시각을 [LocalTime]으로 반환합니다.
  *
  * ```
@@ -39,6 +45,11 @@ fun nowInstant(zoneId: ZoneId = SystemZoneId): Instant = Instant.now(Clock.syste
  * @return zoneId 시간대 (기본값: [SystemZoneId])
  */
 fun nowLocalTime(zoneId: ZoneId = SystemZoneId): LocalTime = LocalTime.now(zoneId)
+
+/**
+ * 현 시각을 UTC 기준 clock으로 계산한 [LocalTime]으로 반환합니다.
+ */
+fun nowLocalTimeUtc(): LocalTime = nowLocalTime(ZoneOffset.UTC)
 
 /**
  * 현 시각을 [LocalDate]로 반환합니다.
@@ -52,6 +63,11 @@ fun nowLocalTime(zoneId: ZoneId = SystemZoneId): LocalTime = LocalTime.now(zoneI
 fun nowLocalDate(zoneId: ZoneId = SystemZoneId): LocalDate = LocalDate.now(zoneId)
 
 /**
+ * 현 시각을 UTC 기준의 [LocalDate]로 반환합니다.
+ */
+fun nowLocalDateUtc(): LocalDate = nowLocalDate(ZoneOffset.UTC)
+
+/**
  * 현 시각을 [LocalDateTime]로 반환합니다.
  *
  * ```
@@ -61,6 +77,11 @@ fun nowLocalDate(zoneId: ZoneId = SystemZoneId): LocalDate = LocalDate.now(zoneI
  * @return zoneId 시간대 (기본값: [SystemZoneId])
  */
 fun nowLocalDateTime(zoneId: ZoneId = SystemZoneId): LocalDateTime = LocalDateTime.now(zoneId)
+
+/**
+ * 현 시각을 UTC 기준의 [LocalDateTime]으로 반환합니다.
+ */
+fun nowLocalDateTimeUtc(): LocalDateTime = nowLocalDateTime(ZoneOffset.UTC)
 
 /**
  * 현 시각을 [OffsetDateTime]로 반환합니다.
@@ -74,6 +95,11 @@ fun nowLocalDateTime(zoneId: ZoneId = SystemZoneId): LocalDateTime = LocalDateTi
 fun nowOffsetDateTime(zoneId: ZoneId = SystemZoneId): OffsetDateTime = OffsetDateTime.now(zoneId)
 
 /**
+ * 현 시각을 UTC 기준의 [OffsetDateTime]으로 반환합니다.
+ */
+fun nowOffsetDateTimeUtc(): OffsetDateTime = nowOffsetDateTime(ZoneOffset.UTC)
+
+/**
  * 현 시각을 [OffsetTime]으로 반환합니다.
  *
  * ```
@@ -83,6 +109,11 @@ fun nowOffsetDateTime(zoneId: ZoneId = SystemZoneId): OffsetDateTime = OffsetDat
  * @return zoneId 시간대 (기본값: [SystemZoneId])
  */
 fun nowOffsetTime(zoneId: ZoneId = SystemZoneId): OffsetTime = OffsetTime.now(zoneId)
+
+/**
+ * 현 시각을 UTC 기준의 [OffsetTime]으로 반환합니다.
+ */
+fun nowOffsetTimeUtc(): OffsetTime = nowOffsetTime(ZoneOffset.UTC)
 
 /**
  * 현 시각을 [ZonedDateTime]로 반환합니다.
@@ -96,6 +127,11 @@ fun nowOffsetTime(zoneId: ZoneId = SystemZoneId): OffsetTime = OffsetTime.now(zo
 fun nowZonedDateTime(zoneId: ZoneId = SystemZoneId): ZonedDateTime = ZonedDateTime.now(zoneId)
 
 /**
+ * 현 시각을 UTC 기준의 [ZonedDateTime]으로 반환합니다.
+ */
+fun nowZonedDateTimeUtc(): ZonedDateTime = nowZonedDateTime(ZoneOffset.UTC)
+
+/**
  * 오늘을 [Instant]로 반환합니다.
  *
  * ```
@@ -107,7 +143,12 @@ fun nowZonedDateTime(zoneId: ZoneId = SystemZoneId): ZonedDateTime = ZonedDateTi
 fun todayInstant(zonedId: ZoneId = SystemZoneId): Instant = nowInstant(zonedId).truncatedTo(ChronoUnit.DAYS)
 
 /**
- * 오늘을 [LocalDate]으로 로 반환합니다.
+ * 오늘을 UTC 기준의 [Instant]로 반환합니다.
+ */
+fun todayInstantUtc(): Instant = todayInstant(ZoneOffset.UTC)
+
+/**
+ * 오늘을 [LocalDate]로 반환합니다.
  *
  * ```
  * val today = todayLocalDate()  // 오늘
@@ -118,9 +159,14 @@ fun todayInstant(zonedId: ZoneId = SystemZoneId): Instant = nowInstant(zonedId).
 fun todayLocalDate(zoneId: ZoneId = SystemZoneId): LocalDate =
     nowLocalDate(zoneId)
 
+/**
+ * 오늘을 UTC 기준의 [LocalDate]로 반환합니다.
+ */
+fun todayLocalDateUtc(): LocalDate = todayLocalDate(ZoneOffset.UTC)
+
 
 /**
- * 오늘을 [LocalDateTime]으로 로 반환합니다.
+ * 오늘을 [LocalDateTime]으로 반환합니다.
  *
  * ```
  * val today = todayLocalDateTime()  // 오늘
@@ -130,6 +176,11 @@ fun todayLocalDate(zoneId: ZoneId = SystemZoneId): LocalDate =
  */
 fun todayLocalDateTime(zoneId: ZoneId = SystemZoneId): LocalDateTime =
     nowLocalDateTime(zoneId).truncatedTo(ChronoUnit.DAYS)
+
+/**
+ * 오늘을 UTC 기준의 [LocalDateTime]으로 반환합니다.
+ */
+fun todayLocalDateTimeUtc(): LocalDateTime = todayLocalDateTime(ZoneOffset.UTC)
 
 /**
  * 오늘을 [OffsetDateTime]으로 반환합니다.
@@ -145,6 +196,11 @@ fun todayOffsetDateTime(zoneId: ZoneId = SystemZoneId): OffsetDateTime = nowOffs
 )
 
 /**
+ * 오늘을 UTC 기준의 [OffsetDateTime]으로 반환합니다.
+ */
+fun todayOffsetDateTimeUtc(): OffsetDateTime = todayOffsetDateTime(ZoneOffset.UTC)
+
+/**
  * 오늘을 [ZonedDateTime]으로 반환합니다.
  *
  * ```
@@ -155,6 +211,11 @@ fun todayOffsetDateTime(zoneId: ZoneId = SystemZoneId): OffsetDateTime = nowOffs
  */
 fun todayZonedDateTime(zoneId: ZoneId = SystemZoneId): ZonedDateTime =
     nowZonedDateTime(zoneId).truncatedTo(ChronoUnit.DAYS)
+
+/**
+ * 오늘을 UTC 기준의 [ZonedDateTime]으로 반환합니다.
+ */
+fun todayZonedDateTimeUtc(): ZonedDateTime = todayZonedDateTime(ZoneOffset.UTC)
 
 /**
  * [Int] 값을 나노초 단위의 [Duration]으로 변환합니다.

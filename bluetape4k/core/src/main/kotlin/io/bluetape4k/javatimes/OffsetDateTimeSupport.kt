@@ -77,7 +77,10 @@ fun offsetTimeOf(
  *
  * ```
  * val offsetTime = offsetTimeOf(12, 59, 59, 100000, ZoneOffset.UTC)
- * val instant = offsetTime.toInstant()
+ * val instant = offsetTime.toInstant()  // 1970-01-01 기준 Instant
  * ```
+ *
+ * @param baseDate 날짜 정보가 없는 [OffsetTime]에 결합할 기준 날짜 (기본값: epoch day)
  */
-fun OffsetTime.toInstant(): Instant = Instant.from(this)
+fun OffsetTime.toInstant(baseDate: LocalDate = LocalDate.ofEpochDay(0)): Instant =
+    atDate(baseDate).toInstant()

@@ -80,7 +80,7 @@ class MonthRangeCollectionTest: AbstractPeriodTest() {
                 mr shouldBeEqualTo MonthRange(mrs.start + i.monthPeriod())
 
                 val ym = YearMonth.of(now.year, now.monthValue).plusMonths(i.toLong())
-                mr shouldBeEqualTo MonthRange(ym)
+                mr shouldBeEqualTo MonthRange(ym, mrs.start.zone)
             }
         }
     }

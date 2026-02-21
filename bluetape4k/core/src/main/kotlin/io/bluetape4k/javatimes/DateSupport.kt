@@ -48,7 +48,7 @@ operator fun Date.plus(duration: Duration): Date = Date(this.time + duration.toM
  * @param period 더할 [Period]
  * @return [Period]의 일 수를 더한 새로운 [Date]
  */
-operator fun Date.plus(period: Period): Date = Date(this.time + period.days * MILLIS_IN_DAY)
+operator fun Date.plus(period: Period): Date = Date(this.time + period.inWholeDaysUtc() * MILLIS_IN_DAY)
 
 /**
  * 두 [Date]의 시간 값을 뺍니다.
@@ -80,7 +80,7 @@ operator fun Date.minus(duration: Duration): Date = Date(this.time - duration.to
  * @param period 뺄 [Period]
  * @return [Period]의 일 수를 뺀 새로운 [Date]
  */
-operator fun Date.minus(period: Period): Date = Date(this.time - period.days * MILLIS_IN_DAY)
+operator fun Date.minus(period: Period): Date = Date(this.time - period.inWholeDaysUtc() * MILLIS_IN_DAY)
 
 /**
  * 두 [Timestamp]의 시간 값을 더합니다.
@@ -112,7 +112,7 @@ operator fun Timestamp.plus(duration: Duration): Timestamp = Timestamp(this.time
  * @param period 더할 [Period]
  * @return [Period]의 일 수를 더한 새로운 [Timestamp]
  */
-operator fun Timestamp.plus(period: Period): Timestamp = Timestamp(this.time + period.days * MILLIS_IN_DAY)
+operator fun Timestamp.plus(period: Period): Timestamp = Timestamp(this.time + period.inWholeDaysUtc() * MILLIS_IN_DAY)
 
 /**
  * 두 [Timestamp]의 시간 값을 뺍니다.
@@ -144,4 +144,11 @@ operator fun Timestamp.minus(duration: Duration): Timestamp = Timestamp(this.tim
  * @param period 뺄 [Period]
  * @return [Period]의 일 수를 뺀 새로운 [Timestamp]
  */
-operator fun Timestamp.minus(period: Period): Timestamp = Timestamp(this.time - period.days * MILLIS_IN_DAY)
+operator fun Timestamp.minus(period: Period): Timestamp = Timestamp(this.time - period.inWholeDaysUtc() * MILLIS_IN_DAY)
+
+private fun Period.inWholeDaysUtc(): Long {
+    require(years == 0 && months == 0) {
+        "Period with years or months cannot be converted to UTC day-based milliseconds accurately."
+    }
+    return days.toLong()
+}

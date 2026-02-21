@@ -119,4 +119,27 @@ class InstantSupportTest {
         utcStart.nano shouldBeEqualTo 0
     }
 
+    @Test
+    fun `Instant 변환 기본 zone은 UTC이다`() {
+        val instant = Instant.parse("2021-03-01T00:00:00Z")
+
+        instant.toLocalDateTime() shouldBeEqualTo instant.toLocalDateTime(ZoneOffset.UTC)
+        instant.toOffsetDateTime() shouldBeEqualTo instant.toOffsetDateTime(ZoneOffset.UTC)
+        instant.toZonedDateTime() shouldBeEqualTo instant.toZonedDateTime(ZoneOffset.UTC)
+    }
+
+    @Test
+    fun `음수 epoch Instant 도 UTC 기준 LocalDate로 정확히 변환된다`() {
+        val instant = Instant.parse("1969-12-31T23:59:59Z")
+        instant.toLocalDate() shouldBeEqualTo java.time.LocalDate.of(1969, 12, 31)
+    }
+
+    @Test
+    fun `toCalendar 기본 timezone은 UTC이다`() {
+        val instant = Instant.parse("2021-03-01T00:00:00Z")
+        val calendar = instant.toCalendar()
+
+        calendar.timeZone.hasSameRules(UtcTimeZone) shouldBeEqualTo true
+    }
+
 }

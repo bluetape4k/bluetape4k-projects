@@ -124,6 +124,12 @@ class OffsetDateTimeSupportTest {
     }
 
     @Test
+    fun `OffsetTime 확장 toInstant는 epoch date를 기본으로 사용한다`() {
+        val ot = offsetTimeOf(12, 0, 0, 0, ZoneOffset.UTC)
+        ot.toInstant().toEpochMilli() shouldBeEqualTo 12L * 60L * 60L * 1000L
+    }
+
+    @Test
     fun `다양한 ZoneOffset으로 OffsetDateTime 생성`() {
         val year = 2021
         val month = 12

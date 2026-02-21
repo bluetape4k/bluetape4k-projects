@@ -31,6 +31,22 @@ fun yearRanges(
 }
 
 /**
+ * [startTime]로부터 [yearCount] 만큼의 [YearRange] 시퀀스를 생성합니다.
+ */
+fun yearRanges(
+    startTime: ZonedDateTime,
+    yearCount: Int = 1,
+    calendar: ITimeCalendar = TimeCalendar.Default,
+): Sequence<YearRange> = sequence {
+    yearCount.assertPositiveNumber("yearCount")
+    var current = YearRange(startTime, calendar)
+    repeat(yearCount) {
+        yield(current)
+        current = current.nextYear()
+    }
+}
+
+/**
  * [startTime]으로부터 [quarterCount] 만큼의 [QuarterRange] 시퀀스를 생성합니다.
  *
  * ```

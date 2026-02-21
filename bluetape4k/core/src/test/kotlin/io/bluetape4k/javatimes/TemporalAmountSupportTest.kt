@@ -9,6 +9,8 @@ import org.junit.jupiter.api.assertThrows
 import java.time.Duration
 import java.time.Period
 import java.time.temporal.ChronoUnit
+import java.time.temporal.Temporal
+import java.time.temporal.TemporalUnit
 
 /**
  * [TemporalAmountSupport.kt]에 대한 테스트
@@ -21,6 +23,7 @@ class TemporalAmountSupportTest {
     fun `Duration의 nanos 속성`() {
         val duration = Duration.ofSeconds(1, 500_000_000)
         duration.nanos shouldBeEqualTo 1_500_000_000.0
+        duration.nanosLong shouldBeEqualTo 1_500_000_000L
     }
 
     @Test
@@ -37,6 +40,7 @@ class TemporalAmountSupportTest {
         Duration.ZERO.isZero.shouldBeTrue()
         Duration.ofMillis(0).isZero.shouldBeTrue()
         Duration.ofSeconds(1).isZero.shouldBeFalse()
+        Duration.ofNanos(1).isZero.shouldBeFalse()
     }
 
     @Test
@@ -53,6 +57,25 @@ class TemporalAmountSupportTest {
         Duration.ofMillis(-100).isNegative.shouldBeTrue()
         Duration.ZERO.isNegative.shouldBeFalse()
         Duration.ofSeconds(1).isNegative.shouldBeFalse()
+    }
+
+    @Test
+    fun `TemporalAmount의 sign 속성`() {
+        Duration.ofSeconds(-1).sign shouldBeEqualTo -1
+        Duration.ZERO.sign shouldBeEqualTo 0
+        Duration.ofNanos(1).sign shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `TemporalAmount의 isNotPositive와 isNotNegative 속성`() {
+        Duration.ofSeconds(-1).isNotPositive.shouldBeTrue()
+        Duration.ofSeconds(-1).isNotNegative.shouldBeFalse()
+
+        Duration.ZERO.isNotPositive.shouldBeTrue()
+        Duration.ZERO.isNotNegative.shouldBeTrue()
+
+        Duration.ofSeconds(1).isNotPositive.shouldBeFalse()
+        Duration.ofSeconds(1).isNotNegative.shouldBeTrue()
     }
 
     @Test
@@ -75,6 +98,32 @@ class TemporalAmountSupportTest {
         assertThrows<IllegalArgumentException> {
             Period.ofMonths(3).nanos
         }
+    }
+
+    @Test
+    fun `toDurationExact와 toDurationOrNull 동작`() {
+        Period.ofDays(2).toDurationExact() shouldBeEqualTo Duration.ofDays(2)
+        Period.ofDays(2).toDurationOrNull() shouldBeEqualTo Duration.ofDays(2)
+
+        assertThrows<IllegalArgumentException> {
+            Period.ofMonths(1).toDurationExact()
+        }
+        Period.ofMonths(1).toDurationOrNull() shouldBeEqualTo null
+    }
+
+    @Test
+    fun `지원 불가 TemporalUnit이 포함된 TemporalAmount는 변환 실패한다`() {
+        val amount = object: java.time.temporal.TemporalAmount {
+            override fun get(unit: TemporalUnit): Long = if (unit == ChronoUnit.CENTURIES) 1L else 0L
+            override fun getUnits(): MutableList<TemporalUnit> = mutableListOf(ChronoUnit.CENTURIES)
+            override fun addTo(temporal: Temporal): Temporal = temporal
+            override fun subtractFrom(temporal: Temporal): Temporal = temporal
+        }
+
+        assertThrows<IllegalArgumentException> {
+            amount.toDurationExact()
+        }
+        amount.toDurationOrNull() shouldBeEqualTo null
     }
 
     @Test
@@ -209,6 +258,13 @@ class TemporalAmountSupportTest {
 
         assertThrows<IllegalArgumentException> {
             1.temporalAmount(ChronoUnit.ERAS)
+        }
+    }
+
+    @Test
+    fun `Long temporalAmount - Int 범위를 넘는 YEARS는 예외 발생`() {
+        assertThrows<IllegalArgumentException> {
+            (Int.MAX_VALUE.toLong() + 1L).temporalAmount(ChronoUnit.YEARS)
         }
     }
 

@@ -39,7 +39,7 @@ fun instantOf(epochMillis: Long = System.currentTimeMillis()): Instant =
  * ```
  */
 fun Instant.toLocalDate(): LocalDate =
-    LocalDate.ofEpochDay(this.epochSecond / (24 * 3600))
+    atOffset(ZoneOffset.UTC).toLocalDate()
 
 /**
  * [Instant]를 [LocalDateTime]으로 변환합니다.
@@ -50,10 +50,10 @@ fun Instant.toLocalDate(): LocalDate =
  * ```
  *
  * @receiver Instant 대상 [Instant]
- * @param zoneId Local에 해당하는 zone (기본 값: [ZoneId.systemDefault()])
+ * @param zoneId Local에 해당하는 zone (기본 값: [ZoneOffset.UTC])
  * @return LocalDateTime
  */
-fun Instant.toLocalDateTime(zoneId: ZoneId = SystemZoneId): LocalDateTime =
+fun Instant.toLocalDateTime(zoneId: ZoneId = ZoneOffset.UTC): LocalDateTime =
     LocalDateTime.ofInstant(this, zoneId)
 
 /**
@@ -65,10 +65,10 @@ fun Instant.toLocalDateTime(zoneId: ZoneId = SystemZoneId): LocalDateTime =
  * ```
  *
  * @receiver Instant 대상 [Instant]
- * @param zoneId Local에 해당하는 zone (기본 값: [ZoneId.systemDefault()])
+ * @param zoneId Local에 해당하는 zone (기본 값: [ZoneOffset.UTC])
  * @return OffsetDateTime
  */
-fun Instant.toOffsetDateTime(zoneId: ZoneId = SystemZoneId): OffsetDateTime =
+fun Instant.toOffsetDateTime(zoneId: ZoneId = ZoneOffset.UTC): OffsetDateTime =
     OffsetDateTime.ofInstant(this, zoneId)
 
 /**
@@ -80,10 +80,10 @@ fun Instant.toOffsetDateTime(zoneId: ZoneId = SystemZoneId): OffsetDateTime =
  * ```
  *
  * @receiver Instant 대상 [Instant]
- * @param zoneId Local에 해당하는 zone (기본 값: [ZoneId.systemDefault()])
+ * @param zoneId Local에 해당하는 zone (기본 값: [ZoneOffset.UTC])
  * @return OffsetDateTime
  */
-fun Instant.toZonedDateTime(zoneId: ZoneId = SystemZoneId): ZonedDateTime =
+fun Instant.toZonedDateTime(zoneId: ZoneId = ZoneOffset.UTC): ZonedDateTime =
     ZonedDateTime.ofInstant(this, zoneId)
 
 /**
@@ -105,10 +105,10 @@ fun Instant.toDate(): Date = Date.from(this)
  * ```
  *
  * @receiver Instant
- * @param timeZone Local에 해당하는 time zone (기본 값: [TimeZone.getDefault()])
+ * @param timeZone Local에 해당하는 time zone (기본 값: [UtcTimeZone])
  * @return Calendar
  */
-fun Instant.toCalendar(timeZone: TimeZone = TimeZone.getDefault()): Calendar =
+fun Instant.toCalendar(timeZone: TimeZone = UtcTimeZone): Calendar =
     Calendar.Builder()
         .setInstant(this.toEpochMilli())
         .setTimeZone(timeZone)

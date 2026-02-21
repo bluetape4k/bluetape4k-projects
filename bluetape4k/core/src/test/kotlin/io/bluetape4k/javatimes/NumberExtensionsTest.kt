@@ -10,6 +10,7 @@ import java.time.Duration
 import java.time.Month
 import java.time.Period
 import java.time.Year
+import java.time.ZoneOffset
 
 /**
  * [NumberExtensions.kt]에 대한 테스트
@@ -17,6 +18,32 @@ import java.time.Year
 class NumberExtensionsTest {
 
     companion object: KLogging()
+
+    @Test
+    fun `UTC now 함수들은 UTC 기준으로 동작한다`() {
+        nowOffsetDateTimeUtc().offset shouldBeEqualTo ZoneOffset.UTC
+        nowOffsetTimeUtc().offset shouldBeEqualTo ZoneOffset.UTC
+        nowZonedDateTimeUtc().zone shouldBeEqualTo ZoneOffset.UTC
+
+        nowLocalDateUtc() shouldBeEqualTo nowLocalDate(ZoneOffset.UTC)
+        nowLocalDateTimeUtc().toLocalDate() shouldBeEqualTo nowLocalDate(ZoneOffset.UTC)
+
+        val diff = Duration.between(nowInstant(ZoneOffset.UTC), nowInstantUtc()).abs()
+        (diff < Duration.ofSeconds(1)).shouldBeTrue()
+    }
+
+    @Test
+    fun `UTC today 함수들은 UTC 자정 기준으로 동작한다`() {
+        todayInstantUtc() shouldBeEqualTo todayInstant(ZoneOffset.UTC)
+        todayLocalDateUtc() shouldBeEqualTo todayLocalDate(ZoneOffset.UTC)
+        todayLocalDateTimeUtc() shouldBeEqualTo todayLocalDateTime(ZoneOffset.UTC)
+        todayOffsetDateTimeUtc() shouldBeEqualTo todayOffsetDateTime(ZoneOffset.UTC)
+        todayZonedDateTimeUtc() shouldBeEqualTo todayZonedDateTime(ZoneOffset.UTC)
+
+        todayLocalDateTimeUtc().toLocalTime() shouldBeEqualTo java.time.LocalTime.MIDNIGHT
+        todayOffsetDateTimeUtc().toLocalTime() shouldBeEqualTo java.time.LocalTime.MIDNIGHT
+        todayZonedDateTimeUtc().toLocalTime() shouldBeEqualTo java.time.LocalTime.MIDNIGHT
+    }
 
     @Test
     fun `Int를 Duration으로 변환`() {

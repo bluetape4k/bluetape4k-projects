@@ -12,6 +12,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.ZonedDateTime
 
 /**
@@ -57,6 +58,7 @@ class ZonedDateTimeSupportTest {
         zdt.minute shouldBeEqualTo 0
         zdt.second shouldBeEqualTo 0
         zdt.nano shouldBeEqualTo 0
+        zdt.zone shouldBeEqualTo ZoneOffset.UTC
     }
 
     @Test
@@ -121,6 +123,12 @@ class ZonedDateTimeSupportTest {
     }
 
     @Test
+    fun `toUtcInstant는 나노초 정밀도를 보존한다`() {
+        val zdt = zonedDateTimeOf(2021, 1, 1, 0, 0, 0, nanoOfSecond = 123_456_789, zoneId = ZoneId.of("Asia/Seoul"))
+        zdt.toUtcInstant().nano shouldBeEqualTo 123_456_789
+    }
+
+    @Test
     fun `endOfYear 확인`() {
         val zdt = zonedDateTimeOf(2021, 6, 15)
         val end = zdt.endOfYear()
@@ -152,27 +160,42 @@ class ZonedDateTimeSupportTest {
 
     @Test
     fun `startOfMonth와 endOfMonth 확인`() {
-        val zdt = zonedDateTimeOf(2021, 3, 15)
+        val zone = ZoneId.of("Asia/Seoul")
+        val zdt = zonedDateTimeOf(2021, 3, 15, zoneId = zone)
 
         val start = zdt.startOfMonth()
         start.dayOfMonth shouldBeEqualTo 1
         start.hour shouldBeEqualTo 0
+        start.zone shouldBeEqualTo zone
 
         val end = zdt.endOfMonth()
         end.dayOfMonth shouldBeEqualTo 31
         end.hour shouldBeEqualTo 23
         end.minute shouldBeEqualTo 59
+        end.zone shouldBeEqualTo zone
     }
 
     @Test
     fun `startOfWeek와 endOfWeek 확인`() {
-        val zdt = zonedDateTimeOf(2021, 3, 17) // Wednesday
+        val zone = ZoneId.of("Asia/Seoul")
+        val zdt = zonedDateTimeOf(2021, 3, 17, zoneId = zone) // Wednesday
 
         val start = zdt.startOfWeek()
         start.dayOfWeek shouldBeEqualTo DayOfWeek.MONDAY
+        start.zone shouldBeEqualTo zone
 
         val end = zdt.endOfWeek()
         end.dayOfWeek shouldBeEqualTo DayOfWeek.SUNDAY
+        end.zone shouldBeEqualTo zone
+    }
+
+    @Test
+    fun `startOfYear와 endOfYear는 기존 zone을 보존한다`() {
+        val zone = ZoneId.of("Asia/Seoul")
+        val zdt = zonedDateTimeOf(2021, 6, 15, 12, 34, 56, zoneId = zone)
+
+        zdt.startOfYear().zone shouldBeEqualTo zone
+        zdt.endOfYear().zone shouldBeEqualTo zone
     }
 
     @Test
@@ -308,23 +331,21 @@ class ZonedDateTimeSupportTest {
     fun `startOfWeekOfWeekyear와 endOfWeekOfWeekyear 확인`() {
         val start = startOfWeekOfWeekyear(2021, 1)
         start.dayOfWeek shouldBeEqualTo DayOfWeek.MONDAY
+        start.hour shouldBeEqualTo 0
+        start.minute shouldBeEqualTo 0
+        start.second shouldBeEqualTo 0
+        start.nano shouldBeEqualTo 0
 
         val end = endOfWeekOfWeekyear(2021, 1)
 
         // endOfWeekOfWeekyear는 시작 월요일 + 7일 - 1나노초
-        // 즉, 다음 주 월요일 직전 (거의 7일 후)
-
-        // Duration.between은 정확한 시간 차이를 계산하므로
-        // 월요일 00:00:00 부터 다음 월요일 00:00:00 - 1나노초 까지는
-        // 6일 23시간 59분 59.999999999초이지만, toDays()는 소수점 버림으로 6
-        // 그러나 실제로는 start의 시간이 00:00:00이 아니라 현재 시간이므로
-        // 정확한 검증은 시간 차이가 거의 7일(168시간)에 근접함을 확인
+        // Duration.toHours()는 버림이므로 167시간이 됩니다.
         val hours = java.time.Duration.between(start, end).toHours()
-        hours shouldBeGreaterThan 167L // 거의 7일 (168시간)
+        hours shouldBeEqualTo 167L
 
         // start와 end 사이 날짜 차이 확인
         val daysDiff = java.time.temporal.ChronoUnit.DAYS.between(start.toLocalDate(), end.toLocalDate())
-        daysDiff shouldBeEqualTo 7L // Monday to next Monday (date only)
+        daysDiff shouldBeEqualTo 6L // Monday to Sunday (date only)
     }
 
     @Test

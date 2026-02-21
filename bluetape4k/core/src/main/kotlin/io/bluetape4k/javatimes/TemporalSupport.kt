@@ -138,10 +138,10 @@ fun <T: TemporalAccessor> T.toInstant(): Instant =
  * val epochMillis = instant.toEpochMillis()
  * ```
  */
-fun <T: Temporal> T.toEpochMillis(): Long = when (this) {
+fun <T: Temporal> T.toEpochMillis(zoneId: ZoneId = ZoneOffset.UTC): Long = when (this) {
     is Instant        -> toEpochMilli()
-    is LocalDate      -> zonedDateTimeOf(year, monthValue, dayOfMonth).toEpochMillis()
-    is LocalDateTime  -> toZonedDateTime(ZoneOffset.UTC).toEpochMillis()
+    is LocalDate     -> atStartOfDay(zoneId).toInstant().toEpochMilli()
+    is LocalDateTime -> atZone(zoneId).toInstant().toEpochMilli()
     is OffsetDateTime -> toInstant().toEpochMilli()
     is ZonedDateTime  -> toInstant().toEpochMilli()
     else              ->
@@ -187,16 +187,17 @@ fun <T: Temporal> T.toEpochDay(): Long {
  *
  * ```
  * val offsetDateTime = OffsetDateTime.now()
- * val ZoneOffset.UTCDateTime = offsetDateTime.asTemporal(ZoneOffset.UTC)
+ * val utcDateTime = offsetDateTime.asTemporal(ZoneOffset.UTC)
+ * ```
  *
- * @param zoneId 변환할 [ZoneId] (기본값: [SystemZoneId])
+ * @param zoneId 변환할 [ZoneId] (기본값: [ZoneOffset.UTC])
  */
-fun <T: Temporal> T.asTemporal(zoneId: ZoneId = SystemZoneId): T = when (this) {
-    is Instant        -> Instant.ofEpochMilli(this.toEpochMillis()) as T
-    is LocalDate      -> Instant.ofEpochMilli(this.toEpochMillis()).toLocalDate() as T
-    is LocalDateTime  -> Instant.ofEpochMilli(this.toEpochMillis()).toLocalDateTime() as T
-    is OffsetDateTime -> Instant.ofEpochMilli(this.toEpochMillis()).toOffsetDateTime(zoneId) as T
-    is ZonedDateTime  -> Instant.ofEpochMilli(this.toEpochMillis()).toZonedDateTime(zoneId) as T
+fun <T: Temporal> T.asTemporal(zoneId: ZoneId = ZoneOffset.UTC): T = when (this) {
+    is Instant        -> this as T
+    is LocalDate      -> atStartOfDay(zoneId).toInstant().toLocalDateTime(zoneId).toLocalDate() as T
+    is LocalDateTime  -> atZone(zoneId).toInstant().toLocalDateTime(zoneId) as T
+    is OffsetDateTime -> toInstant().toOffsetDateTime(zoneId) as T
+    is ZonedDateTime  -> toInstant().toZonedDateTime(zoneId) as T
     else              -> error("Not supported class [${this.javaClass}]")
 }
 
@@ -231,8 +232,8 @@ fun <T: Temporal> T.startOfYear(): T = when (this) {
     is Instant        -> (startOfDay() as Instant).toZonedDateTime(ZoneOffset.UTC).withDayOfYear(1).toInstant() as T
     is LocalDate      -> withDayOfYear(1).startOfDay() as T
     is LocalDateTime  -> withDayOfYear(1).startOfDay() as T
-    is OffsetDateTime -> offsetDateTimeOf(year, 1, 1) as T
-    is ZonedDateTime  -> zonedDateTimeOf(year, 1, 1) as T
+    is OffsetDateTime -> withDayOfYear(1).truncatedTo(ChronoUnit.DAYS) as T
+    is ZonedDateTime  -> withDayOfYear(1).truncatedTo(ChronoUnit.DAYS) as T
     else              -> error("Not supported class [${this.javaClass}]")
 }
 
@@ -248,8 +249,8 @@ fun <T: Temporal> T.startOfMonth(): T = when (this) {
     is Instant        -> (startOfDay() as Instant).toZonedDateTime(ZoneOffset.UTC).withDayOfMonth(1).toInstant() as T
     is LocalDate      -> withDayOfMonth(1).startOfDay() as T
     is LocalDateTime  -> withDayOfMonth(1).startOfDay() as T
-    is OffsetDateTime -> offsetDateTimeOf(year, monthValue, 1) as T
-    is ZonedDateTime  -> zonedDateTimeOf(year, monthValue, 1) as T
+    is OffsetDateTime -> withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS) as T
+    is ZonedDateTime  -> withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS) as T
     else              -> error("Not supported class [${this.javaClass}]")
 }
 
@@ -258,15 +259,18 @@ fun <T: Temporal> T.startOfMonth(): T = when (this) {
  *
  * ```
  * val localDateTime = LocalDateTime.now()
- * val startOfWeek = localDateTime.startOfWeek()  // 2024-10-08:00:00:00.000Z
+ * val startOfWeek = localDateTime.startOfWeek()  // 월요일 00:00:00.000
  * ```
  */
 fun <T: Temporal> T.startOfWeek(): T = when (this) {
-    is Instant        -> (startOfDay() as Instant).toZonedDateTime(ZoneOffset.UTC).startOfWeek() as T
-    is LocalDate      -> (startOfDay() - (dayOfWeek.value - DayOfWeek.MONDAY.value).days()) as T
-    is LocalDateTime  -> (startOfDay() - (dayOfWeek.value - DayOfWeek.MONDAY.value).days()) as T
-    is OffsetDateTime -> (startOfDay() - (dayOfWeek.value - DayOfWeek.MONDAY.value).days()) as T
-    is ZonedDateTime  -> (startOfDay() - (dayOfWeek.value - DayOfWeek.MONDAY.value).days()) as T
+    is Instant        -> (startOfDay() as Instant)
+        .toZonedDateTime(ZoneOffset.UTC)
+        .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        .toInstant() as T
+    is LocalDate      -> ((startOfDay() as LocalDate).minusDays((dayOfWeek.value - DayOfWeek.MONDAY.value).toLong())) as T
+    is LocalDateTime  -> ((startOfDay() as LocalDateTime).minusDays((dayOfWeek.value - DayOfWeek.MONDAY.value).toLong())) as T
+    is OffsetDateTime -> ((startOfDay() as OffsetDateTime).minusDays((dayOfWeek.value - DayOfWeek.MONDAY.value).toLong())) as T
+    is ZonedDateTime  -> (startOfDay().minusDays((dayOfWeek.value - DayOfWeek.MONDAY.value).toLong())) as T
     else              -> error("Not supported class [${this.javaClass}]")
 }
 

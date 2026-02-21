@@ -4,6 +4,9 @@ import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.DayOfWeek
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 import kotlin.test.assertFalse
@@ -150,5 +153,47 @@ class TemporalSupportTest {
         assertTrue { nowLocalDateTime() supports ChronoUnit.DAYS }
         assertTrue { nowLocalDateTime() supports ChronoUnit.HALF_DAYS }
         assertTrue { nowLocalDateTime() supports ChronoUnit.HOURS }
+    }
+
+    @Test
+    fun `startOfWeek for Instant 는 UTC 월요일 00시 Instant를 반환한다`() {
+        val instant = Instant.parse("2025-11-05T10:15:30Z") // Wednesday
+        val start = instant.startOfWeek()
+
+        start.toZonedDateTime(ZoneOffset.UTC).dayOfWeek shouldBeEqualTo DayOfWeek.MONDAY
+        start.toZonedDateTime(ZoneOffset.UTC).hour shouldBeEqualTo 0
+        start.toZonedDateTime(ZoneOffset.UTC).minute shouldBeEqualTo 0
+        start.toZonedDateTime(ZoneOffset.UTC).second shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `startOfYear와 startOfMonth 는 기존 zone offset을 보존한다`() {
+        val offset = ZoneOffset.ofHours(9)
+        val offsetDateTime = offsetDateTimeOf(2025, 8, 17, 11, 22, 33, 0, offset)
+        val startOfYear = offsetDateTime.startOfYear()
+        val startOfMonth = offsetDateTime.startOfMonth()
+
+        startOfYear.offset shouldBeEqualTo offset
+        startOfYear.monthValue shouldBeEqualTo 1
+        startOfYear.dayOfMonth shouldBeEqualTo 1
+        startOfYear.hour shouldBeEqualTo 0
+
+        startOfMonth.offset shouldBeEqualTo offset
+        startOfMonth.monthValue shouldBeEqualTo 8
+        startOfMonth.dayOfMonth shouldBeEqualTo 1
+        startOfMonth.hour shouldBeEqualTo 0
+
+        val zone = ZoneId.of("Asia/Seoul")
+        val zonedDateTime = zonedDateTimeOf(2025, 8, 17, 11, 22, 33, 0, zone)
+        zonedDateTime.startOfYear().zone shouldBeEqualTo zone
+        zonedDateTime.startOfMonth().zone shouldBeEqualTo zone
+    }
+
+    @Test
+    fun `LocalDate toEpochMillis 는 zoneId 인자에 따라 계산된다`() {
+        val date = LocalDate.of(1970, 1, 1)
+
+        date.toEpochMillis(ZoneOffset.UTC) shouldBeEqualTo 0L
+        date.toEpochMillis(ZoneOffset.ofHours(9)) shouldBeEqualTo -9L * 60L * 60L * 1000L
     }
 }
