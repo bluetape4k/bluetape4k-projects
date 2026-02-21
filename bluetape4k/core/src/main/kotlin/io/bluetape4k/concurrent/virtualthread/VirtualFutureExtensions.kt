@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Virtual Thread를 사용하는 Executor의 Singleton 인스턴스
  */
+@Suppress("JavaDefaultMethodsNotOverriddenByDelegation")
 object VirtualThreadExecutor: ExecutorService by VirtualThreads.executorService() {
     init {
         // Thread memory leak 방지를 위해 ShutdownQueue에 등록

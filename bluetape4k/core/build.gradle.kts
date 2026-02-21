@@ -23,8 +23,8 @@ configurations {
 
 dependencies {
     api(project(":bluetape4k-logging"))
-    api(project(":bluetape4k-virtualthreads-api"))
-    runtimeOnly(project(":bluetape4k-virtualthreads-jdk21"))
+    api(project(":bluetape4k-virtualthread-api"))
+    runtimeOnly(project(":bluetape4k-virtualthread-jdk21"))
     testImplementation(project(":bluetape4k-junit5"))
 
     // Apache Commons

@@ -76,5 +76,5 @@ fun <T> structuredTaskScopeAny(
 fun <T> structuredTaskScopeFirst(
     name: String? = null,
     factory: ThreadFactory = VirtualThreads.threadFactory("sts-any-"),
-    block: (scope: StructuredTaskScopeFirst<T>) -> T,
+    block: (scope: StructuredTaskScopeAny<T>) -> T,
 ): T = structuredTaskScopeAny(name, factory, block)
