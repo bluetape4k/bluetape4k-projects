@@ -16,7 +16,7 @@ class StructuredScopeSupportTest {
     @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `첫번째 완료된 작업의 결과를 얻는다`() {
-        val result = structuredTaskScopeFirst<String> { scope ->
+        val result = structuredTaskScopeAny<String> { scope ->
             scope.fork {
                 Thread.sleep(100)
                 "result1"
@@ -37,7 +37,7 @@ class StructuredScopeSupportTest {
     @EnabledOnJre(JRE.JAVA_21)
     @Test
     fun `첫번째 성공한 결과를 반환한다`() {
-        val result = structuredTaskScopeFirst<String> { scope ->
+        val result = structuredTaskScopeAny<String> { scope ->
 
             scope.fork {
                 Thread.sleep(100)
@@ -59,7 +59,7 @@ class StructuredScopeSupportTest {
     @Test
     fun `모든 작업이 실패한다면, 첫번째 예외를 반환한다`() {
         assertFailsWith<IllegalStateException> {
-            structuredTaskScopeFirst<String> { scope ->
+            structuredTaskScopeAny<String> { scope ->
                 scope.fork {
                     Thread.sleep(100)
                     throw RuntimeException("Boom 1")

@@ -6,7 +6,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
 import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 
 /**
  * Kotlin Coroutines 에서 Virtual Thread를 사용하기 위한 Dispatcher
@@ -20,4 +19,4 @@ val Dispatchers.VT: CoroutineDispatcher
  * Virtual thread를 사용하는 새로운 [ExecutorService] 를 생성하여 반환
  */
 val Dispatchers.newVT: CoroutineDispatcher
-    get() = Executors.newVirtualThreadPerTaskExecutor().asCoroutineDispatcher()
+    get() = VirtualThreads.executorService().asCoroutineDispatcher()

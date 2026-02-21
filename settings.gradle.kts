@@ -29,6 +29,7 @@ includeModules("testing", withBaseDir = false)
 includeModules("timefold", withBaseDir = true)
 includeModules("utils", withBaseDir = false)
 includeModules("vertx", withBaseDir = true)
+includeModules("virtualthreads", withProjectName = true, withBaseDir = true)
 
 // Examples (library style examples)
 includeModules("examples", withProjectName = true, withBaseDir = true)

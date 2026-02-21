@@ -1,6 +1,5 @@
 package io.bluetape4k.concurrent.virtualthread
 
-import java.util.concurrent.StructuredTaskScope
 import java.util.concurrent.ThreadFactory
 
 /**
@@ -26,14 +25,12 @@ import java.util.concurrent.ThreadFactory
  * @receiver
  * @return
  */
-inline fun <T> structuredTaskScopeAll(
+fun <T> structuredTaskScopeAll(
     name: String? = null,
-    factory: ThreadFactory = Thread.ofVirtual().factory(),
-    block: (scope: StructuredTaskScope.ShutdownOnFailure) -> T,
+    factory: ThreadFactory = VirtualThreads.threadFactory("sts-all-"),
+    block: (scope: StructuredTaskScopeAll) -> T,
 ): T {
-    return StructuredTaskScope.ShutdownOnFailure(name, factory).use { scope ->
-        block(scope)
-    }
+    return StructuredTaskScopes.all(name, factory, block)
 }
 
 
@@ -45,7 +42,7 @@ inline fun <T> structuredTaskScopeAll(
  * 병렬 프로그래밍의 투기적 실행 (여러개를 동시에 실행하고, 첫번째 결과를 취하고, 나머지 작업은 버린다) 또는 ML 의 앙상블 기법과 같다.
  *
  * ```
- * val result = structuredTaskScopeFirst<String> { scope ->
+ * val result = structuredTaskScopeAny<String> { scope ->
  *     scope.fork {
  *          Thread.sleep(100)
  *          "result1"
@@ -67,12 +64,17 @@ inline fun <T> structuredTaskScopeAll(
  * @receiver
  * @return
  */
-inline fun <T> structuredTaskScopeFirst(
+fun <T> structuredTaskScopeAny(
     name: String? = null,
-    factory: ThreadFactory = Thread.ofVirtual().factory(),
-    block: (scope: StructuredTaskScope.ShutdownOnSuccess<T>) -> T,
+    factory: ThreadFactory = VirtualThreads.threadFactory("sts-any-"),
+    block: (scope: StructuredTaskScopeAny<T>) -> T,
 ): T {
-    return StructuredTaskScope.ShutdownOnSuccess<T>(name, factory).use { scope ->
-        block(scope)
-    }
+    return StructuredTaskScopes.any(name, factory, block)
 }
+
+@Deprecated("structuredTaskScopeAny를 사용하세요.", replaceWith = ReplaceWith("structuredTaskScopeAny"))
+fun <T> structuredTaskScopeFirst(
+    name: String? = null,
+    factory: ThreadFactory = VirtualThreads.threadFactory("sts-any-"),
+    block: (scope: StructuredTaskScopeFirst<T>) -> T,
+): T = structuredTaskScopeAny(name, factory, block)

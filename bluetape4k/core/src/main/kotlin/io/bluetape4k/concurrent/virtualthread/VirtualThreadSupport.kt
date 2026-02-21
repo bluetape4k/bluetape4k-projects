@@ -3,6 +3,11 @@ package io.bluetape4k.concurrent.virtualthread
 import java.util.concurrent.ThreadFactory
 
 /**
+ * 현재 선택된 Virtual Thread 런타임 이름을 반환합니다.
+ */
+fun virtualThreadRuntimeName(): String = VirtualThreads.runtimeName()
+
+/**
  * [Thread.Builder.OfVirtual]을 이용하여 Virtual Thread를 생성하는 빌더를 생성합니다.
  *
  * ```

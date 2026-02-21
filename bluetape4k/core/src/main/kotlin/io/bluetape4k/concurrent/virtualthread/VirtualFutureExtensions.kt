@@ -6,15 +6,12 @@ import io.bluetape4k.utils.ShutdownQueue
 import java.time.Duration
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 /**
  * Virtual Thread를 사용하는 Executor의 Singleton 인스턴스
  */
-object VirtualThreadExecutor: ExecutorService by Executors.newThreadPerTaskExecutor(
-    Thread.ofVirtual().name("bluetape4k-vt-", 0).factory()
-) {
+object VirtualThreadExecutor: ExecutorService by VirtualThreads.executorService() {
     init {
         // Thread memory leak 방지를 위해 ShutdownQueue에 등록
         ShutdownQueue.register(this)

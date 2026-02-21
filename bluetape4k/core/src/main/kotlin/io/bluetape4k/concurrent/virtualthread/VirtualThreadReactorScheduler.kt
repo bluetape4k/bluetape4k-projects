@@ -3,7 +3,6 @@ package io.bluetape4k.concurrent.virtualthread
 import reactor.core.scheduler.Scheduler
 import reactor.core.scheduler.Schedulers
 import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 
 /**
  * Reactor에서 Virtual Thread를 사용하기 위한 [Scheduler]
@@ -19,4 +18,4 @@ val Schedulers.virtualThread: Scheduler
  */
 @Suppress("UnusedReceiverParameter")
 val Schedulers.newVirtualThread: Scheduler
-    get() = Schedulers.fromExecutorService(Executors.newVirtualThreadPerTaskExecutor())
+    get() = Schedulers.fromExecutorService(VirtualThreads.executorService())
