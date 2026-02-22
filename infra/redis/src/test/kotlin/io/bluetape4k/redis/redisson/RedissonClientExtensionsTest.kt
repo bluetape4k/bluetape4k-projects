@@ -5,6 +5,8 @@ import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class RedissonClientExtensionsTest: AbstractRedissonTest() {
 
@@ -50,5 +52,25 @@ class RedissonClientExtensionsTest: AbstractRedissonTest() {
 
         redisson.getMap<String, String>(mapName).delete()
         redisson.getSet<String>(setName).delete()
+    }
+
+    @Test
+    fun `transaction should rollback when action throws runtime exception`() {
+        val mapName = randomName()
+        val map = redisson.getMap<String, String>(mapName)
+
+        try {
+            assertThrows<IllegalStateException> {
+                redisson.withTransaction {
+                    val txMap = getMap<String, String>(mapName)
+                    txMap["1"] = "value"
+                    throw IllegalStateException("boom")
+                }
+            }
+
+            map["1"].shouldBeNull()
+        } finally {
+            map.delete()
+        }
     }
 }

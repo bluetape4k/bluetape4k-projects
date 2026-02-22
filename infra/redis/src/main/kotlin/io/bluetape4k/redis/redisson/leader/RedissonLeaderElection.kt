@@ -6,7 +6,6 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.support.requireNotBlank
-import io.bluetape4k.support.uninitialized
 import org.redisson.api.RLock
 import org.redisson.api.RedissonClient
 import org.redisson.client.RedisException
@@ -47,7 +46,6 @@ class RedissonLeaderElection private constructor(
         lockName.requireNotBlank("lockName")
 
         val lock: RLock = redissonClient.getLock(lockName)
-        var result: T = uninitialized()
 
         log.debug { "Leader 승격을 요청합니다 ..." }
 
@@ -56,7 +54,7 @@ class RedissonLeaderElection private constructor(
             if (acquired) {
                 log.debug { "Leader로 승격하여 작업을 수행합니다. lock=$lockName" }
                 try {
-                    result = action()
+                    return action()
                 } finally {
                     if (lock.isHeldByCurrentThread) {
                         runCatching {
@@ -65,11 +63,14 @@ class RedissonLeaderElection private constructor(
                         }
                     }
                 }
+            } else {
+                throw RedisException("Fail to acquire lock. lock=$lockName")
             }
         } catch (e: InterruptedException) {
+            Thread.currentThread().interrupt()
             log.error(e) { "Fail to run as leader" }
+            throw RedisException("Interrupted while acquiring lock. lock=$lockName", e)
         }
-        return result
     }
 
     /**
@@ -88,38 +89,26 @@ class RedissonLeaderElection private constructor(
         lockName.requireNotBlank("lockName")
 
         val lock: RLock = redissonClient.getLock(lockName)
-        val promise = CompletableFuture<T>()
 
         try {
             val currentThreadId = Thread.currentThread().threadId()
             log.debug { "Leader 승격을 요청합니다 ... lock=$lockName, currentThreadId=$currentThreadId" }
 
-            lock
+            return lock
                 .tryLockAsync(waitTimeMills, leaseTimeMills, TimeUnit.MILLISECONDS, currentThreadId)
-                .thenComposeAsync(
-                    { acquired ->
-                        if (acquired) {
-                            executeActionAsync(lock, currentThreadId, executor, action)
-                        } else {
-                            failedCompletableFutureOf<T>(RedisException("Fail to acquire lock. lock=$lockName"))
-                        }
-                    },
-                    executor
-                )
-                .whenCompleteAsync(
-                    { result, error ->
-                        if (error != null) promise.completeExceptionally(error)
-                        else promise.complete(result)
-                    },
-                    executor
-                )
+                .thenComposeAsync({ acquired ->
+                    if (acquired) {
+                        executeActionAsync(lock, currentThreadId, executor, action)
+                    } else {
+                        failedCompletableFutureOf(RedisException("Fail to acquire lock. lock=$lockName"))
+                    }
+                }, executor)
+                .toCompletableFuture()
 
         } catch (e: Throwable) {
             log.error(e) { "Fail to runAsync as Leader" }
-            promise.completeExceptionally(e)
+            return failedCompletableFutureOf(e)
         }
-
-        return promise
     }
 
     private inline fun <T> executeActionAsync(
@@ -131,22 +120,21 @@ class RedissonLeaderElection private constructor(
         val lockName = lock.name
         log.debug { "Leader로 승격하여 비동기 작업을 수행합니다. lock=$lockName, threadId=$currentThreadId" }
 
-        return action()
-            .thenComposeAsync(
-                { result: T ->
-                    log.debug { "작업이 완료되어 Leader 권한을 반납합니다... lock=$lockName, threadId=$currentThreadId" }
-                    lock
-                        .unlockAsync(currentThreadId)
-                        .whenComplete { _, error ->
-                            if (error != null) {
-                                log.error(error) { "Fail to release lock. lock=$lockName, threadId=$currentThreadId" }
-                            } else {
-                                log.debug { "Leader 권한을 반납했습니다. lock=$lockName, threadId=$currentThreadId" }
-                            }
+        val actionFuture = runCatching { action() }
+            .getOrElse { return failedCompletableFutureOf(it) }
+
+        return actionFuture.whenCompleteAsync({ _, _ ->
+            if (lock.isHeldByThread(currentThreadId)) {
+                lock
+                    .unlockAsync(currentThreadId)
+                    .whenComplete { _, error ->
+                        if (error != null) {
+                            log.error(error) { "Fail to release lock. lock=$lockName, threadId=$currentThreadId" }
+                        } else {
+                            log.debug { "Leader 권한을 반납했습니다. lock=$lockName, threadId=$currentThreadId" }
                         }
-                        .thenApply { result }
-                },
-                executor
-            )
+                    }
+            }
+        }, executor)
     }
 }

@@ -8,9 +8,9 @@ import io.bluetape4k.logging.warn
 import io.bluetape4k.redis.redisson.coroutines.getLockId
 import io.bluetape4k.redis.redisson.leader.RedissonLeaderElectionOptions
 import io.bluetape4k.support.requireNotBlank
-import io.bluetape4k.support.uninitialized
 import org.redisson.api.RLock
 import org.redisson.api.RedissonClient
+import org.redisson.client.RedisException
 import java.util.concurrent.TimeUnit
 
 /**
@@ -54,7 +54,6 @@ class RedissonSuspendLeaderElection private constructor(
         lockName.requireNotBlank("lockName")
 
         val lock: RLock = redissonClient.getLock(lockName)
-        var result: T = uninitialized()
 
         try {
             log.debug { "Leader 승격을 요청합니다 ..." }
@@ -78,17 +77,20 @@ class RedissonSuspendLeaderElection private constructor(
             if (acquired) {
                 log.debug { "Leader로 승격되어 작업을 수행합니다. lock=$lockName, lockId=$lockId" }
                 try {
-                    result = action()
+                    return action()
                 } finally {
                     if (lock.isHeldByThread(lockId)) {
                         lock.unlockAsync(lockId).awaitSuspending()
                         log.debug { "작업이 완료되어 Leader 권한을 반납했습니다. lock=$lockName, lockId=$lockId" }
                     }
                 }
+            } else {
+                throw RedisException("Fail to acquire lock. lock=$lockName")
             }
         } catch (e: InterruptedException) {
+            Thread.currentThread().interrupt()
             log.warn(e) { "Interrupt to run action as leader. lockName=$lockName" }
+            throw RedisException("Interrupted while acquiring lock. lock=$lockName", e)
         }
-        return result
     }
 }

@@ -10,8 +10,13 @@ import io.bluetape4k.redis.redisson.AbstractRedissonTest
 import io.bluetape4k.utils.Runtimex
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
+import org.redisson.client.RedisException
+import java.time.Duration
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionException
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -85,6 +90,61 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
         countDownLatch.await(5, TimeUnit.SECONDS)
         future1.get() shouldBeEqualTo 42
         future2.get() shouldBeEqualTo 43
+    }
+
+    @Test
+    fun `run async action should release lock even when action fails`() {
+        val lockName = randomName()
+        val options = RedissonLeaderElectionOptions(
+            waitTime = Duration.ofSeconds(1),
+            leaseTime = Duration.ofSeconds(30),
+        )
+        val leaderElection = RedissonLeaderElection(redissonClient, options)
+
+        assertThrows<CompletionException> {
+            leaderElection
+                .runAsyncIfLeader(lockName) {
+                    CompletableFuture.failedFuture<Int>(IllegalStateException("boom"))
+                }
+                .join()
+        }
+
+        leaderElection
+            .runAsyncIfLeader(lockName) { CompletableFuture.completedFuture(1) }
+            .get(2, TimeUnit.SECONDS) shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `run action should throw when lock is not acquired`() {
+        val lockName = randomName()
+        val options = RedissonLeaderElectionOptions(
+            waitTime = Duration.ofMillis(100),
+            leaseTime = Duration.ofSeconds(5),
+        )
+        val leaderElection = RedissonLeaderElection(redissonClient, options)
+        val lockAcquired = CountDownLatch(1)
+        val releaseLock = CountDownLatch(1)
+        val lockHolder = Executors.newSingleThreadExecutor()
+
+        lockHolder.submit {
+            val lock = redissonClient.getLock(lockName)
+            lock.lock(3, TimeUnit.SECONDS)
+            lockAcquired.countDown()
+            runCatching { releaseLock.await(2, TimeUnit.SECONDS) }
+            if (lock.isHeldByCurrentThread) {
+                lock.unlock()
+            }
+        }
+
+        try {
+            lockAcquired.await(1, TimeUnit.SECONDS)
+            assertThrows<RedisException> {
+                leaderElection.runIfLeader(lockName) { 1 }
+            }
+        } finally {
+            releaseLock.countDown()
+            lockHolder.shutdownNow()
+        }
     }
 
     @Test

@@ -1,6 +1,7 @@
 package io.bluetape4k.redis.redisson.memorizer
 
 import io.bluetape4k.cache.memorizer.AsyncMemorizer
+import io.bluetape4k.concurrent.completableFutureOf
 import io.bluetape4k.concurrent.flatMap
 import io.bluetape4k.concurrent.map
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -8,6 +9,7 @@ import io.bluetape4k.logging.debug
 import org.redisson.api.RMap
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * 비동기로 실행되는 [evaluator]의 결과를 Redis에 저장하도록 합니다.
@@ -62,17 +64,31 @@ class AsyncRedissonMemorizer<T: Any, R: Any>(
 
     companion object: KLoggingChannel()
 
+    private val inFlight = ConcurrentHashMap<T, CompletableFuture<R>>()
+
     override fun invoke(key: T): CompletableFuture<R> {
-        return map
-            .containsKeyAsync(key)
-            .flatMap { exist ->
-                if (exist) {
-                    map.getAsync(key)
-                } else {
-                    evaluator(key).map { value -> value.apply { map.fastPutIfAbsentAsync(key, value) } }
+        return inFlight.computeIfAbsent(key) {
+            val promise = map
+                .getAsync(key)
+                .toCompletableFuture()
+                .flatMap { cached ->
+                    if (cached != null) {
+                        completableFutureOf(cached)
+                    } else {
+                        evaluator(key)
+                            .toCompletableFuture()
+                            .flatMap { value ->
+                                map.putIfAbsentAsync(key, value)
+                                    .toCompletableFuture()
+                                    .map { previous -> previous ?: value }
+                            }
+                    }
                 }
-            }
-            .toCompletableFuture()
+                .toCompletableFuture()
+
+            promise.whenComplete { _, _ -> inFlight.remove(key, promise) }
+            promise
+        }
     }
 
     override fun clear() {

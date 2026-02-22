@@ -8,6 +8,7 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.leader.coroutines.RedissonSuspendLeaderElection
 import kotlinx.coroutines.delay
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
@@ -58,6 +59,27 @@ class RedissonClientCoroutineTest: AbstractRedissonCoroutineTest() {
         } finally {
             map.delete()
             set.delete()
+        }
+    }
+
+    @Test
+    fun `use transaction async should rollback when action throws runtime exception`() = runSuspendIO {
+        val mapName = randomName()
+        val map = redisson.getMap<String, String>(mapName)
+
+        try {
+            val result = runCatching {
+                redisson.withSuspendedTransaction {
+                    val txMap = getMap<String, String>(mapName)
+                    txMap.putAsync("1", "value").awaitSuspending()
+                    throw IllegalStateException("boom")
+                }
+            }
+            result.isFailure.shouldBeTrue()
+
+            map.getAsync("1").awaitSuspending().shouldBeNull()
+        } finally {
+            map.delete()
         }
     }
 

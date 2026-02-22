@@ -11,6 +11,8 @@ import org.redisson.client.codec.IntegerCodec
 import org.redisson.client.codec.LongCodec
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
 
 class AsyncRedissonMemorizerTest: AbstractRedissonTest() {
@@ -67,6 +69,27 @@ class AsyncRedissonMemorizerTest: AbstractRedissonTest() {
         assertTimeout(Duration.ofMillis(1000)) {
             fibonacci.calc(100).get()
         } shouldBeEqualTo x1
+    }
+
+    @Test
+    fun `async memorizer should evaluate once for same key in concurrent calls`() {
+        val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
+        val evaluateCount = AtomicInteger(0)
+        val memorizer = map.asyncMemorizer { key ->
+            CompletableFuture.supplyAsync {
+                evaluateCount.incrementAndGet()
+                Thread.sleep(100)
+                key * key
+            }
+        }
+
+        try {
+            val futures = List(16) { memorizer(7) }
+            futures.forEach { it.get(2, TimeUnit.SECONDS) shouldBeEqualTo 49 }
+            evaluateCount.get() shouldBeEqualTo 1
+        } finally {
+            map.delete()
+        }
     }
 
 

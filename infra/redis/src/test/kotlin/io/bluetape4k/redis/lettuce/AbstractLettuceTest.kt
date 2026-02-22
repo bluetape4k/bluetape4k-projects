@@ -32,7 +32,7 @@ abstract class AbstractLettuceTest: AbstractRedisTest() {
     @AfterAll
     open fun afterAll() {
         runCatching {
-            client.shutdown()
+            LettuceClients.shutdown(client)
         }
     }
 }

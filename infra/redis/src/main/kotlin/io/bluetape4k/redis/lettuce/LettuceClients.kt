@@ -12,6 +12,7 @@ import io.lettuce.core.api.coroutines.RedisCoroutinesCommands
 import io.lettuce.core.api.sync.RedisCommands
 import io.lettuce.core.codec.RedisCodec
 import io.lettuce.core.resource.ClientResources
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.toJavaDuration
 
@@ -19,6 +20,14 @@ import kotlin.time.toJavaDuration
  * Lettuce 의 [RedisClient] 등을 생성해주는 유틸리티 클래스입니다.
  */
 object LettuceClients: KLogging() {
+
+    private data class CodecConnectionKey<V: Any>(
+        val client: RedisClient,
+        val codec: RedisCodec<String, V>,
+    )
+
+    private val defaultConnections = ConcurrentHashMap<RedisClient, StatefulRedisConnection<String, String>>()
+    private val codecConnections = ConcurrentHashMap<CodecConnectionKey<*>, StatefulRedisConnection<String, *>>()
 
     @JvmField
     val DEFAULT_REDIS_URI: RedisURI = getRedisURI()
@@ -95,7 +104,7 @@ object LettuceClients: KLogging() {
      * val connection = LettuceClients.connect(client)
      * ```
      */
-    fun connect(client: RedisClient): StatefulRedisConnection<String, String> = client.connect()
+    fun connect(client: RedisClient): StatefulRedisConnection<String, String> = defaultConnection(client)
 
     /**
      * [client]와 [codec]를 이용하여 [StatefulRedisConnection]을 생성합니다. (sync)
@@ -105,7 +114,7 @@ object LettuceClients: KLogging() {
      * ```
      */
     fun <V: Any> connect(client: RedisClient, codec: RedisCodec<String, V>): StatefulRedisConnection<String, V> =
-        client.connect(codec)
+        connection(client, codec)
 
     /**
      * [client]를 이용하여 [RedisCommands]`<String, String>` 를 생성합니다.
@@ -114,7 +123,7 @@ object LettuceClients: KLogging() {
      * val commands = LettuceClients.commands(client)
      * ```
      */
-    fun commands(client: RedisClient): RedisCommands<String, String> = connect(client).sync()
+    fun commands(client: RedisClient): RedisCommands<String, String> = defaultConnection(client).sync()
 
     /**
      * [client]와 [codec]를 이용하여 [RedisCommands]`<String, V>` 를 생성합니다.
@@ -133,7 +142,7 @@ object LettuceClients: KLogging() {
      * val asyncCommands = LettuceClients.asyncCommands(client)
      * ```
      */
-    fun asyncCommands(client: RedisClient): RedisAsyncCommands<String, String> = connect(client).async()
+    fun asyncCommands(client: RedisClient): RedisAsyncCommands<String, String> = defaultConnection(client).async()
 
     /**
      * [client]와 [codec]를 이용하여 [RedisAsyncCommands]`<String, V>` 를 생성합니다.
@@ -153,7 +162,8 @@ object LettuceClients: KLogging() {
      * ```
      */
     @OptIn(ExperimentalLettuceCoroutinesApi::class)
-    fun coroutinesCommands(client: RedisClient): RedisCoroutinesCommands<String, String> = connect(client).coroutines()
+    fun coroutinesCommands(client: RedisClient): RedisCoroutinesCommands<String, String> =
+        defaultConnection(client).coroutines()
 
     /**
      * [client]와 [codec]를 이용하여 [RedisAsyncCommands]`<String, V>` 를 생성합니다.
@@ -167,4 +177,35 @@ object LettuceClients: KLogging() {
         client: RedisClient,
         codec: RedisCodec<String, V>,
     ): RedisCoroutinesCommands<String, V> = connect(client, codec).coroutines()
+
+    /**
+     * 캐시된 connection을 정리하고 [client]를 종료합니다.
+     */
+    fun shutdown(client: RedisClient) {
+        defaultConnections.remove(client)?.close()
+        codecConnections
+            .filterKeys { it.client == client }
+            .forEach { (key, connection) ->
+                codecConnections.remove(key)
+                connection.close()
+            }
+        client.shutdown()
+    }
+
+    private fun defaultConnection(client: RedisClient): StatefulRedisConnection<String, String> =
+        defaultConnections.compute(client) { _, existing ->
+            if (existing == null || !existing.isOpen) client.connect() else existing
+        }!!
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <V: Any> connection(
+        client: RedisClient,
+        codec: RedisCodec<String, V>,
+    ): StatefulRedisConnection<String, V> {
+        val key = CodecConnectionKey(client, codec)
+        return codecConnections.compute(key) { _, existing ->
+            val typed = existing as? StatefulRedisConnection<String, V>
+            if (typed == null || !typed.isOpen) client.connect(codec) else typed
+        } as StatefulRedisConnection<String, V>
+    }
 }

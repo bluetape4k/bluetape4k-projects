@@ -30,6 +30,18 @@ class LettuceClientsTest: AbstractLettuceTest() {
     }
 
     @Test
+    fun `reuse same connection for same client and codec`() {
+        val conn1 = LettuceClients.connect(client)
+        val conn2 = LettuceClients.connect(client)
+        (conn1 === conn2) shouldBeEqualTo true
+
+        val codec = LettuceBinaryCodecs.Default
+        val typedConn1 = LettuceClients.connect(client, codec)
+        val typedConn2 = LettuceClients.connect(client, codec)
+        (typedConn1 === typedConn2) shouldBeEqualTo true
+    }
+
+    @Test
     fun `connect to redis server in multi-threading`() {
         MultithreadingTester()
             .workers(16)

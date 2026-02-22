@@ -9,7 +9,6 @@ import org.redisson.api.RBatch
 import org.redisson.api.RTransaction
 import org.redisson.api.RedissonClient
 import org.redisson.api.TransactionOptions
-import org.redisson.transaction.TransactionException
 
 /**
  * Redisson 작업을 Coroutines 환경에서 Batch 모드에서 실행하도록 합니다.
@@ -31,7 +30,7 @@ suspend inline fun RedissonClient.withSuspendedTransaction(
     try {
         action(tx)
         tx.commitAsync().awaitSuspending()
-    } catch (e: TransactionException) {
+    } catch (e: Throwable) {
         runCatching { tx.rollbackAsync().awaitSuspending() }
         throw e
     }

@@ -6,7 +6,6 @@ import org.redisson.api.RBatch
 import org.redisson.api.RTransaction
 import org.redisson.api.RedissonClient
 import org.redisson.api.TransactionOptions
-import org.redisson.transaction.TransactionException
 
 inline fun RedissonClient.withBatch(
     options: BatchOptions = BatchOptions.defaults(),
@@ -22,8 +21,8 @@ inline fun RedissonClient.withTransaction(
     try {
         action(tx)
         tx.commit()
-    } catch (e: TransactionException) {
-        tx.rollback()
+    } catch (e: Throwable) {
+        runCatching { tx.rollback() }
         throw e
     }
 }
