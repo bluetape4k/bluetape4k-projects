@@ -1,11 +1,13 @@
 package io.bluetape4k.exposed.r2dbc.repository
 
+import io.bluetape4k.exposed.core.ExposedPage
 import io.bluetape4k.exposed.core.HasIdentifier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.singleOrNull
+import kotlinx.coroutines.flow.toList
 import org.jetbrains.exposed.v1.core.AbstractQuery
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.Op
@@ -14,6 +16,7 @@ import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
 import org.jetbrains.exposed.v1.core.statements.BatchUpsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
@@ -87,6 +90,11 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
         table.selectAll().empty()
 
     /**
+     * 테이블이 비어있지 않은지 여부를 반환합니다.
+     */
+    suspend fun isNotEmpty(): Boolean = !isEmpty()
+
+    /**
      * 쿼리 결과가 존재하는지 확인합니다.
      * @param query AbstractQuery
      */
@@ -101,6 +109,13 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
      */
     suspend fun existsById(id: ID): Boolean =
         !table.selectAll().where { table.id eq id }.empty()
+
+    /**
+     * 조건에 맞는 엔티티가 존재하는지 확인합니다.
+     * @param predicate 조건
+     */
+    suspend fun existsBy(predicate: () -> Op<Boolean>): Boolean =
+        !table.selectAll().where(predicate).empty()
 
     /**
      * ID로 엔티티를 조회합니다. 없으면 예외를 발생시킵니다.
@@ -205,6 +220,26 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
             .map { it.toEntity() }
 
     /**
+     * 특정 컬럼 값으로 첫 번째 엔티티를 조회합니다. 없으면 null을 반환합니다.
+     * @param field 컬럼
+     * @param value 값
+     */
+    suspend fun <V> findByFieldOrNull(field: Column<V>, value: V): T? =
+        table.selectAll()
+            .where { field eq value }
+            .firstOrNull()
+            ?.toEntity()
+
+    /**
+     * 여러 ID로 엔티티를 일괄 조회합니다.
+     * @param ids 조회할 ID 컬렉션
+     */
+    fun findAllByIds(ids: Iterable<ID>): Flow<T> =
+        table.selectAll()
+            .where { table.id inList ids }
+            .map { it.toEntity() }
+
+    /**
      * 엔티티를 삭제합니다.
      * @param entity 삭제할 엔티티
      */
@@ -255,6 +290,13 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
         table.deleteIgnoreWhere(limit, op = op)
 
     /**
+     * 여러 ID로 엔티티를 일괄 삭제합니다.
+     * @param ids 삭제할 ID 컬렉션
+     */
+    suspend fun deleteAllByIds(ids: Iterable<ID>): Int =
+        table.deleteWhere { table.id inList ids }
+
+    /**
      * ID로 엔티티를 수정합니다.
      * @param id 수정할 엔티티의 ID
      * @param limit 수정할 최대 개수
@@ -270,6 +312,19 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
             limit = limit,
             body = updateStatement
         )
+
+    /**
+     * 조건에 맞는 모든 엔티티를 수정합니다.
+     * @param predicate 조건
+     * @param limit 수정할 최대 개수
+     * @param updateStatement 수정 내용
+     */
+    suspend fun updateAll(
+        predicate: () -> Op<Boolean> = { Op.TRUE },
+        limit: Int? = null,
+        updateStatement: IdTable<ID>.(UpdateStatement) -> Unit,
+    ): Int =
+        table.update(where = predicate, limit = limit, body = updateStatement)
 
     /**
      * 여러 엔티티를 일괄로 삽입합니다.
@@ -388,4 +443,33 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
                 body = body,
             )
             .map { it.toEntity() }
+
+    /**
+     * 페이징하여 엔티티를 조회합니다.
+     * @param pageNumber 페이지 번호 (0부터 시작)
+     * @param pageSize 페이지 크기
+     * @param sortOrder 정렬 순서
+     * @param predicate 조건
+     * @return 페이징 결과 [ExposedPage]
+     */
+    suspend fun findPage(
+        pageNumber: Int,
+        pageSize: Int,
+        sortOrder: SortOrder = SortOrder.ASC,
+        predicate: () -> Op<Boolean> = { Op.TRUE },
+    ): ExposedPage<T> {
+        val totalCount = countBy(predicate)
+        val content = findAll(
+            limit = pageSize,
+            offset = (pageNumber.toLong() * pageSize),
+            sortOrder = sortOrder,
+            predicate = predicate,
+        ).toList()
+        return ExposedPage(
+            content = content,
+            totalCount = totalCount,
+            pageNumber = pageNumber,
+            pageSize = pageSize,
+        )
+    }
 }

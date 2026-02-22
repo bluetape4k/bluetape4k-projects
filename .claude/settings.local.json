@@ -21,7 +21,11 @@
       "Bash(git commit:*)",
       "Bash(find:*)",
       "Bash(grep:*)",
-      "Bash(jar tf:*)"
+      "Bash(jar tf:*)",
+      "Bash(jar -xf:*)",
+      "Bash(jar -tf:*)",
+      "Bash(unzip:*)",
+      "Bash(head:*)"
     ]
   },
   "hooks": {

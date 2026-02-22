@@ -21,9 +21,7 @@ suspend fun withTables(
 ) {
     withDb(testDB, configure = configure) {
         runCatching {
-            if (dropTables) {
-                SchemaUtils.drop(*tables)
-            }
+            SchemaUtils.drop(*tables)
         }
 
         if (tables.isNotEmpty()) {

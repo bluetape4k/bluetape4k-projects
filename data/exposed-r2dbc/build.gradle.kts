@@ -12,7 +12,8 @@ dependencies {
     compileOnly(Libs.exposed_migration_r2dbc)
     testImplementation(Libs.exposed_java_time)
 
-    api(project(":bluetape4k-exposed"))
+    api(project(":bluetape4k-exposed-core"))
+    api(project(":bluetape4k-exposed-dao"))
     testImplementation(project(":bluetape4k-exposed-r2dbc-tests"))
 
     api(Libs.r2dbc_spi)

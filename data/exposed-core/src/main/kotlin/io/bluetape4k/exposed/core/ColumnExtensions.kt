@@ -1,0 +1,184 @@
+package io.bluetape4k.exposed.core
+
+import io.bluetape4k.idgenerators.ksuid.Ksuid
+import io.bluetape4k.idgenerators.ksuid.KsuidMillis
+import io.bluetape4k.idgenerators.snowflake.Snowflakers
+import io.bluetape4k.idgenerators.uuid.TimebasedUuid
+import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
+import org.jetbrains.exposed.v1.core.ArrayColumnType
+import org.jetbrains.exposed.v1.core.AutoIncColumnType
+import org.jetbrains.exposed.v1.core.BasicBinaryColumnType
+import org.jetbrains.exposed.v1.core.BlobColumnType
+import org.jetbrains.exposed.v1.core.BooleanColumnType
+import org.jetbrains.exposed.v1.core.CharacterColumnType
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.DecimalColumnType
+import org.jetbrains.exposed.v1.core.DoubleColumnType
+import org.jetbrains.exposed.v1.core.EntityIDColumnType
+import org.jetbrains.exposed.v1.core.EnumerationColumnType
+import org.jetbrains.exposed.v1.core.EnumerationNameColumnType
+import org.jetbrains.exposed.v1.core.FloatColumnType
+import org.jetbrains.exposed.v1.core.IColumnType
+import org.jetbrains.exposed.v1.core.IntegerColumnType
+import org.jetbrains.exposed.v1.core.LongColumnType
+import org.jetbrains.exposed.v1.core.ShortColumnType
+import org.jetbrains.exposed.v1.core.StringColumnType
+import org.jetbrains.exposed.v1.core.Table.Dual.clientDefault
+import org.jetbrains.exposed.v1.core.UIntegerColumnType
+import org.jetbrains.exposed.v1.core.ULongColumnType
+import org.jetbrains.exposed.v1.core.UShortColumnType
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.java.UUIDColumnType
+import org.jetbrains.exposed.v1.core.statements.api.ExposedBlob
+import org.jetbrains.exposed.v1.datetime.KotlinDurationColumnType
+import org.jetbrains.exposed.v1.datetime.KotlinLocalDateColumnType
+import org.jetbrains.exposed.v1.datetime.KotlinLocalDateTimeColumnType
+import org.jetbrains.exposed.v1.datetime.KotlinLocalTimeColumnType
+import org.jetbrains.exposed.v1.datetime.KotlinOffsetDateTimeColumnType
+import org.jetbrains.exposed.v1.javatime.JavaDurationColumnType
+import org.jetbrains.exposed.v1.javatime.JavaLocalDateColumnType
+import org.jetbrains.exposed.v1.javatime.JavaLocalDateTimeColumnType
+import org.jetbrains.exposed.v1.javatime.JavaLocalTimeColumnType
+import org.jetbrains.exposed.v1.javatime.JavaOffsetDateTimeColumnType
+import java.math.BigDecimal
+import java.util.*
+import kotlin.reflect.KClass
+
+private val log by lazy { KotlinLogging.logger { } }
+
+/**
+ * Column 값을 [TimebasedUuid.Reordered]이 생성한 UUID 값으로 설정합니다.
+ *
+ * @see TimebasedUuid.Epoch
+ */
+@JvmName("timebasedGeneratedUUID")
+fun Column<UUID>.timebasedGenerated(): Column<UUID> =
+    clientDefault { TimebasedUuid.Epoch.nextId() }
+
+/**
+ * Column 값을 [TimebasedUuid.Reordered] 이 생성한 Timebased UUID의 Base62 인코딩한 문자열로 설정합니다.
+ *
+ * 참고: MySQL은 collate 를 지정하지 않으면 대소문자 구분을 못해서 Base62 인코딩 문자열이 중복될 수 있습니다.
+ * 이를 해결하기 위해 varchar 컬럼에 collate 를 `utf8mb4_bin` 등으로 지정하여 대소문자 구분을 할 수 있도록 해야 합니다.
+ *
+ *
+ * @see TimebasedUuid.Reordered
+ */
+@JvmName("timebasedGeneratedString")
+fun Column<String>.timebasedGenerated(): Column<String> =
+    clientDefault { TimebasedUuid.Epoch.nextIdAsString() }
+
+/**
+ * 컬럼의 기본 값을 Snowflake ID 로 설정합니다.
+ */
+fun Column<Long>.snowflakeIdGenerated(): Column<Long> =
+    clientDefault { Snowflakers.Global.nextId() }
+
+/**
+ * Column 값을 [io.bluetape4k.idgenerators.snowflake.Snowflake] 값으로 설정합니다.
+ *
+ * @see [io.bluetape4k.idgenerators.snowflake.Snowflake]
+ */
+@JvmName("snowflakeGeneratedLong")
+fun Column<Long>.snowflakeGenerated(): Column<Long> =
+    clientDefault { Snowflakers.Global.nextId() }
+
+/**
+ * Column 값을 [io.bluetape4k.idgenerators.snowflake.Snowflake] ID의 문자열로 설정합니다.
+ *
+ * @see io.bluetape4k.idgenerators.snowflake.Snowflake
+ */
+@JvmName("snowflakeGeneratedString")
+fun Column<String>.snowflakeGenerated(): Column<String> =
+    clientDefault { Snowflakers.Global.nextIdAsString() }
+
+/**
+ * Column 값을 [Ksuid]의 생성 값으로 설정합니다.
+ */
+fun Column<String>.ksuidGenerated(): Column<String> =
+    clientDefault { Ksuid.nextId() }
+
+/**
+ * Column 값을 [KsuidMillis]의 생성 값으로 설정합니다.
+ */
+fun Column<String>.ksuidMillisGenerated(): Column<String> =
+    clientDefault { KsuidMillis.nextId() }
+
+
+/**
+ * 컬럼 타입(`IColumnType`)에 해당하는 Kotlin 언어 타입을 반환합니다.
+ *
+ * Exposed의 다양한 컬럼 타입에 대해 매핑되는 Kotlin 타입을 반환하며,
+ * 알 수 없는 타입의 경우 `null`을 반환합니다.
+ *
+ * @receiver IColumnType\<*\> Exposed 컬럼 타입
+ * @return KClass\<*\>? 매핑되는 Kotlin 타입, 없으면 null
+ */
+fun IColumnType<*>.getLanguageType(): KClass<*>? {
+    log.debug { "get language type for ${this.javaClass.simpleName}" }
+
+    return when (this) {
+        is BooleanColumnType              -> Boolean::class
+        is CharacterColumnType            -> Char::class
+        is ShortColumnType                -> Short::class
+        is UShortColumnType               -> UShort::class
+        is IntegerColumnType              -> Int::class
+        is UIntegerColumnType             -> UInt::class
+        is LongColumnType                 -> Long::class
+        is ULongColumnType                -> ULong::class
+        is FloatColumnType                -> Float::class
+        is DoubleColumnType               -> Double::class
+        is DecimalColumnType              -> BigDecimal::class
+        is StringColumnType               -> String::class
+        is UUIDColumnType                 -> UUID::class
+        is EnumerationColumnType<*>       -> Enum::class
+        is EnumerationNameColumnType<*>   -> Enum::class
+        is BasicBinaryColumnType          -> ByteArray::class
+        is BlobColumnType                 -> ExposedBlob::class
+        is ArrayColumnType<*, *>          -> Array::class
+
+        is JavaLocalDateColumnType        -> java.time.LocalDate::class
+        is JavaLocalTimeColumnType        -> java.time.LocalTime::class
+        is JavaLocalDateTimeColumnType    -> java.time.LocalDateTime::class
+        is JavaOffsetDateTimeColumnType   -> java.time.OffsetDateTime::class
+        is JavaDurationColumnType         -> java.time.Duration::class
+
+        // exposed-kotlin-datetime 모듈을 추가해야 함
+        is KotlinLocalDateColumnType      -> kotlinx.datetime.LocalDate::class
+        is KotlinLocalTimeColumnType      -> kotlinx.datetime.LocalTime::class
+        is KotlinLocalDateTimeColumnType  -> kotlinx.datetime.LocalDateTime::class
+        is KotlinOffsetDateTimeColumnType -> java.time.OffsetDateTime::class
+        is KotlinDurationColumnType       -> java.time.Duration::class
+
+        // exposed-json 모듈을 추가해야 함
+        // is JsonColumnType<*> -> Any::class
+
+        is EntityIDColumnType<*>          -> this.idColumn.columnType.getLanguageType()
+        is AutoIncColumnType<*>           -> this.delegate.getLanguageType()
+        else                              -> {
+            log.warn { "알 수 없는 타입: ${this.javaClass.simpleName}" }
+            null
+        }
+    }
+}
+
+/**
+ * 컬럼의 Kotlin 언어 타입을 반환합니다.
+ *
+ * @receiver Column<*> Exposed 컬럼
+ * @return KClass<*>? 매핑되는 Kotlin 타입, 없으면 null
+ */
+@JvmName("getColumnLanguageType")
+fun Column<*>.getLanguageType(): KClass<*>? = this.columnType.getLanguageType()
+
+/**
+ * EntityID 컬럼의 Kotlin 언어 타입을 반환합니다.
+ *
+ * @receiver Column<EntityID<ID>> Exposed EntityID 컬럼
+ * @return KClass<*>? 매핑되는 Kotlin 타입, 없으면 null
+ */
+@JvmName("getEntityColumnLanguageType")
+fun <ID: Any> Column<EntityID<ID>>.getLanguageType(): KClass<*>? =
+    this.columnType.getLanguageType()

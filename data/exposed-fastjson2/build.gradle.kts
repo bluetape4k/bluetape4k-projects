@@ -8,8 +8,9 @@ dependencies {
     api(Libs.exposed_core)
     compileOnly(Libs.exposed_jdbc)
     compileOnly(Libs.exposed_dao)
-    api(project(":bluetape4k-exposed"))
-    testImplementation(project(":bluetape4k-exposed-tests"))
+    api(project(":bluetape4k-exposed-core"))
+    compileOnly(project(":bluetape4k-exposed-dao"))
+    testImplementation(project(":bluetape4k-exposed-jdbc-tests"))
 
     /* Fastjson2 */
     api(project(":bluetape4k-fastjson2"))
