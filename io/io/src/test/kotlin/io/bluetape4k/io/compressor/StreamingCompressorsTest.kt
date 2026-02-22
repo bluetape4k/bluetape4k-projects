@@ -12,6 +12,7 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.OutputStream
 
 class StreamingCompressorsTest {
 
@@ -75,5 +76,36 @@ class StreamingCompressorsTest {
 
         compressing.close()
         compressor.decompress(compressedOut.toByteArray()) shouldBeEqualTo plain
+    }
+
+    @Test
+    fun `OneShot 어댑터 close 는 delegate 를 닫는다`() {
+        val compressor = StreamingCompressors.from(Compressors.LZ4)
+        val trackable = TrackableOutputStream()
+        val compressing = compressor.compressing(trackable)
+        compressing.write("close-propagation".toUtf8Bytes())
+
+        trackable.closed shouldBeEqualTo false
+        compressing.close()
+        trackable.closed shouldBeEqualTo true
+    }
+
+    private class TrackableOutputStream: OutputStream() {
+        private val delegate = ByteArrayOutputStream()
+        var closed: Boolean = false
+            private set
+
+        override fun write(b: Int) {
+            delegate.write(b)
+        }
+
+        override fun write(b: ByteArray, off: Int, len: Int) {
+            delegate.write(b, off, len)
+        }
+
+        override fun close() {
+            closed = true
+            delegate.close()
+        }
     }
 }

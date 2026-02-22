@@ -3,7 +3,6 @@ package io.bluetape4k.io.okio.compress
 import io.bluetape4k.io.compressor.Compressor
 import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.io.compressor.StreamingCompressor
-import io.bluetape4k.io.compressor.asCompressor
 
 /**
  * Okio 압축/해제에서 `decompressableSource` 함수를 제공합니다.
@@ -15,7 +14,7 @@ fun okio.Source.decompressableSource(compressor: Compressor): DecompressableSour
  * Okio 압축/해제에서 `decompressableSource` 함수를 제공합니다.
  */
 fun okio.Source.decompressableSource(compressor: StreamingCompressor): DecompressableSource =
-    DecompressableSource(this, compressor.asCompressor())
+    StreamingDecompressSource(this, compressor)
 
 /**
  * Okio 압축/해제에서 `inflateSource` 함수를 제공합니다.

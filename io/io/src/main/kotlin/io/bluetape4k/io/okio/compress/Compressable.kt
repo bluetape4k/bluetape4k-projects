@@ -3,7 +3,6 @@ package io.bluetape4k.io.okio.compress
 import io.bluetape4k.io.compressor.Compressor
 import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.io.compressor.StreamingCompressor
-import io.bluetape4k.io.compressor.asCompressor
 
 /**
  * `Compressable` 싱글톤/유틸리티입니다.
@@ -26,7 +25,7 @@ object Compressable {
          * Okio 압축/해제에서 `compressableSink` 함수를 제공합니다.
          */
         fun compressableSink(delegate: okio.Sink, compressor: StreamingCompressor): CompressableSink {
-            return CompressableSink(delegate, compressor.asCompressor())
+            return StreamingCompressSink(delegate, compressor)
         }
 
         /**
@@ -88,7 +87,7 @@ object Compressable {
          * Okio 압축/해제에서 `decompressableSource` 함수를 제공합니다.
          */
         fun decompressableSource(delegate: okio.Source, compressor: StreamingCompressor): DecompressableSource {
-            return DecompressableSource(delegate, compressor.asCompressor())
+            return StreamingDecompressSource(delegate, compressor)
         }
 
         /**

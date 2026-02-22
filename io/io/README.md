@@ -157,8 +157,9 @@ import io.bluetape4k.io.okio.compress.*
 import io.bluetape4k.io.compressor.Compressors
 
 val sink = /* ... */
-val compressedSink = CompressableSink(sink, Compressors.Zstd)
-compressedSink.write(buffer)
+CompressableSink(sink, Compressors.Zstd).use { compressedSink ->
+    compressedSink.write(buffer, buffer.size)
+}
 
 // 암호화 스트림
 import io.bluetape4k.io.okio.cipher.*
@@ -168,6 +169,11 @@ val cipher = /* Cipher 초기화 */
 val encryptedSink = FinalizingCipherSink(sink, cipher)
 encryptedSink.write(buffer)
 ```
+
+압축 Sink 사용 정책:
+
+- `CompressableSink`는 `close()` 시점에 압축 결과를 확정하므로 반드시 `close()` 또는 `use {}`를 사용해야 합니다.
+- `asCompressSink(StreamingCompressor)`도 footer/finalize 기록을 위해 `close()` 또는 `use {}`가 필요합니다.
 
 암호화 클래스 명칭 변경:
 

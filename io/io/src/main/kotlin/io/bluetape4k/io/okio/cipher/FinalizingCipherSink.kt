@@ -26,19 +26,29 @@ open class FinalizingCipherSink(
      * [source]의 [byteCount] 바이트를 읽어 암호화한 뒤 delegate로 전달합니다.
      */
     override fun write(source: Buffer, byteCount: Long) {
-        check(!closed) { "Sink is already closed." }
-        if (byteCount <= 0L) return
+        if (closed) {
+            throw IllegalStateException("Cannot write to closed CipherSink")
+        }
+
+        if (byteCount == 0L) {
+            return  // 0 바이트는 유효하지만 처리할 필요 없음
+        }
+
+        require(byteCount > 0) { "byteCount must be positive: $byteCount" }
         byteCount.requireInRange(1, source.size, "byteCount")
-        val bytesToRead = byteCount
-        log.debug { "소스 데이터를 암호화하여 씁니다. 암호화할 데이터 크기=$bytesToRead" }
 
-        val plainBytes = source.readByteArray(bytesToRead)
-        log.trace { "암호화할 바이트 수: ${plainBytes.size} bytes" }
+        if (log.isTraceEnabled) {
+            log.trace { "Encrypting $byteCount bytes" }
+        }
 
+        val plainBytes = source.readByteArray(byteCount)
         val encryptedBytes = cipher.update(plainBytes)
-        log.debug { "암호화한 바이트 수: ${encryptedBytes.size} bytes" }
-        val encryptedSink = bufferOf(encryptedBytes)
 
+        if (log.isDebugEnabled && encryptedBytes.size != plainBytes.size) {
+            log.debug { "Encrypted: ${plainBytes.size} → ${encryptedBytes.size} bytes" }
+        }
+
+        val encryptedSink = bufferOf(encryptedBytes)
         super.write(encryptedSink, encryptedSink.size)
     }
 
@@ -51,13 +61,16 @@ open class FinalizingCipherSink(
         }
         closed = true
 
-        cipher.doFinal()?.let { tail ->
-            if (tail.isNotEmpty()) {
-                val buffer = bufferOf(tail)
-                super.write(buffer, buffer.size)
+        try {
+            cipher.doFinal()?.let { tail ->
+                if (tail.isNotEmpty()) {
+                    val buffer = bufferOf(tail)
+                    super.write(buffer, buffer.size)
+                }
             }
+        } finally {
+            super.close()
         }
-        super.close()
     }
 }
 

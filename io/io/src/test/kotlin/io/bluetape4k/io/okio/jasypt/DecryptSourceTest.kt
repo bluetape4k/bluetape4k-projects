@@ -61,8 +61,9 @@ class DecryptSourceTest: AbstractEncryptTest() {
             val buffer = bufferOf(expectedText)
 
             val sink = Buffer()
-            val compressAndEncryptSink = sink.asEncryptSink(encryptor).asCompressSink(compressor)
-            compressAndEncryptSink.write(buffer, buffer.size)
+            sink.asEncryptSink(encryptor).asCompressSink(compressor).use { compressAndEncryptSink ->
+                compressAndEncryptSink.write(buffer, buffer.size)
+            }
 
 
             val source = Buffer()

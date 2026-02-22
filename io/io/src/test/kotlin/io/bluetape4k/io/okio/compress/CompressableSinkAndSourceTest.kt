@@ -113,6 +113,24 @@ class CompressableSinkAndSourceTest: AbstractOkioTest() {
 
     @ParameterizedTest(name = "compressor={0}")
     @MethodSource("compressors")
+    fun `compressable sink 다중 write 를 단일 압축 스트림으로 처리한다`(compressor: Compressor) {
+        val source1 = bufferOf("abc")
+        val source2 = bufferOf("def")
+        val source3 = bufferOf("ghi")
+        val compressed = Buffer()
+
+        Compressable.Sinks.compressableSink(compressed, compressor).use { sink ->
+            sink.write(source1, source1.size)
+            sink.write(source2, source2.size)
+            sink.write(source3, source3.size)
+        }
+
+        val decoded = bufferOf(Compressable.Sources.decompressableSource(compressed, compressor))
+        decoded.readUtf8() shouldBeEqualTo "abcdefghi"
+    }
+
+    @ParameterizedTest(name = "compressor={0}")
+    @MethodSource("compressors")
     fun `decompressable source 는 byteCount 만큼만 반환한다`(compressor: Compressor) {
         val original = faker.lorem().paragraph().repeat(8)
         val originalBytes = original.toByteArray()
@@ -173,5 +191,27 @@ class CompressableSinkAndSourceTest: AbstractOkioTest() {
 
         val decompressed = bufferOf(compressed.asDecompressSource(compressor))
         decompressed.readUtf8() shouldBeEqualTo original
+    }
+
+    @ParameterizedTest(name = "streamingCompressor={0}")
+    @MethodSource("streamingCompressors")
+    fun `streaming compressor 오버로드는 다중 write 를 스트리밍으로 처리한다`(compressor: StreamingCompressor) {
+        val part1 = faker.lorem().paragraph()
+        val part2 = faker.lorem().paragraph()
+        val part3 = faker.lorem().paragraph()
+        val expected = part1 + part2 + part3
+        val compressed = Buffer()
+
+        compressed.asCompressSink(compressor).use { sink ->
+            val source1 = bufferOf(part1)
+            val source2 = bufferOf(part2)
+            val source3 = bufferOf(part3)
+            sink.write(source1, source1.size)
+            sink.write(source2, source2.size)
+            sink.write(source3, source3.size)
+        }
+
+        val restored = bufferOf(compressed.asDecompressSource(compressor))
+        restored.readUtf8() shouldBeEqualTo expected
     }
 }

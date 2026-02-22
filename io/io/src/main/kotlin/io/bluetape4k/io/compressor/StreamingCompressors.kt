@@ -101,9 +101,25 @@ private class OneShotCompressOutputStream(
         }
 
         closed = true
-        val compressed = compressor.compress(buffer.toByteArray())
-        delegate.write(compressed)
-        delegate.flush()
+        var thrown: Throwable? = null
+        try {
+            val compressed = compressor.compress(buffer.toByteArray())
+            delegate.write(compressed)
+            delegate.flush()
+        } catch (e: Throwable) {
+            thrown = e
+            throw e
+        } finally {
+            try {
+                delegate.close()
+            } catch (closeEx: Throwable) {
+                if (thrown != null) {
+                    thrown.addSuppressed(closeEx)
+                } else {
+                    throw closeEx
+                }
+            }
+        }
     }
 
     private fun ensureOpen() {
