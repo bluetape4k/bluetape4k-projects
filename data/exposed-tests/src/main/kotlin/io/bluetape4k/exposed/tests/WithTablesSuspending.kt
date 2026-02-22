@@ -19,9 +19,10 @@ suspend fun withTablesSuspending(
     statement: suspend JdbcTransaction.(TestDB) -> Unit,
 ) {
     withDbSuspending(testDB, context, configure) {
-        try {
-            SchemaUtils.drop(*tables)
-        } catch (_: Throwable) {
+        runCatching {
+            if (dropTables) {
+                SchemaUtils.drop(*tables)
+            }
         }
 
         SchemaUtils.create(*tables)

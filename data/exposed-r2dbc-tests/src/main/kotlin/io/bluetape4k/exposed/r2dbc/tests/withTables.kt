@@ -16,10 +16,15 @@ suspend fun withTables(
     testDB: TestDB,
     vararg tables: Table,
     configure: (DatabaseConfig.Builder.() -> Unit)? = null,
+    dropTables: Boolean = true,
     statement: suspend R2dbcTransaction.(TestDB) -> Unit,
 ) {
     withDb(testDB, configure = configure) {
-        runCatching { SchemaUtils.drop(*tables) }
+        runCatching {
+            if (dropTables) {
+                SchemaUtils.drop(*tables)
+            }
+        }
 
         if (tables.isNotEmpty()) {
             SchemaUtils.create(*tables)
@@ -29,19 +34,21 @@ suspend fun withTables(
             statement(testDB)
             commit()  // Need commit to persist data before drop tables
         } finally {
-            try {
-                if (tables.isNotEmpty()) {
-                    SchemaUtils.drop(*tables)
-                    commit()
-                }
-            } catch (_: Exception) {
-                val database = testDB.db!!
-                inTopLevelSuspendTransaction(
-                    transactionIsolation = database.transactionManager.defaultIsolationLevel!!,
-                    db = database,
-                ) {
-                    maxAttempts = 1
-                    runCatching { SchemaUtils.drop(*tables) }
+            if (dropTables) {
+                try {
+                    if (tables.isNotEmpty()) {
+                        SchemaUtils.drop(*tables)
+                        commit()
+                    }
+                } catch (_: Exception) {
+                    val database = testDB.db!!
+                    inTopLevelSuspendTransaction(
+                        transactionIsolation = database.transactionManager.defaultIsolationLevel!!,
+                        db = database,
+                    ) {
+                        maxAttempts = 1
+                        runCatching { SchemaUtils.drop(*tables) }
+                    }
                 }
             }
         }

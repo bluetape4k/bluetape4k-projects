@@ -3,13 +3,14 @@ package io.bluetape4k.exposed.tests
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldNotBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.exists
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import kotlin.test.assertFails
+import kotlin.test.assertFailsWith
 
 class TestSupportsTest: AbstractExposedTest() {
 
@@ -22,7 +23,7 @@ class TestSupportsTest: AbstractExposedTest() {
     fun `assertFalse 는 false 일 때 성공하고 true 일 때 실패한다`(testDB: TestDB) {
         withDb(testDB) {
             assertFalse(false)
-            assertFails {
+            assertFailsWith<AssertionError> {
                 assertFalse(true)
             }
         }
@@ -34,9 +35,9 @@ class TestSupportsTest: AbstractExposedTest() {
         withDb(testDB) {
             val original = connection.autoCommit
 
-            assertFails {
+            assertFailsWith<IllegalStateException> {
                 withAutoCommit(!original) {
-                    connection.autoCommit shouldBeEqualTo !original
+                    connection.autoCommit shouldNotBeEqualTo original
                     error("force rollback path")
                 }
             }
@@ -51,7 +52,7 @@ class TestSupportsTest: AbstractExposedTest() {
         withDbSuspending(testDB) {
             val original = connection.autoCommit
 
-            assertFails {
+            assertFailsWith<IllegalStateException> {
                 withAutoCommitSuspending(!original) {
                     connection.autoCommit shouldBeEqualTo !original
                     error("force rollback path")
