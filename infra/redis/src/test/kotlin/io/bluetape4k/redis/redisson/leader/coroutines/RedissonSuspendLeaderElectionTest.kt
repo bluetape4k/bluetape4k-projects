@@ -27,7 +27,7 @@ class RedissonSuspendLeaderElectionTest: AbstractRedissonTest() {
             launch {
                 leaderElection.runIfLeader(lockName) {
                     log.debug { "작업 1 을 시작합니다." }
-                    delay(10)
+                    randomDelay()
                     log.debug { "작업 1 을 종료합니다." }
                 }
             }.log("job1")
@@ -35,7 +35,7 @@ class RedissonSuspendLeaderElectionTest: AbstractRedissonTest() {
             launch {
                 leaderElection.runIfLeader(lockName) {
                     log.debug { "작업 2 을 시작합니다." }
-                    delay(10)
+                    randomDelay()
                     log.debug { "작업 2 을 종료합니다." }
                 }
             }.log("job2")
@@ -58,16 +58,16 @@ class RedissonSuspendLeaderElectionTest: AbstractRedissonTest() {
             .add {
                 leaderElection.runIfLeader(lockName) {
                     log.debug { "작업 1 을 시작합니다." }
-                    delay(Random.nextLong(5, 10))
                     task1.incrementAndGet()
+                    randomDelay()
                     log.debug { "작업 1 을 종료합니다." }
                 }
             }
             .add {
                 leaderElection.runIfLeader(lockName) {
                     log.debug { "작업 2 을 시작합니다." }
-                    delay(Random.nextLong(5, 10))
                     task2.incrementAndGet()
+                    randomDelay()
                     log.debug { "작업 2 을 종료합니다." }
                 }
             }
@@ -75,5 +75,9 @@ class RedissonSuspendLeaderElectionTest: AbstractRedissonTest() {
 
         task1.get() shouldBeEqualTo numThreads * roundsPerJob
         task2.get() shouldBeEqualTo numThreads * roundsPerJob
+    }
+
+    private suspend fun randomDelay(from: Long = 5L, until: Long = 10L) {
+        delay(Random.nextLong(from, until))
     }
 }

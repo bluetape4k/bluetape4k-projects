@@ -24,8 +24,9 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.4.14")
 
     // KLoggingChannel 사용 시 필요 (Coroutines)
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.8.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    // MDC 사용 시
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.10.2")
 }
 ```
 

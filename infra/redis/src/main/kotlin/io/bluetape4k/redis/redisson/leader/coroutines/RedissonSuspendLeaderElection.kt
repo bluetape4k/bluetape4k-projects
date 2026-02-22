@@ -9,7 +9,6 @@ import io.bluetape4k.redis.redisson.coroutines.getLockId
 import io.bluetape4k.redis.redisson.leader.RedissonLeaderElectionOptions
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.uninitialized
-import kotlinx.coroutines.coroutineScope
 import org.redisson.api.RLock
 import org.redisson.api.RedissonClient
 import java.util.concurrent.TimeUnit
@@ -51,7 +50,7 @@ class RedissonSuspendLeaderElection private constructor(
     override suspend fun <T> runIfLeader(
         lockName: String,
         action: suspend () -> T,
-    ): T = coroutineScope {
+    ): T {
         lockName.requireNotBlank("lockName")
 
         val lock: RLock = redissonClient.getLock(lockName)
@@ -90,6 +89,6 @@ class RedissonSuspendLeaderElection private constructor(
         } catch (e: InterruptedException) {
             log.warn(e) { "Interrupt to run action as leader. lockName=$lockName" }
         }
-        result
+        return result
     }
 }

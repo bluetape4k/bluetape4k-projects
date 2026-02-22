@@ -506,47 +506,154 @@ val valid = data.validate {
 
 #### Duration/Period DSL
 
+숫자 타입(Int, Long)에 대한 확장 함수로 직관적인 Duration/Period 생성을 지원합니다.
+
 ```kotlin
 import io.bluetape4k.javatimes.*
 
 // Duration 생성
 val duration = 5.days() + 3.hours() + 30.minutes() + 45.seconds()
 val shortDuration = 100.millis() + 500.nanos()
+val weekDuration = 2.weeks()
 
 // Period 생성
 val period = 2.yearPeriod() + 6.monthPeriod() + 15.dayPeriod()
+val quarterPeriod = 2.quarterPeriod()  // 6개월
+
+// 산술 연산
+val doubled = 2 * 3.days()      // 6일
+val halved = 6.days() / 2       // 3일
 ```
 
 #### Duration 유틸리티
 
 ```kotlin
-// Duration 생성
+// 다양한 단위로 Duration 생성
 val d1 = durationOfDay(1, 2, 3, 4, 5)  // 1일 2시간 3분 4초 5나노초
 val d2 = durationOfHour(2, 30, 15)     // 2시간 30분 15초
+val d3 = durationOfMinute(5, 30)       // 5분 30초
+val d4 = durationOfSecond(10, 500)     // 10초 500나노초
 
 // 포맷팅
 duration.formatHMS()   // "26:03:04.000"
 duration.formatISO()   // "P0Y0M1DT2H3M4.000S"
+
+// 속성
+duration.isNotPositive  // 0보다 작거나 같은지
+duration.isNotNegative  // 0보다 크거나 같은지
+duration.inMillis()     // 밀리초로 변환
+duration.inNanos()      // 나노초로 변환
 ```
 
 #### Temporal 확장
 
+모든 `Temporal` 타입(Instant, LocalDate, LocalDateTime, ZonedDateTime 등)에 대한 확장 함수를 제공합니다.
+
 ```kotlin
 val now = nowZonedDateTime()
 
-// 시작 시각
-now.startOfYear()     // 연초
-now.startOfMonth()    // 월초
-now.startOfDay()      // 당일 시작
+// 기간 연산
+now.add(3.days())       // 3일 후
+now.subtract(1.monthPeriod())  // 1달 전
 
-// 현재 시각 생성
+// 시작 시각
+now.startOfYear()       // 연초
+now.startOfMonth()      // 월초
+now.startOfWeek()       // 주 시작 (월요일)
+now.startOfDay()        // 당일 자정
+now.startOfHour()       // 정시
+now.startOfMinute()     // 분 시작
+now.startOfSecond()     // 초 시작
+
+// Temporal Adjusters
+now.firstOfMonth        // 월 첫째 날
+now.lastOfMonth         // 월 마지막 날
+now.firstOfYear         // 연 첫째 날
+now.lastOfYear          // 연 마지막 날
+now.next(DayOfWeek.FRIDAY)  // 다음 금요일
+now.previous(DayOfWeek.MONDAY)  // 지난 월요일
+
+// 비교
+val earlier = now.minus(1.days())
+val later = now.plus(1.days())
+val minTime = earlier min later  // 더 빠른 시각
+val maxTime = earlier max later  // 더 늦은 시각
+
+// Epoch 변환
+now.toEpochMillis()     // Epoch 밀리초
+now.toEpochDay()        // Epoch 일 수
+```
+
+#### 현재 시각 생성
+
+```kotlin
+// 현재 시각
 val instant = nowInstant()
+val localTime = nowLocalTime()
+val localDate = nowLocalDate()
 val localDateTime = nowLocalDateTime()
+val offsetDateTime = nowOffsetDateTime()
 val zonedDateTime = nowZonedDateTime()
 
-// 특정 시각 생성
+// UTC 기준
+val utcInstant = nowInstantUtc()
+val utcDateTime = nowLocalDateTimeUtc()
+
+// 오늘 (자정)
+val todayInstant = todayInstant()
+val todayLocalDate = todayLocalDate()
+val todayLocalDateTime = todayLocalDateTime()
+```
+
+#### 특정 시각 생성
+
+```kotlin
+// LocalDate
 val date = localDateOf(2024, 10, 14)
+val dateDefault = localDateOf(2024)  // 2024-01-01
+
+// LocalDateTime
 val dateTime = localDateTimeOf(2024, 10, 14, 15, 30, 45)
+val dateTimeDefault = localDateTimeOf(2024, 10)  // 2024-10-01T00:00:00
+
+// LocalTime
+val time = localTimeOf(15, 30, 45)  // 15:30:45
+
+// YearMonth, MonthDay
+val yearMonth = yearMonthOf(2024, Month.OCTOBER)
+val monthDay = monthDayOf(10, 14)
+```
+
+#### 시간 관련 상수 (TimeSpec)
+
+```kotlin
+// 시간 단위 변환 상수
+MillisPerSecond    // 1000
+MillisPerMinute    // 60,000
+MillisPerHour      // 3,600,000
+MillisPerDay       // 86,400,000
+
+NanosPerSecond     // 1,000,000,000
+NanosPerMinute     // 60,000,000,000
+NanosPerHour       // 3,600,000,000,000
+NanosPerDay        // 86,400,000,000,000
+
+// 달력 관련 상수
+MonthsPerYear      // 12
+QuartersPerYear    // 4
+MonthsPerQuarter   // 3
+DaysPerWeek        // 7
+HoursPerDay        // 24
+
+// 요일
+Weekdays           // [MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY]
+Weekends           // [SATURDAY, SUNDAY]
+FirstDayOfWeek     // MONDAY
+
+// Duration 상수
+EmptyDuration      // Duration.ZERO
+MinDuration        // 0 nanos
+MaxDuration        // Long.MAX_VALUE seconds
 ```
 
 #### Quarter (분기) 지원
@@ -556,8 +663,21 @@ val q1 = Quarter.Q1
 val q2 = Quarter.of(2)
 val q3 = Quarter.ofMonth(7)  // 7월 -> Q3
 
+// Quarter 연산
+q1.increment(2)   // Q1 + 2 = Q3
+q1.decrement(1)   // Q1 - 1 = Q4
+q1 + q2           // Quarter 합산
+
+// Quarter 정보
+q1.months         // [1, 2, 3]
+q1.startMonth     // 1
+q1.endMonth       // 3
+
+// YearQuarter (연도 + 분기)
 val yq = YearQuarter(2024, Quarter.Q1)
 yq.addQuarters(2)  // 2024-Q3
+yq.quarter         // Q1
+yq.year            // 2024
 ```
 
 ## 참고 자료

@@ -25,12 +25,12 @@ import kotlinx.coroutines.yield
  * ```
  * SuspendedJobTester()
  *    .workers(Runtimex.availableProcessors())                    // 테스트 코드들이 실행될 Thread 수
- *    .rounds(4 * Runtime.getRuntime().availableProcessors())  // 테스트 코드마다 4 * CPU core 번씩 실행
+ *    .rounds(4 * Runtime.getRuntime().availableProcessors())  // worker 마다 수행할 수
  *    .add {
- *          // 테스트 코드 1
+ *          // 테스트 블럭 1
  *    }
  *    .add {
- *          // 테스트 코드 2
+ *          // 테스트 블럭 2
  *    }
  *    .run()
  * ```

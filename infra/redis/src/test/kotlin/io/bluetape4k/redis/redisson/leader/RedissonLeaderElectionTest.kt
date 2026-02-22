@@ -34,7 +34,7 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
             executor.run {
                 leaderElection.runIfLeader(lockName) {
                     log.debug { "작업 1 을 시작합니다." }
-                    Thread.sleep(100)
+                    randomSleep(90, 100)
                     log.debug { "작업 1 을 종료합니다." }
                     countDownLatch.countDown()
                 }
@@ -42,7 +42,7 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
             executor.run {
                 leaderElection.runIfLeader(lockName) {
                     log.debug { "작업 2 을 시작합니다." }
-                    Thread.sleep(100)
+                    randomSleep(90, 100)
                     log.debug { "작업 2 을 종료합니다." }
                     countDownLatch.countDown()
                 }
@@ -64,9 +64,8 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
             leaderElection.runAsyncIfLeader(lockName) {
                 futureOf {
                     log.debug { "작업 1 을 시작합니다." }
-                    Thread.sleep(100)
+                    randomSleep(90, 100)
                     log.debug { "작업 1 을 종료합니다." }
-                    Thread.sleep(10)
                     countDownLatch.countDown()
                     42
                 }
@@ -76,9 +75,8 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
             leaderElection.runAsyncIfLeader(lockName) {
                 futureOf {
                     log.debug { "작업 2 을 시작합니다." }
-                    Thread.sleep(100)
+                    randomSleep(90, 100)
                     log.debug { "작업 2 을 종료합니다." }
-                    Thread.sleep(10)
                     countDownLatch.countDown()
                     43
                 }
@@ -106,16 +104,16 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
                 leaderElection.runIfLeader(lockName) {
                     log.debug { "작업 1 을 시작합니다. task1=${task1.get()}" }
                     task1.incrementAndGet()
+                    randomSleep()
                     log.debug { "작업 1 을 종료합니다. task1=${task1.get()}" }
-                    Thread.sleep(Random.nextLong(5, 10))
                 }
             }
             .add {
                 leaderElection.runIfLeader(lockName) {
                     log.debug { "작업 2 을 시작합니다. task2=${task2.get()}" }
                     task2.incrementAndGet()
+                    randomSleep()
                     log.debug { "작업 2 을 종료합니다. task2=${task2.get()}" }
-                    Thread.sleep(Random.nextLong(5, 10))
                 }
             }
             .run()
@@ -141,16 +139,16 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
                 leaderElection.runIfLeader(lockName) {
                     log.debug { "작업 1 을 시작합니다. task1=${task1.get()}" }
                     task1.incrementAndGet()
+                    randomSleep()
                     log.debug { "작업 1 을 종료합니다. task1=${task1.get()}" }
-                    Thread.sleep(Random.nextLong(5, 10))
                 }
             }
             .add {
                 leaderElection.runIfLeader(lockName) {
                     log.debug { "작업 2 을 시작합니다. task2=${task2.get()}" }
                     task2.incrementAndGet()
+                    randomSleep()
                     log.debug { "작업 2 을 종료합니다. task2=${task2.get()}" }
-                    Thread.sleep(Random.nextLong(5, 10))
                 }
             }
             .run()
@@ -177,8 +175,8 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
                     futureOf {
                         log.debug { "작업 1 을 시작합니다. task1=${task1.get()}" }
                         task1.incrementAndGet()
+                        randomSleep()
                         log.debug { "작업 1 을 종료합니다. task1=${task1.get()}" }
-                        Thread.sleep(Random.nextLong(5, 10))
                         42
                     }
                 }.join()
@@ -188,8 +186,8 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
                     futureOf {
                         log.debug { "작업 2 을 시작합니다. task2=${task2.get()}" }
                         task2.incrementAndGet()
+                        randomSleep()
                         log.debug { "작업 2 을 종료합니다. task2=${task2.get()}" }
-                        Thread.sleep(Random.nextLong(5, 10))
                         43
                     }
                 }.join()
@@ -218,8 +216,8 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
                     futureOf {
                         log.debug { "작업 1 을 시작합니다. task1=${task1.get()}" }
                         task1.incrementAndGet()
+                        randomSleep()
                         log.debug { "작업 1 을 종료합니다. task1=${task1.get()}" }
-                        Thread.sleep(Random.nextLong(5, 10))
                         42
                     }
                 }.join()
@@ -229,8 +227,8 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
                     futureOf {
                         log.debug { "작업 2 을 시작합니다. task2=${task2.get()}" }
                         task2.incrementAndGet()
+                        randomSleep()
                         log.debug { "작업 2 을 종료합니다. task2=${task2.get()}" }
-                        Thread.sleep(Random.nextLong(5, 10))
                         43
                     }
                 }.join()
@@ -239,5 +237,9 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
 
         task1.get() shouldBeEqualTo numThreads * roundsPerThread / 2
         task2.get() shouldBeEqualTo numThreads * roundsPerThread / 2
+    }
+
+    private fun randomSleep(from: Long = 5L, until: Long = 10L) {
+        Thread.sleep(Random.nextLong(from, until))
     }
 }
