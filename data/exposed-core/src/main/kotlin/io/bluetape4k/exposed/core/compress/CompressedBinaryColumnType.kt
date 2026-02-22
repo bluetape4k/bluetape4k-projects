@@ -33,12 +33,20 @@ class CompressedBinaryTransformer(
     private val compressor: Compressor,
 ): ColumnTransformer<ByteArray, ByteArray> {
     /**
-     * Entity Property 를 DB Column 수형으로 변환합니다.
+     * Entity Property 를 DB Column 수형으로 변환합니다 (압축).
      */
-    override fun unwrap(value: ByteArray): ByteArray = compressor.compress(value)
+    override fun unwrap(value: ByteArray): ByteArray = try {
+        compressor.compress(value)
+    } catch (e: Exception) {
+        throw IllegalStateException("Failed to compress data (size: ${value.size} bytes)", e)
+    }
 
     /**
-     * DB Column 값을 Entity Property 수형으로 변환합니다.
+     * DB Column 값을 Entity Property 수형으로 변환합니다 (복원).
      */
-    override fun wrap(value: ByteArray): ByteArray = compressor.decompress(value)
+    override fun wrap(value: ByteArray): ByteArray = try {
+        compressor.decompress(value)
+    } catch (e: Exception) {
+        throw IllegalStateException("Failed to decompress data (size: ${value.size} bytes)", e)
+    }
 }

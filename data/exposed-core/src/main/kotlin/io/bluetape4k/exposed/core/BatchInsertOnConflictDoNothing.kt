@@ -42,8 +42,15 @@ open class BatchInsertOnConflictDoNothing(table: Table): BatchInsertStatement(ta
 
             else            -> {
                 append(insertStatement)
-                val identifier = if (dialect is PostgreSQLDialect) "(id)" else ""
-                append(" ON CONFLICT $identifier DO NOTHING")
+                if (dialect is PostgreSQLDialect) {
+                    // 실제 PK 컬럼들을 사용 (복합 키 지원)
+                    val pkColumns = table.primaryKey?.columns
+                        ?.joinToString(", ") { transaction.identity(it) }
+                    val identifier = if (pkColumns != null) "($pkColumns)" else ""
+                    append(" ON CONFLICT $identifier DO NOTHING")
+                } else {
+                    append(" ON CONFLICT DO NOTHING")
+                }
             }
         }
     }

@@ -5,7 +5,6 @@ import io.bluetape4k.idgenerators.ksuid.KsuidMillis
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.logging.KotlinLogging
-import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import org.jetbrains.exposed.v1.core.ArrayColumnType
 import org.jetbrains.exposed.v1.core.AutoIncColumnType
@@ -72,9 +71,14 @@ fun Column<String>.timebasedGenerated(): Column<String> =
 
 /**
  * 컬럼의 기본 값을 Snowflake ID 로 설정합니다.
+ *
+ * @see [io.bluetape4k.idgenerators.snowflake.Snowflake]
  */
-fun Column<Long>.snowflakeIdGenerated(): Column<Long> =
-    clientDefault { Snowflakers.Global.nextId() }
+@Deprecated(
+    "Use snowflakeGenerated() instead for consistency",
+    ReplaceWith("snowflakeGenerated()")
+)
+fun Column<Long>.snowflakeIdGenerated(): Column<Long> = snowflakeGenerated()
 
 /**
  * Column 값을 [io.bluetape4k.idgenerators.snowflake.Snowflake] 값으로 설정합니다.
@@ -117,8 +121,6 @@ fun Column<String>.ksuidMillisGenerated(): Column<String> =
  * @return KClass\<*\>? 매핑되는 Kotlin 타입, 없으면 null
  */
 fun IColumnType<*>.getLanguageType(): KClass<*>? {
-    log.debug { "get language type for ${this.javaClass.simpleName}" }
-
     return when (this) {
         is BooleanColumnType              -> Boolean::class
         is CharacterColumnType            -> Char::class
