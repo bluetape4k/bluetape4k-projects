@@ -165,6 +165,13 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 - **[junit5](./testing/junit5/README.md)**: JUnit 5 확장 및 유틸리티
 - **[testcontainers](./testing/testcontainers/README.md)**: Testcontainers 지원 (Redis, Kafka, DB 등)
 
+### Virtual Thread 모듈 (`virtualthread/`)
+
+- **[virtualthread](./virtualthread/README.md)**: Java 21/25 Virtual Thread 지원
+    - **[api](./virtualthread/api/README.md)**: Virtual Thread API 및 ServiceLoader 기반 런타임 선택
+    - **[jdk21](./virtualthread/jdk21/README.md)**: Java 21 Virtual Thread 구현체
+    - **[jdk25](./virtualthread/jdk25/README.md)**: Java 25 Virtual Thread 구현체
+
 ### 기타 모듈
 
 - **[javers](./javers/README.md)**: JaVers 감사 로그
