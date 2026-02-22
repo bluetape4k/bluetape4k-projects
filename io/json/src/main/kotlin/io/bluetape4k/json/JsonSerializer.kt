@@ -31,7 +31,8 @@ interface JsonSerializer {
      * 객체를 JSON [ByteArray]로 직렬화합니다.
      *
      * @param graph 직렬화할 객체. null인 경우 빈 [ByteArray] 반환
-     * @return JSON 직렬화 결과. 실패 시 빈 [ByteArray] 반환
+     * @return JSON 직렬화 결과
+     * @throws JsonSerializationException 직렬화 실패 시
      */
     fun serialize(graph: Any?): ByteArray
 
@@ -41,7 +42,8 @@ interface JsonSerializer {
      * @param T 역직렬화 대상 타입
      * @param bytes JSON 직렬화된 바이트 배열. null이면 null 반환
      * @param clazz 역직렬화할 대상 클래스
-     * @return 역직렬화된 객체. 실패 시 null 반환
+     * @return 역직렬화된 객체
+     * @throws JsonSerializationException 역직렬화 실패 시
      */
     fun <T: Any> deserialize(bytes: ByteArray?, clazz: Class<T>): T?
 
@@ -51,7 +53,8 @@ interface JsonSerializer {
      * 내부적으로 [serialize]를 호출한 뒤 UTF-8 문자열로 변환합니다.
      *
      * @param graph 직렬화할 객체. null인 경우 빈 문자열 반환
-     * @return JSON 문자열. 실패 시 빈 문자열 반환
+     * @return JSON 문자열
+     * @throws JsonSerializationException 직렬화 실패 시
      */
     fun serializeAsString(graph: Any?): String =
         graph?.let { serialize(it).toUtf8String() }.orEmpty()
@@ -64,14 +67,15 @@ interface JsonSerializer {
      * @param T 역직렬화 대상 타입
      * @param jsonText JSON 직렬화된 문자열. null이면 null 반환
      * @param clazz 역직렬화할 대상 클래스
-     * @return 역직렬화된 객체. 실패 시 null 반환
+     * @return 역직렬화된 객체
+     * @throws JsonSerializationException 역직렬화 실패 시
      */
     fun <T: Any> deserializeFromString(jsonText: String?, clazz: Class<T>): T? =
         jsonText?.let { deserialize(it.toUtf8Bytes(), clazz) }
 }
 
 /**
- * [JsonSerializer]를 이용하여 [bytes]를 역직렬화하여 객체를 빌드합니다. 실패시 null 반환
+ * [JsonSerializer]를 이용하여 [bytes]를 역직렬화하여 객체를 빌드합니다.
  *
  * ```
  * val serializer = JacksonSerializer()
@@ -81,13 +85,14 @@ interface JsonSerializer {
  *
  * @param T 역직렬화할 대상 수형
  * @param bytes JSON 직렬화된 ByteArray
- * @return 역직렬화된 객체, 실패 시 null 반환
+ * @return 역직렬화된 객체
+ * @throws JsonSerializationException 역직렬화 실패 시
  */
 inline fun <reified T: Any> JsonSerializer.deserialize(bytes: ByteArray?): T? =
     deserialize(bytes, T::class.java)
 
 /**
- * [JsonSerializer]를 이용하여 [jsonText]를 역직렬화하여 객체를 빌드합니다. 실패시 null 반환
+ * [JsonSerializer]를 이용하여 [jsonText]를 역직렬화하여 객체를 빌드합니다.
  *
  * ```
  * val serializer = JacksonSerializer()
@@ -97,7 +102,8 @@ inline fun <reified T: Any> JsonSerializer.deserialize(bytes: ByteArray?): T? =
  *
  * @param T 역직렬화할 대상 수형
  * @param jsonText JSON 직렬화된 문자열
- * @return 역직렬화된 객체, 실패 시 null 반환
+ * @return 역직렬화된 객체
+ * @throws JsonSerializationException 역직렬화 실패 시
  */
 inline fun <reified T: Any> JsonSerializer.deserializeFromString(jsonText: String?): T? =
     deserializeFromString(jsonText, T::class.java)

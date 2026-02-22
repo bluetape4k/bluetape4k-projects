@@ -2,6 +2,7 @@ package io.bluetape4k.io.okio.compress
 
 import io.bluetape4k.io.compressor.Compressor
 import io.bluetape4k.io.compressor.Compressors
+import io.bluetape4k.io.compressor.StreamingCompressor
 import io.bluetape4k.io.okio.AbstractOkioTest
 import io.bluetape4k.io.okio.bufferOf
 import io.bluetape4k.io.okio.byteStringOf
@@ -25,6 +26,15 @@ class CompressableSinkAndSourceTest: AbstractOkioTest() {
         Compressors.LZ4,
         Compressors.Snappy,
         Compressors.Zstd
+    )
+
+    private fun streamingCompressors(): List<StreamingCompressor> = listOf(
+        Compressors.Streaming.BZip2,
+        Compressors.Streaming.Deflate,
+        Compressors.Streaming.GZip,
+        Compressors.Streaming.LZ4,
+        Compressors.Streaming.Snappy,
+        Compressors.Streaming.Zstd
     )
 
     @ParameterizedTest(name = "compressor={0}")
@@ -148,5 +158,20 @@ class CompressableSinkAndSourceTest: AbstractOkioTest() {
         assertFailsWith<IOException> {
             source.read(Buffer(), 1L)
         }
+    }
+
+    @ParameterizedTest(name = "streamingCompressor={0}")
+    @MethodSource("streamingCompressors")
+    fun `streaming compressor 오버로드를 통해 roundtrip 한다`(compressor: StreamingCompressor) {
+        val original = faker.lorem().paragraph().repeat(16)
+        val source = bufferOf(original)
+        val compressed = Buffer()
+
+        compressed.asCompressSink(compressor).use { sink ->
+            sink.write(source, source.size)
+        }
+
+        val decompressed = bufferOf(compressed.asDecompressSource(compressor))
+        decompressed.readUtf8() shouldBeEqualTo original
     }
 }

@@ -2,9 +2,7 @@ package io.bluetape4k.fastjson2
 
 import com.alibaba.fastjson2.JSONB
 import com.alibaba.fastjson2.toJSONString
-import io.bluetape4k.fastjson2.extensions.readBytesOrNull
-import io.bluetape4k.fastjson2.extensions.readValueOrNull
-import io.bluetape4k.fastjson2.extensions.toJsonBytes
+import io.bluetape4k.json.JsonSerializationException
 import io.bluetape4k.json.JsonSerializer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
@@ -48,7 +46,14 @@ class FastjsonSerializer: JsonSerializer {
      * @return JSONB 직렬화된 바이트 배열
      */
     override fun serialize(graph: Any?): ByteArray {
-        return graph?.run { toJsonBytes() } ?: emptyByteArray
+        if (graph == null) {
+            return emptyByteArray
+        }
+        return try {
+            JSONB.toBytes(graph)
+        } catch (e: Throwable) {
+            throw JsonSerializationException("Fail to serialize by Fastjson2. graphType=${graph.javaClass.name}", e)
+        }
     }
 
     /**
@@ -60,7 +65,14 @@ class FastjsonSerializer: JsonSerializer {
      * @return 역직렬화된 객체. 실패 시 null 반환
      */
     override fun <T: Any> deserialize(bytes: ByteArray?, clazz: Class<T>): T? {
-        return bytes?.run { JSONB.parseObject(this, clazz) }
+        if (bytes == null) {
+            return null
+        }
+        return try {
+            JSONB.parseObject(bytes, clazz)
+        } catch (e: Throwable) {
+            throw JsonSerializationException("Fail to deserialize by Fastjson2. targetType=${clazz.name}", e)
+        }
     }
 
     /**
@@ -72,7 +84,17 @@ class FastjsonSerializer: JsonSerializer {
      * @return JSON 문자열
      */
     override fun serializeAsString(graph: Any?): String {
-        return graph?.toJSONString().orEmpty()
+        if (graph == null) {
+            return ""
+        }
+        return try {
+            graph.toJSONString()
+        } catch (e: Throwable) {
+            throw JsonSerializationException(
+                "Fail to serialize string by Fastjson2. graphType=${graph.javaClass.name}",
+                e
+            )
+        }
     }
 
     /**
@@ -84,7 +106,14 @@ class FastjsonSerializer: JsonSerializer {
      * @return 역직렬화된 객체. 실패 시 null 반환
      */
     override fun <T: Any> deserializeFromString(jsonText: String?, clazz: Class<T>): T? {
-        return jsonText?.readValueOrNull(clazz)
+        if (jsonText == null) {
+            return null
+        }
+        return try {
+            com.alibaba.fastjson2.JSON.parseObject(jsonText, clazz)
+        } catch (e: Throwable) {
+            throw JsonSerializationException("Fail to deserialize string by Fastjson2. targetType=${clazz.name}", e)
+        }
     }
 }
 
@@ -102,7 +131,7 @@ class FastjsonSerializer: JsonSerializer {
  * @return 역직렬화된 객체. null이거나 실패 시 null 반환
  */
 inline fun <reified T: Any> FastjsonSerializer.deserialize(bytes: ByteArray?): T? =
-    bytes?.readBytesOrNull<T>()
+    deserialize(bytes, T::class.java)
 
 /**
  * JSON 문자열을 읽어 지정된 타입 [T]로 역직렬화합니다.
@@ -118,4 +147,4 @@ inline fun <reified T: Any> FastjsonSerializer.deserialize(bytes: ByteArray?): T
  * @return 역직렬화된 객체. null이거나 실패 시 null 반환
  */
 inline fun <reified T: Any> FastjsonSerializer.deserialize(jsonText: String?): T? =
-    jsonText.readValueOrNull<T>()
+    deserializeFromString(jsonText, T::class.java)

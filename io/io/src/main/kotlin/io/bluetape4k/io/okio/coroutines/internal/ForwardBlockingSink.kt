@@ -8,6 +8,7 @@ import kotlinx.coroutines.runBlocking
 import okio.Buffer
 import okio.Sink
 import okio.Timeout
+import java.io.InterruptedIOException
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -26,7 +27,7 @@ internal class ForwardBlockingSink(
     override fun write(source: Buffer, byteCount: Long) = runBlocking(context) {
         withTimeoutOrNull(timeout()) {
             delegate.write(source, byteCount)
-        } ?: Unit
+        } ?: throw InterruptedIOException("Timed out while writing to suspended sink.")
     }
 
     /**
@@ -35,7 +36,7 @@ internal class ForwardBlockingSink(
     override fun flush() = runBlocking(context) {
         withTimeoutOrNull(timeout()) {
             delegate.flush()
-        } ?: Unit
+        } ?: throw InterruptedIOException("Timed out while flushing suspended sink.")
     }
 
     /**
@@ -44,7 +45,7 @@ internal class ForwardBlockingSink(
     override fun close() = runBlocking(context) {
         withTimeoutOrNull(timeout()) {
             delegate.close()
-        } ?: Unit
+        } ?: throw InterruptedIOException("Timed out while closing suspended sink.")
     }
 
     /**

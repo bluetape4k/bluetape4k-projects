@@ -18,7 +18,7 @@ abstract class AbstractBinarySerializer: BinarySerializer {
     /**
      * 객체를 Binary 방식으로 직렬화합니다.
      *
-     * 정책: 직렬화 실패 시 예외를 전파하지 않고 `emptyByteArray`를 반환합니다.
+     * 정책: 직렬화 실패 시 [BinarySerializationException] 예외를 던집니다.
      *
      * ```
      * val serializer = JdkBinarySerializer()
@@ -36,15 +36,15 @@ abstract class AbstractBinarySerializer: BinarySerializer {
         return try {
             doSerialize(graph)
         } catch (e: Throwable) {
-            log.error(e) { "Fail to serialize. return emptyByteArray by design. graph=$graph" }
-            emptyByteArray
+            log.error(e) { "Fail to serialize. throw BinarySerializationException. graph=$graph" }
+            throw BinarySerializationException("Fail to serialize. graphType=${graph.javaClass.name}", e)
         }
     }
 
     /**
      * 직렬화된 데이터를 읽어 대상 객체로 역직렬화합니다.
      *
-     * 정책: 역직렬화 실패 시 예외를 전파하지 않고 `null`을 반환합니다.
+     * 정책: 역직렬화 실패 시 [BinarySerializationException] 예외를 던집니다.
      *
      * ```
      * val serializer = JdkBinarySerializer()
@@ -60,12 +60,13 @@ abstract class AbstractBinarySerializer: BinarySerializer {
         if (bytes.isNullOrEmpty()) {
             return null
         }
+        val source = bytes!!
 
         return try {
-            doDeserialize(bytes!!)
+            doDeserialize(source)
         } catch (e: Throwable) {
-            log.error(e) { "Fail to deserialize. return null by design." }
-            null
+            log.error(e) { "Fail to deserialize. throw BinarySerializationException." }
+            throw BinarySerializationException("Fail to deserialize. bytesSize=${source.size}", e)
         }
     }
 }

@@ -2,6 +2,7 @@ package io.bluetape4k.fastjson2
 
 import io.bluetape4k.fastjson2.model.User
 import io.bluetape4k.fastjson2.model.newUser
+import io.bluetape4k.json.JsonSerializationException
 import io.bluetape4k.json.JsonSerializer
 import io.bluetape4k.json.deserialize
 import io.bluetape4k.json.deserializeFromString
@@ -13,6 +14,7 @@ import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
 /**
  * [FastjsonSerializer]의 기본 동작을 검증하는 테스트 클래스입니다.
@@ -74,5 +76,15 @@ class FastjsonSerializerTest: AbstractJsonSerializerTest() {
 
         val restored = FastjsonSerializer.Default.deserialize<User>(bytes)
         restored.shouldNotBeNull() shouldBeEqualTo user
+    }
+
+    @Test
+    fun `잘못된 JSON 입력 역직렬화 시 예외를 던진다`() {
+        assertFailsWith<JsonSerializationException> {
+            serializer.deserialize<User>(byteArrayOf(1, 2, 3, 4))
+        }
+        assertFailsWith<JsonSerializationException> {
+            serializer.deserializeFromString<User>("{not-json")
+        }
     }
 }

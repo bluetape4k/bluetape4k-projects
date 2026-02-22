@@ -38,6 +38,12 @@ val restored2 = serializer.deserializeFromString<Data>(jsonText)
 | `serializeAsString(graph)`           | 객체를 JSON 문자열로 직렬화         |
 | `deserializeFromString(text, clazz)` | JSON 문자열을 지정 타입으로 역직렬화    |
 
+### 실패 정책
+
+- `serialize(null)`은 빈 `ByteArray`를 반환합니다.
+- `deserialize(null)` / `deserializeFromString(null)`은 `null`을 반환합니다.
+- 그 외 직렬화/역직렬화 실패는 `JsonSerializationException` 예외를 던집니다.
+
 ### Kotlin reified 확장 함수
 
 클래스를 명시하지 않고 타입 추론으로 역직렬화할 수 있습니다:

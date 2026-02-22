@@ -1,6 +1,8 @@
 package io.bluetape4k.io.okio.compress
 
 import io.bluetape4k.io.compressor.Compressor
+import io.bluetape4k.io.compressor.StreamingCompressor
+import io.bluetape4k.io.compressor.asCompressor
 import io.bluetape4k.io.okio.bufferOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -44,4 +46,11 @@ open class CompressableSink(
  */
 fun okio.Sink.asCompressSink(compressor: Compressor): CompressableSink {
     return CompressableSink(this, compressor)
+}
+
+/**
+ * Okio 압축/해제 타입 변환을 위한 `asCompressSink` 함수를 제공합니다.
+ */
+fun okio.Sink.asCompressSink(compressor: StreamingCompressor): CompressableSink {
+    return CompressableSink(this, compressor.asCompressor())
 }

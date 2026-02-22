@@ -25,7 +25,20 @@ val restored = serializer.deserialize<User>(bytes)
 // JSON 문자열 직렬화/역직렬화
 val jsonText = serializer.serializeAsString(user)
 val restored2 = serializer.deserializeFromString<User>(jsonText)
+
+// 실패 시 JsonSerializationException
+try {
+    serializer.deserialize<User>(byteArrayOf(1, 2, 3))
+} catch (e: JsonSerializationException) {
+    // handle
+}
 ```
+
+`FastjsonSerializer` 실패 정책:
+
+- `serialize(null)`은 빈 `ByteArray`, `serializeAsString(null)`은 빈 문자열을 반환합니다.
+- `deserialize(null)` / `deserializeFromString(null)`은 `null`을 반환합니다.
+- 그 외 직렬화/역직렬화 실패는 `JsonSerializationException` 예외를 던집니다.
 
 ### 2. JSON 문자열 확장 함수
 

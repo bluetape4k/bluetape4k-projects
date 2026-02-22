@@ -60,6 +60,12 @@ val bytes = serializer.serialize(user)
 val restored = serializer.deserialize<User>(bytes)
 ```
 
+바이너리 Serializer(`CborJacksonSerializer`, `IonJacksonSerializer`, `SmileJacksonSerializer`) 실패 정책:
+
+- `serialize(null)`은 빈 `ByteArray`를 반환합니다.
+- `deserialize(null)` / `deserializeFromString(null)`은 `null`을 반환합니다.
+- 그 외 직렬화/역직렬화 실패는 `JsonSerializationException` 예외를 던집니다.
+
 ### 3. 포맷별 Serializer 직접 생성
 
 ```kotlin

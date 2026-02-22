@@ -2,12 +2,20 @@ package io.bluetape4k.io.okio.compress
 
 import io.bluetape4k.io.compressor.Compressor
 import io.bluetape4k.io.compressor.Compressors
+import io.bluetape4k.io.compressor.StreamingCompressor
+import io.bluetape4k.io.compressor.asCompressor
 
 /**
  * Okio 압축/해제에서 `compressableSink` 함수를 제공합니다.
  */
 fun okio.Sink.compressableSink(compressor: Compressor): CompressableSink =
     CompressableSink(this, compressor)
+
+/**
+ * Okio 압축/해제에서 `compressableSink` 함수를 제공합니다.
+ */
+fun okio.Sink.compressableSink(compressor: StreamingCompressor): CompressableSink =
+    CompressableSink(this, compressor.asCompressor())
 
 /**
  * Okio 압축/해제에서 `deflateSink` 함수를 제공합니다.

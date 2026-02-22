@@ -1,6 +1,8 @@
 package io.bluetape4k.io.okio.compress
 
 import io.bluetape4k.io.compressor.Compressor
+import io.bluetape4k.io.compressor.StreamingCompressor
+import io.bluetape4k.io.compressor.asCompressor
 import io.bluetape4k.io.okio.bufferOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -77,4 +79,11 @@ open class DecompressableSource(
  */
 fun okio.Source.asDecompressSource(compressor: Compressor): DecompressableSource {
     return DecompressableSource(this, compressor)
+}
+
+/**
+ * Okio 압축/해제 타입 변환을 위한 `asDecompressSource` 함수를 제공합니다.
+ */
+fun okio.Source.asDecompressSource(compressor: StreamingCompressor): DecompressableSource {
+    return DecompressableSource(this, compressor.asCompressor())
 }

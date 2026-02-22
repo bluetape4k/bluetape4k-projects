@@ -1,6 +1,7 @@
 package io.bluetape4k.jackson
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.bluetape4k.json.JsonSerializationException
 import io.bluetape4k.json.JsonSerializer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
@@ -42,7 +43,14 @@ open class JacksonSerializer(
      * @return JSON 바이트 배열
      */
     override fun serialize(graph: Any?): ByteArray {
-        return graph?.run { mapper.writeAsBytes(this) } ?: emptyByteArray
+        if (graph == null) {
+            return emptyByteArray
+        }
+        return try {
+            requireNotNull(mapper.writeAsBytes(graph)) { "mapper.writeAsBytes returned null." }
+        } catch (e: Throwable) {
+            throw JsonSerializationException("Fail to serialize by Jackson. graphType=${graph.javaClass.name}", e)
+        }
     }
 
     /**
@@ -54,7 +62,14 @@ open class JacksonSerializer(
      * @return 역직렬화된 객체. 실패 시 null 반환
      */
     override fun <T: Any> deserialize(bytes: ByteArray?, clazz: Class<T>): T? {
-        return bytes?.run { mapper.readValue(this, clazz) }
+        if (bytes == null) {
+            return null
+        }
+        return try {
+            mapper.readValue(bytes, clazz)
+        } catch (e: Throwable) {
+            throw JsonSerializationException("Fail to deserialize by Jackson. targetType=${clazz.name}", e)
+        }
     }
 
     /**
@@ -65,7 +80,7 @@ open class JacksonSerializer(
      * @return 역직렬화된 객체. null이거나 실패 시 null 반환
      */
     inline fun <reified T: Any> deserialize(bytes: ByteArray?): T? =
-        bytes?.run { mapper.readValueOrNull<T>(bytes) }
+        deserialize(bytes, T::class.java)
 
     /**
      * JSON 문자열을 읽어 reified 타입 [T]의 객체로 역직렬화합니다.
@@ -75,5 +90,11 @@ open class JacksonSerializer(
      * @return 역직렬화된 객체. null이거나 실패 시 null 반환
      */
     inline fun <reified T: Any> deserializeFromString(jsonText: String?): T? =
-        jsonText?.run { mapper.readValueOrNull<T>(jsonText) }
+        jsonText?.let {
+            try {
+                mapper.readValue(jsonText, T::class.java)
+            } catch (e: Throwable) {
+                throw JsonSerializationException("Fail to deserialize by Jackson. targetType=${T::class.java.name}", e)
+            }
+        }
 }

@@ -8,6 +8,7 @@ import kotlinx.coroutines.runBlocking
 import okio.Buffer
 import okio.Source
 import okio.Timeout
+import java.io.InterruptedIOException
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -26,7 +27,7 @@ internal class ForwardBlockingSource(
     override fun read(sink: Buffer, byteCount: Long): Long = runBlocking(context) {
         withTimeoutOrNull(timeout()) {
             delegate.read(sink, byteCount)
-        } ?: -1L
+        } ?: throw InterruptedIOException("Timed out while reading from suspended source.")
     }
 
     /**
@@ -35,7 +36,7 @@ internal class ForwardBlockingSource(
     override fun close() = runBlocking(context) {
         withTimeoutOrNull(timeout()) {
             delegate.close()
-        } ?: Unit
+        } ?: throw InterruptedIOException("Timed out while closing suspended source.")
     }
 
     /**

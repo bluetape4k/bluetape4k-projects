@@ -40,6 +40,24 @@ val inputStream = File("large-file.txt").inputStream()
 val compressedStream = Compressors.GZip.compress(inputStream)
 ```
 
+**StreamingCompressor (대용량 스트리밍 처리):**
+
+```kotlin
+import io.bluetape4k.io.compressor.Compressors
+
+val source = File("large-file.txt").inputStream()
+val compressedOut = File("large-file.txt.zst").outputStream()
+
+// 스트림 기반 압축/복원
+Compressors.Streaming.Zstd.compress(source, compressedOut)
+
+val restoredOut = File("large-file-restored.txt").outputStream()
+Compressors.Streaming.Zstd.decompress(
+    File("large-file.txt.zst").inputStream(),
+    restoredOut
+)
+```
+
 **압축 알고리즘 선택 가이드:**
 
 - **실시간 처리**: LZ4, Snappy (압축률 < 속도)
@@ -49,6 +67,12 @@ val compressedStream = Compressors.GZip.compress(inputStream)
 ### 2. 직렬화 (BinarySerializer)
 
 객체를 바이너리로 직렬화/역직렬화하는 다양한 구현체를 제공합니다.
+
+`BinarySerializer` 실패 정책:
+
+- `serialize(null)`은 빈 바이트 배열을 반환합니다.
+- `deserialize(null/empty)`는 `null`을 반환합니다.
+- 그 외 직렬화/역직렬화 실패는 `BinarySerializationException` 예외를 던집니다.
 
 **지원 직렬화:**
 
@@ -67,6 +91,13 @@ val serializer = BinarySerializers.Kryo
 val user = User(1L, "John Doe", "john@example.com")
 val bytes = serializer.serialize(user)
 val restored = serializer.deserialize<User>(bytes)
+
+// 실패 시 BinarySerializationException
+try {
+    serializer.deserialize<User>(byteArrayOf(1, 2, 3))
+} catch (e: BinarySerializationException) {
+    // handle
+}
 
 // 직렬화 + 압축 (저장 공간 절약)
 val compressedSerializer = BinarySerializers.LZ4Kryo
@@ -122,21 +153,27 @@ suspend fun writeFileAsync(path: String, data: ByteArray) {
 }
 
 // 압축 스트림
-import io . bluetape4k . io . okio . compress . *
-        import io . bluetape4k . io . compressor . Compressors
+import io.bluetape4k.io.okio.compress.*
+import io.bluetape4k.io.compressor.Compressors
 
 val sink = /* ... */
 val compressedSink = CompressableSink(sink, Compressors.Zstd)
 compressedSink.write(buffer)
 
 // 암호화 스트림
-import io . bluetape4k . io . okio . cipher . *
-        import javax . crypto . Cipher
+import io.bluetape4k.io.okio.cipher.*
+import javax.crypto.Cipher
 
 val cipher = /* Cipher 초기화 */
-val encryptedSink = CipherSink(sink, cipher)
+val encryptedSink = FinalizingCipherSink(sink, cipher)
 encryptedSink.write(buffer)
 ```
+
+암호화 클래스 명칭 변경:
+
+- `FinalizingCipherSink`: write 스트리밍 + close 시 finalize
+- `StreamingCipherSource`: 스트리밍 복호화
+- 기존 `CipherSink`, `CipherSource`는 하위 호환용이며 deprecated 입니다.
 
 ### 4. 파일 유틸리티 (FileSupport)
 
@@ -313,6 +350,8 @@ val writeFuture = readFuture.thenCompose { bytes ->
 io.bluetape4k.io
 ├── compressor/          # 압축 알고리즘
 │   ├── Compressor.kt
+│   ├── StreamingCompressor.kt
+│   ├── StreamingCompressors.kt
 │   ├── Compressors.kt
 │   └── [각종 구현체]
 ├── serializer/          # 직렬화
@@ -323,6 +362,8 @@ io.bluetape4k.io
 │   ├── coroutines/     # Suspended I/O
 │   ├── channels/       # Channel 지원
 │   ├── cipher/         # 암호화
+│   │   ├── FinalizingCipherSink.kt
+│   │   └── StreamingCipherSource.kt
 │   ├── compress/       # 압축 스트림
 │   └── jasypt/         # Jasypt 암호화
 ├── FileSupport.kt      # 파일 유틸리티

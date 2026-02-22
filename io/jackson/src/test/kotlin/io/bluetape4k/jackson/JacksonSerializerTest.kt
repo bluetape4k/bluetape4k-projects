@@ -1,5 +1,6 @@
 package io.bluetape4k.jackson
 
+import io.bluetape4k.json.JsonSerializationException
 import io.bluetape4k.json.JsonSerializer
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.logging.KLogging
@@ -10,6 +11,7 @@ import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
 class JacksonSerializerTest: AbstractJsonSerializerTest() {
 
@@ -46,5 +48,15 @@ class JacksonSerializerTest: AbstractJsonSerializerTest() {
 
         val actual = jacksonSerializer.deserializeFromString<User>(jsonText)
         actual.shouldNotBeNull() shouldBeEqualTo expected
+    }
+
+    @Test
+    fun `잘못된 JSON 입력 역직렬화 시 예외를 던진다`() {
+        assertFailsWith<JsonSerializationException> {
+            serializer.deserialize("{not-json".toByteArray(), User::class.java)
+        }
+        assertFailsWith<JsonSerializationException> {
+            serializer.deserializeFromString("{not-json", User::class.java)
+        }
     }
 }

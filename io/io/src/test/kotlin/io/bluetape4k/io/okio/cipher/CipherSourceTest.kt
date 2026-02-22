@@ -17,7 +17,7 @@ class CipherSourceTest: AbstractCipherTest() {
     fun `read empty source`() {
         val cipheredSource = Buffer()
 
-        val decoded = CipherSource(cipheredSource, decryptCipher)
+        val decoded = StreamingCipherSource(cipheredSource, decryptCipher)
 
         val output = bufferOf(decoded)
         output.readUtf8() shouldBeEqualTo ""
@@ -29,7 +29,7 @@ class CipherSourceTest: AbstractCipherTest() {
         log.debug { "expected=$expected" }
 
         val encryptedSource = bufferOf(encryptCipher.doFinal(expected.toUtf8Bytes()))
-        val decoded = CipherSource(encryptedSource, decryptCipher)
+        val decoded = StreamingCipherSource(encryptedSource, decryptCipher)
         val output = bufferOf(decoded)
 
         output.readUtf8() shouldBeEqualTo expected
@@ -42,7 +42,7 @@ class CipherSourceTest: AbstractCipherTest() {
         val expectedBytes = expected.toUtf8Bytes()
 
         val cipheredSource = bufferOf(encryptCipher.doFinal(expectedBytes))
-        val decoded = CipherSource(cipheredSource, decryptCipher)
+        val decoded = StreamingCipherSource(cipheredSource, decryptCipher)
 
         // First request 5 bytes
         val output = Buffer()
@@ -63,7 +63,7 @@ class CipherSourceTest: AbstractCipherTest() {
         val ciphered = encryptCipher.doFinal(expectedBytes)
 
         val cipheredSource = bufferOf(ciphered)
-        val decoded = CipherSource(cipheredSource, decryptCipher)
+        val decoded = StreamingCipherSource(cipheredSource, decryptCipher)
 
         val output = Buffer()
         var readBytesCount = Long.MAX_VALUE
@@ -78,7 +78,7 @@ class CipherSourceTest: AbstractCipherTest() {
     fun `read with Long_MAX_VALUE returns available bytes`() {
         val expected = faker.lorem().paragraph()
         val cipheredSource = bufferOf(encryptCipher.doFinal(expected.toUtf8Bytes()))
-        val decoded = CipherSource(cipheredSource, decryptCipher)
+        val decoded = StreamingCipherSource(cipheredSource, decryptCipher)
         val output = Buffer()
 
         val read = decoded.read(output, Long.MAX_VALUE)

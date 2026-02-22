@@ -51,7 +51,20 @@ val restored = serializer.deserialize<User>(bytes)
 // 문자열 직렬화/역직렬화
 val jsonText = serializer.serializeAsString(user)
 val restored2 = serializer.deserializeFromString<User>(jsonText)
+
+// 실패 시 JsonSerializationException
+try {
+    serializer.deserialize<User>("{not-json".toByteArray())
+} catch (e: JsonSerializationException) {
+    // handle
+}
 ```
+
+`JacksonSerializer` 실패 정책:
+
+- `serialize(null)`은 빈 `ByteArray`를 반환합니다.
+- `deserialize(null)` / `deserializeFromString(null)`은 `null`을 반환합니다.
+- 그 외 직렬화/역직렬화 실패는 `JsonSerializationException` 예외를 던집니다.
 
 ### 3. ObjectMapper 확장 함수
 
