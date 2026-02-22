@@ -48,7 +48,6 @@ class SampleVerticleTest: AbstractVertxTest() {
 
     @Test
     fun `use SampleVerticle`(vertx: Vertx, testContext: VertxTestContext) {
-        val webClient = WebClient.create(vertx)
         val deploymentCheckpoint = testContext.checkpoint()
         val requestCheckpoint = testContext.checkpoint(REPEAT_SIZE)
 
@@ -56,6 +55,7 @@ class SampleVerticleTest: AbstractVertxTest() {
             .deployVerticle(SampleVerticle())
             .onSuccess {
                 deploymentCheckpoint.flag()
+                val webClient = WebClient.create(vertx)
 
                 repeat(REPEAT_SIZE) {
                     log.debug { "Request $it" }
@@ -79,12 +79,12 @@ class SampleVerticleTest: AbstractVertxTest() {
     @Test
     fun `use SampleVerticle in coroutines`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
         vertx.withSuspendTestContext(testContext) {
-            val webClient = WebClient.create(vertx)
             val deploymentCheckpoint = testContext.checkpoint()
             val requestCheckpoint = testContext.checkpoint(REPEAT_SIZE)
 
             log.debug { "Deply SampleVerticle" }
             vertx.deployVerticle(SampleVerticle()).coAwait()
+            val webClient = WebClient.create(vertx)
             deploymentCheckpoint.flag()  //testContext 에게 현 단계까지 완료되었음을 알린다.
 
             val jobs = List(REPEAT_SIZE) { requestIndex ->

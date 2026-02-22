@@ -1,11 +1,12 @@
 package io.bluetape4k.fastjson2
 
 import io.bluetape4k.fastjson2.model.Address
+import io.bluetape4k.fastjson2.model.OptionalCollection
+import io.bluetape4k.fastjson2.model.OptionalData
 import io.bluetape4k.fastjson2.model.Professor
 import io.bluetape4k.fastjson2.model.Student
 import io.bluetape4k.fastjson2.model.User
-import io.bluetape4k.json.JsonSerializer
-import io.bluetape4k.json.deserialize
+import io.bluetape4k.fastjson2.model.newUser
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
@@ -21,13 +22,14 @@ import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
+import java.util.*
 
 @RandomizedTest
 abstract class AbstractJsonSerializerTest: AbstractFastjson2Test() {
 
     companion object: KLogging()
 
-    protected abstract val serializer: JsonSerializer
+    protected abstract val serializer: FastjsonSerializer
 
     @RepeatedTest(REPEAT_SIZE)
     fun `json serialize with json type info`(@RandomValue expected: Address) {
@@ -77,6 +79,48 @@ abstract class AbstractJsonSerializerTest: AbstractFastjson2Test() {
         bytes.shouldNotBeEmpty()
 
         val actual = serializer.deserialize<User>(bytes)
+        actual.shouldNotBeNull()
+        actual shouldBeEqualTo expected
+    }
+
+    @Test
+    fun `json serialize user list`() {
+        val expected = listOf(newUser(), newUser(), newUser())
+        val bytes = serializer.serialize(expected)
+        bytes.shouldNotBeEmpty()
+
+        val actual = serializer.deserialize<List<User>>(bytes)
+        actual.shouldNotBeNull()
+        actual shouldBeEqualTo expected
+    }
+
+    @Test
+    fun `json serialize OptionalData`() {
+        val expected = OptionalData(
+            name = faker.name().fullName(),
+            age = faker.random().nextInt(10, 80),
+            spec = Optional.of(faker.university().name())
+        )
+        val bytes = serializer.serialize(expected)
+        bytes.shouldNotBeEmpty()
+
+        val actual = serializer.deserialize<OptionalData>(bytes)
+        actual.shouldNotBeNull()
+        actual shouldBeEqualTo expected
+    }
+
+    @Test
+    fun `json serialize OptionalCollection`() {
+        val expected = OptionalCollection(
+            name = faker.name().fullName(),
+            age = faker.random().nextInt(10, 80),
+            spec = Optional.of(faker.book().title()),
+            options = listOf(Optional.of("A"), Optional.of("B"), Optional.of("C"))
+        )
+        val bytes = serializer.serialize(expected)
+        bytes.shouldNotBeEmpty()
+
+        val actual = serializer.deserialize<OptionalCollection>(bytes)
         actual.shouldNotBeNull()
         actual shouldBeEqualTo expected
     }

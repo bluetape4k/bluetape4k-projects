@@ -1,9 +1,6 @@
 package io.bluetape4k.jackson3
 
 import io.bluetape4k.json.JsonSerializationException
-import io.bluetape4k.json.JsonSerializer
-import io.bluetape4k.json.deserialize
-import io.bluetape4k.json.deserializeFromString
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEmpty
@@ -21,7 +18,7 @@ class JacksonSerializerTest: AbstractJsonSerializerTest() {
         private const val REPEAT_SIZE = 5
     }
 
-    override val serializer: JsonSerializer = JacksonSerializer()
+    override val serializer: JacksonSerializer = JacksonSerializer()
 
     @Test
     fun `null 객체 직렬화 시 빈 바이트 배열 반환`() {

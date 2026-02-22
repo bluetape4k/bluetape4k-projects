@@ -3,9 +3,6 @@ package io.bluetape4k.fastjson2
 import io.bluetape4k.fastjson2.model.User
 import io.bluetape4k.fastjson2.model.newUser
 import io.bluetape4k.json.JsonSerializationException
-import io.bluetape4k.json.JsonSerializer
-import io.bluetape4k.json.deserialize
-import io.bluetape4k.json.deserializeFromString
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
@@ -26,7 +23,7 @@ class FastjsonSerializerTest: AbstractJsonSerializerTest() {
 
     companion object: KLogging()
 
-    override val serializer: JsonSerializer = FastjsonSerializer()
+    override val serializer: FastjsonSerializer = FastjsonSerializer()
 
     @Test
     fun `null 객체 직렬화 시 빈 바이트 배열 반환`() {

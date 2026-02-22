@@ -1,7 +1,6 @@
 package io.bluetape4k.exposed.core.fastjson2
 
 import io.bluetape4k.fastjson2.FastjsonSerializer
-import io.bluetape4k.fastjson2.deserialize
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.ExpressionWithColumnType
 import org.jetbrains.exposed.v1.core.IColumnType
@@ -63,7 +62,7 @@ inline fun <reified T: Any> ExpressionWithColumnType<*>.extract(
         T::class,
         defaultType = FastjsonColumnType(
             { serializer.serializeAsString(it) },
-            { serializer.deserialize<T>(it)!! }
+            { serializer.deserializeFromString<T>(it)!! }
         )
     )
     return Extract(this, path = path, toScalar, this.columnType, columnType)

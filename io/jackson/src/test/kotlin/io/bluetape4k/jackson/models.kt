@@ -55,6 +55,11 @@ data class OptionalCollection(
     val options: List<Optional<String>> = listOf(),
 ): Person
 
+internal data class CollectionItem(
+    val id: Int,
+    val name: String,
+)
+
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 open class User: AbstractValueObject(), Comparable<User> {

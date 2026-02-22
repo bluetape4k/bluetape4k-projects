@@ -126,6 +126,11 @@ data class OptionalCollection(
     val options: List<Optional<String>> = emptyList(),
 ): Person
 
+internal data class CollectionItem(
+    val id: Int,
+    val name: String,
+): Serializable
+
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 open class User: AbstractValueObject(), Comparable<User> {

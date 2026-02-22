@@ -4,7 +4,6 @@ import com.alibaba.fastjson2.JSON
 import com.alibaba.fastjson2.JSONArray
 import com.alibaba.fastjson2.JSONObject
 import io.bluetape4k.fastjson2.FastjsonSerializer
-import io.bluetape4k.fastjson2.deserialize
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.ResultRow
 
@@ -29,10 +28,10 @@ inline fun <reified T: Any> ResultRow.getFastjsonOrNull(
 ): T? {
     val value = anyValueOrNull(expression) ?: return null
     return when (value) {
-        is String    -> serializer.deserialize<T>(value)
+        is String -> serializer.deserializeFromString<T>(value)
         is ByteArray -> serializer.deserialize<T>(value)
         is T         -> value
-        else         -> serializer.deserialize<T>(value.toString())
+        else      -> serializer.deserializeFromString<T>(value.toString())
     }
 }
 

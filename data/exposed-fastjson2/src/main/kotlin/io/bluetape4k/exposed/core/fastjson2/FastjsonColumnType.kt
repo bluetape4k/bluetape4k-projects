@@ -1,7 +1,6 @@
 package io.bluetape4k.exposed.core.fastjson2
 
 import io.bluetape4k.fastjson2.FastjsonSerializer
-import io.bluetape4k.fastjson2.deserialize
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
 import org.jetbrains.exposed.v1.core.Column
@@ -108,5 +107,5 @@ inline fun <reified T: Any> Table.fastjson(
     fastjson(
         name,
         { fastjsonSerializer.serializeAsString(it) },
-        { fastjsonSerializer.deserialize<T>(it)!! }
+        { fastjsonSerializer.deserializeFromString<T>(it)!! }
     )

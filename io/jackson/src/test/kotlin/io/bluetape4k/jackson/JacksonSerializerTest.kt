@@ -1,7 +1,6 @@
 package io.bluetape4k.jackson
 
 import io.bluetape4k.json.JsonSerializationException
-import io.bluetape4k.json.JsonSerializer
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEmpty
@@ -19,9 +18,7 @@ class JacksonSerializerTest: AbstractJsonSerializerTest() {
         private const val REPEAT_SIZE = 5
     }
 
-    override val serializer: JsonSerializer = JacksonSerializer()
-
-    private val jacksonSerializer = serializer as JacksonSerializer
+    override val serializer: JacksonSerializer = JacksonSerializer()
 
     @Test
     fun `null 객체 직렬화 시 빈 바이트 배열 반환`() {
@@ -31,13 +28,13 @@ class JacksonSerializerTest: AbstractJsonSerializerTest() {
 
     @Test
     fun `null 바이트 배열 역직렬화 시 null 반환`() {
-        val result = jacksonSerializer.deserialize<User>(null as ByteArray?)
+        val result = serializer.deserialize<User>(null as ByteArray?)
         result.shouldBeNull()
     }
 
     @Test
     fun `null 문자열 역직렬화 시 null 반환`() {
-        val result = jacksonSerializer.deserializeFromString<User>(null)
+        val result = serializer.deserializeFromString<User>(null)
         result.shouldBeNull()
     }
 
@@ -46,7 +43,7 @@ class JacksonSerializerTest: AbstractJsonSerializerTest() {
         val jsonText = serializer.serializeAsString(expected)
         jsonText.shouldNotBeEmpty()
 
-        val actual = jacksonSerializer.deserializeFromString<User>(jsonText)
+        val actual = serializer.deserializeFromString<User>(jsonText)
         actual.shouldNotBeNull() shouldBeEqualTo expected
     }
 

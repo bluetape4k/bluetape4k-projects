@@ -1,7 +1,6 @@
 package io.bluetape4k.exposed.core.fastjson2
 
 import io.bluetape4k.fastjson2.FastjsonSerializer
-import io.bluetape4k.fastjson2.deserialize
 import io.bluetape4k.support.toUtf8Bytes
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
@@ -16,7 +15,7 @@ class FastjsonColumnTypeUnitTest {
     private val serializer = FastjsonSerializer.Default
     private val columnType = FastjsonColumnType<SamplePayload>(
         serilaize = { serializer.serializeAsString(it) },
-        deserialize = { serializer.deserialize<SamplePayload>(it)!! }
+        deserialize = { serializer.deserializeFromString<SamplePayload>(it)!! }
     )
 
     @Test

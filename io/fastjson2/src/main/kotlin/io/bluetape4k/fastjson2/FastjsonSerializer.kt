@@ -1,6 +1,8 @@
 package io.bluetape4k.fastjson2
 
+import com.alibaba.fastjson2.JSON
 import com.alibaba.fastjson2.JSONB
+import com.alibaba.fastjson2.reference
 import com.alibaba.fastjson2.toJSONString
 import io.bluetape4k.json.JsonSerializationException
 import io.bluetape4k.json.JsonSerializer
@@ -115,36 +117,52 @@ class FastjsonSerializer: JsonSerializer {
             throw JsonSerializationException("Fail to deserialize string by Fastjson2. targetType=${clazz.name}", e)
         }
     }
+
+    /**
+     * JSONB 바이너리 형식의 [ByteArray]를 읽어 reified 타입 [T]로 역직렬화합니다.
+     *
+     * @param T 역직렬화 대상 타입
+     * @param bytes JSONB 직렬화된 바이트 배열
+     * @return 역직렬화된 객체. null이면 null 반환
+     */
+    inline fun <reified T: Any> deserialize(bytes: ByteArray?): T? =
+        bytes?.let {
+            try {
+                val clazz = T::class.java
+                if (clazz.typeParameters.isEmpty()) {
+                    JSONB.parseObject(it, clazz)
+                } else {
+                    JSONB.parseObject(it, reference<T>())
+                }
+            } catch (e: Throwable) {
+                throw JsonSerializationException(
+                    "Fail to deserialize by Fastjson2. targetType=${T::class.java.name}",
+                    e
+                )
+            }
+        }
+
+    /**
+     * JSON 문자열을 읽어 reified 타입 [T]로 역직렬화합니다.
+     *
+     * @param T 역직렬화 대상 타입
+     * @param jsonText JSON 문자열
+     * @return 역직렬화된 객체. null이면 null 반환
+     */
+    inline fun <reified T: Any> deserializeFromString(jsonText: String?): T? =
+        jsonText?.let {
+            try {
+                val clazz = T::class.java
+                if (clazz.typeParameters.isEmpty()) {
+                    JSON.parseObject(it, clazz)
+                } else {
+                    JSON.parseObject(it, reference<T>())
+                }
+            } catch (e: Throwable) {
+                throw JsonSerializationException(
+                    "Fail to deserialize string by Fastjson2. targetType=${T::class.java.name}",
+                    e
+                )
+            }
+        }
 }
-
-/**
- * JSONB 바이너리 형식의 [ByteArray]를 읽어 지정된 타입 [T]로 역직렬화합니다.
- *
- * reified 타입 파라미터를 사용하여 클래스 명시 없이 호출할 수 있습니다.
- *
- * ```kotlin
- * val user = serializer.deserialize<User>(bytes)
- * ```
- *
- * @param T 역직렬화 대상 타입
- * @param bytes JSONB 직렬화된 바이트 배열
- * @return 역직렬화된 객체. null이거나 실패 시 null 반환
- */
-inline fun <reified T: Any> FastjsonSerializer.deserialize(bytes: ByteArray?): T? =
-    deserialize(bytes, T::class.java)
-
-/**
- * JSON 문자열을 읽어 지정된 타입 [T]로 역직렬화합니다.
- *
- * reified 타입 파라미터를 사용하여 클래스 명시 없이 호출할 수 있습니다.
- *
- * ```kotlin
- * val user = serializer.deserialize<User>(jsonText)
- * ```
- *
- * @param T 역직렬화 대상 타입
- * @param jsonText JSON 문자열
- * @return 역직렬화된 객체. null이거나 실패 시 null 반환
- */
-inline fun <reified T: Any> FastjsonSerializer.deserialize(jsonText: String?): T? =
-    deserializeFromString(jsonText, T::class.java)

@@ -80,7 +80,13 @@ open class JacksonSerializer(
      * @return 역직렬화된 객체. null이거나 실패 시 null 반환
      */
     inline fun <reified T: Any> deserialize(bytes: ByteArray?): T? =
-        deserialize(bytes, T::class.java)
+        bytes?.let {
+            try {
+                mapper.readValue(it, jacksonTypeRef<T>())
+            } catch (e: Throwable) {
+                throw JsonSerializationException("Fail to deserialize by Jackson3. targetType=${T::class.java.name}", e)
+            }
+        }
 
     /**
      * JSON 문자열을 읽어 reified 타입 [T]의 객체로 역직렬화합니다.
@@ -92,7 +98,7 @@ open class JacksonSerializer(
     inline fun <reified T: Any> deserializeFromString(jsonText: String?): T? =
         jsonText?.let {
             try {
-                mapper.readValue(jsonText, T::class.java)
+                mapper.readValue(it, jacksonTypeRef<T>())
             } catch (e: Throwable) {
                 throw JsonSerializationException("Fail to deserialize by Jackson3. targetType=${T::class.java.name}", e)
             }

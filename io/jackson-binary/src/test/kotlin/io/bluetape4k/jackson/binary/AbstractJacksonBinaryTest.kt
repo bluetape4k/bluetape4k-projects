@@ -1,7 +1,6 @@
 package io.bluetape4k.jackson.binary
 
-import io.bluetape4k.json.JsonSerializer
-import io.bluetape4k.json.deserialize
+import io.bluetape4k.jackson.JacksonSerializer
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
@@ -9,6 +8,8 @@ import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.Test
+import java.util.*
 
 /**
  * Jackson 바이너리 포맷(CBOR, ION, Smile) Serializer의 공통 직렬화/역직렬화 테스트를 정의하는 추상 클래스입니다.
@@ -25,7 +26,7 @@ abstract class AbstractJacksonBinaryTest {
         private const val REPEAT_SIZE = 5
     }
 
-    protected abstract val binaryJacksonSerializer: JsonSerializer
+    protected abstract val binaryJacksonSerializer: JacksonSerializer
 
     @RepeatedTest(REPEAT_SIZE)
     fun `serialize and deserialize simple POJO`(@RandomValue expected: FiveMinuteUser) {
@@ -71,6 +72,36 @@ abstract class AbstractJacksonBinaryTest {
     @RepeatedTest(REPEAT_SIZE)
     fun `User - large fake data`() {
         val expected = createSampleUser(100)
+        assertBinarySerialization(expected)
+    }
+
+    @Test
+    fun `Collection list 역직렬화`() {
+        val expected = listOf(
+            CollectionItem(1, faker.name().firstName()),
+            CollectionItem(2, faker.name().firstName())
+        )
+        assertBinarySerialization(expected)
+    }
+
+    @Test
+    fun `OptionalData 역직렬화`() {
+        val expected = OptionalData(
+            name = faker.name().fullName(),
+            age = faker.random().nextInt(10, 80),
+            spec = Optional.of(faker.university().name())
+        )
+        assertBinarySerialization(expected)
+    }
+
+    @Test
+    fun `OptionalCollection 역직렬화`() {
+        val expected = OptionalCollection(
+            name = faker.name().fullName(),
+            age = faker.random().nextInt(10, 80),
+            spec = Optional.of(faker.book().title()),
+            options = listOf(Optional.of("A"), Optional.of("B"), Optional.of("C"))
+        )
         assertBinarySerialization(expected)
     }
 

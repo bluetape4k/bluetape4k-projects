@@ -1,7 +1,6 @@
 package io.bluetape4k.exposed.core.fastjson2
 
 import io.bluetape4k.fastjson2.FastjsonSerializer
-import io.bluetape4k.fastjson2.deserialize
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.vendors.H2Dialect
@@ -64,5 +63,5 @@ inline fun <reified T: Any> Table.fastjsonb(
     fastjsonb(
         name,
         serialize = { serializer.serializeAsString(it) },
-        deserialize = { serializer.deserialize<T>(it)!! }
+        deserialize = { serializer.deserializeFromString<T>(it)!! }
     )
