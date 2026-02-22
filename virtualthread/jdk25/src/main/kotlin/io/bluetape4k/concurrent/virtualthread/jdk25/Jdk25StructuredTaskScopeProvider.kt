@@ -6,6 +6,7 @@ import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeAny
 import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeProvider
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.trace
 import java.util.concurrent.Callable
 import java.util.concurrent.StructuredTaskScope
 import java.util.concurrent.ThreadFactory
@@ -46,7 +47,7 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         factory: ThreadFactory,
         block: (scope: StructuredTaskScopeAny<T>) -> T,
     ): T {
-        log.debug { "첫번째로 완료된 subtask의 결과를 반환합낟." }
+        log.debug { "첫번째로 완료된 subtask의 결과를 반환합니다." }
         
         val scope = StructuredTaskScope.open<T, T>(
             StructuredTaskScope.Joiner.anySuccessfulResultOrThrow(),
@@ -60,7 +61,9 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         factory: ThreadFactory,
     ): Function<StructuredTaskScope.Configuration, StructuredTaskScope.Configuration> {
         return Function { conf: StructuredTaskScope.Configuration ->
-            var configured: StructuredTaskScope.Configuration = conf.withThreadFactory(factory)!!
+            var configured: StructuredTaskScope.Configuration = requireNotNull(conf.withThreadFactory(factory)) {
+                "Failed to configure ThreadFactory"
+            }
             if (!name.isNullOrBlank()) {
                 configured = configured.withName(name)
             }
@@ -87,7 +90,7 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         private val subtasks = mutableListOf<Jdk25Subtask<*>>()
 
         override fun <T> fork(task: () -> T): StructuredSubtask<T> {
-            log.debug { "Add sub task..." }
+            log.trace { "Add sub task..." }
             val subtask = Jdk25Subtask(delegate.fork(Callable { task() }))
             subtasks += subtask
             return subtask
@@ -99,9 +102,7 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         }
 
         override fun throwIfFailed(handler: (e: Throwable) -> Unit): StructuredTaskScopeAll {
-            val firstFailure = subtasks.asSequence()
-                .mapNotNull { it.exceptionOrNull() }
-                .firstOrNull()
+            val firstFailure = subtasks.firstNotNullOfOrNull { it.exceptionOrNull() }
 
             if (firstFailure != null) {
                 handler(firstFailure)
@@ -111,7 +112,11 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         }
 
         override fun close() {
-            delegate.close()
+            try {
+                delegate.close()
+            } finally {
+                subtasks.clear()
+            }
         }
     }
 
@@ -122,7 +127,7 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
 
         @Suppress("UNCHECKED_CAST")
         override fun <V: T> fork(task: () -> V): StructuredSubtask<V> {
-            log.debug { "Add sub task..." }
+            log.trace { "Add sub task..." }
             val subtask = Jdk25Subtask(delegate.fork(Callable { task() }))
             return subtask as StructuredSubtask<V>
         }

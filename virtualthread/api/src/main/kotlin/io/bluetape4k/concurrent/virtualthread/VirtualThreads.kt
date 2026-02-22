@@ -1,5 +1,8 @@
 package io.bluetape4k.concurrent.virtualthread
 
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -8,7 +11,7 @@ import java.util.concurrent.ThreadFactory
 /**
  * 서비스 로더로 등록된 JDK별 구현체 중 현재 런타임에 맞는 구현체를 선택합니다.
  */
-object VirtualThreads {
+object VirtualThreads: KLogging() {
 
     private val providers: List<VirtualThreadRuntime> by lazy {
         val loader = ServiceLoader.load(VirtualThreadRuntime::class.java)
@@ -24,7 +27,10 @@ object VirtualThreads {
             runCatching {
                 if (provider.isSupported()) {
                     discovered += provider
+                    log.debug { "Discovered VirtualThreadRuntime provider: ${provider.runtimeName} (priority: ${provider.priority})" }
                 }
+            }.onFailure { error ->
+                log.warn(error) { "Failed to check VirtualThreadRuntime provider: ${provider.javaClass.name}" }
             }
         }
 

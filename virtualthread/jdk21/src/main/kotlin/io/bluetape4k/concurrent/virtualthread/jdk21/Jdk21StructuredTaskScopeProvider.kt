@@ -6,6 +6,7 @@ import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeAny
 import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeProvider
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.trace
 import java.util.concurrent.Callable
 import java.util.concurrent.StructuredTaskScope
 import java.util.concurrent.ThreadFactory
@@ -43,7 +44,7 @@ class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         factory: ThreadFactory,
         block: (scope: StructuredTaskScopeAny<T>) -> T,
     ): T {
-        log.debug { "첫번째로 완료된 subtask의 결과를 반환합낟." }
+        log.debug { "첫번째로 완료된 subtask의 결과를 반환합니다." }
 
         return StructuredTaskScope.ShutdownOnSuccess<T>(name, factory).use { scope ->
             block(Jdk21AnyScope(scope))
@@ -60,7 +61,7 @@ class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         private val delegate: StructuredTaskScope.ShutdownOnFailure,
     ): StructuredTaskScopeAll {
         override fun <T> fork(task: () -> T): StructuredSubtask<T> {
-            log.debug { "Add sub task..." }
+            log.trace { "Add sub task..." }
             return Jdk21Subtask(delegate.fork(Callable { task() }))
         }
 
@@ -87,7 +88,7 @@ class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
     ): StructuredTaskScopeAny<T> {
         @Suppress("UNCHECKED_CAST")
         override fun <V: T> fork(task: () -> V): StructuredSubtask<V> {
-            log.debug { "Add sub task..." }
+            log.trace { "Add sub task..." }
             return Jdk21Subtask(delegate.fork(Callable<T> { task() }) as StructuredTaskScope.Subtask<V>)
         }
 

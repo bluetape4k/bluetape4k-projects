@@ -1,5 +1,8 @@
 package io.bluetape4k.concurrent.virtualthread
 
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
 import java.util.*
 import java.util.concurrent.ThreadFactory
 
@@ -55,7 +58,7 @@ interface StructuredTaskScopeProvider {
 /**
  * 현재 런타임에 맞는 StructuredTaskScope 구현을 선택합니다.
  */
-object StructuredTaskScopes {
+object StructuredTaskScopes: KLogging() {
 
     private val providers: List<StructuredTaskScopeProvider> by lazy {
         val loader = ServiceLoader.load(StructuredTaskScopeProvider::class.java)
@@ -71,7 +74,10 @@ object StructuredTaskScopes {
             runCatching {
                 if (provider.isSupported()) {
                     discovered += provider
+                    log.debug { "Discovered StructuredTaskScopeProvider: ${provider.providerName} (priority: ${provider.priority})" }
                 }
+            }.onFailure { error ->
+                log.warn(error) { "Failed to check StructuredTaskScopeProvider: ${provider.javaClass.name}" }
             }
         }
 
