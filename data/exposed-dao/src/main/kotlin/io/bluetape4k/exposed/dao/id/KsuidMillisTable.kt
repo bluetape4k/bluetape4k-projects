@@ -1,8 +1,8 @@
 package io.bluetape4k.exposed.dao.id
 
+import io.bluetape4k.exposed.core.ksuidMillisGenerated
 import io.bluetape4k.exposed.dao.StringEntity
 import io.bluetape4k.exposed.dao.StringEntityClass
-import io.bluetape4k.idgenerators.ksuid.KsuidMillis
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
 
@@ -22,7 +22,7 @@ open class KsuidMillisTable(
      * 기본값은 `KsuidMillis.nextId()`로 자동 생성됩니다.
      */
     final override val id =
-        varchar(columnName, 27).clientDefault { KsuidMillis.nextId() }.entityId()
+        varchar(columnName, 27).ksuidMillisGenerated().entityId()
 
     /**
      * 테이블의 기본 키를 지정합니다.

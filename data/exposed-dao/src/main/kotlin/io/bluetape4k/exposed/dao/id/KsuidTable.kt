@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.dao.id
 
+import io.bluetape4k.exposed.core.ksuidGenerated
 import io.bluetape4k.exposed.dao.StringEntity
 import io.bluetape4k.exposed.dao.StringEntityClass
 import io.bluetape4k.idgenerators.ksuid.Ksuid
@@ -11,7 +12,7 @@ import org.jetbrains.exposed.v1.core.dao.id.IdTable
  */
 open class KsuidTable(name: String = "", columnName: String = "id"): IdTable<String>(name) {
     final override val id =
-        varchar(columnName, 27).clientDefault { Ksuid.nextId() }.entityId()
+        varchar(columnName, 27).ksuidGenerated().entityId()
 
     final override val primaryKey = PrimaryKey(id)
 }
