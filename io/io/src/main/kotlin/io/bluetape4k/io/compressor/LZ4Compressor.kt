@@ -59,12 +59,12 @@ class LZ4Compressor: AbstractCompressor() {
 
         // 압축 데이터는 헤더 이후부터 저장
         val compressedSize = compressor.compress(
-            src = plain,
-            srcOff = 0,
-            srcLen = sourceSize,
-            dest = output,
-            destOff = MAGIC_NUMBER_SIZE,  // 헤더 이후부터
-            maxDestLen = maxOutputSize
+            plain,
+            0,
+            sourceSize,
+            output,
+            MAGIC_NUMBER_SIZE,  // 헤더 이후부터
+            maxOutputSize
         )
 
         // 실제 사용한 크기만큼만 반환 (메모리 절약)
@@ -85,11 +85,11 @@ class LZ4Compressor: AbstractCompressor() {
 
         // 헤더 이후의 압축 데이터를 복원
         decompressor.decompress(
-            src = compressed,
-            srcOff = MAGIC_NUMBER_SIZE,  // 헤더 건너뛰기
-            dest = output,
-            destOff = 0,
-            destLen = sourceSize
+            compressed,
+            MAGIC_NUMBER_SIZE,  // 헤더 건너뛰기
+            output,
+            0,
+            sourceSize
         )
 
         return output
