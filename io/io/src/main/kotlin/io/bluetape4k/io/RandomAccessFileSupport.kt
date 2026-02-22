@@ -34,7 +34,7 @@ fun RandomAccessFile.readTo(dstBuffer: ByteBuffer, limit: Int = dstBuffer.remain
             val readCount = read(array)
 
             if (readCount > 0) {
-                dstBuffer.put(array)
+                dstBuffer.put(array, 0, readCount)
             }
             readCount
         }

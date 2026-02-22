@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test
 import java.io.File
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
+import java.nio.file.Files
 
 class RandomAccessFileSupportTest: AbstractIOTest() {
 
@@ -64,5 +65,22 @@ class RandomAccessFileSupportTest: AbstractIOTest() {
             raf.read(bytes2)
             bytes2 shouldBeEqualTo expected
         }
+    }
+
+    @Test
+    fun `RandomAccessFile readTo는 direct buffer에서도 실제 읽은 바이트만 기록한다`() {
+        val tempFile = Files.createTempFile("raf-read-to-", ".txt").toFile().apply {
+            writeText("ABCDEFGHIJ")
+            deleteOnExit()
+        }
+        val dst = ByteBuffer.allocateDirect(4)
+
+        RandomAccessFile(tempFile, "r").use { raf ->
+            val readCount = raf.readTo(dst, limit = 4)
+            readCount shouldBeEqualTo 4
+        }
+
+        dst.flip()
+        dst.getAllBytes().decodeToString() shouldBeEqualTo "ABCD"
     }
 }

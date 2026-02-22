@@ -101,10 +101,20 @@ fun ReadableByteChannel.copyTo(out: WritableByteChannel, bufferSize: Int = DEFAU
     var readBytes = 0L
     val buffer = ByteBuffer.allocateDirect(bufferSize)
 
-    while (this.read(buffer) > 0) {
+    while (true) {
+        val read = this.read(buffer)
+        if (read < 0) {
+            break
+        }
+        if (read == 0) {
+            continue
+        }
+
         buffer.flip()
-        readBytes += out.write(buffer)
-        buffer.compact()
+        while (buffer.hasRemaining()) {
+            readBytes += out.write(buffer)
+        }
+        buffer.clear()
     }
     return readBytes
 }
@@ -223,7 +233,7 @@ fun String.toOutputStream(cs: Charset = UTF_8, blockSize: Int = DEFAULT_BLOCK_SI
  * println(bytes.toString()) // Hello, World!
  * ```
  */
-fun InputStream.availableBytes(): ByteArray = ByteArray(available()).also { read(it) }
+fun InputStream.availableBytes(): ByteArray = toByteArray()
 
 /**
  * [InputStream]을 읽어 [ByteArray]로 반환합니다.

@@ -14,6 +14,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.Test
 
 @RandomizedTest
 @TempFolderTest
@@ -89,5 +90,15 @@ class FileSupportTest: AbstractIOTest() {
 
         val loaded = path.readAllLinesAsync().await()
         loaded shouldBeEqualTo contents
+    }
+
+    @Test
+    fun `append가 false면 기존 파일의 꼬리 데이터가 제거된다`() {
+        val path = tempFolder.createFile("truncate-existing.txt").toPath()
+
+        path.writeAsync("1234567890".toByteArray()).join()
+        path.writeAsync("abc".toByteArray(), append = false).join()
+
+        path.readAllBytesAsync().join().decodeToString() shouldBeEqualTo "abc"
     }
 }

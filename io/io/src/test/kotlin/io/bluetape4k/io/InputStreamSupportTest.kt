@@ -12,10 +12,12 @@ import org.amshove.kluent.shouldBeLessOrEqualTo
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
+import java.io.InputStream
 import java.io.StringReader
 import java.io.StringWriter
 import java.nio.ByteBuffer
 import java.nio.channels.Channels
+import java.nio.channels.WritableByteChannel
 import kotlin.io.copyTo
 
 @RandomizedTest
@@ -249,5 +251,47 @@ class InputStreamSupportTest: AbstractIOTest() {
 
         buffer.flip()
         buffer.getAllBytes().toUtf8String() shouldBeEqualTo expected.take(4)
+    }
+
+    @Test
+    fun `copyTo는 partial write 채널에서도 모든 바이트를 보존한다`() {
+        val expected = "abcdefghijklmnopqrstuvwxyz".toUtf8Bytes()
+        val capture = ApacheByteArrayOutputStream()
+        val channel = object: WritableByteChannel {
+            private var open = true
+            override fun isOpen(): Boolean = open
+            override fun close() {
+                open = false
+            }
+
+            override fun write(src: ByteBuffer): Int {
+                val size = minOf(src.remaining(), 3)
+                repeat(size) { capture.write(src.get().toInt()) }
+                return size
+            }
+        }
+
+        Channels.newChannel(expected.toInputStream()).use { readable ->
+            readable.copyTo(channel) shouldBeEqualTo expected.size.toLong()
+        }
+        channel.close()
+
+        capture.toByteArray() shouldBeEqualTo expected
+    }
+
+    @Test
+    fun `availableBytes는 available 값과 무관하게 전체를 읽는다`() {
+        val expected = "Hello availableBytes".toUtf8Bytes()
+        val input = object: InputStream() {
+            private val delegate = ByteArrayInputStream(expected)
+
+            override fun available(): Int = 1
+            override fun read(): Int = delegate.read()
+            override fun read(b: ByteArray, off: Int, len: Int): Int = delegate.read(b, off, len)
+        }
+
+        input.use { stream ->
+            stream.availableBytes() shouldBeEqualTo expected
+        }
     }
 }

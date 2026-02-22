@@ -18,6 +18,8 @@ abstract class AbstractCompressor: Compressor {
     /**
      * [plain] 데이터를 압축합니다.
      *
+     * 정책: 압축 실패 시 예외를 전파하지 않고 `emptyByteArray`를 반환합니다.
+     *
      * ```
      * val compressor = GzipCompressor()
      * val compressed = compressor.compress("Hello, World!".toByteArray())
@@ -33,13 +35,15 @@ abstract class AbstractCompressor: Compressor {
         return try {
             doCompress(plain!!)
         } catch (e: Throwable) {
-            log.warn(e) { "Fail to compress." }
+            log.warn(e) { "Fail to compress. return emptyByteArray by design." }
             emptyByteArray
         }
     }
 
     /**
      * 압축된 데이터([compressed])를 복원하여 [ByteArray]로 반환합니다.
+     *
+     * 정책: 복원 실패 시 예외를 전파하지 않고 `emptyByteArray`를 반환합니다.
      *
      * ```
      * val compressor = GzipCompressor()
@@ -57,7 +61,7 @@ abstract class AbstractCompressor: Compressor {
         return try {
             doDecompress(compressed!!)
         } catch (e: Throwable) {
-            log.warn(e) { "Fail to decompress. compressed size=${compressed?.size}" }
+            log.warn(e) { "Fail to decompress. return emptyByteArray by design. compressed size=${compressed?.size}" }
             emptyByteArray
         }
     }

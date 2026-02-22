@@ -431,10 +431,12 @@ fun Path.writeAsync(
 ): CompletableFuture<Long> {
     val promise = CompletableFuture<Long>()
 
-    val options = arrayOf(StandardOpenOption.CREATE, StandardOpenOption.WRITE)
+    val options = mutableSetOf(StandardOpenOption.CREATE, StandardOpenOption.WRITE).apply {
+        if (!append) add(StandardOpenOption.TRUNCATE_EXISTING)
+    }
     val channel = AsynchronousFileChannel.open(
         this@writeAsync,
-        options.toSet(),
+        options,
         executor
     )
 
