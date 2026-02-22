@@ -6,7 +6,7 @@ import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.statements.InsertStatement
 import org.jetbrains.exposed.v1.core.vendors.DatabaseDialect
 import org.jetbrains.exposed.v1.core.vendors.SQLServerDialect
-import org.jetbrains.exposed.v1.jdbc.insertReturning
+import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import java.util.*
 
@@ -33,7 +33,7 @@ inline fun Table.insertAndWait(
     duration: Long,
     crossinline body: Table.(InsertStatement<Number>) -> Unit = {},
 ) {
-    this.insertReturning { body(it) }
+    this.insert { body(it) }
     // this.insert(body)
     TransactionManager.current().commit()
     Thread.sleep(duration)
@@ -46,7 +46,7 @@ suspend inline fun Table.insertAndSuspending(
     duration: Long,
     crossinline body: Table.(InsertStatement<Number>) -> Unit = {},
 ) {
-    this.insertReturning { body(it) }
+    this.insert { body(it) }
     // this.insert(body)
     TransactionManager.current().commit()
     delay(duration)
