@@ -9,6 +9,7 @@ import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.future.await
 
 /**
@@ -40,11 +41,13 @@ class DistributedSuspendRateLimiter(
     companion object: KLoggingChannel()
 
     /**
-     * [key] 기준으로 [numToken] 갯수만큼 소비합니다. 결과는 [RateLimitResult]로 반환됩니다.
+     * [key] 기준으로 [numToken] 갯수만큼 즉시 소비 시도합니다. 결과는 [RateLimitResult]로 반환됩니다.
      *
      * @param key      Rate Limit 적용 대상 Key
      * @param numToken 소비할 토큰 수
      * @return [RateLimitResult] 토큰 소비 결과
+     *
+     * @throws CancellationException 코루틴 취소 시 그대로 전파
      */
     override suspend fun consume(key: String, numToken: Long): RateLimitResult {
         validateRateLimitRequest(key, numToken)
@@ -57,6 +60,8 @@ class DistributedSuspendRateLimiter(
                 requestedTokens = numToken,
                 availableTokens = bucketProxy.availableTokens.await()
             )
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             log.warn(e) { "Rate Limiter 적용에 실패했습니다. key=$key" }
             RateLimitResult.error(e)

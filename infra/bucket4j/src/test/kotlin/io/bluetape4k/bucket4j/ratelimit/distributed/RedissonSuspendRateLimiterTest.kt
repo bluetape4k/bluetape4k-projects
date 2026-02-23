@@ -12,10 +12,12 @@ import io.github.bucket4j.distributed.proxy.ClientSideConfig
 import io.github.bucket4j.distributed.proxy.ExecutionStrategy
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Executors
+import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
@@ -52,5 +54,17 @@ class RedissonSuspendRateLimiterTest: AbstractSuspendRateLimiterTest() {
         val limiter = DistributedSuspendRateLimiter(brokenProvider)
         val result = limiter.consume(randomKey(), 1)
         result.status shouldBeEqualTo RateLimitStatus.ERROR
+    }
+
+    @Test
+    fun `취소 예외는 전파해야 한다`() = runTest {
+        val brokenProvider = mockk<AsyncBucketProxyProvider>()
+        every { brokenProvider.resolveBucket(any()) } throws CancellationException("simulated cancellation")
+
+        val limiter = DistributedSuspendRateLimiter(brokenProvider)
+
+        assertFailsWith<CancellationException> {
+            limiter.consume(randomKey(), 1)
+        }
     }
 }

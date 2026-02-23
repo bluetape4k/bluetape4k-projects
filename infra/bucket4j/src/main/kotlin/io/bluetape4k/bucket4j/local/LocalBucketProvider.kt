@@ -27,7 +27,7 @@ import io.github.bucket4j.local.SynchronizationStrategy
 open class LocalBucketProvider(
     bucketConfiguration: BucketConfiguration,
     keyPrefix: String = DEFAULT_KEY_PREFIX,
-): AbstractLocalBucketProvider(bucketConfiguration, keyPrefix) {
+): AbstractLocalBucketProvider<LocalBucket>(bucketConfiguration, keyPrefix) {
 
     companion object: KLogging()
 

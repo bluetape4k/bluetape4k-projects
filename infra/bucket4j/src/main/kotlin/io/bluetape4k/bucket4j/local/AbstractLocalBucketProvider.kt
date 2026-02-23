@@ -1,28 +1,27 @@
 package io.bluetape4k.bucket4j.local
 
 import com.github.benmanes.caffeine.cache.LoadingCache
-import io.bluetape4k.bucket4j.internal.Slf4jBucketListener
 import io.bluetape4k.cache.caffeine.caffeine
 import io.bluetape4k.cache.caffeine.loadingCache
 import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.support.requireNotBlank
 import io.github.bucket4j.Bucket
 import io.github.bucket4j.BucketConfiguration
-import io.github.bucket4j.MathType
-import io.github.bucket4j.TimeMeter
 import io.github.bucket4j.local.LocalBucket
-import io.github.bucket4j.local.LockFreeBucket
 import java.time.Duration
 
 
 /**
  * Custom Key 기반 (예: userId) 의 Local Bucket을 제공합니다.
  *
+ * [resolveBucket]은 빈 key를 허용하지 않으며, key prefix를 적용한 캐시 키로 버킷을 조회합니다.
+ *
  * @property bucketConfiguration [BucketConfiguration] 인스턴스
  * @property keyPrefix Bucket Key Prefix
  */
-abstract class AbstractLocalBucketProvider(
+abstract class AbstractLocalBucketProvider<T: LocalBucket>(
     protected val bucketConfiguration: BucketConfiguration,
     protected val keyPrefix: String = DEFAULT_KEY_PREFIX,
 ) {
@@ -33,7 +32,7 @@ abstract class AbstractLocalBucketProvider(
     /**
      * Custom Key: [Bucket] 을 저장하는 캐시
      */
-    protected open val cache: LoadingCache<String, LocalBucket> by lazy {
+    protected open val cache: LoadingCache<String, T> by lazy {
         caffeine {
             executor(VirtualThreadExecutor)
             maximumSize(100000)
@@ -48,14 +47,7 @@ abstract class AbstractLocalBucketProvider(
      *
      * @return [Bucket]
      */
-    protected open fun createBucket(): LocalBucket {
-        return LockFreeBucket(
-            bucketConfiguration,
-            MathType.INTEGER_64_BITS,
-            TimeMeter.SYSTEM_MILLISECONDS,
-            Slf4jBucketListener(log)
-        )
-    }
+    protected abstract fun createBucket(): T
 
     protected open fun getBucketKey(key: String): String = "$keyPrefix$key"
 
@@ -64,9 +56,11 @@ abstract class AbstractLocalBucketProvider(
      *
      * @param key Custom Key
      * @return [LocalBucket] 인스턴스
+     * @throws IllegalArgumentException key가 blank인 경우
      */
-    open fun resolveBucket(key: String): LocalBucket {
-        log.debug { "Loading lcoal bucket. key=$key" }
+    open fun resolveBucket(key: String): T {
+        key.requireNotBlank("key")
+        log.debug { "Loading local bucket. key=$key" }
         val bucketKey = getBucketKey(key)
 
         return cache.get(bucketKey)

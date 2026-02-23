@@ -7,6 +7,7 @@ Bucket4j 기반으로 애플리케이션 레벨 Rate Limiter를 구성하기 위
 - **Custom Key 기반 제한**: IP가 아닌 `userId`, `apiKey`, `tenantId` 같은 키 기준으로 제어
 - **로컬/분산 환경 지원**: in-memory(`Local*`)와 Redis 기반 분산(`Distributed*`) 구현 제공
 - **동기/코루틴 API 동시 제공**: `RateLimiter`, `SuspendRateLimiter`
+- **즉시 소비 시도 계약**: `SuspendRateLimiter.consume`은 대기하지 않고 즉시 소비 시도 후 `CONSUMED/REJECTED`를 반환
 - **Bucket 구성 DSL**: `bucketConfiguration { ... }`, `addBandwidth { ... }` 헬퍼 제공
 - **Redis ProxyManager 헬퍼**: Lettuce/Redisson용 `*ProxyManagerOf` 유틸 제공
 - **결과 상태 표준화**: `RateLimitResult(status, consumedTokens, availableTokens)`로 소비/거절/오류를 일관되게 반환
@@ -93,6 +94,8 @@ when (result.status) {
 }
 ```
 
+> 참고: `SuspendRateLimiter.consume`은 내부적으로 대기하지 않는 즉시 소비 시도 API입니다. 토큰 부족 시 `REJECTED`가 즉시 반환되며, 재시도/백오프는 호출자 정책으로 처리합니다.
+
 ## Spring Boot 환경 구성
 
 이 모듈은 Spring Boot Auto Configuration을 제공하기보다, 애플리케이션 빈으로 조립해 사용하는 방식에 적합합니다.
@@ -118,4 +121,6 @@ WebFlux/WebMVC 필터(또는 인터셉터)에서 `RateLimiter`를 주입받아 `
 
 - `SuspendLocalBucket`은 대기 시 `delay`를 사용해 코루틴 친화적으로 동작합니다.
 - 대기 중 코루틴이 취소되면 interrupt 이벤트를 기록하고 취소를 그대로 전파합니다.
+- `LocalSuspendRateLimiter`, `DistributedSuspendRateLimiter`는 `CancellationException`을 `ERROR`로 변환하지 않고 그대로 전파합니다.
 - `maxWaitTime`이 비정상적으로 큰 경우 nanos 변환 overflow를 `IllegalArgumentException`으로 처리합니다.
+- `AbstractLocalBucketProvider`는 blank key를 허용하지 않습니다.

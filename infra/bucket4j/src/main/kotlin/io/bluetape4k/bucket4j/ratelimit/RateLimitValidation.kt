@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package io.bluetape4k.bucket4j.ratelimit
 
 import io.bluetape4k.support.requireInRange
@@ -10,12 +12,16 @@ import io.bluetape4k.support.requireNotBlank
  */
 const val MAX_TOKENS_PER_REQUEST: Long = 1_000_000_000_000L
 
-internal fun validateRateLimitRequest(key: String, numToken: Long) {
+internal inline fun validateRateLimitRequest(key: String, numToken: Long) {
     key.requireNotBlank("key")
     numToken.requireInRange(1, MAX_TOKENS_PER_REQUEST, "numToken")
 }
 
-internal fun toRateLimitResult(consumed: Boolean, requestedTokens: Long, availableTokens: Long): RateLimitResult {
+internal inline fun toRateLimitResult(
+    consumed: Boolean,
+    requestedTokens: Long,
+    availableTokens: Long,
+): RateLimitResult {
     return if (consumed) {
         RateLimitResult.consumed(requestedTokens, availableTokens)
     } else {
