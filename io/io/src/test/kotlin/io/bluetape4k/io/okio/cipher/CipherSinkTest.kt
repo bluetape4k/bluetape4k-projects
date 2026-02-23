@@ -31,8 +31,8 @@ class CipherSinkTest: AbstractCipherTest() {
         val plainText = "cipher"
         val source = bufferOf(plainText)
         val output = Buffer()
-        val sink = FinalizingCipherSink(output, encryptCipher)
 
+        val sink = FinalizingCipherSink(output, encryptCipher)
         sink.write(source, 0L)
 
         output.size shouldBeEqualTo 0L
@@ -45,13 +45,17 @@ class CipherSinkTest: AbstractCipherTest() {
         val output = Buffer()
         val sink = FinalizingCipherSink(output, encryptCipher)
 
-        sink.write(source, -1L)
+        assertFailsWith<IllegalArgumentException> {
+            sink.write(source, -1L)
+        }
         output.size shouldBeEqualTo 0L
         source.readUtf8() shouldBeEqualTo "cipher"
 
         assertFailsWith<IllegalArgumentException> {
             sink.write(source, source.size + 1L)
         }
+
+        sink.close()
     }
 
     @Test
