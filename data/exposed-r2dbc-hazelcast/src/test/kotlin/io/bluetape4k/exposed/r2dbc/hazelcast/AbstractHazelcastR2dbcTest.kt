@@ -14,6 +14,11 @@ import io.bluetape4k.utils.ShutdownQueue
  * 별도로 서버를 설치하거나 실행할 필요 없이 테스트를 수행할 수 있습니다.
  *
  * **사전 요구사항**: Docker가 실행 중이어야 합니다.
+ *
+ * **참고**: [hazelcast] 클라이언트는 Near Cache 설정 없이 생성됩니다.
+ * Near Cache를 활성화하려면 서브클래스에서 `hazelcastClient(url) { addNearCacheConfig(...) }`를
+ * 사용하여 별도의 클라이언트를 생성하세요.
+ * 이 클래스의 테스트는 IMap 기반 Read-Through(DB → 캐시) 동작 검증에 초점을 맞춥니다.
  */
 abstract class AbstractHazelcastR2dbcTest: AbstractExposedR2dbcTest() {
 

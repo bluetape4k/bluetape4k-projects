@@ -85,6 +85,9 @@ interface HazelcastR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
     /**
      * 캐시에서 엔티티를 조회합니다. 캐시 미스 시 DB에서 로드하여 캐시에 저장합니다.
      *
+     * **참고**: Negative Caching을 지원하지 않습니다.
+     * 존재하지 않는 ID를 반복 조회하면 매번 DB를 조회합니다.
+     *
      * @param id 엔티티 식별자
      * @return 엔티티 또는 null
      */
@@ -142,14 +145,19 @@ interface HazelcastR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any> {
     /**
      * 지정한 식별자의 엔티티를 캐시에서 제거합니다.
      *
+     * 중복된 ID는 한 번만 삭제합니다.
+     *
      * @param ids 제거할 엔티티 식별자 가변 인자
      */
     suspend fun invalidate(vararg ids: ID) {
-        ids.forEach { cache.delete(it) }
+        ids.toSet().forEach { cache.delete(it) }
     }
 
     /**
      * 캐시를 모두 비웁니다.
+     *
+     * **주의**: 이 메서드는 Hazelcast 분산 캐시의 **모든 노드에서 전체 데이터를 삭제**합니다.
+     * 로컬 Near Cache만 초기화하는 것이 아니라 클러스터 전체의 IMap 데이터를 삭제하므로 주의하여 사용하세요.
      */
     suspend fun invalidateAll() = cache.clear()
 }

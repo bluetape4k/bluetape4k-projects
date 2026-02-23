@@ -8,7 +8,6 @@ import io.bluetape4k.exposed.r2dbc.hazelcast.repository.UserSchema.getNonExisten
 import io.bluetape4k.exposed.r2dbc.hazelcast.repository.UserSchema.withUserTable
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo

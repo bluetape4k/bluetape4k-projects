@@ -9,7 +9,6 @@ import io.bluetape4k.exposed.r2dbc.ignite3.repository.UserSchema.withUserTable
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.ignite3.cache.IgniteNearCacheConfig
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo

@@ -130,7 +130,7 @@ abstract class AbstractIgniteR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>
                 dbEntities
             } else emptyList()
 
-            fromCache.values + fromDb
+            fromCache.values.filterNotNull() + fromDb
         }
     }
 }
