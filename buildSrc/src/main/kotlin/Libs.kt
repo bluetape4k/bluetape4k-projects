@@ -165,6 +165,7 @@ object Versions {
     const val cache2k = "2.6.1.Final"   // https://mvnrepository.com/artifact/org.cache2k/cache2k-core
 
     const val ignite = "2.17.0"             // https://mvnrepository.com/artifact/org.apache.ignite/ignite-core
+    const val ignite3 = "3.1.0"            // https://mvnrepository.com/artifact/org.apache.ignite/ignite-client
     const val hazelcast = "5.6.0"           // https://mvnrepository.com/artifact/com.hazelcast/hazelcast
 
     const val cassandra = "4.19.2"          // https://mvnrepository.com/artifact/org.apache.cassandra/java-driver-core
@@ -1244,7 +1245,7 @@ object Libs {
     // NOTE: clickhouse-jdbc 0.9.5 버전만 지원
     const val clickhouse_jdbc = "com.clickhouse:clickhouse-jdbc:0.9.5" // https://mvnrepository.com/artifact/com.clickhouse/clickhouse-jdbc
 
-    // NOTE: Apache Ignite 에서는 꼭 1.4.197 를 써야 합니다.
+    // NOTE: Apache Ignite 2.x 에서는 꼭 1.4.197 를 써야 합니다. Ignite 3.x는 이 제약 없음.
     const val h2 = "com.h2database:h2:1.4.197"
 
     // MyBatis 테스트 시에 h2 v2 를 사용한다
@@ -1273,15 +1274,19 @@ object Libs {
     const val ehcache_clustered = "org.ehcache:ehcache-clustered:${Versions.ehcache}"
     const val ehcache_transactions = "org.ehcache:ehcache-transactions:${Versions.ehcache}"
 
-    // Apache Ignite
+    // Apache Ignite 2.x - https://ignite.apache.org/docs/3.0.0/
     fun ignite(module: String, version: String = Versions.ignite) = "org.apache.ignite:ignite-$module:$version"
 
+    // Ignite 2.x 주요 모듈
+    val ignite_core = ignite("core")        // 2.x 임베디드 + 씬 클라이언트
+    val ignite_clients = ignite("clients")  // 2.x 씬 클라이언트 전용
+    val ignite_client = ignite("client")    // 2.x thin client (호환용)
+
+    // Ignite 2.x 기타 모듈
     val ignite_aop = ignite("aop")
     val ignite_aws = ignite("aws")
     val ignite_cassandra_store = ignite("cassandra-store")
-    val ignite_clients = ignite("clients")
     val ignite_compress = ignite("compress")
-    val ignite_core = ignite("core")
     val ignite_direct_io = ignite("direct-io")
     val ignite_hibernate_core = ignite("hibernate-core")
     val ignite_indexing = ignite("indexing")
@@ -1300,6 +1305,11 @@ object Libs {
 
     // https://ignite.apache.org/docs/latest/extensions-and-integrations/spring/spring-caching
     val ignite_spring_cache_ext = ignite("spring-cache-ext", "2.0.0")
+
+    // Ignite 3.x (별도 버전/artifact)
+    fun ignite3(module: String) = "org.apache.ignite:ignite-$module:${Versions.ignite3}"
+    val ignite3_client = ignite3("client")  // 3.x thin client
+    val ignite3_core = ignite3("core")      // 3.x server node
 
     const val hazelcast = "com.hazelcast:hazelcast:${Versions.hazelcast}"
     const val hazelcast_spring = "com.hazelcast:hazelcast-spring:${Versions.hazelcast}"
