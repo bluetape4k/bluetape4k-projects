@@ -25,7 +25,17 @@
       "Bash(jar -xf:*)",
       "Bash(jar -tf:*)",
       "Bash(unzip:*)",
-      "Bash(head:*)"
+      "Bash(head:*)",
+      "Bash(node -e \"const p=require\\(''path''\\),f=require\\(''fs''\\),h=require\\(''os''\\).homedir\\(\\),d=process.env.CLAUDE_CONFIG_DIR||p.join\\(h,''.claude''\\),b=p.join\\(d,''plugins'',''cache'',''omc'',''oh-my-claudecode''\\);try{const v=f.readdirSync\\(b\\).filter\\(x=>/^\\\\d/.test\\(x\\)\\).sort\\(\\(a,c\\)=>a.localeCompare\\(c,void 0,{numeric:true}\\)\\);console.log\\(''Installed:'',v.length?v[v.length-1]:''\\(none\\)''\\);console.log\\(''All versions:'',v.join\\('', ''\\)\\)}catch{console.log\\(''Installed: \\(none\\)''\\)}\")",
+      "Bash(npm view:*)",
+      "Bash(node -e \"const p=require\\(''path''\\),f=require\\(''fs''\\),h=require\\(''os''\\).homedir\\(\\),d=process.env.CLAUDE_CONFIG_DIR||p.join\\(h,''.claude''\\),b=p.join\\(d,''plugins'',''cache'',''omc'',''oh-my-claudecode''\\);try{const v=f.readdirSync\\(b\\).filter\\(x=>/^\\\\d/.test\\(x\\)\\).sort\\(\\(a,c\\)=>a.localeCompare\\(c,void 0,{numeric:true}\\)\\);console.log\\(''Installed:'',v.length?v[v.length-1]:''\\(none\\)''\\)}catch{console.log\\(''Installed: \\(none\\)''\\)}\")",
+      "Bash(node -e \"const p=require\\(''path''\\),f=require\\(''fs''\\),h=require\\(''os''\\).homedir\\(\\),d=process.env.CLAUDE_CONFIG_DIR||p.join\\(h,''.claude''\\),b=p.join\\(d,''plugins'',''cache'',''omc'',''oh-my-claudecode''\\);try{const v=f.readdirSync\\(b\\).filter\\(x=>/^\\\\d/.test\\(x\\)\\);console.log\\(v.length+'' version\\(s\\):'',v.join\\('', ''\\)\\)}catch{console.log\\(''0 versions''\\)}\")",
+      "Bash(wc:*)",
+      "Bash(jq:*)",
+      "Bash(date:*)",
+      "Bash(true:*)",
+      "Bash(git status:*)",
+      "Bash(git restore:*)"
     ]
   },
   "hooks": {

@@ -125,15 +125,35 @@ Bluetape4k은 Kotlin 언어로 JVM 환경에서 Backend 개발 시 사용하는 
 
 #### Data Modules (`data/`)
 
-- **exposed**: Kotlin Exposed ORM 확장
-- **exposed-r2dbc**: Exposed + R2DBC (reactive)
-- **exposed-redisson**: Exposed + Redisson (분산 락)
-- **exposed-jackson/jackson3**: Exposed JSON 컬럼 지원
+Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella 포함):
+
+- **exposed** *(umbrella)*: `exposed-core` + `exposed-dao` + `exposed-jdbc`를 묶는 하위 호환 모듈. 기존 코드는 변경 없이 사용 가능
+- **exposed-core**: JDBC 불필요한 핵심 기능 — 압축/암호화/직렬화 컬럼 타입, 클라이언트 ID 생성 확장(`timebasedGenerated`, `snowflakeGenerated`, `ksuidGenerated`), `HasIdentifier`, `ExposedPage`
+- **exposed-dao**: DAO 엔티티 확장 — `EntityExtensions`, `StringEntity`, 커스텀 IdTable(`KsuidTable`, `SnowflakeIdTable`, `TimebasedUUIDTable`, `SoftDeletedIdTable` 등)
+- **exposed-jdbc**: JDBC 전용 — `ExposedRepository`, `SoftDeletedRepository`, `SuspendedQuery`, `VirtualThreadTransaction`, `TableExtensions`
+- **exposed-r2dbc**: Exposed + R2DBC (reactive, `ExposedR2dbcRepository`)
+- **exposed-jdbc-redisson**: Exposed JDBC + Redisson (분산 락)
+- **exposed-r2dbc-redisson**: Exposed R2DBC + Redisson (분산 락)
+- **exposed-jackson/jackson3**: Exposed JSON 컬럼 지원 (Jackson 2.x / 3.x)
+- **exposed-fastjson2**: Exposed JSON 컬럼 지원 (Fastjson2)
+- **exposed-jasypt**: Exposed 암호화 컬럼 (Jasypt)
+- **exposed-tests**: JDBC 기반 테스트 공통 인프라
+- **exposed-jdbc-tests**: JDBC 테스트 지원 모듈
+- **exposed-r2dbc-tests**: R2DBC 테스트 공통 인프라
 - **hibernate**: Hibernate 통합
 - **hibernate-reactive**: Hibernate Reactive
 - **jdbc**: JDBC 유틸리티
 - **r2dbc**: R2DBC 지원
 - **cassandra**: Cassandra 드라이버
+
+##### Exposed 모듈 의존성 선택 가이드
+
+| 사용 목적 | 권장 모듈 |
+|-----------|-----------|
+| R2DBC, Jackson, 암호화/압축 컬럼 타입 | `bluetape4k-exposed-core` |
+| DAO Entity, 커스텀 IdTable | `bluetape4k-exposed-dao` |
+| JDBC Repository, 쿼리, 트랜잭션 | `bluetape4k-exposed-jdbc` |
+| 기존 코드 그대로 유지 | `bluetape4k-exposed` (umbrella) |
 
 #### Infrastructure Modules (`infra/`)
 
