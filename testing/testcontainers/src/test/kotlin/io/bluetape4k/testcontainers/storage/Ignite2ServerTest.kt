@@ -7,30 +7,30 @@ import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
-class Ignite3ServerTest: AbstractContainerTest() {
+class Ignite2ServerTest: AbstractContainerTest() {
 
     companion object: KLogging()
 
     @Test
-    fun `create ignite3 server`() {
-        Ignite3Server().use {
+    fun `create ignite2 server`() {
+        Ignite2Server().use {
             it.start()
             it.isRunning.shouldBeTrue()
         }
     }
 
     @Test
-    fun `create ignite3 server with default port`() {
-        Ignite3Server(useDefaultPort = true).use {
+    fun `create ignite2 server with default port`() {
+        Ignite2Server(useDefaultPort = true).use {
             it.start()
             it.isRunning.shouldBeTrue()
-            it.port shouldBeEqualTo Ignite3Server.CLIENT_PORT
+            it.port shouldBeEqualTo Ignite2Server.PORT
         }
     }
 
     @Test
     fun `blank image tag 는 허용하지 않는다`() {
-        assertFailsWith<IllegalArgumentException> { Ignite3Server(image = " ") }
-        assertFailsWith<IllegalArgumentException> { Ignite3Server(tag = " ") }
+        assertFailsWith<IllegalArgumentException> { Ignite2Server(image = " ") }
+        assertFailsWith<IllegalArgumentException> { Ignite2Server(tag = " ") }
     }
 }

@@ -17,7 +17,7 @@ import java.time.Duration
  * Ignite 3.x는 씬 클라이언트 전용으로, 외부 서버에 연결하여 사용합니다.
  * 이 컨테이너는 테스트 환경에서 Ignite 3.x 서버를 Docker로 실행합니다.
  *
- * Docker Hub: [apacheignite/ignite3](https://hub.docker.com/r/apacheignite/ignite3/tags)
+ * Docker Hub: [apacheignite/ignite](https://hub.docker.com/r/apacheignite/ignite/tags)
  *
  * **사용 예시:**
  * ```kotlin
@@ -46,7 +46,7 @@ class Ignite3Server private constructor(
 
     companion object: KLogging() {
         /** Apache Ignite 3.x Docker Hub 이미지 이름 */
-        const val IMAGE = "apacheignite/ignite3"
+        const val IMAGE = "apacheignite/ignite"
 
         /** 기본 태그 (안정 버전) */
         const val TAG = "3.1.0"
@@ -59,6 +59,12 @@ class Ignite3Server private constructor(
 
         /** Ignite 3.x REST API 기본 포트 */
         const val REST_PORT = 10300
+
+        /** 테스트 환경에서 사용하는 기본 JVM 최대 메모리 (저메모리 Docker 환경 대응) */
+        const val DEFAULT_JVM_MAX_MEM = "1g"
+
+        /** 테스트 환경에서 사용하는 기본 JVM 최소 메모리 (저메모리 Docker 환경 대응) */
+        const val DEFAULT_JVM_MIN_MEM = "256m"
 
         /**
          * [DockerImageName]으로 [Ignite3Server]를 생성합니다.
@@ -99,6 +105,8 @@ class Ignite3Server private constructor(
     init {
         addExposedPorts(CLIENT_PORT, REST_PORT)
         withReuse(reuse)
+        withEnv("JVM_MAX_MEM", DEFAULT_JVM_MAX_MEM)
+        withEnv("JVM_MIN_MEM", DEFAULT_JVM_MIN_MEM)
 
         // Ignite 3.x 노드가 완전히 초기화될 때까지 로그 메시지로 대기
         waitingFor(
