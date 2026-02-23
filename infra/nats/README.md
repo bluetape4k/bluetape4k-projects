@@ -67,7 +67,7 @@ val future = jetStream.publishAsync("stream.subject", "message body")
 
 // Coroutines 지원
 suspend fun publishAsync() {
-    val ack = jetStream.coPublish("stream.subject", "message body")
+    val ack = jetStream.publishSuspending("stream.subject", "message body")
 }
 
 // Stream 생성

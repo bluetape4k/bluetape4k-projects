@@ -10,11 +10,12 @@ inline fun natsService(
 ): Service =
     ServiceBuilder().apply(builder).build()
 
-fun natsServiceOf(
+inline fun natsServiceOf(
     nc: Connection,
     name: String,
     version: String,
     vararg serviceEndpoints: ServiceEndpoint,
+    @BuilderInference builder: ServiceBuilder.() -> Unit = {},
 ): Service = natsService {
     connection(nc)
     name(name)
@@ -23,4 +24,6 @@ fun natsServiceOf(
     serviceEndpoints.forEach { serviceEndpoint ->
         addServiceEndpoint(serviceEndpoint)
     }
+
+    builder()
 }

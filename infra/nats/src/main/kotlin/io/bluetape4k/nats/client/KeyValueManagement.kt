@@ -1,5 +1,6 @@
 package io.bluetape4k.nats.client
 
+import io.bluetape4k.support.requireNotBlank
 import io.nats.client.JetStreamApiException
 import io.nats.client.KeyValueManagement
 import io.nats.client.api.KeyValueConfiguration
@@ -18,6 +19,7 @@ fun KeyValueManagement.createOrUpdate(config: KeyValueConfiguration): KeyValueSt
 }
 
 fun KeyValueManagement.getStatusOrNull(bucketName: String): KeyValueStatus? {
+    bucketName.requireNotBlank("bucketName")
     return try {
         getStatus(bucketName)
     } catch (je: JetStreamApiException) {
@@ -30,9 +32,11 @@ fun KeyValueManagement.getStatusOrNull(bucketName: String): KeyValueStatus? {
 }
 
 fun KeyValueManagement.existsBucket(bucketName: String): Boolean {
+    bucketName.requireNotBlank("bucketName")
     return getStatusOrNull(bucketName) != null
 }
 
 fun KeyValueManagement.forcedDelete(bucketName: String) {
+    bucketName.requireNotBlank("bucketName")
     runCatching { delete(bucketName) }
 }

@@ -1,5 +1,8 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package io.bluetape4k.nats.service
 
+import io.bluetape4k.support.requireNotBlank
 import io.nats.service.Endpoint
 
 inline fun endpoint(
@@ -7,14 +10,22 @@ inline fun endpoint(
 ): Endpoint =
     Endpoint.builder().apply(builder).build()
 
-fun endpointOf(endpoint: Endpoint): Endpoint = endpoint { endpoint(endpoint) }
+inline fun endpointOf(endpoint: Endpoint): Endpoint = endpoint { endpoint(endpoint) }
 
-fun endpointOf(
+inline fun endpointOf(
     name: String,
     subject: String,
     metadata: Map<String, String> = emptyMap(),
-): Endpoint = endpoint {
-    name(name)
-    subject(subject)
-    metadata(metadata)
+    @BuilderInference builder: Endpoint.Builder.() -> Unit = {},
+): Endpoint {
+    name.requireNotBlank("name")
+    subject.requireNotBlank("subject")
+
+    return endpoint {
+        name(name)
+        subject(subject)
+        metadata(metadata)
+
+        builder()
+    }
 }

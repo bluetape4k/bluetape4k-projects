@@ -5,21 +5,20 @@ import io.nats.client.KeyValueOptions
 
 inline fun keyValueOptions(
     @BuilderInference builder: KeyValueOptions.Builder.() -> Unit,
-): KeyValueOptions {
-    return KeyValueOptions.builder().apply(builder).build()
-}
+): KeyValueOptions =
+    KeyValueOptions.builder().apply(builder).build()
 
 inline fun keyValueOptions(
     kvo: KeyValueOptions,
     @BuilderInference builder: KeyValueOptions.Builder.() -> Unit,
-): KeyValueOptions {
-    return KeyValueOptions.builder(kvo).apply(builder).build()
-}
+): KeyValueOptions =
+    KeyValueOptions.builder(kvo).apply(builder).build()
 
 inline fun keyValueOptions(
     jso: JetStreamOptions,
     @BuilderInference builder: KeyValueOptions.Builder.() -> Unit,
-): KeyValueOptions = keyValueOptions {
-    this.jetStreamOptions(jso)
-    builder()
-}
+): KeyValueOptions =
+    keyValueOptions {
+        this.jetStreamOptions(jso)
+        builder()
+    }

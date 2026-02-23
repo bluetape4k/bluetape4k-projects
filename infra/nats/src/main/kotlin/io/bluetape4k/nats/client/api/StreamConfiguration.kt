@@ -1,5 +1,6 @@
 package io.bluetape4k.nats.client.api
 
+import io.bluetape4k.support.requireNotBlank
 import io.nats.client.api.StreamConfiguration
 
 inline fun streamConfiguration(
@@ -11,9 +12,12 @@ inline fun streamConfiguration(
 inline fun streamConfiguration(
     streamName: String,
     @BuilderInference builder: StreamConfiguration.Builder.() -> Unit,
-): StreamConfiguration = streamConfiguration {
-    name(streamName)
-    builder()
+): StreamConfiguration {
+    streamName.requireNotBlank("streamName")
+    return streamConfiguration {
+        name(streamName)
+        builder()
+    }
 }
 
 inline fun streamConfiguration(

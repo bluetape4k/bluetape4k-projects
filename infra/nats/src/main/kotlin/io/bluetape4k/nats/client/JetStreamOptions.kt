@@ -12,14 +12,16 @@ inline fun jetStreamOptions(
     return JetStreamOptions.builder().apply(builder).build()
 }
 
-fun jetStreamOptionsOf(
+inline fun jetStreamOptionsOf(
     prefix: String? = null,
     requestTimeout: Duration? = null,
     publishNoAck: Boolean? = null,
     optOut290ConsumerCreate: Boolean? = null,
+    @BuilderInference builder: JetStreamOptions.Builder.() -> Unit = {},
 ): JetStreamOptions = jetStreamOptions {
     prefix?.run { prefix(this) }
     requestTimeout?.run { requestTimeout(this) }
     publishNoAck?.run { publishNoAck(this) }
     optOut290ConsumerCreate?.run { optOut290ConsumerCreate(this) }
+    builder()
 }

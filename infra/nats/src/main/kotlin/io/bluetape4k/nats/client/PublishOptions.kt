@@ -6,14 +6,10 @@ import java.util.*
 inline fun publishOptions(
     @BuilderInference builder: PublishOptions.Builder.() -> Unit,
 ): PublishOptions =
-    PublishOptions.builder()
-        .apply(builder)
-        .build()
+    PublishOptions.builder().apply(builder).build()
 
 inline fun publishOptionsOf(
     properties: Properties,
     @BuilderInference builder: PublishOptions.Builder.() -> Unit = {},
 ): PublishOptions =
-    PublishOptions.Builder(properties)
-        .apply(builder)
-        .build()
+    PublishOptions.Builder(properties).apply(builder).build()

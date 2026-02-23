@@ -12,7 +12,9 @@ inline fun serviceEndpoint(
 fun serviceEndpointOf(
     group: Group? = null,
     endpoint: Endpoint? = null,
+    @BuilderInference builder: ServiceEndpoint.Builder.() -> Unit = {},
 ): ServiceEndpoint = serviceEndpoint {
     group(group)
     endpoint(endpoint)
+    builder()
 }
