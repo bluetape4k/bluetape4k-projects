@@ -39,7 +39,6 @@ class ZstdCodec(
     private val decoder: Decoder<Any> = Decoder { buf: ByteBuf, state: State? ->
         val bytes = ByteBufUtil.getBytes(buf, buf.readerIndex(), buf.readableBytes(), true)
         val decoded = Unpooled.wrappedBuffer(zstd.decompress(bytes))
-
         try {
             innerCodec.valueDecoder.decode(decoded, state)
         } finally {

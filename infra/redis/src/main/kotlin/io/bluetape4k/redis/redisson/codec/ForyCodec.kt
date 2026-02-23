@@ -2,7 +2,7 @@ package io.bluetape4k.redis.redisson.codec
 
 import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.warn
+import io.bluetape4k.logging.info
 import io.bluetape4k.redis.redisson.RedissonCodecs
 import io.bluetape4k.support.unsafeLazy
 import io.netty.buffer.ByteBuf
@@ -41,7 +41,7 @@ class ForyCodec(
             val bytes = fory.serialize(graph)
             Unpooled.wrappedBuffer(bytes)
         } catch (e: Exception) {
-            log.warn(e) { "Value is not suitable for FuryCodec. Using fallbackCodec[$fallbackCodec]. Value class=${graph.javaClass}" }
+            log.info(e) { "Encoding: Value is not suitable for FuryCodec. Using fallbackCodec[$fallbackCodec]. Value class=${graph.javaClass}" }
             fallbackCodec.valueEncoder.encode(graph)
         }
     }
@@ -51,7 +51,7 @@ class ForyCodec(
             val bytes = ByteBufUtil.getBytes(buf, buf.readerIndex(), buf.readableBytes(), true)
             fory.deserialize(bytes)
         } catch (e: Exception) {
-            log.warn(e) { "Value is not suitable for FuryCodec. Using fallbackCodec[$fallbackCodec]" }
+            log.info(e) { "Decoding: Value is not suitable for FuryCodec. Using fallbackCodec[$fallbackCodec]" }
             fallbackCodec.valueDecoder.decode(buf, state)
         }
     }

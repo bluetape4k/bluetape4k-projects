@@ -1,9 +1,8 @@
 package io.bluetape4k.redis.lettuce
 
 import io.bluetape4k.concurrent.sequence
+import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import io.lettuce.core.RedisFuture
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.future.await
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
@@ -59,5 +58,5 @@ suspend fun <T> Collection<RedisFuture<out T>>.awaitAll(): List<T> = when {
  * ```
  */
 fun <T> Iterable<RedisFuture<out T>>.sequence(
-    executor: Executor = Dispatchers.IO.asExecutor(),
+    executor: Executor = VirtualThreadExecutor, // Dispatchers.IO.asExecutor(),
 ): CompletableFuture<List<T>> = map { it.toCompletableFuture() }.sequence(executor)

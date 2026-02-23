@@ -1,7 +1,7 @@
 package io.bluetape4k.redis.lettuce
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.future.await
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveSize
@@ -9,7 +9,7 @@ import org.junit.jupiter.api.RepeatedTest
 
 class AsyncCommandsTest: AbstractLettuceTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 3
         private const val ITEM_SIZE = 500
     }

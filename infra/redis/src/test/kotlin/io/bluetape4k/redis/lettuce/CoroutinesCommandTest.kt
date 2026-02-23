@@ -1,7 +1,7 @@
 package io.bluetape4k.redis.lettuce
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -13,7 +13,7 @@ import org.junit.jupiter.api.RepeatedTest
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
 class CoroutinesCommandTest: AbstractLettuceTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 3
         private const val ITEM_SIZE = 500
     }

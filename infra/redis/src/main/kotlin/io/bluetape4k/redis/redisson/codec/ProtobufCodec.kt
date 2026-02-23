@@ -2,7 +2,7 @@ package io.bluetape4k.redis.redisson.codec
 
 import com.google.protobuf.Message
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.warn
+import io.bluetape4k.logging.info
 import io.bluetape4k.netty.buffer.getBytes
 import io.bluetape4k.redis.redisson.RedissonCodecs
 import io.netty.buffer.ByteBuf
@@ -40,7 +40,7 @@ class ProtobufCodec(
             val bytes = AnyMessage.pack(graph).toByteArray()
             Unpooled.wrappedBuffer(bytes)
         } else {
-            log.warn { "Value is not Protobuf Message instance. use fallbackCodec[$fallbackCodec] graph class=${graph.javaClass}" }
+            log.info { "Encoding: Value is not Protobuf Message instance. use fallbackCodec[$fallbackCodec] graph class=${graph.javaClass}" }
             fallbackCodec.valueEncoder.encode(graph)
         }
     }
@@ -56,7 +56,7 @@ class ProtobufCodec(
             }
             any.unpack(clazz)
         } catch (e: Throwable) {
-            log.warn(e) { "Fail to decode as Protobuf message. it is not Protobuf Message, use fallbackCodec[$fallbackCodec]" }
+            log.info(e) { "Decoding: Fail to decode as Protobuf message. it is not Protobuf Message, use fallbackCodec[$fallbackCodec]" }
             fallbackCodec.valueDecoder.decode(Unpooled.wrappedBuffer(buf.resetReaderIndex()), state)
         }
     }
