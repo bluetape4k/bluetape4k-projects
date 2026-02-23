@@ -49,7 +49,7 @@ class Ignite3Server private constructor(
         const val IMAGE = "apacheignite/ignite3"
 
         /** 기본 태그 (안정 버전) */
-        const val TAG = "3.0.0"
+        const val TAG = "3.1.0"
 
         /** 시스템 프로퍼티 등록 시 사용하는 서버 이름 */
         const val NAME = "ignite3"
