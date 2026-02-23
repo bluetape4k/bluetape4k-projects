@@ -2,6 +2,7 @@ package io.bluetape4k.hazelcast.cache
 
 import com.hazelcast.config.EvictionConfig
 import com.hazelcast.config.EvictionPolicy
+import com.hazelcast.config.InMemoryFormat
 import com.hazelcast.config.MaxSizePolicy
 import com.hazelcast.config.NearCacheConfig
 import java.io.Serializable
@@ -40,7 +41,8 @@ data class HazelcastNearCacheConfig(
     val maxSize: Int = 10_000,
     val evictionPolicy: EvictionPolicy = EvictionPolicy.LRU,
     val invalidateOnChange: Boolean = true,
-    val inMemoryFormat: NearCacheConfig.LocalUpdatePolicy = NearCacheConfig.LocalUpdatePolicy.CACHE_ON_UPDATE,
+    val inMemoryFormat: InMemoryFormat = InMemoryFormat.BINARY,
+    val localUpdatePolicy: NearCacheConfig.LocalUpdatePolicy = NearCacheConfig.LocalUpdatePolicy.CACHE_ON_UPDATE,
 ): Serializable {
 
     companion object {
@@ -69,7 +71,8 @@ data class HazelcastNearCacheConfig(
             timeToLiveSeconds = this@HazelcastNearCacheConfig.timeToLiveSeconds
             maxIdleSeconds = this@HazelcastNearCacheConfig.maxIdleSeconds
             isInvalidateOnChange = invalidateOnChange
-            localUpdatePolicy = inMemoryFormat
+            setInMemoryFormat(this@HazelcastNearCacheConfig.inMemoryFormat)
+            localUpdatePolicy = this@HazelcastNearCacheConfig.localUpdatePolicy
             evictionConfig = EvictionConfig().apply {
                 evictionPolicy = this@HazelcastNearCacheConfig.evictionPolicy
                 maxSizePolicy = MaxSizePolicy.ENTRY_COUNT
