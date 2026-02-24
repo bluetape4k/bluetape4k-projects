@@ -90,6 +90,7 @@ operator fun <T: Number> T.times(length: Length): Length = length.times(this)
  * @property factor 단위 factor
  * @constructor
  */
+@Deprecated("bluetape4k-units는 점진적으로 폐기 예정입니다. io.bluetape4k.measured 사용을 권장합니다.")
 enum class LengthUnit(
     override val unitName: String,
     override val factor: Double,
@@ -126,6 +127,7 @@ enum class LengthUnit(
  *
  * @property value  Millimeter 단위의 길이 값
  */
+@Deprecated("bluetape4k-units는 점진적으로 폐기 예정입니다. io.bluetape4k.measured 사용을 권장합니다.")
 @JvmInline
 value class Length(
     override val value: Double = 0.0,

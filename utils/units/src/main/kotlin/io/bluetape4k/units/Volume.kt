@@ -28,6 +28,7 @@ operator fun <T: Number> T.times(volume: Volume): Volume = volume * this
 /**
  * 체적 (Volume) 종류 및 단위
  */
+@Deprecated("bluetape4k-units는 점진적으로 폐기 예정입니다. io.bluetape4k.measured 사용을 권장합니다.")
 enum class VolumeUnit(
     override val unitName: String,
     override val factor: Double,
@@ -71,6 +72,7 @@ enum class VolumeUnit(
  *
  * @property value CC 단위의 값
  */
+@Deprecated("bluetape4k-units는 점진적으로 폐기 예정입니다. io.bluetape4k.measured 사용을 권장합니다.")
 @JvmInline
 value class Volume(
     override val value: Double = 0.0,

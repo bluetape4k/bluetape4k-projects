@@ -1,6 +1,7 @@
 package io.bluetape4k.measured
 
 import kotlin.jvm.JvmName
+import kotlin.math.abs
 import kotlin.math.round
 
 /**
@@ -115,6 +116,144 @@ class Measure<T: Units>(
         return (round(amount / nearest) * nearest) * units
     }
 
+    /**
+     * 지정 단위로 사람이 읽기 쉬운 문자열을 반환합니다.
+     */
+    fun toHuman(unit: T): String = formatHuman(this `in` unit, unit)
+
+    /**
+     * 현재 단위 기준으로 사람이 읽기 쉬운 문자열을 반환합니다.
+     */
+    fun toHuman(): String {
+        @Suppress("UNCHECKED_CAST")
+        return when (units) {
+            is Length -> toHumanBy(
+                listOf(
+                    Length.millimeters,
+                    Length.centimeters,
+                    Length.meters,
+                    Length.kilometers,
+                ) as List<T>
+            )
+
+            is Mass -> toHumanBy(
+                listOf(
+                    Mass.grams,
+                    Mass.kilograms,
+                    Mass.tons,
+                ) as List<T>
+            )
+
+            is Time -> toHumanBy(
+                listOf(
+                    Time.milliseconds,
+                    Time.seconds,
+                    Time.minutes,
+                    Time.hours,
+                ) as List<T>
+            )
+
+            is Area -> toHumanBy(
+                listOf(
+                    Area.millimeters2,
+                    Area.centimeters2,
+                    Area.meters2,
+                    Area.kilometers2,
+                ) as List<T>
+            )
+
+            is Volume -> toHumanBy(
+                listOf(
+                    Volume.cubicMillimeters,
+                    Volume.cubicCentimeters,
+                    Volume.milliliters,
+                    Volume.liters,
+                    Volume.cubicMeters,
+                ) as List<T>
+            )
+
+            is Storage -> toHumanBy(
+                listOf(
+                    Storage.bytes,
+                    Storage.kiloBytes,
+                    Storage.megaBytes,
+                    Storage.gigaBytes,
+                    Storage.teraBytes,
+                    Storage.petaBytes,
+                ) as List<T>
+            )
+
+            is BinarySize -> toHumanBy(
+                listOf(
+                    BinarySize.bits,
+                    BinarySize.bytes,
+                    BinarySize.kiloBytes,
+                    BinarySize.megaBytes,
+                    BinarySize.gigaBytes,
+                    BinarySize.teraBytes,
+                    BinarySize.petaBytes,
+                ) as List<T>
+            )
+
+            is Frequency -> toHumanBy(
+                listOf(
+                    Frequency.hertz,
+                    Frequency.kiloHertz,
+                    Frequency.megaHertz,
+                    Frequency.gigaHertz,
+                ) as List<T>
+            )
+
+            is Energy -> toHumanBy(
+                listOf(
+                    Energy.joules,
+                    Energy.kiloJoules,
+                    Energy.megaJoules,
+                    Energy.wattHours,
+                    Energy.kiloWattHours,
+                ) as List<T>
+            )
+
+            is Power -> toHumanBy(
+                listOf(
+                    Power.milliWatts,
+                    Power.watts,
+                    Power.kiloWatts,
+                    Power.megaWatts,
+                    Power.gigaWatts,
+                ) as List<T>
+            )
+
+            is Pressure -> toHumanBy(
+                listOf(
+                    Pressure.pascal,
+                    Pressure.hectoPascal,
+                    Pressure.kiloPascal,
+                    Pressure.megaPascal,
+                    Pressure.gigaPascal,
+                    Pressure.bar,
+                    Pressure.atmosphere,
+                    Pressure.psi,
+                ) as List<T>
+            )
+
+            is Angle -> {
+                val degree = (((this as Measure<Angle>) `in` Angle.degrees) % 360.0 + 360.0) % 360.0
+                formatHuman(degree, Angle.degrees)
+            }
+
+            else -> formatHuman(amount, units)
+        }
+    }
+
+    private fun toHumanBy(candidates: List<T>): String {
+        if (candidates.isEmpty()) return formatHuman(amount, units)
+
+        val sorted = candidates.sortedBy { it.ratio }
+        val best = sorted.lastOrNull { abs(this `in` it) >= 1.0 } ?: sorted.first()
+        return toHuman(best)
+    }
+
     override fun compareTo(other: Measure<T>): Int = (this `as` other.units).amount.compareTo(other.amount)
 
     override fun equals(other: Any?): Boolean {
@@ -183,3 +322,17 @@ operator fun <A: Units, B: Units> Measure<UnitsRatio<A, B>>.times(other: Measure
 @JvmName("divProductByLeft")
 operator fun <A: Units, B: Units> Measure<UnitsProduct<A, B>>.div(other: Measure<A>): Measure<B> =
     amount / other.amount * units.second
+
+/**
+ * 수치와 단위를 사람이 읽기 쉬운 문자열로 포맷팅합니다.
+ */
+internal fun formatHuman(value: Double, unit: Units): String {
+    val rendered = when {
+        value.isNaN() || value.isInfinite() -> value.toString()
+        else                                -> {
+            val rounded = round(value * 1_000_000_000.0) / 1_000_000_000.0
+            rounded.toString()
+        }
+    }
+    return "$rendered${unit.measureSuffix()}"
+}

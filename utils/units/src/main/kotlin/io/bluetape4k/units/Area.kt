@@ -25,6 +25,7 @@ operator fun <T: Number> T.times(area: Area): Area = area * this
 /**
  * 면적을 나타내는 단위를 표현합니다
  */
+@Deprecated("bluetape4k-units는 점진적으로 폐기 예정입니다. io.bluetape4k.measured 사용을 권장합니다.")
 enum class AreaUnit(
     override val unitName: String,
     override val factor: Double,
@@ -73,6 +74,7 @@ enum class AreaUnit(
  *
  * @property value millimeter^2 단위의 면적 값
  */
+@Deprecated("bluetape4k-units는 점진적으로 폐기 예정입니다. io.bluetape4k.measured 사용을 권장합니다.")
 @JvmInline
 value class Area(
     override val value: Double = 0.0,

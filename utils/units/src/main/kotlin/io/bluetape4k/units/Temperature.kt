@@ -30,6 +30,7 @@ fun Double.f2C(): Double = (this - 32.0) / 1.8
 /**
  * 온도 단위
  */
+@Deprecated("bluetape4k-units는 점진적으로 폐기 예정입니다. io.bluetape4k.measured 사용을 권장합니다.")
 enum class TemperatureUnit(
     override val unitName: String,
     override val factor: Double,
@@ -57,6 +58,7 @@ enum class TemperatureUnit(
  *
  * 날짜 값은 Kelvin 단위로 낶부적으로 저장됩니다.
  */
+@Deprecated("bluetape4k-units는 점진적으로 폐기 예정입니다. io.bluetape4k.measured 사용을 권장합니다.")
 @JvmInline
 value class Temperature(
     override val value: Double = 0.0,

@@ -37,6 +37,7 @@ operator fun <T: Number> T.times(pressure: Pressure): Pressure = pressure.times(
 /**
  * ## 압력 단위
  */
+@Deprecated("bluetape4k-units는 점진적으로 폐기 예정입니다. io.bluetape4k.measured 사용을 권장합니다.")
 enum class PressureUnit(
     override val unitName: String,
     override val factor: Double,
@@ -142,6 +143,7 @@ enum class PressureUnit(
  * 이 외에도 다양한 상황과 지역에서 psi(파운드 퍼 스퀘어 인치)와 같은 다른 단위들이 사용되기도 합니다.
  * 이러한 압력 단위들은 서로 변환이 가능하며, 각 분야에서 적절한 단위를 선택하여 사용합니다.
  */
+@Deprecated("bluetape4k-units는 점진적으로 폐기 예정입니다. io.bluetape4k.measured 사용을 권장합니다.")
 @JvmInline
 value class Pressure(
     override val value: Double = 0.0,

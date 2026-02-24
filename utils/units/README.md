@@ -2,6 +2,23 @@
 
 Kotlin `value class`를 이용하여 타입 안전한 단위 변환 및 연산을 제공하는 라이브러리입니다.
 
+## Deprecated 안내
+
+`bluetape4k-units`는 점진적으로 deprecated 처리 중이며, 신규 개발은 `bluetape4k-measured` 사용을 권장합니다.
+
+- 기존 코드는 즉시 제거하지 않고 유지됩니다.
+- 공개 타입(`Length`, `Weight`, `Area`, `Volume`, `Angle`, `Pressure`, `Storage`, `Temperature` 및 unit enum)에는 `@Deprecated` 경고가 추가되었습니다.
+- `bluetape4k-measured`의 호환 어댑터를 통해 점진적으로 전환할 수 있습니다.
+
+```kotlin
+import io.bluetape4k.measured.toMeasuredLength
+import io.bluetape4k.measured.toLegacyLength
+
+val legacy = 1.5.kilometer()
+val measured = legacy.toMeasuredLength()
+val back = measured.toLegacyLength()
+```
+
 ## 개요
 
 `bluetape4k-units`는 다양한 물리량(길이, 무게, 면적, 부피 등)을 타입 안전하게 표현하고, 서로 다른 단위 간의 변환과 연산을 직관적으로 수행할 수 있게 해줍니다.

@@ -57,6 +57,7 @@ operator fun <T: Number> T.times(weight: Weight): Weight = weight.times(this)
  * @property unitName  단위 약어
  * @property factor  단위 Factor
  */
+@Deprecated("bluetape4k-units는 점진적으로 폐기 예정입니다. io.bluetape4k.measured 사용을 권장합니다.")
 enum class WeightUnit(
     override val unitName: String,
     override val factor: Double,
@@ -102,6 +103,7 @@ enum class WeightUnit(
  *
  * @property value 그램(g) 단위의 값
  */
+@Deprecated("bluetape4k-units는 점진적으로 폐기 예정입니다. io.bluetape4k.measured 사용을 권장합니다.")
 @JvmInline
 value class Weight(
     override val value: Double = 0.0,

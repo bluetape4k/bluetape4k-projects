@@ -26,6 +26,7 @@ operator fun <T: Number> T.times(angle: Angle): Angle = angle.times(this)
  * @property unitName 단위 약어
  * @property factor 단위 factor
  */
+@Deprecated("bluetape4k-units는 점진적으로 폐기 예정입니다. io.bluetape4k.measured 사용을 권장합니다.")
 enum class AngleUnit(
     override val unitName: String,
     override val factor: Double,
@@ -60,6 +61,7 @@ enum class AngleUnit(
  *
  * @property value  Degree 단위의 각도 값
  */
+@Deprecated("bluetape4k-units는 점진적으로 폐기 예정입니다. io.bluetape4k.measured 사용을 권장합니다.")
 @JvmInline
 value class Angle(
     override val value: Double,

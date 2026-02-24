@@ -38,6 +38,7 @@ operator fun <T: Number> T.times(storage: Storage): Storage = storage.times(this
  * @property unitName 단위 약어
  * @property factor 단위 factor
  */
+@Deprecated("bluetape4k-units는 점진적으로 폐기 예정입니다. io.bluetape4k.measured 사용을 권장합니다.")
 enum class StorageUnit(
     override val unitName: String,
     override val factor: Double,
@@ -82,6 +83,7 @@ enum class StorageUnit(
  *
  * @property value 저장장치의 크기의 byte 단위의 값
  */
+@Deprecated("bluetape4k-units는 점진적으로 폐기 예정입니다. io.bluetape4k.measured 사용을 권장합니다.")
 @JvmInline
 value class Storage(
     override val value: Double = 0.0,
