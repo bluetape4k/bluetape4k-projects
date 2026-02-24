@@ -1,5 +1,7 @@
 package io.bluetape4k.ignite3.cache
 
+import io.bluetape4k.cache.nearcache.NearCache
+import io.bluetape4k.cache.nearcache.coroutines.NearSuspendCache
 import org.apache.ignite.client.IgniteClient
 import org.apache.ignite.table.KeyValueView
 
@@ -24,15 +26,15 @@ inline fun <reified K: Any, reified V: Any> IgniteClient.keyValueView(
 ): KeyValueView<K, V> = keyValueView(tableName, K::class.java, V::class.java)
 
 /**
- * [IgniteNearCache]를 생성하는 확장 함수입니다.
+ * [IgniteNearCache] ([NearCache])를 생성하는 확장 함수입니다.
  */
-inline fun <reified K: Any, reified V: Any> IgniteClient.nearCache(
-    config: IgniteNearCacheConfig,
-): IgniteNearCache<K, V> = IgniteNearCache(this, config)
+fun <K: Any, V: Any> IgniteClient.nearCache(
+    config: IgniteNearCacheConfig<K, V>,
+): NearCache<K, V> = igniteNearCache(this, config)
 
 /**
- * [IgniteSuspendNearCache]를 생성하는 확장 함수입니다.
+ * [IgniteSuspendNearCache] ([NearSuspendCache])를 생성하는 확장 함수입니다.
  */
-inline fun <reified K: Any, reified V: Any> IgniteClient.suspendNearCache(
-    config: IgniteNearCacheConfig,
-): IgniteSuspendNearCache<K, V> = IgniteSuspendNearCache(this, config)
+fun <K: Any, V: Any> IgniteClient.suspendNearCache(
+    config: IgniteNearCacheConfig<K, V>,
+): NearSuspendCache<K, V> = igniteNearSuspendCache(this, config)

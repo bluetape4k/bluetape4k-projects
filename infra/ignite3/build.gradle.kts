@@ -13,8 +13,9 @@ dependencies {
     // Apache Ignite 3.x thin client
     api(Libs.ignite3_client)
 
-    // Front Cache (Near Cache 로컬 캐시 레이어)
+    // Front Cache (Near Cache 로컬 캐시 레이어), JCache API (javax.cache)
     compileOnly(Libs.caffeine)
+    compileOnly(Libs.caffeine_jcache)
 
     // Codecs
     compileOnly(Libs.fory_kotlin)

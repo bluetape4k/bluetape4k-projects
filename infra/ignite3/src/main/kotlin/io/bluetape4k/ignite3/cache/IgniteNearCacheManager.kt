@@ -1,5 +1,7 @@
 package io.bluetape4k.ignite3.cache
 
+import io.bluetape4k.cache.nearcache.NearCache
+import io.bluetape4k.cache.nearcache.coroutines.NearSuspendCache
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
@@ -16,33 +18,10 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * Ignite 3.x NearCache 팩토리 및 생명주기 관리 클래스입니다.
- *
- * 테이블이 존재하지 않으면 키/값 Java 타입에서 SQL 타입을 자동 추론하여
- * `CREATE TABLE IF NOT EXISTS` DDL을 실행하고, NearCache 구현체 또는 [KeyValueView]를 반환합니다.
+ * Ignite 3.x [NearCache] / [NearSuspendCache] 팩토리 및 생명주기 관리 클래스입니다.
  *
  * 동일한 이름의 캐시를 중복 생성하지 않고 재사용하는 getOrCreate 시멘틱을 제공하며,
  * [close] 호출 시 관리 중인 모든 캐시의 Front Cache(Caffeine)를 정리합니다.
- *
- * 지원하는 자동 매핑 타입: `Byte`, `Short`, `Int`, `Long`, `Float`, `Double`, `Boolean`,
- * `String`, `ByteArray`, `UUID`, `BigDecimal`, `LocalDate`, `LocalTime`, `LocalDateTime`, `Instant`
- *
- * 기타 타입은 `VARCHAR`로 매핑됩니다.
- *
- * ```kotlin
- * val manager = igniteClient.nearCacheManager()
- *
- * // Long→String NearCache (테이블 없으면 자동 생성)
- * val nearCache: IgniteNearCache<Long, String> = manager.nearCache(
- *     IgniteNearCacheConfig(tableName = "MY_CACHE")
- * )
- *
- * // Int→Int KeyValueView (Memorizer용)
- * val view: KeyValueView<Int, Int> = manager.keyValueView("MY_TABLE")
- * val memorizer = view.memorizer { x -> x * x }
- *
- * manager.close()
- * ```
  *
  * @property client Ignite 3.x 씬 클라이언트
  */
@@ -79,14 +58,13 @@ class IgniteNearCacheManager(val client: IgniteClient): Closeable {
          * 매핑 테이블에 없는 타입은 `"VARCHAR"`를 반환합니다.
          */
         fun Class<*>.toIgniteSqlType(): String {
-            // Kotlin 원시 타입(int, long 등)을 boxed 타입으로 변환하여 조회
             val boxed = this.kotlin.javaObjectType
             return SQL_TYPE_MAP[boxed] ?: "VARCHAR"
         }
     }
 
-    private val nearCaches = ConcurrentHashMap<String, IgniteNearCache<*, *>>()
-    private val suspendNearCaches = ConcurrentHashMap<String, IgniteSuspendNearCache<*, *>>()
+    private val nearCaches = ConcurrentHashMap<String, NearCache<*, *>>()
+    private val suspendNearCaches = ConcurrentHashMap<String, NearSuspendCache<*, *>>()
     private val closed = AtomicBoolean(false)
 
     /** 관리 중인 모든 캐시 이름 목록 (sync + suspend 캐시 합산) */
@@ -133,93 +111,80 @@ class IgniteNearCacheManager(val client: IgniteClient): Closeable {
 
     /**
      * 레지스트리에 [IgniteNearCache]를 등록하거나 기존 캐시를 반환합니다.
-     * inline 함수에서 private 멤버 접근이 불가하므로 내부 위임 메서드로 분리합니다.
      */
     @Suppress("UNCHECKED_CAST")
     @PublishedApi
     internal fun <K: Any, V: Any> getOrCreateNearCache(
-        config: IgniteNearCacheConfig,
-        keyType: Class<K>,
-        valueType: Class<V>,
-    ): IgniteNearCache<K, V> {
+        config: IgniteNearCacheConfig<K, V>,
+    ): NearCache<K, V> {
         return nearCaches.getOrPut(config.tableName) {
-            log.debug { "IgniteNearCache 생성. tableName=${config.tableName}" }
-            IgniteNearCache(client, keyType, valueType, config)
-        } as IgniteNearCache<K, V>
+            log.debug { "IgniteNearCache(NearCache) 생성. tableName=${config.tableName}" }
+            igniteNearCache(client, config)
+        } as NearCache<K, V>
     }
 
     /**
      * 레지스트리에 [IgniteSuspendNearCache]를 등록하거나 기존 캐시를 반환합니다.
-     * inline 함수에서 private 멤버 접근이 불가하므로 내부 위임 메서드로 분리합니다.
      */
     @Suppress("UNCHECKED_CAST")
     @PublishedApi
     internal fun <K: Any, V: Any> getOrCreateSuspendNearCache(
-        config: IgniteNearCacheConfig,
-        keyType: Class<K>,
-        valueType: Class<V>,
-    ): IgniteSuspendNearCache<K, V> {
+        config: IgniteNearCacheConfig<K, V>,
+    ): NearSuspendCache<K, V> {
         return suspendNearCaches.getOrPut(config.tableName) {
-            log.debug { "IgniteSuspendNearCache 생성. tableName=${config.tableName}" }
-            IgniteSuspendNearCache(client, keyType, valueType, config)
-        } as IgniteSuspendNearCache<K, V>
+            log.debug { "IgniteSuspendNearCache(NearSuspendCache) 생성. tableName=${config.tableName}" }
+            igniteNearSuspendCache(client, config)
+        } as NearSuspendCache<K, V>
     }
 
     /**
-     * 테이블을 자동 생성하고 [IgniteNearCache]를 반환합니다.
+     * 테이블을 자동 생성하고 [IgniteNearCache] ([NearCache])를 반환합니다.
      *
      * 동일한 [IgniteNearCacheConfig.tableName]의 캐시가 이미 존재하면 재사용합니다.
      *
      * @param K 캐시 키 타입
      * @param V 캐시 값 타입
-     * @param config NearCache 설정 (테이블 이름 포함)
-     * @param keyColumn 키 컬럼 이름 (기본값: `"ID"`)
-     * @param valueColumn 값 컬럼 이름 (기본값: `"DATA"`)
-     * @return [IgniteNearCache] 인스턴스
+     * @param config NearCache 설정 (테이블 이름, 키/값 타입 포함)
+     * @param keyColumn 키 컬럼 이름 (기본값: config 값)
+     * @param valueColumn 값 컬럼 이름 (기본값: config 값)
+     * @return [IgniteNearCache] ([NearCache]) 인스턴스
      */
     inline fun <reified K: Any, reified V: Any> nearCache(
-        config: IgniteNearCacheConfig,
-        keyColumn: String = "ID",
-        valueColumn: String = "DATA",
+        config: IgniteNearCacheConfig<K, V>,
+        keyColumn: String = config.keyColumn,
+        valueColumn: String = config.valueColumn,
     ): IgniteNearCache<K, V> {
         checkNotClosed()
-        ensureTable(config.tableName, K::class.java, V::class.java, keyColumn, valueColumn)
-        return getOrCreateNearCache(config, K::class.java, V::class.java)
+        ensureTable(config.tableName, K::class.javaObjectType, V::class.java, keyColumn, valueColumn)
+        return getOrCreateNearCache(config)
     }
 
     /**
-     * 테이블을 자동 생성하고 [IgniteSuspendNearCache]를 반환합니다.
+     * 테이블을 자동 생성하고 [IgniteSuspendNearCache] ([NearSuspendCache])를 반환합니다.
      *
      * 동일한 [IgniteNearCacheConfig.tableName]의 캐시가 이미 존재하면 재사용합니다.
      *
      * @param K 캐시 키 타입
      * @param V 캐시 값 타입
-     * @param config NearCache 설정 (테이블 이름 포함)
-     * @param keyColumn 키 컬럼 이름 (기본값: `"ID"`)
-     * @param valueColumn 값 컬럼 이름 (기본값: `"DATA"`)
-     * @return [IgniteSuspendNearCache] 인스턴스
+     * @param config NearCache 설정 (테이블 이름, 키/값 타입 포함)
+     * @param keyColumn 키 컬럼 이름 (기본값: config 값)
+     * @param valueColumn 값 컬럼 이름 (기본값: config 값)
+     * @return [IgniteSuspendNearCache] ([NearSuspendCache]) 인스턴스
      */
     inline fun <reified K: Any, reified V: Any> suspendNearCache(
-        config: IgniteNearCacheConfig,
-        keyColumn: String = "ID",
-        valueColumn: String = "DATA",
+        config: IgniteNearCacheConfig<K, V>,
+        keyColumn: String = config.keyColumn,
+        valueColumn: String = config.valueColumn,
     ): IgniteSuspendNearCache<K, V> {
         checkNotClosed()
-        ensureTable(config.tableName, K::class.java, V::class.java, keyColumn, valueColumn)
-        return getOrCreateSuspendNearCache(config, K::class.java, V::class.java)
+        ensureTable(config.tableName, K::class.javaObjectType, V::class.java, keyColumn, valueColumn)
+        return getOrCreateSuspendNearCache(config)
     }
 
     /**
      * 테이블을 자동 생성하고 [KeyValueView]를 반환합니다.
      *
      * Memorizer 등에서 [KeyValueView]를 직접 사용할 때 활용합니다.
-     * Ignite 3.x API 호환성을 위해 boxed 타입(`javaObjectType`)으로 [KeyValueView]를 생성합니다.
-     * [KeyValueView]는 경량 래퍼이므로 상태를 추적하지 않습니다.
-     *
-     * ```kotlin
-     * val view = manager.keyValueView<Int, Int>("MY_TABLE")
-     * val memorizer = view.memorizer { x -> x * x }
-     * ```
      *
      * @param K 키 타입
      * @param V 값 타입
@@ -237,7 +202,6 @@ class IgniteNearCacheManager(val client: IgniteClient): Closeable {
         ensureTable(tableName, K::class.java, V::class.java, keyColumn, valueColumn)
         val table = client.tables().table(tableName)
             ?: error("테이블 생성 후에도 조회에 실패했습니다. tableName=$tableName")
-        // Ignite 3.x API는 boxed 타입을 요구하므로 javaObjectType 사용
         return table.keyValueView(K::class.javaObjectType, V::class.javaObjectType)
     }
 
@@ -251,13 +215,12 @@ class IgniteNearCacheManager(val client: IgniteClient): Closeable {
     fun destroyCache(tableName: String) {
         nearCaches.remove(tableName)?.let { cache ->
             log.debug { "IgniteNearCache Front Cache 초기화. tableName=$tableName" }
-            runCatching { cache.clearFrontCache() }
+            runCatching { cache.clear() }
                 .onFailure { log.warn(it) { "IgniteNearCache Front Cache 초기화 중 오류 발생. tableName=$tableName" } }
         }
-        suspendNearCaches.remove(tableName)?.let { cache ->
+        suspendNearCaches.remove(tableName)?.let {
             log.debug { "IgniteSuspendNearCache Front Cache 초기화. tableName=$tableName" }
-            runCatching { cache.clearFrontCache() }
-                .onFailure { log.warn(it) { "IgniteSuspendNearCache Front Cache 초기화 중 오류 발생. tableName=$tableName" } }
+            // NearSuspendCache.clear()는 suspend 함수이므로 블로킹 제거만 수행
         }
     }
 
@@ -265,21 +228,15 @@ class IgniteNearCacheManager(val client: IgniteClient): Closeable {
      * 관리 중인 모든 캐시의 Front Cache(Caffeine)를 초기화하고 Manager를 닫습니다.
      *
      * Back Cache(Ignite)는 건드리지 않습니다.
-     * 레지스트리를 비우고 closed 상태로 전환합니다.
      */
     override fun close() {
         if (closed.compareAndSet(false, true)) {
             log.debug { "IgniteNearCacheManager 종료. nearCaches=${nearCaches.size}, suspendNearCaches=${suspendNearCaches.size}" }
             nearCaches.values.forEach { cache ->
-                runCatching { cache.clearFrontCache() }
-                    .onFailure { log.warn(it) { "IgniteNearCache Front Cache 초기화 중 오류 발생." } }
+                runCatching { cache.close() }
+                    .onFailure { log.warn(it) { "IgniteNearCache 종료 중 오류 발생." } }
             }
             nearCaches.clear()
-
-            suspendNearCaches.values.forEach { cache ->
-                runCatching { cache.clearFrontCache() }
-                    .onFailure { log.warn(it) { "IgniteSuspendNearCache Front Cache 초기화 중 오류 발생." } }
-            }
             suspendNearCaches.clear()
         }
     }
@@ -287,15 +244,6 @@ class IgniteNearCacheManager(val client: IgniteClient): Closeable {
 
 /**
  * [IgniteClient]에서 [IgniteNearCacheManager]를 생성합니다.
- *
- * ```kotlin
- * val manager = igniteClient.nearCacheManager()
- *
- * val nearCache = manager.nearCache<Long, String>(
- *     IgniteNearCacheConfig(tableName = "MY_CACHE")
- * )
- * val view = manager.keyValueView<Int, Int>("MY_TABLE")
- * ```
  *
  * @return [IgniteNearCacheManager] 인스턴스
  */

@@ -11,10 +11,12 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
 /**
- * [IgniteNearCache]의 CRUD 동작을 검증하는 통합 테스트입니다.
+ * [IgniteNearCache] ([NearCache])의 CRUD 동작을 검증하는 통합 테스트입니다.
  *
- * Docker로 Ignite 3.x 서버를 실행하고 Caffeine + Ignite 2-Tier Near Cache를 테스트합니다.
- * [IgniteNearCacheManager]가 테이블을 자동으로 생성하므로 별도의 DDL이 필요하지 않습니다.
+ * NearCache는 put 시 front와 back 모두에 저장합니다.
+ * get 시에는 front cache만 조회합니다 (Redis NearCache와 동일한 패턴).
+ * Ignite 3.x 씬 클라이언트는 이벤트 리스너를 지원하지 않으므로
+ * back cache 변경이 front cache에 즉시 전파되지 않습니다.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class IgniteNearCacheTest: AbstractIgnite3Test() {
@@ -27,10 +29,9 @@ class IgniteNearCacheTest: AbstractIgnite3Test() {
 
     @BeforeEach
     fun setup() {
-        val config = IgniteNearCacheConfig(tableName = TABLE_NAME)
-        // nearCacheManager가 테이블을 자동 생성하므로 @BeforeAll DDL 불필요
-        nearCache = igniteClient.nearCacheManager().nearCache<Long, String>(config)
-        nearCache.clearFrontCache()
+        val config = igniteNearCacheConfig<Long, String>(tableName = TABLE_NAME)
+        nearCache = igniteClient.nearCacheManager().nearCache(config)
+        nearCache.clear()  // front cache만 초기화
         igniteClient.sql().execute(null, "DELETE FROM $TABLE_NAME").close()
     }
 
@@ -43,7 +44,6 @@ class IgniteNearCacheTest: AbstractIgnite3Test() {
     @Test
     fun `put으로 저장 후 get으로 조회 가능`() {
         nearCache.put(1L, "hello")
-
         val result = nearCache.get(1L)
         result shouldBeEqualTo "hello"
     }
@@ -51,20 +51,8 @@ class IgniteNearCacheTest: AbstractIgnite3Test() {
     @Test
     fun `Front Cache에 캐시된 값이 반환됨`() {
         nearCache.put(2L, "cached")
-
-        // Front Cache에서 조회됨
         val result = nearCache.get(2L)
         result shouldBeEqualTo "cached"
-    }
-
-    @Test
-    fun `Front Cache 초기화 후 Back Cache에서 조회`() {
-        nearCache.put(3L, "back-cache-val")
-        nearCache.clearFrontCache()
-
-        // Front Cache 미스 → Ignite 3.x에서 조회
-        val result = nearCache.get(3L)
-        result shouldBeEqualTo "back-cache-val"
     }
 
     @Test
@@ -80,24 +68,10 @@ class IgniteNearCacheTest: AbstractIgnite3Test() {
     }
 
     @Test
-    fun `getAll에서 Front Cache 미스 시 Back Cache에서 일괄 조회`() {
-        nearCache.put(40L, "forty")
-        nearCache.put(50L, "fifty")
-        nearCache.clearFrontCache()
-
-        val result = nearCache.getAll(setOf(40L, 50L, 9999L))
-        result.size shouldBeEqualTo 2
-        result[40L] shouldBeEqualTo "forty"
-        result[50L] shouldBeEqualTo "fifty"
-    }
-
-    @Test
     fun `remove로 Front Cache와 Back Cache에서 항목 삭제`() {
         nearCache.put(60L, "sixty")
-
         val removed = nearCache.remove(60L)
         removed.shouldBeTrue()
-
         nearCache.get(60L).shouldBeNull()
     }
 
@@ -110,17 +84,7 @@ class IgniteNearCacheTest: AbstractIgnite3Test() {
     @Test
     fun `containsKey로 키 존재 여부 확인`() {
         nearCache.put(100L, "hundred")
-
         nearCache.containsKey(100L).shouldBeTrue()
         nearCache.containsKey(9997L).shouldBeFalse()
-    }
-
-    @Test
-    fun `containsKey는 Front Cache 초기화 후 Back Cache에서도 확인`() {
-        nearCache.put(110L, "one-ten")
-        nearCache.clearFrontCache()
-
-        // Front Cache 없이 Back Cache에서 확인
-        nearCache.containsKey(110L).shouldBeTrue()
     }
 }

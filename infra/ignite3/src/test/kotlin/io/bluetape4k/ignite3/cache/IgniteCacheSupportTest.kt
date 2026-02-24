@@ -60,7 +60,7 @@ class IgniteCacheSupportTest: AbstractIgnite3Test() {
 
     @Test
     fun `nearCache 확장 함수로 IgniteNearCache 생성 및 CRUD 동작 확인`() {
-        val config = IgniteNearCacheConfig(tableName = TABLE_NAME)
+        val config = igniteNearCacheConfig<Long, String>(tableName = TABLE_NAME)
         val cache: IgniteNearCache<Long, String> = igniteClient.nearCache(config)
 
         cache.shouldNotBeNull()
