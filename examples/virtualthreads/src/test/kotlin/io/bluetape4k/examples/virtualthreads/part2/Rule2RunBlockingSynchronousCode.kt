@@ -1,7 +1,8 @@
-package io.bluetape4k.examples.virtualthreads
+package io.bluetape4k.examples.virtualthreads.part2
 
 import io.bluetape4k.concurrent.virtualthread.VT
 import io.bluetape4k.concurrent.virtualthread.virtualFuture
+import io.bluetape4k.examples.virtualthreads.AbstractVirtualThreadTest
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug

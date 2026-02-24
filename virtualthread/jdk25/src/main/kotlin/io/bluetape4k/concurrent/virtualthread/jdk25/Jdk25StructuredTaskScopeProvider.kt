@@ -34,7 +34,7 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         block: (scope: StructuredTaskScopeAll) -> T,
     ): T {
         log.debug { "모든 subtask 가 완료될 때까지 기다립니다..." }
-        
+
         val scope = StructuredTaskScope.open<Any?, Void>(
             StructuredTaskScope.Joiner.awaitAll(),
             configure(name, factory)
@@ -48,7 +48,7 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         block: (scope: StructuredTaskScopeAny<T>) -> T,
     ): T {
         log.debug { "첫번째로 완료된 subtask의 결과를 반환합니다." }
-        
+
         val scope = StructuredTaskScope.open<T, T>(
             StructuredTaskScope.Joiner.anySuccessfulResultOrThrow(),
             configure(name, factory)
@@ -75,8 +75,8 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         private val delegate: StructuredTaskScope.Subtask<T>,
     ): StructuredSubtask<T> {
         override fun get(): T = delegate.get()
-
-        fun exceptionOrNull(): Throwable? = when (delegate.state()) {
+        override fun state(): StructuredTaskScope.Subtask.State = delegate.state()
+        override fun exceptionOrNull(): Throwable? = when (delegate.state()) {
             StructuredTaskScope.Subtask.State.FAILED -> delegate.exception()
             else                                     -> null
         }

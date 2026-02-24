@@ -33,7 +33,7 @@ class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         block: (scope: StructuredTaskScopeAll) -> T,
     ): T {
         log.debug { "모든 subtask 가 완료될 때까지 기다립니다..." }
-        
+
         return StructuredTaskScope.ShutdownOnFailure(name, factory).use { scope ->
             block(Jdk21AllScope(scope))
         }
@@ -52,9 +52,14 @@ class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
     }
 
     private class Jdk21Subtask<T>(
-        private val subtask: StructuredTaskScope.Subtask<T>,
+        private val delegate: StructuredTaskScope.Subtask<T>,
     ): StructuredSubtask<T> {
-        override fun get(): T = subtask.get()
+        override fun get(): T = delegate.get()
+        override fun state(): StructuredTaskScope.Subtask.State = delegate.state()
+        override fun exceptionOrNull(): Throwable? = when (delegate.state()) {
+            StructuredTaskScope.Subtask.State.FAILED -> delegate.exception()
+            else                                     -> null
+        }
     }
 
     private class Jdk21AllScope(

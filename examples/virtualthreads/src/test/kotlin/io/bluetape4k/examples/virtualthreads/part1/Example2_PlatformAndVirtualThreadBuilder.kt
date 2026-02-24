@@ -1,5 +1,6 @@
-package io.bluetape4k.workshop.virtualthread.part1
+package io.bluetape4k.examples.virtualthreads.part1
 
+import io.bluetape4k.examples.virtualthreads.AbstractVirtualThreadTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import org.amshove.kluent.shouldBeEqualTo
@@ -7,7 +8,7 @@ import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 
-class Example2_PlatformAndVirtualThreadBuilder {
+class Example2_PlatformAndVirtualThreadBuilder : AbstractVirtualThreadTest(){
 
     companion object: KLoggingChannel()
 

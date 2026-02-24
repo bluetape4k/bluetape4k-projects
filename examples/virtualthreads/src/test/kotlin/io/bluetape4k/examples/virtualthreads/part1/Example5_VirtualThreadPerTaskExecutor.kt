@@ -1,5 +1,6 @@
-package io.bluetape4k.workshop.virtualthread.part1
+package io.bluetape4k.examples.virtualthreads.part1
 
+import io.bluetape4k.examples.virtualthreads.AbstractVirtualThreadTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
 import org.amshove.kluent.shouldBeEmpty
@@ -7,7 +8,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Executors
 
-class Example5_VirtualThreadPerTaskExecutor {
+class Example5_VirtualThreadPerTaskExecutor : AbstractVirtualThreadTest(){
 
     companion object: KLoggingChannel()
 

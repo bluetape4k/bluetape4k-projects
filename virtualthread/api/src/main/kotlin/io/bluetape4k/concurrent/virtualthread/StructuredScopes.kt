@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import java.util.*
+import java.util.concurrent.StructuredTaskScope
 import java.util.concurrent.ThreadFactory
 
 /**
@@ -11,6 +12,8 @@ import java.util.concurrent.ThreadFactory
  */
 interface StructuredSubtask<T> {
     fun get(): T
+    fun state(): StructuredTaskScope.Subtask.State
+    fun exceptionOrNull(): Throwable?
 }
 
 /**

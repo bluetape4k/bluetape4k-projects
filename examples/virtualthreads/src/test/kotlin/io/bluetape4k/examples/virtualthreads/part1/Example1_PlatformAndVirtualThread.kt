@@ -1,5 +1,6 @@
-package io.bluetape4k.workshop.virtualthread.part1
+package io.bluetape4k.examples.virtualthreads.part1
 
+import io.bluetape4k.examples.virtualthreads.AbstractVirtualThreadTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEmpty
@@ -10,7 +11,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEmpty
 import org.junit.jupiter.api.Test
 
-class Example1_PlatformAndVirtualThread {
+class Example1_PlatformAndVirtualThread: AbstractVirtualThreadTest(){
 
     companion object: KLoggingChannel() {
         private const val THREAD_SIZE = 100_000

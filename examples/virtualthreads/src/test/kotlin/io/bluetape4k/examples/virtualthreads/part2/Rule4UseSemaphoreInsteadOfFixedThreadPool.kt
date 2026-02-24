@@ -1,7 +1,8 @@
-package io.bluetape4k.examples.virtualthreads
+package io.bluetape4k.examples.virtualthreads.part2
 
 import io.bluetape4k.concurrent.FutureUtils
 import io.bluetape4k.concurrent.asCompletableFuture
+import io.bluetape4k.examples.virtualthreads.AbstractVirtualThreadTest
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.trace
 import org.amshove.kluent.shouldBeEqualTo

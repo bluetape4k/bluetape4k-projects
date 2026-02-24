@@ -1,11 +1,10 @@
-package io.bluetape4k.workshop.virtualthread.part1
-
+package io.bluetape4k.examples.virtualthreads.part1
 
 import io.bluetape4k.concurrent.virtualthread.VT
+import io.bluetape4k.examples.virtualthreads.AbstractVirtualThreadTest
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import io.bluetape4k.workshop.virtualThreads.AbstractVirtualThreadTest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch

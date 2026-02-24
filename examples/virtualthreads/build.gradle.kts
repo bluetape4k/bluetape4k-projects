@@ -3,8 +3,12 @@ configurations {
 }
 
 dependencies {
+
+    // Virtual Threads for JDK 21
+    implementation(project(":bluetape4k-core"))
+    runtimeOnly(project(":bluetape4k-virtualthread-jdk21"))
+
     // Coroutines
-    testImplementation(project(":bluetape4k-core"))
     testImplementation(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_slf4j)
     testImplementation(Libs.kotlinx_coroutines_reactor)
