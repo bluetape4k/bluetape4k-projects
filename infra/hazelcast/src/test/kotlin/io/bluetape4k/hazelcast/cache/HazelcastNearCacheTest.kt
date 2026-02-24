@@ -1,9 +1,9 @@
 package io.bluetape4k.hazelcast.cache
 
 import com.hazelcast.client.config.ClientConfig
+import io.bluetape4k.hazelcast.AbstractHazelcastTest
 import io.bluetape4k.hazelcast.hazelcastClient
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.testcontainers.storage.HazelcastServer
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -20,15 +20,10 @@ import org.junit.jupiter.api.TestInstance
  * Docker로 Hazelcast 서버를 실행하고 클라이언트 Near Cache를 활성화하여 테스트합니다.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class HazelcastNearCacheTest {
+class HazelcastNearCacheTest: AbstractHazelcastTest() {
 
     companion object: KLogging() {
         private const val MAP_NAME = "test-near-cache-map"
-
-        /** 테스트에서 공유하는 싱글턴 Hazelcast 서버 컨테이너 */
-        val hazelcastServer: HazelcastServer by lazy {
-            HazelcastServer.Launcher.hazelcast
-        }
     }
 
     private lateinit var nearCache: HazelcastNearCache<String, String>

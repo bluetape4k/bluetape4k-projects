@@ -61,3 +61,7 @@ atlassian-ide-plugin.xml
 
 # JavaMoney's default ResourceCache (filesystem)
 **/money/.resourceCache/
+
+# Apache Ignite embedded mode runtime data
+**/ignite/ignite/
+**/ignite3/ignite/

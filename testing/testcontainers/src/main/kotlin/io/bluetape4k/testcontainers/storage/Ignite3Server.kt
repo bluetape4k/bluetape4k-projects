@@ -1,6 +1,9 @@
 package io.bluetape4k.testcontainers.storage
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.info
+import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
@@ -9,6 +12,10 @@ import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.utility.DockerImageName
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
 import java.time.Duration
 
 /**
@@ -16,6 +23,9 @@ import java.time.Duration
  *
  * Ignite 3.x는 씬 클라이언트 전용으로, 외부 서버에 연결하여 사용합니다.
  * 이 컨테이너는 테스트 환경에서 Ignite 3.x 서버를 Docker로 실행합니다.
+ *
+ * **중요**: Ignite 3.x 서버는 시작 후 반드시 클러스터 초기화([initCluster])가 필요합니다.
+ * [start] 메서드는 자동으로 클러스터를 초기화합니다.
  *
  * Docker Hub: [apacheignite/ignite](https://hub.docker.com/r/apacheignite/ignite/tags)
  *
@@ -66,6 +76,12 @@ class Ignite3Server private constructor(
         /** 테스트 환경에서 사용하는 기본 JVM 최소 메모리 (저메모리 Docker 환경 대응) */
         const val DEFAULT_JVM_MIN_MEM = "256m"
 
+        /** 클러스터 초기화 시 사용하는 기본 클러스터 이름 */
+        const val DEFAULT_CLUSTER_NAME = "default"
+
+        /** 클러스터 초기화 시 사용하는 기본 노드 이름 */
+        const val DEFAULT_NODE_NAME = "defaultNode"
+
         /**
          * [DockerImageName]으로 [Ignite3Server]를 생성합니다.
          */
@@ -108,9 +124,9 @@ class Ignite3Server private constructor(
         withEnv("JVM_MAX_MEM", DEFAULT_JVM_MAX_MEM)
         withEnv("JVM_MIN_MEM", DEFAULT_JVM_MIN_MEM)
 
-        // Ignite 3.x 노드가 완전히 초기화될 때까지 로그 메시지로 대기
+        // REST 서버가 준비될 때까지 대기 (REST가 준비되어야 클러스터 초기화 가능)
         waitingFor(
-            Wait.forLogMessage(".*Components started.*", 1)
+            Wait.forLogMessage(".*REST server started successfully.*", 1)
                 .withStartupTimeout(Duration.ofMinutes(2))
         )
 
@@ -122,6 +138,85 @@ class Ignite3Server private constructor(
     override fun start() {
         super.start()
         writeToSystemProperties(NAME, mapOf("rest.port" to restPort))
+        initCluster()
+    }
+
+    /**
+     * REST API를 통해 Ignite 3.x 클러스터를 초기화합니다.
+     *
+     * Ignite 3.x는 첫 시작 시 반드시 클러스터 초기화가 필요합니다.
+     * 이미 초기화된 경우(409 응답)에는 무시합니다.
+     */
+    private fun initCluster() {
+        val client = HttpClient.newHttpClient()
+        val restBase = "http://$host:$restPort"
+
+        // 이미 초기화되었는지 확인
+        val stateRequest = HttpRequest.newBuilder()
+            .uri(URI.create("$restBase/management/v1/cluster/state"))
+            .GET()
+            .build()
+
+        try {
+            val stateResponse = client.send(stateRequest, HttpResponse.BodyHandlers.ofString())
+            if (stateResponse.statusCode() == 200) {
+                log.info { "Ignite 3.x 클러스터가 이미 초기화되어 있습니다." }
+                return
+            }
+        } catch (e: Exception) {
+            log.debug { "클러스터 상태 확인 중 예외 (초기화 진행): ${e.message}" }
+        }
+
+        // 클러스터 초기화
+        log.info { "Ignite 3.x 클러스터 초기화 시작 (clusterName=$DEFAULT_CLUSTER_NAME)" }
+        val initBody = """{"clusterName":"$DEFAULT_CLUSTER_NAME","metaStorageNodes":["$DEFAULT_NODE_NAME"]}"""
+        val initRequest = HttpRequest.newBuilder()
+            .uri(URI.create("$restBase/management/v1/cluster/init"))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(initBody))
+            .build()
+
+        try {
+            val initResponse = client.send(initRequest, HttpResponse.BodyHandlers.ofString())
+            log.info { "클러스터 초기화 응답: status=${initResponse.statusCode()}, body=${initResponse.body()}" }
+        } catch (e: Exception) {
+            log.warn(e) { "클러스터 초기화 요청 실패" }
+        }
+
+        // 클러스터가 준비될 때까지 대기
+        waitForClusterReady(client, restBase)
+    }
+
+    /**
+     * Ignite 3.x 클러스터가 완전히 준비될 때까지 대기합니다.
+     *
+     * `/management/v1/cluster/state` 엔드포인트가 200 OK를 반환할 때까지 폴링합니다.
+     */
+    private fun waitForClusterReady(client: HttpClient, restBase: String) {
+        val maxAttempts = 30
+        val delayMs = 2000L
+
+        log.debug { "Ignite 3.x 클러스터 준비 대기 중 (최대 ${maxAttempts}회)" }
+
+        repeat(maxAttempts) { attempt ->
+            try {
+                val request = HttpRequest.newBuilder()
+                    .uri(URI.create("$restBase/management/v1/cluster/state"))
+                    .GET()
+                    .build()
+                val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+                if (response.statusCode() == 200) {
+                    log.info { "Ignite 3.x 클러스터 준비 완료 (${attempt + 1}회차)" }
+                    return
+                }
+                log.debug { "클러스터 준비 대기 (${attempt + 1}/$maxAttempts): status=${response.statusCode()}" }
+            } catch (e: Exception) {
+                log.debug { "클러스터 상태 확인 실패 (${attempt + 1}/$maxAttempts): ${e.message}" }
+            }
+            Thread.sleep(delayMs)
+        }
+
+        throw IllegalStateException("Ignite 3.x 클러스터가 ${maxAttempts * delayMs / 1000}초 내에 준비되지 않았습니다.")
     }
 
     /**

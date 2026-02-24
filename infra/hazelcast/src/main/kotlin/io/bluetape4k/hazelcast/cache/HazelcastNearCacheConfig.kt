@@ -42,7 +42,7 @@ data class HazelcastNearCacheConfig(
     val evictionPolicy: EvictionPolicy = EvictionPolicy.LRU,
     val invalidateOnChange: Boolean = true,
     val inMemoryFormat: InMemoryFormat = InMemoryFormat.BINARY,
-    val localUpdatePolicy: NearCacheConfig.LocalUpdatePolicy = NearCacheConfig.LocalUpdatePolicy.CACHE_ON_UPDATE,
+    val localUpdatePolicy: NearCacheConfig.LocalUpdatePolicy = NearCacheConfig.LocalUpdatePolicy.INVALIDATE,
 ): Serializable {
 
     companion object {

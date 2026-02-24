@@ -29,3 +29,10 @@ inline fun <reified K: Any, reified V: Any> IgniteClient.keyValueView(
 inline fun <reified K: Any, reified V: Any> IgniteClient.nearCache(
     config: IgniteNearCacheConfig,
 ): IgniteNearCache<K, V> = IgniteNearCache(this, config)
+
+/**
+ * [IgniteSuspendNearCache]를 생성하는 확장 함수입니다.
+ */
+inline fun <reified K: Any, reified V: Any> IgniteClient.suspendNearCache(
+    config: IgniteNearCacheConfig,
+): IgniteSuspendNearCache<K, V> = IgniteSuspendNearCache(this, config)

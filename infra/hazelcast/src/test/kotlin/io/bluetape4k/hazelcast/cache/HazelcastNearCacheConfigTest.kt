@@ -27,7 +27,7 @@ class HazelcastNearCacheConfigTest {
         config.evictionPolicy shouldBeEqualTo EvictionPolicy.LRU
         config.invalidateOnChange.shouldBeTrue()
         config.inMemoryFormat shouldBeEqualTo InMemoryFormat.BINARY
-        config.localUpdatePolicy shouldBeEqualTo NearCacheConfig.LocalUpdatePolicy.CACHE_ON_UPDATE
+        config.localUpdatePolicy shouldBeEqualTo NearCacheConfig.LocalUpdatePolicy.INVALIDATE
     }
 
     @Test
