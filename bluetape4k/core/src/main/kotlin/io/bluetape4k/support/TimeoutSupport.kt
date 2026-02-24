@@ -1,6 +1,7 @@
 package io.bluetape4k.support
 
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
@@ -31,14 +32,16 @@ import kotlin.time.Duration
  * @param action 비동기로 실행할 코드 블럭
  * @return [action]의 실행 결과를 담은 [CompletableFuture], 제한시간이 초과되면 [java.util.concurrent.TimeoutException]을 담은 [CompletableFuture]를 반환합니다.
  */
-inline fun <T> asyncRunWithTimeout(timeoutMillis: Long, crossinline action: () -> T): CompletableFuture<T> {
-    val executor = Executors.newSingleThreadExecutor()
+inline fun <T> asyncRunWithTimeout(
+    timeoutMillis: Long,
+    executor: ExecutorService = Executors.newVirtualThreadPerTaskExecutor(),
+    crossinline action: () -> T,
+): CompletableFuture<T> {
     return CompletableFuture
         .supplyAsync({ action() }, executor)
         .orTimeout(timeoutMillis.coerceAtLeast(10L), TimeUnit.MILLISECONDS)
-        .whenCompleteAsync { _, _ ->
-            // timeout 시에는 action을 즉시 종료시킨다.
-            runCatching { executor.shutdown() }
+        .whenComplete { _, _ ->
+            executor.shutdown()
         }
 }
 
@@ -69,7 +72,7 @@ inline fun <T> asyncRunWithTimeout(timeoutMillis: Long, crossinline action: () -
  * @return [action]의 실행 결과를 담은 [CompletableFuture], 제한시간이 초과되면 [java.util.concurrent.TimeoutException]을 담은 [CompletableFuture]를 반환합니다.
  */
 inline fun <T> asyncRunWithTimeout(timeout: Duration, crossinline action: () -> T): CompletableFuture<T> {
-    return asyncRunWithTimeout(timeout.inWholeMilliseconds, action)
+    return asyncRunWithTimeout(timeout.inWholeMilliseconds, action = action)
 }
 
 /**
@@ -99,7 +102,7 @@ inline fun <T> asyncRunWithTimeout(timeout: Duration, crossinline action: () -> 
  */
 inline fun <T: Any> withTimeoutOrNull(timeoutMillis: Long, crossinline action: () -> T): T? {
     return runCatching {
-        asyncRunWithTimeout(timeoutMillis, action).get()
+        asyncRunWithTimeout(timeoutMillis, action = action).get()
     }.getOrNull()
 }
 
