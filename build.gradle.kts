@@ -40,10 +40,6 @@ fun getEnvOrProjectProperty(propertyKey: String, envKey: String): String {
     return project.findProperty(propertyKey) as? String ?: System.getenv()[envKey].orEmpty()
 }
 
-val bluetape4kGprUser: String = getEnvOrProjectProperty("gpr.user", "BLUETAPE4K_GITHUB_USERNAME")
-val bluetape4kGprKey: String = getEnvOrProjectProperty("gpr.key", "BLUETAPE4K_GITHUB_TOKEN")
-val bluetape4kGprPublishKey: String = getEnvOrProjectProperty("gpr.publish.key", "BLUETAPE4K_GITHUB_PUBLISH_TOKEN")
-
 val centralUser: String = getEnvOrProjectProperty("central.user", "CENTRAL_USERNAME")
 val centralPassword: String = getEnvOrProjectProperty("central.password", "CENTRAL_PASSWORD")
 
@@ -61,15 +57,6 @@ allprojects {
     repositories {
         mavenCentral()
         google()
-        mavenLocal()
-        maven {
-            name = "bluetape4k"
-            url = uri("https://maven.pkg.github.com/bluetape4k/bluetape4k-projects")
-            credentials {
-                username = bluetape4kGprUser
-                password = bluetape4kGprKey
-            }
-        }
     }
 }
 
@@ -655,14 +642,14 @@ subprojects {
                     password = centralPassword
                 }
             }
-            maven {
-                name = "Bluetape4k"
-                url = uri("https://maven.pkg.github.com/bluetape4k/bluetape4k-projects")
-                credentials {
-                    username = bluetape4kGprUser
-                    password = bluetape4kGprPublishKey
-                }
-            }
+//            maven {
+//                name = "Bluetape4k"
+//                url = uri("https://maven.pkg.github.com/bluetape4k/bluetape4k-projects")
+//                credentials {
+//                    username = bluetape4kGprUser
+//                    password = bluetape4kGprPublishKey
+//                }
+//            }
             mavenLocal()
         }
     }
