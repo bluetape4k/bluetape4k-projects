@@ -234,16 +234,43 @@ snapshotVersion=-SNAPSHOT
 
 ### SNAPSHOT 배포
 
+Github 에 배포 시
 ```bash
-# GitHub Packages Maven에 SNAPSHOT 배포
 ./gradlew publishBluetape4kPublicationToBluetape4kRepository
+```
+
+Maven Central 에 배포 시
+
+```bash
+./gradlew publishBluetape4kPublicationToCentralRepository
+```
+
+모두 배포 시
+
+```bash
+./gradlew publish
 ```
 
 ### RELEASE 배포
 
+Github 에 배포 시
 ```bash
 # snapshotVersion을 제거하고 RELEASE 배포
 ./gradlew publishBluetape4kPublicationToBluetape4kRepository -PsnapshotVersion=
+```
+
+Maven Central 에 배포 시
+
+```bash
+# snapshotVersion을 제거하고 RELEASE 배포
+./gradlew publishBluetape4kPublicationToCentralRepository -PsnapshotVersion=
+```
+
+모두 배포 시
+
+```bash
+# snapshotVersion을 제거하고 RELEASE 배포
+./gradlew publish -PsnapshotVersion=
 ```
 
 **참고**: GitHub Packages 배포를 위해서는 `~/.gradle/gradle.properties`에 다음 설정이 필요합니다:

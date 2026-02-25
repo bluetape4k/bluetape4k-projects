@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 plugins {
     base
     `maven-publish`
+    signing
     // jacoco
     kotlin("jvm") version Versions.kotlin
 
@@ -42,6 +43,12 @@ fun getEnvOrProjectProperty(propertyKey: String, envKey: String): String {
 val bluetape4kGprUser: String = getEnvOrProjectProperty("gpr.user", "BLUETAPE4K_GITHUB_USERNAME")
 val bluetape4kGprKey: String = getEnvOrProjectProperty("gpr.key", "BLUETAPE4K_GITHUB_TOKEN")
 val bluetape4kGprPublishKey: String = getEnvOrProjectProperty("gpr.publish.key", "BLUETAPE4K_GITHUB_PUBLISH_TOKEN")
+
+val centralUser: String = getEnvOrProjectProperty("central.user", "CENTRAL_USERNAME")
+val centralPassword: String = getEnvOrProjectProperty("central.password", "CENTRAL_PASSWORD")
+
+val signingPassword: String = getEnvOrProjectProperty("signingPassword", "SIGNING_PASSWORD")
+val signingUseGpgCmd: Boolean = getEnvOrProjectProperty("signingUseGpgCmd", "SIGNING_USE_GPG_CMD").toBoolean()
 
 val projectGroup: String by project
 val baseVersion: String by project
@@ -82,6 +89,7 @@ subprojects {
 
         // plugin("jacoco")
         plugin("maven-publish")
+        plugin("signing")
 
         plugin(Plugins.dependency_management)
 
@@ -634,6 +642,20 @@ subprojects {
         }
         repositories {
             maven {
+                name = "Central"
+                url = uri(
+                    if (version.toString().endsWith("SNAPSHOT")) {
+                        "https://central.sonatype.com/repository/maven-snapshots/"
+                    } else {
+                        "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
+                    }
+                )
+                credentials {
+                    username = centralUser
+                    password = centralPassword
+                }
+            }
+            maven {
                 name = "Bluetape4k"
                 url = uri("https://maven.pkg.github.com/bluetape4k/bluetape4k-projects")
                 credentials {
@@ -643,6 +665,27 @@ subprojects {
             }
             mavenLocal()
         }
+    }
+
+    signing {
+        if (signingUseGpgCmd) {
+            useGpgCmd()
+            if (!project.path.contains("workshop") && !project.path.contains("examples") && !project.path.contains("-demo")) {
+                sign(publishing.publications["Bluetape4k"])
+            }
+        } else if (signingPassword.isNotBlank()) {
+            logger.warn("SIGNING_USE_GPG_CMD is false. GPG command signing is disabled.")
+        }
+    }
+
+    tasks.withType<GenerateMavenPom>().configureEach {
+        notCompatibleWithConfigurationCache("publishing tasks are not cache-safe")
+    }
+    tasks.withType<PublishToMavenRepository>().configureEach {
+        notCompatibleWithConfigurationCache("publishing tasks are not cache-safe")
+    }
+    tasks.withType<PublishToMavenLocal>().configureEach {
+        notCompatibleWithConfigurationCache("publishing tasks are not cache-safe")
     }
 }
 
