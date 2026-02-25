@@ -22,7 +22,7 @@ import kotlin.time.Duration.Companion.seconds
  * Ignite 3.x 씬 클라이언트는 이벤트 리스너를 지원하지 않으므로,
  * 이 cache-aside 동작이 이벤트 전파의 대안으로 작동합니다.
  */
-class IgniteSuspendNearCacheTest: AbstractIgnite3Test() {
+class Ignite3SuspendNearCacheTest: AbstractIgnite3Test() {
 
     companion object: KLogging() {
         private const val TABLE_NAME = "TEST_SUSPEND_CACHE"
