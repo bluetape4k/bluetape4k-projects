@@ -11,7 +11,7 @@ import java.util.concurrent.Future
  *
  * ```
  * val future = futureOf { Thread.sleep(1000); 1 }
- * val result = future.suspendAwait() // 1
+ * val result = future.awaitSuspending() // 1
  * ```
  */
 @Suppress("UNCHECKED_CAST")

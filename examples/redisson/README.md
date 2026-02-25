@@ -30,20 +30,20 @@
 
 ### 컬렉션 (coroutines/collections/)
 
-| 예제 파일                             | 설명                                  |
-|-----------------------------------|-------------------------------------|
-| `QueueExamples.kt`                | RQueue - 분산 큐                       |
-| `DequeExamples.kt`                | RDeque - 분산 데크                      |
-| `BlockingDequeExamples.kt`        | RBlockingDeque - 블로킹 데크             |
-| `BoundedBlockingQueueExamples.kt` | RBoundedBlockingQueue - 크기 제한 블로킹 큐 |
-| `PriorityQueueExamples.kt`        | RPriorityQueue - 우선순위 큐             |
-| `ScoredSortedSetExamples.kt`      | RScoredSortedSet - 점수 정렬 집합         |
-| `SortedSetExamples.kt`            | RSortedSet - 정렬 집합                  |
-| `RingBufferExamples.kt`           | RRingBuffer - 링 버퍼                  |
-| `StreamExamples.kt`               | RStream - Redis Streams             |
-| `LocalCachedMapExamples.kt`       | RLocalCachedMap - 로컬 캐시 맵           |
-| `SetMultimapCacheExamples.kt`     | RSetMultimapCache - 멀티맵 캐시          |
-| `ListMultimapCacheExamples.kt`    | RListMultimapCache - 리스트 멀티맵 캐시     |
+| 예제 파일                          | 설명                              |
+|--------------------------------|---------------------------------|
+| `QueueExamples.kt`             | RQueue - 분산 큐                   |
+| `DequeExamples.kt`             | RDeque - 분산 데크                  |
+| `BlockingDequeExamples.kt`     | RBlockingDeque - 블로킹 데크         |
+| `ReliableQueueExamples.kt`     | RReliableQueue - 신뢰성 큐          |
+| `PriorityQueueExamples.kt`     | RPriorityQueue - 우선순위 큐         |
+| `ScoredSortedSetExamples.kt`   | RScoredSortedSet - 점수 정렬 집합     |
+| `SortedSetExamples.kt`         | RSortedSet - 정렬 집합              |
+| `RingBufferExamples.kt`        | RRingBuffer - 링 버퍼              |
+| `StreamExamples.kt`            | RStream - Redis Streams         |
+| `LocalCachedMapExamples.kt`    | RLocalCachedMap - 로컬 캐시 맵       |
+| `SetMultimapCacheExamples.kt`  | RSetMultimapCache - 멀티맵 캐시      |
+| `ListMultimapCacheExamples.kt` | RListMultimapCache - 리스트 멀티맵 캐시 |
 
 ### 캐시 전략 (coroutines/cachestrategy/)
 

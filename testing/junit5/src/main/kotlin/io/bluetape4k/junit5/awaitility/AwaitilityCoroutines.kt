@@ -27,7 +27,7 @@ suspend infix fun ConditionFactory.suspendUntil(block: suspend () -> Boolean) =
  * [block]이 true 를 반환할 때까지 대기한다
  *
  * ```
- * await atMost 5.seconds suspendAwait { ... }
+ * await atMost 5.seconds awaitSuspending { ... }
  * ```
  *
  * @param block 판단을 위한 코드 블럭

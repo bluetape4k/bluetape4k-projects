@@ -16,7 +16,7 @@ class AwaitilityCoroutinesTest {
     companion object: KLogging()
 
     @Test
-    fun `coAwait - awaiting suspend function`() = runSuspendTest {
+    fun `awaitSuspending - awaiting suspend function`() = runSuspendTest {
         val start = System.currentTimeMillis()
         val end = start + 100
 
@@ -31,7 +31,7 @@ class AwaitilityCoroutinesTest {
     }
 
     @Test
-    fun `coUntil - until suspend function`() = runSuspendTest {
+    fun `untilSuspending - until suspend function`() = runSuspendTest {
         val start = System.currentTimeMillis()
         val end = start + 100
 
@@ -46,7 +46,7 @@ class AwaitilityCoroutinesTest {
     }
 
     @Test
-    fun `suspendAwait - awaiting suspend function with poll interval`() = runSuspendTest {
+    fun `awaitSuspending - awaiting suspend function with poll interval`() = runSuspendTest {
         val start = System.currentTimeMillis()
         val end = start + 100
 
@@ -63,7 +63,7 @@ class AwaitilityCoroutinesTest {
     }
 
     @Test
-    fun `suspendUntil - until suspend function with poll interval`() = runSuspendTest {
+    fun `untilSuspending - until suspend function with poll interval`() = runSuspendTest {
         val start = System.currentTimeMillis()
         val end = start + 100
 

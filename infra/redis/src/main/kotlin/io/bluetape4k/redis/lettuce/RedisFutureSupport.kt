@@ -11,10 +11,23 @@ import java.util.concurrent.Executor
  * Awaits for completions of [RedisFuture] without blocking a thread.
  *
  * ```
+ * val result = redisAsyncCommands.get("key").awaitSuspending()
+ * ```
+ */
+suspend inline fun <T> RedisFuture<T>.awaitSuspending(): T = await()
+
+/**
+ * Awaits for completions of [RedisFuture] without blocking a thread.
+ *
+ * ```
  * val result = redisAsyncCommands.get("key").suspendAwait()
  * ```
  */
-suspend fun <T> RedisFuture<T>.suspendAwait(): T = await()
+@Deprecated(
+    message = "Use awaitSuspending() instead.",
+    replaceWith = ReplaceWith("awaitSuspending()"),
+)
+suspend inline fun <T> RedisFuture<T>.suspendAwait(): T = await()
 
 
 /**
@@ -25,10 +38,10 @@ suspend fun <T> RedisFuture<T>.suspendAwait(): T = await()
  * ```
  */
 @Deprecated(
-    message = "Use suspendAwait() instead.",
-    replaceWith = ReplaceWith("suspendAwait()"),
+    message = "Use awaitSuspending() instead.",
+    replaceWith = ReplaceWith("awaitSuspending()"),
 )
-suspend fun <T> RedisFuture<T>.coAwait(): T = await()
+suspend inline fun <T> RedisFuture<T>.coAwait(): T = await()
 
 /**
  * [RedisFuture]`<T>` 컬렉션의 모든 요소들이 완료될 때까지 대기합니다.
@@ -40,7 +53,7 @@ suspend fun <T> RedisFuture<T>.coAwait(): T = await()
  * ).awaitAll()
  * ```
  */
-suspend fun <T> Collection<RedisFuture<out T>>.awaitAll(): List<T> = when {
+suspend inline fun <T> Collection<RedisFuture<out T>>.awaitAll(): List<T> = when {
     this.isEmpty() -> emptyList()
     else -> sequence().await()
 }
