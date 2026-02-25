@@ -13,7 +13,6 @@ import javax.cache.configuration.Configuration
 import javax.cache.configuration.MutableConfiguration
 import javax.cache.integration.CompletionListener
 import javax.cache.processor.EntryProcessor
-import javax.cache.processor.EntryProcessorException
 import javax.cache.processor.EntryProcessorResult
 
 /**
@@ -186,6 +185,7 @@ class Ignite3JCache<K: Any, V: Any> private constructor(
                     runCatching {
                         @Suppress("UNCHECKED_CAST")
                         val key = row.value<Any>(0) as K
+
                         @Suppress("UNCHECKED_CAST")
                         val value = row.value<Any>(1) as V
                         entries.add(object: Cache.Entry<K, V> {

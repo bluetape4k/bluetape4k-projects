@@ -19,7 +19,7 @@ import org.junit.jupiter.api.TestInstance
  * back cache 변경이 front cache에 즉시 전파되지 않습니다.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class IgniteNearCacheTest: AbstractIgnite3Test() {
+class Ignite3NearCacheTest: AbstractIgnite3Test() {
 
     companion object: KLogging() {
         private const val TABLE_NAME = "TEST_CACHE"

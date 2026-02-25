@@ -1,8 +1,9 @@
-package io.bluetape4k.ignite3.cache
+package io.bluetape4k.ignite3.cache.coroutines
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.bluetape4k.cache.jcache.coroutines.CaffeineSuspendCache
 import io.bluetape4k.cache.nearcache.coroutines.NearSuspendCache
+import io.bluetape4k.ignite3.cache.IgniteNearCacheConfig
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.apache.ignite.client.IgniteClient
@@ -22,7 +23,7 @@ typealias IgniteSuspendNearCache<K, V> = NearSuspendCache<K, V>
 private val log = KLogging().log
 
 /**
- * Ignite 3.x 클라이언트와 [IgniteNearCacheConfig]를 사용하여 [IgniteSuspendNearCache] ([NearSuspendCache])를 생성합니다.
+ * Ignite 3.x 클라이언트와 [io.bluetape4k.ignite3.cache.IgniteNearCacheConfig]를 사용하여 [IgniteSuspendNearCache] ([NearSuspendCache])를 생성합니다.
  *
  * @param K 캐시 키 타입
  * @param V 캐시 값 타입
@@ -35,7 +36,7 @@ fun <K: Any, V: Any> igniteNearSuspendCache(
     config: IgniteNearCacheConfig<K, V>,
 ): IgniteSuspendNearCache<K, V> {
     log.debug { "Ignite3SuspendCache 기반 NearSuspendCache 생성. tableName=${config.tableName}" }
-    val backCache = Ignite3SuspendCache(
+    val backCache = Ignite3SuspendCache.Companion(
         tableName = config.tableName,
         client = client,
         keyType = config.keyType,

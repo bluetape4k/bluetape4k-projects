@@ -4,8 +4,8 @@ import io.bluetape4k.ignite3.AbstractIgnite3Test
 import io.bluetape4k.ignite3.memorizer.memorizer
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeFalse
+import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.apache.ignite.table.KeyValueView
@@ -20,7 +20,7 @@ import org.junit.jupiter.api.TestInstance
  * Docker로 Ignite 3.x 서버를 실행하고 [keyValueView], [nearCache] 확장 함수를 테스트합니다.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class IgniteCacheSupportTest: AbstractIgnite3Test() {
+class Ignite3CacheSupportTest: AbstractIgnite3Test() {
 
     companion object: KLogging() {
         private const val TABLE_NAME = "KV_SUPPORT_TABLE"

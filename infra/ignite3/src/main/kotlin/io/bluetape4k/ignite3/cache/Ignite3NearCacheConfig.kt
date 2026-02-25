@@ -1,10 +1,8 @@
 package io.bluetape4k.ignite3.cache
 
 import io.bluetape4k.cache.nearcache.NearCacheConfig
-import io.bluetape4k.cache.nearcache.NearCacheConfig.Companion.CaffeineCacheManagerFactory
-import io.bluetape4k.cache.nearcache.NearCacheConfig.Companion.DEFAULT_EXPIRY_CHECK_PERIOD
 import io.bluetape4k.codec.Base58
-import java.util.Objects
+import java.util.*
 import javax.cache.CacheManager
 import javax.cache.configuration.Factory
 import javax.cache.configuration.MutableConfiguration

@@ -11,7 +11,7 @@ import org.junit.jupiter.api.TestInstance
  * [IgniteNearCacheConfig]의 기본값과 팩토리 메서드를 검증하는 테스트입니다.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class IgniteNearCacheConfigTest {
+class Ignite3NearCacheConfigTest {
 
     @Test
     fun `기본값으로 생성된 IgniteNearCacheConfig 검증`() {

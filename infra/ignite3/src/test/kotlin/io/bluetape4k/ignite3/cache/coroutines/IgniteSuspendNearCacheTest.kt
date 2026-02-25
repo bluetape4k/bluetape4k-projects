@@ -1,6 +1,8 @@
-package io.bluetape4k.ignite3.cache
+package io.bluetape4k.ignite3.cache.coroutines
 
 import io.bluetape4k.ignite3.AbstractIgnite3Test
+import io.bluetape4k.ignite3.cache.igniteNearCacheConfig
+import io.bluetape4k.ignite3.cache.nearCacheManager
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
@@ -11,7 +13,6 @@ import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -21,7 +22,6 @@ import kotlin.time.Duration.Companion.seconds
  * Ignite 3.x 씬 클라이언트는 이벤트 리스너를 지원하지 않으므로,
  * 이 cache-aside 동작이 이벤트 전파의 대안으로 작동합니다.
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class IgniteSuspendNearCacheTest: AbstractIgnite3Test() {
 
     companion object: KLogging() {

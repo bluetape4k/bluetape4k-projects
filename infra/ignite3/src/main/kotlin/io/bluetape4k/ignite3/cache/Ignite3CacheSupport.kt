@@ -2,6 +2,7 @@ package io.bluetape4k.ignite3.cache
 
 import io.bluetape4k.cache.nearcache.NearCache
 import io.bluetape4k.cache.nearcache.coroutines.NearSuspendCache
+import io.bluetape4k.ignite3.cache.coroutines.igniteNearSuspendCache
 import org.apache.ignite.client.IgniteClient
 import org.apache.ignite.table.KeyValueView
 
@@ -33,7 +34,7 @@ fun <K: Any, V: Any> IgniteClient.nearCache(
 ): NearCache<K, V> = igniteNearCache(this, config)
 
 /**
- * [IgniteSuspendNearCache] ([NearSuspendCache])를 생성하는 확장 함수입니다.
+ * [io.bluetape4k.ignite3.cache.coroutines.IgniteSuspendNearCache] ([NearSuspendCache])를 생성하는 확장 함수입니다.
  */
 fun <K: Any, V: Any> IgniteClient.suspendNearCache(
     config: IgniteNearCacheConfig<K, V>,

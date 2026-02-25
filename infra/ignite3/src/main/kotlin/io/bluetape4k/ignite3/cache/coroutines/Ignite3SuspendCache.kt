@@ -1,4 +1,4 @@
-package io.bluetape4k.ignite3.cache
+package io.bluetape4k.ignite3.cache.coroutines
 
 import io.bluetape4k.cache.jcache.coroutines.SuspendCache
 import io.bluetape4k.cache.jcache.coroutines.SuspendCacheEntry
@@ -13,9 +13,9 @@ import org.apache.ignite.table.KeyValueView
 import javax.cache.configuration.CacheEntryListenerConfiguration
 
 /**
- * Apache Ignite 3.x [KeyValueView]의 비동기 API를 사용하는 [SuspendCache] 구현체입니다.
+ * Apache Ignite 3.x [org.apache.ignite.table.KeyValueView]의 비동기 API를 사용하는 [io.bluetape4k.cache.jcache.coroutines.SuspendCache] 구현체입니다.
  *
- * [NearSuspendCache]의 Back Cache로 사용하기 위해 [SuspendCache] 인터페이스를 구현합니다.
+ * [NearSuspendCache]의 Back Cache로 사용하기 위해 [io.bluetape4k.cache.jcache.coroutines.SuspendCache] 인터페이스를 구현합니다.
  * Ignite 3.x 씬 클라이언트는 JCache 이벤트 리스너를 지원하지 않으므로,
  * [registerCacheEntryListener] / [deregisterCacheEntryListener]는 no-op으로 처리됩니다.
  *
@@ -23,7 +23,7 @@ import javax.cache.configuration.CacheEntryListenerConfiguration
  * @param V 캐시 값 타입
  * @property cacheName 테이블 이름 (= 캐시 이름)
  * @property client Ignite 3.x 씬 클라이언트
- * @property view Ignite 3.x [KeyValueView] 인스턴스
+ * @property view Ignite 3.x [org.apache.ignite.table.KeyValueView] 인스턴스
  * @property keyColumn 키 컬럼 이름
  * @property valueColumn 값 컬럼 이름
  */
@@ -75,6 +75,7 @@ class Ignite3SuspendCache<K: Any, V: Any> private constructor(
                     runCatching {
                         @Suppress("UNCHECKED_CAST")
                         val key = row.value<Any>(0) as K
+
                         @Suppress("UNCHECKED_CAST")
                         val value = row.value<Any>(1) as V
                         emit(SuspendCacheEntry(key, value))

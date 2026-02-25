@@ -2,6 +2,8 @@ package io.bluetape4k.ignite3.cache
 
 import io.bluetape4k.cache.nearcache.NearCache
 import io.bluetape4k.cache.nearcache.coroutines.NearSuspendCache
+import io.bluetape4k.ignite3.cache.coroutines.IgniteSuspendNearCache
+import io.bluetape4k.ignite3.cache.coroutines.igniteNearSuspendCache
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
@@ -13,7 +15,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -124,7 +126,7 @@ class IgniteNearCacheManager(val client: IgniteClient): Closeable {
     }
 
     /**
-     * 레지스트리에 [IgniteSuspendNearCache]를 등록하거나 기존 캐시를 반환합니다.
+     * 레지스트리에 [io.bluetape4k.ignite3.cache.coroutines.IgniteSuspendNearCache]를 등록하거나 기존 캐시를 반환합니다.
      */
     @Suppress("UNCHECKED_CAST")
     @PublishedApi
@@ -160,7 +162,7 @@ class IgniteNearCacheManager(val client: IgniteClient): Closeable {
     }
 
     /**
-     * 테이블을 자동 생성하고 [IgniteSuspendNearCache] ([NearSuspendCache])를 반환합니다.
+     * 테이블을 자동 생성하고 [io.bluetape4k.ignite3.cache.coroutines.IgniteSuspendNearCache] ([NearSuspendCache])를 반환합니다.
      *
      * 동일한 [IgniteNearCacheConfig.tableName]의 캐시가 이미 존재하면 재사용합니다.
      *
@@ -169,7 +171,7 @@ class IgniteNearCacheManager(val client: IgniteClient): Closeable {
      * @param config NearCache 설정 (테이블 이름, 키/값 타입 포함)
      * @param keyColumn 키 컬럼 이름 (기본값: config 값)
      * @param valueColumn 값 컬럼 이름 (기본값: config 값)
-     * @return [IgniteSuspendNearCache] ([NearSuspendCache]) 인스턴스
+     * @return [io.bluetape4k.ignite3.cache.coroutines.IgniteSuspendNearCache] ([NearSuspendCache]) 인스턴스
      */
     inline fun <reified K: Any, reified V: Any> suspendNearCache(
         config: IgniteNearCacheConfig<K, V>,
