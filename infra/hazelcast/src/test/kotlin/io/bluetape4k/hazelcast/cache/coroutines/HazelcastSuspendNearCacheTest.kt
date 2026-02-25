@@ -1,6 +1,7 @@
-package io.bluetape4k.hazelcast.cache
+package io.bluetape4k.hazelcast.cache.coroutines
 
 import io.bluetape4k.hazelcast.AbstractHazelcastTest
+import io.bluetape4k.hazelcast.cache.HazelcastNearCacheConfig
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -10,7 +11,6 @@ import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -19,7 +19,6 @@ import kotlin.time.Duration.Companion.seconds
  * Docker로 Hazelcast 서버를 실행하고, Caffeine + Hazelcast IMap 2-Tier
  * Suspend NearCache의 비동기 캐싱 동작을 검증합니다.
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class HazelcastSuspendNearCacheTest: AbstractHazelcastTest() {
 
     companion object: KLogging() {

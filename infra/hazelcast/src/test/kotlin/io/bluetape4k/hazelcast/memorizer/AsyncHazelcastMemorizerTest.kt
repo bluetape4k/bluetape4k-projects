@@ -5,7 +5,6 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertTimeout
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
@@ -19,7 +18,6 @@ import kotlin.system.measureTimeMillis
  * Docker로 Hazelcast 서버를 실행하고 [AsyncHazelcastMemorizer]를 통해
  * CompletableFuture 기반 비동기 호출의 캐싱 동작을 검증합니다.
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AsyncHazelcastMemorizerTest: AbstractHazelcastTest() {
 
     companion object: KLogging() {

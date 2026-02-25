@@ -9,7 +9,6 @@ import io.bluetape4k.logging.trace
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertTimeout
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
@@ -21,7 +20,6 @@ import kotlin.system.measureTimeMillis
  * Docker로 Hazelcast 서버를 실행하고 [HazelcastMemorizer]를 통해
  * evaluator 호출 횟수와 캐시 동작을 검증합니다.
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class HazelcastMemorizerTest: AbstractHazelcastTest() {
 
     companion object: KLogging() {

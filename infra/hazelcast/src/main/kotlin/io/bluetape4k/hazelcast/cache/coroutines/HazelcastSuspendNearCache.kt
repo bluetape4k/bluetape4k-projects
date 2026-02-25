@@ -1,17 +1,19 @@
-package io.bluetape4k.hazelcast.cache
+package io.bluetape4k.hazelcast.cache.coroutines
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.hazelcast.map.IMap
+import io.bluetape4k.hazelcast.cache.HazelcastNearCacheConfig
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.withContext
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 
 /**
- * Caffeine을 Front Cache로, Hazelcast [IMap]을 Back Cache로 사용하는 2-Tier Suspend NearCache입니다.
+ * Caffeine을 Front Cache로, Hazelcast [com.hazelcast.map.IMap]을 Back Cache로 사용하는 2-Tier Suspend NearCache입니다.
  *
  * Hazelcast 5.x `IMap`의 비동기 API(`getAsync`, `putAsync`, `removeAsync`)를
  * 코루틴에서 non-blocking으로 활용합니다.
@@ -27,12 +29,12 @@ import java.util.concurrent.TimeUnit
  *
  * @param K 캐시 키 타입
  * @param V 캐시 값 타입
- * @property backCache Hazelcast [IMap] (원격 캐시)
- * @property frontCache Caffeine [Cache] (로컬 캐시)
+ * @property frontCache Caffeine [com.github.benmanes.caffeine.cache.Cache] (로컬 캐시)
+ * @property backCache Hazelcast [com.hazelcast.map.IMap] (원격 캐시)
  */
 class HazelcastSuspendNearCache<K: Any, V: Any> private constructor(
-    val backCache: IMap<K, V>,
     val frontCache: Cache<K, V>,
+    val backCache: IMap<K, V>,
 ) {
     companion object: KLogging() {
 
@@ -56,7 +58,7 @@ class HazelcastSuspendNearCache<K: Any, V: Any> private constructor(
                 caffeineBuilder.expireAfterAccess(config.maxIdleSeconds.toLong(), TimeUnit.SECONDS)
             }
             val frontCache = caffeineBuilder.build<K, V>()
-            return HazelcastSuspendNearCache(map, frontCache)
+            return HazelcastSuspendNearCache(frontCache, map)
         }
     }
 
@@ -76,7 +78,7 @@ class HazelcastSuspendNearCache<K: Any, V: Any> private constructor(
     suspend fun get(key: K): V? {
         frontCache.getIfPresent(key)?.let { return it }
         log.debug { "Front Cache 미스 - Hazelcast IMap에서 조회. map=${backCache.name}, key=$key" }
-        val value = (backCache.getAsync(key) as java.util.concurrent.CompletableFuture<V?>).await()
+        val value = (backCache.getAsync(key) as CompletableFuture<V?>).await()
         if (value != null) {
             frontCache.put(key, value)
         }
@@ -103,7 +105,7 @@ class HazelcastSuspendNearCache<K: Any, V: Any> private constructor(
     suspend fun putAll(entries: Map<K, V>) {
         log.debug { "캐시 일괄 저장. map=${backCache.name}, size=${entries.size}" }
         entries.forEach { (k, v) -> frontCache.put(k, v) }
-        withContext(Dispatchers.IO) { backCache.putAll(entries) }
+        backCache.putAllAsync(entries).await()
     }
 
     /**
@@ -115,7 +117,7 @@ class HazelcastSuspendNearCache<K: Any, V: Any> private constructor(
     suspend fun remove(key: K) {
         frontCache.invalidate(key)
         log.debug { "캐시 삭제. map=${backCache.name}, key=$key" }
-        (backCache.removeAsync(key) as java.util.concurrent.CompletableFuture<V?>).await()
+        backCache.removeAsync(key).await()
     }
 
     /**
@@ -127,7 +129,7 @@ class HazelcastSuspendNearCache<K: Any, V: Any> private constructor(
     @Suppress("UNCHECKED_CAST")
     suspend fun containsKey(key: K): Boolean {
         if (frontCache.getIfPresent(key) != null) return true
-        return (backCache.getAsync(key) as java.util.concurrent.CompletableFuture<V?>).await() != null
+        return backCache.getAsync(key).await() != null
     }
 
     /**
@@ -166,6 +168,19 @@ class HazelcastSuspendNearCache<K: Any, V: Any> private constructor(
     suspend fun clearAll() {
         log.debug { "Front Cache와 Back Cache 모두 초기화. map=${backCache.name}" }
         frontCache.invalidateAll()
-        withContext(Dispatchers.IO) { backCache.clear() }
+        withContext(Dispatchers.IO) {
+            backCache.clear()
+        }
+    }
+
+    /**
+     * IMap 리소스를 해제합니다.
+     */
+    suspend fun destroy() {
+        log.debug { "캐시 소멸. map=${backCache.name}" }
+        frontCache.invalidateAll()
+        withContext(Dispatchers.IO) {
+            backCache.destroy()
+        }
     }
 }

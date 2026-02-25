@@ -8,12 +8,10 @@ import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 
 /**
  * [HazelcastNearCacheConfig]의 기본값과 [NearCacheConfig] 변환을 검증하는 테스트입니다.
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class HazelcastNearCacheConfigTest {
 
     @Test

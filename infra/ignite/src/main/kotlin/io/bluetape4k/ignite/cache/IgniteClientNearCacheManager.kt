@@ -1,5 +1,6 @@
 package io.bluetape4k.ignite.cache
 
+import io.bluetape4k.ignite.cache.coroutines.IgniteClientSuspendNearCache
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
@@ -9,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * [IgniteClientNearCache]와 [IgniteClientSuspendNearCache]를 생성하고 생명주기를 관리하는 Manager 클래스입니다.
+ * [IgniteClientNearCache]와 [io.bluetape4k.ignite.cache.coroutines.IgniteClientSuspendNearCache]를 생성하고 생명주기를 관리하는 Manager 클래스입니다.
  *
  * 동일한 이름의 캐시를 중복 생성하지 않고 재사용하는 getOrCreate 시멘틱을 제공하며,
  * [close] 호출 시 관리 중인 모든 캐시의 Front Cache(Caffeine)를 정리합니다.

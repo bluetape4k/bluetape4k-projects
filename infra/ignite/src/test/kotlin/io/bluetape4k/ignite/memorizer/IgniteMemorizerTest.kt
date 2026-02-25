@@ -10,7 +10,6 @@ import org.apache.ignite.Ignite
 import org.apache.ignite.IgniteCache
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertTimeout
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
@@ -21,7 +20,6 @@ import kotlin.system.measureTimeMillis
  *
  * 임베디드 Ignite 노드를 사용하여 Docker 서버 없이 테스트합니다.
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class IgniteMemorizerTest {
 
     companion object: KLogging() {

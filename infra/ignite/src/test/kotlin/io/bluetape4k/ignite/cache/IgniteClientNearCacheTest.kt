@@ -9,14 +9,12 @@ import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 
 /**
  * [IgniteClientNearCache]의 CRUD 및 Front Cache 동작을 검증하는 통합 테스트입니다.
  *
  * Docker로 Ignite 2.x 서버를 실행하고, 씬 클라이언트로 연결하여 테스트합니다.
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class IgniteClientNearCacheTest: AbstractIgniteTest() {
 
     companion object: KLogging() {

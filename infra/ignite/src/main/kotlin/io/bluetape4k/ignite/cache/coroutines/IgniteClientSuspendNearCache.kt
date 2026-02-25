@@ -1,7 +1,8 @@
-package io.bluetape4k.ignite.cache
+package io.bluetape4k.ignite.cache.coroutines
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
+import io.bluetape4k.ignite.cache.IgniteNearCacheConfig
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.Dispatchers
@@ -55,7 +56,7 @@ class IgniteClientSuspendNearCache<K: Any, V: Any> private constructor(
             if (config.frontCacheTtlSeconds > 0) {
                 caffeineBuilder.expireAfterWrite(config.frontCacheTtlSeconds, TimeUnit.SECONDS)
             }
-            val frontCache = caffeineBuilder.build<K, V>()
+            val frontCache: Cache<K, V> = caffeineBuilder.build()
 
             return IgniteClientSuspendNearCache(backCache, frontCache)
         }

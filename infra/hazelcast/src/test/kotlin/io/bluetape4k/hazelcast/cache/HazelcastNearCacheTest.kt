@@ -4,7 +4,6 @@ import com.hazelcast.client.config.ClientConfig
 import io.bluetape4k.hazelcast.AbstractHazelcastTest
 import io.bluetape4k.hazelcast.hazelcastClient
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
@@ -12,14 +11,12 @@ import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 
 /**
  * [HazelcastNearCache]의 CRUD 동작을 검증하는 통합 테스트입니다.
  *
  * Docker로 Hazelcast 서버를 실행하고 클라이언트 Near Cache를 활성화하여 테스트합니다.
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class HazelcastNearCacheTest: AbstractHazelcastTest() {
 
     companion object: KLogging() {

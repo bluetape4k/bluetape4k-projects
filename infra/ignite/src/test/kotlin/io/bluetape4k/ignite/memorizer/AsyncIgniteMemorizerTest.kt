@@ -7,7 +7,6 @@ import io.bluetape4k.utils.ShutdownQueue
 import org.amshove.kluent.shouldBeEqualTo
 import org.apache.ignite.Ignite
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertTimeout
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
@@ -20,7 +19,6 @@ import kotlin.system.measureTimeMillis
  *
  * 임베디드 Ignite 노드를 사용하여 Docker 서버 없이 테스트합니다.
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AsyncIgniteMemorizerTest {
 
     companion object: KLogging() {

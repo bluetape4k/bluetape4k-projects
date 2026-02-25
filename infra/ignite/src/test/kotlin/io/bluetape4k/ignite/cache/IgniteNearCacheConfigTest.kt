@@ -4,12 +4,10 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
 import org.apache.ignite.cache.CacheMode
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 
 /**
  * [IgniteNearCacheConfig]의 기본값과 변환 메서드를 검증하는 테스트입니다.
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class IgniteNearCacheConfigTest {
 
     @Test

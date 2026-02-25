@@ -7,7 +7,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -16,7 +15,6 @@ import kotlin.time.Duration.Companion.seconds
  * Docker로 Hazelcast 서버를 실행하고 [HazelcastSuspendMemorizer]를 통해
  * suspend 함수의 결과 캐싱 동작을 검증합니다.
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class HazelcastSuspendMemorizerTest: AbstractHazelcastTest() {
 
     companion object: KLogging() {

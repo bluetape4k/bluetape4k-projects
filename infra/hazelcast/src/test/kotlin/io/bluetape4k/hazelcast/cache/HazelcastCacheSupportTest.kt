@@ -7,7 +7,6 @@ import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 
 /**
  * [hazelcastNearCache], [hazelcastClientConfig], [ClientConfig.withNearCaches] 편의 함수를
@@ -15,7 +14,6 @@ import org.junit.jupiter.api.TestInstance
  *
  * Docker로 Hazelcast 서버를 실행하고 각 팩토리 함수 동작을 검증합니다.
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class HazelcastCacheSupportTest: AbstractHazelcastTest() {
 
     companion object: KLogging()
