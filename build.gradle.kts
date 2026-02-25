@@ -399,6 +399,15 @@ subprojects {
             dependency(Libs.jackson_module_blackbird)
             dependency(Libs.jackson_module_jsonSchema)
 
+            dependency(Libs.jackson_dataformat_avro)
+            dependency(Libs.jackson_dataformat_cbor)
+            dependency(Libs.jackson_dataformat_ion)
+            dependency(Libs.jackson_dataformat_protobuf)
+            dependency(Libs.jackson_dataformat_smile)
+            dependency(Libs.jackson_dataformat_csv)
+            dependency(Libs.jackson_dataformat_properties)
+            dependency(Libs.jackson_dataformat_yaml)
+
             // Retrofit
             dependency(Libs.retrofit2)
             dependency(Libs.retrofit2_adapter_java8)
