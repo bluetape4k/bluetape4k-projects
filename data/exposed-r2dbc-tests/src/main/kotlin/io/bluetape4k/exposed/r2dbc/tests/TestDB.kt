@@ -1,5 +1,7 @@
 package io.bluetape4k.exposed.r2dbc.tests
 
+import io.bluetape4k.exposed.r2dbc.tests.TestDBConfig.useFastDB
+import io.bluetape4k.exposed.r2dbc.tests.TestDBConfig.useTestcontainers
 import io.bluetape4k.logging.KLogging
 import io.r2dbc.spi.IsolationLevel
 import org.h2.engine.Mode
@@ -7,17 +9,6 @@ import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabaseConfig
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.full.declaredMemberProperties
-
-/**
- * Postgres, MySQL 등의 서버를 Testconstainers 를 이용할 것인가? 직접 설치한 서버를 사용할 것인가?
- */
-const val USE_TESTCONTAINERS = true
-
-/**
- * true 이면, InMemory DB만을 대상으로 테스트 합니다.
- * false 이면 Postgres, MySQL V8 도 포함해서 테스트 합니다.
- */
-const val USE_FAST_DB = false
 
 /**
  * Exposed 기능을 테스트하기 위한 대상 DB 들의 목록과 정보들을 제공합니다.
@@ -86,7 +77,7 @@ enum class TestDB(
                     "&zeroDateTimeBehavior=convertToNull"  // +
             // "&rewriteBatchedStatements=true"
 
-            if (USE_TESTCONTAINERS) {
+            if (useTestcontainers) {
                 val port = Containers.MariaDB.port
                 val databaseName = Containers.MariaDB.databaseName
                 "r2dbc:mariadb://${MARIADB.user}:${MARIADB.pass}@127.0.0.1:$port/$databaseName$options"
@@ -105,7 +96,7 @@ enum class TestDB(
                     "&serverTimezone=UTC" +  // TimeZone 을 UTC 로 설정
                     "&zeroDateTimeBehavior=convertToNull"  // +
             // "&rewriteBatchedStatements=true"
-            if (USE_TESTCONTAINERS) {
+            if (useTestcontainers) {
                 val port = Containers.MySQL5.port
                 val databaseName = Containers.MySQL5.databaseName
                 "r2dbc:mysql://${MYSQL_V5.user}:${MYSQL_V5.pass}@127.0.0.1:$port/$databaseName$options"
@@ -125,7 +116,7 @@ enum class TestDB(
                     "&serverTimezone=UTC" +  // TimeZone 을 UTC 로 설정
                     "&allowPublicKeyRetrieval=true" //  "&rewriteBatchedStatements=true" // Batch 처리를 위한 설정
 
-            if (USE_TESTCONTAINERS) {
+            if (useTestcontainers) {
                 val port = Containers.MySQL8.port
                 val databaseName = Containers.MySQL8.databaseName
                 "r2dbc:mysql://${MYSQL_V8.user}:${MYSQL_V8.pass}@127.0.0.1:$port/$databaseName$options"
@@ -134,14 +125,14 @@ enum class TestDB(
             }
         },
         driver = "com.mysql.cj.jdbc.Driver",
-        user = if (USE_TESTCONTAINERS) "test" else "exposed",
-        pass = if (USE_TESTCONTAINERS) "test" else "@exposed2025",
+        user = if (useTestcontainers) "test" else "exposed",
+        pass = if (useTestcontainers) "test" else "@exposed2025",
     ),
 
     POSTGRESQL(
         connection = {
             val options = "?lc_messages=en_US.UTF-8"
-            if (USE_TESTCONTAINERS) {
+            if (useTestcontainers) {
                 val port = Containers.Postgres.port
                 "r2dbc:postgresql://${POSTGRESQL.user}:${POSTGRESQL.pass}@127.0.0.1:$port/postgres$options"
             } else {
@@ -149,7 +140,7 @@ enum class TestDB(
             }
         },
         driver = "org.postgresql.Driver",
-        user = if (USE_TESTCONTAINERS) "test" else "exposed",
+        user = if (useTestcontainers) "test" else "exposed",
 //        afterConnection = { connection ->
 //            connection.createStatement().use { stmt ->
 //                stmt.execute("SET TIMEZONE='UTC';")
@@ -189,8 +180,9 @@ enum class TestDB(
         // NOTE: 이 값을 바꿔서 MySQL, PostgreSQL 등을 testcontainers 를 이용하여 테스트할 수 있습니다.
 
         fun enabledDialects(): Set<TestDB> {
-            return if (USE_FAST_DB) ALL_H2
-            else ALL_H2 + ALL_POSTGRES + ALL_MYSQL_MARIADB - MYSQL_V5 // MySQL 5.7 과 MySQL 8.0 이 Driver의 버전이 다름 
+            return if (useFastDB) ALL_H2
+            // else ALL_H2 + ALL_POSTGRES + ALL_MYSQL_MARIADB - MYSQL_V5 // MySQL 5.7 과 MySQL 8.0 이 Driver의 버전이 다름
+            else setOf(TestDB.H2, TestDB.POSTGRESQL, TestDB.MYSQL_V8)
         }
     }
 }

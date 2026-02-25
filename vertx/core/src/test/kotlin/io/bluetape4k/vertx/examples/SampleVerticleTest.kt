@@ -48,7 +48,7 @@ class SampleVerticleTest: AbstractVertxTest() {
     }
 
     @Test
-    fun `use SampleVerticle`(vertx: Vertx, testContext: VertxTestContext) {
+    fun `use SampleVerticle`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
         val deploymentCheckpoint = testContext.checkpoint()
         val requestCheckpoint = testContext.checkpoint(REPEAT_SIZE)
 
@@ -57,7 +57,7 @@ class SampleVerticleTest: AbstractVertxTest() {
             .onSuccess {
                 deploymentCheckpoint.flag()
                 Thread.sleep(1)
-                
+
                 val webClient = WebClient.create(vertx)
 
                 repeat(REPEAT_SIZE) {

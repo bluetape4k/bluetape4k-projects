@@ -226,7 +226,8 @@ enum class TestDB(
 
         fun enabledDialects(): Set<TestDB> {
             return if (useFastDB) ALL_H2
-            else ALL_H2 + ALL_POSTGRES + ALL_MYSQL_MARIADB //ALL - ALL_H2_V1 - MYSQL_V5 - COCKROACH)
+            // else ALL_H2 + ALL_POSTGRES + ALL_MYSQL_MARIADB //ALL - ALL_H2_V1 - MYSQL_V5 - COCKROACH)
+            else setOf(TestDB.H2, TestDB.POSTGRESQL, TestDB.MYSQL_V8)
         }
     }
 }

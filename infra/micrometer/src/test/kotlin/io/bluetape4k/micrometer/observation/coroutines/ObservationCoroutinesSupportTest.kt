@@ -64,6 +64,8 @@ class ObservationCoroutinesSupportTest: AbstractObservationTest() {
             currentObservationInContext().shouldNotBeNull()
         }
 
+        yield()
+        
         ObservationRegistryAssert.assertThat(observationRegistry)
             .doesNotHaveAnyRemainingCurrentObservation()
     }
