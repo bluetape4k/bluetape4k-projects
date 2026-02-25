@@ -1,7 +1,7 @@
 package io.bluetape4k.exposed.r2dbc.domain.repository
 
 import io.bluetape4k.exposed.core.HasIdentifier
-import io.bluetape4k.exposed.dao.id.SoftDeletedIdTable
+import io.bluetape4k.exposed.core.dao.id.SoftDeletedIdTable
 import io.bluetape4k.exposed.r2dbc.repository.SoftDeletedR2dbcRepository
 import io.bluetape4k.exposed.r2dbc.tests.AbstractExposedR2dbcTest
 import io.bluetape4k.exposed.r2dbc.tests.TestDB

@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
 import io.bluetape4k.coroutines.support.awaitSuspending
-import io.bluetape4k.exposed.dao.id.TimebasedUUIDTable
+import io.bluetape4k.exposed.core.dao.id.TimebasedUUIDTable
 import io.bluetape4k.javatimes.millis
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO

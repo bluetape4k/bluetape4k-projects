@@ -2,8 +2,7 @@ package io.bluetape4k.exposed.r2dbc.redisson.domain
 
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.exposed.core.HasIdentifier
-import io.bluetape4k.exposed.dao.id.TimebasedUUIDBase62Table
-import io.bluetape4k.exposed.dao.id.TimebasedUUIDTable
+import io.bluetape4k.exposed.core.dao.id.TimebasedUUIDTable
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
 import io.bluetape4k.exposed.r2dbc.tests.withTables
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid

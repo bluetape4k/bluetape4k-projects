@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.dao.id
 
+import io.bluetape4k.exposed.core.dao.id.KsuidMillisTable
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.idHashCode
 import io.bluetape4k.exposed.dao.toStringBuilder

@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.core
 
-import io.bluetape4k.exposed.dao.id.SnowflakeIdTable
+import io.bluetape4k.exposed.core.dao.id.SnowflakeIdTable
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withTablesSuspending

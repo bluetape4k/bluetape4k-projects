@@ -1,9 +1,9 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
+import io.bluetape4k.exposed.core.dao.id.SnowflakeIdTable
 import io.bluetape4k.exposed.dao.entityToStringBuilder
 import io.bluetape4k.exposed.dao.id.SnowflakeIdEntity
 import io.bluetape4k.exposed.dao.id.SnowflakeIdEntityClass
-import io.bluetape4k.exposed.dao.id.SnowflakeIdTable
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.idHashCode
 import org.jetbrains.exposed.v1.core.ResultRow

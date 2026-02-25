@@ -1,7 +1,7 @@
 package io.bluetape4k.exposed.repository
 
 import io.bluetape4k.exposed.core.HasIdentifier
-import io.bluetape4k.exposed.dao.id.SoftDeletedIdTable
+import io.bluetape4k.exposed.core.dao.id.SoftDeletedIdTable
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and

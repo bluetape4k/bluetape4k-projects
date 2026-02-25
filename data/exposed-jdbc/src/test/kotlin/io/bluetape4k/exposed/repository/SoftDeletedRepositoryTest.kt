@@ -1,8 +1,8 @@
 package io.bluetape4k.exposed.repository
 
 import io.bluetape4k.exposed.core.HasIdentifier
+import io.bluetape4k.exposed.core.dao.id.SoftDeletedIdTable
 import io.bluetape4k.exposed.dao.entityToStringBuilder
-import io.bluetape4k.exposed.dao.id.SoftDeletedIdTable
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.idHashCode
 import io.bluetape4k.exposed.tests.AbstractExposedTest
