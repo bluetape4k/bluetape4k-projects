@@ -3,26 +3,16 @@ configurations {
 }
 
 dependencies {
-    api(project(":bluetape4k-io"))
-    api(project(":bluetape4k-idgenerators"))
+    api(project(":bluetape4k-cache-core"))
+    api(project(":bluetape4k-cache-local"))
+    api(project(":bluetape4k-cache-redisson"))
+    api(project(":bluetape4k-cache-hazelcast"))
+    api(project(":bluetape4k-cache-ignite"))
+
+    testImplementation(testFixtures(project(":bluetape4k-cache-core")))
     testImplementation(project(":bluetape4k-netty"))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-
-    // Cache Providers
-    compileOnly(Libs.caffeine)
-    compileOnly(Libs.caffeine_jcache)
-    compileOnly(Libs.cache2k_core)
-    compileOnly(Libs.cache2k_jcache)
-    compileOnly(Libs.ehcache)
-    compileOnly(Libs.ehcache_clustered)
-    compileOnly(Libs.ehcache_transactions)
-
-    compileOnly(Libs.redisson)
-    compileOnly(Libs.hazelcast)
-    compileOnly(Libs.ignite_core)
-    compileOnly(Libs.ignite_clients)
-    compileOnly(Libs.jackson_module_kotlin)
 
     // Codecs
     testImplementation(Libs.fory_kotlin)
@@ -33,8 +23,6 @@ dependencies {
     testImplementation(Libs.snappy_java)
     testImplementation(Libs.zstd_jni)
 
-    compileOnly(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)
 
     testImplementation(Libs.springBootStarter("cache"))
