@@ -42,7 +42,7 @@ class HazelcastCacheSupportTest: AbstractHazelcastTest() {
     @Test
     fun `ClientConfig 기반 hazelcastNearCache로 NearCache 생성`() {
         val mapName = "support-test-map-2"
-        val nearCacheConfig = HazelcastNearCacheConfig(mapName = mapName)
+        val nearCacheConfig = HazelcastNearCacheConfig(cacheName = mapName)
         val clientConfig = ClientConfig().apply {
             networkConfig.addAddress(hazelcastServer.url)
             addNearCacheConfig(nearCacheConfig.toNearCacheConfig())
@@ -80,8 +80,8 @@ class HazelcastCacheSupportTest: AbstractHazelcastTest() {
 
         val clientConfig = hazelcastClientConfig(address)
             .withNearCaches(
-                HazelcastNearCacheConfig(mapName = mapName1),
-                HazelcastNearCacheConfig(mapName = mapName2),
+                HazelcastNearCacheConfig(cacheName = mapName1),
+                HazelcastNearCacheConfig(cacheName = mapName2),
             )
 
         clientConfig.shouldNotBeNull()

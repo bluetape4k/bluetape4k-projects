@@ -36,7 +36,7 @@ class HazelcastMemorizerTest: AbstractHazelcastTest() {
     fun setup() {
         callCount = AtomicInteger(0)
 
-        val nearCacheConfig = HazelcastNearCacheConfig(mapName = MAP_NAME)
+        val nearCacheConfig = HazelcastNearCacheConfig(cacheName = MAP_NAME)
         val clientConfig = ClientConfig().apply {
             networkConfig.addAddress(hazelcastServer.url)
             addNearCacheConfig(nearCacheConfig.toNearCacheConfig())

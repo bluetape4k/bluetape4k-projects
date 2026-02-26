@@ -73,7 +73,7 @@ class AsyncHazelcastMemorizer<K: Any, V: Any>(
     @Suppress("UNCHECKED_CAST")
     override fun invoke(key: K): CompletableFuture<V> {
         return inFlight.computeIfAbsent(key) {
-            val promise = (map.getAsync(key) as CompletableFuture<V?>)
+            val promise = map.getAsync(key).toCompletableFuture()
                 .flatMap { cached ->
                     if (cached != null) {
                         log.debug { "캐시 히트. key=$key" }
@@ -89,7 +89,6 @@ class AsyncHazelcastMemorizer<K: Any, V: Any>(
                             }
                     }
                 }
-                .toCompletableFuture()
 
             promise.whenComplete { _, _ -> inFlight.remove(key, promise) }
             promise

@@ -62,7 +62,7 @@ class HazelcastSuspendMemorizer<K: Any, V: Any>(
 
     @Suppress("UNCHECKED_CAST")
     override suspend fun invoke(key: K): V {
-        val cached: V? = (map.getAsync(key) as java.util.concurrent.CompletableFuture<V?>).await()
+        val cached: V? = map.getAsync(key).await()
         if (cached != null) {
             log.debug { "캐시 히트. key=$key" }
             return cached

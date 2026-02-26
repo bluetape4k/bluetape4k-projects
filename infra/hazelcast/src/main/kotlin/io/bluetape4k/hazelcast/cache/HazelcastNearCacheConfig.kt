@@ -26,7 +26,7 @@ import java.io.Serializable
  * val map = client.getMap<String, MyEntity>("my-map") // Near Cache 자동 적용
  * ```
  *
- * @property mapName Near Cache를 적용할 [com.hazelcast.map.IMap] 이름 (와일드카드 `*` 사용 가능)
+ * @property cacheName Near Cache를 적용할 [com.hazelcast.map.IMap] 이름 (와일드카드 `*` 사용 가능)
  * @property timeToLiveSeconds 항목의 최대 생존 시간 (초), 0이면 무제한
  * @property maxIdleSeconds 마지막 접근 후 최대 유휴 시간 (초), 0이면 무제한
  * @property maxSize Near Cache의 최대 항목 수
@@ -35,7 +35,7 @@ import java.io.Serializable
  * @property inMemoryFormat Near Cache 저장 형식 (BINARY 또는 OBJECT)
  */
 data class HazelcastNearCacheConfig(
-    val mapName: String,
+    val cacheName: String,
     val timeToLiveSeconds: Int = 60,
     val maxIdleSeconds: Int = 120,
     val maxSize: Int = 10_000,
@@ -47,14 +47,14 @@ data class HazelcastNearCacheConfig(
 
     companion object {
         /** 기본 Near Cache 설정 (맵 이름을 지정해야 합니다) */
-        fun default(mapName: String) = HazelcastNearCacheConfig(mapName = mapName)
+        fun default(mapName: String) = HazelcastNearCacheConfig(cacheName = mapName)
 
         /**
          * 읽기 전용(Read-Only)에 최적화된 Near Cache 설정입니다.
          * TTL이 길고 무효화를 비활성화합니다.
          */
         fun readOnly(mapName: String) = HazelcastNearCacheConfig(
-            mapName = mapName,
+            cacheName = mapName,
             timeToLiveSeconds = 3600,
             maxIdleSeconds = 0,
             invalidateOnChange = false,
@@ -67,7 +67,7 @@ data class HazelcastNearCacheConfig(
      * @return Hazelcast [NearCacheConfig] 인스턴스
      */
     fun toNearCacheConfig(): NearCacheConfig =
-        NearCacheConfig(mapName).apply {
+        NearCacheConfig(cacheName).apply {
             timeToLiveSeconds = this@HazelcastNearCacheConfig.timeToLiveSeconds
             maxIdleSeconds = this@HazelcastNearCacheConfig.maxIdleSeconds
             isInvalidateOnChange = invalidateOnChange

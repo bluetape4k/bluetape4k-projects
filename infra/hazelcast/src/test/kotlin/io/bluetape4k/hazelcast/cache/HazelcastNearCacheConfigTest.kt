@@ -16,9 +16,9 @@ class HazelcastNearCacheConfigTest {
 
     @Test
     fun `기본값으로 생성된 HazelcastNearCacheConfig 검증`() {
-        val config = HazelcastNearCacheConfig(mapName = "test-map")
+        val config = HazelcastNearCacheConfig(cacheName = "test-map")
 
-        config.mapName shouldBeEqualTo "test-map"
+        config.cacheName shouldBeEqualTo "test-map"
         config.timeToLiveSeconds shouldBeEqualTo 60
         config.maxIdleSeconds shouldBeEqualTo 120
         config.maxSize shouldBeEqualTo 10_000
@@ -32,7 +32,7 @@ class HazelcastNearCacheConfigTest {
     fun `default 팩토리로 생성한 설정이 기본값과 동일함`() {
         val config = HazelcastNearCacheConfig.default("my-map")
 
-        config.mapName shouldBeEqualTo "my-map"
+        config.cacheName shouldBeEqualTo "my-map"
         config.timeToLiveSeconds shouldBeEqualTo 60
         config.maxIdleSeconds shouldBeEqualTo 120
         config.maxSize shouldBeEqualTo 10_000
@@ -44,7 +44,7 @@ class HazelcastNearCacheConfigTest {
     fun `readOnly 팩토리로 생성한 설정이 읽기 전용 값을 가짐`() {
         val config = HazelcastNearCacheConfig.readOnly("read-only-map")
 
-        config.mapName shouldBeEqualTo "read-only-map"
+        config.cacheName shouldBeEqualTo "read-only-map"
         config.timeToLiveSeconds shouldBeEqualTo 3600
         config.maxIdleSeconds shouldBeEqualTo 0
         config.invalidateOnChange.shouldBeFalse()
@@ -53,7 +53,7 @@ class HazelcastNearCacheConfigTest {
     @Test
     fun `toNearCacheConfig 변환 시 NearCacheConfig가 올바르게 생성됨`() {
         val config = HazelcastNearCacheConfig(
-            mapName = "convert-map",
+            cacheName = "convert-map",
             timeToLiveSeconds = 30,
             maxIdleSeconds = 60,
             maxSize = 500,

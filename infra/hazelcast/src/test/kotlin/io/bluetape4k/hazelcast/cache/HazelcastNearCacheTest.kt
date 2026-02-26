@@ -27,7 +27,7 @@ class HazelcastNearCacheTest: AbstractHazelcastTest() {
 
     @BeforeEach
     fun setup() {
-        val nearCacheConfig = HazelcastNearCacheConfig(mapName = MAP_NAME)
+        val nearCacheConfig = HazelcastNearCacheConfig(cacheName = MAP_NAME)
         val clientConfig = ClientConfig().apply {
             networkConfig.addAddress(hazelcastServer.url)
             addNearCacheConfig(nearCacheConfig.toNearCacheConfig())

@@ -29,7 +29,7 @@ class HazelcastSuspendNearCacheTest: AbstractHazelcastTest() {
 
     @BeforeEach
     fun setup() = runBlocking {
-        val config = HazelcastNearCacheConfig(mapName = MAP_NAME)
+        val config = HazelcastNearCacheConfig(cacheName = MAP_NAME)
         nearCache = HazelcastSuspendNearCache(hazelcastClient.getMap(MAP_NAME), config)
         nearCache.clearAll()
     }
