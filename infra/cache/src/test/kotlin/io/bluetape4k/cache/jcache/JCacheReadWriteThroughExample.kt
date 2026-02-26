@@ -29,7 +29,7 @@ class JCacheReadWriteThroughExample {
             Fakers.randomString(512, 1024)
     }
 
-    private val remoteCache = JCaching.EhCache.getOrCreate<String, Any>("remote")
+    private val backCache = JCaching.EhCache.getOrCreate<String, Any>("back-cache")
 
     private fun <K, V> cacheLoader(source: Cache<K, V>): CacheLoader<K, V> =
         object: CacheLoader<K, V> {
@@ -62,23 +62,23 @@ class JCacheReadWriteThroughExample {
 
     private val configuration = jcacheConfiguration<String, Any> {
         isReadThrough = true
-        setCacheLoaderFactory { cacheLoader(remoteCache) }
+        setCacheLoaderFactory { cacheLoader(backCache) }
 
         isWriteThrough = true
-        setCacheWriterFactory { cacheWriter(remoteCache) }
+        setCacheWriterFactory { cacheWriter(backCache) }
     }
 
-    private val nearCache = JCaching.Caffeine.getOrCreate("near-cache", configuration)
+    private val frontCache = JCaching.Caffeine.getOrCreate("front-cache", configuration)
 
     @BeforeEach
     fun setup() {
-        nearCache.clear()
-        remoteCache.clear()
+        frontCache.clear()
+        backCache.clear()
     }
 
     @AfterAll
     fun afterAll() {
-        nearCache.close()
+        frontCache.close()
     }
 
     @Test
@@ -86,11 +86,11 @@ class JCacheReadWriteThroughExample {
         val key = randomKey()
         val value = randomString()
 
-        nearCache.put(key, value)
-        remoteCache.get(key) shouldBeEqualTo value
+        frontCache.put(key, value)
+        backCache.get(key) shouldBeEqualTo value
 
-        nearCache.remove(key)
-        remoteCache.containsKey(key).shouldBeFalse()
+        frontCache.remove(key)
+        backCache.containsKey(key).shouldBeFalse()
     }
 
     @Test
@@ -101,9 +101,9 @@ class JCacheReadWriteThroughExample {
             key to value
         }.toMap()
 
-        nearCache.putAll(entries)
+        frontCache.putAll(entries)
 
-        val remoteEntries = remoteCache.getAll(entries.keys)
+        val remoteEntries = backCache.getAll(entries.keys)
         remoteEntries.toSortedMap() shouldBeEqualTo entries.toSortedMap()
     }
 
@@ -112,12 +112,12 @@ class JCacheReadWriteThroughExample {
         val key = randomKey()
         val value = randomString()
 
-        nearCache.put(key, value)
-        remoteCache.containsKey(key).shouldBeTrue()
+        frontCache.put(key, value)
+        backCache.containsKey(key).shouldBeTrue()
 
         // clear 는 write through를 하지 않는다
-        nearCache.clear()
-        remoteCache.containsKey(key).shouldBeTrue()
+        frontCache.clear()
+        backCache.containsKey(key).shouldBeTrue()
     }
 
     @Test
@@ -125,11 +125,11 @@ class JCacheReadWriteThroughExample {
         val key = randomKey()
         val value = randomString()
 
-        nearCache.put(key, value)
-        remoteCache.containsKey(key).shouldBeTrue()
+        frontCache.put(key, value)
+        backCache.containsKey(key).shouldBeTrue()
 
-        nearCache.removeAll()
-        remoteCache.containsKey(key).shouldBeFalse()
+        frontCache.removeAll()
+        backCache.containsKey(key).shouldBeFalse()
     }
 
     @Test
@@ -137,11 +137,11 @@ class JCacheReadWriteThroughExample {
         val key = randomKey()
         val value = randomString()
 
-        nearCache.containsKey(key).shouldBeFalse()
-        remoteCache.put(key, value)
+        frontCache.containsKey(key).shouldBeFalse()
+        backCache.put(key, value)
 
         // NOTE: remote 에 key를 추가하면 near에서도 read 는 가능해도 containsKey 는 load 하지 않는다
         // Layered 가 되었다면 순차적으로 caches 에게 containsKey를 수행해야 한다
-        nearCache.containsKey(key).shouldBeFalse()
+        frontCache.containsKey(key).shouldBeFalse()
     }
 }

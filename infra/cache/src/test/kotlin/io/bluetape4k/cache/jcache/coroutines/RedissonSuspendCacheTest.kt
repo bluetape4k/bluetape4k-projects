@@ -14,7 +14,7 @@ class RedissonSuspendCacheTest: AbstractSuspendCacheTest() {
 
     override val suspendCache: SuspendCache<String, Any> =
         RedissonSuspendCache(
-            "coroutine-cache-" + UUID.randomUUID().encodeBase62(),
+            "redis-suspend-cache-" + UUID.randomUUID().encodeBase62(),
             redisson,
             MutableConfiguration()
         )
