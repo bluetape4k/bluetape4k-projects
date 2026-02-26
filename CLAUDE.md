@@ -6,6 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Bluetape4k은 Kotlin 언어로 JVM 환경에서 Backend 개발 시 사용하는 공용 라이브러리 모음입니다. Kotlin의 장점을 최대화하고, 기존 Java 라이브러리를 개선하며, Kotlin Coroutines 기반의 async/non-blocking 개발을 지원합니다.
 
+## Claude 작업 지침
+
+- Rate Limit 이 다가오면 Memory.md 에 현재까지의 Context 를 저장해서 토큰을 절약할 것
+- 작업 시 Python 코드 제작은 자제하고, Read/Edit 방식으로 작업할 것
+
 ## Development Guidelines
 
 ### Language and Documentation
