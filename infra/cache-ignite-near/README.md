@@ -47,3 +47,45 @@ val nearSuspend = IgniteNearSuspendCache(
     frontSuspendCache = myFrontSuspendCache,
 )
 ```
+
+## 동작 시퀀스
+
+### 1. Read-through (Front miss -> Back hit)
+
+```mermaid
+sequenceDiagram
+    participant A as App
+    participant F as Front Cache
+    participant B as Back Cache (Ignite)
+    A->>F: get(key)
+    F-->>A: miss
+    A->>B: get(key)
+    B-->>A: value
+    A->>F: put(key, value)
+    F-->>A: return value
+```
+
+### 2. Write-through + 전파
+
+```mermaid
+sequenceDiagram
+    participant A as NearCache-A
+    participant B as Back Cache (Ignite)
+    participant C as NearCache-B Front
+    A->>A: put(key, value)
+    A->>B: write-through put(key, value)
+    B-->>C: cache entry event (created/updated)
+    C->>C: front cache sync
+```
+
+### 3. Back 만료 -> Front 무효화
+
+```mermaid
+sequenceDiagram
+    participant T as Expiry Checker / Listener
+    participant B as Back Cache (Ignite)
+    participant F as Front Cache
+    T->>B: check key state
+    B-->>T: expired or missing
+    T->>F: remove(key)
+```
