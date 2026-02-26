@@ -183,4 +183,8 @@ object JCaching {
             }
         }
     }
+
+    // TODO: Hazelcast 추가하기 (참고: https://docs.hazelcast.com/hazelcast/5.6/jcache/setup)
+
+    // TODO: Ignite Cache 추가하기 (참고: https://www.perplexity.ai/search/apache-ignite-i-javax-cache-ca-Eg81D2rESBKyyp9Wi8DBcw)
 }
