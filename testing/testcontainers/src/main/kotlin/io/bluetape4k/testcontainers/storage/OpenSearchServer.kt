@@ -31,7 +31,7 @@ class OpenSearchServer private constructor(
 
     companion object Companion: KLogging() {
         const val IMAGE = "opensearchproject/opensearch"
-        const val TAG = "1"
+        const val TAG = "3"
         const val NAME = "opensearch"
 
         const val HTTP_PORT = 9200

@@ -4,13 +4,11 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchClients
 import kotlin.test.assertFailsWith
 
-@Disabled("Use OpensearchServer or ElasticsearchOssServer instead")
 @Suppress("DEPRECATION")
 class ElasticsearchServerTest: AbstractContainerTest() {
 

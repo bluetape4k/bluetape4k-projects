@@ -25,7 +25,6 @@ import org.testcontainers.utility.DockerImageName
  * @param useDefaultPort Default port 를 사용할지 여부
  * @param reuse          재사용 여부
  */
-@Deprecated("Use OpensearchServer or ElasticsearchOssServer instead")
 class ElasticsearchServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean,
@@ -35,7 +34,7 @@ class ElasticsearchServer private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "docker.elastic.co/elasticsearch/elasticsearch"
-        const val TAG = "8.9.0"
+        const val TAG = "9.3.1"
 
         const val NAME = "elasticsearch"
         const val DEFAULT_PASSWORD = LibraryName

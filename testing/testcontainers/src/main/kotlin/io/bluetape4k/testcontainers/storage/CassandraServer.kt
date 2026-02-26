@@ -48,7 +48,7 @@ class CassandraServer private constructor(
 
     companion object: KLogging() {
         const val IMAGE = "cassandra"
-        const val TAG = "4.1"
+        const val TAG = "5"
         const val NAME = "cassandra"
 
         const val LOCAL_DATACENTER1 = "datacenter1"
