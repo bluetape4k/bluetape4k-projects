@@ -6,8 +6,11 @@ dependencies {
     api(project(":bluetape4k-cache-core"))
     api(project(":bluetape4k-cache-local"))
     api(project(":bluetape4k-cache-redisson"))
+    api(project(":bluetape4k-cache-redisson-near"))
     api(project(":bluetape4k-cache-hazelcast"))
+    api(project(":bluetape4k-cache-hazelcast-near"))
     api(project(":bluetape4k-cache-ignite"))
+    api(project(":bluetape4k-cache-ignite-near"))
 
     testImplementation(testFixtures(project(":bluetape4k-cache-core")))
     testImplementation(project(":bluetape4k-netty"))
