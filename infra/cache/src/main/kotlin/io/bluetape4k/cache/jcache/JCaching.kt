@@ -1,7 +1,9 @@
 package io.bluetape4k.cache.jcache
 
 import com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
+import com.hazelcast.client.cache.HazelcastClientCachingProvider
 import org.ehcache.jsr107.EhcacheCachingProvider
+import org.apache.ignite.cache.CachingProvider as IgniteCachingProvider
 import org.redisson.api.RedissonClient
 import org.redisson.jcache.JCachingProvider
 import org.redisson.jcache.configuration.RedissonConfiguration
@@ -184,7 +186,41 @@ object JCaching {
         }
     }
 
-    // TODO: Hazelcast 추가하기 (참고: https://docs.hazelcast.com/hazelcast/5.6/jcache/setup)
+    /**
+     * [Hazelcast](https://hazelcast.com/) 를 사용하는 [javax.cache.Cache]`<K, V>`를 제공합니다.
+     */
+    object Hazelcast {
+        /**
+         * Hazelcast 에서 제공하는 [javax.cache.CacheManager]
+         */
+        val cacheManager by lazy { HazelcastClientCachingProvider().cacheManager }
 
-    // TODO: Ignite Cache 추가하기 (참고: https://www.perplexity.ai/search/apache-ignite-i-javax-cache-ca-Eg81D2rESBKyyp9Wi8DBcw)
+        /**
+         * [CacheManager]에서 [JCache]`<K, V>`를 생성하거나 가져옵니다.
+         */
+        inline fun <reified K, reified V> getOrCreate(
+            name: String,
+            configuration: Configuration<K, V> = getDefaultJCacheConfiguration(),
+        ): JCache<K, V> =
+            cacheManager.getOrCreate(name, configuration)
+    }
+
+    /**
+     * [Apache Ignite 2.x](https://ignite.apache.org/) 를 사용하는 [javax.cache.Cache]`<K, V>`를 제공합니다.
+     */
+    object Ignite2 {
+        /**
+         * Ignite 2.x 에서 제공하는 [javax.cache.CacheManager]
+         */
+        val cacheManager by lazy { IgniteCachingProvider().cacheManager }
+
+        /**
+         * [CacheManager]에서 [JCache]`<K, V>`를 생성하거나 가져옵니다.
+         */
+        inline fun <reified K, reified V> getOrCreate(
+            name: String,
+            configuration: Configuration<K, V> = getDefaultJCacheConfiguration(),
+        ): JCache<K, V> =
+            cacheManager.getOrCreate(name, configuration)
+    }
 }
