@@ -34,6 +34,7 @@ class ElasticsearchServerTest: AbstractContainerTest() {
                 val config = ElasticsearchServer.Launcher.getClientConfiguration(es)
                 val client = ElasticsearchClients.getRestClient(config)
                 client.isRunning.shouldBeTrue()
+                client.close()
             }
         }
     }

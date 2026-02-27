@@ -2,8 +2,8 @@ package io.bluetape4k.crypto.encrypt
 
 import io.bluetape4k.ToStringBuilder
 import io.bluetape4k.crypto.encrypt.AbstractEncryptor.Companion.DefaultIvGenerator
+import io.bluetape4k.crypto.encrypt.AbstractEncryptor.Companion.DefaultSaltGenerator
 import io.bluetape4k.crypto.registerBouncyCastleProvider
-import io.bluetape4k.crypto.zeroSaltGenerator
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
 import io.bluetape4k.utils.Runtimex
@@ -83,7 +83,7 @@ abstract class AbstractEncryptor protected constructor(
      * @return 복호화한 바이트 배열
      */
     override fun decrypt(encrypted: ByteArray?): ByteArray {
-        return encrypted?.run { encryptor.decrypt(this) } ?: emptyByteArray
+        return encrypted?.let { encryptor.decrypt(it) } ?: emptyByteArray
     }
 
     override fun toString(): String = ToStringBuilder(this)
