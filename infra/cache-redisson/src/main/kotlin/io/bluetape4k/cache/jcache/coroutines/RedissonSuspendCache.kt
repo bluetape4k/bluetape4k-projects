@@ -1,7 +1,7 @@
 package io.bluetape4k.cache.jcache.coroutines
 
-import io.bluetape4k.cache.jcache.jcacheManager
 import io.bluetape4k.cache.jcache.getDefaultJCacheConfiguration
+import io.bluetape4k.cache.jcache.jcacheManager
 import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.requireNotBlank
@@ -41,7 +41,7 @@ import javax.cache.configuration.MutableConfiguration
  * @param V value type
  * @property cache Redisson 기반의 [JCache] instance
  */
-class RedissonSuspendCache<K: Any, V: Any>(private val cache: JCache<K, V>): SuspendCache<K, V> {
+class RedissonSuspendCache<K: Any, V: Any>(private val cache: org.redisson.jcache.JCache<K, V>): SuspendCache<K, V> {
 
     companion object: KLoggingChannel() {
         @JvmStatic

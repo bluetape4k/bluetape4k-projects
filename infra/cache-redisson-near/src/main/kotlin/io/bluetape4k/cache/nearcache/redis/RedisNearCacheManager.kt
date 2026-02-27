@@ -363,6 +363,7 @@ class RedisNearCacheManager(
             log.info { "Destroy NearCache [$cacheName]" }
             cache.clearAllCache()
             cache.close()
+            caches.remove(cacheName)
         }
     }
 

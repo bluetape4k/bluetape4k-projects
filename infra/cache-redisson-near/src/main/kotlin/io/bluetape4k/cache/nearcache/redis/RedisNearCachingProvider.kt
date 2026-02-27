@@ -1,6 +1,6 @@
 package io.bluetape4k.cache.nearcache.redis
 
-import com.fasterxml.jackson.core.JsonProcessingException
+import io.bluetape4k.exceptions.BluetapeException
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
@@ -19,7 +19,7 @@ import javax.cache.spi.CachingProvider
 import kotlin.concurrent.withLock
 
 /**
- * [NearCache]를 제공하는 JCache [CachingProvider]의 구현체입니다.
+ * [io.bluetape4k.cache.nearcache.NearCache]를 제공하는 JCache [CachingProvider]의 구현체입니다.
  */
 class RedisNearCachingProvider: CachingProvider {
 
@@ -106,8 +106,6 @@ class RedisNearCachingProvider: CachingProvider {
             }
             yamlUrl?.let { config = Config.fromYAML(it) }
                 ?: throw FileNotFoundException("/redisson-jcache.yaml")
-        } catch (e: JsonProcessingException) {
-            throw CacheException(e)
         } catch (e: IOException) {
             try {
                 val jsonUrl = when (DEFAULT_URI_PATH) {
@@ -120,6 +118,8 @@ class RedisNearCachingProvider: CachingProvider {
             } catch (ex: IOException) {
                 // skip
             }
+        } catch (e: Exception) {
+            throw BluetapeException(e)
         }
         return config
     }

@@ -10,8 +10,9 @@ dependencies {
     api(project(":bluetape4k-cache-local"))
     api(project(":bluetape4k-cache-redisson"))
 
-    compileOnly(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
+    implementation(project(":bluetape4k-coroutines"))
+    implementation(Libs.kotlinx_coroutines_core)
+    testImplementation(Libs.kotlinx_coroutines_test)
 
     testImplementation(testFixtures(project(":bluetape4k-cache-core")))
     testImplementation(project(":bluetape4k-junit5"))

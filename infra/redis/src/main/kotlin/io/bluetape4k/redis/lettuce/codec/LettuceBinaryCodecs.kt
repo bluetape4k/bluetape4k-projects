@@ -17,7 +17,7 @@ object LettuceBinaryCodecs {
     fun <V: Any> compressedCodec(compressor: Compressor, serializer: BinarySerializer): LettuceBinaryCodec<V> =
         LettuceBinaryCodec(CompressableBinarySerializer(serializer, compressor))
 
-    private val protobufSerializer by lazy { ProtobufSerializer() }
+    private val protobufSerializer: BinarySerializer by lazy { ProtobufSerializer() }
 
     /**
      * Jdk Serializer를 사용하는 [LettuceBinaryCodec]를 생성합니다.

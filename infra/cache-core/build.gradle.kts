@@ -17,7 +17,6 @@ dependencies {
     compileOnly(Libs.kotlinx_coroutines_core)
 
     testFixturesApi(project(":bluetape4k-junit5"))
-    testFixturesImplementation("javax.cache:cache-api:1.1.1")
     testFixturesImplementation(Libs.kotlinx_coroutines_test)
 
     testImplementation(testFixtures(project(":bluetape4k-cache-core")))
