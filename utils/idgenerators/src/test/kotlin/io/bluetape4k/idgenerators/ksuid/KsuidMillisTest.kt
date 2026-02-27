@@ -68,7 +68,7 @@ class KsuidMillisTest {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @RepeatedTest(REPEAT_SIZE)
     fun `generate ksuid in virtual threads`() {
         val idMap = ConcurrentHashMap<String, Int>()

@@ -86,7 +86,7 @@ class CaptchaCodeGeneratorTest: AbstractCaptchaTest() {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `버추얼 스레딩 환경에서 안전하게 동작합니다`() {
         val codeGenerator = CaptchaCodeGenerator.DEFAULT

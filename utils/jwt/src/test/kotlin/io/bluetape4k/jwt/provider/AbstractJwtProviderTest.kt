@@ -137,7 +137,7 @@ abstract class AbstractJwtProviderTest: AbstractJwtTest() {
         uniqueJwts.size shouldBeEqualTo 1
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @RepeatedTest(REPEAT_SIZE)
     fun `compose jwt in virtual threads`() {
         val customData = randomString(1024)

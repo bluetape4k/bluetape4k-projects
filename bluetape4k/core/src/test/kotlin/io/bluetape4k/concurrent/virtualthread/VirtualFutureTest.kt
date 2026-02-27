@@ -74,7 +74,7 @@ class VirtualFutureTest {
         result shouldBeEqualTo emptyList()
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `run many tasks with virtual thread tester`() {
         val taskCount = AtomicInteger(0)

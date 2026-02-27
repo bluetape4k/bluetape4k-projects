@@ -82,7 +82,7 @@ class AtomicIntRoundrobinTest {
         atomic.get() shouldBeEqualTo 0
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `Virtual Thread 환경에서 라운드-로빈 방식으로 값을 증가시킨다`() {
         val atomic = AtomicIntRoundrobin(Runtimex.availableProcessors)

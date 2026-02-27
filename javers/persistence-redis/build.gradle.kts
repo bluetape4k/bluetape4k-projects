@@ -9,7 +9,7 @@ dependencies {
     api(project(":bluetape4k-jackson"))
     api(project(":bluetape4k-idgenerators"))
     compileOnly(project(":bluetape4k-hibernate"))
-    compileOnly(project(":bluetape4k-cache"))
+    compileOnly(project(":bluetape4k-cache-local"))
 
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))

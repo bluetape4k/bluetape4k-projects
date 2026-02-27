@@ -73,7 +73,7 @@ class GeoipCityFinderTest: AbstractGeoipTest() {
         }
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `Virtual Threads 에서 City 를 찾습니다`() {
         val ipAddresses = getIpAddresses()

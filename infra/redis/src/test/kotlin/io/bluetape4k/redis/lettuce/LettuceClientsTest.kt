@@ -53,7 +53,7 @@ class LettuceClientsTest: AbstractLettuceTest() {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `connect to redis server in virtual threads`() {
         StructuredTaskScopeTester()

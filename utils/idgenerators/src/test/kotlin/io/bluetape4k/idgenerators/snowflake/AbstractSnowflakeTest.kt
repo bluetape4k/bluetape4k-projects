@@ -120,7 +120,7 @@ abstract class AbstractSnowflakeTest {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `generate snowflake id in virtual threads`() {
         val idMap = ConcurrentHashMap<Long, Int>()
@@ -259,7 +259,7 @@ abstract class AbstractSnowflakeTest {
         snowflakeIds.distinct() shouldBeEqualTo ids.map { it.parseAsLong() }
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @RepeatedTest(REPEAT_SIZE)
     fun `parse snowflake id in virtual threads`() {
         val idMap = ConcurrentHashMap<Long, Int>()
@@ -317,7 +317,7 @@ abstract class AbstractSnowflakeTest {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @RepeatedTest(REPEAT_SIZE)
     fun `parse snowflake id in virtual threading`() {
         val idMap = ConcurrentHashMap<Long, Int>()
@@ -373,7 +373,7 @@ abstract class AbstractSnowflakeTest {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @RepeatedTest(REPEAT_SIZE)
     fun `parse snowflake id as base62 in virtual threads`() {
         val idMap = ConcurrentHashMap<String, Int>()
@@ -436,7 +436,7 @@ abstract class AbstractSnowflakeTest {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @RepeatedTest(REPEAT_SIZE)
     fun `parse snowflake ids as sequence in virtual threads`() {
         val idMap = ConcurrentHashMap<Long, Int>()

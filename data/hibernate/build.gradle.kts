@@ -124,7 +124,7 @@ dependencies {
     testImplementation(Libs.testcontainers_mysql)
 
     // Caching 테스트
-    testImplementation(project(":bluetape4k-cache"))
+    testImplementation(project(":bluetape4k-cache-local"))
     testImplementation(Libs.hibernate_jcache)
     testImplementation(Libs.caffeine_jcache)
 

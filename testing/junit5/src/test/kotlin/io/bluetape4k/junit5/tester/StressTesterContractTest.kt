@@ -24,7 +24,7 @@ class StressTesterContractTest {
         counter.get() shouldBeEqualTo 6
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `버추얼스레드 테스터는 StressTester 계약으로 실행된다`() {
         val counter = AtomicInteger(0)

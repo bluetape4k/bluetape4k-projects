@@ -95,7 +95,7 @@ class JsonUuidEncodeTest {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `convert uuid to base62 string in virtual threads`() {
         StructuredTaskScopeTester()

@@ -126,7 +126,7 @@ class LockSupportTest {
         counter shouldBeEqualTo 16
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `read and write lock in multi virtual thread`() {
         val lock = ReentrantReadWriteLock()

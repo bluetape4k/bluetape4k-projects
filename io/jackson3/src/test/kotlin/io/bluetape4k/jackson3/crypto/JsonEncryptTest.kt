@@ -103,7 +103,7 @@ class JsonEncryptTest {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `encrypt json property in virtual threads`() {
         StructuredTaskScopeTester()

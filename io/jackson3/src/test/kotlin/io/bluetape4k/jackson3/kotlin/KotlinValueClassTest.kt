@@ -74,7 +74,7 @@ class KotlinValueClassTest {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `json serdes value class in virtual threads`() {
         StructuredTaskScopeTester()

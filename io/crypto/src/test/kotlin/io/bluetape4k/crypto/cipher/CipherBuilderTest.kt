@@ -57,7 +57,7 @@ class CipherBuilderTest: AbstractCipherTest() {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `create AES cipher for encryption in virtual threads`() {
         StructuredTaskScopeTester()

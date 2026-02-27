@@ -82,7 +82,7 @@ class FutureSupportTest {
 
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `Massive Future as CompletaboeFuture in Virtual Threads`() {
         val counter = AtomicInteger(0)

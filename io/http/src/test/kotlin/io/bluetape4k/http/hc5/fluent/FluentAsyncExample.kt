@@ -114,7 +114,7 @@ class FluentAsyncExample: AbstractHc5Test() {
         }
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `execute multiple request in virtual threads`() {
         val async = Async.newInstance().use(VirtualThreadExecutor)

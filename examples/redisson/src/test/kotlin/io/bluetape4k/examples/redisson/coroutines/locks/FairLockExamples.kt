@@ -88,7 +88,7 @@ class FairLockExamples: AbstractRedissonCoroutineTest() {
         lockCounter.get() shouldBeEqualTo Runtimex.availableProcessors * 2 * 2
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `Virtual threads 에서 Fair Lock 을 제대로 획득합니다`() {
         val lock = redisson.getFairLock(randomName())

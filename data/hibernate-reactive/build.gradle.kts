@@ -87,7 +87,7 @@ dependencies {
     testImplementation(project(":bluetape4k-idgenerators"))
 
     // Caching 테스트
-    compileOnly(project(":bluetape4k-cache"))
+    compileOnly(project(":bluetape4k-cache-local"))
     testImplementation(Libs.springBootStarter("cache"))
     testImplementation(Libs.caffeine)
     testImplementation(Libs.caffeine_jcache)

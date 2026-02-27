@@ -73,7 +73,7 @@ class GeoipCountryFinderTest: AbstractGeoipTest() {
         }
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `find country in virtual threads`() {
         val ipAddresses = getIpAddresses()

@@ -119,7 +119,7 @@ class Base58Test {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `Virtual Threads 환경에서 Base58 인코딩, 디코딩하기`() {
         StructuredTaskScopeTester()

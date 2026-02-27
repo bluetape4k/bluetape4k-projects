@@ -104,7 +104,7 @@ class DigesterTest {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @ParameterizedTest(name = "digest string by {0}")
     @FieldSource("digesters")
     fun `digest message as string in virtual threads`(digester: Digester) {

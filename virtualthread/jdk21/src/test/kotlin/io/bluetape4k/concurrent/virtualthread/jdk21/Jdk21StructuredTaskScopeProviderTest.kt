@@ -8,7 +8,7 @@ import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
 import kotlin.test.assertFailsWith
 
-@EnabledOnJre(JRE.JAVA_21)
+@EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
 class Jdk21StructuredTaskScopeProviderTest {
 
     companion object: KLoggingChannel()

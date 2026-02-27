@@ -104,7 +104,7 @@ class Base62Test {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `Virtual Threads 환경에서 UUID 값을 Base62 인코딩, 디코딩하기`() {
         val uuids = ConcurrentHashMap<UUID, Int>()

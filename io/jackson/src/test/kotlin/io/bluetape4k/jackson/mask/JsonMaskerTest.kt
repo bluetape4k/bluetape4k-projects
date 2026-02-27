@@ -68,7 +68,7 @@ class JsonMaskerTest {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `masking field with @JsonMasker in virtual threads`() {
         StructuredTaskScopeTester()

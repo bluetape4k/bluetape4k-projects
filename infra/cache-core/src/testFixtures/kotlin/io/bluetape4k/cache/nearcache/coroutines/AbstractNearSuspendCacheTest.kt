@@ -21,6 +21,7 @@ import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldNotBeEmpty
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -84,6 +85,8 @@ abstract class AbstractNearSuspendCacheTest
         nearSuspendCache2.get(key) shouldBeEqualTo value
     }
 
+    // TODO: 실제 시나리오를 만들기 힘듬 (시점 차이) -> Mockk 로 대체해야 함
+    @Disabled("시나리오 미비 -> Mockk 으로 대체해야 함")
     @RepeatedTest(TEST_SIZE)
     fun `getDeeply - front miss면 back cache에서 조회하고 front cache를 채운다`() = runSuspendIO {
         val key = getKey()

@@ -129,7 +129,7 @@ class SemaphoreExamples: AbstractRedissonCoroutineTest() {
         }
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `semaphore in virtual threads`() {
         val semaphoreName = randomName()

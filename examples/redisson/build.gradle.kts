@@ -28,7 +28,7 @@ dependencies {
     testImplementation(Libs.protobuf_kotlin)
 
     // Cache
-    testImplementation(project(":bluetape4k-cache"))
+    testImplementation(project(":bluetape4k-cache-redisson"))
     testImplementation(Libs.caffeine)
     testImplementation(Libs.caffeine_jcache)
 

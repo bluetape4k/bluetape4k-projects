@@ -84,7 +84,7 @@ abstract class AbstractSuspendImageWriterTest: AbstractImageTest() {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @ParameterizedTest
     @MethodSource("getImageFileNames")
     fun `async image writer in virtual threading`(filename: String, tempFolder: TempFolder) {

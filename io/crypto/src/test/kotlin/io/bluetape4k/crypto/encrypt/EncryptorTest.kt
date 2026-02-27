@@ -7,10 +7,10 @@ import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.junit5.params.provider.FieldSource
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.support.emptyByteArray
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.support.emptyByteArray
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
@@ -117,7 +117,7 @@ class EncryptorTest {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @ParameterizedTest(name = "encrypt string by {0}")
     @FieldSource("encryptors")
     fun `encrypt and decrypt string in virtual threads`(encryptor: Encryptor) {

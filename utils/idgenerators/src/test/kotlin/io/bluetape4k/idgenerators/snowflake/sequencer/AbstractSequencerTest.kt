@@ -92,7 +92,7 @@ abstract class AbstractSequencerTest {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `generate sequence in virtual threads`() {
         val idMap = ConcurrentHashMap<Long, Int>()

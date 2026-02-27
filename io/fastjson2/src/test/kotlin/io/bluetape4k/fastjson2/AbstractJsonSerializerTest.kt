@@ -164,7 +164,7 @@ abstract class AbstractJsonSerializerTest: AbstractFastjson2Test() {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `json serialize for User in virtual threads`() {
         StructuredTaskScopeTester()

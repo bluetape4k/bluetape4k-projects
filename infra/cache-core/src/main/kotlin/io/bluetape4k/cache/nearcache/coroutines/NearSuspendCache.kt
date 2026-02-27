@@ -162,12 +162,7 @@ class NearSuspendCache<K: Any, V: Any> private constructor(
      */
     suspend fun getDeeply(key: K): V? = coroutineScope {
         frontCache.get(key)
-            ?: backCache.get(key)
-                ?.also { value ->
-                    launch {
-                        frontCache.put(key, value)
-                    }
-                }
+            ?: backCache.get(key)?.also { value -> frontCache.put(key, value) }
     }
 
     override fun getAll(): Flow<SuspendCacheEntry<K, V>> {
@@ -183,9 +178,7 @@ class NearSuspendCache<K: Any, V: Any> private constructor(
 
     override suspend fun getAndPut(key: K, value: V): V? = coroutineScope {
         frontCache.getAndPut(key, value)?.apply {
-            launch(coroutineContext) {
-                backCache.putIfAbsent(key, value)
-            }
+            backCache.putIfAbsent(key, value)
         }
     }
 
@@ -201,9 +194,7 @@ class NearSuspendCache<K: Any, V: Any> private constructor(
 
     override suspend fun put(key: K, value: V) = coroutineScope {
         frontCache.put(key, value).apply {
-            launch(coroutineContext) {
-                backCache.put(key, value)
-            }
+            backCache.put(key, value)
         }
     }
 

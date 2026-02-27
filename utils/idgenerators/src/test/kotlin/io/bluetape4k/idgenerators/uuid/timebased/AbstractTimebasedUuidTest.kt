@@ -85,7 +85,7 @@ abstract class AbstractTimebasedUuidTest {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @RepeatedTest(REPEAT_SIZE)
     fun `generate timebased uuids in virtual threads`() {
         val idMap = ConcurrentHashMap<UUID, Int>()

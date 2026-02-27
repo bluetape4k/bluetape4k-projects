@@ -74,7 +74,7 @@ abstract class AbstractStringEncoderTest {
             .run()
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `Virtual Thread 환경에서 인코딩, 디코딩 하면 원본과 같아야 한다`() {
         val bytes = Random.nextBytes(4096)

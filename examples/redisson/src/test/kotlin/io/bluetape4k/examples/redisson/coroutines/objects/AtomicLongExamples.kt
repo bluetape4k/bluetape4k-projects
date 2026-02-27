@@ -74,7 +74,7 @@ class AtomicLongExamples: AbstractRedissonCoroutineTest() {
         counter.delete().shouldBeTrue()
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @RepeatedTest(REPEAT_SIZE)
     fun `AtomicLong in Virtual threads`() {
         val counter = redisson.getAtomicLong(randomName())

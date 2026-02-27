@@ -9,7 +9,7 @@ configurations {
 
 dependencies {
     api(project(":bluetape4k-core"))
-    implementation(project(":bluetape4k-cache"))
+    implementation(project(":bluetape4k-cache-local"))
     testImplementation(project(":bluetape4k-http"))
     testImplementation(project(":bluetape4k-jackson"))
     testImplementation(project(":bluetape4k-junit5"))

@@ -182,7 +182,7 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
         task2.get() shouldBeEqualTo numThreads * roundsPerThread / 2
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `run action if leader in virtual threads`() {
         val lockName = randomName()
@@ -258,7 +258,7 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
         task2.get() shouldBeEqualTo numThreads * roundsPerThread / 2
     }
 
-    @EnabledOnJre(JRE.JAVA_21)
+    @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
     @Test
     fun `run async action if leader in virtual threads`() {
         val lockName = randomName()

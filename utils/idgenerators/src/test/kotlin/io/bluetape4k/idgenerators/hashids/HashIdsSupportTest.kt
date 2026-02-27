@@ -111,7 +111,7 @@ class HashIdsSupportTest {
                 .run()
         }
 
-        @EnabledOnJre(JRE.JAVA_21)
+        @EnabledOnJre(JRE.JAVA_21, JRE.JAVA_25)
         @Test
         fun `encode flake id in virtual threading`() {
             val map = ConcurrentHashMap<Long, Int>()
