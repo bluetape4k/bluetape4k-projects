@@ -150,7 +150,17 @@ class NearSuspendCache<K: Any, V: Any> private constructor(
         return frontCache.containsKey(key) || backCache.containsKey(key)
     }
 
-    override suspend fun get(key: K): V? = coroutineScope {
+    override suspend fun get(key: K): V? = getDeeply(key)
+
+    /**
+     * Front Cache에서 값을 우선 조회하고, 없으면 Back Cache까지 조회합니다.
+     *
+     * Back Cache에서 값을 찾은 경우 Front Cache에 채워 넣어 이후 조회를 빠르게 처리합니다.
+     *
+     * @param key 조회할 캐시 키
+     * @return 조회된 값, 없으면 `null`
+     */
+    suspend fun getDeeply(key: K): V? = coroutineScope {
         frontCache.get(key)
             ?: backCache.get(key)
                 ?.also { value ->

@@ -174,6 +174,21 @@ class NearCache<K: Any, V: Any> private constructor(
         return frontCache.get(key)
     }
 
+    /**
+     * Front Cache에서 값을 우선 조회하고, 없으면 Back Cache까지 조회합니다.
+     *
+     * Back Cache에서 값을 찾은 경우 Front Cache에 채워 넣어 이후 조회를 빠르게 처리합니다.
+     *
+     * @param key 조회할 캐시 키
+     * @return 조회된 값, 없으면 `null`
+     */
+    fun getDeeply(key: K): V? {
+        return frontCache.get(key)
+            ?: backCache.get(key)?.also { value ->
+                runCatching { frontCache.put(key, value) }
+            }
+    }
+
     fun getAll(vararg keys: K): MutableMap<K, V> = getAll(keys.toSet())
 
     override fun getAll(keys: Set<K>): MutableMap<K, V> { // 모든 조회는 Front 에서만 한다
@@ -203,17 +218,11 @@ class NearCache<K: Any, V: Any> private constructor(
         return null
     }
 
-    operator fun set(
-        key: K,
-        value: V,
-    ) {
+    operator fun set(key: K, value: V) {
         put(key, value)
     }
 
-    override fun put(
-        key: K,
-        value: V,
-    ) {
+    override fun put(key: K, value: V) {
         frontCache.put(key, value).apply {
             syncBackCache {
                 backCache.put(key, value)

@@ -2,19 +2,20 @@ package io.bluetape4k.cache.jcache
 
 import com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
 import com.hazelcast.client.cache.HazelcastClientCachingProvider
+import io.bluetape4k.logging.KLogging
 import org.ehcache.jsr107.EhcacheCachingProvider
-import org.apache.ignite.cache.CachingProvider as IgniteCachingProvider
 import org.redisson.api.RedissonClient
 import org.redisson.jcache.JCachingProvider
 import org.redisson.jcache.configuration.RedissonConfiguration
 import javax.cache.CacheManager
 import javax.cache.configuration.Configuration
 import javax.cache.configuration.MutableConfiguration
+import org.apache.ignite.cache.CachingProvider as IgniteCachingProvider
 
 /**
  * [javax.cache.Cache]`<K, V>` 를 제공하는 object 입니다.
  */
-object JCaching {
+object JCaching: KLogging() {
 
     /**
      * [Cache2k](https://cache2k.org/) 를 사용하는 [javax.cache.Cache]`<K, V>`를 제공합니다.

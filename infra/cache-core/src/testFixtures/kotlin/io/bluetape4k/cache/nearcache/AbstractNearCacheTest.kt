@@ -78,6 +78,23 @@ abstract class AbstractNearCacheTest {
     }
 
     @RepeatedTest(TEST_SIZE)
+    fun `getDeeply - front miss면 back cache에서 조회하고 front cache를 채운다`() {
+        val key = randomKey()
+        val value = randomValue()
+
+        backCache.put(key, value)
+        nearCache1.clear()
+        nearCache2.clear()
+
+        nearCache1[key].shouldBeNull()
+        nearCache2[key].shouldBeNull()
+
+        nearCache1.getDeeply(key) shouldBeEqualTo value
+        nearCache1[key] shouldBeEqualTo value
+        backCache[key] shouldBeEqualTo value
+    }
+
+    @RepeatedTest(TEST_SIZE)
     fun `front cache 에 cache entry를 추가하면 write through로 back cache에 추가된다`() {
         val key = randomKey()
         val value = randomValue()

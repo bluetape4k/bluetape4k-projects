@@ -17,7 +17,7 @@ import kotlin.concurrent.withLock
 fun <T: Any, R: Any> Cache<T, R>.memorizer(evaluator: (T) -> R): JCacheMemorizer<T, R> =
     JCacheMemorizer(this, evaluator)
 
-fun <T: Any, R: Any> ((T) -> R).withMemorizer(cache: Cache<T, R>): JCacheMemorizer<T, R> =
+fun <T: Any, R: Any> ((T) -> R).withMemorizer(cache: javax.cache.Cache<T, R>): JCacheMemorizer<T, R> =
     JCacheMemorizer(cache, this)
 
 /**
@@ -27,7 +27,7 @@ fun <T: Any, R: Any> ((T) -> R).withMemorizer(cache: Cache<T, R>): JCacheMemoriz
  * @property evaluator 캐시 값을 생성하는 메소드
  */
 class JCacheMemorizer<in T: Any, out R: Any>(
-    private val jcache: Cache<T, R>,
+    private val jcache: javax.cache.Cache<T, R>,
     private val evaluator: (T) -> R,
 ): Memorizer<T, R> {
 

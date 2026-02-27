@@ -4,8 +4,19 @@ import io.bluetape4k.cache.memorizer.AsyncMemorizer
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.locks.ReentrantLock
-import javax.cache.Cache
 import kotlin.concurrent.withLock
+
+/**
+ * JCache를 이용하는 [AsyncJCacheMemorizer]를 생성합니다.
+ *
+ * @param T cache key type
+ * @param R cache value type
+ * @param evaluator cache value를 반환하는 메소드
+ */
+fun <T: Any, R: Any> javax.cache.Cache<T, R>.asyncMemorizer(
+    evaluator: (T) -> CompletableFuture<R>,
+): AsyncJCacheMemorizer<T, R> =
+    AsyncJCacheMemorizer(this, evaluator)
 
 /**
  * JCache를 이용하여 메소드의 실행 결과를 캐시하여 , 재 실행 시에 빠르게 응닫할 수 있도록 합니다.
@@ -14,7 +25,7 @@ import kotlin.concurrent.withLock
  * @property evaluator 캐시 값을 생성하는 메소드
  */
 class AsyncJCacheMemorizer<in T: Any, R: Any>(
-    private val jcache: Cache<T, R>,
+    private val jcache: javax.cache.Cache<T, R>,
     private val evaluator: (T) -> CompletableFuture<R>,
 ): AsyncMemorizer<T, R> {
 
@@ -52,13 +63,3 @@ class AsyncJCacheMemorizer<in T: Any, R: Any>(
         }
     }
 }
-
-/**
- * JCache를 이용하는 [JCacheAsyncMemorizer]를 생성합니다.
- *
- * @param T cache key type
- * @param R cache value type
- * @param evaluator cache value를 반환하는 메소드
- */
-fun <T: Any, R: Any> Cache<T, R>.asyncMemorizer(evaluator: (T) -> CompletableFuture<R>): AsyncJCacheMemorizer<T, R> =
-    AsyncJCacheMemorizer(this, evaluator)

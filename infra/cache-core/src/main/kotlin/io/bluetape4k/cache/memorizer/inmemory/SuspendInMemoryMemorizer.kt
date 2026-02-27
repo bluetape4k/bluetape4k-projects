@@ -13,7 +13,7 @@ class SuspendInMemoryMemorizer<in T: Any, out R: Any>(
 
     companion object: KLogging()
 
-    private val resultCache: MutableMap<T, R> = ConcurrentHashMap<T, R>()
+    private val resultCache = ConcurrentHashMap<T, R>()
     private val mutex = Mutex()
 
     override suspend fun invoke(input: T): R {

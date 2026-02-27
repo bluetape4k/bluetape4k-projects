@@ -6,13 +6,14 @@ import io.bluetape4k.cache.memorizer.AbstractMemorizerTest
 import io.bluetape4k.cache.memorizer.FactorialProvider
 import io.bluetape4k.cache.memorizer.FibonacciProvider
 import io.bluetape4k.logging.KLogging
+import org.ehcache.Cache
 
 class EhcacheMemorizerTest: AbstractMemorizerTest() {
 
     companion object: KLogging()
 
     private val ehcacheManager = ehcacheManager { }
-    private val cache = ehcacheManager.getOrCreateCache<Int, Int>("heavy")
+    private val cache: Cache<Int, Int> = ehcacheManager.getOrCreateCache<Int, Int>("heavy")
 
     override val heavyFunc: (Int) -> Int = cache.memorizer {
         Thread.sleep(100)

@@ -1,15 +1,18 @@
 package io.bluetape4k.cache.nearcache.coroutines
 
+import io.bluetape4k.cache.jcache.coroutines.CaffeineSuspendCache
 import io.bluetape4k.cache.jcache.coroutines.RedissonSuspendCache
 import io.bluetape4k.cache.jcache.coroutines.SuspendCache
-import io.bluetape4k.cache.jcache.coroutines.CaffeineSuspendCache
 import io.bluetape4k.cache.jcache.jcacheConfiguration
+import io.bluetape4k.cache.nearcache.redis.coroutines.RedissonNearSuspendCache
 import io.bluetape4k.idgenerators.uuid.TimebasedUuid
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.storage.RedisServer
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
+import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
@@ -39,6 +42,22 @@ class RedisNearSuspendCacheTest: AbstractNearSuspendCacheTest() {
             this.expireAfterAccess(expireAfterAccess)
             this.maximumSize(10_000)
         }
+
+    @Test
+    fun `Redisson 전용 NearSuspendCache를 생성하고 동작해야 한다`() = runSuspendIO {
+        val cacheName = "redis-near-suspend-" + TimebasedUuid.Epoch.nextIdAsString()
+        val cache = RedissonNearSuspendCache<String, Any>(cacheName, redisson)
+        cache shouldBeInstanceOf RedissonNearSuspendCache::class
+
+        val key = getKey()
+        val value = getValue()
+        cache.put(key, value)
+        cache.get(key) shouldBeEqualTo value
+
+        cache.clearAll()
+        await untilSuspending { !cache.containsKey(key) }
+        cache.close()
+    }
 
     @Test
     fun `back cache entry가 expire 되면 event listener를 통해 front cache가 삭제됩니다`() = runSuspendIO {

@@ -302,6 +302,9 @@ object Libs {
     val kotlinx_benchmark_runtime = kotlinxBenchmark("runtime")
     val kotlinx_benchmark_runtime_jvm = kotlinxBenchmark("runtime-jvm")
 
+    // Java Cache
+    const val javax_cache_api = "javax.cache:cache-api:1.1.1"  //  https://mvnrepository.com/artifact/javax.cache/cache-api
+
     // Java Money
     const val javax_money_api = "javax.money:money-api:1.1"    // https://mvnrepository.com/artifact/javax.money/money-api
     const val javamoney_moneta = "org.javamoney:moneta:1.4.5"  // https://mvnrepository.com/artifact/org.javamoney/moneta

@@ -6,10 +6,16 @@ import com.hazelcast.client.config.ClientConfig
 import io.bluetape4k.cache.jcache.coroutines.CaffeineSuspendCache
 import io.bluetape4k.cache.jcache.coroutines.HazelcastSuspendCache
 import io.bluetape4k.cache.jcache.coroutines.SuspendCache
+import io.bluetape4k.cache.nearcache.hazelcast.coroutines.HazelcastNearSuspendCache
 import io.bluetape4k.codec.encodeBase62
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.testcontainers.storage.HazelcastServer
 import io.bluetape4k.utils.ShutdownQueue
+import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
+import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Test
 import java.util.*
 import javax.cache.configuration.MutableConfiguration
 
@@ -47,4 +53,20 @@ class HazelcastNearSuspendCacheTest: AbstractNearSuspendCacheTest() {
             this.expireAfterAccess(expireAfterAccess)
             this.maximumSize(10_000)
         }
+
+    @Test
+    fun `Hazelcast 전용 NearSuspendCache를 생성하고 동작해야 한다`() = runSuspendIO {
+        val cacheName = "hazelcast-near-suspend-" + UUID.randomUUID().encodeBase62()
+        val cache = HazelcastNearSuspendCache<String, Any>(cacheName)
+        cache shouldBeInstanceOf HazelcastNearSuspendCache::class
+
+        val key = getKey()
+        val value = getValue()
+        cache.put(key, value)
+        cache.get(key) shouldBeEqualTo value
+
+        cache.clearAll()
+        cache.containsKey(key).shouldBeFalse()
+        cache.close()
+    }
 }

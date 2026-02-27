@@ -5,11 +5,11 @@ import io.bluetape4k.cache.ehcache.getOrCreateCache
 import io.bluetape4k.cache.memorizer.AbstractSuspendMemorizerTest
 import io.bluetape4k.cache.memorizer.SuspendFactorialProvider
 import io.bluetape4k.cache.memorizer.SuspendFibonacciProvider
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 
 class SuspendEhcacheMemorizerTest: AbstractSuspendMemorizerTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val ehcacheManager = ehcacheManager { }
     private val cache = ehcacheManager.getOrCreateCache<Int, Int>("suspend-heavy")

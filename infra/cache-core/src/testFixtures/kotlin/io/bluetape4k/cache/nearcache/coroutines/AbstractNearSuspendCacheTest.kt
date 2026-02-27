@@ -85,6 +85,19 @@ abstract class AbstractNearSuspendCacheTest
     }
 
     @RepeatedTest(TEST_SIZE)
+    fun `getDeeply - front miss면 back cache에서 조회하고 front cache를 채운다`() = runSuspendIO {
+        val key = getKey()
+        val value = getValue()
+
+        backSuspendCache.put(key, value)
+        nearSuspendCache1.clear()
+
+        nearSuspendCache1.getDeeply(key) shouldBeEqualTo value
+        await untilSuspending { nearSuspendCache1.containsKey(key) }
+        nearSuspendCache1.get(key) shouldBeEqualTo value
+    }
+
+    @RepeatedTest(TEST_SIZE)
     fun `cache entry를 삭제하면 write through로 back cache에서도 삭제되고, 다른 nearCache에서도 삭제된다`() =
         runSuspendIO {
             val key = getKey()

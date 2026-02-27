@@ -6,7 +6,7 @@ dependencies {
     api(project(":bluetape4k-io"))
     api(project(":bluetape4k-idgenerators"))
 
-    compileOnly("javax.cache:cache-api:1.1.1")
+    api(Libs.javax_cache_api)
     compileOnly(Libs.cache2k_jcache)
     compileOnly(Libs.caffeine_jcache)
     compileOnly(Libs.ehcache)

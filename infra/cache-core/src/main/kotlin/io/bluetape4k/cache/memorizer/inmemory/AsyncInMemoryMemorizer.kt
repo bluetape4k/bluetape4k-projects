@@ -27,7 +27,7 @@ class AsyncInMemoryMemorizer<in T: Any, R: Any>(
 
     companion object: KLoggingChannel()
 
-    private val resultCache: MutableMap<T, R> = ConcurrentHashMap<T, R>()
+    private val resultCache = ConcurrentHashMap<T, R>()
     private val lock = ReentrantLock()
 
     override fun invoke(input: T): CompletableFuture<R> {

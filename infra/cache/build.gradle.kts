@@ -32,20 +32,6 @@ dependencies {
     testImplementation(Libs.springBootStarter("test")) {
         exclude("org.junit.vintage", "junit-vintage-engine")
         exclude("junit", "junit")
+        exclude(group = "org.mockito", module = "mockito-core")
     }
-}
-
-// Apache Ignite 2.x CachingProvider 로딩 시 Java 11+ 모듈 접근 허용이 필요합니다.
-tasks.test {
-    jvmArgs(
-        "--add-opens=java.base/java.nio=ALL-UNNAMED",
-        "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED",
-        "--add-opens=java.base/java.lang=ALL-UNNAMED",
-        "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED",
-        "--add-opens=java.base/java.io=ALL-UNNAMED",
-        "--add-opens=java.base/java.util=ALL-UNNAMED",
-        "--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED",
-        "--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED",
-        "--add-exports=java.base/sun.nio.ch=ALL-UNNAMED",
-    )
 }

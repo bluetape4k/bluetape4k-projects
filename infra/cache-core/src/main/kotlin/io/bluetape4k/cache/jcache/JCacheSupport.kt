@@ -131,7 +131,7 @@ fun jcachingProviderOf(qualifiedName: String): CachingProvider {
  *
  * @return [CacheManager] instance
  */
-inline fun <reified P: CachingProvider> jcacheManager(): CacheManager =
+inline fun <reified P: CachingProvider> jcacheManager(): javax.cache.CacheManager =
     jcacheLock.withLock {
         jcachingProvider<P>().cacheManager
     }
@@ -149,7 +149,7 @@ inline fun <reified P: CachingProvider> jcacheManager(): CacheManager =
  * @param qualifiedName CachingProvider qualified name
  * @return [CacheManager] instance
  */
-fun jcacheManagerOf(qualifiedName: String): CacheManager =
+fun jcacheManagerOf(qualifiedName: String): javax.cache.CacheManager =
     jcacheLock.withLock {
         jcachingProviderOf(qualifiedName).cacheManager
     }
@@ -164,7 +164,7 @@ fun jcacheManagerOf(qualifiedName: String): CacheManager =
  * @param cacheName  cache name
  * @return cache instance
  */
-inline fun <reified K, reified V> CacheManager.get(cacheName: String): Cache<K, V>? {
+inline fun <reified K, reified V> javax.cache.CacheManager.get(cacheName: String): Cache<K, V>? {
     cacheName.requireNotBlank("cacheName")
     return runCatching { getCache(cacheName, K::class.java, V::class.java) }.getOrNull()
 }
@@ -180,7 +180,7 @@ inline fun <reified K, reified V> CacheManager.get(cacheName: String): Cache<K, 
  * @param configuration jcache configuration
  * @return jcache instance
  */
-inline fun <reified K, reified V> CacheManager.create(
+inline fun <reified K, reified V> javax.cache.CacheManager.create(
     cacheName: String,
     configuration: Configuration<K, V> = getDefaultJCacheConfiguration(),
 ): Cache<K, V> {
@@ -199,7 +199,7 @@ inline fun <reified K, reified V> CacheManager.create(
  * @param configuration  jcache configuration
  * @return jcache instance
  */
-inline fun <reified K, reified V> CacheManager.getOrCreate(
+inline fun <reified K, reified V> javax.cache.CacheManager.getOrCreate(
     cacheName: String,
     configuration: Configuration<K, V> = getDefaultJCacheConfiguration(),
 ): Cache<K, V> {
@@ -221,7 +221,7 @@ inline fun <reified K, reified V> CacheManager.getOrCreate(
  * @param valueSupplier 값 제공자
  * @return 캐시된 값
  */
-inline fun <K, V> JCache<K, V>.getOrPut(
+inline fun <K, V> javax.cache.Cache<K, V>.getOrPut(
     key: K,
     valueSupplier: () -> V,
 ): V {
@@ -245,7 +245,7 @@ inline fun <K, V> JCache<K, V>.getOrPut(
  * @param V value type
  * @return CacheLoader instance
  */
-fun <K, V> JCache<K, V>.cacheLoader(): CacheLoader<K, V> {
+fun <K, V> javax.cache.Cache<K, V>.cacheLoader(): CacheLoader<K, V> {
     return object: CacheLoader<K, V> {
         override fun load(key: K): V? {
             log.debug { "Read through load cache entry. key=$key" }
@@ -263,7 +263,7 @@ fun <K, V> JCache<K, V>.cacheLoader(): CacheLoader<K, V> {
  * Cache 저장 시, `front cache` -> `back cache` 순서로 적용되도록 write through를 수행합니다.
  */
 @Suppress("UNCHECKED_CAST")
-fun <K, V> JCache<K, V>.cacheWriter(): CacheWriter<K, V> =
+fun <K, V> javax.cache.Cache<K, V>.cacheWriter(): CacheWriter<K, V> =
     object: CacheWriter<K, V> {
         override fun write(entry: Cache.Entry<out K, out V>) {
             log.debug { "Write through write cache entry. entry=$entry at $this" }
@@ -300,5 +300,5 @@ fun <K, V> JCache<K, V>.cacheWriter(): CacheWriter<K, V> =
  * ```
  */
 @Suppress("UNCHECKED_CAST")
-fun <K, V, C: Configuration<K, V>> JCache<K, V>.getConfiguration(): C =
+fun <K, V, C: Configuration<K, V>> javax.cache.Cache<K, V>.getConfiguration(): C =
     getConfiguration(Configuration::class.java as Class<C>)
