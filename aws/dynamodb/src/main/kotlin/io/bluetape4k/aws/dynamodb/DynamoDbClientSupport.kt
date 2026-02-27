@@ -3,6 +3,7 @@ package io.bluetape4k.aws.dynamodb
 import io.bluetape4k.aws.http.SdkHttpClientProvider
 import io.bluetape4k.utils.ShutdownQueue
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
+import software.amazon.awssdk.http.SdkHttpClient
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import software.amazon.awssdk.services.dynamodb.DynamoDbClientBuilder
@@ -52,12 +53,13 @@ inline fun dynamoDbClientOf(
     endpoint: URI,
     region: Region,
     credentialsProvider: AwsCredentialsProvider,
+    httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
     @BuilderInference builder: DynamoDbClientBuilder.() -> Unit = {},
 ): DynamoDbClient = dynamoDbClient {
     endpointOverride(endpoint)
     region(region)
     credentialsProvider(credentialsProvider)
-    httpClient(SdkHttpClientProvider.Apache.apacheHttpClient)
+    httpClient(httpClient)
 
     builder()
 }

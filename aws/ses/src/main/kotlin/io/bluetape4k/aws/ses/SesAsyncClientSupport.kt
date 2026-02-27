@@ -49,7 +49,7 @@ inline fun sesAsyncClient(
  */
 inline fun sesAsyncClientOf(
     region: Region,
-    httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.Netty.nettyNioAsyncHttpClient,
+    httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
     @BuilderInference builder: SesAsyncClientBuilder.() -> Unit = {},
 ): SesAsyncClient = sesAsyncClient {
     region(region)
@@ -74,11 +74,14 @@ inline fun sesAsyncClientOf(
  * @return [SesAsyncClient] 인스턴스
  */
 inline fun sesAsyncClientOf(
-    endpointProvider: SesEndpointProvider,
-    httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.Netty.nettyNioAsyncHttpClient,
+    endpointProvider: SesEndpointProvider? = null,
+    region: Region? = null,
+    httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
     @BuilderInference builder: SesAsyncClientBuilder.() -> Unit = {},
 ): SesAsyncClient = sesAsyncClient {
-    endpointProvider(endpointProvider)
+
+    endpointProvider?.let { endpointProvider(it) }
+    region?.let { region(it) }
     httpClient(httpClient)
 
     builder()

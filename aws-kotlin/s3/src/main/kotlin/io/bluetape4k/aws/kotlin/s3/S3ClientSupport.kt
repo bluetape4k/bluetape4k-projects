@@ -4,7 +4,8 @@ import aws.sdk.kotlin.services.s3.S3Client
 import aws.smithy.kotlin.runtime.auth.awscredentials.CredentialsProvider
 import aws.smithy.kotlin.runtime.http.engine.HttpClientEngine
 import aws.smithy.kotlin.runtime.net.url.Url
-import io.bluetape4k.aws.kotlin.http.crtHttpEngineOf
+import io.bluetape4k.aws.kotlin.http.HttpClientEngineProvider
+import io.bluetape4k.utils.ShutdownQueue
 
 /**
  * [S3Client] 를 생성합니다.
@@ -30,7 +31,7 @@ inline fun s3ClientOf(
     endpointUrl: Url? = null,
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
-    httpClient: HttpClientEngine = crtHttpEngineOf(),
+    httpClient: HttpClientEngine = HttpClientEngineProvider.defaultHttpEngine,
     @BuilderInference crossinline builder: S3Client.Config.Builder.() -> Unit = {},
 ): S3Client =
     S3Client {
@@ -40,4 +41,6 @@ inline fun s3ClientOf(
         this.httpClient = httpClient
 
         builder()
+    }.apply {
+        ShutdownQueue.register(this)
     }

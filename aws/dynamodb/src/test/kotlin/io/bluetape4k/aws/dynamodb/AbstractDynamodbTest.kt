@@ -3,6 +3,7 @@ package io.bluetape4k.aws.dynamodb
 import io.bluetape4k.aws.auth.staticCredentialsProviderOf
 import io.bluetape4k.aws.dynamodb.enhanced.dynamoDbEnhancedAsyncClientOf
 import io.bluetape4k.aws.http.SdkAsyncHttpClientProvider
+import io.bluetape4k.aws.http.SdkHttpClientProvider
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.testcontainers.aws.LocalStackServer
@@ -51,6 +52,7 @@ abstract class AbstractDynamodbTest {
                 credentialsProvider(credentialsProvider)
                 endpointOverride(endpoint)
                 region(region)
+                httpClient(SdkHttpClientProvider.defaultHttpClient)
             }
         }
 
@@ -60,7 +62,7 @@ abstract class AbstractDynamodbTest {
                 credentialsProvider(credentialsProvider)
                 endpointOverride(endpoint)
                 region(region)
-                httpClient(SdkAsyncHttpClientProvider.Netty.nettyNioAsyncHttpClient)
+                httpClient(SdkAsyncHttpClientProvider.defaultHttpClient)
             }
         }
 

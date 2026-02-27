@@ -4,7 +4,6 @@ import io.bluetape4k.aws.auth.staticCredentialsProviderOf
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.aws.LocalStackServer
-import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.localstack.LocalStackContainer
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
 import software.amazon.awssdk.regions.Region
@@ -35,24 +34,20 @@ abstract class AbstractSqsTest {
 
         @JvmStatic
         protected val client: SqsClient by lazy {
-            sqsClient {
-                credentialsProvider(credentialsProvider)
-                endpointOverride(endpoint)
-                region(region)
-            }.apply {
-                ShutdownQueue.register(this)
-            }
+            SqsFactory.Sync.create(
+                endpoint,
+                region,
+                credentialsProvider
+            )
         }
 
         @JvmStatic
         protected val asyncClient: SqsAsyncClient by lazy {
-            sqsAsyncClient {
-                credentialsProvider(credentialsProvider)
-                endpointOverride(endpoint)
-                region(region)
-            }.apply {
-                ShutdownQueue.register(this)
-            }
+            SqsFactory.Async.create(
+                endpoint,
+                region,
+                credentialsProvider
+            )
         }
 
         @JvmStatic

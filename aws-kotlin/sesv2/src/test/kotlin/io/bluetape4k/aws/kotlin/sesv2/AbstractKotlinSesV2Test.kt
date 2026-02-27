@@ -1,7 +1,6 @@
 package io.bluetape4k.aws.kotlin.sesv2
 
 import aws.sdk.kotlin.services.sesv2.SesV2Client
-import io.bluetape4k.aws.kotlin.http.crtHttpEngineOf
 import io.bluetape4k.aws.kotlin.tests.endpointUrl
 import io.bluetape4k.aws.kotlin.tests.getCredentialsProvider
 import io.bluetape4k.aws.kotlin.tests.getLocalStackServer
@@ -35,7 +34,6 @@ abstract class AbstractKotlinSesV2Test {
             endpointUrl = snsServer.endpointUrl,
             region = snsServer.region,
             credentialsProvider = snsServer.getCredentialsProvider(),
-            httpClient = crtHttpEngineOf()
         )
     }
 }

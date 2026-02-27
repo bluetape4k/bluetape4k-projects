@@ -11,10 +11,10 @@ dependencies {
     api(Libs.aws2_aws_core)
 
     // AWS HTTP Clients
-    compileOnly(Libs.aws2_aws_crt_client)
-    compileOnly(Libs.aws2_netty_nio_client)
-    compileOnly(Libs.aws2_apache_client)
+    api(Libs.aws2_apache_client)
     compileOnly(Libs.aws2_url_connection_client)
+    api(Libs.aws2_aws_crt_client)
+    api(Libs.aws2_netty_nio_client)
 
     testImplementation(Libs.aws2_ec2)
     testImplementation(Libs.aws2_s3)

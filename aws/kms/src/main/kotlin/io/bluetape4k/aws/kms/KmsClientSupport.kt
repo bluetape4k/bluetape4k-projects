@@ -21,7 +21,7 @@ inline fun kmsClientOf(
     endpointOverride: URI,
     region: Region,
     credentialsProvider: AwsCredentialsProvider,
-    httpClient: SdkHttpClient = SdkHttpClientProvider.Apache.apacheHttpClient,
+    httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
     @BuilderInference builder: KmsClientBuilder.() -> Unit = {},
 ): KmsClient = kmsClient {
     endpointOverride(endpointOverride)

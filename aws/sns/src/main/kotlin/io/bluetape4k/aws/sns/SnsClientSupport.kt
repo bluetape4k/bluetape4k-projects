@@ -23,7 +23,7 @@ inline fun snsClient(builder: SnsClientBuilder.() -> Unit): SnsClient =
  */
 inline fun snsClientOf(
     region: Region,
-    httpClient: SdkHttpClient = SdkHttpClientProvider.Apache.apacheHttpClient,
+    httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
     @BuilderInference builder: SnsClientBuilder.() -> Unit = {},
 ): SnsClient = snsClient {
     region(region)
@@ -39,7 +39,7 @@ inline fun snsClientOf(
     endpoint: URI,
     region: Region,
     credentialsProvider: AwsCredentialsProvider,
-    httpClient: SdkHttpClient = SdkHttpClientProvider.Apache.apacheHttpClient,
+    httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
     @BuilderInference builder: SnsClientBuilder.() -> Unit = {},
 ): SnsClient = snsClient {
     endpointOverride(endpoint)

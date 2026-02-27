@@ -3,6 +3,7 @@ package io.bluetape4k.aws.dynamodb
 import io.bluetape4k.aws.http.SdkAsyncHttpClientProvider
 import io.bluetape4k.utils.ShutdownQueue
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
+import software.amazon.awssdk.http.async.SdkAsyncHttpClient
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.dynamodb.streams.DynamoDbStreamsAsyncClient
 import software.amazon.awssdk.services.dynamodb.streams.DynamoDbStreamsAsyncClientBuilder
@@ -58,12 +59,13 @@ inline fun dynamoDbStreamsAsyncClientOf(
     endpoint: URI,
     region: Region,
     credentialsProvider: AwsCredentialsProvider,
+    httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
     @BuilderInference builder: DynamoDbStreamsAsyncClientBuilder.() -> Unit = {},
 ): DynamoDbStreamsAsyncClient = dynamoDbStreamsAsyncClient {
     endpointOverride(endpoint)
     region(region)
     credentialsProvider(credentialsProvider)
-    httpClient(SdkAsyncHttpClientProvider.Netty.nettyNioAsyncHttpClient)
+    httpClient(httpClient)
 
     builder()
 }

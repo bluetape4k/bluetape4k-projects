@@ -10,7 +10,7 @@ import aws.sdk.kotlin.services.sesv2.model.Template
 import aws.smithy.kotlin.runtime.auth.awscredentials.CredentialsProvider
 import aws.smithy.kotlin.runtime.http.engine.HttpClientEngine
 import aws.smithy.kotlin.runtime.net.url.Url
-import io.bluetape4k.aws.kotlin.http.crtHttpEngineOf
+import io.bluetape4k.aws.kotlin.http.HttpClientEngineProvider
 import io.bluetape4k.utils.ShutdownQueue
 
 
@@ -36,7 +36,7 @@ fun sesV2ClientOf(
     endpointUrl: Url? = null,
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
-    httpClient: HttpClientEngine = crtHttpEngineOf(),
+    httpClient: HttpClientEngine = HttpClientEngineProvider.defaultHttpEngine,
     @BuilderInference builder: SesV2Client.Config.Builder.() -> Unit = {},
 ): SesV2Client = SesV2Client {
     this.endpointUrl = endpointUrl

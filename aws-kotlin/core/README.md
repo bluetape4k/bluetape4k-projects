@@ -41,7 +41,7 @@ import io.bluetape4k.aws.kotlin.http.crtHttpEngineOf
 import aws.smithy.kotlin.runtime.http.engine.crt.CrtHttpEngine
 
 // CRT 기반 HTTP 엔진 생성 (권장)
-val httpEngine = crtHttpEngineOf()
+val httpEngine = HttpClientEngineProvider.defaultHttpEngine
 
 // 클라이언트 생성 시 사용
 val s3Client = S3Client {

@@ -31,7 +31,7 @@ object SesFactory {
             endpointOverride: URI,
             region: Region = Region.AP_NORTHEAST_2,
             credentialsProvider: AwsCredentialsProvider = LocalAwsCredentialsProvider,
-            httpClient: SdkHttpClient = SdkHttpClientProvider.Apache.apacheHttpClient,
+            httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
             @BuilderInference builder: SesClientBuilder.() -> Unit = {},
         ): SesClient =
             create {
@@ -58,7 +58,7 @@ object SesFactory {
             endpointOverride: URI,
             region: Region = Region.AP_NORTHEAST_2,
             credentialsProvider: AwsCredentialsProvider = LocalAwsCredentialsProvider,
-            asyncHttpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.Netty.nettyNioAsyncHttpClient,
+            asyncHttpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
             @BuilderInference builder: SesAsyncClientBuilder.() -> Unit = {},
         ): SesAsyncClient =
             create {

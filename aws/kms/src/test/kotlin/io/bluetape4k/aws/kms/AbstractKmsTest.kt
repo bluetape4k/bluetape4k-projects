@@ -1,6 +1,8 @@
 package io.bluetape4k.aws.kms
 
 import io.bluetape4k.aws.auth.staticCredentialsProviderOf
+import io.bluetape4k.aws.http.SdkAsyncHttpClientProvider
+import io.bluetape4k.aws.http.SdkHttpClientProvider
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.aws.LocalStackServer
@@ -38,6 +40,7 @@ abstract class AbstractKmsTest {
                 credentialsProvider(credentialsProvider)
                 endpointOverride(endpoint)
                 region(region)
+                httpClient(SdkHttpClientProvider.defaultHttpClient)
             }
         }
 
@@ -47,6 +50,7 @@ abstract class AbstractKmsTest {
                 credentialsProvider(credentialsProvider)
                 endpointOverride(endpoint)
                 region(region)
+                httpClient(SdkAsyncHttpClientProvider.defaultHttpClient)
             }
         }
 

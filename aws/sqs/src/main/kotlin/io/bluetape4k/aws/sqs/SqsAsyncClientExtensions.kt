@@ -40,26 +40,15 @@ inline fun sqsAsyncClient(
 }
 
 inline fun sqsAsyncClientOf(
-    region: Region,
-    httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.Netty.nettyNioAsyncHttpClient,
+    endpoint: URI? = null,
+    region: Region? = null,
+    credentialsProvider: AwsCredentialsProvider? = null,
+    httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.Netty.httpClient,
     @BuilderInference builder: SqsAsyncClientBuilder.() -> Unit = {},
 ): SqsAsyncClient = sqsAsyncClient {
-    region(region)
-    httpClient(httpClient)
-
-    builder()
-}
-
-inline fun sqsAsyncClientOf(
-    endpoint: URI,
-    region: Region,
-    credentialsProvider: AwsCredentialsProvider,
-    httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.Netty.nettyNioAsyncHttpClient,
-    @BuilderInference builder: SqsAsyncClientBuilder.() -> Unit = {},
-): SqsAsyncClient = sqsAsyncClient {
-    endpointOverride(endpoint)
-    region(region)
-    credentialsProvider(credentialsProvider)
+    endpoint?.let { endpointOverride(it) }
+    region?.let { region(it) }
+    credentialsProvider?.let { credentialsProvider(it) }
     httpClient(httpClient)
 
     builder()

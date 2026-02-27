@@ -23,7 +23,7 @@ import aws.smithy.kotlin.runtime.http.engine.HttpClientEngine
 import aws.smithy.kotlin.runtime.net.url.Url
 import io.bluetape4k.aws.kotlin.dynamodb.model.toAttributeValue
 import io.bluetape4k.aws.kotlin.dynamodb.model.toAttributeValueMap
-import io.bluetape4k.aws.kotlin.http.crtHttpEngineOf
+import io.bluetape4k.aws.kotlin.http.HttpClientEngineProvider
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireNotBlank
@@ -50,7 +50,7 @@ inline fun dynamoDbClientOf(
     endpointUrl: Url,
     region: String,
     credentialsProvider: CredentialsProvider? = null,
-    httpClient: HttpClientEngine = crtHttpEngineOf(),
+    httpClient: HttpClientEngine = HttpClientEngineProvider.defaultHttpEngine,
     @BuilderInference crossinline builder: DynamoDbClient.Config.Builder.() -> Unit = {},
 ): DynamoDbClient {
     region.requireNotBlank("region")

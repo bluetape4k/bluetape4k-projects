@@ -32,7 +32,7 @@ object SnsFactory {
             endpointOverride: URI,
             region: Region = Region.AP_NORTHEAST_2,
             credentialsProvider: AwsCredentialsProvider = LocalAwsCredentialsProvider,
-            httpClient: SdkHttpClient = SdkHttpClientProvider.Apache.apacheHttpClient,
+            httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
             @BuilderInference builder: SnsClientBuilder.() -> Unit = {},
         ): SnsClient =
             snsClientOf(endpointOverride, region, credentialsProvider, httpClient, builder)
@@ -52,7 +52,7 @@ object SnsFactory {
             endpointOverride: URI,
             region: Region = Region.AP_NORTHEAST_2,
             credentialsProvider: AwsCredentialsProvider = LocalAwsCredentialsProvider,
-            httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.Netty.nettyNioAsyncHttpClient,
+            httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
             @BuilderInference builder: SnsAsyncClientBuilder.() -> Unit = {},
         ): SnsAsyncClient =
             snsAsyncClientOf(endpointOverride, region, credentialsProvider, httpClient, builder)

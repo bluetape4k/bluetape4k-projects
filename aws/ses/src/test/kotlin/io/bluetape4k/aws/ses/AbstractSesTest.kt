@@ -4,7 +4,6 @@ import io.bluetape4k.aws.auth.staticCredentialsProviderOf
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.aws.LocalStackServer
-import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.localstack.LocalStackContainer
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
 import software.amazon.awssdk.regions.Region
@@ -37,24 +36,20 @@ abstract class AbstractSesTest {
 
         @JvmStatic
         protected val client: SesClient by lazy {
-            sesClient {
-                credentialsProvider(credentialsProvider)
-                endpointOverride(endpoint)
-                region(region)
-            }.apply {
-                ShutdownQueue.register(this)
-            }
+            SesFactory.Sync.create(
+                endpoint,
+                region,
+                credentialsProvider
+            )
         }
 
         @JvmStatic
         protected val asyncClient: SesAsyncClient by lazy {
-            sesAsyncClient {
-                credentialsProvider(credentialsProvider)
-                endpointOverride(endpoint)
-                region(region)
-            }.apply {
-                ShutdownQueue.register(this)
-            }
+            SesFactory.Async.create(
+                endpoint,
+                region,
+                credentialsProvider
+            )
         }
 
         @JvmStatic

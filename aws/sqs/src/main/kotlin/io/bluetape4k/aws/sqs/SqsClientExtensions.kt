@@ -34,29 +34,17 @@ inline fun sqsClient(
         }
 
 inline fun sqsClientOf(
-    region: Region,
-    httpClient: SdkHttpClient = SdkHttpClientProvider.Apache.apacheHttpClient,
+    endpoint: URI? = null,
+    region: Region? = null,
+    credentialsProvider: AwsCredentialsProvider? = null,
+    httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
     @BuilderInference builder: SqsClientBuilder.() -> Unit = {},
 ): SqsClient = sqsClient {
-    region(region)
+    endpoint?.let { endpointOverride(it) }
+    region?.let { region(it) }
+    credentialsProvider?.let { credentialsProvider(it) }
     httpClient(httpClient)
 
-    builder()
-}
-
-inline fun sqsClientOf(
-    endpoint: URI,
-    region: Region,
-    credentialsProvider: AwsCredentialsProvider,
-    httpClient: SdkHttpClient = SdkHttpClientProvider.Apache.apacheHttpClient,
-    @BuilderInference builder: SqsClientBuilder.() -> Unit = {},
-): SqsClient = sqsClient {
-    endpointOverride(endpoint)
-    region(region)
-    credentialsProvider(credentialsProvider)
-    httpClient(httpClient)
-
-    httpClient(SdkHttpClientProvider.Apache.apacheHttpClient)
     builder()
 }
 

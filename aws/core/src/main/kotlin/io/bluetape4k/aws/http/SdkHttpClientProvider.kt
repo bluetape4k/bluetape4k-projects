@@ -14,7 +14,7 @@ object SdkHttpClientProvider {
 
     object Apache {
 
-        val apacheHttpClient: SdkHttpClient by lazy {
+        val httpClient: SdkHttpClient by lazy {
             ApacheHttpClient.builder().build()
                 .apply {
                     ShutdownQueue.register(this)
@@ -24,11 +24,13 @@ object SdkHttpClientProvider {
 
     object UrlConnection {
 
-        val urlConnectionHttpClient: SdkHttpClient by lazy {
+        val httpClient: SdkHttpClient by lazy {
             UrlConnectionHttpClient.builder().build()
                 .apply {
                     ShutdownQueue.register(this)
                 }
         }
     }
+
+    val defaultHttpClient get() = Apache.httpClient
 }

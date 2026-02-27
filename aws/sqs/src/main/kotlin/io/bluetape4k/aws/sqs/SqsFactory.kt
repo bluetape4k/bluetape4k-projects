@@ -31,7 +31,7 @@ object SqsFactory {
             endpointOverride: URI,
             region: Region = Region.AP_NORTHEAST_2,
             credentialsProvider: AwsCredentialsProvider = LocalAwsCredentialsProvider,
-            httpClient: SdkHttpClient = SdkHttpClientProvider.Apache.apacheHttpClient,
+            httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
             @BuilderInference builder: SqsClientBuilder.() -> Unit = {},
         ): SqsClient = sqsClientOf(
             endpointOverride,
@@ -55,7 +55,7 @@ object SqsFactory {
             endpointOverride: URI,
             region: Region = Region.AP_NORTHEAST_2,
             credentialsProvider: AwsCredentialsProvider = LocalAwsCredentialsProvider,
-            httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.Netty.nettyNioAsyncHttpClient,
+            httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
             @BuilderInference builder: SqsAsyncClientBuilder.() -> Unit = {},
         ): SqsAsyncClient = sqsAsyncClientOf(
             endpointOverride,

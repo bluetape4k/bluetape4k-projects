@@ -1,6 +1,7 @@
-package io.bluetape4k.aws.kotlin.sqs
+package io.bluetape4k.aws.kotlin.kms
 
-import aws.sdk.kotlin.services.sqs.SqsClient
+import aws.sdk.kotlin.services.kms.KmsClient
+import io.bluetape4k.aws.kotlin.http.HttpClientEngineProvider
 import io.bluetape4k.aws.kotlin.tests.endpointUrl
 import io.bluetape4k.aws.kotlin.tests.getCredentialsProvider
 import io.bluetape4k.aws.kotlin.tests.getLocalStackServer
@@ -8,12 +9,12 @@ import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.testcontainers.containers.localstack.LocalStackContainer
 
-abstract class AbstractKotlinSqsTest {
+abstract class AbstractKmsTest {
 
     companion object: KLoggingChannel() {
         @JvmStatic
-        val sqsServer: LocalStackContainer by lazy {
-            getLocalStackServer(LocalStackContainer.Service.SQS)
+        val kmsServer: LocalStackContainer by lazy {
+            getLocalStackServer(LocalStackContainer.Service.KMS)
         }
 
         @JvmStatic
@@ -25,11 +26,12 @@ abstract class AbstractKotlinSqsTest {
         }
     }
 
-    protected val sqsClient: SqsClient by lazy {
-        sqsClientOf(
-            endpointUrl = sqsServer.endpointUrl,
-            region = sqsServer.region,
-            credentialsProvider = sqsServer.getCredentialsProvider(),
+    protected val client: KmsClient by lazy {
+        kmsClientOf(
+            kmsServer.endpointUrl,
+            kmsServer.region,
+            kmsServer.getCredentialsProvider(),
+            HttpClientEngineProvider.defaultHttpEngine
         )
     }
 }

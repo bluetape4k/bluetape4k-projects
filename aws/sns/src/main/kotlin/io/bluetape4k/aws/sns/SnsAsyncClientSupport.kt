@@ -25,7 +25,7 @@ inline fun snsAsyncClient(
  */
 inline fun snsAsyncClientOf(
     region: Region,
-    httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.Netty.nettyNioAsyncHttpClient,
+    httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
     @BuilderInference builder: SnsAsyncClientBuilder.() -> Unit = {},
 ): SnsAsyncClient = snsAsyncClient {
     region(region)
@@ -41,7 +41,7 @@ inline fun snsAsyncClientOf(
     endpoint: URI,
     region: Region,
     credentialsProvider: AwsCredentialsProvider,
-    httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.Netty.nettyNioAsyncHttpClient,
+    httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
     @BuilderInference builder: SnsAsyncClientBuilder.() -> Unit = {},
 ): SnsAsyncClient = snsAsyncClient {
     endpointOverride(endpoint)

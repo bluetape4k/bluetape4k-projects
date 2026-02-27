@@ -1,7 +1,7 @@
 package io.bluetape4k.aws.kotlin.dynamodb
 
 import aws.sdk.kotlin.services.dynamodb.DynamoDbClient
-import io.bluetape4k.aws.kotlin.http.crtHttpEngineOf
+import io.bluetape4k.aws.kotlin.http.HttpClientEngineProvider
 import io.bluetape4k.aws.kotlin.tests.endpointUrl
 import io.bluetape4k.aws.kotlin.tests.getCredentialsProvider
 import io.bluetape4k.aws.kotlin.tests.getLocalStackServer
@@ -23,7 +23,7 @@ abstract class AbstractKotlinDynamoDbTest {
                 endpointUrl = dynamoDb.endpointUrl,
                 region = dynamoDb.region,
                 credentialsProvider = dynamoDb.getCredentialsProvider(),
-                httpClient = crtHttpEngineOf(),
+                httpClient = HttpClientEngineProvider.defaultHttpEngine,
             )
         }
 

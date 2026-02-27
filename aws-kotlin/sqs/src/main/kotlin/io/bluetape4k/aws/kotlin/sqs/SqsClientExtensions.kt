@@ -33,7 +33,7 @@ import aws.sdk.kotlin.services.sqs.sendMessageBatch
 import aws.smithy.kotlin.runtime.auth.awscredentials.CredentialsProvider
 import aws.smithy.kotlin.runtime.http.engine.HttpClientEngine
 import aws.smithy.kotlin.runtime.net.url.Url
-import io.bluetape4k.aws.kotlin.http.crtHttpEngineOf
+import io.bluetape4k.aws.kotlin.http.HttpClientEngineProvider
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.support.requireNotBlank
@@ -70,7 +70,7 @@ inline fun sqsClientOf(
     endpointUrl: Url,
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
-    httpClient: HttpClientEngine = crtHttpEngineOf(),
+    httpClient: HttpClientEngine = HttpClientEngineProvider.defaultHttpEngine,
     @BuilderInference crossinline builder: SqsClient.Config.Builder.() -> Unit = {},
 ): SqsClient {
     endpointUrl.hostAndPort.requireNotBlank("endpointUrl")

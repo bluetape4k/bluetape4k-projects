@@ -21,7 +21,7 @@ inline fun kmsAsyncClientOf(
     endpointOverride: URI,
     region: Region,
     credentialsProvider: AwsCredentialsProvider,
-    httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.Netty.nettyNioAsyncHttpClient,
+    httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
     @BuilderInference builder: KmsAsyncClientBuilder.() -> Unit,
 ): KmsAsyncClient = kmsAsyncClient {
     endpointOverride(endpointOverride)

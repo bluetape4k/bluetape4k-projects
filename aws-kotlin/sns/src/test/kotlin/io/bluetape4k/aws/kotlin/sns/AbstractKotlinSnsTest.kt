@@ -1,7 +1,6 @@
 package io.bluetape4k.aws.kotlin.sns
 
 import aws.sdk.kotlin.services.sns.SnsClient
-import io.bluetape4k.aws.kotlin.http.crtHttpEngineOf
 import io.bluetape4k.aws.kotlin.tests.endpointUrl
 import io.bluetape4k.aws.kotlin.tests.getCredentialsProvider
 import io.bluetape4k.aws.kotlin.tests.getLocalStackServer
@@ -31,7 +30,6 @@ abstract class AbstractKotlinSnsTest {
             endpointUrl = snsServer.endpointUrl,
             region = snsServer.region,
             credentialsProvider = snsServer.getCredentialsProvider(),
-            httpClient = crtHttpEngineOf()
         )
     }
 }

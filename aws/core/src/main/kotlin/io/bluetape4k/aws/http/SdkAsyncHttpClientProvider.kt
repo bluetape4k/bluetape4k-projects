@@ -12,7 +12,7 @@ object SdkAsyncHttpClientProvider {
 
     object Netty {
         @JvmStatic
-        val nettyNioAsyncHttpClient: SdkAsyncHttpClient by lazy {
+        val httpClient: SdkAsyncHttpClient by lazy {
             nettyNioAsyncHttpClientOf().apply {
                 ShutdownQueue.register(this)
             }
@@ -21,10 +21,12 @@ object SdkAsyncHttpClientProvider {
 
     object AwsCrt {
         @JvmStatic
-        val awsCrtAsyncHttpClient: SdkAsyncHttpClient by lazy {
+        val httpClient: SdkAsyncHttpClient by lazy {
             awsCrtAsyncHttpClientOf().apply {
                 ShutdownQueue.register(this)
             }
         }
     }
+
+    val defaultHttpClient: SdkAsyncHttpClient get() = Netty.httpClient
 }
