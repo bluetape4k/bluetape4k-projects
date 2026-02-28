@@ -51,13 +51,13 @@ class KmsAsyncClientTest: AbstractKmsTest() {
 
     @Test
     @Order(1)
-    fun `create KmsClient instance`() {
+    fun `KmsAsyncClient 인스턴스 생성`() {
         asyncClient.shouldNotBeNull()
     }
 
     @Test
     @Order(2)
-    fun `사용자 키 생성`() = runTest {
+    fun `대칭 키 생성`() = runTest {
         val request = createKeyRequestOf(
             description = keyDescription,
             keySpec = KeySpec.SYMMETRIC_DEFAULT,
@@ -106,7 +106,7 @@ class KmsAsyncClientTest: AbstractKmsTest() {
 
     @Test
     @Order(5)
-    fun `사용자 키를 사용 못하게 하기`() = runTest {
+    fun `키 비활성화`() = runTest {
         val request = disableKeyRequestOf(keyId)
 
         val response = asyncClient.disableKey(request).await()
@@ -115,7 +115,7 @@ class KmsAsyncClientTest: AbstractKmsTest() {
 
     @Test
     @Order(6)
-    fun `사용자 키를 다시 사용하게 하기`() = runTest {
+    fun `키 활성화`() = runTest {
         val request = enableKeyRequestOf(keyId)
         val response = asyncClient.enableKey(request).await()
         response.sdkHttpResponse().isSuccessful.shouldBeTrue()
@@ -123,7 +123,7 @@ class KmsAsyncClientTest: AbstractKmsTest() {
 
     @Test
     @Order(7)
-    fun `Grant 생성하기`() = runTest {
+    fun `Grant 생성`() = runTest {
         val request = createGrantRequestOf(
             keyId = keyId,
             granteePrincipal = granteePrincipal,
@@ -138,7 +138,7 @@ class KmsAsyncClientTest: AbstractKmsTest() {
 
     @Test
     @Order(8)
-    fun `Grant 조회하기`() = runTest {
+    fun `Grant 목록 조회`() = runTest {
         val listResp = asyncClient.listGrants {
             it.keyId(keyId)
             it.limit(15)
@@ -156,7 +156,7 @@ class KmsAsyncClientTest: AbstractKmsTest() {
 
     @Test
     @Order(9)
-    fun `Grant 갱신하기`() = runTest {
+    fun `Grant 취소`() = runTest {
         val request = revokeGrantRequestOf(keyId, grantId)
         val response = asyncClient.revokeGrant(request).await()
 
@@ -166,7 +166,7 @@ class KmsAsyncClientTest: AbstractKmsTest() {
 
     @Test
     @Order(10)
-    fun `describe key`() = runTest {
+    fun `키 메타데이터 조회`() = runTest {
         val request = describeKeyOf(keyId)
         val response = asyncClient.describeKey(request).await()
 
@@ -217,7 +217,7 @@ class KmsAsyncClientTest: AbstractKmsTest() {
 
     @Test
     @Order(14)
-    fun `key 목록 조회`() = runTest {
+    fun `키 목록 조회`() = runTest {
         val response = asyncClient.listKeys { it.limit(15) }.await()
         response.sdkHttpResponse().isSuccessful.shouldBeTrue()
 
@@ -231,7 +231,7 @@ class KmsAsyncClientTest: AbstractKmsTest() {
 
     @Test
     @Order(15)
-    fun `Key Polish 주입`() = runTest {
+    fun `키 정책 설정`() = runTest {
         val policyName = "default"
         val policy = """
             {  
