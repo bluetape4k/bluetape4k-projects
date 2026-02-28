@@ -228,54 +228,39 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 
 ```properties
 projectGroup=io.bluetape4k
-baseVersion=1.1.0
+baseVersion=1.2.1
 snapshotVersion=-SNAPSHOT
 ```
 
-### SNAPSHOT 배포
-
-Github 에 배포 시
-```bash
-./gradlew publishBluetape4kPublicationToBluetape4kRepository
-```
-
-Maven Central 에 배포 시
+### Maven Central SNAPSHOT 배포
 
 ```bash
-./gradlew publishBluetape4kPublicationToCentralRepository
+./gradlew publishAggregationToCentralSnapshots
 ```
 
-모두 배포 시
-
-```bash
-./gradlew publish
-```
-
-### RELEASE 배포
-
-Github 에 배포 시
-```bash
-# snapshotVersion을 제거하고 RELEASE 배포
-./gradlew publishBluetape4kPublicationToBluetape4kRepository -PsnapshotVersion=
-```
-
-Maven Central 에 배포 시
+### Maven Central RELEASE 배포
 
 ```bash
 # snapshotVersion을 제거하고 RELEASE 배포
-./gradlew publishBluetape4kPublicationToCentralRepository -PsnapshotVersion=
+./gradlew publishAggregationToCentralPortal -PsnapshotVersion=
 ```
 
-모두 배포 시
-
-```bash
-# snapshotVersion을 제거하고 RELEASE 배포
-./gradlew publish -PsnapshotVersion=
-```
-
-**참고**: GitHub Packages 배포를 위해서는 `~/.gradle/gradle.properties`에 다음 설정이 필요합니다:
+### 필수 설정 (`~/.gradle/gradle.properties`)
 
 ```properties
-gpr.user=your-github-username
-gpr.publish.key=your-github-token
+# Sonatype Central Portal 계정
+central.user=your-central-portal-username
+central.password=your-central-portal-password
+
+# 권장: In-memory PGP signing
+signingUseGpgCmd=false
+signingKeyId=YOUR_KEY_ID
+signingKey=-----BEGIN PGP PRIVATE KEY BLOCK-----\n...\n-----END PGP PRIVATE KEY BLOCK-----
+signingPassword=YOUR_KEY_PASSPHRASE
 ```
+
+### 참고
+
+- 기존 `publishAggregationToCentralPortalSnapshots` 는 deprecated alias 이며,
+  `publishAggregationToCentralSnapshots` 사용을 권장합니다.
+- RELEASE 버전(`1.2.1` 등)은 동일 버전 재배포가 불가능하므로 실패 시 `baseVersion`을 증가시켜야 합니다.

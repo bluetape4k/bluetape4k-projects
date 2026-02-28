@@ -712,9 +712,15 @@ subprojects {
     }
     tasks.withType<PublishToMavenRepository>().configureEach {
         notCompatibleWithConfigurationCache("publishing tasks are not cache-safe")
+        if (repository.name == "nmcp") {
+            repository.url = uri(layout.buildDirectory.dir("nmcp/m2"))
+        }
     }
     tasks.withType<PublishToMavenLocal>().configureEach {
         notCompatibleWithConfigurationCache("publishing tasks are not cache-safe")
+    }
+    tasks.matching { it.name.endsWith("ToNmcpRepository") }.configureEach {
+        outputs.upToDateWhen { false }
     }
 }
 
