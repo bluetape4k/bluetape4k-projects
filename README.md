@@ -228,21 +228,24 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 
 ```properties
 projectGroup=io.bluetape4k
-baseVersion=1.2.1
+baseVersion=1.2.2
 snapshotVersion=-SNAPSHOT
 ```
 
 ### Maven Central SNAPSHOT 배포
 
 ```bash
-./gradlew publishAggregationToCentralSnapshots
+./gradlew publishAggregationToCentralSnapshots --no-daemon --no-configuration-cache
 ```
+
+- 내부적으로 각 모듈의 `publish*ToCentralSnapshotsRepository` (`maven-publish`) task를 실행합니다.
+- Snapshot 배포는 `https://central.sonatype.com/repository/maven-snapshots/` 로 업로드됩니다.
 
 ### Maven Central RELEASE 배포
 
 ```bash
 # snapshotVersion을 제거하고 RELEASE 배포
-./gradlew publishAggregationToCentralPortal -PsnapshotVersion=
+./gradlew publishAggregationToCentralPortal -PsnapshotVersion= --no-daemon --no-configuration-cache
 ```
 
 ### 필수 설정 (`~/.gradle/gradle.properties`)
@@ -263,4 +266,6 @@ signingPassword=YOUR_KEY_PASSPHRASE
 
 - 기존 `publishAggregationToCentralPortalSnapshots` 는 deprecated alias 이며,
   `publishAggregationToCentralSnapshots` 사용을 권장합니다.
+- `publishAllPublicationsToCentralPortalSnapshots` / `publishAllPublicationsToCentralSnapshots` 직접 실행 대신 루트 집계 task(
+  `publishAggregationToCentralSnapshots`) 사용을 권장합니다.
 - RELEASE 버전(`1.2.1` 등)은 동일 버전 재배포가 불가능하므로 실패 시 `baseVersion`을 증가시켜야 합니다.

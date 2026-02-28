@@ -1,3 +1,7 @@
+import io.bluetape4k.gradle.applyBluetape4kPomMetadata
+import io.bluetape4k.gradle.centralSnapshotsRepository
+import io.bluetape4k.gradle.configurePublishingSigning
+import io.bluetape4k.gradle.resolveCentralPublishingConfig
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.report.ReportMergeTask
 import nmcp.NmcpExtension
@@ -36,23 +40,9 @@ plugins {
     id(Plugins.nmcp) version Plugins.Versions.nmcp apply false
 }
 
-// NOTE: .zshrc 에 정의하거나, ~/.gradle/gradle.properties 에 정의해주세요.
-fun getEnvOrProjectProperty(propertyKey: String, envKey: String): String {
-    return project.findProperty(propertyKey) as? String ?: System.getenv()[envKey].orEmpty()
-}
-
-val centralUser: String = getEnvOrProjectProperty("central.user", "CENTRAL_USERNAME")
-val centralPassword: String = getEnvOrProjectProperty("central.password", "CENTRAL_PASSWORD")
-
-val signingKeyId: String = getEnvOrProjectProperty("signingKeyId", "SIGNING_KEY_ID")
-val signingKey: String = getEnvOrProjectProperty("signingKey", "SIGNING_KEY")
-    .replace("\\n", "\n")
-val signingPassword: String = getEnvOrProjectProperty("signingPassword", "SIGNING_PASSWORD")
-val signingUseGpgCmd: Boolean = getEnvOrProjectProperty("signingUseGpgCmd", "SIGNING_USE_GPG_CMD").toBoolean()
-val signingGpgExecutable: String = getEnvOrProjectProperty("signing.gnupg.executable", "GPG_EXECUTABLE")
-    .ifBlank { "/opt/homebrew/bin/gpg" }
-val signingGpgKeyName: String = getEnvOrProjectProperty("signing.gnupg.keyName", "GPG_KEY_NAME")
-    .ifBlank { signingKeyId }
+val centralPublishing = resolveCentralPublishingConfig()
+val centralUser: String = centralPublishing.username
+val centralPassword: String = centralPublishing.password
 
 val projectGroup: String by project
 val baseVersion: String by project
@@ -71,6 +61,15 @@ allprojects {
 subprojects {
     if (!path.contains("workshop") && !path.contains("examples") && !path.contains("-demo")) {
         apply(plugin = Plugins.nmcp)
+    }
+
+    configurations.matching { it.name.startsWith("nmcp") }.configureEach {
+        resolutionStrategy.eachDependency {
+            if (requested.group == "org.jetbrains.kotlinx" && requested.name.startsWith("kotlinx-serialization")) {
+                useVersion("1.9.0")
+                because("nmcp 1.4.4 runtime compatibility (avoid serialization ABI mismatch)")
+            }
+        }
     }
 
     plugins.withId(Plugins.nmcp) {
@@ -164,6 +163,7 @@ subprojects {
         // 멀티 모듈들을 테스트 시에 동시에 실행되지 않게 하기 위해 Mutex 를 활용합니다.
         abstract class TestMutexService: BuildService<BuildServiceParameters.None>
         abstract class SigningMutexService: BuildService<BuildServiceParameters.None>
+        abstract class NmcpPublishMutexService: BuildService<BuildServiceParameters.None>
 
         val testMutex = gradle.sharedServices.registerIfAbsent(
             "test-mutex",
@@ -174,6 +174,12 @@ subprojects {
         val signingMutex = gradle.sharedServices.registerIfAbsent(
             "signing-mutex",
             SigningMutexService::class
+        ) {
+            maxParallelUsages.set(1)
+        }
+        val nmcpPublishMutex = gradle.sharedServices.registerIfAbsent(
+            "nmcp-publish-mutex",
+            NmcpPublishMutexService::class
         ) {
             maxParallelUsages.set(1)
         }
@@ -216,6 +222,11 @@ subprojects {
 
         withType<Sign>().configureEach {
             usesService(signingMutex)
+        }
+        configureEach {
+            if (name.startsWith("nmcpPublishAllPublicationsToCentral")) {
+                usesService(nmcpPublishMutex)
+            }
         }
 
         testlogger {
@@ -644,68 +655,26 @@ subprojects {
                     artifact(javadocJar)
 
                     pom {
-                        name.set("bluetape4k")
-                        description.set("Common Library for Kotlin")
-                        url.set("https://github.com/bluetape4k/bluetape4k-projects")
-                        licenses {
-                            license {
-                                name.set("The Apache License, Version 2.0")
-                                url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
-                            }
-                        }
-                        developers {
-                            developer {
-                                id.set("debop")
-                                name.set("Sunghyouk Bae")
-                                email.set("sunghyouk.bae@gmail.com")
-                            }
-                        }
-                        scm {
-                            url.set("https://www.github.com/bluetape4k/bluetape4k-projects")
-                            connection.set("scm:git:https://www.github.com/bluetape4k/bluetape4k-projects")
-                            developerConnection.set("scm:git:https://www.github.com/bluetape4k/bluetape4k-projects")
-                        }
+                        applyBluetape4kPomMetadata(
+                            artifactDisplayName = project.name,
+                            artifactDescription = "Common Library for Kotlin",
+                        )
                     }
                 }
             }
         }
         repositories {
-//            maven {
-//                name = "Bluetape4k"
-//                url = uri("https://maven.pkg.github.com/bluetape4k/bluetape4k-projects")
-//                credentials {
-//                    username = bluetape4kGprUser
-//                    password = bluetape4kGprPublishKey
-//                }
-//            }
+            centralSnapshotsRepository(project)
             mavenLocal()
         }
     }
 
-    signing {
-        if (signingKey.isNotBlank() && signingPassword.isNotBlank()) {
-            useInMemoryPgpKeys(signingKeyId.ifBlank { null }, signingKey, signingPassword)
-            if (!project.path.contains("workshop") && !project.path.contains("examples") && !project.path.contains("-demo")) {
-                sign(publishing.publications["Bluetape4k"])
-            }
-        } else if (signingUseGpgCmd) {
-            if (file(signingGpgExecutable).exists()) {
-                project.extensions.extraProperties["signing.gnupg.executable"] = signingGpgExecutable
-            }
-            if (signingGpgKeyName.isNotBlank()) {
-                project.extensions.extraProperties["signing.gnupg.keyName"] = signingGpgKeyName
-            }
-            useGpgCmd()
-            if (!project.path.contains("workshop") && !project.path.contains("examples") && !project.path.contains("-demo")) {
-                sign(publishing.publications["Bluetape4k"])
-            }
-        } else if (signingPassword.isNotBlank()) {
-            logger.warn(
-                "서명 키가 없어 서명을 수행하지 않습니다. " +
-                        "SIGNING_KEY(+SIGNING_PASSWORD)를 우선 설정하고, 필요 시 SIGNING_USE_GPG_CMD=true를 사용하세요."
-            )
-        }
-    }
+    configurePublishingSigning(
+        publicationName = "Bluetape4k",
+        enabled = !project.path.contains("workshop") &&
+                !project.path.contains("examples") &&
+                !project.path.contains("-demo"),
+    )
 
     tasks.withType<GenerateMavenPom>().configureEach {
         notCompatibleWithConfigurationCache("publishing tasks are not cache-safe")
@@ -736,8 +705,16 @@ tasks.register("publishAggregationToCentralPortal") {
 
 tasks.register("publishAggregationToCentralSnapshots") {
     group = PublishingPlugin.PUBLISH_TASK_GROUP
-    description = "Publishes all publishable modules to the Central Snapshots repository."
-    dependsOn(publishableProjects.map { "${it.path}:publishAllPublicationsToCentralSnapshots" })
+    description = "Publishes all publishable modules to the Central Snapshots repository via Maven Publish."
+    val snapshotPublishTasks = publishableProjects.flatMap { subproject ->
+        subproject.tasks.names
+            .filter { name ->
+                name == "publishAllPublicationsToCentralSnapshotsRepository" ||
+                        (name.startsWith("publish") && name.endsWith("PublicationToCentralSnapshotsRepository"))
+            }
+            .map { taskName -> "${subproject.path}:$taskName" }
+    }
+    dependsOn(snapshotPublishTasks)
 }
 
 tasks.register("publishAggregationToCentralPortalSnapshots") {
