@@ -14,61 +14,76 @@ dependencies {
     }
 }
 
-// NOTE: Nexus 에 등록된 것 때문에 사용한다
-// NOTE: .zshrc 에 정의하던가, ~/.gradle/gradle.properties 에 정의해주셔야 합니다.
+// NOTE: .zshrc 에 정의하거나, ~/.gradle/gradle.properties 에 정의해주세요.
 fun getEnvOrProjectProperty(propertyKey: String, envKey: String): String {
     return project.findProperty(propertyKey) as? String ?: System.getenv(envKey).orEmpty()
 }
 
-val bluetape4kGprUser: String = getEnvOrProjectProperty("gpr.user", "BLUETAPE4K_GITHUB_USERNAME")
-val bluetape4kGprKey: String = getEnvOrProjectProperty("gpr.key", "BLUETAPE4K_GITHUB_TOKEN")
-val bluetape4kGprPublishKey: String = getEnvOrProjectProperty("gpr.publish.key", "BLUETAPE4K_GITHUB_PUBLISH_TOKEN")
 
-val centralUser: String = getEnvOrProjectProperty("central.user", "CENTRAL_USERNAME")
-val centralPassword: String = getEnvOrProjectProperty("central.password", "CENTRAL_PASSWORD")
-
+val signingKeyId: String = getEnvOrProjectProperty("signingKeyId", "SIGNING_KEY_ID")
+val signingKey: String = getEnvOrProjectProperty("signingKey", "SIGNING_KEY")
+    .replace("\\n", "\n")
 val signingPassword: String = getEnvOrProjectProperty("signingPassword", "SIGNING_PASSWORD")
 val signingUseGpgCmd: Boolean = getEnvOrProjectProperty("signingUseGpgCmd", "SIGNING_USE_GPG_CMD")
     .toBoolean()
+val signingGpgExecutable: String = getEnvOrProjectProperty("signing.gnupg.executable", "GPG_EXECUTABLE")
+    .ifBlank { "/opt/homebrew/bin/gpg" }
+val signingGpgKeyName: String = getEnvOrProjectProperty("signing.gnupg.keyName", "GPG_KEY_NAME")
+    .ifBlank { signingKeyId }
 
 publishing {
     publications {
         register("Bluetape4k", MavenPublication::class) {
             from(components["javaPlatform"])
+            pom {
+                name.set("bluetape4k-bom")
+                description.set("BOM for Bluetape4k modules")
+                url.set("https://github.com/bluetape4k/bluetape4k-projects")
+                licenses {
+                    license {
+                        name.set("The Apache License, Version 2.0")
+                        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("debop")
+                        name.set("Sunghyouk Bae")
+                        email.set("sunghyouk.bae@gmail.com")
+                    }
+                }
+                scm {
+                    url.set("https://www.github.com/bluetape4k/bluetape4k-projects")
+                    connection.set("scm:git:https://www.github.com/bluetape4k/bluetape4k-projects")
+                    developerConnection.set("scm:git:https://www.github.com/bluetape4k/bluetape4k-projects")
+                }
+            }
         }
     }
     repositories {
-        maven {
-            name = "Central"
-            url = uri(
-                if (version.toString().endsWith("SNAPSHOT")) {
-                    "https://central.sonatype.com/repository/maven-snapshots/"
-                } else {
-                    "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
-                }
-            )
-            credentials {
-                username = centralUser
-                password = centralPassword
-            }
-        }
-        maven {
-            name = "Bluetape4k"
-            url = uri("https://maven.pkg.github.com/bluetape4k/bluetape4k-projects")
-            credentials {
-                username = bluetape4kGprUser
-                password = bluetape4kGprPublishKey
-            }
-        }
+        mavenCentral()
+        google()
         mavenLocal()
     }
 }
 
 signing {
-    if (signingUseGpgCmd) {
+    if (signingKey.isNotBlank() && signingPassword.isNotBlank()) {
+        useInMemoryPgpKeys(signingKeyId.ifBlank { null }, signingKey, signingPassword)
+        sign(publishing.publications["Bluetape4k"])
+    } else if (signingUseGpgCmd) {
+        if (file(signingGpgExecutable).exists()) {
+            project.extensions.extraProperties["signing.gnupg.executable"] = signingGpgExecutable
+        }
+        if (signingGpgKeyName.isNotBlank()) {
+            project.extensions.extraProperties["signing.gnupg.keyName"] = signingGpgKeyName
+        }
         useGpgCmd()
         sign(publishing.publications["Bluetape4k"])
     } else if (signingPassword.isNotBlank()) {
-        logger.warn("SIGNING_USE_GPG_CMD is false. GPG command signing is disabled.")
+        logger.warn(
+            "서명 키가 없어 서명을 수행하지 않습니다. " +
+                    "SIGNING_KEY(+SIGNING_PASSWORD)를 우선 설정하고, 필요 시 SIGNING_USE_GPG_CMD=true를 사용하세요."
+        )
     }
 }

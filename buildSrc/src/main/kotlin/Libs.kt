@@ -28,6 +28,7 @@ object Plugins {
         const val graalvm_native = "0.11.4" // https://mvnrepository.com/artifact/org.graalvm.buildtools.native/org.graalvm.buildtools.native.gradle.plugin
 
         const val kosogor = "1.0.23" // https://plugins.gradle.org/plugin/tanvd.kosogor
+        const val nmcp = "1.4.4" // https://plugins.gradle.org/plugin/com.gradleup.nmcp
     }
 
     const val detekt = "io.gitlab.arturbosch.detekt"
@@ -58,6 +59,8 @@ object Plugins {
     const val graalvm_native = "org.graalvm.buildtools.native"
 
     const val kosogor = "tanvd.kosogor" // https://plugins.gradle.org/plugin/tanvd.kosogor
+    const val nmcp = "com.gradleup.nmcp"
+    const val nmcp_aggregation = "com.gradleup.nmcp.aggregation"
 }
 
 object Versions {

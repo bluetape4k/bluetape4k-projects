@@ -1,5 +1,6 @@
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.report.ReportMergeTask
+import nmcp.NmcpExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
@@ -32,10 +33,10 @@ plugins {
 
     id(Plugins.graalvm_native) version Plugins.Versions.graalvm_native apply false
     id(Plugins.kosogor) version Plugins.Versions.kosogor
+    id(Plugins.nmcp) version Plugins.Versions.nmcp apply false
 }
 
-// NOTE: Nexus 에 등록된 것 때문에 사용한다
-// NOTE: .zshrc 에 정의하던가, ~/.gradle/gradle.properties 에 정의해주셔야 합니다.
+// NOTE: .zshrc 에 정의하거나, ~/.gradle/gradle.properties 에 정의해주세요.
 fun getEnvOrProjectProperty(propertyKey: String, envKey: String): String {
     return project.findProperty(propertyKey) as? String ?: System.getenv()[envKey].orEmpty()
 }
@@ -43,8 +44,15 @@ fun getEnvOrProjectProperty(propertyKey: String, envKey: String): String {
 val centralUser: String = getEnvOrProjectProperty("central.user", "CENTRAL_USERNAME")
 val centralPassword: String = getEnvOrProjectProperty("central.password", "CENTRAL_PASSWORD")
 
+val signingKeyId: String = getEnvOrProjectProperty("signingKeyId", "SIGNING_KEY_ID")
+val signingKey: String = getEnvOrProjectProperty("signingKey", "SIGNING_KEY")
+    .replace("\\n", "\n")
 val signingPassword: String = getEnvOrProjectProperty("signingPassword", "SIGNING_PASSWORD")
 val signingUseGpgCmd: Boolean = getEnvOrProjectProperty("signingUseGpgCmd", "SIGNING_USE_GPG_CMD").toBoolean()
+val signingGpgExecutable: String = getEnvOrProjectProperty("signing.gnupg.executable", "GPG_EXECUTABLE")
+    .ifBlank { "/opt/homebrew/bin/gpg" }
+val signingGpgKeyName: String = getEnvOrProjectProperty("signing.gnupg.keyName", "GPG_KEY_NAME")
+    .ifBlank { signingKeyId }
 
 val projectGroup: String by project
 val baseVersion: String by project
@@ -57,6 +65,22 @@ allprojects {
     repositories {
         mavenCentral()
         google()
+    }
+}
+
+subprojects {
+    if (!path.contains("workshop") && !path.contains("examples") && !path.contains("-demo")) {
+        apply(plugin = Plugins.nmcp)
+    }
+
+    plugins.withId(Plugins.nmcp) {
+        extensions.configure<NmcpExtension>("nmcp") {
+            publishAllPublicationsToCentralPortal {
+                username.set(centralUser)
+                password.set(centralPassword)
+                publishingType.set("AUTOMATIC")
+            }
+        }
     }
 }
 
@@ -139,10 +163,17 @@ subprojects {
 
         // 멀티 모듈들을 테스트 시에 동시에 실행되지 않게 하기 위해 Mutex 를 활용합니다.
         abstract class TestMutexService: BuildService<BuildServiceParameters.None>
+        abstract class SigningMutexService: BuildService<BuildServiceParameters.None>
 
         val testMutex = gradle.sharedServices.registerIfAbsent(
             "test-mutex",
             TestMutexService::class
+        ) {
+            maxParallelUsages.set(1)
+        }
+        val signingMutex = gradle.sharedServices.registerIfAbsent(
+            "signing-mutex",
+            SigningMutexService::class
         ) {
             maxParallelUsages.set(1)
         }
@@ -181,6 +212,10 @@ subprojects {
 
                 events("failed")
             }
+        }
+
+        withType<Sign>().configureEach {
+            usesService(signingMutex)
         }
 
         testlogger {
@@ -580,14 +615,11 @@ subprojects {
 
     /*
         1. mavenLocal 에 publish 시에는 ./gradlew publishMavenPublicationToMavenLocalRepository 를 수행
-        2. nexus에 publish 시에는 ./gradlew publish -PnexusDeployPassword=디플로이 로 비밀번호를 넣어줘야 배포가 됩니다.
-
-        Release 를 위해서는 아래와 같이 `nexusDeployPassword`에 비밀번호를 넣고, `snapshotVersion`에 아무 것도 지정하지 않으면
-        nexus server의 releases 에 등록됩니다.
+        2. Maven Central 배포는 Central Portal Publisher API 기반의 aggregation task를 사용합니다.
         
         ```bash
         $ ./gradlew clean build
-        $ ./gradlew publish -PnexusDeployPassword=elvmffhdl -PsnapshotVersion=
+        $ ./gradlew publishAggregationToCentralPortal
         ```
      */
     publishing {
@@ -638,20 +670,6 @@ subprojects {
             }
         }
         repositories {
-            maven {
-                name = "Central"
-                url = uri(
-                    if (version.toString().endsWith("SNAPSHOT")) {
-                        "https://central.sonatype.com/repository/maven-snapshots/"
-                    } else {
-                        "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
-                    }
-                )
-                credentials {
-                    username = centralUser
-                    password = centralPassword
-                }
-            }
 //            maven {
 //                name = "Bluetape4k"
 //                url = uri("https://maven.pkg.github.com/bluetape4k/bluetape4k-projects")
@@ -665,13 +683,27 @@ subprojects {
     }
 
     signing {
-        if (signingUseGpgCmd) {
+        if (signingKey.isNotBlank() && signingPassword.isNotBlank()) {
+            useInMemoryPgpKeys(signingKeyId.ifBlank { null }, signingKey, signingPassword)
+            if (!project.path.contains("workshop") && !project.path.contains("examples") && !project.path.contains("-demo")) {
+                sign(publishing.publications["Bluetape4k"])
+            }
+        } else if (signingUseGpgCmd) {
+            if (file(signingGpgExecutable).exists()) {
+                project.extensions.extraProperties["signing.gnupg.executable"] = signingGpgExecutable
+            }
+            if (signingGpgKeyName.isNotBlank()) {
+                project.extensions.extraProperties["signing.gnupg.keyName"] = signingGpgKeyName
+            }
             useGpgCmd()
             if (!project.path.contains("workshop") && !project.path.contains("examples") && !project.path.contains("-demo")) {
                 sign(publishing.publications["Bluetape4k"])
             }
         } else if (signingPassword.isNotBlank()) {
-            logger.warn("SIGNING_USE_GPG_CMD is false. GPG command signing is disabled.")
+            logger.warn(
+                "서명 키가 없어 서명을 수행하지 않습니다. " +
+                        "SIGNING_KEY(+SIGNING_PASSWORD)를 우선 설정하고, 필요 시 SIGNING_USE_GPG_CMD=true를 사용하세요."
+            )
         }
     }
 
@@ -684,6 +716,28 @@ subprojects {
     tasks.withType<PublishToMavenLocal>().configureEach {
         notCompatibleWithConfigurationCache("publishing tasks are not cache-safe")
     }
+}
+
+val publishableProjects = subprojects.filterNot { project ->
+    project.path.contains("workshop") || project.path.contains("examples") || project.path.contains("-demo")
+}
+
+tasks.register("publishAggregationToCentralPortal") {
+    group = PublishingPlugin.PUBLISH_TASK_GROUP
+    description = "Publishes all publishable modules to the Central Releases repository."
+    dependsOn(publishableProjects.map { "${it.path}:publishAllPublicationsToCentralPortal" })
+}
+
+tasks.register("publishAggregationToCentralSnapshots") {
+    group = PublishingPlugin.PUBLISH_TASK_GROUP
+    description = "Publishes all publishable modules to the Central Snapshots repository."
+    dependsOn(publishableProjects.map { "${it.path}:publishAllPublicationsToCentralSnapshots" })
+}
+
+tasks.register("publishAggregationToCentralPortalSnapshots") {
+    group = PublishingPlugin.PUBLISH_TASK_GROUP
+    description = "Deprecated alias. Publishes all publishable modules to the Central Snapshots repository."
+    dependsOn("publishAggregationToCentralSnapshots")
 }
 
 tasks.register("testDataExposedModules") {
