@@ -35,7 +35,6 @@ import org.junit.jupiter.api.TestMethodOrder
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class KmsClientTest: AbstractKmsTest() {
 
-
     companion object: KLogging()
 
     private val testKeyDescription = "예제용 KMS 키에 대한 설명입니다 - By KmsClient"
@@ -44,6 +43,7 @@ class KmsClientTest: AbstractKmsTest() {
     private val data = randomString()
     private lateinit var encryptedBlob: ByteArray
 
+    // LocalStack 테스트 환경에서는 빈 문자열로도 Grant 생성이 가능합니다.
     private val testGranteePrincipal = ""
     private lateinit var testGrantId: String
 
@@ -52,13 +52,13 @@ class KmsClientTest: AbstractKmsTest() {
 
     @Test
     @Order(1)
-    fun `create KmsClient instance`() {
+    fun `KmsClient 인스턴스 생성`() {
         client.shouldNotBeNull()
     }
 
     @Test
     @Order(2)
-    fun `사용자 키 생성`() = runTest {
+    fun `대칭 키 생성`() = runTest {
         val response = client.createKey {
             keySpec = KeySpec.SymmetricDefault
             keyUsage = KeyUsageType.EncryptDecrypt
@@ -81,8 +81,8 @@ class KmsClientTest: AbstractKmsTest() {
 
         val algorithm = response.encryptionAlgorithm.toString()
         log.debug { "Encryption algorithm: $algorithm" }
+        algorithm.shouldNotBeEmpty()
 
-        // Get the encrypted data
         encryptedBlob = response.ciphertextBlob.shouldNotBeNull()
     }
 
@@ -100,25 +100,25 @@ class KmsClientTest: AbstractKmsTest() {
 
     @Test
     @Order(5)
-    fun `사용자 키를 사용 못하게 하기`() = runTest {
+    fun `키 비활성화`() = runTest {
         val response = client.disableKey {
             keyId = testKeyId
         }
-        log.debug { "response=$response" }
+        log.debug { "disableKey response=$response" }
     }
 
     @Test
     @Order(6)
-    fun `사용자 키를 다시 사용하게 하기`() = runTest {
+    fun `키 활성화`() = runTest {
         val response = client.enableKey {
             keyId = testKeyId
         }
-        log.debug { "response=$response" }
+        log.debug { "enableKey response=$response" }
     }
 
     @Test
     @Order(7)
-    fun `Grant 생성하기`() = runTest {
+    fun `Grant 생성`() = runTest {
         val response = client.createGrant {
             keyId = testKeyId
             granteePrincipal = testGranteePrincipal
@@ -131,7 +131,7 @@ class KmsClientTest: AbstractKmsTest() {
 
     @Test
     @Order(8)
-    fun `Grant 조회하기`() = runTest {
+    fun `Grant 목록 조회`() = runTest {
         val listResp = client.listGrants {
             keyId = testKeyId
             limit = 15
@@ -139,7 +139,7 @@ class KmsClientTest: AbstractKmsTest() {
 
         val grants = listResp.grants
         grants?.forEach { grant ->
-            log.debug { "Grantt id=${grant.grantId}" }
+            log.debug { "Grant id=${grant.grantId}" }
         }
         grants.shouldNotBeNull().shouldNotBeEmpty()
         grants.map { it.grantId } shouldContain testGrantId
@@ -147,17 +147,17 @@ class KmsClientTest: AbstractKmsTest() {
 
     @Test
     @Order(9)
-    fun `Grant 갱신하기`() = runTest {
+    fun `Grant 취소`() = runTest {
         val response = client.revokeGrant {
             keyId = testKeyId
             grantId = testGrantId
         }
-        log.debug { "Response=$response" }
+        log.debug { "revokeGrant response=$response" }
     }
 
     @Test
     @Order(10)
-    fun `describe key`() = runTest {
+    fun `키 메타데이터 조회`() = runTest {
         val response = client.describeKey {
             keyId = testKeyId
         }
@@ -179,7 +179,7 @@ class KmsClientTest: AbstractKmsTest() {
             targetKeyId = testKeyId
         }
 
-        log.debug { "Response=$response" }
+        log.debug { "createAlias response=$response" }
     }
 
     @Test
@@ -199,12 +199,12 @@ class KmsClientTest: AbstractKmsTest() {
     @Order(13)
     fun `Alias 삭제`() = runTest {
         val response = client.deleteAlias { aliasName = testAliasName }
-        log.debug { "Response=$response" }
+        log.debug { "deleteAlias response=$response" }
     }
 
     @Test
     @Order(14)
-    fun `key 목록 조회`() = runTest {
+    fun `키 목록 조회`() = runTest {
         val response = client.listKeys { limit = 15 }
 
         val keys = response.keys.shouldNotBeNull()
@@ -214,10 +214,9 @@ class KmsClientTest: AbstractKmsTest() {
         keys.map { it.keyId } shouldContain testKeyId
     }
 
-
     @Test
     @Order(15)
-    fun `Key Polish 주입`() = runTest {
+    fun `키 정책 설정`() = runTest {
         val testPolicyName = "default"
         val testPolicy = """
             {
@@ -237,6 +236,6 @@ class KmsClientTest: AbstractKmsTest() {
             policyName = testPolicyName
             policy = testPolicy
         }
-        log.debug { "Response=$response" }
+        log.debug { "putKeyPolicy response=$response" }
     }
 }
