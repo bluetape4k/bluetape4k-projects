@@ -8,11 +8,11 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import org.amshove.kluent.shouldNotBeEmpty
 import org.junit.jupiter.api.Test
 
-class SesFactoryTest: AbstractSesTest() {
+class SesClientFactoryTest: AbstractSesTest() {
 
     @Test
-    fun `SesFactory Sync create는 email을 전송할 수 있다`() {
-        val sync = SesFactory.Sync.create(endpoint, region, credentialsProvider)
+    fun `SesClientFactory Sync create는 email을 전송할 수 있다`() {
+        val sync = SesClientFactory.Sync.create(endpointOverride, region, credentialsProvider)
         sync.verifyEmailAddress { it.emailAddress(senderEmail) }
         sync.verifyEmailAddress { it.emailAddress(receiverEamil) }
 
@@ -30,8 +30,8 @@ class SesFactoryTest: AbstractSesTest() {
     }
 
     @Test
-    fun `SesFactory Async create는 email을 전송할 수 있다`() = runSuspendIO {
-        val async = SesFactory.Async.create(endpoint, region, credentialsProvider)
+    fun `SesClientFactory Async create는 email을 전송할 수 있다`() = runSuspendIO {
+        val async = SesClientFactory.Async.create(endpointOverride, region, credentialsProvider)
         client.verifyEmailAddress { it.emailAddress(senderEmail) }
         client.verifyEmailAddress { it.emailAddress(receiverEamil) }
 

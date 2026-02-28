@@ -60,9 +60,9 @@ inline fun snsClientOf(
     @BuilderInference crossinline builder: SnsClient.Config.Builder.() -> Unit = {},
 ): SnsClient =
     SnsClient {
-        this.endpointUrl = endpointUrl
-        this.region = region
-        this.credentialsProvider = credentialsProvider
+        endpointUrl?.let { this.endpointUrl = it }
+        region?.let { this.region = it }
+        credentialsProvider?.let { this.credentialsProvider = it }
         this.httpClient = httpClient
 
         builder()

@@ -27,6 +27,7 @@ import io.bluetape4k.aws.kotlin.http.HttpClientEngineProvider
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireNotBlank
+import io.bluetape4k.utils.ShutdownQueue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withTimeout
@@ -47,8 +48,8 @@ val log by lazy { KotlinLogging.logger { } }
  * @return [DynamoDbClient] 인스턴스
  */
 inline fun dynamoDbClientOf(
-    endpointUrl: Url,
-    region: String,
+    endpointUrl: Url? = null,
+    region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
     httpClient: HttpClientEngine = HttpClientEngineProvider.defaultHttpEngine,
     @BuilderInference crossinline builder: DynamoDbClient.Config.Builder.() -> Unit = {},
@@ -56,12 +57,14 @@ inline fun dynamoDbClientOf(
     region.requireNotBlank("region")
 
     return DynamoDbClient {
-        this.endpointUrl = endpointUrl
-        this.region = region
-        this.credentialsProvider = credentialsProvider
+        endpointUrl?.let { this.endpointUrl = it }
+        region?.let { this.region = it }
+        credentialsProvider?.let { this.credentialsProvider = it }
         this.httpClient = httpClient
 
         builder()
+    }.apply {
+        ShutdownQueue.register(this)
     }
 }
 

@@ -50,15 +50,15 @@ inline fun dynamoDbClient(
  * @see [DynamoDbClient]
  */
 inline fun dynamoDbClientOf(
-    endpoint: URI,
-    region: Region,
-    credentialsProvider: AwsCredentialsProvider,
+    endpointOverride: URI? = null,
+    region: Region? = null,
+    credentialsProvider: AwsCredentialsProvider? = null,
     httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
     @BuilderInference builder: DynamoDbClientBuilder.() -> Unit = {},
 ): DynamoDbClient = dynamoDbClient {
-    endpointOverride(endpoint)
-    region(region)
-    credentialsProvider(credentialsProvider)
+    endpointOverride?.let { endpointOverride(it) }
+    region?.let { region(it) }
+    credentialsProvider?.let { credentialsProvider(it) }
     httpClient(httpClient)
 
     builder()

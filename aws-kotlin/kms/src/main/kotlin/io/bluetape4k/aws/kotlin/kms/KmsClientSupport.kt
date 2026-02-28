@@ -5,6 +5,7 @@ import aws.smithy.kotlin.runtime.auth.awscredentials.CredentialsProvider
 import aws.smithy.kotlin.runtime.http.engine.HttpClientEngine
 import aws.smithy.kotlin.runtime.net.url.Url
 import io.bluetape4k.aws.kotlin.http.HttpClientEngineProvider
+import io.bluetape4k.utils.ShutdownQueue
 
 /**
  * AWS Kotlin SDK KMS 클라이언트를 생성합니다.
@@ -41,4 +42,6 @@ inline fun kmsClientOf(
     this.httpClient = httpClient
 
     builder()
+}.apply {
+    ShutdownQueue.register(this)
 }

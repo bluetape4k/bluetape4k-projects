@@ -21,32 +21,19 @@ inline fun snsAsyncClient(
         }
 
 /**
- * [Region] 기반으로 [SnsAsyncClient]를 생성합니다.
- */
-inline fun snsAsyncClientOf(
-    region: Region,
-    httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
-    @BuilderInference builder: SnsAsyncClientBuilder.() -> Unit = {},
-): SnsAsyncClient = snsAsyncClient {
-    region(region)
-    httpClient(httpClient)
-
-    builder()
-}
-
-/**
  * endpoint + credentials 기반으로 [SnsAsyncClient]를 생성합니다.
  */
 inline fun snsAsyncClientOf(
-    endpoint: URI,
-    region: Region,
-    credentialsProvider: AwsCredentialsProvider,
+    endpoint: URI? = null,
+    region: Region? = null,
+    credentialsProvider: AwsCredentialsProvider? = null,
     httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
     @BuilderInference builder: SnsAsyncClientBuilder.() -> Unit = {},
 ): SnsAsyncClient = snsAsyncClient {
-    endpointOverride(endpoint)
-    region(region)
-    credentialsProvider(credentialsProvider)
+    endpoint?.let { endpointOverride(it) }
+    region?.let { region(it) }
+    credentialsProvider?.let { credentialsProvider(it) }
+
     httpClient(httpClient)
 
     builder()

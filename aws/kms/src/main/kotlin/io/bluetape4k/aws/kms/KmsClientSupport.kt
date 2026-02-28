@@ -47,15 +47,15 @@ inline fun kmsClient(
  * @return 설정된 [KmsClient] 인스턴스.
  */
 inline fun kmsClientOf(
-    endpointOverride: URI,
-    region: Region,
-    credentialsProvider: AwsCredentialsProvider,
+    endpointOverride: URI? = null,
+    region: Region? = null,
+    credentialsProvider: AwsCredentialsProvider? = null,
     httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
     @BuilderInference builder: KmsClientBuilder.() -> Unit = {},
 ): KmsClient = kmsClient {
-    endpointOverride(endpointOverride)
-    region(region)
-    credentialsProvider(credentialsProvider)
+    endpointOverride?.let { endpointOverride(it) }
+    region?.let { region(it) }
+    credentialsProvider?.let { credentialsProvider(it) }
     httpClient(httpClient)
 
     builder()

@@ -93,7 +93,7 @@ class SqsClientTest: AbstractSqsTest() {
 
         val responses = messages.map { message ->
             client.changeMessageVisibility(queueUrl, message.receiptHandle(), 10)
-            AbstractSqsTest.client.changeMessageVisibility {
+            client.changeMessageVisibility {
                 it.queueUrl(queueUrl).receiptHandle(message.receiptHandle()).visibilityTimeout(10)
             }
         }

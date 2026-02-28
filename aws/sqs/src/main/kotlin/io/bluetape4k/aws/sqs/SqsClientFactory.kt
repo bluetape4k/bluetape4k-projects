@@ -1,6 +1,5 @@
 package io.bluetape4k.aws.sqs
 
-import io.bluetape4k.aws.auth.LocalAwsCredentialsProvider
 import io.bluetape4k.aws.http.SdkAsyncHttpClientProvider
 import io.bluetape4k.aws.http.SdkHttpClientProvider
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
@@ -16,8 +15,7 @@ import java.net.URI
 /**
  * [SqsClient], [SqsAsyncClient] 생성을 위한 Factory 입니다.
  */
-@Deprecated("use SqsClientFactory instead", ReplaceWith("SqsClientFactory"))
-object SqsFactory {
+object SqsClientFactory {
 
     /**
      * 동기 [SqsClient] 생성을 지원합니다.
@@ -29,9 +27,9 @@ object SqsFactory {
         ): SqsClient = sqsClient(builder)
 
         inline fun create(
-            endpointOverride: URI,
-            region: Region = Region.AP_NORTHEAST_2,
-            credentialsProvider: AwsCredentialsProvider = LocalAwsCredentialsProvider,
+            endpointOverride: URI? = null,
+            region: Region? = null,
+            credentialsProvider: AwsCredentialsProvider? = null,
             httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
             @BuilderInference builder: SqsClientBuilder.() -> Unit = {},
         ): SqsClient = sqsClientOf(
@@ -53,9 +51,9 @@ object SqsFactory {
         ): SqsAsyncClient = sqsAsyncClient(builder)
 
         inline fun create(
-            endpointOverride: URI,
-            region: Region = Region.AP_NORTHEAST_2,
-            credentialsProvider: AwsCredentialsProvider = LocalAwsCredentialsProvider,
+            endpointOverride: URI? = null,
+            region: Region? = null,
+            credentialsProvider: AwsCredentialsProvider? = null,
             httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
             @BuilderInference builder: SqsAsyncClientBuilder.() -> Unit = {},
         ): SqsAsyncClient = sqsAsyncClientOf(

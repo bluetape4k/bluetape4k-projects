@@ -67,23 +67,23 @@ val log by lazy { KotlinLogging.logger { } }
  * @return [SqsClient] 인스턴스를 반환합니다.
  */
 inline fun sqsClientOf(
-    endpointUrl: Url,
+    endpointUrl: Url? = null,
     region: String? = null,
     credentialsProvider: CredentialsProvider? = null,
     httpClient: HttpClientEngine = HttpClientEngineProvider.defaultHttpEngine,
     @BuilderInference crossinline builder: SqsClient.Config.Builder.() -> Unit = {},
 ): SqsClient {
-    endpointUrl.hostAndPort.requireNotBlank("endpointUrl")
+    endpointUrl?.hostAndPort.requireNotBlank("endpointUrl")
 
     return SqsClient {
-        this.endpointUrl = endpointUrl
-        this.region = region
-        this.credentialsProvider = credentialsProvider
+        endpointUrl?.let { this.endpointUrl = it }
+        region?.let { this.region = it }
+        credentialsProvider?.let { this.credentialsProvider = it }
+
         this.httpClient = httpClient
 
         builder()
     }.apply {
-        log.info { "Create SqsClient instance." }
         ShutdownQueue.register(this)
     }
 }

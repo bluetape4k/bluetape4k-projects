@@ -5,11 +5,11 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import org.amshove.kluent.shouldNotBeEmpty
 import org.junit.jupiter.api.Test
 
-class SnsFactoryTest: AbstractSnsTest() {
+class SnsClientFactoryTest: AbstractSnsTest() {
 
     @Test
-    fun `SnsFactory Sync create는 topic을 생성할 수 있다`() {
-        val sync = SnsFactory.Sync.create(endpoint, region, credentialsProvider)
+    fun `SnsClientFactory Sync create는 topic을 생성할 수 있다`() {
+        val sync = SnsClientFactory.Sync.create(endpointOverride, region, credentialsProvider)
         val topicName = "factory-sync-${Base58.randomString(8).lowercase()}"
 
         val response = sync.createTopic(topicName)
@@ -18,8 +18,8 @@ class SnsFactoryTest: AbstractSnsTest() {
     }
 
     @Test
-    fun `SnsFactory Async create는 topic을 생성할 수 있다`() = runSuspendIO {
-        val async = SnsFactory.Async.create(endpoint, region, credentialsProvider)
+    fun `SnsClientFactory Async create는 topic을 생성할 수 있다`() = runSuspendIO {
+        val async = SnsClientFactory.Async.create(endpointOverride, region, credentialsProvider)
         val topicName = "factory-async-${Base58.randomString(8).lowercase()}"
 
         val response = async.createTopic(topicName)
@@ -27,4 +27,3 @@ class SnsFactoryTest: AbstractSnsTest() {
         response.topicArn().shouldNotBeEmpty()
     }
 }
-

@@ -1,6 +1,8 @@
 package io.bluetape4k.aws.ses
 
 import io.bluetape4k.aws.auth.staticCredentialsProviderOf
+import io.bluetape4k.aws.http.SdkAsyncHttpClientProvider
+import io.bluetape4k.aws.http.SdkHttpClientProvider
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.aws.LocalStackServer
@@ -21,7 +23,7 @@ abstract class AbstractSesTest {
         }
 
         @JvmStatic
-        protected val endpoint: URI by lazy {
+        protected val endpointOverride: URI by lazy {
             awsSES.getEndpointOverride(LocalStackContainer.Service.SES)
         }
 
@@ -34,23 +36,7 @@ abstract class AbstractSesTest {
         protected val region: Region
             get() = Region.of(awsSES.region)
 
-        @JvmStatic
-        protected val client: SesClient by lazy {
-            SesFactory.Sync.create(
-                endpoint,
-                region,
-                credentialsProvider
-            )
-        }
 
-        @JvmStatic
-        protected val asyncClient: SesAsyncClient by lazy {
-            SesFactory.Async.create(
-                endpoint,
-                region,
-                credentialsProvider
-            )
-        }
 
         @JvmStatic
         protected val faker = Fakers.faker
@@ -63,5 +49,23 @@ abstract class AbstractSesTest {
         const val domain = "example.com"
         const val senderEmail = "from-user@example.com"
         const val receiverEamil = "to-use@example.com"
+    }
+
+    protected val client: SesClient by lazy {
+        SesClientFactory.Sync.create(
+            endpointOverride = endpointOverride,
+            region = region,
+            credentialsProvider = credentialsProvider,
+            httpClient = SdkHttpClientProvider.defaultHttpClient,
+        )
+    }
+
+    protected val asyncClient: SesAsyncClient by lazy {
+        SesClientFactory.Async.create(
+            endpointOverride = endpointOverride,
+            region = region,
+            credentialsProvider = credentialsProvider,
+            httpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
+        )
     }
 }

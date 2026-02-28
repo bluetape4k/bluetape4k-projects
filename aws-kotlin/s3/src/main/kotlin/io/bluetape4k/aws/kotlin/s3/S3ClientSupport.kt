@@ -35,9 +35,9 @@ inline fun s3ClientOf(
     @BuilderInference crossinline builder: S3Client.Config.Builder.() -> Unit = {},
 ): S3Client =
     S3Client {
-        this.endpointUrl = endpointUrl
-        this.region = region
-        this.credentialsProvider = credentialsProvider
+        endpointUrl?.let { this.endpointUrl = it }
+        region?.let { this.region = it }
+        credentialsProvider?.let { this.credentialsProvider = it }
         this.httpClient = httpClient
 
         builder()

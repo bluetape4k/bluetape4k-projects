@@ -1,6 +1,8 @@
 package io.bluetape4k.aws.s3
 
 import io.bluetape4k.aws.auth.staticCredentialsProviderOf
+import io.bluetape4k.aws.http.SdkAsyncHttpClientProvider
+import io.bluetape4k.aws.http.SdkHttpClientProvider
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -16,6 +18,7 @@ import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3AsyncClient
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.transfer.s3.S3TransferManager
+import java.net.URI
 
 abstract class AbstractS3Test {
     companion object: KLoggingChannel() {
@@ -29,7 +32,7 @@ abstract class AbstractS3Test {
         }
 
         @JvmStatic
-        private val endpoint by lazy {
+        private val endpointOverride: URI by lazy {
             AwsS3.getEndpointOverride(LocalStackContainer.Service.S3)
         }
 
@@ -53,26 +56,28 @@ abstract class AbstractS3Test {
     }
 
     val s3Client: S3Client by lazy {
-        S3Factory.Sync.create {
-            endpointOverride(endpoint)
-            region(region)
-            credentialsProvider(credentialsProvider)
-        }
+        S3ClientFactory.Sync.create(
+            endpointOverride = endpointOverride,
+            region = region,
+            credentialsProvider = credentialsProvider,
+            httpClient = SdkHttpClientProvider.defaultHttpClient
+        )
     }
 
     val s3AsyncClient: S3AsyncClient by lazy {
-        S3Factory.Async.create {
-            endpointOverride(endpoint)
-            region(region)
-            credentialsProvider(credentialsProvider)
-        }
+        S3ClientFactory.Async.create(
+            endpointOverride = endpointOverride,
+            region = region,
+            credentialsProvider = credentialsProvider,
+            httpClient = SdkAsyncHttpClientProvider.defaultHttpClient
+        )
     }
 
     val s3TransferManager: S3TransferManager by lazy {
-        S3Factory.TransferManager.create(
-            endpoint,
-            region,
-            credentialsProvider,
+        S3ClientFactory.TransferManager.create(
+            endpointOverride = endpointOverride,
+            region = region,
+            credentialsProvider = credentialsProvider,
         ) {
             this.executor(Dispatchers.IO.asExecutor())
         }

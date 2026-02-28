@@ -1,8 +1,8 @@
 package io.bluetape4k.aws.s3
 
-import io.bluetape4k.aws.auth.LocalAwsCredentialsProvider
 import io.bluetape4k.aws.http.SdkAsyncHttpClientProvider
 import io.bluetape4k.aws.http.SdkHttpClientProvider
+import io.bluetape4k.utils.Runtimex
 import io.bluetape4k.utils.ShutdownQueue
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import software.amazon.awssdk.http.SdkHttpClient
@@ -22,8 +22,7 @@ import java.util.concurrent.Executors
 /**
  * [S3Client], [S3AsyncClient], [S3TransferManager] 인스턴스를 생성하는 함수를 제공합니다.
  */
-@Deprecated("use S3ClientFactory instead", replaceWith = ReplaceWith("S3ClientFactory"))
-object S3Factory {
+object S3ClientFactory {
 
     /**
      * S3를 동기방식으로 사용하는 [S3Client] 를 생성하는 메소드를 제공합니다.
@@ -55,19 +54,21 @@ object S3Factory {
          * @return [S3Client] 인스턴스
          */
         inline fun create(
-            endpointOverride: URI,
-            region: Region = Region.AP_NORTHEAST_2,
-            credentialsProvider: AwsCredentialsProvider = LocalAwsCredentialsProvider,
+            endpointOverride: URI? = null,
+            region: Region? = null,
+            credentialsProvider: AwsCredentialsProvider? = null,
             httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
+            accelerate: Boolean = false,
             @BuilderInference builder: S3ClientBuilder.() -> Unit = {},
         ): S3Client {
             return create {
-                endpointOverride(endpointOverride)
-                region(region)
-                credentialsProvider(credentialsProvider)
-                // Transfer Acceleration requires bucket-level enablement; leave disabled by default.
-                // accelerate(false)
+                endpointOverride?.let { endpointOverride(it) }
+                region?.let { region(it) }
+                credentialsProvider?.let { credentialsProvider(it) }
                 httpClient(httpClient)
+
+                // Transfer Acceleration requires bucket-level enablement; leave disabled by default.
+                accelerate(accelerate)
 
                 builder()
             }
@@ -106,19 +107,22 @@ object S3Factory {
          * @return [S3AsyncClient] 인스턴스
          */
         inline fun create(
-            endpointOverride: URI,
-            region: Region = Region.AP_NORTHEAST_2,
-            credentialsProvider: AwsCredentialsProvider = LocalAwsCredentialsProvider,
+            endpointOverride: URI? = null,
+            region: Region? = null,
+            credentialsProvider: AwsCredentialsProvider? = null,
             httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
+            accelerate: Boolean = false,
             @BuilderInference builder: S3AsyncClientBuilder.() -> Unit = {},
         ): S3AsyncClient {
             return create {
-                endpointOverride(endpointOverride)
-                region(region)
-                credentialsProvider(credentialsProvider)
-                // Transfer Acceleration requires bucket-level enablement; leave disabled by default.
-                accelerate(false)
+                endpointOverride?.let { endpointOverride(it) }
+                region?.let { region(it) }
+                credentialsProvider?.let { credentialsProvider(it) }
                 httpClient(httpClient)
+
+                // Transfer Acceleration requires bucket-level enablement; leave disabled by default.
+                accelerate(accelerate)
+
                 builder()
             }
         }
@@ -157,17 +161,18 @@ object S3Factory {
          * @return [S3AsyncClient] 인스턴스
          */
         inline fun create(
-            endpointOverride: URI,
-            region: Region = Region.AP_NORTHEAST_2,
-            credentialsProvider: AwsCredentialsProvider = LocalAwsCredentialsProvider,
+            endpointOverride: URI? = null,
+            region: Region? = null,
+            credentialsProvider: AwsCredentialsProvider? = null,
+            miminumPartSizeInBytes: Long = 1 * MB,
             @BuilderInference builder: S3CrtAsyncClientBuilder.() -> Unit = {},
         ): S3AsyncClient {
             return create {
-                endpointOverride(endpointOverride)
-                region(region)
-                credentialsProvider(credentialsProvider)
-                maxConcurrency(Runtime.getRuntime().availableProcessors())
-                minimumPartSizeInBytes(1 * MB)
+                endpointOverride?.let { endpointOverride(it) }
+                region?.let { region(it) }
+                credentialsProvider?.let { credentialsProvider(it) }
+                maxConcurrency(Runtimex.availableProcessors * 2)
+                minimumPartSizeInBytes(miminumPartSizeInBytes)
                 // Transfer Acceleration requires bucket-level enablement; leave disabled by default.
                 // accelerate(false)
                 builder()
@@ -208,23 +213,20 @@ object S3Factory {
          * @return [S3TransferManager] 인스턴스
          */
         inline fun create(
-            endpointOverride: URI,
-            region: Region = Region.AP_NORTHEAST_2,
-            credentialsProvider: AwsCredentialsProvider = LocalAwsCredentialsProvider,
+            endpointOverride: URI? = null,
+            region: Region? = null,
+            credentialsProvider: AwsCredentialsProvider? = null,
             executor: Executor = Executors.newVirtualThreadPerTaskExecutor(),
+            uploadDirectoryMaxDepth: Int? = null,
             @BuilderInference builder: S3TransferManager.Builder.() -> Unit = {},
         ): S3TransferManager {
             return create {
                 // AWS CRT-based S3AsyncClient 를 사용하는 것을 추천한다
-                val asyncClient = CrtAsync.create(endpointOverride, region, credentialsProvider) {
-                    maxConcurrency(Runtime.getRuntime().availableProcessors())
-                    minimumPartSizeInBytes(1 * MB)
-                    // .initialReadBufferSizeInBytes(8 * KB)
-                }
+                val asyncClient = CrtAsync.create(endpointOverride, region, credentialsProvider)
 
-                this.s3Client(asyncClient)
-                this.executor(executor)
-                this.uploadDirectoryMaxDepth(3)
+                s3Client(asyncClient)
+                executor(executor)
+                uploadDirectoryMaxDepth?.let { this.uploadDirectoryMaxDepth(it) }
                 builder()
             }
         }
@@ -240,12 +242,14 @@ object S3Factory {
         inline fun create(
             asyncClient: S3AsyncClient,
             executor: Executor = Executors.newVirtualThreadPerTaskExecutor(),
+            uploadDirectoryMaxDepth: Int? = null,
             @BuilderInference builder: S3TransferManager.Builder.() -> Unit = {},
         ): S3TransferManager {
             return create {
-                this.s3Client(asyncClient)
-                this.executor(executor)
-                this.uploadDirectoryMaxDepth(3)
+                s3Client(asyncClient)
+                executor(executor)
+                uploadDirectoryMaxDepth?.let { uploadDirectoryMaxDepth(it) }
+
                 builder()
             }
         }

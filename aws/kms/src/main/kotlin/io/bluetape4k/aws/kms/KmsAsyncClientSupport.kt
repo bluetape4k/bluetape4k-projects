@@ -51,15 +51,15 @@ inline fun kmsAsyncClient(
  * @return 설정된 [KmsAsyncClient] 인스턴스.
  */
 inline fun kmsAsyncClientOf(
-    endpointOverride: URI,
-    region: Region,
-    credentialsProvider: AwsCredentialsProvider,
+    endpointOverride: URI? = null,
+    region: Region? = null,
+    credentialsProvider: AwsCredentialsProvider? = null,
     httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
     @BuilderInference builder: KmsAsyncClientBuilder.() -> Unit,
 ): KmsAsyncClient = kmsAsyncClient {
-    endpointOverride(endpointOverride)
-    region(region)
-    credentialsProvider(credentialsProvider)
+    endpointOverride?.let { endpointOverride(it) }
+    region?.let { region(it) }
+    credentialsProvider?.let { credentialsProvider(it) }
     httpClient(httpClient)
 
     builder()

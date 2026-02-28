@@ -1,6 +1,5 @@
 package io.bluetape4k.aws.sns
 
-import io.bluetape4k.aws.auth.LocalAwsCredentialsProvider
 import io.bluetape4k.aws.http.SdkAsyncHttpClientProvider
 import io.bluetape4k.aws.http.SdkHttpClientProvider
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
@@ -16,8 +15,7 @@ import java.net.URI
 /**
  * [SnsClient], [SnsAsyncClient] 생성을 위한 Factory 입니다.
  */
-@Deprecated("use SnsClientFactory instead", ReplaceWith("SnsClientFactory"))
-object SnsFactory {
+object SnsClientFactory {
 
     /**
      * 동기 [SnsClient] 생성을 지원합니다.
@@ -30,9 +28,9 @@ object SnsFactory {
             snsClient(builder)
 
         fun create(
-            endpointOverride: URI,
-            region: Region = Region.AP_NORTHEAST_2,
-            credentialsProvider: AwsCredentialsProvider = LocalAwsCredentialsProvider,
+            endpointOverride: URI? = null,
+            region: Region? = null,
+            credentialsProvider: AwsCredentialsProvider? = null,
             httpClient: SdkHttpClient = SdkHttpClientProvider.defaultHttpClient,
             @BuilderInference builder: SnsClientBuilder.() -> Unit = {},
         ): SnsClient =
@@ -50,9 +48,9 @@ object SnsFactory {
             snsAsyncClient(builder)
 
         inline fun create(
-            endpointOverride: URI,
-            region: Region = Region.AP_NORTHEAST_2,
-            credentialsProvider: AwsCredentialsProvider = LocalAwsCredentialsProvider,
+            endpointOverride: URI? = null,
+            region: Region? = null,
+            credentialsProvider: AwsCredentialsProvider? = null,
             httpClient: SdkAsyncHttpClient = SdkAsyncHttpClientProvider.defaultHttpClient,
             @BuilderInference builder: SnsAsyncClientBuilder.() -> Unit = {},
         ): SnsAsyncClient =

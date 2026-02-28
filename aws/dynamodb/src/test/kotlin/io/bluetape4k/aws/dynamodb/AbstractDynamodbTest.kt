@@ -1,7 +1,6 @@
 package io.bluetape4k.aws.dynamodb
 
 import io.bluetape4k.aws.auth.staticCredentialsProviderOf
-import io.bluetape4k.aws.dynamodb.enhanced.dynamoDbEnhancedAsyncClientOf
 import io.bluetape4k.aws.http.SdkAsyncHttpClientProvider
 import io.bluetape4k.aws.http.SdkHttpClientProvider
 import io.bluetape4k.junit5.faker.Fakers
@@ -25,18 +24,18 @@ abstract class AbstractDynamodbTest {
         }
 
         @JvmStatic
-        protected val endpoint: URI by lazy {
+        protected val endpointOverride: URI by lazy {
             DynamoDb.getEndpointOverride(LocalStackContainer.Service.DYNAMODB)
-        }
-
-        @JvmStatic
-        protected val credentialsProvider: StaticCredentialsProvider by lazy {
-            staticCredentialsProviderOf(DynamoDb.accessKey, DynamoDb.secretKey)
         }
 
         @JvmStatic
         protected val region: Region
             get() = Region.of(DynamoDb.region)
+
+        @JvmStatic
+        protected val credentialsProvider: StaticCredentialsProvider by lazy {
+            staticCredentialsProviderOf(DynamoDb.accessKey, DynamoDb.secretKey)
+        }
 
         @JvmStatic
         protected val faker = Fakers.faker
@@ -45,30 +44,31 @@ abstract class AbstractDynamodbTest {
         protected fun randomString(): String {
             return Fakers.randomString(256, 2048)
         }
+    }
 
-        @JvmStatic
-        val client: DynamoDbClient by lazy {
-            dynamoDbClient {
-                credentialsProvider(credentialsProvider)
-                endpointOverride(endpoint)
-                region(region)
-                httpClient(SdkHttpClientProvider.defaultHttpClient)
-            }
-        }
+    val client: DynamoDbClient by lazy {
+        DynamoDbClientFactory.Sync.create(
+            endpointOverride = endpointOverride,
+            region = region,
+            credentialsProvider = credentialsProvider,
+            httpClient = SdkHttpClientProvider.defaultHttpClient
+        )
+    }
 
-        @JvmStatic
-        val asyncClient: DynamoDbAsyncClient by lazy {
-            dynamoDbAsyncClient {
-                credentialsProvider(credentialsProvider)
-                endpointOverride(endpoint)
-                region(region)
-                httpClient(SdkAsyncHttpClientProvider.defaultHttpClient)
-            }
-        }
+    val asyncClient: DynamoDbAsyncClient by lazy {
+        DynamoDbClientFactory.Async.create(
+            endpointOverride = endpointOverride,
+            region = region,
+            credentialsProvider = credentialsProvider,
+            httpClient = SdkAsyncHttpClientProvider.defaultHttpClient
+        )
+    }
 
-        @JvmStatic
-        val enhancedAsyncClient: DynamoDbEnhancedAsyncClient by lazy {
-            dynamoDbEnhancedAsyncClientOf(asyncClient)
+    val enhancedAsyncClient: DynamoDbEnhancedAsyncClient by lazy {
+        DynamoDbClientFactory.EnhancedAsync.create(asyncClient) {
+            this.dynamoDbClient(asyncClient)
+            // this.extensions(AtomicCounterExtension.builder().build())
         }
     }
+
 }

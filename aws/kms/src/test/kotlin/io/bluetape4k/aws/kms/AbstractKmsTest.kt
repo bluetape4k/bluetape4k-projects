@@ -11,6 +11,7 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.kms.KmsAsyncClient
 import software.amazon.awssdk.services.kms.KmsClient
+import java.net.URI
 
 abstract class AbstractKmsTest {
 
@@ -21,7 +22,7 @@ abstract class AbstractKmsTest {
         }
 
         @JvmStatic
-        protected val endpoint by lazy {
+        protected val endpointOverride: URI by lazy {
             kmsServer.getEndpointOverride(LocalStackContainer.Service.KMS)
         }
 
@@ -34,25 +35,6 @@ abstract class AbstractKmsTest {
         protected val region: Region
             get() = Region.of(kmsServer.region)
 
-        @JvmStatic
-        protected val client: KmsClient by lazy {
-            kmsClient {
-                credentialsProvider(credentialsProvider)
-                endpointOverride(endpoint)
-                region(region)
-                httpClient(SdkHttpClientProvider.defaultHttpClient)
-            }
-        }
-
-        @JvmStatic
-        protected val asyncClient: KmsAsyncClient by lazy {
-            kmsAsyncClient {
-                credentialsProvider(credentialsProvider)
-                endpointOverride(endpoint)
-                region(region)
-                httpClient(SdkAsyncHttpClientProvider.defaultHttpClient)
-            }
-        }
 
         @JvmStatic
         protected val faker = Fakers.faker
@@ -61,5 +43,23 @@ abstract class AbstractKmsTest {
         protected fun randomString(): String {
             return Fakers.randomString(256, 2048)
         }
+    }
+
+    protected val client: KmsClient by lazy {
+        KmsClientFactory.Sync.create(
+            endpointOverride = endpointOverride,
+            region = region,
+            credentialsProvider = credentialsProvider,
+            httpClient = SdkHttpClientProvider.defaultHttpClient
+        )
+    }
+
+    protected val asyncClient: KmsAsyncClient by lazy {
+        KmsClientFactory.Async.create(
+            endpointOverride = endpointOverride,
+            region = region,
+            credentialsProvider = credentialsProvider,
+            httpClient = SdkAsyncHttpClientProvider.defaultHttpClient
+        )
     }
 }
