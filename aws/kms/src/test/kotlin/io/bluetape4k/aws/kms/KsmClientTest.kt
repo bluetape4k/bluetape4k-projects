@@ -42,7 +42,6 @@ class KsmClientTest: AbstractKmsTest() {
     private lateinit var encryptedData: SdkBytes
 
     private val granteePrincipal = ""
-    private val operation = "Decrypt, Encrypt"
     private lateinit var grantId: String
 
     // alias 는 prefix로 "alias/" 를 써야합니다.
@@ -50,13 +49,13 @@ class KsmClientTest: AbstractKmsTest() {
 
     @Test
     @Order(1)
-    fun `create KmsClient instance`() {
+    fun `KmsClient 인스턴스 생성`() {
         client.shouldNotBeNull()
     }
 
     @Test
     @Order(2)
-    fun `사용자 키 생성`() {
+    fun `대칭 키 생성`() {
         val request = createKeyRequestOf(
             description = keyDescription,
             keySpec = KeySpec.SYMMETRIC_DEFAULT,
@@ -105,7 +104,7 @@ class KsmClientTest: AbstractKmsTest() {
 
     @Test
     @Order(5)
-    fun `사용자 키를 사용 못하게 하기`() {
+    fun `키 비활성화`() {
         val request = disableKeyRequestOf(keyId)
 
         val response = client.disableKey(request)
@@ -114,7 +113,7 @@ class KsmClientTest: AbstractKmsTest() {
 
     @Test
     @Order(6)
-    fun `사용자 키를 다시 사용하게 하기`() {
+    fun `키 활성화`() {
         val request = enableKeyRequestOf(keyId)
         val response = client.enableKey(request)
         response.sdkHttpResponse().isSuccessful.shouldBeTrue()
@@ -122,7 +121,7 @@ class KsmClientTest: AbstractKmsTest() {
 
     @Test
     @Order(7)
-    fun `Grant 생성하기`() {
+    fun `Grant 생성`() {
         val request = createGrantRequestOf(
             keyId = keyId,
             granteePrincipal = this.granteePrincipal,
@@ -137,7 +136,7 @@ class KsmClientTest: AbstractKmsTest() {
 
     @Test
     @Order(8)
-    fun `Grant 조회하기`() {
+    fun `Grant 목록 조회`() {
         val listResp = client.listGrants {
             it.keyId(keyId)
             it.limit(15)
@@ -154,7 +153,7 @@ class KsmClientTest: AbstractKmsTest() {
 
     @Test
     @Order(9)
-    fun `Grant 갱신하기`() {
+    fun `Grant 취소`() {
         val request = revokeGrantRequestOf(keyId, grantId)
         val response = client.revokeGrant(request)
 
@@ -164,7 +163,7 @@ class KsmClientTest: AbstractKmsTest() {
 
     @Test
     @Order(10)
-    fun `describe key`() {
+    fun `키 메타데이터 조회`() {
         val request = describeKeyOf(keyId)
         val response = client.describeKey(request)
 
@@ -215,7 +214,7 @@ class KsmClientTest: AbstractKmsTest() {
 
     @Test
     @Order(14)
-    fun `key 목록 조회`() {
+    fun `키 목록 조회`() {
         val response = client.listKeys { it.limit(15) }
         response.sdkHttpResponse().isSuccessful.shouldBeTrue()
 
@@ -229,7 +228,7 @@ class KsmClientTest: AbstractKmsTest() {
 
     @Test
     @Order(15)
-    fun `Key Polish 주입`() {
+    fun `키 정책 설정`() {
         val policyName = "default"
         val policy = """
             {  

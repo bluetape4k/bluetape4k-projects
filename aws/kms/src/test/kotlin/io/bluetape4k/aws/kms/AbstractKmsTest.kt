@@ -16,23 +16,23 @@ abstract class AbstractKmsTest {
 
     companion object: KLogging() {
         @JvmStatic
-        private val AwsSQS: LocalStackServer by lazy {
+        private val kmsServer: LocalStackServer by lazy {
             LocalStackServer.Launcher.localStack.withServices(LocalStackContainer.Service.KMS)
         }
 
         @JvmStatic
         protected val endpoint by lazy {
-            AwsSQS.getEndpointOverride(LocalStackContainer.Service.SQS)
+            kmsServer.getEndpointOverride(LocalStackContainer.Service.KMS)
         }
 
         @JvmStatic
         protected val credentialsProvider: StaticCredentialsProvider by lazy {
-            staticCredentialsProviderOf(AwsSQS.accessKey, AwsSQS.secretKey)
+            staticCredentialsProviderOf(kmsServer.accessKey, kmsServer.secretKey)
         }
 
         @JvmStatic
         protected val region: Region
-            get() = Region.of(AwsSQS.region)
+            get() = Region.of(kmsServer.region)
 
         @JvmStatic
         protected val client: KmsClient by lazy {
