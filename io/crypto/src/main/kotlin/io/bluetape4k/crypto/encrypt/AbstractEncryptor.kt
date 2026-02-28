@@ -73,7 +73,7 @@ abstract class AbstractEncryptor protected constructor(
      * @return 암호화된 바이트 배열
      */
     override fun encrypt(message: ByteArray?): ByteArray {
-        return message?.run { encryptor.encrypt(this) } ?: emptyByteArray
+        return message?.let { encryptor.encrypt(it) } ?: emptyByteArray
     }
 
     /**

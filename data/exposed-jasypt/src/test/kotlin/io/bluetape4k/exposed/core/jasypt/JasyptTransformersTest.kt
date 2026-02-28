@@ -9,7 +9,7 @@ class JasyptTransformersTest {
 
     @Test
     fun `문자열 transformer 는 암복호화 round-trip 을 보장한다`() {
-        val transformer = JasyptStringEncryptionTransformer(Encryptors.AES)
+        val transformer = StringJasyptEncryptionTransformer(Encryptors.AES)
         val source = "jasypt-string-source"
 
         val encrypted = transformer.unwrap(source)
@@ -20,7 +20,7 @@ class JasyptTransformersTest {
 
     @Test
     fun `바이너리 transformer 는 암복호화 round-trip 을 보장한다`() {
-        val transformer = JasyptByteArrayEncryptionTransformer(Encryptors.RC4)
+        val transformer = ByteArrayJasyptEncryptionTransformer(Encryptors.RC4)
         val source = "jasypt-binary-source".toUtf8Bytes()
 
         val encrypted = transformer.unwrap(source)
@@ -31,7 +31,7 @@ class JasyptTransformersTest {
 
     @Test
     fun `동일 입력에 대해 문자열 transformer 는 동일한 암호문을 생성한다`() {
-        val transformer = JasyptStringEncryptionTransformer(Encryptors.AES)
+        val transformer = StringJasyptEncryptionTransformer(Encryptors.AES)
         val source = "deterministic-source"
 
         val encrypted1 = transformer.unwrap(source)

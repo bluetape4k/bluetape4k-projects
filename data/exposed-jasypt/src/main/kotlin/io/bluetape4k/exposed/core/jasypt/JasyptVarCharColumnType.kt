@@ -1,6 +1,7 @@
 package io.bluetape4k.exposed.core.jasypt
 
-import io.bluetape4k.support.requirePositiveNumber
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.jetbrains.exposed.v1.core.ColumnTransformer
 import org.jetbrains.exposed.v1.core.ColumnWithTransform
 import org.jetbrains.exposed.v1.core.VarCharColumnType
@@ -12,29 +13,42 @@ import org.jetbrains.exposed.v1.core.VarCharColumnType
  * @param colLength 암호문을 저장할 컬럼 길이 (0보다 커야 함)
  */
 class JasyptVarCharColumnType(
-    encryptor: io.bluetape4k.crypto.encrypt.Encryptor,
+    private val encryptor: io.bluetape4k.crypto.encrypt.Encryptor,
     colLength: Int,
 ): ColumnWithTransform<String, String>(
-    VarCharColumnType(colLength.requirePositiveNumber("colLength")),
-    JasyptStringEncryptionTransformer(encryptor)
+    VarCharColumnType(colLength),
+    StringJasyptEncryptionTransformer(encryptor)
 )
 
 /**
  * 문자열 값의 DB 저장/조회 시 암호화 및 복호화를 수행합니다.
  */
-class JasyptStringEncryptionTransformer(
+class StringJasyptEncryptionTransformer(
     private val encryptor: io.bluetape4k.crypto.encrypt.Encryptor,
 ): ColumnTransformer<String, String> {
+
+    companion object: KLogging()
+
     /**
      * Encrypts the given value using the provided [encryptor].
      *
      * @param value The value to encrypt.
      * @return The encrypted value.
      */
-    override fun unwrap(value: String) = encryptor.encrypt(value)
+    override fun unwrap(value: String): String {
+        log.debug { "Encrypting value=$value" }
+        return encryptor.encrypt(value).apply {
+            log.debug { "Encrypted value=$this" }
+        }
+    }
 
     /**
      * Decrypts the given value using the provided [encryptor].
      */
-    override fun wrap(value: String) = encryptor.decrypt(value)
+    override fun wrap(value: String): String {
+        log.debug { "Decrypting value=$value" }
+        return encryptor.decrypt(value).apply {
+            log.debug { "Decrypted value=$this" }
+        }
+    }
 }
