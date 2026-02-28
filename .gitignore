@@ -25,7 +25,9 @@ hs_err_pid*
 .ai
 .omc
 .kotlin
-.claude/settings.local.json
+.claude
+!.claude/settings.json
+!.claude/settings.local.json
 .quarkus
 
 .gradle/
