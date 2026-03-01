@@ -28,7 +28,7 @@ class R2dbcWriteBehindCacheTest {
     companion object: KLoggingChannel()
 
     abstract class R2dbcAutoIncIdReadWriteBehind: R2dbcRedissonTestBase(),
-                                                  R2dbcWriteBehindScenario<UserRecord, Long> {
+                                                  R2dbcWriteBehindScenario<Long, UserTable, UserRecord> {
         override suspend fun withR2dbcEntityTable(
             testDB: TestDB,
             context: CoroutineContext,
@@ -58,7 +58,7 @@ class R2dbcWriteBehindCacheTest {
         override val cacheConfig = RedisCacheConfig.WRITE_BEHIND
 
         override val repository by lazy {
-            R2dbcUserCacheRepository(
+            R2dbcUserRedissonRepository(
                 redissonClient,
                 "r2dbc:write-behind:remote:users",
                 config = cacheConfig
@@ -71,7 +71,7 @@ class R2dbcWriteBehindCacheTest {
         override val cacheConfig = RedisCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE
 
         override val repository by lazy {
-            R2dbcUserCacheRepository(
+            R2dbcUserRedissonRepository(
                 redissonClient,
                 "r2dbc:write-behind:near:users",
                 config = cacheConfig
@@ -80,7 +80,7 @@ class R2dbcWriteBehindCacheTest {
     }
 
     abstract class R2dbcClientGeneratedIdReadWriteBehind: R2dbcRedissonTestBase(),
-                                                          R2dbcWriteBehindScenario<UserCredentialsRecord, UUID> {
+                                                          R2dbcWriteBehindScenario<UUID, UserCredentialsTable, UserCredentialsRecord> {
         override suspend fun withR2dbcEntityTable(
             testDB: TestDB,
             context: CoroutineContext,
@@ -111,7 +111,7 @@ class R2dbcWriteBehindCacheTest {
         override val cacheConfig = RedisCacheConfig.WRITE_BEHIND
 
         override val repository by lazy {
-            R2dbcUserCredentialCacheRepository(
+            R2dbcUserCredentialRedissonRepository(
                 redissonClient,
                 "r2dbc:write-behind:remote:user-credentials",
                 config = cacheConfig,
@@ -125,7 +125,7 @@ class R2dbcWriteBehindCacheTest {
         override val cacheConfig = RedisCacheConfig.WRITE_BEHIND_WITH_NEAR_CACHE
 
         override val repository by lazy {
-            R2dbcUserCredentialCacheRepository(
+            R2dbcUserCredentialRedissonRepository(
                 redissonClient,
                 "r2dbc:write-behind:near:user-credentials",
                 config = cacheConfig,

@@ -24,7 +24,7 @@ class SuspendedWriteBehindCacheTest {
     companion object: KLoggingChannel()
 
     abstract class SuspendedAutoIncIdReadWriteBehind: AbstractRedissonTest(),
-                                                      SuspendedWriteBehindScenario<UserRecord, Long> {
+                                                      SuspendedWriteBehindScenario<Long, UserTable, UserRecord> {
         override suspend fun withSuspendedEntityTable(
             testDB: TestDB,
             context: CoroutineContext,
@@ -75,7 +75,7 @@ class SuspendedWriteBehindCacheTest {
     }
 
     abstract class SuspendedClientGeneratedIdReadWriteBehind: AbstractRedissonTest(),
-                                                              SuspendedWriteBehindScenario<UserCredentialsRecord, UUID> {
+                                                              SuspendedWriteBehindScenario<UUID, UserCredentialsTable, UserCredentialsRecord> {
         override suspend fun withSuspendedEntityTable(
             testDB: TestDB,
             context: CoroutineContext,

@@ -25,8 +25,8 @@ class ReadWriteThroughCacheTest {
     companion object: KLogging()
 
     abstract class AutoIncIdReadWriteThrough: AbstractRedissonTest(),
-                                              ReadThroughScenario<UserRecord, Long>,
-                                              WriteThroughScenario<UserRecord, Long> {
+                                              ReadThroughScenario<Long, UserTable, UserRecord>,
+                                              WriteThroughScenario<Long, UserTable, UserRecord> {
         override fun withEntityTable(
             testDB: TestDB,
             statement: JdbcTransaction.() -> Unit,
@@ -113,8 +113,8 @@ class ReadWriteThroughCacheTest {
 
 
     abstract class ClientGeneratedIdReadWriteThrough: AbstractRedissonTest(),
-                                                      ReadThroughScenario<UserCredentialsRecord, UUID>,
-                                                      WriteThroughScenario<UserCredentialsRecord, UUID> {
+                                                      ReadThroughScenario<UUID, UserCredentialsTable, UserCredentialsRecord>,
+                                                      WriteThroughScenario<UUID, UserCredentialsTable, UserCredentialsRecord> {
 
         override fun withEntityTable(
             testDB: TestDB,

@@ -1,9 +1,8 @@
-package io.bluetape4k.exposed.r2dbc.domain.repository
+package io.bluetape4k.exposed.r2dbc.repository
 
 import io.bluetape4k.exposed.r2dbc.domain.model.ActorRecord
 import io.bluetape4k.exposed.r2dbc.domain.model.MovieSchema.ActorTable
 import io.bluetape4k.exposed.r2dbc.domain.model.toActorRecord
-import io.bluetape4k.exposed.r2dbc.repository.ExposedR2dbcRepository
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.Flow
@@ -15,7 +14,7 @@ import org.jetbrains.exposed.v1.r2dbc.insertAndGetId
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import java.time.LocalDate
 
-class ActorR2dbcRepository: ExposedR2dbcRepository<ActorRecord, Long> {
+class ActorR2dbcRepository: LongR2dbcRepository<ActorTable, ActorRecord> {
 
     companion object: KLoggingChannel()
 
@@ -27,10 +26,10 @@ class ActorR2dbcRepository: ExposedR2dbcRepository<ActorRecord, Long> {
 
         params.forEach { (key, value) ->
             when (key) {
-                ActorTable::id.name -> value?.run { query.andWhere { ActorTable.id eq value.toLong() } }
+                ActorTable::id.name        -> value?.run { query.andWhere { ActorTable.id eq value.toLong() } }
                 ActorTable::firstName.name -> value?.run { query.andWhere { ActorTable.firstName eq value } }
-                ActorTable::lastName.name -> value?.run { query.andWhere { ActorTable.lastName eq value } }
-                ActorTable::birthday.name -> value?.run { query.andWhere { ActorTable.birthday eq LocalDate.parse(value) } }
+                ActorTable::lastName.name  -> value?.run { query.andWhere { ActorTable.lastName eq value } }
+                ActorTable::birthday.name  -> value?.run { query.andWhere { ActorTable.birthday eq LocalDate.parse(value) } }
             }
         }
 

@@ -1,7 +1,9 @@
 package io.bluetape4k.exposed.redisson.repository
 
 import io.bluetape4k.exposed.redisson.AbstractRedissonTest
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialsRecord
 import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialsTable
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserRecord
 import io.bluetape4k.exposed.redisson.repository.UserSchema.UserTable
 import io.bluetape4k.exposed.redisson.repository.UserSchema.withUserCredentialsTable
 import io.bluetape4k.exposed.redisson.repository.UserSchema.withUserTable
@@ -20,7 +22,7 @@ class ReadThroughCacheTest {
     companion object: KLogging()
 
     abstract class AutoIncIdReadThrough: AbstractRedissonTest(),
-                                         ReadThroughScenario<UserSchema.UserRecord, Long> {
+                                         ReadThroughScenario<kotlin.Long, UserTable, UserRecord> {
 
         override fun withEntityTable(
             testDB: TestDB,
@@ -69,7 +71,7 @@ class ReadThroughCacheTest {
     }
 
     abstract class ClientGeneratedIdReadThrough: AbstractRedissonTest(),
-                                                 ReadThroughScenario<UserSchema.UserCredentialsRecord, UUID> {
+                                                 ReadThroughScenario<UUID, UserCredentialsTable, UserCredentialsRecord> {
 
         override fun withEntityTable(
             testDB: TestDB,

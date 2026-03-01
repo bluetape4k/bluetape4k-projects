@@ -1,4 +1,4 @@
-package io.bluetape4k.exposed.r2dbc.domain.repository
+package io.bluetape4k.exposed.r2dbc.repository
 
 import io.bluetape4k.coroutines.flow.extensions.bufferUntilChanged
 import io.bluetape4k.exposed.r2dbc.domain.model.MovieActorCountRecord
@@ -12,7 +12,6 @@ import io.bluetape4k.exposed.r2dbc.domain.model.toActorRecord
 import io.bluetape4k.exposed.r2dbc.domain.model.toMovieRecord
 import io.bluetape4k.exposed.r2dbc.domain.model.toMovieWithActorRecord
 import io.bluetape4k.exposed.r2dbc.domain.model.toMovieWithProducingActorRecord
-import io.bluetape4k.exposed.r2dbc.repository.ExposedR2dbcRepository
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.Flow
@@ -32,7 +31,7 @@ import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import java.time.LocalDate
 
-class MovieR2dbcRepository: ExposedR2dbcRepository<MovieRecord, Long> {
+class MovieR2dbcRepository: LongR2dbcRepository<MovieTable, MovieRecord> {
 
     companion object: KLoggingChannel() {
         private val MovieActorJoin: Join by lazy {
@@ -76,13 +75,13 @@ class MovieR2dbcRepository: ExposedR2dbcRepository<MovieRecord, Long> {
 
         params.forEach { (key, value) ->
             when (key) {
-                LongIdTable::id.name -> value?.run { query.andWhere { MovieTable.id eq value.toLong() } }
+                LongIdTable::id.name          -> value?.run { query.andWhere { MovieTable.id eq value.toLong() } }
 
-                MovieTable::name.name -> value?.run { query.andWhere { MovieTable.name eq value } }
+                MovieTable::name.name         -> value?.run { query.andWhere { MovieTable.name eq value } }
                 MovieTable::producerName.name -> value?.run {
                     query.andWhere { MovieTable.producerName eq value }
                 }
-                MovieTable::releaseDate.name -> value?.run {
+                MovieTable::releaseDate.name  -> value?.run {
                     query.andWhere { MovieTable.releaseDate eq LocalDate.parse(value) }
                 }
             }

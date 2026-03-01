@@ -2,6 +2,7 @@ package io.bluetape4k.exposed.redisson.repository
 
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
 import org.jetbrains.exposed.v1.core.Expression
@@ -21,22 +22,10 @@ import org.redisson.api.RMap
  * @param T Entity Type   Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable type을 사용해 주세요.
  * @param ID Entity ID Type
  */
-@Deprecated(
-    message = "use SuspendedJdbcRedissonRepository",
-    replaceWith = ReplaceWith("SuspendedJdbcRedissonRepository"),
-    level = DeprecationLevel.WARNING,
-)
-interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
+interface SuspendedJdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>> {
 
     companion object: KLoggingChannel() {
         const val DEFAULT_BATCH_SIZE = 100
-
-        @Deprecated(
-            message = "Use DEFAULT_BATCH_SIZE",
-            replaceWith = ReplaceWith("DEFAULT_BATCH_SIZE"),
-            level = DeprecationLevel.WARNING,
-        )
-        const val DefaultBatchSize = DEFAULT_BATCH_SIZE
     }
 
     /**
@@ -47,17 +36,17 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
     /**
      * 엔티티가 매핑되는 Exposed의 IdTable을 반환합니다.
      */
-    val entityTable: IdTable<ID>
+    val entityTable: T
 
     /**
      * ResultRow를 엔티티로 변환합니다.
      */
-    fun ResultRow.toEntity(): T
+    fun ResultRow.toEntity(): E
 
     /**
      * Redisson의 RMap 캐시 객체를 반환합니다.
      */
-    val cache: RMap<ID, T?>
+    val cache: RMap<ID, E?>
 
     /**
      * 주어진 ID의 엔티티가 캐시에 존재하는지 확인합니다.
@@ -67,22 +56,6 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      */
     suspend fun exists(id: ID): Boolean = cache.containsKeyAsync(id).await()
 
-    /**
-     * 주어진 ID로 DB에서 최신 엔티티를 조회합니다.
-     *
-     * @param id 엔티티의 식별자
-     * @return 조회된 엔티티 또는 null
-     */
-
-    @Deprecated("use findByIdFromDb", replaceWith = ReplaceWith("findByIdFromDb(id)"))
-    @Suppress("DEPRECATION")
-    suspend fun findFreshById(id: ID): T? = suspendedTransactionAsync(Dispatchers.IO) {
-        entityTable
-            .selectAll()
-            .where { entityTable.id eq id }
-            .singleOrNull()
-            ?.toEntity()
-    }.await()
 
     /**
      * 주어진 ID로 DB에서 최신 엔티티를 조회합니다.
@@ -91,7 +64,7 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @return 조회된 엔티티 또는 null
      */
     @Suppress("DEPRECATION")
-    suspend fun findByIdFromDb(id: ID): T? = suspendedTransactionAsync(Dispatchers.IO) {
+    suspend fun findByIdFromDb(id: ID): E? = suspendedTransactionAsync(Dispatchers.IO) {
         entityTable
             .selectAll()
             .where { entityTable.id eq id }
@@ -105,42 +78,11 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param ids 엔티티 식별자 목록
      * @return 조회된 엔티티 목록
      */
-    @Deprecated("use findAllFromDb", replaceWith = ReplaceWith("findAllFromDb(ids)"))
     @Suppress("DEPRECATION")
-    suspend fun findFreshAll(vararg ids: ID): List<T> = suspendedTransactionAsync(Dispatchers.IO) {
+    suspend fun findAllFromDb(vararg ids: ID): List<E> = suspendedTransactionAsync(Dispatchers.IO) {
         entityTable
             .selectAll()
             .where { entityTable.id inList ids.toList() }
-            .map { it.toEntity() }
-    }.await()
-
-    /**
-     * 여러 ID로 DB에서 최신 엔티티 목록을 조회합니다.
-     *
-     * @param ids 엔티티 식별자 목록
-     * @return 조회된 엔티티 목록
-     */
-    @Suppress("DEPRECATION")
-    suspend fun findAllFromDb(vararg ids: ID): List<T> = suspendedTransactionAsync(Dispatchers.IO) {
-        entityTable
-            .selectAll()
-            .where { entityTable.id inList ids.toList() }
-            .map { it.toEntity() }
-    }.await()
-
-
-    /**
-     * 여러 ID로 DB에서 최신 엔티티 목록을 조회합니다.
-     *
-     * @param ids 엔티티 식별자 컬렉션
-     * @return 조회된 엔티티 목록
-     */
-    @Deprecated("use findAllFromDb", replaceWith = ReplaceWith("findAllFromDb(ids)"))
-    @Suppress("DEPRECATION")
-    suspend fun findFreshAll(ids: Collection<ID>): List<T> = suspendedTransactionAsync(Dispatchers.IO) {
-        entityTable
-            .selectAll()
-            .where { entityTable.id inList ids }
             .map { it.toEntity() }
     }.await()
 
@@ -151,7 +93,7 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @return 조회된 엔티티 목록
      */
     @Suppress("DEPRECATION")
-    suspend fun findAllFromDb(ids: Collection<ID>): List<T> = suspendedTransactionAsync(Dispatchers.IO) {
+    suspend fun findAllFromDb(ids: Collection<ID>): List<E> = suspendedTransactionAsync(Dispatchers.IO) {
         entityTable
             .selectAll()
             .where { entityTable.id inList ids }
@@ -164,7 +106,7 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param id 엔티티의 식별자
      * @return 조회된 엔티티 또는 null
      */
-    suspend fun get(id: ID): T? = cache.getAsync(id).await()
+    suspend fun get(id: ID): E? = cache.getAsync(id).await()
 
     /**
      * 조건에 맞는 모든 엔티티를 조회합니다.
@@ -182,7 +124,7 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
         sortBy: Expression<*> = entityTable.id,
         sortOrder: SortOrder = SortOrder.ASC,
         where: () -> Op<Boolean> = { Op.TRUE },
-    ): List<T>
+    ): List<E>
 
     /**
      * 여러 ID에 해당하는 엔티티를 캐시에서 일괄 조회합니다.
@@ -191,14 +133,14 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param batchSize 일괄 처리 크기
      * @return 조회된 엔티티 목록
      */
-    suspend fun getAll(ids: Collection<ID>, batchSize: Int = DEFAULT_BATCH_SIZE): List<T>
+    suspend fun getAll(ids: Collection<ID>, batchSize: Int = DEFAULT_BATCH_SIZE): List<E>
 
     /**
      * 엔티티를 캐시에 저장합니다.
      *
      * @param entity 저장할 엔티티
      */
-    suspend fun put(entity: T): Boolean = cache.fastPutAsync(entity.id, entity).await()
+    suspend fun put(entity: E): Boolean = cache.fastPutAsync(entity.id, entity).await()
 
     /**
      * 여러 엔티티를 캐시에 일괄 저장합니다.
@@ -206,8 +148,8 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param entities 저장할 엔티티 목록
      * @param batchSize 일괄 처리 크기
      */
-    suspend fun putAll(entities: Collection<T>, batchSize: Int = DEFAULT_BATCH_SIZE) {
-        require(batchSize > 0) { "batchSize must be greater than 0. batchSize=$batchSize" }
+    suspend fun putAll(entities: Collection<E>, batchSize: Int = DEFAULT_BATCH_SIZE) {
+        batchSize.requirePositiveNumber("batchSize")
         cache.putAllAsync(entities.associateBy { it.id }, batchSize).await()
     }
 
@@ -234,8 +176,11 @@ interface SuspendedExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @return 삭제된 엔티티 수
      */
     suspend fun invalidateByPattern(patterns: String, count: Int = DEFAULT_BATCH_SIZE): Long {
-        require(count > 0) { "count must be greater than 0. count=$count" }
+        count.requirePositiveNumber("count")
         val keys = cache.keySet(patterns, count)
+        if (keys.isEmpty()) {
+            return 0
+        }
         return cache.fastRemoveAsync(*keys.toTypedArray()).await()
     }
 }

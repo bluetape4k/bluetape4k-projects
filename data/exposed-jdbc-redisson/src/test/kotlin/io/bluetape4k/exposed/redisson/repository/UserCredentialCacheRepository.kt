@@ -16,7 +16,11 @@ class UserCredentialCacheRepository(
     redissonClient: RedissonClient,
     cacheName: String = "exposed:user-credentials",
     config: RedisCacheConfig = RedisCacheConfig.READ_WRITE_THROUGH,
-): AbstractExposedCacheRepository<UserCredentialsRecord, UUID>(redissonClient, cacheName, config) {
+): AbstractJdbcRedissonRepository<UUID, UserCredentialsTable, UserCredentialsRecord>(
+    redissonClient,
+    cacheName,
+    config
+) {
 
     companion object: KLogging()
 

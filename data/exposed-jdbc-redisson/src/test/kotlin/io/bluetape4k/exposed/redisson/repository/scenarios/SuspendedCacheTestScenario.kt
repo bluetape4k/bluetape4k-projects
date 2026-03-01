@@ -1,17 +1,18 @@
 package io.bluetape4k.exposed.redisson.repository.scenarios
 
 import io.bluetape4k.exposed.core.HasIdentifier
-import io.bluetape4k.exposed.redisson.repository.SuspendedExposedCacheRepository
+import io.bluetape4k.exposed.redisson.repository.SuspendedJdbcRedissonRepository
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.junit.jupiter.api.BeforeEach
 import kotlin.coroutines.CoroutineContext
 
-interface SuspendedCacheTestScenario<T: HasIdentifier<ID>, ID: Any> {
+interface SuspendedCacheTestScenario<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>> {
 
     companion object: KLoggingChannel() {
         @JvmStatic
@@ -29,7 +30,7 @@ interface SuspendedCacheTestScenario<T: HasIdentifier<ID>, ID: Any> {
     /**
      * 테스트에 사용할 캐시 저장소
      */
-    val repository: SuspendedExposedCacheRepository<T, ID>
+    val repository: SuspendedJdbcRedissonRepository<ID, T, E>
 
     /**
      * 테스트에 사용할 테이블을 설정하고 테스트 로직을 실행하는 함수

@@ -13,7 +13,7 @@ import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.time.LocalDate
 
-class ActorJdbcRepository: LongExposedJdbcRepository<ActorTable, ActorRecord> {
+class ActorJdbcRepository: LongJdbcRepository<ActorTable, ActorRecord> {
 
     companion object: KLogging()
 

@@ -13,11 +13,15 @@ import org.redisson.api.RedissonClient
 import java.time.Instant
 import java.util.*
 
-class R2dbcUserCredentialCacheRepository(
+class R2dbcUserCredentialRedissonRepository(
     redissonClient: RedissonClient,
     cacheName: String = "exposed:remote:r2dbc:users",
     config: RedisCacheConfig = RedisCacheConfig.READ_WRITE_THROUGH,
-): AbstractR2dbcCacheRepository<UserCredentialsRecord, UUID>(redissonClient, cacheName, config) {
+): AbstractR2dbcRedissonRepository<UUID, UserCredentialsTable, UserCredentialsRecord>(
+    redissonClient,
+    cacheName,
+    config
+) {
 
     companion object: KLoggingChannel()
 

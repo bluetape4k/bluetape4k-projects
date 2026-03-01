@@ -27,8 +27,8 @@ class SuspendedReadWriteThroughCacheTest {
     companion object: KLoggingChannel()
 
     abstract class SuspendedAutoIncIdReadWriteThrough: AbstractRedissonTest(),
-                                                       SuspendedReadThroughScenario<UserRecord, Long>,
-                                                       SuspendedWriteThroughScenario<UserRecord, Long> {
+                                                       SuspendedReadThroughScenario<Long, UserTable, UserRecord>,
+                                                       SuspendedWriteThroughScenario<Long, UserTable, UserRecord> {
         override suspend fun withSuspendedEntityTable(
             testDB: TestDB,
             context: CoroutineContext,
@@ -66,7 +66,7 @@ class SuspendedReadWriteThroughCacheTest {
     inner class SuspendedAutoIncIdReadWriteThroughRemoteCache: SuspendedAutoIncIdReadWriteThrough() {
         override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH
 
-        override val repository: SuspendedExposedCacheRepository<UserRecord, Long> by lazy {
+        override val repository: SuspendedJdbcRedissonRepository<Long, UserTable, UserRecord> by lazy {
             SuspendedUserCacheRepository(
                 redissonClient,
                 "suspended:read-write-through:remote:users",
@@ -79,7 +79,7 @@ class SuspendedReadWriteThroughCacheTest {
     inner class SuspendedAutoIncIdReadWriteThroughRemoteCacheWithDeleteDB: SuspendedAutoIncIdReadWriteThrough() {
         override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH.copy(deleteFromDBOnInvalidate = true)
 
-        override val repository: SuspendedExposedCacheRepository<UserRecord, Long> by lazy {
+        override val repository: SuspendedJdbcRedissonRepository<Long, UserTable, UserRecord> by lazy {
             SuspendedUserCacheRepository(
                 redissonClient,
                 "suspended:read-write-through:remote:delete-db:users",
@@ -92,7 +92,7 @@ class SuspendedReadWriteThroughCacheTest {
     inner class SuspendedAutoIncIdReadWriteThroughNearCache: SuspendedAutoIncIdReadWriteThrough() {
         override val cacheConfig = RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE
 
-        override val repository: SuspendedExposedCacheRepository<UserRecord, Long> by lazy {
+        override val repository: SuspendedJdbcRedissonRepository<Long, UserTable, UserRecord> by lazy {
             SuspendedUserCacheRepository(
                 redissonClient,
                 "suspended:read-write-through:near:users",
@@ -106,7 +106,7 @@ class SuspendedReadWriteThroughCacheTest {
         override val cacheConfig =
             RedisCacheConfig.READ_WRITE_THROUGH_WITH_NEAR_CACHE.copy(deleteFromDBOnInvalidate = true)
 
-        override val repository: SuspendedExposedCacheRepository<UserRecord, Long> by lazy {
+        override val repository: SuspendedJdbcRedissonRepository<Long, UserTable, UserRecord> by lazy {
             SuspendedUserCacheRepository(
                 redissonClient,
                 "suspended:read-write-through:near:delete-db:users",
@@ -117,8 +117,8 @@ class SuspendedReadWriteThroughCacheTest {
 
 
     abstract class SuspendedClientGeneratedIdReadWriteThrough: AbstractRedissonTest(),
-                                                               SuspendedReadThroughScenario<UserCredentialsRecord, UUID>,
-                                                               SuspendedWriteThroughScenario<UserCredentialsRecord, UUID> {
+                                                               SuspendedReadThroughScenario<UUID, UserCredentialsTable, UserCredentialsRecord>,
+                                                               SuspendedWriteThroughScenario<UUID, UserCredentialsTable, UserCredentialsRecord> {
         override suspend fun withSuspendedEntityTable(
             testDB: TestDB,
             context: CoroutineContext,

@@ -15,23 +15,24 @@ import org.amshove.kluent.shouldNotBeNull
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.withPollInterval
 import org.jetbrains.exposed.v1.core.autoIncColumnType
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.time.Duration
 
-interface R2dbcWriteThroughScenario<T: HasIdentifier<ID>, ID: Any>: R2dbcCacheTestScenario<T, ID> {
+interface R2dbcWriteThroughScenario<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>>: R2dbcCacheTestScenario<ID, T, E> {
 
     companion object: KLoggingChannel() {
         const val DEFAULT_DELAY = 100L
     }
 
-    suspend fun createNewEntity(): T
+    suspend fun createNewEntity(): E
 
-    suspend fun updateEntityEmail(entity: T): T
+    suspend fun updateEntityEmail(entity: E): E
 
-    suspend fun assertSameEntityWithoutAudit(entity1: T, entity2: T)
+    suspend fun assertSameEntityWithoutAudit(entity1: E, entity2: E)
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)

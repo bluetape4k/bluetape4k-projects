@@ -11,11 +11,11 @@ import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.redisson.api.RedissonClient
 import java.time.Instant
 
-class R2dbcUserCacheRepository(
+class R2dbcUserRedissonRepository(
     redissonClient: RedissonClient,
     cacheName: String = "exposed:remote:r2dbc:users",
     config: RedisCacheConfig = RedisCacheConfig.READ_WRITE_THROUGH,
-): AbstractR2dbcCacheRepository<UserRecord, Long>(redissonClient, cacheName, config) {
+): AbstractR2dbcRedissonRepository<Long, UserTable, UserRecord>(redissonClient, cacheName, config) {
 
     companion object: KLoggingChannel()
 

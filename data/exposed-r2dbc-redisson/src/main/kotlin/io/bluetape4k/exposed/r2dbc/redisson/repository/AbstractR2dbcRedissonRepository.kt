@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.r2dbc.redisson.repository
 
-import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.exposed.core.HasIdentifier
 import io.bluetape4k.exposed.r2dbc.redisson.map.R2dbcEntityMapLoader
 import io.bluetape4k.exposed.r2dbc.redisson.map.R2dbcEntityMapWriter
@@ -17,9 +16,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.future.await
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.r2dbc.selectAll
@@ -32,7 +33,7 @@ import org.redisson.api.RedissonClient
 import java.time.Duration
 
 /**
- * AbstractR2dbcCacheRepository 는 Exposed와 Redisson을 사용하여 Redis에 데이터를 캐싱하는 Repository입니다.
+ * AbstractR2dbcRedissonRepository 는 Exposed와 Redisson을 사용하여 Redis에 데이터를 캐싱하는 Repository입니다.
  *
  * @param T Entity Type      Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable Record를 사용해 주세요.
  * @param ID Entity ID Type
@@ -41,31 +42,26 @@ import java.time.Duration
  * @param cacheName Redis Cache Name
  * @param config ExposedRedisCacheConfig
  */
-@Deprecated(
-    message = "use AbstractR2dbcRedissonRepository instead.",
-    replaceWith = ReplaceWith("AbstractR2dbcRedissonRepository<ID, T, E>"),
-    level = DeprecationLevel.WARNING,
-)
-abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
+abstract class AbstractR2dbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>>(
     val redissonClient: RedissonClient,
     override val cacheName: String,
     private val config: RedisCacheConfig,
     protected val scope: CoroutineScope = CoroutineScope(Dispatchers.IO),
-): R2dbcCacheRepository<T, ID> {
+): R2dbcRedissonRepository<ID, T, E> {
 
     companion object: KLoggingChannel()
 
     /**
      * DB의 정보를 Read Through로 캐시에 로딩하는 [R2dbcEntityMapLoader] 입니다.
      */
-    protected open val r2dbcEntityMapLoader: R2dbcEntityMapLoader<ID, T> by lazy {
+    protected open val r2dbcEntityMapLoader: R2dbcEntityMapLoader<ID, E> by lazy {
         R2dbcExposedEntityMapLoader(entityTable, scope) { toEntity() }
     }
 
     /**
      * [R2dbcEntityMapWriter] 에서 캐시에서 변경된 내용을 Write Through로 DB에 반영하는 함수입니다.
      */
-    protected open fun doUpdateEntity(statement: UpdateStatement, entity: T) {
+    protected open fun doUpdateEntity(statement: UpdateStatement, entity: E) {
         if (config.isReadWrite) {
             error("MapWriter 에서 변경된 cache item을 DB에 반영할 수 있도록 재정의해주세요. ")
         }
@@ -74,7 +70,7 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     /**
      * [R2dbcEntityMapWriter] 에서 캐시에서 추가된 내용을 Write Through로 DB에 반영하는 함수입니다.
      */
-    protected open fun doInsertEntity(statement: BatchInsertStatement, entity: T) {
+    protected open fun doInsertEntity(statement: BatchInsertStatement, entity: E) {
         if (config.isReadWrite) {
             error("MapWriter 에서 추가된 cache item을 DB에 추가할 수 있도록 재정의해주세요. ")
         }
@@ -84,9 +80,9 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
      * Write Through 모드라면 [R2dbcEntityMapWriter]를 생성하여 제공합니다.
      * Read Through Only 라면 null을 반환합니다.
      */
-    protected val r2dbcEntityMapWriter: R2dbcEntityMapWriter<ID, T>? by lazy {
+    protected val r2dbcEntityMapWriter: R2dbcEntityMapWriter<ID, E>? by lazy {
         when (config.cacheMode) {
-            RedisCacheConfig.CacheMode.READ_ONLY -> null
+            RedisCacheConfig.CacheMode.READ_ONLY  -> null
             RedisCacheConfig.CacheMode.READ_WRITE -> R2dbcExposedEntityMapWriter(
                 scope = scope,
                 entityTable = entityTable,
@@ -98,7 +94,7 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
         }
     }
 
-    override val cache: RMap<ID, T?> by lazy {
+    override val cache: RMap<ID, E?> by lazy {
         log.info { "캐시용 RMap을 생성합니다. config=$config" }
 
         if (config.isNearCacheEnabled) {
@@ -108,7 +104,7 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
         }
     }
 
-    protected fun createLocalCacheMap(): RLocalCachedMap<ID, T?> =
+    protected fun createLocalCacheMap(): RLocalCachedMap<ID, E?> =
         localCachedMap(cacheName, redissonClient) {
             log.info { "RLocalCacheMap 를 생성합니다. local cacheName=$cacheName, config=$config" }
 
@@ -131,7 +127,7 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
             }
         }
 
-    protected fun createMapCache(): RMapCache<ID, T?> =
+    protected fun createMapCache(): RMapCache<ID, E?> =
         mapCache(cacheName, redissonClient) {
             log.info { "RMapCache 를 생성합니다. remote cacheName=$cacheName, config=$config" }
 
@@ -168,7 +164,7 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
         sortBy: Expression<*>,
         sortOrder: SortOrder,
         where: () -> Op<Boolean>,
-    ): List<T> {
+    ): List<E> {
         val entities = suspendTransaction {
             entityTable
                 .selectAll()
@@ -183,7 +179,7 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
         }
 
         if (entities.isNotEmpty()) {
-            cache.putAllAsync(entities.associateBy { it.id }).awaitSuspending()
+            cache.putAllAsync(entities.associateBy { it.id }).await()
         }
         return entities
     }
@@ -195,14 +191,14 @@ abstract class AbstractR2dbcCacheRepository<T: HasIdentifier<ID>, ID: Any>(
      * @param batchSize 한 번에 조회할 배치 크기
      * @return 조회된 엔티티 목록
      */
-    override suspend fun getAll(ids: Collection<ID>, batchSize: Int): List<T> {
+    override suspend fun getAll(ids: Collection<ID>, batchSize: Int): List<E> {
         require(batchSize > 0) { "batchSize must be greater than 0. batchSize=$batchSize" }
         if (ids.isEmpty()) return emptyList()
         return ids
             .chunked(batchSize)
             .flatMap { chunk ->
                 log.debug { "캐시에서 ${chunk.size} 개의 엔티티를 가져옵니다. chunk=${chunk}" }
-                cache.getAllAsync(chunk.toSet()).awaitSuspending().values.filterNotNull()
+                cache.getAllAsync(chunk.toSet()).await().values.filterNotNull()
             }
     }
 }

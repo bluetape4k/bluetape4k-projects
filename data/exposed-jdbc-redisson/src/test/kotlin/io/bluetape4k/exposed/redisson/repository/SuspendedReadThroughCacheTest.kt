@@ -1,7 +1,9 @@
 package io.bluetape4k.exposed.redisson.repository
 
 import io.bluetape4k.exposed.redisson.AbstractRedissonTest
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialsRecord
 import io.bluetape4k.exposed.redisson.repository.UserSchema.UserCredentialsTable
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserRecord
 import io.bluetape4k.exposed.redisson.repository.UserSchema.UserTable
 import io.bluetape4k.exposed.redisson.repository.UserSchema.withSuspendedUserCredentialsTable
 import io.bluetape4k.exposed.redisson.repository.UserSchema.withSuspendedUserTable
@@ -22,7 +24,7 @@ class SuspendedReadThroughCacheTest {
     companion object: KLoggingChannel()
 
     abstract class SuspendedAutoIncIdReadThrough: AbstractRedissonTest(),
-                                                  SuspendedReadThroughScenario<UserSchema.UserRecord, Long> {
+                                                  SuspendedReadThroughScenario<Long, UserTable, UserRecord> {
 
         companion object: KLoggingChannel()
 
@@ -52,7 +54,7 @@ class SuspendedReadThroughCacheTest {
     @Nested
     inner class SuspendedAutoIncIdReadThroughRemteCache: SuspendedAutoIncIdReadThrough() {
         override val cacheConfig: RedisCacheConfig = RedisCacheConfig.READ_ONLY
-        override val repository: SuspendedExposedCacheRepository<UserSchema.UserRecord, Long> by lazy {
+        override val repository: SuspendedJdbcRedissonRepository<Long, UserTable, UserRecord> by lazy {
             SuspendedUserCacheRepository(
                 redissonClient,
                 "suspended:read-through:remote:users",
@@ -65,7 +67,7 @@ class SuspendedReadThroughCacheTest {
     inner class SuspendedAutoIncIdReadThroughNearCache: SuspendedAutoIncIdReadThrough() {
         override val cacheConfig: RedisCacheConfig = RedisCacheConfig.READ_ONLY_WITH_NEAR_CACHE
 
-        override val repository: SuspendedExposedCacheRepository<UserSchema.UserRecord, Long> by lazy {
+        override val repository: SuspendedJdbcRedissonRepository<Long, UserTable, UserRecord> by lazy {
             SuspendedUserCacheRepository(
                 redissonClient,
                 "suspended:read-through:near:users",
@@ -75,7 +77,7 @@ class SuspendedReadThroughCacheTest {
     }
 
     abstract class SuspendedClientGeneratedIdReadThrough: AbstractRedissonTest(),
-                                                          SuspendedReadThroughScenario<UserSchema.UserCredentialsRecord, UUID> {
+                                                          SuspendedReadThroughScenario<UUID, UserCredentialsTable, UserCredentialsRecord> {
 
         override suspend fun withSuspendedEntityTable(
             testDB: TestDB,

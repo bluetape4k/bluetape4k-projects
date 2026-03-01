@@ -2,6 +2,7 @@ package io.bluetape4k.exposed.redisson.repository
 
 import io.bluetape4k.collections.toVarargArray
 import io.bluetape4k.exposed.core.HasIdentifier
+import io.bluetape4k.support.requirePositiveNumber
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -19,21 +20,9 @@ import org.redisson.api.RMap
  * @param T 엔티티 타입. Exposed 엔티티는 Redis 저장 시 Serializer 문제로 인해 반드시 Serializable Record를 사용해야 합니다.
  * @param ID 엔티티의 식별자 타입
  */
-@Deprecated(
-    message =  "use JdbcRedissonRepository",
-    replaceWith = ReplaceWith("JdbcRedissonRepository"),
-    level = DeprecationLevel.WARNING,
-)
-interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
+interface JdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>> {
     companion object {
         const val DEFAULT_BATCH_SIZE = 100
-
-        @Deprecated(
-            message = "Use DEFAULT_BATCH_SIZE",
-            replaceWith = ReplaceWith("DEFAULT_BATCH_SIZE"),
-            level = DeprecationLevel.WARNING,
-        )
-        const val DefaultBatchSize = DEFAULT_BATCH_SIZE
     }
 
     /**
@@ -44,17 +33,17 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
     /**
      * Exposed의 엔티티 테이블
      */
-    val entityTable: IdTable<ID>
+    val entityTable: T
 
     /**
      * ResultRow를 엔티티로 변환하는 확장 함수
      */
-    fun ResultRow.toEntity(): T
+    fun ResultRow.toEntity(): E
 
     /**
      * Redisson의 RMap 캐시 객체
      */
-    val cache: RMap<ID, T?>
+    val cache: RMap<ID, E?>
 
     /**
      * 캐시에 존재하지 않으면 Read Through로 DB에서 읽어옵니다. DB에도 없을 경우 false를 반환합니다.
@@ -64,20 +53,6 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      */
     fun exists(id: ID): Boolean = cache.containsKey(id)
 
-    /**
-     * DB에서 최신 데이터를 조회합니다.
-     *
-     * @param id 엔티티 식별자
-     * @return 엔티티 또는 null
-     */
-    @Deprecated(message = "use findByIdFromDb", replaceWith = ReplaceWith("findByIdFromDb(id)"))
-    fun findFreshById(id: ID): T? = transaction {
-        entityTable
-            .selectAll()
-            .where { entityTable.id eq id }
-            .singleOrNull()
-            ?.toEntity()
-    }
 
     /**
      * DB에서 최신 데이터를 조회합니다.
@@ -85,7 +60,7 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param id 엔티티 식별자
      * @return 엔티티 또는 null
      */
-    fun findByIdFromDb(id: ID): T? = transaction {
+    fun findByIdFromDb(id: ID): E? = transaction {
         entityTable
             .selectAll()
             .where { entityTable.id eq id }
@@ -99,21 +74,7 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param ids 엔티티 식별자 목록
      * @return 엔티티 리스트
      */
-    @Deprecated(message = "use findAllFromDb", replaceWith = ReplaceWith("findAllFromDb(ids)"))
-    fun findFreshAll(vararg ids: ID): List<T> = transaction {
-        entityTable
-            .selectAll()
-            .where { entityTable.id inList ids.toList() }
-            .map { it.toEntity() }
-    }
-
-    /**
-     * DB에서 여러 엔티티를 조회합니다.
-     *
-     * @param ids 엔티티 식별자 목록
-     * @return 엔티티 리스트
-     */
-    fun findAllFromDb(vararg ids: ID): List<T> = transaction {
+    fun findAllFromDb(vararg ids: ID): List<E> = transaction {
         entityTable
             .selectAll()
             .where { entityTable.id inList ids.toList() }
@@ -126,21 +87,7 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param ids 엔티티 식별자 컬렉션
      * @return 엔티티 리스트
      */
-    @Deprecated(message = "use findAllFromDb", replaceWith = ReplaceWith("findAllFromDb(ids)"))
-    fun findFreshAll(ids: Collection<ID>): List<T> = transaction {
-        entityTable
-            .selectAll()
-            .where { entityTable.id inList ids }
-            .map { it.toEntity() }
-    }
-
-    /**
-     * DB에서 여러 엔티티를 조회합니다.
-     *
-     * @param ids 엔티티 식별자 컬렉션
-     * @return 엔티티 리스트
-     */
-    fun findAllFromDb(ids: Collection<ID>): List<T> = transaction {
+    fun findAllFromDb(ids: Collection<ID>): List<E> = transaction {
         entityTable
             .selectAll()
             .where { entityTable.id inList ids }
@@ -153,7 +100,7 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param id 엔티티 식별자
      * @return 엔티티 또는 null
      */
-    fun get(id: ID): T? = cache[id]
+    operator fun get(id: ID): E? = cache[id]
 
     /**
      * 조건에 맞는 엔티티를 조회합니다.
@@ -171,7 +118,7 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
         sortBy: Expression<*> = entityTable.id,
         sortOrder: SortOrder = SortOrder.ASC,
         where: () -> Op<Boolean> = { Op.TRUE },
-    ): List<T>
+    ): List<E>
 
     /**
      * 여러 엔티티를 캐시에서 일괄 조회합니다.
@@ -180,14 +127,14 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param batchSize 배치 크기
      * @return 엔티티 리스트
      */
-    fun getAll(ids: Collection<ID>, batchSize: Int = DEFAULT_BATCH_SIZE): List<T>
+    fun getAll(ids: Collection<ID>, batchSize: Int = DEFAULT_BATCH_SIZE): List<E>
 
     /**
      * 엔티티를 캐시에 저장합니다.
      *
      * @param entity 저장할 엔티티
      */
-    fun put(entity: T) = cache.fastPut(entity.id, entity)
+    fun put(entity: E) = cache.fastPut(entity.id, entity)
 
     /**
      * 여러 엔티티를 캐시에 일괄 저장합니다.
@@ -195,7 +142,7 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param entities 저장할 엔티티 컬렉션
      * @param batchSize 배치 크기
      */
-    fun putAll(entities: Collection<T>, batchSize: Int = DEFAULT_BATCH_SIZE) {
+    fun putAll(entities: Collection<E>, batchSize: Int = DEFAULT_BATCH_SIZE) {
         require(batchSize > 0) { "batchSize must be greater than 0. batchSize=$batchSize" }
         cache.putAll(entities.associateBy { it.id }, batchSize)
     }
@@ -221,7 +168,8 @@ interface ExposedCacheRepository<T: HasIdentifier<ID>, ID: Any> {
      * @return 제거된 엔티티 수
      */
     fun invalidateByPattern(patterns: String, count: Int = DEFAULT_BATCH_SIZE): Long {
-        require(count > 0) { "count must be greater than 0. count=$count" }
+        count.requirePositiveNumber("count")
+        
         val keys = cache.keySet(patterns, count)
         if (keys.isEmpty()) {
             return 0

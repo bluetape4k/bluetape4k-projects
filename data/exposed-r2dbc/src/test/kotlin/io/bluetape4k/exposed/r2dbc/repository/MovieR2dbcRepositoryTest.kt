@@ -1,4 +1,4 @@
-package io.bluetape4k.exposed.r2dbc.domain.repository
+package io.bluetape4k.exposed.r2dbc.repository
 
 import io.bluetape4k.exposed.r2dbc.domain.model.MovieRecord
 import io.bluetape4k.exposed.r2dbc.domain.model.MovieSchema.withMovieAndActors

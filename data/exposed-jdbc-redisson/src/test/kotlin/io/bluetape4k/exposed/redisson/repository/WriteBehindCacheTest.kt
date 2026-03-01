@@ -22,7 +22,7 @@ class WriteBehindCacheTest {
     companion object: KLogging()
 
     abstract class AutoIncIdReadWriteBehind: AbstractRedissonTest(),
-                                             WriteBehindScenario<UserRecord, Long> {
+                                             WriteBehindScenario<Long, UserTable, UserRecord> {
         override fun withEntityTable(
             testDB: TestDB,
             statement: JdbcTransaction.() -> Unit,
@@ -72,7 +72,7 @@ class WriteBehindCacheTest {
     }
 
     abstract class ClientGeneratedIdReadWriteBehind: AbstractRedissonTest(),
-                                                     WriteBehindScenario<UserCredentialsRecord, UUID> {
+                                                     WriteBehindScenario<UUID, UserCredentialsTable, UserCredentialsRecord> {
         override fun withEntityTable(
             testDB: TestDB,
             statement: JdbcTransaction.() -> Unit,

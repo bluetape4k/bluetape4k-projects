@@ -9,19 +9,20 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeGreaterThan
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.withPollInterval
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.time.Duration
 
-interface R2dbcWriteBehindScenario<T: HasIdentifier<ID>, ID: Any>: R2dbcCacheTestScenario<T, ID> {
+interface R2dbcWriteBehindScenario<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>>: R2dbcCacheTestScenario<ID, T, E> {
 
     companion object: KLoggingChannel()
 
-    suspend fun createNewEntity(): T
+    suspend fun createNewEntity(): E
 
-    suspend fun createNewEntities(count: Int): List<T> {
+    suspend fun createNewEntities(count: Int): List<E> {
         return List(count) { createNewEntity() }
     }
 

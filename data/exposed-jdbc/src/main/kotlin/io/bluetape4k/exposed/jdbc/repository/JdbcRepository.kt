@@ -6,7 +6,6 @@ import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
-import org.jetbrains.exposed.v1.core.Transaction
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
@@ -25,7 +24,6 @@ import org.jetbrains.exposed.v1.jdbc.deleteIgnoreWhere
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import org.jetbrains.exposed.v1.jdbc.update
 import java.util.*
 import kotlin.uuid.ExperimentalUuidApi
@@ -60,7 +58,7 @@ import kotlin.uuid.Uuid
  * )
  *
  * // 3. Repository 구현
- * class ActorRepository : LongExposedJdbcRepository<ActorTable, ActorRecord> {
+ * class ActorRepository : LongJdbcRepository<ActorTable, ActorRecord> {
  *     override val table = ActorTable
  *
  *     override fun ResultRow.toEntity() = ActorRecord(
@@ -89,7 +87,7 @@ import kotlin.uuid.Uuid
  * }
  * ```
  */
-interface ExposedJdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
+interface JdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
     /**
      * Exposed의 IdTable을 반환합니다.
      * @return 엔티티에 해당하는 IdTable
@@ -102,20 +100,6 @@ interface ExposedJdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      * @return 엔티티 [T]
      */
     fun ResultRow.toEntity(): E
-
-    /**
-     * 현재 트랜잭션을 반환합니다.
-     * @return 현재 [Transaction]
-     */
-    fun currentTransaction(): Transaction =
-        TransactionManager.current()
-
-    /**
-     * 현재 트랜잭션을 반환하거나, 없으면 null을 반환합니다.
-     * @return 현재 [Transaction] 또는 null
-     */
-    fun currentTransactionOrNull(): Transaction? =
-        TransactionManager.currentOrNull()
 
 
     /**
@@ -202,7 +186,7 @@ interface ExposedJdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
     /**
      * ID로 엔티티를 조회합니다. 없으면 null을 반환합니다.
      * @param id 엔티티 ID
-     * @return 엔티티 [T] 또는 null
+     * @return 엔티티 [E] 또는 null
      */
     fun findByIdOrNull(id: ID): E? =
         table.selectAll().where { table.id eq id }.singleOrNull()?.toEntity()
@@ -357,23 +341,6 @@ interface ExposedJdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
      */
     fun deleteAll(limit: Int? = null, op: (IdTable<ID>).() -> Op<Boolean> = { Op.TRUE }): Int =
         table.deleteWhere(limit = limit, op = op)
-
-    /**
-     * 테이블 인스턴스를 인수로 받아 해당 테이블의 id 컬럼을 기준으로 레코드를 삭제합니다.
-     * 예외는 무시합니다.
-     *
-     * **주의:** 이 메서드에서 [entity]는 [T] (IdTable) 타입이므로 실제로 테이블 인스턴스를 받습니다.
-     * 특정 엔티티 ID 하나를 삭제하려면 [deleteByIdIgnore]를 사용하세요.
-     *
-     * @param entity 삭제 기준이 되는 테이블 인스턴스 (T = IdTable)
-     * @return 삭제된 행 수
-     * @see deleteByIdIgnore
-     */
-    @Deprecated(
-        message = "T는 IdTable 타입이므로 entity는 테이블 인스턴스입니다. 특정 ID 삭제 시 deleteByIdIgnore(id)를 사용하세요.",
-        replaceWith = ReplaceWith("deleteByIdIgnore(id)")
-    )
-    fun deleteIgnore(entity: T): Int = table.deleteIgnoreWhere { table.id eq entity.id }
 
     /**
      * 해당 id를 가진 레코드를 삭제합니다. 예외는 무시합니다.
@@ -593,15 +560,15 @@ interface ExposedJdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
 }
 
 /**
- * [Int] 기본키를 사용하는 [ExposedJdbcRepository]의 편의 타입 별칭입니다.
+ * [Int] 기본키를 사용하는 [JdbcRepository]의 편의 타입 별칭입니다.
  *
  * @param T [IntIdTable] 구현체
  * @param E 엔티티 타입
  */
-interface IntExposedJdbcRepository<T: IntIdTable, E: Any>: ExposedJdbcRepository<Int, T, E>
+interface IntJdbcRepository<T: IntIdTable, E: Any>: JdbcRepository<Int, T, E>
 
 /**
- * [Long] 기본키를 사용하는 [ExposedJdbcRepository]의 편의 타입 별칭입니다.
+ * [Long] 기본키를 사용하는 [JdbcRepository]의 편의 타입 별칭입니다.
  *
  * @param T [LongIdTable] 구현체
  * @param E 엔티티 타입
@@ -613,7 +580,7 @@ interface IntExposedJdbcRepository<T: IntIdTable, E: Any>: ExposedJdbcRepository
  *     val firstName = varchar("first_name", 50)
  * }
  *
- * class ActorRepository : LongExposedJdbcRepository<ActorTable, ActorRecord> {
+ * class ActorRepository : LongJdbcRepository<ActorTable, ActorRecord> {
  *     override val table = ActorTable
  *     override fun ResultRow.toEntity() = ActorRecord(
  *         id        = this[ActorTable.id].value,
@@ -622,29 +589,29 @@ interface IntExposedJdbcRepository<T: IntIdTable, E: Any>: ExposedJdbcRepository
  * }
  * ```
  */
-interface LongExposedJdbcRepository<T: LongIdTable, E: Any>: ExposedJdbcRepository<Long, T, E>
+interface LongJdbcRepository<T: LongIdTable, E: Any>: JdbcRepository<Long, T, E>
 
 /**
- * Kotlin [Uuid] 기본키를 사용하는 [ExposedJdbcRepository]의 편의 타입 별칭입니다.
+ * Kotlin [Uuid] 기본키를 사용하는 [JdbcRepository]의 편의 타입 별칭입니다.
  *
  * @param T [UuidTable] 구현체
  * @param E 엔티티 타입
  */
 @OptIn(ExperimentalUuidApi::class)
-interface UuidExposedJdbcRepository<T: UuidTable, E: Any>: ExposedJdbcRepository<Uuid, T, E>
+interface UuidJdbcRepository<T: UuidTable, E: Any>: JdbcRepository<Uuid, T, E>
 
 /**
- * [java.util.UUID] 기본키를 사용하는 [ExposedJdbcRepository]의 편의 타입 별칭입니다.
+ * [java.util.UUID] 기본키를 사용하는 [JdbcRepository]의 편의 타입 별칭입니다.
  *
  * @param T [UUIDTable] 구현체
  * @param E 엔티티 타입
  */
-interface UUIDExposedJdbcRepository<T: UUIDTable, E: Any>: ExposedJdbcRepository<UUID, T, E>
+interface UUIDJdbcRepository<T: UUIDTable, E: Any>: JdbcRepository<UUID, T, E>
 
 /**
- * [String] 기본키를 사용하는 [ExposedJdbcRepository]의 편의 타입 별칭입니다.
+ * [String] 기본키를 사용하는 [JdbcRepository]의 편의 타입 별칭입니다.
  *
  * @param T [IdTable]<String> 구현체
  * @param E 엔티티 타입
  */
-interface StringExposedJdbcRepository<T: IdTable<String>, E: Any>: ExposedJdbcRepository<String, T, E>
+interface StringJdbcRepository<T: IdTable<String>, E: Any>: JdbcRepository<String, T, E>

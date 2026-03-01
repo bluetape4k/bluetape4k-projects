@@ -10,20 +10,21 @@ import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.jetbrains.exposed.v1.core.autoIncColumnType
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
-interface WriteThroughScenario<T: HasIdentifier<ID>, ID: Any>: CacheTestScenario<T, ID> {
+interface WriteThroughScenario<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>>: CacheTestScenario<ID, T, E> {
 
     companion object: KLogging()
 
-    fun createNewEntity(): T
+    fun createNewEntity(): E
 
-    fun updateEntityEmail(entity: T): T
+    fun updateEntityEmail(entity: E): E
 
-    fun assertSameEntityWithoutUpdatedAt(entity1: T, entity2: T)
+    fun assertSameEntityWithoutUpdatedAt(entity1: E, entity2: E)
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)

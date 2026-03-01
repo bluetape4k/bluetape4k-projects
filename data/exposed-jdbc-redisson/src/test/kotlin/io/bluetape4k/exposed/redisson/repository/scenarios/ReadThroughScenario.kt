@@ -13,12 +13,13 @@ import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertFailsWith
 
-interface ReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: CacheTestScenario<T, ID> {
+interface ReadThroughScenario<ID: Any,  T: IdTable<ID>, E: HasIdentifier<ID>>: CacheTestScenario<ID, T, E> {
 
     companion object: KLogging()
 

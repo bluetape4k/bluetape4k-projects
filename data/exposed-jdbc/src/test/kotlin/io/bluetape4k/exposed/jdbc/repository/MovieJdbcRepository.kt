@@ -25,7 +25,7 @@ import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.time.LocalDate
 
-class MovieJdbcRepository: LongExposedJdbcRepository<MovieTable, MovieRecord> {
+class MovieJdbcRepository: LongJdbcRepository<MovieTable, MovieRecord> {
 
     companion object: KLogging()
 

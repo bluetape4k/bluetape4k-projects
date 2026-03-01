@@ -58,7 +58,7 @@ class SoftDeletedJdbcRepositoryTest: AbstractExposedTest() {
         isDeleted = this[ContactTable.isDeleted]
     )
 
-    val repository = object: SoftDeletedJdbcRepository<Long, ContactTable, ContactRecord> {
+    val repository = object: LongSoftDeletedJdbcRepository<ContactTable, ContactRecord> {
         override val table: ContactTable = ContactTable
         override fun ResultRow.toEntity(): ContactRecord = ContactRecord(
             id = this[ContactTable.id].value,

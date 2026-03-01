@@ -17,7 +17,11 @@ class SuspendedUserCredentialCacheRepository(
     redissonClient: RedissonClient,
     cacheName: String = "exposed:remote:suspended:users",
     config: RedisCacheConfig = RedisCacheConfig.READ_WRITE_THROUGH,
-): AbstractSuspendedExposedCacheRepository<UserCredentialsRecord, UUID>(redissonClient, cacheName, config) {
+): AbstractSuspendedJdbcRedissonRepository<UUID, UserCredentialsTable, UserCredentialsRecord>(
+    redissonClient,
+    cacheName,
+    config
+) {
 
     companion object: KLoggingChannel()
 

@@ -1,7 +1,6 @@
 package io.bluetape4k.exposed.r2dbc.repository
 
 import io.bluetape4k.exposed.core.ExposedPage
-import io.bluetape4k.exposed.core.HasIdentifier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -15,59 +14,94 @@ import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
+import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
+import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
+import org.jetbrains.exposed.v1.core.dao.id.UuidTable
+import org.jetbrains.exposed.v1.core.dao.id.java.UUIDTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
 import org.jetbrains.exposed.v1.core.statements.BatchUpsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.core.statements.UpsertBuilder
-import org.jetbrains.exposed.v1.r2dbc.R2dbcTransaction
 import org.jetbrains.exposed.v1.r2dbc.batchInsert
 import org.jetbrains.exposed.v1.r2dbc.batchUpsert
 import org.jetbrains.exposed.v1.r2dbc.deleteIgnoreWhere
 import org.jetbrains.exposed.v1.r2dbc.deleteWhere
 import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
-import org.jetbrains.exposed.v1.r2dbc.transactions.TransactionManager
 import org.jetbrains.exposed.v1.r2dbc.update
+import java.util.*
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 /**
- * Exposed R2dbc를 사용하는 Repository 의 기본 인터페이스입니다.
+ * Exposed R2DBC를 사용하는 Repository의 기본 인터페이스입니다.
  *
- * ```
- * class ActorR2dbcRepository: ExposedR2dbcRepository<ActorRecord, Long> {
- *    override val table = ActorTable
- *    ...
+ * `ID` 타입의 기본키를 가지는 [T] 테이블에서 [E] 엔티티를 조회/저장/삭제하는
+ * 공통 CRUD 연산을 기본 구현과 함께 제공합니다. 모든 단건 조회/변경 연산은
+ * `suspend` 함수로, 다건 조회 연산은 [kotlinx.coroutines.flow.Flow]로 제공됩니다.
+ *
+ * @param ID 기본키 타입 (예: [Long], [Int], [java.util.UUID])
+ * @param T Exposed [IdTable] 구현체 (예: [LongIdTable], [IntIdTable])
+ * @param E 조회 결과로 매핑될 엔티티(레코드) 타입
+ *
+ * ## 사용 예
+ *
+ * ```kotlin
+ * // 1. 테이블 정의
+ * object ActorTable : LongIdTable("actors") {
+ *     val firstName = varchar("first_name", 50)
+ *     val lastName  = varchar("last_name",  50)
+ * }
+ *
+ * // 2. 레코드(DTO) 타입 정의
+ * data class ActorRecord(
+ *     val id: Long = 0L,
+ *     val firstName: String,
+ *     val lastName: String,
+ * )
+ *
+ * // 3. Repository 구현
+ * class ActorRepository : LongR2dbcRepository<ActorTable, ActorRecord> {
+ *     override val table = ActorTable
+ *
+ *     override suspend fun ResultRow.toEntity() = ActorRecord(
+ *         id        = this[ActorTable.id].value,
+ *         firstName = this[ActorTable.firstName],
+ *         lastName  = this[ActorTable.lastName],
+ *     )
+ *
+ *     suspend fun save(record: ActorRecord): ActorRecord {
+ *         val id = ActorTable.insertAndGetId {
+ *             it[firstName] = record.firstName
+ *             it[lastName]  = record.lastName
+ *         }
+ *         return record.copy(id = id.value)
+ *     }
+ * }
+ *
+ * // 4. 사용
+ * suspendTransaction {
+ *     val repo = ActorRepository()
+ *     val saved = repo.save(ActorRecord(firstName = "Johnny", lastName = "Depp"))
+ *
+ *     val found = repo.findById(saved.id)
+ *     val all   = repo.findAll(limit = 10) { ActorTable.lastName eq "Depp" }.toList()
+ *     val page  = repo.findPage(pageNumber = 0, pageSize = 20)
  * }
  * ```
  */
-@Deprecated(
-    message = "use R2dbcRepository instead.",
-    replaceWith = ReplaceWith("R2dbcRepository"),
-    level = DeprecationLevel.WARNING
-)
-interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
+interface R2dbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
     /**
      * 엔티티가 매핑되는 Exposed의 IdTable을 반환합니다.
      */
-    val table: IdTable<ID>
-
-    /**
-     * 현재 R2DBC 트랜잭션을 반환합니다.
-     */
-    fun currentTransaction(): R2dbcTransaction =
-        TransactionManager.current()
-
-    /**
-     * 현재 R2DBC 트랜잭션이 있으면 반환하고, 없으면 null을 반환합니다.
-     */
-    fun currentTransactionOrNull(): R2dbcTransaction? =
-        TransactionManager.currentOrNull()
+    val table: T
 
     /**
      * ResultRow를 엔티티로 변환합니다.
      */
-    suspend fun ResultRow.toEntity(): T
+    suspend fun ResultRow.toEntity(): E
 
     /**
      * 전체 엔티티의 개수를 반환합니다.
@@ -126,14 +160,14 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
      * ID로 엔티티를 조회합니다. 없으면 예외를 발생시킵니다.
      * @param id 엔티티의 ID
      */
-    suspend fun findById(id: ID): T =
+    suspend fun findById(id: ID): E =
         table.selectAll().where { table.id eq id }.single().toEntity()
 
     /**
      * ID로 엔티티를 조회합니다. 없으면 null을 반환합니다.
      * @param id 엔티티의 ID
      */
-    suspend fun findByIdOrNull(id: ID): T? =
+    suspend fun findByIdOrNull(id: ID): E? =
         table.selectAll().where { table.id eq id }.singleOrNull()?.toEntity()
 
     /**
@@ -148,7 +182,7 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
         offset: Long? = null,
         sortOrder: SortOrder = SortOrder.ASC,
         predicate: () -> Op<Boolean> = { Op.TRUE },
-    ): Flow<T> =
+    ): Flow<E> =
         table.selectAll()
             .where(predicate)
             .apply {
@@ -170,7 +204,7 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
         limit: Int? = null,
         offset: Long? = null,
         sortOrder: SortOrder = SortOrder.ASC,
-    ): Flow<T> {
+    ): Flow<E> {
         val condition: Op<Boolean> = filters.fold(Op.TRUE as Op<Boolean>) { acc, filter ->
             acc.and(filter.invoke())
         }
@@ -189,7 +223,7 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
         limit: Int? = null,
         offset: Long? = null,
         sortOrder: SortOrder = SortOrder.ASC,
-    ): Flow<T> = findWithFilters(
+    ): Flow<E> = findWithFilters(
         *filters,
         limit = limit,
         offset = offset,
@@ -204,7 +238,7 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
     suspend fun findFirstOrNull(
         offset: Long? = null,
         predicate: () -> Op<Boolean> = { Op.TRUE },
-    ): T? =
+    ): E? =
         table.selectAll()
             .where(predicate)
             .limit(1)
@@ -222,7 +256,7 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
     suspend fun findLastOrNull(
         offset: Long? = null,
         predicate: () -> Op<Boolean> = { Op.TRUE },
-    ): T? =
+    ): E? =
         table.selectAll()
             .where(predicate)
             .orderBy(table.id, SortOrder.DESC)
@@ -238,7 +272,7 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param field 컬럼
      * @param value 값
      */
-    fun <V> findByField(field: Column<V>, value: V): Flow<T> =
+    fun <V> findByField(field: Column<V>, value: V): Flow<E> =
         table.selectAll()
             .where { field eq value }
             .map { it.toEntity() }
@@ -248,7 +282,7 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param field 컬럼
      * @param value 값
      */
-    suspend fun <V> findByFieldOrNull(field: Column<V>, value: V): T? =
+    suspend fun <V> findByFieldOrNull(field: Column<V>, value: V): E? =
         table.selectAll()
             .where { field eq value }
             .firstOrNull()
@@ -258,17 +292,10 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
      * 여러 ID로 엔티티를 일괄 조회합니다.
      * @param ids 조회할 ID 컬렉션
      */
-    fun findAllByIds(ids: Iterable<ID>): Flow<T> =
+    fun findAllByIds(ids: Iterable<ID>): Flow<E> =
         table.selectAll()
             .where { table.id inList ids }
             .map { it.toEntity() }
-
-    /**
-     * 엔티티를 삭제합니다.
-     * @param entity 삭제할 엔티티
-     */
-    suspend fun delete(entity: T): Int =
-        table.deleteWhere { table.id eq entity.id }
 
     /**
      * ID로 엔티티를 삭제합니다.
@@ -287,13 +314,6 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
         op: (IdTable<ID>).() -> Op<Boolean> = { Op.TRUE },
     ): Int =
         table.deleteWhere(limit = limit, op = op)
-
-    /**
-     * 엔티티를 무시하고 삭제합니다.
-     * @param entity 삭제할 엔티티
-     */
-    suspend fun deleteIgnore(entity: T): Int =
-        table.deleteIgnoreWhere { table.id eq entity.id }
 
     /**
      * ID로 엔티티를 무시하고 삭제합니다.
@@ -357,12 +377,12 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param shouldReturnGeneratedValues 생성된 값 반환 여부
      * @param insertStatement 삽입 내용
      */
-    suspend fun <E> batchInsert(
-        entities: Iterable<E>,
+    suspend fun <D> batchInsert(
+        entities: Iterable<D>,
         ignore: Boolean = false,
         shouldReturnGeneratedValues: Boolean = true,
-        insertStatement: BatchInsertStatement.(E) -> Unit,
-    ): List<T> =
+        insertStatement: BatchInsertStatement.(D) -> Unit,
+    ): List<E> =
         table
             .batchInsert(
                 data = entities,
@@ -379,12 +399,12 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param shouldReturnGeneratedValues 생성된 값 반환 여부
      * @param insertStatement 삽입 내용
      */
-    suspend fun <E> batchInsert(
-        entities: Sequence<E>,
+    suspend fun <D> batchInsert(
+        entities: Sequence<D>,
         ignore: Boolean = false,
         shouldReturnGeneratedValues: Boolean = true,
-        insertStatement: BatchInsertStatement.(E) -> Unit,
-    ): List<T> =
+        insertStatement: BatchInsertStatement.(D) -> Unit,
+    ): List<E> =
         table
             .batchInsert(
                 data = entities,
@@ -410,15 +430,15 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param shouldReturnGeneratedValues Specifies whether newly generated values (for example, auto-incremented IDs) should be returned.
      * @return Upsert 된 엔티티 목록
      */
-    suspend fun <E: Any> batchUpsert(
-        entities: Iterable<E>,
+    suspend fun <D: Any> batchUpsert(
+        entities: Iterable<D>,
         vararg keys: Column<*>,
         onUpdate: (UpsertBuilder.(UpdateStatement) -> Unit)? = null,
         onUpdateExclude: List<Column<*>>? = null,
         where: (() -> Op<Boolean>)? = null,
         shouldReturnGeneratedValues: Boolean = true,
-        body: BatchUpsertStatement.(E) -> Unit,
-    ): List<T> =
+        body: BatchUpsertStatement.(D) -> Unit,
+    ): List<E> =
         table
             .batchUpsert(
                 data = entities,
@@ -447,15 +467,15 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
      * @param shouldReturnGeneratedValues Specifies whether newly generated values (for example, auto-incremented IDs) should be returned.
      * @return Upsert 된 엔티티 목록
      */
-    suspend fun <E: Any> batchUpsert(
-        entities: Sequence<E>,
+    suspend fun <D: Any> batchUpsert(
+        entities: Sequence<D>,
         vararg keys: Column<*>,
         onUpdate: (UpsertBuilder.(UpdateStatement) -> Unit)? = null,
         onUpdateExclude: List<Column<*>>? = null,
         where: (() -> Op<Boolean>)? = null,
         shouldReturnGeneratedValues: Boolean = true,
-        body: BatchUpsertStatement.(E) -> Unit,
-    ): List<T> =
+        body: BatchUpsertStatement.(D) -> Unit,
+    ): List<E> =
         table
             .batchUpsert(
                 data = entities,
@@ -481,7 +501,7 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
         pageSize: Int,
         sortOrder: SortOrder = SortOrder.ASC,
         predicate: () -> Op<Boolean> = { Op.TRUE },
-    ): ExposedPage<T> {
+    ): ExposedPage<E> {
         val totalCount = countBy(predicate)
         val content = findAll(
             limit = pageSize,
@@ -497,3 +517,45 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
         )
     }
 }
+
+
+/**
+ * [Int] 기본키를 사용하는 [R2dbcRepository]의 편의 타입 별칭입니다.
+ *
+ * @param T [IntIdTable] 구현체
+ * @param E 엔티티 타입
+ */
+interface IntR2dbcRepository<T: IntIdTable, E: Any>: R2dbcRepository<Int, T, E>
+
+/**
+ * [Long] 기본키를 사용하는 [R2dbcRepository]의 편의 타입 별칭입니다.
+ *
+ * @param T [LongIdTable] 구현체
+ * @param E 엔티티 타입
+ */
+interface LongR2dbcRepository<T: LongIdTable, E: Any>: R2dbcRepository<Long, T, E>
+
+/**
+ * Kotlin [kotlin.uuid.Uuid] 기본키를 사용하는 [R2dbcRepository]의 편의 타입 별칭입니다.
+ *
+ * @param T [UuidTable] 구현체
+ * @param E 엔티티 타입
+ */
+@OptIn(ExperimentalUuidApi::class)
+interface UuidR2dbcRepository<T: UuidTable, E: Any>: R2dbcRepository<Uuid, T, E>
+
+/**
+ * [java.util.UUID] 기본키를 사용하는 [R2dbcRepository]의 편의 타입 별칭입니다.
+ *
+ * @param T [UUIDTable] 구현체
+ * @param E 엔티티 타입
+ */
+interface UUIDR2dbcRepository<T: UUIDTable, E: Any>: R2dbcRepository<UUID, T, E>
+
+/**
+ * [String] 기본키를 사용하는 [R2dbcRepository]의 편의 타입 별칭입니다.
+ *
+ * @param T [IdTable]<String> 구현체
+ * @param E 엔티티 타입
+ */
+interface StringR2dbcRepository<T: IdTable<String>, E: Any>: R2dbcRepository<String, T, E>

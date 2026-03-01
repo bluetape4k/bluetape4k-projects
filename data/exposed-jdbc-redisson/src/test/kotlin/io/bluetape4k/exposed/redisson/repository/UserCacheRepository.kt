@@ -1,6 +1,7 @@
 package io.bluetape4k.exposed.redisson.repository
 
 import io.bluetape4k.exposed.redisson.repository.UserSchema.UserRecord
+import io.bluetape4k.exposed.redisson.repository.UserSchema.UserTable
 import io.bluetape4k.exposed.redisson.repository.UserSchema.toUserRecord
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
@@ -15,11 +16,11 @@ class UserCacheRepository(
     redissonClient: RedissonClient,
     cacheName: String = "exposed:remote:users",
     config: RedisCacheConfig = RedisCacheConfig.READ_WRITE_THROUGH,
-): AbstractExposedCacheRepository<UserRecord, Long>(redissonClient, cacheName, config) {
+): AbstractJdbcRedissonRepository<Long, UserTable,  UserRecord>(redissonClient, cacheName, config) {
 
     companion object: KLogging()
 
-    override val entityTable: UserSchema.UserTable = UserSchema.UserTable
+    override val entityTable: UserTable = UserTable
     override fun ResultRow.toEntity(): UserRecord = toUserRecord()
 
     override fun doUpdateEntity(statement: UpdateStatement, entity: UserRecord) {

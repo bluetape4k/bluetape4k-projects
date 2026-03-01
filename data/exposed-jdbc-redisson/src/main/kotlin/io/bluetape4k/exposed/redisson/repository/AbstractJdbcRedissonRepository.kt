@@ -12,9 +12,11 @@ import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 import io.bluetape4k.redis.redisson.cache.localCachedMap
 import io.bluetape4k.redis.redisson.cache.mapCache
 import io.bluetape4k.support.requireNotNull
+import io.bluetape4k.support.requirePositiveNumber
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -25,35 +27,31 @@ import org.redisson.api.RedissonClient
 import java.time.Duration
 
 /**
- * AbstractExposedCacheRepository 는 Exposed와 Redisson을 사용하여 Redis에 데이터를 캐싱하는 Repository입니다.
+ * AbstractJdbcRedissonRepository 는 Exposed와 Redisson을 사용하여 Redis에 데이터를 캐싱하는 Repository입니다.
  *
- * @param T Entity Type   Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable type 을 사용해 주세요.
  * @param ID Entity ID Type
+ * @param T Entity Table Type
+ * @param E Entity Type   Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable type 을 사용해 주세요.
  */
-@Deprecated(
-    message = "use AbstractJdbcRedissonRepository",
-    replaceWith = ReplaceWith("AbstractJdbcRedissonRepository"),
-    level = DeprecationLevel.WARNING
-)
-abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
+abstract class AbstractJdbcRedissonRepository<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>>(
     val redissonClient: RedissonClient,
     override val cacheName: String,
     protected val config: RedisCacheConfig,
-): ExposedCacheRepository<T, ID> {
+): JdbcRedissonRepository<ID, T, E> {
 
     companion object: KLogging()
 
     /**
      * DB의 정보를 Read Through로 캐시에 로딩하는 [EntityMapLoader] 입니다.
      */
-    protected open val mapLoader: EntityMapLoader<ID, T> by lazy {
+    protected open val mapLoader: EntityMapLoader<ID, E> by lazy {
         ExposedEntityMapLoader(entityTable) { toEntity() }
     }
 
     /**
      * [EntityMapWriter] 에서 캐시에서 변경된 내용을 Write Through로 DB에 반영하는 함수입니다.
      */
-    protected open fun doUpdateEntity(statement: UpdateStatement, entity: T) {
+    protected open fun doUpdateEntity(statement: UpdateStatement, entity: E) {
         if (config.isReadWrite) {
             error("MapWriter 에서 변경된 cache item을 DB에 반영할 수 있도록 재정의해주세요. ")
         }
@@ -62,7 +60,7 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
     /**
      * [EntityMapWriter] 에서 캐시에서 추가된 내용을 Write Through로 DB에 반영하는 함수입니다.
      */
-    protected open fun doInsertEntity(statement: BatchInsertStatement, entity: T) {
+    protected open fun doInsertEntity(statement: BatchInsertStatement, entity: E) {
         if (config.isReadWrite) {
             error("MapWriter 에서 추가된 cache item을 DB에 추가할 수 있도록 재정의해주세요. ")
         }
@@ -72,7 +70,7 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
      * Write Through 모드라면 [ExposedEntityMapWriter]를 생성하여 제공합니다.
      * Read Through Only 라면 null을 반환합니다.
      */
-    protected val mapWriter: EntityMapWriter<ID, T>? by lazy {
+    protected val mapWriter: EntityMapWriter<ID, E>? by lazy {
         when (config.cacheMode) {
             RedisCacheConfig.CacheMode.READ_ONLY  -> null
             RedisCacheConfig.CacheMode.READ_WRITE ->
@@ -86,7 +84,7 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
         }
     }
 
-    override val cache: RMap<ID, T?> by lazy {
+    override val cache: RMap<ID, E?> by lazy {
         if (config.isNearCacheEnabled) {
             createLocalCacheMap()
         } else {
@@ -152,7 +150,7 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
         sortBy: Expression<*>,
         sortOrder: SortOrder,
         where: () -> Op<Boolean>,
-    ): List<T> {
+    ): List<E> {
         val entities = transaction {
             entityTable
                 .selectAll()
@@ -178,8 +176,9 @@ abstract class AbstractExposedCacheRepository<T: HasIdentifier<ID>, ID: Any>(
      * @param batchSize 한 번에 조회할 배치 크기
      * @return 조회된 엔티티 목록
      */
-    override fun getAll(ids: Collection<ID>, batchSize: Int): List<T> {
-        require(batchSize > 0) { "batchSize must be greater than 0. batchSize=$batchSize" }
+    override fun getAll(ids: Collection<ID>, batchSize: Int): List<E> {
+        batchSize.requirePositiveNumber("batchSize")
+        
         if (ids.isEmpty()) return emptyList()
         val chunkedIds = ids.chunked(batchSize)
 

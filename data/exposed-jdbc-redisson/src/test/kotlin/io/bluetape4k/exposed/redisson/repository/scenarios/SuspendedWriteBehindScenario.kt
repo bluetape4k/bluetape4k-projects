@@ -8,6 +8,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeGreaterThan
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.withPollInterval
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
 import org.junit.jupiter.params.ParameterizedTest
@@ -15,13 +16,13 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.time.Duration
 
 @Suppress("DEPRECATION")
-interface SuspendedWriteBehindScenario<T: HasIdentifier<ID>, ID: Any>: SuspendedCacheTestScenario<T, ID> {
+interface SuspendedWriteBehindScenario<ID: Any,T: IdTable<ID>,  E: HasIdentifier<ID>>: SuspendedCacheTestScenario<ID, T, E> {
 
     companion object: KLoggingChannel()
 
-    suspend fun createNewEntity(): T
+    suspend fun createNewEntity(): E
 
-    suspend fun createNewEntities(count: Int): List<T> {
+    suspend fun createNewEntities(count: Int): List<E> {
         return List(count) { createNewEntity() }
     }
 

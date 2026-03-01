@@ -1,14 +1,15 @@
 package io.bluetape4k.exposed.redisson.repository.scenarios
 
 import io.bluetape4k.exposed.core.HasIdentifier
-import io.bluetape4k.exposed.redisson.repository.ExposedCacheRepository
+import io.bluetape4k.exposed.redisson.repository.JdbcRedissonRepository
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.junit.jupiter.api.BeforeEach
 
-interface CacheTestScenario<T: HasIdentifier<ID>, ID: Any> {
+interface CacheTestScenario<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>> {
     companion object: KLogging() {
         @JvmStatic
         fun enableDialects() = setOf(TestDB.H2) //TestDB.enabledDialects()
@@ -23,7 +24,7 @@ interface CacheTestScenario<T: HasIdentifier<ID>, ID: Any> {
     /**
      * 테스트에 사용할 캐시 저장소
      */
-    val repository: ExposedCacheRepository<T, ID>
+    val repository: JdbcRedissonRepository<ID, T, E>
 
     /**
      * 테스트에 사용할 테이블을 설정하고 테스트 로직을 실행하는 함수

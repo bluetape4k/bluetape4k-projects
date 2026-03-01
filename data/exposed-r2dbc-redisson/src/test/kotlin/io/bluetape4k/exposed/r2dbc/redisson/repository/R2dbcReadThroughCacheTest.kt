@@ -26,7 +26,7 @@ class R2dbcReadThroughCacheTest {
     companion object: KLoggingChannel()
 
     abstract class R2dbcAutoIncIdReadThrough: R2dbcRedissonTestBase(),
-                                              R2dbcReadThroughScenario<UserRecord, Long> {
+                                              R2dbcReadThroughScenario<Long, UserTable, UserRecord> {
 
         companion object: KLoggingChannel()
 
@@ -52,8 +52,8 @@ class R2dbcReadThroughCacheTest {
     @Nested
     inner class R2dbcAutoIncIdReadThroughRemteCache: R2dbcAutoIncIdReadThrough() {
         override val cacheConfig: RedisCacheConfig = RedisCacheConfig.READ_ONLY
-        override val repository: R2dbcCacheRepository<UserRecord, Long> by lazy {
-            R2dbcUserCacheRepository(
+        override val repository: R2dbcRedissonRepository<Long, UserTable, UserRecord> by lazy {
+            R2dbcUserRedissonRepository(
                 redissonClient,
                 "r2dbc:read-through:remote:users",
                 config = cacheConfig
@@ -65,8 +65,8 @@ class R2dbcReadThroughCacheTest {
     inner class R2dbcAutoIncIdReadThroughNearCache: R2dbcAutoIncIdReadThrough() {
         override val cacheConfig: RedisCacheConfig = RedisCacheConfig.READ_ONLY_WITH_NEAR_CACHE
 
-        override val repository: R2dbcCacheRepository<UserRecord, Long> by lazy {
-            R2dbcUserCacheRepository(
+        override val repository: R2dbcRedissonRepository<Long, UserTable, UserRecord> by lazy {
+            R2dbcUserRedissonRepository(
                 redissonClient,
                 "r2dbc:read-through:near:users",
                 config = cacheConfig
@@ -75,7 +75,7 @@ class R2dbcReadThroughCacheTest {
     }
 
     abstract class R2dbcClientGeneratedIdReadThrough: R2dbcRedissonTestBase(),
-                                                      R2dbcReadThroughScenario<UserCredentialsRecord, UUID> {
+                                                      R2dbcReadThroughScenario<UUID, UserCredentialsTable, UserCredentialsRecord> {
 
         override suspend fun withR2dbcEntityTable(
             testDB: TestDB,
@@ -101,7 +101,7 @@ class R2dbcReadThroughCacheTest {
     inner class R2dbcClientGeneratedIdReadThroughRemoteCache: R2dbcClientGeneratedIdReadThrough() {
         override val cacheConfig: RedisCacheConfig = RedisCacheConfig.READ_ONLY
         override val repository by lazy {
-            R2dbcUserCredentialCacheRepository(
+            R2dbcUserCredentialRedissonRepository(
                 redissonClient,
                 "r2dbc:read-through:remote:user-credentials",
                 config = cacheConfig
@@ -113,7 +113,7 @@ class R2dbcReadThroughCacheTest {
     inner class R2dbcClientGeneratedIdReadThroughNearCache: R2dbcClientGeneratedIdReadThrough() {
         override val cacheConfig: RedisCacheConfig = RedisCacheConfig.READ_ONLY_WITH_NEAR_CACHE
         override val repository by lazy {
-            R2dbcUserCredentialCacheRepository(
+            R2dbcUserCredentialRedissonRepository(
                 redissonClient,
                 "r2dbc:read-through:near:user-credentials",
                 config = cacheConfig

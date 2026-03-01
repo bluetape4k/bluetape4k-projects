@@ -16,12 +16,13 @@ import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertFailsWith
 
-interface R2dbcReadThroughScenario<T: HasIdentifier<ID>, ID: Any>: R2dbcCacheTestScenario<T, ID> {
+interface R2dbcReadThroughScenario<ID: Any, T: IdTable<ID>, E: HasIdentifier<ID>>: R2dbcCacheTestScenario<ID, T, E> {
 
     companion object: KLoggingChannel() {
         const val DEFAULT_DELAY = 100L
