@@ -191,6 +191,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
             }
         }
 
+        @Suppress("DEPRECATION")
         private suspend fun checkReadThroughCacheAsync(cache: RMap<Long, ActorRecord?>) {
             // 아직 캐시에 로딩된 데이터가 없다.
             cache.keys shouldHaveSize 0
