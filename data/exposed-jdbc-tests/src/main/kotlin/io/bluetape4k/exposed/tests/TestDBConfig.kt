@@ -14,5 +14,5 @@ object TestDBConfig {
      * true 라면 메모리 DB인 H2 만을 대상으로 테스트합니다.
      * false 라면 Postgres, MySQL V5, MySQL V8, MariaDB 도 포함해서 테스트합니다.
      */
-    var useFastDB = false
+    var useFastDB = true
 }

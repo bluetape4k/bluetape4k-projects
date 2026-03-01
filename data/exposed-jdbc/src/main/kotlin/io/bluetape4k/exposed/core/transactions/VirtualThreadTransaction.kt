@@ -9,6 +9,7 @@ import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transactionManager
 import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 /**
  * 가상 스레드에서 트랜잭션을 실행하고 결과를 반환합니다.
@@ -20,6 +21,10 @@ import java.util.concurrent.ExecutorService
  * @param statement 실행할 트랜잭션 블록
  * @return 트랜잭션 블록의 실행 결과
  */
+@Deprecated(
+    message = "use io.bluetape4k.exposed.jdbc.transactions.newVirtualThreadTransaction instead.",
+    replaceWith = ReplaceWith("newVirtualThreadJdbcTransaction(executor, db, transactionIsolation, readOnly, statement)")
+)
 fun <T> newVirtualThreadTransaction(
     executor: ExecutorService? = VirtualThreadExecutor,
     db: Database? = null,
@@ -41,8 +46,12 @@ fun <T> newVirtualThreadTransaction(
  * @param statement 실행할 트랜잭션 블록
  * @return 트랜잭션 블록의 실행 결과
  */
+@Deprecated(
+    message = "use io.bluetape4k.exposed.jdbc.transactions.withVirtualThreadTransaction instead",
+    replaceWith = ReplaceWith("withVirtualJdbcThreadTransaction(executor, statement)")
+)
 fun <T> Transaction.withVirtualThreadTransaction(
-    executor: ExecutorService? = VirtualThreadExecutor,
+    executor: ExecutorService? = Executors.newVirtualThreadPerTaskExecutor(),
     statement: JdbcTransaction.() -> T,
 ): T = virtualThreadTransactionAsync(
     executor = executor,
@@ -60,14 +69,18 @@ fun <T> Transaction.withVirtualThreadTransaction(
  * @param statement 실행할 트랜잭션 블록
  * @return VirtualFuture\<T\> 트랜잭션 블록의 실행 결과를 담는 Future
  */
+@Deprecated(
+    message = "use io.bluetape4k.exposed.jdbc.transactions.virtualThreadTransactionAsync instead.",
+    replaceWith = ReplaceWith("virtualThreadJdbcTransactionAsync(executor, db, transactionIsolation, readOnly, statement)")
+)
 fun <T> virtualThreadTransactionAsync(
-    executor: ExecutorService? = VirtualThreadExecutor,
+    executor: ExecutorService? = Executors.newVirtualThreadPerTaskExecutor(),
     db: Database? = null,
     transactionIsolation: Int? = null,
     readOnly: Boolean = false,
     statement: JdbcTransaction.() -> T,
 ): VirtualFuture<T> {
-    val effectiveExecutor = executor ?: VirtualThreadExecutor
+    val effectiveExecutor = executor ?: Executors.newVirtualThreadPerTaskExecutor()
     require(!effectiveExecutor.isShutdown && !effectiveExecutor.isTerminated) {
         "ExecutorService is already shutdown."
     }

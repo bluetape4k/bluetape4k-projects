@@ -13,6 +13,11 @@ import org.jetbrains.exposed.v1.jdbc.update
 /**
  * 엔티티에 대해 Soft delete를 지원하는 [ExposedRepository] 인터페이스입니다.
  */
+@Deprecated(
+    message = "use SoftDeletedJdbcRepository instead.",
+    replaceWith = ReplaceWith("SoftDeletedJdbcRepository"),
+    DeprecationLevel.WARNING
+)
 interface SoftDeletedRepository<T: HasIdentifier<ID>, ID: Any>: ExposedRepository<T, ID> {
 
     override val table: SoftDeletedIdTable<ID>

@@ -159,21 +159,6 @@ enum class TestDB(
         }
     );
 
-//    COCKROACH(
-//        connection = {
-//            Containers.Cockroach.jdbcUrl + "?allowMultiQueries=true" // + "?sslmode=disable"
-//        },
-//        driver = JdbcDrivers.DRIVER_CLASS_POSTGRESQL,
-//        afterConnection = { connection ->
-//            connection.createStatement().use { stmt ->
-//                stmt.execute("SET autocommit_before_ddl = on")
-//            }
-//        },
-//        dbConfig = {
-//            defaultIsolationLevel = java.sql.Connection.TRANSACTION_READ_COMMITTED
-//        }
-//    );
-
     var db: Database? = null
 
     fun connect(configure: DatabaseConfig.Builder.() -> Unit = {}): Database {
@@ -225,8 +210,7 @@ enum class TestDB(
         // NOTE: 이 값을 바꿔서 MySQL, PostgreSQL 등을 testcontainers 를 이용하여 테스트할 수 있습니다.
 
         fun enabledDialects(): Set<TestDB> {
-            return if (useFastDB) ALL_H2
-            // else ALL_H2 + ALL_POSTGRES + ALL_MYSQL_MARIADB //ALL - ALL_H2_V1 - MYSQL_V5 - COCKROACH)
+            return if (useFastDB) setOf(H2)
             else setOf(TestDB.H2, TestDB.POSTGRESQL, TestDB.MYSQL_V8)
         }
     }

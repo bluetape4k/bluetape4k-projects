@@ -2,7 +2,7 @@ package io.bluetape4k.exposed.core
 
 import io.bluetape4k.collections.toList
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.flow
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.EntityIDColumnType
 import org.jetbrains.exposed.v1.core.FieldSet
@@ -118,7 +118,7 @@ open class SuspendedQuery(set: FieldSet, where: Op<Boolean>? = null): Query(set,
             )
         }
 
-        return channelFlow {
+        return flow {
             try {
                 var lastOffset = if (fetchInAscendingOrder) 0L else null
                 while (true) {
@@ -151,7 +151,7 @@ open class SuspendedQuery(set: FieldSet, where: Op<Boolean>? = null): Query(set,
                     }
                     val results = query.iterator().toList()
                     if (results.isNotEmpty()) {
-                        send(results)
+                        emit(results)
                     }
                     if (results.size < batchSize) break
 

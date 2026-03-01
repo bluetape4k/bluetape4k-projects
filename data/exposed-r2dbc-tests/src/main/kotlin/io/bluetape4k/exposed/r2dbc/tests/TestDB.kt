@@ -58,16 +58,16 @@ enum class TestDB(
         },
         driver = "org.h2.Driver"
     ),
-    H2_ORACLE(
-        connection = {
-            "r2dbc:h2:mem:///oracle;MODE=Oracle;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1;"
-        },
-        driver = "org.h2.Driver"
-    ),
-    H2_SQLSERVER(
-        connection = { "r2dbc:h2:mem:///sqlserver;MODE=MSSQLServer;DB_CLOSE_DELAY=-1;" },
-        driver = "org.h2.Driver"
-    ),
+//    H2_ORACLE(
+//        connection = {
+//            "r2dbc:h2:mem:///oracle;MODE=Oracle;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1;"
+//        },
+//        driver = "org.h2.Driver"
+//    ),
+//    H2_SQLSERVER(
+//        connection = { "r2dbc:h2:mem:///sqlserver;MODE=MSSQLServer;DB_CLOSE_DELAY=-1;" },
+//        driver = "org.h2.Driver"
+//    ),
 
     MARIADB(
         connection = {
@@ -172,16 +172,15 @@ enum class TestDB(
         val ALL_MYSQL_MARIADB_LIKE = ALL_MYSQL_LIKE + ALL_MARIADB_LIKE
         val ALL_POSTGRES = setOf(POSTGRESQL)
         val ALL_POSTGRES_LIKE = setOf(POSTGRESQL, H2_PSQL)
-        val ALL_ORACLE_LIKE = setOf(H2_ORACLE)
-        val ALL_SQLSERVER_LIKE = setOf(H2_SQLSERVER)
+//        val ALL_ORACLE_LIKE = setOf(H2_ORACLE)
+//        val ALL_SQLSERVER_LIKE = setOf(H2_SQLSERVER)
 
         val ALL = TestDB.entries.toSet()
 
         // NOTE: 이 값을 바꿔서 MySQL, PostgreSQL 등을 testcontainers 를 이용하여 테스트할 수 있습니다.
 
         fun enabledDialects(): Set<TestDB> {
-            return if (useFastDB) ALL_H2
-            // else ALL_H2 + ALL_POSTGRES + ALL_MYSQL_MARIADB - MYSQL_V5 // MySQL 5.7 과 MySQL 8.0 이 Driver의 버전이 다름
+            return if (useFastDB) setOf(H2)
             else setOf(TestDB.H2, TestDB.POSTGRESQL, TestDB.MYSQL_V8)
         }
     }

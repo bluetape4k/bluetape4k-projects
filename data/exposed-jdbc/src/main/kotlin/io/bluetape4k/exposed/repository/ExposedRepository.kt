@@ -36,6 +36,11 @@ import org.jetbrains.exposed.v1.jdbc.update
  * }
  * ```
  */
+@Deprecated(
+    message = "use ExposedJdbcRepository instead.",
+    ReplaceWith("ExposedJdbcRepository"),
+    level = DeprecationLevel.WARNING
+)
 interface ExposedRepository<T: HasIdentifier<ID>, ID: Any> {
 
     /**
