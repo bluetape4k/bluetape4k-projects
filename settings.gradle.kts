@@ -22,7 +22,6 @@ includeModules("data", withBaseDir = false)
 includeModules("infra", withBaseDir = false)
 includeModules("io", withBaseDir = false)
 includeModules("javers", withBaseDir = true)
-// includeModules("quarkus", withBaseDir = true)           // quarkus 는 bluetape4k-quarkus 로 이동 예정
 includeModules("spring", withBaseDir = true)
 includeModules("tokenizer", withBaseDir = true)
 includeModules("testing", withBaseDir = false)
