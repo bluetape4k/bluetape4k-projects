@@ -1,0 +1,650 @@
+package io.bluetape4k.exposed.jdbc.repository
+
+import io.bluetape4k.exposed.core.ExposedPage
+import org.jetbrains.exposed.v1.core.AbstractQuery
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.Op
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.Transaction
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
+import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
+import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
+import org.jetbrains.exposed.v1.core.dao.id.UuidTable
+import org.jetbrains.exposed.v1.core.dao.id.java.UUIDTable
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.core.statements.BatchInsertStatement
+import org.jetbrains.exposed.v1.core.statements.BatchUpsertStatement
+import org.jetbrains.exposed.v1.core.statements.UpdateStatement
+import org.jetbrains.exposed.v1.core.statements.UpsertBuilder
+import org.jetbrains.exposed.v1.jdbc.batchInsert
+import org.jetbrains.exposed.v1.jdbc.batchUpsert
+import org.jetbrains.exposed.v1.jdbc.deleteIgnoreWhere
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
+import org.jetbrains.exposed.v1.jdbc.update
+import java.util.*
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+
+/**
+ * Exposed JDBC를 사용하는 Repository의 기본 인터페이스입니다.
+ *
+ * `ID` 타입의 기본키를 가지는 [T] 테이블에서 [E] 엔티티를 조회/저장/삭제하는
+ * 공통 CRUD 연산을 기본 구현과 함께 제공합니다.
+ * 구현체는 [table]과 [ResultRow.toEntity]만 정의하면 됩니다.
+ *
+ * @param ID 기본키 타입 (예: [Long], [Int], [java.util.UUID])
+ * @param T Exposed [IdTable] 구현체 (예: [LongIdTable], [IntIdTable])
+ * @param E 조회 결과로 매핑될 엔티티(레코드) 타입
+ *
+ * ## 사용 예
+ *
+ * ```kotlin
+ * // 1. 테이블 정의
+ * object ActorTable : LongIdTable("actors") {
+ *     val firstName = varchar("first_name", 50)
+ *     val lastName  = varchar("last_name",  50)
+ *     val birthday  = date("birthday").nullable()
+ * }
+ *
+ * // 2. 레코드(DTO) 타입 정의
+ * data class ActorRecord(
+ *     val id: Long = 0L,
+ *     val firstName: String,
+ *     val lastName: String,
+ * )
+ *
+ * // 3. Repository 구현
+ * class ActorRepository : LongExposedJdbcRepository<ActorTable, ActorRecord> {
+ *     override val table = ActorTable
+ *
+ *     override fun ResultRow.toEntity() = ActorRecord(
+ *         id        = this[ActorTable.id].value,
+ *         firstName = this[ActorTable.firstName],
+ *         lastName  = this[ActorTable.lastName],
+ *     )
+ *
+ *     fun save(record: ActorRecord): ActorRecord {
+ *         val id = ActorTable.insertAndGetId {
+ *             it[firstName] = record.firstName
+ *             it[lastName]  = record.lastName
+ *         }
+ *         return record.copy(id = id.value)
+ *     }
+ * }
+ *
+ * // 4. 사용
+ * transaction {
+ *     val repo = ActorRepository()
+ *     val saved = repo.save(ActorRecord(firstName = "Johnny", lastName = "Depp"))
+ *
+ *     val found = repo.findById(saved.id)
+ *     val all   = repo.findAll(limit = 10) { ActorTable.lastName eq "Depp" }
+ *     val page  = repo.findPage(pageNumber = 0, pageSize = 20)
+ * }
+ * ```
+ */
+interface ExposedJdbcRepository<ID: Any, T: IdTable<ID>, E: Any> {
+    /**
+     * Exposed의 IdTable을 반환합니다.
+     * @return 엔티티에 해당하는 IdTable
+     */
+    val table: T
+
+    /**
+     * ResultRow를 엔티티로 변환합니다.
+     * @receiver [ResultRow]
+     * @return 엔티티 [T]
+     */
+    fun ResultRow.toEntity(): E
+
+    /**
+     * 현재 트랜잭션을 반환합니다.
+     * @return 현재 [Transaction]
+     */
+    fun currentTransaction(): Transaction =
+        TransactionManager.current()
+
+    /**
+     * 현재 트랜잭션을 반환하거나, 없으면 null을 반환합니다.
+     * @return 현재 [Transaction] 또는 null
+     */
+    fun currentTransactionOrNull(): Transaction? =
+        TransactionManager.currentOrNull()
+
+
+    /**
+     * 전체 엔티티 개수를 반환합니다.
+     * @return 엔티티 개수
+     */
+    fun count(): Long = table.selectAll().count()
+
+    /**
+     * 조건에 맞는 엔티티 개수를 반환합니다.
+     * @param predicate 조건
+     * @return 개수
+     */
+    fun countBy(predicate: () -> Op<Boolean> = { Op.TRUE }): Long =
+        table.selectAll().where(predicate).count()
+
+    /**
+     * 조건에 맞는 엔티티 개수를 반환합니다.
+     * @param op 조건
+     * @return 개수
+     */
+    fun countBy(op: Op<Boolean>): Long =
+        table.selectAll().where(op).count()
+
+    /**
+     * 테이블이 비어있는지 확인합니다.
+     * @return 비어있으면 true
+     */
+    fun isEmpty(): Boolean =
+        table.selectAll().empty()
+
+    /**
+     * 테이블이 비어있지 않은지 확인합니다.
+     * @return 비어있지 않으면 true
+     */
+    fun isNotEmpty(): Boolean = !isEmpty()
+
+    /**
+     * 쿼리 결과가 존재하는지 확인합니다.
+     * @param query [AbstractQuery]
+     * @return 존재하면 true
+     */
+    fun exists(query: AbstractQuery<*>): Boolean {
+        val exists = org.jetbrains.exposed.v1.core.exists(query)
+        return table.select(exists).firstOrNull()?.getOrNull(exists) ?: false
+    }
+
+    /**
+     * ID로 엔티티 존재 여부를 확인합니다.
+     * @param id 엔티티 ID
+     * @return 존재하면 true
+     */
+    fun existsById(id: ID): Boolean =
+        !table.selectAll().where { table.id eq id }.empty()
+
+    /**
+     * 조건에 맞는 엔티티가 존재하는지 확인합니다.
+     * @param predicate 조건
+     * @return 존재하면 true
+     */
+    fun existsBy(predicate: () -> Op<Boolean>): Boolean =
+        !table.selectAll().where(predicate).empty()
+
+    /**
+     * ID로 엔티티를 조회합니다. 없으면 예외를 발생시킵니다.
+     *
+     * @param id 엔티티 ID
+     * @return 조회된 엔티티 [E]
+     * @throws NoSuchElementException 해당 ID의 엔티티가 존재하지 않을 때
+     * @throws IllegalArgumentException 해당 ID의 엔티티가 둘 이상일 때
+     *
+     * ## 사용 예
+     *
+     * ```kotlin
+     * transaction {
+     *     val actor = repo.findById(1L)            // 없으면 예외
+     *     val actorOrNull = repo.findByIdOrNull(1L) // 없으면 null
+     * }
+     * ```
+     */
+    fun findById(id: ID): E =
+        table.selectAll().where { table.id eq id }.single().toEntity()
+
+    /**
+     * ID로 엔티티를 조회합니다. 없으면 null을 반환합니다.
+     * @param id 엔티티 ID
+     * @return 엔티티 [T] 또는 null
+     */
+    fun findByIdOrNull(id: ID): E? =
+        table.selectAll().where { table.id eq id }.singleOrNull()?.toEntity()
+
+    /**
+     * 조건에 맞는 모든 엔티티를 조회합니다.
+     * @param limit 최대 개수
+     * @param offset 시작 위치
+     * @param sortOrder 정렬 순서
+     * @param predicate 조건
+     * @return 엔티티 목록
+     */
+    fun findAll(
+        limit: Int? = null,
+        offset: Long? = null,
+        sortOrder: SortOrder = SortOrder.ASC,
+        predicate: () -> Op<Boolean> = { Op.TRUE },
+    ): List<E> =
+        table.selectAll()
+            .where(predicate)
+            .apply {
+                limit?.run { limit(limit) }
+                offset?.run { offset(offset) }
+            }
+            .orderBy(table.id, sortOrder)
+            .map { it.toEntity() }
+
+    /**
+     * 여러 조건을 and로 결합하여 엔티티를 조회합니다.
+     * @param filters 조건 람다 가변 인자
+     * @param limit 최대 개수
+     * @param offset 시작 위치
+     * @param sortOrder 정렬 순서
+     * @return 엔티티 목록
+     */
+    fun findWithFilters(
+        vararg filters: () -> Op<Boolean>,
+        limit: Int? = null,
+        offset: Long? = null,
+        sortOrder: SortOrder = SortOrder.ASC,
+    ): List<E> {
+        val condition: Op<Boolean> = filters.fold(Op.TRUE as Op<Boolean>) { acc, filter ->
+            acc.and(filter.invoke())
+        }
+        return findAll(limit, offset, sortOrder) { condition }
+    }
+
+    /**
+     * 여러 조건을 and로 결합하여 엔티티를 조회합니다.
+     * @param filters 조건 람다 가변 인자
+     * @param limit 최대 개수
+     * @param offset 시작 위치
+     * @param sortOrder 정렬 순서
+     * @return 엔티티 목록
+     */
+    fun findBy(
+        vararg filters: () -> Op<Boolean>,
+        limit: Int? = null,
+        offset: Long? = null,
+        sortOrder: SortOrder = SortOrder.ASC,
+    ): List<E> = findWithFilters(
+        *filters,
+        limit = limit,
+        offset = offset,
+        sortOrder = sortOrder,
+    )
+
+    /**
+     * 조건에 맞는 첫 번째 엔티티를 조회합니다.
+     * @param offset 시작 위치
+     * @param predicate 조건
+     * @return 엔티티 [T] 또는 null
+     */
+    fun findFirstOrNull(
+        offset: Long? = null,
+        predicate: () -> Op<Boolean> = { Op.TRUE },
+    ): E? =
+        table.selectAll()
+            .where(predicate)
+            .limit(1)
+            .apply {
+                offset?.run { offset(offset) }
+            }
+            .firstOrNull()
+            ?.toEntity()
+
+    /**
+     * 조건에 맞는 마지막 엔티티를 조회합니다.
+     * @param offset 시작 위치
+     * @param predicate 조건
+     * @return 엔티티 [T] 또는 null
+     */
+    fun findLastOrNull(
+        offset: Long? = null,
+        predicate: () -> Op<Boolean> = { Op.TRUE },
+    ): E? =
+        table.selectAll()
+            .where(predicate)
+            .orderBy(table.id, SortOrder.DESC)
+            .limit(1)
+            .apply {
+                offset?.run { offset(offset) }
+            }
+            .firstOrNull()
+            ?.toEntity()
+
+    /**
+     * 특정 컬럼 값으로 엔티티를 조회합니다.
+     * @param field 컬럼
+     * @param value 값
+     * @return 엔티티 목록
+     */
+    fun <V> findByField(field: Column<V>, value: V): List<E> =
+        table.selectAll()
+            .where { field eq value }
+            .map { it.toEntity() }
+
+    /**
+     * 특정 컬럼 값으로 첫 번째 엔티티를 조회합니다. 없으면 null을 반환합니다.
+     * @param field 컬럼
+     * @param value 값
+     * @return 엔티티 [T] 또는 null
+     */
+    fun <V> findByFieldOrNull(field: Column<V>, value: V): E? =
+        table.selectAll()
+            .where { field eq value }
+            .firstOrNull()
+            ?.toEntity()
+
+    /**
+     * 여러 ID로 엔티티를 일괄 조회합니다.
+     * @param ids 조회할 ID 컬렉션
+     * @return 엔티티 목록
+     */
+    fun findAllByIds(ids: Iterable<ID>): List<E> =
+        table.selectAll()
+            .where { table.id inList ids }
+            .map { it.toEntity() }
+
+    /**
+     * ID로 엔티티를 삭제합니다.
+     * @param id 엔티티 ID
+     * @return 삭제된 행 수
+     */
+    fun deleteById(id: ID): Int = table.deleteWhere { table.id eq id }
+
+    /**
+     * 조건에 맞는 모든 엔티티를 삭제합니다.
+     * @param limit 최대 삭제 개수
+     * @param op 조건
+     * @return 삭제된 행 수
+     */
+    fun deleteAll(limit: Int? = null, op: (IdTable<ID>).() -> Op<Boolean> = { Op.TRUE }): Int =
+        table.deleteWhere(limit = limit, op = op)
+
+    /**
+     * 테이블 인스턴스를 인수로 받아 해당 테이블의 id 컬럼을 기준으로 레코드를 삭제합니다.
+     * 예외는 무시합니다.
+     *
+     * **주의:** 이 메서드에서 [entity]는 [T] (IdTable) 타입이므로 실제로 테이블 인스턴스를 받습니다.
+     * 특정 엔티티 ID 하나를 삭제하려면 [deleteByIdIgnore]를 사용하세요.
+     *
+     * @param entity 삭제 기준이 되는 테이블 인스턴스 (T = IdTable)
+     * @return 삭제된 행 수
+     * @see deleteByIdIgnore
+     */
+    @Deprecated(
+        message = "T는 IdTable 타입이므로 entity는 테이블 인스턴스입니다. 특정 ID 삭제 시 deleteByIdIgnore(id)를 사용하세요.",
+        replaceWith = ReplaceWith("deleteByIdIgnore(id)")
+    )
+    fun deleteIgnore(entity: T): Int = table.deleteIgnoreWhere { table.id eq entity.id }
+
+    /**
+     * 해당 id를 가진 레코드를 삭제합니다. 예외는 무시합니다.
+     *
+     * @param id 엔티티 ID
+     * @return 삭제된 행 수
+     */
+    fun deleteByIdIgnore(id: ID): Int = table.deleteIgnoreWhere { table.id eq id }
+
+    /**
+     * 조건에 맞는 모든 엔티티를 삭제합니다. 삭제 실패는 무시합니다.
+     *
+     * @param limit 최대 삭제 개수
+     * @param op 조건
+     * @return 삭제된 행 수
+     */
+    fun deleteAllIgnore(
+        limit: Int? = null,
+        op: (IdTable<ID>).() -> Op<Boolean> = { Op.TRUE },
+    ): Int = table.deleteIgnoreWhere(limit, op = op)
+
+    /**
+     * 여러 ID로 엔티티를 일괄 삭제합니다.
+     * @param ids 삭제할 ID 컬렉션
+     * @return 삭제된 행 수
+     */
+    fun deleteAllByIds(ids: Iterable<ID>): Int =
+        table.deleteWhere { table.id inList ids }
+
+    /**
+     * ID로 엔티티를 수정합니다.
+     * @param id 엔티티 ID
+     * @param limit 최대 수정 개수
+     * @param updateStatement 수정 내용
+     * @return 수정된 행 수
+     */
+    fun updateById(id: ID, limit: Int? = null, updateStatement: IdTable<ID>.(UpdateStatement) -> Unit): Int =
+        table.update(where = { table.id eq id }, limit = limit, body = updateStatement)
+
+    /**
+     * 조건에 맞는 모든 엔티티를 수정합니다.
+     * @param predicate 조건
+     * @param limit 최대 수정 개수
+     * @param updateStatement 수정 내용
+     * @return 수정된 행 수
+     */
+    fun updateAll(
+        predicate: () -> Op<Boolean> = { Op.TRUE },
+        limit: Int? = null,
+        updateStatement: IdTable<ID>.(UpdateStatement) -> Unit,
+    ): Int = table.update(where = predicate, limit = limit, body = updateStatement)
+
+    /**
+     * 여러 엔티티를 일괄 삽입합니다.
+     * @param entities 삽입할 엔티티 목록
+     * @param ignore 중복 무시 여부
+     * @param shouldReturnGeneratedValues 생성된 값 반환 여부
+     * @param insertStatement 삽입 내용
+     * @return 삽입된 엔티티 목록
+     */
+    fun <D> batchInsert(
+        entities: Iterable<D>,
+        ignore: Boolean = false,
+        shouldReturnGeneratedValues: Boolean = true,
+        insertStatement: BatchInsertStatement.(D) -> Unit,
+    ): List<E> =
+        table
+            .batchInsert(
+                data = entities,
+                ignore = ignore,
+                shouldReturnGeneratedValues = shouldReturnGeneratedValues,
+                body = insertStatement
+            )
+            .map { it.toEntity() }
+
+    /**
+     * 여러 엔티티를 일괄 삽입합니다.
+     * @param entities 삽입할 엔티티 시퀀스
+     * @param ignore 중복 무시 여부
+     * @param shouldReturnGeneratedValues 생성된 값 반환 여부
+     * @param insertStatement 삽입 내용
+     * @return 삽입된 엔티티 목록
+     */
+    fun <D> batchInsert(
+        entities: Sequence<D>,
+        ignore: Boolean = false,
+        shouldReturnGeneratedValues: Boolean = true,
+        insertStatement: BatchInsertStatement.(D) -> Unit,
+    ): List<E> =
+        table
+            .batchInsert(
+                data = entities,
+                ignore = ignore,
+                shouldReturnGeneratedValues = shouldReturnGeneratedValues,
+                body = insertStatement
+            )
+            .map { it.toEntity() }
+
+    /**
+     * 여러 엔티티를 일괄 Upsert 합니다.
+     *
+     * See [Batch Insert](https://github.com/JetBrains/Exposed/wiki/DSL#batch-insert) for more details.
+     *
+     * @param entities Upsert 할 엔티티 컬렉션
+     * @param keys (optional) Columns to include in the condition that determines a unique constraint match. If no columns are provided,
+     *             primary keys will be used. If the table does not have any primary keys, the first unique index will be attempted.
+     * @param onUpdate Lambda block with an [UpdateStatement] as its argument, allowing values to be assigned to the UPDATE clause.
+     *  To specify manually that the insert value should be used when updating a column, for example within an expression
+     *  or function, invoke `insertValue()` with the desired column as the function argument.
+     *  If left null, all columns will be updated with the values provided for the insert.
+     * @param onUpdateExclude List of specific columns to exclude from updating. If left null, all columns will be updated with the values provided for the insert.
+     * @param shouldReturnGeneratedValues Specifies whether newly generated values (for example, auto-incremented IDs) should be returned.
+     * @return Upsert 된 엔티티 목록
+     */
+    fun <D: Any> batchUpsert(
+        entities: Iterable<D>,
+        vararg keys: Column<*>,
+        onUpdate: (UpsertBuilder.(UpdateStatement) -> Unit)? = null,
+        onUpdateExclude: List<Column<*>>? = null,
+        where: (() -> Op<Boolean>)? = null,
+        shouldReturnGeneratedValues: Boolean = true,
+        body: BatchUpsertStatement.(D) -> Unit,
+    ): List<E> = table
+        .batchUpsert(
+            data = entities,
+            keys = keys,
+            onUpdate = onUpdate,
+            onUpdateExclude = onUpdateExclude,
+            where = where,
+            shouldReturnGeneratedValues = shouldReturnGeneratedValues,
+            body = body
+        )
+        .map { it.toEntity() }
+
+    /**
+     * 여러 엔티티를 일괄 Upsert 합니다.
+     *
+     * See [Batch Insert](https://github.com/JetBrains/Exposed/wiki/DSL#batch-insert) for more details.
+     *
+     * @param entities Upsert 할 엔티티 시퀀스
+     * @param keys (optional) Columns to include in the condition that determines a unique constraint match. If no columns are provided,
+     *             primary keys will be used. If the table does not have any primary keys, the first unique index will be attempted.
+     * @param onUpdate Lambda block with an [UpdateStatement] as its argument, allowing values to be assigned to the UPDATE clause.
+     *  To specify manually that the insert value should be used when updating a column, for example within an expression
+     *  or function, invoke `insertValue()` with the desired column as the function argument.
+     *  If left null, all columns will be updated with the values provided for the insert.
+     * @param onUpdateExclude List of specific columns to exclude from updating. If left null, all columns will be updated with the values provided for the insert.
+     * @param shouldReturnGeneratedValues Specifies whether newly generated values (for example, auto-incremented IDs) should be returned.
+     * @return Upsert 된 엔티티 목록
+     */
+    fun <D: Any> batchUpsert(
+        entities: Sequence<D>,
+        vararg keys: Column<*>,
+        onUpdate: (UpsertBuilder.(UpdateStatement) -> Unit)? = null,
+        onUpdateExclude: List<Column<*>>? = null,
+        where: (() -> Op<Boolean>)? = null,
+        shouldReturnGeneratedValues: Boolean = true,
+        body: BatchUpsertStatement.(D) -> Unit,
+    ): List<E> = table
+        .batchUpsert(
+            data = entities,
+            keys = keys,
+            onUpdate = onUpdate,
+            onUpdateExclude = onUpdateExclude,
+            where = where,
+            shouldReturnGeneratedValues = shouldReturnGeneratedValues,
+            body = body
+        )
+        .map { it.toEntity() }
+
+    /**
+     * 페이징하여 엔티티를 조회합니다.
+     *
+     * @param pageNumber 페이지 번호 (0부터 시작)
+     * @param pageSize 페이지 크기
+     * @param sortOrder 정렬 순서 (기본값: [SortOrder.ASC])
+     * @param predicate 조건 (기본값: `Op.TRUE` - 전체 조회)
+     * @return 페이징 결과 [ExposedPage] (content, totalCount, pageNumber, pageSize, totalPages 포함)
+     *
+     * ## 사용 예
+     *
+     * ```kotlin
+     * transaction {
+     *     // 첫 번째 페이지, 페이지당 20개, lastName이 "Depp"인 엔티티만 조회
+     *     val page = repo.findPage(
+     *         pageNumber = 0,
+     *         pageSize   = 20,
+     *     ) { ActorTable.lastName eq "Depp" }
+     *
+     *     println(page.content)    // 조회된 엔티티 목록
+     *     println(page.totalCount) // 조건에 맞는 전체 엔티티 수
+     *     println(page.totalPages) // 전체 페이지 수
+     *     println(page.pageNumber) // 현재 페이지 번호
+     * }
+     * ```
+     */
+    fun findPage(
+        pageNumber: Int,
+        pageSize: Int,
+        sortOrder: SortOrder = SortOrder.ASC,
+        predicate: () -> Op<Boolean> = { Op.TRUE },
+    ): ExposedPage<E> {
+        val totalCount = countBy(predicate)
+        val content = findAll(
+            limit = pageSize,
+            offset = (pageNumber.toLong() * pageSize),
+            sortOrder = sortOrder,
+            predicate = predicate,
+        )
+        return ExposedPage(
+            content = content,
+            totalCount = totalCount,
+            pageNumber = pageNumber,
+            pageSize = pageSize,
+        )
+    }
+}
+
+/**
+ * [Int] 기본키를 사용하는 [ExposedJdbcRepository]의 편의 타입 별칭입니다.
+ *
+ * @param T [IntIdTable] 구현체
+ * @param E 엔티티 타입
+ */
+interface IntExposedJdbcRepository<T: IntIdTable, E: Any>: ExposedJdbcRepository<Int, T, E>
+
+/**
+ * [Long] 기본키를 사용하는 [ExposedJdbcRepository]의 편의 타입 별칭입니다.
+ *
+ * @param T [LongIdTable] 구현체
+ * @param E 엔티티 타입
+ *
+ * ## 사용 예
+ *
+ * ```kotlin
+ * object ActorTable : LongIdTable("actors") {
+ *     val firstName = varchar("first_name", 50)
+ * }
+ *
+ * class ActorRepository : LongExposedJdbcRepository<ActorTable, ActorRecord> {
+ *     override val table = ActorTable
+ *     override fun ResultRow.toEntity() = ActorRecord(
+ *         id        = this[ActorTable.id].value,
+ *         firstName = this[ActorTable.firstName],
+ *     )
+ * }
+ * ```
+ */
+interface LongExposedJdbcRepository<T: LongIdTable, E: Any>: ExposedJdbcRepository<Long, T, E>
+
+/**
+ * Kotlin [Uuid] 기본키를 사용하는 [ExposedJdbcRepository]의 편의 타입 별칭입니다.
+ *
+ * @param T [UuidTable] 구현체
+ * @param E 엔티티 타입
+ */
+@OptIn(ExperimentalUuidApi::class)
+interface UuidExposedJdbcRepository<T: UuidTable, E: Any>: ExposedJdbcRepository<Uuid, T, E>
+
+/**
+ * [java.util.UUID] 기본키를 사용하는 [ExposedJdbcRepository]의 편의 타입 별칭입니다.
+ *
+ * @param T [UUIDTable] 구현체
+ * @param E 엔티티 타입
+ */
+interface UUIDExposedJdbcRepository<T: UUIDTable, E: Any>: ExposedJdbcRepository<UUID, T, E>
+
+/**
+ * [String] 기본키를 사용하는 [ExposedJdbcRepository]의 편의 타입 별칭입니다.
+ *
+ * @param T [IdTable]<String> 구현체
+ * @param E 엔티티 타입
+ */
+interface StringExposedJdbcRepository<T: IdTable<String>, E: Any>: ExposedJdbcRepository<String, T, E>
