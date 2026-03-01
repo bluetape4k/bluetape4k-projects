@@ -227,4 +227,21 @@ class ActorR2dbcRepositoryTest: AbstractExposedR2dbcTest() {
             repository.deleteAllIgnore() shouldBeEqualTo count.toInt() - 1
         }
     }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `findBy 는 findWithFilters 와 동일하게 동작한다`(testDB: TestDB) = runTest {
+        withMovieAndActors(testDB) {
+            val byLastName = repository.findBy(
+                { ActorTable.lastName eq "Depp" }
+            ).toList()
+
+            val byFilter = repository.findWithFilters(
+                { ActorTable.lastName eq "Depp" }
+            ).toList()
+
+            byLastName shouldBeEqualTo byFilter
+            byLastName.shouldNotBeEmpty()
+        }
+    }
 }

@@ -173,6 +173,25 @@ interface ExposedR2dbcRepository<T: HasIdentifier<ID>, ID: Any> {
     }
 
     /**
+     * 여러 조건을 and로 결합하여 엔티티를 조회합니다. [findWithFilters]의 alias입니다.
+     * @param filters 조건 함수 가변 인자
+     * @param limit 조회할 최대 개수
+     * @param offset 조회 시작 위치
+     * @param sortOrder 정렬 순서
+     */
+    fun findBy(
+        vararg filters: () -> Op<Boolean>,
+        limit: Int? = null,
+        offset: Long? = null,
+        sortOrder: SortOrder = SortOrder.ASC,
+    ): Flow<T> = findWithFilters(
+        *filters,
+        limit = limit,
+        offset = offset,
+        sortOrder = sortOrder,
+    )
+
+    /**
      * 조건에 맞는 첫 번째 엔티티를 조회합니다.
      * @param offset 조회 시작 위치
      * @param predicate 조건

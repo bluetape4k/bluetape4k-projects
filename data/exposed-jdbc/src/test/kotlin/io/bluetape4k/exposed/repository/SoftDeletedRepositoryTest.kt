@@ -113,4 +113,86 @@ class SoftDeletedRepositoryTest: AbstractExposedTest() {
             activeAlices.single().id shouldBeEqualTo keepId
         }
     }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `countActive 와 countDeleted 는 올바른 개수를 반환한다`(testDB: TestDB) {
+        withTables(testDB, ContactTable) {
+            ContactTable.insertAndGetId { it[name] = "Alice" }
+            ContactTable.insertAndGetId { it[name] = "Bob" }
+            val id3 = ContactTable.insertAndGetId { it[name] = "Charlie" }.value
+
+            repository.countActive() shouldBeEqualTo 3L
+            repository.countDeleted() shouldBeEqualTo 0L
+
+            repository.softDeleteById(id3)
+
+            repository.countActive() shouldBeEqualTo 2L
+            repository.countDeleted() shouldBeEqualTo 1L
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `findDeleted 는 soft delete 된 엔티티만 반환한다`(testDB: TestDB) {
+        withTables(testDB, ContactTable) {
+            val id1 = ContactTable.insertAndGetId { it[name] = "Alice" }.value
+            ContactTable.insertAndGetId { it[name] = "Bob" }
+
+            repository.softDeleteById(id1)
+
+            val deleted = repository.findDeleted()
+            deleted shouldHaveSize 1
+            deleted.single().id shouldBeEqualTo id1
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `softDeleteAll 은 조건에 맞는 모든 엔티티를 soft delete 한다`(testDB: TestDB) {
+        withTables(testDB, ContactTable) {
+            ContactTable.insertAndGetId { it[name] = "Alice" }
+            ContactTable.insertAndGetId { it[name] = "Alice" }
+            ContactTable.insertAndGetId { it[name] = "Bob" }
+
+            val affected = repository.softDeleteAll { ContactTable.name eq "Alice" }
+            affected shouldBeEqualTo 2
+
+            repository.countActive() shouldBeEqualTo 1L
+            repository.countDeleted() shouldBeEqualTo 2L
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `restoreAll 은 조건에 맞는 soft delete 된 엔티티를 일괄 복원한다`(testDB: TestDB) {
+        withTables(testDB, ContactTable) {
+            ContactTable.insertAndGetId { it[name] = "Alice" }
+            ContactTable.insertAndGetId { it[name] = "Alice" }
+            ContactTable.insertAndGetId { it[name] = "Bob" }
+
+            repository.softDeleteAll { ContactTable.name eq "Alice" }
+            repository.countDeleted() shouldBeEqualTo 2L
+
+            val restored = repository.restoreAll { ContactTable.name eq "Alice" }
+            restored shouldBeEqualTo 2
+            repository.countDeleted() shouldBeEqualTo 0L
+            repository.countActive() shouldBeEqualTo 3L
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `findActivePage 는 활성 엔티티만 페이징하여 반환한다`(testDB: TestDB) {
+        withTables(testDB, ContactTable) {
+            repeat(5) { ContactTable.insertAndGetId { it[name] = faker.name().fullName() } }
+            val deletedId = ContactTable.insertAndGetId { it[name] = faker.name().fullName() }.value
+            repository.softDeleteById(deletedId)
+
+            val page = repository.findActivePage(0, 3)
+            page.content shouldHaveSize 3
+            page.totalCount shouldBeEqualTo 5L
+            page.totalPages shouldBeEqualTo 2
+        }
+    }
 }
