@@ -16,10 +16,17 @@ import java.util.concurrent.TimeUnit
 import kotlin.concurrent.withLock
 
 /**
- * gRPC Inprocess Server 를 이용하여, gRPC Service를 제공하는 Server 입니다.
+ * in-process gRPC 서버를 관리하는 테스트용 베이스 클래스입니다.
  *
- * @property builder [InProcessServerBuilder] instance
- * @property services array of grpc service
+ * ## 동작/계약
+ * - [start]는 서버를 시작하고 JVM shutdown hook 큐에 종료 작업을 등록합니다.
+ * - [stop]은 `shutdown + awaitTermination(5s)`를 수행합니다.
+ * - 생성 시 전달한 서비스들을 서버 builder에 등록합니다.
+ *
+ * ```kotlin
+ * server.start()
+ * // server.isRunning == true
+ * ```
  */
 abstract class AbstractGrpcInprocessServer(
     builder: InProcessServerBuilder,
@@ -41,9 +48,6 @@ abstract class AbstractGrpcInprocessServer(
     override val isRunning: Boolean by running
     override val isShutdown: Boolean get() = server.isShutdown
 
-    /**
-     * gRPC/Protobuf 처리에서 `start` 함수를 제공합니다.
-     */
     override fun start() {
         lock.withLock {
             log.debug { "Starting InProcess gRPC Server..." }
@@ -61,9 +65,6 @@ abstract class AbstractGrpcInprocessServer(
         }
     }
 
-    /**
-     * gRPC/Protobuf 처리에서 `stop` 함수를 제공합니다.
-     */
     override fun stop() {
         lock.withLock {
             if (!isShutdown) {

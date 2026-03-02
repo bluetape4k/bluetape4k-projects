@@ -10,15 +10,18 @@ import io.bluetape4k.support.isNullOrEmpty
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Protobuf Message 를 ByteArray 로 직렬화/역직렬화하는 Serializer
+ * Protobuf 메시지는 `Any`로 직렬화하고, 그 외 타입은 fallback serializer로 처리하는 바이너리 직렬화기입니다.
  *
- * ```
+ * ## 동작/계약
+ * - [ProtoMessage] 입력은 `ProtoAny.pack(message).toByteArray()`로 직렬화합니다.
+ * - 역직렬화 시 `typeUrl`의 클래스명을 기준으로 message 타입을 캐시해 언패킹합니다.
+ * - Protobuf 경로 실패 시 [fallback]으로 자동 위임합니다.
+ *
+ * ```kotlin
  * val serializer = ProtobufSerializer()
  * val bytes = serializer.serialize(message)
- * val message = serializer.deserialize(bytes)
+ * // bytes.isNotEmpty() == true
  * ```
- *
- * @property fallback Protobuf 방식으로 직렬화 예외 시 수행할 대체 serializer
  */
 class ProtobufSerializer(
     private val fallback: BinarySerializer = BinarySerializers.Jdk,
@@ -28,17 +31,11 @@ class ProtobufSerializer(
         private val messageTypes = ConcurrentHashMap<String, Class<out ProtoMessage>>()
     }
 
-    /**
-     * gRPC/Protobuf 처리에서 `doSerialize` 함수를 제공합니다.
-     */
     override fun doSerialize(graph: Any): ByteArray {
         return if (graph is ProtoMessage) ProtoAny.pack(graph).toByteArray()
         else fallback.serialize(graph)
     }
 
-    /**
-     * gRPC/Protobuf 처리에서 `doDeserialize` 함수를 제공합니다.
-     */
     @Suppress("UNCHECKED_CAST")
     override fun <T: Any> doDeserialize(bytes: ByteArray): T? {
         if (bytes.isNullOrEmpty()) {

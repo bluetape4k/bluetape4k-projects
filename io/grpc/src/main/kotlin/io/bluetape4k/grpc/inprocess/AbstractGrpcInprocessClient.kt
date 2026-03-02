@@ -10,9 +10,16 @@ import java.io.Closeable
 import java.util.concurrent.TimeUnit
 
 /**
- * 테스트를 위해 gRPC Inprocess server를 사용하는 Client 클래스입니다.
+ * in-process gRPC 채널을 사용하는 테스트용 클라이언트 베이스 클래스입니다.
  *
- * @property channel gRPC Channel instance.
+ * ## 동작/계약
+ * - 이름 기반/주소 기반 in-process 채널 생성자를 제공합니다.
+ * - [close]는 채널이 살아 있으면 `shutdown + awaitTermination(5s)`를 수행합니다.
+ *
+ * ```kotlin
+ * client.close()
+ * // channel.isShutdown == true
+ * ```
  */
 abstract class AbstractGrpcInprocessClient(
     protected val channel: ManagedChannel,
@@ -41,9 +48,6 @@ abstract class AbstractGrpcInprocessClient(
         }
     }
 
-    /**
-     * gRPC/Protobuf 처리 리소스를 정리하고 닫습니다.
-     */
     override fun close() {
         if (!channel.isShutdown) {
             log.debug { "Close client's grpc channel... channel=$channel" }

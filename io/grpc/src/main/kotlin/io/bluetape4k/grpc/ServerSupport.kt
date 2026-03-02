@@ -4,19 +4,16 @@ import io.grpc.Server
 import io.grpc.ServerBuilder
 
 /**
- * [ServerBuilder]를 생성하고, 추가 설정을 수행합니다.
+ * 포트 기반 [ServerBuilder]를 생성하고 초기화 블록을 적용합니다.
  *
+ * ## 동작/계약
+ * - 매 호출마다 `ServerBuilder.forPort(port)`로 새 builder를 생성합니다.
+ * - [builder]에서 서비스/인터셉터/executor 등을 추가 구성할 수 있습니다.
+ *
+ * ```kotlin
+ * val b = grpcServerBuilder(8080) { addService(service) }
+ * // b != null
  * ```
- * val server = grpcServerBuilder(8080) {
- *    addService(service)
- *    useTransportSecurity(certChain, privateKey)
- *    executor(VirtualThreadExecutor)
- * }
- *
- *
- * @param port        서버 port
- * @param initializer 서버 빌더 초기화 람다
- * @return [ServerBuilder] 인스턴스
  */
 inline fun grpcServerBuilder(
     port: Int,
@@ -25,20 +22,16 @@ inline fun grpcServerBuilder(
     ServerBuilder.forPort(port).apply(builder)
 
 /**
- * [ServerBuilder]를 이용하여 gRPC Server를 설정하고, [Server]를 빌드합니다.
+ * [ServerBuilder] 설정을 적용해 즉시 [Server]를 빌드합니다.
  *
- * ```
- * val server = grpcServer(8080) {
- *   addService(service)
- *   useTransportSecurity(certChain, privateKey)
- *   executor(VirtualThreadExecutor)
- *   intercept(interceptor)
- * }
- * ```
+ * ## 동작/계약
+ * - [grpcServerBuilder]에 위임한 뒤 `build()`를 호출합니다.
+ * - 서버 시작은 자동으로 하지 않으며, 호출자가 `start()`를 수행해야 합니다.
  *
- * @param port        서버 port
- * @param builder 서버 빌더 초기화 람다
- * @return [Server] 인스턴스
+ * ```kotlin
+ * val server = grpcServer(8080) { addService(service) }
+ * // server.port == 8080
+ * ```
  */
 inline fun grpcServer(
     port: Int,

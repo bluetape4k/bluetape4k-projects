@@ -4,19 +4,16 @@ import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 
 /**
- * [ManagedChannel]를 생성합니다.
+ * host/port 기반 [ManagedChannel]을 생성합니다.
  *
- * ```
- * val channel = managedChannel("localhost", 8080) {
- *    usePlaintext()
- *    executor(VirtualThreadExecutor)
- * }
- * ```
+ * ## 동작/계약
+ * - `ManagedChannelBuilder.forAddress(host, port)` 경로를 사용합니다.
+ * - [builder] 설정 후 즉시 `build()`를 호출합니다.
  *
- * @param host 호스트
- * @param port 포트
- * @param builder [ManagedChannelBuilder] 초기화 람다
- * @return [ManagedChannel] 인스턴스
+ * ```kotlin
+ * val channel = managedChannel("localhost", 50051) { usePlaintext() }
+ * // channel.authority().contains("localhost") == true
+ * ```
  */
 inline fun managedChannel(
     host: String,
@@ -29,18 +26,16 @@ inline fun managedChannel(
         .build()
 
 /**
- * [ManagedChannel] 를 생성합니다.
+ * target 문자열 기반 [ManagedChannel]을 생성합니다.
  *
- * ```
- * val channel = managedChannel("localhost:8080") {
- *     usePlaintext()
- *     executor(VirtualThreadExecutor)
- * }
- * ```
+ * ## 동작/계약
+ * - `ManagedChannelBuilder.forTarget(target)` 경로를 사용합니다.
+ * - [builder] 설정 후 즉시 `build()`를 호출합니다.
  *
- * @param target 타겟 (호스트:포트)
- * @param builder [ManagedChannelBuilder] 초기화 람다
- * @return [ManagedChannel] 인스턴스
+ * ```kotlin
+ * val channel = managedChannel("dns:///localhost:50051") { usePlaintext() }
+ * // channel != null
+ * ```
  */
 inline fun managedChannel(
     target: String,

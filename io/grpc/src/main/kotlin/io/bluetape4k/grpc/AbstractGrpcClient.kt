@@ -9,9 +9,17 @@ import java.io.Closeable
 import java.util.concurrent.TimeUnit
 
 /**
- * gRPC 통신을 수행하는 Client의 최상위 추상화 클래스입니다.
+ * [ManagedChannel] 수명주기를 관리하는 gRPC 클라이언트 베이스 클래스입니다.
  *
- * @property channel [ManagedChannel] 인스턴스
+ * ## 동작/계약
+ * - 기본 생성자는 `localhost:50051` 채널을 생성합니다.
+ * - [close]는 채널이 살아 있으면 `shutdown + awaitTermination(5s)`를 수행합니다.
+ * - 종료 실패 예외는 내부에서 무시됩니다.
+ *
+ * ```kotlin
+ * client.close()
+ * // channel.isShutdown == true
+ * ```
  */
 abstract class AbstractGrpcClient(
     protected val channel: ManagedChannel,
@@ -30,9 +38,6 @@ abstract class AbstractGrpcClient(
             }
     }
 
-    /**
-     * gRPC/Protobuf 처리 리소스를 정리하고 닫습니다.
-     */
     override fun close() {
         if (!channel.isShutdown) {
             log.debug { "Shutdown GrpcClient channel. channel=$channel" }

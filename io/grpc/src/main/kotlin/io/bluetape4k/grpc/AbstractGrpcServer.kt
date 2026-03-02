@@ -16,10 +16,17 @@ import java.util.concurrent.TimeUnit
 import kotlin.concurrent.withLock
 
 /**
- * gRPC 서비스를 제공해주는 Server의 최상위 추상화 클래스입니다.
+ * 포트 기반 gRPC 서버를 관리하는 추상 베이스 클래스입니다.
  *
- * @property builder  builder of grpc server
- * @property services collection of grpc services
+ * ## 동작/계약
+ * - [start]는 서버를 시작하고 JVM shutdown hook 큐에 종료 작업을 등록합니다.
+ * - [stop]은 `shutdown + awaitTermination(5s)`를 수행합니다.
+ * - [services]는 서버 생성 시 builder에 일괄 등록됩니다.
+ *
+ * ```kotlin
+ * server.start()
+ * // server.isRunning == true
+ * ```
  */
 abstract class AbstractGrpcServer(
     protected val builder: ServerBuilder<*>,
@@ -47,9 +54,6 @@ abstract class AbstractGrpcServer(
         return builder.apply { services.forEach { addService(it) } }.build()
     }
 
-    /**
-     * gRPC/Protobuf 처리에서 `start` 함수를 제공합니다.
-     */
     override fun start() {
         lock.withLock {
             log.debug { "Starting gRPC Server..." }
@@ -67,9 +71,6 @@ abstract class AbstractGrpcServer(
         }
     }
 
-    /**
-     * gRPC/Protobuf 처리에서 `stop` 함수를 제공합니다.
-     */
     override fun stop() {
         lock.withLock {
             if (!isShutdown) {
