@@ -5,35 +5,38 @@ import io.github.bucket4j.BucketConfiguration
 import io.github.bucket4j.ConfigurationBuilder
 
 /**
- * Bucket4j의 [BucketConfiguration]을 생성합니다.
+ * DSL 블록으로 Bucket4j [BucketConfiguration]을 생성합니다.
  *
- * ```
- * val configuration = bucketConfiguration {
- *    addBandwidth { Bandwidth.simple(10, Duration.ofSeconds(1)) }
- *    addBandwidth { Bandwidth.simple(100, Duration.ofMinutes(1)) }
+ * ## 동작/계약
+ * - 내부적으로 `BucketConfiguration.builder()`를 생성해 [builder]를 적용합니다.
+ * - [builder]에서 추가한 bandwidth 제한이 최종 구성에 포함됩니다.
+ * - 호출마다 새 [BucketConfiguration] 인스턴스를 반환합니다.
+ *
+ * ```kotlin
+ * val cfg = bucketConfiguration {
+ *   addBandwidth { Bandwidth.simple(10, java.time.Duration.ofSeconds(1)) }
  * }
+ * // cfg.bandwidths.size == 1
  * ```
- *
- * @param builder [ConfigurationBuilder]를 이용한 초기화 람다
- * @return [BucketConfiguration] 인스턴스
  */
 inline fun bucketConfiguration(builder: ConfigurationBuilder.() -> Unit): BucketConfiguration =
     BucketConfiguration.builder().apply(builder).build()
 
 
 /**
- * Bucket4j 환경설정 빌더([ConfigurationBuilder])에 [Bandwidth]를 추가합니다.
+ * [ConfigurationBuilder]에 bandwidth 제한을 하나 추가합니다.
  *
- * ```
- * val configuration = bucketConfiguration {
- *   addBandwidth { Bandwidth.simple(10, Duration.ofSeconds(1)) }
- *   addBandwidth { Bandwidth.simple(100, Duration.ofMinutes(1)) }
- *   addBandwidth { Bandwidth.simple(1000, Duration.ofHours(1)) }
+ * ## 동작/계약
+ * - [supplier]를 호출해 생성한 [Bandwidth]를 `addLimit`으로 등록합니다.
+ * - 빌더 자체를 반환해 체이닝을 지원합니다.
+ * - supplier 예외는 그대로 호출자에게 전파됩니다.
+ *
+ * ```kotlin
+ * val cfg = bucketConfiguration {
+ *   addBandwidth { Bandwidth.simple(100, java.time.Duration.ofMinutes(1)) }
  * }
+ * // cfg.bandwidths.first().capacity == 100
  * ```
- *
- * @param supplier [Bandwidth] 인스턴스를 생성하는 람다
- * @return [ConfigurationBuilder] 인스턴스
  */
 inline fun ConfigurationBuilder.addBandwidth(supplier: () -> Bandwidth) = apply {
     addLimit(supplier())
