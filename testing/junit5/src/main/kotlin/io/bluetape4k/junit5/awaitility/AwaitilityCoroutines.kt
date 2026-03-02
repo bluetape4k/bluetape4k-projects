@@ -24,13 +24,21 @@ suspend infix fun ConditionFactory.suspendUntil(block: suspend () -> Boolean) =
 
 
 /**
- * [block]이 true 를 반환할 때까지 대기한다
+ * suspend 블록이 예외 없이 한 번 실행될 때까지 코루틴 폴링으로 대기합니다.
  *
- * ```
- * await atMost 5.seconds awaitSuspending { ... }
+ * ## 동작/계약
+ * - 내부적으로 [untilSuspending]을 호출해 `block(); true` 조건으로 처리합니다.
+ * - 호출 스레드를 block 하지 않고 `delay` 기반으로 대기합니다.
+ * - 타임아웃과 폴링 간격은 [ConditionFactory] 설정 값을 따릅니다.
+ *
+ * ```kotlin
+ * var ready = false
+ * kotlinx.coroutines.launch { kotlinx.coroutines.delay(50); ready = true }
+ * await().atMost(Duration.ofSeconds(1)) awaitSuspending { if (!ready) error("wait") }
+ * // 1초 내 ready=true가 되면 종료
  * ```
  *
- * @param block 판단을 위한 코드 블럭
+ * @param block 성공 시점까지 반복 실행할 suspend 블록
  */
 suspend infix fun ConditionFactory.awaitSuspending(
     block: suspend () -> Unit,
@@ -39,16 +47,21 @@ suspend infix fun ConditionFactory.awaitSuspending(
 }
 
 /**
- * [block]이 true 를 반환할 때까지 코루틴 방식으로 polling 하며 대기한다.
+ * suspend 조건식이 `true`를 반환할 때까지 코루틴 방식으로 폴링 대기합니다.
  *
- * Awaitility의 동기 `until` 대신 suspend loop 를 사용하므로 호출 스레드를 block 하지 않는다.
- * timeout/poll 설정은 [ConditionFactory]에 지정된 값을 반영한다.
+ * ## 동작/계약
+ * - 초기 지연과 poll interval을 반영해 반복 호출하며, 호출 스레드를 block 하지 않습니다.
+ * - 예외 무시 설정이 있으면 해당 예외는 마지막 원인으로 저장하고 계속 재시도합니다.
+ * - 타임아웃 초과 시 [ConditionTimeoutException]을 던집니다.
+ * - 수신 [ConditionFactory]는 변경하지 않고, 내부 루프 상태만 지역 변수로 관리합니다.
  *
+ * ```kotlin
+ * var attempts = 0
+ * await().atMost(Duration.ofSeconds(1)) untilSuspending { ++attempts >= 3 }
+ * // attempts == 3
  * ```
- * await atMost 5.seconds suspendUntil { ... }
- * ```
  *
- * @param block 판단을 위한 코드 블럭
+ * @param block 만족 여부를 판단하는 suspend 조건식
  */
 suspend infix fun ConditionFactory.untilSuspending(
     block: suspend () -> Boolean,

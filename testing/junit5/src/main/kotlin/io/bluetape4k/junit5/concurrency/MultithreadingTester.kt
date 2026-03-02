@@ -17,23 +17,23 @@ import java.util.concurrent.Executors
 import java.util.concurrent.Future
 
 /**
- * 멀티스레딩 환경에서 테스트 코드를 실행하는 유틸리티 클래스입니다.
+ * 등록한 블록을 고정 스레드 풀에서 반복 실행해 멀티스레드 안정성을 검증합니다.
  *
- * ```
+ * ## 동작/계약
+ * - `workers`는 `1..2000`, `rounds`는 `1..1_000_000` 범위를 벗어나면 [IllegalArgumentException]이 발생합니다.
+ * - `run` 호출 시 블록이 하나도 없거나 worker 수가 블록 수보다 작으면 [IllegalStateException]이 발생합니다.
+ * - 테스트 블록 내부 예외는 [MultiException]에 수집되며 실행 종료 시 재던집니다.
+ * - 수신 객체 설정(`workers`, `rounds`, `add*`)은 내부 상태를 변경하며, 실행 시 `workers * rounds` 개의 task를 할당합니다.
+ *
+ * ```kotlin
+ * val counter = java.util.concurrent.atomic.AtomicInteger()
  * MultithreadingTester()
- *    .workers(Runtimex.availableProcessors())
- *    .rounds(4)
- *    .add {
- *          println("Hello, World!")
- *     }
- *    .add {
- *          println("Hello, Kotlin!")
- *     }
- *    .run()
+ *      .workers(2)
+ *      .rounds(3)
+ *      .add { counter.incrementAndGet() }
+ *      .run()
+ * // counter.get() == 6
  * ```
- *
- * @see [StructuredTaskScopeTester]
- * @see [io.bluetape4k.junit5.coroutines.SuspendedJobTester]
  */
 class MultithreadingTester: WorkerStressTester<MultithreadingTester> {
 
@@ -46,7 +46,16 @@ class MultithreadingTester: WorkerStressTester<MultithreadingTester> {
     private var executor: ExecutorService? = null
 
     /**
-     * 테스트 시에 사용할 Thread 수를 지정합니다.
+     * `workers`의 구버전 이름으로 worker(thread) 수를 설정합니다.
+     *
+     * ## 동작/계약
+     * - 값이 `1..2000` 범위를 벗어나면 [IllegalArgumentException]이 발생합니다.
+     * - 내부 `workers` 값을 변경하고 자기 자신을 반환합니다.
+     *
+     * ```kotlin
+     * val tester = MultithreadingTester().numThreads(4)
+     * // tester.workers(4)와 동일한 설정 효과
+     * ```
      */
     @Deprecated(
         message = "Use workers(value) for consistent naming across testers.",
@@ -60,7 +69,16 @@ class MultithreadingTester: WorkerStressTester<MultithreadingTester> {
     }
 
     /**
-     * 공통 설정명: 실행 worker(thread) 수를 지정합니다.
+     * 실행 worker(thread) 수를 설정합니다.
+     *
+     * ## 동작/계약
+     * - 값이 `1..2000` 범위를 벗어나면 [IllegalArgumentException]이 발생합니다.
+     * - 내부 설정만 변경하며 즉시 실행하지 않습니다.
+     *
+     * ```kotlin
+     * val tester = MultithreadingTester().workers(8)
+     * // 이후 run()에서 최대 8개 worker 사용
+     * ```
      */
     override fun workers(value: Int) = apply {
         require(value in MIN_WORKER_SIZE..MAX_WORKER_SIZE) {
@@ -70,7 +88,16 @@ class MultithreadingTester: WorkerStressTester<MultithreadingTester> {
     }
 
     /**
-     * 테스트 코드 블럭을 쓰레드 당 수행할 횟수를 지정합니다.
+     * `rounds`의 구버전 이름으로 worker당 반복 횟수를 설정합니다.
+     *
+     * ## 동작/계약
+     * - 내부적으로 [rounds]를 호출하므로 동일한 검증/예외 규칙을 따릅니다.
+     * - 설정만 변경하고 테스트 실행은 하지 않습니다.
+     *
+     * ```kotlin
+     * val tester = MultithreadingTester().roundsPerThread(5)
+     * // tester.rounds(5)와 동일
+     * ```
      */
     @Deprecated(
         message = "Use rounds(value) for consistent naming across testers.",
@@ -81,7 +108,16 @@ class MultithreadingTester: WorkerStressTester<MultithreadingTester> {
     }
 
     /**
-     * 공통 설정명: worker당 실행 라운드 수를 지정합니다.
+     * worker당 실행 라운드 수를 설정합니다.
+     *
+     * ## 동작/계약
+     * - 값이 `1..1_000_000` 범위를 벗어나면 [IllegalArgumentException]이 발생합니다.
+     * - 내부 설정만 변경하며 실행은 [run] 호출 시 시작됩니다.
+     *
+     * ```kotlin
+     * val tester = MultithreadingTester().rounds(3)
+     * // 각 worker가 등록 블록을 3회씩 실행
+     * ```
      */
     override fun rounds(value: Int) = apply {
         require(value in MIN_ROUNDS_PER_WORKER..MAX_ROUNDS_PER_WORKER) {
@@ -90,27 +126,85 @@ class MultithreadingTester: WorkerStressTester<MultithreadingTester> {
         roundsPerWorker = value
     }
 
+    /**
+     * 실행할 테스트 블록 하나를 추가합니다.
+     *
+     * ## 동작/계약
+     * - 전달한 블록 참조를 내부 목록에 그대로 보관합니다.
+     * - 호출할 때마다 목록 크기가 1 증가하며 기존 항목은 유지됩니다.
+     *
+     * ```kotlin
+     * val tester = MultithreadingTester().add { /* noop */ }
+     * // run() 대상 블록 1개 등록
+     * ```
+     */
     fun add(testBlock: () -> Unit) = apply {
         runnables.add(testBlock)
     }
 
+    /**
+     * [Runnable] 기반 테스트 블록을 추가합니다.
+     *
+     * ## 동작/계약
+     * - 전달한 [Runnable]은 람다로 감싸 내부 목록에 추가됩니다.
+     * - 변환 과정에서 추가 예외를 만들지 않고, 실제 예외는 실행 시점에 수집됩니다.
+     *
+     * ```kotlin
+     * val task = Runnable { Thread.sleep(1) }
+     * MultithreadingTester().add(task)
+     * // run() 시 task.run() 실행
+     * ```
+     */
     fun add(testBlock: Runnable) = apply {
         runnables.add({ testBlock.run() })
     }
 
+    /**
+     * 테스트 블록을 가변 인자로 한 번에 추가합니다.
+     *
+     * ## 동작/계약
+     * - 인자 순서대로 내부 목록 뒤에 append합니다.
+     * - 빈 인자를 전달해도 예외 없이 아무 변경 없이 반환합니다.
+     *
+     * ```kotlin
+     * MultithreadingTester().addAll({ }, { })
+     * // 등록된 블록 수 +2
+     * ```
+     */
     fun addAll(vararg testBlocks: () -> Unit) = apply {
         runnables.addAll(testBlocks)
     }
 
+    /**
+     * 컬렉션으로 전달한 테스트 블록을 한 번에 추가합니다.
+     *
+     * ## 동작/계약
+     * - 전달한 컬렉션의 반복 순서대로 내부 목록에 추가합니다.
+     * - 컬렉션 자체는 변경하지 않습니다.
+     *
+     * ```kotlin
+     * val blocks = listOf<() -> Unit>({ }, { })
+     * MultithreadingTester().addAll(blocks)
+     * // blocks는 그대로 유지
+     * ```
+     */
     fun addAll(testBlocks: Collection<() -> Unit>) = apply {
         runnables.addAll(testBlocks)
     }
 
     /**
-     * 멀티스레딩 환경에서 `add`로 추가한 테스트 코드 블럭을 실행합니다.
+     * 등록된 테스트 블록을 멀티스레드로 실행합니다.
      *
-     * @see workers
-     * @see roundsPerWorker
+     * ## 동작/계약
+     * - 블록 미등록 또는 `workers < 블록 수` 조건이면 [IllegalStateException]이 발생합니다.
+     * - 내부적으로 고정 스레드 풀을 만들고 모든 Future를 대기한 뒤 풀을 종료합니다.
+     * - 실행 중 수집된 예외가 있으면 마지막에 [MultiException.throwIfNotEmpty]로 재던집니다.
+     *
+     * ```kotlin
+     * val counter = java.util.concurrent.atomic.AtomicInteger()
+     * MultithreadingTester().workers(2).rounds(2).add { counter.incrementAndGet() }.run()
+     * // counter.get() == 4
+     * ```
      */
     fun run() {
         check(runnables.isNotEmpty()) {

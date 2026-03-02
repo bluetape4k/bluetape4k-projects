@@ -3,19 +3,19 @@ package io.bluetape4k.junit5.faker
 import org.junit.jupiter.api.extension.ExtendWith
 
 /**
- * DataFaker 를 이용하여 Fake value 를 제공하는 테스트를 수행하도록 합니다.
+ * DataFaker 기반 값 주입 확장을 활성화합니다.
  *
- * ```
+ * ## 동작/계약
+ * - 내부적으로 `@ExtendWith(FakeValueExtension::class)`를 적용합니다.
+ * - [FakeValue] 어노테이션이 붙은 필드/파라미터에 faker 값을 주입합니다.
+ * - provider 문자열 해석/호출 실패 시 확장 단계에서 예외가 전파될 수 있습니다.
+ *
+ * ```kotlin
  * @FakeValueTest
- * class SomeClassTest {
- *     @Test
- *     fun `some test`(@FakeValue(FakeValueProvider.Name.FullName) name: String) {
- *          // ...
- *     }
+ * class UserTest {
+ *   @Test fun `가짜 이름`(@FakeValue(FakeValueProvider.Name.FullName) name: String) {}
  * }
  * ```
- *
- * @see FakeValueExtension
  */
 @Retention(AnnotationRetention.RUNTIME)
 @Target(

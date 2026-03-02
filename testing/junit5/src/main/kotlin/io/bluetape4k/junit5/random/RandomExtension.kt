@@ -10,19 +10,19 @@ import java.util.stream.Stream
 import kotlin.streams.asSequence
 
 /**
- * `@RandomizedTest` annotation이 적용된 테스트 클래스나 메소드에
- * `@RandomValue` annotation이 적용된 필드나 메소드 인자에 랜덤 값을 주입해주는 Extension 입니다.
+ * [RandomValue]가 선언된 필드와 파라미터에 random-beans 기반 값을 주입하는 JUnit5 확장입니다.
  *
- * ```
+ * ## 동작/계약
+ * - 필드 주입은 테스트 인스턴스 생성 후 [postProcessTestInstance]에서 수행됩니다.
+ * - 파라미터 주입은 [supportsParameter]가 `@RandomValue` 존재 여부로 판단합니다.
+ * - 컬렉션/시퀀스/스트림 타입은 `size`와 `type`으로 여러 값을 생성하고, 단일 타입은 1개를 생성합니다.
+ * - 별도 `require` 검증은 없으며 생성 실패 예외는 호출자(JUnit)로 전파됩니다.
+ *
+ * ```kotlin
  * @RandomizedTest
- * class TestClass {
- *      @RandomValue
- *      private lateinit var text:String
- *
- *      @Test
- *      fun `test with random value`(@RandomValue text:String) {
- *          // text is random string
- *      }
+ * class SampleTest {
+ *   @RandomValue lateinit var name: String
+ *   // name.isNotBlank() == true
  * }
  * ```
  */
@@ -60,6 +60,9 @@ class RandomExtension: TestInstancePostProcessor, ParameterResolver {
         }
     }
 
+    /**
+     * 테스트 인스턴스 필드 중 [RandomValue]가 선언된 항목에 랜덤 값을 주입합니다.
+     */
     override fun postProcessTestInstance(testInstance: Any, context: ExtensionContext) {
         testInstance.javaClass.declaredFields.forEach { field ->
             field.getAnnotation(RandomValue::class.java)?.let { annotation ->
@@ -70,10 +73,16 @@ class RandomExtension: TestInstancePostProcessor, ParameterResolver {
         }
     }
 
+    /**
+     * 파라미터가 [RandomValue]를 선언했는지 검사합니다.
+     */
     override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Boolean {
         return parameterContext.parameter.getAnnotation(RandomValue::class.java) != null
     }
 
+    /**
+     * 테스트 파라미터에 주입할 랜덤 값을 생성해 반환합니다.
+     */
     override fun resolveParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Any {
         return with(parameterContext.parameter) {
             resolve(type, getAnnotation(RandomValue::class.java))

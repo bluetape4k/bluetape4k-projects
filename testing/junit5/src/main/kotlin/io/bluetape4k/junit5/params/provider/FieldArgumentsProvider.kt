@@ -11,21 +11,19 @@ import java.util.stream.Stream
 import kotlin.streams.asStream
 
 /**
- * Field variable로 Arguments 를 제공하는 Provider 입니다.
+ * [FieldSource]로 지정한 필드 값을 파라미터화 테스트 인자로 변환하는 provider입니다.
  *
- * ```
- * val arguments: List<Arguments> = listOf(
- *         Arguments.of(null, true),
- *         Arguments.of("", true),
- *         Arguments.of("  ", true),
- *         Arguments.of("not blank", false)
- *     )
+ * ## 동작/계약
+ * - 클래스 계층을 탐색해 필드를 찾고, static이 아니면 테스트 인스턴스에서 값을 읽습니다.
+ * - 필드 값은 `Stream/Iterable/Array`만 허용하며 그 외 타입이면 [IllegalArgumentException]이 발생합니다.
+ * - 필드 값이 `Arguments`면 그대로 사용하고, 배열이면 전개해 [Arguments.of]로 감쌉니다.
+ * - 필드 미존재/null/인스턴스 부재 조건에서도 [IllegalArgumentException]이 발생합니다.
  *
- * @ParameterizedTest
- * @FieldSource("arguments")
- * fun `isBlank should return true for null or blank string variable`(input:String, expected:Boolean) {
- *     Strings.isBlank(input) shouldBeEqualTo expected
- * }
+ * ```kotlin
+ * @FieldSource("cases")
+ * @org.junit.jupiter.params.ParameterizedTest
+ * fun sample(input: String, expected: Int) { /* ... */ }
+ * // cases: listOf(argumentOf("A", 1), argumentOf("BB", 2))
  * ```
  */
 class FieldArgumentsProvider: ArgumentsProvider, AnnotationConsumer<FieldSource> {

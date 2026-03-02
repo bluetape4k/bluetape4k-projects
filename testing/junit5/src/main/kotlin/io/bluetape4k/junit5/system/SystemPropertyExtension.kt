@@ -11,10 +11,19 @@ import org.junit.platform.commons.util.AnnotationUtils
 import java.lang.reflect.AnnotatedElement
 
 /**
- * 테스트 시 시스템 속성 정보를 임시로 설정하고, 테스트 후에는 원래 시스템 속성 값으로 복구시키는 기능을 제공합니다.
+ * [SystemProperty]/[SystemProperties] 어노테이션을 적용해 테스트 전후 시스템 속성을 관리합니다.
  *
- * @see SystemProperty
- * @see SystemProperties
+ * ## 동작/계약
+ * - `beforeAll/beforeEach`에서 선언된 속성을 적용하고 기존 값을 복원 컨텍스트에 저장합니다.
+ * - `afterEach/afterAll`에서 저장된 컨텍스트를 꺼내 원래 값으로 복원합니다.
+ * - 클래스 레벨과 메서드 레벨 컨텍스트를 별도 key로 저장합니다.
+ * - `require` 기반 입력 검증은 없고, JVM 시스템 속성 API 예외는 그대로 전파됩니다.
+ *
+ * ```kotlin
+ * @SystemProperty(name = "mode", value = "test")
+ * class ModeTest
+ * // 테스트 종료 후 mode 속성은 원래 값으로 복원됨
+ * ```
  */
 class SystemPropertyExtension: BeforeAllCallback, BeforeEachCallback, AfterEachCallback, AfterAllCallback {
 
@@ -24,6 +33,7 @@ class SystemPropertyExtension: BeforeAllCallback, BeforeEachCallback, AfterEachC
     }
 
 
+    /** 클래스 레벨 시스템 속성을 적용하고 복원 컨텍스트를 저장합니다. */
     override fun beforeAll(context: ExtensionContext) {
         val systemProperties = getSystemProperties(context.requiredTestClass)
         if (systemProperties.isNotEmpty()) {
@@ -32,6 +42,7 @@ class SystemPropertyExtension: BeforeAllCallback, BeforeEachCallback, AfterEachC
         }
     }
 
+    /** 메서드 레벨 시스템 속성을 적용하고 복원 컨텍스트를 저장합니다. */
     override fun beforeEach(context: ExtensionContext) {
         val systemProperties = getSystemProperties(context.requiredTestMethod)
         if (systemProperties.isNotEmpty()) {
@@ -40,6 +51,7 @@ class SystemPropertyExtension: BeforeAllCallback, BeforeEachCallback, AfterEachC
         }
     }
 
+    /** 메서드 레벨 시스템 속성을 원복합니다. */
     override fun afterEach(context: ExtensionContext) {
         val key = methodKey(context)
         context.store(this.javaClass)
@@ -47,6 +59,7 @@ class SystemPropertyExtension: BeforeAllCallback, BeforeEachCallback, AfterEachC
             ?.restore()
     }
 
+    /** 클래스 레벨 시스템 속성을 원복합니다. */
     override fun afterAll(context: ExtensionContext) {
         val key = classKey(context)
         context.store(this.javaClass)

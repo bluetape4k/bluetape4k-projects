@@ -6,42 +6,17 @@ import org.junit.jupiter.api.extension.ParameterContext
 import org.junit.jupiter.api.extension.ParameterResolver
 
 /**
- * 테스트 시 임시폴더를 생성해주는 Extension 입니다.
+ * 테스트 파라미터로 [TempFolder]를 주입하는 JUnit5 확장입니다.
  *
- * 임시 폴더를 테스트 클래스 단위로 생성 ( `@BeforeAll` 에서 temporary folder 생성하기 )
- * ```
- * @ExtendWith(TempFolderExtension::class)
- * class TemporaryFolderExtensionBeforeAllTest {
+ * ## 동작/계약
+ * - 파라미터 타입이 [TempFolder]일 때만 resolver가 동작합니다.
+ * - extension store에 [ParameterContext] 키로 [TempFolder]를 보관해 재사용합니다.
+ * - 폴더 정리는 [TempFolder] 사용자가 `close()` 또는 `use`로 처리해야 합니다.
  *
- * lateinit var tempFolder: TempFolder
- *
- * @BeforeAll
- * fun beforeAll(tempFolder: TempFolder) {
- *     this.tempFolder = tempFolder
- * }
- * ```
- *
- * `@BeforeEach` 에서 temporary folder 생성하기
- *
- * ```
- * @ExtendWith(TempFolderExtension::class)
- * class TemporaryFolderExtensionBeforeEachTest {
- *
- * lateinit var tempFolder: TempFolder
- *
- * @BeforeEach
- * fun setup(tempFolder: TempFolder) {
- *     this.tempFolder = tempFolder
- * }
- * ```
- *
- * 함수별로 임시폴더를 생성
- * ```
- * @Test
- * @ExtendWith(TempFolderExtension::class)
- * fun `인자로 temporary folder를 받을 수 있다`(tempFolder: TempFolder) {
- *     tempFolder.createFile("foo.txt").exists().shouldBeTrue()
- *     tempFolder.createDirectory("bar").exists().shouldBeTrue()
+ * ```kotlin
+ * @org.junit.jupiter.api.extension.ExtendWith(TempFolderExtension::class)
+ * class TempTest {
+ *   @org.junit.jupiter.api.Test fun file(tf: TempFolder) { /* tf.createFile().exists() == true */ }
  * }
  * ```
  */
@@ -52,6 +27,7 @@ class TempFolderExtension: ParameterResolver {
             ExtensionContext.Namespace.create(TempFolderExtension::class.java)
     }
 
+    /** 파라미터가 [TempFolder] 타입인지 검사합니다. */
     override fun supportsParameter(
         parameterContext: ParameterContext,
         extensionContext: ExtensionContext,
@@ -59,6 +35,7 @@ class TempFolderExtension: ParameterResolver {
         return parameterContext.parameter.type == TempFolder::class.java
     }
 
+    /** 현재 파라미터 컨텍스트에 대응하는 [TempFolder]를 생성 또는 재사용합니다. */
     override fun resolveParameter(
         parameterContext: ParameterContext,
         extensionContext: ExtensionContext,

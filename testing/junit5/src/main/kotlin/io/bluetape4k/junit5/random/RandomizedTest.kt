@@ -3,31 +3,19 @@ package io.bluetape4k.junit5.random
 import org.junit.jupiter.api.extension.ExtendWith
 
 /**
- * Property based testing 을 위해, 테스트 메소드에 랜덤 값을 주입해주는 annotation 입니다.
+ * 테스트 클래스/메서드에서 랜덤 값 주입 확장을 활성화합니다.
  *
+ * ## 동작/계약
+ * - 내부적으로 `@ExtendWith(RandomExtension::class)`를 적용합니다.
+ * - [RandomValue]가 붙은 필드/파라미터를 대상으로 랜덤 값을 생성해 주입합니다.
+ * - JUnit5 확장 체인에서 동작하므로 동일 대상에 다른 확장과 함께 사용할 수 있습니다.
  *
- * ```
+ * ```kotlin
  * @RandomizedTest
- * class TestClass {
- *   @Test
- *   fun `test with random value`(@RandomValue text:String) {
- *       // text is random string
- *   }
- *
- *   data class TestData(
- *      val name:String,
- *      val description: String,
- *      val amount: Double
- *   ): Serializable
- *
- *   @Test
- *   fun `test with random list`(@RandomValue(type=TestData::class, size=10) testDatas: TestData) {
- *       // testDatas has random value TestData
- *   }
+ * class UserTest {
+ *   @Test fun `랜덤 문자열`(@RandomValue value: String) { /* ... */ }
  * }
  * ```
- *
- * @see [RandomValue]
  */
 @Retention(AnnotationRetention.RUNTIME)
 @Target(

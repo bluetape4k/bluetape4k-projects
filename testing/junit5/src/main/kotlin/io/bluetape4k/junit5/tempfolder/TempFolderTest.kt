@@ -3,35 +3,17 @@ package io.bluetape4k.junit5.tempfolder
 import org.junit.jupiter.api.extension.ExtendWith
 
 /**
- * 테스트 시 임시폴더를 사용할 수 있도록 합니다.
+ * 테스트에서 [TempFolder] 파라미터 주입 확장을 활성화합니다.
  *
- * 다음은 `@BeforeAll` 에서 임시 폴더를 설정하는 방식입니다.
- * ```
+ * ## 동작/계약
+ * - 내부적으로 `@ExtendWith(TempFolderExtension::class)`를 적용합니다.
+ * - 클래스/파일/함수 수준에서 사용할 수 있습니다.
+ * - 실제 폴더 생성/정리 규칙은 [TempFolderExtension], [TempFolder] 구현을 따릅니다.
+ *
+ * ```kotlin
  * @TempFolderTest
- * @TestInstance(TestInstance.Lifecycle.PER_CLASS)
- * class TempFolderExtensionBeforeAllTest {
- *
- *     private lateinit var tempFolder: TempFolder
- *
- *     @BeforeAll
- *     fun beforeAll(tempFolder: TempFolder) {
- *         this.tempFolder = tempFolder
- *     }
- *
- *     // 테스트 코드
- * }
- * ```
- *
- * 다음은 각 테스트 메소드마다 [TempFolder] 인스턴스를 받아 사용하는 방식입니다.
- * ```
- * // 메소드 단위로 임시 폴더를 사용합니다.
- * @Test
- * @TempFolderTest
- * fun `새로 생성된 임시 폴더의 부모 폴더는 root 폴더입니다`(tempFolder: TempFolder) {
- *     val root = tempFolder.root
- *     root.exists().shouldBeTrue()
- *     val dir = tempFolder.createDirectory("bar")
- *     dir.parentFile shouldBeEqualTo root
+ * class TempSpec {
+ *   @org.junit.jupiter.api.Test fun create(tf: TempFolder) { /* tf.createFile().exists() == true */ }
  * }
  * ```
  */

@@ -1,8 +1,22 @@
 package io.bluetape4k.junit5.faker
 
+/**
+ * [FakeValue.provider]에 전달할 DataFaker provider 경로 상수를 모아둔 네임스페이스입니다.
+ *
+ * ## 동작/계약
+ * - 각 상수는 `"provider.method"` 문자열이며 [FakeValueExtension] 리플렉션 호출 키로 사용됩니다.
+ * - 상수 정의만 제공하며 값 생성/검증 로직은 포함하지 않습니다.
+ * - 중첩 object는 도메인별 상수 그룹(예: `Name`, `Address`)을 나타냅니다.
+ *
+ * ```kotlin
+ * val key = FakeValueProvider.Name.FullName
+ * // key == "name.fullName"
+ * ```
+ */
 object FakeValueProvider {
     private const val ADDRESS = "address"
 
+    /** 주소(Address) 계열 provider 경로 상수입니다. */
     object Address {
         const val StreetName = "$ADDRESS.streetName"
         const val StreetAddressNumber = "$ADDRESS.streetAddressNumber"
@@ -13,6 +27,7 @@ object FakeValueProvider {
 
     private const val AVIATION = "aviation"
 
+    /** 항공(Aviation) 계열 provider 경로 상수입니다. */
     object Aviation {
         const val Aircraft = "$AVIATION.aircraft"
         const val Airport = "$AVIATION.airport"
@@ -22,6 +37,7 @@ object FakeValueProvider {
 
     private const val ANCIENT = "ancient"
 
+    /** 고대 신화(Ancient) 계열 provider 경로 상수입니다. */
     object Ancient {
         const val God = "$ANCIENT.god"
         const val Primordial = "$ANCIENT.primordial"
@@ -31,6 +47,7 @@ object FakeValueProvider {
 
     private const val AWS = "aws"
 
+    /** AWS 계열 provider 경로 상수입니다. */
     object Aws {
         const val AmiId = "$AWS.amiId"
         const val InstanceId = "$AWS.instanceId"
@@ -61,6 +78,7 @@ object FakeValueProvider {
 
     private const val AZURE = "azure"
 
+    /** Azure 계열 provider 경로 상수입니다. */
     object Azure {
         const val Location = "$AZURE.location"
         const val ResourceGroup = "$AZURE.resourceGroup"
@@ -82,6 +100,7 @@ object FakeValueProvider {
 
     private const val BARCODE = "barcode"
 
+    /** 바코드 계열 provider 경로 상수입니다. */
     object Barcode {
         const val Ean8 = "$BARCODE.ean8"
         const val Ean13 = "$BARCODE.ean13"
@@ -97,6 +116,7 @@ object FakeValueProvider {
 
     private const val NAME = "name"
 
+    /** 이름(Name) 계열 provider 경로 상수입니다. */
     object Name {
         const val FullName = "$NAME.fullName"
         const val FirstName = "$NAME.firstName"
@@ -107,6 +127,7 @@ object FakeValueProvider {
 
     private const val APP = "app"
 
+    /** 애플리케이션(App) 계열 provider 경로 상수입니다. */
     object App {
         const val Name = "$APP.name"
         const val Version = "$APP.version"
@@ -115,12 +136,14 @@ object FakeValueProvider {
 
     private const val ARTIST = "artist"
 
+    /** 아티스트(Artist) 계열 provider 경로 상수입니다. */
     object Artist {
         const val Name = "$ARTIST.name"
     }
 
     private const val BOOK = "book"
 
+    /** 도서(Book) 계열 provider 경로 상수입니다. */
     object Book {
         const val Title = "$BOOK.title"
         const val Author = "$BOOK.author"
@@ -130,6 +153,7 @@ object FakeValueProvider {
 
     private const val BUSINESS = "business"
 
+    /** 비즈니스/신용카드 계열 provider 경로 상수입니다. */
     object Business {
         const val CreditCardNumber = "$BUSINESS.creditCardNumber"
         const val CreditCardExpiry = "$BUSINESS.creditCardExpiry"
@@ -150,6 +174,7 @@ object FakeValueProvider {
 
     private const val CODE = "code"
 
+    /** 코드(Code) 계열 provider 경로 상수입니다. */
     object Code {
         const val Asin = "$CODE.asin"
         const val Ean8 = "$CODE.ean8"
@@ -163,6 +188,7 @@ object FakeValueProvider {
 
     private const val COLOR = "color"
 
+    /** 색상(Color) 계열 provider 경로 상수입니다. */
     object Color {
         const val Name = "$COLOR.name"
         const val Hex = "$COLOR.hex"
@@ -172,6 +198,7 @@ object FakeValueProvider {
 
     private const val COMMERCE = "commerce"
 
+    /** 커머스(Commerce) 계열 provider 경로 상수입니다. */
     object Commerce {
         const val Department = "$COMMERCE.department"
         const val ProductName = "$COMMERCE.productName"
@@ -181,6 +208,7 @@ object FakeValueProvider {
 
     private const val COMPANY = "company"
 
+    /** 회사(Company) 계열 provider 경로 상수입니다. */
     object Company {
         const val Name = "$COMPANY.name"
         const val Industry = "$COMPANY.industry"
@@ -193,6 +221,7 @@ object FakeValueProvider {
 
     private const val COMPUTER = "computer"
 
+    /** 컴퓨터/네트워크 계열 provider 경로 상수입니다. */
     object Computer {
         const val MacAddress = "$COMPUTER.macAddress"
         const val IpV4Address = "$COMPUTER.ipv4Address"
@@ -211,6 +240,7 @@ object FakeValueProvider {
 
     private const val COUNTRY = "country"
 
+    /** 국가(Country) 계열 provider 경로 상수입니다. */
     object Country {
         const val Name = "$COUNTRY.name"
         const val Code = "$COUNTRY.code"
@@ -228,6 +258,7 @@ object FakeValueProvider {
 
     private const val CURRENCY = "currency"
 
+    /** 통화(Currency) 계열 provider 경로 상수입니다. */
     object Currency {
         const val Name = "$CURRENCY.name"
         const val Code = "$CURRENCY.code"
@@ -236,6 +267,7 @@ object FakeValueProvider {
 
     private const val DATE = "date"
 
+    /** 날짜/시간(Date) 계열 provider 경로 상수입니다. */
     object Date {
         const val Birthday = "$DATE.birthday"
         const val Between = "$DATE.between"
@@ -279,12 +311,14 @@ object FakeValueProvider {
 
     private const val DRIVING_LICENSE = "drivingLicense"
 
+    /** 운전면허 계열 provider 경로 상수입니다. */
     object DrivingLicense {
         const val DrivingLicense = "$DRIVING_LICENSE.drivingLicense"
     }
 
     private const val EDUCATOR = "educator"
 
+    /** 교육(Educator) 계열 provider 경로 상수입니다. */
     object Educator {
         const val University = "$EDUCATOR.university"
         const val Course = "$EDUCATOR.course"
@@ -292,6 +326,7 @@ object FakeValueProvider {
 
     private const val EMOJI = "emoji"
 
+    /** 이모지(Emoji) 계열 provider 경로 상수입니다. */
     object Emoji {
         const val Cat = "$EMOJI.cat"
         const val Smiley = "$EMOJI.smiley"
@@ -299,6 +334,7 @@ object FakeValueProvider {
 
     private const val FILE = "file"
 
+    /** 파일(File) 계열 provider 경로 상수입니다. */
     object File {
         const val Extension = "$FILE.extension"
         const val FileName = "$FILE.fileName"
@@ -307,6 +343,7 @@ object FakeValueProvider {
 
     private const val FINANCE = "finance"
 
+    /** 금융(Finance) 계열 provider 경로 상수입니다. */
     object Finance {
         const val NasdaqTicker = "$FINANCE.nasdaqTicker"
         const val NyseSymbol = "$FINANCE.nyseSymbol"
@@ -319,6 +356,7 @@ object FakeValueProvider {
 
     private const val FOOD = "food"
 
+    /** 음식(Food) 계열 provider 경로 상수입니다. */
     object Food {
         const val Ingredient = "$FOOD.ingredient"
         const val Spices = "$FOOD.spices"
@@ -331,6 +369,7 @@ object FakeValueProvider {
 
     private const val FRIENDS = "friends"
 
+    /** Friends 테마 provider 경로 상수입니다. */
     object Friends {
         const val Character = "$FRIENDS.character"
         const val Location = "$FRIENDS.location"

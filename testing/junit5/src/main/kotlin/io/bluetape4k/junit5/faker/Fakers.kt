@@ -11,20 +11,25 @@ import java.util.*
 
 
 /**
- * [Data FakeValue](https://github.com/datafaker-net/datafaker) 를 이용하여 테스트용 램덤 데이터를 생성합니다.
+ * DataFaker 기반 테스트 데이터 생성 유틸리티를 제공합니다.
  *
- * ```
- * val randomString = Fakers.randomString(10, 20)
- * val numberString = Fakers.numberString("010-####-####")       // "010-1234-5678"
- * val letterString = Fakers.letterString("?-103")               // "A-103", "c-701"
- * val alphaNumericString = Fakers.alphaNumericString("?-#00#")  // a-4007
- * val randomUuid = Fakers.randomUuid()
+ * ## 동작/계약
+ * - 내부 [faker] 인스턴스를 재사용해 문자열/UUID 생성 함수를 제공합니다.
+ * - 함수 대부분은 입력 포맷을 그대로 DataFaker에 위임하며, 포맷 오류 예외는 그대로 전파될 수 있습니다.
+ * - 모든 생성 함수는 기존 객체를 변경하지 않고 새 값을 반환합니다.
+ *
+ * ```kotlin
+ * val id = Fakers.randomUuid()
+ * val phone = Fakers.numberString("010-####-####")
+ * // phone.length == 13
  * ```
  */
 object Fakers: KLogging() {
 
+    /** 공유 DataFaker 인스턴스입니다. */
     val faker: Faker = Faker()
 
+    /** 공유 난수 서비스입니다. */
     val random: RandomService by unsafeLazy { faker.random() }
 
     private val timeBasedUuidGenerator: NoArgGenerator by unsafeLazy {
@@ -37,16 +42,17 @@ object Fakers: KLogging() {
         lazy(LazyThreadSafetyMode.NONE, initializer)
 
     /**
-     * 임의의 길이의 fake 문자열을 생성합니다.
+     * 길이 범위를 지정해 임의 문자열을 생성합니다.
      *
-     * ```
-     * val randomString = Fakers.randomString(10, 20)
-     * ```
+     * ## 동작/계약
+     * - 실제 생성은 `faker.text().text(...)`에 위임합니다.
+     * - 최대 길이는 `maxOf(minLength, maxLength)`로 보정됩니다.
+     * - 포함 옵션에 따라 대문자/특수문자/숫자 포함 여부가 달라집니다.
      *
-     * @param minLength    최소크기
-     * @param maxLength    최대크기
-     * @param includeUppercase 대문자 포함 여부
-     * @return 임의의 길이의 fake 문자열
+     * ```kotlin
+     * val value = Fakers.randomString(minLength = 5, maxLength = 5)
+     * // value.length == 5
+     * ```
      */
     fun randomString(
         minLength: Int = 2,
@@ -64,14 +70,16 @@ object Fakers: KLogging() {
         )
 
     /**
-     * [length] 크기의 fake 문자열을 반환합니다.
+     * 고정 길이 임의 문자열을 생성합니다.
      *
-     * ```
-     * val fixedString = Fakers.fixedString(10)
-     * ```
+     * ## 동작/계약
+     * - 내부적으로 `randomString(length, length, ...)`를 호출합니다.
+     * - `length`가 음수면 DataFaker 내부 검증에서 예외가 발생할 수 있습니다.
      *
-     * @param length 문자열 길이
-     * @return [length] 길이의 fake 문자열
+     * ```kotlin
+     * val token = Fakers.fixedString(8)
+     * // token.length == 8
+     * ```
      */
     fun fixedString(
         length: Int,
@@ -83,48 +91,62 @@ object Fakers: KLogging() {
 
 
     /**
-     * [format]에 `#`을 임의의 숫자(0~9)로 치환하는 문자열을 빌드합니다.
+     * 포맷의 `#` 문자를 숫자로 치환한 문자열을 생성합니다.
      *
-     * ```
-     * val phone = numberString("010-####-####")   // "010-1234-5678"
-     * ```
+     * ## 동작/계약
+     * - `#`만 숫자로 대체되고 나머지 문자는 유지됩니다.
+     * - 포맷 해석은 DataFaker 규칙을 따릅니다.
      *
-     * @param format 원하는 문자열 포맷
-     * @return 랜덤 수로 치환된 문자열
+     * ```kotlin
+     * val phone = Fakers.numberString("010-####-####")
+     * // phone.startsWith("010-") == true
+     * ```
      */
     fun numberString(format: String = "#,##0"): String = faker.numerify(format)
 
     /**
-     * [format]에 `?`를 임의의 character(`a`~`z`)로 치환한 문자열을 빌드합니다.
+     * 포맷의 `?` 문자를 알파벳 문자로 치환한 문자열을 생성합니다.
      *
-     * ```
-     * val text = letterString("?-103")  // "A-103", "c-701"
-     * ```
+     * ## 동작/계약
+     * - `isUpper=true`면 대문자 알파벳으로 치환합니다.
+     * - 포맷의 다른 문자는 그대로 유지됩니다.
      *
-     * @param format  원하는 문자열 포맷
-     * @param isUpper 대문자로 할 것인가?
-     * @return 랜덤 character로 치환된 문자열
+     * ```kotlin
+     * val code = Fakers.letterString("??-2026", isUpper = true)
+     * // code.length == 7
+     * ```
      */
     fun letterString(format: String, isUpper: Boolean = false): String =
         faker.letterify(format, isUpper)
 
     /**
-     * [numberString], [letterString] 을 조합하여, `#` 는 숫자로, `?` 는 문자로 치환한 문자열을 빌드합니다.
+     * 포맷의 `#`/`?`를 숫자/문자로 함께 치환한 문자열을 생성합니다.
      *
-     * ```
-     * val text = alphaNumbericString("?-#00#")   // a-4007
-     * ```
+     * ## 동작/계약
+     * - DataFaker `bothify` 규칙을 따르며 문자/숫자를 한 번에 치환합니다.
+     * - 입력 포맷 문자열은 변경하지 않고 결과 문자열만 반환합니다.
      *
-     * @param format  원하는 문자열 포맷
-     * @param isUpper 대문자로 할 것인가?
-     * @return
+     * ```kotlin
+     * val value = Fakers.alphaNumericString("?-#00#")
+     * // value.length == 6
+     * ```
      */
     fun alphaNumericString(format: String, isUpper: Boolean = false): String =
         faker.bothify(format, isUpper)
 
 
     /**
-     * Time-based UUID를 생성합니다.
+     * 시간 기반 UUID를 생성합니다.
+     *
+     * ## 동작/계약
+     * - 내부 `timeBasedUuidGenerator`를 재사용해 새 [UUID]를 반환합니다.
+     * - 호출마다 새로운 UUID가 생성됩니다.
+     *
+     * ```kotlin
+     * val id1 = Fakers.randomUuid()
+     * val id2 = Fakers.randomUuid()
+     * // id1 != id2
+     * ```
      */
     fun randomUuid(): UUID = timeBasedUuidGenerator.generate()
 }

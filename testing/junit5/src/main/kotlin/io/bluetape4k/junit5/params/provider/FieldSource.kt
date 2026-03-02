@@ -3,24 +3,21 @@ package io.bluetape4k.junit5.params.provider
 import org.junit.jupiter.params.provider.ArgumentsSource
 
 /**
- * 테스트 메소드에 인자를 제공할 때, 필드 변수로부터 얻을 수 있도록 합니다.
+ * 파라미터화 테스트 인자를 메서드가 아닌 필드에서 읽도록 지정합니다.
  *
- * ```
- * val arguments: List<Arguments> = listOf(
- *         argumentOf(null, true),
- *         argumentOf("", true),
- *         argumentOf("  ", true),
- *         argumentOf("not blank", false)
- *     )
+ * ## 동작/계약
+ * - [FieldArgumentsProvider]가 `value` 이름의 필드를 찾아 인자 스트림으로 변환합니다.
+ * - 대상 필드는 `Stream/Iterable/Array` 타입이어야 하며 null이면 예외가 발생합니다.
+ * - 함수 단위 어노테이션이며 MethodSource 대체 용도로 사용합니다.
  *
- * @ParameterizedTest
- * @FieldSource("arguments")
- * fun `isBlank should return true for null or blank string variable`(input:String?, expected:Boolean) {
- *     Strings.isBlank(input) shouldBeEqualTo expected
- * }
+ * ```kotlin
+ * @FieldSource("cases")
+ * @org.junit.jupiter.params.ParameterizedTest
+ * fun sample(v: String) { /* ... */ }
+ * // cases == listOf(argumentOf("a"), argumentOf("b"))
  * ```
- * @see [org.junit.jupiter.params.provider.MethodSource]
- * @see [argumentOf]
+ *
+ * @property value 테스트 인자를 담은 필드 이름
  */
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION)

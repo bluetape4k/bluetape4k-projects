@@ -3,34 +3,23 @@ package io.bluetape4k.junit5.random
 import kotlin.reflect.KClass
 
 /**
- * Allows the caller to customise the random generation of a given type.
- * NOTE: Can't support private field. just assing to public field
+ * 테스트 필드/파라미터에 랜덤 값을 주입하기 위한 설정 어노테이션입니다.
  *
- *
- * Usage example:
+ * ## 동작/계약
+ * - [RandomExtension]이 이 어노테이션을 읽어 random-beans 기반 값을 생성합니다.
+ * - `excludes`는 생성에서 제외할 필드 경로 목록입니다.
+ * - 컬렉션/배열 계열 파라미터에서는 `size`, `type`이 생성 정책에 사용됩니다.
  *
  * ```kotlin
- *  // create a random instance of String
- *  @RandomValue lateinit var anyString:String?
- *
- *  // create a random, fully populated instance of MyDomainObject
- *  @RandomValue lateinit var fullyPopulatedDomainObject: DomainObject
- *
- *  // create a random, partially populated instance of MyDomainObject, ignoring these fields: "wotsits", "id", "nestedDomainObject.address"
- *  @RandomValue(excludes = ["wotsits", "id", "nestedDomainObject.address"]) lateinit var partiallyPopulatedDomainObject: MyDomainObject
- *
- *  // create a List containing the default size of randomly generated instances of String
- *  @RandomValue(type = String::class) lateinit var anyStrings: List<String>
- *
- *  // create a Stream containing two randomly generated instances of MyDomainObject
- *  @RandomValue(size = 2, type = MyDomainObject::class) lateinit var anyStrings: Stream<MyDomainObject>
+ * @Test
+ * fun `랜덤 사용자`(@RandomValue(type = User::class, size = 3) users: List<User>) {
+ *   // users.size == 3
+ * }
  * ```
  *
- * @property excludes  When generating a random type you may want to exclude some properties
- * @property size      When generating a collection of random type you may want to limit its size.
- * @property type      When generating a collection of random type you'll want to tell the generator what that type
- *
- * @see [RandomizedTest]
+ * @property excludes 랜덤 생성에서 제외할 필드 경로 목록입니다.
+ * @property size 컬렉션형 랜덤 생성 시 기본 생성 개수입니다.
+ * @property type 컬렉션형 랜덤 생성 시 원소 타입입니다.
  */
 @Retention(AnnotationRetention.RUNTIME)
 @Target(
