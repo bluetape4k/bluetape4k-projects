@@ -18,23 +18,16 @@ import java.io.ByteArrayOutputStream
 /**
  * [AvroGenericRecordSerializer]의 기본 구현체입니다.
  *
- * Avro [GenericRecord]를 [ByteArray]로 직렬화하고, [ByteArray]에서 [GenericData.Record]로 역직렬화합니다.
- * [GenericDatumWriter]와 [GenericDatumReader]를 사용하여 스키마 기반의 범용 직렬화를 수행합니다.
+ * ## 동작/계약
+ * - `GenericDatumWriter/Reader`를 사용해 스키마 기반 DataFile 직렬화를 수행합니다.
+ * - [serialize]/[deserialize] 입력이 `null`이면 `null`을 반환합니다.
+ * - 실패 시 로그를 남기고 `null`을 반환합니다.
  *
+ * ```kotlin
+ * val schema = org.apache.avro.Schema.create(org.apache.avro.Schema.Type.NULL)
+ * val bytes = DefaultAvroGenericRecordSerializer().serialize(schema, null)
+ * // bytes == null
  * ```
- * val serializer = DefaultAvroGenericRecordSerializer()
- *
- * val emp = TestMessageProvider.createEmployee()
- * val schema = Employee.getClassSchema()
- *
- * val serialized = serializer.serialize(schema, emp)
- * val deserialized = serializer.deserialize(schema, serialized)
- * ```
- *
- * @property codecFactory Avro 직렬화 시 사용할 [CodecFactory] 인스턴스 (기본값: [DEFAULT_CODEC_FACTORY])
- * @see AvroGenericRecordSerializer
- * @see DefaultAvroSpecificRecordSerializer
- * @see DefaultAvroReflectSerializer
  */
 class DefaultAvroGenericRecordSerializer private constructor(
     private val codecFactory: CodecFactory,
@@ -42,18 +35,16 @@ class DefaultAvroGenericRecordSerializer private constructor(
 
     companion object: KLogging() {
         /**
-         * [DefaultAvroGenericRecordSerializer] 인스턴스를 생성합니다.
+         * 코덱을 지정해 [DefaultAvroGenericRecordSerializer] 인스턴스를 생성합니다.
          *
-         * ```
-         * // 기본 코덱(Zstandard 레벨 3) 사용
+         * ## 동작/계약
+         * - [codecFactory]를 DataFileWriter 코덱 설정으로 사용합니다.
+         * - 생략 시 [DEFAULT_CODEC_FACTORY]를 사용합니다.
+         *
+         * ```kotlin
          * val serializer = DefaultAvroGenericRecordSerializer()
-         *
-         * // 커스텀 코덱 사용
-         * val snappySerializer = DefaultAvroGenericRecordSerializer(CodecFactory.snappyCodec())
+         * // serializer != null
          * ```
-         *
-         * @param codecFactory 사용할 [CodecFactory] (기본값: [DEFAULT_CODEC_FACTORY])
-         * @return [DefaultAvroGenericRecordSerializer] 인스턴스
          */
         @JvmStatic
         operator fun invoke(
@@ -64,14 +55,21 @@ class DefaultAvroGenericRecordSerializer private constructor(
     }
 
     /**
-     * [GenericRecord]를 Avro 바이너리 형식으로 직렬화합니다.
+     * `GenericRecord`를 Avro 바이트 배열로 직렬화합니다.
      *
-     * [GenericDatumWriter]를 사용하여 [schema] 정보에 따라 [graph]를 직렬화하고,
-     * 설정된 [codecFactory]로 압축하여 [ByteArray]로 반환합니다.
+     * ## 동작/계약
+     * - [graph]가 `null`이면 `null`을 반환합니다.
+     * - [schema] 기준으로 DataFile을 생성하고 새 바이트 배열을 반환합니다.
+     * - 실패 시 로그를 남기고 `null`을 반환합니다.
      *
-     * @param schema Avro 객체의 [Schema] 정보
-     * @param graph 직렬화할 Avro [GenericRecord] 객체
-     * @return 직렬화된 [ByteArray], [graph]가 null이거나 실패 시 null 반환
+     * ```kotlin
+     * val schema = org.apache.avro.Schema.create(org.apache.avro.Schema.Type.NULL)
+     * val bytes = DefaultAvroGenericRecordSerializer().serialize(schema, null)
+     * // bytes == null
+     * ```
+     *
+     * @param schema 직렬화에 사용할 Avro 스키마입니다.
+     * @param graph 직렬화할 레코드입니다. `null`이면 `null`을 반환합니다.
      */
     override fun serialize(schema: Schema, graph: GenericRecord?): ByteArray? {
         if (graph == null) {
@@ -96,13 +94,21 @@ class DefaultAvroGenericRecordSerializer private constructor(
     }
 
     /**
-     * Avro 바이너리 데이터를 [GenericData.Record]로 역직렬화합니다.
+     * Avro 바이트 배열을 [GenericData.Record]로 역직렬화합니다.
      *
-     * [GenericDatumReader]를 사용하여 [schema] 정보에 따라 [avroBytes]를 역직렬화합니다.
+     * ## 동작/계약
+     * - [avroBytes]가 `null`이면 `null`을 반환합니다.
+     * - DataFile에서 첫 레코드 1건만 읽어 반환합니다.
+     * - 실패 시 로그를 남기고 `null`을 반환합니다.
      *
-     * @param schema Avro 객체의 [Schema] 정보
-     * @param avroBytes 직렬화된 데이터
-     * @return 역직렬화된 Avro [GenericData.Record], [avroBytes]가 null이거나 실패 시 null 반환
+     * ```kotlin
+     * val schema = org.apache.avro.Schema.create(org.apache.avro.Schema.Type.NULL)
+     * val record = DefaultAvroGenericRecordSerializer().deserialize(schema, null)
+     * // record == null
+     * ```
+     *
+     * @param schema 역직렬화에 사용할 Avro 스키마입니다.
+     * @param avroBytes Avro 바이트 배열입니다. `null`이면 `null`을 반환합니다.
      */
     override fun deserialize(schema: Schema, avroBytes: ByteArray?): GenericData.Record? {
         if (avroBytes == null) {

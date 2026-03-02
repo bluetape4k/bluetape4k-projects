@@ -17,32 +17,17 @@ import java.io.ByteArrayOutputStream
 /**
  * [AvroSpecificRecordSerializer]의 기본 구현체입니다.
  *
- * Avro [SpecificRecord] 인스턴스를 [ByteArray]로 직렬화하고 역직렬화합니다.
- * [SpecificDatumWriter]와 [SpecificDatumReader]를 사용하여 타입 안전한 직렬화를 수행합니다.
- * 단일 객체 및 리스트의 직렬화/역직렬화를 모두 지원합니다.
+ * ## 동작/계약
+ * - `SpecificDatumWriter/Reader` 기반으로 타입 안전한 DataFile 직렬화를 수행합니다.
+ * - 단건/리스트 API 모두 실패 시 로그를 남기고 `null` 또는 빈 리스트를 반환합니다.
+ * - [serialize]/[deserialize]는 `null` 입력을 그대로 `null` 결과로 처리합니다.
+ * - 리스트 직렬화는 첫 요소 스키마를 기준으로 전체 레코드를 기록합니다.
  *
- * Avro Protocol을 이용하여 데이터 전송이나 RPC 호출에 활용할 수 있습니다.
- * 데이터 전송 시, Avro 인스턴스를 byte array나 문자열로 변환하고,
- * 수신 측에서 byte array나 문자열로부터 Avro 인스턴스를 복원합니다.
- *
- * ```
+ * ```kotlin
  * val serializer = DefaultAvroSpecificRecordSerializer()
- * val emp = TestMessageProvider.createEmployee()
- *
- * // 단일 객체 직렬화/역직렬화
- * val serialized = serializer.serialize(emp)
- * val deserialized = serializer.deserialize(serialized, Employee::class.java)
- *
- * // 리스트 직렬화/역직렬화
- * val employees = listOf(emp1, emp2, emp3)
- * val listBytes = serializer.serializeList(employees)
- * val deserializedList = serializer.deserializeList(listBytes, Employee::class.java)
+ * val restored = serializer.deserialize(null, org.apache.avro.specific.SpecificRecord::class.java)
+ * // restored == null
  * ```
- *
- * @property codecFactory Avro 직렬화 시 사용할 [CodecFactory] 인스턴스 (기본값: [DEFAULT_CODEC_FACTORY])
- * @see AvroSpecificRecordSerializer
- * @see DefaultAvroGenericRecordSerializer
- * @see DefaultAvroReflectSerializer
  */
 class DefaultAvroSpecificRecordSerializer private constructor(
     private val codecFactory: CodecFactory,
@@ -50,18 +35,16 @@ class DefaultAvroSpecificRecordSerializer private constructor(
 
     companion object: KLogging() {
         /**
-         * [DefaultAvroSpecificRecordSerializer] 인스턴스를 생성합니다.
+         * 코덱을 지정해 [DefaultAvroSpecificRecordSerializer] 인스턴스를 생성합니다.
          *
-         * ```
-         * // 기본 코덱(Zstandard 레벨 3) 사용
+         * ## 동작/계약
+         * - [codecFactory]를 DataFileWriter 코덱 설정으로 사용합니다.
+         * - 생략 시 [DEFAULT_CODEC_FACTORY]를 사용합니다.
+         *
+         * ```kotlin
          * val serializer = DefaultAvroSpecificRecordSerializer()
-         *
-         * // 커스텀 코덱 사용
-         * val snappySerializer = DefaultAvroSpecificRecordSerializer(CodecFactory.snappyCodec())
+         * // serializer != null
          * ```
-         *
-         * @param codecFactory 사용할 [CodecFactory] (기본값: [DEFAULT_CODEC_FACTORY])
-         * @return [DefaultAvroSpecificRecordSerializer] 인스턴스
          */
         @JvmStatic
         operator fun invoke(
@@ -72,14 +55,20 @@ class DefaultAvroSpecificRecordSerializer private constructor(
     }
 
     /**
-     * Avro [SpecificRecord] 인스턴스를 바이너리 형식으로 직렬화합니다.
+     * `SpecificRecord` 단건을 Avro 바이트 배열로 직렬화합니다.
      *
-     * [SpecificDatumWriter]를 사용하여 [graph]의 스키마 정보에 따라 직렬화하고,
-     * 설정된 [codecFactory]로 압축하여 [ByteArray]로 반환합니다.
+     * ## 동작/계약
+     * - [graph]가 `null`이면 `null`을 반환합니다.
+     * - 성공 시 새 바이트 배열을 할당해 반환합니다.
+     * - 실패 시 로그를 남기고 `null`을 반환합니다.
      *
-     * @param T [SpecificRecord]를 구현한 Avro 타입
-     * @param graph 직렬화할 Avro [SpecificRecord] 객체
-     * @return 직렬화된 [ByteArray], [graph]가 null이거나 실패 시 null 반환
+     * ```kotlin
+     * val bytes = DefaultAvroSpecificRecordSerializer()
+     *     .serialize(null as org.apache.avro.specific.SpecificRecord?)
+     * // bytes == null
+     * ```
+     *
+     * @param graph 직렬화할 레코드입니다. `null`이면 `null`을 반환합니다.
      */
     override fun <T: SpecificRecord> serialize(graph: T?): ByteArray? {
         if (graph == null) {
@@ -104,14 +93,19 @@ class DefaultAvroSpecificRecordSerializer private constructor(
     }
 
     /**
-     * Avro [SpecificRecord] 인스턴스의 리스트를 바이너리 형식으로 직렬화합니다.
+     * `SpecificRecord` 리스트를 Avro 바이트 배열로 직렬화합니다.
      *
-     * 리스트의 첫 번째 요소에서 스키마 정보를 추출하여, 모든 요소를 하나의 DataFile로 직렬화합니다.
-     * 배치 전송이나 대량 데이터 저장에 효율적입니다.
+     * ## 동작/계약
+     * - [collection]이 `null`/빈 리스트면 `null`을 반환합니다.
+     * - 첫 요소 스키마를 DataFile 스키마로 사용합니다.
+     * - 실패 시 로그를 남기고 `null`을 반환합니다.
      *
-     * @param T [SpecificRecord]를 구현한 Avro 타입
-     * @param collection 직렬화할 [SpecificRecord] 리스트
-     * @return 직렬화된 [ByteArray], [collection]이 null이거나 비어있으면 null 반환
+     * ```kotlin
+     * val bytes = DefaultAvroSpecificRecordSerializer().serializeList(emptyList())
+     * // bytes == null
+     * ```
+     *
+     * @param collection 직렬화할 레코드 목록입니다.
      */
     override fun <T: SpecificRecord> serializeList(collection: List<T>?): ByteArray? {
         if (collection.isNullOrEmpty()) {
@@ -136,16 +130,21 @@ class DefaultAvroSpecificRecordSerializer private constructor(
     }
 
     /**
-     * Avro 바이너리 데이터를 [SpecificRecord] 인스턴스로 역직렬화합니다.
+     * Avro 바이트 배열을 `SpecificRecord` 단건으로 역직렬화합니다.
      *
-     * [SpecificDatumReader]를 사용하여 [clazz] 타입으로 역직렬화합니다.
-     * 스키마 진화(Schema Evolution)를 지원하여, writer 스키마와 reader 스키마가 다르더라도
-     * 호환 가능한 경우 정상적으로 역직렬화합니다.
+     * ## 동작/계약
+     * - [avroBytes]가 `null`이면 `null`을 반환합니다.
+     * - DataFile에서 첫 레코드 1건만 읽습니다.
+     * - 실패 시 로그를 남기고 `null`을 반환합니다.
      *
-     * @param T [SpecificRecord]를 구현한 Avro 타입
-     * @param avroBytes 직렬화된 데이터
-     * @param clazz 대상 타입의 [Class] 정보
-     * @return 역직렬화된 인스턴스, [avroBytes]가 null이거나 실패 시 null 반환
+     * ```kotlin
+     * val restored = DefaultAvroSpecificRecordSerializer()
+     *     .deserialize(null, org.apache.avro.specific.SpecificRecord::class.java)
+     * // restored == null
+     * ```
+     *
+     * @param avroBytes Avro 바이트 배열입니다. `null`이면 `null`을 반환합니다.
+     * @param clazz 역직렬화 대상 클래스입니다.
      */
     override fun <T: SpecificRecord> deserialize(avroBytes: ByteArray?, clazz: Class<T>): T? {
         if (avroBytes == null) {
@@ -167,15 +166,21 @@ class DefaultAvroSpecificRecordSerializer private constructor(
     }
 
     /**
-     * Avro 바이너리 데이터를 [SpecificRecord] 인스턴스의 리스트로 역직렬화합니다.
+     * Avro 바이트 배열을 `SpecificRecord` 리스트로 역직렬화합니다.
      *
-     * DataFile에 포함된 모든 레코드를 순차적으로 읽어 리스트로 반환합니다.
-     * Eclipse Collections의 FastList를 사용하여 고성능 리스트 생성을 수행합니다.
+     * ## 동작/계약
+     * - [avroBytes]가 `null`/빈 배열이면 빈 리스트를 반환합니다.
+     * - DataFile의 모든 레코드를 끝까지 읽어 새 리스트에 담아 반환합니다.
+     * - 실패 시 로그를 남기고 빈 리스트를 반환합니다.
      *
-     * @param T [SpecificRecord]를 구현한 Avro 타입
-     * @param avroBytes 직렬화된 데이터
-     * @param clazz 컬렉션 요소의 [Class] 정보
-     * @return 역직렬화된 리스트, [avroBytes]가 null이거나 비어있으면 빈 리스트 반환
+     * ```kotlin
+     * val list = DefaultAvroSpecificRecordSerializer()
+     *     .deserializeList(null, org.apache.avro.specific.SpecificRecord::class.java)
+     * // list == emptyList<org.apache.avro.specific.SpecificRecord>()
+     * ```
+     *
+     * @param avroBytes Avro 바이트 배열입니다. `null`/빈 배열이면 빈 리스트를 반환합니다.
+     * @param clazz 리스트 요소 클래스입니다.
      */
     override fun <T: SpecificRecord> deserializeList(avroBytes: ByteArray?, clazz: Class<T>): List<T> {
         if (avroBytes.isNullOrEmpty()) {

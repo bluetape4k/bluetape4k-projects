@@ -15,22 +15,16 @@ import java.io.ByteArrayOutputStream
 /**
  * [AvroReflectSerializer]의 기본 구현체입니다.
  *
- * Avro의 [ReflectDatumWriter]를 사용하여 Java/Kotlin 객체를 Reflection 기반으로 직렬화하고,
- * [SpecificDatumReader]를 사용하여 역직렬화합니다.
- * 코드 생성된 Avro 클래스뿐만 아니라, 일반 POJO/데이터 클래스도 직렬화할 수 있습니다.
+ * ## 동작/계약
+ * - `ReflectDatumWriter`로 writer schema를 만들고 DataFile 형식으로 기록합니다.
+ * - [serialize]/[deserialize] 입력이 `null`이면 `null`을 반환합니다.
+ * - 직렬화/역직렬화 실패는 로그를 남기고 `null`을 반환합니다.
  *
- * ```
+ * ```kotlin
  * val serializer = DefaultAvroReflectSerializer()
- *
- * val emp = TestMessageProvider.createEmployee()
- * val serialized = serializer.serialize(emp)
- * val deserialized = serializer.deserialize(serialized, Employee::class.java)
+ * val bytes = serializer.serialize(mapOf("id" to 1))
+ * // bytes != null
  * ```
- *
- * @property codecFactory Avro 직렬화 시 사용할 [CodecFactory] 인스턴스 (기본값: [DEFAULT_CODEC_FACTORY])
- * @see AvroReflectSerializer
- * @see DefaultAvroGenericRecordSerializer
- * @see DefaultAvroSpecificRecordSerializer
  */
 class DefaultAvroReflectSerializer private constructor(
     private val codecFactory: CodecFactory,
@@ -38,18 +32,16 @@ class DefaultAvroReflectSerializer private constructor(
 
     companion object: KLogging() {
         /**
-         * [DefaultAvroReflectSerializer] 인스턴스를 생성합니다.
+         * 코덱 설정을 지정해 [DefaultAvroReflectSerializer] 인스턴스를 생성합니다.
          *
-         * ```
-         * // 기본 코덱(Zstandard 레벨 3) 사용
+         * ## 동작/계약
+         * - [codecFactory]를 내부 DataFileWriter 설정에 그대로 사용합니다.
+         * - [codecFactory]를 지정하지 않으면 [DEFAULT_CODEC_FACTORY]를 사용합니다.
+         *
+         * ```kotlin
          * val serializer = DefaultAvroReflectSerializer()
-         *
-         * // 커스텀 코덱 사용
-         * val snappySerializer = DefaultAvroReflectSerializer(CodecFactory.snappyCodec())
+         * // serializer != null
          * ```
-         *
-         * @param codecFactory 사용할 [CodecFactory] (기본값: [DEFAULT_CODEC_FACTORY])
-         * @return [DefaultAvroReflectSerializer] 인스턴스
          */
         @JvmStatic
         operator fun invoke(
@@ -59,14 +51,19 @@ class DefaultAvroReflectSerializer private constructor(
     }
 
     /**
-     * 객체를 Avro Reflection 기반으로 바이너리 형식으로 직렬화합니다.
+     * 객체를 Reflection 기반 Avro 바이트 배열로 직렬화합니다.
      *
-     * [ReflectDatumWriter]를 사용하여 객체의 필드 정보를 Reflection으로 분석한 뒤,
-     * Avro 스키마를 자동 추론하여 직렬화합니다.
+     * ## 동작/계약
+     * - [graph]가 `null`이면 `null`을 반환합니다.
+     * - 직렬화 결과는 새 바이트 배열로 반환되며 입력 객체는 변경하지 않습니다.
+     * - 실패 시 로그를 남기고 `null`을 반환합니다.
      *
-     * @param T 직렬화할 객체의 타입
-     * @param graph 직렬화할 객체
-     * @return 직렬화된 [ByteArray], [graph]가 null이거나 실패 시 null 반환
+     * ```kotlin
+     * val bytes = DefaultAvroReflectSerializer().serialize(mapOf("id" to 1))
+     * // bytes != null
+     * ```
+     *
+     * @param graph 직렬화할 객체입니다. `null`이면 `null`을 반환합니다.
      */
     override fun <T> serialize(graph: T?): ByteArray? {
         if (graph == null) {
@@ -91,15 +88,20 @@ class DefaultAvroReflectSerializer private constructor(
     }
 
     /**
-     * Avro 바이너리 데이터를 Reflection 기반으로 지정된 타입의 인스턴스로 역직렬화합니다.
+     * Avro 바이트 배열을 지정 타입으로 역직렬화합니다.
      *
-     * [SpecificDatumReader]를 사용하여 [clazz] 타입으로 역직렬화합니다.
-     * 스키마 진화(Schema Evolution)를 지원합니다.
+     * ## 동작/계약
+     * - [avroBytes]가 `null`이면 `null`을 반환합니다.
+     * - DataFile에서 첫 레코드 1건만 읽어 반환합니다.
+     * - 실패 시 로그를 남기고 `null`을 반환합니다.
      *
-     * @param T 역직렬화할 타입
-     * @param avroBytes 직렬화된 데이터
-     * @param clazz 대상 타입의 [Class] 정보
-     * @return 역직렬화된 인스턴스, [avroBytes]가 null이거나 실패 시 null 반환
+     * ```kotlin
+     * val restored = DefaultAvroReflectSerializer().deserialize(null, Map::class.java)
+     * // restored == null
+     * ```
+     *
+     * @param avroBytes Avro 바이트 배열입니다. `null`이면 `null`을 반환합니다.
+     * @param clazz 역직렬화 대상 클래스입니다.
      */
     override fun <T> deserialize(avroBytes: ByteArray?, clazz: Class<T>): T? {
         if (avroBytes == null) {
