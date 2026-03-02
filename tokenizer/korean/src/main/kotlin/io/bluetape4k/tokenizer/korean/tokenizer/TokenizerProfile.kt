@@ -8,30 +8,35 @@ import io.bluetape4k.tokenizer.korean.utils.KoreanPos.ProperNoun
 import java.io.Serializable
 
 /**
- * 한글 형태소 분석기의 분석 옵션을 설정하는 프로필 클래스입니다.
+ * 파싱 후보 점수 계산에 사용하는 가중치 프로필입니다.
  *
- * 각 가중치 값은 형태소 분석 시 후보 선택에 영향을 미칩니다.
- * 값이 클수록 해당 항목을 선호하며, 음수 값은 해당 항목을 비선호합니다.
+ * ## 동작/계약
+ * - `ParsedChunk.score` 계산식은 이 프로필 값을 선형 결합해 후보 순위를 정한다.
+ * - 값이 클수록 해당 항목을 더 선호하며, 음수 값은 패널티로 동작한다.
+ * - `spaceGuide`는 원문 공백 위치 힌트로 사용되어 가이드 밖 분해에 패널티를 부여한다.
  *
- * @property tokenCount 토큰 수 가중치 (기본값: 0.18f)
- * @property unknown 미등록 단어(Unknown)에 대한 가중치 (기본값: 0.3f)
- * @property wordCount 단어 수 가중치 (기본값: 0.3f)
- * @property freq 단어 빈도수 가중치 (기본값: 0.2f)
- * @property unknownCoverage 미등록 단어 커버리지 가중치 (기본값: 0.5f)
- * @property exactMatch 정확한 매칭에 대한 가중치 (기본값: 0.5f)
- * @property allNoun 전체 명사 처리에 대한 가중치 (기본값: 0.1f)
- * @property unknownPosCount 미등록 품사 수에 대한 가중치 (기본값: 10.0f)
- * @property determinerPosCount 관형사 수에 대한 가중치 (기본값: -0.01f)
- * @property exclamationPosCount 감탄사 수에 대한 가중치 (기본값: 0.01f)
- * @property initialPostPosition 초기 조사 위치 가중치 (기본값: 0.2f)
- * @property haVerb '하다' 동사 가중치 (기본값: 0.3f)
- * @property preferredPattern 선호 패턴 가중치 (기본값: 0.6f)
- * @property preferredPatterns 선호하는 품사 패턴 목록 (기본값: [[Noun, Josa], [ProperNoun, Josa]])
- * @property spaceGuide 공백 위치 가이드 배열 (기본값: 빈 배열)
- * @property spaceGuidePenalty 공백 가이드 미준수 시 패널티 (기본값: 3.0f)
- * @property josaUnmatchedPenalty 조사 불일치 패널티 (기본값: 3.0f)
+ * ```kotlin
+ * val profile = TokenizerProfile.DefaultProfile.copy(unknown = 0.5f)
+ * // profile.unknown == 0.5f
+ * ```
  *
- * @see KoreanTokenizer
+ * @property tokenCount 토큰 수 가중치
+ * @property unknown 미등록 단어 가중치
+ * @property wordCount 단어 수 가중치
+ * @property freq 명사 빈도 가중치
+ * @property unknownCoverage 미등록 토큰 길이 커버리지 가중치
+ * @property exactMatch 단일 토큰 정확 매칭 가중치
+ * @property allNoun 전부 명사인 경우 가중치
+ * @property unknownPosCount Unknown 품사 개수 가중치
+ * @property determinerPosCount 관형사 개수 가중치
+ * @property exclamationPosCount 감탄사 개수 가중치
+ * @property initialPostPosition 접미/조사 시작 패널티 가중치
+ * @property haVerb `하다/해` 결합 선호 가중치
+ * @property preferredPattern 선호 품사 패턴 가중치
+ * @property preferredPatterns 선호 품사 패턴 목록
+ * @property spaceGuide 공백 가이드 인덱스 배열
+ * @property spaceGuidePenalty 공백 가이드 위반 패널티
+ * @property josaUnmatchedPenalty 조사 불일치 패널티
  */
 data class TokenizerProfile(
     val tokenCount: Float = 0.18f,
@@ -53,7 +58,17 @@ data class TokenizerProfile(
     val josaUnmatchedPenalty: Float = 3.0f,
 ): Serializable {
     companion object {
-        /** 기본 분석 프로필 */
+        /**
+         * 기본 형태소 분석 프로필입니다.
+         *
+         * ## 동작/계약
+         * - `TokenizerProfile()` 기본 생성값으로 초기화된다.
+         *
+         * ```kotlin
+         * val profile = TokenizerProfile.DefaultProfile
+         * // profile.spaceGuide.isEmpty() == true
+         * ```
+         */
         @JvmField
         val DefaultProfile = TokenizerProfile()
     }

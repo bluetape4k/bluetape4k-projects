@@ -9,18 +9,16 @@ import io.bluetape4k.tokenizer.utils.CharArraySet
 import io.bluetape4k.tokenizer.utils.DictionaryProvider
 
 /**
- * 한글 동사 및 형용사를 모든 가능한 활용 형태로 확장합니다.
+ * 동사/형용사 기본형에서 활용형 표면어 집합을 생성합니다.
  *
- * 동사
- * ```
- * 갈아타	 --> 갈아타, 갈아타게, 갈아타겠, 갈아타고, 갈아타구, 갈아타기, 갈아타긴, 갈아타길, 갈아타냐, 갈아타네, 갈아타노, 갈아타느, 갈아타는, 갈아타니, 갈아타다, 갈아타더, 갈아타던, 갈아타도, 갈아타든, 갈아타러, 갈아타려, 갈아타며, 갈아타면, 갈아타서, 갈아타세, 갈아타셔, 갈아타셨, 갈아타습, 갈아타시, 갈아타신, 갈아타실, 갈아타십, 갈아타써, 갈아타야, 갈아타자, 갈아타잖, 갈아타재, 갈아타져, 갈아타죠, 갈아타준, 갈아타지, 갈아타진, 갈아타질, 갈아탄, 갈아탈, 갈아탐, 갈아탑, 갈아탔
- * 난리치	 --> 난리쳐, 난리쳤, 난리치, 난리치냐, 난리치노, 난리치느, 난리치는, 난리치니, 난리치어, 난리치었, 난리친, 난리칠, 난리침, 난리칩, 난리칩니
- * ```
+ * ## 동작/계약
+ * - 기본형 어미 `다`를 제외한 어간과 마지막 음절 규칙으로 활용 후보를 확장한다.
+ * - `isAdjective` 값에 따라 일부 불규칙/예외 처리와 edge case 제거가 달라진다.
+ * - 결과는 중복 제거된 `Set<String>`으로 반환된다.
  *
- * 형용사
- * ```
- * 거북하	 --> 거북하, 거북하게, 거북하겠, 거북하고, 거북하구, 거북하기, 거북하긴, 거북하길, 거북하냐, 거북하네, 거북하노, 거북하느, 거북하는, 거북하니, 거북하다, 거북하더, 거북하던, 거북하도, 거북하든, 거북하러, 거북하려, 거북하며, 거북하면, 거북하세, 거북하셔, 거북하셨, 거북하습, 거북하시, 거북하신, 거북하실, 거북하십, 거북하여, 거북하였, 거북하자, 거북하잖, 거북하재, 거북하져, 거북하죠, 거북하지, 거북하진, 거북하질, 거북한, 거북할, 거북함, 거북합, 거북해, 거북해도, 거북해서, 거북해써, 거북해야, 거북해준, 거북했, 거북히
- * 느리 -->	느려, 느렸, 느리, 느리냐, 느리노, 느리느, 느리는, 느리니, 느리어, 느리었, 느린, 느릴, 느림, 느립, 느립니
+ * ```kotlin
+ * val forms = KoreanConjugation.conjugatePredicated(setOf("가다"), isAdjective = false)
+ * // forms.contains("가") == true
  * ```
  */
 object KoreanConjugation: KLogging() {
@@ -59,7 +57,16 @@ object KoreanConjugation: KLogging() {
     }
 
     /**
+     * 활용형 집합을 `CharArraySet`으로 변환해 반환합니다.
      *
+     * ## 동작/계약
+     * - 내부적으로 `conjugatePredicated(words, isAdjective)` 결과를 생성한다.
+     * - 반환 집합은 `DictionaryProvider.newCharArraySet()` 인스턴스에 추가되어 반환된다.
+     *
+     * ```kotlin
+     * val set = KoreanConjugation.conjugatePredicatesToCharArraySet(setOf("가다"))
+     * // set.contains("가")
+     * ```
      */
     fun conjugatePredicatesToCharArraySet(words: Set<String>, isAdjective: Boolean = false): CharArraySet {
         val newSet = DictionaryProvider.newCharArraySet()
@@ -315,6 +322,19 @@ object KoreanConjugation: KLogging() {
 
     private val VOWEL_뀌다 = hashSetOf('ㅞ', 'ㅚ', 'ㅙ')
 
+    /**
+     * 기본형 집합을 활용형 표면어 집합으로 확장합니다.
+     *
+     * ## 동작/계약
+     * - 단어별 마지막 음절(초/중/종성) 규칙에 따라 활용 후보를 만든 뒤 어간 앞에 붙여 반환한다.
+     * - `르` 불규칙은 앞 음절 받침 보정 후 별도 후보를 추가한다.
+     * - 동사 경로(`isAdjective=false`)에서는 edge case 집합(`아니`, `입` 등)을 최종 결과에서 제외한다.
+     *
+     * ```kotlin
+     * val forms = KoreanConjugation.conjugatePredicated(setOf("느리다"), isAdjective = true)
+     * // forms.contains("느려") == true
+     * ```
+     */
     fun conjugatePredicated(words: Set<String>, isAdjective: Boolean): Set<String> {
 
         val expanded: Set<String> = words.flatMap { word ->

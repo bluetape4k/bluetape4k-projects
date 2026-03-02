@@ -1,7 +1,17 @@
 package io.bluetape4k.tokenizer.model
 
 /**
- * 금칙어의 심각도
+ * 금칙어의 노출 위험도를 단계별로 표현하는 열거형이다.
+ *
+ * ## 동작/계약
+ * - `LOW`, `MIDDLE`, `HIGH` 순으로 위험 수준이 높아진다.
+ * - 기본값은 `DEFAULT`를 통해 `LOW`로 제공된다.
+ * - 금칙어 필터 옵션에서 차단 기준 강도를 지정할 때 사용한다.
+ *
+ * ```kotlin
+ * val severity = Severity.DEFAULT
+ * // severity == Severity.LOW
+ * ```
  */
 enum class Severity {
 
@@ -24,6 +34,18 @@ enum class Severity {
     HIGH;
 
     companion object {
+        /**
+         * 금칙어 심각도 기본값(`LOW`)이다.
+         *
+         * ## 동작/계약
+         * - `BlockwordOptions` 기본 생성 시 이 값을 사용한다.
+         * - 상수 참조이므로 런타임 상태에 따라 값이 변하지 않는다.
+         *
+         * ```kotlin
+         * val defaultSeverity = Severity.DEFAULT
+         * // defaultSeverity == Severity.LOW
+         * ```
+         */
         val DEFAULT = Severity.LOW
     }
 }

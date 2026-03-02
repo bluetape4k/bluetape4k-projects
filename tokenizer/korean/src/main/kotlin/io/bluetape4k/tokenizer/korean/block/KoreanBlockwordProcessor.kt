@@ -17,7 +17,17 @@ import io.bluetape4k.tokenizer.model.blockwordResponseOf
 import java.util.*
 
 /**
- * 한국어 문장 중에 금칙어를 찾고, 마스킹 처리를 수행합니다.
+ * 문장에서 금칙어를 탐지하고 마스킹 결과를 생성합니다.
+ *
+ * ## 동작/계약
+ * - 구두점 우회 패턴을 제거한 뒤 토크나이즈 결과로 금칙어를 판정한다.
+ * - 마스킹 대상은 길이 2 이상, 지정 품사(`blockedPos`)이며 금칙어 사전에 존재하는 토큰이다.
+ * - 처리 중 예외는 `TokenizerException`으로 감싸 재던진다.
+ *
+ * ```kotlin
+ * val found = KoreanBlockwordProcessor.findBlockwords("미니미와 니미")
+ * // found.any { it.text == "니미" } == true
+ * ```
  */
 object KoreanBlockwordProcessor: KLogging() {
 
@@ -39,15 +49,16 @@ object KoreanBlockwordProcessor: KLogging() {
     private val punctuationProcessor = PunctuationProcessor()
 
     /**
-     * 금칙어에 해당하는 단어를 찾습니다.
+     * 입력 문장에서 금칙어 토큰 목록을 반환합니다.
      *
-     * ```
-     * val blockWords = findBlockwords("미니미와 니미")
-     * blockWords.forEach { println(it) }   // `니미`
-     * ```
+     * ## 동작/계약
+     * - 공백/빈 문자열 입력이면 빈 리스트를 반환한다.
+     * - 구두점 제거 후 토큰화한 결과에서 길이 2 이상 토큰만 검사한다.
      *
-     * @param text 한국어 문장
-     * @return 금칙어에 해당하는 [KoreanToken] 리스트
+     * ```kotlin
+     * val tokens = KoreanBlockwordProcessor.findBlockwords("미니미와 니미")
+     * // tokens.map { it.text } == ["니미"]
+     * ```
      */
     fun findBlockwords(text: String): List<KoreanToken> {
         if (text.isBlank()) {
@@ -75,20 +86,17 @@ object KoreanBlockwordProcessor: KLogging() {
     }
 
     /**
-     * 금칙어 (Block words) 를 masking 합니다.
+     * 요청 옵션에 따라 금칙어를 마스킹한 응답을 반환합니다.
      *
-     * 예:
-     * - 미니미와 니미 -> 미니미와 **     // `니미` 는 속어
-     * - ㅆ.ㅂ 웃기네 -> *** 웃기네      // ㅆㅂ, ㅆ.ㅂ, ㅆ~ㅂ 등을 처리
+     * ## 동작/계약
+     * - 입력 텍스트가 비어 있으면 빈 문자열 응답을 반환한다.
+     * - 요청 언어가 한국어가 아니면 `InvalidTokenizeRequestException`을 던진다.
+     * - severity 조건을 만족하는 토큰 구간을 `mask` 문자열 반복값으로 치환한다.
      *
+     * ```kotlin
+     * val response = KoreanBlockwordProcessor.maskBlockwords(BlockwordRequest("미니미와 니미"))
+     * // response.text.contains("**") == true
      * ```
-     * val request = BlockwordRequest("미니미와 니미", BlockwordOptions())
-     * val response = maskBlockwords(request)
-     * println(response.text)  // 미니미와 **
-     * ```
-     *
-     * @param request 금칙어 처리 요청 정보 [BlockwordRequest]
-     * @return 금칙어를 처리한 결과 [BlockwordResponse]
      */
     fun maskBlockwords(request: BlockwordRequest): BlockwordResponse {
         if (request.text.isBlank()) {

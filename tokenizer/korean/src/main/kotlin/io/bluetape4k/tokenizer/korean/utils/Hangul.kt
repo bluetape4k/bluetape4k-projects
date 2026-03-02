@@ -5,25 +5,71 @@ import io.bluetape4k.tokenizer.korean.utils.Hangul.DOUBLE_CODAS
 import java.io.Serializable
 
 /**
- * 한글을 초성, 중성, 종성으로 분해하고 조합하는 유틸리티 클래스
+ * 한글 음절의 초성/중성/종성 분해와 조합을 제공합니다.
+ *
+ * ## 동작/계약
+ * - `decomposeHangul`은 단일 음절을 `HangulChar`로 분해한다.
+ * - `composeHangul`은 분해된 자모를 유니코드 한글 음절로 조합한다.
+ * - 받침 판정은 유니코드 음절 인덱스 계산으로 수행한다.
+ *
+ * ```kotlin
+ * val hc = Hangul.decomposeHangul('한')
+ * // hc == Hangul.HangulChar('ㅎ', 'ㅏ', 'ㄴ')
+ * ```
  */
 object Hangul: KLogging() {
 
     /**
-     * 한글 문자를 초성, 중성, 종성으로 분해한 정보 클래스
+     * 한글 음절 한 글자의 초성/중성/종성 분해 결과입니다.
+     *
+     * ## 동작/계약
+     * - `coda`가 공백 문자면 받침이 없는 음절이다.
+     *
+     * ```kotlin
+     * val hc = Hangul.HangulChar('ㅎ', 'ㅏ', ' ')
+     * // hc.codaIsEmpty == true
+     * ```
      */
     data class HangulChar(val onset: Char, val vowel: Char, val coda: Char): Serializable {
+        /**
+         * 종성이 비어 있는지 여부입니다.
+         *
+         * ## 동작/계약
+         * - `coda == ' '`일 때 `true`를 반환한다.
+         *
+         * ```kotlin
+         * val empty = Hangul.HangulChar('ㅎ', 'ㅏ', ' ').codaIsEmpty
+         * // empty == true
+         * ```
+         */
         val codaIsEmpty: Boolean get() = coda == ' '
+        /**
+         * 종성이 존재하는지 여부입니다.
+         *
+         * ## 동작/계약
+         * - `coda != ' '`일 때 `true`를 반환한다.
+         *
+         * ```kotlin
+         * val has = Hangul.HangulChar('ㅎ', 'ㅏ', 'ㄴ').hasCoda
+         * // has == true
+         * ```
+         */
         val hasCoda: Boolean get() = coda != ' '
     }
 
     /**
-     * 밭침에 두 개의 자음이 있는 경우를 나타내는 클래스
+     * 겹받침을 구성하는 두 자음을 표현합니다.
+     *
+     * ## 동작/계약
+     * - `DOUBLE_CODAS` 매핑의 값 타입으로 사용된다.
+     *
+     * ```kotlin
+     * val dc = Hangul.DoubleCoda('ㄱ', 'ㅅ')
+     * // dc.first == 'ㄱ'
+     * ```
      *
      * @property first 첫 번째 자음
      * @property second 두 번째 자음
-     *
-     * @see DOUBLE_CODAS
      */
     data class DoubleCoda(val first: Char, val second: Char): Serializable
 
@@ -70,15 +116,16 @@ object Hangul: KLogging() {
     )
 
     /**
-     *  한글을 초성, 중성, 종성으로 분해합니다.
+     * 한글 음절을 초성/중성/종성으로 분해합니다.
      *
-     *  ```
-     *  val (onset, vowel, coda) = Hangul.decomposeHangul('한')  // ('ㅎ', 'ㅏ', 'ㄴ')
-     *  val (onset, vowel, coda) = Hangul.decomposeHangul('하')  // ('ㅎ', 'ㅏ', ' ')
-     *  ```
+     * ## 동작/계약
+     * - 자모 문자 입력은 허용하지 않으며 `assert` 실패 시 `AssertionError`가 발생한다(`-ea` 필요).
+     * - 유니코드 한글 음절 인덱스로 초성/중성/종성을 계산한다.
      *
-     *  @param c Korean Character
-     *  @return (onset:Char, vowel:Char, coda:Char)
+     * ```kotlin
+     * val hc = Hangul.decomposeHangul('하')
+     * // hc == Hangul.HangulChar('ㅎ', 'ㅏ', ' ')
+     * ```
      */
     fun decomposeHangul(c: Char): HangulChar {
         assert(!(ONSET_MAP.containsKey(c) || VOWEL_MAP.containsKey(c) || CODA_MAP.containsKey(c))) {
@@ -93,28 +140,29 @@ object Hangul: KLogging() {
     }
 
     /**
-     * 한글에 종성(받침)이 있는지 검사
+     * 한글 음절에 종성(받침)이 있는지 확인합니다.
      *
-     * ```
-     * Hangul.hasCoda('한')  // true
-     * Hangul.hasCoda('하')  // false
-     * ```
+     * ## 동작/계약
+     * - 유니코드 한글 음절 인덱스의 종성 영역 값으로 판정한다.
      *
-     * @param c 한글 문자
+     * ```kotlin
+     * val has = Hangul.hasCoda('한')
+     * // has == true
+     * ```
      */
     fun hasCoda(c: Char): Boolean = (c.code - HANGUL_BASE) % VOWEL_BASE > 0
 
     /**
-     * 초,중,종성의 char 로 한글을 조홥합니다.
+     * 초성/중성/종성으로 한글 음절을 조합합니다.
      *
-     * ```
-     * Hangul.composeHangul('ㅎ', 'ㅏ', 'ㄴ')  // '한'
-     * Hangul.composeHangul('ㄱ', 'ㅏ')  // '가'
-     * ```
+     * ## 동작/계약
+     * - 초성과 중성이 공백이면 `assert` 실패 시 `AssertionError`가 발생한다(`-ea` 필요).
+     * - 종성은 기본값 공백(`' '`)을 사용하면 받침 없는 음절을 생성한다.
      *
-     * @param onset 초성
-     * @param vowel 중성
-     * @param coda 종성
+     * ```kotlin
+     * val h = Hangul.composeHangul('ㅎ', 'ㅏ', 'ㄴ')
+     * // h == '한'
+     * ```
      */
     fun composeHangul(onset: Char, vowel: Char, coda: Char = ' '): Char {
         assert(onset != ' ' && vowel != ' ') { "Input characters are not valid" }
@@ -126,15 +174,15 @@ object Hangul: KLogging() {
     }
 
     /**
-     * [HangulChar] 의 초성, 중성, 종성으로 한글을 조합합니다.
+     * [HangulChar]를 한글 음절로 조합합니다.
      *
-     * ```
-     * val hc = HangulChar('ㅎ', 'ㅏ', 'ㄴ')
-     * Hangul.composeHangul(hc)  // '한'
-     * ```
+     * ## 동작/계약
+     * - `composeHangul(hc.onset, hc.vowel, hc.coda)` 호출을 그대로 위임한다.
      *
-     * @param hc [HangulChar] 인스턴스
-     * @return 조합된 한글 문자
+     * ```kotlin
+     * val c = Hangul.composeHangul(Hangul.HangulChar('ㄱ', 'ㅏ', ' '))
+     * // c == '가'
+     * ```
      */
     fun composeHangul(hc: HangulChar): Char =
         composeHangul(hc.onset, hc.vowel, hc.coda)

@@ -23,11 +23,17 @@ import kotlinx.coroutines.runBlocking
 import org.eclipse.collections.api.multimap.MutableMultimap
 
 /**
- * 한글 형태소 분석기입니다.
+ * 한국어 문장을 형태소 토큰 열로 분석하는 기본 토크나이저입니다.
  *
- * Chunk: 어절 - 공백으로 구분되어 있는 단위 (사랑하는사람을)
- * Word: 단어 - 하나의 문장 구성 요소 (사랑하는, 사람을)
- * Token: 토큰 - 형태소와 비슷한 단위이지만 문법적으로 정확하지는 않음 (사랑, 하는, 사람, 을)
+ * ## 동작/계약
+ * - 입력은 먼저 `KoreanChunker.chunk`로 청크 분할되고, `Korean` 품사 청크만 동적 계획법 파서를 적용한다.
+ * - 후보 분석 결과는 각 청크별로 최대 `topN`개를 반환하고, `KoreanSubstantive.collapseNouns`로 명사 연쇄를 보정한다.
+ * - 최종 `tokenize`는 `KoreanStemmer.stem`을 거쳐 용언 원형 정보를 채운다.
+ *
+ * ```kotlin
+ * val tokens = KoreanTokenizer.tokenize("엄청작아서귀엽다")
+ * // tokens == [엄청(Adverb), 작아서(Adjective, stem=작다), 귀엽다(Adjective, stem=귀엽다)]
+ * ```
  */
 object KoreanTokenizer: KLogging() {
 
@@ -81,45 +87,17 @@ object KoreanTokenizer: KLogging() {
     }
 
     /**
-     * 한글 문장을 형태소 분석하여 [KoreanToken]의 리스트로 반환합니다.
+     * 문장을 1-best 분석으로 형태소 분해하고 원형(stem)을 보정한 토큰 리스트를 반환합니다.
      *
-     * ```
-     * tokenize("엄청작아서귀엽다") shouldBeEqualTo listOf(
-     *     KoreanToken("엄청", Adverb, 0, 2),
-     *     KoreanToken("작아서", Adjective, 2, 3, stem = "작다"),
-     *     KoreanToken("귀엽다", Adjective, 5, 3, stem = "귀엽다")
-     * )
-     * ```
+     * ## 동작/계약
+     * - `tokenizeTopN(text, 1, profile)` 결과에서 각 청크의 첫 번째 후보만 사용한다.
+     * - 비한글 청크(`Space`, `Punctuation` 등)는 원래 청크 토큰을 그대로 유지한다.
+     * - `KoreanTokenizerTest` 기준으로 `"주말특가"`는 `[주말(Noun), 특가(Noun)]`로 분해된다.
      *
+     * ```kotlin
+     * val tokens = KoreanTokenizer.tokenize("야이건뭐")
+     * // tokens == [야(Exclamation), 이건(Noun), 뭐(Noun)]
      * ```
-     * tokenize("야이건뭐") shouldBeEqualTo listOf(
-     *     KoreanToken("야", Exclamation, 0, 1),
-     *     KoreanToken("이건", Noun, 1, 2),
-     *     KoreanToken("뭐", Noun, 3, 1)
-     * )
-     * ```
-     *
-     * ```
-     * tokenize("주말특가") shouldBeEqualTo listOf(
-     *     KoreanToken("주말", Noun, 0, 2),
-     *     KoreanToken("특가", Noun, 2, 2)
-     * )
-     * ```
-     *
-     * ```
-     * val text = """우리 동네사람들"""
-     * val tokens = tokenize(text)
-     * tokens shouldBeEqualTo listOf(
-     *     KoreanToken("우리", Noun, 0, 2),
-     *     KoreanToken(" ", Space, 2, 1),
-     *     KoreanToken("동네", Noun, 3, 2),
-     *     KoreanToken("사람", Noun, 5, 2),
-     *     KoreanToken("들", Suffix, 7, 1)
-     * )
-     * ```
-     *
-     * @param text 한글 문장
-     * @return 형태소 분석된 [KoreanToken] 리스트
      */
     fun tokenize(
         text: CharSequence,
@@ -132,11 +110,17 @@ object KoreanTokenizer: KLogging() {
     }
 
     /**
-     * 한글 문장을 [topN] 개수만큼 형태소 분석하여 [KoreanToken]의 리스트로 반환합니다.
+     * 문장을 청크별 상위 `topN` 후보 분석 결과로 반환합니다.
      *
-     * @param text 한글 문장
-     * @param topN 최대 분석 개수 (default: 1)
-     * @return 형태소 분석된 [KoreanToken] 리스트
+     * ## 동작/계약
+     * - 반환 타입은 `List<청크, List<후보, List<KoreanToken>>>` 구조다.
+     * - 파싱 중 예외가 발생하면 `TokenizerException("Error tokenizing a chunk: $text", cause)`로 감싸서 던진다.
+     * - `KoreanTokenizerTest`에서 사용자 사전 추가 전/후 결과가 달라지는 경로는 이 함수의 후보 생성 결과를 따른다.
+     *
+     * ```kotlin
+     * val top = KoreanTokenizer.tokenizeTopN("가느다란", topN = 1)
+     * // top.isNotEmpty() == true
+     * ```
      */
     fun tokenizeTopN(
         text: CharSequence,

@@ -19,32 +19,149 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 
 /**
- * 요즘 추세에 맞는 한국어 구(phrase)를 추출하는 클래스입니다.
+ * 명사 중심 규칙으로 한국어 phrase를 추출합니다.
  *
- * 1. Collapse sequence of POSes to phrase candidates (초 + 거대 + 기업 + 의 -> 초거대기업 + 의)
- * 2. Find suitable phrases
+ * ## 동작/계약
+ * - POS 시퀀스를 접은 뒤(`collapsePos`) 길이/품사 제약으로 후보를 걸러낸다.
+ * - 일반 phrase 추출기와 달리 해시태그 추가/스팸 필터 옵션 없이 명사구 추출에 집중한다.
+ * - `NounPhraseExtractorTest` 기준으로 숫자+단위 표현(`3400원`, `1,200.34원`)을 명사구로 인식한다.
+ *
+ * ```kotlin
+ * val phrases = NounPhraseExtractor.extractPhrases(KoreanProcessor.tokenizeForNoun("떡 만두국"))
+ * // phrases.joinToString(", ") == "떡(Noun: 0, 1), 만두국(Noun: 2, 3)"
+ * ```
  */
 object NounPhraseExtractor: KLogging() {
+    /**
+     * 공백 제외 구 길이의 최소 문자 수입니다.
+     *
+     * ## 동작/계약
+     * - 단일 구 후보의 최소 길이 조건으로 사용된다.
+     *
+     * ```kotlin
+     * val minChars = NounPhraseExtractor.MinCharsPerPhraseChunkWithoutSpaces
+     * // minChars == 2
+     * ```
+     */
     const val MinCharsPerPhraseChunkWithoutSpaces = 2
+    /**
+     * 공백 제외 구 길이 판정의 최소 phrase 개수입니다.
+     *
+     * ## 동작/계약
+     * - 구 길이 합이 짧아도 phrase 개수가 이 값 이상이면 통과한다.
+     *
+     * ```kotlin
+     * val minPhrases = NounPhraseExtractor.MinPhrasesPerPhraseChunk
+     * // minPhrases == 3
+     * ```
+     */
     const val MinPhrasesPerPhraseChunk = 3
+    /**
+     * 공백 제외 구 길이의 최대 문자 수입니다.
+     *
+     * ## 동작/계약
+     * - 후보 구 전체 문자 합이 이 값을 넘으면 제외된다.
+     *
+     * ```kotlin
+     * val maxChars = NounPhraseExtractor.MaxCharsPerPhraseChunkWithoutSpaces
+     * // maxChars == 30
+     * ```
+     */
     const val MaxCharsPerPhraseChunkWithoutSpaces = 30
+    /**
+     * 공백 제외 구 길이의 최대 phrase 개수입니다.
+     *
+     * ## 동작/계약
+     * - 후보 구 내 phrase 수가 이 값을 넘으면 제외된다.
+     *
+     * ```kotlin
+     * val maxPhrases = NounPhraseExtractor.MaxPhrasesPerPhraseChunk
+     * // maxPhrases == 3
+     * ```
+     */
     const val MaxPhrasesPerPhraseChunk = 3
 
+    /**
+     * 관형형 용언 판정에 사용하는 종성 집합입니다.
+     *
+     * ## 동작/계약
+     * - 마지막 글자 종성이 이 집합이면 비명사 연결 후보로 취급한다.
+     *
+     * ```kotlin
+     * val contains = 'ㄹ' in NounPhraseExtractor.ModifyingPredicateEndings
+     * // contains == true
+     * ```
+     */
     @JvmField
     val ModifyingPredicateEndings = setOf('ㄹ', 'ㄴ')
 
+    /**
+     * 관형형 용언 판정에서 제외하는 예외 문자 집합입니다.
+     *
+     * ## 동작/계약
+     * - 마지막 글자가 이 집합이면 비명사 연결 후보에서 제외한다.
+     *
+     * ```kotlin
+     * val excluded = '만' in NounPhraseExtractor.ModifyingPredicateExceptions
+     * // excluded == true
+     * ```
+     */
     @JvmField
     val ModifyingPredicateExceptions = setOf('만')
 
+    /**
+     * phrase 결합을 유지할 명사 계열 품사 집합입니다.
+     *
+     * ## 동작/계약
+     * - `collapsePhrases`에서 이 집합에 속하면 버퍼를 이어 붙인다.
+     *
+     * ```kotlin
+     * val joinable = NounPhraseExtractor.PhraseTokens.contains(Noun)
+     * // joinable == true
+     * ```
+     */
     @JvmField
     val PhraseTokens = setOf(Noun, ProperNoun)
 
+    /**
+     * 연결 조사로 취급하는 문자열 집합입니다.
+     *
+     * ## 동작/계약
+     * - 현재 구현에서는 집합 정의만 존재하며 후보 필터에서 직접 사용하지 않는다.
+     *
+     * ```kotlin
+     * val hasWa = "와" in NounPhraseExtractor.ConjunctionJosa
+     * // hasWa == true
+     * ```
+     */
     @JvmField
     val ConjunctionJosa = hashSetOf("와", "과", "의")
 
+    /**
+     * 구 시작 위치에 허용하는 품사 집합입니다.
+     *
+     * ## 동작/계약
+     * - `trimNonNouns`에서 앞부분 제거 기준으로 사용한다.
+     *
+     * ```kotlin
+     * val allowed = NounPhraseExtractor.PhraseHeadPoses.contains(Adjective)
+     * // allowed == true
+     * ```
+     */
     @JvmField
     val PhraseHeadPoses = setOf(Adjective, Noun, ProperNoun, Alpha, Number)
 
+    /**
+     * 구 끝 위치에 허용하는 품사 집합입니다.
+     *
+     * ## 동작/계약
+     * - `trimNonNouns`에서 뒷부분 제거 기준으로 사용한다.
+     *
+     * ```kotlin
+     * val allowed = NounPhraseExtractor.PhraseTailPoses.contains(Noun)
+     * // allowed == true
+     * ```
+     */
     @JvmField
     val PhraseTailPoses = setOf(Noun, ProperNoun, Alpha, Number)
 
@@ -175,6 +292,21 @@ object NounPhraseExtractor: KLogging() {
         return isRightLength() && notEndingInNonPhrasesSuffix()
     }
 
+    /**
+     * 토큰 POS 시퀀스를 명사 중심 phrase 시퀀스로 접습니다.
+     *
+     * ## 동작/계약
+     * - 규칙 트라이와 현재 상태를 이용해 phrase 확장/재시작을 결정한다.
+     * - `NounPhraseExtractorTest` 기준으로 `Modifier + Noun`은 하나의 `Noun` phrase로 병합된다.
+     * - 규칙에 맞지 않는 토큰은 단일 phrase로 유지된다.
+     *
+     * ```kotlin
+     * val collapsed = NounPhraseExtractor.collapsePos(
+     *     listOf(KoreanToken("m", Modifier, 0, 1), KoreanToken("N", Noun, 1, 1))
+     * )
+     * // collapsed.first().text == "mN"
+     * ```
+     */
     fun collapsePos(tokens: Collection<KoreanToken>): List<KoreanPhrase> {
 
         fun getTries(token: KoreanToken, trie: List<KoreanPosTrie?>): Pair<KoreanPosTrie?, List<KoreanPosTrie?>> {
@@ -347,10 +479,17 @@ object NounPhraseExtractor: KLogging() {
     }
 
     /**
-     * Find suitable phrases
+     * 명사 중심 후보를 계산해 최종 phrase 목록을 반환합니다.
      *
-     * @param tokens A sequence of tokens
-     * @return A list of KoreanPhrase
+     * ## 동작/계약
+     * - `collapsePos -> getCandidatePhraseChunks -> permutateCandidates` 순서로 처리한다.
+     * - `NounPhraseExtractorTest` 기준으로 `"떡 만두국"` 입력에서 `"떡"`, `"만두국"`을 반환한다.
+     * - 최종 phrase는 `trimPhraseChunk`를 거쳐 앞뒤 공백 토큰이 제거된다.
+     *
+     * ```kotlin
+     * val phrases = NounPhraseExtractor.extractPhrases(KoreanProcessor.tokenizeForNoun("짜장면 3400원."))
+     * // phrases.map { it.text }.contains("3400원") == true
+     * ```
      */
     fun extractPhrases(tokens: Collection<KoreanToken>): List<KoreanPhrase> {
 

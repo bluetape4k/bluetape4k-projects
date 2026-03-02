@@ -15,14 +15,17 @@ import io.bluetape4k.tokenizer.korean.utils.KoreanPosx
 import io.bluetape4k.tokenizer.korean.utils.KoreanSubstantive
 
 /**
- * 한글 형태소 분석 중 명사만을 추출하는 토크나이저
+ * 명사 중심 규칙으로 한국어 문장을 분석하는 토크나이저입니다.
  *
- * Chunk: 어절 - 공백으로 구분되어 있는 단위 (사랑하는사람을)
- * Word: 단어 - 하나의 문장 구성 요소 (사랑하는, 사람을)
- * Token: 토큰 - 형태소와 비슷한 단위이지만 문법적으로 정확하지는 않음 (사랑, 하는, 사람, 을)
+ * ## 동작/계약
+ * - 품사 규칙을 `Noun`과 `Conjunction` 위주로 제한해 일반 토크나이저보다 명사 분해를 우선한다.
+ * - 비한글 청크는 그대로 유지하고, 한글 청크만 내부 파서를 적용한다.
+ * - 최종 결과는 `KoreanStemmer.stem`을 통과하므로 용언이 포함된 경우 `stem` 정보가 채워질 수 있다.
  *
- * Whenever there is an updates in the behavior of KoreanParser,
- * the initial cache has to be updated by running tools.CreateInitialCache.
+ * ```kotlin
+ * val tokens = NounTokenizer.tokenize("성탄절 쇼핑")
+ * // tokens.map { it.text } == ["성탄절", " ", "쇼핑"]
+ * ```
  */
 object NounTokenizer: KLogging() {
 
@@ -76,13 +79,31 @@ object NounTokenizer: KLogging() {
         "C1" to Conjunction
     )
 
+    /**
+     * 명사 중심 품사 시퀀스 규칙을 트라이로 구성한 파서 상태 집합입니다.
+     *
+     * ## 동작/계약
+     * - `SequenceDefinition`을 기반으로 lazy 초기화된다.
+     * - 내부 동적 계획법 후보 확장에서 현재 상태 전이에 사용된다.
+     *
+     * ```kotlin
+     * val trie = NounTokenizer.koreanPosTrie
+     * // trie.isNotEmpty() == true
+     * ```
+     */
     val koreanPosTrie by lazy { KoreanPosx.getTrie(SequenceDefinition) }
 
     /**
-     * Parse Korean text into a sequence of KoreanTokens with custom parameters
+     * 문장을 1-best 명사 중심 토큰 리스트로 분석합니다.
      *
-     * @param text Input Korean chunk
-     * @return sequence of KoreanTokens
+     * ## 동작/계약
+     * - `tokenizeTopN(text, 1, profile)`의 첫 후보를 사용한다.
+     * - `KoreanTokenizerTest`와 `NounPhraseExtractorTest` 경로에서 명사구 추출 입력으로 사용된다.
+     *
+     * ```kotlin
+     * val tokens = NounTokenizer.tokenize("떡 만두국")
+     * // tokens.isNotEmpty() == true
+     * ```
      */
     fun tokenize(
         text: CharSequence,
@@ -95,11 +116,17 @@ object NounTokenizer: KLogging() {
     }
 
     /**
-     * Parse Korean text into a sequence of KoreanTokens with custom parameters
+     * 문장을 청크별 상위 `topN` 명사 중심 후보로 분석합니다.
      *
-     * @param text Input Korean chunk
-     * @param topN number of top candidates
-     * @return sequence of KoreanTokens
+     * ## 동작/계약
+     * - 반환 구조는 `List<청크, List<후보, List<KoreanToken>>>`이며 각 후보는 점수순으로 정렬된다.
+     * - 후보가 비어 있으면 `unknown=true`인 `Noun` 단일 토큰 후보를 생성한다.
+     * - 분석 중 예외는 `TokenizerException("Error tokenizing a chunk: $text", cause)`로 변환된다.
+     *
+     * ```kotlin
+     * val top = NounTokenizer.tokenizeTopN("허니버터칩", topN = 1)
+     * // top.size >= 1
+     * ```
      */
     fun tokenizeTopN(
         text: CharSequence,

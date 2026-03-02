@@ -5,16 +5,21 @@ import io.bluetape4k.tokenizer.korean.utils.KoreanPosTrie
 import java.io.Serializable
 
 /**
- * 형태소 분석의 후보 해석을 나타내는 데이터 클래스입니다.
+ * 동적 계획법 기반 형태소 분석의 후보 상태를 표현합니다.
  *
- * Dynamic Programming을 사용한 형태소 분석 과정에서 중간 상태를 저장하는 데 사용됩니다.
+ * ## 동작/계약
+ * - `parse`는 현재까지 누적 점수를 포함한 분석 결과를 담는다.
+ * - `curTrie`는 다음 토큰 확장에서 사용할 품사 전이 노드 목록이다.
+ * - `ending`이 null이 아니면 어미 종결 상태에서의 추가 전이를 허용한다.
  *
- * @property parse 현재까지 분석된 [ParsedChunk]
- * @property curTrie 현재 위치한 품사 트라이 노드 목록
- * @property ending 현재 위치가 어미(ending)인 경우의 품사, 아니면 null
+ * ```kotlin
+ * val candidate = CandidateParse(ParsedChunk(emptyList(), 0), emptyList(), null)
+ * // candidate.ending == null
+ * ```
  *
- * @see KoreanTokenizer
- * @see KoreanPosTrie
+ * @property parse 현재까지 누적된 파싱 결과
+ * @property curTrie 현재 트라이 상태 목록
+ * @property ending 현재 종결 품사
  */
 data class CandidateParse(
     val parse: ParsedChunk,

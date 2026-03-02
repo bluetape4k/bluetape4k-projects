@@ -25,14 +25,33 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 /**
- * 한글 문장을 어절(chunk)로 분리하는 유틸리티 클래스입니다.
+ * 입력 문자열을 품사 패턴에 따라 `KoreanToken` 청크로 분리합니다.
  *
- * ```
- * KoreanChunker.getChunks("안녕? iphone6안녕? 세상아?")  // ["안녕", "?", " ", "iphone", "6", "안녕", "?", " ", "세상아", "?"]
+ * ## 동작/계약
+ * - URL/Email/해시태그/숫자/한글 순서로 패턴을 적용해 겹치지 않는 매치를 선택한다.
+ * - 패턴으로 매치되지 않은 구간은 `Foreign` 품사로 채운다.
+ * - 공백은 연속 구간 단위로 유지되며 `Space` 품사를 갖는다.
+ *
+ * ```kotlin
+ * val chunks = KoreanChunker.getChunks("안녕? iphone6안녕? 세상아?")
+ * // chunks == ["안녕", "?", " ", "iphone", "6", "안녕", "?", " ", "세상아", "?"]
  * ```
  */
 object KoreanChunker: KLogging() {
 
+    /**
+     * 청킹에 사용하는 품사별 정규식/패턴 맵입니다.
+     *
+     * ## 동작/계약
+     * - `findAllPatterns`와 `splitChunks`에서 동일한 패턴 소스를 참조한다.
+     * - `KoreanChunkerTest`의 URL/Email/Hashtag/Number 추출 케이스를 통과하는 패턴 집합이다.
+     *
+     * ```kotlin
+     * val matcher = KoreanChunker.POS_PATTERNS[KoreanPos.URL]!!.matcher("https://openkoreantext.org")
+     * val found = matcher.find()
+     * // found == true
+     * ```
+     */
     val POS_PATTERNS: Map<KoreanPos, Pattern> = mapOf(
         Korean to """([가-힣]+)""".toRegex().toPattern(),
         Alpha to """(\p{Alpha}+)""".toRegex().toPattern(),
@@ -63,27 +82,67 @@ object KoreanChunker: KLogging() {
     )
 
     /**
-     * [input] 문자열을 어절(chunk)로 분리합니다.
+     * 문자열을 청크 텍스트 리스트로 반환합니다.
      *
-     * ```
-     * getChunks("안녕? iphone6안녕? 세상아?")  // ["안녕", "?", " ", "iphone", "6", "안녕", "?", " ", "세상아", "?"]
+     * ## 동작/계약
+     * - 내부적으로 `chunk(input)`을 호출한 뒤 토큰 `text`만 추출한다.
+     * - `keepSpace=false`이면 각 청크 문자열에 `trim()`을 적용한다.
+     * - `KoreanChunkerTest` 기준으로 `"안녕? iphone6안녕? 세상아?"`를 10개 청크로 분리한다.
      *
-     * getChunks("#해쉬태그 이라는 것 #hash @hello 123 이런이런 #여자최애캐_5명으로_취향을_드러내자")
-     * // ["#해쉬태그", " ", "이라는", " ", "것", " ", "#hash", " ", "@hello", " ", "123", " ", "이런이런", " ", "#여자최애캐_5명으로_취향을_드러내자"]
+     * ```kotlin
+     * val chunks = KoreanChunker.getChunks("안녕? iphone6안녕? 세상아?")
+     * // chunks == ["안녕", "?", " ", "iphone", "6", "안녕", "?", " ", "세상아", "?"]
      * ```
      */
     fun getChunks(input: String, keepSpace: Boolean = true): List<String> {
         return chunk(input).map { if (keepSpace) it.text else it.text.trim() }
     }
 
+    /**
+     * 패턴 매치 구간과 품사를 함께 보관하는 청크 매치 정보입니다.
+     *
+     * ## 동작/계약
+     * - `range`는 `start..end`를 그대로 노출한다.
+     * - `disjoint`는 두 매치의 겹침 여부를 시작/끝 인덱스로 판별한다.
+     *
+     * ```kotlin
+     * val left = KoreanChunker.ChunkMatch(0, 2, "안녕", KoreanPos.Korean)
+     * val right = KoreanChunker.ChunkMatch(2, 3, "?", KoreanPos.Punctuation)
+     * // left.disjoint(right) == true
+     * ```
+     */
     data class ChunkMatch(
         val start: Int,
         val end: Int,
         val text: String,
         val pos: KoreanPos,
     ) {
+        /**
+         * 매치 시작/끝을 포함하는 인덱스 범위입니다.
+         *
+         * ## 동작/계약
+         * - 생성자에 전달한 `start`, `end`를 그대로 사용해 계산한다.
+         *
+         * ```kotlin
+         * val range = KoreanChunker.ChunkMatch(3, 5, "abc", KoreanPos.Alpha).range
+         * // range == 3..5
+         * ```
+         */
         val range: IntRange = start..end
 
+        /**
+         * 두 매치가 서로 겹치지 않는지 확인합니다.
+         *
+         * ## 동작/계약
+         * - 현재 매치의 앞에서 끝나거나, 현재 매치 뒤에서 시작하면 `true`를 반환한다.
+         * - 경계가 맞닿는 경우는 겹치지 않는 것으로 본다.
+         *
+         * ```kotlin
+         * val a = KoreanChunker.ChunkMatch(0, 2, "ab", KoreanPos.Alpha)
+         * val b = KoreanChunker.ChunkMatch(2, 3, "c", KoreanPos.Alpha)
+         * // a.disjoint(b) == true
+         * ```
+         */
         fun disjoint(that: ChunkMatch): Boolean {
             return (that.start < this.start && that.end <= this.start) ||
                     (that.start >= this.end && that.end > this.end)
@@ -109,33 +168,18 @@ object KoreanChunker: KLogging() {
     }
 
     /**
-     * Recursively call m.find() to find all the matches.
-     * 모든 매치가 찾아질 때까지 `m.find()` 를 재귀적으로 호출합니다.
-     * `tail-recursion` 최적화를 사용하여 stack overflow를 피합니다.
+     * 주어진 `Matcher`에서 모든 매치를 역순 누적 후 원래 순서로 반환합니다.
      *
-     * URL 추출
-     * ```
-     * var actual = findAllPatterns(
-     *      getPatternMatcher(URL, "스팀(http://store.steampowered.com)에서 드디어 여름세일을 시작합니다."),
-     *      URL
-     * )  // [ChunkMatch(2, 32, "(http://store.steampowered.com", URL)]
-     * ```
+     * ## 동작/계약
+     * - `tailrec`으로 구현되어 각 매치를 `matches`의 앞에 삽입한다.
+     * - `Matcher.find()`가 더 이상 성공하지 않으면 누적 리스트를 반환한다.
+     * - `KoreanChunkerTest` 기준으로 URL/Hashtag 다중 매치를 모두 수집한다.
      *
-     * HASH_TAG 찾기
+     * ```kotlin
+     * val matcher = KoreanChunker.POS_PATTERNS[KoreanPos.Email]!!.matcher("문의: a@b.com")
+     * val matches = KoreanChunker.findAllPatterns(matcher, KoreanPos.Email)
+     * // matches.first().text == "a@b.com"
      * ```
-     * actual = findAllPatterns(getPatternMatcher(Hashtag, "구글에는 정말로 이쁜 자전거가 있다. #Google #이쁜자전거 #갖고싶다"), Hashtag)
-     * actual shouldBeEqualTo listOf(
-     *     ChunkMatch(start = 35, end = 41, text = " #갖고싶다", pos = Hashtag),
-     *     ChunkMatch(start = 28, end = 35, text = " #이쁜자전거", pos = Hashtag),
-     *     ChunkMatch(start = 20, end = 28, text = " #Google", pos = Hashtag)
-     * )
-     * ```
-     *
-     *
-     * @param m input Matcher
-     * @param pos KoreanPos to attach
-     * @param matches ouput list of ChunkMatch
-     * @return list of ChunkMatches
      */
     tailrec fun findAllPatterns(
         m: Matcher,
@@ -218,32 +262,33 @@ object KoreanChunker: KLogging() {
     }
 
     /**
-     * Get chunks by given pos.
+     * 분리된 청크 중 지정 품사에 해당하는 토큰만 반환합니다.
      *
-     * @param input input string
-     * @param pos one of supported KoreanPos's: URL, Email, ScreenName, Hashtag,
-     *            CashTag, Korean, KoreanParticle, Number, Alpha, Punctuation
-     * @return sequence of Korean chunk strings
+     * ## 동작/계약
+     * - 내부적으로 `chunk(input)` 결과에서 `it.pos == pos`만 필터링한다.
+     * - `KoreanChunkerTest` 기준으로 URL/Email/Hashtag/CashTag 추출을 지원한다.
+     *
+     * ```kotlin
+     * val urls = KoreanChunker.getChunksByPos("openkoreantext.org에서 확인", KoreanPos.URL)
+     * // urls.map { it.text } == ["openkoreantext.org"]
+     * ```
      */
     fun getChunksByPos(input: String, pos: KoreanPos): List<KoreanToken> {
         return chunk(input).filter { it.pos == pos }
     }
 
     /**
-     * Split input text into a sequnce of KoreanToken. A candidate for Korean parser
-     * gets tagged with KoreanPos.Korean.
+     * 입력 문자열을 청크 단위 `KoreanToken` 목록으로 분할합니다.
      *
-     * ```
-     * chunk("중·고등학교에서…") shouldBeEqualTo listOf(
-     *     KoreanToken("중", Korean, 0, 1),
-     *     KoreanToken("·", Punctuation, 1, 1),
-     *     KoreanToken("고등학교에서", Korean, 2, 6),
-     *     KoreanToken("…", Punctuation, 8, 1)
-     * )
-     * ```
+     * ## 동작/계약
+     * - 공백 보존 분할 후 각 세그먼트를 `splitChunks`로 분석해 순서대로 `KoreanToken`을 만든다.
+     * - 토큰 offset은 원문에서 `indexOf(m.text, i)`로 계산해 누적 위치를 갱신한다.
+     * - `KoreanChunkerTest` 기준으로 `"중·고등학교에서…"`를 `[중, ·, 고등학교에서, …]` 4개 토큰으로 반환한다.
      *
-     * @param input input string
-     * @return sequence of KoreanTokens
+     * ```kotlin
+     * val tokens = KoreanChunker.chunk("중·고등학교에서…")
+     * // tokens.map { it.text } == ["중", "·", "고등학교에서", "…"]
+     * ```
      */
     fun chunk(input: CharSequence): List<KoreanToken> {
         val s = input.toString()

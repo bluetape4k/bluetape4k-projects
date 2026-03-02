@@ -5,11 +5,21 @@ import io.bluetape4k.tokenizer.korean.utils.KoreanPosTrie
 import java.io.Serializable
 
 /**
- * 한국어 구(phrase)를 나타내는 데이터 클래스입니다.
+ * phrase 접기 과정의 중간 상태를 저장하는 버퍼입니다.
  *
- * @property phrases 구를 구성하는 한국어 구(phrase) 리스트
- * @property curTrie [KoreanPosTrie] 리스트
- * @property ending 구(phrase)의 끝 품사
+ * ## 동작/계약
+ * - `phrases`는 현재까지 생성된 phrase 시퀀스를 유지한다.
+ * - `curTrie`는 다음 토큰에서 가능한 품사 전이 상태를 보관한다.
+ * - `ending`은 현재 시점에서 확정 가능한 끝 품사를 기록한다.
+ *
+ * ```kotlin
+ * val buffer = PhraseBuffer(emptyList(), emptyList(), null)
+ * // buffer.ending == null
+ * ```
+ *
+ * @property phrases 현재까지 누적된 phrase 목록
+ * @property curTrie 현재 트라이 상태 목록
+ * @property ending 현재 종결 품사 후보
  */
 data class PhraseBuffer(
     val phrases: List<KoreanPhrase>,

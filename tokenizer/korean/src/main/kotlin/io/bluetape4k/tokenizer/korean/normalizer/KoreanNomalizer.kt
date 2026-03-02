@@ -14,42 +14,16 @@ import io.bluetape4k.tokenizer.korean.utils.koreanContains
 import java.util.regex.Matcher
 
 /**
- * 한글 구어체의 의미 없는 글자들을 맞춤법에 맞게 정규화 합니다.
+ * 구어체 반복 문자/오타/받침 변형을 표준 형태에 가깝게 정규화합니다.
  *
- * ```
- * val expected = "안돼ㅋㅋㅋ내 심장을 가격했어ㅋㅋㅋ"
- * val actual = normalize("안됔ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ내 심장을 가격했엌ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ")
- * actual shouldBeEqualTo expected
+ * ## 동작/계약
+ * - 한글 구간만 추출해 어미 반복 축약, 반복 문자열 축약, 받침 `ㄴ` 보정, 오타 교정을 순차 적용한다.
+ * - 비한글 구간과 공백은 원문 위치를 유지한 채 보존한다.
+ * - 사전 검증은 `KoreanDictionaryProvider.typoDictionaryByLength`와 품사 사전을 사용한다.
  *
- * normalize("무의식중에 손들어버려섴ㅋㅋㅋㅋ") shouldBeEqualTo "무의식중에 손들어버려서ㅋㅋㅋ"
- * normalize("기억도 나지아낳ㅎㅎㅎ") shouldBeEqualTo "기억도 나지아나ㅎㅎㅎ"
- * normalize("근데비싸서못머구뮤ㅠㅠ") shouldBeEqualTo "근데비싸서못먹음ㅠㅠ"
- *
- * normalize("미친 존잘니뮤ㅠㅠㅠㅠ") shouldBeEqualTo "미친 존잘님ㅠㅠㅠ"
- * normalize("만나무ㅜㅜㅠ") shouldBeEqualTo "만남ㅜㅜㅠ"
- * normalize("가루ㅜㅜㅜㅜ") shouldBeEqualTo "가루ㅜㅜㅜ"
- *
- * normalize("유성우ㅠㅠㅠ") shouldBeEqualTo "유성우ㅠㅠㅠ"
- *
- * normalize("예뿌ㅠㅠ") shouldBeEqualTo "예뻐ㅠㅠ"
- * normalize("고수야고수ㅠㅠㅠ") shouldBeEqualTo "고수야고수ㅠㅠㅠ"
- *
- * normalize("안돼ㅋㅋㅋㅋㅋ") shouldBeEqualTo "안돼ㅋㅋㅋ"
- * ```
- *
- * ```
- * normalize("사브작사브작사브작사브작사브작사브작사브작사브작") shouldBeEqualTo "사브작사브작"
- * normalize("ㅋㅋㅎㅋㅋㅎㅋㅋㅎㅋㅋㅎㅋㅋㅎㅋㅋㅎ") shouldBeEqualTo "ㅋㅋㅎㅋㅋㅎ"
- * ```
- *
- * ```
- * normalize("가쟝 용기있는 사람이 머굼 되는거즤") shouldBeEqualTo "가장 용기있는 사람이 먹음 되는거지"
- * ```
- *
- * ```
- * normalizeCodaN("버슨가") shouldBeEqualTo "버스인가"
- * normalizeCodaN("보슨지") shouldBeEqualTo "보스인지"
- * normalizeCodaN("쵸킨데") shouldBeEqualTo "쵸킨데"
+ * ```kotlin
+ * val normalized = KoreanNormalizer.normalize("안됔ㅋㅋㅋㅋ")
+ * // normalized == "안돼ㅋㅋㅋ"
  * ```
  */
 object KoreanNormalizer: KLogging() {
@@ -68,46 +42,16 @@ object KoreanNormalizer: KLogging() {
     private data class Segment(val text: String, val matchData: MatchResult?)
 
     /**
-     * 한글 구어체를 맞춤법에 맞게 정규화합니다.
+     * 입력 문자열 전체를 정규화해 반환합니다.
      *
+     * ## 동작/계약
+     * - 공백 입력이면 입력을 그대로 반환한다.
+     * - 한글 매치 구간마다 `normalizeKoreanChunk`를 적용하고 나머지 구간은 원문 그대로 결합한다.
+     *
+     * ```kotlin
+     * val out = KoreanNormalizer.normalize("가쟝 용기있는 사람이 머굼 되는거즤")
+     * // out == "가장 용기있는 사람이 먹음 되는거지"
      * ```
-     * val expected = "안돼ㅋㅋㅋ내 심장을 가격했어ㅋㅋㅋ"
-     * val actual = normalize("안됔ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ내 심장을 가격했엌ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ")
-     * actual shouldBeEqualTo expected
-     *
-     * normalize("무의식중에 손들어버려섴ㅋㅋㅋㅋ") shouldBeEqualTo "무의식중에 손들어버려서ㅋㅋㅋ"
-     * normalize("기억도 나지아낳ㅎㅎㅎ") shouldBeEqualTo "기억도 나지아나ㅎㅎㅎ"
-     * normalize("근데비싸서못머구뮤ㅠㅠ") shouldBeEqualTo "근데비싸서못먹음ㅠㅠ"
-     *
-     * normalize("미친 존잘니뮤ㅠㅠㅠㅠ") shouldBeEqualTo "미친 존잘님ㅠㅠㅠ"
-     * normalize("만나무ㅜㅜㅠ") shouldBeEqualTo "만남ㅜㅜㅠ"
-     * normalize("가루ㅜㅜㅜㅜ") shouldBeEqualTo "가루ㅜㅜㅜ"
-     *
-     * normalize("유성우ㅠㅠㅠ") shouldBeEqualTo "유성우ㅠㅠㅠ"
-     *
-     * normalize("예뿌ㅠㅠ") shouldBeEqualTo "예뻐ㅠㅠ"
-     * normalize("고수야고수ㅠㅠㅠ") shouldBeEqualTo "고수야고수ㅠㅠㅠ"
-     *
-     * normalize("안돼ㅋㅋㅋㅋㅋ") shouldBeEqualTo "안돼ㅋㅋㅋ"
-     * ```
-     *
-     * ```
-     * normalize("사브작사브작사브작사브작사브작사브작사브작사브작") shouldBeEqualTo "사브작사브작"
-     * normalize("ㅋㅋㅎㅋㅋㅎㅋㅋㅎㅋㅋㅎㅋㅋㅎㅋㅋㅎ") shouldBeEqualTo "ㅋㅋㅎㅋㅋㅎ"
-     * ```
-     *
-     * ```
-     * normalize("가쟝 용기있는 사람이 머굼 되는거즤") shouldBeEqualTo "가장 용기있는 사람이 먹음 되는거지"
-     * ```
-     *
-     * ```
-     * normalizeCodaN("버슨가") shouldBeEqualTo "버스인가"
-     * normalizeCodaN("보슨지") shouldBeEqualTo "보스인지"
-     * normalizeCodaN("쵸킨데") shouldBeEqualTo "쵸킨데"
-     * ```
-     *
-     * @param input 입력 문자열
-     * @return 정규화된 문자열
      */
     fun normalize(input: CharSequence): CharSequence {
         if (input.isBlank()) return input
@@ -162,6 +106,18 @@ object KoreanNormalizer: KLogging() {
         return WHITESPACE_REGEX.replace(typoCorrected, " ")
     }
 
+    /**
+     * 오타 사전 기반으로 청크를 교정합니다.
+     *
+     * ## 동작/계약
+     * - 길이별 오타 사전이 없으면 입력을 그대로 반환한다.
+     * - 등록된 `(wrong, corrected)` 항목을 순차 치환한다.
+     *
+     * ```kotlin
+     * val fixed = KoreanNormalizer.correctTypo("가쟝")
+     * // fixed == "가장"
+     * ```
+     */
     fun correctTypo(chunk: CharSequence): CharSequence {
         var output = chunk.toString()
 
@@ -179,6 +135,19 @@ object KoreanNormalizer: KLogging() {
         return output
     }
 
+    /**
+     * 종성 `ㄴ` 탈락 형태(예: 버슨가)를 보정합니다.
+     *
+     * ## 동작/계약
+     * - 입력 길이가 2 미만이면 원문을 반환한다.
+     * - 마지막 두 글자 패턴과 품사 사전 검증을 통과하면 `ㄴ`을 보정해 반환한다.
+     * - 예외 문자/품사 조건에 맞지 않으면 입력을 그대로 유지한다.
+     *
+     * ```kotlin
+     * val corrected = KoreanNormalizer.normalizeCodaN("버슨가")
+     * // corrected == "버스인가"
+     * ```
+     */
     fun normalizeCodaN(chunk: CharSequence): CharSequence {
         if (chunk.length < 2)
             return chunk
