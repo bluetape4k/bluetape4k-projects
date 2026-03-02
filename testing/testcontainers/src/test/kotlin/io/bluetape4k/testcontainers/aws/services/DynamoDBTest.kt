@@ -5,7 +5,10 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.AbstractContainerTest
 import io.bluetape4k.testcontainers.aws.LocalStackServer
 import io.bluetape4k.utils.ShutdownQueue
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
+import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
@@ -24,6 +27,8 @@ import software.amazon.awssdk.services.dynamodb.model.CreateTableRequest
 import software.amazon.awssdk.services.dynamodb.model.KeySchemaElement
 import software.amazon.awssdk.services.dynamodb.model.KeyType
 import software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughput
+import software.amazon.awssdk.services.dynamodb.model.AttributeAction
+import software.amazon.awssdk.services.dynamodb.model.AttributeValueUpdate
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest
 import software.amazon.awssdk.services.dynamodb.model.ScalarAttributeType
 import software.amazon.awssdk.services.dynamodb.model.ScanRequest
@@ -102,5 +107,56 @@ class DynamoDBTest: AbstractContainerTest() {
         val scanResponse = client.scan(ScanRequest.builder().tableName(TABLE_NAME).build())
         scanResponse.shouldNotBeNull()
         scanResponse.count() shouldBeGreaterOrEqualTo 1
+    }
+
+    @Test
+    @Order(2)
+    fun `get item`() {
+        val key = mutableMapOf(
+            "id" to AttributeValue.builder().s("1").build()
+        )
+        val response = client.getItem { it.tableName(TABLE_NAME).key(key) }
+        response.shouldNotBeNull()
+        response.hasItem().shouldBeTrue()
+        log.debug { "Item: ${response.item()}" }
+        response.item()["name"]?.s() shouldBeEqualTo "debop"
+    }
+
+    @Test
+    @Order(3)
+    fun `update item`() {
+        val key = mutableMapOf(
+            "id" to AttributeValue.builder().s("1").build()
+        )
+        val updates = mutableMapOf(
+            "age" to AttributeValueUpdate.builder()
+                .value(AttributeValue.builder().n("52").build())
+                .action(AttributeAction.PUT)
+                .build()
+        )
+        val response = client.updateItem {
+            it.tableName(TABLE_NAME).key(key).attributeUpdates(updates)
+        }
+        log.debug { "UpdateItem HTTP status: ${response.sdkHttpResponse().statusCode()}" }
+        response.sdkHttpResponse().isSuccessful.shouldBeTrue()
+    }
+
+    @Test
+    @Order(4)
+    fun `delete item`() {
+        val key = mutableMapOf(
+            "id" to AttributeValue.builder().s("1").build()
+        )
+        val response = client.deleteItem { it.tableName(TABLE_NAME).key(key) }
+        log.debug { "DeleteItem HTTP status: ${response.sdkHttpResponse().statusCode()}" }
+        response.sdkHttpResponse().isSuccessful.shouldBeTrue()
+    }
+
+    @Test
+    @Order(5)
+    fun `list tables`() {
+        val response = client.listTables()
+        log.debug { "Tables: ${response.tableNames()}" }
+        response.tableNames() shouldContain TABLE_NAME
     }
 }
