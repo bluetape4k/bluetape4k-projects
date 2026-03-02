@@ -9,48 +9,52 @@ import org.jetbrains.exposed.v1.core.QueryBuilder
 import org.jetbrains.exposed.v1.core.resolveColumnType
 import org.jetbrains.exposed.v1.core.vendors.currentDialect
 
-// Function Classes
-
 /**
- * 특정 [path]의 JSON 표현 또는 scalar 값인 JSON 객체에서 추출된 데이터를 반환하는 SQL 함수를 나타냅니다.
+ * JSON 경로에서 값을 추출하는 SQL 함수 표현식입니다.
+ *
+ * ## 동작/계약
+ * - SQL 생성은 Dialect의 `jsonExtract(...)` 구현으로 위임됩니다.
+ * - [toScalar]가 `true`이면 scalar/text 추출 모드, `false`이면 JSON 객체 추출 모드로 렌더링됩니다.
+ * - [path]는 가변 인자로 전달되며, 벤더별로 다중 경로 지원 여부가 다를 수 있습니다.
+ *
+ * ```kotlin
+ * val fn = Extract<String>(expr, "$.name", toScalar = true, jsonType = expr.columnType, columnType = textType)
+ * // fn is org.jetbrains.exposed.v1.core.Function<String>
+ * ```
+ *
+ * @param expression 추출 대상 JSON 표현식입니다.
+ * @param path 추출 경로 목록입니다.
+ * @param toScalar scalar/text 추출 여부입니다.
+ * @param jsonType JSON 캐스트에 사용할 원본 컬럼 타입입니다.
+ * @param columnType 추출 결과의 Exposed 컬럼 타입입니다.
  */
 class Extract<T>(
-    /**
-     * [path]에 매치되는 JSON 하위 구성 요소를 추출할 표현식입니다.
-     */
     val expression: Expression<*>,
-
-    /**
-     * 추출할 필드에 대한 JSON 경로/키를 나타내는 문자열입니다.
-     */
     vararg val path: String,
-
-    /**
-     * 추출한 결과가 scalar 또는 text 값인지 여부입니다. `false`인 경우 JSON 객체입니다.
-     */
     val toScalar: Boolean,
-
-    /**
-     * [expression]의 JSONB로 캐스팅할 경우 필요한 열 유형입니다.
-     */
     val jsonType: IColumnType<*>,
-
     columnType: IColumnType<T & Any>,
 ): org.jetbrains.exposed.v1.core.Function<T>(columnType) {
     override fun toQueryBuilder(queryBuilder: QueryBuilder) =
         currentDialect.functionProvider.jsonExtract(expression, path = path, toScalar, jsonType, queryBuilder)
 }
 
-// Extension Functions
-
 /**
- * 특정 [path]의 JSON 표현 또는 scalar 값인 JSON 객체에서 추출된 데이터를 반환합니다.
+ * JSON 표현식에서 경로 값을 추출하는 [Extract] 함수를 생성합니다.
  *
- * @param path 매치할 필드에 대한 JSON 경로/키를 나타내는 문자열입니다.
- *             만약 제공되지 않는다면, 루트 컨텍스트 항목인 `'$'`가 기본값으로 사용됩니다.
- *             **Note:** 모든 벤더에서 복수 [path] 인수는 지원되지 않습니다. 문서를 확인하세요.
+ * ## 동작/계약
+ * - 반환 타입 [T]에 맞는 컬럼 타입을 `resolveColumnType`으로 계산하며, 기본 타입으로 [FastjsonColumnType]을 사용합니다.
+ * - [serializer]의 역직렬화 결과가 `null`이면 `!!` 때문에 `NullPointerException`이 발생합니다.
+ * - 반환값은 SQL 함수 표현식이며, 실제 계산은 쿼리 실행 시 수행됩니다.
  *
- * @param toScalar `true` 라면, 추출된 결과는 scalar 또는 text 값입니다. 그렇지 않다면 JSON 객체입니다.
+ * ```kotlin
+ * val nameExpr = table.payload.extract<String>("$.name")
+ * // nameExpr is Extract<String>
+ * ```
+ *
+ * @param path JSON 경로 목록입니다. 비워두면 벤더 기본 루트 경로 규칙을 따릅니다.
+ * @param toScalar `true`이면 scalar/text, `false`이면 JSON 객체 모드로 추출합니다.
+ * @param serializer 추출 결과를 `T`로 매핑할 때 사용할 Fastjson2 serializer입니다.
  */
 inline fun <reified T: Any> ExpressionWithColumnType<*>.extract(
     vararg path: String,

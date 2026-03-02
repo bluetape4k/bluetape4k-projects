@@ -22,8 +22,14 @@ open class KsuidEntity(id: KsuidEntityID): StringEntity(id)
  * - 생성자 인자 생략 시 Exposed 기본 엔티티 타입/생성자 추론을 사용합니다.
  *
  * ```kotlin
- * object Users: KsuidEntityClass<UserEntity>(UsersTable, ::UserEntity)
- * // Users.table == UsersTable
+ * object T1: KsuidTable() {
+ *     val name = varchar("name", 255)
+ *     val age = integer("age")
+ * }
+ * class E1(id: KsuidEntityID): KsuidEntity(id) {
+ *     companion object: KsuidEntityClass<E1>(T1)
+ *     var name by T1.name
+ *     var age by T1.age
  * ```
  */
 open class KsuidEntityClass<out E: KsuidEntity>(

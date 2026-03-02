@@ -10,15 +10,23 @@ import org.jetbrains.exposed.v1.core.asLiteral
 import org.jetbrains.exposed.v1.core.stringLiteral
 import org.jetbrains.exposed.v1.core.vendors.currentDialect
 
-// Operator Classes
-
 /**
- * JSON 컬럼에서 특정 값이 포함되어 있는지 검사하는 연산자입니다.
+ * JSON 대상에 후보 값이 포함되는지 판별하는 SQL 연산식입니다.
  *
- * @property target 검사 대상이 되는 JSON 컬럼 Expression
- * @property candidate 포함 여부를 검사할 값 Expression
- * @property path JSON Path (선택 사항)
- * @property jsonType JSON 컬럼 타입
+ * ## 동작/계약
+ * - SQL 렌더링은 현재 Dialect의 `jsonContains(...)` 구현에 위임됩니다.
+ * - [path]가 `null`이면 Dialect 기본 루트 경로 규칙을 따릅니다.
+ * - 불변 식 객체이며 쿼리 생성 시점에만 SQL 문자열이 만들어집니다.
+ *
+ * ```kotlin
+ * val op = Contains(targetExpr, candidateExpr, "$.items", jsonType)
+ * // op is Op<Boolean>
+ * ```
+ *
+ * @param target 포함 여부를 검사할 JSON 대상 표현식입니다.
+ * @param candidate 포함 여부를 판별할 후보 표현식입니다.
+ * @param path JSON 경로입니다. `null`이면 벤더 기본 규칙을 사용합니다.
+ * @param jsonType JSON 캐스트/렌더링에 사용할 컬럼 타입입니다.
  */
 class Contains(
     val target: Expression<*>,
@@ -31,12 +39,22 @@ class Contains(
 }
 
 /**
- * JSON 컬럼에서 지정한 경로의 값이 존재하는지 검사하는 연산자입니다.
+ * JSON 경로가 존재하는지 판별하는 SQL 연산식입니다.
  *
- * @property expression 검사 대상이 되는 JSON 컬럼 Expression
- * @property path JSON Path (가변 인자)
- * @property optional 옵션 값 (선택 사항)
- * @property jsonType JSON 컬럼 타입
+ * ## 동작/계약
+ * - 전달된 [path] 가변 인자를 Dialect의 `jsonExists(...)`로 그대로 전달합니다.
+ * - [optional]은 Dialect별 추가 옵션 문자열로 처리됩니다.
+ * - 불변 연산식이며 생성 후 내부 상태는 변경되지 않습니다.
+ *
+ * ```kotlin
+ * val op = Exists(expr, "$.name", optional = null, jsonType = expr.columnType)
+ * // op is Op<Boolean>
+ * ```
+ *
+ * @param expression 존재 여부를 검사할 JSON 표현식입니다.
+ * @param path 검사할 JSON 경로 목록입니다.
+ * @param optional Dialect 확장 옵션 문자열입니다.
+ * @param jsonType JSON 타입 정보입니다.
  */
 class Exists(
     val expression: Expression<*>,
@@ -48,15 +66,21 @@ class Exists(
         currentDialect.functionProvider.jsonExists(expression, path = path, optional, jsonType, queryBuilder)
 }
 
-// Extension Functions
-
 /**
- * JSON 컬럼이 특정 값을 포함하는지 검사하는 확장 함수입니다.
+ * JSON 표현식에 후보 표현식이 포함되는지 검사하는 연산식을 생성합니다.
  *
- * @receiver 검사 대상이 되는 JSON 컬럼 Expression
- * @param candidate 포함 여부를 검사할 값 Expression
- * @param path JSON Path (선택 사항)
- * @return Contains 연산자
+ * ## 동작/계약
+ * - 수신 컬럼의 [ExpressionWithColumnType.columnType]을 JSON 타입으로 사용합니다.
+ * - [candidate]를 그대로 사용하므로 별도 직렬화/문자열 변환을 하지 않습니다.
+ * - 반환값은 즉시 DB 호출을 수행하지 않는 SQL 조건식입니다.
+ *
+ * ```kotlin
+ * val condition = table.payload.contains(otherExpr)
+ * // condition is Contains
+ * ```
+ *
+ * @param candidate 포함 여부를 검사할 후보 표현식입니다.
+ * @param path JSON 경로입니다. 기본값은 `null`입니다.
  */
 fun ExpressionWithColumnType<*>.contains(
     candidate: Expression<*>,
@@ -65,29 +89,44 @@ fun ExpressionWithColumnType<*>.contains(
     Contains(this, candidate, path, columnType)
 
 /**
- * JSON 컬럼이 특정 값을 포함하는지 검사하는 확장 함수입니다.
+ * JSON 표현식에 후보 값이 포함되는지 검사하는 연산식을 생성합니다.
  *
- * @receiver 검사 대상이 되는 JSON 컬럼 Expression
- * @param candidate 포함 여부를 검사할 값
- * @param path JSON Path (선택 사항)
- * @return Contains 연산자
+ * ## 동작/계약
+ * - 문자열 후보는 SQL 문자열 리터럴로, 그 외 값은 `asLiteral` 결과로 변환됩니다.
+ * - [path]가 지정되면 해당 경로 기준으로 포함 여부를 계산합니다.
+ * - 리터럴 변환이 불가능한 값은 Exposed에서 예외를 발생시킬 수 있습니다.
+ *
+ * ```kotlin
+ * val condition = table.payload.contains("admin", "$.roles")
+ * // condition is Contains
+ * ```
+ *
+ * @param candidate 포함 여부를 검사할 후보 값입니다.
+ * @param path JSON 경로입니다. 기본값은 `null`입니다.
  */
 fun <T> ExpressionWithColumnType<*>.contains(
     candidate: T,
     path: String? = null,
 ): Contains = when (candidate) {
-    // is Iterable<*>, is Array<*> -> Contains(this, stringLiteral(asLiteral(candidate).toString()), path, columnType)
     is String -> Contains(this, stringLiteral(candidate), path, columnType)
     else -> Contains(this, asLiteral(candidate), path, columnType)
 }
 
 /**
- * JSON 컬럼에서 지정한 경로의 값이 존재하는지 검사하는 확장 함수입니다.
+ * JSON 표현식에 지정 경로가 존재하는지 검사하는 연산식을 생성합니다.
  *
- * @receiver 검사 대상이 되는 JSON 컬럼 Expression
- * @param path JSON Path (가변 인자)
- * @param optional 옵션 값 (선택 사항)
- * @return Exists 연산자
+ * ## 동작/계약
+ * - [path]는 가변 인자로 전달되며 빈 배열도 허용됩니다.
+ * - [optional] 값은 Dialect의 `jsonExists` 옵션 인자로 그대로 전달됩니다.
+ * - 반환값은 SQL 조건식 객체이며, 실제 계산은 쿼리 실행 시 수행됩니다.
+ *
+ * ```kotlin
+ * val condition = table.payload.exists("$.profile", "$.name")
+ * // condition is Exists
+ * ```
+ *
+ * @param path 존재 여부를 검사할 JSON 경로 목록입니다.
+ * @param optional 벤더 옵션 문자열입니다.
  */
 fun ExpressionWithColumnType<*>.exists(vararg path: String, optional: String? = null): Exists =
     Exists(this, path = path, optional, columnType)

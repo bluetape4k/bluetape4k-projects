@@ -13,15 +13,29 @@ import org.jetbrains.exposed.v1.core.vendors.H2Dialect
 import org.jetbrains.exposed.v1.core.vendors.PostgreSQLDialect
 import org.jetbrains.exposed.v1.core.vendors.currentDialect
 
+/**
+ * Jackson을 사용해 JSON 문자열 기반 컬럼을 매핑하는 Exposed 컬럼 타입입니다.
+ *
+ * ## 동작/계약
+ * - DB 값이 `String`/`ByteArray`면 [deserialize]로 복원하고, 그 외 타입은 `T` 캐스팅을 시도합니다.
+ * - H2에서는 JSON 파라미터를 UTF-8 바이트 배열로 전달하고 PostgreSQL에서는 `?::json` 캐스트 마커를 사용합니다.
+ * - 예상하지 못한 값 타입은 `error(...)`로 `IllegalStateException`을 발생시킵니다.
+ * - 직렬화는 [serilaize] 호출 결과를 그대로 사용하며 별도 캐시를 두지 않습니다.
+ *
+ * ```kotlin
+ * val type = JacksonColumnType<Map<String, Int>>(
+ *     serilaize = { "{\"v\":${it.getValue("v")}}" },
+ *     deserialize = { mapOf("v" to 1) }
+ * )
+ * val dbValue = type.notNullValueToDB(mapOf("v" to 1))
+ * // dbValue == "{\"v\":1}"
+ * ```
+ *
+ * @param serilaize `T` 값을 JSON 문자열로 변환하는 함수입니다.
+ * @param deserialize JSON 문자열을 `T` 값으로 복원하는 함수입니다.
+ */
 open class JacksonColumnType<T: Any>(
-    /**
-     * [T] 타입의 객체를 JSON 문자열로 인코딩합니다.
-     */
     val serilaize: (T) -> String,
-
-    /**
-     * JSON 문자열을 [T] 타입의 객체로 디코딩합니다.
-     */
     val deserialize: (String) -> T,
 ): ColumnType<T>(), JsonColumnMarker {
 
@@ -79,15 +93,23 @@ open class JacksonColumnType<T: Any>(
 }
 
 /**
- * JSON 데이터를 저장할 컬럼을 생성합니다.
+ * 사용자 직렬화 함수를 사용해 JSON 문자열 컬럼을 등록합니다.
  *
- * **Note**: 이 컬럼은 JSON 포맷의 문자열로 저장합니다.
- * if the vendor only supports 1 format, the default JSON type format.
- * If JSON must be stored in binary format, and the vendor supports this, please use `jsonb()` instead.
+ * ## 동작/계약
+ * - 등록되는 컬럼 타입은 [JacksonColumnType]입니다.
+ * - 수신 [Table] 메타데이터를 mutate하여 컬럼을 추가하고, 추가된 [Column]을 반환합니다.
+ * - [name]이 유효하지 않으면 Exposed 등록 단계에서 예외가 발생할 수 있습니다.
  *
- * @param name 컬럼 이름
- * @param serialize [T] 타입의 객체를 JSON 문자열로 인코딩하는 함수
- * @param deserialize JSON 문자열을 [T] 타입의 객체로 디코딩하는 함수
+ * ```kotlin
+ * object Docs: Table("docs") {
+ *     val payload = jackson<Map<String, Int>>("payload", { "{}" }, { emptyMap() })
+ * }
+ * // Docs.payload.name == "payload"
+ * ```
+ *
+ * @param name 컬럼 이름입니다.
+ * @param serialize `T`를 JSON 문자열로 변환하는 함수입니다.
+ * @param deserialize JSON 문자열을 `T`로 복원하는 함수입니다.
  */
 fun <T: Any> Table.jackson(
     name: String,
@@ -98,10 +120,22 @@ fun <T: Any> Table.jackson(
 
 
 /**
- * JSON 데이터를 저장할 컬럼을 생성합니다.
+ * [JacksonSerializer] 기반 기본 변환기를 사용해 JSON 문자열 컬럼을 등록합니다.
  *
- * @param name 컬럼 이름
- * @param jacksonSerializer JSON 직렬화/역직렬화에 사용할 [JacksonSerializer]
+ * ## 동작/계약
+ * - [jacksonSerializer]의 문자열 변환 함수를 감싸 [jackson] 오버로드에 위임합니다.
+ * - 역직렬화 결과가 `null`이면 `!!` 때문에 `NullPointerException`이 발생합니다.
+ * - 반환되는 컬럼 인스턴스는 수신 [Table]에 등록된 컬럼과 동일합니다.
+ *
+ * ```kotlin
+ * object Docs: Table("docs") {
+ *     val payload = jackson<Map<String, Int>>("payload")
+ * }
+ * // Docs.payload.columnType is JacksonColumnType<*>
+ * ```
+ *
+ * @param name 컬럼 이름입니다.
+ * @param jacksonSerializer 직렬화/역직렬화에 사용할 Jackson serializer입니다.
  */
 inline fun <reified T: Any> Table.jackson(
     name: String,
