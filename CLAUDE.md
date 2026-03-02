@@ -180,6 +180,7 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 - **hibernate**: Hibernate 통합
 - **hibernate-reactive**: Hibernate Reactive
 - **jdbc**: JDBC 유틸리티
+- **mongodb**: MongoDB Kotlin Coroutine Driver 확장 — `mongoClient {}` DSL, `MongoClientProvider`, `findFirst`, `exists`, `upsert`, `findAsFlow`, `documentOf {}`, Aggregation Pipeline DSL (`pipeline {}`)
 - **r2dbc**: R2DBC 지원
 - **cassandra**: Cassandra 드라이버
 

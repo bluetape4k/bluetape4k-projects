@@ -2,6 +2,7 @@ package io.bluetape4k.testcontainers.storage
 
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoClients
+import com.mongodb.kotlin.client.coroutine.MongoClient as CoroutineMongoClient
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
@@ -166,6 +167,23 @@ class MongoDBServer private constructor(
          */
         fun getClient(connectionString: String = mongoDB.url): MongoClient {
             return MongoClients.create(connectionString)
+        }
+
+        /**
+         * 지정한 연결 문자열로 Kotlin Coroutine 드라이버 기반 [CoroutineMongoClient]를 생성합니다.
+         *
+         * ## 동작/계약
+         * - [getClient]와 달리 `suspend` 함수 및 `Flow`를 네이티브로 지원하는 코루틴 클라이언트를 반환합니다.
+         * - 반환된 클라이언트는 공유하지 않으며, 사용 후 호출자가 닫아야 합니다.
+         *
+         * ```kotlin
+         * val client = MongoDBServer.Launcher.getCoroutineClient()
+         * val db = client.getDatabase("test")
+         * val names = db.listCollectionNames().toList()
+         * ```
+         */
+        fun getCoroutineClient(connectionString: String = mongoDB.url): CoroutineMongoClient {
+            return CoroutineMongoClient.create(connectionString)
         }
     }
 }

@@ -129,6 +129,7 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 #### 기타 데이터 모듈
 
 - **[hibernate](./data/hibernate/README.md)/[hibernate-reactive](./data/hibernate-reactive/README.md)**: Hibernate ORM 통합
+- **[mongodb](./data/mongodb/README.md)**: MongoDB Kotlin Coroutine Driver 확장 — `mongoClient {}` DSL, `findFirst`, `exists`, `upsert`, `findAsFlow`, `documentOf {}`, Aggregation Pipeline DSL
 - **[r2dbc](./data/r2dbc/README.md)**: R2DBC 지원
 - **[cassandra](./data/cassandra/README.md)**: Cassandra 드라이버
 - **[jdbc](./data/jdbc/README.md)**: JDBC 유틸리티
