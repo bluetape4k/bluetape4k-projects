@@ -18,6 +18,22 @@ import java.time.Duration
 import javax.cache.configuration.CacheEntryListenerConfiguration
 
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
+/**
+ * Lettuce Redis hash를 기반으로 동작하는 [SuspendCache] 구현체입니다.
+ *
+ * ## 동작/계약
+ * - 캐시 항목은 Redis hash(`cacheName`)에 `hset/hget/hdel` 계열 명령으로 저장/조회합니다.
+ * - [ttlSeconds]가 지정되면 `hsetex`를 사용해 항목 갱신 시 TTL을 함께 설정합니다.
+ * - `close()`는 내부적으로 `clear()`를 수행해 Redis hash 키를 삭제합니다.
+ * - CacheEntryListener 등록 API는 지원하지 않으며 호출 시 [NotSupportedException]을 발생시킵니다.
+ *
+ * ```kotlin
+ * val cache = LettuceSuspendCache("users", commands, ttlSeconds = 60, cacheManager = manager)
+ * cache.put("u:1", "debop")
+ * val value = cache.get("u:1")
+ * // value == "debop"
+ * ```
+ */
 class LettuceSuspendCache<V: Any>(
     val cacheName: String,
     val commands: RedisCoroutinesCommands<String, V>,
