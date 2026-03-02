@@ -10,8 +10,19 @@ import org.jetbrains.exposed.v1.migration.jdbc.MigrationUtils
 private val log = KotlinLogging.logger { }
 
 /**
- * [SchemaUtils.createMissingTablesAndColumns] 의 대안으로,
- * 누락 테이블 생성과 스키마 변경 SQL 실행을 분리하여 수행합니다.
+ * 누락 테이블 생성과 마이그레이션 SQL 적용을 단계별로 수행합니다.
+ *
+ * ## 동작/계약
+ * - `createMissingTablesAndColumns`를 한 번에 호출하지 않고, 생성/마이그레이션/누락 컬럼 추가를 분리 실행합니다.
+ * - 테이블 생성 및 마이그레이션 SQL 생성/실행 예외는 경고 로그만 남기고 진행합니다.
+ * - 마지막 `addMissingColumnsStatements` 실행은 `runCatching`으로 감싸지지 않으므로 예외가 호출자에게 전파됩니다.
+ *
+ * ```kotlin
+ * transaction {
+ *   execCreateMissingTablesAndColumns(Users, Orders)
+ *   // Users, Orders 스키마가 현재 DB 상태에 맞게 보정됨
+ * }
+ * ```
  */
 fun JdbcTransaction.execCreateMissingTablesAndColumns(vararg tables: Table) {
     val self = this

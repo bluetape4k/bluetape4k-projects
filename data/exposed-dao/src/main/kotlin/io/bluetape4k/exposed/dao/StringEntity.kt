@@ -6,25 +6,31 @@ import org.jetbrains.exposed.v1.dao.Entity
 import org.jetbrains.exposed.v1.dao.EntityClass
 
 /**
- * Base class for an [Entity] instance identified by an [id] comprised of a wrapped `String` value.
+ * 문자열 식별자(`EntityID<String>`)를 사용하는 DAO 엔티티 베이스 클래스입니다.
+ *
+ * ## 동작/계약
+ * - Exposed [Entity] 구현을 그대로 따르며 식별자 타입만 `String`으로 고정합니다.
+ * - 생성자는 이미 생성된 [EntityID]를 그대로 받아 상위 클래스에 전달합니다.
+ *
+ * ```kotlin
+ * class UserEntity(id: EntityID<String>): StringEntity(id)
+ * // UserEntity::class.simpleName == "UserEntity"
+ * ```
  */
 abstract class StringEntity(id: EntityID<String>): Entity<String>(id)
 
 
 /**
- * Base class representing the [EntityClass] that manages [StringEntity] instances and
- * maintains their relation to the provided [table].
+ * 문자열 식별자 엔티티를 관리하는 DAO `EntityClass` 베이스 클래스입니다.
  *
- * @param [table] The [IdTable] object that stores rows mapped to entities of this class.
- * @param [entityType] The expected [StringEntity] type. This can be left `null` if it is the class of type
- * argument [E] provided to this [StringEntityClass] instance. If this `StringEntityClass` is defined as a companion
- * object of a custom `StringEntity` class, the parameter will be set to this immediately enclosing class by default.
+ * ## 동작/계약
+ * - `table`의 PK 타입이 `String`인 엔티티를 생성/조회/캐시하는 표준 Exposed 동작을 따릅니다.
+ * - `entityType`, `entityCtor`를 생략하면 Exposed 기본 추론(리플렉션 포함)을 사용합니다.
  *
- * @param [entityCtor] The function invoked to instantiate a [StringEntity] using a provided [EntityID] value.
- * If a reference to a specific constructor or a custom function is not passed as an argument, reflection will
- * be used to determine the primary constructor of the associated entity class on first access. If this `StringEntityClass`
- * is defined as a companion object of a custom `StringEntity` class, the constructor will be set to that of the
- * immediately enclosing class by default.
+ * ```kotlin
+ * object Users: StringEntityClass<UserEntity>(UsersTable, ::UserEntity)
+ * // Users.table == UsersTable
+ * ```
  */
 abstract class StringEntityClass<out E: StringEntity>(
     table: IdTable<String>,

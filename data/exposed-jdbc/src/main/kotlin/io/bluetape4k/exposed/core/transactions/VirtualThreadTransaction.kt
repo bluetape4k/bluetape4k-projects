@@ -12,14 +12,11 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 /**
- * 가상 스레드에서 트랜잭션을 실행하고 결과를 반환합니다.
+ * 가상 스레드에서 JDBC 트랜잭션을 실행하고 결과를 동기 대기해 반환합니다.
  *
- * @param executor 사용할 ExecutorService (기본값: VirtualThreadExecutor)
- * @param db 사용할 Database (기본값: null)
- * @param transactionIsolation 트랜잭션 격리 수준 (기본값: null)
- * @param readOnly 읽기 전용 여부 (기본값: false)
- * @param statement 실행할 트랜잭션 블록
- * @return 트랜잭션 블록의 실행 결과
+ * ## 동작/계약
+ * - 내부적으로 [virtualThreadTransactionAsync]를 호출하고 `await()`로 결과를 기다립니다.
+ * - API는 deprecated 상태이며 `io.bluetape4k.exposed.jdbc.transactions` 패키지 함수로 대체되었습니다.
  */
 @Deprecated(
     message = "use io.bluetape4k.exposed.jdbc.transactions.newVirtualThreadTransaction instead.",
@@ -40,11 +37,11 @@ fun <T> newVirtualThreadTransaction(
 ).await()
 
 /**
- * 현재 트랜잭션 컨텍스트 내에서 가상 스레드 트랜잭션을 실행합니다.
+ * 현재 트랜잭션 설정을 이어받아 가상 스레드 트랜잭션을 실행합니다.
  *
- * @param executor 사용할 ExecutorService (기본값: VirtualThreadExecutor)
- * @param statement 실행할 트랜잭션 블록
- * @return 트랜잭션 블록의 실행 결과
+ * ## 동작/계약
+ * - 현재 트랜잭션의 `readOnly` 값을 새 트랜잭션에 전달합니다.
+ * - API는 deprecated 상태이며 `withVirtualJdbcThreadTransaction`으로 대체되었습니다.
  */
 @Deprecated(
     message = "use io.bluetape4k.exposed.jdbc.transactions.withVirtualThreadTransaction instead",
@@ -60,14 +57,12 @@ fun <T> Transaction.withVirtualThreadTransaction(
 ).await()
 
 /**
- * 가상 스레드에서 비동기적으로 트랜잭션을 실행합니다.
+ * 가상 스레드에서 JDBC 트랜잭션을 비동기로 실행합니다.
  *
- * @param executor 사용할 ExecutorService (기본값: VirtualThreadExecutor)
- * @param db 사용할 Database (기본값: null)
- * @param transactionIsolation 트랜잭션 격리 수준 (기본값: null)
- * @param readOnly 읽기 전용 여부 (기본값: false)
- * @param statement 실행할 트랜잭션 블록
- * @return VirtualFuture\<T\> 트랜잭션 블록의 실행 결과를 담는 Future
+ * ## 동작/계약
+ * - `executor`가 종료 상태면 [IllegalArgumentException]을 던집니다.
+ * - 격리수준 미지정 시 `db?.transactionManager?.defaultIsolationLevel`을 사용합니다.
+ * - API는 deprecated 상태이며 `virtualThreadJdbcTransactionAsync`로 대체되었습니다.
  */
 @Deprecated(
     message = "use io.bluetape4k.exposed.jdbc.transactions.virtualThreadTransactionAsync instead.",

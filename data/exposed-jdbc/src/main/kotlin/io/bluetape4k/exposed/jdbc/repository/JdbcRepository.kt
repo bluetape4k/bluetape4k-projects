@@ -589,6 +589,9 @@ interface IntJdbcRepository<T: IntIdTable, E: Any>: JdbcRepository<Int, T, E>
  * }
  * ```
  */
+/**
+ * Long PK 테이블을 위한 [JdbcRepository] 타입 별칭 인터페이스입니다.
+ */
 interface LongJdbcRepository<T: LongIdTable, E: Any>: JdbcRepository<Long, T, E>
 
 /**
