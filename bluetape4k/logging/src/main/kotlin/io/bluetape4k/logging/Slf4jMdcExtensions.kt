@@ -1,9 +1,17 @@
 package io.bluetape4k.logging
 
-
 import org.slf4j.Logger
 
-
+/**
+ * TRACE 레벨 로그를 MDC와 함께 기록합니다.
+ *
+ * ## 동작/계약
+ * - TRACE 비활성화 시 `mdcSupplier`와 `msg`를 평가하지 않습니다.
+ * - 활성화 시 `withLoggingContext(mdcSupplier())` 범위에서 메시지를 기록합니다.
+ *
+ * @param mdcSupplier MDC 키-값 맵을 생성하는 함수입니다.
+ * @param msg 로그 메시지 람다입니다.
+ */
 inline fun Logger.traceMdc(mdcSupplier: () -> Map<String, Any?>, msg: () -> Any?) {
     if (isTraceEnabled) {
         withLoggingContext(mdcSupplier()) {
@@ -12,6 +20,7 @@ inline fun Logger.traceMdc(mdcSupplier: () -> Map<String, Any?>, msg: () -> Any?
     }
 }
 
+/** TRACE 레벨에서 MDC/예외/메시지를 함께 기록합니다. */
 inline fun Logger.traceMdc(mdcSupplier: () -> Map<String, Any?>, cause: Throwable?, msg: () -> Any?) {
     if (isTraceEnabled) {
         withLoggingContext(mdcSupplier()) {
@@ -20,6 +29,7 @@ inline fun Logger.traceMdc(mdcSupplier: () -> Map<String, Any?>, cause: Throwabl
     }
 }
 
+/** DEBUG 레벨 로그를 MDC와 함께 기록합니다. */
 inline fun Logger.debugMdc(mdcSupplier: () -> Map<String, Any?>, msg: () -> Any?) {
     if (isDebugEnabled) {
         withLoggingContext(mdcSupplier()) {
@@ -28,6 +38,7 @@ inline fun Logger.debugMdc(mdcSupplier: () -> Map<String, Any?>, msg: () -> Any?
     }
 }
 
+/** DEBUG 레벨에서 MDC/예외/메시지를 함께 기록합니다. */
 inline fun Logger.debugMdc(mdcSupplier: () -> Map<String, Any?>, cause: Throwable?, msg: () -> Any?) {
     if (isDebugEnabled) {
         withLoggingContext(mdcSupplier()) {
@@ -36,6 +47,7 @@ inline fun Logger.debugMdc(mdcSupplier: () -> Map<String, Any?>, cause: Throwabl
     }
 }
 
+/** INFO 레벨 로그를 MDC와 함께 기록합니다. */
 inline fun Logger.infoMdc(mdcSupplier: () -> Map<String, Any?>, msg: () -> Any?) {
     if (isInfoEnabled) {
         withLoggingContext(mdcSupplier()) {
@@ -44,6 +56,7 @@ inline fun Logger.infoMdc(mdcSupplier: () -> Map<String, Any?>, msg: () -> Any?)
     }
 }
 
+/** INFO 레벨에서 MDC/예외/메시지를 함께 기록합니다. */
 inline fun Logger.infoMdc(mdcSupplier: () -> Map<String, Any?>, cause: Throwable?, msg: () -> Any?) {
     if (isInfoEnabled) {
         withLoggingContext(mdcSupplier()) {
@@ -52,6 +65,7 @@ inline fun Logger.infoMdc(mdcSupplier: () -> Map<String, Any?>, cause: Throwable
     }
 }
 
+/** WARN 레벨 로그를 MDC와 함께 기록하며 메시지에 `🔥`를 붙입니다. */
 inline fun Logger.warnMdc(mdcSupplier: () -> Map<String, Any?>, msg: () -> Any?) {
     if (isWarnEnabled) {
         withLoggingContext(mdcSupplier()) {
@@ -60,6 +74,7 @@ inline fun Logger.warnMdc(mdcSupplier: () -> Map<String, Any?>, msg: () -> Any?)
     }
 }
 
+/** WARN 레벨에서 MDC/예외/`🔥` 접두 메시지를 함께 기록합니다. */
 inline fun Logger.warnMdc(mdcSupplier: () -> Map<String, Any?>, cause: Throwable?, msg: () -> Any?) {
     if (isWarnEnabled) {
         withLoggingContext(mdcSupplier()) {
@@ -68,6 +83,7 @@ inline fun Logger.warnMdc(mdcSupplier: () -> Map<String, Any?>, cause: Throwable
     }
 }
 
+/** ERROR 레벨 로그를 MDC와 함께 기록하며 메시지에 `🔥`를 붙입니다. */
 inline fun Logger.errorMdc(mdcSupplier: () -> Map<String, Any?>, msg: () -> Any?) {
     if (isErrorEnabled) {
         withLoggingContext(mdcSupplier()) {
@@ -76,6 +92,7 @@ inline fun Logger.errorMdc(mdcSupplier: () -> Map<String, Any?>, msg: () -> Any?
     }
 }
 
+/** ERROR 레벨에서 MDC/예외/`🔥` 접두 메시지를 함께 기록합니다. */
 inline fun Logger.errorMdc(mdcSupplier: () -> Map<String, Any?>, cause: Throwable?, msg: () -> Any?) {
     if (isErrorEnabled) {
         withLoggingContext(mdcSupplier()) {

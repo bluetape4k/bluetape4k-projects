@@ -7,28 +7,15 @@ import kotlinx.coroutines.withContext
 import org.slf4j.MDC
 
 /**
- * Coroutine 환경 하에서 MDC를 사용하여 로깅 컨텍스트를 설정합니다.
+ * 코루틴 컨텍스트에서 단일 MDC 키-값을 적용한 뒤 블록을 실행합니다.
  *
- * ```
- * withCoroutineLoggingContext("traceId" to traceId) {
- *     log.debug { "Some messages ..." }
- * }
+ * ## 동작/계약
+ * - 내부적으로 `mapOf(pair)` 오버로드에 위임합니다.
+ * - `restorePrevious`는 MDC 복원 전략에 동일하게 전달됩니다.
  *
- * withCoroutineLoggingContext("userId" to userId, preservePrevious = false) {
- *     log.debug { "Some messages ..." }
- * }
- * ```
- *
- * logback log pattern 을 다음과 같이 `traceId=%X{traceId}` 를 추가해야 MDC `traceId` 가 로그애 출력됩니다.
- *
- * ```
- * %d{HH:mm:ss.SSS} %highlight(%-5level)[traceId=%X{traceId}][%.24thread] %logger{36}:%line: %msg%n%throwable
- * ```
- *
- * @param pair 로깅 컨텍스트에 추가할 키-값 쌍
- * @param restorePrevious 이전에 설정된 로깅 컨텍스트를 유지할지 여부
- * @param block 로깅 컨텍스트가 설정된 블록
- * @return 블록의 실행 결과
+ * @param pair MDC에 적용할 키-값입니다.
+ * @param restorePrevious 기존 MDC 값을 복원할지 여부입니다.
+ * @param block MDC가 적용된 코루틴 블록입니다.
  */
 suspend inline fun <T> withCoroutineLoggingContext(
     pair: Pair<String, Any?>,
@@ -38,28 +25,15 @@ suspend inline fun <T> withCoroutineLoggingContext(
     withCoroutineLoggingContext(mapOf(pair), restorePrevious) { block(this) }
 
 /**
- * Coroutine 환경 하에서 MDC를 사용하여 로깅 컨텍스트를 설정합니다.
+ * 코루틴 컨텍스트에서 여러 MDC 키-값을 적용한 뒤 블록을 실행합니다.
  *
- * ```
- * withCoroutineLoggingContext("traceId" to traceId) {
- *     log.debug { "Some messages ..." }
- * }
+ * ## 동작/계약
+ * - 내부적으로 `pairs.toMap()`으로 변환해 map 오버로드에 위임합니다.
+ * - 중복 키가 있으면 마지막 값이 적용됩니다.
  *
- * withCoroutineLoggingContext("userId" to userId, preservePrevious = false) {
- *     log.debug { "Some messages ..." }
- * }
- * ```
- *
- * logback log pattern 을 다음과 같이 `traceId=%X{traceId}` 를 추가해야 MDC `traceId` 가 로그애 출력됩니다.
- *
- * ```
- * %d{HH:mm:ss.SSS} %highlight(%-5level)[traceId=%X{traceId}][%.24thread] %logger{36}:%line: %msg%n%throwable
- * ```
- *
- * @param pairs 로깅 컨텍스트에 추가할 키-값 쌍
- * @param restorePrevious 이전에 설정된 로깅 컨텍스트를 유지할지 여부
- * @param block 로깅 컨텍스트가 설정된 블록
- * @return 블록의 실행 결과
+ * @param pairs MDC에 적용할 키-값 목록입니다.
+ * @param restorePrevious 기존 MDC 값을 복원할지 여부입니다.
+ * @param block MDC가 적용된 코루틴 블록입니다.
  */
 suspend inline fun <T> withCoroutineLoggingContext(
     vararg pairs: Pair<String, Any?>,
@@ -69,28 +43,22 @@ suspend inline fun <T> withCoroutineLoggingContext(
     withCoroutineLoggingContext(pairs.toMap(), restorePrevious, block)
 
 /**
- * Coroutine 환경 하에서 MDC를 사용하여 로깅 컨텍스트를 설정합니다.
+ * 코루틴 컨텍스트에서 MDC를 적용한 뒤 블록을 실행합니다.
  *
- * ```
- * withCoroutineLoggingContext("traceId" to traceId) {
- *     log.debug { "Some messages ..." }
+ * ## 동작/계약
+ * - `withContext(MDCContext())` 안에서 실행되어 코루틴 전환 시 MDC가 전파됩니다.
+ * - `restorePrevious=true`면 `withLoggingContext(map, true)`로 복원 정책을 따릅니다.
+ * - `restorePrevious=false`면 블록 종료 후 적용 키를 `MDC.remove`로 정리합니다.
+ *
+ * ```kotlin
+ * withCoroutineLoggingContext(mapOf("traceId" to "t-1")) {
+ *   // MDCContext와 함께 실행
  * }
- *
- * withCoroutineLoggingContext("userId" to userId, preservePrevious = false) {
- *     log.debug { "Some messages ..." }
- * }
  * ```
  *
- * logback log pattern 을 다음과 같이 `traceId=%X{traceId}` 를 추가해야 MDC `traceId` 가 로그애 출력됩니다.
- *
- * ```
- * %d{HH:mm:ss.SSS} %highlight(%-5level)[traceId=%X{traceId}][%.24thread] %logger{36}:%line: %msg%n%throwable
- * ```
- *
- * @param map 로깅 컨텍스트에 추가할 키-값 쌍
- * @param restorePrevious 이전에 설정된 로깅 컨텍스트를 유지할지 여부
- * @param block 로깅 컨텍스트가 설정된 블록
- * @return 블록의 실행 결과
+ * @param map MDC에 적용할 키-값 맵입니다.
+ * @param restorePrevious 기존 MDC 값을 복원할지 여부입니다.
+ * @param block MDC가 적용된 코루틴 블록입니다.
  */
 suspend inline fun <T> withCoroutineLoggingContext(
     map: Map<String, Any?>,

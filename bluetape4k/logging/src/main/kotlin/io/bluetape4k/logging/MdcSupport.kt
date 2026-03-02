@@ -3,22 +3,22 @@ package io.bluetape4k.logging
 import org.slf4j.MDC
 
 /**
- * MDC를 사용하여 로깅 컨텍스트를 설정합니다.
+ * 단일 키-값을 MDC에 적용한 범위 안에서 블록을 실행합니다.
  *
- * ```
- * withLoggingContext("traceId" to traceId) {
- *     log.debug { "Some messages ..." }
+ * ## 동작/계약
+ * - 값이 `null`이면 MDC를 건드리지 않고 블록만 실행합니다.
+ * - `restorePrevious=true`면 기존 값을 복원하고, `false`면 스코프 종료 시 키를 제거합니다.
+ * - 내부적으로 `MDC.putCloseable(...).use { ... }`를 사용해 범위 적용합니다.
+ *
+ * ```kotlin
+ * withLoggingContext("traceId" to "t-1") {
+ *   // MDC["traceId"] == "t-1"
  * }
- *
- * withLoggingContext("userId" to userId, preservePrevious = false) {
- *     log.debug { "Some messages ..." }
- * }
  * ```
  *
- * @param pair 로깅 컨텍스트에 추가할 키-값 쌍
- * @param restorePrevious 이전에 설정된 로깅 컨텍스트를 유지할지 여부
- * @param block 로깅 컨텍스트가 설정된 블록
- * @return 블록의 실행 결과
+ * @param pair MDC에 적용할 키-값입니다.
+ * @param restorePrevious 이전 값을 복원할지 여부입니다.
+ * @param block MDC가 적용된 상태에서 실행할 코드입니다.
  */
 inline fun <T> withLoggingContext(
     pair: Pair<String, Any?>,
@@ -26,8 +26,8 @@ inline fun <T> withLoggingContext(
     block: () -> T,
 ): T = when {
     pair.second == null -> block()
-    !restorePrevious    -> MDC.putCloseable(pair.first, pair.second.toString()).use { block() }
-    else                -> {
+    !restorePrevious -> MDC.putCloseable(pair.first, pair.second.toString()).use { block() }
+    else -> {
         val prevValue = MDC.get(pair.first)
         try {
             MDC.putCloseable(pair.first, pair.second.toString()).use { block() }
@@ -38,18 +38,21 @@ inline fun <T> withLoggingContext(
 }
 
 /**
- * MDC를 사용하여 로깅 컨텍스트를 설정합니다.
+ * 여러 키-값을 MDC에 적용한 범위 안에서 블록을 실행합니다.
  *
- * ```
- * withLoggingContext("key1" to "value1", "key2" to "value2") {
- *     log.debug { "Some messages ..." }
+ * ## 동작/계약
+ * - `null` 값은 자동으로 제외됩니다.
+ * - 실제 적용은 `Map` 오버로드에 위임됩니다.
+ *
+ * ```kotlin
+ * withLoggingContext("traceId" to "t-1", "userId" to 10L) {
+ *   // 두 키가 MDC에 적용됨
  * }
  * ```
  *
- * @param map 로깅 컨텍스트에 추가할 키-값 쌍
- * @param restorePrevious 이전에 설정된 로깅 컨텍스트를 유지할지 여부
- * @param block 로깅 컨텍스트가 설정된 블록
- * @return 블록의 실행 결과
+ * @param pairs MDC에 적용할 키-값 목록입니다.
+ * @param restorePrevious 이전 값을 복원할지 여부입니다.
+ * @param block MDC가 적용된 상태에서 실행할 코드입니다.
  */
 inline fun <T> withLoggingContext(
     vararg pairs: Pair<String, Any?>,
@@ -59,18 +62,22 @@ inline fun <T> withLoggingContext(
     withLoggingContext(pairs.filter { it.second != null }.toMap(), restorePrevious, block)
 
 /**
- * MDC를 사용하여 로깅 컨텍스트를 설정합니다.
+ * 맵 형태 MDC 값을 적용한 범위 안에서 블록을 실행합니다.
  *
- * ```
- * withLoggingContext(mapOf("key1" to "value1", "key2" to "value2")) {
- *     log.debug { "Some messages ..." }
+ * ## 동작/계약
+ * - `null` 값 항목은 적용하지 않습니다.
+ * - 블록 종료 시 각 키를 이전 값으로 복원하거나 제거합니다.
+ * - 복원 콜백에서 발생한 예외는 `runCatching`으로 무시합니다.
+ *
+ * ```kotlin
+ * withLoggingContext(mapOf("traceId" to "t-1")) {
+ *   // MDC["traceId"] == "t-1"
  * }
  * ```
  *
- * @param map 로깅 컨텍스트에 추가할 키-값 쌍
- * @param restorePrevious 이전에 설정된 로깅 컨텍스트를 유지할지 여부
- * @param block 로깅 컨텍스트가 설정된 블록
- * @return 블록의 실행 결과
+ * @param map MDC에 적용할 키-값 맵입니다.
+ * @param restorePrevious 이전 값을 복원할지 여부입니다.
+ * @param block MDC가 적용된 상태에서 실행할 코드입니다.
  */
 inline fun <T> withLoggingContext(
     map: Map<String, Any?>,

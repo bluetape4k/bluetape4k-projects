@@ -5,27 +5,34 @@ import org.slf4j.Logger
 import kotlin.reflect.KClass
 
 /**
- * sfl4j 용 Logger 생성을 도와주는 함수들을 제공합니다.
+ * SLF4J [Logger]를 생성하는 진입점 유틸리티입니다.
  *
- * ```
- * // 이름이 mylogger인 Logger를 생성합니다.
- * val log = KotlinLogging.logger("mylogger")
+ * ## 동작/계약
+ * - 이름 기반/람다 호출 위치 기반/KClass 기반 로거 생성을 제공합니다.
+ * - `logger(name)`은 blank 이름을 허용하지 않으며 위반 시 `IllegalArgumentException`이 발생합니다.
+ * - 로거 생성은 내부적으로 `KLoggerFactory`에 위임합니다.
  *
- * // action이 속한 package name이 Logger name이 됩니다.
- * val log = KotlinLoggging.logger {}
+ * ```kotlin
+ * val logA = KotlinLogging.logger("my.logger")
+ * val logB = KotlinLogging.logger { }
+ * // logA.name == "my.logger"
  * ```
  */
 object KotlinLogging {
 
     /**
-     * 이름이 [name]인 Logger ([org.slf4j.Logger]) 를 생성합니다.
+     * 지정한 이름으로 로거를 생성합니다.
      *
-     * ```
-     * val log = KotlinLogging.logger("mylogger")
+     * ## 동작/계약
+     * - `name.isNotBlank()`를 검증합니다.
+     * - 이름이 blank면 `IllegalArgumentException`이 발생합니다.
+     *
+     * ```kotlin
+     * val log = KotlinLogging.logger("app.main")
+     * // log.name == "app.main"
      * ```
      *
-     * @param name Logger name
-     * @return Logger instance
+     * @param name 생성할 로거 이름입니다. blank면 예외가 발생합니다.
      */
     fun logger(name: String): Logger {
         require(name.isNotBlank()) { "Logger name must not be blank" }
@@ -33,23 +40,35 @@ object KotlinLogging {
     }
 
     /**
-     * [action]이 속한 package name이 Logger name이 됩니다.
+     * 람다 호출 위치를 기준으로 로거를 생성합니다.
      *
-     * ```
-     * val log = KotlinLogging.logger {}
+     * ## 동작/계약
+     * - 내부적으로 람다의 클래스명을 해석해 로거 이름을 만듭니다.
+     * - 파일/컴패니언/내부 클래스 이름은 해석 규칙에 따라 정규화됩니다.
+     *
+     * ```kotlin
+     * val log = KotlinLogging.logger { }
+     * // 호출 위치 기준 이름으로 로거가 생성된다.
      * ```
      *
-     * @param action [action]이 속한 package name이 Logger name이 됩니다.
-     * @return Logger instance
+     * @param action 로거 이름 해석에 사용할 람다입니다.
      */
     fun logger(action: () -> Unit = {}): Logger =
         KLoggerFactory.logger(action)
 
     /**
-     * [kclass]의 name을 Logger name으로하는 Logger 를 생성합니다.
+     * [kclass]의 이름을 기준으로 로거를 생성합니다.
      *
-     * @param kclass Logger가 될 수형
-     * @return Logger instance
+     * ## 동작/계약
+     * - `qualifiedName`이 있으면 우선 사용하고, 없으면 `java.name`을 사용합니다.
+     * - 최종 생성은 `logger(String)`에 위임합니다.
+     *
+     * ```kotlin
+     * val log = KotlinLogging.logger(String::class)
+     * // log.name == "kotlin.String" 또는 JVM 이름
+     * ```
+     *
+     * @param kclass 로거 이름의 기준이 되는 클래스입니다.
      */
     fun logger(kclass: KClass<*>): Logger {
         val loggerName = kclass.qualifiedName ?: kclass.java.name
