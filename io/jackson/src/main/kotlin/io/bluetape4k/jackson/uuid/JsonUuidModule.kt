@@ -6,7 +6,17 @@ import io.bluetape4k.logging.info
 import java.util.*
 
 /**
- * UUID 수형을 Base62 로 인코딩/디코딩 하는 [JsonUuidEncoder] 를 사용할 수 있도록 하는 Module 입니다.
+ * UUID Base62 인코딩/디코딩 지원을 Jackson 매퍼에 등록하는 모듈입니다.
+ *
+ * ## 동작/계약
+ * - UUID serializer/deserializer를 모듈 초기화 시점에 등록합니다.
+ * - [setupModule]에서 [JsonUuidEncoderAnnotationInterospector]를 삽입합니다.
+ * - 모듈 등록 후 [JsonUuidEncoder]가 UUID 필드에 대해 적용됩니다.
+ *
+ * ```kotlin
+ * val mapper = Jackson.defaultJsonMapper.copy().registerModule(JsonUuidModule())
+ * // @JsonUuidEncoder 필드가 Base62/Plain 정책으로 직렬화됨
+ * ```
  *
  * @see [JsonUuidEncoder]
  */
@@ -23,7 +33,7 @@ class JsonUuidModule: SimpleModule() {
         addDeserializer(UUID::class.java, JsonUuidBase62Deserializer())
     }
 
-    /** [JsonUuidEncoderAnnotationInterospector]를 Jackson 모듈에 등록합니다. */
+    /** UUID 인코딩 애너테이션 인트로스펙터를 컨텍스트에 등록합니다. */
     override fun setupModule(context: SetupContext) {
         log.info { "Setup JsonUuidModule ..." }
         context.insertAnnotationIntrospector(interospector)

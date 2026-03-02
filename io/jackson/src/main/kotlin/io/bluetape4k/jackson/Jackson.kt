@@ -17,40 +17,28 @@ import io.bluetape4k.logging.info
 import java.io.IOException
 
 /**
- * Jackson JSON 라이브러리의 기본 [JsonMapper] 인스턴스와 설정을 제공하는 싱글턴 객체입니다.
+ * Bluetape4k 기본 Jackson 매퍼 구성을 제공하는 싱글턴입니다.
  *
- * Kotlin 모듈, 타입 정보 포함 등 일반적으로 사용되는 설정이 미리 구성된
- * [JsonMapper] 인스턴스를 지연 생성(lazy) 방식으로 제공합니다.
- *
- * ### 사용 예시
+ * ## 동작/계약
+ * - [defaultJsonMapper], [typedJsonMapper]는 lazy 초기화 후 동일 인스턴스를 재사용합니다.
+ * - `typed` 계열은 default typing 정보를 포함해 다형 타입 직렬화를 지원합니다.
+ * - 매퍼 생성 중 I/O/설정 오류가 발생하면 [IllegalStateException]으로 전파됩니다.
  *
  * ```kotlin
- * // 기본 JsonMapper 사용
  * val mapper = Jackson.defaultJsonMapper
- * val json = mapper.writeValueAsString(data)
- *
- * // 타입 정보가 포함된 JsonMapper
  * val typedMapper = Jackson.typedJsonMapper
- *
- * // Pretty-print 출력
- * val prettyJson = Jackson.prettyJsonWriter.writeValueAsString(data)
+ * // mapper !== typedMapper
  * ```
  */
 object Jackson: KLogging() {
 
-    /**
-     * 기본 Jackson ObjectMapper
-     */
+    /** 기본 JsonMapper 인스턴스입니다. */
     val defaultJsonMapper: JsonMapper by lazy { createDefaultJsonMapper() }
 
-    /**
-     * 포맷된 JSON을 출력하는 Jackson [ObjectWriter]
-     */
+    /** [defaultJsonMapper] 기반 pretty-print [ObjectWriter]입니다. */
     val prettyJsonWriter: ObjectWriter by lazy { defaultJsonMapper.writerWithDefaultPrettyPrinter() }
 
-    /**
-     * 타입 정보를 제공하는 Jackson ObjectMapper
-     */
+    /** 타입 정보를 포함하는 JsonMapper 인스턴스입니다. */
     val typedJsonMapper: JsonMapper by lazy { createDefaultJsonMapper(needTypeInfo = true) }
 
     /** 타입 정보를 포함하며 포맷된 JSON을 출력하는 [ObjectWriter] */
@@ -59,10 +47,16 @@ object Jackson: KLogging() {
     /**
      * 기본 Jackson JsonMapper를 생성합니다.
      *
-     * classpath 에 있는 Jackson Module을 찾아서 추가하고, 일반적으로 많이 사용하는 직렬화/역직렬화 특성을 설정합니다.
+     * ## 동작/계약
+     * - classpath의 Jackson 모듈을 자동 등록합니다.
+     * - Kotlin null/collection 관련 기능과 직렬화·역직렬화 feature를 기본 활성화합니다.
+     * - [needTypeInfo]가 `true`이면 default typing을 활성화하고 검증 직렬화/역직렬화를 수행합니다.
      *
-     * @param needTypeInfo
-     * @return
+     * ```kotlin
+     * val mapper = Jackson.createDefaultJsonMapper(needTypeInfo = true)
+     * // mapper !== Jackson.defaultJsonMapper
+     * ```
+     * @param needTypeInfo 타입 정보 포함 여부
      */
     fun createDefaultJsonMapper(needTypeInfo: Boolean = false): JsonMapper {
         log.info { "Create JsonMapper instance ... needTypeInfo=$needTypeInfo" }

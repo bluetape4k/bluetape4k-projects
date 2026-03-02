@@ -9,26 +9,20 @@ import io.bluetape4k.support.emptyByteArray
 /**
  * Jackson 라이브러리를 사용하는 [JsonSerializer] 구현체입니다.
  *
- * [ObjectMapper]를 통해 JSON 직렬화/역직렬화를 수행하며,
- * 기본적으로 [Jackson.defaultJsonMapper]를 사용합니다.
- *
- * ### 사용 예시
+ * ## 동작/계약
+ * - 기본 [mapper]는 [Jackson.defaultJsonMapper]입니다.
+ * - [serialize]는 입력이 null이면 빈 바이트 배열을 반환합니다.
+ * - 역직렬화 계열은 입력이 null이면 null을 반환하고, 파싱 실패 시 [JsonSerializationException]을 던집니다.
+ * - 입력 객체/바이트 배열은 mutate하지 않고 직렬화 결과를 새로 생성합니다.
  *
  * ```kotlin
  * val serializer = JacksonSerializer()
- *
- * // 바이트 배열 직렬화/역직렬화
- * val bytes = serializer.serialize(data)
- * val restored = serializer.deserialize<Data>(bytes)
- *
- * // 문자열 직렬화/역직렬화
- * val jsonText = serializer.serializeAsString(data)
- * val restored2 = serializer.deserializeFromString<Data>(jsonText)
+ * val bytes = serializer.serialize(mapOf("id" to 1))
+ * val value: Map<*, *>? = serializer.deserialize(bytes, Map::class.java)
+ * // value?.get("id") == 1
  * ```
  *
- * @param mapper JSON 처리에 사용할 [ObjectMapper]. 기본값은 [Jackson.defaultJsonMapper]
- * @see JsonSerializer
- * @see Jackson.defaultJsonMapper
+ * @param mapper JSON 직렬화/역직렬화에 사용할 ObjectMapper
  */
 open class JacksonSerializer(
     val mapper: ObjectMapper = Jackson.defaultJsonMapper,
@@ -39,8 +33,15 @@ open class JacksonSerializer(
     /**
      * 객체를 JSON [ByteArray]로 직렬화합니다.
      *
-     * @param graph 직렬화할 객체. null인 경우 빈 [ByteArray] 반환
-     * @return JSON 바이트 배열
+     * ## 동작/계약
+     * - [graph]가 null이면 빈 바이트 배열을 반환합니다.
+     * - 직렬화 실패 시 [JsonSerializationException]을 던집니다.
+     *
+     * ```kotlin
+     * val bytes = JacksonSerializer().serialize(mapOf("name" to "debop"))
+     * // bytes.isNotEmpty() == true
+     * ```
+     * @param graph 직렬화할 객체
      */
     override fun serialize(graph: Any?): ByteArray {
         if (graph == null) {
@@ -56,10 +57,16 @@ open class JacksonSerializer(
     /**
      * JSON [ByteArray]를 읽어 지정된 타입의 객체로 역직렬화합니다.
      *
-     * @param T 역직렬화 대상 타입
-     * @param bytes JSON 바이트 배열. null이면 null 반환
-     * @param clazz 역직렬화할 대상 클래스
-     * @return 역직렬화된 객체. 실패 시 null 반환
+     * ## 동작/계약
+     * - [bytes]가 null이면 null을 반환합니다.
+     * - [clazz]로 역직렬화할 수 없으면 [JsonSerializationException]을 던집니다.
+     *
+     * ```kotlin
+     * val value = JacksonSerializer().deserialize("{\"id\":1}".toByteArray(), Map::class.java)
+     * // value?.get("id") == 1
+     * ```
+     * @param bytes JSON 바이트 배열
+     * @param clazz 대상 타입 클래스
      */
     override fun <T: Any> deserialize(bytes: ByteArray?, clazz: Class<T>): T? {
         if (bytes == null) {
@@ -75,9 +82,15 @@ open class JacksonSerializer(
     /**
      * JSON [ByteArray]를 읽어 reified 타입 [T]의 객체로 역직렬화합니다.
      *
-     * @param T 역직렬화 대상 타입
+     * ## 동작/계약
+     * - [bytes]가 null이면 null을 반환합니다.
+     * - 파싱/타입 변환 실패 시 [JsonSerializationException]을 던집니다.
+     *
+     * ```kotlin
+     * val value: Map<String, Int>? = JacksonSerializer().deserialize("{\"id\":1}".toByteArray())
+     * // value?.get("id") == 1
+     * ```
      * @param bytes JSON 바이트 배열
-     * @return 역직렬화된 객체. null이거나 실패 시 null 반환
      */
     inline fun <reified T: Any> deserialize(bytes: ByteArray?): T? =
         bytes?.let {
@@ -91,9 +104,15 @@ open class JacksonSerializer(
     /**
      * JSON 문자열을 읽어 reified 타입 [T]의 객체로 역직렬화합니다.
      *
-     * @param T 역직렬화 대상 타입
+     * ## 동작/계약
+     * - [jsonText]가 null이면 null을 반환합니다.
+     * - 파싱/타입 변환 실패 시 [JsonSerializationException]을 던집니다.
+     *
+     * ```kotlin
+     * val value: Map<String, Int>? = JacksonSerializer().deserializeFromString("{\"id\":1}")
+     * // value?.get("id") == 1
+     * ```
      * @param jsonText JSON 문자열
-     * @return 역직렬화된 객체. null이거나 실패 시 null 반환
      */
     inline fun <reified T: Any> deserializeFromString(jsonText: String?): T? =
         jsonText?.let {

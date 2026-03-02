@@ -11,9 +11,19 @@ import io.bluetape4k.logging.debug
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * [JsonMasker] 가 적용된 필드의 정보를 masking 하는 Jackson 용 Serializer 입니다.
+ * [JsonMasker] 애너테이션이 붙은 문자열 필드를 마스킹하는 serializer입니다.
  *
- * @property annotation [JsonMasker] annotation or null
+ * ## 동작/계약
+ * - 필드의 [JsonMasker] 값을 키로 serializer 인스턴스를 캐시합니다.
+ * - 애너테이션이 있으면 실제 값 대신 마스킹 문자열을 기록합니다.
+ * - 애너테이션이 없으면 원본 값을 그대로 기록합니다.
+ *
+ * ```kotlin
+ * val serializer = JsonMaskerSerializer()
+ * // @JsonMasker("__masked__") 필드는 "__masked__" 문자열로 직렬화됨
+ * ```
+ *
+ * @property annotation 필드에 선언된 JsonMasker 애너테이션
  *
  * @see [JsonMasker]
  */
@@ -26,7 +36,7 @@ class JsonMaskerSerializer(
         private val serializers: MutableMap<String, JsonMaskerSerializer> = ConcurrentHashMap()
     }
 
-    /** [JsonMasker] 어노테이션에 따라 적절한 마스킹 직렬화기 인스턴스를 반환합니다. */
+    /** 필드 애너테이션에 맞는 serializer 인스턴스를 선택합니다. */
     override fun createContextual(
         prov: SerializerProvider?, property: BeanProperty?,
     ): JsonSerializer<*> {
@@ -43,7 +53,7 @@ class JsonMaskerSerializer(
         }
     }
 
-    /** [JsonMasker] 어노테이션이 적용된 값을 마스킹 문자열로 대체하여 JSON에 씁니다. */
+    /** 마스킹 규칙에 따라 문자열 값을 기록합니다. */
     override fun serialize(value: Any?, gen: JsonGenerator, provider: SerializerProvider?) {
         when {
             annotation != null -> gen.writeString(annotation.value)

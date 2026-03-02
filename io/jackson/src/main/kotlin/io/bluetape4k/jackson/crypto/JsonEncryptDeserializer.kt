@@ -14,9 +14,19 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 
 /**
- * [JsonEncrypt] annotation이 적용된 필드의 암호화된 값을 JSON 역직렬화 시에 복호화를 수행합니다.
+ * [JsonEncrypt] 애너테이션이 붙은 문자열 필드를 복호화해 역직렬화하는 deserializer입니다.
  *
- * @property annotation [JsonEncrypt] annotation or null
+ * ## 동작/계약
+ * - 필드의 encryptor 타입별 deserializer 인스턴스를 캐시합니다.
+ * - 애너테이션이 있으면 암호문 문자열을 읽어 복호화 값을 반환합니다.
+ * - 애너테이션이 없으면 null을 반환해 기본 역직렬화 경로에 위임됩니다.
+ *
+ * ```kotlin
+ * val deserializer = JsonEncryptDeserializer()
+ * // @JsonEncrypt 필드는 평문 문자열로 복원됨
+ * ```
+ *
+ * @property annotation 필드에 선언된 JsonEncrypt 애너테이션
  *
  * @see JsonEncrypt
  */
@@ -29,7 +39,7 @@ class JsonEncryptDeserializer(
         private val deserializers = ConcurrentHashMap<KClass<out Encryptor>, JsonEncryptDeserializer>()
     }
 
-    /** [JsonEncrypt] 어노테이션에 따라 적절한 역직렬화기 인스턴스를 반환합니다. */
+    /** 필드 애너테이션에 맞는 deserializer 인스턴스를 선택합니다. */
     override fun createContextual(ctxt: DeserializationContext?, property: BeanProperty?): JsonDeserializer<*> {
         val annotation = property?.getAnnotation(JsonEncrypt::class.java)
 
@@ -43,7 +53,7 @@ class JsonEncryptDeserializer(
         }
     }
 
-    /** JSON에서 암호화된 문자열을 읽어 복호화하여 반환합니다. */
+    /** 암호문 문자열을 복호화해 평문 문자열로 반환합니다. */
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext?): String? {
         return safeLet(annotation, p) { ann, parser ->
             val codec = parser.codec

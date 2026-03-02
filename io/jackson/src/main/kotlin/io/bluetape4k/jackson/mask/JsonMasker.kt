@@ -4,21 +4,23 @@ import com.fasterxml.jackson.annotation.JacksonAnnotationsInside
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 
 /**
- * Json Property 를 문자열로 변환 시, 민감한 정보를 mask 처리를 수행할 수 있도록 합니다.
+ * 문자열 필드를 고정 마스킹 문자열로 직렬화하도록 지정하는 애너테이션입니다.
  *
- * ```
+ * ## 동작/계약
+ * - [JsonMaskerSerializer]가 적용되어 원본 값 대신 [value]를 출력합니다.
+ * - 역직렬화에는 영향을 주지 않으며 직렬화 표현만 변경합니다.
+ *
+ * ```kotlin
  * data class User(
- *     val name:String,
+ *     val name: String,
  *     @field:JsonMasker("masked")
  *     val mobile: String
- * ): Serializable
+ * )
+ * // 직렬화 시 mobile 필드는 "masked"로 출력됨
+ * // {"name":"debop","mobile":"masked"}
+ * ```
  *
- * val user = User("debop", "011-5555-5555")
- * val jsonText = objectMapper.writeAsString(user)
- *
- * // jsonText is { "user": "debop", "mobile": "__masked__" }
- *
- * @property value masking 될 필드의 값을 대체할 문자열
+ * @property value 필드 값을 대체할 마스킹 문자열
  */
 @JacksonAnnotationsInside
 @JsonSerialize(using = JsonMaskerSerializer::class)

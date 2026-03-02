@@ -9,7 +9,17 @@ import io.bluetape4k.logging.KLogging
 import java.util.*
 
 /**
- * [JsonUuidEncoder] annotation이 적용된 필드의 UUID 값을 JSON 직렬화 시에 인코딩하는 Serializer를 관리합니다.
+ * [JsonUuidEncoder] 애너테이션을 읽어 UUID 직렬화기/역직렬화기를 선택하는 인트로스펙터입니다.
+ *
+ * ## 동작/계약
+ * - 대상 타입이 UUID일 때만 커스텀 serializer/deserializer를 반환합니다.
+ * - 애너테이션이 없으면 Jackson 기본 UUID serializer/deserializer를 사용합니다.
+ * - `BASE62` 선택 시 Base62 변환기를, `PLAIN` 선택 시 표준 UUID 변환기를 사용합니다.
+ *
+ * ```kotlin
+ * val introspector = JsonUuidEncoderAnnotationInterospector()
+ * // UUID 필드 + @JsonUuidEncoder(BASE62) -> JsonUuidBase62Serializer 선택
+ * ```
  *
  * @see [JsonUuidEncoder]
  */
@@ -19,7 +29,7 @@ class JsonUuidEncoderAnnotationInterospector: JacksonAnnotationIntrospector() {
         private val ANNOTATION_TYPE: Class<JsonUuidEncoder> = JsonUuidEncoder::class.java
     }
 
-    /** UUID 타입 필드에 [JsonUuidEncoder] 어노테이션이 있으면 해당 인코딩 방식의 직렬화기를 반환합니다. */
+    /** UUID 타입 직렬화기 선택 규칙을 반환합니다. */
     override fun findSerializer(annotatedMethod: Annotated): Any? {
         val annotation = _findAnnotation(annotatedMethod, ANNOTATION_TYPE)
         if (annotatedMethod.rawType == UUID::class.java) {
@@ -33,7 +43,7 @@ class JsonUuidEncoderAnnotationInterospector: JacksonAnnotationIntrospector() {
         return null
     }
 
-    /** UUID 타입 필드에 [JsonUuidEncoder] 어노테이션이 있으면 해당 인코딩 방식의 역직렬화기를 반환합니다. */
+    /** UUID 타입 역직렬화기 선택 규칙을 반환합니다. */
     override fun findDeserializer(annotatedMethod: Annotated): Any? {
         val annotation = _findAnnotation(annotatedMethod, ANNOTATION_TYPE)
 

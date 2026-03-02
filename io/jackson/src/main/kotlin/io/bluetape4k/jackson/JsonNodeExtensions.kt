@@ -11,7 +11,18 @@ import java.math.BigInteger
 internal val nodeFactory = JsonNodeFactory.instance
 
 /**
- * [fieldName]을 키로 하여 [JsonNode]를 추가합니다.
+ * 현재 노드에 객체 노드를 생성해 추가합니다.
+ *
+ * ## 동작/계약
+ * - 수신 노드가 [ObjectNode]면 [fieldName] 키에 객체 노드를 생성합니다.
+ * - 수신 노드가 [ArrayNode]면 배열 끝에 객체 노드를 추가합니다.
+ * - 그 외 노드 타입이면 독립된 새 객체 노드를 반환합니다.
+ *
+ * ```kotlin
+ * val root = nodeFactory.objectNode()
+ * val child = root.createNode("data")
+ * // child.isObject == true
+ * ```
  */
 fun JsonNode.createNode(fieldName: String?): JsonNode = when (this) {
     is ObjectNode -> putObject(fieldName)
@@ -20,7 +31,18 @@ fun JsonNode.createNode(fieldName: String?): JsonNode = when (this) {
 }
 
 /**
- * [fieldName]을 키로 하여 [JsonNode] 배열을 추가합니다.
+ * 현재 노드에 배열 노드를 생성해 추가합니다.
+ *
+ * ## 동작/계약
+ * - 수신 노드가 [ObjectNode]면 [fieldName] 키에 배열 노드를 생성합니다.
+ * - 수신 노드가 [ArrayNode]면 배열 끝에 배열 노드를 추가합니다.
+ * - 그 외 노드 타입이면 독립된 새 배열 노드를 반환합니다.
+ *
+ * ```kotlin
+ * val root = nodeFactory.objectNode()
+ * val arr = root.createArray("items")
+ * // arr.isArray == true
+ * ```
  */
 fun JsonNode.createArray(fieldName: String?): JsonNode = when (this) {
     is ObjectNode -> putArray(fieldName)
@@ -29,7 +51,22 @@ fun JsonNode.createArray(fieldName: String?): JsonNode = when (this) {
 }
 
 /**
- * Jackson JSON 처리에서 `addValue` 함수를 제공합니다.
+ * 현재 노드에 값을 추가하거나 교체합니다.
+ *
+ * ## 동작/계약
+ * - [ObjectNode]에서 [fieldName]이 null/blank이면 [IllegalArgumentException]이 발생합니다.
+ * - 지원 타입(Boolean, Number, String, ByteArray 등)은 해당 JsonNode로 변환합니다.
+ * - 지원하지 않는 타입이면 [IllegalArgumentException]이 발생합니다.
+ * - 수신 노드가 Object/Array가 아니면 [JsonException]이 발생합니다.
+ *
+ * ```kotlin
+ * val root = nodeFactory.objectNode()
+ * root.addValue(1, "id")
+ * // root["id"].asInt() == 1
+ * ```
+ *
+ * @param value 추가할 값
+ * @param fieldName ObjectNode일 때 사용할 필드 이름
  */
 fun <T> JsonNode.addValue(value: T, fieldName: String?) = apply {
     if (this is ObjectNode && fieldName.isNullOrBlank()) {
@@ -119,7 +156,18 @@ fun JsonNode.addBigInteger(value: BigInteger, fieldName: String?) = addValue(val
 fun JsonNode.addBigInteger(value: ByteArray, fieldName: String?) = addValue(value, fieldName)
 
 /**
- * [fieldName]을 키로 하여 `Null` 값을 가지는 JsonNode를 추가합니다.
+ * 현재 노드에 `null` 값을 추가합니다.
+ *
+ * ## 동작/계약
+ * - [ObjectNode]에서 [fieldName]이 null/blank이면 [IllegalArgumentException]이 발생합니다.
+ * - [ArrayNode]면 배열 끝에 null을 추가합니다.
+ * - 수신 노드가 Object/Array가 아니면 [JsonException]이 발생합니다.
+ *
+ * ```kotlin
+ * val root = nodeFactory.objectNode()
+ * root.addNull("deletedAt")
+ * // root["deletedAt"].isNull == true
+ * ```
  */
 fun JsonNode.addNull(fieldName: String?) = apply {
     if (this is ObjectNode && fieldName.isNullOrBlank()) {

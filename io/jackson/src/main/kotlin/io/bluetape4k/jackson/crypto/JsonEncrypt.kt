@@ -8,27 +8,22 @@ import io.bluetape4k.crypto.encrypt.Encryptor
 import kotlin.reflect.KClass
 
 /**
- * Json Property 를 암호화하여 JSON 으로 만들고, 객체로 변환 시에 복호화 하는 기능을 제공합니다.
+ * 문자열 필드를 JSON 직렬화 시 암호화하고 역직렬화 시 복호화하도록 지정하는 애너테이션입니다.
  *
- * ```
+ * ## 동작/계약
+ * - 직렬화는 [JsonEncryptSerializer], 역직렬화는 [JsonEncryptDeserializer]가 처리합니다.
+ * - [encryptor]로 지정한 타입의 인스턴스를 [JsonEncryptors]에서 조회해 사용합니다.
+ * - 필드 값 자체는 객체 메모리에서 변경하지 않고 JSON 표현만 암복호화합니다.
+ *
+ * ```kotlin
  * data class User(
  *     val username: String,
- *     @field:JsonEncrypt
- *     val password: String
+ *     @field:JsonEncrypt val password: String,
  * )
+ * // password 필드는 암호문 문자열로 직렬화됨
+ * ```
  *
- * val mapper = ObjectMapperProvider.defaultObjectMapper
- * val user = User("debop", "debop@1968")
- * val encryptedText = mapper.writeAsString(user)
- *
- * encryptedText:
- * {
- *   "username" : "debop",
- *   "password" : "N1E79rV_n0d0eaZPMArKEwz4BxYEVP41ixR0T7SnF7k\r\n"
- * }
- *
- * @property encryptor
- * @constructor Create empty Json encrypt
+ * @property encryptor 사용할 Encryptor 구현 타입
  */
 @JacksonAnnotationsInside
 @JsonSerialize(using = JsonEncryptSerializer::class)
