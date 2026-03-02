@@ -10,7 +10,18 @@ import javax.cache.spi.CachingProvider
 import kotlin.concurrent.withLock
 
 /**
- * Hazelcast NearCache를 제공하는 JCache [CachingProvider] 구현체입니다.
+ * Hazelcast near cache용 JCache [CachingProvider] 구현체입니다.
+ *
+ * ## 동작/계약
+ * - `(ClassLoader, URI)` 조합별로 [HazelcastNearCacheManager]를 단일 인스턴스로 재사용합니다.
+ * - `close` 계열 호출은 등록된 매니저를 닫고 맵에서 제거합니다.
+ * - optional feature는 지원하지 않아 항상 `false`를 반환합니다.
+ *
+ * ```kotlin
+ * val provider = HazelcastNearCachingProvider()
+ * val manager = provider.cacheManager
+ * // manager.isClosed == false
+ * ```
  */
 class HazelcastNearCachingProvider: CachingProvider {
 
