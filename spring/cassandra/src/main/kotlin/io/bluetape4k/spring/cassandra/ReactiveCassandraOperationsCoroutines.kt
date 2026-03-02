@@ -27,12 +27,48 @@ import org.springframework.data.cassandra.core.truncate
 import org.springframework.data.cassandra.core.update
 import org.springframework.data.domain.Slice
 
+/**
+ * [Statement] 조회 결과를 [Flow]로 반환합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 `select<T>(statement).asFlow()`를 호출합니다.
+ * - 결과가 없으면 빈 Flow가 반환됩니다.
+ *
+ * ```kotlin
+ * val rows = reactiveOps.selectAsFlow<User>(statement)
+ * // result == rows
+ * ```
+ */
 inline fun <reified T: Any> ReactiveCassandraOperations.selectAsFlow(statement: Statement<*>): Flow<T> =
     select<T>(statement).asFlow()
 
+/**
+ * CQL 문자열 조회 결과를 [Flow]로 반환합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 `select<T>(cql).asFlow()`를 호출합니다.
+ * - 매핑 실패 예외는 수집 시점에 그대로 전파됩니다.
+ *
+ * ```kotlin
+ * val rows = reactiveOps.selectAsFlow<User>("SELECT * FROM users")
+ * // result == rows
+ * ```
+ */
 inline fun <reified T: Any> ReactiveCassandraOperations.selectAsFlow(cql: String): Flow<T> =
     select<T>(cql).asFlow()
 
+/**
+ * [Query] 조회 결과를 [Flow]로 반환합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 `select<T>(query).asFlow()`를 호출합니다.
+ * - 조건에 맞는 결과가 없으면 빈 Flow가 반환됩니다.
+ *
+ * ```kotlin
+ * val rows = reactiveOps.selectAsFlow<User>(query)
+ * // result == rows
+ * ```
+ */
 inline fun <reified T: Any> ReactiveCassandraOperations.selectAsFlow(query: Query): Flow<T> =
     select<T>(query).asFlow()
 

@@ -9,7 +9,17 @@ import org.springframework.web.server.WebFilterChain
 import reactor.core.publisher.Mono
 
 /**
- * Webflux 의 [ServerHttpRequest] 정보를 `ReactorContext` 에 보관해서 사용할 수 있는 [WebFilter] 구현체.
+ * 현재 요청을 Reactor Context에 저장해 다운스트림에서 조회할 수 있게 하는 [WebFilter]입니다.
+ *
+ * ## 동작/계약
+ * - `exchange.request.mutate().build()`로 요청 스냅샷을 만든 뒤 체인을 실행합니다.
+ * - 체인 실행 시 `contextWrite`로 `ServerHttpRequest::class.java` 키에 요청을 저장합니다.
+ * - 같은 키를 사용하는 [HttpRequestHolder]에서 요청을 조회할 수 있습니다.
+ *
+ * ```kotlin
+ * @Bean
+ * fun httpRequestCapturer(): WebFilter = HttpRequestCapturer()
+ * ```
  *
  * @see io.bluetape4k.spring.webflux.filter.HttpRequestHolder
  */

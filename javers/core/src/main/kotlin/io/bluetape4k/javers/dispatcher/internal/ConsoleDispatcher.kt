@@ -3,9 +3,7 @@ package io.bluetape4k.javers.dispatcher.internal
 import io.bluetape4k.javers.dispatcher.JaversDispatcher
 
 /**
- * Domain Object의 변화를 Console로 출력하는 [JaversDispatcher] 입니다.
- *
- * @property logger slf4j logger
+ * 도메인 객체의 변경 이벤트를 표준 출력(Console)으로 출력하는 [JaversDispatcher] 구현체.
  */
 class ConsoleDispatcher: JaversDispatcher {
 

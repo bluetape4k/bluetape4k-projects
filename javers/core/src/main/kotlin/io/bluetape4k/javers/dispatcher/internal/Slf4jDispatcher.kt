@@ -4,9 +4,9 @@ import io.bluetape4k.javers.dispatcher.JaversDispatcher
 import io.bluetape4k.logging.info
 
 /**
- * Domain Object의 변화를 [org.slf4j.Logger]로 출력하는 [JaversDispatcher] 입니다.
+ * 도메인 객체의 변경 이벤트를 SLF4J [org.slf4j.Logger]로 출력하는 [JaversDispatcher] 구현체.
  *
- * @property logger slf4j logger
+ * @property logger 이벤트를 기록할 SLF4J 로거
  */
 class Slf4jDispatcher(private val logger: org.slf4j.Logger): JaversDispatcher {
 

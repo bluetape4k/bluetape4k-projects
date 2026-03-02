@@ -15,10 +15,24 @@ import org.redisson.api.RedissonClient
 import org.redisson.client.codec.LongCodec
 
 /**
- * JaVers [CdoSnapshot] 을 Redisson Library를 이용하여
- * Redis Server에 저장, 로드하는 기능을 제공하는 [AbstractCdoSnapshotRepository] 구현체입니다.
+ * Redisson 기반 Redis [CdoSnapshot] 저장소.
  *
- * @param name repository name
+ * ## 동작/계약
+ * - [RListMultimap]으로 GlobalId별 스냅샷 바이트 배열을 관리한다
+ * - [loadSnapshots]는 Multimap에서 조회 후 역순 정렬하여 최신순으로 반환한다
+ * - CommitId → Sequence 매핑은 [RMap]에 [LongCodec]으로 저장한다
+ * - 코덱 기본값은 [JaversCodecs.LZ4Fory] (LZ4 압축 + Fory 직렬화)이다
+ *
+ * ```kotlin
+ * val repo = RedissonCdoSnapshotRepository("user", redissonClient)
+ * val javers = JaversBuilder.javers()
+ *     .registerJaversRepository(repo)
+ *     .build()
+ * javers.commit("author", entity)
+ * val snapshots = javers.findSnapshots(queryByClass<Person>())
+ * ```
+ *
+ * @param name 저장소 이름 (Redis key prefix에 사용)
  * @param redisson [RedissonClient] 인스턴스
  * @param codec [CdoSnapshot]을 encode/decode 할 [JaversCodec] 인스턴스
  */

@@ -10,8 +10,21 @@ import org.javers.core.metamodel.`object`.CdoSnapshot
 import org.springframework.kafka.core.KafkaTemplate
 
 /**
- * Javers 의 Audit 정보를 Kafka 로 발행합니다.
- * 저장소로 쓰이는 것이 아니므로, 저장 역할만 가능하고, 조회 기능은 없습니다.
+ * JaVers [CdoSnapshot]을 Kafka 토픽으로 발행하는 쓰기 전용 저장소.
+ *
+ * ## 동작/계약
+ * - [saveSnapshot]에서 [KafkaTemplate.sendDefault]로 GlobalId를 key, 인코딩된 스냅샷을 value로 발행한다
+ * - 발행 실패 시 예외를 로깅하고 삼킨다 (조용한 실패)
+ * - 조회 메서드([loadSnapshots], [getKeys] 등)는 항상 빈 컬렉션/0을 반환한다
+ * - 코덱은 [JaversCodecs.String] (비압축 JSON 문자열)을 사용한다
+ *
+ * ```kotlin
+ * val repo = KafkaCdoSnapshotRepository(kafkaTemplate)
+ * val javers = JaversBuilder.javers()
+ *     .registerJaversRepository(repo)
+ *     .build()
+ * // javers.commit("author", entity) → Kafka 토픽으로 스냅샷 발행
+ * ```
  *
  * @property kafkaOperations [KafkaTemplate] 인스턴스
  */

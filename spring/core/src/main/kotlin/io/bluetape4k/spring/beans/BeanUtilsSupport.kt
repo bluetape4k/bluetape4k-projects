@@ -1,6 +1,5 @@
 package io.bluetape4k.spring.beans
 
-import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.support.assertNotBlank
 import io.bluetape4k.utils.KotlinDelegates
 import org.springframework.beans.BeanInstantiationException
@@ -11,27 +10,32 @@ import java.beans.PropertyDescriptor
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 
-
-private val log by lazy { KotlinLogging.logger {} }
-
 /**
- * 지정한 수형의 새로운 인스턴스를 생성합니다.
+ * 수신 클래스의 기본 생성자를 사용해 인스턴스를 생성합니다.
  *
- * ```
- * val instance = BeanClass::class.java.instantiateClass()
- * ```
+ * ## 동작/계약
+ * - 구현은 [BeanUtils.instantiateClass] 호출입니다.
+ * - 생성 실패 시 Spring 예외를 전파합니다.
  *
- * @receiver Class<T> 생성할 인스턴스의 수형
- * @return T 생성된 인스턴스
+ * ```kotlin
+ * val instance = MyType::class.java.instantiateClass()
+ * // instance is MyType
+ * ```
  */
 fun <T> Class<T>.instantiateClass(): T = BeanUtils.instantiateClass(this)
 
 /**
- * [Constructor]`<T>`와 인자를 이용하여 인스턴스를 생성합니다.
+ * 생성자와 인자로 인스턴스를 생성합니다.
  *
- * @receiver Constructor<T>   생성자
- * @param args Array<out Any?> 생성자의 인자 값들
- * @return 생성된 인스턴스
+ * ## 동작/계약
+ * - Kotlin 타입이면 [KotlinDelegates.instantiateClass], 아니면 [BeanUtils.instantiateClass]를 사용합니다.
+ * - 생성 과정 예외는 [BeanInstantiationException]으로 감싸서 던집니다.
+ *
+ * ```kotlin
+ * val ctor = MyType::class.java.getDeclaredConstructor(String::class.java)
+ * val instance = ctor.instantiateClass("value")
+ * // instance is MyType
+ * ```
  */
 fun <T: Any> Constructor<T>.instantiateClass(vararg args: Any?): T {
     return try {
@@ -48,26 +52,31 @@ fun <T: Any> Constructor<T>.instantiateClass(vararg args: Any?): T {
 }
 
 /**
- * Receiver 수형으로 인스턴스를 생성하고, [assignableTo] 수형으로 cast 후 반환합니다.
+ * 수신 클래스로 인스턴스를 생성한 뒤 지정 타입으로 반환합니다.
  *
- * ```
- * val instance = BeanClass::class.java.instantiateClass<DerivedBeanClass>()
- * ```
+ * ## 동작/계약
+ * - 구현은 [BeanUtils.instantiateClass]의 `assignableTo` 오버로드를 호출합니다.
+ * - 타입이 맞지 않으면 Spring 예외를 전파합니다.
  *
- * @receiver Class<*> 생성할 인스턴스의 수형
- * @param assignableTo Class<T> 변환할 수형
- * @return T 생성된 인스턴스
+ * ```kotlin
+ * val bean = ImplType::class.java.instantiateClass(BaseType::class.java)
+ * // bean is BaseType
+ * ```
  */
 fun <T> Class<*>.instantiateClass(assignableTo: Class<T>): T =
     BeanUtils.instantiateClass(this, assignableTo)
 
-
 /**
- * 현 수형의 [methodName]의 메소드 정보를 찾습니다.
+ * 공개 메서드에서 이름과 시그니처가 일치하는 메서드를 찾습니다.
  *
- * @param methodName method name to find
- * @param paramTypes types of method parameter
- * @return 메소드 정보, 찾지 못하면 null 반환
+ * ## 동작/계약
+ * - [methodName]이 비어 있으면 `assertNotBlank`에 의해 예외가 발생합니다.
+ * - 구현은 [BeanUtils.findMethod] 호출입니다.
+ *
+ * ```kotlin
+ * val method = MyType::class.java.findMethod("execute")
+ * // method?.name == "execute"
+ * ```
  */
 fun Class<*>.findMethod(methodName: String, vararg paramTypes: Class<*>): Method? {
     methodName.assertNotBlank("methodName")
@@ -75,11 +84,16 @@ fun Class<*>.findMethod(methodName: String, vararg paramTypes: Class<*>): Method
 }
 
 /**
- * 현 수형의 [methodName]의 메소드 정보를 찾습니다.
+ * 선언 메서드에서 이름과 시그니처가 일치하는 메서드를 찾습니다.
  *
- * @param methodName method name to find
- * @param paramTypes types of method parameter
- * @return 메소드 정보, 찾지 못하면 null 반환
+ * ## 동작/계약
+ * - [methodName]이 비어 있으면 `assertNotBlank`에 의해 예외가 발생합니다.
+ * - 구현은 [BeanUtils.findDeclaredMethod] 호출입니다.
+ *
+ * ```kotlin
+ * val method = MyType::class.java.findDeclaredMethod("execute")
+ * // method?.name == "execute"
+ * ```
  */
 fun Class<*>.findDeclaredMethod(methodName: String, vararg paramTypes: Class<*>): Method? {
     methodName.assertNotBlank("methodName")
@@ -87,10 +101,16 @@ fun Class<*>.findDeclaredMethod(methodName: String, vararg paramTypes: Class<*>)
 }
 
 /**
- * 현 수형의 [methodName]의 메소드 정보를 찾습니다.
+ * 지정 이름의 공개 메서드 중 파라미터 수가 최소인 메서드를 찾습니다.
  *
- * @param methodName method name to find
- * @return 메소드 정보, 찾지 못하면 null 반환
+ * ## 동작/계약
+ * - [methodName]이 비어 있으면 `assertNotBlank`에 의해 예외가 발생합니다.
+ * - 구현은 [BeanUtils.findMethodWithMinimalParameters] 호출입니다.
+ *
+ * ```kotlin
+ * val method = MyType::class.java.findMethodWithMinimalParameters("execute")
+ * // method?.name == "execute"
+ * ```
  */
 fun Class<*>.findMethodWithMinimalParameters(methodName: String): Method? {
     methodName.assertNotBlank("methodName")
@@ -98,10 +118,16 @@ fun Class<*>.findMethodWithMinimalParameters(methodName: String): Method? {
 }
 
 /**
- * 현 수형의 [methodName]의 메소드 정보를 찾습니다.
+ * 지정 이름의 선언 메서드 중 파라미터 수가 최소인 메서드를 찾습니다.
  *
- * @param methodName method name to find
- * @return 메소드 정보, 찾지 못하면 null 반환
+ * ## 동작/계약
+ * - [methodName]이 비어 있으면 `assertNotBlank`에 의해 예외가 발생합니다.
+ * - 구현은 [BeanUtils.findDeclaredMethodWithMinimalParameters] 호출입니다.
+ *
+ * ```kotlin
+ * val method = MyType::class.java.findDeclaredMethodWithMinimalParameters("execute")
+ * // method?.name == "execute"
+ * ```
  */
 fun Class<*>.findDeclaredMethodWithMinimalParameters(methodName: String): Method? {
     methodName.assertNotBlank("methodName")
@@ -109,10 +135,16 @@ fun Class<*>.findDeclaredMethodWithMinimalParameters(methodName: String): Method
 }
 
 /**
- * 현 수형의 [methodName]의 메소드 정보를 찾습니다.
+ * 메서드 배열에서 지정 이름의 메서드 중 파라미터 수가 최소인 메서드를 찾습니다.
  *
- * @param methodName method name to find
- * @return 메소드 정보, 찾지 못하면 null 반환
+ * ## 동작/계약
+ * - [methodName]이 비어 있으면 `assertNotBlank`에 의해 예외가 발생합니다.
+ * - 구현은 [BeanUtils.findMethodWithMinimalParameters] 배열 오버로드 호출입니다.
+ *
+ * ```kotlin
+ * val method = MyType::class.java.methods.findMethodWithMinimalParameters("execute")
+ * // method?.name == "execute"
+ * ```
  */
 fun Array<out Method>.findMethodWithMinimalParameters(methodName: String): Method? {
     methodName.assertNotBlank("methodName")
@@ -120,31 +152,46 @@ fun Array<out Method>.findMethodWithMinimalParameters(methodName: String): Metho
 }
 
 /**
- * 지정한 수형에서 [signature]에 해당하는 [Method]를 찾습니다.
- * [signature] 는 [Method]의 signature를 표현한 것입니다.
+ * 시그니처 문자열에 해당하는 메서드를 해석합니다.
  *
- * @receiver Class<*>
- * @param signature 메소드의 signature
- * @return Method? 찾은 메소드 인스턴스
+ * ## 동작/계약
+ * - 시그니처 파싱/조회는 [BeanUtils.resolveSignature]에 위임합니다.
+ * - 해석 실패 시 `null`을 반환합니다.
+ *
+ * ```kotlin
+ * val method = MyType::class.java.resolveSignature("execute(java.lang.String)")
+ * // method?.name == "execute"
+ * ```
  */
 fun Class<*>.resolveSignature(signature: String): Method? =
     BeanUtils.resolveSignature(signature, this)
 
 /**
- * 주어진 수형의 JavaBeans [PropertyDescriptor]를 얻습니다.
+ * 수신 클래스의 모든 JavaBeans [PropertyDescriptor]를 반환합니다.
  *
- * @receiver Class<*>
- * @return Array<PropertyDescriptor>
+ * ## 동작/계약
+ * - 구현은 [BeanUtils.getPropertyDescriptors] 호출입니다.
+ * - 반환 배열에는 읽기/쓰기 가능한 프로퍼티 기술자가 포함됩니다.
+ *
+ * ```kotlin
+ * val descriptors = MyType::class.java.getPropertyDescriptors()
+ * // descriptors.isNotEmpty() == true
+ * ```
  */
 fun Class<*>.getPropertyDescriptors(): Array<PropertyDescriptor> =
     BeanUtils.getPropertyDescriptors(this)
 
 /**
- * 주어진 수형의 JavaBeans [PropertyDescriptor]를 얻습니다.
+ * 지정 이름의 JavaBeans [PropertyDescriptor]를 반환합니다.
  *
- * @receiver Class<*> Java Beans 수형
- * @param propertyName 속성 명
- * @return PropertyDescriptor or null
+ * ## 동작/계약
+ * - [propertyName]이 비어 있으면 `assertNotBlank`에 의해 예외가 발생합니다.
+ * - 구현은 [BeanUtils.getPropertyDescriptor] 호출입니다.
+ *
+ * ```kotlin
+ * val descriptor = MyType::class.java.getPropertyDescriptor("name")
+ * // descriptor?.name == "name"
+ * ```
  */
 fun Class<*>.getPropertyDescriptor(propertyName: String): PropertyDescriptor? {
     propertyName.assertNotBlank("requireName")
@@ -152,74 +199,105 @@ fun Class<*>.getPropertyDescriptor(propertyName: String): PropertyDescriptor? {
 }
 
 /**
- * 현 메소드를 표현하는 JavaBeans [PropertyDescriptor]를 찾습니다.
+ * 메서드로부터 대응되는 JavaBeans [PropertyDescriptor]를 찾습니다.
  *
- * @receiver [Method]
- * @return [PropertyDescriptor] or null
+ * ## 동작/계약
+ * - 구현은 [BeanUtils.findPropertyForMethod] 호출입니다.
+ * - 대응 프로퍼티가 없으면 `null`을 반환합니다.
+ *
+ * ```kotlin
+ * val descriptor = method.findPropertyDescriptor()
+ * // descriptor == null || descriptor.name.isNotEmpty()
+ * ```
  */
 fun Method.findPropertyDescriptor(): PropertyDescriptor? =
     BeanUtils.findPropertyForMethod(this)
 
 /**
- * 현 메소드를 표현하는 JavaBeans [PropertyDescriptor]를 찾습니다.
+ * 메서드와 대상 클래스로 대응되는 JavaBeans [PropertyDescriptor]를 찾습니다.
  *
- * @receiver [Method]
- * @param clazz Class<*> 대상 수형
- * @return [PropertyDescriptor] or null
+ * ## 동작/계약
+ * - 구현은 [BeanUtils.findPropertyForMethod]의 클래스 지정 오버로드 호출입니다.
+ * - 대응 프로퍼티가 없으면 `null`을 반환합니다.
+ *
+ * ```kotlin
+ * val descriptor = method.findPropertyDescriptor(MyType::class.java)
+ * // descriptor == null || descriptor.name.isNotEmpty()
+ * ```
  */
 fun Method.findPropertyDescriptor(clazz: Class<*>): PropertyDescriptor? =
     BeanUtils.findPropertyForMethod(this, clazz)
 
 /**
- * 특정 속성의 쓰기 메소드를 위한 MethodParameter 객체를 얻습니다.
+ * 프로퍼티 쓰기 메서드의 [MethodParameter]를 반환합니다.
  *
- * @receiver the PropertyDescriptor for the property
- * @return a corresponding MethodParameter object
+ * ## 동작/계약
+ * - 구현은 [BeanUtils.getWriteMethodParameter] 호출입니다.
+ * - 쓰기 메서드가 없는 경우 Spring 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val parameter = descriptor.getWriteMethodParamter()
+ * // parameter.parameterType != null
+ * ```
  */
 fun PropertyDescriptor.getWriteMethodParamter(): MethodParameter =
     BeanUtils.getWriteMethodParameter(this)
 
 /**
- * Check if the given type represents a "simple" property: a simple value type or an array of simple value types.
+ * 타입이 simple property인지 확인합니다.
  *
- * [isSimpleValueType(Class)] for the definition of **simple value type**
+ * ## 동작/계약
+ * - simple value type 또는 그 배열이면 `true`를 반환합니다.
+ * - 구현은 [BeanUtils.isSimpleProperty] 호출입니다.
  *
- * Used to determine properties to check for a "simple" dependency-check.
- *
- * @receiver the type to check
- * @return whether the given type represents a "simple" property
- * @see [isSimpleValueType]
+ * ```kotlin
+ * val simple = String::class.java.isSimpleProperty()
+ * // simple == true
+ * ```
  */
-
 fun Class<*>.isSimpleProperty(): Boolean = BeanUtils.isSimpleProperty(this)
 
 /**
- * Check if the given type represents a "simple" value type: a primitive or primitive wrapper,
- * an enum, a String or other CharSequence, a Number, a Date, a Temporal, a URI, a URL, a Locale, or a Class.
+ * 타입이 simple value type인지 확인합니다.
  *
- * @receiver the type to check
- * @return whether the given type represents a "simple" value type
- * @see  [isSimpleProperty]
+ * ## 동작/계약
+ * - primitive/문자열/숫자 등 Spring이 정의한 단순 값 타입이면 `true`를 반환합니다.
+ * - 구현은 [BeanUtils.isSimpleValueType] 호출입니다.
+ *
+ * ```kotlin
+ * val simple = Int::class.javaObjectType.isSimpleValueType()
+ * // simple == true
+ * ```
  */
 fun Class<*>.isSimpleValueType(): Boolean = BeanUtils.isSimpleValueType(this)
 
 /**
- * 지정한 Bean의 속성을 [target]의 속성에 설정합니다.
+ * 소스 빈의 프로퍼티를 대상 빈으로 복사합니다.
  *
- * @receiver Source bean
- * @param target Target bean
- * @param ignoreProperties 복사에서 제외할 속성명
+ * ## 동작/계약
+ * - [ignoreProperties]에 지정한 프로퍼티는 복사하지 않습니다.
+ * - 구현은 [BeanUtils.copyProperties] 호출입니다.
+ *
+ * ```kotlin
+ * source.copyProperties(target, "id")
+ * // id를 제외한 공통 프로퍼티가 target에 반영
+ * ```
  */
 fun Any.copyProperties(target: Any, vararg ignoreProperties: String) {
     BeanUtils.copyProperties(this, target, *ignoreProperties)
 }
 
 /**
- * 지정한 Bean의 속성을 [target]의 속성에 설정합니다.
+ * 소스 빈의 프로퍼티를 대상 빈으로 복사하되 대상 타입 범위를 제한합니다.
  *
- * @receiver Source bean
- * @param target Target bean
- * @param editable the class (or interface) to restrict property setting to
+ * ## 동작/계약
+ * - [editable] 타입에 선언된 프로퍼티만 복사 대상으로 사용합니다.
+ * - 구현은 [BeanUtils.copyProperties]의 `editable` 오버로드 호출입니다.
+ *
+ * ```kotlin
+ * source.copyProperties(target, BaseType::class.java)
+ * // BaseType 범위의 프로퍼티만 복사
+ * ```
  */
 fun Any.copyProperties(target: Any, editable: Class<*>) {
     BeanUtils.copyProperties(this, target, editable)

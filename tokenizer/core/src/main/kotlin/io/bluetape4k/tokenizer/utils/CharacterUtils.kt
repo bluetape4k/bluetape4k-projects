@@ -7,7 +7,19 @@ import java.io.Reader
 import java.io.Serializable
 
 /**
- * [CharacterUtils] provides a unified interface to Character-related operations.
+ * 유니코드 코드포인트 기반 문자 처리 연산을 일관된 방식으로 제공하는 추상 유틸리티다.
+ *
+ * ## 동작/계약
+ * - 기본 구현은 `Java5CharacterUtils` singleton으로 제공된다.
+ * - surrogate pair를 고려한 읽기/변환 API를 포함한다.
+ * - 버퍼 기반 읽기 시 trailing high surrogate를 별도로 보관해 다음 호출과 연결한다.
+ *
+ * ```kotlin
+ * val utils = CharacterUtils.getInstance()
+ * val buffer = CharacterUtils.newCharacterBuffer(8)
+ * // buffer.length == 0
+ * // utils.codePointCount("한글") == 2
+ * ```
  */
 abstract class CharacterUtils: Serializable {
 
@@ -16,15 +28,57 @@ abstract class CharacterUtils: Serializable {
         private val JAVA_5: CharacterUtils = Java5CharacterUtils()
 
         @JvmStatic
+        /**
+         * 런타임 기본 문자 유틸리티 구현 인스턴스를 반환한다.
+         *
+         * ## 동작/계약
+         * - 항상 동일 singleton 인스턴스를 반환한다.
+         * - 현재 구현은 `Java5CharacterUtils`로 고정되어 있다.
+         *
+         * ```kotlin
+         * val one = CharacterUtils.getInstance()
+         * val two = CharacterUtils.getInstance()
+         * // one === two
+         * ```
+         */
         fun getInstance(): CharacterUtils = JAVA_5
 
         @JvmStatic
+        /**
+         * 지정 크기의 문자 버퍼를 생성한다.
+         *
+         * ## 동작/계약
+         * - `bufferSize >= 2`를 `assert`로 검증한다.
+         * - 버퍼 내용은 비어 있고 `offset`, `length`는 0으로 초기화된다.
+         * - assert 비활성(`-ea` 미적용) 환경에서는 조건 검증이 생략될 수 있다.
+         *
+         * ```kotlin
+         * val buffer = CharacterUtils.newCharacterBuffer(4)
+         * // buffer.buffer.size == 4
+         * // buffer.length == 0
+         * ```
+         */
         fun newCharacterBuffer(bufferSize: Int): CharacterBuffer {
             assert(bufferSize >= 2) { "buffer size must be >= 2" }
             return CharacterBuffer(CharArray(bufferSize), 0, 0)
         }
 
         @JvmStatic
+        /**
+         * `Reader`에서 지정 길이만큼 문자를 읽어 대상 배열에 채운다.
+         *
+         * ## 동작/계약
+         * - EOF(`-1`)를 만나거나 `len`만큼 채울 때까지 반복 읽기를 수행한다.
+         * - 반환값은 실제로 읽은 문자 수다.
+         * - 부분 읽기 상황에서도 이미 읽은 데이터는 `dest`에 유지된다.
+         *
+         * ```kotlin
+         * val out = CharArray(5)
+         * val read = CharacterUtils.readFully("abc".reader(), out, 0, 5)
+         * // read == 3
+         * // String(out, 0, read) == "abc"
+         * ```
+         */
         fun readFully(reader: Reader, dest: CharArray, offset: Int, len: Int): Int {
             var read = 0
             while (read < len) {
@@ -39,31 +93,61 @@ abstract class CharacterUtils: Serializable {
     }
 
     /**
-     * [CharSequence] 의 주어진 인덱스에 있는 유니코드 code point를 반환합니다.
+     * `CharSequence`의 지정 위치 코드포인트를 반환한다.
      *
-     * @param seq    문자열
-     * @param offset 오프셋
-     * @return [offset]의 유니코드 code point
+     * ## 동작/계약
+     * - 구현체가 surrogate pair를 반영해 코드포인트를 계산한다.
+     * - `offset`은 조회 시작 인덱스다.
+     *
+     * ```kotlin
+     * val cp = CharacterUtils.getInstance().codePointAt("abc", 1)
+     * // cp == 'b'.code
+     * ```
      */
     abstract fun codePointAt(seq: CharSequence, offset: Int = 0): Int
 
     /**
-     * [CharArray]의 주어진 인덱스에 있는 유니코드 code point를 반환합니다.
+     * 문자 배열 구간에서 지정 위치 코드포인트를 반환한다.
      *
-     * @param chars  문자 배열
-     * @param offset 오프셋 (시작 인덱스)
-     * @param limit  코드 포인트를 가져올 끝 인덱스
-     * @return [offset]의 유니코드 code point
+     * ## 동작/계약
+     * - `offset`은 시작 위치, `limit`은 탐색 가능한 끝 경계다.
+     * - surrogate pair가 포함된 입력에서도 한 코드포인트를 반환한다.
+     *
+     * ```kotlin
+     * val chars = "한".toCharArray()
+     * val cp = CharacterUtils.getInstance().codePointAt(chars, 0, chars.size)
+     * // Character.isValidCodePoint(cp) == true
+     * ```
      */
     abstract fun codePointAt(chars: CharArray, offset: Int, limit: Int): Int
 
     /**
-     * [seq]의 문자 수를 반환합니다.
+     * 입력 문자열의 코드포인트 개수를 반환한다.
+     *
+     * ## 동작/계약
+     * - 구현체 기준으로 surrogate pair를 1개 코드포인트로 계산한다.
+     * - 반환값은 문자열 길이와 다를 수 있다.
+     *
+     * ```kotlin
+     * val count = CharacterUtils.getInstance().codePointCount("A😀")
+     * // count == 2
+     * ```
      */
     abstract fun codePointCount(seq: CharSequence): Int
 
     /**
-     * [buffer]의 [offset]부터 [limit]까지의 문자를 소문자로 변환합니다.
+     * 버퍼 구간의 문자를 코드포인트 단위로 소문자 변환한다.
+     *
+     * ## 동작/계약
+     * - `limit`이 버퍼 크기를 넘으면 검증 예외가 발생한다.
+     * - 변환은 전달된 `buffer`를 직접 수정한다.
+     * - 인덱스 이동은 코드포인트 길이(`Character.toChars` 반환값)로 계산한다.
+     *
+     * ```kotlin
+     * val chars = "ABC".toCharArray()
+     * CharacterUtils.getInstance().toLowerCase(chars, 0, chars.size)
+     * // String(chars) == "abc"
+     * ```
      */
     fun toLowerCase(buffer: CharArray, offset: Int, limit: Int) {
         buffer.size.assertGe(limit, "buffer size")
@@ -76,7 +160,17 @@ abstract class CharacterUtils: Serializable {
     }
 
     /**
-     * [buffer]의 [offset]부터 [limit]까지의 문자를 대문자로 변환합니다.
+     * 버퍼 구간의 문자를 코드포인트 단위로 대문자 변환한다.
+     *
+     * ## 동작/계약
+     * - `limit`과 `offset`에 대해 범위 검증을 수행한다.
+     * - 변환 결과는 입력 `buffer`에 제자리 반영된다.
+     *
+     * ```kotlin
+     * val chars = "abc".toCharArray()
+     * CharacterUtils.getInstance().toUpperCase(chars, 0, chars.size)
+     * // String(chars) == "ABC"
+     * ```
      */
     fun toUpperCase(buffer: CharArray, offset: Int, limit: Int) {
         buffer.size.assertGe(limit, "buffer size")
@@ -89,14 +183,19 @@ abstract class CharacterUtils: Serializable {
     }
 
     /**
-     * [src]의 [srcOff]부터 [srcLen]까지의 문자를 code points로 변환하여 [dest]에 저장합니다.
+     * 문자 배열 구간을 코드포인트 배열로 변환해 저장한다.
      *
-     * @param src    변환할 문자 배열
-     * @param srcOff 변환할 문자 배열의 시작 인덱스
-     * @param srcLen 변환할 문자 배열의 길이
-     * @param dest   변환된 code points를 저장할 배열
-     * @param destOff 변환된 code points를 저장할 배열의 시작 인덱스
-     * @return 변환된 code points의 수
+     * ## 동작/계약
+     * - `srcLen`은 0 이상이어야 하며 음수면 검증 예외가 발생한다.
+     * - 각 코드포인트를 `dest[destOff + index]`에 순차 기록한다.
+     * - 반환값은 실제로 기록한 코드포인트 개수다.
+     *
+     * ```kotlin
+     * val out = IntArray(4)
+     * val count = CharacterUtils.getInstance().toCodePoints("ab".toCharArray(), 0, 2, out, 0)
+     * // count == 2
+     * // out[0] == 'a'.code
+     * ```
      */
     fun toCodePoints(src: CharArray, srcOff: Int, srcLen: Int, dest: IntArray, destOff: Int): Int {
         srcLen.assertZeroOrPositiveNumber("srcLen")
@@ -113,14 +212,19 @@ abstract class CharacterUtils: Serializable {
     }
 
     /**
-     * [src]의 [srcOff]부터 [srcLen]까지의 code points를 문자로 변환하여 [dest]에 저장합니다.
+     * 코드포인트 배열 구간을 문자 배열로 변환해 저장한다.
      *
-     * @param src    변환할 code points 배열
-     * @param srcOff 변환할 code points 배열의 시작 인덱스
-     * @param srcLen 변환할 code points 배열의 길이
-     * @param dest   변환된 문자를 저장할 배열
-     * @param destOff 변환된 문자를 저장할 배열의 시작 인덱스
-     * @return 변환된 문자의 수
+     * ## 동작/계약
+     * - `srcLen`은 0 이상이어야 한다.
+     * - 각 코드포인트를 `Character.toChars`로 변환해 `dest`에 이어서 기록한다.
+     * - 반환값은 기록된 문자 수(UTF-16 code unit 수)다.
+     *
+     * ```kotlin
+     * val dest = CharArray(4)
+     * val written = CharacterUtils.getInstance().toChars(intArrayOf('a'.code, 'b'.code), 0, 2, dest, 0)
+     * // written == 2
+     * // String(dest, 0, written) == "ab"
+     * ```
      */
     fun toChars(src: IntArray, srcOff: Int, srcLen: Int, dest: CharArray, destOff: Int): Int {
         srcLen.assertZeroOrPositiveNumber("srcLen")
@@ -133,17 +237,33 @@ abstract class CharacterUtils: Serializable {
     }
 
     /**
-     * [buffer]에 [reader]로부터 최대 [numChars]만큼의 문자를 채웁니다.
+     * 리더에서 문자를 읽어 버퍼를 채운다.
      *
-     * @param buffer   문자 버퍼
-     * @param reader   문자를 읽을 [Reader]
-     * @param numChars 읽을 문자 수
-     * @return [buffer]가 완전히 채워졌으면 `true`, 그렇지 않으면 `false`
+     * ## 동작/계약
+     * - 반환값이 `true`면 요청한 `numChars`만큼 완전히 채운 상태다.
+     * - 구현체는 surrogate pair 경계를 보존하기 위해 trailing high surrogate를 보관할 수 있다.
+     *
+     * ```kotlin
+     * val utils = CharacterUtils.getInstance()
+     * val buffer = CharacterUtils.newCharacterBuffer(4)
+     * val full = utils.fill(buffer, "ab".reader(), 2)
+     * // full == true
+     * ```
      */
     abstract fun fill(buffer: CharacterBuffer, reader: Reader, numChars: Int = buffer.buffer.size): Boolean
 
     /**
-     * `buf[start:start+count]` 의 offset code points 떨어진 위치를 반환합니다.
+     * 지정 구간에서 코드포인트 오프셋 이동 후의 인덱스를 계산한다.
+     *
+     * ## 동작/계약
+     * - `buf[start:start+count]` 범위를 기준으로 `index`에서 `offset`만큼 이동한다.
+     * - 구현체는 문자 경계를 고려해 올바른 UTF-16 인덱스를 반환한다.
+     *
+     * ```kotlin
+     * val chars = "abcd".toCharArray()
+     * val index = CharacterUtils.getInstance().offsetByCodePoints(chars, 0, chars.size, 1, 2)
+     * // index == 3
+     * ```
      */
     abstract fun offsetByCodePoints(buf: CharArray, start: Int, count: Int, index: Int, offset: Int): Int
 
@@ -236,12 +356,41 @@ abstract class CharacterUtils: Serializable {
 
     }
 
+    /**
+     * 문자 버퍼 상태(배열, 오프셋, 길이, trailing surrogate)를 보관하는 컨테이너다.
+     *
+     * ## 동작/계약
+     * - `buffer`는 실제 읽기/변환에 사용되는 가변 배열이다.
+     * - `offset`, `length`는 내부 연산으로 갱신되며 외부에서는 읽기 중심으로 사용한다.
+     * - `reset()` 호출 시 상태를 초기화해 재사용할 수 있다.
+     *
+     * ```kotlin
+     * val buffer = CharacterUtils.newCharacterBuffer(6)
+     * buffer.reset()
+     * // buffer.offset == 0
+     * // buffer.length == 0
+     * ```
+     */
     class CharacterBuffer private constructor(
         val buffer: CharArray,
     ) {
 
         companion object {
             @JvmStatic
+            /**
+             * 기존 배열을 감싸는 `CharacterBuffer`를 생성한다.
+             *
+             * ## 동작/계약
+             * - 전달한 `offset`, `length`를 그대로 상태값으로 설정한다.
+             * - 배열은 복사하지 않고 참조를 공유한다.
+             *
+             * ```kotlin
+             * val raw = CharArray(4)
+             * val buffer = CharacterUtils.CharacterBuffer(raw, offset = 1, length = 2)
+             * // buffer.offset == 1
+             * // buffer.length == 2
+             * ```
+             */
             operator fun invoke(buffer: CharArray, offset: Int = 0, length: Int = 0): CharacterBuffer {
                 return CharacterBuffer(buffer).apply {
                     this.offset = offset
@@ -250,13 +399,63 @@ abstract class CharacterUtils: Serializable {
             }
         }
 
+        /**
+         * 현재 유효 데이터의 시작 오프셋이다.
+         *
+         * ## 동작/계약
+         * - 내부 로직에서만 갱신할 수 있고 외부에서는 읽기 전용으로 사용한다.
+         * - `reset()` 호출 시 0으로 초기화된다.
+         *
+         * ```kotlin
+         * val buffer = CharacterUtils.newCharacterBuffer(4)
+         * buffer.reset()
+         * // buffer.offset == 0
+         * ```
+         */
         var offset: Int = 0
             internal set
+        /**
+         * 버퍼에 채워진 유효 문자 수다.
+         *
+         * ## 동작/계약
+         * - `fill` 호출 시 읽은 문자 수에 맞춰 갱신된다.
+         * - `reset()` 호출 시 0으로 초기화된다.
+         *
+         * ```kotlin
+         * val buffer = CharacterUtils.newCharacterBuffer(4)
+         * // buffer.length == 0
+         * ```
+         */
         var length: Int = 0
             internal set
 
+        /**
+         * 다음 읽기에서 이어 붙일 trailing high surrogate 문자를 저장한다.
+         *
+         * ## 동작/계약
+         * - 유효한 값이 없을 때는 `0.toChar()`를 사용한다.
+         * - `reset()` 호출 시 초기값으로 복원된다.
+         *
+         * ```kotlin
+         * val buffer = CharacterUtils.newCharacterBuffer(4)
+         * // buffer.lastTrailingHighSurrogate == 0.toChar()
+         * ```
+         */
         var lastTrailingHighSurrogate: Char = 0.toChar()
 
+        /**
+         * 버퍼 상태를 초기값으로 재설정한다.
+         *
+         * ## 동작/계약
+         * - `offset`, `length`, `lastTrailingHighSurrogate`를 모두 초기화한다.
+         * - 내부 배열 `buffer` 내용은 유지되며 메타데이터만 재설정된다.
+         *
+         * ```kotlin
+         * val buffer = CharacterUtils.newCharacterBuffer(4)
+         * buffer.reset()
+         * // buffer.length == 0
+         * ```
+         */
         fun reset() {
             offset = 0
             length = 0

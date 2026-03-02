@@ -7,7 +7,17 @@ import io.bluetape4k.tokenizer.korean.utils.Hangul.hasCoda
 import io.bluetape4k.tokenizer.korean.utils.KoreanPos.Noun
 
 /**
- * 한글 명사와 조사를 위한 Helper Class
+ * 명사/조사 결합과 이름·수사 판별에 사용하는 명사 유틸입니다.
+ *
+ * ## 동작/계약
+ * - 조사 결합 가능성은 받침 유무와 조사 첫 글자 규칙으로 판정한다.
+ * - 이름 판별은 `KoreanDictionaryProvider.nameDictionary` 분류 사전을 사용한다.
+ * - 미등록 1글자 명사 연쇄는 `collapseNouns`에서 하나의 unknown 명사로 합친다.
+ *
+ * ```kotlin
+ * val attachable = KoreanSubstantive.isJosaAttachable('플', '은')
+ * // attachable == true
+ * ```
  */
 object KoreanSubstantive: KLogging() {
 
@@ -15,19 +25,16 @@ object KoreanSubstantive: KLogging() {
     private val JOSA_HEAD_FOR_NO_CODA = setOf('는', '가', '를', '와', '야', '여', '라')
 
     /**
-     * [prevChar] 다음에 [headChar]이 오면 조사를 붙일 수 있는지 확인합니다.
+     * 앞 글자와 조사 첫 글자 조합이 문법적으로 가능한지 확인합니다.
      *
+     * ## 동작/계약
+     * - 앞 글자에 받침이 있으면 `는/가/를/와/야/여/라`를 제외한 조사만 허용한다.
+     * - 앞 글자에 받침이 없으면 `은/이/을/과/아`를 제외한 조사만 허용한다.
+     *
+     * ```kotlin
+     * val ok = KoreanSubstantive.isJosaAttachable('플', '은')
+     * // ok == true
      * ```
-     * isJosaAttachable('플', '은') == true // 애플은
-     * isJosaAttachable('플', '는') == false // 애플는
-     *
-     * isJosaAttachable('프', '은') == false // 애프은
-     * isJosaAttachable('프', '는') == true // 애프는
-     * ```
-     *
-     * @param prevChar 이전 글자
-     * @param headChar 다음 글자
-     * @return 조사를 붙일 수 있는지 여부
      */
     fun isJosaAttachable(prevChar: Char, headChar: Char): Boolean {
         return (hasCoda(prevChar) && headChar !in JOSA_HEAD_FOR_NO_CODA) ||
@@ -37,15 +44,17 @@ object KoreanSubstantive: KLogging() {
     //  fun isName(str: String): Boolean = isName(str as CharSequence)
 
     /**
-     * [chunk] 가 한글 이름인지 확인합니다.
+     * 주어진 문자열이 이름 사전 규칙에 맞는지 확인합니다.
      *
+     * ## 동작/계약
+     * - `full_name` 또는 `given_name` 사전에 있으면 즉시 `true`다.
+     * - 길이 3/4인 경우 성+이름 분해(`family_name` + `given_name`) 조합으로 판정한다.
+     * - 그 외 길이는 `false`를 반환한다.
+     *
+     * ```kotlin
+     * val isName = KoreanSubstantive.isName("문재인")
+     * // isName == true
      * ```
-     * isName("문재인") == true
-     * isName("강철중") == true
-     * isName("사다리") == false
-     * ```
-     * @param chunk 검사할 글자
-     * @return 이름인지 여부
      */
     fun isName(chunk: CharSequence): Boolean {
         if (nameDictionaryContains("full_name", chunk) || nameDictionaryContains("given_name", chunk)) {
@@ -67,16 +76,16 @@ object KoreanSubstantive: KLogging() {
     private val NUMBER_LAST_CHARS = "일이삼사오육칠팔구천백십해경조억만원배분초".map { it.code }.toSet()
 
     /**
-     * 한글 숫자 텍스트인지 확인합니다.
+     * 문자열이 한글 수사 문자 집합으로만 구성되는지 확인합니다.
      *
-     * ```
-     * isKoreanNumber("천이백만이십오") == true
-     * isKoreanNumber("이십") == true
-     * isKoreanNumber("일천").shouldBeTrue()
-     * ```
+     * ## 동작/계약
+     * - 마지막 문자는 `원/배/분/초`를 포함한 확장 집합으로 판정한다.
+     * - 마지막 이전 문자는 기본 수사 문자 집합으로 판정한다.
      *
-     * @param chunk 검사할 글자
-     * @return 한글 숫자인지 여부
+     * ```kotlin
+     * val number = KoreanSubstantive.isKoreanNumber("천이백만이십오")
+     * // number == true
+     * ```
      */
     fun isKoreanNumber(chunk: CharSequence): Boolean =
         (0 until chunk.length).fold(true) { output, i ->
@@ -88,27 +97,17 @@ object KoreanSubstantive: KLogging() {
         }
 
     /**
-     * 명사의 'ㅇ' 생략 변형인지 확인합니다.
+     * 이름의 종성/초성 변형(예: 우혀니)을 원형 이름으로 복원 가능한지 판정합니다.
      *
-     * ```
-     * 우혀니 -> 우현, 우현이       // true
-     * 빠순이 -> 빠순, 빠순이       // false
-     * ```
+     * ## 동작/계약
+     * - 길이 3..5가 아니면 `false`를 반환한다.
+     * - 마지막 글자가 `ㅇ` 초성 생략 패턴(`*히/니`류) 조건을 만족할 때만 복원 시도를 한다.
+     * - 복원 문자열과 마지막 글자 제거 문자열 둘 중 하나가 `isName`이면 `true`다.
      *
+     * ```kotlin
+     * val variation = KoreanSubstantive.isKoreanNameVariation("호혀니")
+     * // variation == true
      * ```
-     * isKoreanNameVariation("호혀니").shouldBeTrue()
-     * isKoreanNameVariation("혜지니").shouldBeTrue()
-     * isKoreanNameVariation("빠수니").shouldBeTrue()
-     * ```
-     *
-     * ```
-     * isKoreanNameVariation("가라찌").shouldBeFalse()
-     * isKoreanNameVariation("귀요미").shouldBeFalse()
-     * isKoreanNameVariation("사람이").shouldBeFalse()
-     * ```
-     *
-     * @param chunk 검사할 글자
-     * @return `ㅇ` 이 빠진 변형이면 true
      */
     fun isKoreanNameVariation(chunk: CharSequence): Boolean {
         // val nounDict = KoreanDictionaryProvider.koreanDictionary[Noun]!!
@@ -139,14 +138,19 @@ object KoreanSubstantive: KLogging() {
     }
 
     /**
-     * [posNodes]의 모든 단어를 하나의 알 수 없는 명사로 합칩니다.
+     * 연속된 1글자 명사 토큰을 하나의 unknown 명사 토큰으로 병합합니다.
      *
-     * ```
-     * val tokens = collapseNouns('마', '코', '토')  // KoreanToken("마코토", Noun, 0, 3, unknown = true)
-     * ```
+     * ## 동작/계약
+     * - `Noun`이면서 길이 1인 토큰이 연속되면 첫 토큰에 텍스트를 이어 붙여 병합한다.
+     * - 병합된 토큰은 `unknown = true`로 설정한다.
+     * - 비명사 또는 길이 1이 아닌 토큰을 만나면 병합 상태를 종료한다.
      *
-     * @param posNodes 한글 토큰 컬렉션
-     * @return 알 수 없는 명사로 합쳐진 토큰 컬렉션
+     * ```kotlin
+     * val merged = KoreanSubstantive.collapseNouns(
+     *     listOf(KoreanToken("마", Noun, 0, 1), KoreanToken("코", Noun, 1, 1), KoreanToken("토", Noun, 2, 1))
+     * )
+     * // merged.first().text == "마코토"
+     * ```
      */
     fun collapseNouns(posNodes: Iterable<KoreanToken>): List<KoreanToken> {
         val nodes = mutableListOf<KoreanToken>()

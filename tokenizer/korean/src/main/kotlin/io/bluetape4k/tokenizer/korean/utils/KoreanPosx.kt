@@ -28,10 +28,31 @@ import io.bluetape4k.tokenizer.korean.utils.KoreanPos.Verb
 import io.bluetape4k.tokenizer.korean.utils.KoreanPos.VerbPrefix
 
 /**
- * 한글 품사에 대한 유용한 함수를 제공합니다.
+ * 품사 규칙 문자열을 트라이 구조로 변환하는 유틸리티입니다.
+ *
+ * ## 동작/계약
+ * - 축약 기호(`N`, `V`, `j` 등)를 `KoreanPos`로 매핑해 파서 규칙을 구성한다.
+ * - `buildTrie`는 `+`, `*`, `1`, `0` 규칙 문법만 지원한다.
+ * - `SelfNode`는 반복 규칙 전이에서 현재 노드 재사용 마커로 동작한다.
+ *
+ * ```kotlin
+ * val trie = KoreanPosx.buildTrie("N1", KoreanPos.Noun)
+ * // trie.isNotEmpty() == true
+ * ```
  */
 object KoreanPosx: KLogging() {
 
+    /**
+     * 청크 레벨 기타 품사 집합입니다.
+     *
+     * ## 동작/계약
+     * - `Korean`, `Foreign`, `Number` 등 어절 파싱 이전 품사를 포함한다.
+     *
+     * ```kotlin
+     * val hasUrl = KoreanPosx.OtherPoses.contains(KoreanPos.URL)
+     * // hasUrl == true
+     * ```
+     */
     val OtherPoses = hashSetOf(
         Korean,
         Foreign,
@@ -46,6 +67,17 @@ object KoreanPosx: KLogging() {
         CashTag
     )
 
+    /**
+     * 규칙 문자열 문자와 품사의 매핑 테이블입니다.
+     *
+     * ## 동작/계약
+     * - `buildTrie`가 첫 글자를 해석할 때 이 매핑을 사용한다.
+     *
+     * ```kotlin
+     * val noun = KoreanPosx.shortCut['N']
+     * // noun == KoreanPos.Noun
+     * ```
+     */
     val shortCut = hashMapOf(
         'N' to Noun,
         'V' to Verb,
@@ -73,8 +105,31 @@ object KoreanPosx: KLogging() {
     private const val ONE = '1'
     private const val ZERO = '0'
 
+    /**
+     * 반복 규칙에서 현재 노드를 그대로 재사용할 때 쓰는 센티널 노드입니다.
+     *
+     * ## 동작/계약
+     * - `curPos`, `nextTrie`, `ending`이 모두 null인 노드다.
+     *
+     * ```kotlin
+     * val self = KoreanPosx.SelfNode
+     * // self.curPos == null
+     * ```
+     */
     val SelfNode = KoreanPosTrie(curPos = null, nextTrie = null, ending = null)
 
+    /**
+     * 규칙 문자열을 품사 트라이 노드 목록으로 변환합니다.
+     *
+     * ## 동작/계약
+     * - 길이가 2 미만인 문자열은 해석하지 않고 빈 리스트를 반환한다.
+     * - 지원 규칙은 `+`, `*`, `1`, `0`이며 그 외 문자는 `error`를 발생시킨다.
+     *
+     * ```kotlin
+     * val trie = KoreanPosx.buildTrie("N1", KoreanPos.Noun)
+     * // trie.first().curPos == KoreanPos.Noun
+     * ```
+     */
     fun buildTrie(s: String, endingPos: KoreanPos): List<KoreanPosTrie> {
 
         fun isFinal(rest: String): Boolean {
@@ -122,6 +177,18 @@ object KoreanPosx: KLogging() {
         }
     }
 
+    /**
+     * 규칙 맵 전체를 하나의 트라이 목록으로 병합합니다.
+     *
+     * ## 동작/계약
+     * - 각 `(규칙, 종결품사)`에 대해 `buildTrie` 결과를 앞쪽에 누적한다.
+     * - 반환 리스트는 `destination` 인스턴스를 그대로 사용한다.
+     *
+     * ```kotlin
+     * val trie = KoreanPosx.getTrie(mapOf("N1" to KoreanPos.Noun))
+     * // trie.isNotEmpty() == true
+     * ```
+     */
     internal fun getTrie(
         sequences: Map<String, KoreanPos>,
         destination: MutableList<KoreanPosTrie> = mutableListOf(),
@@ -132,6 +199,17 @@ object KoreanPosx: KLogging() {
         return destination
     }
 
+    /**
+     * 용언 품사 집합입니다.
+     *
+     * ## 동작/계약
+     * - `Verb`, `Adjective` 두 품사만 포함한다.
+     *
+     * ```kotlin
+     * val predicate = KoreanPosx.Predicates.contains(KoreanPos.Verb)
+     * // predicate == true
+     * ```
+     */
     @JvmField
     val Predicates = setOf(Verb, Adjective)
 }

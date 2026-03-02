@@ -16,7 +16,17 @@ import reactor.netty.resources.LoopResources
 import java.time.Duration
 
 /**
- * [WebClient]를 Webflux 서버가 사용하는 ThreadPool을 사용하지 않고, 별도의 ThreadPool을 사용하도록 설정합니다.
+ * WebFlux 서버 기본 리소스와 분리된 Netty 루프/커넥터로 [WebClient]를 구성하는 추상 설정입니다.
+ *
+ * ## 동작/계약
+ * - [loopResources]와 [reactorResourceFactory]를 통해 `isUseGlobalResources = false`인 전용 Reactor 리소스를 사용합니다.
+ * - [reactorClientHttpConnector]는 [sslContext], [responseTimeout], [connectTimeoutMillis] 설정을 클라이언트에 반영합니다.
+ * - [exchangeStrategies]는 `defaultCodecs().maxInMemorySize(maxInMemorySize)`를 적용합니다.
+ *
+ * ```kotlin
+ * @Configuration
+ * class CustomWebClientConfig: AbstractWebClientConfig()
+ * ```
  *
  * 참고: [Configuring Spring WebFlux WebClient to use a custom thread pool](https://stackoverflow.com/questions/56764801/configuring-spring-webflux-webclient-to-use-a-custom-thread-pool)
  */
@@ -60,7 +70,16 @@ abstract class AbstractWebClientConfig {
             .build()
 
     /**
-     * 커스텀 [LoopResources]를 생성합니다.
+     * WebClient 전용 [LoopResources] 빈을 생성합니다.
+     *
+     * ## 동작/계약
+     * - [threadCount]가 0 이하이면 `IllegalArgumentException`을 발생시킵니다.
+     * - `LoopResources.create("web-client-thread-", -1, threadCount, true, true)`를 사용해 worker 수를 고정합니다.
+     *
+     * ```kotlin
+     * val loops = loopResources()
+     * // loops는 "web-client-thread-" 접두사를 사용하는 전용 루프다.
+     * ```
      */
     @Bean
     open fun loopResources(): LoopResources {
@@ -70,7 +89,17 @@ abstract class AbstractWebClientConfig {
     }
 
     /**
-     * 커스텀 [ReactorResourceFactory]를 생성합니다.
+     * 전용 루프 리소스를 사용하는 [ReactorResourceFactory] 빈을 생성합니다.
+     *
+     * ## 동작/계약
+     * - 전달받은 [LoopResources]를 팩토리에 주입합니다.
+     * - `isUseGlobalResources`를 `false`로 설정해 전역 Reactor 리소스를 사용하지 않습니다.
+     * - 종료 대기 시간은 [shutdownTimeout]으로 설정합니다.
+     *
+     * ```kotlin
+     * val factory = reactorResourceFactory(loopResources())
+     * // factory.isUseGlobalResources == false
+     * ```
      */
     @Bean
     open fun reactorResourceFactory(loopResources: LoopResources): ReactorResourceFactory {
@@ -84,7 +113,16 @@ abstract class AbstractWebClientConfig {
     }
 
     /**
-     * 커스텀 [ReactorClientHttpConnector]를 생성합니다.
+     * SSL/타임아웃/커넥션 옵션을 반영한 [ReactorClientHttpConnector] 빈을 생성합니다.
+     *
+     * ## 동작/계약
+     * - [sslContext] 결과를 `client.secure`에 적용합니다.
+     * - 응답 타임아웃은 [responseTimeout], 연결 타임아웃은 [connectTimeoutMillis]로 설정합니다.
+     * - 리소스 관리는 인자로 받은 [ReactorResourceFactory]에 위임됩니다.
+     *
+     * ```kotlin
+     * val connector = reactorClientHttpConnector(reactorResourceFactory(loopResources()))
+     * ```
      */
     @Bean
     open fun reactorClientHttpConnector(factory: ReactorResourceFactory): ReactorClientHttpConnector {
@@ -101,7 +139,15 @@ abstract class AbstractWebClientConfig {
     }
 
     /**
-     * 커스텀 [ExchangeStrategies]를 생성합니다.
+     * 최대 인메모리 버퍼 크기를 지정한 [ExchangeStrategies] 빈을 생성합니다.
+     *
+     * ## 동작/계약
+     * - `defaultCodecs().maxInMemorySize(maxInMemorySize)`를 적용합니다.
+     * - 인코더/디코더 기본 전략은 Spring 기본값을 유지하고 메모리 제한만 변경합니다.
+     *
+     * ```kotlin
+     * val strategies = exchangeStrategies()
+     * ```
      */
     @Bean
     open fun exchangeStrategies(): ExchangeStrategies {
@@ -114,7 +160,15 @@ abstract class AbstractWebClientConfig {
     }
 
     /**
-     * 커스텀 [WebClient]를 생성합니다.
+     * 지정한 커넥터와 코덱 전략을 사용해 [WebClient] 빈을 생성합니다.
+     *
+     * ## 동작/계약
+     * - [ReactorClientHttpConnector]와 [ExchangeStrategies]를 빌더에 그대로 연결합니다.
+     * - baseUrl, defaultHeader 같은 추가 설정은 이 메서드에서 적용하지 않습니다.
+     *
+     * ```kotlin
+     * val client = webClient(reactorClientHttpConnector(reactorResourceFactory(loopResources())), exchangeStrategies())
+     * ```
      */
     @Bean
     open fun webClient(connector: ReactorClientHttpConnector, exchangeStrategies: ExchangeStrategies): WebClient {

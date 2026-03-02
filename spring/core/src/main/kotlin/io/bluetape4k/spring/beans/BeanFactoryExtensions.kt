@@ -10,78 +10,87 @@ import kotlin.reflect.KClass
 private val log by lazy { KotlinLogging.logger {} }
 
 /**
- * 지정된 수형의 Bean을 찾습니다. 없으면 예외를 발생합니다.
+ * 제네릭 타입 [T]에 해당하는 빈을 조회합니다.
  *
- * ```
- * val bean = beanFactory.get<BeanClass>()
- * ```
+ * ## 동작/계약
+ * - 빈이 없으면 Spring [BeansException]을 그대로 전파합니다.
+ * - 구현은 [BeanFactory.getBean] 확장을 호출합니다.
  *
- * @receiver BeanFactory Bean Container
- * @param T 원하는 Bean의 수형
+ * ```kotlin
+ * val service = beanFactory.get<MyService>()
+ * // service != null
+ * ```
  */
 inline fun <reified T: Any> BeanFactory.get(): T = getBean<T>()
 
 /**
- * 지정된 이름의 Bean을 찾습니다. 없으면 null을 반환합니다.
+ * 이름으로 빈을 조회하고 타입 캐스팅에 실패하면 `null`을 반환합니다.
  *
- * ```
- * val bean = beanFactory["beanName"]
- * ```
+ * ## 동작/계약
+ * - 내부적으로 `getBean(name)`을 호출한 뒤 안전 캐스팅(`as?`)합니다.
+ * - 빈이 없으면 Spring 예외가 발생할 수 있습니다.
  *
- * @receiver BeanFactory Bean Container
- * @param name Bean 이름
+ * ```kotlin
+ * val service: MyService? = beanFactory["myService"]
+ * // service == null || service is MyService
+ * ```
  */
 @Suppress("UNCHECKED_CAST")
 operator fun <T: Any> BeanFactory.get(name: String): T? = getBean(name) as? T
 
 /**
- * 지정된 수형의 Bean을 찾습니다. 없으면 예외를 발생합니다.
+ * [KClass]로 지정한 타입의 빈을 조회합니다.
  *
+ * ## 동작/계약
+ * - [requiredType]의 Java 클래스 타입으로 조회합니다.
+ * - 빈이 없으면 Spring [BeansException]을 전파합니다.
+ *
+ * ```kotlin
+ * val service = beanFactory[MyService::class]
+ * // service != null
  * ```
- * val bean = beanFactory[BeanClass::class]
- * ```
- *
- * @receiver BeanFactory Bean Container
- * @param requiredType 원하는 Bean의 수형
- *
  */
 operator fun <T: Any> BeanFactory.get(requiredType: KClass<T>): T = getBean(requiredType.java)
 
 /**
- * 지정된 수형의 Bean을 찾습니다. 없으면 예외를 발생합니다.
+ * [Class]로 지정한 타입의 빈을 조회합니다.
  *
- * ```
- * val bean = beanFactory[BeanClass::class.java]
- * ```
+ * ## 동작/계약
+ * - 구현은 `getBean(requiredType)` 호출입니다.
+ * - 빈이 없으면 Spring [BeansException]을 전파합니다.
  *
- * @receiver BeanFactory
- * @param requiredType 원하는 Bean의 수형
+ * ```kotlin
+ * val service = beanFactory[MyService::class.java]
+ * // service != null
+ * ```
  */
 operator fun <T: Any> BeanFactory.get(requiredType: Class<T>): T = getBean(requiredType)
 
 /**
- * 지정된 이름과 수형의 Bean을 찾습니다. 없으면 예외를 발생합니다.
+ * 이름과 타입으로 빈을 조회합니다.
  *
- * ```
- * val bean = beanFactory["beanName", BeanClass::class]
- * ```
+ * ## 동작/계약
+ * - 구현은 `getBean(name, requiredType)` 호출입니다.
+ * - 이름/타입이 맞지 않으면 Spring [BeansException]을 전파합니다.
  *
- * @receiver BeanFactory
- * @param name Bean 이름
- * @param requiredType 원하는 Bean의 수형
+ * ```kotlin
+ * val service = beanFactory["myService", MyService::class.java]
+ * // service != null
+ * ```
  */
 operator fun <T: Any> BeanFactory.get(name: String, requiredType: Class<T>): T = getBean(name, requiredType)
 
 /**
- * 지정된 이름과 수형의 Bean을 찾습니다. 없으면 예외를 발생합니다.
+ * 이름과 생성자 인자로 빈을 조회합니다.
  *
- * ```
- * val bean = beanFactory["beanName", "arg1", "arg2"]
- * ```
+ * ## 동작/계약
+ * - [args]가 비어 있으면 `get(name)` 경로를 사용합니다.
+ * - [args]가 있으면 `getBean(name, *args)`를 호출합니다.
  *
- * @receiver BeanFactory
- * @param name Bean 이름
- * @param args Bean 생성자 인자
+ * ```kotlin
+ * val bean = beanFactory["myBean", "arg1", 2]
+ * // bean != null
+ * ```
  */
 operator fun BeanFactory.get(name: String, vararg args: Any?): Any? = when {
     args.isEmpty() -> get(name) as? Any
@@ -89,20 +98,30 @@ operator fun BeanFactory.get(name: String, vararg args: Any?): Any? = when {
 }
 
 /**
- * 지정된 수형의 Bean을 찾습니다. 없으면 null 을 반환합니다.
+ * 타입으로 빈을 조회하고 없으면 `null`을 반환합니다.
  *
- * ```
- * val bean = beanFactory.findBean(BeanClass::class)
+ * ## 동작/계약
+ * - 내부적으로 [Class] 기반 [findBean]으로 위임합니다.
+ * - 조회 실패 시 예외 대신 `null`을 반환합니다.
+ *
+ * ```kotlin
+ * val service = beanFactory.findBean(MyService::class)
+ * // service == null || service is MyService
  * ```
  */
 fun <T: Any> BeanFactory.findBean(requiredType: KClass<T>): T? =
     findBean(requiredType.java)
 
 /**
- * 지정된 수형의 Bean을 찾습니다. 없으면 null 을 반환합니다.
+ * 타입으로 빈을 조회하고 실패하면 경고 로그 후 `null`을 반환합니다.
  *
- * ```
- * val bean = beanFactory.findBean(BeanClass::class.java)
+ * ## 동작/계약
+ * - [get] 호출에서 [BeansException]이 발생하면 예외를 삼키고 `null`을 반환합니다.
+ * - 실패 정보는 경고 로그로 기록합니다.
+ *
+ * ```kotlin
+ * val service = beanFactory.findBean(MyService::class.java)
+ * // service == null || service is MyService
  * ```
  */
 fun <T: Any> BeanFactory.findBean(requiredType: Class<T>): T? {
@@ -115,10 +134,15 @@ fun <T: Any> BeanFactory.findBean(requiredType: Class<T>): T? {
 }
 
 /**
- * 지정된 이름과 수형의 Bean을 찾습니다. 없으면 null 을 반환합니다.
+ * 이름과 타입으로 빈을 조회하고 실패하면 `null`을 반환합니다.
  *
- * ```
- * val bean = beanFactory.findBean("beanName", BeanClass::class)
+ * ## 동작/계약
+ * - [get] 호출에서 [BeansException]이 발생하면 예외 대신 `null`을 반환합니다.
+ * - 실패 정보는 경고 로그로 기록합니다.
+ *
+ * ```kotlin
+ * val service = beanFactory.findBean("myService", MyService::class.java)
+ * // service == null || service is MyService
  * ```
  */
 fun <T: Any> BeanFactory.findBean(name: String, requiredType: Class<T>): T? {
@@ -131,10 +155,15 @@ fun <T: Any> BeanFactory.findBean(name: String, requiredType: Class<T>): T? {
 }
 
 /**
- * 지정된 이름과 수형의 Bean을 찾습니다. 없으면 null 을 반환합니다.
+ * 이름과 생성자 인자로 빈을 조회하고 실패하면 `null`을 반환합니다.
  *
- * ```
- * val bean = beanFactory.findBean("beanName", "arg1", "arg2")
+ * ## 동작/계약
+ * - [get] 호출에서 [BeansException]이 발생하면 예외 대신 `null`을 반환합니다.
+ * - 실패 정보는 경고 로그로 기록합니다.
+ *
+ * ```kotlin
+ * val bean = beanFactory.findBean("myBean", "arg1")
+ * // bean == null || bean != null
  * ```
  */
 fun <T: Any> BeanFactory.findBean(name: String, vararg args: Any?): Any? {

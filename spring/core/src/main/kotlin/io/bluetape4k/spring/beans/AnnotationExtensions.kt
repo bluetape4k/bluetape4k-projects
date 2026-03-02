@@ -5,23 +5,32 @@ import org.springframework.util.ReflectionUtils
 import org.springframework.util.StringValueResolver
 
 /**
- * Annotation의 속성을 Bean에 복사합니다.
+ * 애너테이션 속성을 대상 빈 프로퍼티로 복사합니다.
  *
- * @receiver Annotation
- * @param bean Annotation의 속성을 복사할 Bean
- * @param excludedProperties 제외할 속성 이름들
+ * ## 동작/계약
+ * - [excludedProperties]에 포함되지 않고 쓰기 가능한 프로퍼티만 설정합니다.
+ * - 문자열 해석기 없이 [copyPropertiesToBean] 오버로드를 호출합니다.
+ *
+ * ```kotlin
+ * annotation.copyPropertiesToBean(bean, "value")
+ * // 제외 목록 외 속성만 bean에 반영
+ * ```
  */
 fun Annotation.copyPropertiesToBean(bean: Any, vararg excludedProperties: String) {
     copyPropertiesToBean(bean, null, *excludedProperties)
 }
 
 /**
- * Annotation의 속성을 Bean에 복사합니다.
+ * 애너테이션 속성을 대상 빈 프로퍼티로 복사하고 문자열 값을 해석합니다.
  *
- * @receiver Annotation
- * @param bean Annotation의 속성을 복사할 Bean
- * @param valueResolver StringValueResolver
- * @param excludedProperties 제외할 속성 이름들
+ * ## 동작/계약
+ * - 애너테이션 선언 메서드를 순회해 프로퍼티 이름과 값을 읽습니다.
+ * - [valueResolver]가 있고 값이 문자열이면 해석된 문자열을 저장합니다.
+ *
+ * ```kotlin
+ * annotation.copyPropertiesToBean(bean, valueResolver, "value")
+ * // 문자열 속성은 valueResolver 결과로 설정
+ * ```
  */
 fun Annotation.copyPropertiesToBean(
     bean: Any,

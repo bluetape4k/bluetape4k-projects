@@ -17,10 +17,24 @@ import org.javers.core.commit.CommitId
 import org.javers.core.metamodel.`object`.CdoSnapshot
 
 /**
- * JaVers [CdoSnapshot] 을 Lettuce Library를 이용하여
- * Redis Server에 저장, 로드하는 기능을 제공하는 [AbstractCdoSnapshotRepository] 구현체입니다.
+ * Lettuce 기반 Redis [CdoSnapshot] 저장소.
  *
- * @param name repository name
+ * ## 동작/계약
+ * - GlobalId별 스냅샷을 Redis LIST(`javers:{name}:snapshot:{globalId}`)에 LPUSH로 최신순 저장한다
+ * - [saveSnapshot]은 MULTI/EXEC 트랜잭션으로 LIST 저장 + HSET GlobalId 등록을 원자적으로 수행한다
+ * - 트랜잭션 실패 시 DISCARD 후 예외를 로깅한다
+ * - 코덱 기본값은 [JaversCodecs.LZ4Fory] (LZ4 압축 + Fory 직렬화)이다
+ *
+ * ```kotlin
+ * val repo = LettuceCdoSnapshotRepository("user", redisClient)
+ * val javers = JaversBuilder.javers()
+ *     .registerJaversRepository(repo)
+ *     .build()
+ * javers.commit("author", entity)
+ * val snapshots = javers.findSnapshots(queryByClass<Person>())
+ * ```
+ *
+ * @param name 저장소 이름 (Redis key prefix에 사용)
  * @param client Lettuce [RedisClient] 인스턴스
  * @param codec [CdoSnapshot]을 encode/decode 할 [JaversCodec] 인스턴스
  */
