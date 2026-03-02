@@ -12,21 +12,33 @@ import kotlin.reflect.KProperty1
 
 /**
  * `from(Class<T>)` 메서드를 호출할 때, `T` 를 추론하기 위한 확장 함수입니다.
+ *
+ * ## 동작/계약
+ * - `from(T::class.java)`로 위임합니다.
  */
 inline fun <reified T: Any> AbstractQuery<T>.from(): Root<T> = this.from(T::class.java)
 
 /**
  * [attribute] 이름으로 조회하는 [Path] 를 생성합니다.
+ *
+ * ## 동작/계약
+ * - Kotlin property 이름을 그대로 JPA 메타모델 경로 이름으로 사용합니다.
  */
 fun <T, V> Root<T>.attribute(attribute: KProperty1<T, V>): Path<V> = this.get(attribute.name)
 
 /**
  * [clazz]를 위한 [CriteriaQuery]를 생성합니다.
+ *
+ * ## 동작/계약
+ * - `createQuery(clazz.java)`로 위임합니다.
  */
 fun <T: Any> CriteriaBuilder.createQuery(clazz: KClass<T>): CriteriaQuery<T> = createQuery(clazz.java)
 
 /**
  * [T]를 위한 [CriteriaQuery]를 생성합니다.
+ *
+ * ## 동작/계약
+ * - reified 타입으로 [CriteriaQuery]를 생성하는 편의 함수입니다.
  */
 inline fun <reified T: Any> CriteriaBuilder.createQueryAs(): CriteriaQuery<T> = createQuery(T::class.java)
 
