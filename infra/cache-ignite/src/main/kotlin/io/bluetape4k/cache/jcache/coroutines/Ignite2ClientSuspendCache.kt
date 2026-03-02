@@ -12,11 +12,19 @@ import org.apache.ignite.client.ClientCache
 import javax.cache.configuration.CacheEntryListenerConfiguration
 
 /**
- * Apache Ignite 2.x 씬 클라이언트 [ClientCache] 기반 Coroutines용 [SuspendCache] 구현체입니다.
+ * Ignite 2.x thin client [ClientCache]를 코루틴용 [SuspendCache]로 감싼 구현체입니다.
  *
- * @param K key type
- * @param V value type
- * @property cache Ignite 2.x 씬 클라이언트 캐시
+ * ## 동작/계약
+ * - 모든 연산은 `ClientCache#*Async`를 사용하고 `awaitSuspending()`으로 완료를 대기합니다.
+ * - `close()`는 no-op이며 `ClientCache` 수명주기는 외부 클라이언트가 관리합니다.
+ * - `entries()`는 `ScanQuery`로 전체 엔트리를 순회하므로 엔트리 수에 비례해 동작합니다.
+ *
+ * ```kotlin
+ * val cache = Ignite2ClientSuspendCache(client.cache("users"))
+ * cache.put("u:1", "debop")
+ * val value = cache.get("u:1")
+ * // value == "debop"
+ * ```
  */
 class Ignite2ClientSuspendCache<K: Any, V: Any>(
     private val cache: ClientCache<K, V>,

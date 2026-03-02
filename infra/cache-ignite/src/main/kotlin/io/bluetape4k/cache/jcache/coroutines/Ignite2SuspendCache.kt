@@ -22,18 +22,36 @@ import javax.cache.configuration.Configuration
 import javax.cache.configuration.MutableConfiguration
 
 /**
- * Apache Ignite 2.x JCache 기반 Coroutines용 [SuspendCache] 구현체입니다.
+ * Ignite 2.x JCache를 코루틴 기반 [SuspendCache]로 감싼 구현체입니다.
  *
- * `unwrap(IgniteCache::class.java)`에 성공하면 Ignite 비동기 API를 사용하고,
- * 실패하면 표준 JCache 동기 API를 `Dispatchers.IO`에서 실행합니다.
+ * ## 동작/계약
+ * - `cache.unwrap(IgniteCache::class.java)` 성공 시 Ignite 비동기 API를 우선 사용합니다.
+ * - unwrap 실패 시 표준 JCache 동기 API를 `Dispatchers.IO`에서 실행합니다.
+ * - `putAllFlow`는 비동기 put 작업을 수집해 `joinAll()`로 완료를 보장합니다.
  *
- * @param K key type
- * @param V value type
- * @property cache Ignite 2.x JCache 인스턴스
+ * ```kotlin
+ * val cache = Ignite2SuspendCache<String, String>("users")
+ * cache.put("u:1", "debop")
+ * val value = cache.get("u:1")
+ * // value == "debop"
+ * ```
  */
 class Ignite2SuspendCache<K: Any, V: Any>(private val cache: JCache<K, V>): SuspendCache<K, V> {
 
     companion object: KLoggingChannel() {
+        /**
+         * 캐시 이름과 구성으로 [Ignite2SuspendCache]를 생성합니다.
+         *
+         * ## 동작/계약
+         * - [cacheName]이 blank면 `IllegalArgumentException`이 발생합니다.
+         * - 동일 이름 캐시가 존재하면 재사용하고, 없으면 [configuration]으로 생성합니다.
+         * - 반환 객체는 생성/조회된 JCache 인스턴스를 래핑합니다.
+         *
+         * ```kotlin
+         * val cache = Ignite2SuspendCache("users", MutableConfiguration<String, String>())
+         * // cache.isClosed() == false
+         * ```
+         */
         @JvmStatic
         operator fun <K: Any, V: Any> invoke(
             cacheName: String,
@@ -46,6 +64,20 @@ class Ignite2SuspendCache<K: Any, V: Any>(private val cache: JCache<K, V>): Susp
             return Ignite2SuspendCache(jcache)
         }
 
+        /**
+         * reified 키/값 타입으로 [Ignite2SuspendCache]를 생성합니다.
+         *
+         * ## 동작/계약
+         * - [cacheName] blank 입력은 `IllegalArgumentException`을 발생시킵니다.
+         * - `MutableConfiguration#setTypes`로 `K`, `V` 타입을 강제합니다.
+         * - 기존 캐시가 있으면 재사용, 없으면 타입 설정으로 신규 생성합니다.
+         *
+         * ```kotlin
+         * val cache = Ignite2SuspendCache<String, Int>("scores")
+         * cache.put("u1", 10)
+         * // cache.get("u1") == 10
+         * ```
+         */
         @JvmStatic
         inline operator fun <reified K: Any, reified V: Any> invoke(
             cacheName: String,
