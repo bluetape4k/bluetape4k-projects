@@ -16,6 +16,21 @@ private suspend fun acquireSemaphoreSuspending(testDB: TestDB) =
     }
 
 @Suppress("DEPRECATION")
+/**
+ * 코루틴 환경에서 테스트용 DB 트랜잭션을 열고 블록을 실행합니다.
+ *
+ * ## 동작/계약
+ * - [withDb]와 동일하게 DB별 세마포어로 동시 접근을 제어합니다.
+ * - 트랜잭션은 `newSuspendedTransaction`으로 생성되며 `currentTestDB`가 설정됩니다.
+ * - [configure]를 전달하면 임시 DB 구성으로 실행 후 기존 구성으로 복원합니다.
+ *
+ * ```kotlin
+ * withDbSuspending(TestDB.H2) {
+ *     UtilityTable.exists()
+ *     // result == false 또는 true
+ * }
+ * ```
+ */
 suspend fun withDbSuspending(
     testDB: TestDB,
     context: CoroutineContext? = Dispatchers.IO,
@@ -73,6 +88,9 @@ suspend fun withDbSuspending(
         "io.bluetape4k.exposed.tests.withDbSuspending"
     )
 )
+/**
+ * [withDbSuspending]의 deprecated 별칭입니다.
+ */
 suspend fun withSuspendedDb(
     testDB: TestDB,
     context: CoroutineContext? = Dispatchers.IO,

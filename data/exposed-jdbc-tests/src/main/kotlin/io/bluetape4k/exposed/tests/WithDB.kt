@@ -23,6 +23,22 @@ object CurrentTestDBInterceptor: StatementInterceptor {
     }
 }
 
+/**
+ * 테스트용 DB에 트랜잭션을 열고 블록을 실행합니다.
+ *
+ * ## 동작/계약
+ * - DB별 세마포어를 사용해 동일 [TestDB]에 대한 동시 실행을 직렬화합니다.
+ * - 첫 호출 시 DB 연결을 생성해 [TestDB.db]에 캐시하고, shutdown hook으로 정리 작업을 등록합니다.
+ * - [configure]를 전달하면 현재 호출에만 임시 적용한 뒤 기존 DB 레퍼런스로 되돌립니다.
+ * - 블록 실행은 `maxAttempts = 1` 트랜잭션에서 수행되며 `currentTestDB`가 설정됩니다.
+ *
+ * ```kotlin
+ * withDb(TestDB.H2) {
+ *     UtilityTable.exists()
+ *     // result == false 또는 true (현재 스키마 상태)
+ * }
+ * ```
+ */
 fun withDb(
     testDB: TestDB,
     configure: (DatabaseConfig.Builder.() -> Unit)? = null,

@@ -9,6 +9,21 @@ import org.jetbrains.exposed.v1.jdbc.transactions.inTopLevelTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transactionManager
 
 
+/**
+ * 테스트 블록 실행 전 테이블을 생성하고 종료 시 정리합니다.
+ *
+ * ## 동작/계약
+ * - 시작 시 기존 테이블을 `runCatching`으로 드롭 시도 후 필요 시 새로 생성합니다.
+ * - 블록 수행 후 `commit()`하고, [dropTables]가 `true`면 테이블 삭제를 시도합니다.
+ * - 드롭 실패 시 top-level transaction으로 재시도합니다.
+ *
+ * ```kotlin
+ * withTables(TestDB.H2, UtilityTable) {
+ *     UtilityTable.exists()
+ *     // result == true
+ * }
+ * ```
+ */
 fun withTables(
     testDB: TestDB,
     vararg tables: Table,
