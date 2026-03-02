@@ -4,10 +4,20 @@ import kotlinx.coroutines.flow.Flow
 import javax.cache.configuration.CacheEntryListenerConfiguration
 
 /**
- * Coroutines 환경에서 [javax.cache.Cache]와 같은 기능을 제공하는 Cache 입니다.
+ * 코루틴 환경에서 JCache와 유사한 계약을 제공하는 비동기 캐시 인터페이스입니다.
  *
- * @param K key type
- * @param V value type
+ * ## 동작/계약
+ * - 조회/수정 API는 `suspend`로 정의되어 구현체가 non-blocking 또는 blocking-bridge를 선택할 수 있습니다.
+ * - `getAll(vararg)`/`removeAll(vararg)` 기본 구현은 각각 `Set` 변환 뒤 집합 기반 API로 위임합니다.
+ * - `unwrap` 기본 구현은 `clazz.isAssignableFrom(javaClass)`일 때만 현재 인스턴스를 반환합니다.
+ *
+ * ```kotlin
+ * suspend fun use(cache: SuspendCache<String, Int>) {
+ *   cache.put("a", 1)
+ *   val value = cache.get("a")
+ *   // value == 1
+ * }
+ * ```
  */
 interface SuspendCache<K: Any, V: Any> {
 

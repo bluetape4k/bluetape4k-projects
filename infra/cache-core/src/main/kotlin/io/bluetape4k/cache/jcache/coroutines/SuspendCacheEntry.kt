@@ -4,12 +4,18 @@ import java.io.Serializable
 import javax.cache.Cache
 
 /**
- * [SuspendCache]의 entry를 표현합니다.
+ * [SuspendCache] 엔트리를 표현하는 불변 값 객체입니다.
  *
- * @param K key type
- * @param V value type
- * @property key cache key
- * @property value cache value
+ * ## 동작/계약
+ * - 생성 시 전달된 key/value를 그대로 보관하며 이후 변경하지 않습니다.
+ * - [Cache.Entry] 계약을 구현해 JCache API와 상호 운용됩니다.
+ * - `unwrap`은 요청 타입이 현재 클래스와 호환될 때만 인스턴스를 반환합니다.
+ *
+ * ```kotlin
+ * val entry = SuspendCacheEntry("u:1", 10)
+ * // entry.key == "u:1"
+ * // entry.value == 10
+ * ```
  */
 data class SuspendCacheEntry<K: Any, V: Any>(
     private val entryKey: K,
