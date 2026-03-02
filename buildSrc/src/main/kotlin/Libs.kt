@@ -684,6 +684,7 @@ object Libs {
     val aws_kotlin_ses = awsKotlin("ses")
     val aws_kotlin_sns = awsKotlin("sns")
     val aws_kotlin_sqs = awsKotlin("sqs")
+    val aws_kotlin_sts = awsKotlin("sts")
     val aws_kotlin_sesv2 = awsKotlin("sesv2")       // Not yet released
     // deprecated
     // val aws_kotlin_testing = awsKotlin("testing")

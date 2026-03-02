@@ -1,0 +1,69 @@
+package io.bluetape4k.aws.kotlin.cloudwatch
+
+import io.bluetape4k.aws.kotlin.cloudwatch.model.metricDatumOf
+import io.bluetape4k.codec.Base58
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
+import org.amshove.kluent.shouldNotBeEmpty
+import org.amshove.kluent.shouldNotBeNull
+import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.Order
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestMethodOrder
+import aws.sdk.kotlin.services.cloudwatch.model.StandardUnit
+
+@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
+class CloudWatchClientExtensionsTest: AbstractKotlinCloudWatchTest() {
+
+    companion object: KLoggingChannel() {
+        private val NAMESPACE = "bluetape4k/kotlin-test-${Base58.randomString(6).lowercase()}"
+        private val METRIC_NAME = "KotlinTestMetric-${Base58.randomString(4).lowercase()}"
+    }
+
+    @Test
+    @Order(1)
+    fun `put single metric data`() = runSuspendIO {
+        val datum = metricDatumOf(METRIC_NAME, 42.0, StandardUnit.Count)
+
+        cloudWatchClient.putMetricData(NAMESPACE, datum)
+
+        log.debug { "putMetricData completed: namespace=$NAMESPACE, metric=$METRIC_NAME" }
+    }
+
+    @Test
+    @Order(2)
+    fun `put multiple metric data`() = runSuspendIO {
+        val data = listOf(
+            metricDatumOf(METRIC_NAME, 10.0, StandardUnit.Count),
+            metricDatumOf(METRIC_NAME, 20.0, StandardUnit.Count),
+            metricDatumOf(METRIC_NAME, 30.0, StandardUnit.Count),
+        )
+
+        cloudWatchClient.putMetricData(NAMESPACE, data)
+
+        log.debug { "putMetricData (multiple) completed: count=${data.size}" }
+    }
+
+    @Test
+    @Order(3)
+    fun `list metrics`() = runSuspendIO {
+        val response = cloudWatchClient.listMetrics(namespace = NAMESPACE)
+
+        response.metrics.shouldNotBeNull().shouldNotBeEmpty()
+        response.metrics!!.forEach { metric ->
+            log.debug { "metric: namespace=${metric.namespace}, name=${metric.metricName}" }
+        }
+    }
+
+    @Test
+    @Order(4)
+    fun `list metrics with metric name filter`() = runSuspendIO {
+        val response = cloudWatchClient.listMetrics(namespace = NAMESPACE, metricName = METRIC_NAME)
+
+        response.metrics.shouldNotBeNull().shouldNotBeEmpty()
+        response.metrics!!.forEach { metric ->
+            log.debug { "filtered metric: ${metric.metricName}" }
+        }
+    }
+}
