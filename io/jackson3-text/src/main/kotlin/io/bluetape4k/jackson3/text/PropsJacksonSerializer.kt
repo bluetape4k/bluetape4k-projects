@@ -5,15 +5,24 @@ import io.bluetape4k.logging.KLogging
 import tools.jackson.dataformat.javaprop.JavaPropsMapper
 
 /**
- * Java Properties 형식을 사용하는 Jackson Serializer 구현체입니다.
- * [JavaPropsMapper]를 기반으로 Properties 데이터를 직렬화/역직렬화합니다.
+ * Java Properties 텍스트 포맷을 처리하는 Jackson 3 직렬화기입니다.
  *
- * @param mapper Java Properties 데이터 처리를 위한 [JavaPropsMapper] (기본값: [JacksonText.Props.defaultMapper])
+ * ## 동작/계약
+ * - [mapper] 기본값은 [JacksonText.Props.defaultMapper]입니다.
+ * - 직렬화/역직렬화는 [JacksonSerializer] 구현 경로를 따릅니다.
+ * - 입력 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * val serializer = PropsJacksonSerializer()
+ * val text = serializer.serializeAsString(mapOf("app.name" to "demo"))
+ * // text.contains("app.name") == true
+ * ```
+ *
+ * @param mapper Java Properties 처리를 위한 Jackson mapper입니다.
  */
 class PropsJacksonSerializer(
     mapper: JavaPropsMapper = JacksonText.Props.defaultMapper,
 ): JacksonSerializer(mapper) {
 
     companion object: KLogging()
-
 }

@@ -5,15 +5,24 @@ import io.bluetape4k.logging.KLogging
 import tools.jackson.dataformat.yaml.YAMLMapper
 
 /**
- * YAML 형식을 사용하는 Jackson Serializer 구현체입니다.
- * [YAMLMapper]를 기반으로 YAML 데이터를 직렬화/역직렬화합니다.
+ * YAML 텍스트 포맷을 처리하는 Jackson 3 직렬화기입니다.
  *
- * @param mapper YAML 데이터 처리를 위한 [YAMLMapper] (기본값: [JacksonText.Yaml.defaultMapper])
+ * ## 동작/계약
+ * - [mapper] 기본값은 [JacksonText.Yaml.defaultMapper]입니다.
+ * - 직렬화/역직렬화는 [JacksonSerializer] 구현 경로를 사용합니다.
+ * - 입력 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * val serializer = YamlJacksonSerializer()
+ * val text = serializer.serializeAsString(mapOf("name" to "debop"))
+ * // text.contains("name") == true
+ * ```
+ *
+ * @param mapper YAML 처리를 위한 Jackson mapper입니다.
  */
 class YamlJacksonSerializer(
     mapper: YAMLMapper = JacksonText.Yaml.defaultMapper,
 ): JacksonSerializer(mapper) {
 
     companion object: KLogging()
-
 }
