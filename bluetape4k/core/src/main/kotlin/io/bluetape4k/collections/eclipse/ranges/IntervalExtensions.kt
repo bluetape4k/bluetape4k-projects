@@ -15,9 +15,8 @@ import org.eclipse.collections.impl.list.primitive.LongInterval
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::intIntervalOf
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = intIntervalOf(1, 3)
+ * // result contains [1, 2, 3]
  * ```
  */
 fun intIntervalOf(start: Int, endInclusive: Int, step: Int = 1): IntInterval =
@@ -32,9 +31,8 @@ fun intIntervalOf(start: Int, endInclusive: Int, step: Int = 1): IntInterval =
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::toIntArrayList
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = (1..3).toIntArrayList()
+ * // result contains [1, 2, 3]
  * ```
  */
 fun IntInterval.toIntArrayList(): IntArrayList =
@@ -53,9 +51,8 @@ fun IntInterval.toIntArrayList(): IntArrayList =
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::toLongArrayList
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = (1L..3L).toLongArrayList()
+ * // result contains [1, 2, 3]
  * ```
  */
 fun IntInterval.toLongArrayList(): LongArrayList =
@@ -74,9 +71,9 @@ fun IntInterval.toLongArrayList(): LongArrayList =
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::forEach
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val acc = mutableListOf<Int>()
+ * intIntervalOf(1, 3).forEach { acc += it }
+ * // acc == [1, 2, 3]
  * ```
  */
 inline fun IntInterval.forEach(crossinline block: (Int) -> Unit) {
@@ -92,9 +89,8 @@ inline fun IntInterval.forEach(crossinline block: (Int) -> Unit) {
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::windowed
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = intIntervalOf(1, 5).windowed(2).toList()
+ * // result.size == 4
  * ```
  */
 inline fun IntInterval.windowed(
@@ -133,9 +129,8 @@ inline fun IntInterval.windowed(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::chunked
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = intIntervalOf(1, 5).chunked(2).toList()
+ * // result.size == 3
  * ```
  */
 inline fun IntInterval.chunked(
@@ -154,9 +149,8 @@ inline fun IntInterval.chunked(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::sliding
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = intIntervalOf(1, 5).sliding(2).toList()
+ * // result.size == 4
  * ```
  */
 inline fun IntInterval.sliding(
@@ -175,9 +169,8 @@ inline fun IntInterval.sliding(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::longIntervalOf
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = longIntervalOf(1, 3)
+ * // result contains [1, 2, 3]
  * ```
  */
 fun longIntervalOf(start: Long, endInclusive: Long, step: Long = 1): LongInterval =
@@ -192,9 +185,8 @@ fun longIntervalOf(start: Long, endInclusive: Long, step: Long = 1): LongInterva
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::toLongArrayList
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = (1L..3L).toLongArrayList()
+ * // result contains [1, 2, 3]
  * ```
  */
 fun LongInterval.toLongArrayList(): LongArrayList =
@@ -213,9 +205,9 @@ fun LongInterval.toLongArrayList(): LongArrayList =
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::forEach
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val acc = mutableListOf<Int>()
+ * intIntervalOf(1, 3).forEach { acc += it }
+ * // acc == [1, 2, 3]
  * ```
  */
 inline fun LongInterval.forEach(crossinline block: (Long) -> Unit) {
@@ -231,9 +223,8 @@ inline fun LongInterval.forEach(crossinline block: (Long) -> Unit) {
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::windowed
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = intIntervalOf(1, 5).windowed(2).toList()
+ * // result.size == 4
  * ```
  */
 inline fun LongInterval.windowed(
@@ -272,9 +263,8 @@ inline fun LongInterval.windowed(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::chunked
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = intIntervalOf(1, 5).chunked(2).toList()
+ * // result.size == 3
  * ```
  */
 inline fun LongInterval.chunked(
@@ -293,9 +283,8 @@ inline fun LongInterval.chunked(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::sliding
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = intIntervalOf(1, 5).sliding(2).toList()
+ * // result.size == 4
  * ```
  */
 inline fun LongInterval.sliding(

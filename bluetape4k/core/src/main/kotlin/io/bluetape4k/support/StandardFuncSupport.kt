@@ -134,9 +134,8 @@ inline fun <T1: Any, T2: Any, T3: Any, T4: Any, T5: Any, R: Any> safeLet(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::safeLet
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = safeLet(1, 2) { a, b -> a + b }
+ * // result == 3
  * ```
  */
 inline fun <T: Any, R: Any> safeLet(vararg elements: T?, block: (elements: List<T>) -> R): R? =

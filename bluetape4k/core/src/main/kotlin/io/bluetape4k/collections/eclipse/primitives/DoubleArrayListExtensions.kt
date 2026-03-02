@@ -19,8 +19,8 @@ import org.eclipse.collections.impl.list.mutable.primitive.DoubleArrayList
  *
  * ```kotlin
  * val list = doubleArrayOf(1, 2).toDoubleArrayList()
- * check(list.size() == 2)
- * check(list[0] == 1.0)
+ * // list.size() == 2
+ * // list[0] == 1.0
  * ```
  */
 fun DoubleArray.toDoubleArrayList(): DoubleArrayList =
@@ -36,8 +36,8 @@ fun DoubleArray.toDoubleArrayList(): DoubleArrayList =
  *
  * ```kotlin
  * val list = listOf<Double>(1, 2).toDoubleArrayList()
- * check(list.size() == 2)
- * check(list[1] == 2.0)
+ * // list.size() == 2
+ * // list[1] == 2.0
  * ```
  */
 fun Iterable<Double>.toDoubleArrayList(): DoubleArrayList =
@@ -60,8 +60,8 @@ fun Iterable<Double>.toDoubleArrayList(): DoubleArrayList =
  *
  * ```kotlin
  * val list = sequenceOf<Double>(1, 2).toDoubleArrayList()
- * check(list.size() == 2)
- * check(list[0] == 1.0)
+ * // list.size() == 2
+ * // list[0] == 1.0
  * ```
  */
 fun Sequence<Double>.toDoubleArrayList(): DoubleArrayList = asIterable().toDoubleArrayList()
@@ -76,8 +76,8 @@ fun Sequence<Double>.toDoubleArrayList(): DoubleArrayList = asIterable().toDoubl
  *
  * ```kotlin
  * val list = listOf(1, 2.0, 3.0).asDoubleArrayList()
- * check(list.size() == 3)
- * check(list[2] == 3.0)
+ * // list.size() == 3
+ * // list[2] == 3.0
  * ```
  */
 fun Iterable<Number>.asDoubleArrayList() = when (this) {
@@ -99,8 +99,8 @@ fun Iterable<Number>.asDoubleArrayList() = when (this) {
  *
  * ```kotlin
  * val list = doubleArrayList(2) { (it + 1).toDouble() }
- * check(list.size() == 2)
- * check(list[0] == 1.0)
+ * // list.size() == 2
+ * // list[0] == 1.0
  * ```
  */
 inline fun doubleArrayList(
@@ -125,8 +125,8 @@ inline fun doubleArrayList(
  *
  * ```kotlin
  * val list = doubleArrayListOf(1, 2)
- * check(list.size() == 2)
- * check(list[1] == 2.0)
+ * // list.size() == 2
+ * // list[1] == 2.0
  * ```
  */
 fun doubleArrayListOf(vararg elements: Double): DoubleArrayList =
@@ -142,8 +142,8 @@ fun doubleArrayListOf(vararg elements: Double): DoubleArrayList =
  *
  * ```kotlin
  * val list = doubleArrayListOf(1, 2).toDoubleArrayList()
- * check(list.size() == 2)
- * check(list[0] == 1.0)
+ * // list.size() == 2
+ * // list[0] == 1.0
  * ```
  */
 fun DoubleIterable.toDoubleArrayList(): DoubleArrayList = when (this) {
@@ -161,8 +161,8 @@ fun DoubleIterable.toDoubleArrayList(): DoubleArrayList = when (this) {
  *
  * ```kotlin
  * val iter = doubleArrayListOf(1, 2).asIterator()
- * check(iter.hasNext())
- * check(iter.next() == 1.0)
+ * // iter.hasNext()
+ * // iter.next() == 1.0
  * ```
  */
 fun DoubleIterable.asIterator(): Iterator<Double> = object: Iterator<Double> {
@@ -181,8 +181,8 @@ fun DoubleIterable.asIterator(): Iterator<Double> = object: Iterator<Double> {
  *
  * ```kotlin
  * val seq = doubleArrayListOf(1, 2).asSequence()
- * check(seq.count() == 2)
- * check(seq.first() == 1.0)
+ * // seq.count() == 2
+ * // seq.first() == 1.0
  * ```
  */
 fun DoubleIterable.asSequence(): Sequence<Double> = sequence {
@@ -202,8 +202,8 @@ fun DoubleIterable.asSequence(): Sequence<Double> = sequence {
  *
  * ```kotlin
  * val iterable = doubleArrayListOf(1, 2).asIterable()
- * check(iterable.count() == 2)
- * check(iterable.first() == 1.0)
+ * // iterable.count() == 2
+ * // iterable.first() == 1.0
  * ```
  */
 fun DoubleIterable.asIterable(): Iterable<Double> = Iterable { asIterator() }
@@ -218,8 +218,8 @@ fun DoubleIterable.asIterable(): Iterable<Double> = Iterable { asIterator() }
  *
  * ```kotlin
  * val list = doubleArrayListOf(1, 2).asList()
- * check(list == listOf<Double>(1, 2))
- * check(list.size == 2)
+ * // list == listOf<Double>(1, 2)
+ * // list.size == 2
  * ```
  */
 fun DoubleIterable.asList() = asIterable().toList()
@@ -234,8 +234,8 @@ fun DoubleIterable.asList() = asIterable().toList()
  *
  * ```kotlin
  * val list = doubleArrayListOf(1, 2).asMutableList()
- * check(list.size == 2)
- * check(list[1] == 2.0)
+ * // list.size == 2
+ * // list[1] == 2.0
  * ```
  */
 fun DoubleIterable.asMutableList() = asIterable().toMutableList()
@@ -250,8 +250,8 @@ fun DoubleIterable.asMutableList() = asIterable().toMutableList()
  *
  * ```kotlin
  * val set = doubleArrayListOf(1, 1, 2).asSet()
- * check(set.size == 2)
- * check(1.0 in set)
+ * // set.size == 2
+ * // 1.0 in set
  * ```
  */
 fun DoubleIterable.asSet() = asIterable().toSet()
@@ -266,8 +266,8 @@ fun DoubleIterable.asSet() = asIterable().toSet()
  *
  * ```kotlin
  * val set = doubleArrayListOf(1, 1, 2).asMutableSet()
- * check(set.size == 2)
- * check(2.0 in set)
+ * // set.size == 2
+ * // 2.0 in set
  * ```
  */
 fun DoubleIterable.asMutableSet() = asIterable().toMutableSet()
@@ -282,8 +282,8 @@ fun DoubleIterable.asMutableSet() = asIterable().toMutableSet()
  *
  * ```kotlin
  * val list = doubleArrayListOf(1, 2).toFastList()
- * check(list.size == 2)
- * check(list[0] == 1.0)
+ * // list.size == 2
+ * // list[0] == 1.0
  * ```
  */
 fun DoubleIterable.toFastList() = asIterable().toFastList()
@@ -298,8 +298,8 @@ fun DoubleIterable.toFastList() = asIterable().toFastList()
  *
  * ```kotlin
  * val set = doubleArrayListOf(1, 1, 2).toUnifiedSet()
- * check(set.size == 2)
- * check(set.contains(1.0))
+ * // set.size == 2
+ * // set.contains(1.0)
  * ```
  */
 fun DoubleIterable.toUnifiedSet() = asIterable().toUnifiedSet()
@@ -314,8 +314,8 @@ fun DoubleIterable.toUnifiedSet() = asIterable().toUnifiedSet()
  *
  * ```kotlin
  * val list = doubleArrayListOf(1, 2).toFixedSizeList()
- * check(list.size == 2)
- * check(list[1] == 2.0)
+ * // list.size == 2
+ * // list[1] == 2.0
  * ```
  */
 fun DoubleIterable.toFixedSizeList() = asIterable().toFixedSizeList()
@@ -329,8 +329,8 @@ fun DoubleIterable.toFixedSizeList() = asIterable().toFixedSizeList()
  * - 수신 iterable은 mutate 하지 않습니다.
  *
  * ```kotlin
- * check(doubleArrayListOf(1, 3).maxOrNull() == 3.0)
- * check(doubleArrayListOf().maxOrNull() == null)
+ * // doubleArrayListOf(1, 3).maxOrNull() == 3.0
+ * // doubleArrayListOf().maxOrNull() == null
  * ```
  */
 fun DoubleIterable.maxOrNull() = if (isEmpty) null else max()
@@ -344,8 +344,8 @@ fun DoubleIterable.maxOrNull() = if (isEmpty) null else max()
  * - 수신 iterable은 mutate 하지 않습니다.
  *
  * ```kotlin
- * check(doubleArrayListOf(1, 3).minOrNull() == 1.0)
- * check(doubleArrayListOf().minOrNull() == null)
+ * // doubleArrayListOf(1, 3).minOrNull() == 1.0
+ * // doubleArrayListOf().minOrNull() == null
  * ```
  */
 fun DoubleIterable.minOrNull() = if (isEmpty) null else min()
@@ -359,8 +359,8 @@ fun DoubleIterable.minOrNull() = if (isEmpty) null else min()
  * - 누적 타입이 `Double`이므로 정밀도 손실이 발생할 수 있습니다.
  *
  * ```kotlin
- * check(doubleArrayListOf(2, 3).product() == 6.0)
- * check(doubleArrayListOf().product() == 1.0)
+ * // doubleArrayListOf(2, 3).product() == 6.0
+ * // doubleArrayListOf().product() == 1.0
  * ```
  */
 fun DoubleIterable.product(): Double = asIterable().fold(1.0) { acc, i -> acc * i }
@@ -375,8 +375,8 @@ fun DoubleIterable.product(): Double = asIterable().fold(1.0) { acc, i -> acc * 
  *
  * ```kotlin
  * val list = doubleArrayOf(1, 2).toFastList()
- * check(list.size == 2)
- * check(list[1] == 2.0)
+ * // list.size == 2
+ * // list[1] == 2.0
  * ```
  */
 fun DoubleArray.toFastList(): FastList<Double> = asIterable().toFastList()

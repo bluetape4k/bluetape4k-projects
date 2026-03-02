@@ -10,14 +10,13 @@ import kotlin.contracts.contract
  * requireNotNull 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requireNotNull
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = ("blue" as String?).requireNotNull("text")
+ * // result == "blue"
  * ```
  */
 inline fun <T: Any> T?.requireNotNull(parameterName: String): T {
@@ -32,14 +31,13 @@ inline fun <T: Any> T?.requireNotNull(parameterName: String): T {
  * requireNull 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requireNull
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = (null as String?).requireNull("text")
+ * // result == null
  * ```
  */
 inline fun <T: Any> T?.requireNull(parameterName: String): T? {
@@ -54,14 +52,13 @@ inline fun <T: Any> T?.requireNull(parameterName: String): T? {
  * requireNotEmpty 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requireNotEmpty
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = ("blue" as String?).requireNotEmpty("text")
+ * // result == "blue"
  * ```
  */
 inline fun <T: CharSequence> T?.requireNotEmpty(parameterName: String): T {
@@ -77,14 +74,13 @@ inline fun <T: CharSequence> T?.requireNotEmpty(parameterName: String): T {
  * requireNullOrEmpty 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requireNullOrEmpty
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = ("" as String?).requireNullOrEmpty("text")
+ * // result == ""
  * ```
  */
 inline fun <T: CharSequence> T?.requireNullOrEmpty(parameterName: String): T? {
@@ -99,14 +95,13 @@ inline fun <T: CharSequence> T?.requireNullOrEmpty(parameterName: String): T? {
  * requireNotBlank 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requireNotBlank
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = ("blue" as String?).requireNotBlank("text")
+ * // result == "blue"
  * ```
  */
 inline fun <T: CharSequence> T?.requireNotBlank(parameterName: String): T {
@@ -122,14 +117,13 @@ inline fun <T: CharSequence> T?.requireNotBlank(parameterName: String): T {
  * requireNullOrBlank 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requireNullOrBlank
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = ("   " as String?).requireNullOrBlank("text")
+ * // result == "   "
  * ```
  */
 inline fun <T: CharSequence> T?.requireNullOrBlank(parameterName: String): T? {
@@ -145,14 +139,13 @@ inline fun <T: CharSequence> T?.requireNullOrBlank(parameterName: String): T? {
  * requireContains 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requireContains
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = ("blue" as String?).requireContains("lu", "text")
+ * // result == "blue"
  * ```
  */
 inline fun <T: CharSequence> T?.requireContains(other: CharSequence, parameterName: String): T {
@@ -165,14 +158,13 @@ inline fun <T: CharSequence> T?.requireContains(other: CharSequence, parameterNa
  * requireStartsWith 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requireStartsWith
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = ("blue" as String?).requireStartsWith("bl", "text")
+ * // result == "blue"
  * ```
  */
 inline fun <T: CharSequence> T?.requireStartsWith(
@@ -189,14 +181,13 @@ inline fun <T: CharSequence> T?.requireStartsWith(
  * requireEndsWith 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requireEndsWith
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = ("blue" as String?).requireEndsWith("ue", "text")
+ * // result == "blue"
  * ```
  */
 inline fun <T: CharSequence> T?.requireEndsWith(
@@ -213,14 +204,13 @@ inline fun <T: CharSequence> T?.requireEndsWith(
  * requireEquals 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requireEquals
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = 10.requireEquals(10, "value")
+ * // result == 10
  * ```
  */
 inline fun <T> T.requireEquals(expected: T, parameterName: String): T = apply {
@@ -231,14 +221,13 @@ inline fun <T> T.requireEquals(expected: T, parameterName: String): T = apply {
  * requireGt 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requireGt
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = 10.requireGt(1, "value")
+ * // result == 10
  * ```
  */
 inline fun <T: Comparable<T>> T.requireGt(expected: T, parameterName: String): T = apply {
@@ -249,14 +238,13 @@ inline fun <T: Comparable<T>> T.requireGt(expected: T, parameterName: String): T
  * requireGe 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requireGe
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = 10.requireGe(10, "value")
+ * // result == 10
  * ```
  */
 inline fun <T: Comparable<T>> T.requireGe(expected: T, parameterName: String): T = apply {
@@ -267,14 +255,13 @@ inline fun <T: Comparable<T>> T.requireGe(expected: T, parameterName: String): T
  * requireLt 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requireLt
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = 1.requireLt(10, "value")
+ * // result == 1
  * ```
  */
 inline fun <T: Comparable<T>> T.requireLt(expected: T, parameterName: String): T = apply {
@@ -285,14 +272,13 @@ inline fun <T: Comparable<T>> T.requireLt(expected: T, parameterName: String): T
  * requireLe 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requireLe
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = 10.requireLe(10, "value")
+ * // result == 10
  * ```
  */
 inline fun <T: Comparable<T>> T.requireLe(expected: T, parameterName: String): T = apply {
@@ -303,14 +289,13 @@ inline fun <T: Comparable<T>> T.requireLe(expected: T, parameterName: String): T
  * requireInRange 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requireInRange
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = 5.requireInRange(1, 10, "value")
+ * // result == 5
  * ```
  */
 inline fun <T: Comparable<T>> T.requireInRange(start: T, endInclusive: T, parameterName: String) = apply {
@@ -321,14 +306,13 @@ inline fun <T: Comparable<T>> T.requireInRange(start: T, endInclusive: T, parame
  * requireInOpenRange 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requireInOpenRange
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = 5.requireInOpenRange(1, 10, "value")
+ * // result == 5
  * ```
  */
 inline fun <T: Comparable<T>> T.requireInOpenRange(start: T, endExclusive: T, parameterName: String): T = apply {
@@ -339,14 +323,13 @@ inline fun <T: Comparable<T>> T.requireInOpenRange(start: T, endExclusive: T, pa
  * requireZeroOrPositiveNumber 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requireZeroOrPositiveNumber
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = 0.requireZeroOrPositiveNumber("value")
+ * // result == 0
  * ```
  */
 inline fun <T> T.requireZeroOrPositiveNumber(parameterName: String): T where T: Number, T: Comparable<T> = apply {
@@ -357,14 +340,13 @@ inline fun <T> T.requireZeroOrPositiveNumber(parameterName: String): T where T: 
  * requirePositiveNumber 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requirePositiveNumber
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = 1.requirePositiveNumber("value")
+ * // result == 1
  * ```
  */
 inline fun <T> T.requirePositiveNumber(parameterName: String): T where T: Number, T: Comparable<T> = apply {
@@ -375,14 +357,13 @@ inline fun <T> T.requirePositiveNumber(parameterName: String): T where T: Number
  * requireZeroOrNegativeNumber 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requireZeroOrNegativeNumber
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = 0.requireZeroOrNegativeNumber("value")
+ * // result == 0
  * ```
  */
 inline fun <T> T.requireZeroOrNegativeNumber(parameterName: String): T where T: Number, T: Comparable<T> = apply {
@@ -393,14 +374,13 @@ inline fun <T> T.requireZeroOrNegativeNumber(parameterName: String): T where T: 
  * requireNegativeNumber 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requireNegativeNumber
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = (-1).requireNegativeNumber("value")
+ * // result == -1
  * ```
  */
 inline fun <T> T.requireNegativeNumber(parameterName: String): T where T: Number, T: Comparable<T> = apply {
@@ -411,14 +391,13 @@ inline fun <T> T.requireNegativeNumber(parameterName: String): T where T: Number
  * requireNotEmpty 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requireNotEmpty
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = arrayOf(1, 2).requireNotEmpty("items")
+ * // result.size == 2
  * ```
  */
 inline fun <T> Array<T>?.requireNotEmpty(parameterName: String) = apply {
@@ -429,14 +408,13 @@ inline fun <T> Array<T>?.requireNotEmpty(parameterName: String) = apply {
  * requireNotEmpty 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requireNotEmpty
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = listOf(1, 2).requireNotEmpty("items")
+ * // result.size == 2
  * ```
  */
 inline fun <T> Collection<T>?.requireNotEmpty(parameterName: String) = apply {
@@ -447,14 +425,13 @@ inline fun <T> Collection<T>?.requireNotEmpty(parameterName: String) = apply {
  * requireNotEmpty 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requireNotEmpty
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = mapOf("a" to 1).requireNotEmpty("map")
+ * // result["a"] == 1
  * ```
  */
 inline fun <K, V> Map<K, V>?.requireNotEmpty(parameterName: String) = apply {
@@ -465,14 +442,13 @@ inline fun <K, V> Map<K, V>?.requireNotEmpty(parameterName: String) = apply {
  * requireHasKey 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requireHasKey
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = mapOf("a" to 1).requireHasKey("a", "map")
+ * // result["a"] == 1
  * ```
  */
 inline fun <K, V> Map<K, V>?.requireHasKey(key: K, parameterName: String): Map<K, V> {
@@ -485,14 +461,13 @@ inline fun <K, V> Map<K, V>?.requireHasKey(key: K, parameterName: String): Map<K
  * requireHasValue 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requireHasValue
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = mapOf("a" to 1).requireHasValue(1, "map")
+ * // result["a"] == 1
  * ```
  */
 inline fun <K, V> Map<K, V>?.requireHasValue(value: V, parameterName: String): Map<K, V> {
@@ -505,14 +480,13 @@ inline fun <K, V> Map<K, V>?.requireHasValue(value: V, parameterName: String): M
  * requireContains 기능을 제공합니다.
  *
  * ## 동작/계약
- * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
- * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
- * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ * - 조건을 만족하지 않으면 [IllegalArgumentException]이 발생합니다.
+ * - 조건을 만족하면 수신 값을 그대로 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * val ref = ::requireContains
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = mapOf("a" to 1).requireContains("a", 1, "map")
+ * // result["a"] == 1
  * ```
  */
 inline fun <K, V> Map<K, V>?.requireContains(key: K, value: V, parameterName: String): Map<K, V> {

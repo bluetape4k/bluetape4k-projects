@@ -214,7 +214,7 @@ fun TemporalAccessor.toIsoZonedDateTimeStringOrNull(): String? =
  *
  * ```kotlin
  * val p = Instant.now().precision
- * check(p != null)
+ * // p != null
  * ```
  */
 val TemporalAccessor.precision: TemporalUnit? get() = query(TemporalQueries.precision())
@@ -228,7 +228,7 @@ val TemporalAccessor.precision: TemporalUnit? get() = query(TemporalQueries.prec
  *
  * ```kotlin
  * val y = LocalDate.now().year
- * check(y != null)
+ * // y != null
  * ```
  */
 val TemporalAccessor.year: Year? get() = queryOrNull { Year.from(this) }
@@ -242,7 +242,7 @@ val TemporalAccessor.year: Year? get() = queryOrNull { Year.from(this) }
  *
  * ```kotlin
  * val ym = LocalDate.now().yearMonth
- * check(ym != null)
+ * // ym != null
  * ```
  */
 val TemporalAccessor.yearMonth: YearMonth? get() = queryOrNull { YearMonth.from(this) }
@@ -256,7 +256,7 @@ val TemporalAccessor.yearMonth: YearMonth? get() = queryOrNull { YearMonth.from(
  *
  * ```kotlin
  * val m = LocalDate.now().month
- * check(m != null)
+ * // m != null
  * ```
  */
 val TemporalAccessor.month: Month? get() = queryOrNull { Month.from(this) }
@@ -270,7 +270,7 @@ val TemporalAccessor.month: Month? get() = queryOrNull { Month.from(this) }
  *
  * ```kotlin
  * val md = LocalDate.now().monthDay
- * check(md != null)
+ * // md != null
  * ```
  */
 val TemporalAccessor.monthDay: MonthDay? get() = queryOrNull { MonthDay.from(this) }
@@ -284,7 +284,7 @@ val TemporalAccessor.monthDay: MonthDay? get() = queryOrNull { MonthDay.from(thi
  *
  * ```kotlin
  * val dow = LocalDate.now().dayOfWeek
- * check(dow != null)
+ * // dow != null
  * ```
  */
 val TemporalAccessor.dayOfWeek: DayOfWeek? get() = queryOrNull { DayOfWeek.from(this) }
@@ -298,7 +298,7 @@ val TemporalAccessor.dayOfWeek: DayOfWeek? get() = queryOrNull { DayOfWeek.from(
  *
  * ```kotlin
  * val instant = Instant.now().instant
- * check(instant != null)
+ * // instant != null
  * ```
  */
 val TemporalAccessor.instant: Instant? get() = queryOrNull { Instant.from(this) }
@@ -312,7 +312,7 @@ val TemporalAccessor.instant: Instant? get() = queryOrNull { Instant.from(this) 
  *
  * ```kotlin
  * val date = LocalDate.now().localDate
- * check(date != null)
+ * // date != null
  * ```
  */
 val TemporalAccessor.localDate: LocalDate? get() = queryOrNull { LocalDate.from(this) }
@@ -326,7 +326,7 @@ val TemporalAccessor.localDate: LocalDate? get() = queryOrNull { LocalDate.from(
  *
  * ```kotlin
  * val time = LocalTime.now().localTime
- * check(time != null)
+ * // time != null
  * ```
  */
 val TemporalAccessor.localTime: LocalTime? get() = queryOrNull { LocalTime.from(this) }
@@ -340,7 +340,7 @@ val TemporalAccessor.localTime: LocalTime? get() = queryOrNull { LocalTime.from(
  *
  * ```kotlin
  * val ldt = LocalDateTime.now().localDateTime
- * check(ldt != null)
+ * // ldt != null
  * ```
  */
 val TemporalAccessor.localDateTime: LocalDateTime? get() = queryOrNull { LocalDateTime.from(this) }
@@ -354,7 +354,7 @@ val TemporalAccessor.localDateTime: LocalDateTime? get() = queryOrNull { LocalDa
  *
  * ```kotlin
  * val offset = OffsetDateTime.now().zoneOffset
- * check(offset != null)
+ * // offset != null
  * ```
  */
 val TemporalAccessor.zoneOffset: ZoneOffset? get() = queryOrNull { ZoneOffset.from(this) }
@@ -368,7 +368,7 @@ val TemporalAccessor.zoneOffset: ZoneOffset? get() = queryOrNull { ZoneOffset.fr
  *
  * ```kotlin
  * val ot = OffsetTime.now().offsetTime
- * check(ot != null)
+ * // ot != null
  * ```
  */
 val TemporalAccessor.offsetTime: OffsetTime? get() = queryOrNull { OffsetTime.from(this) }
@@ -382,7 +382,7 @@ val TemporalAccessor.offsetTime: OffsetTime? get() = queryOrNull { OffsetTime.fr
  *
  * ```kotlin
  * val odt = OffsetDateTime.now().offsetDateTime
- * check(odt != null)
+ * // odt != null
  * ```
  */
 val TemporalAccessor.offsetDateTime: OffsetDateTime? get() = queryOrNull { OffsetDateTime.from(this) }
@@ -396,7 +396,7 @@ val TemporalAccessor.offsetDateTime: OffsetDateTime? get() = queryOrNull { Offse
  *
  * ```kotlin
  * val zone = ZonedDateTime.now().zone
- * check(zone != null)
+ * // zone != null
  * ```
  */
 val TemporalAccessor.zone: ZoneId? get() = queryOrNull { ZoneId.from(this) }
@@ -410,7 +410,7 @@ val TemporalAccessor.zone: ZoneId? get() = queryOrNull { ZoneId.from(this) }
  *
  * ```kotlin
  * val zoneId = ZonedDateTime.now().zoneId
- * check(zoneId != null)
+ * // zoneId != null
  * ```
  */
 val TemporalAccessor.zoneId: ZoneId? get() = queryOrNull { ZoneId.from(this) }
@@ -424,7 +424,7 @@ val TemporalAccessor.zoneId: ZoneId? get() = queryOrNull { ZoneId.from(this) }
  *
  * ```kotlin
  * val zdt = ZonedDateTime.now().zonedDateTime
- * check(zdt != null)
+ * // zdt != null
  * ```
  */
 val TemporalAccessor.zonedDateTime: ZonedDateTime? get() = queryOrNull { ZonedDateTime.from(this) }
@@ -456,9 +456,8 @@ private inline fun <T> TemporalAccessor.queryOrNull(crossinline block: TemporalA
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::formatOrNull
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = java.time.Instant.EPOCH.formatOrNull(java.time.format.DateTimeFormatter.ISO_INSTANT)
+ * // result == "1970-01-01T00:00:00Z"
  * ```
  */
 inline fun TemporalAccessor.formatOrNull(formatter: DateTimeFormatter): String? =

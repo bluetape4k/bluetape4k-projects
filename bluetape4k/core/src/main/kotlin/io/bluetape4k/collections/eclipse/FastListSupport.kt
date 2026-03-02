@@ -16,8 +16,8 @@ import java.util.stream.Stream
  *
  * ```kotlin
  * val list = emptyFastList<Int>()
- * check(list.isEmpty())
- * check(list is MutableList<Int>)
+ * // list.isEmpty()
+ * // list is MutableList<Int>
  * ```
  */
 inline fun <T> emptyFastList(): FastList<T> = FastList.newList<T>()
@@ -32,8 +32,8 @@ inline fun <T> emptyFastList(): FastList<T> = FastList.newList<T>()
  *
  * ```kotlin
  * val list = fastList(3) { it * 2 }
- * check(list == listOf(0, 2, 4))
- * check(list.size == 3)
+ * // list == listOf(0, 2, 4)
+ * // list.size == 3
  * ```
  *
  * @param size 생성할 리스트 크기
@@ -59,8 +59,8 @@ inline fun <T> fastList(
  *
  * ```kotlin
  * val list = fastListOf(1, 2, 3)
- * check(list == listOf(1, 2, 3))
- * check(list.size == 3)
+ * // list == listOf(1, 2, 3)
+ * // list.size == 3
  * ```
  *
  * @param elements 리스트에 담을 요소
@@ -81,7 +81,7 @@ fun <T> fastListOf(vararg elements: T): FastList<T> {
  * ```kotlin
  * val dest = emptyFastList<Int>()
  * val out = listOf(1, 2, 3).toFastList(dest)
- * check(out === dest)
+ * // out === dest
  * ```
  *
  * @param destination 요소를 누적할 대상 리스트
@@ -112,8 +112,8 @@ fun <T> Iterable<T>.toFastList(destination: FastList<T> = FastList.newList()): F
  *
  * ```kotlin
  * val list = sequenceOf(1, 2, 3).toFastList()
- * check(list == listOf(1, 2, 3))
- * check(list is FastList<Int>)
+ * // list == listOf(1, 2, 3)
+ * // list is FastList<Int>
  * ```
  */
 fun <T> Sequence<T>.toFastList(destination: FastList<T> = FastList.newList()): FastList<T> =
@@ -129,8 +129,8 @@ fun <T> Sequence<T>.toFastList(destination: FastList<T> = FastList.newList()): F
  *
  * ```kotlin
  * val list = listOf(1, 2).iterator().toFastList()
- * check(list == listOf(1, 2))
- * check(list.size == 2)
+ * // list == listOf(1, 2)
+ * // list.size == 2
  * ```
  */
 fun <T> Iterator<T>.toFastList(destination: FastList<T> = FastList.newList()): FastList<T> =
@@ -146,8 +146,8 @@ fun <T> Iterator<T>.toFastList(destination: FastList<T> = FastList.newList()): F
  *
  * ```kotlin
  * val list = arrayOf("a", "b").toFastList()
- * check(list == listOf("a", "b"))
- * check(list.size == 2)
+ * // list == listOf("a", "b")
+ * // list.size == 2
  * ```
  */
 fun <T> Array<T>.toFastList(destination: FastList<T> = FastList.newList()): FastList<T> =
@@ -163,8 +163,8 @@ fun <T> Array<T>.toFastList(destination: FastList<T> = FastList.newList()): Fast
  *
  * ```kotlin
  * val list = Stream.of(1, 2, 3).toFastList()
- * check(list == listOf(1, 2, 3))
- * check(list.size == 3)
+ * // list == listOf(1, 2, 3)
+ * // list.size == 3
  * ```
  */
 fun <T> Stream<T>.toFastList(destination: FastList<T> = FastList.newList()): FastList<T> =
@@ -180,8 +180,8 @@ fun <T> Stream<T>.toFastList(destination: FastList<T> = FastList.newList()): Fas
  *
  * ```kotlin
  * val mapped = listOf(1, 2, 3).fastMap { it * 10 }
- * check(mapped == listOf(10, 20, 30))
- * check(mapped.size == 3)
+ * // mapped == listOf(10, 20, 30)
+ * // mapped.size == 3
  * ```
  *
  * @param destination 중간 복사에 사용할 대상 리스트
@@ -202,8 +202,8 @@ fun <T, R> Iterable<T>.fastMap(
  *
  * ```kotlin
  * val mapped = sequenceOf(1, 2).fastMap { "#$it" }
- * check(mapped == listOf("#1", "#2"))
- * check(mapped.size == 2)
+ * // mapped == listOf("#1", "#2")
+ * // mapped.size == 2
  * ```
  */
 fun <T, R> Sequence<T>.fastMap(
@@ -221,8 +221,8 @@ fun <T, R> Sequence<T>.fastMap(
  *
  * ```kotlin
  * val mapped = listOf(1, 2).iterator().fastMap { it + 1 }
- * check(mapped == listOf(2, 3))
- * check(mapped.size == 2)
+ * // mapped == listOf(2, 3)
+ * // mapped.size == 2
  * ```
  */
 fun <T, R> Iterator<T>.fastMap(
@@ -240,8 +240,8 @@ fun <T, R> Iterator<T>.fastMap(
  *
  * ```kotlin
  * val mapped = arrayOf("a", "bb").fastMap { it.length }
- * check(mapped == listOf(1, 2))
- * check(mapped.size == 2)
+ * // mapped == listOf(1, 2)
+ * // mapped.size == 2
  * ```
  */
 fun <T, R> Array<T>.fastMap(
@@ -260,8 +260,8 @@ fun <T, R> Array<T>.fastMap(
  *
  * ```kotlin
  * val list = listOf("1", "x").fastMapNotNull { it.toIntOrNull() }
- * check(list == listOf(1))
- * check(list.size == 1)
+ * // list == listOf(1)
+ * // list.size == 1
  * ```
  *
  * @param destination 중간 복사에 사용할 대상 리스트
@@ -282,8 +282,8 @@ fun <T, R: Any> Iterable<T>.fastMapNotNull(
  *
  * ```kotlin
  * val list = sequenceOf("a", "bb").fastMapNotNull { it.length }
- * check(list == listOf(1, 2))
- * check(list.size == 2)
+ * // list == listOf(1, 2)
+ * // list.size == 2
  * ```
  */
 fun <T, R: Any> Sequence<T>.fastMapNotNull(
@@ -301,8 +301,8 @@ fun <T, R: Any> Sequence<T>.fastMapNotNull(
  *
  * ```kotlin
  * val list = listOf("a", "bb").iterator().fastMapNotNull { it.length }
- * check(list == listOf(1, 2))
- * check(list.size == 2)
+ * // list == listOf(1, 2)
+ * // list.size == 2
  * ```
  */
 fun <T, R: Any> Iterator<T>.fastMapNotNull(
@@ -320,8 +320,8 @@ fun <T, R: Any> Iterator<T>.fastMapNotNull(
  *
  * ```kotlin
  * val list = arrayOf("a", "bb").fastMapNotNull { it.length }
- * check(list == listOf(1, 2))
- * check(list.size == 2)
+ * // list == listOf(1, 2)
+ * // list.size == 2
  * ```
  */
 fun <T, R: Any> Array<T>.fastMapNotNull(
@@ -340,8 +340,8 @@ fun <T, R: Any> Array<T>.fastMapNotNull(
  *
  * ```kotlin
  * val list = listOf(1, 2, 3, 4).fastFilter { it % 2 == 0 }
- * check(list == listOf(2, 4))
- * check(list.size == 2)
+ * // list == listOf(2, 4)
+ * // list.size == 2
  * ```
  */
 fun <T> Iterable<T>.fastFilter(
@@ -359,8 +359,8 @@ fun <T> Iterable<T>.fastFilter(
  *
  * ```kotlin
  * val list = sequenceOf(1, 2, 3).fastFilter { it >= 2 }
- * check(list == listOf(2, 3))
- * check(list.size == 2)
+ * // list == listOf(2, 3)
+ * // list.size == 2
  * ```
  */
 fun <T> Sequence<T>.fastFilter(
@@ -378,8 +378,8 @@ fun <T> Sequence<T>.fastFilter(
  *
  * ```kotlin
  * val list = listOf(1, 2, 3).iterator().fastFilter { it > 1 }
- * check(list == listOf(2, 3))
- * check(list.size == 2)
+ * // list == listOf(2, 3)
+ * // list.size == 2
  * ```
  */
 fun <T> Iterator<T>.fastFilter(
@@ -397,8 +397,8 @@ fun <T> Iterator<T>.fastFilter(
  *
  * ```kotlin
  * val list = arrayOf(1, 2, 3).fastFilter { it != 2 }
- * check(list == listOf(1, 3))
- * check(list.size == 2)
+ * // list == listOf(1, 3)
+ * // list.size == 2
  * ```
  */
 fun <T> Array<T>.fastFilter(
@@ -417,8 +417,8 @@ fun <T> Array<T>.fastFilter(
  *
  * ```kotlin
  * val list = listOf(1, 2, 3).fastFilterNot { it == 2 }
- * check(list == listOf(1, 3))
- * check(list.size == 2)
+ * // list == listOf(1, 3)
+ * // list.size == 2
  * ```
  */
 fun <T> Iterable<T>.fastFilterNot(
@@ -436,8 +436,8 @@ fun <T> Iterable<T>.fastFilterNot(
  *
  * ```kotlin
  * val list = sequenceOf(1, 2, 3).fastFilterNot { it == 1 }
- * check(list == listOf(2, 3))
- * check(list.size == 2)
+ * // list == listOf(2, 3)
+ * // list.size == 2
  * ```
  */
 fun <T> Sequence<T>.fastFilterNot(
@@ -455,8 +455,8 @@ fun <T> Sequence<T>.fastFilterNot(
  *
  * ```kotlin
  * val list = listOf(1, 2, 3).iterator().fastFilterNot { it > 2 }
- * check(list == listOf(1, 2))
- * check(list.size == 2)
+ * // list == listOf(1, 2)
+ * // list.size == 2
  * ```
  */
 fun <T> Iterator<T>.fastFilterNot(
@@ -474,8 +474,8 @@ fun <T> Iterator<T>.fastFilterNot(
  *
  * ```kotlin
  * val list = arrayOf(1, 2, 3).fastFilterNot { it == 3 }
- * check(list == listOf(1, 2))
- * check(list.size == 2)
+ * // list == listOf(1, 2)
+ * // list.size == 2
  * ```
  */
 fun <T> Array<T>.fastFilterNot(
@@ -494,7 +494,7 @@ fun <T> Array<T>.fastFilterNot(
  * ```kotlin
  * val a: FastList<Int>? = null
  * val b = a.orEmpty()
- * check(b.isEmpty())
+ * // b.isEmpty()
  * ```
  */
 inline fun <T> FastList<T>?.orEmpty(): FastList<T> =

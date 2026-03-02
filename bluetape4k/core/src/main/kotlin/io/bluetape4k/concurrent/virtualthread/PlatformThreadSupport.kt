@@ -52,9 +52,9 @@ inline fun platformThreadFactory(
  * ```
  * val thread = platformThread(start = true, isDaemon = false, name = "platform-thread") {
  *   // work something
- *   println("Hello, Platform Thread!")
+ *   // "Hello, Platform Thread!"
  *   Thread.sleep(1000)
- *   println("Goodbye, Platform Thread!")
+ *   // "Goodbye, Platform Thread!"
  * }
  * ```
  *

@@ -376,9 +376,8 @@ inline fun <T, R> Sequence<T>.sliding(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::repeat
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = sequenceOf(1, 2).repeat().take(5).toList()
+ * // result == [1, 2, 1, 2, 1]
  * ```
  */
 fun <T> Sequence<T>.repeat(): Sequence<T> = sequence {

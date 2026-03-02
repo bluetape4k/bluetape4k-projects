@@ -33,8 +33,8 @@ object ForkJoinExecutor: ExecutorService by ForkJoinPool.commonPool()
  *
  * ```kotlin
  * val type = VirtualThreadExecutor::class
- * println(type.simpleName)
- * check(type.simpleName != null)
+ * // type.simpleName
+ * // type.simpleName != null
  * ```
  */
 object VirtualThreadExecutor: ExecutorService by Executors.newVirtualThreadPerTaskExecutor()

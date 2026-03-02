@@ -14,7 +14,7 @@ import java.util.*
  *
  * ```kotlin
  * val locale = localeOf("ko")
- * check(locale.language == "ko")
+ * // locale.language == "ko"
  * ```
  *
  * @param language ISO 언어 코드(예: `"ko"`, `"en"`)
@@ -32,7 +32,7 @@ fun localeOf(language: String): Locale = Locale.of(language)
  *
  * ```kotlin
  * val locale = localeOf("en", "US")
- * check(locale.country == "US")
+ * // locale.country == "US"
  * ```
  *
  * @param language ISO 언어 코드
@@ -51,7 +51,7 @@ fun localeOf(language: String, country: String): Locale = Locale.of(language, co
  *
  * ```kotlin
  * val locale = localeOf("en", "US", "POSIX")
- * check(locale.variant == "POSIX")
+ * // locale.variant == "POSIX"
  * ```
  *
  * @param language ISO 언어 코드

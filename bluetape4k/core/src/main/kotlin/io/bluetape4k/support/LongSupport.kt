@@ -11,7 +11,7 @@ package io.bluetape4k.support
  *
  * ```kotlin
  * val ok = 42L.toIntExact()
- * check(ok == 42)
+ * // ok == 42
  * // Long.MAX_VALUE.toIntExact() -> IllegalArgumentException
  * ```
  */

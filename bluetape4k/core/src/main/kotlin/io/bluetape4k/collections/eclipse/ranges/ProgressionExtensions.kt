@@ -13,9 +13,8 @@ import org.eclipse.collections.impl.list.mutable.primitive.LongArrayList
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::toCharArrayList
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = ('a'..'c').toCharArrayList()
+ * // result contains [a, b, c]
  * ```
  */
 fun CharProgression.toCharArrayList(): CharArrayList =
@@ -34,9 +33,8 @@ fun CharProgression.toCharArrayList(): CharArrayList =
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::toIntArrayList
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = (1..3).toIntArrayList()
+ * // result contains [1, 2, 3]
  * ```
  */
 fun IntProgression.toIntArrayList(): IntArrayList =
@@ -55,9 +53,8 @@ fun IntProgression.toIntArrayList(): IntArrayList =
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::toLongArrayList
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = (1L..3L).toLongArrayList()
+ * // result contains [1, 2, 3]
  * ```
  */
 fun LongProgression.toLongArrayList(): LongArrayList =

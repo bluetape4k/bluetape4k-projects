@@ -18,9 +18,9 @@ interface GetterOperator<in K, out V> {
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::getterOperator
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val getter = getterOperator<String, Int> { it.length }
+ * val result = getter["abc"]
+ * // result == 3
  * ```
  */
 fun <K, V> getterOperator(func: (K) -> V): GetterOperator<K, V> {
@@ -52,9 +52,10 @@ interface SetterOperator<in K, in V> {
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::setterOperator
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val values = mutableMapOf<String, Int>()
+ * val setter = setterOperator<String, Int> { k, v -> values[k] = v }
+ * setter["a"] = 1
+ * // values["a"] == 1
  * ```
  */
 fun <K, V> setterOperator(func: (K, V) -> Unit): SetterOperator<K, V> {

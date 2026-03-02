@@ -52,10 +52,10 @@ fun <T: Any> T?.toOptional(): Optional<T> = Optional.ofNullable(this)
  *
  * ```kotlin
  * val present: Any = Optional.of("a")
- * println(present.unwrapOptional()) // "a"
+ * // present.unwrapOptional() == "a"
  *
  * val empty: Any = Optional.empty<String>()
- * println(empty.unwrapOptional()) // null
+ * // empty.unwrapOptional() == null
  * ```
  */
 fun Any.unwrapOptional(): Any? {
@@ -78,9 +78,9 @@ fun Any.unwrapOptional(): Any? {
  * - 컬렉션(List/Set 등)은 배열이 아니므로 `false`입니다.
  *
  * ```kotlin
- * println(intArrayOf(1, 2, 3).isArray) // true
- * println(arrayOf("a").isArray)        // true
- * println(listOf(1, 2, 3).isArray)     // false
+ * // intArrayOf(1, 2, 3).isArray == true
+ * // arrayOf("a").isArray == true
+ * // listOf(1, 2, 3).isArray == false
  * ```
  */
 val Any.isArray: Boolean get() = this.javaClass.isArray
@@ -95,7 +95,7 @@ val Any.isArray: Boolean get() = this.javaClass.isArray
  * ```kotlin
  * val h1 = hashOf("a", 1, null)
  * val h2 = hashOf("a", 1, null)
- * println(h1 == h2) // true
+ * // h1 == h2 == true
  * ```
  */
 fun hashOf(vararg values: Any?): Int = Objects.hash(*values)
@@ -121,13 +121,13 @@ fun areEquals(a: Any?, b: Any?): Boolean =
  * - 둘 다 배열이면 [arrayEquals]로 내용 비교를 수행합니다.
  *
  * ```kotlin
- * println(areEqualsSafe(null, null)) // false
- * println(areEqualsSafe(1, 1))       // true
- * println(areEqualsSafe(1, 2))       // false
+ * // areEqualsSafe(null, null) == false
+ * // areEqualsSafe(1, 1) == true
+ * // areEqualsSafe(1, 2) == false
  *
  * val a = arrayOf(1, 2, 3)
  * val b = arrayOf(1, 2, 3)
- * println(areEqualsSafe(a, b))       // true
+ * // areEqualsSafe(a, b) == true
  * ```
  */
 fun areEqualsSafe(a: Any?, b: Any?): Boolean {
@@ -157,7 +157,7 @@ fun areEqualsSafe(a: Any?, b: Any?): Boolean {
  * ```kotlin
  * val a = intArrayOf(1, 2, 3)
  * val b = intArrayOf(1, 2, 3)
- * println(arrayEquals(a, b)) // true
+ * // arrayEquals(a, b) == true
  * ```
  */
 @OptIn(ExperimentalUnsignedTypes::class)
@@ -207,8 +207,8 @@ fun arrayEquals(a: Any, b: Any): Boolean {
  * - 배열이 아니면 일반 `hashCode()`를 반환합니다.
  *
  * ```kotlin
- * println((null as Any?).hashCodeSafe()) // 0
- * println(intArrayOf(1, 2, 3).hashCodeSafe() == intArrayOf(1, 2, 3).hashCodeSafe()) // true
+ * // (null as Any?).hashCodeSafe() == 0
+ * // intArrayOf(1, 2, 3).hashCodeSafe() == intArrayOf(1, 2, 3).hashCodeSafe() == true
  * ```
  */
 @OptIn(ExperimentalUnsignedTypes::class)
@@ -248,9 +248,9 @@ fun Any?.hashCodeSafe(): Int {
  *
  * ```kotlin
  * val obj = Any()
- * println(obj.identityToString()) // e.g. "java.lang.Object@27c170f0"
+ * // obj.identityToString() == e.g. "java.lang.Object@27c170f0"
  * val x: Any? = null
- * println(x.identityToString())   // ""
+ * // x.identityToString() == ""
  * ```
  */
 fun Any?.identityToString(): String = when (this) {
@@ -266,7 +266,7 @@ fun Any?.identityToString(): String = when (this) {
  *
  * ```kotlin
  * val obj = Any()
- * println(obj.identityHexString()) // e.g. "27c170f0"
+ * // obj.identityHexString() == e.g. "27c170f0"
  * ```
  */
 fun Any.identityHexString(): String = Integer.toHexString(System.identityHashCode(this))
@@ -281,10 +281,10 @@ fun Any.identityHexString(): String = Integer.toHexString(System.identityHashCod
  * - 변환 중 예외가 발생하면 `"<error ...>"` 형태의 문자열을 반환합니다.
  *
  * ```kotlin
- * println((null as Any?).toStr())           // "null"
- * println(intArrayOf(1, 2, 3).toStr())      // "[1, 2, 3]"
- * println(mapOf("a" to 1).toStr())          // "{a=1}"
- * println(Optional.of("x").toStr())         // "Optional[x]"
+ * // (null as Any?).toStr() == "null"
+ * // intArrayOf(1, 2, 3).toStr() == "[1, 2, 3]"
+ * // mapOf("a" to 1).toStr() == "{a=1}"
+ * // Optional.of("x").toStr() == "Optional[x]"
  * ```
  */
 fun Any?.toStr(): String =

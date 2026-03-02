@@ -16,7 +16,7 @@ import java.math.BigInteger
  * ```kotlin
  * val n1 = bigIntOf(10)
  * val n2 = bigIntOf(42L)
- * check(n1 + n2 == 52.toBigInt())
+ * // n1 + n2 == 52.toBigInt()
  * ```
  *
  * @param value 변환할 숫자 값
@@ -32,9 +32,8 @@ inline fun <T: Number> bigIntOf(value: T): BigInteger = value.toBigInt()
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::bigIntArrayOf
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = bigIntArrayOf(1, 2, 3)
+ * // result.size == 3
  * ```
  */
 inline fun <T: Number> bigIntArrayOf(vararg values: T): Array<BigInteger> =
@@ -49,9 +48,8 @@ inline fun <T: Number> bigIntArrayOf(vararg values: T): Array<BigInteger> =
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::bigIntListOf
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = bigIntListOf(1, 2, 3)
+ * // result == [1, 2, 3]
  * ```
  */
 inline fun <T: Number> bigIntListOf(vararg values: T): List<BigInteger> =
@@ -66,9 +64,8 @@ inline fun <T: Number> bigIntListOf(vararg values: T): List<BigInteger> =
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::bigIntArray
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = bigIntArray(listOf(1, 2, 3))
+ * // result.size == 3
  * ```
  */
 inline fun <T: Number> bigIntArray(size: Int, init: (Int) -> T): Array<BigInteger> {
@@ -85,9 +82,8 @@ inline fun <T: Number> bigIntArray(size: Int, init: (Int) -> T): Array<BigIntege
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::bigIntList
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = bigIntList(listOf(1, 2, 3))
+ * // result == [1, 2, 3]
  * ```
  */
 inline fun <T: Number> bigIntList(size: Int, init: (Int) -> T): List<BigInteger> {
@@ -117,7 +113,7 @@ fun <T: Number> T.toBigInt(): BigInteger = when (this) {
  *
  * ```kotlin
  * val value = "12345678901234567890".toBigInt()
- * check(value.signum() > 0)
+ * // value.signum() > 0
  * ```
  */
 fun String.toBigInt(): BigInteger = BigInteger(this)
@@ -190,8 +186,8 @@ fun <T: Number> BigInteger.divideAndRemainder(other: T): Pair<BigInteger, BigInt
  * - 시간 복잡도는 자릿수에 비례합니다.
  *
  * ```kotlin
- * check(10.toBigInt() > 2)
- * check(10.toBigInt().compareTo(10L) == 0)
+ * // 10.toBigInt() > 2
+ * // 10.toBigInt().compareTo(10L) == 0
  * ```
  *
  * @param other 비교 대상 숫자

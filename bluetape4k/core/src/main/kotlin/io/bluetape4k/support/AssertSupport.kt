@@ -25,7 +25,7 @@ import kotlin.contracts.contract
  * ```kotlin
  * val value: String? = "hello"
  * val nonNullValue = value.assertNotNull("value")
- * println(nonNullValue.length) // 스마트 캐스트 가능
+ * // nonNullValue.length == 5
  * ```
  */
 inline fun <T: Any> T?.assertNotNull(parameterName: String): T {
@@ -67,7 +67,7 @@ inline fun <T: Any> T?.assertNull(parameterName: String): T? {
  * ```kotlin
  * val text: String? = "hello"
  * val nonEmptyText = text.assertNotEmpty("text")
- * println(nonEmptyText.length) // 스마트 캐스트 가능
+ * // nonEmptyText.length == 5
  * ```
  */
 inline fun <T: CharSequence> T?.assertNotEmpty(parameterName: String): T {
@@ -113,7 +113,7 @@ inline fun <T: CharSequence> T?.assertNullOrEmpty(parameterName: String): T? {
  * ```kotlin
  * val text: String? = "hello"
  * val nonBlankText = text.assertNotBlank("text")
- * println(nonBlankText.trim()) // 스마트 캐스트 가능
+ * // nonBlankText.trim() == "hello"
  * ```
  */
 inline fun <T: CharSequence> T?.assertNotBlank(parameterName: String): T {

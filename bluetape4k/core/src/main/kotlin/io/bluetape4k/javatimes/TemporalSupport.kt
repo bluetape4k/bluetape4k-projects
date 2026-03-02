@@ -39,7 +39,7 @@ import java.time.temporal.TemporalUnit
  * ```kotlin
  * val date = LocalDate.of(2026, 3, 1)
  * val next = date.add(Period.ofDays(1))
- * check(next == LocalDate.of(2026, 3, 2))
+ * // next == LocalDate.of(2026, 3, 2)
  * ```
  *
  * @param period 더할 날짜 기반 기간
@@ -58,7 +58,7 @@ fun <T: Temporal> T.add(period: Period): T = this.plus(period) as T
  * ```kotlin
  * val time = LocalDateTime.of(2026, 3, 1, 10, 0)
  * val next = time.add(Duration.ofMinutes(30))
- * check(next.minute == 30)
+ * // next.minute == 30
  * ```
  *
  * @param duration 더할 시간 기반 기간
@@ -77,7 +77,7 @@ fun <T: Temporal> T.add(duration: Duration): T = this.plus(duration) as T
  * ```kotlin
  * val date = LocalDate.of(2026, 3, 1)
  * val next = date.add(Period.ofWeeks(1))
- * check(next.dayOfMonth == 8)
+ * // next.dayOfMonth == 8
  * ```
  *
  * @param amount 더할 [TemporalAmount]
@@ -96,7 +96,7 @@ fun <T: Temporal> T.add(amount: TemporalAmount): T = this.plus(amount) as T
  * ```kotlin
  * val date = LocalDate.of(2026, 3, 1)
  * val prev = date.subtract(Period.ofDays(1))
- * check(prev == LocalDate.of(2026, 2, 28))
+ * // prev == LocalDate.of(2026, 2, 28)
  * ```
  *
  * @param period 뺄 날짜 기반 기간
@@ -115,7 +115,7 @@ fun <T: Temporal> T.subtract(period: Period): T = this.minus(period) as T
  * ```kotlin
  * val time = LocalDateTime.of(2026, 3, 1, 10, 0)
  * val prev = time.subtract(Duration.ofMinutes(30))
- * check(prev.minute == 30)
+ * // prev.minute == 30
  * ```
  *
  * @param duration 뺄 시간 기반 기간
@@ -134,7 +134,7 @@ fun <T: Temporal> T.subtract(duration: Duration): T = this.minus(duration) as T
  * ```kotlin
  * val date = LocalDate.of(2026, 3, 1)
  * val prev = date.subtract(Period.ofWeeks(1))
- * check(prev.dayOfMonth == 22)
+ * // prev.dayOfMonth == 22
  * ```
  *
  * @param amount 뺄 [TemporalAmount]

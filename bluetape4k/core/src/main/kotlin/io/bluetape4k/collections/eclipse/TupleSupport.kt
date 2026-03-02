@@ -11,8 +11,8 @@ import org.eclipse.collections.impl.tuple.Tuples
  *
  * ```kotlin
  * val pair: EcPair<String, Int> = ("a" to 1).toTuplePair()
- * check(pair.one == "a")
- * check(pair.two == 1)
+ * // pair.one == "a"
+ * // pair.two == 1
  * ```
  */
 typealias EcPair<K, V> = org.eclipse.collections.api.tuple.Pair<K, V>
@@ -28,7 +28,7 @@ typealias EcPair<K, V> = org.eclipse.collections.api.tuple.Pair<K, V>
  * ```kotlin
  * val src = "k" to 10
  * val dst = src.toTuplePair()
- * check(dst.one == "k" && dst.two == 10)
+ * // dst.one == "k" && dst.two == 10
  * ```
  */
 fun <K, V> Pair<K, V>.toTuplePair(): EcPair<K, V> =
@@ -45,7 +45,7 @@ fun <K, V> Pair<K, V>.toTuplePair(): EcPair<K, V> =
  * ```kotlin
  * val src = Tuples.pair("k", 10)
  * val dst = src.toPair()
- * check(dst == ("k" to 10))
+ * // dst == ("k" to 10)
  * ```
  */
 fun <K, V> EcPair<K, V>.toPair(): Pair<K, V> = one to two

@@ -203,7 +203,7 @@ inline fun <T> Iterable<T>.forEachCatching(action: (T) -> Unit): List<Result<Uni
  * ```
  * val list = listOf(1, 2, 3)
  * val results = list.mapIfSuccess { it / 0 }
- * println(results) // []
+ * // results == []
  * ```
  *
  * @param mapper 변환 작업

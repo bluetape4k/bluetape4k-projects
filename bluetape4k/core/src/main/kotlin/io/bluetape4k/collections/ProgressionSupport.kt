@@ -164,9 +164,8 @@ fun longProgressionOf(start: Long, endInclusive: Long, step: Long = 1L): LongPro
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::asStream
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = longProgressionOf(1, 3).asStream().toArray()
+ * // result == [1, 2, 3]
  * ```
  */
 fun LongProgression.asStream(): LongStream {

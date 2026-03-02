@@ -13,9 +13,9 @@ import java.util.concurrent.ExecutorService
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::parForEach
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val values = listOf(1, 2, 3)
+ * values.parForEach { /* 병렬 처리 */ }
+ * // 모든 요소에 대해 action이 실행됨
  * ```
  */
 inline fun <K, V> Map<K, V>.parForEach(
@@ -33,9 +33,8 @@ inline fun <K, V> Map<K, V>.parForEach(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::parMap
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = listOf(1, 2, 3).parMap { it * 2 }
+ * // result contains [2, 4, 6]
  * ```
  */
 inline fun <K, V, R> Map<K, V>.parMap(
@@ -55,9 +54,8 @@ inline fun <K, V, R> Map<K, V>.parMap(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::parFlatMap
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = listOf(1, 2).parFlatMap { listOf(it, -it) }
+ * // result contains [1, -1, 2, -2]
  * ```
  */
 inline fun <K, V, R> Map<K, V>.parFlatMap(

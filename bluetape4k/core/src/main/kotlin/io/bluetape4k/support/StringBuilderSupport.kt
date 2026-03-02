@@ -7,7 +7,7 @@ package io.bluetape4k.support
  * val list = listOf(1, 2, 3, 4, 5)
  * val builder = StringBuilder()
  * builder.appendItems(list, separator = ", ")
- * println(builder.toString()) // 1, 2, 3, 4, 5
+ * // builder.toString() == 1, 2, 3, 4, 5
  * ```
  *
  * @param T         [iterable] 값의 수형
@@ -34,7 +34,7 @@ fun <T> StringBuilder.appendItems(iterable: Iterable<T>, separator: String = ", 
  * val sequence = sequenceOf(1, 2, 3, 4, 5)
  * val builder = StringBuilder()
  * builder.appendItems(sequence, separator = ", ")
- * println(builder.toString()) // 1, 2, 3, 4, 5
+ * // builder.toString() == 1, 2, 3, 4, 5
  * ```
  *
  * @param T         [sequence] 값의 수형
@@ -59,7 +59,7 @@ fun <T> StringBuilder.appendItems(sequence: Sequence<T>, separator: String = ", 
  * ```kotlin
  * val b = StringBuilder()
  * listOf("a", "b", "c").appendItems(b, "/")
- * check(b.toString() == "a/b/c")
+ * // b.toString() == "a/b/c"
  * ```
  *
  * @param builder 누적 문자열을 기록할 대상
@@ -88,7 +88,7 @@ fun <T> Iterable<T>.appendItems(builder: StringBuilder, separator: String = ", "
  * ```kotlin
  * val b = StringBuilder()
  * sequenceOf(1, 2, 3).appendItems(b, "-")
- * check(b.toString() == "1-2-3")
+ * // b.toString() == "1-2-3"
  * ```
  *
  * @param builder 누적 문자열을 기록할 대상

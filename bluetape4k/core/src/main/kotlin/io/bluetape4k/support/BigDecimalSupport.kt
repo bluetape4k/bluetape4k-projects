@@ -17,7 +17,7 @@ import java.math.RoundingMode
  * ```kotlin
  * val a = bigDecimalOf(10)
  * val b = bigDecimalOf(2.5)
- * check(a + b == BigDecimal("12.5"))
+ * // a + b == BigDecimal("12.5")
  * ```
  *
  * @param value 변환할 숫자 값
@@ -33,9 +33,8 @@ fun <T: Number> bigDecimalOf(value: T): BigDecimal = value.toBigDecimal()
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::bigDecimalArrayOf
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = bigDecimalArrayOf(1, 2, 3)
+ * // result.size == 3
  * ```
  */
 inline fun <T: Number> bigDecimalArrayOf(vararg values: T): Array<BigDecimal> =
@@ -50,9 +49,8 @@ inline fun <T: Number> bigDecimalArrayOf(vararg values: T): Array<BigDecimal> =
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::bigDecimalListOf
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = bigDecimalListOf(1, 2, 3)
+ * // result == [1, 2, 3]
  * ```
  */
 inline fun <T: Number> bigDecimalListOf(vararg values: T): List<BigDecimal> =
@@ -67,9 +65,8 @@ inline fun <T: Number> bigDecimalListOf(vararg values: T): List<BigDecimal> =
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::bigDecimalArray
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = bigDecimalArray(listOf(1, 2, 3))
+ * // result.size == 3
  * ```
  */
 inline fun <T: Number> bigDecimalArray(size: Int, init: (Int) -> T): Array<BigDecimal> {
@@ -86,9 +83,8 @@ inline fun <T: Number> bigDecimalArray(size: Int, init: (Int) -> T): Array<BigDe
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::bigDecimalList
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = bigDecimalList(listOf(1, 2, 3))
+ * // result == [1, 2, 3]
  * ```
  */
 inline fun <T: Number> bigDecimalList(size: Int, init: (Int) -> T): List<BigDecimal> {

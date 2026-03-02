@@ -25,7 +25,7 @@ private fun Map<String, Any?>.requireValue(name: String): Any {
  * ```kotlin
  * val source = mapOf("enabled" to "true")
  * val enabled = source.boolean("enabled")
- * check(enabled)
+ * // enabled
  * ```
  *
  * @param name 조회할 키 이름
@@ -44,7 +44,7 @@ fun Map<String, Any?>.boolean(name: String): Boolean = requireValue(name).asBool
  * ```kotlin
  * val source = mapOf("enabled" to "true")
  * val enabled = source.booleanOrNull("enabled")
- * check(enabled == true)
+ * // enabled == true
  * ```
  *
  * @param name 조회할 키 이름
@@ -63,7 +63,7 @@ fun Map<String, Any?>.booleanOrNull(name: String): Boolean? = this[name].asBoole
  * ```kotlin
  * val source = mapOf("grade" to "A")
  * val grade = source.char("grade")
- * check(grade == 'A')
+ * // grade == 'A'
  * ```
  *
  * @param name 조회할 키 이름
@@ -82,7 +82,7 @@ fun Map<String, Any?>.char(name: String): Char = requireValue(name).asChar()
  * ```kotlin
  * val source = mapOf("grade" to "A")
  * val grade = source.charOrNull("grade")
- * check(grade == 'A')
+ * // grade == 'A'
  * ```
  *
  * @param name 조회할 키 이름
@@ -101,7 +101,7 @@ fun Map<String, Any?>.charOrNull(name: String): Char? = this[name].asCharOrNull(
  * ```kotlin
  * val source = mapOf("small" to "12")
  * val small = source.byte("small")
- * check(small == 12.toByte())
+ * // small == 12.toByte()
  * ```
  *
  * @param name 조회할 키 이름
@@ -120,7 +120,7 @@ fun Map<String, Any?>.byte(name: String): Byte = requireValue(name).asByte()
  * ```kotlin
  * val source = mapOf("small" to "12")
  * val small = source.byteOrNull("small")
- * check(small == 12.toByte())
+ * // small == 12.toByte()
  * ```
  *
  * @param name 조회할 키 이름
@@ -139,7 +139,7 @@ fun Map<String, Any?>.byteOrNull(name: String): Byte? = this[name].asByteOrNull(
  * ```kotlin
  * val source = mapOf("port" to "8080")
  * val port = source.short("port")
- * check(port == 8080.toShort())
+ * // port == 8080.toShort()
  * ```
  *
  * @param name 조회할 키 이름
@@ -158,7 +158,7 @@ fun Map<String, Any?>.short(name: String): Short = requireValue(name).asShort()
  * ```kotlin
  * val source = mapOf("port" to "8080")
  * val port = source.shortOrNull("port")
- * check(port == 8080.toShort())
+ * // port == 8080.toShort()
  * ```
  *
  * @param name 조회할 키 이름
@@ -177,7 +177,7 @@ fun Map<String, Any?>.shortOrNull(name: String): Short? = this[name].asShortOrNu
  * ```kotlin
  * val source = mapOf("retry" to "3")
  * val retry = source.int("retry")
- * check(retry == 3)
+ * // retry == 3
  * ```
  *
  * @param name 조회할 키 이름
@@ -196,7 +196,7 @@ fun Map<String, Any?>.int(name: String): Int = requireValue(name).asInt()
  * ```kotlin
  * val source = mapOf("retry" to "3")
  * val retry = source.intOrNull("retry")
- * check(retry == 3)
+ * // retry == 3
  * ```
  *
  * @param name 조회할 키 이름
@@ -215,7 +215,7 @@ fun Map<String, Any?>.intOrNull(name: String): Int? = this[name].asIntOrNull()
  * ```kotlin
  * val source = mapOf("id" to "42")
  * val id = source.long("id")
- * check(id == 42L)
+ * // id == 42L
  * ```
  *
  * @param name 조회할 키 이름
@@ -234,7 +234,7 @@ fun Map<String, Any?>.long(name: String): Long = requireValue(name).asLong()
  * ```kotlin
  * val source = mapOf("id" to "42")
  * val id = source.longOrNull("id")
- * check(id == 42L)
+ * // id == 42L
  * ```
  *
  * @param name 조회할 키 이름
@@ -253,7 +253,7 @@ fun Map<String, Any?>.longOrNull(name: String): Long? = this[name].asLongOrNull(
  * ```kotlin
  * val source = mapOf("price" to "12.34")
  * val price = source.bigDecimal("price")
- * check(price.toPlainString() == "12.34")
+ * // price.toPlainString() == "12.34"
  * ```
  *
  * @param name 조회할 키 이름
@@ -272,7 +272,7 @@ fun Map<String, Any?>.bigDecimal(name: String): BigDecimal = requireValue(name).
  * ```kotlin
  * val source = mapOf("price" to "12.34")
  * val price = source.bigDecimalOrNull("price")
- * check(price?.toPlainString() == "12.34")
+ * // price?.toPlainString() == "12.34"
  * ```
  *
  * @param name 조회할 키 이름
@@ -291,7 +291,7 @@ fun Map<String, Any?>.bigDecimalOrNull(name: String): BigDecimal? = this[name].a
  * ```kotlin
  * val source = mapOf("name" to "debop")
  * val name = source.string("name")
- * check(name == "debop")
+ * // name == "debop"
  * ```
  *
  * @param name 조회할 키 이름
@@ -310,7 +310,7 @@ fun Map<String, Any?>.string(name: String): String = requireValue(name).asString
  * ```kotlin
  * val source = mapOf("name" to "debop")
  * val name = source.stringOrNull("name")
- * check(name == "debop")
+ * // name == "debop"
  * ```
  *
  * @param name 조회할 키 이름
@@ -329,7 +329,7 @@ fun Map<String, Any?>.stringOrNull(name: String): String? = this[name].asStringO
  * ```kotlin
  * val source = mapOf("payload" to "abc")
  * val payload = source.byteArray("payload")
- * check(payload.isNotEmpty())
+ * // payload.isNotEmpty()
  * ```
  *
  * @param name 조회할 키 이름
@@ -348,7 +348,7 @@ fun Map<String, Any?>.byteArray(name: String): ByteArray = requireValue(name).as
  * ```kotlin
  * val source = mapOf("payload" to "abc")
  * val payload = source.byteArrayOrNull("payload")
- * check(payload != null)
+ * // payload != null
  * ```
  *
  * @param name 조회할 키 이름
@@ -367,7 +367,7 @@ fun Map<String, Any?>.byteArrayOrNull(name: String): ByteArray? = this[name].asB
  * ```kotlin
  * val source = mapOf("createdAt" to Date())
  * val createdAt = source.date("createdAt")
- * check(createdAt.time > 0L)
+ * // createdAt.time > 0L
  * ```
  *
  * @param name 조회할 키 이름
@@ -386,7 +386,7 @@ fun Map<String, Any?>.date(name: String): Date = requireValue(name).asDate()
  * ```kotlin
  * val source = mapOf("createdAt" to Date())
  * val createdAt = source.dateOrNull("createdAt")
- * check(createdAt != null)
+ * // createdAt != null
  * ```
  *
  * @param name 조회할 키 이름
@@ -405,7 +405,7 @@ fun Map<String, Any?>.dateOrNull(name: String): Date? = this[name].asDateOrNull(
  * ```kotlin
  * val source = mapOf("ts" to Timestamp(System.currentTimeMillis()))
  * val ts = source.timestamp("ts")
- * check(ts.time > 0L)
+ * // ts.time > 0L
  * ```
  *
  * @param name 조회할 키 이름
@@ -424,7 +424,7 @@ fun Map<String, Any?>.timestamp(name: String): Timestamp = requireValue(name).as
  * ```kotlin
  * val source = mapOf("ts" to Timestamp(System.currentTimeMillis()))
  * val ts = source.timestampOrNull("ts")
- * check(ts != null)
+ * // ts != null
  * ```
  *
  * @param name 조회할 키 이름
@@ -443,7 +443,7 @@ fun Map<String, Any?>.timestampOrNull(name: String): Timestamp? = this[name].asT
  * ```kotlin
  * val source = mapOf("when" to Instant.now())
  * val whenInstant = source.instant("when")
- * check(!whenInstant.isBefore(Instant.EPOCH))
+ * // !whenInstant.isBefore(Instant.EPOCH)
  * ```
  *
  * @param name 조회할 키 이름
@@ -462,7 +462,7 @@ fun Map<String, Any?>.instant(name: String): Instant = requireValue(name).asInst
  * ```kotlin
  * val source = mapOf("when" to Instant.now())
  * val whenInstant = source.instantOrNull("when")
- * check(whenInstant != null)
+ * // whenInstant != null
  * ```
  *
  * @param name 조회할 키 이름
@@ -481,7 +481,7 @@ fun Map<String, Any?>.instantOrNull(name: String): Instant? = this[name].asInsta
  * ```kotlin
  * val source = mapOf("birthday" to LocalDate.of(2000, 1, 1))
  * val birthday = source.localDate("birthday")
- * check(birthday.year == 2000)
+ * // birthday.year == 2000
  * ```
  *
  * @param name 조회할 키 이름
@@ -500,7 +500,7 @@ fun Map<String, Any?>.localDate(name: String): LocalDate = requireValue(name).as
  * ```kotlin
  * val source = mapOf("birthday" to LocalDate.of(2000, 1, 1))
  * val birthday = source.localDateOrNull("birthday")
- * check(birthday?.year == 2000)
+ * // birthday?.year == 2000
  * ```
  *
  * @param name 조회할 키 이름
@@ -519,7 +519,7 @@ fun Map<String, Any?>.localDateOrNull(name: String): LocalDate? = this[name].asL
  * ```kotlin
  * val source = mapOf("openAt" to LocalTime.of(9, 0))
  * val openAt = source.localTime("openAt")
- * check(openAt.hour == 9)
+ * // openAt.hour == 9
  * ```
  *
  * @param name 조회할 키 이름
@@ -538,7 +538,7 @@ fun Map<String, Any?>.localTime(name: String): LocalTime = requireValue(name).as
  * ```kotlin
  * val source = mapOf("openAt" to LocalTime.of(9, 0))
  * val openAt = source.localTimeOrNull("openAt")
- * check(openAt?.hour == 9)
+ * // openAt?.hour == 9
  * ```
  *
  * @param name 조회할 키 이름
@@ -557,7 +557,7 @@ fun Map<String, Any?>.localTimeOrNull(name: String): LocalTime? = this[name].asL
  * ```kotlin
  * val source = mapOf("scheduledAt" to LocalDateTime.of(2026, 3, 2, 10, 30))
  * val scheduledAt = source.localDateTime("scheduledAt")
- * check(scheduledAt.year == 2026)
+ * // scheduledAt.year == 2026
  * ```
  *
  * @param name 조회할 키 이름
@@ -576,7 +576,7 @@ fun Map<String, Any?>.localDateTime(name: String): LocalDateTime = requireValue(
  * ```kotlin
  * val source = mapOf("scheduledAt" to LocalDateTime.of(2026, 3, 2, 10, 30))
  * val scheduledAt = source.localDateTimeOrNull("scheduledAt")
- * check(scheduledAt?.year == 2026)
+ * // scheduledAt?.year == 2026
  * ```
  *
  * @param name 조회할 키 이름
@@ -595,7 +595,7 @@ fun Map<String, Any?>.localDateTimeOrNull(name: String): LocalDateTime? = this[n
  * ```kotlin
  * val source = mapOf("createdAt" to OffsetDateTime.now())
  * val createdAt = source.offsetDateTime("createdAt")
- * check(createdAt.offset.totalSeconds % 60 == 0)
+ * // createdAt.offset.totalSeconds % 60 == 0
  * ```
  *
  * @param name 조회할 키 이름
@@ -614,7 +614,7 @@ fun Map<String, Any?>.offsetDateTime(name: String): OffsetDateTime = requireValu
  * ```kotlin
  * val source = mapOf("createdAt" to OffsetDateTime.now())
  * val createdAt = source.offsetDateTimeOrNull("createdAt")
- * check(createdAt != null)
+ * // createdAt != null
  * ```
  *
  * @param name 조회할 키 이름
@@ -633,7 +633,7 @@ fun Map<String, Any?>.offsetDateTimeOrNull(name: String): OffsetDateTime? = this
  * ```kotlin
  * val id = UUID.randomUUID()
  * val source = mapOf("id" to id.toString())
- * check(source.uuid("id") == id)
+ * // source.uuid("id") == id
  * ```
  *
  * @param name 조회할 키 이름
@@ -652,7 +652,7 @@ fun Map<String, Any?>.uuid(name: String): UUID = requireValue(name).asUUID()
  * ```kotlin
  * val id = UUID.randomUUID()
  * val source = mapOf("id" to id.toString())
- * check(source.uuidOrNull("id") == id)
+ * // source.uuidOrNull("id") == id
  * ```
  *
  * @param name 조회할 키 이름

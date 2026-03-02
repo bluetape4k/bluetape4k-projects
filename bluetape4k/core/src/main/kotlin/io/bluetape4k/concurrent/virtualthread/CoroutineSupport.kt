@@ -17,7 +17,7 @@ import kotlin.coroutines.EmptyCoroutineContext
  *      log.debug { "Job is done" }
  *      42
  * }
- * println(result) // 42
+ * // result == 42
  * ```
  *
  * @param T

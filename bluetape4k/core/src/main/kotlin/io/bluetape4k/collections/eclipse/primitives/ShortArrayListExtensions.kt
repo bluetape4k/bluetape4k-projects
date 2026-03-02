@@ -19,8 +19,8 @@ import org.eclipse.collections.impl.list.mutable.primitive.ShortArrayList
  *
  * ```kotlin
  * val list = shortArrayOf(1, 2).toShortArrayList()
- * check(list.size() == 2)
- * check(list[0] == 1.toShort())
+ * // list.size() == 2
+ * // list[0] == 1.toShort()
  * ```
  */
 fun ShortArray.toShortArrayList(): ShortArrayList =
@@ -36,8 +36,8 @@ fun ShortArray.toShortArrayList(): ShortArrayList =
  *
  * ```kotlin
  * val list = listOf<Short>(1, 2).toShortArrayList()
- * check(list.size() == 2)
- * check(list[1] == 2.toShort())
+ * // list.size() == 2
+ * // list[1] == 2.toShort()
  * ```
  */
 fun Iterable<Short>.toShortArrayList(): ShortArrayList =
@@ -60,8 +60,8 @@ fun Iterable<Short>.toShortArrayList(): ShortArrayList =
  *
  * ```kotlin
  * val list = sequenceOf<Short>(1, 2).toShortArrayList()
- * check(list.size() == 2)
- * check(list[0] == 1.toShort())
+ * // list.size() == 2
+ * // list[0] == 1.toShort()
  * ```
  */
 fun Sequence<Short>.toShortArrayList(): ShortArrayList = asIterable().toShortArrayList()
@@ -76,8 +76,8 @@ fun Sequence<Short>.toShortArrayList(): ShortArrayList = asIterable().toShortArr
  *
  * ```kotlin
  * val list = listOf(1, 2.toShort(), 3.0).asShortArrayList()
- * check(list.size() == 3)
- * check(list[2] == 3.toShort())
+ * // list.size() == 3
+ * // list[2] == 3.toShort()
  * ```
  */
 fun Iterable<Number>.asShortArrayList() = when (this) {
@@ -99,8 +99,8 @@ fun Iterable<Number>.asShortArrayList() = when (this) {
  *
  * ```kotlin
  * val list = shortArrayList(2) { (it + 1).toShort() }
- * check(list.size() == 2)
- * check(list[0] == 1.toShort())
+ * // list.size() == 2
+ * // list[0] == 1.toShort()
  * ```
  */
 inline fun shortArrayList(
@@ -125,8 +125,8 @@ inline fun shortArrayList(
  *
  * ```kotlin
  * val list = shortArrayListOf(1, 2)
- * check(list.size() == 2)
- * check(list[1] == 2.toShort())
+ * // list.size() == 2
+ * // list[1] == 2.toShort()
  * ```
  */
 fun shortArrayListOf(vararg elements: Short): ShortArrayList =
@@ -142,8 +142,8 @@ fun shortArrayListOf(vararg elements: Short): ShortArrayList =
  *
  * ```kotlin
  * val list = shortArrayListOf(1, 2).toShortArrayList()
- * check(list.size() == 2)
- * check(list[0] == 1.toShort())
+ * // list.size() == 2
+ * // list[0] == 1.toShort()
  * ```
  */
 fun ShortIterable.toShortArrayList(): ShortArrayList = when (this) {
@@ -161,8 +161,8 @@ fun ShortIterable.toShortArrayList(): ShortArrayList = when (this) {
  *
  * ```kotlin
  * val iter = shortArrayListOf(1, 2).asIterator()
- * check(iter.hasNext())
- * check(iter.next() == 1.toShort())
+ * // iter.hasNext()
+ * // iter.next() == 1.toShort()
  * ```
  */
 fun ShortIterable.asIterator(): Iterator<Short> = object: Iterator<Short> {
@@ -181,8 +181,8 @@ fun ShortIterable.asIterator(): Iterator<Short> = object: Iterator<Short> {
  *
  * ```kotlin
  * val seq = shortArrayListOf(1, 2).asSequence()
- * check(seq.count() == 2)
- * check(seq.first() == 1.toShort())
+ * // seq.count() == 2
+ * // seq.first() == 1.toShort()
  * ```
  */
 fun ShortIterable.asSequence(): Sequence<Short> = sequence {
@@ -202,8 +202,8 @@ fun ShortIterable.asSequence(): Sequence<Short> = sequence {
  *
  * ```kotlin
  * val iterable = shortArrayListOf(1, 2).asIterable()
- * check(iterable.count() == 2)
- * check(iterable.first() == 1.toShort())
+ * // iterable.count() == 2
+ * // iterable.first() == 1.toShort()
  * ```
  */
 fun ShortIterable.asIterable(): Iterable<Short> = Iterable { asIterator() }
@@ -218,8 +218,8 @@ fun ShortIterable.asIterable(): Iterable<Short> = Iterable { asIterator() }
  *
  * ```kotlin
  * val list = shortArrayListOf(1, 2).asList()
- * check(list == listOf<Short>(1, 2))
- * check(list.size == 2)
+ * // list == listOf<Short>(1, 2)
+ * // list.size == 2
  * ```
  */
 fun ShortIterable.asList() = asIterable().toList()
@@ -234,8 +234,8 @@ fun ShortIterable.asList() = asIterable().toList()
  *
  * ```kotlin
  * val list = shortArrayListOf(1, 2).asMutableList()
- * check(list.size == 2)
- * check(list[1] == 2.toShort())
+ * // list.size == 2
+ * // list[1] == 2.toShort()
  * ```
  */
 fun ShortIterable.asMutableList() = asIterable().toMutableList()
@@ -250,8 +250,8 @@ fun ShortIterable.asMutableList() = asIterable().toMutableList()
  *
  * ```kotlin
  * val set = shortArrayListOf(1, 1, 2).asSet()
- * check(set.size == 2)
- * check(1.toShort() in set)
+ * // set.size == 2
+ * // 1.toShort() in set
  * ```
  */
 fun ShortIterable.asSet() = asIterable().toSet()
@@ -266,8 +266,8 @@ fun ShortIterable.asSet() = asIterable().toSet()
  *
  * ```kotlin
  * val set = shortArrayListOf(1, 1, 2).asMutableSet()
- * check(set.size == 2)
- * check(2.toShort() in set)
+ * // set.size == 2
+ * // 2.toShort() in set
  * ```
  */
 fun ShortIterable.asMutableSet() = asIterable().toMutableSet()
@@ -282,8 +282,8 @@ fun ShortIterable.asMutableSet() = asIterable().toMutableSet()
  *
  * ```kotlin
  * val list = shortArrayListOf(1, 2).toFastList()
- * check(list.size == 2)
- * check(list[0] == 1.toShort())
+ * // list.size == 2
+ * // list[0] == 1.toShort()
  * ```
  */
 fun ShortIterable.toFastList() = asIterable().toFastList()
@@ -298,8 +298,8 @@ fun ShortIterable.toFastList() = asIterable().toFastList()
  *
  * ```kotlin
  * val set = shortArrayListOf(1, 1, 2).toUnifiedSet()
- * check(set.size == 2)
- * check(set.contains(1.toShort()))
+ * // set.size == 2
+ * // set.contains(1.toShort())
  * ```
  */
 fun ShortIterable.toUnifiedSet() = asIterable().toUnifiedSet()
@@ -314,8 +314,8 @@ fun ShortIterable.toUnifiedSet() = asIterable().toUnifiedSet()
  *
  * ```kotlin
  * val list = shortArrayListOf(1, 2).toFixedSizeList()
- * check(list.size == 2)
- * check(list[1] == 2.toShort())
+ * // list.size == 2
+ * // list[1] == 2.toShort()
  * ```
  */
 fun ShortIterable.toFixedSizeList() = asIterable().toFixedSizeList()
@@ -329,8 +329,8 @@ fun ShortIterable.toFixedSizeList() = asIterable().toFixedSizeList()
  * - 수신 iterable은 mutate 하지 않습니다.
  *
  * ```kotlin
- * check(shortArrayListOf(1, 3).maxOrNull() == 3.toShort())
- * check(shortArrayListOf().maxOrNull() == null)
+ * // shortArrayListOf(1, 3).maxOrNull() == 3.toShort()
+ * // shortArrayListOf().maxOrNull() == null
  * ```
  */
 fun ShortIterable.maxOrNull() = if (isEmpty) null else max()
@@ -344,8 +344,8 @@ fun ShortIterable.maxOrNull() = if (isEmpty) null else max()
  * - 수신 iterable은 mutate 하지 않습니다.
  *
  * ```kotlin
- * check(shortArrayListOf(1, 3).minOrNull() == 1.toShort())
- * check(shortArrayListOf().minOrNull() == null)
+ * // shortArrayListOf(1, 3).minOrNull() == 1.toShort()
+ * // shortArrayListOf().minOrNull() == null
  * ```
  */
 fun ShortIterable.minOrNull() = if (isEmpty) null else min()
@@ -359,8 +359,8 @@ fun ShortIterable.minOrNull() = if (isEmpty) null else min()
  * - 누적 타입이 `Double`이므로 정밀도 손실이 발생할 수 있습니다.
  *
  * ```kotlin
- * check(shortArrayListOf(2, 3).product() == 6.0)
- * check(shortArrayListOf().product() == 1.0)
+ * // shortArrayListOf(2, 3).product() == 6.0
+ * // shortArrayListOf().product() == 1.0
  * ```
  */
 fun ShortIterable.product(): Double = asIterable().fold(1.0) { acc, i -> acc * i }
@@ -375,8 +375,8 @@ fun ShortIterable.product(): Double = asIterable().fold(1.0) { acc, i -> acc * i
  *
  * ```kotlin
  * val list = shortArrayOf(1, 2).toFastList()
- * check(list.size == 2)
- * check(list[1] == 2.toShort())
+ * // list.size == 2
+ * // list[1] == 2.toShort()
  * ```
  */
 fun ShortArray.toFastList(): FastList<Short> = asIterable().toFastList()

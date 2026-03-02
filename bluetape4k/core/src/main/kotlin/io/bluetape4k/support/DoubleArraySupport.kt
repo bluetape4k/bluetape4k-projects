@@ -11,9 +11,8 @@ package io.bluetape4k.support
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::doubleArrayOf
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = doubleArrayOf(1.0, 2.0)
+ * // result.size == 2
  * ```
  */
 inline fun <T: Number> doubleArrayOf(vararg elements: T): DoubleArray =

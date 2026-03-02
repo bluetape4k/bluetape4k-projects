@@ -22,7 +22,7 @@ import kotlin.reflect.KClass
          * - 접근 비용은 상수 시간입니다.
          *
          * ```kotlin
-         * check(BigIntMin == Long.MIN_VALUE.toBigInt())
+         * // BigIntMin == Long.MIN_VALUE.toBigInt()
          * ```
          */
 val BigIntMin = Long.MIN_VALUE.toBigInt()
@@ -38,7 +38,7 @@ val BigIntMin = Long.MIN_VALUE.toBigInt()
          * - 접근 비용은 상수 시간입니다.
          *
          * ```kotlin
-         * check(BigIntMax == Long.MAX_VALUE.toBigInt())
+         * // BigIntMax == Long.MAX_VALUE.toBigInt()
          * ```
          */
 val BigIntMax = Long.MAX_VALUE.toBigInt()
@@ -54,8 +54,8 @@ val BigIntMax = Long.MAX_VALUE.toBigInt()
          * - 조회 비용은 해시셋 기준 평균 `O(1)`입니다.
          *
          * ```kotlin
-         * check(Int::class in StandardNumberTypes)
-         * check(BigDecimal::class in StandardNumberTypes)
+         * // Int::class in StandardNumberTypes
+         * // BigDecimal::class in StandardNumberTypes
          * ```
          */
 val StandardNumberTypes: HashSet<KClass<out Number>> = hashSetOf(
@@ -80,7 +80,7 @@ val StandardNumberTypes: HashSet<KClass<out Number>> = hashSetOf(
  *
  * ```kotlin
  * val pattern = defaultNumberFormatPattern
- * check(pattern == "#,##0.#")
+ * // pattern == "#,##0.#"
  * ```
  */
 const val defaultNumberFormatPattern = "#,##0.#"
@@ -126,8 +126,8 @@ inline fun Number.toHuman(pattern: String = defaultNumberFormatPattern): String 
          * - 범위 경계 비교만 수행하므로 추가 할당 없이 상수 시간에 동작합니다.
          *
          * ```kotlin
-         * check(123.coerce(0, 100) == 100)
-         * check(50.coerce(0, 100) == 50)
+         * // 123.coerce(0, 100) == 100
+         * // 50.coerce(0, 100) == 50
          * ```
          *
          * @param minValue 허용 최소값(포함)
@@ -166,9 +166,9 @@ fun String.isHexFormat(): Boolean {
  * - 검사 비용은 상수 시간입니다.
  *
  * ```kotlin
- * check('f'.isHexDigit())
- * check('A'.isHexDigit())
- * check(!'z'.isHexDigit())
+ * // 'f'.isHexDigit()
+ * // 'A'.isHexDigit()
+ * // !'z'.isHexDigit()
  * ```
  */
 inline fun Char.isHexDigit(): Boolean =
@@ -284,7 +284,7 @@ inline fun <reified T: Number> String.parseNumber(numberFormat: NumberFormat): T
  * ```kotlin
  * val format = DecimalFormat("#,##0.##")
  * val value = "1,234.5".parseNumber(BigDecimal::class, format)
- * check(value == BigDecimal("1234.5"))
+ * // value == BigDecimal("1234.5")
  * ```
  *
  * @param targetClass 변환할 최종 숫자 타입

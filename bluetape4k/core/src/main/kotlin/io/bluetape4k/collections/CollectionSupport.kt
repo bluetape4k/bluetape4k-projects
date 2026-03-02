@@ -12,7 +12,10 @@ import io.bluetape4k.support.assertInRange
  * @param tail 뒤에 붙을 리스트(변경됨)
  * @return 변경된 [tail]
  *
- * @sample io.bluetape4k.collections.CollectionSupportSamples.prependTo
+ * ```kotlin
+ * val result = 1 prependTo mutableListOf(2, 3)
+ * // result == [1, 2, 3]
+ * ```
  */
 infix fun <T> T.prependTo(tail: MutableList<T>): MutableList<T> {
     tail.add(0, this)
@@ -29,7 +32,10 @@ infix fun <T> T.prependTo(tail: MutableList<T>): MutableList<T> {
  * @param elements 리스트 제일 앞에 추가할 요소들
  * @return 변경된 수신 리스트
  *
- * @sample io.bluetape4k.collections.CollectionSupportSamples.prepend
+ * ```kotlin
+ * val result = mutableListOf(3, 4).prepend(1, 2)
+ * // result == [1, 2, 3, 4]
+ * ```
  */
 fun <T> MutableList<T>.prepend(vararg elements: T): MutableList<T> = apply {
     addAll(0, listOf(*elements))
@@ -45,7 +51,10 @@ fun <T> MutableList<T>.prepend(vararg elements: T): MutableList<T> = apply {
  * @param elements 리스트 끝에 추가할 요소들
  * @return 변경된 수신 리스트
  *
- * @sample io.bluetape4k.collections.CollectionSupportSamples.append
+ * ```kotlin
+ * val result = mutableListOf(1, 2).append(3, 4)
+ * // result == [1, 2, 3, 4]
+ * ```
  */
 fun <T> MutableList<T>.append(vararg elements: T): MutableList<T> = apply {
     addAll(elements)
@@ -63,7 +72,11 @@ fun <T> MutableList<T>.append(vararg elements: T): MutableList<T> = apply {
  * @param index1 첫 번째 인덱스
  * @param index2 두 번째 인덱스
  *
- * @sample io.bluetape4k.collections.CollectionSupportSamples.swap
+ * ```kotlin
+ * val values = mutableListOf(1, 2, 3)
+ * values.swap(0, 2)
+ * // values == [3, 2, 1]
+ * ```
  */
 fun <T> MutableList<T>.swap(index1: Int, index2: Int) {
     if (index1 != index2) {
@@ -87,7 +100,10 @@ fun <T> MutableList<T>.swap(index1: Int, index2: Int) {
  * @param item 채울 값
  * @return 패딩된 리스트(조건에 따라 this 또는 새 리스트)
  *
- * @sample io.bluetape4k.collections.CollectionSupportSamples.padTo
+ * ```kotlin
+ * val result = listOf(1, 2, 3).padTo(5, 0)
+ * // result == [1, 2, 3, 0, 0]
+ * ```
  */
 inline fun <reified T> List<T>.padTo(newSize: Int, item: T): List<T> {
     val remains = newSize - this.size
@@ -109,7 +125,10 @@ inline fun <reified T> List<T>.padTo(newSize: Int, item: T): List<T> {
  *
  * @return 요소 -> 등장 횟수
  *
- * @sample io.bluetape4k.collections.CollectionSupportSamples.eachCount
+ * ```kotlin
+ * val result = listOf(1, 2, 2, 3).eachCount()
+ * // result == {1=1, 2=2, 3=1}
+ * ```
  */
 fun <T> List<T>.eachCount(): Map<T, Int> {
     if (isEmpty()) {
@@ -121,48 +140,4 @@ fun <T> List<T>.eachCount(): Map<T, Int> {
         counts[value] = (counts[value] ?: 0) + 1
     }
     return counts
-}
-
-
-/**
- * KDoc의 `@sample`을 위한 예제 모음입니다.
- *
- * - 문서 예제를 소스와 함께 컴파일되도록 유지하기 위해 별도 객체로 분리합니다.
- * - 테스트 코드에서 사용하는 패턴과 동일하게, 작은 입력으로 라운드 트립/기대값을 확인합니다.
- */
-@PublishedApi
-internal object CollectionSupportSamples {
-
-    fun prependTo() {
-        val list = 1 prependTo mutableListOf(2, 3)
-        check(list == listOf(1, 2, 3))
-    }
-
-    fun prepend() {
-        val list = mutableListOf(3, 4).prepend(1, 2)
-        check(list == listOf(1, 2, 3, 4))
-    }
-
-    fun append() {
-        val list = mutableListOf(1, 2).append(3, 4)
-        check(list == listOf(1, 2, 3, 4))
-    }
-
-    fun swap() {
-        val list = mutableListOf(1, 2, 3)
-        list.swap(0, 2)
-        check(list == listOf(3, 2, 1))
-    }
-
-    fun padTo() {
-        val list = listOf(1, 2, 3)
-        val padded = list.padTo(5, 0)
-        check(padded == listOf(1, 2, 3, 0, 0))
-    }
-
-    fun eachCount() {
-        val list = listOf(1, 2, 2, 3)
-        val map = list.eachCount()
-        check(map == linkedMapOf(1 to 1, 2 to 2, 3 to 1))
-    }
 }

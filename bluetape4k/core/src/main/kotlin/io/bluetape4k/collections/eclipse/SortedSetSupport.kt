@@ -15,8 +15,8 @@ import java.util.stream.Stream
  *
  * ```kotlin
  * val set = emptyImmutableSortedSet<Int>()
- * check(set.isEmpty)
- * check(set.toSet().isEmpty())
+ * // set.isEmpty
+ * // set.toSet().isEmpty()
  * ```
  */
 fun <T: Comparable<T>> emptyImmutableSortedSet(): ImmutableSortedSet<T> = SortedSets.immutable.empty<T>()
@@ -31,7 +31,7 @@ fun <T: Comparable<T>> emptyImmutableSortedSet(): ImmutableSortedSet<T> = Sorted
  * ```kotlin
  * val set = emptyMutableSortedSet<Int>()
  * set.add(1)
- * check(set.contains(1))
+ * // set.contains(1)
  * ```
  */
 fun <T: Comparable<T>> emptyMutableSortedSet(): MutableSortedSet<T> = SortedSets.mutable.empty<T>()
@@ -45,8 +45,8 @@ fun <T: Comparable<T>> emptyMutableSortedSet(): MutableSortedSet<T> = SortedSets
  *
  * ```kotlin
  * val set = immutableSortedSetOf(3, 1, 1)
- * check(set.size() == 2)
- * check(set.toList().first() == 1)
+ * // set.size() == 2
+ * // set.toList().first() == 1
  * ```
  */
 fun <T: Comparable<T>> immutableSortedSetOf(vararg elements: T): ImmutableSortedSet<T> =
@@ -62,8 +62,8 @@ fun <T: Comparable<T>> immutableSortedSetOf(vararg elements: T): ImmutableSorted
  *
  * ```kotlin
  * val set = mutableSortedSetOf(3, 1, 1)
- * check(set.size() == 2)
- * check(set.first() == 1)
+ * // set.size() == 2
+ * // set.first() == 1
  * ```
  */
 fun <T: Comparable<T>> mutableSortedSetOf(vararg elements: T): MutableSortedSet<T> =
@@ -80,8 +80,8 @@ fun <T: Comparable<T>> mutableSortedSetOf(vararg elements: T): MutableSortedSet<
  *
  * ```kotlin
  * val set = mutableSortedSet(3) { 3 - it }
- * check(set.size() == 3)
- * check(set.first() == 1)
+ * // set.size() == 3
+ * // set.first() == 1
  * ```
  */
 inline fun <T: Comparable<T>> mutableSortedSet(
@@ -103,8 +103,8 @@ inline fun <T: Comparable<T>> mutableSortedSet(
  *
  * ```kotlin
  * val set = listOf(2, 1, 1).toMutableSortedSet()
- * check(set.size() == 2)
- * check(set.first() == 1)
+ * // set.size() == 2
+ * // set.first() == 1
  * ```
  */
 fun <T: Comparable<T>> Iterable<T>.toMutableSortedSet(): MutableSortedSet<T> =
@@ -119,8 +119,8 @@ fun <T: Comparable<T>> Iterable<T>.toMutableSortedSet(): MutableSortedSet<T> =
  *
  * ```kotlin
  * val set = sequenceOf(2, 1, 1).toMutableSortedSet()
- * check(set.size() == 2)
- * check(set.first() == 1)
+ * // set.size() == 2
+ * // set.first() == 1
  * ```
  */
 fun <T: Comparable<T>> Sequence<T>.toMutableSortedSet(): MutableSortedSet<T> =
@@ -135,8 +135,8 @@ fun <T: Comparable<T>> Sequence<T>.toMutableSortedSet(): MutableSortedSet<T> =
  *
  * ```kotlin
  * val set = listOf(2, 1, 1).iterator().toMutableSortedSet()
- * check(set.size() == 2)
- * check(set.first() == 1)
+ * // set.size() == 2
+ * // set.first() == 1
  * ```
  */
 fun <T: Comparable<T>> Iterator<T>.toMutableSortedSet(): MutableSortedSet<T> =
@@ -151,8 +151,8 @@ fun <T: Comparable<T>> Iterator<T>.toMutableSortedSet(): MutableSortedSet<T> =
  *
  * ```kotlin
  * val set = arrayOf(2, 1, 1).toMutableSortedSet()
- * check(set.size() == 2)
- * check(set.first() == 1)
+ * // set.size() == 2
+ * // set.first() == 1
  * ```
  */
 fun <T: Comparable<T>> Array<T>.toMutableSortedSet(): MutableSortedSet<T> =
@@ -167,8 +167,8 @@ fun <T: Comparable<T>> Array<T>.toMutableSortedSet(): MutableSortedSet<T> =
  *
  * ```kotlin
  * val set = Stream.of(2, 1, 1).toMutableSortedSet()
- * check(set.size() == 2)
- * check(set.first() == 1)
+ * // set.size() == 2
+ * // set.first() == 1
  * ```
  */
 fun <T: Comparable<T>> Stream<T>.toMutableSortedSet(): MutableSortedSet<T> =

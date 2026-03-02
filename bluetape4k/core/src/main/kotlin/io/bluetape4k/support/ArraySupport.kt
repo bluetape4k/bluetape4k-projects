@@ -8,7 +8,7 @@ package io.bluetape4k.support
  * - 변경 가능한 배열이므로 내용 변경 시 전체에 영향이 갈 수 있습니다.
  *
  * ```kotlin
- * check(emptyBooleanArray.isEmpty())
+ * // emptyBooleanArray.isEmpty()
  * ```
  */
 val emptyBooleanArray: BooleanArray = BooleanArray(0)
@@ -21,7 +21,7 @@ val emptyBooleanArray: BooleanArray = BooleanArray(0)
  * - 변경 가능한 배열이므로 내용 변경 시 전체에 영향이 갈 수 있습니다.
  *
  * ```kotlin
- * check(emptyCharArray.isEmpty())
+ * // emptyCharArray.isEmpty()
  * ```
  */
 val emptyCharArray: CharArray = CharArray(0)
@@ -34,7 +34,7 @@ val emptyCharArray: CharArray = CharArray(0)
  * - 변경 가능한 배열이므로 내용 변경 시 전체에 영향이 갈 수 있습니다.
  *
  * ```kotlin
- * check(emptyByteArray.isEmpty())
+ * // emptyByteArray.isEmpty()
  * ```
  */
 val emptyByteArray: ByteArray = ByteArray(0)
@@ -47,7 +47,7 @@ val emptyByteArray: ByteArray = ByteArray(0)
  * - 변경 가능한 배열이므로 내용 변경 시 전체에 영향이 갈 수 있습니다.
  *
  * ```kotlin
- * check(emptyShortArray.isEmpty())
+ * // emptyShortArray.isEmpty()
  * ```
  */
 val emptyShortArray: ShortArray = ShortArray(0)
@@ -60,7 +60,7 @@ val emptyShortArray: ShortArray = ShortArray(0)
  * - 변경 가능한 배열이므로 내용 변경 시 전체에 영향이 갈 수 있습니다.
  *
  * ```kotlin
- * check(emptyIntArray.isEmpty())
+ * // emptyIntArray.isEmpty()
  * ```
  */
 val emptyIntArray: IntArray = IntArray(0)
@@ -73,7 +73,7 @@ val emptyIntArray: IntArray = IntArray(0)
  * - 변경 가능한 배열이므로 내용 변경 시 전체에 영향이 갈 수 있습니다.
  *
  * ```kotlin
- * check(emptyLongArray.isEmpty())
+ * // emptyLongArray.isEmpty()
  * ```
  */
 val emptyLongArray: LongArray = LongArray(0)
@@ -86,7 +86,7 @@ val emptyLongArray: LongArray = LongArray(0)
  * - 변경 가능한 배열이므로 내용 변경 시 전체에 영향이 갈 수 있습니다.
  *
  * ```kotlin
- * check(emptyFloatArray.isEmpty())
+ * // emptyFloatArray.isEmpty()
  * ```
  */
 val emptyFloatArray: FloatArray = FloatArray(0)
@@ -99,7 +99,7 @@ val emptyFloatArray: FloatArray = FloatArray(0)
  * - 변경 가능한 배열이므로 내용 변경 시 전체에 영향이 갈 수 있습니다.
  *
  * ```kotlin
- * check(emptyDoubleArray.isEmpty())
+ * // emptyDoubleArray.isEmpty()
  * ```
  */
 val emptyDoubleArray: DoubleArray = DoubleArray(0)
@@ -112,8 +112,8 @@ val emptyDoubleArray: DoubleArray = DoubleArray(0)
  * - 새 배열을 만들지 않으며 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * check((null as BooleanArray?).isNullOrEmpty())
- * check(!booleanArrayOf(true).isNullOrEmpty())
+ * // (null as BooleanArray?).isNullOrEmpty()
+ * // !booleanArrayOf(true).isNullOrEmpty()
  * ```
  */
 fun BooleanArray?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
@@ -126,8 +126,8 @@ fun BooleanArray?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
  * - 새 배열을 만들지 않으며 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * check((null as CharArray?).isNullOrEmpty())
- * check(!charArrayOf('a').isNullOrEmpty())
+ * // (null as CharArray?).isNullOrEmpty()
+ * // !charArrayOf('a').isNullOrEmpty()
  * ```
  */
 fun CharArray?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
@@ -140,8 +140,8 @@ fun CharArray?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
  * - 새 배열을 만들지 않으며 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * check((null as ByteArray?).isNullOrEmpty())
- * check(!byteArrayOf(1).isNullOrEmpty())
+ * // (null as ByteArray?).isNullOrEmpty()
+ * // !byteArrayOf(1).isNullOrEmpty()
  * ```
  */
 fun ByteArray?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
@@ -154,8 +154,8 @@ fun ByteArray?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
  * - 새 배열을 만들지 않으며 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * check((null as ShortArray?).isNullOrEmpty())
- * check(!shortArrayOf(1).isNullOrEmpty())
+ * // (null as ShortArray?).isNullOrEmpty()
+ * // !shortArrayOf(1).isNullOrEmpty()
  * ```
  */
 fun ShortArray?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
@@ -168,8 +168,8 @@ fun ShortArray?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
  * - 새 배열을 만들지 않으며 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * check((null as IntArray?).isNullOrEmpty())
- * check(!intArrayOf(1).isNullOrEmpty())
+ * // (null as IntArray?).isNullOrEmpty()
+ * // !intArrayOf(1).isNullOrEmpty()
  * ```
  */
 fun IntArray?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
@@ -182,8 +182,8 @@ fun IntArray?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
  * - 새 배열을 만들지 않으며 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * check((null as LongArray?).isNullOrEmpty())
- * check(!longArrayOf(1L).isNullOrEmpty())
+ * // (null as LongArray?).isNullOrEmpty()
+ * // !longArrayOf(1L).isNullOrEmpty()
  * ```
  */
 fun LongArray?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
@@ -196,8 +196,8 @@ fun LongArray?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
  * - 새 배열을 만들지 않으며 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * check((null as FloatArray?).isNullOrEmpty())
- * check(!floatArrayOf(1.0f).isNullOrEmpty())
+ * // (null as FloatArray?).isNullOrEmpty()
+ * // !floatArrayOf(1.0f).isNullOrEmpty()
  * ```
  */
 fun FloatArray?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
@@ -210,8 +210,8 @@ fun FloatArray?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
  * - 새 배열을 만들지 않으며 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * check((null as DoubleArray?).isNullOrEmpty())
- * check(!doubleArrayOf(1.0).isNullOrEmpty())
+ * // (null as DoubleArray?).isNullOrEmpty()
+ * // !doubleArrayOf(1.0).isNullOrEmpty()
  * ```
  */
 fun DoubleArray?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
@@ -224,8 +224,8 @@ fun DoubleArray?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
  * - 새 배열을 만들지 않으며 수신 객체를 변경하지 않습니다.
  *
  * ```kotlin
- * check((null as Array<String>?).isNullOrEmpty())
- * check(!arrayOf("a").isNullOrEmpty())
+ * // (null as Array<String>?).isNullOrEmpty()
+ * // !arrayOf("a").isNullOrEmpty()
  * ```
  */
 fun <T> Array<T>?.isNullOrEmpty(): Boolean = this?.isEmpty() ?: true

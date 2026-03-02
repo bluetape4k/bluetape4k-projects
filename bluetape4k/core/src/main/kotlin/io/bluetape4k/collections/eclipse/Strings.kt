@@ -13,8 +13,8 @@ import org.eclipse.collections.impl.set.mutable.UnifiedSet
  *
  * ```kotlin
  * val list = "abc".toFastList()
- * check(list == listOf('a', 'b', 'c'))
- * check(list.size == 3)
+ * // list == listOf('a', 'b', 'c')
+ * // list.size == 3
  * ```
  *
  * @param destination 결과를 누적할 대상 리스트
@@ -33,8 +33,8 @@ fun CharSequence.toFastList(destination: MutableList<Char> = FastList.newList())
  *
  * ```kotlin
  * val set = "abca".toUnifiedSet()
- * check(set.containsAll(listOf('a', 'b', 'c')))
- * check(set.size == 3)
+ * // set.containsAll(listOf('a', 'b', 'c'))
+ * // set.size == 3
  * ```
  *
  * @param destination 결과를 누적할 대상 집합

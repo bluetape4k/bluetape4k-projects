@@ -17,7 +17,7 @@ import kotlin.reflect.jvm.javaMethod
  *
  * ```kotlin
  * val name = String::class.packageName
- * check(name == "java.lang")
+ * // name == "java.lang"
  * ```
  */
 val KClass<*>.packageName: String get() = this.java.packageName
@@ -34,7 +34,7 @@ val KClass<*>.packageName: String get() = this.java.packageName
  * ```kotlin
  * val fn = String::trim
  * val qn = fn.qualifiedName
- * check(qn.contains("trim"))
+ * // qn.contains("trim")
  * ```
  */
 val KFunction<*>.qualifiedName: String

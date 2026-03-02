@@ -22,8 +22,8 @@ import java.util.concurrent.ForkJoinPool
  *
  * ```kotlin
  * val value = DEFAULT_PARALLEL_BATCH_SIZE
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val DEFAULT_PARALLEL_BATCH_SIZE = 10_000
@@ -38,8 +38,8 @@ const val DEFAULT_PARALLEL_BATCH_SIZE = 10_000
  *
  * ```kotlin
  * val value = DEFAULT_REORDER
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val DEFAULT_REORDER = false
@@ -54,8 +54,8 @@ const val DEFAULT_REORDER = false
  *
  * ```kotlin
  * val value = AVAILABLE_PROCESSORS
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val AVAILABLE_PROCESSORS: Int = Runtime.getRuntime().availableProcessors()
@@ -70,8 +70,8 @@ val AVAILABLE_PROCESSORS: Int = Runtime.getRuntime().availableProcessors()
  *
  * ```kotlin
  * val value = PARALLEL_EXECUTOR_SERVICE
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val PARALLEL_EXECUTOR_SERVICE: ExecutorService = ForkJoinPool.commonPool()
@@ -85,9 +85,8 @@ val PARALLEL_EXECUTOR_SERVICE: ExecutorService = ForkJoinPool.commonPool()
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::parFilter
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = listOf(1, 2, 3, 4).parFilter { it % 2 == 0 }
+ * // result contains [2, 4]
  * ```
  */
 inline fun <T> Iterable<T>.parFilter(
@@ -114,9 +113,8 @@ inline fun <T> Iterable<T>.parFilter(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::parFilterNot
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = listOf(1, 2, 3, 4).parFilterNot { it % 2 == 0 }
+ * // result contains [1, 3]
  * ```
  */
 inline fun <T> Iterable<T>.parFilterNot(
@@ -143,9 +141,8 @@ inline fun <T> Iterable<T>.parFilterNot(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::parCount
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = listOf(1, 2, 3, 4).parCount { it > 2 }
+ * // result == 2
  * ```
  */
 inline fun <T> Iterable<T>.parCount(
@@ -169,9 +166,9 @@ inline fun <T> Iterable<T>.parCount(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::parForEach
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val values = listOf(1, 2, 3)
+ * values.parForEach { /* 병렬 처리 */ }
+ * // 모든 요소에 대해 action이 실행됨
  * ```
  */
 inline fun <T> Iterable<T>.parForEach(
@@ -196,9 +193,9 @@ inline fun <T> Iterable<T>.parForEach(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::parForEachWithIndex
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val input = listOf("a", "b")
+ * input.parForEachWithIndex { index, value -> /* index/value 사용 */ }
+ * // (0,"a"), (1,"b")가 전달됨
  * ```
  */
 inline fun <T> Iterable<T>.parForEachWithIndex(
@@ -221,9 +218,9 @@ inline fun <T> Iterable<T>.parForEachWithIndex(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::parForEachWithIndex
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val input = listOf("a", "b")
+ * input.parForEachWithIndex { index, value -> /* index/value 사용 */ }
+ * // (0,"a"), (1,"b")가 전달됨
  * ```
  */
 inline fun <T> Iterable<T>.parForEachWithIndex(
@@ -248,9 +245,8 @@ inline fun <T> Iterable<T>.parForEachWithIndex(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::parMap
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = listOf(1, 2, 3).parMap { it * 2 }
+ * // result contains [2, 4, 6]
  * ```
  */
 inline fun <T, R> Iterable<T>.parMap(
@@ -277,9 +273,8 @@ inline fun <T, R> Iterable<T>.parMap(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::parFlatMap
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = listOf(1, 2).parFlatMap { listOf(it, -it) }
+ * // result contains [1, -1, 2, -2]
  * ```
  */
 inline fun <T, R> Iterable<T>.parFlatMap(
@@ -306,9 +301,8 @@ inline fun <T, R> Iterable<T>.parFlatMap(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::parFilterMap
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = listOf(1, 2, 3).parFilterMap({ it % 2 == 1 }) { it * 10 }
+ * // result contains [10, 30]
  * ```
  */
 inline fun <T, R> Iterable<T>.parFilterMap(
@@ -337,9 +331,8 @@ inline fun <T, R> Iterable<T>.parFilterMap(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::parGroupBy
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = listOf("a", "bb").parGroupBy { it.length }
+ * // result[1] contains ["a"], result[2] contains ["bb"]
  * ```
  */
 inline fun <K, V> Iterable<V>.parGroupBy(
@@ -366,9 +359,8 @@ inline fun <K, V> Iterable<V>.parGroupBy(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::parAggregateBy
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = listOf(1, 2, 3).parAggregateBy({ it % 2 }, { 0 }) { acc, v -> acc + v }
+ * // result[1] == 4, result[0] == 2
  * ```
  */
 inline fun <T, K, V> Iterable<T>.parAggregateBy(
@@ -397,9 +389,8 @@ inline fun <T, K, V> Iterable<T>.parAggregateBy(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::parAggregateInPlaceBy
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = listOf(1, 2, 3).parAggregateInPlaceBy({ it % 2 }, { mutableListOf<Int>() }) { acc, v -> acc += v }
+ * // result[1] contains [1, 3]
  * ```
  */
 inline fun <T, K, V> Iterable<T>.parAggregateInPlaceBy(
@@ -429,9 +420,8 @@ inline fun <T, K, V> Iterable<T>.parAggregateInPlaceBy(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::parSumBy
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = listOf(1, 2, 3).parSumBy { it.toLong() }
+ * // result == 6
  * ```
  */
 inline fun <T, V> Iterable<T>.parSumBy(
@@ -450,9 +440,8 @@ inline fun <T, V> Iterable<T>.parSumBy(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::parSumBy
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = listOf(1, 2, 3).parSumBy { it.toLong() }
+ * // result == 6
  * ```
  */
 inline fun <T, V> Iterable<T>.parSumBy(
@@ -471,9 +460,8 @@ inline fun <T, V> Iterable<T>.parSumBy(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::parSumBy
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = listOf(1, 2, 3).parSumBy { it.toLong() }
+ * // result == 6
  * ```
  */
 inline fun <T, V> Iterable<T>.parSumBy(
@@ -492,9 +480,8 @@ inline fun <T, V> Iterable<T>.parSumBy(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::parSumBy
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = listOf(1, 2, 3).parSumBy { it.toLong() }
+ * // result == 6
  * ```
  */
 inline fun <T, V> Iterable<T>.parSumBy(

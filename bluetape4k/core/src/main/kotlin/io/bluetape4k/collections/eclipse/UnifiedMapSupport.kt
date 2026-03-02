@@ -15,8 +15,8 @@ import java.util.stream.Stream
  *
  * ```kotlin
  * val map = emptyUnifiedMap<String, Int>()
- * check(map.isEmpty())
- * check(map is MutableMap<String, Int>)
+ * // map.isEmpty()
+ * // map is MutableMap<String, Int>
  * ```
  */
 fun <K, V> emptyUnifiedMap(): MutableMap<K, V> = Maps.mutable.empty()
@@ -31,8 +31,8 @@ fun <K, V> emptyUnifiedMap(): MutableMap<K, V> = Maps.mutable.empty()
  *
  * ```kotlin
  * val map = unifiedMap(2) { i -> "k$i" to i }
- * check(map["k0"] == 0)
- * check(map["k1"] == 1)
+ * // map["k0"] == 0
+ * // map["k1"] == 1
  * ```
  *
  * @param size 초기 생성할 pair 개수
@@ -60,8 +60,8 @@ inline fun <K, V> unifiedMap(
  *
  * ```kotlin
  * val map = unifiedMapOf("a" to 1, "a" to 2)
- * check(map["a"] == 2)
- * check(map.size == 1)
+ * // map["a"] == 2
+ * // map.size == 1
  * ```
  *
  * @param pairs 맵에 넣을 key/value 쌍
@@ -86,8 +86,8 @@ fun <K, V> unifiedMapOf(vararg pairs: Pair<K, V>): UnifiedMap<K, V> {
  *
  * ```kotlin
  * val map = unifiedMapOf<String, Int>(16)
- * check(map.isEmpty())
- * check(map is UnifiedMap<String, Int>)
+ * // map.isEmpty()
+ * // map is UnifiedMap<String, Int>
  * ```
  *
  * @param size 초기 용량 힌트
@@ -105,7 +105,7 @@ fun <K, V> unifiedMapOf(size: Int): UnifiedMap<K, V> = UnifiedMap.newMap(size)
  * ```kotlin
  * val src = mapOf("a" to 1)
  * val dst = src.toUnifiedMap()
- * check(dst["a"] == 1)
+ * // dst["a"] == 1
  * ```
  */
 fun <K, V> Map<K, V>.toUnifiedMap(): UnifiedMap<K, V> = when (this) {
@@ -123,8 +123,8 @@ fun <K, V> Map<K, V>.toUnifiedMap(): UnifiedMap<K, V> = when (this) {
  *
  * ```kotlin
  * val out = listOf("a" to 1, "b" to 2).toUnifiedMap()
- * check(out["a"] == 1)
- * check(out["b"] == 2)
+ * // out["a"] == 1
+ * // out["b"] == 2
  * ```
  *
  * @param destination 결과를 누적할 대상 맵
@@ -147,8 +147,8 @@ fun <K, V, T: Pair<K, V>> Iterable<T>.toUnifiedMap(destination: UnifiedMap<K, V>
  *
  * ```kotlin
  * val out = sequenceOf("a" to 1, "b" to 2).toUnifiedMap()
- * check(out["a"] == 1)
- * check(out["b"] == 2)
+ * // out["a"] == 1
+ * // out["b"] == 2
  * ```
  */
 @JvmName("toUnifiedMapFromSequencePair")
@@ -165,8 +165,8 @@ fun <K, V, T: Pair<K, V>> Sequence<T>.toUnifiedMap(destination: UnifiedMap<K, V>
  *
  * ```kotlin
  * val out = listOf("a" to 1).iterator().toUnifiedMap()
- * check(out["a"] == 1)
- * check(out.size == 1)
+ * // out["a"] == 1
+ * // out.size == 1
  * ```
  */
 @JvmName("toUnifiedMapFromIteratorPair")
@@ -183,8 +183,8 @@ fun <K, V, T: Pair<K, V>> Iterator<T>.toUnifiedMap(destination: UnifiedMap<K, V>
  *
  * ```kotlin
  * val out = arrayOf("a" to 1, "a" to 2).toUnifiedMap()
- * check(out["a"] == 2)
- * check(out.size == 1)
+ * // out["a"] == 2
+ * // out.size == 1
  * ```
  */
 @JvmName("toUnifiedMapFromArrayPair")
@@ -201,8 +201,8 @@ fun <K, V, T: Pair<K, V>> Array<T>.toUnifiedMap(destination: UnifiedMap<K, V> = 
  *
  * ```kotlin
  * val out = Stream.of("a" to 1, "b" to 2).toUnifiedMap()
- * check(out["a"] == 1)
- * check(out["b"] == 2)
+ * // out["a"] == 1
+ * // out["b"] == 2
  * ```
  */
 @JvmName("toUnifiedMapFromStreamPair")
@@ -219,8 +219,8 @@ fun <K, V, T: Pair<K, V>> Stream<T>.toUnifiedMap(destination: UnifiedMap<K, V> =
  *
  * ```kotlin
  * val out = listOf(("a" to 1).toTuplePair()).toUnifiedMap()
- * check(out["a"] == 1)
- * check(out.size == 1)
+ * // out["a"] == 1
+ * // out.size == 1
  * ```
  *
  * @param destination 결과를 누적할 대상 맵
@@ -243,8 +243,8 @@ fun <K, V, T: EcPair<K, V>> Iterable<T>.toUnifiedMap(destination: UnifiedMap<K, 
  *
  * ```kotlin
  * val out = sequenceOf(("a" to 1).toTuplePair()).toUnifiedMap()
- * check(out["a"] == 1)
- * check(out.size == 1)
+ * // out["a"] == 1
+ * // out.size == 1
  * ```
  */
 @JvmName("toUnifiedMapFromSequenceEcPair")
@@ -261,8 +261,8 @@ fun <K, V, T: EcPair<K, V>> Sequence<T>.toUnifiedMap(destination: UnifiedMap<K, 
  *
  * ```kotlin
  * val out = listOf(("a" to 1).toTuplePair()).iterator().toUnifiedMap()
- * check(out["a"] == 1)
- * check(out.size == 1)
+ * // out["a"] == 1
+ * // out.size == 1
  * ```
  */
 @JvmName("toUnifiedMapFromIteratorEcPair")
@@ -279,8 +279,8 @@ fun <K, V, T: EcPair<K, V>> Iterator<T>.toUnifiedMap(destination: UnifiedMap<K, 
  *
  * ```kotlin
  * val out = arrayOf(("a" to 1).toTuplePair()).toUnifiedMap()
- * check(out["a"] == 1)
- * check(out.size == 1)
+ * // out["a"] == 1
+ * // out.size == 1
  * ```
  */
 @JvmName("toUnifiedMapFromArrayEcPair")
@@ -297,8 +297,8 @@ fun <K, V, T: EcPair<K, V>> Array<T>.toUnifiedMap(destination: UnifiedMap<K, V> 
  *
  * ```kotlin
  * val out = Stream.of(("a" to 1).toTuplePair()).toUnifiedMap()
- * check(out["a"] == 1)
- * check(out.size == 1)
+ * // out["a"] == 1
+ * // out.size == 1
  * ```
  */
 @JvmName("toUnifiedMapFromStreamEcPair")

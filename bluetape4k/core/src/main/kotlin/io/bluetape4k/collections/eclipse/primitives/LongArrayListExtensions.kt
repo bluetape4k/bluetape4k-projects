@@ -19,8 +19,8 @@ import org.eclipse.collections.impl.list.mutable.primitive.LongArrayList
  *
  * ```kotlin
  * val list = longArrayOf(1, 2).toLongArrayList()
- * check(list.size() == 2)
- * check(list[0] == 1L)
+ * // list.size() == 2
+ * // list[0] == 1L
  * ```
  */
 fun LongArray.toLongArrayList(): LongArrayList =
@@ -36,8 +36,8 @@ fun LongArray.toLongArrayList(): LongArrayList =
  *
  * ```kotlin
  * val list = listOf<Long>(1, 2).toLongArrayList()
- * check(list.size() == 2)
- * check(list[1] == 2L)
+ * // list.size() == 2
+ * // list[1] == 2L
  * ```
  */
 fun Iterable<Long>.toLongArrayList(): LongArrayList =
@@ -60,8 +60,8 @@ fun Iterable<Long>.toLongArrayList(): LongArrayList =
  *
  * ```kotlin
  * val list = sequenceOf<Long>(1, 2).toLongArrayList()
- * check(list.size() == 2)
- * check(list[0] == 1L)
+ * // list.size() == 2
+ * // list[0] == 1L
  * ```
  */
 fun Sequence<Long>.toLongArrayList(): LongArrayList = asIterable().toLongArrayList()
@@ -76,8 +76,8 @@ fun Sequence<Long>.toLongArrayList(): LongArrayList = asIterable().toLongArrayLi
  *
  * ```kotlin
  * val list = listOf(1, 2L, 3.0).asLongArrayList()
- * check(list.size() == 3)
- * check(list[2] == 3L)
+ * // list.size() == 3
+ * // list[2] == 3L
  * ```
  */
 fun Iterable<Number>.asLongArrayList() = when (this) {
@@ -99,8 +99,8 @@ fun Iterable<Number>.asLongArrayList() = when (this) {
  *
  * ```kotlin
  * val list = longArrayList(2) { (it + 1).toLong() }
- * check(list.size() == 2)
- * check(list[0] == 1L)
+ * // list.size() == 2
+ * // list[0] == 1L
  * ```
  */
 inline fun longArrayList(
@@ -125,8 +125,8 @@ inline fun longArrayList(
  *
  * ```kotlin
  * val list = longArrayListOf(1, 2)
- * check(list.size() == 2)
- * check(list[1] == 2L)
+ * // list.size() == 2
+ * // list[1] == 2L
  * ```
  */
 fun longArrayListOf(vararg elements: Long): LongArrayList =
@@ -142,8 +142,8 @@ fun longArrayListOf(vararg elements: Long): LongArrayList =
  *
  * ```kotlin
  * val list = longArrayListOf(1, 2).toLongArrayList()
- * check(list.size() == 2)
- * check(list[0] == 1L)
+ * // list.size() == 2
+ * // list[0] == 1L
  * ```
  */
 fun LongIterable.toLongArrayList(): LongArrayList = when (this) {
@@ -161,8 +161,8 @@ fun LongIterable.toLongArrayList(): LongArrayList = when (this) {
  *
  * ```kotlin
  * val iter = longArrayListOf(1, 2).asIterator()
- * check(iter.hasNext())
- * check(iter.next() == 1L)
+ * // iter.hasNext()
+ * // iter.next() == 1L
  * ```
  */
 fun LongIterable.asIterator(): Iterator<Long> = object: Iterator<Long> {
@@ -181,8 +181,8 @@ fun LongIterable.asIterator(): Iterator<Long> = object: Iterator<Long> {
  *
  * ```kotlin
  * val seq = longArrayListOf(1, 2).asSequence()
- * check(seq.count() == 2)
- * check(seq.first() == 1L)
+ * // seq.count() == 2
+ * // seq.first() == 1L
  * ```
  */
 fun LongIterable.asSequence(): Sequence<Long> = sequence {
@@ -202,8 +202,8 @@ fun LongIterable.asSequence(): Sequence<Long> = sequence {
  *
  * ```kotlin
  * val iterable = longArrayListOf(1, 2).asIterable()
- * check(iterable.count() == 2)
- * check(iterable.first() == 1L)
+ * // iterable.count() == 2
+ * // iterable.first() == 1L
  * ```
  */
 fun LongIterable.asIterable(): Iterable<Long> = Iterable { asIterator() }
@@ -218,8 +218,8 @@ fun LongIterable.asIterable(): Iterable<Long> = Iterable { asIterator() }
  *
  * ```kotlin
  * val list = longArrayListOf(1, 2).asList()
- * check(list == listOf<Long>(1, 2))
- * check(list.size == 2)
+ * // list == listOf<Long>(1, 2)
+ * // list.size == 2
  * ```
  */
 fun LongIterable.asList() = asIterable().toList()
@@ -234,8 +234,8 @@ fun LongIterable.asList() = asIterable().toList()
  *
  * ```kotlin
  * val list = longArrayListOf(1, 2).asMutableList()
- * check(list.size == 2)
- * check(list[1] == 2L)
+ * // list.size == 2
+ * // list[1] == 2L
  * ```
  */
 fun LongIterable.asMutableList() = asIterable().toMutableList()
@@ -250,8 +250,8 @@ fun LongIterable.asMutableList() = asIterable().toMutableList()
  *
  * ```kotlin
  * val set = longArrayListOf(1, 1, 2).asSet()
- * check(set.size == 2)
- * check(1L in set)
+ * // set.size == 2
+ * // 1L in set
  * ```
  */
 fun LongIterable.asSet() = asIterable().toSet()
@@ -266,8 +266,8 @@ fun LongIterable.asSet() = asIterable().toSet()
  *
  * ```kotlin
  * val set = longArrayListOf(1, 1, 2).asMutableSet()
- * check(set.size == 2)
- * check(2L in set)
+ * // set.size == 2
+ * // 2L in set
  * ```
  */
 fun LongIterable.asMutableSet() = asIterable().toMutableSet()
@@ -282,8 +282,8 @@ fun LongIterable.asMutableSet() = asIterable().toMutableSet()
  *
  * ```kotlin
  * val list = longArrayListOf(1, 2).toFastList()
- * check(list.size == 2)
- * check(list[0] == 1L)
+ * // list.size == 2
+ * // list[0] == 1L
  * ```
  */
 fun LongIterable.toFastList() = asIterable().toFastList()
@@ -298,8 +298,8 @@ fun LongIterable.toFastList() = asIterable().toFastList()
  *
  * ```kotlin
  * val set = longArrayListOf(1, 1, 2).toUnifiedSet()
- * check(set.size == 2)
- * check(set.contains(1L))
+ * // set.size == 2
+ * // set.contains(1L)
  * ```
  */
 fun LongIterable.toUnifiedSet() = asIterable().toUnifiedSet()
@@ -314,8 +314,8 @@ fun LongIterable.toUnifiedSet() = asIterable().toUnifiedSet()
  *
  * ```kotlin
  * val list = longArrayListOf(1, 2).toFixedSizeList()
- * check(list.size == 2)
- * check(list[1] == 2L)
+ * // list.size == 2
+ * // list[1] == 2L
  * ```
  */
 fun LongIterable.toFixedSizeList() = asIterable().toFixedSizeList()
@@ -329,8 +329,8 @@ fun LongIterable.toFixedSizeList() = asIterable().toFixedSizeList()
  * - 수신 iterable은 mutate 하지 않습니다.
  *
  * ```kotlin
- * check(longArrayListOf(1, 3).maxOrNull() == 3L)
- * check(longArrayListOf().maxOrNull() == null)
+ * // longArrayListOf(1, 3).maxOrNull() == 3L
+ * // longArrayListOf().maxOrNull() == null
  * ```
  */
 fun LongIterable.maxOrNull() = if (isEmpty) null else max()
@@ -344,8 +344,8 @@ fun LongIterable.maxOrNull() = if (isEmpty) null else max()
  * - 수신 iterable은 mutate 하지 않습니다.
  *
  * ```kotlin
- * check(longArrayListOf(1, 3).minOrNull() == 1L)
- * check(longArrayListOf().minOrNull() == null)
+ * // longArrayListOf(1, 3).minOrNull() == 1L
+ * // longArrayListOf().minOrNull() == null
  * ```
  */
 fun LongIterable.minOrNull() = if (isEmpty) null else min()
@@ -359,8 +359,8 @@ fun LongIterable.minOrNull() = if (isEmpty) null else min()
  * - 누적 타입이 `Double`이므로 정밀도 손실이 발생할 수 있습니다.
  *
  * ```kotlin
- * check(longArrayListOf(2, 3).product() == 6.0)
- * check(longArrayListOf().product() == 1.0)
+ * // longArrayListOf(2, 3).product() == 6.0
+ * // longArrayListOf().product() == 1.0
  * ```
  */
 fun LongIterable.product(): Double = asIterable().fold(1.0) { acc, i -> acc * i }
@@ -375,8 +375,8 @@ fun LongIterable.product(): Double = asIterable().fold(1.0) { acc, i -> acc * i 
  *
  * ```kotlin
  * val list = longArrayOf(1, 2).toFastList()
- * check(list.size == 2)
- * check(list[1] == 2L)
+ * // list.size == 2
+ * // list[1] == 2L
  * ```
  */
 fun LongArray.toFastList(): FastList<Long> = asIterable().toFastList()

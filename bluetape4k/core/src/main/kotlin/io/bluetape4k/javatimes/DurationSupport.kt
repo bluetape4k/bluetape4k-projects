@@ -14,7 +14,7 @@ import java.time.temporal.Temporal
  * ```kotlin
  * val d = 5.asSeconds()
  * val neg = -d
- * println(neg) // PT-5S
+ * // neg == PT-5S
  * ```
  */
 operator fun Duration.unaryMinus(): Duration = this.negated()
@@ -27,9 +27,10 @@ operator fun Duration.unaryMinus(): Duration = this.negated()
  * - 0은 양수가 아니므로 true입니다.
  *
  * ```kotlin
- * println(0.asSeconds().isNotPositive)     // true
- * println((-1).asSeconds().isNotPositive) // true
- * println(1.asSeconds().isNotPositive)    // false
+ * val a = 0.asSeconds().isNotPositive
+ * val b = (-1).asSeconds().isNotPositive
+ * val c = 1.asSeconds().isNotPositive
+ * // a == true, b == true, c == false
  * ```
  */
 val Duration.isNotPositive: Boolean get() = this <= Duration.ZERO
@@ -42,9 +43,10 @@ val Duration.isNotPositive: Boolean get() = this <= Duration.ZERO
  * - 0은 음수가 아니므로 true입니다.
  *
  * ```kotlin
- * println(0.asSeconds().isNotNegative)     // true
- * println(1.asSeconds().isNotNegative)    // true
- * println((-1).asSeconds().isNotNegative) // false
+ * val a = 0.asSeconds().isNotNegative
+ * val b = 1.asSeconds().isNotNegative
+ * val c = (-1).asSeconds().isNotNegative
+ * // a == true, b == true, c == false
  * ```
  */
 val Duration.isNotNegative: Boolean get() = this >= Duration.ZERO
@@ -57,7 +59,8 @@ val Duration.isNotNegative: Boolean get() = this >= Duration.ZERO
  * - 범위를 벗어나면 [ArithmeticException]이 발생할 수 있습니다.
  *
  * ```kotlin
- * println(1500.asMillis().inMillis()) // 1500
+ * val result = 1500.asMillis().inMillis()
+ * // result == 1500
  * ```
  */
 fun Duration.inMillis(): Long = toMillis()
@@ -70,7 +73,8 @@ fun Duration.inMillis(): Long = toMillis()
  * - 범위를 벗어나면 [ArithmeticException]이 발생할 수 있습니다.
  *
  * ```kotlin
- * println(10.asNanos().inNanos()) // 10
+ * val result = 10.asNanos().inNanos()
+ * // result == 10
  * ```
  */
 fun Duration.inNanos(): Long = toNanos() // seconds * NANO_PER_SECOND + nano
@@ -84,7 +88,7 @@ fun Duration.inNanos(): Long = toNanos() // seconds * NANO_PER_SECOND + nano
  *
  * ```kotlin
  * val d = durationOf(zonedDateTimeOf(2020), zonedDateTimeOf(2020).plusSeconds(10))
- * println(d.seconds) // 10
+ * // d.seconds == 10
  * ```
  */
 fun durationOf(startInclusive: Temporal, endExclusive: Temporal): Duration =
@@ -99,7 +103,7 @@ fun durationOf(startInclusive: Temporal, endExclusive: Temporal): Duration =
  *
  * ```kotlin
  * val d = durationOfYear(2020)
- * println(d.toDays()) // 366 (윤년인 경우)
+ * // d.toDays() == 366 (윤년)
  * ```
  */
 fun durationOfYear(year: Int): Duration =
@@ -114,7 +118,7 @@ fun durationOfYear(year: Int): Duration =
  *
  * ```kotlin
  * val d = durationOfQuarter(2020, Quarter.First)
- * println(d.toDays())
+ * // d.toDays() == 91
  * ```
  */
 fun durationOfQuarter(year: Int, quarter: Quarter): Duration {
@@ -132,7 +136,7 @@ fun durationOfQuarter(year: Int, quarter: Quarter): Duration {
  *
  * ```kotlin
  * val d = durationOfMonth(2020, 1)
- * println(d.toDays())
+ * // d.toDays() == 31
  * ```
  */
 fun durationOfMonth(year: Int, monthOfYear: Int): Duration {
@@ -149,7 +153,8 @@ fun durationOfMonth(year: Int, monthOfYear: Int): Duration {
  * - 그 외에는 `week * 7일`을 기준으로 계산합니다.
  *
  * ```kotlin
- * println(durationOfWeek(3).toDays()) // 21
+ * val d = durationOfWeek(3)
+ * // d.toDays() == 21
  * ```
  */
 fun durationOfWeek(week: Int): Duration =
@@ -164,7 +169,7 @@ fun durationOfWeek(week: Int): Duration =
  *
  * ```kotlin
  * val d = durationOfDay(days = 1, hours = 2, minutes = 3, seconds = 4, nanos = 5)
- * println(d)
+ * // d == PT26H3M4.000000005S
  * ```
  */
 fun durationOfDay(
@@ -197,7 +202,7 @@ fun durationOfDay(
  *
  * ```kotlin
  * val d = durationOfHour(hours = 1, minutes = 2, seconds = 3, nanos = 4)
- * println(d)
+ * // d == PT1H2M3.000000004S
  * ```
  */
 fun durationOfHour(
@@ -227,7 +232,7 @@ fun durationOfHour(
  *
  * ```kotlin
  * val d = durationOfMinute(minutes = 1, seconds = 2, nanos = 3)
- * println(d)
+ * // d == PT1M2.000000003S
  * ```
  */
 fun durationOfMinute(
@@ -254,7 +259,7 @@ fun durationOfMinute(
  *
  * ```kotlin
  * val d = durationOfSecond(seconds = 1, nanos = 2)
- * println(d)
+ * // d == PT1.000000002S
  * ```
  */
 fun durationOfSecond(
@@ -276,7 +281,8 @@ fun durationOfSecond(
  * - 내부적으로 [Duration.ofNanos]를 사용합니다.
  *
  * ```kotlin
- * println(durationOfNano(1000)) // PT0.000001S
+ * val d = durationOfNano(1000)
+ * // d == PT0.000001S
  * ```
  */
 fun durationOfNano(nanos: Long): Duration = Duration.ofNanos(nanos)
@@ -435,7 +441,8 @@ fun Long.asDays(): Duration = Duration.ofDays(this)
  * - 밀리초 단위로 환산한 값을 기반으로 포맷합니다.
  *
  * ```kotlin
- * println(1.asSeconds().formatISO())
+ * val result = 1.asSeconds().formatISO()
+ * // result == P0Y0M0DT0H0M1.000S
  * ```
  */
 fun Duration.formatISO(): String = DurationFormatUtils.formatDurationISO(inMillis())
@@ -449,7 +456,8 @@ fun Duration.formatISO(): String = DurationFormatUtils.formatDurationISO(inMilli
  *
  * ```kotlin
  * val d = 1.asHours() + 2.asMinutes() + 3.asSeconds() + 4.asMillis()
- * println(d.formatHMS()) // "01:02:03.004"
+ * val result = d.formatHMS()
+ * // result == 01:02:03.004
  * ```
  */
 fun Duration.formatHMS(): String = DurationFormatUtils.formatDurationHMS(inMillis())
@@ -470,7 +478,7 @@ private val durationIsoFormat: Regex =
  *
  * ```kotlin
  * val d = parseIsoFormattedDuration("P1Y2M3DT4H5M6.007S")
- * println(d) // PT28H5M6.007S
+ * // d == PT76H5M6.007S
  * ```
  */
 fun parseIsoFormattedDuration(isoFormattedString: String): Duration? {

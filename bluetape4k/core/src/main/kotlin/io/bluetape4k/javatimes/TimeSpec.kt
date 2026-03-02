@@ -20,8 +20,8 @@ import java.util.*
  *
  * ```kotlin
  * val value = NANO_PER_MILLIS
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val NANO_PER_MILLIS: Long = 1_000_000L
@@ -36,8 +36,8 @@ const val NANO_PER_MILLIS: Long = 1_000_000L
  *
  * ```kotlin
  * val value = NANO_PER_SECOND
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val NANO_PER_SECOND: Long = 1_000_000_000L
@@ -52,8 +52,8 @@ const val NANO_PER_SECOND: Long = 1_000_000_000L
  *
  * ```kotlin
  * val value = MILLIS_IN_DAY
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val MILLIS_IN_DAY: Long = Duration.ofDays(1).toMillis()
@@ -68,8 +68,8 @@ val MILLIS_IN_DAY: Long = Duration.ofDays(1).toMillis()
  *
  * ```kotlin
  * val value = MILLIS_IN_HOUR
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val MILLIS_IN_HOUR = Duration.ofHours(1).toMillis()
@@ -84,8 +84,8 @@ val MILLIS_IN_HOUR = Duration.ofHours(1).toMillis()
  *
  * ```kotlin
  * val value = MILLIS_IN_MINUTE
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val MILLIS_IN_MINUTE = Duration.ofMinutes(1).toMillis()
@@ -100,8 +100,8 @@ val MILLIS_IN_MINUTE = Duration.ofMinutes(1).toMillis()
  *
  * ```kotlin
  * val value = NANOS_IN_DAY
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val NANOS_IN_DAY: Long = Duration.ofDays(1).toNanos()
@@ -116,8 +116,8 @@ val NANOS_IN_DAY: Long = Duration.ofDays(1).toNanos()
  *
  * ```kotlin
  * val value = NANOS_IN_HOUR
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val NANOS_IN_HOUR: Long = Duration.ofHours(1).toNanos()
@@ -132,8 +132,8 @@ val NANOS_IN_HOUR: Long = Duration.ofHours(1).toNanos()
  *
  * ```kotlin
  * val value = NANOS_IN_MINUTE
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val NANOS_IN_MINUTE = Duration.ofMinutes(1).toNanos()
@@ -148,8 +148,8 @@ val NANOS_IN_MINUTE = Duration.ofMinutes(1).toNanos()
  *
  * ```kotlin
  * val value = NANOS_IN_SECOND
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val NANOS_IN_SECOND = Duration.ofSeconds(1).toNanos()
@@ -165,8 +165,8 @@ val NANOS_IN_SECOND = Duration.ofSeconds(1).toNanos()
  *
  * ```kotlin
  * val value = DefaultDateTimeFormatter
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val DefaultDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ISO_INSTANT
@@ -181,8 +181,8 @@ val DefaultDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ISO_INSTANT
  *
  * ```kotlin
  * val value = UtcTimeZone
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val UtcTimeZone: TimeZone = TimeZone.getTimeZone(ZoneOffset.UTC)
@@ -197,8 +197,8 @@ val UtcTimeZone: TimeZone = TimeZone.getTimeZone(ZoneOffset.UTC)
  *
  * ```kotlin
  * val value = SystemTimeZone
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val SystemTimeZone: TimeZone = TimeZone.getDefault()
@@ -213,8 +213,8 @@ val SystemTimeZone: TimeZone = TimeZone.getDefault()
  *
  * ```kotlin
  * val value = SystemZoneId
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val SystemZoneId: ZoneId = ZoneId.systemDefault()
@@ -229,8 +229,8 @@ val SystemZoneId: ZoneId = ZoneId.systemDefault()
  *
  * ```kotlin
  * val value = SystemOffset
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val SystemOffset: ZoneOffset = ZoneOffset.ofTotalSeconds(SystemTimeZone.rawOffset / 1000)
@@ -246,8 +246,8 @@ val SystemOffset: ZoneOffset = ZoneOffset.ofTotalSeconds(SystemTimeZone.rawOffse
  *
  * ```kotlin
  * val value = MonthsPerYear
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val MonthsPerYear = 12
@@ -262,8 +262,8 @@ const val MonthsPerYear = 12
  *
  * ```kotlin
  * val value = HalfyearsPerYear
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val HalfyearsPerYear = 2
@@ -278,8 +278,8 @@ const val HalfyearsPerYear = 2
  *
  * ```kotlin
  * val value = QuartersPerYear
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val QuartersPerYear = 4
@@ -294,8 +294,8 @@ const val QuartersPerYear = 4
  *
  * ```kotlin
  * val value = QuartersPerHalfyear
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val QuartersPerHalfyear = 2
@@ -310,8 +310,8 @@ const val QuartersPerHalfyear = 2
  *
  * ```kotlin
  * val value = MonthsPerHalfyear
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val MonthsPerHalfyear = 6
@@ -326,8 +326,8 @@ const val MonthsPerHalfyear = 6
  *
  * ```kotlin
  * val value = MonthsPerQuarter
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val MonthsPerQuarter = 3
@@ -342,8 +342,8 @@ const val MonthsPerQuarter = 3
  *
  * ```kotlin
  * val value = MaxWeeksPerYear
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val MaxWeeksPerYear = 54
@@ -358,8 +358,8 @@ const val MaxWeeksPerYear = 54
  *
  * ```kotlin
  * val value = MaxDaysPerMonth
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val MaxDaysPerMonth = 31
@@ -374,8 +374,8 @@ const val MaxDaysPerMonth = 31
  *
  * ```kotlin
  * val value = DaysPerWeek
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val DaysPerWeek = 7
@@ -390,8 +390,8 @@ const val DaysPerWeek = 7
  *
  * ```kotlin
  * val value = HoursPerDay
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val HoursPerDay = 24
@@ -406,8 +406,8 @@ const val HoursPerDay = 24
  *
  * ```kotlin
  * val value = MinutesPerHour
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val MinutesPerHour = 60
@@ -422,8 +422,8 @@ const val MinutesPerHour = 60
  *
  * ```kotlin
  * val value = SecondsPerMinute
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val SecondsPerMinute = 60
@@ -438,8 +438,8 @@ const val SecondsPerMinute = 60
  *
  * ```kotlin
  * val value = MillisPerSecond
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val MillisPerSecond = 1000L
@@ -454,8 +454,8 @@ const val MillisPerSecond = 1000L
  *
  * ```kotlin
  * val value = MillisPerMinute
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val MillisPerMinute: Long = MillisPerSecond * SecondsPerMinute
@@ -470,8 +470,8 @@ const val MillisPerMinute: Long = MillisPerSecond * SecondsPerMinute
  *
  * ```kotlin
  * val value = MillisPerHour
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val MillisPerHour: Long = MillisPerMinute * MinutesPerHour
@@ -486,8 +486,8 @@ const val MillisPerHour: Long = MillisPerMinute * MinutesPerHour
  *
  * ```kotlin
  * val value = MillisPerDay
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val MillisPerDay: Long = MillisPerHour * HoursPerDay
@@ -502,8 +502,8 @@ const val MillisPerDay: Long = MillisPerHour * HoursPerDay
  *
  * ```kotlin
  * val value = MicrosPerMillis
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val MicrosPerMillis = 1000L
@@ -518,8 +518,8 @@ const val MicrosPerMillis = 1000L
  *
  * ```kotlin
  * val value = MicrosPerSecond
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val MicrosPerSecond = MicrosPerMillis * MillisPerSecond
@@ -534,8 +534,8 @@ const val MicrosPerSecond = MicrosPerMillis * MillisPerSecond
  *
  * ```kotlin
  * val value = MicrosPerMinute
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val MicrosPerMinute: Long = MicrosPerSecond * SecondsPerMinute
@@ -550,8 +550,8 @@ const val MicrosPerMinute: Long = MicrosPerSecond * SecondsPerMinute
  *
  * ```kotlin
  * val value = MicrosPerHour
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val MicrosPerHour: Long = MicrosPerMinute * MinutesPerHour
@@ -566,8 +566,8 @@ const val MicrosPerHour: Long = MicrosPerMinute * MinutesPerHour
  *
  * ```kotlin
  * val value = MicrosPerDay
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val MicrosPerDay: Long = MicrosPerHour * HoursPerDay
@@ -582,8 +582,8 @@ const val MicrosPerDay: Long = MicrosPerHour * HoursPerDay
  *
  * ```kotlin
  * val value = NanosPerMillis
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val NanosPerMillis: Long = MicrosPerSecond
@@ -598,8 +598,8 @@ const val NanosPerMillis: Long = MicrosPerSecond
  *
  * ```kotlin
  * val value = NanosPerSecond
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val NanosPerSecond = NanosPerMillis * MillisPerSecond
@@ -614,8 +614,8 @@ const val NanosPerSecond = NanosPerMillis * MillisPerSecond
  *
  * ```kotlin
  * val value = NanosPerMinute
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val NanosPerMinute: Long = NanosPerSecond * SecondsPerMinute
@@ -630,8 +630,8 @@ const val NanosPerMinute: Long = NanosPerSecond * SecondsPerMinute
  *
  * ```kotlin
  * val value = NanosPerHour
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val NanosPerHour: Long = NanosPerMinute * MinutesPerHour
@@ -646,8 +646,8 @@ const val NanosPerHour: Long = NanosPerMinute * MinutesPerHour
  *
  * ```kotlin
  * val value = NanosPerDay
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val NanosPerDay: Long = NanosPerHour * HoursPerDay
@@ -662,8 +662,8 @@ const val NanosPerDay: Long = NanosPerHour * HoursPerDay
  *
  * ```kotlin
  * val value = TicksPerMillisecond
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val TicksPerMillisecond = 10000L
@@ -678,8 +678,8 @@ const val TicksPerMillisecond = 10000L
  *
  * ```kotlin
  * val value = TicksPerSecond
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val TicksPerSecond = TicksPerMillisecond * MillisPerSecond
@@ -694,8 +694,8 @@ const val TicksPerSecond = TicksPerMillisecond * MillisPerSecond
  *
  * ```kotlin
  * val value = TicksPerMinute
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val TicksPerMinute = TicksPerSecond * SecondsPerMinute
@@ -710,8 +710,8 @@ const val TicksPerMinute = TicksPerSecond * SecondsPerMinute
  *
  * ```kotlin
  * val value = TicksPerHour
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val TicksPerHour = TicksPerMinute * MinutesPerHour
@@ -726,8 +726,8 @@ const val TicksPerHour = TicksPerMinute * MinutesPerHour
  *
  * ```kotlin
  * val value = TicksPerDay
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 const val TicksPerDay = TicksPerHour * HoursPerDay
@@ -743,8 +743,8 @@ const val TicksPerDay = TicksPerHour * HoursPerDay
  *
  * ```kotlin
  * val value = Weekdays
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val Weekdays = arrayOf(
@@ -761,8 +761,8 @@ val Weekdays = arrayOf(
  *
  * ```kotlin
  * val value = Weekends
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val Weekends = arrayOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
@@ -777,8 +777,8 @@ val Weekends = arrayOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
  *
  * ```kotlin
  * val value = FirstDayOfWeek
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val FirstDayOfWeek: DayOfWeek = DayOfWeek.MONDAY
@@ -793,8 +793,8 @@ val FirstDayOfWeek: DayOfWeek = DayOfWeek.MONDAY
  *
  * ```kotlin
  * val value = FirstHalfyearMonths
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val FirstHalfyearMonths = intArrayOf(1, 2, 3, 4, 5, 6)
@@ -809,8 +809,8 @@ val FirstHalfyearMonths = intArrayOf(1, 2, 3, 4, 5, 6)
  *
  * ```kotlin
  * val value = SecondHalfyearMonths
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val SecondHalfyearMonths = intArrayOf(7, 8, 9, 10, 11, 12)
@@ -826,8 +826,8 @@ val SecondHalfyearMonths = intArrayOf(7, 8, 9, 10, 11, 12)
  *
  * ```kotlin
  * val value = Q1Months
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val Q1Months = intArrayOf(1, 2, 3)
@@ -842,8 +842,8 @@ val Q1Months = intArrayOf(1, 2, 3)
  *
  * ```kotlin
  * val value = Q2Months
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val Q2Months = intArrayOf(4, 5, 6)
@@ -858,8 +858,8 @@ val Q2Months = intArrayOf(4, 5, 6)
  *
  * ```kotlin
  * val value = Q3Months
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val Q3Months = intArrayOf(7, 8, 9)
@@ -874,8 +874,8 @@ val Q3Months = intArrayOf(7, 8, 9)
  *
  * ```kotlin
  * val value = Q4Months
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val Q4Months = intArrayOf(10, 11, 12)
@@ -890,8 +890,8 @@ val Q4Months = intArrayOf(10, 11, 12)
  *
  * ```kotlin
  * val value = EmptyDuration
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val EmptyDuration: Duration = Duration.ZERO
@@ -906,8 +906,8 @@ val EmptyDuration: Duration = Duration.ZERO
  *
  * ```kotlin
  * val value = MinDuration
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val MinDuration: Duration = 0.nanos()
@@ -922,8 +922,8 @@ val MinDuration: Duration = 0.nanos()
  *
  * ```kotlin
  * val value = MaxDuration
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val MaxDuration: Duration = Long.MAX_VALUE.seconds()
@@ -938,8 +938,8 @@ val MaxDuration: Duration = Long.MAX_VALUE.seconds()
  *
  * ```kotlin
  * val value = MinPositiveDuration
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val MinPositiveDuration: Duration = 1.nanos()
@@ -954,8 +954,8 @@ val MinPositiveDuration: Duration = 1.nanos()
  *
  * ```kotlin
  * val value = MinNegativeDuration
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val MinNegativeDuration: Duration = (-1).nanos()
@@ -970,8 +970,8 @@ val MinNegativeDuration: Duration = (-1).nanos()
  *
  * ```kotlin
  * val value = MinPeriodTime
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val MinPeriodTime: ZonedDateTime = zonedDateTimeOf(LocalDate.MIN, LocalTime.MIDNIGHT)
@@ -986,8 +986,8 @@ val MinPeriodTime: ZonedDateTime = zonedDateTimeOf(LocalDate.MIN, LocalTime.MIDN
  *
  * ```kotlin
  * val value = MaxPeriodTime
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val MaxPeriodTime: ZonedDateTime = zonedDateTimeOf(LocalDate.MAX, LocalTime.MIDNIGHT)
@@ -1002,8 +1002,8 @@ val MaxPeriodTime: ZonedDateTime = zonedDateTimeOf(LocalDate.MAX, LocalTime.MIDN
  *
  * ```kotlin
  * val value = DefaultStartOffset
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val DefaultStartOffset: Duration = EmptyDuration
@@ -1018,8 +1018,8 @@ val DefaultStartOffset: Duration = EmptyDuration
  *
  * ```kotlin
  * val value = DefaultEndOffset
- * println(value)
- * check(true)
+ * // value
+ * // true
  * ```
  */
 val DefaultEndOffset: Duration = MinNegativeDuration

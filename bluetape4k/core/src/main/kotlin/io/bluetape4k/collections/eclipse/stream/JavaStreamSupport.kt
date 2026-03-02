@@ -27,8 +27,8 @@ import java.util.stream.Stream
  *
  * ```kotlin
  * val list = Stream.of("a", "b").toFastList()
- * check(list.size == 2)
- * check(list[0] == "a")
+ * // list.size == 2
+ * // list[0] == "a"
  * ```
  */
 fun <T> Stream<T>.toFastList(): FastList<T> = asIterable().toFastList()
@@ -42,8 +42,8 @@ fun <T> Stream<T>.toFastList(): FastList<T> = asIterable().toFastList()
  *
  * ```kotlin
  * val list = IntStream.of(1, 2).toFastList()
- * check(list.size == 2)
- * check(list[1] == 2)
+ * // list.size == 2
+ * // list[1] == 2
  * ```
  */
 fun IntStream.toFastList(): FastList<Int> = asIterable().toFastList()
@@ -57,8 +57,8 @@ fun IntStream.toFastList(): FastList<Int> = asIterable().toFastList()
  *
  * ```kotlin
  * val list = LongStream.of(1L, 2L).toFastList()
- * check(list.size == 2)
- * check(list[0] == 1L)
+ * // list.size == 2
+ * // list[0] == 1L
  * ```
  */
 fun LongStream.toFastList(): FastList<Long> = asIterable().toFastList()
@@ -72,8 +72,8 @@ fun LongStream.toFastList(): FastList<Long> = asIterable().toFastList()
  *
  * ```kotlin
  * val list = DoubleStream.of(1.0, 2.0).toFastList()
- * check(list.size == 2)
- * check(list[1] == 2.0)
+ * // list.size == 2
+ * // list[1] == 2.0
  * ```
  */
 fun DoubleStream.toFastList(): FastList<Double> = asIterable().toFastList()
@@ -87,8 +87,8 @@ fun DoubleStream.toFastList(): FastList<Double> = asIterable().toFastList()
  *
  * ```kotlin
  * val set = Stream.of("a", "a", "b").toUnifiedSet()
- * check(set.size == 2)
- * check(set.contains("a"))
+ * // set.size == 2
+ * // set.contains("a")
  * ```
  */
 fun <T> Stream<T>.toUnifiedSet(): UnifiedSet<T> = asIterable().toUnifiedSet()
@@ -102,8 +102,8 @@ fun <T> Stream<T>.toUnifiedSet(): UnifiedSet<T> = asIterable().toUnifiedSet()
  *
  * ```kotlin
  * val set = IntStream.of(1, 1, 2).toUnifiedSet()
- * check(set.size == 2)
- * check(set.contains(2))
+ * // set.size == 2
+ * // set.contains(2)
  * ```
  */
 fun IntStream.toUnifiedSet(): UnifiedSet<Int> = asIterable().toUnifiedSet()
@@ -117,8 +117,8 @@ fun IntStream.toUnifiedSet(): UnifiedSet<Int> = asIterable().toUnifiedSet()
  *
  * ```kotlin
  * val set = LongStream.of(1L, 1L, 2L).toUnifiedSet()
- * check(set.size == 2)
- * check(set.contains(1L))
+ * // set.size == 2
+ * // set.contains(1L)
  * ```
  */
 fun LongStream.toUnifiedSet(): UnifiedSet<Long> = asIterable().toUnifiedSet()
@@ -132,8 +132,8 @@ fun LongStream.toUnifiedSet(): UnifiedSet<Long> = asIterable().toUnifiedSet()
  *
  * ```kotlin
  * val set = DoubleStream.of(1.0, 1.0, 2.0).toUnifiedSet()
- * check(set.size == 2)
- * check(set.contains(2.0))
+ * // set.size == 2
+ * // set.contains(2.0)
  * ```
  */
 fun DoubleStream.toUnifiedSet(): UnifiedSet<Double> = asIterable().toUnifiedSet()
@@ -147,8 +147,8 @@ fun DoubleStream.toUnifiedSet(): UnifiedSet<Double> = asIterable().toUnifiedSet(
  *
  * ```kotlin
  * val list = IntStream.of(1, 2).toIntArrayList()
- * check(list.size() == 2)
- * check(list[0] == 1)
+ * // list.size() == 2
+ * // list[0] == 1
  * ```
  */
 fun IntStream.toIntArrayList(): IntArrayList = asIterable().toIntArrayList()
@@ -162,8 +162,8 @@ fun IntStream.toIntArrayList(): IntArrayList = asIterable().toIntArrayList()
  *
  * ```kotlin
  * val list = LongStream.of(1L, 2L).toLongArrayList()
- * check(list.size() == 2)
- * check(list[1] == 2L)
+ * // list.size() == 2
+ * // list[1] == 2L
  * ```
  */
 fun LongStream.toLongArrayList(): LongArrayList = asIterable().toLongArrayList()
@@ -178,8 +178,8 @@ fun LongStream.toLongArrayList(): LongArrayList = asIterable().toLongArrayList()
  *
  * ```kotlin
  * val list = DoubleStream.of(1.5, 2.5).toFloatArrayList()
- * check(list.size() == 2)
- * check(list[0] == 1.5f)
+ * // list.size() == 2
+ * // list[0] == 1.5f
  * ```
  */
 fun DoubleStream.toFloatArrayList(): FloatArrayList = asIterable().map { it.toFloat() }.toFloatArrayList()
@@ -193,8 +193,8 @@ fun DoubleStream.toFloatArrayList(): FloatArrayList = asIterable().map { it.toFl
  *
  * ```kotlin
  * val list = DoubleStream.of(1.0, 2.0).toDoubleArrayList()
- * check(list.size() == 2)
- * check(list[1] == 2.0)
+ * // list.size() == 2
+ * // list[1] == 2.0
  * ```
  */
 fun DoubleStream.toDoubleArrayList(): DoubleArrayList = asIterable().toDoubleArrayList()
@@ -208,8 +208,8 @@ fun DoubleStream.toDoubleArrayList(): DoubleArrayList = asIterable().toDoubleArr
  *
  * ```kotlin
  * val stream = intArrayListOf(1, 2).toIntStream()
- * check(stream.sum() == 3)
- * check(IntStream.of(1).count() == 1L)
+ * // stream.sum() == 3
+ * // IntStream.of(1).count() == 1L
  * ```
  */
 fun IntArrayList.toIntStream(): IntStream =
@@ -228,8 +228,8 @@ fun IntArrayList.toIntStream(): IntStream =
  *
  * ```kotlin
  * val stream = longArrayListOf(1L, 2L).toLongStream()
- * check(stream.sum() == 3L)
- * check(LongStream.of(1L).count() == 1L)
+ * // stream.sum() == 3L
+ * // LongStream.of(1L).count() == 1L
  * ```
  */
 fun LongArrayList.toLongStream(): LongStream =
@@ -248,8 +248,8 @@ fun LongArrayList.toLongStream(): LongStream =
  *
  * ```kotlin
  * val stream = floatArrayListOf(1.5f, 2.5f).toDoubleStream()
- * check(stream.sum() == 4.0)
- * check(DoubleStream.of(1.0).count() == 1L)
+ * // stream.sum() == 4.0
+ * // DoubleStream.of(1.0).count() == 1L
  * ```
  */
 fun FloatArrayList.toDoubleStream(): DoubleStream =
@@ -269,8 +269,8 @@ fun FloatArrayList.toDoubleStream(): DoubleStream =
  *
  * ```kotlin
  * val stream = doubleArrayListOf(1.0, 2.0).toDoubleStream()
- * check(stream.sum() == 3.0)
- * check(DoubleStream.of(1.0).count() == 1L)
+ * // stream.sum() == 3.0
+ * // DoubleStream.of(1.0).count() == 1L
  * ```
  */
 fun DoubleArrayList.toDoubleStream(): DoubleStream =

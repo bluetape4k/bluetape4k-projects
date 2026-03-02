@@ -18,8 +18,8 @@ import org.eclipse.collections.impl.list.mutable.primitive.CharArrayList
  *
  * ```kotlin
  * val list = charArrayOf('a', 'b').toCharArrayList()
- * check(list.size() == 2)
- * check(list[0] == 'a')
+ * // list.size() == 2
+ * // list[0] == 'a'
  * ```
  */
 fun CharArray.toCharArrayList(): CharArrayList = CharArrayList.newListWith(*this)
@@ -33,8 +33,8 @@ fun CharArray.toCharArrayList(): CharArrayList = CharArrayList.newListWith(*this
  *
  * ```kotlin
  * val list = listOf('a', 'b').toCharArrayList()
- * check(list.size() == 2)
- * check(list[1] == 'b')
+ * // list.size() == 2
+ * // list[1] == 'b'
  * ```
  */
 fun Iterable<Char>.toCharArrayList(): CharArrayList =
@@ -56,8 +56,8 @@ fun Iterable<Char>.toCharArrayList(): CharArrayList =
  *
  * ```kotlin
  * val list = sequenceOf('a', 'b').toCharArrayList()
- * check(list.size() == 2)
- * check(list[0] == 'a')
+ * // list.size() == 2
+ * // list[0] == 'a'
  * ```
  */
 fun Sequence<Char>.toCharArrayList(): CharArrayList = asIterable().toCharArrayList()
@@ -71,8 +71,8 @@ fun Sequence<Char>.toCharArrayList(): CharArrayList = asIterable().toCharArrayLi
  *
  * ```kotlin
  * val list = listOf<Any>('a', 66, "C").asCharArrayList()
- * check(list.size() == 3)
- * check(list[1] == 'B')
+ * // list.size() == 3
+ * // list[1] == 'B'
  * ```
  */
 fun Iterable<Any>.asCharArrayList(): CharArrayList = when (this) {
@@ -94,8 +94,8 @@ fun Iterable<Any>.asCharArrayList(): CharArrayList = when (this) {
  *
  * ```kotlin
  * val list = charArrayList(2) { ('a'.code + it).toChar() }
- * check(list.size() == 2)
- * check(list[1] == 'b')
+ * // list.size() == 2
+ * // list[1] == 'b'
  * ```
  */
 inline fun charArrayList(
@@ -119,8 +119,8 @@ inline fun charArrayList(
  *
  * ```kotlin
  * val list = charArrayListOf('a', 'b')
- * check(list.size() == 2)
- * check(list[0] == 'a')
+ * // list.size() == 2
+ * // list[0] == 'a'
  * ```
  */
 fun charArrayListOf(vararg elements: Char): CharArrayList =
@@ -135,8 +135,8 @@ fun charArrayListOf(vararg elements: Char): CharArrayList =
  *
  * ```kotlin
  * val list = charArrayListOf('a', 'b').toCharArrayList()
- * check(list.size() == 2)
- * check(list[1] == 'b')
+ * // list.size() == 2
+ * // list[1] == 'b'
  * ```
  */
 fun CharIterable.toCharArrayList(): CharArrayList = when (this) {
@@ -153,8 +153,8 @@ fun CharIterable.toCharArrayList(): CharArrayList = when (this) {
  *
  * ```kotlin
  * val iter = charArrayListOf('a').asIterator()
- * check(iter.hasNext())
- * check(iter.next() == 'a')
+ * // iter.hasNext()
+ * // iter.next() == 'a'
  * ```
  */
 fun CharIterable.asIterator(): Iterator<Char> = object: Iterator<Char> {
@@ -172,8 +172,8 @@ fun CharIterable.asIterator(): Iterator<Char> = object: Iterator<Char> {
  *
  * ```kotlin
  * val seq = charArrayListOf('a', 'b').asSequence()
- * check(seq.count() == 2)
- * check(seq.first() == 'a')
+ * // seq.count() == 2
+ * // seq.first() == 'a'
  * ```
  */
 fun CharIterable.asSequence(): Sequence<Char> = sequence {
@@ -192,8 +192,8 @@ fun CharIterable.asSequence(): Sequence<Char> = sequence {
  *
  * ```kotlin
  * val it = charArrayListOf('a', 'b').asIterable()
- * check(it.count() == 2)
- * check(it.first() == 'a')
+ * // it.count() == 2
+ * // it.first() == 'a'
  * ```
  */
 fun CharIterable.asIterable(): Iterable<Char> = Iterable { asIterator() }
@@ -207,8 +207,8 @@ fun CharIterable.asIterable(): Iterable<Char> = Iterable { asIterator() }
  *
  * ```kotlin
  * val list = charArrayListOf('a', 'b').asList()
- * check(list == listOf('a', 'b'))
- * check(list.size == 2)
+ * // list == listOf('a', 'b')
+ * // list.size == 2
  * ```
  */
 fun CharIterable.asList() = asIterable().toList()
@@ -222,8 +222,8 @@ fun CharIterable.asList() = asIterable().toList()
  *
  * ```kotlin
  * val list = charArrayListOf('a', 'b').asMutableList()
- * check(list.size == 2)
- * check(list[1] == 'b')
+ * // list.size == 2
+ * // list[1] == 'b'
  * ```
  */
 fun CharIterable.asMutableList() = asIterable().toMutableList()
@@ -237,8 +237,8 @@ fun CharIterable.asMutableList() = asIterable().toMutableList()
  *
  * ```kotlin
  * val set = charArrayListOf('a', 'a', 'b').asSet()
- * check(set.size == 2)
- * check('a' in set)
+ * // set.size == 2
+ * // 'a' in set
  * ```
  */
 fun CharIterable.asSet() = asIterable().toSet()
@@ -252,8 +252,8 @@ fun CharIterable.asSet() = asIterable().toSet()
  *
  * ```kotlin
  * val set = charArrayListOf('a', 'a', 'b').asMutableSet()
- * check(set.size == 2)
- * check('b' in set)
+ * // set.size == 2
+ * // 'b' in set
  * ```
  */
 fun CharIterable.asMutableSet() = asIterable().toMutableSet()
@@ -267,8 +267,8 @@ fun CharIterable.asMutableSet() = asIterable().toMutableSet()
  *
  * ```kotlin
  * val list = charArrayListOf('a', 'b').toFastList()
- * check(list.size == 2)
- * check(list[0] == 'a')
+ * // list.size == 2
+ * // list[0] == 'a'
  * ```
  */
 fun CharIterable.toFastList() = asIterable().toFastList()
@@ -282,8 +282,8 @@ fun CharIterable.toFastList() = asIterable().toFastList()
  *
  * ```kotlin
  * val set = charArrayListOf('a', 'a', 'b').toUnifiedSet()
- * check(set.size == 2)
- * check(set.contains('a'))
+ * // set.size == 2
+ * // set.contains('a')
  * ```
  */
 fun CharIterable.toUnifiedSet() = asIterable().toUnifiedSet()
@@ -297,8 +297,8 @@ fun CharIterable.toUnifiedSet() = asIterable().toUnifiedSet()
  *
  * ```kotlin
  * val list = charArrayListOf('a', 'b').toFixedSizeList()
- * check(list.size == 2)
- * check(list[1] == 'b')
+ * // list.size == 2
+ * // list[1] == 'b'
  * ```
  */
 fun CharIterable.toFixedSizeList() = asIterable().toFixedSizeList()
@@ -311,8 +311,8 @@ fun CharIterable.toFixedSizeList() = asIterable().toFixedSizeList()
  * - non-empty이면 [CharIterable.max] 값을 반환합니다.
  *
  * ```kotlin
- * check(charArrayListOf('a', 'c').maxOrNull() == 'c')
- * check(charArrayListOf().maxOrNull() == null)
+ * // charArrayListOf('a', 'c').maxOrNull() == 'c'
+ * // charArrayListOf().maxOrNull() == null
  * ```
  */
 fun CharIterable.maxOrNull() = if (isEmpty) null else max()
@@ -325,8 +325,8 @@ fun CharIterable.maxOrNull() = if (isEmpty) null else max()
  * - non-empty이면 [CharIterable.min] 값을 반환합니다.
  *
  * ```kotlin
- * check(charArrayListOf('a', 'c').minOrNull() == 'a')
- * check(charArrayListOf().minOrNull() == null)
+ * // charArrayListOf('a', 'c').minOrNull() == 'a'
+ * // charArrayListOf().minOrNull() == null
  * ```
  */
 fun CharIterable.minOrNull() = if (isEmpty) null else min()
@@ -340,8 +340,8 @@ fun CharIterable.minOrNull() = if (isEmpty) null else min()
  *
  * ```kotlin
  * val list = charArrayOf('a', 'b').toFastList()
- * check(list.size == 2)
- * check(list[1] == 'b')
+ * // list.size == 2
+ * // list[1] == 'b'
  * ```
  */
 fun CharArray.toFastList(): FastList<Char> = asIterable().toFastList()

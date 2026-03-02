@@ -75,7 +75,7 @@ fun Any?.asBooleanOrNull(): Boolean? = runCatching {
  *
  * ```kotlin
  * val c = "".asChar()
- * check(c == ZERO_CHAR)
+ * // c == ZERO_CHAR
  * ```
  */
 const val ZERO_CHAR = '\u0000'
@@ -125,7 +125,7 @@ fun Any?.asCharOrNull(): Char? = runCatching {
  *
  * ```kotlin
  * val b = "".asByte()
- * check(b == ZERO_BYTE)
+ * // b == ZERO_BYTE
  * ```
  */
 const val ZERO_BYTE: Byte = 0x00

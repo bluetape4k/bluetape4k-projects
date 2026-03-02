@@ -100,9 +100,8 @@ fun KClass<*>.getShortClassName(): String =
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::hierarchy
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val names = String::class.hierarchy().map { it.simpleName }
+ * // names.first() == "String"
  * ```
  */
 fun KClass<*>.hierarchy(): Iterable<Class<*>> =
@@ -128,9 +127,8 @@ fun KClass<*>.hierarchy(interfaceBehavior: ClassUtils.Interfaces): Iterable<Clas
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::isAssignable
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = String::class.isAssignable(CharSequence::class)
+ * // result == true
  * ```
  */
 fun KClass<*>.isAssignable(toClass: KClass<*>, autoboxing: Boolean = true): Boolean =

@@ -177,7 +177,7 @@ fun concat(vararg arrays: IntArray): IntArray {
  * ```
  * val array = intArrayOf(1, 2, 3, 4)
  * val reversed = array.reverseTo(1, 3)
- * println(reversed.contentToString()) // [1, 4, 3, 2]
+ * // reversed.contentToString() == [1, 4, 3, 2]
  * ```
  *
  * @param fromIndex 시작 인덱스 (0부터 시작)

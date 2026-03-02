@@ -17,8 +17,8 @@ import java.util.*
          * - 접근 시 추가 할당이 없습니다.
          *
          * ```kotlin
-         * check(ZERO_UUID.mostSignificantBits == 0L)
-         * check(ZERO_UUID.leastSignificantBits == 0L)
+         * // ZERO_UUID.mostSignificantBits == 0L
+         * // ZERO_UUID.leastSignificantBits == 0L
          * ```
          */
 val ZERO_UUID: UUID = 0L.toBigInteger().toUuid()

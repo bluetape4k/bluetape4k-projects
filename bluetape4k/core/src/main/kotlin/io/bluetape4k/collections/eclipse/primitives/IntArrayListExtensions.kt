@@ -19,8 +19,8 @@ import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList
  *
  * ```kotlin
  * val list = intArrayOf(1, 2, 3).toIntArrayList()
- * check(list.size() == 3)
- * check(list[0] == 1)
+ * // list.size() == 3
+ * // list[0] == 1
  * ```
  */
 fun IntArray.toIntArrayList(): IntArrayList = IntArrayList.newListWith(*this)
@@ -35,8 +35,8 @@ fun IntArray.toIntArrayList(): IntArrayList = IntArrayList.newListWith(*this)
  *
  * ```kotlin
  * val list = listOf(1, 2, 3).toIntArrayList()
- * check(list.size() == 3)
- * check(list[1] == 2)
+ * // list.size() == 3
+ * // list[1] == 2
  * ```
  */
 fun Iterable<Int>.toIntArrayList(): IntArrayList =
@@ -59,8 +59,8 @@ fun Iterable<Int>.toIntArrayList(): IntArrayList =
  *
  * ```kotlin
  * val list = sequenceOf(1, 2, 3).toIntArrayList()
- * check(list.size() == 3)
- * check(list[2] == 3)
+ * // list.size() == 3
+ * // list[2] == 3
  * ```
  */
 fun Sequence<Int>.toIntArrayList(): IntArrayList = asIterable().toIntArrayList()
@@ -75,8 +75,8 @@ fun Sequence<Int>.toIntArrayList(): IntArrayList = asIterable().toIntArrayList()
  *
  * ```kotlin
  * val list = listOf(1, 2L, 3.0).asIntArrayList()
- * check(list.size() == 3)
- * check(list[1] == 2)
+ * // list.size() == 3
+ * // list[1] == 2
  * ```
  */
 fun Iterable<Number>.asIntArrayList() = when (this) {
@@ -98,8 +98,8 @@ fun Iterable<Number>.asIntArrayList() = when (this) {
  *
  * ```kotlin
  * val list = intArrayList(3) { it + 1 }
- * check(list.size() == 3)
- * check(list[0] == 1)
+ * // list.size() == 3
+ * // list[0] == 1
  * ```
  *
  * @param initialCapacity 생성할 요소 개수이자 초기 용량
@@ -127,8 +127,8 @@ inline fun intArrayList(
  *
  * ```kotlin
  * val list = intArrayListOf(1, 2, 3)
- * check(list.size() == 3)
- * check(list[2] == 3)
+ * // list.size() == 3
+ * // list[2] == 3
  * ```
  */
 fun intArrayListOf(vararg elements: Int): IntArrayList =
@@ -144,8 +144,8 @@ fun intArrayListOf(vararg elements: Int): IntArrayList =
  *
  * ```kotlin
  * val list = intArrayListOf(1, 2).toIntArrayList()
- * check(list.size() == 2)
- * check(list[1] == 2)
+ * // list.size() == 2
+ * // list[1] == 2
  * ```
  */
 fun IntIterable.toIntArrayList(): IntArrayList = when (this) {
@@ -163,8 +163,8 @@ fun IntIterable.toIntArrayList(): IntArrayList = when (this) {
  *
  * ```kotlin
  * val iter = intArrayListOf(1, 2).asIterator()
- * check(iter.hasNext())
- * check(iter.next() == 1)
+ * // iter.hasNext()
+ * // iter.next() == 1
  * ```
  */
 fun IntIterable.asIterator(): Iterator<Int> = object: Iterator<Int> {
@@ -183,8 +183,8 @@ fun IntIterable.asIterator(): Iterator<Int> = object: Iterator<Int> {
  *
  * ```kotlin
  * val seq = intArrayListOf(1, 2).asSequence()
- * check(seq.sum() == 3)
- * check(seq.count() == 2)
+ * // seq.sum() == 3
+ * // seq.count() == 2
  * ```
  */
 fun IntIterable.asSequence(): Sequence<Int> = sequence {
@@ -204,8 +204,8 @@ fun IntIterable.asSequence(): Sequence<Int> = sequence {
  *
  * ```kotlin
  * val iterable = intArrayListOf(1, 2).asIterable()
- * check(iterable.count() == 2)
- * check(iterable.first() == 1)
+ * // iterable.count() == 2
+ * // iterable.first() == 1
  * ```
  */
 fun IntIterable.asIterable() = Iterable { asIterator() }
@@ -220,8 +220,8 @@ fun IntIterable.asIterable() = Iterable { asIterator() }
  *
  * ```kotlin
  * val list = intArrayListOf(1, 2).asList()
- * check(list == listOf(1, 2))
- * check(list.size == 2)
+ * // list == listOf(1, 2)
+ * // list.size == 2
  * ```
  */
 fun IntIterable.asList() = asIterable().toList()
@@ -236,8 +236,8 @@ fun IntIterable.asList() = asIterable().toList()
  *
  * ```kotlin
  * val list = intArrayListOf(1, 2).asMutableList()
- * check(list.size == 2)
- * check(list[0] == 1)
+ * // list.size == 2
+ * // list[0] == 1
  * ```
  */
 fun IntIterable.asMutableList() = asIterable().toMutableList()
@@ -252,8 +252,8 @@ fun IntIterable.asMutableList() = asIterable().toMutableList()
  *
  * ```kotlin
  * val set = intArrayListOf(1, 1, 2).asSet()
- * check(set.size == 2)
- * check(1 in set)
+ * // set.size == 2
+ * // 1 in set
  * ```
  */
 fun IntIterable.asSet() = asIterable().toSet()
@@ -268,8 +268,8 @@ fun IntIterable.asSet() = asIterable().toSet()
  *
  * ```kotlin
  * val set = intArrayListOf(1, 1, 2).asMutableSet()
- * check(set.size == 2)
- * check(2 in set)
+ * // set.size == 2
+ * // 2 in set
  * ```
  */
 fun IntIterable.asMutableSet() = asIterable().toMutableSet()
@@ -284,8 +284,8 @@ fun IntIterable.asMutableSet() = asIterable().toMutableSet()
  *
  * ```kotlin
  * val list = intArrayListOf(1, 2).toFastList()
- * check(list.size == 2)
- * check(list[0] == 1)
+ * // list.size == 2
+ * // list[0] == 1
  * ```
  */
 fun IntIterable.toFastList() = asIterable().toFastList()
@@ -300,8 +300,8 @@ fun IntIterable.toFastList() = asIterable().toFastList()
  *
  * ```kotlin
  * val set = intArrayListOf(1, 1, 2).toUnifiedSet()
- * check(set.size == 2)
- * check(set.contains(1))
+ * // set.size == 2
+ * // set.contains(1)
  * ```
  */
 fun IntIterable.toUnifiedSet() = asIterable().toUnifiedSet()
@@ -316,8 +316,8 @@ fun IntIterable.toUnifiedSet() = asIterable().toUnifiedSet()
  *
  * ```kotlin
  * val list = intArrayListOf(1, 2).toFixedSizeList()
- * check(list.size == 2)
- * check(list[1] == 2)
+ * // list.size == 2
+ * // list[1] == 2
  * ```
  */
 fun IntIterable.toFixedSizeList() = asIterable().toFixedSizeList()
@@ -331,8 +331,8 @@ fun IntIterable.toFixedSizeList() = asIterable().toFixedSizeList()
  * - 수신 iterable은 mutate 하지 않습니다.
  *
  * ```kotlin
- * check(intArrayListOf(1, 3).maxOrNull() == 3)
- * check(intArrayListOf().maxOrNull() == null)
+ * // intArrayListOf(1, 3).maxOrNull() == 3
+ * // intArrayListOf().maxOrNull() == null
  * ```
  */
 fun IntIterable.maxOrNull() = if (isEmpty) null else max()
@@ -346,8 +346,8 @@ fun IntIterable.maxOrNull() = if (isEmpty) null else max()
  * - 수신 iterable은 mutate 하지 않습니다.
  *
  * ```kotlin
- * check(intArrayListOf(1, 3).minOrNull() == 1)
- * check(intArrayListOf().minOrNull() == null)
+ * // intArrayListOf(1, 3).minOrNull() == 1
+ * // intArrayListOf().minOrNull() == null
  * ```
  */
 fun IntIterable.minOrNull() = if (isEmpty) null else min()
@@ -361,8 +361,8 @@ fun IntIterable.minOrNull() = if (isEmpty) null else min()
  * - 누적 타입이 `Double`이므로 큰 값에서 정밀도 손실이 발생할 수 있습니다.
  *
  * ```kotlin
- * check(intArrayListOf(2, 3, 4).product() == 24.0)
- * check(intArrayListOf().product() == 1.0)
+ * // intArrayListOf(2, 3, 4).product() == 24.0
+ * // intArrayListOf().product() == 1.0
  * ```
  */
 fun IntIterable.product(): Double = asIterable().fold(1.0) { acc, i -> acc * i }
@@ -377,8 +377,8 @@ fun IntIterable.product(): Double = asIterable().fold(1.0) { acc, i -> acc * i }
  *
  * ```kotlin
  * val list = intArrayOf(1, 2).toFastList()
- * check(list.size == 2)
- * check(list[1] == 2)
+ * // list.size == 2
+ * // list[1] == 2
  * ```
  */
 fun IntArray.toFastList(): FastList<Int> = asIterable().toFastList()

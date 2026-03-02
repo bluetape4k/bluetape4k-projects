@@ -7,7 +7,7 @@ package io.bluetape4k.support
  *
  * ```
  * val lazyValue: String by unsafeLazy {
- *    println("computed!")
+ *    // "computed!"
  *    Thread.sleep(1000)
  *    "Hello"
  * }
@@ -24,7 +24,7 @@ fun <T> unsafeLazy(@BuilderInference initializer: () -> T): Lazy<T> =
  *
  * ```
  * val lazyValue: String by publicLazy {
- *   println("computed!")
+ *   // "computed!"
  *   Thread.sleep(1000)
  *   "Hello"
  * }

@@ -15,8 +15,8 @@ import java.util.stream.Stream
  *
  * ```kotlin
  * val set = emptyFixedSet<Int>()
- * check(set.isEmpty)
- * check(set.toSet().isEmpty())
+ * // set.isEmpty
+ * // set.toSet().isEmpty()
  * ```
  */
 fun <T> emptyFixedSet(): FixedSizeSet<T> = Sets.fixedSize.empty<T>()
@@ -31,7 +31,7 @@ fun <T> emptyFixedSet(): FixedSizeSet<T> = Sets.fixedSize.empty<T>()
  * ```kotlin
  * val set = emptyUnifiedSet<Int>()
  * set.add(1)
- * check(set.contains(1))
+ * // set.contains(1)
  * ```
  */
 fun <T> emptyUnifiedSet(): UnifiedSet<T> = UnifiedSet.newSet<T>()
@@ -46,8 +46,8 @@ fun <T> emptyUnifiedSet(): UnifiedSet<T> = UnifiedSet.newSet<T>()
  *
  * ```kotlin
  * val set = unifiedSet(3) { it % 2 }
- * check(set.size == 2)
- * check(set.contains(0))
+ * // set.size == 2
+ * // set.contains(0)
  * ```
  */
 inline fun <T> unifiedSet(
@@ -69,8 +69,8 @@ inline fun <T> unifiedSet(
  *
  * ```kotlin
  * val set = unifiedSetOf(1, 1, 2)
- * check(set.size == 2)
- * check(set.contains(2))
+ * // set.size == 2
+ * // set.contains(2)
  * ```
  */
 fun <T> unifiedSetOf(vararg elements: T): UnifiedSet<T> =
@@ -86,8 +86,8 @@ fun <T> unifiedSetOf(vararg elements: T): UnifiedSet<T> =
  *
  * ```kotlin
  * val set = unifiedSetOf<Int>(16)
- * check(set.isEmpty())
- * check(set is UnifiedSet<Int>)
+ * // set.isEmpty()
+ * // set is UnifiedSet<Int>
  * ```
  */
 fun <T> unifiedSetOf(size: Int): UnifiedSet<T> = UnifiedSet.newSet<T>(size)
@@ -102,8 +102,8 @@ fun <T> unifiedSetOf(size: Int): UnifiedSet<T> = UnifiedSet.newSet<T>(size)
  *
  * ```kotlin
  * val out = listOf(1, 1, 2).toUnifiedSet()
- * check(out.size == 2)
- * check(out.contains(1))
+ * // out.size == 2
+ * // out.contains(1)
  * ```
  */
 fun <T> Iterable<T>.toUnifiedSet(destination: UnifiedSet<T> = UnifiedSet.newSet()): UnifiedSet<T> {
@@ -132,8 +132,8 @@ fun <T> Iterable<T>.toUnifiedSet(destination: UnifiedSet<T> = UnifiedSet.newSet(
  *
  * ```kotlin
  * val out = sequenceOf(1, 1, 2).toUnifiedSet()
- * check(out.size == 2)
- * check(out.contains(2))
+ * // out.size == 2
+ * // out.contains(2)
  * ```
  */
 fun <T> Sequence<T>.toUnifiedSet(destination: UnifiedSet<T> = UnifiedSet.newSet()): UnifiedSet<T> =
@@ -149,8 +149,8 @@ fun <T> Sequence<T>.toUnifiedSet(destination: UnifiedSet<T> = UnifiedSet.newSet(
  *
  * ```kotlin
  * val out = listOf(1, 1, 2).iterator().toUnifiedSet()
- * check(out.size == 2)
- * check(out.contains(1))
+ * // out.size == 2
+ * // out.contains(1)
  * ```
  */
 fun <T> Iterator<T>.toUnifiedSet(destination: UnifiedSet<T> = UnifiedSet.newSet()): UnifiedSet<T> =
@@ -166,8 +166,8 @@ fun <T> Iterator<T>.toUnifiedSet(destination: UnifiedSet<T> = UnifiedSet.newSet(
  *
  * ```kotlin
  * val out = arrayOf(1, 1, 2).toUnifiedSet()
- * check(out.size == 2)
- * check(out.contains(2))
+ * // out.size == 2
+ * // out.contains(2)
  * ```
  */
 fun <T> Array<T>.toUnifiedSet(destination: UnifiedSet<T> = UnifiedSet.newSet()): UnifiedSet<T> =
@@ -183,8 +183,8 @@ fun <T> Array<T>.toUnifiedSet(destination: UnifiedSet<T> = UnifiedSet.newSet()):
  *
  * ```kotlin
  * val out = Stream.of(1, 1, 2).toUnifiedSet()
- * check(out.size == 2)
- * check(out.contains(1))
+ * // out.size == 2
+ * // out.contains(1)
  * ```
  */
 fun <T> Stream<T>.toUnifiedSet(destination: UnifiedSet<T> = UnifiedSet.newSet()): UnifiedSet<T> =

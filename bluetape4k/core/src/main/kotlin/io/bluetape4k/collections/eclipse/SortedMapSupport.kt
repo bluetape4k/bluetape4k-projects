@@ -14,8 +14,8 @@ import org.eclipse.collections.api.map.sorted.MutableSortedMap
  *
  * ```kotlin
  * val map = emptyImmutableSortedMap<Int, String>()
- * check(map.isEmpty)
- * check(map.toMap().isEmpty())
+ * // map.isEmpty
+ * // map.toMap().isEmpty()
  * ```
  */
 fun <K: Comparable<K>, V> emptyImmutableSortedMap(): ImmutableSortedMap<K, V> = SortedMaps.immutable.empty<K, V>()
@@ -30,7 +30,7 @@ fun <K: Comparable<K>, V> emptyImmutableSortedMap(): ImmutableSortedMap<K, V> = 
  * ```kotlin
  * val map = emptyMutableSortedMap<Int, String>()
  * map[1] = "a"
- * check(map.containsKey(1))
+ * // map.containsKey(1)
  * ```
  */
 fun <K: Comparable<K>, V> emptyMutableSortedMap(): MutableSortedMap<K, V> = SortedMaps.mutable.empty<K, V>()
@@ -45,8 +45,8 @@ fun <K: Comparable<K>, V> emptyMutableSortedMap(): MutableSortedMap<K, V> = Sort
  *
  * ```kotlin
  * val map = mutableSortedMap(2) { it to "v$it" }
- * check(map.size == 2)
- * check(map[0] == "v0")
+ * // map.size == 2
+ * // map[0] == "v0"
  * ```
  */
 inline fun <K: Comparable<K>, V> mutableSortedMap(
@@ -69,8 +69,8 @@ inline fun <K: Comparable<K>, V> mutableSortedMap(
  *
  * ```kotlin
  * val map = mutableSortedMapOf(2 to "b", 1 to "a")
- * check(map.firstKey() == 1)
- * check(map[2] == "b")
+ * // map.firstKey() == 1
+ * // map[2] == "b"
  * ```
  */
 fun <K: Comparable<K>, V> mutableSortedMapOf(
@@ -92,8 +92,8 @@ fun <K: Comparable<K>, V> mutableSortedMapOf(
  *
  * ```kotlin
  * val map = mutableSortedMapOf(1 to "a", 2 to "b", comparator = compareByDescending { it })
- * check(map.firstKey() == 2)
- * check(map[1] == "a")
+ * // map.firstKey() == 2
+ * // map[1] == "a"
  * ```
  */
 fun <K: Comparable<K>, V> mutableSortedMapOf(
@@ -116,8 +116,8 @@ fun <K: Comparable<K>, V> mutableSortedMapOf(
  *
  * ```kotlin
  * val map = mapOf(2 to "b", 1 to "a").toMutableSortedMap()
- * check(map.firstKey() == 1)
- * check(map.size == 2)
+ * // map.firstKey() == 1
+ * // map.size == 2
  * ```
  */
 fun <K: Comparable<K>, V> Map<K, V>.toMutableSortedMap(): MutableSortedMap<K, V> = when (this) {
@@ -135,8 +135,8 @@ fun <K: Comparable<K>, V> Map<K, V>.toMutableSortedMap(): MutableSortedMap<K, V>
  *
  * ```kotlin
  * val out = listOf(2 to "b", 1 to "a").toMutableSortedMap()
- * check(out.firstKey() == 1)
- * check(out[2] == "b")
+ * // out.firstKey() == 1
+ * // out[2] == "b"
  * ```
  */
 @JvmName("toMutableSortedMapFromIterablePairToDest")
@@ -159,8 +159,8 @@ fun <K: Comparable<K>, V> Iterable<Pair<K, V>>.toMutableSortedMap(
  *
  * ```kotlin
  * val out = listOf(1 to "a", 2 to "b").toMutableSortedMap(compareByDescending { it })
- * check(out.firstKey() == 2)
- * check(out[1] == "a")
+ * // out.firstKey() == 2
+ * // out[1] == "a"
  * ```
  */
 @JvmName("toMutableSortedMapFromIterablePairWithComparator")
@@ -184,8 +184,8 @@ fun <K: Comparable<K>, V> Iterable<Pair<K, V>>.toMutableSortedMap(
  *
  * ```kotlin
  * val out = sequenceOf(2 to "b", 1 to "a").toMutableSortedMap()
- * check(out.firstKey() == 1)
- * check(out.size == 2)
+ * // out.firstKey() == 1
+ * // out.size == 2
  * ```
  */
 @JvmName("toMutableSortedMapFromSequencePairToDest")
@@ -204,8 +204,8 @@ fun <K: Comparable<K>, V> Sequence<Pair<K, V>>.toMutableSortedMap(
  *
  * ```kotlin
  * val out = sequenceOf(1 to "a", 2 to "b").toMutableSortedMap(compareByDescending { it })
- * check(out.firstKey() == 2)
- * check(out.size == 2)
+ * // out.firstKey() == 2
+ * // out.size == 2
  * ```
  */
 @JvmName("toMutableSortedMapFromSequencePairWithComparator")
@@ -224,8 +224,8 @@ fun <K: Comparable<K>, V> Sequence<Pair<K, V>>.toMutableSortedMap(
  *
  * ```kotlin
  * val out = listOf(2 to "b", 1 to "a").iterator().toMutableSortedMap()
- * check(out.firstKey() == 1)
- * check(out.size == 2)
+ * // out.firstKey() == 1
+ * // out.size == 2
  * ```
  */
 @JvmName("toMutableSortedMapFromSequencePairToDest")
@@ -244,8 +244,8 @@ fun <K: Comparable<K>, V> Iterator<Pair<K, V>>.toMutableSortedMap(
  *
  * ```kotlin
  * val out = listOf(1 to "a", 2 to "b").iterator().toMutableSortedMap(compareByDescending { it })
- * check(out.firstKey() == 2)
- * check(out.size == 2)
+ * // out.firstKey() == 2
+ * // out.size == 2
  * ```
  */
 @JvmName("toMutableSortedMapFromIteratorPairWithComparator")
@@ -264,8 +264,8 @@ fun <K: Comparable<K>, V> Iterator<Pair<K, V>>.toMutableSortedMap(
  *
  * ```kotlin
  * val out = arrayOf(2 to "b", 1 to "a").toMutableSortedMap()
- * check(out.firstKey() == 1)
- * check(out.size == 2)
+ * // out.firstKey() == 1
+ * // out.size == 2
  * ```
  */
 @JvmName("toMutableSortedMapFromArrayPairToDest")
@@ -284,8 +284,8 @@ fun <K: Comparable<K>, V> Array<Pair<K, V>>.toMutableSortedMap(
  *
  * ```kotlin
  * val out = arrayOf(1 to "a", 2 to "b").toMutableSortedMap(compareByDescending { it })
- * check(out.firstKey() == 2)
- * check(out.size == 2)
+ * // out.firstKey() == 2
+ * // out.size == 2
  * ```
  */
 @JvmName("toMutableSortedMapFromArrayPairWithComparator")

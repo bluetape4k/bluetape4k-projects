@@ -49,9 +49,9 @@ inline fun virtualThreadFactory(
  * ```
  * val thread = virtualThread(start = true, name = "virtual-thread") {
  *      // work something
- *      println("Hello, Virtual Thread!")
+ *      // "Hello, Virtual Thread!"
  *      Thread.sleep(1000)
- *      println("Goodbye, Virtual Thread!")
+ *      // "Goodbye, Virtual Thread!"
  *      42
  * }
  * val result = thread.join() // 42
@@ -86,9 +86,9 @@ fun virtualThread(
  * ```
  * val thread = virtualThread(start = true, prefix = "virtual-thread-", startIndex = 0) {
  *     // work something
- *     println("Hello, Virtual Thread!")
+ *     // "Hello, Virtual Thread!"
  *     Thread.sleep(1000)
- *     println("Goodbye, Virtual Thread!")
+ *     // "Goodbye, Virtual Thread!"
  *     42
  * }
  * val result = thread.join() // 42

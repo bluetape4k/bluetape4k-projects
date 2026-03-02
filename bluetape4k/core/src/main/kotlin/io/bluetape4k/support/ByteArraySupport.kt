@@ -14,9 +14,8 @@ import java.util.*
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::byteArrayOf
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = byteArrayOf(1, 2, 3)
+ * // result.size == 3
  * ```
  */
 inline fun <T: Number> byteArrayOf(vararg elements: T): ByteArray =

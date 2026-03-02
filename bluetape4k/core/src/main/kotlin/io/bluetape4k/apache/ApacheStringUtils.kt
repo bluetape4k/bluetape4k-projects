@@ -485,9 +485,8 @@ fun CharSequence.countMatches(sub: CharSequence): Int =
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::defaultIfWhitespace
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = "   ".defaultIfWhitespace("fallback")
+ * // result == "fallback"
  * ```
  */
 fun <T: CharSequence> T.defaultIfWhitespace(defaultValue: T): T = this.ifBlank { defaultValue }
@@ -501,9 +500,8 @@ fun <T: CharSequence> T.defaultIfWhitespace(defaultValue: T): T = this.ifBlank {
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::defaultIfEmpty
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = "".defaultIfEmpty("fallback")
+ * // result == "fallback"
  * ```
  */
 fun <T: CharSequence> T.defaultIfEmpty(defaultValue: T): T = this.ifEmpty { defaultValue }
@@ -562,9 +560,8 @@ fun String.deference(other: String): String = StringUtils.difference(this, other
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::endsWithAny
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = "readme.md".endsWithAny(".txt", ".md")
+ * // result == true
  * ```
  */
 fun String.endsWithAny(vararg searchStrings: String): Boolean = Strings.CS.endsWithAny(this, *searchStrings)
@@ -578,9 +575,8 @@ fun String.endsWithAny(vararg searchStrings: String): Boolean = Strings.CS.endsW
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::endsWithIgnoreCase
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = "README.MD".endsWithIgnoreCase("md")
+ * // result == true
  * ```
  */
 fun String.endsWithIgnoreCase(suffix: CharSequence): Boolean = Strings.CI.endsWith(this, suffix)
@@ -727,9 +723,8 @@ fun CharSequence.indexOfDifference(other: CharSequence?): Int = StringUtils.inde
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::indexOfIgnoreCase
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = "Hello".indexOfIgnoreCase("he")
+ * // result == 0
  * ```
  */
 fun CharSequence.indexOfIgnoreCase(searchStr: CharSequence, startPos: Int = 0): Int =

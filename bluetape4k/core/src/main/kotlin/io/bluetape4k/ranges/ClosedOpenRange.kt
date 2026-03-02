@@ -69,9 +69,8 @@ fun <T: Comparable<T>> closedOpenRangeOf(start: T, end: T): ClosedOpenRange<T> =
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::until
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val range = 1 until 4
+ * // 1 in range && 4 !in range
  * ```
  */
 infix fun <T: Comparable<T>> T.until(endExclusive: T): ClosedOpenRange<T> =

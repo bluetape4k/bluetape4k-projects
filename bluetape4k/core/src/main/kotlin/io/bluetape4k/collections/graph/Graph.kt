@@ -15,8 +15,8 @@ import kotlinx.coroutines.flow.toList
  *
  * ```kotlin
  * val type = Graph::class
- * println(type.simpleName)
- * check(type.simpleName != null)
+ * // type.simpleName
+ * // type.simpleName != null
  * ```
  */
 object Graph {

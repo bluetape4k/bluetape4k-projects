@@ -11,9 +11,8 @@ package io.bluetape4k.support
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::longArrayOf
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = longArrayOf(1L, 2L)
+ * // result.size == 2
  * ```
  */
 inline fun <T: Number> longArrayOf(vararg elements: T): LongArray =
@@ -144,7 +143,7 @@ fun LongArray.lastIndexOf(target: LongArray, start: Int = 0, end: Int = size - 1
  * ```
  * val array = longArrayOf(1, 2, 3)
  * val newArray = array.ensureCapacity(5, 2)
- * println(newArray.contentToString()) // [1, 2, 3, 0, 0]
+ * // newArray.contentToString() == [1, 2, 3, 0, 0]
  * ```
  *
  * @param minCapacity 최소 크기
@@ -195,7 +194,7 @@ fun concat(vararg arrays: LongArray): LongArray {
  * ```
  * val array = longArrayOf(1, 2, 3, 4)
  * val reversed = array.reverseTo(1, 3)
- * println(reversed.contentToString()) // [1, 4, 3, 2]
+ * // reversed.contentToString() == [1, 4, 3, 2]
  * ```
  *
  * @param fromIndex 시작 인덱스 (0부터 시작)

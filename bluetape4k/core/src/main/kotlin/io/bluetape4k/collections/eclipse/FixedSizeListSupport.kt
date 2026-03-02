@@ -14,8 +14,8 @@ import java.util.stream.Stream
  *
  * ```kotlin
  * val list = emptyFixedSizeList<Int>()
- * check(list.isEmpty)
- * check(list.toList().isEmpty())
+ * // list.isEmpty
+ * // list.toList().isEmpty()
  * ```
  */
 fun <T> emptyFixedSizeList(): FixedSizeList<T> = Lists.fixedSize.empty<T>()
@@ -30,8 +30,8 @@ fun <T> emptyFixedSizeList(): FixedSizeList<T> = Lists.fixedSize.empty<T>()
  *
  * ```kotlin
  * val list = fixedSizeList(3) { it + 1 }
- * check(list.size() == 3)
- * check(list[0] == 1)
+ * // list.size() == 3
+ * // list[0] == 1
  * ```
  */
 inline fun <T> fixedSizeList(
@@ -50,8 +50,8 @@ inline fun <T> fixedSizeList(
  *
  * ```kotlin
  * val list = fixedSizeListOf(1, 2, 3)
- * check(list.size() == 3)
- * check(list[2] == 3)
+ * // list.size() == 3
+ * // list[2] == 3
  * ```
  */
 fun <T> fixedSizeListOf(vararg elements: T): FixedSizeList<T> {
@@ -68,8 +68,8 @@ fun <T> fixedSizeListOf(vararg elements: T): FixedSizeList<T> {
  *
  * ```kotlin
  * val list = listOf(1, 2).toFixedSizeList()
- * check(list.size() == 2)
- * check(list[1] == 2)
+ * // list.size() == 2
+ * // list[1] == 2
  * ```
  */
 fun <T> Iterable<T>.toFixedSizeList(): FixedSizeList<T> = Lists.fixedSize.ofAll<T>(this)
@@ -83,8 +83,8 @@ fun <T> Iterable<T>.toFixedSizeList(): FixedSizeList<T> = Lists.fixedSize.ofAll<
  *
  * ```kotlin
  * val list = sequenceOf(1, 2).toFixedSizeList()
- * check(list.size() == 2)
- * check(list[0] == 1)
+ * // list.size() == 2
+ * // list[0] == 1
  * ```
  */
 fun <T> Sequence<T>.toFixedSizeList(): FixedSizeList<T> = Lists.fixedSize.ofAll<T>(this.asIterable())
@@ -98,8 +98,8 @@ fun <T> Sequence<T>.toFixedSizeList(): FixedSizeList<T> = Lists.fixedSize.ofAll<
  *
  * ```kotlin
  * val list = listOf(1, 2).iterator().toFixedSizeList()
- * check(list.size() == 2)
- * check(list[1] == 2)
+ * // list.size() == 2
+ * // list[1] == 2
  * ```
  */
 fun <T> Iterator<T>.toFixedSizeList(): FixedSizeList<T> = Lists.fixedSize.ofAll<T>(this.asIterable())
@@ -113,8 +113,8 @@ fun <T> Iterator<T>.toFixedSizeList(): FixedSizeList<T> = Lists.fixedSize.ofAll<
  *
  * ```kotlin
  * val list = arrayOf(1, 2).toFixedSizeList()
- * check(list.size() == 2)
- * check(list[0] == 1)
+ * // list.size() == 2
+ * // list[0] == 1
  * ```
  */
 fun <T> Array<T>.toFixedSizeList(): FixedSizeList<T> = Lists.fixedSize.ofAll<T>(this.asIterable())
@@ -128,8 +128,8 @@ fun <T> Array<T>.toFixedSizeList(): FixedSizeList<T> = Lists.fixedSize.ofAll<T>(
  *
  * ```kotlin
  * val list = Stream.of(1, 2).toFixedSizeList()
- * check(list.size() == 2)
- * check(list[1] == 2)
+ * // list.size() == 2
+ * // list[1] == 2
  * ```
  */
 fun <T> Stream<T>.toFixedSizeList(): FixedSizeList<T> = Lists.fixedSize.ofAll<T>(this.asIterable())

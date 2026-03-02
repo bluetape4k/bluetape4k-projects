@@ -19,8 +19,8 @@ import org.eclipse.collections.impl.list.mutable.primitive.FloatArrayList
  *
  * ```kotlin
  * val list = floatArrayOf(1, 2).toFloatArrayList()
- * check(list.size() == 2)
- * check(list[0] == 1.0f)
+ * // list.size() == 2
+ * // list[0] == 1.0f
  * ```
  */
 fun FloatArray.toFloatArrayList(): FloatArrayList =
@@ -36,8 +36,8 @@ fun FloatArray.toFloatArrayList(): FloatArrayList =
  *
  * ```kotlin
  * val list = listOf<Float>(1, 2).toFloatArrayList()
- * check(list.size() == 2)
- * check(list[1] == 2.0f)
+ * // list.size() == 2
+ * // list[1] == 2.0f
  * ```
  */
 fun Iterable<Float>.toFloatArrayList(): FloatArrayList =
@@ -60,8 +60,8 @@ fun Iterable<Float>.toFloatArrayList(): FloatArrayList =
  *
  * ```kotlin
  * val list = sequenceOf<Float>(1, 2).toFloatArrayList()
- * check(list.size() == 2)
- * check(list[0] == 1.0f)
+ * // list.size() == 2
+ * // list[0] == 1.0f
  * ```
  */
 fun Sequence<Float>.toFloatArrayList(): FloatArrayList = asIterable().toFloatArrayList()
@@ -76,8 +76,8 @@ fun Sequence<Float>.toFloatArrayList(): FloatArrayList = asIterable().toFloatArr
  *
  * ```kotlin
  * val list = listOf(1, 2.0f, 3.0).asFloatArrayList()
- * check(list.size() == 3)
- * check(list[2] == 3.0f)
+ * // list.size() == 3
+ * // list[2] == 3.0f
  * ```
  */
 fun Iterable<Number>.asFloatArrayList() = when (this) {
@@ -99,8 +99,8 @@ fun Iterable<Number>.asFloatArrayList() = when (this) {
  *
  * ```kotlin
  * val list = floatArrayList(2) { (it + 1).toFloat() }
- * check(list.size() == 2)
- * check(list[0] == 1.0f)
+ * // list.size() == 2
+ * // list[0] == 1.0f
  * ```
  */
 inline fun floatArrayList(
@@ -125,8 +125,8 @@ inline fun floatArrayList(
  *
  * ```kotlin
  * val list = floatArrayListOf(1, 2)
- * check(list.size() == 2)
- * check(list[1] == 2.0f)
+ * // list.size() == 2
+ * // list[1] == 2.0f
  * ```
  */
 fun floatArrayListOf(vararg elements: Float): FloatArrayList =
@@ -142,8 +142,8 @@ fun floatArrayListOf(vararg elements: Float): FloatArrayList =
  *
  * ```kotlin
  * val list = floatArrayListOf(1, 2).toFloatArrayList()
- * check(list.size() == 2)
- * check(list[0] == 1.0f)
+ * // list.size() == 2
+ * // list[0] == 1.0f
  * ```
  */
 fun FloatIterable.toFloatArrayList(): FloatArrayList = when (this) {
@@ -161,8 +161,8 @@ fun FloatIterable.toFloatArrayList(): FloatArrayList = when (this) {
  *
  * ```kotlin
  * val iter = floatArrayListOf(1, 2).asIterator()
- * check(iter.hasNext())
- * check(iter.next() == 1.0f)
+ * // iter.hasNext()
+ * // iter.next() == 1.0f
  * ```
  */
 fun FloatIterable.asIterator(): Iterator<Float> = object: Iterator<Float> {
@@ -181,8 +181,8 @@ fun FloatIterable.asIterator(): Iterator<Float> = object: Iterator<Float> {
  *
  * ```kotlin
  * val seq = floatArrayListOf(1, 2).asSequence()
- * check(seq.count() == 2)
- * check(seq.first() == 1.0f)
+ * // seq.count() == 2
+ * // seq.first() == 1.0f
  * ```
  */
 fun FloatIterable.asSequence(): Sequence<Float> = sequence {
@@ -202,8 +202,8 @@ fun FloatIterable.asSequence(): Sequence<Float> = sequence {
  *
  * ```kotlin
  * val iterable = floatArrayListOf(1, 2).asIterable()
- * check(iterable.count() == 2)
- * check(iterable.first() == 1.0f)
+ * // iterable.count() == 2
+ * // iterable.first() == 1.0f
  * ```
  */
 fun FloatIterable.asIterable(): Iterable<Float> = Iterable { asIterator() }
@@ -218,8 +218,8 @@ fun FloatIterable.asIterable(): Iterable<Float> = Iterable { asIterator() }
  *
  * ```kotlin
  * val list = floatArrayListOf(1, 2).asList()
- * check(list == listOf<Float>(1, 2))
- * check(list.size == 2)
+ * // list == listOf<Float>(1, 2)
+ * // list.size == 2
  * ```
  */
 fun FloatIterable.asList() = asIterable().toList()
@@ -234,8 +234,8 @@ fun FloatIterable.asList() = asIterable().toList()
  *
  * ```kotlin
  * val list = floatArrayListOf(1, 2).asMutableList()
- * check(list.size == 2)
- * check(list[1] == 2.0f)
+ * // list.size == 2
+ * // list[1] == 2.0f
  * ```
  */
 fun FloatIterable.asMutableList() = asIterable().toMutableList()
@@ -250,8 +250,8 @@ fun FloatIterable.asMutableList() = asIterable().toMutableList()
  *
  * ```kotlin
  * val set = floatArrayListOf(1, 1, 2).asSet()
- * check(set.size == 2)
- * check(1.0f in set)
+ * // set.size == 2
+ * // 1.0f in set
  * ```
  */
 fun FloatIterable.asSet() = asIterable().toSet()
@@ -266,8 +266,8 @@ fun FloatIterable.asSet() = asIterable().toSet()
  *
  * ```kotlin
  * val set = floatArrayListOf(1, 1, 2).asMutableSet()
- * check(set.size == 2)
- * check(2.0f in set)
+ * // set.size == 2
+ * // 2.0f in set
  * ```
  */
 fun FloatIterable.asMutableSet() = asIterable().toMutableSet()
@@ -282,8 +282,8 @@ fun FloatIterable.asMutableSet() = asIterable().toMutableSet()
  *
  * ```kotlin
  * val list = floatArrayListOf(1, 2).toFastList()
- * check(list.size == 2)
- * check(list[0] == 1.0f)
+ * // list.size == 2
+ * // list[0] == 1.0f
  * ```
  */
 fun FloatIterable.toFastList() = asIterable().toFastList()
@@ -298,8 +298,8 @@ fun FloatIterable.toFastList() = asIterable().toFastList()
  *
  * ```kotlin
  * val set = floatArrayListOf(1, 1, 2).toUnifiedSet()
- * check(set.size == 2)
- * check(set.contains(1.0f))
+ * // set.size == 2
+ * // set.contains(1.0f)
  * ```
  */
 fun FloatIterable.toUnifiedSet() = asIterable().toUnifiedSet()
@@ -314,8 +314,8 @@ fun FloatIterable.toUnifiedSet() = asIterable().toUnifiedSet()
  *
  * ```kotlin
  * val list = floatArrayListOf(1, 2).toFixedSizeList()
- * check(list.size == 2)
- * check(list[1] == 2.0f)
+ * // list.size == 2
+ * // list[1] == 2.0f
  * ```
  */
 fun FloatIterable.toFixedSizeList() = asIterable().toFixedSizeList()
@@ -329,8 +329,8 @@ fun FloatIterable.toFixedSizeList() = asIterable().toFixedSizeList()
  * - 수신 iterable은 mutate 하지 않습니다.
  *
  * ```kotlin
- * check(floatArrayListOf(1, 3).maxOrNull() == 3.0f)
- * check(floatArrayListOf().maxOrNull() == null)
+ * // floatArrayListOf(1, 3).maxOrNull() == 3.0f
+ * // floatArrayListOf().maxOrNull() == null
  * ```
  */
 fun FloatIterable.maxOrNull() = if (isEmpty) null else max()
@@ -344,8 +344,8 @@ fun FloatIterable.maxOrNull() = if (isEmpty) null else max()
  * - 수신 iterable은 mutate 하지 않습니다.
  *
  * ```kotlin
- * check(floatArrayListOf(1, 3).minOrNull() == 1.0f)
- * check(floatArrayListOf().minOrNull() == null)
+ * // floatArrayListOf(1, 3).minOrNull() == 1.0f
+ * // floatArrayListOf().minOrNull() == null
  * ```
  */
 fun FloatIterable.minOrNull() = if (isEmpty) null else min()
@@ -359,8 +359,8 @@ fun FloatIterable.minOrNull() = if (isEmpty) null else min()
  * - 누적 타입이 `Double`이므로 정밀도 손실이 발생할 수 있습니다.
  *
  * ```kotlin
- * check(floatArrayListOf(2, 3).product() == 6.0)
- * check(floatArrayListOf().product() == 1.0)
+ * // floatArrayListOf(2, 3).product() == 6.0
+ * // floatArrayListOf().product() == 1.0
  * ```
  */
 fun FloatIterable.product(): Double = asIterable().fold(1.0) { acc, i -> acc * i }
@@ -375,8 +375,8 @@ fun FloatIterable.product(): Double = asIterable().fold(1.0) { acc, i -> acc * i
  *
  * ```kotlin
  * val list = floatArrayOf(1, 2).toFastList()
- * check(list.size == 2)
- * check(list[1] == 2.0f)
+ * // list.size == 2
+ * // list[1] == 2.0f
  * ```
  */
 fun FloatArray.toFastList(): FastList<Float> = asIterable().toFastList()

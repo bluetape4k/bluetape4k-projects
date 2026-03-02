@@ -27,7 +27,7 @@ private const val KOREAN_END = 0xD7AF
  * ```kotlin
  * val ga = '가'.code in KOREAN_RANGE
  * val hih = '힣'.code in KOREAN_RANGE
- * check(ga && hih)
+ * // ga && hih
  * ```
  */
 val KOREAN_RANGE = KOREAN_START..KOREAN_END

@@ -26,8 +26,8 @@ import org.eclipse.collections.impl.multimap.set.UnifiedSetMultimap
  *
  * ```kotlin
  * val mm = emptyImmutableListMultimap<String, Int>()
- * check(mm.isEmpty)
- * check(mm.toMutable().isEmpty)
+ * // mm.isEmpty
+ * // mm.toMutable().isEmpty
  * ```
  */
 fun <K, V> emptyImmutableListMultimap(): ImmutableListMultimap<K, V> = Multimaps.immutable.list.empty<K, V>()
@@ -42,8 +42,8 @@ fun <K, V> emptyImmutableListMultimap(): ImmutableListMultimap<K, V> = Multimaps
  *
  * ```kotlin
  * val mm = emptyImmutableSetMultimap<String, Int>()
- * check(mm.isEmpty)
- * check(mm.toMutable().isEmpty)
+ * // mm.isEmpty
+ * // mm.toMutable().isEmpty
  * ```
  */
 fun <K, V> emptyImmutableSetMultimap(): ImmutableSetMultimap<K, V> = Multimaps.immutable.set.empty<K, V>()
@@ -58,8 +58,8 @@ fun <K, V> emptyImmutableSetMultimap(): ImmutableSetMultimap<K, V> = Multimaps.i
  *
  * ```kotlin
  * val mm = emptyImmutableBagMultimap<String, Int>()
- * check(mm.isEmpty)
- * check(mm.toMutable().isEmpty)
+ * // mm.isEmpty
+ * // mm.toMutable().isEmpty
  * ```
  */
 fun <K, V> emptyImmutableBagMultimap(): ImmutableBagMultimap<K, V> = Multimaps.immutable.bag.empty<K, V>()
@@ -74,8 +74,8 @@ fun <K, V> emptyImmutableBagMultimap(): ImmutableBagMultimap<K, V> = Multimaps.i
  *
  * ```kotlin
  * val mm = emptyImmutableSortedSetMultimap<String, Int>()
- * check(mm.isEmpty)
- * check(mm.toMutable().isEmpty)
+ * // mm.isEmpty
+ * // mm.toMutable().isEmpty
  * ```
  */
 fun <K, V: Comparable<V>> emptyImmutableSortedSetMultimap(): ImmutableSortedSetMultimap<K, V> =
@@ -91,8 +91,8 @@ fun <K, V: Comparable<V>> emptyImmutableSortedSetMultimap(): ImmutableSortedSetM
  *
  * ```kotlin
  * val mm = emptyImmutableSortedBagMultimap<String, Int>()
- * check(mm.isEmpty)
- * check(mm.toMutable().isEmpty)
+ * // mm.isEmpty
+ * // mm.toMutable().isEmpty
  * ```
  */
 fun <K, V: Comparable<V>> emptyImmutableSortedBagMultimap(): ImmutableSortedBagMultimap<K, V> =
@@ -109,7 +109,7 @@ fun <K, V: Comparable<V>> emptyImmutableSortedBagMultimap(): ImmutableSortedBagM
  * ```kotlin
  * val mm = emptyMutableListMultimap<String, Int>()
  * mm.put("a", 1)
- * check(mm["a"].contains(1))
+ * // mm["a"].contains(1)
  * ```
  */
 fun <K, V> emptyMutableListMultimap(): MutableListMultimap<K, V> = Multimaps.mutable.list.empty<K, V>()
@@ -125,7 +125,7 @@ fun <K, V> emptyMutableListMultimap(): MutableListMultimap<K, V> = Multimaps.mut
  * ```kotlin
  * val mm = emptyMutableSetMultimap<String, Int>()
  * mm.put("a", 1)
- * check(mm["a"].contains(1))
+ * // mm["a"].contains(1)
  * ```
  */
 fun <K, V> emptyMutableSetMultimap(): MutableSetMultimap<K, V> = Multimaps.mutable.set.empty<K, V>()
@@ -141,7 +141,7 @@ fun <K, V> emptyMutableSetMultimap(): MutableSetMultimap<K, V> = Multimaps.mutab
  * ```kotlin
  * val mm = emptyMutableBagMultimap<String, Int>()
  * mm.put("a", 1)
- * check(mm["a"].contains(1))
+ * // mm["a"].contains(1)
  * ```
  */
 fun <K, V> emptyMutableBagMultimap(): MutableBagMultimap<K, V> = Multimaps.mutable.bag.empty<K, V>()
@@ -157,8 +157,8 @@ fun <K, V> emptyMutableBagMultimap(): MutableBagMultimap<K, V> = Multimaps.mutab
  *
  * ```kotlin
  * val mm = listMultimapOf("a" to 1, "a" to 2)
- * check(mm["a"].size == 2)
- * check(mm["a"].contains(1))
+ * // mm["a"].size == 2
+ * // mm["a"].contains(1)
  * ```
  */
 fun <K, V> listMultimapOf(vararg pairs: Pair<K, V>): MutableListMultimap<K, V> =
@@ -176,8 +176,8 @@ fun <K, V> listMultimapOf(vararg pairs: Pair<K, V>): MutableListMultimap<K, V> =
  *
  * ```kotlin
  * val mm = setMultimapOf("a" to 1, "a" to 1)
- * check(mm["a"].size == 1)
- * check(mm["a"].contains(1))
+ * // mm["a"].size == 1
+ * // mm["a"].contains(1)
  * ```
  */
 fun <K, V> setMultimapOf(vararg pairs: Pair<K, V>): MutableSetMultimap<K, V> =
@@ -195,8 +195,8 @@ fun <K, V> setMultimapOf(vararg pairs: Pair<K, V>): MutableSetMultimap<K, V> =
  *
  * ```kotlin
  * val mm = bagMultimapOf("a" to 1, "a" to 1)
- * check(mm["a"].contains(1))
- * check(mm.sizeDistinct == 1)
+ * // mm["a"].contains(1)
+ * // mm.sizeDistinct == 1
  * ```
  */
 fun <K, V> bagMultimapOf(vararg pairs: Pair<K, V>): HashBagMultimap<K, V> =
@@ -214,8 +214,8 @@ fun <K, V> bagMultimapOf(vararg pairs: Pair<K, V>): HashBagMultimap<K, V> =
  *
  * ```kotlin
  * val mm = mapOf("a" to 1).toImmutableListMultimap()
- * check(mm["a"].contains(1))
- * check(mm.isEmpty.not())
+ * // mm["a"].contains(1)
+ * // mm.isEmpty.not()
  * ```
  */
 fun <K, V> Map<K, V>.toImmutableListMultimap(): ImmutableListMultimap<K, V> =
@@ -231,8 +231,8 @@ fun <K, V> Map<K, V>.toImmutableListMultimap(): ImmutableListMultimap<K, V> =
  *
  * ```kotlin
  * val out = mapOf("a" to 1).toListMultimap()
- * check(out["a"].contains(1))
- * check(out.sizeDistinct == 1)
+ * // out["a"].contains(1)
+ * // out.sizeDistinct == 1
  * ```
  */
 fun <K, V> Map<K, V>.toListMultimap(
@@ -254,8 +254,8 @@ fun <K, V> Map<K, V>.toListMultimap(
  *
  * ```kotlin
  * val mm = mapOf("a" to 1).toImmutableSetMultimap()
- * check(mm["a"].contains(1))
- * check(mm.isEmpty.not())
+ * // mm["a"].contains(1)
+ * // mm.isEmpty.not()
  * ```
  */
 fun <K, V> Map<K, V>.toImmutableSetMultimap(): ImmutableSetMultimap<K, V> =
@@ -271,8 +271,8 @@ fun <K, V> Map<K, V>.toImmutableSetMultimap(): ImmutableSetMultimap<K, V> =
  *
  * ```kotlin
  * val out = mapOf("a" to 1).toSetMultimap()
- * check(out["a"].contains(1))
- * check(out.sizeDistinct == 1)
+ * // out["a"].contains(1)
+ * // out.sizeDistinct == 1
  * ```
  */
 fun <K, V> Map<K, V>.toSetMultimap(
@@ -294,8 +294,8 @@ fun <K, V> Map<K, V>.toSetMultimap(
  *
  * ```kotlin
  * val mm = mapOf("a" to 1).toImmutableBagMultimap()
- * check(mm["a"].contains(1))
- * check(mm.isEmpty.not())
+ * // mm["a"].contains(1)
+ * // mm.isEmpty.not()
  * ```
  */
 fun <K, V> Map<K, V>.toImmutableBagMultimap(): ImmutableBagMultimap<K, V> =
@@ -311,8 +311,8 @@ fun <K, V> Map<K, V>.toImmutableBagMultimap(): ImmutableBagMultimap<K, V> =
  *
  * ```kotlin
  * val out = mapOf("a" to 1).toBagMultimap()
- * check(out["a"].contains(1))
- * check(out.sizeDistinct == 1)
+ * // out["a"].contains(1)
+ * // out.sizeDistinct == 1
  * ```
  */
 fun <K, V> Map<K, V>.toBagMultimap(
@@ -335,7 +335,7 @@ fun <K, V> Map<K, V>.toBagMultimap(
  * ```kotlin
  * val src = listMultimapOf("a" to 1, "b" to 2)
  * val out = src.filter { key, _ -> key == "a" }
- * check(out.sizeDistinct == 1)
+ * // out.sizeDistinct == 1
  * ```
  */
 fun <K, V> Multimap<K, V>.filter(predicate: (K, Iterable<V>) -> Boolean): Multimap<K, V> =
@@ -352,7 +352,7 @@ fun <K, V> Multimap<K, V>.filter(predicate: (K, Iterable<V>) -> Boolean): Multim
  * ```kotlin
  * val mm = listMultimapOf("a" to 1, "a" to 2)
  * val out = mm.toList { k, v -> "$k:${v.size}" }
- * check(out.contains("a:2"))
+ * // out.contains("a:2")
  * ```
  *
  * @param mapper 키와 해당 값 컬렉션을 결과 타입으로 변환하는 함수
@@ -371,7 +371,7 @@ inline fun <K, V, R> Multimap<K, V>.toList(mapper: (K, Iterable<V>) -> R): List<
  * ```kotlin
  * val mm = listMultimapOf("a" to 1, "a" to 2, "b" to 3)
  * val out = mm.toSet { _, values -> values.size }
- * check(out.contains(2) && out.contains(1))
+ * // out.contains(2) && out.contains(1)
  * ```
  *
  * @param mapper 키와 해당 값 컬렉션을 결과 타입으로 변환하는 함수
@@ -389,8 +389,8 @@ inline fun <K, V, R> Multimap<K, V>.toSet(mapper: (K, Iterable<V>) -> R): Set<R>
  *
  * ```kotlin
  * val out = listOf("a", "bb").toListMultimap { it.length to it }
- * check(out[1].contains("a"))
- * check(out[2].contains("bb"))
+ * // out[1].contains("a")
+ * // out[2].contains("bb")
  * ```
  *
  * @param destination 결과를 누적할 대상 multimap
@@ -416,8 +416,8 @@ inline fun <T, K, V> Iterable<T>.toListMultimap(
  *
  * ```kotlin
  * val out = listOf("a", "a").toSetMultimap { 1 to it }
- * check(out[1].size == 1)
- * check(out[1].contains("a"))
+ * // out[1].size == 1
+ * // out[1].contains("a")
  * ```
  *
  * @param destination 결과를 누적할 대상 multimap
@@ -443,8 +443,8 @@ inline fun <T, K, V> Iterable<T>.toSetMultimap(
  *
  * ```kotlin
  * val out = listOf("a", "a").toBagMultimap { 1 to it }
- * check(out[1].contains("a"))
- * check(out.sizeDistinct == 1)
+ * // out[1].contains("a")
+ * // out.sizeDistinct == 1
  * ```
  *
  * @param destination 결과를 누적할 대상 multimap
@@ -470,8 +470,8 @@ inline fun <T, K, V> Iterable<T>.toBagMultimap(
  *
  * ```kotlin
  * val out = listOf("a", "bb").groupByListMultimap { it.length }
- * check(out[1].contains("a"))
- * check(out[2].contains("bb"))
+ * // out[1].contains("a")
+ * // out[2].contains("bb")
  * ```
  *
  * @param destination 결과를 누적할 대상 multimap
@@ -494,8 +494,8 @@ inline fun <T, K> Iterable<T>.groupByListMultimap(
  *
  * ```kotlin
  * val out = listOf("a", "a").groupBySetMultimap { it.length }
- * check(out[1].size == 1)
- * check(out[1].contains("a"))
+ * // out[1].size == 1
+ * // out[1].contains("a")
  * ```
  *
  * @param destination 결과를 누적할 대상 multimap
@@ -518,8 +518,8 @@ inline fun <T, K> Iterable<T>.groupBySetMultimap(
  *
  * ```kotlin
  * val out = listOf("a", "a").groupByBagMultimap { it.length }
- * check(out[1].contains("a"))
- * check(out.sizeDistinct == 1)
+ * // out[1].contains("a")
+ * // out.sizeDistinct == 1
  * ```
  *
  * @param destination 결과를 누적할 대상 multimap
@@ -542,8 +542,8 @@ inline fun <T, K> Iterable<T>.groupByBagMultimap(
  *
  * ```kotlin
  * val out = listOf("a" to 1, "a" to 2).toListMultimap()
- * check(out["a"].size == 2)
- * check(out["a"].contains(1))
+ * // out["a"].size == 2
+ * // out["a"].contains(1)
  * ```
  *
  * @param destination 결과를 누적할 대상 multimap
@@ -564,8 +564,8 @@ fun <K, V> Iterable<Pair<K, V>>.toListMultimap(
  *
  * ```kotlin
  * val out = listOf("a" to 1, "a" to 1).toSetMultimap()
- * check(out["a"].size == 1)
- * check(out["a"].contains(1))
+ * // out["a"].size == 1
+ * // out["a"].contains(1)
  * ```
  *
  * @param destination 결과를 누적할 대상 multimap
@@ -586,8 +586,8 @@ fun <K, V> Iterable<Pair<K, V>>.toSetMultimap(
  *
  * ```kotlin
  * val out = listOf("a" to 1, "a" to 1).toBagMultimap()
- * check(out["a"].contains(1))
- * check(out.sizeDistinct == 1)
+ * // out["a"].contains(1)
+ * // out.sizeDistinct == 1
  * ```
  *
  * @param destination 결과를 누적할 대상 multimap

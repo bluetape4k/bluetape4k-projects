@@ -12,8 +12,8 @@ import org.eclipse.collections.impl.multimap.set.sorted.TreeSortedSetMultimap
  *
  * ```kotlin
  * val type = TreeMultimap::class
- * println(type.simpleName)
- * check(type.simpleName != null)
+ * // type.simpleName
+ * // type.simpleName != null
  * ```
  */
 typealias TreeMultimap<K, V> = TreeSortedSetMultimap<K, V>
@@ -27,9 +27,8 @@ typealias TreeMultimap<K, V> = TreeSortedSetMultimap<K, V>
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::toTreeMultimap
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val map = mapOf(1 to "a", 1 to "b").toTreeMultimap()
+ * // map.keySet().size() == 1
  * ```
  */
 inline fun <K: Comparable<K>, V> Iterable<V>.toTreeMultimap(
@@ -51,9 +50,8 @@ inline fun <K: Comparable<K>, V> Iterable<V>.toTreeMultimap(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::toTreeMultimap
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val map = mapOf(1 to "a", 1 to "b").toTreeMultimap()
+ * // map.keySet().size() == 1
  * ```
  */
 inline fun <V, K: Comparable<K>> Iterable<V>.toTreeMultimap(
@@ -75,9 +73,8 @@ inline fun <V, K: Comparable<K>> Iterable<V>.toTreeMultimap(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::toTreeMultimap
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val map = mapOf(1 to "a", 1 to "b").toTreeMultimap()
+ * // map.keySet().size() == 1
  * ```
  */
 inline fun <E, K: Comparable<K>, V> Iterable<E>.toTreeMultimap(
@@ -100,9 +97,8 @@ inline fun <E, K: Comparable<K>, V> Iterable<E>.toTreeMultimap(
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::toTreeMultimap
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val map = mapOf(1 to "a", 1 to "b").toTreeMultimap()
+ * // map.keySet().size() == 1
  * ```
  */
 inline fun <E, K, V: Comparable<V>> Iterable<E>.toTreeMultimap(

@@ -11,9 +11,8 @@ package io.bluetape4k.support
  * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
  *
  * ```kotlin
- * val ref = ::floatArrayOf
- * println(ref.name)
- * check(ref.name.isNotEmpty())
+ * val result = floatArrayOf(1f, 2f)
+ * // result.size == 2
  * ```
  */
 inline fun <T: Number> floatArrayOf(vararg elements: T): FloatArray =

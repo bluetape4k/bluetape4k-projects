@@ -17,8 +17,8 @@ import org.eclipse.collections.impl.list.mutable.primitive.BooleanArrayList
  *
  * ```kotlin
  * val list = booleanArrayOf(true, false).toBooleanArrayList()
- * check(list.size() == 2)
- * check(list[0])
+ * // list.size() == 2
+ * // list[0]
  * ```
  */
 fun BooleanArray.toBooleanArrayList(): BooleanArrayList =
@@ -33,8 +33,8 @@ fun BooleanArray.toBooleanArrayList(): BooleanArrayList =
  *
  * ```kotlin
  * val list = listOf(true, false).toBooleanArrayList()
- * check(list.size() == 2)
- * check(!list[1])
+ * // list.size() == 2
+ * // !list[1]
  * ```
  */
 fun Iterable<Boolean>.toBooleanArrayList(): BooleanArrayList =
@@ -56,8 +56,8 @@ fun Iterable<Boolean>.toBooleanArrayList(): BooleanArrayList =
  *
  * ```kotlin
  * val list = sequenceOf(true, false).toBooleanArrayList()
- * check(list.size() == 2)
- * check(list[0])
+ * // list.size() == 2
+ * // list[0]
  * ```
  */
 fun Sequence<Boolean>.toBooleanArrayList(): BooleanArrayList = asIterable().toBooleanArrayList()
@@ -72,8 +72,8 @@ fun Sequence<Boolean>.toBooleanArrayList(): BooleanArrayList = asIterable().toBo
  *
  * ```kotlin
  * val list = booleanArrayList(3) { it % 2 == 0 }
- * check(list.size() == 3)
- * check(list[0] && !list[1])
+ * // list.size() == 3
+ * // list[0] && !list[1]
  * ```
  */
 inline fun booleanArrayList(
@@ -97,8 +97,8 @@ inline fun booleanArrayList(
  *
  * ```kotlin
  * val list = booleanArrayListOf(true, false)
- * check(list.size() == 2)
- * check(!list[1])
+ * // list.size() == 2
+ * // !list[1]
  * ```
  */
 fun booleanArrayListOf(vararg elements: Boolean): BooleanArrayList =
@@ -113,8 +113,8 @@ fun booleanArrayListOf(vararg elements: Boolean): BooleanArrayList =
  *
  * ```kotlin
  * val list = booleanArrayListOf(true).toBooleanArrayList()
- * check(list.size() == 1)
- * check(list[0])
+ * // list.size() == 1
+ * // list[0]
  * ```
  */
 fun BooleanIterable.toBooleanArrayList(): BooleanArrayList = when (this) {
@@ -131,8 +131,8 @@ fun BooleanIterable.toBooleanArrayList(): BooleanArrayList = when (this) {
  *
  * ```kotlin
  * val iter = booleanArrayListOf(true).asIterator()
- * check(iter.hasNext())
- * check(iter.next())
+ * // iter.hasNext()
+ * // iter.next()
  * ```
  */
 fun BooleanIterable.asIterator(): Iterator<Boolean> = object: Iterator<Boolean> {
@@ -150,8 +150,8 @@ fun BooleanIterable.asIterator(): Iterator<Boolean> = object: Iterator<Boolean> 
  *
  * ```kotlin
  * val seq = booleanArrayListOf(true, false).asSequence()
- * check(seq.count() == 2)
- * check(seq.first())
+ * // seq.count() == 2
+ * // seq.first()
  * ```
  */
 fun BooleanIterable.asSequence(): Sequence<Boolean> = sequence {
@@ -170,8 +170,8 @@ fun BooleanIterable.asSequence(): Sequence<Boolean> = sequence {
  *
  * ```kotlin
  * val it = booleanArrayListOf(true, false).asIterable()
- * check(it.count() == 2)
- * check(it.first())
+ * // it.count() == 2
+ * // it.first()
  * ```
  */
 fun BooleanIterable.asIterable(): Iterable<Boolean> = Iterable { asIterator() }
@@ -185,8 +185,8 @@ fun BooleanIterable.asIterable(): Iterable<Boolean> = Iterable { asIterator() }
  *
  * ```kotlin
  * val list = booleanArrayListOf(true, false).asList()
- * check(list == listOf(true, false))
- * check(list.size == 2)
+ * // list == listOf(true, false)
+ * // list.size == 2
  * ```
  */
 fun BooleanIterable.asList() = asIterable().toList()
@@ -200,8 +200,8 @@ fun BooleanIterable.asList() = asIterable().toList()
  *
  * ```kotlin
  * val list = booleanArrayListOf(true, false).asMutableList()
- * check(list.size == 2)
- * check(!list[1])
+ * // list.size == 2
+ * // !list[1]
  * ```
  */
 fun BooleanIterable.asMutableList() = asIterable().toMutableList()
@@ -215,8 +215,8 @@ fun BooleanIterable.asMutableList() = asIterable().toMutableList()
  *
  * ```kotlin
  * val set = booleanArrayListOf(true, true, false).asSet()
- * check(set.size == 2)
- * check(true in set)
+ * // set.size == 2
+ * // true in set
  * ```
  */
 fun BooleanIterable.asSet() = asIterable().toSet()
@@ -230,8 +230,8 @@ fun BooleanIterable.asSet() = asIterable().toSet()
  *
  * ```kotlin
  * val set = booleanArrayListOf(true, true, false).asMutableSet()
- * check(set.size == 2)
- * check(false in set)
+ * // set.size == 2
+ * // false in set
  * ```
  */
 fun BooleanIterable.asMutableSet() = asIterable().toMutableSet()
@@ -245,8 +245,8 @@ fun BooleanIterable.asMutableSet() = asIterable().toMutableSet()
  *
  * ```kotlin
  * val list = booleanArrayListOf(true, false).toFastList()
- * check(list.size == 2)
- * check(list[0])
+ * // list.size == 2
+ * // list[0]
  * ```
  */
 fun BooleanIterable.toFastList() = asIterable().toFastList()
@@ -260,8 +260,8 @@ fun BooleanIterable.toFastList() = asIterable().toFastList()
  *
  * ```kotlin
  * val set = booleanArrayListOf(true, true, false).toUnifiedSet()
- * check(set.size == 2)
- * check(set.contains(true))
+ * // set.size == 2
+ * // set.contains(true)
  * ```
  */
 fun BooleanIterable.toUnifiedSet() = asIterable().toUnifiedSet()
@@ -275,8 +275,8 @@ fun BooleanIterable.toUnifiedSet() = asIterable().toUnifiedSet()
  *
  * ```kotlin
  * val list = booleanArrayListOf(true, false).toFixedSizeList()
- * check(list.size == 2)
- * check(!list[1])
+ * // list.size == 2
+ * // !list[1]
  * ```
  */
 fun BooleanIterable.toFixedSizeList() = asIterable().toFixedSizeList()
@@ -290,8 +290,8 @@ fun BooleanIterable.toFixedSizeList() = asIterable().toFixedSizeList()
  *
  * ```kotlin
  * val list = booleanArrayOf(true, false).toFastList()
- * check(list.size == 2)
- * check(!list[1])
+ * // list.size == 2
+ * // !list[1]
  * ```
  */
 fun BooleanArray.toFastList(): FastList<Boolean> = asIterable().toFastList()
