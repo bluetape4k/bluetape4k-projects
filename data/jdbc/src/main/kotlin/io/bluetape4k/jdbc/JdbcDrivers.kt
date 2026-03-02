@@ -1,111 +1,97 @@
 package io.bluetape4k.jdbc
 
 /**
- * Jdbc Driver Constants
+ * 주요 JDBC 드라이버/데이터소스/Dialect 상수를 제공합니다.
+ *
+ * ## 동작/계약
+ * - 상수는 문자열 리터럴이며 런타임 계산이나 추가 할당이 없습니다.
+ * - `isMySQL`, `isPostgreSQL`는 전달 문자열과 정의된 드라이버 클래스명을 비교합니다.
+ * - null 입력 시 두 판별 함수 모두 `false`를 반환합니다.
+ *
+ * ```kotlin
+ * val mysql = JdbcDrivers.isMySQL("com.mysql.cj.jdbc.Driver")
+ * val postgres = JdbcDrivers.isPostgreSQL("org.postgresql.Driver")
+ * // mysql == true
+ * // postgres == true
+ * ```
  */
 object JdbcDrivers {
 
-    /**
-     * H2 DataSource class name
-     */
+    /** H2 DataSource 클래스명입니다. */
     const val DATASOURCE_CLASS_H2 = "org.h2.jdbcx.JdbcDataSource"
 
-    /**
-     * H2 Jdbc driver class name
-     */
+    /** H2 JDBC Driver 클래스명입니다. */
     const val DRIVER_CLASS_H2 = "org.h2.Driver"
 
-    /**
-     * H2 hibernate dialect
-     */
+    /** H2 Hibernate Dialect 클래스명입니다. */
     const val DIALECT_H2 = "org.hibernate.dialect.H2Dialect"
 
-    /**
-     * hsqldb DB DataSource class name
-     */
+    /** HSQLDB DataSource 클래스명입니다. */
     const val DATASOURCE_CLASS_HSQL = "org.hsqldb.jdbc.JDBCDataSource"
 
-    /**
-     * hsqldb Jdbc driver class name
-     */
+    /** HSQLDB JDBC Driver 클래스명입니다. */
     const val DRIVER_CLASS_HSQL = "org.hsqldb.jdbc.JDBCDriver"
 
-    /**
-     * hsqldb hibernate dialect
-     */
+    /** HSQLDB Hibernate Dialect 클래스명입니다. */
     const val DIALECT_HSQL = "org.hibernate.dialect.HSQLDialect"
 
-    /**
-     * MySQL DB DataSource class name
-     */
+    /** MySQL DataSource 클래스명입니다. */
     const val DATASOURCE_CLASS_MYSQL = "com.mysql.cj.jdbc.MysqlDataSource"
 
-    /**
-     * MySQL Jdbc driver class name
-     */
+    /** MySQL JDBC Driver 클래스명입니다. */
     const val DRIVER_CLASS_MYSQL = "com.mysql.cj.jdbc.Driver"
 
-    /**
-     * MySQL hibernate dialect
-     */
+    /** MySQL Hibernate Dialect 클래스명입니다. */
     const val DIALECT_MYSQL = "org.hibernate.dialect.MySQL5InnoDBDialect"
 
-    /**
-     * Maria DB DataSource class name
-     */
+    /** MariaDB JDBC Driver 클래스명입니다. */
     const val DRIVER_CLASS_MARIADB = "org.mariadb.jdbc.Driver"
 
-    /**
-     * PostgreSql DB DataSource class name
-     */
+    /** PostgreSQL DataSource 클래스명입니다. */
     const val DATASOURCE_CLASS_POSTGRESQL = "org.postgresql.ds.PGSimpleDataSource"
 
-    /**
-     * PostgreSql Jdbc driver class name
-     */
+    /** PostgreSQL JDBC Driver 클래스명입니다. */
     const val DRIVER_CLASS_POSTGRESQL = "org.postgresql.Driver"
 
-    /**
-     * PostgreSql hibernate dialect for Postgresql 9.4 or higher
-     */
+    /** PostgreSQL 9.4+ Hibernate Dialect 클래스명입니다. */
     const val DIALECT_POSTGRESQL = "org.hibernate.dialect.PostgreSQL94Dialect"
 
-    /**
-     * PostgreSql hibernate dialect for Postgresql 9.0 or higher
-     */
+    /** PostgreSQL 9.0+ Hibernate Dialect 클래스명입니다. */
     const val DIALECT_POSTGRESQL9 = "org.hibernate.dialect.PostgreSQL9Dialect"
 
-    /**
-     * PostgreSql hibernate dialect for Postgresql 8.2 or higher
-     */
+    /** PostgreSQL 8.2+ Hibernate Dialect 클래스명입니다. */
     const val DIALECT_POSTGRESQL82 = "org.hibernate.dialect.PostgreSQL82Dialect"
 
-    /**
-     * Oracle DB DataSource class name
-     */
+    /** Oracle DataSource 클래스명입니다. */
     const val DATASOURCE_CLASS_ORACLE = "oracle.jdbc.pool.OracleDataSource"
 
-    /**
-     * Oracle Jdbc driver class name
-     */
+    /** Oracle JDBC Driver 클래스명입니다. */
     const val DRIVER_CLASS_ORACLE = "oracle.jdbc.driver.OracleDriver"
 
-    /**
-     * hibernate dialect for Oracle 12c or higher
-     */
+    /** Oracle 12c+ Hibernate Dialect 클래스명입니다. */
     const val DIALECT_ORACLE12 = "org.hibernate.dialect.Oracle12cDialect"
 
-    /**
-     * hibernate dialect for Oracle 9i or higher
-     */
+    /** Oracle 9i+ Hibernate Dialect 클래스명입니다. */
     const val DIALECT_ORACLE9i = "org.hibernate.dialect.Oracle9iDialect"
 
-    /**
-     * hibernate dialect for Oracle 10g or higher
-     */
+    /** Oracle 10g+ Hibernate Dialect 클래스명입니다. */
     const val DIALECT_ORACLE10g = "org.hibernate.dialect.Oracle10gDialect"
 
-    /** driverClass 가 MySQL 인가? */
+    /**
+     * 전달한 드라이버 클래스명이 MySQL/MariaDB 계열인지 검사합니다.
+     *
+     * ## 동작/계약
+     * - [driverClassName]이 `null`이면 `false`를 반환합니다.
+     * - MySQL 또는 MariaDB 드라이버 클래스명과 정확히 일치할 때만 `true`를 반환합니다.
+     * - 수신 객체를 변경하지 않고 상수 비교만 수행합니다.
+     *
+     * ```kotlin
+     * val a = JdbcDrivers.isMySQL(JdbcDrivers.DRIVER_CLASS_MYSQL)
+     * val b = JdbcDrivers.isMySQL(null)
+     * // a == true
+     * // b == false
+     * ```
+     */
     @JvmStatic
     fun isMySQL(driverClassName: String? = null): Boolean {
         return driverClassName != null &&
@@ -113,7 +99,21 @@ object JdbcDrivers {
                         driverClassName == DRIVER_CLASS_MARIADB)
     }
 
-    /** driverClass 가 PostgreSQL 인가? */
+    /**
+     * 전달한 드라이버 클래스명이 PostgreSQL 계열인지 검사합니다.
+     *
+     * ## 동작/계약
+     * - [driverClassName]이 `null`이면 `false`를 반환합니다.
+     * - PostgreSQL 드라이버 클래스명과 정확히 일치할 때만 `true`를 반환합니다.
+     * - 비교 연산만 수행하며 추가 할당이 없습니다.
+     *
+     * ```kotlin
+     * val a = JdbcDrivers.isPostgreSQL(JdbcDrivers.DRIVER_CLASS_POSTGRESQL)
+     * val b = JdbcDrivers.isPostgreSQL(JdbcDrivers.DRIVER_CLASS_MYSQL)
+     * // a == true
+     * // b == false
+     * ```
+     */
     @JvmStatic
     fun isPostgreSQL(driverClassName: String? = null): Boolean {
         return driverClassName != null && driverClassName == DRIVER_CLASS_POSTGRESQL
