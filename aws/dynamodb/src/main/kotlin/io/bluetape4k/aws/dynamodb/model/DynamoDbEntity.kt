@@ -78,7 +78,25 @@ abstract class AbstractDynamoDbEntity: AbstractValueObject(), DynamoDbEntity {
 }
 
 /**
- * DynamoDB의 Entity 에 키의 정보를 문자열로 표현합니다.
+ * Entity 타입명·파티션 키·정렬 키를 조합한 키 문자열을 반환합니다.
+ *
+ * ## 동작/계약
+ * - 항상 `T::class.simpleName`을 접두사로 사용한다.
+ * - [partitionKey]가 blank가 아니면 `ENTITY_NAME_DELIMITER(:)` 뒤에 추가한다.
+ * - [sortKey]가 blank가 아니면 `ENTITY_ID_DELIMITER(#)` 뒤에 추가한다.
+ * - null 또는 blank 값은 해당 구분자 없이 생략된다.
+ *
+ * ```kotlin
+ * val key = order.makeKeyString(partitionKey = "user1", sortKey = "order42")
+ * // key == "Order:user1#order42"
+ *
+ * val keyNoSort = order.makeKeyString(partitionKey = "user1")
+ * // keyNoSort == "Order:user1"
+ * ```
+ *
+ * @param partitionKey 파티션 키 값 (null 또는 blank이면 생략)
+ * @param sortKey 정렬 키 값 (null 또는 blank이면 생략)
+ * @return `ClassName[:partitionKey][#sortKey]` 형태의 문자열
  */
 inline fun <reified T: DynamoDbEntity> T.makeKeyString(
     partitionKey: Any? = null,

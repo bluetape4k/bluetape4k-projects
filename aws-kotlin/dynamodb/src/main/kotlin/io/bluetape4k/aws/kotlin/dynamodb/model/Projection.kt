@@ -4,16 +4,21 @@ import aws.sdk.kotlin.services.dynamodb.model.Projection
 import aws.sdk.kotlin.services.dynamodb.model.ProjectionType
 
 /**
- * DynamoDb 테이블의 Projection 설정을 생성합니다.
+ * DSL 블록으로 DynamoDB [Projection]을 빌드합니다.
  *
- * ```
- * val projection = projectionOf(ProjectionType.ALL, listOf("name", "age"))
+ * ## 동작/계약
+ * - [projectionType] 기본값은 [ProjectionType.All]로, 모든 속성을 프로젝션한다.
+ * - [nonKeyAttributes]는 [ProjectionType.Include]일 때만 유효하며, null이면 설정되지 않는다.
+ * - [builder] 블록으로 추가 필드를 덮어쓸 수 있다.
+ *
+ * ```kotlin
+ * val projection = projectionOf(ProjectionType.Include, listOf("name", "age"))
+ * // projection.projectionType == ProjectionType.Include
+ * // projection.nonKeyAttributes == listOf("name", "age")
  * ```
  *
- * @param projectionType 프로젝션 타입
- * @param nonKeyAttributes 프로젝션에 포함할 속성 목록
- * @param builder 프로젝션 설정
- * @return [Projection] 인스턴스
+ * @param projectionType 프로젝션 타입 (기본값: [ProjectionType.All])
+ * @param nonKeyAttributes 프로젝션에 포함할 비키 속성 목록 ([ProjectionType.Include]일 때 유효)
  */
 inline fun projectionOf(
     projectionType: ProjectionType = ProjectionType.All,

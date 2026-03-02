@@ -4,10 +4,25 @@ import aws.sdk.kotlin.services.dynamodb.model.AttributeValue
 import aws.sdk.kotlin.services.dynamodb.model.WriteRequest
 
 /**
- * 엔티티를 DynamoDB Item으로 변환하는 Mapper 입니다.
+ * 엔티티를 DynamoDB Item 속성 맵으로 변환하는 매퍼 인터페이스입니다.
+ *
+ * ## 동작/계약
+ * - `fun interface`이므로 람다로 바로 인스턴스를 생성할 수 있다.
+ * - [mapToDynamoItem] 구현에서 엔티티의 각 필드를 `AttributeValue`로 변환해 반환한다.
+ *
+ * ```kotlin
+ * val mapper = DynamoItemMapper<Order> { order ->
+ *     mapOf("id" to AttributeValue.S(order.id), "total" to AttributeValue.N(order.total.toString()))
+ * }
+ * ```
  */
 fun interface DynamoItemMapper<T: Any> {
 
+    /**
+     * [item] 엔티티를 DynamoDB 속성 맵으로 변환합니다.
+     *
+     * @return 컬럼명 → [AttributeValue] 매핑
+     */
     fun mapToDynamoItem(item: T): Map<String, AttributeValue>
 }
 

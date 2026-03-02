@@ -37,6 +37,14 @@ fun <T: Any> DynamoDbTable<T>.createTable(
 
 /**
  * [DynamoDbTable]에 여러 개의 Item을 저장합니다.
+ *
+ * ## 동작/계약
+ * - vararg로 전달된 아이템을 [Collection] 오버로드로 위임한다.
+ * - 각 아이템에 대해 `putItem`을 순차적으로 호출한다.
+ *
+ * ```kotlin
+ * table.putItems(item1, item2, item3)
+ * ```
  */
 fun <T: Any> DynamoDbTable<T>.putItems(vararg items: T) {
     putItems(items.asList())
@@ -44,6 +52,14 @@ fun <T: Any> DynamoDbTable<T>.putItems(vararg items: T) {
 
 /**
  * [DynamoDbTable]에 여러 개의 Item을 저장합니다.
+ *
+ * ## 동작/계약
+ * - [items] 컬렉션의 각 아이템에 대해 `putItem`을 순차 호출한다.
+ * - 트랜잭션 없이 개별 Put 요청으로 저장된다.
+ *
+ * ```kotlin
+ * table.putItems(listOf(item1, item2))
+ * ```
  */
 fun <T: Any> DynamoDbTable<T>.putItems(items: Collection<T>) {
     items.forEach { putItem(it) }
