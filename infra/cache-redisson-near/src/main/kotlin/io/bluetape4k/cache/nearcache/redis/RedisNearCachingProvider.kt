@@ -19,7 +19,18 @@ import javax.cache.spi.CachingProvider
 import kotlin.concurrent.withLock
 
 /**
- * [io.bluetape4k.cache.nearcache.NearCache]를 제공하는 JCache [CachingProvider]의 구현체입니다.
+ * Redis near cache용 JCache [CachingProvider] 구현체입니다.
+ *
+ * ## 동작/계약
+ * - `(ClassLoader, URI)` 조합으로 [RedisNearCacheManager]를 생성/재사용합니다.
+ * - `close` 계열 호출은 등록된 매니저를 닫고 내부 맵에서 제거합니다.
+ * - optional feature는 지원하지 않아 항상 `false`를 반환합니다.
+ *
+ * ```kotlin
+ * val provider = RedisNearCachingProvider()
+ * val manager = provider.cacheManager
+ * // manager != null
+ * ```
  */
 class RedisNearCachingProvider: CachingProvider {
 

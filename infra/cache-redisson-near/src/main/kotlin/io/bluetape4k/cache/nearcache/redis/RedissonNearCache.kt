@@ -20,9 +20,17 @@ import javax.cache.configuration.MutableConfiguration
 import kotlin.BuilderInference
 
 /**
- * Redisson 기반 Back Cache를 사용하는 [NearCache] 생성 유틸리티입니다.
+ * Redisson back cache를 사용하는 [NearCache] 팩토리입니다.
  *
- * 기본 Front Cache는 Caffeine이며, [NearCacheConfig]로 Front 구성을 변경할 수 있습니다.
+ * ## 동작/계약
+ * - front cache는 [NearCacheConfig] 설정을 사용하며 기본 구현은 Caffeine입니다.
+ * - back cache는 Redisson JCache 매니저에서 조회하거나 없으면 생성합니다.
+ * - `backCacheName`이 blank면 `IllegalArgumentException`이 발생합니다.
+ *
+ * ```kotlin
+ * val near = RedissonNearCache<String, String>("users", redisson)
+ * // near.getName() == "users"
+ * ```
  */
 object RedissonNearCache {
 
@@ -89,9 +97,17 @@ object RedissonNearCache {
 }
 
 /**
- * Redisson 기반 Back Cache를 사용하는 [NearSuspendCache] 생성 유틸리티입니다.
+ * Redisson back cache 기반 [NearSuspendCache] 팩토리입니다.
  *
- * 기본 Front SuspendCache는 Caffeine이며, 사용자 정의 Front SuspendCache를 지정할 수 있습니다.
+ * ## 동작/계약
+ * - 기본 front suspend cache는 Caffeine 구현을 사용합니다.
+ * - back suspend cache는 `RedissonSuspendCache`를 생성해 연결합니다.
+ * - `backCacheName`이 blank면 `IllegalArgumentException`이 발생합니다.
+ *
+ * ```kotlin
+ * val near = RedissonNearSuspendCache<String, Int>("scores", redisson)
+ * // near.isClosed() == false
+ * ```
  */
 object RedissonNearSuspendCache {
 

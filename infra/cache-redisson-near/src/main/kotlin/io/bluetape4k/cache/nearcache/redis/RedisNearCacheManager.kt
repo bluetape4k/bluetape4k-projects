@@ -32,13 +32,17 @@ import javax.management.ObjectName
 import kotlin.concurrent.withLock
 
 /**
- * [NearCache]를 위한 JCache 용 [CacheManager] 구현체입니다.
+ * Redis near cache 전용 [CacheManager] 구현체입니다.
  *
- * @property redisson       [Redisson] instance
- * @property classLoader    [ClassLoader] instance
- * @property cacheProvider  [CachingProvider] 구현체인 [RedisNearCachingProvider] 인스턴스
- * @property properties     [NearCache]용 속성 정보
- * @property uri            환경설정 정보를 가진 리소스의 경로
+ * ## 동작/계약
+ * - `createCache`는 [RedisNearCacheConfig]를 받아 back cache와 near cache를 함께 구성합니다.
+ * - 캐시 인스턴스는 내부 맵에 이름 기준으로 보관되며 중복 생성 시 [CacheException]이 발생합니다.
+ * - 매니저가 닫히면 공개 API 대부분이 `IllegalStateException`을 발생시킵니다.
+ *
+ * ```kotlin
+ * val manager = RedisNearCacheManager(redisson, classLoader, provider, Properties(), null)
+ * // manager.isClosed() == false
+ * ```
  */
 class RedisNearCacheManager(
     private val redisson: Redisson?,

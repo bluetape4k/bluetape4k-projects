@@ -11,9 +11,17 @@ import javax.cache.configuration.Configuration
 import javax.cache.configuration.MutableConfiguration
 
 /**
- * Redisson 기반 Back Cache를 사용하는 전용 [NearSuspendCache] 래퍼입니다.
+ * Redisson back cache를 사용하는 [NearSuspendCache] 래퍼입니다.
  *
- * 기본 Front SuspendCache는 Caffeine을 사용하며, 사용자 정의 Front SuspendCache를 지정할 수 있습니다.
+ * ## 동작/계약
+ * - 내부적으로 [NearSuspendCache] 인스턴스에 연산을 위임합니다.
+ * - 기본 front cache는 Caffeine 기반 [CaffeineSuspendCache]를 사용합니다.
+ * - `backCacheName`이 blank면 팩토리 함수에서 `IllegalArgumentException`이 발생합니다.
+ *
+ * ```kotlin
+ * val cache = RedissonNearSuspendCache<String, Int>("scores", redisson)
+ * // cache.isClosed() == false
+ * ```
  */
 class RedissonNearSuspendCache<K: Any, V: Any> private constructor(
     private val nearSuspendCache: NearSuspendCache<K, V>,

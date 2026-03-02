@@ -11,6 +11,23 @@ import javax.cache.configuration.MutableConfiguration
 import javax.cache.expiry.AccessedExpiryPolicy
 import javax.cache.expiry.Duration
 
+/**
+ * Redis(Redisson) back cache를 사용하는 near cache 설정을 표현합니다.
+ *
+ * ## 동작/계약
+ * - [redissonConfig]가 주어지면 back cache 구성에 해당 설정을 사용합니다.
+ * - `isStoreByValue()`는 항상 `true`를 반환합니다.
+ * - equals/hashCode 비교에는 `redissonConfig`, `kType`, `vType`가 반영됩니다.
+ *
+ * ```kotlin
+ * val cfg = RedisNearCacheConfig(
+ *   redissonConfig = null,
+ *   kType = String::class.java,
+ *   vType = Int::class.java
+ * )
+ * // cfg.keyType == String::class.java
+ * ```
+ */
 class RedisNearCacheConfig<K: Any, V: Any>(
     cacheManagerFactory: Factory<CacheManager> = CaffeineCacheManagerFactory,
     frontCacheName: String = "near-front-cache-" + UUID.randomUUID().encodeBase62(),
@@ -49,7 +66,19 @@ class RedisNearCacheConfig<K: Any, V: Any>(
     }
 }
 
-
+/**
+ * [RedisNearCacheConfig] 생성을 위한 DSL 빌더입니다.
+ *
+ * ## 동작/계약
+ * - 기본 front cache 만료 정책은 `AccessedExpiryPolicy(30분)`입니다.
+ * - [buildConfig]에서 `redissonConfig.isStoreByValue == false`면 `IllegalArgumentException`이 발생합니다.
+ * - [buildConfig]는 현재 빌더 상태로 새 설정 객체를 생성합니다.
+ *
+ * ```kotlin
+ * val cfg = RedisNearCacheConfigBuilderDsl(String::class.java, Int::class.java).buildConfig()
+ * // cfg.valueType == Int::class.java
+ * ```
+ */
 class RedisNearCacheConfigBuilderDsl<K: Any, V: Any>(
     private val kType: Class<K>,
     private val vType: Class<V>,
@@ -89,8 +118,17 @@ class RedisNearCacheConfigBuilderDsl<K: Any, V: Any>(
 }
 
 /**
- * RedisNearCacheConfig 을 생성하기 위한 유틸리티 함수입니다.
+ * DSL 블록으로 [RedisNearCacheConfig]를 생성합니다.
  *
+ * ## 동작/계약
+ * - `K/V` reified 타입을 빌더에 전달합니다.
+ * - [customizer]에서 설정한 값을 반영해 최종 설정을 생성합니다.
+ * - 호출마다 새 설정 객체를 반환합니다.
+ *
+ * ```kotlin
+ * val cfg = redisNearCacheConfigurationOf<String, Int> { isSynchronous = false }
+ * // cfg.isSynchronous == false
+ * ```
  */
 inline fun <reified K: Any, reified V: Any> redisNearCacheConfigurationOf(
     customizer: RedisNearCacheConfigBuilderDsl<K, V>.() -> Unit,
