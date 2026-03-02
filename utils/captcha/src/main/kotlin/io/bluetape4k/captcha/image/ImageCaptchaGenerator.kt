@@ -20,6 +20,20 @@ import java.awt.image.BufferedImage
 import java.io.File
 import kotlin.random.Random
 
+/**
+ * 이미지 CAPTCHA를 생성하는 기본 구현체입니다.
+ *
+ * ## 동작/계약
+ * - [generate] 호출마다 새 코드와 새 이미지를 생성합니다.
+ * - 코드 길이는 최소 4자를 보장하도록 `config.length.coerceAtLeast(4)`를 사용합니다.
+ * - 폰트는 `config.fontPaths` 또는 기본 리소스 폰트를 lazy 로드합니다.
+ *
+ * ```kotlin
+ * val generator = ImageCaptchaGenerator()
+ * val captcha = generator.generate()
+ * // captcha.code.length >= 4
+ * ```
+ */
 class ImageCaptchaGenerator(
     override val config: CaptchaConfig = CaptchaConfig.DEFAULT,
     override val codeGenerator: CaptchaCodeGenerator = CaptchaCodeGenerator.DEFAULT,
@@ -27,6 +41,18 @@ class ImageCaptchaGenerator(
 
     companion object: KLogging()
 
+    /**
+     * 코드 문자열과 노이즈가 포함된 CAPTCHA 이미지를 생성합니다.
+     *
+     * ## 동작/계약
+     * - 무작위 코드 생성 후 배경/문자/노이즈를 순서대로 그립니다.
+     * - [config.noiseCount]가 0이면 노이즈 라인을 그리지 않습니다.
+     *
+     * ```kotlin
+     * val captcha = ImageCaptchaGenerator().generate()
+     * // captcha.content.width == CaptchaConfig.DEFAULT_WIDTH
+     * ```
+     */
     override fun generate(): Captcha<ImmutableImage> {
         val code = codeGenerator.next(config.length.coerceAtLeast(4))
         val image = ImmutableImage.create(config.width, config.height, BufferedImage.TYPE_INT_RGB)

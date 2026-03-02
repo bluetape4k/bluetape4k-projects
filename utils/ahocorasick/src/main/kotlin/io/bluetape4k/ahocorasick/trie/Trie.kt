@@ -29,12 +29,18 @@ import java.util.*
  * )
  * ```
  *
+ * ## 동작/계약
+ * - [build] 시점에 failure transition을 구성한 뒤 검색을 수행합니다.
+ * - 옵션([TrieConfig])에 따라 대소문자 무시/겹침 제거/단어 경계 필터를 적용합니다.
+ * - 검색 결과는 [Emit]의 시작 위치 기준으로 처리됩니다.
+ *
  * @property config Trie 환경설정 (기본값: [TrieConfig.DEFAULT])
  */
 class Trie(private val config: TrieConfig = TrieConfig.DEFAULT) {
 
     companion object: KLogging() {
         @JvmStatic
+        /** [TrieBuilder]를 생성합니다. */
         fun builder(): TrieBuilder = TrieBuilder()
     }
 
@@ -60,6 +66,10 @@ class Trie(private val config: TrieConfig = TrieConfig.DEFAULT) {
      * @param text 치환할 문자열
      * @param map 치환할 키워드 맵
      * @return 치환된 문자열
+     *
+     * ## 동작/계약
+     * - [tokenize] 결과를 순회하며 매칭 토큰만 [map] 값으로 치환합니다.
+     * - 키가 없는 매칭은 원문 fragment를 유지합니다.
      */
     fun replace(text: String, map: Map<String, String>): String {
         val tokens = tokenize(text)
@@ -92,6 +102,10 @@ class Trie(private val config: TrieConfig = TrieConfig.DEFAULT) {
      *
      * @param text 형태소 분석할 문자열
      * @return 형태소 리스트
+     *
+     * ## 동작/계약
+     * - 매칭 구간은 [MatchToken], 비매칭 구간은 [FragmentToken]으로 반환합니다.
+     * - 빈 입력은 빈 리스트를 반환합니다.
      */
     fun tokenize(
         text: String,
@@ -143,6 +157,10 @@ class Trie(private val config: TrieConfig = TrieConfig.DEFAULT) {
      * @param text 키워드를 찾을 문자열
      * @param emitHandler Emit 처리기 (기본값: [DefaultEmitHandler])
      * @return Emit 리스트
+     *
+     * ## 동작/계약
+     * - 내부 파싱 후 config 옵션에 따라 partial/overlap 필터를 적용합니다.
+     * - [allowOverlaps]가 `false`면 [IntervalTree]로 겹침을 제거합니다.
      */
     fun parseText(text: CharSequence, emitHandler: StatefulEmitHandler = DefaultEmitHandler()): List<Emit> {
         runParseText(text, emitHandler)
@@ -165,6 +183,7 @@ class Trie(private val config: TrieConfig = TrieConfig.DEFAULT) {
         return collectedEmits
     }
 
+    /** 텍스트에 매칭 키워드가 하나라도 있으면 `true`를 반환합니다. */
     fun containsMatch(text: CharSequence): Boolean = firstMatch(text) != null
 
     /**
@@ -189,6 +208,10 @@ class Trie(private val config: TrieConfig = TrieConfig.DEFAULT) {
      *
      *  @param text 키워드를 찾을 문자열
      *  @param emitHandler Emit 처리기
+     *
+     *  ## 동작/계약
+     *  - 문자 단위로 상태 전이를 진행하고 각 상태 emit을 [emitHandler]에 전달합니다.
+     *  - [config.stopOnHit]가 `true`이고 handler가 `true`를 반환하면 즉시 중단합니다.
      */
     fun runParseText(text: CharSequence, emitHandler: EmitHandler) {
         var currentState = rootState
@@ -223,6 +246,10 @@ class Trie(private val config: TrieConfig = TrieConfig.DEFAULT) {
      *
      * @param text 키워드를 찾을 문자열
      * @return Emit 첫 번째 매치되는 키워드를 담은 [Emit] 객체, 없으면 null
+     *
+     * ## 동작/계약
+     * - [allowOverlaps]가 `false`면 [parseText]의 첫 결과를 반환합니다.
+     * - [onlyWholeWords] 옵션이 켜져 있으면 부분 단어 매칭을 제외합니다.
      */
     fun firstMatch(text: CharSequence): Emit? {
         if (!config.allowOverlaps) {
@@ -371,39 +398,53 @@ class Trie(private val config: TrieConfig = TrieConfig.DEFAULT) {
         private val configBuilder = TrieConfig.builder()
         private val keywords: MutableList<String> = mutableListOf()
 
+        /** 단일 키워드를 추가합니다. */
         fun addKeyword(keyword: String) = apply {
             this.keywords.add(keyword)
         }
 
+        /** 가변 인자 키워드를 추가합니다. */
         fun addKeywords(vararg keywords: String) = apply {
             this.keywords.addAll(keywords)
         }
 
+        /** 컬렉션 키워드를 추가합니다. */
         fun addKeywords(keywords: Collection<String>) = apply {
             this.keywords.addAll(keywords)
         }
 
+        /** 겹침 결과를 허용하지 않도록 설정합니다. */
         fun ignoreOverlaps() = apply {
             configBuilder.allowOverlaps(false)
         }
 
+        /** 완전 단어 매칭만 허용하도록 설정합니다. */
         fun onlyWholeWords() = apply {
             configBuilder.onlyWholeWords(true)
         }
 
+        /** 공백 경계 기준 완전 단어 매칭만 허용하도록 설정합니다. */
         fun onlyWholeWordsWhiteSpaceSeparated() = apply {
             configBuilder.onlyWholeWordsWhiteSpaceSeparated(true)
         }
 
+        /** 대소문자 무시 모드를 활성화합니다. */
         fun ignoreCase() = apply {
             configBuilder.ignoreCase(true)
         }
 
+        /** 첫 매칭 발견 시 검색 중단 모드를 활성화합니다. */
         fun stopOnHit() = apply {
             configBuilder.stopOnHit(true)
         }
 
 
+        /**
+         * 설정과 키워드로 [Trie]를 생성합니다.
+         *
+         * ## 동작/계약
+         * - 키워드 추가 후 failure state를 구성한 완성 Trie를 반환합니다.
+         */
         fun build(): Trie {
             return Trie(configBuilder.build()).apply {
                 addKeywords(keywords)

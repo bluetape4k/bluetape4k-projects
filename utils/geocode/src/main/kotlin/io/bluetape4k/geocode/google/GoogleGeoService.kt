@@ -6,6 +6,15 @@ import io.bluetape4k.utils.Resourcex
 
 /**
  * Google Maps API를 사용하기 위한 Api Key, [GeoApiContext]를 제공합니다.
+ *
+ * ## 동작/계약
+ * - [apiKey]는 리소스 파일(`GoogleGeocodeApi.key`)에서 lazy 로딩합니다.
+ * - [context]는 lazy 초기화 후 동일 인스턴스를 재사용합니다.
+ *
+ * ```kotlin
+ * val context = GoogleGeoService.context
+ * // context != null
+ * ```
  */
 object GoogleGeoService: KLogging() {
 
@@ -22,6 +31,9 @@ object GoogleGeoService: KLogging() {
 
     /**
      * Google Maps API를 사용하기 위한 [GeoApiContext]를 생성합니다.
+     *
+     * ## 동작/계약
+     * - [apiKey]와 재시도 정책(`maxRetries(3)`)을 적용한 컨텍스트를 생성합니다.
      */
     val context: GeoApiContext by lazy {
         geoApiContext {

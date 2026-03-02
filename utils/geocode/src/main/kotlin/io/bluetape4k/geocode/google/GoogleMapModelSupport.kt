@@ -9,6 +9,15 @@ import io.bluetape4k.geocode.Geocode
 /**
  * [Geocode]를 Google map의 [LatLng] 로 변환합니다.
  *
+ * ## 동작/계약
+ * - [scale]이 현재 스케일과 다르면 [Geocode.round] 후 변환합니다.
+ * - 원본 [Geocode]를 mutate하지 않습니다.
+ *
+ * ```kotlin
+ * val latLng = Geocode(37.5665, 126.9780).toLatLng(scale = 3)
+ * // latLng.lat == 37.567
+ * ```
+ *
  * @param scale
  * @return [LatLng] 인스턴스
  */
@@ -23,6 +32,15 @@ fun Geocode.toLatLng(scale: Int = this.scale): LatLng {
 /**
  * 구글 맵의 [GeocodingResult] 을 [Address] 로 변환합니다.
  *
+ * ## 동작/계약
+ * - country/city/detailAddress/zipCode를 추출해 [GoogleAddress]로 매핑합니다.
+ * - 입력 결과 객체를 mutate하지 않습니다.
+ *
+ * ```kotlin
+ * val address = result.toAddress()
+ * // address.formattedAddress == result.formattedAddress
+ * ```
+ *
  * @return [Address] 인스턴스
  */
 fun GeocodingResult.toAddress(): GoogleAddress =
@@ -36,30 +54,22 @@ fun GeocodingResult.toAddress(): GoogleAddress =
     )
 
 
-/**
- * Country
- */
+/** 국가명 컴포넌트를 조회합니다. */
 val GeocodingResult.country: String?
     get() = addressComponents.find { it.types.contains(AddressComponentType.COUNTRY) }?.longName
 
-/**
- * City 정보
- */
+/** 도시(행정구역 레벨1) 이름을 조회합니다. */
 val GeocodingResult.city: String?
     get() = addressComponents.find { it.types.contains(AddressComponentType.ADMINISTRATIVE_AREA_LEVEL_1) }?.longName
 
-/**
- * City 하위의 상세 주소
- */
+/** 상세 주소 문자열을 조합해 반환합니다. */
 val GeocodingResult.detailAddress: String
     get() = addressComponents.find { it.types.contains(AddressComponentType.PREMISE) }?.longName + " " +
             addressComponents
                 .filter { it.types.contains(AddressComponentType.SUBLOCALITY) }
                 .joinToString(" ") { it.longName }
 
-/**
- * 우편번호
- */
+/** 우편번호 컴포넌트를 조회합니다. */
 val GeocodingResult.zipCode: String?
     get() = addressComponents.find { it.types.contains(AddressComponentType.POSTAL_CODE) }?.longName
 

@@ -29,6 +29,11 @@ import io.bluetape4k.utils.Resourcex
  * val location = client.locations(37.5665, 126.9780)
  * val address = location.toBingAddress()
  * ```
+ *
+ * ## 동작/계약
+ * - API 키는 리소스(`BingGeocodeApi.key`)에서 lazy 로딩합니다.
+ * - Feign/Coroutine 클라이언트 생성 시 Jackson encoder/decoder와 HC5 클라이언트를 사용합니다.
+ * - 호출 예외 처리 정책은 각 Feign 클라이언트 호출자에게 위임됩니다.
  */
 object BingMapService: KLogging() {
 
@@ -40,6 +45,9 @@ object BingMapService: KLogging() {
 
     /**
      * Bing Map Service API 를 사용하기 위한 Feign Client 를 생성합니다.
+     *
+     * ## 동작/계약
+     * - ApacheHttp5 동기 클라이언트 기반 builder를 반환합니다.
      *
      * @return [Feign.Builder] 인스턴스
      */
@@ -56,6 +64,9 @@ object BingMapService: KLogging() {
     /**
      * Bing Map Service API 를 사용하기 위한 Feign Coroutine Client 를 생성합니다.
      *
+     * ## 동작/계약
+     * - AsyncApacheHttp5Client 기반 coroutine builder를 반환합니다.
+     *
      * @return [CoroutineFeign.CoroutineBuilder] 인스턴스
      */
     internal fun newFeignCoroutineBuilder(): CoroutineFeign.CoroutineBuilder<*> {
@@ -71,6 +82,9 @@ object BingMapService: KLogging() {
     /**
      * [BingMapApi]를 실행할 수 있는 Feign 용 Coroutine Client 입니다.
      *
+     * ## 동작/계약
+     * - 매 호출 시 새 proxy 인스턴스를 생성합니다.
+     *
      * @return [BingMapApi]의 Feign Client
      */
     fun getBingMapFeignClient(): BingMapApi =
@@ -79,6 +93,9 @@ object BingMapService: KLogging() {
 
     /**
      * [BingMapApi]를 실행할 수 있는 Feign 용 Coroutine Client 입니다.
+     *
+     * ## 동작/계약
+     * - 매 호출 시 새 coroutine proxy 인스턴스를 생성합니다.
      *
      * @return [BingMapApi]의 Feign Coroutine Client
      */

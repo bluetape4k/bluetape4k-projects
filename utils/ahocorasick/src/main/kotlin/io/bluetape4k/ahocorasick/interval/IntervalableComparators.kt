@@ -4,6 +4,10 @@ package io.bluetape4k.ahocorasick.interval
  * Intervalable 객체를 비교하기 위한 Comparator 모음.
  *
  * 이 객체는 Intervalable 객체들을 다양한 기준으로 정렬할 수 있는 Comparator를 제공합니다.
+ *
+ * ## 동작/계약
+ * - size 비교 시 동점이면 start 위치를 tie-breaker로 사용합니다.
+ * - comparator는 입력 객체를 mutate하지 않습니다.
  */
 object IntervalableComparators {
     /**

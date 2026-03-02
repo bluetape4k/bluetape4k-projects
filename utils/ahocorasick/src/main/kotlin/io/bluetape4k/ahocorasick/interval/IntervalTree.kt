@@ -13,6 +13,16 @@ import io.bluetape4k.logging.trace
  * 이진 트리 기반의 구조로 Interval 간의 오버랩(겹침)을 효율적으로 찾을 수 있습니다.
  * 주로 Aho-Corasick 알고리즘에서 중첩된 키워드 매칭을 제거하는 데 사용됩니다.
  *
+ * ## 동작/계약
+ * - [findOverlaps]는 주어진 구간과 겹치는 구간을 시작 위치 순으로 반환합니다.
+ * - [removeOverlaps]는 큰 구간 우선 정책으로 겹침을 제거합니다.
+ * - 입력 컬렉션은 mutate하지 않고 결과 리스트를 새로 구성합니다.
+ *
+ * ```kotlin
+ * val tree = IntervalTree(listOf(Interval(0, 2), Interval(1, 3)))
+ * // tree.removeOverlaps(listOf(Interval(0, 2), Interval(1, 3))).size == 1
+ * ```
+ *
  * @property rootNode 트리의 루트 노드
  * @see IntervalNode
  * @see Intervalable
@@ -24,6 +34,9 @@ class IntervalTree private constructor(
         /**
          * IntervalNode를 사용하여 IntervalTree를 생성합니다.
          *
+         * ## 동작/계약
+         * - 전달된 [rootNode]를 그대로 사용하는 새 트리를 반환합니다.
+         *
          * @param rootNode 트리의 루트 노드
          * @return 생성된 IntervalTree 인스턴스
          */
@@ -32,6 +45,9 @@ class IntervalTree private constructor(
 
         /**
          * Interval 리스트를 사용하여 IntervalTree를 생성합니다.
+         *
+         * ## 동작/계약
+         * - 리스트로 [IntervalNode]를 만든 뒤 트리를 생성합니다.
          *
          * @param intervals Interval 리스트
          * @return 생성된 IntervalTree 인스턴스

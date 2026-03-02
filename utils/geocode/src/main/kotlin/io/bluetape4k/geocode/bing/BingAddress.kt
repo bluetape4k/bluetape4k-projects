@@ -6,6 +6,15 @@ import io.bluetape4k.geocode.Address
 /**
  * Bing Maps API를 통해 찾은 주소 정보입니다.
  *
+ * ## 동작/계약
+ * - [Address]를 상속하며 country/city 동등성 규칙을 공유합니다.
+ * - Bing 응답의 추가 필드(name/detail/zip/formatted)를 함께 보관합니다.
+ *
+ * ```kotlin
+ * val address = BingAddress(name = "Gangnam", country = "Korea", city = "Seoul")
+ * // address.name == "Gangnam"
+ * ```
+ *
  * @property name 주소 이름
  * @property country 국가 이름
  * @property city 도시 이름

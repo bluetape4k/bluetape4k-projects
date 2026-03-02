@@ -4,18 +4,23 @@ import io.bluetape4k.captcha.config.CaptchaConfig
 
 interface CaptchaGenerator<T> {
 
-    /**
-     * Captcha 생성 설정 정보
-     */
+    /** CAPTCHA 생성 설정입니다. */
     val config: CaptchaConfig
 
-    /**
-     * Captcha에 쓰일 문자열 생성기
-     */
+    /** CAPTCHA 코드 생성기입니다. */
     val codeGenerator: CaptchaCodeGenerator
 
     /**
-     * `captchaCodeGenerator`로 부터 생성된 Captcha 코드를 컨텐츠로 생성하는 함수
+     * CAPTCHA 코드를 생성해 최종 콘텐츠를 렌더링합니다.
+     *
+     * ## 동작/계약
+     * - 코드 생성은 [codeGenerator] 규칙을 따릅니다.
+     * - 반환 객체는 [Captcha.code]와 [Captcha.content]를 함께 제공합니다.
+     *
+     * ```kotlin
+     * val captcha = generator.generate()
+     * // captcha.code.length == generator.config.length
+     * ```
      */
     fun generate(): Captcha<T>
 }

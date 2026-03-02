@@ -15,6 +15,9 @@ package io.bluetape4k.ahocorasick.trie
  *
  * @see StatefulEmitHandler
  * @see DefaultEmitHandler
+ *
+ * ## 동작/계약
+ * - [emit] 반환값이 `false`면 호출자에서 중단 신호로 해석할 수 있습니다.
  */
 fun interface EmitHandler {
     /**
@@ -33,6 +36,9 @@ fun interface EmitHandler {
  *
  * @see AbstractStatefulEmitHandler
  * @see DefaultEmitHandler
+ *
+ * ## 동작/계약
+ * - [emits]에 수집된 매칭 결과를 저장합니다.
  */
 interface StatefulEmitHandler: EmitHandler {
     /**
@@ -58,6 +64,9 @@ interface StatefulEmitHandler: EmitHandler {
  *     }
  * }
  * ```
+ *
+ * ## 동작/계약
+ * - 기본 [addEmit] 구현은 리스트에 append 후 `true`를 반환합니다.
  */
 abstract class AbstractStatefulEmitHandler: StatefulEmitHandler {
     /**
@@ -78,6 +87,9 @@ abstract class AbstractStatefulEmitHandler: StatefulEmitHandler {
  * 기본 StatefulEmitHandler 구현 클래스.
  *
  * 모든 Emit을 그대로 리스트에 저장합니다.
+ *
+ * ## 동작/계약
+ * - 전달된 모든 Emit을 누락 없이 [emits]에 저장합니다.
  */
 class DefaultEmitHandler: AbstractStatefulEmitHandler() {
     /**

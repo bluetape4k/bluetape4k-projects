@@ -6,6 +6,10 @@ import com.google.maps.OkHttpRequestHandler
 /**
  * Google Maps API를 사용하기 위한 [GeoApiContext]를 생성합니다.
  *
+ * ## 동작/계약
+ * - [requestHandlerBuilder]와 [builder] 설정으로 새 [GeoApiContext]를 생성합니다.
+ * - 호출마다 새 컨텍스트를 생성하며 기존 컨텍스트를 mutate하지 않습니다.
+ *
  * ```
  * val geoApiContext = geoApiContext {
  *    apiKey = "YOUR_API"

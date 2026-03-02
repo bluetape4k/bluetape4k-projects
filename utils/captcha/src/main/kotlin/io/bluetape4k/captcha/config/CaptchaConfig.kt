@@ -8,6 +8,16 @@ import java.io.Serializable
 /**
  * Captcha 생성 설정 정보
  *
+ * ## 동작/계약
+ * - 값 객체이며 설정 변경 시 새 인스턴스를 생성해 사용하는 것을 권장합니다.
+ * - [theme]에 따라 [themePalette], [backgroundColor] 계산 결과가 달라집니다.
+ * - 기본 폰트/팔레트 리스트는 mutable이므로 공유 시 외부 변경에 주의해야 합니다.
+ *
+ * ```kotlin
+ * val cfg = CaptchaConfig(length = 6, theme = CaptchaTheme.DARK)
+ * // cfg.backgroundColor == cfg.darkBackgroundColor
+ * ```
+ *
  * @property width Captcha 이미지의 너비
  * @property height Captcha 이미지의 높이
  * @property length Captcha 코드의 길이
@@ -80,9 +90,11 @@ data class CaptchaConfig(
     val isDarkTheme: Boolean get() = theme == CaptchaTheme.DARK
     val isLightTheme: Boolean get() = theme == CaptchaTheme.LIGHT
 
+    /** 현재 테마에서 사용할 문자 색상 팔레트입니다. */
     val themePalette: List<Color>
         get() = if (isDarkTheme) darkPalette else lightPalette
 
+    /** 현재 테마의 배경색입니다. */
     val backgroundColor: Color
         get() = if (isDarkTheme) darkBackgroundColor else lightBackgroundColor
 }
