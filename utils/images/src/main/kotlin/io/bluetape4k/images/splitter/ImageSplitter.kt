@@ -26,9 +26,20 @@ import javax.imageio.ImageIO
 class ImageSplitter private constructor(val defaultMaxHeight: Int) {
 
     companion object: KLogging() {
+        /** 분할 이미지의 최소 허용 높이 (128px) */
         const val DEFAULT_MIN_HEIGHT = 128
+
+        /** 분할 이미지의 기본 최대 높이 (2048px) */
         const val DEFAULT_MAX_HEIGHT = 2048
 
+        /**
+         * [ImageSplitter]를 생성합니다.
+         *
+         * - [maxHeight]가 [DEFAULT_MIN_HEIGHT]보다 작으면 [DEFAULT_MIN_HEIGHT]로 보정됩니다.
+         *
+         * @param maxHeight 분할 기준 최대 높이 (기본값: [DEFAULT_MAX_HEIGHT])
+         * @return [ImageSplitter] 인스턴스
+         */
         @JvmStatic
         operator fun invoke(maxHeight: Int = DEFAULT_MAX_HEIGHT): ImageSplitter {
             return ImageSplitter(maxHeight.coerceAtLeast(DEFAULT_MIN_HEIGHT))
@@ -97,7 +108,7 @@ class ImageSplitter private constructor(val defaultMaxHeight: Int) {
      * @param input         원본 이미지 정보
      * @param format        변환할 이미지 포맷 (JPG, PNG ...) (기본: [ImageFormat.JPG])
      * @param splitHeight   분할할 이미지의 Height (기본: [defaultMaxHeight])
-     * @param writer        이미지를 변환할 Writer (기본: [CoJpegWriter.Default])
+     * @param writer        이미지를 변환할 Writer (기본: [SuspendJpegWriter.Default])
      * @return 분할된 이미지 정보의 Flow
      */
     fun splitAndCompress(

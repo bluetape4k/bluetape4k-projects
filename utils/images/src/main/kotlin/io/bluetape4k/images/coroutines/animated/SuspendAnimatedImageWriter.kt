@@ -2,7 +2,8 @@ package io.bluetape4k.images.coroutines.animated
 
 import com.sksamuel.scrimage.nio.AnimatedGif
 import com.sksamuel.scrimage.nio.AnimatedImageWriter
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.OutputStream
 
 /**
@@ -10,7 +11,17 @@ import java.io.OutputStream
  */
 interface SuspendAnimatedImageWriter: AnimatedImageWriter {
 
-    suspend fun suspendWrite(gif: AnimatedGif, out: OutputStream) = coroutineScope {
-        write(gif, out)
+    /**
+     * Coroutines 방식으로 [gif]를 [out]에 씁니다.
+     *
+     * - 내부적으로 [Dispatchers.IO] 컨텍스트에서 실행합니다.
+     *
+     * @param gif 출력할 [AnimatedGif]
+     * @param out 쓰기 대상 [OutputStream]
+     */
+    suspend fun suspendWrite(gif: AnimatedGif, out: OutputStream) {
+        withContext(Dispatchers.IO) {
+            write(gif, out)
+        }
     }
 }

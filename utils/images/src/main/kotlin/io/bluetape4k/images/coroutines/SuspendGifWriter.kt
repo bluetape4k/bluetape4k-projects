@@ -7,7 +7,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
  * Coroutines 방식으로 gif 이미지를 생성합니다.
  *
  * ```
- * val writer = CoGifWriter()
+ * val writer = SuspendGifWriter()
  * val image = immutableImageOf(File("image.gif"))
  * writer.write(image, File("output.gif"))
  * ```

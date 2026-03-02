@@ -4,15 +4,15 @@ import com.sksamuel.scrimage.nio.PngWriter
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 
 /**
- * Coroutines 방식으로 PNG 파일을 생성하는 [CoImageWriter] 입니다.
+ * Coroutines 방식으로 PNG 파일을 생성하는 [SuspendImageWriter] 입니다.
  *
  * ```
- * val writer = CoPngWriter()
+ * val writer = SuspendPngWriter()
  * val image = immutableImageOf(File("image.png"))
  * writer.write(image, File("output.png"))
  * ```
  *
- * @param compressionLevel
+ * @param compressionLevel 압축 레벨 (0: 무압축, 9: 최대 압축, 기본값 9)
  */
 class SuspendPngWriter(
     compressionLevel: Int = 9,
@@ -29,14 +29,30 @@ class SuspendPngWriter(
         val NoComppression = SuspendPngWriter(0)
     }
 
+    /**
+     * 압축 레벨을 설정한 새 [SuspendPngWriter]를 반환합니다.
+     *
+     * @param compression 압축 레벨 (0: 무압축, 9: 최대 압축)
+     * @return 압축 레벨이 설정된 [SuspendPngWriter]
+     */
     override fun withCompression(compression: Int): SuspendPngWriter {
         return SuspendPngWriter(compression)
     }
 
+    /**
+     * 최대 압축(level=9)으로 설정된 [SuspendPngWriter]를 반환합니다.
+     *
+     * @return [MaxCompression] 인스턴스
+     */
     override fun withMaxCompression(): SuspendPngWriter {
         return MaxCompression
     }
 
+    /**
+     * 최소 압축(level=1)으로 설정된 [SuspendPngWriter]를 반환합니다.
+     *
+     * @return [MinCompression] 인스턴스
+     */
     override fun withMinCompression(): SuspendPngWriter {
         return MinCompression
     }

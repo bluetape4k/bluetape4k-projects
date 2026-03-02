@@ -139,4 +139,4 @@ try {
 
 - [Vert.x WebClient 문서](https://vertx.io/docs/vertx-web-client/java/)
 - [Vert.x Kotlin Coroutines](https://vertx.io/docs/vertx-lang-kotlin-coroutines/kotlin/)
-- [bluetape4k-vertx-core](../../vertx/core/README.md)
+- bluetape4k-vertx-core

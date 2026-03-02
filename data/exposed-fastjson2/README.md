@@ -120,4 +120,4 @@ val extraData: Map<String, Any>? = resultRow.getFastjsonOrNull(Products.extraDat
 
 - [JetBrains Exposed](https://github.com/JetBrains/Exposed)
 - [Fastjson2](https://github.com/alibaba/fastjson2)
-- [bluetape4k-fastjson2](../../io/fastjson2/README.md)
+- bluetape4k-fastjson2

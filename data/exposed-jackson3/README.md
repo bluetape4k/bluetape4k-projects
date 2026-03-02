@@ -112,5 +112,5 @@ val query2 = Users.selectAll()
 
 - [JetBrains Exposed](https://github.com/JetBrains/Exposed)
 - [Jackson 3.x](https://github.com/FasterXML/jackson)
-- [bluetape4k-jackson3](../../io/jackson3/README.md)
-- [bluetape4k-exposed-jackson](../exposed-jackson/README.md)
+- bluetape4k-jackson3
+- bluetape4k-exposed-jackson

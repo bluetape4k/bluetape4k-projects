@@ -94,7 +94,7 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
      *
      * ## 동작/계약
      * - `StructuredTaskScope.open<T, T>(Joiner.anySuccessfulResultOrThrow(), ...)`를 사용합니다.
-     * - [StructuredTaskScopeAny.result]에서 join 실패를 [mapper] 예외로 변환합니다.
+     * - [StructuredTaskScopeAny.result]에서 join 실패를 `mapper` 예외로 변환합니다.
      *
      * ```kotlin
      * val result = Jdk25StructuredTaskScopeProvider().withAny<String> { scope ->

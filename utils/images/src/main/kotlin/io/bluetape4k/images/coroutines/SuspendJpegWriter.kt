@@ -7,7 +7,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
  * Coroutines 방식으로 JPEG 이미지를 생성한다.
  *
  * ```
- * val writer = CoJpegWriter()
+ * val writer = SuspendJpegWriter()
  * val image = immutableImageOf(File("image.jpg"))
  * writer.write(image, File("output.jpg"))
  * ```

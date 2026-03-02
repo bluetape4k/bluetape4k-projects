@@ -103,4 +103,4 @@ val userBySsn = Users.selectAll()
 
 - [JetBrains Exposed](https://github.com/JetBrains/Exposed)
 - [Jasypt](http://www.jasypt.org/)
-- [bluetape4k-crypto](../../bluetape4k/crypto/README.md)
+- bluetape4k-crypto

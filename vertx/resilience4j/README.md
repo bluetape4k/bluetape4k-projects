@@ -169,5 +169,5 @@ VertxDecorators.ofSupplier { apiCall() }
 
 - [Resilience4j](https://resilience4j.readme.io/)
 - [Eclipse Vert.x](https://vertx.io/)
-- [bluetape4k-resilience4j](../../infra/resilience4j/README.md)
-- [bluetape4k-vertx-core](../core/README.md)
+- [Resilience4j](https://resilience4j.readme.io/) (bluetape4k-resilience4j)
+- bluetape4k-vertx-core

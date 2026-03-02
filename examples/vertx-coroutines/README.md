@@ -77,4 +77,4 @@ fun `should return movie rating`(vertx: Vertx, testContext: VertxTestContext) = 
 ## 참고
 
 - [Vert.x Kotlin Coroutines](https://vertx.io/docs/vertx-lang-kotlin-coroutines/kotlin/)
-- [bluetape4k-vertx-core](../../vertx/core/README.md)
+- bluetape4k-vertx-core

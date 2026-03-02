@@ -137,7 +137,7 @@ suspend fun suspendLoadImage(file: File): ImmutableImage =
  * Coroutines 환경에서 [Path]의 파일을 읽어 [ImmutableImage]로 변환합니다.
  *
  * ## 동작/계약
- * - [path.readAllBytesSuspending] 결과를 디코딩합니다.
+ * - `path.readAllBytesSuspending()` 결과를 디코딩합니다.
  *
  * ```kotlin
  * val image = suspendLoadImage(path)

@@ -50,7 +50,7 @@ fun <T> Future<T>.recover(
 }
 
 /**
- * Vert.x [Future]가 [exceptionType]에 해당하는 예외가 발생하는 경우 [exceptionHandler]를 실행하여 복구합니다.
+ * Vert.x [Future]가 [exceptionTypes]에 해당하는 예외가 발생하는 경우 [exceptionHandler]를 실행하여 복구합니다.
  */
 private fun <T> tryRecover(
     exceptionTypes: Iterable<Class<out Throwable?>>,

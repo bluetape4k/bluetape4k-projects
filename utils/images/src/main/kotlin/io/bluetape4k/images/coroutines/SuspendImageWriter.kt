@@ -4,7 +4,8 @@ import com.sksamuel.scrimage.AwtImage
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.metadata.ImageMetadata
 import com.sksamuel.scrimage.nio.ImageWriter
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.OutputStream
 
 /**
@@ -19,8 +20,10 @@ interface SuspendImageWriter: ImageWriter {
      * @param metadata 이미지의 메타데이터 ([ImageMetadata])
      * @param out    쓰기 대상 [OutputStream]
      */
-    suspend fun suspendWrite(image: AwtImage, metadata: ImageMetadata, out: OutputStream) = coroutineScope {
-        write(image, metadata, out)
+    suspend fun suspendWrite(image: AwtImage, metadata: ImageMetadata, out: OutputStream) {
+        withContext(Dispatchers.IO) {
+            write(image, metadata, out)
+        }
     }
 
     /**

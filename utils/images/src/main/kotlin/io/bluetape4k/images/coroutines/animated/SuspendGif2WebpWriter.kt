@@ -17,15 +17,32 @@ class SuspendGif2WebpWriter(
         val Default = SuspendGif2WebpWriter()
     }
 
+    /**
+     * 손실 압축 모드를 활성화한 새 [SuspendGif2WebpWriter]를 반환합니다.
+     *
+     * @return 손실 압축이 활성화된 [SuspendGif2WebpWriter]
+     */
     override fun withLossy(): SuspendGif2WebpWriter {
         return SuspendGif2WebpWriter(q, m, true)
     }
 
+    /**
+     * 품질(Quality) 값을 설정한 새 [SuspendGif2WebpWriter]를 반환합니다.
+     *
+     * @param q 품질 값 (0~100)
+     * @return 품질이 설정된 [SuspendGif2WebpWriter]
+     */
     override fun withQ(q: Int): SuspendGif2WebpWriter {
         q.requireInRange(0, 100, "q")
         return SuspendGif2WebpWriter(q, m, lossy)
     }
 
+    /**
+     * 압축 방법(Method) 값을 설정한 새 [SuspendGif2WebpWriter]를 반환합니다.
+     *
+     * @param m 압축 방법 값 (0~6)
+     * @return 압축 방법이 설정된 [SuspendGif2WebpWriter]
+     */
     override fun withM(m: Int): SuspendGif2WebpWriter {
         m.requireInRange(0, 6, "m")
         return SuspendGif2WebpWriter(q, m, lossy)

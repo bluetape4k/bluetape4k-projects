@@ -25,10 +25,20 @@ object IIORegistryUtils {
         return registry.getServiceProviders(T::class.java, false).asSequence()
     }
 
+    /**
+     * 등록된 모든 [ImageReaderSpi] 목록을 반환합니다.
+     *
+     * @return [ImageReaderSpi] 목록
+     */
     fun getImageReaderSpis(): List<ImageReaderSpi> {
         return getServiceProviders<ImageReaderSpi>().toList()
     }
 
+    /**
+     * 등록된 모든 [ImageWriterSpi] 목록을 반환합니다.
+     *
+     * @return [ImageWriterSpi] 목록
+     */
     fun getImageWriterSpis(): List<ImageWriterSpi> {
         return getServiceProviders<ImageWriterSpi>().toList()
     }

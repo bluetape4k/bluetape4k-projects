@@ -33,7 +33,7 @@ dependencies {
 - **TemporalAccessor 포맷팅**: `toIsoInstantString()`, `toIsoDateString()` 등
 - **Quarter (분기) 지원**: `Quarter.Q1`, `YearQuarter(2024, Quarter.Q1)` 등
 
-자세한 사용법은 [bluetape4k-core README](../../bluetape4k/core/README.md)를 참조하세요.
+자세한 사용법은 `bluetape4k-core` 모듈 README를 참조하세요.
 
 ## 주요 기능 (이 모듈 제공)
 

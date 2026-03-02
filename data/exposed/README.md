@@ -56,7 +56,7 @@ dependencies {
 - `HasIdentifier<ID>`, `ExposedPage<T>` 공통 인터페이스
 - `BatchInsertOnConflictDoNothing`
 
-- [README 상세](../exposed-core/README.md)
+- 자세한 내용: `bluetape4k-exposed-core` 모듈 README 참조
 
 ### bluetape4k-exposed-dao
 
@@ -65,7 +65,7 @@ dependencies {
 - 커스텀 IdTable: `KsuidTable`, `KsuidMillisTable`, `SnowflakeIdTable`, `TimebasedUUIDTable`, `TimebasedUUIDBase62Table`,
   `SoftDeletedIdTable`
 
-- [README 상세](../exposed-dao/README.md)
+- 자세한 내용: `bluetape4k-exposed-dao` 모듈 README 참조
 
 ### bluetape4k-exposed-jdbc
 
@@ -75,7 +75,7 @@ dependencies {
 - `virtualThreadTransaction { }` — JDK 21+ Virtual Thread 트랜잭션
 - `SchemaUtilsExtensions`, `TableExtensions`, `ImplicitSelectAll`
 
-- [README 상세](../exposed-jdbc/README.md)
+- 자세한 내용: `bluetape4k-exposed-jdbc` 모듈 README 참조
 
 ## 테스트
 
@@ -89,6 +89,6 @@ dependencies {
 ## 참고
 
 - [JetBrains Exposed](https://github.com/JetBrains/Exposed)
-- [bluetape4k-exposed-core](../exposed-core)
-- [bluetape4k-exposed-dao](../exposed-dao)
-- [bluetape4k-exposed-jdbc](../exposed-jdbc)
+- bluetape4k-exposed-core
+- bluetape4k-exposed-dao
+- bluetape4k-exposed-jdbc
