@@ -7,28 +7,32 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.future.await
 
 /**
- * [AsyncResultSet]의 현재 Page 뿐 아니라 Next Page들을 계속 읽어서 emit 하는 [Flow]로 반환합니다.
+ * [AsyncResultSet]의 모든 페이지를 순회하는 [Flow]를 반환합니다.
  *
+ * ## 동작/계약
+ * - 내부적으로 [asFlow]의 mapper 버전을 `it` 매퍼로 호출합니다.
+ * - 현재 페이지부터 `hasMorePages()`가 `false`가 될 때까지 순차 fetch 합니다.
+ * - 페이지 fetch 중 예외가 발생하면 flow 수집 시점에 전파됩니다.
+ *
+ * ```kotlin
+ * val rows = resultSet.asFlow().toList()
+ * // rows.size >= 0
  * ```
- * val result = session.executeAsync("SELECT * FROM table")
- * result.asFlow().collect { row ->
- *    println(row)
- *    // do something
- *    // ...
- * }
  */
 fun AsyncResultSet.asFlow(): Flow<Row> = asFlow { it }
 
 /**
- * [AsyncResultSet]의 현재 Page 뿐 아니라 Next Page들을 계속 읽어서 [mapper]를 이용한 변환한 값을 emit 하는 [Flow]로 반환합니다.
+ * [AsyncResultSet]의 모든 페이지를 순회하며 각 [Row]를 매핑해 방출합니다.
  *
- * ```
- * val result = session.executeAsync("SELECT * FROM table")
- * val entities = result.asFlow { row -> row.toEntity() }.toList()
- * ```
+ * ## 동작/계약
+ * - 현재 페이지를 모두 emit한 뒤 다음 페이지를 `fetchNextPage().await()`로 가져옵니다.
+ * - [mapper]는 각 row마다 1회 호출되며 mapper 예외는 즉시 수집자로 전파됩니다.
+ * - 페이지 수와 row 수에 비례해 동작하며 중간 컬렉션을 별도로 만들지 않습니다.
  *
- * @param mapper [Row]를 변환할 함수
- * @return [Flow] 인스턴스
+ * ```kotlin
+ * val ids = resultSet.asFlow { row -> row.getLong("id") }.toList()
+ * // ids.all { it > 0L } == true
+ * ```
  */
 inline fun <T> AsyncResultSet.asFlow(crossinline mapper: suspend (row: Row) -> T): Flow<T> = flow {
     var page = this@asFlow
