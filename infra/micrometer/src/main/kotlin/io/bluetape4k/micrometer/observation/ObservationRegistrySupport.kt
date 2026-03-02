@@ -4,24 +4,31 @@ import io.micrometer.observation.Observation
 import io.micrometer.observation.ObservationRegistry
 
 /**
- * 아묟은 동작도 하지 않는 Noop ObservationRegistry 인스턴스입니다.
+ * 아무 동작도 수행하지 않는 NOOP [ObservationRegistry]를 반환합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 `ObservationRegistry.NOOP` 상수를 그대로 반환합니다.
+ * - 생성 비용이나 추가 할당이 없습니다.
+ *
+ * ```kotlin
+ * val registry = NoopObservationRegistry
+ * // registry === ObservationRegistry.NOOP
+ * ```
  */
 val NoopObservationRegistry: ObservationRegistry get() = ObservationRegistry.NOOP
 
 /**
- * 커스텀 [io.micrometer.observation.ObservationHandler]를 가진 [ObservationRegistry]를 생성합니다.
+ * 관측 컨텍스트 처리 함수를 등록한 [ObservationRegistry]를 생성합니다.
  *
- * ObservationHandler를 등록하지 않으면, 기본적으로 [io.micrometer.observation.Observation.NOOP]으로 취급해서, 아묟은 동작을 하지 않습니다.
+ * ## 동작/계약
+ * - `ObservationRegistry.create()`로 새 레지스트리를 만들고 handler를 1개 등록합니다.
+ * - [observationHandler]가 `true`를 반환하면 체인 처리를 계속합니다.
+ * - handler를 명시하지 않으면 모든 컨텍스트를 통과시키는 기본 구현을 사용합니다.
  *
  * ```kotlin
- * val observationRegistry = observationRegistryOf { ctx ->
- *     log.trace { "Current context: $ctx" }
- *     true
- * }
+ * val registry = observationRegistryOf { ctx -> ctx.name != null }
+ * // registry != ObservationRegistry.NOOP
  * ```
- *
- * @param observationHandler Observation 컨텍스트를 처리할 핸들러. true를 반환하면 계속 처리됩니다.
- * @return 설정된 [ObservationRegistry] 인스턴스
  */
 inline fun observationRegistryOf(crossinline observationHandler: (Observation.Context) -> Boolean = { true }): ObservationRegistry =
     ObservationRegistry.create().apply {
@@ -29,14 +36,16 @@ inline fun observationRegistryOf(crossinline observationHandler: (Observation.Co
     }
 
 /**
- * [io.micrometer.observation.SimpleObservationRegistry] with a custom [io.micrometer.observation.ObservationHandler].
+ * 단순 처리 함수 기반 [ObservationRegistry]를 생성합니다.
  *
- * ObservationHandler를 등록하지 않으면, 기본적으로 [io.micrometer.observation.Observation.NOOP]으로 취급해서, 아무런 동작을 하지 않습니다.
+ * ## 동작/계약
+ * - [observationHandler]를 실행한 뒤 항상 `true`를 반환해 체인 처리를 유지합니다.
+ * - 반환값 없는 부수효과 처리(handler 로깅/태깅)에 적합합니다.
+ * - 호출마다 새 레지스트리 인스턴스를 반환합니다.
  *
- * ```
- * val observationRegistry = simpleObservationRegistryOf { ctx ->
- *         log.trace { "Current context: $ctx" }
- * }
+ * ```kotlin
+ * val registry = simpleObservationRegistryOf { ctx -> ctx.put("service", "user") }
+ * // registry != ObservationRegistry.NOOP
  * ```
  */
 inline fun simpleObservationRegistryOf(crossinline observationHandler: (Observation.Context) -> Unit = { }): ObservationRegistry =
@@ -48,23 +57,18 @@ inline fun simpleObservationRegistryOf(crossinline observationHandler: (Observat
     }
 
 /**
- * 주어진 이름으로 Observation을 시작합니다.
+ * 이름과 컨텍스트 이름을 설정한 [Observation]을 생성하고 즉시 시작합니다.
+ *
+ * ## 동작/계약
+ * - `Observation.Context`에 `name`, `contextualName` 값을 저장합니다.
+ * - `Observation.start(...)`를 호출해 시작된 인스턴스를 반환합니다.
+ * - [contextualName] 기본값은 [name]입니다.
  *
  * ```kotlin
- * val observation = registry.start("user.service", "getUser")
- * try {
- *     val user = userService.findById(id)
- *     observation.stop()
- *     return user
- * } catch (e: Exception) {
- *     observation.error(e)
- *     throw e
- * }
+ * val obs = registry.start("user.service", "getUser")
+ * obs.stop()
+ * // obs.context.get<String>("name") == "user.service"
  * ```
- *
- * @param name Observation의 이름
- * @param contextualName 컨텍스트 이름 (기본값: name)
- * @return 시작된 [Observation] 인스턴스
  */
 fun ObservationRegistry.start(
     name: String,
@@ -79,18 +83,18 @@ fun ObservationRegistry.start(
 }
 
 /**
- * 주어진 이름으로 Observation을 생성하지만 시작하지는 않습니다.
- * 추가 설정을 한 후 [Observation.start()]를 호출해야 합니다.
+ * 이름과 컨텍스트를 설정한 [Observation]을 생성하되 시작하지 않고 반환합니다.
+ *
+ * ## 동작/계약
+ * - `Observation.Context`에 `name`, `contextualName`를 저장합니다.
+ * - 반환 후 호출자가 key-value를 추가한 뒤 `.start()`를 호출할 수 있습니다.
+ * - [contextualName] 기본값은 [name]입니다.
  *
  * ```kotlin
- * val observation = registry.createNotStarted("user.service")
- *     .lowCardinalityKeyValue("user.type", "premium")
- *     .start()
+ * val obs = registry.createNotStarted("user.service")
+ * obs.start(); obs.stop()
+ * // obs.context.get<String>("contextualName") == "user.service"
  * ```
- *
- * @param name Observation의 이름
- * @param contextualName 컨텍스트 이름 (기본값: name)
- * @return 생성된 [Observation] 인스턴스
  */
 fun ObservationRegistry.createNotStarted(
     name: String,
