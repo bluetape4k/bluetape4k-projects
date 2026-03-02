@@ -15,17 +15,33 @@ import io.opentelemetry.sdk.metrics.SdkMeterProvider
 import io.opentelemetry.sdk.trace.SdkTracerProvider
 
 /**
- * ট্রেসিং, মেট্রিক্স, এবং ব্যাগেজের জন্য টেলিমেট্রি কার্যকারিতার প্রবেশদ্বার।
+ * OpenTelemetry no-op 인스턴스를 제공합니다.
  *
- * ওপেনটেলিমেট্রি SDK ব্যবহার করলে, আপনি কনফিগারেশন প্রদানের জন্য [OpenTelemetry] 인스턴স তৈরি করতে চাইতে পারেন,
- * উদাহরণস্বরূপ `Resource` বা `Sampler`। SDK [OpenTelemetry] কীভাবে তৈরি করবেন সে সম্পর্কে তথ্যের জন্য
- * [OpenTelemetrySdk] এবং [OpenTelemetrySdk.builder] দেখুন।
+ * ## 동작/계약
+ * - 내부적으로 `OpenTelemetry.noop()` 결과를 상수로 보관합니다.
+ * - 추적/메트릭/로그 API 호출 시 실제 내보내기 동작은 수행하지 않습니다.
+ * - 기본값이나 테스트용 OpenTelemetry가 필요할 때 사용할 수 있습니다.
+ *
+ * ```kotlin
+ * val otel = NoopOpenTelemetry
+ * // otel === OpenTelemetry.noop()
+ * ```
  */
 @JvmField
 val NoopOpenTelemetry: OpenTelemetry = OpenTelemetry.noop()
 
 /**
- * 등록된 글로벌 [OpenTelemetry]를 반환합니다.
+ * 전역 [OpenTelemetry]를 조회하거나 교체합니다.
+ *
+ * ## 동작/계약
+ * - getter는 `GlobalOpenTelemetry.get()`를 반환합니다.
+ * - setter는 `GlobalOpenTelemetry.set(value)`를 호출합니다.
+ * - 전역 인스턴스 교체는 프로세스 전반에 영향을 줍니다.
+ *
+ * ```kotlin
+ * globalOpenTelemetry = NoopOpenTelemetry
+ * // globalOpenTelemetry === NoopOpenTelemetry
+ * ```
  */
 var globalOpenTelemetry: OpenTelemetry
     get() = GlobalOpenTelemetry.get()
@@ -34,8 +50,17 @@ var globalOpenTelemetry: OpenTelemetry
     }
 
 /**
- * 제공된 [ContextPropagators]를 사용하여 [io.opentelemetry.context.Context]의 원격 전파를 수행하고
- * 그 외에는 no-op인 [OpenTelemetry]를 반환합니다.
+ * 지정한 [ContextPropagators]만 적용된 [OpenTelemetry]를 생성합니다.
+ *
+ * ## 동작/계약
+ * - `OpenTelemetry.propagating(propagators)`를 호출합니다.
+ * - 추적/메트릭 provider는 no-op이고 context 전파만 유효합니다.
+ * - 호출마다 새 인스턴스를 반환합니다.
+ *
+ * ```kotlin
+ * val otel = openTelemetryOf(propagators)
+ * // otel.propagators === propagators
+ * ```
  */
 fun openTelemetryOf(propagators: ContextPropagators): OpenTelemetry =
     OpenTelemetry.propagating(propagators)
