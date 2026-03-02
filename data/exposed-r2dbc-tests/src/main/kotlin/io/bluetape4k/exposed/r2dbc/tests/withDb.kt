@@ -34,6 +34,18 @@ private suspend fun acquireSemaphoreSuspending(testDB: TestDB) =
  *
  * 같은 [testDB]를 사용하는 테스트는 공용 세마포어로 직렬화되어,
  * 병렬 실행 시 초기화/연결/테이블 작업 충돌을 방지합니다.
+ *
+ * ## 동작/계약
+ * - 첫 호출 시 DB 연결을 생성해 [TestDB.db]에 저장하고 종료 훅을 등록합니다.
+ * - [configure]를 전달하면 해당 호출에만 임시 적용한 뒤 기존 DB 참조로 복원합니다.
+ * - 트랜잭션은 `maxAttempts = 1`로 실행되며 `currentTestDB`가 설정됩니다.
+ *
+ * ```kotlin
+ * withDb(TestDB.H2) {
+ *     val database = testDB.db
+ *     // database != null
+ * }
+ * ```
  */
 suspend fun withDb(
     testDB: TestDB,
