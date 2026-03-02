@@ -20,10 +20,19 @@ import java.io.Serializable
 import java.util.*
 
 /**
- * Jackson 3.x의 [NonBlockingByteArrayJsonParser]를 사용하여 비동기 방식으로 JSON을 파싱하는 클래스입니다.
+ * Non-blocking Jackson 3 파서로 바이트 청크를 받아 JSON 루트 노드를 완성하는 파서입니다.
  *
- * 바이트 배열을 청크 단위로 공급(feed)하면, JSON 노드가 완성될 때마다
- * [onNodeDone] 콜백이 호출됩니다.
+ * ## 동작/계약
+ * - [consume] 호출 시 입력 청크를 공급하고 가능한 토큰을 즉시 처리합니다.
+ * - 루트 노드가 완성될 때마다 [onNodeDone] 콜백을 호출합니다.
+ * - 비정상 토큰 시퀀스는 [JsonParsingException]으로 전파됩니다.
+ *
+ * ```kotlin
+ * val roots = mutableListOf<JsonNode>()
+ * val parser = AsyncJsonParser(onNodeDone = { roots += it })
+ * parser.consume("{\"id\":1}".toByteArray())
+ * // roots.first()["id"].asInt() == 1
+ * ```
  *
  * @param jsonFactory JSON 파서 팩토리
  * @param onNodeDone JSON 노드가 완성될 때 호출되는 콜백
@@ -70,7 +79,11 @@ class AsyncJsonParser(
     }
 
     /**
-     * 바이트 배열을 비동기 JSON 파서에 공급합니다. 최상위 노드가 완성되면 [onNodeDone] 콜백을 호출합니다.
+     * 바이트 배열 청크를 파서에 공급합니다.
+     *
+     * ## 동작/계약
+     * - [length]만큼 입력을 공급합니다.
+     * - 루트 노드가 완성되면 [onNodeDone]을 호출합니다.
      */
     fun consume(bytes: ByteArray, length: Int = bytes.size) {
         val feeder = parser.nonBlockingInputFeeder()

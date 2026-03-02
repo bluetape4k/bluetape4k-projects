@@ -7,9 +7,18 @@ import tools.jackson.databind.DeserializationContext
 import tools.jackson.databind.deser.std.StdDeserializer
 
 /**
- * [JsonEncrypt] annotation이 적용된 필드의 암호화된 값을 JSON 역직렬화 시에 복호화를 수행합니다.
+ * [JsonEncrypt]가 적용된 문자열 필드를 복호화해 역직렬화하는 deserializer입니다.
  *
- * @property annotation [JsonEncrypt] annotation or null
+ * ## 동작/계약
+ * - [annotation]이 존재하면 암호문 문자열을 읽어 복호화 결과를 반환합니다.
+ * - [annotation]이 없으면 null을 반환해 기본 역직렬화 경로로 위임됩니다.
+ *
+ * ```kotlin
+ * val deserializer = JsonEncryptDeserializer()
+ * // @JsonEncrypt 필드는 평문 문자열로 복원됨
+ * ```
+ *
+ * @property annotation 필드에 선언된 JsonEncrypt 애너테이션
  *
  * @see JsonEncrypt
  */
@@ -19,9 +28,7 @@ class JsonEncryptDeserializer(
 
     companion object: KLogging()
 
-    /**
-     * JSON에서 암호화된 문자열을 읽어 복호화하여 반환합니다.
-     */
+    /** 암호문 문자열을 복호화해 반환합니다. */
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext?): String? {
         return safeLet(annotation, p) { ann, parser ->
             val readContext = parser.objectReadContext()

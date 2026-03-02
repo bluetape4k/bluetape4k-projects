@@ -7,10 +7,19 @@ import tools.jackson.databind.introspect.JacksonAnnotationIntrospector
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- *  [JsonMasker] annotation 이 적용된 속성의 값을 지정된 masking 된 문자열로 직렬화 합니다.
+ * [JsonMasker] 애너테이션을 읽어 마스킹 serializer를 선택하는 인트로스펙터입니다.
  *
- *  @see [JsonMasker]
- *  @see [JsonMaskerModule]
+ * ## 동작/계약
+ * - 애너테이션이 존재할 때만 커스텀 serializer를 반환합니다.
+ * - 마스킹 문자열 값별 serializer 인스턴스를 캐시합니다.
+ *
+ * ```kotlin
+ * val introspector = JsonMaskerAnnotationInterospector()
+ * // @JsonMasker 필드에 대해 serializer를 선택함
+ * ```
+ *
+ * @see [JsonMasker]
+ * @see [JsonMaskerModule]
  */
 class JsonMaskerAnnotationInterospector: JacksonAnnotationIntrospector() {
 
@@ -19,9 +28,7 @@ class JsonMaskerAnnotationInterospector: JacksonAnnotationIntrospector() {
         private val serializers = ConcurrentHashMap<String, JsonMaskerSerializer>()
     }
 
-    /**
-     * [JsonMasker] 어노테이션이 적용된 필드에 대해 마스킹 직렬화기를 반환합니다.
-     */
+    /** 직렬화기 선택 규칙을 반환합니다. */
     override fun findSerializer(config: MapperConfig<*>?, a: Annotated?): Any? {
         val jsonMasker = _findAnnotation(a, ANNOTATION_TYPE)
         return jsonMasker?.let {

@@ -17,7 +17,11 @@ import kotlin.use
 private val log by lazy { KotlinLogging.logger { } }
 
 /**
- * Jackson Json Library 가 제공하는 [JsonMapper] 를 빌드합니다.
+ * [JsonMapper.Builder] DSL로 Jackson 3 매퍼를 생성합니다.
+ *
+ * ## 동작/계약
+ * - 매 호출마다 새 [JsonMapper]를 생성합니다.
+ * - [builder] 블록 설정만 반영되며 기존 매퍼를 mutate하지 않습니다.
  *
  * ```
  * val mapper: JsonMapper = jsonMapper {
@@ -35,7 +39,7 @@ inline fun jsonMapper(@BuilderInference builder: JsonMapper.Builder.() -> Unit):
 }
 
 /**
- * Jackson 3.x의 [TypeReference]를 reified 타입으로 생성합니다.
+ * reified 타입 [T]의 Jackson 3 [TypeReference]를 생성합니다.
  */
 inline fun <reified T> jacksonTypeRef(): TypeReference<T> = object: TypeReference<T>() {}
 
@@ -94,7 +98,11 @@ inline fun <reified T> ObjectMapper.treeToValueOrNull(node: TreeNode): T? =
     runCatching { treeToValue(node, T::class.java) }.getOrNull()
 
 /**
- * 객체를 JSON 형식의 문자열로 변환합니다.
+ * 객체를 JSON 문자열로 직렬화합니다.
+ *
+ * ## 동작/계약
+ * - [graph]가 null이면 null을 반환합니다.
+ * - null이 아니면 [ObjectMapper.writeValueAsString] 결과를 반환합니다.
  */
 fun <T: Any> ObjectMapper.writeAsString(graph: T?): String? =
     graph?.run { writeValueAsString(graph) }

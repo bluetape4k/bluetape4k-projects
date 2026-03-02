@@ -9,7 +9,12 @@ import java.math.BigDecimal
 import java.math.BigInteger
 
 /**
- * [fieldName]을 키로 하여 [JsonNode]를 추가합니다.
+ * 현재 노드에 객체 노드를 생성해 추가합니다.
+ *
+ * ## 동작/계약
+ * - [ObjectNode]면 [fieldName] 키에 객체 노드를 생성합니다.
+ * - [ArrayNode]면 배열 끝에 객체 노드를 추가합니다.
+ * - 그 외 타입이면 독립된 새 객체 노드를 반환합니다.
  */
 fun JsonNode.createNode(fieldName: String?): JsonNode = when (this) {
     is ObjectNode -> putObject(fieldName)
@@ -18,7 +23,12 @@ fun JsonNode.createNode(fieldName: String?): JsonNode = when (this) {
 }
 
 /**
- * [fieldName]을 키로 하여 [JsonNode] 배열을 추가합니다.
+ * 현재 노드에 배열 노드를 생성해 추가합니다.
+ *
+ * ## 동작/계약
+ * - [ObjectNode]면 [fieldName] 키에 배열 노드를 생성합니다.
+ * - [ArrayNode]면 배열 끝에 배열 노드를 추가합니다.
+ * - 그 외 타입이면 독립된 새 배열 노드를 반환합니다.
  */
 fun JsonNode.createArray(fieldName: String?): JsonNode = when (this) {
     is ObjectNode -> putArray(fieldName)

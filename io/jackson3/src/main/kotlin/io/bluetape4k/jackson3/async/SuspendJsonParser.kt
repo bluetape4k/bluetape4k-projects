@@ -21,10 +21,19 @@ import java.io.Serializable
 import java.util.*
 
 /**
- * Jackson 3.x의 [NonBlockingByteArrayJsonParser]를 사용하여 코루틴(suspend) 방식으로 JSON을 파싱하는 클래스입니다.
+ * `Flow<ByteArray>` 입력을 코루틴 방식으로 파싱해 JSON 루트 노드를 순차 전달하는 파서입니다.
  *
- * [Flow]로 전달되는 바이트 배열 청크를 수집하면서 JSON 노드를 점진적으로 빌드하며,
- * 완성된 노드마다 suspend 콜백 [onNodeDone]을 호출합니다.
+ * ## 동작/계약
+ * - [consume]는 Flow를 수집하며 청크를 non-blocking parser에 공급합니다.
+ * - 루트 노드 완성 시마다 [onNodeDone] suspend 콜백을 호출합니다.
+ * - 비정상 토큰 시퀀스는 [JsonParsingException]으로 전파됩니다.
+ *
+ * ```kotlin
+ * val roots = mutableListOf<JsonNode>()
+ * val parser = SuspendJsonParser(onNodeDone = { roots += it })
+ * parser.consume(flowOf("{\"id\":1}".toByteArray()))
+ * // roots.first()["id"].asInt() == 1
+ * ```
  *
  * @param jsonFactory JSON 파서 팩토리
  * @param onNodeDone JSON 노드가 완성될 때 호출되는 suspend 콜백
@@ -72,6 +81,10 @@ class SuspendJsonParser(
 
     /**
      * [Flow]에서 바이트 배열 청크를 수집하여 JSON을 점진적으로 파싱합니다.
+     *
+     * ## 동작/계약
+     * - Flow 요소를 순서대로 읽어 파서 입력으로 사용합니다.
+     * - 루트 완성 시 [onNodeDone]을 호출합니다.
      */
     suspend fun consume(flow: Flow<ByteArray>) {
         val feeder = parser.nonBlockingInputFeeder()

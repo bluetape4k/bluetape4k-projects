@@ -10,7 +10,16 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 
 /**
- * [JsonEncrypt] annotation이 적용된 속성의 값을 JSON 직렬화/역직렬화 시에 암호화/복호화하는 Serializer/Deserializer를 관리합니다.
+ * [JsonEncrypt] 애너테이션을 읽어 암복호화 serializer/deserializer를 선택하는 인트로스펙터입니다.
+ *
+ * ## 동작/계약
+ * - 애너테이션이 존재할 때만 커스텀 serializer/deserializer를 반환합니다.
+ * - encryptor 타입별 인스턴스를 캐시해 재사용합니다.
+ *
+ * ```kotlin
+ * val introspector = JsonEncryptAnnotationInterospector()
+ * // @JsonEncrypt 필드에 대해 serializer/deserializer를 선택함
+ * ```
  *
  * @see [JsonEncrypt]
  * @see [JsonEncryptSerializer]
@@ -25,9 +34,7 @@ class JsonEncryptAnnotationInterospector: JacksonAnnotationIntrospector() {
         private val deserializers = ConcurrentHashMap<KClass<out Encryptor>, JsonEncryptDeserializer>()
     }
 
-    /**
-     * [JsonEncrypt] 어노테이션이 적용된 필드에 대해 암호화 직렬화기를 반환합니다.
-     */
+    /** 직렬화기 선택 규칙을 반환합니다. */
     override fun findSerializer(config: MapperConfig<*>, a: Annotated): Any? {
         val jsonEncrypt = _findAnnotation(a, ANNOTATION_TYPE)
         log.debug { "find serializer. annotated=$a, jsonEncrypt=$jsonEncrypt" }
@@ -39,9 +46,7 @@ class JsonEncryptAnnotationInterospector: JacksonAnnotationIntrospector() {
         }
     }
 
-    /**
-     * [JsonEncrypt] 어노테이션이 적용된 필드에 대해 복호화 역직렬화기를 반환합니다.
-     */
+    /** 역직렬화기 선택 규칙을 반환합니다. */
     override fun findDeserializer(config: MapperConfig<*>, a: Annotated): Any? {
         val jsonEncrypt = _findAnnotation(a, ANNOTATION_TYPE)
         log.debug { "find deserializer. annotated=$a, jsonEncrypt=$jsonEncrypt" }

@@ -12,18 +12,17 @@ import tools.jackson.module.kotlin.jsonMapper
 import tools.jackson.module.kotlin.kotlinModule
 
 /**
- * Jackson 3.x JSON 라이브러리의 기본 [JsonMapper] 인스턴스와 설정을 제공하는 싱글턴 객체입니다.
+ * Jackson 3 기본 매퍼 구성을 제공하는 싱글턴입니다.
  *
- * Kotlin 모듈 등 일반적으로 사용되는 설정이 미리 구성된
- * [JsonMapper] 인스턴스를 지연 생성(lazy) 방식으로 제공합니다.
- *
- * ### 사용 예시
+ * ## 동작/계약
+ * - [defaultJsonMapper]와 [prettyJsonWriter]는 lazy 초기화 후 동일 인스턴스를 재사용합니다.
+ * - 모듈 자동 등록과 Kotlin feature 설정을 포함한 기본 JsonMapper를 제공합니다.
+ * - 매퍼 생성/설정 실패 시 예외가 호출자에게 전파됩니다.
  *
  * ```kotlin
  * val mapper = Jackson.defaultJsonMapper
- * val json = mapper.writeValueAsString(data)
- *
  * val prettyJson = Jackson.prettyJsonWriter.writeValueAsString(data)
+ * // prettyJson.contains(\"\\n\") == true
  * ```
  */
 object Jackson: KLogging() {
@@ -41,8 +40,14 @@ object Jackson: KLogging() {
     /**
      * 기본 Jackson 3.x [JsonMapper]를 생성합니다.
      *
-     * 클래스패스에 있는 Jackson 모듈을 자동으로 찾아 등록하고,
-     * 일반적으로 많이 사용하는 직렬화/역직렬화 특성을 설정합니다.
+     * ## 동작/계약
+     * - classpath 모듈 자동 등록 후 직렬화/역직렬화 feature를 설정합니다.
+     * - 호출할 때마다 새 [JsonMapper] 인스턴스를 생성합니다.
+     *
+     * ```kotlin
+     * val mapper = Jackson.createDefaultJsonMapper()
+     * // mapper !== Jackson.defaultJsonMapper
+     * ```
      *
      * @return 설정이 완료된 [JsonMapper] 인스턴스
      */

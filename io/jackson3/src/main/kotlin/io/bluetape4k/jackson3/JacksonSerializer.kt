@@ -7,28 +7,21 @@ import io.bluetape4k.support.emptyByteArray
 import tools.jackson.databind.ObjectMapper
 
 /**
- * Jackson 3.x 라이브러리를 사용하는 [JsonSerializer] 구현체입니다.
+ * Jackson 3 기반 [JsonSerializer] 구현체입니다.
  *
- * [ObjectMapper]를 통해 JSON 직렬화/역직렬화를 수행하며,
- * 기본적으로 [Jackson.defaultJsonMapper]를 사용합니다.
- *
- * ### 사용 예시
+ * ## 동작/계약
+ * - [serialize]는 입력이 null이면 빈 바이트 배열을 반환합니다.
+ * - 역직렬화 계열은 입력이 null이면 null을 반환하고 실패 시 [JsonSerializationException]을 던집니다.
+ * - 기본 매퍼는 [Jackson.defaultJsonMapper]입니다.
  *
  * ```kotlin
  * val serializer = JacksonSerializer()
- *
- * // 바이트 배열 직렬화/역직렬화
- * val bytes = serializer.serialize(data)
- * val restored = serializer.deserialize<Data>(bytes)
- *
- * // 문자열 직렬화/역직렬화
- * val jsonText = serializer.serializeAsString(data)
- * val restored2 = serializer.deserializeFromString<Data>(jsonText)
+ * val bytes = serializer.serialize(mapOf("id" to 1))
+ * val value: Map<*, *>? = serializer.deserialize(bytes, Map::class.java)
+ * // value?.get("id") == 1
  * ```
  *
- * @param mapper JSON 처리에 사용할 [ObjectMapper]. 기본값은 [Jackson.defaultJsonMapper]
- * @see JsonSerializer
- * @see Jackson.defaultJsonMapper
+ * @param mapper JSON 처리에 사용할 ObjectMapper
  */
 open class JacksonSerializer(
     val mapper: ObjectMapper = Jackson.defaultJsonMapper,
@@ -39,8 +32,10 @@ open class JacksonSerializer(
     /**
      * 객체를 JSON [ByteArray]로 직렬화합니다.
      *
-     * @param graph 직렬화할 객체. null인 경우 빈 [ByteArray] 반환
-     * @return JSON 바이트 배열
+     * ## 동작/계약
+     * - [graph]가 null이면 빈 배열을 반환합니다.
+     * - 직렬화 실패 시 [JsonSerializationException]을 던집니다.
+     * @param graph 직렬화할 객체
      */
     override fun serialize(graph: Any?): ByteArray {
         if (graph == null) {
@@ -56,10 +51,11 @@ open class JacksonSerializer(
     /**
      * JSON [ByteArray]를 읽어 지정된 타입의 객체로 역직렬화합니다.
      *
-     * @param T 역직렬화 대상 타입
-     * @param bytes JSON 바이트 배열. null이면 null 반환
-     * @param clazz 역직렬화할 대상 클래스
-     * @return 역직렬화된 객체. 실패 시 null 반환
+     * ## 동작/계약
+     * - [bytes]가 null이면 null을 반환합니다.
+     * - 파싱/타입 매핑 실패 시 [JsonSerializationException]을 던집니다.
+     * @param bytes JSON 바이트 배열
+     * @param clazz 대상 타입 클래스
      */
     override fun <T: Any> deserialize(bytes: ByteArray?, clazz: Class<T>): T? {
         if (bytes == null) {

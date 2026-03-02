@@ -9,7 +9,16 @@ import tools.jackson.databind.ser.jdk.UUIDSerializer
 import java.util.*
 
 /**
- * JsonNode의 UUID 값을 Base62로 인코딩하여 JSON 직렬화합니다.
+ * UUID 값을 Base62 문자열로 직렬화하는 serializer입니다.
+ *
+ * ## 동작/계약
+ * - 입력 UUID가 null이면 값을 쓰지 않습니다.
+ * - null이 아니면 [Url62.encode] 결과를 JSON 문자열로 기록합니다.
+ *
+ * ```kotlin
+ * val text = Url62.encode(UUID.fromString("413684f2-e4db-46a1-8ac7-e7225cebbfd3"))
+ * // text.isNotBlank() == true
+ * ```
  *
  * @see [JsonUuidEncoder]
  * @see [JsonUuidBase62Deserializer]
@@ -19,9 +28,7 @@ class JsonUuidBase62Serializer: UUIDSerializer() {
 
     companion object: KLogging()
 
-    /**
-     * UUID 값을 Base62로 인코딩하여 JSON 문자열로 씁니다.
-     */
+    /** UUID를 Base62 문자열로 변환해 기록합니다. */
     override fun serialize(value: UUID?, gen: JsonGenerator, context: SerializationContext) {
         value?.run {
             val encoded = Url62.encode(this)

@@ -4,7 +4,16 @@ import io.bluetape4k.support.requireNotBlank
 import tools.jackson.core.JsonGenerator
 
 /**
- * [writeValueAction]을 통해 객체를 추가합니다.
+ * 현재 위치에 JSON 객체를 시작/종료하며 내용을 기록합니다.
+ *
+ * ## 동작/계약
+ * - `writeStartObject()`와 `writeEndObject()`를 자동 호출합니다.
+ * - [writeValueAction] 내부에서 필드 기록을 수행해야 합니다.
+ *
+ * ```kotlin
+ * generator.writeValue { writeStringField("name", "debop") }
+ * // {"name":"debop"}
+ * ```
  */
 inline fun JsonGenerator.writeValue(writeValueAction: JsonGenerator.() -> Unit) {
     writeStartObject()

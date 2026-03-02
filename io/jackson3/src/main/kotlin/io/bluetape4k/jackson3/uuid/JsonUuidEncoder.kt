@@ -3,29 +3,21 @@ package io.bluetape4k.jackson3.uuid
 import com.fasterxml.jackson.annotation.JacksonAnnotationsInside
 
 /**
- * 실제 UUID 형식의 Identifier 를 Base62 로 인코딩하거나 단순 문자열로 전달할 수 있도록 합니다.
+ * UUID 필드의 JSON 인코딩 방식을 지정하는 애너테이션입니다.
  *
- * ```
+ * ## 동작/계약
+ * - [JsonUuidModule] 등록 시 애너테이션 인트로스펙터가 serializer/deserializer를 선택합니다.
+ * - 기본값은 [JsonUuidEncoderType.BASE62]입니다.
+ *
+ * ```kotlin
  * data class User(
- *     @field:JsonUuidEncoder
- *     val userId: UUID,
- *     @field:JsonUuidEncoder(JsonUuidEncoderType.PLAIN)
- *     val plainUserId: UUID,
- *     @field:JsonUuidEncoder(JsonUuidEncoderType.BASE62)
- *     val encodedUserId: UUID,
- *     val username: String,
+ *     @field:JsonUuidEncoder val userId: UUID,
+ *     @field:JsonUuidEncoder(JsonUuidEncoderType.PLAIN) val plainId: UUID,
  * )
- *
- * // JSON 변환 시 다음과 같이 변환됩니다.
- * {
- *     "userId" : "6gVuscij1cec8CelrpHU5h",
- *     "plainUserId" : "413684f2-e4db-46a1-8ac7-e7225cebbfd3",
- *     "encodedUserId" : "6gVuscij1cec8CelrpHU5h",        // base62 encoding for UUID
- *     "username"  : "debop"
- * }
+ * // userId는 Base62, plainId는 표준 UUID 문자열로 직렬화됨
  * ```
  *
- * @property value 인코딩 방식을 지정합니다. (기본값은 [JsonUuidEncoderType.BASE62] 입니다.)
+ * @property value UUID 인코딩 방식
  *
  * @see [JsonUuidEncoderType]
  * @see [JsonUuidBase62Serializer]
