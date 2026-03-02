@@ -163,6 +163,7 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 
 - **[core](./spring/core/README.md)**: Spring Boot 공통 기능
 - **[cassandra](./spring/cassandra/README.md)**: Spring Data Cassandra
+- **[mongodb](./spring/mongodb/README.md)**: Spring Data MongoDB Reactive — `ReactiveMongoOperations` 코루틴 확장, Criteria/Query/Update infix DSL
 - **[r2dbc](./spring/r2dbc/README.md)**: Spring Data R2DBC
 - **[jpa](./spring/jpa/README.md)**: Spring Data JPA
 - **[webflux](./spring/webflux/README.md)**: Spring WebFlux
