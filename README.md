@@ -83,20 +83,30 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 
 ### AWS 모듈 (`aws/`, `aws-kotlin/`)
 
+각 서비스마다 **3단계 API** 패턴 제공: `sync` → `async (CompletableFuture)` → `coroutines (suspend)`
+
 - **aws/**: AWS Java SDK v2 기반
-   - **[core](./aws/core/README.md)**: AWS SDK 공통 기능
+   - **[core](./aws/core/README.md)**: AWS SDK 공통 기능 (credentials, http client)
    - **[dynamodb](./aws/dynamodb/README.md)**: DynamoDB (async/non-blocking)
    - **[s3](./aws/s3/README.md)**: S3 (TransferManager, 대용량 파일 전송 최적화)
    - **[ses](./aws/ses/README.md)**: Simple Email Service
-   - **[sns](./aws/sns/README.md)**: Simple Notification Service
+   - **[sns](./aws/sns/README.md)**: Simple Notification Service (토픽/SMS/푸시)
    - **[sqs](./aws/sqs/README.md)**: Simple Queue Service
-- **aws-kotlin/**: AWS Kotlin SDK 기반 (Coroutines 네이티브 지원)
+   - **[kms](./aws/kms/README.md)**: Key Management Service (암호화 키 관리)
+   - **[cloudwatch](./aws/cloudwatch/README.md)**: CloudWatch 메트릭 발행/조회, CloudWatch Logs
+   - **[kinesis](./aws/kinesis/README.md)**: Kinesis 스트림 레코드 전송/조회
+   - **[sts](./aws/sts/README.md)**: Security Token Service (AssumeRole, CallerIdentity, SessionToken)
+- **aws-kotlin/**: AWS Kotlin SDK 기반 (native `suspend` 지원, `.await()` 변환 불필요)
    - **[core](./aws-kotlin/core/README.md)**: AWS Kotlin SDK 공통 기능
    - **[dynamodb](./aws-kotlin/dynamodb/README.md)**: DynamoDB
    - **[s3](./aws-kotlin/s3/README.md)**: S3
    - **[ses](./aws-kotlin/ses/README.md)/[sesv2](./aws-kotlin/sesv2/README.md)**: Simple Email Service
    - **[sns](./aws-kotlin/sns/README.md)**: Simple Notification Service
    - **[sqs](./aws-kotlin/sqs/README.md)**: Simple Queue Service
+   - **[kms](./aws-kotlin/kms/README.md)**: Key Management Service
+   - **[cloudwatch](./aws-kotlin/cloudwatch/README.md)**: CloudWatch/Logs (`metricDatum`, `inputLogEvent` DSL)
+   - **[kinesis](./aws-kotlin/kinesis/README.md)**: Kinesis (`putRecordRequestOf`, `putRecordsRequestEntryOf` DSL)
+   - **[sts](./aws-kotlin/sts/README.md)**: Security Token Service (`stsClientOf`, `assumeRoleRequestOf` DSL)
 
 ### 데이터 모듈 (`data/`)
 
