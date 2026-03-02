@@ -1,6 +1,7 @@
 package io.bluetape4k.leader.coroutines
 
 import io.bluetape4k.leader.LeaderGroupState
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
@@ -31,10 +32,14 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * @param maxLeaders 허용하는 최대 동시 리더 수. 기본값 2
  */
-class LocalSuspendLeaderGroupElection(override val maxLeaders: Int = 2) : SuspendLeaderGroupElection {
+class LocalSuspendLeaderGroupElection private constructor(override val maxLeaders: Int = 2):
+    SuspendLeaderGroupElection {
 
-    init {
-        require(maxLeaders > 0) { "maxLeaders 는 1 이상이어야 합니다. maxLeaders=$maxLeaders" }
+    companion object: KLogging() {
+        operator fun invoke(maxLeaders: Int = 2): LocalSuspendLeaderGroupElection {
+            require(maxLeaders > 0) { "maxLeaders 는 1 이상이어야 합니다. maxLeaders=$maxLeaders" }
+            return LocalSuspendLeaderGroupElection(maxLeaders)
+        }
     }
 
     private val semaphores = ConcurrentHashMap<String, Semaphore>()
