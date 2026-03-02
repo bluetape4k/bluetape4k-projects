@@ -18,7 +18,17 @@ import javax.cache.spi.CachingProvider
 import kotlin.concurrent.withLock
 
 /**
- * Ignite NearCache 전용 [CacheManager] 구현체입니다.
+ * Ignite near cache 전용 [CacheManager] 구현체입니다.
+ *
+ * ## 동작/계약
+ * - 생성된 캐시는 내부 맵에 이름 기준으로 보관됩니다.
+ * - `createCache`는 [IgniteNearCacheConfig] 타입만 허용하며, 중복 이름은 [CacheException]을 던집니다.
+ * - 매니저가 닫히면 공개 API 대부분이 `checkNotClosed`에 의해 `IllegalStateException`을 발생시킵니다.
+ *
+ * ```kotlin
+ * val manager = IgniteNearCacheManager(classLoader, provider, Properties(), null)
+ * // manager.isClosed() == false
+ * ```
  */
 class IgniteNearCacheManager(
     private val classLoader: ClassLoader,
