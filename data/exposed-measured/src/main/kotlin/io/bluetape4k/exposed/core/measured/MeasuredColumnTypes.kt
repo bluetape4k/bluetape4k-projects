@@ -22,9 +22,18 @@ import org.jetbrains.exposed.v1.core.DoubleColumnType
 import org.jetbrains.exposed.v1.core.Table
 
 /**
- * `Measure<T>`를 `DOUBLE` 컬럼으로 저장하는 Exposed 컬럼 타입입니다.
+ * [Measure]를 `DOUBLE` 컬럼으로 매핑하는 Exposed 컬럼 타입입니다.
  *
- * DB에는 [baseUnit] 기준의 수치값을 저장합니다.
+ * ## 동작/계약
+ * - DB에는 항상 [baseUnit] 기준의 `Double` 값으로 저장합니다.
+ * - `Number` 값을 읽으면 [fromBaseValue]로 [Measure]를 복원합니다.
+ * - 지원하지 않는 DB 타입이 들어오면 `error(...)`로 예외가 발생합니다.
+ *
+ * ```kotlin
+ * val type = MeasureColumnType(Length.meters) { Measure(it, Length.meters) }
+ * val db = type.notNullValueToDB(1500.meters())
+ * // db == 1500.0
+ * ```
  */
 class MeasureColumnType<T: Units>(
     private val baseUnit: T,
@@ -47,7 +56,18 @@ class MeasureColumnType<T: Units>(
 }
 
 /**
- * 절대온도([Temperature])를 Kelvin `DOUBLE`로 저장하는 컬럼 타입입니다.
+ * [Temperature]를 Kelvin `DOUBLE` 컬럼으로 매핑합니다.
+ *
+ * ## 동작/계약
+ * - 저장 시 `inKelvin()` 값을 사용합니다.
+ * - 조회 시 `Number`를 `Temperature.fromKelvin`으로 복원합니다.
+ * - 지원하지 않는 DB 타입이면 `error(...)` 예외가 발생합니다.
+ *
+ * ```kotlin
+ * val type = TemperatureColumnType()
+ * val db = type.notNullValueToDB(25.celsius())
+ * // db == 298.15
+ * ```
  */
 class TemperatureColumnType: ColumnType<Temperature>() {
     private val delegate = DoubleColumnType()
@@ -66,7 +86,18 @@ class TemperatureColumnType: ColumnType<Temperature>() {
 }
 
 /**
- * 온도차([TemperatureDelta])를 Kelvin delta `DOUBLE`로 저장하는 컬럼 타입입니다.
+ * [TemperatureDelta]를 Kelvin delta `DOUBLE` 컬럼으로 매핑합니다.
+ *
+ * ## 동작/계약
+ * - 저장 시 `inKelvin()` 값을 사용합니다.
+ * - 조회 시 `Number`를 `TemperatureDelta`로 복원합니다.
+ * - 지원하지 않는 DB 타입이면 `error(...)` 예외가 발생합니다.
+ *
+ * ```kotlin
+ * val type = TemperatureDeltaColumnType()
+ * val db = type.notNullValueToDB(10.celsiusDelta())
+ * // db == 10.0
+ * ```
  */
 class TemperatureDeltaColumnType: ColumnType<TemperatureDelta>() {
     private val delegate = DoubleColumnType()
@@ -85,7 +116,16 @@ class TemperatureDeltaColumnType: ColumnType<TemperatureDelta>() {
 }
 
 /**
- * [Measure] 컬럼을 등록합니다.
+ * [Measure] 타입 컬럼을 등록합니다.
+ *
+ * ## 동작/계약
+ * - 저장/조회 기준 단위는 [baseUnit]입니다.
+ * - 내부적으로 [MeasureColumnType]을 사용해 `DOUBLE` 컬럼으로 매핑합니다.
+ *
+ * ```kotlin
+ * val distance = measure("distance", Length.meters)
+ * // distance.columnType.sqlType() == "DOUBLE"
+ * ```
  */
 fun <T: Units> Table.measure(
     name: String,
@@ -95,44 +135,124 @@ fun <T: Units> Table.measure(
     MeasureColumnType(baseUnit) { base -> Measure(base, baseUnit) }
 )
 
-/** 길이 컬럼 (meter 기준) */
+/**
+ * 길이 컬럼을 등록합니다.
+ *
+ * ## 동작/계약
+ * - 저장 기준 단위는 `meter`입니다.
+ *
+ * ```kotlin
+ * val col = length("distance")
+ * // DB value == meter 기준 Double
+ * ```
+ */
 fun Table.length(name: String): Column<Measure<Length>> = measure(name, Length.meters)
 
-/** 질량 컬럼 (kilogram 기준) */
+/**
+ * 질량 컬럼을 등록합니다.
+ *
+ * ## 동작/계약
+ * - 저장 기준 단위는 `kilogram`입니다.
+ */
 fun Table.mass(name: String): Column<Measure<Mass>> = measure(name, Mass.kilograms)
 
-/** 시간 컬럼 (second 기준) */
+/**
+ * 시간 컬럼을 등록합니다.
+ *
+ * ## 동작/계약
+ * - 저장 기준 단위는 `second`입니다.
+ */
 fun Table.time(name: String): Column<Measure<Time>> = measure(name, Time.seconds)
 
-/** 면적 컬럼 (square meter 기준) */
+/**
+ * 면적 컬럼을 등록합니다.
+ *
+ * ## 동작/계약
+ * - 저장 기준 단위는 `square meter`입니다.
+ */
 fun Table.area(name: String): Column<Measure<Area>> = measure(name, Area.meters2)
 
-/** 부피 컬럼 (cubic meter 기준) */
+/**
+ * 부피 컬럼을 등록합니다.
+ *
+ * ## 동작/계약
+ * - 저장 기준 단위는 `cubic meter`입니다.
+ */
 fun Table.volume(name: String): Column<Measure<Volume>> = measure(name, Volume.cubicMeters)
 
-/** 각도 컬럼 (radian 기준) */
+/**
+ * 각도 컬럼을 등록합니다.
+ *
+ * ## 동작/계약
+ * - 저장 기준 단위는 `radian`입니다.
+ */
 fun Table.angle(name: String): Column<Measure<Angle>> = measure(name, Angle.radians)
 
-/** 압력 컬럼 (pascal 기준) */
+/**
+ * 압력 컬럼을 등록합니다.
+ *
+ * ## 동작/계약
+ * - 저장 기준 단위는 `pascal`입니다.
+ */
 fun Table.pressure(name: String): Column<Measure<Pressure>> = measure(name, Pressure.pascal)
 
-/** 저장용량 컬럼 (byte 기준) */
+/**
+ * 저장용량 컬럼을 등록합니다.
+ *
+ * ## 동작/계약
+ * - 저장 기준 단위는 `byte`입니다.
+ */
 fun Table.storage(name: String): Column<Measure<Storage>> = measure(name, Storage.bytes)
 
-/** 디지털 크기 컬럼 (byte 기준) */
+/**
+ * 디지털 크기 컬럼을 등록합니다.
+ *
+ * ## 동작/계약
+ * - 저장 기준 단위는 `byte`입니다.
+ */
 fun Table.binarySize(name: String): Column<Measure<BinarySize>> = measure(name, BinarySize.bytes)
 
-/** 주파수 컬럼 (hertz 기준) */
+/**
+ * 주파수 컬럼을 등록합니다.
+ *
+ * ## 동작/계약
+ * - 저장 기준 단위는 `hertz`입니다.
+ */
 fun Table.frequency(name: String): Column<Measure<Frequency>> = measure(name, Frequency.hertz)
 
-/** 에너지 컬럼 (joule 기준) */
+/**
+ * 에너지 컬럼을 등록합니다.
+ *
+ * ## 동작/계약
+ * - 저장 기준 단위는 `joule`입니다.
+ */
 fun Table.energy(name: String): Column<Measure<Energy>> = measure(name, Energy.joules)
 
-/** 전력 컬럼 (watt 기준) */
+/**
+ * 전력 컬럼을 등록합니다.
+ *
+ * ## 동작/계약
+ * - 저장 기준 단위는 `watt`입니다.
+ */
 fun Table.power(name: String): Column<Measure<Power>> = measure(name, Power.watts)
 
-/** 절대온도 컬럼 (kelvin 기준) */
+/**
+ * 절대온도 컬럼을 등록합니다.
+ *
+ * ## 동작/계약
+ * - Kelvin `DOUBLE`로 저장/조회합니다.
+ *
+ * ```kotlin
+ * val col = temperature("temp")
+ * // DB value == kelvin Double
+ * ```
+ */
 fun Table.temperature(name: String): Column<Temperature> = registerColumn(name, TemperatureColumnType())
 
-/** 온도차 컬럼 (kelvin delta 기준) */
+/**
+ * 온도차 컬럼을 등록합니다.
+ *
+ * ## 동작/계약
+ * - Kelvin delta `DOUBLE`로 저장/조회합니다.
+ */
 fun Table.temperatureDelta(name: String): Column<TemperatureDelta> = registerColumn(name, TemperatureDeltaColumnType())
