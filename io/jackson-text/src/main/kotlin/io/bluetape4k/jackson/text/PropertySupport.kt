@@ -1,12 +1,21 @@
 package io.bluetape4k.jackson.text
 
 /**
- * 중첩된 [Map]에서 점(.) 구분자로 이루어진 경로를 따라 하위 Map 노드를 탐색합니다.
+ * 점 구분 경로를 따라 중첩 [Map]의 하위 노드를 조회합니다.
  *
- * @param path 탐색할 경로 (예: "parent.child.grandchild")
- * @param delimiter 경로 구분자 (기본값: ".")
- * @return 경로에 해당하는 하위 Map
- * @throws ClassCastException 경로의 중간 노드가 Map이 아닌 경우
+ * ## 동작/계약
+ * - [path]를 [delimiter]로 분리해 순서대로 하위 값을 탐색합니다.
+ * - 중간 노드가 `Map<Any, Any?>`가 아니면 [ClassCastException]이 발생합니다.
+ * - 경로 키가 없으면 `null as Map` 캐스팅으로 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val root = mapOf("a" to mapOf("b" to mapOf("c" to 1))) as Map<Any, Any?>
+ * val node = root.getNode("a.b")
+ * // node == mapOf("c" to 1)
+ * ```
+ *
+ * @param path 조회할 점 구분 경로입니다. 예: `"parent.child"`.
+ * @param delimiter 경로 분리자입니다.
  */
 @Suppress("UNCHECKED_CAST")
 fun Map<Any, Any?>.getNode(path: String, delimiter: String = "."): Map<Any, Any?> {

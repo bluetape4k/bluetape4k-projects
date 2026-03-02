@@ -15,7 +15,18 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLMapper
 import io.bluetape4k.jackson.Jackson
 
 /**
- * Jackson 2.x 텍스트 데이터 포맷(CSV, Properties, TOML, YAML)을 위한 Mapper와 Serializer를 제공하는 싱글턴 오브젝트입니다.
+ * Jackson 텍스트 포맷(CSV/Properties/TOML/YAML) 기본 mapper/factory/serializer를 제공합니다.
+ *
+ * ## 동작/계약
+ * - 포맷별 `defaultMapper`, `defaultFactory`, `defaultSerializer`는 lazy singleton입니다.
+ * - 공통 serialization/deserialization feature 집합을 모든 텍스트 mapper에 적용합니다.
+ * - 공개 프로퍼티는 불변 레퍼런스이며 재할당하지 않습니다.
+ *
+ * ```kotlin
+ * val serializer = JacksonText.Yaml.defaultSerializer
+ * val text = serializer.serializeAsString(mapOf("name" to "debop"))
+ * // text.contains("name") == true
+ * ```
  */
 object JacksonText {
 
@@ -51,11 +62,30 @@ object JacksonText {
     )
 
     /**
-     * CSV(Comma-Separated Values) 형식의 데이터 직렬화/역직렬화를 위한 기본 [CsvMapper], [CsvFactory], [CsvJacksonSerializer]를 제공합니다.
+     * CSV 포맷 기본 구성 요소를 제공합니다.
+     *
+     * ## 동작/계약
+     * - [defaultMapper]는 공통 feature 집합을 적용해 생성됩니다.
+     * - [defaultFactory]는 별도 [CsvFactory] 인스턴스를 제공합니다.
+     * - [defaultSerializer]는 [defaultMapper]를 주입한 singleton입니다.
+     *
+     * ```kotlin
+     * val serializer = JacksonText.Csv.defaultSerializer
+     * // serializer.serializeAsString(mapOf("id" to 1)).isNotBlank() == true
+     * ```
      */
     object Csv {
         /**
-         * CSV 데이터 처리를 위한 기본 [CsvMapper] 인스턴스입니다.
+         * CSV 기본 [CsvMapper]입니다.
+         *
+         * ## 동작/계약
+         * - Kotlin 모듈 자동 등록 후 공통 feature를 적용합니다.
+         * - lazy singleton으로 1회 생성됩니다.
+         *
+         * ```kotlin
+         * val mapper = JacksonText.Csv.defaultMapper
+         * // mapper != null
+         * ```
          */
         val defaultMapper: CsvMapper by lazy {
             CsvMapper.builder()
@@ -69,17 +99,41 @@ object JacksonText {
         }
 
         /**
-         * CSV 데이터 처리를 위한 기본 [CsvFactory] 인스턴스입니다.
+         * CSV 기본 [CsvFactory]입니다.
+         *
+         * ## 동작/계약
+         * - lazy singleton으로 생성됩니다.
+         *
+         * ```kotlin
+         * val factory = JacksonText.Csv.defaultFactory
+         * // factory != null
+         * ```
          */
         val defaultFactory: CsvFactory by lazy { CsvFactory() }
 
         /**
-         * JSON 데이터 처리를 위한 기본 [JsonMapper] 인스턴스입니다.
+         * 기본 JSON mapper 참조입니다.
+         *
+         * ## 동작/계약
+         * - [Jackson.defaultJsonMapper]를 그대로 노출합니다.
+         *
+         * ```kotlin
+         * val same = JacksonText.Csv.defaultJsonMapper === Jackson.defaultJsonMapper
+         * // same == true
+         * ```
          */
         val defaultJsonMapper: JsonMapper by lazy { Jackson.defaultJsonMapper }
 
         /**
-         * CSV 데이터 직렬화/역직렬화를 위한 기본 [CsvJacksonSerializer] 인스턴스입니다.
+         * CSV 기본 직렬화기입니다.
+         *
+         * ## 동작/계약
+         * - [defaultMapper]를 주입한 [CsvJacksonSerializer] singleton을 제공합니다.
+         *
+         * ```kotlin
+         * val serializer = JacksonText.Csv.defaultSerializer
+         * // serializer.serializeAsString(mapOf("id" to 1)).isNotBlank() == true
+         * ```
          */
         val defaultSerializer: CsvJacksonSerializer by lazy {
             CsvJacksonSerializer(defaultMapper)
@@ -87,31 +141,29 @@ object JacksonText {
     }
 
     /**
-     * Java Properties 형식의 데이터 직렬화/역직렬화를 위한 기본 [JavaPropsMapper], [JavaPropsFactory], [PropsJacksonSerializer]를 제공합니다.
+     * Java Properties 포맷 기본 구성 요소를 제공합니다.
      *
-     * ```
-     * val propMapper = JacksonText.Props.defaultMapper
+     * ## 동작/계약
+     * - [defaultMapper]는 공통 feature 집합을 적용해 생성됩니다.
+     * - [defaultFactory], [defaultSerializer]는 lazy singleton입니다.
      *
-     * class MapWrapper {
-     *     var map: MutableMap<String, String> = mutableMapOf()
-     * }
-     *
-     * @Test
-     * fun `map with branch`() {
-     *     val props =
-     *         """
-     *         |map=first
-     *         |map.b = second
-     *         |map.xyz = third
-     *         """.trimMargin()
-     *     val wrapper = propsMapper.readValue<MapWrapper>(props)
-     *     ...
-     * }
+     * ```kotlin
+     * val serializer = JacksonText.Props.defaultSerializer
+     * // serializer.serializeAsString(mapOf("app.name" to "demo")).contains("app.name") == true
      * ```
      */
     object Props {
         /**
-         * Java Properties 데이터 처리를 위한 기본 [JavaPropsMapper] 인스턴스입니다.
+         * Java Properties 기본 [JavaPropsMapper]입니다.
+         *
+         * ## 동작/계약
+         * - Kotlin 모듈 자동 등록 후 공통 feature를 적용합니다.
+         * - lazy singleton으로 1회 생성됩니다.
+         *
+         * ```kotlin
+         * val mapper = JacksonText.Props.defaultMapper
+         * // mapper != null
+         * ```
          */
         val defaultMapper: JavaPropsMapper by lazy {
             JavaPropsMapper.builder()
@@ -125,17 +177,41 @@ object JacksonText {
         }
 
         /**
-         * Java Properties 데이터 처리를 위한 기본 [JavaPropsFactory] 인스턴스입니다.
+         * Java Properties 기본 [JavaPropsFactory]입니다.
+         *
+         * ## 동작/계약
+         * - lazy singleton으로 생성됩니다.
+         *
+         * ```kotlin
+         * val factory = JacksonText.Props.defaultFactory
+         * // factory != null
+         * ```
          */
         val defaultFactory: JavaPropsFactory by lazy { JavaPropsFactory() }
 
         /**
-         * JSON 데이터 처리를 위한 기본 [JsonMapper] 인스턴스입니다.
+         * 기본 JSON mapper 참조입니다.
+         *
+         * ## 동작/계약
+         * - [Jackson.defaultJsonMapper]를 그대로 노출합니다.
+         *
+         * ```kotlin
+         * val same = JacksonText.Props.defaultJsonMapper === Jackson.defaultJsonMapper
+         * // same == true
+         * ```
          */
         val defaultJsonMapper: JsonMapper by lazy { Jackson.defaultJsonMapper }
 
         /**
-         * Java Properties 데이터 직렬화/역직렬화를 위한 기본 [PropsJacksonSerializer] 인스턴스입니다.
+         * Java Properties 기본 직렬화기입니다.
+         *
+         * ## 동작/계약
+         * - [defaultMapper]를 주입한 [PropsJacksonSerializer] singleton을 제공합니다.
+         *
+         * ```kotlin
+         * val serializer = JacksonText.Props.defaultSerializer
+         * // serializer.serializeAsString(mapOf("a.b" to "v")).contains("a.b") == true
+         * ```
          */
         val defaultSerializer: PropsJacksonSerializer by lazy {
             PropsJacksonSerializer(defaultMapper)
@@ -143,11 +219,29 @@ object JacksonText {
     }
 
     /**
-     * TOML(Tom's Obvious, Minimal Language) 형식의 데이터 직렬화/역직렬화를 위한 기본 [TomlMapper], [TomlFactory], [TomlJacksonSerializer]를 제공합니다.
+     * TOML 포맷 기본 구성 요소를 제공합니다.
+     *
+     * ## 동작/계약
+     * - [defaultMapper]는 공통 feature 집합을 적용해 생성됩니다.
+     * - [defaultFactory], [defaultSerializer]는 lazy singleton입니다.
+     *
+     * ```kotlin
+     * val serializer = JacksonText.Toml.defaultSerializer
+     * // serializer.serializeAsString(mapOf("id" to 1)).contains("id") == true
+     * ```
      */
     object Toml {
         /**
-         * TOML 데이터 처리를 위한 기본 [TomlMapper] 인스턴스입니다.
+         * TOML 기본 [TomlMapper]입니다.
+         *
+         * ## 동작/계약
+         * - Kotlin 모듈 자동 등록 후 공통 feature를 적용합니다.
+         * - lazy singleton으로 1회 생성됩니다.
+         *
+         * ```kotlin
+         * val mapper = JacksonText.Toml.defaultMapper
+         * // mapper != null
+         * ```
          */
         val defaultMapper: TomlMapper by lazy {
             TomlMapper.builder()
@@ -161,17 +255,41 @@ object JacksonText {
         }
 
         /**
-         * TOML 데이터 처리를 위한 기본 [TomlFactory] 인스턴스입니다.
+         * TOML 기본 [TomlFactory]입니다.
+         *
+         * ## 동작/계약
+         * - lazy singleton으로 생성됩니다.
+         *
+         * ```kotlin
+         * val factory = JacksonText.Toml.defaultFactory
+         * // factory != null
+         * ```
          */
         val defaultFactory: TomlFactory by lazy { TomlFactory() }
 
         /**
-         * JSON 데이터 처리를 위한 기본 [JsonMapper] 인스턴스입니다.
+         * 기본 JSON mapper 참조입니다.
+         *
+         * ## 동작/계약
+         * - [Jackson.defaultJsonMapper]를 그대로 노출합니다.
+         *
+         * ```kotlin
+         * val same = JacksonText.Toml.defaultJsonMapper === Jackson.defaultJsonMapper
+         * // same == true
+         * ```
          */
         val defaultJsonMapper: JsonMapper by lazy { Jackson.defaultJsonMapper }
 
         /**
-         * TOML 데이터 직렬화/역직렬화를 위한 기본 [TomlJacksonSerializer] 인스턴스입니다.
+         * TOML 기본 직렬화기입니다.
+         *
+         * ## 동작/계약
+         * - [defaultMapper]를 주입한 [TomlJacksonSerializer] singleton을 제공합니다.
+         *
+         * ```kotlin
+         * val serializer = JacksonText.Toml.defaultSerializer
+         * // serializer.serializeAsString(mapOf("id" to 1)).contains("id") == true
+         * ```
          */
         val defaultSerializer: TomlJacksonSerializer by lazy {
             TomlJacksonSerializer(defaultMapper)
@@ -179,23 +297,29 @@ object JacksonText {
     }
 
     /**
-     * YAML(YAML Ain't Markup Language) 형식의 데이터 직렬화/역직렬화를 위한 기본 [YAMLMapper], [YAMLFactory], [YamlJacksonSerializer]를 제공합니다.
+     * YAML 포맷 기본 구성 요소를 제공합니다.
      *
-     * ```
-     * val yamlMapper = JacksonText.Yaml.defaultMapper
+     * ## 동작/계약
+     * - [defaultMapper]는 공통 feature 집합을 적용해 생성됩니다.
+     * - [defaultFactory], [defaultSerializer]는 lazy singleton입니다.
      *
-     * val yaml = """
-     *    |name: debop
-     *    |age: 30
-     *    |job: developer
-     *    """.trimMargin()
-     *
-     * val map = yamlMapper.readValue<Map<String, Any>>(yaml)
+     * ```kotlin
+     * val serializer = JacksonText.Yaml.defaultSerializer
+     * // serializer.serializeAsString(mapOf("name" to "debop")).contains("name") == true
      * ```
      */
     object Yaml {
         /**
-         * YAML 데이터 처리를 위한 기본 [YAMLMapper] 인스턴스입니다.
+         * YAML 기본 [YAMLMapper]입니다.
+         *
+         * ## 동작/계약
+         * - Kotlin 모듈 자동 등록 후 공통 feature를 적용합니다.
+         * - lazy singleton으로 1회 생성됩니다.
+         *
+         * ```kotlin
+         * val mapper = JacksonText.Yaml.defaultMapper
+         * // mapper != null
+         * ```
          */
         val defaultMapper: YAMLMapper by lazy {
             YAMLMapper.builder()
@@ -209,17 +333,41 @@ object JacksonText {
         }
 
         /**
-         * YAML 데이터 처리를 위한 기본 [YAMLFactory] 인스턴스입니다.
+         * YAML 기본 [YAMLFactory]입니다.
+         *
+         * ## 동작/계약
+         * - lazy singleton으로 생성됩니다.
+         *
+         * ```kotlin
+         * val factory = JacksonText.Yaml.defaultFactory
+         * // factory != null
+         * ```
          */
         val defaultFactory: YAMLFactory by lazy { YAMLFactory() }
 
         /**
-         * JSON 데이터 처리를 위한 기본 [JsonMapper] 인스턴스입니다.
+         * 기본 JSON mapper 참조입니다.
+         *
+         * ## 동작/계약
+         * - [Jackson.defaultJsonMapper]를 그대로 노출합니다.
+         *
+         * ```kotlin
+         * val same = JacksonText.Yaml.defaultJsonMapper === Jackson.defaultJsonMapper
+         * // same == true
+         * ```
          */
         val defaultJsonMapper: JsonMapper by lazy { Jackson.defaultJsonMapper }
 
         /**
-         * YAML 데이터 직렬화/역직렬화를 위한 기본 [YamlJacksonSerializer] 인스턴스입니다.
+         * YAML 기본 직렬화기입니다.
+         *
+         * ## 동작/계약
+         * - [defaultMapper]를 주입한 [YamlJacksonSerializer] singleton을 제공합니다.
+         *
+         * ```kotlin
+         * val serializer = JacksonText.Yaml.defaultSerializer
+         * // serializer.serializeAsString(mapOf("name" to "debop")).contains("name") == true
+         * ```
          */
         val defaultSerializer: YamlJacksonSerializer by lazy {
             YamlJacksonSerializer(defaultMapper)
