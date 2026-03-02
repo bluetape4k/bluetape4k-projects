@@ -246,11 +246,11 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 - **lingua**: 언어 감지
 - **logback-kafka**: Logback Kafka Appender
 - **math**: 수학 유틸리티
-- **measured**: 코드 실행 시간/성능 측정 유틸리티
+- **measured**: 조합 가능한 단위 타입(`Units`)과 측정값(`Measure`) 기반으로, 복합 단위(`m/s`, `kg*m/s^2`)를 타입 안전하게 표현
 - **money**: Money API
 - **mutiny**: Mutiny reactive 라이브러리 통합
 - **naivebayes**: Naive Bayes 분류기
-- ~~**units**~~: 단위 표현 value class — **Deprecated** (`bluetape4k-core`의 기능으로 통합)
+- ~~**units**~~: 단위 표현 value class — **Deprecated** (`bluetape4k-measured`의 기능으로 통합)
 
 #### Testing Modules (`testing/`)
 

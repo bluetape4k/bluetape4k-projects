@@ -188,11 +188,12 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 - **[lingua](./utils/lingua/README.md)**: 언어 감지
 - **[logback-kafka](./utils/logback-kafka/README.md)**: Logback Kafka Appender
 - **[math](./utils/math/README.md)**: 수학 유틸리티
-- **[measured](./utils/measured/README.md)**: 코드 실행 시간/성능 측정 유틸리티
+- **[measured](./utils/measured/README.md)**: 조합 가능한 단위 타입(`Units`)과 측정값(`Measure`) 기반으로,
+  복합 단위(`m/s`, `kg*m/s^2`)를 타입 안전하게 표현
 - **[money](./utils/money/README.md)**: Money API
 - **[mutiny](./utils/mutiny/README.md)**: Mutiny reactive 통합
 - **[naivebayes](./utils/naivebayes/README.md)**: Naive Bayes 분류기
-- ~~**[units](./utils/units/README.md)**~~: 단위 표현 value class — **Deprecated** (`bluetape4k-core`의 기능으로 통합)
+- ~~**[units](./utils/units/README.md)**~~: 단위 표현 value class — **Deprecated** (`bluetape4k-measured`의 기능으로 통합)
 
 ### 테스트 모듈 (`testing/`)
 
