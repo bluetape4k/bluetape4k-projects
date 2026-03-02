@@ -14,6 +14,11 @@ import software.amazon.awssdk.enhanced.dynamodb.model.BatchWriteResult
 /**
  * Create DynamoDb Table with specific name ([tableName])
  *
+ * ```kotlin
+ * val table = enhancedClient.table<MyEntity>("orders")
+ * check(table.tableName() == "orders")
+ * ```
+ *
  * @param T entity type
  * @param tableName table name
  * @return [DynamoDbTable] instance
@@ -25,6 +30,9 @@ inline fun <reified T: Any> DynamoDbEnhancedClient.table(tableName: String): Dyn
 
 /**
  * 대량의 Item 을 저장할 때, [DynamoDb.MAX_BATCH_ITEM_SIZE] 만큼의 크기로 나누어 저장한다.
+ *
+ * `EnhancedAsyncClientExtensionsTest`의 동일 로직 검증 기준과 같이, `items=30`, `chunkSize=25`이면
+ * 결과 컬렉션 크기는 `2`가 된다.
  *
  * @param T  entity type
  * @param itemClass entity class
@@ -54,6 +62,11 @@ fun <T: Any> DynamoDbEnhancedClient.batchWriteItems(
 /**
  * 대량의 Item 을 저장할 때, [DynamoDb.MAX_BATCH_ITEM_SIZE] 만큼의 크기로 나누어 저장한다.
  *
+ * ```kotlin
+ * val results = enhancedClient.batchWriteItems(table, items, chunkSize = 10)
+ * check(results.size == items.chunked(10).size)
+ * ```
+ *
  * @param T entity type
  * @param table [MappedTableResource] instance
  * @param items 저장할 item 컬렉션
@@ -68,6 +81,11 @@ inline fun <reified T: Any> DynamoDbEnhancedClient.batchWriteItems(
 
 /**
  * 테이블이 존재하는지 확인합니다.
+ *
+ * ```kotlin
+ * val exists = enhancedClient.existsTable("orders")
+ * check(exists is Boolean)
+ * ```
  *
  * @param tableName 확인할 테이블 이름
  * @return 존재 여부

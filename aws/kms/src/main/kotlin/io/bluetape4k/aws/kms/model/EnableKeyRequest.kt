@@ -6,8 +6,15 @@ import software.amazon.awssdk.services.kms.model.EnableKeyRequest
 /**
  * DSL 스타일의 빌더 람다로 [EnableKeyRequest]를 생성합니다.
  *
- * @param builder [EnableKeyRequest.Builder]에 대한 설정 람다.
- * @return 설정된 [EnableKeyRequest] 인스턴스.
+ * ## 동작/계약
+ * - [EnableKeyRequest.builder]에 [builder]를 적용한 뒤 `build()`를 호출합니다.
+ *
+ * ```kotlin
+ * val request = enableKeyRequest {
+ *     keyId("key-id")
+ * }
+ * // request.keyId() == "key-id"
+ * ```
  */
 inline fun enableKeyRequest(
     @BuilderInference builder: EnableKeyRequest.Builder.() -> Unit,
@@ -17,10 +24,14 @@ inline fun enableKeyRequest(
 /**
  * 키 ID를 지정하여 [EnableKeyRequest]를 생성합니다.
  *
- * 비활성화된 키를 다시 활성화하여 암호화/복호화 작업에 사용할 수 있게 합니다.
+ * ## 동작/계약
+ * - [keyId]가 blank이면 `IllegalArgumentException`을 던집니다.
+ * - 검증이 통과하면 [EnableKeyRequest.Builder.keyId]에 값을 설정합니다.
  *
- * @param keyId 활성화할 KMS 키의 ID 또는 ARN. 공백 불가.
- * @return 설정된 [EnableKeyRequest] 인스턴스.
+ * ```kotlin
+ * val request = enableKeyRequestOf("key-id")
+ * // request.keyId() == "key-id"
+ * ```
  */
 fun enableKeyRequestOf(keyId: String): EnableKeyRequest {
     keyId.requireNotBlank("keyId")

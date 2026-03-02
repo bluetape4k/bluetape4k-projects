@@ -34,6 +34,12 @@ private val log = KotlinLogging.logger { }
  *
  * @param bucketName 존재를 파악할 Bucket name
  * @return 존재 여부
+ *
+ * 예제:
+ * ```kotlin
+ * val result = s3AsyncClient.existsBucketAsync("demo-bucket").join()
+ * // result == true
+ * ```
  */
 fun S3AsyncClient.existsBucketAsync(bucketName: String): CompletableFuture<Boolean> {
     bucketName.requireNotBlank("bucketName")
@@ -54,6 +60,12 @@ fun S3AsyncClient.existsBucketAsync(bucketName: String): CompletableFuture<Boole
  * @param bucketName  생성할 Bucket name
  * @param builder 생성할 Bucket을 위한 Configuration
  * @return Bucket 생성 결과. [CreateBucketResponse]
+ *
+ * 예제:
+ * ```kotlin
+ * val result = s3AsyncClient.createBucketAsync("demo-bucket").join()
+ * // result.location().contains("demo-bucket")
+ * ```
  */
 fun S3AsyncClient.createBucketAsync(
     bucketName: String,
@@ -77,6 +89,12 @@ fun S3AsyncClient.createBucketAsync(
  * @param key Object key
  * @param builder 요청 설정을 위한 빌더
  * @return 다욱받은 S3 Object의 ByteArray 형태의 정보를 담은 [CompletableFuture]
+ *
+ * 예제:
+ * ```kotlin
+ * val result = s3AsyncClient.getAsByteArrayAsync("demo-bucket", "docs/readme.txt").join()
+ * // result.isNotEmpty() == true
+ * ```
  */
 inline fun S3AsyncClient.getAsByteArrayAsync(
     bucket: String,
@@ -96,6 +114,12 @@ inline fun S3AsyncClient.getAsByteArrayAsync(
  * @param key Object key
  * @param builder 요청 설정을 위한 빌더
  * @return 다욱받은 S3 Object의 문자열 형태의 정보를 담은 [CompletableFuture]
+ *
+ * 예제:
+ * ```kotlin
+ * val result = s3AsyncClient.getAsStringAsync("demo-bucket", "docs/readme.txt").join()
+ * // result.contains("readme", ignoreCase = true) == true
+ * ```
  */
 inline fun S3AsyncClient.getAsStringAsync(
     bucket: String,
@@ -116,6 +140,13 @@ inline fun S3AsyncClient.getAsStringAsync(
  * @param destinationPath 저장할 경로
  * @param builder 요청 설정을 위한 빌더
  * @return 다욱받은 S3 Object의 정보를 담은 [CompletableFuture]
+ *
+ * 예제:
+ * ```kotlin
+ * val target = java.nio.file.Path.of("build/tmp/readme.txt")
+ * val result = s3AsyncClient.getAsFileAsync("demo-bucket", "docs/readme.txt", target).join()
+ * // result.eTag().isNullOrBlank() == false
+ * ```
  */
 inline fun S3AsyncClient.getAsFileAsync(
     bucket: String,
@@ -140,6 +171,12 @@ inline fun S3AsyncClient.getAsFileAsync(
  * @param body Upload 할 [AsyncRequestBody]
  * @param builder 요청 설정을 위한 빌더
  * @return S3에 저장된 결과를 담은 [CompletableFuture]
+ *
+ * 예제:
+ * ```kotlin
+ * val result = s3AsyncClient.putAsync("demo-bucket", "notes/hello.txt", "hello".toAsyncRequestBody()).join()
+ * // result.eTag().isNullOrBlank() == false
+ * ```
  */
 inline fun S3AsyncClient.putAsync(
     bucket: String,
@@ -162,6 +199,12 @@ inline fun S3AsyncClient.putAsync(
  * @param bytes Upload 할 Byte Array
  * @param builder 요청 설정을 위한 빌더
  * @return S3에 저장된 결과를 담은 [CompletableFuture]
+ *
+ * 예제:
+ * ```kotlin
+ * val result = s3AsyncClient.putAsByteArrayAsync("demo-bucket", "notes/data.bin", byteArrayOf(1, 2, 3)).join()
+ * // result.eTag().isNullOrBlank() == false
+ * ```
  */
 inline fun S3AsyncClient.putAsByteArrayAsync(
     bucket: String,
@@ -179,6 +222,12 @@ inline fun S3AsyncClient.putAsByteArrayAsync(
  * @param contents Upload 할 문자열
  * @param builder 요청 설정을 위한 빌더
  * @return S3에 저장된 결과를 담은 [CompletableFuture]
+ *
+ * 예제:
+ * ```kotlin
+ * val result = s3AsyncClient.putAsStringAsync("demo-bucket", "notes/hello.txt", "hello").join()
+ * // result.eTag().isNullOrBlank() == false
+ * ```
  */
 inline fun S3AsyncClient.putAsStringAsync(
     bucket: String,
@@ -197,6 +246,13 @@ inline fun S3AsyncClient.putAsStringAsync(
  * @param file Upload 할 파일
  * @param builder 요청 설정을 위한 빌더
  * @return S3에 저장된 결과를 담은 [CompletableFuture]
+ *
+ * 예제:
+ * ```kotlin
+ * val source = java.io.File("settings.gradle.kts")
+ * val result = s3AsyncClient.putAsFileAsync("demo-bucket", "repo/settings.gradle.kts", source).join()
+ * // result.eTag().isNullOrBlank() == false
+ * ```
  */
 inline fun S3AsyncClient.putAsFileAsync(
     bucket: String,
@@ -214,6 +270,13 @@ inline fun S3AsyncClient.putAsFileAsync(
  * @param path Upload 할 파일 경로
  * @param builder 요청 설정을 위한 빌더
  * @return S3에 저장된 결과를 담은 [CompletableFuture]
+ *
+ * 예제:
+ * ```kotlin
+ * val source = java.nio.file.Path.of("settings.gradle.kts")
+ * val result = s3AsyncClient.putAsFileAsync("demo-bucket", "repo/settings.gradle.kts", source).join()
+ * // result.eTag().isNullOrBlank() == false
+ * ```
  */
 inline fun S3AsyncClient.putAsFileAsync(
     bucket: String,
@@ -238,6 +301,12 @@ inline fun S3AsyncClient.putAsFileAsync(
  * @param destBucketName 대상 bucket name
  * @param destKey        대상 object key
  * @return 이동 작업 결과
+ *
+ * 예제:
+ * ```kotlin
+ * val result = s3AsyncClient.moveObjectAsync("demo-bucket", "docs/a.txt", "demo-bucket", "archive/a.txt").join()
+ * // result.copyResult.eTag().isNullOrBlank() == false
+ * ```
  */
 fun S3AsyncClient.moveObjectAsync(
     srcBucketName: String,
@@ -283,6 +352,23 @@ fun S3AsyncClient.moveObjectAsync(
  * @param copyRequestBuilder   복사 Request
  * @param deleteRequestBuilder 원본 복제품 삭제 request
  * @return 이동 작업 결과
+ *
+ * 예제:
+ * ```kotlin
+ * val result = s3AsyncClient.moveObjectAsync(
+ *     copyRequestBuilder = {
+ *         sourceBucket("demo-bucket")
+ *         sourceKey("docs/a.txt")
+ *         destinationBucket("demo-bucket")
+ *         destinationKey("archive/a.txt")
+ *     },
+ *     deleteRequestBuilder = {
+ *         bucket("demo-bucket")
+ *         key("docs/a.txt")
+ *     },
+ * ).join()
+ * // result.isPartialSuccess == false
+ * ```
  */
 fun S3AsyncClient.moveObjectAsync(
     @BuilderInference copyRequestBuilder: CopyObjectRequest.Builder.() -> Unit,
@@ -311,6 +397,12 @@ fun S3AsyncClient.moveObjectAsync(
  * @param destKey        대상 object key
  * @return 이동 작업 결과
  * @throws IllegalStateException 삭제 실패 시 복구도 실패한 경우
+ *
+ * 예제:
+ * ```kotlin
+ * val result = s3AsyncClient.moveObjectAtomicAsync("demo-bucket", "docs/a.txt", "demo-bucket", "archive/a.txt").join()
+ * // result.isSuccess == true
+ * ```
  */
 fun S3AsyncClient.moveObjectAtomicAsync(
     srcBucketName: String,

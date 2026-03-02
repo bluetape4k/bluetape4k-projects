@@ -6,8 +6,16 @@ import software.amazon.awssdk.services.kms.model.ListGrantsRequest
 /**
  * DSL 스타일의 빌더 람다로 [ListGrantsRequest]를 생성합니다.
  *
- * @param builder [ListGrantsRequest.Builder]에 대한 설정 람다.
- * @return 설정된 [ListGrantsRequest] 인스턴스.
+ * ## 동작/계약
+ * - [ListGrantsRequest.builder]에 [builder]를 적용한 뒤 `build()`를 호출합니다.
+ *
+ * ```kotlin
+ * val request = listGrantsRequest {
+ *     keyId("key-id")
+ *     limit(10)
+ * }
+ * // request.limit() == 10
+ * ```
  */
 inline fun listGrantsRequest(
     @BuilderInference builder: ListGrantsRequest.Builder.() -> Unit,
@@ -17,12 +25,18 @@ inline fun listGrantsRequest(
 /**
  * 주요 파라미터를 직접 지정하여 [ListGrantsRequest]를 생성합니다.
  *
- * @param keyId Grant 목록을 조회할 KMS 키의 ID 또는 ARN. 공백 불가.
- * @param grantId 특정 Grant만 조회할 경우 Grant ID.
- * @param marker 페이지네이션 마커 (이전 응답의 `nextMarker` 값).
- * @param limit 반환할 최대 Grant 수.
- * @param builder [ListGrantsRequest.Builder]에 대한 추가 설정 람다.
- * @return 설정된 [ListGrantsRequest] 인스턴스.
+ * ## 동작/계약
+ * - [keyId]가 blank이면 `IllegalArgumentException`을 던집니다.
+ * - [grantId], [marker], [limit]는 `null`이 아닐 때만 빌더에 반영합니다.
+ * - 마지막에 [builder]를 추가로 실행합니다.
+ *
+ * ```kotlin
+ * val request = listGrantsRequestOf(
+ *     keyId = "key-id",
+ *     limit = 20
+ * )
+ * // request.keyId() == "key-id"
+ * ```
  */
 fun listGrantsRequestOf(
     keyId: String,

@@ -76,7 +76,16 @@ inline fun QueryEnhancedRequest(
 }
 
 /**
- * Create [QueryEnhancedRequest] instance with default values.
+ * 기본 파라미터를 조합해 [QueryEnhancedRequest]를 생성합니다.
+ *
+ * ```kotlin
+ * val request = queryEhnahcedRequestOf(
+ *     queryConditional = QueryConditional.keyEqualTo(keyOf("pk#1")),
+ *     limit = 10,
+ * )
+ *
+ * check(request.limit() == 10)
+ * ```
  */
 fun queryEhnahcedRequestOf(
     queryConditional: QueryConditional? = null,
@@ -98,6 +107,11 @@ fun queryEhnahcedRequestOf(
 
 /**
  * [QueryEnhancedRequest]의 정보를 문자열로 표현합니다.
+ *
+ * ```kotlin
+ * val summary = request.describe()
+ * check(summary.contains("scanIndexForward"))
+ * ```
  */
 fun QueryEnhancedRequest.describe(): String = buildString {
     appendLine()

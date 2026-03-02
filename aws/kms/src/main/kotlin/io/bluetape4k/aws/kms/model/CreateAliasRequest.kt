@@ -6,8 +6,16 @@ import software.amazon.awssdk.services.kms.model.CreateAliasRequest
 /**
  * DSL 스타일의 빌더 람다로 [CreateAliasRequest]를 생성합니다.
  *
- * @param builder [CreateAliasRequest.Builder]에 대한 설정 람다.
- * @return 설정된 [CreateAliasRequest] 인스턴스.
+ * ## 동작/계약
+ * - [CreateAliasRequest.builder]에 [builder]를 적용한 뒤 `build()`를 호출합니다.
+ *
+ * ```kotlin
+ * val request = createAliasRequest {
+ *     aliasName("alias/sample")
+ *     targetKeyId("key-id")
+ * }
+ * // request.aliasName() == "alias/sample"
+ * ```
  */
 inline fun createAliasRequest(
     @BuilderInference builder: CreateAliasRequest.Builder.() -> Unit,
@@ -17,10 +25,17 @@ inline fun createAliasRequest(
 /**
  * Alias 이름과 대상 키 ID를 지정하여 [CreateAliasRequest]를 생성합니다.
  *
- * @param aliasName 생성할 Alias 이름. 반드시 "alias/" 접두사로 시작해야 합니다. 공백 불가.
- * @param targetKeyId Alias가 가리킬 KMS 키의 ID 또는 ARN. 공백 불가.
- * @param builder [CreateAliasRequest.Builder]에 대한 추가 설정 람다.
- * @return 설정된 [CreateAliasRequest] 인스턴스.
+ * ## 동작/계약
+ * - [aliasName], [targetKeyId]가 blank이면 `IllegalArgumentException`을 던집니다.
+ * - 검증이 통과하면 두 필드를 설정하고 [builder]를 추가로 실행합니다.
+ *
+ * ```kotlin
+ * val request = createAliasRequestOf(
+ *     aliasName = "alias/sample",
+ *     targetKeyId = "key-id"
+ * )
+ * // request.targetKeyId() == "key-id"
+ * ```
  */
 fun createAliasRequestOf(
     aliasName: String,

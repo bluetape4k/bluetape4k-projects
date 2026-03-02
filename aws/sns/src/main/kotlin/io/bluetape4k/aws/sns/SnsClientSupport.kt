@@ -11,6 +11,11 @@ import java.net.URI
 
 /**
  * [SnsClient]를 빌드합니다.
+ *
+ * ```kotlin
+ * val result = snsClient { region(Region.AP_NORTHEAST_2) }
+ * // result == SnsClient 인스턴스
+ * ```
  */
 inline fun snsClient(builder: SnsClientBuilder.() -> Unit): SnsClient =
     SnsClient.builder().apply(builder).build()
@@ -20,6 +25,13 @@ inline fun snsClient(builder: SnsClientBuilder.() -> Unit): SnsClient =
 
 /**
  * [Region] 기반으로 [SnsClient]를 생성합니다.
+ *
+ * [httpClient]는 기본 HTTP 클라이언트를 사용하며, 생성된 클라이언트는 [ShutdownQueue]에 등록됩니다.
+ *
+ * ```kotlin
+ * val result = snsClientOf(Region.AP_NORTHEAST_2)
+ * // result == SnsClient 인스턴스
+ * ```
  */
 inline fun snsClientOf(
     region: Region,
@@ -34,6 +46,13 @@ inline fun snsClientOf(
 
 /**
  * endpoint + credentials 기반으로 [SnsClient]를 생성합니다.
+ *
+ * nullable 파라미터는 null 이 아닐 때만 builder에 반영됩니다.
+ *
+ * ```kotlin
+ * val result = snsClientOf(endpoint = URI("http://localhost:4566"))
+ * // result == SnsClient 인스턴스
+ * ```
  */
 inline fun snsClientOf(
     endpoint: URI? = null,

@@ -8,8 +8,15 @@ import software.amazon.awssdk.services.kms.model.Tag
 /**
  * DSL 스타일의 빌더 람다로 [CreateKeyRequest]를 생성합니다.
  *
- * @param builder [CreateKeyRequest.Builder]에 대한 설정 람다.
- * @return 설정된 [CreateKeyRequest] 인스턴스.
+ * ## 동작/계약
+ * - [CreateKeyRequest.builder]에 [builder]를 적용한 뒤 `build()`를 호출합니다.
+ *
+ * ```kotlin
+ * val request = createKeyRequest {
+ *     description("sample key")
+ * }
+ * // request.description() == "sample key"
+ * ```
  */
 inline fun createKeyRequest(
     @BuilderInference builder: CreateKeyRequest.Builder.() -> Unit,
@@ -19,18 +26,18 @@ inline fun createKeyRequest(
 /**
  * 주요 파라미터를 직접 지정하여 [CreateKeyRequest]를 생성합니다.
  *
- * @param policy 키 정책(JSON 형식). null이면 기본 정책이 적용됩니다.
- * @param description 키에 대한 설명.
- * @param keyUsage 키 사용 유형 (예: [KeyUsageType.ENCRYPT_DECRYPT]).
- * @param keySpec 키 사양 (예: [KeySpec.SYMMETRIC_DEFAULT]).
- * @param origin 키 자료의 출처.
- * @param customKeyStoreId 커스텀 키 스토어 ID.
- * @param bypassPolicyLockoutSafetyCheck 정책 잠금 안전 검사 우회 여부.
- * @param tags 키에 연결할 태그 목록.
- * @param multiRegion 멀티 리전 키 여부.
- * @param xksKeyId 외부 키 스토어의 키 ID.
- * @param builder [CreateKeyRequest.Builder]에 대한 추가 설정 람다.
- * @return 설정된 [CreateKeyRequest] 인스턴스.
+ * ## 동작/계약
+ * - 각 인자는 `null`이 아닐 때만 동일 이름의 빌더 메서드에 반영합니다.
+ * - 마지막에 [builder]를 추가로 실행합니다.
+ *
+ * ```kotlin
+ * val request = createKeyRequestOf(
+ *     description = "application key",
+ *     keyUsage = KeyUsageType.ENCRYPT_DECRYPT,
+ *     keySpec = KeySpec.SYMMETRIC_DEFAULT
+ * )
+ * // request.keySpec() == KeySpec.SYMMETRIC_DEFAULT
+ * ```
  */
 inline fun createKeyRequestOf(
     policy: String? = null,

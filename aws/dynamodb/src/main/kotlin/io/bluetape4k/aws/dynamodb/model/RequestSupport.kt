@@ -174,6 +174,14 @@ inline fun PutRequest(
 ): PutRequest =
     PutRequest.builder().apply(builder).build()
 
+/**
+ * 속성 맵으로 [PutRequest]를 생성합니다.
+ *
+ * ```kotlin
+ * val request = putRequestOf(mapOf("pk" to "order#1".toAttributeValue()))
+ * check(request.item().containsKey("pk"))
+ * ```
+ */
 fun putRequestOf(items: Map<String, AttributeValue>): PutRequest =
     PutRequest {
         item(items)
@@ -321,6 +329,11 @@ inline fun <reified T: Any> writeBatchOf(
     items.forEach { addPutItem(it) }
 }
 
+/**
+ * 엔티티 컬렉션을 [WriteBatch]로 변환합니다.
+ *
+ * [itemClass] 기반 builder를 사용하므로 `reified` 타입 파라미터 없이 호출할 수 있습니다.
+ */
 fun <T: Any> writeBatchOf(
     table: MappedTableResource<T>,
     items: Collection<T>,
@@ -340,6 +353,14 @@ inline fun WriteRequest(
     return WriteRequest.builder().apply(builder).build()
 }
 
+/**
+ * 속성 맵으로 [WriteRequest]를 생성합니다.
+ *
+ * ```kotlin
+ * val request = writeRequestOf(mapOf("pk" to "order#1".toAttributeValue()))
+ * check(request.putRequest().item().containsKey("pk"))
+ * ```
+ */
 fun writeRequestOf(items: Map<String, AttributeValue>): WriteRequest =
     WriteRequest {
         this.putRequest(PutRequest { item(items) })

@@ -20,6 +20,11 @@ import software.amazon.awssdk.enhanced.dynamodb.model.BatchWriteResult
 /**
  * ([tableName]) 이름의 DynamoDb Table 을 생성합니다.
  *
+ * ```kotlin
+ * val table = enhancedAsyncClient.table<MyEntity>("orders")
+ * check(table.tableName() == "orders")
+ * ```
+ *
  * @param T DynamoDB Table 의 Entity Type
  * @param tableName 테이블 이름
  * @return [DynamoDbAsyncTable] instance
@@ -31,6 +36,9 @@ inline fun <reified T: Any> DynamoDbEnhancedAsyncClient.table(tableName: String)
 
 /**
  * 대량의 Item 을 저장할 때, [DynamoDb.MAX_BATCH_ITEM_SIZE] 만큼의 크기로 나누어 저장한다.
+ *
+ * 테스트(`EnhancedAsyncClientExtensionsTest`) 기준으로 `30`건 입력 시 기본 chunk(`25`)에서
+ * [Flow]의 결과 개수는 `2`가 된다.
  *
  * @param T
  * @param itemClass entity class
@@ -62,6 +70,11 @@ fun <T: Any> DynamoDbEnhancedAsyncClient.batchWriteItems(
 
 /**
  * 대량의 Item 을 저장할 때, [DynamoDb.MAX_BATCH_ITEM_SIZE] 만큼의 크기로 나누어 저장한다.
+ *
+ * ```kotlin
+ * val resultCount = enhancedAsyncClient.batchWriteItems(table, items, chunkSize = 5).count()
+ * check(resultCount == items.chunked(5).size)
+ * ```
  *
  * @param T
  * @param table [DynamoDbAsyncTable] instance

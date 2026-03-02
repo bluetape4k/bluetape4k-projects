@@ -6,8 +6,16 @@ import software.amazon.awssdk.services.kms.model.PutKeyPolicyRequest
 /**
  * DSL 스타일의 빌더 람다로 [PutKeyPolicyRequest]를 생성합니다.
  *
- * @param builder [PutKeyPolicyRequest.Builder]에 대한 설정 람다.
- * @return 설정된 [PutKeyPolicyRequest] 인스턴스.
+ * ## 동작/계약
+ * - [PutKeyPolicyRequest.builder]에 [builder]를 적용한 뒤 `build()`를 호출합니다.
+ *
+ * ```kotlin
+ * val request = putKeyPolicyRequest {
+ *     keyId("key-id")
+ *     policyName("default")
+ * }
+ * // request.policyName() == "default"
+ * ```
  */
 inline fun putKeyPolicyRequest(
     @BuilderInference builder: PutKeyPolicyRequest.Builder.() -> Unit,
@@ -17,11 +25,18 @@ inline fun putKeyPolicyRequest(
 /**
  * 주요 파라미터를 직접 지정하여 [PutKeyPolicyRequest]를 생성합니다.
  *
- * @param keyId 정책을 설정할 KMS 키의 ID 또는 ARN. 공백 불가.
- * @param policyName 정책 이름. 현재 AWS KMS는 "default"만 지원합니다. 공백 불가.
- * @param policy JSON 형식의 키 정책 문서. 공백 불가.
- * @param builder [PutKeyPolicyRequest.Builder]에 대한 추가 설정 람다.
- * @return 설정된 [PutKeyPolicyRequest] 인스턴스.
+ * ## 동작/계약
+ * - [keyId], [policyName], [policy]가 blank이면 `IllegalArgumentException`을 던집니다.
+ * - 검증이 통과하면 세 필드를 빌더에 설정한 뒤 [builder]를 추가로 실행합니다.
+ *
+ * ```kotlin
+ * val request = putKeyPolicyRequestOf(
+ *     keyId = "key-id",
+ *     policyName = "default",
+ *     policy = """{"Version":"2012-10-17","Statement":[]}"""
+ * )
+ * // request.keyId() == "key-id"
+ * ```
  */
 fun putKeyPolicyRequestOf(
     keyId: String,

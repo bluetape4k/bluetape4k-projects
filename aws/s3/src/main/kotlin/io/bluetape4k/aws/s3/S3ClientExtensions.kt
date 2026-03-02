@@ -33,6 +33,12 @@ private val log = KotlinLogging.logger {}
  *
  * @param bucketName 존재를 파악할 Bucket name
  * @return 존재 여부를 담은 [Result]
+ *
+ * 예제:
+ * ```kotlin
+ * val result = s3Client.existsBucket("demo-bucket")
+ * // result.getOrThrow() == true
+ * ```
  */
 fun S3Client.existsBucket(bucketName: String): Result<Boolean> {
     bucketName.requireNotBlank("bucketName")
@@ -54,6 +60,12 @@ fun S3Client.existsBucket(bucketName: String): Result<Boolean> {
  * @param bucketName  생성할 Bucket name
  * @param builder 생성할 Bucket을 위한 Configuration을 설정하는 코드
  * @return Bucket 생성 결과. [CreateBucketResponse]
+ *
+ * 예제:
+ * ```kotlin
+ * val result = s3Client.createBucket("demo-bucket")
+ * // result.location().contains("demo-bucket")
+ * ```
  */
 fun S3Client.createBucket(
     bucketName: String,
@@ -78,6 +90,16 @@ fun S3Client.createBucket(
  * @param builder 요청 설정을 위한 빌더
  * @param responseTransformer 응답 변환기
  * @return 변환된 결과
+ *
+ * 예제:
+ * ```kotlin
+ * val result = s3Client.getObjectAs(
+ *     bucket = "demo-bucket",
+ *     key = "docs/readme.txt",
+ *     responseTransformer = ResponseTransformer.toBytes(),
+ * )
+ * // result.asByteArray().isNotEmpty() == true
+ * ```
  */
 inline fun <T> S3Client.getObjectAs(
     bucket: String,
@@ -96,6 +118,12 @@ inline fun <T> S3Client.getObjectAs(
  * @param key Object key
  * @param builder 요청 설정을 위한 빌더
  * @return 다욱받은 S3 Object의 ByteArray 형태의 정보
+ *
+ * 예제:
+ * ```kotlin
+ * val result = s3Client.getAsByteArray("demo-bucket", "docs/readme.txt")
+ * // result.isNotEmpty() == true
+ * ```
  */
 inline fun S3Client.getAsByteArray(
     bucket: String,
@@ -114,6 +142,12 @@ inline fun S3Client.getAsByteArray(
  * @param charset 문자 인코딩 (기본값: UTF-8)
  * @param builder 요청 설정을 위한 빌더
  * @return 다욱받은 S3 Object의 문자열 형태의 정보
+ *
+ * 예제:
+ * ```kotlin
+ * val result = s3Client.getAsString("demo-bucket", "docs/readme.txt")
+ * // result.contains("readme", ignoreCase = true) == true
+ * ```
  */
 inline fun S3Client.getAsString(
     bucket: String,
@@ -131,6 +165,13 @@ inline fun S3Client.getAsString(
  * @param file 저장할 파일
  * @param builder 요청 설정을 위한 빌더
  * @return 다욱받은 S3 Object의 정보
+ *
+ * 예제:
+ * ```kotlin
+ * val target = java.io.File("build/tmp/readme.txt")
+ * val result = s3Client.getAsFile("demo-bucket", "docs/readme.txt", target)
+ * // result.eTag().isNullOrBlank() == false
+ * ```
  */
 inline fun S3Client.getAsFile(
     bucket: String,
@@ -150,6 +191,13 @@ inline fun S3Client.getAsFile(
  * @param path 저장할 경로
  * @param builder 요청 설정을 위한 빌더
  * @return 다욱받은 S3 Object의 정보
+ *
+ * 예제:
+ * ```kotlin
+ * val target = java.nio.file.Path.of("build/tmp/readme.txt")
+ * val result = s3Client.getAsFile("demo-bucket", "docs/readme.txt", target)
+ * // result.lastModified() != null
+ * ```
  */
 inline fun S3Client.getAsFile(
     bucket: String,
@@ -173,6 +221,12 @@ inline fun S3Client.getAsFile(
  * @param body Upload 할 [RequestBody]
  * @param builder 요청 설정을 위한 빌더
  * @return S3에 저장된 결과
+ *
+ * 예제:
+ * ```kotlin
+ * val result = s3Client.put("demo-bucket", "notes/hello.txt", "hello".toRequestBody())
+ * // result.eTag().isNullOrBlank() == false
+ * ```
  */
 inline fun S3Client.put(
     bucket: String,
@@ -192,6 +246,12 @@ inline fun S3Client.put(
  * @param bytes Upload 할 Byte Array
  * @param builder 요청 설정을 위한 빌더
  * @return S3에 저장된 결과
+ *
+ * 예제:
+ * ```kotlin
+ * val result = s3Client.putAsByteArray("demo-bucket", "notes/data.bin", byteArrayOf(1, 2, 3))
+ * // result.eTag().isNullOrBlank() == false
+ * ```
  */
 inline fun S3Client.putAsByteArray(
     bucket: String,
@@ -209,6 +269,12 @@ inline fun S3Client.putAsByteArray(
  * @param contents Upload 할 문자열
  * @param builder 요청 설정을 위한 빌더
  * @return S3에 저장된 결과
+ *
+ * 예제:
+ * ```kotlin
+ * val result = s3Client.putAsString("demo-bucket", "notes/hello.txt", "hello")
+ * // result.eTag().isNullOrBlank() == false
+ * ```
  */
 inline fun S3Client.putAsString(
     bucket: String,
@@ -228,6 +294,13 @@ inline fun S3Client.putAsString(
  * @param builder 요청 설정을 위한 빌더
  * @return S3에 저장된 결과
  * @throws IllegalArgumentException 파일이 존재하지 않을 경우
+ *
+ * 예제:
+ * ```kotlin
+ * val source = java.io.File("settings.gradle.kts")
+ * val result = s3Client.putAsFile("demo-bucket", "repo/settings.gradle.kts", source)
+ * // result.eTag().isNullOrBlank() == false
+ * ```
  */
 inline fun S3Client.putAsFile(
     bucket: String,
@@ -249,6 +322,13 @@ inline fun S3Client.putAsFile(
  * @param builder 요청 설정을 위한 빌더
  * @return S3에 저장된 결과
  * @throws IllegalArgumentException 파일이 존재하지 않을 경우
+ *
+ * 예제:
+ * ```kotlin
+ * val source = java.nio.file.Path.of("settings.gradle.kts")
+ * val result = s3Client.putAsFile("demo-bucket", "repo/settings.gradle.kts", source)
+ * // result.eTag().isNullOrBlank() == false
+ * ```
  */
 inline fun S3Client.putAsFile(
     bucket: String,
@@ -276,6 +356,12 @@ inline fun S3Client.putAsFile(
  * @param destBucketName 대상 bucket name
  * @param destKey        대상 object key
  * @return 이동 작업 결과
+ *
+ * 예제:
+ * ```kotlin
+ * val result = s3Client.moveObject("demo-bucket", "docs/a.txt", "demo-bucket", "archive/a.txt")
+ * // result.copyResult.eTag().isNullOrBlank() == false
+ * ```
  */
 fun S3Client.moveObject(
     srcBucketName: String,
@@ -326,6 +412,23 @@ fun S3Client.moveObject(
  * @param copyRequest   복사 Request
  * @param deleteRequest 원본 복제품 삭제 request
  * @return 이동 작업 결과
+ *
+ * 예제:
+ * ```kotlin
+ * val result = s3Client.moveObject(
+ *     copyRequest = {
+ *         sourceBucket("demo-bucket")
+ *         sourceKey("docs/a.txt")
+ *         destinationBucket("demo-bucket")
+ *         destinationKey("archive/a.txt")
+ *     },
+ *     deleteRequest = {
+ *         bucket("demo-bucket")
+ *         key("docs/a.txt")
+ *     },
+ * )
+ * // result.isPartialSuccess == false
+ * ```
  */
 fun S3Client.moveObject(
     copyRequest: CopyObjectRequest.Builder.() -> Unit,
@@ -358,6 +461,12 @@ fun S3Client.moveObject(
  * @param destKey        대상 object key
  * @return 이동 작업 결과
  * @throws IllegalStateException 삭제 실패 시 복구도 실패한 경우
+ *
+ * 예제:
+ * ```kotlin
+ * val result = s3Client.moveObjectAtomic("demo-bucket", "docs/a.txt", "demo-bucket", "archive/a.txt")
+ * // result.isSuccess == true
+ * ```
  */
 fun S3Client.moveObjectAtomic(
     srcBucketName: String,

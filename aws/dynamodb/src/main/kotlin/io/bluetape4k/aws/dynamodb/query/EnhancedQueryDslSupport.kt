@@ -69,6 +69,13 @@ class EnhancedQueryBuilderKt<T: Any> {
     var scanIndexForward: Boolean = true
     var lastEvaluatedKey: Map<String, AttributeValue>? = null
 
+    /**
+     * 설정된 DSL 상태를 [QueryEnhancedRequest]로 변환합니다.
+     *
+     * - `primaryKey`는 필수입니다.
+     * - `sortKey`가 없으면 `keyEqualTo` 조건을 사용합니다.
+     * - `filtering`이 있으면 Enhanced Expression으로 변환해 `filterExpression`에 적용합니다.
+     */
     fun build(): QueryEnhancedRequest {
         log.debug { "Start query ...  primaryKey=$primaryKey, sortKey=$sortKey" }
         primaryKey.requireNotNull("primaryKey")
@@ -120,6 +127,7 @@ class EnhancedQueryBuilderKt<T: Any> {
     }
 }
 
+/** 파티션 키 DSL을 설정합니다. */
 inline fun <T: DynamoDbEntity> EnhancedQueryBuilderKt<T>.primaryKey(
     keyName: String = "primaryKey",
     @BuilderInference builder: PrimaryKeyBuilder.() -> Unit,
@@ -127,6 +135,7 @@ inline fun <T: DynamoDbEntity> EnhancedQueryBuilderKt<T>.primaryKey(
     primaryKey = PrimaryKeyBuilder(keyName).apply(builder).build()
 }
 
+/** 정렬 키 DSL을 설정합니다. */
 inline fun <T: DynamoDbEntity> EnhancedQueryBuilderKt<T>.sortKey(
     keyName: String = "sortKey",
     @BuilderInference builder: SortKeyBuilder.() -> Unit,
@@ -134,6 +143,7 @@ inline fun <T: DynamoDbEntity> EnhancedQueryBuilderKt<T>.sortKey(
     sortKey = SortKeyBuilder(keyName).apply(builder).build()
 }
 
+/** 필터 조건 DSL을 설정합니다. */
 inline fun <T: DynamoDbEntity> EnhancedQueryBuilderKt<T>.filtering(
     @BuilderInference builder: RootFilterBuilder.() -> Unit,
 ) {

@@ -9,24 +9,50 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 import java.io.Serializable
 import kotlin.random.Random
 
+/**
+ * 필터 DSL을 AWS Enhanced Expression으로 변환하기 위한 중간 결과 객체입니다.
+ *
+ * @property expressionAttributeValues expression value 바인딩 맵
+ * @property filterExpression DynamoDB filter expression 문자열
+ * @property expressionAttributeNames expression name 바인딩 맵
+ */
 data class FilterRequestProperties(
     val expressionAttributeValues: MutableMap<String, AttributeValue>,
     val filterExpression: String,
     val expressionAttributeNames: MutableMap<String, String>,
 )
 
+/**
+ * [FilterRequestProperties]를 AWS Enhanced Client의 [Expression]으로 변환합니다.
+ *
+ * ```kotlin
+ * val expression = requestProperties.toExpression()
+ * check(expression.expression().isNotBlank())
+ * ```
+ */
 fun FilterRequestProperties.toExpression(): Expression = Expression {
     expression(filterExpression)
     expressionAttributeNames.takeIf { it.isNotEmpty() }?.let { expressionNames(it) }
     expressionAttributeValues.takeIf { it.isNotEmpty() }?.let { expressionValues(it) }
 }
 
+/** 필터 조건 트리 루트/노드 마커 인터페이스입니다. */
 @DynamoDslMarker
 interface FilterQuery
 
+/**
+ * AND/OR로 연결된 필터 트리 루트입니다.
+ *
+ * [getFilterRequestProperties]는 연결 순서대로 filter expression 문자열과 바인딩 맵을 생성합니다.
+ */
 @DynamoDslMarker
 class RootFilter(val filterConnections: List<FilterConnection>): FilterQuery {
 
+    /**
+     * 필터 트리를 순회해 [FilterRequestProperties]를 생성합니다.
+     *
+     * `filterConnections` 첫 항목은 연결자 없이 시작해야 하며, 이후 항목은 `AND` 또는 `OR` 연결자를 가져야 합니다.
+     */
     fun getFilterRequestProperties(): FilterRequestProperties {
         val expressionAttributeValues = mutableMapOf<String, AttributeValue>()
         val expressionAttributeNames = mutableMapOf<String, String>()
@@ -65,6 +91,11 @@ class RootFilter(val filterConnections: List<FilterConnection>): FilterQuery {
     }
 }
 
+/**
+ * 단일 속성 기반 필터 조건입니다.
+ *
+ * [dynamoFunction]과 [comparator] 조합을 expression 문자열로 변환합니다.
+ */
 @DynamoDslMarker
 class ConcreteFilter(
     val dynamoFunction: DynamoFunction,
@@ -92,6 +123,12 @@ class ConcreteFilter(
         }
     }
 
+    /**
+     * 단일 필터를 [FilterRequestProperties]로 변환합니다.
+     *
+     * 테스트(`DynamoDbQueryDslTest`) 기준으로 변환 결과는
+     * expression 문자열, 이름 바인딩, 값 바인딩을 함께 구성합니다.
+     */
     fun getFilterRequestProperties(): FilterRequestProperties {
         val expressionAttributeValues = mutableMapOf<String, AttributeValue>()
         val expressionAttributeNames = mutableMapOf<String, String>()
@@ -152,27 +189,34 @@ class ConcreteFilter(
     }
 }
 
-// Represents a connector and an individual condition 'AND X', 'OR (Y AND Z)', ...
+/** `AND X`, `OR (Y AND Z)` 같은 연결 단위를 표현합니다. */
 data class FilterConnection(
     val value: FilterQuery,
     val connectionToLeft: FilterBooleanConnection? = null,
 ): Serializable
 
+/** 조건 연결 연산자입니다. */
 enum class FilterBooleanConnection {
     AND,
     OR
 }
 
+/** 필터 함수(속성/함수 호출) 마커 인터페이스입니다. */
 interface DynamoFunction: Serializable
 
+/** 속성 기반 필터 대상을 지정합니다. */
 data class Attribute(val attributeName: String): DynamoFunction
+
+/** `attribute_exists(name)` 필터 함수를 지정합니다. */
 data class AttributeExists(val attributeName: String): DynamoFunction
 
+/** 필터 DSL builder 공통 계약입니다. */
 @DynamoDslMarker
 interface FilterQueryBuilder {
     fun build(): FilterQuery
 }
 
+/** 단일 [ConcreteFilter] 빌더입니다. */
 @DynamoDslMarker
 class ConcreteFilterBuilder: FilterQueryBuilder {
     var dynamoFunction: DynamoFunction? = null
@@ -183,38 +227,57 @@ class ConcreteFilterBuilder: FilterQueryBuilder {
     }
 }
 
+/** `=` 비교 연산자를 설정합니다. */
 infix fun ConcreteFilterBuilder.eq(value: Any) {
     comparator = Equals(value)
 }
 
+/** `<>` 비교 연산자를 설정합니다. */
 infix fun ConcreteFilterBuilder.ne(value: Any) {
     comparator = NotEquals(value)
 }
 
+/** `>` 비교 연산자를 설정합니다. */
 infix fun ConcreteFilterBuilder.gt(value: Any) {
     comparator = GreaterThan(value)
 }
 
+/** `>=` 비교 연산자를 설정합니다. */
 infix fun ConcreteFilterBuilder.ge(value: Any) {
     comparator = GreaterThanOrEquals(value)
 }
 
+/** `<` 비교 연산자를 설정합니다. */
 infix fun ConcreteFilterBuilder.lt(value: Any) {
     comparator = LessThan(value)
 }
 
+/** `<=` 비교 연산자를 설정합니다. */
 infix fun ConcreteFilterBuilder.le(value: Any) {
     comparator = LessThanOrEquals(value)
 }
 
+/** `IN` 비교 연산자를 설정합니다. */
 infix fun ConcreteFilterBuilder.inList(values: List<Any>) {
     comparator = InList(values)
 }
 
+/** `IN` 비교 연산자를 vararg로 설정합니다. */
 fun ConcreteFilterBuilder.inList(vararg values: Any) {
     comparator = InList(values.toList())
 }
 
+/**
+ * 복합 조건(AND/OR) 루트 빌더입니다.
+ *
+ * ```kotlin
+ * val root = RootFilterBuilder().apply {
+ *     attribute("status") { eq("OPEN") } and attributeExists("updatedAt")
+ * }.build()
+ *
+ * check(root.getFilterRequestProperties().filterExpression.isNotBlank())
+ * ```
+ */
 @DynamoDslMarker
 class RootFilterBuilder: FilterQueryBuilder {
 
@@ -244,7 +307,11 @@ class RootFilterBuilder: FilterQueryBuilder {
     }
 }
 
-
+/**
+ * 속성 필터를 추가합니다.
+ *
+ * 첫 호출은 루트 조건으로 등록되고, 이후 호출은 `and`/`or` 연결을 위해 [currentFilter]에 저장됩니다.
+ */
 inline fun RootFilterBuilder.attribute(
     value: String,
     @BuilderInference builder: ConcreteFilterBuilder.() -> Unit = {},
@@ -259,6 +326,9 @@ inline fun RootFilterBuilder.attribute(
     }
 }
 
+/**
+ * `attribute_exists(name)` 필터를 현재 조건으로 등록합니다.
+ */
 infix fun RootFilterBuilder.attributeExists(value: String): RootFilterBuilder = apply {
     this.currentFilter = ConcreteFilter(AttributeExists(value))
 }
