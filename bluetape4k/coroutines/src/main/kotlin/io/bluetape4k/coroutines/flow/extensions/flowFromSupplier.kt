@@ -4,15 +4,21 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 
 /**
- * 주어진 [function]의 반환 값을 하나의 항목으로 발행하는 _cold_ flow
+ * collect 시점에 supplier를 1회 호출해 단일 값을 방출하는 Flow를 만듭니다.
  *
- * Example of usage:
+ * ## 동작/계약
+ * - collect마다 `function()`을 다시 호출하므로 콜드(cold) Flow로 동작합니다.
+ * - supplier 예외는 그대로 collect 호출자에게 전파됩니다.
+ * - 값 1개를 방출한 뒤 즉시 완료됩니다.
  *
+ * ```kotlin
+ * var n = 0
+ * val f = flowFromSupplier { ++n }
+ * val result = listOf(f.first(), f.first())
+ * // result == [1, 2]
  * ```
- * fun remoteCall(): R = ...
- * fun remoteCallFlow(): Flow<R> = flowFromSupplier(::remoteCall)
- * ```
- * @param function the function that produces a single value
+ *
+ * @param function 수집 시 호출할 값 공급 함수입니다.
  */
 fun <T> flowFromSupplier(function: () -> T): Flow<T> = FlowFromSupplier(function)
 

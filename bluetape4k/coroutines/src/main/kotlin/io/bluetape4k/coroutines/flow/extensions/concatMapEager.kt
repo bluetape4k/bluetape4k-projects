@@ -17,38 +17,24 @@ import kotlin.experimental.ExperimentalTypeInference
 private val log: Logger by unsafeLazy { KotlinLogging.logger { } }
 
 /**
- * 업스트림 값을 [Flow]로 매핑하고 한번에 모두 시작한 다음, 다른 소스의 항목이 발행되기 전에 첫 번째 소스에서 모든 항목을 발행합니다.
- * 각 소스는 무제한으로 소비되므로 현재 소스와 수집기의 속도에 따라 연산자가 항목을 더 오래 유지하고 실행 중에 더 많은 메모리를 사용할 수 있습니다.
+ * inner Flow를 eager하게 동시 수집하되 결과는 source 순서대로 연결(concat)해 방출합니다.
  *
- * ```
- * flowRangeOf(1, 5)              // 1,2,3,4,5
- *     .concatMapEager {
- *         flowRangeOf(it * 10, 5).delay(100)   // 10,11,12,13,14
- *     }                                        // 20,21,22,23,24 ...
- *     .take(7)
- *     .assertResult(
- *         10, 11, 12, 13, 14,
- *         20, 21
- *     )
+ * ## 동작/계약
+ * - source 요소마다 `transform`을 즉시 실행해 inner 수집 코루틴을 시작합니다.
+ * - inner 수집은 동시 실행되지만 출력은 source 순서의 큐를 순차 비우며 방출합니다.
+ * - 각 inner는 자체 `ConcurrentLinkedQueue`를 사용해 값을 버퍼링합니다.
+ * - source/inner 예외 처리 규칙은 `channelFlow`와 코루틴 취소 규칙을 따릅니다.
+ *
+ * ```kotlin
+ * val out = flowOf(1, 2).concatMapEager { v -> flowOf(v, v * 10) }.toList()
+ * // out == [1, 10, 2, 20]
  * ```
  *
- * @param transform 업스트림 요소를 [Flow]로 변환하는 suspendable 함수
- *
- * @return a [Flow] that emits items from the sources
+ * @param transform source 값을 inner Flow로 변환하는 함수입니다.
  */
 fun <T: Any, R: Any> Flow<T>.concatMapEager(transform: suspend (T) -> Flow<R>): Flow<R> =
     concatMapEagerInternal(transform)
 
-/**
- * 업스트림 값을 [Flow]로 매핑하고 한번에 모두 시작한 다음, 다른 소스의 항목이 발행되기 전에 첫 번째 소스에서 모든 항목을 발행합니다.
- * 각 소스는 무제한으로 소비되므로 현재 소스와 수집기의 속도에 따라 연산자가 항목을 더 오래 유지하고 실행 중에 더 많은 메모리를 사용할 수 있습니다.
- *
- * @param T 소스 요소 타입
- * @param R 변환된 요소 타입
- * @param transform 업스트림 요소를 [Flow]로 변환하는 suspendable 함수
- * @receiver source flow
- * @return 변환된 요소를 발행하는 Flow
- */
 @OptIn(ExperimentalTypeInference::class)
 internal fun <T: Any, R: Any> Flow<T>.concatMapEagerInternal(
     @BuilderInference transform: suspend (T) -> Flow<R>,
@@ -108,7 +94,6 @@ internal fun <T: Any, R: Any> Flow<T>.concatMapEagerInternal(
                     continue
                 }
             }
-            // 다음 item이 올때까지 대기한다
             resumeOutput.await()
         }
     }
@@ -119,9 +104,6 @@ private class ConcatMapEagerInnerQueue<R: Any> {
     val done = atomic(false)
 }
 
-/**
- * [concatMapEagerInternal]의 상위 source 완료 상태를 보관합니다.
- */
 private class ConcatMapEagerState {
     val innerDone = atomic(false)
 }

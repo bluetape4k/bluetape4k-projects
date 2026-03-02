@@ -4,9 +4,6 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.requireEquals
 import kotlinx.coroutines.flow.FlowCollector
 
-/**
- * 병렬로 flow 요소를 필터링합니다.
- */
 internal class FlowParallelFilter<T>(
     private val source: ParallelFlow<T>,
     private val predicate: suspend (T) -> Boolean,

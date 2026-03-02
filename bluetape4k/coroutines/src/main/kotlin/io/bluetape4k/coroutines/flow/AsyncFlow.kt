@@ -15,13 +15,6 @@ import kotlinx.coroutines.flow.map
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
-/**
- * [block]을 [start]를 호출할 때까지 실행하지 않는 [Deferred]를 생성합니다.
- *
- * @param T 반환할 값의 수형
- * @property coroutineContext 비동기 실행을 위한 [CoroutineContext]
- * @property block 비동기로 실행할 suspend 함수
- */
 @PublishedApi
 internal class LazyDeferred<out T>(
     val coroutineContext: CoroutineContext = EmptyCoroutineContext,
@@ -29,48 +22,34 @@ internal class LazyDeferred<out T>(
 ) {
     private val deferred = atomic<Deferred<T>?>(null)
 
-    /**
-     * [block]을 비동기 방식으로 실행합니다.
-     *
-     * @param scope [block]을 실행할 [CoroutineScope]
-     */
     fun start(scope: CoroutineScope): LazyDeferred<T> {
         deferred.compareAndSet(null, scope.async(coroutineContext, block = block))
         return this
     }
 
-    /**
-     * [Deferred]의 실행이 완료될 때까지 대기하고, 결과를 반환합니다. deferred 가 실행되지 않았으면 에러를 발생시킵니다.
-     */
     suspend fun await(): T = deferred.value?.await() ?: error("Coroutine not started")
 }
 
 /**
- * Flow 형식을 취하지만 요소가 [LazyDeferred] 형식을 emit 하는 Flow 입니다.
+ * Flow 요소를 비동기 계산으로 감싼 뒤, 원래 순서대로 방출하는 Flow 래퍼입니다.
  *
- * ```
- * (0..10).asFlow()
- *     .asyncFlow {
- *          delay(100)
- *          it * 2
- *     }
- *     .collect { item: Int ->
- *         println(item)
- *     }
- * ```
+ * ## 동작/계약
+ * - 각 요소 계산은 `LazyDeferred`로 비동기 시작되지만, 최종 emit은 입력 순서를 유지합니다.
+ * - 수신 객체를 변경하지 않고 새 Flow 래퍼를 반환합니다.
+ * - 계산 중 예외는 해당 요소 await 시점에 전파됩니다.
+ * - 내부 채널/Deferred를 사용하므로 요소 수와 버퍼 크기에 비례한 추가 할당이 발생합니다.
  *
- * @param T 요소의 수형
- * @property deferredFlow [LazyDeferred]를 emit 하는 [Flow] 인스턴스
+ * ```kotlin
+ * val out = flowOf(1, 2, 3)
+ *     .async { it * 2 }
+ *     .toList()
+ * // out == [2, 4, 6]
+ * ```
  */
 class AsyncFlow<T> @PublishedApi internal constructor(
     @PublishedApi internal val deferredFlow: Flow<LazyDeferred<T>>,
 ): AbstractFlow<T>() {
 
-    /**
-     * [Flow]와 마찮가지로 emit된 요소를 collect 합니다.
-     *
-     * @param collector emit 된 요소를 collect 하는 [FlowCollector]
-     */
     override suspend fun collectSafely(collector: FlowCollector<T>) {
         channelFlow {
             deferredFlow.collect { defer ->
@@ -91,28 +70,22 @@ internal fun requireFlowBufferCapacity(capacity: Int) {
 }
 
 /**
- * [Flow] 를 [AsyncFlow] 로 변환하여, 각 요소처리를 병렬로 비동기 방식으로 수행하게 합니다.
- * 단 `flatMapMerge` 처럼 실행 완료된 순서로 반환하는 것이 아니라, Flow 의 처음 요소의 순서대로 반환합니다. (Deferred 형식으로)
+ * Flow 각 요소를 비동기 계산으로 변환한 [AsyncFlow]를 생성합니다.
  *
- * ```
- * val dispatcher = Dispatchers.Default
+ * ## 동작/계약
+ * - 각 입력 요소마다 [block]을 별도 Deferred로 계산합니다.
+ * - 계산은 비동기적으로 시작되지만 결과 방출 순서는 입력 순서를 유지합니다.
+ * - [coroutineContext]는 요소 계산 coroutine 생성 시 적용됩니다.
+ * - block 예외는 collect 시점에 전파됩니다.
  *
- * expectedItems.asFlow()
- *     .async(dispatcher) {
- *         delay(Random.nextLong(5))
- *         log.trace { "Started $it" }
- *         it
- *     }
- *     .map {
- *         delay(Random.nextLong(5))
- *         it * it / it
- *     }
- *     .collect { curr ->
- *         // 순서대로 들어와야 한다
- *         results.lastOrNull()?.let { prev -> curr shouldBeEqualTo prev + 1 }
- *         results.add(curr)
- *     }
+ * ```kotlin
+ * val out = flowOf(1, 2, 3)
+ *     .async { it + 1 }
+ *     .toList()
+ * // out == [2, 3, 4]
  * ```
+ * @param coroutineContext 요소 계산에 사용할 CoroutineContext입니다.
+ * @param block 각 요소를 비동기 계산하는 함수입니다.
  */
 inline fun <T, R> Flow<T>.async(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
@@ -126,25 +99,22 @@ inline fun <T, R> Flow<T>.async(
 }
 
 /**
- * [AsyncFlow] 의 요소들을 병렬로 비동기로 [transform]을 실행하지만, 원본 Flow의 순서를 유지합니다.
+ * [AsyncFlow] 결과를 추가 변환한 새 [AsyncFlow]를 반환합니다.
  *
+ * ## 동작/계약
+ * - 기존 비동기 계산을 시작/await한 뒤 [transform]을 적용합니다.
+ * - 입력 순서 보장은 유지됩니다.
+ * - transform 예외는 collect 시점에 전파됩니다.
+ * - 수신 AsyncFlow를 변경하지 않고 새 AsyncFlow를 반환합니다.
+ *
+ * ```kotlin
+ * val out = flowOf(1, 2, 3)
+ *     .async { it }
+ *     .map { it * 10 }
+ *     .toList()
+ * // out == [10, 20, 30]
  * ```
- * expectedItems.asFlow()
- *     .async(dispatcher) {
- *         delay(Random.nextLong(5))
- *         log.trace { "Started $it" }
- *         it
- *     }
- *     .map {
- *         delay(Random.nextLong(5))
- *         it * it / it
- *     }
- *     .collect { curr ->
- *         // 순서대로 들어와야 한다
- *         results.lastOrNull()?.let { prev -> curr shouldBeEqualTo prev + 1 }
- *         results.add(curr)
- *     }
- * ```
+ * @param transform AsyncFlow 요소 변환 함수입니다.
  */
 inline fun <T, R> AsyncFlow<T>.map(
     @BuilderInference crossinline transform: suspend (value: T) -> R,
@@ -161,29 +131,21 @@ inline fun <T, R> AsyncFlow<T>.map(
 }
 
 /**
- * [AsyncFlow] 의 요소들을 병렬로 비동기로 실행하지만, 원본 Flow의 순서를 유지합니다.
- * 결과를 직접 소비할 필요가 없을 때는 기본 [NoopCollector]를 사용할 수 있습니다.
+ * [AsyncFlow]를 지정한 버퍼 정책으로 수집합니다.
  *
- * ```
- * expectedItems.asFlow()
- *     .async(dispatcher) {
- *         delay(Random.nextLong(5))
- *         log.trace { "Started $it" }
- *         it
- *     }
- *     .map {
- *         delay(Random.nextLong(5))
- *         it * it / it
- *     }
- *     .collect { curr ->
- *         // 순서대로 들어와야 한다
- *         results.lastOrNull()?.let { prev -> curr shouldBeEqualTo prev + 1 }
- *         results.add(curr)
- *     }
- * }
- * ```
+ * ## 동작/계약
+ * - `capacity`는 `Channel.BUFFERED`, `Channel.CONFLATED` 또는 0 이상이어야 합니다.
+ * - 조건을 만족하지 않으면 `IllegalArgumentException`이 발생합니다.
+ * - 내부적으로 deferredFlow를 buffer한 뒤 각 값을 await하여 [collector]에 전달합니다.
+ * - `collector`를 생략하면 값을 소비만 하고 버립니다.
  *
- * @param capacity 내부 버퍼 크기. `>= 0`, [Channel.BUFFERED], [Channel.CONFLATED]만 허용합니다.
+ * ```kotlin
+ * val count = AtomicInteger(0)
+ * flowOf(1, 2, 3).async { it }.collect { count.incrementAndGet() }
+ * // count.get() == 3
+ * ```
+ * @param capacity 내부 buffer 크기 또는 채널 특수 상수입니다.
+ * @param collector 수집된 값을 처리할 collector입니다.
  */
 suspend fun <T> AsyncFlow<T>.collect(
     capacity: Int = Channel.BUFFERED,
@@ -204,28 +166,20 @@ suspend fun <T> AsyncFlow<T>.collect(
 }
 
 /**
- * [AsyncFlow] 의 요소들을 [collector]을 통해 병렬 비동기로 실행하지만, 원본 Flow의 순서를 유지합니다.
+ * [AsyncFlow]를 람다 collector로 수집합니다.
  *
- * ```
- * expectedItems.asFlow()
- *     .async(dispatcher) {
- *         delay(Random.nextLong(5))
- *         log.trace { "Started $it" }
- *         it
- *     }
- *     .map {
- *         delay(Random.nextLong(5))
- *         it * it / it
- *     }
- *     .collect { curr ->
- *         // 순서대로 들어와야 한다
- *         results.lastOrNull()?.let { prev -> curr shouldBeEqualTo prev + 1 }
- *         results.add(curr)
- *     }
- * }
- * ```
+ * ## 동작/계약
+ * - 동작은 [collect](`capacity`, `FlowCollector`)와 동일합니다.
+ * - `capacity` 검증 규칙도 동일하게 적용됩니다.
+ * - collector 람다 예외는 수집 시점에 전파됩니다.
  *
- * @param capacity 내부 버퍼 크기. `>= 0`, [Channel.BUFFERED], [Channel.CONFLATED]만 허용합니다.
+ * ```kotlin
+ * val out = mutableListOf<Int>()
+ * flowOf(1, 2, 3).async { it }.collect { out += it }
+ * // out == [1, 2, 3]
+ * ```
+ * @param capacity 내부 buffer 크기 또는 채널 특수 상수입니다.
+ * @param collector 수집된 값을 처리할 람다입니다.
  */
 suspend inline fun <T> AsyncFlow<T>.collect(
     capacity: Int = Channel.BUFFERED,

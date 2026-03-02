@@ -12,16 +12,22 @@ import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.yield
 
 /**
- * 모든 소스 [Flow]들을 수집을 시도하는데, 첫 번째 요소를 발행하는 Flow를 collect 하고, 나머지 Flow들은 collect를 취소합니다.
+ * 여러 Flow 중 첫 값을 방출한 Flow를 winner로 선택합니다.
  *
+ * ## 동작/계약
+ * - winner 기준은 "첫 신호"가 아니라 "첫 값 emit"입니다.
+ * - winner가 결정되면 나머지 source 채널은 취소됩니다.
+ * - winner가 값 없이 정상 종료되면 후보에서 제거하고 다음 후보로 경합을 계속합니다.
+ * - winner가 예외로 종료되면 해당 예외를 전파합니다.
+ *
+ * ```kotlin
+ * val out = amb(flowOf(1, 2), flowOf(3, 4))
+ * // out은 먼저 값을 보낸 한 source의 값만 방출
  * ```
- * val flow1 = flowRangeOf(1, 5).onStart { delay(1000) }
- * val flow2 = flowRangeOf(6, 5).onStart { delay(100) }
  *
- * amb(flow1, flow2)  // 6, 7, 8, 9, 10
- * ```
- *
- * @see [race]
+ * @param flow1 첫 번째 후보 Flow입니다.
+ * @param flow2 두 번째 후보 Flow입니다.
+ * @param flows 추가 후보 Flow들입니다.
  */
 fun <T> amb(flow1: Flow<T>, flow2: Flow<T>, vararg flows: Flow<T>): Flow<T> =
     ambInternal(
@@ -33,41 +39,33 @@ fun <T> amb(flow1: Flow<T>, flow2: Flow<T>, vararg flows: Flow<T>): Flow<T> =
     )
 
 /**
- * 모든 소스 [Flow]들을 수집을 시도하는데, 첫 번째 요소를 발행하는 Flow를 collect 하고, 나머지 Flow들은 collect를 취소합니다.
+ * 컬렉션으로 받은 Flow 후보들에 대해 amb 경쟁을 수행합니다.
  *
- * ```
- * val flow1 = flowRangeOf(1, 5).onStart { delay(1000) }
- * val flow2 = flowRangeOf(6, 5).onStart { delay(100) }
- *
- * listOf(flow1, flow2).amb()   // 6, 7, 8, 9, 10
- * ```
- *
- * @see [race]
+ * ## 동작/계약
+ * - 빈 입력이면 즉시 완료합니다.
+ * - 단일 입력이면 해당 Flow를 그대로 방출합니다.
+ * - 2개 이상이면 [ambInternal] 경합 로직을 수행합니다.
  */
 fun <T> Iterable<Flow<T>>.amb(): Flow<T> = ambInternal(this)
 
 /**
- * 모든 소스 [Flow]들을 수집을 시도하는데, 첫 번째 요소를 발행하는 Flow를 collect 하고, 나머지 Flow들은 collect를 취소합니다.
+ * 수신 Flow를 포함해 amb 경쟁을 수행합니다.
  *
- * ```
- * val flow1 = flowRangeOf(1, 5).onStart { delay(1000) }
- * val flow2 = flowRangeOf(6, 5).onStart { delay(100) }
+ * ## 동작/계약
+ * - 수신 Flow, `flow1`, `flows`를 묶어 [amb]에 위임합니다.
  *
- * flow1.ambWith(flow2)  // 6, 7, 8, 9, 10
- * ```
- *
- * @see [raceWith]
+ * @param flow1 추가 후보 Flow입니다.
+ * @param flows 추가 후보 Flow들입니다.
  */
 fun <T> Flow<T>.ambWith(flow1: Flow<T>, vararg flows: Flow<T>): Flow<T> = amb(this, flow1, *flows)
 
 internal fun <T> ambInternal(sources: Iterable<Flow<T>>): Flow<T> = flow {
     coroutineScope {
         val channels = sources.map { flow ->
-            // Produce the values using the default (rendezvous) channel
             produce {
                 flow.collect {
                     send(it)
-                    yield() // 모든 Flow가 공정하게 emit 할 기회를 주기 위해
+                    yield()
                 }
             }
         }
@@ -80,7 +78,6 @@ internal fun <T> ambInternal(sources: Iterable<Flow<T>>): Flow<T> = flow {
             .singleOrNull()
             ?.let { return@coroutineScope emitAll(it) }
 
-        // "첫 신호(완료 포함)"가 아니라 "첫 값 emit"을 우승 기준으로 삼는다.
         val alive = channels.indices.toMutableSet()
 
         while (alive.isNotEmpty()) {
@@ -105,7 +102,6 @@ internal fun <T> ambInternal(sources: Iterable<Flow<T>>): Flow<T> = flow {
                     return@coroutineScope
                 }
                 .onFailure { cause ->
-                    // 값 없이 종료된 source는 후보에서 제거하고 계속 경합한다.
                     if (cause == null) {
                         alive.remove(winnerIndex)
                     } else {

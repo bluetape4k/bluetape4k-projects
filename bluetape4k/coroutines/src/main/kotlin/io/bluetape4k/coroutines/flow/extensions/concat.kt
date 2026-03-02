@@ -6,15 +6,20 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 
 /**
- * [f1], [f2], [fs] 순서대로 collect 합니다.
+ * 여러 Flow를 순서대로 이어 붙인 Flow를 반환합니다.
  *
+ * ## 동작/계약
+ * - `f1 -> f2 -> fs...` 순서로 완전 수집한 뒤 다음 Flow를 수집합니다.
+ * - 수신 객체를 변경하지 않고 새 cold Flow를 반환합니다.
+ * - 앞선 Flow에서 예외가 발생하면 이후 Flow는 수집되지 않고 예외가 전파됩니다.
+ *
+ * ```kotlin
+ * val out = concat(flowOf(1, 2), flowOf(3, 4)).toList()
+ * // out == [1, 2, 3, 4]
  * ```
- * val flow1 = flowOf(1, 2, 3)
- * val flow2 = flowOf(4, 5, 6)
- * val flow3 = flowOf(7, 8, 9)
- * val flow4 = flowOf(10, 11, 12)
- * concat(flow1, flow2, flow3, flow4)  // 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
- * ```
+ * @param f1 첫 번째 Flow입니다.
+ * @param f2 두 번째 Flow입니다.
+ * @param fs 세 번째 이후 Flow들입니다.
  */
 fun <T> concat(f1: Flow<T>, f2: Flow<T>, vararg fs: Flow<T>): Flow<T> = flow {
     emitAll(f1)
@@ -25,24 +30,34 @@ fun <T> concat(f1: Flow<T>, f2: Flow<T>, vararg fs: Flow<T>): Flow<T> = flow {
 }
 
 /**
- * source flow 를 모두 collect 하고난 후, [f1], [fs] 를 collect 합니다.
+ * 현재 Flow 뒤에 추가 Flow를 순차 연결합니다.
  *
+ * ## 동작/계약
+ * - 현재 Flow를 먼저 모두 방출한 뒤 `f1`, `fs`를 순차 방출합니다.
+ * - 수신 Flow를 변경하지 않고 새 cold Flow를 반환합니다.
+ * - 연결 순서 중간에서 예외가 발생하면 이후 Flow는 수집되지 않습니다.
+ *
+ * ```kotlin
+ * val out = flowOf(1, 2).concatWith(flowOf(3, 4)).toList()
+ * // out == [1, 2, 3, 4]
  * ```
- * val flow1 = flowOf(1, 2, 3)
- * flow1.concatWith(flowOf(4, 5, 6), flowOf(7, 8, 9))  // 1, 2, 3, 4, 5, 6, 7, 8, 9
- * ```
+ * @param f1 뒤에 연결할 첫 Flow입니다.
+ * @param fs 추가로 연결할 Flow들입니다.
  */
 fun <T> Flow<T>.concatWith(f1: Flow<T>, vararg fs: Flow<T>): Flow<T> =
     concat(this, f1, *fs)
 
 /**
- * [Flow]들을 순차적으로 collect 합니다.
+ * Flow 컬렉션을 순서대로 이어 붙입니다.
  *
- * ```
- * val flow1 = flowOf(1, 2, 3)
- * val flow2 = flowOf(4, 5, 6)
- * val flow3 = flowOf(7, 8, 9)
- * listOf(flow1, flow2, flow3).concat()  // 1, 2, 3, 4, 5, 6, 7, 8, 9
+ * ## 동작/계약
+ * - Iterable 순회 순서대로 각 Flow를 완전 수집합니다.
+ * - 빈 컬렉션이면 아무 값도 방출하지 않고 완료합니다.
+ * - 수신 컬렉션/Flow를 변경하지 않고 새 cold Flow를 반환합니다.
+ *
+ * ```kotlin
+ * val out = listOf(flowOf(1, 2), flowOf(3, 4)).concat().toList()
+ * // out == [1, 2, 3, 4]
  * ```
  */
 fun <T> Iterable<Flow<T>>.concat(): Flow<T> = flow {
@@ -50,15 +65,19 @@ fun <T> Iterable<Flow<T>>.concat(): Flow<T> = flow {
 }
 
 /**
- * [Flow] 의 첫번째 emit 요소로 [item], [items]들을 추가합니다. (prepend 와 유사)
+ * 현재 Flow 앞에 고정 값들을 먼저 방출합니다.
  *
- * ```
- * flowOf(2, 3, 4).startWith(1)  // 1, 2, 3, 4
- * flowOf(2, 3, 4).startWith(1, 0)  // 1, 0, 2, 3, 4
- * ```
+ * ## 동작/계약
+ * - `item`, `items`를 먼저 방출한 뒤 현재 Flow를 방출합니다.
+ * - 수신 Flow를 변경하지 않고 새 cold Flow를 반환합니다.
+ * - vararg 값 개수만큼 추가 순회/방출이 발생합니다.
  *
- * @param item 선두에 추가할 요소
- * @param items 선두에 추가할 요소들
+ * ```kotlin
+ * val out = flowOf(1, 2).startWith(-1, 0).toList()
+ * // out == [-1, 0, 1, 2]
+ * ```
+ * @param item 맨 앞에 붙일 첫 값입니다.
+ * @param items 추가로 붙일 값들입니다.
  */
 fun <T> Flow<T>.startWith(item: T, vararg items: T): Flow<T> =
     concat(
@@ -70,14 +89,19 @@ fun <T> Flow<T>.startWith(item: T, vararg items: T): Flow<T> =
     )
 
 /**
- * [valueSupplier] 를 통해 값을 생성하여, [Flow]의 첫 요소로 추가합니다.
+ * 현재 Flow 앞에 동적 계산 값 1건을 붙입니다.
  *
- * ```
- * flowOf(2, 3, 4).startWith { 1 }  // 1, 2, 3, 4
- * flowOf(2, 3, 4).startWith { 1 + 1 }  // 2, 2, 3, 4
- * ```
+ * ## 동작/계약
+ * - 수집 시마다 [valueSupplier]를 호출해 값을 계산합니다.
+ * - 계산된 값 1건 방출 후 현재 Flow를 이어서 방출합니다.
+ * - [valueSupplier] 예외는 수집 시점에 전파됩니다.
  *
- * @param valueSupplier 선두에 추가할 요소를 생성하는 suspend 함수
+ * ```kotlin
+ * var i = 0
+ * val out = flowOf(2).startWith { ++i }.toList()
+ * // out == [1, 2]
+ * ```
+ * @param valueSupplier 앞에 붙일 값을 생성하는 suspend 함수입니다.
  */
 fun <T> Flow<T>.startWith(valueSupplier: suspend () -> T): Flow<T> =
     concat(
@@ -86,17 +110,19 @@ fun <T> Flow<T>.startWith(valueSupplier: suspend () -> T): Flow<T> =
     )
 
 /**
- * [f1], [fs] 를 순차적으로 collect 한 후, source [Flow]를 collect 합니다.
+ * 현재 Flow 앞에 다른 Flow들을 먼저 방출합니다.
  *
- * ```
- * val flow1 = flowOf(1, 2, 3)
- * val flow2 = flowOf(4, 5, 6)
- * val flow3 = flowOf(7, 8, 9)
- * flow1.startWith(flow2, flow3)  // 4, 5, 6, 7, 8, 9, 1, 2, 3
- * ```
+ * ## 동작/계약
+ * - `f1`, `fs`를 순서대로 완전 수집한 뒤 현재 Flow를 수집합니다.
+ * - 수신 Flow를 변경하지 않고 새 cold Flow를 반환합니다.
+ * - 앞부분 Flow에서 예외가 발생하면 현재 Flow는 수집되지 않습니다.
  *
- * @param f1 선두에 추가할 [Flow]
- * @param fs 선두에 추가할 [Flow]들
+ * ```kotlin
+ * val out = flowOf(5, 6).startWith(flowOf(1, 2), flowOf(3, 4)).toList()
+ * // out == [1, 2, 3, 4, 5, 6]
+ * ```
+ * @param f1 앞에 붙일 첫 Flow입니다.
+ * @param fs 추가로 앞에 붙일 Flow들입니다.
  */
 fun <T> Flow<T>.startWith(f1: Flow<T>, vararg fs: Flow<T>): Flow<T> = flow {
     emitAll(f1)
@@ -105,17 +131,19 @@ fun <T> Flow<T>.startWith(f1: Flow<T>, vararg fs: Flow<T>): Flow<T> = flow {
 }
 
 /**
- * source [Flow]가 emit 하고, 순차적으로 [item], [items]들을 emit 한다 (append 와 유사)
+ * 현재 Flow 뒤에 고정 값들을 이어 붙입니다.
  *
+ * ## 동작/계약
+ * - 현재 Flow를 모두 방출한 뒤 `item`, `items`를 순서대로 방출합니다.
+ * - 수신 Flow를 변경하지 않고 새 cold Flow를 반환합니다.
+ * - vararg 값 개수만큼 추가 순회/방출이 발생합니다.
+ *
+ * ```kotlin
+ * val out = flowOf(1, 2).endWith(3, 4).toList()
+ * // out == [1, 2, 3, 4]
  * ```
- * flowOf(1, 2, 3).endWith(4)  // 1, 2, 3, 4
- * flowOf(1, 2, 3).endWith(4, 5)  // 1, 2, 3, 4, 5
- * ```
- *
- * @param item 후미에 추가할 요소
- * @param items 후미에 추가할 요소들
- *
- * @see [concat]
+ * @param item 뒤에 붙일 첫 값입니다.
+ * @param items 추가로 붙일 값들입니다.
  */
 @Suppress("NOTHING_TO_INLINE")
 inline fun <T> Flow<T>.endWith(item: T, vararg items: T): Flow<T> =
@@ -127,18 +155,19 @@ inline fun <T> Flow<T>.endWith(item: T, vararg items: T): Flow<T> =
         })
 
 /**
- * source [Flow]가 emit 하고, 순차적으로 [f1], [fs]들을 emit 한다. [concatWith] 와 같다
+ * 현재 Flow 뒤에 다른 Flow들을 순차 연결합니다.
  *
- * ```
- * val flow1 = flowOf(1, 2, 3)
- * val flow2 = flowOf(4, 5, 6)
- * val flow3 = flowOf(7, 8, 9)
- * flow1.endWith(flow2, flow3)  // 1, 2, 3, 4, 5, 6, 7, 8, 9
- * ```
+ * ## 동작/계약
+ * - 동작은 [concatWith]와 동일합니다.
+ * - 현재 Flow를 먼저 방출하고 `f1`, `fs`를 이어서 방출합니다.
+ * - 수신 Flow를 변경하지 않고 새 cold Flow를 반환합니다.
  *
- * @param f1 후미에 추가할 [Flow]
- * @param fs 후미에 추가할 [Flow]들
- * @see [concatWith]
+ * ```kotlin
+ * val out = flowOf(1, 2).endWith(flowOf(3, 4)).toList()
+ * // out == [1, 2, 3, 4]
+ * ```
+ * @param f1 뒤에 연결할 첫 Flow입니다.
+ * @param fs 추가로 연결할 Flow들입니다.
  */
 @Suppress("NOTHING_TO_INLINE")
 inline fun <T> Flow<T>.endWith(f1: Flow<T>, vararg fs: Flow<T>): Flow<T> = concatWith(f1, *fs)

@@ -5,30 +5,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 /**
- * [Flow]의 값을 [성공 결과][Result.success]로 매핑하고, 예외를 catch하여 [실패 결과][Result.failure]로 래핑합니다.
+ * Flow 요소를 `Result.success`로 감싸고 upstream 예외를 `Result.failure`로 변환합니다.
  *
- * ```
- * flowOf(1, 2, 3)
- *     .mapToResult()
- *     .test {
- *         awaitItem() shouldBeEqualTo Result.success(1)
- *         awaitItem() shouldBeEqualTo Result.success(2)
- *         awaitItem() shouldBeEqualTo Result.success(3)
- *         awaitComplete()
- *     }
- * ```
+ * ## 동작/계약
+ * - 정상 요소는 `Result.success(value)`로 방출됩니다.
+ * - upstream에서 예외가 발생하면 `Result.failure(exception)` 1개를 방출하고 종료합니다.
+ * - 취소 예외도 upstream에서 발생하면 failure로 캡처될 수 있으므로 사용 위치를 주의해야 합니다.
  *
- * ```
- * flow {
- *     emit(1)
- *     throw testException
- * }
- *     .mapToResult()
- *     .test {
- *         awaitItem() shouldBeEqualTo Result.success(1)
- *         awaitItem() shouldBeEqualTo Result.failure(testException)
- *         awaitComplete()
- *     }
+ * ```kotlin
+ * val result = flowOf(1, 2).mapToResult().toList()
+ * // result == [Success(1), Success(2)]
  * ```
  */
 fun <T> Flow<T>.mapToResult(): Flow<Result<T>> =
@@ -36,37 +22,21 @@ fun <T> Flow<T>.mapToResult(): Flow<Result<T>> =
         .catchAndReturn { Result.failure(it) }
 
 /**
- * [Result]의 Flow를 [transform]으로 매핑하여 [Result]의 Flow를 생성합니다.
+ * `Result` 성공 값에만 변환을 적용하고 실패는 유지합니다.
  *
- * [transform] 함수에서 throw된 예외는 catch되어 결과 플로우로 [실패 결과][Result.failure]로 emit됩니다.
+ * ## 동작/계약
+ * - 각 요소에 대해 `mapCatching`을 수행합니다.
+ * - transform 중 `CancellationException`이 발생하면 failure로 감싸지 않고 즉시 재전파합니다.
+ * - 기타 예외는 `Result.failure`로 변환됩니다.
  *
- * ```
- * flowOf(1, 2, 3)
- *     .mapToResult()
- *     .mapResultCatching { it * 2 }
- *     .test {
- *         awaitItem() shouldBeEqualTo Result.success(2)
- *         awaitItem() shouldBeEqualTo Result.success(4)
- *         awaitItem() shouldBeEqualTo Result.success(6)
- *         awaitComplete()
- *     }
+ * ```kotlin
+ * val result = flowOf(Result.success(2))
+ *   .mapResultCatching { it * 10 }
+ *   .toList()
+ * // result == [Success(20)]
  * ```
  *
- * ```
- * flow {
- *     emit(1)
- *     throw testException
- * }
- *     .mapToResult()
- *     .mapResultCatching { it * 2 }
- *     .test {
- *         awaitItem() shouldBeEqualTo Result.success(2)
- *         awaitItem() shouldBeEqualTo Result.failure(testException)
- *         awaitComplete()
- *     }
- * ```
- *
- * @see Result.mapCatching
+ * @param transform 성공 값 변환 함수입니다.
  */
 fun <T, R> Flow<Result<T>>.mapResultCatching(transform: suspend (T) -> R): Flow<Result<R>> =
     map { result ->
@@ -80,57 +50,35 @@ fun <T, R> Flow<Result<T>>.mapResultCatching(transform: suspend (T) -> R): Flow<
     }
 
 /**
- * 요소인 [Result]가 [Result.Failure]인 경우 예외로 다시 던집니다.
+ * `Result.failure`를 예외로 다시 던지고 성공 값만 방출합니다.
  *
- * ```
- * flowOf(1, 2, 3)
- *     .mapToResult()
- *     .throwFailure()
- *     .test {
- *         awaitItem() shouldBeEqualTo 1
- *         awaitItem() shouldBeEqualTo 2
- *         awaitItem() shouldBeEqualTo 3
- *         awaitComplete()
- *     }
- * ```
+ * ## 동작/계약
+ * - 각 요소에 대해 `getOrThrow()`를 호출합니다.
+ * - 실패 결과를 만나면 즉시 예외가 전파되어 Flow가 종료됩니다.
  *
+ * ```kotlin
+ * val result = flowOf(Result.success(1), Result.success(2)).throwFailure().toList()
+ * // result == [1, 2]
  * ```
- * flow {
- *     emit(1)
- *     throw testException
- * }
- *     .mapToResult()
- *     .throwFailure()
- *     .test {
- *         awaitItem() shouldBeEqualTo 1
- *         awaitError() shouldBeEqualTo testException
- *     }
- * ```
- *
- * @see Result.getOrThrow
  */
 fun <T> Flow<Result<T>>.throwFailure(): Flow<T> =
     map { it.getOrThrow() }
 
-
 /**
- * [Result]의 Flow를 매핑하여 [Flow]로 변환합니다. 실패한 결과는 [defaultValue]로 대체됩니다.
+ * `Result`에서 성공 값 또는 기본값을 꺼내 방출합니다.
  *
- * ```
- * flow {
- *     emit(1)
- *     throw testException
- * }
- *     .mapToResult()
- *     .getOrDefault(-1)
- *     .test {
- *         awaitItem() shouldBeEqualTo 1
- *         awaitItem() shouldBeEqualTo -1
- *         awaitComplete()
- *     }
+ * ## 동작/계약
+ * - 성공이면 원래 값을, 실패면 `defaultValue`를 방출합니다.
+ * - 실패를 예외로 전파하지 않고 값으로 흡수합니다.
+ *
+ * ```kotlin
+ * val result = flowOf(Result.success(1), Result.failure<Int>(RuntimeException()))
+ *   .getOrDefault(-1)
+ *   .toList()
+ * // result == [1, -1]
  * ```
  *
- * @see Result.getOrDefault
+ * @param defaultValue 실패 시 사용할 기본값입니다.
  */
 fun <T> Flow<Result<T>>.getOrDefault(defaultValue: T): Flow<T> =
     map { it.getOrDefault(defaultValue) }

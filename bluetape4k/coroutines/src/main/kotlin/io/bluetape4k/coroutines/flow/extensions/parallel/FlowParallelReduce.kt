@@ -4,9 +4,6 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.requireEquals
 import kotlinx.coroutines.flow.FlowCollector
 
-/**
- * [source]의 요소들을 하나의 값으로 reduce하고 그것을 emit합니다.
- */
 internal class FlowParallelReduce<T, R>(
     private val source: ParallelFlow<T>,
     private val seed: suspend () -> R,
@@ -23,7 +20,6 @@ internal class FlowParallelReduce<T, R>(
         collectors.size.requireEquals(n, "collectors.size")
         val rails = Array(n) { ReducerCollector(combine) }
 
-        // Array constructor doesn't support suspendable initializer?
         repeat(n) {
             rails[it].accumulator = seed()
         }

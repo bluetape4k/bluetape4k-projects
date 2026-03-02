@@ -7,33 +7,23 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
 /**
- * 지정된 [dispatcher]에서 upstream 을 수집합니다.
+ * upstream collect를 지정 dispatcher에서 시작하도록 전환합니다.
  *
- * ```
- * val four = newFixedThreadPoolContext(4, "four")
- * val single = newSingleThreadContext("single")
+ * ## 동작/계약
+ * - upstream collect를 별도 `launch(dispatcher)`에서 실행하고, 현재 collector로는 버퍼를 통해 전달합니다.
+ * - downstream 컨텍스트는 유지하면서 upstream 시작 지점만 분리합니다.
+ * - upstream 예외는 `ResumableCollector`를 통해 downstream으로 전파됩니다.
  *
- * flowRangeOf(1, 10)
- *     .startCollectOn(four)
- *     .flowOn(single)
- *     .assertResult(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
- *
- * flowRangeOf(1, 10)
- *     .buffer(4)
- *     .startCollectOn(four)
- *     .flowOn(single)
- *     .assertResult(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+ * ```kotlin
+ * val out = flowOf(1, 2, 3).startCollectOn(Dispatchers.IO)
+ * // out은 원소 순서를 유지해 1, 2, 3을 방출
  * ```
  *
- * @param dispatcher 수집할 dispatcher
+ * @param dispatcher upstream collect를 시작할 dispatcher입니다.
  */
 fun <T> Flow<T>.startCollectOn(dispatcher: CoroutineDispatcher): Flow<T> =
     startCollectOnInternal(this, dispatcher)
-// FlowStartCollectOn(this, dispatcher)
 
-/**
- * 지정된 [dispatcher]에서 [source] 을 수집합니다.
- */
 internal fun <T> startCollectOnInternal(
     source: Flow<T>,
     dispatcher: CoroutineDispatcher,

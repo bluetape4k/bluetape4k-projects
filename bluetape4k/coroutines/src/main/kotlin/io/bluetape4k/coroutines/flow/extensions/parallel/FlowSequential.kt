@@ -10,9 +10,6 @@ import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
 
-/**
- * 병렬 flow인 [source]를 소비하고 값을 순차적인 Flow 로 변환합니다.
- */
 internal class FlowSequential<T>(private val source: ParallelFlow<T>): AbstractFlow<T>() {
 
     companion object: KLoggingChannel()
@@ -75,9 +72,6 @@ internal class FlowSequential<T>(private val source: ParallelFlow<T>): AbstractF
         }
     }
 
-    /**
-     * 병렬 source 종료 여부와 종료 예외를 보관합니다.
-     */
     private class FlowSequentialState {
         val done = atomic(false)
         val error = atomic<Throwable?>(null)

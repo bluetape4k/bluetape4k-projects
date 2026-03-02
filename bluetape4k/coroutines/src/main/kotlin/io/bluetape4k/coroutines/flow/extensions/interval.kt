@@ -6,13 +6,20 @@ import kotlinx.coroutines.flow.flow
 import kotlin.time.Duration
 
 /**
- * Flow를 주어진 [initialDelay] 이후에 주어진 [delay] 간격으로 발행하는 Flow를 생성합니다.
+ * source 방출 앞에 초기 지연과 요소 간 지연을 적용합니다.
  *
+ * ## 동작/계약
+ * - `initialDelay`, `delay`는 음수면 0으로 보정합니다.
+ * - 초기 지연 후 source를 수집하며 각 요소 emit 직전에 `delay`를 적용합니다.
+ * - `delay == 0`이면 추가 지연 없이 원소를 그대로 전달합니다.
+ *
+ * ```kotlin
+ * val result = flowOf(1, 2).interval(100.milliseconds, 50.milliseconds).toList()
+ * // result == [1, 2] (방출 시점만 지연)
  * ```
- * flowRangeOf(0, 10)
- *     .interval(200.milliseconds, 100.milliseconds)
- *     .assertResult(flowRangeOf(0, 10))
- * ```
+ *
+ * @param initialDelay 첫 요소 이전 초기 지연입니다.
+ * @param delay 요소 간 지연입니다.
  */
 fun <T> Flow<T>.interval(
     initialDelay: Duration,
@@ -38,13 +45,14 @@ fun <T> Flow<T>.interval(
 }
 
 /**
- * Flow를 주어진 [initialDelayMillis] 이후에 주어진 [delayMillis] 간격으로 발행하는 Flow를 생성합니다.
+ * 밀리초 단위로 초기 지연과 요소 간 지연을 적용합니다.
  *
- * ```
- * flowRangeOf(0, 10).log("source")
- *     .interval(100, 100).log("interval")
- *     .assertResult(flowRangeOf(0, 10))
- * ```
+ * ## 동작/계약
+ * - `initialDelayMillis`, `delayMillis`는 음수면 0으로 보정합니다.
+ * - 동작은 Duration 오버로드와 동일합니다.
+ *
+ * @param initialDelayMillis 첫 요소 이전 초기 지연(밀리초)입니다.
+ * @param delayMillis 요소 간 지연(밀리초)입니다.
  */
 fun <T> Flow<T>.interval(
     initialDelayMillis: Long = 0L,
@@ -70,13 +78,20 @@ fun <T> Flow<T>.interval(
 }
 
 /**
- * Flow를 주어진 [initialDelay] 이후에 주어진 [delay] 간격으로 발행하는 Flow를 생성합니다.
+ * 무한 증가 시퀀스를 주기적으로 방출하는 interval Flow를 생성합니다.
  *
+ * ## 동작/계약
+ * - `initialDelay` 이후 0부터 시작하는 `Long` 값을 1씩 증가시켜 무한 방출합니다.
+ * - `delay`는 음수면 0으로 보정합니다.
+ * - 취소될 때까지 종료되지 않습니다.
+ *
+ * ```kotlin
+ * val firstThree = intervalFlowOf(Duration.ZERO, 100.milliseconds).take(3).toList()
+ * // firstThree == [0, 1, 2]
  * ```
- * intervalFlowOf(200.milliseconds, 100.milliseconds)
- *     .take(20)
- *     .assertResult(flowRangeOf(0L, 20))
- * ```
+ *
+ * @param initialDelay 첫 방출 전 지연입니다.
+ * @param delay 방출 간 지연입니다.
  */
 fun intervalFlowOf(initialDelay: Duration, delay: Duration): Flow<Long> = flow {
     val initialDelayValue = initialDelay.coerceAtLeast(Duration.ZERO)
@@ -91,13 +106,14 @@ fun intervalFlowOf(initialDelay: Duration, delay: Duration): Flow<Long> = flow {
 }
 
 /**
- * Flow를 주어진 [initialDelayMillis] 이후에 주어진 [delayMillis] 간격으로 발행하는 Flow를 생성합니다.
+ * 밀리초 단위 interval Flow를 생성합니다.
  *
- * ```
- * intervalFlowOf(200, 100)
- *     .take(20)
- *     .assertResult(flowRangeOf(0L, 20))
- * ```
+ * ## 동작/계약
+ * - 동작은 Duration 오버로드와 동일하며 지연값만 밀리초 입력을 사용합니다.
+ * - 음수 입력은 0으로 보정합니다.
+ *
+ * @param initialDelayMillis 첫 방출 전 지연(밀리초)입니다.
+ * @param delayMillis 방출 간 지연(밀리초)입니다.
  */
 fun intervalFlowOf(initialDelayMillis: Long, delayMillis: Long): Flow<Long> = flow {
     val initialDelayValue = initialDelayMillis.coerceAtLeast(0L)

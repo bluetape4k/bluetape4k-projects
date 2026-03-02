@@ -5,20 +5,19 @@ import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.flow
 
 /**
- * 원본 Flow의 요소을 받아서, 각 요소에 대해 인덱스와 함께 변환 함수를 적용한 Flow 를 생성합니다.
+ * 각 요소에 인덱스를 함께 전달해 변환합니다.
  *
- * ```
- * flowRangeOf(1, 4)
- *    .mapIndexed { index, value -> index to value }
- *    .assertResult(
- *        0 to 1,
- *        1 to 2,
- *        2 to 3,
- *        3 to 4
- *    )
+ * ## 동작/계약
+ * - 인덱스는 collect 순서 기준으로 `0`부터 증가합니다.
+ * - `transform(index, value)` 결과를 동일 순서로 방출합니다.
+ * - 추가 버퍼 없이 순차 수집/순차 방출합니다.
+ *
+ * ```kotlin
+ * val result = flowOf("a", "b").mapIndexed { i, v -> "$i:$v" }.toList()
+ * // result == ["0:a", "1:b"]
  * ```
  *
- * @see [kotlinx.coroutines.flow.collectIndexed]
+ * @param transform 인덱스와 값을 받아 결과를 만드는 함수입니다.
  */
 inline fun <T, R> Flow<T>.mapIndexed(
     crossinline transform: suspend (index: Int, value: T) -> R,

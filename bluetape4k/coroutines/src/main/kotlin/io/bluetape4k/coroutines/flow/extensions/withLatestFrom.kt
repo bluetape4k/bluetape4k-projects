@@ -9,25 +9,21 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
 /**
- * 두 개의 [Flow]를 결합하여 하나의 [Flow]로 만듭니다. 각 값은 두 번째 [Flow]의 최신 값과 결합됩니다(있는 경우).
- * 두 번째 [Flow]가 값을 방출하기 전에 self에서 방출된 값은 생략됩니다.
+ * source 값이 들어올 때마다 other의 최신 값과 결합합니다.
  *
- * ```
- * val f1 = flowOf(1, 2, 3, 4)
- * val f2 = flowOf("a", "b", "c", "d", "e")
+ * ## 동작/계약
+ * - other를 별도 코루틴에서 수집해 최신 값을 원자 참조에 저장합니다.
+ * - other가 아직 한 번도 emit하지 않았다면 source 값은 방출되지 않습니다.
+ * - other가 `null`을 emit한 경우 `NULL_VALUE` sentinel로 구분해 정상 결합합니다.
+ * - source 또는 other 예외는 하류로 전파됩니다.
  *
- * f2.withLatestFrom(f1)
- *     .assertResult(
- *         "a" to 4,
- *         "b" to 4,
- *         "c" to 4,
- *         "d" to 4,
- *         "e" to 4
- *     )
+ * ```kotlin
+ * val result = flowOf(1, 2).withLatestFrom(flowOf("A")) { a, b -> "$a$b" }.toList()
+ * // result == ["1A", "2A"]
  * ```
  *
- * @param other 두 번째 [Flow]
- * @param transform [other]의 마지막 발행된 값과 self의 값을 이용하는 변환 함수
+ * @param other 최신 값을 제공할 보조 Flow입니다.
+ * @param transform source 값과 other 최신 값을 결합하는 함수입니다.
  */
 fun <A, B, R> Flow<A>.withLatestFrom(
     other: Flow<B>,
@@ -37,13 +33,10 @@ fun <A, B, R> Flow<A>.withLatestFrom(
 
     try {
         coroutineScope {
-            // other 을 collect 해서 가장 최신의 값을 otherRef 에 저장하도록 한다
             launch(start = CoroutineStart.UNDISPATCHED) {
                 other.collect { state.otherRef.value = it ?: NULL_VALUE }
             }
 
-            // source 로부터 값이 emit 되면 otherRef의 값과 함께 transform을 호출하도록 한다.
-            // 만약 otherRef 값이 null 이라면 collect 를 중단한다
             collect { value: A ->
                 emit(
                     transform(value, NULL_VALUE.unbox(state.otherRef.value ?: return@collect))
@@ -56,32 +49,23 @@ fun <A, B, R> Flow<A>.withLatestFrom(
 }
 
 /**
- * 두 개의 [Flow]를 결합하여 하나의 [Flow]로 만듭니다. 각 값은 두 번째 [Flow]의 최신 값과 결합됩니다(있는 경우).
- * 두 번째 [Flow]가 값을 방출하기 전에 self에서 방출된 값은 생략됩니다.
+ * source 값과 other 최신 값을 `Pair`로 결합합니다.
  *
- * ```
- * val f1 = flowOf(1, 2, 3, 4)
- * val f2 = flowOf("a", "b", "c", "d", "e")
+ * ## 동작/계약
+ * - 동작 규칙은 [withLatestFrom]과 동일합니다.
+ * - 결과는 `(sourceValue, latestOtherValue)` 형태로 방출됩니다.
  *
- * f2.withLatestFrom(f1)
- *     .assertResult(
- *         "a" to 4,
- *         "b" to 4,
- *         "c" to 4,
- *         "d" to 4,
- *         "e" to 4
- *     )
+ * ```kotlin
+ * val result = flowOf(1, 2).withLatestFrom(flowOf("A")).toList()
+ * // result == [(1, A), (2, A)]
  * ```
  *
- * @param other 두 번째 [Flow]
+ * @param other 최신 값을 제공할 보조 Flow입니다.
  */
 @Suppress("NOTHING_TO_INLINE")
 inline fun <A, B> Flow<A>.withLatestFrom(other: Flow<B>): Flow<Pair<A, B>> =
     withLatestFrom(other) { a, b -> a to b }
 
-/**
- * [withLatestFrom] 연산의 최신 보조 스트림 값을 보관합니다.
- */
 private class WithLatestFromState {
     val otherRef = atomic<Any?>(null)
 }

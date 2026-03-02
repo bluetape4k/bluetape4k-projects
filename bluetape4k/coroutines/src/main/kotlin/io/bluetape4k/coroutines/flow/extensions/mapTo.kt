@@ -4,30 +4,32 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.transform
 
 /**
- * source가 방출된 값 대신 지정한 [value]를 emit 하는 [Flow] 로 변환합니다.
+ * 모든 요소를 동일한 상수값으로 변환합니다.
  *
- * ```
- * flowOf(1, 2, 3)
- *     .mapTo(4)
- *     .assertResult(4, 4, 4)
+ * ## 동작/계약
+ * - upstream 요소 개수/순서는 유지하고 값만 `value`로 치환합니다.
+ * - 요소당 `emit(value)` 1회만 수행합니다.
+ * - `value` 자체는 복사하지 않고 동일 참조를 재사용합니다.
+ *
+ * ```kotlin
+ * val result = flowOf(1, 2, 3).mapTo("x").toList()
+ * // result == ["x", "x", "x"]
  * ```
  *
- * @param value source의 emit 값 대신 emit 할 값
+ * @param value 각 요소를 대체할 상수값입니다.
  */
 fun <T, R> Flow<T>.mapTo(value: R): Flow<R> = transform { emit(value) }
 
 /**
- * emit 되는 값 대신 [kotlin.Unit] 을 emit 합니다.
+ * 모든 요소를 `Unit`으로 변환합니다.
  *
- * ```
- * flowOf(1, 2)
- *     .concatWith(flow { throw error })
- *     .mapToUnit()
- *     .test {
- *         awaitItem() shouldBeEqualTo Unit
- *         awaitItem() shouldBeEqualTo Unit
- *         awaitError()
- *     }
+ * ## 동작/계약
+ * - 내부적으로 `mapTo(Unit)`에 위임합니다.
+ * - 요소 개수/순서는 유지하며 값만 `Unit`으로 치환됩니다.
+ *
+ * ```kotlin
+ * val result = flowOf(10, 20).mapToUnit().toList()
+ * // result == [Unit, Unit]
  * ```
  */
 fun <T> Flow<T>.mapToUnit(): Flow<Unit> = mapTo(Unit)

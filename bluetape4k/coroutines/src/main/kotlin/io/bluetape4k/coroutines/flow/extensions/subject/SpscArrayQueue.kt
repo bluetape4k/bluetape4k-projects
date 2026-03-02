@@ -4,21 +4,6 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
 import java.util.concurrent.atomic.AtomicReferenceArray
 
-/**
- * 하나의 Producer와 하나의 Consumer만 사용할 수 있는 큐입니다.
- *
- * ```
- * val q = SpscArrayQueue<Int>(10)
- * val a = Array<Any?>(1) { 0 }
- * repeat(10) {
- *     q.offer(it).shouldBeTrue()
- *     q.isEmpty.shouldBeFalse()
- *     q.poll(a).shouldBeTrue()
- *     q.isEmpty.shouldBeTrue().shouldBeTrue()
- *     a[0] shouldBeEqualTo it
- * }
- * ```
- */
 internal class SpscArrayQueue<T> private constructor(capacity: Int) {
 
     companion object: KLoggingChannel() {

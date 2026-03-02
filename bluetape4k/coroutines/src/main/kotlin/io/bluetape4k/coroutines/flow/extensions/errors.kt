@@ -5,63 +5,75 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.emitAll
 
 /**
- * [Flow] 요소를 소비할 때 예외가 catch하고, 대신 [value]를 emit한 다음 정상적으로 완료합니다.
+ * upstream 예외 발생 시 단일 기본값을 방출하고 종료합니다.
  *
- * ```
- * flowOf(1, 2, 0)
- *    .map { 10 / it }
- *    .catchAndReturn(-1)
- *    .toList()   // [10, 5, -1]
+ * ## 동작/계약
+ * - 정상 요소는 그대로 통과하고 예외 시 `value` 1개를 추가 방출합니다.
+ * - fallback 방출 후 스트림은 완료됩니다.
+ * - `catch` 규칙에 따라 취소 예외는 보통 재전파됩니다.
+ *
+ * ```kotlin
+ * val result = flow<Int> { error("boom") }.catchAndReturn(-1).toList()
+ * // result == [-1]
  * ```
  *
- * @param value 예외가 발생했을 때 대신 emit할 값
+ * @param value 예외 시 대신 방출할 값입니다.
  */
 fun <T> Flow<T>.catchAndReturn(value: T): Flow<T> =
     catch { emit(value) }
 
 /**
- * [Flow] 요소를 소비할 때 예외를 catch하고, 대신 단일 [errorHandler]가 처리한 값을 emit한 다음 정상적으로 완료합니다.
+ * upstream 예외 발생 시 핸들러로 fallback 값을 계산해 방출합니다.
  *
- * ```
- * flowOf(1, 2, 0)
- *   .map { 10 / it }
- *   .catchAndReturn { e -> if (e is ArithmeticException) -1 else throw e }
- *   .toList()   // [10, 5, -1]
+ * ## 동작/계약
+ * - 예외를 `errorHandler`에 전달하고 반환값을 1개 방출합니다.
+ * - 핸들러 내부 예외는 다시 하류로 전파됩니다.
+ *
+ * ```kotlin
+ * val result = flow<Int> { error("boom") }
+ *   .catchAndReturn { e -> e.message?.length ?: 0 }
+ *   .toList()
+ * // result == [4]
  * ```
  *
- * @param errorHandler 예외를 처리하고 대신 emit할 값을 반환하는 핸들러
+ * @param errorHandler 예외를 받아 대체 값을 계산하는 함수입니다.
  */
 fun <T> Flow<T>.catchAndReturn(errorHandler: suspend (cause: Throwable) -> T): Flow<T> =
     catch { emit(errorHandler(it)) }
 
 /**
- * [Flow] 요소를 소비할 때 예외를 catch하고, 대신 [fallback] 플로우의 모든 항목을 emit합니다.
- * 만약 [fallback] 플로우도 예외를 던진다면, 예외는 catch되지 않고 다시 던져집니다.
+ * upstream 예외 발생 시 대체 Flow로 전환합니다.
  *
- * ```
- * flowOf(1, 2, 0)
- *  .map { 10 / it }
- *  .catchAndResume(flowOf(-1))
- *  .toList()   // [10, 5, -1]
+ * ## 동작/계약
+ * - 예외가 나기 전까지의 요소는 유지되고, 예외 시점부터 `fallback`을 이어서 방출합니다.
+ * - 내부적으로 `emitAll(fallback)`을 사용합니다.
+ *
+ * ```kotlin
+ * val result = flow<Int> { emit(1); error("boom") }
+ *   .catchAndResume(flowOf(9, 10)).toList()
+ * // result == [1, 9, 10]
  * ```
  *
- * @param fallback 예외가 발생했을 때 대신 emit할 플로우
+ * @param fallback 예외 시 이어서 방출할 대체 Flow입니다.
  */
 fun <T> Flow<T>.catchAndResume(fallback: Flow<T>): Flow<T> =
     catch { emitAll(fallback) }
 
 /**
- * 플로우 요소를 소비할 때 예외를 catch하고, 대신 [fallbackHandler] 플로우의 모든 항목을 emit합니다.
- * 만약 [fallbackHandler] 플로우도 예외를 던진다면, 예외는 catch되지 않고 다시 던져집니다.
+ * upstream 예외 발생 시 핸들러가 반환한 대체 Flow로 전환합니다.
  *
- * ```
- * flowOf(1, 2, 0)
- *  .map { 10 / it }
- *  .catchAndResume { cause -> flowOf(-1) }
- *  .toList()   // [10, 5, -1]
+ * ## 동작/계약
+ * - 예외를 `fallbackHandler`에 전달해 동적으로 fallback Flow를 선택합니다.
+ * - 핸들러 또는 fallback 내부 예외는 하류로 전파됩니다.
+ *
+ * ```kotlin
+ * val result = flow<Int> { error("boom") }
+ *   .catchAndResume { flowOf(it.message?.length ?: 0) }
+ *   .toList()
+ * // result == [4]
  * ```
  *
- * @param fallbackHandler 예외를 처리하고 대신 emit할 플로우를 반환하는 핸들러
+ * @param fallbackHandler 예외를 받아 대체 Flow를 반환하는 함수입니다.
  */
 fun <T> Flow<T>.catchAndResume(fallbackHandler: suspend (cause: Throwable) -> Flow<T>): Flow<T> =
     catch { emitAll(fallbackHandler(it)) }

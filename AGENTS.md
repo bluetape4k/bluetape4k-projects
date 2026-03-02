@@ -51,6 +51,7 @@ Bluetape4k is a Kotlin library collection for JVM backend development. Multi-mod
 ### Language & Documentation
 
 - **KDoc and comments must be written in Korean**
+- KDoc 작성/리뷰 기준 문서: `doc/Kdoc_Instruction.md`
 - Kotlin 2.3 (languageVersion & apiVersion)
 - Use `@file:OptIn()` annotations at file level for experimental APIs
 

@@ -5,42 +5,45 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 
 /**
- * [Flow]의 요소를 [R] 수형으로 casting 합니다.
+ * Flow 요소를 지정 타입으로 강제 캐스팅합니다.
  *
- * ```
- * val flowOf<Any?>(1,2,3).cast<Int>().toList()  // 1,2,3
- * ```
+ * ## 동작/계약
+ * - 내부적으로 `it as R`를 수행하므로 타입이 맞지 않으면 `ClassCastException`이 발생합니다.
+ * - `null` 요소를 non-null 타입 `R`로 캐스팅하면 예외가 발생할 수 있습니다.
+ * - 요소 개수와 순서는 유지됩니다.
  *
+ * ```kotlin
+ * val result = flowOf(1, 2, 3).cast<Int>().toList()
+ * // result == [1, 2, 3]
  * ```
- * flowOf(1, 2, 3).cast<String>().collect()     // throw ClassCastException
- * ```
- *
- * @param R casting 할 수형
- * @return [R]로 casting 된 요소를 가진 [Flow]
  */
 inline fun <reified R> Flow<*>.cast(): Flow<R> = map { it as R }
 
 /**
- * [Flow]의 요소를 [R] 수형으로 casting 합니다. cast 실패 시에는 제외합니다.
+ * Flow 요소를 안전 캐스팅하고 실패한 요소는 제외합니다.
  *
- * ```
- * flowOf(1,2,null, 3).castNotNull<Int>().toList()  // 1,2,3
- * ```
+ * ## 동작/계약
+ * - 내부적으로 `it as? R`를 사용해 캐스팅 성공 요소만 통과시킵니다.
+ * - `null` 및 타입 불일치 요소는 결과에서 제거됩니다.
+ * - 예외 대신 필터링으로 동작합니다.
  *
- * @param R casting 할 수형
- * @return casting 에 성공한 요소만을 제공하는 [Flow]
+ * ```kotlin
+ * val result = flowOf(1, "x", 2).castNotNull<Int>().toList()
+ * // result == [1, 2]
+ * ```
  */
 inline fun <reified R: Any> Flow<*>.castNotNull(): Flow<R> = mapNotNull { it as? R }
 
 /**
- * 수형을 nullable 로 casting 합니다.
+ * non-null Flow를 nullable Flow로 업캐스팅합니다.
  *
- * ```
- * val flow: Flow<Int> = flowOf<Int>(1, 2, 3)
- * val flow2: Flow<Int?> = flow.castNullable()
- * ```
+ * ## 동작/계약
+ * - 요소 값과 순서를 그대로 유지하며 타입만 `T?`로 확장합니다.
+ * - 추가 연산/할당 없이 수신 Flow를 그대로 반환합니다.
  *
- * @param T 원본 수형
- * @return Nullable 수형으로 변환된 [Flow]
+ * ```kotlin
+ * val result: Flow<Int?> = flowOf(1, 2).castNullable()
+ * // result는 1, 2를 동일 순서로 방출
+ * ```
  */
 fun <T: Any> Flow<T>.castNullable(): Flow<T?> = this

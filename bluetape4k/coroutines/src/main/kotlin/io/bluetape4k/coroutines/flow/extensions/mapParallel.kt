@@ -8,23 +8,22 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
 /**
- * flow의 요소들을 [parallelism]만큼 병렬로 [transform]을 수행하여 처리속도를 높힙니다.
+ * 변환 함수를 병렬로 실행해 결과를 병합합니다.
  *
+ * ## 동작/계약
+ * - `parallelism`은 최소 1로 보정한 뒤 `flatMapMerge(concurrency)`에 사용합니다.
+ * - 각 요소는 `flowFromSuspend { transform(value) }`로 감싸 병렬 실행됩니다.
+ * - 결과 순서는 원본 순서와 달라질 수 있습니다.
+ * - `context`는 최종 `flowOn(context)`으로 적용됩니다.
+ *
+ * ```kotlin
+ * val out = flowOf(1, 2, 3).mapParallel(parallelism = 2) { it * 10 }.toList()
+ * // out은 [10, 20, 30]을 포함하되 순서는 달라질 수 있다.
  * ```
- * val ranges = flowRangeOf(1, 20)
  *
- * ranges
- *     .onEach { delay(10) }
- *     .mapParallel {
- *         delay(Random.nextLong(10))
- *         it
- *     }
- *     .assertResultSet(ranges.toList())
- * ```
- *
- * @param parallelism 동시 실행할 숫자
- * @param context Coroutine Context
- * @param transform  변환 함수
+ * @param parallelism 동시 변환 수입니다. 1 미만은 1로 보정됩니다.
+ * @param context 병렬 변환 파이프라인에 적용할 코루틴 컨텍스트입니다.
+ * @param transform 각 요소를 결과값으로 변환하는 suspend 함수입니다.
  */
 inline fun <T, R> Flow<T>.mapParallel(
     parallelism: Int = DEFAULT_CONCURRENCY,

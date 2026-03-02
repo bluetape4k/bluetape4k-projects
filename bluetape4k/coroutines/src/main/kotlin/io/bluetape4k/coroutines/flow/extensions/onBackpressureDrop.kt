@@ -9,29 +9,21 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
 /**
- * Backpressure 발생 시, item을 버린다. conflate 와 같은 동작을 수행한다.
+ * 소비자가 준비되지 않은 동안 들어온 값을 드롭하는 backpressure 전략을 적용합니다.
  *
- * ```
- * flowRangeOf(0, 10)
- *      .onEach { delay(100L) }.log("source", log)
- *      .onBackpressureDrop()
- *      // .buffer(2) // buffering 하면 drop을 하지 않습니다.
- *      .onEach { delay(130L) }.log("backpressure", log)
- *      .assertResult(0, 2, 4, 6, 8)
- * ```
+ * ## 동작/계약
+ * - 소비자 준비 플래그가 `true`일 때만 값을 슬롯에 저장하고 방출 준비 신호를 보냅니다.
+ * - 소비자가 바쁠 때 들어온 값은 버퍼링하지 않고 폐기됩니다.
+ * - upstream 예외는 그대로 전파되고, 정상 완료 시 마지막 전달값 이후 종료됩니다.
+ * - 내부적으로 단일 슬롯 원자 변수와 `Resumable` 신호를 사용합니다.
  *
- * @see [kotlinx.coroutines.flow.conflate]
- * @see [kotlinx.coroutines.flow.debounce]
- * @see [kotlinx.coroutines.flow.sample]
- * @see [io.bluetape4k.coroutines.flow.extensions.throttleLeading]
- * @see [io.bluetape4k.coroutines.flow.extensions.throttleTrailing]
- * @see [io.bluetape4k.coroutines.flow.extensions.throttleBoth]
+ * ```kotlin
+ * val result = source.onBackpressureDrop().toList()
+ * // 느린 collector에서는 일부 값이 드롭될 수 있다.
+ * ```
  */
 fun <T> Flow<T>.onBackpressureDrop(): Flow<T> = onBackpressureDropInternal(this)
 
-/**
- * 소비자가 준비되지 않았을 때 들어온 최신 값만 유지하고 나머지는 버립니다.
- */
 internal fun <T> onBackpressureDropInternal(source: Flow<T>): Flow<T> = flow {
     coroutineScope {
         val producerReady = Resumable()
@@ -68,9 +60,6 @@ internal fun <T> onBackpressureDropInternal(source: Flow<T>): Flow<T> = flow {
     }
 }
 
-/**
- * [onBackpressureDropInternal]에서 producer/consumer 동기화 상태를 보관합니다.
- */
 private class OnBackpressureDropState<T> {
     val consumerReady = atomic(false)
     val value = atomic(uninitialized<T>())

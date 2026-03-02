@@ -11,55 +11,59 @@ import kotlinx.coroutines.launch
 import kotlin.time.Duration
 
 /**
- * [other] 소스에서 요소가 emit 되거나 완료될 때까지는 main source로부터 소비한다.
+ * 다른 Flow가 값을 내보내는 시점까지 수신 Flow를 방출합니다.
  *
+ * ## 동작/계약
+ * - `other`가 첫 값을 방출하면 즉시 중단 신호를 보내고 수신 Flow 방출을 종료합니다.
+ * - `other`가 아무 값도 없이 종료되면 수신 Flow 전체를 그대로 통과시킵니다.
+ * - 내부적으로 notifier 수집용 코루틴 1개를 추가로 실행합니다.
+ *
+ * ```kotlin
+ * val source = flowOf(1, 2, 3)
+ * val stop = flowOf(Unit)
+ * val result = source.takeUntil(stop).toList()
+ * // result == []
  * ```
- * flowRangeOf(1, 5)
- *     .takeUntil(flowOf(1))
- *     .assertResult()
- * ```
- * @param other 소스 [Flow]의 흐름을 제어하는 [Flow]
- * @return Flow<T> 인스턴스
+ *
+ * @param other 중단 트리거 역할을 하는 Flow입니다.
  */
 fun <T> Flow<T>.takeUntil(other: Flow<Any?>): Flow<T> =
     takeUntilInternal(this, other)
 
 /**
- * [delay] 만큼 지연해서 flow 를 collect 하도록 합니다.
+ * 지정한 시간 동안만 수신 Flow를 방출합니다.
  *
- * ```
- * flowRangeOf(1, 10)
- *     .onEach { delay(100) }
- *     .takeUntil(550.milliseconds)
- *     .assertResult(1, 2, 3, 4, 5)
+ * ## 동작/계약
+ * - 내부적으로 `delayedFlow(delay)`를 notifier로 사용한 `takeUntil`과 동일하게 동작합니다.
+ * - 타이머가 먼저 도착하면 즉시 방출을 중단합니다.
+ *
+ * ```kotlin
+ * val result = flowOf(1, 2, 3).takeUntil(1.seconds).toList()
+ * // 타이머 이전에 도착한 요소만 남는다.
  * ```
  *
- * @param delay 지연할 시간
- * @return Flow<T> 인스턴스
+ * @param delay 중단까지 대기할 시간입니다.
  */
 fun <T> Flow<T>.takeUntil(delay: Duration): Flow<T> =
     takeUntilInternal(this, delayedFlow(delay))
 
 /**
- * [delayMillis] 만큼 지연해서 flow 를 collect 하도록 합니다.
+ * 지정한 밀리초 동안만 수신 Flow를 방출합니다.
  *
- * ```
- * flowRangeOf(1, 10)
- *     .onEach { delay(100) }
- *     .takeUntil(550)
- *     .assertResult(1, 2, 3, 4, 5)
+ * ## 동작/계약
+ * - 내부적으로 `delayedFlow(delayMillis)` notifier를 사용합니다.
+ * - 음수/0 지연값 처리 규칙은 `delayedFlow` 구현 계약을 따릅니다.
+ *
+ * ```kotlin
+ * val result = flowOf(1, 2, 3).takeUntil(500L).toList()
+ * // 500ms 이전에 도착한 요소만 남는다.
  * ```
  *
- * @param delayMillis 지연할 시간 (단위: MilliSeconds)
- * @return Flow<T> 인스턴스
+ * @param delayMillis 중단까지 대기할 밀리초입니다.
  */
 fun <T> Flow<T>.takeUntil(delayMillis: Long): Flow<T> =
     takeUntilInternal(this, delayedFlow(delayMillis))
 
-/**
- * notifier에서 첫 신호(값 또는 완료)를 받기 전까지 [source]를 전달하고,
- * 신호 이후에는 수집을 중단합니다.
- */
 internal fun <T> takeUntilInternal(source: Flow<T>, notifier: Flow<Any?>): Flow<T> = flow {
     coroutineScope {
         val state = TakeUntilState()
@@ -91,9 +95,6 @@ internal fun <T> takeUntilInternal(source: Flow<T>, notifier: Flow<Any?>): Flow<
     }
 }
 
-/**
- * [takeUntilInternal]의 게이트 상태를 보관합니다.
- */
 private class TakeUntilState {
     val gate = atomic(false)
 }

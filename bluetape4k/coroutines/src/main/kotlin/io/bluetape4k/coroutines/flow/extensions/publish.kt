@@ -5,51 +5,38 @@ import io.bluetape4k.coroutines.flow.extensions.subject.PublishSubject
 import kotlinx.coroutines.flow.Flow
 
 /**
- * 하나의 collector 를 upstream source 로 공유하고, 여러 소비자에게 값을 multicasts 합니다
+ * source를 [PublishSubject]로 공유한 뒤 selector 결과 Flow를 반환합니다.
  *
- * **주의**
+ * ## 동작/계약
+ * - selector는 같은 source를 공유하는 hot subject를 입력으로 받습니다.
+ * - PublishSubject 특성상 구독 이전 과거 값은 재생되지 않습니다.
+ * - 내부 실행 모델은 [multicastInternal]에 위임됩니다.
  *
- * **coroutines/[Flow]가 구현된 방식때문에, 이 기능을 보장하지 않습니다**
- *
- * [transform] 함수는 upstream과 downstream을 연결하는 시간이 보장되지 않기 때문에,
- * upstream 아이템이 수집되고 변환되지 않고, 아이템 손실이나 완료 상태로 실행되는 경우가 발생할 수 있습니다.
- * 이러한 시나리오를 피하려면 `publish(expectedCollectors)` 오버로드를 사용하십시오.
- *
- * ```
- * flowRangeOf(1, 5)
- *     .publish { shared -> shared.filter { it % 2 == 0 } }.log("filter")
- *     .assertResult(2, 4)
+ * ```kotlin
+ * val shared = source.publish { shared -> shared.take(2) }
+ * // shared는 source를 단일 구독으로 공유한다.
  * ```
  *
- * @param transform multicasting 된 Flow 에 대한 변환 함수
+ * @param transform 공유된 Flow를 받아 최종 결과 Flow를 만드는 selector입니다.
  */
 fun <T, R> Flow<T>.publish(transform: suspend (Flow<T>) -> Flow<R>): Flow<R> =
     multicastInternal(this, { PublishSubject() }, transform)
 
 /**
- * 하나의 collector 를 upstream source 로 공유하고, 여러 소비자에게 값을 multicasts 합니다
+ * source를 [MulticastSubject]로 공유하고 기대 collector 수를 지정합니다.
  *
- * **주의**
+ * ## 동작/계약
+ * - `expectedCollectors`는 1 미만이면 1로 보정됩니다.
+ * - 보정된 수만큼 collector가 준비될 때까지 subject가 producer를 대기시킬 수 있습니다.
+ * - 내부 실행은 [multicastInternal]에 위임됩니다.
  *
- * **coroutines/[Flow]가 구현된 방식때문에, 이 기능을 보장하지 않습니다**
- *
- * [transform] 함수는 upstream과 downstream을 연결하는 시간이 보장되지 않기 때문에,
- * upstream 아이템이 수집되고 변환되지 않고, 아이템 손실이나 완료 상태로 실행되는 경우가 발생할 수 있습니다.
- * 이러한 시나리오를 피하려면 `publish(expectedCollectors)` 오버로드를 사용하십시오.
- *
- * ```
- * flowRangeOf(1, 5)
- *     .publish(2) { shared ->
- *         merge(
- *             shared.filter { it % 2 == 1 }.log("odd"),
- *             shared.filter { it % 2 == 0 }.log("even")
- *         )
- *     }
- *     .assertResult(1, 2, 3, 4, 5)
+ * ```kotlin
+ * val shared = source.publish(expectedCollectors = 2) { shared -> shared }
+ * // 두 collector가 준비될 때까지 emit이 대기할 수 있다.
  * ```
  *
- * @param expectedCollectors upstream을 재개하기 전에 기다릴 collector의 수를 지정하여,
- *                           지정된 수의 collector가 도착하고 upstream 아이템에 대해 준비되도록 합니다
+ * @param expectedCollectors producer 진행 전 대기할 최소 collector 수입니다.
+ * @param transform 공유된 Flow를 받아 최종 결과 Flow를 만드는 selector입니다.
  */
 fun <T, R> Flow<T>.publish(
     expectedCollectors: Int = 3,

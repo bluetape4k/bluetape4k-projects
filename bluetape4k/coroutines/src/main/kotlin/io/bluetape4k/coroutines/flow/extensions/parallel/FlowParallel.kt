@@ -11,9 +11,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
 
-/**
- * [source]의 요소를 주어진 수의 병렬 collector 에 라운드 로빈 방식으로 전달합니다.
- */
 internal class FlowParallel<T>(
     private val source: Flow<T>,
     override val parallelism: Int,

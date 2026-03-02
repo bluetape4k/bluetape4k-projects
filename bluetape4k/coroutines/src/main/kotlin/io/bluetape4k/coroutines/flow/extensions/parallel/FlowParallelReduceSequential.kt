@@ -6,9 +6,6 @@ import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
 
-/**
- * [source]의 값들을 병렬로 reduce하고 그 값을 emit합니다.
- */
 internal class FlowParallelReduceSequential<T>(
     private val source: ParallelFlow<T>,
     private val combine: suspend (T, T) -> T,
@@ -43,7 +40,6 @@ internal class FlowParallelReduceSequential<T>(
         var accumulator: T = uninitialized()
         private val _hasValue = atomic(false)
         var hasValue by _hasValue
-
 
         override suspend fun emit(value: T) {
             if (hasValue) {

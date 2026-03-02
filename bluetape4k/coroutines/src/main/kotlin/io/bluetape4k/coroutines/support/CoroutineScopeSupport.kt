@@ -3,25 +3,16 @@ package io.bluetape4k.coroutines.support
 import kotlinx.coroutines.CoroutineScope
 
 /**
- * Current CoroutineContext를 특정하는 Identifier.
+ * 현재 `CoroutineScope`의 `coroutineContext.hashCode()`를 `Long`으로 노출합니다.
  *
- * Redisson이 Thread Id 기반으로 소유권을 인식하는데, Coroutines 환경에서는 `Thread.currentThred().id` 값은 계속 변할 수 있다.
- * 같은 Coroutine Scope 이라면 Redisson 객체를 소유하고 있다고 인식할 수 있도록 `currentCoroutineId` 를 사용하게 한다.
- * 특히, Lock 처럼 lock/unlock 시 같은 소유권자임을 알리기 위해 사용해야 한다
+ * ## 동작/계약
+ * - 값은 `coroutineContext` 해시 기반이므로 전역 고유 식별자가 아닙니다.
+ * - 동일 컨텍스트에서는 같은 값을 반환할 수 있지만, 실행/환경에 따라 달라질 수 있습니다.
+ * - 계산은 `hashCode()` 호출 1회로 완료되며 별도 상태를 변경하지 않습니다.
  *
- * // HINT: 아오 coroutineContext.coroutineName 이 internal 이다. 이것 때문에 coroutineContext.coroutineName 을 사용하지 못한다
- *
- * ```
- * val lock = redisson.getLock("lock")
- * launch {
- *      if(lock.tryLock(1, 60, SECOND, currentCoroutineId)) {
- *          try {
- *              // Do something
- *          } finally {
- *              lock.unlock(currentCoroutineId)
- *          }
- *      }
- * }.join()
+ * ```kotlin
+ * val id = coroutineScope.currentCoroutineId
+ * // id == coroutineScope.coroutineContext.hashCode().toLong()
  * ```
  */
 @Deprecated(message = "제대로 된 Id 값이라 볼 수 없다. SnowflakeId 같은 것을 사용하세요")

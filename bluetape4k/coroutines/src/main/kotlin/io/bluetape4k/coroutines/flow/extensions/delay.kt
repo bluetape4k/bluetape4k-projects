@@ -6,70 +6,98 @@ import kotlinx.coroutines.flow.flow
 import kotlin.time.Duration
 
 /**
- * 초기 지연시간[initialDelay] 이후에 0을 emit 하는 [Flow] 를 생성합니다.
+ * 지정한 지연 후 `0L` 1건을 방출하는 Flow를 생성합니다.
  *
- * ```
- * val flow = flowOfDelay(2.seconds)  // 2초 후 0을 emit
- * ```
+ * ## 동작/계약
+ * - 지연 시간 후 단일 값 `0L`을 방출하고 완료됩니다.
+ * - 수신 객체를 변경하지 않고 새 cold Flow를 반환합니다.
+ * - 음수 duration은 내부적으로 `0ms`로 보정됩니다.
  *
- * @param initialDelay 첫번째 요소를 보내기 전의 초기 지연 시간
+ * ```kotlin
+ * val out = flowOfDelay(500L).toList()
+ * // out == [0L]
+ * ```
+ * @param initialDelay 초기 지연 시간입니다.
  */
 fun flowOfDelay(initialDelay: Duration): Flow<Long> = delayedFlow(initialDelay)
 
 /**
- * 초기 지연시간[initialDelayMillis] 이후에 0을 emit 하는 [Flow] 를 생성합니다.
+ * 지정한 밀리초 지연 후 `0L` 1건을 방출하는 Flow를 생성합니다.
  *
- * ```
- * val flow = flowOfDelay(2.seconds)  // 2초 후 0을 emit
- * ```
+ * ## 동작/계약
+ * - 동작은 [flowOfDelay]와 동일하며 시간 단위만 밀리초입니다.
+ * - 음수 값은 `0ms`로 보정됩니다.
+ * - 새 cold Flow를 반환합니다.
  *
- * @param initialDelayMillis 첫번째 요소를 보내기 전의 초기 지연 시간 (밀리초)
+ * ```kotlin
+ * val out = flowOfDelay(1000L).toList()
+ * // out == [0L]
+ * ```
+ * @param initialDelayMillis 초기 지연 시간(밀리초)입니다.
  */
 fun flowOfDelay(initialDelayMillis: Long): Flow<Long> = delayedFlow(initialDelayMillis)
 
 /**
- * 초기 지연시간[initialDelay] 이후에 0을 emit 하는 [Flow] 를 생성합니다.
+ * [flowOfDelay]의 별칭입니다.
  *
- * ```
- * val flow = flowWithDelay(2.seconds)  // 2초 후 0을 emit
- * ```
+ * ## 동작/계약
+ * - 지정한 지연 후 `0L`을 1건 방출하고 완료됩니다.
+ * - 음수 duration은 `0ms`로 보정됩니다.
+ * - 새 cold Flow를 반환합니다.
  *
- * @param initialDelay 첫번째 요소를 보내기 전의 초기 지연 시간
+ * ```kotlin
+ * val out = flowWithDelay(Duration.ofSeconds(5L)).toList()
+ * // out == [0L]
+ * ```
+ * @param initialDelay 초기 지연 시간입니다.
  */
 fun flowWithDelay(initialDelay: Duration): Flow<Long> = delayedFlow(initialDelay)
 
 /**
- * 초기 지연시간[initialDelayMillis] 이후에 0을 emit 하는 [Flow] 를 생성합니다.
+ * [flowOfDelay]의 밀리초 별칭입니다.
  *
- * ```
- * val flow = flowWithDelay(2.seconds)  // 2초 후 0을 emit
- * ```
+ * ## 동작/계약
+ * - 지정한 지연 후 `0L`을 1건 방출하고 완료됩니다.
+ * - 음수 값은 `0ms`로 보정됩니다.
+ * - 새 cold Flow를 반환합니다.
  *
- * @param initialDelayMillis 첫번째 요소를 보내기 전의 초기 지연 시간 (밀리초)
+ * ```kotlin
+ * val out = flowWithDelay(3000L).toList()
+ * // out == [0L]
+ * ```
+ * @param initialDelayMillis 초기 지연 시간(밀리초)입니다.
  */
 fun flowWithDelay(initialDelayMillis: Long): Flow<Long> = delayedFlow(initialDelayMillis)
 
 /**
- * 지연 시간[delay] 이후에 0을 발행하는 [Flow] 를 생성합니다.
+ * 지정한 지연 후 `0L`을 방출하는 기본 구현입니다.
  *
- * ```
- * val flow = delayedFlow(2.seconds)  // 2초 후 0을 emit
- * ```
+ * ## 동작/계약
+ * - [Duration]을 밀리초로 변환해 [delayedFlow](`Long`)에 위임합니다.
+ * - 음수 duration은 `0ms`로 보정됩니다.
+ * - 새 cold Flow를 반환합니다.
  *
- * @param delay 지연 시간
- * @return 지연 시간 이후 0을 발행하는 [Flow]
+ * ```kotlin
+ * val out = delayedFlow(3.seconds).toList()
+ * // out == [0L]
+ * ```
+ * @param delay 지연 시간입니다.
  */
 fun delayedFlow(delay: Duration): Flow<Long> = delayedFlow(delay.inWholeMilliseconds)
 
 /**
- * 지연 시간[delayMillis] 이후에 0을 발행하는 [Flow] 를 생성합니다.
+ * 지정한 밀리초 지연 후 `0L`을 1건 방출합니다.
  *
- * ```
- * val flow = delayedFlow(2_000L)  // 2초 후 0을 emit
- * ```
+ * ## 동작/계약
+ * - 수집 시점에 `delay(max(delayMillis, 0))`를 수행한 뒤 `0L`을 방출합니다.
+ * - 음수 값은 `0ms`로 보정됩니다.
+ * - 새 cold Flow를 반환합니다.
  *
- * @param delayMillis 지연 시간 (밀리초)
- * @return 지연 시간 이후 0을 발행하는 [Flow]
+ * ```kotlin
+ * val out = delayedFlow(1000L).toList()
+ * // out == [0L]
+ * ```
+ * @param delayMillis 지연 시간(밀리초)입니다.
  */
 fun delayedFlow(delayMillis: Long): Flow<Long> = flow {
     delay(delayMillis.coerceAtLeast(0L))
@@ -77,44 +105,70 @@ fun delayedFlow(delayMillis: Long): Flow<Long> = flow {
 }
 
 /**
- * 지연 시간[initialDelay] 후 [value] 를 emit 하는 [Flow] 를 생성합니다.
+ * 지정한 값을 지연 후 1건 방출하는 Flow를 생성합니다.
  *
- * ```
- * val flow = flowWithDelay(1, 2.seconds)  // 2초 후 1을 emit
- * ```
+ * ## 동작/계약
+ * - [initialDelay] 후 [value]를 1건 방출하고 완료됩니다.
+ * - 음수 duration은 `0ms`로 보정됩니다.
+ * - 새 cold Flow를 반환합니다.
  *
- * @param value emit 할 값
- * @param initialDelay 초기 지연 시간
+ * ```kotlin
+ * val out = flowWithDelay(1, 3.seconds).toList()
+ * // out == [1]
+ * ```
+ * @param value 지연 후 방출할 값입니다.
+ * @param initialDelay 초기 지연 시간입니다.
  */
 fun <T> flowWithDelay(value: T, initialDelay: Duration): Flow<T> = delayedFlow(value, initialDelay)
 
 /**
- * 지연 시간[initialDelayMillis] 후 [value] 를 emit 하는 [Flow] 를 생성합니다.
+ * 지정한 값을 밀리초 지연 후 1건 방출하는 Flow를 생성합니다.
  *
- * ```
- * val flow = flowWithDelay(1, 2_000L)  // 2초 후 1을 emit
- * ```
+ * ## 동작/계약
+ * - 동작은 [flowWithDelay]와 동일하며 시간 단위만 밀리초입니다.
+ * - 음수 값은 `0ms`로 보정됩니다.
+ * - 새 cold Flow를 반환합니다.
  *
- * @param value emit 할 값
- * @param initialDelayMillis 초기 지연 시간 (밀리초)
+ * ```kotlin
+ * val out = flowWithDelay(1, 3000L).toList()
+ * // out == [1]
+ * ```
+ * @param value 지연 후 방출할 값입니다.
+ * @param initialDelayMillis 초기 지연 시간(밀리초)입니다.
  */
 fun <T> flowWithDelay(value: T, initialDelayMillis: Long): Flow<T> = delayedFlow(value, initialDelayMillis)
 
 /**
- * 지연 시간[delay] 후 [value]를 발행하는 [Flow] 를 생성합니다.
+ * 지정한 값을 [Duration] 지연 후 1건 방출합니다.
  *
+ * ## 동작/계약
+ * - [Duration]을 밀리초로 변환해 [delayedFlow](`value`, `Long`)에 위임합니다.
+ * - 음수 duration은 `0ms`로 보정됩니다.
+ * - 새 cold Flow를 반환합니다.
+ *
+ * ```kotlin
+ * val out = delayedFlow(1, 3.seconds).toList()
+ * // out == [1]
  * ```
- * val flow = delayedFlow(1, 2.seconds)
- * ```
+ * @param value 지연 후 방출할 값입니다.
+ * @param duration 지연 시간입니다.
  */
 fun <T> delayedFlow(value: T, duration: Duration): Flow<T> = delayedFlow(value, duration.inWholeMilliseconds)
 
 /**
- * 지연 시간[delay] 후 [value]를 발행하는 [Flow] 를 생성합니다.
+ * 지정한 값을 밀리초 지연 후 1건 방출합니다.
  *
+ * ## 동작/계약
+ * - 수집 시점에 `delay(max(delayMillis, 0))` 후 [value]를 1건 방출하고 완료됩니다.
+ * - 음수 값은 `0ms`로 보정됩니다.
+ * - 새 cold Flow를 반환합니다.
+ *
+ * ```kotlin
+ * val out = delayedFlow(1, 3000L).toList()
+ * // out == [1]
  * ```
- * val flow = delayedFlow(1, 2_000L)
- * ```
+ * @param value 지연 후 방출할 값입니다.
+ * @param delayMillis 지연 시간(밀리초)입니다.
  */
 fun <T> delayedFlow(value: T, delayMillis: Long): Flow<T> = flow {
     delay(delayMillis.coerceAtLeast(0))

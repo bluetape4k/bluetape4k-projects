@@ -9,19 +9,16 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 
 /**
- * Flow 흐름을 Reactive Signal 형태인 [FlowEvent] 로 변환하여 제공합니다.
- * 이렇게 하면 Reactor `Flux` 와 같은 Reactive Stream 을 사용하는 라이브러리와의 연동이 쉬워집니다.
+ * Flow 시그널을 값 이벤트([FlowEvent])로 물질화(materialize)합니다.
  *
- * ```
- * flowRangeOf(1, 3)
- *     .materialize()
- *     .test {
- *         awaitItem() shouldBeEqualTo FlowEvent.Value(1)
- *         awaitItem() shouldBeEqualTo FlowEvent.Value(2)
- *         awaitItem() shouldBeEqualTo FlowEvent.Value(3)
- *         awaitItem() shouldBeEqualTo FlowEvent.Complete
- *         awaitComplete()
- *     }
+ * ## 동작/계약
+ * - 일반 값은 `FlowEvent.Value`, 정상 완료는 `FlowEvent.Complete`, 예외 종료는 `FlowEvent.Error`로 변환합니다.
+ * - 결과 Flow는 예외를 던지지 않고 이벤트 값으로 상태를 전달합니다.
+ * - 요소당 이벤트 객체가 생성됩니다.
+ *
+ * ```kotlin
+ * val result = flowOf(1, 2).materialize().toList()
+ * // result == [Value(1), Value(2), Complete]
  * ```
  */
 fun <T> Flow<T>.materialize(): Flow<FlowEvent<T>> =
@@ -30,16 +27,17 @@ fun <T> Flow<T>.materialize(): Flow<FlowEvent<T>> =
         .catch { ex -> emit(FlowEvent.Error(ex)) }
 
 /**
- * [materialize]된 Flow를 다시 원래의 Flow로 변환합니다. emit 되는 [FlowEvent]를 다시 원래의 값으로 변환합니다.
+ * [FlowEvent] 스트림을 실제 값 스트림으로 역변환(dematerialize)합니다.
  *
- * ```
- * flowOf(
- *     FlowEvent.Value(1),
- *     FlowEvent.Value(2),
- *     FlowEvent.Value(3),
- * )
- *     .dematerialize()
- *     .assertResult(1, 2, 3)
+ * ## 동작/계약
+ * - `Value`는 원래 값으로 방출합니다.
+ * - `Error`는 담긴 예외를 즉시 던집니다.
+ * - `Complete`를 만나면 내부 `StopException`으로 현재 dematerialize 루프만 중단합니다.
+ *
+ * ```kotlin
+ * val events = flowOf(FlowEvent.Value(1), FlowEvent.Complete)
+ * val result = events.dematerialize().toList()
+ * // result == [1]
  * ```
  */
 fun <T> Flow<FlowEvent<T>>.dematerialize(): Flow<T> = flow {
@@ -48,7 +46,7 @@ fun <T> Flow<FlowEvent<T>>.dematerialize(): Flow<T> = flow {
             when (it) {
                 is FlowEvent.Value -> emit(it.value)
                 is FlowEvent.Error -> throw it.error
-                FlowEvent.Complete -> throw StopException(this)  // 완료 시 [StopException] 을 발생시켜 Flow 를 중단합니다.
+                FlowEvent.Complete -> throw StopException(this)
             }
         }
     } catch (e: StopException) {

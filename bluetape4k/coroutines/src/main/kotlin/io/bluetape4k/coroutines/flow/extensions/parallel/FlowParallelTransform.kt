@@ -4,9 +4,6 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.requireEquals
 import kotlinx.coroutines.flow.FlowCollector
 
-/**
- * [source] 요소를 복수의 collector에게 병렬로 emit합니다.
- */
 internal class FlowParallelTransform<T, R>(
     private val source: ParallelFlow<T>,
     private val callback: suspend FlowCollector<R>.(T) -> Unit,

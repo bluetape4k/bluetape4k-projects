@@ -4,6 +4,8 @@ Kotlin 언어로 JVM 환경에서 개발할 때 사용할 공용 라이브러리
 
 ![Blue Tape](./doc/bluetape4k.png)
 
+KDoc 작성 지침: `doc/Kdoc_Instruction.md`
+
 ## 소개
 
 Kotlin 언어를 배우고, 사용하면서, Backend 개발에 자주 사용하는 기술, Coroutines 등 기존 라이브러리가 제공하지 않는 기능 들을 개발해 왔습니다.

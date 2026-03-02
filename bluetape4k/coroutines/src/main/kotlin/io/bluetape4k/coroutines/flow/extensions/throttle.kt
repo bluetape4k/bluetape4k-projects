@@ -19,306 +19,247 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * Define leading and trailing behavior.
+ * throttle 윈도우에서 선행/후행 방출 정책을 정의합니다.
+ *
+ * ## 동작/계약
+ * - `LEADING`은 윈도우의 첫 요소만 방출합니다.
+ * - `TRAILING`은 윈도우의 마지막 요소만 방출합니다.
+ * - `BOTH`는 첫 요소와 마지막 요소를 모두 방출합니다.
+ * - 정책 자체는 상태를 갖지 않으며 enum 상수 비교만 수행합니다.
+ *
+ * ```kotlin
+ * val behavior = ThrottleBehavior.BOTH
+ * // behavior == ThrottleBehavior.BOTH
+ * ```
  */
 enum class ThrottleBehavior {
-    /**
-     * 각 윈도우의 첫번째 요소만 방출합니다.
-     *
-     * @see [kotlinx.coroutines.flow.debounce]
-     * @see [kotlinx.coroutines.flow.sample]
-     */
+    /** 각 윈도우에서 가장 먼저 관측된 요소만 방출합니다. */
     LEADING,
 
-    /**
-     * 각 윈도우의 마지막 요소만 방출합니다.
-     *
-     * @see [kotlinx.coroutines.flow.debounce]
-     * @see [kotlinx.coroutines.flow.sample]
-     */
+    /** 각 윈도우에서 마지막으로 관측된 요소만 방출합니다. */
     TRAILING,
 
-    /**
-     * 각 윈도우의 첫번째와 마지막 요소를 모두 방출합니다.
-     */
+    /** 각 윈도우에서 선행 요소와 후행 요소를 모두 방출합니다. */
     BOTH
 }
 
 /**
- * [ThrottleBehavior] 가 윈도우의 첫번재 요소를 방출하는지 여부를 반환합니다.
- * [ThrottleBehavior.LEADING] 또는 [ThrottleBehavior.BOTH] 인 경우 `true`를 반환합니다.
+ * 현재 정책이 선행 방출을 포함하는지 반환합니다.
+ *
+ * ## 동작/계약
+ * - `LEADING`, `BOTH`이면 `true`를 반환합니다.
+ * - `TRAILING`이면 `false`를 반환합니다.
+ * - 수신 enum 값을 변경하지 않습니다.
+ *
+ * ```kotlin
+ * val value = ThrottleBehavior.BOTH.isLeading
+ * // value == true
+ * ```
  */
 val ThrottleBehavior.isLeading: Boolean
     get() = this == ThrottleBehavior.LEADING || this == ThrottleBehavior.BOTH
 
 /**
- * [ThrottleBehavior] 가 윈도우의 마지막 요소를 방출하는지 여부를 반환합니다.
- * [ThrottleBehavior.TRAILING] 또는 [ThrottleBehavior.BOTH] 인 경우 `true`를 반환합니다.
+ * 현재 정책이 후행 방출을 포함하는지 반환합니다.
+ *
+ * ## 동작/계약
+ * - `TRAILING`, `BOTH`이면 `true`를 반환합니다.
+ * - `LEADING`이면 `false`를 반환합니다.
+ * - 수신 enum 값을 변경하지 않습니다.
+ *
+ * ```kotlin
+ * val value = ThrottleBehavior.LEADING.isTrailing
+ * // value == false
+ * ```
  */
 val ThrottleBehavior.isTrailing: Boolean
     get() = this == ThrottleBehavior.TRAILING || this == ThrottleBehavior.BOTH
 
 
 /**
- * [kotlinx.coroutines.flow.debounce]와 유사하지만, [duration] 윈도우의 선두 요소를 emit 합니다.
+ * 고정 [duration] 기준으로 선행 요소만 방출하는 throttle 연산을 적용합니다.
  *
+ * ## 동작/계약
+ * - 각 윈도우의 첫 요소를 즉시 방출하고, 윈도우가 닫힐 때까지 나머지 요소를 무시합니다.
+ * - 수신 Flow를 변경하지 않고 새 Flow를 반환합니다.
+ * - [duration]이 `Duration.ZERO`면 입력 요소를 즉시 통과시킵니다.
+ * - 업스트림/다운스트림/시간 계산 중 예외는 수집 시점에 전파됩니다.
+ *
+ * ```kotlin
+ * val result = mutableListOf<Int>()
+ * flowRangeOf(1, 10).onEach { delay(200) }.throttleLeading(501.milliseconds).collect { result += it }
+ * // result == [1, 4, 7, 10]
  * ```
- * //-----1-----2-----3-----4-----5-----6-----7-----8-----9-----10
- * //--------------|--------------|----------------|-------------|
- * // 1 - deliver (200)
- * // 2 - skip    (400)
- * // ---------------------------- 501
- * // 3 - skip    (600)
- * // 4 - deliver (800)
- * // ---------------------------- 1002
- * // 5 - skip    (1000)
- * // 6 - skip    (1200)
- * // 7 - deliver (1400)
- * // ---------------------------- 1503
- * // 8 - skip    (1600)
- * // 9 - skip    (1800)
- * // 10 - deliver (2000)
- * // ---------------------------- 2004
- * flowRangeOf(1, 10)
- *     .onEach { delay(200.milliseconds) }
- *     .throttleLeading(501)
- *     .assertResult(1, 4, 7, 10)
- * ```
+ * @param duration 윈도우 길이입니다.
  */
 fun <T> Flow<T>.throttleLeading(duration: Duration): Flow<T> =
     throttleTime(ThrottleBehavior.LEADING) { duration }
 
 /**
- * [kotlinx.coroutines.flow.debounce]와 유사하지만, [timeMillis] 윈도우의 선두 요소를 emit 합니다.
+ * 밀리초 단위 윈도우로 선행 요소만 방출하는 throttle 연산을 적용합니다.
  *
+ * ## 동작/계약
+ * - 동작은 [throttleLeading]과 동일하며 시간 단위만 `Long` 밀리초를 사용합니다.
+ * - `0L`이면 입력 요소를 즉시 통과시킵니다.
+ * - 수신 Flow를 변경하지 않고 새 Flow를 반환합니다.
+ *
+ * ```kotlin
+ * val result = mutableListOf<Int>()
+ * flowRangeOf(1, 10).onEach { delay(200) }.throttleLeading(501L).collect { result += it }
+ * // result == [1, 4, 7, 10]
  * ```
- * //-----1-----2-----3-----4-----5-----6-----7-----8-----9-----10
- * //--------------|--------------|----------------|-------------|
- * // 1 - deliver (200)
- * // 2 - skip    (400)
- * // ---------------------------- 501
- * // 3 - skip    (600)
- * // 4 - deliver (800)
- * // ---------------------------- 1002
- * // 5 - skip    (1000)
- * // 6 - skip    (1200)
- * // 7 - deliver (1400)
- * // ---------------------------- 1503
- * // 8 - skip    (1600)
- * // 9 - skip    (1800)
- * // 10 - deliver (2000)
- * // ---------------------------- 2004
- * flowRangeOf(1, 10)
- *     .onEach { delay(200) }
- *     .throttleLeading(501)
- *     .assertResult(1, 4, 7, 10)
- * ```
+ * @param timeMillis 윈도우 길이(밀리초)입니다.
  */
 fun <T> Flow<T>.throttleLeading(timeMillis: Long): Flow<T> =
     throttleTime(ThrottleBehavior.LEADING) { timeMillis.milliseconds }
 
 /**
- * [kotlinx.coroutines.flow.debounce]와 유사하지만, [durationSelector] 윈도우의 선두 요소를 emit 합니다.
+ * 요소별 윈도우 길이로 선행 요소만 방출하는 throttle 연산을 적용합니다.
  *
+ * ## 동작/계약
+ * - 각 요소마다 [durationSelector]로 계산한 윈도우 길이를 사용합니다.
+ * - 계산된 길이가 `Duration.ZERO`면 해당 요소 이후 윈도우를 즉시 닫습니다.
+ * - 수신 Flow를 변경하지 않고 새 Flow를 반환합니다.
+ * - [durationSelector]에서 발생한 예외는 수집 시점에 전파됩니다.
+ *
+ * ```kotlin
+ * val result = mutableListOf<Int>()
+ * flowRangeOf(1, 10).onEach { delay(200) }.throttleLeading { 501.milliseconds }.collect { result += it }
+ * // result == [1, 4, 7, 10]
  * ```
- * flowRangeOf(1, 10)
- *     .onEach { delay(200) }
- *     .throttleLeading { Duration.ZERO }
- *     .assertResult(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
- * ```
+ * @param durationSelector 요소별 윈도우 길이를 계산하는 함수입니다.
  */
 fun <T> Flow<T>.throttleLeading(durationSelector: (value: T) -> Duration): Flow<T> =
     throttleTime(ThrottleBehavior.LEADING, durationSelector)
 
 /**
- * [kotlinx.coroutines.flow.debounce]와 유사하지만, [timeMillis] 윈도우의 마지막 요소를 emit 합니다.
+ * 밀리초 단위 윈도우로 후행 요소만 방출하는 throttle 연산을 적용합니다.
  *
+ * ## 동작/계약
+ * - 각 윈도우의 마지막 요소를 윈도우 종료 시점에 방출합니다.
+ * - `0L`이면 입력 요소를 즉시 통과시킵니다.
+ * - 수신 Flow를 변경하지 않고 새 Flow를 반환합니다.
+ *
+ * ```kotlin
+ * val result = mutableListOf<Int>()
+ * flowRangeOf(1, 10).onEach { delay(200) }.throttleTrailing(501L).collect { result += it }
+ * // result == [3, 6, 9, 10]
  * ```
- * // -1---2----3-
- * // -@-----!--@-----!
- * // -------2--------3
- * flow {
- *     delay(100)
- *     emit(1)
- *     delay(300)      // 400
- *     emit(2)
- *     delay(400)      // 800
- *     emit(3)
- *     delay(100)      // 900
- * }
- *     .throttleTrailing(500)
- *     .assertResult(2, 3)
- * ```
+ * @param timeMillis 윈도우 길이(밀리초)입니다.
  */
 fun <T> Flow<T>.throttleTrailing(timeMillis: Long): Flow<T> =
     throttleTime(ThrottleBehavior.TRAILING) { timeMillis.milliseconds }
 
 /**
- * [kotlinx.coroutines.flow.debounce]와 유사하지만, [duration] 윈도우의 마지막 요소를 emit 합니다.
+ * 고정 [duration] 기준으로 후행 요소만 방출하는 throttle 연산을 적용합니다.
  *
+ * ## 동작/계약
+ * - 각 윈도우의 마지막 요소를 윈도우 종료 시점에 방출합니다.
+ * - [duration]이 `Duration.ZERO`면 입력 요소를 즉시 통과시킵니다.
+ * - 수신 Flow를 변경하지 않고 새 Flow를 반환합니다.
+ *
+ * ```kotlin
+ * val result = mutableListOf<Int>()
+ * flowRangeOf(1, 10).onEach { delay(200) }.throttleTrailing(501.milliseconds).collect { result += it }
+ * // result == [3, 6, 9, 10]
  * ```
- * // -1---2----3-
- * // -@-----!--@-----!
- * // -------2--------3
- * flow {
- *     delay(100)
- *     emit(1)
- *     delay(300)      // 400
- *     emit(2)
- *     delay(400)      // 800
- *     emit(3)
- *     delay(100)      // 900
- * }
- *     .throttleTrailing(500.milliseconds)
- *     .assertResult(2, 3)
- * ```
+ * @param duration 윈도우 길이입니다.
  */
 fun <T> Flow<T>.throttleTrailing(duration: Duration): Flow<T> =
     throttleTime(ThrottleBehavior.TRAILING) { duration }
 
 /**
- * [kotlinx.coroutines.flow.debounce]와 유사하지만, [durationSelector] 윈도우의 마지막 요소를 emit 합니다.
+ * 요소별 윈도우 길이로 후행 요소만 방출하는 throttle 연산을 적용합니다.
  *
+ * ## 동작/계약
+ * - 각 요소마다 [durationSelector]로 계산한 윈도우 길이를 사용합니다.
+ * - 계산된 길이가 `Duration.ZERO`면 해당 요소를 즉시 후행 값으로 방출합니다.
+ * - 수신 Flow를 변경하지 않고 새 Flow를 반환합니다.
+ * - [durationSelector]에서 발생한 예외는 수집 시점에 전파됩니다.
+ *
+ * ```kotlin
+ * val result = mutableListOf<Int>()
+ * flowRangeOf(1, 10).onEach { delay(200) }.throttleTrailing { 501.milliseconds }.collect { result += it }
+ * // result == [3, 6, 9, 10]
  * ```
- * // -1---2----3-
- * // -@-----!--@-----!
- * // -------2--------3
- * flow {
- *     delay(100)
- *     emit(1)
- *     delay(300)      // 400
- *     emit(2)
- *     delay(400)      // 800
- *     emit(3)
- *     delay(100)      // 900
- * }
- *     .throttleTrailing { 500.milliseconds }
- *     .assertResult(2, 3)
- * ```
+ * @param durationSelector 요소별 윈도우 길이를 계산하는 함수입니다.
  */
 fun <T> Flow<T>.throttleTrailing(durationSelector: (value: T) -> Duration): Flow<T> =
     throttleTime(ThrottleBehavior.TRAILING, durationSelector)
 
 /**
- * [kotlinx.coroutines.flow.debounce]와 유사하지만, [timeMillis] 윈도우의 첫뻔째와 마지막 요소를 emit 합니다.
+ * 밀리초 단위 윈도우에서 선행/후행 요소를 모두 방출하는 throttle 연산을 적용합니다.
  *
+ * ## 동작/계약
+ * - 각 윈도우의 첫 요소와 마지막 요소를 방출합니다.
+ * - `0L`이면 입력 요소를 즉시 통과시킵니다.
+ * - 수신 Flow를 변경하지 않고 새 Flow를 반환합니다.
+ *
+ * ```kotlin
+ * val result = mutableListOf<Int>()
+ * flowOf(1, 2, 3).throttleBoth(0L).collect { result += it }
+ * // result == [1, 2, 3]
  * ```
- * // -1---2----3-
- * // -@-----!--@-----!
- * // -------2--------3
- * flow {
- *     delay(100)
- *     emit(1)
- *     delay(300)      // 400
- *     emit(2)
- *     delay(400)      // 800
- *     emit(3)
- *     delay(100)      // 900
- * }
- *     .throttleBoth(500)
- *     .assertResult(1, 2, 3)
- * ```
+ * @param timeMillis 윈도우 길이(밀리초)입니다.
  */
 fun <T> Flow<T>.throttleBoth(timeMillis: Long): Flow<T> =
     throttleTime(ThrottleBehavior.BOTH) { timeMillis.milliseconds }
 
 /**
- * [kotlinx.coroutines.flow.debounce]와 유사하지만, [duration] 윈도우의 첫뻔째와 마지막 요소를 emit 합니다.
+ * 고정 [duration] 기준으로 선행/후행 요소를 모두 방출하는 throttle 연산을 적용합니다.
  *
+ * ## 동작/계약
+ * - 각 윈도우의 첫 요소와 마지막 요소를 방출합니다.
+ * - [duration]이 `Duration.ZERO`면 입력 요소를 즉시 통과시킵니다.
+ * - 수신 Flow를 변경하지 않고 새 Flow를 반환합니다.
+ *
+ * ```kotlin
+ * val result = mutableListOf<Int>()
+ * flowOf(1, 2, 3).throttleBoth(Duration.ZERO).collect { result += it }
+ * // result == [1, 2, 3]
  * ```
- * // -1---2----3-
- * // -@-----!--@-----!
- * // -------2--------3
- * flow {
- *     delay(100)
- *     emit(1)
- *     delay(300)      // 400
- *     emit(2)
- *     delay(400)      // 800
- *     emit(3)
- *     delay(100)      // 900
- * }
- *     .throttleBoth(500.milliseconds)
- *     .assertResult(1, 2, 3)
- * ```
+ * @param duration 윈도우 길이입니다.
  */
 fun <T> Flow<T>.throttleBoth(duration: Duration): Flow<T> =
     throttleTime(ThrottleBehavior.BOTH) { duration }
 
 /**
- * [kotlinx.coroutines.flow.debounce]와 유사하지만, [durationSelector] 윈도우의 첫뻔째와 마지막 요소를 emit 합니다.
+ * 요소별 윈도우 길이로 선행/후행 요소를 모두 방출하는 throttle 연산을 적용합니다.
  *
+ * ## 동작/계약
+ * - 각 요소마다 [durationSelector]로 계산한 윈도우 길이를 사용합니다.
+ * - 계산된 길이가 `Duration.ZERO`면 즉시 윈도우를 닫아 연속 값을 빠르게 통과시킵니다.
+ * - 수신 Flow를 변경하지 않고 새 Flow를 반환합니다.
+ * - [durationSelector]에서 발생한 예외는 수집 시점에 전파됩니다.
+ *
+ * ```kotlin
+ * val result = mutableListOf<Int>()
+ * flowOf(1, 2, 3).throttleBoth { Duration.ZERO }.collect { result += it }
+ * // result == [1, 2, 3]
  * ```
- * // -1---2----3-
- * // -@-----!--@-----!
- * // -------2--------3
- * flow {
- *     delay(100)
- *     emit(1)
- *     delay(300)      // 400
- *     emit(2)
- *     delay(400)      // 800
- *     emit(3)
- *     delay(100)      // 900
- * }
- *     .throttleBoth { 500.milliseconds }
- *     .assertResult(1, 2, 3)
- * ```
+ * @param durationSelector 요소별 윈도우 길이를 계산하는 함수입니다.
  */
 fun <T> Flow<T>.throttleBoth(durationSelector: (value: T) -> Duration): Flow<T> =
     throttleTime(ThrottleBehavior.BOTH, durationSelector)
 
 
 /**
- * Source [Flow]에서 값을 방출하는 [Flow]를 반환한 다음,
- * [duration]기간 동안 후속 소스 값을 무시한 후, 방출한다.
+ * 고정 [duration]으로 throttle 정책을 적용합니다.
  *
- * [kotlinx.coroutines.flow.debounce]와 유사하지만, [ThrottleBehavior]에 따라서 전, 후, 모두 값을 방출할 수 있다.
- *
- * * Example [ThrottleBehavior.LEADING]:
- *
- * ```kotlin
- * (1..10)
- *     .asFlow()
- *     .onEach { delay(200) }
- *     .throttleTime(500.milliseconds)
- * ```
- *
- * produces the following emissions
- *
- * ```text
- * 1, 4, 7, 10
- * ```
- *
- * * Example [ThrottleBehavior.TRAILING]:
+ * ## 동작/계약
+ * - 실제 동작은 [throttleTime](`durationSelector`) 오버로드로 위임됩니다.
+ * - [throttleBehavior]에 따라 선행/후행 방출 여부가 결정됩니다.
+ * - 수신 Flow를 변경하지 않고 새 Flow를 반환합니다.
  *
  * ```kotlin
- * (1..10)
- *     .asFlow()
- *     .onEach { delay(200) }
- *     .throttleTime(500.milliseconds, ThrottleBehavior.TRAILING)
+ * val result = mutableListOf<Int>()
+ * flowRangeOf(1, 10).onEach { delay(200) }
+ *     .throttleTime(501.milliseconds, ThrottleBehavior.LEADING)
+ *     .collect { result += it }
+ * // result == [1, 4, 7, 10]
  * ```
- *
- * produces the following emissions
- *
- * ```text
- * 3, 6, 9, 10
- * ```
- *
- * * Example [ThrottleBehavior.BOTH]:
- *
- * ```kotlin
- * (1..10)
- *     .asFlow()
- *     .onEach { delay(200) }
- *     .throttleTime(500.milliseconds, ThrottleBehavior.BOTH)
- * ```
- *
- * produces the following emissions
- *
- * ```text
- * 1, 3, 4, 6, 7, 9, 10
- * ```
+ * @param duration 윈도우 길이입니다.
+ * @param throttleBehavior 방출 정책입니다.
  */
 fun <T> Flow<T>.throttleTime(
     duration: Duration,
@@ -328,55 +269,22 @@ fun <T> Flow<T>.throttleTime(
 
 
 /**
- * Source [Flow]에서 값을 방출하는 [Flow]를 반환한 다음,
- * [timeMillis] 기간 동안 후속 소스 값을 무시한 후, 방출한다.
+ * 밀리초 단위 시간으로 throttle 정책을 적용합니다.
  *
- * [kotlinx.coroutines.flow.debounce]와 유사하지만, [ThrottleBehavior]에 따라서 전, 후, 모두 값을 방출할 수 있다.
- *
- * * Example [ThrottleBehavior.LEADING]:
- *
- * ```kotlin
- * (1..10)
- *     .asFlow()
- *     .onEach { delay(200) }
- *     .throttleTime(500.milliseconds)
- * ```
- *
- * produces the following emissions
- *
- * ```text
- * 1, 4, 7, 10
- * ```
- *
- * * Example [ThrottleBehavior.TRAILING]:
+ * ## 동작/계약
+ * - 동작은 [throttleTime](`Duration`, `ThrottleBehavior`)와 동일합니다.
+ * - [timeMillis]를 [Duration]으로 변환해 처리합니다.
+ * - 수신 Flow를 변경하지 않고 새 Flow를 반환합니다.
  *
  * ```kotlin
- * (1..10)
- *     .asFlow()
- *     .onEach { delay(200) }
- *     .throttleTime(500.milliseconds, ThrottleBehavior.TRAILING)
+ * val result = mutableListOf<Int>()
+ * flowRangeOf(1, 10).onEach { delay(200) }
+ *     .throttleTime(501L, ThrottleBehavior.TRAILING)
+ *     .collect { result += it }
+ * // result == [3, 6, 9, 10]
  * ```
- *
- * produces the following emissions
- *
- * ```text
- * 3, 6, 9, 10
- * ```
- *
- * * Example [ThrottleBehavior.BOTH]:
- *
- * ```kotlin
- * (1..10)
- *     .asFlow()
- *     .onEach { delay(200) }
- *     .throttleTime(500.milliseconds, ThrottleBehavior.BOTH)
- * ```
- *
- * produces the following emissions
- *
- * ```text
- * 1, 3, 4, 6, 7, 9, 10
- * ```
+ * @param timeMillis 윈도우 길이(밀리초)입니다.
+ * @param throttleBehavior 방출 정책입니다.
  */
 fun <T> Flow<T>.throttleTime(
     timeMillis: Long,
@@ -386,55 +294,21 @@ fun <T> Flow<T>.throttleTime(
 
 
 /**
- * Source [Flow]에서 값을 방출하는 [Flow]를 반환한 다음,
- * [durationSelector]가 지정한 기간 동안 후속 소스 값을 무시한 후, 방출한다.
+ * 요소별 동적 윈도우 길이로 throttle 정책을 적용합니다.
  *
- * [kotlinx.coroutines.flow.debounce]와 유사하지만, [ThrottleBehavior]에 따라서 전, 후, 모두 값을 방출할 수 있다.
- *
- * * Example [ThrottleBehavior.LEADING]:
- *
- * ```kotlin
- * (1..10)
- *     .asFlow()
- *     .onEach { delay(200) }
- *     .throttleTime { 500.milliseconds }
- * ```
- *
- * produces the following emissions
- *
- * ```text
- * 1, 4, 7, 10
- * ```
- *
- * * Example [ThrottleBehavior.TRAILING]:
+ * ## 동작/계약
+ * - 내부 상태(`lastValue`, `throttled`)를 사용해 윈도우 중복 방출을 제어합니다.
+ * - [durationSelector]가 `Duration.ZERO`를 반환하면 즉시 윈도우를 닫고 후행 처리로 진행합니다.
+ * - 수신 Flow를 변경하지 않고 새 Flow를 반환하며, nullable 요소는 내부 sentinel로 안전하게 처리합니다.
+ * - 업스트림 채널 종료 원인이 예외면 [FlowOperationException]으로 감싸 전파합니다.
  *
  * ```kotlin
- * (1..10)
- *     .asFlow()
- *     .onEach { delay(200) }
- *     .throttleTime(ThrottleBehavior.TRAILING) { 500.milliseconds }
+ * val result = mutableListOf<Int>()
+ * flowOf(1, 2, 3).throttleTime(ThrottleBehavior.BOTH) { Duration.ZERO }.collect { result += it }
+ * // result == [1, 2, 3]
  * ```
- *
- * produces the following emissions
- *
- * ```text
- * 3, 6, 9, 10
- * ```
- *
- * * Example [ThrottleBehavior.BOTH]:
- *
- * ```kotlin
- * (1..10)
- *     .asFlow()
- *     .onEach { delay(200) }
- *     .throttleTime(ThrottleBehavior.BOTH) { 500.milliseconds }
- * ```
- *
- * produces the following emissions
- *
- * ```text
- * 1, 3, 4, 6, 7, 9, 10
- * ```
+ * @param throttleBehavior 윈도우에서 선행/후행 중 어떤 값을 방출할지 지정합니다.
+ * @param durationSelector 요소별 윈도우 길이를 계산합니다.
  */
 fun <T> Flow<T>.throttleTime(
     throttleBehavior: ThrottleBehavior = ThrottleBehavior.LEADING,

@@ -17,68 +17,44 @@ import java.util.concurrent.ConcurrentLinkedQueue
 private val log: Logger by unsafeLazy { KotlinLogging.logger { } }
 
 /**
- * 모든 [Flow]를 동시에 시작하고, 다른 소스의 항목이 발행되기 전에 첫 번째 소스에서 모든 항목을 발행합니다.
- * 각 소스는 무제한으로 소비되므로 현재 소스와 수집기의 속도에 따라 연산자가 항목을 더 오래 유지하고 실행 중에 더 많은 메모리를 사용할 수 있습니다.
+ * 여러 Flow를 eager하게 동시 수집하되 source 순서대로 연결해 방출합니다.
  *
- * ```
- * listOf(
- *     flowRangeOf(1, 5).onStart { delay(100) },
- *     flowRangeOf(6, 5),
- * )
- *     .concatFlows()
- *     .take(6)    // 1, 2, 3, 4, 5, 6
- * ```
+ * ## 동작/계약
+ * - 모든 source를 즉시 수집 시작합니다.
+ * - 각 source의 값은 source별 큐에 적재되고, 출력은 source 인덱스 순서대로 소비됩니다.
+ * - 앞선 source 큐가 비어 있고 아직 완료되지 않았으면 뒤 source 값이 준비돼도 대기합니다.
+ * - source 수만큼 큐/완료 플래그가 할당됩니다.
  *
- * @param T
- * @return
+ * ```kotlin
+ * val result = listOf(flowOf(1, 2), flowOf(3, 4)).concatFlows().toList()
+ * // result == [1, 2, 3, 4]
+ * ```
  */
 fun <T: Any> Iterable<Flow<T>>.concatFlows(): Flow<T> =
     concatArrayEagerInternal(this.toList())
 
 /**
- * 모든 flow를 동시에 시작하고, 다른 소스의 항목이 발행되기 전에 첫 번째 소스에서 모든 항목을 발행합니다.
- * 각 소스는 무제한으로 소비되므로 현재 소스와 수집기의 속도에 따라 연산자가 항목을 더 오래 유지하고 실행 중에 더 많은 메모리를 사용할 수 있습니다.
+ * `Flow<Flow<T>>`를 리스트로 수집한 뒤 eager concat을 수행합니다.
  *
- * ```
- * flowOf(
- *     flowRangeOf(1, 5).onStart { delay(100) },
- *     flowRangeOf(6, 5),
- * )
- *     .concatFlows()
- *     .take(6)    // 1, 2, 3, 4, 5, 6
- * ```
+ * ## 동작/계약
+ * - 내부적으로 `toList()`로 모든 inner Flow를 먼저 모은 후 [concatArrayEagerInternal]에 전달합니다.
+ * - 따라서 source Flow가 완료되기 전에는 결과 방출이 시작되지 않습니다.
  */
 suspend fun <T: Any> Flow<Flow<T>>.concatFlows(): Flow<T> =
     concatArrayEagerInternal(this.toList())
 
 /**
- * 모든 [sources]를 동시에 시작하고, 두 번째 소스의 항목이 발행되기 전에 첫 번째 소스에서 모든 항목을 발행합니다.
- * 각 소스는 무제한으로 소비되므로 첫 번째 소스와 수집기의 속도에 따라 연산자가 항목을 더 오래 유지하고 실행 중에 더 많은 메모리를 사용할 수 있습니다.
+ * vararg Flow들에 대해 eager concat을 수행합니다.
  *
- * ```
- * val flow1 = flowRangeOf(1, 5)
- *     .onStart {
- *         delay(200)
- *         state1.value = 1
- *     }
- * val flow2 = flowRangeOf(6, 5)
- *     .onStart { state2.value = state1.value }
+ * ## 동작/계약
+ * - 입력 배열을 리스트로 변환해 [concatArrayEagerInternal]에 위임합니다.
+ * - 입력이 비어 있으면 빈 Flow를 반환합니다.
  *
- * concatArrayEager(flow1, flow2)   // (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
- * ```
+ * @param sources 순서대로 연결할 source Flow들입니다.
  */
 fun <T: Any> concatArrayEager(vararg sources: Flow<T>): Flow<T> =
     concatArrayEagerInternal(sources.asList())
 
-/**
- * 모든 [sources]를 동시에 시작하고, 다른 소스의 항목이 발행되기 전에 첫 번째 소스에서 모든 항목을 발행합니다.
- * 각 소스는 무제한으로 소비되므로 현재 소스와 수집기의 속도에 따라 연산자가 항목을 더 오래 유지하고 실행 중에 더 많은 메모리를 사용할 수 있습니다.
- *
- *
- * @param T
- * @param sources collect 할 모든 [Flow]들
- * @return collect 한 모든 [Flow]들을 순서대로 발행하는 [Flow]
- */
 @Suppress("SYNTHETIC_PROPERTY_WITHOUT_JAVA_ORIGIN")
 internal fun <T: Any> concatArrayEagerInternal(sources: List<Flow<T>>): Flow<T> = channelFlow {
     coroutineScope {
@@ -122,9 +98,6 @@ internal fun <T: Any> concatArrayEagerInternal(sources: List<Flow<T>>): Flow<T> 
     }
 }
 
-/**
- * [concatArrayEagerInternal]의 각 source별 큐와 완료 상태를 보관합니다.
- */
 private class ConcatArrayEagerRail<T: Any> {
     val queue = ConcurrentLinkedQueue<T>()
     val done = atomic(false)

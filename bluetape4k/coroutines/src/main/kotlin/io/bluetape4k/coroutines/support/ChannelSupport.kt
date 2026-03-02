@@ -14,17 +14,18 @@ import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
 
 /**
- * 수신된 요소가 연속해서 중복되는 요소는 무시하도록 합니다.
+ * 연속 중복 값을 제거한 `ReceiveChannel`을 생성합니다.
  *
- * ```
- * flowOf(1, 1, 2, 2, 3, 3)
- *    .asChannel()
- *    .distinctUntilChanged()
- *    .collect { println(it) }  // 1, 2, 3
- * ```
+ * ## 동작/계약
+ * - 인접한 두 값이 `!=` 비교에서 같은 경우 뒤 값을 건너뜁니다.
+ * - 원본 채널을 mutate 하지 않고, `produce`로 새 채널을 반환합니다.
+ * - 첫 값이 `null`이어도 정상적으로 첫 항목으로 전달됩니다.
  *
- * @param context
- * @return 중복되는 요소를 제거한 [ReceiveChannel]
+ * ```kotlin
+ * val out = flowOf(1, 1, 2, 2, 3).asChannel().distinctUntilChanged()
+ * // out == [1, 2, 3]
+ * ```
+ * @param context 내부 producer를 실행할 코루틴 컨텍스트입니다.
  */
 suspend fun <E> ReceiveChannel<E>.distinctUntilChanged(
     context: CoroutineContext = Dispatchers.Default,
@@ -50,18 +51,19 @@ suspend fun <E> ReceiveChannel<E>.distinctUntilChanged(
 }
 
 /**
- * 수신된 요소가 연속해서 [equalOperator]에 의해 중복되는 요소는 무시하도록 합니다.
+ * 사용자 비교 함수로 연속 중복 값을 제거한 `ReceiveChannel`을 생성합니다.
  *
- * ```
- * flowOf(1, 1, 2, 2, 3, 3)
- *    .asChannel()
- *    .distinctUntilChanged { a, b -> a == b }
- *    .collect { println(it) }  // 1, 2, 3
- * ```
+ * ## 동작/계약
+ * - 첫 원소는 항상 전달하고, 이후에는 `equalOperator(received, prev)`가 `false`일 때만 전달합니다.
+ * - 원본 채널을 mutate 하지 않고 새 채널을 생성해 반환합니다.
+ * - 입력 채널이 비어 있으면 빈 채널을 반환합니다.
  *
- * @param context
- * @param equalOperator 요소들을 비교해서 같은지 판단하도록 한다 (두 요소가 같으면 true를 반환)
- * @return 중복되는 요소를 제거한 [ReceiveChannel]
+ * ```kotlin
+ * val out = flowOf("A", "a", "B").asChannel().distinctUntilChanged { a, b -> a.equals(b, true) }
+ * // out == ["A", "B"]
+ * ```
+ * @param context 내부 producer를 실행할 코루틴 컨텍스트입니다.
+ * @param equalOperator 연속 두 값을 동일 항목으로 간주할지 결정하는 비교 함수입니다.
  */
 suspend inline fun <E> ReceiveChannel<E>.distinctUntilChanged(
     context: CoroutineContext = Dispatchers.Default,
@@ -90,19 +92,19 @@ suspend inline fun <E> ReceiveChannel<E>.distinctUntilChanged(
 }
 
 /**
- * 수신 받은 요소들을 이용하여 [accumulator]를 통해 reduce 한 값을 send 하는 [ReceiveChannel]을 반환합니다.
+ * 채널의 모든 원소를 누적해 단일 결과를 방출하는 채널을 생성합니다.
  *
- * ```
- * flowOf(1, 2, 3, 4, 5)
- *   .asChannel()
- *   .reduce { acc, item -> acc + item }
- *   .collect { println(it) }  // 15
- * ```
+ * ## 동작/계약
+ * - 첫 원소를 초기 누적값으로 사용하고, 이후 원소에 `accumulator`를 반복 적용합니다.
+ * - 입력 채널이 비어 있으면 `receive()`에서 실패할 수 있습니다.
+ * - 결과 채널에는 최종 누적값 1개만 전달됩니다.
  *
- * @param E 요소의 타입
- * @param context [ReceiveChannel]을 실행할 [CoroutineContext]
- * @param accumulator reduce 하는 함수
- * @return reduced 된 값을 제공하는 [ReceiveChannel]
+ * ```kotlin
+ * val out = flowOf(1, 2, 3).asChannel().reduce { acc, v -> acc + v }
+ * // out == [6]
+ * ```
+ * @param context 내부 producer를 실행할 코루틴 컨텍스트입니다.
+ * @param accumulator 누적 함수입니다.
  */
 suspend inline fun <E> ReceiveChannel<E>.reduce(
     context: CoroutineContext = Dispatchers.Default,
@@ -118,20 +120,20 @@ suspend inline fun <E> ReceiveChannel<E>.reduce(
 }
 
 /**
- * 수신 받은 요소들을 이용하여 [accumulator]를 통해 reduce 한 값을 send 하는 [ReceiveChannel]을 반환합니다.
+ * 초기값을 사용해 채널 원소를 누적하고 단일 결과를 방출하는 채널을 생성합니다.
  *
- * ```
- * flowOf(1, 2, 3, 4, 5)
- *   .asChannel()
- *   .reduce(0) { acc, item -> acc + item }
- *   .collect { println(it) }  // 15
- * ```
+ * ## 동작/계약
+ * - `initValue`에서 시작해 모든 원소에 `accumulator`를 적용합니다.
+ * - 입력 채널이 비어 있어도 `initValue`가 최종 결과로 전달됩니다.
+ * - 결과 채널에는 최종 누적값 1개만 전달됩니다.
  *
- * @param E 요소의 타입
- * @param initValue 초기값
- * @param context [ReceiveChannel]을 실행할 [CoroutineContext]
- * @param accumulator reduce 하는 함수
- * @return reduced 된 값을 제공하는 [ReceiveChannel]
+ * ```kotlin
+ * val out = flowOf(1, 2, 3).asChannel().reduce(0) { acc, v -> acc + v }
+ * // out == [6]
+ * ```
+ * @param initValue 초기 누적값입니다.
+ * @param context 내부 producer를 실행할 코루틴 컨텍스트입니다.
+ * @param accumulator 누적 함수입니다.
  */
 suspend inline fun <E> ReceiveChannel<E>.reduce(
     initValue: E,
@@ -148,20 +150,19 @@ suspend inline fun <E> ReceiveChannel<E>.reduce(
 }
 
 /**
- * 두 개의 [ReceiveChannel] 에서 수신 받은 것을 교대로 produce 합니다.
+ * 현재 채널 뒤에 `other` 채널을 이어 붙인 새 채널을 생성합니다.
  *
- * ```
- * val first = flowOf(1, 3, 5).asChannel()
- * val second = flowOf(2, 4, 6).asChannel()
- * first.concatWith(second)
- *    .collect { println(it) }  // 1, 2, 3, 4, 5, 6
- * ```
+ * ## 동작/계약
+ * - 먼저 수신 채널의 모든 항목을 전달한 뒤 `other` 항목을 전달합니다.
+ * - 두 채널의 원소를 병합하지 않고 순차적으로 연결합니다.
+ * - 원본 채널은 소비되며 결과는 새 채널로 제공합니다.
  *
- * @param E 요소의 타입
- * @receiver 첫 번째 [ReceiveChannel]
- * @param other 두 번째 [ReceiveChannel]
- * @param context [ReceiveChannel]을 실행할 [CoroutineContext]
- * @return 두 [ReceiveChannel]의 요소를 교대로 제공하는 [ReceiveChannel]
+ * ```kotlin
+ * val out = flowOf(1, 2).asChannel().concatWith(flowOf(3, 4).asChannel())
+ * // out == [1, 2, 3, 4]
+ * ```
+ * @param other 뒤에 연결할 채널입니다.
+ * @param context 내부 producer를 실행할 코루틴 컨텍스트입니다.
  */
 suspend fun <E> ReceiveChannel<E>.concatWith(
     other: ReceiveChannel<E>,
@@ -174,21 +175,20 @@ suspend fun <E> ReceiveChannel<E>.concatWith(
 }
 
 /**
- * 두 개의 [ReceiveChannel] 에서 수신 받은 것을 교대로 produce 합니다.
+ * 두 채널을 순서대로 연결한 새 채널을 생성합니다.
  *
+ * ## 동작/계약
+ * - `first`를 모두 전달한 뒤 `second`를 전달합니다.
+ * - 내부적으로 `first.concatWith(second, context)`를 호출합니다.
+ * - 결과는 새 채널로 제공됩니다.
+ *
+ * ```kotlin
+ * val out = concat(flowOf(1, 2).asChannel(), flowOf(3, 4).asChannel())
+ * // out == [1, 2, 3, 4]
  * ```
- * val first = flowOf(1, 3, 5).asChannel()
- * val second = flowOf(2, 4, 6).asChannel()
- *
- * concat(first, second)
- *   .collect { println(it) }  // 1, 2, 3, 4, 5, 6
- * ```
- *
- * @param E  요소의 타입
- * @param context [ReceiveChannel]을 실행할 [CoroutineContext]
- * @param first  첫 번째 [ReceiveChannel]
- * @param second 두 번째 [ReceiveChannel]
- * @return 두 [ReceiveChannel]의 요소를 교대로 제공하는 [ReceiveChannel]
+ * @param first 앞쪽 채널입니다.
+ * @param second 뒤쪽 채널입니다.
+ * @param context 내부 producer를 실행할 코루틴 컨텍스트입니다.
  */
 suspend fun <E> concat(
     first: ReceiveChannel<E>,
@@ -197,19 +197,19 @@ suspend fun <E> concat(
 ): ReceiveChannel<E> = first.concatWith(second, context)
 
 /**
- * [waitDuration] 만큼 지연 시키고, 가장 최신의 수신 요소를 전송 합니다.
+ * 지정한 지연 구간에서 마지막 원소만 전달하도록 디바운스 채널을 생성합니다.
  *
- * ```
- * flowOf(1, 2, 3, 4, 5)
- *  .asChannel()
- *  .debounce(1.seconds)
- *  .collect { println(it) }  // 5
- * ```
+ * ## 동작/계약
+ * - `waitDuration`이 음수면 `require` 검증으로 예외가 발생합니다.
+ * - 지연 구간 내에 여러 값이 들어오면 중간 값은 버리고 가장 최신 값만 전달합니다.
+ * - 원본 채널을 소비하고 결과는 새 채널로 반환합니다.
  *
- * @param E  요소의 타입
- * @param waitDuration 지연 시간
- * @param context [ReceiveChannel]을 실행할 [CoroutineContext]
- * @return 지연된 요소를 제공하는 [ReceiveChannel]
+ * ```kotlin
+ * val out = flowOf(1, 2, 3).asChannel().debounce(1.seconds)
+ * // out == [3]
+ * ```
+ * @param waitDuration 디바운스 지연 시간입니다. 0 이상이어야 합니다.
+ * @param context 내부 producer를 실행할 코루틴 컨텍스트입니다.
  */
 suspend fun <E> ReceiveChannel<E>.debounce(
     waitDuration: Duration,

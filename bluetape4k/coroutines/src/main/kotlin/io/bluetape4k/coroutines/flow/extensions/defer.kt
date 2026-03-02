@@ -5,22 +5,21 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 
 /**
- * [Flow]를 제공하는 [flowSupplier]를 비동기로 수행해서 emit 하는 [Flow]를 빌드합니다.
+ * collect 시점에 Flow 공급 함수를 호출해 실제 Flow를 지연 생성합니다.
  *
+ * ## 동작/계약
+ * - collect마다 `flowSupplier()`를 새로 호출하므로 콜드(cold)하게 동작합니다.
+ * - 공급 함수 또는 반환된 Flow에서 발생한 예외는 그대로 전파됩니다.
+ * - 내부적으로 `emitAll`로 반환 Flow를 그대로 위임 수집합니다.
+ *
+ * ```kotlin
+ * var n = 0
+ * val f = defer { flowOf(++n) }
+ * val result = listOf(f.first(), f.first())
+ * // result == [1, 2]
  * ```
- * suspend fun remoteCall1(): R1 = ...
- * suspend fun remoteCall2(r1: R1): R2 = ...
  *
- * fun example1(): Flow<R2> = defer {
- *   val r1 = remoteCall1()
- *   val r2 = remoteCall2(r1)
- *   flowOf(r2)
- * }
- *
- * fun example2(): Flow<R1> = defer { flowOf(remoteCall1()) }
- * ```
- *
- * @param flowSupplier [Flow]를 제공하는 supplier
+ * @param flowSupplier collect 시 호출되어 방출 소스를 제공하는 함수입니다.
  */
 inline fun <T> defer(
     crossinline flowSupplier: suspend () -> Flow<T>,

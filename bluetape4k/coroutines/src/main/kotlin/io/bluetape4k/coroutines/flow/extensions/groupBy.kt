@@ -19,28 +19,77 @@ import java.util.concurrent.ConcurrentMap
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
- * Key 로 Grouping 된 [Flow] 를 표현하는 interface 입니다.
+ * 같은 키로 분류된 하위 Flow를 나타내는 타입입니다.
+ *
+ * ## 동작/계약
+ * - 각 인스턴스는 하나의 [key]와 해당 키에 속한 값 스트림을 나타냅니다.
+ * - 구현체(`FlowGroup`) 기준으로 그룹 스트림은 최대 한 번만 수집할 수 있습니다.
+ * - 그룹 내부 값은 원본 Flow에서 관측된 순서대로 전달됩니다.
+ * - 그룹 생성/해제 시점은 업스트림 데이터와 다운스트림 취소 상태에 따라 달라집니다.
+ *
+ * ```kotlin
+ * val groups = flowRangeOf(1, 4).groupBy { it % 2 }
+ * val keys = groups.map { it.key }.toList()
+ * // keys contains 1 and 0
+ * ```
  */
 interface GroupedFlow<K: Any, V>: Flow<V> {
 
-    /**
-     * The grouped key of the flow
-     */
+    /** 그룹 키입니다. */
     val key: K
 }
 
 /**
- * [GroupedFlow]의 Value들만 묶어, `List<V>` 형태의 요소를 제공하는 [Flow]로 변환합니다.
+ * 그룹의 값을 `List` 하나로 모아 방출하는 Flow로 변환합니다.
+ *
+ * ## 동작/계약
+ * - 그룹 값을 끝까지 수집한 뒤 `List<V>` 1개를 방출합니다.
+ * - 수신 그룹 스트림을 소비하며, 수집 후에는 재사용할 수 없습니다.
+ * - 값 수에 비례해 리스트 할당이 발생합니다.
+ *
+ * ```kotlin
+ * val values = flowRangeOf(1, 6)
+ *     .groupBy { it % 2 }
+ *     .flatMapMerge { it.toValues() }
+ *     .toList()
+ * // values contains [1, 3, 5] and [2, 4, 6]
+ * ```
  */
 fun <K: Any, V> GroupedFlow<K, V>.toValues(): Flow<List<V>> = flowFromSuspend { toFastList() }
 
+/**
+ * 그룹 키와 그룹 값 목록을 함께 담는 직렬화 가능 DTO입니다.
+ *
+ * ## 동작/계약
+ * - [key]는 그룹 식별자, [values]는 해당 키에 매핑된 값 목록입니다.
+ * - 불변 데이터 구조이며 생성 후 내부 상태를 변경하지 않습니다.
+ * - `equals`/`hashCode`/`toString`은 data class 기본 규칙을 따릅니다.
+ *
+ * ```kotlin
+ * val item = GroupItem(1, listOf(1, 3, 5))
+ * // item.values == [1, 3, 5]
+ * ```
+ */
 data class GroupItem<K, V>(
     val key: K,
     val values: List<V>,
 ): Serializable
 
 /**
- * [GroupedFlow]의 key 와 value들을 묶어, `Pair<K, List<V>>` 형태의 요소를 제공하는 [Flow]로 변환합니다.
+ * 그룹을 [GroupItem] 1건으로 변환합니다.
+ *
+ * ## 동작/계약
+ * - 그룹 값을 끝까지 수집한 뒤 [GroupItem]을 1건 방출합니다.
+ * - 수신 그룹 스트림을 소비하며, 값 수에 비례해 리스트 할당이 발생합니다.
+ * - 수집 중 예외는 그대로 전파됩니다.
+ *
+ * ```kotlin
+ * val items = flowRangeOf(1, 6)
+ *     .groupBy { it % 2 }
+ *     .flatMapMerge { it.toGroupItems() }
+ *     .toList()
+ * // items contains GroupItem(1, [1,3,5]) and GroupItem(0, [2,4,6])
+ * ```
  */
 fun <K: Any, V> GroupedFlow<K, V>.toGroupItems(): Flow<GroupItem<K, V>> = flowFromSuspend {
     val values = toFastList()
@@ -48,7 +97,19 @@ fun <K: Any, V> GroupedFlow<K, V>.toGroupItems(): Flow<GroupItem<K, V>> = flowFr
 }
 
 /**
- * [GroupedFlow]의 Flow 를 [destination] Map에 `Map<K, List<V>>` 형태로 변환합니다.
+ * 그룹 Flow를 `Map<K, List<V>>`로 수집합니다.
+ *
+ * ## 동작/계약
+ * - 각 그룹을 `key -> values` 엔트리로 [destination]에 저장합니다.
+ * - 같은 키 엔트리는 마지막으로 수집된 그룹 결과로 덮어씁니다.
+ * - [destination]을 직접 변경(mutate)한 뒤 같은 인스턴스를 반환합니다.
+ * - 그룹 값 크기에 비례해 리스트/맵 할당이 발생합니다.
+ *
+ * ```kotlin
+ * val map = flowRangeOf(1, 10).groupBy { it % 2 }.toMap()
+ * // map[0] == [2, 4, 6, 8, 10]
+ * ```
+ * @param destination 결과를 누적할 대상 맵입니다.
  */
 suspend fun <K: Any, V> Flow<GroupedFlow<K, V>>.toMap(
     destination: MutableMap<K, List<V>> = UnifiedMap<K, List<V>>(),
@@ -62,7 +123,18 @@ suspend fun <K: Any, V> Flow<GroupedFlow<K, V>>.toMap(
 }
 
 /**
- * [GroupedFlow]의 Flow 를 [destination] Map에 `Map<K, List<V>>` 형태로 변환합니다.
+ * 그룹 Flow를 UnifiedMap 기반 `Map<K, List<V>>`로 수집합니다.
+ *
+ * ## 동작/계약
+ * - 동작은 [toMap]과 동일하며 기본 destination만 다릅니다.
+ * - [destination]을 직접 변경(mutate)한 뒤 같은 인스턴스를 반환합니다.
+ * - 같은 키는 마지막 결과로 덮어씁니다.
+ *
+ * ```kotlin
+ * val map = flowRangeOf(1, 10).groupBy { it % 2 }.toUnifiedMap()
+ * // map[1] == [1, 3, 5, 7, 9]
+ * ```
+ * @param destination 결과를 누적할 대상 맵입니다.
  */
 suspend fun <K: Any, V> Flow<GroupedFlow<K, V>>.toUnifiedMap(
     destination: MutableMap<K, List<V>> = UnifiedMap<K, List<V>>(),
@@ -76,7 +148,19 @@ suspend fun <K: Any, V> Flow<GroupedFlow<K, V>>.toUnifiedMap(
 }
 
 /**
- * [GroupedFlow]의 Flow 를 [destination] Map에 `Map<K, List<V>>` 형태로 변환합니다.
+ * 그룹 Flow를 Eclipse Collections [ListMultimap]으로 수집합니다.
+ *
+ * ## 동작/계약
+ * - 각 그룹 값을 [destination] 멀티맵에 `putAll`로 추가합니다.
+ * - [destination]을 직접 변경(mutate)한 뒤 반환합니다.
+ * - 같은 키에 여러 값이 누적되며, 그룹 내부 순서를 유지합니다.
+ * - 값 수에 비례한 추가 저장 할당이 발생합니다.
+ *
+ * ```kotlin
+ * val mmap = flowRangeOf(1, 10).groupBy { it % 2 }.toListMultiMap()
+ * // mmap[0] == [2, 4, 6, 8, 10]
+ * ```
+ * @param destination 결과를 누적할 대상 멀티맵입니다.
  */
 suspend fun <K: Any, V> Flow<GroupedFlow<K, V>>.toListMultiMap(
     destination: MutableListMultimap<K, V> = Multimaps.mutable.list.with<K, V>(),
@@ -90,30 +174,43 @@ suspend fun <K: Any, V> Flow<GroupedFlow<K, V>>.toListMultiMap(
 }
 
 /**
- * [Flow]의 항목을 [keySelector]로 그룹화하여 `Flow<GroupedFlow<K, T>>`로 변환합니다.
+ * 원본 Flow를 키 기준으로 동적 그룹화합니다.
  *
- * ```
- * flowRangeOf(1, 10)
- *     .groupBy { it % 3 }
+ * ## 동작/계약
+ * - 새 키가 등장하면 새로운 [GroupedFlow]를 방출하고, 이후 같은 키 값은 해당 그룹으로 전달합니다.
+ * - 그룹 Flow는 최대 한 번만 수집할 수 있습니다.
+ * - 업스트림 오류는 [FlowOperationException]으로 감싸 전파됩니다.
+ * - 다운스트림 취소 시 남은 그룹이 없으면 수집을 조기 종료합니다.
+ *
+ * ```kotlin
+ * val values = flowRangeOf(1, 10)
+ *     .groupBy { it % 2 }
  *     .flatMapMerge { it.toValues() }
- *     .assertResultSet(listOf(1, 4, 7, 10), listOf(2, 5, 8), listOf(3, 6, 9))
+ *     .toList()
+ * // values contains [1, 3, 5, 7, 9] and [2, 4, 6, 8, 10]
  * ```
- *
- * ### Note [groupBy] 함수 뒤에 [log] 함수를 사용하면 작동이 안됩니다. (버그)
+ * @param keySelector 요소에서 그룹 키를 계산합니다.
  */
 fun <T, K: Any> Flow<T>.groupBy(keySelector: (T) -> K): Flow<GroupedFlow<K, T>> =
     groupByInternal(this, keySelector) { it }
 
 /**
- * [Flow]의 항목을 [keySelector]로 그룹화하고, [valueSelector]로 value를 변환해서 `Flow<GroupedFlow<K, V>>`로 변환합니다.
+ * 원본 Flow를 키/값 변환 규칙으로 동적 그룹화합니다.
  *
- * ```
- * flowRangeOf(1, 10)
+ * ## 동작/계약
+ * - [keySelector]로 그룹 키를 계산하고 [valueSelector]로 그룹 값을 변환합니다.
+ * - 그룹 Flow 생성/수집/오류 전파 규칙은 [groupBy]와 동일합니다.
+ * - 업스트림 오류는 [FlowOperationException]으로 감싸 전파됩니다.
+ *
+ * ```kotlin
+ * val values = flowRangeOf(1, 10)
  *     .groupBy({ it % 2 }) { it + 1 }
  *     .flatMapMerge { it.toValues() }
- *     .assertResultSet(listOf(2, 4, 6, 8, 10), listOf(3, 5, 7, 9, 11))
+ *     .toList()
+ * // values contains [2, 4, 6, 8, 10] and [3, 5, 7, 9, 11]
  * ```
- * ### Note [groupBy] 함수 뒤에 [log] 함수를 사용하면 작동이 안됩니다. (버그)
+ * @param keySelector 요소에서 그룹 키를 계산합니다.
+ * @param valueSelector 요소를 그룹 값으로 변환합니다.
  */
 fun <T, K: Any, V> Flow<T>.groupBy(
     keySelector: (T) -> K,
@@ -121,9 +218,6 @@ fun <T, K: Any, V> Flow<T>.groupBy(
 ): Flow<GroupedFlow<K, V>> =
     groupByInternal(this, keySelector, valueSelector)
 
-/**
- * key selector 함수를 기반으로 source flow의 변환된 값들을 그룹화합니다.
- */
 @Suppress("SYNTHETIC_PROPERTY_WITHOUT_JAVA_ORIGIN")
 @PublishedApi
 internal fun <T, K: Any, V> groupByInternal(

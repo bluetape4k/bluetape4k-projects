@@ -6,94 +6,72 @@ import reactor.util.context.Context
 import kotlin.coroutines.CoroutineContext
 
 /**
- * 현 Coroutine Context에서 Reactor용 [Context] 를 가져옵니다. 없다면 null 반환
+ * 현재 코루틴 컨텍스트에서 Reactor [Context]를 조회합니다.
  *
- * ```
- * private val key = "answer"
- * private val value = "42"
- * var captured: String? = null
+ * ## 동작/계약
+ * - `currentCoroutineContext()[ReactorContext]?.context`를 그대로 반환합니다.
+ * - Reactor 컨텍스트가 없으면 `null`을 반환합니다.
+ * - 조회 전용이며 코루틴/리액터 상태를 변경하지 않습니다.
  *
- * val flow = flow {
- *     // captured = currentCoroutineContext()[ReactorContext]?.context?.getOrNull(key)
- *     captured = currentReactiveContext()?.getOrNull(key)
- *     emit("A")
- * }
- *
- * flow.asFlux()
- *     .contextWrite { ctx -> ctx.put(key, value) }
- *     .subscribe()
- *
- * captured shouldBeEqualTo value
+ * ```kotlin
+ * val ctx = currentReactiveContext()
+ * // ctx == null 또는 Reactor Context
  * ```
  */
 suspend inline fun currentReactiveContext(): Context? =
     currentCoroutineContext()[ReactorContext]?.context
 
 /**
- * [CoroutineContext]에서 Reactor용 [Context]를 조회합니다.
+ * 지정한 [CoroutineContext]에서 Reactor [Context]를 조회합니다.
+ *
+ * ## 동작/계약
+ * - `ReactorContext` 요소가 있으면 내부 `context`를 반환합니다.
+ * - 없으면 `null`을 반환합니다.
+ *
+ * @receiver 조회 대상 코루틴 컨텍스트입니다.
  */
 fun CoroutineContext.getReactiveContext(): Context? =
     this[ReactorContext]?.context
 
 /**
- * Reactor용 [Context]에 [key]에 해당하는 값을 가져옵니다. 없다면 null 반환
+ * Reactor [Context]에서 키가 있을 때만 값을 꺼냅니다.
  *
- * ```
- * private val key = "answer"
- * private val value = "42"
+ * ## 동작/계약
+ * - `hasKey(key)`가 `true`일 때 `get(key)`를 호출합니다.
+ * - 키가 없으면 예외 없이 `null`을 반환합니다.
+ * - 타입이 맞지 않으면 `ClassCastException`이 발생할 수 있습니다.
  *
- * var captured: String? = null
- * val flux = Flux.just("A")
- *     .contextWrite { context ->
- *         captured = context.getOrNull(key)
- *         context
- *     }
- * flux.awaitFirst()
- * captured.shouldBeNull()
+ * ```kotlin
+ * val value: String? = context.getOrNull("traceId")
+ * // key가 없으면 null
  * ```
+ *
+ * @param key 조회할 키입니다.
  */
 fun <T: Any> Context.getOrNull(key: Any): T? {
     return if (hasKey(key)) get(key) else null
 }
 
 /**
- * 현 Coroutine Context에서 Reactor용 [Context]의 [key]에 해당하는 값을 가져옵니다. 없다면 null 반환
+ * 현재 코루틴의 Reactor 컨텍스트에서 키 값을 조회합니다.
  *
- * ```
- * private val key = "answer"
- * private val value = "42"
+ * ## 동작/계약
+ * - Reactor 컨텍스트가 없거나 키가 없으면 `null`을 반환합니다.
+ * - 값 타입이 기대 타입과 다르면 `ClassCastException`이 발생할 수 있습니다.
  *
- * var captured: String? = null
- * val flow = flow {
- *     captured = getReactorContextValueOrNull(key)
- *     emit("A")
- * }
- * // ReactorContext에 아무 값도 전달되지 않았으므로, captured는 null입니다.
- * flow.asFlux()
- *     .subscribe()
- * captured.shouldBeNull()
- * ```
+ * @param key 조회할 키입니다.
  */
 suspend inline fun <T: Any> getReactorContextValueOrNull(key: Any): T? =
     currentReactiveContext()?.getOrNull(key)
 
 /**
- * Reactor [Context]에 저장된 정보를 Coroutines 환경 하에서 사용하기 위한 확장 함수입니다.
+ * 주어진 코루틴 컨텍스트의 Reactor 컨텍스트에서 키 값을 조회합니다.
  *
- * ```
- * private val key = "answer"
- * private val value = "42"
+ * ## 동작/계약
+ * - Reactor 컨텍스트가 없거나 키가 없으면 `null`을 반환합니다.
+ * - 값 타입이 기대 타입과 다르면 `ClassCastException`이 발생할 수 있습니다.
  *
- * var captured: String? = null
- * val flow = flow {
- *     captured = getReactorContextValueOrNull(key)
- *     emit("A")
- * }
- * // ReactorContext에 아무 값도 전달되지 않았으므로, captured는 null입니다.
- * flow.asFlux()
- *     .subscribe()
- * captured.shouldBeNull()
- * ```
+ * @param key 조회할 키입니다.
  */
 fun <T: Any> CoroutineContext.getReactorContextValueOrNull(key: Any): T? {
     return getReactiveContext()?.getOrNull(key)

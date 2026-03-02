@@ -14,16 +14,21 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.launch
 
 /**
- * 하나의 collector 를 upstream source 로 공유하고, 여러 소비자에게 값을 multicasts 합니다
+ * source를 Subject로 fan-out 한 뒤 selector 결과를 반환합니다.
  *
- * ```
- * flowOf(1, 2, 3)
- *    .multicast({ ReplaySubject() })
- *    .collect { println(it) }
+ * ## 동작/계약
+ * - `subjectSupplier`가 제공한 Subject에 source 값을 전달하고, `transform(subject)` 결과를 최종 방출합니다.
+ * - 결과 Flow가 완료되면 source 전달 코루틴을 취소하기 위해 내부 `cancelled` 플래그를 사용합니다.
+ * - source 예외는 `subject.emitError`로 전달되고, selector 쪽 예외는 최종 하류로 전파됩니다.
+ * - 내부적으로 source 처리/selector 처리 코루틴을 각각 1개씩 실행합니다.
+ *
+ * ```kotlin
+ * val out = source.multicast({ PublishSubject() }) { shared -> shared.take(1) }
+ * // out은 공유 source에서 selector가 선택한 값만 방출
  * ```
  *
- * @param subjectSupplier multicasting 을 위한 [SubjectApi] 를 생성하는 함수
- * @param transform multicasting 된 Flow 에 대한 변환 함수
+ * @param subjectSupplier 공유에 사용할 Subject 생성 함수입니다.
+ * @param transform 공유 Flow를 받아 결과 Flow를 만드는 selector입니다.
  */
 fun <T, R> Flow<T>.multicast(
     subjectSupplier: () -> SubjectApi<T>,
@@ -31,10 +36,6 @@ fun <T, R> Flow<T>.multicast(
 ): Flow<R> =
     multicastInternal(this, subjectSupplier, transform)
 
-/**
- * [SubjectApi]를 경유해 source를 단일 구독으로 공유하고,
- * [transform] 결과를 downstream으로 전달합니다.
- */
 internal fun <T, R> multicastInternal(
     source: Flow<T>,
     subjectSupplier: () -> SubjectApi<T>,
@@ -47,7 +48,6 @@ internal fun <T, R> multicastInternal(
 
         val inner = ResumableCollector<R>()
 
-        // publish
         launch(start = CoroutineStart.UNDISPATCHED) {
             try {
                 result.onCompletion { state.cancelled.value = true }
@@ -60,7 +60,6 @@ internal fun <T, R> multicastInternal(
             }
         }
 
-        // subject
         launch(start = CoroutineStart.UNDISPATCHED) {
             try {
                 source.collect {
@@ -82,9 +81,6 @@ internal fun <T, R> multicastInternal(
     }
 }
 
-/**
- * [multicastInternal]의 취소 상태를 보관합니다.
- */
 private class MulticastState {
     val cancelled = atomic(false)
 }

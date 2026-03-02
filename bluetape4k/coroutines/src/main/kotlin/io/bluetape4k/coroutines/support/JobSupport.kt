@@ -5,11 +5,18 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.selects.select
 
 /**
- * Job 정보를 계층적으로 표현한 트리를 출력합니다. 테스트 시에 사용하기 위해 제작되었습니다.
+ * `Job` 트리를 들여쓰기 형태로 표준 출력에 출력합니다.
  *
+ * ## 동작/계약
+ * - 현재 `Job`을 출력한 뒤 모든 자식 `Job`에 대해 재귀적으로 같은 출력을 수행합니다.
+ * - `offset`만큼 공백을 앞에 붙여 계층 구조를 표현합니다.
+ * - 루트 호출(`offset == 0`)일 때 마지막에 빈 줄을 한 번 추가합니다.
+ *
+ * ```kotlin
+ * job.printDebugTree()
+ * // 출력 예: JobImpl{Active}@... / 자식 Job 들이 들여쓰기되어 출력됨
  * ```
- * job.printDebugTree()  // 출력 예시
- * ```
+ * @param offset 현재 노드 출력 시 사용할 좌측 공백 수입니다.
  */
 fun Job.printDebugTree(offset: Int = 0) {
     println(" ".repeat(offset) + this)
@@ -22,14 +29,18 @@ fun Job.printDebugTree(offset: Int = 0) {
 }
 
 /**
- * Job들 중 먼저 완료되는 것이 나온다면 끝낸다. (나머지 Job들은 취소하지 않음)
+ * 전달된 `Job` 중 하나라도 완료될 때까지 대기합니다.
  *
- * ```
+ * ## 동작/계약
+ * - `jobs.requireNotEmpty("jobs")`로 빈 입력을 허용하지 않습니다.
+ * - `select`를 사용해 가장 먼저 완료되는 `Job`이 나타나면 즉시 반환합니다.
+ * - 다른 `Job`은 취소하지 않고 그대로 둡니다.
+ *
+ * ```kotlin
  * joinAny(job1, job2, job3)
+ * // result == 첫 완료 Job 감지 후 즉시 반환(Unit)
  * ```
- *
- * @param jobs Job들
- * @throws IllegalArgumentException [jobs] 가 비어있을 때
+ * @param jobs 대기 대상 `Job` 목록입니다. 최소 1개 이상이어야 합니다.
  */
 suspend fun joinAny(vararg jobs: Job) {
     jobs.requireNotEmpty("jobs")
@@ -42,14 +53,17 @@ suspend fun joinAny(vararg jobs: Job) {
 }
 
 /**
- * [Job] 들 중 먼저 완료되는 것이 나온다면 끝낸다. (나머지 Job들은 취소하지 않음)
+ * 컬렉션 확장 버전의 [joinAny]입니다.
  *
- * ```
- * val jobs = listOf(job1, job2, job3)
+ * ## 동작/계약
+ * - `requireNotEmpty("jobs")`로 빈 컬렉션 입력을 허용하지 않습니다.
+ * - 컬렉션 내에서 가장 먼저 완료된 `Job`을 감지하면 반환합니다.
+ * - 다른 `Job`은 취소하지 않습니다.
+ *
+ * ```kotlin
  * jobs.joinAny()
+ * // result == 첫 완료 Job 감지 후 즉시 반환(Unit)
  * ```
- * @receiver [Job] 리스트
- * @throws IllegalArgumentException Collection<Job> 이 비어있을 때
  */
 suspend fun Collection<Job>.joinAny() {
     requireNotEmpty("jobs")
@@ -62,21 +76,17 @@ suspend fun Collection<Job>.joinAny() {
 }
 
 /**
- * 첫번째 완료된 Job을 기다리고, 나머지 Job들을 취소합니다.
+ * 컬렉션에서 가장 먼저 완료된 `Job`을 기다린 뒤 나머지 `Job`을 취소합니다.
  *
- * ```
- * val jobs = listOf(job1, job2, job3)
+ * ## 동작/계약
+ * - `requireNotEmpty("jobs")`로 빈 컬렉션 입력을 허용하지 않습니다.
+ * - `select`로 첫 완료 `Job`의 인덱스를 구한 뒤, 나머지 `Job`에 `cancel(null)`을 시도합니다.
+ * - 개별 취소 실패는 `runCatching`으로 무시하고 계속 진행합니다.
+ *
+ * ```kotlin
  * jobs.joinAnyAndCancelOthers()
- *
- * yield()
- *
- * job1.isCompleted.shouldBeTrue()
- * job2.isCancelled.shouldBeTrue()
- * job3.isCancelled.shouldBeTrue()
+ * // result == 첫 완료 이후 나머지 Job 취소 시도 완료(Unit)
  * ```
- *
- * @receiver [Job] 리스트
- * @throws IllegalArgumentException Collection<Job> 이 비어있을 때
  */
 suspend fun Collection<Job>.joinAnyAndCancelOthers() {
     requireNotEmpty("jobs")

@@ -6,38 +6,24 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.scan
 
 /**
- * 주어진 flow 를 [operation]으로 fold 하고, 수집 시접의 [initialSupplier]가 제공한 값과, 중간 결과를 모두 emit 합니다.
+ * collect 시점에 초기값을 계산한 뒤 누적(scan) 결과를 방출합니다.
  *
- * **반환되는 초기값은 다른 수집기 사이에서 공유되므로 변경되지 않아야 합니다.**
+ * ## 동작/계약
+ * - collect마다 `initialSupplier()`를 1회 호출해 초기 accumulator를 만듭니다.
+ * - 이후 `scan(initial, operation)` 규칙으로 중간 누적값을 순차 방출합니다.
+ * - 초기값 계산/누적 중 예외는 그대로 전파됩니다.
  *
- * 초기값을 지연 제공하는 [scan]의 변형입니다. 초기값이 생성 비용이 많이 들거나 수집 시점에 실행해야 하는 로직에 의존하는 경우 유용합니다.
- *
- * For example:
- * ```
- * flowOf(1, 2, 3)
- *     .scanWith({ emptyList<Int>() }) { acc, value -> acc + value }
- *     .toList()
- * ```
- * will produce `[[], [1], [1, 2], [1, 2, 3]]`.
- *
- * Another example:
  * ```kotlin
- * // Logic to calculate initial value (e.g. call API, read from DB, etc.)
- * suspend fun calculateInitialValue(): Int {
- *   println("calculateInitialValue")
- *   delay(1000)
- *   return 0
- * }
- *
- * flowOf(1, 2, 3).scanWith(::calculateInitialValue) { acc, value -> acc + value }
+ * val result = flowOf(1, 2, 3).scanWith({ 0 }) { acc, v -> acc + v }.toList()
+ * // result == [0, 1, 3, 6]
  * ```
  *
- * @param initialSupplier 지연된 초기 값을 제공하는 함수
- * @param operation 현 [Flow]로부터 발행되는 요소들을 각각의 수행기에 대해 호출되는 accumulator 함수
+ * @param initialSupplier 초기 누적값을 반환하는 suspend 함수입니다.
+ * @param operation 누적 연산 함수입니다.
  */
 fun <T, R> Flow<T>.scanWith(
     initialSupplier: suspend () -> R,
     @BuilderInference operation: suspend (acc: R, item: T) -> R,
 ): Flow<R> = flow {
-    return@flow emitAll(scan(initialSupplier(), operation))
+    emitAll(scan(initialSupplier(), operation))
 }
