@@ -17,7 +17,20 @@ import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransact
 import org.redisson.api.RMap
 
 /**
- * SuspendedExposedCacheRepository 는 Exposed와 Redisson을 사용하여 Redis에 데이터를 캐싱하는 Repository입니다.
+ * Exposed JDBC와 Redisson `RMap`을 코루틴으로 연결하는 비동기 캐시 리포지토리 계약입니다.
+ *
+ * ## 동작/계약
+ * - `findByIdFromDb/findAllFromDb`는 `suspendedTransactionAsync(Dispatchers.IO)`로 DB를 직접 조회합니다.
+ * - `get/exists/getAll/put/invalidate`는 Redisson async API를 `await()`로 감싸 suspend 형태로 제공합니다.
+ * - `batchSize`, `count`는 0보다 커야 하며 위반 시 [IllegalArgumentException]이 발생합니다.
+ * - 캐시 무효화가 DB 삭제로 이어지는지는 map writer 설정에 따라 달라집니다.
+ *
+ * ```kotlin
+ * val id = getExistingId()
+ * val fromDb = repository.findByIdFromDb(id)
+ * val fromCache = repository.get(id)
+ * // fromCache == fromDb
+ * ```
  *
  * @param T Entity Type   Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable type을 사용해 주세요.
  * @param ID Entity ID Type

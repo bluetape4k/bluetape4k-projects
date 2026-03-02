@@ -14,10 +14,24 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 
 
 /**
- * [HasIdentifier]를 구현한 엔티티를 위한 [EntityMapLoader]입니다.
+ * Exposed [IdTable]에서 엔티티를 읽어 Redisson read-through에 공급하는 [EntityMapLoader] 구현입니다.
  *
- * @param ID ID 타입
- * @param E 엔티티 타입
+ * ## 동작/계약
+ * - 단건 조회는 `selectAll().where { id eq ... }.singleOrNull()` 결과를 [toEntity]로 변환합니다.
+ * - 전체 키 조회는 [batchSize] 단위 `limit/offset` 반복으로 모든 ID를 수집합니다.
+ * - [batchSize]가 0 이하이면 초기화 시 [IllegalArgumentException]이 발생합니다.
+ * - `loadAllKeys()`는 DB 오류를 로깅 후 예외를 다시 던집니다.
+ *
+ * ```kotlin
+ * val loader = ExposedEntityMapLoader(
+ *     entityTable = LoaderTable,
+ *     batchSize = 2,
+ *     toEntity = { toLoaderEntity() },
+ * )
+ * val ids = loader.loadAllKeys()!!.toList()
+ * // ids.size == 3
+ * ```
+ *
  * @param entityTable `EntityID<ID>` 를 id 컬럼으로 가진 [IdTable] 입니다.
  * @param batchSize 배치 사이즈
  * @param toEntity ResultRow를 엔티티로 변환하는 함수

@@ -15,7 +15,20 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.redisson.api.RMap
 
 /**
- * Exposed와 Redisson을 활용하여 Redis에 데이터를 캐싱하는 Repository 인터페이스입니다.
+ * Exposed JDBC와 Redisson `RMap`을 결합한 동기 캐시 리포지토리 계약입니다.
+ *
+ * ## 동작/계약
+ * - `get/exists/getAll`은 Redisson read-through/write-through 설정에 따라 캐시 미스 시 DB loader를 통해 값을 채웁니다.
+ * - `findByIdFromDb/findAllFromDb` 계열은 항상 DB를 직접 조회하며 캐시를 우회합니다.
+ * - `put/putAll/invalidate/invalidateAll`은 캐시 조작이며, DB 반영 여부는 map writer 설정(`deleteFromDBOnInvalidate`)에 따릅니다.
+ * - `batchSize`, `count`는 0보다 커야 하며 위반 시 [IllegalArgumentException]이 발생합니다.
+ *
+ * ```kotlin
+ * val id = getExistingId()
+ * val fromDb = repository.findByIdFromDb(id)
+ * val fromCache = repository[id]
+ * // fromCache == fromDb
+ * ```
  *
  * @param T 엔티티 타입. Exposed 엔티티는 Redis 저장 시 Serializer 문제로 인해 반드시 Serializable Record를 사용해야 합니다.
  * @param ID 엔티티의 식별자 타입

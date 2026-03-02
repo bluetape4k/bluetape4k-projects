@@ -17,10 +17,23 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 
 
 /**
- * [HasIdentifier]를 구현한 엔티티를 위한 [SuspendedEntityMapLoader] 기본 구현체입니다.
+ * Exposed [IdTable]을 코루틴으로 조회해 Redisson 비동기 read-through에 공급하는 loader입니다.
  *
- * @param ID ID 타입
- * @param E 엔티티 타입
+ * ## 동작/계약
+ * - 단건 조회는 `selectAll().where { id eq ... }.singleOrNull()` 결과를 [toEntity]로 변환합니다.
+ * - 전체 키 조회는 [batchSize] 단위 `limit/offset` 반복으로 채널에 키를 전송합니다.
+ * - [batchSize]가 0 이하이면 초기화 시 [IllegalArgumentException]이 발생합니다.
+ * - 채널 전송 실패나 DB 오류는 로깅 후 예외를 그대로 전파합니다.
+ *
+ * ```kotlin
+ * val loader = SuspendedExposedEntityMapLoader(
+ *     entityTable = LoaderTable,
+ *     batchSize = 2,
+ *     toEntity = { toLoaderEntity() },
+ * )
+ * // batchSize = 0 이면 IllegalArgumentException 발생
+ * ```
+ *
  * @param entityTable `EntityID<ID>` 를 id 컬럼으로 가진 [IdTable] 입니다.
  * @param scope CoroutineScope
  * @param batchSize 배치 사이즈
