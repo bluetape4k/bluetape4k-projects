@@ -68,6 +68,9 @@ class ChromaDBServer private constructor(
         writeToSystemProperties(NAME)
     }
 
+    /**
+     * 테스트에서 재사용할 ChromaDB 서버 싱글턴을 제공합니다.
+     */
     object Launcher {
         val chromaDBServer: ChromaDBServer by lazy {
             ChromaDBServer().apply {

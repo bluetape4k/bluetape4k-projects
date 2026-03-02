@@ -83,6 +83,13 @@ class ClickHouseServer private constructor(
         writeToSystemProperties(NAME, buildJdbcProperties())
     }
 
+    /**
+     * 테스트 수명주기에서 재사용할 ClickHouse 서버 싱글턴을 제공합니다.
+     *
+     * ## 동작/계약
+     * - 첫 접근 시 서버를 시작하고 [ShutdownQueue]에 종료 작업을 등록합니다.
+     * - 이후에는 같은 인스턴스를 재사용합니다.
+     */
     object Launcher {
         val clickhouse: ClickHouseServer by lazy {
             ClickHouseServer().apply {

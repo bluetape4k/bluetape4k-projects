@@ -29,6 +29,7 @@ class ElasticsearchServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean,
     reuse: Boolean,
+    /** `elastic` 사용자 기본 비밀번호입니다. */
     val password: String,
 ): ElasticsearchContainer(imageName), GenericServer {
 
@@ -85,6 +86,9 @@ class ElasticsearchServer private constructor(
         writeToSystemProperties(NAME)
     }
 
+    /**
+     * 테스트에서 재사용할 Elasticsearch 서버 싱글턴과 클라이언트 설정 헬퍼를 제공합니다.
+     */
     object Launcher {
         /**
          * 기본 [ElasticsearchServer]를 제공합니다.

@@ -31,6 +31,17 @@ internal const val SERVER_PREFIX = "testcontainers"
  * spring.redis.port = ${testcontainers.redis.port}
  * spring.redis.url = ${testcontainers.redis.url}
  * ```
+ *
+ * ## 동작/계약
+ * - `name`이 blank이면 [IllegalArgumentException]이 발생합니다.
+ * - `${testcontainers.$name.host|port|url}` 기본 속성을 항상 기록합니다.
+ * - `extraProps`의 null 값은 무시하고 non-null 값만 문자열로 기록합니다.
+ * - JVM 전역 System Property를 변경하므로 테스트 종료 후 정리가 필요할 수 있습니다.
+ *
+ * ```kotlin
+ * redis.writeToSystemProperties("redis", mapOf("ssl" to false))
+ * // testcontainers.redis.host/port/url/ssl 속성이 등록됨
+ * ```
  */
 fun <T: GenericServer> T.writeToSystemProperties(name: String, extraProps: Map<String, Any?> = emptyMap()) {
     require(name.isNotBlank()) { "Server name must not be blank." }

@@ -75,6 +75,9 @@ class ZooKeeperServer private constructor(
         writeToSystemProperties(NAME)
     }
 
+    /**
+     * 테스트에서 재사용할 ZooKeeper 서버 싱글턴과 Curator 헬퍼를 제공합니다.
+     */
     object Launcher {
         val zookeeper: ZooKeeperServer by lazy {
             ZooKeeperServer().apply {
@@ -83,6 +86,9 @@ class ZooKeeperServer private constructor(
             }
         }
 
+        /**
+         * [ZooKeeperServer] 접속용 [CuratorFramework] 인스턴스를 생성합니다.
+         */
         fun getCuratorFramework(zookeeper: ZooKeeperServer): CuratorFramework {
             return curatorFrameworkOf {
                 connectString(zookeeper.url)

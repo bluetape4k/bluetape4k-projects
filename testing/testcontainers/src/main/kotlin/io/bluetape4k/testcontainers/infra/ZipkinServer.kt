@@ -76,6 +76,9 @@ class ZipkinServer private constructor(
         writeToSystemProperties(NAME)
     }
 
+    /**
+     * 테스트에서 재사용할 Zipkin 서버 싱글턴을 제공합니다.
+     */
     object Launcher {
         val zipkin: ZipkinServer by lazy {
             ZipkinServer().apply {

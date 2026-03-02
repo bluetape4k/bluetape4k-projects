@@ -88,6 +88,9 @@ class MinIOServer private constructor(
         writeToSystemProperties(NAME, extraProps)
     }
 
+    /**
+     * 테스트에서 재사용할 MinIO 서버 싱글턴과 [MinioClient] 팩토리를 제공합니다.
+     */
     object Launcher {
         val minio: MinIOServer by lazy {
             MinIOServer().apply {
@@ -98,6 +101,9 @@ class MinIOServer private constructor(
             }
         }
 
+        /**
+         * 현재 MinIO 서버 접속 정보로 [MinioClient]를 생성합니다.
+         */
         fun getClient(minio: MinIOServer): MinioClient {
             return MinioClient.builder()
                 .endpoint(minio.url)

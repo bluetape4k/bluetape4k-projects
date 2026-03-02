@@ -129,6 +129,9 @@ class MySQL5Server private constructor(
         writeToSystemProperties(NAME, buildJdbcProperties())
     }
 
+    /**
+     * 테스트에서 재사용할 MySQL 5 서버 싱글턴을 제공합니다.
+     */
     object Launcher {
         val mysql: MySQL5Server by lazy {
             MySQL5Server().apply {

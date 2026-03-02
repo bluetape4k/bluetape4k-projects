@@ -58,8 +58,13 @@ class PrometheusServer private constructor(
     override val port: Int get() = getMappedPort(PORT)
     override val url: String get() = "https://$host:$port"
 
+    /** Prometheus HTTP 포트의 매핑 결과입니다. */
     val serverPort: Int get() = getMappedPort(PORT)
+
+    /** Pushgateway 포트의 매핑 결과입니다. */
     val pushgatewayPort: Int get() = getMappedPort(PUSHGATEWAY_PORT)
+
+    /** Graphite exporter 포트의 매핑 결과입니다. */
     val graphiteExporterPort: Int get() = getMappedPort(GRAPHITE_EXPORTER_PORT)
 
     init {
@@ -90,6 +95,9 @@ class PrometheusServer private constructor(
         writeToSystemProperties(NAME, extraProps)
     }
 
+    /**
+     * 하위 호환용 런처입니다.
+     */
     object Launch {
         val prometheus: PrometheusServer by lazy {
             PrometheusServer().apply {
@@ -99,6 +107,9 @@ class PrometheusServer private constructor(
         }
     }
 
+    /**
+     * 테스트에서 재사용할 Prometheus 서버 싱글턴을 제공합니다.
+     */
     object Launcher {
         val prometheus: PrometheusServer by lazy {
             PrometheusServer().apply {

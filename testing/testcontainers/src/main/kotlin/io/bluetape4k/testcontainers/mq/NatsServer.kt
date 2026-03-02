@@ -12,22 +12,20 @@ import org.testcontainers.containers.GenericContainer
 import org.testcontainers.utility.DockerImageName
 
 /**
- * Docker를 이용하여 [nats](http://nats.io)를 구동해주는 container 입니다.
+ * NATS 테스트 서버 컨테이너를 실행하고 연결 정보를 제공합니다.
+ *
+ * ## 동작/계약
+ * - `-js` 옵션으로 JetStream을 활성화한 상태로 컨테이너를 구성합니다.
+ * - `4222/6222/8222` 포트를 노출하며 `useDefaultPort=true`이면 호스트 고정 바인딩을 시도합니다.
+ * - 인스턴스 생성만으로는 시작되지 않고 `start()` 호출 후 시스템 프로퍼티를 기록합니다.
+ *
+ * ```kotlin
+ * val server = NatsServer()
+ * server.start()
+ * // server.natsPort > 0
+ * ```
  *
  * 참고: [Nats official images](https://hub.docker.com/_/nats?tab=description&page=1&ordering=last_updated)
- *
- * Exposed ports:
- * - 4222: NATS server
- * - 6222: NATS server for clustering
- * - 8222: NATS server for monitoring
- *
- * ```
- * // start nats server by docker
- * val nats = NatsServer().apply { start() }
- * ```
- * @param imageName      Docker image name ([DockerImageName])
- * @param useDefaultPort Default port 를 사용할지 여부
- * @param reuse          재사용 여부
  */
 class NatsServer private constructor(
     imageName: DockerImageName,
@@ -44,6 +42,13 @@ class NatsServer private constructor(
         const val NATS_CLUSTER_PORT = 6222
         const val NATS_MONITOR_PORT = 8222
 
+        /**
+         * [DockerImageName]으로 [NatsServer] 인스턴스를 생성합니다.
+         *
+         * ## 동작/계약
+         * - 전달한 `imageName`을 그대로 사용해 새 인스턴스를 반환합니다.
+         * - 이 함수는 컨테이너를 시작하지 않습니다.
+         */
         @JvmStatic
         operator fun invoke(
             imageName: DockerImageName,
@@ -53,6 +58,19 @@ class NatsServer private constructor(
             return NatsServer(imageName, useDefaultPort, reuse)
         }
 
+        /**
+         * 이미지 이름/태그로 [NatsServer] 인스턴스를 생성합니다.
+         *
+         * ## 동작/계약
+         * - `image`, `tag`가 blank이면 [IllegalArgumentException]이 발생합니다.
+         * - 문자열 인자를 [DockerImageName]으로 변환해 새 인스턴스를 반환합니다.
+         * - 컨테이너 시작은 호출자가 `start()`로 수행해야 합니다.
+         *
+         * ```kotlin
+         * val server = NatsServer(image = "nats", tag = "2.10")
+         * // server.url.startsWith("nats://") == true
+         * ```
+         */
         @JvmStatic
         operator fun invoke(
             image: String = IMAGE,
@@ -70,8 +88,13 @@ class NatsServer private constructor(
     override val port: Int get() = getMappedPort(NATS_PORT)
     override val url: String get() = "$NAME://$host:$port"
 
+    /** NATS 클라이언트 접속 포트의 매핑 결과입니다. */
     val natsPort: Int get() = getMappedPort(NATS_PORT)
+
+    /** NATS 클러스터 내부 통신 포트의 매핑 결과입니다. */
     val clusterPort: Int get() = getMappedPort(NATS_CLUSTER_PORT)
+
+    /** 모니터링 API 포트의 매핑 결과입니다. */
     val monitorPort: Int get() = getMappedPort(NATS_MONITOR_PORT)
 
     init {
@@ -98,6 +121,13 @@ class NatsServer private constructor(
         writeToSystemProperties(NAME, extraProps)
     }
 
+    /**
+     * 테스트 전역에서 재사용할 NATS 서버 싱글턴을 제공합니다.
+     *
+     * ## 동작/계약
+     * - 첫 접근 시 서버를 시작하고 [ShutdownQueue]에 종료 훅을 등록합니다.
+     * - 이후 접근에서는 동일 인스턴스를 반환합니다.
+     */
     object Launcher {
         val nats: NatsServer by lazy {
             NatsServer().apply {
@@ -108,6 +138,18 @@ class NatsServer private constructor(
     }
 }
 
+/**
+ * NATS 연결을 열어 블록을 실행하고 자동으로 연결을 닫습니다.
+ *
+ * ## 동작/계약
+ * - `Nats.connect(url)`로 연결한 뒤 `use` 블록에서만 연결을 사용합니다.
+ * - 블록 완료/예외 여부와 상관없이 연결은 닫힙니다.
+ *
+ * ```kotlin
+ * val pong = withNats(server.url) { status() }
+ * // pong != null
+ * ```
+ */
 inline fun <T> withNats(url: String, block: Connection.() -> T): T {
     return Nats.connect(url).use { connection: Connection ->
         block(connection)

@@ -64,9 +64,16 @@ class JaegerServer private constructor(
     override val port: Int get() = getMappedPort(FRONTEND_PORT)
     override val url: String get() = "https://$host:$port"
 
+    /** Jaeger UI(Frontend) 포트의 매핑 결과입니다. */
     val frontendPort: Int get() = getMappedPort(FRONTEND_PORT)
+
+    /** Zipkin 호환 수집 포트의 매핑 결과입니다. */
     val zipkinPort: Int get() = getMappedPort(ZIPKIN_PORT)
+
+    /** 설정 조회용 포트의 매핑 결과입니다. */
     val configPort: Int get() = getMappedPort(CONFIG_PORT)
+
+    /** Thrift 수집 포트의 매핑 결과입니다. */
     val thriftPort: Int get() = getMappedPort(THRIFT_PORT)
 
     init {
@@ -93,6 +100,9 @@ class JaegerServer private constructor(
         writeToSystemProperties(NAME, extraProps)
     }
 
+    /**
+     * 테스트에서 재사용할 Jaeger 서버 싱글턴을 제공합니다.
+     */
     object Launcher {
         val jaeger: JaegerServer by lazy {
             JaegerServer().apply {

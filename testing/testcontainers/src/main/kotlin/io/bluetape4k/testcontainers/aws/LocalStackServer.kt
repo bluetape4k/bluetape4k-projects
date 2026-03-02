@@ -120,6 +120,18 @@ class LocalStackServer private constructor(
         super.withServices(*services)
     }
 
+    /**
+     * 현재 컨테이너의 access key/secret key로 AWS SDK 자격 증명 제공자를 생성합니다.
+     *
+     * ## 동작/계약
+     * - 컨테이너가 제공하는 `accessKey`, `secretKey`를 그대로 사용합니다.
+     * - 새로운 [StaticCredentialsProvider] 인스턴스를 반환하며 서버 상태는 변경하지 않습니다.
+     *
+     * ```kotlin
+     * val provider = server.getCredentialProvider()
+     * // provider.resolveCredentials().accessKeyId().isNotBlank() == true
+     * ```
+     */
     fun getCredentialProvider(): StaticCredentialsProvider {
         return StaticCredentialsProvider.create(AwsBasicCredentials.create(this.accessKey, this.secretKey))
     }

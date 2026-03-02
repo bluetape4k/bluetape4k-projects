@@ -50,8 +50,13 @@ class ConsulServer private constructor(
     override val port: Int get() = getMappedPort(HTTP_PORT)
     override val url: String get() = "https://$host:$port"
 
+    /** DNS 질의용 Consul 포트의 매핑 결과입니다. */
     val dnsPort: Int get() = getMappedPort(DNS_PORT)
+
+    /** HTTP API용 Consul 포트의 매핑 결과입니다. */
     val httpPort: Int get() = getMappedPort(HTTP_PORT)
+
+    /** RPC 통신용 Consul 포트의 매핑 결과입니다. */
     val rpcPort: Int get() = getMappedPort(RPC_PORT)
 
     init {
@@ -75,6 +80,9 @@ class ConsulServer private constructor(
         writeToSystemProperties(NAME, extraProps)
     }
 
+    /**
+     * 테스트에서 재사용할 Consul 서버 싱글턴을 제공합니다.
+     */
     object Launcher {
         val consul: ConsulServer by lazy {
             ConsulServer().apply {

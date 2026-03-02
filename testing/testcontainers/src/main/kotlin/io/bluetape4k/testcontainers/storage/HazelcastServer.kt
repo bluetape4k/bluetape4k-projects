@@ -81,20 +81,40 @@ class HazelcastServer private constructor(
         writeToSystemProperties(NAME)
     }
 
+    /**
+     * HTTP health-check 관련 JVM 속성 활성화를 위한 예약 설정입니다.
+     *
+     * ## 동작/계약
+     * - 현재 버전에서는 TODO로 비활성화되어 실제 설정 변경은 없습니다.
+     * - fluent API 체이닝을 위해 자기 자신을 반환합니다.
+     */
     fun withHttpHealthCheck() = apply {
         // TODO: deprecated feature 수정 필요
         // enabledFeatures.add(GroupProperty.HTTP_HEALTHCHECK_ENABLED)
     }
 
+    /**
+     * REST client 관련 JVM 속성 활성화를 위한 예약 설정입니다.
+     *
+     * ## 동작/계약
+     * - 현재 버전에서는 TODO로 비활성화되어 실제 설정 변경은 없습니다.
+     * - fluent API 체이닝을 위해 자기 자신을 반환합니다.
+     */
     fun withRESTClient() = apply {
         // TODO: deprecated feature 수정 필요
         // enabledFeatures.add(GroupProperty.REST_CLIENT_ENABLED)
     }
 
+    /**
+     * REST API 구성을 저장합니다.
+     */
     fun withRestApi(config: RestConfig) {
         this.config = config
     }
 
+    /**
+     * Hazelcast JVM 옵션으로 전달할 커스텀 시스템 프로퍼티를 추가합니다.
+     */
     fun withCustomProperty(property: String) = apply {
         customProperties.add(property)
     }
@@ -109,8 +129,14 @@ class HazelcastServer private constructor(
         withEnv("JAVA_OPTS", "$javaOpts $customProps")
     }
 
+    /**
+     * Hazelcast REST API의 기본 URL을 반환합니다.
+     */
     fun getRestBaseUrl(): String = "$url/hazelcast/rest"
 
+    /**
+     * 테스트에서 재사용할 Hazelcast 서버 싱글턴을 제공합니다.
+     */
     object Launcher {
         val hazelcast: HazelcastServer by lazy {
             HazelcastServer()

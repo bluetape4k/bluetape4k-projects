@@ -90,7 +90,10 @@ class CockroachServer private constructor(
      */
     override fun getDriverClassName(): String = DRIVER_CLASS_NAME
 
+    /** SQL 접속용 Cockroach 포트의 매핑 결과입니다. */
     val dbPort: Int get() = getMappedPort(DB_PORT)
+
+    /** 관리/상태 확인용 REST API 포트의 매핑 결과입니다. */
     val restApiPort: Int get() = getMappedPort(REST_API_PORT)
 
     init {
@@ -112,6 +115,9 @@ class CockroachServer private constructor(
         writeToSystemProperties(NAME, buildJdbcProperties())
     }
 
+    /**
+     * 테스트에서 재사용할 Cockroach 서버 싱글턴을 제공합니다.
+     */
     object Launcher {
         val cockroach: CockroachServer by lazy {
             CockroachServer(useDefaultPort = true).apply {

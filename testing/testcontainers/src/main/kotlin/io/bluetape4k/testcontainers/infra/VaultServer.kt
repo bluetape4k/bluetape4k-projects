@@ -72,6 +72,18 @@ class VaultServer private constructor(
         writeToSystemProperties(NAME, extraProps)
     }
 
+    /**
+     * 현재 Vault 서버 URL과 토큰으로 [Vault] 클라이언트를 생성합니다.
+     *
+     * ## 동작/계약
+     * - 전달한 `token`을 그대로 사용해 [VaultConfig]를 빌드합니다.
+     * - 서버 상태를 변경하지 않고 새 클라이언트 인스턴스를 반환합니다.
+     *
+     * ```kotlin
+     * val client = vault.createVaultClient("root-token")
+     * // client.logical() 사용 가능
+     * ```
+     */
     fun createVaultClient(token: String): Vault {
         val config = VaultConfig()
             .address(url)
@@ -81,6 +93,9 @@ class VaultServer private constructor(
         return Vault(config)
     }
 
+    /**
+     * 테스트에서 재사용할 Vault 서버 싱글턴을 제공합니다.
+     */
     object Launcher {
         val vault: VaultServer by lazy {
             VaultServer().apply {

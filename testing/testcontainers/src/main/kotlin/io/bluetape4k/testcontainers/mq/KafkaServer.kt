@@ -33,20 +33,21 @@ import java.util.*
 
 
 /**
- * Docker를 이용하여 [kafka](http://kafka.apache.org)를 구동해주는 container 입니다.
+ * Kafka 테스트 서버 컨테이너를 실행하고 producer/consumer 헬퍼를 제공합니다.
+ *
+ * ## 동작/계약
+ * - `useTransaction=true`이면 트랜잭션 로그 복제 관련 환경 변수를 테스트 친화적으로 설정합니다.
+ * - `useDefaultPort=true`이면 `9093` 포트 고정 바인딩을 시도하고, 아니면 동적 포트를 사용합니다.
+ * - `start()` 호출 시 `bootstrapServers` 등 연결 정보를 시스템 프로퍼티로 기록합니다.
+ *
+ * ```kotlin
+ * val server = KafkaServer()
+ * server.start()
+ * // server.bootstrapServers.isNotBlank() == true
+ * ```
  *
  * 참고: [Kafka official images](https://hub.docker.com/_/kafka?tab=description&page=1&ordering=last_updated)
- *
- * 비교: [kafka-junit](https://github.com/charithe/kafka-junit) 를 사용하면 Docker 없이도 가능합니다.
- *
- * ```
- * // start kafka server by docker
- * val kafka = KafkaServer().apply { start() }
- * ```
- *
- * @param imageName      Docker image name ([DockerImageName])
- * @param useDefaultPort Default port 를 사용할지 여부
- * @param reuse          재사용 여부
+ * 비교: [kafka-junit](https://github.com/charithe/kafka-junit)
  */
 class KafkaServer private constructor(
     imageName: DockerImageName,
@@ -61,6 +62,19 @@ class KafkaServer private constructor(
         const val TAG = "7.5.2"
         const val PORT = 9093
 
+        /**
+         * 이미지 이름/태그로 [KafkaServer] 인스턴스를 생성합니다.
+         *
+         * ## 동작/계약
+         * - `image`, `tag`가 blank이면 [IllegalArgumentException]이 발생합니다.
+         * - 문자열 인자를 [DockerImageName]으로 변환해 새 인스턴스를 반환합니다.
+         * - 컨테이너 시작은 호출자가 `start()`로 수행해야 합니다.
+         *
+         * ```kotlin
+         * val server = KafkaServer(image = KafkaServer.IMAGE, tag = KafkaServer.TAG)
+         * // server.isRunning == false
+         * ```
+         */
         @JvmStatic
         operator fun invoke(
             image: String = IMAGE,
@@ -75,6 +89,13 @@ class KafkaServer private constructor(
             return KafkaServer(imageName, useTransaction, useDefaultPort, reuse)
         }
 
+        /**
+         * [DockerImageName]으로 [KafkaServer] 인스턴스를 생성합니다.
+         *
+         * ## 동작/계약
+         * - 전달한 `imageName`을 그대로 사용해 새 인스턴스를 반환합니다.
+         * - 이 함수는 컨테이너를 시작하지 않습니다.
+         */
         @JvmStatic
         operator fun invoke(
             imageName: DockerImageName,
@@ -115,6 +136,14 @@ class KafkaServer private constructor(
         writeToSystemProperties(NAME, extraProps)
     }
 
+    /**
+     * 테스트 전역에서 재사용할 Kafka 서버와 클라이언트/스프링 팩토리 헬퍼를 제공합니다.
+     *
+     * ## 동작/계약
+     * - `kafka`는 첫 접근 시 서버를 시작하고 [ShutdownQueue]에 종료 훅을 등록합니다.
+     * - Producer/Consumer 생성 함수는 매 호출마다 새 인스턴스를 반환합니다.
+     * - 프로퍼티 팩토리 함수는 입력 맵을 기반으로 새 설정 객체를 생성합니다.
+     */
     object Launcher {
 
         const val DEFAULT_TOPIC = "$LibraryName.test-topic.1"

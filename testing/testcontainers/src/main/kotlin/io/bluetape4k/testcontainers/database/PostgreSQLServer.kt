@@ -118,6 +118,9 @@ class PostgreSQLServer private constructor(
         writeToSystemProperties(NAME, buildJdbcProperties())
     }
 
+    /**
+     * 테스트에서 재사용할 PostgreSQL 서버 싱글턴을 제공합니다.
+     */
     object Launcher {
         val postgres: PostgreSQLServer by lazy {
             PostgreSQLServer().apply {

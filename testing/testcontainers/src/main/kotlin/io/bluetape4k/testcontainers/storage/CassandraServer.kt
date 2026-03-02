@@ -79,9 +79,11 @@ class CassandraServer private constructor(
     }
 
     override val port: Int get() = getMappedPort(CQL_PORT)
+    /** CQL 접속 포트의 매핑 결과입니다. */
     val cqlPort: Int get() = getMappedPort(CQL_PORT)
 
     override val url: String get() = "$host:$port"
+    /** Cassandra 드라이버 접속에 사용할 contact point입니다. */
     val contactPoint: InetSocketAddress get() = InetSocketAddress(host, port)
 
     private var configLocation: String = ""
@@ -138,6 +140,9 @@ class CassandraServer private constructor(
         writeToSystemProperties(NAME, extraProps)
     }
 
+    /**
+     * 컨테이너 구성을 위한 외부 설정 경로를 저장합니다.
+     */
     fun withConfigurationOverride(configLocation: String) = apply {
         this.configLocation = configLocation
     }
@@ -151,6 +156,9 @@ class CassandraServer private constructor(
         this.initScriptPath = initScriptPath
     }
 
+    /**
+     * 현재 서버에 연결되는 [CqlSessionBuilder]를 생성합니다.
+     */
     fun newCqlSessionBuilder(): CqlSessionBuilder =
         CqlSessionBuilder().addContactPoint(contactPoint).withLocalDatacenter(LOCAL_DATACENTER1)
             .withConfigLoader(DriverConfigLoader.fromClasspath("application.conf"))

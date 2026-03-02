@@ -62,7 +62,17 @@ class NginxServer private constructor(
         writeToSystemProperties(NAME)
     }
 
+    /**
+     * 정적 콘텐츠 경로를 컨테이너에 복사해 실행하는 헬퍼를 제공합니다.
+     */
     object Launcher {
+        /**
+         * 지정한 호스트 디렉터리를 Nginx 기본 문서 경로로 복사해 서버를 시작합니다.
+         *
+         * ## 동작/계약
+         * - 컨테이너 시작 전에 [MountableFile.forHostPath]로 파일을 복사 설정합니다.
+         * - 시작 후 [ShutdownQueue]에 종료 작업을 등록합니다.
+         */
         fun launch(contentPath: String, useDefaultPort: Boolean = true): NginxServer {
             return NginxServer(useDefaultPort = useDefaultPort).apply {
                 withCopyFileToContainer(MountableFile.forHostPath(contentPath), NGINX_PATH)
@@ -73,6 +83,18 @@ class NginxServer private constructor(
     }
 }
 
+/**
+ * 콘텐츠 복사까지 완료된 Nginx 서버를 생성하고 사용자 블록으로 추가 설정을 적용합니다.
+ *
+ * ## 동작/계약
+ * - 서버를 즉시 시작하지 않고 구성된 인스턴스만 반환합니다.
+ * - 반환 인스턴스는 [ShutdownQueue]에 종료 작업이 등록됩니다.
+ *
+ * ```kotlin
+ * val nginx = createNginxServer("/tmp/site", true) { start() }
+ * // nginx.url.isNotBlank() == true
+ * ```
+ */
 inline fun createNginxServer(
     contentPath: String,
     useDefaultPort: Boolean = true,

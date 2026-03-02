@@ -26,13 +26,17 @@ import kotlin.time.toJavaDuration
 
 
 /**
- * Docker를 이용하여 Redis Server를 실행합니다.
+ * Redis 단일 노드 테스트 서버 컨테이너를 생성하고 클라이언트 헬퍼를 제공합니다.
  *
- * ```
- * val redisServer = RedisServer().apply {
- *      start()
- *      ShutdownQueue.register(this)
- * }
+ * ## 동작/계약
+ * - 인스턴스 생성만으로는 시작되지 않으며 `start()` 호출 후에만 접속할 수 있습니다.
+ * - `useDefaultPort=true`이면 `6379` 포트 고정 바인딩을 시도하고, 아니면 동적 포트를 사용합니다.
+ * - `url`은 `redis://host:port` 형식으로 계산됩니다.
+ *
+ * ```kotlin
+ * val server = RedisServer()
+ * server.start()
+ * // server.url.startsWith("redis://") == true
  * ```
  *
  * 참고: [Redis Docker image](https://hub.docker.com/_/redis)
@@ -49,6 +53,19 @@ class RedisServer private constructor(
         const val NAME = "redis"
         const val PORT = 6379
 
+        /**
+         * 이미지 이름/태그로 [RedisServer] 인스턴스를 생성합니다.
+         *
+         * ## 동작/계약
+         * - `image`, `tag`가 blank이면 [IllegalArgumentException]이 발생합니다.
+         * - 문자열 인자를 [DockerImageName]으로 변환한 뒤 새 인스턴스를 반환합니다.
+         * - 컨테이너 시작은 수행하지 않습니다.
+         *
+         * ```kotlin
+         * val server = RedisServer(image = "redis", tag = "7")
+         * // server.port > 0
+         * ```
+         */
         @JvmStatic
         operator fun invoke(
             image: String = IMAGE,
@@ -62,6 +79,19 @@ class RedisServer private constructor(
             return RedisServer(imageName, useDefaultPort, reuse)
         }
 
+        /**
+         * [DockerImageName]으로 [RedisServer] 인스턴스를 생성합니다.
+         *
+         * ## 동작/계약
+         * - 전달한 `imageName`을 그대로 사용해 새 인스턴스를 반환합니다.
+         * - 이 함수는 컨테이너를 시작하지 않습니다.
+         *
+         * ```kotlin
+         * val image = DockerImageName.parse("redis").withTag("7")
+         * val server = RedisServer(image)
+         * // server.isRunning == false
+         * ```
+         */
         @JvmStatic
         operator fun invoke(
             imageName: DockerImageName,
@@ -89,8 +119,22 @@ class RedisServer private constructor(
         writeToSystemProperties(NAME)
     }
 
+    /**
+     * 테스트 전역에서 재사용할 Redis 서버 싱글턴과 클라이언트 생성 유틸을 제공합니다.
+     *
+     * ## 동작/계약
+     * - `redis`는 첫 접근 시 서버를 시작하고 [ShutdownQueue]에 종료 훅을 등록합니다.
+     * - 각 헬퍼 함수는 필요 시 클라이언트/연결 객체를 새로 만들며 호출자가 연결 생명주기를 관리해야 합니다.
+     *
+     * ```kotlin
+     * val server = RedisServer.Launcher.redis
+     * val client = RedisServer.Launcher.LettuceLib.getRedisClient()
+     * // server.isRunning == true
+     * ```
+     */
     object Launcher {
 
+        /** 지연 초기화되는 재사용용 Redis 서버입니다. */
         val redis: RedisServer by lazy {
             RedisServer().apply {
                 start()
@@ -98,9 +142,25 @@ class RedisServer private constructor(
             }
         }
 
+        /**
+         * Redisson 설정/클라이언트 생성을 위한 헬퍼를 제공합니다.
+         */
         object RedissonLib {
             // private val redissonClients = ConcurrentHashMap<String, RedissonClient>()
 
+            /**
+             * 단일 서버 모드 [Config]를 생성합니다.
+             *
+             * ## 동작/계약
+             * - 매 호출마다 새 [Config]를 생성해 반환합니다.
+             * - `address`는 검증 없이 그대로 사용되며 잘못된 URL이면 연결 시점에 실패합니다.
+             * - 재시도/풀 크기 옵션을 테스트 기본값으로 채웁니다.
+             *
+             * ```kotlin
+             * val config = RedisServer.Launcher.RedissonLib.getRedissonConfig()
+             * // config.useSingleServer().address.startsWith("redis://") == true
+             * ```
+             */
             fun getRedissonConfig(
                 address: String = redis.url,
                 connectionPoolSize: Int = 256,
@@ -123,6 +183,19 @@ class RedisServer private constructor(
                 }
             }
 
+            /**
+             * Redisson 클라이언트를 생성하고 JVM 종료 시 shutdown 훅을 등록합니다.
+             *
+             * ## 동작/계약
+             * - 내부적으로 [getRedissonConfig]를 호출해 새 [RedissonClient]를 생성합니다.
+             * - 반환된 클라이언트는 자동 캐시하지 않으므로 호출할 때마다 새 인스턴스가 만들어집니다.
+             * - 종료 훅은 [ShutdownQueue]에 등록됩니다.
+             *
+             * ```kotlin
+             * val redisson = RedisServer.Launcher.RedissonLib.getRedisson()
+             * // redisson.isShuttingDown == false
+             * ```
+             */
             fun getRedisson(
                 address: String = redis.url,
                 connectionPoolSize: Int = 256,
@@ -138,10 +211,25 @@ class RedisServer private constructor(
             }
         }
 
+        /**
+         * Lettuce 클라이언트 생성/연결 헬퍼를 제공합니다.
+         */
         object LettuceLib {
 
             private val redisClients = ConcurrentHashMap<String, RedisClient>()
 
+            /**
+             * 호스트/포트로 [RedisURI]를 생성합니다.
+             *
+             * ## 동작/계약
+             * - timeout은 30초로 고정됩니다.
+             * - 새 [RedisURI] 인스턴스를 반환하며 내부 상태는 변경하지 않습니다.
+             *
+             * ```kotlin
+             * val uri = RedisServer.Launcher.LettuceLib.getRedisURI("localhost", 6379)
+             * // uri.port == 6379
+             * ```
+             */
             fun getRedisURI(host: String, port: Int): RedisURI {
                 return RedisURI.builder()
                     .withHost(host)
@@ -150,6 +238,18 @@ class RedisServer private constructor(
                     .build()
             }
 
+            /**
+             * 호스트/포트 기준으로 [RedisClient]를 반환합니다.
+             *
+             * ## 동작/계약
+             * - 내부 캐시 키(`uri.toString()`)가 있으면 기존 클라이언트를 재사용합니다.
+             * - 없으면 새 클라이언트를 생성하고 [ShutdownQueue] 종료 훅을 등록합니다.
+             *
+             * ```kotlin
+             * val client = RedisServer.Launcher.LettuceLib.getRedisClient()
+             * // client != null
+             * ```
+             */
             fun getRedisClient(host: String = redis.host, port: Int = redis.port): RedisClient {
                 val uri = getRedisURI(host, port)
                 return redisClients.computeIfAbsent(uri.toString()) {
@@ -160,6 +260,18 @@ class RedisServer private constructor(
                 }
             }
 
+            /**
+             * URL 문자열 기준으로 [RedisClient]를 반환합니다.
+             *
+             * ## 동작/계약
+             * - 동일 URL이면 내부 캐시된 클라이언트를 재사용합니다.
+             * - URL 형식이 잘못되면 `RedisURI.create`/연결 시점에 예외가 발생할 수 있습니다.
+             *
+             * ```kotlin
+             * val client = RedisServer.Launcher.LettuceLib.getRedisClient("redis://localhost:6379")
+             * // client != null
+             * ```
+             */
             fun getRedisClient(url: String): RedisClient {
                 return redisClients.computeIfAbsent(url) {
                     RedisClient.create(RedisURI.create(url))
@@ -169,16 +281,38 @@ class RedisServer private constructor(
                 }
             }
 
+            /**
+             * 기본 문자열 코덱 기반 동기 커맨드 API를 반환합니다.
+             *
+             * ## 동작/계약
+             * - 내부적으로 새 connection을 열고 `sync()`를 반환합니다.
+             * - connection close 책임은 호출자에게 있습니다.
+             */
             fun getRedisCommands(
                 host: String = redis.host,
                 port: Int = redis.port,
             ): RedisCommands<String, String> = getRedisClient(host, port).connect().sync()
 
+            /**
+             * 기본 문자열 코덱 기반 비동기 커맨드 API를 반환합니다.
+             *
+             * ## 동작/계약
+             * - 내부적으로 새 connection을 열고 `async()`를 반환합니다.
+             * - connection close 책임은 호출자에게 있습니다.
+             */
             fun getRedisAsyncCommands(
                 host: String = redis.host,
                 port: Int = redis.port,
             ): RedisAsyncCommands<String, String> = getRedisClient(host, port).connect().async()
 
+            /**
+             * 기본 문자열 코덱 기반 코루틴 커맨드 API를 반환합니다.
+             *
+             * ## 동작/계약
+             * - 내부적으로 새 connection을 열고 `coroutines()` 어댑터를 반환합니다.
+             * - 실험 API([ExperimentalLettuceCoroutinesApi])에 의존합니다.
+             * - connection close 책임은 호출자에게 있습니다.
+             */
             @OptIn(ExperimentalLettuceCoroutinesApi::class)
             fun getRedisCoroutinesCommands(
                 host: String = redis.host,
@@ -186,6 +320,13 @@ class RedisServer private constructor(
             ): RedisCoroutinesCommands<String, String> = getRedisClient(host, port).connect().coroutines()
 
 
+            /**
+             * 커스텀 코덱 기반 동기 커맨드 API를 반환합니다.
+             *
+             * ## 동작/계약
+             * - 전달한 `codec`으로 새 connection을 열어 `sync()`를 반환합니다.
+             * - `codec`이 키/값 타입과 맞지 않으면 런타임 직렬화 오류가 발생할 수 있습니다.
+             */
             fun <K: Any, V> getRedisCommands(
                 host: String = redis.host,
                 port: Int = redis.port,
@@ -193,12 +334,27 @@ class RedisServer private constructor(
             ): RedisCommands<K, V> = getRedisClient(host, port).connect(codec).sync()
 
 
+            /**
+             * 커스텀 코덱 기반 비동기 커맨드 API를 반환합니다.
+             *
+             * ## 동작/계약
+             * - 전달한 `codec`으로 새 connection을 열어 `async()`를 반환합니다.
+             * - connection close 책임은 호출자에게 있습니다.
+             */
             fun <K: Any, V> getRedisAsyncCommands(
                 host: String = redis.host,
                 port: Int = redis.port,
                 codec: RedisCodec<K, V>,
             ): RedisAsyncCommands<K, V> = getRedisClient(host, port).connect(codec).async()
 
+            /**
+             * 커스텀 코덱 기반 코루틴 커맨드 API를 반환합니다.
+             *
+             * ## 동작/계약
+             * - 전달한 `codec`으로 새 connection을 열어 `coroutines()`를 반환합니다.
+             * - 실험 API([ExperimentalLettuceCoroutinesApi])에 의존합니다.
+             * - connection close 책임은 호출자에게 있습니다.
+             */
             @OptIn(ExperimentalLettuceCoroutinesApi::class)
             fun <K: Any, V: Any> getRedisCoroutinesCommands(
                 host: String = redis.host,

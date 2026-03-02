@@ -63,7 +63,10 @@ class TiDBServer private constructor(
     override val url: String get() = super.getJdbcUrl()
     override fun getDriverClassName(): String = DRIVER_CLASS_NAME
 
+    /** SQL 접속용 TiDB 포트의 매핑 결과입니다. */
     val tidbPort: Int get() = port
+
+    /** TiDB 상태 확인용 REST API 포트의 매핑 결과입니다. */
     val restApiPort: Int get() = getMappedPort(REST_API_PORT)
 
     init {
@@ -82,6 +85,9 @@ class TiDBServer private constructor(
         writeToSystemProperties(NAME, buildJdbcProperties())
     }
 
+    /**
+     * 테스트에서 재사용할 TiDB 서버 싱글턴을 제공합니다.
+     */
     object Launcher {
         val tidb: TiDBServer by lazy {
             TiDBServer().apply {

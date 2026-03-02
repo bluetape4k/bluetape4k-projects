@@ -32,10 +32,21 @@ import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Docker를 이용하여 [Redis Cluster](https://redis.io/topics/cluster-tutorial)를 실행합니다.
+ * Redis Cluster 테스트 서버 컨테이너를 실행하고 클러스터 클라이언트 헬퍼를 제공합니다.
+ *
+ * ## 동작/계약
+ * - `7000..7005` 포트를 노출하고 `start()`에서 클러스터가 `cluster_state:ok`가 될 때까지 대기합니다.
+ * - `useDefaultPort=true`이면 클러스터 포트를 호스트에 고정 바인딩하려고 시도합니다.
+ * - 시작 후 노드 주소/URL 정보를 시스템 프로퍼티(`testcontainers.redis.cluster.*`)로 기록합니다.
+ *
+ * ```kotlin
+ * val cluster = RedisClusterServer()
+ * cluster.start()
+ * // cluster.mappedPorts.size == 6
+ * ```
  *
  * ## NOTE
- * **Redis Cluster 가 사용하는 7000번 포트 (AirPlay에서 사용)를 Mac에서 이미 사용 중일 때에는 테스트가 실패할 수 있습니다.**
+ * **Redis Cluster 가 사용하는 7000번 포트(AirPlay)가 macOS에서 이미 점유되어 있으면 테스트가 실패할 수 있습니다.**
  *
  * 참고: [Redis Cluster docker image](https://hub.docker.com/r/tommy351/redis-cluster)
  */
@@ -59,6 +70,19 @@ class RedisClusterServer private constructor(
 
         val PORTS = intArrayOf(7000, 7001, 7002, 7003, 7004, 7005)
 
+        /**
+         * [DockerImageName]으로 [RedisClusterServer] 인스턴스를 생성합니다.
+         *
+         * ## 동작/계약
+         * - 전달한 `imageName`으로 새 인스턴스를 반환합니다.
+         * - 이 함수는 컨테이너를 시작하지 않습니다.
+         *
+         * ```kotlin
+         * val image = DockerImageName.parse("tommy351/redis-cluster").withTag("6.2")
+         * val cluster = RedisClusterServer(image)
+         * // cluster.isRunning == false
+         * ```
+         */
         @JvmStatic
         operator fun invoke(
             imageName: DockerImageName,
@@ -68,6 +92,19 @@ class RedisClusterServer private constructor(
             return RedisClusterServer(imageName, useDefaultPort, reuse)
         }
 
+        /**
+         * 이미지 이름/태그로 [RedisClusterServer] 인스턴스를 생성합니다.
+         *
+         * ## 동작/계약
+         * - `image`, `tag`가 blank이면 [IllegalArgumentException]이 발생합니다.
+         * - 문자열 인자를 [DockerImageName]으로 변환해 새 인스턴스를 반환합니다.
+         * - 컨테이너 시작은 호출자가 `start()`로 수행해야 합니다.
+         *
+         * ```kotlin
+         * val cluster = RedisClusterServer(image = "tommy351/redis-cluster", tag = "6.2")
+         * // cluster.url.startsWith("redis://") == true
+         * ```
+         */
         @JvmStatic
         operator fun invoke(
             image: String = IMAGE,
@@ -86,6 +123,7 @@ class RedisClusterServer private constructor(
     override val port: Int get() = getMappedPort(PORTS[0])
     override val url: String get() = "redis://$host:$port"
 
+    /** 컨테이너 내부 포트 -> 호스트 매핑 포트 정보입니다. */
     val mappedPorts: Map<Int, Int> by lazy { PORTS.associateWith { getMappedPort(it) } }
     private val nodeAddresses: List<String> by lazy { mappedPorts.values.map { "$host:$it" } }
     private val nodeRedisUrl: List<String> by lazy { mappedPorts.values.map { "redis://$host:$it" } }
@@ -213,6 +251,9 @@ class RedisClusterServer private constructor(
     //    }
 
 
+    /**
+     * 테스트에서 재사용할 Redis Cluster 서버 싱글턴과 클라이언트 헬퍼를 제공합니다.
+     */
     object Launcher {
 
         val redisCluster: RedisClusterServer by lazy {
@@ -222,7 +263,22 @@ class RedisClusterServer private constructor(
             }
         }
 
+        /**
+         * Redisson 기반 클러스터 클라이언트 생성 헬퍼입니다.
+         */
         object RedissonLib {
+            /**
+             * Redis Cluster 연결용 [Config]를 생성합니다.
+             *
+             * ## 동작/계약
+             * - `redisCluster.mappedPorts`를 기준으로 NAT 매핑을 구성합니다.
+             * - 매 호출마다 새 [Config]를 반환하며 클러스터 상태는 변경하지 않습니다.
+             *
+             * ```kotlin
+             * val config = RedisClusterServer.Launcher.RedissonLib.getRedissonConfig(cluster)
+             * // config.useClusterServers().nodeAddresses.isNotEmpty() == true
+             * ```
+             */
             fun getRedissonConfig(redisCluster: RedisClusterServer): Config {
                 return Config().apply {
                     useClusterServers()
@@ -244,6 +300,18 @@ class RedisClusterServer private constructor(
                 }
             }
 
+            /**
+             * Redisson 클러스터 클라이언트를 생성합니다.
+             *
+             * ## 동작/계약
+             * - 내부적으로 [getRedissonConfig]를 사용해 새 [RedissonClient]를 만듭니다.
+             * - 반환된 클라이언트 shutdown 훅을 [ShutdownQueue]에 등록합니다.
+             *
+             * ```kotlin
+             * val redisson = RedisClusterServer.Launcher.RedissonLib.getRedisson(cluster)
+             * // redisson.isShuttingDown == false
+             * ```
+             */
             fun getRedisson(redisCluster: RedisClusterServer): RedissonClient {
                 val config = getRedissonConfig(redisCluster)
                 return Redisson.create(config).apply {
@@ -252,8 +320,23 @@ class RedisClusterServer private constructor(
             }
         }
 
+        /**
+         * Lettuce 기반 클러스터 클라이언트 생성 헬퍼입니다.
+         */
         object LettuceLib {
 
+            /**
+             * NAT 포트 매핑을 반영한 [ClientResources]를 생성합니다.
+             *
+             * ## 동작/계약
+             * - `SocketAddressResolver`에서 컨테이너 포트를 호스트 매핑 포트로 변환합니다.
+             * - 반환된 리소스의 shutdown 훅을 [ShutdownQueue]에 등록합니다.
+             *
+             * ```kotlin
+             * val resources = RedisClusterServer.Launcher.LettuceLib.clientResources(cluster)
+             * // resources != null
+             * ```
+             */
             fun clientResources(redisCluster: RedisClusterServer): ClientResources {
                 log.trace { "Get ClientResources..." }
                 val socketAddressResolver = object: SocketAddressResolver() {
@@ -287,6 +370,19 @@ class RedisClusterServer private constructor(
                     }
             }
 
+            /**
+             * [RedisClusterClient]를 생성하고 토폴로지 갱신 옵션을 적용합니다.
+             *
+             * ## 동작/계약
+             * - `cluster.nodeRedisUrl` 목록으로 seed URI를 구성합니다.
+             * - 주기적/적응형 토폴로지 갱신 옵션을 설정한 새 클라이언트를 반환합니다.
+             * - 반환된 클라이언트 종료 훅을 [ShutdownQueue]에 등록합니다.
+             *
+             * ```kotlin
+             * val client = RedisClusterServer.Launcher.LettuceLib.getClusterClient(cluster)
+             * // client.partitions != null
+             * ```
+             */
             fun getClusterClient(redisCluster: RedisClusterServer): RedisClusterClient {
                 val resources = clientResources(redisCluster)
                 val uris = redisCluster.nodeRedisUrl.map { RedisURI.create(it) }
