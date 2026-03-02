@@ -12,6 +12,19 @@ class BoundingBoxSampler private constructor(
     private val rand: Random,
 ) {
     companion object: KLogging() {
+        /**
+         * 주어진 박스에서 랜덤 샘플링용 [BoundingBoxSampler]를 생성합니다.
+         *
+         * ## 동작/계약
+         * - `southWestCorner.stepsBetween(northEastCorner)` 값을 샘플 상한으로 사용합니다.
+         * - 샘플 수가 `Int.MAX_VALUE`를 초과하면 [IllegalArgumentException]이 발생합니다.
+         *
+         * ```kotlin
+         * val sampler = BoundingBoxSampler(bbox, seed = 1L)
+         * val sample = sampler.next()
+         * // sample != null
+         * ```
+         */
         @JvmStatic
         operator fun invoke(
             bbox: TwoGeoHashBoundingBox,
@@ -34,9 +47,18 @@ class BoundingBoxSampler private constructor(
     private val maxAttempts = maxSamples * 8
 
     /**
-     * Return next [GeoHash], or NULL if all samples have been returned
+     * 다음 샘플 [GeoHash]를 반환하고, 더 이상 없으면 `null`을 반환합니다.
      *
-     * @return
+     * ## 동작/계약
+     * - 이미 반환한 인덱스는 재사용하지 않습니다.
+     * - 박스 외부에 해당하는 해시는 재시도 후 재귀 호출로 건너뜁니다.
+     * - 내부 `alreadyUsed` 상태를 갱신하는 mutate 메서드입니다.
+     *
+     * ```kotlin
+     * val first = sampler.next()
+     * val second = sampler.next()
+     * // first != second
+     * ```
      */
     fun next(): GeoHash? {
         if (alreadyUsed.size >= maxSamples) {
