@@ -110,16 +110,25 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 
 ### 데이터 모듈 (`data/`)
 
-- **[exposed](./data/exposed/README.md)**: Kotlin Exposed ORM 확장
-- **[exposed-r2dbc](./data/exposed-r2dbc/README.md)**: Exposed + R2DBC (reactive)
-- **[exposed-redisson](./data/exposed-redisson/README.md)**: Exposed + Redisson (분산 락)
-- **[exposed-r2dbc-redisson](./data/exposed-r2dbc-redisson/README.md)**: Exposed + R2DBC + Redisson
-- **[exposed-jackson](./data/exposed-jackson/README.md)/[jackson3](./data/exposed-jackson3/README.md)
-  **: Exposed JSON 컬럼 지원
-- **[exposed-fastjson2](./data/exposed-fastjson2/README.md)**: Exposed FastJSON2 통합
-- **[exposed-jasypt](./data/exposed-jasypt/README.md)**: Exposed Jasypt 암호화
-- **[hibernate](./data/hibernate/README.md)/[hibernate-reactive](./data/hibernate-reactive/README.md)
-  **: Hibernate ORM 통합
+#### Exposed 모듈 (기능별 분리)
+
+- **[exposed](./data/exposed/README.md)**: umbrella 모듈 — `exposed-core` + `exposed-dao` + `exposed-jdbc` 묶음 (하위 호환)
+- **[exposed-core](./data/exposed-core/README.md)**: JDBC 없이 사용 가능한 핵심 기능 — 압축/암호화/직렬화 컬럼 타입, ID 생성 확장, `HasIdentifier`, `ExposedPage`
+- **[exposed-dao](./data/exposed-dao/README.md)**: DAO 엔티티 확장 — `EntityExtensions`, `StringEntity`, 커스텀 IdTable (`KsuidTable`, `SnowflakeIdTable`, `SoftDeletedIdTable` 등)
+- **[exposed-jdbc](./data/exposed-jdbc/README.md)**: JDBC 전용 — `ExposedRepository`, `SoftDeletedRepository`, `SuspendedQuery`, `VirtualThreadTransaction`
+- **[exposed-r2dbc](./data/exposed-r2dbc/README.md)**: Exposed + R2DBC (reactive, `ExposedR2dbcRepository`)
+- **[exposed-jdbc-redisson](./data/exposed-jdbc-redisson/README.md)**: Exposed JDBC + Redisson (분산 락)
+- **[exposed-r2dbc-redisson](./data/exposed-r2dbc-redisson/README.md)**: Exposed R2DBC + Redisson (분산 락)
+- **[exposed-jackson](./data/exposed-jackson/README.md)/[jackson3](./data/exposed-jackson3/README.md)**: Exposed JSON 컬럼 지원 (Jackson 2.x/3.x)
+- **[exposed-fastjson2](./data/exposed-fastjson2/README.md)**: Exposed FastJSON2 JSON 컬럼 지원
+- **[exposed-jasypt](./data/exposed-jasypt/README.md)**: Exposed Jasypt 암호화 컬럼
+- **[exposed-measured](./data/exposed-measured/README.md)**: Exposed 쿼리 실행 시간 측정 (Micrometer 통합)
+- **[exposed-jdbc-tests](./data/exposed-jdbc-tests/README.md)**: JDBC 기반 테스트 공통 인프라
+- **[exposed-r2dbc-tests](./data/exposed-r2dbc-tests/README.md)**: R2DBC 기반 테스트 공통 인프라
+
+#### 기타 데이터 모듈
+
+- **[hibernate](./data/hibernate/README.md)/[hibernate-reactive](./data/hibernate-reactive/README.md)**: Hibernate ORM 통합
 - **[r2dbc](./data/r2dbc/README.md)**: R2DBC 지원
 - **[cassandra](./data/cassandra/README.md)**: Cassandra 드라이버
 - **[jdbc](./data/jdbc/README.md)**: JDBC 유틸리티
@@ -129,11 +138,25 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 - **[redis](./infra/redis/README.md)**: Lettuce/Redisson 통합, 고성능 Codec, Near Cache
 - **[kafka](./infra/kafka/README.md)**: Kafka 클라이언트
 - **[resilience4j](./infra/resilience4j/README.md)**: Resilience4j + Coroutines, Coroutines Cache
-- **[cache](./infra/cache/README.md)**: 캐시 추상화
 - **[bucket4j](./infra/bucket4j/README.md)**: Rate limiting
 - **[micrometer](./infra/micrometer/README.md)**: 메트릭
 - **[opentelemetry](./infra/opentelemetry/README.md)**: 분산 추적
 - **[nats](./infra/nats/README.md)**: NATS 메시징
+
+#### 캐시 모듈 (`infra/cache-*`)
+
+플러그인 방식으로 백엔드를 선택할 수 있는 캐시 추상화 레이어입니다.
+
+- **[cache](./infra/cache/README.md)**: 캐시 추상화 인터페이스 (umbrella)
+- **[cache-core](./infra/cache-core/README.md)**: 캐시 공통 인터페이스 — `AsyncCache`, `SuspendCache`, `AsyncNearCache`, `SuspendNearCache`
+- **[cache-local](./infra/cache-local/README.md)**: Caffeine 기반 로컬 캐시 구현체
+- **[cache-lettuce](./infra/cache-lettuce/README.md)**: Lettuce(Redis) 기반 분산 캐시
+- **[cache-redisson](./infra/cache-redisson/README.md)**: Redisson 기반 분산 캐시
+- **[cache-redisson-near](./infra/cache-redisson-near/README.md)**: Redisson + Caffeine 2-Tier Near Cache
+- **[cache-hazelcast](./infra/cache-hazelcast/README.md)**: Hazelcast 기반 분산 캐시
+- **[cache-hazelcast-near](./infra/cache-hazelcast-near/README.md)**: Hazelcast + Caffeine 2-Tier Near Cache
+- **[cache-ignite](./infra/cache-ignite/README.md)**: Apache Ignite 기반 분산 캐시
+- **[cache-ignite-near](./infra/cache-ignite-near/README.md)**: Ignite + Caffeine 2-Tier Near Cache
 
 ### Spring 모듈 (`spring/`)
 
