@@ -5,19 +5,20 @@ import io.bluetape4k.jackson.JacksonSerializer
 import io.bluetape4k.logging.KLogging
 
 /**
- * Binary JSON 직렬화를 위한 CBOR Serializer
+ * 이전 CBOR 직렬화기 이름을 유지하기 위한 deprecated 래퍼입니다.
  *
- * 이 클래스는 더 이상 사용되지 않습니다. [CborJacksonSerializer]를 대신 사용하세요.
+ * ## 동작/계약
+ * - 실제 동작은 [CborJacksonSerializer]와 동일한 [JacksonSerializer] 경로를 사용합니다.
+ * - 신규 코드는 [CborJacksonSerializer] 사용을 권장합니다.
+ * - 기본 [mapper]는 [JacksonBinary.CBOR.defaultMapper]입니다.
  *
- * ```
+ * ```kotlin
  * val serializer = CborJsonSerializer()
- * val bytes = serializer.serialize(obj)
- * val obj = serializer.deserialize(bytes, type)
- * // or
- * val obj = serializer.deserialize<ObjectType>(bytes)
+ * val bytes = serializer.serialize(mapOf("id" to 1))
+ * // bytes.isNotEmpty() == true
  * ```
  *
- * @param mapper Jackson [CBORMapper] 인스턴스
+ * @param mapper CBOR 처리에 사용할 Jackson mapper입니다.
  */
 @Deprecated("use CborJacksonSerializer", replaceWith = ReplaceWith("CborJacksonSerializer"))
 class CborJsonSerializer(

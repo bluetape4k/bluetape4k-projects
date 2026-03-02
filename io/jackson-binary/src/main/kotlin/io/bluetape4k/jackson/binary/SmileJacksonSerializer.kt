@@ -5,19 +5,20 @@ import io.bluetape4k.jackson.JacksonSerializer
 import io.bluetape4k.logging.KLogging
 
 /**
- * Smile 바이너리 포맷을 사용하는 Jackson Serializer 구현체입니다.
+ * Smile 포맷을 사용하는 Jackson 기반 바이너리 직렬화기입니다.
  *
- * Smile은 JSON과 1:1 대응하며, 헤더와 종료 마커를 포함하여 스트리밍 처리에 최적화되어 있습니다.
+ * ## 동작/계약
+ * - [mapper] 기본값은 [JacksonBinary.Smile.defaultMapper]입니다.
+ * - 직렬화/역직렬화 동작은 상위 [JacksonSerializer]를 따릅니다.
+ * - 입력 객체를 변경하지 않고 바이트/객체를 새로 만듭니다.
  *
- * ```
+ * ```kotlin
  * val serializer = SmileJacksonSerializer()
- * val bytes = serializer.serialize(obj)
- * val obj = serializer.deserialize(bytes, type)
- * // or
- * val obj = serializer.deserialize<ObjectType>(bytes)
+ * val bytes = serializer.serialize(mapOf("id" to 1))
+ * // bytes.isNotEmpty() == true
  * ```
  *
- * @param mapper Jackson [SmileMapper] 인스턴스
+ * @param mapper Smile 처리에 사용할 Jackson mapper입니다.
  */
 class SmileJacksonSerializer(
     mapper: SmileMapper = JacksonBinary.Smile.defaultMapper,

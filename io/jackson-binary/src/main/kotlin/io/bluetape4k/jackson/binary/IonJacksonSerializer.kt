@@ -5,24 +5,24 @@ import io.bluetape4k.jackson.JacksonSerializer
 import io.bluetape4k.logging.KLogging
 
 /**
- * Amazon Ion 바이너리 포맷을 사용하는 Jackson Serializer 구현체입니다.
+ * Amazon Ion 포맷을 사용하는 Jackson 기반 바이너리 직렬화기입니다.
  *
- * Ion은 리치 타입 시스템과 네이티브 타입 ID를 지원하며, 바이너리와 텍스트 형식을 모두 제공합니다.
+ * ## 동작/계약
+ * - [mapper] 기본값은 [JacksonBinary.ION.defaultMapper]입니다.
+ * - 직렬화/역직렬화는 [JacksonSerializer] 구현 경로를 따릅니다.
+ * - 객체 변환 결과는 새 인스턴스로 생성됩니다.
  *
- * ```
+ * ```kotlin
  * val serializer = IonJacksonSerializer()
- * val bytes = serializer.serialize(obj)
- * val obj = serializer.deserialize(bytes, type)
- * // or
- * val obj = serializer.deserialize<ObjectType>(bytes)
+ * val bytes = serializer.serialize(mapOf("id" to 1))
+ * // bytes.isNotEmpty() == true
  * ```
  *
- * @param mapper Jackson [IonObjectMapper] 인스턴스
+ * @param mapper Ion 처리에 사용할 Jackson mapper입니다.
  */
 class IonJacksonSerializer(
     mapper: IonObjectMapper = JacksonBinary.ION.defaultMapper,
 ): JacksonSerializer(mapper) {
 
     companion object: KLogging()
-
 }

@@ -5,19 +5,20 @@ import io.bluetape4k.jackson.JacksonSerializer
 import io.bluetape4k.logging.KLogging
 
 /**
- * Binary JSON 직렬화를 위한 Smile Serializer
+ * 이전 Smile 직렬화기 이름을 유지하기 위한 deprecated 래퍼입니다.
  *
- * 이 클래스는 더 이상 사용되지 않습니다. [SmileJacksonSerializer]를 대신 사용하세요.
+ * ## 동작/계약
+ * - 실제 직렬화/역직렬화는 [SmileJacksonSerializer]와 동일 경로를 사용합니다.
+ * - 신규 코드는 [SmileJacksonSerializer] 사용을 권장합니다.
+ * - 기본 [mapper]는 [JacksonBinary.Smile.defaultMapper]입니다.
  *
- * ```
+ * ```kotlin
  * val serializer = SmileJsonSerializer()
- * val bytes = serializer.serialize(obj)
- * val obj = serializer.deserialize(bytes, type)
- * // or
- * val obj = serializer.deserialize<ObjectType>(bytes)
+ * val bytes = serializer.serialize(mapOf("id" to 1))
+ * // bytes.isNotEmpty() == true
  * ```
  *
- * @param mapper Jackson [SmileMapper] 인스턴스
+ * @param mapper Smile 처리에 사용할 Jackson mapper입니다.
  */
 @Deprecated("use SmileJacksonSerializer", replaceWith = ReplaceWith("SmileJacksonSerializer"))
 class SmileJsonSerializer(
