@@ -14,6 +14,17 @@ import kotlin.math.pow
  *
  * 참고: [Bloom Filter](https://en.wikipedia.org/wiki/Bloom_filter)
  *
+ * ## 동작/계약
+ * - [contains]가 `false`면 미포함이 보장되며, `true`는 오탐 가능성이 있습니다.
+ * - 삭제는 지원하지 않으며 삭제 가능한 구현은 [MutableBloomFilter]를 사용합니다.
+ * - [m], [k]는 비트 배열 크기/해시 함수 수를 나타내며 구현체 생성 시 결정됩니다.
+ *
+ * ```kotlin
+ * val filter = InMemoryBloomFilter<String>()
+ * filter.add("alpha")
+ * // filter.contains("alpha") == true
+ * ```
+ *
  * @param T 요소의 수형
  *
  * @see [MutableBloomFilter]
@@ -21,48 +32,58 @@ import kotlin.math.pow
  */
 interface BloomFilter<T: Any> {
 
-    /**
-     * Maximum bit size
-     */
+    /** Bloom filter 비트 배열 크기입니다. */
     val m: Int
 
-    /**
-     * Hash function count
-     */
+    /** 해시 함수 개수입니다. */
     val k: Int
 
     val isEmpty: Boolean
 
     /**
-     * 원소 추가
+     * 원소를 추가합니다.
+     *
+     * ## 동작/계약
+     * - 입력 원소로 계산한 해시 오프셋 비트를 설정합니다.
+     * - 수신 필터 상태를 변경합니다.
      */
     fun add(value: T)
 
     /**
      * 원소 포함 여부 검사
      *
-     * ```
-     * val valuee = Fakers.fixedString(256)
-     * bloomFilter.add(value)
+     * ## 동작/계약
+     * - 해시 오프셋의 모든 비트가 설정되어 있으면 `true`를 반환합니다.
+     * - `true`는 오탐일 수 있고 `false`는 미포함이 확정입니다.
      *
-     * bloomFilter.contains(value)  // true
-     * bloomFilter.contains("not-exists") // false
+     * ```kotlin
+     * filter.add("alpha")
+     * // filter.contains("alpha") == true
      * ```
      */
     fun contains(value: T): Boolean
 
     /**
-     * 등록된 원소의 수
+     * 구현체 기준 원소 수 또는 내부 비트 길이를 반환합니다.
      */
     fun count(): Long
 
     /**
-     * 비트를 모두 초기화
+     * 필터 상태를 초기화합니다.
      */
     fun clear()
 
     /**
      * 원소를 검사할 때 `k` 개의 해시값이 모두 1이 될 확률
+     *
+     * ## 동작/계약
+     * - [n]을 기준으로 이론적 오탐 확률을 계산합니다.
+     * - [n]은 0 이상을 가정하며 검증은 수행하지 않습니다.
+     *
+     * ```kotlin
+     * val p = filter.getFalsePositiveProbability(10_000)
+     * // p in 0.0..1.0
+     * ```
      *
      * @param n 원소의 갯수
      */

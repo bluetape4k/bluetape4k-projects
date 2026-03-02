@@ -9,6 +9,16 @@ import java.net.InetAddress
 /**
  * IP Address 정보로부터 행정 주소 정보를 나타냅니다.
  *
+ * ## 동작/계약
+ * - 값 객체이며 생성 후 외부 프로퍼티는 불변입니다.
+ * - [fromCity], [fromCountry]는 MaxMind 응답 값을 매핑한 새 인스턴스를 반환합니다.
+ * - `traits`는 내부 용도로만 유지되는 mutable 필드입니다.
+ *
+ * ```kotlin
+ * val address = Address.fromCountry(ipAddress, countryResponse)
+ * // address.countryIsoCode != null
+ * ```
+ *
  * @property ipAddress IP Address
  * @property city 도시 이름
  * @property country 국가 이름
@@ -32,6 +42,15 @@ data class Address(
         /**
          * City 정보를 기반으로 Address 객체를 생성합니다.
          *
+         * ## 동작/계약
+         * - [cityResponse]의 city/country/continent/location 값을 매핑합니다.
+         * - 결과 객체의 `traits`에 응답의 traits를 보관합니다.
+         *
+         * ```kotlin
+         * val address = Address.fromCity(ipAddress, cityResponse)
+         * // address.city != null
+         * ```
+         *
          * @param ipAddress IP Address
          * @param cityResponse City 정보
          * @return Address 객체
@@ -52,6 +71,15 @@ data class Address(
 
         /**
          * Country 정보를 기반으로 Address 객체를 생성합니다.
+         *
+         * ## 동작/계약
+         * - country/continent/isoCode를 매핑한 새 [Address]를 생성합니다.
+         * - 결과 객체의 `traits`에 응답의 traits를 보관합니다.
+         *
+         * ```kotlin
+         * val address = Address.fromCountry(ipAddress, countryResponse)
+         * // address.country != null
+         * ```
          *
          * @param ipAddress IP Address
          * @param countryResponse Country 정보

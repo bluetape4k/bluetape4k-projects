@@ -15,6 +15,11 @@ import org.redisson.api.RedissonClient
 /**
  * Redisson 을 사용하는 Coroutines 방식의 Bloom Filter
  *
+ * ## 동작/계약
+ * - 내부적으로 Redisson BitSet 비동기 API를 사용하며 Redis에 상태를 저장합니다.
+ * - [bloomName]이 blank면 생성 시 [IllegalArgumentException]이 발생합니다.
+ * - [contains] `true`는 오탐 가능성이 있고 `false`는 미포함이 확정입니다.
+ *
  * ```
  * val redisson = Redisson.create()
  * val bloomFilter = RedissonCoBloomFilter(redisson, "bloom-filter")
@@ -46,6 +51,15 @@ class RedissonSuspendBloomFilter<T: Any> private constructor(
     companion object: KLoggingChannel() {
         /**
          * [RedissonSuspendBloomFilter] 를 생성합니다.
+         *
+         * ## 동작/계약
+         * - [bloomName]이 blank면 [IllegalArgumentException]을 던집니다.
+         * - [maxNum], [errorRate]로 최적 [m], [k]를 계산해 생성합니다.
+         *
+         * ```kotlin
+         * val filter = RedissonSuspendBloomFilter<String>(redisson, "user-email")
+         * // filter.m > 0 && filter.k > 0
+         * ```
          *
          * @param redisson Redisson Client
          * @param bloomName Bloom Filter 이름
@@ -82,12 +96,13 @@ class RedissonSuspendBloomFilter<T: Any> private constructor(
     /**
      * 원소 포함 여부 검사
      *
-     * ```
-     * val valuee = Fakers.fixedString(256)
-     * bloomFilter.add(value)
+     * ## 동작/계약
+     * - 비동기 비트 조회 결과가 모두 `true`이면 `true`를 반환합니다.
+     * - Redis I/O 예외는 suspend 호출자에게 전파됩니다.
      *
-     * bloomFilter.contains(value)  // true
-     * bloomFilter.contains("not-exists") // false
+     * ```kotlin
+     * bloomFilter.add("alpha")
+     * // bloomFilter.contains("alpha") == true
      * ```
      */
     override suspend fun contains(value: T): Boolean {

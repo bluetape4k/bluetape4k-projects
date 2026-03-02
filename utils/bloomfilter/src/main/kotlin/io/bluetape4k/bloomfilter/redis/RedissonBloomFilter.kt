@@ -13,6 +13,11 @@ import org.redisson.api.RedissonClient
 /**
  * Redisson 을 사용하는 Bloom Filter
  *
+ * ## 동작/계약
+ * - 내부적으로 Redisson BitSet을 사용하므로 상태는 Redis에 저장됩니다.
+ * - [contains] `true`는 오탐 가능성이 있고 `false`는 미포함이 확정입니다.
+ * - 해시 오프셋은 [Hasher.murmurHashOffset]으로 계산합니다.
+ *
  * ```
  * val redisson = Redisson.create()
  * val bloomFilter = RedissonBloomFilter(redisson, "bloom-filter")
@@ -44,6 +49,15 @@ class RedissonBloomFilter<T: Any> private constructor(
     companion object: KLogging() {
         /**
          * [RedissonBloomFilter] 를 생성합니다.
+         *
+         * ## 동작/계약
+         * - [maxNum], [errorRate]로 최적 [m], [k]를 계산해 생성합니다.
+         * - [bloomName]은 별도 검증하지 않으므로 Redis 키 정책은 호출자가 보장해야 합니다.
+         *
+         * ```kotlin
+         * val filter = RedissonBloomFilter<String>(redisson, "user-email")
+         * // filter.m > 0 && filter.k > 0
+         * ```
          *
          * @param redisson Redisson Client
          * @param bloomName Bloom Filter 이름
@@ -78,12 +92,13 @@ class RedissonBloomFilter<T: Any> private constructor(
     /**
      * 원소 포함 여부 검사
      *
-     * ```
-     * val valuee = Fakers.fixedString(256)
-     * bloomFilter.add(value)
+     * ## 동작/계약
+     * - Redis BitSet에서 오프셋 비트를 읽어 모두 `true`이면 `true`를 반환합니다.
+     * - Redis I/O 예외는 호출자에게 전파됩니다.
      *
-     * bloomFilter.contains(value)  // true
-     * bloomFilter.contains("not-exists") // false
+     * ```kotlin
+     * bloomFilter.add("alpha")
+     * // bloomFilter.contains("alpha") == true
      * ```
      */
     override fun contains(value: T): Boolean {

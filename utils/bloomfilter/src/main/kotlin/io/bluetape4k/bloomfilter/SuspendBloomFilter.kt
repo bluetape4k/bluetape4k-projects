@@ -3,20 +3,27 @@ package io.bluetape4k.bloomfilter
 import kotlin.math.pow
 
 /**
- * Coroutines 방식으로 동작하는 Bloom Filter
+ * 코루틴 기반 Bloom filter 계약입니다.
+ *
+ * ## 동작/계약
+ * - [contains]의 `false`는 미포함을 보장하고, `true`는 오탐 가능성이 있습니다.
+ * - suspend API이지만 구현체에 따라 실제 I/O 없이 메모리 연산일 수 있습니다.
+ * - 삭제는 지원하지 않으며 삭제가 필요하면 mutable 구현을 사용해야 합니다.
+ *
+ * ```kotlin
+ * val filter = InMemorySuspendBloomFilter<String>(m = 1024, k = 4)
+ * filter.add("alpha")
+ * // filter.contains("alpha") == true
+ * ```
  *
  * @see [BloomFilter]
  */
 interface SuspendBloomFilter<T: Any> {
 
-    /**
-     * Maximum bit size
-     */
+    /** Bloom filter 비트 배열 크기입니다. */
     val m: Int
 
-    /**
-     * Hash function count
-     */
+    /** 해시 함수 개수입니다. */
     val k: Int
 
     val isEmpty: Boolean
@@ -26,12 +33,13 @@ interface SuspendBloomFilter<T: Any> {
     /**
      * 원소 포함 여부 검사
      *
-     * ```
-     * val valuee = Fakers.fixedString(256)
-     * bloomFilter.add(value)
+     * ## 동작/계약
+     * - 해시 오프셋의 모든 비트가 설정되어 있으면 `true`를 반환합니다.
+     * - `true`는 오탐 가능성이 있으며 `false`는 미포함 확정입니다.
      *
-     * bloomFilter.contains(value)  // true
-     * bloomFilter.contains("not-exists") // false
+     * ```kotlin
+     * filter.add("alpha")
+     * // filter.contains("alpha") == true
      * ```
      */
     suspend fun contains(value: T): Boolean

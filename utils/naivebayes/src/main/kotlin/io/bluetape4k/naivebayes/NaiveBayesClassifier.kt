@@ -8,14 +8,23 @@ import kotlin.reflect.KProperty1
 
 
 /**
- * A `NaiveBayesClassifier` that associates each set of `F` features from an item `T` with a category `C`.
- * New sets of features `F` can then be used to predict a category `C`.
+ * feature 집합으로 카테고리를 예측하는 나이브 베이즈 분류기입니다.
  *
- * @param F
- * @param C
- * @property observationLimit
- * @property k1
- * @property k2
+ * ## 동작/계약
+ * - 관측치는 [addObservation]으로 누적되며 [observationLimit]을 넘으면 가장 오래된 항목이 제거됩니다.
+ * - 예측 호출 시 모델이 stale 상태면 내부 확률 모델을 재구성합니다.
+ * - 확률 계산은 로그 합산 후 지수화하는 방식으로 수행됩니다.
+ *
+ * ```kotlin
+ * val nbc = NaiveBayesClassifier<String, String>()
+ * nbc.addObservation("spam", listOf("free", "offer"))
+ * nbc.addObservation("ham", listOf("hello", "friend"))
+ * // nbc.predict("free") == "spam"
+ * ```
+ *
+ * @property observationLimit 유지할 최대 관측치 수
+ * @property k1 라플라스 계열 스무딩 상수 1
+ * @property k2 라플라스 계열 스무딩 상수 2
  */
 class NaiveBayesClassifier<F: Any, C: Any>(
     private val observationLimit: Int = Int.MAX_VALUE,
@@ -38,7 +47,17 @@ class NaiveBayesClassifier<F: Any, C: Any>(
     private var modelStaled: Boolean by modelStaler
 
     /**
-     * Adds an observation of features to a category
+     * 카테고리와 feature 집합 관측치를 추가합니다.
+     *
+     * ## 동작/계약
+     * - [observationLimit] 도달 시 가장 오래된 관측치 1건을 제거한 후 추가합니다.
+     * - 입력 feature는 [Set]으로 변환되어 중복이 제거됩니다.
+     * - 추가 후 모델은 stale 상태가 되어 다음 예측 시 재구성됩니다.
+     *
+     * ```kotlin
+     * nbc.addObservation("spam", listOf("free", "offer", "free"))
+     * // nbc.population.last().features.size == 2
+     * ```
      */
     fun addObservation(category: C, features: Iterable<F>) {
         if (_population.size == observationLimit) {
@@ -49,7 +68,16 @@ class NaiveBayesClassifier<F: Any, C: Any>(
     }
 
     /**
-     * Adds an observation of features to a category
+     * 가변 인자 feature로 관측치를 추가합니다.
+     *
+     * ## 동작/계약
+     * - 내부적으로 [addObservation] Iterable 버전에 위임합니다.
+     * - 중복 feature는 제거됩니다.
+     *
+     * ```kotlin
+     * nbc.addObservation("ham", "hello", "world")
+     * // nbc.population.isNotEmpty() == true
+     * ```
      */
     fun addObservation(category: C, vararg features: F) {
         addObservation(category, features.toSet())
@@ -66,25 +94,40 @@ class NaiveBayesClassifier<F: Any, C: Any>(
         modelStaled = false
     }
 
-    /**
-     * Returns the categories that have been captured by the model so far.
-     */
+    /** 현재 모델에 학습된 카테고리 집합입니다. */
     val categories: Set<C>
         get() = probabilities.keys.map { it.category }.toSet()
 
     /**
-     *  Predicts a category `C` for a given set of `F` features
+     * feature 가변 인자로 카테고리를 예측합니다.
+     *
+     * ## 동작/계약
+     * - [predictWithProbability] 결과의 카테고리만 반환합니다.
+     * - 예측 불가 시 null을 반환합니다.
      */
     fun predict(vararg features: F): C? = predictWithProbability(features.toSet())?.category
 
     /**
-     * Predicts a category `C` for a given set of `F` features
+     * feature 컬렉션으로 카테고리를 예측합니다.
+     *
+     * ## 동작/계약
+     * - [predictWithProbability] 결과의 카테고리만 반환합니다.
+     * - 예측 불가 시 null을 반환합니다.
      */
     fun predict(features: Iterable<F>): C? = predictWithProbability(features)?.category
 
     /**
-     *  Predicts a category `C` for a given set of `F` features,
-     *  but also returns the probability of that category being correct.
+     * feature 컬렉션으로 예측 카테고리와 확률을 함께 반환합니다.
+     *
+     * ## 동작/계약
+     * - 모델 stale 상태면 내부 확률 모델을 재구성합니다.
+     * - 각 카테고리 확률을 계산한 뒤 임계치(`>= 0.1`) 이상 후보 중 최대 확률을 반환합니다.
+     * - 유효 후보가 없으면 null을 반환합니다.
+     *
+     * ```kotlin
+     * val cp = nbc.predictWithProbability(listOf("free", "offer"))
+     * // cp == null || cp.probability >= 0.1
+     * ```
      */
     fun predictWithProbability(features: Iterable<F>): CategoryProbability<C>? {
         if (modelStaled) {
@@ -139,18 +182,34 @@ class NaiveBayesClassifier<F: Any, C: Any>(
             }.let { exp(it) }
     }
 
+    /**
+     * 단일 feature-카테고리 조합의 사후 확률 정보를 보관합니다.
+     *
+     * ## 동작/계약
+     * - 생성 시점의 분류기 관측치를 기준으로 [probability], [notProbability]를 계산합니다.
+     * - 계산 후 값은 불변이며 분류기 상태 변경과 자동 동기화되지 않습니다.
+     *
+     * ```kotlin
+     * val fp = NaiveBayesClassifier.FeatureProbability("free", "spam", nbc)
+     * // fp.probability > 0.0
+     * ```
+     */
     class FeatureProbability<F: Any, C: Any>(val feature: F, val category: C, nbc: NaiveBayesClassifier<F, C>) {
 
+        /** feature-카테고리 복합 키입니다. */
         data class Key<F, C>(val feature: F, val category: C)
 
+        /** 카테고리일 때 feature가 나타날 확률입니다. */
         val probability: Double =
             (nbc.k1 + nbc.population.count { it.category == category && feature in it.features }) /
                     (nbc.k2 + nbc.population.count { it.category == category })
 
+        /** 카테고리가 아닐 때 feature가 나타날 확률입니다. */
         val notProbability: Double =
             (nbc.k1 + nbc.population.count { it.category != category && feature in it.features }) /
                     (nbc.k2 + nbc.population.count { it.category != category })
 
+        /** 현재 확률 항목의 키를 반환합니다. */
         val key: Key<F, C> get() = Key(feature, category)
     }
 }
