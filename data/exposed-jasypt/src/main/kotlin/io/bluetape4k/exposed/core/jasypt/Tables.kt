@@ -15,9 +15,24 @@ import org.jetbrains.exposed.v1.core.Table
  * 대신 `jasyptVarChar` 는 Jasypt 라이브러리를 이용하여, 암호화 결과가 항상 같습니다.
  * 그래서 Indexing 할 수 있고, 암호화된 컬럼을 조건절에 이용할 수 있습니다.
  *
- * @param name 컬럼명 (blank 불가)
- * @param cipherTextLength 암호문을 저장할 컬럼 길이 (0보다 커야 함)
- * @param encryptor 사용할 암/복호화기
+ * ## 동작/계약
+ * - 등록되는 컬럼 타입은 [JasyptVarCharColumnType]이며 DB에는 암호문이 저장되고 조회 시 평문으로 복원됩니다.
+ * - `nullable()`/`index()` 조합을 사용할 수 있고, 테스트처럼 `where { col eq value }` 검색이 동작합니다.
+ * - 수신 [Table] 메타데이터를 mutate하여 컬럼을 등록합니다.
+ * - [name]이 blank면 `IllegalArgumentException`, [cipherTextLength]가 0 이하이면 `IllegalArgumentException`이 발생합니다.
+ *
+ * ```kotlin
+ * object T1: IntIdTable("string_table") {
+ *     val name = jasyptVarChar("name", 255, Encryptors.AES).nullable().index()
+ * }
+ * val id = T1.insertAndGetId { it[name] = "debop" }
+ * val count = T1.selectAll().where { T1.id eq id }.count()
+ * // count == 1L
+ * ```
+ *
+ * @param name 컬럼명입니다. blank 문자열은 허용되지 않습니다.
+ * @param cipherTextLength 암호문을 저장할 컬럼 길이입니다. 0보다 커야 합니다.
+ * @param encryptor 사용할 암/복호화기입니다.
  */
 fun Table.jasyptVarChar(
     name: String,
@@ -42,9 +57,24 @@ fun Table.jasyptVarChar(
  * 대신 `jasyptBinary` 는 Jasypt 라이브러리를 이용하여, 암호화 결과가 항상 같습니다.
  * 그래서 Indexing 할 수 있고, 암호화된 컬럼을 조건절에 이용할 수 있습니다.
  *
- * @param name 컬럼명 (blank 불가)
- * @param cipherByteLength 암호문 바이트를 저장할 컬럼 길이 (0보다 커야 함)
- * @param encryptor 사용할 암/복호화기
+ * ## 동작/계약
+ * - 등록되는 컬럼 타입은 [JasyptBinaryColumnType]이며 DB 저장 시 암호문 바이트, 조회 시 복호화된 바이트를 제공합니다.
+ * - 테스트처럼 `selectAll().where { binary eq insertedBinary }` 조건으로 조회할 수 있습니다.
+ * - 수신 [Table] 메타데이터를 mutate하여 컬럼을 등록합니다.
+ * - [name]이 blank면 `IllegalArgumentException`, [cipherByteLength]가 0 이하이면 `IllegalArgumentException`이 발생합니다.
+ *
+ * ```kotlin
+ * object T1: IntIdTable("string_table") {
+ *     val address = jasyptBinary("address", 255, Encryptors.TripleDES).nullable()
+ * }
+ * val id = T1.insertAndGetId { it[address] = "seoul".toUtf8Bytes() }
+ * val restored = T1.selectAll().where { T1.id eq id }.single()[T1.address]!!
+ * // restored.toUtf8String() == "seoul"
+ * ```
+ *
+ * @param name 컬럼명입니다. blank 문자열은 허용되지 않습니다.
+ * @param cipherByteLength 암호문 바이트를 저장할 컬럼 길이입니다. 0보다 커야 합니다.
+ * @param encryptor 사용할 암/복호화기입니다.
  */
 fun Table.jasyptBinary(
     name: String,
