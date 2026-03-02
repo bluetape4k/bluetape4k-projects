@@ -13,21 +13,68 @@ import java.util.concurrent.ThreadFactory
 import java.util.function.Function
 
 /**
- * Java 25 StructuredTaskScope 구현체입니다.
+ * JDK 25 `StructuredTaskScope.open` API를 사용하는 provider 구현체입니다.
+ *
+ * ## 동작/계약
+ * - `Runtime.version().feature() >= 25`일 때 지원 대상으로 판단합니다.
+ * - `withAll`은 `Joiner.awaitAll`, `withAny`는 `Joiner.anySuccessfulResultOrThrow`를 사용합니다.
+ * - [configure]에서 전달된 ThreadFactory를 반드시 설정하며 실패 시 `IllegalStateException`이 발생합니다.
+ *
+ * ```kotlin
+ * val provider = Jdk25StructuredTaskScopeProvider()
+ * val result = provider.withAll { scope ->
+ *     val a = scope.fork { 10 }
+ *     val b = scope.fork { 20 }
+ *     scope.join().throwIfFailed()
+ *     a.get() + b.get()
+ * }
+ * // result == 30
+ * ```
  */
 class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
 
     companion object: KLoggingChannel() {
+        /** provider 식별 이름입니다. */
         const val PROVIDER_NAME = "jdk25-structured-task-scope"
+        /** 지원 기준 JDK feature 버전입니다. */
         const val JAVA_VERSION = 25
+        /** provider 우선순위 값입니다. */
         const val PRIORITY = JAVA_VERSION
     }
 
     override val providerName: String = PROVIDER_NAME
     override val priority: Int = PRIORITY
 
+    /**
+     * 현재 JVM이 JDK 25 이상인지 확인합니다.
+     *
+     * ## 동작/계약
+     * - feature 버전 비교만 수행하며 추가 reflective 체크는 하지 않습니다.
+     *
+     * ```kotlin
+     * val supported = Jdk25StructuredTaskScopeProvider().isSupported()
+     * // supported == (Runtime.version().feature() >= 25)
+     * ```
+     */
     override fun isSupported(): Boolean = Runtime.version().feature() >= JAVA_VERSION
 
+    /**
+     * 실패 전파형(scope-all) 블록을 실행합니다.
+     *
+     * ## 동작/계약
+     * - `StructuredTaskScope.open<Any?, Void>(Joiner.awaitAll(), ...)`로 scope를 생성합니다.
+     * - [StructuredTaskScopeAll.throwIfFailed]는 내부에서 수집한 첫 실패 예외를 전파합니다.
+     *
+     * ```kotlin
+     * val result = Jdk25StructuredTaskScopeProvider().withAll { scope ->
+     *     val a = scope.fork { 10 }
+     *     val b = scope.fork { 20 }
+     *     scope.join().throwIfFailed()
+     *     a.get() + b.get()
+     * }
+     * // result == 30
+     * ```
+     */
     override fun <T> withAll(
         name: String?,
         factory: ThreadFactory,
@@ -42,6 +89,22 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         return scope.use { block(Jdk25AllScope(it)) }
     }
 
+    /**
+     * 성공 우선형(scope-any) 블록을 실행합니다.
+     *
+     * ## 동작/계약
+     * - `StructuredTaskScope.open<T, T>(Joiner.anySuccessfulResultOrThrow(), ...)`를 사용합니다.
+     * - [StructuredTaskScopeAny.result]에서 join 실패를 [mapper] 예외로 변환합니다.
+     *
+     * ```kotlin
+     * val result = Jdk25StructuredTaskScopeProvider().withAny<String> { scope ->
+     *     scope.fork { Thread.sleep(80); "slow" }
+     *     scope.fork { Thread.sleep(10); "fast" }
+     *     scope.join().result { IllegalStateException(it) }
+     * }
+     * // result == "fast"
+     * ```
+     */
     override fun <T> withAny(
         name: String?,
         factory: ThreadFactory,

@@ -12,21 +12,68 @@ import java.util.concurrent.StructuredTaskScope
 import java.util.concurrent.ThreadFactory
 
 /**
- * Java 21 StructuredTaskScope 구현체입니다.
+ * JDK 21 `StructuredTaskScope` API를 사용하는 provider 구현체입니다.
+ *
+ * ## 동작/계약
+ * - `Runtime.version().feature() >= 21`일 때 지원 대상으로 판단합니다.
+ * - `withAll`은 `ShutdownOnFailure`, `withAny`는 `ShutdownOnSuccess`에 위임합니다.
+ * - scope는 `use`로 감싸 실행되어 블록 종료 시 자동 close 됩니다.
+ *
+ * ```kotlin
+ * val provider = Jdk21StructuredTaskScopeProvider()
+ * val result = provider.withAll { scope ->
+ *     val a = scope.fork { 1 }
+ *     val b = scope.fork { 2 }
+ *     scope.join().throwIfFailed()
+ *     a.get() + b.get()
+ * }
+ * // result == 3
+ * ```
  */
 class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
 
     companion object: KLoggingChannel() {
+        /** provider 식별 이름입니다. */
         const val PROVIDER_NAME = "jdk21-structured-task-scope"
+        /** 지원 기준 JDK feature 버전입니다. */
         const val JAVA_VERSION = 21
+        /** provider 우선순위 값입니다. */
         const val PRIORITY = JAVA_VERSION
     }
 
     override val providerName: String = PROVIDER_NAME
     override val priority: Int = PRIORITY
 
+    /**
+     * 현재 JVM이 JDK 21 이상인지 확인합니다.
+     *
+     * ## 동작/계약
+     * - feature 버전 비교만 수행하며 추가 reflective 체크는 하지 않습니다.
+     *
+     * ```kotlin
+     * val supported = Jdk21StructuredTaskScopeProvider().isSupported()
+     * // supported == (Runtime.version().feature() >= 21)
+     * ```
+     */
     override fun isSupported(): Boolean = Runtime.version().feature() >= JAVA_VERSION
 
+    /**
+     * 실패 전파형(scope-all) 블록을 실행합니다.
+     *
+     * ## 동작/계약
+     * - 내부적으로 `StructuredTaskScope.ShutdownOnFailure`를 생성합니다.
+     * - [scope.join()][StructuredTaskScopeAll.join] 후 [scope.throwIfFailed()][StructuredTaskScopeAll.throwIfFailed] 호출 시 첫 실패 예외를 전파합니다.
+     *
+     * ```kotlin
+     * val result = Jdk21StructuredTaskScopeProvider().withAll { scope ->
+     *     val a = scope.fork { 1 }
+     *     val b = scope.fork { 2 }
+     *     scope.join().throwIfFailed()
+     *     a.get() + b.get()
+     * }
+     * // result == 3
+     * ```
+     */
     override fun <T> withAll(
         name: String?,
         factory: ThreadFactory,
@@ -39,6 +86,22 @@ class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         }
     }
 
+    /**
+     * 성공 우선형(scope-any) 블록을 실행합니다.
+     *
+     * ## 동작/계약
+     * - 내부적으로 `StructuredTaskScope.ShutdownOnSuccess`를 생성합니다.
+     * - 가장 먼저 성공한 subtask 결과를 [StructuredTaskScopeAny.result]로 반환합니다.
+     *
+     * ```kotlin
+     * val result = Jdk21StructuredTaskScopeProvider().withAny<String> { scope ->
+     *     scope.fork { "slow" }
+     *     scope.fork { "fast" }
+     *     scope.join().result { IllegalStateException(it) }
+     * }
+     * // result == "fast"
+     * ```
+     */
     override fun <T> withAny(
         name: String?,
         factory: ThreadFactory,
