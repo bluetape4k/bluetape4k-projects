@@ -2,15 +2,60 @@ package io.bluetape4k.units
 
 import io.bluetape4k.logging.KLogging
 
+/**
+ * 각도 값을 생성합니다.
+ *
+ * ## 동작/계약
+ * - 입력 [value]를 [unit] 기준으로 받아 내부 기준 단위(도)로 저장합니다.
+ * - 새 [Angle] 인스턴스를 반환하며 입력 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * val angle = angleOf(PI, AngleUnit.RADIAN)
+ * // angle.inDegree() == 180.0
+ * ```
+ */
 fun angleOf(
     value: Number = 0.0,
     unit: AngleUnit = AngleUnit.DEGREE,
 ) = Angle(value, unit)
 
+/**
+ * 숫자를 지정 단위 각도로 변환합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 [angleOf]를 호출합니다.
+ *
+ * ```kotlin
+ * val angle = 90.angleBy(AngleUnit.DEGREE)
+ * // angle.inRadian() == PI / 2
+ * ```
+ */
 fun <T: Number> T.angleBy(unit: AngleUnit): Angle = angleOf(this.toDouble(), unit)
 
+/**
+ * 숫자를 도 단위 각도로 변환합니다.
+ *
+ * ## 동작/계약
+ * - 반환값은 내부적으로 degree 기반 [Angle]입니다.
+ *
+ * ```kotlin
+ * val angle = 180.degree()
+ * // angle.inRadian() == PI
+ * ```
+ */
 fun <T: Number> T.degree(): Angle = Angle.degree(this)
 
+/**
+ * 숫자를 라디안 단위 각도로 변환합니다.
+ *
+ * ## 동작/계약
+ * - 입력 라디안을 도 기준 내부값으로 변환해 저장합니다.
+ *
+ * ```kotlin
+ * val angle = PI.radian()
+ * // angle.inDegree() == 180.0
+ * ```
+ */
 fun <T: Number> T.radian(): Angle = Angle.radian(this)
 
 operator fun <T: Number> T.times(angle: Angle): Angle = angle.times(this)
@@ -18,9 +63,14 @@ operator fun <T: Number> T.times(angle: Angle): Angle = angle.times(this)
 /**
  * 각도(Angle) 단위
  *
- * ```
+ * ## 동작/계약
+ * - [DEGREE]는 기준 단위이며 [RADIAN]은 `180/PI` factor를 사용합니다.
+ * - [parse]는 단위 문자열 끝의 복수형 `s`를 제거한 뒤 매칭합니다.
+ *
+ * ```kotlin
  * val unit = AngleUnit.DEGREE
  * val unit2 = AngleUnit.parse("deg")
+ * // unit2 == AngleUnit.DEGREE
  * ```
  *
  * @property unitName 단위 약어
@@ -31,7 +81,9 @@ enum class AngleUnit(
     override val unitName: String,
     override val factor: Double,
 ): MeasurableUnit {
+    /** 도(degree) 단위입니다. */
     DEGREE("deg", 1.0),
+    /** 라디안(radian) 단위입니다. */
     RADIAN("rad", 180.0 / Math.PI),
     ;
 
@@ -48,15 +100,17 @@ enum class AngleUnit(
 /**
  * 각도(Angle)를 나타내는 클래스
  *
- * ```
- * val angle = Angle(90.0, AngleUnit.DEGREE)
- * val angle2 = 90.0.degree()
- * val angle3 = 100.0 * Angle(90.0, AngleUnit.DEGREE)
- * val angle4 = 100.0 * 90.0.degree()
- * val angle5 = Angle.parse("90.0 deg")
- * angle5.toHuman() // "90.0 deg"
+ * ## 동작/계약
+ * - 내부 값은 도(degree) 기준으로 저장됩니다.
+ * - 덧셈/뺄셈/스칼라 연산은 새 인스턴스를 반환하며 수신 객체를 변경하지 않습니다.
+ * - [parse]는 `"<숫자> <단위>"` 형식만 허용하며 실패 시 [IllegalArgumentException]을 던집니다.
  *
- * val angle6 = angle3 / 100.0  // 90.0.degree()
+ * ```kotlin
+ * val angle = Angle(90.0, AngleUnit.DEGREE)
+ * val text = angle.toHuman()
+ * // text == "90.0 deg"
+ * val parsed = Angle.parse("180 deg")
+ * // parsed.inRadian() == PI
  * ```
  *
  * @property value  Degree 단위의 각도 값

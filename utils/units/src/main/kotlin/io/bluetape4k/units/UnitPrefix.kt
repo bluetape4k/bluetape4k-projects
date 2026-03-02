@@ -1,5 +1,19 @@
 package io.bluetape4k.units
 
+/**
+ * SI 배수/분수 접두사 계수를 제공합니다.
+ *
+ * ## 동작/계약
+ * - 상수는 단위 변환 factor 계산에 사용하는 불변 값입니다.
+ * - 10의 거듭제곱 배율을 그대로 노출하며 런타임 할당이 없습니다.
+ *
+ * ```kotlin
+ * val kilo = UnitPrefix.KILO
+ * val milli = UnitPrefix.MILLI
+ * // kilo == 1.0e3
+ * // milli == 1.0e-3
+ * ```
+ */
 object UnitPrefix {
 
     // Multiples

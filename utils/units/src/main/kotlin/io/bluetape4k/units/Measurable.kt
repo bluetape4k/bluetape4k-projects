@@ -3,25 +3,17 @@ package io.bluetape4k.units
 import java.io.Serializable
 
 /**
- * 측정 가능한 물리량을 나타내는 기본 인터페이스
+ * 단위 기반 물리량의 공통 계약입니다.
  *
- * 이 인터페이스는 모든 단위 기반 측정값(길이, 무게, 면적 등)의 공통 동작을 정의합니다.
- * [Comparable]을 구현하여 측정값 간 비교가 가능하며, [Serializable]을 구현하여 직렬화를 지원합니다.
+ * ## 동작/계약
+ * - [value]는 각 타입의 기준 단위 값으로 저장됩니다.
+ * - [valueBy]는 `value / unit.factor` 규칙으로 환산값을 계산합니다.
+ * - [compareTo]는 기준 단위 값으로 비교합니다.
  *
- * @param T 측정 단위 타입 ([MeasurableUnit]을 구현한 enum 등)
- *
- * ```
- * // Length, Weight, Area 등에서 사용 예시
+ * ```kotlin
  * val length = 100.0.meter()
- * val weight = 50.0.kilogram()
- *
- * // 단위 변환
- * val lengthInKm = length.convertTo(LengthUnit.KILOMETER)
- * val weightInGrams = weight.valueBy(WeightUnit.GRAM)
- *
- * // 사람이 읽기 쉬운 형식으로 변환
- * println(length.toHuman())  // "100.0 m"
- * println(weight.toHuman())  // "50.0 kg"
+ * val km = length.valueBy(LengthUnit.KILOMETER)
+ * // km == 0.1
  * ```
  */
 interface Measurable<T: MeasurableUnit>: Comparable<Measurable<T>>, Serializable {
@@ -35,6 +27,14 @@ interface Measurable<T: MeasurableUnit>: Comparable<Measurable<T>>, Serializable
     /**
      * 새로운 단위로 변환된 측정값을 반환합니다.
      *
+     * ## 동작/계약
+     * - 구현체는 새 인스턴스를 반환해야 하며 수신 객체를 변경하지 않습니다.
+     *
+     * ```kotlin
+     * val km = 1000.0.meter().convertTo(LengthUnit.KILOMETER)
+     * // km.valueBy(LengthUnit.KILOMETER) == 1.0
+     * ```
+     *
      * @param newUnit 변환할 대상 단위
      * @return 새로운 단위로 변환된 측정값
      */
@@ -43,6 +43,9 @@ interface Measurable<T: MeasurableUnit>: Comparable<Measurable<T>>, Serializable
     /**
      * 지정된 단위로 표현된 값을 반환합니다.
      *
+     * ## 동작/계약
+     * - `factor == 0` 단위(예: 일부 온도 단위)는 구현체가 `valueBy`를 override해서 처리할 수 있습니다.
+     *
      * @param unit 값을 표현할 단위
      * @return 지정된 단위로 변환된 값 (Double)
      */
@@ -50,7 +53,14 @@ interface Measurable<T: MeasurableUnit>: Comparable<Measurable<T>>, Serializable
 
     /**
      * 사람이 읽기 쉬운 형식으로 값을 반환합니다.
-     * 자동으로 적절한 단위를 선택하여 표시합니다.
+     *
+     * ## 동작/계약
+     * - 자동 단위 선택 규칙은 구현체에 따라 다를 수 있습니다.
+     *
+     * ```kotlin
+     * val text = 1024.0.kbytes().toHuman()
+     * // text.isNotBlank() == true
+     * ```
      *
      * @return 예: "100.0 m", "50.0 kg"
      */
