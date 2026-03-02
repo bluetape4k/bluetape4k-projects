@@ -8,15 +8,15 @@ import org.jasypt.registry.AlgorithmRegistry
 /**
  * 지원되는 모든 대칭형 암호화 알고리즘의 [Encryptor] 인스턴스를 제공하는 팩토리 싱글턴입니다.
  *
- * 각 인스턴스는 lazy 초기화되며, 스레드 안전합니다.
+ * ## 동작/계약
+ * - 각 암호기 인스턴스는 lazy 초기화되어 최초 접근 시 생성됩니다.
+ * - 초기화 시 BouncyCastle provider 등록을 보장합니다.
+ * - 각 프로퍼티는 동일 인스턴스를 재사용합니다.
  *
- * ```
- * // AES 암호화 사용
+ * ```kotlin
  * val encrypted = Encryptors.AES.encrypt("Hello, World!")
- * val decrypted = Encryptors.AES.decrypt(encrypted)  // "Hello, World!"
- *
- * // 지원되는 모든 PBE 알고리즘 조회
- * val algorithms = Encryptors.getAlgorithms()
+ * val decrypted = Encryptors.AES.decrypt(encrypted)
+ * // decrypted == "Hello, World!"
  * ```
  */
 object Encryptors: KLogging() {
@@ -43,7 +43,14 @@ object Encryptors: KLogging() {
     /**
      * BouncyCastle 프로바이더에서 지원하는 모든 PBE 알고리즘 목록을 반환합니다.
      *
-     * @return 지원되는 PBE 알고리즘 명의 [Set]
+     * ## 동작/계약
+     * - 호출 시 provider 등록을 다시 보장한 뒤 알고리즘 목록을 조회합니다.
+     * - 반환 집합은 매 호출 시 새 컬렉션일 수 있으며 순서는 보장하지 않습니다.
+     *
+     * ```kotlin
+     * val algorithms = Encryptors.getAlgorithms()
+     * // algorithms.contains("PBEWITHHMACSHA256ANDAES_256") == true
+     * ```
      */
     @Suppress("UNCHECKED_CAST")
     fun getAlgorithms(): Set<String> {

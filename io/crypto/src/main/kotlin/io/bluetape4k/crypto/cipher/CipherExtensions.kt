@@ -11,20 +11,21 @@ private object CipherExtensionsHolder: KLogging()
 /**
  * [Cipher]를 이용하여 평문 바이트 배열을 암호화합니다.
  *
- * ```
- * val cipher = CipherBuilder()
- *     .secretKeySize(16)
- *     .ivBytesSize(16)
- *     .build(Cipher.ENCRYPT_MODE)
+ * ## 동작/계약
+ * - [plain]이 null 또는 빈 배열이면 빈 배열을 반환합니다.
+ * - 그 외에는 [Cipher.doFinal]로 지정 범위를 암호화한 새 배열을 반환합니다.
+ * - [offset]/[length]가 잘못되면 JCA 예외가 발생할 수 있습니다.
  *
+ * ```kotlin
+ * val key = ByteArray(16) { 1 }
+ * val iv = ByteArray(16) { 2 }
+ * val cipher = CipherBuilder().secretKey(key).ivBytes(iv).build(Cipher.ENCRYPT_MODE)
  * val encrypted = cipher.encrypt("Hello".toByteArray())
+ * // encrypted.isNotEmpty() == true
  * ```
- *
- * @receiver 암호화 모드([Cipher.ENCRYPT_MODE])로 초기화된 [Cipher] 인스턴스
- * @param plain 암호화할 평문 바이트 배열 (null 또는 빈 배열이면 빈 배열 반환)
- * @param offset 바이트 배열에서 시작 위치 (기본값: 0)
- * @param length 암호화할 바이트 수 (기본값: 배열 전체 크기)
- * @return 암호화된 바이트 배열
+ * @param plain 암호화할 평문 바이트 배열
+ * @param offset 시작 위치
+ * @param length 처리 길이
  */
 fun Cipher.encrypt(plain: ByteArray?, offset: Int = 0, length: Int = plain?.size ?: 0): ByteArray {
     if (plain.isNullOrEmpty()) {
@@ -36,20 +37,23 @@ fun Cipher.encrypt(plain: ByteArray?, offset: Int = 0, length: Int = plain?.size
 /**
  * [Cipher]를 이용하여 암호화된 바이트 배열을 복호화합니다.
  *
- * ```
- * val decipher = CipherBuilder()
- *     .secretKeySize(16)
- *     .ivBytesSize(16)
- *     .build(Cipher.DECRYPT_MODE)
+ * ## 동작/계약
+ * - [encrypted]가 null 또는 빈 배열이면 빈 배열을 반환합니다.
+ * - [update] 결과와 `doFinal()` 결과를 이어 붙인 새 배열을 반환합니다.
+ * - `doFinal()` 실패는 경고 로그 후 빈 배열로 대체되어 반환됩니다.
  *
- * val decrypted = decipher.decrypt(encryptedBytes)
+ * ```kotlin
+ * val key = ByteArray(16) { 1 }
+ * val iv = ByteArray(16) { 2 }
+ * val cipher = CipherBuilder().secretKey(key).ivBytes(iv).build(Cipher.ENCRYPT_MODE)
+ * val decipher = CipherBuilder().secretKey(key).ivBytes(iv).build(Cipher.DECRYPT_MODE)
+ * val encrypted = cipher.encrypt("Hello".toByteArray())
+ * val plain = decipher.decrypt(encrypted)
+ * // plain.decodeToString() == "Hello"
  * ```
- *
- * @receiver 복호화 모드([Cipher.DECRYPT_MODE])로 초기화된 [Cipher] 인스턴스
- * @param encrypted 복호화할 암호문 바이트 배열 (null 또는 빈 배열이면 빈 배열 반환)
- * @param offset 바이트 배열에서 시작 위치 (기본값: 0)
- * @param length 복호화할 바이트 수 (기본값: 배열 전체 크기)
- * @return 복호화된 평문 바이트 배열
+ * @param encrypted 복호화할 암호문 바이트 배열
+ * @param offset 시작 위치
+ * @param length 처리 길이
  */
 fun Cipher.decrypt(encrypted: ByteArray?, offset: Int = 0, length: Int = encrypted?.size ?: 0): ByteArray {
     if (encrypted.isNullOrEmpty()) {

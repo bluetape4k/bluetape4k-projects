@@ -8,15 +8,15 @@ import org.jasypt.registry.AlgorithmRegistry
 /**
  * 지원되는 모든 해시 다이제스트 알고리즘의 [Digester] 인스턴스를 제공하는 팩토리 싱글턴입니다.
  *
- * 각 인스턴스는 lazy 초기화되며, 스레드 안전합니다.
+ * ## 동작/계약
+ * - 각 다이제스터 인스턴스는 lazy 초기화되어 최초 접근 시 생성됩니다.
+ * - 초기화 시 BouncyCastle provider 등록을 보장합니다.
+ * - 각 프로퍼티는 동일 인스턴스를 재사용합니다.
  *
- * ```
- * // SHA-256 다이제스트 사용
+ * ```kotlin
  * val digest = Digesters.SHA256.digest("Hello, World!")
- * val matches = Digesters.SHA256.matches("Hello, World!", digest) // true
- *
- * // 지원되는 모든 알고리즘 조회
- * val algorithms = Digesters.getAllDigestAlgorithms()
+ * val ok = Digesters.SHA256.matches("Hello, World!", digest)
+ * // ok == true
  * ```
  */
 object Digesters: KLogging() {
@@ -28,7 +28,14 @@ object Digesters: KLogging() {
     /**
      * BouncyCastle 프로바이더에서 지원하는 모든 다이제스트 알고리즘 목록을 반환합니다.
      *
-     * @return 지원되는 다이제스트 알고리즘 명의 [Set]
+     * ## 동작/계약
+     * - provider에 등록된 다이제스트 알고리즘 이름 집합을 반환합니다.
+     * - 반환 집합의 순서는 보장하지 않습니다.
+     *
+     * ```kotlin
+     * val algorithms = Digesters.getAllDigestAlgorithms()
+     * // algorithms.contains("SHA-256") == true
+     * ```
      */
     @Suppress("UNCHECKED_CAST")
     fun getAllDigestAlgorithms(): Set<String> {

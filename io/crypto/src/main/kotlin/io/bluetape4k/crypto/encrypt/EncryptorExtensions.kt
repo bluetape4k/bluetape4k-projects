@@ -3,13 +3,15 @@ package io.bluetape4k.crypto.encrypt
 /**
  * 문자열을 지정된 [Encryptor]로 암호화합니다.
  *
- * ```
- * val encrypted = "Hello, World!".encrypt(Encryptors.AES)
- * ```
+ * ## 동작/계약
+ * - 수신 문자열을 [Encryptor.encrypt] 문자열 경로에 그대로 위임합니다.
+ * - 수신 문자열은 변경하지 않고 새 암호문 문자열을 반환합니다.
  *
- * @receiver 암호화할 문자열
- * @param encryptor 사용할 [Encryptor] 인스턴스
- * @return 암호화된 문자열 (URL-safe Base64 인코딩)
+ * ```kotlin
+ * val encrypted = "Hello, World!".encrypt(Encryptors.AES)
+ * // encrypted.isNotBlank() == true
+ * ```
+ * @param encryptor 사용할 암호화기
  */
 fun String.encrypt(encryptor: Encryptor): String =
     encryptor.encrypt(this)
@@ -17,13 +19,16 @@ fun String.encrypt(encryptor: Encryptor): String =
 /**
  * 암호화된 문자열을 지정된 [Encryptor]로 복호화합니다.
  *
- * ```
- * val decrypted = encrypted.decrypt(Encryptors.AES) // "Hello, World!"
- * ```
+ * ## 동작/계약
+ * - 수신 문자열을 [Encryptor.decrypt] 문자열 경로에 그대로 위임합니다.
+ * - 수신 문자열은 변경하지 않고 새 평문 문자열을 반환합니다.
  *
- * @receiver 복호화할 암호화된 문자열 (URL-safe Base64 인코딩)
- * @param encryptor 사용할 [Encryptor] 인스턴스
- * @return 복호화된 원문 문자열
+ * ```kotlin
+ * val encrypted = "Hello, World!".encrypt(Encryptors.AES)
+ * val decrypted = encrypted.decrypt(Encryptors.AES)
+ * // decrypted == "Hello, World!"
+ * ```
+ * @param encryptor 사용할 암호화기
  */
 fun String.decrypt(encryptor: Encryptor): String =
     encryptor.decrypt(this)
@@ -31,13 +36,15 @@ fun String.decrypt(encryptor: Encryptor): String =
 /**
  * 바이트 배열을 지정된 [Encryptor]로 암호화합니다.
  *
- * ```
- * val encrypted = "Hello".toByteArray().encrypt(Encryptors.AES)
- * ```
+ * ## 동작/계약
+ * - 수신 바이트 배열을 [Encryptor.encrypt] 바이트 경로에 위임합니다.
+ * - 수신 배열은 변경하지 않고 새 암호문 바이트 배열을 반환합니다.
  *
- * @receiver 암호화할 바이트 배열
- * @param encryptor 사용할 [Encryptor] 인스턴스
- * @return 암호화된 바이트 배열
+ * ```kotlin
+ * val encrypted = "Hello".toByteArray().encrypt(Encryptors.AES)
+ * // encrypted.isNotEmpty() == true
+ * ```
+ * @param encryptor 사용할 암호화기
  */
 fun ByteArray.encrypt(encryptor: Encryptor): ByteArray =
     encryptor.encrypt(this)
@@ -45,13 +52,16 @@ fun ByteArray.encrypt(encryptor: Encryptor): ByteArray =
 /**
  * 암호화된 바이트 배열을 지정된 [Encryptor]로 복호화합니다.
  *
- * ```
- * val decrypted = encryptedBytes.decrypt(Encryptors.AES)
- * ```
+ * ## 동작/계약
+ * - 수신 바이트 배열을 [Encryptor.decrypt] 바이트 경로에 위임합니다.
+ * - 수신 배열은 변경하지 않고 새 평문 바이트 배열을 반환합니다.
  *
- * @receiver 복호화할 암호화된 바이트 배열
- * @param encryptor 사용할 [Encryptor] 인스턴스
- * @return 복호화된 원문 바이트 배열
+ * ```kotlin
+ * val encrypted = "Hello".toByteArray().encrypt(Encryptors.AES)
+ * val decrypted = encrypted.decrypt(Encryptors.AES)
+ * // decrypted.decodeToString() == "Hello"
+ * ```
+ * @param encryptor 사용할 암호화기
  */
 fun ByteArray.decrypt(encryptor: Encryptor): ByteArray =
     encryptor.decrypt(this)

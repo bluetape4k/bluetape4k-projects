@@ -12,29 +12,16 @@ import javax.crypto.spec.SecretKeySpec
 /**
  * 암호화/복호화를 위한 [Cipher]를 빌드하는 빌더 클래스입니다.
  *
- * JCA(Java Cryptography Architecture)의 [Cipher] 인스턴스를 편리하게 생성할 수 있도록
- * 빌더 패턴을 제공합니다. 기본값으로 AES/CBC/PKCS5Padding 알고리즘을 사용합니다.
+ * ## 동작/계약
+ * - 기본 알고리즘/변환은 `AES`/`AES/CBC/PKCS5Padding`입니다.
+ * - 키/IV를 지정하지 않으면 기본 길이(16) 배열이 사용됩니다.
+ * - 빌더 메서드는 내부 상태를 갱신(mutate)하고 `this`를 반환합니다.
+ * - [build] 시점에 JCA 초기화 오류가 발생하면 예외가 전파됩니다.
  *
- * 참고: [Java Cipher](https://velog.io/@with667800/Java-Cipher)
- *
- * ```
- * // AES 암호화 Cipher 생성
- * val cipher = CipherBuilder()
- *    .secretKeySize(16)
- *    .ivBytesSize(16)
- *    .algorithm("AES")
- *    .transformation("AES/CBC/PKCS5Padding")
- *    .build(Cipher.ENCRYPT_MODE)
- * ```
- *
- * ```
- * // AES 복호화 Cipher 생성
- * val decipher = CipherBuilder()
- *      .secretKeySize(16)
- *      .ivBytesSize(16)
- *      .algorithm("AES")
- *      .transformation("AES/CBC/PKCS5Padding")
- *      .build(Cipher.DECRYPT_MODE)
+ * ```kotlin
+ * val cipher = CipherBuilder().secretKeySize(16).ivBytesSize(16).build(Cipher.ENCRYPT_MODE)
+ * val decipher = CipherBuilder().secretKeySize(16).ivBytesSize(16).build(Cipher.DECRYPT_MODE)
+ * // cipher.algorithm.contains("AES") == true
  * ```
  */
 class CipherBuilder {
@@ -60,8 +47,15 @@ class CipherBuilder {
     /**
      * 비밀 키의 크기를 지정하고 [SecureRandom]으로 랜덤 키를 생성합니다.
      *
-     * @param size 비밀 키 크기 (바이트 단위, 양수여야 함)
-     * @return 빌더 인스턴스
+     * ## 동작/계약
+     * - [size]는 양수여야 하며, 0 이하이면 예외가 발생합니다.
+     * - 길이가 [size]인 새 키 배열을 할당해 내부 상태를 갱신합니다.
+     *
+     * ```kotlin
+     * val builder = CipherBuilder().secretKeySize(32)
+     * // builder != null
+     * ```
+     * @param size 비밀 키 길이(바이트). 0 이하이면 [IllegalArgumentException]이 발생합니다.
      */
     fun secretKeySize(size: Int = DEFAULT_KEY_SIZE) = apply {
         size.requirePositiveNumber("size")
@@ -71,8 +65,16 @@ class CipherBuilder {
     /**
      * 비밀 키를 직접 지정합니다.
      *
+     * ## 동작/계약
+     * - 전달된 [key] 참조를 내부 키로 사용합니다.
+     * - 입력 배열은 복사하지 않습니다.
+     *
+     * ```kotlin
+     * val key = ByteArray(16) { 1 }
+     * val builder = CipherBuilder().secretKey(key)
+     * // builder != null
+     * ```
      * @param key 사용할 비밀 키 바이트 배열
-     * @return 빌더 인스턴스
      */
     fun secretKey(key: ByteArray) = apply {
         secretKey = key
@@ -81,10 +83,15 @@ class CipherBuilder {
     /**
      * IV(초기화 벡터)의 크기를 지정하고 [SecureRandom]으로 랜덤 IV를 생성합니다.
      *
-     * CBC 모드 등 블록 암호 모드에서 필요합니다.
+     * ## 동작/계약
+     * - [size]는 양수여야 하며, 0 이하이면 예외가 발생합니다.
+     * - 길이가 [size]인 새 IV 배열을 할당해 내부 상태를 갱신합니다.
      *
-     * @param size IV 크기 (바이트 단위, 양수여야 함)
-     * @return 빌더 인스턴스
+     * ```kotlin
+     * val builder = CipherBuilder().ivBytesSize(16)
+     * // builder != null
+     * ```
+     * @param size IV 길이(바이트). 0 이하이면 [IllegalArgumentException]이 발생합니다.
      */
     fun ivBytesSize(size: Int = DEFAULT_KEY_SIZE) = apply {
         size.requirePositiveNumber("size")
@@ -94,8 +101,16 @@ class CipherBuilder {
     /**
      * IV(초기화 벡터)를 직접 지정합니다.
      *
+     * ## 동작/계약
+     * - 전달된 [ivBytes] 참조를 내부 IV로 사용합니다.
+     * - 입력 배열은 복사하지 않습니다.
+     *
+     * ```kotlin
+     * val iv = ByteArray(16) { 2 }
+     * val builder = CipherBuilder().ivBytes(iv)
+     * // builder != null
+     * ```
      * @param ivBytes 사용할 IV 바이트 배열
-     * @return 빌더 인스턴스
      */
     fun ivBytes(ivBytes: ByteArray) = apply {
         this.ivBytes = ivBytes
@@ -104,10 +119,15 @@ class CipherBuilder {
     /**
      * 암호화 알고리즘을 지정합니다.
      *
-     * [SecretKeySpec] 생성 시 사용됩니다.
+     * ## 동작/계약
+     * - [algorithm]은 비어 있으면 안 되며 비어 있으면 예외가 발생합니다.
+     * - 지정 값은 [SecretKeySpec] 생성에 사용됩니다.
      *
-     * @param algorithm 암호화 알고리즘 명 (예: "AES", "DES")
-     * @return 빌더 인스턴스
+     * ```kotlin
+     * val builder = CipherBuilder().algorithm("AES")
+     * // builder != null
+     * ```
+     * @param algorithm 알고리즘 이름. 빈 문자열이면 [IllegalArgumentException]이 발생합니다.
      */
     fun algorithm(algorithm: String = DEFAULT_ALGORITHM) = apply {
         algorithm.requireNotEmpty("algorithm")
@@ -117,10 +137,15 @@ class CipherBuilder {
     /**
      * 변환(transformation) 문자열을 지정합니다.
      *
-     * "알고리즘/모드/패딩" 형식이며, [Cipher.getInstance]에 전달됩니다.
+     * ## 동작/계약
+     * - [transformation]은 비어 있으면 안 되며 비어 있으면 예외가 발생합니다.
+     * - 지정 값은 [Cipher.getInstance]에 전달됩니다.
      *
-     * @param transformation 변환 문자열 (예: "AES/CBC/PKCS5Padding")
-     * @return 빌더 인스턴스
+     * ```kotlin
+     * val builder = CipherBuilder().transformation("AES/CBC/PKCS5Padding")
+     * // builder != null
+     * ```
+     * @param transformation 변환 문자열. 빈 문자열이면 [IllegalArgumentException]이 발생합니다.
      */
     fun transformation(transformation: String = DEFAULT_TRANSFORMATION) = apply {
         transformation.requireNotEmpty("transformation")
@@ -133,21 +158,17 @@ class CipherBuilder {
     /**
      * 지정된 모드로 [Cipher] 인스턴스를 생성합니다.
      *
-     * ```
-     * val encryptCipher = CipherBuilder()
-     *    .secretKeySize(16)
-     *    .ivBytesSize(16)
-     *    .build(Cipher.ENCRYPT_MODE)
+     * ## 동작/계약
+     * - [cipherMode]는 `1..4` 범위(`ENCRYPT/DECRYPT/WRAP/UNWRAP`)여야 합니다.
+     * - 범위를 벗어나면 [IllegalArgumentException]이 발생합니다.
+     * - 호출마다 새 [Cipher]를 생성하고 초기화해 반환합니다.
      *
-     * val decryptCipher = CipherBuilder()
-     *    .secretKeySize(16)
-     *    .ivBytesSize(16)
-     *    .build(Cipher.DECRYPT_MODE)
+     * ```kotlin
+     * val cipher = CipherBuilder().secretKeySize(16).ivBytesSize(16).build(Cipher.ENCRYPT_MODE)
+     * // cipher.blockSize > 0
      * ```
      *
-     * @param cipherMode [Cipher.ENCRYPT_MODE], [Cipher.DECRYPT_MODE], [Cipher.WRAP_MODE], [Cipher.UNWRAP_MODE] 중 하나
-     * @return 초기화된 [Cipher] 인스턴스
-     * @throws IllegalArgumentException [cipherMode]가 유효하지 않은 경우
+     * @param cipherMode 암복호화 모드. `1..4` 범위를 벗어나면 [IllegalArgumentException]이 발생합니다.
      */
     fun build(cipherMode: Int): Cipher {
         require(cipherMode in 1..4) {
