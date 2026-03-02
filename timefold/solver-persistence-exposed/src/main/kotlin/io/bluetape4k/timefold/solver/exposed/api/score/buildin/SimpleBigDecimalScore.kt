@@ -41,7 +41,7 @@ fun Table.simpleBigDecimalScore(
 /**
  * [SimpleBigDecimalScore]를 위한 Exposed ColumnType 구현체입니다.
  *
- * 날춤 Kotlin String 타입과 [SimpleBigDecimalScore] 간의 변환을 처리합니다.
+ * Kotlin String 타입과 [SimpleBigDecimalScore] 간의 변환을 처리합니다.
  *
  * @property length 문자열 최대 길이
  */

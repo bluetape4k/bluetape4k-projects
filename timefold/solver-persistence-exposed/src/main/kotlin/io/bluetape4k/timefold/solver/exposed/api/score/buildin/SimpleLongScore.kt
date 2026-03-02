@@ -37,7 +37,7 @@ fun Table.simpleLongScore(name: String): Column<SimpleLongScore> = registerColum
 /**
  * [SimpleLongScore]를 위한 Exposed ColumnType 구현체입니다.
  *
- * 날춤 Kotlin Long 타입과 [SimpleLongScore] 간의 변환을 처리합니다.
+ * Kotlin Long 타입과 [SimpleLongScore] 간의 변환을 처리합니다.
  */
 class SimpleLongScoreColumnType:
     ColumnWithTransform<Long, SimpleLongScore>(LongColumnType(), SimpleLongScoreTransformer())

@@ -44,7 +44,7 @@ fun Table.bendableLongScore(
 /**
  * [BendableLongScore]를 위한 Exposed ColumnType 구현체입니다.
  *
- * 날춤 Kotlin String 타입과 [BendableLongScore] 간의 변환을 처리합니다.
+ * Kotlin String 타입과 [BendableLongScore] 간의 변환을 처리합니다.
  *
  * @property limit 문자열 최대 길이
  */
@@ -63,7 +63,7 @@ class BendableLongScoreTransformer: ColumnTransformer<String, BendableLongScore>
      * [BendableLongScore]를 데이터베이스 String 값으로 변환합니다.
      *
      * @param value 변환할 [BendableLongScore] 인스턴스
-     * @return "[hard]/[soft]" 형태의 문자열
+     * @return `[hard]/[soft]` 형태의 문자열
      */
     override fun unwrap(value: BendableLongScore): String = value.toString()
 

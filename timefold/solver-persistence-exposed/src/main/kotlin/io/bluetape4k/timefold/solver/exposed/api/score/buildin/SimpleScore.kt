@@ -37,7 +37,7 @@ fun Table.simpleScore(name: String): Column<SimpleScore> = registerColumn(name, 
 /**
  * [SimpleScore]를 위한 Exposed ColumnType 구현체입니다.
  *
- * 날춤 Kotlin Int 타입과 [SimpleScore] 간의 변환을 처리합니다.
+ * Kotlin Int 타입과 [SimpleScore] 간의 변환을 처리합니다.
  */
 class SimpleScoreColumnType: ColumnWithTransform<Int, SimpleScore>(IntegerColumnType(), SimpleScoreTransformer())
 
