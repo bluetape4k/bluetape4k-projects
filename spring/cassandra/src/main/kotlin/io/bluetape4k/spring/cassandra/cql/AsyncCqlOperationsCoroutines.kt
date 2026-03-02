@@ -8,22 +8,18 @@ import org.springframework.data.cassandra.core.cql.AsyncCqlOperations
 import java.util.concurrent.CompletableFuture
 
 /**
- * Coroutine 환경에서 [AsyncCqlOperations]의 `query` 함수를 실행합니다.
+ * CQL 문자열을 실행하고 [AsyncResultSet] 기반 추출 결과를 코루틴으로 반환합니다.
  *
- * ```
- * val user = asyncCqlOperations.querySuspending<User>(
- *      "SELECT * FROM users WHERE id = ?",
- *      userId
- * ) { resultSet ->
- *     resultSet.one().map { row -> User(row) }
+ * ## 동작/계약
+ * - 내부적으로 `query(cql, extractor, *args).await()`를 호출합니다.
+ * - [extractor]가 반환한 [CompletableFuture]가 실패하면 동일 예외가 전파됩니다.
+ *
+ * ```kotlin
+ * val id = asyncOps.querySuspending<Long>("SELECT now() FROM system.local") { rs ->
+ *     CompletableFuture.completedFuture(rs.one()?.getInstant(0)?.toEpochMilli())
  * }
+ * // result == id
  * ```
- *
- * @receiver [AsyncCqlOperations] 인스턴스
- * @param T 반환할 값의 수형
- * @param cql 실행할 CQL 쿼리
- * @param args CQL 쿼리에 전달할 인자
- * @param extractor [AsyncResultSet]을 [T]로 변환하는 함수
  */
 suspend inline fun <reified T: Any> AsyncCqlOperations.querySuspending(
     cql: String,
@@ -55,13 +51,18 @@ suspend inline fun <reified T: Any> AsyncCqlOperations.coQuery(
     query<T>(cql, { extractor(it) }, *args).await()
 
 /**
- * Coroutine 환경에서 [AsyncCqlOperations]의 `query` 함수를 실행합니다.
+ * CQL 문자열을 실행하고 [Row] 매퍼로 변환한 결과 목록을 코루틴으로 반환합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 `query(cql, rowMapper, *args).await()`를 호출합니다.
+ * - Cassandra 결과가 비어 있으면 빈 리스트를 반환합니다.
  *
  * ```kotlin
- * val users = asyncCqlOperations.querySuspending<User>(
- *     "SELECT * FROM users WHERE id = ?",
- *     userId
- * ) { row, rowNum -> User(row) }
+ * val names = asyncOps.querySuspending<String>("SELECT firstname FROM users") { row, _ ->
+ *     row.getString("firstname")
+ * }
+ * // result == names.size
+ * ```
  */
 suspend inline fun <reified T: Any> AsyncCqlOperations.querySuspending(
     cql: String,
@@ -92,22 +93,19 @@ suspend inline fun <reified T: Any> AsyncCqlOperations.coQuery(
 ): List<T> =
     query(cql, { row, rowNum -> rowMapper(row, rowNum) }, *args).await()
 
-
 /**
- * Coroutine 환경에서 [AsyncCqlOperations]의 `query` 함수를 실행합니다.
+ * [Statement]를 실행하고 [AsyncResultSet] 기반 추출 결과를 코루틴으로 반환합니다.
  *
- * ```
- * val stmt = SimpleStatement.newInstance("SELECT * FROM users WHERE id = ?", userId)
- * val user = asyncCqlOperations.querySuspending<User>(stmt) { resultSet ->
- *     resultSet.one().map { row -> futureOf { User(row) } }
+ * ## 동작/계약
+ * - 내부적으로 `query(statement, extractor).await()`를 호출합니다.
+ * - [extractor] 실행 예외는 가공하지 않고 그대로 전파됩니다.
+ *
+ * ```kotlin
+ * val value = asyncOps.querySuspending<String>(statement) { rs ->
+ *     CompletableFuture.completedFuture(rs.one()?.getString("firstname"))
  * }
+ * // result == value
  * ```
- *
- * @receiver [AsyncCqlOperations] 인스턴스
- * @param T 반환할 값의 수형
- * @param statement 실행할 CQL 쿼리
- * @param extractor [AsyncResultSet]을 [CompletableFuture]`<T>`로 변환하는 함수
- * @return [T] 형식의 결과
  */
 suspend inline fun <reified T: Any> AsyncCqlOperations.querySuspending(
     statement: Statement<*>,
@@ -135,18 +133,16 @@ suspend inline fun <reified T: Any> AsyncCqlOperations.coQuery(
     query<T>(statement) { extractor(it) }.await()
 
 /**
- * Coroutine 환경에서 [AsyncCqlOperations]의 `query` 함수를 실행합니다.
+ * [Statement]를 실행하고 [Row] 매퍼로 변환한 결과 목록을 코루틴으로 반환합니다.
  *
- * ```
- * val stmt = SimpleStatement.newInstance("SELECT * FROM users WHERE id = ?", userId)
- * val users = asyncCqlOperations.querySuspending<User>(stmt) { row, rowNum -> User(row) }
- * ```
+ * ## 동작/계약
+ * - 내부적으로 `query(statement, rowMapper).await()`를 호출합니다.
+ * - 반환 리스트의 원소 순서는 Cassandra 드라이버가 전달한 row 순서를 유지합니다.
  *
- * @receiver [AsyncCqlOperations] 인스턴스
- * @param T 반환할 값의 수형
- * @param statement 실행할 CQL 쿼리
- * @param rowMapper [Row]를 [T]로 변환하는 함수
- * @return [T] 수형 객체의 컬렉션
+ * ```kotlin
+ * val rows = asyncOps.querySuspending<String>(statement) { row, _ -> row.getString("firstname") }
+ * // result == rows.size
+ * ```
  */
 suspend inline fun <reified T: Any> AsyncCqlOperations.querySuspending(
     statement: Statement<*>,

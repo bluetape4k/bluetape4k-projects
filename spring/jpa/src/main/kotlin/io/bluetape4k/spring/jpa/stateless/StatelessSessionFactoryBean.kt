@@ -18,10 +18,15 @@ import org.springframework.util.ReflectionUtils
 import java.sql.Connection
 
 /**
- * Hibernate의 [StatelessSession]을 Spring Data Jpa 의 Transaction 환경에서 사용할 수 있도록,
- * [StatelessSession]을 생성해주는 Factory Bean입니다.
+ * Spring 트랜잭션에 바인딩된 Hibernate [StatelessSession] 프록시를 제공하는 FactoryBean입니다.
  *
- * ```
+ * ## 동작/계약
+ * - `getObject()`는 매 호출마다 프록시를 반환하고, 실제 세션은 메서드 호출 시 트랜잭션 컨텍스트에서 조회/생성됩니다.
+ * - 활성 트랜잭션이 없으면 인터셉터의 `check(...)`에 의해 `IllegalStateException`이 발생합니다.
+ * - 현재 트랜잭션 리소스에 세션이 없으면 JDBC 연결 기반으로 새 `StatelessSession`을 열고 트랜잭션 종료 시 close 합니다.
+ * - 수신 객체를 직접 변경하지 않으며, 트랜잭션 리소스 바인딩으로 동작을 연결합니다.
+ *
+ * ```kotlin
  * entityManager.withStateless { stateless ->
  *     repeat(COUNT) {
  *         val master = createMaster("master-$it")
@@ -34,6 +39,8 @@ import java.sql.Connection
  * ```
  *
  * 참고 : https://gist.github.com/jelies/5181262
+ *
+ * @param sf 트랜잭션 리소스 키와 세션 생성을 위한 Hibernate [SessionFactory]
  */
 class StatelessSessionFactoryBean(
     @field:Autowired val sf: SessionFactory,

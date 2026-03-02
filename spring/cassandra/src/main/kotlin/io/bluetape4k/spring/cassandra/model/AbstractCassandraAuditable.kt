@@ -6,10 +6,24 @@ import java.time.Instant
 import java.util.*
 
 /**
- * Auditable Entity 를 나타내는 추상화 클래스입니다.
+ * 생성자/수정자와 시각을 함께 보관하는 Cassandra 감사(Audit) 엔티티 기반 추상 클래스입니다.
  *
- * @param U createdBy, lastModifiedBy 등 엔티티의 변화를 수행하는 Actor 의 수형 (보통 String 이다)
- * @param PK Entity PrimaryKey의 수형
+ * ## 동작/계약
+ * - [isNew]는 `created_at` 컬럼에 매핑된 `_createdAt`이 `null`이면 `true`를 반환합니다.
+ * - `get/setCreated*`, `get/setLastModified*`는 내부 필드를 그대로 감싸며 Spring Data [Auditable] 계약을 만족합니다.
+ * - 공개 프로퍼티([createdBy], [createdAt], [lastModifiedBy], [lastModifiedAt])는 읽기 전용 뷰를 제공합니다.
+ *
+ * ```kotlin
+ * val entity = object: AbstractCassandraAuditable<String, String>() {
+ *     private var pk: String? = null
+ *     override fun getId(): String? = pk
+ *     override fun setId(id: String) { pk = id }
+ * }
+ * // result == entity.isNew()
+ * ```
+ *
+ * @param U 생성/수정 작업 주체 타입
+ * @param PK 엔티티 식별자 타입
  */
 abstract class AbstractCassandraAuditable<U: Any, PK: Any>
     : AbstractCassandraPersistable<PK>(), Auditable<U, PK, Instant> {
@@ -32,69 +46,132 @@ abstract class AbstractCassandraAuditable<U: Any, PK: Any>
     val lastModifiedAt: Instant? get() = _lastModifiedAt
 
     /**
-     * Transient object 인지, Persistant Object 인지 판단한다
+     * 엔티티가 아직 저장되지 않았는지 여부를 반환합니다.
+     *
+     * ## 동작/계약
+     * - `_createdAt == null`이면 `true`를 반환합니다.
+     * - `_createdAt`이 설정된 뒤에는 `false`를 반환합니다.
+     *
+     * ```kotlin
+     * entity.setCreatedDate(Instant.parse("2024-01-01T00:00:00Z"))
+     * // result == entity.isNew()
+     * ```
      */
     override fun isNew(): Boolean = _createdAt == null
 
     /**
-     * Returns the user who created this entity.
+     * 생성자를 Optional 형태로 반환합니다.
      *
-     * @return the createdBy
+     * ## 동작/계약
+     * - `_createdBy`가 `null`이면 `Optional.empty()`를 반환합니다.
+     * - 값이 있으면 해당 값을 감싼 `Optional`을 반환합니다.
+     *
+     * ```kotlin
+     * entity.setCreatedBy("debop")
+     * // result == entity.getCreatedBy().orElse("unknown")
+     * ```
      */
     override fun getCreatedBy(): Optional<U> = Optional.ofNullable(_createdBy)
 
     /**
-     * Sets the user who created this entity.
+     * 생성자를 저장합니다.
      *
-     * @param createdBy the creating entity to set
+     * ## 동작/계약
+     * - 전달받은 값을 `_createdBy`에 그대로 대입합니다.
+     *
+     * ```kotlin
+     * entity.setCreatedBy("debop")
+     * // result == entity.createdBy
+     * ```
      */
     override fun setCreatedBy(createdBy: U) {
         _createdBy = createdBy
     }
 
     /**
-     * Returns the creation date of the entity.
+     * 생성 시각을 Optional 형태로 반환합니다.
      *
-     * @return the createdDate
+     * ## 동작/계약
+     * - `_createdAt`이 `null`이면 `Optional.empty()`를 반환합니다.
+     * - 값이 있으면 해당 시각을 감싼 `Optional`을 반환합니다.
+     *
+     * ```kotlin
+     * entity.setCreatedDate(Instant.parse("2024-01-01T00:00:00Z"))
+     * // result == entity.getCreatedDate().isPresent
+     * ```
      */
     override fun getCreatedDate(): Optional<Instant> = Optional.ofNullable(_createdAt)
 
     /**
-     * Sets the creation date of the entity.
+     * 생성 시각을 저장합니다.
      *
-     * @param creationDate the creation date to set
+     * ## 동작/계약
+     * - 전달받은 값을 `_createdAt`에 그대로 대입합니다.
+     *
+     * ```kotlin
+     * val createdAt = Instant.parse("2024-01-01T00:00:00Z")
+     * entity.setCreatedDate(createdAt)
+     * // result == entity.createdAt
+     * ```
      */
     override fun setCreatedDate(creationDate: Instant) {
         _createdAt = creationDate
     }
 
     /**
-     * Returns the user who modified the entity lastly.
+     * 마지막 수정자를 Optional 형태로 반환합니다.
      *
-     * @return the lastModifiedBy
+     * ## 동작/계약
+     * - `_lastModifiedBy`가 `null`이면 `Optional.empty()`를 반환합니다.
+     * - 값이 있으면 해당 값을 감싼 `Optional`을 반환합니다.
+     *
+     * ```kotlin
+     * entity.setLastModifiedBy("mike")
+     * // result == entity.getLastModifiedBy().orElse("unknown")
+     * ```
      */
     override fun getLastModifiedBy(): Optional<U> = Optional.ofNullable(_lastModifiedBy)
 
     /**
-     * Sets the user who modified the entity lastly.
+     * 마지막 수정자를 저장합니다.
      *
-     * @param lastModifiedBy the last modifying entity to set
+     * ## 동작/계약
+     * - 전달받은 값을 `_lastModifiedBy`에 그대로 대입합니다.
+     *
+     * ```kotlin
+     * entity.setLastModifiedBy("mike")
+     * // result == entity.lastModifiedBy
+     * ```
      */
     override fun setLastModifiedBy(lastModifiedBy: U) {
         _lastModifiedBy = lastModifiedBy
     }
 
     /**
-     * Returns the date of the last modification.
+     * 마지막 수정 시각을 Optional 형태로 반환합니다.
      *
-     * @return the lastModifiedDate
+     * ## 동작/계약
+     * - `_lastModifiedAt`이 `null`이면 `Optional.empty()`를 반환합니다.
+     * - 값이 있으면 해당 시각을 감싼 `Optional`을 반환합니다.
+     *
+     * ```kotlin
+     * entity.setLastModifiedDate(Instant.parse("2024-01-01T00:00:10Z"))
+     * // result == entity.getLastModifiedDate().isPresent
+     * ```
      */
     override fun getLastModifiedDate(): Optional<Instant> = Optional.ofNullable(_lastModifiedAt)
 
     /**
-     * Sets the date of the last modification.
+     * 마지막 수정 시각을 저장합니다.
      *
-     * @param lastModifiedDate the date of the last modification to set
+     * ## 동작/계약
+     * - 전달받은 값을 `_lastModifiedAt`에 그대로 대입합니다.
+     *
+     * ```kotlin
+     * val modifiedAt = Instant.parse("2024-01-01T00:00:10Z")
+     * entity.setLastModifiedDate(modifiedAt)
+     * // result == entity.lastModifiedAt
+     * ```
      */
     override fun setLastModifiedDate(lastModifiedDate: Instant) {
         _lastModifiedAt = lastModifiedDate

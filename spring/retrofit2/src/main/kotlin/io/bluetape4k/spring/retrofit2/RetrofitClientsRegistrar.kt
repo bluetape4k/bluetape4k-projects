@@ -13,7 +13,18 @@ import org.springframework.core.type.filter.AnnotationTypeFilter
 import org.springframework.util.ClassUtils
 
 /**
- * [Retrofit2Client] annotation이 적용된 class를 Retrofit Client로 만들어 Spring Bean으로 등록합니다.
+ * `@EnableRetrofitClients` 메타데이터를 읽어 `@Retrofit2Client` 인터페이스를 Spring 빈 정의로 등록한다.
+ *
+ * ## 동작/계약
+ * - `ClassPathScanningCandidateComponentProvider`로 독립 클래스이면서 애노테이션 타입이 아닌 후보만 스캔한다.
+ * - 각 후보의 `name`, `baseUrl`, `configuration` 속성으로 `RetrofitClientFactoryBean` 정의와 `RetrofitClientSpecification` 정의를 함께 등록한다.
+ * - 스캔 패키지는 `value`, `basePackages`, `basePackageClasses` 합집합이며 비어 있으면 importing 클래스의 패키지를 사용한다.
+ *
+ * ```kotlin
+ * @EnableRetrofitClients(basePackageClasses = [HttpbinApi::class])
+ * class RetrofitClientApp
+ * // registrar가 HttpbinApi 메타데이터를 읽어 FactoryBean 정의를 등록한다.
+ * ```
  */
 class RetrofitClientsRegistrar: ImportBeanDefinitionRegistrar {
 
