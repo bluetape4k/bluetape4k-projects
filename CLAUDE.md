@@ -174,9 +174,9 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 - **exposed-jackson/jackson3**: Exposed JSON 컬럼 지원 (Jackson 2.x / 3.x)
 - **exposed-fastjson2**: Exposed JSON 컬럼 지원 (Fastjson2)
 - **exposed-jasypt**: Exposed 암호화 컬럼 (Jasypt)
-- **exposed-tests**: JDBC 기반 테스트 공통 인프라
-- **exposed-jdbc-tests**: JDBC 테스트 지원 모듈
-- **exposed-r2dbc-tests**: R2DBC 테스트 공통 인프라
+- **exposed-measured**: Exposed 쿼리 실행 시간 측정 (Micrometer 통합)
+- **exposed-jdbc-tests**: JDBC 기반 테스트 공통 인프라
+- **exposed-r2dbc-tests**: R2DBC 기반 테스트 공통 인프라
 - **hibernate**: Hibernate 통합
 - **hibernate-reactive**: Hibernate Reactive
 - **jdbc**: JDBC 유틸리티
@@ -187,9 +187,10 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 
 | 사용 목적 | 권장 모듈 |
 |-----------|-----------|
-| R2DBC, Jackson, 암호화/압축 컬럼 타입 | `bluetape4k-exposed-core` |
+| Jackson/암호화/압축 컬럼 타입, R2DBC와 함께 사용 | `bluetape4k-exposed-core` |
 | DAO Entity, 커스텀 IdTable | `bluetape4k-exposed-dao` |
 | JDBC Repository, 쿼리, 트랜잭션 | `bluetape4k-exposed-jdbc` |
+| 쿼리 실행 시간 측정 (Micrometer) | `bluetape4k-exposed-measured` |
 | 기존 코드 그대로 유지 | `bluetape4k-exposed` (umbrella) |
 
 #### Infrastructure Modules (`infra/`)
@@ -197,11 +198,25 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 - **redis**: Lettuce/Redisson, 고성능 Codec, Near Cache
 - **kafka**: Kafka 클라이언트
 - **resilience4j**: Resilience4j + Coroutines, Coroutines Cache
-- **cache**: 캐시 추상화
 - **bucket4j**: Rate limiting
 - **micrometer**: 메트릭
 - **opentelemetry**: 분산 추적
 - **nats**: NATS 메시징
+
+##### 캐시 모듈 (`infra/cache-*`)
+
+플러그인 방식으로 백엔드를 교체할 수 있는 캐시 추상화 레이어입니다.
+
+- **cache**: 캐시 추상화 umbrella 모듈
+- **cache-core**: 공통 인터페이스 — `AsyncCache`, `SuspendCache`, `AsyncNearCache`, `SuspendNearCache`
+- **cache-local**: Caffeine 기반 로컬 캐시
+- **cache-lettuce**: Lettuce(Redis) 기반 분산 캐시
+- **cache-redisson**: Redisson 기반 분산 캐시
+- **cache-redisson-near**: Redisson + Caffeine 2-Tier Near Cache
+- **cache-hazelcast**: Hazelcast 기반 분산 캐시
+- **cache-hazelcast-near**: Hazelcast + Caffeine 2-Tier Near Cache
+- **cache-ignite**: Apache Ignite 기반 분산 캐시
+- **cache-ignite-near**: Ignite + Caffeine 2-Tier Near Cache
 
 #### Spring Modules (`spring/`)
 
