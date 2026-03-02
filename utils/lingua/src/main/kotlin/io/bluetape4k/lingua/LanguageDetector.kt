@@ -9,6 +9,10 @@ import com.github.pemistahl.lingua.api.LanguageDetectorBuilder
 /**
  * 모든 언어를 검출하는 [LanguageDetector]를 생성합니다.
  *
+ * ## 동작/계약
+ * - [LanguageDetectorBuilder.fromAllLanguages] 경로로 detector를 생성합니다.
+ * - [builder] 설정을 적용한 새 detector 인스턴스를 반환합니다.
+ *
  * ```
  * val detector = allLanguageDetector {
  *      withPreloadedLanguageModels()
@@ -32,6 +36,10 @@ inline fun allLanguageDetector(
 
 /**
  * 지정된 [languages]를 제외한 언어를 검출하는 [LanguageDetector]를 생성합니다.
+ *
+ * ## 동작/계약
+ * - [languages]를 제외한 전체 언어 집합으로 detector를 구성합니다.
+ * - [builder] 설정을 적용한 새 detector 인스턴스를 반환합니다.
  *
  * ```
  * val exceptLanguages = setOf(Language.GERMAN, Language.THAI)
@@ -61,6 +69,10 @@ inline fun allLanguageWithoutDetector(
 /**
  * 모든 말로된 언어를 검출하는 [LanguageDetector]를 생성합니다.
  *
+ * ## 동작/계약
+ * - [LanguageDetectorBuilder.fromAllSpokenLanguages] 경로를 사용합니다.
+ * - [builder]를 적용한 새 detector를 반환합니다.
+ *
  * ```
  * val detector = allSpokenLanguageDetector {
  *     withPreloadedLanguageModels()
@@ -82,6 +94,10 @@ inline fun allSpokenLanguageDetector(
 
 /**
  * 지정된 [languages] 언어를 검출하는 [LanguageDetector]를 생성합니다.
+ *
+ * ## 동작/계약
+ * - 전달된 언어 집합만 대상으로 detector를 구성합니다.
+ * - [builder] 설정을 반영한 새 detector를 반환합니다.
  *
  * ```
  * val languages = setOf(Language.ENGLISH, Language.KOREAN)
@@ -112,6 +128,10 @@ inline fun languageDetectorOf(
 
 /**
  * 지정된 [languages] 언어를 검출하는 [LanguageDetector]를 생성합니다.
+ *
+ * ## 동작/계약
+ * - [languageDetectorOf] DSL 버전에 위임해 detector를 생성합니다.
+ * - preload/low-accuracy 옵션은 boolean 인자에 따라 선택 적용됩니다.
  *
  * ```
  * val languages = setOf(Language.ENGLISH, Language.KOREAN)
@@ -152,6 +172,10 @@ fun languageDetectorOf(
 /**
  * 지정된 [isoCodes] 언어를 검출하는 [LanguageDetector]를 생성합니다.
  *
+ * ## 동작/계약
+ * - ISO 639-1 코드 집합으로 detector를 구성합니다.
+ * - [builder] 설정을 적용한 새 detector를 반환합니다.
+ *
  * ```
  * val isoCodes = setOf(IsoCode639_1.EN, IsoCode639_1.KO)
  * val detector = languageDetectorOf(isoCodes) {
@@ -180,6 +204,10 @@ inline fun languageDetectorOf(
 
 /**
  * 지정된 [isoCodes] 언어를 검출하는 [LanguageDetector]를 생성합니다.
+ *
+ * ## 동작/계약
+ * - ISO 639-3 코드 집합으로 detector를 구성합니다.
+ * - [builder] 설정을 적용한 새 detector를 반환합니다.
  *
  * ```
  * val isoCodes = setOf(IsoCode639_3.EN, IsoCode639_3.KO)

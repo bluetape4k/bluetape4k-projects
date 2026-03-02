@@ -11,6 +11,14 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.ByteArraySerializer
 import java.util.concurrent.ConcurrentLinkedQueue
 
+/**
+ * Logback 이벤트를 Kafka 토픽으로 전송하는 appender 구현체입니다.
+ *
+ * ## 동작/계약
+ * - Kafka 클라이언트 내부 로그는 [deferQueue]에 지연 적재 후 순차 전송합니다.
+ * - 전송 실패는 [exportExceptionHandler]를 통해 경고 및 fallback appender로 전달됩니다.
+ * - 종료 시 producer flush/close를 시도합니다.
+ */
 class KafkaAppender<E: Any>: AbstractKafkaAppender<E>() {
 
     companion object {
@@ -51,6 +59,10 @@ class KafkaAppender<E: Any>: AbstractKafkaAppender<E>() {
 
     /**
      * Kafka 관련 로그를 모아 둔 deferQueue의 로그를 발송한다.
+     *
+     * ## 동작/계약
+     * - 큐를 비울 때까지 poll하며 append를 재호출합니다.
+     * - drain 후 producer flush를 수행합니다.
      */
     private fun drainDeferQueue() {
         do {

@@ -9,6 +9,14 @@ import io.bluetape4k.logback.kafka.keyprovider.HostnameKafkaKeyProvider
 import io.bluetape4k.logback.kafka.keyprovider.KafkaKeyProvider
 import java.util.concurrent.CopyOnWriteArrayList
 
+/**
+ * Kafka 전송형 Logback appender의 공통 설정/검증 베이스 클래스입니다.
+ *
+ * ## 동작/계약
+ * - producer 설정, key 제공자, exporter, encoder를 공통 프로퍼티로 관리합니다.
+ * - [checkOptions]는 필수 설정 누락 시 오류 로그를 남기고 `false`를 반환합니다.
+ * - [partition]은 음수 입력을 0으로 보정합니다.
+ */
 abstract class AbstractKafkaAppender<E: Any>: UnsynchronizedAppenderBase<E>(), AppenderAttachable<E> {
 
     companion object {
@@ -45,11 +53,23 @@ abstract class AbstractKafkaAppender<E: Any>: UnsynchronizedAppenderBase<E>(), A
 
     var encoder: Encoder<E>? = null
 
+    /**
+     * producer config 항목을 추가합니다.
+     *
+     * ## 동작/계약
+     * - 기존 키가 있으면 새 값으로 덮어씁니다.
+     */
     open fun addProducerConfigValue(key: String, value: Any?) {
         producerConfig[key] = value
         addInfo("Add producer config: key=$key, value=$value")
     }
 
+    /**
+     * `key=value` 문자열을 producer config로 추가합니다.
+     *
+     * ## 동작/계약
+     * - 파싱 실패 시 오류 로그를 남기고 항목을 추가하지 않습니다.
+     */
     open fun addProducerConfigValue(keyValue: String) {
         runCatching {
             val (key, value) = keyValue.split("=", limit = 2)
@@ -61,6 +81,7 @@ abstract class AbstractKafkaAppender<E: Any>: UnsynchronizedAppenderBase<E>(), A
         }
     }
 
+    /** 현재 producer config 스냅샷을 반환합니다. */
     fun getProducerConfig(): Map<String, Any?> {
         return producerConfig
     }
