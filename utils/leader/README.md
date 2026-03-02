@@ -16,9 +16,28 @@ dependencies {
 
 ## 주요 기능
 
+### 단일 리더 선출 (1개만 동시 실행)
+
 - **LeaderElection**: 동기 방식 리더 선출
 - **AsyncLeaderElection**: 비동기 방식 리더 선출 (CompletableFuture)
 - **SuspendLeaderElection**: 코루틴 방식 리더 선출 (suspend 함수)
+- **VirtualThreadLeaderElection**: Virtual Thread 기반 비동기 리더 선출 (VirtualFuture)
+
+### 복수 리더 선출 (N개 동시 실행)
+
+- **LeaderGroupElection**: 동기 방식 복수 리더 선출 (Semaphore 기반)
+- **SuspendLeaderGroupElection**: 코루틴 방식 복수 리더 선출 (suspend Semaphore 기반)
+
+### 로컬 구현체
+
+| 구현체 | 인터페이스 | 동기화 방식 |
+|--------|-----------|------------|
+| `LocalLeaderElection` | `LeaderElection` | `ReentrantLock` (재진입 지원) |
+| `LocalAsyncLeaderElection` | `AsyncLeaderElection` | `ReentrantLock` + `CompletableFuture` |
+| `LocalSuspendLeaderElection` | `SuspendLeaderElection` | Kotlin `Mutex` |
+| `LocalVirtualThreadLeaderElection` | `VirtualThreadLeaderElection` | `ReentrantLock` + Virtual Thread |
+| `LocalLeaderGroupElection` | `LeaderGroupElection` | `java.util.concurrent.Semaphore` |
+| `LocalSuspendLeaderGroupElection` | `SuspendLeaderGroupElection` | `kotlinx.coroutines.sync.Semaphore` |
 
 ## 사용 예시
 
@@ -98,6 +117,51 @@ class MyCoroutineService(private val leaderElection: SuspendLeaderElection) {
         kotlinx.coroutines.delay(1000)
         return "Suspend task completed"
     }
+}
+```
+
+### Virtual Thread 방식 (VirtualThreadLeaderElection)
+
+```kotlin
+import io.bluetape4k.leader.local.LocalVirtualThreadLeaderElection
+
+val election = LocalVirtualThreadLeaderElection()
+
+// VirtualFuture 반환 — await() 또는 toCompletableFuture() 로 결과 획득
+val future = election.runAsyncIfLeader("job-lock") {
+    performExpensiveIO()  // Virtual Thread가 I/O 블로킹 시 carrier thread 반납
+}
+
+val result = future.await()
+```
+
+### 복수 리더 선출 — 동시에 N개까지 실행 (LeaderGroupElection)
+
+단일 리더가 아닌 최대 `maxLeaders`개까지 동시에 작업을 허용합니다.
+슬롯이 가득 찬 경우 빈 슬롯이 생길 때까지 대기합니다.
+
+```kotlin
+import io.bluetape4k.leader.local.LocalLeaderGroupElection
+import io.bluetape4k.leader.coroutines.LocalSuspendLeaderGroupElection
+
+// 동기 방식 — 최대 3개 스레드 동시 실행
+val election = LocalLeaderGroupElection(maxLeaders = 3)
+
+val result = election.runIfLeader("batch-job") {
+    processChunk()  // 슬롯 획득 → 실행 → 슬롯 자동 반납
+}
+
+// 상태 조회
+val state = election.state("batch-job")
+println("활성 리더: ${state.activeCount} / ${state.maxLeaders}")
+println("남은 슬롯: ${state.availableSlots}")
+println("가득 참: ${state.isFull}, 비어 있음: ${state.isEmpty}")
+
+// 코루틴 방식 — 최대 3개 코루틴 동시 실행
+val suspendElection = LocalSuspendLeaderGroupElection(maxLeaders = 3)
+
+val result = suspendElection.runIfLeader("batch-job") {
+    processChunkSuspend()
 }
 ```
 
@@ -227,16 +291,51 @@ interface SuspendLeaderElection {
 
 ## 주요 기능 상세
 
-| 파일                                    | 설명                 |
-|---------------------------------------|--------------------|
-| `LeaderElection.kt`                   | 동기 방식 리더 선출 인터페이스  |
-| `AsyncLeaderElection.kt`              | 비동기 방식 리더 선출 인터페이스 |
-| `coroutines/SuspendLeaderElection.kt` | 코루틴 방식 리더 선출 인터페이스 |
+### 단일 리더 인터페이스
+
+| 파일                                    | 설명                              |
+|---------------------------------------|----------------------------------|
+| `LeaderElection.kt`                   | 동기 방식 리더 선출 인터페이스             |
+| `AsyncLeaderElection.kt`              | 비동기 방식 리더 선출 인터페이스 (CompletableFuture) |
+| `VirtualThreadLeaderElection.kt`      | Virtual Thread 기반 비동기 리더 선출 인터페이스 (VirtualFuture) |
+| `coroutines/SuspendLeaderElection.kt` | 코루틴 방식 리더 선출 인터페이스            |
+
+### 단일 리더 로컬 구현체
+
+| 파일                                          | 설명                                           |
+|---------------------------------------------|----------------------------------------------|
+| `local/LocalLeaderElection.kt`              | `ReentrantLock` 기반 단일 리더 선출 (재진입 지원)        |
+| `local/LocalAsyncLeaderElection.kt`         | `ReentrantLock` + `CompletableFuture` 비동기 구현체 |
+| `local/LocalVirtualThreadLeaderElection.kt` | `ReentrantLock` + Virtual Thread 기반 구현체       |
+| `coroutines/LocalSuspendLeaderElection.kt`  | Kotlin `Mutex` 기반 코루틴 구현체 (재진입 불가)           |
+
+### 복수 리더 인터페이스
+
+| 파일                                           | 설명                                     |
+|----------------------------------------------|----------------------------------------|
+| `LeaderGroupElection.kt`                     | 동기 방식 복수 리더 선출 인터페이스 (Semaphore 기반)  |
+| `LeaderGroupState.kt`                        | 리더 그룹 상태 데이터 클래스                      |
+| `coroutines/SuspendLeaderGroupElection.kt`   | 코루틴 방식 복수 리더 선출 인터페이스                 |
+
+### 복수 리더 로컬 구현체
+
+| 파일                                                 | 설명                                              |
+|----------------------------------------------------|--------------------------------------------------|
+| `local/LocalLeaderGroupElection.kt`                | `java.util.concurrent.Semaphore` 기반 구현체 (스레드 블로킹) |
+| `coroutines/LocalSuspendLeaderGroupElection.kt`    | `kotlinx.coroutines.sync.Semaphore` 기반 구현체 (코루틴 suspend) |
 
 ## 사용 시나리오
 
+### 단일 리더 (LeaderElection)
+
 1. **스케줄 작업**: 여러 인스턴스에서 동일한 스케줄 작업이 실행되지 않도록 방지
-2. **배치 작업**: 대용량 데이터 처리 작업을 하나의 인스턴스에서만 실행
-3. **캐시 갱신**: 분산 캐시의 갱신 작업을 하나의 인스턴스에서만 수행
-4. **알림 발송**: 중복 알림 방지
-5. **데이터 동기화**: 외부 시스템과의 동기화 작업 중복 방지
+2. **캐시 갱신**: 분산 캐시의 갱신 작업을 하나의 인스턴스에서만 수행
+3. **알림 발송**: 중복 알림 방지
+4. **데이터 동기화**: 외부 시스템과의 동기화 작업 중복 방지
+
+### 복수 리더 (LeaderGroupElection)
+
+1. **병렬 배치 처리**: 대용량 데이터를 N개 청크로 나누어 동시 처리 (처리 수 제어)
+2. **Rate Limiting**: 외부 API 호출 동시 요청 수 제한
+3. **작업 풀 관리**: 정해진 수의 워커만 특정 작업을 동시에 수행하도록 제어
+4. **리소스 보호**: DB 연결 등 제한된 리소스를 사용하는 작업의 동시성 제어

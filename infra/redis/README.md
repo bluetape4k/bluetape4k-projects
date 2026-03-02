@@ -165,25 +165,92 @@ val nearCache = RedissonNearCache(redisson, "near-cache") {
 
 ### 6. Redisson 리더 선출 (Leader Election)
 
+#### 단일 리더 선출 — 동시에 1개만 실행
+
 ```kotlin
 import io.bluetape4k.redis.redisson.leader.*
 import io.bluetape4k.redis.redisson.leader.coroutines.*
 
-// 리더 선출
-val leaderElection = RedissonLeaderElection(redisson, "leader-lock") {
-    watchDogTimeout(30, TimeUnit.SECONDS)
+val options = RedissonLeaderElectionOptions(
+    waitTime = Duration.ofSeconds(5),
+    leaseTime = Duration.ofSeconds(60),
+)
+
+// 동기 방식
+val leaderElection = RedissonLeaderElection(redissonClient, options)
+val result = leaderElection.runIfLeader("batch-job") {
+    println("I'm the leader! Running batch job...")
+    processBatch()
 }
 
-// 리더가 되어 작업 수행
-leaderElection.runIfLeader {
-    println("I'm the leader!")
-    // 리더만 수행하는 작업
-}
-
-// Coroutines 환경
-val suspendLeaderElection = RedissonSuspendLeaderElection(redisson, "leader-lock")
-suspendLeaderElection.runIfLeader {
+// 코루틴 방식
+val suspendElection = RedissonSuspendLeaderElection(redissonClient, options)
+val result = suspendElection.runIfLeader("batch-job") {
     println("I'm the leader in coroutines!")
+    processBatchSuspend()
+}
+
+// 확장 함수 방식
+val result = redissonClient.runIfLeader("batch-job", options) {
+    processBatch()
+}
+```
+
+#### 복수 리더 선출 (LeaderGroupElection) — 동시에 N개까지 실행
+
+`maxLeaders`개의 슬롯을 제공하며, 슬롯이 가득 찬 경우 `waitTime` 내에 슬롯을 획득하지 못하면
+`RedisException`을 던집니다. 분산 환경에서 배치 작업의 동시 처리 수를 제어할 때 유용합니다.
+
+```kotlin
+import io.bluetape4k.redis.redisson.leader.*
+import io.bluetape4k.redis.redisson.leader.coroutines.*
+
+val options = RedissonLeaderElectionOptions(
+    waitTime = Duration.ofSeconds(10),
+    leaseTime = Duration.ofSeconds(60),
+)
+
+// 동기 방식 — 최대 3개 스레드/프로세스 동시 실행
+val groupElection = RedissonLeaderGroupElection(redissonClient, maxLeaders = 3, options)
+
+val result = groupElection.runIfLeader("batch-job") {
+    processChunk()  // 슬롯 획득 → 작업 실행 → 슬롯 자동 반납
+}
+
+// 상태 조회
+val state = groupElection.state("batch-job")
+println("활성 리더: ${state.activeCount} / ${state.maxLeaders}")
+println("남은 슬롯: ${state.availableSlots}, 가득 참: ${state.isFull}")
+
+// 코루틴 방식 — 최대 3개 코루틴/프로세스 동시 실행
+val suspendGroupElection = RedissonSuspendLeaderGroupElection(redissonClient, maxLeaders = 3, options)
+
+val result = suspendGroupElection.runIfLeader("batch-job") {
+    processChunkSuspend()
+}
+
+// 확장 함수 방식
+val result = redissonClient.runIfLeaderGroup("batch-job", maxLeaders = 3, options) {
+    processChunk()
+}
+
+// suspend 확장 함수 방식
+val result = redissonClient.runSuspendIfLeaderGroup("batch-job", maxLeaders = 3, options) {
+    processChunkSuspend()
+}
+```
+
+#### LeaderGroupState — 상태 정보
+
+```kotlin
+data class LeaderGroupState(
+    val lockName: String,       // 락 이름
+    val maxLeaders: Int,        // 최대 동시 리더 수
+    val activeCount: Int,       // 현재 활성 리더 수
+) {
+    val availableSlots: Int     // 남은 슬롯 수
+    val isFull: Boolean         // 슬롯이 가득 찬지 여부
+    val isEmpty: Boolean        // 활성 리더가 없는지 여부
 }
 ```
 
