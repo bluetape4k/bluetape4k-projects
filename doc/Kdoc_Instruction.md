@@ -57,24 +57,28 @@ Bluetape4k 공개 API KDoc 작성 지침(압축판)입니다.
 - 반드시 ` ```kotlin ` 블록
 - 3~8줄, 최소 재현
 - 테스트 assertion 값을 반영한 결과 표현 권장
+- 기존 KDoc에 `by Debop`, `by Sunghyouk Bae` 맥락으로 작성된 예제가 있으면 보존
 - 출력 표현은 다음 우선:
   - `// result == [...]`
   - `// value == true`
 - `println`, `check`는 꼭 필요한 경우에만 사용
 
-## 7) 타입별 요약 규칙
+## 7) 보존 규칙
+- 기존 KDoc에 외부 링크(URL, 레퍼런스 링크)가 있으면 보존
+
+## 8) 타입별 요약 규칙
 - Marker interface: 역할/호출 계약만 간결히
 - Enum: enum 타입 설명 + 각 상수 의미 개별 설명
 - Factory/static constructor: 목적, 인자 검증, 예외를 함수 단위로 명시
 
-## 8) assert/contract 특이사항
+## 9) assert/contract 특이사항
 - `assert` 기반 API:
   - `-ea` 필요 여부
   - 실패 시 `AssertionError`
 - Kotlin contracts 사용 API:
   - 스마트 캐스트/계약 효과 1줄 명시
 
-## 9) 리뷰 체크리스트
+## 10) 리뷰 체크리스트
 - 공개 API 누락 없는가?
 - 불필요한 KDoc이 들어가 있지 않은가?
 - 구현과 문서가 1:1로 맞는가?
