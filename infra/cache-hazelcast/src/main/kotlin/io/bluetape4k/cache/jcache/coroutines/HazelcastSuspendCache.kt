@@ -20,18 +20,36 @@ import javax.cache.configuration.Configuration
 import javax.cache.configuration.MutableConfiguration
 
 /**
- * Hazelcast JCache 기반 Coroutines용 [SuspendCache] 구현체입니다.
+ * Hazelcast JCache를 코루틴 친화적인 [SuspendCache]로 감싼 구현체입니다.
  *
- * `unwrap(ICache::class.java)`에 성공하면 Hazelcast 비동기 API를 활용하고,
- * 실패하면 표준 JCache 동기 API를 `Dispatchers.IO`에서 실행합니다.
+ * ## 동작/계약
+ * - `cache.unwrap(ICache::class.java)`가 성공하면 Hazelcast 비동기 API를 우선 사용합니다.
+ * - unwrap 실패 시 표준 JCache 동기 API를 `Dispatchers.IO`에서 실행합니다.
+ * - 캐시 엔트리 저장소는 외부 `cache` 인스턴스를 그대로 사용하며 새 저장소를 만들지 않습니다.
  *
- * @param K key type
- * @param V value type
- * @property cache Hazelcast JCache 인스턴스
+ * ```kotlin
+ * val cache = HazelcastSuspendCache<String, String>("users")
+ * cache.put("u:1", "debop")
+ * val value = cache.get("u:1")
+ * // value == "debop"
+ * ```
  */
 class HazelcastSuspendCache<K: Any, V: Any>(private val cache: JCache<K, V>): SuspendCache<K, V> {
 
     companion object: KLoggingChannel() {
+        /**
+         * 캐시 이름과 구성으로 [HazelcastSuspendCache]를 생성합니다.
+         *
+         * ## 동작/계약
+         * - [cacheName]이 blank면 `requireNotBlank("cacheName")`로 `IllegalArgumentException`이 발생합니다.
+         * - 동일 이름 캐시가 있으면 재사용하고, 없으면 [configuration]으로 새 캐시를 생성합니다.
+         * - 반환 객체는 JCache 인스턴스를 공유하며 호출마다 새 래퍼를 생성합니다.
+         *
+         * ```kotlin
+         * val cache = HazelcastSuspendCache("users", MutableConfiguration<String, String>())
+         * // cache.isClosed() == false
+         * ```
+         */
         @JvmStatic
         operator fun <K: Any, V: Any> invoke(
             cacheName: String,
@@ -44,6 +62,20 @@ class HazelcastSuspendCache<K: Any, V: Any>(private val cache: JCache<K, V>): Su
             return HazelcastSuspendCache(jcache)
         }
 
+        /**
+         * reified 타입으로 키/값 타입이 지정된 [HazelcastSuspendCache]를 생성합니다.
+         *
+         * ## 동작/계약
+         * - [cacheName] blank 입력은 `IllegalArgumentException`을 발생시킵니다.
+         * - `MutableConfiguration#setTypes`로 `K`, `V` 타입 정보를 강제합니다.
+         * - 기존 캐시가 있으면 재사용, 없으면 타입 정보가 포함된 설정으로 생성합니다.
+         *
+         * ```kotlin
+         * val cache = HazelcastSuspendCache<String, Int>("scores")
+         * cache.put("u1", 10)
+         * // cache.get("u1") == 10
+         * ```
+         */
         @JvmStatic
         inline operator fun <reified K: Any, reified V: Any> invoke(
             cacheName: String,
