@@ -21,10 +21,21 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 
 /**
- * R2dbcEntityMapLoader는 Exposed를 사용하여 DB에서 데이터를 비동기적으로 로드하는 [MapLoaderAsync]입니다.
+ * R2DBC 트랜잭션 안에서 DB 조회 함수를 실행하는 Redisson 비동기 [MapLoaderAsync] 구현입니다.
  *
- * @param ID ID 타입
- * @param E 엔티티 타입
+ * ## 동작/계약
+ * - [load]는 `suspendTransaction`에서 [loadByIdFromDB]를 실행해 단건 엔티티를 조회합니다.
+ * - [loadAllKeys]는 채널 기반 [AsyncIterator]를 반환하고, 백그라운드 코루틴에서 [loadAllIdsFromDB]를 실행합니다.
+ * - 전체 키 로딩은 60초 타임아웃을 적용하며, 타임아웃 시 경고 로그를 남기고 채널을 닫습니다.
+ *
+ * ```kotlin
+ * val loader = R2dbcEntityMapLoader<Long, LoaderEntity>(
+ *     loadByIdFromDB = { id -> repo.findByIdFromDb(id) },
+ *     loadAllIdsFromDB = { ch -> ids.forEach { ch.send(it) } }
+ * )
+ * // loader.loadAllKeys().toList().isNotEmpty() == true
+ * ```
+ *
  * @param loadByIdFromDB ID로 엔티티를 로드하는 함수
  * @param loadAllIdsFromDB 모든 ID를 로드하는 함수
  * @param scope CoroutineScope

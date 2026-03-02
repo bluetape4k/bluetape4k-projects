@@ -18,7 +18,20 @@ import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import org.redisson.api.RMap
 
 /**
- * R2dbcRedissonRepository는 Exposed와 Redisson을 사용하여 Redis에 데이터를 캐싱하는 Repository입니다.
+ * Exposed R2DBC와 Redisson `RMap`을 결합한 비동기 캐시 리포지토리 계약입니다.
+ *
+ * ## 동작/계약
+ * - `get/exists/getAll`은 캐시 중심 API이며 read-through 설정 시 캐시 미스에서 DB loader가 동작합니다.
+ * - `findByIdFromDb/findAllFromDb`는 항상 DB를 직접 조회하며 캐시를 우회합니다.
+ * - `put/putAll/invalidate`는 캐시 반영 API이고 DB 반영 여부는 writer 설정에 따라 달라집니다.
+ * - `batchSize`, `count`는 0보다 커야 하며 위반 시 [IllegalArgumentException]이 발생합니다.
+ *
+ * ```kotlin
+ * val id = getExistingId()
+ * val fromDb = repository.findByIdFromDb(id)
+ * val fromCache = repository.get(id)
+ * // fromCache == fromDb
+ * ```
  *
  * @param T Entity Type   Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable Record를 사용해 주세요.
  * @param ID Entity ID Type

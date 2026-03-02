@@ -15,7 +15,20 @@ import java.util.concurrent.CompletionStage
 
 
 /**
- * Redisson의 Write-through [MapWriterAsync] 를 Exposed와 코루틴를 사용하여 구현한 최상위 클래스입니다.
+ * R2DBC 트랜잭션 안에서 DB 쓰기/삭제 함수를 실행하는 Redisson 비동기 [MapWriterAsync] 구현입니다.
+ *
+ * ## 동작/계약
+ * - [write]는 전달된 map을 하나의 `suspendTransaction`에서 [writeToDb]에 위임합니다.
+ * - [delete]는 전달된 키 컬렉션을 하나의 `suspendTransaction`에서 [deleteFromDb]에 위임합니다.
+ * - 예외는 로깅 후 그대로 전파됩니다.
+ *
+ * ```kotlin
+ * val writer = R2dbcEntityMapWriter<Long, UserRecord>(
+ *     writeToDb = { batch -> repo.saveAll(batch.values) },
+ *     deleteFromDb = { ids -> repo.deleteAllByIds(ids) }
+ * )
+ * // writer.write(mapOf(1L to entity))
+ * ```
  *
  * @param writeToDb DB에 데이터를 쓰는 함수입니다.
  * @param deleteFromDb DB에서 데이터를 삭제하는 함수입니다.

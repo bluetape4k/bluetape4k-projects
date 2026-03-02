@@ -17,10 +17,23 @@ import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 
 /**
- * [HasIdentifier]를 구현한 엔티티를 위한 [R2dbcEntityMapLoader] 기본 구현체입니다.
+ * Exposed [IdTable]에서 엔티티/ID를 읽어 Redisson read-through에 공급하는 R2DBC loader입니다.
  *
- * @param ID ID 타입
- * @param E 엔티티 타입
+ * ## 동작/계약
+ * - 단건 조회는 `selectAll().where { id eq ... }.singleOrNull()` 결과를 [toEntity]로 변환합니다.
+ * - 전체 키 조회는 [batchSize] 단위 `limit/offset` 반복으로 채널에 키를 전송합니다.
+ * - [batchSize]가 0 이하이면 초기화 시 [IllegalArgumentException]이 발생합니다.
+ * - 테스트 기준으로 `batchSize=2`일 때도 3건 키를 모두 로드합니다.
+ *
+ * ```kotlin
+ * val loader = R2dbcExposedEntityMapLoader(
+ *     entityTable = LoaderTable,
+ *     batchSize = 2,
+ * ) { toLoaderEntity() }
+ * val ids = loader.loadAllKeys().toList()
+ * // ids.size == 3
+ * ```
+ *
  * @param entityTable `EntityID<ID>` 를 id 컬럼으로 가진 [IdTable] 입니다.
  * @param scope CoroutineScope
  * @param batchSize 배치 사이즈

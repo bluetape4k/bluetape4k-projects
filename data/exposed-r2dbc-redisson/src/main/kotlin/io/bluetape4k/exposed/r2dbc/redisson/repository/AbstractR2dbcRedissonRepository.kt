@@ -33,7 +33,18 @@ import org.redisson.api.RedissonClient
 import java.time.Duration
 
 /**
- * AbstractR2dbcRedissonRepository 는 Exposed와 Redisson을 사용하여 Redis에 데이터를 캐싱하는 Repository입니다.
+ * R2DBC 기반 read-through/write-through 캐시 저장소를 구현하기 위한 추상 베이스 클래스입니다.
+ *
+ * ## 동작/계약
+ * - 캐시 모드에 따라 loader/writer를 조합해 `RMapCache` 또는 `RLocalCachedMap`을 생성합니다.
+ * - [findAll]은 DB 조회 결과를 캐시에 동기화하고 반환합니다.
+ * - [getAll]은 [batchSize] 단위로 캐시를 조회하며, `batchSize <= 0`이면 [IllegalArgumentException]이 발생합니다.
+ *
+ * ```kotlin
+ * class UserRepo(...): AbstractR2dbcRedissonRepository<Long, UserTable, UserRecord>(...) { ... }
+ * val entities = repo.findAll(limit = 10)
+ * // entities.size <= 10
+ * ```
  *
  * @param T Entity Type      Exposed 용 엔티티는 Redis 저장 시 Serializer 때문에 문제가 됩니다. 꼭 Serializable Record를 사용해 주세요.
  * @param ID Entity ID Type
