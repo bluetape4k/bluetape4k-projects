@@ -23,22 +23,16 @@ import java.io.Reader
 import java.lang.reflect.Type
 
 /**
- * JSON 배열 응답을 스트리밍 방식의 [Iterator]로 디코딩하는 Jackson Decoder입니다.
+ * JSON 배열 응답을 스트리밍 [Iterator]로 디코딩하는 Jackson Decoder입니다.
  *
- * 반환되는 Iterator는 배열 끝까지 읽거나 파싱에 실패하면 내부 리소스를 정리합니다.
- * 중간에 순회를 중단할 경우, `Closeable`로 캐스팅해 명시적으로 `close()`를 호출해야 합니다.
+ * ## 동작/계약
+ * - JSON 응답이면 iterator 기반 스트리밍 디코딩을 수행합니다.
+ * - JSON이 아니면 [Decoder.Default]로 위임합니다.
+ * - 반환 iterator를 끝까지 소비하지 않으면 `Closeable`로 `close()`를 호출해 리소스를 정리해야 합니다.
  *
- * Example:
- *```
- * Feign.builder()
- *   .decoder(JacksonIteratorDecoder2())
- *   .doNotCloseAfterDecode()   // Required to fetch the iterator after the response is processed, need to be close
- *   .target(GitHub::class.java, "https://api.github.com")
- *
- * interface GitHub {
- *   @RequestLine("GET /repos/{owner}/{repo}/contributors")
- *   fun contributors(@Param("owner") owner String, @Param("repo") repo String): Iterator<Contributor>
- * }
+ * ```kotlin
+ * val decoder = JacksonIteratorDecoder2()
+ * // Iterator 응답 타입에서 요소를 순차 소비할 수 있음
  * ```
  */
 class JacksonIteratorDecoder2 private constructor(
@@ -50,7 +44,15 @@ class JacksonIteratorDecoder2 private constructor(
         val INSTANCE: JacksonIteratorDecoder2 by lazy { invoke() }
 
         /**
-         * Feign 연동용 인스턴스 생성을 위한 진입점을 제공합니다.
+         * [JacksonIteratorDecoder2] 인스턴스를 생성합니다.
+         *
+         * ## 동작/계약
+         * - [mapper] 기본값은 [Jackson.defaultJsonMapper]입니다.
+         *
+         * ```kotlin
+         * val decoder = JacksonIteratorDecoder2()
+         * // decoder != null
+         * ```
          */
         @JvmStatic
         operator fun invoke(mapper: JsonMapper = Jackson.defaultJsonMapper): JacksonIteratorDecoder2 {

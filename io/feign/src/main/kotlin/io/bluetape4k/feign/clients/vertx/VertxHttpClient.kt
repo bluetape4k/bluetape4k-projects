@@ -6,7 +6,16 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.vertx.core.http.HttpClient
 
 /**
- * Vertx [HttpClient]을 동기방식의 HTTP 통신에 사용하는 Feign 용 [Client]
+ * Vert.x [HttpClient]를 사용하는 Feign 동기 [Client] 구현입니다.
+ *
+ * ## 동작/계약
+ * - 내부 전송은 비동기 [sendAsync]를 사용하고 `get(timeout)`으로 동기 대기합니다.
+ * - timeout 기준은 [feign.Request.Options.readTimeout] 설정을 따릅니다.
+ *
+ * ```kotlin
+ * val client = VertxHttpClient()
+ * // client != null
+ * ```
  */
 class VertxHttpClient private constructor(
     private val vertxClient: HttpClient,
@@ -14,7 +23,15 @@ class VertxHttpClient private constructor(
 
     companion object: KLoggingChannel() {
         /**
-         * Feign 연동용 인스턴스 생성을 위한 진입점을 제공합니다.
+         * [VertxHttpClient] 인스턴스를 생성합니다.
+         *
+         * ## 동작/계약
+         * - 전달한 [vertxClient]를 그대로 사용합니다.
+ *
+ * ```kotlin
+ * val client = VertxHttpClient()
+ * // client != null
+ * ```
          */
         @JvmStatic
         operator fun invoke(vertxClient: HttpClient = vertxHttpClientOf()): VertxHttpClient {
@@ -22,9 +39,6 @@ class VertxHttpClient private constructor(
         }
     }
 
-    /**
-     * Feign 연동에서 `execute` 함수를 제공합니다.
-     */
     override fun execute(
         feignRequest: feign.Request,
         feignOptions: feign.Request.Options,

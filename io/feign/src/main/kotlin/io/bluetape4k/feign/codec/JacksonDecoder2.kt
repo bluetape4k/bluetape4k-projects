@@ -21,7 +21,17 @@ import java.io.Reader
 import java.lang.reflect.Type
 
 /**
- * `Content-Type` 에 따라 `application/json` 이 아닌 경우에는 `text/plain` 방식으로 decode 해주는 Decoder 입니다.
+ * JSON 응답은 Jackson으로, 그 외 응답은 기본 Feign decoder로 처리하는 Decoder입니다.
+ *
+ * ## 동작/계약
+ * - `Content-Type`이 JSON 계열이면 Jackson 경로([jsonDecode])를 사용합니다.
+ * - JSON이 아니면 [Decoder.Default]에 위임합니다.
+ * - 상태 코드 `204/404`는 `Util.emptyValueOf(type)`를 반환합니다.
+ *
+ * ```kotlin
+ * val decoder = JacksonDecoder2()
+ * // decoder.decode(response, MyType::class.java) 결과는 content-type에 따라 분기됨
+ * ```
  */
 class JacksonDecoder2 private constructor(
     private val mapper: JsonMapper,
@@ -33,7 +43,15 @@ class JacksonDecoder2 private constructor(
         val INSTANCE: JacksonDecoder2 by lazy { invoke() }
 
         /**
-         * Feign 연동용 인스턴스 생성을 위한 진입점을 제공합니다.
+         * [JacksonDecoder2] 인스턴스를 생성합니다.
+         *
+         * ## 동작/계약
+         * - [mapper] 기본값은 [Jackson.defaultJsonMapper]입니다.
+         *
+         * ```kotlin
+         * val decoder = JacksonDecoder2()
+         * // decoder != null
+         * ```
          */
         @JvmStatic
         operator fun invoke(mapper: JsonMapper = Jackson.defaultJsonMapper): JacksonDecoder2 {
@@ -42,7 +60,16 @@ class JacksonDecoder2 private constructor(
     }
 
     /**
-     * Feign 연동에서 `decode` 함수를 제공합니다.
+     * 응답을 reified 타입으로 디코딩합니다.
+     *
+     * ## 동작/계약
+     * - 내부적으로 [decode] 오버로드에 위임합니다.
+     * - 캐스팅 실패 시 `null`을 반환합니다.
+     *
+     * ```kotlin
+     * val value: MyType? = decoder.decode(response)
+     * // value == null || value is MyType
+     * ```
      */
     inline fun <reified T> decode(response: Response): T? {
         return decode(response, jacksonTypeRef<T>().type) as? T

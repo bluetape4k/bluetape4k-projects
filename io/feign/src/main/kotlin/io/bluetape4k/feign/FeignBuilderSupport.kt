@@ -7,17 +7,16 @@ import feign.codec.Decoder
 import feign.codec.Encoder
 
 /**
- * 기본 Encoder/Decoder를 적용한 [Feign.Builder]를 생성합니다.
+ * 기본 encoder/decoder가 적용된 [Feign.Builder]를 생성합니다.
  *
- * ```
- * val feignBuilder = feignBuilder {
- *      client(VertxHttpClient())
- * }
- * val api = feignBuilder.target<HttpbinApi>("https://nghttp2.org/httpbin")
- * ```
+ * ## 동작/계약
+ * - 기본값으로 [Encoder.Default], [Decoder.Default]를 설정합니다.
+ * - 이후 [builder] 블록에서 설정을 덮어쓸 수 있습니다.
  *
- * @param builder [Feign.Builder]를 초기화하는 함수
- * @return 설정 가능한 [Feign.Builder] 인스턴스
+ * ```kotlin
+ * val b = feignBuilder { client(VertxHttpClient()) }
+ * // b != null
+ * ```
  */
 inline fun feignBuilder(
     @BuilderInference builder: Feign.Builder.() -> Unit,
@@ -31,17 +30,14 @@ inline fun feignBuilder(
 /**
  * 공통 옵션이 적용된 [Feign.Builder]를 생성합니다.
  *
- * ```
- * val feignBuilder = feignBuilderOf(client=VertxHttpClient())
- * val api = feignBuilder.target<HttpbinApi>("https://nghttp2.org/httpbin")
- * ```
+ * ## 동작/계약
+ * - [client], [encoder], [decoder], [options], [logLevel]을 순서대로 설정합니다.
+ * - 반환된 builder는 추가 설정을 계속 적용할 수 있습니다.
  *
- * @param client  [feign.Client] 인스턴스
- * @param encoder [Encoder] 인스턴스
- * @param decoder [Decoder] 인스턴스
- * @param options 요청 옵션 정보
- * @param logLevel Feign 로깅 레벨
- * @return 공통 설정이 적용된 [Feign.Builder]
+ * ```kotlin
+ * val b = feignBuilderOf(client = VertxHttpClient())
+ * // b != null
+ * ```
  */
 fun feignBuilderOf(
     client: feign.Client,
@@ -60,7 +56,16 @@ fun feignBuilderOf(
 }
 
 /**
- * [feignBuilderOf]의 오탈자 호환 함수입니다.
+ * 오탈자 함수명(`feingBuilderOf`) 호환용 deprecated 래퍼입니다.
+ *
+ * ## 동작/계약
+ * - 내부에서 [feignBuilderOf]로 위임합니다.
+ * - 신규 코드는 [feignBuilderOf] 사용을 권장합니다.
+ *
+ * ```kotlin
+ * val b = feingBuilderOf(client = VertxHttpClient())
+ * // b != null
+ * ```
  */
 @Deprecated(
     message = "Use feignBuilderOf()",
@@ -81,29 +86,18 @@ fun feingBuilderOf(
 )
 
 /**
- * 지정한 타입의 Feign 클라이언트를 생성합니다.
+ * 지정 타입의 Feign API 클라이언트를 생성합니다.
  *
- * 동적 URL을 사용하려면 인터페이스의 첫 번째 인자로 [java.net.URI]를 선언하고,
- * 이 함수 호출 시 `baseUrl`을 생략하면 됩니다.
+ * ## 동작/계약
+ * - [baseUrl]이 blank면 [Target.EmptyTarget] 기반으로 생성합니다.
+ * - [baseUrl]이 있으면 해당 URL을 고정 대상으로 사용합니다.
  *
+ * ```kotlin
+ * val api = feignBuilderOf(client = VertxHttpClient()).client<MyApi>("https://example.com")
+ * // api != null
  * ```
- * interface GitHub {
- *   // host 값을 동적 url 로 사용합니다.
- *   // issue 는 RequestBody 로 전달됩니다
- *   @RequestLine("POST /repos/{owner}/{repo}/issues")
- *   fun createIssue(
- *      host:URI,
- *      issue: Issue,
- *      @Param("owner") owner String,
- *      @Param("repo") String repo
- *   ): Unit
- * }
  *
- * // Feign Client 를 생성합니다.
- * val client:GitHub = feignBuilderOf(client=ApacheHttp5C).target<GitHub>()
- * ```
- * @param baseUrl 서비스 기본 URL
- * @return 타입 [T]의 API 클라이언트
+ * @param baseUrl 대상 기본 URL입니다. blank면 동적 URL 타겟을 사용합니다.
  */
 inline fun <reified T: Any> Feign.Builder.client(baseUrl: String? = null): T = when {
     baseUrl.isNullOrBlank() -> target(Target.EmptyTarget.create(T::class.java))

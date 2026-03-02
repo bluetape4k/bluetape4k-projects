@@ -12,7 +12,17 @@ import java.util.*
 import java.util.concurrent.CompletableFuture
 
 /**
- * Feign 연동에서 사용하는 `AsyncVertxHttpClient` 타입입니다.
+ * Vert.x [HttpClient]를 사용하는 Feign 비동기 클라이언트 구현입니다.
+ *
+ * ## 동작/계약
+ * - [execute]는 Vert.x 요청을 [CompletableFuture]로 반환합니다.
+ * - close 시 내부 Vert.x client를 코루틴으로 종료합니다.
+ * - 기본 생성 경로는 [vertxHttpClientOf]를 사용합니다.
+ *
+ * ```kotlin
+ * val client = AsyncVertxHttpClient()
+ * // client != null
+ * ```
  */
 class AsyncVertxHttpClient private constructor(
     private val vertxClient: HttpClient,
@@ -20,7 +30,15 @@ class AsyncVertxHttpClient private constructor(
 
     companion object: KLoggingChannel() {
         /**
-         * Feign 연동용 인스턴스 생성을 위한 진입점을 제공합니다.
+         * [AsyncVertxHttpClient] 인스턴스를 생성합니다.
+         *
+         * ## 동작/계약
+         * - 전달한 [vertxClient]를 그대로 사용합니다.
+ *
+ * ```kotlin
+ * val client = AsyncVertxHttpClient()
+ * // client != null
+ * ```
          */
         @JvmStatic
         operator fun invoke(vertxClient: HttpClient = vertxHttpClientOf()): AsyncVertxHttpClient {
@@ -28,9 +46,6 @@ class AsyncVertxHttpClient private constructor(
         }
     }
 
-    /**
-     * Feign 연동에서 `execute` 함수를 제공합니다.
-     */
     override fun execute(
         feignRequest: feign.Request,
         feignOptions: Request.Options,
@@ -39,9 +54,6 @@ class AsyncVertxHttpClient private constructor(
         return vertxClient.sendAsync(feignRequest, feignOptions)
     }
 
-    /**
-     * Feign 연동 리소스를 정리하고 닫습니다.
-     */
     override fun close() {
         runBlocking {
             vertxClient.close().coAwait()

@@ -10,7 +10,17 @@ import io.bluetape4k.logging.KLogging
 import java.lang.reflect.Type
 
 /**
- * `jackson-modules-kotlin` 을 사용하여, Kotlin 수형에 대해서도 처리가 가능한 JSON 용 Encoder 입니다.
+ * Jackson 기반 JSON 요청 본문 인코더입니다.
+ *
+ * ## 동작/계약
+ * - [bodyType]을 Jackson JavaType으로 변환해 JSON 바이트로 직렬화합니다.
+ * - 결과 바이트를 UTF-8로 [RequestTemplate.body]에 설정합니다.
+ * - 직렬화 실패 시 [EncodeException]을 던집니다.
+ *
+ * ```kotlin
+ * val encoder = JacksonEncoder2()
+ * // encoder.encode(obj, type, template)로 본문 설정
+ * ```
  */
 class JacksonEncoder2 private constructor(
     private val mapper: JsonMapper,
@@ -20,7 +30,15 @@ class JacksonEncoder2 private constructor(
         val INSTANCE: JacksonEncoder2 by lazy { invoke() }
 
         /**
-         * Feign 연동용 인스턴스 생성을 위한 진입점을 제공합니다.
+         * [JacksonEncoder2] 인스턴스를 생성합니다.
+         *
+         * ## 동작/계약
+         * - [mapper] 기본값은 [Jackson.defaultJsonMapper]입니다.
+         *
+         * ```kotlin
+         * val encoder = JacksonEncoder2()
+         * // encoder != null
+         * ```
          */
         @JvmStatic
         operator fun invoke(mapper: JsonMapper = Jackson.defaultJsonMapper): JacksonEncoder2 {
