@@ -8,21 +8,19 @@ import java.io.InputStream
 import java.nio.charset.Charset
 
 /**
- * CSV(Comma-Separated Values) 포맷 파일을 읽어 [Record]로 변환하는 [RecordReader] 구현체입니다.
+ * univocity CSV 파서를 사용하는 [RecordReader] 구현체입니다.
  *
- * ```
- * val reader = CsvRecordReader()
- * val items:Sequence<Item> = reader.read(input, Charsets.UTF_8, skipHeaders = true) { record ->
- *     // record 처리
- *     // record to item by recordMapper
- *     record.getString("name")
- *     record.getInt("age")
- *     // ...
- *     Item(record.getString("name"), record.getInt("age"))
- * }
- * ```
+ * ## 동작/계약
+ * - [settings]로 생성한 [CsvParser]가 입력을 순차 파싱합니다.
+ * - [skipHeaders]가 `true`면 파싱 결과에서 첫 레코드를 drop 합니다.
+ * - 반환 시퀀스는 lazy이며 소비 시점에 변환 람다가 실행됩니다.
  *
- * @property settings CSV 파서 설정
+ * ```kotlin
+ * val names = CsvRecordReader()
+ *     .read(input, skipHeaders = true) { it.getString("name") }
+ *     .toList()
+ * // names == listOf("Alice", "Bob")
+ * ```
  */
 class CsvRecordReader(
     private val settings: CsvParserSettings = DefaultCsvParserSettings,
@@ -31,13 +29,17 @@ class CsvRecordReader(
     companion object: KLogging()
 
     /**
-     * CSV 입력 스트림에서 레코드를 순차적으로 읽어 [Sequence]로 반환합니다.
+     * CSV 입력 스트림을 읽어 변환 결과 시퀀스를 반환합니다.
      *
-     * @param input CSV 파일의 입력 스트림
-     * @param encoding CSV 파일의 인코딩
-     * @param skipHeaders CSV 파일의 헤더를 건너뛸지 여부
-     * @param transform Record 를 원하는 타입으로 변환하는 함수
-     * @return 변환된 데이터의 시퀀스
+     * ## 동작/계약
+     * - `iterateRecords(input, encoding)` 결과를 [Sequence]로 감싸 반환합니다.
+     * - `drop(1)`로 헤더 스킵을 처리하므로 `skipHeaders=true`면 첫 행은 결과에 포함되지 않습니다.
+     * - 파싱 또는 [transform] 실패 예외는 호출자에게 전파됩니다.
+     *
+     * ```kotlin
+     * val ids = CsvRecordReader().read(input, skipHeaders = true) { it.getLong("id") }.toList()
+     * // ids == listOf(1L, 2L)
+     * ```
      */
     override fun <T> read(
         input: InputStream,

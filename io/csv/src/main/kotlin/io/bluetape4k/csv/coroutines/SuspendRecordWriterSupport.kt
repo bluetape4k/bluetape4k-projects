@@ -12,21 +12,17 @@ import java.nio.charset.Charset
 import kotlin.text.Charsets.UTF_8
 
 /**
- * CSV 파일에 데이터 행을 기록합니다.
+ * 파일에 CSV 행 데이터를 코루틴으로 기록합니다.
  *
- * ```
- * val file = File("output.csv")
- * file.writeCsvRecords(
- *     headers = listOf("name", "age"),
- *     rows = listOf(listOf("Alice", 20), listOf("Bob", 30))
- * )
- * ```
+ * ## 동작/계약
+ * - 전체 쓰기 작업은 `Dispatchers.IO`에서 실행됩니다.
+ * - [headers]가 있으면 먼저 기록 후 [rows]를 순차 기록합니다.
+ * - 함수 반환 시 writer가 닫힙니다.
  *
- * @receiver 출력 CSV 파일
- * @param headers 헤더 이름들 (null이면 헤더를 기록하지 않음)
- * @param rows 기록할 데이터 행들
- * @param cs 파일 인코딩 (기본: UTF-8)
- * @param settings CSV writer 설정
+ * ```kotlin
+ * file.writeCsvRecordsSuspending(headers = listOf("name"), rows = listOf(listOf("Alice")))
+ * // 파일 첫 두 행: name / Alice
+ * ```
  */
 suspend fun File.writeCsvRecordsSuspending(
     headers: List<String>? = null,
@@ -45,23 +41,17 @@ suspend fun File.writeCsvRecordsSuspending(
 }
 
 /**
- * CSV 파일에 엔티티를 변환하여 기록합니다.
+ * 파일에 엔티티 컬렉션을 CSV 행으로 변환해 기록합니다.
  *
- * ```
- * val file = File("output.csv")
- * val items = listOf(Item("Alice", 20), Item("Bob", 30))
- * file.writeCsvRecords(
- *     headers = listOf("name", "age"),
- *     entities = items,
- * ) { item -> listOf(item.name, item.age) }
- * ```
+ * ## 동작/계약
+ * - 전체 쓰기는 `Dispatchers.IO`에서 실행됩니다.
+ * - [transform] 결과를 행으로 기록합니다.
+ * - 변환/쓰기 예외는 호출자에게 전파됩니다.
  *
- * @receiver 출력 CSV 파일
- * @param headers 헤더 이름들 (null이면 헤더를 기록하지 않음)
- * @param entities 기록할 엔티티들
- * @param cs 파일 인코딩 (기본: UTF-8)
- * @param settings CSV writer 설정
- * @param transform 엔티티를 데이터 행으로 변환하는 함수
+ * ```kotlin
+ * file.writeCsvRecordsSuspending(headers = listOf("name"), entities = listOf("Alice")) { listOf(it) }
+ * // 파일 첫 두 행: name / Alice
+ * ```
  */
 suspend fun <T> File.writeCsvRecordsSuspending(
     headers: List<String>? = null,
@@ -81,21 +71,17 @@ suspend fun <T> File.writeCsvRecordsSuspending(
 }
 
 /**
- * TSV 파일에 데이터 행을 기록합니다.
+ * 파일에 TSV 행 데이터를 코루틴으로 기록합니다.
  *
- * ```
- * val file = File("output.tsv")
- * file.writeTsvRecords(
- *     headers = listOf("name", "age"),
- *     rows = listOf(listOf("Alice", 20), listOf("Bob", 30))
- * )
- * ```
+ * ## 동작/계약
+ * - 전체 쓰기 작업은 `Dispatchers.IO`에서 실행됩니다.
+ * - [headers]가 있으면 먼저 기록 후 [rows]를 순차 기록합니다.
+ * - 함수 반환 시 writer가 닫힙니다.
  *
- * @receiver 출력 TSV 파일
- * @param headers 헤더 이름들 (null이면 헤더를 기록하지 않음)
- * @param rows 기록할 데이터 행들
- * @param cs 파일 인코딩 (기본: UTF-8)
- * @param settings TSV writer 설정
+ * ```kotlin
+ * file.writeTsvRecordsSuspending(headers = listOf("name"), rows = listOf(listOf("Alice")))
+ * // 파일 첫 두 행: name / Alice
+ * ```
  */
 suspend fun File.writeTsvRecordsSuspending(
     headers: List<String>? = null,
@@ -114,23 +100,17 @@ suspend fun File.writeTsvRecordsSuspending(
 }
 
 /**
- * TSV 파일에 엔티티를 변환하여 기록합니다.
+ * 파일에 엔티티 컬렉션을 TSV 행으로 변환해 기록합니다.
  *
- * ```
- * val file = File("output.tsv")
- * val items = listOf(Item("Alice", 20), Item("Bob", 30))
- * file.writeTsvRecords(
- *     headers = listOf("name", "age"),
- *     entities = items,
- * ) { item -> listOf(item.name, item.age) }
- * ```
+ * ## 동작/계약
+ * - 전체 쓰기는 `Dispatchers.IO`에서 실행됩니다.
+ * - [transform] 결과를 행으로 기록합니다.
+ * - 변환/쓰기 예외는 호출자에게 전파됩니다.
  *
- * @receiver 출력 TSV 파일
- * @param headers 헤더 이름들 (null이면 헤더를 기록하지 않음)
- * @param entities 기록할 엔티티들
- * @param cs 파일 인코딩 (기본: UTF-8)
- * @param settings TSV writer 설정
- * @param transform 엔티티를 데이터 행으로 변환하는 함수
+ * ```kotlin
+ * file.writeTsvRecordsSuspending(headers = listOf("name"), entities = listOf("Alice")) { listOf(it) }
+ * // 파일 첫 두 행: name / Alice
+ * ```
  */
 suspend fun <T> File.writeTsvRecordsSuspending(
     headers: List<String>? = null,

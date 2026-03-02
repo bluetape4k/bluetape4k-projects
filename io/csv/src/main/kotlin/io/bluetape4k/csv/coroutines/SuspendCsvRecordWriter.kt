@@ -8,17 +8,20 @@ import kotlinx.coroutines.flow.Flow
 import java.io.Writer
 
 /**
- * CSV 포맷으로 데이터를 파일로 쓰는 [SuspendRecordWriter] 입니다.
+ * CSV 행 데이터를 코루틴 방식으로 기록하는 [SuspendRecordWriter] 구현체입니다.
  *
- * ```
- * val writer = SuspendCsvRecordWriter(output)
- * writer.writeHeaders(listOf("name", "age"))
- * writer.writeRow(listOf("Alice", 20))
- * writer.writeRow(listOf("Bob", 30))
- * writer.close()
- * ```
+ * ## 동작/계약
+ * - 헤더/행 입력을 리스트로 복사해 [CsvWriter]에 전달합니다.
+ * - [Flow] 입력은 collect 순서대로 기록됩니다.
+ * - [close]는 내부 writer 종료 예외를 무시합니다.
  *
- * @property writer CSV writer
+ * ```kotlin
+ * SuspendCsvRecordWriter(output).use { writer ->
+ *     writer.writeHeaders("name", "age")
+ *     writer.writeRow(listOf("Alice", 20))
+ * }
+ * // output 첫 데이터 행 == "Alice,20"
+ * ```
  */
 class SuspendCsvRecordWriter private constructor(
     private val writer: CsvWriter,
@@ -26,10 +29,15 @@ class SuspendCsvRecordWriter private constructor(
 
     companion object: KLoggingChannel() {
         /**
-         * [CsvWriter]를 사용하여 [SuspendCsvRecordWriter] 인스턴스를 생성합니다.
+         * 기존 [CsvWriter]를 감싸는 [SuspendCsvRecordWriter]를 생성합니다.
          *
-         * @param writer CSV writer
-         * @return SuspendCsvRecordWriter 인스턴스
+         * ## 동작/계약
+         * - 전달한 writer 인스턴스를 그대로 사용합니다.
+         *
+         * ```kotlin
+         * val writer = SuspendCsvRecordWriter(CsvWriter(output))
+         * // writer != null
+         * ```
          */
         @JvmStatic
         operator fun invoke(writer: CsvWriter): SuspendCsvRecordWriter {
@@ -37,11 +45,15 @@ class SuspendCsvRecordWriter private constructor(
         }
 
         /**
-         * [Writer]와 설정을 사용하여 [SuspendCsvRecordWriter] 인스턴스를 생성합니다.
+         * [Writer]와 설정으로 [SuspendCsvRecordWriter]를 생성합니다.
          *
-         * @param writer 출력 스트림
-         * @param settings CSV writer 설정
-         * @return SuspendCsvRecordWriter 인스턴스
+         * ## 동작/계약
+         * - [settings] 기반 새 [CsvWriter]를 만들고 [invoke]에 위임합니다.
+         *
+         * ```kotlin
+         * val writer = SuspendCsvRecordWriter(output, DefaultCsvWriterSettings)
+         * // writer != null
+         * ```
          */
         @JvmStatic
         operator fun invoke(
@@ -53,43 +65,76 @@ class SuspendCsvRecordWriter private constructor(
     }
 
     /**
-     * CSV 파일의 헤더 행을 비동기로 기록합니다.
+     * 헤더 행을 기록합니다.
      *
-     * @param headers 헤더 이름들
+     * ## 동작/계약
+     * - [headers]를 리스트로 복사해 기록합니다.
+     *
+     * ```kotlin
+     * writer.writeHeaders(listOf("id", "name"))
+     * // 첫 행 == "id,name"
+     * ```
      */
     override suspend fun writeHeaders(headers: Iterable<String>) {
         writer.writeHeaders(headers.toList())
     }
 
     /**
-     * 하나의 CSV 데이터 행을 비동기로 기록합니다.
+     * 데이터 행 1건을 기록합니다.
      *
-     * @param row 기록할 데이터 행
+     * ## 동작/계약
+     * - [row]를 리스트로 복사해 기록합니다.
+     *
+     * ```kotlin
+     * writer.writeRow(listOf("Alice", 20))
+     * // 다음 행 == "Alice,20"
+     * ```
      */
     override suspend fun writeRow(row: Iterable<*>) {
         writer.writeRow(row.toList())
     }
 
     /**
-     * 여러 CSV 데이터 행을 비동기로 순차 기록합니다.
+     * 여러 데이터 행을 순차 기록합니다.
      *
-     * @param rows 기록할 데이터 행들
+     * ## 동작/계약
+     * - [rows]를 앞에서부터 순차 소비합니다.
+     *
+     * ```kotlin
+     * writer.writeAll(sequenceOf(listOf("A", 1), listOf("B", 2)))
+     * // 데이터 행 2건 기록됨
+     * ```
      */
     override suspend fun writeAll(rows: Sequence<Iterable<*>>) {
         rows.forEach { writeRow(it) }
     }
 
     /**
-     * [Flow]로 전달되는 CSV 데이터 행을 비동기로 수집하여 기록합니다.
+     * [Flow] 데이터 행을 수집해 순차 기록합니다.
      *
-     * @param rows 기록할 데이터 행들의 Flow
+     * ## 동작/계약
+     * - collect 순서대로 행을 기록합니다.
+     *
+     * ```kotlin
+     * writer.writeAll(kotlinx.coroutines.flow.flowOf(listOf("A", 1)))
+     * // 데이터 행 1건 기록됨
+     * ```
      */
     override suspend fun writeAll(rows: Flow<Iterable<*>>) {
         rows.collect { writeRow(it) }
     }
 
     /**
-     * CSV/TSV 처리 리소스를 정리하고 닫습니다.
+     * 내부 [CsvWriter]를 닫습니다.
+     *
+     * ## 동작/계약
+     * - 종료 중 예외는 무시됩니다.
+     *
+     * ```kotlin
+     * val writer = SuspendCsvRecordWriter(output)
+     * writer.close()
+     * // close 호출 후 예외 없음
+     * ```
      */
     override fun close() {
         runCatching { writer.close() }

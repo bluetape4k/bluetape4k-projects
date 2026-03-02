@@ -13,21 +13,19 @@ import java.io.InputStream
 import java.nio.charset.Charset
 
 /**
- * Coroutines 환경에서 TSV 파일을 읽어 [Flow]로 변환하는 [SuspendRecordReader] 구현체입니다.
+ * TSV 입력을 코루틴 [Flow]로 제공하는 [SuspendRecordReader] 구현체입니다.
  *
- * ```
- * val reader = SuspendTsvRecordReader()
- * val items:Flow<Item> = reader.read(input, Charsets.UTF_8, skipHeaders = true) { record ->
- *     // record 처리
- *     // record to item by recordMapper
- *     val name = record.getString("name")
- *     val age = record.getInt("age")
- *     // ...
- *     Item(name, age)
- * }
- * ```
+ * ## 동작/계약
+ * - [TsvParser] 결과를 flow로 변환해 순차 방출합니다.
+ * - [skipHeaders]가 `true`면 첫 레코드를 제외합니다.
+ * - 파싱/변환 예외는 collect 호출자에게 전파됩니다.
  *
- * @property settings TSV 파서 설정
+ * ```kotlin
+ * val names = SuspendTsvRecordReader()
+ *     .read(input, skipHeaders = true) { it.getString("name") }
+ *     .toList()
+ * // names == listOf("Alice", "Bob")
+ * ```
  */
 class SuspendTsvRecordReader(
     private val settings: TsvParserSettings = DefaultTsvParserSettings,
@@ -36,13 +34,16 @@ class SuspendTsvRecordReader(
     companion object: KLoggingChannel()
 
     /**
-     * TSV 입력 스트림에서 레코드를 읽어 [Flow]로 방출합니다.
+     * TSV 입력 스트림을 읽어 변환된 [Flow]를 반환합니다.
      *
-     * @param input TSV 파일의 입력 스트림
-     * @param encoding TSV 파일의 인코딩
-     * @param skipHeaders TSV 파일의 헤더를 건너뛸지 여부
-     * @param transform Record 를 원하는 타입으로 변환하는 함수
-     * @return 변환된 데이터의 Flow
+     * ## 동작/계약
+     * - `iterateRecords(input, encoding)` 결과를 flow로 노출합니다.
+     * - [transform]은 각 레코드마다 suspend로 실행됩니다.
+     *
+     * ```kotlin
+     * val ids = SuspendTsvRecordReader().read(input, skipHeaders = true) { it.getLong("id") }.toList()
+     * // ids == listOf(1L, 2L)
+     * ```
      */
     override fun <T> read(
         input: InputStream,
@@ -57,7 +58,16 @@ class SuspendTsvRecordReader(
             .map { transform(it) }
 
     /**
-     * CSV/TSV 처리 리소스를 정리하고 닫습니다.
+     * 리소스를 닫습니다.
+     *
+     * ## 동작/계약
+     * - 현재 구현은 별도 리소스를 보유하지 않아 no-op입니다.
+     *
+     * ```kotlin
+     * val reader = SuspendTsvRecordReader()
+     * reader.close()
+     * // close 호출 후 부작용 없음
+     * ```
      */
     override fun close() {
         // Nothing to do

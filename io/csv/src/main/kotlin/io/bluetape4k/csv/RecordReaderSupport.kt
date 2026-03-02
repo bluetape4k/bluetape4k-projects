@@ -8,21 +8,17 @@ import java.nio.charset.Charset
 import kotlin.text.Charsets.UTF_8
 
 /**
- * CSV 파일을 읽어들여서 [Record] 로 변환합니다.
+ * 파일을 CSV로 읽어 [Record] 시퀀스를 반환합니다.
  *
- * `sequence { yieldAll() }` 패턴을 사용하여 lazy [Sequence] 소비가 완료될 때까지
- * 스트림이 열려있도록 보장합니다.
+ * ## 동작/계약
+ * - `sequence {}` 내부에서 파일 스트림을 열고, 시퀀스 소비가 끝나면 자동으로 닫습니다.
+ * - [skipHeader]가 `true`면 첫 행(헤더)을 결과에서 제외합니다.
+ * - 반환값은 lazy [Sequence]입니다.
  *
+ * ```kotlin
+ * val names = file.readAsCsvRecords(skipHeader = true).map { it.getString("name") }.toList()
+ * // names == listOf("Alice", "Bob")
  * ```
- * val file = File("data.csv")
- * val records = file.readAsCsvRecords(Charsets.UTF_8, skipHeader = true)
- * records.forEach { println(it) }
- * ```
- *
- * @receiver CSV 파일
- * @param cs CSV 파일의 인코딩 (기본: UTF-8)
- * @param skipHeader CSV 파일의 헤더를 건너뛸지 여부 (기본: true)
- * @return CSV 파일의 레코드들
  */
 fun File.readAsCsvRecords(
     cs: Charset = UTF_8,
@@ -34,20 +30,17 @@ fun File.readAsCsvRecords(
 }
 
 /**
- * CSV 파일을 읽어 [transform] 함수를 통해 원하는 타입으로 변환합니다.
+ * 파일을 CSV로 읽어 변환 결과 시퀀스를 반환합니다.
  *
- * ```
- * val file = File("data.csv")
- * val items = file.readAsCsvRecords(Charsets.UTF_8, skipHeader = true) { record ->
- *     Item(record.getString("name"), record.getInt("age"))
- * }
- * ```
+ * ## 동작/계약
+ * - 파일 스트림을 열어 [InputStream.readAsCsvRecords] 변환 오버로드에 위임합니다.
+ * - [transform] 예외는 호출자에게 전파됩니다.
+ * - 시퀀스 소비가 종료되면 파일 스트림이 닫힙니다.
  *
- * @receiver CSV 파일
- * @param cs CSV 파일의 인코딩 (기본: UTF-8)
- * @param skipHeader CSV 파일의 헤더를 건너뛸지 여부 (기본: true)
- * @param transform Record를 원하는 타입으로 변환하는 함수
- * @return 변환된 데이터의 시퀀스
+ * ```kotlin
+ * val ids = file.readAsCsvRecords(skipHeader = true) { it.getLong("id") }.toList()
+ * // ids == listOf(1L, 2L)
+ * ```
  */
 fun <T> File.readAsCsvRecords(
     cs: Charset = UTF_8,
@@ -60,21 +53,17 @@ fun <T> File.readAsCsvRecords(
 }
 
 /**
- * TSV 파일을 읽어들여서 [Record] 로 변환합니다.
+ * 파일을 TSV로 읽어 [Record] 시퀀스를 반환합니다.
  *
- * `sequence { yieldAll() }` 패턴을 사용하여 lazy [Sequence] 소비가 완료될 때까지
- * 스트림이 열려있도록 보장합니다.
+ * ## 동작/계약
+ * - `sequence {}` 내부에서 파일 스트림을 열고 소비 완료 시 닫습니다.
+ * - [skipHeader]가 `true`면 첫 행을 제외합니다.
+ * - 반환값은 lazy [Sequence]입니다.
  *
+ * ```kotlin
+ * val names = file.readAsTsvRecords(skipHeader = true).map { it.getString("name") }.toList()
+ * // names == listOf("Alice", "Bob")
  * ```
- * val file = File("data.tsv")
- * val records = file.readAsTsvRecords(Charsets.UTF_8, skipHeader = true)
- * records.forEach { println(it) }
- * ```
- *
- * @receiver TSV 파일
- * @param cs TSV 파일의 인코딩 (기본: UTF-8)
- * @param skipHeader TSV 파일의 헤더를 건너뛸지 여부 (기본: true)
- * @return TSV 파일의 레코드들
  */
 fun File.readAsTsvRecords(
     cs: Charset = UTF_8,
@@ -86,20 +75,17 @@ fun File.readAsTsvRecords(
 }
 
 /**
- * TSV 파일을 읽어 [transform] 함수를 통해 원하는 타입으로 변환합니다.
+ * 파일을 TSV로 읽어 변환 결과 시퀀스를 반환합니다.
  *
- * ```
- * val file = File("data.tsv")
- * val items = file.readAsTsvRecords(Charsets.UTF_8, skipHeader = true) { record ->
- *     Item(record.getString("name"), record.getInt("age"))
- * }
- * ```
+ * ## 동작/계약
+ * - 파일 스트림을 열어 [InputStream.readAsTsvRecords] 변환 오버로드에 위임합니다.
+ * - [transform] 예외는 호출자에게 전파됩니다.
+ * - 시퀀스 소비가 종료되면 파일 스트림이 닫힙니다.
  *
- * @receiver TSV 파일
- * @param cs TSV 파일의 인코딩 (기본: UTF-8)
- * @param skipHeader TSV 파일의 헤더를 건너뛸지 여부 (기본: true)
- * @param transform Record를 원하는 타입으로 변환하는 함수
- * @return 변환된 데이터의 시퀀스
+ * ```kotlin
+ * val ids = file.readAsTsvRecords(skipHeader = true) { it.getLong("id") }.toList()
+ * // ids == listOf(1L, 2L)
+ * ```
  */
 fun <T> File.readAsTsvRecords(
     cs: Charset = UTF_8,
@@ -112,17 +98,16 @@ fun <T> File.readAsTsvRecords(
 }
 
 /**
- * CSV 파일을 읽어들여서 [Record] 로 변환합니다.
+ * 입력 스트림을 CSV로 읽어 [Record] 시퀀스를 반환합니다.
  *
- * ```
- * val inputStream = FileInputStream("data.csv")
- * val records = inputStream.readAsCsvRecords(Charsets.UTF_8, skipHeader = true)
- * ```
+ * ## 동작/계약
+ * - 새 [CsvRecordReader]를 생성해 파싱합니다.
+ * - 스트림 닫기는 호출자가 관리해야 합니다.
  *
- * @receiver CSV 파일의 입력 스트림
- * @param cs CSV 파일의 인코딩 (기본: UTF-8)
- * @param skipHeader CSV 파일의 헤더를 건너뛸지 여부 (기본: true)
- * @return CSV 파일의 레코드들
+ * ```kotlin
+ * val rows = input.readAsCsvRecords(skipHeader = true).toList()
+ * // rows.size == 2
+ * ```
  */
 fun InputStream.readAsCsvRecords(
     cs: Charset = UTF_8,
@@ -131,20 +116,16 @@ fun InputStream.readAsCsvRecords(
     CsvRecordReader().read(this@readAsCsvRecords, cs, skipHeader) { it }
 
 /**
- * CSV 입력 스트림에서 레코드를 읽어 [transform] 함수를 통해 원하는 타입으로 변환합니다.
+ * 입력 스트림을 CSV로 읽어 변환 결과 시퀀스를 반환합니다.
  *
- * ```
- * val inputStream = FileInputStream("data.csv")
- * val items = inputStream.readAsCsvRecords(Charsets.UTF_8, skipHeader = true) { record ->
- *     Item(record.getString("name"), record.getInt("age"))
- * }
- * ```
+ * ## 동작/계약
+ * - 새 [CsvRecordReader]를 생성해 [transform]을 적용합니다.
+ * - 파싱/변환 예외는 호출자에게 전파됩니다.
  *
- * @receiver CSV 파일의 입력 스트림
- * @param cs CSV 파일의 인코딩 (기본: UTF-8)
- * @param skipHeader CSV 파일의 헤더를 건너뛸지 여부 (기본: true)
- * @param transform Record를 원하는 타입으로 변환하는 함수
- * @return 변환된 데이터의 시퀀스
+ * ```kotlin
+ * val names = input.readAsCsvRecords(skipHeader = true) { it.getString("name") }.toList()
+ * // names == listOf("Alice", "Bob")
+ * ```
  */
 fun <T> InputStream.readAsCsvRecords(
     cs: Charset = UTF_8,
@@ -154,17 +135,16 @@ fun <T> InputStream.readAsCsvRecords(
     CsvRecordReader().read(this@readAsCsvRecords, cs, skipHeader, transform)
 
 /**
- * TSV 파일을 읽어들여서 [Record] 로 변환합니다.
+ * 입력 스트림을 TSV로 읽어 [Record] 시퀀스를 반환합니다.
  *
- * ```
- * val inputStream = FileInputStream("data.tsv")
- * val records = inputStream.readAsTsvRecords(Charsets.UTF_8, skipHeader = true)
- * ```
+ * ## 동작/계약
+ * - 새 [TsvRecordReader]를 생성해 파싱합니다.
+ * - 스트림 닫기는 호출자가 관리해야 합니다.
  *
- * @receiver TSV 파일의 입력 스트림
- * @param cs TSV 파일의 인코딩 (기본: UTF-8)
- * @param skipHeader TSV 파일의 헤더를 건너뛸지 여부 (기본: true)
- * @return TSV 파일의 레코드들
+ * ```kotlin
+ * val rows = input.readAsTsvRecords(skipHeader = true).toList()
+ * // rows.size == 2
+ * ```
  */
 fun InputStream.readAsTsvRecords(
     cs: Charset = UTF_8,
@@ -173,20 +153,16 @@ fun InputStream.readAsTsvRecords(
     TsvRecordReader().read(this@readAsTsvRecords, cs, skipHeader) { it }
 
 /**
- * TSV 입력 스트림에서 레코드를 읽어 [transform] 함수를 통해 원하는 타입으로 변환합니다.
+ * 입력 스트림을 TSV로 읽어 변환 결과 시퀀스를 반환합니다.
  *
- * ```
- * val inputStream = FileInputStream("data.tsv")
- * val items = inputStream.readAsTsvRecords(Charsets.UTF_8, skipHeader = true) { record ->
- *     Item(record.getString("name"), record.getInt("age"))
- * }
- * ```
+ * ## 동작/계약
+ * - 새 [TsvRecordReader]를 생성해 [transform]을 적용합니다.
+ * - 파싱/변환 예외는 호출자에게 전파됩니다.
  *
- * @receiver TSV 파일의 입력 스트림
- * @param cs TSV 파일의 인코딩 (기본: UTF-8)
- * @param skipHeader TSV 파일의 헤더를 건너뛸지 여부 (기본: true)
- * @param transform Record를 원하는 타입으로 변환하는 함수
- * @return 변환된 데이터의 시퀀스
+ * ```kotlin
+ * val names = input.readAsTsvRecords(skipHeader = true) { it.getString("name") }.toList()
+ * // names == listOf("Alice", "Bob")
+ * ```
  */
 fun <T> InputStream.readAsTsvRecords(
     cs: Charset = UTF_8,
