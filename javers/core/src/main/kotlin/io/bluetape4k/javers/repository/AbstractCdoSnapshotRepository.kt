@@ -34,12 +34,18 @@ import kotlin.concurrent.withLock
 import kotlin.jvm.optionals.getOrNull
 
 /**
- * [CdoSnapshotRepository] 를 구현한 최상위 추상화 클래스입니다.
- * [CdoSnapshot] 을 저장소에 저장하고, 로드하는 역할을 수행합니다.
+ * [CdoSnapshotRepository]의 공통 구현을 제공하는 추상 클래스.
  *
- * @param T
- * @property codec 저장소에 저장할 때 [CdoSnapshot] 을 인코딩할 codec
- * @property commitIdSupplier snapshot.commitMetadata.id 값을 제공하는 [Snowflake]
+ * ## 동작/계약
+ * - [JaversCodec]를 사용하여 [CdoSnapshot] ↔ 인코딩 형식 [T] 변환을 수행한다
+ * - [persist] 시 lock으로 스레드 안전성을 보장하고, [Snowflake] 기반 시퀀스를 할당한다
+ * - [QueryParams] 기반 필터링(author, date, version, commitId 등)을 공통으로 처리한다
+ * - 하위 클래스는 [getKeys], [contains], [getSeq], [updateCommitId], [getSnapshotSize],
+ *   [saveSnapshot], [loadSnapshots]를 구현해야 한다
+ *
+ * @param T 인코딩된 스냅샷 데이터의 타입 (예: String, ByteArray)
+ * @property codec 스냅샷 인코딩/디코딩에 사용할 [JaversCodec]
+ * @property commitIdSupplier 커밋 시퀀스 번호를 생성하는 [Snowflake]
  */
 abstract class AbstractCdoSnapshotRepository<T: Any>(
     protected val codec: JaversCodec<T>,

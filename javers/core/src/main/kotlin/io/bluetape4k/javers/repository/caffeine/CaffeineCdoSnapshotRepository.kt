@@ -12,9 +12,21 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 /**
- * [CdoSnapshot] 저장소로 [com.github.benmanes.caffeine.cache.Cache] 를 사용하는 Repository 입니다.
+ * Caffeine 캐시 기반의 인메모리 [CdoSnapshot] 저장소.
  *
- * @param codec [CdoSnapshot] 변환을 위한 [JaversCodec] 인스턴스
+ * ## 동작/계약
+ * - [Cache] 인스턴스를 사용하여 GlobalId별 스냅샷 목록을 메모리에 보관한다
+ * - 스냅샷은 최신순으로 리스트 앞쪽에 삽입된다 (index 0)
+ * - lock으로 동시 쓰기 안전성을 보장한다
+ *
+ * ```kotlin
+ * val repo = CaffeineCdoSnapshotRepository()
+ * val javers = JaversBuilder.javers()
+ *     .registerJaversRepository(repo)
+ *     .build()
+ * ```
+ *
+ * @param codec 스냅샷 인코딩/디코딩에 사용할 [JaversCodec] (기본값: LZ4 압축 문자열)
  */
 class CaffeineCdoSnapshotRepository(
     codec: JaversCodec<String> = JaversCodecs.LZ4String,

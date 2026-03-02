@@ -13,11 +13,16 @@ import javax.cache.expiry.EternalExpiryPolicy
 import kotlin.concurrent.withLock
 
 /**
- * [CdoSnapshot] 저장소로 [javax.cache.Cache] 를 사용하는 Repository 입니다.
+ * JCache(JSR-107) 기반의 [CdoSnapshot] 저장소.
  *
- * @param prefix  cache name prefix
+ * ## 동작/계약
+ * - [javax.cache.Cache]를 사용하여 GlobalId별 스냅샷 목록을 보관한다
+ * - JCache는 기본적으로 값 복사(store by value)로 동작하므로, 쓰기 시 put을 다시 호출해야 한다
+ * - lock으로 동시 쓰기 안전성을 보장한다
+ *
+ * @param prefix 캐시 이름 접두사
  * @param cacheManager [javax.cache.CacheManager] 인스턴스
- * @param codec [CdoSnapshot] 변환을 위한 [JaversCodec] 인스턴스
+ * @param codec 스냅샷 인코딩/디코딩에 사용할 [JaversCodec] (기본값: LZ4 압축 문자열)
  */
 class JCacheCdoSnapshotRepository(
     prefix: String,
