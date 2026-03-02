@@ -20,9 +20,19 @@ import java.util.*
 /**
  * JWT 를 구성합니다.
  *
- * @property keyChain JWT 토큰 생성을 위한 암호 정보
- * @property headers Header 정보
- * @property claims Claim 정보
+ * ## 동작/계약
+ * - 예약 헤더(`kid`, `alg`)는 [header]로 덮어쓸 수 없습니다.
+ * - 예약 클레임(`exp`, `iat`, `nbf`)은 전용 메서드 사용을 강제합니다.
+ * - [compose] 시 `iat`가 없으면 현재 시각으로 자동 설정됩니다.
+ *
+ * ```kotlin
+ * val jwt = JwtComposer(KeyChain())
+ *     .header("x-author", "debop")
+ *     .claim("service", "bluetape4k")
+ *     .expirationAfterMinutes(60)
+ *     .compose()
+ * // jwt.isNotBlank() == true
+ * ```
  */
 class JwtComposer(
     private val keyChain: KeyChain,
@@ -31,17 +41,29 @@ class JwtComposer(
 ) {
 
     companion object: KLogging() {
+        /** `JwtComposer`에서 사용자 설정이 제한되는 헤더 목록입니다. */
         val RESERVED_HEADER_NAMES: List<String> = listOf(HEADER_KEY_ID, HEADER_ALGORITHM)
     }
 
     private var compressionCodec: CompressionCodec? = null
 
+    /**
+     * JWT 압축 코덱을 설정합니다.
+     *
+     * ## 동작/계약
+     * - 설정된 코덱은 [compose] 시 `zip` 헤더와 함께 적용됩니다.
+     * - 코덱이 없으면 비압축 JWT를 생성합니다.
+     */
     fun setCompressionCodec(codec: CompressionCodec) {
         compressionCodec = codec
     }
 
     /**
      * JWT Header 를 추가합니다.
+     *
+     * ## 동작/계약
+     * - [key]는 공백이 아니어야 하며 위반 시 예외가 발생합니다.
+     * - 예약 헤더 키는 무시됩니다.
      *
      * @param key  Header Key
      * @param value Header value
@@ -56,6 +78,10 @@ class JwtComposer(
 
     /**
      * JWT Claim 을 추가합니다.
+     *
+     * ## 동작/계약
+     * - [name]은 공백이 아니어야 합니다.
+     * - `check=true`일 때 예약 클레임(`exp`,`iat`,`nbf`)은 예외를 던집니다.
      *
      * @param name claim name
      * @param value claim value
@@ -101,11 +127,16 @@ class JwtComposer(
     fun issuedAtNow() = issuedAt(Date())
 
     /**
-     * Actually builds the JWT and serializes it to a compact, URL-safe string according to the
-     * [JWT Compact Serialization](https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-25#section-7)
-     * rules.
+     * 현재 설정으로 JWT 문자열을 생성합니다.
      *
-     * @return A compact URL-safe JWT string.
+     * ## 동작/계약
+     * - 헤더에 `kid`, `typ=JWT`를 강제로 설정하고 private key로 서명합니다.
+     * - claim/headers를 모두 반영한 URL-safe compact JWT를 반환합니다.
+     *
+     * ```kotlin
+     * val jwt = composer.compose()
+     * // jwt.count { it == '.' } == 2
+     * ```
      */
     fun compose(): String {
         log.debug { "Compose JWT. keyChain id=${keyChain.id}, algorithm=${keyChain.algorithm.name}" }

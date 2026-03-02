@@ -11,7 +11,20 @@ import io.jsonwebtoken.security.Keys
 import java.security.KeyPair
 import java.time.Duration
 
-
+/**
+ * JWT 서명용 키쌍과 메타데이터를 보관하는 키체인입니다.
+ *
+ * ## 동작/계약
+ * - 기본 생성은 RSA 계열 서명 알고리즘만 허용하며, 아니면 [IllegalArgumentException]이 발생합니다.
+ * - 기본 `id`는 시간기반 UUID Base62 문자열을 사용합니다.
+ * - [isExpired]는 `expiredTtl > 0`일 때만 만료 시점을 검사합니다.
+ *
+ * ```kotlin
+ * val keyChain = KeyChain()
+ * // keyChain.algorithm.isRsa == true
+ * // keyChain.id.isNotBlank() == true
+ * ```
+ */
 class KeyChain private constructor(
     val algorithm: SignatureAlgorithm,
     val keyPair: KeyPair,
@@ -23,6 +36,20 @@ class KeyChain private constructor(
     companion object {
         private const val TRANSFORMATION = "RSA"
 
+        /**
+         * 새 [KeyChain]을 생성합니다.
+         *
+         * ## 동작/계약
+         * - [algorithm]은 RSA 서명 알고리즘이어야 합니다.
+         * - [expiredTtl]은 내부적으로 밀리초로 저장됩니다.
+         *
+         * @throws IllegalArgumentException RSA 계열 알고리즘이 아닌 경우
+         *
+         * ```kotlin
+         * val keyChain = KeyChain()
+         * // keyChain.expiredTtl > 0
+         * ```
+         */
         @JvmStatic
         operator fun invoke(
             algorithm: SignatureAlgorithm = DefaultSignatureAlgorithm,
@@ -36,9 +63,11 @@ class KeyChain private constructor(
         }
     }
 
+    /** 키체인 만료 시각(epoch millis)입니다. */
     val expiredAt: Long
         get() = createdAt + expiredTtl
 
+    /** 현재 시각 기준 만료 여부입니다. */
     val isExpired: Boolean
         get() = expiredTtl > 0 && expiredAt < System.currentTimeMillis()
 
