@@ -17,12 +17,16 @@ open class SnowflakeIdEntity(id: SnowflakeIdEntityID): LongEntity(id)
  * [SnowflakeIdTable] 기반 엔티티를 관리하는 DAO `EntityClass`입니다.
  *
  * ## 동작/계약
- * - 테이블 PK는 `Long` Snowflake 값으로 고정됩니다.
- * - 생성자 인자 생략 시 Exposed 기본 엔티티 타입/생성자 추론을 사용합니다.
+ * - 테스트의 `T1: SnowflakeIdTable`/`E1: SnowflakeIdEntity`처럼 `companion object`에서 엔티티 팩토리로 사용합니다.
+ * - PK는 Snowflake `Long` 값이며, `new { ... }` 시 테이블의 ID 생성 전략을 따라 유니크 값이 생성됩니다.
+ * - [entityType], [entityCtor]를 생략하면 Exposed 기본 추론 규칙으로 엔티티를 생성합니다.
  *
  * ```kotlin
- * object Events: SnowflakeIdEntityClass<EventEntity>(EventsTable, ::EventEntity)
- * // Events.table == EventsTable
+ * object T1: SnowflakeIdTable() { val name = varchar("name", 255) }
+ * class E1(id: SnowflakeIdEntityID): SnowflakeIdEntity(id) {
+ *     companion object: SnowflakeIdEntityClass<E1>(T1)
+ * }
+ * // E1.new { name = "debop" }.id.value > 0L
  * ```
  */
 open class SnowflakeIdEntityClass<out E: SnowflakeIdEntity>(
