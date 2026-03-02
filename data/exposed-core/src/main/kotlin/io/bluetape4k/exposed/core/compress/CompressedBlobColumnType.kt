@@ -11,7 +11,16 @@ import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.statements.api.ExposedBlob
 
 /**
- * 엔티티 속성 값을 압축하여 BLOB Column 으로 저장할 수 있는 Column 을 생성합니다.
+ * `ByteArray`를 압축해 `BLOB`에 저장하는 컬럼을 등록합니다.
+ *
+ * ## 동작/계약
+ * - 저장 시 압축 후 [org.jetbrains.exposed.v1.core.statements.api.ExposedBlob]으로 감싸서 저장합니다.
+ * - 조회 시 blob bytes를 복원해 원본 `ByteArray`를 반환합니다.
+ *
+ * ```kotlin
+ * val content = table.compressedBlob("content")
+ * // content.columnType.sqlType().contains("BLOB")
+ * ```
  */
 fun Table.compressedBlob(
     name: String,
@@ -19,21 +28,16 @@ fun Table.compressedBlob(
 ): Column<ByteArray> =
     registerColumn(name, CompressedBlobColumnType(compressor))
 
+/** `BLOB` + 압축 변환기를 결합한 컬럼 타입입니다. */
 class CompressedBlobColumnType(
     compressor: Compressor,
 ): ColumnWithTransform<ExposedBlob, ByteArray>(BlobColumnType(), CompressedBlobTransformer(compressor))
 
-/**
- * [ByteArray]를 압축된 [ExposedBlob]로 저장하고, 조회 시 복원합니다.
- */
+/** `ByteArray` <-> `ExposedBlob` 압축/복원 변환기입니다. */
 class CompressedBlobTransformer(private val compressor: Compressor): ColumnTransformer<ExposedBlob, ByteArray> {
-    /**
-     * Entity Property 를 DB Column 수형으로 변환합니다.
-     */
+    /** 엔티티 값을 압축 blob으로 변환합니다. */
     override fun unwrap(value: ByteArray): ExposedBlob = compressor.compress(value).toExposedBlob()
 
-    /**
-     * DB Column 값을 Entity Property 수형으로 변환합니다.
-     */
+    /** DB blob을 원본 바이트 배열로 복원합니다. */
     override fun wrap(value: ExposedBlob): ByteArray = compressor.decompress(value.bytes)
 }

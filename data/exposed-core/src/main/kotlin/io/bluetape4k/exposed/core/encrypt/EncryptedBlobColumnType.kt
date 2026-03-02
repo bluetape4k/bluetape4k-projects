@@ -10,7 +10,16 @@ import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.statements.api.ExposedBlob
 
 /**
- * 엔티티 속성 값을 암호화하여 BLOB Column 으로 저장할 수 있는 Column 을 생성합니다.
+ * `ByteArray`를 암호화해 `BLOB`에 저장하는 컬럼을 등록합니다.
+ *
+ * ## 동작/계약
+ * - 저장 시 암호화 후 blob으로 변환합니다.
+ * - 조회 시 blob bytes를 복호화해 원본 바이트 배열을 반환합니다.
+ *
+ * ```kotlin
+ * val payload = table.encryptedBlob("payload", encryptor)
+ * // payload.columnType.sqlType().contains("BLOB")
+ * ```
  */
 fun Table.encryptedBlob(
     name: String,
@@ -18,25 +27,17 @@ fun Table.encryptedBlob(
 ): Column<ByteArray> =
     registerColumn(name, EncryptedBlobColumnType(encryptor))
 
-/**
- * 엔티티 속성 값을 암호화하여 BLOB Column 으로 저장할 수 있는 Column 을 생성합니다.
- */
+/** `BLOB` + 바이트 암복호화 변환기를 결합한 컬럼 타입입니다. */
 class EncryptedBlobColumnType(
     encryptor: Encryptor,
 ): ColumnWithTransform<ExposedBlob, ByteArray>(BlobColumnType(), EncryptedBlobTransformer(encryptor))
 
-/**
- * [ByteArray]를 암호화해 [ExposedBlob]로 저장하고, 조회 시 복호화합니다.
- */
+/** `ByteArray` <-> `ExposedBlob` 암복호화 변환기입니다. */
 class EncryptedBlobTransformer(private val encryptor: Encryptor): ColumnTransformer<ExposedBlob, ByteArray> {
-    /**
-     * Entity Property 를 DB Column 수형으로 변환합니다.
-     */
+    /** 엔티티 바이트를 암호화 blob으로 변환합니다. */
     override fun unwrap(value: ByteArray): ExposedBlob = encryptor.encrypt(value).toExposedBlob()
 
-    /**
-     * DB Column 값을 Entity Property 수형으로 변환합니다.
-     */
+    /** DB blob을 복호화해 엔티티 바이트 배열로 변환합니다. */
     override fun wrap(value: ExposedBlob): ByteArray = encryptor.decrypt(value.bytes)
 
 }

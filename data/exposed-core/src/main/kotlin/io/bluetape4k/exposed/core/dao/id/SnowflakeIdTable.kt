@@ -7,7 +7,16 @@ import org.jetbrains.exposed.v1.core.dao.id.IdTable
 
 
 /**
- * Entity ID 값을 Snowflow ID 값을 사용하는 Table
+ * Snowflake Long 값을 기본키로 사용하는 Exposed `IdTable` 구현입니다.
+ *
+ * ## 동작/계약
+ * - `id`는 `long` 컬럼이며 `snowflakeGenerated()`로 client-side 기본값을 생성합니다.
+ * - 기본키는 단일 `id` 컬럼으로 고정됩니다.
+ *
+ * ```kotlin
+ * object Events: SnowflakeIdTable("events")
+ * // Events.id.name == "id"
+ * ```
  */
 open class SnowflakeIdTable(
     name: String = "",
@@ -17,5 +26,6 @@ open class SnowflakeIdTable(
     final override val id: Column<EntityID<Long>> =
         long(columnName).snowflakeGenerated().entityId()
 
+    /** 테이블 기본키 정의입니다. */
     final override val primaryKey = PrimaryKey(id)
 }

@@ -9,7 +9,16 @@ import org.jetbrains.exposed.v1.core.ColumnWithTransform
 import org.jetbrains.exposed.v1.core.Table
 
 /**
- * 엔티티의 속성으로 사용하는 객체를 [BinarySerializer] 를 이용해 직렬화/역직렬화하여 Binary Column 에 저장할 수 있는 Column 을 생성합니다.
+ * 객체를 바이너리 직렬화해 `VARBINARY`로 저장하는 컬럼을 등록합니다.
+ *
+ * ## 동작/계약
+ * - 저장 시 `serializer.serialize`, 조회 시 `serializer.deserialize`를 사용합니다.
+ * - `deserialize` 결과가 `null`이면 강제 non-null(`!!`)로 인해 예외가 발생합니다.
+ *
+ * ```kotlin
+ * val payload = table.binarySerializedBinary<MyDto>("payload", length = 4096)
+ * // payload.columnType.sqlType().contains("VARBINARY")
+ * ```
  */
 fun <T: Any> Table.binarySerializedBinary(
     name: String,
@@ -17,25 +26,17 @@ fun <T: Any> Table.binarySerializedBinary(
     serializer: BinarySerializer = BinarySerializers.LZ4Fory,
 ): Column<T> = registerColumn(name, BinarySerializedBinaryColumnType(serializer, length))
 
-/**
- * 객체를 바이너리로 직렬화하여 `VARBINARY` 컬럼에 저장하는 컬럼 타입입니다.
- */
+/** `VARBINARY` + 바이너리 직렬화 변환기를 결합한 컬럼 타입입니다. */
 class BinarySerializedBinaryColumnType<T: Any>(serializer: BinarySerializer, length: Int):
     ColumnWithTransform<ByteArray, T>(BinaryColumnType(length), BinarySerializedBinaryTransformer(serializer))
 
-/**
- * 엔티티 속성 객체를 직렬화/역직렬화합니다.
- */
+/** 객체 직렬화/역직렬화 변환기입니다. */
 class BinarySerializedBinaryTransformer<T>(
     private val serializer: BinarySerializer,
 ): ColumnTransformer<ByteArray, T> {
-    /**
-     * Entity Property 를 DB Column 수형으로 변환합니다.
-     */
+    /** 엔티티 객체를 DB 저장용 바이트 배열로 직렬화합니다. */
     override fun unwrap(value: T): ByteArray = serializer.serialize(value)
 
-    /**
-     * DB Column 값을 Entity Property 수형으로 변환합니다.
-     */
+    /** DB 바이트 배열을 엔티티 객체로 역직렬화합니다. */
     override fun wrap(value: ByteArray): T = serializer.deserialize(value)!!
 }

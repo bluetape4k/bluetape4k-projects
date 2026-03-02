@@ -7,27 +7,17 @@ import org.jetbrains.exposed.v1.core.vendors.MysqlDialect
 import org.jetbrains.exposed.v1.core.vendors.PostgreSQLDialect
 
 /**
- * Batch Insert with ON CONFLICT DO NOTHING - 예외 발생 시 해당 예외를 무시하고,
- * 다음 작업을 수행하도록 하는 [BatchInsertStatement] 구현체입니다.
+ * 배치 INSERT SQL을 충돌 무시(`ON CONFLICT DO NOTHING`/`INSERT IGNORE`) 형태로 변환하는 구문 클래스입니다.
+ *
+ * ## 동작/계약
+ * - MySQL 계열은 `INSERT IGNORE`로 변환하고, PostgreSQL은 `ON CONFLICT (...) DO NOTHING`을 붙입니다.
+ * - PostgreSQL에서 테이블 PK가 있으면 PK 컬럼 목록을 conflict target으로 사용하고, 없으면 target 없이 처리합니다.
+ * - SQL 문자열만 재작성하며 배치 데이터/트랜잭션 상태는 직접 mutate 하지 않습니다.
  *
  * ```kotlin
- * val tester = object: Table("tester") {
- *     val id = varchar("id", 10).uniqueIndex()
- * }
- * withTables(testDB, tester) {
- *     tester.insert { it[id] = "foo" }
- *
- *     val numInserted = BatchInsertOnConflictIgnore(tester).run {
- *         addBatch()
- *         this[tester.id] = "foo"        // 중복되므로 insert 되지 않음
- *
- *         addBatch()
- *         this[tester.id] = "bar"        // 중복되지 않으므로 추가됨
- *
- *         execute(this@withTables)
- *     }
- *     numInserted shouldBeEqualTo 1
- * }
+ * val stmt = BatchInsertOnConflictDoNothing(table)
+ * val sql = stmt.prepareSQL(transaction, prepared = true)
+ * // sql.contains("DO NOTHING") || sql.contains("INSERT IGNORE")
  * ```
  */
 open class BatchInsertOnConflictDoNothing(table: Table): BatchInsertStatement(table) {

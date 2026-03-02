@@ -17,9 +17,17 @@ import kotlin.reflect.KClass
 private val log: Logger by unsafeLazy { KotlinLogging.logger {} }
 
 /**
- * Column의 언어 타입을 찾습니다.
- * @param column Column
- * @return Column의 언어 타입
+ * 식별자 컬렉션을 지정한 컬럼의 Kotlin 타입으로 변환합니다.
+ *
+ * ## 동작/계약
+ * - `column.getLanguageType()`를 찾지 못하면 즉시 예외를 던집니다.
+ * - 각 원소는 [convertToLanguageType]로 변환하며 실패한 값은 결과에서 제외됩니다.
+ * - 입력 `Iterable`은 변경하지 않고 새 리스트를 반환합니다.
+ *
+ * ```kotlin
+ * val mapped = listOf("1", "2").mapToLanguageType(table.id)
+ * // mapped.isNotEmpty() == true
+ * ```
  */
 fun <K: Any> Iterable<K>.mapToLanguageType(column: Column<*>): List<Any> {
     val langType = column.getLanguageType() ?: error("Column의 언어 타입을 찾을 수 없습니다. column=$column")
@@ -27,10 +35,17 @@ fun <K: Any> Iterable<K>.mapToLanguageType(column: Column<*>): List<Any> {
 }
 
 /**
- * id를 언어 타입으로 변환합니다.
- * @param id 변환할 ID
- * @param langType 변환할 언어 타입
- * @return 변환된 언어 타입
+ * 단일 식별자 값을 지정한 Kotlin 타입으로 변환합니다.
+ *
+ * ## 동작/계약
+ * - 지원 타입은 `Short/Int/Long/String/UUID/ByteArray`입니다.
+ * - 변환할 수 없는 값/타입이면 경고 로그를 남기고 `null`을 반환합니다.
+ * - 입력 객체 자체를 mutate 하지 않습니다.
+ *
+ * ```kotlin
+ * val value = convertToLanguageType("42", Int::class)
+ * // value == 42
+ * ```
  */
 fun <K: Any> convertToLanguageType(id: K, langType: KClass<*>): Any? {
     return when (langType) {

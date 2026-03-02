@@ -9,7 +9,16 @@ import org.jetbrains.exposed.v1.core.ColumnWithTransform
 import org.jetbrains.exposed.v1.core.Table
 
 /**
- * 엔티티 속성 값을 암호화하여 VARBINARY Column 으로 저장할 수 있는 Column 을 생성합니다.
+ * `ByteArray`를 암호화해 `VARBINARY`에 저장하는 컬럼을 등록합니다.
+ *
+ * ## 동작/계약
+ * - 저장 시 [Encryptor.encrypt], 조회 시 [Encryptor.decrypt]를 적용합니다.
+ * - 입력/출력 버퍼는 매 호출마다 새로 생성될 수 있습니다.
+ *
+ * ```kotlin
+ * val secret = table.encryptedBinary("secret", 512)
+ * // secret.columnType.sqlType().contains("VARBINARY")
+ * ```
  */
 fun Table.encryptedBinary(
     name: String,
@@ -18,28 +27,20 @@ fun Table.encryptedBinary(
 ): Column<ByteArray> =
     registerColumn(name, EncryptedBinaryColumnType(encryptor, length))
 
-/**
- * [ByteArray] 값을 암호화해 `VARBINARY` 컬럼에 저장하는 컬럼 타입입니다.
- */
+/** `VARBINARY` + 바이트 암복호화 변환기를 결합한 컬럼 타입입니다. */
 class EncryptedBinaryColumnType(
     encryptor: Encryptor,
     length: Int,
 ): ColumnWithTransform<ByteArray, ByteArray>(BinaryColumnType(length), ByteArrayEncryptionTransformer(encryptor))
 
-/**
- * 암호화 대상 [ByteArray]를 DB 저장 형식으로 변환하고, 조회 시 복호화합니다.
- */
+/** 바이트 배열 암복호화 변환기입니다. */
 class ByteArrayEncryptionTransformer(
     private val encryptor: Encryptor,
 ): ColumnTransformer<ByteArray, ByteArray> {
 
-    /**
-     * Entity Property 를 DB Column 수형으로 변환합니다.
-     */
+    /** 엔티티 바이트를 암호화해 DB 저장 값으로 변환합니다. */
     override fun unwrap(value: ByteArray): ByteArray = encryptor.encrypt(value)
 
-    /**
-     * DB Column 값을 Entity Property 수형으로 변환합니다.
-     */
+    /** DB 바이트를 복호화해 엔티티 값으로 변환합니다. */
     override fun wrap(value: ByteArray): ByteArray = encryptor.decrypt(value)
 }

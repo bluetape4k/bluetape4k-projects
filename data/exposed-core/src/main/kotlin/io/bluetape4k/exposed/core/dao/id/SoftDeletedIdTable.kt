@@ -4,10 +4,16 @@ import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
 
 /**
- * Soft Delete 패턴을 지원하는 [org.jetbrains.exposed.v1.core.dao.id.IdTable] 베이스 클래스입니다.
+ * 논리 삭제 플래그(`is_deleted`)를 포함한 `IdTable` 베이스 클래스입니다.
  *
- * 실제 삭제 대신 [isDeleted] 플래그를 `true` 로 업데이트하여 논리 삭제를 표현합니다.
- * 기본값은 `false` 이며 nullable 이 아닙니다.
+ * ## 동작/계약
+ * - 실제 DELETE 대신 `isDeleted=true` 업데이트 방식의 soft delete 모델을 전제로 합니다.
+ * - `isDeleted` 컬럼은 nullable이 아니며 기본값은 `false`입니다.
+ *
+ * ```kotlin
+ * abstract class UsersBase: SoftDeletedIdTable<Long>("users")
+ * // UsersBase().isDeleted.name == "is_deleted"
+ * ```
  */
 abstract class SoftDeletedIdTable<T: Any>(name: String = ""): IdTable<T>(name) {
 

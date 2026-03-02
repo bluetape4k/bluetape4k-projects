@@ -5,7 +5,16 @@ import io.bluetape4k.idgenerators.ksuid.Ksuid
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
 
 /**
- * Entity ID 값을 [Ksuid]로 생성한 문자열을 사용하는 Table
+ * KSUID 문자열을 기본키로 사용하는 Exposed `IdTable` 구현입니다.
+ *
+ * ## 동작/계약
+ * - `id`는 길이 27의 `varchar`이며 `ksuidGenerated()`로 client-side 기본값을 생성합니다.
+ * - 기본키는 단일 `id` 컬럼으로 고정됩니다.
+ *
+ * ```kotlin
+ * object Users: KsuidTable("users")
+ * // Users.id.name == "id"
+ * ```
  */
 open class KsuidTable(
     name: String = "",
@@ -18,5 +27,6 @@ open class KsuidTable(
      */
     final override val id = varchar(columnName, 27).ksuidGenerated().entityId()
 
+    /** 테이블 기본키 정의입니다. */
     final override val primaryKey = PrimaryKey(id)
 }

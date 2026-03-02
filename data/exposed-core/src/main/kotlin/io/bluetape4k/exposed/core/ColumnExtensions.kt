@@ -48,31 +48,39 @@ import kotlin.reflect.KClass
 private val log by lazy { KotlinLogging.logger { } }
 
 /**
- * Column 값을 [TimebasedUuid.Reordered]이 생성한 UUID 값으로 설정합니다.
+ * UUID 컬럼의 기본값을 `TimebasedUuid.Epoch.nextId()`로 설정합니다.
  *
- * @see TimebasedUuid.Epoch
+ * ## 동작/계약
+ * - DB 기본값이 아니라 Exposed `clientDefault`를 사용해 INSERT 시점에 값이 생성됩니다.
+ * - 컬럼 정의를 mutate 하여 같은 [Column] 인스턴스를 반환합니다.
+ *
+ * ```kotlin
+ * val id = uuid("id").timebasedGenerated()
+ * // id.defaultValueFun != null
+ * ```
  */
 @JvmName("timebasedGeneratedUUID")
 fun Column<UUID>.timebasedGenerated(): Column<UUID> =
     clientDefault { TimebasedUuid.Epoch.nextId() }
 
 /**
- * Column 값을 [TimebasedUuid.Reordered] 이 생성한 Timebased UUID의 Base62 인코딩한 문자열로 설정합니다.
+ * 문자열 컬럼의 기본값을 UUIDv7 Base62 문자열(`TimebasedUuid.Epoch.nextIdAsString()`)로 설정합니다.
  *
- * 참고: MySQL은 collate 를 지정하지 않으면 대소문자 구분을 못해서 Base62 인코딩 문자열이 중복될 수 있습니다.
- * 이를 해결하기 위해 varchar 컬럼에 collate 를 `utf8mb4_bin` 등으로 지정하여 대소문자 구분을 할 수 있도록 해야 합니다.
+ * ## 동작/계약
+ * - Exposed `clientDefault`를 사용하므로 INSERT 시 클라이언트에서 값이 계산됩니다.
+ * - MySQL 계열은 case-sensitive collation(`utf8mb4_bin`)을 사용하지 않으면 중복 위험이 있습니다.
  *
- *
- * @see TimebasedUuid.Reordered
+ * ```kotlin
+ * val id = varchar("id", 24).timebasedGenerated()
+ * // id.defaultValueFun != null
+ * ```
  */
 @JvmName("timebasedGeneratedString")
 fun Column<String>.timebasedGenerated(): Column<String> =
     clientDefault { TimebasedUuid.Epoch.nextIdAsString() }
 
 /**
- * 컬럼의 기본 값을 Snowflake ID 로 설정합니다.
- *
- * @see [io.bluetape4k.idgenerators.snowflake.Snowflake]
+ * `snowflakeGenerated()`의 이전 이름입니다.
  */
 @Deprecated(
     "Use snowflakeGenerated() instead for consistency",
@@ -81,44 +89,44 @@ fun Column<String>.timebasedGenerated(): Column<String> =
 fun Column<Long>.snowflakeIdGenerated(): Column<Long> = snowflakeGenerated()
 
 /**
- * Column 값을 [io.bluetape4k.idgenerators.snowflake.Snowflake] 값으로 설정합니다.
- *
- * @see [io.bluetape4k.idgenerators.snowflake.Snowflake]
+ * Long 컬럼의 기본값을 Snowflake ID(`Snowflakers.Global.nextId()`)로 설정합니다.
  */
 @JvmName("snowflakeGeneratedLong")
 fun Column<Long>.snowflakeGenerated(): Column<Long> =
     clientDefault { Snowflakers.Global.nextId() }
 
 /**
- * Column 값을 [io.bluetape4k.idgenerators.snowflake.Snowflake] ID의 문자열로 설정합니다.
- *
- * @see io.bluetape4k.idgenerators.snowflake.Snowflake
+ * 문자열 컬럼의 기본값을 Snowflake ID 문자열(`nextIdAsString`)로 설정합니다.
  */
 @JvmName("snowflakeGeneratedString")
 fun Column<String>.snowflakeGenerated(): Column<String> =
     clientDefault { Snowflakers.Global.nextIdAsString() }
 
 /**
- * Column 값을 [Ksuid]의 생성 값으로 설정합니다.
+ * 문자열 컬럼의 기본값을 KSUID(`Ksuid.nextId()`)로 설정합니다.
  */
 fun Column<String>.ksuidGenerated(): Column<String> =
     clientDefault { Ksuid.nextId() }
 
 /**
- * Column 값을 [KsuidMillis]의 생성 값으로 설정합니다.
+ * 문자열 컬럼의 기본값을 밀리초 기반 KSUID(`KsuidMillis.nextId()`)로 설정합니다.
  */
 fun Column<String>.ksuidMillisGenerated(): Column<String> =
     clientDefault { KsuidMillis.nextId() }
 
 
 /**
- * 컬럼 타입(`IColumnType`)에 해당하는 Kotlin 언어 타입을 반환합니다.
+ * Exposed 컬럼 타입을 대응되는 Kotlin 런타임 타입으로 매핑합니다.
  *
- * Exposed의 다양한 컬럼 타입에 대해 매핑되는 Kotlin 타입을 반환하며,
- * 알 수 없는 타입의 경우 `null`을 반환합니다.
+ * ## 동작/계약
+ * - 내장 컬럼 타입과 주요 확장 타입(`datetime`, `EntityID`, `AutoInc`)을 처리합니다.
+ * - 매핑할 수 없는 타입은 경고 로그를 남기고 `null`을 반환합니다.
+ * - 새로운 객체를 생성하지 않고 타입 매핑만 수행합니다.
  *
- * @receiver IColumnType\<*\> Exposed 컬럼 타입
- * @return KClass\<*\>? 매핑되는 Kotlin 타입, 없으면 null
+ * ```kotlin
+ * val type = column.columnType.getLanguageType()
+ * // type != null
+ * ```
  */
 fun IColumnType<*>.getLanguageType(): KClass<*>? {
     return when (this) {
@@ -167,19 +175,13 @@ fun IColumnType<*>.getLanguageType(): KClass<*>? {
 }
 
 /**
- * 컬럼의 Kotlin 언어 타입을 반환합니다.
- *
- * @receiver Column<*> Exposed 컬럼
- * @return KClass<*>? 매핑되는 Kotlin 타입, 없으면 null
+ * 컬럼의 `columnType`을 기준으로 Kotlin 런타임 타입을 반환합니다.
  */
 @JvmName("getColumnLanguageType")
 fun Column<*>.getLanguageType(): KClass<*>? = this.columnType.getLanguageType()
 
 /**
- * EntityID 컬럼의 Kotlin 언어 타입을 반환합니다.
- *
- * @receiver Column<EntityID<ID>> Exposed EntityID 컬럼
- * @return KClass<*>? 매핑되는 Kotlin 타입, 없으면 null
+ * `EntityID` 컬럼의 내부 식별자 타입을 기준으로 Kotlin 런타임 타입을 반환합니다.
  */
 @JvmName("getEntityColumnLanguageType")
 fun <ID: Any> Column<EntityID<ID>>.getLanguageType(): KClass<*>? =

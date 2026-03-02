@@ -9,7 +9,16 @@ import org.jetbrains.exposed.v1.core.ColumnWithTransform
 import org.jetbrains.exposed.v1.core.Table
 
 /**
- * 엔티티 속성 값을 압축하여 VARBINARY Column 으로 저장할 수 있는 Column 을 생성합니다.
+ * `ByteArray`를 압축해 `VARBINARY`에 저장하는 컬럼을 등록합니다.
+ *
+ * ## 동작/계약
+ * - 저장 시 [Compressor.compress], 조회 시 [Compressor.decompress]를 적용합니다.
+ * - 변환 중 예외가 발생하면 [IllegalStateException]으로 감싸서 전파합니다.
+ *
+ * ```kotlin
+ * val payload = table.compressedBinary("payload", 4096)
+ * // payload.columnType.sqlType().contains("VARBINARY")
+ * ```
  */
 fun Table.compressedBinary(
     name: String,
@@ -18,32 +27,24 @@ fun Table.compressedBinary(
 ): Column<ByteArray> =
     registerColumn(name, CompressedBinaryColumnType(compressor, length))
 
-/**
- * [ByteArray] 값을 압축해 `VARBINARY` 컬럼에 저장하는 컬럼 타입입니다.
- */
+/** `VARBINARY` + 압축 변환기를 결합한 컬럼 타입입니다. */
 class CompressedBinaryColumnType(
     compressor: Compressor,
     length: Int,
 ): ColumnWithTransform<ByteArray, ByteArray>(BinaryColumnType(length), CompressedBinaryTransformer(compressor))
 
-/**
- * DB 저장 시 압축하고, 조회 시 복원합니다.
- */
+/** 저장 시 압축하고 조회 시 복원하는 변환기입니다. */
 class CompressedBinaryTransformer(
     private val compressor: Compressor,
 ): ColumnTransformer<ByteArray, ByteArray> {
-    /**
-     * Entity Property 를 DB Column 수형으로 변환합니다 (압축).
-     */
+    /** 엔티티 값을 DB 저장용 압축 바이트로 변환합니다. */
     override fun unwrap(value: ByteArray): ByteArray = try {
         compressor.compress(value)
     } catch (e: Exception) {
         throw IllegalStateException("Failed to compress data (size: ${value.size} bytes)", e)
     }
 
-    /**
-     * DB Column 값을 Entity Property 수형으로 변환합니다 (복원).
-     */
+    /** DB 바이트를 엔티티 값으로 복원합니다. */
     override fun wrap(value: ByteArray): ByteArray = try {
         compressor.decompress(value)
     } catch (e: Exception) {

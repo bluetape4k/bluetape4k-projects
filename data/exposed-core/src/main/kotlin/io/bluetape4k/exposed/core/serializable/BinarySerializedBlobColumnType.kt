@@ -11,8 +11,16 @@ import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.statements.api.ExposedBlob
 
 /**
- * 엔티티의 속성으로 사용하는 객체를 [BinarySerializer] 를 이용해
- * 직렬화/역직렬화하여 [ExposedBlob] Column에 저장하도록 하는 Column 을 생성합니다.
+ * 객체를 바이너리 직렬화해 `BLOB`로 저장하는 컬럼을 등록합니다.
+ *
+ * ## 동작/계약
+ * - 저장 시 직렬화 결과를 [ExposedBlob]으로 감싸서 저장합니다.
+ * - 조회 시 blob bytes를 역직렬화하며 결과가 `null`이면 예외가 발생합니다.
+ *
+ * ```kotlin
+ * val payload = table.binarySerializedBlob<MyDto>("payload")
+ * // payload.columnType.sqlType().contains("BLOB")
+ * ```
  */
 fun <T: Any> Table.binarySerializedBlob(
     name: String,
@@ -20,23 +28,18 @@ fun <T: Any> Table.binarySerializedBlob(
 ): Column<T> =
     registerColumn(name, BinarySerializedBlobColumnType(serializer))
 
+/** `BLOB` + 바이너리 직렬화 변환기를 결합한 컬럼 타입입니다. */
 class BinarySerializedBlobColumnType<T: Any>(serializer: BinarySerializer):
     ColumnWithTransform<ExposedBlob, T>(BlobColumnType(), BinarySerializedBlobTransformer(serializer))
 
-/**
- * 엔티티 속성 객체를 [ExposedBlob]로 직렬화/역직렬화합니다.
- */
+/** 객체와 [ExposedBlob] 간 직렬화/역직렬화 변환기입니다. */
 class BinarySerializedBlobTransformer<T>(
     private val serializer: BinarySerializer,
 ): ColumnTransformer<ExposedBlob, T> {
 
-    /**
-     * Entity Property 를 DB Column 수형으로 변환합니다.
-     */
+    /** 엔티티 객체를 직렬화해 blob으로 변환합니다. */
     override fun unwrap(value: T): ExposedBlob = serializer.serialize(value).toExposedBlob()
 
-    /**
-     * DB Column 값을 Entity Property 수형으로 변환합니다.
-     */
+    /** DB blob을 역직렬화해 엔티티 객체로 변환합니다. */
     override fun wrap(value: ExposedBlob): T = serializer.deserialize(value.bytes)!!
 }
