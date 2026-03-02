@@ -10,42 +10,53 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
 
 /**
- * [Fastjson2](https://github.com/alibaba/fastjson2) 라이브러리를 사용하는 [JsonSerializer] 구현체입니다.
+ * Fastjson2 기반으로 JSON 문자열/JSONB 바이트 직렬화를 제공하는 [JsonSerializer] 구현체입니다.
  *
- * 바이트 배열 직렬화에는 JSONB(바이너리 JSON) 형식을 사용하여 성능이 우수하며,
- * 문자열 직렬화에는 표준 JSON 형식을 사용합니다.
- *
- * ### 사용 예시
+ * ## 동작/계약
+ * - [serialize], [deserialize]는 JSONB 포맷을 사용하고, [serializeAsString], [deserializeFromString]은 JSON 텍스트를 사용합니다.
+ * - `serialize(null)`은 빈 바이트 배열을, `serializeAsString(null)`은 빈 문자열을 반환합니다.
+ * - 역직렬화 입력이 `null`이면 `null`을 반환합니다.
+ * - fastjson2 처리 실패는 [JsonSerializationException]으로 감싸서 던집니다.
  *
  * ```kotlin
  * val serializer = FastjsonSerializer()
- *
- * // JSONB 바이너리 직렬화/역직렬화
- * val bytes = serializer.serialize(data)
- * val restored = serializer.deserialize<Data>(bytes)
- *
- * // JSON 문자열 직렬화/역직렬화
- * val jsonText = serializer.serializeAsString(data)
- * val restored2 = serializer.deserializeFromString<Data>(jsonText)
+ * val bytes = serializer.serialize(mapOf("id" to 1))
+ * val restored = serializer.deserialize<Map<String, Int>>(bytes)
+ * // restored == mapOf("id" to 1)
  * ```
- *
- * @see JsonSerializer
- * @see com.alibaba.fastjson2.JSONB
  */
 class FastjsonSerializer: JsonSerializer {
 
     companion object: KLogging() {
-        /** 기본 [FastjsonSerializer] 인스턴스 (지연 초기화) */
+        /**
+         * 지연 초기화되는 기본 [FastjsonSerializer] 인스턴스입니다.
+         *
+         * ## 동작/계약
+         * - 첫 접근 시 1회 생성되고 이후 동일 인스턴스를 재사용합니다.
+         * - 직렬화 상태를 내부에 보관하지 않아 여러 호출에서 공유해도 동작이 같습니다.
+         *
+         * ```kotlin
+         * val same = FastjsonSerializer.Default === FastjsonSerializer.Default
+         * // same == true
+         * ```
+         */
         val Default by lazy { FastjsonSerializer() }
     }
 
     /**
-     * 객체를 JSONB 바이너리 형식의 [ByteArray]로 직렬화합니다.
+     * 객체를 JSONB 형식의 바이트 배열로 직렬화합니다.
      *
-     * JSONB는 Fastjson2의 바이너리 JSON 형식으로, 표준 JSON보다 빠른 직렬화/역직렬화 성능을 제공합니다.
+     * ## 동작/계약
+     * - [graph]가 `null`이면 빈 바이트 배열(`emptyByteArray`)을 반환합니다.
+     * - `JSONB.toBytes(graph)` 결과를 새 바이트 배열로 반환합니다.
+     * - 직렬화 중 예외가 발생하면 [JsonSerializationException]을 던집니다.
      *
-     * @param graph 직렬화할 객체. null인 경우 빈 [ByteArray] 반환
-     * @return JSONB 직렬화된 바이트 배열
+     * ```kotlin
+     * val bytes = FastjsonSerializer().serialize(mapOf("name" to "blue"))
+     * // bytes.isNotEmpty() == true
+     * ```
+     *
+     * @param graph 직렬화할 객체입니다. `null`이면 빈 바이트 배열을 반환합니다.
      */
     override fun serialize(graph: Any?): ByteArray {
         if (graph == null) {
@@ -59,12 +70,22 @@ class FastjsonSerializer: JsonSerializer {
     }
 
     /**
-     * JSONB 바이너리 형식의 [ByteArray]를 읽어 지정된 타입의 객체로 역직렬화합니다.
+     * JSONB 바이트 배열을 지정 클래스 타입으로 역직렬화합니다.
      *
-     * @param T 역직렬화 대상 타입
-     * @param bytes JSONB 직렬화된 바이트 배열. null이면 null 반환
-     * @param clazz 역직렬화할 대상 클래스
-     * @return 역직렬화된 객체. 실패 시 null 반환
+     * ## 동작/계약
+     * - [bytes]가 `null`이면 `null`을 반환합니다.
+     * - `JSONB.parseObject(bytes, clazz)`를 호출해 객체를 생성합니다.
+     * - 역직렬화 실패는 [JsonSerializationException]으로 변환됩니다.
+     *
+     * ```kotlin
+     * val serializer = FastjsonSerializer()
+     * val bytes = serializer.serialize(listOf(1, 2, 3))
+     * val restored = serializer.deserialize(bytes, List::class.java)
+     * // restored == listOf(1, 2, 3)
+     * ```
+     *
+     * @param bytes JSONB 바이트 배열입니다. `null`이면 `null`을 반환합니다.
+     * @param clazz 역직렬화 대상 클래스입니다.
      */
     override fun <T: Any> deserialize(bytes: ByteArray?, clazz: Class<T>): T? {
         if (bytes == null) {
@@ -78,12 +99,19 @@ class FastjsonSerializer: JsonSerializer {
     }
 
     /**
-     * 객체를 표준 JSON 문자열로 직렬화합니다.
+     * 객체를 JSON 문자열로 직렬화합니다.
      *
-     * [serialize]와 달리 표준 JSON 텍스트 형식을 사용하므로 사람이 읽을 수 있습니다.
+     * ## 동작/계약
+     * - [graph]가 `null`이면 빈 문자열을 반환합니다.
+     * - `toJSONString()` 결과 문자열을 새로 생성해 반환합니다.
+     * - 직렬화 실패는 [JsonSerializationException]을 던집니다.
      *
-     * @param graph 직렬화할 객체. null인 경우 빈 문자열 반환
-     * @return JSON 문자열
+     * ```kotlin
+     * val json = FastjsonSerializer().serializeAsString(mapOf("id" to 7))
+     * // json == "{\"id\":7}"
+     * ```
+     *
+     * @param graph 직렬화할 객체입니다. `null`이면 빈 문자열을 반환합니다.
      */
     override fun serializeAsString(graph: Any?): String {
         if (graph == null) {
@@ -100,12 +128,21 @@ class FastjsonSerializer: JsonSerializer {
     }
 
     /**
-     * JSON 문자열을 읽어 지정된 타입의 객체로 역직렬화합니다.
+     * JSON 문자열을 지정 클래스 타입으로 역직렬화합니다.
      *
-     * @param T 역직렬화 대상 타입
-     * @param jsonText JSON 문자열. null이면 null 반환
-     * @param clazz 역직렬화할 대상 클래스
-     * @return 역직렬화된 객체. 실패 시 null 반환
+     * ## 동작/계약
+     * - [jsonText]가 `null`이면 `null`을 반환합니다.
+     * - `JSON.parseObject(jsonText, clazz)`를 사용합니다.
+     * - 파싱 실패는 [JsonSerializationException]으로 감싸서 던집니다.
+     *
+     * ```kotlin
+     * val serializer = FastjsonSerializer()
+     * val user = serializer.deserializeFromString("""{"id":1}""", Map::class.java)
+     * // user == mapOf("id" to 1)
+     * ```
+     *
+     * @param jsonText 역직렬화할 JSON 문자열입니다. `null`이면 `null`을 반환합니다.
+     * @param clazz 역직렬화 대상 클래스입니다.
      */
     override fun <T: Any> deserializeFromString(jsonText: String?, clazz: Class<T>): T? {
         if (jsonText == null) {
@@ -119,11 +156,20 @@ class FastjsonSerializer: JsonSerializer {
     }
 
     /**
-     * JSONB 바이너리 형식의 [ByteArray]를 읽어 reified 타입 [T]로 역직렬화합니다.
+     * JSONB 바이트 배열을 reified 타입 [T]로 역직렬화합니다.
      *
-     * @param T 역직렬화 대상 타입
-     * @param bytes JSONB 직렬화된 바이트 배열
-     * @return 역직렬화된 객체. null이면 null 반환
+     * ## 동작/계약
+     * - [bytes]가 `null`이면 `null`을 반환합니다.
+     * - 타입 파라미터가 있으면 `reference<T>()`, 없으면 `T::class.java` 경로를 사용합니다.
+     * - 역직렬화 실패 시 [JsonSerializationException]을 던집니다.
+     *
+     * ```kotlin
+     * val serializer = FastjsonSerializer()
+     * val parsed = serializer.deserialize<List<Int>>(serializer.serialize(listOf(1, 2, 3)))
+     * // parsed == listOf(1, 2, 3)
+     * ```
+     *
+     * @param bytes JSONB 바이트 배열입니다. `null`이면 `null`을 반환합니다.
      */
     inline fun <reified T: Any> deserialize(bytes: ByteArray?): T? =
         bytes?.let {
@@ -143,11 +189,20 @@ class FastjsonSerializer: JsonSerializer {
         }
 
     /**
-     * JSON 문자열을 읽어 reified 타입 [T]로 역직렬화합니다.
+     * JSON 문자열을 reified 타입 [T]로 역직렬화합니다.
      *
-     * @param T 역직렬화 대상 타입
-     * @param jsonText JSON 문자열
-     * @return 역직렬화된 객체. null이면 null 반환
+     * ## 동작/계약
+     * - [jsonText]가 `null`이면 `null`을 반환합니다.
+     * - 타입 파라미터가 있으면 `reference<T>()`, 없으면 `T::class.java` 경로를 사용합니다.
+     * - 파싱 실패 시 [JsonSerializationException]을 던집니다.
+     *
+     * ```kotlin
+     * val serializer = FastjsonSerializer()
+     * val parsed = serializer.deserializeFromString<Map<String, Int>>("""{"id":3}""")
+     * // parsed == mapOf("id" to 3)
+     * ```
+     *
+     * @param jsonText 역직렬화할 JSON 문자열입니다. `null`이면 `null`을 반환합니다.
      */
     inline fun <reified T: Any> deserializeFromString(jsonText: String?): T? =
         jsonText?.let {
