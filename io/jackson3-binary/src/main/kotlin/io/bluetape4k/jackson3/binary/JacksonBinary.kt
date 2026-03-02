@@ -14,38 +14,32 @@ import tools.jackson.dataformat.smile.SmileMapper
 import tools.jackson.dataformat.smile.SmileWriteFeature
 
 /**
- * Jackson 3.x 바이너리 데이터 포맷(CBOR, ION, Smile)을 위한 Mapper와 Serializer를 제공하는 싱글턴 오브젝트입니다.
+ * Jackson 3 바이너리 포맷(CBOR/ION/Smile) 기본 mapper/factory/serializer를 제공합니다.
  *
- * 바이너리 포맷은 JSON 대비 크기가 작고 파싱 속도가 빠르며, 네트워크 전송 및 스토리지 효율이 우수합니다.
+ * ## 동작/계약
+ * - 포맷별 `defaultMapper`, `defaultFactory`, `defaultSerializer`는 lazy singleton으로 재사용됩니다.
+ * - 공통 serialization/deserialization feature 집합을 각 mapper에 적용합니다.
+ * - 공개 프로퍼티는 불변 레퍼런스입니다.
  *
- * ```
+ * ```kotlin
  * val serializer = JacksonBinary.CBOR.defaultSerializer
- * val bytes = serializer.serialize(obj)
- * val obj = serializer.deserialize(bytes, type)
- * // or
- * val obj = serializer.deserialize<ObjectType>(bytes)
+ * val bytes = serializer.serialize(mapOf("id" to 1))
+ * // bytes.isNotEmpty() == true
  * ```
  */
 object JacksonBinary: KLogging() {
 
     private val enabledSerializationFeatures = setOf(
-//        SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
-//        SerializationFeature.WRITE_ENUMS_USING_TO_STRING,
-//        SerializationFeature.WRITE_ENUMS_USING_INDEX,
-//        SerializationFeature.WRITE_NULL_MAP_VALUES,
         SerializationFeature.WRITE_EMPTY_JSON_ARRAYS
     )
     private val disabledSerializationFeatures = setOf(
         SerializationFeature.FAIL_ON_EMPTY_BEANS,
-//        SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN
     )
 
     private val enabledDeserializationFeatures = setOf(
         DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT,
         DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY,
         DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT,
-//        DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL,
-//        DeserializationFeature.READ_ENUMS_USING_TO_STRING
     )
     private val disabledDeserializationFeatures = setOf(
         DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,
@@ -55,16 +49,30 @@ object JacksonBinary: KLogging() {
     )
 
     /**
-     * CBOR(Concise Binary Object Representation)는 JSON과 호환되는 바이너리 데이터 포맷으로,
-     * JSON 대비 크기가 작고 파싱 속도가 빠릅니다.
+     * CBOR 기본 구성 요소를 제공합니다.
      *
-     * CBOR는 RFC 8949에 정의된 표준 포맷으로, IoT 디바이스와 네트워크 프로토콜에서 널리 사용됩니다.
+     * ## 동작/계약
+     * - [defaultMapper]는 `WRITE_TYPE_HEADER`와 공통 feature 집합을 적용합니다.
+     * - [defaultFactory]는 [defaultMapper.tokenStreamFactory] 결과를 재사용합니다.
+     * - [defaultSerializer]는 [defaultMapper]를 주입한 singleton입니다.
+     *
+     * ```kotlin
+     * val serializer = JacksonBinary.CBOR.defaultSerializer
+     * // serializer.serialize(mapOf("id" to 1)).isNotEmpty() == true
+     * ```
      */
     object CBOR {
         /**
-         * 기본 구성된 CBOR 전용 [CBORMapper] 인스턴스입니다.
+         * CBOR 기본 [CBORMapper]입니다.
          *
-         * Kotlin 모듈 자동 감지가 활성화되어 있으며, 타입 헤더 기록([CBORWriteFeature.WRITE_TYPE_HEADER])을 지원합니다.
+         * ## 동작/계약
+         * - Kotlin 모듈 자동 등록 및 타입 헤더 기록 옵션을 활성화합니다.
+         * - 공통 feature 집합을 적용합니다.
+         *
+         * ```kotlin
+         * val mapper = JacksonBinary.CBOR.defaultMapper
+         * // mapper != null
+         * ```
          */
         val defaultMapper: CBORMapper by lazy {
             CBORMapper.builder()
@@ -80,12 +88,28 @@ object JacksonBinary: KLogging() {
         }
 
         /**
-         * 기본 구성된 CBOR 전용 [CBORFactory] 인스턴스입니다.
+         * CBOR 기본 [CBORFactory]입니다.
+         *
+         * ## 동작/계약
+         * - [defaultMapper.tokenStreamFactory]를 그대로 노출합니다.
+         *
+         * ```kotlin
+         * val same = JacksonBinary.CBOR.defaultFactory === JacksonBinary.CBOR.defaultMapper.tokenStreamFactory()
+         * // same == true
+         * ```
          */
         val defaultFactory: CBORFactory by lazy { defaultMapper.tokenStreamFactory() }
 
         /**
-         * 기본 구성된 CBOR 바이너리 포맷용 Jackson Serializer입니다.
+         * CBOR 기본 직렬화기입니다.
+         *
+         * ## 동작/계약
+         * - [defaultMapper]를 주입한 [CborJacksonSerializer] singleton을 제공합니다.
+         *
+         * ```kotlin
+         * val serializer = JacksonBinary.CBOR.defaultSerializer
+         * // serializer.serialize(mapOf("id" to 1)).isNotEmpty() == true
+         * ```
          */
         val defaultSerializer: CborJacksonSerializer by lazy {
             CborJacksonSerializer(defaultMapper)
@@ -93,17 +117,30 @@ object JacksonBinary: KLogging() {
     }
 
     /**
-     * Amazon Ion은 리치 타입 시스템을 제공하는 바이너리/텍스트 겸용 데이터 포맷입니다.
+     * Ion 기본 구성 요소를 제공합니다.
      *
-     * Ion은 타임스탬프, 정밀 소수점, 바이너리 데이터 등 다양한 네이티브 타입을 지원하며,
-     * JSON의 상위 집합으로 동작합니다.
+     * ## 동작/계약
+     * - [defaultMapper]는 `USE_NATIVE_TYPE_ID`와 공통 feature를 적용합니다.
+     * - [defaultFactory], [defaultSerializer]는 mapper 기반 singleton입니다.
+     *
+     * ```kotlin
+     * val serializer = JacksonBinary.ION.defaultSerializer
+     * // serializer.serialize(mapOf("id" to 1)).isNotEmpty() == true
+     * ```
      */
     object ION {
 
         /**
-         * 기본 구성된 Ion 전용 [IonObjectMapper] 인스턴스입니다.
+         * Ion 기본 [IonObjectMapper]입니다.
          *
-         * Kotlin 모듈 자동 감지가 활성화되어 있으며, 네이티브 타입 ID 사용([IonWriteFeature.USE_NATIVE_TYPE_ID])을 지원합니다.
+         * ## 동작/계약
+         * - Kotlin 모듈 자동 등록 및 native type id 옵션을 활성화합니다.
+         * - 공통 feature 집합을 적용합니다.
+         *
+         * ```kotlin
+         * val mapper = JacksonBinary.ION.defaultMapper
+         * // mapper != null
+         * ```
          */
         val defaultMapper: IonObjectMapper by lazy {
             IonObjectMapper.builder()
@@ -119,12 +156,28 @@ object JacksonBinary: KLogging() {
         }
 
         /**
-         * 기본 구성된 Ion 전용 [IonFactory] 인스턴스입니다.
+         * Ion 기본 [IonFactory]입니다.
+         *
+         * ## 동작/계약
+         * - [defaultMapper.tokenStreamFactory]를 그대로 노출합니다.
+         *
+         * ```kotlin
+         * val same = JacksonBinary.ION.defaultFactory === JacksonBinary.ION.defaultMapper.tokenStreamFactory()
+         * // same == true
+         * ```
          */
         val defaultFactory: IonFactory by lazy { defaultMapper.tokenStreamFactory() }
 
         /**
-         * 기본 구성된 Ion 바이너리 포맷용 Jackson Serializer입니다.
+         * Ion 기본 직렬화기입니다.
+         *
+         * ## 동작/계약
+         * - [defaultMapper]를 주입한 [IonJacksonSerializer] singleton을 제공합니다.
+         *
+         * ```kotlin
+         * val serializer = JacksonBinary.ION.defaultSerializer
+         * // serializer.serialize(mapOf("id" to 1)).isNotEmpty() == true
+         * ```
          */
         val defaultSerializer: IonJacksonSerializer by lazy {
             IonJacksonSerializer(defaultMapper)
@@ -132,17 +185,30 @@ object JacksonBinary: KLogging() {
     }
 
     /**
-     * Smile은 JSON과 1:1 대응하는 바이너리 포맷으로, JSON 대비 인코딩/디코딩 속도가 빠르고 크기가 작습니다.
+     * Smile 기본 구성 요소를 제공합니다.
      *
-     * Smile은 JSON 스키마와 완전히 호환되며, 스트리밍 처리에 최적화되어 있습니다.
+     * ## 동작/계약
+     * - [defaultMapper]는 헤더/종료 마커 기록 옵션과 공통 feature를 적용합니다.
+     * - [defaultFactory], [defaultSerializer]는 mapper 기반 singleton입니다.
+     *
+     * ```kotlin
+     * val serializer = JacksonBinary.Smile.defaultSerializer
+     * // serializer.serialize(mapOf("id" to 1)).isNotEmpty() == true
+     * ```
      */
     object Smile {
 
         /**
-         * 기본 구성된 Smile 전용 [SmileMapper] 인스턴스입니다.
+         * Smile 기본 [SmileMapper]입니다.
          *
-         * Kotlin 모듈 자동 감지가 활성화되어 있으며, 헤더 기록([SmileWriteFeature.WRITE_HEADER])과
-         * 종료 마커 기록([SmileWriteFeature.WRITE_END_MARKER])을 지원합니다.
+         * ## 동작/계약
+         * - Kotlin 모듈 자동 등록과 헤더/종료 마커 옵션을 적용합니다.
+         * - 공통 feature 집합을 적용합니다.
+         *
+         * ```kotlin
+         * val mapper = JacksonBinary.Smile.defaultMapper
+         * // mapper != null
+         * ```
          */
         val defaultMapper: SmileMapper by lazy {
             SmileMapper.builder()
@@ -159,12 +225,28 @@ object JacksonBinary: KLogging() {
         }
 
         /**
-         * 기본 구성된 Smile 전용 [SmileFactory] 인스턴스입니다.
+         * Smile 기본 [SmileFactory]입니다.
+         *
+         * ## 동작/계약
+         * - [defaultMapper.tokenStreamFactory]를 그대로 노출합니다.
+         *
+         * ```kotlin
+         * val same = JacksonBinary.Smile.defaultFactory === JacksonBinary.Smile.defaultMapper.tokenStreamFactory()
+         * // same == true
+         * ```
          */
         val defaultFactory: SmileFactory by lazy { defaultMapper.tokenStreamFactory() }
 
         /**
-         * 기본 구성된 Smile 바이너리 포맷용 Jackson Serializer입니다.
+         * Smile 기본 직렬화기입니다.
+         *
+         * ## 동작/계약
+         * - [defaultMapper]를 주입한 [SmileJacksonSerializer] singleton을 제공합니다.
+         *
+         * ```kotlin
+         * val serializer = JacksonBinary.Smile.defaultSerializer
+         * // serializer.serialize(mapOf("id" to 1)).isNotEmpty() == true
+         * ```
          */
         val defaultSerializer: SmileJacksonSerializer by lazy {
             SmileJacksonSerializer(defaultMapper)
