@@ -234,15 +234,23 @@ Exposed 모듈은 기능별로 분리되어 있습니다 (하위 호환 umbrella
 
 #### Utilities (`utils/`)
 
-- **units**: 단위 표현 value class (시간, 용량, 거리 등)
-- **idgenerators**: ID 생성기
-- **money**: Money API
-- **jwt**: JWT 처리
+- **ahocorasick**: 문자열 검색 (Aho-Corasick 알고리즘)
+- **bloomfilter**: Bloom Filter
+- **captcha**: CAPTCHA 생성
+- **geocode, geohash, geoip2**: 지리 정보 처리
+- **idgenerators**: ID 생성기 (Ksuid, Snowflake, ULID, UUID 등)
 - **images**: 이미지 처리
-- **geocode, geohash, geoip2**: 지리 정보
+- **javatimes**: 날짜/시간 유틸리티
+- **jwt**: JWT 처리
+- **leader**: Leader 선출
 - **lingua**: 언어 감지
-- **ahocorasick**: 문자열 검색
+- **logback-kafka**: Logback Kafka Appender
+- **math**: 수학 유틸리티
+- **measured**: 코드 실행 시간/성능 측정 유틸리티
+- **money**: Money API
 - **mutiny**: Mutiny reactive 라이브러리 통합
+- **naivebayes**: Naive Bayes 분류기
+- ~~**units**~~: 단위 표현 value class — **Deprecated** (`bluetape4k-core`의 기능으로 통합)
 
 #### Testing Modules (`testing/`)
 

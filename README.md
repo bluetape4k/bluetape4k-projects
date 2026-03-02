@@ -166,7 +166,6 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 - **[jpa](./spring/jpa/README.md)**: Spring Data JPA
 - **[webflux](./spring/webflux/README.md)**: Spring WebFlux
 - **[retrofit2](./spring/retrofit2/README.md)**: Spring + Retrofit2 통합
-- **[modulith-events-exposed](./spring/modulith-events-exposed/README.md)**: Spring Modulith Events + Exposed
 - **[tests](./spring/tests/README.md)**: Spring 테스트 유틸리티
 
 ### Vert.x 모듈 (`vertx/`)
@@ -177,23 +176,23 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 
 ### 유틸리티 모듈 (`utils/`)
 
-- **[units](./utils/units/README.md)**: 단위 표현 value class (시간, 용량, 거리 등)
-- **[idgenerators](./utils/idgenerators/README.md)**: ID 생성기 (Ksuid, Snowflake, ULID, UUID 등)
-- **[money](./utils/money/README.md)**: Money API
-- **[jwt](./utils/jwt/README.md)**: JWT 처리
-- **[geocode](./utils/geocode/README.md)/[geohash](./utils/geohash/README.md)/[geoip2](./utils/geoip2/README.md)
-  **: 지리 정보 처리
-- **[lingua](./utils/lingua/README.md)**: 언어 감지
-- **[images](./utils/images/README.md)**: 이미지 처리
-- **[ahocorasick](./utils/ahocorasick/README.md)**: 문자열 검색
+- **[ahocorasick](./utils/ahocorasick/README.md)**: 문자열 검색 (Aho-Corasick 알고리즘)
 - **[bloomfilter](./utils/bloomfilter/README.md)**: Bloom Filter
 - **[captcha](./utils/captcha/README.md)**: CAPTCHA 생성
+- **[geocode](./utils/geocode/README.md)/[geohash](./utils/geohash/README.md)/[geoip2](./utils/geoip2/README.md)**: 지리 정보 처리
+- **[idgenerators](./utils/idgenerators/README.md)**: ID 생성기 (Ksuid, Snowflake, ULID, UUID 등)
+- **[images](./utils/images/README.md)**: 이미지 처리
 - **[javatimes](./utils/javatimes/README.md)**: 날짜/시간 유틸리티
+- **[jwt](./utils/jwt/README.md)**: JWT 처리
 - **[leader](./utils/leader/README.md)**: Leader 선출
+- **[lingua](./utils/lingua/README.md)**: 언어 감지
 - **[logback-kafka](./utils/logback-kafka/README.md)**: Logback Kafka Appender
 - **[math](./utils/math/README.md)**: 수학 유틸리티
+- **[measured](./utils/measured/README.md)**: 코드 실행 시간/성능 측정 유틸리티
+- **[money](./utils/money/README.md)**: Money API
 - **[mutiny](./utils/mutiny/README.md)**: Mutiny reactive 통합
 - **[naivebayes](./utils/naivebayes/README.md)**: Naive Bayes 분류기
+- ~~**[units](./utils/units/README.md)**~~: 단위 표현 value class — **Deprecated** (`bluetape4k-core`의 기능으로 통합)
 
 ### 테스트 모듈 (`testing/`)
 
