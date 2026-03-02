@@ -1,4 +1,4 @@
-# bluetape4k-measured
+# Module bluetape4k-measured
 
 `bluetape4k-measured`는 조합 가능한 단위 타입(`Units`)과 측정값(`Measure`) 기반으로,
 복합 단위(`m/s`, `kg*m/s^2`)를 타입 안전하게 표현하기 위한 모듈입니다.

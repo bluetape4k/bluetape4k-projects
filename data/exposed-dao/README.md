@@ -15,7 +15,7 @@ JetBrains Exposed DAO 계층을 위한 엔티티 확장, String 기반 엔티티
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-exposed-dao:${version}")
+    implementation("io.github.bluetape4k:bluetape4k-exposed-dao:${version}")
 }
 ```
 

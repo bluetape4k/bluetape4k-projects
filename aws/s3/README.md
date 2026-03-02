@@ -14,7 +14,7 @@ AWS SDK for Java v2 S3 사용 시 업로드/다운로드/이동 작업을 쉽게
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-aws-s3:${version}")
+    implementation("io.github.bluetape4k:bluetape4k-aws-s3:${version}")
 }
 ```
 

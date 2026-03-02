@@ -1,4 +1,4 @@
-# bluetape4k-cache-local
+# Module bluetape4k-cache-local
 
 `bluetape4k-cache-local`은 JVM 로컬 캐시 Provider를 묶어 제공하는 모듈입니다.
 
@@ -15,7 +15,7 @@
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-cache-local:${bluetape4kVersion}")
+    implementation("io.github.bluetape4k:bluetape4k-cache-local:${bluetape4kVersion}")
 }
 ```
 

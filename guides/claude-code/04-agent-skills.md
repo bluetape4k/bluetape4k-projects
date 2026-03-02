@@ -39,7 +39,7 @@ description: Brief description of what this Skill does and when to use it
 ## Instructions
 [Clear, step-by-step guidance for Claude to follow]
 
-## Examples
+## Module Examples
 [Concrete examples of using this Skill]
 ```
 

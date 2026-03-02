@@ -1,4 +1,4 @@
-# bluetape4k-units
+# Module bluetape4k-units
 
 Kotlin `value class`를 이용하여 타입 안전한 단위 변환 및 연산을 제공하는 라이브러리입니다.
 
@@ -55,7 +55,7 @@ val back = measured.toLegacyLength()
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-units:$version")
+    implementation("io.github.bluetape4k:bluetape4k-units:$version")
 }
 ```
 

@@ -1,4 +1,4 @@
-# bluetape4k-tokenizer-core
+# Module bluetape4k-tokenizer-core
 
 tokenizer/core 모듈은 형태소 분석 및 금칙어 처리를 위한 기본 인프라를 제공합니다.
 
@@ -261,7 +261,7 @@ suspend fun buildDictionary(): CharArraySet {
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-tokenizer-core:$version")
+    implementation("io.github.bluetape4k:bluetape4k-tokenizer-core:$version")
 }
 ```
 

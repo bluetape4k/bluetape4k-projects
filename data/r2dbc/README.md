@@ -14,7 +14,7 @@ R2DBC(Reactive Relational Database Connectivity) 환경에서 코루틴과 Flow�
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-r2dbc:${version}")
+    implementation("io.github.bluetape4k:bluetape4k-r2dbc:${version}")
 }
 ```
 

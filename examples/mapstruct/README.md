@@ -1,4 +1,4 @@
-# Examples - MapStruct
+# Module Examples - MapStruct
 
 [MapStruct](http://mapstruct.org/)를 Kotlin에서 사용하는 매핑 예제입니다.
 

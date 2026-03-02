@@ -1,4 +1,4 @@
-# bluetape4k-cache-hazelcast
+# Module bluetape4k-cache-hazelcast
 
 `bluetape4k-cache-hazelcast`는 Hazelcast 기반 JCache Provider와 Coroutines 캐시 구현을 제공합니다.
 
@@ -10,7 +10,7 @@
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-cache-hazelcast:${bluetape4kVersion}")
+    implementation("io.github.bluetape4k:bluetape4k-cache-hazelcast:${bluetape4kVersion}")
 }
 ```
 

@@ -16,7 +16,7 @@ AWS SDK for Kotlin SES 사용을 위한 확장 라이브러리입니다.
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-aws-kotlin-ses:${version}")
+    implementation("io.github.bluetape4k:bluetape4k-aws-kotlin-ses:${version}")
 }
 ```
 

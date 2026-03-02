@@ -12,7 +12,7 @@ Spring Data R2DBC를 Kotlin 코루틴에서 사용하기 편하게 확장한 라
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-spring-r2dbc:${version}")
+    implementation("io.github.bluetape4k:bluetape4k-spring-r2dbc:${version}")
 }
 ```
 

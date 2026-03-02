@@ -14,7 +14,7 @@ AWS SDK for Java v2 사용 시 공통으로 필요한 보조 기능을 제공하
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-aws-core:${version}")
+    implementation("io.github.bluetape4k:bluetape4k-aws-core:${version}")
 }
 ```
 

@@ -17,7 +17,7 @@ Kotlin Coroutines 환경에서의 사용을 위한 확장 함수와 유틸리티
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-redis:${bluetape4kVersion}")
+    implementation("io.github.bluetape4k:bluetape4k-redis:${bluetape4kVersion}")
 }
 ```
 

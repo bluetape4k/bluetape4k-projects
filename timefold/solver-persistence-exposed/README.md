@@ -1,4 +1,4 @@
-# bluetape4k-timefold-solver-persistence-exposed
+# Module bluetape4k-timefold-solver-persistence-exposed
 
 [Timefold Solver](https://github.com/timefold/timefold-solver)의 Score 정보를 [Exposed](https://github.com/JetBrains/Exposed)를 이용하여 RDB에 저장/로드하기 위한 라이브러리입니다.
 
@@ -36,7 +36,7 @@
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-timefold-solver-persistence-exposed:${bluetape4kVersion}")
+    implementation("io.github.bluetape4k:bluetape4k-timefold-solver-persistence-exposed:${bluetape4kVersion}")
 }
 ```
 

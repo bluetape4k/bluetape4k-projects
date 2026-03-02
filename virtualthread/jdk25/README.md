@@ -131,10 +131,10 @@ dependencies {
 ```kotlin
 dependencies {
     // API 모듈
-    implementation("io.bluetape4k:bluetape4k-virtualthread-api:$version")
+    implementation("io.github.bluetape4k:bluetape4k-virtualthread-api:$version")
 
     // JDK 25 구현체 (JDK 25 환경에서 사용)
-    runtimeOnly("io.bluetape4k:bluetape4k-virtualthread-jdk25:$version")
+    runtimeOnly("io.github.bluetape4k:bluetape4k-virtualthread-jdk25:$version")
 }
 ```
 
@@ -262,13 +262,13 @@ JDK 25 환경이 아닌 곳에서 이 모듈을 포함하면 불필요한 의존
 ```kotlin
 // ✅ 올바른 사용 (JDK 25 환경)
 dependencies {
-    runtimeOnly("io.bluetape4k:bluetape4k-virtualthread-jdk25:$version")
+    runtimeOnly("io.github.bluetape4k:bluetape4k-virtualthread-jdk25:$version")
 }
 
 // ⚠️ 권장하지 않음 (JDK 21 환경에서 JDK 25 모듈 포함)
 // JDK 21에서는 isSupported()가 false를 반환하여 사용되지 않음
 dependencies {
-    runtimeOnly("io.bluetape4k:bluetape4k-virtualthread-jdk25:$version")
+    runtimeOnly("io.github.bluetape4k:bluetape4k-virtualthread-jdk25:$version")
 }
 ```
 
@@ -279,12 +279,12 @@ dependencies {
 ```kotlin
 // Gradle 조건부 의존성
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-virtualthread-api:$version")
+    implementation("io.github.bluetape4k:bluetape4k-virtualthread-api:$version")
 
     if (JavaVersion.current() >= JavaVersion.VERSION_25) {
-        runtimeOnly("io.bluetape4k:bluetape4k-virtualthread-jdk25:$version")
+        runtimeOnly("io.github.bluetape4k:bluetape4k-virtualthread-jdk25:$version")
     } else {
-        runtimeOnly("io.bluetape4k:bluetape4k-virtualthread-jdk21:$version")
+        runtimeOnly("io.github.bluetape4k:bluetape4k-virtualthread-jdk21:$version")
     }
 }
 ```
@@ -296,8 +296,8 @@ dependencies {
 ```kotlin
 // 1. build.gradle.kts 의존성 변경
 dependencies {
-    // runtimeOnly("io.bluetape4k:bluetape4k-virtualthread-jdk21:$version")
-    runtimeOnly("io.bluetape4k:bluetape4k-virtualthread-jdk25:$version")
+    // runtimeOnly("io.github.bluetape4k:bluetape4k-virtualthread-jdk21:$version")
+    runtimeOnly("io.github.bluetape4k:bluetape4k-virtualthread-jdk25:$version")
 }
 
 // 2. JDK 25 설치 및 JAVA_HOME 변경

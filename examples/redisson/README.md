@@ -1,4 +1,4 @@
-# Examples - Redisson
+# Module Examples - Redisson
 
 [Redisson](https://github.com/redisson/redisson)을 Kotlin Coroutines와 함께 사용하는 분산 Redis 패턴 예제 모음입니다.
 

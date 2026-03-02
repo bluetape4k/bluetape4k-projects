@@ -11,7 +11,7 @@ Vert.x 작업 시 Resilience4j를 적용할 수 있도록 해주는 모듈입니
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-vertx-resilience4j:${version}")
+    implementation("io.github.bluetape4k:bluetape4k-vertx-resilience4j:${version}")
 }
 ```
 

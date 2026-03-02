@@ -1,4 +1,4 @@
-# bluetape4k-cache-core
+# Module bluetape4k-cache-core
 
 `bluetape4k-cache-core`는 캐시 기능의 공통 API와 핵심 추상화를 제공하는 모듈입니다.
 
@@ -20,7 +20,7 @@ Provider별 기능은 별도 모듈(`bluetape4k-cache-local`, `bluetape4k-cache-
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-cache-core:${bluetape4kVersion}")
+    implementation("io.github.bluetape4k:bluetape4k-cache-core:${bluetape4kVersion}")
 }
 ```
 

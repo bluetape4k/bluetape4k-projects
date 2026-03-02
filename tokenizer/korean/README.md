@@ -1,4 +1,4 @@
-# bluetape4k-tokenizer-korean
+# Module bluetape4k-tokenizer-korean
 
 한글 형태소 분석 기능과 그를 활용한 Normalization, 금칙어 처리, 특수 기능 (Hashtag, Email 추출 등)을 제공하는 Kotlin 라이브러리입니다.
 
@@ -21,7 +21,7 @@
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-tokenizer-korean:${bluetape4kVersion}")
+    implementation("io.github.bluetape4k:bluetape4k-tokenizer-korean:${bluetape4kVersion}")
 }
 ```
 

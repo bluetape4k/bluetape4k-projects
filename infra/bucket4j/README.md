@@ -26,7 +26,7 @@ Bucket4j 기반으로 애플리케이션 레벨 Rate Limiter를 구성하기 위
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-bucket4j:${version}")
+    implementation("io.github.bluetape4k:bluetape4k-bucket4j:${version}")
 
     // Redis 기반 분산 Rate Limiter 사용 시
     implementation("io.lettuce:lettuce-core") // 또는 redisson

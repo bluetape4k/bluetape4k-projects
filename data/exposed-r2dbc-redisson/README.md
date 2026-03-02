@@ -20,7 +20,7 @@ Exposed R2DBC와 Redisson 캐시를 결합해 비동기 Read-Through/Write-Throu
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-exposed-r2dbc-redisson:${version}")
+    implementation("io.github.bluetape4k:bluetape4k-exposed-r2dbc-redisson:${version}")
     implementation("org.redisson:redisson:3.37.0")
 
     // R2DBC 드라이버

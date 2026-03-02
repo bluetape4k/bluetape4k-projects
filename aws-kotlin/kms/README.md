@@ -17,7 +17,7 @@ Kotlin 스타일의 DSL 팩토리 함수를 제공합니다.
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-aws-kotlin-kms:$version")
+    implementation("io.github.bluetape4k:bluetape4k-aws-kotlin-kms:$version")
 }
 ```
 

@@ -129,10 +129,10 @@ dependencies {
 ```kotlin
 dependencies {
     // API 모듈
-    implementation("io.bluetape4k:bluetape4k-virtualthread-api:$version")
+    implementation("io.github.bluetape4k:bluetape4k-virtualthread-api:$version")
 
     // JDK 21 구현체 (JDK 21 환경에서 사용)
-    runtimeOnly("io.bluetape4k:bluetape4k-virtualthread-jdk21:$version")
+    runtimeOnly("io.github.bluetape4k:bluetape4k-virtualthread-jdk21:$version")
 }
 ```
 
@@ -220,13 +220,13 @@ JDK 21 환경에서 JDK 25 구현체를 함께 포함하면 클래스 버전 충
 ```kotlin
 // ❌ 잘못된 사용 (JDK 21 환경)
 dependencies {
-    runtimeOnly("io.bluetape4k:bluetape4k-virtualthread-jdk21:$version")
-    runtimeOnly("io.bluetape4k:bluetape4k-virtualthread-jdk25:$version") // 충돌 가능
+    runtimeOnly("io.github.bluetape4k:bluetape4k-virtualthread-jdk21:$version")
+    runtimeOnly("io.github.bluetape4k:bluetape4k-virtualthread-jdk25:$version") // 충돌 가능
 }
 
 // ✅ 올바른 사용
 dependencies {
-    runtimeOnly("io.bluetape4k:bluetape4k-virtualthread-jdk21:$version")
+    runtimeOnly("io.github.bluetape4k:bluetape4k-virtualthread-jdk21:$version")
 }
 ```
 
@@ -237,12 +237,12 @@ dependencies {
 ```kotlin
 // Gradle 조건부 의존성
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-virtualthread-api:$version")
+    implementation("io.github.bluetape4k:bluetape4k-virtualthread-api:$version")
 
     if (JavaVersion.current() >= JavaVersion.VERSION_25) {
-        runtimeOnly("io.bluetape4k:bluetape4k-virtualthread-jdk25:$version")
+        runtimeOnly("io.github.bluetape4k:bluetape4k-virtualthread-jdk25:$version")
     } else {
-        runtimeOnly("io.bluetape4k:bluetape4k-virtualthread-jdk21:$version")
+        runtimeOnly("io.github.bluetape4k:bluetape4k-virtualthread-jdk21:$version")
     }
 }
 ```

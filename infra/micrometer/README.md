@@ -1,4 +1,4 @@
-# bluetape4k-micrometer
+# Module bluetape4k-micrometer
 
 Micrometer와 Observation API를 활용한 애플리케이션 성능 측정 및 관찰(observability) 기능을 제공하는 모듈입니다.
 
@@ -16,7 +16,7 @@ Micrometer와 Observation API를 활용한 애플리케이션 성능 측정 및 
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-micrometer:${bluetape4kVersion}")
+    implementation("io.github.bluetape4k:bluetape4k-micrometer:${bluetape4kVersion}")
 }
 ```
 

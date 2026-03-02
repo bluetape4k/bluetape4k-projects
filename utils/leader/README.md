@@ -10,7 +10,7 @@ Leader로 선출된 인스턴스만 작업을 수행할 수 있어, 스케줄 �
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-leader:${version}")
+    implementation("io.github.bluetape4k:bluetape4k-leader:${version}")
 }
 ```
 

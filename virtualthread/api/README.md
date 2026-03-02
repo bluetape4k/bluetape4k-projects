@@ -121,12 +121,12 @@ io.bluetape4k.concurrent.virtualthread.jdk21.Jdk21StructuredTaskScopeProvider
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-virtualthread-api")
+    implementation("io.github.bluetape4k:bluetape4k-virtualthread-api")
 
     // 런타임에 맞는 구현체 선택
-    runtimeOnly("io.bluetape4k:bluetape4k-virtualthread-jdk21")  // JDK 21 사용 시
+    runtimeOnly("io.github.bluetape4k:bluetape4k-virtualthread-jdk21")  // JDK 21 사용 시
     // 또는
-    runtimeOnly("io.bluetape4k:bluetape4k-virtualthread-jdk25")  // JDK 25 사용 시
+    runtimeOnly("io.github.bluetape4k:bluetape4k-virtualthread-jdk25")  // JDK 25 사용 시
 }
 ```
 

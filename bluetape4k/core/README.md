@@ -19,7 +19,7 @@ Kotlin Backend 개발을 위한 핵심 유틸리티 라이브러리입니다. Bl
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-core:${version}")
+    implementation("io.github.bluetape4k:bluetape4k-core:${version}")
 }
 ```
 

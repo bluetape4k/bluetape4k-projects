@@ -1,4 +1,4 @@
-# bluetape4k-geohash
+# Module bluetape4k-geohash
 
 GeoHash는 지구상의 위치를 문자열로 인코딩하는 공간 인덱싱 시스템입니다. 이 모듈은 WGS84 좌표계를 기반으로 한 GeoHash 구현을 제공합니다.
 
@@ -31,7 +31,7 @@ GeoHash는 지구상의 위치를 문자열로 인코딩하는 공간 인덱싱 
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-geohash:${bluetape4kVersion}")
+    implementation("io.github.bluetape4k:bluetape4k-geohash:${bluetape4kVersion}")
 }
 ```
 

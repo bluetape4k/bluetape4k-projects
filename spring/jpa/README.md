@@ -11,7 +11,7 @@ Spring Data JPA를 위한 확장 기능을 제공합니다.
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-spring-jpa:${version}")
+    implementation("io.github.bluetape4k:bluetape4k-spring-jpa:${version}")
 }
 ```
 

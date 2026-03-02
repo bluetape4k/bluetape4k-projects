@@ -1,4 +1,4 @@
-# bluetape4k-exposed-measured
+# Module bluetape4k-exposed-measured
 
 Exposed에서 `bluetape4k-measured` 타입(`Measure<T>`, `Temperature`, `TemperatureDelta`)을
 `DOUBLE` 컬럼으로 저장/조회하기 위한 Custom ColumnType 모듈입니다.

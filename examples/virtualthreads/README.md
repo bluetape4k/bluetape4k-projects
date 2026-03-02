@@ -1,4 +1,4 @@
-# Examples - Java 21 Virtual Threads
+# Module Examples - Java 21 Virtual Threads
 
 Java 21의 Virtual Threads를 효과적으로 사용하기 위한 모범 사례와 규칙을 학습하는 예제 모음입니다.
 

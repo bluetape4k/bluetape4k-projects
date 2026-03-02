@@ -235,7 +235,7 @@ File("temp").deleteDirectoryRecursively()
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-io:${version}")
+    implementation("io.github.bluetape4k:bluetape4k-io:${version}")
 
     // 선택적 의존성 (필요한 것만 추가)
 

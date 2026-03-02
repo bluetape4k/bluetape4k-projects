@@ -16,7 +16,7 @@ AWS SDK for Kotlin S3 사용 시 파일/객체 작업을 쉽게 수행하는 확
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-aws-kotlin-s3:${version}")
+    implementation("io.github.bluetape4k:bluetape4k-aws-kotlin-s3:${version}")
 }
 ```
 

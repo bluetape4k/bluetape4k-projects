@@ -14,7 +14,7 @@ AWS SDK for Java v2 SNS(Simple Notification Service) 사용을 위한 확장 라
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-aws-sns:${version}")
+    implementation("io.github.bluetape4k:bluetape4k-aws-sns:${version}")
 }
 ```
 

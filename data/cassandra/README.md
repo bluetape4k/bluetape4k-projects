@@ -15,7 +15,7 @@
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-cassandra:${bluetape4kVersion}")
+    implementation("io.github.bluetape4k:bluetape4k-cassandra:${bluetape4kVersion}")
 }
 ```
 

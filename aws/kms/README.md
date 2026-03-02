@@ -20,7 +20,7 @@ AWS KMS는 암호화 키를 생성하고 관리하는 AWS 관리형 서비스입
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-aws-kms:$version")
+    implementation("io.github.bluetape4k:bluetape4k-aws-kms:$version")
 }
 ```
 

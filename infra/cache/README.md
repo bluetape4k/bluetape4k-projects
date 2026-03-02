@@ -1,4 +1,4 @@
-# bluetape4k-cache
+# Module bluetape4k-cache
 
 `bluetape4k-cache`는 캐시 관련 모듈을 한 번에 묶어 쓰기 위한 Umbrella 모듈입니다.
 
@@ -25,7 +25,7 @@ Umbrella는 아래 모듈을 포함합니다.
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-cache:${bluetape4kVersion}")
+    implementation("io.github.bluetape4k:bluetape4k-cache:${bluetape4kVersion}")
 }
 ```
 
@@ -35,8 +35,8 @@ dependencies {
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-cache-core:${bluetape4kVersion}")
-    implementation("io.bluetape4k:bluetape4k-cache-local:${bluetape4kVersion}")
+    implementation("io.github.bluetape4k:bluetape4k-cache-core:${bluetape4kVersion}")
+    implementation("io.github.bluetape4k:bluetape4k-cache-local:${bluetape4kVersion}")
 }
 ```
 
@@ -44,7 +44,7 @@ dependencies {
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-cache-redisson-near:${bluetape4kVersion}")
+    implementation("io.github.bluetape4k:bluetape4k-cache-redisson-near:${bluetape4kVersion}")
 }
 ```
 
@@ -52,8 +52,8 @@ dependencies {
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-cache-hazelcast:${bluetape4kVersion}")
-    implementation("io.bluetape4k:bluetape4k-cache-hazelcast-near:${bluetape4kVersion}")
+    implementation("io.github.bluetape4k:bluetape4k-cache-hazelcast:${bluetape4kVersion}")
+    implementation("io.github.bluetape4k:bluetape4k-cache-hazelcast-near:${bluetape4kVersion}")
 }
 ```
 

@@ -12,7 +12,7 @@ AWS Kotlin SDK 모듈 테스트를 위한 공통 Test Support 라이브러리입
 
 ```kotlin
 dependencies {
-    testImplementation("io.bluetape4k:bluetape4k-aws-kotlin-tests:${version}")
+    testImplementation("io.github.bluetape4k:bluetape4k-aws-kotlin-tests:${version}")
 }
 ```
 

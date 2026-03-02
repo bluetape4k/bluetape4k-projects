@@ -8,7 +8,7 @@
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-geoip2:${version}")
+    implementation("io.github.bluetape4k:bluetape4k-geoip2:${version}")
 }
 ```
 

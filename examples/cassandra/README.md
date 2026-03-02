@@ -1,4 +1,4 @@
-# Examples - Cassandra & Spring Data Cassandra
+# Module Examples - Cassandra & Spring Data Cassandra
 
 Apache Cassandra와 Spring Data Cassandra를 활용하는 종합 예제입니다.
 

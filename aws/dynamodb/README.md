@@ -15,7 +15,7 @@ AWS SDK for Java v2 DynamoDB 사용을 단순화하는 확장 라이브러리입
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-aws-dynamodb:${version}")
+    implementation("io.github.bluetape4k:bluetape4k-aws-dynamodb:${version}")
 }
 ```
 

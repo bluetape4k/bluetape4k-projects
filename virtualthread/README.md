@@ -1,4 +1,4 @@
-# bluetape4k-virtualthreads
+# Module bluetape4k-virtualthreads
 
 Java 21/25를 같은 프로젝트에서 모듈 분리로 지원하기 위한 구조입니다.
 

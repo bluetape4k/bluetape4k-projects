@@ -8,7 +8,7 @@ Naive Bayes 알고리즘을 이용하여 분류(Classification)를 수행하는 
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-naivebayes:${version}")
+    implementation("io.github.bluetape4k:bluetape4k-naivebayes:${version}")
 }
 ```
 

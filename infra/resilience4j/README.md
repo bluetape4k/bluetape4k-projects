@@ -16,7 +16,7 @@
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-resilience4j:${bluetape4kVersion}")
+    implementation("io.github.bluetape4k:bluetape4k-resilience4j:${bluetape4kVersion}")
 }
 ```
 

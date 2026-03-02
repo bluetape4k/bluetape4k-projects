@@ -1,4 +1,4 @@
-# bluetape4k-cache-redisson-near
+# Module bluetape4k-cache-redisson-near
 
 `bluetape4k-cache-redisson-near`는 Redisson Back Cache와 Near Cache 조합을 위한 모듈입니다.
 
@@ -13,7 +13,7 @@
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-cache-redisson-near:${bluetape4kVersion}")
+    implementation("io.github.bluetape4k:bluetape4k-cache-redisson-near:${bluetape4kVersion}")
 }
 ```
 

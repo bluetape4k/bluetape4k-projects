@@ -1,4 +1,4 @@
-# bluetape4k-cache-ignite
+# Module bluetape4k-cache-ignite
 
 `bluetape4k-cache-ignite`는 Apache Ignite 2.x 기반 JCache Provider와 Coroutines 캐시 구현을 제공합니다.
 
@@ -11,7 +11,7 @@
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-cache-ignite:${bluetape4kVersion}")
+    implementation("io.github.bluetape4k:bluetape4k-cache-ignite:${bluetape4kVersion}")
 }
 ```
 

@@ -16,10 +16,10 @@ JetBrains Exposed JDBC 계층을 위한 Repository 패턴, 트랜잭션 확장, 
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-exposed-jdbc:${version}")
+    implementation("io.github.bluetape4k:bluetape4k-exposed-jdbc:${version}")
 
     // Coroutines 지원 시 (SuspendedQuery)
-    implementation("io.bluetape4k:bluetape4k-coroutines:${version}")
+    implementation("io.github.bluetape4k:bluetape4k-coroutines:${version}")
 }
 ```
 

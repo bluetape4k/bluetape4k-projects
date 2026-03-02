@@ -12,7 +12,7 @@ Spring Boot Application을 테스트할 때 필요한 유용한 기능을 제공
 
 ```kotlin
 dependencies {
-    testImplementation("io.bluetape4k:bluetape4k-spring-tests:${version}")
+    testImplementation("io.github.bluetape4k:bluetape4k-spring-tests:${version}")
 }
 ```
 

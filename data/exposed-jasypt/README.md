@@ -16,8 +16,8 @@ Exposed 컬럼 암복호화를 Jasypt로 처리하기 위한 모듈입니다.
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-exposed-jasypt:${version}")
-    implementation("io.bluetape4k:bluetape4k-crypto:${version}")
+    implementation("io.github.bluetape4k:bluetape4k-exposed-jasypt:${version}")
+    implementation("io.github.bluetape4k:bluetape4k-crypto:${version}")
 }
 ```
 

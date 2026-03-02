@@ -1,4 +1,4 @@
-# bluetape4k-cache-hazelcast-near
+# Module bluetape4k-cache-hazelcast-near
 
 `bluetape4k-cache-hazelcast-near`는 Hazelcast Back Cache와 Near Cache 조합을 위한 모듈입니다.
 
@@ -12,7 +12,7 @@
 
 ```kotlin
 dependencies {
-    implementation("io.bluetape4k:bluetape4k-cache-hazelcast-near:${bluetape4kVersion}")
+    implementation("io.github.bluetape4k:bluetape4k-cache-hazelcast-near:${bluetape4kVersion}")
 }
 ```
 

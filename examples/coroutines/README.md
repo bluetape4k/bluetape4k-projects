@@ -1,4 +1,4 @@
-# Examples - Kotlin Coroutines
+# Module Examples - Kotlin Coroutines
 
 Kotlin Coroutines의 다양한 기능과 사용 패턴을 학습하기 위한 예제 모음입니다.
 

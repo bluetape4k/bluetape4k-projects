@@ -24,7 +24,7 @@ bluetape4k-testcontainers 는 Testcontainers 를 감싼 thin wrapper 이지만, 
 
 ```kotlin
 dependencies {
-    testImplementation("io.bluetape4k:bluetape4k-testcontainers:${version}")
+    testImplementation("io.github.bluetape4k:bluetape4k-testcontainers:${version}")
 }
 ```
 
