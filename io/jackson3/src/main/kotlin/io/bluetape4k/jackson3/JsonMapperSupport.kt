@@ -94,8 +94,15 @@ inline fun <reified T> ObjectMapper.convertValueOrNull(from: Any): T? =
 /**
  * [TreeNode]를 reified 타입 [T]의 객체로 변환합니다. 실패 시 null 반환
  */
-inline fun <reified T> ObjectMapper.treeToValueOrNull(node: TreeNode): T? =
-    runCatching { treeToValue(node, T::class.java) }.getOrNull()
+@Deprecated("use treeToValueOrNull", replaceWith = ReplaceWith("treeToValueOrNull<T>(jsonNode)"))
+inline fun <reified T> ObjectMapper.treeToValueOrNull(treeNode: TreeNode): T? =
+    runCatching { treeToValue(treeNode, T::class.java) }.getOrNull()
+
+/**
+ * [TreeNode]를 reified 타입 [T]의 객체로 변환합니다. 실패 시 null 반환
+ */
+inline fun <reified T> ObjectMapper.treeToValueOrNull(jsonNode: JsonNode): T? =
+    runCatching { treeToValue(jsonNode, T::class.java) }.getOrNull()
 
 /**
  * 객체를 JSON 문자열로 직렬화합니다.

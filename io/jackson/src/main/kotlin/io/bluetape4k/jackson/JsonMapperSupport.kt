@@ -99,7 +99,7 @@ fun <T: Any> ObjectMapper.writeAsString(graph: T?): String? =
  * [JsonNode]를 JSON 문자열로 직렬화합니다.
  *
  * ## 동작/계약
- * - 내부 [JsonGenerator]를 사용해 노드를 문자열로 씁니다.
+ * - 내부 [com.fasterxml.jackson.core.JsonGenerator]를 사용해 노드를 문자열로 씁니다.
  * - 입력 노드를 변경하지 않습니다.
  *
  * ```kotlin
