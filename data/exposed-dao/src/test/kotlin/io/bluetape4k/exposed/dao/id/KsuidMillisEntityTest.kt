@@ -31,7 +31,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
 @Suppress("DEPRECATION")
-class KsuidMillisTableTest: AbstractCustomIdTableTest() {
+class KsuidMillisEntityTest: AbstractCustomIdTableTest() {
 
     companion object: KLogging()
 

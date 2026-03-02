@@ -28,7 +28,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
 @Suppress("DEPRECATION")
-class TimebasedUUIDBase62TableTest: AbstractCustomIdTableTest() {
+class TimebasedUUIDBase62EntityTest: AbstractCustomIdTableTest() {
 
     companion object: KLogging()
 

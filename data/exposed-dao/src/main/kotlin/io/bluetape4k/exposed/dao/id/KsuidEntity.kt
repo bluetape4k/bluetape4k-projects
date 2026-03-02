@@ -30,6 +30,7 @@ open class KsuidEntity(id: KsuidEntityID): StringEntity(id)
  *     companion object: KsuidEntityClass<E1>(T1)
  *     var name by T1.name
  *     var age by T1.age
+ * }
  * ```
  */
 open class KsuidEntityClass<out E: KsuidEntity>(
