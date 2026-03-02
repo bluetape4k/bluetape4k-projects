@@ -10,12 +10,19 @@ private val retryScheduler by lazy {
 }
 
 /**
- * [retrofit2.Call]을 비동기로 실행하고, [CompletableFuture]를 반환합니다.
+ * Retrofit [retrofit2.Call]을 비동기로 실행해 [CompletableFuture]를 반환합니다.
  *
- * @param T
- * @param cancelHandler 취소 핸들러
- * @receiver
- * @return 비동기 호출 결과
+ * ## 동작/계약
+ * - 내부적으로 `enqueue` 기반으로 future를 완료합니다.
+ * - 호출 취소 상태에서 콜백이 도착하면 [cancelHandler]를 호출하고 future를 `cancel(true)` 처리합니다.
+ * - 네트워크 실패는 `completeExceptionally`로 전달됩니다.
+ *
+ * ```kotlin
+ * val response = api.getPost(1).executeAsync().get()
+ * // response.isSuccessful == true
+ * ```
+ *
+ * @param cancelHandler 취소 경로에서 호출할 콜백입니다.
  */
 inline fun <T> retrofit2.Call<T>.executeAsync(
     crossinline cancelHandler: (Throwable?) -> Unit = {},
@@ -23,9 +30,6 @@ inline fun <T> retrofit2.Call<T>.executeAsync(
     val promise = CompletableFuture<retrofit2.Response<T>>()
 
     val callback = object: retrofit2.Callback<T> {
-        /**
-         * Retrofit2 연동에서 `onResponse` 함수를 제공합니다.
-         */
         override fun onResponse(call: retrofit2.Call<T>, response: retrofit2.Response<T>) {
             if (call.isCanceled) {
                 val ex = retrofit2.HttpException(response)
@@ -36,9 +40,6 @@ inline fun <T> retrofit2.Call<T>.executeAsync(
             }
         }
 
-        /**
-         * Retrofit2 연동에서 `onFailure` 함수를 제공합니다.
-         */
         override fun onFailure(call: retrofit2.Call<T>, t: Throwable) {
             if (call.isCanceled) {
                 cancelHandler(t)
@@ -54,13 +55,20 @@ inline fun <T> retrofit2.Call<T>.executeAsync(
 }
 
 /**
- * Resilience4j [Retry]를 이용하여 Call 비동기 실행을 재시도 할 수 있게 합니다.
+ * Retrofit [retrofit2.Call] 비동기 실행에 Resilience4j [Retry]를 적용합니다.
  *
- * @param T
- * @param retry Resilience4j [Retry] 인스턴스
- * @param cancelHandler 취소 핸들러
- * @receiver
- * @return 비동기 호출 결과
+ * ## 동작/계약
+ * - 기본 실행은 [executeAsync]를 사용합니다.
+ * - 재시도는 단일 스레드 스케줄러에서 처리됩니다.
+ * - [retry] 설정에 따라 실패 future가 재호출될 수 있습니다.
+ *
+ * ```kotlin
+ * val response = api.getPost(1).executeAsync(retry).get()
+ * // response.isSuccessful == true
+ * ```
+ *
+ * @param retry 적용할 재시도 정책입니다.
+ * @param cancelHandler 취소 경로에서 호출할 콜백입니다.
  */
 fun <T> retrofit2.Call<T>.executeAsync(
     retry: Retry,

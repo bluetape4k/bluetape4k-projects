@@ -12,15 +12,16 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 /**
- * Retrofit2 에서 OkHttp3 대신 AsyncHttpClient를 사용할 수 있게 해주는 `Call.Factory`를 생성합니다.
+ * AsyncHttpClient 기반 Retrofit `Call.Factory`를 빌더 DSL로 생성합니다.
  *
+ * ## 동작/계약
+ * - [builder]를 `AsyncHttpClientCallFactory.builder()`에 적용해 최종 팩토리를 만듭니다.
+ * - 기본값 없이 [builder]에서 `httpClient(...)`를 지정해야 합니다.
+ *
+ * ```kotlin
+ * val factory = asyncHttpClientCallFactory { httpClient(defaultAsyncHttpClient) }
+ * // factory != null
  * ```
- * val factory = asyncHttpClientCallFactory {
- *      httpClient(defaultAsyncHttpClient)
- * }
- * ```
- * @param builder [AsyncHttpClient] 제공 함수
- * @return [okhttp3.Call.Factory]
  */
 inline fun asyncHttpClientCallFactory(
     @BuilderInference builder: AsyncHttpClientCallFactory.AsyncHttpClientCallFactoryBuilder.() -> Unit,
@@ -28,14 +29,18 @@ inline fun asyncHttpClientCallFactory(
     AsyncHttpClientCallFactory.builder().apply(builder).build()
 
 /**
- * Retrofit2에서 OkHttp3 대신 AsyncHttpClient를 사용할 수 있게 해주는 `Call.Factory`를 생성합니다.
+ * AsyncHttpClient 인스턴스를 지정해 Retrofit `Call.Factory`를 생성합니다.
  *
- * ```
- * val factory = asyncHttpClientCallFactoryOf(defaultAsyncHttpClient)
+ * ## 동작/계약
+ * - [client]를 기본값([defaultAsyncHttpClient])으로 사용합니다.
+ * - 추가 [builder] 설정을 동일 빌더에 이어서 적용합니다.
+ *
+ * ```kotlin
+ * val factory = asyncHttpClientCallFactoryOf()
+ * // factory != null
  * ```
  *
- * @param client [AsyncHttpClient] 제공 함수
- * @return [okhttp3.Call.Factory]
+ * @param client 사용할 AsyncHttpClient입니다.
  */
 inline fun asyncHttpClientCallFactoryOf(
     client: AsyncHttpClient = defaultAsyncHttpClient,
@@ -47,14 +52,17 @@ inline fun asyncHttpClientCallFactoryOf(
     }
 
 /**
- * [BoundRequestBuilder] 를 Coroutines 를 이용하여 실행합니다.
+ * [BoundRequestBuilder]를 코루틴으로 실행하고 응답을 반환합니다.
  *
- * ```
+ * ## 동작/계약
+ * - 내부 `execute(handler)` Future를 코루틴 취소와 연동합니다.
+ * - 코루틴 취소 시 `future.cancel(true)`를 호출합니다.
+ * - AHC 실패는 예외로 재개됩니다.
+ *
+ * ```kotlin
  * val response = requestBuilder.coExecute()
+ * // response.statusCode >= 200
  * ```
- *
- * @receiver BoundRequestBuilder ahc의 요청 빌더
- * @return Response ahc의 응답
  */
 suspend fun BoundRequestBuilder.coExecute(): Response =
     suspendCancellableCoroutine { cont ->
@@ -62,24 +70,15 @@ suspend fun BoundRequestBuilder.coExecute(): Response =
         cont.invokeOnCancellation { future.cancel(true) }
     }
 
-/**
- * Retrofit2 연동에서 사용하는 `DefaultCoroutineCompletionHandler` 타입입니다.
- */
 internal class DefaultCoroutineCompletionHandler(
     private val cont: CancellableContinuation<Response>,
 ): AsyncCompletionHandler<Response>() {
 
-    /**
-     * Retrofit2 연동에서 `onCompleted` 함수를 제공합니다.
-     */
     override fun onCompleted(response: Response): Response {
         cont.resume(response)
         return response
     }
 
-    /**
-     * Retrofit2 연동에서 `onThrowable` 함수를 제공합니다.
-     */
     override fun onThrowable(t: Throwable) {
         cont.resumeWithException(t)
     }

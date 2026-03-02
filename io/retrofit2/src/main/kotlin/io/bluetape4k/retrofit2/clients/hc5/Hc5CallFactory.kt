@@ -20,19 +20,16 @@ import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 
 /**
- * Apache HttpClient 5.x 를 사용하는 OkHttp3용 Call.Factory 구현체입니다.
+ * Apache HC5 비동기 클라이언트를 사용하는 Retrofit용 OkHttp `Call.Factory`를 생성합니다.
  *
+ * ## 동작/계약
+ * - [asyncClient]를 래핑한 [Hc5CallFactory]를 반환합니다.
+ * - [asyncClient] 기본값은 시스템 설정 기반 `httpAsyncClientSystemOf()`입니다.
+ *
+ * ```kotlin
+ * val callFactory = hc5CallFactoryOf()
+ * // callFactory != null
  * ```
- * val asyncClient = httpAsyncClientSystemOf()
- * val callFactory = hc5CallFactoryOf(asyncClient)
- *
- * val retrofit2 = retroift2Of("https://api.example.com", callFactory) {
- *    // ...
- * }
- * ```
- *
- * @param asyncClient Apache HttpClient 5.x의 CloseableHttpAsyncClient 인스턴스
- * @return OkHttp3의 Call.Factory 구현체
  */
 fun hc5CallFactoryOf(
     asyncClient: CloseableHttpAsyncClient = httpAsyncClientSystemOf(),
@@ -41,7 +38,17 @@ fun hc5CallFactoryOf(
 }
 
 /**
- * Retrofit2 연동에서 사용하는 `Hc5CallFactory` 타입입니다.
+ * Apache HC5 비동기 클라이언트를 OkHttp [okhttp3.Call.Factory]로 어댑트합니다.
+ *
+ * ## 동작/계약
+ * - 생성 시 [asyncClient] 상태가 비활성(`!= ACTIVE`)이면 `start()`를 호출합니다.
+ * - [newCall]은 요청마다 독립 Call 인스턴스를 생성합니다.
+ * - `execute()`는 내부 async 처리 결과를 timeout까지 대기하는 blocking 호출입니다.
+ *
+ * ```kotlin
+ * val retrofit = retrofitOf(baseUrl, hc5CallFactoryOf())
+ * // retrofit.callFactory()가 HC5 기반으로 동작
+ * ```
  */
 class Hc5CallFactory private constructor(
     private val asyncClient: CloseableHttpAsyncClient,
@@ -53,7 +60,15 @@ class Hc5CallFactory private constructor(
         val CallTimeout: Duration = Duration.ofSeconds(30)
 
         /**
-         * Retrofit2 연동용 인스턴스 생성을 위한 진입점을 제공합니다.
+         * [Hc5CallFactory] 인스턴스를 생성합니다.
+         *
+         * ## 동작/계약
+         * - 전달한 [asyncClient]를 그대로 사용합니다.
+         *
+         * ```kotlin
+         * val factory = Hc5CallFactory(httpAsyncClientSystemOf())
+         * // factory != null
+         * ```
          */
         @JvmStatic
         operator fun invoke(asyncClient: CloseableHttpAsyncClient): Hc5CallFactory {
@@ -62,15 +77,11 @@ class Hc5CallFactory private constructor(
     }
 
     init {
-        // NOTE: 먼저 start() 를 호출해주어야 합니다.
         if (asyncClient.status != IOReactorStatus.ACTIVE) {
             asyncClient.start()
         }
     }
 
-    /**
-     * Retrofit2 연동에서 `newCall` 함수를 제공합니다.
-     */
     override fun newCall(request: okhttp3.Request): okhttp3.Call {
         return AsyncClientCall(request)
     }
@@ -84,14 +95,10 @@ class Hc5CallFactory private constructor(
         private var promise by promiseRef
         private val timeout = callTimeout.toTimeout()
 
-        /**
-         * Retrofit2 연동에서 `execute` 함수를 제공합니다.
-         */
         override fun execute(): okhttp3.Response {
             log.debug { "Execute Hc5Call. request=$okRequest" }
 
             return try {
-                // execute 는 Async 이지만 Blocking 입니다.
                 executeAsync().get(callTimeout.toMillis(), TimeUnit.MILLISECONDS)
             } catch (e: ExecutionException) {
                 throw (e.cause ?: e).toIOException()
@@ -100,9 +107,6 @@ class Hc5CallFactory private constructor(
             }
         }
 
-        /**
-         * Retrofit2 연동에서 `enqueue` 함수를 제공합니다.
-         */
         override fun enqueue(responseCallback: okhttp3.Callback) {
             log.debug { "Enqueue Hc5Call. request=$okRequest" }
 
@@ -128,9 +132,6 @@ class Hc5CallFactory private constructor(
             val simpleRequest = okRequest.toSimpleHttpRequest()
 
             asyncClient.execute(simpleRequest, object: FutureCallback<SimpleHttpResponse> {
-                /**
-                 * Retrofit2 연동에서 `completed` 함수를 제공합니다.
-                 */
                 override fun completed(result: SimpleHttpResponse) {
                     try {
                         val okResponse: okhttp3.Response = result.toOkHttp3Response(okRequest)
@@ -140,16 +141,10 @@ class Hc5CallFactory private constructor(
                     }
                 }
 
-                /**
-                 * Retrofit2 연동에서 `failed` 함수를 제공합니다.
-                 */
                 override fun failed(ex: java.lang.Exception) {
                     promise.completeExceptionally(IOException("Fail to execute. request=$okRequest", ex))
                 }
 
-                /**
-                 * Retrofit2 연동에서 `cancelled` 함수를 제공합니다.
-                 */
                 override fun cancelled() {
                     promise.completeExceptionally(IOException("Cancelled. request=$okRequest"))
                 }
@@ -158,16 +153,10 @@ class Hc5CallFactory private constructor(
             return promise
         }
 
-        /**
-         * Retrofit2 연동에서 `isExecuted` 함수를 제공합니다.
-         */
         override fun isExecuted(): Boolean {
             return promise?.isDone ?: false
         }
 
-        /**
-         * Retrofit2 연동에서 `cancel` 함수를 제공합니다.
-         */
         override fun cancel() {
             promise?.let { promise ->
                 if (!promise.cancel(true)) {
@@ -176,52 +165,28 @@ class Hc5CallFactory private constructor(
             }
         }
 
-        /**
-         * Retrofit2 연동에서 `isCanceled` 함수를 제공합니다.
-         */
         override fun isCanceled(): Boolean {
             return promise?.isCancelled ?: false
         }
 
-        /**
-         * Retrofit2 연동에서 `clone` 함수를 제공합니다.
-         */
         override fun clone(): okhttp3.Call {
             return AsyncClientCall(okRequest)
         }
 
-        /**
-         * Retrofit2 연동에서 `request` 함수를 제공합니다.
-         */
         override fun request(): okhttp3.Request {
             return okRequest
         }
 
-        /**
-         * Retrofit2 연동에서 `timeout` 함수를 제공합니다.
-         */
         override fun timeout(): Timeout {
             return timeout
         }
 
-        /**
-         * Retrofit2 연동에서 `tag` 함수를 제공합니다.
-         */
         override fun <T: Any> tag(type: KClass<T>): T? = null
 
-        /**
-         * Retrofit2 연동에서 `tag` 함수를 제공합니다.
-         */
         override fun <T> tag(type: Class<out T>): T? = null
 
-        /**
-         * Retrofit2 연동에서 `tag` 함수를 제공합니다.
-         */
         override fun <T: Any> tag(type: KClass<T>, computeIfAbsent: () -> T): T = computeIfAbsent()
 
-        /**
-         * Retrofit2 연동에서 `tag` 함수를 제공합니다.
-         */
         override fun <T: Any> tag(type: Class<T>, computeIfAbsent: () -> T): T = computeIfAbsent()
 
         private fun throwAlreadyExecuted() {

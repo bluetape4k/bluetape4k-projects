@@ -17,43 +17,33 @@ import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 
 /**
- * Vertx의 [HttpClient]를 사용하는 Retrofit2용 Call.Factory 인 [VertxCallFactory]를 생성합니다.
+ * Vert.x [HttpClient] 기반 Retrofit용 OkHttp `Call.Factory`를 생성합니다.
  *
+ * ## 동작/계약
+ * - [client]를 래핑한 [VertxCallFactory]를 반환합니다.
+ * - [client] 기본값은 [defaultVertxHttpClient]입니다.
+ *
+ * ```kotlin
+ * val callFactory = vertxCallFactoryOf()
+ * // callFactory != null
  * ```
- * val vertxClient = vertxHttpClientOf()
- * val callFactory = vertxCallFactoryOf(vertxClient)
- *
- * val retrofit2 = retroift2Of("https://api.example.com", callFactory) {
- *   addConverterFactory(defaultJsonConverterFactory)
- *   addCallAdapterFactory(ResultCallAdapterFactory())
- *   // ...
- * }
- * val api = retrofit2.service<ExampleApi>()
- * ```
- *
- * @param client Vertx의 [HttpClient] 인스턴스
- * @return Retrofit2용 Call.Factory 인스턴스
  */
 fun vertxCallFactoryOf(client: HttpClient = defaultVertxHttpClient): VertxCallFactory {
     return VertxCallFactory(client)
 }
 
 /**
- * Retrofit2 를 사용하기 위해, Http 통신을 Vertx의 [HttpClient]를 사용하도록 하는 Call.Factory 입니다.
+ * Vert.x HTTP 요청을 OkHttp [okhttp3.Call.Factory] 인터페이스로 어댑트한 구현입니다.
  *
+ * ## 동작/계약
+ * - [newCall]은 요청마다 독립 Call 인스턴스를 생성합니다.
+ * - `execute()`는 내부 async 처리 결과를 timeout까지 대기하는 blocking 호출입니다.
+ * - 네트워크/변환 오류는 [io.bluetape4k.retrofit2.toIOException]으로 변환됩니다.
+ *
+ * ```kotlin
+ * val retrofit = retrofitOf(baseUrl, vertxCallFactoryOf())
+ * // retrofit.callFactory()가 Vert.x 기반으로 동작
  * ```
- * val vertxClient = vertxHttpClientOf()
- * val callFactory = vertxCallFactoryOf(vertxClient)
- *
- * val retrofit2 = retroift2Of("https://api.example.com", callFactory) {
- *   addConverterFactory(defaultJsonConverterFactory)
- *   addCallAdapterFactory(ResultCallAdapterFactory())
- *   // ...
- * }
- * val api = retrofit2.service<ExampleApi>()
- * ```
- *
- * @property client Vertx [HttpClient] 인스턴스
  */
 class VertxCallFactory private constructor(
     private val client: HttpClient,
@@ -64,7 +54,15 @@ class VertxCallFactory private constructor(
         val callTimeout: Duration = Duration.ofSeconds(30L)
 
         /**
-         * Retrofit2 연동용 인스턴스 생성을 위한 진입점을 제공합니다.
+         * [VertxCallFactory] 인스턴스를 생성합니다.
+         *
+         * ## 동작/계약
+         * - 전달한 [client] 인스턴스를 그대로 사용합니다.
+         *
+         * ```kotlin
+         * val factory = VertxCallFactory(defaultVertxHttpClient)
+         * // factory != null
+         * ```
          */
         @JvmStatic
         operator fun invoke(client: HttpClient): VertxCallFactory {
@@ -72,18 +70,10 @@ class VertxCallFactory private constructor(
         }
     }
 
-    /**
-     * Retrofit2 연동에서 `newCall` 함수를 제공합니다.
-     */
     override fun newCall(request: okhttp3.Request): okhttp3.Call {
         return VertxCall(request)
     }
 
-    /**
-     * Vertx의 [HttpClient]를 사용하여, Http 통신을 수행하는 Call 입니다.
-     *
-     * @property okRequest OkHttp의 [okRequest] 인스턴스
-     */
     private inner class VertxCall(
         private val okRequest: okhttp3.Request,
     ): okhttp3.Call {
@@ -92,9 +82,6 @@ class VertxCallFactory private constructor(
         private var promise by promiseRef
         private val timeout = callTimeout.toTimeout()
 
-        /**
-         * Retrofit2 연동에서 `execute` 함수를 제공합니다.
-         */
         override fun execute(): okhttp3.Response {
             log.debug { "Execute VertxCall. request=$okRequest" }
 
@@ -107,9 +94,6 @@ class VertxCallFactory private constructor(
             }
         }
 
-        /**
-         * Retrofit2 연동에서 `enqueue` 함수를 제공합니다.
-         */
         override fun enqueue(responseCallback: okhttp3.Callback) {
             log.debug { "Enqueue VertxCall. request=$okRequest" }
 
@@ -158,16 +142,10 @@ class VertxCallFactory private constructor(
             return promise
         }
 
-        /**
-         * Retrofit2 연동에서 `isExecuted` 함수를 제공합니다.
-         */
         override fun isExecuted(): Boolean {
             return promise?.isDone ?: false
         }
 
-        /**
-         * Retrofit2 연동에서 `cancel` 함수를 제공합니다.
-         */
         override fun cancel() {
             promise?.let { promise ->
                 if (!promise.cancel(true)) {
@@ -176,52 +154,28 @@ class VertxCallFactory private constructor(
             }
         }
 
-        /**
-         * Retrofit2 연동에서 `isCanceled` 함수를 제공합니다.
-         */
         override fun isCanceled(): Boolean {
             return promise?.isCancelled ?: false
         }
 
-        /**
-         * Retrofit2 연동에서 `clone` 함수를 제공합니다.
-         */
         override fun clone(): okhttp3.Call {
             return VertxCall(okRequest)
         }
 
-        /**
-         * Retrofit2 연동에서 `request` 함수를 제공합니다.
-         */
         override fun request(): okhttp3.Request {
             return okRequest
         }
 
-        /**
-         * Retrofit2 연동에서 `timeout` 함수를 제공합니다.
-         */
         override fun timeout(): okio.Timeout {
             return timeout
         }
 
-        /**
-         * Retrofit2 연동에서 `tag` 함수를 제공합니다.
-         */
         override fun <T: Any> tag(type: KClass<T>): T? = null
 
-        /**
-         * Retrofit2 연동에서 `tag` 함수를 제공합니다.
-         */
         override fun <T> tag(type: Class<out T>): T? = null
 
-        /**
-         * Retrofit2 연동에서 `tag` 함수를 제공합니다.
-         */
         override fun <T: Any> tag(type: KClass<T>, computeIfAbsent: () -> T): T = computeIfAbsent()
 
-        /**
-         * Retrofit2 연동에서 `tag` 함수를 제공합니다.
-         */
         override fun <T: Any> tag(type: Class<T>, computeIfAbsent: () -> T): T = computeIfAbsent()
 
         private fun throwAlreadyExecuted() {

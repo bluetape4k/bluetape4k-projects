@@ -13,10 +13,19 @@ import retrofit2.Response
 import java.io.IOException
 
 /**
- * T 수형의 반환하는 API 를 [Result] 수형으로 감싸서 예외 처리를 유연하게 할 수 있도록 하는 [Call] 입니다.
+ * `Call<T>`를 `Call<Result<T>>`로 래핑해 HTTP/네트워크 실패를 `Result.failure`로 전달하는 구현체입니다.
  *
- * @param T API 의 반환 수형
- * @property delegate 실제 수행할 [Call] 구현체
+ * ## 동작/계약
+ * - 성공 응답(`2xx`)은 `Result.success(body)`로 변환합니다.
+ * - 비성공 응답(`4xx/5xx`)은 [HttpException]을 담은 `Result.failure`로 변환합니다.
+ * - 예외/실패 경로에서도 `Callback.onResponse`를 호출하며 `Response.success(Result.failure(...))` 형태를 사용합니다.
+ * - 응답 본문이 `null`이면 [IOException] 실패로 처리합니다.
+ *
+ * ```kotlin
+ * val resultCall = ResultCall(delegateCall)
+ * val result = resultCall.execute().body()!!
+ * // result.isSuccess || result.isFailure == true
+ * ```
  */
 class ResultCall<T> private constructor(
     private val delegate: Call<T>,
@@ -24,7 +33,15 @@ class ResultCall<T> private constructor(
 
     companion object: KLogging() {
         /**
-         * Retrofit2 연동용 인스턴스 생성을 위한 진입점을 제공합니다.
+         * [ResultCall] 인스턴스를 생성합니다.
+         *
+         * ## 동작/계약
+         * - [delegate]가 이미 취소된 상태면 [IllegalStateException]을 발생시킵니다.
+         *
+         * ```kotlin
+         * val wrapped = ResultCall(delegate)
+         * // wrapped.isCanceled() == false
+         * ```
          */
         @JvmStatic
         operator fun <T> invoke(delegate: Call<T>): ResultCall<T> {
@@ -36,13 +53,22 @@ class ResultCall<T> private constructor(
     }
 
     /**
-     * Retrofit2 연동에서 `execute` 함수를 제공합니다.
+     * 동기 호출을 실행하고 [Result] 형태로 반환합니다.
+     *
+     * ## 동작/계약
+     * - 원본 [delegate.execute] 예외는 `IOException(cause)`를 담은 실패 결과로 변환됩니다.
+     * - HTTP 실패도 예외를 던지지 않고 `Result.failure`로 감쌉니다.
+     *
+     * ```kotlin
+     * val result = ResultCall(delegate).execute().body()!!
+     * // result.isSuccess || result.isFailure == true
+     * ```
      */
     override fun execute(): Response<Result<T>> {
         val response: Response<T>
         return try {
             response = delegate.execute()
-            return when {
+            when {
                 response.isSuccessful -> {
                     val body = response.body()
                     val result = if (body != null) {
@@ -65,7 +91,16 @@ class ResultCall<T> private constructor(
     }
 
     /**
-     * Retrofit2 연동에서 `enqueue` 함수를 제공합니다.
+     * 비동기 호출을 실행하고 [Callback]에 `Result` 형태로 전달합니다.
+     *
+     * ## 동작/계약
+     * - 원본 콜백의 `onFailure`도 최종적으로 `callback.onResponse(...Result.failure...)`로 전달됩니다.
+     * - 호출자는 Retrofit `onFailure` 대신 `Result.isFailure`를 확인해 분기할 수 있습니다.
+     *
+     * ```kotlin
+     * resultCall.enqueue(callback)
+     * // callback.onResponse에서 Result 성공/실패를 처리
+     * ```
      */
     override fun enqueue(callback: Callback<Result<T>>) {
         delegate.enqueue(toResultCallback(callback))
@@ -73,16 +108,7 @@ class ResultCall<T> private constructor(
 
     private fun toResultCallback(callback: Callback<Result<T>>): Callback<T> {
         log.debug { "Convert to ResultCallback. callback=$callback" }
-        /**
-         * Invoked for a received HTTP response.
-         *
-         * Note: Http response 에는 application level 의 예외 (404, 500) 이 있을 수 있으므로,
-         * 실제 성공 여부는 [Response.isSuccessful] 로 판단해야 합니다.
-         */
         return object: Callback<T> {
-            /**
-             * Retrofit2 연동에서 `onResponse` 함수를 제공합니다.
-             */
             override fun onResponse(call: Call<T>, response: Response<T>) {
                 when {
                     response.isSuccessful -> {
@@ -104,9 +130,6 @@ class ResultCall<T> private constructor(
                 }
             }
 
-            /**
-             * Retrofit2 연동에서 `onFailure` 함수를 제공합니다.
-             */
             override fun onFailure(call: Call<T>, t: Throwable) {
                 log.warn(t) { "Failed to execute call. call=$call" }
 
@@ -121,33 +144,15 @@ class ResultCall<T> private constructor(
         }
     }
 
-    /**
-     * Retrofit2 연동에서 `isExecuted` 함수를 제공합니다.
-     */
     override fun isExecuted(): Boolean = delegate.isExecuted
 
-    /**
-     * Retrofit2 연동에서 `cancel` 함수를 제공합니다.
-     */
     override fun cancel() = delegate.cancel()
 
-    /**
-     * Retrofit2 연동에서 `isCanceled` 함수를 제공합니다.
-     */
     override fun isCanceled(): Boolean = delegate.isCanceled
 
-    /**
-     * Retrofit2 연동에서 `request` 함수를 제공합니다.
-     */
     override fun request(): Request = delegate.request()
 
-    /**
-     * Retrofit2 연동에서 `timeout` 함수를 제공합니다.
-     */
     override fun timeout(): Timeout = delegate.timeout()
 
-    /**
-     * Retrofit2 연동에서 `clone` 함수를 제공합니다.
-     */
     override fun clone(): Call<Result<T>> = ResultCall(delegate.clone())
 }

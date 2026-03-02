@@ -31,26 +31,48 @@ private val retrofitAdapterReactorPresent by lazy {
 }
 
 /**
- * 기본 [ScalarsConverterFactory] 인스턴스입니다.
+ * Retrofit 기본 문자열/원시형 컨버터 팩토리입니다.
+ *
+ * ## 동작/계약
+ * - [ScalarsConverterFactory.create]로 생성한 singleton 인스턴스입니다.
+ * - `String`, primitive, boxed type 변환 경로에서 사용됩니다.
+ *
+ * ```kotlin
+ * val factory = defaultScalarsConverterFactory
+ * // factory != null
+ * ```
  */
 @JvmField
 val defaultScalarsConverterFactory: ScalarsConverterFactory = ScalarsConverterFactory.create()
 
 /**
- * 기본 JSON 컨버터 팩토리([JacksonConverterFactory])입니다.
+ * Retrofit 기본 JSON 컨버터 팩토리입니다.
+ *
+ * ## 동작/계약
+ * - [jacksonConverterFactoryOf] 기본 mapper 경로를 사용합니다.
+ * - singleton 인스턴스로 재사용됩니다.
+ *
+ * ```kotlin
+ * val factory = defaultJsonConverterFactory
+ * // factory != null
+ * ```
  */
 @JvmField
 val defaultJsonConverterFactory: Converter.Factory = jacksonConverterFactoryOf()
 
 /**
- * [JacksonConverterFactory]를 생성합니다.
+ * 지정한 Jackson mapper로 [JacksonConverterFactory]를 생성합니다.
  *
- * ```
- * val jacksonConverterFactory = jacksonConverterFactoryOf(ObjectMapper())
+ * ## 동작/계약
+ * - [mapper] 기본값은 [Jackson.defaultJsonMapper]입니다.
+ * - 반환된 팩토리는 mapper 설정을 그대로 사용합니다.
+ *
+ * ```kotlin
+ * val factory = jacksonConverterFactoryOf()
+ * // factory is JacksonConverterFactory == true
  * ```
  *
- * @param mapper Jackson [JsonMapper]
- * @return [JacksonConverterFactory] 인스턴스
+ * @param mapper JSON 직렬화/역직렬화에 사용할 Jackson mapper입니다.
  */
 fun jacksonConverterFactoryOf(
     mapper: ObjectMapper = Jackson.defaultJsonMapper,
@@ -58,21 +80,16 @@ fun jacksonConverterFactoryOf(
     JacksonConverterFactory.create(mapper)
 
 /**
- * [Retrofit.Builder]를 생성합니다.
+ * [Retrofit.Builder]를 생성하고 [builder] DSL을 적용합니다.
  *
- * ```
- * val retrofitBuilder = retrofitBuilder {
- *         baseUrl("https://api.github.com")
- *         callFactory(okhttp3.OkHttpClient())
- *         addCallAdapterFactory(ResultCallAdapterFactory())
- *         addCallAdapterFactory(ReactorCallAdapterFactory.create())
- *         addConverterFactory(defaultJsonConverterFactory)
- *         addConverterFactory(defaultScalarsConverterFactory)
- * }
- * ```
+ * ## 동작/계약
+ * - 매 호출마다 새 [Retrofit.Builder] 인스턴스를 생성합니다.
+ * - [builder] 내부 예외는 그대로 전파됩니다.
  *
- * @param builder [Retrofit.Builder] 초기화 람다
- * @return [Retrofit.Builder] 인스턴스
+ * ```kotlin
+ * val b = retrofitBuilder { baseUrl("https://example.com") }
+ * // b != null
+ * ```
  */
 inline fun retrofitBuilder(
     @BuilderInference builder: Retrofit.Builder.() -> Unit,
@@ -80,21 +97,20 @@ inline fun retrofitBuilder(
     Retrofit.Builder().apply(builder)
 
 /**
- * [Retrofit.Builder]를 생성합니다.
+ * 기본 컨버터를 포함한 [Retrofit.Builder]를 생성합니다.
  *
- * ```
- * val retrofitBuilder = retrofitBuilderOf("https://api.github.com", defaultJsonConverterFactory) {
- *   callFactory(okhttp3.OkHttpClient())
- *   addCallAdapterFactory(ResultCallAdapterFactory())
- *   addCallAdapterFactory(ReactorCallAdapterFactory.create())
- * }
- * val retrofit = retrofitBuilder.build()
+ * ## 동작/계약
+ * - [baseUrl]이 blank가 아니면 `baseUrl(...)`을 설정합니다.
+ * - [converterFactory]를 먼저 추가하고, JSON 팩토리가 아니면 [defaultJsonConverterFactory]를 추가합니다.
+ * - 마지막에 [builder] DSL을 적용합니다.
+ *
+ * ```kotlin
+ * val b = retrofitBuilderOf("https://example.com")
+ * // b != null
  * ```
  *
- * @param baseUrl 기본 URL
- * @param converterFactory [Converter.Factory] (기본값: [defaultScalarsConverterFactory])
- * @param builder [Retrofit.Builder] 초기화 람다
- * @return [Retrofit.Builder] 인스턴스
+ * @param baseUrl Retrofit 기본 URL입니다. blank면 설정하지 않습니다.
+ * @param converterFactory 우선 적용할 컨버터 팩토리입니다.
  */
 inline fun retrofitBuilderOf(
     baseUrl: String = "",
@@ -114,20 +130,16 @@ inline fun retrofitBuilderOf(
     }
 
 /**
- * [Retrofit]을 생성합니다.
+ * [Retrofit] 인스턴스를 생성합니다.
  *
- * ```
- * val retrofit = retrofit("https://api.github.com", defaultJsonConverterFactory) {
- *    callFactory(okhttp3.OkHttpClient())
- *    addCallAdapterFactory(ResultCallAdapterFactory())
- *    addCallAdapterFactory(ReactorCallAdapterFactory.create())
- * }
- * ```
+ * ## 동작/계약
+ * - [retrofitBuilderOf]로 구성한 builder를 즉시 `build()` 합니다.
+ * - [builder]에서 callFactory/callAdapter/converter를 추가로 지정할 수 있습니다.
  *
- * @param baseUrl 기본 URL
- * @param converterFactory [Converter.Factory] (기본값: [defaultScalarsConverterFactory])
- * @param builder [Retrofit.Builder] 초기화 람다
- * @return [Retrofit] 인스턴스
+ * ```kotlin
+ * val retrofit = retrofit("https://example.com") { callFactory(OkHttpClient()) }
+ * // retrofit.baseUrl().toString() == "https://example.com/"
+ * ```
  */
 inline fun retrofit(
     baseUrl: String = "",
@@ -138,20 +150,22 @@ inline fun retrofit(
 }
 
 /**
- * [Retrofit]을 생성합니다.
+ * `Call.Factory`와 어댑터들을 포함한 표준 [Retrofit] 구성을 생성합니다.
  *
- * ```
- * val retrofit = retrofitOf("https://api.github.com", okhttp3.OkHttpClient(), defaultJsonConverterFactory) {
- *    addCallAdapterFactory(ResultCallAdapterFactory())
- *    addCallAdapterFactory(ReactorCallAdapterFactory.create())
- * }
+ * ## 동작/계약
+ * - 기본적으로 [ResultCallAdapterFactory]를 포함합니다.
+ * - [callAdapterFactories]는 클래스명 기준으로 중복 제거 후 추가됩니다.
+ * - RxJava2/RxJava3/Reactor 어댑터가 클래스패스에 존재하면 자동 추가됩니다(동일 타입 미지정 시).
+ *
+ * ```kotlin
+ * val retrofit = retrofitOf("https://example.com", OkHttpClient(), defaultJsonConverterFactory)
+ * // retrofit != null
  * ```
  *
- * @param baseUrl 기본 URL
- * @param callFactory [Call.Factory] (기본값: [okhttp3.OkHttpClient()])
- * @param converterFactory [Converter.Factory] (기본값: [defaultScalarsConverterFactory])
- * @param callAdapterFactories 추가 [CallAdapter.Factory] 목록
- * @return [Retrofit] 인스턴스
+ * @param baseUrl Retrofit 기본 URL입니다. blank면 별도 설정이 필요합니다.
+ * @param callFactory HTTP 호출 구현체입니다.
+ * @param converterFactory 우선 적용할 컨버터 팩토리입니다.
+ * @param callAdapterFactories 추가 CallAdapter 팩토리 목록입니다.
  */
 fun retrofitOf(
     baseUrl: String = "",
@@ -182,47 +196,51 @@ fun retrofitOf(
     }
 }
 
-/**
- * RxJava2 Retrofit 어댑터가 클래스패스에 존재하는지 확인합니다.
- */
 internal fun isPresentRetrofitAdapterRxJava2(): Boolean =
     retrofitAdapterRxJava2Present
 
-/**
- * RxJava3 Retrofit 어댑터가 클래스패스에 존재하는지 확인합니다.
- */
 internal fun isPresentRetrofitAdapterRxJava3(): Boolean =
     retrofitAdapterRxJava3Present
 
-/**
- * Reactor Retrofit 어댑터가 클래스패스에 존재하는지 확인합니다.
- */
 internal fun isPresentRetrofitAdapterReactor(): Boolean =
     retrofitAdapterReactorPresent
 
 /**
- * [Retrofit] 서비스를 생성합니다.
+ * [Retrofit]에서 서비스 인스턴스를 생성합니다.
  *
- * ```
- * val service = retrofit.service(GitHubService::class.java)
+ * ## 동작/계약
+ * - [Retrofit.create]를 그대로 호출하는 편의 함수입니다.
+ * - [serviceClass]는 Retrofit 인터페이스 타입이어야 합니다.
+ *
+ * ```kotlin
+ * val service = retrofit.service(MyApi::class.java)
+ * // service != null
  * ```
  */
 fun <T: Any> Retrofit.service(serviceClass: Class<T>): T = create(serviceClass)
 
 /**
- * [Retrofit] 서비스를 생성합니다.
+ * [KClass]를 받아 [Retrofit] 서비스 인스턴스를 생성합니다.
  *
- * ```
- * val service = retrofit.service(GitHubService::class)
+ * ## 동작/계약
+ * - 내부적으로 [serviceClass.java]를 사용해 [Retrofit.create]를 호출합니다.
+ *
+ * ```kotlin
+ * val service = retrofit.service(MyApi::class)
+ * // service != null
  * ```
  */
 fun <T: Any> Retrofit.service(serviceClass: KClass<T>): T = create(serviceClass.java)
 
 /**
- * [Retrofit] 서비스를 생성합니다.
+ * reified 타입으로 [Retrofit] 서비스 인스턴스를 생성합니다.
  *
- * ```
- * val service = retrofit.service<GitHubService>()
+ * ## 동작/계약
+ * - `T::class.java` 경로로 [Retrofit.create]를 호출합니다.
+ *
+ * ```kotlin
+ * val service = retrofit.service<MyApi>()
+ * // service != null
  * ```
  */
 inline fun <reified T: Any> Retrofit.service(): T = create(T::class.java)
