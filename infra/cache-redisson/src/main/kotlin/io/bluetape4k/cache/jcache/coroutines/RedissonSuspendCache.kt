@@ -22,28 +22,36 @@ import javax.cache.configuration.Configuration
 import javax.cache.configuration.MutableConfiguration
 
 /**
- * Redisson 기반의 Coroutines 용 [SuspendCache] 구현체
+ * Redisson JCache를 코루틴 기반 [SuspendCache]로 감싼 구현체입니다.
  *
- * ```
- * val coCache = RedissonCoCache(
- *          "coroutine-cache-" + UUID.randomUUID().encodeBase62(),
- *          redisson,
- *          MutableConfiguration()
- * )
- * runBlocking {
- *   coCache.put("key", "value")
- *   val value = coCache.get("key")
- *   println(value)  // value
- * }
- * ```
+ * ## 동작/계약
+ * - 조회/갱신 연산은 Redisson `*Async()` API를 호출한 뒤 `awaitSuspending()`으로 대기합니다.
+ * - `putAllFlow`는 각 put 비동기 작업을 모아 `joinAll()`로 완료를 보장합니다.
+ * - 캐시 데이터 저장소는 외부 [cache] 인스턴스를 그대로 사용합니다.
  *
- * @param K key type
- * @param V value type
- * @property cache Redisson 기반의 [JCache] instance
+ * ```kotlin
+ * val cache = RedissonSuspendCache<String, String>("users", redisson)
+ * cache.put("u:1", "debop")
+ * val value = cache.get("u:1")
+ * // value == "debop"
+ * ```
  */
 class RedissonSuspendCache<K: Any, V: Any>(private val cache: org.redisson.jcache.JCache<K, V>): SuspendCache<K, V> {
 
     companion object: KLoggingChannel() {
+        /**
+         * RedissonClient 인스턴스로 [RedissonSuspendCache]를 생성합니다.
+         *
+         * ## 동작/계약
+         * - [cacheName]이 blank면 `requireNotBlank("cacheName")`로 `IllegalArgumentException`이 발생합니다.
+         * - 기존 캐시가 있으면 재사용하고 없으면 [configuration]을 감싼 Redisson 설정으로 생성합니다.
+         * - 반환 객체는 동일 캐시 이름을 공유하는 JCache 인스턴스를 래핑합니다.
+         *
+         * ```kotlin
+         * val cache = RedissonSuspendCache("users", redisson, MutableConfiguration<String, String>())
+         * // cache.isClosed() == false
+         * ```
+         */
         @JvmStatic
         operator fun <K: Any, V: Any> invoke(
             cacheName: String,
@@ -58,6 +66,20 @@ class RedissonSuspendCache<K: Any, V: Any>(private val cache: org.redisson.jcach
             return RedissonSuspendCache(jcache)
         }
 
+        /**
+         * Redisson [Config]로 캐시를 생성하거나 재사용합니다.
+         *
+         * ## 동작/계약
+         * - [cacheName] blank 입력은 `IllegalArgumentException`을 발생시킵니다.
+         * - [configuration]의 키/값 타입 정보를 기반으로 캐시를 조회/생성합니다.
+         * - 같은 이름 캐시가 이미 존재하면 해당 캐시를 재사용합니다.
+         *
+         * ```kotlin
+         * val cache = RedissonSuspendCache<String, Int>("scores", config)
+         * cache.put("u1", 10)
+         * // cache.get("u1") == 10
+         * ```
+         */
         @JvmStatic
         inline operator fun <reified K: Any, reified V: Any> invoke(
             cacheName: String,
