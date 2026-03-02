@@ -8,10 +8,19 @@ import java.time.temporal.ChronoUnit
 import java.time.temporal.Temporal
 
 /**
- * Create [TemporalClosedRange] instance
- * @param start T
- * @param endInclusive T
- * @return TemporalClosedRange<T>
+ * 닫힌 시간 범위([TemporalClosedRange])를 생성합니다.
+ *
+ * ## 동작/계약
+ * - `LocalDate`는 지원하지 않으며 `assert` 검증에서 실패합니다(`-ea` 필요).
+ * - `start <= endInclusive` 제약은 [TemporalClosedRange.fromClosedRange]에서 검증됩니다.
+ *
+ * ```kotlin
+ * val start = LocalDateTime.now()
+ * val end = start.plusHours(5)
+ * val range = temporalClosedRangeOf(start, end)
+ * // range.first == start
+ * // range.last == end
+ * ```
  */
 fun <T> temporalClosedRangeOf(start: T, endInclusive: T): TemporalClosedRange<T> where T: Temporal, T: Comparable<T> {
     assert(start !is LocalDate) { "LocalDate는 지원하지 않습니다." }
@@ -22,6 +31,15 @@ fun <T> temporalClosedRangeOf(start: T, endInclusive: T): TemporalClosedRange<T>
 
 /**
  * 두 개의 [Temporal]을 이용하여 [TemporalClosedRange]를 빌드합니다.
+ *
+ * ## 동작/계약
+ * - `a..b` 문법으로 [temporalClosedRangeOf]를 호출합니다.
+ * - `LocalDate` 제약과 시작/끝 검증 규칙을 동일하게 따릅니다.
+ *
+ * ```kotlin
+ * val range = start..end
+ * // range.start == start
+ * ```
  */
 operator fun <T> T.rangeTo(endInclusive: T): TemporalClosedRange<T> where T: Temporal, T: Comparable<T> =
     temporalClosedRangeOf(this, endInclusive)
@@ -41,11 +59,17 @@ internal val SupportChronoUnits: Array<ChronoUnit> =
 /**
  * [step]에 의해 단계를 증가시키면서, [size]만큼의 요소들을 묶어서 리스트로 제공한다. (Scala의 sliding과 같은 기능)
  *
- * @receiver TemporalClosedRange<T>
- * @param size Int windowing 할 요소 수
- * @param step Int windowing step
- * @param unit ChronoUnit 기간 단위
- * @return Sequence<List<T>>
+ * ## 동작/계약
+ * - `size`, `step`은 양수여야 하며 `assertPositiveNumber` 검증을 통과해야 합니다(`-ea`에서 [AssertionError]).
+ * - 지원 단위는 YEARS..MILLIS이며 지원되지 않는 단위는 `assert` 실패입니다.
+ * - 결과는 지연 [Sequence]이며, 경계 밖 항목은 잘라서 마지막 윈도우를 생성합니다.
+ *
+ * ```kotlin
+ * val start = LocalDateTime.now().withMinute(0).withSecond(0).withNano(0)
+ * val range = start..start.plusHours(5)
+ * val windows = range.windowedHours(3, 1).toList()
+ * // windows.size == 6
+ * ```
  */
 @Suppress("UNCHECKED_CAST")
 fun <T> TemporalClosedRange<T>.windowed(
@@ -121,9 +145,14 @@ fun <T> TemporalClosedRange<T>.windowedMillis(
 /**
  * 기간을 `chronoUnit` 단위의 Sequence로 chunk 합니다.
  *
- * @receiver TemporalClosedRange<T>
- * @param chunkSize chunk Size (require positive number)
- * @return Chunk 된 기간들의 Sequence
+ * ## 동작/계약
+ * - [windowed]를 `step == chunkSize`로 호출한 비중첩 청크입니다.
+ * - `chunkSize` 검증/지원 단위 규칙은 [windowed]와 동일합니다.
+ *
+ * ```kotlin
+ * val chunks = range.chunkedHours(3).toList()
+ * // chunks.size == 2
+ * ```
  */
 fun <T> TemporalClosedRange<T>.chunked(
     chunkSize: Int,
@@ -215,9 +244,14 @@ fun <T> TemporalClosedRange<T>.chunkedMillis(chunkSize: Int): Sequence<List<T>> 
 /**
  * 현재 요소와 다음 요소를 [Pair]로 만들어 Sequence를 제공한다
  *
- * @receiver TemporalClosedRange<T>
- * @param unit ChronoUnit
- * @return Sequence<Pair<T, T>>
+ * ## 동작/계약
+ * - 지원 단위는 YEARS..MILLIS입니다.
+ * - `startOf(unit)` 기준 인접한 두 시점을 `(current, next)`로 순차 방출합니다.
+ *
+ * ```kotlin
+ * val pairs = range.zipWithNextHour().toList()
+ * // pairs.first().first < pairs.first().second
+ * ```
  */
 @Suppress("UNCHECKED_CAST")
 fun <T> TemporalClosedRange<T>.zipWithNext(unit: ChronoUnit): Sequence<Pair<T, T>> where T: Temporal, T: Comparable<T> {
