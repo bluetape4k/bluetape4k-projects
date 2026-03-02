@@ -1,5 +1,18 @@
 package io.bluetape4k.redis
 
+/**
+ * Redis 연결 및 키 네이밍에 사용하는 공통 상수 모음입니다.
+ *
+ * ## 동작/계약
+ * - 모든 값은 불변 상수이며 런타임 계산 없이 즉시 접근 가능합니다.
+ * - 기본 URL은 [DEFAULT_HOST], [DEFAULT_PORT] 조합으로 구성됩니다.
+ * - 모듈 전반에서 동일 기본값을 재사용하기 위한 용도로 사용됩니다.
+ *
+ * ```kotlin
+ * val url = RedisConst.DEFAULT_URL
+ * // url == "redis://127.0.0.1:6379"
+ * ```
+ */
 object RedisConst {
     const val OK: String = "OK"
 
