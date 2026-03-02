@@ -7,9 +7,20 @@ import java.security.SecureRandom
 import java.util.*
 
 /**
- * 이름 기반 UUID 생성 방식 중 하나인 3 (MD5) 버전 또는 5 (SHA1) 버전을 사용하는 UUID 생성기의 구현입니다.
+ * 이름 기반 UUID를 생성하는 생성기입니다.
  *
- * JUG에서 제공하는 모든 구현과 마찬가지로 이 생성기는 완전히 스레드 안전합니다. 필요에 따라 다이제스터에 대한 액세스가 동기화됩니다.
+ * ## 동작/계약
+ * - 내부적으로 랜덤 UUID 문자열을 이름 값으로 사용해 name-based UUID를 만듭니다.
+ * - 결과적으로 호출마다 값이 달라질 수 있으며, 동일 입력 재현형 UUID 생성기는 아닙니다.
+ * - 문자열은 [Url62] Base62 인코딩으로 반환됩니다.
+ *
+ * ```kotlin
+ * val generator = NamebasedUuidGenerator()
+ * val id = generator.nextId()
+ * val text = generator.nextIdAsString()
+ * // id.version() > 0
+ * // text.isNotBlank() == true
+ * ```
  */
 class NamebasedUuidGenerator: IdGenerator<UUID> {
 
@@ -20,14 +31,26 @@ class NamebasedUuidGenerator: IdGenerator<UUID> {
     /**
      * 다음 UUID를 생성합니다.
      *
-     * @return 생성된 UUID
+     * ## 동작/계약
+     * - 내부 name-based 생성기에 랜덤 문자열을 공급해 UUID를 생성합니다.
+     *
+     * ```kotlin
+     * val id = NamebasedUuidGenerator().nextId()
+     * // id.version() > 0
+     * ```
      */
     override fun nextId(): UUID = nextIdInternal()
 
     /**
      * 다음 UUID를 Base62로 인코딩하여 문자열로 반환합니다.
      *
-     * @return Base62로 인코딩된 UUID 문자열
+     * ## 동작/계약
+     * - [nextIdInternal] 결과를 Base62로 변환합니다.
+     *
+     * ```kotlin
+     * val text = NamebasedUuidGenerator().nextIdAsString()
+     * // text.isNotBlank() == true
+     * ```
      */
     override fun nextIdAsString(): String = Url62.encode(nextIdInternal())
 

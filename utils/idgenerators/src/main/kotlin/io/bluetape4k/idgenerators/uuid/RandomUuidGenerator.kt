@@ -6,9 +6,20 @@ import io.bluetape4k.idgenerators.IdGenerator
 import java.util.*
 
 /**
- * UUID V4 형식의 랜덤 UUID 생성기의 구현입니다.
+ * 랜덤 기반(UUID v4) 식별자를 생성합니다.
  *
- * JUG에서 제공하는 모든 구현과 마찬가지로 이 생성기는 완전히 스레드 안전합니다.
+ * ## 동작/계약
+ * - 기본 난수원은 `System.currentTimeMillis()` 시드의 [Random]입니다.
+ * - `nextId()`는 UUID를, `nextIdAsString()`은 Base62 문자열을 반환합니다.
+ * - 수신 객체 상태를 외부에 노출하지 않으며 생성기만 내부 재사용합니다.
+ *
+ * ```kotlin
+ * val generator = RandomUuidGenerator()
+ * val id = generator.nextId()
+ * val text = generator.nextIdAsString()
+ * // id.version() == 4
+ * // text.isNotBlank() == true
+ * ```
  */
 class RandomUuidGenerator(
     random: Random = Random(System.currentTimeMillis()),
