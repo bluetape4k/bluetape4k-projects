@@ -4,17 +4,16 @@ import org.apache.kafka.common.config.ConfigDef
 import org.apache.kafka.streams.StreamsConfig
 
 /**
- * Kafka Streams 설정을 정의하는 [ConfigDef] 인스턴스입니다.
+ * Kafka Streams 기본 설정 정의([ConfigDef])를 제공합니다.
  *
- * 이 설정 정의는 Kafka Streams 애플리케이션에서 사용 가능한 모든 설정 옵션을 포함합니다.
- * StreamsConfig를 통해 사용 가능한 설정 항목들을 프로그래밍적으로 확인할 때 유용합니다.
+ * ## 동작/계약
+ * - `StreamsConfig.configDef()` 결과를 모듈 전역 상수로 노출합니다.
+ * - 설정 키/문서/타입 메타데이터 조회에 사용할 수 있습니다.
+ * - 실행 시점에 값이 변경되지 않는 불변 참조입니다.
  *
- * 사용 예시:
  * ```kotlin
- * // 사용 가능한 모든 설정 옵션 출력
- * streamsConfigDef.configKeys().forEach { (name, key) ->
- *     println("$name: ${key.documentation}")
- * }
+ * val hasAppId = streamsConfigDef.configKeys().containsKey("application.id")
+ * // hasAppId == true
  * ```
  *
  * @see StreamsConfig
