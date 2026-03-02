@@ -27,7 +27,19 @@ import io.github.resilience4j.timelimiter.TimeLimiter
 import kotlin.reflect.KClass
 
 /**
- * Resilience4j 의 components를 suspend 함수에 대응하도록 decorate 합니다.
+ * Resilience4j 컴포넌트를 suspend 함수 체인으로 조합하는 데코레이터 진입점입니다.
+ *
+ * ## 동작/계약
+ * - `ofSupplier/ofFunction*` 계열은 입력 함수를 감싼 데코레이터 빌더를 반환합니다.
+ * - `withCircuitBreaker/withRetry/withRateLimit/...` 호출 순서대로 함수가 중첩됩니다.
+ * - fallback 계열은 예외/결과 조건에 따라 대체 함수를 적용합니다.
+ *
+ * ```kotlin
+ * val fn = SuspendDecorators.ofSupplier { 42 }
+ *   .withRetry(retry)
+ *   .decorate()
+ * // fn() == 42
+ * ```
  *
  * @see [io.github.resilience4j.decorators.Decorators]
  */
