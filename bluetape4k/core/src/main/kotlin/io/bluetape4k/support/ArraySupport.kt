@@ -1,37 +1,233 @@
 package io.bluetape4k.support
 
-/** Size가 0인 BooleanArray */
+/**
+ * 길이가 0인 [BooleanArray] 상수입니다.
+ *
+ * ## 동작/계약
+ * - 비어 있는 불리언 배열을 재사용할 때 사용합니다.
+ * - 변경 가능한 배열이므로 내용 변경 시 전체에 영향이 갈 수 있습니다.
+ *
+ * ```kotlin
+ * check(emptyBooleanArray.isEmpty())
+ * ```
+ */
 val emptyBooleanArray: BooleanArray = BooleanArray(0)
 
-/** Size가 0인 CharArray */
+/**
+ * 길이가 0인 [CharArray] 상수입니다.
+ *
+ * ## 동작/계약
+ * - 비어 있는 문자 배열을 재사용할 때 사용합니다.
+ * - 변경 가능한 배열이므로 내용 변경 시 전체에 영향이 갈 수 있습니다.
+ *
+ * ```kotlin
+ * check(emptyCharArray.isEmpty())
+ * ```
+ */
 val emptyCharArray: CharArray = CharArray(0)
 
-/** Size가 0인 ByteArray */
+/**
+ * 길이가 0인 [ByteArray] 상수입니다.
+ *
+ * ## 동작/계약
+ * - 비어 있는 바이트 배열을 재사용할 때 사용합니다.
+ * - 변경 가능한 배열이므로 내용 변경 시 전체에 영향이 갈 수 있습니다.
+ *
+ * ```kotlin
+ * check(emptyByteArray.isEmpty())
+ * ```
+ */
 val emptyByteArray: ByteArray = ByteArray(0)
 
-/** Size가 0인 ShortArray */
+/**
+ * 길이가 0인 [ShortArray] 상수입니다.
+ *
+ * ## 동작/계약
+ * - 비어 있는 short 배열을 재사용할 때 사용합니다.
+ * - 변경 가능한 배열이므로 내용 변경 시 전체에 영향이 갈 수 있습니다.
+ *
+ * ```kotlin
+ * check(emptyShortArray.isEmpty())
+ * ```
+ */
 val emptyShortArray: ShortArray = ShortArray(0)
 
-/** Size가 0인 IntArray */
+/**
+ * 길이가 0인 [IntArray] 상수입니다.
+ *
+ * ## 동작/계약
+ * - 비어 있는 int 배열을 재사용할 때 사용합니다.
+ * - 변경 가능한 배열이므로 내용 변경 시 전체에 영향이 갈 수 있습니다.
+ *
+ * ```kotlin
+ * check(emptyIntArray.isEmpty())
+ * ```
+ */
 val emptyIntArray: IntArray = IntArray(0)
 
-/** Size가 0인 LongArray */
+/**
+ * 길이가 0인 [LongArray] 상수입니다.
+ *
+ * ## 동작/계약
+ * - 비어 있는 long 배열을 재사용할 때 사용합니다.
+ * - 변경 가능한 배열이므로 내용 변경 시 전체에 영향이 갈 수 있습니다.
+ *
+ * ```kotlin
+ * check(emptyLongArray.isEmpty())
+ * ```
+ */
 val emptyLongArray: LongArray = LongArray(0)
 
-/** Size가 0인 FloatArray */
+/**
+ * 길이가 0인 [FloatArray] 상수입니다.
+ *
+ * ## 동작/계약
+ * - 비어 있는 float 배열을 재사용할 때 사용합니다.
+ * - 변경 가능한 배열이므로 내용 변경 시 전체에 영향이 갈 수 있습니다.
+ *
+ * ```kotlin
+ * check(emptyFloatArray.isEmpty())
+ * ```
+ */
 val emptyFloatArray: FloatArray = FloatArray(0)
 
-/** Size가 0인 DoubleArray */
+/**
+ * 길이가 0인 [DoubleArray] 상수입니다.
+ *
+ * ## 동작/계약
+ * - 비어 있는 double 배열을 재사용할 때 사용합니다.
+ * - 변경 가능한 배열이므로 내용 변경 시 전체에 영향이 갈 수 있습니다.
+ *
+ * ```kotlin
+ * check(emptyDoubleArray.isEmpty())
+ * ```
+ */
 val emptyDoubleArray: DoubleArray = DoubleArray(0)
 
+/**
+ * nullable [BooleanArray]가 null 또는 빈 배열인지 반환합니다.
+ *
+ * ## 동작/계약
+ * - null이면 `true`를 반환합니다.
+ * - 새 배열을 만들지 않으며 수신 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * check((null as BooleanArray?).isNullOrEmpty())
+ * check(!booleanArrayOf(true).isNullOrEmpty())
+ * ```
+ */
 fun BooleanArray?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
+
+/**
+ * nullable [CharArray]가 null 또는 빈 배열인지 반환합니다.
+ *
+ * ## 동작/계약
+ * - null이면 `true`를 반환합니다.
+ * - 새 배열을 만들지 않으며 수신 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * check((null as CharArray?).isNullOrEmpty())
+ * check(!charArrayOf('a').isNullOrEmpty())
+ * ```
+ */
 fun CharArray?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
+
+/**
+ * nullable [ByteArray]가 null 또는 빈 배열인지 반환합니다.
+ *
+ * ## 동작/계약
+ * - null이면 `true`를 반환합니다.
+ * - 새 배열을 만들지 않으며 수신 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * check((null as ByteArray?).isNullOrEmpty())
+ * check(!byteArrayOf(1).isNullOrEmpty())
+ * ```
+ */
 fun ByteArray?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
+
+/**
+ * nullable [ShortArray]가 null 또는 빈 배열인지 반환합니다.
+ *
+ * ## 동작/계약
+ * - null이면 `true`를 반환합니다.
+ * - 새 배열을 만들지 않으며 수신 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * check((null as ShortArray?).isNullOrEmpty())
+ * check(!shortArrayOf(1).isNullOrEmpty())
+ * ```
+ */
 fun ShortArray?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
+
+/**
+ * nullable [IntArray]가 null 또는 빈 배열인지 반환합니다.
+ *
+ * ## 동작/계약
+ * - null이면 `true`를 반환합니다.
+ * - 새 배열을 만들지 않으며 수신 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * check((null as IntArray?).isNullOrEmpty())
+ * check(!intArrayOf(1).isNullOrEmpty())
+ * ```
+ */
 fun IntArray?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
+
+/**
+ * nullable [LongArray]가 null 또는 빈 배열인지 반환합니다.
+ *
+ * ## 동작/계약
+ * - null이면 `true`를 반환합니다.
+ * - 새 배열을 만들지 않으며 수신 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * check((null as LongArray?).isNullOrEmpty())
+ * check(!longArrayOf(1L).isNullOrEmpty())
+ * ```
+ */
 fun LongArray?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
+
+/**
+ * nullable [FloatArray]가 null 또는 빈 배열인지 반환합니다.
+ *
+ * ## 동작/계약
+ * - null이면 `true`를 반환합니다.
+ * - 새 배열을 만들지 않으며 수신 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * check((null as FloatArray?).isNullOrEmpty())
+ * check(!floatArrayOf(1.0f).isNullOrEmpty())
+ * ```
+ */
 fun FloatArray?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
+
+/**
+ * nullable [DoubleArray]가 null 또는 빈 배열인지 반환합니다.
+ *
+ * ## 동작/계약
+ * - null이면 `true`를 반환합니다.
+ * - 새 배열을 만들지 않으며 수신 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * check((null as DoubleArray?).isNullOrEmpty())
+ * check(!doubleArrayOf(1.0).isNullOrEmpty())
+ * ```
+ */
 fun DoubleArray?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
+
+/**
+ * nullable 일반 배열이 null 또는 빈 배열인지 반환합니다.
+ *
+ * ## 동작/계약
+ * - null이면 `true`를 반환합니다.
+ * - 새 배열을 만들지 않으며 수신 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * check((null as Array<String>?).isNullOrEmpty())
+ * check(!arrayOf("a").isNullOrEmpty())
+ * ```
+ */
 fun <T> Array<T>?.isNullOrEmpty(): Boolean = this?.isEmpty() ?: true
 
 /**

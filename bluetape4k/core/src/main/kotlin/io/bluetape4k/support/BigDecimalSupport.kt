@@ -5,19 +5,92 @@ package io.bluetape4k.support
 import java.math.BigDecimal
 import java.math.RoundingMode
 
+/**
+ * 숫자 값을 [BigDecimal]로 변환합니다.
+ *
+ * ## 동작/계약
+ * - [value] 타입에 따라 [toBigDecimal] 규칙으로 변환합니다.
+ * - null 입력은 허용되지 않습니다.
+ * - 수신 값을 변경하지 않으며 새 값(또는 동일 인스턴스)을 반환합니다.
+ * - 문자열 경유 변환이 필요한 타입은 추가 파싱 비용이 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val a = bigDecimalOf(10)
+ * val b = bigDecimalOf(2.5)
+ * check(a + b == BigDecimal("12.5"))
+ * ```
+ *
+ * @param value 변환할 숫자 값
+ */
 fun <T: Number> bigDecimalOf(value: T): BigDecimal = value.toBigDecimal()
 
+/**
+ * bigDecimalArrayOf 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::bigDecimalArrayOf
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 inline fun <T: Number> bigDecimalArrayOf(vararg values: T): Array<BigDecimal> =
     Array(values.size) { i -> values[i].toBigDecimal() }
 
+/**
+ * bigDecimalListOf 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::bigDecimalListOf
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 inline fun <T: Number> bigDecimalListOf(vararg values: T): List<BigDecimal> =
     List(values.size) { i -> values[i].toBigDecimal() }
 
+/**
+ * bigDecimalArray 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::bigDecimalArray
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 inline fun <T: Number> bigDecimalArray(size: Int, init: (Int) -> T): Array<BigDecimal> {
     size.requirePositiveNumber("size")
     return Array(size) { init(it).toBigDecimal() }
 }
 
+/**
+ * bigDecimalList 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::bigDecimalList
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 inline fun <T: Number> bigDecimalList(size: Int, init: (Int) -> T): List<BigDecimal> {
     size.requirePositiveNumber("size")
     return List(size) { init(it).toBigDecimal() }

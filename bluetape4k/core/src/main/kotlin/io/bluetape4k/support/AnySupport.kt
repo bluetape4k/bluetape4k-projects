@@ -6,18 +6,17 @@ import kotlin.coroutines.Continuation
 import kotlin.reflect.KClass
 
 /**
- * 선언된 필드 중 non null 수형에 대해 초기화 값을 지정하고자 할 때 사용합니다.
- * 또한 `@Autowired`, `@Inject` val 수형에 사용하기 좋다.
+ * non-null 프로퍼티를 "아직 초기화되지 않은 상태"로 선언하기 위한 더미 값을 반환합니다.
  *
- * **주의**: 이 함수는 안전하지 않으며 NPE를 발생시킬 수 있습니다.
- * 가능하면 `lateinit var` 또는 `lazy` 위임을 사용하는 것이 좋습니다.
+ * ## 동작/계약
+ * - 실제 구현은 `null as T` 캐스팅이므로 **안전하지 않으며**, 접근 시 NPE 등 런타임 오류를 유발할 수 있습니다.
+ * - DI 프레임워크(Spring `@Autowired`, JSR-330 `@Inject`)의 필드/프로퍼티 주입을 위해 "선언만" 필요할 때 사용합니다.
+ * - 가능하면 `lateinit var` 또는 `lazy` 위임 사용을 권장합니다.
  *
  * ```
  * @Inject
- * val x: Repository = uninitialized()
- * ```
+ * val repo: Repository = uninitialized()
  *
- * ```
  * @Autowired
  * private val component: Component = uninitialized()
  * ```
@@ -26,12 +25,38 @@ import kotlin.reflect.KClass
 fun <T> uninitialized(): T = null as T
 
 /**
- * 인스턴스를 [Optional]로 변환합니다.
+ * nullable 값을 Java의 [Optional]로 변환합니다.
+ *
+ * ## 동작/계약
+ * - `null`이면 `Optional.empty()`를 반환합니다.
+ * - `null`이 아니면 `Optional.of(value)`와 동일합니다.
+ *
+ * ```
+ * val a: String? = "a"
+ * val optA: Optional<String> = a.toOptional() // Optional.of("a")
+ *
+ * val b: String? = null
+ * val optB: Optional<String> = b.toOptional() // Optional.empty()
+ * ```
  */
 fun <T: Any> T?.toOptional(): Optional<T> = Optional.ofNullable(this)
 
 /**
- * 변수가 [Optional]인 경우 [Any]로 변환합니다.
+ * 값이 [Optional]이면 내부 값을 꺼내고, 아니면 자기 자신을 반환합니다.
+ *
+ * ## 동작/계약
+ * - `Optional.empty()`이면 `null`을 반환합니다.
+ * - 2중 Optional(`Optional<Optional<*>>`)은 허용하지 않으며, 감지되면 예외를 발생시킵니다.
+ *
+ * @return Optional이면 내부 값 또는 `null`, 아니면 `this`
+ *
+ * ```kotlin
+ * val present: Any = Optional.of("a")
+ * println(present.unwrapOptional()) // "a"
+ *
+ * val empty: Any = Optional.empty<String>()
+ * println(empty.unwrapOptional()) // null
+ * ```
  */
 fun Any.unwrapOptional(): Any? {
     if (this is Optional<*>) {
@@ -46,25 +71,64 @@ fun Any.unwrapOptional(): Any? {
 }
 
 /**
- * 객체가 [Array] 수형인지 확인합니다.
+ * 현재 객체가 Java 배열 타입인지 확인합니다.
+ *
+ * ## 동작/계약
+ * - `IntArray`, `Array<*>` 등 모든 JVM 배열에 대해 `true`를 반환합니다.
+ * - 컬렉션(List/Set 등)은 배열이 아니므로 `false`입니다.
+ *
+ * ```kotlin
+ * println(intArrayOf(1, 2, 3).isArray) // true
+ * println(arrayOf("a").isArray)        // true
+ * println(listOf(1, 2, 3).isArray)     // false
+ * ```
  */
 val Any.isArray: Boolean get() = this.javaClass.isArray
 
 /**
- * 객체들을 조합하여 hash 값을 계산합니다.
+ * 여러 값을 조합해 해시 값을 계산합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 [Objects.hash]를 사용합니다.
+ * - 입력 값이 `null`이어도 안전합니다.
+ *
+ * ```kotlin
+ * val h1 = hashOf("a", 1, null)
+ * val h2 = hashOf("a", 1, null)
+ * println(h1 == h2) // true
+ * ```
  */
 fun hashOf(vararg values: Any?): Int = Objects.hash(*values)
 
 /**
- * 두 객체가 같은지 판단합니다. (둘 다 null이면 true를 반환합니다)
- * Kotlin에서는 `==` 연산자가 null 안전하게 객체의 동등성을 비교하므로, 이 함수는 사용하지 않는 것이 좋습니다.
+ * 두 객체의 동등성을 비교합니다.
+ *
+ * ## 동작/계약
+ * - Kotlin의 `==`가 이미 null-safe 동등성 비교를 제공하므로, 이 함수는 더 이상 권장되지 않습니다.
+ *
+ * @deprecated Kotlin에서는 `a == b`를 사용하세요.
  */
 @Deprecated("use `a == b` instead", ReplaceWith("a == b"))
 fun areEquals(a: Any?, b: Any?): Boolean =
     (a == null && b == null) || (a != null && a == b)
 
 /**
- * 두 객체가 모두 null인 경우는 false를 반환하고, array 인 경우에는 array 요소까지 비교합니다.
+ * 두 객체를 null-safe로 비교하되, 둘 다 배열인 경우 배열 내용까지 비교합니다.
+ *
+ * ## 동작/계약
+ * - 둘 중 하나라도 `null`이면 `false`입니다(둘 다 `null`일 때도 `false`).
+ * - 동일 참조(`a === b`)이면 즉시 `true`입니다.
+ * - 둘 다 배열이면 [arrayEquals]로 내용 비교를 수행합니다.
+ *
+ * ```kotlin
+ * println(areEqualsSafe(null, null)) // false
+ * println(areEqualsSafe(1, 1))       // true
+ * println(areEqualsSafe(1, 2))       // false
+ *
+ * val a = arrayOf(1, 2, 3)
+ * val b = arrayOf(1, 2, 3)
+ * println(areEqualsSafe(a, b))       // true
+ * ```
  */
 fun areEqualsSafe(a: Any?, b: Any?): Boolean {
     if (a === b)
@@ -84,12 +148,16 @@ fun areEqualsSafe(a: Any?, b: Any?): Boolean {
 }
 
 /**
- * 두 Object 가 같은 것인가 검사한다. Array인 경우도 검사할 수 있습니다.
+ * 두 값이 모두 배열 타입일 때, 배열의 **내용(content)** 이 같은지 비교합니다.
  *
- * ```
- * val a = arrayOf(1, 2, 3)
- * val b = arrayOf(1, 2, 3)
- * arrayEquals(a, b) // true
+ * ## 동작/계약
+ * - Primitive array / object array / unsigned array를 모두 지원합니다.
+ * - 배열 타입이 아니거나, 배열 타입이 서로 다르면 `false`입니다.
+ *
+ * ```kotlin
+ * val a = intArrayOf(1, 2, 3)
+ * val b = intArrayOf(1, 2, 3)
+ * println(arrayEquals(a, b)) // true
  * ```
  */
 @OptIn(ExperimentalUnsignedTypes::class)
@@ -131,7 +199,17 @@ fun arrayEquals(a: Any, b: Any): Boolean {
 //}
 
 /**
- * 변수의 hash 값을 계산합니다. null인 경우 0을 반환합니다.
+ * null-safe 해시 코드를 계산합니다. 배열인 경우 배열 내용 기반 해시를 사용합니다.
+ *
+ * ## 동작/계약
+ * - `null`이면 `0`을 반환합니다.
+ * - 배열이면 `contentHashCode`/`contentDeepHashCode` 계열을 사용합니다.
+ * - 배열이 아니면 일반 `hashCode()`를 반환합니다.
+ *
+ * ```kotlin
+ * println((null as Any?).hashCodeSafe()) // 0
+ * println(intArrayOf(1, 2, 3).hashCodeSafe() == intArrayOf(1, 2, 3).hashCodeSafe()) // true
+ * ```
  */
 @OptIn(ExperimentalUnsignedTypes::class)
 fun Any?.hashCodeSafe(): Int {
@@ -161,14 +239,18 @@ fun Any?.hashCodeSafe(): Int {
 }
 
 /**
- * 객체의 식별자를 문자열로 변환합니다.
+ * 객체의 "정체성(identity)" 문자열을 생성합니다.
  *
- * ```
+ * ## 동작/계약
+ * - `null`이면 빈 문자열을 반환합니다.
+ * - 형식은 `클래스 FQCN@identityHex` 입니다.
+ * - identity 해시는 [System.identityHashCode] 기반입니다.
+ *
+ * ```kotlin
  * val obj = Any()
- * obj.identityToString() // "java.lang.Object@1a2b3c4d"
- *
- * val x = null
- * x.identityToString() // ""
+ * println(obj.identityToString()) // e.g. "java.lang.Object@27c170f0"
+ * val x: Any? = null
+ * println(x.identityToString())   // ""
  * ```
  */
 fun Any?.identityToString(): String = when (this) {
@@ -177,20 +259,33 @@ fun Any?.identityToString(): String = when (this) {
 }
 
 /**
- * 객체의 식별자를 16진수 문자열로 변환합니다.
+ * 객체의 identity hash([System.identityHashCode])를 16진수 문자열로 반환합니다.
  *
- * ```
+ * ## 동작/계약
+ * - `toString()`/`hashCode()` 오버라이딩과 무관하게 JVM identity hash를 사용합니다.
+ *
+ * ```kotlin
  * val obj = Any()
- * obj.identityHexString() // "1a2b3c4d"
- *
- * val x = null
- * x.identityHexString() // ""
+ * println(obj.identityHexString()) // e.g. "27c170f0"
  * ```
  */
 fun Any.identityHexString(): String = Integer.toHexString(System.identityHashCode(this))
 
 /**
- * 객체를 문자열로 변환합니다. 배열인 경우는 `contentToString()`을 사용합니다.
+ * 값을 사람이 읽기 쉬운 문자열로 변환합니다.
+ *
+ * ## 동작/계약
+ * - `null`은 문자열 `"null"`로 변환합니다.
+ * - 배열은 `contentToString()`/`contentDeepToString()`을 사용해 내용을 출력합니다.
+ * - Map/Iterable/Sequence/Pair/Triple/Throwable/Optional 등은 내부 요소를 재귀적으로 [toStr]로 변환합니다.
+ * - 변환 중 예외가 발생하면 `"<error ...>"` 형태의 문자열을 반환합니다.
+ *
+ * ```kotlin
+ * println((null as Any?).toStr())           // "null"
+ * println(intArrayOf(1, 2, 3).toStr())      // "[1, 2, 3]"
+ * println(mapOf("a" to 1).toStr())          // "{a=1}"
+ * println(Optional.of("x").toStr())         // "Optional[x]"
+ * ```
  */
 fun Any?.toStr(): String =
     try {
@@ -235,28 +330,67 @@ fun Any?.toStr(): String =
     }
 
 /**
- * Java Object의 `notify()`을 호출합니다.
+ * Java 모니터 메서드 `notify()`를 호출합니다.
+ *
+ * ## 동작/계약
+ * - 호출 스레드는 반드시 `synchronized(this)` 블록(또는 동일 모니터)을 보유해야 합니다.
+ * - 그렇지 않으면 [IllegalMonitorStateException]이 발생합니다.
+ *
+ * ```kotlin
+ * val lock = Any()
+ * synchronized(lock) {
+ *     lock.notify()
+ * }
+ * ```
  */
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 fun Any.notify() {
     (this as java.lang.Object).notify()
 }
 
+/**
+ * Java 모니터 메서드 `notifyAll()`를 호출합니다.
+ *
+ * ## 동작/계약
+ * - 호출 스레드는 반드시 `synchronized(this)` 블록(또는 동일 모니터)을 보유해야 합니다.
+ * - 그렇지 않으면 [IllegalMonitorStateException]이 발생합니다.
+ */
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 fun Any.notifyAll() {
     (this as java.lang.Object).notifyAll()
 }
 
+/**
+ * Java 모니터 메서드 `wait()`를 호출합니다.
+ *
+ * ## 동작/계약
+ * - 호출 스레드는 반드시 `synchronized(this)` 블록(또는 동일 모니터)을 보유해야 합니다.
+ * - 스레드는 모니터를 반납하고 대기하며, 깨어나면 다시 모니터를 획득합니다.
+ */
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 fun Any.wait() {
     (this as java.lang.Object).wait()
 }
 
+/**
+ * Java 모니터 메서드 `wait(timeoutMillis)`를 호출합니다.
+ *
+ * ## 동작/계약
+ * - `timeoutMillis` 이후 자동으로 깨어날 수 있습니다.
+ * - 호출 스레드는 반드시 `synchronized(this)` 블록(또는 동일 모니터)을 보유해야 합니다.
+ */
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 fun Any.wait(timeoutMillis: Long) {
     (this as java.lang.Object).wait(timeoutMillis)
 }
 
+/**
+ * Java 모니터 메서드 `wait(timeoutMillis, nanos)`를 호출합니다.
+ *
+ * ## 동작/계약
+ * - 시간 해상도는 JVM/OS에 의존합니다.
+ * - 호출 스레드는 반드시 `synchronized(this)` 블록(또는 동일 모니터)을 보유해야 합니다.
+ */
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 fun Any.wait(timeoutMillis: Long, nanos: Int) {
     (this as java.lang.Object).wait(timeoutMillis, nanos)

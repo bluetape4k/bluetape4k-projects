@@ -14,170 +14,306 @@ import kotlin.contracts.ExperimentalContracts
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 private typealias JChar = java.lang.Character
 
+/**
+ * 빈 문자열을 나타냅니다.
+ */
 const val EMPTY_STRING = ""
+
+/**
+ * 문자열 축약 시 사용되는 생략 부호 문자열입니다.
+ */
 const val TRIMMING = "..."
+
+/**
+ * null 값을 문자열로 표현할 때 사용합니다.
+ */
 const val NULL_STRING = "<null>"
+
+/**
+ * SQL에서 null 값을 문자열로 표현할 때 사용합니다.
+ */
 const val NULL_STRING_SQL = "null"
+
+/**
+ * 콤마(,) 구분자 문자열입니다.
+ */
 const val COMMA = ","
+
+/**
+ * 탭(tab) 문자입니다.
+ */
 const val TAB = "\t"
+
+/**
+ * 문자열 축약 시 기본 최대 길이입니다.
+ */
 const val ELLIPSIS_LENGTH = 80
 
+/**
+ * 시스템의 라인 구분자 문자열입니다.
+ */
 @JvmField
 val LINE_SEPARATOR: String = System.lineSeparator()
 
+/**
+ * 공백 문자 블록을 나타내는 정규식 패턴입니다.
+ */
 @JvmField
 val WHITESPACE_BLOCK: Pattern = Pattern.compile("\\s+")
 
+/**
+ * UTF-8 문자셋을 나타냅니다.
+ */
 @JvmField
 val UTF_8: Charset = Charsets.UTF_8
 
 /**
- * 문자열이 null이거나 blank (`\t`, `\b` 등의 ASCII 제어문자 포함) 이라면 true 를 반환, 아니면 false 를 반환 
+ * 문자열이 null이거나 blank(공백, 탭 등)인 경우 true를 반환합니다.
+ *
+ * ## 동작/계약
+ * - null 또는 blank(공백, 탭 등)일 때 true입니다.
+ * - blank는 모든 공백 문자(제어문자 포함)를 의미합니다.
+ * - 문자열이 비어있거나 공백만 있을 때도 true입니다.
+ *
+ * ```kotlin
+ * "".isWhitespace() // true
+ * "   ".isWhitespace() // true
+ * "abc".isWhitespace() // false
+ * ```
  */
 inline fun CharSequence?.isWhitespace(): Boolean = isNullOrBlank()
 
 /**
- * 문자열이 null이거나 blank가 라면 false 를 반환, 아니면 true를 반환한다
+ * 문자열이 null이거나 blank(공백, 탭 등)이 아닌 경우 true를 반환합니다.
+ *
+ * ## 동작/계약
+ * - null 또는 blank(공백, 탭 등)일 때 false입니다.
+ * - 문자열에 하나라도 공백이 아닌 문자가 있으면 true입니다.
+ * - 문자열이 비어있거나 공백만 있을 때 false입니다.
+ *
+ * ```kotlin
+ * "abc".isNotWhitespace() // true
+ * "   ".isNotWhitespace() // false
+ * null.isNotWhitespace() // false
+ * ```
  */
 inline fun CharSequence?.isNotWhitespace(): Boolean = !isWhitespace()
 
 /**
- * 문자열이 null이거나 empty 이 아니라면 true 를 반환합니다.
+ * 문자열이 null이 아니고 empty(길이 0)가 아니면 true를 반환합니다.
+ *
+ * ## 동작/계약
+ * - null 또는 empty("")일 때 false입니다.
+ * - 공백만 있어도 길이가 0이 아니면 true입니다.
+ * - 문자열의 길이만 검사합니다.
+ *
+ * ```kotlin
+ * "abc".hasLength() // true
+ * "".hasLength() // false
+ * null.hasLength() // false
+ * ```
  */
 inline fun CharSequence?.hasLength(): Boolean = !isNullOrEmpty()
 
 /**
- * 문자열이 null이거나 empty 이 이라면 true 를 반환합니다.
+ * 문자열이 null이거나 empty(길이 0)면 true를 반환합니다.
+ *
+ * ## 동작/계약
+ * - null 또는 empty("")일 때 true입니다.
+ * - 공백만 있는 문자열도 길이가 0이 아니면 false입니다.
+ * - 문자열의 길이만 검사합니다.
+ *
+ * ```kotlin
+ * "".noLength() // true
+ * null.noLength() // true
+ * "abc".noLength() // false
+ * ```
  */
 inline fun CharSequence?.noLength(): Boolean = isNullOrEmpty()
 
 /**
- * 문자열이 null이거나 blank가 아니고, 길이가 0보다 큰지 확인합니다. (사람이 읽을 수 있는 문자열이 있다면 true, 없다면 false)
+ * 문자열이 null이 아니고, blank(공백, 탭 등)가 아니면서 길이가 0보다 크면 true를 반환합니다.
+ *
+ * ## 동작/계약
+ * - null, empty, blank(공백, 탭 등)일 때 false입니다.
+ * - 사람이 읽을 수 있는 문자가 하나라도 있으면 true입니다.
+ * - 공백만 있으면 false입니다.
+ *
+ * ```kotlin
+ * "abc".hasText() // true
+ * "   ".hasText() // false
+ * "".hasText() // false
+ * ```
  */
 inline fun CharSequence?.hasText(): Boolean =
     hasLength() && this.isNotWhitespace()
 
 /**
- * 문자열이 null이거나 blank가 아니고, 길이가 0보다 큰지 확인합니다. (사람이 읽을 수 있는 문자열이 없다면 true, 있다면 false)
+ * 문자열이 null이거나 blank(공백, 탭 등)이면 true를 반환합니다.
+ *
+ * ## 동작/계약
+ * - null, empty, blank(공백, 탭 등)일 때 true입니다.
+ * - 사람이 읽을 수 있는 문자가 없으면 true입니다.
+ * - 공백만 있으면 true입니다.
+ *
+ * ```kotlin
+ * "".noText() // true
+ * "   ".noText() // true
+ * "abc".noText() // false
+ * ```
  */
 inline fun CharSequence?.noText(): Boolean =
     noLength() || isWhitespace()
 
 /**
- * 문자열이 null 이거나 empty 라면 null 을 반환한다
+ * 문자열이 null이거나 empty(길이 0)이면 null을 반환합니다.
+ *
+ * ## 동작/계약
+ * - null 또는 empty("")일 때 null 반환
+ * - 그 외에는 원본 문자열 반환
+ * - 문자열의 길이만 검사합니다.
+ *
+ * ```kotlin
+ * "".asNullIfEmpty() // null
+ * "abc".asNullIfEmpty() // "abc"
+ * null.asNullIfEmpty() // null
+ * ```
  */
 inline fun String?.asNullIfEmpty(): String? = if (isNullOrEmpty()) null else this
 
 /**
- * 문자열이 null 이거나 blank 라면 null 을 반환한다
+ * 문자열이 null이거나 blank(공백, 탭 등)이면 null을 반환합니다.
+ *
+ * ## 동작/계약
+ * - null, empty, blank(공백, 탭 등)일 때 null 반환
+ * - 그 외에는 원본 문자열 반환
+ * - 문자열의 공백 여부를 검사합니다.
+ *
+ * ```kotlin
+ * "   ".asNullIfBlank() // null
+ * "abc".asNullIfBlank() // "abc"
+ * null.asNullIfBlank() // null
+ * ```
  */
 inline fun String?.asNullIfBlank(): String? = if (isNullOrBlank()) null else this
 
 /**
- * 문자열을 UTF-8 인코딩의 [ByteArray]로 변환합니다.
+ * 문자열을 UTF-8로 인코딩한 [ByteArray]로 변환합니다.
  *
- * ```
- * "debop".toUtf8Bytes() // return byteArrayOf(100, 101, 98, 111, 112)
- * ```
+ * ## 동작/계약
+ * - 항상 새로운 ByteArray를 반환합니다.
+ * - null이 아니어야 하며, 예외는 발생하지 않습니다.
+ * - UTF-8 인코딩을 사용합니다.
  *
- * @receiver String  인코딩할 문자열
- * @return ByteArray UTF-8 인코딩된 바이트 배열
+ * ```kotlin
+ * "debop".toUtf8Bytes() // byteArrayOf(100, 101, 98, 111, 112)
+ * ```
  */
 fun String.toUtf8Bytes(): ByteArray = toByteArray(UTF_8)
 
 /**
- * [ByteArray]를 UTF-8 인코딩의 문자열로 반환한다
+ * UTF-8로 인코딩된 [ByteArray]를 문자열로 변환합니다.
  *
- * ```
- * byteArrayOf(100, 101, 98, 111, 112).toUtf8String() // return "debop"
- * ```
+ * ## 동작/계약
+ * - 항상 새로운 문자열을 반환합니다.
+ * - ByteArray가 비어있으면 빈 문자열을 반환합니다.
+ * - 예외는 발생하지 않습니다.
  *
- * @receiver ByteArray UTF-8 인코딩된 바이트 배열
- * @return String 디코딩된 문자열
+ * ```kotlin
+ * byteArrayOf(100, 101, 98, 111, 112).toUtf8String() // "debop"
+ * ```
  */
 fun ByteArray.toUtf8String(): String = toString(UTF_8)
 
 /**
  * 문자열을 UTF-8 인코딩의 [ByteBuffer]로 변환합니다.
  *
- * ```
- * "debop".toUtf8ByteBuffer() // return ByteBuffer.wrap(byteArrayOf(100, 101, 98, 111, 112))
- * ```
+ * ## 동작/계약
+ * - 항상 새로운 ByteBuffer를 반환합니다.
+ * - null이 아니어야 하며, 예외는 발생하지 않습니다.
+ * - UTF-8 인코딩을 사용합니다.
  *
- * @receiver String 인코딩할 문자열
- * @return ByteBuffer UTF-8 인코딩된 ByteBuffer
+ * ```kotlin
+ * "debop".toUtf8ByteBuffer() // ByteBuffer.wrap(byteArrayOf(100, 101, 98, 111, 112))
+ * ```
  */
 fun String.toUtf8ByteBuffer(): ByteBuffer = UTF_8.encode(this)
 
 /**
- * [ByteBuffer]를 UTF-8 인코딩의 문자열로 반환한다
+ * UTF-8로 인코딩된 [ByteBuffer]를 문자열로 변환합니다.
  *
- * ```
- * ByteBuffer.wrap(byteArrayOf(100, 101, 98, 111, 112)).toUtf8String() // return "debop"
- * ```
+ * ## 동작/계약
+ * - 항상 새로운 문자열을 반환합니다.
+ * - ByteBuffer가 비어있으면 빈 문자열을 반환합니다.
+ * - 예외는 발생하지 않습니다.
  *
- * @receiver ByteBuffer UTF-8 인코딩된 ByteBuffer
- * @return String 디코딩된 문자열
+ * ```kotlin
+ * ByteBuffer.wrap(byteArrayOf(100, 101, 98, 111, 112)).toUtf8String() // "debop"
+ * ```
  */
 fun ByteBuffer.toUtf8String(): String = UTF_8.decode(this).toString()
 
 /**
- * 문자열이 null이거나 empty라면 [fallback]을 수행합니다.
+ * 문자열이 null이거나 empty(길이 0)이면 [fallback] 결과를 반환합니다.
  *
- * ```
+ * ## 동작/계약
+ * - null 또는 empty("")일 때 fallback 람다를 호출합니다.
+ * - 그 외에는 원본 문자열을 반환합니다.
+ * - 문자열의 길이만 검사합니다.
+ *
+ * ```kotlin
  * val name: String? = null
- * val result = name.ifEmpty { "debop" } // return "debop"
+ * name.ifEmpty { "debop" } // "debop"
  * ```
- *
- * @receiver String? 문자열
- * @param fallback 문자열이 null이거나 empty인 경우 수행할 람다
- * @return String 문자열
  */
 @Deprecated("use ifNullOrEmpty instead", replaceWith = ReplaceWith("ifNullOrEmpty"))
 inline fun String?.ifEmpty(fallback: () -> String): String =
     if (isNullOrEmpty()) fallback() else this
 
 /**
- * 문자열이 null이거나 empty라면 [fallback]을 수행합니다.
+ * 문자열이 null이거나 empty(길이 0)이면 [fallback] 결과를 반환합니다.
  *
- * ```
- * val name: String? = null
- * val result = name.ifEmpty { "debop" } // return "debop"
- * ```
+ * ## 동작/계약
+ * - null 또는 empty("")일 때 fallback 람다를 호출합니다.
+ * - 그 외에는 원본 문자열을 반환합니다.
+ * - 문자열의 길이만 검사합니다.
  *
- * @receiver String? 문자열
- * @param fallback 문자열이 null이거나 empty인 경우 수행할 람다
- * @return String 문자열
+ * ```kotlin
+ * val name: String? = ""
+ * name.ifNullOrEmpty { "debop" } // "debop"
+ * ```
  */
 inline fun String?.ifNullOrEmpty(fallback: () -> String): String =
     if (isNullOrEmpty()) fallback() else this
 
 /**
- * 문자열이 null이거나 blank라면 [fallback]을 수행합니다.
+ * 문자열이 null이거나 blank(공백, 탭 등)이면 [fallback] 결과를 반환합니다.
  *
- * ```
- * val name: String? = "\t"
- * val result = name.ifBlank { "debop" } // return "debop"
- * ```
+ * ## 동작/계약
+ * - null, empty, blank(공백, 탭 등)일 때 fallback 람다를 호출합니다.
+ * - 그 외에는 원본 문자열을 반환합니다.
+ * - 문자열의 공백 여부를 검사합니다.
  *
- * @receiver String? 문자열
- * @param fallback 문자열이 null이거나 blank인 경우 수행할 람다
- * @return String 문자열
+ * ```kotlin
+ * val name: String? = "   "
+ * name.ifNullOrBlank { "debop" } // "debop"
+ * ```
  */
 inline fun String?.ifNullOrBlank(fallback: () -> String): String =
     if (isNullOrBlank()) fallback() else this
 
 
 /**
- * 문자열 앞 뒤의 Whitespace를 제거합니다.
+ * 문자열의 앞뒤에 있는 모든 공백 문자를 제거합니다.
  *
- * ```
- * " \t  debop  ".trimWhitespace() // return "debop"
- * ```
+ * ## 동작/계약
+ * - 문자열이 비어있으면 그대로 반환합니다.
+ * - 앞뒤에 있는 모든 공백 문자(탭, 스페이스 등)를 제거합니다.
+ * - 새로운 문자열을 반환합니다.
  *
- * @receiver String 문자열
- * @return String Whitespace가 제거된 문자열
- * @see String.trim
+ * ```kotlin
+ * " \t  debop  ".trimWhitespace() // "debop"
+ * ```
  */
 fun String.trimWhitespace(): String {
     if (isEmpty())
@@ -194,15 +330,16 @@ fun String.trimWhitespace(): String {
 }
 
 /**
- * 문자열 앞의 Whitespace를 제거합니다.
+ * 문자열의 앞쪽에 있는 모든 공백 문자를 제거합니다.
  *
- * ```
- * " \t  debop  ".trimStartWhitespace() // return "debop  "
- * ```
+ * ## 동작/계약
+ * - 문자열이 비어있으면 그대로 반환합니다.
+ * - 앞에 있는 모든 공백 문자(탭, 스페이스 등)를 제거합니다.
+ * - 새로운 문자열을 반환합니다.
  *
- * @receiver String 문자열
- * @return String 앞쪽의 Whitespace가 제거된 문자열
- * @see String.trimStart
+ * ```kotlin
+ * " \t  debop  ".trimStartWhitespace() // "debop  "
+ * ```
  */
 fun String.trimStartWhitespace(): String {
     if (isEmpty())
@@ -216,15 +353,16 @@ fun String.trimStartWhitespace(): String {
 }
 
 /**
- * 문자열 뒷쪽의 Whitespace를 제거합니다.
+ * 문자열의 뒤쪽에 있는 모든 공백 문자를 제거합니다.
  *
- * ```
- * " \t  debop  ".trimEndWhitespace() // return " \t  debop"
- * ```
+ * ## 동작/계약
+ * - 문자열이 비어있으면 그대로 반환합니다.
+ * - 뒤에 있는 모든 공백 문자(탭, 스페이스 등)를 제거합니다.
+ * - 새로운 문자열을 반환합니다.
  *
- * @receiver String 문자열
- * @return String 뒷쪽의 Whitespace가 제거된 문자열
- * @see String.trimEnd
+ * ```kotlin
+ * " \t  debop  ".trimEndWhitespace() // " \t  debop"
+ * ```
  */
 fun String.trimEndWhitespace(): String {
     if (isEmpty()) return this.trimEnd()
@@ -237,15 +375,16 @@ fun String.trimEndWhitespace(): String {
 }
 
 /**
- * 문자열의 모든 곳의 Whitespace를 제거합니다.
+ * 문자열 내 모든 위치의 공백 문자를 제거합니다.
  *
- * ```
- * " \t  de\tbop  ".trimAllWhitespace() // return "debop"
- * ```
+ * ## 동작/계약
+ * - 문자열이 비어있으면 그대로 반환합니다.
+ * - 문자열 내 모든 공백 문자(탭, 스페이스 등)를 제거합니다.
+ * - 새로운 문자열을 반환합니다.
  *
- * @receiver String 문자열
- * @return String 모든 Whitespace가 제거된 문자열
- * @see String.trim
+ * ```kotlin
+ * " \t  de\tbop  ".trimAllWhitespace() // "debop"
+ * ```
  */
 fun String.trimAllWhitespace(): String {
     if (isEmpty()) return this.trim()
@@ -258,18 +397,18 @@ fun String.trimAllWhitespace(): String {
 }
 
 /**
- * SQL 구문 중에 문자열인 경우에는 single quotation을 지정할 수 있도록 합니다.
+ * 문자열을 SQL single quote로 감싸고 내부 quote는 이스케이프하여 반환합니다.
  *
+ * ## 동작/계약
+ * - null이면 "null" 문자열을 반환합니다.
+ * - 빈 문자열이면 "''"를 반환합니다.
+ * - 내부 single quote는 두 개로 이스케이프됩니다.
+ *
+ * ```kotlin
+ * "debop".quoted() // "'debop'"
+ * "debop's".quoted() // "'debop''s'"
+ * null.quoted() // "null"
  * ```
- * "debop".quoted() // return "'debop'"
- * "debop's".quoted() // return "'debop''s'"
- * null.quoted() // return "null"
- * "".quoted() // return "''"
- * ```
- *
- * @receiver String? 문자열
- * @return null 인 경우 "null" 문자열을 반환하고, 문자열인 경우 single quotation을 추가합니다.
- *
  */
 inline fun String?.quoted(): String {
     if (this == null)
@@ -280,14 +419,16 @@ inline fun String?.quoted(): String {
 }
 
 /**
- * 램덤한 Alpha numeric 문자열을 만듭니다.
+ * 지정한 길이의 랜덤 알파뉴메릭 문자열을 생성합니다.
  *
- * ```
- * randomString(10) // return "a1b2c3d4e5"
- * ```
+ * ## 동작/계약
+ * - size가 0 이상이어야 합니다.
+ * - 항상 새로운 문자열을 반환합니다.
+ * - 예외 발생 시 기본값을 반환하지 않습니다.
  *
- * @param size 생성할 문자열의 길이
- * @return 랜덤한 Alpha numeric 문자열
+ * ```kotlin
+ * randomString(10) // "a1b2c3d4e5"
+ * ```
  */
 inline fun randomString(size: Int = 10): String {
     size.assertZeroOrPositiveNumber("size")
@@ -295,16 +436,17 @@ inline fun randomString(size: Int = 10): String {
 }
 
 /**
- * 문자열의 길이가 [maxLength]다 크다면, 축약이 필요하다 (true)
+ * 문자열의 길이가 [maxLength]보다 크면 축약이 필요함을 나타냅니다.
  *
- * ```
- * "debop".needEllipsis(3) // return true
- * "debop".needEllipsis(5) // return false
- * ```
+ * ## 동작/계약
+ * - null 또는 empty이면 false입니다.
+ * - maxLength는 4 이상이어야 합니다.
+ * - 길이가 maxLength 초과면 true입니다.
  *
- * @receiver String? 축약 대상 문자열
- * @param maxLength 최대 길이
- * @return 문자열의 길이가 [maxLength]보다 크다면 true, 아니면 false
+ * ```kotlin
+ * "debop".needEllipsis(3) // true
+ * "debop".needEllipsis(5) // false
+ * ```
  */
 inline fun String?.needEllipsis(maxLength: Int = ELLIPSIS_LENGTH): Boolean {
     maxLength.requireGt(3, "maxLength")
@@ -312,16 +454,16 @@ inline fun String?.needEllipsis(maxLength: Int = ELLIPSIS_LENGTH): Boolean {
 }
 
 /**
- * 문자열의 길이가 [maxLength]보다 크다면, [TRIMMING]를 문자열 끝에 추가하여 [maxLength] 길이로 축약합니다.
+ * 문자열이 [maxLength]보다 길면 끝을 [TRIMMING]으로 축약합니다.
  *
- * ```
- * "debop.bae@gmail.com".ellipsisEnd(6) // return "deb..."
- * "debop.bae@gmail.com".ellipsisEnd(20) // return "debop.bae@gmail.com"
- * ```
+ * ## 동작/계약
+ * - null이면 빈 문자열을 반환합니다.
+ * - 축약이 필요없으면 원본을 반환합니다.
+ * - maxLength보다 길면 끝에 ...을 붙여 자릅니다.
  *
- * @receiver String? 축약 대상 문자열
- * @param maxLength 최대 길이
- * @return 축약된 문자열
+ * ```kotlin
+ * "debop.bae@gmail.com".ellipsisEnd(6) // "deb..."
+ * ```
  */
 fun String?.ellipsisEnd(maxLength: Int = ELLIPSIS_LENGTH): String {
     return this?.let { str ->
@@ -332,16 +474,16 @@ fun String?.ellipsisEnd(maxLength: Int = ELLIPSIS_LENGTH): String {
 }
 
 /**
- * 문자열의 길이가 [maxLength]보다 크다면, [TRIMMING]를 문자열 중간에 추가하여 [maxLength] 길이로 축약합니다.
+ * 문자열이 [maxLength]보다 길면 중간을 [TRIMMING]으로 축약합니다.
  *
- * ```
- * "debop.bae@gmail.com".ellipsisEnd(6) // return "de....b"
- * "debop.bae@gmail.com".ellipsisEnd(20) // return "debop.bae@gmail.com"
- * ```
+ * ## 동작/계약
+ * - null이면 빈 문자열을 반환합니다.
+ * - 축약이 필요없으면 원본을 반환합니다.
+ * - maxLength보다 길면 중간에 ...을 붙여 자릅니다.
  *
- * @receiver String? 축약 대상 문자열
- * @param maxLength 최대 길이
- * @return 축약된 문자열
+ * ```kotlin
+ * "debop.bae@gmail.com".ellipsisMid(7) // "de...m"
+ * ```
  */
 fun String?.ellipsisMid(maxLength: Int = ELLIPSIS_LENGTH): String {
     if (this.isNullOrEmpty()) return EMPTY_STRING
@@ -362,16 +504,16 @@ fun String?.ellipsisMid(maxLength: Int = ELLIPSIS_LENGTH): String {
 }
 
 /**
- * 문자열의 길이가 [maxLength]보다 크다면, [TRIMMING]를 문자열 처음에 추가하여 [maxLength] 길이로 축약합니다.
+ * 문자열이 [maxLength]보다 길면 앞을 [TRIMMING]으로 축약합니다.
  *
- * ```
- * "debop.bae@gmail.com".ellipsisEnd(6) // return "...op."
- * "debop.bae@gmail.com".ellipsisEnd(20) // return "debop.bae@gmail.com"
- * ```
+ * ## 동작/계약
+ * - null이면 빈 문자열을 반환합니다.
+ * - 축약이 필요없으면 원본을 반환합니다.
+ * - maxLength보다 길면 앞에 ...을 붙여 자릅니다.
  *
- * @receiver String? 축약 대상 문자열
- * @param maxLength 최대 길이
- * @return 축약된 문자열
+ * ```kotlin
+ * "debop.bae@gmail.com".ellipsisStart(6) // "...com"
+ * ```
  */
 fun String?.ellipsisStart(maxLength: Int = ELLIPSIS_LENGTH): String {
     return this?.let { str ->
@@ -383,16 +525,16 @@ fun String?.ellipsisStart(maxLength: Int = ELLIPSIS_LENGTH): String {
 }
 
 /**
- * 문자열에서 [chars] 문자들을 제거합니다.
+ * 문자열에서 지정한 문자들을 모두 제거합니다.
  *
- * ```
- * "debop".deleteChars('d', 'o') // return "ebp"
- * "debop".deleteChars('d', 'o', 'p') // return "eb"
- * ```
+ * ## 동작/계약
+ * - null 또는 empty면 빈 문자열을 반환합니다.
+ * - chars에 지정된 모든 문자를 제거합니다.
+ * - 새로운 문자열을 반환합니다.
  *
- * @receiver String? 문자열
- * @param chars 제거할 문자들
- * @return 제거된 문자열
+ * ```kotlin
+ * "debop".deleteChars('d', 'o') // "ebp"
+ * ```
  */
 fun CharSequence?.deleteChars(vararg chars: Char): String = when {
     isNullOrEmpty() -> EMPTY_STRING
@@ -401,70 +543,78 @@ fun CharSequence?.deleteChars(vararg chars: Char): String = when {
 }
 
 /**
- * 컬렉션의 요소를 문자열로 변환하여, 문자열 컬렉션으로 반환합니다.
+ * 컬렉션의 각 요소를 문자열로 변환하여 리스트로 반환합니다.
  *
- * ```
- * listOf(1, 2, 3).asStringList() // return listOf("1", "2", "3")
- * ```
+ * ## 동작/계약
+ * - 각 요소가 null 또는 empty이면 defaultValue 사용
+ * - 항상 새로운 리스트를 반환합니다.
+ * - 변환 과정에서 예외가 발생하지 않습니다.
  *
- * @receiver Iterable<T> 문자열로 변환할 요소들
- * @param defaultValue 요소가 null이거나 empty인 경우 사용할 기본 문자열 (기본값: "")
+ * ```kotlin
+ * listOf(1, 2, 3).asStringList() // listOf("1", "2", "3")
+ * ```
  */
 @Deprecated("use mapAsString", replaceWith = ReplaceWith("mapAsString(defaultValue)"))
 fun <T: Any> Iterable<T>.asStringList(defaultValue: String = EMPTY_STRING): List<String> =
     map { it.asString(defaultValue) }
 
 /**
- * 컬렉션의 요소를 문자열로 변환하여, 문자열 컬렉션으로 반환합니다.
+ * 컬렉션의 각 요소를 문자열로 변환하여 리스트로 반환합니다.
  *
- * ```
- * listOf(1, 2, 3).asStringList() // return listOf("1", "2", "3")
- * ```
+ * ## 동작/계약
+ * - 각 요소가 null 또는 empty이면 defaultValue 사용
+ * - 항상 새로운 리스트를 반환합니다.
+ * - 변환 과정에서 예외가 발생하지 않습니다.
  *
- * @receiver Iterable<T> 문자열로 변환할 요소들
- * @param defaultValue 요소가 null이거나 empty인 경우 사용할 기본 문자열 (기본값: "")
+ * ```kotlin
+ * listOf(1, 2, 3).mapAsString() // listOf("1", "2", "3")
+ * ```
  */
 fun <T: Any> Iterable<T>.mapAsString(defaultValue: String = EMPTY_STRING): List<String> =
     map { it.asString(defaultValue) }
 
-
 /**
- * 컬렉션의 요소를 문자열로 변환하여, 문자열 컬렉션으로 반환합니다.
+ * 시퀀스의 각 요소를 문자열로 변환하여 시퀀스로 반환합니다.
  *
- * ```
- * listOf(1, 2, 3).asStringList() // return listOf("1", "2", "3")
- * ```
+ * ## 동작/계약
+ * - 각 요소가 null 또는 empty이면 defaultValue 사용
+ * - 항상 새로운 시퀀스를 반환합니다.
+ * - 변환 과정에서 예외가 발생하지 않습니다.
  *
- * @receiver Iterable<T> 문자열로 변환할 요소들
- * @param defaultValue 요소가 null이거나 empty인 경우 사용할 기본 문자열 (기본값: "")
+ * ```kotlin
+ * sequenceOf(1, 2, 3).mapAsString().toList() // listOf("1", "2", "3")
+ * ```
  */
 fun <T: Any> Sequence<T>.mapAsString(defaultValue: String = EMPTY_STRING): Sequence<String> =
     map { it.asString(defaultValue) }
 
 
 /**
- * 문자열을 [n]번 반복한 문자열을 반환합니다.
+ * 문자열을 [n]번 반복한 새로운 문자열을 반환합니다.
  *
- * ```
- * "debop".replicate(3) // return "debopdebopdebop"
- * ```
+ * ## 동작/계약
+ * - null이면 빈 문자열을 반환합니다.
+ * - n이 0이면 빈 문자열을 반환합니다.
+ * - 음수일 경우 예외가 발생할 수 있습니다.
  *
- * @receiver String? 문자열
- * @param n 반복 횟수
+ * ```kotlin
+ * "debop".replicate(3) // "debopdebopdebop"
+ * ```
  */
 inline fun CharSequence?.replicate(n: Int): String =
     this?.repeat(n).orEmpty()
 
 /**
- * 문자열에서 [word] 단어가 포함된 횟수를 반환합니다.
+ * 문자열에서 주어진 단어가 몇 번 등장하는지 반환합니다.
  *
- * ```
- * "debop is developer and architecture".wordCount("developer") // return 1
- * ```
+ * ## 동작/계약
+ * - null이거나 word가 빈 문자열이면 0을 반환합니다.
+ * - 중복 없이 단어의 등장 횟수를 셉니다.
+ * - 예외는 발생하지 않습니다.
  *
- * @receiver CharSequence? 문자열
- * @param word 단어
- * @return 단어의 포함된 횟수
+ * ```kotlin
+ * "hello world world".wordCount("world") // 2
+ * ```
  */
 fun CharSequence?.wordCount(word: String): Int {
     if (isNullOrEmpty() || word.isEmpty()) return 0
@@ -485,15 +635,16 @@ fun CharSequence?.wordCount(word: String): Int {
 }
 
 /**
- * 문자열에서 첫번째 라인 (첫번째 개행문자 전까지)을 반환합니다.
+ * 문자열에서 첫 번째 줄(첫 개행 문자 전까지)을 반환합니다.
  *
- * ```
- * "debop\nis developer\nand architecture".firstLine() // return "debop"
- * ```
+ * ## 동작/계약
+ * - null 또는 blank면 빈 문자열을 반환합니다.
+ * - lineSeparator가 없으면 전체 문자열을 반환합니다.
+ * - 예외는 발생하지 않습니다.
  *
- * @receiver CharSequence? 문자열
- * @param lineSeparator 라인 구분자 (기본값: [LINE_SEPARATOR])
- * @return 첫번째 라인
+ * ```kotlin
+ * "a\nb\nc".firstLine() // "a"
+ * ```
  */
 fun CharSequence?.firstLine(lineSeparator: String = LINE_SEPARATOR): String {
     if (this.isNullOrBlank()) return EMPTY_STRING
@@ -504,20 +655,16 @@ fun CharSequence?.firstLine(lineSeparator: String = LINE_SEPARATOR): String {
 }
 
 /**
- * 문자열에서 [start] 문자열과 [end]문자열 사이의 문자열을 추출합니다. (start와 end는 제외됩니다)
+ * 문자열에서 [start]와 [end] 사이의 문자열을 추출합니다(두 경계는 제외).
  *
+ * ## 동작/계약
+ * - null, empty, start==end, start/end가 없으면 빈 문자열 반환
+ * - 첫 번째 start 이후부터 end 이전까지 추출합니다.
+ * - 예외는 발생하지 않습니다.
+ *
+ * ```kotlin
+ * "abc[hello]def".between("[", "]") // "hello"
  * ```
- * val origin = "debop is developer and architecture"
- *
- * origin.between("developer", "architecture") shouldBeEqualTo " and "
- * origin.between("debop", "developer") shouldBeEqualTo " is "
- *
- * origin.between("eb", "p is") shouldBeEqualTo "o"
- * ```
- *
- * @param start 시작 문자열
- * @param end 끝 문자열
- * @return 시작문자열과 끝 문자열 사이의 문자열
  */
 fun CharSequence?.between(start: String, end: String): String {
     if (this.isNullOrEmpty())
@@ -547,17 +694,16 @@ fun CharSequence?.between(start: String, end: String): String {
 }
 
 /**
- * 문자열에서 [count] 숫자만큼 앞에서부터 문자열을 제거하고, 나머지 문자열을 반환합니다.
- * [count] 가 문자열 길이보다 크다면 빈 문자열을 반환합니다.
+ * 문자열에서 앞에서 [count]만큼 문자를 제거한 나머지 문자열을 반환합니다.
  *
- * ```
- * "debop".dropFirst(3) // return "op"
- * "debop".dropFirst(10) // return ""
- * ```
+ * ## 동작/계약
+ * - count가 0이면 원본을 반환합니다.
+ * - count가 길이 이상이면 빈 문자열 반환
+ * - 음수면 예외 발생
  *
- * @receiver String 문자열
- * @param count 제거할 문자의 갯수
- * @return 제거된 문자열
+ * ```kotlin
+ * "debop".dropFirst(3) // "op"
+ * ```
  */
 inline fun String.dropFirst(count: Int = 1): String {
     count.requireZeroOrPositiveNumber("count")
@@ -567,16 +713,16 @@ inline fun String.dropFirst(count: Int = 1): String {
 
 
 /**
- * 문자열에서 [count] 숫자만큼 뒤에서부터 문자열을 제거하고, 나머지 문자열을 반환합니다.
- * [count] 가 문자열 길이보다 크다면 빈 문자열을 반환합니다.
+ * 문자열에서 뒤에서 [count]만큼 문자를 제거한 나머지 문자열을 반환합니다.
  *
- * ```
- * "debop".dropLast(3) // return "de"
- * "debop".dropLast(10) // return ""
- * ```
+ * ## 동작/계약
+ * - count가 0이면 원본을 반환합니다.
+ * - count가 길이 이상이면 빈 문자열 반환
+ * - 음수면 예외 발생
  *
- * @receiver String 문자열
- * @param count 제거할 문자열의 길이
+ * ```kotlin
+ * "debop".dropLast(3) // "de"
+ * ```
  */
 inline fun String.dropLast(count: Int = 1): String {
     count.requireZeroOrPositiveNumber("count")
@@ -585,17 +731,16 @@ inline fun String.dropLast(count: Int = 1): String {
 }
 
 /**
- * 문자열에서 [count] 숫자만큼 앞에서부터 문자열을 가져옵니다.
- * [count] 가 문자열 길이보다 크다면 전체 문자열을 반환합니다.
+ * 문자열에서 앞에서 [count]만큼 문자를 가져옵니다.
  *
- * ```
- * "debop".takeFirst(3) // return "deb"
- * "debop".takeFirst(10) // return "debop"
- * ```
+ * ## 동작/계약
+ * - count가 길이보다 크면 전체 문자열 반환
+ * - count가 0이면 빈 문자열 반환
+ * - 음수면 예외 발생
  *
- * @receiver String 문자열
- * @param count 가져올 문자열의 길이
- * @return 가져온 문자열
+ * ```kotlin
+ * "debop".takeFirst(3) // "deb"
+ * ```
  */
 fun String.takeFirst(count: Int = 1): String {
     count.requireZeroOrPositiveNumber("count")
@@ -604,17 +749,16 @@ fun String.takeFirst(count: Int = 1): String {
 }
 
 /**
- * 문자열에서 [count] 숫자만큼 뒤에서부터 문자열을 가져옵니다.
- * [count] 가 문자열 길이보다 크다면 전체 문자열을 반환합니다.
+ * 문자열에서 뒤에서 [count]만큼 문자를 가져옵니다.
  *
- * ```
- * "debop".takeLast(3) // return "bop"
- * "debop".takeLast(10) // return "debop"
- * ```
+ * ## 동작/계약
+ * - count가 길이보다 크면 전체 문자열 반환
+ * - count가 0이면 빈 문자열 반환
+ * - 음수면 예외 발생
  *
- * @receiver String 문자열
- * @param count 가져올 문자열의 길이
- * @return 가져온 문자열
+ * ```kotlin
+ * "debop".takeLast(3) // "bop"
+ * ```
  */
 fun String.takeLast(count: Int = 1): String {
     count.requireZeroOrPositiveNumber("count")
@@ -623,46 +767,46 @@ fun String.takeLast(count: Int = 1): String {
 }
 
 /**
- * 지정한 접두사로 시작하지 않는다면 접두사를 추가합니다.
+ * 문자열이 지정한 접두사로 시작하지 않으면 접두사를 추가합니다.
  *
- * ```
- * "debop".prefixIfAbsent("Mr.") // return "Mr.debop"
- * "Mr.debop".prefixIfAbsent("Mr.") // return "Mr.debop"
- * "mr.debop".prefixIfAbsent("Mr.", ignoreCase = true) // return "Mr.debop"
- * "Mr.debop".prefixIfAbsent("Mr.", ignoreCase = true) // return "Mr.debop"
- * ```
+ * ## 동작/계약
+ * - 이미 접두사가 있으면 원본을 반환합니다.
+ * - ignoreCase가 true면 대소문자 구분 없이 검사합니다.
+ * - 새로운 문자열을 반환합니다.
  *
- * @param prefix 접두사
- * @param ignoreCase 대소문자 구분 여부 (기본: false)
- * @return [prefix]가 접두사로 붙은 문자열
+ * ```kotlin
+ * "debop".prefixIfAbsent("Mr.") // "Mr.debop"
+ * ```
  */
 fun String.prefixIfAbsent(prefix: String, ignoreCase: Boolean = false): String =
     if (this.startsWith(prefix, ignoreCase)) this else prefix + this
 
 /**
- * 지정한 접미사로 끝나지 않는다면 접미사를 추가합니다.
+ * 문자열이 지정한 접미사로 끝나지 않으면 접미사를 추가합니다.
  *
- * ```
- * "/path/to/debop".suffixIfAbsent("/") // return "/path/to/debop/"
- * ```
+ * ## 동작/계약
+ * - 이미 접미사가 있으면 원본을 반환합니다.
+ * - ignoreCase가 true면 대소문자 구분 없이 검사합니다.
+ * - 새로운 문자열을 반환합니다.
  *
- * @param suffix 접미사
- * @param ignoreCase 대소문자 구분 여부 (기본: false)
- * @return [suffix]가 접미사로 붙은 문자열
+ * ```kotlin
+ * "/path".suffixIfAbsent("/") // "/path/"
+ * ```
  */
 fun String.suffixIfAbsent(suffix: String, ignoreCase: Boolean = false): String =
     if (this.endsWith(suffix, ignoreCase)) this else this + suffix
 
 /**
- * 문자열의 문자들 중 유니크한 문자로만 필터링해서 문자열로 반환합니다. (distinct)
+ * 문자열에서 중복되지 않는 문자만 남긴 새로운 문자열을 반환합니다.
  *
- * ```
- * "abcde".uniqueChars() // return "abcde"
- * "abcdeabcde".uniqueChars() // return "abcde"
- * ```
+ * ## 동작/계약
+ * - 공백 문자는 포함하지 않습니다.
+ * - 순서를 보장하며, 중복 문자는 제거합니다.
+ * - 새로운 문자열을 반환합니다.
  *
- * @receiver CharSequence 문자열
- * @return 유니크한 문자들로만 이루어진 문자열
+ * ```kotlin
+ * "abcabc".uniqueChars() // "abc"
+ * ```
  */
 fun CharSequence.uniqueChars(): String = buildString {
     this@uniqueChars.forEach { char ->
@@ -673,16 +817,16 @@ fun CharSequence.uniqueChars(): String = buildString {
 }
 
 /**
- * 문자열을 [size] 크기의 window로 이동하면서 문자열을 반환합니다.
+ * 문자열을 [size] 크기의 윈도우로 이동하며 부분 문자열 시퀀스를 반환합니다.
  *
- * ```
- * "debop".sliding(3).toList() // return ["deb", "ebo", "bop"]
- * "가나다라마".sliding(2).toList() // return ["가나", "나다", "다라", "라마"]
- * ```
+ * ## 동작/계약
+ * - size는 1 이상이어야 합니다.
+ * - 각 윈도우는 겹치며, 순차적으로 반환됩니다.
+ * - 새로운 시퀀스를 반환합니다.
  *
- * @receiver CharSequence 문자열
- * @param size window 크기
- * @return window 크기로 이동하면서 생성된 문자열
+ * ```kotlin
+ * "debop".sliding(3).toList() // ["deb", "ebo", "bop"]
+ * ```
  */
 fun CharSequence.sliding(size: Int): Sequence<CharSequence> {
     size.assertPositiveNumber("size")
@@ -700,16 +844,16 @@ fun CharSequence.sliding(size: Int): Sequence<CharSequence> {
 }
 
 /**
- * 문자열을 [size] 크기의 window로 이동하면서 문자열을 반환합니다.
+ * 문자열을 [size] 크기의 윈도우로 이동하며 부분 문자열 시퀀스를 반환합니다.
  *
- * ```
- * "debop".sliding(3).toList() // return ["deb", "ebo", "bop"]
- * "가나다라마".sliding(2).toList() // return ["가나", "나다", "다라", "라마"]
- * ```
+ * ## 동작/계약
+ * - size는 1 이상이어야 합니다.
+ * - 각 윈도우는 겹치며, 순차적으로 반환됩니다.
+ * - 새로운 시퀀스를 반환합니다.
  *
- * @receiver String 문자열
- * @param size window 크기
- * @return window 크기로 이동하면서 생성된 문자열
+ * ```kotlin
+ * "abcde".sliding(2).toList() // ["ab", "bc", "cd", "de"]
+ * ```
  */
 fun String.sliding(size: Int): Sequence<String> {
     size.assertPositiveNumber("size")
@@ -727,22 +871,30 @@ fun String.sliding(size: Int): Sequence<String> {
 }
 
 /**
- * 비밀번호 등 지정한 문자를 외부에 공개 안되도록 [maskText] 문자로 변경합니다.
+ * 문자열을 지정한 문자로 모두 마스킹하여 반환합니다(비밀번호 등).
  *
- * ```
- * val password = "debop"
- * log.debug { "password=${password.redact()}" }    // "debop" --> "*****"
+ * ## 동작/계약
+ * - 빈 문자열이면 빈 문자열을 반환합니다.
+ * - 각 문자를 maskChar로 대체합니다.
+ * - 새로운 문자열을 반환합니다.
+ *
+ * ```kotlin
+ * "secret".mask() // "******"
  * ```
  */
 @Deprecated("use mask instead", replaceWith = ReplaceWith("mask(maskChar)"))
 fun String.redact(maskChar: Char = '*'): String = mask(maskChar)
 
 /**
- * 비밀번호 등 지정한 문자를 외부에 공개 안되도록 [maskChar] 문자로 변경합니다.
+ * 문자열을 지정한 문자로 모두 마스킹하여 반환합니다(비밀번호 등).
  *
- * ```
- * val password = "debop"
- * log.debug { "password=${password.redact()}" }    // "debop" --> "*****"
+ * ## 동작/계약
+ * - 빈 문자열이면 빈 문자열을 반환합니다.
+ * - 각 문자를 maskChar로 대체합니다.
+ * - 새로운 문자열을 반환합니다.
+ *
+ * ```kotlin
+ * "password".mask('#') // "########"
  * ```
  */
 fun String.mask(maskChar: Char = '*'): String =
@@ -751,16 +903,16 @@ fun String.mask(maskChar: Char = '*'): String =
 
 
 /**
- * [delimiter](기본=`-`)로 구분된 문자열을 camel case 문자열로 변환합니다.
+ * delimiter(기본은 '-')로 구분된 문자열을 camel case로 변환합니다.
  *
- * ```
- * "group-id".toCamelcase()  // return "groupId"
- * "server-host-name".toCamelcase()  // return "serverHostName"
- * "ServerName".toCamelcase()   // return "serverName"
- * ```
+ * ## 동작/계약
+ * - 구분자가 없으면 첫 글자만 소문자로 변환합니다.
+ * - 각 구분자 이후 문자를 대문자로 변환합니다.
+ * - 새로운 문자열을 반환합니다.
  *
- * @param delimiter 구분자
- * @return camel case 문자열
+ * ```kotlin
+ * "group-id".toCamelcase() // "groupId"
+ * ```
  */
 fun String.toCamelcase(delimiter: String = "-"): String {
     if (delimiter.isWhitespace() || !contains(delimiter)) {
@@ -789,16 +941,16 @@ fun String.toCamelcase(delimiter: String = "-"): String {
 }
 
 /**
- * camel case 문자열을 [delimiter] 로 구분되는 문자열로 변환합니다.
+ * camel case 문자열을 delimiter(기본 '-')로 구분된 문자열로 변환합니다.
  *
- * ```
- * "groupId".toDashedString()           // return "group-id"
- * "serverHostName".toDashedString()    // return "server-host-name"
- * "ServerName".toDashedString()        // return "server-name"
- * ```
+ * ## 동작/계약
+ * - 각 대문자 앞에 delimiter를 추가합니다.
+ * - 첫 글자는 항상 소문자로 변환합니다.
+ * - 새로운 문자열을 반환합니다.
  *
- * @param delimiter 구분자 ("-")
- * @return 구분자로 구분된 문자열
+ * ```kotlin
+ * "serverHostName".toDashedString() // "server-host-name"
+ * ```
  */
 fun String.toDashedString(delimiter: String = "-"): String = buildString {
     this@toDashedString.forEachIndexed { index, char ->
@@ -811,18 +963,16 @@ fun String.toDashedString(delimiter: String = "-"): String = buildString {
 }
 
 /**
- * 최소 [minLength] 길이를 가지는 문자열을 반환합니다. 원본 문자열이 [minLength]보다 작다면 [padChar]로 앞에서부터 채웁니다.
- * 문자열이 이미 [minLength]보다 길면 원래 문자열을 반환합니다.
+ * 최소 [minLength] 길이가 되도록 문자열 앞을 [padChar]로 채워 반환합니다.
  *
- * ```
- * "7".padStart(3, '0')  // return "007"
- * "2010".padStart(3, '0')  // return "2010"
- * ```
+ * ## 동작/계약
+ * - 이미 minLength 이상이면 원본을 반환합니다.
+ * - 부족한 만큼 padChar로 앞을 채웁니다.
+ * - 새로운 문자열을 반환합니다.
  *
- * @receiver the string which should appear at the beginning of the result
- * @param minLength 결과 문자열이 가져야 하는 최소 길이입니다. 0 또는 음수일 수 있으며, 이 경우 입력 문자열이 항상 반환됩니다.
- * @param padChar 결과 문자열이 최소 길이에 도달할 때까지 결과 문자열 앞에 추가할 문자
- * @return 최소 길이의 문자열
+ * ```kotlin
+ * "7".padStart(3, '0') // "007"
+ * ```
  */
 fun String.padStart(minLength: Int, padChar: Char): String {
     if (length >= minLength) return this
@@ -836,18 +986,16 @@ fun String.padStart(minLength: Int, padChar: Char): String {
 }
 
 /**
- * 최소 [minLength] 길이를 가지는 문자열을 반환합니다. 원본 문자열이 [minLength]보다 작다면 [padChar]로 뒤에서부터 채웁니다.
- * 문자열이 이미 [minLength]보다 길면 원래 문자열을 반환합니다.
+ * 최소 [minLength] 길이가 되도록 문자열 뒤를 [padChar]로 채워 반환합니다.
  *
- * ```
- * "4.".padEnd(5, '0')  // return "4.000"
- * "2010".padEnd(3, '!')  // return "2010"
- * ```
+ * ## 동작/계약
+ * - 이미 minLength 이상이면 원본을 반환합니다.
+ * - 부족한 만큼 padChar로 뒤를 채웁니다.
+ * - 새로운 문자열을 반환합니다.
  *
- * @receiver the string which should appear at the beginning of the result
- * @param minLength 결과 문자열이 가져야 하는 최소 길이입니다. 0 또는 음수일 수 있으며, 이 경우 입력 문자열이 항상 반환됩니다.
- * @param padChar 결과 문자열이 최소 길이에 도달할 때까지 결과 문자열 끝에 추가할 문자
- * @return 최소 길이의 문자열
+ * ```kotlin
+ * "4.".padEnd(5, '0') // "4.000"
+ * ```
  */
 fun String.padEnd(minLength: Int, padChar: Char): String {
     if (length >= minLength) return this
@@ -862,21 +1010,22 @@ fun String.padEnd(minLength: Int, padChar: Char): String {
 }
 
 /**
- * 두 문자열의 공통된 prefix를 찾아서 반환합니다.
+ * 두 문자열의 공통 접두사를 반환합니다.
  *
- * ```
- * commonPrefix("debop", "debop") // return "debop"
- * commonPrefix("debop", "deb") // return "deb"
- * commonPrefix("debop", "bae") // return ""
- * ```
+ * ## 동작/계약
+ * - 두 문자열이 모두 비어있으면 빈 문자열 반환
+ * - 일치하는 앞부분만 반환합니다.
+ * - surrogate pair가 중간에 걸치면 제외합니다.
  *
- * @return 공통된 prefix 문자열
+ * ```kotlin
+ * commonPrefix("abc", "abd") // "ab"
+ * ```
  */
 @JvmName("commonPrefixString")
 fun commonPrefix(a: CharSequence, b: CharSequence): String {
     if (a.isEmpty() || b.isEmpty()) return EMPTY_STRING
     if (a == b) return a.toString()
-    
+
     val maxPrefixLength = minOf(a.length, b.length)
     var p = 0
     while (p < maxPrefixLength && a[p] == b[p]) {
@@ -888,19 +1037,32 @@ fun commonPrefix(a: CharSequence, b: CharSequence): String {
     return a.substring(0, p)
 }
 
+/**
+ * 이 문자열과 [other]의 공통 접두사를 반환합니다.
+ *
+ * ## 동작/계약
+ * - 둘 다 비어있으면 빈 문자열 반환
+ * - 일치하는 앞부분만 반환합니다.
+ * - surrogate pair가 중간에 걸치면 제외합니다.
+ *
+ * ```kotlin
+ * "abc".commonPrefix("abd") // "ab"
+ * ```
+ */
 @JvmName("commonPrefixStringExtension")
 inline fun CharSequence.commonPrefix(other: CharSequence): String = commonPrefix(this, other)
 
 /**
- * 두 문자열의 공통된 suffix를 찾아서 반환합니다.
+ * 두 문자열의 공통 접미사를 반환합니다.
  *
- * ```
- * commonSuffix("debop", "debop") // return "debop"
- * commonSuffix("debop", "op") // return "op"
- * commonSuffix("debop", "bae") // return ""
- * ```
+ * ## 동작/계약
+ * - 두 문자열이 모두 비어있으면 빈 문자열 반환
+ * - 일치하는 뒷부분만 반환합니다.
+ * - surrogate pair가 중간에 걸치면 제외합니다.
  *
- * @return 공통된 suffix 문자열
+ * ```kotlin
+ * commonSuffix("abc", "xbc") // "bc"
+ * ```
  */
 @JvmName("commonSuffixString")
 fun commonSuffix(a: CharSequence, b: CharSequence): String {
@@ -918,12 +1080,21 @@ fun commonSuffix(a: CharSequence, b: CharSequence): String {
     return a.substring(a.length - s, a.length)
 }
 
+/**
+ * 이 문자열과 [other]의 공통 접미사를 반환합니다.
+ *
+ * ## 동작/계약
+ * - 둘 다 비어있으면 빈 문자열 반환
+ * - 일치하는 뒷부분만 반환합니다.
+ * - surrogate pair가 중간에 걸치면 제외합니다.
+ *
+ * ```kotlin
+ * "abc".commonSuffix("xbc") // "bc"
+ * ```
+ */
 @JvmName("commonSuffixStringExtension")
 inline fun CharSequence.commonSuffix(other: CharSequence): String = commonSuffix(this, other)
 
-/**
- * 유효한 surrogate pair가 주어진 `index`에서 시작할 때 true를 반환합니다.
- */
 internal fun CharSequence.validSurrogatePairAt(index: Int): Boolean {
     return index >= 0 && index <= (length - 2) &&
             Character.isHighSurrogate(this[index]) &&
@@ -932,6 +1103,15 @@ internal fun CharSequence.validSurrogatePairAt(index: Int): Boolean {
 
 
 /**
- * 문자열들을 대소문자 구분없이 비교합니다.
+ * 두 문자열을 대소문자 구분 없이 비교합니다.
+ *
+ * ## 동작/계약
+ * - 둘 다 null이면 true를 반환합니다.
+ * - 둘 중 하나만 null이면 false입니다.
+ * - 대소문자를 무시하고 비교합니다.
+ *
+ * ```kotlin
+ * "abc".equalsIgnoreCase("ABC") // true
+ * ```
  */
 inline fun String?.equalsIgnoreCase(other: String?): Boolean = equals(other, ignoreCase = true)

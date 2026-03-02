@@ -27,12 +27,118 @@ import java.time.temporal.TemporalUnit
 // NOTE: [Temporal]에 이미 plus, minus 함수가 있어서 재사용을 못한다
 //
 
+/**
+ * [Temporal]에 [period]를 더한 값을 반환합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 `plus(period)`를 호출합니다.
+ * - 수신 객체는 immutable이며 변경되지 않고 새 값이 반환됩니다.
+ * - 지원하지 않는 단위를 포함하면 [java.time.DateTimeException]이 발생할 수 있습니다.
+ * - 계산 비용은 구현 타입과 기간 크기에 따라 달라집니다.
+ *
+ * ```kotlin
+ * val date = LocalDate.of(2026, 3, 1)
+ * val next = date.add(Period.ofDays(1))
+ * check(next == LocalDate.of(2026, 3, 2))
+ * ```
+ *
+ * @param period 더할 날짜 기반 기간
+ */
 fun <T: Temporal> T.add(period: Period): T = this.plus(period) as T
+
+/**
+ * [Temporal]에 [duration]을 더한 값을 반환합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 `plus(duration)`를 호출합니다.
+ * - 수신 객체는 immutable이며 변경되지 않고 새 값이 반환됩니다.
+ * - 타입이 duration 단위를 지원하지 않으면 [java.time.DateTimeException]이 발생할 수 있습니다.
+ * - 계산 비용은 구현 타입과 duration 크기에 따라 달라집니다.
+ *
+ * ```kotlin
+ * val time = LocalDateTime.of(2026, 3, 1, 10, 0)
+ * val next = time.add(Duration.ofMinutes(30))
+ * check(next.minute == 30)
+ * ```
+ *
+ * @param duration 더할 시간 기반 기간
+ */
 fun <T: Temporal> T.add(duration: Duration): T = this.plus(duration) as T
+
+/**
+ * [Temporal]에 [amount]를 더한 값을 반환합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 `plus(amount)`를 호출합니다.
+ * - 수신 객체는 immutable이며 변경되지 않고 새 값이 반환됩니다.
+ * - [amount]가 현재 타입에서 지원되지 않으면 [java.time.DateTimeException]이 발생할 수 있습니다.
+ * - 계산 비용은 [amount] 구현에 따라 달라집니다.
+ *
+ * ```kotlin
+ * val date = LocalDate.of(2026, 3, 1)
+ * val next = date.add(Period.ofWeeks(1))
+ * check(next.dayOfMonth == 8)
+ * ```
+ *
+ * @param amount 더할 [TemporalAmount]
+ */
 fun <T: Temporal> T.add(amount: TemporalAmount): T = this.plus(amount) as T
 
+/**
+ * [Temporal]에서 [period]를 뺀 값을 반환합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 `minus(period)`를 호출합니다.
+ * - 수신 객체는 immutable이며 변경되지 않고 새 값이 반환됩니다.
+ * - 지원하지 않는 단위를 포함하면 [java.time.DateTimeException]이 발생할 수 있습니다.
+ * - 계산 비용은 구현 타입과 기간 크기에 따라 달라집니다.
+ *
+ * ```kotlin
+ * val date = LocalDate.of(2026, 3, 1)
+ * val prev = date.subtract(Period.ofDays(1))
+ * check(prev == LocalDate.of(2026, 2, 28))
+ * ```
+ *
+ * @param period 뺄 날짜 기반 기간
+ */
 fun <T: Temporal> T.subtract(period: Period): T = this.minus(period) as T
+
+/**
+ * [Temporal]에서 [duration]을 뺀 값을 반환합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 `minus(duration)`를 호출합니다.
+ * - 수신 객체는 immutable이며 변경되지 않고 새 값이 반환됩니다.
+ * - 타입이 duration 단위를 지원하지 않으면 [java.time.DateTimeException]이 발생할 수 있습니다.
+ * - 계산 비용은 구현 타입과 duration 크기에 따라 달라집니다.
+ *
+ * ```kotlin
+ * val time = LocalDateTime.of(2026, 3, 1, 10, 0)
+ * val prev = time.subtract(Duration.ofMinutes(30))
+ * check(prev.minute == 30)
+ * ```
+ *
+ * @param duration 뺄 시간 기반 기간
+ */
 fun <T: Temporal> T.subtract(duration: Duration): T = this.minus(duration) as T
+
+/**
+ * [Temporal]에서 [amount]를 뺀 값을 반환합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 `minus(amount)`를 호출합니다.
+ * - 수신 객체는 immutable이며 변경되지 않고 새 값이 반환됩니다.
+ * - [amount]가 현재 타입에서 지원되지 않으면 [java.time.DateTimeException]이 발생할 수 있습니다.
+ * - 계산 비용은 [amount] 구현에 따라 달라집니다.
+ *
+ * ```kotlin
+ * val date = LocalDate.of(2026, 3, 1)
+ * val prev = date.subtract(Period.ofWeeks(1))
+ * check(prev.dayOfMonth == 22)
+ * ```
+ *
+ * @param amount 뺄 [TemporalAmount]
+ */
 fun <T: Temporal> T.subtract(amount: TemporalAmount): T = this.minus(amount) as T
 
 // Temporal Adjusters

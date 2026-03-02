@@ -3,10 +3,61 @@ package io.bluetape4k.support.i18n
 import io.bluetape4k.support.requireNotBlank
 import java.util.*
 
+/**
+ * 언어 코드로 [Locale]을 생성합니다.
+ *
+ * ## 동작/계약
+ * - [language]는 blank가 아니어야 하며, 유효성은 JDK [Locale.of] 규칙을 따릅니다.
+ * - null 입력은 허용되지 않습니다.
+ * - 수신 객체를 변경하지 않으며 새 [Locale] 인스턴스를 반환합니다.
+ * - 생성 비용은 상수 시간입니다.
+ *
+ * ```kotlin
+ * val locale = localeOf("ko")
+ * check(locale.language == "ko")
+ * ```
+ *
+ * @param language ISO 언어 코드(예: `"ko"`, `"en"`)
+ */
 fun localeOf(language: String): Locale = Locale.of(language)
 
+/**
+ * 언어/국가 코드로 [Locale]을 생성합니다.
+ *
+ * ## 동작/계약
+ * - [language], [country]는 JDK [Locale.of] 규칙에 따라 해석됩니다.
+ * - null 입력은 허용되지 않으며, blank 정규화는 수행하지 않습니다.
+ * - 수신 객체를 변경하지 않으며 새 [Locale] 인스턴스를 반환합니다.
+ * - 생성 비용은 상수 시간입니다.
+ *
+ * ```kotlin
+ * val locale = localeOf("en", "US")
+ * check(locale.country == "US")
+ * ```
+ *
+ * @param language ISO 언어 코드
+ * @param country ISO 국가 코드
+ */
 fun localeOf(language: String, country: String): Locale = Locale.of(language, country)
 
+/**
+ * 언어/국가/변형 코드로 [Locale]을 생성합니다.
+ *
+ * ## 동작/계약
+ * - [language], [country], [variant]는 JDK [Locale.of] 규칙에 따라 해석됩니다.
+ * - null 입력은 허용되지 않으며, blank 정규화는 수행하지 않습니다.
+ * - 수신 객체를 변경하지 않으며 새 [Locale] 인스턴스를 반환합니다.
+ * - 생성 비용은 상수 시간입니다.
+ *
+ * ```kotlin
+ * val locale = localeOf("en", "US", "POSIX")
+ * check(locale.variant == "POSIX")
+ * ```
+ *
+ * @param language ISO 언어 코드
+ * @param country ISO 국가 코드
+ * @param variant locale variant 문자열
+ */
 fun localeOf(language: String, country: String, variant: String): Locale = Locale.of(language, country, variant)
 
 /**

@@ -64,6 +64,20 @@ fun Any?.asBooleanOrNull(): Boolean? = runCatching {
     }
 }.getOrNull()
 
+/**
+ * 문자 변환 실패 시 기본값으로 사용하는 NUL 문자(`\u0000`)입니다.
+ *
+ * ## 동작/계약
+ * - `Char` 변환 함수([asChar] 등)의 fallback 값으로 사용됩니다.
+ * - 공백/blank와 다른 제어문자이며 가시 문자가 아닙니다.
+ * - 상수 값이므로 할당이나 계산 비용이 없습니다.
+ * - 값 자체는 변경 불가능(immutable)합니다.
+ *
+ * ```kotlin
+ * val c = "".asChar()
+ * check(c == ZERO_CHAR)
+ * ```
+ */
 const val ZERO_CHAR = '\u0000'
 
 /**
@@ -100,6 +114,20 @@ fun Any?.asCharOrNull(): Char? = runCatching {
     }
 }.getOrNull()
 
+/**
+ * 바이트 변환 실패 시 기본값으로 사용하는 `0x00` 상수입니다.
+ *
+ * ## 동작/계약
+ * - `Byte` 변환 함수([asByte] 등)의 fallback 값으로 사용됩니다.
+ * - null/empty 입력에서 기본값을 선택하는 코드와 함께 사용됩니다.
+ * - 상수 값이므로 할당이나 계산 비용이 없습니다.
+ * - 값 자체는 변경 불가능(immutable)합니다.
+ *
+ * ```kotlin
+ * val b = "".asByte()
+ * check(b == ZERO_BYTE)
+ * ```
+ */
 const val ZERO_BYTE: Byte = 0x00
 
 /**

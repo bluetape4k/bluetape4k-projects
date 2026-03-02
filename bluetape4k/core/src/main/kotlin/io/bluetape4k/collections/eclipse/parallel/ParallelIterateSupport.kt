@@ -12,12 +12,84 @@ import org.eclipse.collections.impl.parallel.ParallelIterate
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.ForkJoinPool
 
+/**
+ * DEFAULT_PARALLEL_BATCH_SIZE 값을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val value = DEFAULT_PARALLEL_BATCH_SIZE
+ * println(value)
+ * check(true)
+ * ```
+ */
 const val DEFAULT_PARALLEL_BATCH_SIZE = 10_000
+
+/**
+ * DEFAULT_REORDER 값을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val value = DEFAULT_REORDER
+ * println(value)
+ * check(true)
+ * ```
+ */
 const val DEFAULT_REORDER = false
 
+/**
+ * AVAILABLE_PROCESSORS 값을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val value = AVAILABLE_PROCESSORS
+ * println(value)
+ * check(true)
+ * ```
+ */
 val AVAILABLE_PROCESSORS: Int = Runtime.getRuntime().availableProcessors()
+
+/**
+ * PARALLEL_EXECUTOR_SERVICE 값을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val value = PARALLEL_EXECUTOR_SERVICE
+ * println(value)
+ * check(true)
+ * ```
+ */
 val PARALLEL_EXECUTOR_SERVICE: ExecutorService = ForkJoinPool.commonPool()
 
+/**
+ * parFilter 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::parFilter
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 inline fun <T> Iterable<T>.parFilter(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
@@ -33,6 +105,20 @@ inline fun <T> Iterable<T>.parFilter(
         reorder
     )
 
+/**
+ * parFilterNot 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::parFilterNot
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 inline fun <T> Iterable<T>.parFilterNot(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
@@ -48,6 +134,20 @@ inline fun <T> Iterable<T>.parFilterNot(
         reorder
     )
 
+/**
+ * parCount 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::parCount
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 inline fun <T> Iterable<T>.parCount(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
@@ -60,6 +160,20 @@ inline fun <T> Iterable<T>.parCount(
         executor,
     )
 
+/**
+ * parForEach 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::parForEach
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 inline fun <T> Iterable<T>.parForEach(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
@@ -73,6 +187,20 @@ inline fun <T> Iterable<T>.parForEach(
     )
 }
 
+/**
+ * parForEachWithIndex 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::parForEachWithIndex
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 inline fun <T> Iterable<T>.parForEachWithIndex(
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
     @BuilderInference crossinline action: (index: Int, element: T) -> Unit,
@@ -84,6 +212,20 @@ inline fun <T> Iterable<T>.parForEachWithIndex(
     )
 }
 
+/**
+ * parForEachWithIndex 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::parForEachWithIndex
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 inline fun <T> Iterable<T>.parForEachWithIndex(
     minForSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     taskCount: Int = AVAILABLE_PROCESSORS,
@@ -97,6 +239,20 @@ inline fun <T> Iterable<T>.parForEachWithIndex(
     )
 }
 
+/**
+ * parMap 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::parMap
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 inline fun <T, R> Iterable<T>.parMap(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
@@ -112,6 +268,20 @@ inline fun <T, R> Iterable<T>.parMap(
         reorder
     )
 
+/**
+ * parFlatMap 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::parFlatMap
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 inline fun <T, R> Iterable<T>.parFlatMap(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
@@ -127,6 +297,20 @@ inline fun <T, R> Iterable<T>.parFlatMap(
         reorder
     )
 
+/**
+ * parFilterMap 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::parFilterMap
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 inline fun <T, R> Iterable<T>.parFilterMap(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
@@ -144,6 +328,20 @@ inline fun <T, R> Iterable<T>.parFilterMap(
         reorder
     )
 
+/**
+ * parGroupBy 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::parGroupBy
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 inline fun <K, V> Iterable<V>.parGroupBy(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
@@ -159,6 +357,20 @@ inline fun <K, V> Iterable<V>.parGroupBy(
     )
 
 
+/**
+ * parAggregateBy 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::parAggregateBy
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 inline fun <T, K, V> Iterable<T>.parAggregateBy(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
@@ -176,6 +388,20 @@ inline fun <T, K, V> Iterable<T>.parAggregateBy(
         executor
     )
 
+/**
+ * parAggregateInPlaceBy 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::parAggregateInPlaceBy
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 inline fun <T, K, V> Iterable<T>.parAggregateInPlaceBy(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
@@ -194,6 +420,20 @@ inline fun <T, K, V> Iterable<T>.parAggregateInPlaceBy(
     )
 
 @JvmName("parSumByDouble")
+/**
+ * parSumBy 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::parSumBy
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 inline fun <T, V> Iterable<T>.parSumBy(
     @BuilderInference crossinline groupBy: (T) -> V,
     @BuilderInference crossinline func: (T) -> Double,
@@ -201,6 +441,20 @@ inline fun <T, V> Iterable<T>.parSumBy(
     ParallelIterate.sumByDouble(this, { groupBy(it) }, { func(it) })
 
 @JvmName("parSumByFloat")
+/**
+ * parSumBy 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::parSumBy
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 inline fun <T, V> Iterable<T>.parSumBy(
     @BuilderInference crossinline groupBy: (T) -> V,
     @BuilderInference crossinline func: (T) -> Float,
@@ -208,6 +462,20 @@ inline fun <T, V> Iterable<T>.parSumBy(
     ParallelIterate.sumByFloat(this, { groupBy(it) }, { func(it) })
 
 @JvmName("parSumByLong")
+/**
+ * parSumBy 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::parSumBy
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 inline fun <T, V> Iterable<T>.parSumBy(
     @BuilderInference crossinline groupBy: (T) -> V,
     @BuilderInference crossinline func: (T) -> Long,
@@ -215,6 +483,20 @@ inline fun <T, V> Iterable<T>.parSumBy(
     ParallelIterate.sumByLong(this, { groupBy(it) }, { func(it) })
 
 @JvmName("parSumByInt")
+/**
+ * parSumBy 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::parSumBy
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 inline fun <T, V> Iterable<T>.parSumBy(
     @BuilderInference crossinline groupBy: (T) -> V,
     @BuilderInference crossinline func: (T) -> Int,

@@ -14,6 +14,22 @@ private val JAMO_RANGE = JAMO_START..JAMO_END
  */
 private const val KOREAN_START = 0xAC00
 private const val KOREAN_END = 0xD7AF
+
+/**
+ * 한글 완성형 음절(`가`~`힣`)의 유니코드 코드포인트 범위입니다.
+ *
+ * ## 동작/계약
+ * - 범위 비교(`code in KOREAN_RANGE`)로 한글 완성형 여부를 판단할 때 사용합니다.
+ * - 자모(ㄱ~ㅎ, ㅏ~ㅣ) 범위는 포함하지 않습니다.
+ * - 상수 기반 범위이므로 런타임 할당/계산 비용이 거의 없습니다.
+ * - 읽기 전용 값이며 외부에서 변경할 수 없습니다.
+ *
+ * ```kotlin
+ * val ga = '가'.code in KOREAN_RANGE
+ * val hih = '힣'.code in KOREAN_RANGE
+ * check(ga && hih)
+ * ```
+ */
 val KOREAN_RANGE = KOREAN_START..KOREAN_END
 
 // @formatter:off

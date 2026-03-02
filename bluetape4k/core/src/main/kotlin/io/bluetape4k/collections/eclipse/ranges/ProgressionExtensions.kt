@@ -4,6 +4,20 @@ import org.eclipse.collections.impl.list.mutable.primitive.CharArrayList
 import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList
 import org.eclipse.collections.impl.list.mutable.primitive.LongArrayList
 
+/**
+ * toCharArrayList 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::toCharArrayList
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 fun CharProgression.toCharArrayList(): CharArrayList =
     CharArrayList().also { array ->
         forEach {
@@ -11,6 +25,20 @@ fun CharProgression.toCharArrayList(): CharArrayList =
         }
     }
 
+/**
+ * toIntArrayList 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::toIntArrayList
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 fun IntProgression.toIntArrayList(): IntArrayList =
     IntArrayList().also { array ->
         forEach {
@@ -18,6 +46,20 @@ fun IntProgression.toIntArrayList(): IntArrayList =
         }
     }
 
+/**
+ * toLongArrayList 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::toLongArrayList
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 fun LongProgression.toLongArrayList(): LongArrayList =
     LongArrayList().also { array ->
         forEach {

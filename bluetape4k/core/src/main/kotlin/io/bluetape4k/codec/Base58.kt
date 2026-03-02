@@ -21,9 +21,6 @@ object Base58: KLogging() {
     private val ALPHABET: CharArray = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray()
     private val ENCODED_ZERO: Char = ALPHABET[0]
     private val INDEXES: IntArray = IntArray(128) { -1 }.apply {
-//        ALPHABET.indices.forEach {i ->
-//            this[ALPHABET[i].code] = i
-//        }
         ALPHABET.forEachIndexed { i, ch ->
             this[ch.code] = i
         }

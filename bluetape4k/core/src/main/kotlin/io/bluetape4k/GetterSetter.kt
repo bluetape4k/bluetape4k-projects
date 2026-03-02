@@ -9,6 +9,20 @@ interface GetterOperator<in K, out V> {
     operator fun get(key: K): V = getter(key)
 }
 
+/**
+ * getterOperator 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::getterOperator
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 fun <K, V> getterOperator(func: (K) -> V): GetterOperator<K, V> {
     return object: GetterOperator<K, V> {
         override val getter: (K) -> V
@@ -29,6 +43,20 @@ interface SetterOperator<in K, in V> {
     }
 }
 
+/**
+ * setterOperator 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::setterOperator
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 fun <K, V> setterOperator(func: (K, V) -> Unit): SetterOperator<K, V> {
     return object: SetterOperator<K, V> {
         override val setter: (K, V) -> Unit

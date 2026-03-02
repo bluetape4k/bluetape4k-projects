@@ -205,21 +205,228 @@ fun TemporalAccessor.toIsoZonedDateTimeStringOrNull(): String? =
 
 // Queries
 
+/**
+ * [TemporalAccessor]가 제공하는 최소 정밀도 단위를 조회합니다.
+ *
+ * ## 동작/계약
+ * - [TemporalQueries.precision] 질의를 수행합니다.
+ * - 질의 결과가 없으면 null을 반환할 수 있습니다.
+ *
+ * ```kotlin
+ * val p = Instant.now().precision
+ * check(p != null)
+ * ```
+ */
 val TemporalAccessor.precision: TemporalUnit? get() = query(TemporalQueries.precision())
+
+/**
+ * [TemporalAccessor]에서 [Year]를 안전하게 추출합니다.
+ *
+ * ## 동작/계약
+ * - 변환 불가 시 예외를 던지지 않고 null을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * val y = LocalDate.now().year
+ * check(y != null)
+ * ```
+ */
 val TemporalAccessor.year: Year? get() = queryOrNull { Year.from(this) }
+
+/**
+ * [TemporalAccessor]에서 [YearMonth]를 안전하게 추출합니다.
+ *
+ * ## 동작/계약
+ * - 변환 불가 시 예외를 던지지 않고 null을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * val ym = LocalDate.now().yearMonth
+ * check(ym != null)
+ * ```
+ */
 val TemporalAccessor.yearMonth: YearMonth? get() = queryOrNull { YearMonth.from(this) }
+
+/**
+ * [TemporalAccessor]에서 [Month]를 안전하게 추출합니다.
+ *
+ * ## 동작/계약
+ * - 변환 불가 시 예외를 던지지 않고 null을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * val m = LocalDate.now().month
+ * check(m != null)
+ * ```
+ */
 val TemporalAccessor.month: Month? get() = queryOrNull { Month.from(this) }
+
+/**
+ * [TemporalAccessor]에서 [MonthDay]를 안전하게 추출합니다.
+ *
+ * ## 동작/계약
+ * - 변환 불가 시 예외를 던지지 않고 null을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * val md = LocalDate.now().monthDay
+ * check(md != null)
+ * ```
+ */
 val TemporalAccessor.monthDay: MonthDay? get() = queryOrNull { MonthDay.from(this) }
+
+/**
+ * [TemporalAccessor]에서 [DayOfWeek]를 안전하게 추출합니다.
+ *
+ * ## 동작/계약
+ * - 변환 불가 시 예외를 던지지 않고 null을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * val dow = LocalDate.now().dayOfWeek
+ * check(dow != null)
+ * ```
+ */
 val TemporalAccessor.dayOfWeek: DayOfWeek? get() = queryOrNull { DayOfWeek.from(this) }
+
+/**
+ * [TemporalAccessor]에서 [Instant]를 안전하게 추출합니다.
+ *
+ * ## 동작/계약
+ * - 변환 불가 시 예외를 던지지 않고 null을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * val instant = Instant.now().instant
+ * check(instant != null)
+ * ```
+ */
 val TemporalAccessor.instant: Instant? get() = queryOrNull { Instant.from(this) }
+
+/**
+ * [TemporalAccessor]에서 [LocalDate]를 안전하게 추출합니다.
+ *
+ * ## 동작/계약
+ * - 변환 불가 시 예외를 던지지 않고 null을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * val date = LocalDate.now().localDate
+ * check(date != null)
+ * ```
+ */
 val TemporalAccessor.localDate: LocalDate? get() = queryOrNull { LocalDate.from(this) }
+
+/**
+ * [TemporalAccessor]에서 [LocalTime]을 안전하게 추출합니다.
+ *
+ * ## 동작/계약
+ * - 변환 불가 시 예외를 던지지 않고 null을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * val time = LocalTime.now().localTime
+ * check(time != null)
+ * ```
+ */
 val TemporalAccessor.localTime: LocalTime? get() = queryOrNull { LocalTime.from(this) }
+
+/**
+ * [TemporalAccessor]에서 [LocalDateTime]을 안전하게 추출합니다.
+ *
+ * ## 동작/계약
+ * - 변환 불가 시 예외를 던지지 않고 null을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * val ldt = LocalDateTime.now().localDateTime
+ * check(ldt != null)
+ * ```
+ */
 val TemporalAccessor.localDateTime: LocalDateTime? get() = queryOrNull { LocalDateTime.from(this) }
+
+/**
+ * [TemporalAccessor]에서 [ZoneOffset]을 안전하게 추출합니다.
+ *
+ * ## 동작/계약
+ * - 변환 불가 시 예외를 던지지 않고 null을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * val offset = OffsetDateTime.now().zoneOffset
+ * check(offset != null)
+ * ```
+ */
 val TemporalAccessor.zoneOffset: ZoneOffset? get() = queryOrNull { ZoneOffset.from(this) }
+
+/**
+ * [TemporalAccessor]에서 [OffsetTime]을 안전하게 추출합니다.
+ *
+ * ## 동작/계약
+ * - 변환 불가 시 예외를 던지지 않고 null을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * val ot = OffsetTime.now().offsetTime
+ * check(ot != null)
+ * ```
+ */
 val TemporalAccessor.offsetTime: OffsetTime? get() = queryOrNull { OffsetTime.from(this) }
+
+/**
+ * [TemporalAccessor]에서 [OffsetDateTime]을 안전하게 추출합니다.
+ *
+ * ## 동작/계약
+ * - 변환 불가 시 예외를 던지지 않고 null을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * val odt = OffsetDateTime.now().offsetDateTime
+ * check(odt != null)
+ * ```
+ */
 val TemporalAccessor.offsetDateTime: OffsetDateTime? get() = queryOrNull { OffsetDateTime.from(this) }
+
+/**
+ * [TemporalAccessor]에서 [ZoneId]를 안전하게 추출합니다.
+ *
+ * ## 동작/계약
+ * - 변환 불가 시 예외를 던지지 않고 null을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * val zone = ZonedDateTime.now().zone
+ * check(zone != null)
+ * ```
+ */
 val TemporalAccessor.zone: ZoneId? get() = queryOrNull { ZoneId.from(this) }
+
+/**
+ * [TemporalAccessor]에서 [ZoneId]를 안전하게 추출합니다. ([zone]의 별칭)
+ *
+ * ## 동작/계약
+ * - 변환 불가 시 예외를 던지지 않고 null을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * val zoneId = ZonedDateTime.now().zoneId
+ * check(zoneId != null)
+ * ```
+ */
 val TemporalAccessor.zoneId: ZoneId? get() = queryOrNull { ZoneId.from(this) }
+
+/**
+ * [TemporalAccessor]에서 [ZonedDateTime]을 안전하게 추출합니다.
+ *
+ * ## 동작/계약
+ * - 변환 불가 시 예외를 던지지 않고 null을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * val zdt = ZonedDateTime.now().zonedDateTime
+ * check(zdt != null)
+ * ```
+ */
 val TemporalAccessor.zonedDateTime: ZonedDateTime? get() = queryOrNull { ZonedDateTime.from(this) }
 
 
@@ -240,6 +447,20 @@ private inline fun <T> TemporalAccessor.queryOrNull(crossinline block: TemporalA
         null
     }
 
+/**
+ * formatOrNull 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::formatOrNull
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 inline fun TemporalAccessor.formatOrNull(formatter: DateTimeFormatter): String? =
     try {
         formatter.format(this)

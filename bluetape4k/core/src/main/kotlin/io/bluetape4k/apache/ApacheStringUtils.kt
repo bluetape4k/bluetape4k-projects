@@ -476,8 +476,36 @@ fun CharSequence.countMatches(sub: CharSequence): Int =
     StringUtils.countMatches(this, sub)
 
 
+/**
+ * defaultIfWhitespace 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::defaultIfWhitespace
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 fun <T: CharSequence> T.defaultIfWhitespace(defaultValue: T): T = this.ifBlank { defaultValue }
 
+/**
+ * defaultIfEmpty 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::defaultIfEmpty
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 fun <T: CharSequence> T.defaultIfEmpty(defaultValue: T): T = this.ifEmpty { defaultValue }
 
 /**
@@ -525,8 +553,36 @@ fun String.deleteWhitespace(): String = StringUtils.deleteWhitespace(this)
 fun String.deference(other: String): String = StringUtils.difference(this, other)
 
 
+/**
+ * endsWithAny 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::endsWithAny
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 fun String.endsWithAny(vararg searchStrings: String): Boolean = Strings.CS.endsWithAny(this, *searchStrings)
 
+/**
+ * endsWithIgnoreCase 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::endsWithIgnoreCase
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 fun String.endsWithIgnoreCase(suffix: CharSequence): Boolean = Strings.CI.endsWith(this, suffix)
 
 /**
@@ -662,6 +718,20 @@ fun indexOfDifference(vararg css: CharSequence): Int = StringUtils.indexOfDiffer
  */
 fun CharSequence.indexOfDifference(other: CharSequence?): Int = StringUtils.indexOfDifference(this, other)
 
+/**
+ * indexOfIgnoreCase 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::indexOfIgnoreCase
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 fun CharSequence.indexOfIgnoreCase(searchStr: CharSequence, startPos: Int = 0): Int =
     Strings.CI.indexOf(this, searchStr, startPos)
 

@@ -12,12 +12,52 @@ import kotlin.reflect.KClass
 
 
 @JvmField
+        /**
+         * `Long` 최솟값을 [BigInteger]로 표현한 상수입니다.
+         *
+         * ## 동작/계약
+         * - 오버플로우 검증 시 하한 비교 값으로 사용됩니다.
+         * - null/blank 개념이 없는 순수 수치 상수입니다.
+         * - 읽기 전용 필드이며 런타임 변경이 불가능합니다.
+         * - 접근 비용은 상수 시간입니다.
+         *
+         * ```kotlin
+         * check(BigIntMin == Long.MIN_VALUE.toBigInt())
+         * ```
+         */
 val BigIntMin = Long.MIN_VALUE.toBigInt()
 
 @JvmField
+        /**
+         * `Long` 최댓값을 [BigInteger]로 표현한 상수입니다.
+         *
+         * ## 동작/계약
+         * - 오버플로우 검증 시 상한 비교 값으로 사용됩니다.
+         * - null/blank 개념이 없는 순수 수치 상수입니다.
+         * - 읽기 전용 필드이며 런타임 변경이 불가능합니다.
+         * - 접근 비용은 상수 시간입니다.
+         *
+         * ```kotlin
+         * check(BigIntMax == Long.MAX_VALUE.toBigInt())
+         * ```
+         */
 val BigIntMax = Long.MAX_VALUE.toBigInt()
 
 @JvmField
+        /**
+         * 기본 숫자 변환에서 지원하는 표준 Number 타입 집합입니다.
+         *
+         * ## 동작/계약
+         * - 정수/부동소수/임의정밀도([BigDecimal], [BigInteger]) 타입을 포함합니다.
+         * - 집합 자체는 공개되어 있으므로 호출자가 변경할 수 있습니다.
+         * - null 타입은 포함하지 않습니다.
+         * - 조회 비용은 해시셋 기준 평균 `O(1)`입니다.
+         *
+         * ```kotlin
+         * check(Int::class in StandardNumberTypes)
+         * check(BigDecimal::class in StandardNumberTypes)
+         * ```
+         */
 val StandardNumberTypes: HashSet<KClass<out Number>> = hashSetOf(
     Byte::class,
     Short::class,
@@ -29,6 +69,20 @@ val StandardNumberTypes: HashSet<KClass<out Number>> = hashSetOf(
     BigInteger::class,
 )
 
+/**
+ * 숫자 표시 기본 패턴(`#,##0.#`)입니다.
+ *
+ * ## 동작/계약
+ * - [toHuman], [DefaultDecimalFormat]의 기본 포맷으로 사용됩니다.
+ * - 소수점 이하 최대 1자리까지 표시합니다.
+ * - 상수 문자열이므로 변경 불가능하며 추가 할당이 없습니다.
+ * - locale별 기호(콤마/점)는 [DecimalFormat] 해석 규칙을 따릅니다.
+ *
+ * ```kotlin
+ * val pattern = defaultNumberFormatPattern
+ * check(pattern == "#,##0.#")
+ * ```
+ */
 const val defaultNumberFormatPattern = "#,##0.#"
 /**
  * 소수점 자리를 표현하는 기본 포맷
@@ -62,6 +116,23 @@ inline fun Number.toHuman(pattern: String = defaultNumberFormatPattern): String 
     message = "stdlib의 coerceIn을 사용하세요.",
     replaceWith = ReplaceWith("this.coerceIn(minValue, maxValue)"),
 )
+        /**
+         * 숫자 값을 [minValue]~[maxValue] 범위로 제한합니다.
+         *
+         * ## 동작/계약
+         * - `this < minValue`면 [minValue], `this > maxValue`면 [maxValue]를 반환합니다.
+         * - 내부적으로 Kotlin 표준 함수 `coerceIn`을 호출합니다.
+         * - 수신 값은 변경되지 않으며 새 값(또는 동일 값)을 반환합니다.
+         * - 범위 경계 비교만 수행하므로 추가 할당 없이 상수 시간에 동작합니다.
+         *
+         * ```kotlin
+         * check(123.coerce(0, 100) == 100)
+         * check(50.coerce(0, 100) == 50)
+         * ```
+         *
+         * @param minValue 허용 최소값(포함)
+         * @param maxValue 허용 최대값(포함)
+         */
 fun <T> T.coerce(minValue: T, maxValue: T): T where T: Number, T: Comparable<T> =
     this.coerceIn(minValue, maxValue)
 
@@ -85,6 +156,21 @@ fun String.isHexFormat(): Boolean {
     return digits.isNotEmpty() && digits.all { it.isHexDigit() }
 }
 
+/**
+ * 문자가 16진수 숫자 문자인지 검사합니다.
+ *
+ * ## 동작/계약
+ * - `0..9`, `a..f`, `A..F` 범위에 포함되면 `true`를 반환합니다.
+ * - whitespace나 부호(`+`, `-`)는 허용하지 않습니다.
+ * - 수신 문자를 변경하지 않으며 추가 할당이 없습니다.
+ * - 검사 비용은 상수 시간입니다.
+ *
+ * ```kotlin
+ * check('f'.isHexDigit())
+ * check('A'.isHexDigit())
+ * check(!'z'.isHexDigit())
+ * ```
+ */
 inline fun Char.isHexDigit(): Boolean =
     this in '0'..'9' || this in 'a'..'f' || this in 'A'..'F'
 
@@ -186,6 +272,25 @@ inline fun <reified T: Number> String.parseNumber(): T {
 inline fun <reified T: Number> String.parseNumber(numberFormat: NumberFormat): T =
     parseNumber(T::class, numberFormat)
 
+/**
+ * 문자열을 지정한 [numberFormat] 규칙으로 파싱해 [targetClass] 숫자 타입으로 변환합니다.
+ *
+ * ## 동작/계약
+ * - 입력 문자열은 `trim()` 후 파싱합니다.
+ * - [targetClass]가 [BigDecimal]인 경우 필요한 경우 `isParseBigDecimal=true`로 복제 포맷을 사용합니다.
+ * - 파싱 실패 시 [IllegalArgumentException]을 발생시킵니다.
+ * - 수신 문자열을 변경하지 않으며, 포맷 복제가 필요한 경우 새 포맷 객체를 할당합니다.
+ *
+ * ```kotlin
+ * val format = DecimalFormat("#,##0.##")
+ * val value = "1,234.5".parseNumber(BigDecimal::class, format)
+ * check(value == BigDecimal("1234.5"))
+ * ```
+ *
+ * @param targetClass 변환할 최종 숫자 타입
+ * @param numberFormat 문자열 파싱에 사용할 숫자 포맷
+ * @throws IllegalArgumentException 문자열 파싱에 실패한 경우
+ */
 fun <T: Number> String.parseNumber(targetClass: KClass<T>, numberFormat: NumberFormat): T {
     val format =
         if (numberFormat is DecimalFormat && BigDecimal::class == targetClass && !numberFormat.isParseBigDecimal) {

@@ -2,6 +2,20 @@
 
 package io.bluetape4k.support
 
+/**
+ * doubleArrayOf 기능을 제공합니다.
+ *
+ * ## 동작/계약
+ * - null 입력 허용 여부는 시그니처의 nullable 표기를 따릅니다.
+ * - 수신 객체 mutate 여부는 구현을 따르며, 별도 명시가 없으면 값을 반환합니다.
+ * - 사전조건 위반 시 IllegalArgumentException 또는 구현 예외가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val ref = ::doubleArrayOf
+ * println(ref.name)
+ * check(ref.name.isNotEmpty())
+ * ```
+ */
 inline fun <T: Number> doubleArrayOf(vararg elements: T): DoubleArray =
     DoubleArray(elements.size) { elements[it].toDouble() }
 

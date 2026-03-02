@@ -7,6 +7,20 @@ import java.math.BigInteger
 import java.util.*
 
 @JvmField
+        /**
+         * 모든 비트가 0인 UUID 값입니다.
+         *
+         * ## 동작/계약
+         * - `mostSignificantBits == 0L && leastSignificantBits == 0L`를 만족합니다.
+         * - null 표현용 센티널이나 초기값으로 사용할 수 있습니다.
+         * - 상수성 필드로 재할당되지 않습니다.
+         * - 접근 시 추가 할당이 없습니다.
+         *
+         * ```kotlin
+         * check(ZERO_UUID.mostSignificantBits == 0L)
+         * check(ZERO_UUID.leastSignificantBits == 0L)
+         * ```
+         */
 val ZERO_UUID: UUID = 0L.toBigInteger().toUuid()
 
 /**

@@ -6,8 +6,37 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.jvm.javaMethod
 
+/**
+ * 클래스의 패키지명을 반환합니다.
+ *
+ * ## 동작/계약
+ * - Java 리플렉션의 `Class.packageName` 값을 그대로 사용합니다.
+ * - null/blank 정규화는 수행하지 않습니다.
+ * - 수신 객체를 변경하지 않으며 문자열 한 개만 반환합니다.
+ * - 리플렉션 접근 비용 외 추가 할당은 최소 수준입니다.
+ *
+ * ```kotlin
+ * val name = String::class.packageName
+ * check(name == "java.lang")
+ * ```
+ */
 val KClass<*>.packageName: String get() = this.java.packageName
 
+/**
+ * 함수의 정규화된 이름(`선언클래스.함수명`)을 반환합니다.
+ *
+ * ## 동작/계약
+ * - Java 메서드 정보를 얻을 수 있으면 `declaringClass.name + "." + name`을 반환합니다.
+ * - Java 메서드 정보가 없으면 함수 이름([KFunction.name])만 반환합니다.
+ * - 수신 객체를 변경하지 않으며 새 문자열을 반환합니다.
+ * - 리플렉션 정보를 조회하므로 일반 프로퍼티 접근보다 비용이 큽니다.
+ *
+ * ```kotlin
+ * val fn = String::trim
+ * val qn = fn.qualifiedName
+ * check(qn.contains("trim"))
+ * ```
+ */
 val KFunction<*>.qualifiedName: String
     get() {
         val className = this.javaMethod?.declaringClass?.name ?: return name
