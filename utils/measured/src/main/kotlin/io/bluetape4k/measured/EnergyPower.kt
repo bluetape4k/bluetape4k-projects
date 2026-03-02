@@ -4,6 +4,15 @@ import kotlin.jvm.JvmName
 
 /**
  * 에너지 단위를 나타냅니다.
+ *
+ * ## 동작/계약
+ * - 기준 단위는 줄([joules])입니다.
+ * - Wh/kWh는 초 단위 에너지 환산(`1 Wh = 3600 J`) 비율을 사용합니다.
+ *
+ * ```kotlin
+ * val e = 1.kiloWattHours()
+ * // e `in` Energy.joules == 3600000.0
+ * ```
  */
 open class Energy(
     suffix: String,
@@ -20,6 +29,15 @@ open class Energy(
 
 /**
  * 전력 단위를 나타냅니다.
+ *
+ * ## 동작/계약
+ * - 기준 단위는 와트([watts])입니다.
+ * - 접두 단위는 SI 비율(10^3, 10^6, 10^9)을 사용합니다.
+ *
+ * ```kotlin
+ * val p = 1500.watts()
+ * // p.toHuman() == "1.5 kW"
+ * ```
  */
 open class Power(
     suffix: String,
@@ -86,6 +104,14 @@ fun Number.gigaWatts(): Measure<Power> = this * Power.gigaWatts
 
 /**
  * 전력과 시간을 곱해 에너지를 계산합니다.
+ *
+ * ## 동작/계약
+ * - `W * s = J` 규칙으로 계산해 [Energy.joules] 단위로 반환합니다.
+ *
+ * ```kotlin
+ * val energy = 2.kiloWatts() * 3.hours()
+ * // energy `in` Energy.kiloWattHours == 6.0
+ * ```
  */
 @JvmName("powerTimesTimeToEnergy")
 operator fun Measure<Power>.times(other: Measure<Time>): Measure<Energy> =
@@ -99,6 +125,14 @@ operator fun Measure<Time>.times(other: Measure<Power>): Measure<Energy> = other
 
 /**
  * 에너지를 시간으로 나눠 전력을 계산합니다.
+ *
+ * ## 동작/계약
+ * - `J / s = W` 규칙으로 계산해 [Power.watts] 단위로 반환합니다.
+ *
+ * ```kotlin
+ * val power = 6.kiloWattHours() / 2.hours()
+ * // power `in` Power.kiloWatts == 3.0
+ * ```
  */
 @JvmName("energyDivTimeToPower")
 operator fun Measure<Energy>.div(other: Measure<Time>): Measure<Power> =

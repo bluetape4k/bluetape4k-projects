@@ -3,7 +3,14 @@ package io.bluetape4k.measured
 /**
  * 디지털 데이터 크기/대역폭 단위를 나타냅니다.
  *
- * 10진(SI) 계열과 2진(IEC) 계열, bit 계열 단위를 함께 제공합니다.
+ * ## 동작/계약
+ * - 10진(SI), 2진(IEC), bit 계열 단위를 함께 제공합니다.
+ * - 기준 단위는 바이트([bytes])이며 bit는 `1/8` 비율입니다.
+ *
+ * ```kotlin
+ * val size = 8.bits()
+ * // size `in` BinarySize.bytes == 1.0
+ * ```
  */
 open class BinarySize(
     suffix: String,

@@ -4,6 +4,15 @@ import kotlin.math.pow
 
 /**
  * 저장 용량 단위를 나타냅니다.
+ *
+ * ## 동작/계약
+ * - 2진 접두사(`1024`)를 기준으로 단위 비율을 정의합니다.
+ * - 기준 단위는 바이트([bytes])입니다.
+ *
+ * ```kotlin
+ * val gb = 1.gbytes()
+ * // gb `in` Storage.megaBytes == 1024.0
+ * ```
  */
 open class Storage(
     suffix: String,

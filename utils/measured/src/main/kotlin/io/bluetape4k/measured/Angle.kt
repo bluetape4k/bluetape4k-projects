@@ -11,6 +11,15 @@ import kotlin.math.tan
 
 /**
  * 각도 단위를 나타냅니다.
+ *
+ * ## 동작/계약
+ * - 기준 단위는 라디안([radians])이며 도([degrees])는 `PI/180` 비율을 사용합니다.
+ * - 삼각함수는 입력 각도를 라디안으로 변환해 계산합니다.
+ *
+ * ```kotlin
+ * val rad = 180.degrees() `in` Angle.radians
+ * // rad == PI
+ * ```
  */
 open class Angle(
     suffix: String,
@@ -57,16 +66,41 @@ open class Angle(
 
 /**
  * 숫자를 도 단위 측정값으로 변환합니다.
+ *
+ * ## 동작/계약
+ * - 새 [Measure]를 생성하며 수신 값을 변경하지 않습니다.
+ *
+ * ```kotlin
+ * val angle = 90.degrees()
+ * // angle `in` Angle.radians == PI / 2
+ * ```
  */
 fun Number.degrees(): Measure<Angle> = this * Angle.degrees
 
 /**
  * 숫자를 라디안 단위 측정값으로 변환합니다.
+ *
+ * ## 동작/계약
+ * - 수치값을 라디안 기준 [Measure]로 감쌉니다.
+ *
+ * ```kotlin
+ * val angle = PI.radians()
+ * // angle `in` Angle.degrees == 180.0
+ * ```
  */
 fun Number.radians(): Measure<Angle> = this * Angle.radians
 
 /**
  * 각도를 [0°, 360°) 범위로 정규화합니다.
+ *
+ * ## 동작/계약
+ * - 음수/360도 초과 값도 모듈로 연산으로 정규화합니다.
+ * - 결과 단위는 도([Angle.degrees])입니다.
+ *
+ * ```kotlin
+ * val normalized = (-30).degrees().normalize()
+ * // normalized `in` Angle.degrees == 330.0
+ * ```
  */
 fun Measure<Angle>.normalize(): Measure<Angle> {
     var degree = (this `in` Angle.degrees) % 360.0

@@ -4,6 +4,15 @@ import kotlin.jvm.JvmName
 
 /**
  * 부피 단위를 나타냅니다.
+ *
+ * ## 동작/계약
+ * - 기준 단위는 세제곱미터([cubicMeters])입니다.
+ * - 리터/밀리리터는 SI 환산 비율(`1 L = 1e-3 m^3`)을 사용합니다.
+ *
+ * ```kotlin
+ * val oneLiter = 1.liters()
+ * // oneLiter `in` Volume.milliliters == 1000.0
+ * ```
  */
 open class Volume(
     suffix: String,
@@ -45,6 +54,14 @@ fun Number.cubicMeters(): Measure<Volume> = this * Volume.cubicMeters
 
 /**
  * 면적과 길이를 곱해 부피를 계산합니다.
+ *
+ * ## 동작/계약
+ * - 면적(`m^2`)과 길이(`m`)를 곱해 `m^3`를 반환합니다.
+ *
+ * ```kotlin
+ * val volume = 10.meters2() * 2.meters()
+ * // volume `in` Volume.cubicMeters == 20.0
+ * ```
  */
 @JvmName("areaTimesLengthToVolume")
 operator fun Measure<Area>.times(other: Measure<Length>): Measure<Volume> =
@@ -58,6 +75,14 @@ operator fun Measure<Length>.times(other: Measure<Area>): Measure<Volume> = othe
 
 /**
  * 부피를 면적으로 나눠 길이를 계산합니다.
+ *
+ * ## 동작/계약
+ * - `m^3 / m^2 = m` 규칙으로 길이를 복원합니다.
+ *
+ * ```kotlin
+ * val length = 20.cubicMeters() / 10.meters2()
+ * // length `in` Length.meters == 2.0
+ * ```
  */
 @JvmName("volumeDivAreaToLength")
 operator fun Measure<Volume>.div(other: Measure<Area>): Measure<Length> =

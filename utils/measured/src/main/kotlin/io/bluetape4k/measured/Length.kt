@@ -2,6 +2,15 @@ package io.bluetape4k.measured
 
 /**
  * 길이 단위를 나타냅니다.
+ *
+ * ## 동작/계약
+ * - 기준 단위는 미터([meters])이며 각 단위는 미터 대비 비율로 정의됩니다.
+ * - 단위 상수는 불변이며 변환 연산은 새 [Measure]를 반환합니다.
+ *
+ * ```kotlin
+ * val km = 1.kilometers()
+ * // km `in` Length.meters == 1000.0
+ * ```
  */
 open class Length(
     suffix: String,
@@ -35,6 +44,14 @@ fun Number.meters(): Measure<Length> = this * Length.meters
 
 /**
  * 숫자를 킬로미터 단위 측정값으로 변환합니다.
+ *
+ * ## 동작/계약
+ * - 입력 수치를 `km` 단위 [Measure]로 감쌉니다.
+ *
+ * ```kotlin
+ * val value = 1.kilometers()
+ * // value `in` Length.meters == 1000.0
+ * ```
  */
 fun Number.kilometers(): Measure<Length> = this * Length.kilometers
 

@@ -2,6 +2,15 @@ package io.bluetape4k.measured
 
 /**
  * 절대 온도 단위를 정의합니다.
+ *
+ * ## 동작/계약
+ * - [KELVIN], [CELSIUS], [FAHRENHEIT] 3개 표현 단위를 제공합니다.
+ * - 단위 enum 자체는 상태가 없는 불변 상수입니다.
+ *
+ * ```kotlin
+ * val unit = TemperatureUnit.CELSIUS
+ * // unit.suffix == "°C"
+ * ```
  */
 enum class TemperatureUnit(val suffix: String) {
     KELVIN("K"),
@@ -11,6 +20,16 @@ enum class TemperatureUnit(val suffix: String) {
 
 /**
  * 온도 차이를 Kelvin 기준으로 표현합니다.
+ *
+ * ## 동작/계약
+ * - 내부 저장값은 항상 Kelvin 차이입니다.
+ * - `Celsius` 차이는 Kelvin과 동일 크기, `Fahrenheit` 차이는 `9/5` 배율을 적용합니다.
+ *
+ * ```kotlin
+ * val delta = 10.celsiusDelta()
+ * // delta.inKelvin() == 10.0
+ * // delta.inFahrenheit() == 18.0
+ * ```
  */
 @JvmInline
 value class TemperatureDelta(val kelvin: Double) {
@@ -34,6 +53,18 @@ value class TemperatureDelta(val kelvin: Double) {
 
 /**
  * 절대 온도를 Kelvin 기준으로 저장합니다.
+ *
+ * ## 동작/계약
+ * - 내부 값은 절대온도 Kelvin으로 보관합니다.
+ * - 온도 +/− 온도차는 새 [Temperature]를 반환합니다.
+ * - 절대온도끼리 뺄셈은 [TemperatureDelta]를 반환합니다.
+ *
+ * ```kotlin
+ * val base = 25.celsius()
+ * val raised = base + 10.celsiusDelta()
+ * // raised.inCelsius() == 35.0
+ * // (raised - base).inCelsius() == 10.0
+ * ```
  */
 class Temperature private constructor(private val kelvin: Double): Comparable<Temperature> {
     /** Kelvin 온도로 변환합니다. */
@@ -87,16 +118,40 @@ class Temperature private constructor(private val kelvin: Double): Comparable<Te
 
 /**
  * 숫자를 Kelvin 절대 온도로 변환합니다.
+ *
+ * ## 동작/계약
+ * - 입력 숫자를 Kelvin 절대온도로 그대로 해석합니다.
+ *
+ * ```kotlin
+ * val t = 298.15.kelvin()
+ * // t.inCelsius() == 25.0
+ * ```
  */
 fun Number.kelvin(): Temperature = Temperature.fromKelvin(this.toDouble())
 
 /**
  * 숫자를 Celsius 절대 온도로 변환합니다.
+ *
+ * ## 동작/계약
+ * - `°C + 273.15`로 Kelvin 내부값을 계산합니다.
+ *
+ * ```kotlin
+ * val t = 0.celsius()
+ * // t.inKelvin() == 273.15
+ * ```
  */
 fun Number.celsius(): Temperature = Temperature.fromCelsius(this.toDouble())
 
 /**
  * 숫자를 Fahrenheit 절대 온도로 변환합니다.
+ *
+ * ## 동작/계약
+ * - 화씨를 섭씨/켈빈으로 변환해 내부값을 계산합니다.
+ *
+ * ```kotlin
+ * val t = 32.fahrenheit()
+ * // t.inCelsius() == 0.0
+ * ```
  */
 fun Number.fahrenheit(): Temperature = Temperature.fromFahrenheit(this.toDouble())
 

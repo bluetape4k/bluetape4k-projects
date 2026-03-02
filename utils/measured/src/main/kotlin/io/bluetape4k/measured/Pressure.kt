@@ -2,6 +2,15 @@ package io.bluetape4k.measured
 
 /**
  * 압력 단위를 나타냅니다.
+ *
+ * ## 동작/계약
+ * - 기준 단위는 파스칼([pascal])입니다.
+ * - bar/atm/psi 등은 고정 환산 비율을 사용합니다.
+ *
+ * ```kotlin
+ * val atm = 1.atm()
+ * // atm `in` Pressure.pascal == 101325.0
+ * ```
  */
 open class Pressure(
     suffix: String,
@@ -51,6 +60,14 @@ fun Number.bar(): Measure<Pressure> = this * Pressure.bar
 
 /**
  * 숫자를 표준대기압 단위 측정값으로 변환합니다.
+ *
+ * ## 동작/계약
+ * - `atm` 단위 [Measure]를 생성합니다.
+ *
+ * ```kotlin
+ * val value = 1.atm()
+ * // value `in` Pressure.pascal == 101325.0
+ * ```
  */
 fun Number.atm(): Measure<Pressure> = this * Pressure.atmosphere
 
