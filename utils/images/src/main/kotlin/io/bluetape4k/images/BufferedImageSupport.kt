@@ -19,6 +19,15 @@ import javax.imageio.stream.ImageOutputStream
 
 /**
  * [BufferedImage]를 [format] 형식으로 [path]에 저장합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 `ImageIO.write`를 호출합니다.
+ * - 반환값은 해당 포맷 writer 존재 여부/쓰기 성공 여부를 따릅니다.
+ *
+ * ```kotlin
+ * val written = image.write(ImageFormat.PNG, "out.png")
+ * // written == true
+ * ```
  */
 fun BufferedImage.write(format: ImageFormat, path: String): Boolean {
     return ImageIO.write(this, format.name, File(path))
@@ -33,6 +42,9 @@ fun BufferedImage.write(format: ImageFormat, file: File): Boolean {
 
 /**
  * [BufferedImage]를 [format] 형식으로 [outputStream]에 저장합니다.
+ *
+ * ## 동작/계약
+ * - 스트림을 닫지 않으며 호출자가 생명주기를 관리해야 합니다.
  */
 fun BufferedImage.write(format: ImageFormat, outputStream: OutputStream): Boolean {
     return ImageIO.write(this, format.name, outputStream)
@@ -116,6 +128,10 @@ fun BufferedImage.drawImage(
 /**
  * [BufferedImage]에 [action]을 수행합니다.
  *
+ * ## 동작/계약
+ * - `createGraphics()`로 얻은 Graphics2D를 `finally`에서 항상 `dispose()`합니다.
+ * - 수신 이미지는 `action` 내용에 따라 mutate 됩니다.
+ *
  * ```kotlin
  * val image = bufferedImageOf(100, 100)
  *
@@ -125,6 +141,7 @@ fun BufferedImage.drawImage(
  *    graphics.color = Color.BLACK
  *    graphics.drawString("Hello, World!", 10, 10)
  * }
+ * ```
  *
  * @param action 그래픽 작업
  */
@@ -141,6 +158,10 @@ inline fun BufferedImage.useGraphics(
 
 /**
  * 새로운 [BufferedImage]를 생성합니다.
+ *
+ * ## 동작/계약
+ * - `w`, `h`는 양수여야 하며 위반 시 검증 예외가 발생합니다.
+ * - headless 환경이면 `TYPE_INT_ARGB`, GUI 환경이면 디바이스 호환 이미지를 생성합니다.
  *
  * ```
  * val image = bufferedImageOf(200, 100)
@@ -166,6 +187,9 @@ fun bufferedImageOf(w: Int, h: Int): BufferedImage {
 
 /**
  * [InputStream] 정보를 읽어 [BufferedImage]를 생성합니다.
+ *
+ * ## 동작/계약
+ * - 읽기 실패 시 `ImageIO.read`가 `null` 또는 예외를 반환할 수 있습니다.
  */
 fun bufferedImageOf(inputStream: InputStream): BufferedImage = ImageIO.read(inputStream)
 
@@ -191,6 +215,15 @@ fun bufferedImageOf(bytes: ByteArray): BufferedImage = ImageIO.read(bytes.toInpu
 
 /**
  * [BufferedImage] 정보를 ByteArray 로 변환합니다.
+ *
+ * ## 동작/계약
+ * - 메모리 버퍼([ByteArrayOutputStream])를 새로 할당해 인코딩 결과를 반환합니다.
+ * - 지원되지 않는 `formatName`이면 빈 결과 또는 실패가 발생할 수 있습니다.
+ *
+ * ```kotlin
+ * val bytes = image.toByteArray("png")
+ * // bytes.isNotEmpty() == true
+ * ```
  *
  * @param formatName 이미지 포맷 ([ImageFormat])
  * @return 이미지 정보를 담은 ByteArray
