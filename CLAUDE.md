@@ -122,11 +122,43 @@ Bluetape4k은 Kotlin 언어로 JVM 환경에서 Backend 개발 시 사용하는 
 
 #### AWS Modules (`aws/`, `aws-kotlin/`)
 
-- **aws/core**: AWS Java SDK v2 공통 기능
+각 서비스마다 **3단계 API** 패턴을 제공합니다: `sync` → `async (CompletableFuture)` → `coroutines (suspend)`
+
+##### Java SDK v2 기반 (`aws/`)
+
+- **aws/core**: AWS Java SDK v2 공통 기능 (credentials, http client, 공통 유틸)
 - **aws/dynamodb**: DynamoDB (Java SDK, async/non-blocking)
 - **aws/s3**: S3 (TransferManager, 대용량 파일 전송 최적화)
-- **aws/ses, aws/sns, aws/sqs**: 이메일, 메시징 서비스
-- **aws-kotlin/***: AWS Kotlin SDK 통합 (Coroutines 네이티브 지원)
+- **aws/ses**: SES 이메일 발송
+- **aws/sns**: SNS 토픽 발행/구독, SMS, 모바일 푸시
+- **aws/sqs**: SQS 메시지 큐
+- **aws/kms**: KMS 암호화 키 관리 (키 생성/암복호화/Alias/Grant)
+- **aws/cloudwatch**: CloudWatch 메트릭 발행/조회, CloudWatch Logs 로그 그룹/스트림/이벤트
+- **aws/kinesis**: Kinesis 스트림 생성/삭제/조회, 레코드 전송(단일/배치), 샤드 이터레이터/레코드 조회
+- **aws/sts**: STS 호출자 신원 조회(GetCallerIdentity), IAM 역할 임시 맡기(AssumeRole), 세션 토큰 발급
+
+##### AWS Kotlin SDK 기반 (`aws-kotlin/`)
+
+네이티브 `suspend` 함수를 기본 제공하며, `.await()` 변환 없이 코루틴에서 직접 사용 가능합니다.
+
+- **aws-kotlin/core**: AWS Kotlin SDK 공통 기능 (HttpClientEngine, credentials)
+- **aws-kotlin/dynamodb**: DynamoDB Kotlin SDK 확장
+- **aws-kotlin/s3**: S3 Kotlin SDK 확장
+- **aws-kotlin/ses, aws-kotlin/sesv2**: SES 이메일 발송
+- **aws-kotlin/sns**: SNS Kotlin SDK 확장
+- **aws-kotlin/sqs**: SQS Kotlin SDK 확장
+- **aws-kotlin/kms**: KMS Kotlin SDK 확장
+- **aws-kotlin/cloudwatch**: CloudWatch/CloudWatchLogs Kotlin SDK 확장 (`metricDatum`, `inputLogEvent` DSL)
+- **aws-kotlin/kinesis**: Kinesis Kotlin SDK 확장 (`putRecordRequestOf`, `putRecordsRequestEntryOf` DSL)
+- **aws-kotlin/sts**: STS Kotlin SDK 확장 (`stsClientOf`, `assumeRoleRequestOf` DSL)
+- **aws-kotlin/tests**: LocalStack 기반 통합 테스트 공통 인프라
+
+##### AWS 모듈 패턴
+
+| SDK | Client 종류 | Coroutines |
+|-----|------------|------------|
+| Java SDK v2 (`aws/`) | `XxxClient` (sync) + `XxxAsyncClient` (CompletableFuture) | `XxxAsyncClientCoroutinesExtensions.kt` (`.await()` 래핑) |
+| Kotlin SDK (`aws-kotlin/`) | `XxxClient` (suspend 네이티브) | 기본 제공 (별도 래핑 불필요) |
 
 #### Data Modules (`data/`)
 
