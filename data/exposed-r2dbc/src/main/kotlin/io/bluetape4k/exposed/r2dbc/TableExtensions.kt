@@ -11,8 +11,14 @@ import org.jetbrains.exposed.v1.r2dbc.vendors.currentDialectMetadata
 /**
  * 테이블의 컬럼 메타데이터를 비동기적으로 조회합니다.
  *
- * @receiver [Table] 메타데이터를 조회할 테이블
- * @return 컬럼 메타데이터 리스트
+ * ## 동작/계약
+ * - 현재 R2DBC 트랜잭션의 dialect metadata cache를 초기화한 뒤 컬럼 메타데이터를 조회합니다.
+ * - 트랜잭션이 없으면 `TransactionManager.current()`에서 예외가 발생합니다.
+ *
+ * ```kotlin
+ * val metadatas = tester.suspendColumnMetadata()
+ * // metadatas.isNotEmpty() == true
+ * ```
  */
 suspend fun Table.suspendColumnMetadata(): List<ColumnMetadata> {
     TransactionManager.current().db.dialectMetadata.resetCaches()
@@ -22,8 +28,14 @@ suspend fun Table.suspendColumnMetadata(): List<ColumnMetadata> {
 /**
  * 테이블의 인덱스 정보를 비동기적으로 조회합니다.
  *
- * @receiver [Table] 인덱스를 조회할 테이블
- * @return 인덱스 리스트
+ * ## 동작/계약
+ * - dialect metadata cache 초기화 후 인덱스 목록을 조회합니다.
+ * - 인덱스가 없으면 빈 리스트를 반환합니다.
+ *
+ * ```kotlin
+ * val indices = tester.suspendIndexes()
+ * // indices.size >= 0
+ * ```
  */
 suspend fun Table.suspendIndexes(): List<Index> {
     TransactionManager.current().db.dialectMetadata.resetCaches()
@@ -33,8 +45,14 @@ suspend fun Table.suspendIndexes(): List<Index> {
 /**
  * 테이블의 기본키 메타데이터를 비동기적으로 조회합니다.
  *
- * @receiver [Table] 기본키를 조회할 테이블
- * @return 기본키 메타데이터, 없으면 null
+ * ## 동작/계약
+ * - dialect metadata cache 초기화 후 기본키 메타데이터를 조회합니다.
+ * - 기본키가 정의되지 않은 테이블이면 `null`을 반환합니다.
+ *
+ * ```kotlin
+ * val pk = tester.suspendPrimaryKeyMetadata()
+ * // pk != null
+ * ```
  */
 suspend fun Table.suspendPrimaryKeyMetadata(): PrimaryKeyMetadata? {
     TransactionManager.current().db.dialectMetadata.resetCaches()
@@ -44,8 +62,14 @@ suspend fun Table.suspendPrimaryKeyMetadata(): PrimaryKeyMetadata? {
 /**
  * 테이블의 시퀀스 정보를 비동기적으로 조회합니다.
  *
- * @receiver [Table] 시퀀스를 조회할 테이블
- * @return 시퀀스 리스트
+ * ## 동작/계약
+ * - dialect metadata cache 초기화 후 시퀀스 목록을 조회합니다.
+ * - 시퀀스가 없으면 빈 리스트를 반환합니다.
+ *
+ * ```kotlin
+ * val sequences = tester.suspendSequences()
+ * // sequences.size >= 0
+ * ```
  */
 suspend fun Table.suspendSequences(): List<Sequence> {
     TransactionManager.current().db.dialectMetadata.resetCaches()

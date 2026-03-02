@@ -16,12 +16,17 @@ import java.util.concurrent.ExecutorService
 /**
  * 가상 스레드 기반의 트랜잭션을 실행합니다.
  *
- * @param executor 사용할 ExecutorService (기본값: VirtualThreadExecutor)
- * @param db 사용할 R2dbcDatabase (기본값: null)
- * @param transactionIsolation 트랜잭션 격리 수준 (기본값: null)
- * @param readOnly 읽기 전용 여부 (기본값: false)
- * @param statement 실행할 트랜잭션 블록
- * @return 트랜잭션 블록의 결과
+ * ## 동작/계약
+ * - 내부적으로 [virtualThreadTransactionAsync]를 호출하고 `await()`로 결과를 기다립니다.
+ * - `executor`가 `null` 또는 [VirtualThreadExecutor]면 공유 dispatcher를 재사용합니다.
+ * - 호출자는 suspend 문맥에서 결과를 받으며, 블로킹 없이 가상 스레드에서 트랜잭션을 실행합니다.
+ *
+ * ```kotlin
+ * val count = virtualThreadTransaction {
+ *     UserTable.selectAll().count()
+ * }
+ * // count >= 0L
+ * ```
  */
 suspend fun <T> virtualThreadTransaction(
     executor: ExecutorService? = VirtualThreadExecutor,
@@ -40,11 +45,16 @@ suspend fun <T> virtualThreadTransaction(
 /**
  * 현재 트랜잭션 내에서 가상 스레드 기반의 트랜잭션을 중첩 실행합니다.
  *
- * @receiver R2dbcTransaction
- * @param executor 사용할 ExecutorService (기본값: VirtualThreadExecutor)
- * @param transactionIsolation 트랜잭션 격리 수준 (기본값: 현재 트랜잭션의 격리 수준)
- * @param statement 실행할 트랜잭션 블록
- * @return 트랜잭션 블록의 결과
+ * ## 동작/계약
+ * - 현재 트랜잭션의 `db`, `readOnly`를 이어받아 새 가상 스레드 트랜잭션을 실행합니다.
+ * - [transactionIsolation] 기본값은 현재 트랜잭션의 격리 수준입니다.
+ *
+ * ```kotlin
+ * suspendTransaction {
+ *     val value = withVirtualThreadTransaction { UserTable.selectAll().count() }
+ *     // value >= 0L
+ * }
+ * ```
  */
 suspend fun <T> R2dbcTransaction.withVirtualThreadTransaction(
     executor: ExecutorService? = VirtualThreadExecutor,
@@ -61,12 +71,18 @@ suspend fun <T> R2dbcTransaction.withVirtualThreadTransaction(
 /**
  * 가상 스레드 기반의 트랜잭션을 비동기로 실행합니다.
  *
- * @param executor 사용할 ExecutorService (기본값: VirtualThreadExecutor)
- * @param db 사용할 R2dbcDatabase (기본값: null)
- * @param transactionIsolation 트랜잭션 격리 수준
- * @param readOnly 읽기 전용 여부 (기본값: false)
- * @param statement 실행할 트랜잭션 블록
- * @return Deferred\<T\> 트랜잭션 블록의 결과를 담는 Deferred
+ * ## 동작/계약
+ * - [executor]에 맞는 dispatcher를 생성해 `async`로 트랜잭션을 실행합니다.
+ * - 사용자 제공 executor를 dispatcher로 만든 경우 실행 완료 후 `close()`로 정리합니다.
+ * - 반환값은 [Deferred]이며 호출자가 `await()`/`awaitAll()`로 완료를 제어합니다.
+ *
+ * ```kotlin
+ * val jobs = List(5) { index ->
+ *     virtualThreadTransactionAsync { index }
+ * }
+ * val values = jobs.map { it.await() }
+ * // values.size == 5
+ * ```
  */
 suspend fun <T> virtualThreadTransactionAsync(
     executor: ExecutorService? = VirtualThreadExecutor,
