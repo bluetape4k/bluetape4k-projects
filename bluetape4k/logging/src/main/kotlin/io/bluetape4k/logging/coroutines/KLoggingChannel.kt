@@ -1,6 +1,7 @@
 package io.bluetape4k.logging.coroutines
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.WARN_ERROR_PREFIX
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.logMessageSafe
 import kotlinx.coroutines.CoroutineName
@@ -33,7 +34,7 @@ import kotlin.concurrent.thread
  * // suspend fun 안에서 trace/debug/... 호출
  * ```
  */
-open class KLoggingChannel : KLogging() {
+open class KLoggingChannel: KLogging() {
 
     private val sharedFlow = MutableSharedFlow<LogEvent>(
         replay = 0,
@@ -55,16 +56,16 @@ open class KLoggingChannel : KLogging() {
                         when (event.level) {
                             Level.TRACE -> log.trace(event.msg, event.error)
                             Level.DEBUG -> log.debug(event.msg, event.error)
-                            Level.INFO -> log.info(event.msg, event.error)
-                            Level.WARN -> log.warn("🔥" + event.msg, event.error)
-                            Level.ERROR -> log.error("🔥" + event.msg, event.error)
+                            Level.INFO  -> log.info(event.msg, event.error)
+                            Level.WARN  -> log.warn(WARN_ERROR_PREFIX + event.msg, event.error)
+                            Level.ERROR -> log.error(WARN_ERROR_PREFIX + event.msg, event.error)
                         }
                     } catch (e: Throwable) {
-                        log.error(e) { "🔥로그 이벤트 처리 중 오류가 발생했습니다." }
+                        log.error(e) { "로그 이벤트 처리 중 오류가 발생했습니다." }
                     }
                 }
                 .catch { error ->
-                    log.error(error) { "🔥Error during logging channel." }
+                    log.error(error) { "Error during logging channel." }
                 }
                 .collect()
         }
