@@ -67,8 +67,9 @@ fun <T> Flow<Flow<T>>.flattenFirst(): Flow<T> = channelFlow {
             launch(start = CoroutineStart.UNDISPATCHED) {
                 try {
                     inner.collect { send(it) }
-                    state.busy.value = false
                 } catch (e: CancellationException) {
+                    throw e
+                } finally {
                     state.busy.value = false
                 }
             }

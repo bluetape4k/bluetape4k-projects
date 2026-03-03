@@ -34,17 +34,6 @@ open class IoCoroutineScope: CloseableCoroutineScope() {
      */
     override val coroutineContext: CoroutineContext = Dispatchers.IO + job
 
-    /**
-     * 스코프를 닫고 실행 중 작업을 취소합니다.
-     *
-     * ## 동작/계약
-     * - 내부적으로 [clearJobs]를 호출합니다.
-     * - 중복 호출 시 [CloseableCoroutineScope]의 원자 플래그에 의해 한 번만 실제 취소됩니다.
-     */
-    override fun close() {
-        clearJobs()
-    }
-
     override fun toString(): String =
         "IoCoroutineScope(coroutineContext=$coroutineContext)"
 }

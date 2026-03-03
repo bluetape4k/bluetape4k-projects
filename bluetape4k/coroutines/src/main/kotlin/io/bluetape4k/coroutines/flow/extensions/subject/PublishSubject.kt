@@ -38,6 +38,7 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
     private val collectors: AtomicRef<Array<ResumableCollector<T>>> =
         atomic(EMPTY as Array<ResumableCollector<T>>)
 
+    @Volatile
     private var error: Throwable? = null
 
     /**

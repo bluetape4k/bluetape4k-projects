@@ -11,14 +11,17 @@ import kotlin.coroutines.CoroutineContext
  * - 내부 저장소는 [ConcurrentHashMap]이라 동시 접근 시 기본적인 스레드 안전성을 제공합니다.
  * - 생성 시 전달한 [props]를 복사해 보관하며, 이후 외부 맵 변경은 내부 상태에 영향을 주지 않습니다.
  * - `get`/`set`/`putAll`로 내부 상태를 변경할 수 있습니다.
- * - 별도 입력 검증은 없고, `null` 값 저장을 허용합니다.
+ * - `set(name, null)` 호출 시 해당 키가 제거됩니다 ([ConcurrentHashMap]은 null 값을 허용하지 않으므로).
+ * - 초기 [props]에 null 값이 포함된 경우 해당 항목은 저장되지 않습니다.
  *
  * ```kotlin
  * val ctx = PropertyCoroutineContext(mapOf("traceId" to "t-1"))
  * ctx["userId"] = 10L
  * // ctx["traceId"] == "t-1"
+ * ctx["traceId"] = null  // null 설정 시 키 제거
+ * // ctx["traceId"] == null (키 없음)
  * ```
- * @param props 초기 속성 집합입니다.
+ * @param props 초기 속성 집합입니다. null 값 항목은 무시됩니다.
  */
 class PropertyCoroutineContext(
     props: Map<String, Any?> = emptyMap(),
@@ -26,7 +29,9 @@ class PropertyCoroutineContext(
 
     companion object Key: CoroutineContext.Key<PropertyCoroutineContext>
 
-    private val _props: MutableMap<String, Any?> = ConcurrentHashMap(props)
+    private val _props: ConcurrentHashMap<String, Any> = ConcurrentHashMap<String, Any>().apply {
+        props.forEach { (key, value) -> value?.let { put(key, it) } }
+    }
 
     /**
      * 현재 속성의 스냅샷을 반환합니다.
@@ -66,19 +71,25 @@ class PropertyCoroutineContext(
      *
      * ## 동작/계약
      * - 같은 키가 이미 존재하면 값을 덮어씁니다.
-     * - `value`에 `null`을 저장할 수 있습니다.
+     * - `value`에 `null`을 전달하면 해당 키가 제거됩니다.
      * - 수신 객체의 내부 상태를 변경합니다.
      *
      * ```kotlin
      * val ctx = PropertyCoroutineContext()
      * ctx["a"] = 1
      * // ctx["a"] == 1
+     * ctx["a"] = null  // 키 제거
+     * // ctx["a"] == null (키 없음)
      * ```
      * @param name 저장할 속성 이름입니다.
-     * @param value 저장할 속성 값입니다.
+     * @param value 저장할 속성 값입니다. null이면 키를 제거합니다.
      */
     operator fun set(name: String, value: Any?) {
-        _props[name] = value
+        if (value == null) {
+            _props.remove(name)
+        } else {
+            _props[name] = value
+        }
     }
 
     /**
@@ -86,6 +97,7 @@ class PropertyCoroutineContext(
      *
      * ## 동작/계약
      * - 전달된 키가 기존에 있으면 새 값으로 덮어씁니다.
+     * - null 값을 가진 항목은 해당 키를 제거합니다.
      * - 수신 객체의 내부 상태를 변경합니다.
      * - 입력 순회에 비례한 연산이 수행됩니다.
      *
@@ -97,7 +109,9 @@ class PropertyCoroutineContext(
      * @param props 병합할 키-값 쌍 목록입니다.
      */
     fun putAll(vararg props: Pair<String, Any?>) {
-        _props.putAll(props)
+        props.forEach { (key, value) ->
+            if (value == null) _props.remove(key) else _props[key] = value
+        }
     }
 
     /**
@@ -105,6 +119,7 @@ class PropertyCoroutineContext(
      *
      * ## 동작/계약
      * - 전달된 키가 기존에 있으면 새 값으로 덮어씁니다.
+     * - null 값을 가진 항목은 해당 키를 제거합니다.
      * - 수신 객체의 내부 상태를 변경합니다.
      * - 전달된 맵 크기에 비례해 항목을 순회합니다.
      *
@@ -116,7 +131,9 @@ class PropertyCoroutineContext(
      * @param props 병합할 속성 맵입니다.
      */
     fun putAll(props: Map<String, Any?>) {
-        _props.putAll(props)
+        props.forEach { (key, value) ->
+            if (value == null) _props.remove(key) else _props[key] = value
+        }
     }
 
     override fun toString(): String = "PropertyCoroutineContext(props=$_props)"

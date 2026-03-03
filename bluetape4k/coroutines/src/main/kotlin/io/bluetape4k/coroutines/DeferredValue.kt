@@ -36,9 +36,13 @@ class DeferredValue<T: Any>(
      * - 미완료 상태면 `runBlocking`으로 완료까지 대기합니다.
      * - 취소되었거나 실패한 Deferred는 해당 예외를 전파합니다.
      *
+     * > **경고**: 코루틴 내부에서 이 프로퍼티를 호출하면 `Dispatchers.Default` 스레드 풀이
+     * > 고갈될 경우 데드락이 발생할 수 있습니다. **코루틴 환경에서는 반드시 `await()`를 사용하세요.**
+     *
      * ```kotlin
      * val deferred = deferredValueOf { 42 }
-     * val value = deferred.value
+     * val value = deferred.value  // 비코루틴 컨텍스트에서만 사용
+     * val valueSafe = deferred.await()  // 코루틴 내부에서 사용
      * // value == 42
      * ```
      */

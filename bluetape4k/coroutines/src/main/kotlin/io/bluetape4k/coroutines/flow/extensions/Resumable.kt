@@ -26,7 +26,7 @@ import kotlin.coroutines.EmptyCoroutineContext
 open class Resumable {
 
     companion object: KLogging() {
-        private val READLY = ReadyContinuation()
+        private val READY = ReadyContinuation()
 
         /**
          * 내부 성공 신호로 사용하는 sentinel 객체입니다.
@@ -54,7 +54,7 @@ open class Resumable {
         suspendCancellableCoroutine { cont ->
             while (true) {
                 val current = continuation
-                if (current == READLY) {
+                if (current == READY) {
                     cont.resumeWith(RESULT_SUCCESS)
                     break
                 }
@@ -73,15 +73,15 @@ open class Resumable {
      * 대기 중인 코루틴을 재개하거나 다음 await를 즉시 통과 상태로 전환합니다.
      *
      * ## 동작/계약
-     * - 현재 상태가 이미 재개 완료(`READLY`)면 아무 작업 없이 반환합니다.
+     * - 현재 상태가 이미 재개 완료(`READY`)면 아무 작업 없이 반환합니다.
  * - 대기자가 있으면 성공 결과로 재개시키고, 없으면 재개 완료 상태만 기록합니다.
      * - 여러 번 호출해도 안전하며 최초 재개 이후 호출은 실질적으로 no-op입니다.
      */
     fun resume() {
-        if (continuation == READLY) {
+        if (continuation == READY) {
             return
         }
-        continuationRef.getAndSet(READLY)?.resumeWith(RESULT_SUCCESS)
+        continuationRef.getAndSet(READY)?.resumeWith(RESULT_SUCCESS)
     }
 
     private class ReadyContinuation: Continuation<Any> {

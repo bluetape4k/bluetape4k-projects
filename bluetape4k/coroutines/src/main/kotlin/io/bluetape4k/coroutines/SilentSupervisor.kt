@@ -1,16 +1,20 @@
 package io.bluetape4k.coroutines
 
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.warn
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlin.coroutines.CoroutineContext
 
+private object SilentSupervisorLog: KLogging()
+
 /**
- * 예외를 소비(suppress)하는 [SupervisorJob] 기반 코루틴 컨텍스트를 생성합니다.
+ * 예외를 로그에 기록하고 전파하지 않는 [SupervisorJob] 기반 코루틴 컨텍스트를 생성합니다.
  *
  * ## 동작/계약
- * - `SupervisorJob(parent)`와 no-op `CoroutineExceptionHandler`를 결합해 반환합니다.
- * - 핸들러는 예외를 기록/재전파하지 않으므로 처리되지 않은 예외가 조용히 무시될 수 있습니다.
+ * - `SupervisorJob(parent)`와 예외 로깅 `CoroutineExceptionHandler`를 결합해 반환합니다.
+ * - 처리되지 않은 예외는 WARN 레벨로 로깅되며 재전파하지 않습니다.
  * - 새 `Job`/핸들러를 매 호출마다 생성해 반환합니다.
  *
  * ```kotlin
@@ -23,4 +27,6 @@ import kotlin.coroutines.CoroutineContext
  */
 @Suppress("FunctionName")
 fun SilentSupervisor(parent: Job? = null): CoroutineContext =
-    SupervisorJob(parent) + CoroutineExceptionHandler { _, _ -> }
+    SupervisorJob(parent) + CoroutineExceptionHandler { _, throwable ->
+        SilentSupervisorLog.log.warn(throwable) { "SilentSupervisor: 처리되지 않은 코루틴 예외를 무시합니다." }
+    }

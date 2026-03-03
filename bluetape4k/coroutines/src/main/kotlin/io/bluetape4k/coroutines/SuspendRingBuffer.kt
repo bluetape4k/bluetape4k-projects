@@ -1,6 +1,7 @@
 package io.bluetape4k.coroutines
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireInOpenRange
 import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.runBlocking
@@ -114,12 +115,18 @@ class SuspendRingBuffer<T: Any>(
      * - 동기 함수 시그니처를 유지하기 위해 `runBlocking`을 사용합니다.
      * - 반복 도중 원본 버퍼가 변경되어도 반복 대상은 스냅샷에 고정됩니다.
      *
+     * > **경고**: 코루틴 내부에서 이 메서드를 호출하면 `runBlocking`으로 인해 스레드가
+     * > 블로킹되어 데드락이 발생할 수 있습니다. **코루틴 환경에서는 `snapshot()`을 사용하세요.**
+     *
      * ```kotlin
+     * // 비코루틴 컨텍스트
      * val it = ring.iterator()
-     * // it == ring.snapshot().iterator()
+     * // 코루틴 내부
+     * val list = ring.snapshot()
      * ```
      */
     override fun iterator(): Iterator<T> {
+        log.warn { "iterator()는 runBlocking을 사용합니다. 코루틴 내부에서는 snapshot()을 사용하세요." }
         return runBlocking { snapshot().iterator() }
     }
 

@@ -45,6 +45,10 @@ internal class SpscArrayQueue<T> private constructor(capacity: Int) {
         if (referenceArray.get(offset) != EMPTY) {
             return false
         }
+        // lazySet은 StoreStore 배리어만 보장(StoreLoad 미보장)하지만,
+        // consumer의 referenceArray.get()이 volatile read이므로 EMPTY 여부 확인으로 slot 가용성을 판단합니다.
+        // producerIndex volatile write가 lazySet 이후에 오므로 x86에서는 안전합니다.
+        // ARM/PowerPC 환경에서도 SPSC 패턴 특성상 slot sentinel(EMPTY)로 순서 보장이 유지됩니다.
         referenceArray.lazySet(offset, value)
         producerIndex.value = pi + 1
         return true

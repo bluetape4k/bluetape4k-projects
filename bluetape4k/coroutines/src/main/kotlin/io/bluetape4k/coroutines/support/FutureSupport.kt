@@ -44,11 +44,4 @@ suspend fun <T> Future<T>.awaitSuspending(): T = when (this) {
  * ```
  */
 @Deprecated("use awaitSuspending() instead.", replaceWith = ReplaceWith("awaitSuspending()"))
-@Suppress("UNCHECKED_CAST")
-suspend fun <T> Future<T>.suspendAwait(): T = when (this) {
-    is CompletionStage<*> -> await() as T
-    else -> when {
-        isCancelled -> throw CancellationException()
-        else -> this.asCompletableFuture().await()
-    }
-}
+suspend fun <T> Future<T>.suspendAwait(): T = awaitSuspending()

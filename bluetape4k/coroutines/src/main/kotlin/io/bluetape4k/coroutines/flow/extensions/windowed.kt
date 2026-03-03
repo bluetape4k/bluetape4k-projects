@@ -14,6 +14,8 @@ import kotlinx.coroutines.flow.map
  * - `size > 0`, `step > 0`, `size >= step`을 검증하며 위반 시 예외가 발생합니다.
  * - 윈도우가 가득 차면 방출 후 `step`만큼 앞부분을 버리고 다음 윈도우를 만듭니다.
  * - `partialWindow=true`면 마지막 불완전 윈도우도 추가 방출합니다.
+ *   단, `step < size`이면 남은 요소들이 `step` 간격으로 여러 개의 부분 윈도우로 방출될 수 있습니다.
+ *   예) `size=3, step=1`, 잔여 요소=[4,5] → `[4,5]`, `[5]` 두 개 방출.
  * - 윈도우마다 `ArrayList`를 생성해 방출합니다.
  *
  * ```kotlin
