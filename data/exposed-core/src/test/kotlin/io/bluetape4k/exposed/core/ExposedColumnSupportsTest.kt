@@ -1,12 +1,16 @@
 package io.bluetape4k.exposed.core
 
+import io.bluetape4k.crypto.randomBytes
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.java.javaUUID
 import org.junit.jupiter.api.Test
 import java.util.*
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class ExposedColumnSupportsTest {
 
     private object TypedTable: Table("typed_table_for_supports") {
@@ -14,11 +18,21 @@ class ExposedColumnSupportsTest {
         val uuidCol = javaUUID("uuid_col")
     }
 
+
     @Test
     fun `convertToLanguageType 는 기본 타입 변환을 지원한다`() {
         convertToLanguageType("12", Int::class) shouldBeEqualTo 12
         convertToLanguageType("123456789", Long::class) shouldBeEqualTo 123456789L
         convertToLanguageType(123, String::class) shouldBeEqualTo "123"
+
+        val uuid = UUID.randomUUID()
+        convertToLanguageType(uuid, UUID::class) shouldBeEqualTo uuid
+
+        val kotlinUuid = Uuid.generateV7()
+        convertToLanguageType(kotlinUuid, Uuid::class) shouldBeEqualTo kotlinUuid
+
+        val bytes = randomBytes(16)
+        convertToLanguageType(bytes, ByteArray::class) shouldBeEqualTo bytes
     }
 
     @Test

@@ -1,7 +1,6 @@
 package io.bluetape4k.exposed.core.encrypt
 
 import io.bluetape4k.crypto.encrypt.Encryptor
-import io.bluetape4k.crypto.encrypt.Encryptors
 import org.jetbrains.exposed.v1.core.BinaryColumnType
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.ColumnTransformer
@@ -14,16 +13,17 @@ import org.jetbrains.exposed.v1.core.Table
  * ## 동작/계약
  * - 저장 시 [Encryptor.encrypt], 조회 시 [Encryptor.decrypt]를 적용합니다.
  * - 입력/출력 버퍼는 매 호출마다 새로 생성될 수 있습니다.
+ * - [encryptor]는 반드시 명시적으로 전달해야 합니다. 기본 암호화 키에 의존하지 마세요.
  *
  * ```kotlin
- * val secret = table.encryptedBinary("secret", 512)
+ * val secret = table.encryptedBinary("secret", 512, Encryptors.AES)
  * // secret.columnType.sqlType().contains("VARBINARY")
  * ```
  */
 fun Table.encryptedBinary(
     name: String,
     length: Int = 255,
-    encryptor: Encryptor = Encryptors.AES,
+    encryptor: Encryptor,
 ): Column<ByteArray> =
     registerColumn(name, EncryptedBinaryColumnType(encryptor, length))
 

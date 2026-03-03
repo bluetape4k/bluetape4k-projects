@@ -4,14 +4,15 @@ import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.asByteArrayOrNull
 import io.bluetape4k.support.asIntOrNull
+import io.bluetape4k.support.asKotlinUuidOrNull
 import io.bluetape4k.support.asLongOrNull
 import io.bluetape4k.support.asShortOrNull
 import io.bluetape4k.support.asStringOrNull
 import io.bluetape4k.support.asUUIDOrNull
 import org.jetbrains.exposed.v1.core.Column
 import org.slf4j.Logger
-import java.util.*
 import kotlin.reflect.KClass
+import kotlin.uuid.ExperimentalUuidApi
 
 private val log: Logger by lazy { KotlinLogging.logger {} }
 
@@ -46,15 +47,17 @@ fun <K: Any> Iterable<K>.mapToLanguageType(column: Column<*>): List<Any> {
  * // value == 42
  * ```
  */
+@OptIn(ExperimentalUuidApi::class)
 fun <K: Any> convertToLanguageType(id: K, langType: KClass<*>): Any? {
     return when (langType) {
-        Short::class     -> id.asShortOrNull()
-        Int::class       -> id.asIntOrNull()
-        Long::class      -> id.asLongOrNull()
-        String::class    -> id.asStringOrNull()
-        UUID::class      -> id.asUUIDOrNull()
-        ByteArray::class -> id.asByteArrayOrNull()
-        else             -> {
+        Short::class            -> id.asShortOrNull()
+        Int::class              -> id.asIntOrNull()
+        Long::class             -> id.asLongOrNull()
+        String::class           -> id.asStringOrNull()
+        java.util.UUID::class   -> id.asUUIDOrNull()
+        kotlin.uuid.Uuid::class -> id.asKotlinUuidOrNull()
+        ByteArray::class        -> id.asByteArrayOrNull()
+        else                    -> {
             log.warn { "지원하지 않는 ID 타입입니다. id=$id, langType=$langType" }
             null
         }

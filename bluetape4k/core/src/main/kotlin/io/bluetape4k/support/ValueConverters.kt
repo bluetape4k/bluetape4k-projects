@@ -20,6 +20,9 @@ import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.pow
 import kotlin.math.roundToLong
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toKotlinUuid
 
 /**
  * 객체를 Boolean 수형으로 변환합니다. 변환 실패 시 [defaultValue]로 대체합니다.
@@ -761,6 +764,17 @@ fun Any?.asUUIDOrNull(): UUID? = runCatching {
         is UUID   -> this
         is Number -> asBigIntOrNull()?.toUuid()
         else      -> UUID.fromString(this.toString())
+    }
+}.getOrNull()
+
+@OptIn(ExperimentalUuidApi::class)
+fun Any?.asKotlinUuidOrNull(): kotlin.uuid.Uuid? = runCatching {
+    when(this) {
+        null      -> null
+        is Uuid   -> this
+        is UUID   -> Uuid.parse(this.toString())
+        is Number -> asBigIntOrNull()?.toUuid()?.toKotlinUuid()
+        else      -> Uuid.parse(this.toString())
     }
 }.getOrNull()
 

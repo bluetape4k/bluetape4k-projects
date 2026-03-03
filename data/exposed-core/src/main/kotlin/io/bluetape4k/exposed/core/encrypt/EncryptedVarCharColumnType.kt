@@ -1,7 +1,6 @@
 package io.bluetape4k.exposed.core.encrypt
 
 import io.bluetape4k.crypto.encrypt.Encryptor
-import io.bluetape4k.crypto.encrypt.Encryptors
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.ColumnTransformer
 import org.jetbrains.exposed.v1.core.ColumnWithTransform
@@ -14,16 +13,17 @@ import org.jetbrains.exposed.v1.core.VarCharColumnType
  * ## 동작/계약
  * - 저장 시 [Encryptor.encrypt], 조회 시 [Encryptor.decrypt]를 사용합니다.
  * - 길이는 평문이 아니라 암호문 길이 기준으로 충분히 크게 설정해야 합니다.
+ * - [encryptor]는 반드시 명시적으로 전달해야 합니다. 기본 암호화 키에 의존하지 마세요.
  *
  * ```kotlin
- * val secret = table.encryptedVarChar("secret", colLength = 512)
+ * val secret = table.encryptedVarChar("secret", colLength = 512, encryptor = Encryptors.AES)
  * // secret.columnType.sqlType().contains("VARCHAR")
  * ```
  */
 fun Table.encryptedVarChar(
     name: String,
     colLength: Int = 255,
-    encryptor: Encryptor = Encryptors.AES,
+    encryptor: Encryptor,
 ): Column<String> =
     registerColumn(name, EncryptedVarCharColumnType(encryptor, colLength))
 
