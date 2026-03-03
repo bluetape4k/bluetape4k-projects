@@ -65,6 +65,7 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
 
     api(Libs.jakarta_persistence_api)
+    kapt(Libs.jakarta_persistence_api)
     api(Libs.jakarta_transaction_api)
     
     api(Libs.hibernate_core)

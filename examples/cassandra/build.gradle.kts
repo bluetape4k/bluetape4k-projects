@@ -1,9 +1,9 @@
 plugins {
-//    kotlin("kapt")
     kotlin("plugin.spring")
     kotlin("plugin.noarg")
     kotlin("plugin.allopen")
     id(Plugins.graalvm_native)
+    //    kotlin("kapt")
 }
 
 allOpen {

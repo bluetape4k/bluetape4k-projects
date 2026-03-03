@@ -11,6 +11,11 @@ noArg {
     invokeInitializers = true
 }
 
+kapt {
+    correctErrorTypes = true
+    showProcessorStats = true
+}
+
 // NOTE: implementation 나 runtimeOnly로 지정된 Dependency를 testimplementation 으로도 지정하도록 합니다.
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())

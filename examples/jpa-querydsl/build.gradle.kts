@@ -45,6 +45,7 @@ dependencies {
     implementation(Libs.querydsl_jpa + ":jakarta")
     kapt(Libs.querydsl_apt + ":jakarta")
     kaptTest(Libs.querydsl_apt + ":jakarta")
+    kapt(Libs.jakarta_persistence_api)
 
     // Vaidators
     implementation(Libs.hibernate_validator)

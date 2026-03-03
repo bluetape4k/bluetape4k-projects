@@ -2,6 +2,11 @@ plugins {
     kotlin("kapt")
 }
 
+kapt {
+    correctErrorTypes = true
+    showProcessorStats = true
+}
+
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
 }
