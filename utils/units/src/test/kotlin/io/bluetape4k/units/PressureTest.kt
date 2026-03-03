@@ -10,6 +10,7 @@ import org.amshove.kluent.shouldBeNear
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 
+@Suppress("DEPRECATION")
 @RandomizedTest
 class PressureTest {
 

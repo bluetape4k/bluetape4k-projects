@@ -6,6 +6,7 @@ import io.bluetape4k.javatimes.Weekdays
 import io.bluetape4k.javatimes.Weekends
 import io.bluetape4k.javatimes.period.ITimePeriodCollection
 import io.bluetape4k.javatimes.period.TimePeriodCollection
+import io.bluetape4k.support.hashOf
 import java.io.Serializable
 import java.time.DayOfWeek
 import java.time.Month
@@ -87,6 +88,9 @@ open class CalendarVisitorFilter: AbstractValueObject(), ICalendarVisitorFilter,
                 dayOfWeeks == other.dayOfWeeks &&
                 excludePeriods == other.excludePeriods
     }
+
+    override fun hashCode(): Int =
+        hashOf(years, monthOfYears, dayOfMonths, hourOfDays, minuteOfHours, dayOfWeeks, excludePeriods)
 
     override fun buildStringHelper(): ToStringBuilder {
         return super.buildStringHelper()

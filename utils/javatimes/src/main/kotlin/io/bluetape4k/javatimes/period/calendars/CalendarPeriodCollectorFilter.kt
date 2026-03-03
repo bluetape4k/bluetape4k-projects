@@ -26,4 +26,6 @@ open class CalendarPeriodCollectorFilter: CalendarVisitorFilter(), ICalendarPeri
         collectingHours.clear()
         collectingDayOfWeekHours.clear()
     }
+
+
 }

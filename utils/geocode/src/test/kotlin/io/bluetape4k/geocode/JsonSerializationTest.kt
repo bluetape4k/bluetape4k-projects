@@ -11,6 +11,7 @@ import io.bluetape4k.jackson.writeAsString
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.hashOf
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
 import java.util.*
@@ -67,6 +68,8 @@ class JsonSerializationTest {
                     geocode == other.geocode &&
                     locale == other.locale
         }
+
+        override fun hashCode(): Int = hashOf(address, geocode, locale)
 
         override fun buildStringHelper(): ToStringBuilder {
             return super.buildStringHelper()

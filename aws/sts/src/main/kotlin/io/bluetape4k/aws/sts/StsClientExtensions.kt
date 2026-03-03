@@ -15,11 +15,11 @@ import software.amazon.awssdk.services.sts.model.GetSessionTokenResponse
  * - 계정 ID, 사용자 ID, ARN 정보를 포함하는 응답을 반환한다.
  *
  * ```kotlin
- * val response = stsClient.getCallerIdentity()
+ * val response = stsClient.getDefaultCallerIdentity()
  * // response.account().isNotBlank() == true
  * ```
  */
-fun StsClient.getCallerIdentity(): GetCallerIdentityResponse {
+fun StsClient.getDefaultCallerIdentity(): GetCallerIdentityResponse {
     val request = getCallerIdentityRequest {}
     return getCallerIdentity(request)
 }

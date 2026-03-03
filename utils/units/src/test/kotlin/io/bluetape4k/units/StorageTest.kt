@@ -11,6 +11,7 @@ import org.amshove.kluent.shouldBeLessThan
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
+@Suppress("DEPRECATION")
 @RandomizedTest
 class StorageTest {
 

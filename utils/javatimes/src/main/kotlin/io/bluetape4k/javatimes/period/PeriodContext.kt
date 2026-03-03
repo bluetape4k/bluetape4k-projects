@@ -2,6 +2,7 @@ package io.bluetape4k.javatimes.period
 
 
 import io.bluetape4k.AbstractValueObject
+import io.bluetape4k.support.hashOf
 import io.bluetape4k.utils.Local
 
 /**
@@ -25,4 +26,6 @@ open class PeriodContext: AbstractValueObject() {
     override fun equalProperties(other: Any): Boolean {
         return other is PeriodContext
     }
+
+    override fun hashCode(): Int = hashOf(PeriodContext::class.java)
 }

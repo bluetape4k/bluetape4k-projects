@@ -2,11 +2,13 @@ package io.bluetape4k.aws.dynamodb.examples.food.model
 
 import io.bluetape4k.aws.dynamodb.model.makeKeyString
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.hashOf
 import io.bluetape4k.support.requireNotBlank
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean
 import java.time.Instant
 
 
+@Suppress("EqualsOrHashCode")
 @DynamoDbBean
 class CustomerDocument: AbstractDynamoDocument() {
 
@@ -36,5 +38,13 @@ class CustomerDocument: AbstractDynamoDocument() {
     var customerId: String = ""
     var nationId: String = ""
     var grade: CustomerGrade = CustomerGrade.NEW
+
+    override fun equalProperties(other: Any): Boolean {
+        return other is CustomerDocument &&
+                customerId == other.customerId &&
+                nationId == other.nationId
+    }
+
+    override fun hashCode(): Int = hashOf(customerId, nationId)
 
 }

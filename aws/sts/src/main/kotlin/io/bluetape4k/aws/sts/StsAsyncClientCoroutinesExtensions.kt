@@ -17,7 +17,7 @@ import software.amazon.awssdk.services.sts.model.GetSessionTokenResponse
  * // response.account().isNotBlank() == true
  * ```
  */
-suspend fun StsAsyncClient.getCallerIdentity(): GetCallerIdentityResponse =
+suspend fun StsAsyncClient.getDefaultCallerIdentity(): GetCallerIdentityResponse =
     getCallerIdentityAsync().await()
 
 /**

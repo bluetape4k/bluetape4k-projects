@@ -52,7 +52,7 @@ open class Interval(
                 start == other.start &&
                 end == other.end
 
-    override fun equals(other: Any?): Boolean = other != null && equalProperties(other)
+    override fun equals(other: Any?): Boolean = other?.let { equalProperties(it) } ?: false
     override fun hashCode(): Int = if (isEmpty) -1 else hashOf(start, end)
     override fun toString(): String = "Interval($start:$end)"
 }

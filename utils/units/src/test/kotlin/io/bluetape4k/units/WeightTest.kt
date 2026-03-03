@@ -10,6 +10,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
+@Suppress("DEPRECATION")
 @RandomizedTest
 class WeightTest {
     companion object: KLogging()

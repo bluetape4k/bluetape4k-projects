@@ -7,6 +7,7 @@ import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeNear
 import org.junit.jupiter.api.Test
 
+@Suppress("DEPRECATION")
 class AngleTest {
 
     companion object: KLogging()

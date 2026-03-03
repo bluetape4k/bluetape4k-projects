@@ -1,6 +1,7 @@
 package io.bluetape4k.ahocorasick.interval
 
 import io.bluetape4k.AbstractValueObject
+import io.bluetape4k.support.hashOf
 import java.util.*
 
 /**
@@ -206,4 +207,6 @@ class IntervalNode(
                 right == other.right &&
                 median == other.median &&
                 intervals == other.intervals
+
+    override fun hashCode(): Int = hashOf(left, right, median, intervals)
 }

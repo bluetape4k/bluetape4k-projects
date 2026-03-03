@@ -9,6 +9,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
+@Suppress("DEPRECATION")
 class VolumeTest {
     companion object: KLogging()
 

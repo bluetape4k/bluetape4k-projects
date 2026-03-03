@@ -1,3 +1,4 @@
+@file:Suppress("DEPRECATION")
 package io.bluetape4k.units
 
 import io.bluetape4k.junit5.random.RandomValue

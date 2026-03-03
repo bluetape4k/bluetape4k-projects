@@ -16,6 +16,7 @@ import kotlin.math.pow
  *
  * 이 테스트는 서로 다른 단위 타입(길이, 무게, 면적 등) 간의 연산과 상호작용을 검증합니다.
  */
+@Suppress("DEPRECATION")
 @RandomizedTest
 class UnitsIntegrationTest {
     companion object: KLogging() {

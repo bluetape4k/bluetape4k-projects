@@ -10,6 +10,7 @@ import org.amshove.kluent.shouldBeNear
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
+@Suppress("DEPRECATION")
 @RandomizedTest
 class LengthTest {
 

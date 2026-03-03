@@ -5,6 +5,7 @@ import io.bluetape4k.ToStringBuilder
 import io.bluetape4k.javatimes.MaxPeriodTime
 import io.bluetape4k.javatimes.MinPeriodTime
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.hashOf
 import java.time.DayOfWeek
 import java.time.Duration
 import java.time.ZonedDateTime
@@ -64,6 +65,8 @@ open class TimeCalendar(
                 endOffset == other.endOffset &&
                 firstDayOfWeek == other.firstDayOfWeek
     }
+
+    override fun hashCode(): Int = hashOf(startOffset, endOffset, firstDayOfWeek)
 
     override fun buildStringHelper(): ToStringBuilder =
         super.buildStringHelper()
