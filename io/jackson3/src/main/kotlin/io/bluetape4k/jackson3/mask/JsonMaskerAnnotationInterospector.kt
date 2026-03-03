@@ -14,14 +14,14 @@ import java.util.concurrent.ConcurrentHashMap
  * - 마스킹 문자열 값별 serializer 인스턴스를 캐시합니다.
  *
  * ```kotlin
- * val introspector = JsonMaskerAnnotationInterospector()
+ * val introspector = JsonMaskerAnnotationIntrospector()
  * // @JsonMasker 필드에 대해 serializer를 선택함
  * ```
  *
  * @see [JsonMasker]
  * @see [JsonMaskerModule]
  */
-class JsonMaskerAnnotationInterospector: JacksonAnnotationIntrospector() {
+class JsonMaskerAnnotationIntrospector: JacksonAnnotationIntrospector() {
 
     companion object: KLogging() {
         private val ANNOTATION_TYPE = JsonMasker::class.java
@@ -31,10 +31,17 @@ class JsonMaskerAnnotationInterospector: JacksonAnnotationIntrospector() {
     /** 직렬화기 선택 규칙을 반환합니다. */
     override fun findSerializer(config: MapperConfig<*>?, a: Annotated?): Any? {
         val jsonMasker = _findAnnotation(a, ANNOTATION_TYPE)
-        return jsonMasker?.let {
-            serializers.getOrPut(jsonMasker.value) {
-                JsonMaskerSerializer(jsonMasker)
+        return jsonMasker?.let { masker ->
+            serializers.computeIfAbsent(masker.value) {
+                JsonMaskerSerializer(masker)
             }
         }
     }
 }
+
+/** "Interospector" 오타를 수정한 [JsonMaskerAnnotationIntrospector]의 하위 호환 별칭입니다. */
+@Deprecated(
+    "오타가 수정된 JsonMaskerAnnotationIntrospector 를 사용하세요.",
+    ReplaceWith("JsonMaskerAnnotationIntrospector")
+)
+typealias JsonMaskerAnnotationInterospector = JsonMaskerAnnotationIntrospector

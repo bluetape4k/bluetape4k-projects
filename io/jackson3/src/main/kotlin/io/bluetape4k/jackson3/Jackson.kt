@@ -21,6 +21,11 @@ import tools.jackson.module.kotlin.kotlinModule
  * - 모듈 자동 등록과 Kotlin feature 설정을 포함한 기본 JsonMapper를 제공합니다.
  * - 매퍼 생성/설정 실패 시 예외가 호출자에게 전파됩니다.
  *
+ * ## Jackson 3 보안 개선 사항
+ * - Jackson 3.x에서는 `activateDefaultTyping`의 Default Typing 기능이 제거되었습니다.
+ * - Jackson 2.x의 `typedJsonMapper`에 해당하는 기능은 제공하지 않습니다.
+ * - 다형 타입 처리가 필요한 경우 `@JsonTypeInfo`, `@JsonSubTypes` 애너테이션을 명시적으로 사용하세요.
+ *
  * ```kotlin
  * val mapper = Jackson.defaultJsonMapper
  * val prettyJson = Jackson.prettyJsonWriter.writeValueAsString(data)

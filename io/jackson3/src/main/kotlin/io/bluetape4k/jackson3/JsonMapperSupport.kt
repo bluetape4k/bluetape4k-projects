@@ -94,7 +94,12 @@ inline fun <reified T> ObjectMapper.convertValueOrNull(from: Any): T? =
 /**
  * [TreeNode]를 reified 타입 [T]의 객체로 변환합니다. 실패 시 null 반환
  */
-@Deprecated("use treeToValueOrNull", replaceWith = ReplaceWith("treeToValueOrNull<T>(jsonNode)"))
+@Deprecated(
+    "TreeNode 대신 JsonNode를 받는 오버로드를 사용하세요. " +
+        "val jsonNode = treeNode as? JsonNode 로 변환 후 사용하거나, " +
+        "ObjectMapper.treeToValue(treeNode, T::class.java) 를 직접 호출하세요.",
+    replaceWith = ReplaceWith("treeToValueOrNull<T>(treeNode as tools.jackson.databind.JsonNode)")
+)
 inline fun <reified T> ObjectMapper.treeToValueOrNull(treeNode: TreeNode): T? =
     runCatching { treeToValue(treeNode, T::class.java) }.getOrNull()
 

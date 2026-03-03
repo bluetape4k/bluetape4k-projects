@@ -8,7 +8,7 @@ import tools.jackson.databind.module.SimpleModule
  * UUID Base62 인코딩/디코딩 지원을 Jackson 3 매퍼에 등록하는 모듈입니다.
  *
  * ## 동작/계약
- * - [setupModule]에서 [JsonUuidEncoderAnnotationInterospector]를 등록합니다.
+ * - [setupModule]에서 [JsonUuidEncoderAnnotationIntrospector]를 등록합니다.
  * - 모듈 등록 후 [JsonUuidEncoder] 필드에 Base62/Plain 전략이 적용됩니다.
  *
  * ```kotlin
@@ -25,6 +25,6 @@ class JsonUuidModule: SimpleModule() {
     /** UUID 인코딩 인트로스펙터를 컨텍스트에 등록합니다. */
     override fun setupModule(context: SetupContext) {
         log.info { "Setup JsonUuidModule ..." }
-        context.insertAnnotationIntrospector(JsonUuidEncoderAnnotationInterospector())
+        context.insertAnnotationIntrospector(JsonUuidEncoderAnnotationIntrospector())
     }
 }

@@ -28,7 +28,7 @@ class JsonMaskerSerializer(private val jsonMasker: JsonMasker? = null): StdSeria
     /** 마스킹 규칙에 따라 값을 기록합니다. */
     override fun serialize(value: Any?, gen: JsonGenerator, context: SerializationContext) {
         when (jsonMasker) {
-            null -> gen.writeRaw(value.toString())
+            null -> gen.writeString(value.toString())
             else -> gen.writeString(jsonMasker.value)
         }
     }

@@ -10,7 +10,7 @@ import java.util.*
  *
  * ## 동작/계약
  * - UUID serializer/deserializer를 모듈 초기화 시점에 등록합니다.
- * - [setupModule]에서 [JsonUuidEncoderAnnotationInterospector]를 삽입합니다.
+ * - [setupModule]에서 [JsonUuidEncoderAnnotationIntrospector]를 삽입합니다.
  * - 모듈 등록 후 [JsonUuidEncoder]가 UUID 필드에 대해 적용됩니다.
  *
  * ```kotlin
@@ -24,7 +24,7 @@ class JsonUuidModule: SimpleModule() {
 
     companion object: KLogging()
 
-    private val interospector = JsonUuidEncoderAnnotationInterospector()
+    private val interospector = JsonUuidEncoderAnnotationIntrospector()
 
     init {
         // log.debug { "Add JsonUuidBase62Serializer, JsonUuidBase62Deserializer ..." }

@@ -153,7 +153,7 @@ fun JsonNode.addBigInteger(value: BigInteger, fieldName: String?) = addValue(val
 /**
  * [fieldName]을 키로 하여 ByteArray 수형의 [value]를 추가합니다.
  */
-fun JsonNode.addBigInteger(value: ByteArray, fieldName: String?) = addValue(value, fieldName)
+fun JsonNode.addBinary(value: ByteArray, fieldName: String?) = addValue(value, fieldName)
 
 /**
  * 현재 노드에 `null` 값을 추가합니다.

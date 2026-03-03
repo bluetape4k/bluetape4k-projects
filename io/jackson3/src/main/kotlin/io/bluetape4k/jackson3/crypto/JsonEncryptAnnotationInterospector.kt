@@ -17,7 +17,7 @@ import kotlin.reflect.KClass
  * - encryptor 타입별 인스턴스를 캐시해 재사용합니다.
  *
  * ```kotlin
- * val introspector = JsonEncryptAnnotationInterospector()
+ * val introspector = JsonEncryptAnnotationIntrospector()
  * // @JsonEncrypt 필드에 대해 serializer/deserializer를 선택함
  * ```
  *
@@ -26,7 +26,7 @@ import kotlin.reflect.KClass
  * @see [JsonEncryptDeserializer]
  * @see [JsonEncryptModule]
  */
-class JsonEncryptAnnotationInterospector: JacksonAnnotationIntrospector() {
+class JsonEncryptAnnotationIntrospector: JacksonAnnotationIntrospector() {
 
     companion object: KLogging() {
         private val ANNOTATION_TYPE = JsonEncrypt::class.java
@@ -39,9 +39,9 @@ class JsonEncryptAnnotationInterospector: JacksonAnnotationIntrospector() {
         val jsonEncrypt = _findAnnotation(a, ANNOTATION_TYPE)
         log.debug { "find serializer. annotated=$a, jsonEncrypt=$jsonEncrypt" }
 
-        return jsonEncrypt?.let {
-            serializers.getOrPut(jsonEncrypt.encryptor) {
-                JsonEncryptSerializer(jsonEncrypt)
+        return jsonEncrypt?.let { ann ->
+            serializers.computeIfAbsent(ann.encryptor) {
+                JsonEncryptSerializer(ann)
             }
         }
     }
@@ -51,10 +51,17 @@ class JsonEncryptAnnotationInterospector: JacksonAnnotationIntrospector() {
         val jsonEncrypt = _findAnnotation(a, ANNOTATION_TYPE)
         log.debug { "find deserializer. annotated=$a, jsonEncrypt=$jsonEncrypt" }
 
-        return jsonEncrypt?.let {
-            deserializers.getOrPut(jsonEncrypt.encryptor) {
-                JsonEncryptDeserializer(jsonEncrypt)
+        return jsonEncrypt?.let { ann ->
+            deserializers.computeIfAbsent(ann.encryptor) {
+                JsonEncryptDeserializer(ann)
             }
         }
     }
 }
+
+/** "Interospector" 오타를 수정한 [JsonEncryptAnnotationIntrospector]의 하위 호환 별칭입니다. */
+@Deprecated(
+    "오타가 수정된 JsonEncryptAnnotationIntrospector 를 사용하세요.",
+    ReplaceWith("JsonEncryptAnnotationIntrospector")
+)
+typealias JsonEncryptAnnotationInterospector = JsonEncryptAnnotationIntrospector

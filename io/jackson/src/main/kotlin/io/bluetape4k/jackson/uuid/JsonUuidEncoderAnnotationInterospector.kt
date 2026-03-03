@@ -17,13 +17,13 @@ import java.util.*
  * - `BASE62` 선택 시 Base62 변환기를, `PLAIN` 선택 시 표준 UUID 변환기를 사용합니다.
  *
  * ```kotlin
- * val introspector = JsonUuidEncoderAnnotationInterospector()
+ * val introspector = JsonUuidEncoderAnnotationIntrospector()
  * // UUID 필드 + @JsonUuidEncoder(BASE62) -> JsonUuidBase62Serializer 선택
  * ```
  *
  * @see [JsonUuidEncoder]
  */
-class JsonUuidEncoderAnnotationInterospector: JacksonAnnotationIntrospector() {
+class JsonUuidEncoderAnnotationIntrospector: JacksonAnnotationIntrospector() {
 
     companion object: KLogging() {
         private val ANNOTATION_TYPE: Class<JsonUuidEncoder> = JsonUuidEncoder::class.java
@@ -66,3 +66,10 @@ class JsonUuidEncoderAnnotationInterospector: JacksonAnnotationIntrospector() {
         }
     }
 }
+
+/** "Interospector" 오타를 수정한 [JsonUuidEncoderAnnotationIntrospector]의 하위 호환 별칭입니다. */
+@Deprecated(
+    "오타가 수정된 JsonUuidEncoderAnnotationIntrospector 를 사용하세요.",
+    ReplaceWith("JsonUuidEncoderAnnotationIntrospector")
+)
+typealias JsonUuidEncoderAnnotationInterospector = JsonUuidEncoderAnnotationIntrospector

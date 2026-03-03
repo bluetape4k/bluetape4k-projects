@@ -1,6 +1,7 @@
 package io.bluetape4k.jackson3.text
 
 import io.bluetape4k.jackson3.Jackson
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.jackson3.text.JacksonText.Csv.defaultFactory
 import io.bluetape4k.jackson3.text.JacksonText.Csv.defaultMapper
 import io.bluetape4k.jackson3.text.JacksonText.Csv.defaultSerializer
@@ -39,7 +40,7 @@ import tools.jackson.dataformat.yaml.YAMLMapper
  * // text.contains("name") == true
  * ```
  */
-object JacksonText {
+object JacksonText: KLogging() {
 
     private val enabledSerializationFeatures = arrayOf(
         SerializationFeature.WRITE_EMPTY_JSON_ARRAYS
@@ -107,7 +108,7 @@ object JacksonText {
          * // factory != null
          * ```
          */
-        val defaultFactory: CsvFactory by lazy { CsvFactory() }
+        val defaultFactory: CsvFactory by lazy { defaultMapper.tokenStreamFactory() }
 
         /**
          * 기본 JSON mapper 참조입니다.
@@ -184,7 +185,7 @@ object JacksonText {
          * // factory != null
          * ```
          */
-        val defaultFactory: JavaPropsFactory by lazy { JavaPropsFactory() }
+        val defaultFactory: JavaPropsFactory by lazy { defaultMapper.tokenStreamFactory() }
 
         /**
          * 기본 JSON mapper 참조입니다.
@@ -261,7 +262,7 @@ object JacksonText {
          * // factory != null
          * ```
          */
-        val defaultFactory: TomlFactory by lazy { TomlFactory() }
+        val defaultFactory: TomlFactory by lazy { defaultMapper.tokenStreamFactory() }
 
         /**
          * 기본 JSON mapper 참조입니다.
@@ -338,7 +339,7 @@ object JacksonText {
          * // factory != null
          * ```
          */
-        val defaultFactory: YAMLFactory by lazy { YAMLFactory() }
+        val defaultFactory: YAMLFactory by lazy { defaultMapper.tokenStreamFactory() }
 
         /**
          * 기본 JSON mapper 참조입니다.

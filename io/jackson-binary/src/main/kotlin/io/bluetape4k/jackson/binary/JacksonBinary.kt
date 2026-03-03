@@ -41,7 +41,6 @@ object JacksonBinary: KLogging() {
     private val enabledSerializationFeatures = setOf(
         SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
         SerializationFeature.WRITE_ENUMS_USING_TO_STRING,
-        SerializationFeature.WRITE_ENUMS_USING_INDEX,
         SerializationFeature.WRITE_NULL_MAP_VALUES,
         SerializationFeature.WRITE_EMPTY_JSON_ARRAYS
     )

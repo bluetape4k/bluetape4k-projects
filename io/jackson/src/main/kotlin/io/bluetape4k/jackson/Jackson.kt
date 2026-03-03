@@ -40,11 +40,66 @@ object Jackson: KLogging() {
     /** [defaultJsonMapper] 기반 pretty-print [ObjectWriter]입니다. */
     val prettyJsonWriter: ObjectWriter by lazy { defaultJsonMapper.writerWithDefaultPrettyPrinter() }
 
-    /** 타입 정보를 포함하는 JsonMapper 인스턴스입니다. */
+    /**
+     * 타입 정보를 포함하는 JsonMapper 인스턴스입니다.
+     *
+     * @deprecated 보안 취약점(allowIfBaseType(Any::class.java))이 있습니다.
+     * [createTypedJsonMapper]("com.example.") 를 사용하세요.
+     */
+    @Deprecated(
+        "allowIfBaseType(Any::class.java)는 모든 타입을 허용하여 RCE 취약점을 야기할 수 있습니다. " +
+            "createTypedJsonMapper(\"com.example.\") 를 사용하세요.",
+        ReplaceWith("Jackson.createTypedJsonMapper()")
+    )
     val typedJsonMapper: JsonMapper by lazy { createDefaultJsonMapper(needTypeInfo = true) }
 
-    /** 타입 정보를 포함하며 포맷된 JSON을 출력하는 [ObjectWriter] */
-    val prettyTypedJsonWriter: ObjectWriter by lazy { typedJsonMapper.writerWithDefaultPrettyPrinter() }
+    /**
+     * 타입 정보를 포함하며 포맷된 JSON을 출력하는 [ObjectWriter]
+     *
+     * @deprecated [typedJsonMapper]와 함께 deprecated됩니다.
+     * [createTypedJsonMapper](...).writerWithDefaultPrettyPrinter() 를 사용하세요.
+     */
+    @Deprecated(
+        "typedJsonMapper와 함께 deprecated됩니다. " +
+            "createTypedJsonMapper(...).writerWithDefaultPrettyPrinter() 를 사용하세요.",
+        ReplaceWith("Jackson.createTypedJsonMapper().writerWithDefaultPrettyPrinter()")
+    )
+    val prettyTypedJsonWriter: ObjectWriter by lazy {
+        createDefaultJsonMapper(needTypeInfo = true).writerWithDefaultPrettyPrinter()
+    }
+
+    /**
+     * 사용자가 지정한 패키지만 허용하는 다형 타입 지원 [JsonMapper]를 생성합니다.
+     *
+     * ## 보안 주의
+     * - [allowedBasePackages]에 신뢰할 수 있는 패키지만 지정하세요.
+     * - 빈 목록은 허용되지 않으며 [IllegalArgumentException]을 발생시킵니다.
+     *
+     * ```kotlin
+     * val mapper = Jackson.createTypedJsonMapper("com.example.", "io.myapp.")
+     * // 지정된 패키지의 타입만 다형 역직렬화 허용
+     * ```
+     *
+     * @param allowedBasePackages 허용할 기본 타입 패키지 접두사 목록 (예: `"com.example."`)
+     * @param typing 다형 타입 처리 전략 (기본값: [ObjectMapper.DefaultTyping.NON_FINAL_AND_ENUMS])
+     */
+    fun createTypedJsonMapper(
+        vararg allowedBasePackages: String,
+        typing: ObjectMapper.DefaultTyping = ObjectMapper.DefaultTyping.NON_FINAL_AND_ENUMS,
+    ): JsonMapper {
+        require(allowedBasePackages.isNotEmpty()) {
+            "보안상 허용할 패키지를 하나 이상 지정해야 합니다. 예: createTypedJsonMapper(\"com.example.\")"
+        }
+        log.info { "Create TypedJsonMapper ... allowedBasePackages=${allowedBasePackages.toList()}" }
+        val validator = BasicPolymorphicTypeValidator.builder().apply {
+            allowedBasePackages.forEach { allowIfBaseType(it) }
+            allowIfSubTypeIsArray()
+        }.build()
+        return createDefaultJsonMapper().apply {
+            activateDefaultTyping(validator, typing)
+            initTypeInclusion(this)
+        }
+    }
 
     /**
      * 기본 Jackson JsonMapper를 생성합니다.

@@ -15,7 +15,7 @@ package io.bluetape4k.jackson3.text
  */
 fun String.trimYamlDocMarker(): String {
     var doc = this.trim()
-    if (startsWith("---")) {
+    if (doc.startsWith("---")) {
         doc = doc.substring(3)
     }
     return doc.trim()

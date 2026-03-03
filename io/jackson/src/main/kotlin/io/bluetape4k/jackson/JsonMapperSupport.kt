@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.json.JsonMapper
-import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
+
 import io.bluetape4k.logging.KotlinLogging
 import java.io.File
 import java.io.InputStream
@@ -65,7 +65,7 @@ inline fun <reified T> ObjectMapper.readValueOrNull(input: File): T? =
 /** [URL]의 JSON 데이터를 [T]로 역직렬화하고 실패 시 null을 반환합니다. */
 inline fun <reified T> ObjectMapper.readValueOrNull(input: URL): T? =
     runCatching {
-        input.openStream().use { stream -> readValueOrNull<T>(stream) }
+        input.openStream().use { stream -> readValue(stream, jacksonTypeRef<T>()) }
     }.getOrNull()
 
 /** [JsonParser]의 토큰을 [T]로 역직렬화하고 실패 시 null을 반환합니다. */

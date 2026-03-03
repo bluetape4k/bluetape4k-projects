@@ -34,6 +34,6 @@ class JsonEncryptSerializer(
             val encryptor = JsonEncryptors.getEncryptor(ann.encryptor)
             val encryptedText = encryptor.encrypt(v)
             gen.writeString(encryptedText)
-        } ?: gen.writeRaw(value)
+        } ?: gen.writeString(value)
     }
 }
