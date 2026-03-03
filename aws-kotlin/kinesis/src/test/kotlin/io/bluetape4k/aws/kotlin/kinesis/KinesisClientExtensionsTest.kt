@@ -4,17 +4,18 @@ import aws.sdk.kotlin.services.kinesis.model.ShardIteratorType
 import aws.sdk.kotlin.services.kinesis.model.StreamStatus
 import io.bluetape4k.aws.kotlin.kinesis.model.putRecordsRequestEntryOf
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import kotlinx.coroutines.delay
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
+import org.awaitility.kotlin.await
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import kotlin.time.Duration.Companion.seconds
+import java.time.Duration
 
 /**
  * AWS Kotlin SDK [aws.sdk.kotlin.services.kinesis.KinesisClient] 확장 함수 테스트.
@@ -43,13 +44,13 @@ class KinesisClientExtensionsTest: AbstractKotlinKinesisTest() {
     @Order(2)
     fun `스트림 ACTIVE 상태 대기`() = runSuspendIO {
         var status: StreamStatus? = null
-        repeat(30) {
-            val desc = client.describeStream(STREAM_NAME)
-            status = desc.streamDescription?.streamStatus
-            log.debug { "stream=$STREAM_NAME status=$status" }
-            if (status == StreamStatus.Active) return@runSuspendIO
-            delay(1.seconds)
-        }
+        await.atMost(Duration.ofSeconds(30))
+            .pollInterval(Duration.ofSeconds(1))
+            .untilSuspending {
+                val desc = client.describeStream(STREAM_NAME)
+                status = desc.streamDescription?.streamStatus
+                status == StreamStatus.Active
+            }
         status.shouldNotBeNull()
     }
 
