@@ -41,8 +41,8 @@ class CipherBuilder {
 
     private var algorithm: String = DEFAULT_ALGORITHM
     private var transformation: String = DEFAULT_TRANSFORMATION
-    private var secretKey: ByteArray = ByteArray(DEFAULT_KEY_SIZE)
-    private var ivBytes: ByteArray = ByteArray(DEFAULT_KEY_SIZE)
+    private var secretKey: ByteArray = ByteArray(DEFAULT_KEY_SIZE).also { random.nextBytes(it) }
+    private var ivBytes: ByteArray = ByteArray(DEFAULT_KEY_SIZE).also { random.nextBytes(it) }
 
     /**
      * 비밀 키의 크기를 지정하고 [SecureRandom]으로 랜덤 키를 생성합니다.
@@ -66,8 +66,8 @@ class CipherBuilder {
      * 비밀 키를 직접 지정합니다.
      *
      * ## 동작/계약
-     * - 전달된 [key] 참조를 내부 키로 사용합니다.
-     * - 입력 배열은 복사하지 않습니다.
+     * - 전달된 [key]를 방어적으로 복사하여 내부 키로 사용합니다.
+     * - 호출 후 원본 배열을 수정해도 빌더 내부 키에 영향을 미치지 않습니다.
      *
      * ```kotlin
      * val key = ByteArray(16) { 1 }
@@ -77,7 +77,7 @@ class CipherBuilder {
      * @param key 사용할 비밀 키 바이트 배열
      */
     fun secretKey(key: ByteArray) = apply {
-        secretKey = key
+        secretKey = key.copyOf()
     }
 
     /**
@@ -102,8 +102,8 @@ class CipherBuilder {
      * IV(초기화 벡터)를 직접 지정합니다.
      *
      * ## 동작/계약
-     * - 전달된 [ivBytes] 참조를 내부 IV로 사용합니다.
-     * - 입력 배열은 복사하지 않습니다.
+     * - 전달된 [ivBytes]를 방어적으로 복사하여 내부 IV로 사용합니다.
+     * - 호출 후 원본 배열을 수정해도 빌더 내부 IV에 영향을 미치지 않습니다.
      *
      * ```kotlin
      * val iv = ByteArray(16) { 2 }
@@ -113,7 +113,7 @@ class CipherBuilder {
      * @param ivBytes 사용할 IV 바이트 배열
      */
     fun ivBytes(ivBytes: ByteArray) = apply {
-        this.ivBytes = ivBytes
+        this.ivBytes = ivBytes.copyOf()
     }
 
     /**

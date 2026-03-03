@@ -1,5 +1,7 @@
 package io.bluetape4k.crypto
 
+import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.error
 import io.bluetape4k.support.emptyByteArray
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.jasypt.salt.ZeroSaltGenerator
@@ -8,6 +10,8 @@ import java.security.Security
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
+
+private val log = KotlinLogging.logger {}
 
 /**
  * 난수 발생 기본 알고리즘
@@ -24,7 +28,7 @@ internal val zeroSaltGenerator = ZeroSaltGenerator()
  * 기본 [SecureRandom] 인스턴스
  */
 @JvmField
-internal val secureRandom: Random = SecureRandom.getInstance(randomNumberGenerationAlgorithm)
+internal val secureRandom: SecureRandom = SecureRandom.getInstance(randomNumberGenerationAlgorithm)
 
 /**
  * 지정 길이의 난수 바이트 배열을 생성합니다.
@@ -61,6 +65,9 @@ internal fun registerBouncyCastleProvider() {
     lock.withLock {
         if (Security.getProvider("BC") == null) {
             runCatching { Security.addProvider(BouncyCastleProvider()) }
+                .onFailure { e ->
+                    log.error(e) { "BouncyCastle 프로바이더 등록에 실패했습니다." }
+                }
         }
     }
 }

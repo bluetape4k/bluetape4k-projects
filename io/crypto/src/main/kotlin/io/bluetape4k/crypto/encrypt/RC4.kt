@@ -26,6 +26,10 @@ import org.jasypt.salt.SaltGenerator
  * @see Encryptors.RC4
  * @see AES
  */
+@Deprecated(
+    message = "RC4는 다수의 알려진 취약점으로 TLS 등에서 사용이 금지되었습니다. AES를 사용하세요.",
+    replaceWith = ReplaceWith("AES()")
+)
 class RC4(
     saltGenerator: SaltGenerator = DefaultSaltGenerator,
     password: String = DEFAULT_PASSWORD,

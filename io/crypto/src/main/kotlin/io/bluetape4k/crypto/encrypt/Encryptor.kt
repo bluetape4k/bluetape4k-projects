@@ -29,9 +29,6 @@ interface Encryptor {
     /** 암호화 시 사용할 salt 생성기입니다. */
     val saltGenerator: SaltGenerator
 
-    /** 암복호화에 사용하는 비밀번호입니다. */
-    val password: String
-
     /**
      * 바이트 배열을 암호화합니다.
      *

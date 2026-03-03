@@ -7,6 +7,8 @@ import org.jasypt.salt.SaltGenerator
 /**
  * DES 대칭형 암호화 알고리즘을 이용한 [Encryptor] 구현체입니다.
  *
+ * @deprecated DES는 56비트 키 길이로 인해 brute-force 공격에 취약합니다. [AES]를 사용하세요.
+ *
  * PBEWITHMD5ANDDES 알고리즘을 사용합니다.
  *
  * **보안 경고**: DES는 56비트 키 길이로 인해 brute-force 공격에 취약합니다.
@@ -24,6 +26,10 @@ import org.jasypt.salt.SaltGenerator
  * @see Encryptors.DES
  * @see AES
  */
+@Deprecated(
+    message = "DES는 56비트 키 길이로 인해 brute-force 공격에 취약합니다. AES를 사용하세요.",
+    replaceWith = ReplaceWith("AES()")
+)
 class DES(
     saltGenerator: SaltGenerator = DefaultSaltGenerator,
     password: String = DEFAULT_PASSWORD,

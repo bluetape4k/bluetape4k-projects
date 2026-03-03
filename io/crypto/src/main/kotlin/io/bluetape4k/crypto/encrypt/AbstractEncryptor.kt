@@ -9,9 +9,9 @@ import io.bluetape4k.support.emptyByteArray
 import io.bluetape4k.utils.Runtimex
 import org.jasypt.encryption.pbe.PooledPBEByteEncryptor
 import org.jasypt.iv.IvGenerator
-import org.jasypt.iv.StringFixedIvGenerator
+import org.jasypt.iv.RandomIvGenerator
+import org.jasypt.salt.RandomSaltGenerator
 import org.jasypt.salt.SaltGenerator
-import org.jasypt.salt.StringFixedSaltGenerator
 
 /**
  * [Encryptor] 인터페이스의 추상 구현 클래스입니다.
@@ -33,35 +33,38 @@ import org.jasypt.salt.StringFixedSaltGenerator
 abstract class AbstractEncryptor protected constructor(
     override val algorithm: String,
     override val saltGenerator: SaltGenerator = DefaultSaltGenerator,
-    override val password: String = DEFAULT_PASSWORD,
+    internal val password: String = DEFAULT_PASSWORD,
     private val ivGenerator: IvGenerator = DefaultIvGenerator,
 ): Encryptor {
 
     protected companion object: KLogging() {
         /**
-         * 기본 비밀번호를 이용하는 [StringFixedIvGenerator] 인스턴스
+         * 랜덤 IV를 생성하는 [RandomIvGenerator] 인스턴스.
+         * 암호화 시마다 새로운 IV를 생성하여 결정적 암호화(deterministic encryption)를 방지합니다.
          */
         @JvmStatic
-        val DefaultIvGenerator: IvGenerator = StringFixedIvGenerator(DEFAULT_PASSWORD)
+        val DefaultIvGenerator: IvGenerator = RandomIvGenerator()
 
         /**
-         * 기본 비밀번호를 이용하는 [StringFixedSaltGenerator] 인스턴스
+         * 랜덤 Salt를 생성하는 [RandomSaltGenerator] 인스턴스.
+         * 암호화 시마다 새로운 Salt를 생성하여 Rainbow Table 공격을 방지합니다.
          */
         @JvmStatic
-        val DefaultSaltGenerator: SaltGenerator = StringFixedSaltGenerator(DEFAULT_PASSWORD)
+        val DefaultSaltGenerator: SaltGenerator = RandomSaltGenerator()
     }
 
     /**
      * 내부적으로 사용하는 [PooledPBEByteEncryptor] 인스턴스입니다.
      * lazy 초기화되며, 풀 크기는 `2 * 가용 CPU 수`입니다.
      */
-    val encryptor: PooledPBEByteEncryptor by lazy {
+    protected val encryptor: PooledPBEByteEncryptor by lazy {
         PooledPBEByteEncryptor().apply {
             registerBouncyCastleProvider()
             setPoolSize(2 * Runtimex.availableProcessors)
             setAlgorithm(algorithm)
             setIvGenerator(ivGenerator)
             setSaltGenerator(saltGenerator)
+            setKeyObtentionIterations(100000)
             setPassword(password)
         }
     }

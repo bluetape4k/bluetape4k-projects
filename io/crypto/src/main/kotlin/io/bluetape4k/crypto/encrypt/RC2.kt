@@ -24,6 +24,10 @@ import org.jasypt.salt.SaltGenerator
  * @see Encryptors.RC2
  * @see AES
  */
+@Deprecated(
+    message = "RC2는 현대 보안 표준에 적합하지 않습니다. AES를 사용하세요.",
+    replaceWith = ReplaceWith("AES()")
+)
 class RC2(
     saltGenerator: SaltGenerator = DefaultSaltGenerator,
     password: String = DEFAULT_PASSWORD,

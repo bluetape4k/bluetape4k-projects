@@ -1,12 +1,8 @@
 package io.bluetape4k.crypto.cipher
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.warn
 import io.bluetape4k.support.emptyByteArray
 import io.bluetape4k.support.isNullOrEmpty
 import javax.crypto.Cipher
-
-private object CipherExtensionsHolder: KLogging()
 
 /**
  * [Cipher]를 이용하여 평문 바이트 배열을 암호화합니다.
@@ -39,8 +35,8 @@ fun Cipher.encrypt(plain: ByteArray?, offset: Int = 0, length: Int = plain?.size
  *
  * ## 동작/계약
  * - [encrypted]가 null 또는 빈 배열이면 빈 배열을 반환합니다.
- * - [update] 결과와 `doFinal()` 결과를 이어 붙인 새 배열을 반환합니다.
- * - `doFinal()` 실패는 경고 로그 후 빈 배열로 대체되어 반환됩니다.
+ * - 복호화 성공 시 복호화된 새 바이트 배열을 반환합니다.
+ * - 잘못된 키, 손상된 데이터, 패딩 오류 등 복호화 실패 시 JCA 예외가 호출자에게 전파됩니다.
  *
  * ```kotlin
  * val key = ByteArray(16) { 1 }
@@ -59,10 +55,5 @@ fun Cipher.decrypt(encrypted: ByteArray?, offset: Int = 0, length: Int = encrypt
     if (encrypted.isNullOrEmpty()) {
         return emptyByteArray
     }
-    return update(encrypted, offset, length) +
-            runCatching { doFinal() }
-                .onFailure { e ->
-                    CipherExtensionsHolder.log.warn(e) { "Cipher doFinal() 실행 중 오류가 발생했습니다." }
-                }
-                .getOrDefault(emptyByteArray)
+    return doFinal(encrypted, offset, length)
 }
