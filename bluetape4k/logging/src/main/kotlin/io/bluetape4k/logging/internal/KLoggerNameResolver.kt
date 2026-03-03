@@ -23,11 +23,15 @@ internal object KLoggerNameResolver {
 
     private fun <T: Any> unwrapCompanionClass(clazz: Class<T>): Class<*> {
         if (clazz.enclosingClass != null) {
-            runCatching {
+            try {
                 val field = clazz.enclosingClass.getField(clazz.simpleName)
                 if (Modifier.isStatic(field.modifiers) && field.type == clazz) {
                     return clazz.enclosingClass
                 }
+            } catch (_: NoSuchFieldException) {
+                // companion object 필드가 없는 경우 — 정상 경로
+            } catch (_: SecurityException) {
+                // 보안 정책으로 필드 접근이 불가한 경우 — 원래 클래스를 사용
             }
         }
         return clazz

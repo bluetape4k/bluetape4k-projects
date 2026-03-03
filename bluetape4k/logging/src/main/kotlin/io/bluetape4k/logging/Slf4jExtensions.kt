@@ -9,11 +9,17 @@ import org.slf4j.Marker
 const val LOG_FALLBACK_MSG = "Fail to generate log message."
 
 /**
+ * WARN/ERROR 레벨 로그 메시지 앞에 붙이는 접두어입니다.
+ */
+const val WARN_ERROR_PREFIX = "🔥"
+
+/**
  * 로그 메시지 람다를 안전하게 문자열로 변환합니다.
  *
  * ## 동작/계약
  * - `msg()` 평가 중 예외가 나면 예외를 다시 던지지 않고 fallback 문자열을 반환합니다.
- * - 정상 경로에서는 `msg().toString()` 결과를 반환합니다.
+ * - `msg()`가 `null`을 반환하면 문자열 `"null"`을 반환합니다.
+ * - 정상 경로에서는 `msg()?.toString()` 결과를 반환합니다.
  * - 예외 삼킴 동작이므로 메시지 생성 실패가 로깅 호출을 중단시키지 않습니다.
  *
  * ```kotlin
@@ -26,7 +32,7 @@ const val LOG_FALLBACK_MSG = "Fail to generate log message."
  */
 inline fun logMessageSafe(fallbackMessage: String = LOG_FALLBACK_MSG, msg: () -> Any?): String {
     return try {
-        msg().toString()
+        msg()?.toString() ?: "null"
     } catch (e: Throwable) {
         "$fallbackMessage: $e"
     }
@@ -95,44 +101,44 @@ inline fun Logger.info(marker: Marker?, cause: Throwable?, msg: () -> Any?) {
     }
 }
 
-/** WARN 레벨이 활성화된 경우 메시지 앞에 `🔥` 접두어를 붙여 기록합니다. */
+/** WARN 레벨이 활성화된 경우 메시지 앞에 [WARN_ERROR_PREFIX] 접두어를 붙여 기록합니다. */
 inline fun Logger.warn(msg: () -> Any?) {
     if (isWarnEnabled) {
-        warn("🔥" + logMessageSafe(msg = msg))
+        warn(WARN_ERROR_PREFIX + logMessageSafe(msg = msg))
     }
 }
 
-/** WARN 레벨이 활성화된 경우 예외와 `🔥` 접두 메시지를 기록합니다. */
+/** WARN 레벨이 활성화된 경우 예외와 [WARN_ERROR_PREFIX] 접두 메시지를 기록합니다. */
 inline fun Logger.warn(cause: Throwable?, msg: () -> Any?) {
     if (isWarnEnabled) {
-        warn("🔥" + logMessageSafe(msg = msg), cause)
+        warn(WARN_ERROR_PREFIX + logMessageSafe(msg = msg), cause)
     }
 }
 
-/** WARN 레벨이 활성화된 경우 marker/예외/`🔥` 접두 메시지를 기록합니다. */
+/** WARN 레벨이 활성화된 경우 marker/예외/[WARN_ERROR_PREFIX] 접두 메시지를 기록합니다. */
 inline fun Logger.warn(marker: Marker?, cause: Throwable?, msg: () -> Any?) {
     if (isWarnEnabled) {
-        warn(marker, "🔥" + logMessageSafe(msg = msg), cause)
+        warn(marker, WARN_ERROR_PREFIX + logMessageSafe(msg = msg), cause)
     }
 }
 
-/** ERROR 레벨이 활성화된 경우 메시지 앞에 `🔥` 접두어를 붙여 기록합니다. */
+/** ERROR 레벨이 활성화된 경우 메시지 앞에 [WARN_ERROR_PREFIX] 접두어를 붙여 기록합니다. */
 inline fun Logger.error(msg: () -> Any?) {
     if (isErrorEnabled) {
-        error("🔥" + logMessageSafe(msg = msg))
+        error(WARN_ERROR_PREFIX + logMessageSafe(msg = msg))
     }
 }
 
-/** ERROR 레벨이 활성화된 경우 예외와 `🔥` 접두 메시지를 기록합니다. */
+/** ERROR 레벨이 활성화된 경우 예외와 [WARN_ERROR_PREFIX] 접두 메시지를 기록합니다. */
 inline fun Logger.error(cause: Throwable?, msg: () -> Any?) {
     if (isErrorEnabled) {
-        error("🔥" + logMessageSafe(msg = msg), cause)
+        error(WARN_ERROR_PREFIX + logMessageSafe(msg = msg), cause)
     }
 }
 
-/** ERROR 레벨이 활성화된 경우 marker/예외/`🔥` 접두 메시지를 기록합니다. */
+/** ERROR 레벨이 활성화된 경우 marker/예외/[WARN_ERROR_PREFIX] 접두 메시지를 기록합니다. */
 inline fun Logger.error(marker: Marker?, cause: Throwable?, msg: () -> Any?) {
     if (isErrorEnabled) {
-        error(marker, "🔥" + logMessageSafe(msg = msg), cause)
+        error(marker, WARN_ERROR_PREFIX + logMessageSafe(msg = msg), cause)
     }
 }

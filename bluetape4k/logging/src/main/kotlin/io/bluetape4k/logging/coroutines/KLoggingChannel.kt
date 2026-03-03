@@ -7,16 +7,14 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.slf4j.event.Level
-import java.io.Serializable
 import kotlin.concurrent.thread
 
 /**
@@ -25,8 +23,8 @@ import kotlin.concurrent.thread
  * ## 동작/계약
  * - `send(LogEvent)`로 전달된 이벤트를 백그라운드 코루틴이 순차 소비해 실제 로그로 기록합니다.
  * - 버퍼는 `extraBufferCapacity=64`, `BufferOverflow.SUSPEND` 정책을 사용합니다.
- * - JVM 종료 훅에서 로깅 잡의 자식 코루틴 취소를 시도합니다.
- * - 로그 소비 중 예외는 내부 catch에서 에러 로그로 남깁니다.
+ * - JVM 종료 훅에서 로깅 잡을 취소합니다.
+ * - 로그 이벤트 처리 중 예외는 개별적으로 포착되어 Flow 전체가 중단되지 않습니다.
  *
  * ```kotlin
  * class Service {
@@ -35,42 +33,34 @@ import kotlin.concurrent.thread
  * // suspend fun 안에서 trace/debug/... 호출
  * ```
  */
-open class KLoggingChannel: KLogging() {
+open class KLoggingChannel : KLogging() {
 
     private val sharedFlow = MutableSharedFlow<LogEvent>(
         replay = 0,
         extraBufferCapacity = 64,
         onBufferOverflow = BufferOverflow.SUSPEND
     )
-    private val scope = CoroutineScope(Dispatchers.IO + CoroutineName("logchannel"))
-    private var job: Job? = null
 
-    init {
-        listen()
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO + CoroutineName("logchannel"))
 
-        Runtime.getRuntime().addShutdownHook(
-            thread(start = false, isDaemon = true) {
-                runBlocking {
-                    job?.cancelChildren()
-                }
-            }
-        )
-    }
-
-    private fun listen() {
-        if (job != null) {
-            return
-        }
-
-        job = scope.launch {
+    /**
+     * 로그 이벤트를 소비하는 백그라운드 Job입니다.
+     * 최초 접근 시 한 번만 thread-safe하게 초기화됩니다.
+     */
+    private val job: Job by lazy {
+        scope.launch {
             sharedFlow
                 .onEach { event ->
-                    when (event.level) {
-                        Level.TRACE -> log.trace(event.msg, event.error)
-                        Level.DEBUG -> log.debug(event.msg, event.error)
-                        Level.INFO -> log.info(event.msg, event.error)
-                        Level.WARN -> log.warn("🔥" + event.msg, event.error)
-                        Level.ERROR -> log.error("🔥" + event.msg, event.error)
+                    try {
+                        when (event.level) {
+                            Level.TRACE -> log.trace(event.msg, event.error)
+                            Level.DEBUG -> log.debug(event.msg, event.error)
+                            Level.INFO -> log.info(event.msg, event.error)
+                            Level.WARN -> log.warn("🔥" + event.msg, event.error)
+                            Level.ERROR -> log.error("🔥" + event.msg, event.error)
+                        }
+                    } catch (e: Throwable) {
+                        log.error(e) { "🔥로그 이벤트 처리 중 오류가 발생했습니다." }
                     }
                 }
                 .catch { error ->
@@ -78,6 +68,15 @@ open class KLoggingChannel: KLogging() {
                 }
                 .collect()
         }
+    }
+
+    init {
+        job // lazy 초기화를 트리거합니다.
+        Runtime.getRuntime().addShutdownHook(
+            thread(start = false, isDaemon = true) {
+                job.cancel()
+            }
+        )
     }
 
     /**
@@ -136,5 +135,5 @@ open class KLoggingChannel: KLogging() {
         val level: Level = Level.DEBUG,
         val msg: String? = null,
         val error: Throwable? = null,
-    ): Serializable
+    )
 }
