@@ -2,7 +2,6 @@ package io.bluetape4k.crypto.digest
 
 import io.bluetape4k.crypto.registerBouncyCastleProvider
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.support.unsafeLazy
 import org.jasypt.registry.AlgorithmRegistry
 
 /**
@@ -43,27 +42,27 @@ object Digesters: KLogging() {
     }
 
     /** KECCAK-256 알고리즘을 사용하는 [Digester] 인스턴스 */
-    val KECCAK256 by unsafeLazy { Keccak256() }
+    val KECCAK256 by lazy { Keccak256() }
 
     /** KECCAK-384 알고리즘을 사용하는 [Digester] 인스턴스 */
-    val KECCAK384 by unsafeLazy { Keccak384() }
+    val KECCAK384 by lazy { Keccak384() }
 
     /** KECCAK-512 알고리즘을 사용하는 [Digester] 인스턴스 */
-    val KECCAK512 by unsafeLazy { Keccak512() }
+    val KECCAK512 by lazy { Keccak512() }
 
     /** MD5 알고리즘을 사용하는 [Digester] 인스턴스. 보안 용도로는 권장하지 않습니다. */
-    val MD5 by unsafeLazy { MD5() }
+    val MD5 by lazy { MD5() }
 
     /** SHA-1 알고리즘을 사용하는 [Digester] 인스턴스. 보안 용도로는 권장하지 않습니다. */
-    val SHA1 by unsafeLazy { SHA1() }
+    val SHA1 by lazy { SHA1() }
 
     /** SHA-256 알고리즘을 사용하는 [Digester] 인스턴스 */
-    val SHA256 by unsafeLazy { SHA256() }
+    val SHA256 by lazy { SHA256() }
 
     /** SHA-384 알고리즘을 사용하는 [Digester] 인스턴스 */
-    val SHA384 by unsafeLazy { SHA384() }
+    val SHA384 by lazy { SHA384() }
 
     /** SHA-512 알고리즘을 사용하는 [Digester] 인스턴스 */
-    val SHA512 by unsafeLazy { SHA512() }
+    val SHA512 by lazy { SHA512() }
 
 }

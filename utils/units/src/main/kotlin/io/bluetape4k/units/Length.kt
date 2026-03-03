@@ -1,7 +1,6 @@
 package io.bluetape4k.units
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.support.unsafeLazy
 import kotlin.math.absoluteValue
 
 /**
@@ -160,10 +159,10 @@ value class Length(
 
     companion object: KLogging() {
         @JvmStatic
-        val ZERO: Length by unsafeLazy { Length(0.0) }
+        val ZERO: Length by lazy { Length(0.0) }
 
         @JvmStatic
-        val NaN: Length by unsafeLazy { Length(Double.NaN) }
+        val NaN: Length by lazy { Length(Double.NaN) }
 
         @JvmStatic
         operator fun invoke(

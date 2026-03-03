@@ -3,17 +3,16 @@ package io.bluetape4k.codec
 import io.bluetape4k.support.emptyByteArray
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
-import io.bluetape4k.support.unsafeLazy
 
 /**
  * 바이트 배열을 문자열로 인코딩/디코딩 하는 Interface
  */
-private val base64Encoder by unsafeLazy { Base64StringEncoder() }
+private val base64Encoder by lazy { Base64StringEncoder() }
 
 /**
  * 문자열을 16진법 (Hex Decimal) 문자로 인코딩/디코딩 합니다
  */
-private val hexEncoder by unsafeLazy { HexStringEncoder() }
+private val hexEncoder by lazy { HexStringEncoder() }
 
 /**
  * [ByteArray]를 Base64 인코딩한 바이트 배열로 변환합니다.

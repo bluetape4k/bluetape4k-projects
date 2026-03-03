@@ -3,7 +3,6 @@ package io.bluetape4k.money
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.support.publicLazy
-import io.bluetape4k.support.unsafeLazy
 import javax.money.CurrencyUnit
 import javax.money.convert.CurrencyConversion
 import javax.money.convert.MonetaryConversions
@@ -37,13 +36,13 @@ object CurrencyConvertor: KLogging() {
     val DefaultConversion: CurrencyConversion by publicLazy { getConversion(DefaultCurrencyUnit) }
 
     /** 원화 기준 변환기입니다. */
-    val KRWConversion: CurrencyConversion by unsafeLazy { getConversion(KRW) }
+    val KRWConversion: CurrencyConversion by lazy { getConversion(KRW) }
     /** 미국 달러 기준 변환기입니다. */
-    val USDConversion: CurrencyConversion by unsafeLazy { getConversion(USD) }
+    val USDConversion: CurrencyConversion by lazy { getConversion(USD) }
     /** 유로 기준 변환기입니다. */
-    val EURConversion: CurrencyConversion by unsafeLazy { getConversion(EUR) }
+    val EURConversion: CurrencyConversion by lazy { getConversion(EUR) }
     /** 엔화 기준 변환기입니다. */
-    val JPYConversion: CurrencyConversion by unsafeLazy { getConversion(JPY) }
+    val JPYConversion: CurrencyConversion by lazy { getConversion(JPY) }
 
     /**
      * 통화 단위에 대한 환율을 가져옵니다.

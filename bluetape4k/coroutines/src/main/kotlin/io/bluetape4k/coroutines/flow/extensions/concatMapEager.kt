@@ -2,7 +2,6 @@ package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.trace
-import io.bluetape4k.support.unsafeLazy
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
@@ -14,7 +13,7 @@ import org.slf4j.Logger
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.experimental.ExperimentalTypeInference
 
-private val log: Logger by unsafeLazy { KotlinLogging.logger { } }
+private val log: Logger by lazy { KotlinLogging.logger { } }
 
 /**
  * inner Flow를 eager하게 동시 수집하되 결과는 source 순서대로 연결(concat)해 방출합니다.

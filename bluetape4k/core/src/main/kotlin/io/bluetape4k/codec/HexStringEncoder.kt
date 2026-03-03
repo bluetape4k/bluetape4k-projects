@@ -1,7 +1,6 @@
 package io.bluetape4k.codec
 
 import io.bluetape4k.support.emptyByteArray
-import io.bluetape4k.support.unsafeLazy
 import java.util.*
 
 
@@ -11,7 +10,7 @@ import java.util.*
 class HexStringEncoder: StringEncoder {
 
     companion object {
-        private val hex by unsafeLazy { HexFormat.of() }
+        private val hex by lazy { HexFormat.of() }
     }
 
     /**

@@ -1,12 +1,11 @@
 package io.bluetape4k.jwt.codec
 
-import io.bluetape4k.support.unsafeLazy
 
 object JwtCodecs {
 
-    val Deflate by unsafeLazy { DeflateCodec() }
-    val Gzip by unsafeLazy { GzipCodec() }
-    val Lz4 by unsafeLazy { Lz4Codec() }
-    val Snappy by unsafeLazy { SnappyCodec() }
-    val Zstd by unsafeLazy { ZstdCodec() }
+    val Deflate by lazy { DeflateCodec() }
+    val Gzip by lazy { GzipCodec() }
+    val Lz4 by lazy { Lz4Codec() }
+    val Snappy by lazy { SnappyCodec() }
+    val Zstd by lazy { ZstdCodec() }
 }

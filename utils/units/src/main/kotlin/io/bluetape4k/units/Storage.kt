@@ -1,6 +1,5 @@
 package io.bluetape4k.units
 
-import io.bluetape4k.support.unsafeLazy
 import kotlin.math.absoluteValue
 import kotlin.math.pow
 import kotlin.math.sign
@@ -143,10 +142,10 @@ value class Storage(
         const val MBYTES: Double = KBYTES * KBYTES
 
         @JvmStatic
-        val ZERO: Storage by unsafeLazy { Storage(0.0) }
+        val ZERO: Storage by lazy { Storage(0.0) }
 
         @JvmStatic
-        val NaN: Storage by unsafeLazy { Storage(Double.NaN) }
+        val NaN: Storage by lazy { Storage(Double.NaN) }
 
         operator fun invoke(
             value: Number = 0.0,

@@ -8,13 +8,12 @@ import io.bluetape4k.support.asLongOrNull
 import io.bluetape4k.support.asShortOrNull
 import io.bluetape4k.support.asStringOrNull
 import io.bluetape4k.support.asUUIDOrNull
-import io.bluetape4k.support.unsafeLazy
 import org.jetbrains.exposed.v1.core.Column
 import org.slf4j.Logger
 import java.util.*
 import kotlin.reflect.KClass
 
-private val log: Logger by unsafeLazy { KotlinLogging.logger {} }
+private val log: Logger by lazy { KotlinLogging.logger {} }
 
 /**
  * 식별자 컬렉션을 지정한 컬럼의 Kotlin 타입으로 변환합니다.

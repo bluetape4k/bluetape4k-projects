@@ -29,9 +29,9 @@ object Fakers: KLogging() {
     val faker: Faker = Faker()
 
     /** 공유 난수 서비스입니다. */
-    val random: RandomService by unsafeLazy { faker.random() }
+    val random: RandomService by lazy { faker.random() }
 
-    private val timeBasedUuidGenerator: NoArgGenerator by unsafeLazy {
+    private val timeBasedUuidGenerator: NoArgGenerator by lazy {
         Generators.timeBasedReorderedGenerator()
     }
 

@@ -1,7 +1,6 @@
 package io.bluetape4k.units
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.support.unsafeLazy
 import io.bluetape4k.units.AreaUnit.CENTI_METER_2
 import io.bluetape4k.units.AreaUnit.METER_2
 import io.bluetape4k.units.AreaUnit.MILLI_METER_2
@@ -111,22 +110,22 @@ value class Area(
 
     companion object: KLogging() {
         @JvmStatic
-        val ZERO: Area by unsafeLazy { Area(0.0) }
+        val ZERO: Area by lazy { Area(0.0) }
 
         @JvmStatic
-        val MaxValue: Area by unsafeLazy { Area(Double.MAX_VALUE) }
+        val MaxValue: Area by lazy { Area(Double.MAX_VALUE) }
 
         @JvmStatic
-        val MinValue: Area by unsafeLazy { Area(Double.MIN_VALUE) }
+        val MinValue: Area by lazy { Area(Double.MIN_VALUE) }
 
         @JvmStatic
-        val PositiveInf: Area by unsafeLazy { Area(Double.POSITIVE_INFINITY) }
+        val PositiveInf: Area by lazy { Area(Double.POSITIVE_INFINITY) }
 
         @JvmStatic
-        val NegateInf: Area by unsafeLazy { Area(Double.NEGATIVE_INFINITY) }
+        val NegateInf: Area by lazy { Area(Double.NEGATIVE_INFINITY) }
 
         @JvmStatic
-        val NaN: Area by unsafeLazy { Area(Double.NaN) }
+        val NaN: Area by lazy { Area(Double.NaN) }
 
         @JvmStatic
         operator fun invoke(

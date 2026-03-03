@@ -1,6 +1,5 @@
 package io.bluetape4k.units
 
-import io.bluetape4k.support.unsafeLazy
 import kotlin.math.absoluteValue
 
 fun pressureOf(
@@ -193,10 +192,10 @@ value class Pressure(
 
     companion object {
         @JvmStatic
-        val ZERO by unsafeLazy { Pressure(0.0) }
+        val ZERO by lazy { Pressure(0.0) }
 
         @JvmStatic
-        val NaN by unsafeLazy { Pressure(Double.NaN) }
+        val NaN by lazy { Pressure(Double.NaN) }
 
         operator fun invoke(
             value: Number = 0.0,

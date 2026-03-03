@@ -1,7 +1,6 @@
 package io.bluetape4k.tokenizer.korean.utils
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.support.unsafeLazy
 import io.bluetape4k.tokenizer.korean.utils.Hangul.composeHangul
 import io.bluetape4k.tokenizer.korean.utils.Hangul.decomposeHangul
 import io.bluetape4k.tokenizer.korean.utils.Hangul.hasCoda
@@ -74,8 +73,8 @@ object KoreanConjugation: KLogging() {
         return newSet
     }
 
-    private val PRE_EOMI_하다: CharArray by unsafeLazy { PRE_EOMI_COMMON + PRE_EOMI_2 + PRE_EOMI_6 + PRE_EOMI_RESPECT }
-    private val PRE_EOMI_VOWEL_하다: CharArray by unsafeLazy { PRE_EOMI_VOWEL + PRE_EOMI_1_5 + PRE_EOMI_6 }
+    private val PRE_EOMI_하다: CharArray by lazy { PRE_EOMI_COMMON + PRE_EOMI_2 + PRE_EOMI_6 + PRE_EOMI_RESPECT }
+    private val PRE_EOMI_VOWEL_하다: CharArray by lazy { PRE_EOMI_VOWEL + PRE_EOMI_1_5 + PRE_EOMI_6 }
 
     private val adjective_하다_Set = setOf("합", "해", "히", "하")
     private val adjective_하다_Set2 = setOf("합", "해")

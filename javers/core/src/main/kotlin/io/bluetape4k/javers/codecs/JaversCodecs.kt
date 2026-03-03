@@ -3,7 +3,6 @@ package io.bluetape4k.javers.codecs
 import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.javers.codecs.JaversCodecs.String
-import io.bluetape4k.support.unsafeLazy
 
 
 /**
@@ -25,63 +24,63 @@ import io.bluetape4k.support.unsafeLazy
 object JaversCodecs {
 
     /** 기본 코덱 ([String]) */
-    val Default by unsafeLazy { String }
+    val Default by lazy { String }
 
     // String Codecs
 
     /** JSON 문자열 코덱 (압축 없음) */
-    val String by unsafeLazy { StringJaversCodec() }
+    val String by lazy { StringJaversCodec() }
 
     /** GZip 압축 문자열 코덱 */
-    val GZipString by unsafeLazy { CompressableStringJaversCodec(String, Compressors.GZip) }
+    val GZipString by lazy { CompressableStringJaversCodec(String, Compressors.GZip) }
 
     /** Deflate 압축 문자열 코덱 */
-    val DeflateString by unsafeLazy { CompressableStringJaversCodec(String, Compressors.Deflate) }
+    val DeflateString by lazy { CompressableStringJaversCodec(String, Compressors.Deflate) }
 
     /** LZ4 압축 문자열 코덱 */
-    val LZ4String by unsafeLazy { CompressableStringJaversCodec(String, Compressors.LZ4) }
+    val LZ4String by lazy { CompressableStringJaversCodec(String, Compressors.LZ4) }
 
     /** Snappy 압축 문자열 코덱 */
-    val SnappyString by unsafeLazy { CompressableStringJaversCodec(String, Compressors.Snappy) }
+    val SnappyString by lazy { CompressableStringJaversCodec(String, Compressors.Snappy) }
 
     /** Zstd 압축 문자열 코덱 */
-    val ZstdString by unsafeLazy { CompressableStringJaversCodec(String, Compressors.Zstd) }
+    val ZstdString by lazy { CompressableStringJaversCodec(String, Compressors.Zstd) }
 
     // Binary Codecs - JDK Serialization
 
     /** JDK 직렬화 바이너리 코덱 */
-    val Jdk by unsafeLazy { BinaryJaversCodec(BinarySerializers.Jdk) }
+    val Jdk by lazy { BinaryJaversCodec(BinarySerializers.Jdk) }
 
-    val DeflateJdk by unsafeLazy { CompressableBinaryJaversCodec(Jdk, Compressors.Deflate) }
-    val GZipJdk by unsafeLazy { CompressableBinaryJaversCodec(Jdk, Compressors.GZip) }
-    val LZ4Jdk by unsafeLazy { CompressableBinaryJaversCodec(Jdk, Compressors.LZ4) }
-    val SnappyJdk by unsafeLazy { CompressableBinaryJaversCodec(Jdk, Compressors.Snappy) }
-    val ZstdJdk by unsafeLazy { CompressableBinaryJaversCodec(Jdk, Compressors.Zstd) }
+    val DeflateJdk by lazy { CompressableBinaryJaversCodec(Jdk, Compressors.Deflate) }
+    val GZipJdk by lazy { CompressableBinaryJaversCodec(Jdk, Compressors.GZip) }
+    val LZ4Jdk by lazy { CompressableBinaryJaversCodec(Jdk, Compressors.LZ4) }
+    val SnappyJdk by lazy { CompressableBinaryJaversCodec(Jdk, Compressors.Snappy) }
+    val ZstdJdk by lazy { CompressableBinaryJaversCodec(Jdk, Compressors.Zstd) }
 
     // Binary Codecs - Kryo Serialization
 
     /** Kryo 직렬화 바이너리 코덱 */
-    val Kryo by unsafeLazy { BinaryJaversCodec(BinarySerializers.Kryo) }
+    val Kryo by lazy { BinaryJaversCodec(BinarySerializers.Kryo) }
 
-    val DeflateKryo by unsafeLazy { CompressableBinaryJaversCodec(Kryo, Compressors.Deflate) }
-    val GZipKryo by unsafeLazy { CompressableBinaryJaversCodec(Kryo, Compressors.GZip) }
-    val LZ4Kryo by unsafeLazy { CompressableBinaryJaversCodec(Kryo, Compressors.LZ4) }
-    val SnappyKryo by unsafeLazy { CompressableBinaryJaversCodec(Kryo, Compressors.Snappy) }
-    val ZstdKryo by unsafeLazy { CompressableBinaryJaversCodec(Kryo, Compressors.Zstd) }
+    val DeflateKryo by lazy { CompressableBinaryJaversCodec(Kryo, Compressors.Deflate) }
+    val GZipKryo by lazy { CompressableBinaryJaversCodec(Kryo, Compressors.GZip) }
+    val LZ4Kryo by lazy { CompressableBinaryJaversCodec(Kryo, Compressors.LZ4) }
+    val SnappyKryo by lazy { CompressableBinaryJaversCodec(Kryo, Compressors.Snappy) }
+    val ZstdKryo by lazy { CompressableBinaryJaversCodec(Kryo, Compressors.Zstd) }
 
     // Binary Codecs - Fory Serialization
 
     /** Fory 직렬화 바이너리 코덱 */
-    val Fory by unsafeLazy { BinaryJaversCodec(BinarySerializers.Fory) }
+    val Fory by lazy { BinaryJaversCodec(BinarySerializers.Fory) }
 
-    val DeflateFory by unsafeLazy { CompressableBinaryJaversCodec(Fory, Compressors.Deflate) }
-    val GZipFory by unsafeLazy { CompressableBinaryJaversCodec(Fory, Compressors.GZip) }
-    val LZ4Fory by unsafeLazy { CompressableBinaryJaversCodec(Fory, Compressors.LZ4) }
-    val SnappyFory by unsafeLazy { CompressableBinaryJaversCodec(Fory, Compressors.Snappy) }
-    val ZstdFory by unsafeLazy { CompressableBinaryJaversCodec(Fory, Compressors.Zstd) }
+    val DeflateFory by lazy { CompressableBinaryJaversCodec(Fory, Compressors.Deflate) }
+    val GZipFory by lazy { CompressableBinaryJaversCodec(Fory, Compressors.GZip) }
+    val LZ4Fory by lazy { CompressableBinaryJaversCodec(Fory, Compressors.LZ4) }
+    val SnappyFory by lazy { CompressableBinaryJaversCodec(Fory, Compressors.Snappy) }
+    val ZstdFory by lazy { CompressableBinaryJaversCodec(Fory, Compressors.Zstd) }
 
     // Map Codec
 
     /** [JsonObject] ↔ `Map<String, Any?>` 변환 코덱 */
-    val Map by unsafeLazy { MapJaversCodec() }
+    val Map by lazy { MapJaversCodec() }
 }

@@ -4,7 +4,6 @@ import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.redis.redisson.RedissonCodecs
-import io.bluetape4k.support.unsafeLazy
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.ByteBufUtil
 import io.netty.buffer.Unpooled
@@ -34,7 +33,7 @@ class ForyCodec(
 
     companion object: KLogging()
 
-    private val fory by unsafeLazy { BinarySerializers.Fory }
+    private val fory by lazy { BinarySerializers.Fory }
 
     private val encoder: Encoder = Encoder { graph ->
         try {

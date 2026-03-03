@@ -1,7 +1,6 @@
 package io.bluetape4k.units
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.support.unsafeLazy
 import io.bluetape4k.units.Weight.Companion.NaN
 import kotlin.math.absoluteValue
 import kotlin.math.sign
@@ -209,13 +208,13 @@ value class Weight(
          * 0 무게를 나타내는 상수
          */
         @JvmStatic
-        val ZERO: Weight by unsafeLazy { Weight(0.0) }
+        val ZERO: Weight by lazy { Weight(0.0) }
 
         /**
          * NaN(Not a Number) 무게를 나타내는 상수
          */
         @JvmStatic
-        val NaN: Weight by unsafeLazy { Weight(Double.NaN) }
+        val NaN: Weight by lazy { Weight(Double.NaN) }
 
         /**
          * 지정된 값과 단위로 [Weight]를 생성합니다.

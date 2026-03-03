@@ -1,7 +1,6 @@
 package io.bluetape4k.units
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.support.unsafeLazy
 import kotlin.math.absoluteValue
 
 fun volumeOf(
@@ -114,22 +113,22 @@ value class Volume(
 
     companion object: KLogging() {
         @JvmStatic
-        val ZERO: Volume by unsafeLazy { Volume(0.0) }
+        val ZERO: Volume by lazy { Volume(0.0) }
 
         @JvmStatic
-        val MaxValue: Volume by unsafeLazy { Volume(Double.MAX_VALUE) }
+        val MaxValue: Volume by lazy { Volume(Double.MAX_VALUE) }
 
         @JvmStatic
-        val MinValue: Volume by unsafeLazy { Volume(Double.MIN_VALUE) }
+        val MinValue: Volume by lazy { Volume(Double.MIN_VALUE) }
 
         @JvmStatic
-        val PositiveInf: Volume by unsafeLazy { Volume(Double.POSITIVE_INFINITY) }
+        val PositiveInf: Volume by lazy { Volume(Double.POSITIVE_INFINITY) }
 
         @JvmStatic
-        val NegativeInf: Volume by unsafeLazy { Volume(Double.NEGATIVE_INFINITY) }
+        val NegativeInf: Volume by lazy { Volume(Double.NEGATIVE_INFINITY) }
 
         @JvmStatic
-        val NaN: Volume by unsafeLazy { Volume(Double.NaN) }
+        val NaN: Volume by lazy { Volume(Double.NaN) }
 
         operator fun invoke(
             volume: Number,

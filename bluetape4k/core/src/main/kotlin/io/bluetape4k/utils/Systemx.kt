@@ -1,6 +1,5 @@
 package io.bluetape4k.utils
 
-import io.bluetape4k.support.unsafeLazy
 import java.util.*
 
 /**
@@ -29,149 +28,149 @@ object Systemx {
     const val SUN_BOOT_CLASS_PATH = "sun.boot.class.path"
 
     /** Runtime package */
-    val runtimePackage: Package by unsafeLazy { Runtime::class.java.`package` }
+    val runtimePackage: Package by lazy { Runtime::class.java.`package` }
 
     /** System Properties */
-    val systemProps: Properties by unsafeLazy { System.getProperties() }
+    val systemProps: Properties by lazy { System.getProperties() }
 
     /** CPU Core count */
-    val processCount: Int by unsafeLazy { Runtime.getRuntime().availableProcessors() }
+    val processCount: Int by lazy { Runtime.getRuntime().availableProcessors() }
 
     /** JVM Compipler 정보 */
-    val javaCompiler: String? by unsafeLazy { System.getProperty("java.compiler") }
+    val javaCompiler: String? by lazy { System.getProperty("java.compiler") }
 
     /** JVM 버전 */
-    val javaVersion: String? by unsafeLazy {
+    val javaVersion: String? by lazy {
         System.getProperty(JAVA_SPECIFICATION_VERSION) ?: runtimePackage.specificationVersion
     }
 
     /** JVM 구현 버전 */
-    val javaImplementationVersion: String? by unsafeLazy { runtimePackage.implementationVersion }
+    val javaImplementationVersion: String? by lazy { runtimePackage.implementationVersion }
 
     /** JVM 벤더 */
-    val javaVendor: String? by unsafeLazy { runtimePackage.specificationVendor }
+    val javaVendor: String? by lazy { runtimePackage.specificationVendor }
 
     /** JVM 벤더 URL */
-    val javaVendorUrl: String? by unsafeLazy { System.getProperty("java.vendor.url") }
+    val javaVendorUrl: String? by lazy { System.getProperty("java.vendor.url") }
 
     /** JVM 구현 벤더  */
-    val javaImplementationVendor: String? by unsafeLazy { runtimePackage.implementationVendor }
+    val javaImplementationVendor: String? by lazy { runtimePackage.implementationVendor }
 
     /** JVM 구현 벤더 URL */
-    val javaClassVersion: String? by unsafeLazy { System.getProperty(JAVA_CLASS_VERION) }
+    val javaClassVersion: String? by lazy { System.getProperty(JAVA_CLASS_VERION) }
 
     /** JVM 라이브러리 경로 */
-    val javaLibraryPath: String? by unsafeLazy { System.getProperty("java.library.path") }
+    val javaLibraryPath: String? by lazy { System.getProperty("java.library.path") }
 
     /** JVM 런타임 명 */
-    val javaRuntimeName: String? by unsafeLazy { System.getProperty("java.runtime.name") }
+    val javaRuntimeName: String? by lazy { System.getProperty("java.runtime.name") }
 
     /** JVM 런타임 버전 */
-    val javaRuntimeVersion: String? by unsafeLazy { System.getProperty("java.runtime.version") }
+    val javaRuntimeVersion: String? by lazy { System.getProperty("java.runtime.version") }
 
     /** JVM 사양 이름 */
-    val javaSpecificationName: String? by unsafeLazy { System.getProperty("java.specification.name") }
+    val javaSpecificationName: String? by lazy { System.getProperty("java.specification.name") }
 
     /** JVM 사양 벤더 명 */
-    val javaSpecificationVendor: String? by unsafeLazy { System.getProperty("java.specification.vendor") }
+    val javaSpecificationVendor: String? by lazy { System.getProperty("java.specification.vendor") }
 
-    private val JavaFeatureVersion: Int? by unsafeLazy {
-        val raw = javaVersion ?: return@unsafeLazy null
+    private val JavaFeatureVersion: Int? by lazy {
+        val raw = javaVersion ?: return@lazy null
         if (raw.startsWith("1.")) raw.removePrefix("1.").substringBefore('.').toIntOrNull()
         else raw.substringBefore('.').toIntOrNull()
     }
 
     /** Java 1.6 인가? */
-    val isJava6: Boolean by unsafeLazy { JavaFeatureVersion == 6 }
+    val isJava6: Boolean by lazy { JavaFeatureVersion == 6 }
 
     /** Java 1.7 인가? */
-    val isJava7: Boolean by unsafeLazy { JavaFeatureVersion == 7 }
+    val isJava7: Boolean by lazy { JavaFeatureVersion == 7 }
 
     /** Java 1.8 인가? */
-    val isJava8: Boolean by unsafeLazy { JavaFeatureVersion == 8 }
+    val isJava8: Boolean by lazy { JavaFeatureVersion == 8 }
 
     /** Java 9 인가? */
-    val isJava9: Boolean by unsafeLazy { JavaFeatureVersion == 9 }
+    val isJava9: Boolean by lazy { JavaFeatureVersion == 9 }
 
     /** Java 10 인가? */
-    val isJava10: Boolean by unsafeLazy { JavaFeatureVersion == 10 }
+    val isJava10: Boolean by lazy { JavaFeatureVersion == 10 }
 
     /** Java 11 인가? */
-    val isJava11: Boolean by unsafeLazy { JavaFeatureVersion == 11 }
+    val isJava11: Boolean by lazy { JavaFeatureVersion == 11 }
 
     /** Java 17 인가? */
-    val isJava17: Boolean by unsafeLazy { JavaFeatureVersion == 17 }
+    val isJava17: Boolean by lazy { JavaFeatureVersion == 17 }
 
     /** Java 19 인가? */
-    val isJava19: Boolean by unsafeLazy { JavaFeatureVersion == 19 }
+    val isJava19: Boolean by lazy { JavaFeatureVersion == 19 }
 
     /** Java 21 인가? */
-    val isJava21: Boolean by unsafeLazy { JavaFeatureVersion == 21 }
+    val isJava21: Boolean by lazy { JavaFeatureVersion == 21 }
 
     /** Java 22 인가? */
-    val isJava22: Boolean by unsafeLazy { JavaFeatureVersion == 22 }
+    val isJava22: Boolean by lazy { JavaFeatureVersion == 22 }
 
     /** Java 23 인가? */
-    val isJava23: Boolean by unsafeLazy { JavaFeatureVersion == 23 }
+    val isJava23: Boolean by lazy { JavaFeatureVersion == 23 }
 
     /** Java 24 인가? */
-    val isJava24: Boolean by unsafeLazy { JavaFeatureVersion == 24 }
+    val isJava24: Boolean by lazy { JavaFeatureVersion == 24 }
 
     /** Java 25 인가? */
-    val isJava25: Boolean by unsafeLazy { JavaFeatureVersion == 25 }
+    val isJava25: Boolean by lazy { JavaFeatureVersion == 25 }
 
     /** JVM home directory */
-    val javaHome: String? by unsafeLazy { System.getProperty("java.home") }
+    val javaHome: String? by lazy { System.getProperty("java.home") }
 
-    val lineSeparator: String by unsafeLazy { System.lineSeparator() }
+    val lineSeparator: String by lazy { System.lineSeparator() }
 
-    val fileSeparator: String by unsafeLazy { java.nio.file.FileSystems.getDefault().separator }
+    val fileSeparator: String by lazy { java.nio.file.FileSystems.getDefault().separator }
 
-    val pathSeparator: String by unsafeLazy { java.io.File.pathSeparator }
+    val pathSeparator: String by lazy { java.io.File.pathSeparator }
 
-    val fileEncoding: String by unsafeLazy {
+    val fileEncoding: String by lazy {
         java.nio.charset.Charset.defaultCharset().displayName() ?: Charsets.UTF_8.name()
     }
 
     /** 사용자 정보 */
-    val userName: String? by unsafeLazy { System.getProperty(USER_NAME) }
+    val userName: String? by lazy { System.getProperty(USER_NAME) }
 
     /** 사용자 홈 디렉토리 */
-    val userHome: String? by unsafeLazy { System.getProperty(USER_HOME) }
+    val userHome: String? by lazy { System.getProperty(USER_HOME) }
 
     /** 사용자 현재 디렉토리 */
-    val userDir: String? by unsafeLazy { System.getProperty(USER_DIR) }
+    val userDir: String? by lazy { System.getProperty(USER_DIR) }
 
     /** 사용자 언어 */
-    val userCountry: String? by unsafeLazy {
+    val userCountry: String? by lazy {
         System.getProperty("user.country") ?: System.getProperty("user.region")
     }
 
     /** 임시 디렉토리 */
-    val tempDir: String? by unsafeLazy { System.getProperty(TEMP_DIR) }
+    val tempDir: String? by lazy { System.getProperty(TEMP_DIR) }
 
     /** 임시 디렉토리 */
-    val javaIoTmpDir: String? by unsafeLazy { System.getProperty(TEMP_DIR) }
+    val javaIoTmpDir: String? by lazy { System.getProperty(TEMP_DIR) }
 
     /** OS 이름 */
-    val osName: String? by unsafeLazy { System.getProperty(OS_NAME) }
+    val osName: String? by lazy { System.getProperty(OS_NAME) }
 
     /** OS 버전 */
-    val osVersion: String? by unsafeLazy { System.getProperty(OS_VERSION) }
+    val osVersion: String? by lazy { System.getProperty(OS_VERSION) }
 
-    private val normalizedOsName: String by unsafeLazy { osName?.lowercase(Locale.ROOT).orEmpty() }
+    private val normalizedOsName: String by lazy { osName?.lowercase(Locale.ROOT).orEmpty() }
 
     /** Windows 운영 체제인가? */
-    val isWindows: Boolean by unsafeLazy { normalizedOsName.contains("win") }
+    val isWindows: Boolean by lazy { normalizedOsName.contains("win") }
 
     /** MAC OSX 운영 체제인가? */
-    val isMac: Boolean by unsafeLazy { normalizedOsName.contains("mac") }
+    val isMac: Boolean by lazy { normalizedOsName.contains("mac") }
 
     /** Solaris 운영 체제인가? */
-    val isSolaris: Boolean by unsafeLazy { normalizedOsName.contains("sunos") }
+    val isSolaris: Boolean by lazy { normalizedOsName.contains("sunos") }
 
     /** UNIX 운영 체제인가? */
-    val isUnix: Boolean by unsafeLazy {
+    val isUnix: Boolean by lazy {
         normalizedOsName.contains("nix") ||
                 normalizedOsName.contains("nux") ||
                 normalizedOsName.contains("aix")
