@@ -2,7 +2,6 @@ package io.bluetape4k.utils
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.logging.info
 import io.bluetape4k.support.closeSafe
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedDeque
@@ -36,7 +35,7 @@ object ShutdownQueue: KLogging() {
                 val closeable = closeables.pollLast() ?: break
                 log.debug { "Closing AutoCloseable instance ... $closeable" }
                 closeable.closeSafe()
-                log.info { "Success to close AutoCloseable instance ... $closeable" }
+                log.debug { "Success to close AutoCloseable instance ... $closeable" }
             }
         }
     }
