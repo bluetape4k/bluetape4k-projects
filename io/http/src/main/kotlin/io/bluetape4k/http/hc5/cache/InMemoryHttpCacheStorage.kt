@@ -10,6 +10,7 @@ import org.apache.hc.client5.http.impl.cache.AbstractSerializingCacheStorage
 import org.apache.hc.client5.http.impl.cache.CacheConfig
 import org.apache.hc.client5.http.impl.cache.HttpByteArrayCacheEntrySerializer
 import org.apache.hc.client5.http.impl.cache.NoopCacheEntrySerializer
+import java.util.concurrent.ConcurrentHashMap
 
 /** 메모리에 HTTP 엔터티를 저장하는 [HttpCacheStorage] 구현체입니다. */
 class InMemoryHttpCacheStorage<T>(
@@ -40,7 +41,7 @@ class InMemoryHttpCacheStorage<T>(
         }
     }
 
-    private val cache: MutableMap<String, T> = mutableMapOf()
+    private val cache: MutableMap<String, T> = ConcurrentHashMap()
 
     /**
      * HTTP 처리에서 `digestToStorageKey` 함수를 제공합니다.

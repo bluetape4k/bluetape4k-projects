@@ -1,6 +1,10 @@
 package io.bluetape4k.http.okhttp3
 
+import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.debug
 import java.io.InputStream
+
+private val log = KotlinLogging.logger { }
 
 /** Response Body를 [InputStream]으로 변환합니다. */
 fun okhttp3.Response?.bodyAsInputStream(): InputStream? = this?.body?.byteStream()
@@ -11,12 +15,12 @@ fun okhttp3.Response?.bodyAsByteArray(): ByteArray? = this?.body?.bytes()
 /** Response Body를 [String]으로 변환합니다. */
 fun okhttp3.Response?.bodyAsString(): String? = this?.body?.string()
 
-/** [okhttp3.Response]의 핵심 정보를 표준 출력으로 출력합니다. */
+/** [okhttp3.Response]의 핵심 정보를 DEBUG 레벨로 로깅합니다. */
 fun okhttp3.Response.print(no: Int = 1) {
-    println("Response[$no]: ${this.code} ${this.message}")
-    println("Headers[$no]: ${this.headers}")
-    println("Cache Response[$no]: ${this.cacheResponse}")
-    println("Network Response[$no]: ${this.networkResponse}")
+    log.debug { "Response[$no]: ${this.code} ${this.message}" }
+    log.debug { "Headers[$no]: ${this.headers}" }
+    log.debug { "Cache Response[$no]: ${this.cacheResponse}" }
+    log.debug { "Network Response[$no]: ${this.networkResponse}" }
 }
 
 /** [okhttp3.MediaType]을 `type/subtype` 문자열로 변환합니다. */

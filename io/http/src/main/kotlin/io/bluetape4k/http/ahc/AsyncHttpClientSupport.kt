@@ -4,7 +4,6 @@ package io.bluetape4k.http.ahc
 
 import io.bluetape4k.netty.isPresentNettyTransportNativeEpoll
 import io.bluetape4k.netty.isPresentNettyTransportNativeKQueue
-import io.bluetape4k.support.unsafeLazy
 import io.bluetape4k.utils.Systemx
 import org.asynchttpclient.AsyncHttpClient
 import org.asynchttpclient.AsyncHttpClientConfig
@@ -37,7 +36,7 @@ val defaultAsyncHttpClientConfig: DefaultAsyncHttpClientConfig by lazy {
 }
 
 /** 공용 기본 [AsyncHttpClient] 인스턴스입니다. */
-val defaultAsyncHttpClient: AsyncHttpClient by unsafeLazy {
+val defaultAsyncHttpClient: AsyncHttpClient by lazy {
     Dsl.asyncHttpClient(defaultAsyncHttpClientConfig)
 }
 

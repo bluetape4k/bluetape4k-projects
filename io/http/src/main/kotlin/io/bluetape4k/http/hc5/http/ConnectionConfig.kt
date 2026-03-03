@@ -38,7 +38,7 @@ inline fun connectionConfig(
  *
  * @param connectTimeout 연결 타임아웃
  * @param socketTimeout 소켓 타임아웃
- * @param valiateAfterInactivity 유휴 후 유효성 검사 간격
+ * @param validateAfterInactivity 유휴 후 유효성 검사 간격
  * @param timeToLive 연결 생존 시간
  * @param builder [ConnectionConfig.Builder] 설정 블록
  * @return [ConnectionConfig] 인스턴스
@@ -46,14 +46,14 @@ inline fun connectionConfig(
 inline fun connectionConfigOf(
     connectTimeout: Timeout = defaultConnectionConfig.connectTimeout,
     socketTimeout: Timeout = defaultConnectionConfig.socketTimeout,
-    valiateAfterInactivity: TimeValue = defaultConnectionConfig.validateAfterInactivity,
+    validateAfterInactivity: TimeValue = defaultConnectionConfig.validateAfterInactivity,
     timeToLive: TimeValue = defaultConnectionConfig.timeToLive,
     @BuilderInference builder: ConnectionConfig.Builder.() -> Unit = {},
 ): ConnectionConfig =
     connectionConfig {
         setConnectTimeout(connectTimeout)
         setSocketTimeout(socketTimeout)
-        setValidateAfterInactivity(valiateAfterInactivity)
+        setValidateAfterInactivity(validateAfterInactivity)
         setTimeToLive(timeToLive)
 
         builder()

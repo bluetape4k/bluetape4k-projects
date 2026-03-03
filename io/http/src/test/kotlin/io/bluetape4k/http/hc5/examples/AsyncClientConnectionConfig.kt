@@ -33,14 +33,14 @@ class AsyncClientConnectionConfig: AbstractHc5Test() {
                     connectionConfigOf(
                         connectTimeout = Timeout.ofMinutes(2),
                         socketTimeout = Timeout.ofMinutes(2),
-                        valiateAfterInactivity = TimeValue.ofMinutes(1),
+                        validateAfterInactivity = TimeValue.ofMinutes(1),
                         timeToLive = TimeValue.ofHours(1)
                     )
                 } else {
                     connectionConfigOf(
                         connectTimeout = Timeout.ofMinutes(1),
                         socketTimeout = Timeout.ofMinutes(1),
-                        valiateAfterInactivity = TimeValue.ofSeconds(15),
+                        validateAfterInactivity = TimeValue.ofSeconds(15),
                         timeToLive = TimeValue.ofMinutes(15)
                     )
                 }

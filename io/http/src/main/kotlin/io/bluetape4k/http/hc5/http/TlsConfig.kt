@@ -33,7 +33,7 @@ inline fun tlsConfig(
  * @return [TlsConfig] 인스턴스
  */
 inline fun tlsConfigOf(
-    supportedProtocols: Collection<TLS> = listOf(TLS.V_1_0, TLS.V_1_1, TLS.V_1_2, TLS.V_1_3),
+    supportedProtocols: Collection<TLS> = listOf(TLS.V_1_2, TLS.V_1_3),
     handshakeTimeout: Timeout? = null,
     supportedCipherSuites: Array<String>? = null,
     versionPolicy: HttpVersionPolicy? = null,

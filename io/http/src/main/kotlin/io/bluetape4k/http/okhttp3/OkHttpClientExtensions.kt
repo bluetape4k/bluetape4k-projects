@@ -27,10 +27,10 @@ inline fun OkHttpClient.executeAsync(
 
     val callback = object: Callback {
         override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
-            when {
-                response.isSuccessful -> promise.complete(response)
-                call.isCanceled()     -> handleCanceled(IOException("Canceled"))
-                else                  -> handleCanceled(IOException("Unexpected code $response"))
+            if (call.isCanceled()) {
+                handleCanceled(IOException("Canceled"))
+            } else {
+                promise.complete(response)
             }
         }
 
