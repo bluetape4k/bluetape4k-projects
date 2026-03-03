@@ -4,8 +4,8 @@ import io.bluetape4k.javatimes.Weekdays
 import io.bluetape4k.javatimes.period.AbstractPeriodTest
 import io.bluetape4k.javatimes.period.TimeRange
 import io.bluetape4k.javatimes.period.ranges.CalendarTimeRange
-import io.bluetape4k.javatimes.period.ranges.DayRange
 import io.bluetape4k.javatimes.period.ranges.DayOfWeekHourRange
+import io.bluetape4k.javatimes.period.ranges.DayRange
 import io.bluetape4k.javatimes.period.ranges.HourRangeCollection
 import io.bluetape4k.javatimes.period.ranges.HourRangeInDay
 import io.bluetape4k.javatimes.period.ranges.MonthRange

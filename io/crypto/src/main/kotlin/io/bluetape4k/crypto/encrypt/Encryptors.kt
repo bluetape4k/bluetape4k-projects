@@ -1,5 +1,6 @@
 package io.bluetape4k.crypto.encrypt
 
+import io.bluetape4k.crypto.encrypt.Encryptors.getAlgorithms
 import io.bluetape4k.crypto.registerBouncyCastleProvider
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.publicLazy

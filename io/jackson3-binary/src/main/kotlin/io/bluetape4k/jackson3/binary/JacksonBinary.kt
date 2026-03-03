@@ -1,5 +1,14 @@
 package io.bluetape4k.jackson3.binary
 
+import io.bluetape4k.jackson3.binary.JacksonBinary.CBOR.defaultFactory
+import io.bluetape4k.jackson3.binary.JacksonBinary.CBOR.defaultMapper
+import io.bluetape4k.jackson3.binary.JacksonBinary.CBOR.defaultSerializer
+import io.bluetape4k.jackson3.binary.JacksonBinary.ION.defaultFactory
+import io.bluetape4k.jackson3.binary.JacksonBinary.ION.defaultMapper
+import io.bluetape4k.jackson3.binary.JacksonBinary.ION.defaultSerializer
+import io.bluetape4k.jackson3.binary.JacksonBinary.Smile.defaultFactory
+import io.bluetape4k.jackson3.binary.JacksonBinary.Smile.defaultMapper
+import io.bluetape4k.jackson3.binary.JacksonBinary.Smile.defaultSerializer
 import io.bluetape4k.logging.KLogging
 import tools.jackson.databind.DeserializationFeature
 import tools.jackson.databind.SerializationFeature

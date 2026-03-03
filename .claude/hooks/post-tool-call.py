@@ -3,11 +3,11 @@ import json
 import os
 import sys
 import tempfile
+import traceback
+from contextlib import closing
 from datetime import datetime, timezone
 from http.client import HTTPConnection, HTTPException
 from pathlib import Path
-import traceback
-from contextlib import closing
 from typing import Optional
 
 WEBSERVER_HOST = "localhost"

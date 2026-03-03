@@ -5,6 +5,8 @@ import io.bluetape4k.images.ImageFormat
 import io.bluetape4k.images.coroutines.SuspendImageWriter
 import io.bluetape4k.images.coroutines.SuspendJpegWriter
 import io.bluetape4k.images.immutableImageOf
+import io.bluetape4k.images.splitter.ImageSplitter.Companion.DEFAULT_MAX_HEIGHT
+import io.bluetape4k.images.splitter.ImageSplitter.Companion.DEFAULT_MIN_HEIGHT
 import io.bluetape4k.io.toByteArray
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug

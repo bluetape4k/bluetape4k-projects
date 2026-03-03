@@ -6,8 +6,6 @@ import aws.sdk.kotlin.services.kinesis.deleteStream
 import aws.sdk.kotlin.services.kinesis.describeStream
 import aws.sdk.kotlin.services.kinesis.getRecords
 import aws.sdk.kotlin.services.kinesis.getShardIterator
-import aws.sdk.kotlin.services.kinesis.putRecord
-import aws.sdk.kotlin.services.kinesis.putRecords
 import aws.sdk.kotlin.services.kinesis.model.CreateStreamRequest
 import aws.sdk.kotlin.services.kinesis.model.CreateStreamResponse
 import aws.sdk.kotlin.services.kinesis.model.DeleteStreamRequest
@@ -24,6 +22,8 @@ import aws.sdk.kotlin.services.kinesis.model.PutRecordsRequest
 import aws.sdk.kotlin.services.kinesis.model.PutRecordsRequestEntry
 import aws.sdk.kotlin.services.kinesis.model.PutRecordsResponse
 import aws.sdk.kotlin.services.kinesis.model.ShardIteratorType
+import aws.sdk.kotlin.services.kinesis.putRecord
+import aws.sdk.kotlin.services.kinesis.putRecords
 import aws.smithy.kotlin.runtime.auth.awscredentials.CredentialsProvider
 import aws.smithy.kotlin.runtime.http.engine.HttpClientEngine
 import aws.smithy.kotlin.runtime.net.url.Url

@@ -4,10 +4,10 @@ import com.datastax.oss.driver.api.core.uuid.Uuids
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
-import io.bluetape4k.spring.cassandra.query.eq
-import io.bluetape4k.spring.cassandra.selectAsFlow
 import io.bluetape4k.spring.cassandra.countSuspending
 import io.bluetape4k.spring.cassandra.insertSuspending
+import io.bluetape4k.spring.cassandra.query.eq
+import io.bluetape4k.spring.cassandra.selectAsFlow
 import io.bluetape4k.spring.cassandra.truncateSuspending
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.awaitSingle

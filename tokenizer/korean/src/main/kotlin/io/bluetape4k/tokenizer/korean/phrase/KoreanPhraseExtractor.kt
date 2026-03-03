@@ -10,7 +10,6 @@ import io.bluetape4k.tokenizer.korean.utils.KoreanPos.Alpha
 import io.bluetape4k.tokenizer.korean.utils.KoreanPos.CashTag
 import io.bluetape4k.tokenizer.korean.utils.KoreanPos.Hashtag
 import io.bluetape4k.tokenizer.korean.utils.KoreanPos.Josa
-import io.bluetape4k.tokenizer.korean.utils.KoreanPos.Modifier
 import io.bluetape4k.tokenizer.korean.utils.KoreanPos.Noun
 import io.bluetape4k.tokenizer.korean.utils.KoreanPos.Number
 import io.bluetape4k.tokenizer.korean.utils.KoreanPos.ProperNoun

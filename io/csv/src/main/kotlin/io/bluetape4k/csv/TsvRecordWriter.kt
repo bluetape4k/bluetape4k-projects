@@ -2,6 +2,7 @@ package io.bluetape4k.csv
 
 import com.univocity.parsers.tsv.TsvWriter
 import com.univocity.parsers.tsv.TsvWriterSettings
+import io.bluetape4k.csv.TsvRecordWriter.Companion.invoke
 import io.bluetape4k.logging.KLogging
 import java.io.Writer
 

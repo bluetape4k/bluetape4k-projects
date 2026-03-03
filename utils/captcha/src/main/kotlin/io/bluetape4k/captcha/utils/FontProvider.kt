@@ -1,6 +1,8 @@
 package io.bluetape4k.captcha.utils
 
 import io.bluetape4k.captcha.exceptions.FontLoadException
+import io.bluetape4k.captcha.utils.FontProvider.loadAllFontsFromResource
+import io.bluetape4k.captcha.utils.FontProvider.loadFontFromResource
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.warn
 import io.bluetape4k.utils.Resourcex

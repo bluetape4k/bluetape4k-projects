@@ -1,6 +1,7 @@
 package io.bluetape4k.geoip2
 
 import com.maxmind.geoip2.record.Location
+import io.bluetape4k.geoip2.GeoLocation.Companion.fromLocation
 import java.io.Serializable
 
 /**

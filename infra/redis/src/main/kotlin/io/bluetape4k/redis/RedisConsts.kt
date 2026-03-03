@@ -1,5 +1,9 @@
 package io.bluetape4k.redis
 
+import io.bluetape4k.redis.RedisConst.DEFAULT_HOST
+import io.bluetape4k.redis.RedisConst.DEFAULT_PORT
+
+
 /**
  * Redis 연결 및 키 네이밍에 사용하는 공통 상수 모음입니다.
  *

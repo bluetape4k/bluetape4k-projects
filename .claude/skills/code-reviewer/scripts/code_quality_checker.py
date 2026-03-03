@@ -4,12 +4,13 @@ Code Quality Checker
 Automated tool for code reviewer tasks
 """
 
+import argparse
+import json
 import os
 import sys
-import json
-import argparse
 from pathlib import Path
 from typing import Dict, List, Optional
+
 
 class CodeQualityChecker:
     """Main class for code quality checker functionality"""

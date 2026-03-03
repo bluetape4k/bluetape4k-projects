@@ -17,7 +17,6 @@ import org.redisson.jcache.configuration.RedissonConfiguration
 import javax.cache.configuration.CompleteConfiguration
 import javax.cache.configuration.Configuration
 import javax.cache.configuration.MutableConfiguration
-import kotlin.BuilderInference
 
 /**
  * Redisson back cache를 사용하는 [NearCache] 팩토리입니다.

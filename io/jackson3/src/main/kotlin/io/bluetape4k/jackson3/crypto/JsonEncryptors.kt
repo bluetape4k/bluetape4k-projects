@@ -1,6 +1,7 @@
 package io.bluetape4k.jackson3.crypto
 
 import io.bluetape4k.crypto.encrypt.Encryptor
+import io.bluetape4k.jackson3.crypto.JsonEncryptors.getEncryptor
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.newInstanceOrNull
 import java.util.concurrent.ConcurrentHashMap

@@ -2,7 +2,7 @@ package io.bluetape4k.collections
 
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import java.util.AbstractMap
+import java.util.*
 
 class MapEntrySupportTest {
 

@@ -3,6 +3,10 @@ package io.bluetape4k.spring.cassandra.schema
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
+import io.bluetape4k.spring.cassandra.schema.SchemaGenerator.createTableAndTypes
+import io.bluetape4k.spring.cassandra.schema.SchemaGenerator.potentiallyCreateTableFor
+import io.bluetape4k.spring.cassandra.schema.SchemaGenerator.potentiallyCreateUdtFor
+import io.bluetape4k.spring.cassandra.schema.SchemaGenerator.truncate
 import org.springframework.data.cassandra.core.CassandraOperations
 import org.springframework.data.cassandra.core.convert.SchemaFactory
 import org.springframework.data.cassandra.core.cql.SessionCallback

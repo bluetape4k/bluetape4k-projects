@@ -1,6 +1,5 @@
 package io.bluetape4k.exposed.r2dbc.shared.dml
 
-import io.bluetape4k.coroutines.flow.extensions.toUnifiedSet
 import io.bluetape4k.exposed.r2dbc.shared.dml.DMLTestData.withCitiesAndUsers
 import io.bluetape4k.exposed.r2dbc.shared.dml.DMLTestData.withSales
 import io.bluetape4k.exposed.r2dbc.shared.dml.DMLTestData.withSalesAndSomeAmounts

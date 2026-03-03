@@ -2,16 +2,15 @@ package io.bluetape4k.spring.cassandra.reactive
 
 import com.datastax.oss.driver.api.core.uuid.Uuids
 import io.bluetape4k.cassandra.cql.simpleStatementOf
-import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.spring.cassandra.AbstractReactiveCassandraTestConfiguration
 import io.bluetape4k.spring.cassandra.cast
-import io.bluetape4k.spring.cassandra.query.eq
 import io.bluetape4k.spring.cassandra.countSuspending
 import io.bluetape4k.spring.cassandra.existsSuspending
 import io.bluetape4k.spring.cassandra.insertSuspending
+import io.bluetape4k.spring.cassandra.query.eq
 import io.bluetape4k.spring.cassandra.truncateSuspending
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow

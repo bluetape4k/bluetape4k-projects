@@ -5,6 +5,7 @@ import com.mongodb.MongoClientSettings
 import com.mongodb.kotlin.client.coroutine.MongoClient
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
+import io.bluetape4k.mongodb.MongoClientProvider.DEFAULT_CONNECTION_STRING
 import io.bluetape4k.utils.ShutdownQueue
 import java.util.concurrent.ConcurrentHashMap
 

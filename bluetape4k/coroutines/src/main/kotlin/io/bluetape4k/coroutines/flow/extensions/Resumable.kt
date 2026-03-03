@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines.flow.extensions
 
+import io.bluetape4k.coroutines.flow.extensions.Resumable.Companion.VALUE
 import io.bluetape4k.logging.KLogging
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.suspendCancellableCoroutine

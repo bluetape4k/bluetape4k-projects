@@ -5,8 +5,8 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.spring.cassandra.AbstractReactiveCassandraTestConfiguration
-import io.bluetape4k.spring.cassandra.query.eq
 import io.bluetape4k.spring.cassandra.insertSuspending
+import io.bluetape4k.spring.cassandra.query.eq
 import io.bluetape4k.spring.cassandra.selectOneSuspending
 import io.bluetape4k.spring.cassandra.truncateSuspending
 import io.bluetape4k.spring.cassandra.updateSuspending

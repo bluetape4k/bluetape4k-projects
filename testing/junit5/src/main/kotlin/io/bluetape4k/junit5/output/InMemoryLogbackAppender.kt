@@ -2,6 +2,7 @@ package io.bluetape4k.junit5.output
 
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.AppenderBase
+import io.bluetape4k.junit5.output.InMemoryLogbackAppender.Companion.invoke
 import io.bluetape4k.logging.KLogging
 import org.slf4j.LoggerFactory
 import java.util.concurrent.CopyOnWriteArrayList

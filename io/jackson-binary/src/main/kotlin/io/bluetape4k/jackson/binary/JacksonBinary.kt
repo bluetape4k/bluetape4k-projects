@@ -11,6 +11,15 @@ import com.fasterxml.jackson.dataformat.ion.IonObjectMapper
 import com.fasterxml.jackson.dataformat.smile.SmileFactory
 import com.fasterxml.jackson.dataformat.smile.SmileGenerator
 import com.fasterxml.jackson.dataformat.smile.databind.SmileMapper
+import io.bluetape4k.jackson.binary.JacksonBinary.CBOR.defaultFactory
+import io.bluetape4k.jackson.binary.JacksonBinary.CBOR.defaultMapper
+import io.bluetape4k.jackson.binary.JacksonBinary.CBOR.defaultSerializer
+import io.bluetape4k.jackson.binary.JacksonBinary.ION.defaultFactory
+import io.bluetape4k.jackson.binary.JacksonBinary.ION.defaultMapper
+import io.bluetape4k.jackson.binary.JacksonBinary.ION.defaultSerializer
+import io.bluetape4k.jackson.binary.JacksonBinary.Smile.defaultFactory
+import io.bluetape4k.jackson.binary.JacksonBinary.Smile.defaultMapper
+import io.bluetape4k.jackson.binary.JacksonBinary.Smile.defaultSerializer
 import io.bluetape4k.logging.KLogging
 
 /**

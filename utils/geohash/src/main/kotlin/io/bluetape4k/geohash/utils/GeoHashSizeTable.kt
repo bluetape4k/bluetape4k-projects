@@ -1,6 +1,8 @@
 package io.bluetape4k.geohash.utils
 
 import io.bluetape4k.geohash.BoundingBox
+import io.bluetape4k.geohash.utils.GeoHashSizeTable.dLat
+import io.bluetape4k.geohash.utils.GeoHashSizeTable.dLon
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import kotlin.math.pow

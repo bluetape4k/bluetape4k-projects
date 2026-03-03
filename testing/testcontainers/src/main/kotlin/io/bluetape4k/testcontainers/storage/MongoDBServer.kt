@@ -2,15 +2,16 @@ package io.bluetape4k.testcontainers.storage
 
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoClients
-import com.mongodb.kotlin.client.coroutine.MongoClient as CoroutineMongoClient
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
+import io.bluetape4k.testcontainers.storage.MongoDBServer.Launcher.getClient
 import io.bluetape4k.testcontainers.writeToSystemProperties
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.MongoDBContainer
 import org.testcontainers.utility.DockerImageName
+import com.mongodb.kotlin.client.coroutine.MongoClient as CoroutineMongoClient
 
 /**
  * MongoDB 테스트 서버 컨테이너를 생성하고 연결 URL을 제공합니다.

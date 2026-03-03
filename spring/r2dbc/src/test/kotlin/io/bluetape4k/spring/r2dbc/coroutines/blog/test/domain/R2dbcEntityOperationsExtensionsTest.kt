@@ -1,5 +1,7 @@
 package io.bluetape4k.spring.r2dbc.coroutines.blog.test.domain
 
+import io.bluetape4k.spring.r2dbc.coroutines.blog.domain.Post
+import io.bluetape4k.spring.r2dbc.coroutines.blog.test.AbstractR2dbcBlogApplicationTest
 import io.bluetape4k.spring.r2dbc.coroutines.countAllSuspending
 import io.bluetape4k.spring.r2dbc.coroutines.deleteSuspending
 import io.bluetape4k.spring.r2dbc.coroutines.existsSuspending
@@ -9,16 +11,14 @@ import io.bluetape4k.spring.r2dbc.coroutines.insertSuspending
 import io.bluetape4k.spring.r2dbc.coroutines.selectAllSuspending
 import io.bluetape4k.spring.r2dbc.coroutines.selectOneSuspending
 import io.bluetape4k.spring.r2dbc.coroutines.updateSuspending
-import io.bluetape4k.spring.r2dbc.coroutines.blog.domain.Post
-import io.bluetape4k.spring.r2dbc.coroutines.blog.test.AbstractR2dbcBlogApplicationTest
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
+import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
-import org.amshove.kluent.shouldBeNull
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.r2dbc.core.R2dbcEntityOperations

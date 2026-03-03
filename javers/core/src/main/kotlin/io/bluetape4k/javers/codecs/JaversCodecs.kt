@@ -2,6 +2,7 @@ package io.bluetape4k.javers.codecs
 
 import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.io.serializer.BinarySerializers
+import io.bluetape4k.javers.codecs.JaversCodecs.String
 import io.bluetape4k.support.unsafeLazy
 
 

@@ -1,5 +1,8 @@
 package io.bluetape4k.images
 
+import io.bluetape4k.images.ImageFormat.Companion.parse
+
+
 /**
  * 지원하는 이미지 포맷 열거형입니다.
  *

@@ -1,5 +1,6 @@
 package io.bluetape4k.junit5.faker
 
+import io.bluetape4k.junit5.faker.FakeValueExtension.Companion.resolve
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.logging.warn

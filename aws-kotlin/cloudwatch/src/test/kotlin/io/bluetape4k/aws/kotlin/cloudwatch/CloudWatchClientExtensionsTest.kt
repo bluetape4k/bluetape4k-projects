@@ -1,5 +1,6 @@
 package io.bluetape4k.aws.kotlin.cloudwatch
 
+import aws.sdk.kotlin.services.cloudwatch.model.StandardUnit
 import io.bluetape4k.aws.kotlin.cloudwatch.model.metricDatumOf
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import aws.sdk.kotlin.services.cloudwatch.model.StandardUnit
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class CloudWatchClientExtensionsTest: AbstractKotlinCloudWatchTest() {

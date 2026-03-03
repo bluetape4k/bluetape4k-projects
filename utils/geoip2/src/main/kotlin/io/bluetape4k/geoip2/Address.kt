@@ -3,6 +3,8 @@ package io.bluetape4k.geoip2
 import com.maxmind.geoip2.model.CityResponse
 import com.maxmind.geoip2.model.CountryResponse
 import com.maxmind.geoip2.record.Traits
+import io.bluetape4k.geoip2.Address.Companion.fromCity
+import io.bluetape4k.geoip2.Address.Companion.fromCountry
 import java.io.Serializable
 import java.net.InetAddress
 

@@ -1,5 +1,6 @@
 package io.bluetape4k.concurrent.virtualthread
 
+import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopes.provider
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn

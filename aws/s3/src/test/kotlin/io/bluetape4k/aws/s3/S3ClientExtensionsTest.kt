@@ -1,6 +1,5 @@
 package io.bluetape4k.aws.s3
 
-import io.bluetape4k.codec.Base58
 import io.bluetape4k.io.deleteIfExists
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug

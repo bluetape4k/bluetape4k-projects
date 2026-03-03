@@ -4,9 +4,9 @@ import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.testcontainers.storage.MongoDBServer
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.mongodb.core.ReactiveMongoOperations
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
-import org.springframework.data.mongodb.core.ReactiveMongoOperations
 
 /**
  * Spring Data MongoDB Reactive 통합 테스트의 기반 클래스입니다.

@@ -4,12 +4,12 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.spring.mongodb.AbstractReactiveMongoCoroutineTest
 import io.bluetape4k.spring.mongodb.model.User
+import io.bluetape4k.spring.mongodb.query.andSet
 import io.bluetape4k.spring.mongodb.query.criteria
 import io.bluetape4k.spring.mongodb.query.eq
 import io.bluetape4k.spring.mongodb.query.gt
 import io.bluetape4k.spring.mongodb.query.paginate
 import io.bluetape4k.spring.mongodb.query.queryOf
-import io.bluetape4k.spring.mongodb.query.andSet
 import io.bluetape4k.spring.mongodb.query.setTo
 import io.bluetape4k.spring.mongodb.query.sortAscBy
 import io.bluetape4k.spring.mongodb.query.sortDescBy

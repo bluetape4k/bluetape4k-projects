@@ -4,7 +4,6 @@ import io.bluetape4k.codec.decodeBase64ByteArray
 import io.bluetape4k.codec.encodeBase64String
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
-import org.apache.avro.generic.GenericData.Record
 import org.apache.avro.generic.GenericRecord
 
 /**

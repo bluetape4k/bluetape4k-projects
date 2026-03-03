@@ -1,7 +1,6 @@
 package io.bluetape4k.retrofit2
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.json.JsonMapper
 import com.jakewharton.retrofit2.adapter.reactor.ReactorCallAdapterFactory
 import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.logging.KotlinLogging

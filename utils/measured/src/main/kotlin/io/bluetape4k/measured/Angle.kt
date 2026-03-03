@@ -1,10 +1,8 @@
 package io.bluetape4k.measured
 
+import io.bluetape4k.measured.Angle.Companion.degrees
+import io.bluetape4k.measured.Angle.Companion.radians
 import kotlin.math.PI
-import kotlin.math.acos
-import kotlin.math.asin
-import kotlin.math.atan
-import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.tan

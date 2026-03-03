@@ -1,6 +1,8 @@
 package io.bluetape4k.geocode.google
 
 import com.google.maps.GeoApiContext
+import io.bluetape4k.geocode.google.GoogleGeoService.apiKey
+import io.bluetape4k.geocode.google.GoogleGeoService.context
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.utils.Resourcex
 

@@ -1,5 +1,8 @@
 package io.bluetape4k.exposed.core.measured
 
+import io.bluetape4k.exposed.tests.AbstractExposedTest
+import io.bluetape4k.exposed.tests.TestDB
+import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.measured.Angle
 import io.bluetape4k.measured.Area
 import io.bluetape4k.measured.BinarySize
@@ -10,8 +13,6 @@ import io.bluetape4k.measured.Mass
 import io.bluetape4k.measured.Power
 import io.bluetape4k.measured.Pressure
 import io.bluetape4k.measured.Storage
-import io.bluetape4k.measured.Temperature
-import io.bluetape4k.measured.TemperatureDelta
 import io.bluetape4k.measured.Time
 import io.bluetape4k.measured.Units
 import io.bluetape4k.measured.Volume
@@ -24,14 +25,11 @@ import io.bluetape4k.measured.degrees
 import io.bluetape4k.measured.gbytes
 import io.bluetape4k.measured.gigaHertz
 import io.bluetape4k.measured.hours
-import io.bluetape4k.measured.kilometers2
 import io.bluetape4k.measured.kiloWattHours
-import io.bluetape4k.measured.kilograms
 import io.bluetape4k.measured.kiloWatts
+import io.bluetape4k.measured.kilograms
+import io.bluetape4k.measured.kilometers2
 import io.bluetape4k.measured.meters
-import io.bluetape4k.exposed.tests.AbstractExposedTest
-import io.bluetape4k.exposed.tests.TestDB
-import io.bluetape4k.exposed.tests.withTables
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNear
 import org.jetbrains.exposed.v1.core.Table

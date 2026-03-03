@@ -1,7 +1,6 @@
 package io.bluetape4k.aws.kotlin.sts
 
 import aws.sdk.kotlin.services.sts.StsClient
-import aws.sdk.kotlin.services.sts.assumeRole
 import aws.sdk.kotlin.services.sts.getCallerIdentity
 import aws.sdk.kotlin.services.sts.getSessionToken
 import aws.sdk.kotlin.services.sts.model.AssumeRoleResponse

@@ -1,5 +1,6 @@
 package io.bluetape4k.lingua
 
+import io.bluetape4k.lingua.UnicodeDetector.Companion.SupportedLanguages
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace

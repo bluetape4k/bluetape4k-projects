@@ -1,5 +1,7 @@
 package io.bluetape4k.geocode
 
+import io.bluetape4k.geocode.Geocode.Companion.DefaultMathContext
+import io.bluetape4k.geocode.Geocode.Companion.parse
 import io.bluetape4k.support.requireNotBlank
 import java.io.Serializable
 import java.math.BigDecimal

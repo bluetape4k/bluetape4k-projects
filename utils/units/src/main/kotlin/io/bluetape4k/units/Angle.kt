@@ -1,6 +1,8 @@
 package io.bluetape4k.units
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.units.Angle.Companion.parse
+import io.bluetape4k.units.AngleUnit.Companion.parse
 
 /**
  * 각도 값을 생성합니다.

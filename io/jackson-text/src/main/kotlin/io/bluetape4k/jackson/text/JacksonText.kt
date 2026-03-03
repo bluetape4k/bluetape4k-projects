@@ -13,6 +13,18 @@ import com.fasterxml.jackson.dataformat.toml.TomlMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper
 import io.bluetape4k.jackson.Jackson
+import io.bluetape4k.jackson.text.JacksonText.Csv.defaultFactory
+import io.bluetape4k.jackson.text.JacksonText.Csv.defaultMapper
+import io.bluetape4k.jackson.text.JacksonText.Csv.defaultSerializer
+import io.bluetape4k.jackson.text.JacksonText.Props.defaultFactory
+import io.bluetape4k.jackson.text.JacksonText.Props.defaultMapper
+import io.bluetape4k.jackson.text.JacksonText.Props.defaultSerializer
+import io.bluetape4k.jackson.text.JacksonText.Toml.defaultFactory
+import io.bluetape4k.jackson.text.JacksonText.Toml.defaultMapper
+import io.bluetape4k.jackson.text.JacksonText.Toml.defaultSerializer
+import io.bluetape4k.jackson.text.JacksonText.Yaml.defaultFactory
+import io.bluetape4k.jackson.text.JacksonText.Yaml.defaultMapper
+import io.bluetape4k.jackson.text.JacksonText.Yaml.defaultSerializer
 
 /**
  * Jackson 텍스트 포맷(CSV/Properties/TOML/YAML) 기본 mapper/factory/serializer를 제공합니다.

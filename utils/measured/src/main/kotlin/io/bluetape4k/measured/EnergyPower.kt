@@ -1,6 +1,7 @@
 package io.bluetape4k.measured
 
-import kotlin.jvm.JvmName
+import io.bluetape4k.measured.Energy.Companion.joules
+import io.bluetape4k.measured.Power.Companion.watts
 
 /**
  * 에너지 단위를 나타냅니다.

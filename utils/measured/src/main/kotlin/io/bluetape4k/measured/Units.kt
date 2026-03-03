@@ -1,6 +1,5 @@
 package io.bluetape4k.measured
 
-import kotlin.jvm.JvmName
 import kotlin.math.abs
 import kotlin.math.round
 

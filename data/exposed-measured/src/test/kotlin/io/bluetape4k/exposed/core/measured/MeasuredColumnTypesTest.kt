@@ -1,21 +1,20 @@
 package io.bluetape4k.exposed.core.measured
 
+import io.bluetape4k.exposed.tests.AbstractExposedTest
+import io.bluetape4k.exposed.tests.TestDB
+import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.measured.Area
 import io.bluetape4k.measured.Energy
 import io.bluetape4k.measured.Length
 import io.bluetape4k.measured.Measure
 import io.bluetape4k.measured.Power
-import io.bluetape4k.measured.Temperature
-import io.bluetape4k.measured.centimeters
 import io.bluetape4k.measured.celsius
 import io.bluetape4k.measured.celsiusDelta
-import io.bluetape4k.measured.kilometers2
+import io.bluetape4k.measured.centimeters
 import io.bluetape4k.measured.kiloWattHours
+import io.bluetape4k.measured.kilometers2
 import io.bluetape4k.measured.meters
 import io.bluetape4k.measured.watts
-import io.bluetape4k.exposed.tests.AbstractExposedTest
-import io.bluetape4k.exposed.tests.TestDB
-import io.bluetape4k.exposed.tests.withTables
 import org.amshove.kluent.shouldBeNear
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.core.eq

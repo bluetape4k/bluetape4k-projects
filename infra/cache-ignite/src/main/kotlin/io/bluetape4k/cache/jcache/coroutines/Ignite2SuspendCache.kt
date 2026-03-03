@@ -5,7 +5,6 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.requireNotBlank
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
@@ -13,13 +12,13 @@ import kotlinx.coroutines.future.asDeferred
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.withContext
-import org.apache.ignite.cache.CachingProvider as IgniteCachingProvider
 import org.apache.ignite.IgniteCache
 import org.apache.ignite.lang.IgniteFuture
 import java.util.concurrent.CompletableFuture
 import javax.cache.configuration.CacheEntryListenerConfiguration
 import javax.cache.configuration.Configuration
 import javax.cache.configuration.MutableConfiguration
+import org.apache.ignite.cache.CachingProvider as IgniteCachingProvider
 
 /**
  * Ignite 2.x JCache를 코루틴 기반 [SuspendCache]로 감싼 구현체입니다.

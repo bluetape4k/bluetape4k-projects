@@ -1,6 +1,5 @@
 package io.bluetape4k.examples.cassandra.reactive.people
 
-import io.bluetape4k.coroutines.flow.extensions.toFastList
 import io.bluetape4k.examples.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.coroutines.runSuspendTest

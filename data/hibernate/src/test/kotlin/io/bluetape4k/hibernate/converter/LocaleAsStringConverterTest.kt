@@ -4,7 +4,7 @@ import io.bluetape4k.hibernate.converters.LocaleAsStringConverter
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.junit.jupiter.api.Test
-import java.util.Locale
+import java.util.*
 
 class LocaleAsStringConverterTest {
 

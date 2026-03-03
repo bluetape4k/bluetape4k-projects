@@ -3,6 +3,7 @@ package io.bluetape4k.csv.coroutines
 import com.univocity.parsers.csv.CsvWriter
 import com.univocity.parsers.csv.CsvWriterSettings
 import io.bluetape4k.csv.DefaultCsvWriterSettings
+import io.bluetape4k.csv.coroutines.SuspendCsvRecordWriter.Companion.invoke
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.Flow
 import java.io.Writer

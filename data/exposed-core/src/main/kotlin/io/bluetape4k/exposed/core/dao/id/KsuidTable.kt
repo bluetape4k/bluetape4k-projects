@@ -1,7 +1,6 @@
 package io.bluetape4k.exposed.core.dao.id
 
 import io.bluetape4k.exposed.core.ksuidGenerated
-import io.bluetape4k.idgenerators.ksuid.Ksuid
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
 
 /**

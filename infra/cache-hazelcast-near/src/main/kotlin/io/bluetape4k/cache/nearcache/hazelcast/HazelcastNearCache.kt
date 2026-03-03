@@ -12,7 +12,6 @@ import io.bluetape4k.cache.nearcache.coroutines.NearSuspendCache
 import io.bluetape4k.support.requireNotBlank
 import javax.cache.configuration.Configuration
 import javax.cache.configuration.MutableConfiguration
-import kotlin.BuilderInference
 
 /**
  * Hazelcast back cache를 사용하는 [NearCache] 팩토리입니다.

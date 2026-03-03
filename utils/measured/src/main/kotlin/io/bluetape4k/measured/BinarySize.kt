@@ -1,5 +1,8 @@
 package io.bluetape4k.measured
 
+import io.bluetape4k.measured.BinarySize.Companion.bytes
+
+
 /**
  * 디지털 데이터 크기/대역폭 단위를 나타냅니다.
  *

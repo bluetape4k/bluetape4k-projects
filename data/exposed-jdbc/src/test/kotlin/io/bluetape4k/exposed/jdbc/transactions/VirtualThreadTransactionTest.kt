@@ -2,7 +2,6 @@ package io.bluetape4k.exposed.jdbc.transactions
 
 import io.bluetape4k.collections.intRangeOf
 import io.bluetape4k.concurrent.virtualthread.VirtualFuture
-import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import io.bluetape4k.concurrent.virtualthread.awaitAll
 import io.bluetape4k.exposed.dao.idEquals
 import io.bluetape4k.exposed.dao.idHashCode

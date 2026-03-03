@@ -30,7 +30,6 @@ import org.junit.jupiter.api.extension.ExtendWith
     AnnotationTarget.ANNOTATION_CLASS
 )
 @MustBeDocumented
-@Repeatable
 @JvmRepeatable(SystemProperties::class)
 @ExtendWith(SystemPropertyExtension::class)
 annotation class SystemProperty(

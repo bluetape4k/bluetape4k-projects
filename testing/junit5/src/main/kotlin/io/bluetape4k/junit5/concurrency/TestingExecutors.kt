@@ -1,5 +1,6 @@
 package io.bluetape4k.junit5.concurrency
 
+import io.bluetape4k.junit5.concurrency.TestingExecutors.newVirtualThreadFactory
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService

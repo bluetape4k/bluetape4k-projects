@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.kotlinModule
+import io.bluetape4k.jackson.Jackson.defaultJsonMapper
+import io.bluetape4k.jackson.Jackson.typedJsonMapper
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import java.io.IOException
