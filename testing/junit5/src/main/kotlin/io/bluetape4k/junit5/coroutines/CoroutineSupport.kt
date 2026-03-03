@@ -2,6 +2,7 @@ package io.bluetape4k.junit5.coroutines
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.Executors
@@ -74,11 +75,18 @@ inline fun runSuspendDefault(crossinline testBody: suspend CoroutineScope.() -> 
 }
 
 /**
- * Virtual Thread Per TaskExecutor를 Dispatcher로 만든 것
+ * Virtual Thread Per Task Executor 기반의 [ExecutorCoroutineDispatcher]입니다.
+ *
+ * ## 동작/계약
+ * - 최초 접근 시 한 번만 생성되며 이후 재사용됩니다.
+ * - JVM 종료 시 Shutdown Hook을 통해 [ExecutorCoroutineDispatcher.close]가 자동 호출됩니다.
+ * - [ExecutorCoroutineDispatcher] 타입으로 유지해 `close()` 호출 수단을 보존합니다.
  */
 @PublishedApi
-internal val Dispatchers.VT: CoroutineContext by lazy {
-    Executors.newVirtualThreadPerTaskExecutor().asCoroutineDispatcher()
+internal val Dispatchers.VT: ExecutorCoroutineDispatcher by lazy {
+    Executors.newVirtualThreadPerTaskExecutor().asCoroutineDispatcher().also { dispatcher ->
+        Runtime.getRuntime().addShutdownHook(Thread { dispatcher.close() })
+    }
 }
 
 /**

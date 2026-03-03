@@ -59,12 +59,19 @@ class InMemoryLogbackAppender private constructor(name: String): AppenderBase<IL
     }
 
     private val logger: ch.qos.logback.classic.Logger by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        val maxAttempts = 1000
+        var attempts = 0
         var logger: org.slf4j.Logger = LoggerFactory.getLogger(name)
         while (logger !is ch.qos.logback.classic.Logger) {
+            if (++attempts >= maxAttempts) {
+                throw IllegalStateException(
+                    "SLF4J 바인딩이 Logback이 아닙니다. InMemoryLogbackAppender는 Logback 환경에서만 사용할 수 있습니다. " +
+                        "현재 바인딩: ${logger.javaClass.name}"
+                )
+            }
             Thread.sleep(1)
             logger = LoggerFactory.getLogger(name)
         }
-
         LoggerFactory.getLogger(name) as ch.qos.logback.classic.Logger
     }
 

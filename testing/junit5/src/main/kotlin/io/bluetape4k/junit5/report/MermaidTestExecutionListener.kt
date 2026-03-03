@@ -11,7 +11,7 @@ import java.io.Serializable
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
-import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.jvm.optionals.getOrNull
 
 /**
@@ -56,7 +56,8 @@ class MermaidTestExecutionListener(
         val resultStatus: TestExecutionResult.Status? = null,
     ): Serializable
 
-    private val tasks = CopyOnWriteArrayList<Task>()
+    // uniqueId를 키로 사용해 find+set 비원자적 접근에 의한 race condition을 제거합니다.
+    private val taskMap = ConcurrentHashMap<String, Task>()
 
     private val TestIdentifier.className: String?
         get() = when (val source = this.source.getOrNull()) {
@@ -73,7 +74,7 @@ class MermaidTestExecutionListener(
                 displayName = testIdentifier.displayName,
                 startTime = Instant.now(clock)
             )
-            tasks.add(task)
+            taskMap[testIdentifier.uniqueId] = task
         }
     }
 
@@ -82,25 +83,21 @@ class MermaidTestExecutionListener(
         testExecutionResult: TestExecutionResult,
     ) {
         if (testIdentifier.isTest) {
-            val task = tasks.find {
-                it.uniqueId == testIdentifier.uniqueId
-            }
-            task?.let {
-                tasks[tasks.indexOf(it)] =
-                    it.copy(endTime = Instant.now(clock), resultStatus = testExecutionResult.status)
+            taskMap.compute(testIdentifier.uniqueId) { _, existing ->
+                existing?.copy(endTime = Instant.now(clock), resultStatus = testExecutionResult.status)
             }
         }
     }
 
     override fun testPlanExecutionFinished(testPlan: TestPlan) {
         printer("Test execution completed.")
-        printer(toMermaidGanttChart(tasks))
+        printer(toMermaidGanttChart(taskMap.values.toList()))
     }
 
     /**
      * 현재까지 수집된 이벤트를 Mermaid Gantt 차트 문자열로 반환합니다.
      */
-    internal fun mermaidGanttChart(): String = toMermaidGanttChart(tasks)
+    internal fun mermaidGanttChart(): String = toMermaidGanttChart(taskMap.values.toList())
 
     private fun toMermaidGanttChart(tasks: List<Task>): String = buildString {
         appendLine("gantt")

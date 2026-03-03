@@ -16,6 +16,8 @@ import java.nio.file.Paths
  * - 생성 시 즉시 OS 임시 디렉터리 아래에 루트 폴더를 하나 만듭니다.
  * - 파일/디렉터리 생성 실패는 [TempFolderException]으로 감싸 던집니다.
  * - [close] 호출 시 루트 경로를 재귀 삭제하며 실패는 경고 로그로만 남깁니다.
+ * - [Closeable]([AutoCloseable])을 구현하므로 JUnit 5 Extension Store에 저장 시
+ *   테스트 컨텍스트 종료 시점에 [close]가 자동 호출되어 임시 파일이 정리됩니다.
  *
  * ```kotlin
  * TempFolder().use { tf ->
@@ -77,7 +79,10 @@ class TempFolder: Closeable {
         require(filename.isNotBlank()) { "filename must not be blank" }
 
         return try {
-            val path = Paths.get(rootFile.path, filename)
+            val path = Paths.get(rootFile.path, filename).normalize()
+            require(path.startsWith(rootFile.toPath())) {
+                "경로 순회가 감지되었습니다. filename이 임시 루트 디렉터리를 벗어날 수 없습니다: $filename"
+            }
             Files.createFile(path).toFile().apply {
                 log.debug { "임시 파일을 생성했습니다. file=[$this]" }
             }
@@ -99,7 +104,10 @@ class TempFolder: Closeable {
         require(dir.isNotBlank()) { "dir must not be blank" }
 
         return try {
-            val path = Paths.get(rootFile.path, dir)
+            val path = Paths.get(rootFile.path, dir).normalize()
+            require(path.startsWith(rootFile.toPath())) {
+                "경로 순회가 감지되었습니다. dir이 임시 루트 디렉터리를 벗어날 수 없습니다: $dir"
+            }
             Files.createDirectory(path).toFile().apply {
                 log.debug { "임시 폴더를 생성했습니다. dir=[$this]" }
             }

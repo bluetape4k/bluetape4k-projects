@@ -156,4 +156,10 @@ private fun <T> ConditionFactory.readPrivateField(name: String): T? = runCatchin
     val field = ConditionFactory::class.java.getDeclaredField(name)
     field.isAccessible = true
     field.get(this) as T
+}.onFailure { e ->
+    // Awaitility 버전 변경 시 필드 이름이 바뀌면 기본값으로 폴백됩니다.
+    // 이 경우 경고 로그를 확인하고 Awaitility 버전 호환성을 검토해 주세요.
+    if (e !is NoSuchFieldException) {
+        println("WARN: ConditionFactory.$name 필드 접근 실패 (Awaitility 버전 비호환 가능성): ${e.message}")
+    }
 }.getOrNull()

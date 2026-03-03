@@ -62,10 +62,19 @@ class FakeValueExtension: TestInstancePostProcessor, ParameterResolver {
             val labelName = names[1]
             log.trace { "providerName=$providerName, labelName=$labelName" }
 
-            val providerMethod = javaClass.methods.find { it.name == providerName && it.parameterCount == 0 }!!
+            val providerMethod = javaClass.methods.find { it.name == providerName && it.parameterCount == 0 }
+                ?: throw IllegalArgumentException(
+                    "DataFaker에서 provider 메서드 '$providerName'을(를) 찾을 수 없습니다. " +
+                        "provider 경로를 확인해 주세요: '${annotation.provider}'"
+                )
             val provider = providerMethod.invoke(this@getValues)
 
-            val valueMethod = provider.javaClass.methods.find { it.name == labelName && it.parameterCount == 0 }!!
+            val valueMethod = provider.javaClass.methods.find { it.name == labelName && it.parameterCount == 0 }
+                ?: throw IllegalArgumentException(
+                    "DataFaker provider '${provider.javaClass.simpleName}'에서 " +
+                        "label 메서드 '$labelName'을(를) 찾을 수 없습니다. " +
+                        "provider 경로를 확인해 주세요: '${annotation.provider}'"
+                )
 
             return generateSequence { valueMethod.invoke(provider) }.take(annotation.size)
         }

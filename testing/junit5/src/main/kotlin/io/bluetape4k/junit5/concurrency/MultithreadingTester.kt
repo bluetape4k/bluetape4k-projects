@@ -42,7 +42,7 @@ class MultithreadingTester: WorkerStressTester<MultithreadingTester> {
     private var workers = DEFAULT_WORKER_SIZE
     private var roundsPerWorker = DEFAULT_ROUNDS_PER_WORKER
     private val runnables = CopyOnWriteArrayList<() -> Unit>()
-    private val futures = CopyOnWriteArrayList<Future<*>>()
+    private val futures = mutableListOf<Future<*>>()
     private var executor: ExecutorService? = null
 
     /**
@@ -230,11 +230,12 @@ class MultithreadingTester: WorkerStressTester<MultithreadingTester> {
         log.debug { "Start worker threads ... workers=$workers" }
 
         val factory = Thread.ofPlatform().name("multi-thread-tester-", 0).daemon(true).factory()
-        executor = Executors.newFixedThreadPool(workers, factory)
+        val pool = Executors.newFixedThreadPool(workers, factory)
+        executor = pool
 
         val tasks = List(workers * roundsPerWorker) {
             val runnable = runnables[it % runnables.size]
-            executor!!.submit {
+            pool.submit {
                 try {
                     runnable.invoke()
                 } catch (t: Throwable) {
@@ -266,6 +267,6 @@ class MultithreadingTester: WorkerStressTester<MultithreadingTester> {
     }
 
     private fun shutdownExecutor() {
-        runCatching { executor!!.shutdownNow() }
+        runCatching { executor?.shutdownNow() }
     }
 }

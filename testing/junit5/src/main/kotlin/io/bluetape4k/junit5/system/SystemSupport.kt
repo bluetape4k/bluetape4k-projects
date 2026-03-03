@@ -1,6 +1,6 @@
 package io.bluetape4k.junit5.system
 
-import org.junit.Assume
+import org.junit.jupiter.api.Assumptions
 
 /**
  * Windows 환경이 아닐 때만 테스트를 계속 수행합니다.
@@ -17,7 +17,7 @@ import org.junit.Assume
  */
 @Deprecated("Use assumeNotWindows instead", ReplaceWith("assumeNotWindows()"))
 fun assumeNoWindows() {
-    Assume.assumeFalse(System.getProperty("os.name").lowercase().contains("win"))
+    Assumptions.assumeFalse(System.getProperty("os.name").lowercase().contains("win"))
 }
 
 /**
@@ -33,5 +33,5 @@ fun assumeNoWindows() {
  * ```
  */
 fun assumeNotWindows() {
-    Assume.assumeFalse(System.getProperty("os.name").lowercase().contains("win"))
+    Assumptions.assumeFalse(System.getProperty("os.name").lowercase().contains("win"))
 }

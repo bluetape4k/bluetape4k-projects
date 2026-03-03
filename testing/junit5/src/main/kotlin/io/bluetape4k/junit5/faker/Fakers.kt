@@ -39,7 +39,7 @@ object Fakers: KLogging() {
     private inline fun <reified T> unsafeLazy(
         @BuilderInference noinline initializer: () -> T,
     ): Lazy<T> =
-        lazy(LazyThreadSafetyMode.NONE, initializer)
+        lazy(LazyThreadSafetyMode.PUBLICATION, initializer)
 
     /**
      * 길이 범위를 지정해 임의 문자열을 생성합니다.

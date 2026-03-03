@@ -10,6 +10,7 @@ import io.bluetape4k.junit5.tester.WorkerStressTester.Companion.MIN_WORKER_SIZE
 import io.bluetape4k.junit5.utils.MultiException
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
@@ -217,6 +218,9 @@ class SuspendedJobTester: WorkerStressTester<SuspendedJobTester> {
                 launch(dispatcher) {
                     try {
                         block.invoke()
+                    } catch (e: CancellationException) {
+                        // CancellationException은 코루틴 구조화된 동시성의 정상 취소 신호이므로 재전파합니다.
+                        throw e
                     } catch (e: Throwable) {
                         me.add(e)
                     }

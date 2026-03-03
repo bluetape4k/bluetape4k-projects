@@ -87,15 +87,9 @@ class SystemPropertyExtension: BeforeAllCallback, BeforeEachCallback, AfterEachC
     }
 
     private fun getSystemProperties(annotatedElement: AnnotatedElement): List<SystemProperty> {
-        val result = mutableListOf<SystemProperty>()
-
-        if (AnnotationUtils.isAnnotated(annotatedElement, SystemProperties::class.java)) {
-            result.addAll(annotatedElement.getAnnotation(SystemProperties::class.java).value)
-        }
-        if (AnnotationUtils.isAnnotated(annotatedElement, SystemProperty::class.java)) {
-            result.add(annotatedElement.getAnnotation(SystemProperty::class.java))
-        }
-        return result
+        // findRepeatableAnnotations을 사용해 @SystemProperties 컨테이너와 개별 @SystemProperty를
+        // 모두 탐색합니다. getAnnotation은 반복 어노테이션이 여러 개일 때 첫 번째만 반환하는 문제가 있습니다.
+        return AnnotationUtils.findRepeatableAnnotations(annotatedElement, SystemProperty::class.java)
     }
 
     private fun readRestoreContextInClass(context: ExtensionContext): SystemPropertyRestoreContext? {

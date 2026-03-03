@@ -61,13 +61,21 @@ class OutputCapturer {
         return capture()
     }
 
+    /**
+     * 표준 출력/에러 스트림 캡처를 시작합니다.
+     *
+     * **주의:** [System.setOut]/[System.setErr]는 JVM 전역 상태를 변경하므로
+     * 병렬 테스트와 함께 사용할 수 없습니다. 단일 스레드 테스트 환경에서만 사용해 주세요.
+     */
     internal fun startCapture() {
-        copy = ByteArrayOutputStream()
-        captureOut = CaptureOutputStream(System.out, copy!!)
-        captureErr = CaptureOutputStream(System.err, copy!!)
-
-        System.setOut(PrintStream(captureOut!!))
-        System.setErr(PrintStream(captureErr!!))
+        val buffer = ByteArrayOutputStream()
+        copy = buffer
+        val out = CaptureOutputStream(System.out, buffer)
+        val err = CaptureOutputStream(System.err, buffer)
+        captureOut = out
+        captureErr = err
+        System.setOut(PrintStream(out))
+        System.setErr(PrintStream(err))
     }
 
     internal fun finishCapture() {
