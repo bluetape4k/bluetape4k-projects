@@ -28,6 +28,6 @@ class AES(
 ): AbstractEncryptor(ALGORITHM, saltGenerator, password, ivGenerator) {
 
     companion object: KLogging() {
-        const val ALGORITHM = "PBEWITHHMACSHA256ANDAES_256"
+        const val ALGORITHM = "PBEWITHHMACSHA512ANDAES_256"
     }
 }
