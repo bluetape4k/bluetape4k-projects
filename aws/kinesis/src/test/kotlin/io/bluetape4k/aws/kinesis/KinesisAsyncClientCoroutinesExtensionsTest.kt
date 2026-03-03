@@ -1,13 +1,12 @@
 package io.bluetape4k.aws.kinesis
 
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
 import org.amshove.kluent.shouldNotBeEmpty
 import org.awaitility.kotlin.await
-import org.awaitility.kotlin.untilAsserted
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -38,7 +37,7 @@ class KinesisAsyncClientCoroutinesExtensionsTest: AbstractKinesisTest() {
 
     @Test
     @Order(1)
-    fun `코루틴으로 스트림 생성`() = runTest {
+    fun `코루틴으로 스트림 생성`() = runSuspendIO {
         val response = asyncClient.createStream(STREAM_NAME, shardCount = 1)
         log.debug { "createStream httpStatus=${response.sdkHttpResponse().statusCode()}" }
         response.sdkHttpResponse().statusCode() shouldBeGreaterOrEqualTo 200
@@ -47,7 +46,7 @@ class KinesisAsyncClientCoroutinesExtensionsTest: AbstractKinesisTest() {
     @Test
     @Order(2)
     fun `스트림 ACTIVE 상태 대기`() {
-        await.atMost(Duration.ofSeconds(30)).untilAsserted {
+        await.atMost(Duration.ofSeconds(30)).until {
             val desc = client.describeStream(STREAM_NAME)
             val status = desc.streamDescription().streamStatus()
             log.debug { "stream=$STREAM_NAME status=$status" }
@@ -57,7 +56,7 @@ class KinesisAsyncClientCoroutinesExtensionsTest: AbstractKinesisTest() {
 
     @Test
     @Order(3)
-    fun `코루틴으로 단일 레코드 전송`() = runTest {
+    fun `코루틴으로 단일 레코드 전송`() = runSuspendIO {
         val data = SdkBytes.fromUtf8String("Hello Kinesis Coroutines!")
         val response = asyncClient.putRecord(STREAM_NAME, "partition-1", data)
 
@@ -69,7 +68,7 @@ class KinesisAsyncClientCoroutinesExtensionsTest: AbstractKinesisTest() {
 
     @Test
     @Order(4)
-    fun `코루틴으로 복수 레코드 배치 전송`() = runTest {
+    fun `코루틴으로 복수 레코드 배치 전송`() = runSuspendIO {
         val entries = (1..5).map { i ->
             PutRecordsRequestEntry.builder()
                 .partitionKey("partition-$i")
@@ -84,7 +83,7 @@ class KinesisAsyncClientCoroutinesExtensionsTest: AbstractKinesisTest() {
 
     @Test
     @Order(5)
-    fun `코루틴으로 샤드 이터레이터 조회`() = runTest {
+    fun `코루틴으로 샤드 이터레이터 조회`() = runSuspendIO {
         val response = asyncClient.getShardIterator(STREAM_NAME, shardId, ShardIteratorType.TRIM_HORIZON)
 
         shardIterator = response.shardIterator()
@@ -94,7 +93,7 @@ class KinesisAsyncClientCoroutinesExtensionsTest: AbstractKinesisTest() {
 
     @Test
     @Order(6)
-    fun `코루틴으로 레코드 조회`() = runTest {
+    fun `코루틴으로 레코드 조회`() = runSuspendIO {
         val response = asyncClient.getRecords(shardIterator, limit = 100)
 
         log.debug { "getRecords count=${response.records().size}" }
@@ -105,7 +104,7 @@ class KinesisAsyncClientCoroutinesExtensionsTest: AbstractKinesisTest() {
 
     @Test
     @Order(7)
-    fun `코루틴으로 스트림 삭제`() = runTest {
+    fun `코루틴으로 스트림 삭제`() = runSuspendIO {
         val response = asyncClient.deleteStream(STREAM_NAME)
         log.debug { "deleteStream httpStatus=${response.sdkHttpResponse().statusCode()}" }
         response.sdkHttpResponse().statusCode() shouldBeGreaterOrEqualTo 200

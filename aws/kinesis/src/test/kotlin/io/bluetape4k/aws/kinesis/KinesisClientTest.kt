@@ -3,11 +3,9 @@ package io.bluetape4k.aws.kinesis
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
 import org.amshove.kluent.shouldNotBeEmpty
 import org.awaitility.kotlin.await
-import org.awaitility.kotlin.untilAsserted
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -46,11 +44,11 @@ class KinesisClientTest: AbstractKinesisTest() {
     @Test
     @Order(2)
     fun `스트림 ACTIVE 상태 대기`() {
-        await.atMost(Duration.ofSeconds(30)).untilAsserted {
+        await.atMost(Duration.ofSeconds(30)).until {
             val desc = client.describeStream(STREAM_NAME)
             val status = desc.streamDescription().streamStatus()
             log.debug { "stream=$STREAM_NAME status=$status" }
-            status shouldBeEqualTo StreamStatus.ACTIVE
+            status == StreamStatus.ACTIVE
         }
     }
 

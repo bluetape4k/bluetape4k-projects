@@ -4,10 +4,10 @@ import aws.sdk.kotlin.services.kinesis.model.ShardIteratorType
 import aws.sdk.kotlin.services.kinesis.model.StreamStatus
 import io.bluetape4k.aws.kotlin.kinesis.model.putRecordsRequestEntryOf
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.MethodOrderer
@@ -33,7 +33,7 @@ class KinesisClientExtensionsTest: AbstractKotlinKinesisTest() {
 
     @Test
     @Order(1)
-    fun `스트림 생성`() = runTest {
+    fun `스트림 생성`() = runSuspendIO {
         val response = client.createStream(STREAM_NAME, shardCount = 1)
         log.debug { "createStream response=$response" }
         response.shouldNotBeNull()
@@ -41,13 +41,13 @@ class KinesisClientExtensionsTest: AbstractKotlinKinesisTest() {
 
     @Test
     @Order(2)
-    fun `스트림 ACTIVE 상태 대기`() = runTest(timeout = 60.seconds) {
+    fun `스트림 ACTIVE 상태 대기`() = runSuspendIO {
         var status: StreamStatus? = null
         repeat(30) {
             val desc = client.describeStream(STREAM_NAME)
             status = desc.streamDescription?.streamStatus
             log.debug { "stream=$STREAM_NAME status=$status" }
-            if (status == StreamStatus.Active) return@runTest
+            if (status == StreamStatus.Active) return@runSuspendIO
             delay(1.seconds)
         }
         status.shouldNotBeNull()
@@ -55,7 +55,7 @@ class KinesisClientExtensionsTest: AbstractKotlinKinesisTest() {
 
     @Test
     @Order(3)
-    fun `단일 레코드 전송`() = runTest {
+    fun `단일 레코드 전송`() = runSuspendIO {
         val data = "Hello Kotlin Kinesis!".toByteArray()
         val response = client.putRecord(STREAM_NAME, "partition-1", data)
 
@@ -67,7 +67,7 @@ class KinesisClientExtensionsTest: AbstractKotlinKinesisTest() {
 
     @Test
     @Order(4)
-    fun `복수 레코드 배치 전송`() = runTest {
+    fun `복수 레코드 배치 전송`() = runSuspendIO {
         val entries = (1..5).map { i ->
             putRecordsRequestEntryOf(
                 partitionKey = "partition-$i",
@@ -82,7 +82,7 @@ class KinesisClientExtensionsTest: AbstractKotlinKinesisTest() {
 
     @Test
     @Order(5)
-    fun `샤드 이터레이터 조회`() = runTest {
+    fun `샤드 이터레이터 조회`() = runSuspendIO {
         val response = client.getShardIterator(STREAM_NAME, shardId, ShardIteratorType.TrimHorizon)
 
         shardIterator = response.shardIterator!!
@@ -92,7 +92,7 @@ class KinesisClientExtensionsTest: AbstractKotlinKinesisTest() {
 
     @Test
     @Order(6)
-    fun `레코드 조회`() = runTest {
+    fun `레코드 조회`() = runSuspendIO {
         val response = client.getRecords(shardIterator, limit = 100)
 
         log.debug { "getRecords count=${response.records.size}" }
@@ -103,7 +103,7 @@ class KinesisClientExtensionsTest: AbstractKotlinKinesisTest() {
 
     @Test
     @Order(7)
-    fun `스트림 삭제`() = runTest {
+    fun `스트림 삭제`() = runSuspendIO {
         val response = client.deleteStream(STREAM_NAME)
         log.debug { "deleteStream response=$response" }
         response.shouldNotBeNull()
