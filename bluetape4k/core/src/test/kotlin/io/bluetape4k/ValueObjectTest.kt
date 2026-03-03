@@ -1,6 +1,7 @@
 package io.bluetape4k
 
 import io.bluetape4k.logging.KLogging
+import java.util.Objects
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBe
 import org.amshove.kluent.shouldNotBeEqualTo
@@ -13,6 +14,8 @@ class ValueObjectTest {
     class Person(val name: String, val age: Int, val address: String? = null): AbstractValueObject() {
         override fun equalProperties(other: Any): Boolean =
             other is Person && name == other.name && age == other.age
+
+        override fun hashCode(): Int = Objects.hash(name, age)
 
         override fun buildStringHelper(): ToStringBuilder {
             return super.buildStringHelper()

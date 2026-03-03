@@ -2,6 +2,7 @@
 
 package io.bluetape4k.concurrent.virtualthread
 
+import io.bluetape4k.utils.ShutdownQueue
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -16,7 +17,8 @@ val Dispatchers.VT: CoroutineDispatcher
 
 /**
  * Kotlin Coroutines 에서 Virtual Thread를 사용하기 위한 Dispatcher
- * Virtual thread를 사용하는 새로운 [ExecutorService] 를 생성하여 반환
+ * Virtual thread를 사용하는 새로운 [ExecutorService] 를 생성하여 반환합니다.
+ * 생성된 Dispatcher는 JVM 종료 시 [ShutdownQueue]를 통해 자동으로 정리됩니다.
  */
 val Dispatchers.newVT: CoroutineDispatcher
-    get() = VirtualThreads.executorService().asCoroutineDispatcher()
+    get() = VirtualThreads.executorService().asCoroutineDispatcher().apply { ShutdownQueue.register(this) }

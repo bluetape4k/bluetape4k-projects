@@ -3,7 +3,7 @@ package io.bluetape4k.utils
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
-import io.bluetape4k.support.assertNotBlank
+import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.emptyByteArray
 import java.io.InputStream
 import java.nio.charset.Charset
@@ -30,7 +30,7 @@ object Resourcex: KLogging() {
      * @return [InputStream] 인스턴스, 파일이 없으면 null 을 반환
      */
     fun getInputStream(path: String, classLoader: ClassLoader = currentClassLoader): InputStream? {
-        path.assertNotBlank("path")
+        path.requireNotBlank("path")
         log.debug { "Load resource file... path=[$path]" }
 
         val url = path.removePrefix("/")
