@@ -39,6 +39,17 @@ class MariaDBServer private constructor(
         const val PASSWORD = "test"
         const val DRIVER_CLASS_NAME = "org.mariadb.jdbc.Driver"
 
+        /**
+         * [MariaDBServer]를 생성합니다.
+         *
+         * @param image             docker image (기본: `mariadb`)
+         * @param tag               docker image tag (기본: `12`)
+         * @param useDefaultPort    기본 포트를 사용할지 여부 (기본: `false`)
+         * @param reuse             재사용 여부 (기본: `true`)
+         * @param username          사용자 이름 (기본: `test`)
+         * @param password          비밀번호 (기본: `test`)
+         * @param configuration     설정 (기본: `""`)
+         */
         @JvmStatic
         operator fun invoke(
             image: String = IMAGE,
@@ -97,7 +108,9 @@ class MariaDBServer private constructor(
         withEnv("MYSQL_ALLOW_EMPTY_PASSWORD", "yes")
 
         withCreateContainerCmdModifier { cmd ->
-            cmd.withPlatform("linux/arm64")  // for Apple Silicon
+            val arch = System.getProperty("os.arch")
+            val platform = if (arch == "aarch64") "linux/arm64" else "linux/amd64"
+            cmd.withPlatform(platform)
         }
 
         // For Debugging

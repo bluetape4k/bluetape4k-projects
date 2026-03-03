@@ -48,7 +48,7 @@ class ConsulServer private constructor(
     }
 
     override val port: Int get() = getMappedPort(HTTP_PORT)
-    override val url: String get() = "https://$host:$port"
+    override val url: String get() = "http://$host:$port"
 
     /** DNS 질의용 Consul 포트의 매핑 결과입니다. */
     val dnsPort: Int get() = getMappedPort(DNS_PORT)

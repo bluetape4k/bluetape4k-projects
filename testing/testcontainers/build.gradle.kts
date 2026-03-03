@@ -169,9 +169,4 @@ dependencies {
 
     // TiDB
     compileOnly(Libs.testcontainers_tidb)
-
-    testImplementation(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
-
-    testImplementation(Libs.netty_all)
 }

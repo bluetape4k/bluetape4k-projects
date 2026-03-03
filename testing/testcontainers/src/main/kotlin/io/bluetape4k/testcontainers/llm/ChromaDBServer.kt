@@ -10,7 +10,7 @@ import org.testcontainers.chromadb.ChromaDBContainer
 import org.testcontainers.utility.DockerImageName
 
 /**
- * A test container for ChromaDB.
+ * ChromaDB 테스트 컨테이너입니다.
  *
  * - 참고: [ChromaDB](https://www.trychroma.com/)
  * - 참고: [ChromaDB Docker Image](https://hub.docker.com/r/chromadb/chroma)

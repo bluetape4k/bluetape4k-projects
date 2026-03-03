@@ -33,6 +33,16 @@ class ClickHouseServer private constructor(
         const val PASSWORD = "test"
         const val DRIVER_CLASS_NAME = "com.clickhouse.jdbc.ClickHouseDriver"
 
+        /**
+         * [ClickHouseServer]를 생성합니다.
+         *
+         * @param image             docker image (기본: `clickhouse/clickhouse-server`)
+         * @param tag               docker image tag (기본: `25.4`)
+         * @param username          사용자 이름 (기본: `test`)
+         * @param password          비밀번호 (기본: `test`)
+         * @param useDefaultPort    기본 포트를 사용할지 여부 (기본: `false`)
+         * @param reuse             재사용 여부 (기본: `true`)
+         */
         @JvmStatic
         operator fun invoke(
             image: String = IMAGE,

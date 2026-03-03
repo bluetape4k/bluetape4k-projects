@@ -56,7 +56,7 @@ class PrometheusServer private constructor(
     }
 
     override val port: Int get() = getMappedPort(PORT)
-    override val url: String get() = "https://$host:$port"
+    override val url: String get() = "http://$host:$port"
 
     /** Prometheus HTTP 포트의 매핑 결과입니다. */
     val serverPort: Int get() = getMappedPort(PORT)
@@ -96,8 +96,9 @@ class PrometheusServer private constructor(
     }
 
     /**
-     * 하위 호환용 런처입니다.
+     * 하위 호환용 런처입니다. [Launcher]를 사용하세요.
      */
+    @Deprecated("Use Launcher instead", ReplaceWith("Launcher"))
     object Launch {
         val prometheus: PrometheusServer by lazy {
             PrometheusServer().apply {

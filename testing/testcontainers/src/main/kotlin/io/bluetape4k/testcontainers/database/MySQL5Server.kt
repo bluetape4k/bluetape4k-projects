@@ -113,7 +113,9 @@ class MySQL5Server private constructor(
         setWaitStrategy(Wait.forListeningPort())
 
         withCreateContainerCmdModifier { cmd ->
-            cmd.withPlatform("linux/arm64")  // for Apple Silicon
+            val arch = System.getProperty("os.arch")
+            val platform = if (arch == "aarch64") "linux/arm64" else "linux/amd64"
+            cmd.withPlatform(platform)
         }
 
         // 로컬 테스트용이므로, 비밀번호가 없어도 실행할 수 있도록 한다

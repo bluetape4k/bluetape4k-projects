@@ -56,13 +56,13 @@ class JaegerServer private constructor(
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")
             
-            val imageName = DockerImageName.parse(IMAGE).withTag(tag)
+            val imageName = DockerImageName.parse(image).withTag(tag)
             return JaegerServer(imageName, useDefaultPort, reuse)
         }
     }
 
     override val port: Int get() = getMappedPort(FRONTEND_PORT)
-    override val url: String get() = "https://$host:$port"
+    override val url: String get() = "http://$host:$port"
 
     /** Jaeger UI(Frontend) 포트의 매핑 결과입니다. */
     val frontendPort: Int get() = getMappedPort(FRONTEND_PORT)

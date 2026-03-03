@@ -48,7 +48,7 @@ class VaultServer private constructor(
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")
             
-            val imageName = DockerImageName.parse(IMAGE).withTag(tag)
+            val imageName = DockerImageName.parse(image).withTag(tag)
             return VaultServer(imageName, useDefaultPort, reuse)
         }
     }

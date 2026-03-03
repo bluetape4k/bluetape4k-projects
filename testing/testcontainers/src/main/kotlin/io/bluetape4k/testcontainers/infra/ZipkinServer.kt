@@ -50,13 +50,13 @@ class ZipkinServer private constructor(
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")
             
-            val imageName = DockerImageName.parse(IMAGE).withTag(tag)
+            val imageName = DockerImageName.parse(image).withTag(tag)
             return invoke(imageName, useDefaultPort, reuse)
         }
     }
 
     override val port: Int get() = getMappedPort(PORT)
-    override val url: String get() = "https://$host:$port"
+    override val url: String get() = "http://$host:$port"
 
     init {
         addExposedPorts(PORT)

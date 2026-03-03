@@ -64,7 +64,7 @@ class CassandraServer private constructor(
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")
             
-            val imageName = DockerImageName.parse(IMAGE).withTag(tag)
+            val imageName = DockerImageName.parse(image).withTag(tag)
             return invoke(imageName, useDefaultPort, reuse)
         }
 
@@ -119,7 +119,7 @@ class CassandraServer private constructor(
                 throw ScriptException("Could not load classpath init script: $initScriptPath Resource not found or empty.")
             }
             newCqlSessionBuilder().build().use { session ->
-                val cqls = Resourcex.getString(initScriptPath).split(";").filter { it.isNotBlank() }.map { it.trim() }
+                val cqls = cql.split(";").filter { it.isNotBlank() }.map { it.trim() }
                 cqls.forEach { cql ->
                     val applied = session.execute(cql).wasApplied()
                     log.debug { "CQL[$cql] was applied[$applied]" }
@@ -193,7 +193,7 @@ class CassandraServer private constructor(
         }
 
         inline fun getOrCreateSession(
-            keyspace: String = "",
+            keyspace: String = DEFAULT_KEYSPACE,
             @BuilderInference builder: CqlSessionBuilder.() -> Unit = {},
         ): CqlSession {
             keyspace.requireNotBlank("keyspace")
