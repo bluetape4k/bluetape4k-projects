@@ -44,6 +44,51 @@ class ForyBinarySerializer(
                     TimeUnit.MINUTES
                 )
         }
+
+        /**
+         * 클래스 등록이 강제되는 보안 [ThreadSafeFory]를 생성합니다.
+         *
+         * ## 동작/계약
+         * - `requireClassRegistration(true)` 설정으로 등록된 클래스만 직렬화/역직렬화를 허용합니다.
+         * - 미등록 클래스 직렬화 시도 시 즉시 예외가 발생하므로, 의도치 않은 타입 노출을 방지합니다.
+         * - [classes]에 포함한 클래스와 그 필드 타입이 모두 등록되어 있어야 합니다.
+         *
+         * ```kotlin
+         * // 보안 Fory 생성 후 ForyBinarySerializer에 주입
+         * val secureFory = ForyBinarySerializer.secureFory(
+         *     MyData::class.java,
+         *     MyOtherData::class.java,
+         * )
+         * val serializer = ForyBinarySerializer(fory = secureFory)
+         *
+         * // 등록된 클래스는 직렬화 가능
+         * val bytes = serializer.serialize(MyData("hello"))
+         *
+         * // 미등록 클래스는 직렬화 시 BinarySerializationException 발생
+         * serializer.serialize(UnregisteredClass())  // throws!
+         * ```
+         *
+         * @param classes 직렬화를 허용할 사용자 정의 클래스 목록
+         */
+        @JvmStatic
+        fun secureFory(vararg classes: Class<*>): ThreadSafeFory =
+            Fory.builder()
+                .withLanguage(Language.JAVA)
+                .withCompatibleMode(CompatibleMode.COMPATIBLE)
+                .withAsyncCompilation(true)
+                .withRefTracking(true)
+                .withRefCopy(true)
+                .withCodegen(true)
+                .withStringCompressed(true)
+                .requireClassRegistration(true)   // 보안: 등록된 클래스만 허용
+                .buildThreadSafeForyPool(
+                    2,
+                    2 * Runtime.getRuntime().availableProcessors(),
+                    30L,
+                    TimeUnit.MINUTES
+                ).also { fory ->
+                    classes.forEach { fory.register(it) }
+                }
     }
 
     /**
