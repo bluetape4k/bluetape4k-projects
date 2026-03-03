@@ -40,7 +40,6 @@ abstract class AbstractClientTest: AbstractRetrofitTest() {
     @BeforeEach
     fun beforeEach() {
         server = MockWebServer().apply { start() }
-        server.start()
         service = retrofitOf(server.baseUrl, callFactory).service()
         api = retrofitOf(server.baseUrl, callFactory, ScalarsConverterFactory.create()).service()
     }

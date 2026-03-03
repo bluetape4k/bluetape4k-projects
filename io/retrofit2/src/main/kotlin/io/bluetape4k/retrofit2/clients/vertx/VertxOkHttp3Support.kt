@@ -36,7 +36,7 @@ internal fun okhttp3.Request.toVertxHttpClientRequest(request: HttpClientRequest
 
     // Build Vertx HttpClientRequest Body
     self.body?.let { body: RequestBody ->
-        if (body.contentLength() > 0) {
+        if (body.contentLength() != 0L) {
             val contentType = body.contentType()
 
             request.putHeader(HttpHeaders.CONTENT_TYPE, contentType.toString())

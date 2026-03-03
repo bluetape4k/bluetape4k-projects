@@ -88,13 +88,13 @@ class RetrofitSupportTest: AbstractRetrofitTest() {
 
         @RepeatedTest(REPEAT_SIZE)
         fun `Retrofit용 API를 활용한 Coroutines Bulk 호출`() = runSuspendIO {
-            val deferres = List(CALL_SIZE) {
+            val deferreds = List(CALL_SIZE) {
                 async(Dispatchers.IO) {
                     jsonApi.getPost(Random.nextInt(1, 100)).executeAsync().awaitSuspending()
                 }
             }
 
-            val responses = deferres.awaitAll()
+            val responses = deferreds.awaitAll()
             responses.forEach { response ->
                 response.body().shouldNotBeNull()
             }

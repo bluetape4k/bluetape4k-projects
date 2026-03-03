@@ -52,7 +52,7 @@ fun hc5CallFactoryOf(
  */
 class Hc5CallFactory private constructor(
     private val asyncClient: CloseableHttpAsyncClient,
-): okhttp3.Call.Factory {
+): okhttp3.Call.Factory, java.io.Closeable {
 
     companion object: KLogging() {
         /** 기본 호출 타임아웃입니다. */
@@ -84,6 +84,10 @@ class Hc5CallFactory private constructor(
 
     override fun newCall(request: okhttp3.Request): okhttp3.Call {
         return AsyncClientCall(request)
+    }
+
+    override fun close() {
+        asyncClient.close()
     }
 
     private inner class AsyncClientCall(
@@ -154,7 +158,7 @@ class Hc5CallFactory private constructor(
         }
 
         override fun isExecuted(): Boolean {
-            return promise?.isDone ?: false
+            return promise != null
         }
 
         override fun cancel() {

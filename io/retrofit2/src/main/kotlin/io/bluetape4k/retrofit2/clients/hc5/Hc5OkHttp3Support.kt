@@ -8,7 +8,6 @@ import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.emptyByteArray
-import io.bluetape4k.support.toUtf8String
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Protocol
@@ -51,7 +50,7 @@ internal fun okhttp3.Request.toSimpleHttpRequest(): SimpleHttpRequest {
     }
 
     self.body?.let { body: okhttp3.RequestBody ->
-        if (body.contentLength() > 0) {
+        if (body.contentLength() != 0L) {
             val contentType = body.contentType()
                 ?.let { ContentType.create(it.toTypeString(), it.charset(Charsets.UTF_8)) }
                 ?: ContentType.APPLICATION_JSON
@@ -59,7 +58,6 @@ internal fun okhttp3.Request.toSimpleHttpRequest(): SimpleHttpRequest {
             val buffer = okio.Buffer()
             body.writeTo(buffer)
             simpleRequest.setBody(buffer.readByteArray(), contentType)
-            log.trace { "Request body=${simpleRequest.bodyBytes?.toUtf8String()}" }
         }
     }
 

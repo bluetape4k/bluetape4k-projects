@@ -6,7 +6,9 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 
 private val retryScheduler by lazy {
-    Executors.newSingleThreadScheduledExecutor()
+    Executors.newSingleThreadScheduledExecutor { r ->
+        Thread(r).apply { isDaemon = true }
+    }
 }
 
 /**
