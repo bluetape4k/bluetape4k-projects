@@ -24,6 +24,9 @@ class CloudWatchClientExtensionsTest: AbstractKotlinCloudWatchTest() {
     @Test
     @Order(1)
     fun `put single metric data`() = runSuspendIO {
+        // NOTE: LocalStack v4 Community Edition 버그로 인해 MetricDatum에 Dimension을 포함하면
+        // CloudWatch Query 프로토콜의 form-encoded body 파싱 실패 → "unknown operation" 500 오류 발생.
+        // 따라서 dimensions 없이 최소 파라미터로만 테스트한다.
         val datum = metricDatumOf(METRIC_NAME, 42.0, StandardUnit.Count)
 
         cloudWatchClient.putMetricData(NAMESPACE, datum)

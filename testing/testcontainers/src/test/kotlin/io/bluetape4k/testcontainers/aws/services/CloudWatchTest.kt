@@ -87,6 +87,10 @@ class CloudWatchTest: AbstractContainerTest() {
     @Test
     @Order(2)
     fun `put metric data`() {
+        // NOTE: LocalStack v4 Community Edition 버그로 인해 MetricDatum에 Dimension을 포함하면
+        // CloudWatch Query 프로토콜의 form-encoded body 파싱 실패 → "unknown operation" 500 오류 발생.
+        // 따라서 dimensions() 및 timestamp() 없이 최소 파라미터로만 테스트한다.
+        // 참고: https://github.com/localstack/localstack/issues (LocalStack v4 CloudWatch Dimension parsing bug)
         val response = cloudWatchClient.putMetricData {
             it.namespace(NAMESPACE)
                 .metricData(
