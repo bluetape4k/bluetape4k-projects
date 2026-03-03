@@ -899,6 +899,7 @@ object Libs {
     const val jasypt = "org.jasypt:jasypt:1.9.3"   // https://mvnrepository.com/artifact/org.jasypt/jasypt
     const val bouncycastle_bcprov = "org.bouncycastle:bcprov-jdk18on:1.83"  // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on
     const val bouncycastle_bcpkix = "org.bouncycastle:bcpkix-jdk18on:1.83"  // https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk18on
+    const val tink = "com.google.crypto.tink:tink:1.15.0"  // https://mvnrepository.com/artifact/com.google.crypto.tink/tink
 
     // Hashing
     // https://mvnrepository.com/artifact/net.openhft/zero-allocation-hashing
