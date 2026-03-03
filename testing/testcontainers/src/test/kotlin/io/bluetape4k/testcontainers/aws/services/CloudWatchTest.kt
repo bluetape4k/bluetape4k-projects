@@ -15,9 +15,9 @@ import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.testcontainers.containers.localstack.LocalStackContainer
+import software.amazon.awssdk.http.apache.ApacheHttpClient
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient
-import software.amazon.awssdk.services.cloudwatch.model.Dimension
 import software.amazon.awssdk.services.cloudwatch.model.MetricDatum
 import software.amazon.awssdk.services.cloudwatch.model.StandardUnit
 import software.amazon.awssdk.services.cloudwatchlogs.CloudWatchLogsClient
@@ -53,6 +53,7 @@ class CloudWatchTest: AbstractContainerTest() {
             .endpointOverride(cloudWatchEndpoint)
             .region(Region.US_EAST_1)
             .credentialsProvider(cloudWatch.getCredentialProvider())
+            .httpClient(ApacheHttpClient.create())
             .build()
             .apply {
                 ShutdownQueue.register(this)
@@ -61,9 +62,10 @@ class CloudWatchTest: AbstractContainerTest() {
 
     private val cloudWatchLogsClient by lazy {
         CloudWatchLogsClient.builder()
-            .endpointOverride(cloudWatchEndpoint)
+            .endpointOverride(cloudWatchLogsEndpoint)
             .region(Region.US_EAST_1)
             .credentialsProvider(cloudWatch.getCredentialProvider())
+            .httpClient(ApacheHttpClient.create())
             .build()
             .apply {
                 ShutdownQueue.register(this)
@@ -92,16 +94,11 @@ class CloudWatchTest: AbstractContainerTest() {
                         .metricName("RequestCount")
                         .value(42.0)
                         .unit(StandardUnit.COUNT)
-                        .timestamp(Instant.now())
-                        .dimensions(
-                            Dimension.builder().name("Service").value("TestService").build()
-                        )
                         .build(),
                     MetricDatum.builder()
                         .metricName("ResponseTimeMs")
                         .value(125.5)
                         .unit(StandardUnit.MILLISECONDS)
-                        .timestamp(Instant.now())
                         .build(),
                 )
         }

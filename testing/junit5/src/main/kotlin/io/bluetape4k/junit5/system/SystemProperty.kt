@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith
  * - [SystemPropertyExtension]이 테스트 시작 시 `name=value`를 설정하고 종료 시 원복합니다.
  * - 클래스/함수/파일/메타 어노테이션에 선언할 수 있습니다.
  * - 같은 이름이 중복 선언되면 마지막으로 적용된 값이 테스트 중 보이게 됩니다.
+ * - [SystemProperties]가 Java 반복 가능 어노테이션의 컨테이너 역할을 합니다.
  *
  * ```kotlin
  * @SystemProperty(name = "feature.flag", value = "on")
@@ -30,6 +31,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 )
 @MustBeDocumented
 @Repeatable
+@JvmRepeatable(SystemProperties::class)
 @ExtendWith(SystemPropertyExtension::class)
 annotation class SystemProperty(
     val name: String,
