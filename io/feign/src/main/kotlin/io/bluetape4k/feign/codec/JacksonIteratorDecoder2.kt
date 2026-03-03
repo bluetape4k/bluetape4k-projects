@@ -15,7 +15,6 @@ import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.actualIteratorTypeArgument
 import io.bluetape4k.support.closeSafe
-import io.bluetape4k.support.uninitialized
 import java.io.BufferedReader
 import java.io.Closeable
 import java.io.IOException
@@ -123,39 +122,45 @@ class JacksonIteratorDecoder2 private constructor(
         private val parser: JsonParser = mapper.factory.createParser(reader)
         private val objectReader: ObjectReader = mapper.reader().forType(mapper.constructType(type))
 
-        private var current: T = uninitialized()
+        private var nextLoaded = false
+        private var nextElement: T? = null
 
         /**
          * Feign 연동에서 `hasNext` 함수를 제공합니다.
          */
         override fun hasNext(): Boolean {
-            if (current == null) {
-                current = readNext()
+            if (!nextLoaded) {
+                nextElement = readNext()
+                nextLoaded = true
             }
-            return current != null
+            return nextElement != null
         }
 
         /**
          * Feign 연동에서 `next` 함수를 제공합니다.
          */
         override fun next(): T {
-            if (current != null) {
-                val result = current
-                current = uninitialized()
-                return result
+            if (!nextLoaded) {
+                nextElement = readNext()
+                nextLoaded = true
             }
-            return readNext() ?: throw NoSuchElementException()
+            if (nextElement == null) throw NoSuchElementException()
+            @Suppress("UNCHECKED_CAST")
+            val result = nextElement as T
+            nextElement = null
+            nextLoaded = false
+            return result
         }
 
-        private fun readNext(): T {
+        private fun readNext(): T? {
             try {
-                var jsonToken: JsonToken? = parser.nextToken() ?: return uninitialized()
+                var jsonToken: JsonToken? = parser.nextToken() ?: return null
                 if (jsonToken == JsonToken.START_ARRAY) {
                     jsonToken = parser.nextToken()
                 }
                 if (jsonToken == JsonToken.END_ARRAY) {
                     closeSafe()
-                    return uninitialized()
+                    return null
                 }
                 return objectReader.readValue(parser)
             } catch (e: IOException) {

@@ -1,8 +1,6 @@
 package io.bluetape4k.feign.spring
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.support.uninitialized
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.cloud.openfeign.EnableFeignClients
@@ -10,11 +8,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients
 @SpringBootApplication
 @EnableFeignClients
 class HttpbinApplication {
-
     companion object: KLogging()
-
-    @Autowired
-    private val jsonPlaceClient: HttpbinClient = uninitialized()
 }
 
 fun main(args: Array<String>) {

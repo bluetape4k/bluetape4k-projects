@@ -7,8 +7,9 @@ import feign.codec.Decoder
 import feign.codec.Encoder
 import feign.hc5.ApacheHttp5Client
 import feign.kotlin.CoroutineFeign
+import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import io.bluetape4k.feign.defaultRequestOptions
-import java.util.concurrent.Executors
+
 
 /**
  * 코루틴용 Feign builder를 생성하고 초기화 블록을 적용합니다.
@@ -42,7 +43,7 @@ inline fun <C: Any> coroutineFeignBuilder(
  * ```
  */
 inline fun <C: Any> coroutineFeignBuilderOf(
-    asyncClient: AsyncClient<C> = AsyncClient.Default(ApacheHttp5Client(), Executors.newVirtualThreadPerTaskExecutor()),
+    asyncClient: AsyncClient<C> = AsyncClient.Default(ApacheHttp5Client(), VirtualThreadExecutor),
     encoder: Encoder = Encoder.Default(),
     decoder: Decoder = Decoder.Default(),
     options: Request.Options = defaultRequestOptions,
@@ -74,5 +75,5 @@ inline fun <C: Any> coroutineFeignBuilderOf(
  */
 inline fun <reified T: Any> CoroutineFeign.CoroutineBuilder<*>.client(baseUrl: String? = null): T = when {
     baseUrl.isNullOrBlank() -> target(Target.EmptyTarget.create(T::class.java))
-    else -> target(T::class.java, baseUrl)
+    else                    -> target(T::class.java, baseUrl)
 }

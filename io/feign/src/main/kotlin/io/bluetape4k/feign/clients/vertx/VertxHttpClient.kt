@@ -19,7 +19,7 @@ import io.vertx.core.http.HttpClient
  */
 class VertxHttpClient private constructor(
     private val vertxClient: HttpClient,
-): feign.Client {
+): feign.Client, AutoCloseable {
 
     companion object: KLoggingChannel() {
         /**
@@ -46,5 +46,9 @@ class VertxHttpClient private constructor(
         return vertxClient
             .sendAsync(feignRequest, feignOptions)
             .get(feignOptions.readTimeout(), feignOptions.readTimeoutUnit())
+    }
+
+    override fun close() {
+        vertxClient.close()
     }
 }

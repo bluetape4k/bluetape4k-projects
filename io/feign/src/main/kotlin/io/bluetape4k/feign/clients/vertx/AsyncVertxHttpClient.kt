@@ -7,6 +7,7 @@ import io.bluetape4k.http.vertx.vertxHttpClientOf
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.vertx.core.http.HttpClient
 import io.vertx.kotlin.coroutines.coAwait
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import java.util.*
 import java.util.concurrent.CompletableFuture
@@ -55,7 +56,7 @@ class AsyncVertxHttpClient private constructor(
     }
 
     override fun close() {
-        runBlocking {
+        runBlocking(Dispatchers.IO) {
             vertxClient.close().coAwait()
         }
     }

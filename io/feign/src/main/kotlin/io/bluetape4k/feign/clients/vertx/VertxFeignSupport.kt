@@ -20,6 +20,8 @@ import java.util.concurrent.CompletableFuture
 
 private val log by lazy { KotlinLogging.logger { } }
 
+private const val VERTX_HTTP_CLIENT_USER_AGENT = "VertxHttpClient/bluetape4k"
+
 /**
  * [RequestOptions]를 생성하고 초기화 블록을 적용합니다.
  */
@@ -35,6 +37,7 @@ internal fun Options.toVertxRequestOptions(feignRequest: feign.Request): Request
     return requestOptions {
         followRedirects = self.isFollowRedirects
         timeout = self.readTimeoutMillis().toLong()
+        connectTimeout = self.connectTimeoutMillis().toLong()
         method = HttpMethod.valueOf(feignRequest.httpMethod().name)
         setAbsoluteURI(feignRequest.url())
     }
@@ -48,7 +51,7 @@ internal fun HttpClientRequest.parseFromFeignRequest(feignRequest: feign.Request
         headers().set("accept", "*/*")
     }
     if (!headers().contains("user-agent")) {
-        headers().set("user-agent", "VertxHttpClient/4.4")
+        headers().set("user-agent", VERTX_HTTP_CLIENT_USER_AGENT)
     }
     if (!headers().contains("accept-encoding")) {
         headers().set("accept-encoding", "gzip,deflate")

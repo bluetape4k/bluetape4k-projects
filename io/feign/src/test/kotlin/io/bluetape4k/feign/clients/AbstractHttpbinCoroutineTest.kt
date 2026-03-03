@@ -33,7 +33,7 @@ abstract class AbstractHttpbinCoroutineTest: AbstractHttpbinTest() {
     }
 
     @Test
-    fun `create retrofit2 api instance`() {
+    fun `create feign api instance`() {
         client.shouldNotBeNull()
     }
 
