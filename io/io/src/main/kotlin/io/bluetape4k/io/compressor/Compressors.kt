@@ -21,10 +21,7 @@ import java.util.zip.GZIPOutputStream
 import java.util.zip.InflaterInputStream
 
 /**
- * 다양한 [Compressor]를 제공합니다.
- */
-/**
- * `Compressors` 싱글톤/유틸리티입니다.
+ * 다양한 [Compressor] 구현체를 지연 초기화(lazy)하여 제공하는 싱글톤 레지스트리입니다.
  */
 object Compressors {
 

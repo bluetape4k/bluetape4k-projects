@@ -1,6 +1,7 @@
 package io.bluetape4k.io.compressor
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.error
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.emptyByteArray
 import io.bluetape4k.support.isNullOrEmpty
@@ -61,7 +62,7 @@ abstract class AbstractCompressor: Compressor {
         return try {
             doDecompress(compressed!!)
         } catch (e: Throwable) {
-            log.warn(e) { "Fail to decompress. return emptyByteArray by design. compressed size=${compressed?.size}" }
+            log.error(e) { "Fail to decompress. return emptyByteArray by design. compressed size=${compressed?.size}" }
             emptyByteArray
         }
     }

@@ -79,6 +79,10 @@ class LZ4Compressor: AbstractCompressor() {
     override fun doDecompress(compressed: ByteArray): ByteArray {
         // 헤더에서 원본 크기 추출 (처음 4바이트)
         val sourceSize = compressed.toInt()
+        require(sourceSize >= 0) { "sourceSize가 음수입니다. 손상된 데이터일 수 있습니다. sourceSize=$sourceSize" }
+        require(sourceSize <= 256 * 1024 * 1024) {
+            "sourceSize가 허용 한도(256MB)를 초과합니다. 손상되거나 악의적인 데이터일 수 있습니다. sourceSize=$sourceSize"
+        }
 
         // 원본 크기만큼 버퍼 할당
         val output = ByteArray(sourceSize)

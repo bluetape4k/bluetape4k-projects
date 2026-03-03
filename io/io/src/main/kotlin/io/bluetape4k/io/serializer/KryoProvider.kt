@@ -96,6 +96,10 @@ object KryoProvider: KLogging() {
 
     /**
      * 새로운 [Kryo] 인스턴스를 생성합니다.
+     *
+     * > **보안 경고**: `isRegistrationRequired = false` 설정은 등록되지 않은 모든 클래스의 역직렬화를 허용합니다.
+     * > 신뢰할 수 없는 데이터 소스에서 역직렬화할 경우 임의 코드 실행(RCE) 취약점이 발생할 수 있습니다.
+     * > 보안이 중요한 환경에서는 `isRegistrationRequired = true`로 변경하고 허용할 클래스를 명시적으로 등록하세요.
      */
     internal fun createKryo(classLoader: ClassLoader? = null): Kryo {
         log.debug { "Create new Kryo instance ..." }

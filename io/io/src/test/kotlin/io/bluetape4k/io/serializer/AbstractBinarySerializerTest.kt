@@ -93,6 +93,8 @@ abstract class AbstractBinarySerializerTest {
                     email == other.email &&
                     age == other.age
 
+        override fun hashCode(): Int = Objects.hash(name, email, age)
+
         override fun buildStringHelper(): ToStringBuilder =
             super.buildStringHelper()
                 .add("name", name)
@@ -111,6 +113,8 @@ abstract class AbstractBinarySerializerTest {
                     name == other.name &&
                     email == other.email &&
                     age == other.age
+
+        override fun hashCode(): Int = Objects.hash(name, email, age, ssn)
 
         override fun buildStringHelper(): ToStringBuilder =
             super.buildStringHelper()

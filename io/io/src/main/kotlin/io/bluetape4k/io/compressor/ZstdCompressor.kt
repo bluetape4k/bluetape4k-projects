@@ -50,7 +50,7 @@ class ZstdCompressor private constructor(val level: Int): AbstractCompressor() {
         val compressedSize = Zstd.compressByteArray(
             output,
             MAGIC_NUMBER_SIZE,
-            maxOutputSize - MAGIC_NUMBER_SIZE,
+            maxOutputSize,      // output 배열에서 MAGIC_NUMBER_SIZE 이후 사용 가능한 최대 공간
             plain,
             0,
             plain.size,
@@ -65,6 +65,10 @@ class ZstdCompressor private constructor(val level: Int): AbstractCompressor() {
      */
     override fun doDecompress(compressed: ByteArray): ByteArray {
         val sourceSize = compressed.toInt()
+        require(sourceSize >= 0) { "sourceSize가 음수입니다. 손상된 데이터일 수 있습니다. sourceSize=$sourceSize" }
+        require(sourceSize <= 256 * 1024 * 1024) {
+            "sourceSize가 허용 한도(256MB)를 초과합니다. 손상되거나 악의적인 데이터일 수 있습니다. sourceSize=$sourceSize"
+        }
         val output = ByteArray(sourceSize)
 
         log.trace { "sourceSize = $sourceSize" }

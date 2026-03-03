@@ -40,7 +40,9 @@ object JsonEncryptors: KLogging() {
      */
     fun getEncryptor(encryptorType: KClass<out Encryptor>): Encryptor {
         return encryptors.getOrPut(encryptorType) {
-            encryptorType.newInstanceOrNull()!!
+            requireNotNull(encryptorType.newInstanceOrNull()) {
+                "Encryptor 인스턴스 생성에 실패했습니다. 기본 생성자가 있는지 확인하세요. type=${encryptorType.qualifiedName}"
+            }
         }
     }
 }

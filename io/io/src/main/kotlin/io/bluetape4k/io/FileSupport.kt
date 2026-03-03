@@ -213,15 +213,15 @@ fun File.deleteDirectoryRecursively(): Boolean {
 }
 
 /**
- * 디렉토리를 삭제합니다. [recusive]가 true라면 하위 디렉토리와 파일들을 모두 삭제합니다.
+ * 디렉토리를 삭제합니다. [recursive]가 true라면 하위 디렉토리와 파일들을 모두 삭제합니다.
  *
  * ```
  * val dir = File("temp")
- * dir.deleteDirectory(recurse = true)
+ * dir.deleteDirectory(recursive = true)
  * ```
  */
-fun File.deleteDirectory(recusive: Boolean = true): Boolean {
-    return if (recusive) {
+fun File.deleteDirectory(recursive: Boolean = true): Boolean {
+    return if (recursive) {
         deleteDirectoryRecursively()
     } else {
         if (exists()) {
@@ -345,9 +345,13 @@ fun Path.readAllBytesAsync(
 /**
  * 파일의 내용을 라인 단위로 읽어 [Sequence]로 반환합니다.
  *
+ * > **주의**: 반환된 [Sequence]를 끝까지 소비하지 않으면 내부 [FileInputStream]이 닫히지 않아 리소스 누수가 발생합니다.
+ * > 전체 라인을 항상 소비하는 경우에만 사용하고, 그렇지 않으면 [readAllLines]를 사용하세요.
+ *
  * ```
  * val file = File("temp.txt")
  * val lines = file.readLineSequence()
+ * lines.forEach { println(it) }  // 반드시 끝까지 소비해야 합니다
  * ```
  *
  * @param cs Charset 기본값은 UTF-8

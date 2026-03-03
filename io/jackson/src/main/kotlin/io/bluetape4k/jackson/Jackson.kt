@@ -103,6 +103,11 @@ object Jackson: KLogging() {
 
         }.apply {
             if (needTypeInfo) {
+                // 보안 경고: allowIfBaseType(Any::class.java)는 모든 클래스를 기본 타입으로 허용합니다.
+                // 신뢰할 수 없는 JSON 데이터를 역직렬화할 경우 임의 코드 실행(RCE) 취약점이 발생할 수 있습니다.
+                // (CVE-2019-12384 계열 취약점 참고)
+                // 보안이 중요한 환경에서는 allowIfBaseType() 에 신뢰할 패키지만 명시적으로 지정하세요.
+                // 예: .allowIfBaseType("com.example.model")
                 activateDefaultTyping(
                     BasicPolymorphicTypeValidator.builder()
                         .allowIfBaseType(Any::class.java)
